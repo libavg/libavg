@@ -224,11 +224,10 @@ void AVGPlayer::play ()
     while (!m_bStopping) {
         doFrame();
     }
-
     // Kill all timeouts.
     vector<AVGTimeout*>::iterator it;
     for (it=m_PendingTimeouts.begin(); it!=m_PendingTimeouts.end(); it++) {
-        delete *it;
+         delete *it;
     }
     m_PendingTimeouts.clear();
 

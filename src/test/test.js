@@ -181,7 +181,7 @@ function testVideo()
     var ok = tryLoadFile("video.avg");
     if (ok) {
         getVideoInfo();
-        timerid = AVGPlayer.setInterval(10, "videoInterval();");
+//        timerid = AVGPlayer.setInterval(10, "videoInterval();");
         AVGPlayer.setTimeout(1000, "videoPlay('clogo');");
         AVGPlayer.setTimeout(1500, "videoPlay('clogo1');");
         AVGPlayer.setTimeout(1000, "videoPlay('clogo2');");
@@ -189,7 +189,7 @@ function testVideo()
         AVGPlayer.setTimeout(2500, "videoPlay('clogo');");
         AVGPlayer.setTimeout(3000, "videoStop('clogo');");
         AVGPlayer.setTimeout(3500, "videoPlay('clogo');");
-        AVGPlayer.setTimeout(8000, "quitTimeout();");
+//        AVGPlayer.setTimeout(8000, "quitTimeout();");
         AVGPlayer.play();
     }
 }
@@ -262,23 +262,23 @@ function testExcl()
     }
 }
 
-//while (true) {
+while (true) {
 /*
     dumpNodes();
     playAVG("image.avg");
-
-    testAnimation();
-    testVideo();
 */
+    testVideo();
+/*
+    testAnimation();
     testWords();
 
-/*
-    testExcl();
+//    testExcl();
 
     playAVG("empty.avg");
     playAVG("events.avg");
     playAVG("avg.avg");
     playAVG("noavg.avg");
     playAVG("noxml.avg");
-*/
-//}
+    */
+}
+

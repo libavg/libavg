@@ -25,6 +25,7 @@ AVGFramerateManager::~AVGFramerateManager ()
         cerr << "Framerate statistics: " << endl;
         cerr << "  Framerate goal was: " << m_Rate << endl;
         cerr << "  Total frames: " << m_NumFrames << endl;
+        cerr << "  Frames too late: " << m_FramesTooLate << endl;
         double TotalTime = double(GetCurrentTicks()-m_StartTime)/1000;
         cerr << "  Total time: " << TotalTime << " seconds" << endl;
         cerr << "  Framerate achieved: " 
@@ -42,6 +43,7 @@ void AVGFramerateManager::SetRate(int Rate)
     m_Rate = Rate;
     m_NumFrames = 0;
     m_NumRegularFrames = 0;
+    m_FramesTooLate = 0;
     m_TimeSpentWaiting = 0;
     m_LastFrameTime = GetCurrentTicks();
     m_StartTime = GetCurrentTicks();
@@ -70,7 +72,8 @@ void AVGFramerateManager::FrameWait()
     }
     else
     {
-        cerr << "FramerateManager warning: frame too late by " << CurTime-TargetTime << " ms." << endl; 
+        m_FramesTooLate++;
+        //cerr << "FramerateManager warning: frame too late by " << CurTime-TargetTime << " ms." << endl; 
         m_NumRegularFrames = 0;
         m_LastFrameTime = GetCurrentTicks();
     }

@@ -19,6 +19,7 @@ class AVGFramerateManager
         int getCurrentTicks();
 
         int m_NumFrames;
+        int m_FramesTooLate;
         int m_NumRegularFrames;
         int m_TimeSpentWaiting;
         int m_LastFrameTime;

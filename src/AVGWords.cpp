@@ -22,13 +22,16 @@ AVGWords * AVGWords::create()
 }       
 
 AVGWords::AVGWords ()
+    : m_pSurface(0)
 {
     NS_INIT_ISUPPORTS();
 }
 
 AVGWords::~AVGWords ()
 {
-    m_pSurface->Release(m_pSurface);
+    if (m_pSurface) {
+        m_pSurface->Release(m_pSurface);
+    }
 }
 
 NS_IMETHODIMP
@@ -141,6 +144,10 @@ void AVGWords::changeFont()
 
 void AVGWords::drawString()
 {
+    if (m_pSurface) {
+        m_pSurface->Release(m_pSurface);
+    }
+
     IDirectFB * pDFB = getEngine()->getDFB();
 
     DFBSurfaceDescription SurfDesc;
