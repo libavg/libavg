@@ -36,17 +36,23 @@ const long&nbsp;</td><td class="memItemRight" valign=bottom><b>NT_TEXT</b> = 5</
 <tr><td class="memItemLeft" nowrap align=right valign=top><a name="o4" doxytag="IAVGNode::NT_EXCL"></a>
 const long&nbsp;</td><td class="memItemRight" valign=bottom><b>NT_EXCL</b> = 6</td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>attribute long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="interfaceIAVGNode.html#o5">x</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>attribute float&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="interfaceIAVGNode.html#o5">x</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>attribute long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="interfaceIAVGNode.html#o6">y</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>attribute float&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="interfaceIAVGNode.html#o6">y</a></td></tr>
 
 <tr><td class="memItemLeft" nowrap align=right valign=top>attribute long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="interfaceIAVGNode.html#o7">z</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>attribute long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="interfaceIAVGNode.html#o8">width</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>attribute float&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="interfaceIAVGNode.html#o8">width</a></td></tr>
 
-<tr><td class="memItemLeft" nowrap align=right valign=top>attribute long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="interfaceIAVGNode.html#o9">height</a></td></tr>
+<tr><td class="memItemLeft" nowrap align=right valign=top>attribute float&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="interfaceIAVGNode.html#o9">height</a></td></tr>
 
 <tr><td class="memItemLeft" nowrap align=right valign=top>attribute float&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="interfaceIAVGNode.html#o10">opacity</a></td></tr>
+
+<tr><td class="memItemLeft" nowrap align=right valign=top>attribute float&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="interfaceIAVGNode.html#o11">angle</a></td></tr>
+
+<tr><td class="memItemLeft" nowrap align=right valign=top>attribute float&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="interfaceIAVGNode.html#o12">pivotx</a></td></tr>
+
+<tr><td class="memItemLeft" nowrap align=right valign=top>attribute float&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="interfaceIAVGNode.html#o13">pivoty</a></td></tr>
 
 </table>
 <hr><a name="_details"></a><h2>Detailed Description</h2>
@@ -196,13 +202,35 @@ Returns one of the NT_xxx constants NT_IMAGE, NT_AVG, NT_VIDEO, NT_TEXT or NT_EX
   </tr>
 </table>
 <hr><h2>Member Data Documentation</h2>
+<a name="o11" doxytag="IAVGNode::angle"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> attribute float <a class="el" href="interfaceIAVGNode.html#o11">IAVGNode::angle</a>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Angle is the amount the node should be rotated in degrees. Invalid for avg and excl nodes. If pivotx and pivoty aren't set, the node is rotated around its center point.     </td>
+  </tr>
+</table>
 <a name="o9" doxytag="IAVGNode::height"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> attribute long <a class="el" href="interfaceIAVGNode.html#o9">IAVGNode::height</a>
+          <td class="md" nowrap valign="top"> attribute float <a class="el" href="interfaceIAVGNode.html#o9">IAVGNode::height</a>
       </table>
     </td>
   </tr>
@@ -240,13 +268,57 @@ The height of the node. For bitmaps, this is immutable and should not be changed
 Opacity ranges from 0.0 to 1.0 and is relative to the parent's opacity.     </td>
   </tr>
 </table>
+<a name="o12" doxytag="IAVGNode::pivotx"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> attribute float <a class="el" href="interfaceIAVGNode.html#o12">IAVGNode::pivotx</a>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+The x coordinate of the point the node is rotated around.     </td>
+  </tr>
+</table>
+<a name="o13" doxytag="IAVGNode::pivoty"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> attribute float <a class="el" href="interfaceIAVGNode.html#o13">IAVGNode::pivoty</a>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+The y coordinate of the point the node is rotated around.     </td>
+  </tr>
+</table>
 <a name="o8" doxytag="IAVGNode::width"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> attribute long <a class="el" href="interfaceIAVGNode.html#o8">IAVGNode::width</a>
+          <td class="md" nowrap valign="top"> attribute float <a class="el" href="interfaceIAVGNode.html#o8">IAVGNode::width</a>
       </table>
     </td>
   </tr>
@@ -268,7 +340,7 @@ The width of the node. For bitmaps, this is immutable and should not be changed.
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> attribute long <a class="el" href="interfaceIAVGNode.html#o5">IAVGNode::x</a>
+          <td class="md" nowrap valign="top"> attribute float <a class="el" href="interfaceIAVGNode.html#o5">IAVGNode::x</a>
       </table>
     </td>
   </tr>
@@ -290,7 +362,7 @@ The x position of the node relative to its parent node. Negative values are allo
     <td class="mdRow">
       <table cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td class="md" nowrap valign="top"> attribute long <a class="el" href="interfaceIAVGNode.html#o6">IAVGNode::y</a>
+          <td class="md" nowrap valign="top"> attribute float <a class="el" href="interfaceIAVGNode.html#o6">IAVGNode::y</a>
       </table>
     </td>
   </tr>
@@ -330,7 +402,7 @@ The z position of the node. This is used to determine which nodes are displayed 
 </table>
 <hr>The documentation for this interface was generated from the following file:<ul>
 <li><a class="el" href="IAVGNode_8idl-source.html">IAVGNode.idl</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Mon Feb 23 16:31:36 2004 for libavg by
+<hr size="1"><address style="align: right;"><small>Generated on Tue Apr 20 21:55:27 2004 for libavg by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.2 </small></address>
