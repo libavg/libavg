@@ -1,0 +1,19 @@
+//
+// $Id$
+//
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(9f3d4274-e764-4545-8e96-259a70c38166)]
+interface IAVGVideo : nsISupports
+{
+    void play();
+    void stop();
+    void pause();
+    float getNumFrames();
+    float getCurFrame();
+    void seekToFrame(in float num);
+    long getFPS();
+   
+};
+

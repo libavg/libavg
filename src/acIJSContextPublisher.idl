@@ -1,0 +1,27 @@
+//=============================================================================
+// Copyright (C) 2003, ART+COM AG Berlin
+//
+// These coded instructions, statements, and computer programs contain
+// unpublished proprietary information of ART+COM AG Berlin, and
+// are copy protected by law. They may not be disclosed to third parties
+// or copied or duplicated in any form, in whole or in part, without the
+// specific, prior written permission of ART+COM AG Berlin.
+//=============================================================================
+//
+//   $RCSfile$
+//   $Author$
+//   $Revision$
+//   $Date$
+//
+//
+//=============================================================================
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(b710b6ec-b816-4947-9216-b67c119af686)]
+interface acIJSContextPublisher : nsISupports {
+    // Returns a JSContext *, not a long.
+    long getContext();
+    void setContext(in long theContext);
+};
+
