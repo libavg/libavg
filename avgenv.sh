@@ -1,6 +1,6 @@
 #!/bin/bash
 # This shell script finds the mozilla components on different setups 
-# and sets shell variable accordingly.
+# and sets shell variables accordingly.
 
 export MOZ_BASEDIR=`mozilla-config --prefix`
 
@@ -15,7 +15,7 @@ then
     export MOZ_LIBDIR=$MOZ_BASEDIR/lib/mozilla
     export MOZ_IDLDIR=$MOZ_BASEDIR/share/idl/mozilla
 else
-    # This is installed from source
+    # This is mozilla installed from source
     export MOZ_VERSION=`mozilla-config --version`
     TEST_MOZ_LIBDIR=$MOZ_BASEDIR/lib/mozilla-$MOZ_VERSION
     if [[ -e $TEST_MOZ_LIBDIR/xpidl ]]
@@ -28,8 +28,9 @@ fi
 # General
 export MOZ_COMPONENTSDIR=$MOZ_LIBDIR/components
 export LD_LIBRARY_PATH=$MOZ_LIBDIR:$LD_LIBRARY_PATH
-export AVG_FONT_PATH=/usr/X11R6/lib/X11/fonts/truetype
 export AVG_INCLUDE_PATH=`libavg-config --includedir`
+# This should really go somewhere else.
+export AVG_FONT_PATH=/usr/X11R6/lib/X11/fonts/truetype
 
 echo
 echo "libavg variables: "
