@@ -77,12 +77,14 @@ void AVGImage::init (const std::string& id, int x, int y, int z,
         m_pBmp = getEngine()->createSurface();
         m_pBmp->CreateFilteredCopy(*m_pOrigBmp, PLFilterResizeBilinear(size.x, size.y));
     }
+    getEngine()->surfaceChanged(m_pBmp);
 }
 
 void AVGImage::render (const PLRect& Rect)
 {
 //    cerr << "render " << getID() << endl;
     
+/*
     PLRect SrcRect(0, 0, getRelViewport().Width(), getRelViewport().Height());
     if (getRelViewport().tl.x < 0) {
         SrcRect.tl.x = -getRelViewport().tl.x;
@@ -90,13 +92,14 @@ void AVGImage::render (const PLRect& Rect)
     if (getRelViewport().tl.y < 0) {
         SrcRect.tl.y = -getRelViewport().tl.y;
     }
-    getEngine()->blt32(m_pBmp, &SrcRect, getAbsViewport().tl, getEffectiveOpacity());
+*/
+    getEngine()->blt32(m_pBmp, &getAbsViewport(), getEffectiveOpacity());
 }
 
 bool AVGImage::obscures (const PLRect& Rect, int z) 
 {
     return (getEffectiveOpacity() > 0.999 && !m_pBmp->HasAlpha() &&
-            getZ() > z && getAbsViewport().Contains(Rect));
+            getZ() > z && getVisibleRect().Contains(Rect));
 }
 
 void AVGImage::setViewport (int x, int y, int width, int height)

@@ -295,18 +295,18 @@ const PLRect& AVGDFBDisplayEngine::getClipRect() {
     return m_ClipRect;
 }
 
-void AVGDFBDisplayEngine::blt32(PLBmp * pBmp, const PLRect* pSrcRect, 
-        const PLPoint& pos, double opacity)
+void AVGDFBDisplayEngine::blt32(PLBmp * pBmp, const PLRect* pDestRect, 
+        double opacity)
 {
     PLDirectFBBmp * pDFBBmp = dynamic_cast<PLDirectFBBmp *>(pBmp);
     PLASSERT(pDFBBmp); // createSurface() should have been used to create 
                        // the bitmap.
     IDirectFBSurface * pSurf = pDFBBmp->GetSurface();
-    blt32(pSurf, pSrcRect, pos, opacity, pBmp->HasAlpha());
+    blt32(pSurf, pDestRect, opacity, pBmp->HasAlpha());
 }
 
-void AVGDFBDisplayEngine::blta8(PLBmp * pBmp, const PLRect* pSrcRect,
-        const PLPoint& pos, double opacity, const PLPixel32& color)
+void AVGDFBDisplayEngine::blta8(PLBmp * pBmp, const PLRect* pDestRect, 
+        double opacity, const PLPixel32& color)
 {
     m_pBackBuffer->SetColor(m_pBackBuffer, color.GetR(), color.GetG(), color.GetB(),
             __u8(opacity*256));
@@ -315,11 +315,11 @@ void AVGDFBDisplayEngine::blta8(PLBmp * pBmp, const PLRect* pSrcRect,
     BltFlags = DFBSurfaceBlittingFlags(DSBLIT_BLEND_ALPHACHANNEL | DSBLIT_COLORIZE);
     m_pBackBuffer->SetBlittingFlags(m_pBackBuffer, BltFlags);
 
-    blt(dynamic_cast<PLDirectFBBmp*>(pBmp)->GetSurface(), pSrcRect, pos);
+    blt(dynamic_cast<PLDirectFBBmp*>(pBmp)->GetSurface(), pDestRect);
 }
 
-void AVGDFBDisplayEngine::blt32(IDirectFBSurface * pSrc, const PLRect* pSrcRect, 
-        const PLPoint& pos, double opacity, bool bAlpha)
+void AVGDFBDisplayEngine::blt32(IDirectFBSurface * pSrc,  
+        const PLRect* pDestRect, double opacity, bool bAlpha)
 {
     DFBSurfaceBlittingFlags BltFlags;
     if (bAlpha) {
@@ -335,34 +335,25 @@ void AVGDFBDisplayEngine::blt32(IDirectFBSurface * pSrc, const PLRect* pSrcRect,
     m_pBackBuffer->SetBlittingFlags(m_pBackBuffer, BltFlags);
 //    dumpSurface (pSurf, "pDFBBmp");
 //    dumpSurface (m_pBackBuffer, "m_pBackBuffer");
-    blt(pSrc, pSrcRect, pos);
+    blt(pSrc, pDestRect);
 }
  
 // Assumes blit flags and colors are already set.
-void AVGDFBDisplayEngine::blt(IDirectFBSurface * pSrc, const PLRect* pSrcRect, 
-        const PLPoint& pos)
+void AVGDFBDisplayEngine::blt(IDirectFBSurface * pSrc, const PLRect* pDestRect)
 {
     int width;
     int height;
     pSrc->GetSize(pSrc, &width, &height);
 
-    DFBRectangle * pDFBRect = 0;
-    DFBRectangle DFBRect;
-    if (pSrcRect) {
-        pDFBRect = &DFBRect;
-        DFBRect.x = pSrcRect->tl.x;
-        DFBRect.y = pSrcRect->tl.y;
-        DFBRect.w = pSrcRect->Width();
-        DFBRect.h = pSrcRect->Height();
-    }
-    if (m_ClipRect.br.x < pos.x || m_ClipRect.br.y < pos.y) {
+    if (m_ClipRect.br.x < pDestRect->tl.x || m_ClipRect.br.y < pDestRect->tl.y) {
         return;
     }
-    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Blit: " << pos.x << "x" << pos.y << 
-            ", width:" << width << ", height: " << height);
+    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Blit: (" << pDestRect->tl.x << 
+            ", " << pDestRect->tl.y << 
+            "), width:" << width << ", height: " << height);
 
-    DFBResult err = m_pBackBuffer->Blit(m_pBackBuffer, pSrc, pDFBRect, 
-            pos.x, pos.y);
+    DFBResult err = m_pBackBuffer->Blit(m_pBackBuffer, pSrc, 0, 
+            pDestRect->tl.x, pDestRect->tl.y);
         
     DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::blt", err);
 }
@@ -375,17 +366,19 @@ void AVGDFBDisplayEngine::clear()
     AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Clear rect: " << m_DirtyRect.tl.x << "x" << 
             m_DirtyRect.tl.y << ", width: " << m_DirtyRect.Width() << 
             ", height: " << m_DirtyRect.Height());
-    
-    err = m_pBackBuffer->FillRectangle(m_pBackBuffer, 
-            m_DirtyRect.tl.x, m_DirtyRect.tl.y, 
-            m_DirtyRect.Width(), m_DirtyRect.Height());
-    DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::clear", err);
+ 
+    if (m_DirtyRect.Width() > 0 && m_DirtyRect.Height() > 0) {   
+        err = m_pBackBuffer->FillRectangle(m_pBackBuffer, 
+                m_DirtyRect.tl.x, m_DirtyRect.tl.y, 
+                m_DirtyRect.Width(), m_DirtyRect.Height());
+        DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::clear", err);
+    }
 }
 
 void AVGDFBDisplayEngine::setDirtyRect(const PLRect& rc) 
 {
     m_DirtyRect = rc;
-    
+
     AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Dirty rect: " << m_DirtyRect.tl.x << "x" << 
             m_DirtyRect.tl.y << ", width: " << m_DirtyRect.Width() << 
             ", height: " << m_DirtyRect.Height());
@@ -502,9 +495,9 @@ AVGEvent * AVGDFBDisplayEngine::createEvent(DFBWindowEvent* pdfbwEvent)
                 KeyString[0] = char(pdfbwEvent->key_symbol);
                 int Type;
                 if (pdfbwEvent->type == DWET_KEYDOWN) {
-                    Type = IAVGEvent::KEY_DOWN;
+                    Type = IAVGEvent::KEYDOWN;
                 } else {
-                    Type = IAVGEvent::KEY_UP;
+                    Type = IAVGEvent::KEYUP;
                 }
                 dynamic_cast<AVGKeyEvent *>(pAVGEvent)->init(Type,
                         pdfbwEvent->key_code, pdfbwEvent->key_symbol, KeyString, 
@@ -530,13 +523,13 @@ AVGEvent * AVGDFBDisplayEngine::createEvent(DFBWindowEvent* pdfbwEvent)
             int Type;
             switch (pdfbwEvent->type) {
                 case DWET_BUTTONDOWN:
-                    Type = IAVGEvent::MOUSE_BUTTON_DOWN;
+                    Type = IAVGEvent::MOUSEBUTTONDOWN;
                     break;
                 case DWET_BUTTONUP:
-                    Type = IAVGEvent::MOUSE_BUTTON_UP;
+                    Type = IAVGEvent::MOUSEBUTTONUP;
                     break;
                 case DWET_MOTION:
-                    Type = IAVGEvent::MOUSE_MOTION;
+                    Type = IAVGEvent::MOUSEMOTION;
                     break;
             }
             dynamic_cast<AVGMouseEvent *>(pAVGEvent)->init(Type,

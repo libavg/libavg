@@ -92,7 +92,7 @@ const PLRect& AVGExcl::getRelViewport()
 const PLRect& AVGExcl::getAbsViewport()
 {
     if (m_ActiveChild != -1) {
-        return getChild(m_ActiveChild)->getAbsViewport();
+        return getParent()->getAbsViewport();
     }
     return AVGNode::getAbsViewport();
     
@@ -133,7 +133,7 @@ AVGNode * AVGExcl::getElementByPos (const PLPoint & pos)
 void AVGExcl::invalidate()
 {
     if (m_ActiveChild != -1) {
-        addDirtyRect(getChild(m_ActiveChild)->getAbsViewport());
+        addDirtyRect(getChild(m_ActiveChild)->getVisibleRect());
     }
 }
 

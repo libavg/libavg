@@ -32,13 +32,11 @@ class AVGDFBDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         virtual void setClipRect();
         virtual bool setClipRect(const PLRect& rc);
         virtual const PLRect& getClipRect();
-        virtual void blt32(PLBmp * pBmp, const PLRect* pSrcRect, 
-                const PLPoint& pos, double opacity);
-        virtual void blta8(PLBmp * pBmp, const PLRect* pSrcRect,
-                const PLPoint& pos, double opacity, const PLPixel32& color);
-        virtual void swapBuffers(const AVGRegion & UpdateRegion);
+        virtual void blt32(PLBmp * pBmp, const PLRect* pDestRect, double opacity);
+        virtual void blta8(PLBmp * pBmp, const PLRect* pDestRect, 
+                double opacity, const PLPixel32& color);
 
-	    virtual PLBmp * createSurface();
+	virtual PLBmp * createSurface();
 
         virtual int getWidth();
         virtual int getHeight();
@@ -61,11 +59,11 @@ class AVGDFBDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         void initBackbuffer();
         void clear();
         void setDirtyRect(const PLRect& rc);
+        virtual void swapBuffers(const AVGRegion & UpdateRegion);
 
-        void blt32(IDirectFBSurface * pSrc, const PLRect* pSrcRect, 
-                const PLPoint& pos, double opacity, bool bAlpha);
-        void blt(IDirectFBSurface * pSrc, const PLRect* pSrcRect, 
-                const PLPoint& pos);
+        void blt32(IDirectFBSurface * pSrc, const PLRect* pDestRect, 
+                double opacity, bool bAlpha);
+        void blt(IDirectFBSurface * pSrc, const PLRect* pDestRect);
 
         void dumpSurface(IDirectFBSurface * pSurf, const std::string & name);
         

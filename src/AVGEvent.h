@@ -38,7 +38,7 @@ class AVGEvent: public IAVGEvent {
        
         virtual void trace();
         
-		NS_DECL_ISUPPORTS
+        NS_DECL_ISUPPORTS
         NS_DECL_IAVGEVENT
         
     private:

@@ -44,7 +44,7 @@ void AVGMouseEvent::init(int eventType,
     m_RightButtonState = rightButtonState;
     m_XPosition = xPosition;
     m_YPosition = yPosition;
-    if (eventType == MOUSE_MOTION) {
+    if (eventType == MOUSEMOTION) {
         m_Button = 0;
     } else {
         m_Button = button;

@@ -156,16 +156,9 @@ void AVGWords::drawString()
 void AVGWords::render(const PLRect& Rect)
 {
     if (getEffectiveOpacity() > 0.001) {
-        bool bVisible = getEngine()->setClipRect(getAbsViewport());
+        bool bVisible = getEngine()->setClipRect(getVisibleRect());
         if (bVisible) {
-            PLRect SrcRect(0, 0, getRelViewport().Width(), getRelViewport().Height());
-            if (getRelViewport().tl.x < 0) {
-                SrcRect.tl.x = -getRelViewport().tl.x;
-            }
-            if (getRelViewport().tl.y < 0) {
-                SrcRect.tl.y = -getRelViewport().tl.y;
-            }
-            getEngine()->blta8(m_pBmp, &SrcRect, getAbsViewport().tl, getEffectiveOpacity(),
+            getEngine()->blta8(m_pBmp, &getAbsViewport(), getEffectiveOpacity(),
                     m_Color);
         }
     }

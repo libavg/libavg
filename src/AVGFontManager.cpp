@@ -52,7 +52,8 @@ const string & AVGFontManager::getFontPath()
         if (pFontPath) {
             FontPath = pFontPath;
         } else {
-            cerr << "Warning: no font path specified." << endl;
+            AVG_TRACE(AVGPlayer::DEBUG_ERROR, 
+                    "Warning: no font path specified.");
         }
     }
     return FontPath;

@@ -73,26 +73,26 @@ int AVGEvent::getType() const
 void AVGEvent::trace()
 {
     switch(m_Type) {
-        case KEY_UP:
-            AVG_TRACE(AVGPlayer::DEBUG_EVENTS, "KEY_UP");
+        case KEYUP:
+            AVG_TRACE(AVGPlayer::DEBUG_EVENTS, "KEYUP");
             break;
-        case KEY_DOWN:
-            AVG_TRACE(AVGPlayer::DEBUG_EVENTS, "KEY_DOWN");
+        case KEYDOWN:
+            AVG_TRACE(AVGPlayer::DEBUG_EVENTS, "KEYDOWN");
             break;
-        case MOUSE_MOTION:
-            AVG_TRACE(AVGPlayer::DEBUG_EVENTS, "MOUSE_MOTION");
+        case MOUSEMOTION:
+            AVG_TRACE(AVGPlayer::DEBUG_EVENTS, "MOUSEMOTION");
             break;
-        case MOUSE_BUTTON_UP:
-            AVG_TRACE(AVGPlayer::DEBUG_EVENTS, "MOUSE_BUTTON_UP");
+        case MOUSEBUTTONUP:
+            AVG_TRACE(AVGPlayer::DEBUG_EVENTS, "MOUSEBUTTONUP");
             break;
-        case MOUSE_BUTTON_DOWN:
-            AVG_TRACE(AVGPlayer::DEBUG_EVENTS, "MOUSE_BUTTON_DOWN");
+        case MOUSEBUTTONDOWN:
+            AVG_TRACE(AVGPlayer::DEBUG_EVENTS, "MOUSEBUTTONDOWN");
             break;
-        case MOUSE_OVER:
-            AVG_TRACE(AVGPlayer::DEBUG_EVENTS, "MOUSE_OVER");
+        case MOUSEOVER:
+            AVG_TRACE(AVGPlayer::DEBUG_EVENTS, "MOUSEOVER");
             break;
-        case MOUSE_OUT:
-            AVG_TRACE(AVGPlayer::DEBUG_EVENTS, "MOUSE_OUT");
+        case MOUSEOUT:
+            AVG_TRACE(AVGPlayer::DEBUG_EVENTS, "MOUSEOUT");
             break;
         case RESIZE:
             AVG_TRACE(AVGPlayer::DEBUG_EVENTS, "RESIZE");

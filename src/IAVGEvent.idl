@@ -13,13 +13,13 @@
 [scriptable, uuid(5f06238c-96ca-4bdc-8ea8-763c0ebfc82b)]
 interface IAVGEvent : nsISupports
 {
-    const long KEY_UP = 1;
-    const long KEY_DOWN = 2;
-    const long MOUSE_MOTION = 3;
-    const long MOUSE_BUTTON_UP = 4;
-    const long MOUSE_BUTTON_DOWN = 5;
-    const long MOUSE_OVER = 6;
-    const long MOUSE_OUT = 7;
+    const long KEYUP = 1;
+    const long KEYDOWN = 2;
+    const long MOUSEMOTION = 3;
+    const long MOUSEBUTTONUP = 4;
+    const long MOUSEBUTTONDOWN = 5;
+    const long MOUSEOVER = 6;
+    const long MOUSEOUT = 7;
     const long RESIZE = 8;
     const long QUIT = 9;
 

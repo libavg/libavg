@@ -11,6 +11,7 @@
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/pldirectfbbmp.h>
+#include <paintlib/plpngenc.h>
 #include <paintlib/planybmp.h>
 #include <paintlib/Filter/plfilterfill.h>
 
@@ -170,7 +171,7 @@ void AVGVideo::render (const PLRect& Rect)
                     renderToBackbuffer();
                 } else {
                     readFrame();
-                    getEngine()->blt32(m_pBmp, 0, getAbsViewport().tl, getEffectiveOpacity());
+                    getEngine()->blt32(m_pBmp, &getAbsViewport(), getEffectiveOpacity());
                 }
             }
             break;
@@ -178,7 +179,7 @@ void AVGVideo::render (const PLRect& Rect)
             if (!m_bFrameAvailable) {
                 readFrame();
             }
-            getEngine()->blt32(m_pBmp, 0, getAbsViewport().tl, getEffectiveOpacity());
+            getEngine()->blt32(m_pBmp, &getAbsViewport(), getEffectiveOpacity());
             break;
         case Unloaded:
             break;
@@ -213,7 +214,7 @@ void AVGVideo::changeState(VideoState NewState)
         delete m_pBmp;
         m_pBmp = 0;
     }
-    addDirtyRect(getAbsViewport());
+    addDirtyRect(getVisibleRect());
     m_State = NewState;
 }
 
@@ -262,13 +263,14 @@ void AVGVideo::readFrame()
     __asm__ __volatile__ ("emms");  
 #endif    
     m_bFrameAvailable = true;
+    getEngine()->surfaceChanged(m_pBmp);
     advancePlayback();
 }
 
 void AVGVideo::renderToBackbuffer()
 {
     AVGDFBDisplayEngine* pEngine = dynamic_cast<AVGDFBDisplayEngine*>(getEngine());
-    PLRect vpt = getAbsViewport();
+    PLRect vpt = getVisibleRect();
     // Calc row ptr array.
     IDirectFBSurface * pSurface = pEngine->getPrimary();
     PLBYTE * pBits;
@@ -316,7 +318,7 @@ void AVGVideo::renderToOverlay()
 bool AVGVideo::obscures (const PLRect& Rect, int z)
 {
     return (getEffectiveOpacity() > 0.999 &&
-            getZ() > z && getAbsViewport().Contains(Rect));
+            getZ() > z && getVisibleRect().Contains(Rect));
 
 }
 

@@ -1,3 +1,50 @@
 #!/bin/bash
 source avgenv.sh
-xpshell $1
+JS_SCRIPTNAME=$1
+export AVG_DISPLAY=DFB
+export AVG_BPP=16
+export AVG_FULLSCREEN=false
+AVG_DEBUG=false
+for arg in "$2" "$3" "$4" "$5"
+do
+  cmd=`expr "$arg" : '\(--[a-zA-Z0-9]*\)'`
+  val=`expr "$arg" : '.*\=\([a-zA-Z0-9]*\)'`
+  case "$cmd" in
+    "--display")
+      export AVG_DISPLAY=$val
+      ;;  
+    "--bpp")
+      export AVG_BPP=$val
+      ;;
+    "--fullscreen")
+      export AVG_FULLSCREEN=true
+      ;;
+    "--debug")
+      AVG_DEBUG=true
+      ;;
+    "")
+      ;;
+    *)
+      echo "Usage: $0 scriptfile.js {--display={SDL|DFB|OGL}|--bpp={16|24}|--fullscreen|--debug}"
+      echo "display sets the display subsystem to use."
+      echo
+      echo "If fullscreen is given, the player will attempt to do fullscreen"
+      echo "playback. If it is not given or fullscreen fails for some reason,"
+      echo "playback is windowed."
+      echo
+      echo "bpp is the amount of bits per pixel of the back- and frontbuffers"
+      echo "and can be either 16 or 24. Even with 16 bpp, internal"
+      echo "calculations and the bitmap storage formats are at 32 bpp -"
+      echo "24 bpp plus 8 bits transparency."
+      echo
+      echo "if debug is set, the avg player is started in gdb."
+      exit 1
+  esac
+done
+if [[ "$AVG_DEBUG" == "true" ]]
+then
+    gdb --args xpshell $1
+else
+    xpshell $1
+fi
+

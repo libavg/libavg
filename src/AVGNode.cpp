@@ -206,7 +206,7 @@ void AVGNode::InitEventHandlers
 
 AVGNode * AVGNode::getElementByPos (const PLPoint & pos)
 {
-    if (m_AbsViewport.Contains(pos) && getEffectiveOpacity() > 0.01) {
+    if (getVisibleRect().Contains(pos) && getEffectiveOpacity() > 0.01) {
         return this;
     } else {
         return 0;
@@ -220,7 +220,7 @@ void AVGNode::prepareRender (int time, const PLRect& parent)
 
 void AVGNode::maybeRender (const PLRect& Rect)
 {
-    bool bVisible = getEngine()->setClipRect(getAbsViewport());
+    bool bVisible = getEngine()->setClipRect(getVisibleRect());
     if (bVisible) {
         if (getEffectiveOpacity() > 0.01) {
             if (!getParent() || !getParent()->obscures(getEngine()->getClipRect(), getZ())) {
@@ -252,7 +252,7 @@ void AVGNode::getDirtyRegion (AVGRegion& Region)
 
 void AVGNode::invalidate()
 {
-    addDirtyRect(m_AbsViewport);
+    addDirtyRect(getVisibleRect());
 }
 
 bool AVGNode::isVisibleNode()
@@ -279,10 +279,8 @@ void AVGNode::setViewport (int x, int y, int width, int height)
     if (height == -32767) {
         height = getRelViewport().Height();
     }
-//    PLPoint pos = m_AbsViewport.tl-getRelViewport().tl;
     m_RelViewport = PLRect (x, y, x+width, y+height);
     calcAbsViewport();
-//    m_AbsViewport = PLRect (pos+getRelViewport().tl, pos+getRelViewport().br);
 }
 
 const PLRect& AVGNode::getRelViewport ()
@@ -295,13 +293,24 @@ const PLRect& AVGNode::getAbsViewport ()
     return m_AbsViewport;
 }
 
+PLRect AVGNode::getVisibleRect()
+{
+    AVGNode * pParent = getParent();
+    PLRect visRect = getAbsViewport();
+    if (pParent) {
+        PLRect parent = getParent()->getAbsViewport();
+        visRect.Intersect(parent);
+    }
+    return visRect;
+}
+
 void AVGNode::calcAbsViewport()
 {
     AVGNode * pParent = getParent();
     if (pParent) {
         PLRect parent = pParent->getAbsViewport();
-        m_AbsViewport = PLRect(parent.tl+getRelViewport().tl, parent.tl+getRelViewport().br);
-        m_AbsViewport.Intersect(parent);
+        m_AbsViewport = PLRect(parent.tl+getRelViewport().tl, 
+                parent.tl+getRelViewport().br);
     } else {
         m_AbsViewport = getRelViewport();
     }
@@ -378,19 +387,19 @@ bool AVGNode::handleMouseEvent (AVGMouseEvent* pEvent, JSContext * pJSContext)
     int EventType;
     pEvent->GetType(&EventType);
     switch (EventType) {
-        case IAVGEvent::MOUSE_MOTION:
+        case IAVGEvent::MOUSEMOTION:
             Code = m_MouseMoveHandler;
             break;
-        case IAVGEvent::MOUSE_BUTTON_DOWN:
+        case IAVGEvent::MOUSEBUTTONDOWN:
             Code = m_MouseButtonDownHandler;
             break;
-        case IAVGEvent::MOUSE_BUTTON_UP:
+        case IAVGEvent::MOUSEBUTTONUP:
             Code = m_MouseButtonUpHandler;
             break;
-        case IAVGEvent::MOUSE_OVER:
+        case IAVGEvent::MOUSEOVER:
             Code = m_MouseOverHandler;
             break;
-        case IAVGEvent::MOUSE_OUT:
+        case IAVGEvent::MOUSEOUT:
             Code = m_MouseOutHandler;
             break;
          default:

@@ -38,7 +38,7 @@ AVGAVGNode::GetType(PRInt32 *_retval)
 
 AVGNode * AVGAVGNode::getElementByPos (const PLPoint & pos)
 {
-    if (!getAbsViewport().Contains(pos)) {
+    if (!getVisibleRect().Contains(pos)) {
         return 0; // pos is not in parent.
     }
     for (int i=getNumChildren()-1; i>=0; i--) {

@@ -67,6 +67,7 @@ class AVGPlayer: public IAVGPlayer, IAVGEventSink
                 std::string * pid, int * px, int * py, int * pz,
                 int * pWidth, int * pHeight, double * pOpacity);
         void initEventHandlers (AVGNode * pAVGNode, const xmlNodePtr xmlNode);
+        void initDisplay(AVGAVGNode * pNode);
         void render (bool bRenderEverything);
         void jsgc();
         void teardownDFB();

@@ -14,7 +14,8 @@ ALL_H = AVGAVGNode.h AVGContainer.h  AVGDFBDisplayEngine.h AVGEvent.h \
           IDisplayEngine.h XMLHelper.h AVGTimeSource.h \
           AVGWords.h AVGFontManager.h AVGVideo.h xpshell.h \
           acJSContextPublisher.h AVGJSScript.h AVGLogger.h \
-          AVGDFBFontManager.h IAVGFont.h AVGDFBFont.h FileHelper.h JSHelper.h
+          AVGDFBFontManager.h IAVGFont.h AVGDFBFont.h FileHelper.h JSHelper.h \
+          AVGSDLDisplayEngine.h AVGOGLBmp.h OGLHelper.h
 
 libavg_PROGRAMS = xpshell
 xpshell_SOURCES = xpshell.cpp FileHelper.cpp FileHelper.h xpshell.h acJSContextPublisher.h
@@ -23,7 +24,8 @@ xpshell_LDFLAGS = `mozilla-config --libs nspr xpcom` -lmozjs
 libavg_LTLIBRARIES = libavg.la
 
 libavg_la_LDFLAGS =  -lmpeg3 `mozilla-config --libs nspr` `paintlib-config --libs` \
-                    `xml2-config --libs` `directfb-config --libs`
+                    `xml2-config --libs` `directfb-config --libs` \
+                    -lGL -lGLU
 
 libavg_la_SOURCES = AVGEvent.cpp AVGMouseEvent.cpp AVGKeyEvent.cpp AVGWindowEvent.cpp \
                     AVGEventDispatcher.cpp AVGDebugEventSink.cpp AVGAVGNode.cpp AVGExcl.cpp \
@@ -34,17 +36,17 @@ libavg_la_SOURCES = AVGEvent.cpp AVGMouseEvent.cpp AVGKeyEvent.cpp AVGWindowEven
                     AVGTimeSource.cpp AVGWords.cpp AVGFontManager.cpp\
                     AVGVideo.cpp acJSContextPublisher.cpp AVGJSScript.cpp\
                     AVGLogger.cpp AVGConradRelais.cpp AVGDFBFontManager.cpp\
-                    AVGDFBFont.cpp FileHelper.cpp JSHelper.cpp\
+                    AVGDFBFont.cpp FileHelper.cpp JSHelper.cpp AVGSDLDisplayEngine.cpp\
+                    AVGOGLBmp.cpp OGLHelper.cpp\
                     $(ALL_H) 
 BUILT_SOURCES = IAVGPlayer.h IAVGEvent.h IAVGNode.h IAVGVideo.h \
                 acIJSContextPublisher.h IAVGWords.h IAVGExcl.h \
                 IAVGConradRelais.h IAVGKeyEvent.h IAVGWindowEvent.h \
                 IAVGMouseEvent.h
+CLEANFILES = $(BUILT_SOURCES)
 
 %.h : %.idl
-	source ../avgenv.sh
-	$(MOZ_LIBDIR)/xpidl -m header -I $(MOZ_IDLDIR) -w -o $* $<
-	$(MOZ_LIBDIR)/xpidl -m typelib -I $(MOZ_IDLDIR) -w -o $* $<
+	./avg_xpidl $* $< 
 
 libavgdir = $(includedir)/avg
 libavgHEADERS = $(ALL_H)

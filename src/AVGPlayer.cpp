@@ -15,6 +15,7 @@
 #include "AVGException.h"
 #include "AVGRegion.h"
 #include "AVGDFBDisplayEngine.h"
+#include "AVGSDLDisplayEngine.h"
 #include "AVGLogger.h"
 #include "AVGConradRelais.h"
 #include "XMLHelper.h"
@@ -80,6 +81,9 @@ AVGPlayer::~AVGPlayer()
 #ifdef XPCOM_GLUE
     XPCOMGlueShutdown();
 #endif
+    if (m_pDisplayEngine) {
+        delete m_pDisplayEngine;
+    }
     if (m_pDebugDest) {
         delete m_pDebugDest;
     }
@@ -246,8 +250,20 @@ void AVGPlayer::loadFile (const std::string& filename)
     jsgc();
     PLASSERT (!m_pRootNode);
     if (!m_pDisplayEngine) {
-        m_pDisplayEngine = new AVGDFBDisplayEngine ();
-        m_pEventSource = dynamic_cast<AVGDFBDisplayEngine *>(m_pDisplayEngine);
+        char * pszDisplay = getenv("AVG_DISPLAY");
+        if (!pszDisplay || strcmp(pszDisplay, "DFB") == 0) {
+            m_pDisplayEngine = new AVGDFBDisplayEngine ();
+            m_pEventSource =
+                    dynamic_cast<AVGDFBDisplayEngine *>(m_pDisplayEngine);
+        } else if (strcmp(pszDisplay, "OGL") == 0) {
+            m_pDisplayEngine = new AVGSDLDisplayEngine ();
+            m_pEventSource = 
+                    dynamic_cast<AVGSDLDisplayEngine *>(m_pDisplayEngine);
+        } else {
+            AVG_TRACE(DEBUG_ERROR, 
+                    "AVG_DISPLAY set to unknown value " << pszDisplay);
+            exit(-1);
+        }
     }
 
     // Construct path.
@@ -275,35 +291,40 @@ void AVGPlayer::loadFile (const std::string& filename)
 
 void AVGPlayer::play (double framerate)
 {
-    DFBResult err;
-    if (!m_pRootNode) {
-        AVG_TRACE(DEBUG_ERROR, "play called, but no xml file loaded.");
-    }
-    PLASSERT (m_pRootNode);
-//    setRealtimePriority();
+    try {
+        DFBResult err;
+        if (!m_pRootNode) {
+            AVG_TRACE(DEBUG_ERROR, "play called, but no xml file loaded.");
+        }
+        PLASSERT (m_pRootNode);
+        //    setRealtimePriority();
 
-    m_EventDispatcher.addSource(m_pEventSource);
-    m_EventDispatcher.addSink(&m_EventDumper);
-    m_EventDispatcher.addSink(this);
-    
-    m_pFramerateManager = new AVGFramerateManager;
-    m_pFramerateManager->SetRate(framerate);
-    m_bStopping = false;
-    m_pDisplayEngine->render(m_pRootNode, m_pFramerateManager, true);
-    while (!m_bStopping) {
-        doFrame();
-    }
-    // Kill all timeouts.
-    vector<AVGTimeout*>::iterator it;
-    for (it=m_PendingTimeouts.begin(); it!=m_PendingTimeouts.end(); it++) {
-         delete *it;
-    }
-    m_PendingTimeouts.clear();
+        m_EventDispatcher.addSource(m_pEventSource);
+        m_EventDispatcher.addSink(&m_EventDumper);
+        m_EventDispatcher.addSink(this);
 
-    NS_IF_RELEASE(m_pRootNode);
-    m_pRootNode = 0;
-    delete m_pFramerateManager;
-    m_IDMap.clear();
+        m_pFramerateManager = new AVGFramerateManager;
+        m_pFramerateManager->SetRate(framerate);
+        m_bStopping = false;
+
+        m_pDisplayEngine->render(m_pRootNode, m_pFramerateManager, true);
+        while (!m_bStopping) {
+            doFrame();
+        }
+        // Kill all timeouts.
+        vector<AVGTimeout*>::iterator it;
+        for (it=m_PendingTimeouts.begin(); it!=m_PendingTimeouts.end(); it++) {
+            delete *it;
+        }
+        m_PendingTimeouts.clear();
+
+        NS_IF_RELEASE(m_pRootNode);
+        m_pRootNode = 0;
+        delete m_pFramerateManager;
+        m_IDMap.clear();
+    } catch  (AVGException& ex) {
+        AVG_TRACE(DEBUG_ERROR, ex.GetStr());
+    }
 }
 
 void AVGPlayer::stop ()
@@ -330,14 +351,6 @@ void AVGPlayer::jsgc()
 {
     JS_GC(m_pJSContext);
 }
-
-void AVGPlayer::teardownDFB()
-{
-    m_pDisplayEngine->teardown();
-    delete m_pDisplayEngine;
-    m_pDisplayEngine = 0;
-}
-
 
 AVGNode * AVGPlayer::getElementByID (const std::string id)
 {
@@ -389,17 +402,12 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         double opacity;
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, &opacity);
         curNode = AVGAVGNode::create();
-        // Fullscreen, bpp and debug handling only for topmost node.
-        if (!pParent) {
-            bool isFullscreen = getDefaultedBoolAttr 
-                    (xmlNode, (const xmlChar *)"fullscreen", false);
-            int bpp = getDefaultedIntAttr
-                    (xmlNode, (const xmlChar *)"bpp", 16);
-            m_pDisplayEngine->init(width, height, isFullscreen, bpp);
-        }
         curNode->init(id, m_pDisplayEngine, pParent, this);
         curNode->initVisible(x, y, z, width, height, opacity);
         initEventHandlers(curNode, xmlNode);
+        if (!pParent) {
+            initDisplay(dynamic_cast<AVGAVGNode*>(curNode));
+        }
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"image")) {
         string id;
         int x,y,z;
@@ -482,6 +490,29 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
     }
     return curNode;
 }
+void AVGPlayer::initDisplay(AVGAVGNode * pNode) {
+    bool bFullscreen = false;
+    char * pszFullscreen = getenv("AVG_FULLSCREEN");
+    if (pszFullscreen && strcmp(pszFullscreen, "true") == 0) {
+        bFullscreen = true;
+    }
+    int bpp = 16;
+    char * pszBPP = getenv("AVG_BPP");
+    if (pszBPP) {
+        if (strcmp(pszBPP, "16") == 0) {
+            bpp = 16;
+        } else if (strcmp(pszBPP, "24") == 0) {
+            bpp = 24;
+        } else {
+            bpp = 24;
+            AVG_TRACE(DEBUG_ERROR, "Unrecognized value for AVG_BPP:" << pszBPP
+                << ". Setting to 24." );
+        }
+    }
+
+    m_pDisplayEngine->init(pNode->getRelViewport().Width(), 
+            pNode->getRelViewport().Height(), bFullscreen, bpp);
+}
 
 void AVGPlayer::getVisibleNodeAttrs (const xmlNodePtr xmlNode, 
         string * pid, int * px, int * py, int * pz,
@@ -548,19 +579,19 @@ bool AVGPlayer::handleEvent(AVGEvent * pEvent)
 {
     m_pCurEvent = pEvent;
     switch (pEvent->getType()) {
-        case AVGEvent::MOUSE_MOTION:
-        case AVGEvent::MOUSE_BUTTON_UP:
-        case AVGEvent::MOUSE_BUTTON_DOWN:
+        case AVGEvent::MOUSEMOTION:
+        case AVGEvent::MOUSEBUTTONUP:
+        case AVGEvent::MOUSEBUTTONDOWN:
             {
                 AVGMouseEvent * pMouseEvent = dynamic_cast<AVGMouseEvent*>(pEvent);
                 PLPoint pos(pMouseEvent->getXPosition(), pMouseEvent->getYPosition());
                 AVGNode * pNode = m_pRootNode->getElementByPos(pos);            
                 if (pNode != m_pLastMouseNode) {
                     if (pNode) {
-                        createMouseOver(pMouseEvent, IAVGEvent::MOUSE_OVER);
+                        createMouseOver(pMouseEvent, IAVGEvent::MOUSEOVER);
                     }
                     if (m_pLastMouseNode) {
-                        createMouseOver(pMouseEvent, IAVGEvent::MOUSE_OUT);
+                        createMouseOver(pMouseEvent, IAVGEvent::MOUSEOUT);
                     }
 
                     m_pLastMouseNode = pNode;
@@ -572,7 +603,7 @@ bool AVGPlayer::handleEvent(AVGEvent * pEvent)
                 }
             }
             break;
-        case AVGEvent::KEY_DOWN:
+        case AVGEvent::KEYDOWN:
             {
                 AVGKeyEvent * pKeyEvent = dynamic_cast<AVGKeyEvent*>(pEvent);
                 if (pKeyEvent->getKeyCode() == 27) {

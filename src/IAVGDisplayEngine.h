@@ -18,6 +18,7 @@ class AVGFontManager;
 class IAVGDisplayEngine
 {	
 	public:
+        virtual ~IAVGDisplayEngine(){};
         virtual void init(int width, int height, bool isFullscreen, int bpp) = 0;
         virtual void teardown() = 0;
 
@@ -27,13 +28,12 @@ class IAVGDisplayEngine
         virtual void setClipRect() = 0;
         virtual bool setClipRect(const PLRect& rc) = 0;
         virtual const PLRect& getClipRect() = 0;
-        virtual void blt32(PLBmp * pBmp, const PLRect* pSrcRect, 
-                const PLPoint& pos, double opacity) = 0;
-        virtual void blta8(PLBmp * pBmp, const PLRect* pSrcRect,
-                const PLPoint& pos, double opacity, const PLPixel32& color) = 0;
-        virtual void swapBuffers(const AVGRegion & UpdateRegion) = 0;
-
-	    virtual PLBmp * createSurface() = 0;
+        virtual void blt32(PLBmp * pBmp, const PLRect* pDestRect, 
+                double opacity) = 0;
+        virtual void blta8(PLBmp * pBmp, const PLRect* pDestRect, 
+                double opacity, const PLPixel32& color) = 0;
+        virtual PLBmp * createSurface() = 0;
+        virtual void surfaceChanged(PLBmp* pBmp) {};
 
         virtual int getWidth() = 0;
         virtual int getHeight() = 0;

@@ -28,7 +28,7 @@ class AVGMouseEvent;
 
 class AVGNode: public IAVGNode
 {
-	public:
+    public:
         NS_DECL_ISUPPORTS
         NS_DECL_IAVGNODE
 
@@ -55,6 +55,7 @@ class AVGNode: public IAVGNode
         virtual void setViewport (int x, int y, int width, int height);
         virtual const PLRect& getRelViewport ();
         virtual const PLRect& getAbsViewport();
+        PLRect AVGNode::getVisibleRect();
         virtual int getZ();
         double getOpacity();
         void setOpacity(double o);

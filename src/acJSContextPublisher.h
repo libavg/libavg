@@ -1,4 +1,17 @@
-/* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
+//=============================================================================
+//
+// Original code Copyright (C) 2003, ART+COM AG Berlin
+//
+// Released under LGPL.
+//
+//=============================================================================
+//
+//   $RCSfile$
+//   $Author$
+//   $Revision$
+//   $Date$
+//
+//=============================================================================
 
 #include "acIJSContextPublisher.h"
 
