@@ -91,6 +91,12 @@ void AVGDFBDisplayEngine::initDFB(int width, int height, bool isFullscreen, int 
     argv[1] = strdup("--dfb:no-banner");
     argv[2] = strdup("--dfb:quiet");
     
+    if (isFullscreen && geteuid() != 0) {
+        isFullscreen = false;
+        cout << "Warning: Fullscreen requested but not running as root." << endl <<
+                "         Falling back to windowed mode." << endl;
+    }
+    
     if (!isFullscreen) {
         argc = 7;
         char tmp[256];

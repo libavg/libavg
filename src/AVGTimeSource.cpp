@@ -35,8 +35,8 @@ void AVGTimeSource::tryOpenRTC()
     m_bUseRTC = true;
     m_RTCFD = open("/dev/rtc", O_RDONLY);
     if (m_RTCFD == -1) {
-        cerr << "Couldn't open /dev/rtc: " << strerror(errno) << endl <<
-            "(Running as root?)" << endl; 
+        cerr << "Couldn't open /dev/rtc: " << strerror(errno) << 
+            " (Running as root?)" << endl; 
         m_bUseRTC = false;
     } else {
         const unsigned IntrFrequency = 1024;

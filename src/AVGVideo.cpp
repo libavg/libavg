@@ -312,8 +312,7 @@ bool AVGVideo::obscures (const PLRect& Rect, int z)
 void AVGVideo::advancePlayback()
 {
     m_CurFrame++;
-    // TODO: Find out why the -5 is nessesary here.
-    if (m_CurFrame >= mpeg3_video_frames(m_pMPEG, 0)-5) {
+    if (m_CurFrame >= mpeg3_video_frames(m_pMPEG, 0)) {
         if (m_bLoop) {
             mpeg3_set_frame(m_pMPEG, 0, 0);
             m_CurFrame = 0;
