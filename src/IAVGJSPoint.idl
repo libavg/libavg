@@ -1,0 +1,13 @@
+//
+// $Id$
+//
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(4b4e6fbd-c8dd-4506-81a3-2f2a3fb5b9fb)]
+interface IAVGJSPoint : nsISupports
+{
+    attribute float x;
+    attribute float y;
+};
+
