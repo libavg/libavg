@@ -6,6 +6,8 @@
 #define _AVGExcl_H_
 
 #include "AVGContainer.h"
+#include "IAVGExcl.h"
+
 #include <string>
 
 // 1d2e8ea7-2d53-4bf5-9225-bae68091754e
@@ -14,18 +16,17 @@
 
 #define AVGEXCL_CONTRACTID "@c-base.org/avgexcl;1"
 
-class AVGExcl :	public AVGContainer
+class AVGExcl :	public AVGContainer, IAVGExcl
 {
     public:
         NS_DECL_ISUPPORTS
+        NS_DECL_IAVGEXCL
 
         static AVGExcl * create();
 
         AVGExcl ();
         virtual ~AVGExcl ();
 
-        NS_IMETHOD GetIntAttr(const char *name, PRInt32 *_retval); 
-        NS_IMETHOD SetIntAttr(const char *name, PRInt32 value); 
         NS_IMETHOD GetType(PRInt32 *_retval);
 
         virtual std::string dump (int indent = 0);

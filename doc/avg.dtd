@@ -62,7 +62,7 @@
   opacity CDATA #IMPLIED
   size CDATA #IMPLIED
   font CDATA #IMPLIED
-  string CDATA #REQUIRED
+  text CDATA #REQUIRED
   color CDATA #IMPLIED
   %graphicsElementEvents; >
 

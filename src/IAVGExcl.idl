@@ -1,0 +1,12 @@
+//
+// $Id$
+//
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(b9823f35-1fd9-4076-9632-f5c65f017c8c)]
+interface IAVGExcl : nsISupports
+{
+    attribute long activeChild;
+};
+

@@ -96,7 +96,7 @@ NS_IMETHODIMP AVGVideo::GetCurFrame(int *_retval)
 
 NS_IMETHODIMP AVGVideo::SeekToFrame(int num)
 {
-    // TODO: Figure out why libmpeg3 has problems seeking.
+    // TODO: Figure out why/when libmpeg3 has problems seeking.
     if (m_State != Unloaded) {
         mpeg3_set_frame(m_pMPEG, num, 0);
     } else {

@@ -61,100 +61,100 @@ AVGNode::GetParent(IAVGNode **_retval)
     return NS_OK;
 }
 
-NS_IMETHODIMP 
-AVGNode::GetStringAttr(const char *name, char **_retval)
+/* attribute long x; */
+NS_IMETHODIMP AVGNode::GetX(PRInt32 *aX)
 {
-    cerr << "Error: Request for unknown string attribute " << name << endl;
-    return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP 
-AVGNode::GetIntAttr(const char *name, PRInt32 *_retval)
-{
-    if (!strcmp(name, "Left")) {
-        *_retval = m_RelViewport.tl.x;
-    } else if (!strcmp(name, "Top")) {
-        *_retval = m_RelViewport.tl.y;
-    } else if (!strcmp(name, "Width")) {
-        *_retval = m_RelViewport.Width();
-    } else if (!strcmp(name, "Height")) {
-        *_retval = m_RelViewport.Height();
-    } else if (!strcmp(name, "Z")) {
-        *_retval = m_z;
-    } else {
-        cerr << "Error: Request for unknown int attribute " << name << endl;
-        return NS_ERROR_NOT_IMPLEMENTED;
-    }
+    *aX = m_RelViewport.tl.x;
     return NS_OK;
 }
 
-NS_IMETHODIMP 
-AVGNode::GetFloatAttr(const char *name, float *_retval)
+NS_IMETHODIMP AVGNode::SetX(PRInt32 aX)
 {
-    if (!strcmp(name, "Opacity")) {
-        *_retval = m_Opacity;
-    } else {
-        cerr << "Error: Request for unknown float attribute " << name << endl;
-        return NS_ERROR_NOT_IMPLEMENTED;
-    }
+    invalidate();
+    setViewport(aX, -1, -1, -1);
+    invalidate();
     return NS_OK;
 }
 
-NS_IMETHODIMP 
-AVGNode::SetStringAttr(const char *name, const char *value)
+/* attribute long y; */
+NS_IMETHODIMP AVGNode::GetY(PRInt32 *aY)
 {
-    cerr << "Error: Setting unknown string attribute " << name << endl;
-    return NS_ERROR_NOT_IMPLEMENTED;
-}
-
-NS_IMETHODIMP 
-AVGNode::SetIntAttr(const char *name, PRInt32 value)
-{
-    if (!strcmp(name, "Left")) {
-        invalidate();
-        setViewport(value, -1, -1, -1);
-        invalidate();
-    } else if (!strcmp(name, "Top")) {
-        invalidate();
-        setViewport(-1, value, -1, -1);
-        invalidate();
-    } else if (!strcmp(name, "Width")) {
-        invalidate();
-        setViewport(-1, -1, value, -1);
-        invalidate();
-    } else if (!strcmp(name, "Height")) {
-        invalidate();
-        setViewport(-1, -1, -1, value);
-        invalidate();
-    } else if (!strcmp(name, "Z")) {
-        m_z = value;
-        if (getParent()) {
-            getParent()->zorderChange(this);
-        }
-        invalidate();
-    } else {
-        cerr << "Error: Setting unknown int attribute " << name << endl;
-        return NS_ERROR_NOT_IMPLEMENTED;
-    }
+    *aY = m_RelViewport.tl.y;
     return NS_OK;
 }
 
-NS_IMETHODIMP 
-AVGNode::SetFloatAttr(const char *name, float value)
+NS_IMETHODIMP AVGNode::SetY(PRInt32 aY)
 {
-    if (!strcmp(name, "Opacity")) {
-        m_Opacity = value;
-        if (m_Opacity < 0.0) {
-            m_Opacity = 0.0;
-        }
-        if (m_Opacity > 1.0) {
-            m_Opacity = 1.0;
-        }
-        invalidate();
-    } else {
-        cerr << "Error: Setting unknown float attribute " << name << endl;
-        return NS_ERROR_NOT_IMPLEMENTED;
+    invalidate();
+    setViewport(-1, aY, -1, -1);
+    invalidate();
+    return NS_OK;
+}
+
+/* attribute long z; */
+NS_IMETHODIMP AVGNode::GetZ(PRInt32 *aZ)
+{
+    *aZ = m_z;
+    return NS_OK;
+}
+
+NS_IMETHODIMP AVGNode::SetZ(PRInt32 aZ)
+{
+    m_z = aZ;
+    if (getParent()) {
+        getParent()->zorderChange(this);
     }
+    invalidate();
+    return NS_OK;
+}
+
+/* attribute long width; */
+NS_IMETHODIMP AVGNode::GetWidth(PRInt32 *aWidth)
+{
+    *aWidth = m_RelViewport.Width();
+    return NS_OK;
+}
+
+NS_IMETHODIMP AVGNode::SetWidth(PRInt32 aWidth)
+{
+    invalidate();
+    setViewport(-1, -1, aWidth, -1);
+    invalidate();
+    return NS_OK;
+}
+
+/* attribute long height; */
+NS_IMETHODIMP AVGNode::GetHeight(PRInt32 *aHeight)
+{
+    *aHeight = m_RelViewport.Height();
+    return NS_OK;
+}
+
+NS_IMETHODIMP AVGNode::SetHeight(PRInt32 aHeight)
+{
+    invalidate();
+    setViewport(-1, -1, -1, aHeight);
+    invalidate();
+    return NS_OK;
+}
+
+/* attribute float opacity; */
+NS_IMETHODIMP AVGNode::GetOpacity(float *aOpacity)
+{
+    *aOpacity = m_Opacity;
+    return NS_OK;
+}
+
+NS_IMETHODIMP AVGNode::SetOpacity(float aOpacity)
+{
+    m_Opacity = aOpacity;
+    if (m_Opacity < 0.0) {
+        m_Opacity = 0.0;
+    }
+    if (m_Opacity > 1.0) {
+        m_Opacity = 1.0;
+    }
+    invalidate();
     return NS_OK;
 }
 

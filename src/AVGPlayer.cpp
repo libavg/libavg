@@ -372,7 +372,7 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, &opacity);
         string font = getDefaultedStringAttr(xmlNode, 
                 (const xmlChar *)"font", "arial");
-        string str = getRequiredStringAttr(xmlNode, (const xmlChar *)"string");
+        string str = getRequiredStringAttr(xmlNode, (const xmlChar *)"text");
         string color = getDefaultedStringAttr(xmlNode, 
                 (const xmlChar *)"color", "FFFFFF");
         int size = getDefaultedIntAttr(xmlNode, (const xmlChar *)"size", 15);

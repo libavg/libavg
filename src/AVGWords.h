@@ -6,6 +6,7 @@
 #define _AVGWords_H_
 
 #include "AVGNode.h"
+#include "IAVGWords.h"
 
 #include <paintlib/plpixel32.h>
 
@@ -19,21 +20,17 @@
 
 #define AVGWORDS_CONTRACTID "@c-base.org/avgwords;1"
 
-class AVGWords : public AVGNode
+class AVGWords : public AVGNode, IAVGWords
 {
 	public:
         NS_DECL_ISUPPORTS
+        NS_DECL_IAVGWORDS
 
         static AVGWords * create();
 
         AVGWords ();
         virtual ~AVGWords ();
         
-        NS_IMETHOD GetStringAttr(const char *name, char **_retval);
-        NS_IMETHOD GetIntAttr(const char *name, PRInt32 *_retval);
-        NS_IMETHOD SetStringAttr(const char *name, const char *value);
-        NS_IMETHOD SetIntAttr(const char *name, PRInt32 value);
-
         NS_IMETHOD GetType(PRInt32 *_retval);
 
         virtual void init (const std::string& id, int x, int y, int z, 

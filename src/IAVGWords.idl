@@ -1,0 +1,15 @@
+//
+// $Id$
+//
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(d6609236-c89a-4bb9-ace2-2c4c2cf68f23)]
+interface IAVGWords : nsISupports
+{
+    attribute string font;
+    attribute string text;
+    attribute string color;
+    attribute long size;
+};
+

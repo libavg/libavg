@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg id="imageavg" width="640" height="480" fullscreen="true">
+<avg id="imageavg" width="640" height="480" fullscreen="false">
     <image id="mainimg" x="0" y="0" z="1" width="199" height="199" 
         href="rgb24.tif"/>
     <words id="cbasetext" x="20" y="50" z="1" 
-        opacity="1" size="30" font="arial" string="hello c-base" color="FF8000"/>
+        opacity="1" size="30" font="arial" text="hello c-base" color="FF8000"/>
 </avg>

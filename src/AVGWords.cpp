@@ -14,7 +14,7 @@
 
 using namespace std;
 
-NS_IMPL_ISUPPORTS1_CI(AVGWords, IAVGNode);
+NS_IMPL_ISUPPORTS2_CI(AVGWords, IAVGNode, IAVGWords);
 
 AVGWords * AVGWords::create()
 {
@@ -34,6 +34,82 @@ AVGWords::~AVGWords ()
     }
 }
 
+/* attribute string font; */
+NS_IMETHODIMP AVGWords::GetFont(char * *aFont)
+{
+    *aFont = (char *) nsMemory::Clone(m_FontName.c_str(), 
+            m_FontName.length()+1);
+    return NS_OK;
+}
+
+NS_IMETHODIMP AVGWords::SetFont(const char * aFont)
+{
+    if (m_FontName != aFont) {
+        invalidate();
+        m_FontName = aFont;
+        changeFont();
+        invalidate();
+    }
+    return NS_OK;
+}
+
+/* attribute string text; */
+NS_IMETHODIMP AVGWords::GetText(char * *aText)
+{
+    *aText = (char *) nsMemory::Clone(m_Str.c_str(), 
+            m_Str.length()+1);
+    return NS_OK;
+}
+
+NS_IMETHODIMP AVGWords::SetText(const char * aText)
+{
+    if (m_Str != aText) {
+        invalidate();
+        m_Str = aText;
+        drawString();
+        invalidate();
+    }
+    return NS_OK;
+}
+
+/* attribute string color; */
+NS_IMETHODIMP AVGWords::GetColor(char * *aColor)
+{
+    *aColor = (char *) nsMemory::Clone(m_ColorName.c_str(), 
+            m_ColorName.length()+1);
+    return NS_OK;
+}
+
+NS_IMETHODIMP AVGWords::SetColor(const char * aColor)
+{
+    if (m_ColorName != aColor) {
+        invalidate();
+        m_ColorName = aColor;
+        m_Color = colorStringToColor(m_ColorName);
+        invalidate();
+    }
+    return NS_OK;
+}
+
+/* attribute long size; */
+NS_IMETHODIMP AVGWords::GetSize(PRInt32 *aSize)
+{
+    *aSize = m_Size;
+    return NS_OK;
+}
+
+NS_IMETHODIMP AVGWords::SetSize(PRInt32 aSize)
+{
+    if (m_Size != aSize) {
+        invalidate();
+        m_Size = aSize;
+        changeFont();
+        invalidate();
+    }
+    return NS_OK;
+}
+
+/*
 NS_IMETHODIMP
 AVGWords::GetStringAttr(const char *name, char **_retval)
 {
@@ -98,7 +174,7 @@ AVGWords::SetIntAttr(const char *name, PRInt32 value)
     }
     return NS_OK;
 }
-
+*/
 
 NS_IMETHODIMP 
 AVGWords::GetType(PRInt32 *_retval)

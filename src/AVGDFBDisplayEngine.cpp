@@ -86,17 +86,19 @@ void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen, bool bD
 void AVGDFBDisplayEngine::initDFB(int width, int height, bool isFullscreen)
 {
     // Init DFB system
-    char ** argv = new (char *)[5];
-    int argc = 1;
+    char ** argv = new (char *)[7];
+    int argc = 3;
     argv[0] = strdup ("bogus_appname");
+    argv[1] = strdup("--dfb:no-banner");
+    argv[2] = strdup("--dfb:quiet");
     if (!isFullscreen) {
-        argc = 5;
-        argv[1] = strdup ("--dfb:force-windowed");
-        argv[2] = strdup ("--dfb:system=SDL");
+        argc = 7;
+        argv[3] = strdup ("--dfb:force-windowed");
+        argv[4] = strdup ("--dfb:system=SDL");
         char tmp[256];
         sprintf(tmp, "--dfb:mode=%ix%i", width, height);
-        argv[3] = strdup (tmp);
-        argv[4] = strdup ("--dfb:pixelformat=RGB16");
+        argv[5] = strdup (tmp);
+        argv[6] = strdup ("--dfb:pixelformat=RGB16");
     }
 
     DFBResult err;

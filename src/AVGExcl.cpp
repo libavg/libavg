@@ -12,7 +12,7 @@
 
 using namespace std;
 
-NS_IMPL_ISUPPORTS1_CI(AVGExcl, IAVGNode);
+NS_IMPL_ISUPPORTS2_CI(AVGExcl, IAVGNode, IAVGExcl);
 
 AVGExcl * AVGExcl::create()
 {
@@ -28,29 +28,21 @@ AVGExcl::~AVGExcl ()
 {
 }
 
-NS_IMETHODIMP 
-AVGExcl::GetIntAttr(const char *name, PRInt32 *_retval)
+/* attribute long activeChild; */
+NS_IMETHODIMP AVGExcl::GetActiveChild(PRInt32 *aActiveChild)
 {
-    if (!strcmp(name, "ActiveChild")) {
-        *_retval = m_ActiveChild;
-    } else {
-        return AVGNode::GetIntAttr(name, _retval);
-    }
+    *aActiveChild = m_ActiveChild;
     return NS_OK;
 }
 
-NS_IMETHODIMP 
-AVGExcl::SetIntAttr(const char *name, PRInt32 value)
+NS_IMETHODIMP AVGExcl::SetActiveChild(PRInt32 aActiveChild)
 {
-    if (!strcmp(name, "ActiveChild")) {
-        invalidate();
-        m_ActiveChild = value;
-        invalidate();
-    } else {
-        return AVGNode::SetIntAttr(name, value);
-    }
+    invalidate();
+    m_ActiveChild = aActiveChild;
+    invalidate();
     return NS_OK;
 }
+
 
 NS_IMETHODIMP 
 AVGExcl::GetType(PRInt32 *_retval)

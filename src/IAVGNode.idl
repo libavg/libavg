@@ -22,14 +22,14 @@ interface IAVGNode : nsISupports
 //    void removeChild(in long i);
 //    void addChild(in IAVGNode childNode);
     IAVGNode getParent();
+   
+    attribute long x;
+    attribute long y;
+    attribute long z;
+    attribute long width;
+    attribute long height;
+    attribute float opacity;
 
-    string getStringAttr(in string name);
-    long getIntAttr(in string name);
-    float getFloatAttr(in string name);
-   
-    void setStringAttr(in string name, in string value);
-    void setIntAttr(in string name, in long value);
-    void setFloatAttr(in string name, in float value);
-   
+
 };
 

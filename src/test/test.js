@@ -83,41 +83,39 @@ function textInterval()
       delay = 0;
     }
     var str = "hello c-base".substr(0, NumChars);
-    node.setStringAttr("String", str);
-
-    var l = node.getIntAttr("Left");
-    node.setIntAttr("Left", l+1);
+    node.text = str;
+    node.x++;
 }
 
 function changeTextHeight()
 {
     var node = AVGPlayer.getElementByID("cbasetext");
-    node.setIntAttr("Height", 50);
+    node.height = 50;
 
-    var l = node.getIntAttr("Left");
-    var t = node.getIntAttr("Top");
-    var w = node.getIntAttr("Width");
-    var h = node.getIntAttr("Height");
+    var l = node.x;
+    var t = node.y;
+    var w = node.width;
+    var h = node.height;
     print ("Pos: ("+l+","+t+","+w+","+h+")\n");
 }
 
 function changeColor()
 {
     var node = AVGPlayer.getElementByID("cbasetext");
-    node.setStringAttr("Color", "404080");
+    node.color = "404080";
 }
 
 function changeFont()
 {
     var node = AVGPlayer.getElementByID("cbasetext");
-    node.setStringAttr("Font", "courbd");
-    node.setIntAttr("Size", 50);
+    node.font = "courbd";
+    node.size = 50;
 }
 
 function changeFont2()
 {
     var node = AVGPlayer.getElementByID("cbasetext");
-    node.setIntAttr("Size", 30);
+    node.size = 30;
 }
 
 function testWords()
@@ -140,8 +138,7 @@ function testWords()
 function videoInterval()
 {
     var node = AVGPlayer.getElementByID("clogo");
-    var l = node.getIntAttr("Left");
-    node.setIntAttr("Left", l+1);
+    node.x++;
 
 }
 
@@ -218,10 +215,10 @@ function dumpNodes()
         for (i=0; i<numChildren; i++) {
             var curChild = rootNode.getChild(i);
             var parent = curChild.getParent();
-            var l = curChild.getIntAttr("Left");
-            var t = curChild.getIntAttr("Top");
-            var w = curChild.getIntAttr("Width");
-            var h = curChild.getIntAttr("Height");
+            var l = curChild.x;
+            var t = curChild.y;
+            var w = curChild.width;
+            var h = curChild.height;
             print("    Child node id: "+curChild.getID()+" (Parent: "+parent.getID()
                     +", Pos: ("+l+","+t+","+w+","+h+"), type: "+curChild.getType()+")");
         }
@@ -232,10 +229,8 @@ function dumpNodes()
 
 function moveit() {
     var node = AVGPlayer.getElementByID("nestedimg1");
-    var l = node.getIntAttr("Left");
-    node.setIntAttr("Left", l+1);
-    var Opacity = node.getFloatAttr("Opacity");
-    node.setFloatAttr("Opacity", Opacity-0.01);
+    node.x++;
+    node.opacity -= 0.01;
 }
 
 function testAnimation()
@@ -255,12 +250,12 @@ function setExcl(i)
 {
     print("switch: "+i);
     var node = AVGPlayer.getElementByID("switch");
-    node.setIntAttr("ActiveChild", i);
+    node.activeChild = i;
 }
 
 function testExcl()
 {
-    print ("---- testing node accessors ----");
+    print ("---- testing excl node accessors ----");
     var ok = tryLoadFile("excl.avg");
     if (ok) {
         AVGPlayer.setTimeout(300,"setExcl(0);");
@@ -273,9 +268,9 @@ function testExcl()
 }
 
 //while (true) {
-    testWords();
-    testVideo();
     dumpNodes();
+    testVideo();
+    testWords();
     testAnimation();
     testExcl();
     playAVG("image.avg");

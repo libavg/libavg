@@ -41,7 +41,7 @@ libavg_la_SOURCES = AVGAVGNode.cpp AVGExcl.cpp \
                     AVGVideo.cpp acJSContextPublisher.cpp AVGJSScript.cpp\
                     $(ALL_H) 
 BUILT_SOURCES = IAVGPlayer.h IAVGEvent.h IAVGNode.h IAVGVideo.h \
-                acIJSContextPublisher.h
+                acIJSContextPublisher.h IAVGWords.h IAVGExcl.h
 
 %.h : %.idl
 	$(MOZILLA_LIB_DIR)/xpidl -m header -I $(MOZILLA_IDL_DIR) -w -o $* $<
