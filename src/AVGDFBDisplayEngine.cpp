@@ -115,11 +115,19 @@ void AVGDFBDisplayEngine::render(PLBmp * pBmp, const PLPoint& pos, double opacit
     PLASSERT(pDFBBmp); // createSurface() should have been used to create 
                        // the bitmap.
     IDirectFBSurface * pSurf = pDFBBmp->GetSurface();
+    DFBSurfaceBlittingFlags BltFlags;
     if (pBmp->HasAlpha()) {
-        m_pPrimary->SetBlittingFlags(m_pPrimary, DSBLIT_BLEND_ALPHACHANNEL);
+        BltFlags = DSBLIT_BLEND_ALPHACHANNEL;
     } else {
-        m_pPrimary->SetBlittingFlags(m_pPrimary, DSBLIT_NOFX);    
+        BltFlags = DSBLIT_NOFX;
     }
+    if (opacity < 0.9999) {
+        // Is this really nessesary?
+        BltFlags = DFBSurfaceBlittingFlags(int(BltFlags) | int (DSBLIT_BLEND_COLORALPHA));
+        m_pPrimary->SetColor(m_pPrimary, 
+                             0xff, 0xff, 0xff, __u8(opacity*256));
+    }
+    m_pPrimary->SetBlittingFlags(m_pPrimary, BltFlags);
 //    dumpSurface (pSurf, "pDFBBmp");
 //    dumpSurface (m_pPrimary, "m_pPrimary");
     DFBResult err = m_pPrimary->Blit(m_pPrimary, pDFBBmp->GetSurface(), 0, 
@@ -152,6 +160,7 @@ void AVGDFBDisplayEngine::render(PLBmp * pBmp, const PLPoint& pos, double opacit
 void AVGDFBDisplayEngine::swapBuffers()
 {
     DFBResult err = m_pPrimary->Flip(m_pPrimary, 0, DSFLIP_WAITFORSYNC);
+    m_pPrimary->SetColor(m_pPrimary, 0x00, 0x00, 0x00, 0xff);
     err = m_pPrimary->FillRectangle(m_pPrimary, 0, 0, m_Width, m_Height);
     errorCheck(AVG_ERR_VIDEO_GENERAL, err);
 

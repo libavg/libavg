@@ -164,8 +164,10 @@ function testExcl()
     }
 }
 
-dumpNodes();
+//dumpNodes();
+
 testAnimation();
+/*
 testExcl();
 
 playAVG("empty.avg");
@@ -175,3 +177,4 @@ playAVG("avg.avg");
 playAVG("noavg.avg");
 playAVG("noxml.avg");
 playAVG("video.avg");
+*/
