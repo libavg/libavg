@@ -65,7 +65,8 @@ class AVGPlayer: public IAVGPlayer
         void render (bool bRenderEverything);
         void jsgc();
         void teardownDFB();
-
+        void setRealtimePriority();
+	
         AVGAVGNode * m_pRootNode;
         AVGDFBDisplayEngine * m_pDisplayEngine;
 

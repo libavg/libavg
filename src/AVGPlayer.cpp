@@ -29,6 +29,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <sched.h>
+#include <pthread.h>
+
 #include "nsMemory.h"
 
 #ifdef XPCOM_GLUE
@@ -219,7 +222,8 @@ void AVGPlayer::play (double framerate)
 {
     DFBResult err;
     PLASSERT (m_pRootNode);
-
+    setRealtimePriority();
+    
     m_pFramerateManager = new AVGFramerateManager;
     m_pFramerateManager->SetRate(framerate);
     m_bStopping = false;
@@ -314,6 +318,20 @@ double AVGPlayer::getFramerate ()
 
 void AVGPlayer::addEvent (int time, AVGEvent * event)
 {
+}
+
+void AVGPlayer::setRealtimePriority()
+{
+    sched_param myParam;
+
+    myParam.sched_priority = sched_get_priority_max (SCHED_FIFO);
+    int myRetVal = pthread_setschedparam (pthread_self(), 
+		    SCHED_FIFO, &myParam);
+    if (myRetVal == 0) {
+        cerr << "AVGPlayer running with realtime priority." << endl;
+    } else {
+        cerr << "Setting realtime priority failed." << endl;
+    }
 }
 
 void AVGPlayer::trace(int category, const std::string& msg)
