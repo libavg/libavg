@@ -13,6 +13,7 @@
 #include "AVGRegion.h"
 #include "AVGDFBDisplayEngine.h"
 #include "AVGLogger.h"
+#include "AVGConradRelais.h"
 #include "XMLHelper.h"
 
 #include "acIJSContextPublisher.h"
@@ -61,7 +62,7 @@ AVGPlayer::AVGPlayer()
         do_CreateInstance("@artcom.com/jscontextpublisher;1", &myErr);
     if (NS_FAILED(myErr)) {
         AVG_TRACE(DEBUG_ERROR, 
-              "Error: Could not obtain reference to js context. Was xpshell used to start AVGPlayer?");
+              "Could not obtain reference to js context. Was xpshell used to start AVGPlayer?");
         exit(-1);
     }
     myJSContextPublisher->GetContext((PRInt32*) &m_pJSContext);
@@ -212,6 +213,21 @@ AVGPlayer::GetErrCode(PRInt32 * pResult)
 {
 	*pResult = 0;
 	return NS_OK;
+}
+
+NS_IMETHODIMP 
+AVGPlayer::CreateRelais(PRInt16 port, IAVGConradRelais **_retval)
+{
+    nsresult rv;
+    AVGConradRelais* pRelais;
+    rv = nsComponentManager::CreateInstance ("@c-base.org/avgconradrelais;1", 0,
+            NS_GET_IID(IAVGConradRelais), (void**)&pRelais);
+    if (NS_FAILED(rv)) {
+        AVG_TRACE(DEBUG_ERROR, "CreateRelais failed: " << rv);
+    }
+    pRelais->init(port);
+    *_retval = pRelais;
+    return NS_OK;
 }
 
 void AVGPlayer::loadFile (const std::string& filename)

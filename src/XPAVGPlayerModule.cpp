@@ -11,6 +11,7 @@
 #include "AVGWords.h"
 #include "AVGAVGNode.h"
 #include "AVGExcl.h"
+#include "AVGConradRelais.h"
 #include "acJSContextPublisher.h"
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGPlayer)
@@ -20,6 +21,7 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(AVGVideo)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGWords)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGAVGNode)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGExcl)
+NS_GENERIC_FACTORY_CONSTRUCTOR(AVGConradRelais)
 NS_GENERIC_FACTORY_CONSTRUCTOR(acJSContextPublisher)
 
 static NS_METHOD AVGPlayerRegistrationProc(nsIComponentManager *aCompMgr,
@@ -46,6 +48,7 @@ NS_DECL_CLASSINFO(AVGVideo)
 NS_DECL_CLASSINFO(AVGWords)
 NS_DECL_CLASSINFO(AVGAVGNode)
 NS_DECL_CLASSINFO(AVGExcl)
+NS_DECL_CLASSINFO(AVGConradRelais)
 NS_DECL_CLASSINFO(acJSContextPublisher)
   
 static const nsModuleComponentInfo components[] =
@@ -127,6 +130,17 @@ static const nsModuleComponentInfo components[] =
     NULL /* no language helper */,
     &NS_CLASSINFO_NAME(AVGExcl)
   },
+  { "c-base avgconradrelais Component", 
+    AVGCONRADRELAIS_CID, 
+    AVGCONRADRELAIS_CONTRACTID, 
+    AVGConradRelaisConstructor,
+    AVGPlayerRegistrationProc,
+    AVGPlayerUnregistrationProc,
+    NULL /* no factory destructor */,
+    NS_CI_INTERFACE_GETTER_NAME(AVGConradRelais),
+    NULL /* no language helper */,
+    &NS_CLASSINFO_NAME(AVGConradRelais)
+  },
   { "acJSContextPublisher Component", 
     ACJSCONTEXTPUBLISHER_CID, 
     ACJSCONTEXTPUBLISHER_CONTRACTID, 
@@ -146,6 +160,9 @@ NS_IMPL_NSGETMODULE(AVGPlayerModule, components)
 //==============================================================================
 //
 // $Log$
+// Revision 1.10  2004/02/13 15:51:33  uzadow
+// Added untested Conrad relais card support.
+//
 // Revision 1.9  2003/10/24 11:52:33  uzadow
 // Added auto width/height sensing for videos and text, added interface flattening.
 //

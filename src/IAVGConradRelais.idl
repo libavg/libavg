@@ -1,0 +1,15 @@
+//
+// $Id$
+//
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(596d7936-745c-47cc-93a3-1078ac704888)]
+interface IAVGConradRelais : nsISupports
+{
+    void init(in short port);
+    short getNumCards();
+    void set(in short card, in short index, in boolean bOn);
+    boolean get(in short card, in short index);
+};
+

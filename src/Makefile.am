@@ -17,8 +17,8 @@ INCLUDES = `mozilla-config --cflags xpcom nspr js xpconnect string` \
 
 ALL_H = AVGAVGNode.h AVGContainer.h  AVGDFBDisplayEngine.h AVGEvent.h \
           AVGException.h AVGExcl.h AVGFramerateManager.h AVGImage.h \
-          AVGNode.h AVGPlayer.h AVGTimeout.h AVGRegion.h \
-          IAVGEvent.h IAVGNode.h IAVGPlayer.h \
+          AVGNode.h AVGPlayer.h AVGTimeout.h AVGRegion.h AVGRelais.h \
+          IAVGEvent.h IAVGNode.h IAVGPlayer.h IAVGConradRelais.h \
           IDisplayEngine.h XMLHelper.h AVGTimeSource.h \
           AVGWords.h AVGFontManager.h AVGVideo.h xpshell.h \
           acJSContextPublisher.h AVGJSScript.h AVGLogger.h
@@ -40,10 +40,11 @@ libavg_la_SOURCES = AVGAVGNode.cpp AVGExcl.cpp \
                     AVGException.cpp AVGPlayer.cpp XPAVGPlayerModule.cpp \
                     AVGTimeSource.cpp AVGWords.cpp AVGFontManager.cpp\
                     AVGVideo.cpp acJSContextPublisher.cpp AVGJSScript.cpp\
-                    AVGLogger.cpp \
+                    AVGLogger.cpp AVGConradRelais.cpp\
                     $(ALL_H) 
 BUILT_SOURCES = IAVGPlayer.h IAVGEvent.h IAVGNode.h IAVGVideo.h \
-                acIJSContextPublisher.h IAVGWords.h IAVGExcl.h
+                acIJSContextPublisher.h IAVGWords.h IAVGExcl.h \
+                IAVGConradRelais.h
 
 %.h : %.idl
 	$(MOZILLA_LIB_DIR)/xpidl -m header -I $(MOZILLA_IDL_DIR) -w -o $* $<

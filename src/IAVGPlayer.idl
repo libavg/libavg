@@ -4,6 +4,7 @@
 
 #include "nsISupports.idl"
 #include "IAVGEvent.idl"
+#include "IAVGConradRelais.idl"
 
 [scriptable, uuid(e3890769-a960-43ec-bc4f-ded28ef99103)]
 interface IAVGPlayer : nsISupports
@@ -33,5 +34,7 @@ interface IAVGPlayer : nsISupports
     void setDebugOutputFile(in string name);
     string getErrStr();
     long getErrCode();
+
+    IAVGConradRelais createRelais(in short port);
 };
 
