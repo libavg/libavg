@@ -60,7 +60,8 @@ function playAVG (fileName)
 
     print ("---- Playing "+fileName+"----");
     AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE 
-            | AVGPlayer.DEBUG_MEMORY | AVGPlayer.DEBUG_EVENTS2 | AVGPlayer.DEBUG_EVENTS);
+            | AVGPlayer.DEBUG_WARNING | AVGPlayer.DEBUG_CONFIG
+            | AVGPlayer.DEBUG_EVENTS2 | AVGPlayer.DEBUG_EVENTS);
     var ok = tryLoadFile(fileName);
     if (ok) {
         timerid = AVGPlayer.setInterval(40, "interval();");
@@ -138,16 +139,21 @@ function testWords()
     }
 }
 
+function moveImage()
+{
+    AVGPlayer.getElementByID("mainimg").x-=50;
+}
+
 function testHugeImage()
 {
     AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE | 
-            AVGPlayer.DEBUG_CONFIG | AVGPlayer.DEBUG_WARNING | 
-            AVGPlayer.DEBUG_BLTS); 
+            AVGPlayer.DEBUG_CONFIG | AVGPlayer.DEBUG_WARNING);
+//            AVGPlayer.DEBUG_BLTS); 
     print ("---- Testing image > texture size ----");
     var ok = tryLoadFile("hugeimage.avg");
     if (ok) {
         timerid = AVGPlayer.setInterval(10, "moveImage();");
-        AVGPlayer.setTimeout(8000, "quitTimeout();");
+        AVGPlayer.setTimeout(1000, "quitTimeout();");
 
         AVGPlayer.play(25);
     }
@@ -200,7 +206,7 @@ function testVideo()
 {
     print ("---- Testing video node accessors ----");
     AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_WARNING | AVGPlayer.DEBUG_CONFIG |
-                             AVGPlayer.DEBUG_PROFILE); 
+                             AVGPlayer.DEBUG_PROFILE); // | AVGPlayer.DEBUG_BLTS); 
     var ok = tryLoadFile("video.avg");
     if (ok) {
         getVideoInfo();
@@ -355,9 +361,10 @@ function testExcl()
     }
 }
 
-//    testHugeImage();
+    testHugeImage();
 
     testVideo();
+
     testCrop();
     testAnimation();
 //    testWords();
@@ -371,5 +378,4 @@ function testExcl()
     playAVG("avg.avg");
     playAVG("noavg.avg");
     playAVG("noxml.avg");
-
 

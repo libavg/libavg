@@ -137,11 +137,10 @@ bool AVGVideo::renderToBmp(PLBmp * pBmp)
     return !m_bEOF;
 }
 
-void AVGVideo::renderToBackbuffer(PLBYTE * pSurfBits, int Pitch, 
-                int BytesPerPixel, const AVGDRect& vpt)
+void AVGVideo::renderToBackbuffer(PLBmp & BackBufferBmp, 
+                const AVGDRect& vpt)
 {
-    m_bEOF = m_pDecoder->renderToBuffer(pSurfBits, Pitch, 
-            getEngine()->getBPP()/8, vpt);
+    m_bEOF = m_pDecoder->renderToBuffer(BackBufferBmp, vpt);
     advancePlayback();
 }
 

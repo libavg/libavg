@@ -293,14 +293,12 @@ bool AVGCamera::renderToBmp(PLBmp * pBmp)
     return true;
 }
 
-void AVGCamera::renderToBackbuffer(PLBYTE * pSurfBits, int Pitch, 
-                int BytesPerPixel, const AVGDRect& vpt)
+void AVGCamera::renderToBackbuffer(PLBmp & BufferBmp, const AVGDRect& vpt)
 {
     int rc = dc1394_dma_single_capture_poll(&m_Camera);
     if (rc == DC1394_SUCCESS) {
         // New frame available
-        YUV411toBGR24((PLBYTE*)(m_Camera.capture_buffer), pSurfBits, 
-                Pitch, BytesPerPixel, vpt);
+        YUV411toBGR24((PLBYTE*)(m_Camera.capture_buffer), &BufferBmp, vpt);
         dc1394_dma_done_with_buffer(&m_Camera);
     } else {
         if (rc == DC1394_NO_FRAME) {
@@ -402,11 +400,11 @@ void AVGCamera::YUV411toBGR24(PLBYTE* pSrc, PLBmp * pBmp)
     }
 }
 
-void AVGCamera::YUV411toBGR24(PLBYTE* pSrc, PLBYTE * pSurfBits, int Pitch, 
-        int BytesPerPixel, const AVGDRect& vpt)
+void AVGCamera::YUV411toBGR24(PLBYTE* pSrc, PLBmp * pBmp, const AVGDRect& vpt)
 {
+    PLPixel24 ** ppBits = pBmp->GetLineArray24();
     for (int y = 0; y < getMediaHeight(); y++) {
-        PLPixel24 * pDest = (PLPixel24*)(pSurfBits+Pitch*y);
+        PLPixel24 * pDest = ppBits[int(y+vpt.tl.y)]+int(vpt.tl.x);
         YUV411toBGR24Line(pSrc, y, pDest);
     }
 }

@@ -283,8 +283,7 @@ bool AVGFFMpegDecoder::renderToBmp(PLBmp * pBmp)
 //   - Display output is 24 bpp,
 //   - Nothing is cropped and
 //   - There is no scaling.
-bool AVGFFMpegDecoder::renderToBuffer(PLBYTE * pSurfBits, int Pitch, 
-                int BytesPerPixel, const AVGDRect& vpt)
+bool AVGFFMpegDecoder::renderToBuffer(PLBmp & BufferBmp, const AVGDRect& vpt)
 {
 #ifdef AVG_ENABLE_DFB
     AVFrame Frame;
@@ -297,10 +296,12 @@ bool AVGFFMpegDecoder::renderToBuffer(PLBYTE * pSurfBits, int Pitch,
         AVPicture DestPict;
         int x1 = int(vpt.tl.x);
         int y1 = int(vpt.tl.y);
-        PLBYTE * pDestBits = pSurfBits+Pitch*y1+BytesPerPixel*x1;
+        PLBYTE ** ppBufferBits = BufferBmp.GetLineArray();
+        PLBYTE * pDestBits = ppBufferBits[y1]+BytesPerPixel*x1;
         DestPict.data[0] = pDestBits;
         DestPict.data[1] = pDestBits+1;
         DestPict.data[2] = pDestBits+2;
+        int Pitch = ppBufferBits[1] - ppBufferBits[0];
         DestPict.linesize[0] = Pitch;
         DestPict.linesize[1] = DestPict.linesize[0];   
         DestPict.linesize[2] = DestPict.linesize[0];   

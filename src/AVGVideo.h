@@ -44,8 +44,8 @@ class AVGVideo : public AVGVideoBase, public IAVGVideo
         void initVideoSupport();
 
         bool renderToBmp(PLBmp * pBmp);
-        void renderToBackbuffer(PLBYTE * pSurfBits, int Pitch, 
-                int BytesPerPixel, const AVGDRect& vpt);
+        virtual void renderToBackbuffer(PLBmp & pBackBufferBmp, 
+                const AVGDRect& vpt);
         bool canRenderToBackbuffer(int BitsPerPixel);
         void seek(int DestFrame);
         void advancePlayback();

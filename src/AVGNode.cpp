@@ -229,6 +229,7 @@ void AVGNode::initVisible(double x, double y, int z,
         pos = m_pParent->getAbsViewport().tl;
     } 
     m_AbsViewport = AVGDRect (pos+getRelViewport().tl, pos+getRelViewport().br);
+
     m_Pivot = AVGDPoint(pivotx, pivoty);
     m_bHasCustomPivot = ((pivotx != -32767) && (pivoty != -32767));
 }

@@ -40,7 +40,7 @@ class AVGDFBDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
                 double opacity, const PLPixel32& color, double angle,
                 const AVGDPoint& pivot);
 
-	virtual PLBmp * createSurface();
+        virtual PLBmp * createSurface();
 
         virtual int getWidth();
         virtual int getHeight();

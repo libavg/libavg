@@ -79,8 +79,15 @@ void AVGVideoBase::init (const std::string& id, bool bOverlay,
        IAVGDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer)
 {
     AVGNode::init(id, pEngine, pParent, pPlayer);
-    
-    changeState(Paused);
+    bool m_bOk = open(&m_Width, &m_Height);
+    if (!m_bOk) {
+        return;
+    }
+    m_pBmp = getEngine()->createSurface();
+    AVGDRect vpt = getRelViewport();
+
+    m_pBmp->Create(m_Width, m_Height, 24, false, false);
+    m_bFrameAvailable = false;
 }
 
 void AVGVideoBase::prepareRender (int time, const AVGDRect& parent)
@@ -107,7 +114,8 @@ void AVGVideoBase::render (const AVGDRect& Rect)
                         dynamic_cast<AVGDFBDisplayEngine*>(getEngine()) &&
                         canRenderToBackbuffer(getEngine()->getBPP()) &&
                         relVpt.tl.x >= 0 && relVpt.tl.y >= 0 && 
-                        absVpt.Width() >= relVpt.br.x && absVpt.Height() >= relVpt.br.y &&
+                        absVpt.Width() >= relVpt.br.x && 
+                        absVpt.Height() >= relVpt.br.y &&
                         m_Width == relVpt.Width() && m_Height == relVpt.Height())
                 {
                     // Render frame to backbuffer directly.
@@ -117,7 +125,6 @@ void AVGVideoBase::render (const AVGDRect& Rect)
                 } else
 #endif                
                 {
-                    
                     m_bFrameAvailable = renderToBmp(m_pBmp);
                     getEngine()->blt32(m_pBmp, &getAbsViewport(), 
                             getEffectiveOpacity(), getAngle(), getPivot());
@@ -174,9 +181,9 @@ void AVGVideoBase::renderToBackbuffer()
             DFBSurfaceLockFlags(DSLF_WRITE), (void **)&pSurfBits, &Pitch);
     pEngine->DFBErrorCheck(AVG_ERR_DFB, 
             "AVGVideoBase::renderToBackbuffer", err);
-    // TODO: 16 bpp support.
-    renderToBackbuffer(pSurfBits, Pitch, 
-            getEngine()->getBPP()/8, vpt);
+    PLDirectFBBmp BackBufferBmp;
+    BackBufferBmp.CreateFromSurface (pSurface, false);
+    renderToBackbuffer(BackBufferBmp, vpt);
     pSurface->Unlock(pSurface);
 
     m_bFrameAvailable=false;

@@ -631,6 +631,7 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
                 pParent, this);
         pCamera->initVisible(x, y, z, width, height, opacity, angle, 
                 pivotx, pivoty);
+        pCamera->Pause();
         initEventHandlers(curNode, xmlNode);
 #else
         throw (AVGException (AVG_ERR_UNSUPPORTED, 
