@@ -28,6 +28,7 @@ class AVGAVGNode;
 class AVGNode;
 class AVGContainer;
 class AVGEvent;
+class AVGMouseEvent;
 class AVGConradRelais;
 class IAVGDisplayEngine;
 
@@ -70,6 +71,7 @@ class AVGPlayer: public IAVGPlayer, IAVGEventSink
         void jsgc();
         void teardownDFB();
         void setRealtimePriority();
+        void createMouseOver(AVGMouseEvent * pOtherEvent, int Type);
 	
         AVGAVGNode * m_pRootNode;
         IAVGDisplayEngine * m_pDisplayEngine;
@@ -96,7 +98,7 @@ class AVGPlayer: public IAVGPlayer, IAVGEventSink
         AVGEventDispatcher m_EventDispatcher;
         AVGDebugEventSink  m_EventDumper;
         AVGEvent * m_pCurEvent;
-//        AVGNode * m_pLastMouseNode;
+        AVGNode * m_pLastMouseNode;
 
         JSContext * m_pJSContext;
         std::vector<AVGConradRelais*> m_pRelais;

@@ -16,7 +16,12 @@
 #include "AVGEventDispatcher.h"
 #include "AVGEvent.h"
 
-#include <queue>
+#include <paintlib/plstdpch.h>
+
+#include <xpcom/nsCOMPtr.h>
+#include <xpcom/nsIComponentManager.h>
+
+#include <string>
 
 using namespace std;
 
@@ -30,18 +35,16 @@ namespace input {
 
     void
     AVGEventDispatcher::dispatch() {
-        std::priority_queue<AVGEvent *,vector<AVGEvent *>,isEventAfter> sortedEvents;
-
         for (int i = 0; i<m_EventSources.size(); ++i) {
             vector<AVGEvent*> curEvents = m_EventSources[i]->pollEvents();
             for (int i= 0; i<curEvents.size(); i++) {
-                sortedEvents.push(curEvents[i]);
+                m_Events.push(curEvents[i]);
             }
         }
 
-        while (!sortedEvents.empty()) {
-            AVGEvent * curEvent = sortedEvents.top();
-            sortedEvents.pop();
+        while (!m_Events.empty()) {
+            AVGEvent * curEvent = m_Events.top();
+            m_Events.pop();
             for (int i = 0; i < m_EventSinks.size(); ++i) {
                 if (m_EventSinks[i]->handleEvent(curEvent)) {
                     break;
@@ -49,7 +52,6 @@ namespace input {
             }
             NS_IF_RELEASE(curEvent);
         }
-        
     };
 
     void
@@ -62,5 +64,20 @@ namespace input {
     AVGEventDispatcher::addSink(IAVGEventSink * pSink) {
         m_EventSinks.push_back(pSink);
     }
+
+    void 
+    AVGEventDispatcher::addEvent(AVGEvent* pEvent) {
+        m_Events.push(pEvent);
+    }
+
+    AVGEvent * AVGEventDispatcher::createEvent(const char * pTypeName)
+    {
+        nsresult rv;
+        nsCOMPtr<IAVGEvent> pXPEvent = do_CreateInstance((string("@c-base.org/")+pTypeName+";1").c_str(), &rv);
+        PLASSERT(!NS_FAILED(rv));
+        NS_IF_ADDREF((IAVGEvent*)pXPEvent);
+        return dynamic_cast<AVGEvent*>((IAVGEvent*)pXPEvent);
+    }
+
 }
 

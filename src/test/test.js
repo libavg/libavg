@@ -124,8 +124,8 @@ function testWords()
     print ("---- Testing word node accessors ----");
     var ok = tryLoadFile("text.avg");
     if (ok) {
-//        AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_BLTS | AVGPlayer.DEBUG_MEMORY); 
-        AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE | AVGPlayer.DEBUG_MEMORY); 
+        AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_BLTS | AVGPlayer.DEBUG_PROFILE | AVGPlayer.DEBUG_MEMORY); 
+//        AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE | AVGPlayer.DEBUG_MEMORY); 
         timerid = AVGPlayer.setInterval(10, "textInterval();");
         AVGPlayer.setTimeout(1000, "changeTextHeight();");
         AVGPlayer.setTimeout(2000, "changeColor();");
@@ -133,7 +133,7 @@ function testWords()
         AVGPlayer.setTimeout(4000, "changeFont2();");
         AVGPlayer.setTimeout(8000, "quitTimeout();");
 
-        AVGPlayer.play(50);
+        AVGPlayer.play(25);
     }
 }
 
@@ -327,18 +327,19 @@ function testExcl()
 /*
     testAnimation();
     testWords();
-*/
-//    testCrop();
+
+    testCrop();
     testVideo();
-/*
+
     dumpNodes();
     testExcl();
 
     playAVG("image.avg");
     playAVG("empty.avg");
+*/
     
     playAVG("events.avg");
-
+/*
     playAVG("avg.avg");
     playAVG("noavg.avg");
     playAVG("noxml.avg");

@@ -466,14 +466,6 @@ vector<AVGEvent *> AVGDFBDisplayEngine::pollEvents()
     return Events;
 }
 
-AVGEvent * AVGDFBDisplayEngine::createEvent(const char * pTypeName)
-{
-    nsresult rv;
-    nsCOMPtr<IAVGEvent> pXPEvent = do_CreateInstance((string("@c-base.org/")+pTypeName+";1").c_str(), &rv);
-    PLASSERT(!NS_FAILED(rv));
-    NS_IF_ADDREF((IAVGEvent*)pXPEvent);
-    return dynamic_cast<AVGEvent*>((IAVGEvent*)pXPEvent);
-}
 
 int AVGDFBDisplayEngine::translateModifiers(DFBInputDeviceModifierMask DFBModifiers)
 {
@@ -505,7 +497,7 @@ AVGEvent * AVGDFBDisplayEngine::createEvent(DFBWindowEvent* pdfbwEvent)
             {
                 // TODO: This only works for normal keys... Function key mapping etc.
                 //       is bound to be screwed up badly.
-                pAVGEvent = createEvent("avgkeyevent");
+                pAVGEvent = AVGEventDispatcher::createEvent("avgkeyevent");
                 string KeyString;
                 KeyString[0] = char(pdfbwEvent->key_symbol);
                 int Type;
@@ -522,7 +514,7 @@ AVGEvent * AVGDFBDisplayEngine::createEvent(DFBWindowEvent* pdfbwEvent)
         case DWET_BUTTONDOWN:
         case DWET_BUTTONUP:
         case DWET_MOTION:
-            pAVGEvent = createEvent("avgmouseevent");
+            pAVGEvent = AVGEventDispatcher::createEvent("avgmouseevent");
             int Button;
             switch (pdfbwEvent->button) {
                 case DIBI_LEFT:

@@ -54,7 +54,8 @@ AVGPlayer::AVGPlayer()
       m_pDisplayEngine(0),
       m_pFramerateManager(0),
       m_pDebugDest(0),
-      m_bInHandleTimers(false)
+      m_bInHandleTimers(false),
+      m_pLastMouseNode(0)
 {
 #ifdef XPCOM_GLUE
     XPCOMGlueStartup("XPCOMComponentGlue");
@@ -546,6 +547,18 @@ bool AVGPlayer::handleEvent(AVGEvent * pEvent)
                 AVGMouseEvent * pMouseEvent = dynamic_cast<AVGMouseEvent*>(pEvent);
                 PLPoint pos(pMouseEvent->getXPosition(), pMouseEvent->getYPosition());
                 AVGNode * pNode = m_pRootNode->getElementByPos(pos);            
+                if (pNode != m_pLastMouseNode) {
+                    if (pNode) {
+                        createMouseOver(pMouseEvent, IAVGEvent::MOUSE_OVER);
+                    }
+                    if (m_pLastMouseNode) {
+                        createMouseOver(pMouseEvent, IAVGEvent::MOUSE_OUT);
+                    }
+
+                    m_pLastMouseNode = pNode;
+
+                }
+
                 if (pNode) {
                     pNode->handleMouseEvent(pMouseEvent, m_pJSContext);
                 }
@@ -565,6 +578,20 @@ bool AVGPlayer::handleEvent(AVGEvent * pEvent)
     }
     // Don't pass on any events.
     return true; 
+}
+
+void AVGPlayer::createMouseOver(AVGMouseEvent * pOtherEvent, int Type)
+{
+    AVGMouseEvent * pNewEvent = dynamic_cast<AVGMouseEvent *>
+            (AVGEventDispatcher::createEvent("avgmouseevent"));
+    pNewEvent->init(Type, 
+            pOtherEvent->getLeftButtonState(),
+            pOtherEvent->getMiddleButtonState(),
+            pOtherEvent->getRightButtonState(),
+            pOtherEvent->getXPosition(),
+            pOtherEvent->getYPosition(),
+            pOtherEvent->getButton());
+    m_EventDispatcher.addEvent(pNewEvent);
 }
 
 /*
