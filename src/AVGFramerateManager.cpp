@@ -3,7 +3,7 @@
 //
 
 #include "AVGFramerateManager.h"
-#include "AVGTime.h"
+#include "AVGTimeSource.h"
 #include "AVGPlayer.h"
 
 #include <sys/time.h>
@@ -28,7 +28,7 @@ AVGFramerateManager::~AVGFramerateManager ()
         AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "  Framerate goal was: " << m_Rate << endl);
         AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "  Total frames: " << m_NumFrames << endl);
         AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "  Frames too late: " << m_FramesTooLate << endl);
-        double TotalTime = double(GetCurrentTicks()-m_StartTime)/1000;
+        double TotalTime = double(AVGTimeSource::getCurrentTicks()-m_StartTime)/1000;
         AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "  Total time: " << TotalTime << " seconds" << endl);
         AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "  Framerate achieved: " 
              << (m_NumFrames+1)/TotalTime << endl);
@@ -47,8 +47,8 @@ void AVGFramerateManager::SetRate(double Rate)
     m_NumRegularFrames = 0;
     m_FramesTooLate = 0;
     m_TimeSpentWaiting = 0;
-    m_LastFrameTime = GetCurrentTicks();
-    m_StartTime = GetCurrentTicks();
+    m_LastFrameTime = AVGTimeSource::getCurrentTicks();
+    m_StartTime = AVGTimeSource::getCurrentTicks();
 }
 
 double AVGFramerateManager::GetRate()
@@ -61,7 +61,7 @@ void AVGFramerateManager::FrameWait()
     m_NumFrames++;
     m_NumRegularFrames++;
 
-    int CurTime = GetCurrentTicks();
+    int CurTime = AVGTimeSource::getCurrentTicks();
     int TargetTime = m_LastFrameTime+(int)((1000/m_Rate)*m_NumRegularFrames);
     if (CurTime <= TargetTime) 
     {
@@ -69,7 +69,7 @@ void AVGFramerateManager::FrameWait()
         if (WaitTime > 200) {
             cerr << "FramerateManager warning: waiting " << TargetTime-CurTime << " ms." << endl;
         }
-        usleep (WaitTime*1000);
+        AVGTimeSource::get()->sleepUntil(TargetTime);
     }
     else
     {
@@ -77,9 +77,9 @@ void AVGFramerateManager::FrameWait()
         AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "FramerateManager warning: frame too late by " <<
                 CurTime-TargetTime << " ms." << endl); 
         m_NumRegularFrames = 0;
-        m_LastFrameTime = GetCurrentTicks();
+        m_LastFrameTime = AVGTimeSource::getCurrentTicks();
     }
-    m_TimeSpentWaiting += GetCurrentTicks()-CurTime;
+    m_TimeSpentWaiting += AVGTimeSource::getCurrentTicks()-CurTime;
 }
 
 

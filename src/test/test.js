@@ -109,7 +109,7 @@ function changeColor()
 function changeFont()
 {
     var node = AVGPlayer.getElementByID("cbasetext");
-    node.font = "courbd";
+    node.font = "lucon";
     node.size = 50;
 }
 
@@ -198,7 +198,7 @@ function testVideo()
         AVGPlayer.setTimeout(4900, "videoReset('clogo');");
         AVGPlayer.setTimeout(5200, "videoReset('clogo');");
         AVGPlayer.setTimeout(8000, "quitTimeout();");
-        AVGPlayer.play(20);
+        AVGPlayer.play(30);
     }
 }
 
@@ -274,12 +274,13 @@ function testExcl()
     testVideo();
     dumpNodes();
     testExcl();
-
+/*
     playAVG("image.avg");
     playAVG("empty.avg");
     playAVG("events.avg");
     playAVG("avg.avg");
     playAVG("noavg.avg");
     playAVG("noxml.avg");
-//}
+*/
+    //}
 

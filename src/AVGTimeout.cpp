@@ -2,8 +2,8 @@
 // $Id$
 //
 
-#include "AVGTime.h"
 #include "AVGTimeout.h"
+#include "AVGTimeSource.h"
 #include "AVGException.h"
 
 #include <nsIComponentManager.h>
@@ -20,7 +20,7 @@ AVGTimeout::AVGTimeout(int time, string code, bool isInterval, JSContext * pCont
       m_IsInterval(isInterval),
       m_Script(code, "timeout", 0, pContext)
 {
-    m_NextTimeout = m_Interval+GetCurrentTicks();
+    m_NextTimeout = m_Interval+AVGTimeSource::getCurrentTicks();
     s_LastID++;
     m_ID = s_LastID;
 }
@@ -31,7 +31,7 @@ AVGTimeout::~AVGTimeout()
 
 bool AVGTimeout::IsReady() const
 {
-    return m_NextTimeout <= (int)GetCurrentTicks();
+    return m_NextTimeout <= (int)AVGTimeSource::getCurrentTicks();
 }
 
 bool AVGTimeout::IsInterval() const
@@ -44,7 +44,7 @@ void AVGTimeout::Fire(JSContext * pJSContext)
     m_Script.run();
 
     if (m_IsInterval) {
-        m_NextTimeout = m_Interval + GetCurrentTicks();
+        m_NextTimeout = m_Interval + AVGTimeSource::getCurrentTicks();
     }
 }
 
