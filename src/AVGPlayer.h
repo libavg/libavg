@@ -13,7 +13,9 @@
 #include "AVGEventDispatcher.h"
 #include "AVGDebugEventSink.h"
 
+#ifdef AVG_ENABLE_DFB
 #include <directfb/directfb.h>
+#endif
 #include <libxml/parser.h>
 
 #include <xpcom/nsCOMPtr.h>
@@ -86,8 +88,6 @@ class AVGPlayer: public IAVGPlayer, IAVGEventSink
         AVGAVGNode * m_pRootNode;
         IAVGDisplayEngine * m_pDisplayEngine;
         IAVGEventSource * m_pEventSource;
-
-        IDirectFB * m_pDFB;
 
         std::string m_CurDirName;
         AVGFramerateManager * m_pFramerateManager;

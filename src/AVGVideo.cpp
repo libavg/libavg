@@ -3,7 +3,10 @@
 // 
 
 #include "AVGVideo.h"
+#include "IAVGDisplayEngine.h"
+#ifdef AVG_ENABLE_DFB
 #include "AVGDFBDisplayEngine.h"
+#endif
 #include "AVGException.h"
 #include "AVGPlayer.h"
 #include "AVGLogger.h"

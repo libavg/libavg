@@ -456,7 +456,6 @@ void AVGPlayer::loadFile (const std::string& filename)
 void AVGPlayer::play (double framerate)
 {
     try {
-        DFBResult err;
         if (!m_pRootNode) {
             AVG_TRACE(DEBUG_ERROR, "play called, but no xml file loaded.");
         }

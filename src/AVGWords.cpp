@@ -3,7 +3,11 @@
 // 
 
 #include "AVGWords.h"
+#include "IAVGDisplayEngine.h"
+#include "AVGFontManager.h"
+#ifdef AVG_ENABLE_DFB
 #include "AVGDFBDisplayEngine.h"
+#endif
 #include "AVGException.h"
 #include "IAVGFont.h"
 #include "IAVGSurface.h"

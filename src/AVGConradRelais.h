@@ -8,10 +8,8 @@
 #include "IAVGConradRelais.h"
 
 #include <paintlib/plpoint.h>
-#include <directfb.h>
 
 class IAVGNode;
-
 
 //46f24b63-aaaf-4882-9749-7a4c7809b9bf
 #define AVGCONRADRELAIS_CID \
