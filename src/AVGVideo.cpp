@@ -282,10 +282,14 @@ void AVGVideo::renderToBackbuffer()
             m_Width-1, m_Height-1,
             vpt.Width(), vpt.Height(), 
             ColorModel, 0);
+#ifdef i386
+    // libmpeg3 forgets to turn mmx off, killing floating point operations.
+    __asm__ __volatile__ ("emms");  
+#endif    
 
     delete[] ppRows;
     pSurface->Unlock(pSurface);
-    
+    m_bFrameAvailable=false;
     advancePlayback();
 }
 
@@ -308,6 +312,7 @@ bool AVGVideo::obscures (const PLRect& Rect, int z)
 void AVGVideo::advancePlayback()
 {
     m_CurFrame++;
+    // TODO: Find out why the -5 is nessesary here.
     if (m_CurFrame >= mpeg3_video_frames(m_pMPEG, 0)-5) {
         if (m_bLoop) {
             mpeg3_set_frame(m_pMPEG, 0, 0);

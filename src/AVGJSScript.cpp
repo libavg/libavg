@@ -8,6 +8,7 @@
 
 using namespace std;
 
+
 AVGJSScript::AVGJSScript(const std::string& code, const std::string& filename, 
         int lineno, JSContext * pJSContext)
     : m_code(code),
@@ -25,6 +26,12 @@ AVGJSScript::~AVGJSScript()
     }
 }
 
+extern "C" {
+// From mozilla/js/jsexn.h
+extern JSBool
+js_ReportUncaughtException(JSContext *cx);
+}
+
 void AVGJSScript::run()
 {
     // TODO: Actually, compile() should be called in the constructor. However, if I do this, 
@@ -34,9 +41,10 @@ void AVGJSScript::run()
         jsval Result;
         JSBool ok = JS_ExecuteScript(m_pJSContext, m_pObject, m_pScript, &Result);
         if (!ok) {
-            cerr << "Warning: Error executing script." << endl;
+            js_ReportUncaughtException(m_pJSContext); 
         }
     }
+    
 }
         
 void AVGJSScript::compile()
@@ -45,7 +53,7 @@ void AVGJSScript::compile()
     m_pScript = JS_CompileScript(m_pJSContext, m_pObject,
             m_code.c_str(), m_code.length(), m_filename.c_str(), m_lineno);
     if (!m_pScript) {
-        cerr << "Warning: Error compiling event handler script." << endl;
+        js_ReportUncaughtException(m_pJSContext);
     } 
 }
 
