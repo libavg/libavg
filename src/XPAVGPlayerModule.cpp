@@ -12,6 +12,7 @@
 #include "AVGMouseEvent.h"
 #include "AVGWindowEvent.h"
 #include "AVGImage.h"
+#include "AVGPanoImage.h"
 #include "AVGVideoBase.h"
 #include "AVGVideo.h"
 #ifdef AVG_ENABLE_1394
@@ -30,6 +31,7 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(AVGMouseEvent)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGKeyEvent)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGWindowEvent)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGImage)
+NS_GENERIC_FACTORY_CONSTRUCTOR(AVGPanoImage)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGVideo)
 #ifdef AVG_ENABLE_1394
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGCamera)
@@ -63,6 +65,7 @@ NS_DECL_CLASSINFO(AVGEvent)
 NS_DECL_CLASSINFO(AVGMouseEvent)
 NS_DECL_CLASSINFO(AVGKeyEvent)
 NS_DECL_CLASSINFO(AVGWindowEvent)
+NS_DECL_CLASSINFO(AVGPanoImage)
 NS_DECL_CLASSINFO(AVGImage)
 NS_DECL_CLASSINFO(AVGVideo)
 #ifdef AVG_ENABLE_1394
@@ -142,6 +145,17 @@ static const nsModuleComponentInfo components[] =
     NS_CI_INTERFACE_GETTER_NAME(AVGImage),
     NULL /* no language helper */,
     &NS_CLASSINFO_NAME(AVGImage)
+  },
+  { "c-base avgpanoimage Component", 
+    AVGPANOIMAGE_CID, 
+    AVGPANOIMAGE_CONTRACTID, 
+    AVGPanoImageConstructor,
+    AVGPlayerRegistrationProc,
+    AVGPlayerUnregistrationProc,
+    NULL /* no factory destructor */,
+    NS_CI_INTERFACE_GETTER_NAME(AVGPanoImage),
+    NULL /* no language helper */,
+    &NS_CLASSINFO_NAME(AVGPanoImage)
   },
   { "c-base avgvideo Component", 
     AVGVIDEO_CID, 
@@ -241,6 +255,9 @@ NS_IMPL_NSGETMODULE(AVGPlayerModule, components)
 //==============================================================================
 //
 // $Log$
+// Revision 1.17  2004/07/30 15:48:29  uzadow
+// Initial incomplete version of panorama renderer.
+//
 // Revision 1.16  2004/07/05 16:01:33  uzadow
 // Separated div and avg nodes, added keyboard event handling.
 //

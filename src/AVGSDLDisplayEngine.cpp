@@ -71,8 +71,8 @@ AVGSDLDisplayEngine::~AVGSDLDisplayEngine()
     }
 }
 
-void AVGSDLDisplayEngine::init(int width, int height, bool isFullscreen, int bpp,
-                const string & sFontPath)
+void AVGSDLDisplayEngine::init(int width, int height, bool isFullscreen, 
+        int bpp, const string & sFontPath)
 {
     switch (bpp) {
         case 32:
@@ -224,8 +224,9 @@ void AVGSDLDisplayEngine::blt32(IAVGSurface * pSurface, const AVGDRect* pDestRec
     pOGLSurface->blt(pDestRect, opacity, angle, pivot);
 }
 
-void AVGSDLDisplayEngine::blta8(IAVGSurface * pSurface, const AVGDRect* pDestRect,
-        double opacity, const PLPixel32& color, double angle, 
+void AVGSDLDisplayEngine::blta8(IAVGSurface * pSurface, 
+        const AVGDRect* pDestRect, double opacity, 
+        const PLPixel32& color, double angle, 
         const AVGDPoint& pivot)
 {
     AVGOGLSurface * pOGLSurface = dynamic_cast<AVGOGLSurface*>(pSurface);

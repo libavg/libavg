@@ -388,7 +388,7 @@ function testExcl()
     playAVG("image.avg");
 
     testVideo();
-/*    
+    
     testHugeImage();
 
     testCrop();
@@ -402,4 +402,4 @@ function testExcl()
     playAVG("avg.avg");
     playAVG("noavg.avg");
     playAVG("noxml.avg");
-*/    
+    

@@ -69,7 +69,7 @@ NS_IMETHODIMP AVGWords::GetText(char * *aText)
 
 NS_IMETHODIMP AVGWords::SetText(const char * aText)
 {
-    if (m_Str != aText) {
+    if (m_Str != aText && aText != 0) {
         invalidate();
         m_Str = aText;
         drawString();

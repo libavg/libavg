@@ -25,6 +25,7 @@ interface IAVGNode : nsISupports
     const long NT_EXCL=6;
     const long NT_CAMERA=7;
     const long NT_DIV=8;
+    const long NT_PANOIMAGE=9;
  
     /**
      * Returns the unique id that can be used to reference the node.
@@ -32,11 +33,11 @@ interface IAVGNode : nsISupports
     string getID();
     /**
      * Returns one of the NT_xxx constants NT_IMAGE, NT_AVG, NT_VIDEO, 
-     * NT_TEXT, NT_CAMERA or NT_EXCL.
+     * NT_TEXT, NT_CAMERA, NT_DIV or NT_EXCL.
      */
     long getType();
     /**
-     * If the node is a grouping node (NT_AVG or NT_EXCL), returns the 
+     * If the node is a grouping node (NT_AVG, NT_DIV or NT_EXCL), returns the 
      * number of children. If not, returns 0.
      */
     long getNumChildren();

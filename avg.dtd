@@ -18,7 +18,7 @@
    height CDATA #IMPLIED
    opacity CDATA #IMPLIED" >
 
-<!ELEMENT avg (div|excl|image|video|camera|audio|words)* >
+<!ELEMENT avg (div|excl|image|video|camera|audio|words|panoimage)* >
 <!ATTLIST avg
   id ID #IMPLIED
   width CDATA #IMPLIED
@@ -90,5 +90,14 @@
   font CDATA #IMPLIED
   text CDATA #REQUIRED
   color CDATA #IMPLIED
+  %graphicsElementEvents; >
+
+<!ELEMENT panoimage EMPTY>
+<!ATTLIST panoimage
+  %graphicsElementAttrs;
+  href CDATA #REQUIRED
+  sensorwidth CDATA #REQUIRED
+  sensorheight CDATA #REQUIRED
+  focallength CDATA #REQUIRED
   %graphicsElementEvents; >
 

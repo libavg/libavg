@@ -7,6 +7,7 @@
 #include "AVGAVGNode.h"
 #include "AVGDivNode.h"
 #include "AVGImage.h"
+#include "AVGPanoImage.h"
 #include "AVGVideo.h"
 #ifdef AVG_ENABLE_1394
 #include "AVGCamera.h"
@@ -681,6 +682,19 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         int bpp = getDefaultedIntAttr(xmlNode, "bpp", 32);
         pImage->init(id, filename, bpp, m_pDisplayEngine, pParent, this);
         initVisible(xmlNode, pImage);
+    } else if (!strcmp (nodeType, "panoimage")) {
+        string filename = initFileName(xmlNode);
+        AVGPanoImage * pPanoImage = AVGPanoImage::create();
+        curNode = pPanoImage;
+        double SensorHeight = getDefaultedDoubleAttr(xmlNode, 
+                "sensorheight", 0);
+        double SensorWidth = getDefaultedDoubleAttr(xmlNode, 
+                "sensorwidth", 0);
+        double FocalLength = getDefaultedDoubleAttr(xmlNode, 
+                "focallength", 0);
+        pPanoImage->init(id, filename, SensorWidth, SensorHeight, FocalLength, 
+                m_pDisplayEngine, pParent, this);
+        initVisible(xmlNode, pPanoImage);
     } else if (!strcmp (nodeType, "video")) {
         string filename = initFileName(xmlNode);
         bool bLoop = getDefaultedBoolAttr(xmlNode, "loop", false); 

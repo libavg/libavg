@@ -39,6 +39,8 @@ class AVGOGLSurface: public IAVGSurface {
 
         void blt(const AVGDRect* pDestRect, double opacity, 
                 double angle, const AVGDPoint& pivot);
+        unsigned int getTexID();
+
 
         static int getTextureMode();
 

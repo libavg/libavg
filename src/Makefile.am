@@ -20,7 +20,7 @@ else
 endif
 
 if ENABLE_GL
-    GL_LIBS = -lGL -lGLU -lSDL_ttf 
+    GL_LIBS = -lGL -lGLU -lglut -lSDL_ttf 
     GL_SOURCES = AVGSDLDisplayEngine.cpp OGLHelper.cpp \
                  AVGSDLFontManager.cpp AVGSDLFont.cpp AVGOGLSurface.cpp
     GL_INCLUDES = AVGSDLDisplayEngine.h OGLHelper.h \
@@ -53,6 +53,7 @@ ALL_H = AVGAVGNode.h AVGContainer.h AVGEvent.h \
           acJSContextPublisher.h AVGJSScript.h AVGLogger.h \
           IAVGFont.h FileHelper.h JSHelper.h AVGDivNode.h \
           IAVGVideoDecoder.h AVGFFMpegDecoder.h AVGVideoBase.h \
+          AVGPanoImage.h MathHelper.h \
           $(DC1394_INCLUDES) $(GL_INCLUDES) $(DFB_INCLUDES)
           
 libavg_PROGRAMS = xpshell
@@ -79,6 +80,7 @@ libavg_la_SOURCES = AVGEvent.cpp AVGMouseEvent.cpp AVGKeyEvent.cpp \
                     AVGLogger.cpp AVGConradRelais.cpp \
                     FileHelper.cpp JSHelper.cpp AVGDivNode.cpp\
                     AVGFFMpegDecoder.cpp AVGVideoBase.cpp \
+                    AVGPanoImage.cpp MathHelper.cpp\
                     $(DC1394_SOURCES) $(GL_SOURCES) $(DFB_SOURCES)\
                     $(ALL_H) 
  

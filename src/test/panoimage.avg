@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
+<avg width="640" height="480">
+<!--  <camera id="camera" x="160" y="120" z="1" width="320" height="240"
+      device="bla"/> -->
+    <image id="below" x="0" y="0" z="0" width="320" height="240"
+            href="rgb24.png"/>
+    <panoimage id="pano" x="0" y="0" z="1" width="640" height="480"
+            href="panoimage.tga" sensorwidth="4.60" sensorheight="3.97" 
+            focallength="12"/>
+    <image id="above" x="600" y="440" z="2" width="40" height="40"
+            href="rgb24.png"/>
+</avg>

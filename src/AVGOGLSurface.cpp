@@ -8,6 +8,7 @@
 #include "AVGException.h"
 #include "AVGPoint.h"
 #include "OGLHelper.h"
+#include "MathHelper.h"
 
 #include <paintlib/plstdpch.h>
 #include <paintlib/plrect.h>
@@ -87,13 +88,6 @@ void AVGOGLSurface::discardBmp()
     }
 }
 
-int nextpow2(int n) {
-    int ret=1;
-    while (ret<n) {
-        ret *= 2;
-    }
-    return ret;
-}
 
 string getGlModeString(int Mode) 
 {
@@ -141,7 +135,6 @@ void AVGOGLSurface::bind()
         }
         int NumHorizTextures = int(ceil(float(Width)/m_TileSize.x));
         int NumVertTextures = int(ceil(float(Height)/m_TileSize.y));
-
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "AVGOGLSurface::bind: glPixelStorei(GL_UNPACK_ALIGNMENT)");
@@ -171,12 +164,12 @@ void AVGOGLSurface::bind()
                 }
                 glGenTextures(1, &Tile.m_TexID);
                 OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                        "AVGOGLSurface::bindOneTexture: glGenTextures()");
+                        "AVGOGLSurface::bind: glGenTextures()");
                 m_Tiles[y].push_back(Tile);
 
                 glBindTexture(s_TextureMode, Tile.m_TexID);
                 OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-                        "AVGOGLSurface::bindOneTexture: glBindTexture()");
+                        "AVGOGLSurface::bind: glBindTexture()");
 
                 glTexParameteri(s_TextureMode, 
                         GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -248,6 +241,16 @@ void AVGOGLSurface::blt(const AVGDRect* pDestRect, double opacity,
         bind();
     }
     bltTexture(pDestRect, angle, pivot);
+}
+
+unsigned int AVGOGLSurface::getTexID()
+{
+    if (m_Tiles.size() != 1 || m_Tiles[0].size() != 1) {
+        AVG_TRACE(AVGPlayer::DEBUG_ERROR, 
+                "AVGOGLSurface::getTexID() called for tiled surface. Aborting");
+        exit(-1);
+    }
+    return m_Tiles[0][0].m_TexID;
 }
 
 int AVGOGLSurface::getTextureMode()
