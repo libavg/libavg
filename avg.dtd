@@ -70,6 +70,8 @@
   pivoty CDATA #IMPLIED
   opacity CDATA #IMPLIED
   overlay CDATA #IMPLIED
+  mode CDATA #IMPLIED
+  framerate CDATA #IMPLIED
   %graphicsElementEvents; > 
 
 <!ELEMENT words EMPTY>

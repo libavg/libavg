@@ -42,6 +42,8 @@ class AVGCamera : public AVGVideoBase , public IAVGCamera
         virtual std::string getTypeStr ();
 
     private:
+        bool findCameraOnPort(int port, raw1394handle_t& FWHandle);
+        
         virtual bool renderToBmp(PLBmp * pBmp);
         virtual void renderToBackbuffer(PLBYTE * pSurfBits, int Pitch, 
                 int BytesPerPixel, const AVGDRect& vpt);
@@ -60,7 +62,9 @@ class AVGCamera : public AVGVideoBase , public IAVGCamera
 
         std::string m_sDevice;
         double m_FrameRate;
+        int m_FrameRateConstant;  // libdc1394 constant for framerate.
         std::string m_sMode;
+        int m_Mode;               // libdc1394 constant for mode.
 
         dc1394_cameracapture m_Camera;
         raw1394handle_t m_FWHandle;

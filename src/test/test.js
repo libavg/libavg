@@ -355,8 +355,8 @@ function testExcl()
     }
 }
 
-    testHugeImage();
-/*
+//    testHugeImage();
+
     testVideo();
     testCrop();
     testAnimation();
@@ -371,5 +371,5 @@ function testExcl()
     playAVG("avg.avg");
     playAVG("noavg.avg");
     playAVG("noxml.avg");
-*/
+
 

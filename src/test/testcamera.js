@@ -34,6 +34,7 @@ var ok = tryLoadFile("camera.avg");
 if (ok) {
     play();
 //    AVGPlayer.setTimeout(20000, "stop();");
+//    AVGPlayer.play(15);
     AVGPlayer.play(10000);
 }
 

@@ -599,8 +599,10 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
                 &opacity, &angle, &pivotx, &pivoty);
         string filename = initFileName(xmlNode);
-        bool bLoop = getDefaultedBoolAttr(xmlNode, (const xmlChar *)"loop", false); 
-        bool bOverlay = getDefaultedBoolAttr(xmlNode, (const xmlChar *)"overlay", false); 
+        bool bLoop = getDefaultedBoolAttr(xmlNode, 
+                (const xmlChar *)"loop", false); 
+        bool bOverlay = getDefaultedBoolAttr(xmlNode, 
+                (const xmlChar *)"overlay", false); 
         AVGVideo * pVideo = AVGVideo::create();
         curNode = pVideo;
         pVideo->init(id, filename, bLoop, bOverlay, m_pDisplayEngine, 
@@ -614,12 +616,18 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         // TODO: Framerate & mode support.
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
                 &opacity, &angle, &pivotx, &pivoty);
-        string sDevice = getRequiredStringAttr(xmlNode, (const xmlChar *)"device");
-        bool bOverlay = getDefaultedBoolAttr(xmlNode, (const xmlChar *)"overlay", false); 
+        string sDevice = getDefaultedStringAttr(xmlNode, 
+                (const xmlChar *)"device", "0");
+        bool bOverlay = getDefaultedBoolAttr(xmlNode, 
+                (const xmlChar *)"overlay", false);
+        string sMode = getDefaultedStringAttr(xmlNode,
+                (const xmlChar *)"mode", "640x480_RGB");
+        int Framerate = getDefaultedIntAttr(xmlNode,
+                (const xmlChar *)"framerate", 15);
+        
         AVGCamera * pCamera = AVGCamera::create();
         curNode = pCamera;
-        string sMode = "bla";
-        pCamera->init(id, sDevice, 30, sMode, bOverlay, m_pDisplayEngine, 
+        pCamera->init(id, sDevice, Framerate, sMode, bOverlay, m_pDisplayEngine, 
                 pParent, this);
         pCamera->initVisible(x, y, z, width, height, opacity, angle, 
                 pivotx, pivoty);

@@ -209,8 +209,10 @@ int AVGOGLBmp::getSrcMode()
         case 8:
             return GL_ALPHA;
         case 24:
-            return GL_BGR;
+//            return GL_BGR;
+            return GL_RGB;
         case 32:
-            return GL_BGRA;
+//            return GL_BGRA;
+            return GL_RGBA;
     }
 }
