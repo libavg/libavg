@@ -8,7 +8,8 @@ Benötigte Packages:
    libflash (über die DirectFB-Seite) - stow
    libmpeg3-dev
    libsdl1.2-dev (vorläufig)
-   DirectFB (0.9.19)
+   DirectFB (0.9.19) - source
+   libxml2-dev
 
 paintlib:
    libcurl2-dev
@@ -22,5 +23,5 @@ mozilla:
 
   gtk-devel
   orbit-devel
-  mozilla (vielleicht reicht -devel, sonst src downloaden & compilen)
+  mozilla-devel
 

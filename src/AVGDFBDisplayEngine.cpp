@@ -58,7 +58,7 @@ void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen)
     int argc = 1;
     argv[0] = strdup ("bogus_appname");
     if (!isFullscreen) {
-	argc = 3;
+        argc = 3;
         argv[1] = strdup ("--dfb:force-windowed");
         argv[2] = strdup ("--dfb:system=SDL");
     }
@@ -114,7 +114,12 @@ void AVGDFBDisplayEngine::render(PLBmp * pBmp, const PLPoint& pos, double opacit
     PLDirectFBBmp * pDFBBmp = dynamic_cast<PLDirectFBBmp *>(pBmp);
     PLASSERT(pDFBBmp); // createSurface() should have been used to create 
                        // the bitmap.
-    IDirectFBSurface * pSurf = pDFBBmp->GetSurface(); 
+    IDirectFBSurface * pSurf = pDFBBmp->GetSurface();
+    if (pBmp->HasAlpha()) {
+        m_pPrimary->SetBlittingFlags(m_pPrimary, DSBLIT_BLEND_ALPHACHANNEL);
+    } else {
+        m_pPrimary->SetBlittingFlags(m_pPrimary, DSBLIT_NOFX);    
+    }
 //    dumpSurface (pSurf, "pDFBBmp");
 //    dumpSurface (m_pPrimary, "m_pPrimary");
     DFBResult err = m_pPrimary->Blit(m_pPrimary, pDFBBmp->GetSurface(), 0, 
