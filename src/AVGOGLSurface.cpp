@@ -88,8 +88,11 @@ void AVGOGLSurface::discardBmp()
 }
 
 int nextpow2(int n) {
-    double d = ::log(n)/::log(2);
-    return int(pow(2, ceil(d)));
+    int ret=1;
+    while (ret<n) {
+        ret *= 2;
+    }
+    return ret;
 }
 
 string getGlModeString(int Mode) 

@@ -32,7 +32,7 @@ using namespace std;
 #define MAX_PORTS 4
 #define MAX_RESETS 10
 #define DROP_FRAMES 1
-#define NUM_BUFFERS 3
+#define NUM_BUFFERS 2
 
 // Precomputed conversion matrix entries
 static int y2colTable[256]; // y to any color component;
@@ -155,7 +155,8 @@ bool AVGCamera::open(int* pWidth, int* pHeight)
     } /* next reset retry */
 
     if (!bFound) {
-        fatalError(string("No firewire cameras found (Node: ") + getID() + ").");
+        fatalError(string("No firewire cameras found (Node: ") +
+                getID() + ").");
     }
     
     if (j == MAX_RESETS) {
@@ -261,6 +262,7 @@ void AVGCamera::fatalError(const string & sMsg)
 bool AVGCamera::renderToSurface(IAVGSurface * pSurface)
 {
     int rc = dc1394_dma_single_capture_poll(&m_Camera);
+//    int rc = dc1394_dma_single_capture(&m_Camera);
     if (rc == DC1394_SUCCESS) {
         AVGOGLSurface * pOGLSurface = dynamic_cast<AVGOGLSurface *>(pSurface);
         // New frame available
@@ -315,7 +317,10 @@ bool AVGCamera::renderToSurface(IAVGSurface * pSurface)
             AVG_TRACE(AVGPlayer::DEBUG_WARNING,
                     "Camera: Frame not available.");
         } else {
-            fatalError("Frame capture failed.");
+            AVG_TRACE(AVGPlayer::DEBUG_WARNING,
+                    "Camera: Frame capture failed.");
+
+//            fatalError("Frame capture failed.");
         }
     }
     return true;
