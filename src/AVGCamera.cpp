@@ -270,6 +270,7 @@ inline void YUVtoBGR24Pixel(PLPixel24* pDest, PLBYTE y, PLBYTE u, PLBYTE v)
     int g = (298 * y - 100 * u - 208 * v) >> 8;
     int r = (298 * y           + 409 * v) >> 8;
 */
+/*
     int ycomp = y2colTable[y];
     int b = ((ycomp+u2bTable[u])>>8);
     int g = ((ycomp+u2gTable[u]+v2gTable[v])>>8);
@@ -282,6 +283,17 @@ inline void YUVtoBGR24Pixel(PLPixel24* pDest, PLBYTE y, PLBYTE u, PLBYTE v)
     if (r<0) r = 0;
     if (r>255) r= 255;
     pDest->Set(b,g,r);
+*/
+    unsigned int byte2rgba_factor=0x101*0x100*0x100;
+    asm volatile ("sub %%eax, %%eax;         \n\t"
+                  "mov %1, %%al;             \n\t"
+                  "imul $0x010101, %%eax;  \n\t"
+                  "mov %0, %%ebx;            \n\t"
+                  "movl %%eax, (%%ebx)       \n\t"
+                  : 
+                  :"m"(pDest), "m"(y) // , "m"(byte2rgba_factor)
+                  : "eax", "ebx", "memory");
+                  
 }
 
 void AVGCamera::YUV411toBGR24Line(PLBYTE* pSrc, int y, PLPixel24 * pDestLine)
