@@ -23,8 +23,7 @@
   
 <!ELEMENT excl (avg|excl|image|video|audio)+ >
 <!ATTLIST excl 
-  id ID #IMPLIED
-  activechild CDATA #IMPLIED >
+  id ID #IMPLIED >
 
 <!ELEMENT image EMPTY>
 <!ATTLIST image

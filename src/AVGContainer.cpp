@@ -68,6 +68,21 @@ void AVGContainer::addChild (AVGNode * pNewNode)
     m_Children.insert (pos, pNewNode);
 }
 
+void AVGContainer::zorderChange (AVGNode * pChild)
+{
+    // Remove child
+    vector<AVGNode*>::iterator it;
+    for  (it = m_Children.begin(); it < m_Children.end(); it++) {
+        if ((*it) == pChild) {
+            m_Children.erase(it);
+            break;
+        }
+    }
+
+    // Add it again.
+    addChild(pChild);
+}
+
 void AVGContainer::update (int time, const PLPoint& pos)
 {
     vector<AVGNode*>::iterator it;

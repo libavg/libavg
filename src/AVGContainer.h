@@ -25,6 +25,8 @@ class AVGContainer :
         int getNumChildren ();
         AVGNode * getChild (int i);
         void addChild (AVGNode * newNode);
+
+        void zorderChange (AVGNode * pChild);
         
 	private:
 		vector < AVGNode * > m_Children;

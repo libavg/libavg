@@ -87,6 +87,12 @@ void AVGSDLDisplayEngine::swapBuffers()
 {
     SDL_Flip(m_pScreen->GetSurface());
     SDL_SetClipRect(m_pScreen->GetSurface(), 0);
+    SDL_Rect SDLRect;
+    SDLRect.x = 0;
+    SDLRect.y = 0;
+    SDLRect.w = m_pScreen->GetWidth();
+    SDLRect.h = m_pScreen->GetHeight();
+    SDL_FillRect(m_pScreen->GetSurface(), &SDLRect, 0);
 }
 
 PLBmp * AVGSDLDisplayEngine::createSurface()

@@ -66,8 +66,7 @@ NODECLASS* createNode(string CID) {
     nsresult rv;
     IAVGNode* pINode;
     rv = nsComponentManager::CreateInstance (CID.c_str(), 0,
-            NS_GET_IID(IAVGNode),
-            (void**)&pINode);
+            NS_GET_IID(IAVGNode), (void**)&pINode);
     if (NS_FAILED(rv)) {
         cerr << "createNode failed: " << rv << endl;
         PLASSERT(false);

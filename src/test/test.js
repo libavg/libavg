@@ -82,7 +82,7 @@ function playAVG (fileName)
 function dumpNodes()
 {
     print ("---- testing node accessors ----");
-    var ok = tryLoadFile("../tests/avg.avg", new JSEvalKruecke());
+    var ok = tryLoadFile("avg.avg", new JSEvalKruecke());
     if (ok) {
         var rootNode = AVGPlayer.getRootNode();
         var numChildren = rootNode.getNumChildren();
@@ -111,29 +111,56 @@ function moveit() {
     node.setIntAttr("Right", r+1);
     var Opacity = node.getFloatAttr("Opacity");
     node.setFloatAttr("Opacity", Opacity-0.01);
+    var z = node.getIntAttr("Z");
+    if (z == 1) {
+        z = 3;
+    } else {
+        z = 1;
+    }
+    node.setIntAttr("Z", z);
 }
 
 function testAnimation()
 {
     print ("---- testing node accessors ----");
-    var ok = tryLoadFile("../tests/avg.avg", new JSEvalKruecke());
-    var node = AVGPlayer.getElementByID("nestedimg1");
-    print("    Node id: "+node.getID());
+    var ok = tryLoadFile("avg.avg", new JSEvalKruecke());
     if (ok) {
+        var node = AVGPlayer.getElementByID("nestedimg1");
+        print("    Node id: "+node.getID());
         AVGPlayer.setInterval(10,"moveit();");
         AVGPlayer.setTimeout(5000,"quitTimeout();");
         AVGPlayer.play();
     }
 }
 
+function setExcl(i)
+{
+    var node = AVGPlayer.getElementByID("switch");
+    node.setIntAttr("ActiveChild", i);
+}
+
+function testExcl()
+{
+    print ("---- testing node accessors ----");
+    var ok = tryLoadFile("excl.avg", new JSEvalKruecke());
+    if (ok) {
+        AVGPlayer.setTimeout(300,"setExcl(0);");
+        AVGPlayer.setTimeout(600,"setExcl(1);");
+        AVGPlayer.setTimeout(900,"setExcl(2);");
+        AVGPlayer.setTimeout(1200,"setExcl(3);");
+        AVGPlayer.setTimeout(1500,"quitTimeout();");
+        AVGPlayer.play();
+    }
+}
+
 dumpNodes();
 testAnimation();
+testExcl();
 
 playAVG("empty.avg");
 playAVG("events.avg");
 playAVG("image.avg")
 playAVG("avg.avg");
-playAVG("excl.avg");
 playAVG("noavg.avg");
 playAVG("noxml.avg");
 playAVG("video.avg");

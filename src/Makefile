@@ -27,7 +27,7 @@ CPPSRCS   =  AVGPlayer.cpp AVGNode.cpp \
         XMLHelper.cpp AVGImage.cpp \
         AVGSDLDisplayEngine.cpp XPAVGPlayerModule.cpp \
 		AVGFramerateManager.cpp AVGTimeout.cpp \
-		AVGEvent.cpp \
+		AVGEvent.cpp AVGExcl.cpp \
 		$(NULL)
 XPIDLSRCS = IAVGPlayer.idl IJSEvalKruecke.idl IAVGEvent.idl IAVGNode.idl
 

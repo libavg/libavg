@@ -8,11 +8,13 @@
 #include "AVGEvent.h"
 #include "AVGImage.h"
 #include "AVGAVGNode.h"
+#include "AVGExcl.h"
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGPlayer)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGEvent)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGImage)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGAVGNode)
+NS_GENERIC_FACTORY_CONSTRUCTOR(AVGExcl)
 
 static NS_METHOD AVGPlayerRegistrationProc(nsIComponentManager *aCompMgr,
                                            nsIFile *aPath,
@@ -35,6 +37,7 @@ NS_DECL_CLASSINFO(AVGPlayer)
 NS_DECL_CLASSINFO(AVGEvent)
 NS_DECL_CLASSINFO(AVGImage)
 NS_DECL_CLASSINFO(AVGAVGNode)
+NS_DECL_CLASSINFO(AVGExcl)
     
 static const nsModuleComponentInfo components[] =
 {
@@ -81,6 +84,17 @@ static const nsModuleComponentInfo components[] =
     NS_CI_INTERFACE_GETTER_NAME(AVGAVGNode),
     NULL /* no language helper */,
     &NS_CLASSINFO_NAME(AVGAVGNode)
+  },
+  { "c-base avgexcl Component", 
+    AVGEXCL_CID, 
+    AVGEXCL_CONTRACTID, 
+    AVGExclConstructor,
+    AVGPlayerRegistrationProc,
+    AVGPlayerUnregistrationProc,
+    NULL /* no factory destructor */,
+    NS_CI_INTERFACE_GETTER_NAME(AVGExcl),
+    NULL /* no language helper */,
+    &NS_CLASSINFO_NAME(AVGExcl)
   }
 };
 
@@ -89,6 +103,9 @@ NS_IMPL_NSGETMODULE(AVGPlayerModule, components)
 //==============================================================================
 //
 // $Log$
+// Revision 1.4  2003/03/22 20:35:12  uzadow
+// Added excl node support.
+//
 // Revision 1.3  2003/03/22 17:10:27  uzadow
 // Fixed AVGAVGNode refcount handling.
 //

@@ -67,6 +67,9 @@ AVGVisibleNode::SetIntAttr(const char *name, PRInt32 value)
         m_RelViewport.br.y = value;
     } else if (!strcmp(name, "Z")) {
         m_z = value;
+        if (getParent()) {
+            getParent()->zorderChange(this);
+        }
     } else {
         return AVGNode::SetIntAttr(name, value);
     }

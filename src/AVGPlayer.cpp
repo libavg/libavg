@@ -5,6 +5,7 @@
 #include "AVGPlayer.h"
 #include "AVGAVGNode.h"
 #include "AVGImage.h"
+#include "AVGExcl.h"
 #include "AVGEvent.h"
 #include "AVGException.h"
 #include "AVGSDLDisplayEngine.h"
@@ -253,7 +254,6 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
 {
     const xmlChar * nodeType = xmlNode->name;
     AVGNode * curNode = 0;
-//    cerr << "Node: " << (const char *) nodeType << endl;
     if (!xmlStrcmp (nodeType, (const xmlChar *)"avg")) {
         // create node itself.
         string id;
@@ -280,9 +280,15 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         string filename = m_CurDirName + 
                 getRequiredStringAttr(xmlNode, (const xmlChar *)"href");
 
-        curNode = AVGImage::create();
-        dynamic_cast<AVGImage*>(curNode)->init(id, x, y, z, width, height, opacity, 
+        AVGImage * pImage = AVGImage::create();
+        curNode = pImage;
+        pImage->init(id, x, y, z, width, height, opacity, 
                 filename, m_pDisplayEngine, pParent);
+        initEventHandlers(curNode, xmlNode);
+    } else if (!xmlStrcmp (nodeType, (const xmlChar *)"excl")) {
+        string id  = getDefaultedStringAttr (xmlNode, (const xmlChar *)"id", "");
+        curNode = AVGExcl::create();
+        dynamic_cast<AVGExcl*>(curNode)->init(id, pParent);
         initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"text")) {
         // Ignore whitespace
@@ -310,7 +316,6 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
             throw (AVGException (AVG_ERR_XML_DUPLICATE_ID,
                 string("Error: duplicate id ")+ID));
         }
-        cerr << "ID: " << ID << endl;
         m_IDMap.insert(NodeIDMap::value_type(ID, curNode));
     }
     return curNode;
