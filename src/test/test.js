@@ -263,12 +263,12 @@ function testExcl()
 }
 
 //while (true) {
-    testVideo();
+    testWords();
 /*
+    testVideo();
+    testExcl();
     dumpNodes();
     playAVG("image.avg");
-    testWords();
-    testExcl();
     testAnimation();
 
     playAVG("empty.avg");

@@ -39,6 +39,7 @@ class AVGVideo :
            AVGDFBDisplayEngine * pEngine, AVGContainer * pParent);
         virtual void update (int time, const PLRect& parent);
         virtual void render (const PLRect& Rect);
+        bool obscures (const PLRect& Rect, int z);
         virtual std::string getTypeStr ();
         virtual std::string dump (int indent = 0);
 

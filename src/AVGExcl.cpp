@@ -70,8 +70,18 @@ string AVGExcl::dump (int indent)
 void AVGExcl::render (const PLRect& Rect)
 {
     if (m_ActiveChild != -1) {
-        getChild(m_ActiveChild)->render(Rect);
+        cerr << "AVGExcl::render()" << endl;
+        getChild(m_ActiveChild)->maybeRender(Rect);
     }
+}
+
+bool AVGExcl::obscures (const PLRect& Rect, int z) 
+{
+    if (m_ActiveChild != -1) {
+        cerr << "AVGExcl::obscures()" << endl;
+        return getChild(m_ActiveChild)->obscures(Rect, z);
+    }
+    return false;
 }
 
 void AVGExcl::getDirtyRegion (AVGRegion& Region)
@@ -80,6 +90,15 @@ void AVGExcl::getDirtyRegion (AVGRegion& Region)
     if (m_ActiveChild != -1) {
         getChild(m_ActiveChild)->getDirtyRegion(Region);
     }
+}
+
+const PLRect& AVGExcl::getAbsViewport()
+{
+    if (m_ActiveChild != -1) {
+        return getChild(m_ActiveChild)->getAbsViewport();
+    }
+    return AVGNode::getAbsViewport();
+    
 }
 
 int AVGExcl::getActiveChild()

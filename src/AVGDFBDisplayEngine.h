@@ -27,6 +27,7 @@ class AVGDFBDisplayEngine
 
         virtual void setClipRect();
         virtual bool setClipRect(const PLRect& rc);
+        virtual const PLRect& getClipRect();
         virtual void setDirtyRect(const PLRect& rc);
         virtual void clear();
         virtual void render(PLBmp * pBmp, const PLPoint& pos, double opacity);

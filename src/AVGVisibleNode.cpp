@@ -107,11 +107,10 @@ void AVGVisibleNode::init (const string& id, int x, int y, int z,
         int width, int height, double opacity, 
         AVGDFBDisplayEngine * pEngine, AVGContainer * pParent)
 {
-    AVGNode::init(id, pParent);
+    AVGNode::init(id, pParent, pEngine);
     m_RelViewport = PLRect(x, y, x+width, y+height);
     m_z = z;
     m_Opacity = opacity;
-    m_pEngine = pEngine;
     PLPoint pos(0,0);
     if (pParent) {
         pos = pParent->getAbsViewport().tl;
@@ -132,16 +131,6 @@ void AVGVisibleNode::update (int time, const PLRect& parent)
 {
     m_AbsViewport = PLRect(parent.tl+m_RelViewport.tl, parent.tl+m_RelViewport.br);
     m_AbsViewport.Intersect(parent);
-}
-
-void AVGVisibleNode::maybeRender (const PLRect& Rect)
-{
-    bool bVisible = getEngine()->setClipRect(getAbsViewport());
-    if (bVisible) {
-        if (getEffectiveOpacity() > 0.01) {
-            render(Rect);
-        }
-    }
 }
 
 string AVGVisibleNode::dump (int indent)
@@ -211,16 +200,10 @@ void AVGVisibleNode::invalidate()
 
 double AVGVisibleNode::getEffectiveOpacity()
 {
-    AVGAVGNode * pParent = dynamic_cast<AVGAVGNode*>(getParent());
-    if (pParent) {
-        return m_Opacity*pParent->getEffectiveOpacity();
+    if (getParent()) {
+        return m_Opacity*getParent()->getEffectiveOpacity();
     } else {
         return m_Opacity;
     }
-}
-
-AVGDFBDisplayEngine * AVGVisibleNode::getEngine()
-{
-    return m_pEngine;
 }
 

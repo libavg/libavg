@@ -14,7 +14,6 @@
 
 class PLBmp;
 class PLPoint;
-class AVGDFBDisplayEngine;
 
 class AVGVisibleNode : 	
 	public virtual AVGNode
@@ -34,27 +33,24 @@ class AVGVisibleNode :
 
         virtual AVGNode * getElementByPos (const PLPoint & pos);
         virtual void update (int time, const PLRect& parent);
-        virtual void maybeRender (const PLRect& Rect);
         virtual std::string dump (int indent = 0);
 
         virtual void setViewport (int x, int y, int width, int height);
         const PLRect& getRelViewport ();
         const PLRect& getAbsViewport ();
-        int getZ ();
+        virtual int getZ ();
         double getOpacity();
         void setOpacity(double o);
-        double getEffectiveOpacity();
-        AVGDFBDisplayEngine * getEngine();
+        virtual double getEffectiveOpacity();
 
     protected:
         void invalidate();
 
     private:
+        double m_Opacity;
         PLRect m_RelViewport;      // In coordinates relative to the parent.
         PLRect m_AbsViewport;      // In window coordinates.
         int m_z;
-        double m_Opacity;
-        AVGDFBDisplayEngine * m_pEngine;
 
 };
 

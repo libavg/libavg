@@ -34,6 +34,7 @@ class AVGImage :
            int width, int height, double opacity, const std::string& filename, 
            AVGDFBDisplayEngine * pEngine, AVGContainer * pParent);
 		virtual void render (const PLRect& Rect);
+        virtual bool obscures (const PLRect& Rect, int z);
         virtual std::string getTypeStr ();
 
     private:

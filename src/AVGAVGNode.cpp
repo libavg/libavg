@@ -62,9 +62,19 @@ void AVGAVGNode::update (int time, const PLRect& parent)
 void AVGAVGNode::render(const PLRect& rect)
 {
 //    cerr << "render " << getID() << endl;
-    for (int i=0; i<getNumChildren(); i++){
+    for (int i=0; i<getNumChildren(); i++) {
         getChild(i)->maybeRender(rect);
     }
+}
+
+bool AVGAVGNode::obscures (const PLRect& rect, int z)
+{
+    for (int i=0; i<getNumChildren(); i++){
+        if (getChild(i)->getZ() > z && getChild(i)->obscures(rect, 0))
+            return true;
+    }
+    return false;
+ 
 }
 
 void AVGAVGNode::getDirtyRegion (AVGRegion& Region)

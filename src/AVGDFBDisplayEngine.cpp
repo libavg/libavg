@@ -61,13 +61,17 @@ void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen, bool bD
         teardown();
     }
     // Init DFB system
-    char ** argv = new (char *)[3];
+    char ** argv = new (char *)[5];
     int argc = 1;
     argv[0] = strdup ("bogus_appname");
     if (!isFullscreen) {
-        argc = 3;
+        argc = 5;
         argv[1] = strdup ("--dfb:force-windowed");
         argv[2] = strdup ("--dfb:system=SDL");
+        char tmp[256];
+        sprintf(tmp, "--dfb:mode=%ix%i", width, height);
+        argv[3] = strdup (tmp);
+        argv[4] = strdup ("--dfb:pixelformat=RGB16");
     }
     DFBResult err;
     err = DirectFBInit (&argc, &argv);
@@ -131,14 +135,15 @@ void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen, bool bD
 
     // Init window
     DFBWindowDescription WinDesc;
-    WinDesc.flags = DFBWindowDescriptionFlags(DWDESC_CAPS | DWDESC_WIDTH | 
+    WinDesc.flags = DFBWindowDescriptionFlags(DWDESC_CAPS | DWDESC_WIDTH | DWDESC_PIXELFORMAT |
             DWDESC_HEIGHT | DWDESC_POSX | DWDESC_POSY | DWDESC_SURFACE_CAPS);
     WinDesc.caps = DFBWindowCapabilities(DWCAPS_NONE); // | DWCAPS_DOUBLEBUFFER); 
     WinDesc.width = m_Width;
     WinDesc.height = m_Height;
     WinDesc.posx = 0;
     WinDesc.posy = 0;
-    WinDesc.surface_caps = DSCAPS_FLIPPING;
+    WinDesc.pixelformat=DSPF_RGB16; 
+    WinDesc.surface_caps = DFBSurfaceCapabilities(DSCAPS_FLIPPING);
     err = m_pDFBLayer->CreateWindow(m_pDFBLayer, &WinDesc, &m_pDFBWindow);
     DFBErrorCheck(AVG_ERR_DFB, err);
     err = m_pDFBWindow->SetOpacity (m_pDFBWindow, 0xFF);
@@ -149,11 +154,11 @@ void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen, bool bD
     IDirectFBSurface * pLayerSurf;
     err = m_pDFBLayer->GetSurface(m_pDFBLayer, &pLayerSurf);
     DFBErrorCheck(AVG_ERR_VIDEO_INIT_FAILED, err);
-//    dumpSurface (pLayerSurf, "Layer surface");
+    dumpSurface (pLayerSurf, "Layer surface");
 
     err = m_pDFBWindow->GetSurface(m_pDFBWindow, &m_pPrimary);
     DFBErrorCheck(AVG_ERR_VIDEO_INIT_FAILED, err);
-//    dumpSurface (m_pPrimary, "Window surface (m_pPrimary)");
+    dumpSurface (m_pPrimary, "Window surface (m_pPrimary)");
     m_pFontManager = new AVGFontManager;
 }
 
@@ -210,6 +215,10 @@ bool AVGDFBDisplayEngine::setClipRect(const PLRect& rc)
     } else {
         return false;
     }
+}
+
+const PLRect& AVGDFBDisplayEngine::getClipRect() {
+    return m_ClipRect;
 }
 
 void AVGDFBDisplayEngine::setDirtyRect(const PLRect& rc) 

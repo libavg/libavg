@@ -31,7 +31,9 @@ class AVGExcl :
 
         virtual std::string dump (int indent = 0);
 		virtual void render (const PLRect& Rect);
-		virtual void getDirtyRegion (AVGRegion& Region);
+        virtual bool obscures (const PLRect& Rect, int z);
+        virtual void getDirtyRegion (AVGRegion& Region);
+        virtual const PLRect& getAbsViewport();
 
         virtual int getActiveChild();
         virtual void setActiveChild(int activeChild);

@@ -22,6 +22,7 @@ class PLRect;
 class AVGContainer;
 class AVGEvent;
 class AVGRegion;
+class AVGDFBDisplayEngine;
 
 class AVGNode: public IAVGNode
 {
@@ -31,7 +32,8 @@ class AVGNode: public IAVGNode
 
         AVGNode ();
         virtual ~AVGNode ();
-        void init(const std::string& id, AVGContainer * pParent);
+        void init(const std::string& id, AVGContainer * pParent,
+                AVGDFBDisplayEngine * pEngine);
         virtual void InitEventHandlers
             (const std::string& MouseMoveHandler, 
              const std::string& MouseButtonUpHandler, 
@@ -43,9 +45,14 @@ class AVGNode: public IAVGNode
 		virtual void update (int time, const PLRect& parent);
         virtual void maybeRender (const PLRect& Rect);
 		virtual void render (const PLRect& Rect);
+        virtual bool obscures (const PLRect& Rect, int z);
         virtual void addDirtyRect(const PLRect& Rect);
 		virtual void getDirtyRegion (AVGRegion& Region);
         virtual const PLRect& getAbsViewport();
+        virtual int getZ();
+        virtual double getEffectiveOpacity();
+        AVGDFBDisplayEngine * getEngine();
+
         virtual std::string dump (int indent = 0);
         virtual std::string getTypeStr ();
         virtual const std::string& getID ();
@@ -60,6 +67,7 @@ class AVGNode: public IAVGNode
 
         std::string m_ID;
 		AVGContainer * m_pParent;
+        AVGDFBDisplayEngine * m_pEngine;
 
         std::string m_MouseMoveHandler;
         std::string m_MouseButtonUpHandler;

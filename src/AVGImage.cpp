@@ -80,6 +80,12 @@ void AVGImage::render (const PLRect& Rect)
     getEngine()->render(m_pBmp, getAbsViewport().tl, getEffectiveOpacity());
 }
 
+bool AVGImage::obscures (const PLRect& Rect, int z) 
+{
+    return (getEffectiveOpacity() > 0.999 && !m_pBmp->HasAlpha() &&
+            getZ() > z && getAbsViewport().Contains(Rect));
+}
+
 string AVGImage::getTypeStr ()
 {
     return "AVGImage";

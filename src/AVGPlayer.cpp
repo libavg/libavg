@@ -378,7 +378,7 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"excl")) {
         string id  = getDefaultedStringAttr (xmlNode, (const xmlChar *)"id", "");
         curNode = AVGExcl::create();
-        dynamic_cast<AVGExcl*>(curNode)->init(id, pParent);
+        dynamic_cast<AVGExcl*>(curNode)->init(id, pParent, m_pDisplayEngine);
         initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"text") || 
                !xmlStrcmp (nodeType, (const xmlChar *)"comment")) {

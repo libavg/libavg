@@ -119,7 +119,7 @@ void AVGVideo::update (int time, const PLRect& parent)
 
 void AVGVideo::render (const PLRect& Rect)
 {
-    //    cerr << "render " << getID() << endl;
+//    cerr << "render " << getID() << endl;
     switch(m_State) {
         case Playing:
             if (m_bOverlay) {
@@ -207,7 +207,6 @@ void AVGVideo::open (int* pWidth, int* pHeight)
     m_CurFrame = 0;
 }
 
-/*
 void dumpBmpLineArray(PLBmp* pBmp)
 {
     PLBYTE ** ppLines = pBmp->GetLineArray();
@@ -215,14 +214,15 @@ void dumpBmpLineArray(PLBmp* pBmp)
         cerr << "Line " << y << ": " << hex << (void*)ppLines[y] << dec << endl;
     }
 }
-*/
 
 void AVGVideo::readFrame()
 {
     PLRect vpt = getRelViewport();
     mpeg3_read_frame(m_pMPEG, m_pBmp->GetLineArray(), 0, 0, 
-            m_Width, m_Height, vpt.Width(), vpt.Height(), 
-            MPEG3_BGRA8888, 0);
+            m_Width-1, m_Height-1, vpt.Width(), vpt.Height(), 
+            MPEG3_RGBA8888, 0);
+    // libmpeg3 forgets to turn mmx off, killing floating point operations.
+    __asm__ __volatile__ ("emms");  
     m_bFrameAvailable = true;
     advancePlayback();
 }
@@ -260,6 +260,13 @@ void AVGVideo::initOverlay()
 
 void AVGVideo::renderToOverlay()
 {
+}
+
+bool AVGVideo::obscures (const PLRect& Rect, int z)
+{
+    return (getEffectiveOpacity() > 0.999 &&
+            getZ() > z && getAbsViewport().Contains(Rect));
+
 }
 
 void AVGVideo::advancePlayback()

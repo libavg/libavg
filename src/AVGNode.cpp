@@ -4,7 +4,9 @@
 
 #include "AVGEvent.h"
 #include "AVGContainer.h"
+#include "AVGAVGNode.h"
 #include "AVGJSScript.h"
+#include "AVGDFBDisplayEngine.h"
 
 #include <paintlib/plpoint.h>
 
@@ -101,10 +103,11 @@ AVGNode::SetFloatAttr(const char *name, float value)
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 
-void AVGNode::init(const string& id, AVGContainer * pParent)
+void AVGNode::init(const string& id, AVGContainer * pParent, AVGDFBDisplayEngine * pEngine)
 {
     m_ID = id;
     m_pParent = pParent;
+    m_pEngine = pEngine;
 }
 
 void AVGNode::InitEventHandlers
@@ -132,10 +135,24 @@ void AVGNode::update (int time, const PLRect& parent)
 
 void AVGNode::maybeRender (const PLRect& Rect)
 {
+    bool bVisible = getEngine()->setClipRect(getAbsViewport());
+    if (bVisible) {
+        if (getEffectiveOpacity() > 0.01) {
+            AVGNode* pParent = getParent(); 
+            if (!pParent || !pParent->obscures(getEngine()->getClipRect(), getZ())) {
+                render(Rect);
+            } 
+        }
+    }
 }
 
 void AVGNode::render (const PLRect& Rect)
 {
+}
+
+bool AVGNode::obscures (const PLRect& Rect, int z)  
+{
+    return false;
 }
 
 void AVGNode::addDirtyRect(const PLRect& Rect)
@@ -154,6 +171,27 @@ const PLRect& AVGNode::getAbsViewport()
     static PLRect rc(0,0,0,0);
     return rc;
 }
+
+int AVGNode::getZ()
+{
+    return 65535;
+}
+
+double AVGNode::getEffectiveOpacity()
+{
+    AVGAVGNode * pParent = dynamic_cast<AVGAVGNode*>(getParent());
+    if (pParent) {
+        return pParent->getEffectiveOpacity();
+    } else {
+        return 1;
+    }
+}
+
+AVGDFBDisplayEngine * AVGNode::getEngine()
+{
+    return m_pEngine;
+}
+
 
 string AVGNode::dump (int indent)
 {
