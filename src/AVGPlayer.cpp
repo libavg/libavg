@@ -12,6 +12,7 @@
 #include "AVGException.h"
 #include "AVGRegion.h"
 #include "AVGDFBDisplayEngine.h"
+#include "AVGLogger.h"
 #include "XMLHelper.h"
 
 #include "acIJSContextPublisher.h"
@@ -26,6 +27,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -42,13 +44,13 @@
 
 using namespace std;
 
-int AVGPlayer::m_DebugFlags(0);
 
 AVGPlayer::AVGPlayer()
     : m_pRootNode (0),
       m_pDisplayEngine(0),
       m_pLastMouseNode(0),
-      m_pFramerateManager(0)
+      m_pFramerateManager(0),
+      m_pDebugDest(0)
 {
 #ifdef XPCOM_GLUE
     XPCOMGlueStartup("XPCOMComponentGlue");
@@ -58,10 +60,12 @@ AVGPlayer::AVGPlayer()
     nsCOMPtr<acIJSContextPublisher> myJSContextPublisher =
         do_CreateInstance("@artcom.com/jscontextpublisher;1", &myErr);
     if (NS_FAILED(myErr)) {
-        cerr << "Error: Could not obtain reference to js context. Was xpshell used to start AVGPlayer?" << endl;
+        AVG_TRACE(DEBUG_ERROR, 
+              "Error: Could not obtain reference to js context. Was xpshell used to start AVGPlayer?");
         exit(-1);
     }
     myJSContextPublisher->GetContext((PRInt32*) &m_pJSContext);
+    AVGLogger::get()->setDestination(&cerr);
 }
 
 AVGPlayer::~AVGPlayer()
@@ -69,6 +73,9 @@ AVGPlayer::~AVGPlayer()
 #ifdef XPCOM_GLUE
     XPCOMGlueShutdown();
 #endif
+    if (m_pDebugDest) {
+        delete m_pDebugDest;
+    }
 
 }
 
@@ -78,17 +85,16 @@ NS_IMETHODIMP
 AVGPlayer::LoadFile(const char * fileName, 
         PRBool * pResult)
 {
-    cerr << "AVGPlayer::LoadFile(" << fileName << ")" << endl;
+    AVG_TRACE(DEBUG_MEMORY, 
+          std::string("AVGPlayer::LoadFile(") + fileName + ")");
     try {
         loadFile (fileName);
         *pResult = true;
     } catch  (AVGException& ex) {
-        cout <<  endl << "    ----------- error: " << ex.GetStr() 
-             << "-----------" << endl;
+        AVG_TRACE(DEBUG_ERROR, ex.GetStr());
         *pResult = false;
     } catch (PLTextException& ex) {
-        cout << endl << "    ----------- paintlib error: " << (const char *)ex
-             << "-----------" << endl;
+        AVG_TRACE(DEBUG_ERROR, (const char*)ex);
         *pResult = false;
     }
     return NS_OK;
@@ -113,7 +119,7 @@ AVGPlayer::GetElementByID(const char *id, IAVGNode **_retval)
 {
     AVGNode * pNode = getElementByID(id);
     if (!pNode) {
-        cerr << "getElementByID(" << id << ") failed" << endl;
+        AVG_TRACE(DEBUG_ERROR, "getElementByID(" << id << ") failed");
     }
     *_retval = getElementByID(id);
     NS_IF_ADDREF(*_retval);
@@ -175,10 +181,25 @@ AVGPlayer::GetCurEvent(IAVGEvent **_retval)
 NS_IMETHODIMP 
 AVGPlayer::SetDebugOutput(PRInt32 flags)
 {
-    m_DebugFlags = flags;
+    AVGLogger::get()->setCategories(flags);
     return NS_OK;
 }
 
+NS_IMETHODIMP
+AVGPlayer::SetDebugOutputFile(const char *name)
+{
+    if (m_pDebugDest) {
+        delete m_pDebugDest;
+    }
+    m_pDebugDest = new ofstream(name, ios::out | ios::app);
+    if (!*m_pDebugDest) {
+        AVG_TRACE(DEBUG_ERROR, "Could not open " << name << " as log destination.");
+    } else {
+        AVGLogger::get()->setDestination(m_pDebugDest);
+        AVG_TRACE(DEBUG_ERROR, "Logging started ");
+    }
+}
+    
 NS_IMETHODIMP
 AVGPlayer::GetErrStr(char ** ppszResult)
 {
@@ -282,6 +303,7 @@ void AVGPlayer::render (bool bRenderEverything)
     }
     m_pFramerateManager->FrameWait();
     m_pDisplayEngine->swapBuffers(UpdateRegion);
+    m_pFramerateManager->CheckJitter();
 }
 
 void AVGPlayer::jsgc()
@@ -328,31 +350,9 @@ void AVGPlayer::setRealtimePriority()
     int myRetVal = pthread_setschedparam (pthread_self(), 
 		    SCHED_FIFO, &myParam);
     if (myRetVal == 0) {
-        cerr << "AVGPlayer running with realtime priority." << endl;
+        AVG_TRACE(DEBUG_PROFILE, "AVGPlayer running with realtime priority.");
     } else {
-        cerr << "Setting realtime priority failed." << endl;
-    }
-}
-
-void AVGPlayer::trace(int category, const std::string& msg)
-{
-    if (category & m_DebugFlags) {
-        switch(category) {
-            case DEBUG_BLTS:
-                cerr << "------ BLIT: ";
-                break;
-            case DEBUG_PROFILE:
-                cerr << "--- PROFILE: ";
-                break;
-            case DEBUG_MEMORY:
-                cerr << "---- MEMORY: ";
-                break;
-            case DEBUG_EVENTS:
-            case DEBUG_EVENTS2:
-                cerr << "---- EVENTS: ";
-                break;
-         }
-        cerr << msg;
+        AVG_TRACE(DEBUG_PROFILE, "Setting realtime priority failed.");
     }
 }
 
@@ -544,7 +544,7 @@ void AVGPlayer::handleEvents()
                 NS_IF_RELEASE(pCPPEvent);
             }
         } else {
-            cerr << "Unexpected event received;" << endl;
+            AVG_TRACE(DEBUG_ERROR, "Unexpected event received.");
         }
     }
     
@@ -601,6 +601,7 @@ int AVGPlayer::addTimeout(AVGTimeout* timeout)
 
 void AVGPlayer::dumpDFBEvent (const DFBEvent& dfbEvent)
 {
+    // TODO: Convert to AVG_TRACE.
     if (dfbEvent.clazz == DFEC_WINDOW && dfbEvent.window.type == DWET_MOTION) {
         // Don't dump mouse move events
         return;

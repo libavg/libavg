@@ -5,6 +5,7 @@
 #include "AVGImage.h"
 #include "AVGDFBDisplayEngine.h"
 #include "AVGPlayer.h"
+#include "AVGLogger.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/planybmp.h>

@@ -60,7 +60,6 @@ void AVGAVGNode::prepareRender (int time, const PLRect& parent)
 
 void AVGAVGNode::render(const PLRect& rect)
 {
-//    cerr << "render " << getID() << endl;
     for (int i=0; i<getNumChildren(); i++) {
         getChild(i)->maybeRender(rect);
     }

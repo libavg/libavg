@@ -3,6 +3,8 @@
 //
 
 #include "AVGTimeSource.h"
+#include "AVGLogger.h"
+#include "IAVGPlayer.h"
 
 #include <sys/time.h>
 #include <unistd.h>
@@ -12,6 +14,7 @@
 #include <linux/rtc.h>
 #include <sys/ioctl.h>
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -35,20 +38,22 @@ void AVGTimeSource::tryOpenRTC()
     m_bUseRTC = true;
     m_RTCFD = open("/dev/rtc", O_RDONLY);
     if (m_RTCFD == -1) {
-        cerr << "Couldn't open /dev/rtc: " << strerror(errno) << 
-            " (Running as root?)" << endl; 
+        AVG_TRACE(IAVGPlayer::DEBUG_PROFILE,
+            "Couldn't open /dev/rtc: " << strerror(errno) << " (Running as root?)"); 
         m_bUseRTC = false;
     } else {
         const unsigned IntrFrequency = 1024;
         int err = ioctl(m_RTCFD, RTC_IRQP_SET, IntrFrequency);
         if (err == -1) {
-            cerr << "Couldn't set rtc interrupt (Running as root?)" << endl;
+            AVG_TRACE(IAVGPlayer::DEBUG_PROFILE, "Couldn't set rtc interrupt (Running as root?)");
+            close(m_RTCFD);
             m_bUseRTC = false;
             return;
         }
         err = ioctl(m_RTCFD, RTC_PIE_ON, 0);
         if (err == -1) {
-            cerr << "ioctl(...RTC_PIE_ON...) failed. Huh?" << endl;
+            AVG_TRACE(IAVGPlayer::DEBUG_ERROR, "ioctl(...RTC_PIE_ON...) failed. Huh?");
+            close(m_RTCFD);
             m_bUseRTC = false;
         }
     }
@@ -57,7 +62,7 @@ void AVGTimeSource::tryOpenRTC()
 AVGTimeSource::~AVGTimeSource()
 {
     if (m_bUseRTC) {
-        // TODO
+        close(m_RTCFD);
     }
 }
 
@@ -78,8 +83,8 @@ void AVGTimeSource::sleepUntil(int ticks)
             unsigned long dummy;
             int err = read(m_RTCFD, &dummy, sizeof(dummy));
             if (err == -1) {
-                cerr << "failed to read RTC (" << strerror(errno) <<
-                        "). Switching to usleep." << endl;
+                AVG_TRACE(IAVGPlayer::DEBUG_ERROR, "failed to read RTC (" << strerror(errno) <<
+                        "). Switching to usleep.");
                 m_bUseRTC = false;
                 return;
             }

@@ -6,6 +6,7 @@
 #include "AVGDFBDisplayEngine.h"
 #include "AVGException.h"
 #include "AVGPlayer.h"
+#include "AVGLogger.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/pldirectfbbmp.h>
@@ -78,7 +79,8 @@ NS_IMETHODIMP AVGVideo::GetNumFrames(int *_retval)
     if (m_State != Unloaded) {
         *_retval = mpeg3_video_frames(m_pMPEG, 0);
     } else {
-        cerr << "Error in AVGVideo::GetNumFrames: Video not loaded." << endl;
+        AVG_TRACE(IAVGPlayer::DEBUG_ERROR,
+               "Error in AVGVideo::GetNumFrames: Video not loaded.");
         *_retval = -1;
     }
     return NS_OK;
@@ -89,7 +91,7 @@ NS_IMETHODIMP AVGVideo::GetCurFrame(int *_retval)
     if (m_State != Unloaded) {
         *_retval = mpeg3_get_frame(m_pMPEG, 0);
     } else {
-        cerr << "Error in AVGVideo::GetCurFrame: Video not loaded." << endl;
+        AVG_TRACE(IAVGPlayer::DEBUG_ERROR, "Error in AVGVideo::GetCurFrame: Video not loaded.");
         *_retval = -1;
     }
     return NS_OK;
@@ -101,7 +103,7 @@ NS_IMETHODIMP AVGVideo::SeekToFrame(int num)
     if (m_State != Unloaded) {
         mpeg3_set_frame(m_pMPEG, num, 0);
     } else {
-        cerr << "Error in AVGVideo::SeekToFrame: Video not loaded." << endl;
+        AVG_TRACE(IAVGPlayer::DEBUG_ERROR, "Error in AVGVideo::SeekToFrame: Video not loaded.");
     }
     return NS_OK;
 }

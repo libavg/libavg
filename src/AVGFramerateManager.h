@@ -14,6 +14,7 @@ class AVGFramerateManager
         void SetRate(double Rate);
         double GetRate();
         void FrameWait();
+        void CheckJitter();
 
     private:
         int getCurrentTicks();
@@ -23,8 +24,11 @@ class AVGFramerateManager
         int m_NumRegularFrames;
         int m_TimeSpentWaiting;
         int m_LastFrameTime;
+        bool m_bLastFrameLate;
+        int m_TotalJitter;
         double m_Rate;
         int m_StartTime;
+        
 };
 
 #endif //_AVGFramerate_H_

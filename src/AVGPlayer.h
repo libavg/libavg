@@ -19,6 +19,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <fstream>
 
 class AVGAVGNode;
 class AVGNode;
@@ -54,8 +55,6 @@ class AVGPlayer: public IAVGPlayer
         double getFramerate ();
         void addEvent (int time, AVGEvent * event);
 
-        static void trace(int category, const std::string& msg); 
-        
     private:
         AVGNode * createNodeFromXml(const xmlNodePtr xmlNode, AVGContainer * pParent);
         void getVisibleNodeAttrs (const xmlNodePtr xmlNode, 
@@ -77,6 +76,7 @@ class AVGPlayer: public IAVGPlayer
         bool m_bStopping;
         typedef std::map<std::string, AVGNode*> NodeIDMap;
         NodeIDMap m_IDMap;
+        std::ofstream * m_pDebugDest;
 
         // Event handling
         int addTimeout(AVGTimeout* timeout);
@@ -93,15 +93,9 @@ class AVGPlayer: public IAVGPlayer
         std::vector<AVGTimeout *> m_PendingTimeouts;
         std::vector<AVGTimeout *> m_NewTimeouts; // Timeouts to be added this frame.
         AVGNode * m_pLastMouseNode;
-        static int m_DebugFlags;
 
         JSContext * m_pJSContext;
 };
 
-#define AVG_TRACE(category, msg) { \
-    std::stringstream tmp(std::stringstream::in | std::stringstream::out); \
-    tmp << msg; \
-    AVGPlayer::trace(category, tmp.str()); \
-}
 
 #endif //_AVGPlayer_H_

@@ -4,6 +4,7 @@
 
 #include "AVGEvent.h"
 #include "AVGPlayer.h"
+#include "AVGLogger.h"
 
 #include <paintlib/pldebug.h>
 
@@ -181,20 +182,20 @@ void AVGEvent::dump()
             break;
     }
     
-    AVG_TRACE(AVGPlayer::DEBUG_EVENTS, "Event: " << EventName << endl);
+    AVG_TRACE(AVGPlayer::DEBUG_EVENTS, EventName);
     int IsMouse;
     IsMouseEvent(&IsMouse);
     if (IsMouse) {
-        AVG_TRACE(AVGPlayer::DEBUG_EVENTS2, "Event: " << EventName << 
+        AVG_TRACE(AVGPlayer::DEBUG_EVENTS2, EventName << 
                 "( Pos: (" << m_Pos.x << ", " << m_Pos.y << "), " << 
-                "Buttons pressed: " << m_ButtonsPressed << ")" << endl);
+                "Buttons pressed: " << m_ButtonsPressed << ")");
     } else {
         if (m_Type == AVGEvent::KEYDOWN) {
-            AVG_TRACE(AVGPlayer::DEBUG_EVENTS2, "Event: " << EventName << 
+            AVG_TRACE(AVGPlayer::DEBUG_EVENTS2, EventName << 
                     ", Key symbol: " << m_KeySym << ", Key modifiers: " << 
-                    m_KeyMods << endl);
+                    m_KeyMods);
         } else {
-            AVG_TRACE(AVGPlayer::DEBUG_EVENTS2, "Event: " << EventName << endl);
+            AVG_TRACE(AVGPlayer::DEBUG_EVENTS2, EventName);
         }
     }
 }

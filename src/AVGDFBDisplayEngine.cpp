@@ -6,6 +6,7 @@
 #include "AVGException.h"
 #include "AVGRegion.h"
 #include "AVGPlayer.h"
+#include "AVGLogger.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/pldirectfbbmp.h>
@@ -36,23 +37,23 @@ AVGDFBDisplayEngine::~AVGDFBDisplayEngine()
 void AVGDFBDisplayEngine::dumpSurface (IDirectFBSurface * pSurf, const string & name)
 {
     int w, h;
-    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Surface: " << name << endl);
+    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Surface: " << name);
 
     pSurf->GetSize(pSurf, &w, &h);
-    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "  Size: " << w << "x" << h << endl);
+    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "  Size: " << w << "x" << h);
 
     DFBRectangle rect;
     pSurf->GetVisibleRectangle(pSurf, &rect);
     AVG_TRACE(AVGPlayer::DEBUG_BLTS, "  VisibleRect: x: " << rect.x << 
-            ", y: " << rect.y << ", w: " << rect.w << ", h: " << rect.h << endl);
+            ", y: " << rect.y << ", w: " << rect.w << ", h: " << rect.h);
 
     DFBSurfaceCapabilities caps;
     pSurf->GetCapabilities(pSurf, &caps);
-    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "  Caps: " << std::hex << caps << endl);
+    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "  Caps: " << std::hex << caps);
 
     DFBSurfacePixelFormat fmt;
     pSurf->GetPixelFormat(pSurf, &fmt);
-    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "  PixelFormat: " << fmt << std::dec << endl);
+    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "  PixelFormat: " << fmt << std::dec);
 }
 
 
@@ -93,8 +94,8 @@ void AVGDFBDisplayEngine::initDFB(int width, int height, bool isFullscreen, int 
     
     if (isFullscreen && geteuid() != 0) {
         isFullscreen = false;
-        cout << "Warning: Fullscreen requested but not running as root." << endl <<
-                "         Falling back to windowed mode." << endl;
+        AVG_TRACE(IAVGPlayer::DEBUG_PROFILE, "Fullscreen requested but not running as root.");
+        AVG_TRACE(IAVGPlayer::DEBUG_PROFILE, "         Falling back to windowed mode.");
     }
     
     if (!isFullscreen) {
@@ -246,7 +247,7 @@ bool AVGDFBDisplayEngine::setClipRect(const PLRect& rc)
         AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Clip set to " << 
                 m_ClipRect.tl.x << "x" << m_ClipRect.tl.y << 
                 ", width: " << m_ClipRect.Width() << ", height: " << 
-                m_ClipRect.Height() << endl);
+                m_ClipRect.Height());
         return true;
     } else {
         return false;
@@ -263,7 +264,7 @@ void AVGDFBDisplayEngine::setDirtyRect(const PLRect& rc)
     
     AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Dirty rect: " << m_DirtyRect.tl.x << "x" << 
             m_DirtyRect.tl.y << ", width: " << m_DirtyRect.Width() << 
-            ", height: " << m_DirtyRect.Height() << endl);
+            ", height: " << m_DirtyRect.Height());
 }
 
 void AVGDFBDisplayEngine::clear()
@@ -272,7 +273,7 @@ void AVGDFBDisplayEngine::clear()
     m_pBackBuffer->SetColor(m_pBackBuffer, 0x0, 0x00, 0x00, 0xff);
     AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Clear rect: " << m_DirtyRect.tl.x << "x" << 
             m_DirtyRect.tl.y << ", width: " << m_DirtyRect.Width() << 
-            ", height: " << m_DirtyRect.Height() << endl);
+            ", height: " << m_DirtyRect.Height());
     if (m_DirtyRect.Width() >= 0 && m_DirtyRect.Height() >= 0) {
         err = m_pBackBuffer->FillRectangle(m_pBackBuffer, 
                 m_DirtyRect.tl.x, m_DirtyRect.tl.y, 
@@ -325,7 +326,7 @@ void AVGDFBDisplayEngine::render(IDirectFBSurface * pSrc, const PLRect* pSrcRect
     pSrc->GetSize(pSrc, &width, &height);
     AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Blit: " << pos.x << "x" << pos.y << 
             ", width:" << width << ", height: " << height << 
-            ", alpha: " << bAlpha << ", opacity: " << opacity << endl);
+            ", alpha: " << bAlpha << ", opacity: " << opacity);
 
     DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::render", err);
 }
@@ -352,13 +353,13 @@ void AVGDFBDisplayEngine::swapBuffers(const AVGRegion & UpdateRegion)
         m_pBackBuffer->GetSize(m_pBackBuffer, &width, &height);
         AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Swap Blit: " << 
                 rc.tl.x << "x" << rc.tl.y << ", width: " << 
-                rc.Width() << ", height: " << rc.Height() << endl);
+                rc.Width() << ", height: " << rc.Height());
 
     }
     if (!m_IsFullscreen) {
         pLayerSurf->Flip(pLayerSurf, 0, DFBSurfaceFlipFlags(DSFLIP_BLIT));
     
-        AVG_TRACE(AVGPlayer::DEBUG_BLTS, "DFB Surface Flip Blit" << endl);
+        AVG_TRACE(AVGPlayer::DEBUG_BLTS, "DFB Surface Flip Blit");
     }
     pLayerSurf->Release(pLayerSurf);
 }

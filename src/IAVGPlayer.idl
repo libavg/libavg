@@ -27,8 +27,10 @@ interface IAVGPlayer : nsISupports
     const long DEBUG_MEMORY=4;
     const long DEBUG_EVENTS=8;
     const long DEBUG_EVENTS2=16;
-
+    const long DEBUG_ERROR=32;
+    
     void setDebugOutput(in long flags);
+    void setDebugOutputFile(in string name);
     string getErrStr();
     long getErrCode();
 };
