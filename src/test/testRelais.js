@@ -1,4 +1,4 @@
-use("../avg.js");
+use("avg.js");
 
 var Relais = AVGPlayer.createRelais(1); 
 

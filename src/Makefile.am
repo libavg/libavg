@@ -1,12 +1,4 @@
 
-MOZILLA_DIR = `mozilla-config --prefix`
-MOZILLA_LIB_DIR    =  $(MOZILLA_DIR)/lib
-#MOZILLA_LIB_DIR    =  $(MOZILLA_DIR)/lib/mozilla
-MOZILLA_BIN_DIR    = $(MOZILLA_DIR)/lib/mozilla
-MOZILLA_COMPONENT_DIR = $(MOZILLA_BIN_DIR)/components
-MOZILLA_IDL_DIR = $(MOZILLA_DIR)/share/idl
-#MOZILLA_IDL_DIR = $(MOZILLA_DIR)/share/idl/mozilla
-
 INCLUDES = `mozilla-config --cflags xpcom nspr js xpconnect string` \
            -I/usr/include/g++ \
            `xml2-config --cflags` \
@@ -22,12 +14,11 @@ ALL_H = AVGAVGNode.h AVGContainer.h  AVGDFBDisplayEngine.h AVGEvent.h \
           IDisplayEngine.h XMLHelper.h AVGTimeSource.h \
           AVGWords.h AVGFontManager.h AVGVideo.h xpshell.h \
           acJSContextPublisher.h AVGJSScript.h AVGLogger.h \
-          AVGDFBFontManager.h IAVGFont.h AVGDFBFont.h
+          AVGDFBFontManager.h IAVGFont.h AVGDFBFont.h FileHelper.h JSHelper.h
 
 libavg_PROGRAMS = xpshell
-xpshell_SOURCES =  xpshell.cpp xpshell.h acJSContextPublisher.h
-xpshell_LDFLAGS =  `mozilla-config --libs nspr xpcom` -lmozjs
-
+xpshell_SOURCES = xpshell.cpp FileHelper.cpp FileHelper.h xpshell.h acJSContextPublisher.h
+xpshell_LDFLAGS = `mozilla-config --libs nspr xpcom` -lmozjs
 
 libavg_LTLIBRARIES = libavg.la
 
@@ -43,7 +34,7 @@ libavg_la_SOURCES = AVGEvent.cpp AVGMouseEvent.cpp AVGKeyEvent.cpp AVGWindowEven
                     AVGTimeSource.cpp AVGWords.cpp AVGFontManager.cpp\
                     AVGVideo.cpp acJSContextPublisher.cpp AVGJSScript.cpp\
                     AVGLogger.cpp AVGConradRelais.cpp AVGDFBFontManager.cpp\
-                    AVGDFBFont.cpp \
+                    AVGDFBFont.cpp FileHelper.cpp JSHelper.cpp\
                     $(ALL_H) 
 BUILT_SOURCES = IAVGPlayer.h IAVGEvent.h IAVGNode.h IAVGVideo.h \
                 acIJSContextPublisher.h IAVGWords.h IAVGExcl.h \
@@ -51,10 +42,12 @@ BUILT_SOURCES = IAVGPlayer.h IAVGEvent.h IAVGNode.h IAVGVideo.h \
                 IAVGMouseEvent.h
 
 %.h : %.idl
-	$(MOZILLA_LIB_DIR)/xpidl -m header -I $(MOZILLA_IDL_DIR) -w -o $* $<
-	$(MOZILLA_LIB_DIR)/xpidl -m typelib -I $(MOZILLA_IDL_DIR) -w -o $* $<
+	source ../avgenv.sh
+	$(MOZ_LIBDIR)/xpidl -m header -I $(MOZ_IDLDIR) -w -o $* $<
+	$(MOZ_LIBDIR)/xpidl -m typelib -I $(MOZ_IDLDIR) -w -o $* $<
 
 libavgdir = $(includedir)/avg
 libavgHEADERS = $(ALL_H)
 
-
+install:
+	bash ../install_avg $(bindir) $(includedir)

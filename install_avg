@@ -1,7 +1,15 @@
-#export DESTDIR=$PRO/extern/mozilla
-export DESTDIR=`mozilla-config --prefix`/lib/mozilla/components
-#export DESTDIR=`mozilla-config --prefix`/lib/components
-cp -av src/.libs/libavg.so.0.0.0 $DESTDIR/libavg.so
-cp -av src/*.xpt $DESTDIR/
-rm -fv $DESTDIR/compreg.dat
-rm -fv $DESTDIR/xpti.dat
+#!/bin/bash
+source ../avgenv.sh
+echo "Installing to $1, idls to $MOZ_IDLDIR" 
+cp -v --preserve=mode xpshell $1
+cp -v --preserve=mode ../avgenv.sh $1
+chmod 777 ../libavg-config
+cp -v --preserve=mode ../libavg-config $1
+cp -v --preserve=mode avg $1
+cp -v avg.js $2
+cp -v *.idl $MOZ_IDLDIR
+cp -v *.xpt $MOZ_COMPONENTSDIR/
+cp -v .libs/libavg.so.0.0.0 $MOZ_COMPONENTSDIR/libavg.so
+rm -fv $MOZ_IDLDIR/compreg.dat
+rm -fv $MOZ_IDLDIR/xpti.dat
+

@@ -4,6 +4,7 @@
 
 #include "xpshell.h"
 #include "acIJSContextPublisher.h"
+#include "FileHelper.h"
 
 #include <nsIXPConnect.h>
 #include <nsIXPCScriptable.h>
@@ -32,12 +33,16 @@
 #include <jsscript.h>
 #include <jsarena.h>
 #include <jscntxt.h>
+#include <jsdbgapi.h>
 
 #include <nsIJSContextStack.h>
 
 #include <errno.h>
 #include <stdio.h>
 #include <iostream>
+#include <libgen.h>
+
+#include <string>
 
 JSContext * ourJSContext(0);
 
@@ -138,6 +143,47 @@ my_ErrorReporter(JSContext *cx, const char *message, JSErrorReport *report)
     JS_free(cx, prefix);
 }
 
+JSStackFrame * getStackFrame(int i, JSContext *cx) {
+    JSStackFrame* fp;
+    JSStackFrame* iter = nsnull;
+    int num = 0;
+
+    while(nsnull != (fp = JS_FrameIterator(cx, &iter)))
+    {
+        if (num == i) {
+            return fp;
+        }
+        ++num;
+    }
+    return 0;
+}
+
+bool
+getFileLine(JSContext *cx, uintN argc, jsval *argv, 
+        const char * & filename, int & lineno) 
+{
+    uint16 n = 1;
+    if (argc > 0 && JSVAL_IS_INT(argv[0])) {
+        JS_ValueToUint16(cx, argv[0], &n);
+    }
+
+    JSStackFrame * fp = getStackFrame(n,cx);
+
+    if (fp) {
+        if(!JS_IsNativeFrame(cx, fp)) {
+            JSScript* script = JS_GetFrameScript(cx, fp);
+            jsbytecode* pc = JS_GetFramePC(cx, fp);
+            if(script && pc)
+            {
+                filename = JS_GetScriptFilename(cx, script);
+                lineno =  (PRInt32) JS_PCToLineNumber(cx, script, pc);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 JS_STATIC_DLL_CALLBACK(JSBool)
 Print(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
@@ -175,6 +221,35 @@ Dump(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
     return JS_TRUE;
 }
 
+
+string findIncludeFile(const char * pFilename,
+        JSContext *cx, JSObject *obj, uintN argc, jsval *argv)
+{
+    string IncludePath;
+    if (IncludePath=="") {
+        char * pIncludePath = getenv("AVG_INCLUDE_PATH");
+        if (pIncludePath) {
+            IncludePath = pIncludePath;
+            IncludePath += ";";
+        } else {
+            cerr << "Warning: AVG_INCLUDE_PATH not set." << endl;
+        }
+    }
+    
+    const char * pCurFilename;
+    int lineno;
+    bool bOk = getFileLine(cx, argc, argv, pCurFilename, lineno); 
+    if (bOk) {
+        IncludePath += getPath(pCurFilename);
+    }
+    string FoundFilename = findFile(pFilename, IncludePath);
+    if (FoundFilename == "") {
+        cerr << "xpshell Warning: could not find include file " << pFilename 
+            << endl << "in " << IncludePath << endl;
+    }
+    return FoundFilename; 
+}
+
 JS_STATIC_DLL_CALLBACK(JSBool)
 Use(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 {
@@ -191,7 +266,8 @@ Use(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
             return JS_FALSE;
         argv[i] = STRING_TO_JSVAL(str);
         filename = JS_GetStringBytes(str);
-        script = JS_CompileFile(cx, obj, filename);
+        string sFilename = findIncludeFile(filename, cx, obj, argc, argv);
+        script = JS_CompileFile(cx, obj, sFilename.c_str());
         if (!script)
             ok = JS_FALSE;
         else {

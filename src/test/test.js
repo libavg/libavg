@@ -1,4 +1,4 @@
-use("../avg.js");
+use("avg.js");
 
 function quitTimeout()
 {

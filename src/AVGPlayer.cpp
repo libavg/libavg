@@ -18,6 +18,8 @@
 #include "AVGLogger.h"
 #include "AVGConradRelais.h"
 #include "XMLHelper.h"
+#include "JSHelper.h"
+#include "FileHelper.h"
 
 #include "acIJSContextPublisher.h"
 
@@ -248,17 +250,23 @@ void AVGPlayer::loadFile (const std::string& filename)
         m_pEventSource = dynamic_cast<AVGDFBDisplayEngine *>(m_pDisplayEngine);
     }
 
+    // Construct path.
+    const char * pCurFilename;
+    int lineno;
+    getJSFileLine(m_pJSContext, pCurFilename, lineno);
+    string Path = getPath(pCurFilename);
+    string RealFilename = Path+filename;
+
     xmlPedanticParserDefault(1);
     xmlDoValidityCheckingDefaultValue =1;
     
     xmlDocPtr doc;
-    doc = xmlParseFile(filename.c_str());
+    doc = xmlParseFile(RealFilename.c_str());
     if (!doc) {
         throw (AVGException(AVG_ERR_XML_PARSE, 
-                string("Error parsing xml document ")+filename));
+                string("Error parsing xml document ")+RealFilename));
     }
-    m_CurDirName = filename.substr(0,filename.rfind('/')+1);
-
+    m_CurDirName = RealFilename.substr(0,RealFilename.rfind('/')+1);
     m_pRootNode = dynamic_cast<AVGAVGNode*>
             (createNodeFromXml(xmlDocGetRootElement(doc), 0));
     PLRect rc = m_pRootNode->getRelViewport();
@@ -594,82 +602,6 @@ void AVGPlayer::createMouseOver(AVGMouseEvent * pOtherEvent, int Type)
     m_EventDispatcher.addEvent(pNewEvent);
 }
 
-/*
-void AVGPlayer::handleEvents()
-{
-    IDirectFBEventBuffer * pEventBuffer = 
-            dynamic_cast<AVGDFBDisplayEngine *>(m_pDisplayEngine)->getEventBuffer();
-    DFBEvent dfbEvent;
-
-    while (pEventBuffer->HasEvent(pEventBuffer) == DFB_OK && !m_bStopping) {
-        pEventBuffer->GetEvent (pEventBuffer, &dfbEvent);
-//        dumpDFBEvent (dfbEvent);
-        if (dfbEvent.clazz == DFEC_WINDOW) {
-            DFBWindowEvent* pdfbWEvent = &(dfbEvent.window);
-
-            AVGEvent * pCPPEvent = createCurEvent();
-            bool bOK = pCPPEvent->init(*pdfbWEvent);
-            if (bOK) {
-                pCPPEvent->dump();
-                int EventType;
-           
-                int b;
-                m_CurEvent->IsMouseEvent(&b);
-                if (b) {
-                    handleMouseEvent(pCPPEvent);
-                }
-                if (pCPPEvent->getType() == AVGEvent::KEYDOWN && pCPPEvent->getKeySym()==27) {
-                    m_bStopping = true;
-                }
-                NS_IF_RELEASE(pCPPEvent);
-            }
-        } else {
-            AVG_TRACE(DEBUG_ERROR, "Unexpected event received.");
-        }
-    }
-    
-}
-
-
-AVGEvent* AVGPlayer::createCurEvent()
-{
-    nsresult rv;
-    nsCOMPtr<IAVGEvent> pXPEvent = do_CreateInstance("@c-base.org/avgevent;1", &rv);
-    PLASSERT(!NS_FAILED(rv));
-    m_CurEvent = pXPEvent;
-    NS_IF_ADDREF((IAVGEvent*)m_CurEvent);
-    return dynamic_cast<AVGEvent*>(m_CurEvent);
-}
-
-void AVGPlayer::handleMouseEvent (AVGEvent* pEvent)
-{
-    PLPoint pos;
-    pEvent->GetXPos(&pos.x);
-    pEvent->GetYPos(&pos.y);
-    int ButtonState;
-    pEvent->GetMouseButtonState(&ButtonState);
-    AVGNode * pNode = m_pRootNode->getElementByPos(pos);
-    if (pNode) {
-        pNode->handleEvent(pEvent, m_pJSContext);
-    }
-    if (pNode != m_pLastMouseNode) {
-        if (pNode) {
-            AVGEvent * pEvent = createCurEvent();
-            pEvent->init(AVGEvent::MOUSEOVER, pos, ButtonState);
-            pEvent->dump();
-            pNode->handleEvent(pEvent, m_pJSContext);
-        }
-        if (m_pLastMouseNode) {
-            AVGEvent * pEvent = createCurEvent();
-            pEvent->init(AVGEvent::MOUSEOUT, pos, ButtonState);
-            pEvent->dump();
-            m_pLastMouseNode->handleEvent(pEvent, m_pJSContext);
-        }
-
-        m_pLastMouseNode = pNode;
-    }
-}
-*/
 
 int AVGPlayer::addTimeout(AVGTimeout* pTimeout)
 {
@@ -691,80 +623,4 @@ void AVGPlayer::removeTimeout(AVGTimeout* pTimeout)
     m_PendingTimeouts.erase(it);
 }
 
-/*
-void AVGPlayer::dumpDFBEvent (const DFBEvent& dfbEvent)
-{
-    // TODO: Convert to AVG_TRACE.
-    if (dfbEvent.clazz == DFEC_WINDOW && dfbEvent.window.type == DWET_MOTION) {
-        // Don't dump mouse move events
-        return;
-    }
-    cerr << "Event: ";
-    cerr << "class=";
 
-    switch (dfbEvent.clazz) {
-        case DFEC_NONE:
-            cerr << "none";
-            break;
-        case DFEC_INPUT:
-            cerr << "input";
-            break;
-        case DFEC_WINDOW:
-            {            
-                cerr << "window, ";
-                DFBWindowEvent WEvent = dfbEvent.window;
-                cerr << "  type = ";
-                switch (WEvent.type) {
-                    case DWET_POSITION:
-                        cerr << " position";
-                        break;
-                    case DWET_SIZE:
-                        cerr << " size";
-                        break;
-                    case DWET_POSITION | DWET_SIZE:
-                        cerr << " position & size";
-                        break;
-                    case DWET_CLOSE:
-                        cerr << " close";
-                        break;
-                    case DWET_DESTROYED:
-                        cerr << " destroyed";
-                        break;
-                    case DWET_GOTFOCUS:
-                        cerr << " got focus";
-                        break;
-                    case DWET_LOSTFOCUS:
-                        cerr << " lost focus";
-                        break;
-                    case DWET_KEYDOWN:
-                        cerr << " key down";
-                        break;
-                    case DWET_KEYUP:
-                        cerr << " key up";
-                        break;
-                    case DWET_BUTTONDOWN:
-                        cerr << " button down";
-                        break;
-                    case DWET_MOTION:
-                        cerr << " motion"; 
-                        break;
-                    case DWET_ENTER:
-                        cerr << " enter";
-                        break;
-                    case DWET_LEAVE:
-                        cerr << " leave";
-                        break;
-                    case DWET_WHEEL:
-                        cerr << " wheel";
-                        break;
-                }
-            }
-            break;
-        case DFEC_USER:
-            cerr << "user";
-            break;
-    }
-    cerr << endl;
-    
-}
-*/

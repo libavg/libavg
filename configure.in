@@ -26,4 +26,4 @@ AC_C_CONST
 AC_CHECK_FUNCS([strdup strtol])
 
 
-AC_OUTPUT(Makefile src/Makefile)
+AC_OUTPUT(libavg-config Makefile src/Makefile)
