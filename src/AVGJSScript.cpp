@@ -49,7 +49,9 @@ void AVGJSScript::run()
         
 void AVGJSScript::compile()
 {
-    m_pObject = JS_GetGlobalObject(m_pJSContext);
+    if (m_pScript) {
+        JS_DestroyScript(m_pJSContext, m_pScript);
+    }    m_pObject = JS_GetGlobalObject(m_pJSContext);
     m_pScript = JS_CompileScript(m_pJSContext, m_pObject,
             m_code.c_str(), m_code.length(), m_filename.c_str(), m_lineno);
     if (!m_pScript) {
