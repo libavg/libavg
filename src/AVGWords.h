@@ -6,6 +6,7 @@
 #define _AVGWords_H_
 
 #include "AVGVisibleNode.h"
+#include "AVGFontManager.h"
 
 #include <paintlib/plpixel32.h>
 
@@ -46,8 +47,7 @@ class AVGWords :
         virtual void setViewport (int x, int y, int width, int height);
 
     private:
-        static const std::string & getFontPath();
-        void loadFont();
+        void changeFont();
         void drawString();
         PLPixel32 colorStringToColor(const std::string & colorString);
 
@@ -58,6 +58,8 @@ class AVGWords :
         int m_Size;
         IDirectFBFont * m_pFont;
         IDirectFBSurface * m_pSurface;
+
+        static AVGFontManager m_FontManager;
 };
 
 #endif //_AVGWords_H_

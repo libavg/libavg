@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg id="imageavg" width="400" height="300" fullscreen="false">
+<avg id="imageavg" width="400" height="300" fullscreen="true">
     <image id="mainimg" x="0" y="0" z="1" width="199" height="199" 
         href="rgb24.tif"/>
     <words id="cbasetext" x="20" y="50" z="1" width="500" height="23" 

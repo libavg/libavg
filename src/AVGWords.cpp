@@ -16,6 +16,7 @@ using namespace std;
 
 NS_IMPL_ISUPPORTS1_CI(AVGWords, IAVGNode);
 
+AVGFontManager AVGWords::m_FontManager;
 
 AVGWords * AVGWords::create()
 {
@@ -63,7 +64,7 @@ AVGWords::SetStringAttr(const char *name, const char *value)
 {
     if (!strcmp(name, "Font")) {
         m_FontName = value;
-        loadFont();
+        changeFont();
     } else if (!strcmp(name, "String")) {
         if (m_Str != value) {
             m_Str = value;
@@ -84,7 +85,7 @@ AVGWords::SetIntAttr(const char *name, PRInt32 value)
 {
     if (!strcmp(name, "Size")) {
         m_Size = value;
-        loadFont();
+        changeFont();
     } else {
         return AVGVisibleNode::SetIntAttr(name, value);
     }
@@ -112,7 +113,7 @@ AVGWords::init (const string& id, int x, int y, int z,
     m_ColorName = color;
     m_Color = colorStringToColor(color);
     m_FontName = font;
-    loadFont();
+    changeFont();
 
 }
 
@@ -130,19 +131,10 @@ void AVGWords::setViewport (int x, int y, int width, int height)
     }
 }
 
-void AVGWords::loadFont()
+void AVGWords::changeFont()
 {
-    DFBFontDescription fontDesc;
-
-    fontDesc.flags = DFBFontDescriptionFlags(DFDESC_HEIGHT | DFDESC_ATTRIBUTES);
-    fontDesc.height = m_Size;
-    fontDesc.attributes = (DFBFontAttributes)0;
-
     IDirectFB * pDFB = getEngine()->getDFB();
-
-    string FontPath = getFontPath()+"/"+m_FontName+".ttf";
-    DFBResult err = pDFB->CreateFont(pDFB, FontPath.c_str(), &fontDesc, &m_pFont);
-    getEngine()->DFBErrorCheck(AVG_ERR_FONT_INIT_FAILED, err);
+    m_pFont = m_FontManager.getFont(pDFB, m_FontName, m_Size);
 
     drawString();
 }
@@ -193,19 +185,5 @@ PLPixel32 AVGWords::colorStringToColor(const string & colorString)
     int r,g,b;
     sscanf(colorString.c_str(), "%2x%2x%2x", &r, &g, &b);
     return PLPixel32(r,g,b);
-}
-
-const string & AVGWords::getFontPath()
-{
-    static string FontPath;
-    if (FontPath=="") {
-        char * pFontPath = getenv("AVG_FONT_PATH");
-        if (pFontPath) {
-            FontPath = pFontPath;
-        } else {
-            cerr << "Warning: no font path specified." << endl;
-        }
-    }
-    return FontPath;
 }
 

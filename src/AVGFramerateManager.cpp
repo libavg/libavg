@@ -23,7 +23,7 @@ AVGFramerateManager::~AVGFramerateManager ()
     cerr << "Framerate statistics: " << endl;
     cerr << "  Framerate goal was: " << m_Rate << endl;
     cerr << "  Total frames: " << m_NumFrames << endl;
-    cerr << "  Total time: " << (GetCurrentTicks()-m_StartTime)/1000 << " seconds" << endl;
+    cerr << "  Total time: " << double(GetCurrentTicks()-m_StartTime)/1000 << " seconds" << endl;
 
     cerr << "  Framerate achieved: " 
          << (m_NumFrames*1000)/double(GetCurrentTicks()-m_StartTime) << endl;

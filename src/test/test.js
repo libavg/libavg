@@ -133,6 +133,12 @@ function changeFont()
     node.setIntAttr("Size", 50);
 }
 
+function changeFont2()
+{
+    var node = AVGPlayer.getElementByID("cbasetext");
+    node.setIntAttr("Size", 30);
+}
+
 function testWords()
 {
     print ("---- Testing word node accessors ----");
@@ -144,6 +150,7 @@ function testWords()
         AVGPlayer.setTimeout(1000, "changeTextHeight();");
         AVGPlayer.setTimeout(2000, "changeColor();");
         AVGPlayer.setTimeout(3000, "changeFont();");
+        AVGPlayer.setTimeout(4000, "changeFont2();");
         AVGPlayer.setTimeout(8000, "quitTimeout();");
 
         AVGPlayer.play();
