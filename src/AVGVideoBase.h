@@ -37,13 +37,16 @@ class AVGVideoBase : public IAVGVideoBase, public AVGNode
         virtual VideoState getState();
         void setFrameAvailable(bool bAvailable);
         void changeState(VideoState NewState);
-    
+        int getMediaWidth();
+        int getMediaHeight();
+   
     private:
         void renderToBackbuffer();
 
         virtual bool renderToBmp(PLBmp * pBmp) = 0;
         virtual void renderToBackbuffer(PLBYTE * pSurfBits, int Pitch, 
                 int BytesPerPixel, const AVGDRect& vpt) = 0;
+        virtual bool canRenderToBackbuffer(int BitsPerPixel) = 0;
         virtual bool open(int* pWidth, int* pHeight) = 0;
         virtual void close() = 0;
         virtual double getFPS() = 0;

@@ -45,6 +45,11 @@ class AVGCamera : public AVGVideoBase , public IAVGCamera
         virtual bool renderToBmp(PLBmp * pBmp);
         virtual void renderToBackbuffer(PLBYTE * pSurfBits, int Pitch, 
                 int BytesPerPixel, const AVGDRect& vpt);
+        virtual bool canRenderToBackbuffer(int BitsPerPixel);
+        void YUV411toBGR24Line(PLBYTE* pSrc, int y, PLPixel24 * pDestLine);
+        void YUV411toBGR24(PLBYTE* pSrc, PLBmp * pBmp);
+        void YUV411toBGR24(PLBYTE* pSrc, PLBYTE * pSurfBits, int Pitch, 
+                int BytesPerPixel, const AVGDRect& vpt);
        
         virtual bool open(int* pWidth, int* pHeight);
         virtual void close();
@@ -61,8 +66,11 @@ class AVGCamera : public AVGVideoBase , public IAVGCamera
         raw1394handle_t m_FWHandle;
 
         static void initCameraSupport();
+        static void initYUV2RGBConversionMatrix();
         static bool m_bInitialized;
+
 };
+
 
 #endif 
 

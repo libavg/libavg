@@ -2,6 +2,7 @@
 // $Id$
 // 
 
+#include "avgconfig.h"
 #include "AVGVideoBase.h"
 #include "IAVGDisplayEngine.h"
 #ifdef AVG_ENABLE_DFB
@@ -104,9 +105,9 @@ void AVGVideoBase::render (const AVGDRect& Rect)
 #ifdef AVG_ENABLE_DFB
                 if (getEffectiveOpacity() > 0.999 && 
                         dynamic_cast<AVGDFBDisplayEngine*>(getEngine()) &&
-                        getEngine()->getBPP() == 24 &&
+                        canRenderToBackbuffer(getEngine()->getBPP()) &&
                         relVpt.tl.x >= 0 && relVpt.tl.y >= 0 && 
-                        absVpt.Width() > relVpt.br.x && absVpt.Height() > relVpt.br.y &&
+                        absVpt.Width() >= relVpt.br.x && absVpt.Height() >= relVpt.br.y &&
                         m_Width == relVpt.Width() && m_Height == relVpt.Height())
                 {
                     // Render frame to backbuffer directly.
@@ -166,7 +167,6 @@ void AVGVideoBase::renderToBackbuffer()
     AVGDFBDisplayEngine* pEngine = 
         dynamic_cast<AVGDFBDisplayEngine*>(getEngine());
     AVGDRect vpt = getVisibleRect();
-    // Calc row ptr array.
     IDirectFBSurface * pSurface = pEngine->getPrimary();
     PLBYTE * pSurfBits;
     int Pitch;
@@ -185,6 +185,16 @@ void AVGVideoBase::renderToBackbuffer()
             "renderToBackbuffer called unexpectedly. Aborting.");
     exit(-1);
 #endif    
+}
+
+int AVGVideoBase::getMediaWidth()
+{
+    return m_Width;
+}
+
+int AVGVideoBase::getMediaHeight()
+{
+    return m_Height;
 }
 
 bool AVGVideoBase::obscures (const AVGDRect& Rect, int z)

@@ -145,6 +145,11 @@ void AVGVideo::renderToBackbuffer(PLBYTE * pSurfBits, int Pitch,
     advancePlayback();
 }
 
+bool AVGVideo::canRenderToBackbuffer(int BPP) 
+{
+    return m_pDecoder->canRenderToBuffer(BPP);
+}
+
 void AVGVideo::advancePlayback()
 {
     m_CurFrame++;
