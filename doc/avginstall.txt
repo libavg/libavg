@@ -1,28 +1,26 @@
 Install:
+  
+Benötigte Packages:
 
-paintlib
+   pkgconfig
+   libpango1.0-dev
+   libjpeg62-devel 
+   libflash (über die DirectFB-Seite) - stow
+   libmpeg3-dev
+   libsdl1.2-dev (vorläufig)
+   DirectFB (0.9.19)
 
-   download 2.5.devel
-   ./configure
+paintlib:
+   libcurl2-dev
+
+   cvs co
+   ./configure --prefix=/usr/local/stow/paintlib
    make
    make install
 
+mozilla:
 
-SDL
-
-
-
-mozilla xpconnect:
-
-  export CVSROOT=":pserver:anonymous@cvs-mirror.mozilla.org:/cvsroot"
-  cvs -z 3 co mozilla/client.mk
-  cd mozilla
-  make -f client.mk pull_all BUILD_MODULES=xpconnect MOZ_CO_TAG=MOZILLA_1_1_RELEASE
-
-  ./configure --enable-modules=xpconnect
-  make BUILD_MODULES=xpconnect
-
-Dependencies: 
-  gtk_devel
-  ORBit_devel
+  gtk-devel
+  orbit-devel
+  mozilla (vielleicht reicht -devel, sonst src downloaden & compilen)
 

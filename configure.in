@@ -1,0 +1,29 @@
+
+AC_PREREQ(2.57)
+AC_INIT(libavg, 0.1, coder@c-base.org)
+AC_CONFIG_SRCDIR([src/AVGSDLDisplayEngine.h])
+AM_INIT_AUTOMAKE(libavg, 0.1)
+
+# Checks for programs.
+AC_PROG_CXX
+AC_PROG_CC
+AC_PROG_CPP
+# AC_PROG_RANLIB  # static library support
+AC_LIBTOOL_DLOPEN
+AC_PROG_LIBTOOL
+
+# Checks for libraries.
+
+# Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS([stdlib.h unistd.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_HEADER_STDBOOL
+AC_C_CONST
+
+# Checks for library functions.
+AC_CHECK_FUNCS([strdup strtol])
+
+
+AC_OUTPUT(Makefile src/Makefile)
