@@ -64,7 +64,6 @@ void AVGImage::init (const std::string& id, const std::string& filename,
 
     PLAnyPicDecoder decoder;
     PLAnyBmp TempBmp;
-    // TODO: Decode directly to surface using PLPicDec::GetImage();
     decoder.MakeBmpFromFile(m_Filename.c_str(), &TempBmp, 32);
     if (!pEngine->hasRGBOrdering()) {
         TempBmp.ApplyFilter(PLFilterFlipRGB());
@@ -75,13 +74,7 @@ void AVGImage::init (const std::string& id, const std::string& filename,
     }
     m_pSurface->create(TempBmp.GetWidth(), TempBmp.GetHeight(), 
             DestBPP, TempBmp.HasAlpha());
-    
-    PLPixel32** ppSrcLines = TempBmp.GetLineArray32();
-    PLBmpBase * pDestBmp = m_pSurface->getBmp();
-    PLPixel32** ppDestLines = pDestBmp->GetLineArray32();
-    for (int y=0; y<TempBmp.GetHeight(); y++) {
-        memcpy (ppDestLines[y], ppSrcLines[y], TempBmp.GetWidth()*4);
-    }
+    m_pSurface->getBmp()->CopyPixels(TempBmp);
         
     getEngine()->surfaceChanged(m_pSurface);
 }
