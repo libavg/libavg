@@ -29,12 +29,14 @@ class AVGEvent: public IAVGEvent
         bool init(const DFBWindowEvent& dfbWEvent);
         void setNode(IAVGNode* pNode);
 
-        void dump(int DebugLevel);
+        void dump();
 
 		NS_DECL_ISUPPORTS
-
         NS_DECL_IAVGEVENT
 
+        int getType();
+        int getKeySym();
+        
     private:
         IAVGNode * m_pNode;
         int m_Type;

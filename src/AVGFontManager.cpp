@@ -4,6 +4,7 @@
 
 #include "AVGFontManager.h"
 #include "AVGException.h"
+#include "AVGPlayer.h"
 
 #include <iostream>
 #include <sstream>
@@ -49,7 +50,7 @@ IDirectFBFont * AVGFontManager::loadFont(IDirectFB * pDFB, const string& Name, i
     fontDesc.attributes = (DFBFontAttributes)0;
 
     string FontPath = getFontPath()+"/"+Name+".ttf";
-    cerr << "Loading " << FontPath << endl;
+    AVG_TRACE(AVGPlayer::DEBUG_MEMORY, "Loading " << FontPath << ", size " << Size << endl);
 
     IDirectFBFont * pFont;
     DFBResult err = pDFB->CreateFont(pDFB, FontPath.c_str(), &fontDesc, &pFont);

@@ -3,12 +3,14 @@
 //
 
 #include "AVGEvent.h"
+#include "AVGPlayer.h"
 
 #include <paintlib/pldebug.h>
 
 #include "nsMemory.h"
 
 #include <iostream>
+#include <sstream>
 #include <string>
 
 using namespace std;
@@ -131,6 +133,7 @@ NS_IMETHODIMP AVGEvent::GetKeySym(PRInt32 *_retval)
     *_retval = m_KeySym;
     return NS_OK;
 }
+
 NS_IMETHODIMP AVGEvent::GetKeyMod(PRInt32 *_retval)
 {
     PLASSERT(m_Type == KEYDOWN || m_Type == KEYUP);
@@ -138,7 +141,15 @@ NS_IMETHODIMP AVGEvent::GetKeyMod(PRInt32 *_retval)
     return NS_OK;
 }
 
-void AVGEvent::dump(int DebugLevel)
+int AVGEvent::getType() {
+    return m_Type;
+}
+
+int AVGEvent::getKeySym() {
+    return m_KeySym;
+}
+
+void AVGEvent::dump()
 {
     string EventName;
     switch(m_Type) {
@@ -169,24 +180,22 @@ void AVGEvent::dump(int DebugLevel)
             cerr << "Illegal event type " << m_Type << endl;
             break;
     }
-    switch (DebugLevel) {
-        case 0:
-            return;
-        case 1:
-            cerr << "Event: " << EventName << endl;
-            return;
-        case 2:
-            {
-                int IsMouse;
-                IsMouseEvent(&IsMouse);
-                if (IsMouse) {
-                    cerr << "Event: " << EventName << 
-                            "( Pos: (" << m_Pos.x << ", " << m_Pos.y << "), " << 
-                            "Buttons pressed: " << m_ButtonsPressed << ")" << endl;
-                } else {
-                    cerr << "Event: " << EventName << endl;
-                }
-            }
+    
+    AVG_TRACE(AVGPlayer::DEBUG_EVENTS, "Event: " << EventName << endl);
+    int IsMouse;
+    IsMouseEvent(&IsMouse);
+    if (IsMouse) {
+        AVG_TRACE(AVGPlayer::DEBUG_EVENTS2, "Event: " << EventName << 
+                "( Pos: (" << m_Pos.x << ", " << m_Pos.y << "), " << 
+                "Buttons pressed: " << m_ButtonsPressed << ")" << endl);
+    } else {
+        if (m_Type == AVGEvent::KEYDOWN) {
+            AVG_TRACE(AVGPlayer::DEBUG_EVENTS2, "Event: " << EventName << 
+                    ", Key symbol: " << m_KeySym << ", Key modifiers: " << 
+                    m_KeyMods << endl);
+        } else {
+            AVG_TRACE(AVGPlayer::DEBUG_EVENTS2, "Event: " << EventName << endl);
+        }
     }
 }
 

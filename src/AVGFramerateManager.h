@@ -11,8 +11,8 @@ class AVGFramerateManager
         AVGFramerateManager ();
         virtual ~AVGFramerateManager ();
 
-        void SetRate(int Rate);
-        int GetRate();
+        void SetRate(double Rate);
+        double GetRate();
         void FrameWait();
 
     private:
@@ -23,7 +23,7 @@ class AVGFramerateManager
         int m_NumRegularFrames;
         int m_TimeSpentWaiting;
         int m_LastFrameTime;
-        int m_Rate;
+        double m_Rate;
         int m_StartTime;
 };
 

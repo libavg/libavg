@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg width="400" height="300" debugblts="false" id="mainavg">
+<avg width="400" height="300" id="mainavg">
   <excl id="switch">
     <image id="img1" x="0" y="0" z="1" width="100" height="100" 
        href="rgb24.tif"/>

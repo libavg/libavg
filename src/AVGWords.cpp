@@ -109,72 +109,6 @@ NS_IMETHODIMP AVGWords::SetSize(PRInt32 aSize)
     return NS_OK;
 }
 
-/*
-NS_IMETHODIMP
-AVGWords::GetStringAttr(const char *name, char **_retval)
-{
-    string Attr;
-    if (!strcmp(name, "Font")) {
-        Attr = m_FontName;
-    } else if (!strcmp(name, "String")) {
-        Attr = m_Str;
-    } else if (!strcmp(name, "Color")) {
-        Attr = m_ColorName;
-    } else {
-        return AVGNode::GetStringAttr(name, _retval);
-    }
-    *_retval = (char *) nsMemory::Clone(Attr.c_str(), 
-            Attr.length()+1);
-    return NS_OK;
-}
-
-NS_IMETHODIMP 
-AVGWords::GetIntAttr(const char *name, PRInt32 *_retval)
-{
-    if (!strcmp(name, "Size")) {
-        *_retval = m_Size;
-    } else {
-        return AVGNode::GetIntAttr(name, _retval);
-    }
-    return NS_OK;
-}
-
-NS_IMETHODIMP
-AVGWords::SetStringAttr(const char *name, const char *value)
-{
-    invalidate();
-    if (!strcmp(name, "Font")) {
-        m_FontName = value;
-        changeFont();
-    } else if (!strcmp(name, "String")) {
-        if (m_Str != value) {
-            m_Str = value;
-            drawString();
-        }
-    } else if (!strcmp(name, "Color")) {
-        m_ColorName = value;        
-        m_Color = colorStringToColor(m_ColorName);
-    } else {
-        return AVGNode::SetStringAttr(name, value);
-    }
-    invalidate();
-    return NS_OK;
-}
-
-NS_IMETHODIMP
-AVGWords::SetIntAttr(const char *name, PRInt32 value)
-{
-    if (!strcmp(name, "Size")) {
-        invalidate();
-        m_Size = value;
-        changeFont();
-        invalidate();
-    } else {
-        return AVGNode::SetIntAttr(name, value);
-    }
-    return NS_OK;
-}
-*/
 
 NS_IMETHODIMP 
 AVGWords::GetType(PRInt32 *_retval)
@@ -187,9 +121,9 @@ void
 AVGWords::init (const string& id, int x, int y, int z, 
            double opacity, int size, const string& font, 
            const string& str, const string& color,
-           AVGDFBDisplayEngine * pEngine, AVGContainer * pParent)
+           AVGDFBDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer)
 {
-    AVGNode::init(id, pEngine, pParent);
+    AVGNode::init(id, pEngine, pParent, pPlayer);
     m_Size = size;
     m_Str = str;
     m_ColorName = color;

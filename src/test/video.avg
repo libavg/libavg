@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg width="640" height="480" fullscreen="false">
+<avg width="640" height="480" fullscreen="true" bpp="24">
         
-   <video id="clogo2" x="150" y="50" z="3" opacity="0.5" loop="true"
+  <video id="clogo2" x="150" y="50" z="3" opacity="0.5" loop="true"
       href="c-logo_wire_176x144_30fps.mpg"/> <!-- width="176" height="144"/>-->
   <video id="clogo1" x="0" y="0" z="1" loop="true"
       href="c-logo_wire_176x144_30fps.mpg" width="352" height="288"/>

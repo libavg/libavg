@@ -9,7 +9,7 @@
 interface IAVGPlayer : nsISupports
 {
     boolean loadFile(in string fileName);
-    void play();
+    void play(in float framerate);
     void stop();
 
     IAVGNode getElementByID(in string id);
@@ -20,7 +20,15 @@ interface IAVGPlayer : nsISupports
     boolean clearInterval(in long id);
 
     IAVGEvent getCurEvent();
-    void setEventDebugLevel(in long level);
+
+    const long DEBUG_NONE=0;
+    const long DEBUG_BLTS=1;
+    const long DEBUG_PROFILE=2;
+    const long DEBUG_MEMORY=4;
+    const long DEBUG_EVENTS=8;
+    const long DEBUG_EVENTS2=16;
+
+    void setDebugOutput(in long flags);
     string getErrStr();
     long getErrCode();
 };

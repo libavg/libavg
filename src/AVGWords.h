@@ -36,7 +36,7 @@ class AVGWords : public AVGNode, IAVGWords
         virtual void init (const std::string& id, int x, int y, int z, 
            double opacity, int size, const std::string& font, 
            const std::string& str, const std::string& color,
-           AVGDFBDisplayEngine * pEngine, AVGContainer * pParent);
+           AVGDFBDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer);
 		virtual void render (const PLRect& Rect);
         virtual std::string getTypeStr ();
 

@@ -31,7 +31,7 @@ class AVGImage : public AVGNode
 
         virtual void init (const std::string& id, int x, int y, int z, 
            int width, int height, double opacity, const std::string& filename, 
-           AVGDFBDisplayEngine * pEngine, AVGContainer * pParent);
+           AVGDFBDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer);
 		virtual void render (const PLRect& Rect);
         virtual bool obscures (const PLRect& Rect, int z);
         virtual std::string getTypeStr ();

@@ -5,6 +5,7 @@
 #include "AVGVideo.h"
 #include "AVGDFBDisplayEngine.h"
 #include "AVGException.h"
+#include "AVGPlayer.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/pldirectfbbmp.h>
@@ -118,12 +119,12 @@ NS_IMETHODIMP AVGVideo::GetFPS(PRInt32 *_retval)
 void AVGVideo::init (const std::string& id, int x, int y, int z, 
        int width, int height, double opacity, const std::string& filename,
        bool bLoop, bool bOverlay, 
-       AVGDFBDisplayEngine * pEngine, AVGContainer * pParent)
+       AVGDFBDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer)
 {
-    AVGNode::init(id, pEngine, pParent);
+    AVGNode::init(id, pEngine, pParent, pPlayer);
     
     m_Filename = filename;
-    cerr << "Video: opening " << m_Filename << endl;
+    AVG_TRACE(AVGPlayer::DEBUG_MEMORY, "Video: opening " << m_Filename << endl);
     open (&m_Width, &m_Height);
     m_bLoop = bLoop;
     m_bOverlay = bOverlay;
@@ -229,10 +230,6 @@ void AVGVideo::open (int* pWidth, int* pHeight)
     *pWidth = mpeg3_video_width(m_pMPEG, 0);
     *pHeight = mpeg3_video_height(m_pMPEG, 0);
 
-    if (mpeg3_frame_rate(m_pMPEG, 0) != 30) {
-        cerr << "Warning: video " << m_Filename << " has framerate " 
-            << mpeg3_frame_rate(m_pMPEG, 0) << ". Should be 30." << endl;
-    }
     m_CurFrame = 0;
 }
 
@@ -269,13 +266,22 @@ void AVGVideo::renderToBackbuffer()
             (void **)&pBits, &Pitch);
     getEngine()->DFBErrorCheck(AVG_ERR_DFB, "AVGVideo::renderToBackbuffer", err);
     PLBYTE ** ppRows = new (PLBYTE *)[vpt.Height()];
+    int BytesPerPixel;
+    int ColorModel;
+    if (getEngine()->getBPP() == 16) {
+        BytesPerPixel = 2;
+        ColorModel = MPEG3_RGB565;
+    } else {
+        BytesPerPixel = 3;
+        ColorModel = MPEG3_RGB888;
+    }
     for (int y=vpt.tl.y; y<vpt.br.y; y++) {
-        ppRows[y-vpt.tl.y] = pBits+Pitch*y+2*vpt.tl.x;
+        ppRows[y-vpt.tl.y] = pBits+Pitch*y+BytesPerPixel*vpt.tl.x;
     }
     mpeg3_read_frame(m_pMPEG, ppRows, 0, 0,
             m_Width-1, m_Height-1,
             vpt.Width(), vpt.Height(), 
-            MPEG3_RGB565, 0);
+            ColorModel, 0);
 
     delete[] ppRows;
     pSurface->Unlock(pSurface);

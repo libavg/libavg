@@ -59,15 +59,16 @@ function playAVG (fileName)
 {
 
     print ("---- Playing "+fileName+"----");
-    AVGPlayer.setEventDebugLevel(2);
+    AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE 
+            | AVGPlayer.DEBUG_MEMORY | AVGPlayer.DEBUG_EVENTS2);
     var ok = tryLoadFile(fileName);
     if (ok) {
         timerid = AVGPlayer.setInterval(40, "interval();");
         AVGPlayer.setTimeout(5000, "quitTimeout();");
         AVGPlayer.setTimeout(500, "AVGPlayer.clearInterval(timerid);");
-        AVGPlayer.setTimeout(1000, "AVGPlayer.setEventDebugLevel(1);");
-        AVGPlayer.setTimeout(2000, "AVGPlayer.setEventDebugLevel(0);");
-        AVGPlayer.play();
+        AVGPlayer.setTimeout(1000, "AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_EVENTS | AVGPlayer.DEBUG_PROFILE);");
+        AVGPlayer.setTimeout(2000, "AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE);");
+        AVGPlayer.play(30);
     }
 }
 
@@ -121,9 +122,9 @@ function changeFont2()
 function testWords()
 {
     print ("---- Testing word node accessors ----");
-    AVGPlayer.setEventDebugLevel(2);
     var ok = tryLoadFile("text.avg");
     if (ok) {
+        AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE | AVGPlayer.DEBUG_MEMORY); 
         timerid = AVGPlayer.setInterval(10, "textInterval();");
         AVGPlayer.setTimeout(1000, "changeTextHeight();");
         AVGPlayer.setTimeout(2000, "changeColor();");
@@ -131,7 +132,7 @@ function testWords()
         AVGPlayer.setTimeout(4000, "changeFont2();");
         AVGPlayer.setTimeout(8000, "quitTimeout();");
 
-        AVGPlayer.play();
+        AVGPlayer.play(50);
     }
 }
 
@@ -178,9 +179,9 @@ function videoReset(nodeName)
 function testVideo()
 {
     print ("---- Testing video node accessors ----");
-    AVGPlayer.setEventDebugLevel(2);
     var ok = tryLoadFile("video.avg");
     if (ok) {
+        AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE); 
         getVideoInfo();
         timerid = AVGPlayer.setInterval(10, "videoInterval();");
         videoPlay('clogo');
@@ -197,7 +198,7 @@ function testVideo()
         AVGPlayer.setTimeout(4900, "videoReset('clogo');");
         AVGPlayer.setTimeout(5200, "videoReset('clogo');");
         AVGPlayer.setTimeout(8000, "quitTimeout();");
-        AVGPlayer.play();
+        AVGPlayer.play(20);
     }
 }
 
@@ -205,7 +206,6 @@ function dumpNodes()
 {
     print ("---- dumpNodes: testing node accessors ----");
     var ok = tryLoadFile("avg.avg");
-    AVGPlayer.setEventDebugLevel(2);
     if (ok) {
         var rootNode = AVGPlayer.getRootNode();
         var numChildren = rootNode.getNumChildren();
@@ -223,7 +223,7 @@ function dumpNodes()
                     +", Pos: ("+l+","+t+","+w+","+h+"), type: "+curChild.getType()+")");
         }
         AVGPlayer.setTimeout(100, "quitTimeout()");
-        AVGPlayer.play();
+        AVGPlayer.play(30);
     }
 }
 
@@ -238,11 +238,12 @@ function testAnimation()
     print ("---- testing Animation  ----");
     var ok = tryLoadFile("avg.avg");
     if (ok) {
+        AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE | AVGPlayer.DEBUG_EVENTS2); 
         var node = AVGPlayer.getElementByID("nestedimg1");
         print("    Node id: "+node.getID());
         AVGPlayer.setInterval(10,"moveit();");
         AVGPlayer.setTimeout(5000,"quitTimeout();");
-        AVGPlayer.play();
+        AVGPlayer.play(30);
     }
 }
 
@@ -263,18 +264,18 @@ function testExcl()
         AVGPlayer.setTimeout(900,"setExcl(2);");
         AVGPlayer.setTimeout(1200,"setExcl(3);");
         AVGPlayer.setTimeout(1500,"quitTimeout()");
-        AVGPlayer.play();
+        AVGPlayer.play(30);
     }
 }
 
 //while (true) {
-    dumpNodes();
-    testVideo();
-    testWords();
     testAnimation();
+    testWords();
+    testVideo();
+    dumpNodes();
     testExcl();
-    playAVG("image.avg");
 
+    playAVG("image.avg");
     playAVG("empty.avg");
     playAVG("events.avg");
     playAVG("avg.avg");

@@ -45,14 +45,17 @@ class AVGPlayer: public IAVGPlayer
         NS_DECL_IAVGPLAYER
 
         void loadFile (const std::string& fileName);
-        void play ();
+        void play (double framerate);
         void stop ();
         void doFrame ();
 
         AVGNode * getElementByID (const std::string id);
         AVGAVGNode * getRootNode ();
+        double getFramerate ();
         void addEvent (int time, AVGEvent * event);
 
+        static void trace(int category, const std::string& msg); 
+        
     private:
         AVGNode * createNodeFromXml(const xmlNodePtr xmlNode, AVGContainer * pParent);
         void getVisibleNodeAttrs (const xmlNodePtr xmlNode, 
@@ -65,7 +68,6 @@ class AVGPlayer: public IAVGPlayer
 
         AVGAVGNode * m_pRootNode;
         AVGDFBDisplayEngine * m_pDisplayEngine;
-        bool m_IsFullscreen;
 
         IDirectFB * m_pDFB;
 
@@ -90,9 +92,15 @@ class AVGPlayer: public IAVGPlayer
         std::vector<AVGTimeout *> m_PendingTimeouts;
         std::vector<AVGTimeout *> m_NewTimeouts; // Timeouts to be added this frame.
         AVGNode * m_pLastMouseNode;
-        int m_EventDebugLevel;
+        static int m_DebugFlags;
 
         JSContext * m_pJSContext;
 };
+
+#define AVG_TRACE(category, msg) { \
+    std::stringstream tmp(std::stringstream::in | std::stringstream::out); \
+    tmp << msg; \
+    AVGPlayer::trace(category, tmp.str()); \
+}
 
 #endif //_AVGPlayer_H_

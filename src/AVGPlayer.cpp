@@ -39,11 +39,12 @@
 
 using namespace std;
 
+int AVGPlayer::m_DebugFlags(0);
+
 AVGPlayer::AVGPlayer()
     : m_pRootNode (0),
       m_pDisplayEngine(0),
       m_pLastMouseNode(0),
-      m_EventDebugLevel(0),
       m_pFramerateManager(0)
 {
 #ifdef XPCOM_GLUE
@@ -91,9 +92,9 @@ AVGPlayer::LoadFile(const char * fileName,
 }
 
 NS_IMETHODIMP
-AVGPlayer::Play()
+AVGPlayer::Play(float framerate)
 {
-	play();
+	play(framerate);
 	return NS_OK;
 }
 
@@ -169,9 +170,9 @@ AVGPlayer::GetCurEvent(IAVGEvent **_retval)
 }
 
 NS_IMETHODIMP 
-AVGPlayer::SetEventDebugLevel(PRInt32 level)
+AVGPlayer::SetDebugOutput(PRInt32 flags)
 {
-    m_EventDebugLevel = level;
+    m_DebugFlags = flags;
     return NS_OK;
 }
 
@@ -214,13 +215,13 @@ void AVGPlayer::loadFile (const std::string& filename)
     xmlFreeDoc(doc);
 }
 
-void AVGPlayer::play ()
+void AVGPlayer::play (double framerate)
 {
     DFBResult err;
     PLASSERT (m_pRootNode);
 
     m_pFramerateManager = new AVGFramerateManager;
-    m_pFramerateManager->SetRate(30);
+    m_pFramerateManager->SetRate(framerate);
     m_bStopping = false;
     m_pRootNode->prepareRender(0, m_pRootNode->getAbsViewport());
     render(true);
@@ -306,9 +307,35 @@ AVGAVGNode * AVGPlayer::getRootNode ()
     return m_pRootNode;
 }
 
+double AVGPlayer::getFramerate ()
+{
+    return m_pFramerateManager->GetRate();
+}
+
 void AVGPlayer::addEvent (int time, AVGEvent * event)
 {
-    
+}
+
+void AVGPlayer::trace(int category, const std::string& msg)
+{
+    if (category & m_DebugFlags) {
+        switch(category) {
+            case DEBUG_BLTS:
+                cerr << "------ BLIT: ";
+                break;
+            case DEBUG_PROFILE:
+                cerr << "--- PROFILE: ";
+                break;
+            case DEBUG_MEMORY:
+                cerr << "---- MEMORY: ";
+                break;
+            case DEBUG_EVENTS:
+            case DEBUG_EVENTS2:
+                cerr << "---- EVENTS: ";
+                break;
+         }
+        cerr << msg;
+    }
 }
 
 AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode, 
@@ -324,15 +351,15 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         double opacity;
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, &opacity);
         curNode = AVGAVGNode::create();
-        // Fullscreen and debug handling only for topmost node.
+        // Fullscreen, bpp and debug handling only for topmost node.
         if (!pParent) {
-            m_IsFullscreen = getDefaultedBoolAttr 
-                        (xmlNode, (const xmlChar *)"fullscreen", false);
-            bool bDebugBlts = getDefaultedBoolAttr
-                        (xmlNode, (const xmlChar *)"debugblts", false);
-            m_pDisplayEngine->init(width, height, m_IsFullscreen, bDebugBlts);
+            bool isFullscreen = getDefaultedBoolAttr 
+                    (xmlNode, (const xmlChar *)"fullscreen", false);
+            int bpp = getDefaultedIntAttr
+                    (xmlNode, (const xmlChar *)"bpp", 16);
+            m_pDisplayEngine->init(width, height, isFullscreen, bpp);
         }
-        curNode->init(id, m_pDisplayEngine, pParent);
+        curNode->init(id, m_pDisplayEngine, pParent, this);
         curNode->initVisible(x, y, z, width, height, opacity);
         initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"image")) {
@@ -347,7 +374,7 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         AVGImage * pImage = AVGImage::create();
         curNode = pImage;
         pImage->init(id, x, y, z, width, height, opacity, 
-                filename, m_pDisplayEngine, pParent);
+                filename, m_pDisplayEngine, pParent, this);
         initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"video")) {
         string id;
@@ -362,7 +389,7 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         AVGVideo * pVideo = AVGVideo::create();
         curNode = pVideo;
         pVideo->init(id, x, y, z, width, height, opacity, 
-                filename, bLoop, bOverlay, m_pDisplayEngine, pParent);
+                filename, bLoop, bOverlay, m_pDisplayEngine, pParent, this);
         initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"words")) {
         string id;
@@ -379,12 +406,12 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         AVGWords * pWords = AVGWords::create();
         curNode = pWords;
         pWords->init(id, x, y, z, opacity, size,
-                font, str, color, m_pDisplayEngine, pParent);
+                font, str, color, m_pDisplayEngine, pParent, this);
         initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"excl")) {
         string id  = getDefaultedStringAttr (xmlNode, (const xmlChar *)"id", "");
         curNode = AVGExcl::create();
-        curNode->init(id, m_pDisplayEngine, pParent);
+        curNode->init(id, m_pDisplayEngine, pParent, this);
         curNode->initVisible(0,0,1,10000,10000,1);
         initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"text") || 
@@ -485,13 +512,16 @@ void AVGPlayer::handleEvents()
             AVGEvent * pCPPEvent = createCurEvent();
             bool bOK = pCPPEvent->init(*pdfbWEvent);
             if (bOK) {
-                pCPPEvent->dump(m_EventDebugLevel);
+                pCPPEvent->dump();
                 int EventType;
            
                 int b;
                 m_CurEvent->IsMouseEvent(&b);
                 if (b) {
                     handleMouseEvent(pCPPEvent);
+                }
+                if (pCPPEvent->getType() == AVGEvent::KEYDOWN && pCPPEvent->getKeySym()==27) {
+                    m_bStopping = true;
                 }
                 NS_IF_RELEASE(pCPPEvent);
             }
@@ -527,13 +557,13 @@ void AVGPlayer::handleMouseEvent (AVGEvent* pEvent)
         if (pNode) {
             AVGEvent * pEvent = createCurEvent();
             pEvent->init(AVGEvent::MOUSEOVER, pos, ButtonState);
-            pEvent->dump(m_EventDebugLevel);
+            pEvent->dump();
             pNode->handleEvent(pEvent, m_pJSContext);
         }
         if (m_pLastMouseNode) {
             AVGEvent * pEvent = createCurEvent();
             pEvent->init(AVGEvent::MOUSEOUT, pos, ButtonState);
-            pEvent->dump(m_EventDebugLevel);
+            pEvent->dump();
             m_pLastMouseNode->handleEvent(pEvent, m_pJSContext);
         }
 
@@ -543,8 +573,6 @@ void AVGPlayer::handleMouseEvent (AVGEvent* pEvent)
 
 int AVGPlayer::addTimeout(AVGTimeout* timeout)
 {
-    // TODO: Don't change m_PendingTimeouts directly here since we're being 
-    // called from handleTimers
     vector<AVGTimeout*>::iterator it=m_PendingTimeouts.begin();
     while (it != m_PendingTimeouts.end() && (**it)<*timeout) {
         it++;

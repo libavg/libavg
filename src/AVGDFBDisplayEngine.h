@@ -23,7 +23,7 @@ class AVGDFBDisplayEngine
     public:
         AVGDFBDisplayEngine();
         virtual ~AVGDFBDisplayEngine();
-        virtual void init(int width, int height, bool isFullscreen, bool bDebugBlts);
+        virtual void init(int width, int height, bool isFullscreen, int bpp);
         virtual void teardown();
 
         virtual void setClipRect();
@@ -45,10 +45,11 @@ class AVGDFBDisplayEngine
         AVGFontManager * getFontManager();
         int getWidth();
         int getHeight();
+        int getBPP();
         void DFBErrorCheck(int avgcode, std::string where, DFBResult dfbcode); 
 
     private:
-        void initDFB(int width, int height, bool isFullscreen);
+        void initDFB(int width, int height, bool isFullscreen, int bpp);
         void initLayer(int width, int height);
         void initInput();
         void initBackbuffer();
@@ -56,9 +57,9 @@ class AVGDFBDisplayEngine
         int m_Width;
         int m_Height;
         bool m_IsFullscreen;
+        int m_bpp;
         PLRect m_ClipRect;
         PLRect m_DirtyRect;
-        bool m_bDebugBlts;
 
         IDirectFB * m_pDirectFB;
         IDirectFBWindow * m_pDFBWindow;

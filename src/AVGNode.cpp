@@ -19,7 +19,8 @@ using namespace std;
 NS_IMPL_ISUPPORTS1(AVGNode, IAVGNode);
 
 AVGNode::AVGNode ()
-    : m_pParent(0)
+    : m_pParent(0),
+      m_pPlayer(0)
 {
     NS_INIT_ISUPPORTS();
 }
@@ -158,11 +159,13 @@ NS_IMETHODIMP AVGNode::SetOpacity(float aOpacity)
     return NS_OK;
 }
 
-void AVGNode::init(const string& id, AVGDFBDisplayEngine * pEngine, AVGContainer * pParent)
+void AVGNode::init(const string& id, AVGDFBDisplayEngine * pEngine, 
+        AVGContainer * pParent, AVGPlayer * pPlayer)
 {
     m_ID = id;
     m_pParent = pParent;
     m_pEngine = pEngine;
+    m_pPlayer = pPlayer;
 }
 
 
@@ -255,6 +258,10 @@ void AVGNode::invalidate()
 bool AVGNode::isVisibleNode()
 {
     return true;
+}
+AVGPlayer * AVGNode::getPlayer()
+{
+    return m_pPlayer;
 }
 
 void AVGNode::setViewport (int x, int y, int width, int height)

@@ -23,6 +23,7 @@ class AVGContainer;
 class AVGEvent;
 class AVGRegion;
 class AVGDFBDisplayEngine;
+class AVGPlayer;
 
 class AVGNode: public IAVGNode
 {
@@ -33,7 +34,7 @@ class AVGNode: public IAVGNode
         AVGNode ();
         virtual ~AVGNode ();
         void init(const std::string& id, AVGDFBDisplayEngine * pEngine,
-                AVGContainer * pParent);
+                AVGContainer * pParent, AVGPlayer * pPlayer);
         void initVisible(int x, int y, int z, int width, int height, double opacity);
         
         virtual void InitEventHandlers
@@ -70,6 +71,7 @@ class AVGNode: public IAVGNode
         virtual void invalidate();
         virtual bool isVisibleNode();  // Poor man's RTTI
         virtual PLPoint getPreferredMediaSize() = 0;
+        AVGPlayer * getPlayer();
 
 	private:
         void callJS (const std::string& Code, JSContext * pJSContext);
@@ -77,6 +79,7 @@ class AVGNode: public IAVGNode
         std::string m_ID;
 		AVGContainer * m_pParent;
         AVGDFBDisplayEngine * m_pEngine;
+        AVGPlayer * m_pPlayer;
 
         std::string m_MouseMoveHandler;
         std::string m_MouseButtonUpHandler;

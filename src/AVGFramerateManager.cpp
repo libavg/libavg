@@ -4,11 +4,13 @@
 
 #include "AVGFramerateManager.h"
 #include "AVGTime.h"
+#include "AVGPlayer.h"
 
 #include <sys/time.h>
 #include <unistd.h>
 
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -22,23 +24,23 @@ AVGFramerateManager::AVGFramerateManager ()
 AVGFramerateManager::~AVGFramerateManager ()
 {
     if (m_Rate != 0) {
-        cerr << "Framerate statistics: " << endl;
-        cerr << "  Framerate goal was: " << m_Rate << endl;
-        cerr << "  Total frames: " << m_NumFrames << endl;
-        cerr << "  Frames too late: " << m_FramesTooLate << endl;
+        AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "Framerate statistics: " << endl);
+        AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "  Framerate goal was: " << m_Rate << endl);
+        AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "  Total frames: " << m_NumFrames << endl);
+        AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "  Frames too late: " << m_FramesTooLate << endl);
         double TotalTime = double(GetCurrentTicks()-m_StartTime)/1000;
-        cerr << "  Total time: " << TotalTime << " seconds" << endl;
-        cerr << "  Framerate achieved: " 
-             << (m_NumFrames+1)/TotalTime << endl;
-        cerr << "  Time spent waiting: " << double (m_TimeSpentWaiting)/1000 
-             << " seconds" << endl;
-        cerr << "  Percent of time spent waiting: " 
-             << double (m_TimeSpentWaiting)/(10*TotalTime) << endl;
+        AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "  Total time: " << TotalTime << " seconds" << endl);
+        AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "  Framerate achieved: " 
+             << (m_NumFrames+1)/TotalTime << endl);
+        AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "  Time spent waiting: " << double (m_TimeSpentWaiting)/1000 
+             << " seconds" << endl);
+        AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "  Percent of time spent waiting: " 
+             << double (m_TimeSpentWaiting)/(10*TotalTime) << endl);
 
     }
 }
 
-void AVGFramerateManager::SetRate(int Rate)
+void AVGFramerateManager::SetRate(double Rate)
 {
     m_Rate = Rate;
     m_NumFrames = 0;
@@ -49,7 +51,7 @@ void AVGFramerateManager::SetRate(int Rate)
     m_StartTime = GetCurrentTicks();
 }
 
-int AVGFramerateManager::GetRate()
+double AVGFramerateManager::GetRate()
 {
     return m_Rate;
 }
@@ -60,8 +62,7 @@ void AVGFramerateManager::FrameWait()
     m_NumRegularFrames++;
 
     int CurTime = GetCurrentTicks();
-    int TargetTime = m_LastFrameTime+(int)((1000/(double)m_Rate)*m_NumRegularFrames);
-    m_TimeSpentWaiting += TargetTime-CurTime;
+    int TargetTime = m_LastFrameTime+(int)((1000/m_Rate)*m_NumRegularFrames);
     if (CurTime <= TargetTime) 
     {
         int WaitTime = TargetTime-CurTime;
@@ -73,10 +74,12 @@ void AVGFramerateManager::FrameWait()
     else
     {
         m_FramesTooLate++;
-        //cerr << "FramerateManager warning: frame too late by " << CurTime-TargetTime << " ms." << endl; 
+        AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "FramerateManager warning: frame too late by " <<
+                CurTime-TargetTime << " ms." << endl); 
         m_NumRegularFrames = 0;
         m_LastFrameTime = GetCurrentTicks();
     }
+    m_TimeSpentWaiting += GetCurrentTicks()-CurTime;
 }
 
 
