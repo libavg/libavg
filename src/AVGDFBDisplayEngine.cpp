@@ -79,6 +79,7 @@ void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen, int bpp
     dumpSurface (m_pBackBuffer, "Backbuffer surface");
 
     m_pFontManager = new AVGFontManager;
+    pLayerSurf->Release(pLayerSurf);
 }
 
 void AVGDFBDisplayEngine::initDFB(int width, int height, bool isFullscreen, int bpp)
@@ -334,12 +335,14 @@ void AVGDFBDisplayEngine::swapBuffers(const AVGRegion & UpdateRegion)
         AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Swap Blit: " << 
                 rc.tl.x << "x" << rc.tl.y << ", width: " << 
                 rc.Width() << ", height: " << rc.Height() << endl);
+
     }
     if (!m_IsFullscreen) {
         pLayerSurf->Flip(pLayerSurf, 0, DFBSurfaceFlipFlags(DSFLIP_BLIT));
     
         AVG_TRACE(AVGPlayer::DEBUG_BLTS, "DFB Surface Flip Blit" << endl);
     }
+    pLayerSurf->Release(pLayerSurf);
 }
 
 PLBmp * AVGDFBDisplayEngine::createSurface()
