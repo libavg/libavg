@@ -146,20 +146,25 @@ void AVGWords::changeFont()
 
 void AVGWords::drawString()
 {
-    m_pFont->render(*m_pBmp, m_Str);
-    m_StringExtents = PLPoint(m_pBmp->GetWidth(), m_pBmp->GetHeight());
-    getEngine()->surfaceChanged(m_pBmp);
-    setViewport(-32767, -32767, m_StringExtents.x, m_StringExtents.y);
+    if (m_Str.length() == 0) {
+        m_StringExtents = PLPoint(0,0);
+    } else {
+        m_pFont->render(*m_pBmp, m_Str);
+        m_StringExtents = PLPoint(m_pBmp->GetWidth(), m_pBmp->GetHeight());
+        getEngine()->surfaceChanged(m_pBmp);
+        setViewport(-32767, -32767, m_StringExtents.x, m_StringExtents.y);
+    }
 }
 
 void AVGWords::render(const PLRect& Rect)
 {
     if (getEffectiveOpacity() > 0.001) {
-        bool bVisible = getEngine()->setNodeRect(getVisibleRect(), false);
+        bool bVisible = getEngine()->pushClipRect(getVisibleRect(), false);
         if (bVisible) {
             getEngine()->blta8(m_pBmp, &getAbsViewport(), getEffectiveOpacity(),
                     m_Color, getAngle(), getPivot());
         }
+        getEngine()->popClipRect();
     }
 }
 

@@ -30,8 +30,9 @@ class AVGSDLDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         virtual void render(AVGNode * pRootNode, 
                 AVGFramerateManager * pFramerateManager, bool bRenderEverything);
         
-        virtual void setNodeRect();
-        virtual bool setNodeRect(const PLRect& rc, bool bClip);
+        virtual void setClipRect();
+        virtual bool pushClipRect(const PLRect& rc, bool bClip);
+        virtual void popClipRect();
         virtual const PLRect& getClipRect();
         virtual void blt32(PLBmp * pBmp, const PLRect* pDestRect, 
                 double opacity, double angle, const PLPoint& pivot);
@@ -73,7 +74,7 @@ class AVGSDLDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         int m_Height;
         bool m_IsFullscreen;
         int m_bpp;
-        PLRect m_ClipRect;
+        std::vector<PLRect> m_ClipRects;
         PLRect m_DirtyRect;
 
         SDL_Surface * m_pScreen;

@@ -25,8 +25,9 @@ class IAVGDisplayEngine
         virtual void render(AVGNode * pRootNode, 
                 AVGFramerateManager * pFramerateManager, bool bRenderEverything) = 0;
         
-        virtual void setNodeRect() = 0;
-        virtual bool setNodeRect(const PLRect& rc, bool bClip) = 0;
+        virtual void setClipRect() = 0;
+        virtual bool pushClipRect(const PLRect& rc, bool bClip) = 0;
+        virtual void popClipRect() = 0;
         virtual const PLRect& getClipRect() = 0;
         virtual void blt32(PLBmp * pBmp, const PLRect* pDestRect, 
                 double opacity, double angle, const PLPoint& pivot) = 0;

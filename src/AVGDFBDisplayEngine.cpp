@@ -96,7 +96,8 @@ void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen, int bpp
     }
 }
 
-void AVGDFBDisplayEngine::initDFB(int width, int height, bool isFullscreen, int bpp)
+void AVGDFBDisplayEngine::initDFB(int width, int height, 
+        bool isFullscreen, int bpp)
 {
     // Init DFB system
     char ** argv = new (char *)[7];
@@ -107,8 +108,10 @@ void AVGDFBDisplayEngine::initDFB(int width, int height, bool isFullscreen, int 
     
     if (isFullscreen && geteuid() != 0) {
         isFullscreen = false;
-        AVG_TRACE(IAVGPlayer::DEBUG_PROFILE, "Fullscreen requested but not running as root.");
-        AVG_TRACE(IAVGPlayer::DEBUG_PROFILE, "         Falling back to windowed mode.");
+        AVG_TRACE(IAVGPlayer::DEBUG_PROFILE, 
+                "Fullscreen requested but not running as root.");
+        AVG_TRACE(IAVGPlayer::DEBUG_PROFILE, 
+                "         Falling back to windowed mode.");
     }
     
     if (!isFullscreen) {
@@ -127,9 +130,11 @@ void AVGDFBDisplayEngine::initDFB(int width, int height, bool isFullscreen, int 
 
     DFBResult err;
     err = DirectFBInit (&argc, &argv);
-    DFBErrorCheck(AVG_ERR_VIDEO_INIT_FAILED, "AVGDFBDisplayEngine::initDFB - DirectFBInit", err);
+    DFBErrorCheck(AVG_ERR_VIDEO_INIT_FAILED, 
+            "AVGDFBDisplayEngine::initDFB - DirectFBInit", err);
     err = DirectFBCreate (&m_pDirectFB);
-    DFBErrorCheck(AVG_ERR_VIDEO_INIT_FAILED, "AVGDFBDisplayEngine::initDFB - DirectFBCreate", err);
+    DFBErrorCheck(AVG_ERR_VIDEO_INIT_FAILED, 
+            "AVGDFBDisplayEngine::initDFB - DirectFBCreate", err);
     
     m_IsFullscreen = isFullscreen;
     m_bpp = bpp;
@@ -155,7 +160,8 @@ void AVGDFBDisplayEngine::initLayer(int width, int height)
     if (width != m_Width || height != m_Height) {
         cerr << "Warning: avg file expects screen dimensions of " << 
             width << "x" << height << "." << endl;
-        cerr << "         Current resolution is " << m_Width << "x" << m_Height << endl;
+        cerr << "         Current resolution is " << m_Width 
+            << "x" << m_Height << endl;
         cerr << "         To avoid this, change dfb configuration." << endl;
     }
 
@@ -256,7 +262,7 @@ void AVGDFBDisplayEngine::render(AVGNode * pRootNode,
     for (int i = 0; i<UpdateRegion.getNumRects(); i++) {
         const PLRect & rc = UpdateRegion.getRect(i);
         setDirtyRect(rc);
-        setNodeRect();
+        setClipRect();
         clear();
         pRootNode->maybeRender(rc);
     }
@@ -265,16 +271,16 @@ void AVGDFBDisplayEngine::render(AVGNode * pRootNode,
     pFramerateManager->CheckJitter();
 }
 
-void AVGDFBDisplayEngine::setNodeRect()
+void AVGDFBDisplayEngine::setClipRect()
 {
-    setNodeRect(PLRect(0, 0, m_Width, m_Height), true);
+    pushClipRect(PLRect(0, 0, m_Width, m_Height), true);
 }
 
-bool AVGDFBDisplayEngine::setNodeRect(const PLRect& rc, bool bClip)
+bool AVGDFBDisplayEngine::pushClipRect(const PLRect& rc, bool bClip)
 {
     m_ClipRect = rc;
     m_ClipRect.Intersect(m_DirtyRect);
-    if (bClip && m_ClipRect.Width() > 0 && m_ClipRect.Height() > 0) {
+    if (m_ClipRect.Width() > 0 && m_ClipRect.Height() > 0) {
         DFBRegion Region;
         Region.x1 = m_ClipRect.tl.x;
         Region.y1 = m_ClipRect.tl.y;
@@ -289,6 +295,10 @@ bool AVGDFBDisplayEngine::setNodeRect(const PLRect& rc, bool bClip)
     } else {
         return false;
     }
+}
+
+void AVGDFBDisplayEngine::popClipRect()
+{
 }
 
 const PLRect& AVGDFBDisplayEngine::getClipRect() {

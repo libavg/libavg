@@ -268,18 +268,20 @@ void AVGNode::prepareRender (int time, const PLRect& parent)
 void AVGNode::maybeRender (const PLRect& Rect)
 {
     bool bVisible;
-     if (dynamic_cast<AVGAVGNode*>(this) != 0) {
-        bVisible = getEngine()->setNodeRect(getVisibleRect(), true);
+    if (dynamic_cast<AVGAVGNode*>(this) != 0) {
+        bVisible = getEngine()->pushClipRect(getVisibleRect(), true);
     } else {
-        bVisible = getEngine()->setNodeRect(getVisibleRect(), false);
+        bVisible = getEngine()->pushClipRect(getVisibleRect(), false);
     }
     if (bVisible) {
         if (getEffectiveOpacity() > 0.01) {
-            if (!getParent() || !getParent()->obscures(getEngine()->getClipRect(), getZ())) {
+            if (!getParent() || 
+                    !getParent()->obscures(getEngine()->getClipRect(), getZ())) {
                 render(Rect);
             } 
         }
     }
+    getEngine()->popClipRect();
 }
 
 void AVGNode::render (const PLRect& Rect)

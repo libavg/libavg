@@ -147,27 +147,37 @@ void AVGSDLDisplayEngine::render(AVGNode * pRootNode,
     pFramerateManager->CheckJitter();
 }
  
-void AVGSDLDisplayEngine::setNodeRect()
+void AVGSDLDisplayEngine::setClipRect()
 {
-    setNodeRect(PLRect(0, 0, m_Width, m_Height), true);
+    m_ClipRects.clear();
+    m_ClipRects.push_back(PLRect(0, 0, m_Width, m_Height));
 }
 
-bool AVGSDLDisplayEngine::setNodeRect(const PLRect& rc, bool bClip)
+bool AVGSDLDisplayEngine::pushClipRect(const PLRect& rc, bool bClip)
 {
-    m_ClipRect = rc;
+    m_ClipRects.push_back(rc);
 
+    glPushMatrix();
     AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Clip set to " << 
-            m_ClipRect.tl.x << "x" << m_ClipRect.tl.y << 
-            ", width: " << m_ClipRect.Width() << ", height: " << 
-            m_ClipRect.Height());
+            rc.tl.x << "x" << rc.tl.y << 
+            ", width: " << rc.Width() << ", height: " << 
+            rc.Height());
     if (bClip) {
         clip();
     }
     return true;
 }
 
-const PLRect& AVGSDLDisplayEngine::getClipRect() {
-    return m_ClipRect;
+void AVGSDLDisplayEngine::popClipRect()
+{
+    glPopMatrix();
+    m_ClipRects.pop_back();
+    clip();
+}
+
+const PLRect& AVGSDLDisplayEngine::getClipRect() 
+{
+    return m_ClipRects.back();
 }
 
 void AVGSDLDisplayEngine::blt32(PLBmp * pBmp, const PLRect* pDestRect, 
@@ -241,8 +251,9 @@ void AVGSDLDisplayEngine::bltTexture(AVGOGLBmp * pOGLBmp, const PLRect* pDestRec
 
 void AVGSDLDisplayEngine::clip()
 {
+    PLRect rc = m_ClipRects.back();
     double xEqn[4] = {1.0, 0.0, 0.0, 0.0};
-    xEqn[3] = -m_ClipRect.tl.x;
+    xEqn[3] = -rc.tl.x;
     glClipPlane(GL_CLIP_PLANE0, xEqn);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glClipPlane(0)");
     glEnable (GL_CLIP_PLANE0);
@@ -251,14 +262,14 @@ void AVGSDLDisplayEngine::clip()
     xEqn[0] = -1;
     xEqn[1] = 0;
     xEqn[2] = 0;
-    xEqn[3] = m_ClipRect.br.x;
+    xEqn[3] = rc.br.x;
     glClipPlane(GL_CLIP_PLANE1, xEqn);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glClipPlane(1)");
     glEnable (GL_CLIP_PLANE1);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glEnable(1)");
 
     double yEqn[4] = {0.0, 1.0, 0.0, 0.0};
-    yEqn[3] = -m_ClipRect.tl.y;
+    yEqn[3] = -rc.tl.y;
     glClipPlane(GL_CLIP_PLANE2, yEqn);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glClipPlane(2)");
     glEnable (GL_CLIP_PLANE2);
@@ -266,7 +277,7 @@ void AVGSDLDisplayEngine::clip()
     yEqn[0] = 0;
     yEqn[1] = -1.0;
     yEqn[2] = 0;
-    yEqn[3] = m_ClipRect.br.y;
+    yEqn[3] = rc.br.y;
     glClipPlane(GL_CLIP_PLANE3, yEqn);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glClipPlane(3)");
     glEnable (GL_CLIP_PLANE3);
