@@ -1,0 +1,35 @@
+//
+// $Id$
+//
+
+#include "nsISupports.idl"
+
+[scriptable, uuid(ff6cfc9e-085e-474e-8aae-4eda7741ea94)]
+interface IAVGNode : nsISupports
+{
+    // Node types
+    const long NT_IMAGE=1;
+    const long NT_AVG=2;
+    const long NT_VIDEO=3;
+    const long NT_AUDIO=4;
+    const long NT_TEXT=5;
+    const long NT_EXCL=6;
+    
+    string getID();
+    long getType();
+    long getNumChildren();
+    IAVGNode getChild(in long i);
+//    void removeChild(in long i);
+//    void addChild(in IAVGNode childNode);
+    IAVGNode getParent();
+
+    string getStringAttr(in string name);
+    long getIntAttr(in string name);
+    float getFloatAttr(in string name);
+   
+    void setStringAttr(in string name, in string value);
+    void setIntAttr(in string name, in long value);
+    void setFloatAttr(in string name, in float value);
+   
+};
+

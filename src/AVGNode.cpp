@@ -8,18 +8,99 @@
 
 #include <paintlib/plpoint.h>
 
-AVGNode::AVGNode (const std::string& id, AVGContainer * pParent)
-    : m_ID(id),
-      m_pParent(pParent)
-{
-}
+#include <xpcom/nsMemory.h>
+
+NS_IMPL_ISUPPORTS1(AVGNode, IAVGNode);
 
 AVGNode::AVGNode ()
+    : m_pParent(0)
 {
+    NS_INIT_ISUPPORTS();
 }
 
 AVGNode::~AVGNode()
 {
+}
+
+NS_IMETHODIMP 
+AVGNode::GetID(char **_retval)
+{
+    *_retval = (char*)nsMemory::Clone(m_ID.c_str(), m_ID.length()+1);
+    return NS_OK;
+}
+
+NS_IMETHODIMP 
+AVGNode::GetType(PRInt32 *_retval)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP 
+AVGNode::GetNumChildren(PRInt32 *_retval)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP 
+AVGNode::GetChild(PRInt32 i, IAVGNode **_retval)
+{
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP 
+AVGNode::GetParent(IAVGNode **_retval)
+{
+    NS_IF_ADDREF(m_pParent);
+    *_retval=m_pParent;
+    return NS_OK;
+}
+
+NS_IMETHODIMP 
+AVGNode::GetStringAttr(const char *name, char **_retval)
+{
+    cerr << "Error: Request for unknown string attribute " << name << endl;
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP 
+AVGNode::GetIntAttr(const char *name, PRInt32 *_retval)
+{
+    cerr << "Error: Request for unknown int attribute " << name << endl;
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP 
+AVGNode::GetFloatAttr(const char *name, float *_retval)
+{
+    cerr << "Error: Request for unknown float attribute " << name << endl;
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP 
+AVGNode::SetStringAttr(const char *name, const char *value)
+{
+    cerr << "Error: Setting unknown string attribute " << name << endl;
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP 
+AVGNode::SetIntAttr(const char *name, PRInt32 value)
+{
+    cerr << "Error: Setting unknown int attribute " << name << endl;
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP 
+AVGNode::SetFloatAttr(const char *name, float value)
+{
+    cerr << "Error: Setting unknown float attribute " << name << endl;
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+void AVGNode::init(const string& id, AVGContainer * pParent)
+{
+    m_ID = id;
+    m_pParent = pParent;
 }
 
 void AVGNode::InitEventHandlers
@@ -72,6 +153,7 @@ const string& AVGNode::getID ()
 void AVGNode::handleEvent (AVGEvent* pEvent, IJSEvalKruecke * pKruecke)
 {
     string Code;
+    pEvent->setNode(this);
     int EventType;
     pEvent->GetType(&EventType);
     switch (EventType) {
@@ -84,20 +166,16 @@ void AVGNode::handleEvent (AVGEvent* pEvent, IJSEvalKruecke * pKruecke)
         case AVGEvent::MOUSEUP:
             Code = m_MouseButtonUpHandler;
             break;
-        default:
+        case AVGEvent::MOUSEOVER:
+            Code = m_MouseOverHandler;
+            break;
+       case AVGEvent::MOUSEOUT:
+            Code = m_MouseOutHandler;
+            break;
+         default:
             break;
     }
     callJS(Code, pKruecke);
-}
-
-void AVGNode::onMouseOver (IJSEvalKruecke * pKruecke)
-{
-    callJS(m_MouseOverHandler, pKruecke);
-}
-
-void AVGNode::onMouseOut (IJSEvalKruecke * pKruecke)
-{
-    callJS(m_MouseOutHandler, pKruecke);
 }
 
 void AVGNode::callJS (const string& Code, IJSEvalKruecke * pKruecke)

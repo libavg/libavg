@@ -10,6 +10,8 @@
 #include <paintlib/plpoint.h>
 #include <SDL/SDL.h>
 
+class IAVGNode;
+
 //5237f8ca-a849-43fa-910a-5daeb972b94d
 #define AVGEVENT_CID \
 { 0x5237f8ca, 0xa849, 0x43fa, { 0x91, 0x0a, 0x5d, 0xae, 0xb9, 0x72, 0xb9, 0x4d } }
@@ -22,8 +24,10 @@ class AVGEvent: public IAVGEvent
     public:
         AVGEvent ();
         virtual ~AVGEvent ();
-        void init(int type, const PLPoint& pos, int buttonState, int keySym=0);
+        void init(int type, const PLPoint& pos, 
+                int buttonState, int keySym=0);
         void init(const SDL_Event& SDLEvent);
+        void setNode(IAVGNode* pNode);
 
         void dump(int DebugLevel);
 
@@ -32,7 +36,7 @@ class AVGEvent: public IAVGEvent
         NS_DECL_IAVGEVENT
 
     private:
-//        IAVGNode * m_pNode;
+        IAVGNode * m_pNode;
         int m_Type;
         PLPoint m_Pos;
         int m_ButtonState;

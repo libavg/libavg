@@ -29,7 +29,8 @@ CPPSRCS   =  AVGPlayer.cpp AVGNode.cpp \
 		AVGFramerateManager.cpp AVGTimeout.cpp \
 		AVGEvent.cpp \
 		$(NULL)
-XPIDLSRCS = IAVGPlayer.idl IJSEvalKruecke.idl IAVGEvent.idl
+XPIDLSRCS = IAVGPlayer.idl IJSEvalKruecke.idl IAVGEvent.idl IAVGNode.idl
+
 include $(topsrcdir)/config/config.mk
 LIBS    +=        \
     $(XPCOM_LIBS) \
@@ -49,3 +50,5 @@ install:: $(TARGETS)
 	$(SYSINSTALL) $(IFLAGS1) $(srcdir)/_xpidlgen/IAVGPlayer.xpt $(mozappdir)/components
 	$(SYSINSTALL) $(IFLAGS1) $(srcdir)/_xpidlgen/IAVGEvent.xpt $(mozappdir)/components
 	$(SYSINSTALL) $(IFLAGS1) $(srcdir)/_xpidlgen/IJSEvalKruecke.xpt $(mozappdir)/components
+	$(SYSINSTALL) $(IFLAGS1) $(srcdir)/_xpidlgen/IAVGNode.xpt $(mozappdir)/components
+

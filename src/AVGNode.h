@@ -5,22 +5,32 @@
 #ifndef _AVGNode_H_
 #define _AVGNode_H_
 
+#include <IAVGNode.h>
+
 #include <vector>
 #include <string>
 
+#include <paintlib/plstdpch.h>
+
 #include <SDL/SDL.h>
+
+#include <xpcom/nsCOMPtr.h>
+#include <xpcom/nsIComponentManager.h>
 
 class PLPoint;
 class AVGContainer;
 class IJSEvalKruecke;
 class AVGEvent;
 
-class AVGNode 
+class AVGNode: public IAVGNode
 {
 	public:
-        AVGNode (const std::string& id, AVGContainer * pParent);
+        NS_DECL_ISUPPORTS
+        NS_DECL_IAVGNODE
+
         AVGNode ();
         virtual ~AVGNode ();
+        void init(const std::string& id, AVGContainer * pParent);
         virtual void InitEventHandlers
             (const std::string& MouseMoveHandler, 
              const std::string& MouseButtonUpHandler, 
@@ -37,8 +47,6 @@ class AVGNode
         virtual const std::string& getID ();
         
         virtual void handleEvent (AVGEvent* pEvent, IJSEvalKruecke* pKruecke);
-        virtual void onMouseOver (IJSEvalKruecke * pKruecke);
-        virtual void onMouseOut (IJSEvalKruecke * pKruecke);
         virtual void callJS (const string& Code, IJSEvalKruecke * pKruecke);
 
 	private:
@@ -51,6 +59,22 @@ class AVGNode
         std::string m_MouseOverHandler;
         std::string m_MouseOutHandler;
 };
+
+template<class NODECLASS>
+NODECLASS* createNode(string CID) {
+    nsresult rv;
+    IAVGNode* pINode;
+    rv = nsComponentManager::CreateInstance (CID.c_str(), 0,
+            NS_GET_IID(IAVGNode),
+            (void**)&pINode);
+    if (NS_FAILED(rv)) {
+        cerr << "createNode failed: " << rv << endl;
+        PLASSERT(false);
+    }
+    NODECLASS * pNode = dynamic_cast<NODECLASS*>((IAVGNode*)pINode);
+    NS_IF_ADDREF((IAVGNode*)pINode);
+    return pNode;
+}
 
 #endif //_AVGNode_H_
 

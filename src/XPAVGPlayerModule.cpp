@@ -6,9 +6,13 @@
 
 #include "AVGPlayer.h"
 #include "AVGEvent.h"
+#include "AVGImage.h"
+#include "AVGAVGNode.h"
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGPlayer)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGEvent)
+NS_GENERIC_FACTORY_CONSTRUCTOR(AVGImage)
+NS_GENERIC_FACTORY_CONSTRUCTOR(AVGAVGNode)
 
 static NS_METHOD AVGPlayerRegistrationProc(nsIComponentManager *aCompMgr,
                                            nsIFile *aPath,
@@ -29,7 +33,9 @@ static NS_METHOD AVGPlayerUnregistrationProc(nsIComponentManager *aCompMgr,
 
 NS_DECL_CLASSINFO(AVGPlayer)
 NS_DECL_CLASSINFO(AVGEvent)
-
+NS_DECL_CLASSINFO(AVGImage)
+NS_DECL_CLASSINFO(AVGAVGNode)
+    
 static const nsModuleComponentInfo components[] =
 {
   { "c-base avgplayer Component", 
@@ -53,6 +59,28 @@ static const nsModuleComponentInfo components[] =
     NS_CI_INTERFACE_GETTER_NAME(AVGEvent),
     NULL /* no language helper */,
     &NS_CLASSINFO_NAME(AVGEvent)
+  },
+  { "c-base avgimage Component", 
+    AVGIMAGE_CID, 
+    AVGIMAGE_CONTRACTID, 
+    AVGImageConstructor,
+    AVGPlayerRegistrationProc,
+    AVGPlayerUnregistrationProc,
+    NULL /* no factory destructor */,
+    NS_CI_INTERFACE_GETTER_NAME(AVGImage),
+    NULL /* no language helper */,
+    &NS_CLASSINFO_NAME(AVGImage)
+  },
+  { "c-base avgavgnode Component", 
+    AVGAVGNODE_CID, 
+    AVGAVGNODE_CONTRACTID, 
+    AVGAVGNodeConstructor,
+    AVGPlayerRegistrationProc,
+    AVGPlayerUnregistrationProc,
+    NULL /* no factory destructor */,
+    NS_CI_INTERFACE_GETTER_NAME(AVGAVGNode),
+    NULL /* no language helper */,
+    &NS_CLASSINFO_NAME(AVGAVGNode)
   }
 };
 
@@ -61,14 +89,14 @@ NS_IMPL_NSGETMODULE(AVGPlayerModule, components)
 //==============================================================================
 //
 // $Log$
+// Revision 1.3  2003/03/22 17:10:27  uzadow
+// Fixed AVGAVGNode refcount handling.
+//
 // Revision 1.2  2003/03/21 15:13:01  uzadow
 // Event object now accessible from Javascript.
 //
 // Revision 1.1  2003/03/18 17:03:46  uzadow
 // Forgotten files
-//
-// Revision 1.1  2003/02/21 15:06:45  uzadow
-// Printer errors are handled correctly.
 //
 //
 //==============================================================================

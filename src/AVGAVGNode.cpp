@@ -8,13 +8,17 @@
 #include "AVGSDLDisplayEngine.h"
 
 #include <paintlib/plpoint.h>
+#include <nsMemory.h>
+#include <xpcom/nsComponentManagerUtils.h>
 
-AVGAVGNode::AVGAVGNode(const std::string& id, int x, int y, int z, 
-           int width, int height, double opacity, 
-           AVGSDLDisplayEngine * pEngine, AVGContainer * pParent)
-    : AVGContainer(id, pParent),
-      AVGVisibleNode(id, x, y, z, width, height, opacity, pEngine, pParent),
-      AVGNode(id, pParent)
+NS_IMPL_ISUPPORTS1_CI(AVGAVGNode, IAVGNode);
+
+AVGAVGNode * AVGAVGNode::create()
+{
+    return createNode<AVGAVGNode>("@c-base.org/avgavgnode;1");
+}       
+
+AVGAVGNode::AVGAVGNode()
 {
 }
 
@@ -25,7 +29,7 @@ AVGAVGNode::~AVGAVGNode()
 AVGNode * AVGAVGNode::getElementByPos (const PLPoint & pos)
 {
     if (!getAbsViewport().Contains(pos)) {
-        return 0; // Not in parent.
+        return 0; // pos is not in parent.
     }
     for (int i=getNumChildren()-1; i>=0; i--) {
         AVGNode * pFoundNode = getChild(i)->getElementByPos(pos);
@@ -33,7 +37,7 @@ AVGNode * AVGAVGNode::getElementByPos (const PLPoint & pos)
             return pFoundNode;
         }
     }
-    return this; // In parent, but not in any child.
+    return this; // pos is in parent, but not in any child.
 }
 
 void AVGAVGNode::update (int time, const PLPoint& pos)

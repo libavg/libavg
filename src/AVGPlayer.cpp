@@ -28,8 +28,6 @@
 #include "nsXPCOMGlue.h"
 #endif
 
-//#include "xpconnect/nsIXPConnect.h"
-//#include "xpcom/nsIServiceManager.h"
 #include <xpcom/nsComponentManagerUtils.h>
 
 using namespace std;
@@ -93,6 +91,14 @@ AVGPlayer::Stop()
 	return NS_OK;
 }
 
+NS_IMETHODIMP 
+AVGPlayer::GetRootNode(IAVGNode **_retval)
+{
+    NS_IF_ADDREF(m_pRootNode);
+    *_retval = m_pRootNode;
+    return NS_OK;
+}
+
 NS_IMETHODIMP
 AVGPlayer::SetInterval(PRInt32 time, const char * code, PRInt32 * pResult)
 {
@@ -126,6 +132,7 @@ AVGPlayer::ClearInterval(PRInt32 id, PRBool * pResult)
 NS_IMETHODIMP 
 AVGPlayer::GetCurEvent(IAVGEvent **_retval)
 {
+    NS_IF_ADDREF(m_CurEvent);
     *_retval = m_CurEvent;
     return NS_OK;
 }
@@ -186,8 +193,7 @@ void AVGPlayer::play ()
     m_pDisplayEngine->teardown();
     delete m_pDisplayEngine;
     m_pDisplayEngine = 0;
-    
-    delete m_pRootNode;
+    NS_IF_RELEASE(m_pRootNode);
     m_pRootNode = 0;
 
     m_pLastMouseNode = 0;
@@ -238,7 +244,9 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         int width, height;
         double opacity;
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, &opacity);
-        curNode = new AVGAVGNode (id, x, y, z, width, height, opacity, 
+
+        curNode = AVGAVGNode::create();
+        dynamic_cast<AVGAVGNode*>(curNode)->init(id, x, y, z, width, height, opacity, 
                     m_pDisplayEngine, pParent);
         initEventHandlers(curNode, xmlNode);
         // Fullscreen handling only for topmost node.
@@ -254,8 +262,10 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, &opacity);
         string filename = m_CurDirName + 
                 getRequiredStringAttr(xmlNode, (const xmlChar *)"href");
-        curNode = new AVGImage (id, x, y, z, width, height, opacity, filename,
-                m_pDisplayEngine, pParent);
+
+        curNode = AVGImage::create();
+        dynamic_cast<AVGImage*>(curNode)->init(id, x, y, z, width, height, opacity, 
+                filename, m_pDisplayEngine, pParent);
         initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"text")) {
         // Ignore whitespace
@@ -345,13 +355,13 @@ void AVGPlayer::handleEvents()
             if (EventType == AVGEvent::QUIT) {
                 m_bStopping = true;
             }
-              
+
             int b;
             m_CurEvent->IsMouseEvent(&b);
             if (b) {
                 handleMouseEvent(pCPPEvent);
             }
-  
+            NS_IF_RELEASE(pCPPEvent);
         }
     }
 }
@@ -359,44 +369,12 @@ void AVGPlayer::handleEvents()
 AVGEvent* AVGPlayer::createCurEvent()
 {
     nsresult rv;
-    m_CurEvent = do_CreateInstance("@c-base.org/avgevent;1", &rv);
+    nsCOMPtr<IAVGEvent> pXPEvent = do_CreateInstance("@c-base.org/avgevent;1", &rv);
     PLASSERT(!NS_FAILED(rv));
-    return dynamic_cast<AVGEvent*>((IAVGEvent*)m_CurEvent);
+    m_CurEvent = pXPEvent;
+    NS_IF_ADDREF((IAVGEvent*)m_CurEvent);
+    return dynamic_cast<AVGEvent*>(m_CurEvent);
 }
-
-/*
- void AVGPlayer::wrapJSEvent(AVGEvent* pEvent)
-{
-    nsresult rv;
-    nsCOMPtr<nsIXPConnect> xpc(do_GetService(nsIXPConnect::GetCID(), &rv));
-    PLASSERT(!NS_FAILED(rv));
-
-    nsCOMPtr<nsIXPCNativeCallContext> callContext;
-    xpc->GetCurrentNativeCallContext(getter_AddRefs(callContext));
-
-    JSContext* cx;
-    rv = callContext->GetJSContext(&cx);
-    PLASSERT(!NS_FAILED(rv));
-    PLASSERT(cx);
-
-    nsCOMPtr<nsIXPConnectWrappedNative> calleeWrapper;
-    callContext->GetCalleeWrapper(getter_AddRefs(calleeWrapper));
-    PLASSERT(calleeWrapper);
-
-    JSObject* calleeJSObject;
-    rv = calleeWrapper->GetJSObject(&calleeJSObject);
-    PLASSERT(!NS_FAILED(rv));
-    PLASSERT(calleeJSObject);
-
-    nsCOMPtr<IAVGEvent> JSEvent;
-    rv = xpc->WrapNative(cx, calleeJSObject, pEvent, NS_GET_IID(AVGEvent),
-            getter_AddRefs(JSEvent));
-    PLASSERT(!NS_FAILED(rv));
-    PLASSERT(JSEvent);
-
-    return JSEvent;
-}
-*/
 
 void AVGPlayer::handleMouseEvent (AVGEvent* pEvent)
 {
@@ -414,18 +392,14 @@ void AVGPlayer::handleMouseEvent (AVGEvent* pEvent)
             AVGEvent * pEvent = createCurEvent();
             pEvent->init(AVGEvent::MOUSEOVER, pos, ButtonState);
             pEvent->dump(m_EventDebugLevel);
-            cerr << "1" << endl;
-            pNode->onMouseOver(m_pKruecke);
-            cerr << "2" << endl;
+            pNode->handleEvent(pEvent, m_pKruecke);
         }
         if (m_pLastMouseNode) {
-            cerr << "3" << endl;
             AVGEvent * pEvent = createCurEvent();
-            pEvent->init(AVGEvent::MOUSEOVER, pos, ButtonState);
+            pEvent->init(AVGEvent::MOUSEOUT, pos, ButtonState);
             pEvent->dump(m_EventDebugLevel);
-            m_pLastMouseNode->onMouseOut(m_pKruecke);
+            m_pLastMouseNode->handleEvent(pEvent, m_pKruecke);
         }
-        cerr << "4" << endl;
 
         m_pLastMouseNode = pNode;
     }

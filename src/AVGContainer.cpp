@@ -8,8 +8,7 @@
 
 using namespace std;
 
-AVGContainer::AVGContainer (const std::string& id, AVGContainer * pParent)
-    : AVGNode (id, pParent)
+AVGContainer::AVGContainer ()
 {
 }
 
@@ -17,8 +16,25 @@ AVGContainer::~AVGContainer ()
 {
     vector<AVGNode*>::iterator it;
     for (it=m_Children.begin(); it<m_Children.end(); it++) {
-        delete (*it);
+        NS_IF_RELEASE(*it);
+//        delete (*it);
     }
+}
+
+NS_IMETHODIMP 
+AVGContainer::GetNumChildren(PRInt32 *_retval)
+{
+    *_retval = getNumChildren();
+    return NS_OK;
+}
+
+NS_IMETHODIMP 
+AVGContainer::GetChild(PRInt32 i, IAVGNode **_retval)
+{
+    IAVGNode * pChild = getChild(i);
+    NS_IF_ADDREF(pChild);
+    *_retval = pChild;
+    return NS_OK;
 }
 
 int AVGContainer::getNumChildren ()

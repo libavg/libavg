@@ -11,14 +11,25 @@
 
 class PLBmp;
 
+//5a938e63-42c6-4218-9cbd-a7afeb4fbd36
+#define AVGIMAGE_CID \
+{ 0x5a938e63, 0x42c6, 0x4218, { 0x9c, 0xbd, 0xa7, 0xaf, 0xeb, 0x4f, 0xbd, 0x36 } }
+
+#define AVGIMAGE_CONTRACTID "@c-base.org/avgimage;1"
+
 class AVGImage : 	
 	public AVGVisibleNode
 {
 	public:
-        AVGImage (const string& id, int x, int y, int z, 
-           int width, int height, double opacity, const string& filename, 
-           AVGSDLDisplayEngine * pEngine, AVGContainer * pParent);
+        NS_DECL_ISUPPORTS
+
+        static AVGImage * create();
+
+        AVGImage ();
         virtual ~AVGImage ();
+        virtual void init (const std::string& id, int x, int y, int z, 
+           int width, int height, double opacity, const std::string& filename, 
+           AVGSDLDisplayEngine * pEngine, AVGContainer * pParent);
 		virtual void render ();
 		virtual void getDirtyRect ();
         virtual std::string getTypeStr ();

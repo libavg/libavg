@@ -14,20 +14,67 @@
 
 using namespace std;
 
-AVGVisibleNode::AVGVisibleNode (const string& id, int x, int y, int z, 
-            int width, int height, double opacity, 
-            AVGSDLDisplayEngine * pEngine, AVGContainer * pParent)
-    : AVGNode(id, pParent),
-      m_RelViewport(x, y, x+width, y+height),
-      m_z(z),
-      m_Opacity(opacity),
-      m_pEngine(pEngine)
+AVGVisibleNode::AVGVisibleNode ()
 {
 
 }
 
 AVGVisibleNode::~AVGVisibleNode()
 {
+}
+
+NS_IMETHODIMP 
+AVGVisibleNode::GetIntAttr(const char *name, PRInt32 *_retval)
+{
+    if (!strcmp(name, "Left")) {
+        *_retval = m_RelViewport.tl.x;
+        return NS_OK;
+    } else if (!strcmp(name, "Top")) {
+        *_retval = m_RelViewport.tl.y;
+        return NS_OK;
+    } else if (!strcmp(name, "Right")) {
+        *_retval = m_RelViewport.br.x;
+        return NS_OK;
+    } else if (!strcmp(name, "Bottom")) {
+        *_retval = m_RelViewport.br.y;
+        return NS_OK;
+    } else if (!strcmp(name, "Z")) {
+        *_retval = m_z;
+        return NS_OK;
+    } else {
+        return AVGNode::GetIntAttr(name, _retval);
+    }
+
+}
+
+NS_IMETHODIMP 
+AVGVisibleNode::GetFloatAttr(const char *name, float *_retval)
+{
+    
+    return NS_OK;
+}
+
+NS_IMETHODIMP 
+AVGVisibleNode::SetIntAttr(const char *name, PRInt32 value)
+{
+    return NS_OK;
+}
+
+NS_IMETHODIMP 
+AVGVisibleNode::SetFloatAttr(const char *name, float value)
+{
+    return NS_OK;
+}
+
+void AVGVisibleNode::init (const string& id, int x, int y, int z, 
+        int width, int height, double opacity, 
+        AVGSDLDisplayEngine * pEngine, AVGContainer * pParent)
+{
+    AVGNode::init(id, pParent);
+    m_RelViewport = PLRect(x, y, x+width, y+height);
+    m_z = z;
+    m_Opacity = opacity;
+    m_pEngine = pEngine;
 }
 
 AVGNode * AVGVisibleNode::getElementByPos (const PLPoint & pos)

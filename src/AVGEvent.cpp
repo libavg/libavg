@@ -14,7 +14,8 @@
 using namespace std;
 
 AVGEvent::AVGEvent()
-    : m_Type(0)
+    : m_pNode(0),
+      m_Type(0)
 {
     NS_INIT_ISUPPORTS();
 }
@@ -23,7 +24,8 @@ AVGEvent::~AVGEvent()
 {
 }
 
-void AVGEvent::init(int type, const PLPoint& pos, int buttonState, int keySym)
+void AVGEvent::init(int type, const PLPoint& pos, 
+        int buttonState, int keySym)
 {
     m_Type = type;
     m_Pos = pos;
@@ -34,9 +36,9 @@ void AVGEvent::init(int type, const PLPoint& pos, int buttonState, int keySym)
 
 void AVGEvent::init(const SDL_Event& SDLEvent)
 {
-    switch(SDLEvent.type){
+    switch(SDLEvent.type) {
         case SDL_MOUSEMOTION:
-            m_Type=MOUSEMOVE;
+           m_Type=MOUSEMOVE;
             m_Pos=PLPoint(SDLEvent.motion.x, SDLEvent.motion.y);
             m_ButtonState=SDLEvent.motion.state;
             break;
@@ -69,6 +71,11 @@ void AVGEvent::init(const SDL_Event& SDLEvent)
     }
 }
 
+void AVGEvent::setNode(IAVGNode* pNode)
+{
+    m_pNode = pNode;
+}
+
 NS_IMPL_ISUPPORTS1_CI(AVGEvent, IAVGEvent);
 
 NS_IMETHODIMP AVGEvent::IsMouseEvent(PRBool *_retval)
@@ -76,6 +83,14 @@ NS_IMETHODIMP AVGEvent::IsMouseEvent(PRBool *_retval)
     *_retval = (m_Type == MOUSEDOWN || m_Type == MOUSEUP || m_Type == MOUSEMOVE ||
                 m_Type == MOUSEOVER || m_Type == MOUSEOUT);
     return NS_ERROR_NOT_IMPLEMENTED;
+}
+
+NS_IMETHODIMP AVGEvent::GetElement(IAVGNode **_retval)
+{
+    PLASSERT(m_pNode);
+    NS_IF_ADDREF(m_pNode);
+    *_retval = m_pNode;
+    return NS_OK;
 }
 
 NS_IMETHODIMP AVGEvent::GetType(PRInt32 *_retval)

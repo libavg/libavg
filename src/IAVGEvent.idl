@@ -3,7 +3,7 @@
 //
 
 #include "nsISupports.idl"
-
+#include "IAVGNode.idl"
 
 [scriptable, uuid(27681df9-7355-4e36-aa64-14e18dd40fb4)]
 interface IAVGEvent : nsISupports
@@ -21,7 +21,7 @@ interface IAVGEvent : nsISupports
     const long MIDDLE_BUTTON=2;
     const long RIGHT_BUTTON=4;
 
-//    IAVGNode getElement();
+    IAVGNode getElement();
     boolean isMouseEvent();
 
     long getType();

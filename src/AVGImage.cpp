@@ -9,14 +9,35 @@
 #include <paintlib/planydec.h>
 #include <paintlib/Filter/plfilterresizebilinear.h>
 
+#include <nsMemory.h>
+#include <xpcom/nsComponentManagerUtils.h>
+
 using namespace std;
 
-AVGImage::AVGImage (const string& id, int x, int y, int z, 
-           int width, int height, double opacity, const string& filename, 
-           AVGSDLDisplayEngine * pEngine, AVGContainer * pParent)
-    : AVGVisibleNode(id, x, y, z, width, height, opacity, pEngine, pParent),
-      m_Filename (filename)
+NS_IMPL_ISUPPORTS1_CI(AVGImage, IAVGNode);
+
+
+AVGImage * AVGImage::create()
 {
+    return createNode<AVGImage>("@c-base.org/avgimage;1");
+}       
+
+AVGImage::AVGImage ()
+{
+    NS_INIT_ISUPPORTS();
+}
+
+AVGImage::~AVGImage ()
+{
+}
+
+void AVGImage::init (const std::string& id, int x, int y, int z, 
+       int width, int height, double opacity, const std::string& filename, 
+       AVGSDLDisplayEngine * pEngine, AVGContainer * pParent)
+{
+    AVGVisibleNode::init(id, x, y, z,  width, height, opacity, pEngine, pParent);
+    m_Filename = filename;
+    
     m_pBmp = getEngine()->createSurface();
     PLAnyPicDecoder decoder;
     decoder.MakeBmpFromFile(m_Filename.c_str(), m_pBmp);
@@ -29,10 +50,6 @@ AVGImage::AVGImage (const string& id, int x, int y, int z,
             m_pBmp->ApplyFilter(PLFilterResizeBilinear(width, height));   
         }
     }
-}
-
-AVGImage::~AVGImage ()
-{
 }
 
 void AVGImage::render ()

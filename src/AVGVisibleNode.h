@@ -19,10 +19,17 @@ class AVGVisibleNode :
 	public virtual AVGNode
 {
     public:
-        AVGVisibleNode (const std::string& id, int x, int y, int z, 
+        AVGVisibleNode ();
+        virtual ~AVGVisibleNode();
+
+        NS_IMETHOD GetIntAttr(const char *name, PRInt32 *_retval); 
+        NS_IMETHOD GetFloatAttr(const char *name, float *_retval); 
+        NS_IMETHOD SetIntAttr(const char *name, PRInt32 value); 
+        NS_IMETHOD SetFloatAttr(const char *name, float value);
+
+        void init (const std::string& id, int x, int y, int z, 
                 int width, int height, double opacity, 
                 AVGSDLDisplayEngine * pEngine, AVGContainer * pParent);
-        virtual ~AVGVisibleNode();
 
         virtual AVGNode * getElementByPos (const PLPoint & pos);
         virtual void update (int time, const PLPoint& pos);

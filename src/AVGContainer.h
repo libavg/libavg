@@ -12,8 +12,11 @@ class AVGContainer :
 	public virtual AVGNode
 {
     public:
-        AVGContainer (const std::string& id, AVGContainer * pParent);
+        AVGContainer ();
         virtual ~AVGContainer ();
+
+        NS_IMETHOD GetNumChildren(PRInt32 *_retval);
+        NS_IMETHOD GetChild(PRInt32 i, IAVGNode **_retval);
 
 		virtual void update (int time, const PLPoint& pos);
         virtual std::string dump (int indent = 0);
