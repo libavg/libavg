@@ -21,6 +21,7 @@ class AVGFramerateManager
         int m_NumFrames;
         int m_LastFrameTime;
         int m_Rate;
+        int m_StartTime;
 };
 
 #endif //_AVGFramerate_H_

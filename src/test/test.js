@@ -90,6 +90,66 @@ function playAVG (fileName)
     }
 }
 
+var delay = 0;
+var NumChars = 0;
+
+function textInterval()
+{
+    var node = AVGPlayer.getElementByID("cbasetext");
+    delay++;
+    if (delay == 10) {
+      NumChars++;
+      delay = 0;
+    }
+    str = "hello c-base".substr(0, NumChars);
+    node.setStringAttr("String", str);
+
+    var l = node.getIntAttr("Left");
+    node.setIntAttr("Left", l+1);
+}
+
+function changeTextHeight()
+{
+    var node = AVGPlayer.getElementByID("cbasetext");
+    node.setIntAttr("Height", 50);
+
+    var l = node.getIntAttr("Left");
+    var t = node.getIntAttr("Top");
+    var w = node.getIntAttr("Width");
+    var h = node.getIntAttr("Height");
+    print ("Pos: ("+l+","+t+","+w+","+h+")\n");
+}
+
+function changeColor()
+{
+    var node = AVGPlayer.getElementByID("cbasetext");
+    node.setStringAttr("Color", "404080");
+}
+
+function changeFont()
+{
+    var node = AVGPlayer.getElementByID("cbasetext");
+    node.setStringAttr("Font", "courbd");
+    node.setIntAttr("Size", 50);
+}
+
+function testWords()
+{
+    print ("---- Testing word node accessors ----");
+    AVGPlayer.setEventDebugLevel(2);
+    var ok = tryLoadFile("text.avg");
+    if (ok) {
+        timerid = AVGPlayer.setInterval(10, "textInterval();");
+        
+        AVGPlayer.setTimeout(1000, "changeTextHeight();");
+        AVGPlayer.setTimeout(2000, "changeColor();");
+        AVGPlayer.setTimeout(3000, "changeFont();");
+        AVGPlayer.setTimeout(8000, "quitTimeout();");
+
+        AVGPlayer.play();
+    }
+}
+
 function dumpNodes()
 {
     print ("---- dumpNodes: testing node accessors ----");
@@ -104,10 +164,10 @@ function dumpNodes()
             var parent = curChild.getParent();
             var l = curChild.getIntAttr("Left");
             var t = curChild.getIntAttr("Top");
-            var r = curChild.getIntAttr("Right");
-            var b = curChild.getIntAttr("Bottom");
+            var w = curChild.getIntAttr("Width");
+            var h = curChild.getIntAttr("Height");
             print("    Child node id: "+curChild.getID()+" (Parent: "+parent.getID()
-                    +", Pos: ("+l+","+t+","+r+","+b+"), type: "+curChild.getType()+")");
+                    +", Pos: ("+l+","+t+","+w+","+h+"), type: "+curChild.getType()+")");
         }
         AVGPlayer.setTimeout(10, "quitTimeout()");
         AVGPlayer.play();
@@ -118,8 +178,6 @@ function moveit() {
     var node = AVGPlayer.getElementByID("nestedimg1");
     var l = node.getIntAttr("Left");
     node.setIntAttr("Left", l+1);
-    var r = node.getIntAttr("Right");
-    node.setIntAttr("Right", r+1);
     var Opacity = node.getFloatAttr("Opacity");
     node.setFloatAttr("Opacity", Opacity-0.01);
 /*    var z = node.getIntAttr("Z");
@@ -166,9 +224,11 @@ function testExcl()
 }
 
 
-dumpNodes();
+//dumpNodes();
 
-playAVG("text.avg");
+//playAVG("text.avg");
+testWords();
+/*
 playAVG("image.avg");
 testAnimation();
 
@@ -182,4 +242,4 @@ playAVG("avg.avg");
 playAVG("noavg.avg");
 playAVG("noxml.avg");
 playAVG("video.avg");
-
+*/

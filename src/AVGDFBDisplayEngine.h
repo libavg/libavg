@@ -9,6 +9,8 @@
 
 #include <paintlib/plrect.h>
 
+#include <string>
+
 class PLBmp;
 class PLDirectFBBmp;
 class PLPoint;
@@ -32,6 +34,7 @@ class AVGDFBDisplayEngine
         virtual void swapBuffers();
 
 	    virtual PLBmp * createSurface();
+        void dumpSurface(IDirectFBSurface * pSurf, const std::string & name);
 
         IDirectFB * getDFB();
         IDirectFBSurface * getPrimary();

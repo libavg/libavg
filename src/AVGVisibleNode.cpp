@@ -32,10 +32,10 @@ AVGVisibleNode::GetIntAttr(const char *name, PRInt32 *_retval)
         *_retval = m_RelViewport.tl.x;
     } else if (!strcmp(name, "Top")) {
         *_retval = m_RelViewport.tl.y;
-    } else if (!strcmp(name, "Right")) {
-        *_retval = m_RelViewport.br.x;
-    } else if (!strcmp(name, "Bottom")) {
-        *_retval = m_RelViewport.br.y;
+    } else if (!strcmp(name, "Width")) {
+        *_retval = m_RelViewport.Width();
+    } else if (!strcmp(name, "Height")) {
+        *_retval = m_RelViewport.Height();
     } else if (!strcmp(name, "Z")) {
         *_retval = m_z;
     } else {
@@ -60,19 +60,19 @@ AVGVisibleNode::SetIntAttr(const char *name, PRInt32 value)
 {
     if (!strcmp(name, "Left")) {
         invalidate();
-        m_RelViewport.tl.x = value;
+        setViewport(value, -1, -1, -1);
         invalidate();
     } else if (!strcmp(name, "Top")) {
         invalidate();
-        m_RelViewport.tl.y = value;
+        setViewport(-1, value, -1, -1);
         invalidate();
-    } else if (!strcmp(name, "Right")) {
+    } else if (!strcmp(name, "Width")) {
         invalidate();
-        m_RelViewport.br.x = value;
+        setViewport(-1, -1, value, -1);
         invalidate();
-    } else if (!strcmp(name, "Bottom")) {
+    } else if (!strcmp(name, "Height")) {
         invalidate();
-        m_RelViewport.br.y = value;
+        setViewport(-1, -1, -1, value);
         invalidate();
     } else if (!strcmp(name, "Z")) {
         m_z = value;
@@ -146,8 +146,20 @@ string AVGVisibleNode::dump (int indent)
 
 void AVGVisibleNode::setViewport (int x, int y, int width, int height)
 {
+    if (x == -1) {
+        x = m_RelViewport.tl.x;
+    }
+    if (y == -1) {
+        y = m_RelViewport.tl.y;
+    }
+    if (width == -1) {
+        width = m_RelViewport.Width();
+    }
+    if (height == -1) {
+        height = m_RelViewport.Height();
+    }
     PLPoint pos = m_AbsViewport.tl-m_RelViewport.tl;
-    m_RelViewport = PLRect (x, y, width, height);
+    m_RelViewport = PLRect (x, y, x+width, y+height);
     m_AbsViewport = PLRect (pos+m_RelViewport.tl, pos+m_RelViewport.br);
 }
 

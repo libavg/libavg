@@ -36,16 +36,17 @@ class AVGVisibleNode :
         virtual void update (int time, const PLPoint& pos);
         virtual std::string dump (int indent = 0);
 
-        void setViewport (int x, int y, int width, int height);
+        virtual void setViewport (int x, int y, int width, int height);
         const PLRect& getRelViewport ();
         const PLRect& getAbsViewport ();
         int getZ ();
         double getEffectiveOpacity();
         AVGDFBDisplayEngine * getEngine();
 
-    private:
+    protected:
         void invalidate();
 
+    private:
         PLRect m_RelViewport;      // In coordinates relative to the parent.
         PLRect m_AbsViewport;      // In window coordinates.
         int m_z;

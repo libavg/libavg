@@ -20,6 +20,13 @@ AVGFramerateManager::AVGFramerateManager ()
 
 AVGFramerateManager::~AVGFramerateManager ()
 {
+    cerr << "Framerate statistics: " << endl;
+    cerr << "  Framerate goal was: " << m_Rate << endl;
+    cerr << "  Total frames: " << m_NumFrames << endl;
+    cerr << "  Total time: " << (GetCurrentTicks()-m_StartTime)/1000 << " seconds" << endl;
+
+    cerr << "  Framerate achieved: " 
+         << (m_NumFrames*1000)/double(GetCurrentTicks()-m_StartTime) << endl;
 }
 
 void AVGFramerateManager::SetRate(int Rate)
@@ -27,6 +34,7 @@ void AVGFramerateManager::SetRate(int Rate)
     m_Rate = Rate;
     m_NumFrames = 0;
     m_LastFrameTime = GetCurrentTicks();
+    m_StartTime = GetCurrentTicks();
 }
 
 int AVGFramerateManager::GetRate()

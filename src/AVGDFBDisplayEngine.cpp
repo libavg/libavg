@@ -29,7 +29,7 @@ AVGDFBDisplayEngine::~AVGDFBDisplayEngine()
     }
 }
 
-void dumpSurface (IDirectFBSurface * pSurf, const string & name)
+void AVGDFBDisplayEngine::dumpSurface (IDirectFBSurface * pSurf, const string & name)
 {
     int w, h;
     cerr << "Surface: " << name << endl;
