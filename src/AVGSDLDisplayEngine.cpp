@@ -18,8 +18,8 @@
 #include "OGLHelper.h"
 
 #include <paintlib/plbitmap.h>
-//#include <paintlib/plsdlbmp.h>
 #include <paintlib/plrect.h>
+#include <paintlib/Filter/plfilterflip.h>
 
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -325,6 +325,15 @@ void AVGSDLDisplayEngine::showCursor (bool bShow)
     } else {
         SDL_ShowCursor(SDL_DISABLE);
     }
+}
+
+void AVGSDLDisplayEngine::screenshot (const string& sFilename, PLBmp& Bmp)
+{
+    Bmp.Create(m_Width, m_Height, 32, false, false, 0, 0, PLPoint(72, 72));
+    glReadBuffer(GL_FRONT);
+    glReadPixels(0, 0, m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE, 
+            Bmp.GetLineArray()[0]);
+    Bmp.ApplyFilter(PLFilterFlip());
 }
 
 int AVGSDLDisplayEngine::getWidth()

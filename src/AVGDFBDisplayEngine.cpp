@@ -18,6 +18,7 @@
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/plrect.h>
+#include <paintlib/Filter/plfilterfliprgb.h>
 
 #include <directfb.h>
 #include <signal.h>
@@ -539,6 +540,18 @@ void AVGDFBDisplayEngine::showCursor (bool bShow)
         err = m_pDFBLayer->SetCursorOpacity(m_pDFBLayer, 0);
     }
     DFBErrorCheck(AVG_ERR_DFB,"AVGDFBDisplayEngine::showCursor",  err);
+}
+
+void AVGDFBDisplayEngine::screenshot (const string& sFilename, PLBmp& Bmp)
+{
+    IDirectFBSurface * pSurface;
+    m_pDFBLayer->GetSurface(m_pDFBLayer, &pSurface);
+    PLBYTE * pBits;
+    int Pitch;
+    pSurface->Lock(pSurface, DSLF_WRITE, (void **)&pBits, &Pitch);
+    Bmp.Create(m_Width, m_Height, m_bpp, false, false, pBits, Pitch,
+            PLPoint(72,72));
+    Bmp.ApplyFilter(PLFilterFlipRGB());
 }
 
 vector<AVGEvent *> AVGDFBDisplayEngine::pollEvents()

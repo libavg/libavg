@@ -15,6 +15,10 @@ class AVGFontManager;
 
 #include "AVGRect.h"
 
+#include <paintlib/plbitmap.h>
+
+#include <string>
+
 class IAVGDisplayEngine
 {	
     public:
@@ -52,6 +56,9 @@ class IAVGDisplayEngine
         // True if pixel order is RGB; BGR otherwise.
         virtual bool hasRGBOrdering() = 0; 
         virtual void showCursor (bool bShow) = 0;
+
+        virtual void screenshot (const std::string& sFilename,
+                PLBmp& Bmp) = 0;
 };
 
 #endif //_IAVGDisplayEngine_H_

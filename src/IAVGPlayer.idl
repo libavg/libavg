@@ -68,12 +68,21 @@ interface IAVGPlayer : nsISupports
     IAVGEvent getCurEvent();
 
     /**
-     * Executes command synchronously using /bin/sh. input is used as the 
+     * Executes command using /bin/sh. input is used as the 
      * command's stdin. stdout is placed in output. The return value
      * is the command's return code. 127 is returned if /bin/sh could not be
      * started to execute the command. -1 is returned if another error occurs.
+     * Note that the command is executed before exec() returns. If it takes 
+     * longer than the time available for the frame, the framerate will suffer.
      */
     long exec(in string command, in string input, out string output);
+
+    /**
+     * Saves the contents of the current screen in a file. Returns true on 
+     * success, false if the screen couldn't be saved.
+     */
+    boolean screenshot(in string filename);
+    
 
     /**
      * Turns off debug output.

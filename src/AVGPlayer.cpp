@@ -38,6 +38,8 @@
 #include <paintlib/pldebug.h>
 #include <paintlib/plpoint.h>
 #include <paintlib/plpixel32.h>
+#include <paintlib/planybmp.h>
+#include <paintlib/plpngenc.h>
 
 #include <libxml/xmlmemory.h>
 
@@ -286,6 +288,24 @@ AVGPlayer::Exec(const char *command, const char *input,
     int Status;
     waitpid (child_pid, &Status, 0);
     *pResult = WEXITSTATUS(Status);
+    return NS_OK;
+}
+
+NS_IMETHODIMP
+AVGPlayer::Screenshot(const char *pFilename, PRBool *pResult)
+{
+    PLAnyBmp Bmp;
+    m_pDisplayEngine->screenshot(pFilename, Bmp);
+    PLPNGEncoder Encoder;
+    try {
+        Encoder.MakeFileFromBmp(pFilename, &Bmp);
+        AVG_TRACE(DEBUG_WARNING, "Saved screen as " << pFilename << ".");
+    } catch (PLTextException& ex) {
+        *pResult = false;
+        AVG_TRACE(DEBUG_WARNING, "Could not save screenshot. Error: " 
+                << ex << ".");
+    }
+    *pResult = true;
     return NS_OK;
 }
 

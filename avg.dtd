@@ -18,12 +18,22 @@
    height CDATA #IMPLIED
    opacity CDATA #IMPLIED" >
 
-<!ELEMENT avg (avg|excl|image|video|camera|audio|words)* >
+<!ELEMENT avg (div|excl|image|video|camera|audio|words)* >
 <!ATTLIST avg
+  id ID #IMPLIED
+  width CDATA #IMPLIED
+  height CDATA #IMPLIED
+  onkeydown CDATA #IMPLIED
+  onkeyup CDATA #IMPLIED
+  %graphicsElementEvents; >
+
+
+<!ELEMENT div (div|excl|image|video|camera|audio|words)* >
+<!ATTLIST div
   %graphicsElementAttrs;
   %graphicsElementEvents; >
   
-<!ELEMENT excl (avg|excl|image|video|camera|audio|words)+ >
+<!ELEMENT excl (div|excl|image|video|camera|audio|words)+ >
 <!ATTLIST excl 
   id ID #IMPLIED >
 

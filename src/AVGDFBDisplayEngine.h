@@ -55,6 +55,7 @@ class AVGDFBDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         virtual bool hasRGBOrdering();
 
         virtual void showCursor (bool bShow);
+        virtual void screenshot (const std::string& sFilename, PLBmp& Bmp);
 
         // From IAVGEventSource
         virtual std::vector<AVGEvent *> pollEvents();

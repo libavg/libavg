@@ -244,6 +244,8 @@ function testVideo()
 
         AVGPlayer.setTimeout(16000, "quitTimeout();");
 
+        AVGPlayer.setTimeout(1000, "AVGPlayer.screenshot('test.png');");
+
         AVGPlayer.play(25);
     }
 }
@@ -379,15 +381,16 @@ function testExcl()
     }
 }
 
-/*
     var output = new Object();
     print (AVGPlayer.exec("uname -a","",output));
     print (output.value);
 
     playAVG("image.avg");
 
-    testHugeImage();
     testVideo();
+/*    
+    testHugeImage();
+
     testCrop();
     testAnimation();
     testWords();
@@ -395,11 +398,8 @@ function testExcl()
     testExcl();
 
     playAVG("empty.avg");
-*/    
     playAVG("events.avg");
-/*    
     playAVG("avg.avg");
     playAVG("noavg.avg");
     playAVG("noxml.avg");
 */    
-    

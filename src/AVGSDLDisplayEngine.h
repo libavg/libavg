@@ -52,8 +52,9 @@ class AVGSDLDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         virtual bool hasYUVSupport();
         virtual bool supportsBpp(int bpp);
         virtual bool hasRGBOrdering(); 
-
         virtual void showCursor (bool bShow);
+        virtual void screenshot (const std::string& sFilename,
+                PLBmp& Bmp);
 
         // From IAVGEventSource
         virtual std::vector<AVGEvent *> pollEvents();
