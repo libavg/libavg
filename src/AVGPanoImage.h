@@ -7,6 +7,7 @@
 
 #include "AVGNode.h"
 #include "AVGOGLSurface.h"
+#include "IAVGPanoImage.h"
 
 #include <paintlib/planybmp.h>
 
@@ -21,10 +22,11 @@
 
 class AVGSDLDisplayEngine;
 
-class AVGPanoImage : public AVGNode
+class AVGPanoImage : public AVGNode, public IAVGPanoImage
 {
 	public:
         NS_DECL_ISUPPORTS
+        NS_DECL_IAVGPANOIMAGE
 
         static AVGPanoImage * create();
 
@@ -45,6 +47,7 @@ class AVGPanoImage : public AVGNode
         virtual AVGDPoint getPreferredMediaSize();
 
     private:
+        void calcProjection();
         void setupTextures();
     
         std::string m_Filename;
@@ -54,6 +57,16 @@ class AVGPanoImage : public AVGNode
         PLAnyBmp m_Bmp;
         std::vector<unsigned int> m_TileTextureIDs;
         AVGSDLDisplayEngine * m_pEngine;
+
+        // Derived values calculated in calcProjection
+        double m_fovy;
+        double m_aspect;
+        double m_CylHeight;
+        double m_CylAngle;
+        double m_SliceAngle;
+        double m_MaxRotation;
+
+        double m_Rotation;
 };
 
 #endif //_AVGPanoImage_H_

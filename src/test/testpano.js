@@ -9,12 +9,21 @@ function tryLoadFile(fileName)
     return ok;
 }
 
+function pan()
+{
+    var node = AVGPlayer.getElementByID("pano");
+    node.rotation+=0.1;
+    if (node.rotation > node.getMaxRotation()) {
+        node.rotation = 0;
+    }
+}
 
 AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_WARNING |
                          AVGPlayer.DEBUG_CONFIG |
                          AVGPlayer.DEBUG_PROFILE); 
 var ok = tryLoadFile("panoimage.avg");
 if (ok) {
-    AVGPlayer.play(25);
+    AVGPlayer.setInterval(10, "pan();");
+    AVGPlayer.play(15);
 }
 

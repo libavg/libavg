@@ -29,9 +29,9 @@
 
 using namespace std;
 
-NS_IMPL_ISUPPORTS1_CI(AVGPanoImage, IAVGNode);
+NS_IMPL_ISUPPORTS2_CI(AVGPanoImage, IAVGNode, IAVGPanoImage);
 
-const int TEX_WIDTH = 128;
+const int TEX_WIDTH = 32;
 
 AVGPanoImage * AVGPanoImage::create()
 {
@@ -53,6 +53,45 @@ AVGPanoImage::GetType(PRInt32 *_retval)
     *_retval = NT_PANOIMAGE;
     return NS_OK;
 }
+
+/* attribute double rotation; */
+NS_IMETHODIMP AVGPanoImage::GetRotation(double *aRotation)
+{
+    *aRotation = m_Rotation*180/PI;
+    return NS_OK;
+}
+
+NS_IMETHODIMP AVGPanoImage::SetRotation(double aRotation)
+{
+    m_Rotation = aRotation*PI/180;
+    return NS_OK;
+}
+
+/* attribute double focallength; */
+NS_IMETHODIMP AVGPanoImage::GetFocallength(double *aFocallength)
+{
+    *aFocallength = m_FocalLength;
+    return NS_OK;
+}
+NS_IMETHODIMP AVGPanoImage::SetFocallength(double aFocallength)
+{
+    m_FocalLength = aFocallength;
+    return NS_OK;
+}
+
+/* long getMaxRotation (); */
+NS_IMETHODIMP AVGPanoImage::GetMaxRotation(double *_retval)
+{
+    *_retval = m_MaxRotation*180/PI;
+/*
+    cerr << "fovy: " << m_fovy*180/PI << ", aspect: " << m_aspect << endl;
+    cerr << "CylHeight: " << m_CylHeight << ", CylAngle: " << m_CylAngle*180/PI 
+            << ", SliceAngle: " << m_SliceAngle*180/PI << endl;
+    cerr << "MaxRotation: " << m_MaxRotation*180/PI << endl;
+*/
+    return NS_OK;
+}
+
 
 void AVGPanoImage::init (const std::string& id, const std::string& filename, 
         double SensorWidth, double SensorHeight, double FocalLength, 
@@ -83,7 +122,9 @@ void AVGPanoImage::init (const std::string& id, const std::string& filename,
     m_SensorWidth = SensorWidth;
     m_SensorHeight = SensorHeight;
     m_FocalLength = FocalLength;
-    
+    calcProjection();
+    m_Rotation = m_MaxRotation/2;
+
     setupTextures();
 }
 
@@ -121,10 +162,8 @@ void AVGPanoImage::render (const AVGDRect& Rect)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGPanoImage::render: glLoadIdentity()");
 
-    double fovy = 2*atan((m_SensorHeight/2)/m_FocalLength)*180.0/PI;
-    double aspect = m_SensorWidth/m_SensorHeight;
-//    cerr << "fovy: " << fovy << ", aspect: " << aspect << endl;
-    gluPerspective(fovy, aspect, 0.1, 2);
+    calcProjection();
+    gluPerspective(m_fovy*180/PI, m_aspect, 0.1, 2);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGPanoImage::render: gluPerspective()");
     glMatrixMode(GL_MODELVIEW);
@@ -147,37 +186,32 @@ void AVGPanoImage::render (const AVGDRect& Rect)
             "AVGPanoImage::render: glColor4f()");
 
 //    glutWireSphere(1, 20, 16);
-    double CylHeight = tan(fovy*PI/180.0)/2;
-    double CylAngle = fovy*PI/180.0*m_Bmp.GetWidth()/m_Bmp.GetHeight();
-    double SliceAngle = CylAngle*TEX_WIDTH/double(m_Bmp.GetWidth());
-//    cerr << "CylHeight: " << CylHeight << ", CylAngle: " << CylAngle 
-//            << ", SliceAngle: " << SliceAngle << endl;
     for (int i=0; i<m_TileTextureIDs.size(); ++i) {
         unsigned int TexID = m_TileTextureIDs[i];
         glBindTexture(GL_TEXTURE_2D, TexID);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "AVGPanoImage::render: glBindTexture()");
-        double StartAngle=i*SliceAngle-CylAngle/2;
+        double StartAngle=i*m_SliceAngle-m_Rotation;
         double StartX = sin(StartAngle);
         double StartZ = -cos(StartAngle);
         double EndAngle;
         if (i<m_TileTextureIDs.size()-1) {
-            EndAngle = (i+1)*SliceAngle-CylAngle/2;
+            EndAngle = (i+1)*m_SliceAngle-m_Rotation;
         } else {
-            EndAngle = CylAngle-CylAngle/2;
+            EndAngle = m_CylAngle-m_Rotation;
         }
         double EndX = sin(EndAngle);
         double EndZ = -cos(EndAngle);
         
         glBegin(GL_QUADS);
         glTexCoord2d(0.0, 0.0);
-        glVertex3d(StartX, CylHeight, StartZ);
+        glVertex3d(StartX, m_CylHeight, StartZ);
         glTexCoord2d(0.0, 1.0);
-        glVertex3d(StartX, -CylHeight, StartZ);
+        glVertex3d(StartX, -m_CylHeight, StartZ);
         glTexCoord2d(1.0, 1.0);
-        glVertex3d(EndX, -CylHeight, EndZ);
+        glVertex3d(EndX, -m_CylHeight, EndZ);
         glTexCoord2d(1.0, 0.0);
-        glVertex3d(EndX, CylHeight, EndZ);
+        glVertex3d(EndX, m_CylHeight, EndZ);
         glEnd();
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "AVGPanoImage::render: glEnd()");
@@ -209,6 +243,18 @@ bool AVGPanoImage::obscures (const AVGDRect& Rect, int z)
 string AVGPanoImage::getTypeStr ()
 {
     return "AVGPanoImage";
+}
+
+void AVGPanoImage::calcProjection()
+{
+    // Takes SensorWidth, SensorHeight and FocalLength and calculates
+    // loads of derived values needed for projection.
+    m_fovy = 2*atan((m_SensorHeight/2)/m_FocalLength);
+    m_aspect = m_SensorWidth/m_SensorHeight;
+    m_CylHeight = tan(m_fovy)/2;
+    m_CylAngle = m_fovy*m_Bmp.GetWidth()/m_Bmp.GetHeight();
+    m_SliceAngle = m_CylAngle*TEX_WIDTH/double(m_Bmp.GetWidth());
+    m_MaxRotation = m_CylAngle-m_fovy*m_aspect;
 }
 
 AVGDPoint AVGPanoImage::getPreferredMediaSize()

@@ -87,7 +87,8 @@ libavg_la_SOURCES = AVGEvent.cpp AVGMouseEvent.cpp AVGKeyEvent.cpp \
 BUILT_SOURCES = IAVGPlayer.h IAVGEvent.h IAVGNode.h IAVGVideo.h \
                 acIJSContextPublisher.h IAVGWords.h IAVGExcl.h \
                 IAVGConradRelais.h IAVGKeyEvent.h IAVGWindowEvent.h \
-                IAVGMouseEvent.h IAVGVideoBase.h $(DC1394_IDL)
+                IAVGMouseEvent.h IAVGVideoBase.h IAVGPanoImage.h \
+                $(DC1394_IDL)
 
 CLEANFILES = $(BUILT_SOURCES)
 
