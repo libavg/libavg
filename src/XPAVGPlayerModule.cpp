@@ -12,6 +12,7 @@
 #include "AVGImage.h"
 #include "AVGVideoBase.h"
 #include "AVGVideo.h"
+#include "AVGCamera.h"
 #include "AVGWords.h"
 #include "AVGAVGNode.h"
 #include "AVGExcl.h"
@@ -25,6 +26,7 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(AVGKeyEvent)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGWindowEvent)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGImage)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGVideo)
+NS_GENERIC_FACTORY_CONSTRUCTOR(AVGCamera)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGWords)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGAVGNode)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGExcl)
@@ -55,6 +57,7 @@ NS_DECL_CLASSINFO(AVGKeyEvent)
 NS_DECL_CLASSINFO(AVGWindowEvent)
 NS_DECL_CLASSINFO(AVGImage)
 NS_DECL_CLASSINFO(AVGVideo)
+NS_DECL_CLASSINFO(AVGCamera)
 NS_DECL_CLASSINFO(AVGWords)
 NS_DECL_CLASSINFO(AVGAVGNode)
 NS_DECL_CLASSINFO(AVGExcl)
@@ -140,6 +143,17 @@ static const nsModuleComponentInfo components[] =
     NULL /* no language helper */,
     &NS_CLASSINFO_NAME(AVGVideo)
   },
+  { "c-base avgcamera Component", 
+    AVGCAMERA_CID, 
+    AVGCAMERA_CONTRACTID, 
+    AVGCameraConstructor,
+    AVGPlayerRegistrationProc,
+    AVGPlayerUnregistrationProc,
+    NULL /* no factory destructor */,
+    NS_CI_INTERFACE_GETTER_NAME(AVGCamera),
+    NULL /* no language helper */,
+    &NS_CLASSINFO_NAME(AVGVideo)
+  },
   { "c-base avgwords Component", 
     AVGWORDS_CID, 
     AVGWORDS_CONTRACTID, 
@@ -203,6 +217,9 @@ NS_IMPL_NSGETMODULE(AVGPlayerModule, components)
 //==============================================================================
 //
 // $Log$
+// Revision 1.13  2004/05/05 11:20:25  uzadow
+// Initial untested camera node.
+//
 // Revision 1.12  2004/04/30 10:43:50  uzadow
 // Split AVGVideo into AVGVideo and AVGVideoBase to prepare for AVGCamera.
 //

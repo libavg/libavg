@@ -23,14 +23,15 @@ interface IAVGNode : nsISupports
     const long NT_VIDEO=3;
     const long NT_TEXT=5;
     const long NT_EXCL=6;
-    
+    const long NT_CAMERA=7;
+ 
     /**
      * Returns the unique id that can be used to reference the node.
      */
     string getID();
     /**
      * Returns one of the NT_xxx constants NT_IMAGE, NT_AVG, NT_VIDEO, 
-     * NT_TEXT or NT_EXCL.
+     * NT_TEXT, NT_CAMERA or NT_EXCL.
      */
     long getType();
     /**

@@ -114,7 +114,6 @@ void AVGVideo::seek(int DestFrame) {
 bool AVGVideo::open(int* pWidth, int* pHeight)
 {
     m_CurFrame = 0;
-cerr << m_Filename << endl;
     return m_pDecoder->open(m_Filename, pWidth, pHeight);
 }
 

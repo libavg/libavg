@@ -6,6 +6,7 @@
 #include "AVGAVGNode.h"
 #include "AVGImage.h"
 #include "AVGVideo.h"
+#include "AVGCamera.h"
 #include "AVGWords.h"
 #include "AVGExcl.h"
 #include "AVGEvent.h"
@@ -577,19 +578,21 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
                 pivotx, pivoty);
         pVideo->Pause();
         initEventHandlers(curNode, xmlNode);
-    }/* else if (!xmlStrcmp (nodeType, (const xmlChar *)"camera")) {
+    } else if (!xmlStrcmp (nodeType, (const xmlChar *)"camera")) {
+        // TODO: Framerate & mode support.
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
                 &opacity, &angle, &pivotx, &pivoty);
-        string sDevice = getRequiredStringAttr(xmlNode, (const xmlChar *)"href");
+        string sDevice = getRequiredStringAttr(xmlNode, (const xmlChar *)"device");
         bool bOverlay = getDefaultedBoolAttr(xmlNode, (const xmlChar *)"overlay", false); 
         AVGCamera * pCamera = AVGCamera::create();
         curNode = pCamera;
-        pCamera->init(id, sDevice, bOverlay, m_pDisplayEngine, 
+        string sMode = "bla";
+        pCamera->init(id, sDevice, 30, sMode, bOverlay, m_pDisplayEngine, 
                 pParent, this);
         pCamera->initVisible(x, y, z, width, height, opacity, angle, 
                 pivotx, pivoty);
        initEventHandlers(curNode, xmlNode);
-    }*/ else if (!xmlStrcmp (nodeType, (const xmlChar *)"words")) {
+    } else if (!xmlStrcmp (nodeType, (const xmlChar *)"words")) {
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
                 &opacity, &angle, &pivotx, &pivoty);
         string font = getDefaultedStringAttr(xmlNode, 

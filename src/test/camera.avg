@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
+<avg width="640" height="480">
+  <camera id="camera" x="0" y="0" z="1" width="640" height="480"
+      device="bla"/> 
+</avg>
