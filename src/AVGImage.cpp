@@ -50,9 +50,10 @@ void AVGImage::init (const std::string& id, int x, int y, int z,
 {
     AVGVisibleNode::init(id, x, y, z,  width, height, opacity, pEngine, pParent);
     m_Filename = filename;
-   
+    cerr << "Loading " << m_Filename << endl;
     m_pBmp = getEngine()->createSurface();
     PLAnyPicDecoder decoder;
+
     decoder.MakeBmpFromFile(m_Filename.c_str(), m_pBmp);
     m_pBmp->ApplyFilter(PLFilterFlipRGB());
     if (width == 0 || height == 0) {

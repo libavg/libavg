@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
+<avg id="mainavgnode" width="400" height="500">
+  <avg id="nestedavg" x="0" y="100" z="2" opacity="0.8" width="400" height="100">
+    <image id="nestedimg1" x="0" y="0" z="1" width="300" height="150" 
+            href="rgb24.tif"/>
+    <image id="nestedimg2" x="200" y="0" z="2" 
+            href="rgb24alpha.tif"/>
+  </avg>
+  <image id="mainimg" x="0" y="0" z="1" width="400" height="300" 
+          href="rgb24.tif"/>
+</avg>

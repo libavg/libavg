@@ -1,5 +1,6 @@
-export DESTDIR=$PRO/extern/mozilla
-cp -av src/.libs/libavg.so.0.0.0 $DESTDIR/bin/components/libavg.so
-cp -av src/*.xpt $DESTDIR/bin/components/
-rm -fv $DESTDIR/bin/components/compreg.dat
-rm -fv $DESTDIR/bin/components/xpti.dat
+#export DESTDIR=$PRO/extern/mozilla
+export DESTDIR=`mozilla-config --prefix`/lib/mozilla/components
+cp -av src/.libs/libavg.so.0.0.0 $DESTDIR/libavg.so
+cp -av src/*.xpt $DESTDIR/
+rm -fv $DESTDIR/compreg.dat
+rm -fv $DESTDIR/xpti.dat

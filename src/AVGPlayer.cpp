@@ -62,7 +62,7 @@ NS_IMETHODIMP
 AVGPlayer::LoadFile(const char * fileName, IJSEvalKruecke* pKruecke, 
         PRBool * pResult)
 {
-    cerr << "AVGPlayer::LoadFile" << endl;
+    cerr << "AVGPlayer::LoadFile(" << fileName << ")" << endl;
     m_pKruecke = pKruecke;
     m_pKruecke->AddRef();
     try {
