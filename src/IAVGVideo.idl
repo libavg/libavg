@@ -5,13 +5,12 @@
 #include "nsISupports.idl"
 
 /**
- * TODO: Update docs.
- * Videorecorder-like interface to videos. Videos are always played back at
- * the framerate of the player. If a different framerate given in the video
- * file, it is ignored. A video starts in stopped mode and play() must be
- * called to start playback.
+ * Videorecorder-like interface to videos. All video formats and codecs
+ * supported by
+ * ffmpeg (http://ffmpeg.sourceforge.net/ffmpeg-doc.html#SEC16) are supported
+ * by libavg.
  *
- * All videos also have the attributes supported by IAVGNode.
+ * All videos also have the attributes supported by IAVGNode and IAVGVideoBase.
  */
 [scriptable, uuid(9f3d4274-e764-4545-8e96-259a70c38166)]
 interface IAVGVideo : nsISupports
