@@ -1,2 +1,3 @@
+#!/bin/bash
 source avgenv.sh
-xpshell $PWD/$1
+xpshell $1
