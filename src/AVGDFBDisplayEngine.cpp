@@ -120,7 +120,7 @@ void AVGDFBDisplayEngine::initDFB(int width, int height,
         char tmp[256];
         sprintf(tmp, "--dfb:mode=%ix%i", width, height);
         argv[3] = strdup (tmp);
-        if (bpp == 16) {
+        if (bpp == 16 || bpp == 15) {
             argv[4] = strdup ("--dfb:pixelformat=RGB16");
         } else {
             argv[4] = strdup ("--dfb:pixelformat=RGB24");

@@ -2,6 +2,7 @@
 // $Id$
 // 
 // Most of this was adapted from libdc1394/examples/grab_color_image.c
+// and dc1394_multiview.c
 
 #include "AVGCamera.h"
 #include "IAVGDisplayEngine.h"
@@ -16,8 +17,6 @@
 #include <paintlib/planybmp.h>
 #include <paintlib/Filter/plfilterfill.h>
 
-#include <libraw1394/raw1394.h>
-#include <libdc1394/dc1394_control.h>
 
 #include <nsMemory.h>
 #include <xpcom/nsComponentManagerUtils.h>
@@ -30,9 +29,11 @@ using namespace std;
 
 #define MAX_PORTS 4
 #define MAX_RESETS 10
+#define DROP_FRAMES 0
+#define NUM_BUFFERS 2
 
 
-NS_IMPL_ISUPPORTS2_CI(AVGCamera, IAVGNode, IAVGVideoBase);
+NS_IMPL_ISUPPORTS3_CI(AVGCamera, IAVGNode, IAVGVideoBase, IAVGCamera);
 
 bool AVGCamera::m_bInitialized = false;
 
@@ -76,13 +77,12 @@ string AVGCamera::getTypeStr ()
 
 bool AVGCamera::open(int* pWidth, int* pHeight)
 {
+    int rc;
     // TODO: Support more than one camera.
     u_int64_t g_guid = 0;
 
-    dc1394_cameracapture camera;
-
-    raw1394handle_t handle = raw1394_new_handle();
-    if (handle==NULL)
+    m_FWHandle = raw1394_new_handle();
+    if (m_FWHandle==NULL)
     {
         AVG_TRACE(AVGPlayer::DEBUG_ERROR, "Unable to aquire a raw1394 handle (Node: " 
                 << getID() << ").");
@@ -98,9 +98,9 @@ bool AVGCamera::open(int* pWidth, int* pHeight)
     /* get the number of ports (cards) */
     struct raw1394_portinfo ports[MAX_PORTS];
     int numPorts = 0;
-    numPorts = raw1394_get_port_info(handle, ports, numPorts);
-    raw1394_destroy_handle(handle);
-    handle = NULL;
+    numPorts = raw1394_get_port_info(m_FWHandle, ports, numPorts);
+    raw1394_destroy_handle(m_FWHandle);
+    m_FWHandle = NULL;
 
     int j;
     int numCameras = 0;
@@ -111,31 +111,26 @@ bool AVGCamera::open(int* pWidth, int* pHeight)
         /* look across all ports for cameras */
         for (int i = 0; i < numPorts && found == 0; i++)
         {
-            if (handle != NULL)
-                dc1394_destroy_handle(handle);
-            handle = dc1394_create_handle(i);
-            if (handle == NULL)
+            if (m_FWHandle != NULL)
+                dc1394_destroy_handle(m_FWHandle);
+            m_FWHandle = dc1394_create_handle(i);
+            if (m_FWHandle == NULL)
             {
-                AVG_TRACE(AVGPlayer::DEBUG_ERROR, "Unable to aquire a raw1394 handle for port " 
-                       << i << " (Node: " << getID() << ").");
+                AVG_TRACE(AVGPlayer::DEBUG_ERROR, 
+                        "Unable to aquire a raw1394 handle for port " 
+                        << i << " (Node: " << getID() << ").");
                 // TODO: Disable node instead of exit(-1).
                 exit(-1);
             }
             numCameras = 0;
-            camera_nodes = dc1394_get_camera_nodes(handle, &numCameras, 0);
+            camera_nodes = dc1394_get_camera_nodes(m_FWHandle, &numCameras, 0);
             if (numCameras > 0)
             {
                 if (g_guid == 0)
                 {
-                    dc1394_camerainfo info;
                     /* use the first camera found */
-                    camera.node = camera_nodes[0];
-                    if (dc1394_get_camera_info(handle, camera_nodes[0], &info) 
-                        == DC1394_SUCCESS) 
-                    {
-                        // TODO: Replace with correct logging.
-                        dc1394_print_camera_info(&info);
-                    }
+                    m_Camera.node = camera_nodes[0];
+                    dumpCameraInfo(m_FWHandle, m_Camera.node);
                     found = true;
                 }
                 else
@@ -143,15 +138,16 @@ bool AVGCamera::open(int* pWidth, int* pHeight)
                     /* attempt to locate camera by guid */
                     // This isn't active right now since guid is always 0.
                     int k;
-                    for (k = 0; k < numCameras && found == 0; k++)
+                    for (k = 0; k < numCameras && !found; k++)
                     {
                         dc1394_camerainfo info;
-                        if (dc1394_get_camera_info(handle, camera_nodes[k], &info) == DC1394_SUCCESS)
+                        if (dc1394_get_camera_info(m_FWHandle, camera_nodes[k], &info) 
+                                == DC1394_SUCCESS)
                         {
                             if (info.euid_64 == g_guid)
                             {
                                 dc1394_print_camera_info(&info);
-                                camera.node = camera_nodes[k];
+                                m_Camera.node = camera_nodes[k];
                                 found = true;
                             }
                         }
@@ -160,13 +156,13 @@ bool AVGCamera::open(int* pWidth, int* pHeight)
                 if (found)
                 {
                     /* camera can not be root--highest order node */
-                    if (camera.node == raw1394_get_nodecount(handle)-1)
+                    if (m_Camera.node == raw1394_get_nodecount(m_FWHandle)-1)
                     {
                         /* reset and retry if root */
                         AVG_TRACE(AVGPlayer::DEBUG_WARNING, 
                                 "Resetting firewire bus for camera support... (Node: " 
                                 << getID() << ").");
-                        raw1394_reset_bus(handle);
+                        raw1394_reset_bus(m_FWHandle);
                         sleep(2);
                         found = false;
                     }
@@ -178,33 +174,84 @@ bool AVGCamera::open(int* pWidth, int* pHeight)
 
     if (!found && g_guid != 0)
     {
-        AVG_TRACE(AVGPlayer::DEBUG_ERROR, "Unable to locate camera node by guid (Node: " 
+        AVG_TRACE(AVGPlayer::DEBUG_ERROR, 
+                "Unable to locate camera node by guid (Node: " 
                 << getID() << ").");
         // TODO: Disable node instead of exit(-1).
         exit(-1);
     }
-    else if (numCameras == 0)
+    if (numCameras == 0)
     {
         AVG_TRACE(AVGPlayer::DEBUG_ERROR, "No firewire cameras found (Node: " 
                 << getID() << ").");
-        dc1394_destroy_handle(handle);
+        dc1394_destroy_handle(m_FWHandle);
         // TODO: Disable node instead of exit(-1).
         exit(-1);
     }
+    
     if (j == MAX_RESETS)
     {
-        AVG_TRACE(AVGPlayer::DEBUG_ERROR, "failed to not make camera root node (Node: " 
+        AVG_TRACE(AVGPlayer::DEBUG_ERROR, 
+                "Failed to not make camera root node (Node: " 
                 << getID() << ").");
-        dc1394_destroy_handle(handle);
+        dc1394_destroy_handle(m_FWHandle);
         // TODO: Disable node instead of exit(-1).
         exit(-1);
     }
 
+    unsigned int channel;
+    unsigned int speed;
+    if (dc1394_get_iso_channel_and_speed(m_FWHandle,
+                m_Camera.node,
+                &channel, &speed) 
+        != DC1394_SUCCESS) 
+    {
+        AVG_TRACE(AVGPlayer::DEBUG_ERROR, 
+                "Unable to get the firewire camera iso channel number");
+        dc1394_destroy_handle(m_FWHandle);
+        exit(-1);
+    }
 
+    if (dc1394_dma_setup_capture(m_FWHandle, m_Camera.node,
+                channel+1,
+                FORMAT_VGA_NONCOMPRESSED,
+                MODE_640x480_RGB,
+                SPEED_400,
+                FRAMERATE_15, NUM_BUFFERS, DROP_FRAMES, 0,
+                &m_Camera)
+        != DC1394_SUCCESS) 
+    {
+        // TODO: Disable node instead of exit(-1). Include current 
+        //       settings in message :-).
+        AVG_TRACE(AVGPlayer::DEBUG_ERROR, 
+                "Unable to setup camera. Make sure that");
+        AVG_TRACE(AVGPlayer::DEBUG_ERROR, 
+                "video mode, framerate and format are");
+        AVG_TRACE(AVGPlayer::DEBUG_ERROR, "supported by your camera");
+        dc1394_dma_release_camera(m_FWHandle,&m_Camera);
+        dc1394_destroy_handle(m_FWHandle);
+        exit(-1);
+    }
+    
+    if (dc1394_start_iso_transmission(m_FWHandle, m_Camera.node) 
+        != DC1394_SUCCESS) 
+    {
+        AVG_TRACE(AVGPlayer::DEBUG_ERROR, 
+                "Unable to start camera iso transmission");
+        dc1394_dma_release_camera(m_FWHandle,&m_Camera);
+        dc1394_destroy_handle(m_FWHandle);
+        exit(-1);
+    }
+    // TODO: Support other resolutions.
+    *pWidth=640;
+    *pHeight=480;
 }
 
 void AVGCamera::close()
 {
+    dc1394_dma_unlisten(m_FWHandle, &m_Camera);
+    dc1394_dma_release_camera(m_FWHandle, &m_Camera);
+    dc1394_destroy_handle(m_FWHandle);
 }
 
 double AVGCamera::getFPS()
@@ -212,17 +259,32 @@ double AVGCamera::getFPS()
     return m_FrameRate;
 }
 
+void AVGCamera::checkDC1394Error(int Code, const string & sNode, const string & sMsg)
+{
+    if (Code != DC1394_SUCCESS) {
+        AVG_TRACE(AVGPlayer::DEBUG_ERROR, sMsg << " Node id is " << sNode);
+        // TODO: Disable node instead of exit(-1).
+        exit(-1);
+    }
+}
+
 bool AVGCamera::renderToBmp(PLBmp * pBmp)
 {
-/*    
-    m_bEOF = m_pDecoder->renderToBmp(pBmp);
-    if (!m_bEOF) {
+    int rc = dc1394_dma_single_capture_poll(&m_Camera);
+    if (rc == DC1394_SUCCESS) {
+        // New frame available
+        PLBYTE ** ppLines = pBmp->GetLineArray();
+        for (int y = 0; y < pBmp->GetHeight(); y++) {
+            memcpy(ppLines[y],
+                   (PLBYTE*)(m_Camera.capture_buffer)+y*pBmp->GetWidth()*3,
+                    pBmp->GetWidth()*3);
+        }
+        dc1394_dma_done_with_buffer(&m_Camera);
         getEngine()->surfaceChanged(pBmp);
+    } else {
+        cerr << "Camera: Frame not available." << endl;
     }
-    advancePlayback();
-    return !m_bEOF;
-*/
-    return false;
+    return true;
 }
 
 void AVGCamera::renderToBackbuffer(PLBYTE * pSurfBits, int Pitch, 
@@ -233,6 +295,43 @@ void AVGCamera::renderToBackbuffer(PLBYTE * pSurfBits, int Pitch,
             getEngine()->getBPP()/8, vpt);
     advancePlayback();
 */
+}
+
+void AVGCamera::dumpCameraInfo(raw1394handle_t PortHandle, nodeid_t CameraNode)
+{
+    dc1394_camerainfo info;
+    int rc = dc1394_get_camera_info(PortHandle, CameraNode, &info);
+    if (rc == DC1394_SUCCESS)
+    {
+        AVG_TRACE(AVGPlayer::DEBUG_CONFIG, "Firewire camera:");
+        AVG_TRACE(AVGPlayer::DEBUG_CONFIG, "  FW Node: " << info.id);
+        /*
+        // TODO: This prints the wrong UUID. Why?
+        unsigned long val0 = info.euid_64 & 0xffffffff;
+        unsigned long val1 = (info.euid_64 >>32) & 0xffffffff;
+        AVG_TRACE(AVGPlayer::DEBUG_CONFIG, "  UUID: 0x" 
+            << ios::hex << val1 << val0 << ios::dec);
+         */                        
+        AVG_TRACE(AVGPlayer::DEBUG_CONFIG, "  Vendor: " << info.vendor);
+        AVG_TRACE(AVGPlayer::DEBUG_CONFIG, "  Model: " << info.model);
+//        dc1394_print_camera_info(&info);
+    } else {
+        AVG_TRACE(AVGPlayer::DEBUG_ERROR, 
+                "Unable to get firewire camera info.");
+    }
+
+    dc1394_feature_set features;
+    if (dc1394_get_camera_feature_set(PortHandle, 
+                CameraNode, &features) 
+            != DC1394_SUCCESS) 
+    {
+        AVG_TRACE(AVGPlayer::DEBUG_WARNING, 
+                "Unable to get firewire camera feature set.");
+    } else {
+        // TODO: do this using AVG_TRACE
+        dc1394_print_feature_set(&features);
+    }
+
 }
 
 void AVGCamera::initCameraSupport()

@@ -161,7 +161,7 @@ static const nsModuleComponentInfo components[] =
     NULL /* no factory destructor */,
     NS_CI_INTERFACE_GETTER_NAME(AVGCamera),
     NULL /* no language helper */,
-    &NS_CLASSINFO_NAME(AVGVideo)
+    &NS_CLASSINFO_NAME(AVGCamera)
   },
 #endif
 { "c-base avgwords Component", 
@@ -227,6 +227,9 @@ NS_IMPL_NSGETMODULE(AVGPlayerModule, components)
 //==============================================================================
 //
 // $Log$
+// Revision 1.15  2004/06/01 10:36:37  artcom
+// Added OGL 15 and 24 bpp modes, updates to camera code.
+//
 // Revision 1.14  2004/05/11 12:03:21  uzadow
 // Added configure options for DFB, OGL and camera support.
 //

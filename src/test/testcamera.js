@@ -9,19 +9,19 @@ function tryLoadFile(fileName)
     return ok
 }
 
-function play(nodeName)
+function play()
 {
     var node = AVGPlayer.getElementByID("camera");
     node.play();
 }
 
-function stop(nodeName)
+function stop()
 {
     var node = AVGPlayer.getElementByID("camera");
     node.stop();
 }
 
-function pause(nodeName)
+function pause()
 {
     var node = AVGPlayer.getElementByID("camera");
     node.pause();

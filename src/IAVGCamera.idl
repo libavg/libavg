@@ -12,8 +12,5 @@
 [scriptable, uuid(9bdb69b4-8808-4dd3-8e28-aaf2aeb12187)]
 interface IAVGCamera : nsISupports
 {
-    attribute float brightness;
-    attribute float exposure;
-    attribute float whitebalance;
 };
 

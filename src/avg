@@ -7,7 +7,7 @@ AVG_DEBUG=false
 if [[ "$1" == "" ]]
 then
   echo "Usage:"
-  echo "  avg scriptfile.js [--display=SDL|DFB|OGL] [--bpp=16|24]"
+  echo "  avg scriptfile.js [--display=SDL|DFB|OGL] [--bpp=15|16|24|32]"
   echo "                    [--fullscreen=true|false] [--debug]"
   echo 
   echo "For full documentation, see man avg(1)."
@@ -33,7 +33,7 @@ do
     "")
       ;;
     *)
-      echo "  avg scriptfile.js [--display=SDL|DFB|OGL] [--bpp=16|24]"
+      echo "  avg scriptfile.js [--display=SDL|DFB|OGL] [--bpp=15|16|24|32]"
       echo "                    [--fullscreen=true|false] [--debug]"
       echo 
       echo "For full documentation, see man avg(1)."

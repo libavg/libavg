@@ -525,22 +525,27 @@ void AVGPlayer::initConfig() {
     }
     char * pszBPP = getenv("AVG_BPP");
     if (pszBPP) {
-        if (strcmp(pszBPP, "16") == 0) {
+        if (strcmp(pszBPP, "15") == 0) {
+            m_BPP = 15;
+        } else if (strcmp(pszBPP, "16") == 0) {
             m_BPP = 16;
         } else if (strcmp(pszBPP, "24") == 0) {
             m_BPP = 24;
-        }    }
+        } else if (strcmp(pszBPP, "32") == 0) {
+            m_BPP = 32;
+        } else {
+            AVG_TRACE(DEBUG_ERROR, 
+                    "BPP must be 15, 16, 24 or 32. Current value is " 
+                    << m_BPP << ". Aborting." );
+            exit(-1);
+        }
+        
+    }
     char * pszFullscreen = getenv("AVG_FULLSCREEN");
     if (pszFullscreen) {
         m_bFullscreen = (!strcmp(pszFullscreen, "true"));
     }
 
-    // Error checks
-    if (m_BPP != 16 && m_BPP != 24) {
-        AVG_TRACE(DEBUG_ERROR, "BPP must be 16 or 24. Current value is " 
-                << m_BPP << ". Aborting." );
-        exit(-1);
-    }
     FILE * pFile = fopen (m_sFontDir.c_str(), "r");
     fclose (pFile);
     if (!pFile) {

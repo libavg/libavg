@@ -45,6 +45,7 @@ void AVGOGLBmp::bind()
         rebind();
         return;
     }
+    
     glGenTextures(1, &m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGOGLBmp::bind: glGenTextures()");
@@ -66,15 +67,19 @@ void AVGOGLBmp::bind()
     int SrcMode = getSrcMode();
     switch (GetBitsPerPixel()) {
         case 8:
+//            cerr << "DestMode: GL_ALPHA" << endl;
             DestMode = GL_ALPHA;
             break;
         case 24:
-            DestMode = GL_RGB;    
+//            cerr << "DestMode: GL_RGB" << endl;
+            DestMode = GL_RGB;
             break;
         case 32:
             if (HasAlpha()) {
+//                cerr << "DestMode: GL_RGBA" << endl;
                 DestMode = GL_RGBA;
             } else {
+//                cerr << "DestMode: GL_RGB" << endl;
                 DestMode = GL_RGB;    
             }
             break;
@@ -93,7 +98,7 @@ void AVGOGLBmp::bind()
         // Only pow2 textures supported.
         PLAnyBmp Pow2Bmp;
         m_TexWidth = nextpow2(GetWidth());
-    m_TexHeight = nextpow2(GetHeight());
+        m_TexHeight = nextpow2(GetHeight());
         Pow2Bmp.Create(m_TexWidth, m_TexHeight, GetBitsPerPixel(), 
                 false, false);
         for (int y=0; y<GetHeight(); y++) {
@@ -121,7 +126,7 @@ void AVGOGLBmp::unbind()
     if (m_bBound) {
         glDeleteTextures(1, &m_TexID);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "AVGOGLBmp::bind: glDeleteTextures()");
+                "AVGOGLBmp::unbind: glDeleteTextures()");
     }
     m_bBound = false;
 }
@@ -182,10 +187,13 @@ int AVGOGLBmp::getSrcMode()
 {
     switch (GetBitsPerPixel()) {
         case 8:
+//            cerr << "SrcMode: GL_ALPHA" << endl;
             return GL_ALPHA;
         case 24:
+//            cerr << "SrcMode: GL_BGR" << endl;
             return GL_BGR;
         case 32:
+//            cerr << "SrcMode: GL_BGRA" << endl;
             return GL_BGRA;
     }
 }

@@ -75,9 +75,36 @@ void AVGSDLDisplayEngine::init(int width, int height, bool isFullscreen, int bpp
                 const string & sFontPath)
 {
     //TODO: Add bpp handling.
-    SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
-    SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
-    SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
+    switch (bpp) {
+        case 32:
+            SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
+            SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
+            SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
+            SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, 32 );
+            break;
+        case 24:
+            SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
+            SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
+            SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
+            SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, 24 );
+            break;
+        case 16:
+            SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 5 );
+            SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 6 );
+            SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 5 );
+            SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, 16 );
+            break;
+        case 15:
+            SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 5 );
+            SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 5 );
+            SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 5 );
+            SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, 15 );
+            break;
+        default:
+            AVG_TRACE(IAVGPlayer::DEBUG_ERROR, "Unsupported bpp " << bpp <<
+                    "in AVGSDLDisplayEngine::init()");
+            exit(-1);
+    }
     SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 0 );
     SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
@@ -85,7 +112,7 @@ void AVGSDLDisplayEngine::init(int width, int height, bool isFullscreen, int bpp
     if (isFullscreen) {
         Flags |= SDL_FULLSCREEN;
     }
-    m_pScreen = SDL_SetVideoMode(width, height, 32, Flags);
+    m_pScreen = SDL_SetVideoMode(width, height, bpp, Flags);
     if (!m_pScreen) {
         AVG_TRACE(IAVGPlayer::DEBUG_ERROR, "Setting SDL video mode failed: " 
                 << SDL_GetError());
@@ -127,18 +154,24 @@ void AVGSDLDisplayEngine::render(AVGNode * pRootNode,
     pRootNode->prepareRender(0, pRootNode->getAbsViewport());
     glClearColor(0.0, 0.0, 0.0, 0.0); 
     glClear(GL_COLOR_BUFFER_BIT);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGSDLDisplayEngine::render::glClear()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "AVGSDLDisplayEngine::render::glClear()");
 
     glViewport(0, 0, m_Width, m_Height);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGSDLDisplayEngine::render: glViewport()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "AVGSDLDisplayEngine::render: glViewport()");
     glMatrixMode(GL_PROJECTION);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGSDLDisplayEngine::render: glMatrixMode()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "AVGSDLDisplayEngine::render: glMatrixMode()");
     glLoadIdentity();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGSDLDisplayEngine::render: glLoadIdentity()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "AVGSDLDisplayEngine::render: glLoadIdentity()");
     gluOrtho2D(0, m_Width, m_Height, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGSDLDisplayEngine::render: gluOrtho2D()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "AVGSDLDisplayEngine::render: gluOrtho2D()");
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGSDLDisplayEngine::render: glTexEnvf()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "AVGSDLDisplayEngine::render: glTexEnvf()");
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGSDLDisplayEngine::render: glBlendFunc()");
