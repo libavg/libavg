@@ -43,6 +43,10 @@ AC_ARG_ENABLE(DFB,
                     enable_DFB=$enableval, enable_DFB=maybe, )
 if test "$enable_DFB" = maybe; then
     AC_CHECK_PROG(libdfb_config, directfb-config, yes)
+    if test "$libdfb_config" = yes; then
+        AC_CHECK_LIB(directfb, main, enable_DFB=yes, enable_DFB=false,
+                    `directfb-config --libs`)
+    fi
 fi
 AM_CONDITIONAL(ENABLE_DFB, test x$enable_DFB = xyes)
 if test "$enable_DFB" = yes; then
