@@ -252,7 +252,8 @@ void AVGDFBDisplayEngine::swapBuffers()
         err = pLayerSurf->Blit(pLayerSurf, m_pPrimary, 0, 0, 0);
     } else {
         err = m_pPrimary->Flip(m_pPrimary, 0, 
-                DFBSurfaceFlipFlags(DSFLIP_WAITFORSYNC | DSFLIP_BLIT));
+//                DFBSurfaceFlipFlags(DSFLIP_WAITFORSYNC | DSFLIP_BLIT));
+                  DFBSurfaceFlipFlags(DSFLIP_BLIT));
     }
     DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, err);
 }

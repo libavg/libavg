@@ -112,6 +112,11 @@ void AVGVisibleNode::init (const string& id, int x, int y, int z,
     m_z = z;
     m_Opacity = opacity;
     m_pEngine = pEngine;
+    PLPoint pos(0,0);
+    if (pParent) {
+        pos = pParent->getAbsViewport().tl;
+    } 
+    m_AbsViewport = PLRect (pos+m_RelViewport.tl, pos+m_RelViewport.br);
 }
 
 AVGNode * AVGVisibleNode::getElementByPos (const PLPoint & pos)
@@ -132,11 +137,11 @@ string AVGVisibleNode::dump (int indent)
 {
     string dumpStr = AVGNode::dump (indent);
     char sz[256];
-    sprintf (sz, ", x=%i, y=%i, z=%i, width=%i, height=%i, opacity=%.2f\n",
+    sprintf (sz, ", x=%i, y=%i, z=%i, width=%i, height=%i, opacity=%.2e\n",
             m_RelViewport.tl.x, m_RelViewport.tl.y, m_z, 
             m_RelViewport.Width(), m_RelViewport.Height(), m_Opacity);
     dumpStr += sz;
-    sprintf (sz, "        (Abs: x=%i, y=%i, width=%i, height=%i)\n",
+    sprintf (sz, "        Abs: (x=%i, y=%i, width=%i, height=%i)\n",
             m_AbsViewport.tl.x, m_AbsViewport.tl.y,  
             m_AbsViewport.Width(), m_AbsViewport.Height());
     dumpStr += sz;
@@ -176,6 +181,16 @@ const PLRect& AVGVisibleNode::getAbsViewport ()
 int AVGVisibleNode::getZ ()
 {
     return m_z;
+}
+
+double AVGVisibleNode::getOpacity()
+{
+    return m_Opacity;
+}
+
+void AVGVisibleNode::setOpacity(double o)
+{
+    m_Opacity = o;
 }
 
 void AVGVisibleNode::invalidate()

@@ -7,6 +7,7 @@
 #include "AVGPlayer.h"
 #include "AVGEvent.h"
 #include "AVGImage.h"
+#include "AVGVideo.h"
 #include "AVGWords.h"
 #include "AVGAVGNode.h"
 #include "AVGExcl.h"
@@ -14,6 +15,7 @@
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGPlayer)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGEvent)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGImage)
+NS_GENERIC_FACTORY_CONSTRUCTOR(AVGVideo)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGWords)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGAVGNode)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGExcl)
@@ -38,6 +40,7 @@ static NS_METHOD AVGPlayerUnregistrationProc(nsIComponentManager *aCompMgr,
 NS_DECL_CLASSINFO(AVGPlayer)
 NS_DECL_CLASSINFO(AVGEvent)
 NS_DECL_CLASSINFO(AVGImage)
+NS_DECL_CLASSINFO(AVGVideo)
 NS_DECL_CLASSINFO(AVGWords)
 NS_DECL_CLASSINFO(AVGAVGNode)
 NS_DECL_CLASSINFO(AVGExcl)
@@ -58,6 +61,11 @@ static const nsModuleComponentInfo components[] =
     AVGIMAGE_CID, 
     AVGIMAGE_CONTRACTID, 
     AVGImageConstructor
+  },
+  { "c-base avgvideo Component", 
+    AVGVIDEO_CID, 
+    AVGVIDEO_CONTRACTID, 
+    AVGVideoConstructor
   },
   { "c-base avgwords Component", 
     AVGWORDS_CID, 
@@ -82,6 +90,9 @@ NS_IMPL_NSGETMODULE(AVGPlayerModule, components)
 //==============================================================================
 //
 // $Log$
+// Revision 1.7  2003/08/28 09:49:29  uzadow
+// Fixed bugs in video support. Now opacity doesnt work :-(.
+//
 // Revision 1.6  2003/08/20 22:16:21  uzadow
 // Added words node incl. alpha channel support and clipping
 //

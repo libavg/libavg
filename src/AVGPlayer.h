@@ -68,7 +68,7 @@ class AVGPlayer: public IAVGPlayer
         IDirectFB * m_pDFB;
 
         std::string m_CurDirName;
-        AVGFramerateManager m_FramerateManager;
+        AVGFramerateManager * m_pFramerateManager;
         bool m_bStopping;
 
         typedef std::map<std::string, AVGNode*> NodeIDMap;

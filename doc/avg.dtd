@@ -44,8 +44,8 @@
   x CDATA #REQUIRED
   y CDATA #REQUIRED
   z CDATA #IMPLIED
-  width CDATA #REQUIRED
-  height CDATA #REQUIRED
+  width CDATA #IMPLIED
+  height CDATA #IMPLIED
   opacity CDATA #IMPLIED
   %graphicsElementEvents; 
   onstop CDATA #IMPLIED >

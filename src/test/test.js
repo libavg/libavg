@@ -157,6 +157,62 @@ function testWords()
     }
 }
 
+function videoInterval()
+{
+    var node = AVGPlayer.getElementByID("clogo");
+    var l = node.getIntAttr("Left");
+    node.setIntAttr("Left", l+1);
+
+}
+
+function getVideoInfo()
+{
+    var node = AVGPlayer.getElementByID("clogo");
+    var videoNode = node.QueryInterface(Components.interfaces.IAVGVideo);
+    print ("Number of frames in video: " + videoNode.getNumFrames());
+}
+
+function videoPlay(nodeName)
+{
+    var node = AVGPlayer.getElementByID(nodeName);
+    var videoNode = node.QueryInterface(Components.interfaces.IAVGVideo);
+    videoNode.play();
+}
+
+function videoStop()
+{
+    var node = AVGPlayer.getElementByID("clogo");
+    var videoNode = node.QueryInterface(Components.interfaces.IAVGVideo);
+    videoNode.stop();
+}
+
+function videoPause()
+{
+    var node = AVGPlayer.getElementByID("clogo");
+    var videoNode = node.QueryInterface(Components.interfaces.IAVGVideo);
+    videoNode.pause();
+}
+
+function testVideo()
+{
+    print ("---- Testing video node accessors ----");
+    AVGPlayer.setEventDebugLevel(2);
+    var ok = tryLoadFile("video.avg");
+    if (ok) {
+        getVideoInfo();
+        timerid = AVGPlayer.setInterval(10, "videoInterval();");
+        AVGPlayer.setTimeout(1000, "videoPlay('clogo')");
+        AVGPlayer.setTimeout(1500, "videoPlay('clogo1')");
+        AVGPlayer.setTimeout(1000, "videoPlay('clogo2')");
+//        AVGPlayer.setTimeout(2000, "videoPause()");
+//        AVGPlayer.setTimeout(2500, "videoPlay()");
+//        AVGPlayer.setTimeout(3000, "videoStop()");
+//        AVGPlayer.setTimeout(3500, "videoPlay()");
+        AVGPlayer.setTimeout(8000, "quitTimeout();");
+        AVGPlayer.play();
+    }
+}
+
 function dumpNodes()
 {
     print ("---- dumpNodes: testing node accessors ----");
@@ -233,11 +289,12 @@ function testExcl()
 
 //dumpNodes();
 
-//playAVG("text.avg");
-testWords();
+//testAnimation();
+testVideo();
+
+//testWords();
 /*
 playAVG("image.avg");
-testAnimation();
 
 testExcl();
 
@@ -248,5 +305,4 @@ playAVG("events.avg");
 playAVG("avg.avg");
 playAVG("noavg.avg");
 playAVG("noxml.avg");
-playAVG("video.avg");
 */

@@ -5,6 +5,7 @@
 #include "AVGPlayer.h"
 #include "AVGAVGNode.h"
 #include "AVGImage.h"
+#include "AVGVideo.h"
 #include "AVGWords.h"
 #include "AVGExcl.h"
 #include "AVGEvent.h"
@@ -40,9 +41,9 @@ using namespace std;
 AVGPlayer::AVGPlayer()
     : m_pRootNode (0),
       m_pDisplayEngine(0),
-      m_FramerateManager(),
       m_pLastMouseNode(0),
-      m_EventDebugLevel(0)
+      m_EventDebugLevel(0),
+      m_pFramerateManager(0)
 {
    cerr << "AVGPlayer::AVGPlayer" << endl;
 #ifdef XPCOM_GLUE
@@ -203,7 +204,8 @@ void AVGPlayer::play ()
     DFBResult err;
     PLASSERT (m_pRootNode);
 
-    m_FramerateManager.SetRate(30);
+    m_pFramerateManager = new AVGFramerateManager;
+    m_pFramerateManager->SetRate(30);
     m_bStopping = false;
     m_pRootNode->update(0, PLPoint(0,0));
     render(true);
@@ -220,6 +222,7 @@ void AVGPlayer::play ()
 
     m_pLastMouseNode = 0;
     m_IDMap.clear();
+    delete m_pFramerateManager;
 }
 
 void AVGPlayer::stop ()
@@ -234,7 +237,7 @@ void AVGPlayer::doFrame ()
     if (!m_bStopping) {
         m_pRootNode->update(0, PLPoint(0,0));
         render(false);
-        m_FramerateManager.FrameWait();
+        m_pFramerateManager->FrameWait();
         m_pDisplayEngine->swapBuffers();
     }
 }
@@ -314,15 +317,31 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         pImage->init(id, x, y, z, width, height, opacity, 
                 filename, m_pDisplayEngine, pParent);
         initEventHandlers(curNode, xmlNode);
+    } else if (!xmlStrcmp (nodeType, (const xmlChar *)"video")) {
+        string id;
+        int x,y,z;
+        int width, height;
+        double opacity;
+        getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, &opacity);
+        string filename = m_CurDirName + 
+                getRequiredStringAttr(xmlNode, (const xmlChar *)"href");
+
+        AVGVideo * pVideo = AVGVideo::create();
+        curNode = pVideo;
+        pVideo->init(id, x, y, z, width, height, opacity, 
+                filename, m_pDisplayEngine, pParent);
+        initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"words")) {
         string id;
         int x,y,z;
         int width, height;
         double opacity;
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, &opacity);
-        string font = getDefaultedStringAttr(xmlNode, (const xmlChar *)"font", "arial");
+        string font = getDefaultedStringAttr(xmlNode, 
+                (const xmlChar *)"font", "arial");
         string str = getRequiredStringAttr(xmlNode, (const xmlChar *)"string");
-        string color = getDefaultedStringAttr(xmlNode, (const xmlChar *)"color", "FFFFFF");
+        string color = getDefaultedStringAttr(xmlNode, 
+                (const xmlChar *)"color", "FFFFFF");
         int size = getDefaultedIntAttr(xmlNode, (const xmlChar *)"size", 15);
         AVGWords * pWords = AVGWords::create();
         curNode = pWords;

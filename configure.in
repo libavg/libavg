@@ -1,7 +1,7 @@
 
 AC_PREREQ(2.57)
 AC_INIT(libavg, 0.1, coder@c-base.org)
-AC_CONFIG_SRCDIR([src/AVGSDLDisplayEngine.h])
+AC_CONFIG_SRCDIR([src/AVGDFBDisplayEngine.h])
 AM_INIT_AUTOMAKE(libavg, 0.1)
 
 # Checks for programs.
