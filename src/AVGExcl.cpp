@@ -8,6 +8,8 @@
 #include <nsMemory.h>
 #include <xpcom/nsComponentManagerUtils.h>
 
+#include <iostream>
+
 using namespace std;
 
 NS_IMPL_ISUPPORTS1_CI(AVGExcl, IAVGNode);
@@ -45,6 +47,13 @@ AVGExcl::SetIntAttr(const char *name, PRInt32 value)
     } else {
         return AVGNode::SetIntAttr(name, value);
     }
+    return NS_OK;
+}
+
+NS_IMETHODIMP 
+AVGExcl::GetType(PRInt32 *_retval)
+{
+    *_retval = NT_EXCL;
     return NS_OK;
 }
 

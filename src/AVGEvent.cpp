@@ -8,7 +8,7 @@
 
 #include "nsMemory.h"
 
-#include <iostream.h>
+#include <iostream>
 #include <string>
 
 using namespace std;

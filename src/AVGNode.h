@@ -47,10 +47,11 @@ class AVGNode: public IAVGNode
         virtual const std::string& getID ();
         virtual AVGContainer * getParent();
         
-        virtual void handleEvent (AVGEvent* pEvent, IJSEvalKruecke* pKruecke);
-        virtual void callJS (const string& Code, IJSEvalKruecke * pKruecke);
+        virtual bool handleEvent (AVGEvent* pEvent, IJSEvalKruecke* pKruecke);
 
 	private:
+        virtual bool callJS (const std::string& Code, IJSEvalKruecke * pKruecke);
+
         std::string m_ID;
 		AVGContainer * m_pParent;
 
@@ -62,13 +63,13 @@ class AVGNode: public IAVGNode
 };
 
 template<class NODECLASS>
-NODECLASS* createNode(string CID) {
+NODECLASS* createNode(std::string CID) {
     nsresult rv;
     IAVGNode* pINode;
     rv = nsComponentManager::CreateInstance (CID.c_str(), 0,
             NS_GET_IID(IAVGNode), (void**)&pINode);
     if (NS_FAILED(rv)) {
-        cerr << "createNode failed: " << rv << endl;
+        std::cerr << "createNode failed: " << rv << std::endl;
         PLASSERT(false);
     }
     NODECLASS * pNode = dynamic_cast<NODECLASS*>((IAVGNode*)pINode);

@@ -44,57 +44,57 @@ static const nsModuleComponentInfo components[] =
   { "c-base avgplayer Component", 
     AVGPLAYER_CID, 
     AVGPLAYER_CONTRACTID, 
-    AVGPlayerConstructor,
-    AVGPlayerRegistrationProc,
-    AVGPlayerUnregistrationProc,
-    NULL /* no factory destructor */,
-    NS_CI_INTERFACE_GETTER_NAME(AVGPlayer),
-    NULL /* no language helper */,
-    &NS_CLASSINFO_NAME(AVGPlayer)
+    AVGPlayerConstructor //,
+//    AVGPlayerRegistrationProc,
+//    AVGPlayerUnregistrationProc,
+//    NULL /* no factory destructor */,
+//    NS_CI_INTERFACE_GETTER_NAME(AVGPlayer),
+//    NULL /* no language helper */,
+//    &NS_CLASSINFO_NAME(AVGPlayer)
   },
   { "c-base avgevent Component", 
     AVGEVENT_CID, 
     AVGEVENT_CONTRACTID, 
-    AVGEventConstructor,
-    AVGPlayerRegistrationProc,
-    AVGPlayerUnregistrationProc,
-    NULL /* no factory destructor */,
-    NS_CI_INTERFACE_GETTER_NAME(AVGEvent),
-    NULL /* no language helper */,
-    &NS_CLASSINFO_NAME(AVGEvent)
+    AVGEventConstructor //,
+//    AVGPlayerRegistrationProc,
+//    AVGPlayerUnregistrationProc,
+//    NULL /* no factory destructor */,
+//    NS_CI_INTERFACE_GETTER_NAME(AVGEvent),
+//    NULL /* no language helper */,
+//    &NS_CLASSINFO_NAME(AVGEvent)
   },
   { "c-base avgimage Component", 
     AVGIMAGE_CID, 
     AVGIMAGE_CONTRACTID, 
-    AVGImageConstructor,
-    AVGPlayerRegistrationProc,
-    AVGPlayerUnregistrationProc,
-    NULL /* no factory destructor */,
-    NS_CI_INTERFACE_GETTER_NAME(AVGImage),
-    NULL /* no language helper */,
-    &NS_CLASSINFO_NAME(AVGImage)
+    AVGImageConstructor//,
+//    AVGPlayerRegistrationProc,
+//    AVGPlayerUnregistrationProc,
+//    NULL /* no factory destructor */,
+//    NS_CI_INTERFACE_GETTER_NAME(AVGImage),
+//    NULL /* no language helper */,
+//    &NS_CLASSINFO_NAME(AVGImage)
   },
   { "c-base avgavgnode Component", 
     AVGAVGNODE_CID, 
     AVGAVGNODE_CONTRACTID, 
-    AVGAVGNodeConstructor,
-    AVGPlayerRegistrationProc,
-    AVGPlayerUnregistrationProc,
-    NULL /* no factory destructor */,
-    NS_CI_INTERFACE_GETTER_NAME(AVGAVGNode),
-    NULL /* no language helper */,
-    &NS_CLASSINFO_NAME(AVGAVGNode)
+    AVGAVGNodeConstructor//,
+//    AVGPlayerRegistrationProc,
+//    AVGPlayerUnregistrationProc,
+//    NULL /* no factory destructor */,
+//    NS_CI_INTERFACE_GETTER_NAME(AVGAVGNode),
+//    NULL /* no language helper */,
+//    &NS_CLASSINFO_NAME(AVGAVGNode)
   },
   { "c-base avgexcl Component", 
     AVGEXCL_CID, 
     AVGEXCL_CONTRACTID, 
     AVGExclConstructor,
-    AVGPlayerRegistrationProc,
-    AVGPlayerUnregistrationProc,
-    NULL /* no factory destructor */,
-    NS_CI_INTERFACE_GETTER_NAME(AVGExcl),
-    NULL /* no language helper */,
-    &NS_CLASSINFO_NAME(AVGExcl)
+    AVGPlayerRegistrationProc//,
+//    AVGPlayerUnregistrationProc,
+//    NULL /* no factory destructor */,
+//    NS_CI_INTERFACE_GETTER_NAME(AVGExcl),
+//    NULL /* no language helper */,
+//    &NS_CLASSINFO_NAME(AVGExcl)
   }
 };
 
@@ -103,6 +103,9 @@ NS_IMPL_NSGETMODULE(AVGPlayerModule, components)
 //==============================================================================
 //
 // $Log$
+// Revision 1.5  2003/07/27 14:45:45  uzadow
+// lotsastuff
+//
 // Revision 1.4  2003/03/22 20:35:12  uzadow
 // Added excl node support.
 //

@@ -34,6 +34,7 @@ function onMouseMove()
 {
 //    print ("JS: onMouseMove()");
 }
+
 function onMouseOver()
 {
     print ("JS: onMouseOver()");
@@ -41,6 +42,16 @@ function onMouseOver()
 function onMouseOut()
 {
     print ("JS: onMouseOut()");
+}
+
+function mainMouseUp()
+{
+    print ("JS: mainMouseUp()");
+}
+
+function mainMouseDown()
+{
+    print ("JS: mainMouseDown()");
 }
 
 function onMouseUp()
@@ -81,8 +92,9 @@ function playAVG (fileName)
 
 function dumpNodes()
 {
-    print ("---- testing node accessors ----");
-    var ok = tryLoadFile("avg.avg", new JSEvalKruecke());
+    print ("---- dumpNodes: testing node accessors ----");
+    var ok = tryLoadFile("avg.avg");
+print ("a");
     if (ok) {
         var rootNode = AVGPlayer.getRootNode();
         var numChildren = rootNode.getNumChildren();
@@ -123,7 +135,7 @@ function moveit() {
 function testAnimation()
 {
     print ("---- testing node accessors ----");
-    var ok = tryLoadFile("avg.avg", new JSEvalKruecke());
+    var ok = tryLoadFile("avg.avg");
     if (ok) {
         var node = AVGPlayer.getElementByID("nestedimg1");
         print("    Node id: "+node.getID());
@@ -142,7 +154,7 @@ function setExcl(i)
 function testExcl()
 {
     print ("---- testing node accessors ----");
-    var ok = tryLoadFile("excl.avg", new JSEvalKruecke());
+    var ok = tryLoadFile("excl.avg");
     if (ok) {
         AVGPlayer.setTimeout(300,"setExcl(0);");
         AVGPlayer.setTimeout(600,"setExcl(1);");
@@ -159,7 +171,7 @@ testExcl();
 
 playAVG("empty.avg");
 playAVG("events.avg");
-playAVG("image.avg")
+playAVG("image.avg");
 playAVG("avg.avg");
 playAVG("noavg.avg");
 playAVG("noxml.avg");

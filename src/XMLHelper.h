@@ -18,7 +18,7 @@ double getDefaultedDoubleAttr (const xmlNodePtr& xmlNode,
        const xmlChar * attr, double def);
 
 std::string getDefaultedStringAttr (const xmlNodePtr& xmlNode, 
-       const xmlChar * attr, const string & def);
+       const xmlChar * attr, const std::string & def);
 
 std::string getRequiredStringAttr (const xmlNodePtr& xmlNode, 
        const xmlChar * attr);

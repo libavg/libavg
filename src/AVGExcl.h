@@ -27,6 +27,7 @@ class AVGExcl :
 
         NS_IMETHOD GetIntAttr(const char *name, PRInt32 *_retval); 
         NS_IMETHOD SetIntAttr(const char *name, PRInt32 value); 
+        NS_IMETHOD GetType(PRInt32 *_retval);
 
 		virtual void update (int time, const PLPoint& pos);
         virtual std::string dump (int indent = 0);

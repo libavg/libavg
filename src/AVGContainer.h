@@ -29,7 +29,7 @@ class AVGContainer :
         void zorderChange (AVGNode * pChild);
         
 	private:
-		vector < AVGNode * > m_Children;
+        std::vector < AVGNode * > m_Children;
 };
 
 #endif //_AVGContainer_H_

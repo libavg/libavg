@@ -12,6 +12,8 @@
 #include <nsMemory.h>
 #include <xpcom/nsComponentManagerUtils.h>
 
+#include <iostream>
+
 using namespace std;
 
 NS_IMPL_ISUPPORTS1_CI(AVGImage, IAVGNode);

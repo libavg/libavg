@@ -21,7 +21,7 @@ class AVGException
         AVGException (const AVGException& ex);
         virtual ~AVGException ();
 		virtual int GetCode () const;
-		virtual const string& GetStr () const;
+		virtual const std::string& GetStr () const;
 
 	private:
         int m_Code;

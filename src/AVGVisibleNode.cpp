@@ -106,7 +106,7 @@ void AVGVisibleNode::init (const string& id, int x, int y, int z,
 
 AVGNode * AVGVisibleNode::getElementByPos (const PLPoint & pos)
 {
-    if (m_AbsViewport.Contains(pos)) {
+    if (m_AbsViewport.Contains(pos) && getEffectiveOpacity() > 0.01) {
         return this;
     } else {
         return 0;

@@ -20,6 +20,7 @@
 #include <libxml/xmlmemory.h>
 
 #include <algorithm>
+#include <iostream>
 
 #include <stdlib.h>
 #include <stdio.h>

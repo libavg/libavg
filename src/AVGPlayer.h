@@ -58,7 +58,7 @@ class AVGPlayer: public IAVGPlayer
     private:
         AVGNode * createNodeFromXml(const xmlNodePtr xmlNode, AVGContainer * pParent);
         void getVisibleNodeAttrs (const xmlNodePtr xmlNode, 
-                string * pid, int * px, int * py, int * pz,
+                std::string * pid, int * px, int * py, int * pz,
                 int * pWidth, int * pHeight, double * pOpacity);
         void initEventHandlers (AVGNode * pAVGNode, const xmlNodePtr xmlNode);
 
@@ -85,7 +85,7 @@ class AVGPlayer: public IAVGPlayer
 
         IAVGEvent * m_CurEvent;
         IJSEvalKruecke * m_pKruecke;
-        vector<AVGTimeout> m_PendingTimeouts;
+        std::vector<AVGTimeout> m_PendingTimeouts;
         AVGNode * m_pLastMouseNode;
         int m_EventDebugLevel;
 };

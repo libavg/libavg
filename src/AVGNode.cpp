@@ -10,6 +10,10 @@
 
 #include <xpcom/nsMemory.h>
 
+#include <iostream>
+
+using namespace std;
+
 NS_IMPL_ISUPPORTS1(AVGNode, IAVGNode);
 
 AVGNode::AVGNode ()
@@ -155,7 +159,7 @@ AVGContainer * AVGNode::getParent()
     return m_pParent;
 }
 
-void AVGNode::handleEvent (AVGEvent* pEvent, IJSEvalKruecke * pKruecke)
+bool AVGNode::handleEvent (AVGEvent* pEvent, IJSEvalKruecke * pKruecke)
 {
     string Code;
     pEvent->setNode(this);
@@ -174,20 +178,24 @@ void AVGNode::handleEvent (AVGEvent* pEvent, IJSEvalKruecke * pKruecke)
         case AVGEvent::MOUSEOVER:
             Code = m_MouseOverHandler;
             break;
-       case AVGEvent::MOUSEOUT:
+        case AVGEvent::MOUSEOUT:
             Code = m_MouseOutHandler;
             break;
          default:
             break;
     }
-    callJS(Code, pKruecke);
+    if (!Code.empty()) {
+        callJS(Code, pKruecke);
+    } else {
+        if (m_pParent) {
+            m_pParent->handleEvent (pEvent, pKruecke);
+        }
+    }
 }
 
-void AVGNode::callJS (const string& Code, IJSEvalKruecke * pKruecke)
+bool AVGNode::callJS (const string& Code, IJSEvalKruecke * pKruecke)
 {
-    if (!Code.empty()) {
-        char * pResult;
-        pKruecke->CallEval(Code.c_str(), &pResult);
-    }
+    char * pResult;
+    pKruecke->CallEval(Code.c_str(), &pResult);
 }
 
