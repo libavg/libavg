@@ -36,15 +36,18 @@ AVGWords::~AVGWords ()
 NS_IMETHODIMP
 AVGWords::GetStringAttr(const char *name, char **_retval)
 {
+    string Attr;
     if (!strcmp(name, "Font")) {
-        strcpy(*_retval, m_FontName.c_str());
+        Attr = m_FontName;
     } else if (!strcmp(name, "String")) {
-        strcpy(*_retval, m_Str.c_str());
+        Attr = m_Str;
     } else if (!strcmp(name, "Color")) {
-        strcpy (*_retval, m_ColorName.c_str());
+        Attr = m_ColorName;
     } else {
         return AVGNode::GetStringAttr(name, _retval);
     }
+    *_retval = (char *) nsMemory::Clone(Attr.c_str(), 
+            Attr.length()+1);
     return NS_OK;
 }
 
@@ -163,21 +166,22 @@ void AVGWords::drawString()
 
 void AVGWords::render(const PLRect& Rect)
 {
-    getEngine()->setClipRect(getAbsViewport());
-    IDirectFBSurface * pSurface = getEngine()->getPrimary();
-    pSurface->SetColor(pSurface, m_Color.GetR(), m_Color.GetG(), m_Color.GetB(),
-            __u8(getEffectiveOpacity()*256));
-//    getEngine()->render(m_pSurface, getAbsViewport().tl, getEffectiveOpacity(), true);
-   
-    DFBSurfaceBlittingFlags BltFlags;
-    BltFlags = DFBSurfaceBlittingFlags(DSBLIT_BLEND_ALPHACHANNEL | DSBLIT_COLORIZE);
-    pSurface->SetBlittingFlags(pSurface, BltFlags);
-    
-    PLPoint pos = getAbsViewport().tl;
-    DFBResult err = pSurface->Blit(pSurface, m_pSurface, 0, 
-            pos.x, pos.y);
-    getEngine()->DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, err);
+    if (getEffectiveOpacity() > 0.001) {
+        getEngine()->setClipRect(getAbsViewport());
+        IDirectFBSurface * pSurface = getEngine()->getPrimary();
+        pSurface->SetColor(pSurface, m_Color.GetR(), m_Color.GetG(), m_Color.GetB(),
+                __u8(getEffectiveOpacity()*256));
+        //    getEngine()->render(m_pSurface, getAbsViewport().tl, getEffectiveOpacity(), true);
 
+        DFBSurfaceBlittingFlags BltFlags;
+        BltFlags = DFBSurfaceBlittingFlags(DSBLIT_BLEND_ALPHACHANNEL | DSBLIT_COLORIZE);
+        pSurface->SetBlittingFlags(pSurface, BltFlags);
+
+        PLPoint pos = getAbsViewport().tl;
+        DFBResult err = pSurface->Blit(pSurface, m_pSurface, 0, 
+                pos.x, pos.y);
+        getEngine()->DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, err);
+    }
 }
 
 PLPixel32 AVGWords::colorStringToColor(const string & colorString)

@@ -27,14 +27,11 @@ IDirectFBFont * AVGFontManager::getFont(IDirectFB * pDFB, const string& Name, in
     s << Name << Size;
     string Desc(s.str());
     it = m_FontMap.find(Desc);
-    cerr << "getFont " << Desc << ": ";
     if (it == m_FontMap.end()) {
-        cerr << "load" << endl;
         IDirectFBFont * pFont = loadFont(pDFB, Name, Size);
         m_FontMap.insert(FontMap::value_type(Desc, pFont));
         return pFont;
     } else {
-        cerr << "cached" << endl;
         return (*it).second;
     }
 }

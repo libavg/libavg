@@ -325,11 +325,12 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, &opacity);
         string filename = m_CurDirName + 
                 getRequiredStringAttr(xmlNode, (const xmlChar *)"href");
-
+        bool bLoop = getDefaultedBoolAttr(xmlNode, (const xmlChar *)"loop", false); 
+        bool bOverlay = getDefaultedBoolAttr(xmlNode, (const xmlChar *)"overlay", false); 
         AVGVideo * pVideo = AVGVideo::create();
         curNode = pVideo;
         pVideo->init(id, x, y, z, width, height, opacity, 
-                filename, m_pDisplayEngine, pParent);
+                filename, bLoop, bOverlay, m_pDisplayEngine, pParent);
         initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"words")) {
         string id;

@@ -1,4 +1,5 @@
-
+load("../avg.js");
+/*
 var PlayerFactory = Components.Constructor("@c-base.org/avgplayer;1","IAVGPlayer");
 var AVGPlayer = new PlayerFactory();
 
@@ -7,7 +8,12 @@ JSEvalKruecke.prototype = {
 
     callEval: function (code) 
     { 
-        return eval(code);
+        try {
+            return eval(code);
+        } catch (e) {
+            print (e.name + ": " + e.message + " while evaluating " + code);
+            
+        }
     },
 
     QueryInterface: function (iid) {
@@ -18,6 +24,7 @@ JSEvalKruecke.prototype = {
         return this;
     }
 }
+*/
 
 function quitTimeout()
 {
@@ -146,7 +153,6 @@ function testWords()
     var ok = tryLoadFile("text.avg");
     if (ok) {
         timerid = AVGPlayer.setInterval(10, "textInterval();");
-        
         AVGPlayer.setTimeout(1000, "changeTextHeight();");
         AVGPlayer.setTimeout(2000, "changeColor();");
         AVGPlayer.setTimeout(3000, "changeFont();");
@@ -204,10 +210,10 @@ function testVideo()
         AVGPlayer.setTimeout(1000, "videoPlay('clogo')");
         AVGPlayer.setTimeout(1500, "videoPlay('clogo1')");
         AVGPlayer.setTimeout(1000, "videoPlay('clogo2')");
-//        AVGPlayer.setTimeout(2000, "videoPause()");
-//        AVGPlayer.setTimeout(2500, "videoPlay()");
-//        AVGPlayer.setTimeout(3000, "videoStop()");
-//        AVGPlayer.setTimeout(3500, "videoPlay()");
+        AVGPlayer.setTimeout(2000, "videoPause('clogo')");
+        AVGPlayer.setTimeout(2500, "videoPlay('clogo')");
+        AVGPlayer.setTimeout(3000, "videoStop('clogo')");
+        AVGPlayer.setTimeout(3500, "videoPlay('clogo')");
         AVGPlayer.setTimeout(8000, "quitTimeout();");
         AVGPlayer.play();
     }

@@ -47,6 +47,8 @@
   width CDATA #IMPLIED
   height CDATA #IMPLIED
   opacity CDATA #IMPLIED
+  loop CDATA #IMPLIED
+  overlay CDATA #IMPLIED
   %graphicsElementEvents; 
   onstop CDATA #IMPLIED >
 

@@ -9,6 +9,8 @@
 
 #include <nsIComponentManager.h>
 
+#include <iostream>
+
 using namespace std;
 
 int AVGTimeout::s_LastID = 0;
@@ -39,21 +41,12 @@ bool AVGTimeout::IsInterval() const
 
 void AVGTimeout::Fire(IJSEvalKruecke * pKruecke)
 {
-/*    IJSEvalKruecke *evaller(nsnull);
-    nsresult rv = nsComponentManager::CreateInstance("@c-base.org/jsevalkruecke;1",
-            nsnull, NS_GET_IID(IJSEvalKruecke), (void **)&evaller);
-    if (!evaller)
-    {
-        throw new AVGException(AVG_ERR_NO_KRUECKE, "jsevalkruecke");
-    }
-*/  
     char * pResult;
     pKruecke->CallEval(m_Code.c_str(), &pResult);
 
     if (m_IsInterval) {
         m_NextTimeout = m_Interval + GetCurrentTicks();
     }
-//    NS_RELEASE(evaller);
 }
 
 int AVGTimeout::GetID() const

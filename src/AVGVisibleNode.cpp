@@ -97,6 +97,7 @@ AVGVisibleNode::SetFloatAttr(const char *name, float value)
         if (m_Opacity > 1.0) {
             m_Opacity = 1.0;
         }
+        invalidate();
     } else {
         return AVGNode::SetFloatAttr(name, value);
     }

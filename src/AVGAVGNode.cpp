@@ -59,9 +59,8 @@ void AVGAVGNode::update (int time, const PLPoint& pos)
     }
 }
 
-void AVGAVGNode::render (const PLRect& rect)
+void AVGAVGNode::render(const PLRect& rect)
 {
-    
     getEngine()->setClipRect(getAbsViewport());
     for (int i=0; i<getNumChildren(); i++){
         getChild(i)->render(rect);
@@ -74,7 +73,10 @@ void AVGAVGNode::getDirtyRegion (AVGRegion& Region)
         AVGRegion ChildRegion;
         getChild(i)->getDirtyRegion(ChildRegion);
         Region.addRegion(ChildRegion);
-    } 
+    }
+    AVGRegion myRegion;
+    AVGNode::getDirtyRegion(myRegion);
+    Region.addRegion(myRegion);
 }
 
 string AVGAVGNode::dump (int indent)
