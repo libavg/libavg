@@ -146,6 +146,7 @@ function testAnimation()
 
 function setExcl(i)
 {
+    print("switch: "+i);
     var node = AVGPlayer.getElementByID("switch");
     node.setIntAttr("ActiveChild", i);
 }
@@ -164,11 +165,11 @@ function testExcl()
     }
 }
 
-/*
-dumpNodes();
+
+//dumpNodes();
 
 testAnimation();
-
+/*
 testExcl();
 
 playAVG("empty.avg");

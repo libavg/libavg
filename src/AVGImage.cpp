@@ -70,14 +70,9 @@ void AVGImage::init (const std::string& id, int x, int y, int z,
     }
 }
 
-void AVGImage::render ()
+void AVGImage::render (const PLRect& Rect)
 {
     getEngine()->render(m_pBmp, getAbsViewport().tl, getEffectiveOpacity());
-}
-
-void AVGImage::getDirtyRect ()
-{
-
 }
 
 string AVGImage::getTypeStr ()

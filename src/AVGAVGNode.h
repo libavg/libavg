@@ -34,8 +34,8 @@ class AVGAVGNode :
 
         virtual AVGNode * getElementByPos (const PLPoint & pos);
         virtual void update (int time, const PLPoint& pos);
-        virtual void render ();
-        virtual void getDirtyRect ();
+        virtual void render (const PLRect& rect);
+		virtual void getDirtyRegion (AVGRegion& Region);
         virtual std::string dump (int indent = 0);
         virtual std::string getTypeStr ();
 };

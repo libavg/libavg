@@ -141,11 +141,6 @@ void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen)
 
     initInput();
 
-    //    DFBSurfaceDescription Desc;
-    //    Desc.flags = DFBSurfaceDescriptionFlags(DSDESC_CAPS);
-    //    Desc.caps =  DFBSurfaceCapabilities(DSCAPS_PRIMARY);
-    //    Desc.caps =  DFBSurfaceCapabilities(DSCAPS_PRIMARY | DSCAPS_FLIPPING);
-    //    err = m_pDirectFB->CreateSurface(m_pDirectFB, &Desc, &m_pPrimary);
     IDirectFBSurface * pLayerSurf;
     err = m_pDFBLayer->GetSurface(m_pDFBLayer, &pLayerSurf);
     DFBErrorCheck(AVG_ERR_VIDEO_INIT_FAILED, err);
@@ -181,15 +176,39 @@ void AVGDFBDisplayEngine::teardown()
     m_pDirectFB = 0;
 }
 
+void AVGDFBDisplayEngine::setClipRect()
+{
+    m_ClipRect = PLRect(0, 0, m_Width, m_Height);
+}
+
 void AVGDFBDisplayEngine::setClipRect(const PLRect& rc)
 {
-    DFBRegion Region;
-    Region.x1 = rc.tl.x;
-    Region.y1 = rc.tl.y;
-    Region.x2 = rc.br.x;
-    Region.y2 = rc.br.y;
-    m_pPrimary->SetClip(m_pPrimary, &Region);
+    m_ClipRect = rc;
+}
 
+void AVGDFBDisplayEngine::setDirtyRect(const PLRect& rc) 
+{
+    PLRect DirtyRect = rc;
+    DirtyRect.Intersect(m_ClipRect);
+    m_DirtyRect = DirtyRect;
+    DFBRegion Region;
+    Region.x1 = DirtyRect.tl.x;
+    Region.y1 = DirtyRect.tl.y;
+    Region.x2 = DirtyRect.br.x-1;
+    Region.y2 = DirtyRect.br.y-1;
+    m_pPrimary->SetClip(m_pPrimary, &Region);
+}
+
+void AVGDFBDisplayEngine::clear()
+{
+    DFBResult err;
+    m_pPrimary->SetColor(m_pPrimary, 0x00, 0x00, 0x00, 0xff);
+//    cerr << "Clear rect: " << m_DirtyRect.tl.x << "x" << m_DirtyRect.tl.y <<", " <<
+//            m_DirtyRect.br.x << "x" << m_DirtyRect.br.y << endl;
+    err = m_pPrimary->FillRectangle(m_pPrimary, 
+            m_DirtyRect.tl.x, m_DirtyRect.tl.y, 
+            m_DirtyRect.Width(), m_DirtyRect.Height());
+    DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, err);
 }
 
 void AVGDFBDisplayEngine::render(PLBmp * pBmp, const PLPoint& pos, double opacity)
@@ -231,9 +250,6 @@ void AVGDFBDisplayEngine::swapBuffers()
                 DFBSurfaceFlipFlags(DSFLIP_WAITFORSYNC | DSFLIP_BLIT));
     }
     DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, err);
-    m_pPrimary->SetColor(m_pPrimary, 0x00, 0x00, 0x00, 0xff);
-    err = m_pPrimary->FillRectangle(m_pPrimary, 0, 0, m_Width, m_Height);
-    DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, err);
 }
 
 PLBmp * AVGDFBDisplayEngine::createSurface()
@@ -244,6 +260,16 @@ PLBmp * AVGDFBDisplayEngine::createSurface()
 IDirectFB * AVGDFBDisplayEngine::getDFB()
 {
     return m_pDirectFB;
+}
+
+int AVGDFBDisplayEngine::getWidth()
+{
+    return m_Width;
+}
+
+int AVGDFBDisplayEngine::getHeight()
+{
+    return m_Height;
 }
 
 IDirectFBEventBuffer * AVGDFBDisplayEngine::getEventBuffer()

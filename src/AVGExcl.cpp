@@ -43,7 +43,9 @@ NS_IMETHODIMP
 AVGExcl::SetIntAttr(const char *name, PRInt32 value)
 {
     if (!strcmp(name, "ActiveChild")) {
+        invalidate();
         m_ActiveChild = value;
+        invalidate();
     } else {
         return AVGNode::SetIntAttr(name, value);
     }
@@ -57,13 +59,6 @@ AVGExcl::GetType(PRInt32 *_retval)
     return NS_OK;
 }
 
-void AVGExcl::update (int time, const PLPoint& pos)
-{
-    if (m_ActiveChild != -1) {
-        getChild(m_ActiveChild)->update(time, pos);
-    }
-}
-
 string AVGExcl::dump (int indent)
 {
     string dumpStr = AVGContainer::dump ();
@@ -72,10 +67,18 @@ string AVGExcl::dump (int indent)
     return dumpStr + string(indent+2, ' ') + sz; 
 }
 
-void AVGExcl::render ()
+void AVGExcl::render (const PLRect& Rect)
 {
     if (m_ActiveChild != -1) {
-        getChild(m_ActiveChild)->render();
+        getChild(m_ActiveChild)->render(Rect);
+    }
+}
+
+void AVGExcl::getDirtyRegion (AVGRegion& Region)
+{
+    AVGNode::getDirtyRegion(Region);
+    if (m_ActiveChild != -1) {
+        getChild(m_ActiveChild)->getDirtyRegion(Region);
     }
 }
 
@@ -105,6 +108,13 @@ AVGNode * AVGExcl::getElementByPos (const PLPoint & pos)
         return getChild(m_ActiveChild)->getElementByPos(pos);
     } else {
         return 0;
+    }
+}
+
+void AVGExcl::invalidate()
+{
+    if (m_ActiveChild != -1) {
+        addDirtyRect(getChild(m_ActiveChild)->getAbsViewport());
     }
 }
 

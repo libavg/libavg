@@ -59,6 +59,7 @@ class AVGPlayer: public IAVGPlayer
                 std::string * pid, int * px, int * py, int * pz,
                 int * pWidth, int * pHeight, double * pOpacity);
         void initEventHandlers (AVGNode * pAVGNode, const xmlNodePtr xmlNode);
+        void render (bool bRenderEverything);
 
         AVGAVGNode * m_pRootNode;
         AVGDFBDisplayEngine * m_pDisplayEngine;

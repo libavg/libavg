@@ -6,6 +6,8 @@
 #define _AVGVisibleNode_H_
 
 #include "AVGNode.h"
+#include "AVGRegion.h"
+
 #include <paintlib/plrect.h>
 
 #include <string>
@@ -42,6 +44,8 @@ class AVGVisibleNode :
         AVGDFBDisplayEngine * getEngine();
 
     private:
+        void invalidate();
+
         PLRect m_RelViewport;      // In coordinates relative to the parent.
         PLRect m_AbsViewport;      // In window coordinates.
         int m_z;

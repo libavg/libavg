@@ -7,10 +7,12 @@
 
 #include <directfb/directfb.h>
 
+#include <paintlib/plrect.h>
+
 class PLBmp;
 class PLDirectFBBmp;
 class PLPoint;
-class PLRect;
+
 
 class AVGDFBDisplayEngine
 {
@@ -20,7 +22,10 @@ class AVGDFBDisplayEngine
         virtual void init(int width, int height, bool isFullscreen);
         virtual void teardown();
 
+        virtual void setClipRect();
         virtual void setClipRect(const PLRect& rc);
+        virtual void setDirtyRect(const PLRect& rc);
+        virtual void clear();
         virtual void render(PLBmp * pBmp, const PLPoint& pos, double opacity);
         virtual void swapBuffers();
 
@@ -28,6 +33,8 @@ class AVGDFBDisplayEngine
 
         IDirectFB * getDFB();
         IDirectFBEventBuffer * getEventBuffer();
+        int getWidth();
+        int getHeight();
         void DFBErrorCheck(int avgcode, DFBResult dfbcode); 
 
     private:
@@ -36,6 +43,8 @@ class AVGDFBDisplayEngine
         int m_Width;
         int m_Height;
         bool m_IsFullscreen;
+        PLRect m_ClipRect;
+        PLRect m_DirtyRect;
 
         IDirectFB * m_pDirectFB;
         IDirectFBWindow * m_pDFBWindow;

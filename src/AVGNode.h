@@ -5,6 +5,7 @@
 #ifndef _AVGNode_H_
 #define _AVGNode_H_
 
+#include "AVGRegion.h"
 #include <IAVGNode.h>
 
 #include <vector>
@@ -16,9 +17,11 @@
 #include <xpcom/nsIComponentManager.h>
 
 class PLPoint;
+class PLRect;
 class AVGContainer;
 class IJSEvalKruecke;
 class AVGEvent;
+class AVGRegion;
 
 class AVGNode: public IAVGNode
 {
@@ -38,8 +41,10 @@ class AVGNode: public IAVGNode
 
         virtual AVGNode * getElementByPos (const PLPoint & pos);
 		virtual void update (int time, const PLPoint& pos);
-		virtual void render ();
-		virtual void getDirtyRect ();
+		virtual void render (const PLRect& Rect);
+        virtual void addDirtyRect(const PLRect& Rect);
+		virtual void getDirtyRegion (AVGRegion& Region);
+        virtual const PLRect& getAbsViewport();
         virtual std::string dump (int indent = 0);
         virtual std::string getTypeStr ();
         virtual const std::string& getID ();
@@ -49,6 +54,8 @@ class AVGNode: public IAVGNode
 
 	private:
         virtual bool callJS (const std::string& Code, IJSEvalKruecke * pKruecke);
+
+        AVGRegion m_DirtyRegion;
 
         std::string m_ID;
 		AVGContainer * m_pParent;

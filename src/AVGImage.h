@@ -33,8 +33,7 @@ class AVGImage :
         virtual void init (const std::string& id, int x, int y, int z, 
            int width, int height, double opacity, const std::string& filename, 
            AVGDFBDisplayEngine * pEngine, AVGContainer * pParent);
-		virtual void render ();
-		virtual void getDirtyRect ();
+		virtual void render (const PLRect& Rect);
         virtual std::string getTypeStr ();
 
     private:

@@ -29,9 +29,9 @@ class AVGExcl :
         NS_IMETHOD SetIntAttr(const char *name, PRInt32 value); 
         NS_IMETHOD GetType(PRInt32 *_retval);
 
-		virtual void update (int time, const PLPoint& pos);
         virtual std::string dump (int indent = 0);
-		virtual void render ();
+		virtual void render (const PLRect& Rect);
+		virtual void getDirtyRegion (AVGRegion& Region);
 
         virtual int getActiveChild();
         virtual void setActiveChild(int activeChild);
@@ -40,6 +40,7 @@ class AVGExcl :
         virtual AVGNode * getElementByPos (const PLPoint & pos);
 
     private:
+        void invalidate();
         int m_ActiveChild;
 };
 

@@ -5,6 +5,7 @@
 #include "AVGContainer.h"
 #include "AVGNode.h"
 #include "AVGVisibleNode.h"
+#include "AVGRegion.h"
 
 using namespace std;
 

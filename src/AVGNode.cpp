@@ -4,6 +4,7 @@
 
 #include "AVGEvent.h"
 #include "AVGContainer.h"
+
 #include "IJSEvalKruecke.h"
 
 #include <paintlib/plpoint.h>
@@ -130,12 +131,25 @@ void AVGNode::update (int time, const PLPoint& pos)
 {
 }
 
-void AVGNode::render ()
+void AVGNode::render (const PLRect& Rect)
 {
 }
 
-void AVGNode::getDirtyRect ()
+void AVGNode::addDirtyRect(const PLRect& Rect)
 {
+    m_DirtyRegion.addRect(Rect);
+}
+
+void AVGNode::getDirtyRegion (AVGRegion& Region)
+{
+    Region.addRegion(m_DirtyRegion);
+    m_DirtyRegion.clear();
+}
+
+const PLRect& AVGNode::getAbsViewport()
+{
+    static PLRect rc(0,0,0,0);
+    return rc;
 }
 
 string AVGNode::dump (int indent)

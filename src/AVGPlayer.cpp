@@ -8,6 +8,7 @@
 #include "AVGExcl.h"
 #include "AVGEvent.h"
 #include "AVGException.h"
+#include "AVGRegion.h"
 #include "AVGDFBDisplayEngine.h"
 #include "IJSEvalKruecke.h"
 #include "XMLHelper.h"
@@ -202,6 +203,8 @@ void AVGPlayer::play ()
 
     m_FramerateManager.SetRate(30);
     m_bStopping = false;
+    m_pRootNode->update(0, PLPoint(0,0));
+    render(true);
     while (!m_bStopping) {
         doFrame();
     }
@@ -228,9 +231,28 @@ void AVGPlayer::doFrame ()
     handleEvents();
     if (!m_bStopping) {
         m_pRootNode->update(0, PLPoint(0,0));
-        m_pRootNode->render();
+        render(false);
         m_FramerateManager.FrameWait();
         m_pDisplayEngine->swapBuffers();
+    }
+}
+
+void AVGPlayer::render (bool bRenderEverything)
+{
+    AVGRegion UpdateRegion;
+    if (bRenderEverything) {
+        PLRect rc(0,0, m_pDisplayEngine->getWidth(), m_pDisplayEngine->getHeight());
+        UpdateRegion.addRect(rc);
+    } else {
+        m_pRootNode->getDirtyRegion(UpdateRegion);
+    }
+//    UpdateRegion.dump();
+    m_pDisplayEngine->setClipRect();
+    for (int i = 0; i<UpdateRegion.getNumRects(); i++) {
+        const PLRect & rc = UpdateRegion.getRect(i);
+        m_pDisplayEngine->setDirtyRect(rc);
+        m_pDisplayEngine->clear();
+        m_pRootNode->render(rc);
     }
 }
 
@@ -382,7 +404,7 @@ void AVGPlayer::handleEvents()
 
     while (pEventBuffer->HasEvent(pEventBuffer) == DFB_OK && !m_bStopping) {
         pEventBuffer->GetEvent (pEventBuffer, &dfbEvent);
-        dumpDFBEvent (dfbEvent);
+//        dumpDFBEvent (dfbEvent);
         if (dfbEvent.clazz == DFEC_WINDOW) {
             DFBWindowEvent* pdfbWEvent = &(dfbEvent.window);
 

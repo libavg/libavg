@@ -12,6 +12,7 @@
 #include <paintlib/plpoint.h>
 
 #include <stdio.h>
+#include <iostream>
 
 using namespace std;
 
@@ -58,18 +59,27 @@ NS_IMETHODIMP
 AVGVisibleNode::SetIntAttr(const char *name, PRInt32 value)
 {
     if (!strcmp(name, "Left")) {
+        invalidate();
         m_RelViewport.tl.x = value;
+        invalidate();
     } else if (!strcmp(name, "Top")) {
+        invalidate();
         m_RelViewport.tl.y = value;
+        invalidate();
     } else if (!strcmp(name, "Right")) {
+        invalidate();
         m_RelViewport.br.x = value;
+        invalidate();
     } else if (!strcmp(name, "Bottom")) {
+        invalidate();
         m_RelViewport.br.y = value;
+        invalidate();
     } else if (!strcmp(name, "Z")) {
         m_z = value;
         if (getParent()) {
             getParent()->zorderChange(this);
         }
+        invalidate();
     } else {
         return AVGNode::SetIntAttr(name, value);
     }
@@ -154,6 +164,11 @@ const PLRect& AVGVisibleNode::getAbsViewport ()
 int AVGVisibleNode::getZ ()
 {
     return m_z;
+}
+
+void AVGVisibleNode::invalidate()
+{
+    addDirtyRect(m_AbsViewport);
 }
 
 double AVGVisibleNode::getEffectiveOpacity()

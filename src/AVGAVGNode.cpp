@@ -59,17 +59,22 @@ void AVGAVGNode::update (int time, const PLPoint& pos)
     }
 }
 
-void AVGAVGNode::render ()
+void AVGAVGNode::render (const PLRect& rect)
 {
+    
     getEngine()->setClipRect(getAbsViewport());
     for (int i=0; i<getNumChildren(); i++){
-        getChild(i)->render();
+        getChild(i)->render(rect);
     }
 }
 
-void AVGAVGNode::getDirtyRect ()
+void AVGAVGNode::getDirtyRegion (AVGRegion& Region)
 {
-
+    for (int i=0; i<getNumChildren(); i++){
+        AVGRegion ChildRegion;
+        getChild(i)->getDirtyRegion(ChildRegion);
+        Region.addRegion(ChildRegion);
+    } 
 }
 
 string AVGAVGNode::dump (int indent)
