@@ -4,6 +4,7 @@ AVG
 supported svg nodes:
 
 - image
+- words (aka text)
 - video
 - parallel
 - exclusive
@@ -13,33 +14,16 @@ supported svg nodes:
 
 concepts:
 
-- def/use?
 - local coordinate systems
 
+- AVG_FONT_PATH specifies where to look for fonts.
 
 todo
 
-- dtd
-- main loop
-- xerces factory?!
-- generate classes, main lib code
-- xpcom standalone test
-- framebuffer lib? (sdl? sdl_gui?)
-- smpeg/libmpeg test
-- sodipodi?
 
 ver 2.0
 
-  text
   styles
   defs/use
   dynamic graph changes
-
-main loop
-
-  get input events
-  process events
-  process graph
-  update display 
-  (process sound)
   

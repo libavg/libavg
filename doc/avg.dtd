@@ -9,7 +9,7 @@
    onmouseout CDATA #IMPLIED
    onload CDATA #IMPLIED" >
    
-<!ELEMENT avg (avg|excl|image|video|audio)* >
+<!ELEMENT avg (avg|excl|image|video|audio|words)* >
 <!ATTLIST avg
   id ID #IMPLIED
   x CDATA "0"
@@ -21,7 +21,7 @@
   fullscreen CDATA "false"
   %graphicsElementEvents; >
   
-<!ELEMENT excl (avg|excl|image|video|audio)+ >
+<!ELEMENT excl (avg|excl|image|video|audio|words)+ >
 <!ATTLIST excl 
   id ID #IMPLIED >
 
@@ -49,6 +49,21 @@
   opacity CDATA #IMPLIED
   %graphicsElementEvents; 
   onstop CDATA #IMPLIED >
+
+<!ELEMENT words EMPTY>
+<!ATTLIST words
+  id ID #IMPLIED
+  x CDATA #REQUIRED
+  y CDATA #REQUIRED
+  z CDATA #IMPLIED
+  width CDATA #REQUIRED
+  height CDATA #REQUIRED
+  opacity CDATA #IMPLIED
+  size CDATA #IMPLIED
+  font CDATA #IMPLIED
+  string CDATA #REQUIRED
+  color CDATA #IMPLIED
+  %graphicsElementEvents; >
 
 <!ELEMENT audio EMPTY>
 <!ATTLIST audio

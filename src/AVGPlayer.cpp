@@ -5,6 +5,7 @@
 #include "AVGPlayer.h"
 #include "AVGAVGNode.h"
 #include "AVGImage.h"
+#include "AVGWords.h"
 #include "AVGExcl.h"
 #include "AVGEvent.h"
 #include "AVGException.h"
@@ -17,6 +18,7 @@
 #include <paintlib/plexcept.h>
 #include <paintlib/pldebug.h>
 #include <paintlib/plpoint.h>
+#include <paintlib/plpixel32.h>
 
 #include <libxml/xmlmemory.h>
 
@@ -311,6 +313,21 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         curNode = pImage;
         pImage->init(id, x, y, z, width, height, opacity, 
                 filename, m_pDisplayEngine, pParent);
+        initEventHandlers(curNode, xmlNode);
+    } else if (!xmlStrcmp (nodeType, (const xmlChar *)"words")) {
+        string id;
+        int x,y,z;
+        int width, height;
+        double opacity;
+        getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, &opacity);
+        string font = getDefaultedStringAttr(xmlNode, (const xmlChar *)"font", "arial");
+        string str = getRequiredStringAttr(xmlNode, (const xmlChar *)"string");
+        string color = getDefaultedStringAttr(xmlNode, (const xmlChar *)"color", "FFFFFF");
+        int size = getDefaultedIntAttr(xmlNode, (const xmlChar *)"size", 15);
+        AVGWords * pWords = AVGWords::create();
+        curNode = pWords;
+        pWords->init(id, x, y, z, width, height, opacity, size,
+                font, str, color, m_pDisplayEngine, pParent);
         initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"excl")) {
         string id  = getDefaultedStringAttr (xmlNode, (const xmlChar *)"id", "");

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg width="400" height="400" onmousedown="mainMouseDown();" onmouseup="mainMouseUp();" fullscreen="true">
+<avg width="400" height="400" onmousedown="mainMouseDown();" onmouseup="mainMouseUp();" fullscreen="false">
     <image id="mousemove" x="0" y="0" z="1" opacity="0.8"
         href="rgb24.tif" onmousemove="onMouseMove();" onmouseup="onMouseUp();"/>
     <image id="mouseover" x="200" y="0" z="2" 

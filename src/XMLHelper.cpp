@@ -6,6 +6,8 @@
 
 #include <paintlib/pldebug.h>
 
+#include <iostream>
+
 using namespace std;
 
 bool getDefaultedBoolAttr (const xmlNodePtr& xmlNode, 

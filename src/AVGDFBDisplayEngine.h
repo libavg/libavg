@@ -27,11 +27,14 @@ class AVGDFBDisplayEngine
         virtual void setDirtyRect(const PLRect& rc);
         virtual void clear();
         virtual void render(PLBmp * pBmp, const PLPoint& pos, double opacity);
+        virtual void render(IDirectFBSurface * pSrc, const PLPoint& pos, 
+                double opacity, bool bAlpha);
         virtual void swapBuffers();
 
 	    virtual PLBmp * createSurface();
 
         IDirectFB * getDFB();
+        IDirectFBSurface * getPrimary();
         IDirectFBEventBuffer * getEventBuffer();
         int getWidth();
         int getHeight();

@@ -16,7 +16,8 @@ ALL_H = AVGAVGNode.h AVGContainer.h  AVGDFBDisplayEngine.h AVGEvent.h \
           AVGException.h AVGExcl.h AVGFramerateManager.h AVGImage.h \
           AVGNode.h AVGPlayer.h AVGTimeout.h AVGRegion.h \
           AVGVisibleNode.h IAVGEvent.h IAVGNode.h IAVGPlayer.h \
-          IDisplayEngine.h IJSEvalKruecke.h XMLHelper.h AVGTime.h
+          IDisplayEngine.h IJSEvalKruecke.h XMLHelper.h AVGTime.h \
+          AVGWords.h
 
 libavg_LTLIBRARIES = libavg.la
 
@@ -28,7 +29,7 @@ libavg_la_SOURCES = AVGAVGNode.cpp AVGExcl.cpp \
                     AVGDFBDisplayEngine.cpp AVGImage.cpp AVGVisibleNode.cpp \
                     AVGEvent.cpp AVGNode.cpp XMLHelper.cpp AVGRegion.cpp\
                     AVGException.cpp AVGPlayer.cpp XPAVGPlayerModule.cpp \
-                    AVGTime.cpp \
+                    AVGTime.cpp AVGWords.cpp \
                     $(ALL_H) 
 BUILT_SOURCES = IAVGPlayer.h IJSEvalKruecke.h IAVGEvent.h IAVGNode.h
 

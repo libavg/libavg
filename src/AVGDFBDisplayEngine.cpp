@@ -202,7 +202,7 @@ void AVGDFBDisplayEngine::setDirtyRect(const PLRect& rc)
 void AVGDFBDisplayEngine::clear()
 {
     DFBResult err;
-    m_pPrimary->SetColor(m_pPrimary, 0x00, 0x00, 0x00, 0xff);
+    m_pPrimary->SetColor(m_pPrimary, 0x0, 0x00, 0x00, 0xff);
 //    cerr << "Clear rect: " << m_DirtyRect.tl.x << "x" << m_DirtyRect.tl.y <<", " <<
 //            m_DirtyRect.br.x << "x" << m_DirtyRect.br.y << endl;
     err = m_pPrimary->FillRectangle(m_pPrimary, 
@@ -217,25 +217,30 @@ void AVGDFBDisplayEngine::render(PLBmp * pBmp, const PLPoint& pos, double opacit
     PLASSERT(pDFBBmp); // createSurface() should have been used to create 
                        // the bitmap.
     IDirectFBSurface * pSurf = pDFBBmp->GetSurface();
+    render (pSurf, pos, opacity, pBmp->HasAlpha());
+}
+
+void AVGDFBDisplayEngine::render(IDirectFBSurface * pSrc, const PLPoint& pos, 
+        double opacity, bool bAlpha)
+{
     DFBSurfaceBlittingFlags BltFlags;
-    if (pBmp->HasAlpha()) {
+    if (bAlpha) {
         BltFlags = DSBLIT_BLEND_ALPHACHANNEL;
     } else {
         BltFlags = DSBLIT_NOFX;
     }
     if (opacity < 0.9999) {
-        BltFlags = DFBSurfaceBlittingFlags(int(BltFlags) | int (DSBLIT_BLEND_COLORALPHA));
+        BltFlags = DFBSurfaceBlittingFlags(BltFlags | DSBLIT_BLEND_COLORALPHA);
         m_pPrimary->SetColor(m_pPrimary, 
                              0xff, 0xff, 0xff, __u8(opacity*256));
     }
     m_pPrimary->SetBlittingFlags(m_pPrimary, BltFlags);
 //    dumpSurface (pSurf, "pDFBBmp");
 //    dumpSurface (m_pPrimary, "m_pPrimary");
-    DFBResult err = m_pPrimary->Blit(m_pPrimary, pDFBBmp->GetSurface(), 0, 
+    DFBResult err = m_pPrimary->Blit(m_pPrimary, pSrc, 0, 
             pos.x, pos.y);
     DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, err);
 }
-
 
 void AVGDFBDisplayEngine::swapBuffers()
 {
@@ -260,6 +265,11 @@ PLBmp * AVGDFBDisplayEngine::createSurface()
 IDirectFB * AVGDFBDisplayEngine::getDFB()
 {
     return m_pDirectFB;
+}
+
+IDirectFBSurface * AVGDFBDisplayEngine::getPrimary()
+{
+    return m_pPrimary;
 }
 
 int AVGDFBDisplayEngine::getWidth()
