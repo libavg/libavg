@@ -95,8 +95,9 @@ void AVGSDLDisplayEngine::init(int width, int height, bool isFullscreen, int bpp
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glShadeModel()");
     glDisable(GL_DEPTH_TEST);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glDisable(GL_DEPTH_TEST)");
-    glEnable(GL_TEXTURE_RECTANGLE_NV);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(GL_TEXTURE_RECTANGLE_NV);");
+    int TexMode = AVGOGLBmp::getTextureMode();
+    glEnable(TexMode);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(TexMode);");
 
     m_Width = width;
     m_Height = height;
@@ -194,28 +195,39 @@ void AVGSDLDisplayEngine::blt32(PLBmp * pBmp, const PLRect* pDestRect,
     AVGOGLBmp * pOGLBmp = dynamic_cast<AVGOGLBmp*>(pBmp);
 
     glColor4f(1.0f, 1.0f, 1.0f, opacity);
-    glBindTexture(GL_TEXTURE_RECTANGLE_NV, pOGLBmp->getTexID());
+    glBindTexture(AVGOGLBmp::getTextureMode(), pOGLBmp->getTexID());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGSDLDisplayEngine::blt32: glBindTexture()");
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGSDLDisplayEngine::blt32: glBlendFunc()");
+    if (AVGOGLBmp::getTextureMode() == GL_TEXTURE_RECTANGLE_NV) {
+        bltTexture(pDestRect, pBmp->GetWidth(), pBmp->GetHeight());
+    } else {
+        bltTexture(pDestRect, ((GLfloat)pBmp->GetWidth()-0.5f)/pOGLBmp->getTexSize(),
+                ((GLfloat)pBmp->GetHeight()-0.5f)/pOGLBmp->getTexSize());
+    }
 
+    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "(" << pDestRect->tl.x << ", " 
+            << pDestRect->tl.y << ")" << ", width:" << pDestRect->Width() 
+            << ", height: " << pDestRect->Height());
+}
+
+void AVGSDLDisplayEngine::bltTexture(const PLRect* pDestRect, 
+        float Width, float Height)
+{
     glBegin(GL_QUADS);
     glTexCoord2f(0.0, 0.0);
     glVertex3f (pDestRect->tl.x, pDestRect->tl.y, 0.0);
-    glTexCoord2f(pBmp->GetWidth(), 0.0);
+    glTexCoord2f(Width, 0.0);
     glVertex3f (pDestRect->br.x, pDestRect->tl.y, 0.0);
-    glTexCoord2f(pBmp->GetWidth(), pBmp->GetHeight());
+    glTexCoord2f(Width, Height);
     glVertex3f (pDestRect->br.x, pDestRect->br.y, 0.0);
-    glTexCoord2f(0.0, pBmp->GetHeight());
+    glTexCoord2f(0.0, Height);
     glVertex3f (pDestRect->tl.x, pDestRect->br.y, 0.0);
     glEnd();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGSDLDisplayEngine::blt32: glEnd()");
-    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "(" << pDestRect->tl.x << ", " 
-            << pDestRect->tl.y << ")" << ", width:" << pDestRect->Width() 
-            << ", height: " << pDestRect->Height());
 }
 
 void AVGSDLDisplayEngine::blta8(PLBmp * pBmp, const PLRect* pDestRect,

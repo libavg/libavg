@@ -57,15 +57,16 @@ class AVGSDLDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         void initTranslationTable();
         void initJoysticks();
         void setDirtyRect(const PLRect& rc);
+        void bltTexture(const PLRect* pDestRect,
+                float Width, float Height);
         virtual void swapBuffers();
+
         AVGEvent * createMouseMotionEvent 
                 (int Type, const SDL_Event & SDLEvent);
         AVGEvent * createMouseButtonEvent
                 (int Type, const SDL_Event & SDLEvent);
         AVGEvent * createKeyEvent
                 (int Type, const SDL_Event & SDLEvent);
-
-
 
         int m_Width;
         int m_Height;

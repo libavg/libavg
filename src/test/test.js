@@ -222,6 +222,7 @@ function goneBR()
 function testCrop()
 {
     print ("---- Testing cropping ----");
+//    AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_BLTS); 
     var ok = tryLoadFile("crop.avg");
     if (ok) {
         cropInterval = AVGPlayer.setInterval(10, "cropTL();");
@@ -327,6 +328,7 @@ function testExcl()
 
     testVideo();
     testCrop();
+
     testAnimation();
 //    testWords();
 
@@ -341,6 +343,5 @@ function testExcl()
     playAVG("avg.avg");
     playAVG("noavg.avg");
     playAVG("noxml.avg");
-
 //}
 

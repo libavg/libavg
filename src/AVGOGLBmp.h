@@ -17,16 +17,22 @@ public:
     AVGOGLBmp(const AVGOGLBmp &Orig);
     AVGOGLBmp &operator=(const PLBmp &Orig);
     AVGOGLBmp &operator=(const AVGOGLBmp &Orig);
-
+    
     void bind();
     void unbind();
     int getTexID();
+    int getTexSize();
+
+    static int getTextureMode();
 
 protected:
     virtual void freeMembers();
     
     unsigned int m_TexID;
     bool m_bBound;
+    int m_TexSize;
+
+    static int m_TextureMode;
 };
 
 inline AVGOGLBmp::AVGOGLBmp(const AVGOGLBmp &Orig)
