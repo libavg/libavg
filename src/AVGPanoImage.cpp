@@ -32,7 +32,7 @@ using namespace std;
 
 NS_IMPL_ISUPPORTS2_CI(AVGPanoImage, IAVGNode, IAVGPanoImage);
 
-const int TEX_WIDTH = 32;
+const int TEX_WIDTH = 128;
 
 AVGPanoImage * AVGPanoImage::create()
 {
