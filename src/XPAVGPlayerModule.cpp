@@ -6,6 +6,9 @@
 
 #include "AVGPlayer.h"
 #include "AVGEvent.h"
+#include "AVGKeyEvent.h"
+#include "AVGMouseEvent.h"
+#include "AVGWindowEvent.h"
 #include "AVGImage.h"
 #include "AVGVideo.h"
 #include "AVGWords.h"
@@ -16,6 +19,9 @@
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGPlayer)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGEvent)
+NS_GENERIC_FACTORY_CONSTRUCTOR(AVGMouseEvent)
+NS_GENERIC_FACTORY_CONSTRUCTOR(AVGKeyEvent)
+NS_GENERIC_FACTORY_CONSTRUCTOR(AVGWindowEvent)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGImage)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGVideo)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGWords)
@@ -43,6 +49,9 @@ static NS_METHOD AVGPlayerUnregistrationProc(nsIComponentManager *aCompMgr,
 
 NS_DECL_CLASSINFO(AVGPlayer)
 NS_DECL_CLASSINFO(AVGEvent)
+NS_DECL_CLASSINFO(AVGMouseEvent)
+NS_DECL_CLASSINFO(AVGKeyEvent)
+NS_DECL_CLASSINFO(AVGWindowEvent)
 NS_DECL_CLASSINFO(AVGImage)
 NS_DECL_CLASSINFO(AVGVideo)
 NS_DECL_CLASSINFO(AVGWords)
@@ -74,6 +83,39 @@ static const nsModuleComponentInfo components[] =
     NS_CI_INTERFACE_GETTER_NAME(AVGEvent),
     NULL /* no language helper */,
     &NS_CLASSINFO_NAME(AVGEvent)
+  },
+  { "c-base avgmouseevent Component", 
+    AVGMOUSEEVENT_CID, 
+    AVGMOUSEEVENT_CONTRACTID, 
+    AVGMouseEventConstructor,
+    AVGPlayerRegistrationProc,
+    AVGPlayerUnregistrationProc,
+    NULL /* no factory destructor */,
+    NS_CI_INTERFACE_GETTER_NAME(AVGMouseEvent),
+    NULL /* no language helper */,
+    &NS_CLASSINFO_NAME(AVGMouseEvent)
+  },
+  { "c-base avgkeyevent Component", 
+    AVGKEYEVENT_CID, 
+    AVGKEYEVENT_CONTRACTID, 
+    AVGKeyEventConstructor,
+    AVGPlayerRegistrationProc,
+    AVGPlayerUnregistrationProc,
+    NULL /* no factory destructor */,
+    NS_CI_INTERFACE_GETTER_NAME(AVGKeyEvent),
+    NULL /* no language helper */,
+    &NS_CLASSINFO_NAME(AVGKeyEvent)
+  },
+  { "c-base avgevent Component", 
+    AVGWINDOWEVENT_CID, 
+    AVGWINDOWEVENT_CONTRACTID, 
+    AVGWindowEventConstructor,
+    AVGPlayerRegistrationProc,
+    AVGPlayerUnregistrationProc,
+    NULL /* no factory destructor */,
+    NS_CI_INTERFACE_GETTER_NAME(AVGWindowEvent),
+    NULL /* no language helper */,
+    &NS_CLASSINFO_NAME(AVGWindowEvent)
   },
   { "c-base avgimage Component", 
     AVGIMAGE_CID, 
@@ -160,6 +202,9 @@ NS_IMPL_NSGETMODULE(AVGPlayerModule, components)
 //==============================================================================
 //
 // $Log$
+// Revision 1.11  2004/02/16 23:12:19  uzadow
+// Major refactoring of event handling.
+//
 // Revision 1.10  2004/02/13 15:51:33  uzadow
 // Added untested Conrad relais card support.
 //

@@ -10,6 +10,10 @@
 #include "AVGLogger.h"
 #include "AVGFramerateManager.h"
 #include "AVGDFBFontManager.h"
+#include "AVGEvent.h"
+#include "AVGMouseEvent.h"
+#include "AVGKeyEvent.h"
+#include "AVGWindowEvent.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/pldirectfbbmp.h>
@@ -432,6 +436,117 @@ AVGFontManager * AVGDFBDisplayEngine::getFontManager()
     return m_pFontManager;
 }
 
+vector<AVGEvent *> AVGDFBDisplayEngine::pollEvents()
+{
+    vector<AVGEvent *> Events;
+    DFBEvent dfbEvent;
+    while(m_pEventBuffer->HasEvent(m_pEventBuffer) == DFB_OK) {
+        m_pEventBuffer->GetEvent (m_pEventBuffer, &dfbEvent);
+        if (dfbEvent.clazz == DFEC_WINDOW) {
+            DFBWindowEvent* pdfbWEvent = &(dfbEvent.window);
+
+            AVGEvent * pAVGEvent = createEvent(pdfbWEvent);
+            if (pAVGEvent) {
+                Events.push_back(pAVGEvent);       
+            }
+        } else {
+            AVG_TRACE(IAVGPlayer::DEBUG_ERROR, "Unexpected event received.");
+        }
+    }
+        
+    return Events;
+}
+
+AVGEvent * AVGDFBDisplayEngine::createEvent(const char * pTypeName)
+{
+    nsresult rv;
+    nsCOMPtr<IAVGEvent> pXPEvent = do_CreateInstance((string("@c-base.org/")+pTypeName+";1").c_str(), &rv);
+    PLASSERT(!NS_FAILED(rv));
+    NS_IF_ADDREF((IAVGEvent*)pXPEvent);
+    return dynamic_cast<AVGEvent*>((IAVGEvent*)pXPEvent);
+}
+
+int AVGDFBDisplayEngine::translateModifiers(DFBInputDeviceModifierMask DFBModifiers)
+{
+    int AVGModifier = 0;
+    if (DFBModifiers && DIMM_SHIFT) {
+        AVGModifier |= IAVGKeyEvent::KEYMOD_SHIFT;
+    }
+    if (DFBModifiers && DIMM_CONTROL) {
+        AVGModifier |= IAVGKeyEvent::KEYMOD_CTRL;
+    }
+    if (DFBModifiers && DIMM_ALT) {
+        AVGModifier |= IAVGKeyEvent::KEYMOD_ALT;
+    }
+    if (DFBModifiers && DIMM_ALTGR) {
+        AVGModifier |= IAVGKeyEvent::KEYMOD_RALT;
+    }
+    if (DFBModifiers && DIMM_META) {
+        AVGModifier |= IAVGKeyEvent::KEYMOD_META;
+    }
+    return AVGModifier;    
+}
+
+AVGEvent * AVGDFBDisplayEngine::createEvent(DFBWindowEvent* pdfbwEvent)
+{
+    AVGEvent * pAVGEvent = 0;
+    switch(pdfbwEvent->type) {
+        case DWET_KEYDOWN:
+        case DWET_KEYUP:
+            {
+                // TODO: This only works for normal keys... Function key mapping etc.
+                //       is bound to be screwed up badly.
+                pAVGEvent = createEvent("avgkeyevent");
+                string KeyString;
+                KeyString[0] = char(pdfbwEvent->key_symbol);
+                int Type;
+                if (pdfbwEvent->type == DWET_KEYDOWN) {
+                    Type = IAVGEvent::KEY_DOWN;
+                } else {
+                    Type = IAVGEvent::KEY_UP;
+                }
+                dynamic_cast<AVGKeyEvent *>(pAVGEvent)->init(Type,
+                        pdfbwEvent->key_code, pdfbwEvent->key_symbol, KeyString, 
+                        translateModifiers(pdfbwEvent->modifiers));
+            }
+            break;
+        case DWET_BUTTONDOWN:
+        case DWET_BUTTONUP:
+        case DWET_MOTION:
+            pAVGEvent = createEvent("avgmouseevent");
+            int Button;
+            switch (pdfbwEvent->button) {
+                case DIBI_LEFT:
+                    Button = IAVGMouseEvent::LEFT_BUTTON;
+                    break;
+                case DIBI_MIDDLE:
+                    Button = IAVGMouseEvent::MIDDLE_BUTTON;
+                    break;
+                case DIBI_RIGHT:
+                    Button = IAVGMouseEvent::RIGHT_BUTTON;
+                    break;
+            }
+            int Type;
+            switch (pdfbwEvent->type) {
+                case DWET_BUTTONDOWN:
+                    Type = IAVGEvent::MOUSE_BUTTON_DOWN;
+                    break;
+                case DWET_BUTTONUP:
+                    Type = IAVGEvent::MOUSE_BUTTON_UP;
+                    break;
+                case DWET_MOTION:
+                    Type = IAVGEvent::MOUSE_MOTION;
+                    break;
+            }
+            dynamic_cast<AVGMouseEvent *>(pAVGEvent)->init(Type,
+                    (pdfbwEvent->buttons & DIBM_LEFT)!=0, 
+                    (pdfbwEvent->buttons & DIBM_MIDDLE)!=0,
+                    (pdfbwEvent->buttons & DIBM_RIGHT)!=0,
+                    pdfbwEvent->cx, pdfbwEvent->cy, Button);
+            break;
+    }
+    return pAVGEvent;
+}
 
 int AVGDFBDisplayEngine::getWidth()
 {
@@ -446,11 +561,6 @@ int AVGDFBDisplayEngine::getHeight()
 int AVGDFBDisplayEngine::getBPP()
 {
     return m_bpp;
-}
-
-IDirectFBEventBuffer * AVGDFBDisplayEngine::getEventBuffer()
-{
-    return m_pEventBuffer;
 }
 
 void AVGDFBDisplayEngine::DFBErrorCheck(int avgcode, string where, DFBResult dfbcode) {

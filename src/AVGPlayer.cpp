@@ -9,6 +9,9 @@
 #include "AVGWords.h"
 #include "AVGExcl.h"
 #include "AVGEvent.h"
+#include "AVGMouseEvent.h"
+#include "AVGKeyEvent.h"
+#include "AVGWindowEvent.h"
 #include "AVGException.h"
 #include "AVGRegion.h"
 #include "AVGDFBDisplayEngine.h"
@@ -49,7 +52,6 @@ using namespace std;
 AVGPlayer::AVGPlayer()
     : m_pRootNode (0),
       m_pDisplayEngine(0),
-      m_pLastMouseNode(0),
       m_pFramerateManager(0),
       m_pDebugDest(0)
 {
@@ -173,8 +175,8 @@ AVGPlayer::ClearInterval(PRInt32 id, PRBool * pResult)
 NS_IMETHODIMP 
 AVGPlayer::GetCurEvent(IAVGEvent **_retval)
 {
-    NS_IF_ADDREF(m_CurEvent);
-    *_retval = m_CurEvent;
+    NS_IF_ADDREF(m_pCurEvent);
+    *_retval = m_pCurEvent;
     return NS_OK;
 }
 
@@ -236,6 +238,7 @@ void AVGPlayer::loadFile (const std::string& filename)
     PLASSERT (!m_pRootNode);
     if (!m_pDisplayEngine) {
         m_pDisplayEngine = new AVGDFBDisplayEngine ();
+        m_pEventSource = dynamic_cast<AVGDFBDisplayEngine *>(m_pDisplayEngine);
     }
 
     xmlPedanticParserDefault(1);
@@ -263,6 +266,10 @@ void AVGPlayer::play (double framerate)
     }
     PLASSERT (m_pRootNode);
 //    setRealtimePriority();
+
+    m_EventDispatcher.addSource(m_pEventSource);
+    m_EventDispatcher.addSink(&m_EventDumper);
+    m_EventDispatcher.addSink(this);
     
     m_pFramerateManager = new AVGFramerateManager;
     m_pFramerateManager->SetRate(framerate);
@@ -280,7 +287,6 @@ void AVGPlayer::play (double framerate)
 
     NS_IF_RELEASE(m_pRootNode);
     m_pRootNode = 0;
-    m_pLastMouseNode = 0;
     delete m_pFramerateManager;
     m_IDMap.clear();
 }
@@ -294,7 +300,7 @@ void AVGPlayer::doFrame ()
 {
     handleTimers();
     
-    handleEvents();
+    m_EventDispatcher.dispatch();
     if (!m_bStopping) {
         m_pDisplayEngine->render(m_pRootNode, m_pFramerateManager, false);
     }
@@ -515,6 +521,39 @@ void AVGPlayer::handleTimers()
     m_NewTimeouts.clear();
 }
 
+bool AVGPlayer::handleEvent(AVGEvent * pEvent)
+{
+    m_pCurEvent = pEvent;
+    switch (pEvent->getType()) {
+        case AVGEvent::MOUSE_MOTION:
+        case AVGEvent::MOUSE_BUTTON_UP:
+        case AVGEvent::MOUSE_BUTTON_DOWN:
+            {
+                AVGMouseEvent * pMouseEvent = dynamic_cast<AVGMouseEvent*>(pEvent);
+                PLPoint pos(pMouseEvent->getXPosition(), pMouseEvent->getYPosition());
+                AVGNode * pNode = m_pRootNode->getElementByPos(pos);            
+                if (pNode) {
+                    pNode->handleMouseEvent(pMouseEvent, m_pJSContext);
+                }
+            }
+            break;
+        case AVGEvent::KEY_DOWN:
+            {
+                AVGKeyEvent * pKeyEvent = dynamic_cast<AVGKeyEvent*>(pEvent);
+                if (pKeyEvent->getKeyCode() == 27) {
+                    m_bStopping = true;
+                }
+            }
+            break;
+        case AVGEvent::QUIT:
+            m_bStopping = true;
+            break;
+    }
+    // Don't pass on any events.
+    return true; 
+}
+
+/*
 void AVGPlayer::handleEvents()
 {
     IDirectFBEventBuffer * pEventBuffer = 
@@ -549,6 +588,7 @@ void AVGPlayer::handleEvents()
     }
     
 }
+
 
 AVGEvent* AVGPlayer::createCurEvent()
 {
@@ -588,6 +628,7 @@ void AVGPlayer::handleMouseEvent (AVGEvent* pEvent)
         m_pLastMouseNode = pNode;
     }
 }
+*/
 
 int AVGPlayer::addTimeout(AVGTimeout* timeout)
 {
@@ -599,6 +640,7 @@ int AVGPlayer::addTimeout(AVGTimeout* timeout)
     return timeout->GetID();
 }
 
+/*
 void AVGPlayer::dumpDFBEvent (const DFBEvent& dfbEvent)
 {
     // TODO: Convert to AVG_TRACE.
@@ -674,4 +716,4 @@ void AVGPlayer::dumpDFBEvent (const DFBEvent& dfbEvent)
     cerr << endl;
     
 }
-
+*/

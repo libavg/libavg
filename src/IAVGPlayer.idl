@@ -4,6 +4,7 @@
 
 #include "nsISupports.idl"
 #include "IAVGEvent.idl"
+#include "IAVGNode.idl"
 #include "IAVGConradRelais.idl"
 
 [scriptable, uuid(e3890769-a960-43ec-bc4f-ded28ef99103)]

@@ -34,10 +34,11 @@ libavg_LTLIBRARIES = libavg.la
 libavg_la_LDFLAGS =  -lmpeg3 `mozilla-config --libs nspr` `paintlib-config --libs` \
                     `xml2-config --libs` `directfb-config --libs`
 
-libavg_la_SOURCES = AVGAVGNode.cpp AVGExcl.cpp \
+libavg_la_SOURCES = AVGEvent.cpp AVGMouseEvent.cpp AVGKeyEvent.cpp AVGWindowEvent.cpp \
+                    AVGEventDispatcher.cpp AVGDebugEventSink.cpp AVGAVGNode.cpp AVGExcl.cpp \
                     AVGContainer.cpp AVGFramerateManager.cpp AVGTimeout.cpp \
                     AVGDFBDisplayEngine.cpp AVGImage.cpp \
-                    AVGEvent.cpp AVGNode.cpp XMLHelper.cpp AVGRegion.cpp\
+                    AVGNode.cpp XMLHelper.cpp AVGRegion.cpp\
                     AVGException.cpp AVGPlayer.cpp XPAVGPlayerModule.cpp \
                     AVGTimeSource.cpp AVGWords.cpp AVGFontManager.cpp\
                     AVGVideo.cpp acJSContextPublisher.cpp AVGJSScript.cpp\
@@ -46,7 +47,8 @@ libavg_la_SOURCES = AVGAVGNode.cpp AVGExcl.cpp \
                     $(ALL_H) 
 BUILT_SOURCES = IAVGPlayer.h IAVGEvent.h IAVGNode.h IAVGVideo.h \
                 acIJSContextPublisher.h IAVGWords.h IAVGExcl.h \
-                IAVGConradRelais.h
+                IAVGConradRelais.h IAVGKeyEvent.h IAVGWindowEvent.h \
+                IAVGMouseEvent.h
 
 %.h : %.idl
 	$(MOZILLA_LIB_DIR)/xpidl -m header -I $(MOZILLA_IDL_DIR) -w -o $* $<

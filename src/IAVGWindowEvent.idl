@@ -4,8 +4,8 @@
 
 #include "nsISupports.idl"
 
-[scriptable, uuid(5f06238c-96ca-4bdc-8ea8-763c0ebfc82b)]
-interface IAVGEvent : nsISupports
+[scriptable, uuid(ae073a0f-4b79-414a-9b2e-6a1c133aef2d)]
+interface IAVGWindowEvent : nsISupports
 {
     const long KEY_UP = 1;
     const long KEY_DOWN = 2;
@@ -17,7 +17,8 @@ interface IAVGEvent : nsISupports
     const long RESIZE = 8;
     const long QUIT = 9;
 
-    readonly attribute long when;
-    readonly attribute long type;
+    readonly attribute boolean fullscreen;
+    readonly attribute long width;
+    readonly attribute long height;
 };
 

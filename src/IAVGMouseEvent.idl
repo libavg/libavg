@@ -1,0 +1,25 @@
+//
+// $Id$
+//
+
+#include "nsISupports.idl"
+#include "IAVGNode.idl"
+
+[scriptable, uuid(27681df9-7355-4e36-aa64-14e18dd40fb4)]
+interface IAVGMouseEvent : nsISupports
+{
+    const long NO_BUTTION=0;
+    const long LEFT_BUTTON=1;
+    const long RIGHT_BUTTON=2;
+    const long MIDDLE_BUTTON=3;
+
+    IAVGNode getElement();
+    
+    readonly attribute boolean leftButtonState;
+    readonly attribute boolean middleButtonState;
+    readonly attribute boolean rightButtonState;
+    readonly attribute long xPosition;
+    readonly attribute long yPosition;
+    readonly attribute long button;  // Only valid in button events.
+};
+

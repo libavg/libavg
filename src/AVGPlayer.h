@@ -9,6 +9,9 @@
 #include "IAVGEvent.h"
 #include "AVGFramerateManager.h"
 #include "AVGTimeout.h"
+#include "IAVGEventSink.h"
+#include "AVGEventDispatcher.h"
+#include "AVGDebugEventSink.h"
 
 #include <directfb/directfb.h>
 #include <libxml/parser.h>
@@ -36,7 +39,7 @@ class PLPoint;
 
 #define AVGPLAYER_CONTRACTID "@c-base.org/avgplayer;1"
 
-class AVGPlayer: public IAVGPlayer
+class AVGPlayer: public IAVGPlayer, IAVGEventSink
 {
     public:
         AVGPlayer ();
@@ -55,6 +58,7 @@ class AVGPlayer: public IAVGPlayer
         AVGAVGNode * getRootNode ();
         double getFramerate ();
         void addEvent (int time, AVGEvent * event);
+        virtual bool handleEvent(AVGEvent * pEvent);
 
     private:
         AVGNode * createNodeFromXml(const xmlNodePtr xmlNode, AVGContainer * pParent);
@@ -69,6 +73,7 @@ class AVGPlayer: public IAVGPlayer
 	
         AVGAVGNode * m_pRootNode;
         IAVGDisplayEngine * m_pDisplayEngine;
+        IAVGEventSource * m_pEventSource;
 
         IDirectFB * m_pDFB;
 
@@ -79,21 +84,15 @@ class AVGPlayer: public IAVGPlayer
         NodeIDMap m_IDMap;
         std::ofstream * m_pDebugDest;
 
-        // Event handling
         int addTimeout(AVGTimeout* timeout);
         void handleTimers();
-        void handleEvents();
-        AVGEvent* createCurEvent();
 
-        void dumpDFBEvent(const DFBEvent& dfbEvent);
-        void dumpEvent(AVGEvent* pEvent);
-        void dumpEventStr(const std::string& EventName, bool IsMouse);
-        void handleMouseEvent (AVGEvent* pEvent);
-
-        IAVGEvent * m_CurEvent;
         std::vector<AVGTimeout *> m_PendingTimeouts;
         std::vector<AVGTimeout *> m_NewTimeouts; // Timeouts to be added this frame.
-        AVGNode * m_pLastMouseNode;
+        AVGEventDispatcher m_EventDispatcher;
+        AVGDebugEventSink  m_EventDumper;
+        AVGEvent * m_pCurEvent;
+//        AVGNode * m_pLastMouseNode;
 
         JSContext * m_pJSContext;
         std::vector<AVGConradRelais*> m_pRelais;

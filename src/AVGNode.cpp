@@ -3,6 +3,7 @@
 // 
 
 #include "AVGEvent.h"
+#include "AVGMouseEvent.h"
 #include "AVGContainer.h"
 #include "AVGAVGNode.h"
 #include "AVGJSScript.h"
@@ -355,26 +356,26 @@ AVGContainer * AVGNode::getParent()
     return m_pParent;
 }
 
-bool AVGNode::handleEvent (AVGEvent* pEvent, JSContext * pJSContext)
+bool AVGNode::handleMouseEvent (AVGMouseEvent* pEvent, JSContext * pJSContext)
 {
     string Code;
-    pEvent->setNode(this);
+    pEvent->setElement(this);
     int EventType;
     pEvent->GetType(&EventType);
     switch (EventType) {
-        case AVGEvent::MOUSEMOVE:
+        case IAVGEvent::MOUSE_MOTION:
             Code = m_MouseMoveHandler;
             break;
-        case AVGEvent::MOUSEDOWN:
+        case IAVGEvent::MOUSE_BUTTON_DOWN:
             Code = m_MouseButtonDownHandler;
             break;
-        case AVGEvent::MOUSEUP:
+        case IAVGEvent::MOUSE_BUTTON_UP:
             Code = m_MouseButtonUpHandler;
             break;
-        case AVGEvent::MOUSEOVER:
+        case IAVGEvent::MOUSE_OVER:
             Code = m_MouseOverHandler;
             break;
-        case AVGEvent::MOUSEOUT:
+        case IAVGEvent::MOUSE_OUT:
             Code = m_MouseOutHandler;
             break;
          default:
@@ -384,7 +385,7 @@ bool AVGNode::handleEvent (AVGEvent* pEvent, JSContext * pJSContext)
         callJS(Code, pJSContext);
     } else {
         if (m_pParent) {
-            m_pParent->handleEvent (pEvent, pJSContext);
+            m_pParent->handleMouseEvent (pEvent, pJSContext);
         }
     }
 }

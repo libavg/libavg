@@ -4,13 +4,12 @@ Benötigte Packages:
 
    pkgconfig
    libpango1.0-dev
-   libjpeg62-devel 
-   libflash (über die DirectFB-Seite) - stow
+   libjpeg62-dev 
    slang-dev
    nasm
    libmpeg3-dev
-   libsdl1.2-dev (vorläufig)
-   DirectFB (0.9.19) - source
+   libsdl1.2-dev 
+   DirectFB (0.9.19) - source or libdirectfb-dev 
    libxml2-dev
 
 paintlib:
@@ -23,7 +22,5 @@ paintlib:
 
 mozilla:
 
-  gtk-devel
-  orbit-devel
-  mozilla-devel
+  mozilla-dev
 

@@ -24,6 +24,7 @@ class AVGEvent;
 class AVGRegion;
 class IAVGDisplayEngine;
 class AVGPlayer;
+class AVGMouseEvent;
 
 class AVGNode: public IAVGNode
 {
@@ -65,7 +66,7 @@ class AVGNode: public IAVGNode
         virtual const std::string& getID ();
         virtual AVGContainer * getParent();
         
-        virtual bool handleEvent (AVGEvent* pEvent, JSContext * pJSContext);
+        virtual bool handleMouseEvent (AVGMouseEvent* pEvent, JSContext * pJSContext);
 
     protected:
         virtual void invalidate();

@@ -6,6 +6,7 @@
 #define _AVGDFBDisplayEngine_H_
 
 #include "AVGDFBFontManager.h"
+#include "IAVGEventSource.h"
 #include "IAVGDisplayEngine.h"
 
 #include <directfb/directfb.h>
@@ -15,11 +16,13 @@
 
 class PLDirectFBBmp;
 
-class AVGDFBDisplayEngine: public IAVGDisplayEngine
+class AVGDFBDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
 {
     public:
         AVGDFBDisplayEngine();
         virtual ~AVGDFBDisplayEngine();
+
+        // From IAVGDisplayEngine
         virtual void init(int width, int height, bool isFullscreen, int bpp);
         virtual void teardown();
 
@@ -43,9 +46,12 @@ class AVGDFBDisplayEngine: public IAVGDisplayEngine
 
         virtual AVGFontManager * getFontManager();
 
+        // From IAVGEventSource
+        virtual std::vector<AVGEvent *> pollEvents();
+       
+        // Methods specific to AVGDFBEventSource
         IDirectFB * getDFB();
         IDirectFBSurface * getPrimary();
-        IDirectFBEventBuffer * getEventBuffer();
         void DFBErrorCheck(int avgcode, std::string where, DFBResult dfbcode); 
 
     private:
@@ -62,6 +68,10 @@ class AVGDFBDisplayEngine: public IAVGDisplayEngine
                 const PLPoint& pos);
 
         void dumpSurface(IDirectFBSurface * pSurf, const std::string & name);
+        
+        AVGEvent * createEvent(const char * pTypeName);
+        int translateModifiers(DFBInputDeviceModifierMask DFBModifiers);
+        AVGEvent * createEvent(DFBWindowEvent* pdfbwEvent);
         
         int m_Width;
         int m_Height;
