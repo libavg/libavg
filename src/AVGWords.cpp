@@ -162,7 +162,7 @@ void AVGWords::drawString()
 
 void AVGWords::render(const AVGDRect& Rect)
 {
-    if (getEffectiveOpacity() > 0.001) {
+    if (m_Str.length() != 0 && getEffectiveOpacity() > 0.001) {
         bool bVisible = getEngine()->pushClipRect(getVisibleRect(), false);
         if (bVisible) {
             getEngine()->blta8(m_pSurface, &getAbsViewport(), 

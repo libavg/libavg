@@ -49,7 +49,7 @@ void AVGSDLFont::render(IAVGSurface& Surface, const std::string & Text)
     SDL_Color BGColor= { 0x00, 0x00, 0x00, 0xFF };
 
     SDL_Surface * pSDLSurface = 
-            TTF_RenderText_Shaded(m_pFont, Text.c_str(), FGColor, BGColor);
+            TTF_RenderUTF8_Shaded(m_pFont, Text.c_str(), FGColor, BGColor);
     Surface.create(pSDLSurface->w, pSDLSurface->h, 8, false);
 
     PLBYTE * pSrcPixels = (PLBYTE*)(pSDLSurface->pixels);

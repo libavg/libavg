@@ -69,13 +69,10 @@ void AVGImage::init (const std::string& id, const std::string& filename,
     if (!pEngine->hasRGBOrdering()) {
         TempBmp.ApplyFilter(PLFilterFlipRGB());
     }
-/*
     int DestBPP = bpp;
     if (!pEngine->supportsBpp(bpp)) {
         DestBPP = 32;
     }
-*/    
-    int DestBPP = 32;
     m_pSurface->create(TempBmp.GetWidth(), TempBmp.GetHeight(), 
             DestBPP, TempBmp.HasAlpha());
     
