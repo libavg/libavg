@@ -39,7 +39,8 @@ int nextpow2(int n) {
 void AVGOGLBmp::bind() 
 {
     if (m_bBound) {
-        unbind();
+        rebind();
+        return;
     }
     glGenTextures(1, &m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
