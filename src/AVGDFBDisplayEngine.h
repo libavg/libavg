@@ -16,6 +16,7 @@ class PLBmp;
 class PLDirectFBBmp;
 class PLPoint;
 
+class AVGRegion;
 
 class AVGDFBDisplayEngine
 {
@@ -33,7 +34,7 @@ class AVGDFBDisplayEngine
         virtual void render(PLBmp * pBmp, const PLPoint& pos, double opacity);
         virtual void render(IDirectFBSurface * pSrc, const PLPoint& pos, 
                 double opacity, bool bAlpha);
-        virtual void swapBuffers();
+        virtual void swapBuffers(const AVGRegion & UpdateRegion);
 
 	    virtual PLBmp * createSurface();
         void dumpSurface(IDirectFBSurface * pSurf, const std::string & name);
@@ -47,7 +48,10 @@ class AVGDFBDisplayEngine
         void DFBErrorCheck(int avgcode, std::string where, DFBResult dfbcode); 
 
     private:
+        void initDFB(int width, int height, bool isFullscreen);
+        void initLayer(int width, int height);
         void initInput();
+        void initBackbuffer();
 
         int m_Width;
         int m_Height;
@@ -59,7 +63,7 @@ class AVGDFBDisplayEngine
         IDirectFB * m_pDirectFB;
         IDirectFBWindow * m_pDFBWindow;
         IDirectFBDisplayLayer * m_pDFBLayer;
-        IDirectFBSurface * m_pPrimary;
+        IDirectFBSurface * m_pBackBuffer;
         
         IDirectFBEventBuffer * m_pEventBuffer;
 

@@ -108,7 +108,7 @@ NS_IMETHODIMP AVGVideo::SeekToFrame(int num)
 NS_IMETHODIMP AVGVideo::GetFPS(PRInt32 *_retval)
 {
     if (m_State != Unloaded) {
-        *_retval = mpeg3_frame_rate(m_pMPEG, 0);
+        *_retval = (int)mpeg3_frame_rate(m_pMPEG, 0);
     } else {
         *_retval = -1;
     }

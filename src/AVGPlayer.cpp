@@ -254,8 +254,6 @@ void AVGPlayer::doFrame ()
     if (!m_bStopping) {
         m_pRootNode->prepareRender(0, m_pRootNode->getAbsViewport());
         render(false);
-        m_pFramerateManager->FrameWait();
-        m_pDisplayEngine->swapBuffers();
     }
     jsgc();
 }
@@ -277,6 +275,8 @@ void AVGPlayer::render (bool bRenderEverything)
         m_pDisplayEngine->clear();
         m_pRootNode->maybeRender(rc);
     }
+    m_pFramerateManager->FrameWait();
+    m_pDisplayEngine->swapBuffers(UpdateRegion);
 }
 
 void AVGPlayer::jsgc()

@@ -273,9 +273,9 @@ function testExcl()
 }
 
 //while (true) {
+    testWords();
     testVideo();
     dumpNodes();
-    testWords();
     testAnimation();
     testExcl();
     playAVG("image.avg");

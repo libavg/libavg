@@ -4,6 +4,7 @@
 
 #include "AVGDFBDisplayEngine.h"
 #include "AVGException.h"
+#include "AVGRegion.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/pldirectfbbmp.h>
@@ -17,7 +18,7 @@
 using namespace std;
 
 AVGDFBDisplayEngine::AVGDFBDisplayEngine()
-    : m_pPrimary(0),
+    : m_pBackBuffer(0),
       m_pDirectFB(0),
       m_pFontManager(0)
 {
@@ -57,9 +58,33 @@ void AVGDFBDisplayEngine::dumpSurface (IDirectFBSurface * pSurf, const string & 
 
 void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen, bool bDebugBlts)
 {
+    DFBResult err;
+
     if (m_pDirectFB) {
         teardown();
     }
+
+    initDFB(width, height, isFullscreen);
+    initLayer(width, height);
+    
+    m_bDebugBlts = bDebugBlts;
+
+    initBackbuffer();
+    
+    initInput();
+
+    IDirectFBSurface * pLayerSurf;
+    err = m_pDFBLayer->GetSurface(m_pDFBLayer, &pLayerSurf);
+    DFBErrorCheck(AVG_ERR_VIDEO_INIT_FAILED, "AVGDFBDisplayEngine::init", err);
+    dumpSurface (pLayerSurf, "Layer surface");
+
+    dumpSurface (m_pBackBuffer, "Backbuffer surface");
+
+    m_pFontManager = new AVGFontManager;
+}
+
+void AVGDFBDisplayEngine::initDFB(int width, int height, bool isFullscreen)
+{
     // Init DFB system
     char ** argv = new (char *)[5];
     int argc = 1;
@@ -73,22 +98,21 @@ void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen, bool bD
         argv[3] = strdup (tmp);
         argv[4] = strdup ("--dfb:pixelformat=RGB16");
     }
+
     DFBResult err;
     err = DirectFBInit (&argc, &argv);
-    DFBErrorCheck(AVG_ERR_VIDEO_INIT_FAILED, "AVGDFBDisplayEngine::init", err);
+    DFBErrorCheck(AVG_ERR_VIDEO_INIT_FAILED, "AVGDFBDisplayEngine::initDFB - DirectFBInit", err);
     err = DirectFBCreate (&m_pDirectFB);
-    DFBErrorCheck(AVG_ERR_VIDEO_INIT_FAILED, "AVGDFBDisplayEngine::init", err);
-/*    if (isFullscreen) {
-        err = m_pDirectFB->SetCooperativeLevel(m_pDirectFB, DFSCL_EXCLUSIVE);
-        DFBErrorCheck(AVG_ERR_VIDEO_INIT_FAILED, err);
-    }
-*/
+    DFBErrorCheck(AVG_ERR_VIDEO_INIT_FAILED, "AVGDFBDisplayEngine::initDFB - DirectFBCreate", err);
+    
     m_IsFullscreen = isFullscreen;
-    m_bDebugBlts = bDebugBlts;
 
     PLDirectFBBmp::SetDirectFB(m_pDirectFB);
+}
 
-    // Init layer
+void AVGDFBDisplayEngine::initLayer(int width, int height)
+{
+    DFBResult err;
     IDirectFBDisplayLayer * pDFBLayer;
     err = m_pDirectFB->GetDisplayLayer(m_pDirectFB, DLID_PRIMARY, &m_pDFBLayer);
     DFBErrorCheck(AVG_ERR_DFB, "AVGDFBDisplayEngine::init", err);
@@ -96,6 +120,7 @@ void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen, bool bD
     err = m_pDFBLayer->GetDescription(m_pDFBLayer, &LayerDesc);
     DFBErrorCheck(AVG_ERR_DFB, "AVGDFBDisplayEngine::init", err);
     PLASSERT (int(LayerDesc.type) && int(DLTF_GRAPHICS) == int(DLTF_GRAPHICS));
+    
     DFBDisplayLayerConfig LayerConfig;
     err = m_pDFBLayer->GetConfiguration(m_pDFBLayer, &LayerConfig);
     DFBErrorCheck(AVG_ERR_DFB, "AVGDFBDisplayEngine::init", err);
@@ -107,64 +132,38 @@ void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen, bool bD
         cerr << "         Current resolution is " << m_Width << "x" << m_Height << endl;
     }
 
-    DFBDisplayLayerCooperativeLevel CoopLevel;
-    if (m_IsFullscreen) {
-        CoopLevel = DLSCL_EXCLUSIVE;
-    } else {
-        CoopLevel = DLSCL_ADMINISTRATIVE;
-    }
     err = m_pDFBLayer->SetCooperativeLevel(m_pDFBLayer, 
-            DFBDisplayLayerCooperativeLevel(CoopLevel));
+            DFBDisplayLayerCooperativeLevel(DLSCL_ADMINISTRATIVE));
     DFBErrorCheck(AVG_ERR_DFB, "AVGDFBDisplayEngine::init", err);
-
+ 
     if (m_IsFullscreen) {
-        err = m_pDFBLayer->SetCooperativeLevel(m_pDFBLayer, 
-                DFBDisplayLayerCooperativeLevel(DLSCL_ADMINISTRATIVE));
+        LayerConfig.flags = DLCONF_BUFFERMODE;
+        LayerConfig.buffermode = DLBM_FRONTONLY;  
+        err = m_pDFBLayer->SetConfiguration(m_pDFBLayer, &LayerConfig);
         DFBErrorCheck(AVG_ERR_DFB, "AVGDFBDisplayEngine::init", err);
-        err = m_pDFBLayer->EnableCursor(m_pDFBLayer, true);
-        DFBErrorCheck(AVG_ERR_DFB, "AVGDFBDisplayEngine::init", err);
-        err = m_pDFBLayer->SetCursorOpacity(m_pDFBLayer, 0);
-        DFBErrorCheck(AVG_ERR_DFB,"AVGDFBDisplayEngine::init",  err);
-   }
-   
-    LayerConfig.flags = DLCONF_BUFFERMODE;
-    LayerConfig.buffermode = DLBM_FRONTONLY;  
-//    LayerConfig.buffermode = DLBM_BACKSYSTEM; // Backbuffer in system memory.
-    err = m_pDFBLayer->SetConfiguration(m_pDFBLayer, &LayerConfig);
-    DFBErrorCheck(AVG_ERR_DFB, "AVGDFBDisplayEngine::init", err);
 
+    }
+    err = m_pDFBLayer->EnableCursor(m_pDFBLayer, true);
+    DFBErrorCheck(AVG_ERR_DFB, "AVGDFBDisplayEngine::init", err);
+    err = m_pDFBLayer->SetCursorOpacity(m_pDFBLayer, 0);
+    DFBErrorCheck(AVG_ERR_DFB,"AVGDFBDisplayEngine::init",  err);
+}
+
+
+void AVGDFBDisplayEngine::initInput() {
+    DFBResult err;
     // Init window
     DFBWindowDescription WinDesc;
-    WinDesc.flags = DFBWindowDescriptionFlags(DWDESC_CAPS | DWDESC_WIDTH | DWDESC_PIXELFORMAT |
-            DWDESC_HEIGHT | DWDESC_POSX | DWDESC_POSY | DWDESC_SURFACE_CAPS);
-    WinDesc.caps = DFBWindowCapabilities(DWCAPS_NONE); // | DWCAPS_DOUBLEBUFFER); 
+    WinDesc.flags = DFBWindowDescriptionFlags(DWDESC_CAPS | DWDESC_WIDTH |             
+            DWDESC_HEIGHT | DWDESC_POSX | DWDESC_POSY);
+    WinDesc.caps = DFBWindowCapabilities(DWCAPS_INPUTONLY);
     WinDesc.width = m_Width;
     WinDesc.height = m_Height;
     WinDesc.posx = 0;
     WinDesc.posy = 0;
-    WinDesc.pixelformat=DSPF_RGB16; 
-    WinDesc.surface_caps = DFBSurfaceCapabilities(DSCAPS_FLIPPING);
     err = m_pDFBLayer->CreateWindow(m_pDFBLayer, &WinDesc, &m_pDFBWindow);
-    DFBErrorCheck(AVG_ERR_DFB, "AVGDFBDisplayEngine::init", err);
-    err = m_pDFBWindow->SetOpacity (m_pDFBWindow, 0xFF);
-    DFBErrorCheck(AVG_ERR_DFB, "AVGDFBDisplayEngine::init", err);
+    DFBErrorCheck(AVG_ERR_DFB, "AVGDFBDisplayEngine::initInput", err);
 
-    initInput();
-
-    IDirectFBSurface * pLayerSurf;
-    err = m_pDFBLayer->GetSurface(m_pDFBLayer, &pLayerSurf);
-    DFBErrorCheck(AVG_ERR_VIDEO_INIT_FAILED, "AVGDFBDisplayEngine::init", err);
-    dumpSurface (pLayerSurf, "Layer surface");
-
-    err = m_pDFBWindow->GetSurface(m_pDFBWindow, &m_pPrimary);
-    DFBErrorCheck(AVG_ERR_VIDEO_INIT_FAILED, "AVGDFBDisplayEngine::init", err);
-    dumpSurface (m_pPrimary, "Window surface (m_pPrimary)");
-    m_pFontManager = new AVGFontManager;
-
-}
-
-void AVGDFBDisplayEngine::initInput() {
-    DFBResult err;    
     err = m_pDFBWindow->CreateEventBuffer (m_pDFBWindow, &m_pEventBuffer);
     DFBErrorCheck (AVG_ERR_DFB, "AVGDFBDisplayEngine::initInput", err);
     err = m_pDFBWindow->EnableEvents (m_pDFBWindow, DWET_ALL);
@@ -176,16 +175,36 @@ void AVGDFBDisplayEngine::initInput() {
     DFBErrorCheck (AVG_ERR_DFB, "AVGDFBDisplayEngine::initInput", err);
 }
 
+void AVGDFBDisplayEngine::initBackbuffer()
+{
+    DFBResult err;
+    DFBSurfaceDescription Description;
+    Description.flags = DFBSurfaceDescriptionFlags
+            (DSDESC_CAPS | DSDESC_WIDTH | DSDESC_HEIGHT | DSDESC_PIXELFORMAT);
+    Description.caps =  DSCAPS_SYSTEMONLY;
+    Description.width = m_Width;
+    Description.height = m_Height;
+    Description.pixelformat = DSPF_RGB16; 
+    err = m_pDirectFB->CreateSurface(m_pDirectFB, &Description, &m_pBackBuffer);
+    DFBErrorCheck (AVG_ERR_DFB, "AVGDFBDisplayEngine::initBackbuffer", err);
+}
+
 void AVGDFBDisplayEngine::teardown()
 {
     delete m_pFontManager;
     m_pFontManager = 0;
 
     m_pEventBuffer->Release(m_pEventBuffer);
+    m_pEventBuffer = 0;
+    
+    m_pBackBuffer->Release(m_pBackBuffer);
+    m_pBackBuffer = 0;
+    
     m_pDFBWindow->Close(m_pDFBWindow);
     m_pDFBWindow->Destroy(m_pDFBWindow);
     m_pDFBWindow->Release(m_pDFBWindow);
-    m_pPrimary = 0;
+    m_pDFBWindow = 0;
+    
     m_pDFBLayer->Release(m_pDFBLayer);
     m_pDirectFB->Release(m_pDirectFB);
     m_pDirectFB = 0;
@@ -206,7 +225,7 @@ bool AVGDFBDisplayEngine::setClipRect(const PLRect& rc)
         Region.y1 = m_ClipRect.tl.y;
         Region.x2 = m_ClipRect.br.x-1;
         Region.y2 = m_ClipRect.br.y-1;
-        m_pPrimary->SetClip(m_pPrimary, &Region);
+        m_pBackBuffer->SetClip(m_pBackBuffer, &Region);
         if (m_bDebugBlts) {
             cerr << "---- Clip set to " << m_ClipRect.tl.x << "x" << 
                     m_ClipRect.tl.y << ", width: " << m_ClipRect.Width() << 
@@ -236,13 +255,13 @@ void AVGDFBDisplayEngine::setDirtyRect(const PLRect& rc)
 void AVGDFBDisplayEngine::clear()
 {
     DFBResult err;
-    m_pPrimary->SetColor(m_pPrimary, 0x0, 0x00, 0x00, 0xff);
+    m_pBackBuffer->SetColor(m_pBackBuffer, 0x0, 0x00, 0x00, 0xff);
     if (m_bDebugBlts) {
         cerr << "---- Clear rect: " << m_DirtyRect.tl.x << "x" << 
                 m_DirtyRect.tl.y << ", width: " << m_DirtyRect.Width() << 
                 ", height: " << m_DirtyRect.Height() << endl;
     }        
-    err = m_pPrimary->FillRectangle(m_pPrimary, 
+    err = m_pBackBuffer->FillRectangle(m_pBackBuffer, 
             m_DirtyRect.tl.x, m_DirtyRect.tl.y, 
             m_DirtyRect.Width(), m_DirtyRect.Height());
     DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::clear", err);
@@ -268,13 +287,13 @@ void AVGDFBDisplayEngine::render(IDirectFBSurface * pSrc, const PLPoint& pos,
     }
     if (opacity < 0.9999) {
         BltFlags = DFBSurfaceBlittingFlags(BltFlags | DSBLIT_BLEND_COLORALPHA);
-        m_pPrimary->SetColor(m_pPrimary, 
+        m_pBackBuffer->SetColor(m_pBackBuffer, 
                              0xff, 0xff, 0xff, __u8(opacity*256));
     }
-    m_pPrimary->SetBlittingFlags(m_pPrimary, BltFlags);
+    m_pBackBuffer->SetBlittingFlags(m_pBackBuffer, BltFlags);
 //    dumpSurface (pSurf, "pDFBBmp");
-//    dumpSurface (m_pPrimary, "m_pPrimary");
-    DFBResult err = m_pPrimary->Blit(m_pPrimary, pSrc, 0, 
+//    dumpSurface (m_pBackBuffer, "m_pBackBuffer");
+    DFBResult err = m_pBackBuffer->Blit(m_pBackBuffer, pSrc, 0, 
             pos.x, pos.y);
     if (m_bDebugBlts) {
         int width;
@@ -287,32 +306,38 @@ void AVGDFBDisplayEngine::render(IDirectFBSurface * pSrc, const PLPoint& pos,
     DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::render", err);
 }
 
-void AVGDFBDisplayEngine::swapBuffers()
+void AVGDFBDisplayEngine::swapBuffers(const AVGRegion & UpdateRegion)
 {
     DFBResult err;
-    if (m_IsFullscreen) {
-        IDirectFBSurface * pLayerSurf;
-        err = m_pDFBLayer->GetSurface(m_pDFBLayer, &pLayerSurf);
+    IDirectFBSurface * pLayerSurf;
+    err = m_pDFBLayer->GetSurface(m_pDFBLayer, &pLayerSurf);
+    DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::swapBuffers", err);
+
+    for (int i = 0; i<UpdateRegion.getNumRects(); i++) {
+        const PLRect & rc = UpdateRegion.getRect(i);
+        DFBRectangle DFBRect;
+        DFBRect.x = rc.tl.x;
+        DFBRect.y = rc.tl.y;
+        DFBRect.w = rc.Width();
+        DFBRect.h = rc.Height();
+        err = pLayerSurf->Blit(pLayerSurf, m_pBackBuffer, &DFBRect, rc.tl.x, rc.tl.y);
         DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::swapBuffers", err);
-        err = pLayerSurf->Blit(pLayerSurf, m_pPrimary, 0, 0, 0);
         if (m_bDebugBlts) {
             int width;
             int height;
-            m_pPrimary->GetSize(m_pPrimary, &width, &height);
+            m_pBackBuffer->GetSize(m_pBackBuffer, &width, &height);
             if (m_bDebugBlts) {
-                cerr << "---- Swap Blit: 0x0, width: " << 
-                        width << ", height: " << height << endl;
+                cerr << "---- Swap Blit: " << rc.tl.x << "x" << rc.tl.y << ", width: " << 
+                        rc.Width() << ", height: " << rc.Height() << endl;
             }
         }
-    } else {
-        err = m_pPrimary->Flip(m_pPrimary, 0, 
-//                DFBSurfaceFlipFlags(DSFLIP_WAITFORSYNC | DSFLIP_BLIT));
-                  DFBSurfaceFlipFlags(DSFLIP_BLIT));
+    }
+    if (!m_IsFullscreen) {
+        pLayerSurf->Flip(pLayerSurf, 0, DFBSurfaceFlipFlags(DSFLIP_BLIT));
         if (m_bDebugBlts) {
-            cerr << "---- Flip" << endl;
+            cerr << "---- DFB Surface Flip Blit" << endl;
         }
     }
-    DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::swapBuffers", err);
 }
 
 PLBmp * AVGDFBDisplayEngine::createSurface()
@@ -327,7 +352,7 @@ IDirectFB * AVGDFBDisplayEngine::getDFB()
 
 IDirectFBSurface * AVGDFBDisplayEngine::getPrimary()
 {
-    return m_pPrimary;
+    return m_pBackBuffer;
 }
 
 AVGFontManager * AVGDFBDisplayEngine::getFontManager()
