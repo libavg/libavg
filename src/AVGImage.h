@@ -34,6 +34,7 @@ class AVGImage : public AVGNode
            AVGDFBDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer);
 		virtual void render (const PLRect& Rect);
         virtual bool obscures (const PLRect& Rect, int z);
+        virtual void setViewport (int x, int y, int width, int height);
         virtual std::string getTypeStr ();
 
     protected:        
@@ -42,6 +43,7 @@ class AVGImage : public AVGNode
     private:
         std::string m_Filename;
         PLBmp * m_pBmp;
+        PLBmp * m_pOrigBmp;
 };
 
 #endif //_AVGImage_H_

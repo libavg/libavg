@@ -32,7 +32,8 @@ AVGImage * AVGImage::create()
 }       
 
 AVGImage::AVGImage ()
-    : m_pBmp(0)
+    : m_pBmp(0),
+      m_pOrigBmp(0)
 {
     NS_INIT_ISUPPORTS();
 }
@@ -41,6 +42,9 @@ AVGImage::~AVGImage ()
 {
     if (m_pBmp) {
         delete m_pBmp;
+    }
+    if (m_pOrigBmp) {
+        delete m_pOrigBmp;
     }
 }
 
@@ -69,7 +73,9 @@ void AVGImage::init (const std::string& id, int x, int y, int z,
 
     PLPoint size = PLPoint(getRelViewport().Width(), getRelViewport().Height());
     if (m_pBmp->GetWidth() != size.x || m_pBmp->GetHeight() != size.y) {
-        m_pBmp->ApplyFilter (PLFilterResizeBilinear(size.x, size.y));
+        m_pOrigBmp = m_pBmp;
+        m_pBmp = getEngine()->createSurface();
+        m_pBmp->CreateFilteredCopy(*m_pOrigBmp, PLFilterResizeBilinear(size.x, size.y));
     }
 }
 
@@ -91,6 +97,25 @@ bool AVGImage::obscures (const PLRect& Rect, int z)
 {
     return (getEffectiveOpacity() > 0.999 && !m_pBmp->HasAlpha() &&
             getZ() > z && getAbsViewport().Contains(Rect));
+}
+
+void AVGImage::setViewport (int x, int y, int width, int height)
+{
+    if (width != -32767 || height != -32767) {
+        if (!m_pOrigBmp) {
+            m_pOrigBmp = m_pBmp;
+            m_pBmp = getEngine()->createSurface();
+        }
+        if (width == -32767) {
+            width = getRelViewport().Width();
+        }
+        if (height == -32767) {
+            height = getRelViewport().Height();
+        }
+        m_pBmp->CreateFilteredCopy(*m_pOrigBmp, PLFilterResizeBilinear(width, height));
+    }
+    
+    AVGNode::setViewport(x, y, width, height);
 }
 
 string AVGImage::getTypeStr ()
