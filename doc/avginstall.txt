@@ -1,4 +1,18 @@
-This worked:
+Install:
+
+paintlib
+
+   download 2.5.devel
+   ./configure
+   make
+   make install
+
+
+SDL
+
+
+
+mozilla xpconnect:
 
   export CVSROOT=":pserver:anonymous@cvs-mirror.mozilla.org:/cvsroot"
   cvs -z 3 co mozilla/client.mk

@@ -76,9 +76,10 @@ void AVGSDLDisplayEngine::render(PLBmp * pBmp, const PLPoint& pos, double opacit
     dest.w = pSDLBmp->GetWidth();
     dest.h = pSDLBmp->GetHeight();
     
-    if (opacity < 0.9999) {
+//    if (opacity < 0.9999) {
         SDL_SetAlpha(pSDLBmp->GetSurface(), SDL_SRCALPHA, int(255*opacity));
-    }
+//    } else {
+//    }
     SDL_BlitSurface(pSDLBmp->GetSurface(), &src, m_pScreen->GetSurface(), &dest);
 }
 

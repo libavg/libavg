@@ -290,8 +290,9 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         curNode = AVGExcl::create();
         dynamic_cast<AVGExcl*>(curNode)->init(id, pParent);
         initEventHandlers(curNode, xmlNode);
-    } else if (!xmlStrcmp (nodeType, (const xmlChar *)"text")) {
-        // Ignore whitespace
+    } else if (!xmlStrcmp (nodeType, (const xmlChar *)"text") || 
+               !xmlStrcmp (nodeType, (const xmlChar *)"comment")) {
+        // Ignore whitespace & comments
         return 0;
     } else {
         throw (AVGException (AVG_ERR_XML_NODE_UNKNOWN, 
