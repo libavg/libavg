@@ -4,6 +4,16 @@
 
 #include "nsISupports.idl"
 
+/**
+ * Base interface for all scene elements. Attributes of every node in 
+ * the .avg file can be changed by accessing them through the 
+ * corresponding IAVGNode interface. In addition to the node interface 
+ * itself, additional cababilities may be available through IAVGVideo,
+ * IAVGWords or IAVGExcl, depending on the type of the node.
+ *
+ * Nodes in an avg file are organized in a hierarchy, with 
+ * avg and excl nodes forming groups containing image, video and word nodes.
+ */
 [scriptable, uuid(ff6cfc9e-085e-474e-8aae-4eda7741ea94)]
 interface IAVGNode : nsISupports
 {
@@ -11,23 +21,66 @@ interface IAVGNode : nsISupports
     const long NT_IMAGE=1;
     const long NT_AVG=2;
     const long NT_VIDEO=3;
-    const long NT_AUDIO=4;
     const long NT_TEXT=5;
     const long NT_EXCL=6;
     
+    /**
+     * Returns the unique id that can be used to reference the node.
+     */
     string getID();
+    /**
+     * Returns one of the NT_xxx constants NT_IMAGE, NT_AVG, NT_VIDEO, 
+     * NT_TEXT or NT_EXCL.
+     */
     long getType();
+    /**
+     * If the node is a grouping node (NT_AVG or NT_EXCL), returns the 
+     * number of children. If not, returns 0.
+     */
     long getNumChildren();
+    /**
+     * Returns the ith child node.
+     */
     IAVGNode getChild(in long i);
 //    void removeChild(in long i);
 //    void addChild(in IAVGNode childNode);
+    /**
+     * Returns the parent node, if there is one.
+     */
     IAVGNode getParent();
    
+    /**
+     * The x position of the node relative to its parent node. Negative values
+     * are allowed and cause the element to be clipped.
+     */
     attribute long x;
+    /**
+     * The y position of the node relative to its parent node. Negative values
+     * are allowed and cause the element to be clipped.
+     */
     attribute long y;
+    /**
+     * The z position of the node. This is used to determine which nodes
+     * are displayed on top of other nodes. The z value only has an effect
+     * on direct siblings. Nodes in different groups are rendered according to
+     * the z-ordering of the group nodes.
+     */
     attribute long z;
+    /**
+     * The width of the node. For bitmaps, this is immutable and should not 
+     * be changed. For avg nodes, this value determines the clipping
+     * rectangle of the children.
+     */
     attribute long width;
+    /**
+     * The height of the node. For bitmaps, this is immutable and should not 
+     * be changed. For avg nodes, this value determines the clipping
+     * rectangle of the children.
+     */
     attribute long height;
+    /**
+     * Opacity ranges from 0.0 to 1.0 and is relative to the parent's opacity.
+     */
     attribute float opacity;
 
 

@@ -4,15 +4,44 @@
 
 #include "nsISupports.idl"
 
+/**
+ * Videorecorder-like interface to videos. Videos are always played back at
+ * the framerate of the player. If a different framerate given in the video
+ * file, it is ignored. A video starts in stopped mode and play() must be
+ * called to start playback.
+ *
+ * All videos also have the attributes supported by IAVGNode.
+ */
 [scriptable, uuid(9f3d4274-e764-4545-8e96-259a70c38166)]
 interface IAVGVideo : nsISupports
 {
+    /**
+     * Starts playback. If the video was stopped, starts on frame 0. If the
+     * video was paused, resumes at the next frame.
+     */
     void play();
+    /**
+     * Stops playback and closes the file. 
+     */
     void stop();
+    /**
+     * Stops playback but leaves the file open. If the file has not been opened,
+     * it is opened when pause is called.
+     */
     void pause();
+    /**
+     * Returns number of images in the video.
+     */
     long getNumFrames();
+    /**
+     * Returns the current playback image.
+     */
     long getCurFrame();
+    /**
+     * Moves the playback pointer to a new frame.
+     */
     void seekToFrame(in long num);
+
     long getFPS();
    
 };

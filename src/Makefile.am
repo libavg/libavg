@@ -1,12 +1,11 @@
 
 MOZILLA_DIR = `mozilla-config --prefix`
-#MOZILLA_LIB_DIR    =  $(MOZILLA_DIR)/lib
-MOZILLA_LIB_DIR    =  $(MOZILLA_DIR)/lib/mozilla
-#MOZILLA_BIN_DIR    = $(MOZILLA_DIR)/lib/mozilla
+MOZILLA_LIB_DIR    =  $(MOZILLA_DIR)/lib
+#MOZILLA_LIB_DIR    =  $(MOZILLA_DIR)/lib/mozilla
 MOZILLA_BIN_DIR    = $(MOZILLA_DIR)/lib/mozilla
 MOZILLA_COMPONENT_DIR = $(MOZILLA_BIN_DIR)/components
-#MOZILLA_IDL_DIR = $(MOZILLA_DIR)/share/idl
-MOZILLA_IDL_DIR = $(MOZILLA_DIR)/share/idl/mozilla
+MOZILLA_IDL_DIR = $(MOZILLA_DIR)/share/idl
+#MOZILLA_IDL_DIR = $(MOZILLA_DIR)/share/idl/mozilla
 
 INCLUDES = `mozilla-config --cflags xpcom nspr js xpconnect string` \
            -I/usr/include/g++ \

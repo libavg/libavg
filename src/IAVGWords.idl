@@ -4,12 +4,31 @@
 
 #include "nsISupports.idl"
 
+/**
+ * Interface to word nodes.
+ */
 [scriptable, uuid(d6609236-c89a-4bb9-ace2-2c4c2cf68f23)]
 interface IAVGWords : nsISupports
 {
+    /**
+     * The font used. The font names are used to open .ttf files in the 
+     * directory given by the environment variable AVG_FONT_PATH.
+     */
     attribute string font;
+    /**
+     * The actual text to be displayed. All the text is displayed on one
+     * line.
+     */
     attribute string text;
+    /**
+     * The color of the string to be displayed. The notation used is the 
+     * same as html, so 0xFF0000 is red, 0x00FF00 is green and 0x0000FF is
+     * blue.
+     */
     attribute string color;
+    /**
+     * The font size in points.
+     */
     attribute long size;
 };
 

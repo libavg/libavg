@@ -7,35 +7,115 @@
 #include "IAVGNode.idl"
 #include "IAVGConradRelais.idl"
 
+/**
+ * Interface to the main player object. There can only be one of these objects.
+ * Calling use("avg.js"); creates this object and names it AVGPlayer.
+ * AVGPlayer can be used to load, play and stop avg files, to access nodes, for
+ * timed function calls, and for several housekeeping tasks.
+ */
 [scriptable, uuid(e3890769-a960-43ec-bc4f-ded28ef99103)]
 interface IAVGPlayer : nsISupports
 {
+    /**
+     * Loads the avg file specified in fileName. Returns false if the file 
+     * could not be opened.
+     */
     boolean loadFile(in string fileName);
+    /**
+     * Opens a playback window or screen and starts playback. framerate is the
+     * number of frames per second that should be displayed. 
+     */
     void play(in float framerate);
+    /**
+     * Stops playback and resets the video mode if nessesary.
+     */
     void stop();
 
+    /**
+     * Returns an element in the avg tree. The id corresponds to the id 
+     * attribute of the node. 
+     */
     IAVGNode getElementByID(in string id);
+    /**
+     * Returns the outermost element in the avg tree. 
+     */
     IAVGNode getRootNode();
 
+    /**
+     * Sets javascript code that should be executed every time milliseconds.
+     * The smallest timeframe that can be set is once per frame. If less
+     * than that is specified, the code will be executed exactly once per frame.
+     * The function returns an id that can be used to call clearInterval() to
+     * stop the code from being called.
+     */
     long setInterval(in long time, in string code);
+    /**
+     * Sets javascript code that should be executed after time milliseconds.
+     * The function returns an id that can be used to call clearInterval() to
+     * stop the code from being called.
+     */
     long setTimeout(in long time, in string code);
+    /**
+     * Stops a timeout or an interval from being called. Returns true if there
+     * was an interval with the given id, false if not.
+     */
     boolean clearInterval(in long id);
 
+    /**
+     * Gets an interface to the current event. Only valid inside event handlers
+     * (onmouseup, onmousedown, etc.)
+     */
     IAVGEvent getCurEvent();
 
+    /**
+     * Turns off debug output.
+     */
     const long DEBUG_NONE=0;
+    /**
+     * Outputs data about the display subsystem. Useful for timing/performance
+     * measurements.
+     */
     const long DEBUG_BLTS=1;
+    /**
+     * Outputs performance statistics and frames displayed too late.
+     */
     const long DEBUG_PROFILE=2;
+    /**
+     * Outputs memory usage information.
+     */
     const long DEBUG_MEMORY=4;
+    /**
+     * Outputs basic event data.
+     */
     const long DEBUG_EVENTS=8;
+    /**
+     * Outputs all event data available.
+     */
     const long DEBUG_EVENTS2=16;
-    const long DEBUG_ERROR=32;
+    /**
+     * Outputs error messages. Can't be shut off.
+     */
+    const long DEBUG_ERROR=32;  
     
+    /**
+     * Sets the amount and type of debug data that should be displayed on the 
+     * console. flags are one or more of the DEBUG_XXX-constants, ored 
+     * together.
+     */
     void setDebugOutput(in long flags);
+
+    /**
+     * Specifies that debug output should go to a file and not to the console.
+     */
     void setDebugOutputFile(in string name);
-    string getErrStr();
+
+    string getErrStr(); 
     long getErrCode();
 
+    /**
+     * Tries to initialize one or more conrad relais cards on /dev/ttyS?. 
+     * port gives the serial port number the device is connected to.
+     */
     IAVGConradRelais createRelais(in short port);
 };
 

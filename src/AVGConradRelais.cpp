@@ -40,12 +40,6 @@ AVGConradRelais::~AVGConradRelais()
 
 NS_IMPL_ISUPPORTS1_CI(AVGConradRelais, IAVGConradRelais);
 
-NS_IMETHODIMP AVGConradRelais::Init(PRInt16 port)
-{
-    init(port);
-    return NS_OK;
-}
-
 NS_IMETHODIMP AVGConradRelais::GetNumCards(PRInt16 *_retval)
 {
     *_retval = m_NumCards;

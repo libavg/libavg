@@ -5,6 +5,9 @@
 #include "nsISupports.idl"
 #include "IAVGNode.idl"
 
+/**
+ * Additional key event data. 
+ */
 [scriptable, uuid(f0f0208e-a5d2-41b7-b4d0-814a08080025)]
 interface IAVGKeyEvent : nsISupports
 {

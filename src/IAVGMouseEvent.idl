@@ -5,21 +5,45 @@
 #include "nsISupports.idl"
 #include "IAVGNode.idl"
 
+/**
+ * Data available for every mouse event. In addition, every mouse event
+ * supports IAVGEvent.
+ */
 [scriptable, uuid(27681df9-7355-4e36-aa64-14e18dd40fb4)]
 interface IAVGMouseEvent : nsISupports
 {
-    const long NO_BUTTION=0;
+    const long NO_BUTTON=0;
     const long LEFT_BUTTON=1;
     const long RIGHT_BUTTON=2;
     const long MIDDLE_BUTTON=3;
 
+    /**
+     * Returns the element that was under the mouse when the event happened.
+     */
     IAVGNode getElement();
-    
+    /**
+     *
+     */
     readonly attribute boolean leftButtonState;
+    /**
+     *
+     */
     readonly attribute boolean middleButtonState;
+    /**
+     *
+     */
     readonly attribute boolean rightButtonState;
+    /**
+     *
+     */
     readonly attribute long xPosition;
+    /**
+     *
+     */
     readonly attribute long yPosition;
+    /**
+     * Contains the button that caused the event.
+     */
     readonly attribute long button;  // Only valid in button events.
 };
 
