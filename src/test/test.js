@@ -94,7 +94,6 @@ function dumpNodes()
 {
     print ("---- dumpNodes: testing node accessors ----");
     var ok = tryLoadFile("avg.avg");
-print ("a");
     if (ok) {
         var rootNode = AVGPlayer.getRootNode();
         var numChildren = rootNode.getNumChildren();
@@ -123,13 +122,13 @@ function moveit() {
     node.setIntAttr("Right", r+1);
     var Opacity = node.getFloatAttr("Opacity");
     node.setFloatAttr("Opacity", Opacity-0.01);
-    var z = node.getIntAttr("Z");
+/*    var z = node.getIntAttr("Z");
     if (z == 1) {
         z = 3;
     } else {
         z = 1;
     }
-    node.setIntAttr("Z", z);
+    node.setIntAttr("Z", z);*/
 }
 
 function testAnimation()
@@ -165,15 +164,15 @@ function testExcl()
     }
 }
 
-//dumpNodes();
-//testAnimation();
-//testExcl();
+dumpNodes();
+testAnimation();
+testExcl();
 
-//playAVG("empty.avg");
-//playAVG("events.avg");
+playAVG("empty.avg");
+playAVG("events.avg");
 playAVG("image.avg");
-//playAVG("avg.avg");
-//playAVG("noavg.avg");
-//playAVG("noxml.avg");
-//playAVG("video.avg");
+playAVG("avg.avg");
+playAVG("noavg.avg");
+playAVG("noxml.avg");
+playAVG("video.avg");
 

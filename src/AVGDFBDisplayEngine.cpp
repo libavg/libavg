@@ -12,6 +12,7 @@
 #include <directfb.h>
 
 #include <iostream>
+#include <unistd.h>
 
 using namespace std;
 
@@ -77,14 +78,15 @@ void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen)
     m_IsFullscreen = isFullscreen;
     
     DFBSurfaceDescription Desc;
-    Desc.flags = DFBSurfaceDescriptionFlags(DSDESC_CAPS | DSDESC_WIDTH | DSDESC_HEIGHT);
+    Desc.flags = DFBSurfaceDescriptionFlags(DSDESC_CAPS);// | DSDESC_WIDTH | DSDESC_HEIGHT);
     Desc.caps =  DFBSurfaceCapabilities(DSCAPS_PRIMARY | DSCAPS_FLIPPING);
-    Desc.width = m_Width;
+/*    Desc.width = m_Width;
     Desc.height = m_Height;
-    
+  */  
     err = m_pDirectFB->CreateSurface(m_pDirectFB, &Desc, &m_pPrimary);
 /*    m_pPrimary->GetSize(m_pPrimary, &m_Width, &m_Height);
     cerr << "Primary surface size: " << m_Width << "x " << m_Height << endl;*/
+    dumpSurface (m_pPrimary, "m_pPrimary");
     errorCheck(AVG_ERR_VIDEO_INIT_FAILED, err);
 }
 
@@ -145,7 +147,6 @@ void AVGDFBDisplayEngine::render(PLBmp * pBmp, const PLPoint& pos, double opacit
 void AVGDFBDisplayEngine::swapBuffers()
 {
     DFBResult err = m_pPrimary->Flip(m_pPrimary, 0, DSFLIP_WAITFORSYNC);
-
     err = m_pPrimary->FillRectangle(m_pPrimary, 0, 0, m_Width, m_Height);
     errorCheck(AVG_ERR_VIDEO_GENERAL, err);
 
