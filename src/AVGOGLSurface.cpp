@@ -114,90 +114,10 @@ void AVGOGLSurface::bind()
 {
     if (m_bBound) {
         rebind();
-        return;
-    }
-    
-    glGenTextures(1, &m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "AVGOGLSurface::bind: glGenTextures()");
-
-    GLenum TexMode;
-    TexMode = s_TextureMode;
-    glBindTexture(TexMode, m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "AVGOGLSurface::bind: glBindTexture()");
-
-    glTexParameteri(TexMode, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(TexMode, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(TexMode, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(TexMode, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "AVGOGLSurface::bind: glTexParameteri()");
-    int DestMode;
-    int SrcMode = getSrcMode();
-    int Width = m_pBmp->GetWidth();
-    int Height = m_pBmp->GetHeight();
-    int bpp = m_pBmp->GetBitsPerPixel();
-    switch (bpp) {
-        case 8:
-            DestMode = GL_ALPHA;
-            break;
-        case 24:
-            DestMode = GL_RGB;
-            break;
-        case 32:
-            if (m_pBmp->HasAlpha()) {
-                DestMode = GL_RGBA;
-            } else {
-                DestMode = GL_RGB;    
-            }
-            break;
-        default:
-            AVG_TRACE(AVGPlayer::DEBUG_ERROR, "Unsupported bpp " << 
-                    bpp << " in AVGOGLSurface::bind()");
-    }
-    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Texture upload. Size=" << 
-            Width << "x" << Height << ", SrcMode=" <<
-            getGlModeString(SrcMode) << ", DestMode=" << 
-            getGlModeString(DestMode) << ".");
-    if (getTextureMode() == GL_TEXTURE_RECTANGLE_NV) {
-        if (Width > s_MaxTexSize || 
-            Height > s_MaxTexSize)
-        {
-            stringstream s;
-            s << "Texture size is " << Width << "x" 
-              << Height << ", OpenGL maximum is " 
-              << s_MaxTexSize << "." << endl;
-            AVG_TRACE(AVGPlayer::DEBUG_ERROR, s.str());
-        }
-        glTexImage2D(GL_TEXTURE_RECTANGLE_NV, 0,
-                DestMode, Width, Height, 0,
-                SrcMode, GL_UNSIGNED_BYTE, m_pBmp->GetLineArray()[0]);
     } else {
-        // Only pow2 textures supported.
-        PLAnyBmp Pow2Bmp;
-        m_TexWidth = nextpow2(Width);
-        m_TexHeight = nextpow2(Height);
-        Pow2Bmp.Create(m_TexWidth, m_TexHeight, bpp, false, false);
-        for (int y=0; y<Height; y++) {
-            memcpy (Pow2Bmp.GetLineArray()[y], m_pBmp->GetLineArray()[y],
-                    Width*bpp/8);
-        }
-        if (m_TexWidth > s_MaxTexSize || m_TexHeight > s_MaxTexSize) {
-            stringstream s;
-            s << "Texture size is " << m_TexWidth << "x" << m_TexHeight << 
-                ", OpenGL maximum is " << s_MaxTexSize << "." << endl;
-            AVG_TRACE(AVGPlayer::DEBUG_ERROR, s.str());
-        }
-        glTexImage2D(GL_TEXTURE_2D, 0,
-                DestMode, m_TexWidth, m_TexHeight, 0,
-                SrcMode, GL_UNSIGNED_BYTE, Pow2Bmp.GetPixels());
+        bindOneTexture(m_TexID);
+        m_bBound = true;
     }
-    
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "AVGOGLSurface::bind: glTexImage2D()");
-    m_bBound = true;
 }
 
 void AVGOGLSurface::unbind() 
@@ -258,6 +178,87 @@ int AVGOGLSurface::getTextureMode()
     return s_TextureMode;
 }
 
+void AVGOGLSurface::bindOneTexture(unsigned int& TexID)
+{
+
+    int Width = m_pBmp->GetWidth();
+    int Height = m_pBmp->GetHeight();
+    int bpp = m_pBmp->GetBitsPerPixel();
+    
+    int DestMode = getDestMode();
+    int SrcMode = getSrcMode();
+
+    glGenTextures(1, &TexID);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "AVGOGLSurface::bindOneTexture: glGenTextures()");
+
+    glBindTexture(s_TextureMode, TexID);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
+            "AVGOGLSurface::bindOneTexture: glBindTexture()");
+
+    glTexParameteri(s_TextureMode, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(s_TextureMode, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "AVGOGLSurface::bind: glTexParameteri()");
+    
+    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Texture upload. Size=" << 
+            Width << "x" << Height << ", SrcMode=" <<
+            getGlModeString(SrcMode) << ", DestMode=" << 
+            getGlModeString(DestMode) << ".");
+    if (Width > s_MaxTexSize || Height > s_MaxTexSize)
+    {
+        stringstream s;
+        s << "Texture size is " << Width << "x" 
+            << Height << ", OpenGL maximum is " 
+            << s_MaxTexSize << "." << endl;
+        AVG_TRACE(AVGPlayer::DEBUG_ERROR, s.str());
+    }
+    if (getTextureMode() == GL_TEXTURE_RECTANGLE_NV) {
+        glTexImage2D(GL_TEXTURE_RECTANGLE_NV, 0,
+                DestMode, Width, Height, 0,
+                getSrcMode(), GL_UNSIGNED_BYTE, m_pBmp->GetLineArray()[0]);
+    } else {
+        // Only pow2 textures supported.
+        PLAnyBmp Pow2Bmp;
+        m_TexWidth = nextpow2(Width);
+        m_TexHeight = nextpow2(Height);
+        Pow2Bmp.Create(m_TexWidth, m_TexHeight, bpp, 
+                m_pBmp->HasAlpha(), false);
+        for (int y=0; y<Height; y++) {
+            memcpy (Pow2Bmp.GetLineArray()[y], m_pBmp->GetLineArray()[y],
+                    Width*bpp/8);
+        }
+        glTexImage2D(GL_TEXTURE_2D, 0,
+                DestMode, m_TexWidth, m_TexHeight, 0,
+                getSrcMode(), GL_UNSIGNED_BYTE, Pow2Bmp.GetPixels());
+    }
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "AVGOGLSurface::bind: glTexImage2D()");
+}
+
+int AVGOGLSurface::getDestMode()
+{
+    int bpp = m_pBmp->GetBitsPerPixel();
+    switch (bpp) {
+        case 8:
+            return GL_ALPHA;
+            break;
+        case 24:
+            return GL_RGB;
+            break;
+        case 32:
+            if (m_pBmp->HasAlpha()) {
+                return GL_RGBA;
+            } else {
+                return GL_RGB;    
+            }
+            break;
+        default:
+            AVG_TRACE(AVGPlayer::DEBUG_ERROR, "Unsupported bpp " << 
+                    bpp << " in AVGOGLSurface::bind()");
+    }
+}    
+
 int AVGOGLSurface::getSrcMode()
 {
     switch (m_pBmp->GetBitsPerPixel()) {
@@ -271,7 +272,6 @@ int AVGOGLSurface::getSrcMode()
             AVG_TRACE(AVGPlayer::DEBUG_ERROR, "Unsupported bpp " << 
                     m_pBmp->GetBitsPerPixel() <<
                     " in AVGOGLSurface::getSrcMode()");
-            
     }
 }
 

@@ -39,6 +39,8 @@ class AVGOGLSurface: public IAVGSurface {
         static int getTextureMode();
 
     private:
+        void bindOneTexture(unsigned int& TexID);
+        int getDestMode();
         int getSrcMode();
    
         PLBmpBase * m_pBmp;

@@ -131,6 +131,12 @@ void AVGSDLDisplayEngine::init(int width, int height, bool isFullscreen, int bpp
     glEnable(TexMode);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(TexMode);");
 
+    glTexParameteri(TexMode, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(TexMode, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "AVGSDLDisplayEngine::init: glTexParameteri()");
+
     m_Width = width;
     m_Height = height;
     initInput();
