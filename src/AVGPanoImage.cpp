@@ -6,6 +6,8 @@
 #include "AVGSDLDisplayEngine.h"
 #include "AVGPlayer.h"
 #include "AVGLogger.h"
+#include "AVGProfilingZone.h"
+#include "AVGScopeTimer.h"
 #include "AVGException.h"
 #include "MathHelper.h"
 #include "OGLHelper.h"
@@ -135,8 +137,11 @@ void AVGPanoImage::init (const std::string& id, const std::string& filename,
     setupTextures();
 }
 
+static AVGProfilingZone PanoRenderProfilingZone("AVGPanoImage::render");
+
 void AVGPanoImage::render (const AVGDRect& Rect)
 {
+     AVGScopeTimer ScopeTimer(PanoRenderProfilingZone);
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGPanoImage::render: glPushAttrib()");

@@ -27,6 +27,8 @@
 #include "AVGSDLDisplayEngine.h"
 #endif
 #include "AVGLogger.h"
+#include "AVGProfiler.h"
+#include "AVGScopeTimer.h"
 #include "AVGConradRelais.h"
 #include "XMLHelper.h"
 #include "JSHelper.h"
@@ -496,8 +498,11 @@ void AVGPlayer::stop ()
     m_bStopping = true;
 }
 
+static AVGProfilingZone FrameProfilingZone("AVGPlayer::doFrame");
+
 void AVGPlayer::doFrame ()
 {
+    AVGScopeTimer ScopeTimer(FrameProfilingZone);
     handleTimers();
     
     m_EventDispatcher.dispatch();
@@ -507,7 +512,9 @@ void AVGPlayer::doFrame ()
     for (int i=0; i<m_pRelais.size(); i++) {
         m_pRelais[i]->send();
     }
-    
+
+    AVGProfiler::get().dump();
+    AVGProfiler::get().reset();
     jsgc();
 }
 

@@ -54,6 +54,8 @@ ALL_H = AVGAVGNode.h AVGContainer.h AVGEvent.h \
           IAVGFont.h FileHelper.h JSHelper.h AVGDivNode.h \
           IAVGVideoDecoder.h AVGFFMpegDecoder.h AVGVideoBase.h \
           AVGPanoImage.h MathHelper.h AVGJSPoint.h \
+          AVGScopeTimer.h AVGProfilingZone.h \
+          AVGProfiler.h \
           $(DC1394_INCLUDES) $(GL_INCLUDES) $(DFB_INCLUDES)
           
 libavg_PROGRAMS = xpshell
@@ -81,6 +83,8 @@ libavg_la_SOURCES = AVGEvent.cpp AVGMouseEvent.cpp AVGKeyEvent.cpp \
                     FileHelper.cpp JSHelper.cpp AVGDivNode.cpp\
                     AVGFFMpegDecoder.cpp AVGVideoBase.cpp \
                     AVGPanoImage.cpp MathHelper.cpp AVGJSPoint.cpp \
+                    AVGScopeTimer.cpp AVGProfilingZone.cpp \
+                    AVGProfiler.cpp \
                     $(DC1394_SOURCES) $(GL_SOURCES) $(DFB_SOURCES)\
                     $(ALL_H) 
  

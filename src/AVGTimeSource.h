@@ -5,13 +5,16 @@
 #ifndef _AVGTime_H_ 
 #define _AVGTime_H_
 
+
+typedef unsigned long long CycleCount;
+
 class AVGTimeSource {
 public:
     static AVGTimeSource* get();
     ~AVGTimeSource();
    
     static long long getCurrentTicks();
-    static __inline__ unsigned long long int rdtsc();
+    static __inline__ CycleCount rdtsc();
 
     void sleepUntil(long long ticks);
 
@@ -26,9 +29,9 @@ private:
 
 };
 
-__inline__ unsigned long long int AVGTimeSource::rdtsc()
+__inline__ CycleCount AVGTimeSource::rdtsc()
    {
-     unsigned long long int x;
+     CycleCount x;
      __asm__ volatile (".byte 0x0f, 0x31" : "=A" (x));
      return x;
    }
