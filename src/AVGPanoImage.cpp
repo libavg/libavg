@@ -147,7 +147,7 @@ void AVGPanoImage::render (const AVGDRect& Rect)
             "AVGPanoImage::render: glColor4f()");
 
 //    glutWireSphere(1, 20, 16);
-    double CylHeight = sin(fovy*PI/180.0)/2;
+    double CylHeight = tan(fovy*PI/180.0)/2;
     double CylAngle = fovy*PI/180.0*m_Bmp.GetWidth()/m_Bmp.GetHeight();
     double SliceAngle = CylAngle*TEX_WIDTH/double(m_Bmp.GetWidth());
 //    cerr << "CylHeight: " << CylHeight << ", CylAngle: " << CylAngle 
