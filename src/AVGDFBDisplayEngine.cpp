@@ -6,7 +6,9 @@
 #include "AVGException.h"
 #include "AVGRegion.h"
 #include "AVGPlayer.h"
+#include "AVGNode.h"
 #include "AVGLogger.h"
+#include "AVGFramerateManager.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/pldirectfbbmp.h>
@@ -228,6 +230,30 @@ void AVGDFBDisplayEngine::teardown()
     m_pDirectFB = 0;
 }
 
+void AVGDFBDisplayEngine::render(AVGNode * pRootNode, 
+        AVGFramerateManager * pFramerateManager, bool bRenderEverything)
+{
+    pRootNode->prepareRender(0, pRootNode->getAbsViewport());
+    AVGRegion UpdateRegion;
+    if (bRenderEverything) {
+        PLRect rc(0,0, m_Width, m_Height);
+        UpdateRegion.addRect(rc);
+    } else {
+        pRootNode->getDirtyRegion(UpdateRegion);
+    }
+//    UpdateRegion.dump();
+    setClipRect();
+    for (int i = 0; i<UpdateRegion.getNumRects(); i++) {
+        const PLRect & rc = UpdateRegion.getRect(i);
+        setDirtyRect(rc);
+        clear();
+        pRootNode->maybeRender(rc);
+    }
+    pFramerateManager->FrameWait();
+    swapBuffers(UpdateRegion);
+    pFramerateManager->CheckJitter();
+}
+
 void AVGDFBDisplayEngine::setClipRect()
 {
     m_ClipRect = PLRect(0, 0, m_Width, m_Height);
@@ -258,41 +284,17 @@ const PLRect& AVGDFBDisplayEngine::getClipRect() {
     return m_ClipRect;
 }
 
-void AVGDFBDisplayEngine::setDirtyRect(const PLRect& rc) 
-{
-    m_DirtyRect = rc;
-    
-    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Dirty rect: " << m_DirtyRect.tl.x << "x" << 
-            m_DirtyRect.tl.y << ", width: " << m_DirtyRect.Width() << 
-            ", height: " << m_DirtyRect.Height());
-}
-
-void AVGDFBDisplayEngine::clear()
-{
-    DFBResult err;
-    m_pBackBuffer->SetColor(m_pBackBuffer, 0x0, 0x00, 0x00, 0xff);
-    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Clear rect: " << m_DirtyRect.tl.x << "x" << 
-            m_DirtyRect.tl.y << ", width: " << m_DirtyRect.Width() << 
-            ", height: " << m_DirtyRect.Height());
-    if (m_DirtyRect.Width() >= 0 && m_DirtyRect.Height() >= 0) {
-        err = m_pBackBuffer->FillRectangle(m_pBackBuffer, 
-                m_DirtyRect.tl.x, m_DirtyRect.tl.y, 
-                m_DirtyRect.Width(), m_DirtyRect.Height());
-        DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::clear", err);
-    }
-}
-
-void AVGDFBDisplayEngine::render(PLBmp * pBmp, const PLRect* pSrcRect, 
+void AVGDFBDisplayEngine::blt(PLBmp * pBmp, const PLRect* pSrcRect, 
         const PLPoint& pos, double opacity)
 {
     PLDirectFBBmp * pDFBBmp = dynamic_cast<PLDirectFBBmp *>(pBmp);
     PLASSERT(pDFBBmp); // createSurface() should have been used to create 
                        // the bitmap.
     IDirectFBSurface * pSurf = pDFBBmp->GetSurface();
-    render (pSurf, pSrcRect, pos, opacity, pBmp->HasAlpha());
+    blt(pSurf, pSrcRect, pos, opacity, pBmp->HasAlpha());
 }
 
-void AVGDFBDisplayEngine::render(IDirectFBSurface * pSrc, const PLRect* pSrcRect, 
+void AVGDFBDisplayEngine::blt(IDirectFBSurface * pSrc, const PLRect* pSrcRect, 
         const PLPoint& pos, double opacity, bool bAlpha)
 {
     DFBSurfaceBlittingFlags BltFlags;
@@ -329,6 +331,31 @@ void AVGDFBDisplayEngine::render(IDirectFBSurface * pSrc, const PLRect* pSrcRect
             ", alpha: " << bAlpha << ", opacity: " << opacity);
 
     DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::render", err);
+}
+
+void AVGDFBDisplayEngine::clear()
+{
+    DFBResult err;
+    m_pBackBuffer->SetDrawingFlags(m_pBackBuffer, DSDRAW_NOFX);
+    m_pBackBuffer->SetColor(m_pBackBuffer, 0x0, 0x00, 0x00, 0xff);
+    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Clear rect: " << m_DirtyRect.tl.x << "x" << 
+            m_DirtyRect.tl.y << ", width: " << m_DirtyRect.Width() << 
+            ", height: " << m_DirtyRect.Height());
+    if (m_DirtyRect.Width() >= 0 && m_DirtyRect.Height() >= 0) {
+        err = m_pBackBuffer->FillRectangle(m_pBackBuffer, 
+                m_DirtyRect.tl.x, m_DirtyRect.tl.y, 
+                m_DirtyRect.Width(), m_DirtyRect.Height());
+        DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::clear", err);
+    }
+}
+
+void AVGDFBDisplayEngine::setDirtyRect(const PLRect& rc) 
+{
+    m_DirtyRect = rc;
+    
+    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Dirty rect: " << m_DirtyRect.tl.x << "x" << 
+            m_DirtyRect.tl.y << ", width: " << m_DirtyRect.Width() << 
+            ", height: " << m_DirtyRect.Height());
 }
 
 void AVGDFBDisplayEngine::swapBuffers(const AVGRegion & UpdateRegion)

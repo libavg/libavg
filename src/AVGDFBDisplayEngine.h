@@ -17,6 +17,8 @@ class PLDirectFBBmp;
 class PLPoint;
 
 class AVGRegion;
+class AVGNode;
+class AVGFramerateManager;
 
 class AVGDFBDisplayEngine
 {
@@ -26,14 +28,15 @@ class AVGDFBDisplayEngine
         virtual void init(int width, int height, bool isFullscreen, int bpp);
         virtual void teardown();
 
+        virtual void render(AVGNode * pRootNode, 
+                AVGFramerateManager * pFramerateManager, bool bRenderEverything);
+        
         virtual void setClipRect();
         virtual bool setClipRect(const PLRect& rc);
         virtual const PLRect& getClipRect();
-        virtual void setDirtyRect(const PLRect& rc);
-        virtual void clear();
-        virtual void render(PLBmp * pBmp, const PLRect* pSrcRect, 
+        virtual void blt(PLBmp * pBmp, const PLRect* pSrcRect, 
                 const PLPoint& pos, double opacity);
-        virtual void render(IDirectFBSurface * pSrc, const PLRect* pSrcRect, 
+        virtual void blt(IDirectFBSurface * pSrc, const PLRect* pSrcRect, 
                 const PLPoint& pos, double opacity, bool bAlpha);
         virtual void swapBuffers(const AVGRegion & UpdateRegion);
 
@@ -54,7 +57,9 @@ class AVGDFBDisplayEngine
         void initLayer(int width, int height);
         void initInput();
         void initBackbuffer();
-
+        void clear();
+        void setDirtyRect(const PLRect& rc);
+        
         int m_Width;
         int m_Height;
         bool m_IsFullscreen;

@@ -156,7 +156,6 @@ AVGPlayer::SetTimeout(PRInt32 time, const char * code, PRInt32 * pResult)
 NS_IMETHODIMP
 AVGPlayer::ClearInterval(PRInt32 id, PRBool * pResult)
 {
-    // TODO: Make sure this works from within handleTimers...
     vector<AVGTimeout*>::iterator it;
     for (it=m_PendingTimeouts.begin(); it!=m_PendingTimeouts.end(); it++) {
         if (id == (*it)->GetID()) {
@@ -264,8 +263,7 @@ void AVGPlayer::play (double framerate)
     m_pFramerateManager = new AVGFramerateManager;
     m_pFramerateManager->SetRate(framerate);
     m_bStopping = false;
-    m_pRootNode->prepareRender(0, m_pRootNode->getAbsViewport());
-    render(true);
+    m_pDisplayEngine->render(m_pRootNode, m_pFramerateManager, true);
     while (!m_bStopping) {
         doFrame();
     }
@@ -294,32 +292,9 @@ void AVGPlayer::doFrame ()
     
     handleEvents();
     if (!m_bStopping) {
-        m_pRootNode->prepareRender(0, m_pRootNode->getAbsViewport());
-        render(false);
+        m_pDisplayEngine->render(m_pRootNode, m_pFramerateManager, false);
     }
     jsgc();
-}
-
-void AVGPlayer::render (bool bRenderEverything)
-{
-    AVGRegion UpdateRegion;
-    if (bRenderEverything) {
-        PLRect rc(0,0, m_pDisplayEngine->getWidth(), m_pDisplayEngine->getHeight());
-        UpdateRegion.addRect(rc);
-    } else {
-        m_pRootNode->getDirtyRegion(UpdateRegion);
-    }
-//    UpdateRegion.dump();
-    m_pDisplayEngine->setClipRect();
-    for (int i = 0; i<UpdateRegion.getNumRects(); i++) {
-        const PLRect & rc = UpdateRegion.getRect(i);
-        m_pDisplayEngine->setDirtyRect(rc);
-        m_pDisplayEngine->clear();
-        m_pRootNode->maybeRender(rc);
-    }
-    m_pFramerateManager->FrameWait();
-    m_pDisplayEngine->swapBuffers(UpdateRegion);
-    m_pFramerateManager->CheckJitter();
 }
 
 void AVGPlayer::jsgc()

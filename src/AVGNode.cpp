@@ -6,6 +6,7 @@
 #include "AVGContainer.h"
 #include "AVGAVGNode.h"
 #include "AVGJSScript.h"
+#include "AVGPlayer.h"
 #include "AVGDFBDisplayEngine.h"
 
 #include <paintlib/plpoint.h>
@@ -222,8 +223,7 @@ void AVGNode::maybeRender (const PLRect& Rect)
     bool bVisible = getEngine()->setClipRect(getAbsViewport());
     if (bVisible) {
         if (getEffectiveOpacity() > 0.01) {
-            AVGNode* pParent = getParent(); 
-            if (!pParent || !pParent->obscures(getEngine()->getClipRect(), getZ())) {
+            if (!getParent() || !getParent()->obscures(getEngine()->getClipRect(), getZ())) {
                 render(Rect);
             } 
         }
