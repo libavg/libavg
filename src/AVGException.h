@@ -14,6 +14,7 @@
 #define AVG_ERR_VIDEO_INIT_FAILED 5
 #define AVG_ERR_VIDEO_GENERAL 6
 #define AVG_ERR_NO_KRUECKE 7
+#define AVG_ERR_DFB 8
 
 class AVGException 
 {

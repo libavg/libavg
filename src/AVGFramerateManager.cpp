@@ -3,8 +3,10 @@
 //
 
 #include "AVGFramerateManager.h"
+#include "AVGTime.h"
 
-#include "SDL/SDL.h"
+#include <sys/time.h>
+#include <unistd.h>
 
 #include <iostream>
 
@@ -24,7 +26,7 @@ void AVGFramerateManager::SetRate(int Rate)
 {
     m_Rate = Rate;
     m_NumFrames = 0;
-    m_LastFrameTime = SDL_GetTicks();
+    m_LastFrameTime = GetCurrentTicks();
 }
 
 int AVGFramerateManager::GetRate()
@@ -36,19 +38,20 @@ void AVGFramerateManager::FrameWait()
 {
     m_NumFrames++;
 
-    int CurTime = SDL_GetTicks();
+    int CurTime = GetCurrentTicks();
     int TargetTime = m_LastFrameTime+(int)((1000/(double)m_Rate)*m_NumFrames);
     if (CurTime <= TargetTime) 
     {
-        if (TargetTime-CurTime > 200) {
+        int WaitTime = TargetTime-CurTime;
+        if (WaitTime > 200) {
             cerr << "FramerateManager warning: waiting " << TargetTime-CurTime << "ms." << endl;
         }
-        SDL_Delay(TargetTime-CurTime);
+        usleep (WaitTime*1000);
     }
     else
     {
         m_NumFrames = 0;
-        m_LastFrameTime = SDL_GetTicks();
+        m_LastFrameTime = GetCurrentTicks();
     }
 }
 

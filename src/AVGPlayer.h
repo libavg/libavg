@@ -10,8 +10,8 @@
 #include "AVGFramerateManager.h"
 #include "AVGTimeout.h"
 
+#include <directfb/directfb.h>
 #include <libxml/parser.h>
-
 #include <xpcom/nsCOMPtr.h>
 
 #include <map>
@@ -64,6 +64,8 @@ class AVGPlayer: public IAVGPlayer
         AVGDFBDisplayEngine * m_pDisplayEngine;
         bool m_IsFullscreen;
 
+        IDirectFB * m_pDFB;
+
         std::string m_CurDirName;
         AVGFramerateManager m_FramerateManager;
         bool m_bStopping;
@@ -77,6 +79,7 @@ class AVGPlayer: public IAVGPlayer
         void handleEvents();
         AVGEvent* createCurEvent();
 
+        void dumpDFBEvent(const DFBEvent& dfbEvent);
         void dumpEvent(AVGEvent* pEvent);
         void dumpEventStr(const std::string& EventName, bool IsMouse);
         void handleMouseEvent (AVGEvent* pEvent);

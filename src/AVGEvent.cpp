@@ -25,50 +25,54 @@ AVGEvent::~AVGEvent()
 }
 
 void AVGEvent::init(int type, const PLPoint& pos, 
-        int buttonState, int keySym)
+        int buttonsPressed)
 {
     m_Type = type;
     m_Pos = pos;
-    m_ButtonState = buttonState;
-    m_KeySym = keySym;
-    m_KeyMod = 0;
+    m_ButtonsPressed = (DFBInputDeviceButtonMask)buttonsPressed;
 }
 
-void AVGEvent::init(const SDL_Event& SDLEvent)
+bool AVGEvent::init(const DFBWindowEvent& dfbWEvent)
 {
-    switch(SDLEvent.type) {
-        case SDL_MOUSEMOTION:
-           m_Type=MOUSEMOVE;
-            m_Pos=PLPoint(SDLEvent.motion.x, SDLEvent.motion.y);
-            m_ButtonState=SDLEvent.motion.state;
+    switch(dfbWEvent.type) {
+        case DWET_KEYDOWN:
+            m_Type = KEYDOWN;
+            m_KeySym = dfbWEvent.key_symbol;
+            m_KeyMods = dfbWEvent.modifiers;
             break;
-        case SDL_MOUSEBUTTONDOWN:
-            m_Type=MOUSEDOWN;
-            m_Pos = PLPoint(SDLEvent.button.x, SDLEvent.button.y);
-            m_ButtonState=SDLEvent.button.state;
+        case DWET_KEYUP:
+            m_Type = KEYUP;
+            m_KeySym = dfbWEvent.key_symbol;
+            m_KeyMods = dfbWEvent.modifiers;
             break;
-        case SDL_MOUSEBUTTONUP:
-            m_Type=MOUSEUP;
-            m_Pos = PLPoint(SDLEvent.button.x, SDLEvent.button.y);
-            m_ButtonState=SDLEvent.button.state;
+        case DWET_BUTTONDOWN:
+            m_Type = MOUSEDOWN;
+            m_Pos = PLPoint(dfbWEvent.cx, dfbWEvent.cy);
+            m_ButtonId = dfbWEvent.button;
+            m_ButtonsPressed = dfbWEvent.buttons;
+            m_KeyMods = dfbWEvent.modifiers;
             break;
-        case SDL_KEYDOWN:
-            m_Type=KEYDOWN;
-            m_KeySym=SDLEvent.key.keysym.sym;
-            m_KeyMod=SDLEvent.key.keysym.mod;
+        case DWET_BUTTONUP:
+            m_Type = MOUSEUP;
+            m_Pos = PLPoint(dfbWEvent.cx, dfbWEvent.cy);
+            m_ButtonId = dfbWEvent.button;
+            m_ButtonsPressed = dfbWEvent.buttons;
+            m_KeyMods = dfbWEvent.modifiers;
             break;
-        case SDL_KEYUP:
-            m_Type=KEYUP;
-            m_KeySym=SDLEvent.key.keysym.sym;
-            m_KeyMod=SDLEvent.key.keysym.mod;
+        case DWET_MOTION:
+            m_Type = MOUSEMOVE;
+            m_Pos = PLPoint(dfbWEvent.cx, dfbWEvent.cy);
+            m_ButtonsPressed = dfbWEvent.buttons;
+            m_KeyMods = dfbWEvent.modifiers;
             break;
-        case SDL_QUIT:
-            m_Type=QUIT;
+/*        case DWET_WHEEL:
+            m_Type = ;
             break;
+*/
         default:
-            cerr << "AVGEvent::init(): Illegal event type" << endl;
-            break;
+            return false;
     }
+    return true;
 }
 
 void AVGEvent::setNode(IAVGNode* pNode)
@@ -117,7 +121,7 @@ NS_IMETHODIMP AVGEvent::GetYPos(PRInt32 *_retval)
 NS_IMETHODIMP AVGEvent::GetMouseButtonState(PRInt32 *_retval)
 {
     PLASSERT(m_Type != KEYDOWN && m_Type != KEYUP);
-    *_retval = m_ButtonState;
+    *_retval = (PRInt32)m_ButtonsPressed;
     return NS_OK;
 }
 
@@ -127,11 +131,10 @@ NS_IMETHODIMP AVGEvent::GetKeySym(PRInt32 *_retval)
     *_retval = m_KeySym;
     return NS_OK;
 }
-
 NS_IMETHODIMP AVGEvent::GetKeyMod(PRInt32 *_retval)
 {
     PLASSERT(m_Type == KEYDOWN || m_Type == KEYUP);
-    *_retval = m_KeyMod;
+    *_retval = m_KeyMods;    
     return NS_OK;
 }
 
@@ -179,7 +182,7 @@ void AVGEvent::dump(int DebugLevel)
                 if (IsMouse) {
                     cerr << "Event: " << EventName << 
                             "( Pos: (" << m_Pos.x << ", " << m_Pos.y << "), " << 
-                            "Button state: " << m_ButtonState << ")" << endl;
+                            "Buttons pressed: " << m_ButtonsPressed << ")" << endl;
                 } else {
                     cerr << "Event: " << EventName << endl;
                 }

@@ -16,6 +16,8 @@ class AVGFramerateManager
         void FrameWait();
 
     private:
+        int getCurrentTicks();
+
         int m_NumFrames;
         int m_LastFrameTime;
         int m_Rate;

@@ -8,7 +8,7 @@
 #include "IAVGEvent.h"
 
 #include <paintlib/plpoint.h>
-#include <SDL/SDL.h>
+#include <directfb.h>
 
 class IAVGNode;
 
@@ -25,8 +25,8 @@ class AVGEvent: public IAVGEvent
         AVGEvent ();
         virtual ~AVGEvent ();
         void init(int type, const PLPoint& pos, 
-                int buttonState, int keySym=0);
-        void init(const SDL_Event& SDLEvent);
+            int buttonsPressed);
+        bool init(const DFBWindowEvent& dfbWEvent);
         void setNode(IAVGNode* pNode);
 
         void dump(int DebugLevel);
@@ -39,9 +39,10 @@ class AVGEvent: public IAVGEvent
         IAVGNode * m_pNode;
         int m_Type;
         PLPoint m_Pos;
-        int m_ButtonState;
-        int m_KeySym;
-        int m_KeyMod;
+        DFBInputDeviceButtonIdentifier m_ButtonId;
+        DFBInputDeviceButtonMask m_ButtonsPressed;
+        DFBInputDeviceKeySymbol m_KeySym;
+        DFBInputDeviceModifierMask m_KeyMods;
 };
 
 #endif //_AVGEvent_H_

@@ -197,7 +197,9 @@ void AVGPlayer::loadFile (const std::string& filename)
 
 void AVGPlayer::play ()
 {
+    DFBResult err;
     PLASSERT (m_pRootNode);
+
     m_FramerateManager.SetRate(30);
     m_bStopping = false;
     while (!m_bStopping) {
@@ -375,29 +377,33 @@ void AVGPlayer::handleTimers()
 
 void AVGPlayer::handleEvents()
 {
-    SDL_Event SDLEvent; 
-    while(SDL_PollEvent(&SDLEvent) && !m_bStopping) {
-        if (SDLEvent.type == SDL_KEYDOWN || SDLEvent.type == SDL_MOUSEMOTION ||
-            SDLEvent.type == SDL_MOUSEBUTTONUP || SDLEvent.type == SDL_MOUSEBUTTONDOWN ||
-            SDLEvent.type == SDL_QUIT)
-        {
-            AVGEvent * pCPPEvent = createCurEvent();
-            pCPPEvent->init(SDLEvent);
-            pCPPEvent->dump(m_EventDebugLevel);
-            int EventType;
-            m_CurEvent->GetType(&EventType);
-            if (EventType == AVGEvent::QUIT) {
-                m_bStopping = true;
-            }
+    IDirectFBEventBuffer * pEventBuffer = m_pDisplayEngine->getEventBuffer();
+    DFBEvent dfbEvent;
 
-            int b;
-            m_CurEvent->IsMouseEvent(&b);
-            if (b) {
-                handleMouseEvent(pCPPEvent);
+    while (pEventBuffer->HasEvent(pEventBuffer) == DFB_OK && !m_bStopping) {
+        pEventBuffer->GetEvent (pEventBuffer, &dfbEvent);
+        dumpDFBEvent (dfbEvent);
+        if (dfbEvent.clazz == DFEC_WINDOW) {
+            DFBWindowEvent* pdfbWEvent = &(dfbEvent.window);
+
+            AVGEvent * pCPPEvent = createCurEvent();
+            bool bOK = pCPPEvent->init(*pdfbWEvent);
+            if (bOK) {
+                pCPPEvent->dump(m_EventDebugLevel);
+                int EventType;
+           
+                int b;
+                m_CurEvent->IsMouseEvent(&b);
+                if (b) {
+                    handleMouseEvent(pCPPEvent);
+                }
+                NS_IF_RELEASE(pCPPEvent);
             }
-            NS_IF_RELEASE(pCPPEvent);
+        } else {
+            cerr << "Unexpected event received;" << endl;
         }
     }
+    
 }
 
 AVGEvent* AVGPlayer::createCurEvent()
@@ -446,5 +452,78 @@ int AVGPlayer::addTimeout(const AVGTimeout& timeout)
             timeout);
     m_PendingTimeouts.insert(it, timeout);
     return timeout.GetID();
+}
+
+void AVGPlayer::dumpDFBEvent (const DFBEvent& dfbEvent)
+{
+    if (dfbEvent.clazz == DFEC_WINDOW && dfbEvent.window.type == DWET_MOTION) {
+        // Don't dump mouse move events
+        return;
+    }
+    cerr << "Event: ";
+    cerr << "class=";
+
+    switch (dfbEvent.clazz) {
+        case DFEC_NONE:
+            cerr << "none";
+            break;
+        case DFEC_INPUT:
+            cerr << "input";
+            break;
+        case DFEC_WINDOW:
+            cerr << "window, ";
+            DFBWindowEvent WEvent = dfbEvent.window;
+            cerr << "  type = ";
+            switch (WEvent.type) {
+                case DWET_POSITION:
+                    cerr << " position";
+                    break;
+                case DWET_SIZE:
+                    cerr << " size";
+                    break;
+                case DWET_POSITION | DWET_SIZE:
+                    cerr << " position & size";
+                    break;
+                case DWET_CLOSE:
+                    cerr << " close";
+                    break;
+                case DWET_DESTROYED:
+                    cerr << " destroyed";
+                    break;
+                case DWET_GOTFOCUS:
+                    cerr << " got focus";
+                    break;
+                case DWET_LOSTFOCUS:
+                    cerr << " lost focus";
+                    break;
+                case DWET_KEYDOWN:
+                    cerr << " key down";
+                    break;
+                case DWET_KEYUP:
+                    cerr << " key up";
+                    break;
+                case DWET_BUTTONDOWN:
+                    cerr << " button down";
+                    break;
+                case DWET_MOTION:
+                    cerr << " motion"; 
+                    break;
+                case DWET_ENTER:
+                    cerr << " enter";
+                    break;
+                case DWET_LEAVE:
+                    cerr << " leave";
+                    break;
+                case DWET_WHEEL:
+                    cerr << " wheel";
+                    break;
+            }
+            break;
+        case DFEC_USER:
+            cerr << "user";
+            break;
+    }
+    cerr << endl;
+    
 }
 

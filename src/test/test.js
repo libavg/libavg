@@ -159,19 +159,22 @@ function testExcl()
         AVGPlayer.setTimeout(600,"setExcl(1);");
         AVGPlayer.setTimeout(900,"setExcl(2);");
         AVGPlayer.setTimeout(1200,"setExcl(3);");
-        AVGPlayer.setTimeout(1500,"quitTimeout();");
+        AVGPlayer.setTimeout(1500,"quitTimeout()");
         AVGPlayer.play();
     }
 }
 
-//dumpNodes();
+/*
+dumpNodes();
 
 testAnimation();
-/*
+
 testExcl();
 
 playAVG("empty.avg");
+*/
 playAVG("events.avg");
+/*
 playAVG("image.avg");
 playAVG("avg.avg");
 playAVG("noavg.avg");

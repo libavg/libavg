@@ -24,16 +24,25 @@ class AVGDFBDisplayEngine
         virtual void render(PLBmp * pBmp, const PLPoint& pos, double opacity);
         virtual void swapBuffers();
 
-	virtual PLBmp * createSurface();
+	    virtual PLBmp * createSurface();
+
+        IDirectFB * getDFB();
+        IDirectFBEventBuffer * getEventBuffer();
+        void DFBErrorCheck(int avgcode, DFBResult dfbcode); 
 
     private:
-        void errorCheck(int avgcode, DFBResult dfbcode); 
+        void initInput();
+
         int m_Width;
         int m_Height;
         bool m_IsFullscreen;
 
         IDirectFB * m_pDirectFB;
+        IDirectFBWindow * m_pDFBWindow;
+        IDirectFBDisplayLayer * m_pDFBLayer;
         IDirectFBSurface * m_pPrimary;
+
+        IDirectFBEventBuffer * m_pEventBuffer;
 };
 
 #endif //_AVGDFBDisplayEngine_H_
