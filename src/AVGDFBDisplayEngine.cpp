@@ -246,11 +246,11 @@ void AVGDFBDisplayEngine::render(AVGNode * pRootNode,
     } else {
         pRootNode->getDirtyRegion(UpdateRegion);
     }
-    UpdateRegion.dump();
-    setClipRect();
+//    UpdateRegion.dump();
     for (int i = 0; i<UpdateRegion.getNumRects(); i++) {
         const PLRect & rc = UpdateRegion.getRect(i);
         setDirtyRect(rc);
+        setClipRect();
         clear();
         pRootNode->maybeRender(rc);
     }
@@ -261,7 +261,7 @@ void AVGDFBDisplayEngine::render(AVGNode * pRootNode,
 
 void AVGDFBDisplayEngine::setClipRect()
 {
-    m_ClipRect = PLRect(0, 0, m_Width, m_Height);
+    setClipRect(PLRect(0, 0, m_Width, m_Height));
 }
 
 bool AVGDFBDisplayEngine::setClipRect(const PLRect& rc)

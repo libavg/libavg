@@ -182,18 +182,27 @@ var cropInterval;
 function cropTL()
 {
     var node = AVGPlayer.getElementByID("img");
-    node.x--;
-    node.y--;
+    node.x -= 2;
+    node.y -= 2;
     if (node.x < -250) {
         AVGPlayer.clearInterval(cropInterval);
+        cropInterval = AVGPlayer.setInterval(10, "cropBR();");
     }
 }
 
 function cropBR()
 {
     var node = AVGPlayer.getElementByID("img");
-    node.x = 350;
-    node.y = 250;
+    if (node.x < 0) {
+        node.x = 100;
+        node.y = 50;
+    }
+    node.x +=2;
+    node.y +=2;
+    if (node.x > 700) {
+        AVGPlayer.clearInterval(cropInterval);
+        AVGPlayer.stop();
+    }
 }
 
 function goneTL()
@@ -217,11 +226,6 @@ function testCrop()
     var ok = tryLoadFile("crop.avg");
     if (ok) {
         cropInterval = AVGPlayer.setInterval(10, "cropTL();");
-/*        AVGPlayer.setTimeout(1000, "cropBR();");
-        AVGPlayer.setTimeout(1500, "goneTL();");
-        AVGPlayer.setTimeout(2000, "goneBR();");
-        AVGPlayer.setTimeout(2500, "quitTimeout();");
-*/
         AVGPlayer.play(25);    
     }
 }
@@ -231,7 +235,8 @@ function testVideo()
     print ("---- Testing video node accessors ----");
     var ok = tryLoadFile("video.avg");
     if (ok) {
-//        AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE); 
+//    AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_BLTS); 
+        AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE); 
         getVideoInfo();
         timerid = AVGPlayer.setInterval(10, "videoInterval();");
         videoPlay('clogo');
@@ -323,8 +328,8 @@ function testExcl()
     testAnimation();
     testWords();
 */
-    testCrop();
-//    testVideo();
+//    testCrop();
+    testVideo();
 /*
     dumpNodes();
     testExcl();
