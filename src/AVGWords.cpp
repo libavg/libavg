@@ -142,6 +142,7 @@ void AVGWords::changeFont()
 {
     m_pFont = getEngine()->getFontManager()->getFont(m_FontName, m_Size);
     drawString();
+
 }
 
 void AVGWords::drawString()

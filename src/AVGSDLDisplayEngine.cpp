@@ -194,8 +194,8 @@ void AVGSDLDisplayEngine::blt32(PLBmp * pBmp, const AVGDRect* pDestRect,
                 angle, pivot);
     } else {
         bltTexture(pOGLBmp, pDestRect, 
-                ((GLfloat)pBmp->GetWidth()-0.5f)/pOGLBmp->getTexSize(),
-                ((GLfloat)pBmp->GetHeight()-0.5f)/pOGLBmp->getTexSize(), angle, 
+                ((GLfloat)pBmp->GetWidth()-0.5f)/pOGLBmp->getTexWidth(),
+                ((GLfloat)pBmp->GetHeight()-0.5f)/pOGLBmp->getTexHeight(), angle, 
                 pivot);
     }
 }
@@ -212,8 +212,8 @@ void AVGSDLDisplayEngine::blta8(PLBmp * pBmp, const AVGDRect* pDestRect,
                 pivot);
     } else {
         bltTexture(pOGLBmp, pDestRect, 
-                ((GLfloat)pBmp->GetWidth()-0.5f)/pOGLBmp->getTexSize(),
-                ((GLfloat)pBmp->GetHeight()-0.5f)/pOGLBmp->getTexSize(), angle, 
+                ((GLfloat)pBmp->GetWidth()-0.5f)/pOGLBmp->getTexWidth(),
+                ((GLfloat)pBmp->GetHeight()-0.5f)/pOGLBmp->getTexHeight(), angle, 
                 pivot);
     }
 }

@@ -22,7 +22,8 @@ public:
     void unbind();
     void rebind();
     int getTexID();
-    int getTexSize();
+    int getTexWidth();
+    int getTexHeight();
 
     static int getTextureMode();
 
@@ -32,9 +33,11 @@ protected:
     
     unsigned int m_TexID;
     bool m_bBound;
-    int m_TexSize;
+    int m_TexWidth;
+    int m_TexHeight;
 
     static int m_TextureMode;
+    static int m_MaxTexSize;
 };
 
 inline AVGOGLBmp::AVGOGLBmp(const AVGOGLBmp &Orig)

@@ -115,15 +115,15 @@ AVGPlayer::LoadFile(const char * fileName,
 NS_IMETHODIMP
 AVGPlayer::Play(float framerate)
 {
-	play(framerate);
-	return NS_OK;
+    play(framerate);
+    return NS_OK;
 }
 
 NS_IMETHODIMP
 AVGPlayer::Stop()
 {
-	stop();
-	return NS_OK;
+    stop();
+    return NS_OK;
 }
 
 NS_IMETHODIMP 
@@ -230,15 +230,15 @@ AVGPlayer::SetDebugOutputFile(const char *name)
 NS_IMETHODIMP
 AVGPlayer::GetErrStr(char ** ppszResult)
 {
-	strcpy (*ppszResult, "kaputt");
-	return NS_OK;
+    strcpy (*ppszResult, "kaputt");
+    return NS_OK;
 }
 
 NS_IMETHODIMP
 AVGPlayer::GetErrCode(PRInt32 * pResult)
 {
-	*pResult = 0;
-	return NS_OK;
+    *pResult = 0;
+    return NS_OK;
 }
 
 NS_IMETHODIMP 
@@ -426,7 +426,7 @@ void AVGPlayer::setRealtimePriority()
 
     myParam.sched_priority = sched_get_priority_max (SCHED_FIFO);
     int myRetVal = pthread_setschedparam (pthread_self(), 
-		    SCHED_FIFO, &myParam);
+            SCHED_FIFO, &myParam);
     if (myRetVal == 0) {
         AVG_TRACE(DEBUG_PROFILE, "AVGPlayer running with realtime priority.");
     } else {

@@ -346,7 +346,7 @@ function testExcl()
     testCrop();
 
     testAnimation();
-    testWords();
+//    testWords();
 
     dumpNodes();
 

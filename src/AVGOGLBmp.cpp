@@ -16,7 +16,10 @@
 #include <iostream>
 #include <sstream>
 
+using namespace std;
+
 int AVGOGLBmp::m_TextureMode = 0;
+int AVGOGLBmp::m_MaxTexSize = 0;
 
 AVGOGLBmp::AVGOGLBmp()
     : m_TexID(0),
@@ -32,7 +35,7 @@ AVGOGLBmp::~AVGOGLBmp()
 }
 
 int nextpow2(int n) {
-    double d = log(n)/log(2);
+    double d = ::log(n)/::log(2);
     return int(pow(2, ceil(d)));
 }
 
@@ -77,25 +80,34 @@ void AVGOGLBmp::bind()
             break;
     }
     if (getTextureMode() == GL_TEXTURE_RECTANGLE_NV) {
+        if (GetWidth() > m_MaxTexSize || GetHeight() > m_MaxTexSize) {
+        stringstream s;
+        s << "Texture size is " << GetWidth() << "x" << GetHeight() << 
+            ", OpenGL maximum is " << m_MaxTexSize << "." << endl;
+        AVG_TRACE(AVGPlayer::DEBUG_ERROR, s.str());
+    }
         glTexImage2D(GL_TEXTURE_RECTANGLE_NV, 0,
                 DestMode, GetWidth(), GetHeight(), 0,
                 SrcMode, GL_UNSIGNED_BYTE, GetLineArray()[0]);
     } else {
         // Only pow2 textures supported.
         PLAnyBmp Pow2Bmp;
-        m_TexSize = GetWidth();
-        if (m_TexSize < GetHeight()) {
-            m_TexSize = GetHeight();
-        }
-        m_TexSize = nextpow2(m_TexSize);
-        Pow2Bmp.Create(m_TexSize, m_TexSize, GetBitsPerPixel(), 
+        m_TexWidth = nextpow2(GetWidth());
+    m_TexHeight = nextpow2(GetHeight());
+        Pow2Bmp.Create(m_TexWidth, m_TexHeight, GetBitsPerPixel(), 
                 false, false);
         for (int y=0; y<GetHeight(); y++) {
             memcpy (Pow2Bmp.GetLineArray()[y], GetLineArray()[y],
                     GetWidth()*GetBitsPerPixel()/8);
         }
-        glTexImage2D(GL_TEXTURE_2D, 0,
-                DestMode, m_TexSize, m_TexSize, 0,
+        if (m_TexWidth > m_MaxTexSize || m_TexHeight > m_MaxTexSize) {
+        stringstream s;
+        s << "Texture size is " << m_TexWidth << "x" << m_TexHeight << 
+            ", OpenGL maximum is " << m_MaxTexSize << "." << endl;
+        AVG_TRACE(AVGPlayer::DEBUG_ERROR, s.str());
+    }
+    glTexImage2D(GL_TEXTURE_2D, 0,
+                DestMode, m_TexWidth, m_TexHeight, 0,
                 SrcMode, GL_UNSIGNED_BYTE, Pow2Bmp.GetPixels());
     }
     
@@ -130,9 +142,14 @@ int AVGOGLBmp::getTexID()
     return m_TexID;
 }
 
-int AVGOGLBmp::getTexSize()
+int AVGOGLBmp::getTexHeight()
 {
-    return m_TexSize;
+    return m_TexHeight;
+}
+
+int AVGOGLBmp::getTexWidth()
+{
+    return m_TexWidth;
 }
 
 void AVGOGLBmp::freeMembers()
@@ -156,6 +173,7 @@ int AVGOGLBmp::getTextureMode()
             AVG_TRACE(AVGPlayer::DEBUG_CONFIG, 
                     "Using power of 2 textures.");
         }
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_MaxTexSize);
     }
     return m_TextureMode;
 }

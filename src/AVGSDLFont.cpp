@@ -11,10 +11,24 @@
 #include <paintlib/plpixel8.h>
 #include <paintlib/pldirectfbbmp.h>
 
+#include <iostream>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <cstring>
+#include <unistd.h>
+
 using namespace std;
 
 AVGSDLFont::AVGSDLFont(const std::string & Filename, int Size)
 {
+    // TTF_OpenFont crashes if the file doesn't exist, so we check beforehand.
+    struct stat FileInfo;
+    if (stat(Filename.c_str(), &FileInfo) == -1) {
+        throw AVGException(AVG_ERR_FONT_INIT_FAILED, 
+                string("Font file \"") + Filename + "\" not found: " 
+                + strerror(errno));
+    }
     m_pFont = TTF_OpenFont(Filename.c_str(), Size);
     if (!m_pFont) {
         throw AVGException(AVG_ERR_FONT_INIT_FAILED, 
