@@ -82,7 +82,20 @@ interface IAVGNode : nsISupports
      * Opacity ranges from 0.0 to 1.0 and is relative to the parent's opacity.
      */
     attribute float opacity;
-
-
+    /**
+     * Angle is the amount the node should be rotated in degrees. Invalid for
+     * avg and excl nodes. If pivotx and pivoty aren't set, the node is rotated
+     * around its center point.
+     */
+    attribute float angle;
+    /**
+     * The x coordinate of the point the node is rotated around.
+     */
+    attribute long pivotx;
+    /**
+     * The y coordinate of the point the node is rotated around.
+     */
+    attribute long pivoty;
+    
 };
 

@@ -162,6 +162,48 @@ NS_IMETHODIMP AVGNode::SetOpacity(float aOpacity)
     return NS_OK;
 }
 
+
+NS_IMETHODIMP AVGNode::GetAngle(float *aAngle)
+{
+   *aAngle = m_Angle;
+    return NS_OK;
+}
+NS_IMETHODIMP AVGNode::SetAngle(float aAngle)
+{
+    m_Angle = fmod(aAngle, 360);
+    
+    invalidate();
+    return NS_OK;
+}
+
+NS_IMETHODIMP AVGNode::GetPivotx(PRInt32 *aPivotx)
+{
+    *aPivotx = getPivot().x;
+    return NS_OK;
+}
+
+NS_IMETHODIMP AVGNode::SetPivotx(PRInt32 aPivotx)
+{
+    m_Pivot = getPivot();
+    m_Pivot.x = aPivotx;
+    m_bHasCustomPivot = true;
+    return NS_OK;
+}
+
+NS_IMETHODIMP AVGNode::GetPivoty(PRInt32 *aPivoty)
+{
+    *aPivoty = getPivot().y;
+    return NS_OK;
+}
+
+NS_IMETHODIMP AVGNode::SetPivoty(PRInt32 aPivoty)
+{
+    m_Pivot = getPivot();
+    m_Pivot.y = aPivoty;
+    m_bHasCustomPivot = true;
+    return NS_OK;
+}
+
 void AVGNode::init(const string& id, IAVGDisplayEngine * pEngine, 
         AVGContainer * pParent, AVGPlayer * pPlayer)
 {
@@ -185,7 +227,7 @@ void AVGNode::initVisible(int x, int y, int z, int width, int height,
     m_RelViewport = PLRect(x, y, x+width, y+height);
     m_z = z;
     m_Opacity = opacity;
-    m_Angle = angle;
+    m_Angle = fmod(angle, 360);
     PLPoint pos(0,0);
     if (m_pParent) {
         pos = m_pParent->getAbsViewport().tl;
