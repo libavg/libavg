@@ -34,13 +34,16 @@ class AVGDFBDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         virtual bool pushClipRect(const AVGDRect& rc, bool bClip);
         virtual void popClipRect();
         virtual const AVGDRect& getClipRect();
-        virtual void blt32(PLBmp * pBmp, const AVGDRect* pDestRect, 
+        virtual void blt32(IAVGSurface * pSurface, const AVGDRect* pDestRect, 
                 double opacity, double angle, const AVGDPoint& pivot);
-        virtual void blta8(PLBmp * pBmp, const AVGDRect* pDestRect, 
+        virtual void blta8(IAVGSurface * pSurface, const AVGDRect* pDestRect, 
                 double opacity, const PLPixel32& color, double angle,
                 const AVGDPoint& pivot);
 
-        virtual PLBmp * createSurface();
+        virtual IAVGSurface * createSurface();
+
+        IDirectFBSurface * getPrimary();
+        void DFBErrorCheck(int avgcode, std::string where, DFBResult dfbcode); 
 
         virtual int getWidth();
         virtual int getHeight();
@@ -56,11 +59,6 @@ class AVGDFBDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         // From IAVGEventSource
         virtual std::vector<AVGEvent *> pollEvents();
        
-        // Methods specific to AVGDFBEventSource
-        IDirectFB * getDFB();
-        IDirectFBSurface * getPrimary();
-        void DFBErrorCheck(int avgcode, std::string where, DFBResult dfbcode); 
-
     private:
         void initDFB(int width, int height, bool isFullscreen, int bpp);
         void initLayer(int width, int height);

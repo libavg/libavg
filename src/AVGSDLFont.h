@@ -14,7 +14,7 @@ class AVGSDLFont: public IAVGFont
 	public:
         AVGSDLFont(const std::string & Filename, int Size);
         virtual ~AVGSDLFont();
-        virtual void render(PLBmp& Bmp, const std::string & Text);
+        virtual void render(IAVGSurface& Surface, const std::string & Text);
 
     private:
         TTF_Font * m_pFont;

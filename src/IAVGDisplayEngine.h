@@ -5,7 +5,7 @@
 #ifndef _IAVGDisplayEngine_H_
 #define _IAVGDisplayEngine_H_
 
-class PLBmp;
+class IAVGSurface;
 class PLPixel32;
 
 class AVGRegion;
@@ -31,15 +31,15 @@ class IAVGDisplayEngine
         virtual bool pushClipRect(const AVGDRect& rc, bool bClip) = 0;
         virtual void popClipRect() = 0;
         virtual const AVGDRect& getClipRect() = 0;
-        virtual void blt32(PLBmp * pBmp, const AVGDRect* pDestRect, 
+        virtual void blt32(IAVGSurface * pSurface, const AVGDRect* pDestRect, 
                 double opacity, double angle, const AVGDPoint& pivot) = 0;
-        virtual void blta8(PLBmp * pBmp, const AVGDRect* pDestRect, 
+        virtual void blta8(IAVGSurface * pSurface, const AVGDRect* pDestRect, 
                 double opacity, const PLPixel32& color, double angle,
                 const AVGDPoint& pivot) = 0;
-        virtual void bltYUV(PLBmp * pBmp, const AVGDRect* pDestRect, 
+        virtual void bltYUV(IAVGSurface * pSurface, const AVGDRect* pDestRect, 
                 double opacity, double angle, const AVGDPoint& pivot) {};
-        virtual PLBmp * createSurface() = 0;
-        virtual void surfaceChanged(PLBmp* pBmp) {};
+        virtual IAVGSurface * createSurface() = 0;
+        virtual void surfaceChanged(IAVGSurface * pSurface) {};
 
         virtual int getWidth() = 0;
         virtual int getHeight() = 0;

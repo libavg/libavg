@@ -15,7 +15,7 @@
 
 #include <string>
 
-class AVGOGLBmp;
+class AVGOGLSurface;
 
 class AVGSDLDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
 {
@@ -35,14 +35,14 @@ class AVGSDLDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         virtual bool pushClipRect(const AVGDRect& rc, bool bClip);
         virtual void popClipRect();
         virtual const AVGDRect& getClipRect();
-        virtual void blt32(PLBmp * pBmp, const AVGDRect* pDestRect, 
+        virtual void blt32(IAVGSurface * pSurface, const AVGDRect* pDestRect, 
                 double opacity, double angle, const AVGDPoint& pivot);
-        virtual void blta8(PLBmp * pBmp, const AVGDRect* pDestRect,
+        virtual void blta8(IAVGSurface * pSurface, const AVGDRect* pDestRect,
                 double opacity, const PLPixel32& color, double angle, 
                 const AVGDPoint& pivot);
 
-        virtual PLBmp * createSurface();
-        virtual void surfaceChanged(PLBmp* pBmp);
+        virtual IAVGSurface * createSurface();
+        virtual void surfaceChanged(IAVGSurface * pSurface);
 
         virtual int getWidth();
         virtual int getHeight();
@@ -64,7 +64,7 @@ class AVGSDLDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         void initTranslationTable();
         void initJoysticks();
         void setDirtyRect(const AVGDRect& rc);
-        void bltTexture(AVGOGLBmp * pOGLBmp, const AVGDRect* pDestRect,
+        void bltTexture(AVGOGLSurface * pSurface, const AVGDRect* pDestRect,
                 float Width, float Height, double angle, const AVGDPoint& pivot);
         virtual void swapBuffers();
         void clip();

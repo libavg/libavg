@@ -6,6 +6,7 @@
 #include "AVGDFBDisplayEngine.h"
 #include "AVGException.h"
 #include "IAVGFont.h"
+#include "IAVGSurface.h"
 
 #include <nsMemory.h>
 #include <xpcom/nsComponentManagerUtils.h>
@@ -23,15 +24,15 @@ AVGWords * AVGWords::create()
 }       
 
 AVGWords::AVGWords ()
-    : m_pBmp(0)
+    : m_pSurface(0)
 {
     NS_INIT_ISUPPORTS();
 }
 
 AVGWords::~AVGWords ()
 {
-    if (m_pBmp) {
-        delete m_pBmp;
+    if (m_pSurface) {
+        delete m_pSurface;
     }
 }
 
@@ -121,14 +122,15 @@ AVGWords::GetType(PRInt32 *_retval)
 void 
 AVGWords::init (const string& id, int size, const string& font, 
            const string& str, const string& color,
-           IAVGDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer)
+           IAVGDisplayEngine * pEngine, AVGContainer * pParent, 
+           AVGPlayer * pPlayer)
 {
     AVGNode::init(id, pEngine, pParent, pPlayer);
     m_Size = size;
     m_Str = str;
     m_ColorName = color;
     m_Color = colorStringToColor(color);
-    m_pBmp = getEngine()->createSurface();
+    m_pSurface = getEngine()->createSurface();
     m_FontName = font;
     changeFont();
 }
@@ -150,9 +152,10 @@ void AVGWords::drawString()
     if (m_Str.length() == 0) {
         m_StringExtents = AVGDPoint(0,0);
     } else {
-        m_pFont->render(*m_pBmp, m_Str);
-        m_StringExtents = AVGDPoint(m_pBmp->GetWidth(), m_pBmp->GetHeight());
-        getEngine()->surfaceChanged(m_pBmp);
+        m_pFont->render(*m_pSurface, m_Str);
+        m_StringExtents = AVGDPoint(m_pSurface->getBmp()->GetWidth(), 
+                m_pSurface->getBmp()->GetHeight());
+        getEngine()->surfaceChanged(m_pSurface);
         setViewport(-32767, -32767, m_StringExtents.x, m_StringExtents.y);
     }
 }
@@ -162,8 +165,9 @@ void AVGWords::render(const AVGDRect& Rect)
     if (getEffectiveOpacity() > 0.001) {
         bool bVisible = getEngine()->pushClipRect(getVisibleRect(), false);
         if (bVisible) {
-            getEngine()->blta8(m_pBmp, &getAbsViewport(), getEffectiveOpacity(),
-                    m_Color, getAngle(), getPivot());
+            getEngine()->blta8(m_pSurface, &getAbsViewport(), 
+                    getEffectiveOpacity(), m_Color, getAngle(), 
+                    getPivot());
         }
         getEngine()->popClipRect();
     }

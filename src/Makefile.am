@@ -21,9 +21,10 @@ endif
 
 if ENABLE_GL
     GL_LIBS = -lGL -lGLU -lSDL_ttf 
-    GL_SOURCES = AVGSDLDisplayEngine.cpp AVGOGLBmp.cpp OGLHelper.cpp \
-                 AVGSDLFontManager.cpp AVGSDLFont.cpp
-    GL_INCLUDES = AVGSDLDisplayEngine.h AVGOGLBmp.h OGLHelper.h AVGSDLFontManager.h \
+    GL_SOURCES = AVGSDLDisplayEngine.cpp OGLHelper.cpp \
+                 AVGSDLFontManager.cpp AVGSDLFont.cpp AVGOGLSurface.cpp
+    GL_INCLUDES = AVGSDLDisplayEngine.h OGLHelper.h \
+                  AVGSDLFontManager.h AVGOGLSurface.h \
                   AVGSDLFont.h
 else
     GL_LIBS =
@@ -34,8 +35,9 @@ endif
 if ENABLE_DFB
     DFB_LIBS = `directfb-config --libs`
     DFB_SOURCES = AVGDFBDisplayEngine.cpp AVGDFBFontManager.cpp \
-                  AVGDFBFont.cpp 
-    DFB_INCLUDES = AVGDFBDisplayEngine.h AVGDFBFontManager.h AVGDFBFont.h 
+                  AVGDFBFont.cpp AVGDFBSurface.cpp 
+    DFB_INCLUDES = AVGDFBDisplayEngine.h AVGDFBFontManager.h AVGDFBFont.h \
+                  AVGDFBSurface.h
 else
     DFB_LIBS =
     DFB_SOURCES =

@@ -10,6 +10,7 @@
 #include <string>
 
 class PLBmp;
+class IAVGSurface;
 
 //5a938e63-42c6-4218-9cbd-a7afeb4fbd36
 #define AVGIMAGE_CID \
@@ -41,7 +42,7 @@ class AVGImage : public AVGNode
 
     private:
         std::string m_Filename;
-        PLBmp * m_pBmp;
+        IAVGSurface * m_pSurface;
 };
 
 #endif //_AVGImage_H_

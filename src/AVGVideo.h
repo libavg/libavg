@@ -36,14 +36,14 @@ class AVGVideo : public AVGVideoBase, public IAVGVideo
         NS_IMETHOD GetType(PRInt32 *_retval);
 
         virtual void init (const std::string& id, const std::string& filename, 
-           bool bLoop, bool bOverlay, 
-           IAVGDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer);
+           bool bLoop, bool bOverlay, IAVGDisplayEngine * pEngine, 
+           AVGContainer * pParent, AVGPlayer * pPlayer);
         virtual std::string getTypeStr ();
 
     private:
         void initVideoSupport();
 
-        bool renderToBmp(PLBmp * pBmp, const AVGDRect* pVpt);
+        bool renderToSurface(IAVGSurface * pSurface);
         bool canRenderToBackbuffer(int BitsPerPixel);
         void seek(int DestFrame);
         void advancePlayback();

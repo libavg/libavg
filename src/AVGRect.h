@@ -7,6 +7,8 @@
 
 #include "AVGPoint.h"
 
+#include <paintlib/plrect.h>
+
 // Simple rectangle class.
 // If NUM is an integer, contains all points from tl up to but not including 
 // br.
@@ -20,6 +22,7 @@ public:
   AVGRect ();
   AVGRect (NUM left, NUM top, NUM right, NUM bottom);
   AVGRect (const AVGPoint<NUM>& TL, const AVGPoint<NUM>& BR);
+  AVGRect (const PLRect& rc);
 
   bool operator == (const AVGRect<NUM>& rect) const;
   bool operator != (const AVGRect<NUM> & rect) const;
@@ -32,6 +35,8 @@ public:
   bool Intersects (const AVGRect<NUM>& rect) const;
   void Expand (const AVGRect<NUM>& rect);
   void Intersect (const AVGRect<NUM>& rect);
+
+  operator PLRect () const;
 };
 
 typedef AVGRect<double> AVGDRect;
@@ -50,6 +55,13 @@ AVGRect<NUM>::AVGRect (NUM left, NUM top, NUM right, NUM bottom)
     : tl(left, top), 
       br (right, bottom)
 {}
+
+template<class NUM>
+AVGRect<NUM>::AVGRect (const PLRect& rc)
+    : tl (rc.tl.x, rc.tl.y),
+      br (rc.br.x, rc.br,y)
+{
+}
 
 template<class NUM>
 bool AVGRect<NUM>::operator == (const AVGRect<NUM> & rect) const
@@ -135,6 +147,12 @@ void AVGRect<NUM>::Intersect (const AVGRect<NUM>& rect)
     tl.y = max(tl.y, rect.tl.y);
     br.x = min(br.x, rect.br.x);
     br.y = min(br.y, rect.br.y);
+}
+
+template<class NUM>
+AVGRect<NUM>::operator PLRect () const
+{
+    return PLRect(int(tl.x), int(tl.y), int(br.x), int(br.y));
 }
 
 #undef min

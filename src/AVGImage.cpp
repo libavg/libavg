@@ -6,6 +6,7 @@
 #include "IAVGDisplayEngine.h"
 #include "AVGPlayer.h"
 #include "AVGLogger.h"
+#include "IAVGSurface.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/planybmp.h>
@@ -32,15 +33,15 @@ AVGImage * AVGImage::create()
 }       
 
 AVGImage::AVGImage ()
-    : m_pBmp(0)
+    : m_pSurface(0)
 {
     NS_INIT_ISUPPORTS();
 }
 
 AVGImage::~AVGImage ()
 {
-    if (m_pBmp) {
-        delete m_pBmp;
+    if (m_pSurface) {
+        delete m_pSurface;
     }
 }
 
@@ -51,44 +52,53 @@ AVGImage::GetType(PRInt32 *_retval)
     return NS_OK;
 }
 
-void AVGImage::init (const std::string& id, const std::string& filename, int bpp, 
-       IAVGDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer)
+void AVGImage::init (const std::string& id, const std::string& filename, 
+        int bpp, IAVGDisplayEngine * pEngine, AVGContainer * pParent, 
+        AVGPlayer * pPlayer)
 {
     AVGNode::init(id, pEngine, pParent, pPlayer);
 
     m_Filename = filename;
     AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "Loading " << m_Filename);
-    m_pBmp = getEngine()->createSurface();
+    m_pSurface = getEngine()->createSurface();
 
     PLAnyPicDecoder decoder;
     PLAnyBmp TempBmp;
-    PLBmp * pBmp;
-    if (bpp == 32 || !pEngine->supportsBpp(bpp)) {
-        pBmp = m_pBmp;
-    } else {
-        pBmp = &TempBmp;
-    }
-    decoder.MakeBmpFromFile(m_Filename.c_str(), pBmp, 32);
+    // TODO: Decode directly to surface using PLPicDec::GetImage();
+    decoder.MakeBmpFromFile(m_Filename.c_str(), &TempBmp, 32);
     if (!pEngine->hasRGBOrdering()) {
-        pBmp->ApplyFilter(PLFilterFlipRGB());
+        TempBmp.ApplyFilter(PLFilterFlipRGB());
     }
-    if (bpp != 32 && pEngine->supportsBpp(bpp)) {
-        m_pBmp->CreateCopy(*pBmp, bpp);
+/*
+    int DestBPP = bpp;
+    if (!pEngine->supportsBpp(bpp)) {
+        DestBPP = 32;
+    }
+*/    
+    int DestBPP = 32;
+    m_pSurface->create(TempBmp.GetWidth(), TempBmp.GetHeight(), 
+            DestBPP, TempBmp.HasAlpha());
+    
+    PLPixel32** ppSrcLines = TempBmp.GetLineArray32();
+    PLBmpBase * pDestBmp = m_pSurface->getBmp();
+    PLPixel32** ppDestLines = pDestBmp->GetLineArray32();
+    for (int y=0; y<TempBmp.GetHeight(); y++) {
+        memcpy (ppDestLines[y], ppSrcLines[y], TempBmp.GetWidth()*4);
+    }
         
-    }
-    getEngine()->surfaceChanged(m_pBmp);
+    getEngine()->surfaceChanged(m_pSurface);
 }
 
 void AVGImage::render (const AVGDRect& Rect)
 {
-    getEngine()->blt32(m_pBmp, &getAbsViewport(), getEffectiveOpacity(), 
+    getEngine()->blt32(m_pSurface, &getAbsViewport(), getEffectiveOpacity(), 
             getAngle(), getPivot());
 }
 
 bool AVGImage::obscures (const AVGDRect& Rect, int z) 
 {
-    return (getEffectiveOpacity() > 0.999 && !m_pBmp->HasAlpha() &&
-            getZ() > z && getVisibleRect().Contains(Rect));
+    return (getEffectiveOpacity() > 0.999 && !m_pSurface->getBmp()->HasAlpha() 
+            && getZ() > z && getVisibleRect().Contains(Rect));
 }
 
 string AVGImage::getTypeStr ()
@@ -98,6 +108,6 @@ string AVGImage::getTypeStr ()
 
 AVGDPoint AVGImage::getPreferredMediaSize()
 {
-    return AVGDPoint(m_pBmp->GetSize());
+    return AVGDPoint(m_pSurface->getBmp()->GetSize());
 }
 

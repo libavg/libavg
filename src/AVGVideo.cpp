@@ -9,9 +9,9 @@
 #include "AVGLogger.h"
 #include "AVGContainer.h"
 #include "AVGFFMpegDecoder.h"
+#include "IAVGSurface.h"
 
 #include <paintlib/plbitmap.h>
-#include <paintlib/pldirectfbbmp.h>
 #include <paintlib/plpngenc.h>
 #include <paintlib/planybmp.h>
 #include <paintlib/Filter/plfilterfill.h>
@@ -127,11 +127,12 @@ double AVGVideo::getFPS()
     return m_pDecoder->getFPS();
 }
 
-bool AVGVideo::renderToBmp(PLBmp * pBmp, const AVGDRect* pVpt)
+bool AVGVideo::renderToSurface(IAVGSurface * pSurface)
 {
-    m_bEOF = m_pDecoder->renderToBmp(pBmp, getEngine()->hasRGBOrdering(), pVpt);
+    m_bEOF = m_pDecoder->renderToBmp(pSurface->getBmp(), 
+            getEngine()->hasRGBOrdering());
     if (!m_bEOF) {
-        getEngine()->surfaceChanged(pBmp);
+        getEngine()->surfaceChanged(pSurface);
     }
     advancePlayback();
     return !m_bEOF;

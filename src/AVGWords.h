@@ -11,8 +11,6 @@
 #include <paintlib/plpixel32.h>
 #include <paintlib/plbitmap.h>
 
-#include <directfb/directfb.h>
-
 #include <string>
 
 //db87cf71-f379-4ba8-a5c8-e0309467007b
@@ -22,6 +20,7 @@
 #define AVGWORDS_CONTRACTID "@c-base.org/avgwords;1"
 
 class IAVGFont;
+class IAVGSurface;
 
 class AVGWords : public AVGNode, IAVGWords
 {
@@ -57,7 +56,7 @@ class AVGWords : public AVGNode, IAVGWords
         PLPixel32 m_Color;
         int m_Size;
         IAVGFont * m_pFont;
-        PLBmp * m_pBmp;
+        IAVGSurface * m_pSurface;
         AVGDPoint m_StringExtents;
 };
 

@@ -13,9 +13,6 @@
 #include "AVGLogger.h"
 
 #include <paintlib/plbitmap.h>
-#include <paintlib/pldirectfbbmp.h>
-//#include <paintlib/planybmp.h>
-//#include <paintlib/Filter/plfilterfill.h>
 
 #include <iostream>
 #include <sstream>
@@ -253,23 +250,18 @@ double AVGFFMpegDecoder::getFPS()
     return m_pVStream->r_frame_rate;
 }
 
-bool AVGFFMpegDecoder::renderToBmp(PLBmp * pBmp, bool bHasRGBOrdering,
-        const AVGDRect* pVpt)
+bool AVGFFMpegDecoder::renderToBmp(PLBmpBase * pBmp, bool bHasRGBOrdering)
 {
 /* Speedup possibilities:
     fast YUV->RGB conversion? incl. scaling?
     draw_horiz_band?
 */
-    AVGDRect Vpt (0, 0, pBmp->GetWidth(), pBmp->GetHeight());
-    if (pVpt != 0) {
-        Vpt = *pVpt;
-    }
     AVFrame Frame;
     readFrame(Frame);
     if (!m_bEOF) {
         AVPicture DestPict;
-        int x1 = int(Vpt.tl.x);
-        int y1 = int(Vpt.tl.y);
+        int x1 = 0;
+        int y1 = 0;
         PLBYTE ** ppDestLines = pBmp->GetLineArray();
         PLBYTE * pDestBits = ppDestLines[y1]+3*x1;
         DestPict.data[0] = pDestBits;

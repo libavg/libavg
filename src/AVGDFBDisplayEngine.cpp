@@ -14,9 +14,9 @@
 #include "AVGMouseEvent.h"
 #include "AVGKeyEvent.h"
 #include "AVGWindowEvent.h"
+#include "AVGDFBSurface.h"
 
 #include <paintlib/plbitmap.h>
-#include <paintlib/pldirectfbbmp.h>
 #include <paintlib/plrect.h>
 
 #include <directfb.h>
@@ -193,7 +193,7 @@ void AVGDFBDisplayEngine::initDFB(int width, int height,
     
     m_IsFullscreen = isFullscreen;
     m_bpp = bpp;
-    PLDirectFBBmp::SetDirectFB(m_pDirectFB);
+    AVGDFBSurface::SetDirectFB(m_pDirectFB);
 }
 
 void AVGDFBDisplayEngine::initLayer(int width, int height)
@@ -359,17 +359,19 @@ const AVGDRect& AVGDFBDisplayEngine::getClipRect() {
     return m_ClipRect;
 }
 
-void AVGDFBDisplayEngine::blt32(PLBmp * pBmp, const AVGDRect* pDestRect, 
+void AVGDFBDisplayEngine::blt32(IAVGSurface * pSurface, 
+        const AVGDRect* pDestRect, 
         double opacity, double angle, const AVGDPoint& pivot)
 {
-    PLDirectFBBmp * pDFBBmp = dynamic_cast<PLDirectFBBmp *>(pBmp);
-    PLASSERT(pDFBBmp); // createSurface() should have been used to create 
-                       // the bitmap.
-    IDirectFBSurface * pSurf = pDFBBmp->GetSurface();
-    blt32(pSurf, pDestRect, opacity, pBmp->HasAlpha());
+    AVGDFBSurface * pDFBSurface = 
+            dynamic_cast<AVGDFBSurface *>(pSurface);
+    PLASSERT(pDFBSurface); // Make sure we have the correct type of surface
+    IDirectFBSurface * pSurf = pDFBSurface->getSurface();
+    blt32(pSurf, pDestRect, opacity, pSurface->getBmp()->HasAlpha());
 }
 
-void AVGDFBDisplayEngine::blta8(PLBmp * pBmp, const AVGDRect* pDestRect, 
+void AVGDFBDisplayEngine::blta8(IAVGSurface * pSurface, 
+        const AVGDRect* pDestRect, 
         double opacity, const PLPixel32& color, double angle, 
         const AVGDPoint& pivot)
 {
@@ -378,10 +380,15 @@ void AVGDFBDisplayEngine::blta8(PLBmp * pBmp, const AVGDRect* pDestRect,
             __u8(opacity*256));
 
     DFBSurfaceBlittingFlags BltFlags;
-    BltFlags = DFBSurfaceBlittingFlags(DSBLIT_BLEND_ALPHACHANNEL | DSBLIT_COLORIZE);
+    BltFlags = DFBSurfaceBlittingFlags(DSBLIT_BLEND_ALPHACHANNEL | 
+                                       DSBLIT_COLORIZE);
     m_pBackBuffer->SetBlittingFlags(m_pBackBuffer, BltFlags);
+    AVGDFBSurface * pDFBSurface = 
+            dynamic_cast<AVGDFBSurface *>(pSurface);
+    PLASSERT(pDFBSurface); // Make sure we have the correct type of surface
+    IDirectFBSurface * pSurf = pDFBSurface->getSurface();
 
-    blt(dynamic_cast<PLDirectFBBmp*>(pBmp)->GetSurface(), pDestRect);
+    blt(pSurf, pDestRect);
 }
 
 void AVGDFBDisplayEngine::blt32(IDirectFBSurface * pSrc,  
@@ -491,14 +498,9 @@ void AVGDFBDisplayEngine::swapBuffers(const AVGRegion & UpdateRegion)
     pLayerSurf->Release(pLayerSurf);
 }
 
-PLBmp * AVGDFBDisplayEngine::createSurface()
+IAVGSurface * AVGDFBDisplayEngine::createSurface()
 {
-    return new PLDirectFBBmp;
-}
-
-IDirectFB * AVGDFBDisplayEngine::getDFB()
-{
-    return m_pDirectFB;
+    return new AVGDFBSurface;
 }
 
 IDirectFBSurface * AVGDFBDisplayEngine::getPrimary()

@@ -11,9 +11,9 @@
 #include "AVGPlayer.h"
 #include "AVGLogger.h"
 #include "AVGContainer.h"
+#include "IAVGSurface.h"
 
 #include <paintlib/plbitmap.h>
-#include <paintlib/pldirectfbbmp.h>
 #include <paintlib/plpngenc.h>
 #include <paintlib/planybmp.h>
 #include <paintlib/Filter/plfilterfill.h>
@@ -257,35 +257,30 @@ void AVGCamera::fatalError(const string & sMsg)
     exit(-1);
 }
 
-bool AVGCamera::renderToBmp(PLBmp * pBmp, const AVGDRect* pVpt)
+bool AVGCamera::renderToSurface(IAVGSurface * pSurface)
 {
-    AVGDRect Vpt (0, 0, pBmp->GetWidth(), pBmp->GetHeight());
-    if (pVpt != 0) {
-        Vpt = *pVpt;
-    }
+    PLBmpBase * pBmp = pSurface->getBmp();
     int rc = dc1394_dma_single_capture_poll(&m_Camera);
     if (rc == DC1394_SUCCESS) {
         // New frame available
         switch (m_Mode) {
             case MODE_640x480_YUV411:
-                YUV411toBGR24((PLBYTE*)(m_Camera.capture_buffer), pBmp, Vpt);
+                YUV411toBGR24((PLBYTE*)(m_Camera.capture_buffer), pBmp);
                 break;
             case MODE_640x480_RGB:
                 {
                     PLBYTE ** ppLines = pBmp->GetLineArray();
-                    int YOffs = int(Vpt.tl.y+0.5);
-                    int XOffs = int(Vpt.tl.x+0.5)*3;
                     int WidthBytes = pBmp->GetWidth()*3;
                     if (getEngine()->hasRGBOrdering()) {
                         for (int y = 0; y < pBmp->GetHeight(); y++) {
-                            memcpy(ppLines[y+YOffs]+XOffs,
+                            memcpy(ppLines[y],
                                     (PLBYTE*)(m_Camera.capture_buffer)+
                                         y*WidthBytes,
                                     WidthBytes);
                         }
                     } else {
                         for (int y = 0; y < pBmp->GetHeight(); y++) {
-                            PLBYTE * pDestLine = ppLines[y+YOffs]+XOffs;
+                            PLBYTE * pDestLine = ppLines[y];
                             PLBYTE * pSrcLine = (PLBYTE*)
                                     m_Camera.capture_buffer+y*WidthBytes;
                             for (int x = 0; x < WidthBytes; x+=3) {
@@ -303,10 +298,11 @@ bool AVGCamera::renderToBmp(PLBmp * pBmp, const AVGDRect* pVpt)
                 break;
         }
         dc1394_dma_done_with_buffer(&m_Camera);
-        getEngine()->surfaceChanged(pBmp);
+        getEngine()->surfaceChanged(pSurface);
     } else {
         if (rc == DC1394_NO_FRAME) {
-            cerr << "Camera: Frame not available." << endl;
+            AVG_TRACE(AVGPlayer::DEBUG_WARNING,
+                    "Camera: Frame not available.");
         } else {
             fatalError("Frame capture failed.");
         }
@@ -393,11 +389,11 @@ void AVGCamera::YUV411toBGR24Line(PLBYTE* pSrc, int y, PLPixel24 * pDestLine)
     
 }
 
-void AVGCamera::YUV411toBGR24(PLBYTE* pSrc, PLBmp * pBmp, const AVGDRect& vpt)
+void AVGCamera::YUV411toBGR24(PLBYTE* pSrc, PLBmpBase * pBmp)
 {
     PLPixel24 ** ppBits = pBmp->GetLineArray24();
     for (int y = 0; y < getMediaHeight(); y++) {
-        PLPixel24 * pDest = ppBits[int(y+vpt.tl.y)]+int(vpt.tl.x);
+        PLPixel24 * pDest = ppBits[y];
         YUV411toBGR24Line(pSrc, y, pDest);
     }
 }

@@ -5,11 +5,11 @@
 
 #include "AVGSDLFont.h"
 #include "AVGException.h"
+#include "IAVGSurface.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/Filter/plfilterfill.h>
 #include <paintlib/plpixel8.h>
-#include <paintlib/pldirectfbbmp.h>
 
 #include <iostream>
 
@@ -43,16 +43,24 @@ AVGSDLFont::~AVGSDLFont()
     m_pFont = 0;
 }
  
-void AVGSDLFont::render(PLBmp& Bmp, const std::string & Text)
+void AVGSDLFont::render(IAVGSurface& Surface, const std::string & Text)
 {
     SDL_Color FGColor= { 0xFF, 0xFF, 0xFF, 0xFF };
     SDL_Color BGColor= { 0x00, 0x00, 0x00, 0xFF };
 
-    SDL_Surface * pSurface = 
+    SDL_Surface * pSDLSurface = 
             TTF_RenderText_Shaded(m_pFont, Text.c_str(), FGColor, BGColor);
-    Bmp.Create(pSurface->w, pSurface->h, 8, false, true, 
-            (PLBYTE*)(pSurface->pixels), pSurface->pitch);
-    SDL_FreeSurface(pSurface);
+    Surface.create(pSDLSurface->w, pSDLSurface->h, 8, false);
+
+    PLBYTE * pSrcPixels = (PLBYTE*)(pSDLSurface->pixels);
+    PLBmpBase * pDestBmp = Surface.getBmp();
+    PLBYTE ** ppDestLines = pDestBmp->GetLineArray();
+    for (int y=0; y<pSDLSurface->h; y++) {
+        memcpy (ppDestLines[y], pSrcPixels + y*pSDLSurface->pitch,
+                pSDLSurface->w);
+    }
+    
+    SDL_FreeSurface(pSDLSurface);
 }
 
 

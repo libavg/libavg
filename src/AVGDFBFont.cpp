@@ -5,11 +5,12 @@
 
 #include "AVGDFBFont.h"
 #include "AVGException.h"
+#include "IAVGSurface.h"
+#include "AVGDFBSurface.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/Filter/plfilterfill.h>
 #include <paintlib/plpixel8.h>
- #include <paintlib/pldirectfbbmp.h>
 
 using namespace std;
 
@@ -35,7 +36,7 @@ AVGDFBFont::~AVGDFBFont()
     m_pFont->Release(m_pFont);
 }
  
-void AVGDFBFont::render(PLBmp& Bmp, const std::string & Text)
+void AVGDFBFont::render(IAVGSurface& Surface, const std::string & Text)
 {
     DFBRectangle DFBExtents; 
     // TODO: This gets the logical extent of the string, not the ink rect.
@@ -45,11 +46,15 @@ void AVGDFBFont::render(PLBmp& Bmp, const std::string & Text)
     if (StringExtents.x == 0) {
         StringExtents = PLPoint(1,1);
     }
-    Bmp.Create(StringExtents.x, StringExtents.y, 8, false, false);
-    Bmp.ApplyFilter(PLFilterFill<PLPixel8>(PLPixel8(0x0)));
-    IDirectFBSurface * pSurface = dynamic_cast<PLDirectFBBmp&>(Bmp).GetSurface();
-    pSurface->SetColor(pSurface, 0xFF, 0xFF, 0xFF, 0xFF);
+    Surface.create(StringExtents.x, StringExtents.y, 8, false);    
 
+    IDirectFBSurface * pSurface = 
+            dynamic_cast<AVGDFBSurface&>(Surface).getSurface();
+//    Bmp.ApplyFilter(PLFilterFill<PLPixel8>(PLPixel8(0x0)));
+    pSurface->SetColor(pSurface, 0x00, 0x00, 0x00, 0x00);
+    pSurface->FillRectangle(pSurface, 0, 0, StringExtents.x, StringExtents.y);
+    
+    pSurface->SetColor(pSurface, 0xFF, 0xFF, 0xFF, 0xFF);
     pSurface->SetDrawingFlags(pSurface, DSDRAW_BLEND);
     pSurface->SetFont(pSurface, m_pFont);
     DFBResult err = pSurface->DrawString(pSurface, Text.c_str(), -1, 0, 0, 

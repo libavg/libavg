@@ -7,14 +7,15 @@
 #include "IAVGDisplayEngine.h"
 #ifdef AVG_ENABLE_DFB
 #include "AVGDFBDisplayEngine.h"
+#include "AVGDFBSurface.h"
 #endif
 #include "AVGException.h"
 #include "AVGPlayer.h"
 #include "AVGLogger.h"
 #include "AVGContainer.h"
+#include "IAVGSurface.h"
 
 #include <paintlib/plbitmap.h>
-#include <paintlib/pldirectfbbmp.h>
 #include <paintlib/plpngenc.h>
 #include <paintlib/planybmp.h>
 #include <paintlib/Filter/plfilterfill.h>
@@ -32,7 +33,7 @@ NS_IMPL_ISUPPORTS2(AVGVideoBase, IAVGNode, IAVGVideoBase);
 
 AVGVideoBase::AVGVideoBase ()
     : m_State(Unloaded),
-      m_pBmp(0)
+      m_pSurface(0)
 {
     NS_INIT_ISUPPORTS();
     m_bFrameAvailable = false;
@@ -40,8 +41,8 @@ AVGVideoBase::AVGVideoBase ()
 
 AVGVideoBase::~AVGVideoBase ()
 {
-    if (m_pBmp) {
-        delete m_pBmp;
+    if (m_pSurface) {
+        delete m_pSurface;
     }
 }
 
@@ -117,17 +118,17 @@ void AVGVideoBase::render (const AVGDRect& Rect)
                 } else
 #endif                
                 {
-                    m_bFrameAvailable = renderToBmp(m_pBmp);
-                    getEngine()->blt32(m_pBmp, &getAbsViewport(), 
+                    m_bFrameAvailable = renderToSurface(m_pSurface);
+                    getEngine()->blt32(m_pSurface, &getAbsViewport(), 
                             getEffectiveOpacity(), getAngle(), getPivot());
                 }
             }
             break;
         case Paused:
             if (!m_bFrameAvailable) {
-                m_bFrameAvailable = renderToBmp(m_pBmp);
+                m_bFrameAvailable = renderToSurface(m_pSurface);
             }
-            getEngine()->blt32(m_pBmp, &getAbsViewport(), 
+            getEngine()->blt32(m_pSurface, &getAbsViewport(), 
                     getEffectiveOpacity(), getAngle(), getPivot());
             break;
         case Unloaded:
@@ -145,8 +146,8 @@ void AVGVideoBase::changeState(VideoState NewState)
     }
     if (NewState == Unloaded) {
         close();
-        delete m_pBmp;
-        m_pBmp = 0;
+        delete m_pSurface;
+        m_pSurface = 0;
     }
     addDirtyRect(getVisibleRect());
     m_State = NewState;
@@ -165,9 +166,10 @@ void AVGVideoBase::renderToBackbuffer()
             DFBSurfaceLockFlags(DSLF_WRITE), (void **)&pSurfBits, &Pitch);
     pEngine->DFBErrorCheck(AVG_ERR_DFB, 
             "AVGVideoBase::renderToBackbuffer", err);
-    PLDirectFBBmp BackBufferBmp;
-    BackBufferBmp.CreateFromSurface (pSurface, false);
-    renderToBmp(&BackBufferBmp, &vpt);
+    AVGDFBSurface SubSurface;
+    PLRect plvpt = PLRect(vpt);
+    SubSurface.createFromDFBSurface(pSurface, &plvpt);
+    renderToSurface(&SubSurface);
     pSurface->Unlock(pSurface);
 
     m_bFrameAvailable=false;
@@ -184,10 +186,10 @@ void AVGVideoBase::open()
     if (!m_bOk) {
         return;
     }
-    m_pBmp = getEngine()->createSurface();
+    m_pSurface = getEngine()->createSurface();
     AVGDRect vpt = getRelViewport();
 
-    m_pBmp->Create(m_Width, m_Height, 24, false, false);
+    m_pSurface->create(m_Width, m_Height, 24, false);
     m_bFrameAvailable = false;
     m_State = Paused;
 }

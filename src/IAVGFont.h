@@ -8,10 +8,13 @@
 #include <string>
 #include <paintlib/plbitmap.h>
 
+class IAVGSurface;
+
 class IAVGFont
 {
 	public:
-        virtual void render(PLBmp& Surface, const std::string & Text) = 0;
+        virtual void render(IAVGSurface& Surface, 
+                const std::string & Text) = 0;
 };
 
 #endif 

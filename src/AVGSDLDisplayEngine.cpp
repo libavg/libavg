@@ -14,11 +14,11 @@
 #include "AVGMouseEvent.h"
 #include "AVGKeyEvent.h"
 #include "AVGWindowEvent.h"
-#include "AVGOGLBmp.h"
+#include "AVGOGLSurface.h"
 #include "OGLHelper.h"
 
 #include <paintlib/plbitmap.h>
-#include <paintlib/plsdlbmp.h>
+//#include <paintlib/plsdlbmp.h>
 #include <paintlib/plrect.h>
 
 #include <GL/gl.h>
@@ -127,7 +127,7 @@ void AVGSDLDisplayEngine::init(int width, int height, bool isFullscreen, int bpp
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glShadeModel()");
     glDisable(GL_DEPTH_TEST);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glDisable(GL_DEPTH_TEST)");
-    int TexMode = AVGOGLBmp::getTextureMode();
+    int TexMode = AVGOGLSurface::getTextureMode();
     glEnable(TexMode);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(TexMode);");
 
@@ -217,41 +217,43 @@ const AVGDRect& AVGSDLDisplayEngine::getClipRect()
     return m_ClipRects.back();
 }
 
-void AVGSDLDisplayEngine::blt32(PLBmp * pBmp, const AVGDRect* pDestRect, 
+void AVGSDLDisplayEngine::blt32(IAVGSurface * pSurface, const AVGDRect* pDestRect, 
         double opacity, double angle, const AVGDPoint& pivot)
 {
-    AVGOGLBmp * pOGLBmp = dynamic_cast<AVGOGLBmp*>(pBmp);
+    AVGOGLSurface * pOGLSurface = dynamic_cast<AVGOGLSurface*>(pSurface);
     glColor4f(1.0f, 1.0f, 1.0f, opacity);
-    if (AVGOGLBmp::getTextureMode() == GL_TEXTURE_RECTANGLE_NV) {
-        bltTexture(pOGLBmp, pDestRect, pBmp->GetWidth(), pBmp->GetHeight(),
+    PLBmpBase * pBmp = pSurface->getBmp();
+    if (AVGOGLSurface::getTextureMode() == GL_TEXTURE_RECTANGLE_NV) {
+        bltTexture(pOGLSurface, pDestRect, pBmp->GetWidth(), pBmp->GetHeight(),
                 angle, pivot);
     } else {
-        bltTexture(pOGLBmp, pDestRect, 
-                ((GLfloat)pBmp->GetWidth()-0.5f)/pOGLBmp->getTexWidth(),
-                ((GLfloat)pBmp->GetHeight()-0.5f)/pOGLBmp->getTexHeight(), angle, 
-                pivot);
+        bltTexture(pOGLSurface, pDestRect, 
+                ((GLfloat)pBmp->GetWidth()-0.5f)/pOGLSurface->getTexWidth(),
+                ((GLfloat)pBmp->GetHeight()-0.5f)/pOGLSurface->getTexHeight(), 
+                angle, pivot);
     }
 }
 
-void AVGSDLDisplayEngine::blta8(PLBmp * pBmp, const AVGDRect* pDestRect,
+void AVGSDLDisplayEngine::blta8(IAVGSurface * pSurface, const AVGDRect* pDestRect,
         double opacity, const PLPixel32& color, double angle, 
         const AVGDPoint& pivot)
 {
-    AVGOGLBmp * pOGLBmp = dynamic_cast<AVGOGLBmp*>(pBmp);
+    AVGOGLSurface * pOGLSurface = dynamic_cast<AVGOGLSurface*>(pSurface);
     glColor4f(float(color.GetR())/256, float(color.GetG())/256, 
             float(color.GetB())/256, opacity);
-    if (AVGOGLBmp::getTextureMode() == GL_TEXTURE_RECTANGLE_NV) {
-        bltTexture(pOGLBmp, pDestRect, pBmp->GetWidth(), pBmp->GetHeight(), angle, 
-                pivot);
+    PLBmpBase * pBmp = pSurface->getBmp();
+    if (AVGOGLSurface::getTextureMode() == GL_TEXTURE_RECTANGLE_NV) {
+        bltTexture(pOGLSurface, pDestRect, pBmp->GetWidth(), pBmp->GetHeight(), 
+                angle, pivot);
     } else {
-        bltTexture(pOGLBmp, pDestRect, 
-                ((GLfloat)pBmp->GetWidth()-0.5f)/pOGLBmp->getTexWidth(),
-                ((GLfloat)pBmp->GetHeight()-0.5f)/pOGLBmp->getTexHeight(), angle, 
-                pivot);
+        bltTexture(pOGLSurface, pDestRect, 
+                ((GLfloat)pBmp->GetWidth()-0.5f)/pOGLSurface->getTexWidth(),
+                ((GLfloat)pBmp->GetHeight()-0.5f)/pOGLSurface->getTexHeight(), 
+                angle, pivot);
     }
 }
 
-void AVGSDLDisplayEngine::bltTexture(AVGOGLBmp * pOGLBmp, 
+void AVGSDLDisplayEngine::bltTexture(AVGOGLSurface * pSurface,
         const AVGDRect* pDestRect, 
         float Width, float Height, double angle, const AVGDPoint& pivot)
 {
@@ -266,7 +268,7 @@ void AVGSDLDisplayEngine::bltTexture(AVGOGLBmp * pOGLBmp,
     glTranslated(-center.x, -center.y, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "bltTexture: glTranslated");
 
-    glBindTexture(AVGOGLBmp::getTextureMode(), pOGLBmp->getTexID());
+    glBindTexture(AVGOGLSurface::getTextureMode(), pSurface->getTexID());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGSDLDisplayEngine::blta8: glBindTexture()");
     glBegin(GL_QUADS);
@@ -339,15 +341,15 @@ void AVGSDLDisplayEngine::swapBuffers()
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "swapBuffers()");
 }
 
-PLBmp * AVGSDLDisplayEngine::createSurface()
+IAVGSurface * AVGSDLDisplayEngine::createSurface()
 {
-    return new AVGOGLBmp;
+    return new AVGOGLSurface;
 }
 
-void AVGSDLDisplayEngine::surfaceChanged(PLBmp* pBmp) 
+void AVGSDLDisplayEngine::surfaceChanged(IAVGSurface * pSurface) 
 {
-    AVGOGLBmp * pOGLBmp = dynamic_cast<AVGOGLBmp *>(pBmp);
-    pOGLBmp->bind();
+    AVGOGLSurface * pOGLSurface = dynamic_cast<AVGOGLSurface *>(pSurface);
+    pOGLSurface->bind();
 }
 
 AVGFontManager * AVGSDLDisplayEngine::getFontManager()

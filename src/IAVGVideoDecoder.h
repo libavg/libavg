@@ -23,8 +23,7 @@ class IAVGVideoDecoder
         virtual int getNumFrames() = 0;
         virtual double getFPS() = 0;
 
-        virtual bool renderToBmp(PLBmp * pBmp, bool bHasRGBOrdering, 
-                const AVGDRect* pVpt=0) = 0;
+        virtual bool renderToBmp(PLBmpBase * pBmp, bool bHasRGBOrdering) = 0;
         virtual bool canRenderToBuffer(int BPP) = 0;
 };
 

@@ -14,7 +14,7 @@ class AVGDFBFont: public IAVGFont
 	public:
         AVGDFBFont(IDirectFB * pDFB, const std::string & Filename, int Size);
         virtual ~AVGDFBFont();
-        virtual void render(PLBmp& Bmp, const std::string & Text);
+        virtual void render(IAVGSurface& Surface, const std::string & Text);
 
     private:
         IDirectFBFont * m_pFont;

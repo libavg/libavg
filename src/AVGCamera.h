@@ -44,11 +44,10 @@ class AVGCamera : public AVGVideoBase , public IAVGCamera
     private:
         bool findCameraOnPort(int port, raw1394handle_t& FWHandle);
         
-        virtual bool renderToBmp(PLBmp * pBmp, const AVGDRect* pVpt = 0);
+        virtual bool renderToSurface(IAVGSurface * pSurface);
         virtual bool canRenderToBackbuffer(int BitsPerPixel);
         void YUV411toBGR24Line(PLBYTE* pSrc, int y, PLPixel24 * pDestLine);
-        void YUV411toBGR24(PLBYTE* pSrc, PLBmp * pBmp);
-        void YUV411toBGR24(PLBYTE* pSrc, PLBmp * pBmp, const AVGDRect& vpt);
+        void YUV411toBGR24(PLBYTE* pSrc, PLBmpBase * pBmp);
        
         virtual bool open(int* pWidth, int* pHeight);
         virtual void close();

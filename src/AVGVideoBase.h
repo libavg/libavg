@@ -14,6 +14,7 @@
 #include <string>
 
 class PLBmp;
+class IAVGSurface;
 
 class AVGVideoBase : public IAVGVideoBase, public AVGNode
 {
@@ -44,8 +45,7 @@ class AVGVideoBase : public IAVGVideoBase, public AVGNode
         void renderToBackbuffer();
         void open();
 
-        virtual bool renderToBmp(PLBmp * pBmp, 
-                const AVGDRect* pVpt=0) = 0;
+        virtual bool renderToSurface(IAVGSurface * pSurface) = 0;
         virtual bool canRenderToBackbuffer(int BitsPerPixel) = 0;
         virtual bool open(int* pWidth, int* pHeight) = 0;
         virtual void close() = 0;
@@ -54,7 +54,7 @@ class AVGVideoBase : public IAVGVideoBase, public AVGNode
         int m_Width;
         int m_Height;
 
-        PLBmp * m_pBmp;
+        IAVGSurface * m_pSurface;
         bool m_bFrameAvailable;
 
         VideoState m_State;
