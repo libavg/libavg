@@ -36,10 +36,8 @@ AVGImage::AVGImage ()
 
 AVGImage::~AVGImage ()
 {
-    cerr << "~AVGImage: " << getID() << endl;
     if (m_pBmp) {
         delete m_pBmp;
-        cerr << "post delete m_pBmp" << endl;
     }
 }
 
@@ -78,6 +76,7 @@ void AVGImage::init (const std::string& id, int x, int y, int z,
 
 void AVGImage::render (const PLRect& Rect)
 {
+//    cerr << "render " << getID() << endl;
     getEngine()->render(m_pBmp, getAbsViewport().tl, getEffectiveOpacity());
 }
 

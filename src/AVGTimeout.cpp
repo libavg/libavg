@@ -27,7 +27,6 @@ AVGTimeout::AVGTimeout(int time, string code, bool isInterval, JSContext * pCont
 
 AVGTimeout::~AVGTimeout()
 {
-//    cerr << "~AVGTimeout " << m_ID << ", time: " << m_Interval << endl;
 }
 
 bool AVGTimeout::IsReady() const

@@ -33,7 +33,7 @@ class AVGAVGNode :
         NS_IMETHOD GetType(PRInt32 *_retval);
 
         virtual AVGNode * getElementByPos (const PLPoint & pos);
-        virtual void update (int time, const PLPoint& pos);
+        virtual void update (int time, const PLRect& parent);
         virtual void render (const PLRect& rect);
 		virtual void getDirtyRegion (AVGRegion& Region);
         virtual std::string dump (int indent = 0);

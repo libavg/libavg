@@ -189,7 +189,7 @@ function testVideo()
         AVGPlayer.setTimeout(2500, "videoPlay('clogo');");
         AVGPlayer.setTimeout(3000, "videoStop('clogo');");
         AVGPlayer.setTimeout(3500, "videoPlay('clogo');");
-//        AVGPlayer.setTimeout(8000, "quitTimeout();");
+        AVGPlayer.setTimeout(8000, "quitTimeout();");
         AVGPlayer.play();
     }
 }
@@ -262,23 +262,20 @@ function testExcl()
     }
 }
 
-while (true) {
+//while (true) {
+    testVideo();
 /*
     dumpNodes();
     playAVG("image.avg");
-*/
-    testVideo();
-/*
-    testAnimation();
     testWords();
-
-//    testExcl();
+    testExcl();
+    testAnimation();
 
     playAVG("empty.avg");
     playAVG("events.avg");
     playAVG("avg.avg");
     playAVG("noavg.avg");
     playAVG("noxml.avg");
-    */
-}
+*/
+//}
 

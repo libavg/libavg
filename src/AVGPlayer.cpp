@@ -46,7 +46,6 @@ AVGPlayer::AVGPlayer()
       m_EventDebugLevel(0),
       m_pFramerateManager(0)
 {
-   cerr << "AVGPlayer::AVGPlayer" << endl;
 #ifdef XPCOM_GLUE
     XPCOMGlueStartup("XPCOMComponentGlue");
 #endif
@@ -63,7 +62,6 @@ AVGPlayer::AVGPlayer()
 
 AVGPlayer::~AVGPlayer()
 {
-    cerr << "AVGPlayer::~AVGPlayer" << endl;
 #ifdef XPCOM_GLUE
     XPCOMGlueShutdown();
 #endif
@@ -219,7 +217,7 @@ void AVGPlayer::play ()
     m_pFramerateManager = new AVGFramerateManager;
     m_pFramerateManager->SetRate(30);
     m_bStopping = false;
-    m_pRootNode->update(0, PLPoint(0,0));
+    m_pRootNode->update(0, m_pRootNode->getAbsViewport());
     render(true);
     while (!m_bStopping) {
         doFrame();
@@ -248,7 +246,7 @@ void AVGPlayer::doFrame ()
     handleTimers();
     handleEvents();
     if (!m_bStopping) {
-        m_pRootNode->update(0, PLPoint(0,0));
+        m_pRootNode->update(0, m_pRootNode->getAbsViewport());
         render(false);
         m_pFramerateManager->FrameWait();
         m_pDisplayEngine->swapBuffers();
@@ -271,7 +269,7 @@ void AVGPlayer::render (bool bRenderEverything)
         const PLRect & rc = UpdateRegion.getRect(i);
         m_pDisplayEngine->setDirtyRect(rc);
         m_pDisplayEngine->clear();
-        m_pRootNode->render(rc);
+        m_pRootNode->maybeRender(rc);
     }
 }
 
@@ -320,11 +318,13 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         double opacity;
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, &opacity);
         curNode = AVGAVGNode::create();
-        // Fullscreen handling only for topmost node.
+        // Fullscreen and debug handling only for topmost node.
         if (!pParent) {
             m_IsFullscreen = getDefaultedBoolAttr 
                         (xmlNode, (const xmlChar *)"fullscreen", false);
-            m_pDisplayEngine->init(width, height, m_IsFullscreen);
+            bool bDebugBlts = getDefaultedBoolAttr
+                        (xmlNode, (const xmlChar *)"debugblts", false);
+            m_pDisplayEngine->init(width, height, m_IsFullscreen, bDebugBlts);
         }
         dynamic_cast<AVGAVGNode*>(curNode)->init(id, x, y, z, width, height, opacity, 
                     m_pDisplayEngine, pParent);

@@ -40,7 +40,8 @@ class AVGNode: public IAVGNode
              const std::string& MouseOutHandler);
 
         virtual AVGNode * getElementByPos (const PLPoint & pos);
-		virtual void update (int time, const PLPoint& pos);
+		virtual void update (int time, const PLRect& parent);
+        virtual void maybeRender (const PLRect& Rect);
 		virtual void render (const PLRect& Rect);
         virtual void addDirtyRect(const PLRect& Rect);
 		virtual void getDirtyRegion (AVGRegion& Region);

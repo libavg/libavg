@@ -33,7 +33,8 @@ class AVGVisibleNode :
                 AVGDFBDisplayEngine * pEngine, AVGContainer * pParent);
 
         virtual AVGNode * getElementByPos (const PLPoint & pos);
-        virtual void update (int time, const PLPoint& pos);
+        virtual void update (int time, const PLRect& parent);
+        virtual void maybeRender (const PLRect& Rect);
         virtual std::string dump (int indent = 0);
 
         virtual void setViewport (int x, int y, int width, int height);

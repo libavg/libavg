@@ -170,21 +170,24 @@ void AVGWords::drawString()
 
 void AVGWords::render(const PLRect& Rect)
 {
+//    cerr << "render " << getID() << endl;
     if (getEffectiveOpacity() > 0.001) {
-        getEngine()->setClipRect(getAbsViewport());
-        IDirectFBSurface * pSurface = getEngine()->getPrimary();
-        pSurface->SetColor(pSurface, m_Color.GetR(), m_Color.GetG(), m_Color.GetB(),
-                __u8(getEffectiveOpacity()*256));
+        bool bVisible = getEngine()->setClipRect(getAbsViewport());
+        if (bVisible) {
+            IDirectFBSurface * pSurface = getEngine()->getPrimary();
+            pSurface->SetColor(pSurface, m_Color.GetR(), m_Color.GetG(), m_Color.GetB(),
+                    __u8(getEffectiveOpacity()*256));
         //    getEngine()->render(m_pSurface, getAbsViewport().tl, getEffectiveOpacity(), true);
 
-        DFBSurfaceBlittingFlags BltFlags;
-        BltFlags = DFBSurfaceBlittingFlags(DSBLIT_BLEND_ALPHACHANNEL | DSBLIT_COLORIZE);
-        pSurface->SetBlittingFlags(pSurface, BltFlags);
+            DFBSurfaceBlittingFlags BltFlags;
+            BltFlags = DFBSurfaceBlittingFlags(DSBLIT_BLEND_ALPHACHANNEL | DSBLIT_COLORIZE);
+            pSurface->SetBlittingFlags(pSurface, BltFlags);
 
-        PLPoint pos = getAbsViewport().tl;
-        DFBResult err = pSurface->Blit(pSurface, m_pSurface, 0, 
-                pos.x, pos.y);
-        getEngine()->DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, err);
+            PLPoint pos = getAbsViewport().tl;
+            DFBResult err = pSurface->Blit(pSurface, m_pSurface, 0, 
+                    pos.x, pos.y);
+            getEngine()->DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, err);
+        }
     }
 }
 

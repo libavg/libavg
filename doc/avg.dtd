@@ -19,6 +19,7 @@
   height CDATA #REQUIRED
   opacity CDATA #IMPLIED
   fullscreen CDATA "false"
+  debugblts CDATA "false"
   %graphicsElementEvents; >
   
 <!ELEMENT excl (avg|excl|image|video|audio|words)+ >

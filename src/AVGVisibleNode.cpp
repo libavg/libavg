@@ -128,9 +128,20 @@ AVGNode * AVGVisibleNode::getElementByPos (const PLPoint & pos)
     }
 }
 
-void AVGVisibleNode::update (int time, const PLPoint& pos)
+void AVGVisibleNode::update (int time, const PLRect& parent)
 {
-    m_AbsViewport = PLRect (pos+m_RelViewport.tl, pos+m_RelViewport.br);
+    m_AbsViewport = PLRect(parent.tl+m_RelViewport.tl, parent.tl+m_RelViewport.br);
+    m_AbsViewport.Intersect(parent);
+}
+
+void AVGVisibleNode::maybeRender (const PLRect& Rect)
+{
+    bool bVisible = getEngine()->setClipRect(getAbsViewport());
+    if (bVisible) {
+        if (getEffectiveOpacity() > 0.01) {
+            render(Rect);
+        }
+    }
 }
 
 string AVGVisibleNode::dump (int indent)

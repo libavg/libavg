@@ -24,7 +24,6 @@ AVGNode::AVGNode ()
 
 AVGNode::~AVGNode()
 {
-    cerr << "~AVGNode: " << m_ID << endl;
 }
 
 NS_IMETHODIMP 
@@ -127,7 +126,11 @@ AVGNode * AVGNode::getElementByPos (const PLPoint & pos)
     return 0;
 }
 
-void AVGNode::update (int time, const PLPoint& pos)
+void AVGNode::update (int time, const PLRect& parent)
+{
+}
+
+void AVGNode::maybeRender (const PLRect& Rect)
 {
 }
 

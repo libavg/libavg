@@ -17,7 +17,6 @@ AVGContainer::AVGContainer ()
 
 AVGContainer::~AVGContainer ()
 {
-    cerr << "AVGContainer::~AVGContainer" << endl;
     vector<AVGNode*>::iterator it;
     for (it=m_Children.begin(); it<m_Children.end(); it++) {
         NS_IF_RELEASE(*it);
@@ -86,11 +85,11 @@ void AVGContainer::zorderChange (AVGNode * pChild)
     addChild(pChild);
 }
 
-void AVGContainer::update (int time, const PLPoint& pos)
+void AVGContainer::update (int time, const PLRect& parent)
 {
     vector<AVGNode*>::iterator it;
     for (it=m_Children.begin(); it<m_Children.end(); it++) {
-        (*it)->update(time, pos);
+        (*it)->update(time, parent);
     }
 }
 

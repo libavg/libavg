@@ -55,7 +55,7 @@ void AVGDFBDisplayEngine::dumpSurface (IDirectFBSurface * pSurf, const string & 
 }
 
 
-void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen)
+void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen, bool bDebugBlts)
 {
     if (m_pDirectFB) {
         teardown();
@@ -80,6 +80,7 @@ void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen)
     }
 */
     m_IsFullscreen = isFullscreen;
+    m_bDebugBlts = bDebugBlts;
 
     PLDirectFBBmp::SetDirectFB(m_pDirectFB);
 
@@ -189,30 +190,48 @@ void AVGDFBDisplayEngine::setClipRect()
     m_ClipRect = PLRect(0, 0, m_Width, m_Height);
 }
 
-void AVGDFBDisplayEngine::setClipRect(const PLRect& rc)
+bool AVGDFBDisplayEngine::setClipRect(const PLRect& rc)
 {
     m_ClipRect = rc;
+    m_ClipRect.Intersect(m_DirtyRect);
+    if (m_ClipRect.Width() > 0 && m_ClipRect.Height() > 0) {
+        DFBRegion Region;
+        Region.x1 = m_ClipRect.tl.x;
+        Region.y1 = m_ClipRect.tl.y;
+        Region.x2 = m_ClipRect.br.x-1;
+        Region.y2 = m_ClipRect.br.y-1;
+        m_pPrimary->SetClip(m_pPrimary, &Region);
+        if (m_bDebugBlts) {
+            cerr << "---- Clip set to " << m_ClipRect.tl.x << "x" << 
+                    m_ClipRect.tl.y << ", width: " << m_ClipRect.Width() << 
+                    ", height: " << m_ClipRect.Height() << endl;
+        }
+        return true;
+    } else {
+        return false;
+    }
 }
 
 void AVGDFBDisplayEngine::setDirtyRect(const PLRect& rc) 
 {
-    PLRect DirtyRect = rc;
-    DirtyRect.Intersect(m_ClipRect);
-    m_DirtyRect = DirtyRect;
-    DFBRegion Region;
-    Region.x1 = DirtyRect.tl.x;
-    Region.y1 = DirtyRect.tl.y;
-    Region.x2 = DirtyRect.br.x-1;
-    Region.y2 = DirtyRect.br.y-1;
-    m_pPrimary->SetClip(m_pPrimary, &Region);
+    m_DirtyRect = rc;
+    
+    if (m_bDebugBlts) {
+        cerr << "Dirty rect: " << m_DirtyRect.tl.x << "x" << 
+                    m_DirtyRect.tl.y << ", width: " << m_DirtyRect.Width() << 
+                    ", height: " << m_DirtyRect.Height() << endl;
+    }
 }
 
 void AVGDFBDisplayEngine::clear()
 {
     DFBResult err;
     m_pPrimary->SetColor(m_pPrimary, 0x0, 0x00, 0x00, 0xff);
-//    cerr << "Clear rect: " << m_DirtyRect.tl.x << "x" << m_DirtyRect.tl.y <<", " <<
-//            m_DirtyRect.br.x << "x" << m_DirtyRect.br.y << endl;
+    if (m_bDebugBlts) {
+        cerr << "---- Clear rect: " << m_DirtyRect.tl.x << "x" << 
+                m_DirtyRect.tl.y << ", width: " << m_DirtyRect.Width() << 
+                ", height: " << m_DirtyRect.Height() << endl;
+    }        
     err = m_pPrimary->FillRectangle(m_pPrimary, 
             m_DirtyRect.tl.x, m_DirtyRect.tl.y, 
             m_DirtyRect.Width(), m_DirtyRect.Height());
@@ -229,6 +248,7 @@ void AVGDFBDisplayEngine::render(PLBmp * pBmp, const PLPoint& pos, double opacit
 }
 
 void AVGDFBDisplayEngine::render(IDirectFBSurface * pSrc, const PLPoint& pos, 
+        
         double opacity, bool bAlpha)
 {
     DFBSurfaceBlittingFlags BltFlags;
@@ -247,6 +267,14 @@ void AVGDFBDisplayEngine::render(IDirectFBSurface * pSrc, const PLPoint& pos,
 //    dumpSurface (m_pPrimary, "m_pPrimary");
     DFBResult err = m_pPrimary->Blit(m_pPrimary, pSrc, 0, 
             pos.x, pos.y);
+    if (m_bDebugBlts) {
+        int width;
+        int height;
+        pSrc->GetSize(pSrc, &width, &height);
+        cerr << "---- Blit: " << pos.x << "x" << pos.y << ", width:" << width << 
+                ", height: " << height << ", alpha: " << bAlpha << 
+                ", opacity: " << opacity << endl;
+    }
     DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, err);
 }
 
@@ -258,10 +286,22 @@ void AVGDFBDisplayEngine::swapBuffers()
         err = m_pDFBLayer->GetSurface(m_pDFBLayer, &pLayerSurf);
         DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, err);
         err = pLayerSurf->Blit(pLayerSurf, m_pPrimary, 0, 0, 0);
+        if (m_bDebugBlts) {
+            int width;
+            int height;
+            m_pPrimary->GetSize(m_pPrimary, &width, &height);
+            if (m_bDebugBlts) {
+                cerr << "---- Swap Blit: 0x0, width: " << 
+                        width << ", height: " << height << endl;
+            }
+        }
     } else {
         err = m_pPrimary->Flip(m_pPrimary, 0, 
 //                DFBSurfaceFlipFlags(DSFLIP_WAITFORSYNC | DSFLIP_BLIT));
                   DFBSurfaceFlipFlags(DSFLIP_BLIT));
+        if (m_bDebugBlts) {
+            cerr << "---- Flip" << endl;
+        }
     }
     DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, err);
 }

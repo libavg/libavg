@@ -28,7 +28,6 @@ AVGAVGNode::AVGAVGNode()
 
 AVGAVGNode::~AVGAVGNode()
 {
-    cerr << "~AVGAVGNode: " << endl;
 }
 
 NS_IMETHODIMP 
@@ -52,19 +51,19 @@ AVGNode * AVGAVGNode::getElementByPos (const PLPoint & pos)
     return this; // pos is in parent, but not in any child.
 }
 
-void AVGAVGNode::update (int time, const PLPoint& pos)
+void AVGAVGNode::update (int time, const PLRect& parent)
 {
-    AVGVisibleNode::update(time, pos);
+    AVGVisibleNode::update(time, parent);
     for (int i=0; i<getNumChildren(); i++){
-        getChild(i)->update(time, getAbsViewport().tl);
+        getChild(i)->update(time, getAbsViewport());
     }
 }
 
 void AVGAVGNode::render(const PLRect& rect)
 {
-    getEngine()->setClipRect(getAbsViewport());
+//    cerr << "render " << getID() << endl;
     for (int i=0; i<getNumChildren(); i++){
-        getChild(i)->render(rect);
+        getChild(i)->maybeRender(rect);
     }
 }
 
