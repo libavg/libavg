@@ -8,7 +8,7 @@
 #include "AVGExcl.h"
 #include "AVGEvent.h"
 #include "AVGException.h"
-#include "AVGSDLDisplayEngine.h"
+#include "AVGDFBDisplayEngine.h"
 #include "IJSEvalKruecke.h"
 #include "XMLHelper.h"
 
@@ -41,6 +41,7 @@ AVGPlayer::AVGPlayer()
       m_pLastMouseNode(0),
       m_EventDebugLevel(0)
 {
+   cerr << "AVGPlayer::AVGPlayer" << endl;
 #ifdef XPCOM_GLUE
     XPCOMGlueStartup("XPCOMComponentGlue");
 #endif
@@ -61,21 +62,22 @@ NS_IMETHODIMP
 AVGPlayer::LoadFile(const char * fileName, IJSEvalKruecke* pKruecke, 
         PRBool * pResult)
 {
+    cerr << "AVGPlayer::LoadFile" << endl;
     m_pKruecke = pKruecke;
     m_pKruecke->AddRef();
-	try {
-		loadFile (fileName);
-		*pResult = true;
+    try {
+        loadFile (fileName);
+        *pResult = true;
     } catch  (AVGException& ex) {
         cout <<  endl << "    ----------- error: " << ex.GetStr() 
              << "-----------" << endl;
-		*pResult = false;
+        *pResult = false;
     } catch (PLTextException& ex) {
         cout << endl << "    ----------- error: " << (const char *)ex
              << "-----------" << endl;
-		*pResult = false;
-	}
-	return NS_OK;
+        *pResult = false;
+    }
+    return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -175,7 +177,7 @@ AVGPlayer::GetErrCode(PRInt32 * pResult)
 void AVGPlayer::loadFile (const std::string& filename)
 {
     PLASSERT (!m_pRootNode);
-    m_pDisplayEngine = new AVGSDLDisplayEngine ();
+    m_pDisplayEngine = new AVGDFBDisplayEngine ();
 
     xmlPedanticParserDefault(1);
     xmlDoValidityCheckingDefaultValue =1;
@@ -191,7 +193,6 @@ void AVGPlayer::loadFile (const std::string& filename)
     m_pRootNode = dynamic_cast<AVGAVGNode*>
             (createNodeFromXml(xmlDocGetRootElement(doc), 0));
     PLRect rc = m_pRootNode->getRelViewport();
-    m_pDisplayEngine->init(rc.Width(), rc.Height(), m_IsFullscreen);
 }
 
 void AVGPlayer::play ()
@@ -264,14 +265,15 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, &opacity);
 
         curNode = AVGAVGNode::create();
-        dynamic_cast<AVGAVGNode*>(curNode)->init(id, x, y, z, width, height, opacity, 
-                    m_pDisplayEngine, pParent);
-        initEventHandlers(curNode, xmlNode);
         // Fullscreen handling only for topmost node.
         if (!pParent) {
             m_IsFullscreen = getDefaultedBoolAttr 
                         (xmlNode, (const xmlChar *)"fullscreen", false);
+            m_pDisplayEngine->init(width, height, m_IsFullscreen);
         }
+        dynamic_cast<AVGAVGNode*>(curNode)->init(id, x, y, z, width, height, opacity, 
+                    m_pDisplayEngine, pParent);
+        initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"image")) {
         string id;
         int x,y,z;

@@ -12,8 +12,6 @@
 
 #include <paintlib/plstdpch.h>
 
-#include <SDL/SDL.h>
-
 #include <xpcom/nsCOMPtr.h>
 #include <xpcom/nsIComponentManager.h>
 

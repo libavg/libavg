@@ -12,8 +12,6 @@
 
 #include <libxml/parser.h>
 
-#include <SDL/SDL.h>
-
 #include <xpcom/nsCOMPtr.h>
 
 #include <map>
@@ -25,7 +23,7 @@ class AVGNode;
 class AVGVisibleNode;
 class AVGContainer;
 class AVGEvent;
-class AVGSDLDisplayEngine;
+class AVGDFBDisplayEngine;
 class IJSEvalKruecke;
 
 class PLPoint;
@@ -63,7 +61,7 @@ class AVGPlayer: public IAVGPlayer
         void initEventHandlers (AVGNode * pAVGNode, const xmlNodePtr xmlNode);
 
         AVGAVGNode * m_pRootNode;
-        AVGSDLDisplayEngine * m_pDisplayEngine;
+        AVGDFBDisplayEngine * m_pDisplayEngine;
         bool m_IsFullscreen;
 
         std::string m_CurDirName;

@@ -165,15 +165,15 @@ function testExcl()
     }
 }
 
-dumpNodes();
-testAnimation();
-testExcl();
+//dumpNodes();
+//testAnimation();
+//testExcl();
 
-playAVG("empty.avg");
-playAVG("events.avg");
+//playAVG("empty.avg");
+//playAVG("events.avg");
 playAVG("image.avg");
-playAVG("avg.avg");
-playAVG("noavg.avg");
-playAVG("noxml.avg");
-playAVG("video.avg");
+//playAVG("avg.avg");
+//playAVG("noavg.avg");
+//playAVG("noxml.avg");
+//playAVG("video.avg");
 

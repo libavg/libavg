@@ -9,7 +9,6 @@
 #include "AVGVisibleNode.h"
 #include <string>
 
-class AVGSDLDisplayEngine;
 class PLPoint;
 
 //5a938e63-42c6-4218-9cbd-a7afeb4fbd36
@@ -33,10 +32,10 @@ class AVGAVGNode :
 
         NS_IMETHOD GetType(PRInt32 *_retval);
 
-		virtual AVGNode * getElementByPos (const PLPoint & pos);
-		virtual void update (int time, const PLPoint& pos);
-		virtual void render ();
-		virtual void getDirtyRect ();
+        virtual AVGNode * getElementByPos (const PLPoint & pos);
+        virtual void update (int time, const PLPoint& pos);
+        virtual void render ();
+        virtual void getDirtyRect ();
         virtual std::string dump (int indent = 0);
         virtual std::string getTypeStr ();
 };

@@ -3,7 +3,7 @@
 //
 
 #include "AVGVisibleNode.h"
-#include "AVGSDLDisplayEngine.h"
+#include "AVGDFBDisplayEngine.h"
 #include "AVGAVGNode.h"
 #include "IJSEvalKruecke.h"
 
@@ -95,7 +95,7 @@ AVGVisibleNode::SetFloatAttr(const char *name, float value)
 
 void AVGVisibleNode::init (const string& id, int x, int y, int z, 
         int width, int height, double opacity, 
-        AVGSDLDisplayEngine * pEngine, AVGContainer * pParent)
+        AVGDFBDisplayEngine * pEngine, AVGContainer * pParent)
 {
     AVGNode::init(id, pParent);
     m_RelViewport = PLRect(x, y, x+width, y+height);
@@ -166,7 +166,7 @@ double AVGVisibleNode::getEffectiveOpacity()
     }
 }
 
-AVGSDLDisplayEngine * AVGVisibleNode::getEngine()
+AVGDFBDisplayEngine * AVGVisibleNode::getEngine()
 {
     return m_pEngine;
 }

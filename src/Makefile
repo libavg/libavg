@@ -19,7 +19,7 @@ GECKO_INCLUDES = -I $(GECKO_INCLUDE_DIR)/         \
 #                 -I $(GECKO_INCLUDE_DIR)/string   \
 
 LOCAL_INCLUDES=-I/usr/include/g++ -I/usr/include/libxml2/ -I/usr/include/SDL \
-	           -I_xpidlgen
+	           -I_xpidlgen `directfb-config --cflags`
 				 
 GECKO_LIB_DIR = $(PRO)/extern/mozilla/lib
 GECKO_LDFLAGS = -L $(GECKO_LIB_DIR) \
@@ -31,14 +31,13 @@ GECKO_LDFLAGS = -L $(GECKO_LIB_DIR) \
 GECKO_BIN_DIR = $(PRO)/extern/mozilla/bin
 
 LOCAL_LDFLAGS = -lSDL -lpthread -lxml2 -lpaintlib -ltiff -lungif -lz -lpng \
-				-ljpeg -lcurl
-
+		-ljpeg -lcurl `directfb-config --libs`
 				
 CPPSRCS   =  AVGPlayer.cpp AVGNode.cpp \
         AVGAVGNode.cpp AVGVisibleNode.cpp \
         AVGContainer.cpp AVGException.cpp \
         XMLHelper.cpp AVGImage.cpp \
-        AVGSDLDisplayEngine.cpp XPAVGPlayerModule.cpp \
+        AVGDFBDisplayEngine.cpp XPAVGPlayerModule.cpp \
 		AVGFramerateManager.cpp AVGTimeout.cpp \
 		AVGEvent.cpp AVGExcl.cpp \
 		$(NULL)
