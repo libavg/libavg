@@ -4,7 +4,7 @@
 
 #include "AVGAVGNode.h"
 #include "AVGContainer.h"
-#include "AVGDFBDisplayEngine.h"
+#include "IAVGDisplayEngine.h"
 
 #include <paintlib/plpoint.h>
 #include <nsMemory.h>

@@ -4,7 +4,10 @@
 
 #include "AVGFFMpegDecoder.h"
 
+#include "IAVGDisplayEngine.h"
+#ifdef AVG_ENABLE_DFB
 #include "AVGDFBDisplayEngine.h"
+#endif
 #include "AVGException.h"
 #include "AVGPlayer.h"
 #include "AVGLogger.h"
@@ -283,6 +286,7 @@ bool AVGFFMpegDecoder::renderToBmp(PLBmp * pBmp)
 bool AVGFFMpegDecoder::renderToBuffer(PLBYTE * pSurfBits, int Pitch, 
                 int BytesPerPixel, const AVGDRect& vpt)
 {
+#ifdef AVG_ENABLE_DFB
     AVFrame Frame;
     readFrame(Frame);
     if (!m_bEOF) {
@@ -306,12 +310,17 @@ bool AVGFFMpegDecoder::renderToBuffer(PLBYTE * pSurfBits, int Pitch,
                 m_pVStream->codec.width, m_pVStream->codec.height);
         
     }
+#endif
     return m_bEOF;
 }
 
 bool AVGFFMpegDecoder::canRenderToBuffer(int BPP)
 {
+#ifdef AVG_ENABLE_DFB
     return (BPP == 24);
+#else
+    return false;
+#endif
 }
 
 void AVGFFMpegDecoder::initVideoSupport()

@@ -4,6 +4,8 @@
 
 #include <nsIGenericFactory.h>
 
+#include <avgconfig.h>
+
 #include "AVGPlayer.h"
 #include "AVGEvent.h"
 #include "AVGKeyEvent.h"
@@ -12,7 +14,9 @@
 #include "AVGImage.h"
 #include "AVGVideoBase.h"
 #include "AVGVideo.h"
+#ifdef AVG_ENABLE_1394
 #include "AVGCamera.h"
+#endif
 #include "AVGWords.h"
 #include "AVGAVGNode.h"
 #include "AVGExcl.h"
@@ -26,7 +30,9 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(AVGKeyEvent)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGWindowEvent)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGImage)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGVideo)
+#ifdef AVG_ENABLE_1394
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGCamera)
+#endif
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGWords)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGAVGNode)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGExcl)
@@ -57,7 +63,9 @@ NS_DECL_CLASSINFO(AVGKeyEvent)
 NS_DECL_CLASSINFO(AVGWindowEvent)
 NS_DECL_CLASSINFO(AVGImage)
 NS_DECL_CLASSINFO(AVGVideo)
+#ifdef AVG_ENABLE_1394
 NS_DECL_CLASSINFO(AVGCamera)
+#endif
 NS_DECL_CLASSINFO(AVGWords)
 NS_DECL_CLASSINFO(AVGAVGNode)
 NS_DECL_CLASSINFO(AVGExcl)
@@ -143,6 +151,7 @@ static const nsModuleComponentInfo components[] =
     NULL /* no language helper */,
     &NS_CLASSINFO_NAME(AVGVideo)
   },
+#ifdef AVG_ENABLE_1394
   { "c-base avgcamera Component", 
     AVGCAMERA_CID, 
     AVGCAMERA_CONTRACTID, 
@@ -154,7 +163,8 @@ static const nsModuleComponentInfo components[] =
     NULL /* no language helper */,
     &NS_CLASSINFO_NAME(AVGVideo)
   },
-  { "c-base avgwords Component", 
+#endif
+{ "c-base avgwords Component", 
     AVGWORDS_CID, 
     AVGWORDS_CONTRACTID, 
     AVGWordsConstructor,
@@ -217,6 +227,9 @@ NS_IMPL_NSGETMODULE(AVGPlayerModule, components)
 //==============================================================================
 //
 // $Log$
+// Revision 1.14  2004/05/11 12:03:21  uzadow
+// Added configure options for DFB, OGL and camera support.
+//
 // Revision 1.13  2004/05/05 11:20:25  uzadow
 // Initial untested camera node.
 //

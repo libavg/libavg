@@ -3,7 +3,10 @@
 // 
 
 #include "AVGVideoBase.h"
+#include "IAVGDisplayEngine.h"
+#ifdef AVG_ENABLE_DFB
 #include "AVGDFBDisplayEngine.h"
+#endif
 #include "AVGException.h"
 #include "AVGPlayer.h"
 #include "AVGLogger.h"
@@ -98,6 +101,7 @@ void AVGVideoBase::render (const AVGDRect& Rect)
                 }
                 AVGDRect relVpt = getRelViewport();
                 AVGDRect absVpt = getParent()->getAbsViewport();   
+#ifdef AVG_ENABLE_DFB
                 if (getEffectiveOpacity() > 0.999 && 
                         dynamic_cast<AVGDFBDisplayEngine*>(getEngine()) &&
                         getEngine()->getBPP() == 24 &&
@@ -109,7 +113,10 @@ void AVGVideoBase::render (const AVGDRect& Rect)
                     // (DirectFB only, no alpha, no scale, no crop, 
                     // bpp must be supported by decoder).
                     renderToBackbuffer();
-                } else {
+                } else
+#endif                
+                {
+                    
                     m_bFrameAvailable = renderToBmp(m_pBmp);
                     getEngine()->blt32(m_pBmp, &getAbsViewport(), 
                             getEffectiveOpacity(), getAngle(), getPivot());
@@ -155,6 +162,7 @@ void AVGVideoBase::changeState(VideoState NewState)
 
 void AVGVideoBase::renderToBackbuffer()
 {
+#ifdef AVG_ENABLE_DFB
     AVGDFBDisplayEngine* pEngine = 
         dynamic_cast<AVGDFBDisplayEngine*>(getEngine());
     AVGDRect vpt = getVisibleRect();
@@ -172,6 +180,11 @@ void AVGVideoBase::renderToBackbuffer()
     pSurface->Unlock(pSurface);
 
     m_bFrameAvailable=false;
+#else
+    AVG_TRACE(AVGPlayer::DEBUG_ERROR, 
+            "renderToBackbuffer called unexpectedly. Aborting.");
+    exit(-1);
+#endif    
 }
 
 bool AVGVideoBase::obscures (const AVGDRect& Rect, int z)

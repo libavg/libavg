@@ -2,11 +2,14 @@
 // $Id$
 //
 
+#include <avgconfig.h>
 #include "AVGPlayer.h"
 #include "AVGAVGNode.h"
 #include "AVGImage.h"
 #include "AVGVideo.h"
+#ifdef AVG_ENABLE_1394
 #include "AVGCamera.h"
+#endif
 #include "AVGWords.h"
 #include "AVGExcl.h"
 #include "AVGEvent.h"
@@ -15,8 +18,12 @@
 #include "AVGWindowEvent.h"
 #include "AVGException.h"
 #include "AVGRegion.h"
+#ifdef AVG_ENABLE_DFB
 #include "AVGDFBDisplayEngine.h"
+#endif
+#ifdef AVG_ENABLE_GL
 #include "AVGSDLDisplayEngine.h"
+#endif
 #include "AVGLogger.h"
 #include "AVGConradRelais.h"
 #include "XMLHelper.h"
@@ -276,13 +283,27 @@ void AVGPlayer::loadFile (const std::string& filename)
     // Get display configuration.
     if (!m_pDisplayEngine) {
         if (m_sDisplaySubsystem == "DFB") {
+#ifdef AVG_ENABLE_DFB
             m_pDisplayEngine = new AVGDFBDisplayEngine ();
             m_pEventSource =
                     dynamic_cast<AVGDFBDisplayEngine *>(m_pDisplayEngine);
+#else
+            AVG_TRACE(DEBUG_ERROR,
+                    "Display subsystem set to DFB but no DFB support compiled."
+                    << " Aborting.");
+            exit(-1);
+#endif
         } else if (m_sDisplaySubsystem == "OGL") {
+#ifdef AVG_ENABLE_GL
             m_pDisplayEngine = new AVGSDLDisplayEngine ();
             m_pEventSource = 
                     dynamic_cast<AVGSDLDisplayEngine *>(m_pDisplayEngine);
+#else
+            AVG_TRACE(DEBUG_ERROR,
+                    "Display subsystem set to GL but no GL support compiled."
+                    << " Aborting.");
+            exit(-1);
+#endif
         } else {
             AVG_TRACE(DEBUG_ERROR, 
                     "Display subsystem set to unknown value " << 
@@ -450,8 +471,13 @@ void AVGPlayer::readConfigFile(const string& sFName) {
             if (!xmlStrcmp(pChild->name, (const xmlChar *)"font")) {
                 m_sFontDir=getRequiredStringAttr(pChild, (const xmlChar *)"dir");
             } else if (!xmlStrcmp(pChild->name, (const xmlChar *)"display")) {
+#ifdef AVG_ENABLE_GL
                 m_sDisplaySubsystem=getDefaultedStringAttr(pChild, 
                         (const xmlChar *)"subsystem", "OGL");
+#else
+                m_sDisplaySubsystem=getDefaultedStringAttr(pChild, 
+                        (const xmlChar *)"subsystem", "DFB");
+#endif
                 m_bFullscreen=getDefaultedBoolAttr(pChild, 
                         (const xmlChar *)"fullscreen", false);
                 m_BPP=int(getDefaultedDoubleAttr(pChild, 
@@ -579,6 +605,7 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         pVideo->Pause();
         initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"camera")) {
+#ifdef AVG_ENABLE_1394
         // TODO: Framerate & mode support.
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
                 &opacity, &angle, &pivotx, &pivoty);
@@ -591,7 +618,11 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
                 pParent, this);
         pCamera->initVisible(x, y, z, width, height, opacity, angle, 
                 pivotx, pivoty);
-       initEventHandlers(curNode, xmlNode);
+        initEventHandlers(curNode, xmlNode);
+#else
+        throw (AVGException (AVG_ERR_UNSUPPORTED, 
+            string("Camera node encountered but avg not compiled for camera support.")));
+#endif
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"words")) {
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
                 &opacity, &angle, &pivotx, &pivoty);

@@ -17,6 +17,7 @@
 #define AVG_ERR_DFB 8
 #define AVG_ERR_FONT_INIT_FAILED 9
 #define AVG_ERR_VIDEO_LOAD_FAILED 10
+#define AVG_ERR_UNSUPPORTED 11
 
 class AVGException 
 {

@@ -4,7 +4,7 @@
 // Most of this was adapted from libdc1394/examples/grab_color_image.c
 
 #include "AVGCamera.h"
-#include "AVGDFBDisplayEngine.h"
+#include "IAVGDisplayEngine.h"
 #include "AVGException.h"
 #include "AVGPlayer.h"
 #include "AVGLogger.h"
