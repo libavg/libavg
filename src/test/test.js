@@ -65,7 +65,7 @@ function playAVG (fileName)
     var ok = tryLoadFile(fileName);
     if (ok) {
         timerid = AVGPlayer.setInterval(40, "interval();");
-        AVGPlayer.setTimeout(5000, "quitTimeout();");
+//        AVGPlayer.setTimeout(5000, "quitTimeout();");
         AVGPlayer.setTimeout(500, "AVGPlayer.clearInterval(timerid);");
 //        AVGPlayer.setTimeout(1000, "AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_EVENTS | AVGPlayer.DEBUG_PROFILE);");
 //        AVGPlayer.setTimeout(2000, "AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE);");
@@ -123,11 +123,10 @@ function changeFont2()
 function testWords()
 {
     print ("---- Testing word node accessors ----");
-    AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE | 
-            AVGPlayer.DEBUG_CONFIG | AVGPlayer.DEBUG_WARNING); 
+    AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE 
+            | AVGPlayer.DEBUG_MEMORY | AVGPlayer.DEBUG_WARNING); 
     var ok = tryLoadFile("text.avg");
     if (ok) {
-//        AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_BLTS | AVGPlayer.DEBUG_PROFILE | AVGPlayer.DEBUG_MEMORY); 
         timerid = AVGPlayer.setInterval(10, "textInterval();");
         AVGPlayer.setTimeout(1000, "changeTextHeight();");
         AVGPlayer.setTimeout(2000, "changeColor();");
@@ -380,4 +379,4 @@ function testExcl()
     playAVG("avg.avg");
     playAVG("noavg.avg");
     playAVG("noxml.avg");
-  */
+*/    

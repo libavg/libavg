@@ -75,8 +75,6 @@ void AVGImage::init (const std::string& id, const std::string& filename,
     m_pSurface->create(TempBmp.GetWidth(), TempBmp.GetHeight(), 
             DestBPP, TempBmp.HasAlpha());
     m_pSurface->getBmp()->CopyPixels(TempBmp);
-        
-    getEngine()->surfaceChanged(m_pSurface);
 }
 
 void AVGImage::render (const AVGDRect& Rect)

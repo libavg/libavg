@@ -142,7 +142,13 @@ void AVGOGLSurface::bind()
         int NumHorizTextures = int(ceil(float(Width)/m_TileSize.x));
         int NumVertTextures = int(ceil(float(Height)/m_TileSize.y));
 
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                "AVGOGLSurface::bind: glPixelStorei(GL_UNPACK_ALIGNMENT)");
         glPixelStorei(GL_UNPACK_ROW_LENGTH, Width);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                "AVGOGLSurface::bind: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
+
         for (int y=0; y<NumVertTextures; y++) {
             m_Tiles.push_back(v);
             for (int x=0; x<NumHorizTextures; x++) {
@@ -163,8 +169,6 @@ void AVGOGLSurface::bind()
                     Tile.m_TexWidth = nextpow2(CurSize.x);
                     Tile.m_TexHeight = nextpow2(CurSize.y);
                 }
-cerr << "(" << x << ", " << y << "): (" 
-        << Tile.m_TexWidth << ", " << Tile.m_TexHeight << ")" << endl;
                 glGenTextures(1, &Tile.m_TexID);
                 OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                         "AVGOGLSurface::bindOneTexture: glGenTextures()");
@@ -182,9 +186,6 @@ cerr << "(" << x << ", " << y << "): ("
                 glTexParameteri(s_TextureMode, GL_TEXTURE_WRAP_T, GL_CLAMP);
                 OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                         "AVGOGLSurface::bind: glTexParameteri()");
-                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                        "AVGOGLSurface::bind: glPixelStorei()");
 
                 glTexImage2D(s_TextureMode, 0,
                         DestMode, Tile.m_TexWidth, Tile.m_TexHeight, 0,
@@ -243,6 +244,9 @@ void AVGOGLSurface::rebind()
 void AVGOGLSurface::blt(const AVGDRect* pDestRect, double opacity, 
                 double angle, const AVGDPoint& pivot)
 {
+    if (!m_bBound) {
+        bind();
+    }
     bltTexture(pDestRect, angle, pivot);
 }
 
@@ -326,7 +330,7 @@ int AVGOGLSurface::bltTile(const TextureTile& Tile,
     
     glBindTexture(s_TextureMode, Tile.m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "AVGSDLDisplayEngine::blta8: glBindTexture()");
+            "AVGSDLDisplayEngine::bltTile: glBindTexture()");
     glBegin(GL_QUADS);
     glTexCoord2d(0.0, 0.0);
     glVertex3d (DestRect.tl.x, DestRect.tl.y, 0.0);

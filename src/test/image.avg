@@ -3,4 +3,6 @@
 <avg id="imageavg" width="640" height="480">
     <image id="mainimg" x="0" y="0" z="1"
         opacity = "1" href="1x1_schachbrett.png"/>
+    <image id="test" x="200" y="200" z="2"
+        opacity="1" href="rgb24.png"/>
 </avg>

@@ -74,7 +74,6 @@ AVGSDLDisplayEngine::~AVGSDLDisplayEngine()
 void AVGSDLDisplayEngine::init(int width, int height, bool isFullscreen, int bpp,
                 const string & sFontPath)
 {
-    //TODO: Add bpp handling.
     switch (bpp) {
         case 32:
             SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
@@ -130,7 +129,6 @@ void AVGSDLDisplayEngine::init(int width, int height, bool isFullscreen, int bpp
     int TexMode = AVGOGLSurface::getTextureMode();
     glEnable(TexMode);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(TexMode);");
-
 
     m_Width = width;
     m_Height = height;
