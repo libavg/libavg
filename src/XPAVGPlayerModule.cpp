@@ -10,6 +10,7 @@
 #include "AVGMouseEvent.h"
 #include "AVGWindowEvent.h"
 #include "AVGImage.h"
+#include "AVGVideoBase.h"
 #include "AVGVideo.h"
 #include "AVGWords.h"
 #include "AVGAVGNode.h"
@@ -202,6 +203,9 @@ NS_IMPL_NSGETMODULE(AVGPlayerModule, components)
 //==============================================================================
 //
 // $Log$
+// Revision 1.12  2004/04/30 10:43:50  uzadow
+// Split AVGVideo into AVGVideo and AVGVideoBase to prepare for AVGCamera.
+//
 // Revision 1.11  2004/02/16 23:12:19  uzadow
 // Major refactoring of event handling.
 //

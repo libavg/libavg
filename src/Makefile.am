@@ -16,7 +16,7 @@ ALL_H = AVGAVGNode.h AVGContainer.h  AVGDFBDisplayEngine.h AVGEvent.h \
           acJSContextPublisher.h AVGJSScript.h AVGLogger.h \
           AVGDFBFontManager.h IAVGFont.h AVGDFBFont.h FileHelper.h JSHelper.h \
           AVGSDLDisplayEngine.h AVGOGLBmp.h OGLHelper.h AVGSDLFontManager.h \
-          AVGSDLFont.h IAVGVideoDecoder.h AVGFFMpegDecoder.h
+          AVGSDLFont.h IAVGVideoDecoder.h AVGFFMpegDecoder.h AVGVideoBase.h
 
 libavg_PROGRAMS = xpshell
 xpshell_SOURCES = xpshell.cpp FileHelper.cpp FileHelper.h xpshell.h acJSContextPublisher.h
@@ -39,13 +39,13 @@ libavg_la_SOURCES = AVGEvent.cpp AVGMouseEvent.cpp AVGKeyEvent.cpp AVGWindowEven
                     AVGLogger.cpp AVGConradRelais.cpp AVGDFBFontManager.cpp\
                     AVGDFBFont.cpp FileHelper.cpp JSHelper.cpp AVGSDLDisplayEngine.cpp\
                     AVGOGLBmp.cpp OGLHelper.cpp AVGSDLFontManager.cpp \
-                    AVGSDLFont.cpp AVGFFMpegDecoder.cpp \
+                    AVGSDLFont.cpp AVGFFMpegDecoder.cpp AVGVideoBase.cpp \
                     $(ALL_H) 
  
 BUILT_SOURCES = IAVGPlayer.h IAVGEvent.h IAVGNode.h IAVGVideo.h \
                 acIJSContextPublisher.h IAVGWords.h IAVGExcl.h \
                 IAVGConradRelais.h IAVGKeyEvent.h IAVGWindowEvent.h \
-                IAVGMouseEvent.h
+                IAVGMouseEvent.h IAVGVideoBase.h
 CLEANFILES = $(BUILT_SOURCES)
 
 %.h : %.idl

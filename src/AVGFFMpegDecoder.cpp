@@ -181,7 +181,7 @@ void AVGFFMpegDecoder::seek(int DestFrame, int CurFrame)
         bool bOK = open(m_sFilename, &Width, &Height);
         if (!bOK) {
             AVG_TRACE(AVGPlayer::DEBUG_ERROR, 
-                    sFilename << ": Open during seek failed. Aborting.");
+                    m_sFilename << ": Open during seek failed. Aborting.");
             exit(-1);
         }
         CurFrame = 0;

@@ -7,11 +7,13 @@
 
 #include "AVGNode.h"
 #include "IAVGVideo.h"
+#include "AVGVideoBase.h"
 #include "AVGRect.h"
+
+#include <paintlib/plbitmap.h>
 
 #include <string>
 
-class PLBmp;
 class IAVGVideoDecoder;
 
 //8d8abfe4-a725-4908-96a6-53c575f1f574
@@ -20,7 +22,7 @@ class IAVGVideoDecoder;
 
 #define AVGVIDEO_CONTRACTID "@c-base.org/avgvideo;1"
 
-class AVGVideo : public AVGNode, IAVGVideo
+class AVGVideo : public AVGVideoBase, public IAVGVideo
 {
     public:
         NS_DECL_ISUPPORTS
@@ -36,38 +38,25 @@ class AVGVideo : public AVGNode, IAVGVideo
         virtual void init (const std::string& id, const std::string& filename, 
            bool bLoop, bool bOverlay, 
            IAVGDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer);
-        virtual void prepareRender (int time, const AVGDRect& parent);
-        virtual void render (const AVGDRect& Rect);
-        bool obscures (const AVGDRect& Rect, int z);
         virtual std::string getTypeStr ();
-        virtual std::string dump (int indent = 0);
 
-    protected:        
-        virtual AVGDPoint getPreferredMediaSize();
-    
     private:
         void initVideoSupport();
 
-        void open (int* pWidth, int* pHeight);
-        void close();
-        typedef enum VideoState {Unloaded, Paused, Playing};
-        void changeState(VideoState NewState);
-        void renderToBmp();
-        void renderToBackbuffer();
+        bool renderToBmp(PLBmp * pBmp);
+        void renderToBackbuffer(PLBYTE * pSurfBits, int Pitch, 
+                int BytesPerPixel, const AVGDRect& vpt);
         void seek(int DestFrame);
         void advancePlayback();
        
+        virtual bool open(int* pWidth, int* pHeight);
+        virtual void close();
+        virtual double getFPS();
+
         std::string m_Filename;
-        int m_Width;
-        int m_Height;
         bool m_bLoop;
 
-        PLBmp * m_pBmp;
-        bool m_bFrameAvailable;
-
-        VideoState m_State;
         int m_CurFrame;
-        AVGDPoint m_PreferredSize;
         bool m_bEOF;
 
         IAVGVideoDecoder * m_pDecoder;

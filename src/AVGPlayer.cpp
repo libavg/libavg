@@ -553,11 +553,6 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
             initDisplay(dynamic_cast<AVGAVGNode*>(curNode));
         }
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"image")) {
-        string id;
-        int x,y,z;
-        int width, height;
-        double opacity;
-        double angle;
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
                 &opacity, &angle, &pivotx, &pivoty);
         string filename = initFileName(xmlNode);
@@ -569,11 +564,6 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
                 pivotx, pivoty);
         initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"video")) {
-        string id;
-        int x,y,z;
-        int width, height;
-        double opacity;
-        double angle;
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
                 &opacity, &angle, &pivotx, &pivoty);
         string filename = initFileName(xmlNode);
@@ -587,12 +577,19 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
                 pivotx, pivoty);
         pVideo->Pause();
         initEventHandlers(curNode, xmlNode);
-    } else if (!xmlStrcmp (nodeType, (const xmlChar *)"words")) {
-        string id;
-        int x,y,z;
-        int width, height;  // Bogus
-        double opacity;
-        double angle;
+    }/* else if (!xmlStrcmp (nodeType, (const xmlChar *)"camera")) {
+        getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
+                &opacity, &angle, &pivotx, &pivoty);
+        string sDevice = getRequiredStringAttr(xmlNode, (const xmlChar *)"href");
+        bool bOverlay = getDefaultedBoolAttr(xmlNode, (const xmlChar *)"overlay", false); 
+        AVGCamera * pCamera = AVGCamera::create();
+        curNode = pCamera;
+        pCamera->init(id, sDevice, bOverlay, m_pDisplayEngine, 
+                pParent, this);
+        pCamera->initVisible(x, y, z, width, height, opacity, angle, 
+                pivotx, pivoty);
+       initEventHandlers(curNode, xmlNode);
+    }*/ else if (!xmlStrcmp (nodeType, (const xmlChar *)"words")) {
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
                 &opacity, &angle, &pivotx, &pivoty);
         string font = getDefaultedStringAttr(xmlNode, 

@@ -9,7 +9,7 @@
    onmouseout CDATA #IMPLIED
    onload CDATA #IMPLIED" >
    
-<!ELEMENT avg (avg|excl|image|video|audio|words)* >
+<!ELEMENT avg (avg|excl|image|video|camera|audio|words)* >
 <!ATTLIST avg
   id ID #IMPLIED
   x CDATA "0"
@@ -20,7 +20,7 @@
   opacity CDATA #IMPLIED
   %graphicsElementEvents; >
   
-<!ELEMENT excl (avg|excl|image|video|audio|words)+ >
+<!ELEMENT excl (avg|excl|image|video|camera|audio|words)+ >
 <!ATTLIST excl 
   id ID #IMPLIED >
 
@@ -54,8 +54,23 @@
   opacity CDATA #IMPLIED
   loop CDATA #IMPLIED
   overlay CDATA #IMPLIED
-  %graphicsElementEvents; 
-  onstop CDATA #IMPLIED >
+  %graphicsElementEvents;> 
+
+<!ELEMENT camera EMPTY>
+<!ATTLIST camera
+  id ID #IMPLIED
+  device CDATA #REQUIRED
+  x CDATA #REQUIRED
+  y CDATA #REQUIRED
+  z CDATA #IMPLIED
+  width CDATA #IMPLIED
+  height CDATA #IMPLIED
+  angle CDATA #IMPLIED
+  pivotx CDATA #IMPLIED
+  pivoty CDATA #IMPLIED
+  opacity CDATA #IMPLIED
+  overlay CDATA #IMPLIED
+  %graphicsElementEvents; > 
 
 <!ELEMENT words EMPTY>
 <!ATTLIST words
