@@ -20,6 +20,7 @@
 #include <paintlib/plrect.h>
 
 #include <directfb.h>
+#include <signal.h>
 
 #include <iostream>
 #include <sstream>
@@ -88,6 +89,11 @@ void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen, int bpp
 
     m_pFontManager = new AVGDFBFontManager(m_pDirectFB);
     pLayerSurf->Release(pLayerSurf);
+    
+    // SDL sets up a signal handler we really don't want.
+    if (!m_IsFullscreen) {
+        signal(SIGSEGV, SIG_DFL);
+    }
 }
 
 void AVGDFBDisplayEngine::initDFB(int width, int height, bool isFullscreen, int bpp)
