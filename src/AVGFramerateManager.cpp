@@ -23,6 +23,7 @@ AVGFramerateManager::~AVGFramerateManager ()
 void AVGFramerateManager::SetRate(int Rate)
 {
     m_Rate = Rate;
+    m_NumFrames = 0;
     m_LastFrameTime = SDL_GetTicks();
 }
 
@@ -39,6 +40,9 @@ void AVGFramerateManager::FrameWait()
     int TargetTime = m_LastFrameTime+(int)((1000/(double)m_Rate)*m_NumFrames);
     if (CurTime <= TargetTime) 
     {
+        if (TargetTime-CurTime > 200) {
+            cerr << "FramerateManager warning: waiting " << TargetTime-CurTime << "ms." << endl;
+        }
         SDL_Delay(TargetTime-CurTime);
     }
     else

@@ -21,7 +21,7 @@ class AVGAVGNode :
                 int width, int height, double opacity, 
                 AVGSDLDisplayEngine * pEngine, AVGContainer * pParent);
         virtual ~AVGAVGNode ();
-		virtual AVGVisibleNode * getNodeByPos (const PLPoint & pos);
+		virtual AVGNode * getElementByPos (const PLPoint & pos);
 		virtual void update (int time, const PLPoint& pos);
 		virtual void render ();
 		virtual void getDirtyRect ();

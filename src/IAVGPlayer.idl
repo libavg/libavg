@@ -18,6 +18,7 @@ interface IAVGPlayer : nsISupports
     long setTimeout(in long time, in string code);
     boolean clearInterval(in long id);
 
+    void setEventDebugLevel(in long level);
     string getErrStr();
     long getErrCode();
 };

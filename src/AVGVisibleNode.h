@@ -7,6 +7,8 @@
 
 #include "AVGNode.h"
 #include <paintlib/plrect.h>
+#include <SDL/SDL.h>
+
 #include <string>
 
 class PLBmp;
@@ -21,8 +23,9 @@ class AVGVisibleNode :
                 int width, int height, double opacity, 
                 AVGSDLDisplayEngine * pEngine, AVGContainer * pParent);
         virtual ~AVGVisibleNode();
+
         virtual AVGNode * getElementByPos (const PLPoint & pos);
-		virtual void update (int time, const PLPoint& pos);
+        virtual void update (int time, const PLPoint& pos);
         virtual std::string dump (int indent = 0);
 
         void setViewport (int x, int y, int width, int height);
@@ -37,6 +40,7 @@ class AVGVisibleNode :
         int m_z;
         double m_Opacity;
         AVGSDLDisplayEngine * m_pEngine;
+
 };
 
 #endif //_AVGVisibleNode_H_

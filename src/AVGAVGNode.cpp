@@ -22,9 +22,18 @@ AVGAVGNode::~AVGAVGNode()
 {
 }
 
-AVGVisibleNode * AVGAVGNode::getNodeByPos (const PLPoint & pos)
+AVGNode * AVGAVGNode::getElementByPos (const PLPoint & pos)
 {
-    return 0;
+    if (!getAbsViewport().Contains(pos)) {
+        return 0; // Not in parent.
+    }
+    for (int i=getNumChildren()-1; i>=0; i--) {
+        AVGNode * pFoundNode = getChild(i)->getElementByPos(pos);
+        if (pFoundNode) {
+            return pFoundNode;
+        }
+    }
+    return this; // In parent, but not in any child.
 }
 
 void AVGAVGNode::update (int time, const PLPoint& pos)

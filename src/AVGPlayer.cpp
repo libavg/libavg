@@ -28,13 +28,18 @@
 #include "nsXPCOMGlue.h"
 #endif
 
+//#include "xpconnect/nsIXPConnect.h"
+//#include "xpcom/nsIServiceManager.h"
 
 using namespace std;
 
 AVGPlayer::AVGPlayer()
     : m_pRootNode (0),
       m_pDisplayEngine(0),
-      m_FramerateManager()
+      m_FramerateManager(),
+      m_pCurEvent(0),
+      m_pLastMouseNode(0),
+      m_EventDebugLevel(0)
 {
 #ifdef XPCOM_GLUE
     XPCOMGlueStartup("XPCOMComponentGlue");
@@ -47,10 +52,7 @@ AVGPlayer::~AVGPlayer()
 #ifdef XPCOM_GLUE
     XPCOMGlueShutdown();
 #endif
-    delete m_pDisplayEngine;
-    m_pDisplayEngine = 0;
-    delete m_pRootNode;
-    m_pRootNode = 0;
+
 }
 
 NS_IMPL_ISUPPORTS1_CI(AVGPlayer, IAVGPlayer);
@@ -121,6 +123,12 @@ AVGPlayer::ClearInterval(PRInt32 id, PRBool * pResult)
     return NS_OK;
 }
 
+NS_IMETHODIMP 
+AVGPlayer::SetEventDebugLevel(PRInt32 level)
+{
+    m_EventDebugLevel = level;
+    return NS_OK;
+}
 
 NS_IMETHODIMP
 AVGPlayer::GetErrStr(char ** ppszResult)
@@ -138,6 +146,7 @@ AVGPlayer::GetErrCode(PRInt32 * pResult)
 
 void AVGPlayer::loadFile (const std::string& filename)
 {
+    PLASSERT (!m_pRootNode);
     m_pDisplayEngine = new AVGSDLDisplayEngine ();
 
     xmlPedanticParserDefault(1);
@@ -165,8 +174,16 @@ void AVGPlayer::play ()
     while (!m_bStopping) {
         doFrame();
     }
-    m_pDisplayEngine->teardown();
     m_PendingTimeouts.clear();
+
+    m_pDisplayEngine->teardown();
+    delete m_pDisplayEngine;
+    m_pDisplayEngine = 0;
+    
+    delete m_pRootNode;
+    m_pRootNode = 0;
+
+    m_pLastMouseNode = 0;
 }
 
 void AVGPlayer::stop ()
@@ -177,6 +194,7 @@ void AVGPlayer::stop ()
 void AVGPlayer::doFrame ()
 {
     handleTimers();
+    handleEvents();
     if (!m_bStopping) {
         m_pRootNode->update(0, PLPoint(0,0));
         m_pRootNode->render();
@@ -215,7 +233,7 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, &opacity);
         curNode = new AVGAVGNode (id, x, y, z, width, height, opacity, 
                     m_pDisplayEngine, pParent);
-
+        initEventHandlers(curNode, xmlNode);
         // Fullscreen handling only for topmost node.
         if (!pParent) {
             m_IsFullscreen = getDefaultedBoolAttr 
@@ -231,6 +249,7 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
                 getRequiredStringAttr(xmlNode, (const xmlChar *)"href");
         curNode = new AVGImage (id, x, y, z, width, height, opacity, filename,
                 m_pDisplayEngine, pParent);
+        initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"text")) {
         // Ignore whitespace
         return 0;
@@ -268,6 +287,24 @@ void AVGPlayer::getVisibleNodeAttrs (const xmlNodePtr xmlNode,
     *pOpacity = getDefaultedDoubleAttr (xmlNode, (const xmlChar *)"opacity", 1.0);
 }
 
+void AVGPlayer::initEventHandlers (AVGNode * pAVGNode, const xmlNodePtr xmlNode)
+{
+    string MouseMoveHandler = getDefaultedStringAttr 
+            (xmlNode, (const xmlChar *)"onmousemove", "");
+    string MouseButtonUpHandler = getDefaultedStringAttr 
+            (xmlNode, (const xmlChar *)"onmouseup", "");
+    string MouseButtonDownHandler = getDefaultedStringAttr 
+            (xmlNode, (const xmlChar *)"onmousedown", "");
+    string MouseOverHandler = getDefaultedStringAttr 
+            (xmlNode, (const xmlChar *)"onmouseover", "");
+    string MouseOutHandler = getDefaultedStringAttr 
+            (xmlNode, (const xmlChar *)"onmouseout", "");
+    pAVGNode->InitEventHandlers
+            (MouseMoveHandler, MouseButtonUpHandler, MouseButtonDownHandler, 
+             MouseOverHandler, MouseOutHandler);
+}
+
+
 void AVGPlayer::handleTimers()
 {
     vector<AVGTimeout>::iterator it;
@@ -282,6 +319,141 @@ void AVGPlayer::handleTimers()
             it = m_PendingTimeouts.erase(it);
             addTimeout(tempTimeout);
         }
+    }
+}
+
+void AVGPlayer::handleEvents()
+{
+    SDL_Event SDLEvent; 
+    while(SDL_PollEvent(&SDLEvent) && !m_bStopping){
+        AVGEvent* pEvent = 0;
+
+        switch(SDLEvent.type){
+            case SDL_KEYDOWN:
+                pEvent = new AVGEvent();
+                pEvent->init(SDLEvent);
+                break;
+            case SDL_MOUSEMOTION:
+            case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEBUTTONUP:
+                pEvent = new AVGEvent();
+                pEvent->init(SDLEvent);
+                handleMouseEvent(pEvent);
+                break;
+            case SDL_QUIT:
+                pEvent = new AVGEvent();
+                pEvent->init(SDLEvent);
+                m_bStopping = true;
+                break;
+            default:
+                break;
+        }
+        if (pEvent) {
+            dumpEvent(pEvent);
+            delete pEvent;
+        }
+    }
+}
+
+/* bullshit
+nsCOMPtr<IAVGEvent> AVGPlayer::wrapJSEvent(AVGEvent* pEvent)
+{
+    nsresult rv;
+    nsCOMPtr<nsIXPConnect> xpc(do_GetService(nsIXPConnect::GetCID(), &rv));
+    PLASSERT(!NS_FAILED(rv));
+
+    nsCOMPtr<nsIXPCNativeCallContext> callContext;
+    xpc->GetCurrentNativeCallContext(getter_AddRefs(callContext));
+
+    JSContext* cx;
+    rv = callContext->GetJSContext(&cx);
+    PLASSERT(!NS_FAILED(rv));
+    PLASSERT(cx);
+
+    nsCOMPtr<nsIXPConnectWrappedNative> calleeWrapper;
+    callContext->GetCalleeWrapper(getter_AddRefs(calleeWrapper));
+    PLASSERT(calleeWrapper);
+
+    JSObject* calleeJSObject;
+    rv = calleeWrapper->GetJSObject(&calleeJSObject);
+    PLASSERT(!NS_FAILED(rv));
+    PLASSERT(calleeJSObject);
+
+    nsCOMPtr<IAVGEvent> JSEvent;
+    rv = xpc->WrapNative(cx, calleeJSObject, pEvent, NS_GET_IID(AVGEvent),
+            getter_AddRefs(JSEvent));
+    PLASSERT(!NS_FAILED(rv));
+    PLASSERT(JSEvent);
+
+    return JSEvent;
+}
+*/
+
+void AVGPlayer::dumpEvent(AVGEvent* pEvent)
+{
+    string EventName;
+    int EventType;
+    pEvent->GetType(&EventType);
+    switch(EventType) {
+        case AVGEvent::KEYDOWN:
+            EventName = "KEYDOWN";
+            break;
+        case AVGEvent::MOUSEDOWN:
+            EventName =  "MOUSEBUTTONDOWN";
+            break;
+        case AVGEvent::MOUSEUP:
+            EventName =  "MOUSEBUTTONUP";
+            break;
+        case AVGEvent::QUIT:
+            EventName = "QUIT";
+            break;
+        case AVGEvent::MOUSEMOVE: // Mousemotion events aren't dumped.
+        default: 
+            return;
+    }
+    dumpEventStr(EventName, 
+        EventType == AVGEvent::MOUSEUP || EventType == AVGEvent::MOUSEDOWN);
+}
+
+void AVGPlayer::dumpEventStr(const string& EventName, bool IsMouse)
+{
+    switch (m_EventDebugLevel) {
+        case 0:
+            return;
+        case 1:
+            cerr << "Event: " << EventName << endl;
+            return;
+        case 2:
+            if (IsMouse) {
+                if (m_pLastMouseNode) {
+                    cerr << "Event: " << EventName << "(Node id: " << 
+                            m_pLastMouseNode->getID() << ")" << endl;
+                }
+            } else {
+                cerr << "Event: " << EventName << endl;
+            }
+    }
+}
+
+void AVGPlayer::handleMouseEvent (AVGEvent* pEvent)
+{
+    PLPoint pos;
+    pEvent->GetXPos(&pos.x);
+    pEvent->GetYPos(&pos.y);
+    AVGNode * pNode = m_pRootNode->getElementByPos(pos);
+    if (pNode != m_pLastMouseNode) {
+        if (pNode) {
+            dumpEventStr("MOUSEOVER", true);
+            pNode->onMouseOver(m_pKruecke);
+        }
+        if (m_pLastMouseNode) {
+            dumpEventStr("MOUSEOUT", true);
+            m_pLastMouseNode->onMouseOut(m_pKruecke);
+        }
+        m_pLastMouseNode = pNode;
+    }
+    if (pNode) {
+        pNode->handleEvent(pEvent, m_pKruecke);
     }
 }
 

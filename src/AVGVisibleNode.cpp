@@ -4,6 +4,7 @@
 
 #include "AVGVisibleNode.h"
 #include "AVGSDLDisplayEngine.h"
+#include "IJSEvalKruecke.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/plrect.h>
@@ -11,7 +12,9 @@
 
 #include <stdio.h>
 
-AVGVisibleNode::AVGVisibleNode (const std::string& id, int x, int y, int z, 
+using namespace std;
+
+AVGVisibleNode::AVGVisibleNode (const string& id, int x, int y, int z, 
             int width, int height, double opacity, 
             AVGSDLDisplayEngine * pEngine, AVGContainer * pParent)
     : AVGNode(id, pParent),
@@ -29,7 +32,11 @@ AVGVisibleNode::~AVGVisibleNode()
 
 AVGNode * AVGVisibleNode::getElementByPos (const PLPoint & pos)
 {
-    return NULL;
+    if (m_AbsViewport.Contains(pos)) {
+        return this;
+    } else {
+        return 0;
+    }
 }
 
 void AVGVisibleNode::update (int time, const PLPoint& pos)
@@ -52,7 +59,6 @@ string AVGVisibleNode::dump (int indent)
 
     return dumpStr; 
 }
-
 
 void AVGVisibleNode::setViewport (int x, int y, int width, int height)
 {

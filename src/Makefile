@@ -19,6 +19,7 @@ DEFINES       += -DXPCOM_GLUE
 REQUIRES      = string \
                 xpcom \
                 avgplayer \
+				js \
 				$(NULL)
 CPPSRCS   =  AVGPlayer.cpp AVGNode.cpp \
         AVGAVGNode.cpp AVGVisibleNode.cpp \
@@ -26,8 +27,9 @@ CPPSRCS   =  AVGPlayer.cpp AVGNode.cpp \
         XMLHelper.cpp AVGImage.cpp \
         AVGSDLDisplayEngine.cpp XPAVGPlayerModule.cpp \
 		AVGFramerateManager.cpp AVGTimeout.cpp \
+		AVGEvent.cpp \
 		$(NULL)
-XPIDLSRCS = IAVGPlayer.idl IJSEvalKruecke.idl
+XPIDLSRCS = IAVGPlayer.idl IJSEvalKruecke.idl IAVGEvent.idl
 include $(topsrcdir)/config/config.mk
 LIBS    +=        \
     $(XPCOM_LIBS) \
@@ -45,5 +47,5 @@ include $(topsrcdir)/config/rules.mk
 
 install:: $(TARGETS)
 	$(SYSINSTALL) $(IFLAGS1) $(srcdir)/_xpidlgen/IAVGPlayer.xpt $(mozappdir)/components
+	$(SYSINSTALL) $(IFLAGS1) $(srcdir)/_xpidlgen/IAVGEvent.xpt $(mozappdir)/components
 	$(SYSINSTALL) $(IFLAGS1) $(srcdir)/_xpidlgen/IJSEvalKruecke.xpt $(mozappdir)/components
-	$(SYSINSTALL) $(IFLAGS1) $(srcdir)/JSEvalKruecke.js $(mozappdir)/components

@@ -1,0 +1,32 @@
+//
+// $Id$
+//
+
+#include "nsISupports.idl"
+
+
+[scriptable, uuid(27681df9-7355-4e36-aa64-14e18dd40fb4)]
+interface IAVGEvent : nsISupports
+{
+    const long MOUSEMOVE=1;
+    const long MOUSEDOWN=2;
+    const long MOUSEUP=3;
+    const long MOUSEOVER=4;
+    const long MOUSEOUT=5;
+    const long KEYDOWN=6;
+    const long KEYUP=7;
+    const long QUIT=8;
+    
+    const long LEFT_BUTTON=1;
+    const long MIDDLE_BUTTON=2;
+    const long RIGHT_BUTTON=4;
+
+//    IAVGNode getElement();
+    long getType();
+    long getXPos();
+    long getYPos();
+    long getMouseButtonState();
+    long getKeySym();
+    long getKeyMod();
+};
+

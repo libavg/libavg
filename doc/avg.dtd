@@ -2,7 +2,6 @@
   "onfocusin CDATA #IMPLIED
    onfocusout CDATA #IMPLIED
    onactivate CDATA #IMPLIED
-   onclick CDATA #IMPLIED
    onmousedown CDATA #IMPLIED
    onmouseup CDATA #IMPLIED
    onmouseover CDATA #IMPLIED

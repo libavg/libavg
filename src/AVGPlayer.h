@@ -6,16 +6,15 @@
 #define _AVGPlayer_H_
 
 #include "IAVGPlayer.h"
+#include "IAVGEvent.h"
 #include "AVGFramerateManager.h"
 #include "AVGTimeout.h"
 
-//fe906737-5231-4a55-a9da-d348a7da581f
-#define AVGPLAYER_CID \
-{ 0xfe906737, 0x5231, 0x4a55, { 0xa9, 0xda, 0xd3, 0x48, 0xa7, 0xda, 0x58, 0x1f } }
-
-#define AVGPLAYER_CONTRACTID "@c-base.org/avgplayer;1"
-
 #include <libxml/parser.h>
+
+#include <SDL/SDL.h>
+
+#include <xpcom/nsCOMPtr.h>
 
 #include <map>
 #include <string>
@@ -23,11 +22,19 @@
 
 class AVGAVGNode;
 class AVGNode;
+class AVGVisibleNode;
 class AVGContainer;
 class AVGEvent;
 class AVGSDLDisplayEngine;
-
 class IJSEvalKruecke;
+
+class PLPoint;
+
+//fe906737-5231-4a55-a9da-d348a7da581f
+#define AVGPLAYER_CID \
+{ 0xfe906737, 0x5231, 0x4a55, { 0xa9, 0xda, 0xd3, 0x48, 0xa7, 0xda, 0x58, 0x1f } }
+
+#define AVGPLAYER_CONTRACTID "@c-base.org/avgplayer;1"
 
 class AVGPlayer: public IAVGPlayer
 {
@@ -35,11 +42,11 @@ class AVGPlayer: public IAVGPlayer
         AVGPlayer ();
         virtual ~AVGPlayer ();
 
-		NS_DECL_ISUPPORTS
+        NS_DECL_ISUPPORTS
 
-        NS_DECL_IAVGPLAYER
+            NS_DECL_IAVGPLAYER
 
-        void loadFile (const std::string& fileName);
+            void loadFile (const std::string& fileName);
         void play ();
         void stop ();
         void doFrame ();
@@ -53,22 +60,30 @@ class AVGPlayer: public IAVGPlayer
         void getVisibleNodeAttrs (const xmlNodePtr xmlNode, 
                 string * pid, int * px, int * py, int * pz,
                 int * pWidth, int * pHeight, double * pOpacity);
+        void initEventHandlers (AVGNode * pAVGNode, const xmlNodePtr xmlNode);
 
         AVGAVGNode * m_pRootNode;
         AVGSDLDisplayEngine * m_pDisplayEngine;
         bool m_IsFullscreen;
-        
+
         std::string m_CurDirName;
         AVGFramerateManager m_FramerateManager;
 
         // Event handling
         int addTimeout(const AVGTimeout& timeout);
         void handleTimers();
+        void handleEvents();
+        nsCOMPtr<IAVGEvent> wrapJSEvent(AVGEvent* pEvent);
+        void dumpEvent(AVGEvent* pEvent);
+        void dumpEventStr(const std::string& EventName, bool IsMouse);
+        void handleMouseEvent (AVGEvent* pEvent);
 
+        IAVGEvent * m_pCurEvent;
         IJSEvalKruecke * m_pKruecke;
-        std::map <int, AVGEvent *> m_PendingEvents;
         vector<AVGTimeout> m_PendingTimeouts;
         bool m_bStopping;
+        AVGNode * m_pLastMouseNode;
+        int m_EventDebugLevel;
 };
 
 #endif //_AVGPlayer_H_

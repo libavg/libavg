@@ -30,19 +30,31 @@ function interval()
     dump (".");
 }
 
+function onMouseMove()
+{
+    print ("JS: onMouseMove()");
+}
+function onMouseOver()
+{
+    print ("JS: onMouseOver()");
+}
+function onMouseOut()
+{
+    print ("JS: onMouseOut()");
+}
 var timerid;
 
 function playAVG (fileName) 
 {
     print ("---- Playing "+fileName+"----");
     var ok = AVGPlayer.loadFile("../tests/"+fileName, new JSEvalKruecke());
+    AVGPlayer.setEventDebugLevel(2);
     if (ok) {
         timerid = AVGPlayer.setInterval(40, "interval();");
-//        AVGPlayer.setInterval(40, "interval();");
-        AVGPlayer.setTimeout(2000, "timeout();");
+        AVGPlayer.setTimeout(5000, "timeout();");
         AVGPlayer.setTimeout(500, "AVGPlayer.clearInterval(timerid);");
-        AVGPlayer.setTimeout(600, "print (\"600\");");
-        AVGPlayer.setTimeout(700, "print (\"700\");");
+        AVGPlayer.setTimeout(1000, "AVGPlayer.setEventDebugLevel(1);");
+        AVGPlayer.setTimeout(2000, "AVGPlayer.setEventDebugLevel(0);");
         AVGPlayer.play();
     } else {
         print ("js: AVGPlayer.loadFile returned false");
@@ -51,6 +63,7 @@ function playAVG (fileName)
 }
 
 
+playAVG("events.avg");
 playAVG("image.avg");
 playAVG("avg.avg");
 playAVG("empty.avg");
