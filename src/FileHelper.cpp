@@ -61,6 +61,10 @@ string findFile (const string & Filename, const string & SearchPath)
         return FileWithPath;
     }
 
+    if (fileExists(Filename)) {
+        return Filename;
+    }
+
     return "";
 }
 
