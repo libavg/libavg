@@ -22,7 +22,6 @@
 
 class AVGAVGNode;
 class AVGNode;
-class AVGVisibleNode;
 class AVGContainer;
 class AVGEvent;
 class AVGDFBDisplayEngine;
@@ -89,6 +88,7 @@ class AVGPlayer: public IAVGPlayer
 
         IAVGEvent * m_CurEvent;
         std::vector<AVGTimeout *> m_PendingTimeouts;
+        std::vector<AVGTimeout *> m_NewTimeouts; // Timeouts to be added this frame.
         AVGNode * m_pLastMouseNode;
         int m_EventDebugLevel;
 

@@ -6,7 +6,6 @@
 #define _AVGAVGNode_H_
 
 #include "AVGContainer.h"
-#include "AVGVisibleNode.h"
 #include <string>
 
 class PLPoint;
@@ -18,9 +17,7 @@ class PLPoint;
 
 #define AVGAVGNODE_CONTRACTID "@c-base.org/avgavgnode;1"
 
-class AVGAVGNode : 	
-	public AVGContainer, 
-	public AVGVisibleNode
+class AVGAVGNode : public AVGContainer
 {
 	public:
         NS_DECL_ISUPPORTS_INHERITED
@@ -33,11 +30,10 @@ class AVGAVGNode :
         NS_IMETHOD GetType(PRInt32 *_retval);
 
         virtual AVGNode * getElementByPos (const PLPoint & pos);
-        virtual void update (int time, const PLRect& parent);
+        virtual void prepareRender (int time, const PLRect& parent);
         virtual void render (const PLRect& rect);
         virtual bool obscures (const PLRect& rect, int z);
         virtual void getDirtyRegion (AVGRegion& Region);
-        virtual std::string dump (int indent = 0);
         virtual std::string getTypeStr ();
 };
 

@@ -127,20 +127,25 @@ AVGPlayer::GetRootNode(IAVGNode **_retval)
 NS_IMETHODIMP
 AVGPlayer::SetInterval(PRInt32 time, const char * code, PRInt32 * pResult)
 {
-    *pResult = addTimeout(new AVGTimeout(time, code, true, m_pJSContext));
+    AVGTimeout *t = new AVGTimeout(time, code, true, m_pJSContext);
+    m_NewTimeouts.push_back(t);
+    *pResult = t->GetID();
 	return NS_OK;
 }
 
 NS_IMETHODIMP
 AVGPlayer::SetTimeout(PRInt32 time, const char * code, PRInt32 * pResult)
 {
-    *pResult = addTimeout(new AVGTimeout(time, code, false, m_pJSContext));
+    AVGTimeout *t = new AVGTimeout(time, code, false, m_pJSContext);
+    m_NewTimeouts.push_back(t);
+    *pResult = t->GetID();
 	return NS_OK;
 }
 
 NS_IMETHODIMP
 AVGPlayer::ClearInterval(PRInt32 id, PRBool * pResult)
 {
+    // TODO: Make sure this works from within handleTimers...
     vector<AVGTimeout*>::iterator it;
     for (it=m_PendingTimeouts.begin(); it!=m_PendingTimeouts.end(); it++) {
         if (id == (*it)->GetID()) {
@@ -217,7 +222,7 @@ void AVGPlayer::play ()
     m_pFramerateManager = new AVGFramerateManager;
     m_pFramerateManager->SetRate(30);
     m_bStopping = false;
-    m_pRootNode->update(0, m_pRootNode->getAbsViewport());
+    m_pRootNode->prepareRender(0, m_pRootNode->getAbsViewport());
     render(true);
     while (!m_bStopping) {
         doFrame();
@@ -244,9 +249,10 @@ void AVGPlayer::stop ()
 void AVGPlayer::doFrame ()
 {
     handleTimers();
+    
     handleEvents();
     if (!m_bStopping) {
-        m_pRootNode->update(0, m_pRootNode->getAbsViewport());
+        m_pRootNode->prepareRender(0, m_pRootNode->getAbsViewport());
         render(false);
         m_pFramerateManager->FrameWait();
         m_pDisplayEngine->swapBuffers();
@@ -326,8 +332,8 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
                         (xmlNode, (const xmlChar *)"debugblts", false);
             m_pDisplayEngine->init(width, height, m_IsFullscreen, bDebugBlts);
         }
-        dynamic_cast<AVGAVGNode*>(curNode)->init(id, x, y, z, width, height, opacity, 
-                    m_pDisplayEngine, pParent);
+        curNode->init(id, m_pDisplayEngine, pParent);
+        curNode->initVisible(x, y, z, width, height, opacity);
         initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"image")) {
         string id;
@@ -378,7 +384,8 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"excl")) {
         string id  = getDefaultedStringAttr (xmlNode, (const xmlChar *)"id", "");
         curNode = AVGExcl::create();
-        dynamic_cast<AVGExcl*>(curNode)->init(id, pParent, m_pDisplayEngine);
+        curNode->init(id, m_pDisplayEngine, pParent);
+        curNode->initVisible(0,0,1,10000,10000,1);
         initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"text") || 
                !xmlStrcmp (nodeType, (const xmlChar *)"comment")) {
@@ -458,6 +465,10 @@ void AVGPlayer::handleTimers()
             addTimeout(pTempTimeout);
         }
     }
+    for (it = m_NewTimeouts.begin(); it != m_NewTimeouts.end(); ++it) {
+        addTimeout(*it);
+    }
+    m_NewTimeouts.clear();
 }
 
 void AVGPlayer::handleEvents()
@@ -532,6 +543,8 @@ void AVGPlayer::handleMouseEvent (AVGEvent* pEvent)
 
 int AVGPlayer::addTimeout(AVGTimeout* timeout)
 {
+    // TODO: Don't change m_PendingTimeouts directly here since we're being 
+    // called from handleTimers
     vector<AVGTimeout*>::iterator it=m_PendingTimeouts.begin();
     while (it != m_PendingTimeouts.end() && (**it)<*timeout) {
         it++;

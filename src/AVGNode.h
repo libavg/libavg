@@ -32,8 +32,10 @@ class AVGNode: public IAVGNode
 
         AVGNode ();
         virtual ~AVGNode ();
-        void init(const std::string& id, AVGContainer * pParent,
-                AVGDFBDisplayEngine * pEngine);
+        void init(const std::string& id, AVGDFBDisplayEngine * pEngine,
+                AVGContainer * pParent);
+        void initVisible(int x, int y, int z, int width, int height, double opacity);
+        
         virtual void InitEventHandlers
             (const std::string& MouseMoveHandler, 
              const std::string& MouseButtonUpHandler, 
@@ -42,14 +44,18 @@ class AVGNode: public IAVGNode
              const std::string& MouseOutHandler);
 
         virtual AVGNode * getElementByPos (const PLPoint & pos);
-		virtual void update (int time, const PLRect& parent);
+		virtual void prepareRender (int time, const PLRect& parent);
         virtual void maybeRender (const PLRect& Rect);
 		virtual void render (const PLRect& Rect);
         virtual bool obscures (const PLRect& Rect, int z);
         virtual void addDirtyRect(const PLRect& Rect);
 		virtual void getDirtyRegion (AVGRegion& Region);
+        virtual void setViewport (int x, int y, int width, int height);
+        const PLRect& getRelViewport ();
         virtual const PLRect& getAbsViewport();
         virtual int getZ();
+        double getOpacity();
+        void setOpacity(double o);
         virtual double getEffectiveOpacity();
         AVGDFBDisplayEngine * getEngine();
 
@@ -60,10 +66,12 @@ class AVGNode: public IAVGNode
         
         virtual bool handleEvent (AVGEvent* pEvent, JSContext * pJSContext);
 
+    protected:
+        virtual void invalidate();
+        virtual bool isVisibleNode();  // Poor man's RTTI
+        
 	private:
-        virtual void callJS (const std::string& Code, JSContext * pJSContext);
-
-        AVGRegion m_DirtyRegion;
+        void callJS (const std::string& Code, JSContext * pJSContext);
 
         std::string m_ID;
 		AVGContainer * m_pParent;
@@ -74,6 +82,14 @@ class AVGNode: public IAVGNode
         std::string m_MouseButtonDownHandler;
         std::string m_MouseOverHandler;
         std::string m_MouseOutHandler;
+
+        double m_Opacity;
+        PLRect m_RelViewport;      // In coordinates relative to the parent.
+        PLRect m_AbsViewport;      // In window coordinates.
+        int m_z;
+        
+        AVGRegion m_DirtyRegion;
+
 };
 
 template<class NODECLASS>

@@ -98,7 +98,8 @@ void AVGVideo::init (const std::string& id, int x, int y, int z,
        bool bLoop, bool bOverlay, 
        AVGDFBDisplayEngine * pEngine, AVGContainer * pParent)
 {
-    AVGVisibleNode::init(id, x, y, z, width, height, opacity, pEngine, pParent);
+    AVGNode::init(id, pEngine, pParent);
+    initVisible(x, y, z, width, height, opacity); 
     m_Filename = filename;
     cerr << "Video: opening " << m_Filename << endl;
     changeState (Paused);
@@ -109,18 +110,18 @@ void AVGVideo::init (const std::string& id, int x, int y, int z,
     }
 }
 
-void AVGVideo::update (int time, const PLRect& parent)
+void AVGVideo::prepareRender (int time, const PLRect& parent)
 {
-    AVGVisibleNode::update(time, parent);
+    AVGNode::prepareRender(time, parent);
     if (m_State == Playing) {
-        addDirtyRect(getAbsViewport());
+        invalidate();
     }
 }
 
 void AVGVideo::render (const PLRect& Rect)
 {
-//    cerr << "render " << getID() << endl;
-    switch(m_State) {
+    switch(m_State) 
+    {
         case Playing:
             if (m_bOverlay) {
                 renderToOverlay();    
@@ -221,6 +222,7 @@ void AVGVideo::readFrame()
     mpeg3_read_frame(m_pMPEG, m_pBmp->GetLineArray(), 0, 0, 
             m_Width-1, m_Height-1, vpt.Width(), vpt.Height(), 
             MPEG3_RGBA8888, 0);
+    // TODO: Add an ifdef for intel here.
     // libmpeg3 forgets to turn mmx off, killing floating point operations.
     __asm__ __volatile__ ("emms");  
     m_bFrameAvailable = true;
@@ -229,7 +231,6 @@ void AVGVideo::readFrame()
 
 void AVGVideo::renderToBackbuffer()
 {
-
     PLRect vpt = getAbsViewport();
     // Calc row ptr array.
     IDirectFBSurface * pSurface = getEngine()->getPrimary();
@@ -249,7 +250,7 @@ void AVGVideo::renderToBackbuffer()
 
     delete[] ppRows;
     pSurface->Unlock(pSurface);
-
+    
     advancePlayback();
 }
 
@@ -285,7 +286,7 @@ void AVGVideo::advancePlayback()
 string AVGVideo::dump (int indent)
 {
     stringstream s;
-    s << AVGVisibleNode::dump(indent)
+    s << AVGNode::dump(indent)
         << string(indent+8,  ' ') << "File: " << m_Filename
         << ", audio streams: " << mpeg3_total_astreams(m_pMPEG)
         << ", video streams: " << mpeg3_total_vstreams(m_pMPEG) << "," << endl

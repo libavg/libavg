@@ -4,7 +4,6 @@
 
 #include "AVGAVGNode.h"
 #include "AVGContainer.h"
-#include "AVGVisibleNode.h"
 #include "AVGDFBDisplayEngine.h"
 
 #include <paintlib/plpoint.h>
@@ -48,14 +47,14 @@ AVGNode * AVGAVGNode::getElementByPos (const PLPoint & pos)
             return pFoundNode;
         }
     }
-    return this; // pos is in parent, but not in any child.
+    return this; // pos is in current node, but not in any child.
 }
 
-void AVGAVGNode::update (int time, const PLRect& parent)
+void AVGAVGNode::prepareRender (int time, const PLRect& parent)
 {
-    AVGVisibleNode::update(time, parent);
+    AVGNode::prepareRender(time, parent);
     for (int i=0; i<getNumChildren(); i++){
-        getChild(i)->update(time, getAbsViewport());
+        getChild(i)->prepareRender(time, getAbsViewport());
     }
 }
 
@@ -87,17 +86,6 @@ void AVGAVGNode::getDirtyRegion (AVGRegion& Region)
     AVGRegion myRegion;
     AVGNode::getDirtyRegion(myRegion);
     Region.addRegion(myRegion);
-}
-
-string AVGAVGNode::dump (int indent)
-{
-    // Messy duplicated code because of multiple inheritance.
-    string dumpStr = AVGVisibleNode::dump(indent);
-    for (int i=0; i<getNumChildren(); i++){
-        dumpStr += getChild(i)->dump(indent+2);
-    }
-
-    return dumpStr;
 }
 
 string AVGAVGNode::getTypeStr ()

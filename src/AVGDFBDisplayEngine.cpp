@@ -160,6 +160,7 @@ void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen, bool bD
     DFBErrorCheck(AVG_ERR_VIDEO_INIT_FAILED, "AVGDFBDisplayEngine::init", err);
     dumpSurface (m_pPrimary, "Window surface (m_pPrimary)");
     m_pFontManager = new AVGFontManager;
+
 }
 
 void AVGDFBDisplayEngine::initInput() {

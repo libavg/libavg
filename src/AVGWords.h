@@ -5,7 +5,7 @@
 #ifndef _AVGWords_H_
 #define _AVGWords_H_
 
-#include "AVGVisibleNode.h"
+#include "AVGNode.h"
 
 #include <paintlib/plpixel32.h>
 
@@ -19,8 +19,7 @@
 
 #define AVGWORDS_CONTRACTID "@c-base.org/avgwords;1"
 
-class AVGWords : 	
-	public AVGVisibleNode
+class AVGWords : public AVGNode
 {
 	public:
         NS_DECL_ISUPPORTS

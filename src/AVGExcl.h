@@ -41,8 +41,11 @@ class AVGExcl :
         std::string getTypeStr ();
         virtual AVGNode * getElementByPos (const PLPoint & pos);
 
-    private:
+    protected:
         void invalidate();
+        virtual bool isVisibleNode();  // Poor man's RTTI
+
+    private:
         int m_ActiveChild;
 };
 

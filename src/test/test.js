@@ -263,19 +263,17 @@ function testExcl()
 }
 
 //while (true) {
+    testAnimation();
     testWords();
-/*
     testVideo();
     testExcl();
     dumpNodes();
     playAVG("image.avg");
-    testAnimation();
 
     playAVG("empty.avg");
     playAVG("events.avg");
     playAVG("avg.avg");
     playAVG("noavg.avg");
     playAVG("noxml.avg");
-*/
 //}
 

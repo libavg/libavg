@@ -4,7 +4,6 @@
 
 #include "AVGContainer.h"
 #include "AVGNode.h"
-#include "AVGVisibleNode.h"
 #include "AVGRegion.h"
 
 #include <iostream>
@@ -52,22 +51,14 @@ AVGNode * AVGContainer::getChild (int i)
 void AVGContainer::addChild (AVGNode * pNewNode)
 {
     // Children are ordered according to z-position.
-    // Non-Visible children are put in front.
-    vector<AVGNode*>::iterator pos;
-    AVGVisibleNode * pNewVisNode = dynamic_cast<AVGVisibleNode *>(pNewNode);
-    if (pNewVisNode) {
-        vector<AVGNode*>::iterator it;
-        for  (it = m_Children.begin(); it < m_Children.end(); it++) {
-            AVGVisibleNode * pOtherVisNode = dynamic_cast<AVGVisibleNode *>(*it);
-            if (pOtherVisNode && pNewVisNode->getZ() < pOtherVisNode->getZ()) {
-                break;
-            }
+    vector<AVGNode*>::iterator it;
+    for  (it = m_Children.begin(); it < m_Children.end(); it++) {
+        AVGNode * pOtherNode = *it;
+        if (pNewNode->getZ() < pOtherNode->getZ()) {
+            break;
         }
-        pos = it;
-    } else {
-      pos = m_Children.begin();
     }
-    m_Children.insert (pos, pNewNode);
+    m_Children.insert (it, pNewNode);
 }
 
 void AVGContainer::zorderChange (AVGNode * pChild)
@@ -85,11 +76,11 @@ void AVGContainer::zorderChange (AVGNode * pChild)
     addChild(pChild);
 }
 
-void AVGContainer::update (int time, const PLRect& parent)
+void AVGContainer::prepareRender (int time, const PLRect& parent)
 {
     vector<AVGNode*>::iterator it;
     for (it=m_Children.begin(); it<m_Children.end(); it++) {
-        (*it)->update(time, parent);
+        (*it)->prepareRender(time, parent);
     }
 }
 

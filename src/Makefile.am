@@ -17,7 +17,7 @@ INCLUDES = `mozilla-config --cflags xpcom nspr js xpconnect string` \
 ALL_H = AVGAVGNode.h AVGContainer.h  AVGDFBDisplayEngine.h AVGEvent.h \
           AVGException.h AVGExcl.h AVGFramerateManager.h AVGImage.h \
           AVGNode.h AVGPlayer.h AVGTimeout.h AVGRegion.h \
-          AVGVisibleNode.h IAVGEvent.h IAVGNode.h IAVGPlayer.h \
+          IAVGEvent.h IAVGNode.h IAVGPlayer.h \
           IDisplayEngine.h XMLHelper.h AVGTime.h \
           AVGWords.h AVGFontManager.h AVGVideo.h xpshell.h \
           acJSContextPublisher.h AVGJSScript.h
@@ -34,7 +34,7 @@ libavg_la_LDFLAGS =  -lmpeg3 `mozilla-config --libs nspr` `paintlib-config --lib
 
 libavg_la_SOURCES = AVGAVGNode.cpp AVGExcl.cpp \
                     AVGContainer.cpp AVGFramerateManager.cpp AVGTimeout.cpp \
-                    AVGDFBDisplayEngine.cpp AVGImage.cpp AVGVisibleNode.cpp \
+                    AVGDFBDisplayEngine.cpp AVGImage.cpp \
                     AVGEvent.cpp AVGNode.cpp XMLHelper.cpp AVGRegion.cpp\
                     AVGException.cpp AVGPlayer.cpp XPAVGPlayerModule.cpp \
                     AVGTime.cpp AVGWords.cpp AVGFontManager.cpp\

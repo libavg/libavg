@@ -5,7 +5,7 @@
 #ifndef _AVGVideo_H_
 #define _AVGVideo_H_
 
-#include "AVGVisibleNode.h"
+#include "AVGNode.h"
 #include "IAVGVideo.h"
 
 #include <libmpeg3.h>
@@ -19,8 +19,7 @@ class PLBmp;
 
 #define AVGVIDEO_CONTRACTID "@c-base.org/avgvideo;1"
 
-class AVGVideo : 	
-	public AVGVisibleNode, IAVGVideo
+class AVGVideo : public AVGNode, IAVGVideo
 {
 	public:
         NS_DECL_ISUPPORTS
@@ -37,7 +36,7 @@ class AVGVideo :
            int width, int height, double opacity, const std::string& filename, 
            bool bLoop, bool bOverlay, 
            AVGDFBDisplayEngine * pEngine, AVGContainer * pParent);
-        virtual void update (int time, const PLRect& parent);
+        virtual void prepareRender (int time, const PLRect& parent);
         virtual void render (const PLRect& Rect);
         bool obscures (const PLRect& Rect, int z);
         virtual std::string getTypeStr ();

@@ -5,7 +5,7 @@
 #ifndef _AVGImage_H_
 #define _AVGImage_H_
 
-#include "AVGVisibleNode.h"
+#include "AVGNode.h"
 
 #include <string>
 
@@ -17,8 +17,7 @@ class PLBmp;
 
 #define AVGIMAGE_CONTRACTID "@c-base.org/avgimage;1"
 
-class AVGImage : 	
-	public AVGVisibleNode
+class AVGImage : public AVGNode
 {
 	public:
         NS_DECL_ISUPPORTS

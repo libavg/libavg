@@ -52,7 +52,8 @@ void AVGImage::init (const std::string& id, int x, int y, int z,
        int width, int height, double opacity, const std::string& filename, 
        AVGDFBDisplayEngine * pEngine, AVGContainer * pParent)
 {
-    AVGVisibleNode::init(id, x, y, z,  width, height, opacity, pEngine, pParent);
+    AVGNode::init(id, pEngine, pParent);
+    initVisible(x, y, z,  width, height, opacity);
     m_Filename = filename;
     cerr << "Loading " << m_Filename << endl;
     m_pBmp = getEngine()->createSurface();

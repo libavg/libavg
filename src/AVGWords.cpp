@@ -58,7 +58,7 @@ AVGWords::GetIntAttr(const char *name, PRInt32 *_retval)
     if (!strcmp(name, "Size")) {
         *_retval = m_Size;
     } else {
-        return AVGVisibleNode::GetIntAttr(name, _retval);
+        return AVGNode::GetIntAttr(name, _retval);
     }
     return NS_OK;
 }
@@ -91,7 +91,7 @@ AVGWords::SetIntAttr(const char *name, PRInt32 value)
         m_Size = value;
         changeFont();
     } else {
-        return AVGVisibleNode::SetIntAttr(name, value);
+        return AVGNode::SetIntAttr(name, value);
     }
     invalidate();
     return NS_OK;
@@ -111,7 +111,8 @@ AVGWords::init (const string& id, int x, int y, int z,
            const string& str, const string& color,
            AVGDFBDisplayEngine * pEngine, AVGContainer * pParent)
 {
-    AVGVisibleNode::init(id, x, y, z,  width, height, opacity, pEngine, pParent);
+    AVGNode::init(id, pEngine, pParent);
+    initVisible(x, y, z, width, height, opacity); 
     m_Size = size;
     m_Str = str;
     m_ColorName = color;
@@ -128,7 +129,7 @@ string AVGWords::getTypeStr ()
 void AVGWords::setViewport (int x, int y, int width, int height)
 {
     PLPoint oldExtents(getRelViewport().Width(), getRelViewport().Height());
-    AVGVisibleNode::setViewport (x, y, width, height);
+    AVGNode::setViewport (x, y, width, height);
     if (oldExtents != PLPoint(width, height) && (width != -1 || height != -1)) {
         drawString();
     }
