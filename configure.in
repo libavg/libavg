@@ -65,5 +65,5 @@ if test "$enable_GL" = yes; then
     AC_DEFINE(AVG_ENABLE_GL, 1, [Enable OpenGL rendering backend])
 fi
 
-AC_CONFIG_HEADERS(src/avgconfig.h)
+AM_CONFIG_HEADER(src/avgconfig.h)
 AC_OUTPUT(libavg-config Makefile src/Makefile man/Makefile)
