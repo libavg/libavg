@@ -6,12 +6,15 @@
 #include "AVGSDLFont.h"
 #include "AVGException.h"
 #include "IAVGSurface.h"
+#include "AVGPlayer.h"
+#include "AVGLogger.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/Filter/plfilterfill.h>
 #include <paintlib/plpixel8.h>
 
 #include <iostream>
+#include <sstream>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -25,9 +28,9 @@ AVGSDLFont::AVGSDLFont(const std::string & Filename, int Size)
     // TTF_OpenFont crashes if the file doesn't exist, so we check beforehand.
     struct stat FileInfo;
     if (stat(Filename.c_str(), &FileInfo) == -1) {
-        throw AVGException(AVG_ERR_FONT_INIT_FAILED, 
-                string("Font file \"") + Filename + "\" not found: " 
-                + strerror(errno));
+        AVG_TRACE(AVGPlayer::DEBUG_ERROR, "Font file '" << Filename << "' not found: " 
+                << strerror(errno) << ". Aborting.");
+        exit(-1);
     }
     m_pFont = TTF_OpenFont(Filename.c_str(), Size);
     if (!m_pFont) {
