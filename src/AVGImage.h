@@ -31,8 +31,8 @@ class AVGImage : public AVGNode
         NS_IMETHOD GetType(PRInt32 *_retval);
 
         virtual void init (const std::string& id, const std::string& filename,
-                int bpp, IAVGDisplayEngine * pEngine, AVGContainer * pParent, 
-                AVGPlayer * pPlayer);
+                int bpp, int hue, int saturation, IAVGDisplayEngine * pEngine, 
+                AVGContainer * pParent, AVGPlayer * pPlayer);
         virtual void render (const AVGDRect& Rect);
         virtual bool obscures (const AVGDRect& Rect, int z);
         virtual std::string getTypeStr ();
@@ -43,6 +43,9 @@ class AVGImage : public AVGNode
     private:
         std::string m_Filename;
         IAVGSurface * m_pSurface;
+    
+        int m_Hue;
+        int m_Saturation;
 };
 
 #endif //_AVGImage_H_

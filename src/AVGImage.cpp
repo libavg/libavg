@@ -15,6 +15,7 @@
 #include <paintlib/Filter/plfilterresizebilinear.h>
 #include <paintlib/Filter/plfilterfliprgb.h>
 #include <paintlib/Filter/plfilterfill.h>
+#include <paintlib/Filter/plfiltercolorize.h>
 
 #include <nsMemory.h>
 #include <xpcom/nsComponentManagerUtils.h>
@@ -53,8 +54,8 @@ AVGImage::GetType(PRInt32 *_retval)
 }
 
 void AVGImage::init (const std::string& id, const std::string& filename, 
-        int bpp, IAVGDisplayEngine * pEngine, AVGContainer * pParent, 
-        AVGPlayer * pPlayer)
+        int bpp, int hue, int saturation, IAVGDisplayEngine * pEngine, 
+        AVGContainer * pParent, AVGPlayer * pPlayer)
 {
     AVGNode::init(id, pEngine, pParent, pPlayer);
 
@@ -65,6 +66,13 @@ void AVGImage::init (const std::string& id, const std::string& filename,
     PLAnyPicDecoder decoder;
     PLAnyBmp TempBmp;
     decoder.MakeBmpFromFile(m_Filename.c_str(), &TempBmp, 32);
+    m_Hue = hue;
+    m_Saturation = saturation;
+    if (m_Saturation != -1) {
+        cerr << "hue: " << m_Hue << ", saturation: " << m_Saturation << endl;
+        TempBmp.ApplyFilter(PLFilterColorize(m_Hue, m_Saturation));
+    }
+    
     if (!pEngine->hasRGBOrdering()) {
         TempBmp.ApplyFilter(PLFilterFlipRGB());
     }
@@ -72,6 +80,7 @@ void AVGImage::init (const std::string& id, const std::string& filename,
     if (!pEngine->supportsBpp(bpp)) {
         DestBPP = 32;
     }
+
     m_pSurface->create(TempBmp.GetWidth(), TempBmp.GetHeight(), 
             DestBPP, TempBmp.HasAlpha());
     m_pSurface->getBmp()->CopyPixels(TempBmp);

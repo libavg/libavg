@@ -14,6 +14,7 @@
 #include <paintlib/Filter/plfilterresizebilinear.h>
 #include <paintlib/Filter/plfilterfliprgb.h>
 #include <paintlib/Filter/plfilterfill.h>
+#include <paintlib/Filter/plfiltercolorize.h>
 #include <paintlib/plpngenc.h>
 
 #include <nsMemory.h>
@@ -95,8 +96,8 @@ NS_IMETHODIMP AVGPanoImage::GetMaxRotation(double *_retval)
 
 void AVGPanoImage::init (const std::string& id, const std::string& filename, 
         double SensorWidth, double SensorHeight, double FocalLength, 
-        IAVGDisplayEngine * pEngine, AVGContainer * pParent, 
-        AVGPlayer * pPlayer)
+        int hue, int saturation, IAVGDisplayEngine * pEngine, 
+        AVGContainer * pParent, AVGPlayer * pPlayer)
 {
     AVGNode::init(id, pEngine, pParent, pPlayer);
     m_pEngine = dynamic_cast<AVGSDLDisplayEngine*>(pEngine);
@@ -114,6 +115,12 @@ void AVGPanoImage::init (const std::string& id, const std::string& filename,
     PLAnyPicDecoder decoder;
     PLAnyBmp TempBmp;
     decoder.MakeBmpFromFile(m_Filename.c_str(), &TempBmp, 32);
+    m_Hue = hue;
+    m_Saturation = saturation;
+    if (m_Saturation != -1) {
+        TempBmp.ApplyFilter(PLFilterColorize(m_Hue, m_Saturation));
+    }
+ 
     if (!pEngine->hasRGBOrdering()) {
         TempBmp.ApplyFilter(PLFilterFlipRGB());
     }
@@ -185,20 +192,21 @@ void AVGPanoImage::render (const AVGDRect& Rect)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGPanoImage::render: glColor4f()");
 
+    double HorizOffset = m_Rotation+m_fovy*m_aspect/2;
 //    glutWireSphere(1, 20, 16);
     for (int i=0; i<m_TileTextureIDs.size(); ++i) {
         unsigned int TexID = m_TileTextureIDs[i];
         glBindTexture(GL_TEXTURE_2D, TexID);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "AVGPanoImage::render: glBindTexture()");
-        double StartAngle=i*m_SliceAngle-m_Rotation;
+        double StartAngle=i*m_SliceAngle-HorizOffset;
         double StartX = sin(StartAngle);
         double StartZ = -cos(StartAngle);
         double EndAngle;
         if (i<m_TileTextureIDs.size()-1) {
-            EndAngle = (i+1)*m_SliceAngle-m_Rotation;
+            EndAngle = (i+1)*m_SliceAngle-HorizOffset;
         } else {
-            EndAngle = m_CylAngle-m_Rotation;
+            EndAngle = m_CylAngle-HorizOffset;
         }
         double EndX = sin(EndAngle);
         double EndZ = -cos(EndAngle);

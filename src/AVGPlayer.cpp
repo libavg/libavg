@@ -680,7 +680,10 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         AVGImage * pImage = AVGImage::create();
         curNode = pImage;
         int bpp = getDefaultedIntAttr(xmlNode, "bpp", 32);
-        pImage->init(id, filename, bpp, m_pDisplayEngine, pParent, this);
+        int hue = getDefaultedIntAttr(xmlNode, "hue", -1);
+        int saturation = getDefaultedIntAttr(xmlNode, "saturation", -1);
+        pImage->init(id, filename, bpp, hue, saturation,
+                m_pDisplayEngine, pParent, this);
         initVisible(xmlNode, pImage);
     } else if (!strcmp (nodeType, "panoimage")) {
         string filename = initFileName(xmlNode);
@@ -692,8 +695,10 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
                 "sensorwidth", 0);
         double FocalLength = getDefaultedDoubleAttr(xmlNode, 
                 "focallength", 0);
-        pPanoImage->init(id, filename, SensorWidth, SensorHeight, FocalLength, 
-                m_pDisplayEngine, pParent, this);
+        int hue = getDefaultedIntAttr(xmlNode, "hue", -1);
+        int saturation = getDefaultedIntAttr(xmlNode, "saturation", -1);
+        pPanoImage->init(id, filename, SensorWidth, SensorHeight, FocalLength,
+                hue, saturation, m_pDisplayEngine, pParent, this);
         initVisible(xmlNode, pPanoImage);
     } else if (!strcmp (nodeType, "video")) {
         string filename = initFileName(xmlNode);

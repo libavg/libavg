@@ -28,7 +28,7 @@
   %graphicsElementEvents; >
 
 
-<!ELEMENT div (div|excl|image|video|camera|audio|words)* >
+<!ELEMENT div (div|excl|image|video|camera|audio|words|panoimage)* >
 <!ATTLIST div
   %graphicsElementAttrs;
   %graphicsElementEvents; >
@@ -45,6 +45,8 @@
   angle CDATA #IMPLIED
   pivotx CDATA #IMPLIED
   pivoty CDATA #IMPLIED
+  hue CDATA #IMPLIED
+  saturation CDATA #IMPLIED
   %graphicsElementEvents; >
   
 <!ELEMENT video EMPTY>
@@ -99,5 +101,7 @@
   sensorwidth CDATA #REQUIRED
   sensorheight CDATA #REQUIRED
   focallength CDATA #REQUIRED
+  hue CDATA #IMPLIED
+  saturation CDATA #IMPLIED
   %graphicsElementEvents; >
 

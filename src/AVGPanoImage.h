@@ -37,8 +37,8 @@ class AVGPanoImage : public AVGNode, public IAVGPanoImage
 
         virtual void init (const std::string& id, const std::string& filename,
                 double SensorWidth, double SensorHeight, double FocalLength, 
-                IAVGDisplayEngine * pEngine, AVGContainer * pParent, 
-                AVGPlayer * pPlayer);
+                int hue, int saturation, IAVGDisplayEngine * pEngine, 
+                AVGContainer * pParent, AVGPlayer * pPlayer);
         virtual void render (const AVGDRect& Rect);
         virtual bool obscures (const AVGDRect& Rect, int z);
         virtual std::string getTypeStr ();
@@ -67,6 +67,9 @@ class AVGPanoImage : public AVGNode, public IAVGPanoImage
         double m_MaxRotation;
 
         double m_Rotation;
+
+        int m_Hue;
+        int m_Saturation;
 };
 
 #endif //_AVGPanoImage_H_
