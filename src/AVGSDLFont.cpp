@@ -34,8 +34,9 @@ AVGSDLFont::AVGSDLFont(const std::string & Filename, int Size)
     }
     m_pFont = TTF_OpenFont(Filename.c_str(), Size);
     if (!m_pFont) {
-        throw AVGException(AVG_ERR_FONT_INIT_FAILED, 
-                string("SDL Font init failed: ") + TTF_GetError());
+        AVG_TRACE(AVGPlayer::DEBUG_ERROR, "Font file '" << Filename << "' not found: " 
+                << strerror(errno) << ". Aborting.");
+        exit(-1);
     }
     
 }

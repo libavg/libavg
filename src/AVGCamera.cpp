@@ -36,7 +36,7 @@ using namespace std;
 #define NUM_BUFFERS 3
 
 // Precomputed conversion matrix entries
-static int y2colTable[256]; // y to any color component;
+static int y2colTable[256]; // y to any color component
 static int u2bTable[256]; // u to blue
 static int u2gTable[256]; // u to green
 static int v2gTable[256]; // v to green
