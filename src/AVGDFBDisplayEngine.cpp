@@ -523,6 +523,10 @@ bool AVGDFBDisplayEngine::supportsBpp(int bpp)
     }
 }
 
+bool AVGDFBDisplayEngine::hasRGBOrdering()
+{
+    return false;
+}
 
 void AVGDFBDisplayEngine::showCursor (bool bShow)
 {

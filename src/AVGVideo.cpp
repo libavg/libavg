@@ -129,7 +129,7 @@ double AVGVideo::getFPS()
 
 bool AVGVideo::renderToBmp(PLBmp * pBmp, const AVGDRect* pVpt)
 {
-    m_bEOF = m_pDecoder->renderToBmp(pBmp, pVpt);
+    m_bEOF = m_pDecoder->renderToBmp(pBmp, getEngine()->hasRGBOrdering(), pVpt);
     if (!m_bEOF) {
         getEngine()->surfaceChanged(pBmp);
     }

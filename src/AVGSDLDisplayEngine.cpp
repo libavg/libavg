@@ -366,6 +366,11 @@ bool AVGSDLDisplayEngine::supportsBpp(int bpp)
     return (bpp == 24 || bpp == 32);
 }
 
+bool AVGSDLDisplayEngine::hasRGBOrdering()
+{
+    return true;
+}
+
 void AVGSDLDisplayEngine::showCursor (bool bShow)
 {
     if (bShow) {

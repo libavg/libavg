@@ -253,7 +253,8 @@ double AVGFFMpegDecoder::getFPS()
     return m_pVStream->r_frame_rate;
 }
 
-bool AVGFFMpegDecoder::renderToBmp(PLBmp * pBmp, const AVGDRect* pVpt)
+bool AVGFFMpegDecoder::renderToBmp(PLBmp * pBmp, bool bHasRGBOrdering,
+        const AVGDRect* pVpt)
 {
 /* Speedup possibilities:
     fast YUV->RGB conversion? incl. scaling?
@@ -276,8 +277,14 @@ bool AVGFFMpegDecoder::renderToBmp(PLBmp * pBmp, const AVGDRect* pVpt)
         DestPict.data[2] = pDestBits+2;
         DestPict.linesize[0] = ppDestLines[1] - ppDestLines[0];
         DestPict.linesize[1] = DestPict.linesize[0];   
-        DestPict.linesize[2] = DestPict.linesize[0];   
-        img_convert(&DestPict, PIX_FMT_BGR24,
+        DestPict.linesize[2] = DestPict.linesize[0];  
+        int DestFmt;
+        if (bHasRGBOrdering) {
+            DestFmt = PIX_FMT_RGB24;
+        } else {
+            DestFmt = PIX_FMT_BGR24;
+        }
+        img_convert(&DestPict, DestFmt,
                 (AVPicture*)&Frame, m_pVStream->codec.pix_fmt,
                 m_pVStream->codec.width, m_pVStream->codec.height);
     }

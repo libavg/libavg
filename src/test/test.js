@@ -361,15 +361,11 @@ function testExcl()
         AVGPlayer.play(30);
     }
 }
-/*
+    
     testHugeImage();
-
     testVideo();
-
     testCrop();
-*/   
     testAnimation();
-/*
     testWords();
 
     dumpNodes();
@@ -381,4 +377,3 @@ function testExcl()
     playAVG("avg.avg");
     playAVG("noavg.avg");
     playAVG("noxml.avg");
-*/

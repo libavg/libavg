@@ -47,8 +47,10 @@ class IAVGDisplayEngine
 
         virtual AVGFontManager * getFontManager() = 0;
         virtual bool hasYUVSupport() = 0;
-        virtual bool supportsBpp(int bpp) = 0;
-
+        // True if the bpp given are supported.
+        virtual bool supportsBpp(int bpp) = 0; 
+        // True if pixel order is RGB; BGR otherwise.
+        virtual bool hasRGBOrdering() = 0; 
         virtual void showCursor (bool bShow) = 0;
 };
 

@@ -69,7 +69,9 @@ void AVGImage::init (const std::string& id, const std::string& filename, int bpp
         pBmp = &TempBmp;
     }
     decoder.MakeBmpFromFile(m_Filename.c_str(), pBmp, 32);
-    pBmp->ApplyFilter(PLFilterFlipRGB());
+    if (!pEngine->hasRGBOrdering()) {
+        pBmp->ApplyFilter(PLFilterFlipRGB());
+    }
     if (bpp != 32 && pEngine->supportsBpp(bpp)) {
         m_pBmp->CreateCopy(*pBmp, bpp);
         
