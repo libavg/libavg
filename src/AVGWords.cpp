@@ -150,6 +150,7 @@ void AVGWords::drawString()
 {
     m_pFont->render(*m_pBmp, m_Str);
     m_StringExtents = PLPoint(m_pBmp->GetWidth(), m_pBmp->GetHeight());
+    getEngine()->surfaceChanged(m_pBmp);
     setViewport(-32767, -32767, m_StringExtents.x, m_StringExtents.y);
 }
 

@@ -9,7 +9,7 @@
 #include "AVGNode.h"
 #include "AVGLogger.h"
 #include "AVGFramerateManager.h"
-//#include "AVGSDLFontManager.h"
+#include "AVGSDLFontManager.h"
 #include "AVGEvent.h"
 #include "AVGMouseEvent.h"
 #include "AVGKeyEvent.h"
@@ -59,10 +59,13 @@ AVGSDLDisplayEngine::AVGSDLDisplayEngine()
         AVG_TRACE(IAVGPlayer::DEBUG_ERROR, "Can't init SDL display subsystem.");
     }
     initTranslationTable();
+    m_pFontManager = new AVGSDLFontManager;
 }
 
 AVGSDLDisplayEngine::~AVGSDLDisplayEngine()
 {
+    delete m_pFontManager;
+    m_pFontManager = 0;
     if (m_pScreen) {
         teardown();
     }
@@ -110,9 +113,6 @@ void AVGSDLDisplayEngine::init(int width, int height, bool isFullscreen, int bpp
 void AVGSDLDisplayEngine::teardown()
 {
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
-//    delete m_pFontManager;
-//    m_pFontManager = 0;
-
 }
 
 void AVGSDLDisplayEngine::render(AVGNode * pRootNode, 
@@ -122,16 +122,21 @@ void AVGSDLDisplayEngine::render(AVGNode * pRootNode,
     
     glClearColor(0.0, 0.0, 0.0, 0.0); 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "render::glClear()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGSDLDisplayEngine::render::glClear()");
 
     glViewport(0, 0, m_Width, m_Height);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "render: glViewport()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGSDLDisplayEngine::render: glViewport()");
     glMatrixMode(GL_PROJECTION);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "render: glMatrixMode()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGSDLDisplayEngine::render: glMatrixMode()");
     glLoadIdentity();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "render: glLoadIdentity()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGSDLDisplayEngine::render: glLoadIdentity()");
     gluOrtho2D(0, m_Width, m_Height, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "render: gluOrtho2D()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGSDLDisplayEngine::render: gluOrtho2D()");
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGSDLDisplayEngine::render: glTexEnvf()");
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "AVGSDLDisplayEngine::render: glBlendFunc()");
     
     const PLRect rc(0,0, m_Width, m_Height);
     pRootNode->maybeRender(rc);
@@ -193,29 +198,35 @@ void AVGSDLDisplayEngine::blt32(PLBmp * pBmp, const PLRect* pDestRect,
         double opacity)
 {
     AVGOGLBmp * pOGLBmp = dynamic_cast<AVGOGLBmp*>(pBmp);
-
     glColor4f(1.0f, 1.0f, 1.0f, opacity);
-    glBindTexture(AVGOGLBmp::getTextureMode(), pOGLBmp->getTexID());
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "AVGSDLDisplayEngine::blt32: glBindTexture()");
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "AVGSDLDisplayEngine::blt32: glBlendFunc()");
     if (AVGOGLBmp::getTextureMode() == GL_TEXTURE_RECTANGLE_NV) {
-        bltTexture(pDestRect, pBmp->GetWidth(), pBmp->GetHeight());
+        bltTexture(pOGLBmp, pDestRect, pBmp->GetWidth(), pBmp->GetHeight());
     } else {
-        bltTexture(pDestRect, ((GLfloat)pBmp->GetWidth()-0.5f)/pOGLBmp->getTexSize(),
+        bltTexture(pOGLBmp, pDestRect, ((GLfloat)pBmp->GetWidth()-0.5f)/pOGLBmp->getTexSize(),
                 ((GLfloat)pBmp->GetHeight()-0.5f)/pOGLBmp->getTexSize());
     }
-
-    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "(" << pDestRect->tl.x << ", " 
-            << pDestRect->tl.y << ")" << ", width:" << pDestRect->Width() 
-            << ", height: " << pDestRect->Height());
 }
 
-void AVGSDLDisplayEngine::bltTexture(const PLRect* pDestRect, 
+void AVGSDLDisplayEngine::blta8(PLBmp * pBmp, const PLRect* pDestRect,
+        double opacity, const PLPixel32& color)
+{
+    AVGOGLBmp * pOGLBmp = dynamic_cast<AVGOGLBmp*>(pBmp);
+    glColor4f(float(color.GetR())/256, float(color.GetG())/256, 
+            float(color.GetB())/256, opacity);
+    if (AVGOGLBmp::getTextureMode() == GL_TEXTURE_RECTANGLE_NV) {
+        bltTexture(pOGLBmp, pDestRect, pBmp->GetWidth(), pBmp->GetHeight());
+    } else {
+        bltTexture(pOGLBmp, pDestRect, ((GLfloat)pBmp->GetWidth()-0.5f)/pOGLBmp->getTexSize(),
+                ((GLfloat)pBmp->GetHeight()-0.5f)/pOGLBmp->getTexSize());
+    }
+}
+
+void AVGSDLDisplayEngine::bltTexture(AVGOGLBmp * pOGLBmp, const PLRect* pDestRect, 
         float Width, float Height)
 {
+    glBindTexture(AVGOGLBmp::getTextureMode(), pOGLBmp->getTexID());
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "AVGSDLDisplayEngine::blta8: glBindTexture()");
     glBegin(GL_QUADS);
     glTexCoord2f(0.0, 0.0);
     glVertex3f (pDestRect->tl.x, pDestRect->tl.y, 0.0);
@@ -228,11 +239,9 @@ void AVGSDLDisplayEngine::bltTexture(const PLRect* pDestRect,
     glEnd();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGSDLDisplayEngine::blt32: glEnd()");
-}
-
-void AVGSDLDisplayEngine::blta8(PLBmp * pBmp, const PLRect* pDestRect,
-        double opacity, const PLPixel32& color)
-{
+    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "(" << pDestRect->tl.x << ", " 
+            << pDestRect->tl.y << ")" << ", width:" << pDestRect->Width() 
+            << ", height: " << pDestRect->Height());
 }
 
 void AVGSDLDisplayEngine::setDirtyRect(const PLRect& rc) 
@@ -264,7 +273,7 @@ void AVGSDLDisplayEngine::surfaceChanged(PLBmp* pBmp)
 
 AVGFontManager * AVGSDLDisplayEngine::getFontManager()
 {
-//    return m_pFontManager;
+    return m_pFontManager;
 }
 
 int AVGSDLDisplayEngine::getWidth()

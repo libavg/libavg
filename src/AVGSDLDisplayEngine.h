@@ -5,18 +5,17 @@
 #ifndef _AVGSDLDisplayEngine_H_
 #define _AVGSDLDisplayEngine_H_
 
-//#include "AVGSDLFontManager.h"
+#include "AVGSDLFontManager.h"
 #include "IAVGEventSource.h"
 #include "IAVGDisplayEngine.h"
 
 #include <paintlib/plrect.h>
-#include <directfb/directfb.h>
 
 #include <SDL/SDL.h>
 
 #include <string>
 
-class PLDirectFBBmp;
+class AVGOGLBmp;
 
 class AVGSDLDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
 {
@@ -57,7 +56,7 @@ class AVGSDLDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         void initTranslationTable();
         void initJoysticks();
         void setDirtyRect(const PLRect& rc);
-        void bltTexture(const PLRect* pDestRect,
+        void bltTexture(AVGOGLBmp * pOGLBmp, const PLRect* pDestRect,
                 float Width, float Height);
         virtual void swapBuffers();
 
@@ -79,7 +78,7 @@ class AVGSDLDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
 
         static std::vector<long> KeyCodeTranslationTable;
 
-//        AVGSDLFontManager *m_pFontManager;
+        AVGSDLFontManager *m_pFontManager;
 };
 
 #endif 

@@ -59,15 +59,22 @@ void AVGOGLBmp::bind()
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGOGLBmp::bind: glTexParameteri()");
     int DestMode;
-    if (HasAlpha()) {
-        DestMode = GL_RGBA;
+    int SrcMode;
+    if (GetBitsPerPixel() == 8 ) {
+        DestMode = GL_ALPHA;
+        SrcMode = GL_ALPHA;
     } else {
-        DestMode = GL_RGB;    
+        SrcMode = GL_BGRA;
+        if (HasAlpha()) {
+            DestMode = GL_RGBA;
+        } else {
+            DestMode = GL_RGB;    
+        }
     }
     if (getTextureMode() == GL_TEXTURE_RECTANGLE_NV) {
         glTexImage2D(GL_TEXTURE_RECTANGLE_NV, 0,
                 DestMode, GetWidth(), GetHeight(), 0,
-                GL_BGRA, GL_UNSIGNED_BYTE, GetLineArray()[0]);
+                SrcMode, GL_UNSIGNED_BYTE, GetLineArray()[0]);
     } else {
         // Only pow2 textures supported.
         PLAnyBmp Pow2Bmp;
@@ -83,7 +90,7 @@ void AVGOGLBmp::bind()
         }
         glTexImage2D(GL_TEXTURE_2D, 0,
                 DestMode, m_TexSize, m_TexSize, 0,
-                GL_BGRA, GL_UNSIGNED_BYTE, Pow2Bmp.GetPixels());
+                SrcMode, GL_UNSIGNED_BYTE, Pow2Bmp.GetPixels());
     }
     
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
@@ -123,7 +130,7 @@ int AVGOGLBmp::getTextureMode()
      if (m_TextureMode == 0) {
         // TODO: Change to GL_TEXTURE_RECTANGLE_EXT so we don't depend on 
         // proprietary NVidia stuff
-        if (!queryOGLExtension("GL_NV_texture_rectangle")) {
+        if (queryOGLExtension("GL_NV_texture_rectangle")) {
             m_TextureMode = GL_TEXTURE_RECTANGLE_NV;
             AVG_TRACE(AVGPlayer::DEBUG_BLTS, 
                     "Using NVidia texture rectangle extension.");

@@ -17,7 +17,7 @@ public:
     AVGOGLBmp(const AVGOGLBmp &Orig);
     AVGOGLBmp &operator=(const PLBmp &Orig);
     AVGOGLBmp &operator=(const AVGOGLBmp &Orig);
-    
+
     void bind();
     void unbind();
     int getTexID();
