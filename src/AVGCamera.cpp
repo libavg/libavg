@@ -17,7 +17,7 @@
 #include <paintlib/plpngenc.h>
 #include <paintlib/planybmp.h>
 #include <paintlib/Filter/plfilterfill.h>
-
+#include <paintlib/Filter/plfilterfliprgb.h>
 
 #include <nsMemory.h>
 #include <xpcom/nsComponentManagerUtils.h>
@@ -273,10 +273,27 @@ bool AVGCamera::renderToBmp(PLBmp * pBmp, const AVGDRect* pVpt)
             case MODE_640x480_RGB:
                 {
                     PLBYTE ** ppLines = pBmp->GetLineArray();
-                    for (int y = 0; y < pBmp->GetHeight(); y++) {
-                        memcpy(ppLines[int(y+Vpt.tl.y)]+int(Vpt.tl.x*3),
-                                (PLBYTE*)(m_Camera.capture_buffer)+y*pBmp->GetWidth()*3,
-                                pBmp->GetWidth()*3);
+                    int YOffs = int(Vpt.tl.y+0.5);
+                    int XOffs = int(Vpt.tl.x+0.5)*3;
+                    int WidthBytes = pBmp->GetWidth()*3;
+                    if (getEngine()->hasRGBOrdering()) {
+                        for (int y = 0; y < pBmp->GetHeight(); y++) {
+                            memcpy(ppLines[y+YOffs]+XOffs,
+                                    (PLBYTE*)(m_Camera.capture_buffer)+
+                                        y*WidthBytes,
+                                    WidthBytes);
+                        }
+                    } else {
+                        for (int y = 0; y < pBmp->GetHeight(); y++) {
+                            PLBYTE * pDestLine = ppLines[y+YOffs]+XOffs;
+                            PLBYTE * pSrcLine = (PLBYTE*)
+                                    m_Camera.capture_buffer+y*WidthBytes;
+                            for (int x = 0; x < WidthBytes; x+=3) {
+                                pDestLine[x] = pSrcLine[x+2];
+                                pDestLine[x+1] = pSrcLine[x+1];
+                                pDestLine[x+2] = pSrcLine[x];
+                            }
+                        }
                     }
                 }
                 break;
@@ -304,7 +321,7 @@ bool AVGCamera::canRenderToBackbuffer(int BitsPerPixel)
 
 inline void YUVtoBGR24Pixel(PLPixel24* pDest, PLBYTE y, PLBYTE u, PLBYTE v)
 {
-    pDest->Set(y,y,y);
+//    pDest->Set(y,y,y);
     // u = Cb, v = Cr
 /*    y -= 16;
     u -= 128;
@@ -313,7 +330,6 @@ inline void YUVtoBGR24Pixel(PLPixel24* pDest, PLBYTE y, PLBYTE u, PLBYTE v)
     int g = (298 * y - 100 * u - 208 * v) >> 8;
     int r = (298 * y           + 409 * v) >> 8;
 */
-/*
     int ycomp = y2colTable[y];
     int b = ((ycomp+u2bTable[u])>>8);
     int g = ((ycomp+u2gTable[u]+v2gTable[v])>>8);
@@ -326,7 +342,6 @@ inline void YUVtoBGR24Pixel(PLPixel24* pDest, PLBYTE y, PLBYTE u, PLBYTE v)
     if (r<0) r = 0;
     if (r>255) r= 255;
     pDest->Set(b,g,r);
-*/
 /*
     asm volatile ("sub %%eax, %%eax;         \n\t"
                   "mov %1, %%al;             \n\t"
