@@ -73,12 +73,13 @@ class AVGPlayer: public IAVGPlayer
         int addTimeout(const AVGTimeout& timeout);
         void handleTimers();
         void handleEvents();
-        nsCOMPtr<IAVGEvent> wrapJSEvent(AVGEvent* pEvent);
+        AVGEvent* createCurEvent();
+//        nsCOMPtr<IAVGEvent> wrapJSEvent(AVGEvent* pEvent);
         void dumpEvent(AVGEvent* pEvent);
         void dumpEventStr(const std::string& EventName, bool IsMouse);
         void handleMouseEvent (AVGEvent* pEvent);
 
-        IAVGEvent * m_pCurEvent;
+        nsCOMPtr<IAVGEvent> m_CurEvent;
         IJSEvalKruecke * m_pKruecke;
         vector<AVGTimeout> m_PendingTimeouts;
         bool m_bStopping;

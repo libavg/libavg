@@ -22,6 +22,8 @@ interface IAVGEvent : nsISupports
     const long RIGHT_BUTTON=4;
 
 //    IAVGNode getElement();
+    boolean isMouseEvent();
+
     long getType();
     long getXPos();
     long getYPos();

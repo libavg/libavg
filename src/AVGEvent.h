@@ -25,6 +25,8 @@ class AVGEvent: public IAVGEvent
         void init(int type, const PLPoint& pos, int buttonState, int keySym=0);
         void init(const SDL_Event& SDLEvent);
 
+        void dump(int DebugLevel);
+
 		NS_DECL_ISUPPORTS
 
         NS_DECL_IAVGEVENT

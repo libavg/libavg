@@ -6,7 +6,12 @@
 
 #include <paintlib/pldebug.h>
 
+#include "nsMemory.h"
+
 #include <iostream.h>
+#include <string>
+
+using namespace std;
 
 AVGEvent::AVGEvent()
     : m_Type(0)
@@ -64,7 +69,14 @@ void AVGEvent::init(const SDL_Event& SDLEvent)
     }
 }
 
-NS_IMPL_ISUPPORTS1(AVGEvent, IAVGEvent);
+NS_IMPL_ISUPPORTS1_CI(AVGEvent, IAVGEvent);
+
+NS_IMETHODIMP AVGEvent::IsMouseEvent(PRBool *_retval)
+{
+    *_retval = (m_Type == MOUSEDOWN || m_Type == MOUSEUP || m_Type == MOUSEMOVE ||
+                m_Type == MOUSEOVER || m_Type == MOUSEOUT);
+    return NS_ERROR_NOT_IMPLEMENTED;
+}
 
 NS_IMETHODIMP AVGEvent::GetType(PRInt32 *_retval)
 {
@@ -106,5 +118,57 @@ NS_IMETHODIMP AVGEvent::GetKeyMod(PRInt32 *_retval)
     PLASSERT(m_Type == KEYDOWN || m_Type == KEYUP);
     *_retval = m_KeyMod;
     return NS_OK;
+}
+
+void AVGEvent::dump(int DebugLevel)
+{
+    string EventName;
+    switch(m_Type) {
+        case AVGEvent::MOUSEMOVE: // Mousemotion events aren't dumped.
+            return;
+        case AVGEvent::MOUSEDOWN:
+            EventName =  "MOUSEDOWN";
+            break;
+        case AVGEvent::MOUSEUP:
+            EventName =  "MOUSEUP";
+            break;
+        case AVGEvent::MOUSEOVER:
+            EventName =  "MOUSEOVER";
+            break;
+        case AVGEvent::MOUSEOUT:
+            EventName =  "MOUSEOUT";
+            break;
+        case AVGEvent::KEYDOWN:
+            EventName = "KEYDOWN";
+            break;
+        case AVGEvent::KEYUP:
+            EventName = "KEYUP";
+            break;
+        case AVGEvent::QUIT:
+            EventName = "QUIT";
+            break;
+        default: 
+            cerr << "Illegal event type " << m_Type << endl;
+            break;
+    }
+    switch (DebugLevel) {
+        case 0:
+            return;
+        case 1:
+            cerr << "Event: " << EventName << endl;
+            return;
+        case 2:
+            {
+                int IsMouse;
+                IsMouseEvent(&IsMouse);
+                if (IsMouse) {
+                    cerr << "Event: " << EventName << 
+                            "( Pos: (" << m_Pos.x << ", " << m_Pos.y << "), " << 
+                            "Button state: " << m_ButtonState << ")" << endl;
+                } else {
+                    cerr << "Event: " << EventName << endl;
+                }
+            }
+    }
 }
 

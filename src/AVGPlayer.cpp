@@ -30,6 +30,7 @@
 
 //#include "xpconnect/nsIXPConnect.h"
 //#include "xpcom/nsIServiceManager.h"
+#include <xpcom/nsComponentManagerUtils.h>
 
 using namespace std;
 
@@ -37,7 +38,6 @@ AVGPlayer::AVGPlayer()
     : m_pRootNode (0),
       m_pDisplayEngine(0),
       m_FramerateManager(),
-      m_pCurEvent(0),
       m_pLastMouseNode(0),
       m_EventDebugLevel(0)
 {
@@ -120,6 +120,13 @@ AVGPlayer::ClearInterval(PRInt32 id, PRBool * pResult)
     }
 
     *pResult = false;
+    return NS_OK;
+}
+
+NS_IMETHODIMP 
+AVGPlayer::GetCurEvent(IAVGEvent **_retval)
+{
+    *_retval = m_CurEvent;
     return NS_OK;
 }
 
@@ -325,38 +332,40 @@ void AVGPlayer::handleTimers()
 void AVGPlayer::handleEvents()
 {
     SDL_Event SDLEvent; 
-    while(SDL_PollEvent(&SDLEvent) && !m_bStopping){
-        AVGEvent* pEvent = 0;
-
-        switch(SDLEvent.type){
-            case SDL_KEYDOWN:
-                pEvent = new AVGEvent();
-                pEvent->init(SDLEvent);
-                break;
-            case SDL_MOUSEMOTION:
-            case SDL_MOUSEBUTTONDOWN:
-            case SDL_MOUSEBUTTONUP:
-                pEvent = new AVGEvent();
-                pEvent->init(SDLEvent);
-                handleMouseEvent(pEvent);
-                break;
-            case SDL_QUIT:
-                pEvent = new AVGEvent();
-                pEvent->init(SDLEvent);
+    while(SDL_PollEvent(&SDLEvent) && !m_bStopping) {
+        if (SDLEvent.type == SDL_KEYDOWN || SDLEvent.type == SDL_MOUSEMOTION ||
+            SDLEvent.type == SDL_MOUSEBUTTONUP || SDLEvent.type == SDL_MOUSEBUTTONDOWN ||
+            SDLEvent.type == SDL_QUIT)
+        {
+            AVGEvent * pCPPEvent = createCurEvent();
+            pCPPEvent->init(SDLEvent);
+            pCPPEvent->dump(m_EventDebugLevel);
+            int EventType;
+            m_CurEvent->GetType(&EventType);
+            if (EventType == AVGEvent::QUIT) {
                 m_bStopping = true;
-                break;
-            default:
-                break;
-        }
-        if (pEvent) {
-            dumpEvent(pEvent);
-            delete pEvent;
+            }
+              
+            int b;
+            m_CurEvent->IsMouseEvent(&b);
+            if (b) {
+                handleMouseEvent(pCPPEvent);
+            }
+  
         }
     }
 }
 
-/* bullshit
-nsCOMPtr<IAVGEvent> AVGPlayer::wrapJSEvent(AVGEvent* pEvent)
+AVGEvent* AVGPlayer::createCurEvent()
+{
+    nsresult rv;
+    m_CurEvent = do_CreateInstance("@c-base.org/avgevent;1", &rv);
+    PLASSERT(!NS_FAILED(rv));
+    return dynamic_cast<AVGEvent*>((IAVGEvent*)m_CurEvent);
+}
+
+/*
+ void AVGPlayer::wrapJSEvent(AVGEvent* pEvent)
 {
     nsresult rv;
     nsCOMPtr<nsIXPConnect> xpc(do_GetService(nsIXPConnect::GetCID(), &rv));
@@ -389,71 +398,36 @@ nsCOMPtr<IAVGEvent> AVGPlayer::wrapJSEvent(AVGEvent* pEvent)
 }
 */
 
-void AVGPlayer::dumpEvent(AVGEvent* pEvent)
-{
-    string EventName;
-    int EventType;
-    pEvent->GetType(&EventType);
-    switch(EventType) {
-        case AVGEvent::KEYDOWN:
-            EventName = "KEYDOWN";
-            break;
-        case AVGEvent::MOUSEDOWN:
-            EventName =  "MOUSEBUTTONDOWN";
-            break;
-        case AVGEvent::MOUSEUP:
-            EventName =  "MOUSEBUTTONUP";
-            break;
-        case AVGEvent::QUIT:
-            EventName = "QUIT";
-            break;
-        case AVGEvent::MOUSEMOVE: // Mousemotion events aren't dumped.
-        default: 
-            return;
-    }
-    dumpEventStr(EventName, 
-        EventType == AVGEvent::MOUSEUP || EventType == AVGEvent::MOUSEDOWN);
-}
-
-void AVGPlayer::dumpEventStr(const string& EventName, bool IsMouse)
-{
-    switch (m_EventDebugLevel) {
-        case 0:
-            return;
-        case 1:
-            cerr << "Event: " << EventName << endl;
-            return;
-        case 2:
-            if (IsMouse) {
-                if (m_pLastMouseNode) {
-                    cerr << "Event: " << EventName << "(Node id: " << 
-                            m_pLastMouseNode->getID() << ")" << endl;
-                }
-            } else {
-                cerr << "Event: " << EventName << endl;
-            }
-    }
-}
-
 void AVGPlayer::handleMouseEvent (AVGEvent* pEvent)
 {
     PLPoint pos;
     pEvent->GetXPos(&pos.x);
     pEvent->GetYPos(&pos.y);
+    int ButtonState;
+    pEvent->GetMouseButtonState(&ButtonState);
     AVGNode * pNode = m_pRootNode->getElementByPos(pos);
-    if (pNode != m_pLastMouseNode) {
-        if (pNode) {
-            dumpEventStr("MOUSEOVER", true);
-            pNode->onMouseOver(m_pKruecke);
-        }
-        if (m_pLastMouseNode) {
-            dumpEventStr("MOUSEOUT", true);
-            m_pLastMouseNode->onMouseOut(m_pKruecke);
-        }
-        m_pLastMouseNode = pNode;
-    }
     if (pNode) {
         pNode->handleEvent(pEvent, m_pKruecke);
+    }
+    if (pNode != m_pLastMouseNode) {
+        if (pNode) {
+            AVGEvent * pEvent = createCurEvent();
+            pEvent->init(AVGEvent::MOUSEOVER, pos, ButtonState);
+            pEvent->dump(m_EventDebugLevel);
+            cerr << "1" << endl;
+            pNode->onMouseOver(m_pKruecke);
+            cerr << "2" << endl;
+        }
+        if (m_pLastMouseNode) {
+            cerr << "3" << endl;
+            AVGEvent * pEvent = createCurEvent();
+            pEvent->init(AVGEvent::MOUSEOVER, pos, ButtonState);
+            pEvent->dump(m_EventDebugLevel);
+            m_pLastMouseNode->onMouseOut(m_pKruecke);
+        }
+        cerr << "4" << endl;
+
+        m_pLastMouseNode = pNode;
     }
 }
 

@@ -4,6 +4,7 @@
 
 #include "nsISupports.idl"
 #include "IJSEvalKruecke.idl"
+#include "IAVGEvent.idl"
 
 [scriptable, uuid(e3890769-a960-43ec-bc4f-ded28ef99103)]
 interface IAVGPlayer : nsISupports
@@ -18,6 +19,7 @@ interface IAVGPlayer : nsISupports
     long setTimeout(in long time, in string code);
     boolean clearInterval(in long id);
 
+    IAVGEvent getCurEvent();
     void setEventDebugLevel(in long level);
     string getErrStr();
     long getErrCode();

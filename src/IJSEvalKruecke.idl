@@ -1,0 +1,13 @@
+//
+// $Id$
+//
+
+#include "nsISupports.idl"
+
+
+[scriptable, uuid(17ab7603-5759-437e-857c-599c7c2998f5)]
+interface IJSEvalKruecke: nsISupports
+{
+    string callEval(in string code);
+};
+

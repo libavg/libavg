@@ -42,6 +42,14 @@ function onMouseOut()
 {
     print ("JS: onMouseOut()");
 }
+
+function onMouseUp()
+{
+    var Event = AVGPlayer.getCurEvent();
+    print ("JS: onMouseUp Event (type= "+Event.getType()+", pos=("+Event.getXPos()+
+           ", "+Event.getYPos()+"), state="+Event.getMouseButtonState()+")");
+}
+
 var timerid;
 
 function playAVG (fileName) 
