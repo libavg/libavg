@@ -19,13 +19,13 @@ using namespace std;
 AVGSDLFontManager::AVGSDLFontManager (const string& sFontPath)
     : AVGFontManager(sFontPath)
 {
-    if (!TTF_WasInit()) {
+//    if (!TTF_WasInit()) {
         int err = TTF_Init();
         if (err == -1) {
             AVG_TRACE(AVGPlayer::DEBUG_ERROR, 
                     "Could not initialize SDL_ttf. Font support is broken.");
         }
-    }
+//    }
 }
 
 AVGSDLFontManager::~AVGSDLFontManager ()
