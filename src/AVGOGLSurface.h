@@ -6,8 +6,12 @@
 #define _AVGOGLSurface_H_
 
 #include "IAVGSurface.h"
+#include "AVGRect.h"
 
 #include <paintlib/plsubbmp.h>
+#include <paintlib/plrect.h>
+
+#include <vector>
 
 class AVGOGLSurface: public IAVGSurface {
     public:
@@ -32,25 +36,35 @@ class AVGOGLSurface: public IAVGSurface {
         void bind();
         void unbind();
         void rebind();
-        int getTexID();
-        int getTexWidth();
-        int getTexHeight();
+
+        void blt(const AVGDRect* pDestRect, double opacity, 
+                double angle, const AVGDPoint& pivot);
 
         static int getTextureMode();
 
     private:
-        void bindOneTexture(unsigned int& TexID);
+        struct TextureTile {
+            PLRect m_Extent;
+            unsigned int m_TexID;
+            int m_TexWidth;
+            int m_TexHeight;
+        };
+        
+        void bindOneTexture(TextureTile& Tile);
+        void bltTexture(const AVGDRect* pDestRect, 
+                double angle, const AVGDPoint& pivot);
+        int AVGOGLSurface::bltTile(const TextureTile& Tile, 
+                const AVGDRect& DestRect);
         int getDestMode();
         int getSrcMode();
    
         PLBmpBase * m_pBmp;
         PLSubBmp * m_pSubBmp;   // Cached pointer to avoid slow dynamic_cast.
 
-        unsigned int m_TexID;
-        bool m_bBound;
+        PLPoint m_TileSize;
+        std::vector<std::vector<TextureTile> > m_Tiles;
 
-        int m_TexWidth;
-        int m_TexHeight;
+        bool m_bBound;
 
         static int s_TextureMode;
         static int s_MaxTexSize;

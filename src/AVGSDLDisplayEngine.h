@@ -64,8 +64,6 @@ class AVGSDLDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         void initTranslationTable();
         void initJoysticks();
         void setDirtyRect(const AVGDRect& rc);
-        void bltTexture(AVGOGLSurface * pSurface, const AVGDRect* pDestRect,
-                float Width, float Height, double angle, const AVGDPoint& pivot);
         virtual void swapBuffers();
         void clip();
 

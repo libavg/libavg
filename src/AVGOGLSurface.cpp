@@ -6,6 +6,7 @@
 #include "AVGPlayer.h"
 #include "AVGLogger.h"
 #include "AVGException.h"
+#include "AVGPoint.h"
 #include "OGLHelper.h"
 
 #include <paintlib/plstdpch.h>
@@ -25,8 +26,7 @@ int AVGOGLSurface::s_TextureMode = 0;
 int AVGOGLSurface::s_MaxTexSize = 0;
 
 AVGOGLSurface::AVGOGLSurface()
-    : m_TexID(0),
-      m_bBound(false),
+    : m_bBound(false),
       m_pBmp(0),
       m_pSubBmp(0)
 {
@@ -115,7 +115,87 @@ void AVGOGLSurface::bind()
     if (m_bBound) {
         rebind();
     } else {
-        bindOneTexture(m_TexID);
+        int DestMode = getDestMode();
+        int SrcMode = getSrcMode();
+        int Width = m_pBmp->GetWidth();
+        int Height = m_pBmp->GetHeight();
+        m_Tiles.clear();
+        vector<TextureTile> v;
+        if (Width > s_MaxTexSize || Height > s_MaxTexSize) {
+            m_TileSize = PLPoint(s_MaxTexSize/2, s_MaxTexSize/2);
+        } else {
+            if (getTextureMode() == GL_TEXTURE_2D) {
+                if ((Width > 256 && nextpow2(Width) > Width*1.3) ||
+                        (Height > 256 && nextpow2(Height) > Height*1.3)) 
+                {
+                    m_TileSize = PLPoint(nextpow2(Width)/2, nextpow2(Height)/2);
+                } else {
+                    m_TileSize = PLPoint(nextpow2(Width), nextpow2(Height));
+                }
+            } else {
+                m_TileSize = PLPoint(Width, Height);
+            }
+        }
+        int NumHorizTextures = int(ceil(float(Width)/m_TileSize.x));
+        int NumVertTextures = int(ceil(float(Height)/m_TileSize.y));
+
+        glPixelStorei(GL_UNPACK_ROW_LENGTH, Width);
+        for (int y=0; y<NumVertTextures; y++) {
+            m_Tiles.push_back(v);
+            for (int x=0; x<NumHorizTextures; x++) {
+                PLPoint CurSize = m_TileSize;
+                if (y == NumVertTextures-1) {
+                    CurSize.y = Height-y*m_TileSize.y;
+                }
+                if (x == NumHorizTextures-1) {
+                    CurSize.x = Width-x*m_TileSize.x;
+                }
+                PLRect CurExtent(x*m_TileSize.x, y*m_TileSize.y,
+                        x*m_TileSize.x+CurSize.x, y*m_TileSize.y+CurSize.y);
+                TextureTile Tile;
+                Tile.m_Extent = CurExtent;
+                Tile.m_TexWidth = CurSize.x;
+                Tile.m_TexHeight = CurSize.y;
+                if (getTextureMode() == GL_TEXTURE_2D) {
+                    Tile.m_TexWidth = nextpow2(CurSize.x);
+                    Tile.m_TexHeight = nextpow2(CurSize.y);
+                }
+                glGenTextures(1, &Tile.m_TexID);
+                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                        "AVGOGLSurface::bindOneTexture: glGenTextures()");
+                m_Tiles[y].push_back(Tile);
+
+                glBindTexture(s_TextureMode, Tile.m_TexID);
+                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
+                        "AVGOGLSurface::bindOneTexture: glBindTexture()");
+
+                glTexParameteri(s_TextureMode, 
+                        GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(s_TextureMode, 
+                        GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameteri(s_TextureMode, GL_TEXTURE_WRAP_S, GL_CLAMP);
+                glTexParameteri(s_TextureMode, GL_TEXTURE_WRAP_T, GL_CLAMP);
+                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                        "AVGOGLSurface::bind: glTexParameteri()");
+                glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                        "AVGOGLSurface::bind: glPixelStorei()");
+
+                glTexImage2D(s_TextureMode, 0,
+                        DestMode, Tile.m_TexWidth, Tile.m_TexHeight, 0,
+                        SrcMode, GL_UNSIGNED_BYTE, 0); 
+                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                        "AVGOGLSurface::bind: glTexImage2D()");
+                PLBYTE * pStartPos = 
+                        m_pBmp->GetLineArray()[Tile.m_Extent.tl.y]
+                        + Tile.m_Extent.tl.x*m_pBmp->GetBitsPerPixel()/8;
+                glTexSubImage2D(s_TextureMode, 0, 0, 0, 
+                        Tile.m_Extent.Width(), Tile.m_Extent.Height(),
+                        SrcMode, GL_UNSIGNED_BYTE, pStartPos);
+                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                        "AVGOGLSurface::bind: glTexSubImage2D()");
+            }
+        }
         m_bBound = true;
     }
 }
@@ -123,38 +203,42 @@ void AVGOGLSurface::bind()
 void AVGOGLSurface::unbind() 
 {
     if (m_bBound) {
-        glDeleteTextures(1, &m_TexID);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "AVGOGLSurface::unbind: glDeleteTextures()");
+        for (int y=0; y<m_Tiles.size(); y++) {
+            for (int x=0; x<m_Tiles[y].size(); x++) {
+                glDeleteTextures(1, &m_Tiles[y][x].m_TexID);
+                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                        "AVGOGLSurface::unbind: glDeleteTextures()");
+            }
+        }
+        m_Tiles.clear();
     }
     m_bBound = false;
 }
 
 void AVGOGLSurface::rebind()
 {
-    glBindTexture(s_TextureMode, m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "AVGOGLSurface::rebind: glBindTexture()");
-    glTexSubImage2D(s_TextureMode, 0, 0, 0, m_pBmp->GetWidth(), 
-            m_pBmp->GetHeight(), getSrcMode(), GL_UNSIGNED_BYTE, 
-            m_pBmp->GetLineArray()[0]);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "AVGOGLSurface::rebind: glTexSubImage2D()");
+    for (int y=0; y<m_Tiles.size(); y++) {
+        for (int x=0; x<m_Tiles[y].size(); x++) {
+            glBindTexture(s_TextureMode, m_Tiles[y][x].m_TexID);
+            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                    "AVGOGLSurface::rebind: glBindTexture()");
+            TextureTile Tile = m_Tiles[y][x];
+            PLBYTE * pStartPos = 
+                m_pBmp->GetLineArray()[Tile.m_Extent.tl.y]
+                + Tile.m_Extent.tl.x*m_pBmp->GetBitsPerPixel()/8;
+            glTexSubImage2D(s_TextureMode, 0, 0, 0, 
+                    Tile.m_Extent.Width(), Tile.m_Extent.Height(),
+                    getSrcMode(), GL_UNSIGNED_BYTE, pStartPos);
+            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                    "AVGOGLSurface::rebind: glTexSubImage2D()");
+        }
+    }
 }
 
-int AVGOGLSurface::getTexID() 
+void AVGOGLSurface::blt(const AVGDRect* pDestRect, double opacity, 
+                double angle, const AVGDPoint& pivot)
 {
-    return m_TexID;
-}
-
-int AVGOGLSurface::getTexHeight()
-{
-    return m_TexHeight;
-}
-
-int AVGOGLSurface::getTexWidth()
-{
-    return m_TexWidth;
+    bltTexture(pDestRect, angle, pivot);
 }
 
 int AVGOGLSurface::getTextureMode()
@@ -162,7 +246,7 @@ int AVGOGLSurface::getTextureMode()
      if (s_TextureMode == 0) {
         // TODO: Change to GL_TEXTURE_RECTANGLE_EXT so we don't depend on 
         // proprietary NVidia stuff
-        if (queryOGLExtension("GL_NV_texture_rectangle")) {
+        if (!queryOGLExtension("GL_NV_texture_rectangle")) {
             s_TextureMode = GL_TEXTURE_RECTANGLE_NV;
             AVG_TRACE(AVGPlayer::DEBUG_CONFIG, 
                     "Using NVidia texture rectangle extension.");
@@ -178,62 +262,76 @@ int AVGOGLSurface::getTextureMode()
     return s_TextureMode;
 }
 
-void AVGOGLSurface::bindOneTexture(unsigned int& TexID)
+
+void AVGOGLSurface::bltTexture(const AVGDRect* pDestRect, 
+                double angle, const AVGDPoint& pivot)
 {
+    AVGDPoint center(pDestRect->tl.x+pivot.x,
+            pDestRect->tl.y+pivot.y);
 
-    int Width = m_pBmp->GetWidth();
-    int Height = m_pBmp->GetHeight();
-    int bpp = m_pBmp->GetBitsPerPixel();
-    
-    int DestMode = getDestMode();
-    int SrcMode = getSrcMode();
+    glPushMatrix();
+    glTranslated(center.x, center.y, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "bltTexture: glTranslated");
+    glRotated(angle, 0, 0, 1);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "bltTexture: glRotated");
+    glTranslated(-center.x, -center.y, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "bltTexture: glTranslated");
 
-    glGenTextures(1, &TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "AVGOGLSurface::bindOneTexture: glGenTextures()");
-
-    glBindTexture(s_TextureMode, TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "AVGOGLSurface::bindOneTexture: glBindTexture()");
-
-    glTexParameteri(s_TextureMode, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(s_TextureMode, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "AVGOGLSurface::bind: glTexParameteri()");
-    
-    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Texture upload. Size=" << 
-            Width << "x" << Height << ", SrcMode=" <<
-            getGlModeString(SrcMode) << ", DestMode=" << 
-            getGlModeString(DestMode) << ".");
-    if (Width > s_MaxTexSize || Height > s_MaxTexSize)
-    {
-        stringstream s;
-        s << "Texture size is " << Width << "x" 
-            << Height << ", OpenGL maximum is " 
-            << s_MaxTexSize << "." << endl;
-        AVG_TRACE(AVGPlayer::DEBUG_ERROR, s.str());
-    }
-    if (getTextureMode() == GL_TEXTURE_RECTANGLE_NV) {
-        glTexImage2D(GL_TEXTURE_RECTANGLE_NV, 0,
-                DestMode, Width, Height, 0,
-                getSrcMode(), GL_UNSIGNED_BYTE, m_pBmp->GetLineArray()[0]);
-    } else {
-        // Only pow2 textures supported.
-        PLAnyBmp Pow2Bmp;
-        m_TexWidth = nextpow2(Width);
-        m_TexHeight = nextpow2(Height);
-        Pow2Bmp.Create(m_TexWidth, m_TexHeight, bpp, 
-                m_pBmp->HasAlpha(), false);
-        for (int y=0; y<Height; y++) {
-            memcpy (Pow2Bmp.GetLineArray()[y], m_pBmp->GetLineArray()[y],
-                    Width*bpp/8);
+    for (int y=0; y<m_Tiles.size(); y++) {
+        for (int x=0; x<m_Tiles[y].size(); x++) {
+            TextureTile& CurTile = m_Tiles[y][x];
+            AVGDRect TileDestRect;
+            TileDestRect.tl.x = pDestRect->tl.x+
+                    (float(pDestRect->Width())*m_TileSize.x*x)
+                    / m_pBmp->GetWidth();
+            TileDestRect.tl.y = pDestRect->tl.y+
+                    (float(pDestRect->Height())*m_TileSize.y*y)
+                    / m_pBmp->GetHeight();
+            TileDestRect.br.x = TileDestRect.tl.x+
+                    (float(pDestRect->Width())*CurTile.m_Extent.Width())
+                    / m_pBmp->GetWidth();
+            TileDestRect.br.y = TileDestRect.tl.y+
+                    (float(pDestRect->Height())*CurTile.m_Extent.Height())
+                    / m_pBmp->GetHeight();
+            bltTile(CurTile, TileDestRect);
         }
-        glTexImage2D(GL_TEXTURE_2D, 0,
-                DestMode, m_TexWidth, m_TexHeight, 0,
-                getSrcMode(), GL_UNSIGNED_BYTE, Pow2Bmp.GetPixels());
     }
+
+    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "(" << pDestRect->tl.x << ", " 
+            << pDestRect->tl.y << ")" << ", width:" << pDestRect->Width() 
+            << ", height: " << pDestRect->Height());
+    glPopMatrix();
+    
+}
+
+int AVGOGLSurface::bltTile(const TextureTile& Tile, 
+        const AVGDRect& DestRect)
+{
+    double TexWidth;
+    double TexHeight;
+    if (getTextureMode() == GL_TEXTURE_2D) {
+        TexWidth = double(Tile.m_Extent.Width())/Tile.m_TexWidth;
+        TexHeight = double(Tile.m_Extent.Height())/Tile.m_TexHeight;
+    } else {
+        TexWidth = Tile.m_TexWidth;
+        TexHeight = Tile.m_TexHeight;
+    }
+    
+    glBindTexture(s_TextureMode, Tile.m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "AVGOGLSurface::bind: glTexImage2D()");
+            "AVGSDLDisplayEngine::blta8: glBindTexture()");
+    glBegin(GL_QUADS);
+    glTexCoord2d(0.0, 0.0);
+    glVertex3d (DestRect.tl.x, DestRect.tl.y, 0.0);
+    glTexCoord2d(TexWidth, 0.0);
+    glVertex3d (DestRect.br.x, DestRect.tl.y, 0.0);
+    glTexCoord2d(TexWidth, TexHeight);
+    glVertex3d (DestRect.br.x, DestRect.br.y, 0.0);
+    glTexCoord2d(0.0, TexHeight);
+    glVertex3d (DestRect.tl.x, DestRect.br.y, 0.0);
+    glEnd();
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "AVGSDLDisplayEngine::bltTexture: glEnd()");
 }
 
 int AVGOGLSurface::getDestMode()
