@@ -307,7 +307,8 @@ function testAnimation()
     print ("---- testing Animation  ----");
     var ok = tryLoadFile("avg.avg");
     if (ok) {
-        AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE | AVGPlayer.DEBUG_EVENTS2); 
+        AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE | 
+				AVGPlayer.DEBUG_EVENTS2 ); 
         var node = AVGPlayer.getElementByID("nestedimg1");
         print("    Node id: "+node.getID());
         AVGPlayer.setInterval(10,"moveit();");

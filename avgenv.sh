@@ -9,11 +9,19 @@ then
     # This is SuSE
     export MOZ_LIBDIR=$MOZ_BASEDIR/lib
     export MOZ_IDLDIR=$MOZ_BASEDIR/share/idl
+    export MOZ_XPIDL=$MOZ_LIBDIR/xpidl
 elif [[ -e $MOZ_BASEDIR/lib/mozilla/xpidl ]]
 then
     # This is debian
     export MOZ_LIBDIR=$MOZ_BASEDIR/lib/mozilla
     export MOZ_IDLDIR=$MOZ_BASEDIR/share/idl/mozilla
+    export MOZ_XPIDL=$MOZ_LIBDIR/xpidl
+elif [[ -e /usr/bin/xpidl ]]
+then
+    # This looks like gentoo
+    export MOZ_LIBDIR=$MOZ_BASEDIR/
+    export MOZ_IDLDIR=$MOZ_BASEDIR/include/idl
+    export MOZ_XPIDL=`which xpidl`
 else
     # This is mozilla installed from source
     export MOZ_VERSION=`mozilla-config --version`

@@ -107,7 +107,6 @@ void AVGSDLDisplayEngine::init(int width, int height, bool isFullscreen, int bpp
     m_Width = width;
     m_Height = height;
     initInput();
-
     m_pFontManager = new AVGSDLFontManager(sFontPath);
     // SDL sets up a signal handler we really don't want.
 //    signal(SIGSEGV, SIG_DFL);
@@ -126,9 +125,8 @@ void AVGSDLDisplayEngine::render(AVGNode * pRootNode,
         AVGFramerateManager * pFramerateManager, bool bRenderEverything)
 {
     pRootNode->prepareRender(0, pRootNode->getAbsViewport());
-    
     glClearColor(0.0, 0.0, 0.0, 0.0); 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGSDLDisplayEngine::render::glClear()");
 
     glViewport(0, 0, m_Width, m_Height);
@@ -148,7 +146,6 @@ void AVGSDLDisplayEngine::render(AVGNode * pRootNode,
     const AVGDRect rc(0,0, m_Width, m_Height);
     glMatrixMode(GL_MODELVIEW);
     pRootNode->maybeRender(rc);
-    
     pFramerateManager->FrameWait();
     swapBuffers();
     pFramerateManager->CheckJitter();
