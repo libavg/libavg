@@ -127,21 +127,14 @@ double AVGVideo::getFPS()
     return m_pDecoder->getFPS();
 }
 
-bool AVGVideo::renderToBmp(PLBmp * pBmp)
+bool AVGVideo::renderToBmp(PLBmp * pBmp, const AVGDRect* pVpt)
 {
-    m_bEOF = m_pDecoder->renderToBmp(pBmp);
+    m_bEOF = m_pDecoder->renderToBmp(pBmp, pVpt);
     if (!m_bEOF) {
         getEngine()->surfaceChanged(pBmp);
     }
     advancePlayback();
     return !m_bEOF;
-}
-
-void AVGVideo::renderToBackbuffer(PLBmp & BackBufferBmp, 
-                const AVGDRect& vpt)
-{
-    m_bEOF = m_pDecoder->renderToBuffer(BackBufferBmp, vpt);
-    advancePlayback();
 }
 
 bool AVGVideo::canRenderToBackbuffer(int BPP) 

@@ -8,16 +8,19 @@
    onmousemove CDATA #IMPLIED
    onmouseout CDATA #IMPLIED
    onload CDATA #IMPLIED" >
-   
+
+<!ENTITY % graphicsElementAttrs
+  "id ID #IMPLIED
+   x CDATA #IMPLIED
+   y CDATA #IMPLIED
+   z CDATA #IMPLIED
+   width CDATA #IMPLIED
+   height CDATA #IMPLIED
+   opacity CDATA #IMPLIED" >
+
 <!ELEMENT avg (avg|excl|image|video|camera|audio|words)* >
 <!ATTLIST avg
-  id ID #IMPLIED
-  x CDATA "0"
-  y CDATA "0"
-  z CDATA #IMPLIED
-  width CDATA #IMPLIED
-  height CDATA #IMPLIED
-  opacity CDATA #IMPLIED
+  %graphicsElementAttrs;
   %graphicsElementEvents; >
   
 <!ELEMENT excl (avg|excl|image|video|camera|audio|words)+ >
@@ -26,49 +29,32 @@
 
 <!ELEMENT image EMPTY>
 <!ATTLIST image
-  id ID #IMPLIED
+  %graphicsElementAttrs;
   href CDATA #REQUIRED
-  x CDATA #REQUIRED
-  y CDATA #REQUIRED
-  z CDATA #IMPLIED
-  width CDATA #IMPLIED
-  height CDATA #IMPLIED
+  bpp CDATA #IMPLIED
   angle CDATA #IMPLIED
   pivotx CDATA #IMPLIED
   pivoty CDATA #IMPLIED
-  opacity CDATA #IMPLIED
   %graphicsElementEvents; >
   
 <!ELEMENT video EMPTY>
 <!ATTLIST video
-  id ID #IMPLIED
+  %graphicsElementAttrs;
   href CDATA #REQUIRED
-  x CDATA #REQUIRED
-  y CDATA #REQUIRED
-  z CDATA #IMPLIED
-  width CDATA #IMPLIED
-  height CDATA #IMPLIED
   angle CDATA #IMPLIED
   pivotx CDATA #IMPLIED
   pivoty CDATA #IMPLIED
-  opacity CDATA #IMPLIED
   loop CDATA #IMPLIED
   overlay CDATA #IMPLIED
   %graphicsElementEvents;> 
 
 <!ELEMENT camera EMPTY>
 <!ATTLIST camera
-  id ID #IMPLIED
+  %graphicsElementAttrs;
   device CDATA #REQUIRED
-  x CDATA #REQUIRED
-  y CDATA #REQUIRED
-  z CDATA #IMPLIED
-  width CDATA #IMPLIED
-  height CDATA #IMPLIED
   angle CDATA #IMPLIED
   pivotx CDATA #IMPLIED
   pivoty CDATA #IMPLIED
-  opacity CDATA #IMPLIED
   overlay CDATA #IMPLIED
   mode CDATA #IMPLIED
   framerate CDATA #IMPLIED

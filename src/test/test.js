@@ -330,7 +330,8 @@ function testAnimation()
     var ok = tryLoadFile("avg.avg");
     if (ok) {
         AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE | 
-				AVGPlayer.DEBUG_EVENTS2 ); 
+				AVGPlayer.DEBUG_EVENTS2 | AVGPlayer.DEBUG_WARNINGS); 
+//                | AVGPlayer.DEBUG_BLTS); 
         var node = AVGPlayer.getElementByID("nestedimg1");
         print("    Node id: "+node.getID());
         AVGPlayer.setInterval(10,"moveit();");
@@ -360,14 +361,16 @@ function testExcl()
         AVGPlayer.play(30);
     }
 }
-
+/*
     testHugeImage();
 
     testVideo();
 
     testCrop();
+*/   
     testAnimation();
-//    testWords();
+/*
+    testWords();
 
     dumpNodes();
     testExcl();
@@ -378,4 +381,4 @@ function testExcl()
     playAVG("avg.avg");
     playAVG("noavg.avg");
     playAVG("noxml.avg");
-
+*/

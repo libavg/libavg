@@ -253,64 +253,34 @@ double AVGFFMpegDecoder::getFPS()
     return m_pVStream->r_frame_rate;
 }
 
-bool AVGFFMpegDecoder::renderToBmp(PLBmp * pBmp)
+bool AVGFFMpegDecoder::renderToBmp(PLBmp * pBmp, const AVGDRect* pVpt)
 {
 /* Speedup possibilities:
     fast YUV->RGB conversion? incl. scaling?
     draw_horiz_band?
 */
+    AVGDRect Vpt (0, 0, pBmp->GetWidth(), pBmp->GetHeight());
+    if (pVpt != 0) {
+        Vpt = *pVpt;
+    }
     AVFrame Frame;
     readFrame(Frame);
     if (!m_bEOF) {
         AVPicture DestPict;
-        PLBYTE * pDestBits = pBmp->GetLineArray()[0];
+        int x1 = int(Vpt.tl.x);
+        int y1 = int(Vpt.tl.y);
+        PLBYTE ** ppDestLines = pBmp->GetLineArray();
+        PLBYTE * pDestBits = ppDestLines[y1]+3*x1;
         DestPict.data[0] = pDestBits;
         DestPict.data[1] = pDestBits+1;
         DestPict.data[2] = pDestBits+2;
-        DestPict.linesize[0] = pBmp->GetLineArray()[1]-pBmp->GetLineArray()[0];
+        DestPict.linesize[0] = ppDestLines[1] - ppDestLines[0];
         DestPict.linesize[1] = DestPict.linesize[0];   
         DestPict.linesize[2] = DestPict.linesize[0];   
         img_convert(&DestPict, PIX_FMT_BGR24,
                 (AVPicture*)&Frame, m_pVStream->codec.pix_fmt,
                 m_pVStream->codec.width, m_pVStream->codec.height);
     }
-    return m_bEOF;
-}
-
-// Fast path rendering directly to back buffer.
-// Works only if:
-//   - DFB is used to render,
-//   - Display output is 24 bpp,
-//   - Nothing is cropped and
-//   - There is no scaling.
-bool AVGFFMpegDecoder::renderToBuffer(PLBmp & BufferBmp, const AVGDRect& vpt)
-{
-#ifdef AVG_ENABLE_DFB
-    AVFrame Frame;
-    readFrame(Frame);
-    if (!m_bEOF) {
-        PixelFormat DestPixFmt;
-        int BytesPerPixel;
-        BytesPerPixel = 3;
-        DestPixFmt = PIX_FMT_BGR24;
-        AVPicture DestPict;
-        int x1 = int(vpt.tl.x);
-        int y1 = int(vpt.tl.y);
-        PLBYTE ** ppBufferBits = BufferBmp.GetLineArray();
-        PLBYTE * pDestBits = ppBufferBits[y1]+BytesPerPixel*x1;
-        DestPict.data[0] = pDestBits;
-        DestPict.data[1] = pDestBits+1;
-        DestPict.data[2] = pDestBits+2;
-        int Pitch = ppBufferBits[1] - ppBufferBits[0];
-        DestPict.linesize[0] = Pitch;
-        DestPict.linesize[1] = DestPict.linesize[0];   
-        DestPict.linesize[2] = DestPict.linesize[0];   
-
-        img_convert(&DestPict, DestPixFmt,
-                (AVPicture*)&Frame, m_pVStream->codec.pix_fmt,
-                m_pVStream->codec.width, m_pVStream->codec.height);
-    }
-#endif
     return m_bEOF;
 }
 

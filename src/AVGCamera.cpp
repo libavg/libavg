@@ -257,20 +257,24 @@ void AVGCamera::fatalError(const string & sMsg)
     exit(-1);
 }
 
-bool AVGCamera::renderToBmp(PLBmp * pBmp)
+bool AVGCamera::renderToBmp(PLBmp * pBmp, const AVGDRect* pVpt)
 {
+    AVGDRect Vpt (0, 0, pBmp->GetWidth(), pBmp->GetHeight());
+    if (pVpt != 0) {
+        Vpt = *pVpt;
+    }
     int rc = dc1394_dma_single_capture_poll(&m_Camera);
     if (rc == DC1394_SUCCESS) {
         // New frame available
         switch (m_Mode) {
             case MODE_640x480_YUV411:
-                YUV411toBGR24((PLBYTE*)(m_Camera.capture_buffer), pBmp);
+                YUV411toBGR24((PLBYTE*)(m_Camera.capture_buffer), pBmp, Vpt);
                 break;
             case MODE_640x480_RGB:
                 {
                     PLBYTE ** ppLines = pBmp->GetLineArray();
                     for (int y = 0; y < pBmp->GetHeight(); y++) {
-                        memcpy(ppLines[y],
+                        memcpy(ppLines[int(y+Vpt.tl.y)]+int(Vpt.tl.x*3),
                                 (PLBYTE*)(m_Camera.capture_buffer)+y*pBmp->GetWidth()*3,
                                 pBmp->GetWidth()*3);
                     }
@@ -293,26 +297,9 @@ bool AVGCamera::renderToBmp(PLBmp * pBmp)
     return true;
 }
 
-void AVGCamera::renderToBackbuffer(PLBmp & BufferBmp, const AVGDRect& vpt)
-{
-    int rc = dc1394_dma_single_capture_poll(&m_Camera);
-    if (rc == DC1394_SUCCESS) {
-        // New frame available
-        YUV411toBGR24((PLBYTE*)(m_Camera.capture_buffer), &BufferBmp, vpt);
-        dc1394_dma_done_with_buffer(&m_Camera);
-    } else {
-        if (rc == DC1394_NO_FRAME) {
-            cerr << "Camera: Frame not available." << endl;
-        } else {
-            fatalError("Frame capture failed.");
-        }
-    }
-}
-
 bool AVGCamera::canRenderToBackbuffer(int BitsPerPixel)
 {
-    return false;
-//    return (BitsPerPixel == 24);
+    return (BitsPerPixel == 24);
 }
 
 inline void YUVtoBGR24Pixel(PLPixel24* pDest, PLBYTE y, PLBYTE u, PLBYTE v)
@@ -389,15 +376,6 @@ void AVGCamera::YUV411toBGR24Line(PLBYTE* pSrc, int y, PLPixel24 * pDestLine)
         pDestPixel+=4;
     }
     
-}
-
-void AVGCamera::YUV411toBGR24(PLBYTE* pSrc, PLBmp * pBmp)
-{
-    PLPixel24 ** ppLines = pBmp->GetLineArray24();
-    for (int y = 0; y < pBmp->GetHeight(); y++) {
-        PLPixel24 * pDest = ppLines[y];
-        YUV411toBGR24Line(pSrc, y, pDest);
-    }
 }
 
 void AVGCamera::YUV411toBGR24(PLBYTE* pSrc, PLBmp * pBmp, const AVGDRect& vpt)

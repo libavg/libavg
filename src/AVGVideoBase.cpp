@@ -79,15 +79,7 @@ void AVGVideoBase::init (const std::string& id, bool bOverlay,
        IAVGDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer)
 {
     AVGNode::init(id, pEngine, pParent, pPlayer);
-    bool m_bOk = open(&m_Width, &m_Height);
-    if (!m_bOk) {
-        return;
-    }
-    m_pBmp = getEngine()->createSurface();
-    AVGDRect vpt = getRelViewport();
-
-    m_pBmp->Create(m_Width, m_Height, 24, false, false);
-    m_bFrameAvailable = false;
+    open();
 }
 
 void AVGVideoBase::prepareRender (int time, const AVGDRect& parent)
@@ -149,15 +141,7 @@ void AVGVideoBase::changeState(VideoState NewState)
         return;
     }
     if (m_State == Unloaded) {
-        bool m_bOk = open(&m_Width, &m_Height);
-        if (!m_bOk) {
-            return;
-        }
-        m_pBmp = getEngine()->createSurface();
-        AVGDRect vpt = getRelViewport();
-        
-        m_pBmp->Create(m_Width, m_Height, 24, false, false);
-        m_bFrameAvailable = false;
+        open();
     }
     if (NewState == Unloaded) {
         close();
@@ -183,7 +167,7 @@ void AVGVideoBase::renderToBackbuffer()
             "AVGVideoBase::renderToBackbuffer", err);
     PLDirectFBBmp BackBufferBmp;
     BackBufferBmp.CreateFromSurface (pSurface, false);
-    renderToBackbuffer(BackBufferBmp, vpt);
+    renderToBmp(&BackBufferBmp, &vpt);
     pSurface->Unlock(pSurface);
 
     m_bFrameAvailable=false;
@@ -192,6 +176,20 @@ void AVGVideoBase::renderToBackbuffer()
             "renderToBackbuffer called unexpectedly. Aborting.");
     exit(-1);
 #endif    
+}
+
+void AVGVideoBase::open() 
+{
+    bool m_bOk = open(&m_Width, &m_Height);
+    if (!m_bOk) {
+        return;
+    }
+    m_pBmp = getEngine()->createSurface();
+    AVGDRect vpt = getRelViewport();
+
+    m_pBmp->Create(m_Width, m_Height, 24, false, false);
+    m_bFrameAvailable = false;
+    m_State = Paused;
 }
 
 int AVGVideoBase::getMediaWidth()

@@ -61,7 +61,61 @@ void AVGDFBDisplayEngine::dumpSurface (IDirectFBSurface * pSurf, const string & 
 
     DFBSurfacePixelFormat fmt;
     pSurf->GetPixelFormat(pSurf, &fmt);
-    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "  PixelFormat: " << fmt << std::dec);
+    string sFmt;
+    switch (fmt) {
+        case DSPF_ARGB1555:
+            sFmt = "DSPF_ARGB155";
+            break;
+        case DSPF_RGB16:
+            sFmt = "DSPF_RGB16";
+            break;
+        case DSPF_RGB24:
+            sFmt = "DSPF_RGB24";
+            break;
+        case DSPF_RGB32:
+            sFmt = "DSPF_RGB32";
+            break;
+        case DSPF_ARGB:
+            sFmt = "DSPF_ARGB";
+            break;
+        case DSPF_A8:
+            sFmt = "DSPF_A8";
+            break;
+        case DSPF_YUY2:
+            sFmt = "DSPF_YUY2";
+            break;
+        case DSPF_RGB332:
+            sFmt = "DSPF_RGB332";
+            break;
+        case DSPF_UYVY:
+            sFmt = "DSPF_UYVY";
+            break;
+        case DSPF_I420:
+            sFmt = "DSPF_I420";
+            break;
+        case DSPF_YV12:
+            sFmt = "DSPF_YV12";
+            break;
+        case DSPF_LUT8:
+            sFmt = "DSPF_LUT8";
+            break;
+        case DSPF_ALUT44:
+            sFmt = "DSPF_ALUT44";
+            break;
+/*        case DSPF_AiRGB:
+            sFmt = "DSPF_AiRGB";
+            break;
+        case DSPF_A1:
+            sFmt = "DSPF_A1";
+            break;*/
+        default:
+            sFmt = ""; 
+    }
+    if (sFmt != "") {
+        AVG_TRACE(AVGPlayer::DEBUG_BLTS, "  PixelFormat: " << sFmt);
+    } else {
+        AVG_TRACE(AVGPlayer::DEBUG_BLTS, "  PixelFormat: " << fmt << std::dec);
+    }
 }
 
 
@@ -282,10 +336,10 @@ bool AVGDFBDisplayEngine::pushClipRect(const AVGDRect& rc, bool bClip)
     m_ClipRect.Intersect(m_DirtyRect);
     if (m_ClipRect.Width() > 0 && m_ClipRect.Height() > 0) {
         DFBRegion Region;
-        Region.x1 = (int)m_ClipRect.tl.x;
-        Region.y1 = (int)m_ClipRect.tl.y;
-        Region.x2 = (int)m_ClipRect.br.x-1;
-        Region.y2 = (int)m_ClipRect.br.y-1;
+        Region.x1 = (int)(m_ClipRect.tl.x+0.5);
+        Region.y1 = (int)(m_ClipRect.tl.y+0.5);
+        Region.x2 = (int)(m_ClipRect.br.x-0.5);
+        Region.y2 = (int)(m_ClipRect.br.y-0.5);
         m_pBackBuffer->SetClip(m_pBackBuffer, &Region);
         AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Clip set to " << 
                 m_ClipRect.tl.x << "x" << m_ClipRect.tl.y << 
@@ -345,7 +399,7 @@ void AVGDFBDisplayEngine::blt32(IDirectFBSurface * pSrc,
                              0xff, 0xff, 0xff, __u8(opacity*256));
     }
     m_pBackBuffer->SetBlittingFlags(m_pBackBuffer, BltFlags);
-//    dumpSurface (pSurf, "pDFBBmp");
+//    dumpSurface (pSrc, "pSrc");
 //    dumpSurface (m_pBackBuffer, "m_pBackBuffer");
     blt(pSrc, pDestRect);
 }
@@ -363,12 +417,11 @@ void AVGDFBDisplayEngine::blt(IDirectFBSurface * pSrc, const AVGDRect* pDestRect
     AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Blit: (" << pDestRect->tl.x << 
             ", " << pDestRect->tl.y << 
             "), width:" << width << ", height: " << height);
-
     DFBRectangle DFBDestRect;
-    DFBDestRect.x = int(pDestRect->tl.x);
-    DFBDestRect.y = int(pDestRect->tl.y);
-    DFBDestRect.w = int(pDestRect->Width());
-    DFBDestRect.h = int(pDestRect->Height());
+    DFBDestRect.x = int(pDestRect->tl.x+0.5);
+    DFBDestRect.y = int(pDestRect->tl.y+0.5);
+    DFBDestRect.w = int(pDestRect->Width()+0.5);
+    DFBDestRect.h = int(pDestRect->Height()+0.5);
 
 
     DFBResult err = m_pBackBuffer->StretchBlit(m_pBackBuffer, pSrc, 0, 
@@ -388,8 +441,8 @@ void AVGDFBDisplayEngine::clear()
  
     if (m_DirtyRect.Width() > 0 && m_DirtyRect.Height() > 0) {   
         err = m_pBackBuffer->FillRectangle(m_pBackBuffer, 
-                int(m_DirtyRect.tl.x), int(m_DirtyRect.tl.y), 
-                int(m_DirtyRect.Width()), int(m_DirtyRect.Height()));
+                int(m_DirtyRect.tl.x+0.5), int(m_DirtyRect.tl.y+0.5), 
+                int(m_DirtyRect.Width()+0.5), int(m_DirtyRect.Height()+0.5));
         DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::clear", err);
     }
 }
@@ -414,12 +467,12 @@ void AVGDFBDisplayEngine::swapBuffers(const AVGRegion & UpdateRegion)
     for (int i = 0; i<UpdateRegion.getNumRects(); i++) {
         const AVGDRect & rc = UpdateRegion.getRect(i);
         DFBRectangle DFBRect;
-        DFBRect.x = int(rc.tl.x);
-        DFBRect.y = int(rc.tl.y);
-        DFBRect.w = int(rc.Width());
-        DFBRect.h = int(rc.Height());
+        DFBRect.x = int(rc.tl.x+0.5);
+        DFBRect.y = int(rc.tl.y+0.5);
+        DFBRect.w = int(rc.Width()+0.5);
+        DFBRect.h = int(rc.Height()+0.5);
         err = pLayerSurf->Blit(pLayerSurf, m_pBackBuffer, &DFBRect, 
-                int(rc.tl.x), int(rc.tl.y));
+                int(rc.tl.x+0.5), int(rc.tl.y+0.5));
         DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::swapBuffers", err);
 
         int width;
@@ -462,6 +515,14 @@ bool AVGDFBDisplayEngine::hasYUVSupport()
 {
     return false;
 }
+
+bool AVGDFBDisplayEngine::supportsBpp(int bpp)
+{
+    if (bpp == 16 || bpp == 24 || bpp == 32) {
+        return true;
+    }
+}
+
 
 void AVGDFBDisplayEngine::showCursor (bool bShow)
 {

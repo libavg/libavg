@@ -591,7 +591,8 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
 
         AVGImage * pImage = AVGImage::create();
         curNode = pImage;
-        pImage->init(id, filename, m_pDisplayEngine, pParent, this);
+        int bpp = getDefaultedIntAttr(xmlNode, (const xmlChar *)"bpp", 32);
+        pImage->init(id, filename, bpp, m_pDisplayEngine, pParent, this);
         pImage->initVisible(x, y, z, width, height, opacity, angle, 
                 pivotx, pivoty);
         initEventHandlers(curNode, xmlNode);
@@ -609,7 +610,6 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
                 pParent, this);
         pVideo->initVisible(x, y, z, width, height, opacity, angle, 
                 pivotx, pivoty);
-        pVideo->Pause();
         initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"camera")) {
 #ifdef AVG_ENABLE_1394
@@ -631,7 +631,6 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
                 pParent, this);
         pCamera->initVisible(x, y, z, width, height, opacity, angle, 
                 pivotx, pivoty);
-        pCamera->Pause();
         initEventHandlers(curNode, xmlNode);
 #else
         throw (AVGException (AVG_ERR_UNSUPPORTED, 

@@ -42,10 +42,10 @@ class AVGVideoBase : public IAVGVideoBase, public AVGNode
    
     private:
         void renderToBackbuffer();
+        void open();
 
-        virtual bool renderToBmp(PLBmp * pBmp) = 0;
-        virtual void renderToBackbuffer(PLBmp & pBackBufferBmp, 
-                const AVGDRect& vpt) = 0;
+        virtual bool renderToBmp(PLBmp * pBmp, 
+                const AVGDRect* pVpt=0) = 0;
         virtual bool canRenderToBackbuffer(int BitsPerPixel) = 0;
         virtual bool open(int* pWidth, int* pHeight) = 0;
         virtual void close() = 0;

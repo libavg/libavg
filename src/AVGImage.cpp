@@ -51,7 +51,7 @@ AVGImage::GetType(PRInt32 *_retval)
     return NS_OK;
 }
 
-void AVGImage::init (const std::string& id, const std::string& filename, 
+void AVGImage::init (const std::string& id, const std::string& filename, int bpp, 
        IAVGDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer)
 {
     AVGNode::init(id, pEngine, pParent, pPlayer);
@@ -61,9 +61,19 @@ void AVGImage::init (const std::string& id, const std::string& filename,
     m_pBmp = getEngine()->createSurface();
 
     PLAnyPicDecoder decoder;
-    decoder.MakeBmpFromFile(m_Filename.c_str(), m_pBmp);
-    m_pBmp->ApplyFilter(PLFilterFlipRGB());
-   
+    PLAnyBmp TempBmp;
+    PLBmp * pBmp;
+    if (bpp == 32 || !pEngine->supportsBpp(bpp)) {
+        pBmp = m_pBmp;
+    } else {
+        pBmp = &TempBmp;
+    }
+    decoder.MakeBmpFromFile(m_Filename.c_str(), pBmp, 32);
+    pBmp->ApplyFilter(PLFilterFlipRGB());
+    if (bpp != 32 && pEngine->supportsBpp(bpp)) {
+        m_pBmp->CreateCopy(*pBmp, bpp);
+        
+    }
     getEngine()->surfaceChanged(m_pBmp);
 }
 

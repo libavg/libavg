@@ -20,8 +20,7 @@ class AVGFFMpegDecoder: public IAVGVideoDecoder
         virtual void seek(int DestFrame, int CurFrame);
         virtual int getNumFrames();
         virtual double getFPS();
-        virtual bool renderToBmp(PLBmp * pBmp);
-        virtual bool renderToBuffer(PLBmp & BufferBmp, const AVGDRect& vpt);
+        virtual bool renderToBmp(PLBmp * pBmp, const AVGDRect* pVpt=0);
         virtual bool canRenderToBuffer(int BPP);
 
     private:

@@ -361,6 +361,11 @@ bool AVGSDLDisplayEngine::hasYUVSupport()
 //    return queryOGLExtension("GL_NVX_ycrcb");
 }
 
+bool AVGSDLDisplayEngine::supportsBpp(int bpp)
+{
+    return (bpp == 24 || bpp == 32);
+}
+
 void AVGSDLDisplayEngine::showCursor (bool bShow)
 {
     if (bShow) {

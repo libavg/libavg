@@ -50,6 +50,7 @@ class AVGSDLDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
 
         virtual AVGFontManager * getFontManager();
         virtual bool hasYUVSupport();
+        virtual bool supportsBpp(int bpp);
 
         virtual void showCursor (bool bShow);
 

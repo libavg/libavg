@@ -97,6 +97,9 @@ void AVGOGLBmp::bind()
                 DestMode = GL_RGB;    
             }
             break;
+        default:
+            AVG_TRACE(AVGPlayer::DEBUG_ERROR, "Unsupported bpp " << 
+                    GetBitsPerPixel() << " in AVGOGLBmp::bind()");
     }
     AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Texture upload. Size=" << 
             GetWidth() << "x" << GetHeight() << ", SrcMode=" <<
