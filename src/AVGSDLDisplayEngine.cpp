@@ -61,7 +61,7 @@ void AVGSDLDisplayEngine::setClipRect(const PLRect& rc)
     SDL_SetClipRect(m_pScreen->GetSurface(), &SDLRect);
 }
 
-void AVGSDLDisplayEngine::render(PLBmp * pBmp, const PLPoint& pos)
+void AVGSDLDisplayEngine::render(PLBmp * pBmp, const PLPoint& pos, double opacity)
 {
     PLSDLBmp * pSDLBmp = dynamic_cast<PLSDLBmp *>(pBmp);
     PLASSERT(pSDLBmp); // createSurface() should have been used to create 
@@ -75,7 +75,10 @@ void AVGSDLDisplayEngine::render(PLBmp * pBmp, const PLPoint& pos)
     dest.y = pos.y;
     dest.w = pSDLBmp->GetWidth();
     dest.h = pSDLBmp->GetHeight();
-                 
+    
+    if (opacity < 0.9999) {
+        SDL_SetAlpha(pSDLBmp->GetSurface(), SDL_SRCALPHA, int(255*opacity));
+    }
     SDL_BlitSurface(pSDLBmp->GetSurface(), &src, m_pScreen->GetSurface(), &dest);
 }
 

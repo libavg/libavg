@@ -30,6 +30,9 @@ class AVGAVGNode :
         
         AVGAVGNode ();
         virtual ~AVGAVGNode ();
+
+        NS_IMETHOD GetType(PRInt32 *_retval);
+
 		virtual AVGNode * getElementByPos (const PLPoint & pos);
 		virtual void update (int time, const PLPoint& pos);
 		virtual void render ();

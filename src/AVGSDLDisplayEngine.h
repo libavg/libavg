@@ -21,7 +21,7 @@ class AVGSDLDisplayEngine
         virtual void teardown();
 
         virtual void setClipRect(const PLRect& rc);
-        virtual void render(PLBmp * pBmp, const PLPoint& pos);
+        virtual void render(PLBmp * pBmp, const PLPoint& pos, double opacity);
         virtual void swapBuffers();
 
 		virtual PLBmp * createSurface();

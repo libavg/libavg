@@ -150,6 +150,11 @@ const string& AVGNode::getID ()
     return m_ID;
 }
 
+AVGContainer * AVGNode::getParent()
+{
+    return m_pParent;
+}
+
 void AVGNode::handleEvent (AVGEvent* pEvent, IJSEvalKruecke * pKruecke)
 {
     string Code;

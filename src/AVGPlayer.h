@@ -44,9 +44,9 @@ class AVGPlayer: public IAVGPlayer
 
         NS_DECL_ISUPPORTS
 
-            NS_DECL_IAVGPLAYER
+        NS_DECL_IAVGPLAYER
 
-            void loadFile (const std::string& fileName);
+        void loadFile (const std::string& fileName);
         void play ();
         void stop ();
         void doFrame ();
@@ -68,6 +68,10 @@ class AVGPlayer: public IAVGPlayer
 
         std::string m_CurDirName;
         AVGFramerateManager m_FramerateManager;
+        bool m_bStopping;
+
+        typedef std::map<std::string, AVGNode*> NodeIDMap;
+        NodeIDMap m_IDMap;
 
         // Event handling
         int addTimeout(const AVGTimeout& timeout);
@@ -82,7 +86,6 @@ class AVGPlayer: public IAVGPlayer
         IAVGEvent * m_CurEvent;
         IJSEvalKruecke * m_pKruecke;
         vector<AVGTimeout> m_PendingTimeouts;
-        bool m_bStopping;
         AVGNode * m_pLastMouseNode;
         int m_EventDebugLevel;
 };

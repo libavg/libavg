@@ -45,6 +45,7 @@ class AVGNode: public IAVGNode
         virtual std::string dump (int indent = 0);
         virtual std::string getTypeStr ();
         virtual const std::string& getID ();
+        virtual AVGContainer * getParent();
         
         virtual void handleEvent (AVGEvent* pEvent, IJSEvalKruecke* pKruecke);
         virtual void callJS (const string& Code, IJSEvalKruecke * pKruecke);

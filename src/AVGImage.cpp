@@ -31,6 +31,13 @@ AVGImage::~AVGImage ()
 {
 }
 
+NS_IMETHODIMP 
+AVGImage::GetType(PRInt32 *_retval)
+{
+    *_retval = NT_IMAGE;
+    return NS_OK;
+}
+
 void AVGImage::init (const std::string& id, int x, int y, int z, 
        int width, int height, double opacity, const std::string& filename, 
        AVGSDLDisplayEngine * pEngine, AVGContainer * pParent)
@@ -54,7 +61,7 @@ void AVGImage::init (const std::string& id, int x, int y, int z,
 
 void AVGImage::render ()
 {
-    getEngine()->render(m_pBmp, getAbsViewport().tl);
+    getEngine()->render(m_pBmp, getAbsViewport().tl, getEffectiveOpacity());
 }
 
 void AVGImage::getDirtyRect ()

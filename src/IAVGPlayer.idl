@@ -9,11 +9,12 @@
 [scriptable, uuid(e3890769-a960-43ec-bc4f-ded28ef99103)]
 interface IAVGPlayer : nsISupports
 {
-//    IAVGNode getElementById(in string id);
-    IAVGNode getRootNode();
     boolean loadFile(in string fileName, in IJSEvalKruecke kruecke);
     void play();
     void stop();
+
+    IAVGNode getElementByID(in string id);
+    IAVGNode getRootNode();
 
     long setInterval(in long time, in string code);
     long setTimeout(in long time, in string code);

@@ -92,6 +92,18 @@ AVGPlayer::Stop()
 }
 
 NS_IMETHODIMP 
+AVGPlayer::GetElementByID(const char *id, IAVGNode **_retval)
+{
+    AVGNode * pNode = getElementByID(id);
+    if (!pNode) {
+        cerr << "getElementByID(" << id << ") failed" << endl;
+    }
+    *_retval = getElementByID(id);
+    NS_IF_ADDREF(*_retval);
+    return NS_OK;
+}
+
+NS_IMETHODIMP 
 AVGPlayer::GetRootNode(IAVGNode **_retval)
 {
     NS_IF_ADDREF(m_pRootNode);
@@ -197,6 +209,7 @@ void AVGPlayer::play ()
     m_pRootNode = 0;
 
     m_pLastMouseNode = 0;
+    m_IDMap.clear();
 }
 
 void AVGPlayer::stop ()
@@ -218,7 +231,11 @@ void AVGPlayer::doFrame ()
 
 AVGNode * AVGPlayer::getElementByID (const std::string id)
 {
-    return 0;
+    if (m_IDMap.find(id) != m_IDMap.end()) {
+        return m_IDMap.find(id)->second;
+    } else {
+        return 0;
+    }
 }
 
 AVGAVGNode * AVGPlayer::getRootNode ()
@@ -287,7 +304,15 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
             curXmlChild = curXmlChild->next;
         }
     }
-
+    const string& ID = curNode->getID();
+    if (ID != "") {
+        if (m_IDMap.find(ID) != m_IDMap.end()) {
+            throw (AVGException (AVG_ERR_XML_DUPLICATE_ID,
+                string("Error: duplicate id ")+ID));
+        }
+        cerr << "ID: " << ID << endl;
+        m_IDMap.insert(NodeIDMap::value_type(ID, curNode));
+    }
     return curNode;
 }
 

@@ -4,6 +4,7 @@
 
 #include "AVGVisibleNode.h"
 #include "AVGSDLDisplayEngine.h"
+#include "AVGAVGNode.h"
 #include "IJSEvalKruecke.h"
 
 #include <paintlib/plbitmap.h>
@@ -28,41 +29,64 @@ AVGVisibleNode::GetIntAttr(const char *name, PRInt32 *_retval)
 {
     if (!strcmp(name, "Left")) {
         *_retval = m_RelViewport.tl.x;
-        return NS_OK;
     } else if (!strcmp(name, "Top")) {
         *_retval = m_RelViewport.tl.y;
-        return NS_OK;
     } else if (!strcmp(name, "Right")) {
         *_retval = m_RelViewport.br.x;
-        return NS_OK;
     } else if (!strcmp(name, "Bottom")) {
         *_retval = m_RelViewport.br.y;
-        return NS_OK;
     } else if (!strcmp(name, "Z")) {
         *_retval = m_z;
-        return NS_OK;
     } else {
         return AVGNode::GetIntAttr(name, _retval);
     }
-
+    return NS_OK;
 }
 
 NS_IMETHODIMP 
 AVGVisibleNode::GetFloatAttr(const char *name, float *_retval)
 {
-    
+    if (!strcmp(name, "Opacity")) {
+        *_retval = m_Opacity;
+    } else {
+        return AVGNode::GetFloatAttr(name, _retval);
+    }
     return NS_OK;
 }
 
 NS_IMETHODIMP 
 AVGVisibleNode::SetIntAttr(const char *name, PRInt32 value)
 {
+    if (!strcmp(name, "Left")) {
+        m_RelViewport.tl.x = value;
+    } else if (!strcmp(name, "Top")) {
+        m_RelViewport.tl.y = value;
+    } else if (!strcmp(name, "Right")) {
+        m_RelViewport.br.x = value;
+    } else if (!strcmp(name, "Bottom")) {
+        m_RelViewport.br.y = value;
+    } else if (!strcmp(name, "Z")) {
+        m_z = value;
+    } else {
+        return AVGNode::SetIntAttr(name, value);
+    }
     return NS_OK;
 }
 
 NS_IMETHODIMP 
 AVGVisibleNode::SetFloatAttr(const char *name, float value)
 {
+    if (!strcmp(name, "Opacity")) {
+        m_Opacity = value;
+        if (m_Opacity < 0.0) {
+            m_Opacity = 0.0;
+        }
+        if (m_Opacity > 1.0) {
+            m_Opacity = 1.0;
+        }
+    } else {
+        return AVGNode::SetFloatAttr(name, value);
+    }
     return NS_OK;
 }
 
@@ -127,6 +151,16 @@ const PLRect& AVGVisibleNode::getAbsViewport ()
 int AVGVisibleNode::getZ ()
 {
     return m_z;
+}
+
+double AVGVisibleNode::getEffectiveOpacity()
+{
+    AVGAVGNode * pParent = dynamic_cast<AVGAVGNode*>(getParent());
+    if (pParent) {
+        return m_Opacity*pParent->getEffectiveOpacity();
+    } else {
+        return m_Opacity;
+    }
 }
 
 AVGSDLDisplayEngine * AVGVisibleNode::getEngine()

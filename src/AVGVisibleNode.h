@@ -39,6 +39,7 @@ class AVGVisibleNode :
         const PLRect& getRelViewport ();
         const PLRect& getAbsViewport ();
         int getZ ();
+        double getEffectiveOpacity();
         AVGSDLDisplayEngine * getEngine();
 
     private:

@@ -27,6 +27,9 @@ class AVGImage :
 
         AVGImage ();
         virtual ~AVGImage ();
+        
+        NS_IMETHOD GetType(PRInt32 *_retval);
+
         virtual void init (const std::string& id, int x, int y, int z, 
            int width, int height, double opacity, const std::string& filename, 
            AVGSDLDisplayEngine * pEngine, AVGContainer * pParent);

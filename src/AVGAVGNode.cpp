@@ -26,6 +26,13 @@ AVGAVGNode::~AVGAVGNode()
 {
 }
 
+NS_IMETHODIMP 
+AVGAVGNode::GetType(PRInt32 *_retval)
+{
+    *_retval = NT_AVG;
+    return NS_OK;
+}
+
 AVGNode * AVGAVGNode::getElementByPos (const PLPoint & pos)
 {
     if (!getAbsViewport().Contains(pos)) {
