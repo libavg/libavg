@@ -7,6 +7,7 @@
 
 #include "AVGNode.h"
 #include "IAVGVideo.h"
+#include "AVGRect.h"
 
 #include <libmpeg3.h>
 
@@ -35,14 +36,14 @@ class AVGVideo : public AVGNode, IAVGVideo
         virtual void init (const std::string& id, const std::string& filename, 
            bool bLoop, bool bOverlay, 
            IAVGDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer);
-        virtual void prepareRender (int time, const PLRect& parent);
-        virtual void render (const PLRect& Rect);
-        bool obscures (const PLRect& Rect, int z);
+        virtual void prepareRender (int time, const AVGDRect& parent);
+        virtual void render (const AVGDRect& Rect);
+        bool obscures (const AVGDRect& Rect, int z);
         virtual std::string getTypeStr ();
         virtual std::string dump (int indent = 0);
 
     protected:        
-        virtual PLPoint getPreferredMediaSize();
+        virtual AVGDPoint getPreferredMediaSize();
     
     private:
         void open (int* pWidth, int* pHeight);
@@ -66,7 +67,7 @@ class AVGVideo : public AVGNode, IAVGVideo
 
         VideoState m_State;
         int m_CurFrame;
-        PLPoint m_PreferredSize;
+        AVGDPoint m_PreferredSize;
 };
 
 #endif 

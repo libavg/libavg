@@ -59,17 +59,21 @@ void AVGOGLBmp::bind()
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGOGLBmp::bind: glTexParameteri()");
     int DestMode;
-    int SrcMode;
-    if (GetBitsPerPixel() == 8 ) {
-        DestMode = GL_ALPHA;
-        SrcMode = GL_ALPHA;
-    } else {
-        SrcMode = GL_BGRA;
-        if (HasAlpha()) {
-            DestMode = GL_RGBA;
-        } else {
+    int SrcMode = getSrcMode();
+    switch (GetBitsPerPixel()) {
+        case 8:
+            DestMode = GL_ALPHA;
+            break;
+        case 24:
             DestMode = GL_RGB;    
-        }
+            break;
+        case 32:
+            if (HasAlpha()) {
+                DestMode = GL_RGBA;
+            } else {
+                DestMode = GL_RGB;    
+            }
+            break;
     }
     if (getTextureMode() == GL_TEXTURE_RECTANGLE_NV) {
         glTexImage2D(GL_TEXTURE_RECTANGLE_NV, 0,
@@ -83,10 +87,11 @@ void AVGOGLBmp::bind()
             m_TexSize = GetHeight();
         }
         m_TexSize = nextpow2(m_TexSize);
-        Pow2Bmp.Create(m_TexSize, m_TexSize, 32, false, false);
+        Pow2Bmp.Create(m_TexSize, m_TexSize, GetBitsPerPixel(), 
+                false, false);
         for (int y=0; y<GetHeight(); y++) {
             memcpy (Pow2Bmp.GetLineArray()[y], GetLineArray()[y],
-                    GetWidth()*4);
+                    GetWidth()*GetBitsPerPixel()/8);
         }
         glTexImage2D(GL_TEXTURE_2D, 0,
                 DestMode, m_TexSize, m_TexSize, 0,
@@ -106,6 +111,17 @@ void AVGOGLBmp::unbind()
                 "AVGOGLBmp::bind: glDeleteTextures()");
     }
     m_bBound = false;
+}
+
+void AVGOGLBmp::rebind()
+{
+    glBindTexture(m_TextureMode, m_TexID);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "AVGOGLBmp::rebind: glBindTexture()");
+    glTexSubImage2D(m_TextureMode, 0, 0, 0, GetWidth(), GetHeight(), 
+            getSrcMode(), GL_UNSIGNED_BYTE, GetLineArray()[0]);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "AVGOGLBmp::rebind: glTexSubImage2D()");
 }
 
 int AVGOGLBmp::getTexID() 
@@ -132,13 +148,25 @@ int AVGOGLBmp::getTextureMode()
         // proprietary NVidia stuff
         if (queryOGLExtension("GL_NV_texture_rectangle")) {
             m_TextureMode = GL_TEXTURE_RECTANGLE_NV;
-            AVG_TRACE(AVGPlayer::DEBUG_BLTS, 
+            AVG_TRACE(AVGPlayer::DEBUG_PROFILE, 
                     "Using NVidia texture rectangle extension.");
         } else {
             m_TextureMode = GL_TEXTURE_2D;
-            AVG_TRACE(AVGPlayer::DEBUG_BLTS, 
+            AVG_TRACE(AVGPlayer::DEBUG_PROFILE, 
                     "Using power of 2 textures.");
         }
     }
     return m_TextureMode;
+}
+
+int AVGOGLBmp::getSrcMode()
+{
+    switch (GetBitsPerPixel()) {
+        case 8:
+            return GL_ALPHA;
+        case 24:
+            return GL_BGR;
+        case 32:
+            return GL_BGRA;
+    }
 }

@@ -30,17 +30,17 @@ class AVGExcl :	public AVGContainer, IAVGExcl
         NS_IMETHOD GetType(PRInt32 *_retval);
 
         virtual std::string dump (int indent = 0);
-		virtual void render (const PLRect& Rect);
-        virtual bool obscures (const PLRect& Rect, int z);
+		virtual void render (const AVGDRect& Rect);
+        virtual bool obscures (const AVGDRect& Rect, int z);
         virtual void getDirtyRegion (AVGRegion& Region);
-        virtual const PLRect& getRelViewport();
-        virtual const PLRect& getAbsViewport();
+        virtual const AVGDRect& getRelViewport();
+        virtual const AVGDRect& getAbsViewport();
 
         virtual int getActiveChild();
         virtual void setActiveChild(int activeChild);
 
         std::string getTypeStr ();
-        virtual AVGNode * getElementByPos (const PLPoint & pos);
+        virtual AVGNode * getElementByPos (const AVGDPoint & pos);
 
     protected:
         void invalidate();

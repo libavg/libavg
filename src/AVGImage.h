@@ -31,12 +31,12 @@ class AVGImage : public AVGNode
 
         virtual void init (const std::string& id, const std::string& filename, 
            IAVGDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer);
-        virtual void render (const PLRect& Rect);
-        virtual bool obscures (const PLRect& Rect, int z);
+        virtual void render (const AVGDRect& Rect);
+        virtual bool obscures (const AVGDRect& Rect, int z);
         virtual std::string getTypeStr ();
 
     protected:        
-        virtual PLPoint getPreferredMediaSize();
+        virtual AVGDPoint getPreferredMediaSize();
 
     private:
         std::string m_Filename;

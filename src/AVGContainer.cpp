@@ -76,7 +76,7 @@ void AVGContainer::zorderChange (AVGNode * pChild)
     addChild(pChild);
 }
 
-void AVGContainer::prepareRender (int time, const PLRect& parent)
+void AVGContainer::prepareRender (int time, const AVGDRect& parent)
 {
     vector<AVGNode*>::iterator it;
     for (it=m_Children.begin(); it<m_Children.end(); it++) {
@@ -99,8 +99,8 @@ string AVGContainer::getTypeStr ()
     return "AVGContainer";
 }
 
-PLPoint AVGContainer::getPreferredMediaSize()
+AVGDPoint AVGContainer::getPreferredMediaSize()
 {
-    return PLPoint(10000,10000);
+    return AVGDPoint(10000,10000);
 }
 

@@ -53,12 +53,12 @@ interface IAVGNode : nsISupports
      * The x position of the node relative to its parent node. Negative values
      * are allowed and cause the element to be clipped.
      */
-    attribute long x;
+    attribute float x;
     /**
      * The y position of the node relative to its parent node. Negative values
      * are allowed and cause the element to be clipped.
      */
-    attribute long y;
+    attribute float y;
     /**
      * The z position of the node. This is used to determine which nodes
      * are displayed on top of other nodes. The z value only has an effect
@@ -71,13 +71,13 @@ interface IAVGNode : nsISupports
      * be changed. For avg nodes, this value determines the clipping
      * rectangle of the children.
      */
-    attribute long width;
+    attribute float width;
     /**
      * The height of the node. For bitmaps, this is immutable and should not 
      * be changed. For avg nodes, this value determines the clipping
      * rectangle of the children.
      */
-    attribute long height;
+    attribute float height;
     /**
      * Opacity ranges from 0.0 to 1.0 and is relative to the parent's opacity.
      */
@@ -91,11 +91,11 @@ interface IAVGNode : nsISupports
     /**
      * The x coordinate of the point the node is rotated around.
      */
-    attribute long pivotx;
+    attribute float pivotx;
     /**
      * The y coordinate of the point the node is rotated around.
      */
-    attribute long pivoty;
+    attribute float pivoty;
     
 };
 

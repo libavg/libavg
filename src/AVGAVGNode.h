@@ -6,9 +6,8 @@
 #define _AVGAVGNode_H_
 
 #include "AVGContainer.h"
+#include "AVGPoint.h"
 #include <string>
-
-class PLPoint;
 
 // 84d8c8d3-2af2-482a-a238-608452b93b6f
 #define AVGAVGNODE_CID \
@@ -28,10 +27,10 @@ class AVGAVGNode : public AVGContainer
 
         NS_IMETHOD GetType(PRInt32 *_retval);
 
-        virtual AVGNode * getElementByPos (const PLPoint & pos);
-        virtual void prepareRender (int time, const PLRect& parent);
-        virtual void render (const PLRect& rect);
-        virtual bool obscures (const PLRect& rect, int z);
+        virtual AVGNode * getElementByPos (const AVGPoint<double> & pos);
+        virtual void prepareRender (int time, const AVGRect<double>& parent);
+        virtual void render (const AVGRect<double>& rect);
+        virtual bool obscures (const AVGRect<double>& rect, int z);
         virtual void getDirtyRegion (AVGRegion& Region);
         virtual std::string getTypeStr ();
 

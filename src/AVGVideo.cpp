@@ -136,7 +136,7 @@ void AVGVideo::init (const std::string& id, const std::string& filename,
     }
 }
 
-void AVGVideo::prepareRender (int time, const PLRect& parent)
+void AVGVideo::prepareRender (int time, const AVGDRect& parent)
 {
     AVGNode::prepareRender(time, parent);
     if (m_State == Playing) {
@@ -144,7 +144,7 @@ void AVGVideo::prepareRender (int time, const PLRect& parent)
     }
 }
 
-void AVGVideo::render (const PLRect& Rect)
+void AVGVideo::render (const AVGDRect& Rect)
 {
     switch(m_State) 
     {
@@ -155,8 +155,8 @@ void AVGVideo::render (const PLRect& Rect)
                 if (getEffectiveOpacity() < 0.001) {
                     return;
                 }
-                PLRect relVpt = getRelViewport();
-                PLRect absVpt = getParent()->getAbsViewport();   
+                AVGDRect relVpt = getRelViewport();
+                AVGDRect absVpt = getParent()->getAbsViewport();   
                 if (getEffectiveOpacity() > 0.999 && 
                     dynamic_cast<AVGDFBDisplayEngine*>(getEngine()) &&
                     relVpt.tl.x >= 0 && relVpt.tl.y >= 0 && 
@@ -200,10 +200,10 @@ void AVGVideo::changeState(VideoState NewState)
         }
 
         m_pBmp = getEngine()->createSurface();
-        PLRect vpt = getRelViewport();
+        AVGDRect vpt = getRelViewport();
         
         // libmpeg3 wants the bitmap to be larger than nessesary :-(.
-        m_pBmp->Create(vpt.Width(), vpt.Height()+1, 32, false, false);
+        m_pBmp->Create(int(vpt.Width()), int(vpt.Height())+1, 24, false, false);
         m_bFrameAvailable = false;
     }
     if (NewState == Unloaded) {
@@ -252,10 +252,10 @@ void dumpBmpLineArray(PLBmp* pBmp)
 
 void AVGVideo::readFrame()
 {
-    PLRect vpt = getRelViewport();
+    AVGDRect vpt = getRelViewport();
     mpeg3_read_frame(m_pMPEG, m_pBmp->GetLineArray(), 0, 0, 
-            m_Width-1, m_Height-1, vpt.Width(), vpt.Height(), 
-            MPEG3_RGBA8888, 0);
+            m_Width-1, m_Height-1, int(vpt.Width()), int(vpt.Height()), 
+            MPEG3_BGR888, 0);
 #ifdef i386
     // libmpeg3 forgets to turn mmx off, killing floating point operations.
     __asm__ __volatile__ ("emms");  
@@ -268,7 +268,7 @@ void AVGVideo::readFrame()
 void AVGVideo::renderToBackbuffer()
 {
     AVGDFBDisplayEngine* pEngine = dynamic_cast<AVGDFBDisplayEngine*>(getEngine());
-    PLRect vpt = getVisibleRect();
+    AVGDRect vpt = getVisibleRect();
     // Calc row ptr array.
     IDirectFBSurface * pSurface = pEngine->getPrimary();
     PLBYTE * pBits;
@@ -276,7 +276,7 @@ void AVGVideo::renderToBackbuffer()
     DFBResult err = pSurface->Lock(pSurface, DFBSurfaceLockFlags(DSLF_WRITE), 
             (void **)&pBits, &Pitch);
     pEngine->DFBErrorCheck(AVG_ERR_DFB, "AVGVideo::renderToBackbuffer", err);
-    PLBYTE ** ppRows = new (PLBYTE *)[vpt.Height()];
+    PLBYTE ** ppRows = new (PLBYTE *)[int(vpt.Height())];
     int BytesPerPixel;
     int ColorModel;
     if (getEngine()->getBPP() == 16) {
@@ -286,12 +286,14 @@ void AVGVideo::renderToBackbuffer()
         BytesPerPixel = 3;
         ColorModel = MPEG3_RGB888;
     }
-    for (int y=vpt.tl.y; y<vpt.br.y; y++) {
-        ppRows[y-vpt.tl.y] = pBits+Pitch*y+BytesPerPixel*vpt.tl.x;
+    int x1 = int(vpt.tl.x);
+    int y1 = int(vpt.tl.y);
+    for (int y=int(vpt.tl.y); y<int(vpt.br.y); y++) {
+        ppRows[y-y1] = pBits+Pitch*y+BytesPerPixel*x1;
     }
     mpeg3_read_frame(m_pMPEG, ppRows, 0, 0,
             m_Width-1, m_Height-1,
-            vpt.Width(), vpt.Height(), 
+            int(vpt.Width()), int(vpt.Height()), 
             ColorModel, 0);
 #ifdef i386
     // libmpeg3 forgets to turn mmx off, killing floating point operations.
@@ -313,7 +315,7 @@ void AVGVideo::renderToOverlay()
 {
 }
 
-bool AVGVideo::obscures (const PLRect& Rect, int z)
+bool AVGVideo::obscures (const AVGDRect& Rect, int z)
 {
     return (getEffectiveOpacity() > 0.999 &&
             getZ() > z && getVisibleRect().Contains(Rect));
@@ -350,9 +352,9 @@ string AVGVideo::dump (int indent)
     return s.str();
 }
 
-PLPoint AVGVideo::getPreferredMediaSize()
+AVGDPoint AVGVideo::getPreferredMediaSize()
 {
-    return PLPoint(m_Width, m_Height);
+    return AVGDPoint(m_Width, m_Height);
 }
 
 

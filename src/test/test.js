@@ -223,20 +223,27 @@ function testCrop()
 {
     print ("---- Testing cropping ----");
 //    AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_BLTS); 
+
     var ok = tryLoadFile("crop.avg");
     if (ok) {
         cropInterval = AVGPlayer.setInterval(10, "cropTL();");
-        AVGPlayer.play(25);    
+        AVGPlayer.play(50);    
+    }
+
+    ok = tryLoadFile("crop2.avg");
+    if (ok) {
+        cropInterval = AVGPlayer.setInterval(10, "cropTL();");
+        AVGPlayer.play(50);    
     }
 }
 
 function testVideo()
 {
     print ("---- Testing video node accessors ----");
+    AVGPlayer.setDebugOutput( //AVGPlayer.DEBUG_BLTS || 
+                             AVGPlayer.DEBUG_PROFILE); 
     var ok = tryLoadFile("video.avg");
     if (ok) {
-//    AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_BLTS); 
-        AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE); 
         getVideoInfo();
         timerid = AVGPlayer.setInterval(10, "videoInterval();");
         videoPlay('clogo');
@@ -330,7 +337,7 @@ function testExcl()
     testCrop();
 
     testAnimation();
-//    testWords();
+    testWords();
 
     dumpNodes();
 
@@ -343,5 +350,7 @@ function testExcl()
     playAVG("avg.avg");
     playAVG("noavg.avg");
     playAVG("noxml.avg");
+
+
 //}
 

@@ -147,16 +147,16 @@ void AVGWords::changeFont()
 void AVGWords::drawString()
 {
     if (m_Str.length() == 0) {
-        m_StringExtents = PLPoint(0,0);
+        m_StringExtents = AVGDPoint(0,0);
     } else {
         m_pFont->render(*m_pBmp, m_Str);
-        m_StringExtents = PLPoint(m_pBmp->GetWidth(), m_pBmp->GetHeight());
+        m_StringExtents = AVGDPoint(m_pBmp->GetWidth(), m_pBmp->GetHeight());
         getEngine()->surfaceChanged(m_pBmp);
         setViewport(-32767, -32767, m_StringExtents.x, m_StringExtents.y);
     }
 }
 
-void AVGWords::render(const PLRect& Rect)
+void AVGWords::render(const AVGDRect& Rect)
 {
     if (getEffectiveOpacity() > 0.001) {
         bool bVisible = getEngine()->pushClipRect(getVisibleRect(), false);
@@ -175,7 +175,7 @@ PLPixel32 AVGWords::colorStringToColor(const string & colorString)
     return PLPixel32(r,g,b);
 }
 
-PLPoint AVGWords::getPreferredMediaSize()
+AVGDPoint AVGWords::getPreferredMediaSize()
 {
     return m_StringExtents;
 }

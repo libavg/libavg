@@ -36,7 +36,7 @@ AVGAVGNode::GetType(PRInt32 *_retval)
     return NS_OK;
 }
 
-AVGNode * AVGAVGNode::getElementByPos (const PLPoint & pos)
+AVGNode * AVGAVGNode::getElementByPos (const AVGPoint<double> & pos)
 {
     if (!getVisibleRect().Contains(pos)) {
         return 0; // pos is not in parent.
@@ -50,7 +50,7 @@ AVGNode * AVGAVGNode::getElementByPos (const PLPoint & pos)
     return this; // pos is in current node, but not in any child.
 }
 
-void AVGAVGNode::prepareRender (int time, const PLRect& parent)
+void AVGAVGNode::prepareRender (int time, const AVGRect<double>& parent)
 {
     AVGNode::prepareRender(time, parent);
     for (int i=0; i<getNumChildren(); i++){
@@ -58,14 +58,14 @@ void AVGAVGNode::prepareRender (int time, const PLRect& parent)
     }
 }
 
-void AVGAVGNode::render(const PLRect& rect)
+void AVGAVGNode::render(const AVGRect<double>& rect)
 {
     for (int i=0; i<getNumChildren(); i++) {
         getChild(i)->maybeRender(rect);
     }
 }
 
-bool AVGAVGNode::obscures (const PLRect& rect, int z)
+bool AVGAVGNode::obscures (const AVGRect<double>& rect, int z)
 {
     for (int i=0; i<getNumChildren(); i++){
         if (getChild(i)->getZ() > z && getChild(i)->obscures(rect, 0))

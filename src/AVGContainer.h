@@ -9,7 +9,7 @@
 #include <string>
 
 class AVGContainer : 	
-	public virtual AVGNode
+    public virtual AVGNode
 {
     public:
         AVGContainer ();
@@ -18,7 +18,7 @@ class AVGContainer :
         NS_IMETHOD GetNumChildren(PRInt32 *_retval);
         NS_IMETHOD GetChild(PRInt32 i, IAVGNode **_retval);
 
-		virtual void prepareRender (int time, const PLRect& parent);
+        virtual void prepareRender (int time, const AVGRect<double>& parent);
         virtual std::string dump (int indent = 0);
         std::string getTypeStr ();
         
@@ -29,7 +29,7 @@ class AVGContainer :
         void zorderChange (AVGNode * pChild);
         
     protected:        
-        virtual PLPoint getPreferredMediaSize();	
+        virtual AVGPoint<double> getPreferredMediaSize();	
     
     private:
         std::vector < AVGNode * > m_Children;

@@ -138,7 +138,7 @@ void AVGSDLDisplayEngine::render(AVGNode * pRootNode,
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGSDLDisplayEngine::render: glBlendFunc()");
     
-    const PLRect rc(0,0, m_Width, m_Height);
+    const AVGDRect rc(0,0, m_Width, m_Height);
     glMatrixMode(GL_MODELVIEW);
     pRootNode->maybeRender(rc);
     
@@ -150,10 +150,10 @@ void AVGSDLDisplayEngine::render(AVGNode * pRootNode,
 void AVGSDLDisplayEngine::setClipRect()
 {
     m_ClipRects.clear();
-    m_ClipRects.push_back(PLRect(0, 0, m_Width, m_Height));
+    m_ClipRects.push_back(AVGDRect(0, 0, m_Width, m_Height));
 }
 
-bool AVGSDLDisplayEngine::pushClipRect(const PLRect& rc, bool bClip)
+bool AVGSDLDisplayEngine::pushClipRect(const AVGDRect& rc, bool bClip)
 {
     m_ClipRects.push_back(rc);
 
@@ -175,13 +175,13 @@ void AVGSDLDisplayEngine::popClipRect()
     clip();
 }
 
-const PLRect& AVGSDLDisplayEngine::getClipRect() 
+const AVGDRect& AVGSDLDisplayEngine::getClipRect() 
 {
     return m_ClipRects.back();
 }
 
-void AVGSDLDisplayEngine::blt32(PLBmp * pBmp, const PLRect* pDestRect, 
-        double opacity, double angle, const PLPoint& pivot)
+void AVGSDLDisplayEngine::blt32(PLBmp * pBmp, const AVGDRect* pDestRect, 
+        double opacity, double angle, const AVGDPoint& pivot)
 {
     AVGOGLBmp * pOGLBmp = dynamic_cast<AVGOGLBmp*>(pBmp);
     glColor4f(1.0f, 1.0f, 1.0f, opacity);
@@ -196,8 +196,9 @@ void AVGSDLDisplayEngine::blt32(PLBmp * pBmp, const PLRect* pDestRect,
     }
 }
 
-void AVGSDLDisplayEngine::blta8(PLBmp * pBmp, const PLRect* pDestRect,
-        double opacity, const PLPixel32& color, double angle, const PLPoint& pivot)
+void AVGSDLDisplayEngine::blta8(PLBmp * pBmp, const AVGDRect* pDestRect,
+        double opacity, const PLPixel32& color, double angle, 
+        const AVGDPoint& pivot)
 {
     AVGOGLBmp * pOGLBmp = dynamic_cast<AVGOGLBmp*>(pBmp);
     glColor4f(float(color.GetR())/256, float(color.GetG())/256, 
@@ -213,10 +214,11 @@ void AVGSDLDisplayEngine::blta8(PLBmp * pBmp, const PLRect* pDestRect,
     }
 }
 
-void AVGSDLDisplayEngine::bltTexture(AVGOGLBmp * pOGLBmp, const PLRect* pDestRect, 
-        float Width, float Height, double angle, const PLPoint& pivot)
+void AVGSDLDisplayEngine::bltTexture(AVGOGLBmp * pOGLBmp, 
+        const AVGDRect* pDestRect, 
+        float Width, float Height, double angle, const AVGDPoint& pivot)
 {
-    PLPoint center(pDestRect->tl.x+pivot.x,
+    AVGDPoint center(pDestRect->tl.x+pivot.x,
             pDestRect->tl.y+pivot.y);
 
     glPushMatrix();
@@ -251,7 +253,7 @@ void AVGSDLDisplayEngine::bltTexture(AVGOGLBmp * pOGLBmp, const PLRect* pDestRec
 
 void AVGSDLDisplayEngine::clip()
 {
-    PLRect rc = m_ClipRects.back();
+    AVGDRect rc = m_ClipRects.back();
     double xEqn[4] = {1.0, 0.0, 0.0, 0.0};
     xEqn[3] = -rc.tl.x;
     glClipPlane(GL_CLIP_PLANE0, xEqn);
@@ -284,7 +286,7 @@ void AVGSDLDisplayEngine::clip()
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glEnable(3)");
 }
 
-void AVGSDLDisplayEngine::setDirtyRect(const PLRect& rc) 
+void AVGSDLDisplayEngine::setDirtyRect(const AVGDRect& rc) 
 {
     m_DirtyRect = rc;
     
@@ -314,6 +316,12 @@ void AVGSDLDisplayEngine::surfaceChanged(PLBmp* pBmp)
 AVGFontManager * AVGSDLDisplayEngine::getFontManager()
 {
     return m_pFontManager;
+}
+
+bool AVGSDLDisplayEngine::hasYUVSupport()
+{
+    return false;
+//    return queryOGLExtension("GL_NVX_ycrcb");
 }
 
 int AVGSDLDisplayEngine::getWidth()

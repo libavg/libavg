@@ -17,16 +17,16 @@ AVGRegion::~AVGRegion ()
 {
 }
 
-void AVGRegion::addRect(const PLRect& NewRect) {
+void AVGRegion::addRect(const AVGDRect& NewRect) {
     if (NewRect.Width() == 0 || NewRect.Height() == 0) {
         // Ignore empty rectangles.
         return;
     }
-    PLRect CurRect(NewRect);
+    AVGDRect CurRect(NewRect);
     bool bFound = false;
     do {
         bFound = false;
-        std::vector<PLRect>::iterator it;
+        std::vector<AVGDRect>::iterator it;
         for (it = m_Rects.begin(); it != m_Rects.end() && !bFound; it++) {
             if ((*it).Intersects(CurRect)) {
                 CurRect.Expand(*it); 
@@ -54,13 +54,13 @@ int AVGRegion::getNumRects() const {
 
 }
 
-const PLRect& AVGRegion::getRect(int i) const {
+const AVGDRect& AVGRegion::getRect(int i) const {
     return m_Rects[i];
 }
 
 void AVGRegion::dump() const {
     for (int i = 0; i<m_Rects.size(); i++) {
-        const PLRect & r = m_Rects[i];
+        const AVGDRect & r = m_Rects[i];
         cerr << "[" << r.tl.x << "x" << r.tl.y << ", " << 
                  r.br.x << "x" << r.br.y << "]" << endl;
     }

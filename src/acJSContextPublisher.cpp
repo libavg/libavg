@@ -32,7 +32,6 @@ acJSContextPublisher::~acJSContextPublisher()
 {
 }
 
-/* long get (); */
 NS_IMETHODIMP acJSContextPublisher::GetContext(PRInt32 *_retval)
 {
     *_retval = (PRInt32)_myContext_;

@@ -6,7 +6,9 @@
 #define _AVGNode_H_
 
 #include "AVGRegion.h"
-#include <IAVGNode.h>
+#include "IAVGNode.h"
+#include "AVGPoint.h"
+#include "AVGRect.h"
 
 #include <vector>
 #include <string>
@@ -17,8 +19,6 @@
 #include <xpcom/nsIComponentManager.h>
 #include <jsapi.h>
 
-class PLPoint;
-class PLRect;
 class AVGContainer;
 class AVGEvent;
 class AVGRegion;
@@ -36,8 +36,8 @@ class AVGNode: public IAVGNode
         virtual ~AVGNode ();
         void init(const std::string& id, IAVGDisplayEngine * pEngine,
                 AVGContainer * pParent, AVGPlayer * pPlayer);
-        void initVisible(int x, int y, int z, int width, int height, 
-                double opacity, double angle, int pivotx, int pivoty);
+        void initVisible(double x, double y, int z, double width, double height, 
+                double opacity, double angle, double pivotx, double pivoty);
         
         virtual void InitEventHandlers
             (const std::string& MouseMoveHandler, 
@@ -46,17 +46,17 @@ class AVGNode: public IAVGNode
              const std::string& MouseOverHandler, 
              const std::string& MouseOutHandler);
 
-        virtual AVGNode * getElementByPos (const PLPoint & pos);
-		virtual void prepareRender (int time, const PLRect& parent);
-        virtual void maybeRender (const PLRect& Rect);
-		virtual void render (const PLRect& Rect);
-        virtual bool obscures (const PLRect& Rect, int z);
-        virtual void addDirtyRect(const PLRect& Rect);
-		virtual void getDirtyRegion (AVGRegion& Region);
-        virtual void setViewport (int x, int y, int width, int height);
-        virtual const PLRect& getRelViewport ();
-        virtual const PLRect& getAbsViewport();
-        PLRect AVGNode::getVisibleRect();
+        virtual AVGNode * getElementByPos (const AVGDPoint & pos);
+        virtual void prepareRender (int time, const AVGDRect& parent);
+        virtual void maybeRender (const AVGDRect& Rect);
+        virtual void render (const AVGDRect& Rect);
+        virtual bool obscures (const AVGDRect& Rect, int z);
+        virtual void addDirtyRect(const AVGDRect& Rect);
+        virtual void getDirtyRegion (AVGRegion& Region);
+        virtual void setViewport (double x, double y, double width, double height);
+        virtual const AVGDRect& getRelViewport ();
+        virtual const AVGDRect& getAbsViewport();
+        AVGDRect AVGNode::getVisibleRect();
         virtual int getZ();
         double getOpacity();
         double getAngle();
@@ -73,8 +73,8 @@ class AVGNode: public IAVGNode
 
     protected:
         virtual void invalidate();
-        virtual PLPoint getPreferredMediaSize() = 0;
-        PLPoint getPivot();
+        virtual AVGDPoint getPreferredMediaSize() = 0;
+        AVGDPoint getPivot();
         AVGPlayer * getPlayer();
         IAVGDisplayEngine * getEngine();
 
@@ -93,13 +93,13 @@ class AVGNode: public IAVGNode
         std::string m_MouseOverHandler;
         std::string m_MouseOutHandler;
 
-        PLRect m_RelViewport;      // In coordinates relative to the parent.
-        PLRect m_AbsViewport;      // In window coordinates.
+        AVGDRect m_RelViewport;      // In coordinates relative to the parent.
+        AVGDRect m_AbsViewport;      // In window coordinates.
         int m_z;
         double m_Opacity;
         double m_Angle;
         bool m_bHasCustomPivot;
-        PLPoint m_Pivot;
+        AVGDPoint m_Pivot;
         
         AVGRegion m_DirtyRegion;
 

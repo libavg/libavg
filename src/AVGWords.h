@@ -40,11 +40,11 @@ class AVGWords : public AVGNode, IAVGWords
                 const std::string& font, const std::string& str, 
                 const std::string& color,
                IAVGDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer);
-        virtual void render (const PLRect& Rect);
+        virtual void render (const AVGDRect& Rect);
         virtual std::string getTypeStr ();
 
     protected:        
-        virtual PLPoint getPreferredMediaSize();
+        virtual AVGDPoint getPreferredMediaSize();
     
     private:
         void changeFont();
@@ -58,7 +58,7 @@ class AVGWords : public AVGNode, IAVGWords
         int m_Size;
         IAVGFont * m_pFont;
         PLBmp * m_pBmp;
-        PLPoint m_StringExtents;
+        AVGDPoint m_StringExtents;
 };
 
 #endif //_AVGWords_H_

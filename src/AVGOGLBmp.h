@@ -20,6 +20,7 @@ public:
 
     void bind();
     void unbind();
+    void rebind();
     int getTexID();
     int getTexSize();
 
@@ -27,6 +28,7 @@ public:
 
 protected:
     virtual void freeMembers();
+    int getSrcMode();
     
     unsigned int m_TexID;
     bool m_bBound;

@@ -253,14 +253,14 @@ void AVGDFBDisplayEngine::render(AVGNode * pRootNode,
     pRootNode->prepareRender(0, pRootNode->getAbsViewport());
     AVGRegion UpdateRegion;
     if (bRenderEverything) {
-        PLRect rc(0,0, m_Width, m_Height);
+        AVGDRect rc(0,0, m_Width, m_Height);
         UpdateRegion.addRect(rc);
     } else {
         pRootNode->getDirtyRegion(UpdateRegion);
     }
 //    UpdateRegion.dump();
     for (int i = 0; i<UpdateRegion.getNumRects(); i++) {
-        const PLRect & rc = UpdateRegion.getRect(i);
+        const AVGDRect & rc = UpdateRegion.getRect(i);
         setDirtyRect(rc);
         setClipRect();
         clear();
@@ -273,19 +273,19 @@ void AVGDFBDisplayEngine::render(AVGNode * pRootNode,
 
 void AVGDFBDisplayEngine::setClipRect()
 {
-    pushClipRect(PLRect(0, 0, m_Width, m_Height), true);
+    pushClipRect(AVGDRect(0, 0, m_Width, m_Height), true);
 }
 
-bool AVGDFBDisplayEngine::pushClipRect(const PLRect& rc, bool bClip)
+bool AVGDFBDisplayEngine::pushClipRect(const AVGDRect& rc, bool bClip)
 {
     m_ClipRect = rc;
     m_ClipRect.Intersect(m_DirtyRect);
     if (m_ClipRect.Width() > 0 && m_ClipRect.Height() > 0) {
         DFBRegion Region;
-        Region.x1 = m_ClipRect.tl.x;
-        Region.y1 = m_ClipRect.tl.y;
-        Region.x2 = m_ClipRect.br.x-1;
-        Region.y2 = m_ClipRect.br.y-1;
+        Region.x1 = (int)m_ClipRect.tl.x;
+        Region.y1 = (int)m_ClipRect.tl.y;
+        Region.x2 = (int)m_ClipRect.br.x-1;
+        Region.y2 = (int)m_ClipRect.br.y-1;
         m_pBackBuffer->SetClip(m_pBackBuffer, &Region);
         AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Clip set to " << 
                 m_ClipRect.tl.x << "x" << m_ClipRect.tl.y << 
@@ -301,12 +301,12 @@ void AVGDFBDisplayEngine::popClipRect()
 {
 }
 
-const PLRect& AVGDFBDisplayEngine::getClipRect() {
+const AVGDRect& AVGDFBDisplayEngine::getClipRect() {
     return m_ClipRect;
 }
 
-void AVGDFBDisplayEngine::blt32(PLBmp * pBmp, const PLRect* pDestRect, 
-        double opacity, double angle, const PLPoint& pivot)
+void AVGDFBDisplayEngine::blt32(PLBmp * pBmp, const AVGDRect* pDestRect, 
+        double opacity, double angle, const AVGDPoint& pivot)
 {
     PLDirectFBBmp * pDFBBmp = dynamic_cast<PLDirectFBBmp *>(pBmp);
     PLASSERT(pDFBBmp); // createSurface() should have been used to create 
@@ -315,11 +315,12 @@ void AVGDFBDisplayEngine::blt32(PLBmp * pBmp, const PLRect* pDestRect,
     blt32(pSurf, pDestRect, opacity, pBmp->HasAlpha());
 }
 
-void AVGDFBDisplayEngine::blta8(PLBmp * pBmp, const PLRect* pDestRect, 
+void AVGDFBDisplayEngine::blta8(PLBmp * pBmp, const AVGDRect* pDestRect, 
         double opacity, const PLPixel32& color, double angle, 
-        const PLPoint& pivot)
+        const AVGDPoint& pivot)
 {
-    m_pBackBuffer->SetColor(m_pBackBuffer, color.GetR(), color.GetG(), color.GetB(),
+    m_pBackBuffer->SetColor(m_pBackBuffer, 
+            color.GetR(), color.GetG(), color.GetB(),
             __u8(opacity*256));
 
     DFBSurfaceBlittingFlags BltFlags;
@@ -330,7 +331,7 @@ void AVGDFBDisplayEngine::blta8(PLBmp * pBmp, const PLRect* pDestRect,
 }
 
 void AVGDFBDisplayEngine::blt32(IDirectFBSurface * pSrc,  
-        const PLRect* pDestRect, double opacity, bool bAlpha)
+        const AVGDRect* pDestRect, double opacity, bool bAlpha)
 {
     DFBSurfaceBlittingFlags BltFlags;
     if (bAlpha) {
@@ -350,7 +351,7 @@ void AVGDFBDisplayEngine::blt32(IDirectFBSurface * pSrc,
 }
  
 // Assumes blit flags and colors are already set.
-void AVGDFBDisplayEngine::blt(IDirectFBSurface * pSrc, const PLRect* pDestRect)
+void AVGDFBDisplayEngine::blt(IDirectFBSurface * pSrc, const AVGDRect* pDestRect)
 {
     int width;
     int height;
@@ -364,10 +365,10 @@ void AVGDFBDisplayEngine::blt(IDirectFBSurface * pSrc, const PLRect* pDestRect)
             "), width:" << width << ", height: " << height);
 
     DFBRectangle DFBDestRect;
-    DFBDestRect.x = pDestRect->tl.x;
-    DFBDestRect.y = pDestRect->tl.y;
-    DFBDestRect.w = pDestRect->Width();
-    DFBDestRect.h = pDestRect->Height();
+    DFBDestRect.x = int(pDestRect->tl.x);
+    DFBDestRect.y = int(pDestRect->tl.y);
+    DFBDestRect.w = int(pDestRect->Width());
+    DFBDestRect.h = int(pDestRect->Height());
 
 
     DFBResult err = m_pBackBuffer->StretchBlit(m_pBackBuffer, pSrc, 0, 
@@ -387,13 +388,13 @@ void AVGDFBDisplayEngine::clear()
  
     if (m_DirtyRect.Width() > 0 && m_DirtyRect.Height() > 0) {   
         err = m_pBackBuffer->FillRectangle(m_pBackBuffer, 
-                m_DirtyRect.tl.x, m_DirtyRect.tl.y, 
-                m_DirtyRect.Width(), m_DirtyRect.Height());
+                int(m_DirtyRect.tl.x), int(m_DirtyRect.tl.y), 
+                int(m_DirtyRect.Width()), int(m_DirtyRect.Height()));
         DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::clear", err);
     }
 }
 
-void AVGDFBDisplayEngine::setDirtyRect(const PLRect& rc) 
+void AVGDFBDisplayEngine::setDirtyRect(const AVGDRect& rc) 
 {
     m_DirtyRect = rc;
 
@@ -411,13 +412,14 @@ void AVGDFBDisplayEngine::swapBuffers(const AVGRegion & UpdateRegion)
     pLayerSurf->SetBlittingFlags(pLayerSurf, DSBLIT_NOFX);
 //    m_pDirectFB->WaitForSync(m_pDirectFB);
     for (int i = 0; i<UpdateRegion.getNumRects(); i++) {
-        const PLRect & rc = UpdateRegion.getRect(i);
+        const AVGDRect & rc = UpdateRegion.getRect(i);
         DFBRectangle DFBRect;
-        DFBRect.x = rc.tl.x;
-        DFBRect.y = rc.tl.y;
-        DFBRect.w = rc.Width();
-        DFBRect.h = rc.Height();
-        err = pLayerSurf->Blit(pLayerSurf, m_pBackBuffer, &DFBRect, rc.tl.x, rc.tl.y);
+        DFBRect.x = int(rc.tl.x);
+        DFBRect.y = int(rc.tl.y);
+        DFBRect.w = int(rc.Width());
+        DFBRect.h = int(rc.Height());
+        err = pLayerSurf->Blit(pLayerSurf, m_pBackBuffer, &DFBRect, 
+                int(rc.tl.x), int(rc.tl.y));
         DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::swapBuffers", err);
 
         int width;
@@ -454,6 +456,11 @@ IDirectFBSurface * AVGDFBDisplayEngine::getPrimary()
 AVGFontManager * AVGDFBDisplayEngine::getFontManager()
 {
     return m_pFontManager;
+}
+
+bool AVGDFBDisplayEngine::hasYUVSupport()
+{
+    return false;
 }
 
 vector<AVGEvent *> AVGDFBDisplayEngine::pollEvents()

@@ -65,14 +65,13 @@ AVGNode::GetParent(IAVGNode **_retval)
     return NS_OK;
 }
 
-/* attribute long x; */
-NS_IMETHODIMP AVGNode::GetX(PRInt32 *aX)
+NS_IMETHODIMP AVGNode::GetX(float *aX)
 {
     *aX = m_RelViewport.tl.x;
     return NS_OK;
 }
 
-NS_IMETHODIMP AVGNode::SetX(PRInt32 aX)
+NS_IMETHODIMP AVGNode::SetX(float aX)
 {
     invalidate();
     setViewport(aX, -32767, -32767, -32767);
@@ -80,14 +79,13 @@ NS_IMETHODIMP AVGNode::SetX(PRInt32 aX)
     return NS_OK;
 }
 
-/* attribute long y; */
-NS_IMETHODIMP AVGNode::GetY(PRInt32 *aY)
+NS_IMETHODIMP AVGNode::GetY(float *aY)
 {
     *aY = m_RelViewport.tl.y;
     return NS_OK;
 }
 
-NS_IMETHODIMP AVGNode::SetY(PRInt32 aY)
+NS_IMETHODIMP AVGNode::SetY(float aY)
 {
     invalidate();
     setViewport(-32767, aY, -32767, -32767);
@@ -112,14 +110,13 @@ NS_IMETHODIMP AVGNode::SetZ(PRInt32 aZ)
     return NS_OK;
 }
 
-/* attribute long width; */
-NS_IMETHODIMP AVGNode::GetWidth(PRInt32 *aWidth)
+NS_IMETHODIMP AVGNode::GetWidth(float *aWidth)
 {
     *aWidth = m_RelViewport.Width();
     return NS_OK;
 }
 
-NS_IMETHODIMP AVGNode::SetWidth(PRInt32 aWidth)
+NS_IMETHODIMP AVGNode::SetWidth(float aWidth)
 {
     invalidate();
     setViewport(-32767, -32767, aWidth, -32767);
@@ -127,14 +124,13 @@ NS_IMETHODIMP AVGNode::SetWidth(PRInt32 aWidth)
     return NS_OK;
 }
 
-/* attribute long height; */
-NS_IMETHODIMP AVGNode::GetHeight(PRInt32 *aHeight)
+NS_IMETHODIMP AVGNode::GetHeight(float *aHeight)
 {
     *aHeight = m_RelViewport.Height();
     return NS_OK;
 }
 
-NS_IMETHODIMP AVGNode::SetHeight(PRInt32 aHeight)
+NS_IMETHODIMP AVGNode::SetHeight(float aHeight)
 {
     invalidate();
     setViewport(-32767, -32767, -32767, aHeight);
@@ -142,7 +138,6 @@ NS_IMETHODIMP AVGNode::SetHeight(PRInt32 aHeight)
     return NS_OK;
 }
 
-/* attribute float opacity; */
 NS_IMETHODIMP AVGNode::GetOpacity(float *aOpacity)
 {
     *aOpacity = m_Opacity;
@@ -176,13 +171,13 @@ NS_IMETHODIMP AVGNode::SetAngle(float aAngle)
     return NS_OK;
 }
 
-NS_IMETHODIMP AVGNode::GetPivotx(PRInt32 *aPivotx)
+NS_IMETHODIMP AVGNode::GetPivotx(float *aPivotx)
 {
     *aPivotx = getPivot().x;
     return NS_OK;
 }
 
-NS_IMETHODIMP AVGNode::SetPivotx(PRInt32 aPivotx)
+NS_IMETHODIMP AVGNode::SetPivotx(float aPivotx)
 {
     m_Pivot = getPivot();
     m_Pivot.x = aPivotx;
@@ -190,13 +185,13 @@ NS_IMETHODIMP AVGNode::SetPivotx(PRInt32 aPivotx)
     return NS_OK;
 }
 
-NS_IMETHODIMP AVGNode::GetPivoty(PRInt32 *aPivoty)
+NS_IMETHODIMP AVGNode::GetPivoty(float *aPivoty)
 {
     *aPivoty = getPivot().y;
     return NS_OK;
 }
 
-NS_IMETHODIMP AVGNode::SetPivoty(PRInt32 aPivoty)
+NS_IMETHODIMP AVGNode::SetPivoty(float aPivoty)
 {
     m_Pivot = getPivot();
     m_Pivot.y = aPivoty;
@@ -214,26 +209,27 @@ void AVGNode::init(const string& id, IAVGDisplayEngine * pEngine,
 }
 
 
-void AVGNode::initVisible(int x, int y, int z, int width, int height, 
-        double opacity, double angle, int pivotx, int pivoty)
+void AVGNode::initVisible(double x, double y, int z, 
+        double width, double height, 
+        double opacity, double angle, double pivotx, double pivoty)
 {
-    PLPoint PreferredSize = getPreferredMediaSize();
+    AVGDPoint PreferredSize = getPreferredMediaSize();
     if (width == 0) {
         width = PreferredSize.x;
     }
     if (height == 0) {
         height = PreferredSize.y;
     }
-    m_RelViewport = PLRect(x, y, x+width, y+height);
+    m_RelViewport = AVGDRect(x, y, x+width, y+height);
     m_z = z;
     m_Opacity = opacity;
     m_Angle = fmod(angle, 360);
-    PLPoint pos(0,0);
+    AVGDPoint pos(0,0);
     if (m_pParent) {
         pos = m_pParent->getAbsViewport().tl;
     } 
-    m_AbsViewport = PLRect (pos+getRelViewport().tl, pos+getRelViewport().br);
-    m_Pivot = PLPoint(pivotx, pivoty);
+    m_AbsViewport = AVGDRect (pos+getRelViewport().tl, pos+getRelViewport().br);
+    m_Pivot = AVGDPoint(pivotx, pivoty);
     m_bHasCustomPivot = ((pivotx != -32767) && (pivoty != -32767));
 }
 
@@ -251,7 +247,7 @@ void AVGNode::InitEventHandlers
     m_MouseOutHandler = MouseOutHandler;
 }
 
-AVGNode * AVGNode::getElementByPos (const PLPoint & pos)
+AVGNode * AVGNode::getElementByPos (const AVGDPoint & pos)
 {
     if (getVisibleRect().Contains(pos) && getEffectiveOpacity() > 0.01) {
         return this;
@@ -260,12 +256,12 @@ AVGNode * AVGNode::getElementByPos (const PLPoint & pos)
     }
 }
 
-void AVGNode::prepareRender (int time, const PLRect& parent)
+void AVGNode::prepareRender (int time, const AVGDRect& parent)
 {
     calcAbsViewport();
 }
 
-void AVGNode::maybeRender (const PLRect& Rect)
+void AVGNode::maybeRender (const AVGDRect& Rect)
 {
     bool bVisible;
     if (dynamic_cast<AVGAVGNode*>(this) != 0) {
@@ -284,16 +280,16 @@ void AVGNode::maybeRender (const PLRect& Rect)
     getEngine()->popClipRect();
 }
 
-void AVGNode::render (const PLRect& Rect)
+void AVGNode::render (const AVGDRect& Rect)
 {
 }
 
-bool AVGNode::obscures (const PLRect& Rect, int z)  
+bool AVGNode::obscures (const AVGDRect& Rect, int z)  
 {
     return false;
 }
 
-void AVGNode::addDirtyRect(const PLRect& Rect)
+void AVGNode::addDirtyRect(const AVGDRect& Rect)
 {
     m_DirtyRegion.addRect(Rect);
 }
@@ -309,13 +305,13 @@ void AVGNode::invalidate()
     addDirtyRect(getVisibleRect());
 }
 
-PLPoint AVGNode::getPivot()
+AVGDPoint AVGNode::getPivot()
 {
     if (m_bHasCustomPivot) {
         return m_Pivot;
     } else {
-        const PLRect& vpt = getRelViewport();
-        return PLPoint (vpt.Width()/2, vpt.Height()/2);
+        const AVGDRect& vpt = getRelViewport();
+        return AVGDPoint (vpt.Width()/2, vpt.Height()/2);
     }
 }
 
@@ -324,7 +320,7 @@ AVGPlayer * AVGNode::getPlayer()
     return m_pPlayer;
 }
 
-void AVGNode::setViewport (int x, int y, int width, int height)
+void AVGNode::setViewport (double x, double y, double width, double height)
 {
     if (x == -32767) {
         x = getRelViewport().tl.x;
@@ -338,26 +334,26 @@ void AVGNode::setViewport (int x, int y, int width, int height)
     if (height == -32767) {
         height = getRelViewport().Height();
     }
-    m_RelViewport = PLRect (x, y, x+width, y+height);
+    m_RelViewport = AVGDRect (x, y, x+width, y+height);
     calcAbsViewport();
 }
 
-const PLRect& AVGNode::getRelViewport ()
+const AVGDRect& AVGNode::getRelViewport ()
 {
     return m_RelViewport;
 }
 
-const PLRect& AVGNode::getAbsViewport ()
+const AVGDRect& AVGNode::getAbsViewport ()
 {
     return m_AbsViewport;
 }
 
-PLRect AVGNode::getVisibleRect()
+AVGDRect AVGNode::getVisibleRect()
 {
     AVGNode * pParent = getParent();
-    PLRect visRect = getAbsViewport();
+    AVGDRect visRect = getAbsViewport();
     if (pParent) {
-        PLRect parent = getParent()->getAbsViewport();
+        AVGDRect parent = getParent()->getVisibleRect();
         visRect.Intersect(parent);
     }
     return visRect;
@@ -367,8 +363,8 @@ void AVGNode::calcAbsViewport()
 {
     AVGNode * pParent = getParent();
     if (pParent) {
-        PLRect parent = pParent->getAbsViewport();
-        m_AbsViewport = PLRect(parent.tl+getRelViewport().tl, 
+        AVGDRect parent = pParent->getAbsViewport();
+        m_AbsViewport = AVGDRect(parent.tl+getRelViewport().tl, 
                 parent.tl+getRelViewport().br);
     } else {
         m_AbsViewport = getRelViewport();

@@ -60,7 +60,7 @@ string AVGExcl::dump (int indent)
     return dumpStr + string(indent+2, ' ') + sz; 
 }
 
-void AVGExcl::render (const PLRect& Rect)
+void AVGExcl::render (const AVGDRect& Rect)
 {
     if (m_ActiveChild != -1) {
 //        cerr << "AVGExcl::render()" << endl;
@@ -68,7 +68,7 @@ void AVGExcl::render (const PLRect& Rect)
     }
 }
 
-bool AVGExcl::obscures (const PLRect& Rect, int z) 
+bool AVGExcl::obscures (const AVGDRect& Rect, int z) 
 {
     return false;
 }
@@ -81,21 +81,14 @@ void AVGExcl::getDirtyRegion (AVGRegion& Region)
     }
 }
 
-const PLRect& AVGExcl::getRelViewport()
+const AVGDRect& AVGExcl::getRelViewport()
 {
-    if (m_ActiveChild != -1) {
-        return getChild(m_ActiveChild)->getRelViewport();
-    }
-    return AVGNode::getRelViewport();
+    return getParent()->getRelViewport();
 }
 
-const PLRect& AVGExcl::getAbsViewport()
+const AVGDRect& AVGExcl::getAbsViewport()
 {
-    if (m_ActiveChild != -1) {
-        return getParent()->getAbsViewport();
-    }
-    return AVGNode::getAbsViewport();
-    
+    return getParent()->getAbsViewport();
 }
 
 int AVGExcl::getActiveChild()
@@ -121,7 +114,7 @@ string AVGExcl::getTypeStr ()
     return "AVGExcl";
 }
 
-AVGNode * AVGExcl::getElementByPos (const PLPoint & pos)
+AVGNode * AVGExcl::getElementByPos (const AVGDPoint & pos)
 {
     if (m_ActiveChild != -1) {
         return getChild(m_ActiveChild)->getElementByPos(pos);

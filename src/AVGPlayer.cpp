@@ -293,7 +293,7 @@ void AVGPlayer::loadFile (const std::string& filename)
     m_CurDirName = RealFilename.substr(0,RealFilename.rfind('/')+1);
     m_pRootNode = dynamic_cast<AVGAVGNode*>
             (createNodeFromXml(xmlDocGetRootElement(doc), 0));
-    PLRect rc = m_pRootNode->getRelViewport();
+    AVGDRect rc = m_pRootNode->getRelViewport();
     xmlFreeDoc(doc);
 }
 
@@ -533,8 +533,8 @@ void AVGPlayer::initDisplay(AVGAVGNode * pNode) {
         }
     }
 
-    m_pDisplayEngine->init(pNode->getRelViewport().Width(), 
-            pNode->getRelViewport().Height(), bFullscreen, bpp);
+    m_pDisplayEngine->init(int(pNode->getRelViewport().Width()), 
+            int(pNode->getRelViewport().Height()), bFullscreen, bpp);
 }
 
 void AVGPlayer::getVisibleNodeAttrs (const xmlNodePtr xmlNode, 
@@ -614,7 +614,7 @@ bool AVGPlayer::handleEvent(AVGEvent * pEvent)
         case AVGEvent::MOUSEBUTTONDOWN:
             {
                 AVGMouseEvent * pMouseEvent = dynamic_cast<AVGMouseEvent*>(pEvent);
-                PLPoint pos(pMouseEvent->getXPosition(), pMouseEvent->getYPosition());
+                AVGDPoint pos(pMouseEvent->getXPosition(), pMouseEvent->getYPosition());
                 AVGNode * pNode = m_pRootNode->getElementByPos(pos);            
                 if (pNode != m_pLastMouseNode) {
                     if (pNode) {

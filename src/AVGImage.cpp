@@ -67,13 +67,13 @@ void AVGImage::init (const std::string& id, const std::string& filename,
     getEngine()->surfaceChanged(m_pBmp);
 }
 
-void AVGImage::render (const PLRect& Rect)
+void AVGImage::render (const AVGDRect& Rect)
 {
     getEngine()->blt32(m_pBmp, &getAbsViewport(), getEffectiveOpacity(), 
             getAngle(), getPivot());
 }
 
-bool AVGImage::obscures (const PLRect& Rect, int z) 
+bool AVGImage::obscures (const AVGDRect& Rect, int z) 
 {
     return (getEffectiveOpacity() > 0.999 && !m_pBmp->HasAlpha() &&
             getZ() > z && getVisibleRect().Contains(Rect));
@@ -84,8 +84,8 @@ string AVGImage::getTypeStr ()
     return "AVGImage";
 }
 
-PLPoint AVGImage::getPreferredMediaSize()
+AVGDPoint AVGImage::getPreferredMediaSize()
 {
-    return m_pBmp->GetSize();
+    return AVGDPoint(m_pBmp->GetSize());
 }
 

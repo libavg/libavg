@@ -30,14 +30,14 @@ class AVGDFBDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
                 AVGFramerateManager * pFramerateManager, bool bRenderEverything);
         
         virtual void setClipRect();
-        virtual bool pushClipRect(const PLRect& rc, bool bClip);
+        virtual bool pushClipRect(const AVGDRect& rc, bool bClip);
         virtual void popClipRect();
-        virtual const PLRect& getClipRect();
-        virtual void blt32(PLBmp * pBmp, const PLRect* pDestRect, 
-                double opacity, double angle, const PLPoint& pivot);
-        virtual void blta8(PLBmp * pBmp, const PLRect* pDestRect, 
+        virtual const AVGDRect& getClipRect();
+        virtual void blt32(PLBmp * pBmp, const AVGDRect* pDestRect, 
+                double opacity, double angle, const AVGDPoint& pivot);
+        virtual void blta8(PLBmp * pBmp, const AVGDRect* pDestRect, 
                 double opacity, const PLPixel32& color, double angle,
-                const PLPoint& pivot);
+                const AVGDPoint& pivot);
 
 	virtual PLBmp * createSurface();
 
@@ -46,6 +46,7 @@ class AVGDFBDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         virtual int getBPP();
 
         virtual AVGFontManager * getFontManager();
+        virtual bool hasYUVSupport();
 
         // From IAVGEventSource
         virtual std::vector<AVGEvent *> pollEvents();
@@ -61,12 +62,12 @@ class AVGDFBDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         void initInput();
         void initBackbuffer();
         void clear();
-        void setDirtyRect(const PLRect& rc);
+        void setDirtyRect(const AVGDRect& rc);
         virtual void swapBuffers(const AVGRegion & UpdateRegion);
 
-        void blt32(IDirectFBSurface * pSrc, const PLRect* pDestRect, 
+        void blt32(IDirectFBSurface * pSrc, const AVGDRect* pDestRect, 
                 double opacity, bool bAlpha);
-        void blt(IDirectFBSurface * pSrc, const PLRect* pDestRect);
+        void blt(IDirectFBSurface * pSrc, const AVGDRect* pDestRect);
 
         void dumpSurface(IDirectFBSurface * pSurf, const std::string & name);
         
@@ -78,8 +79,8 @@ class AVGDFBDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         int m_Height;
         bool m_IsFullscreen;
         int m_bpp;
-        PLRect m_ClipRect;
-        PLRect m_DirtyRect;
+        AVGDRect m_ClipRect;
+        AVGDRect m_DirtyRect;
 
         IDirectFB * m_pDirectFB;
         IDirectFBWindow * m_pDFBWindow;

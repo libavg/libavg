@@ -5,27 +5,27 @@
 #ifndef _AVGRegion_H_
 #define _AVGRegion_H_
 
-#include <paintlib/plrect.h>
+#include "AVGRect.h"
 
 #include <vector>
 
 class AVGRegion 
 {
-	public:
+    public:
         AVGRegion();
         virtual ~AVGRegion();
 
-        void addRect(const PLRect& NewRect);
+        void addRect(const AVGDRect& NewRect);
         void addRegion(const AVGRegion& NewRegion);
         void clear();
 
         int getNumRects() const;
-        const PLRect& getRect(int i) const;
+        const AVGDRect& getRect(int i) const;
 
         void dump() const;
 
     private:
-        std::vector<PLRect> m_Rects;
+        std::vector<AVGDRect > m_Rects;
 };
 
 #endif //_AVGRegion_H_
