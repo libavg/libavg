@@ -282,6 +282,7 @@ void AVGPlayer::loadFile (const std::string& filename)
         throw (AVGException(AVG_ERR_XML_PARSE, 
                 string("Error parsing xml document ")+RealFilename));
     }
+
     m_CurDirName = RealFilename.substr(0,RealFilename.rfind('/')+1);
     m_pRootNode = dynamic_cast<AVGAVGNode*>
             (createNodeFromXml(xmlDocGetRootElement(doc), 0));
