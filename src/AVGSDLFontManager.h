@@ -13,7 +13,7 @@
 class AVGSDLFontManager: public AVGFontManager
 {
 	public:
-        AVGSDLFontManager ();
+        AVGSDLFontManager (const std::string& sFontPath);
         virtual ~AVGSDLFontManager ();
 
     private:

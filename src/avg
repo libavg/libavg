@@ -1,9 +1,6 @@
 #!/bin/bash
 source avgenv.sh
 JS_SCRIPTNAME=$1
-export AVG_DISPLAY=DFB
-export AVG_BPP=16
-export AVG_FULLSCREEN=false
 AVG_DEBUG=false
 for arg in "$2" "$3" "$4" "$5"
 do
@@ -26,6 +23,7 @@ do
       ;;
     *)
       echo "Usage: $0 scriptfile.js {--display={SDL|DFB|OGL}|--bpp={16|24}|--fullscreen|--debug}"
+      echo 
       echo "display sets the display subsystem to use."
       echo
       echo "If fullscreen is given, the player will attempt to do fullscreen"

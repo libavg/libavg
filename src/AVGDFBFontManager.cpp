@@ -14,8 +14,9 @@
 
 using namespace std;
 
-AVGDFBFontManager::AVGDFBFontManager (IDirectFB * pDFB)
-    : m_pDFB(pDFB)
+AVGDFBFontManager::AVGDFBFontManager (IDirectFB * pDFB, const string& sFontPath)
+    : m_pDFB(pDFB), 
+      AVGFontManager (sFontPath)
 {
 }
 

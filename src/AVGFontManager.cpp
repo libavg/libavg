@@ -13,7 +13,8 @@
 
 using namespace std;
 
-AVGFontManager::AVGFontManager ()
+AVGFontManager::AVGFontManager (const string& sFontPath)
+    : m_sFontPath(sFontPath)
 {
 }
 
@@ -34,7 +35,7 @@ IAVGFont * AVGFontManager::getFont(const string& Name, int Size)
     string Desc(s.str());
     it = m_FontMap.find(Desc);
     if (it == m_FontMap.end()) {
-        string FontPath = getFontPath()+"/"+Name+".ttf";
+        string FontPath = m_sFontPath+"/"+Name+".ttf";
         AVG_TRACE(AVGPlayer::DEBUG_MEMORY, "Loading " << FontPath << ", size " << Size);
         IAVGFont * pFont = loadFont(FontPath, Size);
         m_FontMap.insert(FontMap::value_type(Desc, pFont));
@@ -42,20 +43,5 @@ IAVGFont * AVGFontManager::getFont(const string& Name, int Size)
     } else {
         return (*it).second;
     }
-}
-
-const string & AVGFontManager::getFontPath()
-{
-    static string FontPath;
-    if (FontPath=="") {
-        char * pFontPath = getenv("AVG_FONT_PATH");
-        if (pFontPath) {
-            FontPath = pFontPath;
-        } else {
-            AVG_TRACE(AVGPlayer::DEBUG_ERROR, 
-                    "Warning: no font path specified.");
-        }
-    }
-    return FontPath;
 }
 

@@ -77,7 +77,6 @@ string getRequiredStringAttr (const xmlNodePtr& xmlNode,
        const xmlChar * attr)
 {
     char * retStr = (char *)xmlGetProp (xmlNode, attr);
-    PLASSERT(retStr);  // This should have been found during validation.
     string s(retStr);
     xmlFree(retStr);
     return s;

@@ -29,21 +29,12 @@ fi
 export MOZ_COMPONENTSDIR=$MOZ_LIBDIR/components
 export LD_LIBRARY_PATH=$MOZ_LIBDIR:$LD_LIBRARY_PATH
 export AVG_INCLUDE_PATH=`libavg-config --includedir`
-# This should really go somewhere else.
-export AVG_FONT_PATH=/usr/X11R6/lib/X11/fonts/truetype
 
-echo
-echo "libavg variables: "
-echo "    "'$MOZ_BASEDIR'" = $MOZ_BASEDIR"
-echo "    "'$MOZ_LIBDIR'" = $MOZ_LIBDIR"
-echo "    "'$MOZ_IDLDIR'" = $MOZ_IDLDIR"
-echo "    "'$MOZ_COMPONENTSDIR'" = $MOZ_COMPONENTSDIR"
-echo "    "'$AVG_INCLUDE_PATH'" = $AVG_INCLUDE_PATH"
-if [[ -d $AVG_FONT_PATH ]]
-then 
-    echo "    "'$AVG_FONT_PATH'" = $AVG_FONT_PATH"
-else
-    echo "Warning: Truetype font directory $AVG_FONT_PATH does not exist."
-fi
-echo
+#echo
+#echo "libavg variables: "
+#echo "    "'$MOZ_BASEDIR'" = $MOZ_BASEDIR"
+#echo "    "'$MOZ_LIBDIR'" = $MOZ_LIBDIR"
+#echo "    "'$MOZ_IDLDIR'" = $MOZ_IDLDIR"
+#echo "    "'$MOZ_COMPONENTSDIR'" = $MOZ_COMPONENTSDIR"
+#echo "    "'$AVG_INCLUDE_PATH'" = $AVG_INCLUDE_PATH"
 

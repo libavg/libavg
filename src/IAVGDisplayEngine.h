@@ -19,7 +19,8 @@ class IAVGDisplayEngine
 {	
     public:
         virtual ~IAVGDisplayEngine(){};
-        virtual void init(int width, int height, bool isFullscreen, int bpp) = 0;
+        virtual void init(int width, int height, bool isFullscreen, int bpp,
+                const std::string & sFontPath) = 0;
         virtual void teardown() = 0;
 
         virtual void render(AVGNode * pRootNode, 

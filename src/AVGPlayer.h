@@ -62,6 +62,8 @@ class AVGPlayer: public IAVGPlayer, IAVGEventSink
         virtual bool handleEvent(AVGEvent * pEvent);
 
     private:
+        void readConfigFile(const std::string& sFName);
+        void initConfig();
         AVGNode * createNodeFromXml(const xmlNodePtr xmlNode, AVGContainer * pParent);
         void getVisibleNodeAttrs (const xmlNodePtr xmlNode, 
                 std::string * pid, int * px, int * py, int * pz,
@@ -104,6 +106,12 @@ class AVGPlayer: public IAVGPlayer, IAVGEventSink
 
         JSContext * m_pJSContext;
         std::vector<AVGConradRelais*> m_pRelais;
+
+        // Configuration variables.
+        std::string m_sFontDir;
+        std::string m_sDisplaySubsystem;
+        bool m_bFullscreen;
+        int m_BPP;
 };
 
 

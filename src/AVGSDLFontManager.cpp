@@ -16,7 +16,8 @@
 
 using namespace std;
 
-AVGSDLFontManager::AVGSDLFontManager ()
+AVGSDLFontManager::AVGSDLFontManager (const string& sFontPath)
+    : AVGFontManager(sFontPath)
 {
     if (!TTF_WasInit()) {
         int err = TTF_Init();

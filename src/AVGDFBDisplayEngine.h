@@ -23,7 +23,8 @@ class AVGDFBDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         virtual ~AVGDFBDisplayEngine();
 
         // From IAVGDisplayEngine
-        virtual void init(int width, int height, bool isFullscreen, int bpp);
+        virtual void init(int width, int height, bool isFullscreen, int bpp,
+                const std::string & sFontPath);
         virtual void teardown();
 
         virtual void render(AVGNode * pRootNode, 

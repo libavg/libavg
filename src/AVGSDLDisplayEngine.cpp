@@ -59,7 +59,6 @@ AVGSDLDisplayEngine::AVGSDLDisplayEngine()
         AVG_TRACE(IAVGPlayer::DEBUG_ERROR, "Can't init SDL display subsystem.");
     }
     initTranslationTable();
-    m_pFontManager = new AVGSDLFontManager;
 }
 
 AVGSDLDisplayEngine::~AVGSDLDisplayEngine()
@@ -71,7 +70,8 @@ AVGSDLDisplayEngine::~AVGSDLDisplayEngine()
     }
 }
 
-void AVGSDLDisplayEngine::init(int width, int height, bool isFullscreen, int bpp)
+void AVGSDLDisplayEngine::init(int width, int height, bool isFullscreen, int bpp,
+                const string & sFontPath)
 {
     //TODO: Add bpp handling.
     SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
@@ -106,6 +106,7 @@ void AVGSDLDisplayEngine::init(int width, int height, bool isFullscreen, int bpp
     m_Height = height;
     initInput();
 
+    m_pFontManager = new AVGSDLFontManager(sFontPath);
     // SDL sets up a signal handler we really don't want.
 //    signal(SIGSEGV, SIG_DFL);
 }

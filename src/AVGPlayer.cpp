@@ -40,6 +40,7 @@
 #include <stdio.h>
 #include <sched.h>
 #include <pthread.h>
+#include <string.h>
 
 #include "nsMemory.h"
 
@@ -257,20 +258,21 @@ void AVGPlayer::loadFile (const std::string& filename)
     jsgc();
     PLASSERT (!m_pRootNode);
 
+    initConfig();
     // Get display configuration.
     if (!m_pDisplayEngine) {
-        char * pszDisplay = getenv("AVG_DISPLAY");
-        if (!pszDisplay || strcmp(pszDisplay, "DFB") == 0) {
+        if (m_sDisplaySubsystem == "DFB") {
             m_pDisplayEngine = new AVGDFBDisplayEngine ();
             m_pEventSource =
                     dynamic_cast<AVGDFBDisplayEngine *>(m_pDisplayEngine);
-        } else if (strcmp(pszDisplay, "OGL") == 0) {
+        } else if (m_sDisplaySubsystem == "OGL") {
             m_pDisplayEngine = new AVGSDLDisplayEngine ();
             m_pEventSource = 
                     dynamic_cast<AVGSDLDisplayEngine *>(m_pDisplayEngine);
         } else {
             AVG_TRACE(DEBUG_ERROR, 
-                    "AVG_DISPLAY set to unknown value " << pszDisplay);
+                    "Display subsystem set to unknown value " << 
+                    m_sDisplaySubsystem << ". Aborting.");
             exit(-1);
         }
     }
@@ -419,6 +421,95 @@ void AVGPlayer::setRealtimePriority()
     }
 }
 
+void AVGPlayer::readConfigFile(const string& sFName) {
+    xmlDocPtr doc;
+    doc = xmlParseFile(sFName.c_str());
+    if (doc) {
+        xmlNodePtr pRoot = xmlDocGetRootElement(doc);
+        if (xmlStrcmp(pRoot->name, (const xmlChar *)"avgrc")) {
+            AVG_TRACE(DEBUG_PROFILE, 
+                    "/etc/avgrc: Root node must be <avgrc>. Aborting.");
+            exit(-1);
+        }
+        xmlNodePtr pChild = pRoot->xmlChildrenNode;
+        while (pChild) {
+            if (!xmlStrcmp(pChild->name, (const xmlChar *)"font")) {
+                m_sFontDir=getRequiredStringAttr(pChild, (const xmlChar *)"dir");
+            } else if (!xmlStrcmp(pChild->name, (const xmlChar *)"display")) {
+                m_sDisplaySubsystem=getDefaultedStringAttr(pChild, 
+                        (const xmlChar *)"subsystem", "OGL");
+                m_bFullscreen=getDefaultedBoolAttr(pChild, 
+                        (const xmlChar *)"fullscreen", false);
+                m_BPP=int(getDefaultedDoubleAttr(pChild, 
+                        (const xmlChar *)"bpp", 24));
+            } else if (xmlStrcmp(pChild->name, (const xmlChar *)"text") &&
+                       xmlStrcmp(pChild->name, (const xmlChar *)"comment")) 
+            {
+                AVG_TRACE(DEBUG_ERROR, 
+                    "/etc/avgrc: Unknown node " << pChild->name << ". Aborting.");
+                exit(-1);
+            }
+            pChild = pChild->next;
+        }
+    }
+    
+}
+
+void AVGPlayer::initConfig() {
+    // Set defaults.
+    m_sFontDir = "";
+    m_sDisplaySubsystem = "OGL";
+    m_bFullscreen = false;
+    m_BPP = 24;
+   
+    // Get data from config files.
+    xmlPedanticParserDefault(1);
+    xmlDoValidityCheckingDefaultValue =0;
+    readConfigFile("/etc/avgrc");
+    char * pHomeDir = getenv("HOME");
+    if (pHomeDir) {
+        string sFName = pHomeDir;
+        sFName += "/avgrc";
+        readConfigFile(sFName.c_str());
+    }
+
+    // Get command line data through environment variables.
+    char * pFontDir = getenv("AVG_FONT_PATH");
+    if (pFontDir) {
+        m_sFontDir = pFontDir;
+    }
+    
+    char * pszDisplay = getenv("AVG_DISPLAY");
+    if (pszDisplay) {
+        m_sDisplaySubsystem = pszDisplay;
+    }
+    char * pszBPP = getenv("AVG_BPP");
+    if (pszBPP) {
+        if (strcmp(pszBPP, "16") == 0) {
+            m_BPP = 16;
+        } else if (strcmp(pszBPP, "24") == 0) {
+            m_BPP = 24;
+        }    }
+    char * pszFullscreen = getenv("AVG_FULLSCREEN");
+    if (pszFullscreen) {
+        m_bFullscreen = (!strcmp(pszFullscreen, "true"));
+    }
+
+    // Error checks
+    if (m_BPP != 16 && m_BPP != 24) {
+        AVG_TRACE(DEBUG_ERROR, "BPP must be 16 or 24. Current value is " 
+                << m_BPP << ". Aborting." );
+        exit(-1);
+    }
+    FILE * pFile = fopen (m_sFontDir.c_str(), "r");
+    fclose (pFile);
+    if (!pFile) {
+        AVG_TRACE(DEBUG_ERROR, "Font directory " << m_sFontDir << 
+                " could not be opened (" <<
+                strerror(errno) << ")."); 
+    } 
+}
+
 AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode, 
         AVGContainer * pParent)
 {
@@ -535,28 +626,11 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
     }
     return curNode;
 }
-void AVGPlayer::initDisplay(AVGAVGNode * pNode) {
-    bool bFullscreen = false;
-    char * pszFullscreen = getenv("AVG_FULLSCREEN");
-    if (pszFullscreen && strcmp(pszFullscreen, "true") == 0) {
-        bFullscreen = true;
-    }
-    int bpp = 16;
-    char * pszBPP = getenv("AVG_BPP");
-    if (pszBPP) {
-        if (strcmp(pszBPP, "16") == 0) {
-            bpp = 16;
-        } else if (strcmp(pszBPP, "24") == 0) {
-            bpp = 24;
-        } else {
-            bpp = 24;
-            AVG_TRACE(DEBUG_ERROR, "Unrecognized value for AVG_BPP:" << pszBPP
-                << ". Setting to 24." );
-        }
-    }
 
+void AVGPlayer::initDisplay(AVGAVGNode * pNode) {
     m_pDisplayEngine->init(int(pNode->getRelViewport().Width()), 
-            int(pNode->getRelViewport().Height()), bFullscreen, bpp);
+            int(pNode->getRelViewport().Height()), m_bFullscreen, m_BPP,
+            m_sFontDir);
 }
 
 void AVGPlayer::getVisibleNodeAttrs (const xmlNodePtr xmlNode, 

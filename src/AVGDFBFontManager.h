@@ -15,7 +15,7 @@
 class AVGDFBFontManager: public AVGFontManager
 {
 	public:
-        AVGDFBFontManager (IDirectFB * pDFB);
+        AVGDFBFontManager (IDirectFB * pDFB, const std::string& sFontPath);
         virtual ~AVGDFBFontManager ();
 
     private:

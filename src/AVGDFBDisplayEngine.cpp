@@ -65,7 +65,8 @@ void AVGDFBDisplayEngine::dumpSurface (IDirectFBSurface * pSurf, const string & 
 }
 
 
-void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen, int bpp)
+void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen, int bpp,
+                const string & sFontPath)
 {
     DFBResult err;
 
@@ -87,7 +88,7 @@ void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen, int bpp
 
     dumpSurface (m_pBackBuffer, "Backbuffer surface");
 
-    m_pFontManager = new AVGDFBFontManager(m_pDirectFB);
+    m_pFontManager = new AVGDFBFontManager(m_pDirectFB, sFontPath);
     pLayerSurf->Release(pLayerSurf);
     
     // SDL sets up a signal handler we really don't want.

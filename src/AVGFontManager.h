@@ -13,7 +13,7 @@
 class AVGFontManager
 {
 	public:
-        AVGFontManager ();
+        AVGFontManager (const std::string& sFontPath);
         virtual ~AVGFontManager ();
 
         IAVGFont * getFont(const std::string& Name, int size);
@@ -24,6 +24,8 @@ class AVGFontManager
 
         typedef std::map<std::string, IAVGFont *> FontMap;
         FontMap m_FontMap;
+
+        std::string m_sFontPath;
 };
 
 #endif 
