@@ -35,6 +35,7 @@ class AVGAVGNode : public AVGContainer
         virtual bool obscures (const PLRect& rect, int z);
         virtual void getDirtyRegion (AVGRegion& Region);
         virtual std::string getTypeStr ();
+
 };
 
 #endif //_AVGAVGNode_H_

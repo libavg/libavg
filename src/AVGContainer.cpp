@@ -99,3 +99,8 @@ string AVGContainer::getTypeStr ()
     return "AVGContainer";
 }
 
+PLPoint AVGContainer::getPreferredMediaSize()
+{
+    return PLPoint(10000,10000);
+}
+

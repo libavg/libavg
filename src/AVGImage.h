@@ -36,6 +36,9 @@ class AVGImage : public AVGNode
         virtual bool obscures (const PLRect& Rect, int z);
         virtual std::string getTypeStr ();
 
+    protected:        
+        virtual PLPoint getPreferredMediaSize();
+
     private:
         std::string m_Filename;
         PLBmp * m_pBmp;

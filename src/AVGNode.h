@@ -69,7 +69,8 @@ class AVGNode: public IAVGNode
     protected:
         virtual void invalidate();
         virtual bool isVisibleNode();  // Poor man's RTTI
-        
+        virtual PLPoint getPreferredMediaSize() = 0;
+
 	private:
         void callJS (const std::string& Code, JSContext * pJSContext);
 

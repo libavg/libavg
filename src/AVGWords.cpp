@@ -66,6 +66,7 @@ AVGWords::GetIntAttr(const char *name, PRInt32 *_retval)
 NS_IMETHODIMP
 AVGWords::SetStringAttr(const char *name, const char *value)
 {
+    invalidate();
     if (!strcmp(name, "Font")) {
         m_FontName = value;
         changeFont();
@@ -88,12 +89,13 @@ NS_IMETHODIMP
 AVGWords::SetIntAttr(const char *name, PRInt32 value)
 {
     if (!strcmp(name, "Size")) {
+        invalidate();
         m_Size = value;
         changeFont();
+        invalidate();
     } else {
         return AVGNode::SetIntAttr(name, value);
     }
-    invalidate();
     return NS_OK;
 }
 
@@ -107,18 +109,18 @@ AVGWords::GetType(PRInt32 *_retval)
 
 void 
 AVGWords::init (const string& id, int x, int y, int z, 
-           int width, int height, double opacity, int size, const string& font, 
+           double opacity, int size, const string& font, 
            const string& str, const string& color,
            AVGDFBDisplayEngine * pEngine, AVGContainer * pParent)
 {
     AVGNode::init(id, pEngine, pParent);
-    initVisible(x, y, z, width, height, opacity); 
     m_Size = size;
     m_Str = str;
     m_ColorName = color;
     m_Color = colorStringToColor(color);
     m_FontName = font;
     changeFont();
+    initVisible(x, y, z, 0, 0, opacity); 
 }
 
 string AVGWords::getTypeStr ()
@@ -126,20 +128,10 @@ string AVGWords::getTypeStr ()
     return "AVGWords";
 }
 
-void AVGWords::setViewport (int x, int y, int width, int height)
-{
-    PLPoint oldExtents(getRelViewport().Width(), getRelViewport().Height());
-    AVGNode::setViewport (x, y, width, height);
-    if (oldExtents != PLPoint(width, height) && (width != -1 || height != -1)) {
-        drawString();
-    }
-}
-
 void AVGWords::changeFont()
 {
     IDirectFB * pDFB = getEngine()->getDFB();
     m_pFont = getEngine()->getFontManager()->getFont(pDFB, m_FontName, m_Size);
-
     drawString();
 }
 
@@ -151,12 +143,20 @@ void AVGWords::drawString()
 
     IDirectFB * pDFB = getEngine()->getDFB();
 
+    DFBRectangle DFBExtents; 
+    // TODO: This gets the logical extent of the string, not the ink rect.
+    //       Change that and adjust the blit accordingly.
+    m_pFont->GetStringExtents(m_pFont, m_Str.c_str(), -1, &DFBExtents, 0);
+    m_StringExtents=PLPoint(DFBExtents.w, DFBExtents.h);
+    if (m_StringExtents.x == 0) {
+        m_StringExtents = PLPoint(1,1);
+    }
     DFBSurfaceDescription SurfDesc;
     SurfDesc.flags = DFBSurfaceDescriptionFlags
-        (DSDESC_CAPS | DSDESC_WIDTH | DSDESC_HEIGHT | DSDESC_PIXELFORMAT);
+            (DSDESC_CAPS | DSDESC_WIDTH | DSDESC_HEIGHT | DSDESC_PIXELFORMAT);
     SurfDesc.caps = DSCAPS_NONE;
-    SurfDesc.width = getRelViewport().Width();
-    SurfDesc.height = getRelViewport().Height();
+    SurfDesc.width = m_StringExtents.x;
+    SurfDesc.height = m_StringExtents.y;
     SurfDesc.pixelformat = DSPF_A8;  
     DFBResult err = pDFB->CreateSurface(pDFB, &SurfDesc, &m_pSurface);
     getEngine()->DFBErrorCheck(AVG_ERR_FONT_INIT_FAILED, "AVGWords::drawString", err);
@@ -166,12 +166,12 @@ void AVGWords::drawString()
     m_pSurface->SetDrawingFlags(m_pSurface, DSDRAW_BLEND);
     m_pSurface->SetFont(m_pSurface, m_pFont);
     m_pSurface->DrawString(m_pSurface, m_Str.c_str(), -1, 0, 0, 
-        DFBSurfaceTextFlags(DSTF_LEFT | DSTF_TOP));    
+            DFBSurfaceTextFlags(DSTF_LEFT | DSTF_TOP));    
+    setViewport(-1, -1, m_StringExtents.x, m_StringExtents.y);
 }
 
 void AVGWords::render(const PLRect& Rect)
 {
-//    cerr << "render " << getID() << endl;
     if (getEffectiveOpacity() > 0.001) {
         bool bVisible = getEngine()->setClipRect(getAbsViewport());
         if (bVisible) {
@@ -197,5 +197,10 @@ PLPixel32 AVGWords::colorStringToColor(const string & colorString)
     int r,g,b;
     sscanf(colorString.c_str(), "%2x%2x%2x", &r, &g, &b);
     return PLPixel32(r,g,b);
+}
+
+PLPoint AVGWords::getPreferredMediaSize()
+{
+    return m_StringExtents;
 }
 

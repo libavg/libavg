@@ -28,7 +28,10 @@ class AVGContainer :
 
         void zorderChange (AVGNode * pChild);
         
-	private:
+    protected:        
+        virtual PLPoint getPreferredMediaSize();	
+    
+    private:
         std::vector < AVGNode * > m_Children;
 };
 

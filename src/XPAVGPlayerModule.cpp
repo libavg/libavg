@@ -53,43 +53,90 @@ static const nsModuleComponentInfo components[] =
   { "c-base avgplayer Component", 
     AVGPLAYER_CID, 
     AVGPLAYER_CONTRACTID, 
-    AVGPlayerConstructor
+    AVGPlayerConstructor,
+    AVGPlayerRegistrationProc,
+    AVGPlayerUnregistrationProc,
+    NULL /* no factory destructor */,
+    NS_CI_INTERFACE_GETTER_NAME(AVGPlayer),
+    NULL /* no language helper */,
+    &NS_CLASSINFO_NAME(AVGPlayer)
   },
   { "c-base avgevent Component", 
     AVGEVENT_CID, 
     AVGEVENT_CONTRACTID, 
-    AVGEventConstructor
+    AVGEventConstructor,
+    AVGPlayerRegistrationProc,
+    AVGPlayerUnregistrationProc,
+    NULL /* no factory destructor */,
+    NS_CI_INTERFACE_GETTER_NAME(AVGEvent),
+    NULL /* no language helper */,
+    &NS_CLASSINFO_NAME(AVGEvent)
   },
   { "c-base avgimage Component", 
     AVGIMAGE_CID, 
     AVGIMAGE_CONTRACTID, 
-    AVGImageConstructor
+    AVGImageConstructor,
+    AVGPlayerRegistrationProc,
+    AVGPlayerUnregistrationProc,
+    NULL /* no factory destructor */,
+    NS_CI_INTERFACE_GETTER_NAME(AVGImage),
+    NULL /* no language helper */,
+    &NS_CLASSINFO_NAME(AVGImage)
   },
   { "c-base avgvideo Component", 
     AVGVIDEO_CID, 
     AVGVIDEO_CONTRACTID, 
-    AVGVideoConstructor
+    AVGVideoConstructor,
+    AVGPlayerRegistrationProc,
+    AVGPlayerUnregistrationProc,
+    NULL /* no factory destructor */,
+    NS_CI_INTERFACE_GETTER_NAME(AVGVideo),
+    NULL /* no language helper */,
+    &NS_CLASSINFO_NAME(AVGVideo)
   },
   { "c-base avgwords Component", 
     AVGWORDS_CID, 
     AVGWORDS_CONTRACTID, 
-    AVGWordsConstructor
+    AVGWordsConstructor,
+    AVGPlayerRegistrationProc,
+    AVGPlayerUnregistrationProc,
+    NULL /* no factory destructor */,
+    NS_CI_INTERFACE_GETTER_NAME(AVGWords),
+    NULL /* no language helper */,
+    &NS_CLASSINFO_NAME(AVGWords)
   },
   { "c-base avgavgnode Component", 
     AVGAVGNODE_CID, 
     AVGAVGNODE_CONTRACTID, 
-    AVGAVGNodeConstructor
+    AVGAVGNodeConstructor,
+    AVGPlayerRegistrationProc,
+    AVGPlayerUnregistrationProc,
+    NULL /* no factory destructor */,
+    NS_CI_INTERFACE_GETTER_NAME(AVGAVGNode),
+    NULL /* no language helper */,
+    &NS_CLASSINFO_NAME(AVGAVGNode)
   },
   { "c-base avgexcl Component", 
     AVGEXCL_CID, 
     AVGEXCL_CONTRACTID, 
     AVGExclConstructor,
-    AVGPlayerRegistrationProc
+    AVGPlayerRegistrationProc,
+    AVGPlayerUnregistrationProc,
+    NULL /* no factory destructor */,
+    NS_CI_INTERFACE_GETTER_NAME(AVGExcl),
+    NULL /* no language helper */,
+    &NS_CLASSINFO_NAME(AVGExcl)
   },
   { "acJSContextPublisher Component", 
     ACJSCONTEXTPUBLISHER_CID, 
     ACJSCONTEXTPUBLISHER_CONTRACTID, 
-    acJSContextPublisherConstructor
+    acJSContextPublisherConstructor,
+    AVGPlayerRegistrationProc,
+    AVGPlayerUnregistrationProc,
+    NULL /* no factory destructor */,
+    NS_CI_INTERFACE_GETTER_NAME(acJSContextPublisher),
+    NULL /* no language helper */,
+    &NS_CLASSINFO_NAME(acJSContextPublisher)
   }
 
 };
@@ -99,6 +146,9 @@ NS_IMPL_NSGETMODULE(AVGPlayerModule, components)
 //==============================================================================
 //
 // $Log$
+// Revision 1.9  2003/10/24 11:52:33  uzadow
+// Added auto width/height sensing for videos and text, added interface flattening.
+//
 // Revision 1.8  2003/09/19 17:08:57  uzadow
 // Massive memory leak fixes.
 //

@@ -53,25 +53,20 @@ void AVGImage::init (const std::string& id, int x, int y, int z,
        AVGDFBDisplayEngine * pEngine, AVGContainer * pParent)
 {
     AVGNode::init(id, pEngine, pParent);
-    initVisible(x, y, z,  width, height, opacity);
+
     m_Filename = filename;
     cerr << "Loading " << m_Filename << endl;
     m_pBmp = getEngine()->createSurface();
-    PLAnyPicDecoder decoder;
 
+    PLAnyPicDecoder decoder;
     decoder.MakeBmpFromFile(m_Filename.c_str(), m_pBmp);
     m_pBmp->ApplyFilter(PLFilterFlipRGB());
-    if (width == 0 || height == 0) {
-        setViewport (x, y, x+m_pBmp->GetWidth(), y+m_pBmp->GetHeight());
-    } else {
-        if (m_pBmp->GetWidth() != width || m_pBmp->GetHeight() != height) {
-            cerr << "Warning: size of image node with id " << id << 
-                    " does not match bitmap size." << endl;
-            cerr << "  Resizing from " << m_pBmp->GetWidth() << ", " << 
-                    m_pBmp->GetHeight() << " to " << width << ", " << height << 
-                    "." << endl;
-            m_pBmp->ApplyFilter (PLFilterResizeBilinear(width, height));
-        }
+   
+    initVisible(x, y, z,  width, height, opacity);
+
+    PLPoint size = PLPoint(getRelViewport().Width(), getRelViewport().Height());
+    if (m_pBmp->GetWidth() != size.x || m_pBmp->GetHeight() != size.y) {
+        m_pBmp->ApplyFilter (PLFilterResizeBilinear(size.x, size.y));
     }
 }
 
@@ -90,5 +85,10 @@ bool AVGImage::obscures (const PLRect& Rect, int z)
 string AVGImage::getTypeStr ()
 {
     return "AVGImage";
+}
+
+PLPoint AVGImage::getPreferredMediaSize()
+{
+    return m_pBmp->GetSize();
 }
 

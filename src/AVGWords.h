@@ -37,13 +37,15 @@ class AVGWords : public AVGNode
         NS_IMETHOD GetType(PRInt32 *_retval);
 
         virtual void init (const std::string& id, int x, int y, int z, 
-           int width, int height, double opacity, int size, const std::string& font, 
+           double opacity, int size, const std::string& font, 
            const std::string& str, const std::string& color,
            AVGDFBDisplayEngine * pEngine, AVGContainer * pParent);
 		virtual void render (const PLRect& Rect);
         virtual std::string getTypeStr ();
-        virtual void setViewport (int x, int y, int width, int height);
 
+    protected:        
+        virtual PLPoint getPreferredMediaSize();
+    
     private:
         void changeFont();
         void drawString();
@@ -56,6 +58,7 @@ class AVGWords : public AVGNode
         int m_Size;
         IDirectFBFont * m_pFont;
         IDirectFBSurface * m_pSurface;
+        PLPoint m_StringExtents;
 };
 
 #endif //_AVGWords_H_

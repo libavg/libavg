@@ -367,7 +367,7 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"words")) {
         string id;
         int x,y,z;
-        int width, height;
+        int width, height;  // Bogus
         double opacity;
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, &opacity);
         string font = getDefaultedStringAttr(xmlNode, 
@@ -378,7 +378,7 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         int size = getDefaultedIntAttr(xmlNode, (const xmlChar *)"size", 15);
         AVGWords * pWords = AVGWords::create();
         curNode = pWords;
-        pWords->init(id, x, y, z, width, height, opacity, size,
+        pWords->init(id, x, y, z, opacity, size,
                 font, str, color, m_pDisplayEngine, pParent);
         initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"excl")) {

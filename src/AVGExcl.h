@@ -14,8 +14,7 @@
 
 #define AVGEXCL_CONTRACTID "@c-base.org/avgexcl;1"
 
-class AVGExcl : 	
-	public AVGContainer
+class AVGExcl :	public AVGContainer
 {
     public:
         NS_DECL_ISUPPORTS

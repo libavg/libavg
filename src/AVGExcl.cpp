@@ -70,7 +70,7 @@ string AVGExcl::dump (int indent)
 void AVGExcl::render (const PLRect& Rect)
 {
     if (m_ActiveChild != -1) {
-        cerr << "AVGExcl::render()" << endl;
+//        cerr << "AVGExcl::render()" << endl;
         getChild(m_ActiveChild)->maybeRender(Rect);
     }
 }
@@ -78,7 +78,6 @@ void AVGExcl::render (const PLRect& Rect)
 bool AVGExcl::obscures (const PLRect& Rect, int z) 
 {
     if (m_ActiveChild != -1) {
-        cerr << "AVGExcl::obscures()" << endl;
         return getChild(m_ActiveChild)->obscures(Rect, z);
     }
     return false;

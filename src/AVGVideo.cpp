@@ -99,15 +99,18 @@ void AVGVideo::init (const std::string& id, int x, int y, int z,
        AVGDFBDisplayEngine * pEngine, AVGContainer * pParent)
 {
     AVGNode::init(id, pEngine, pParent);
-    initVisible(x, y, z, width, height, opacity); 
+    
     m_Filename = filename;
     cerr << "Video: opening " << m_Filename << endl;
-    changeState (Paused);
+    open (&m_Width, &m_Height);
     m_bLoop = bLoop;
     m_bOverlay = bOverlay;
     if (m_bOverlay) {
         initOverlay();
     }
+    
+    initVisible(x, y, z, width, height, opacity); 
+    changeState (Paused);
 }
 
 void AVGVideo::prepareRender (int time, const PLRect& parent)
@@ -160,10 +163,13 @@ void AVGVideo::changeState(VideoState NewState)
         return;
     }
     if (m_State == Unloaded) {
-        open (&m_Width, &m_Height);
+        if (!m_pMPEG) {
+            open (&m_Width, &m_Height);
+        }
 
         m_pBmp = getEngine()->createSurface();
         PLRect vpt = getRelViewport();
+        
         // libmpeg3 wants the bitmap to be larger than nessesary :-(.
         m_pBmp->Create(vpt.Width(), vpt.Height()+1, 32, false, false);
         m_bFrameAvailable = false;
@@ -222,8 +228,8 @@ void AVGVideo::readFrame()
     mpeg3_read_frame(m_pMPEG, m_pBmp->GetLineArray(), 0, 0, 
             m_Width-1, m_Height-1, vpt.Width(), vpt.Height(), 
             MPEG3_RGBA8888, 0);
-    // TODO: Add an ifdef for intel here.
     // libmpeg3 forgets to turn mmx off, killing floating point operations.
+    // TODO: Add an ifdef for intel here.
     __asm__ __volatile__ ("emms");  
     m_bFrameAvailable = true;
     advancePlayback();
@@ -299,3 +305,10 @@ string AVGVideo::dump (int indent)
 
     return s.str();
 }
+
+PLPoint AVGVideo::getPreferredMediaSize()
+{
+    return PLPoint(m_Width, m_Height);
+}
+
+

@@ -42,6 +42,9 @@ class AVGVideo : public AVGNode, IAVGVideo
         virtual std::string getTypeStr ();
         virtual std::string dump (int indent = 0);
 
+    protected:        
+        virtual PLPoint getPreferredMediaSize();
+    
     private:
         void open (int* pWidth, int* pHeight);
         typedef enum VideoState {Unloaded, Paused, Playing};
@@ -64,6 +67,7 @@ class AVGVideo : public AVGNode, IAVGVideo
 
         VideoState m_State;
         int m_CurFrame;
+        PLPoint m_PreferredSize;
 };
 
 #endif 

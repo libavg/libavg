@@ -148,30 +148,26 @@ function videoInterval()
 function getVideoInfo()
 {
     var node = AVGPlayer.getElementByID("clogo");
-    var videoNode = node.QueryInterface(Components.interfaces.IAVGVideo);
-    print ("Number of frames in video: " + videoNode.getNumFrames());
+    print ("Number of frames in video: " + node.getNumFrames());
 }
 
 function videoPlay(nodeName)
 {
     print(nodeName);
     var node = AVGPlayer.getElementByID(nodeName);
-    var videoNode = node.QueryInterface(Components.interfaces.IAVGVideo);
-    videoNode.play();
+    node.play();
 }
 
 function videoStop()
 {
     var node = AVGPlayer.getElementByID("clogo");
-    var videoNode = node.QueryInterface(Components.interfaces.IAVGVideo);
-    videoNode.stop();
+    node.stop();
 }
 
 function videoPause()
 {
     var node = AVGPlayer.getElementByID("clogo");
-    var videoNode = node.QueryInterface(Components.interfaces.IAVGVideo);
-    videoNode.pause();
+    node.pause();
 }
 
 function testVideo()
@@ -181,7 +177,7 @@ function testVideo()
     var ok = tryLoadFile("video.avg");
     if (ok) {
         getVideoInfo();
-//        timerid = AVGPlayer.setInterval(10, "videoInterval();");
+        timerid = AVGPlayer.setInterval(10, "videoInterval();");
         AVGPlayer.setTimeout(1000, "videoPlay('clogo');");
         AVGPlayer.setTimeout(1500, "videoPlay('clogo1');");
         AVGPlayer.setTimeout(1000, "videoPlay('clogo2');");
@@ -263,9 +259,9 @@ function testExcl()
 }
 
 //while (true) {
-    testAnimation();
     testWords();
     testVideo();
+    testAnimation();
     testExcl();
     dumpNodes();
     playAVG("image.avg");

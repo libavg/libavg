@@ -168,6 +168,13 @@ void AVGNode::init(const string& id, AVGDFBDisplayEngine * pEngine, AVGContainer
 
 void AVGNode::initVisible(int x, int y, int z, int width, int height, double opacity)
 {
+    PLPoint PreferredSize = getPreferredMediaSize();
+    if (width == 0) {
+        width = PreferredSize.x;
+    }
+    if (height == 0) {
+        height = PreferredSize.y;
+    }
     m_RelViewport = PLRect(x, y, x+width, y+height);
     m_z = z;
     m_Opacity = opacity;
