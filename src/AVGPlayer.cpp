@@ -49,6 +49,9 @@
 #include <sched.h>
 #include <pthread.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/types.h>
 
 #include "nsMemory.h"
 
@@ -210,6 +213,77 @@ AVGPlayer::GetCurEvent(IAVGEvent **_retval)
 {
     NS_IF_ADDREF(m_pCurEvent);
     *_retval = m_pCurEvent;
+    return NS_OK;
+}
+
+NS_IMETHODIMP 
+AVGPlayer::Exec(const char *command, const char *input, 
+        char **output, PRInt32 * pResult)
+{
+    // Set up arguments array
+    const char ** argv;
+    string sCmd;
+    vector<string> sArgs;
+    string sCmdLine(command);
+    string::size_type pos = sCmdLine.find(" ");
+    sCmd = sCmdLine.substr(0, pos);
+    sArgs.push_back(sCmd);
+    while (pos != string::npos) {
+        sCmdLine.erase(0, pos+1);
+        pos = sCmdLine.find(" ");
+        sArgs.push_back(sCmdLine.substr(0, pos));
+    }
+    argv = new const char*[sArgs.size()+1];
+    for (int i=0; i<sArgs.size(); i++) {
+        argv[i] = sArgs[i].c_str();
+    }
+    argv[sArgs.size()] = 0;
+
+    // Set up pipes for stdin and stdout of the child process.
+    int stdout_fds[2];
+    pipe (stdout_fds);
+    int stdin_fds[2];
+    pipe (stdin_fds);
+
+    pid_t child_pid = fork();
+    if (child_pid == 0) {
+        close(stdout_fds[0]);
+        dup2(stdout_fds[1], STDOUT_FILENO);
+        close(stdin_fds[1]);
+        dup2(stdin_fds[0], STDIN_FILENO);
+        // Do the actual call.
+        int err = execvp(sCmd.c_str(), (char * const *)argv);
+        if (err) {
+            AVG_TRACE(DEBUG_WARNING, "Could not exec '" << command << 
+                    "'. Error was '" << strerror(errno) << "'");
+            exit(-1);
+        }
+    }
+    FILE * pStdin;
+    close(stdin_fds[0]);
+    pStdin = fdopen(stdin_fds[1], "w");
+    fputs(input, pStdin);
+    fflush(pStdin);
+    close(stdin_fds[1]);
+
+    FILE * pStdout;
+    close(stdout_fds[1]);
+    pStdout = fdopen(stdout_fds[0], "r");
+    char * pOk = (char*)(1);
+    string sOutput;
+    while (!feof(pStdout) && !ferror(pStdout) && pOk) {
+        char buffer[1024];
+        pOk = fgets(buffer, sizeof(buffer), pStdout);
+        if (pOk) {
+            sOutput.append(buffer);
+        }
+    }
+    *output = (char *) nsMemory::Clone(sOutput.c_str(), 
+            sOutput.length()+1);
+    
+    int Status;
+    waitpid (child_pid, &Status, 0);
+    *pResult = WEXITSTATUS(Status);
     return NS_OK;
 }
 

@@ -68,6 +68,14 @@ interface IAVGPlayer : nsISupports
     IAVGEvent getCurEvent();
 
     /**
+     * Executes command synchronously using /bin/sh. input is used as the 
+     * command's stdin. stdout is placed in output. The return value
+     * is the command's return code. 127 is returned if /bin/sh could not be
+     * started to execute the command. -1 is returned if another error occurs.
+     */
+    long exec(in string command, in string input, out string output);
+
+    /**
      * Turns off debug output.
      */
     const long DEBUG_NONE=0;

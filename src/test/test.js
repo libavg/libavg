@@ -361,7 +361,10 @@ function testExcl()
         AVGPlayer.play(30);
     }
 }
-    
+    var output = new Object();
+    print (AVGPlayer.exec("uname -a","",output));
+    print (output.value);
+
     testHugeImage();
     testVideo();
     testCrop();
