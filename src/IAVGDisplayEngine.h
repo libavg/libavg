@@ -47,6 +47,8 @@ class IAVGDisplayEngine
 
         virtual AVGFontManager * getFontManager() = 0;
         virtual bool hasYUVSupport() = 0;
+
+        virtual void showCursor (bool bShow) = 0;
 };
 
 #endif //_IAVGDisplayEngine_H_

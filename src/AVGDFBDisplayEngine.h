@@ -49,6 +49,8 @@ class AVGDFBDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         virtual AVGFontManager * getFontManager();
         virtual bool hasYUVSupport();
 
+        virtual void showCursor (bool bShow);
+
         // From IAVGEventSource
         virtual std::vector<AVGEvent *> pollEvents();
        

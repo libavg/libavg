@@ -254,6 +254,14 @@ AVGPlayer::CreateRelais(PRInt16 port, IAVGConradRelais **_retval)
     return NS_OK;
 }
 
+NS_IMETHODIMP 
+AVGPlayer::ShowCursor(PRBool bShow)
+{
+    m_pDisplayEngine->showCursor(bShow);
+    return NS_OK;
+}
+
+
 void AVGPlayer::loadFile (const std::string& filename)
 {
     jsgc();

@@ -179,8 +179,7 @@ void AVGDFBDisplayEngine::initLayer(int width, int height)
     }
     err = m_pDFBLayer->EnableCursor(m_pDFBLayer, true);
     DFBErrorCheck(AVG_ERR_DFB, "AVGDFBDisplayEngine::init", err);
-    err = m_pDFBLayer->SetCursorOpacity(m_pDFBLayer, 0);
-    DFBErrorCheck(AVG_ERR_DFB,"AVGDFBDisplayEngine::init",  err);
+    showCursor(false);
 }
 
 
@@ -462,6 +461,17 @@ AVGFontManager * AVGDFBDisplayEngine::getFontManager()
 bool AVGDFBDisplayEngine::hasYUVSupport()
 {
     return false;
+}
+
+void AVGDFBDisplayEngine::showCursor (bool bShow)
+{
+    DFBResult err;
+    if (bShow) {    
+        err = m_pDFBLayer->SetCursorOpacity(m_pDFBLayer, 255);
+    } else {
+        err = m_pDFBLayer->SetCursorOpacity(m_pDFBLayer, 0);
+    }
+    DFBErrorCheck(AVG_ERR_DFB,"AVGDFBDisplayEngine::showCursor",  err);
 }
 
 vector<AVGEvent *> AVGDFBDisplayEngine::pollEvents()

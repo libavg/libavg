@@ -111,6 +111,10 @@ void AVGSDLDisplayEngine::init(int width, int height, bool isFullscreen, int bpp
     m_pFontManager = new AVGSDLFontManager(sFontPath);
     // SDL sets up a signal handler we really don't want.
 //    signal(SIGSEGV, SIG_DFL);
+    if (getenv("__GL_SYNC_TO_VBLANK") == 0) {
+        AVG_TRACE(IAVGPlayer::DEBUG_WARNING, 
+                "__GL_SYNC_TO_VBLANK not set.");
+    }
 }
 
 void AVGSDLDisplayEngine::teardown()
@@ -325,6 +329,15 @@ bool AVGSDLDisplayEngine::hasYUVSupport()
 {
     return false;
 //    return queryOGLExtension("GL_NVX_ycrcb");
+}
+
+void AVGSDLDisplayEngine::showCursor (bool bShow)
+{
+    if (bShow) {
+        SDL_ShowCursor(SDL_ENABLE);
+    } else {
+        SDL_ShowCursor(SDL_DISABLE);
+    }
 }
 
 int AVGSDLDisplayEngine::getWidth()

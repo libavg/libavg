@@ -1,5 +1,7 @@
 #!/bin/bash
 source avgenv.sh
+export __GL_SYNC_TO_VBLANK=1
+export __GL_FSAA_MODE=5
 JS_SCRIPTNAME=$1
 AVG_DEBUG=false
 if [[ "$1" == "" ]]

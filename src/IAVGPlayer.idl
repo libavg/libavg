@@ -121,5 +121,12 @@ interface IAVGPlayer : nsISupports
      * port gives the serial port number the device is connected to.
      */
     IAVGConradRelais createRelais(in short port);
+
+    /**
+     * Shows or hides the mouse cursor. (Currently, this only works for OpenGL.
+     * Showing the DirectFB mouse cursor seems to expose some issue with 
+     * DirectFB.)
+     */
+    void showCursor(in boolean bShow);
 };
 
