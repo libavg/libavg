@@ -1,0 +1,72 @@
+.ad l
+.nh
+.TH avg 1 "20 April 2004" "libavg"
+.SH NAME
+avg \- player for avg media presentations.
+.SH SYNOPSIS
+.B avg 
+.I scriptfile.js
+.B [--display=DFB|OGL]
+.B [--bpp=16|24]
+.B [--fullscreen=true|false]
+.B [--debug]
+.SH DESCRIPTION
+.B avg
+plays back an 
+.B avg 
+media presentation.
+.B avg 
+presentations consist of two parts -
+a file in avg format that describes a static media configuration, and a 
+javascript file that contains information about the dynamics of the 
+presentation. The javascript file is given by the first parameter. This file
+needs to contain commands to load and play an avg file. System configuration 
+is determined by first reading the configuration files 
+.I /etc/avgrc 
+and 
+.I ~/avgrc
+and then applying the command-line options.
+.SH EXAMPLES
+To play back the presentation
+.I trailer.js 
+using the system defaults, use:
+
+.nf
+.B  avg trailer.js
+.fi
+  
+To play back the presentation 
+.I core_control.js
+in fullscreen, using avgs OpenGL display engine, use:
+
+.nf
+.B  avg core_control.js --display=OGL --fullscreen=true
+.fi
+
+.SH OPTIONS
+.TP
+.B --display=DFB|OGL
+Set the display engine to use. 
+.I DFB
+selects the DirectFB display engine, and 
+.I OGL
+selects the OpenGL display engine.
+.TP
+.B --bpp=16|24
+Set the bits per pixel for the back- and frontbuffers. All internal 
+calculations are done with 32 bpp - 24 bpp plus 8 bpp transparency -
+regardless of this setting.
+.TP
+.B --fullscreen=true|false
+Determines whether playback should happen in fullscreen mode (true) or 
+in a window (false). The DirectFB engine uses a slow SDL backend in 
+windowed mode - this mode is meant for debugging, not performance.
+.TP
+.B --debug
+Start gdb with the avg player.
+.SH SEE ALSO
+.B avgrc
+(5)
+.SH COPYRIGHT
+The libavg source code and all documentation are copyright (c)
+2003-2004 Ulrich von Zadow (coder@c-base.org).
