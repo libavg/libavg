@@ -42,6 +42,7 @@ class AVGOGLSurface: public IAVGSurface {
         int getSrcMode();
    
         PLBmpBase * m_pBmp;
+        PLSubBmp * m_pSubBmp;   // Cached pointer to avoid slow dynamic_cast.
 
         unsigned int m_TexID;
         bool m_bBound;

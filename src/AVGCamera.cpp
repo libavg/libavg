@@ -12,6 +12,7 @@
 #include "AVGLogger.h"
 #include "AVGContainer.h"
 #include "IAVGSurface.h"
+#include "AVGOGLSurface.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/plpngenc.h>
@@ -31,7 +32,7 @@ using namespace std;
 #define MAX_PORTS 4
 #define MAX_RESETS 10
 #define DROP_FRAMES 1
-#define NUM_BUFFERS 2
+#define NUM_BUFFERS 3
 
 // Precomputed conversion matrix entries
 static int y2colTable[256]; // y to any color component;
@@ -259,34 +260,44 @@ void AVGCamera::fatalError(const string & sMsg)
 
 bool AVGCamera::renderToSurface(IAVGSurface * pSurface)
 {
-    PLBmpBase * pBmp = pSurface->getBmp();
     int rc = dc1394_dma_single_capture_poll(&m_Camera);
     if (rc == DC1394_SUCCESS) {
+        AVGOGLSurface * pOGLSurface = dynamic_cast<AVGOGLSurface *>(pSurface);
         // New frame available
         switch (m_Mode) {
             case MODE_640x480_YUV411:
-                YUV411toBGR24((PLBYTE*)(m_Camera.capture_buffer), pBmp);
+                {
+                    PLBmpBase * pBmp = pSurface->getBmp();
+                    YUV411toBGR24((PLBYTE*)(m_Camera.capture_buffer), pBmp);
+                }
                 break;
             case MODE_640x480_RGB:
                 {
-                    PLBYTE ** ppLines = pBmp->GetLineArray();
-                    int WidthBytes = pBmp->GetWidth()*3;
-                    if (getEngine()->hasRGBOrdering()) {
-                        for (int y = 0; y < pBmp->GetHeight(); y++) {
-                            memcpy(ppLines[y],
-                                    (PLBYTE*)(m_Camera.capture_buffer)+
-                                        y*WidthBytes,
-                                    WidthBytes);
-                        }
+                    if (pOGLSurface) {
+                        pOGLSurface->createFromBits(640, 480, 24, false,
+                                (PLBYTE*)(m_Camera.capture_buffer), 640*3);
                     } else {
-                        for (int y = 0; y < pBmp->GetHeight(); y++) {
-                            PLBYTE * pDestLine = ppLines[y];
-                            PLBYTE * pSrcLine = (PLBYTE*)
-                                    m_Camera.capture_buffer+y*WidthBytes;
-                            for (int x = 0; x < WidthBytes; x+=3) {
-                                pDestLine[x] = pSrcLine[x+2];
-                                pDestLine[x+1] = pSrcLine[x+1];
-                                pDestLine[x+2] = pSrcLine[x];
+                        PLBmpBase * pBmp = pSurface->getBmp();
+                        PLBYTE ** ppLines = pBmp->GetLineArray();
+                        int WidthBytes = pBmp->GetWidth()*3;
+
+                        if (getEngine()->hasRGBOrdering()) {
+                            for (int y = 0; y < pBmp->GetHeight(); y++) {
+                                memcpy(ppLines[y],
+                                        (PLBYTE*)(m_Camera.capture_buffer)+
+                                        y*WidthBytes,
+                                        WidthBytes);
+                            }
+                        } else {
+                            for (int y = 0; y < pBmp->GetHeight(); y++) {
+                                PLBYTE * pDestLine = ppLines[y];
+                                PLBYTE * pSrcLine = (PLBYTE*)
+                                        m_Camera.capture_buffer+y*WidthBytes;
+                                for (int x = 0; x < WidthBytes; x+=3) {
+                                    pDestLine[x] = pSrcLine[x+2];
+                                    pDestLine[x+1] = pSrcLine[x+1];
+                                    pDestLine[x+2] = pSrcLine[x];
+                                }
                             }
                         }
                     }
@@ -297,8 +308,8 @@ bool AVGCamera::renderToSurface(IAVGSurface * pSurface)
                         "Illegal Mode in renderToBmp");
                 break;
         }
-        dc1394_dma_done_with_buffer(&m_Camera);
         getEngine()->surfaceChanged(pSurface);
+        dc1394_dma_done_with_buffer(&m_Camera);
     } else {
         if (rc == DC1394_NO_FRAME) {
             AVG_TRACE(AVGPlayer::DEBUG_WARNING,

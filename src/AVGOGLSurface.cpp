@@ -27,7 +27,8 @@ int AVGOGLSurface::s_MaxTexSize = 0;
 AVGOGLSurface::AVGOGLSurface()
     : m_TexID(0),
       m_bBound(false),
-      m_pBmp(0)
+      m_pBmp(0),
+      m_pSubBmp(0)
 {
     // Do an NVIDIA texture support query if it hasn't happened already.
     getTextureMode();
@@ -51,6 +52,7 @@ void AVGOGLSurface::create(int Width, int Height, int bpp,
     m_pBmp = new PLAnyBmp;
     dynamic_cast<PLAnyBmp*>(m_pBmp)->Create(Width, Height, bpp, 
             bHasAlpha, false);
+    m_pSubBmp = 0;
 }
 
 PLBmpBase* AVGOGLSurface::getBmp()
@@ -61,9 +63,20 @@ PLBmpBase* AVGOGLSurface::getBmp()
 void AVGOGLSurface::createFromBits(int Width, int Height, int bpp, 
         bool bHasAlpha, PLBYTE* pBits, int Stride)
 {
-    m_pBmp = new PLSubBmp;
-    dynamic_cast<PLSubBmp*>(m_pBmp)->Create(Width, Height, bpp, bHasAlpha, 
-            pBits, Stride);
+    if (m_bBound && 
+        (!m_pSubBmp ||
+        Width != m_pBmp->GetWidth() || Height != m_pBmp->GetHeight() ||
+        bpp != m_pBmp->GetBitsPerPixel() || bHasAlpha != m_pBmp->HasAlpha()))
+    {
+        unbind();
+    }
+    if (!m_pSubBmp) {
+        discardBmp();
+        m_pBmp = new PLSubBmp;
+        m_pSubBmp = dynamic_cast<PLSubBmp*>(m_pBmp);
+    }
+    
+    m_pSubBmp->Create(Width, Height, bpp, bHasAlpha, pBits, Stride);
 }
 
 void AVGOGLSurface::discardBmp()
