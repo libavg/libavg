@@ -352,8 +352,15 @@ void AVGDFBDisplayEngine::blt(IDirectFBSurface * pSrc, const PLRect* pDestRect)
             ", " << pDestRect->tl.y << 
             "), width:" << width << ", height: " << height);
 
-    DFBResult err = m_pBackBuffer->Blit(m_pBackBuffer, pSrc, 0, 
-            pDestRect->tl.x, pDestRect->tl.y);
+    DFBRectangle DFBDestRect;
+    DFBDestRect.x = pDestRect->tl.x;
+    DFBDestRect.y = pDestRect->tl.y;
+    DFBDestRect.w = pDestRect->Width();
+    DFBDestRect.h = pDestRect->Height();
+
+
+    DFBResult err = m_pBackBuffer->StretchBlit(m_pBackBuffer, pSrc, 0, 
+            &DFBDestRect);
         
     DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::blt", err);
 }

@@ -17,6 +17,7 @@
   z CDATA #IMPLIED
   width CDATA #IMPLIED
   height CDATA #IMPLIED
+  angle CDATA #IMPLIED
   opacity CDATA #IMPLIED
   %graphicsElementEvents; >
   
@@ -33,6 +34,7 @@
   z CDATA #IMPLIED
   width CDATA #IMPLIED
   height CDATA #IMPLIED
+  angle CDATA #IMPLIED
   opacity CDATA #IMPLIED
   %graphicsElementEvents; >
   
@@ -45,6 +47,7 @@
   z CDATA #IMPLIED
   width CDATA #IMPLIED
   height CDATA #IMPLIED
+  angle CDATA #IMPLIED
   opacity CDATA #IMPLIED
   loop CDATA #IMPLIED
   overlay CDATA #IMPLIED
@@ -57,6 +60,7 @@
   x CDATA #REQUIRED
   y CDATA #REQUIRED
   z CDATA #IMPLIED
+  angle CDATA #IMPLIED
   opacity CDATA #IMPLIED
   size CDATA #IMPLIED
   font CDATA #IMPLIED
