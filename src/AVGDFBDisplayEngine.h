@@ -15,12 +15,13 @@
 class PLBmp;
 class PLDirectFBBmp;
 class PLPoint;
+class PLPixel32;
 
 class AVGRegion;
 class AVGNode;
 class AVGFramerateManager;
 
-class AVGDFBDisplayEngine
+class AVGDFBDisplayEngine: public IAVGDisplayEngine
 {
     public:
         AVGDFBDisplayEngine();
@@ -34,10 +35,10 @@ class AVGDFBDisplayEngine
         virtual void setClipRect();
         virtual bool setClipRect(const PLRect& rc);
         virtual const PLRect& getClipRect();
-        virtual void blt(PLBmp * pBmp, const PLRect* pSrcRect, 
+        virtual void blt32(PLBmp * pBmp, const PLRect* pSrcRect, 
                 const PLPoint& pos, double opacity);
-        virtual void blt(IDirectFBSurface * pSrc, const PLRect* pSrcRect, 
-                const PLPoint& pos, double opacity, bool bAlpha);
+        virtual void blta8(PLBmp * pBmp, const PLRect* pSrcRect,
+                const PLPoint& pos, double opacity, const PLPixel32& color);
         virtual void swapBuffers(const AVGRegion & UpdateRegion);
 
 	    virtual PLBmp * createSurface();
@@ -59,6 +60,11 @@ class AVGDFBDisplayEngine
         void initBackbuffer();
         void clear();
         void setDirtyRect(const PLRect& rc);
+
+        void blt32(IDirectFBSurface * pSrc, const PLRect* pSrcRect, 
+                const PLPoint& pos, double opacity, bool bAlpha);
+        void blt(IDirectFBSurface * pSrc, const PLRect* pSrcRect, 
+                const PLPoint& pos);
         
         int m_Width;
         int m_Height;

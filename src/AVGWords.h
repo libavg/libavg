@@ -9,6 +9,7 @@
 #include "IAVGWords.h"
 
 #include <paintlib/plpixel32.h>
+#include <paintlib/plbitmap.h>
 
 #include <directfb/directfb.h>
 
@@ -54,7 +55,7 @@ class AVGWords : public AVGNode, IAVGWords
         PLPixel32 m_Color;
         int m_Size;
         IDirectFBFont * m_pFont;
-        IDirectFBSurface * m_pSurface;
+        PLBmp * m_pBmp;
         PLPoint m_StringExtents;
 };
 

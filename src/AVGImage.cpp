@@ -90,7 +90,7 @@ void AVGImage::render (const PLRect& Rect)
     if (getRelViewport().tl.y < 0) {
         SrcRect.tl.y = -getRelViewport().tl.y;
     }
-    getEngine()->blt(m_pBmp, &SrcRect, getAbsViewport().tl, getEffectiveOpacity());
+    getEngine()->blt32(m_pBmp, &SrcRect, getAbsViewport().tl, getEffectiveOpacity());
 }
 
 bool AVGImage::obscures (const PLRect& Rect, int z) 

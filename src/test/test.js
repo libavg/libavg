@@ -124,6 +124,7 @@ function testWords()
     print ("---- Testing word node accessors ----");
     var ok = tryLoadFile("text.avg");
     if (ok) {
+//        AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_BLTS | AVGPlayer.DEBUG_MEMORY); 
         AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE | AVGPlayer.DEBUG_MEMORY); 
         timerid = AVGPlayer.setInterval(10, "textInterval();");
         AVGPlayer.setTimeout(1000, "changeTextHeight();");
@@ -269,8 +270,9 @@ function testExcl()
 }
 
 //while (true) {
-    testAnimation();
+//    testAnimation();
     testWords();
+/*
     testVideo();
     dumpNodes();
     testExcl();
@@ -281,6 +283,6 @@ function testExcl()
     playAVG("avg.avg");
     playAVG("noavg.avg");
     playAVG("noxml.avg");
-
+*/
     //}
 

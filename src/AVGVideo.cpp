@@ -159,7 +159,7 @@ void AVGVideo::render (const PLRect& Rect)
                 }
                 if (getEffectiveOpacity() < 0.999) {
                     readFrame();
-                    getEngine()->blt(m_pBmp, 0, getAbsViewport().tl, getEffectiveOpacity());
+                    getEngine()->blt32(m_pBmp, 0, getAbsViewport().tl, getEffectiveOpacity());
                 } else {
                     // No alpha blending: render frame to backbuffer directly.
                     renderToBackbuffer();
@@ -170,7 +170,7 @@ void AVGVideo::render (const PLRect& Rect)
             if (!m_bFrameAvailable) {
                 readFrame();
             }
-            getEngine()->blt(m_pBmp, 0, getAbsViewport().tl, getEffectiveOpacity());
+            getEngine()->blt32(m_pBmp, 0, getAbsViewport().tl, getEffectiveOpacity());
             break;
         case Unloaded:
             break;

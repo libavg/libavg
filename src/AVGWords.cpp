@@ -6,6 +6,10 @@
 #include "AVGDFBDisplayEngine.h"
 #include "AVGException.h"
 
+#include <paintlib/pldirectfbbmp.h>
+#include <paintlib/Filter/plfilterfill.h>
+#include <paintlib/plpixel8.h>
+
 #include <nsMemory.h>
 #include <xpcom/nsComponentManagerUtils.h>
 
@@ -22,15 +26,15 @@ AVGWords * AVGWords::create()
 }       
 
 AVGWords::AVGWords ()
-    : m_pSurface(0)
+    : m_pBmp(0)
 {
     NS_INIT_ISUPPORTS();
 }
 
 AVGWords::~AVGWords ()
 {
-    if (m_pSurface) {
-        m_pSurface->Release(m_pSurface);
+    if (m_pBmp) {
+        delete m_pBmp;
     }
 }
 
@@ -128,6 +132,7 @@ AVGWords::init (const string& id, int x, int y, int z,
     m_Str = str;
     m_ColorName = color;
     m_Color = colorStringToColor(color);
+    m_pBmp = getEngine()->createSurface();
     m_FontName = font;
     changeFont();
     initVisible(x, y, z, 0, 0, opacity); 
@@ -147,10 +152,6 @@ void AVGWords::changeFont()
 
 void AVGWords::drawString()
 {
-    if (m_pSurface) {
-        m_pSurface->Release(m_pSurface);
-    }
-
     IDirectFB * pDFB = getEngine()->getDFB();
 
     DFBRectangle DFBExtents; 
@@ -161,22 +162,17 @@ void AVGWords::drawString()
     if (m_StringExtents.x == 0) {
         m_StringExtents = PLPoint(1,1);
     }
-    DFBSurfaceDescription SurfDesc;
-    SurfDesc.flags = DFBSurfaceDescriptionFlags
-            (DSDESC_CAPS | DSDESC_WIDTH | DSDESC_HEIGHT | DSDESC_PIXELFORMAT);
-    SurfDesc.caps = DSCAPS_NONE;
-    SurfDesc.width = m_StringExtents.x;
-    SurfDesc.height = m_StringExtents.y;
-    SurfDesc.pixelformat = DSPF_A8;  
-    DFBResult err = pDFB->CreateSurface(pDFB, &SurfDesc, &m_pSurface);
-    getEngine()->DFBErrorCheck(AVG_ERR_FONT_INIT_FAILED, "AVGWords::drawString", err);
-    m_pSurface->Clear(m_pSurface, 0x00,0x00,0x00,0x00);
-    m_pSurface->SetColor(m_pSurface, 0xFF, 0xFF, 0xFF, 0xFF);
+    m_pBmp->Create(m_StringExtents.x, m_StringExtents.y, 8, false, false);
+    m_pBmp->ApplyFilter(PLFilterFill<PLPixel8>(PLPixel8(0x0)));
+    IDirectFBSurface * pSurface = dynamic_cast<PLDirectFBBmp*>(m_pBmp)->GetSurface();
+    getEngine()->dumpSurface(pSurface, "Text field.");
+    pSurface->SetColor(pSurface, 0xFF, 0xFF, 0xFF, 0xFF);
 
-    m_pSurface->SetDrawingFlags(m_pSurface, DSDRAW_BLEND);
-    m_pSurface->SetFont(m_pSurface, m_pFont);
-    m_pSurface->DrawString(m_pSurface, m_Str.c_str(), -1, 0, 0, 
-            DFBSurfaceTextFlags(DSTF_LEFT | DSTF_TOP));    
+    pSurface->SetDrawingFlags(pSurface, DSDRAW_BLEND);
+    pSurface->SetFont(pSurface, m_pFont);
+    DFBResult err = pSurface->DrawString(pSurface, m_Str.c_str(), -1, 0, 0, 
+            DFBSurfaceTextFlags(DSTF_LEFT | DSTF_TOP));
+    getEngine()->DFBErrorCheck(AVG_ERR_FONT_INIT_FAILED, "AVGWords::drawString", err);    
     setViewport(-32767, -32767, m_StringExtents.x, m_StringExtents.y);
 }
 
@@ -185,19 +181,15 @@ void AVGWords::render(const PLRect& Rect)
     if (getEffectiveOpacity() > 0.001) {
         bool bVisible = getEngine()->setClipRect(getAbsViewport());
         if (bVisible) {
-            IDirectFBSurface * pSurface = getEngine()->getPrimary();
-            pSurface->SetColor(pSurface, m_Color.GetR(), m_Color.GetG(), m_Color.GetB(),
-                    __u8(getEffectiveOpacity()*256));
-        //    getEngine()->render(m_pSurface, getAbsViewport().tl, getEffectiveOpacity(), true);
-
-            DFBSurfaceBlittingFlags BltFlags;
-            BltFlags = DFBSurfaceBlittingFlags(DSBLIT_BLEND_ALPHACHANNEL | DSBLIT_COLORIZE);
-            pSurface->SetBlittingFlags(pSurface, BltFlags);
-
-            PLPoint pos = getAbsViewport().tl;
-            DFBResult err = pSurface->Blit(pSurface, m_pSurface, 0, 
-                    pos.x, pos.y);
-            getEngine()->DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGWords::render", err);
+            PLRect SrcRect(0, 0, getRelViewport().Width(), getRelViewport().Height());
+            if (getRelViewport().tl.x < 0) {
+                SrcRect.tl.x = -getRelViewport().tl.x;
+            }
+            if (getRelViewport().tl.y < 0) {
+                SrcRect.tl.y = -getRelViewport().tl.y;
+            }
+            getEngine()->blta8(m_pBmp, &SrcRect, getAbsViewport().tl, getEffectiveOpacity(),
+                    m_Color);
         }
     }
 }

@@ -284,17 +284,30 @@ const PLRect& AVGDFBDisplayEngine::getClipRect() {
     return m_ClipRect;
 }
 
-void AVGDFBDisplayEngine::blt(PLBmp * pBmp, const PLRect* pSrcRect, 
+void AVGDFBDisplayEngine::blt32(PLBmp * pBmp, const PLRect* pSrcRect, 
         const PLPoint& pos, double opacity)
 {
     PLDirectFBBmp * pDFBBmp = dynamic_cast<PLDirectFBBmp *>(pBmp);
     PLASSERT(pDFBBmp); // createSurface() should have been used to create 
                        // the bitmap.
     IDirectFBSurface * pSurf = pDFBBmp->GetSurface();
-    blt(pSurf, pSrcRect, pos, opacity, pBmp->HasAlpha());
+    blt32(pSurf, pSrcRect, pos, opacity, pBmp->HasAlpha());
 }
 
-void AVGDFBDisplayEngine::blt(IDirectFBSurface * pSrc, const PLRect* pSrcRect, 
+void AVGDFBDisplayEngine::blta8(PLBmp * pBmp, const PLRect* pSrcRect,
+        const PLPoint& pos, double opacity, const PLPixel32& color)
+{
+    m_pBackBuffer->SetColor(m_pBackBuffer, color.GetR(), color.GetG(), color.GetB(),
+            __u8(opacity*256));
+
+    DFBSurfaceBlittingFlags BltFlags;
+    BltFlags = DFBSurfaceBlittingFlags(DSBLIT_BLEND_ALPHACHANNEL | DSBLIT_COLORIZE);
+    m_pBackBuffer->SetBlittingFlags(m_pBackBuffer, BltFlags);
+
+    blt(dynamic_cast<PLDirectFBBmp*>(pBmp)->GetSurface(), pSrcRect, pos);
+}
+
+void AVGDFBDisplayEngine::blt32(IDirectFBSurface * pSrc, const PLRect* pSrcRect, 
         const PLPoint& pos, double opacity, bool bAlpha)
 {
     DFBSurfaceBlittingFlags BltFlags;
@@ -311,6 +324,13 @@ void AVGDFBDisplayEngine::blt(IDirectFBSurface * pSrc, const PLRect* pSrcRect,
     m_pBackBuffer->SetBlittingFlags(m_pBackBuffer, BltFlags);
 //    dumpSurface (pSurf, "pDFBBmp");
 //    dumpSurface (m_pBackBuffer, "m_pBackBuffer");
+    blt(pSrc, pSrcRect, pos);
+}
+ 
+// Assumes blit flags and colors are already set.
+void AVGDFBDisplayEngine::blt(IDirectFBSurface * pSrc, const PLRect* pSrcRect, 
+        const PLPoint& pos)
+{
     DFBRectangle * pDFBRect = 0;
     DFBRectangle DFBRect;
     if (pSrcRect) {
@@ -327,10 +347,9 @@ void AVGDFBDisplayEngine::blt(IDirectFBSurface * pSrc, const PLRect* pSrcRect,
     int height;
     pSrc->GetSize(pSrc, &width, &height);
     AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Blit: " << pos.x << "x" << pos.y << 
-            ", width:" << width << ", height: " << height << 
-            ", alpha: " << bAlpha << ", opacity: " << opacity);
+            ", width:" << width << ", height: " << height);
 
-    DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::render", err);
+    DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::blt", err);
 }
 
 void AVGDFBDisplayEngine::clear()
@@ -364,6 +383,7 @@ void AVGDFBDisplayEngine::swapBuffers(const AVGRegion & UpdateRegion)
     IDirectFBSurface * pLayerSurf;
     err = m_pDFBLayer->GetSurface(m_pDFBLayer, &pLayerSurf);
     DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::swapBuffers", err);
+    pLayerSurf->SetBlittingFlags(pLayerSurf, DSBLIT_NOFX);
 //    m_pDirectFB->WaitForSync(m_pDirectFB);
     for (int i = 0; i<UpdateRegion.getNumRects(); i++) {
         const PLRect & rc = UpdateRegion.getRect(i);
