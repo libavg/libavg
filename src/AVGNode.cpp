@@ -4,8 +4,7 @@
 
 #include "AVGEvent.h"
 #include "AVGContainer.h"
-
-#include "IJSEvalKruecke.h"
+#include "AVGJSScript.h"
 
 #include <paintlib/plpoint.h>
 
@@ -25,6 +24,7 @@ AVGNode::AVGNode ()
 
 AVGNode::~AVGNode()
 {
+    cerr << "~AVGNode: " << m_ID << endl;
 }
 
 NS_IMETHODIMP 
@@ -173,7 +173,7 @@ AVGContainer * AVGNode::getParent()
     return m_pParent;
 }
 
-bool AVGNode::handleEvent (AVGEvent* pEvent, IJSEvalKruecke * pKruecke)
+bool AVGNode::handleEvent (AVGEvent* pEvent, JSContext * pJSContext)
 {
     string Code;
     pEvent->setNode(this);
@@ -199,17 +199,19 @@ bool AVGNode::handleEvent (AVGEvent* pEvent, IJSEvalKruecke * pKruecke)
             break;
     }
     if (!Code.empty()) {
-        callJS(Code, pKruecke);
+        callJS(Code, pJSContext);
     } else {
         if (m_pParent) {
-            m_pParent->handleEvent (pEvent, pKruecke);
+            m_pParent->handleEvent (pEvent, pJSContext);
         }
     }
 }
 
-bool AVGNode::callJS (const string& Code, IJSEvalKruecke * pKruecke)
+void AVGNode::callJS (const string& Code, JSContext * pJSContext)
 {
-    char * pResult;
-    pKruecke->CallEval(Code.c_str(), &pResult);
+
+    // TODO: Move this to a separate class and precompile.
+    AVGJSScript Script(Code, "EventScript", 0, pJSContext);
+    Script.run();
 }
 

@@ -9,7 +9,7 @@
 [scriptable, uuid(e3890769-a960-43ec-bc4f-ded28ef99103)]
 interface IAVGPlayer : nsISupports
 {
-    boolean loadFile(in string fileName, in IJSEvalKruecke kruecke);
+    boolean loadFile(in string fileName);
     void play();
     void stop();
 

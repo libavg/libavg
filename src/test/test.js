@@ -1,30 +1,4 @@
-load("../avg.js");
-/*
-var PlayerFactory = Components.Constructor("@c-base.org/avgplayer;1","IAVGPlayer");
-var AVGPlayer = new PlayerFactory();
-
-function JSEvalKruecke(){} // constructor
-JSEvalKruecke.prototype = {
-
-    callEval: function (code) 
-    { 
-        try {
-            return eval(code);
-        } catch (e) {
-            print (e.name + ": " + e.message + " while evaluating " + code);
-            
-        }
-    },
-
-    QueryInterface: function (iid) {
-        if (!iid.equals(Components.interfaces.IJSEvalKruecke))
-        {
-            throw Components.results.NS_ERROR_NO_INTERFACE;
-        }
-        return this;
-    }
-}
-*/
+use("../avg.js");
 
 function quitTimeout()
 {
@@ -74,7 +48,7 @@ var timerid;
 
 function tryLoadFile(fileName)
 {
-    var ok = AVGPlayer.loadFile(fileName, new JSEvalKruecke());
+    var ok = AVGPlayer.loadFile(fileName);
     if (!ok) {
         print ("js: AVGPlayer.loadFile returned false");
     }
@@ -108,7 +82,7 @@ function textInterval()
       NumChars++;
       delay = 0;
     }
-    str = "hello c-base".substr(0, NumChars);
+    var str = "hello c-base".substr(0, NumChars);
     node.setStringAttr("String", str);
 
     var l = node.getIntAttr("Left");
@@ -180,6 +154,7 @@ function getVideoInfo()
 
 function videoPlay(nodeName)
 {
+    print(nodeName);
     var node = AVGPlayer.getElementByID(nodeName);
     var videoNode = node.QueryInterface(Components.interfaces.IAVGVideo);
     videoNode.play();
@@ -207,13 +182,13 @@ function testVideo()
     if (ok) {
         getVideoInfo();
         timerid = AVGPlayer.setInterval(10, "videoInterval();");
-        AVGPlayer.setTimeout(1000, "videoPlay('clogo')");
-        AVGPlayer.setTimeout(1500, "videoPlay('clogo1')");
-        AVGPlayer.setTimeout(1000, "videoPlay('clogo2')");
-        AVGPlayer.setTimeout(2000, "videoPause('clogo')");
-        AVGPlayer.setTimeout(2500, "videoPlay('clogo')");
-        AVGPlayer.setTimeout(3000, "videoStop('clogo')");
-        AVGPlayer.setTimeout(3500, "videoPlay('clogo')");
+        AVGPlayer.setTimeout(1000, "videoPlay('clogo');");
+        AVGPlayer.setTimeout(1500, "videoPlay('clogo1');");
+        AVGPlayer.setTimeout(1000, "videoPlay('clogo2');");
+        AVGPlayer.setTimeout(2000, "videoPause('clogo');");
+        AVGPlayer.setTimeout(2500, "videoPlay('clogo');");
+        AVGPlayer.setTimeout(3000, "videoStop('clogo');");
+        AVGPlayer.setTimeout(3500, "videoPlay('clogo');");
         AVGPlayer.setTimeout(8000, "quitTimeout();");
         AVGPlayer.play();
     }
@@ -223,10 +198,12 @@ function dumpNodes()
 {
     print ("---- dumpNodes: testing node accessors ----");
     var ok = tryLoadFile("avg.avg");
+    AVGPlayer.setEventDebugLevel(2);
     if (ok) {
         var rootNode = AVGPlayer.getRootNode();
         var numChildren = rootNode.getNumChildren();
-        print("  Root node id: "+rootNode.getID()+" ("+numChildren+" children.");
+        print("  Root node id: "+rootNode.getID()+" ("+numChildren+" children).");
+
         var i;
         for (i=0; i<numChildren; i++) {
             var curChild = rootNode.getChild(i);
@@ -238,7 +215,7 @@ function dumpNodes()
             print("    Child node id: "+curChild.getID()+" (Parent: "+parent.getID()
                     +", Pos: ("+l+","+t+","+w+","+h+"), type: "+curChild.getType()+")");
         }
-        AVGPlayer.setTimeout(10, "quitTimeout()");
+        AVGPlayer.setTimeout(100, "quitTimeout()");
         AVGPlayer.play();
     }
 }
@@ -249,18 +226,11 @@ function moveit() {
     node.setIntAttr("Left", l+1);
     var Opacity = node.getFloatAttr("Opacity");
     node.setFloatAttr("Opacity", Opacity-0.01);
-/*    var z = node.getIntAttr("Z");
-    if (z == 1) {
-        z = 3;
-    } else {
-        z = 1;
-    }
-    node.setIntAttr("Z", z);*/
 }
 
 function testAnimation()
 {
-    print ("---- testing node accessors ----");
+    print ("---- testing Animation  ----");
     var ok = tryLoadFile("avg.avg");
     if (ok) {
         var node = AVGPlayer.getElementByID("nestedimg1");
@@ -292,23 +262,19 @@ function testExcl()
     }
 }
 
+while (true) {
+    dumpNodes();
+    playAVG("image.avg");
 
-//dumpNodes();
+    testAnimation();
+    testVideo();
+    testWords();
 
-//testAnimation();
-testVideo();
+//    testExcl();
 
-//testWords();
-/*
-playAVG("image.avg");
-
-testExcl();
-
-playAVG("empty.avg");
-
-playAVG("events.avg");
-
-playAVG("avg.avg");
-playAVG("noavg.avg");
-playAVG("noxml.avg");
-*/
+    playAVG("empty.avg");
+    playAVG("events.avg");
+    playAVG("avg.avg");
+    playAVG("noavg.avg");
+    playAVG("noxml.avg");
+}

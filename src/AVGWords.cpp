@@ -16,8 +16,6 @@ using namespace std;
 
 NS_IMPL_ISUPPORTS1_CI(AVGWords, IAVGNode);
 
-AVGFontManager AVGWords::m_FontManager;
-
 AVGWords * AVGWords::create()
 {
     return createNode<AVGWords>("@c-base.org/avgwords;1");
@@ -30,7 +28,7 @@ AVGWords::AVGWords ()
 
 AVGWords::~AVGWords ()
 {
-    m_pFont->Release(m_pFont);
+    m_pSurface->Release(m_pSurface);
 }
 
 NS_IMETHODIMP
@@ -117,7 +115,6 @@ AVGWords::init (const string& id, int x, int y, int z,
     m_Color = colorStringToColor(color);
     m_FontName = font;
     changeFont();
-
 }
 
 string AVGWords::getTypeStr ()
@@ -137,7 +134,7 @@ void AVGWords::setViewport (int x, int y, int width, int height)
 void AVGWords::changeFont()
 {
     IDirectFB * pDFB = getEngine()->getDFB();
-    m_pFont = m_FontManager.getFont(pDFB, m_FontName, m_Size);
+    m_pFont = getEngine()->getFontManager()->getFont(pDFB, m_FontName, m_Size);
 
     drawString();
 }

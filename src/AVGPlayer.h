@@ -12,7 +12,9 @@
 
 #include <directfb/directfb.h>
 #include <libxml/parser.h>
+
 #include <xpcom/nsCOMPtr.h>
+#include <jsapi.h>
 
 #include <map>
 #include <string>
@@ -24,7 +26,6 @@ class AVGVisibleNode;
 class AVGContainer;
 class AVGEvent;
 class AVGDFBDisplayEngine;
-class IJSEvalKruecke;
 
 class PLPoint;
 
@@ -60,6 +61,8 @@ class AVGPlayer: public IAVGPlayer
                 int * pWidth, int * pHeight, double * pOpacity);
         void initEventHandlers (AVGNode * pAVGNode, const xmlNodePtr xmlNode);
         void render (bool bRenderEverything);
+        void jsgc();
+        void teardownDFB();
 
         AVGAVGNode * m_pRootNode;
         AVGDFBDisplayEngine * m_pDisplayEngine;
@@ -70,12 +73,11 @@ class AVGPlayer: public IAVGPlayer
         std::string m_CurDirName;
         AVGFramerateManager * m_pFramerateManager;
         bool m_bStopping;
-
         typedef std::map<std::string, AVGNode*> NodeIDMap;
         NodeIDMap m_IDMap;
 
         // Event handling
-        int addTimeout(const AVGTimeout& timeout);
+        int addTimeout(AVGTimeout* timeout);
         void handleTimers();
         void handleEvents();
         AVGEvent* createCurEvent();
@@ -86,10 +88,11 @@ class AVGPlayer: public IAVGPlayer
         void handleMouseEvent (AVGEvent* pEvent);
 
         IAVGEvent * m_CurEvent;
-        IJSEvalKruecke * m_pKruecke;
-        std::vector<AVGTimeout> m_PendingTimeouts;
+        std::vector<AVGTimeout *> m_PendingTimeouts;
         AVGNode * m_pLastMouseNode;
         int m_EventDebugLevel;
+
+        JSContext * m_pJSContext;
 };
 
 #endif //_AVGPlayer_H_

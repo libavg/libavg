@@ -12,8 +12,9 @@
 #include "AVGException.h"
 #include "AVGRegion.h"
 #include "AVGDFBDisplayEngine.h"
-#include "IJSEvalKruecke.h"
 #include "XMLHelper.h"
+
+#include "acIJSContextPublisher.h"
 
 #include <paintlib/plstdpch.h>
 #include <paintlib/plexcept.h>
@@ -50,10 +51,19 @@ AVGPlayer::AVGPlayer()
     XPCOMGlueStartup("XPCOMComponentGlue");
 #endif
     NS_INIT_ISUPPORTS();
+    nsresult myErr;
+    nsCOMPtr<acIJSContextPublisher> myJSContextPublisher =
+        do_CreateInstance("@artcom.com/jscontextpublisher;1", &myErr);
+    if (NS_FAILED(myErr)) {
+        cerr << "Error: Could not obtain reference to js context. Was xpshell used to start AVGPlayer?" << endl;
+        exit(-1);
+    }
+    myJSContextPublisher->GetContext((PRInt32*) &m_pJSContext);
 }
 
 AVGPlayer::~AVGPlayer()
 {
+    cerr << "AVGPlayer::~AVGPlayer" << endl;
 #ifdef XPCOM_GLUE
     XPCOMGlueShutdown();
 #endif
@@ -63,12 +73,10 @@ AVGPlayer::~AVGPlayer()
 NS_IMPL_ISUPPORTS1_CI(AVGPlayer, IAVGPlayer);
 
 NS_IMETHODIMP
-AVGPlayer::LoadFile(const char * fileName, IJSEvalKruecke* pKruecke, 
+AVGPlayer::LoadFile(const char * fileName, 
         PRBool * pResult)
 {
     cerr << "AVGPlayer::LoadFile(" << fileName << ")" << endl;
-    m_pKruecke = pKruecke;
-    m_pKruecke->AddRef();
     try {
         loadFile (fileName);
         *pResult = true;
@@ -95,7 +103,6 @@ NS_IMETHODIMP
 AVGPlayer::Stop()
 {
 	stop();
-    m_pKruecke->Release();
 	return NS_OK;
 }
 
@@ -122,23 +129,24 @@ AVGPlayer::GetRootNode(IAVGNode **_retval)
 NS_IMETHODIMP
 AVGPlayer::SetInterval(PRInt32 time, const char * code, PRInt32 * pResult)
 {
-    *pResult = addTimeout(AVGTimeout(time, code, true));
+    *pResult = addTimeout(new AVGTimeout(time, code, true, m_pJSContext));
 	return NS_OK;
 }
 
 NS_IMETHODIMP
 AVGPlayer::SetTimeout(PRInt32 time, const char * code, PRInt32 * pResult)
 {
-    *pResult = addTimeout(AVGTimeout(time, code, false));
+    *pResult = addTimeout(new AVGTimeout(time, code, false, m_pJSContext));
 	return NS_OK;
 }
 
 NS_IMETHODIMP
 AVGPlayer::ClearInterval(PRInt32 id, PRBool * pResult)
 {
-    vector<AVGTimeout>::iterator it;
+    vector<AVGTimeout*>::iterator it;
     for (it=m_PendingTimeouts.begin(); it!=m_PendingTimeouts.end(); it++) {
-        if (id == (*it).GetID()) {
+        if (id == (*it)->GetID()) {
+            delete *it;
             m_PendingTimeouts.erase(it);
             *pResult = true;
             return NS_OK;
@@ -180,8 +188,11 @@ AVGPlayer::GetErrCode(PRInt32 * pResult)
 
 void AVGPlayer::loadFile (const std::string& filename)
 {
+    jsgc();
     PLASSERT (!m_pRootNode);
-    m_pDisplayEngine = new AVGDFBDisplayEngine ();
+    if (!m_pDisplayEngine) {
+        m_pDisplayEngine = new AVGDFBDisplayEngine ();
+    }
 
     xmlPedanticParserDefault(1);
     xmlDoValidityCheckingDefaultValue =1;
@@ -197,6 +208,7 @@ void AVGPlayer::loadFile (const std::string& filename)
     m_pRootNode = dynamic_cast<AVGAVGNode*>
             (createNodeFromXml(xmlDocGetRootElement(doc), 0));
     PLRect rc = m_pRootNode->getRelViewport();
+    xmlFreeDoc(doc);
 }
 
 void AVGPlayer::play ()
@@ -212,17 +224,19 @@ void AVGPlayer::play ()
     while (!m_bStopping) {
         doFrame();
     }
+
+    // Kill all timeouts.
+    vector<AVGTimeout*>::iterator it;
+    for (it=m_PendingTimeouts.begin(); it!=m_PendingTimeouts.end(); it++) {
+        delete *it;
+    }
     m_PendingTimeouts.clear();
 
-    m_pDisplayEngine->teardown();
-    delete m_pDisplayEngine;
-    m_pDisplayEngine = 0;
     NS_IF_RELEASE(m_pRootNode);
     m_pRootNode = 0;
-
     m_pLastMouseNode = 0;
-    m_IDMap.clear();
     delete m_pFramerateManager;
+    m_IDMap.clear();
 }
 
 void AVGPlayer::stop ()
@@ -240,6 +254,7 @@ void AVGPlayer::doFrame ()
         m_pFramerateManager->FrameWait();
         m_pDisplayEngine->swapBuffers();
     }
+    jsgc();
 }
 
 void AVGPlayer::render (bool bRenderEverything)
@@ -260,6 +275,19 @@ void AVGPlayer::render (bool bRenderEverything)
         m_pRootNode->render(rc);
     }
 }
+
+void AVGPlayer::jsgc()
+{
+    JS_GC(m_pJSContext);
+}
+
+void AVGPlayer::teardownDFB()
+{
+    m_pDisplayEngine->teardown();
+    delete m_pDisplayEngine;
+    m_pDisplayEngine = 0;
+}
+
 
 AVGNode * AVGPlayer::getElementByID (const std::string id)
 {
@@ -419,17 +447,18 @@ void AVGPlayer::initEventHandlers (AVGNode * pAVGNode, const xmlNodePtr xmlNode)
 
 void AVGPlayer::handleTimers()
 {
-    vector<AVGTimeout>::iterator it;
+    vector<AVGTimeout *>::iterator it;
     it = m_PendingTimeouts.begin();
-    while (it != m_PendingTimeouts.end() && it->IsReady() && !m_bStopping)
+    while (it != m_PendingTimeouts.end() && (*it)->IsReady() && !m_bStopping)
     {
-        it->Fire(m_pKruecke);
-        if (!it->IsInterval()) {
+        (*it)->Fire(m_pJSContext);
+        if (!(*it)->IsInterval()) {
+            delete *it;
             it = m_PendingTimeouts.erase(it);
         } else {
-            AVGTimeout tempTimeout = *it;
+            AVGTimeout* pTempTimeout = *it;
             it = m_PendingTimeouts.erase(it);
-            addTimeout(tempTimeout);
+            addTimeout(pTempTimeout);
         }
     }
 }
@@ -484,33 +513,34 @@ void AVGPlayer::handleMouseEvent (AVGEvent* pEvent)
     pEvent->GetMouseButtonState(&ButtonState);
     AVGNode * pNode = m_pRootNode->getElementByPos(pos);
     if (pNode) {
-        pNode->handleEvent(pEvent, m_pKruecke);
+        pNode->handleEvent(pEvent, m_pJSContext);
     }
     if (pNode != m_pLastMouseNode) {
         if (pNode) {
             AVGEvent * pEvent = createCurEvent();
             pEvent->init(AVGEvent::MOUSEOVER, pos, ButtonState);
             pEvent->dump(m_EventDebugLevel);
-            pNode->handleEvent(pEvent, m_pKruecke);
+            pNode->handleEvent(pEvent, m_pJSContext);
         }
         if (m_pLastMouseNode) {
             AVGEvent * pEvent = createCurEvent();
             pEvent->init(AVGEvent::MOUSEOUT, pos, ButtonState);
             pEvent->dump(m_EventDebugLevel);
-            m_pLastMouseNode->handleEvent(pEvent, m_pKruecke);
+            m_pLastMouseNode->handleEvent(pEvent, m_pJSContext);
         }
 
         m_pLastMouseNode = pNode;
     }
 }
 
-int AVGPlayer::addTimeout(const AVGTimeout& timeout)
+int AVGPlayer::addTimeout(AVGTimeout* timeout)
 {
-    vector<AVGTimeout>::iterator it;
-    it = lower_bound(m_PendingTimeouts.begin(), m_PendingTimeouts.end(),
-            timeout);
+    vector<AVGTimeout*>::iterator it=m_PendingTimeouts.begin();
+    while (it != m_PendingTimeouts.end() && (**it)<*timeout) {
+        it++;
+    }
     m_PendingTimeouts.insert(it, timeout);
-    return timeout.GetID();
+    return timeout->GetID();
 }
 
 void AVGPlayer::dumpDFBEvent (const DFBEvent& dfbEvent)

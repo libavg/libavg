@@ -7,6 +7,8 @@
 #include "AVGVisibleNode.h"
 #include "AVGRegion.h"
 
+#include <iostream>
+
 using namespace std;
 
 AVGContainer::AVGContainer ()
@@ -15,10 +17,10 @@ AVGContainer::AVGContainer ()
 
 AVGContainer::~AVGContainer ()
 {
+    cerr << "AVGContainer::~AVGContainer" << endl;
     vector<AVGNode*>::iterator it;
     for (it=m_Children.begin(); it<m_Children.end(); it++) {
         NS_IF_RELEASE(*it);
-//        delete (*it);
     }
 }
 

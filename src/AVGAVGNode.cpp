@@ -28,6 +28,7 @@ AVGAVGNode::AVGAVGNode()
 
 AVGAVGNode::~AVGAVGNode()
 {
+    cerr << "~AVGAVGNode: " << endl;
 }
 
 NS_IMETHODIMP 

@@ -5,7 +5,6 @@
 #include "AVGVisibleNode.h"
 #include "AVGDFBDisplayEngine.h"
 #include "AVGAVGNode.h"
-#include "IJSEvalKruecke.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/plrect.h>

@@ -11,6 +11,7 @@
 #include "AVGWords.h"
 #include "AVGAVGNode.h"
 #include "AVGExcl.h"
+#include "acJSContextPublisher.h"
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGPlayer)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGEvent)
@@ -19,6 +20,7 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(AVGVideo)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGWords)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGAVGNode)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGExcl)
+NS_GENERIC_FACTORY_CONSTRUCTOR(acJSContextPublisher)
 
 static NS_METHOD AVGPlayerRegistrationProc(nsIComponentManager *aCompMgr,
                                            nsIFile *aPath,
@@ -44,7 +46,8 @@ NS_DECL_CLASSINFO(AVGVideo)
 NS_DECL_CLASSINFO(AVGWords)
 NS_DECL_CLASSINFO(AVGAVGNode)
 NS_DECL_CLASSINFO(AVGExcl)
-    
+NS_DECL_CLASSINFO(acJSContextPublisher)
+  
 static const nsModuleComponentInfo components[] =
 {
   { "c-base avgplayer Component", 
@@ -82,7 +85,13 @@ static const nsModuleComponentInfo components[] =
     AVGEXCL_CONTRACTID, 
     AVGExclConstructor,
     AVGPlayerRegistrationProc
+  },
+  { "acJSContextPublisher Component", 
+    ACJSCONTEXTPUBLISHER_CID, 
+    ACJSCONTEXTPUBLISHER_CONTRACTID, 
+    acJSContextPublisherConstructor
   }
+
 };
 
 NS_IMPL_NSGETMODULE(AVGPlayerModule, components)
@@ -90,6 +99,9 @@ NS_IMPL_NSGETMODULE(AVGPlayerModule, components)
 //==============================================================================
 //
 // $Log$
+// Revision 1.8  2003/09/19 17:08:57  uzadow
+// Massive memory leak fixes.
+//
 // Revision 1.7  2003/08/28 09:49:29  uzadow
 // Fixed bugs in video support. Now opacity doesnt work :-(.
 //

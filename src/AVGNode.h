@@ -15,11 +15,11 @@
 
 #include <xpcom/nsCOMPtr.h>
 #include <xpcom/nsIComponentManager.h>
+#include <jsapi.h>
 
 class PLPoint;
 class PLRect;
 class AVGContainer;
-class IJSEvalKruecke;
 class AVGEvent;
 class AVGRegion;
 
@@ -50,10 +50,10 @@ class AVGNode: public IAVGNode
         virtual const std::string& getID ();
         virtual AVGContainer * getParent();
         
-        virtual bool handleEvent (AVGEvent* pEvent, IJSEvalKruecke* pKruecke);
+        virtual bool handleEvent (AVGEvent* pEvent, JSContext * pJSContext);
 
 	private:
-        virtual bool callJS (const std::string& Code, IJSEvalKruecke * pKruecke);
+        virtual void callJS (const std::string& Code, JSContext * pJSContext);
 
         AVGRegion m_DirtyRegion;
 
@@ -78,7 +78,6 @@ NODECLASS* createNode(std::string CID) {
         PLASSERT(false);
     }
     NODECLASS * pNode = dynamic_cast<NODECLASS*>((IAVGNode*)pINode);
-    NS_IF_ADDREF((IAVGNode*)pINode);
     return pNode;
 }
 

@@ -2,7 +2,7 @@
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 <avg width="400" height="300" fullscreen="false">
         
-    <video id="clogo-2" x="150" y="50" z="3" opacity="1"
+    <video id="clogo2" x="150" y="50" z="3" opacity="1"
       href="c-logo_wire_176x144_30fps.mpg" width="176" height="144"/>
   <video id="clogo1" x="100" y="50" z="1"
       href="c-logo_wire_176x144_30fps.mpg" width="176" height="144"/>

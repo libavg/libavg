@@ -17,7 +17,11 @@ AVGFontManager::AVGFontManager ()
 
 AVGFontManager::~AVGFontManager ()
 {
-    // Release all fonts.
+    FontMap::iterator it;
+    for (it = m_FontMap.begin(); it != m_FontMap.end(); it++) {
+      IDirectFBFont * pFont = (*it).second;
+      pFont->Release(pFont);
+    }
 }
 
 IDirectFBFont * AVGFontManager::getFont(IDirectFB * pDFB, const string& Name, int Size)

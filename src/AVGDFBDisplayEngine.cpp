@@ -18,7 +18,8 @@ using namespace std;
 
 AVGDFBDisplayEngine::AVGDFBDisplayEngine()
     : m_pPrimary(0),
-      m_pDirectFB(0)
+      m_pDirectFB(0),
+      m_pFontManager(0)
 {
 }
 
@@ -56,6 +57,9 @@ void AVGDFBDisplayEngine::dumpSurface (IDirectFBSurface * pSurf, const string & 
 
 void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen)
 {
+    if (m_pDirectFB) {
+        teardown();
+    }
     // Init DFB system
     char ** argv = new (char *)[3];
     int argc = 1;
@@ -144,11 +148,12 @@ void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen)
     IDirectFBSurface * pLayerSurf;
     err = m_pDFBLayer->GetSurface(m_pDFBLayer, &pLayerSurf);
     DFBErrorCheck(AVG_ERR_VIDEO_INIT_FAILED, err);
-    dumpSurface (pLayerSurf, "Layer surface");
+//    dumpSurface (pLayerSurf, "Layer surface");
 
     err = m_pDFBWindow->GetSurface(m_pDFBWindow, &m_pPrimary);
     DFBErrorCheck(AVG_ERR_VIDEO_INIT_FAILED, err);
-    dumpSurface (m_pPrimary, "Window surface (m_pPrimary)");
+//    dumpSurface (m_pPrimary, "Window surface (m_pPrimary)");
+    m_pFontManager = new AVGFontManager;
 }
 
 void AVGDFBDisplayEngine::initInput() {
@@ -166,6 +171,9 @@ void AVGDFBDisplayEngine::initInput() {
 
 void AVGDFBDisplayEngine::teardown()
 {
+    delete m_pFontManager;
+    m_pFontManager = 0;
+
     m_pEventBuffer->Release(m_pEventBuffer);
     m_pDFBWindow->Close(m_pDFBWindow);
     m_pDFBWindow->Destroy(m_pDFBWindow);
@@ -272,6 +280,12 @@ IDirectFBSurface * AVGDFBDisplayEngine::getPrimary()
 {
     return m_pPrimary;
 }
+
+AVGFontManager * AVGDFBDisplayEngine::getFontManager()
+{
+    return m_pFontManager;
+}
+
 
 int AVGDFBDisplayEngine::getWidth()
 {

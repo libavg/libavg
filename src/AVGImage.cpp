@@ -29,12 +29,18 @@ AVGImage * AVGImage::create()
 }       
 
 AVGImage::AVGImage ()
+    : m_pBmp(0)
 {
     NS_INIT_ISUPPORTS();
 }
 
 AVGImage::~AVGImage ()
 {
+    cerr << "~AVGImage: " << getID() << endl;
+    if (m_pBmp) {
+        delete m_pBmp;
+        cerr << "post delete m_pBmp" << endl;
+    }
 }
 
 NS_IMETHODIMP 

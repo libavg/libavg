@@ -5,8 +5,9 @@
 #ifndef _AVGDFBDisplayEngine_H_
 #define _AVGDFBDisplayEngine_H_
 
-#include <directfb/directfb.h>
+#include "AVGFontManager.h"
 
+#include <directfb/directfb.h>
 #include <paintlib/plrect.h>
 
 #include <string>
@@ -39,6 +40,7 @@ class AVGDFBDisplayEngine
         IDirectFB * getDFB();
         IDirectFBSurface * getPrimary();
         IDirectFBEventBuffer * getEventBuffer();
+        AVGFontManager * getFontManager();
         int getWidth();
         int getHeight();
         void DFBErrorCheck(int avgcode, DFBResult dfbcode); 
@@ -56,8 +58,10 @@ class AVGDFBDisplayEngine
         IDirectFBWindow * m_pDFBWindow;
         IDirectFBDisplayLayer * m_pDFBLayer;
         IDirectFBSurface * m_pPrimary;
-
+        
         IDirectFBEventBuffer * m_pEventBuffer;
+
+        AVGFontManager *m_pFontManager;
 };
 
 #endif //_AVGDFBDisplayEngine_H_

@@ -6,7 +6,6 @@
 #define _AVGWords_H_
 
 #include "AVGVisibleNode.h"
-#include "AVGFontManager.h"
 
 #include <paintlib/plpixel32.h>
 
@@ -58,8 +57,6 @@ class AVGWords :
         int m_Size;
         IDirectFBFont * m_pFont;
         IDirectFBSurface * m_pSurface;
-
-        static AVGFontManager m_FontManager;
 };
 
 #endif //_AVGWords_H_

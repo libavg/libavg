@@ -1,5 +1,5 @@
 
-AC_PREREQ(2.57)
+AC_PREREQ(2.53)
 AC_INIT(libavg, 0.1, coder@c-base.org)
 AC_CONFIG_SRCDIR([src/AVGDFBDisplayEngine.h])
 AM_INIT_AUTOMAKE(libavg, 0.1)
@@ -19,7 +19,7 @@ AC_HEADER_STDC
 AC_CHECK_HEADERS([stdlib.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_HEADER_STDBOOL
+# AC_HEADER_STDBOOL
 AC_C_CONST
 
 # Checks for library functions.

@@ -5,19 +5,22 @@
 #ifndef _AVGTimeout_H_
 #define _AVGTimeout_H_
 
-#include <string>
+#include "AVGJSScript.h"
 
-class IJSEvalKruecke;
+#include <xpcom/nsCOMPtr.h>
+#include <jsapi.h>
+
+#include <string>
 
 class AVGTimeout
 {
     public:
-        AVGTimeout (int time, std::string code, bool isInterval);
+        AVGTimeout (int time, std::string code, bool isInterval, JSContext * pContext);
         virtual ~AVGTimeout ();
 
         bool IsReady() const;
         bool IsInterval() const;
-        void Fire(IJSEvalKruecke * pKruecke);
+        void Fire(JSContext * pJSContext);
         int GetID() const;
         bool operator <(const AVGTimeout& other) const;
 
@@ -28,6 +31,7 @@ class AVGTimeout
         bool m_IsInterval;
         int m_ID;
         static int s_LastID;
+        AVGJSScript m_Script;
 };
 
 #endif //_AVGTimeout_H_

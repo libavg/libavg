@@ -7,5 +7,5 @@ export MOZILLA_FIVE_HOME=`mozilla-config --prefix`/lib
 export LD_LIBRARY_PATH=$MOZILLA_FIVE_HOME:$LD_LIBRARY_PATH
 export AVG_FONT_PATH=/usr/X11R6/lib/X11/fonts/truetype
 cd src/test
-$MOZILLA_FIVE_HOME/xpcshell -w -s $PWD/test.js
+../xpshell $PWD/test.js
 

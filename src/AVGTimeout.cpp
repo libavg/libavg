@@ -5,9 +5,9 @@
 #include "AVGTime.h"
 #include "AVGTimeout.h"
 #include "AVGException.h"
-#include "IJSEvalKruecke.h"
 
 #include <nsIComponentManager.h>
+#include <nsMemory.h>
 
 #include <iostream>
 
@@ -15,10 +15,10 @@ using namespace std;
 
 int AVGTimeout::s_LastID = 0;
 
-AVGTimeout::AVGTimeout(int time, string code, bool isInterval)
+AVGTimeout::AVGTimeout(int time, string code, bool isInterval, JSContext * pContext)
     : m_Interval(time),
-      m_Code(code),
-      m_IsInterval(isInterval)
+      m_IsInterval(isInterval),
+      m_Script(code, "timeout", 0, pContext)
 {
     m_NextTimeout = m_Interval+GetCurrentTicks();
     s_LastID++;
@@ -27,6 +27,7 @@ AVGTimeout::AVGTimeout(int time, string code, bool isInterval)
 
 AVGTimeout::~AVGTimeout()
 {
+//    cerr << "~AVGTimeout " << endl;
 }
 
 bool AVGTimeout::IsReady() const
@@ -39,10 +40,9 @@ bool AVGTimeout::IsInterval() const
     return m_IsInterval;
 }
 
-void AVGTimeout::Fire(IJSEvalKruecke * pKruecke)
+void AVGTimeout::Fire(JSContext * pJSContext)
 {
-    char * pResult;
-    pKruecke->CallEval(m_Code.c_str(), &pResult);
+    m_Script.run();
 
     if (m_IsInterval) {
         m_NextTimeout = m_Interval + GetCurrentTicks();
