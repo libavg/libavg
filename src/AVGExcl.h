@@ -33,6 +33,7 @@ class AVGExcl :	public AVGContainer, IAVGExcl
 		virtual void render (const PLRect& Rect);
         virtual bool obscures (const PLRect& Rect, int z);
         virtual void getDirtyRegion (AVGRegion& Region);
+        virtual const PLRect& getRelViewport();
         virtual const PLRect& getAbsViewport();
 
         virtual int getActiveChild();

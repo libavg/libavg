@@ -52,7 +52,7 @@ class AVGNode: public IAVGNode
         virtual void addDirtyRect(const PLRect& Rect);
 		virtual void getDirtyRegion (AVGRegion& Region);
         virtual void setViewport (int x, int y, int width, int height);
-        const PLRect& getRelViewport ();
+        virtual const PLRect& getRelViewport ();
         virtual const PLRect& getAbsViewport();
         virtual int getZ();
         double getOpacity();

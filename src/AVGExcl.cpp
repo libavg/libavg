@@ -4,11 +4,14 @@
 
 #include "AVGExcl.h"
 #include "AVGNode.h"
+#include "AVGLogger.h"
+#include "IAVGPlayer.h"
 
 #include <nsMemory.h>
 #include <xpcom/nsComponentManagerUtils.h>
 
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -37,9 +40,7 @@ NS_IMETHODIMP AVGExcl::GetActiveChild(PRInt32 *aActiveChild)
 
 NS_IMETHODIMP AVGExcl::SetActiveChild(PRInt32 aActiveChild)
 {
-    invalidate();
-    m_ActiveChild = aActiveChild;
-    invalidate();
+    setActiveChild(aActiveChild);
     return NS_OK;
 }
 
@@ -69,9 +70,6 @@ void AVGExcl::render (const PLRect& Rect)
 
 bool AVGExcl::obscures (const PLRect& Rect, int z) 
 {
-    if (m_ActiveChild != -1) {
-        return getChild(m_ActiveChild)->obscures(Rect, z);
-    }
     return false;
 }
 
@@ -81,6 +79,14 @@ void AVGExcl::getDirtyRegion (AVGRegion& Region)
     if (m_ActiveChild != -1) {
         getChild(m_ActiveChild)->getDirtyRegion(Region);
     }
+}
+
+const PLRect& AVGExcl::getRelViewport()
+{
+    if (m_ActiveChild != -1) {
+        return getChild(m_ActiveChild)->getRelViewport();
+    }
+    return AVGNode::getRelViewport();
 }
 
 const PLRect& AVGExcl::getAbsViewport()
@@ -99,12 +105,15 @@ int AVGExcl::getActiveChild()
 
 void AVGExcl::setActiveChild(int activeChild)
 {
-    if (getNumChildren()>activeChild) {
-        m_ActiveChild = activeChild;
+    invalidate();
+    if (activeChild < -1 || activeChild > getNumChildren()) {
+        AVG_TRACE(IAVGPlayer::DEBUG_ERROR, 
+                getID() << ".setActiveChild() called with illegal value " 
+                    << activeChild << ".");
     } else {
-        cerr << "Warning: active child of node " << getID() << " set to illegal value " 
-             << activeChild << "." << endl;
+        m_ActiveChild = activeChild;
     }
+    invalidate();
 }
 
 string AVGExcl::getTypeStr ()

@@ -185,7 +185,7 @@ void AVGNode::initVisible(int x, int y, int z, int width, int height, double opa
     if (m_pParent) {
         pos = m_pParent->getAbsViewport().tl;
     } 
-    m_AbsViewport = PLRect (pos+m_RelViewport.tl, pos+m_RelViewport.br);    
+    m_AbsViewport = PLRect (pos+getRelViewport().tl, pos+getRelViewport().br);    
 }
 
 void AVGNode::InitEventHandlers
@@ -213,7 +213,7 @@ AVGNode * AVGNode::getElementByPos (const PLPoint & pos)
 
 void AVGNode::prepareRender (int time, const PLRect& parent)
 {
-    m_AbsViewport = PLRect(parent.tl+m_RelViewport.tl, parent.tl+m_RelViewport.br);
+    m_AbsViewport = PLRect(parent.tl+getRelViewport().tl, parent.tl+getRelViewport().br);
     m_AbsViewport.Intersect(parent);
 }
 
@@ -259,6 +259,7 @@ bool AVGNode::isVisibleNode()
 {
     return true;
 }
+
 AVGPlayer * AVGNode::getPlayer()
 {
     return m_pPlayer;
@@ -267,20 +268,20 @@ AVGPlayer * AVGNode::getPlayer()
 void AVGNode::setViewport (int x, int y, int width, int height)
 {
     if (x == -32767) {
-        x = m_RelViewport.tl.x;
+        x = getRelViewport().tl.x;
     }
     if (y == -32767) {
-        y = m_RelViewport.tl.y;
+        y = getRelViewport().tl.y;
     }
     if (width == -32767) {
-        width = m_RelViewport.Width();
+        width = getRelViewport().Width();
     }
     if (height == -32767) {
-        height = m_RelViewport.Height();
+        height = getRelViewport().Height();
     }
-    PLPoint pos = m_AbsViewport.tl-m_RelViewport.tl;
+    PLPoint pos = m_AbsViewport.tl-getRelViewport().tl;
     m_RelViewport = PLRect (x, y, x+width, y+height);
-    m_AbsViewport = PLRect (pos+m_RelViewport.tl, pos+m_RelViewport.br);
+    m_AbsViewport = PLRect (pos+getRelViewport().tl, pos+getRelViewport().br);
 }
 
 const PLRect& AVGNode::getRelViewport ()
@@ -391,7 +392,7 @@ bool AVGNode::handleEvent (AVGEvent* pEvent, JSContext * pJSContext)
 void AVGNode::callJS (const string& Code, JSContext * pJSContext)
 {
 
-    // TODO: Move this to a separate class and precompile.
+    // TODO: precompile.
     AVGJSScript Script(Code, "EventScript", 0, pJSContext);
     Script.run();
 }
