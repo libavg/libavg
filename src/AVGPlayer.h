@@ -65,7 +65,8 @@ class AVGPlayer: public IAVGPlayer, IAVGEventSink
         AVGNode * createNodeFromXml(const xmlNodePtr xmlNode, AVGContainer * pParent);
         void getVisibleNodeAttrs (const xmlNodePtr xmlNode, 
                 std::string * pid, int * px, int * py, int * pz,
-                int * pWidth, int * pHeight, double * pOpacity, double * pAngle);
+                int * pWidth, int * pHeight, double * pOpacity, double * pAngle,
+                int * pPivotx, int * pPivoty);
         void initEventHandlers (AVGNode * pAVGNode, const xmlNodePtr xmlNode);
         void initDisplay(AVGAVGNode * pNode);
         void render (bool bRenderEverything);

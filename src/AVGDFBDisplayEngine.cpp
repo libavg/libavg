@@ -256,7 +256,7 @@ void AVGDFBDisplayEngine::render(AVGNode * pRootNode,
     for (int i = 0; i<UpdateRegion.getNumRects(); i++) {
         const PLRect & rc = UpdateRegion.getRect(i);
         setDirtyRect(rc);
-        setClipRect();
+        setNodeRect();
         clear();
         pRootNode->maybeRender(rc);
     }
@@ -265,16 +265,16 @@ void AVGDFBDisplayEngine::render(AVGNode * pRootNode,
     pFramerateManager->CheckJitter();
 }
 
-void AVGDFBDisplayEngine::setClipRect()
+void AVGDFBDisplayEngine::setNodeRect()
 {
-    setClipRect(PLRect(0, 0, m_Width, m_Height));
+    setNodeRect(PLRect(0, 0, m_Width, m_Height), true);
 }
 
-bool AVGDFBDisplayEngine::setClipRect(const PLRect& rc)
+bool AVGDFBDisplayEngine::setNodeRect(const PLRect& rc, bool bClip)
 {
     m_ClipRect = rc;
     m_ClipRect.Intersect(m_DirtyRect);
-    if (m_ClipRect.Width() > 0 && m_ClipRect.Height() > 0) {
+    if (bClip && m_ClipRect.Width() > 0 && m_ClipRect.Height() > 0) {
         DFBRegion Region;
         Region.x1 = m_ClipRect.tl.x;
         Region.y1 = m_ClipRect.tl.y;
@@ -296,7 +296,7 @@ const PLRect& AVGDFBDisplayEngine::getClipRect() {
 }
 
 void AVGDFBDisplayEngine::blt32(PLBmp * pBmp, const PLRect* pDestRect, 
-        double opacity, double angle)
+        double opacity, double angle, const PLPoint& pivot)
 {
     PLDirectFBBmp * pDFBBmp = dynamic_cast<PLDirectFBBmp *>(pBmp);
     PLASSERT(pDFBBmp); // createSurface() should have been used to create 
@@ -306,7 +306,8 @@ void AVGDFBDisplayEngine::blt32(PLBmp * pBmp, const PLRect* pDestRect,
 }
 
 void AVGDFBDisplayEngine::blta8(PLBmp * pBmp, const PLRect* pDestRect, 
-        double opacity, const PLPixel32& color, double angle)
+        double opacity, const PLPixel32& color, double angle, 
+        const PLPoint& pivot)
 {
     m_pBackBuffer->SetColor(m_pBackBuffer, color.GetR(), color.GetG(), color.GetB(),
             __u8(opacity*256));

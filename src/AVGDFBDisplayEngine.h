@@ -29,12 +29,14 @@ class AVGDFBDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         virtual void render(AVGNode * pRootNode, 
                 AVGFramerateManager * pFramerateManager, bool bRenderEverything);
         
-        virtual void setClipRect();
-        virtual bool setClipRect(const PLRect& rc);
+        virtual void setNodeRect();
+        virtual bool setNodeRect(const PLRect& rc, bool bClip);
         virtual const PLRect& getClipRect();
-        virtual void blt32(PLBmp * pBmp, const PLRect* pDestRect, double opacity, double angle);
+        virtual void blt32(PLBmp * pBmp, const PLRect* pDestRect, 
+                double opacity, double angle, const PLPoint& pivot);
         virtual void blta8(PLBmp * pBmp, const PLRect* pDestRect, 
-                double opacity, const PLPixel32& color, double angle);
+                double opacity, const PLPixel32& color, double angle,
+                const PLPoint& pivot);
 
 	virtual PLBmp * createSurface();
 

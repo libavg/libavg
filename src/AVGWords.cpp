@@ -155,10 +155,10 @@ void AVGWords::drawString()
 void AVGWords::render(const PLRect& Rect)
 {
     if (getEffectiveOpacity() > 0.001) {
-        bool bVisible = getEngine()->setClipRect(getVisibleRect());
+        bool bVisible = getEngine()->setNodeRect(getVisibleRect(), false);
         if (bVisible) {
             getEngine()->blta8(m_pBmp, &getAbsViewport(), getEffectiveOpacity(),
-                    m_Color, getAngle());
+                    m_Color, getAngle(), getPivot());
         }
     }
 }

@@ -44,7 +44,6 @@ class AVGExcl :	public AVGContainer, IAVGExcl
 
     protected:
         void invalidate();
-        virtual bool isVisibleNode();  // Poor man's RTTI
 
     private:
         int m_ActiveChild;

@@ -11,6 +11,7 @@
 #include "IAVGDisplayEngine.h"
 
 #include <paintlib/plpoint.h>
+#include <paintlib/plrect.h>
 
 #include <xpcom/nsMemory.h>
 
@@ -172,7 +173,7 @@ void AVGNode::init(const string& id, IAVGDisplayEngine * pEngine,
 
 
 void AVGNode::initVisible(int x, int y, int z, int width, int height, 
-        double opacity, double angle)
+        double opacity, double angle, int pivotx, int pivoty)
 {
     PLPoint PreferredSize = getPreferredMediaSize();
     if (width == 0) {
@@ -189,7 +190,9 @@ void AVGNode::initVisible(int x, int y, int z, int width, int height,
     if (m_pParent) {
         pos = m_pParent->getAbsViewport().tl;
     } 
-    m_AbsViewport = PLRect (pos+getRelViewport().tl, pos+getRelViewport().br);    
+    m_AbsViewport = PLRect (pos+getRelViewport().tl, pos+getRelViewport().br);
+    m_Pivot = PLPoint(pivotx, pivoty);
+    m_bHasCustomPivot = ((pivotx != -32767) && (pivoty != -32767));
 }
 
 void AVGNode::InitEventHandlers
@@ -222,7 +225,12 @@ void AVGNode::prepareRender (int time, const PLRect& parent)
 
 void AVGNode::maybeRender (const PLRect& Rect)
 {
-    bool bVisible = getEngine()->setClipRect(getVisibleRect());
+    bool bVisible;
+     if (dynamic_cast<AVGAVGNode*>(this) != 0) {
+        bVisible = getEngine()->setNodeRect(getVisibleRect(), true);
+    } else {
+        bVisible = getEngine()->setNodeRect(getVisibleRect(), false);
+    }
     if (bVisible) {
         if (getEffectiveOpacity() > 0.01) {
             if (!getParent() || !getParent()->obscures(getEngine()->getClipRect(), getZ())) {
@@ -257,9 +265,14 @@ void AVGNode::invalidate()
     addDirtyRect(getVisibleRect());
 }
 
-bool AVGNode::isVisibleNode()
+PLPoint AVGNode::getPivot()
 {
-    return true;
+    if (m_bHasCustomPivot) {
+        return m_Pivot;
+    } else {
+        const PLRect& vpt = getRelViewport();
+        return PLPoint (vpt.Width()/2, vpt.Height()/2);
+    }
 }
 
 AVGPlayer * AVGNode::getPlayer()

@@ -137,7 +137,3 @@ void AVGExcl::invalidate()
     }
 }
 
-bool AVGExcl::isVisibleNode()
-{
-    return true;
-}

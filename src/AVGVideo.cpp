@@ -168,7 +168,7 @@ void AVGVideo::render (const PLRect& Rect)
                 } else {
                     readFrame();
                     getEngine()->blt32(m_pBmp, &getAbsViewport(), 
-                            getEffectiveOpacity(), getAngle());
+                            getEffectiveOpacity(), getAngle(), getPivot());
                 }
             }
             break;
@@ -177,7 +177,7 @@ void AVGVideo::render (const PLRect& Rect)
                 readFrame();
             }
             getEngine()->blt32(m_pBmp, &getAbsViewport(), 
-                    getEffectiveOpacity(), getAngle());
+                    getEffectiveOpacity(), getAngle(), getPivot());
             break;
         case Unloaded:
             break;

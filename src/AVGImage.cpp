@@ -69,7 +69,8 @@ void AVGImage::init (const std::string& id, const std::string& filename,
 
 void AVGImage::render (const PLRect& Rect)
 {
-    getEngine()->blt32(m_pBmp, &getAbsViewport(), getEffectiveOpacity(), getAngle());
+    getEngine()->blt32(m_pBmp, &getAbsViewport(), getEffectiveOpacity(), 
+            getAngle(), getPivot());
 }
 
 bool AVGImage::obscures (const PLRect& Rect, int z) 

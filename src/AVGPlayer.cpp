@@ -402,18 +402,20 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
 {
     const xmlChar * nodeType = xmlNode->name;
     AVGNode * curNode = 0;
+    string id;
+    int x,y,z;
+    int width, height;
+    double opacity;
+    double angle;
+    int pivotx, pivoty;
     if (!xmlStrcmp (nodeType, (const xmlChar *)"avg")) {
         // create node itself.
-        string id;
-        int x,y,z;
-        int width, height;
-        double opacity;
-        double angle;
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
-                &opacity, &angle);
+                &opacity, &angle, &pivotx, &pivoty);
         curNode = AVGAVGNode::create();
         curNode->init(id, m_pDisplayEngine, pParent, this);
-        curNode->initVisible(x, y, z, width, height, opacity, angle);
+        curNode->initVisible(x, y, z, width, height, opacity, angle, 
+                pivotx, pivoty);
         initEventHandlers(curNode, xmlNode);
         if (!pParent) {
             initDisplay(dynamic_cast<AVGAVGNode*>(curNode));
@@ -425,14 +427,15 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         double opacity;
         double angle;
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
-                &opacity, &angle);
+                &opacity, &angle, &pivotx, &pivoty);
         string filename = m_CurDirName + 
                 getRequiredStringAttr(xmlNode, (const xmlChar *)"href");
 
         AVGImage * pImage = AVGImage::create();
         curNode = pImage;
         pImage->init(id, filename, m_pDisplayEngine, pParent, this);
-        pImage->initVisible(x, y, z, width, height, opacity, angle);
+        pImage->initVisible(x, y, z, width, height, opacity, angle, 
+                pivotx, pivoty);
         initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"video")) {
         string id;
@@ -441,7 +444,7 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         double opacity;
         double angle;
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
-                &opacity, &angle);
+                &opacity, &angle, &pivotx, &pivoty);
         string filename = m_CurDirName + 
                 getRequiredStringAttr(xmlNode, (const xmlChar *)"href");
         bool bLoop = getDefaultedBoolAttr(xmlNode, (const xmlChar *)"loop", false); 
@@ -450,7 +453,8 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         curNode = pVideo;
         pVideo->init(id, filename, bLoop, bOverlay, m_pDisplayEngine, 
                 pParent, this);
-        pVideo->initVisible(x, y, z, width, height, opacity, angle);
+        pVideo->initVisible(x, y, z, width, height, opacity, angle, 
+                pivotx, pivoty);
         pVideo->Pause();
         initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"words")) {
@@ -460,7 +464,7 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         double opacity;
         double angle;
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
-                &opacity, &angle);
+                &opacity, &angle, &pivotx, &pivoty);
         string font = getDefaultedStringAttr(xmlNode, 
                 (const xmlChar *)"font", "arial");
         string str = getRequiredStringAttr(xmlNode, (const xmlChar *)"text");
@@ -470,13 +474,14 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         AVGWords * pWords = AVGWords::create();
         curNode = pWords;
         pWords->init(id, size, font, str, color, m_pDisplayEngine, pParent, this);
-        pWords->initVisible(x, y, z, 0, 0, opacity, angle);
+        pWords->initVisible(x, y, z, 0, 0, opacity, angle, 
+                pivotx, pivoty);
         initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"excl")) {
         string id  = getDefaultedStringAttr (xmlNode, (const xmlChar *)"id", "");
         curNode = AVGExcl::create();
         curNode->init(id, m_pDisplayEngine, pParent, this);
-        curNode->initVisible(0,0,1,10000,10000,1,0);
+        curNode->initVisible(0,0,1,10000,10000,1,0,0,0);
         initEventHandlers(curNode, xmlNode);
     } else if (!xmlStrcmp (nodeType, (const xmlChar *)"text") || 
                !xmlStrcmp (nodeType, (const xmlChar *)"comment")) {
@@ -534,7 +539,8 @@ void AVGPlayer::initDisplay(AVGAVGNode * pNode) {
 
 void AVGPlayer::getVisibleNodeAttrs (const xmlNodePtr xmlNode, 
         string * pid, int * px, int * py, int * pz,
-        int * pWidth, int * pHeight, double * pOpacity, double * pAngle)
+        int * pWidth, int * pHeight, double * pOpacity, double * pAngle,
+        int * pPivotx, int * pPivoty)
 {
     *pid = getDefaultedStringAttr (xmlNode, (const xmlChar *)"id", "");
     *px = getDefaultedIntAttr (xmlNode, (const xmlChar *)"x", 0);
@@ -544,6 +550,11 @@ void AVGPlayer::getVisibleNodeAttrs (const xmlNodePtr xmlNode,
     *pHeight = getDefaultedIntAttr (xmlNode, (const xmlChar *)"height", 0);
     *pOpacity = getDefaultedDoubleAttr (xmlNode, (const xmlChar *)"opacity", 1.0);
     *pAngle = getDefaultedDoubleAttr (xmlNode, (const xmlChar *)"angle", 0.0);
+    *pPivotx = getDefaultedIntAttr (xmlNode, (const xmlChar *)"pivotx", 
+            -32767);
+    *pPivoty = getDefaultedIntAttr (xmlNode, (const xmlChar *)"pivoty", 
+            -32767);
+
 }
 
 void AVGPlayer::initEventHandlers (AVGNode * pAVGNode, const xmlNodePtr xmlNode)

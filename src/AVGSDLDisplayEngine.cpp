@@ -147,12 +147,12 @@ void AVGSDLDisplayEngine::render(AVGNode * pRootNode,
     pFramerateManager->CheckJitter();
 }
  
-void AVGSDLDisplayEngine::setClipRect()
+void AVGSDLDisplayEngine::setNodeRect()
 {
-    setClipRect(PLRect(0, 0, m_Width, m_Height));
+    setNodeRect(PLRect(0, 0, m_Width, m_Height), true);
 }
 
-bool AVGSDLDisplayEngine::setClipRect(const PLRect& rc)
+bool AVGSDLDisplayEngine::setNodeRect(const PLRect& rc, bool bClip)
 {
     m_ClipRect = rc;
 
@@ -160,7 +160,9 @@ bool AVGSDLDisplayEngine::setClipRect(const PLRect& rc)
             m_ClipRect.tl.x << "x" << m_ClipRect.tl.y << 
             ", width: " << m_ClipRect.Width() << ", height: " << 
             m_ClipRect.Height());
-    clip();
+    if (bClip) {
+        clip();
+    }
     return true;
 }
 
@@ -169,40 +171,43 @@ const PLRect& AVGSDLDisplayEngine::getClipRect() {
 }
 
 void AVGSDLDisplayEngine::blt32(PLBmp * pBmp, const PLRect* pDestRect, 
-        double opacity, double angle)
+        double opacity, double angle, const PLPoint& pivot)
 {
     AVGOGLBmp * pOGLBmp = dynamic_cast<AVGOGLBmp*>(pBmp);
     glColor4f(1.0f, 1.0f, 1.0f, opacity);
     if (AVGOGLBmp::getTextureMode() == GL_TEXTURE_RECTANGLE_NV) {
         bltTexture(pOGLBmp, pDestRect, pBmp->GetWidth(), pBmp->GetHeight(),
-                angle);
+                angle, pivot);
     } else {
         bltTexture(pOGLBmp, pDestRect, 
                 ((GLfloat)pBmp->GetWidth()-0.5f)/pOGLBmp->getTexSize(),
-                ((GLfloat)pBmp->GetHeight()-0.5f)/pOGLBmp->getTexSize(), angle);
+                ((GLfloat)pBmp->GetHeight()-0.5f)/pOGLBmp->getTexSize(), angle, 
+                pivot);
     }
 }
 
 void AVGSDLDisplayEngine::blta8(PLBmp * pBmp, const PLRect* pDestRect,
-        double opacity, const PLPixel32& color, double angle)
+        double opacity, const PLPixel32& color, double angle, const PLPoint& pivot)
 {
     AVGOGLBmp * pOGLBmp = dynamic_cast<AVGOGLBmp*>(pBmp);
     glColor4f(float(color.GetR())/256, float(color.GetG())/256, 
             float(color.GetB())/256, opacity);
     if (AVGOGLBmp::getTextureMode() == GL_TEXTURE_RECTANGLE_NV) {
-        bltTexture(pOGLBmp, pDestRect, pBmp->GetWidth(), pBmp->GetHeight(), angle);
+        bltTexture(pOGLBmp, pDestRect, pBmp->GetWidth(), pBmp->GetHeight(), angle, 
+                pivot);
     } else {
         bltTexture(pOGLBmp, pDestRect, 
                 ((GLfloat)pBmp->GetWidth()-0.5f)/pOGLBmp->getTexSize(),
-                ((GLfloat)pBmp->GetHeight()-0.5f)/pOGLBmp->getTexSize(), angle);
+                ((GLfloat)pBmp->GetHeight()-0.5f)/pOGLBmp->getTexSize(), angle, 
+                pivot);
     }
 }
 
 void AVGSDLDisplayEngine::bltTexture(AVGOGLBmp * pOGLBmp, const PLRect* pDestRect, 
-        float Width, float Height, double angle)
+        float Width, float Height, double angle, const PLPoint& pivot)
 {
-    PLPoint center((pDestRect->tl.x+pDestRect->br.x)/2,
-            (pDestRect->tl.y+pDestRect->br.y)/2);
+    PLPoint center(pDestRect->tl.x+pivot.x,
+            pDestRect->tl.y+pivot.y);
 
     glPushMatrix();
     glTranslated(center.x, center.y, 0);
@@ -226,7 +231,7 @@ void AVGSDLDisplayEngine::bltTexture(AVGOGLBmp * pOGLBmp, const PLRect* pDestRec
     glVertex3f (pDestRect->tl.x, pDestRect->br.y, 0.0);
     glEnd();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "AVGSDLDisplayEngine::blt32: glEnd()");
+            "AVGSDLDisplayEngine::bltTexture: glEnd()");
     AVG_TRACE(AVGPlayer::DEBUG_BLTS, "(" << pDestRect->tl.x << ", " 
             << pDestRect->tl.y << ")" << ", width:" << pDestRect->Width() 
             << ", height: " << pDestRect->Height());

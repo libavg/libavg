@@ -17,7 +17,6 @@
   z CDATA #IMPLIED
   width CDATA #IMPLIED
   height CDATA #IMPLIED
-  angle CDATA #IMPLIED
   opacity CDATA #IMPLIED
   %graphicsElementEvents; >
   
@@ -35,6 +34,8 @@
   width CDATA #IMPLIED
   height CDATA #IMPLIED
   angle CDATA #IMPLIED
+  pivotx CDATA #IMPLIED
+  pivoty CDATA #IMPLIED
   opacity CDATA #IMPLIED
   %graphicsElementEvents; >
   
@@ -48,6 +49,8 @@
   width CDATA #IMPLIED
   height CDATA #IMPLIED
   angle CDATA #IMPLIED
+  pivotx CDATA #IMPLIED
+  pivoty CDATA #IMPLIED
   opacity CDATA #IMPLIED
   loop CDATA #IMPLIED
   overlay CDATA #IMPLIED
@@ -61,6 +64,8 @@
   y CDATA #REQUIRED
   z CDATA #IMPLIED
   angle CDATA #IMPLIED
+  pivotx CDATA #IMPLIED
+  pivoty CDATA #IMPLIED
   opacity CDATA #IMPLIED
   size CDATA #IMPLIED
   font CDATA #IMPLIED
@@ -68,9 +73,3 @@
   color CDATA #IMPLIED
   %graphicsElementEvents; >
 
-<!ELEMENT audio EMPTY>
-<!ATTLIST audio
-  id ID #IMPLIED
-  href CDATA #REQUIRED
-  volume CDATA #IMPLIED
-  onstop CDATA #IMPLIED >

@@ -37,7 +37,7 @@ class AVGNode: public IAVGNode
         void init(const std::string& id, IAVGDisplayEngine * pEngine,
                 AVGContainer * pParent, AVGPlayer * pPlayer);
         void initVisible(int x, int y, int z, int width, int height, 
-                double opacity, double angle);
+                double opacity, double angle, int pivotx, int pivoty);
         
         virtual void InitEventHandlers
             (const std::string& MouseMoveHandler, 
@@ -62,20 +62,21 @@ class AVGNode: public IAVGNode
         double getAngle();
         void setOpacity(double o);
         virtual double getEffectiveOpacity();
-        IAVGDisplayEngine * getEngine();
 
         virtual std::string dump (int indent = 0);
         virtual std::string getTypeStr ();
         virtual const std::string& getID ();
         virtual AVGContainer * getParent();
         
-        virtual bool handleMouseEvent (AVGMouseEvent* pEvent, JSContext * pJSContext);
+        virtual bool handleMouseEvent (AVGMouseEvent* pEvent, 
+                JSContext * pJSContext);
 
     protected:
         virtual void invalidate();
-        virtual bool isVisibleNode();  // Poor man's RTTI
         virtual PLPoint getPreferredMediaSize() = 0;
+        PLPoint getPivot();
         AVGPlayer * getPlayer();
+        IAVGDisplayEngine * getEngine();
 
     private:
         void callJS (const std::string& Code, JSContext * pJSContext);
@@ -92,11 +93,13 @@ class AVGNode: public IAVGNode
         std::string m_MouseOverHandler;
         std::string m_MouseOutHandler;
 
-        double m_Opacity;
-        double m_Angle;
         PLRect m_RelViewport;      // In coordinates relative to the parent.
         PLRect m_AbsViewport;      // In window coordinates.
         int m_z;
+        double m_Opacity;
+        double m_Angle;
+        bool m_bHasCustomPivot;
+        PLPoint m_Pivot;
         
         AVGRegion m_DirtyRegion;
 
