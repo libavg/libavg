@@ -246,7 +246,7 @@ void AVGDFBDisplayEngine::render(AVGNode * pRootNode,
     } else {
         pRootNode->getDirtyRegion(UpdateRegion);
     }
-//    UpdateRegion.dump();
+    UpdateRegion.dump();
     setClipRect();
     for (int i = 0; i<UpdateRegion.getNumRects(); i++) {
         const PLRect & rc = UpdateRegion.getRect(i);
@@ -336,6 +336,10 @@ void AVGDFBDisplayEngine::blt32(IDirectFBSurface * pSrc, const PLRect* pSrcRect,
 void AVGDFBDisplayEngine::blt(IDirectFBSurface * pSrc, const PLRect* pSrcRect, 
         const PLPoint& pos)
 {
+    int width;
+    int height;
+    pSrc->GetSize(pSrc, &width, &height);
+
     DFBRectangle * pDFBRect = 0;
     DFBRectangle DFBRect;
     if (pSrcRect) {
@@ -345,15 +349,15 @@ void AVGDFBDisplayEngine::blt(IDirectFBSurface * pSrc, const PLRect* pSrcRect,
         DFBRect.w = pSrcRect->Width();
         DFBRect.h = pSrcRect->Height();
     }
-    DFBResult err = m_pBackBuffer->Blit(m_pBackBuffer, pSrc, pDFBRect, 
-            pos.x, pos.y);
-        
-    int width;
-    int height;
-    pSrc->GetSize(pSrc, &width, &height);
+    if (m_ClipRect.br.x < pos.x || m_ClipRect.br.y < pos.y) {
+        return;
+    }
     AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Blit: " << pos.x << "x" << pos.y << 
             ", width:" << width << ", height: " << height);
 
+    DFBResult err = m_pBackBuffer->Blit(m_pBackBuffer, pSrc, pDFBRect, 
+            pos.x, pos.y);
+        
     DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::blt", err);
 }
 
@@ -365,12 +369,11 @@ void AVGDFBDisplayEngine::clear()
     AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Clear rect: " << m_DirtyRect.tl.x << "x" << 
             m_DirtyRect.tl.y << ", width: " << m_DirtyRect.Width() << 
             ", height: " << m_DirtyRect.Height());
-    if (m_DirtyRect.Width() >= 0 && m_DirtyRect.Height() >= 0) {
-        err = m_pBackBuffer->FillRectangle(m_pBackBuffer, 
-                m_DirtyRect.tl.x, m_DirtyRect.tl.y, 
-                m_DirtyRect.Width(), m_DirtyRect.Height());
-        DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::clear", err);
-    }
+    
+    err = m_pBackBuffer->FillRectangle(m_pBackBuffer, 
+            m_DirtyRect.tl.x, m_DirtyRect.tl.y, 
+            m_DirtyRect.Width(), m_DirtyRect.Height());
+    DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::clear", err);
 }
 
 void AVGDFBDisplayEngine::setDirtyRect(const PLRect& rc) 

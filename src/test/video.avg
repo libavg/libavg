@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg width="640" height="480" fullscreen="false" bpp="16">
+<avg width="640" height="480" fullscreen="true" bpp="16">
         
   <video id="clogo2" x="150" y="50" z="3" opacity="0.5" loop="true"
       href="c-logo_wire_176x144_30fps.mpg"/> <!-- width="176" height="144"/>-->
@@ -13,6 +13,7 @@
   <video id="clogo2" x="300" y="100" z="2" width="352" height="288"
       href="c-logo_wire_176x144.m1v"/>
   -->
-  <video id="clogo" x="100" y="150" z="3" opacity="1" loop="true"
+
+  <video id="clogo" x="300" y="150" z="3" opacity="1" loop="true"
       href="c-logo_wire_352x288.mpg" width="352" height="288"/>
 </avg>

@@ -215,8 +215,7 @@ AVGNode * AVGNode::getElementByPos (const PLPoint & pos)
 
 void AVGNode::prepareRender (int time, const PLRect& parent)
 {
-    m_AbsViewport = PLRect(parent.tl+getRelViewport().tl, parent.tl+getRelViewport().br);
-    m_AbsViewport.Intersect(parent);
+    calcAbsViewport();
 }
 
 void AVGNode::maybeRender (const PLRect& Rect)
@@ -280,9 +279,10 @@ void AVGNode::setViewport (int x, int y, int width, int height)
     if (height == -32767) {
         height = getRelViewport().Height();
     }
-    PLPoint pos = m_AbsViewport.tl-getRelViewport().tl;
+//    PLPoint pos = m_AbsViewport.tl-getRelViewport().tl;
     m_RelViewport = PLRect (x, y, x+width, y+height);
-    m_AbsViewport = PLRect (pos+getRelViewport().tl, pos+getRelViewport().br);
+    calcAbsViewport();
+//    m_AbsViewport = PLRect (pos+getRelViewport().tl, pos+getRelViewport().br);
 }
 
 const PLRect& AVGNode::getRelViewport ()
@@ -293,6 +293,21 @@ const PLRect& AVGNode::getRelViewport ()
 const PLRect& AVGNode::getAbsViewport ()
 {
     return m_AbsViewport;
+}
+
+void AVGNode::calcAbsViewport()
+{
+    AVGNode * pParent = getParent();
+    if (pParent) {
+        PLRect parent = pParent->getAbsViewport();
+        m_AbsViewport = PLRect(parent.tl+getRelViewport().tl, parent.tl+getRelViewport().br);
+        m_AbsViewport.Intersect(parent);
+    } else {
+        m_AbsViewport = getRelViewport();
+    }
+    if (m_AbsViewport.Width() < 0 || m_AbsViewport.Height() < 0) {
+        m_AbsViewport.br=m_AbsViewport.tl;
+    }
 }
 
 int AVGNode::getZ ()

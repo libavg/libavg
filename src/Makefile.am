@@ -12,7 +12,8 @@ INCLUDES = `mozilla-config --cflags xpcom nspr js xpconnect string` \
            `xml2-config --cflags` \
            -I_xpidlgen \
            `directfb-config --cflags` \
-           `paintlib-config --cflags` 
+           `paintlib-config --cflags` \
+           -I/usr/include/libmpeg3 
 
 ALL_H = AVGAVGNode.h AVGContainer.h  AVGDFBDisplayEngine.h AVGEvent.h \
           AVGException.h AVGExcl.h AVGFramerateManager.h AVGImage.h \

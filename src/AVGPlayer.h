@@ -84,11 +84,15 @@ class AVGPlayer: public IAVGPlayer, IAVGEventSink
         NodeIDMap m_IDMap;
         std::ofstream * m_pDebugDest;
 
-        int addTimeout(AVGTimeout* timeout);
+        int addTimeout(AVGTimeout* pTimeout);
+        void removeTimeout(AVGTimeout* pTimeout);
         void handleTimers();
+        bool m_bInHandleTimers;
 
         std::vector<AVGTimeout *> m_PendingTimeouts;
         std::vector<AVGTimeout *> m_NewTimeouts; // Timeouts to be added this frame.
+        std::vector<AVGTimeout *> m_KilledTimeouts; // Timeouts to be deleted this frame.
+
         AVGEventDispatcher m_EventDispatcher;
         AVGDebugEventSink  m_EventDumper;
         AVGEvent * m_pCurEvent;

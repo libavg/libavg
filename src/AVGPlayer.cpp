@@ -53,7 +53,8 @@ AVGPlayer::AVGPlayer()
     : m_pRootNode (0),
       m_pDisplayEngine(0),
       m_pFramerateManager(0),
-      m_pDebugDest(0)
+      m_pDebugDest(0),
+      m_bInHandleTimers(false)
 {
 #ifdef XPCOM_GLUE
     XPCOMGlueStartup("XPCOMComponentGlue");
@@ -161,8 +162,13 @@ AVGPlayer::ClearInterval(PRInt32 id, PRBool * pResult)
     vector<AVGTimeout*>::iterator it;
     for (it=m_PendingTimeouts.begin(); it!=m_PendingTimeouts.end(); it++) {
         if (id == (*it)->GetID()) {
-            delete *it;
-            m_PendingTimeouts.erase(it);
+            if (m_bInHandleTimers) {
+                // Can't kill timeouts during timeout handling...
+                m_KilledTimeouts.push_back(*it);
+            } else {
+                delete *it;
+                m_PendingTimeouts.erase(it);
+            }
             *pResult = true;
             return NS_OK;
         }
@@ -502,6 +508,7 @@ void AVGPlayer::initEventHandlers (AVGNode * pAVGNode, const xmlNodePtr xmlNode)
 void AVGPlayer::handleTimers()
 {
     vector<AVGTimeout *>::iterator it;
+    m_bInHandleTimers = true;
     it = m_PendingTimeouts.begin();
     while (it != m_PendingTimeouts.end() && (*it)->IsReady() && !m_bStopping)
     {
@@ -519,7 +526,14 @@ void AVGPlayer::handleTimers()
         addTimeout(*it);
     }
     m_NewTimeouts.clear();
+    for (it = m_KilledTimeouts.begin(); it != m_KilledTimeouts.end(); ++it) {
+        removeTimeout(*it);
+    }
+    m_KilledTimeouts.clear();
+    m_bInHandleTimers = false;
+    
 }
+
 
 bool AVGPlayer::handleEvent(AVGEvent * pEvent)
 {
@@ -630,14 +644,24 @@ void AVGPlayer::handleMouseEvent (AVGEvent* pEvent)
 }
 */
 
-int AVGPlayer::addTimeout(AVGTimeout* timeout)
+int AVGPlayer::addTimeout(AVGTimeout* pTimeout)
 {
     vector<AVGTimeout*>::iterator it=m_PendingTimeouts.begin();
-    while (it != m_PendingTimeouts.end() && (**it)<*timeout) {
+    while (it != m_PendingTimeouts.end() && (**it)<*pTimeout) {
         it++;
     }
-    m_PendingTimeouts.insert(it, timeout);
-    return timeout->GetID();
+    m_PendingTimeouts.insert(it, pTimeout);
+    return pTimeout->GetID();
+}
+
+void AVGPlayer::removeTimeout(AVGTimeout* pTimeout)
+{
+    delete pTimeout;
+    vector<AVGTimeout*>::iterator it=m_PendingTimeouts.begin();
+    while (*it != pTimeout) {
+        it++;
+    }
+    m_PendingTimeouts.erase(it);
 }
 
 /*

@@ -177,12 +177,61 @@ function videoReset(nodeName)
 /*    node.seekToFrame(300);*/
 }
 
+var cropInterval;
+
+function cropTL()
+{
+    var node = AVGPlayer.getElementByID("img");
+    node.x--;
+    node.y--;
+    if (node.x < -250) {
+        AVGPlayer.clearInterval(cropInterval);
+    }
+}
+
+function cropBR()
+{
+    var node = AVGPlayer.getElementByID("img");
+    node.x = 350;
+    node.y = 250;
+}
+
+function goneTL()
+{
+    var node = AVGPlayer.getElementByID("img");
+    node.x = -250;
+    node.y = -250;
+}
+
+function goneBR()
+{
+    var node = AVGPlayer.getElementByID("img");
+    node.x = 750;
+    node.y = 650;
+}
+
+function testCrop()
+{
+    print ("---- Testing cropping ----");
+    AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_BLTS); 
+    var ok = tryLoadFile("crop.avg");
+    if (ok) {
+        cropInterval = AVGPlayer.setInterval(10, "cropTL();");
+/*        AVGPlayer.setTimeout(1000, "cropBR();");
+        AVGPlayer.setTimeout(1500, "goneTL();");
+        AVGPlayer.setTimeout(2000, "goneBR();");
+        AVGPlayer.setTimeout(2500, "quitTimeout();");
+*/
+        AVGPlayer.play(25);    
+    }
+}
+
 function testVideo()
 {
     print ("---- Testing video node accessors ----");
     var ok = tryLoadFile("video.avg");
     if (ok) {
-        AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE); 
+//        AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE); 
         getVideoInfo();
         timerid = AVGPlayer.setInterval(10, "videoInterval();");
         videoPlay('clogo');
@@ -199,7 +248,7 @@ function testVideo()
         AVGPlayer.setTimeout(4900, "videoReset('clogo');");
         AVGPlayer.setTimeout(5200, "videoReset('clogo');");
         AVGPlayer.setTimeout(8000, "quitTimeout();");
-        AVGPlayer.play(30);
+        AVGPlayer.play(25);
     }
 }
 
@@ -273,16 +322,18 @@ function testExcl()
 /*
     testAnimation();
     testWords();
-
-    testVideo();
+*/
+    testCrop();
+//    testVideo();
+/*
     dumpNodes();
     testExcl();
 
     playAVG("image.avg");
     playAVG("empty.avg");
-*/    
+    
     playAVG("events.avg");
-/*
+
     playAVG("avg.avg");
     playAVG("noavg.avg");
     playAVG("noxml.avg");

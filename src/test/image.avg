@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg id="imageavg" width="400" height="300">
-    <image id="mainimg" x="0" y="0" z="1" width="199" height="199" opacity = "0.5"
-        href="rgb24.tif"/>
+<avg id="imageavg" width="640" height="480">
+    <avg x="200" y="100" width="400" height="300">
+        <image id="mainimg" x="0" y="0" z="1" width="199" height="199" 
+            opacity = "0.5"
+            href="rgb24.tif"/>
+    </avg>
 </avg>

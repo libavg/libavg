@@ -18,6 +18,10 @@ AVGRegion::~AVGRegion ()
 }
 
 void AVGRegion::addRect(const PLRect& NewRect) {
+    if (NewRect.Width() == 0 || NewRect.Height() == 0) {
+        // Ignore empty rectangles.
+        return;
+    }
     PLRect CurRect(NewRect);
     bool bFound = false;
     do {

@@ -74,11 +74,12 @@ class AVGNode: public IAVGNode
         virtual PLPoint getPreferredMediaSize() = 0;
         AVGPlayer * getPlayer();
 
-	private:
+    private:
         void callJS (const std::string& Code, JSContext * pJSContext);
+        void calcAbsViewport();
 
         std::string m_ID;
-		AVGContainer * m_pParent;
+        AVGContainer * m_pParent;
         IAVGDisplayEngine * m_pEngine;
         AVGPlayer * m_pPlayer;
 
