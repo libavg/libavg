@@ -10,9 +10,9 @@ interface IAVGVideo : nsISupports
     void play();
     void stop();
     void pause();
-    float getNumFrames();
-    float getCurFrame();
-    void seekToFrame(in float num);
+    long getNumFrames();
+    long getCurFrame();
+    void seekToFrame(in long num);
     long getFPS();
    
 };

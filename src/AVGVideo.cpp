@@ -72,24 +72,46 @@ NS_IMETHODIMP AVGVideo::Pause()
     return NS_OK;
 }
 
-NS_IMETHODIMP AVGVideo::GetNumFrames(float *_retval)
+NS_IMETHODIMP AVGVideo::GetNumFrames(int *_retval)
 {
-    *_retval = mpeg3_video_frames(m_pMPEG, 0);
+    if (m_State != Unloaded) {
+        *_retval = mpeg3_video_frames(m_pMPEG, 0);
+    } else {
+        cerr << "Error in AVGVideo::GetNumFrames: Video not loaded." << endl;
+        *_retval = -1;
+    }
     return NS_OK;
 }
 
-NS_IMETHODIMP AVGVideo::GetCurFrame(float *_retval)
+NS_IMETHODIMP AVGVideo::GetCurFrame(int *_retval)
 {
+    if (m_State != Unloaded) {
+        *_retval = mpeg3_get_frame(m_pMPEG, 0);
+    } else {
+        cerr << "Error in AVGVideo::GetCurFrame: Video not loaded." << endl;
+        *_retval = -1;
+    }
     return NS_OK;
 }
 
-NS_IMETHODIMP AVGVideo::SeekToFrame(float num)
+NS_IMETHODIMP AVGVideo::SeekToFrame(int num)
 {
+    // TODO: Figure out why libmpeg3 has problems seeking.
+    if (m_State != Unloaded) {
+        mpeg3_set_frame(m_pMPEG, num, 0);
+    } else {
+        cerr << "Error in AVGVideo::SeekToFrame: Video not loaded." << endl;
+    }
     return NS_OK;
 }
 
 NS_IMETHODIMP AVGVideo::GetFPS(PRInt32 *_retval)
 {
+    if (m_State != Unloaded) {
+        *_retval = mpeg3_frame_rate(m_pMPEG, 0);
+    } else {
+        *_retval = -1;
+    }
     return NS_OK;
 }
 
@@ -228,9 +250,10 @@ void AVGVideo::readFrame()
     mpeg3_read_frame(m_pMPEG, m_pBmp->GetLineArray(), 0, 0, 
             m_Width-1, m_Height-1, vpt.Width(), vpt.Height(), 
             MPEG3_RGBA8888, 0);
+#ifdef i386
     // libmpeg3 forgets to turn mmx off, killing floating point operations.
-    // TODO: Add an ifdef for intel here.
     __asm__ __volatile__ ("emms");  
+#endif    
     m_bFrameAvailable = true;
     advancePlayback();
 }
