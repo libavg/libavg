@@ -23,6 +23,8 @@
 #include <iostream>
 #include <sstream>
 
+int AVGEvent::s_CurCounter = 0;
+
 AVGEvent::AVGEvent()
     : m_When(-1),
       m_Type(-1)
@@ -42,6 +44,9 @@ void AVGEvent::init(int type, int when)
     } else {
         m_When = when;
     }
+    // Make sure two events with the same timestamp are ordered correctly.
+    s_CurCounter++;
+    m_Counter = s_CurCounter;
 }
 
 NS_IMPL_ISUPPORTS1_CI(AVGEvent, IAVGEvent);

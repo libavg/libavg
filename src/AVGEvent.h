@@ -41,45 +41,25 @@ class AVGEvent: public IAVGEvent {
         NS_DECL_ISUPPORTS
         NS_DECL_IAVGEVENT
         
+        friend struct isEventAfter;
+
     private:
         int m_When;
         int m_Type;
+        int m_Counter;
+
+        static int s_CurCounter;
 };
 
 // Functor to compare two EventPtrs chronologically
 typedef AVGEvent * AVGEventPtr;
 struct isEventAfter:std::binary_function<AVGEventPtr, AVGEventPtr, bool> {
     bool operator()(const AVGEventPtr & x, const AVGEventPtr & y) const {
+        if (x->getWhen() == y->getWhen()) {
+            return x->m_Counter > y->m_Counter;
+        }
         return x->getWhen() > y->getWhen();
     }
 };
 
-/*
-class AVGEvent: public IAVGEvent
-{
-    public:
-        AVGEvent ();
-        virtual ~AVGEvent ();
-        void init(int type, const PLPoint& pos, 
-            int buttonsPressed);
-        bool init(const DFBWindowEvent& dfbWEvent);
-        void setNode(IAVGNode* pNode);
-
-        void dump();
-
-		NS_DECL_ISUPPORTS
-        NS_DECL_IAVGEVENT
-
-        int getType();
-        int getKeySym();
-        
-    private:
-        int m_Type;
-        PLPoint m_Pos;
-        DFBInputDeviceButtonIdentifier m_ButtonId;
-        DFBInputDeviceButtonMask m_ButtonsPressed;
-        DFBInputDeviceKeySymbol m_KeySym;
-        DFBInputDeviceModifierMask m_KeyMods;
-};
-*/
 #endif //_AVGEvent_H_

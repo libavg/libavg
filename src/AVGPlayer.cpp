@@ -149,18 +149,26 @@ NS_IMETHODIMP
 AVGPlayer::SetInterval(PRInt32 time, const char * code, PRInt32 * pResult)
 {
     AVGTimeout *t = new AVGTimeout(time, code, true, m_pJSContext);
-    m_NewTimeouts.push_back(t);
+    if (m_bInHandleTimers) {
+        m_NewTimeouts.push_back(t);
+    } else {
+        addTimeout(t);
+    }
     *pResult = t->GetID();
-	return NS_OK;
+    return NS_OK;
 }
 
 NS_IMETHODIMP
 AVGPlayer::SetTimeout(PRInt32 time, const char * code, PRInt32 * pResult)
 {
     AVGTimeout *t = new AVGTimeout(time, code, false, m_pJSContext);
-    m_NewTimeouts.push_back(t);
+    if (m_bInHandleTimers) {
+        m_NewTimeouts.push_back(t);
+    } else {
+        addTimeout(t);
+    }
     *pResult = t->GetID();
-	return NS_OK;
+    return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -180,7 +188,6 @@ AVGPlayer::ClearInterval(PRInt32 id, PRBool * pResult)
             return NS_OK;
         }
     }
-
     *pResult = false;
     return NS_OK;
 }
