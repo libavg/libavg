@@ -7,6 +7,7 @@
 #include "AVGException.h"
 #include "AVGPlayer.h"
 #include "AVGLogger.h"
+#include "AVGContainer.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/pldirectfbbmp.h>
@@ -157,8 +158,12 @@ void AVGVideo::render (const PLRect& Rect)
                 if (getEffectiveOpacity() < 0.001) {
                     return;
                 }
+                PLRect relVpt = getRelViewport();
+                PLRect absVpt = getParent()->getAbsViewport();   
                 if (getEffectiveOpacity() > 0.999 && 
-                    dynamic_cast<AVGDFBDisplayEngine*>(getEngine()))
+                    dynamic_cast<AVGDFBDisplayEngine*>(getEngine()) &&
+                    relVpt.tl.x >= 0 && relVpt.tl.y >= 0 && 
+                    absVpt.Width() > relVpt.br.x && absVpt.Height() > relVpt.br.y)
                 {
                     // No alpha blending: render frame to backbuffer directly.
                     // (DirectFB only).
