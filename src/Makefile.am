@@ -59,7 +59,7 @@ ALL_H = AVGAVGNode.h AVGContainer.h AVGEvent.h \
           $(DC1394_INCLUDES) $(GL_INCLUDES) $(DFB_INCLUDES)
           
 libavg_PROGRAMS = xpshell
-xpshell_SOURCES = xpshell.cpp FileHelper.cpp FileHelper.h xpshell.h acJSContextPublisher.h
+xpshell_SOURCES = xpshell.cpp xpshell.h acJSContextPublisher.h
 xpshell_LDFLAGS = `mozilla-config --libs nspr xpcom` -lmozjs
 
 libavg_LTLIBRARIES = libavg.la

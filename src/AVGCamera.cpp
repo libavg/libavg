@@ -14,6 +14,7 @@
 #include "IAVGSurface.h"
 #include "AVGOGLSurface.h"
 #include "AVGTimeSource.h"
+#include "AVGScopeTimer.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/plpngenc.h>
@@ -33,7 +34,7 @@ using namespace std;
 #define MAX_PORTS 4
 #define MAX_RESETS 10
 #define DROP_FRAMES 0
-#define NUM_BUFFERS 3
+#define NUM_BUFFERS 2
 
 // Precomputed conversion matrix entries
 static int y2colTable[256]; // y to any color component
@@ -288,16 +289,22 @@ void AVGCamera::fatalError(const string & sMsg)
     exit(-1);
 }
 
+static AVGProfilingZone CameraProfilingZone("AVGCamera::render");
+static AVGProfilingZone CameraUploadProfilingZone("  AVGCamera::render tex upload");
+
 bool AVGCamera::renderToSurface(IAVGSurface * pSurface)
 {
+    AVGScopeTimer ScopeTimer(CameraProfilingZone);
     if (m_bCameraAvailable) {
-        int rc = dc1394_dma_single_capture_poll(&m_Camera);
+        int rc = dc1394_dma_single_capture(&m_Camera);
+        /*
         if (rc == DC1394_NO_FRAME) {
             AVG_TRACE(AVGPlayer::DEBUG_WARNING,
                         "Camera: Frame delay.");
             usleep(10);
             rc = dc1394_dma_single_capture_poll(&m_Camera);
         }
+        */
         //    int rc = dc1394_dma_single_capture(&m_Camera);
         if (rc == DC1394_SUCCESS) {
             m_LastFrameTime = AVGTimeSource::get()->getCurrentTicks();
@@ -347,7 +354,10 @@ bool AVGCamera::renderToSurface(IAVGSurface * pSurface)
                             "Illegal Mode in renderToBmp");
                     break;
             }
-            getEngine()->surfaceChanged(pSurface);
+            {
+                AVGScopeTimer ScopeTimer(CameraUploadProfilingZone);
+                getEngine()->surfaceChanged(pSurface);
+            }
             dc1394_dma_done_with_buffer(&m_Camera);
         } else {
             if (rc == DC1394_NO_FRAME) {
@@ -356,8 +366,6 @@ bool AVGCamera::renderToSurface(IAVGSurface * pSurface)
             } else {
                 AVG_TRACE(AVGPlayer::DEBUG_WARNING,
                         "Camera: Frame capture failed.");
-
-                //            fatalError("Frame capture failed.");
             }
         }
     } 

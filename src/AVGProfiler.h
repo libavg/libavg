@@ -16,6 +16,7 @@ public:
  
     void addZone(AVGProfilingZone& Zone);
     void dump();
+    void dumpStatistics();
     void reset();
 
 private:

@@ -16,7 +16,7 @@
 using namespace std;
 
 void OGLErrorCheck(int avgcode, string where) {
-/*    GLenum err = glGetError();
+    GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
         stringstream s;
         s << "OpenGL error in " << where <<": " << gluErrorString(err) 
@@ -27,7 +27,6 @@ void OGLErrorCheck(int avgcode, string where) {
         }
         throw AVGException(avgcode, s.str());
     }
-*/    
 }
 
 bool queryOGLExtension(char *extName)

@@ -484,6 +484,8 @@ void AVGPlayer::play (double framerate)
         }
         m_PendingTimeouts.clear();
 
+        AVGProfiler::get().dumpStatistics();
+
         NS_IF_RELEASE(m_pRootNode);
         m_pRootNode = 0;
         delete m_pFramerateManager;

@@ -116,7 +116,11 @@ interface IAVGPlayer : nsISupports
     /**
      * Outputs error messages. Can't be shut off.
      */
-    const long DEBUG_ERROR=64;  
+    const long DEBUG_PROFILE2=64;  
+    /**
+     * Outputs error messages. Can't be shut off.
+     */
+    const long DEBUG_ERROR=128;  
     
     /**
      * Sets the amount and type of debug data that should be displayed on the 

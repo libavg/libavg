@@ -16,6 +16,7 @@ public:
  
     void reset();
     CycleCount getCycles() const;
+    CycleCount getAvgCycles() const;
     const std::string& getName() const;
 
     // Interface to AVGScopeTimer.
@@ -24,6 +25,8 @@ public:
 private:
     std::string m_sName;
     CycleCount m_TimeSum;
+    CycleCount m_AvgTime;
+    int m_NumFrames;
 };
 
 #endif

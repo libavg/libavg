@@ -34,7 +34,7 @@ using namespace std;
 
 NS_IMPL_ISUPPORTS2_CI(AVGPanoImage, IAVGNode, IAVGPanoImage);
 
-const int TEX_WIDTH = 128;
+const int TEX_WIDTH = 64;
 
 AVGPanoImage * AVGPanoImage::create()
 {
@@ -138,25 +138,30 @@ void AVGPanoImage::init (const std::string& id, const std::string& filename,
 }
 
 static AVGProfilingZone PanoRenderProfilingZone("AVGPanoImage::render");
+//static AVGProfilingZone PanoRenderQuadsProfilingZone("AVGPanoImage::render quads");
 
 void AVGPanoImage::render (const AVGDRect& Rect)
 {
-     AVGScopeTimer ScopeTimer(PanoRenderProfilingZone);
+    AVGScopeTimer ScopeTimer(PanoRenderProfilingZone);
+/*
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGPanoImage::render: glPushAttrib()");
     glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGPanoImage::render: glPushClientAttrib()");
+*/    
     glPushMatrix();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGPanoImage::render: glPushMatrix()");
-    glDisable(AVGOGLSurface::getTextureMode());
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "AVGPanoImage::render: glDisable(Old texture mode);");
-    glEnable(GL_TEXTURE_2D);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "AVGPanoImage::render: glEnable(GL_TEXTURE_2D);");
+    if (AVGOGLSurface::getTextureMode() != GL_TEXTURE_2D) {
+        glDisable(AVGOGLSurface::getTextureMode());
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                "AVGPanoImage::render: glDisable(Old texture mode);");
+        glEnable(GL_TEXTURE_2D);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                "AVGPanoImage::render: glEnable(GL_TEXTURE_2D);");
+    }
 
     gluLookAt(0, 0, 0,  // Eye
               0, 0, -1, // Center
@@ -201,6 +206,7 @@ void AVGPanoImage::render (const AVGDRect& Rect)
     double HorizOffset = m_Rotation+m_fovy*m_aspect/2;
 //    glutWireSphere(1, 20, 16);
     for (int i=0; i<m_TileTextureIDs.size(); ++i) {
+//        AVGScopeTimer ScopeTimer(PanoRenderQuadsProfilingZone);
         unsigned int TexID = m_TileTextureIDs[i];
         glBindTexture(GL_TEXTURE_2D, TexID);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
@@ -235,20 +241,24 @@ void AVGPanoImage::render (const AVGDRect& Rect)
     glViewport(0, 0, m_pEngine->getWidth(), m_pEngine->getHeight());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGPanoImage::render: glViewport() restore");
-    glDisable(GL_TEXTURE_2D);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "AVGPanoImage::render: glDisable(GL_TEXTURE_2D);");
-    glEnable(AVGOGLSurface::getTextureMode());
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "AVGPanoImage::render: glEnable(Old texture mode);");
+    if (AVGOGLSurface::getTextureMode() != GL_TEXTURE_2D) {
+        glDisable(GL_TEXTURE_2D);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                "AVGPanoImage::render: glDisable(GL_TEXTURE_2D);");
+        glEnable(AVGOGLSurface::getTextureMode());
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                "AVGPanoImage::render: glEnable(Old texture mode);");
+    }
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
+/*    
     glPopClientAttrib();
-    glPopAttrib();
+    glPopAttrib();    
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGPanoImage::render: glPopAttrib()");
+*/    
 }
 
 bool AVGPanoImage::obscures (const AVGDRect& Rect, int z) 
