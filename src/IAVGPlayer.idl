@@ -3,7 +3,6 @@
 //
 
 #include "nsISupports.idl"
-#include "IJSEvalKruecke.idl"
 #include "IAVGEvent.idl"
 
 [scriptable, uuid(e3890769-a960-43ec-bc4f-ded28ef99103)]

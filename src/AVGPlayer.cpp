@@ -85,7 +85,7 @@ AVGPlayer::LoadFile(const char * fileName,
              << "-----------" << endl;
         *pResult = false;
     } catch (PLTextException& ex) {
-        cout << endl << "    ----------- error: " << (const char *)ex
+        cout << endl << "    ----------- paintlib error: " << (const char *)ex
              << "-----------" << endl;
         *pResult = false;
     }
@@ -320,7 +320,6 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         int width, height;
         double opacity;
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, &opacity);
-
         curNode = AVGAVGNode::create();
         // Fullscreen handling only for topmost node.
         if (!pParent) {
@@ -390,7 +389,6 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         throw (AVGException (AVG_ERR_XML_NODE_UNKNOWN, 
             string("Unknown node type ")+(const char *)nodeType+" encountered."));
     }
-
     // If this is a container, recurse into children
     AVGContainer * curContainer = dynamic_cast<AVGContainer*>(curNode);
     if (curContainer) {
@@ -560,52 +558,54 @@ void AVGPlayer::dumpDFBEvent (const DFBEvent& dfbEvent)
             cerr << "input";
             break;
         case DFEC_WINDOW:
-            cerr << "window, ";
-            DFBWindowEvent WEvent = dfbEvent.window;
-            cerr << "  type = ";
-            switch (WEvent.type) {
-                case DWET_POSITION:
-                    cerr << " position";
-                    break;
-                case DWET_SIZE:
-                    cerr << " size";
-                    break;
-                case DWET_POSITION | DWET_SIZE:
-                    cerr << " position & size";
-                    break;
-                case DWET_CLOSE:
-                    cerr << " close";
-                    break;
-                case DWET_DESTROYED:
-                    cerr << " destroyed";
-                    break;
-                case DWET_GOTFOCUS:
-                    cerr << " got focus";
-                    break;
-                case DWET_LOSTFOCUS:
-                    cerr << " lost focus";
-                    break;
-                case DWET_KEYDOWN:
-                    cerr << " key down";
-                    break;
-                case DWET_KEYUP:
-                    cerr << " key up";
-                    break;
-                case DWET_BUTTONDOWN:
-                    cerr << " button down";
-                    break;
-                case DWET_MOTION:
-                    cerr << " motion"; 
-                    break;
-                case DWET_ENTER:
-                    cerr << " enter";
-                    break;
-                case DWET_LEAVE:
-                    cerr << " leave";
-                    break;
-                case DWET_WHEEL:
-                    cerr << " wheel";
-                    break;
+            {            
+                cerr << "window, ";
+                DFBWindowEvent WEvent = dfbEvent.window;
+                cerr << "  type = ";
+                switch (WEvent.type) {
+                    case DWET_POSITION:
+                        cerr << " position";
+                        break;
+                    case DWET_SIZE:
+                        cerr << " size";
+                        break;
+                    case DWET_POSITION | DWET_SIZE:
+                        cerr << " position & size";
+                        break;
+                    case DWET_CLOSE:
+                        cerr << " close";
+                        break;
+                    case DWET_DESTROYED:
+                        cerr << " destroyed";
+                        break;
+                    case DWET_GOTFOCUS:
+                        cerr << " got focus";
+                        break;
+                    case DWET_LOSTFOCUS:
+                        cerr << " lost focus";
+                        break;
+                    case DWET_KEYDOWN:
+                        cerr << " key down";
+                        break;
+                    case DWET_KEYUP:
+                        cerr << " key up";
+                        break;
+                    case DWET_BUTTONDOWN:
+                        cerr << " button down";
+                        break;
+                    case DWET_MOTION:
+                        cerr << " motion"; 
+                        break;
+                    case DWET_ENTER:
+                        cerr << " enter";
+                        break;
+                    case DWET_LEAVE:
+                        cerr << " leave";
+                        break;
+                    case DWET_WHEEL:
+                        cerr << " wheel";
+                        break;
+                }
             }
             break;
         case DFEC_USER:

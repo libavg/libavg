@@ -32,10 +32,11 @@ int getDefaultedIntAttr (const xmlNodePtr& xmlNode,
     } else {
         char * errStr;
         int ret = strtol (retStr, &errStr, 10);
-        xmlFree(retStr);
         if (*errStr == 0) {
+            xmlFree(retStr);
             return ret;
         } else {
+            xmlFree(retStr);
             return def;
         }
     }

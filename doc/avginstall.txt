@@ -6,6 +6,8 @@ Benötigte Packages:
    libpango1.0-dev
    libjpeg62-devel 
    libflash (über die DirectFB-Seite) - stow
+   slang-dev
+   nasm
    libmpeg3-dev
    libsdl1.2-dev (vorläufig)
    DirectFB (0.9.19) - source
