@@ -1,0 +1,39 @@
+//
+// $Id$
+//
+
+#include "nsISupports.idl"
+
+/**
+ * Base interface for video and camera nodes. Videos are always played back at
+ * the framerate of the player. If a different framerate is given in the video
+ * file or captured from the camera, it is ignored. A video starts in paused 
+ * mode and play() must be
+ * called to start playback.
+ *
+ * All video and camera nodes also have the attributes supported by IAVGNode.
+ * In addition, videos support the IVideo interface and cameras the ICamera
+ * interface.
+ */
+[scriptable, uuid(28e9486a-13a1-4171-89ea-c2decb7d8ffa)]
+interface IAVGVideoBase : nsISupports
+{
+    /**
+     * Starts playback. If the video was stopped, starts on frame 0. If the
+     * video was paused, resumes at the next frame.
+     */
+    void play();
+    /**
+     * Stops playback and closes the file. 
+     */
+    void stop();
+    /**
+     * Stops playback but leaves the file open. If the file has not been opened,
+     * it is opened when pause is called.
+     */
+    void pause();
+
+    long getFPS();
+   
+};
+
