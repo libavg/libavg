@@ -1,5 +1,10 @@
 <HTML>
+<HEAD>
+<TITLE>avg</TITLE>
+</HEAD>
 <BODY>
+<H1>avg</H1>
+<HR>
 <PRE>
 <!-- Manpage converted by man2html 3.0.1 -->
 
@@ -11,15 +16,16 @@
 
 </PRE>
 <H2>DESCRIPTION</H2><PRE>
-       <B>avg</B> plays back an <B>avg</B> media presentation.  <B>avg</B> presenta­
-       tions consist of two parts - a file in avg format that
-       describes a static media configuration, and a javascript
-       file that contains information about the dynamics of the
-       presentation. The javascript file is given by the first
-       parameter. This file needs to contain commands to load and
-       play an avg file. System configuration is determined by
-       first reading the configuration files <I>/etc/avgrc</I> and
-       <I>~/avgrc</I> and then applying the command-line options.
+       <B>avg</B> plays back an <B>avg</B> media presentation.  <B>avg</B>
+       presentations consist of two parts - a file in avg format
+       that describes a static media configuration, and a
+       javascript file that contains information about the
+       dynamics of the presentation. The javascript file is given
+       by the first parameter. This file needs to contain
+       commands to load and play an avg file. System
+       configuration is determined by first reading the
+       configuration files <I>/etc/avgrc</I> and <I>~/avgrc</I> and then
+       applying the command-line options.
 
 
 </PRE>
@@ -44,17 +50,17 @@
               display engine.
 
        <B>--bpp=16|24</B>
-              Set the bits per pixel for the back- and front­
-              buffers. All internal calculations are done with 32
-              bpp - 24 bpp plus 8 bpp transparency - regardless
-              of this setting.
+              Set the bits per pixel for the back- and
+              frontbuffers. All internal calculations are done
+              with 32 bpp - 24 bpp plus 8 bpp transparency -
+              regardless of this setting.
 
        <B>--fullscreen=true|false</B>
               Determines whether playback should happen in
               fullscreen mode (true) or in a window (false). The
               DirectFB engine uses a slow SDL backend in windowed
-              mode - this mode is meant for debugging, not per­
-              formance.
+              mode - this mode is meant for debugging, not
+              performance.
 
        <B>--debug</B>
               Start gdb with the avg player.
@@ -63,7 +69,6 @@
 </PRE>
 <H2>SEE ALSO</H2><PRE>
        <B>avgrc</B> (5)
-
 </PRE>
 <HR>
 <ADDRESS>
