@@ -29,7 +29,8 @@ int AVGOGLSurface::s_MaxTexSize = 0;
 AVGOGLSurface::AVGOGLSurface()
     : m_bBound(false),
       m_pBmp(0),
-      m_pSubBmp(0)
+      m_pSubBmp(0),
+      m_MaxTileSize(PLPoint(-1,-1))
 {
     // Do an NVIDIA texture support query if it hasn't happened already.
     getTextureMode();
@@ -54,12 +55,58 @@ void AVGOGLSurface::create(int Width, int Height, int bpp,
     dynamic_cast<PLAnyBmp*>(m_pBmp)->Create(Width, Height, bpp, 
             bHasAlpha, false);
     m_pSubBmp = 0;
+    setupTiles();
 }
 
 PLBmpBase* AVGOGLSurface::getBmp()
 {
     return m_pBmp;
 }
+
+void AVGOGLSurface::setMaxTileSize(const PLPoint& MaxTileSize)
+{
+    if (m_bBound) {
+        AVG_TRACE(AVGPlayer::DEBUG_WARNING, 
+                "Ignoring setMaxTileSize because textures are already bound.");
+        return;
+    }
+    m_MaxTileSize = MaxTileSize;
+    if (m_MaxTileSize.x != -1) {
+        m_MaxTileSize.x = nextpow2(m_MaxTileSize.x/2+1);
+    }
+    if (m_MaxTileSize.y != -1) {
+        m_MaxTileSize.y = nextpow2(m_MaxTileSize.y/2+1);
+    }
+    setupTiles();
+}
+
+int AVGOGLSurface::getNumVerticesX()
+{
+    return m_NumHorizTextures+1;
+}
+
+int AVGOGLSurface::getNumVerticesY() 
+{
+    return m_NumVertTextures+1;
+}
+
+AVGDPoint AVGOGLSurface::getOrigVertexCoord(int x, int y)
+{
+    AVGDPoint Vertex;
+    initTileVertex(x, y, Vertex);
+    return Vertex;
+}
+
+AVGDPoint AVGOGLSurface::getWarpedVertexCoord(int x, int y)
+{
+    return m_TileVertices[y][x];
+}
+
+void AVGOGLSurface::setWarpedVertexCoord(int x, int y, const AVGDPoint& Vertex)
+{
+    m_TileVertices[y][x] = Vertex;
+}
+
 
 void AVGOGLSurface::createFromBits(int Width, int Height, int bpp, 
         bool bHasAlpha, PLBYTE* pBits, int Stride)
@@ -78,6 +125,7 @@ void AVGOGLSurface::createFromBits(int Width, int Height, int bpp,
     }
     
     m_pSubBmp->Create(Width, Height, bpp, bHasAlpha, pBits, Stride);
+    setupTiles();
 }
 
 void AVGOGLSurface::discardBmp()
@@ -118,23 +166,6 @@ void AVGOGLSurface::bind()
         int Height = m_pBmp->GetHeight();
         m_Tiles.clear();
         vector<TextureTile> v;
-        if (Width > s_MaxTexSize || Height > s_MaxTexSize) {
-            m_TileSize = PLPoint(s_MaxTexSize/2, s_MaxTexSize/2);
-        } else {
-            if (getTextureMode() == GL_TEXTURE_2D) {
-                if ((Width > 256 && nextpow2(Width) > Width*1.3) ||
-                        (Height > 256 && nextpow2(Height) > Height*1.3)) 
-                {
-                    m_TileSize = PLPoint(nextpow2(Width)/2, nextpow2(Height)/2);
-                } else {
-                    m_TileSize = PLPoint(nextpow2(Width), nextpow2(Height));
-                }
-            } else {
-                m_TileSize = PLPoint(Width, Height);
-            }
-        }
-        int NumHorizTextures = int(ceil(float(Width)/m_TileSize.x));
-        int NumVertTextures = int(ceil(float(Height)/m_TileSize.y));
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "AVGOGLSurface::bind: glPixelStorei(GL_UNPACK_ALIGNMENT)");
@@ -142,14 +173,14 @@ void AVGOGLSurface::bind()
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "AVGOGLSurface::bind: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
 
-        for (int y=0; y<NumVertTextures; y++) {
+        for (int y=0; y<m_NumVertTextures; y++) {
             m_Tiles.push_back(v);
-            for (int x=0; x<NumHorizTextures; x++) {
+            for (int x=0; x<m_NumHorizTextures; x++) {
                 PLPoint CurSize = m_TileSize;
-                if (y == NumVertTextures-1) {
+                if (y == m_NumVertTextures-1) {
                     CurSize.y = Height-y*m_TileSize.y;
                 }
-                if (x == NumHorizTextures-1) {
+                if (x == m_NumHorizTextures-1) {
                     CurSize.x = Width-x*m_TileSize.x;
                 }
                 PLRect CurExtent(x*m_TileSize.x, y*m_TileSize.y,
@@ -274,10 +305,67 @@ int AVGOGLSurface::getTextureMode()
     return s_TextureMode;
 }
 
+void AVGOGLSurface::setupTiles()
+{
+    int Width = m_pBmp->GetWidth();
+    int Height = m_pBmp->GetHeight();
+    if (Width > s_MaxTexSize || Height > s_MaxTexSize) {
+        m_TileSize = PLPoint(s_MaxTexSize/2, s_MaxTexSize/2);
+    } else {
+        if (getTextureMode() == GL_TEXTURE_2D) {
+            if ((Width > 256 && nextpow2(Width) > Width*1.3) ||
+                    (Height > 256 && nextpow2(Height) > Height*1.3)) 
+            {
+                m_TileSize = PLPoint(nextpow2(Width)/2, nextpow2(Height)/2);
+            } else {
+                m_TileSize = PLPoint(nextpow2(Width), nextpow2(Height));
+            }
+        } else {
+            m_TileSize = PLPoint(Width, Height);
+        }
+    }
+    if (m_MaxTileSize.x != -1 && m_MaxTileSize.x < m_TileSize.x) {
+        m_TileSize.x = m_MaxTileSize.x;
+    }
+    if (m_MaxTileSize.y != -1 && m_MaxTileSize.y < m_TileSize.y) {
+        m_TileSize.y = m_MaxTileSize.y;
+    }
+    m_NumHorizTextures = int(ceil(float(Width)/m_TileSize.x));
+    m_NumVertTextures = int(ceil(float(Height)/m_TileSize.y));
+
+    std::vector<AVGDPoint> TileVerticesLine(m_NumHorizTextures+1);
+    m_TileVertices = std::vector<std::vector<AVGDPoint> >
+                (m_NumVertTextures+1, TileVerticesLine);
+    initTileVertices();
+}
+
+void AVGOGLSurface::initTileVertices()
+{
+    for (int y=0; y<m_TileVertices.size(); y++) {
+        for (int x=0; x<m_TileVertices[y].size(); x++) {
+            initTileVertex(x, y, m_TileVertices[y][x]);
+        }
+    }
+}
+
+void AVGOGLSurface::initTileVertex (int x, int y, AVGDPoint& Vertex) 
+{
+    if (x < m_NumHorizTextures) {
+        Vertex.x = double(m_TileSize.x*x) / m_pBmp->GetWidth();
+    } else {
+        Vertex.x = 1;
+    }
+    if (y < m_NumVertTextures) {
+        Vertex.y = double(m_TileSize.y*y) / m_pBmp->GetHeight();
+    } else {
+        Vertex.y = 1;
+    }
+}
 
 void AVGOGLSurface::bltTexture(const AVGDRect* pDestRect, 
                 double angle, const AVGDPoint& pivot)
 {
+//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     AVGDPoint center(pDestRect->tl.x+pivot.x,
             pDestRect->tl.y+pivot.y);
     
@@ -292,20 +380,15 @@ void AVGOGLSurface::bltTexture(const AVGDRect* pDestRect,
     for (int y=0; y<m_Tiles.size(); y++) {
         for (int x=0; x<m_Tiles[y].size(); x++) {
             TextureTile& CurTile = m_Tiles[y][x];
-            AVGDRect TileDestRect;
-            TileDestRect.tl.x = pDestRect->tl.x+
-                    (float(pDestRect->Width())*m_TileSize.x*x)
-                    / m_pBmp->GetWidth();
-            TileDestRect.tl.y = pDestRect->tl.y+
-                    (float(pDestRect->Height())*m_TileSize.y*y)
-                    / m_pBmp->GetHeight();
-            TileDestRect.br.x = TileDestRect.tl.x+
-                    (float(pDestRect->Width())*CurTile.m_Extent.Width())
-                    / m_pBmp->GetWidth();
-            TileDestRect.br.y = TileDestRect.tl.y+
-                    (float(pDestRect->Height())*CurTile.m_Extent.Height())
-                    / m_pBmp->GetHeight();
-            bltTile(CurTile, TileDestRect);
+            AVGDPoint TLPoint = 
+                    calcFinalVertex(pDestRect, m_TileVertices[y][x]);
+            AVGDPoint TRPoint = 
+                    calcFinalVertex(pDestRect, m_TileVertices[y][x+1]);
+            AVGDPoint BLPoint = 
+                    calcFinalVertex(pDestRect, m_TileVertices[y+1][x]);
+            AVGDPoint BRPoint = 
+                    calcFinalVertex(pDestRect, m_TileVertices[y+1][x+1]);
+            bltTile(CurTile, TLPoint, TRPoint, BLPoint, BRPoint); 
         }
     }
 
@@ -318,8 +401,20 @@ void AVGOGLSurface::bltTexture(const AVGDRect* pDestRect,
     
 }
 
-int AVGOGLSurface::bltTile(const TextureTile& Tile, 
-        const AVGDRect& DestRect)
+AVGDPoint AVGOGLSurface::calcFinalVertex(const AVGDRect* pDestRect,
+        const AVGDPoint & NormalizedVertex)
+{
+    AVGDPoint Point;
+    Point.x = pDestRect->tl.x+
+        (pDestRect->Width()*NormalizedVertex.x);
+    Point.y = pDestRect->tl.y+
+        (pDestRect->Height()*NormalizedVertex.y);
+    return Point;
+}
+
+int AVGOGLSurface::bltTile(const TextureTile& Tile,
+        const AVGDPoint& TLPoint, const AVGDPoint& TRPoint,
+        const AVGDPoint& BLPoint, const AVGDPoint& BRPoint)
 {
     double TexWidth;
     double TexHeight;
@@ -333,16 +428,16 @@ int AVGOGLSurface::bltTile(const TextureTile& Tile,
     
     glBindTexture(s_TextureMode, Tile.m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "AVGSDLDisplayEngine::bltTile: glBindTexture()");
+            "AVGOGLSurface::bltTile: glBindTexture()");
     glBegin(GL_QUADS);
     glTexCoord2d(0.0, 0.0);
-    glVertex3d (DestRect.tl.x, DestRect.tl.y, 0.0);
+    glVertex3d (TLPoint.x, TLPoint.y, 0.0);
     glTexCoord2d(TexWidth, 0.0);
-    glVertex3d (DestRect.br.x, DestRect.tl.y, 0.0);
+    glVertex3d (TRPoint.x, TRPoint.y, 0.0);
     glTexCoord2d(TexWidth, TexHeight);
-    glVertex3d (DestRect.br.x, DestRect.br.y, 0.0);
+    glVertex3d (BRPoint.x, BRPoint.y, 0.0);
     glTexCoord2d(0.0, TexHeight);
-    glVertex3d (DestRect.tl.x, DestRect.br.y, 0.0);
+    glVertex3d (BLPoint.x, BLPoint.y, 0.0);
     glEnd();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGSDLDisplayEngine::bltTile: glEnd()");

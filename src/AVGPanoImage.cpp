@@ -84,12 +84,12 @@ NS_IMETHODIMP AVGPanoImage::SetFocallength(double aFocallength)
 NS_IMETHODIMP AVGPanoImage::GetMaxRotation(double *_retval)
 {
     *_retval = m_MaxRotation*180/PI;
-/*
+
     cerr << "fovy: " << m_fovy*180/PI << ", aspect: " << m_aspect << endl;
     cerr << "CylHeight: " << m_CylHeight << ", CylAngle: " << m_CylAngle*180/PI 
             << ", SliceAngle: " << m_SliceAngle*180/PI << endl;
     cerr << "MaxRotation: " << m_MaxRotation*180/PI << endl;
-*/
+
     return NS_OK;
 }
 
@@ -191,6 +191,7 @@ void AVGPanoImage::render (const AVGDRect& Rect)
     glColor4f(1.0f, 1.0f, 1.0f, getEffectiveOpacity());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGPanoImage::render: glColor4f()");
+//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     double HorizOffset = m_Rotation+m_fovy*m_aspect/2;
 //    glutWireSphere(1, 20, 16);

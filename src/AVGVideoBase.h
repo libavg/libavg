@@ -54,7 +54,6 @@ class AVGVideoBase : public IAVGVideoBase, public AVGNode
         int m_Width;
         int m_Height;
 
-        IAVGSurface * m_pSurface;
         bool m_bFrameAvailable;
 
         VideoState m_State;

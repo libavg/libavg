@@ -53,7 +53,7 @@ ALL_H = AVGAVGNode.h AVGContainer.h AVGEvent.h \
           acJSContextPublisher.h AVGJSScript.h AVGLogger.h \
           IAVGFont.h FileHelper.h JSHelper.h AVGDivNode.h \
           IAVGVideoDecoder.h AVGFFMpegDecoder.h AVGVideoBase.h \
-          AVGPanoImage.h MathHelper.h \
+          AVGPanoImage.h MathHelper.h AVGJSPoint.h \
           $(DC1394_INCLUDES) $(GL_INCLUDES) $(DFB_INCLUDES)
           
 libavg_PROGRAMS = xpshell
@@ -80,7 +80,7 @@ libavg_la_SOURCES = AVGEvent.cpp AVGMouseEvent.cpp AVGKeyEvent.cpp \
                     AVGLogger.cpp AVGConradRelais.cpp \
                     FileHelper.cpp JSHelper.cpp AVGDivNode.cpp\
                     AVGFFMpegDecoder.cpp AVGVideoBase.cpp \
-                    AVGPanoImage.cpp MathHelper.cpp\
+                    AVGPanoImage.cpp MathHelper.cpp AVGJSPoint.cpp \
                     $(DC1394_SOURCES) $(GL_SOURCES) $(DFB_SOURCES)\
                     $(ALL_H) 
  
@@ -88,6 +88,7 @@ BUILT_SOURCES = IAVGPlayer.h IAVGEvent.h IAVGNode.h IAVGVideo.h \
                 acIJSContextPublisher.h IAVGWords.h IAVGExcl.h \
                 IAVGConradRelais.h IAVGKeyEvent.h IAVGWindowEvent.h \
                 IAVGMouseEvent.h IAVGVideoBase.h IAVGPanoImage.h \
+                IAVGJSPoint.h \
                 $(DC1394_IDL)
 
 CLEANFILES = $(BUILT_SOURCES)

@@ -4,11 +4,14 @@
 
 #include "AVGEvent.h"
 #include "AVGMouseEvent.h"
+#include "AVGLogger.h"
 #include "AVGContainer.h"
 #include "AVGAVGNode.h"
 #include "AVGJSScript.h"
 #include "AVGPlayer.h"
 #include "IAVGDisplayEngine.h"
+#include "AVGOGLSurface.h"
+#include "AVGJSPoint.h"
 
 #include <paintlib/plpoint.h>
 #include <paintlib/plrect.h>
@@ -16,6 +19,7 @@
 #include <xpcom/nsMemory.h>
 
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -23,13 +27,18 @@ NS_IMPL_ISUPPORTS1(AVGNode, IAVGNode);
 
 AVGNode::AVGNode ()
     : m_pParent(0),
-      m_pPlayer(0)
+      m_pPlayer(0),
+      m_pSurface(0),
+      m_MaxTileSize(PLPoint(-1,-1))
 {
     NS_INIT_ISUPPORTS();
 }
 
 AVGNode::~AVGNode()
 {
+    if (m_pSurface) {
+        delete m_pSurface;
+    }
 }
 
 NS_IMETHODIMP 
@@ -62,6 +71,64 @@ AVGNode::GetParent(IAVGNode **_retval)
 {
     NS_IF_ADDREF(m_pParent);
     *_retval=m_pParent;
+    return NS_OK;
+}
+
+/* long getXNumTiles (); */
+NS_IMETHODIMP AVGNode::GetNumVerticesX(PRInt32 *_retval)
+{
+    AVGOGLSurface * pOGLSurface = getOGLSurface();
+    *_retval = pOGLSurface->getNumVerticesX(); 
+    return NS_OK;
+}
+
+NS_IMETHODIMP AVGNode::GetNumVerticesY(PRInt32 *_retval)
+{
+    AVGOGLSurface * pOGLSurface = getOGLSurface();
+    *_retval = pOGLSurface->getNumVerticesY(); 
+    return NS_OK;
+}
+
+/* IAVGJSPoint getOrigVertexCoord (in long x, in long y); */
+NS_IMETHODIMP AVGNode::GetOrigVertexCoord(PRInt32 x, PRInt32 y, 
+        IAVGJSPoint **_retval)
+{
+    nsresult rv;
+    rv = nsComponentManager::CreateInstance (AVGJSPOINT_CONTRACTID, 0,
+            NS_GET_IID(IAVGJSPoint), (void**)_retval);
+    if (NS_FAILED(rv)) {
+        std::cerr << "creating point failed: " << rv << std::endl;
+        PLASSERT(false);
+    }
+    AVGJSPoint * pPoint = dynamic_cast<AVGJSPoint*>(*_retval);
+    AVGOGLSurface * pOGLSurface = getOGLSurface();
+    *pPoint = pOGLSurface->getOrigVertexCoord(x, y);
+    return NS_OK;
+}
+
+/* IAVGJSPoint getWarpedVertexCoord (in long x, in long y); */
+NS_IMETHODIMP AVGNode::GetWarpedVertexCoord(PRInt32 x, PRInt32 y, 
+        IAVGJSPoint **_retval)
+{
+    nsresult rv;
+    rv = nsComponentManager::CreateInstance (AVGJSPOINT_CONTRACTID, 0,
+            NS_GET_IID(IAVGJSPoint), (void**)_retval);
+    if (NS_FAILED(rv)) {
+        std::cerr << "creating point failed: " << rv << std::endl;
+        PLASSERT(false);
+    }
+    AVGJSPoint * pPoint = dynamic_cast<AVGJSPoint*>(*_retval);
+    AVGOGLSurface * pOGLSurface = getOGLSurface();
+    *pPoint = pOGLSurface->getWarpedVertexCoord(x, y);
+    return NS_OK;
+}
+
+/* void setWarpedVertexCoord (in long x, in long y, in IAVGJSPoint Vertex); */
+NS_IMETHODIMP AVGNode::SetWarpedVertexCoord(PRInt32 x, PRInt32 y, IAVGJSPoint *Vertex)
+{
+    AVGOGLSurface * pOGLSurface = getOGLSurface();
+    AVGDPoint * pPoint = dynamic_cast<AVGDPoint*>(Vertex);
+    pOGLSurface->setWarpedVertexCoord(x, y, *pPoint);
     return NS_OK;
 }
 
@@ -211,7 +278,8 @@ void AVGNode::init(const string& id, IAVGDisplayEngine * pEngine,
 
 void AVGNode::initVisible(double x, double y, int z, 
         double width, double height, 
-        double opacity, double angle, double pivotx, double pivoty)
+        double opacity, double angle, double pivotx, double pivoty,
+        int maxTileWidth, int maxTileHeight)
 {
     AVGDPoint PreferredSize = getPreferredMediaSize();
     if (width == 0) {
@@ -232,6 +300,21 @@ void AVGNode::initVisible(double x, double y, int z,
 
     m_Pivot = AVGDPoint(pivotx, pivoty);
     m_bHasCustomPivot = ((pivotx != -32767) && (pivoty != -32767));
+    m_MaxTileSize = PLPoint(maxTileWidth, maxTileHeight);
+     if (m_MaxTileSize != PLPoint(-1, -1)) {
+        AVGOGLSurface * pOGLSurface = 
+            dynamic_cast<AVGOGLSurface*>(m_pSurface);
+        if (!pOGLSurface) {
+            AVG_TRACE(AVGPlayer::DEBUG_WARNING, 
+                    "Node "+m_ID+":"
+                    "Custom tile sizes are only allowed when "
+                    "the display engine is OpenGL. Ignoring.");
+        } else {
+           
+            pOGLSurface->setMaxTileSize(m_MaxTileSize);
+        }
+
+    }
 }
 
 void AVGNode::InitEventHandlers
@@ -375,6 +458,18 @@ void AVGNode::calcAbsViewport()
     }
 }
 
+AVGOGLSurface * AVGNode::getOGLSurface()
+{
+    AVGOGLSurface * pOGLSurface = dynamic_cast<AVGOGLSurface *>(m_pSurface);
+    if (pOGLSurface) {
+        return pOGLSurface; 
+    } else {
+        AVG_TRACE(AVGPlayer::DEBUG_ERROR, 
+                "OpenGL display engine needed for node " << m_ID << ". Aborting.");
+        exit(-1);
+    }
+}
+
 int AVGNode::getZ ()
 {
     return m_z;
@@ -409,6 +504,13 @@ IAVGDisplayEngine * AVGNode::getEngine()
     return m_pEngine;
 }
 
+IAVGSurface * AVGNode::getSurface()
+{
+    if (!m_pSurface) {
+        m_pSurface = getEngine()->createSurface();
+    }
+    return m_pSurface;
+}
 
 string AVGNode::dump (int indent)
 {

@@ -5,7 +5,7 @@
   <video id="clogo2" x="150" y="50" z="3" opacity="0.5" loop="true"
       href="test.mpg" width="176" height="144"/>
   <video id="clogo1" x="0" y="0" z="1" loop="true"
-      href="test.mpg"/>
+      href="test.mpg" maxtilewidth="100" maxtileheight="40"/>
 
 <!--  
   <video id="clogo" x="100" y="130" z="2" opacity="1"

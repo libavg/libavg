@@ -3,6 +3,7 @@
 //
 
 #include "nsISupports.idl"
+#include "IAVGJSPoint.idl"
 
 /**
  * Base interface for all scene elements. Attributes of every node in 
@@ -51,6 +52,12 @@ interface IAVGNode : nsISupports
      * Returns the parent node, if there is one.
      */
     IAVGNode getParent();
+
+    long getNumVerticesX();
+    long getNumVerticesY();
+    IAVGJSPoint getOrigVertexCoord(in long x, in long y);
+    IAVGJSPoint getWarpedVertexCoord(in long x, in long y);
+    void setWarpedVertexCoord(in long x, in long y, in IAVGJSPoint Vertex);
    
     /**
      * The x position of the node relative to its parent node. Negative values

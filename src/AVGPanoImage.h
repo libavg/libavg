@@ -36,7 +36,7 @@ class AVGPanoImage : public AVGNode, public IAVGPanoImage
         NS_IMETHOD GetType(PRInt32 *_retval);
 
         virtual void init (const std::string& id, const std::string& filename,
-                double SensorWidth, double SensorHeight, double FocalLength, 
+                double SensorWidth, double SensorHeight, double FocalLength,
                 int hue, int saturation, IAVGDisplayEngine * pEngine, 
                 AVGContainer * pParent, AVGPlayer * pPlayer);
         virtual void render (const AVGDRect& Rect);

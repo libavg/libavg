@@ -724,7 +724,7 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         string id  = getDefaultedStringAttr (xmlNode, "id", "");
         curNode = AVGExcl::create();
         curNode->init(id, m_pDisplayEngine, pParent, this);
-        curNode->initVisible(0,0,1,10000,10000,1,0,0,0);
+        curNode->initVisible(0,0,1,10000,10000,1,0,0,0,-1,-1);
         initEventHandlers(curNode, xmlNode);
     } else if (!strcmp (nodeType, "text") || 
                !strcmp (nodeType, "comment")) {
@@ -819,9 +819,11 @@ void AVGPlayer::initVisible (const xmlNodePtr xmlNode,
     double angle = getDefaultedDoubleAttr (xmlNode, "angle", 0.0);
     int pivotx = getDefaultedIntAttr (xmlNode, "pivotx", -32767);
     int pivoty = getDefaultedIntAttr (xmlNode, "pivoty", -32767);
+    int maxTileHeight = getDefaultedIntAttr(xmlNode, "maxtileheight", -1);
+    int maxTileWidth = getDefaultedIntAttr(xmlNode, "maxtilewidth", -1);
 
     pNode->initVisible(x, y, z, width, height, opacity, angle, 
-                pivotx, pivoty);
+                pivotx, pivoty, maxTileWidth, maxTileHeight);
     initEventHandlers(pNode, xmlNode);
 }
 

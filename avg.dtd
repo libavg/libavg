@@ -16,7 +16,10 @@
    z CDATA #IMPLIED
    width CDATA #IMPLIED
    height CDATA #IMPLIED
-   opacity CDATA #IMPLIED" >
+   opacity CDATA #IMPLIED
+   maxtilewidth CDATA #IMPLIED
+   maxtileheight CDATA #IMPLIED" >
+
 
 <!ELEMENT avg (div|excl|image|video|camera|audio|words|panoimage)* >
 <!ATTLIST avg

@@ -32,8 +32,7 @@ using namespace std;
 NS_IMPL_ISUPPORTS2(AVGVideoBase, IAVGNode, IAVGVideoBase);
 
 AVGVideoBase::AVGVideoBase ()
-    : m_State(Unloaded),
-      m_pSurface(0)
+    : m_State(Unloaded)
 {
     NS_INIT_ISUPPORTS();
     m_bFrameAvailable = false;
@@ -41,9 +40,6 @@ AVGVideoBase::AVGVideoBase ()
 
 AVGVideoBase::~AVGVideoBase ()
 {
-    if (m_pSurface) {
-        delete m_pSurface;
-    }
 }
 
 NS_IMETHODIMP 
@@ -118,17 +114,17 @@ void AVGVideoBase::render (const AVGDRect& Rect)
                 } else
 #endif                
                 {
-                    m_bFrameAvailable = renderToSurface(m_pSurface);
-                    getEngine()->blt32(m_pSurface, &getAbsViewport(), 
+                    m_bFrameAvailable = renderToSurface(getSurface());
+                    getEngine()->blt32(getSurface(), &getAbsViewport(), 
                             getEffectiveOpacity(), getAngle(), getPivot());
                 }
             }
             break;
         case Paused:
             if (!m_bFrameAvailable) {
-                m_bFrameAvailable = renderToSurface(m_pSurface);
+                m_bFrameAvailable = renderToSurface(getSurface());
             }
-            getEngine()->blt32(m_pSurface, &getAbsViewport(), 
+            getEngine()->blt32(getSurface(), &getAbsViewport(), 
                     getEffectiveOpacity(), getAngle(), getPivot());
             break;
         case Unloaded:
@@ -146,8 +142,6 @@ void AVGVideoBase::changeState(VideoState NewState)
     }
     if (NewState == Unloaded) {
         close();
-        delete m_pSurface;
-        m_pSurface = 0;
     }
     addDirtyRect(getVisibleRect());
     m_State = NewState;
@@ -184,13 +178,12 @@ void AVGVideoBase::open()
 {
     open(&m_Width, &m_Height);
 
-    m_pSurface = getEngine()->createSurface();
     AVGDRect vpt = getRelViewport();
 
-    m_pSurface->create(m_Width, m_Height, 24, false);
+    getSurface()->create(m_Width, m_Height, 24, false);
     
     PLFilterFill<PLPixel24> Filter(PLPixel24(0,0,0));
-    Filter.ApplyInPlace(m_pSurface->getBmp());
+    Filter.ApplyInPlace(getSurface()->getBmp());
     
     m_bFrameAvailable = false;
     m_State = Paused;

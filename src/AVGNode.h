@@ -14,6 +14,7 @@
 #include <string>
 
 #include <paintlib/plstdpch.h>
+#include <paintlib/plpoint.h>
 
 #include <xpcom/nsCOMPtr.h>
 #include <xpcom/nsIComponentManager.h>
@@ -25,6 +26,8 @@ class AVGRegion;
 class IAVGDisplayEngine;
 class AVGPlayer;
 class AVGMouseEvent;
+class IAVGSurface;
+class AVGOGLSurface;
 
 class AVGNode: public IAVGNode
 {
@@ -37,7 +40,8 @@ class AVGNode: public IAVGNode
         void init(const std::string& id, IAVGDisplayEngine * pEngine,
                 AVGContainer * pParent, AVGPlayer * pPlayer);
         void initVisible(double x, double y, int z, double width, double height, 
-                double opacity, double angle, double pivotx, double pivoty);
+                double opacity, double angle, double pivotx, double pivoty,
+                int maxTileWidth, int maxTileHeight);
         
         virtual void InitEventHandlers
             (const std::string& MouseMoveHandler, 
@@ -77,15 +81,18 @@ class AVGNode: public IAVGNode
         AVGDPoint getPivot();
         AVGPlayer * getPlayer();
         IAVGDisplayEngine * getEngine();
+        IAVGSurface * getSurface();
         void callJS (const std::string& Code, JSContext * pJSContext);
 
     private:
         void calcAbsViewport();
-
+        AVGOGLSurface * getOGLSurface();
+        
         std::string m_ID;
         AVGContainer * m_pParent;
         IAVGDisplayEngine * m_pEngine;
         AVGPlayer * m_pPlayer;
+        IAVGSurface * m_pSurface;
 
         std::string m_MouseMoveHandler;
         std::string m_MouseButtonUpHandler;
@@ -103,6 +110,7 @@ class AVGNode: public IAVGNode
         
         AVGRegion m_DirtyRegion;
 
+        PLPoint m_MaxTileSize;
 };
 
 template<class NODECLASS>

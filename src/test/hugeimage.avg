@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
+<avg id="imageavg" width="640" height="480">
+    <image id="mainimg" x="0" y="0" z="1"
+            opacity = "0.5"
+            href="widebmp.jpg"/>
+</avg>

@@ -34,16 +34,12 @@ AVGImage * AVGImage::create()
 }       
 
 AVGImage::AVGImage ()
-    : m_pSurface(0)
 {
     NS_INIT_ISUPPORTS();
 }
 
 AVGImage::~AVGImage ()
 {
-    if (m_pSurface) {
-        delete m_pSurface;
-    }
 }
 
 NS_IMETHODIMP 
@@ -61,7 +57,6 @@ void AVGImage::init (const std::string& id, const std::string& filename,
 
     m_Filename = filename;
     AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "Loading " << m_Filename);
-    m_pSurface = getEngine()->createSurface();
 
     PLAnyPicDecoder decoder;
     PLAnyBmp TempBmp;
@@ -81,20 +76,20 @@ void AVGImage::init (const std::string& id, const std::string& filename,
         DestBPP = 32;
     }
 
-    m_pSurface->create(TempBmp.GetWidth(), TempBmp.GetHeight(), 
+    getSurface()->create(TempBmp.GetWidth(), TempBmp.GetHeight(), 
             DestBPP, TempBmp.HasAlpha());
-    m_pSurface->getBmp()->CopyPixels(TempBmp);
+    getSurface()->getBmp()->CopyPixels(TempBmp);
 }
 
 void AVGImage::render (const AVGDRect& Rect)
 {
-    getEngine()->blt32(m_pSurface, &getAbsViewport(), getEffectiveOpacity(), 
+    getEngine()->blt32(getSurface(), &getAbsViewport(), getEffectiveOpacity(), 
             getAngle(), getPivot());
 }
 
 bool AVGImage::obscures (const AVGDRect& Rect, int z) 
 {
-    return (getEffectiveOpacity() > 0.999 && !m_pSurface->getBmp()->HasAlpha() 
+    return (getEffectiveOpacity() > 0.999 && !getSurface()->getBmp()->HasAlpha() 
             && getZ() > z && getVisibleRect().Contains(Rect));
 }
 
@@ -105,6 +100,6 @@ string AVGImage::getTypeStr ()
 
 AVGDPoint AVGImage::getPreferredMediaSize()
 {
-    return AVGDPoint(m_pSurface->getBmp()->GetSize());
+    return AVGDPoint(getSurface()->getBmp()->GetSize());
 }
 

@@ -23,6 +23,7 @@
 #include "AVGDivNode.h"
 #include "AVGExcl.h"
 #include "AVGConradRelais.h"
+#include "AVGJSPoint.h"
 #include "acJSContextPublisher.h"
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGPlayer)
@@ -41,6 +42,7 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(AVGAVGNode)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGDivNode)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGExcl)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGConradRelais)
+NS_GENERIC_FACTORY_CONSTRUCTOR(AVGJSPoint)
 NS_GENERIC_FACTORY_CONSTRUCTOR(acJSContextPublisher)
 
 static NS_METHOD AVGPlayerRegistrationProc(nsIComponentManager *aCompMgr,
@@ -76,6 +78,7 @@ NS_DECL_CLASSINFO(AVGAVGNode)
 NS_DECL_CLASSINFO(AVGDivNode)
 NS_DECL_CLASSINFO(AVGExcl)
 NS_DECL_CLASSINFO(AVGConradRelais)
+NS_DECL_CLASSINFO(AVGJSPoint)
 NS_DECL_CLASSINFO(acJSContextPublisher)
   
 static const nsModuleComponentInfo components[] =
@@ -236,6 +239,17 @@ static const nsModuleComponentInfo components[] =
     NULL /* no language helper */,
     &NS_CLASSINFO_NAME(AVGConradRelais)
   },
+  { "c-base avgjspoint Component", 
+    AVGJSPOINT_CID, 
+    AVGJSPOINT_CONTRACTID, 
+    AVGJSPointConstructor,
+    AVGPlayerRegistrationProc,
+    AVGPlayerUnregistrationProc,
+    NULL /* no factory destructor */,
+    NS_CI_INTERFACE_GETTER_NAME(AVGJSPoint),
+    NULL /* no language helper */,
+    &NS_CLASSINFO_NAME(AVGJSPoint)
+  },
   { "acJSContextPublisher Component", 
     ACJSCONTEXTPUBLISHER_CID, 
     ACJSCONTEXTPUBLISHER_CONTRACTID, 
@@ -255,6 +269,9 @@ NS_IMPL_NSGETMODULE(AVGPlayerModule, components)
 //==============================================================================
 //
 // $Log$
+// Revision 1.18  2004/08/12 08:51:46  uzadow
+// Added image warp support
+//
 // Revision 1.17  2004/07/30 15:48:29  uzadow
 // Initial incomplete version of panorama renderer.
 //
