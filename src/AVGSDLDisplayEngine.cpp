@@ -139,6 +139,7 @@ void AVGSDLDisplayEngine::render(AVGNode * pRootNode,
             "AVGSDLDisplayEngine::render: glBlendFunc()");
     
     const PLRect rc(0,0, m_Width, m_Height);
+    glMatrixMode(GL_MODELVIEW);
     pRootNode->maybeRender(rc);
     
     pFramerateManager->FrameWait();
@@ -154,76 +155,63 @@ void AVGSDLDisplayEngine::setClipRect()
 bool AVGSDLDisplayEngine::setClipRect(const PLRect& rc)
 {
     m_ClipRect = rc;
+
     AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Clip set to " << 
             m_ClipRect.tl.x << "x" << m_ClipRect.tl.y << 
             ", width: " << m_ClipRect.Width() << ", height: " << 
             m_ClipRect.Height());
-
-    GLdouble xEqn[4] = {1.0, 0.0, 0.0, 0.0};
-    GLdouble yEqn[4] = {0.0, 1.0, 0.0, 0.0};
-
-    xEqn[3] = -m_ClipRect.tl.x;
-    glClipPlane(GL_CLIP_PLANE0, xEqn);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glClipPlane(0)");
-    glEnable (GL_CLIP_PLANE0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glEnable(0)");
-
-    xEqn[0] = -1;
-    xEqn[3] = m_ClipRect.br.x;
-    glClipPlane(GL_CLIP_PLANE1, xEqn);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glClipPlane(1)");
-    glEnable (GL_CLIP_PLANE1);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glEnable(1)");
-
-    yEqn[3] = -m_ClipRect.tl.y;
-    glClipPlane(GL_CLIP_PLANE2, yEqn);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glClipPlane(2)");
-    glEnable (GL_CLIP_PLANE2);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glEnable(2)");
-    yEqn[1] = -1;
-    yEqn[3] = m_ClipRect.br.y;
-    glClipPlane(GL_CLIP_PLANE3, yEqn);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glClipPlane(3)");
-    glEnable (GL_CLIP_PLANE3);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glEnable(3)");
-
+    clip();
     return true;
 }
 
 const PLRect& AVGSDLDisplayEngine::getClipRect() {
-//    return m_ClipRect;
+    return m_ClipRect;
 }
 
 void AVGSDLDisplayEngine::blt32(PLBmp * pBmp, const PLRect* pDestRect, 
-        double opacity)
+        double opacity, double angle)
 {
     AVGOGLBmp * pOGLBmp = dynamic_cast<AVGOGLBmp*>(pBmp);
     glColor4f(1.0f, 1.0f, 1.0f, opacity);
     if (AVGOGLBmp::getTextureMode() == GL_TEXTURE_RECTANGLE_NV) {
-        bltTexture(pOGLBmp, pDestRect, pBmp->GetWidth(), pBmp->GetHeight());
+        bltTexture(pOGLBmp, pDestRect, pBmp->GetWidth(), pBmp->GetHeight(),
+                angle);
     } else {
-        bltTexture(pOGLBmp, pDestRect, ((GLfloat)pBmp->GetWidth()-0.5f)/pOGLBmp->getTexSize(),
-                ((GLfloat)pBmp->GetHeight()-0.5f)/pOGLBmp->getTexSize());
+        bltTexture(pOGLBmp, pDestRect, 
+                ((GLfloat)pBmp->GetWidth()-0.5f)/pOGLBmp->getTexSize(),
+                ((GLfloat)pBmp->GetHeight()-0.5f)/pOGLBmp->getTexSize(), angle);
     }
 }
 
 void AVGSDLDisplayEngine::blta8(PLBmp * pBmp, const PLRect* pDestRect,
-        double opacity, const PLPixel32& color)
+        double opacity, const PLPixel32& color, double angle)
 {
     AVGOGLBmp * pOGLBmp = dynamic_cast<AVGOGLBmp*>(pBmp);
     glColor4f(float(color.GetR())/256, float(color.GetG())/256, 
             float(color.GetB())/256, opacity);
     if (AVGOGLBmp::getTextureMode() == GL_TEXTURE_RECTANGLE_NV) {
-        bltTexture(pOGLBmp, pDestRect, pBmp->GetWidth(), pBmp->GetHeight());
+        bltTexture(pOGLBmp, pDestRect, pBmp->GetWidth(), pBmp->GetHeight(), angle);
     } else {
-        bltTexture(pOGLBmp, pDestRect, ((GLfloat)pBmp->GetWidth()-0.5f)/pOGLBmp->getTexSize(),
-                ((GLfloat)pBmp->GetHeight()-0.5f)/pOGLBmp->getTexSize());
+        bltTexture(pOGLBmp, pDestRect, 
+                ((GLfloat)pBmp->GetWidth()-0.5f)/pOGLBmp->getTexSize(),
+                ((GLfloat)pBmp->GetHeight()-0.5f)/pOGLBmp->getTexSize(), angle);
     }
 }
 
 void AVGSDLDisplayEngine::bltTexture(AVGOGLBmp * pOGLBmp, const PLRect* pDestRect, 
-        float Width, float Height)
+        float Width, float Height, double angle)
 {
+    PLPoint center((pDestRect->tl.x+pDestRect->br.x)/2,
+            (pDestRect->tl.y+pDestRect->br.y)/2);
+
+    glPushMatrix();
+    glTranslated(center.x, center.y, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "bltTexture: glTranslated");
+    glRotated(angle, 0, 0, 1);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "bltTexture: glRotated");
+    glTranslated(-center.x, -center.y, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "bltTexture: glTranslated");
+
     glBindTexture(AVGOGLBmp::getTextureMode(), pOGLBmp->getTexID());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGSDLDisplayEngine::blta8: glBindTexture()");
@@ -242,6 +230,42 @@ void AVGSDLDisplayEngine::bltTexture(AVGOGLBmp * pOGLBmp, const PLRect* pDestRec
     AVG_TRACE(AVGPlayer::DEBUG_BLTS, "(" << pDestRect->tl.x << ", " 
             << pDestRect->tl.y << ")" << ", width:" << pDestRect->Width() 
             << ", height: " << pDestRect->Height());
+    glPopMatrix();
+}
+
+
+void AVGSDLDisplayEngine::clip()
+{
+    double xEqn[4] = {1.0, 0.0, 0.0, 0.0};
+    xEqn[3] = -m_ClipRect.tl.x;
+    glClipPlane(GL_CLIP_PLANE0, xEqn);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glClipPlane(0)");
+    glEnable (GL_CLIP_PLANE0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glEnable(0)");
+
+    xEqn[0] = -1;
+    xEqn[1] = 0;
+    xEqn[2] = 0;
+    xEqn[3] = m_ClipRect.br.x;
+    glClipPlane(GL_CLIP_PLANE1, xEqn);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glClipPlane(1)");
+    glEnable (GL_CLIP_PLANE1);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glEnable(1)");
+
+    double yEqn[4] = {0.0, 1.0, 0.0, 0.0};
+    yEqn[3] = -m_ClipRect.tl.y;
+    glClipPlane(GL_CLIP_PLANE2, yEqn);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glClipPlane(2)");
+    glEnable (GL_CLIP_PLANE2);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glEnable(2)");
+    yEqn[0] = 0;
+    yEqn[1] = -1.0;
+    yEqn[2] = 0;
+    yEqn[3] = m_ClipRect.br.y;
+    glClipPlane(GL_CLIP_PLANE3, yEqn);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glClipPlane(3)");
+    glEnable (GL_CLIP_PLANE3);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "setClipRect: glEnable(3)");
 }
 
 void AVGSDLDisplayEngine::setDirtyRect(const PLRect& rc) 

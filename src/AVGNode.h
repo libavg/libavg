@@ -36,7 +36,8 @@ class AVGNode: public IAVGNode
         virtual ~AVGNode ();
         void init(const std::string& id, IAVGDisplayEngine * pEngine,
                 AVGContainer * pParent, AVGPlayer * pPlayer);
-        void initVisible(int x, int y, int z, int width, int height, double opacity);
+        void initVisible(int x, int y, int z, int width, int height, 
+                double opacity, double angle);
         
         virtual void InitEventHandlers
             (const std::string& MouseMoveHandler, 
@@ -58,6 +59,7 @@ class AVGNode: public IAVGNode
         PLRect AVGNode::getVisibleRect();
         virtual int getZ();
         double getOpacity();
+        double getAngle();
         void setOpacity(double o);
         virtual double getEffectiveOpacity();
         IAVGDisplayEngine * getEngine();
@@ -91,6 +93,7 @@ class AVGNode: public IAVGNode
         std::string m_MouseOutHandler;
 
         double m_Opacity;
+        double m_Angle;
         PLRect m_RelViewport;      // In coordinates relative to the parent.
         PLRect m_AbsViewport;      // In window coordinates.
         int m_z;

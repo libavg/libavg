@@ -34,9 +34,9 @@ class AVGSDLDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         virtual bool setClipRect(const PLRect& rc);
         virtual const PLRect& getClipRect();
         virtual void blt32(PLBmp * pBmp, const PLRect* pDestRect, 
-                double opacity);
+                double opacity, double angle);
         virtual void blta8(PLBmp * pBmp, const PLRect* pDestRect,
-                double opacity, const PLPixel32& color);
+                double opacity, const PLPixel32& color, double angle);
 
         virtual PLBmp * createSurface();
         virtual void surfaceChanged(PLBmp* pBmp);
@@ -57,8 +57,9 @@ class AVGSDLDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         void initJoysticks();
         void setDirtyRect(const PLRect& rc);
         void bltTexture(AVGOGLBmp * pOGLBmp, const PLRect* pDestRect,
-                float Width, float Height);
+                float Width, float Height, double angle);
         virtual void swapBuffers();
+        void clip();
 
         AVGEvent * createMouseMotionEvent 
                 (int Type, const SDL_Event & SDLEvent);

@@ -119,8 +119,7 @@ AVGWords::GetType(PRInt32 *_retval)
 }
 
 void 
-AVGWords::init (const string& id, int x, int y, int z, 
-           double opacity, int size, const string& font, 
+AVGWords::init (const string& id, int size, const string& font, 
            const string& str, const string& color,
            IAVGDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer)
 {
@@ -132,7 +131,6 @@ AVGWords::init (const string& id, int x, int y, int z,
     m_pBmp = getEngine()->createSurface();
     m_FontName = font;
     changeFont();
-    initVisible(x, y, z, 0, 0, opacity); 
 }
 
 string AVGWords::getTypeStr ()
@@ -160,7 +158,7 @@ void AVGWords::render(const PLRect& Rect)
         bool bVisible = getEngine()->setClipRect(getVisibleRect());
         if (bVisible) {
             getEngine()->blta8(m_pBmp, &getAbsViewport(), getEffectiveOpacity(),
-                    m_Color);
+                    m_Color, getAngle());
         }
     }
 }

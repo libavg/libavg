@@ -32,9 +32,9 @@ class AVGDFBDisplayEngine: public IAVGDisplayEngine, public IAVGEventSource
         virtual void setClipRect();
         virtual bool setClipRect(const PLRect& rc);
         virtual const PLRect& getClipRect();
-        virtual void blt32(PLBmp * pBmp, const PLRect* pDestRect, double opacity);
+        virtual void blt32(PLBmp * pBmp, const PLRect* pDestRect, double opacity, double angle);
         virtual void blta8(PLBmp * pBmp, const PLRect* pDestRect, 
-                double opacity, const PLPixel32& color);
+                double opacity, const PLPixel32& color, double angle);
 
 	virtual PLBmp * createSurface();
 

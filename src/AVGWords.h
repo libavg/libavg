@@ -36,11 +36,11 @@ class AVGWords : public AVGNode, IAVGWords
         
         NS_IMETHOD GetType(PRInt32 *_retval);
 
-        virtual void init (const std::string& id, int x, int y, int z, 
-           double opacity, int size, const std::string& font, 
-           const std::string& str, const std::string& color,
-           IAVGDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer);
-		virtual void render (const PLRect& Rect);
+        virtual void init (const std::string& id, int size, 
+                const std::string& font, const std::string& str, 
+                const std::string& color,
+               IAVGDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer);
+        virtual void render (const PLRect& Rect);
         virtual std::string getTypeStr ();
 
     protected:        

@@ -171,7 +171,8 @@ void AVGNode::init(const string& id, IAVGDisplayEngine * pEngine,
 }
 
 
-void AVGNode::initVisible(int x, int y, int z, int width, int height, double opacity)
+void AVGNode::initVisible(int x, int y, int z, int width, int height, 
+        double opacity, double angle)
 {
     PLPoint PreferredSize = getPreferredMediaSize();
     if (width == 0) {
@@ -183,6 +184,7 @@ void AVGNode::initVisible(int x, int y, int z, int width, int height, double opa
     m_RelViewport = PLRect(x, y, x+width, y+height);
     m_z = z;
     m_Opacity = opacity;
+    m_Angle = angle;
     PLPoint pos(0,0);
     if (m_pParent) {
         pos = m_pParent->getAbsViewport().tl;
@@ -332,6 +334,11 @@ double AVGNode::getOpacity()
 void AVGNode::setOpacity(double o)
 {
     m_Opacity = o;
+}
+
+double AVGNode::getAngle()
+{
+    return m_Angle;
 }
 
 double AVGNode::getEffectiveOpacity()

@@ -32,8 +32,7 @@ class AVGVideo : public AVGNode, IAVGVideo
         
         NS_IMETHOD GetType(PRInt32 *_retval);
 
-        virtual void init (const std::string& id, int x, int y, int z, 
-           int width, int height, double opacity, const std::string& filename, 
+        virtual void init (const std::string& id, const std::string& filename, 
            bool bLoop, bool bOverlay, 
            IAVGDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer);
         virtual void prepareRender (int time, const PLRect& parent);

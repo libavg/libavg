@@ -296,7 +296,7 @@ const PLRect& AVGDFBDisplayEngine::getClipRect() {
 }
 
 void AVGDFBDisplayEngine::blt32(PLBmp * pBmp, const PLRect* pDestRect, 
-        double opacity)
+        double opacity, double angle)
 {
     PLDirectFBBmp * pDFBBmp = dynamic_cast<PLDirectFBBmp *>(pBmp);
     PLASSERT(pDFBBmp); // createSurface() should have been used to create 
@@ -306,7 +306,7 @@ void AVGDFBDisplayEngine::blt32(PLBmp * pBmp, const PLRect* pDestRect,
 }
 
 void AVGDFBDisplayEngine::blta8(PLBmp * pBmp, const PLRect* pDestRect, 
-        double opacity, const PLPixel32& color)
+        double opacity, const PLPixel32& color, double angle)
 {
     m_pBackBuffer->SetColor(m_pBackBuffer, color.GetR(), color.GetG(), color.GetB(),
             __u8(opacity*256));

@@ -120,8 +120,7 @@ NS_IMETHODIMP AVGVideo::GetFPS(PRInt32 *_retval)
     return NS_OK;
 }
 
-void AVGVideo::init (const std::string& id, int x, int y, int z, 
-       int width, int height, double opacity, const std::string& filename,
+void AVGVideo::init (const std::string& id, const std::string& filename,
        bool bLoop, bool bOverlay, 
        IAVGDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer)
 {
@@ -135,9 +134,6 @@ void AVGVideo::init (const std::string& id, int x, int y, int z,
     if (m_bOverlay) {
         initOverlay();
     }
-    
-    initVisible(x, y, z, width, height, opacity); 
-    changeState (Paused);
 }
 
 void AVGVideo::prepareRender (int time, const PLRect& parent)
@@ -171,7 +167,8 @@ void AVGVideo::render (const PLRect& Rect)
                     renderToBackbuffer();
                 } else {
                     readFrame();
-                    getEngine()->blt32(m_pBmp, &getAbsViewport(), getEffectiveOpacity());
+                    getEngine()->blt32(m_pBmp, &getAbsViewport(), 
+                            getEffectiveOpacity(), getAngle());
                 }
             }
             break;
@@ -179,7 +176,8 @@ void AVGVideo::render (const PLRect& Rect)
             if (!m_bFrameAvailable) {
                 readFrame();
             }
-            getEngine()->blt32(m_pBmp, &getAbsViewport(), getEffectiveOpacity());
+            getEngine()->blt32(m_pBmp, &getAbsViewport(), 
+                    getEffectiveOpacity(), getAngle());
             break;
         case Unloaded:
             break;

@@ -29,9 +29,9 @@ class IAVGDisplayEngine
         virtual bool setClipRect(const PLRect& rc) = 0;
         virtual const PLRect& getClipRect() = 0;
         virtual void blt32(PLBmp * pBmp, const PLRect* pDestRect, 
-                double opacity) = 0;
+                double opacity, double angle) = 0;
         virtual void blta8(PLBmp * pBmp, const PLRect* pDestRect, 
-                double opacity, const PLPixel32& color) = 0;
+                double opacity, const PLPixel32& color, double angle) = 0;
         virtual PLBmp * createSurface() = 0;
         virtual void surfaceChanged(PLBmp* pBmp) {};
 

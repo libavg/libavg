@@ -51,8 +51,7 @@ AVGImage::GetType(PRInt32 *_retval)
     return NS_OK;
 }
 
-void AVGImage::init (const std::string& id, int x, int y, int z, 
-       int width, int height, double opacity, const std::string& filename, 
+void AVGImage::init (const std::string& id, const std::string& filename, 
        IAVGDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer)
 {
     AVGNode::init(id, pEngine, pParent, pPlayer);
@@ -65,14 +64,12 @@ void AVGImage::init (const std::string& id, int x, int y, int z,
     decoder.MakeBmpFromFile(m_Filename.c_str(), m_pBmp);
     m_pBmp->ApplyFilter(PLFilterFlipRGB());
    
-    initVisible(x, y, z, width, height, opacity);
-
     getEngine()->surfaceChanged(m_pBmp);
 }
 
 void AVGImage::render (const PLRect& Rect)
 {
-    getEngine()->blt32(m_pBmp, &getAbsViewport(), getEffectiveOpacity());
+    getEngine()->blt32(m_pBmp, &getAbsViewport(), getEffectiveOpacity(), getAngle());
 }
 
 bool AVGImage::obscures (const PLRect& Rect, int z) 
