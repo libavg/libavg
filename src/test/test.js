@@ -83,7 +83,7 @@ function playAVG (fileName)
     var ok = tryLoadFile(fileName);
     if (ok) {
         timerid = AVGPlayer.setInterval(40, "interval();");
-//        AVGPlayer.setTimeout(5000, "quitTimeout();");
+        AVGPlayer.setTimeout(5000, "quitTimeout();");
         AVGPlayer.setTimeout(500, "AVGPlayer.clearInterval(timerid);");
 //        AVGPlayer.setTimeout(1000, "AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_EVENTS | AVGPlayer.DEBUG_PROFILE);");
 //        AVGPlayer.setTimeout(2000, "AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE);");
@@ -386,7 +386,7 @@ function testExcl()
     print (output.value);
 
     playAVG("image.avg");
-/*
+
     testVideo();
     
     testHugeImage();
@@ -402,4 +402,4 @@ function testExcl()
     playAVG("avg.avg");
     playAVG("noavg.avg");
     playAVG("noxml.avg");
-  */  
+    

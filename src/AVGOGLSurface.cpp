@@ -14,6 +14,7 @@
 #include <paintlib/plrect.h>
 #include <paintlib/planybmp.h>
 #include <paintlib/plsubbmp.h>
+#include <paintlib/plpngenc.h>
 
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -56,6 +57,7 @@ void AVGOGLSurface::create(int Width, int Height, int bpp,
             bHasAlpha, false);
     m_pSubBmp = 0;
     setupTiles();
+    initTileVertices();
 }
 
 PLBmpBase* AVGOGLSurface::getBmp()
@@ -78,6 +80,7 @@ void AVGOGLSurface::setMaxTileSize(const PLPoint& MaxTileSize)
         m_MaxTileSize.y = nextpow2(m_MaxTileSize.y/2+1);
     }
     setupTiles();
+    initTileVertices();
 }
 
 int AVGOGLSurface::getNumVerticesX()
@@ -158,8 +161,9 @@ string getGlModeString(int Mode)
 void AVGOGLSurface::bind() 
 {
     if (m_bBound) {
+//        unbind();
         rebind();
-    } else {
+    }  else {
         int DestMode = getDestMode();
         int SrcMode = getSrcMode();
         int Width = m_pBmp->GetWidth();
@@ -247,6 +251,14 @@ void AVGOGLSurface::unbind()
 
 void AVGOGLSurface::rebind()
 {
+    int Width = m_pBmp->GetWidth();
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "AVGOGLSurface::rebind: glPixelStorei(GL_UNPACK_ALIGNMENT)");
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, Width);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "AVGOGLSurface::rebind: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
+
     for (int y=0; y<m_Tiles.size(); y++) {
         for (int x=0; x<m_Tiles[y].size(); x++) {
             glBindTexture(s_TextureMode, m_Tiles[y][x].m_TexID);
@@ -333,14 +345,13 @@ void AVGOGLSurface::setupTiles()
     m_NumHorizTextures = int(ceil(float(Width)/m_TileSize.x));
     m_NumVertTextures = int(ceil(float(Height)/m_TileSize.y));
 
-    std::vector<AVGDPoint> TileVerticesLine(m_NumHorizTextures+1);
-    m_TileVertices = std::vector<std::vector<AVGDPoint> >
-                (m_NumVertTextures+1, TileVerticesLine);
-    initTileVertices();
 }
 
 void AVGOGLSurface::initTileVertices()
 {
+    std::vector<AVGDPoint> TileVerticesLine(m_NumHorizTextures+1);
+    m_TileVertices = std::vector<std::vector<AVGDPoint> >
+                (m_NumVertTextures+1, TileVerticesLine);
     for (int y=0; y<m_TileVertices.size(); y++) {
         for (int x=0; x<m_TileVertices[y].size(); x++) {
             initTileVertex(x, y, m_TileVertices[y][x]);

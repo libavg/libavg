@@ -356,7 +356,7 @@ void AVGNode::maybeRender (const AVGDRect& Rect)
     if (bVisible) {
         if (getEffectiveOpacity() > 0.01) {
             if (!getParent() || 
-                    !getParent()->obscures(getEngine()->getClipRect(), getZ())) {
+                !getParent()->obscures(getEngine()->getClipRect(), getZ())) {
                 render(Rect);
             } 
         }

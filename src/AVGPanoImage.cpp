@@ -230,6 +230,9 @@ void AVGPanoImage::render (const AVGDRect& Rect)
     glViewport(0, 0, m_pEngine->getWidth(), m_pEngine->getHeight());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGPanoImage::render: glViewport() restore");
+    glDisable(GL_TEXTURE_2D);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "AVGPanoImage::render: glDisable(GL_TEXTURE_2D);");
     glEnable(AVGOGLSurface::getTextureMode());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGPanoImage::render: glEnable(Old texture mode);");
