@@ -54,7 +54,8 @@ IDirectFBFont * AVGFontManager::loadFont(IDirectFB * pDFB, const string& Name, i
     IDirectFBFont * pFont;
     DFBResult err = pDFB->CreateFont(pDFB, FontPath.c_str(), &fontDesc, &pFont);
     if (err) {
-        throw AVGException(AVG_ERR_FONT_INIT_FAILED, DirectFBErrorString(err));
+        throw AVGException(AVG_ERR_FONT_INIT_FAILED, 
+                string("Font init failed: ") + DirectFBErrorString(err));
     }
 
     return pFont;

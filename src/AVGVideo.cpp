@@ -237,7 +237,7 @@ void AVGVideo::renderToBackbuffer()
     int Pitch;
     DFBResult err = pSurface->Lock(pSurface, DFBSurfaceLockFlags(DSLF_WRITE), 
             (void **)&pBits, &Pitch);
-    getEngine()->DFBErrorCheck(AVG_ERR_DFB, err);
+    getEngine()->DFBErrorCheck(AVG_ERR_DFB, "AVGVideo::renderToBackbuffer", err);
     PLBYTE ** ppRows = new (PLBYTE *)[vpt.Height()];
     for (int y=vpt.tl.y; y<vpt.br.y; y++) {
         ppRows[y-vpt.tl.y] = pBits+Pitch*y+2*vpt.tl.x;

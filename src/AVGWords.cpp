@@ -158,7 +158,7 @@ void AVGWords::drawString()
     SurfDesc.height = getRelViewport().Height();
     SurfDesc.pixelformat = DSPF_A8;  
     DFBResult err = pDFB->CreateSurface(pDFB, &SurfDesc, &m_pSurface);
-    getEngine()->DFBErrorCheck(AVG_ERR_FONT_INIT_FAILED, err);
+    getEngine()->DFBErrorCheck(AVG_ERR_FONT_INIT_FAILED, "AVGWords::drawString", err);
     m_pSurface->Clear(m_pSurface, 0x00,0x00,0x00,0x00);
     m_pSurface->SetColor(m_pSurface, 0xFF, 0xFF, 0xFF, 0xFF);
 
@@ -186,7 +186,7 @@ void AVGWords::render(const PLRect& Rect)
             PLPoint pos = getAbsViewport().tl;
             DFBResult err = pSurface->Blit(pSurface, m_pSurface, 0, 
                     pos.x, pos.y);
-            getEngine()->DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, err);
+            getEngine()->DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGWords::render", err);
         }
     }
 }

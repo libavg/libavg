@@ -44,7 +44,7 @@ class AVGDFBDisplayEngine
         AVGFontManager * getFontManager();
         int getWidth();
         int getHeight();
-        void DFBErrorCheck(int avgcode, DFBResult dfbcode); 
+        void DFBErrorCheck(int avgcode, std::string where, DFBResult dfbcode); 
 
     private:
         void initInput();
