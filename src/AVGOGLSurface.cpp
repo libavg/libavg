@@ -246,7 +246,7 @@ int AVGOGLSurface::getTextureMode()
      if (s_TextureMode == 0) {
         // TODO: Change to GL_TEXTURE_RECTANGLE_EXT so we don't depend on 
         // proprietary NVidia stuff
-        if (!queryOGLExtension("GL_NV_texture_rectangle")) {
+        if (queryOGLExtension("GL_NV_texture_rectangle")) {
             s_TextureMode = GL_TEXTURE_RECTANGLE_NV;
             AVG_TRACE(AVGPlayer::DEBUG_CONFIG, 
                     "Using NVidia texture rectangle extension.");
