@@ -122,15 +122,31 @@ function changeFont2()
 function testWords()
 {
     print ("---- Testing word node accessors ----");
+    AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE | 
+            AVGPlayer.DEBUG_CONFIG | AVGPlayer.DEBUG_WARNING); 
     var ok = tryLoadFile("text.avg");
     if (ok) {
 //        AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_BLTS | AVGPlayer.DEBUG_PROFILE | AVGPlayer.DEBUG_MEMORY); 
-        AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE | AVGPlayer.DEBUG_MEMORY); 
         timerid = AVGPlayer.setInterval(10, "textInterval();");
         AVGPlayer.setTimeout(1000, "changeTextHeight();");
         AVGPlayer.setTimeout(2000, "changeColor();");
         AVGPlayer.setTimeout(3000, "changeFont();");
         AVGPlayer.setTimeout(4000, "changeFont2();");
+        AVGPlayer.setTimeout(8000, "quitTimeout();");
+
+        AVGPlayer.play(25);
+    }
+}
+
+function testHugeImage()
+{
+    AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE | 
+            AVGPlayer.DEBUG_CONFIG | AVGPlayer.DEBUG_WARNING | 
+            AVGPlayer.DEBUG_BLTS); 
+    print ("---- Testing image > texture size ----");
+    var ok = tryLoadFile("hugeimage.avg");
+    if (ok) {
+        timerid = AVGPlayer.setInterval(10, "moveImage();");
         AVGPlayer.setTimeout(8000, "quitTimeout();");
 
         AVGPlayer.play(25);
@@ -339,19 +355,15 @@ function testExcl()
     }
 }
 
-//while (true) {
-
+    testHugeImage();
+/*
     testVideo();
-
     testCrop();
-
     testAnimation();
 //    testWords();
 
     dumpNodes();
-
     testExcl();
-
     playAVG("image.avg");
     playAVG("empty.avg");
 
@@ -359,7 +371,5 @@ function testExcl()
     playAVG("avg.avg");
     playAVG("noavg.avg");
     playAVG("noxml.avg");
-
-
-//}
+*/
 

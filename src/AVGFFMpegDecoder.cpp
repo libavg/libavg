@@ -308,7 +308,6 @@ bool AVGFFMpegDecoder::renderToBuffer(PLBYTE * pSurfBits, int Pitch,
         img_convert(&DestPict, DestPixFmt,
                 (AVPicture*)&Frame, m_pVStream->codec.pix_fmt,
                 m_pVStream->codec.width, m_pVStream->codec.height);
-        
     }
 #endif
     return m_bEOF;

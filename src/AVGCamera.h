@@ -49,8 +49,8 @@ class AVGCamera : public AVGVideoBase , public IAVGCamera
         virtual bool open(int* pWidth, int* pHeight);
         virtual void close();
         virtual double getFPS();
-        void checkDC1394Error(int Code, const std::string & sNode, 
-                const std::string & sMsg);
+        void checkDC1394Error(int Code, const std::string & sMsg);
+        void fatalError(const std::string & sMsg);
         void dumpCameraInfo(raw1394handle_t PortHandle, nodeid_t CameraNode);
 
         std::string m_sDevice;

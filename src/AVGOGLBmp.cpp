@@ -39,6 +39,24 @@ int nextpow2(int n) {
     return int(pow(2, ceil(d)));
 }
 
+string getGlModeString(int Mode) 
+{
+    switch (Mode) {
+        case GL_ALPHA:
+            return "GL_ALPHA";
+        case GL_RGB:
+            return "GL_RGB";
+        case GL_RGBA:
+            return "GL_RGBA";
+        case GL_BGR:
+            return "GL_BGR";
+        case GL_BGRA:
+            return "GL_BGRA";
+        default:
+            return "UNKNOWN";
+    }
+}
+
 void AVGOGLBmp::bind() 
 {
     if (m_bBound) {
@@ -67,30 +85,30 @@ void AVGOGLBmp::bind()
     int SrcMode = getSrcMode();
     switch (GetBitsPerPixel()) {
         case 8:
-//            cerr << "DestMode: GL_ALPHA" << endl;
             DestMode = GL_ALPHA;
             break;
         case 24:
-//            cerr << "DestMode: GL_RGB" << endl;
             DestMode = GL_RGB;
             break;
         case 32:
             if (HasAlpha()) {
-//                cerr << "DestMode: GL_RGBA" << endl;
                 DestMode = GL_RGBA;
             } else {
-//                cerr << "DestMode: GL_RGB" << endl;
                 DestMode = GL_RGB;    
             }
             break;
     }
+    AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Texture upload. Size=" << 
+            GetWidth() << "x" << GetHeight() << ", SrcMode=" <<
+            getGlModeString(SrcMode) << ", DestMode=" << 
+            getGlModeString(DestMode) << ".");
     if (getTextureMode() == GL_TEXTURE_RECTANGLE_NV) {
         if (GetWidth() > m_MaxTexSize || GetHeight() > m_MaxTexSize) {
-        stringstream s;
-        s << "Texture size is " << GetWidth() << "x" << GetHeight() << 
-            ", OpenGL maximum is " << m_MaxTexSize << "." << endl;
-        AVG_TRACE(AVGPlayer::DEBUG_ERROR, s.str());
-    }
+            stringstream s;
+            s << "Texture size is " << GetWidth() << "x" << GetHeight() << 
+                ", OpenGL maximum is " << m_MaxTexSize << "." << endl;
+            AVG_TRACE(AVGPlayer::DEBUG_ERROR, s.str());
+        }
         glTexImage2D(GL_TEXTURE_RECTANGLE_NV, 0,
                 DestMode, GetWidth(), GetHeight(), 0,
                 SrcMode, GL_UNSIGNED_BYTE, GetLineArray()[0]);
@@ -179,6 +197,8 @@ int AVGOGLBmp::getTextureMode()
                     "Using power of 2 textures.");
         }
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_MaxTexSize);
+    AVG_TRACE(AVGPlayer::DEBUG_CONFIG,
+            "Max. texture size is " << m_MaxTexSize);
     }
     return m_TextureMode;
 }
@@ -187,13 +207,10 @@ int AVGOGLBmp::getSrcMode()
 {
     switch (GetBitsPerPixel()) {
         case 8:
-//            cerr << "SrcMode: GL_ALPHA" << endl;
             return GL_ALPHA;
         case 24:
-//            cerr << "SrcMode: GL_BGR" << endl;
             return GL_BGR;
         case 32:
-//            cerr << "SrcMode: GL_BGRA" << endl;
             return GL_BGRA;
     }
 }
