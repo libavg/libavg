@@ -65,18 +65,19 @@ body { }
 </div>
 <div id="textbox">
        <b>Hic sunt leones</b>
-       <p>Be warned that this is stuff under heavy development. libavg is not polished enough to be easy to install yet. We've had it running on Debian unstable and SuSE boxes, and it shouldn't be impossible to get running on a sane Linux system, but it isn't packaged well yet, so things will hiccup and stutter and spit out compiler errors and in general behave badly until tamed. Of course, at this stage I'm more than happy to help anyone trying to install the beast: uzadow at gmx.de.
+       <p>Be warned that this is stuff under heavy development. libavg is not polished enough to be easy to install yet. We've had it running on Debian unstable, Gentoo and SuSE boxes, and it shouldn't be impossible to get running on a sane Linux system, but it isn't packaged well yet, so things will hiccup and stutter and spit out compiler errors and in general behave badly until tamed. Of course, at this stage I'm more than happy to help anyone trying to install the beast: uzadow at gmx.de.
        <p><b>Prerequisites</b>
        <p>libavg uses a lot of third-party libraries. What follows is a list of packages you'll need. I am not sure that the package names are exact, but the list should enable you to find what's needed.
        <ul>
        <li>The image format libraries libjpeg62-dev, libpng-dev, libtiff-dev (all optional but highly recommended)</li>
-       <li>libavcodec-dev</li>
-       <li>libsdl1.2-dev (only needed for non-fullscreen support)</li>
-       <li>DirectFB. (from www.directfb.org. I've used ver. 0.9.19 and several cvs versions of this library. The debian developer package works as well.)</li>
-       <li>OpenGL (installed OpenGL headers are nessesary to compile at the moment, but libavg will run without OpenGL support if DirectFB is working.)
+       <li>libavcodec-dev (debian users need to add <i>deb ftp://ftp.nerim.net/debian-marillat/ unstable main</i> to /etc/apt/sources.list to get this package)</li>
+       <li>libsdl1.2-dev (only needed for non-fullscreen and OpenGL support) and libsdl-ttf2.0-dev (only needed for OpenGL font support).</li>
+       <li>DirectFB (from www.directfb.org. I've used ver. 0.9.19 and several cvs versions of this library. The debian developer package works as well.) and/or
+       OpenGL. configure will detect which of the backends is installed.</li>
        <li>libxml2-dev</li>
-       <li>paintlib-2.5.devel (from www.paintlib.de. Make sure the library finds DirectFB and the image format libraries during configure.)</li>
+       <li>paintlib-2.6 (from www.paintlib.de. Make sure the library finds DirectFB and the image format libraries during configure.)</li>
        <li>mozilla-dev (tested with versions 1.4 and 1.6)</li>
+       <li>Optional: libdc1394 for Firewire digital camera support.</li>
        </ul>
        <p><b>libavg itself</b>
        <p>Do a cvs checkout:
@@ -85,9 +86,6 @@ body { }
        <p>cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/libavg co libavg </p>
        <p>Then <i>./bootstrap</i> to generate configure.</p>
        </p> Now run <i>./configure, make, make install</i> as usual.</p>
-       <p>Do a cvs checkout:
-       <pre>cvs -d:ext:uzadow@cvs.libavg.sourceforge.net:/cvsroot/libavg co libavg</pre>
-       <p>Then ./configure, make, make install as usual.
        <p><b>Linux kernel config</b>
        <p>For DirectFB support, you need a working framebuffer. Also, installing the low-latency and preemptive patches is recommended to get a stable framerate.
 </div>
