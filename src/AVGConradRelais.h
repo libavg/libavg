@@ -29,7 +29,8 @@ class AVGConradRelais: public IAVGConradRelais
         NS_DECL_IAVGCONRADRELAIS
        
         void init(int port);
-        
+        void send();
+	
     private:
         void sendCmd(unsigned char  a, unsigned char b, unsigned char c);
         void initBoard();

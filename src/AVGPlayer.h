@@ -25,6 +25,7 @@ class AVGAVGNode;
 class AVGNode;
 class AVGContainer;
 class AVGEvent;
+class AVGConradRelais;
 class IAVGDisplayEngine;
 
 class PLPoint;
@@ -95,6 +96,7 @@ class AVGPlayer: public IAVGPlayer
         AVGNode * m_pLastMouseNode;
 
         JSContext * m_pJSContext;
+        std::vector<AVGConradRelais*> m_pRelais;
 };
 
 

@@ -16,6 +16,7 @@
 #include <nsLocalFile.h>
 
 #include <prenv.h>
+#include <jsarena.h>
 #include <jsapi.h>
 #include <jsprf.h>
 #include <nscore.h>

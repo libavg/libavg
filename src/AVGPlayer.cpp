@@ -225,6 +225,7 @@ AVGPlayer::CreateRelais(PRInt16 port, IAVGConradRelais **_retval)
         AVG_TRACE(DEBUG_ERROR, "CreateRelais failed: " << rv);
     }
     pRelais->init(port);
+    m_pRelais.push_back(pRelais);
     *_retval = pRelais;
     return NS_OK;
 }
@@ -257,6 +258,9 @@ void AVGPlayer::loadFile (const std::string& filename)
 void AVGPlayer::play (double framerate)
 {
     DFBResult err;
+    if (!m_pRootNode) {
+        AVG_TRACE(DEBUG_ERROR, "play called, but no xml file loaded.");
+    }
     PLASSERT (m_pRootNode);
 //    setRealtimePriority();
     
@@ -294,6 +298,10 @@ void AVGPlayer::doFrame ()
     if (!m_bStopping) {
         m_pDisplayEngine->render(m_pRootNode, m_pFramerateManager, false);
     }
+    for (int i=0; i<m_pRelais.size(); i++) {
+        m_pRelais[i]->send();
+    }
+    
     jsgc();
 }
 

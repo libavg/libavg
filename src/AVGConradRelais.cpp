@@ -61,7 +61,6 @@ NS_IMETHODIMP AVGConradRelais::Set(PRInt16 card, PRInt16 index, PRBool bOn)
         } else {
             m_State[card] &= 255-bitMask;
         }
-        sendCmd(3,card+1,m_State[card]);
         return NS_OK;
     }
 }
@@ -78,13 +77,20 @@ void AVGConradRelais::init(int port)
     m_Port = port;
     stringstream s;
     s << "/dev/ttyS" << m_Port;
-    m_File = open(s.str().c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
+    m_File = open(s.str().c_str(), O_RDWR | O_NOCTTY | O_NDELAY); //O_NONBLOCK);
     if (m_File == -1) {
         
         AVG_TRACE(AVGPlayer::DEBUG_ERROR, "Could not open " << s.str() 
                 << " for conrad relais card (Reason:'" << strerror(errno) << "'). Disabling.");
     } else {
         initBoard();
+    }
+}
+
+void AVGConradRelais::send()
+{
+    for (int i=0; i<m_NumCards; i++) {
+        sendCmd(3,i+1,m_State[i]);
     }
 }
 
@@ -122,15 +128,18 @@ void AVGConradRelais::initBoard()
     fcntl(m_File, F_SETFL, FNDELAY);
     fcntl(m_File, F_SETFL, 0);
     unsigned char rbuf[4];
-    int m_numCards = 0;
+    m_NumCards = 0;
     bool bOk = true;
     // One read per card should succeed.
     while (bOk) {
         ssize_t rc = read(m_File, rbuf, 4);
-        if (rc != 4 || rbuf[0] != 254 || rbuf[1] != m_NumCards+1) {
-            bOk = false;
+        if (rc != 4  || rbuf[0] != 254 || rbuf[1] != m_NumCards+1) {
+//            cerr << "rc: " << rc << ", rbuf: " << (int)rbuf[0] << ":" << (int)rbuf[1] 
+//		 << ":" << (int)rbuf[2] << ":" << (int)rbuf[3] << endl;
+	    bOk = false;
         } else {
-            m_numCards++;
+//	    cerr << "card init." << endl;
+            m_NumCards++;
         }
     }
     if (m_NumCards == 0) {
@@ -143,7 +152,7 @@ void AVGConradRelais::initBoard()
 
 void AVGConradRelais::sendCmd(unsigned char  a, unsigned char b, unsigned char c) 
 {
-    unsigned char Buffer[3];
+    unsigned char Buffer[4];
     Buffer[0] = a;
     Buffer[1] = b;
     Buffer[2] = c;
