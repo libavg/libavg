@@ -15,8 +15,8 @@
   x CDATA "0"
   y CDATA "0"
   z CDATA #IMPLIED
-  width CDATA #REQUIRED
-  height CDATA #REQUIRED
+  width CDATA #IMPLIED
+  height CDATA #IMPLIED
   opacity CDATA #IMPLIED
   fullscreen CDATA "false"
   bpp CDATA "16"
