@@ -47,7 +47,7 @@ class AVGVideoBase : public IAVGVideoBase, public AVGNode
 
         virtual bool renderToSurface(IAVGSurface * pSurface) = 0;
         virtual bool canRenderToBackbuffer(int BitsPerPixel) = 0;
-        virtual bool open(int* pWidth, int* pHeight) = 0;
+        virtual void open(int* pWidth, int* pHeight) = 0;
         virtual void close() = 0;
         virtual double getFPS() = 0;
        

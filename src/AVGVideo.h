@@ -48,7 +48,7 @@ class AVGVideo : public AVGVideoBase, public IAVGVideo
         void seek(int DestFrame);
         void advancePlayback();
        
-        virtual bool open(int* pWidth, int* pHeight);
+        virtual void open(int* pWidth, int* pHeight);
         virtual void close();
         virtual double getFPS();
 

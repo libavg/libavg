@@ -11,9 +11,9 @@
 using namespace std;
 
 bool getDefaultedBoolAttr (const xmlNodePtr& xmlNode, 
-        const xmlChar * attr, bool def)
+        const char * attr, bool def)
 {
-    char * retStr = (char *)xmlGetProp (xmlNode, attr);
+    char * retStr = (char *)xmlGetProp (xmlNode, (const xmlChar *)attr);
     if (!retStr) {
         return def;
     } else {
@@ -24,9 +24,9 @@ bool getDefaultedBoolAttr (const xmlNodePtr& xmlNode,
 }
 
 int getDefaultedIntAttr (const xmlNodePtr& xmlNode, 
-        const xmlChar * attr, int def)
+        const char * attr, int def)
 {
-    char * retStr = (char *)xmlGetProp (xmlNode, attr);
+    char * retStr = (char *)xmlGetProp (xmlNode, (const xmlChar *)attr);
     if (!retStr) {
         return def;
     } else {
@@ -43,9 +43,9 @@ int getDefaultedIntAttr (const xmlNodePtr& xmlNode,
 }
 
 double getDefaultedDoubleAttr (const xmlNodePtr& xmlNode, 
-       const xmlChar * attr, double def)
+       const char * attr, double def)
 {
-    char * retStr = (char *)xmlGetProp (xmlNode, attr);
+    char * retStr = (char *)xmlGetProp (xmlNode, (const xmlChar *)attr);
     if (!retStr) {
         return def;
     } else {
@@ -61,9 +61,9 @@ double getDefaultedDoubleAttr (const xmlNodePtr& xmlNode,
 }
 
 string getDefaultedStringAttr (const xmlNodePtr& xmlNode, 
-       const xmlChar * attr, const string & def)
+       const char * attr, const string & def)
 {
-    char * retStr = (char *)xmlGetProp (xmlNode, attr);
+    char * retStr = (char *)xmlGetProp (xmlNode, (const xmlChar *)attr);
     if (!retStr) {
         return def;
     } else {
@@ -74,9 +74,9 @@ string getDefaultedStringAttr (const xmlNodePtr& xmlNode,
 }
 
 string getRequiredStringAttr (const xmlNodePtr& xmlNode, 
-       const xmlChar * attr)
+       const char * attr)
 {
-    char * retStr = (char *)xmlGetProp (xmlNode, attr);
+    char * retStr = (char *)xmlGetProp (xmlNode, (const xmlChar *)attr);
     string s(retStr);
     xmlFree(retStr);
     return s;

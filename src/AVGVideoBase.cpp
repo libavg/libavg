@@ -182,14 +182,16 @@ void AVGVideoBase::renderToBackbuffer()
 
 void AVGVideoBase::open() 
 {
-    bool m_bOk = open(&m_Width, &m_Height);
-    if (!m_bOk) {
-        return;
-    }
+    open(&m_Width, &m_Height);
+
     m_pSurface = getEngine()->createSurface();
     AVGDRect vpt = getRelViewport();
 
     m_pSurface->create(m_Width, m_Height, 24, false);
+    
+    PLFilterFill<PLPixel24> Filter(PLPixel24(0,0,0));
+    Filter.ApplyInPlace(m_pSurface->getBmp());
+    
     m_bFrameAvailable = false;
     m_State = Paused;
 }

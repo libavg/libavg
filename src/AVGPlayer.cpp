@@ -81,7 +81,8 @@ AVGPlayer::AVGPlayer()
         do_CreateInstance("@artcom.com/jscontextpublisher;1", &myErr);
     if (NS_FAILED(myErr)) {
         AVG_TRACE(DEBUG_ERROR, 
-              "Could not obtain reference to js context. Was xpshell used to start AVGPlayer?");
+              "Could not obtain reference to js context." << endl << 
+              "Was xpshell used to start AVGPlayer?");
         exit(-1);
     }
     myJSContextPublisher->GetContext((PRInt32*) &m_pJSContext);
@@ -543,19 +544,18 @@ void AVGPlayer::readConfigFile(const string& sFName) {
         xmlNodePtr pChild = pRoot->xmlChildrenNode;
         while (pChild) {
             if (!xmlStrcmp(pChild->name, (const xmlChar *)"font")) {
-                m_sFontDir=getRequiredStringAttr(pChild, (const xmlChar *)"dir");
+                m_sFontDir=getRequiredStringAttr(pChild, "dir");
             } else if (!xmlStrcmp(pChild->name, (const xmlChar *)"display")) {
 #ifdef AVG_ENABLE_GL
                 m_sDisplaySubsystem=getDefaultedStringAttr(pChild, 
-                        (const xmlChar *)"subsystem", "OGL");
+                        "subsystem", "OGL");
 #else
                 m_sDisplaySubsystem=getDefaultedStringAttr(pChild, 
-                        (const xmlChar *)"subsystem", "DFB");
+                        "subsystem", "DFB");
 #endif
                 m_bFullscreen=getDefaultedBoolAttr(pChild, 
-                        (const xmlChar *)"fullscreen", false);
-                m_BPP=int(getDefaultedDoubleAttr(pChild, 
-                        (const xmlChar *)"bpp", 24));
+                        "fullscreen", false);
+                m_BPP=int(getDefaultedDoubleAttr(pChild, "bpp", 24));
             } else if (xmlStrcmp(pChild->name, (const xmlChar *)"text") &&
                        xmlStrcmp(pChild->name, (const xmlChar *)"comment")) 
             {
@@ -613,7 +613,6 @@ void AVGPlayer::initConfig() {
                     << m_BPP << ". Aborting." );
             exit(-1);
         }
-        
     }
     char * pszFullscreen = getenv("AVG_FULLSCREEN");
     if (pszFullscreen) {
@@ -638,101 +637,51 @@ void AVGPlayer::initConfig() {
 AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode, 
         AVGContainer * pParent)
 {
-    const xmlChar * nodeType = xmlNode->name;
+    const char * nodeType = (const char *)xmlNode->name;
     AVGNode * curNode = 0;
-    string id;
-    int x,y,z;
-    int width, height;
-    double opacity;
-    double angle;
-    int pivotx, pivoty;
-    if (!xmlStrcmp (nodeType, (const xmlChar *)"avg")) {
-        // create node itself.
-        getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
-                &opacity, &angle, &pivotx, &pivoty);
+    string id = getDefaultedStringAttr (xmlNode, "id", "");
+    if (!strcmp (nodeType, "avg")) {
         curNode = AVGAVGNode::create();
         curNode->init(id, m_pDisplayEngine, pParent, this);
-        curNode->initVisible(x, y, z, width, height, opacity, angle, 
-                pivotx, pivoty);
-        initEventHandlers(curNode, xmlNode);
+        initVisible(xmlNode, curNode);
         if (!pParent) {
             initDisplay(dynamic_cast<AVGAVGNode*>(curNode));
         }
-    } else if (!xmlStrcmp (nodeType, (const xmlChar *)"image")) {
-        getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
-                &opacity, &angle, &pivotx, &pivoty);
+    } else if (!strcmp (nodeType, "image")) {
         string filename = initFileName(xmlNode);
-
         AVGImage * pImage = AVGImage::create();
         curNode = pImage;
-        int bpp = getDefaultedIntAttr(xmlNode, (const xmlChar *)"bpp", 32);
+        int bpp = getDefaultedIntAttr(xmlNode, "bpp", 32);
         pImage->init(id, filename, bpp, m_pDisplayEngine, pParent, this);
-        pImage->initVisible(x, y, z, width, height, opacity, angle, 
-                pivotx, pivoty);
-        initEventHandlers(curNode, xmlNode);
-    } else if (!xmlStrcmp (nodeType, (const xmlChar *)"video")) {
-        getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
-                &opacity, &angle, &pivotx, &pivoty);
+        initVisible(xmlNode, pImage);
+    } else if (!strcmp (nodeType, "video")) {
         string filename = initFileName(xmlNode);
-        bool bLoop = getDefaultedBoolAttr(xmlNode, 
-                (const xmlChar *)"loop", false); 
-        bool bOverlay = getDefaultedBoolAttr(xmlNode, 
-                (const xmlChar *)"overlay", false); 
+        bool bLoop = getDefaultedBoolAttr(xmlNode, "loop", false); 
+        bool bOverlay = getDefaultedBoolAttr(xmlNode,"overlay", false); 
         AVGVideo * pVideo = AVGVideo::create();
         curNode = pVideo;
         pVideo->init(id, filename, bLoop, bOverlay, m_pDisplayEngine, 
                 pParent, this);
-        pVideo->initVisible(x, y, z, width, height, opacity, angle, 
-                pivotx, pivoty);
-        initEventHandlers(curNode, xmlNode);
-    } else if (!xmlStrcmp (nodeType, (const xmlChar *)"camera")) {
-#ifdef AVG_ENABLE_1394
-        // TODO: Framerate & mode support.
-        getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
-                &opacity, &angle, &pivotx, &pivoty);
-        string sDevice = getDefaultedStringAttr(xmlNode, 
-                (const xmlChar *)"device", "0");
-        bool bOverlay = getDefaultedBoolAttr(xmlNode, 
-                (const xmlChar *)"overlay", false);
-        string sMode = getDefaultedStringAttr(xmlNode,
-                (const xmlChar *)"mode", "640x480_RGB");
-        int Framerate = getDefaultedIntAttr(xmlNode,
-                (const xmlChar *)"framerate", 15);
-        
-        AVGCamera * pCamera = AVGCamera::create();
-        curNode = pCamera;
-        pCamera->init(id, sDevice, Framerate, sMode, bOverlay, m_pDisplayEngine, 
-                pParent, this);
-        pCamera->initVisible(x, y, z, width, height, opacity, angle, 
-                pivotx, pivoty);
-        initEventHandlers(curNode, xmlNode);
-#else
-        throw (AVGException (AVG_ERR_UNSUPPORTED, 
-            string("Camera node encountered but avg not compiled for camera support.")));
-#endif
-    } else if (!xmlStrcmp (nodeType, (const xmlChar *)"words")) {
-        getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
-                &opacity, &angle, &pivotx, &pivoty);
-        string font = getDefaultedStringAttr(xmlNode, 
-                (const xmlChar *)"font", "arial");
-        string str = getRequiredStringAttr(xmlNode, (const xmlChar *)"text");
-        string color = getDefaultedStringAttr(xmlNode, 
-                (const xmlChar *)"color", "FFFFFF");
-        int size = getDefaultedIntAttr(xmlNode, (const xmlChar *)"size", 15);
+        initVisible(xmlNode, pVideo);
+    } else if (!strcmp (nodeType, "camera")) {
+        curNode = createCameraNode(xmlNode, pParent, id);
+    } else if (!strcmp (nodeType, "words")) {
+        string font = getDefaultedStringAttr(xmlNode, "font", "arial");
+        string str = getRequiredStringAttr(xmlNode, "text");
+        string color = getDefaultedStringAttr(xmlNode, "color", "FFFFFF");
+        int size = getDefaultedIntAttr(xmlNode, "size", 15);
         AVGWords * pWords = AVGWords::create();
         curNode = pWords;
         pWords->init(id, size, font, str, color, m_pDisplayEngine, pParent, this);
-        pWords->initVisible(x, y, z, 0, 0, opacity, angle, 
-                pivotx, pivoty);
-        initEventHandlers(curNode, xmlNode);
-    } else if (!xmlStrcmp (nodeType, (const xmlChar *)"excl")) {
-        string id  = getDefaultedStringAttr (xmlNode, (const xmlChar *)"id", "");
+        initVisible(xmlNode, pWords);
+    } else if (!strcmp (nodeType, "excl")) {
+        string id  = getDefaultedStringAttr (xmlNode, "id", "");
         curNode = AVGExcl::create();
         curNode->init(id, m_pDisplayEngine, pParent, this);
         curNode->initVisible(0,0,1,10000,10000,1,0,0,0);
         initEventHandlers(curNode, xmlNode);
-    } else if (!xmlStrcmp (nodeType, (const xmlChar *)"text") || 
-               !xmlStrcmp (nodeType, (const xmlChar *)"comment")) {
+    } else if (!strcmp (nodeType, "text") || 
+               !strcmp (nodeType, "comment")) {
         // Ignore whitespace & comments
         return 0;
     } else {
@@ -762,8 +711,43 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
     return curNode;
 }
 
+AVGNode * AVGPlayer::createCameraNode(const xmlNodePtr xmlNode, 
+                AVGContainer * pParent, const string& id)
+{
+#ifdef AVG_ENABLE_1394
+    string sDevice = getDefaultedStringAttr(xmlNode, "device", "0");
+    bool bOverlay = getDefaultedBoolAttr(xmlNode, "overlay", false);
+    string sMode = getDefaultedStringAttr(xmlNode, "mode", "640x480_RGB");
+    int Framerate = getDefaultedIntAttr(xmlNode, "framerate", 15);
+
+    AVGCamera * pCamera = AVGCamera::create();
+    pCamera->init(id, sDevice, Framerate, sMode, bOverlay, 
+            m_pDisplayEngine, pParent, this);
+    initVisible(xmlNode, pCamera);
+    setCamFeatureFromXml(pCamera, xmlNode, "brightness", -1);
+    setCamFeatureFromXml(pCamera, xmlNode, "exposure", -1);
+    setCamFeatureFromXml(pCamera, xmlNode, "sharpness", 60);
+    setCamFeatureFromXml(pCamera, xmlNode, "saturation", 75);
+    setCamFeatureFromXml(pCamera, xmlNode, "gamma", 1);
+    setCamFeatureFromXml(pCamera, xmlNode, "shutter", 2);
+    setCamFeatureFromXml(pCamera, xmlNode, "gain", 75);
+
+    return pCamera;
+#else
+    throw (AVGException (AVG_ERR_UNSUPPORTED, 
+            string("Camera node encountered but avg not compiled for camera support.")));
+#endif
+}
+
+void AVGPlayer::setCamFeatureFromXml(AVGCamera * pCamera, 
+        const xmlNodePtr xmlNode, const string& sName, int Default)
+{
+    unsigned int Value = getDefaultedIntAttr(xmlNode, sName.c_str(), Default);
+    pCamera->setFeature(sName, Value);
+}
+
 string AVGPlayer::initFileName(const xmlNodePtr xmlNode) {
-    string origFName = getRequiredStringAttr(xmlNode, (const xmlChar *)"href");
+    string origFName = getRequiredStringAttr(xmlNode, "href");
     if (origFName[0] != '/') {
         return m_CurDirName + origFName;
     } else {
@@ -777,38 +761,36 @@ void AVGPlayer::initDisplay(AVGAVGNode * pNode) {
             m_sFontDir);
 }
 
-void AVGPlayer::getVisibleNodeAttrs (const xmlNodePtr xmlNode, 
-        string * pid, int * px, int * py, int * pz,
-        int * pWidth, int * pHeight, double * pOpacity, double * pAngle,
-        int * pPivotx, int * pPivoty)
+void AVGPlayer::initVisible (const xmlNodePtr xmlNode, 
+        AVGNode * pNode)
 {
-    *pid = getDefaultedStringAttr (xmlNode, (const xmlChar *)"id", "");
-    *px = getDefaultedIntAttr (xmlNode, (const xmlChar *)"x", 0);
-    *py = getDefaultedIntAttr (xmlNode, (const xmlChar *)"y", 0);
-    *pz = getDefaultedIntAttr (xmlNode, (const xmlChar *)"z", 0);
-    *pWidth = getDefaultedIntAttr (xmlNode, (const xmlChar *)"width", 0);
-    *pHeight = getDefaultedIntAttr (xmlNode, (const xmlChar *)"height", 0);
-    *pOpacity = getDefaultedDoubleAttr (xmlNode, (const xmlChar *)"opacity", 1.0);
-    *pAngle = getDefaultedDoubleAttr (xmlNode, (const xmlChar *)"angle", 0.0);
-    *pPivotx = getDefaultedIntAttr (xmlNode, (const xmlChar *)"pivotx", 
-            -32767);
-    *pPivoty = getDefaultedIntAttr (xmlNode, (const xmlChar *)"pivoty", 
-            -32767);
+    int x = getDefaultedIntAttr (xmlNode, "x", 0);
+    int y = getDefaultedIntAttr (xmlNode, "y", 0);
+    int z = getDefaultedIntAttr (xmlNode, "z", 0);
+    int width = getDefaultedIntAttr (xmlNode, "width", 0);
+    int height = getDefaultedIntAttr (xmlNode, "height", 0);
+    double opacity = getDefaultedDoubleAttr (xmlNode, "opacity", 1.0);
+    double angle = getDefaultedDoubleAttr (xmlNode, "angle", 0.0);
+    int pivotx = getDefaultedIntAttr (xmlNode, "pivotx", -32767);
+    int pivoty = getDefaultedIntAttr (xmlNode, "pivoty", -32767);
 
+    pNode->initVisible(x, y, z, width, height, opacity, angle, 
+                pivotx, pivoty);
+    initEventHandlers(pNode, xmlNode);
 }
 
 void AVGPlayer::initEventHandlers (AVGNode * pAVGNode, const xmlNodePtr xmlNode)
 {
     string MouseMoveHandler = getDefaultedStringAttr 
-            (xmlNode, (const xmlChar *)"onmousemove", "");
+            (xmlNode, "onmousemove", "");
     string MouseButtonUpHandler = getDefaultedStringAttr 
-            (xmlNode, (const xmlChar *)"onmouseup", "");
+            (xmlNode, "onmouseup", "");
     string MouseButtonDownHandler = getDefaultedStringAttr 
-            (xmlNode, (const xmlChar *)"onmousedown", "");
+            (xmlNode, "onmousedown", "");
     string MouseOverHandler = getDefaultedStringAttr 
-            (xmlNode, (const xmlChar *)"onmouseover", "");
+            (xmlNode, "onmouseover", "");
     string MouseOutHandler = getDefaultedStringAttr 
-            (xmlNode, (const xmlChar *)"onmouseout", "");
+            (xmlNode, "onmouseout", "");
     pAVGNode->InitEventHandlers
             (MouseMoveHandler, MouseButtonUpHandler, MouseButtonDownHandler, 
              MouseOverHandler, MouseOutHandler);

@@ -31,6 +31,7 @@ class AVGEvent;
 class AVGMouseEvent;
 class AVGConradRelais;
 class IAVGDisplayEngine;
+class AVGCamera;
 
 class PLPoint;
 
@@ -64,12 +65,16 @@ class AVGPlayer: public IAVGPlayer, IAVGEventSink
     private:
         void readConfigFile(const std::string& sFName);
         void initConfig();
-        AVGNode * createNodeFromXml(const xmlNodePtr xmlNode, AVGContainer * pParent);
+        AVGNode * createNodeFromXml(const xmlNodePtr xmlNode, 
+                AVGContainer * pParent);
+        AVGNode * createCameraNode(const xmlNodePtr xmlNode, 
+                AVGContainer * pParent, const std::string& id);
+        void setCamFeatureFromXml(AVGCamera * pCamera, 
+                const xmlNodePtr xmlNode, const std::string& sName, 
+                int Default);
         std::string initFileName(const xmlNodePtr xmlNode);
-        void getVisibleNodeAttrs (const xmlNodePtr xmlNode, 
-                std::string * pid, int * px, int * py, int * pz,
-                int * pWidth, int * pHeight, double * pOpacity, double * pAngle,
-                int * pPivotx, int * pPivoty);
+        void initVisible (const xmlNodePtr xmlNode, 
+                AVGNode * pNode);
         void initEventHandlers (AVGNode * pAVGNode, const xmlNodePtr xmlNode);
         void initDisplay(AVGAVGNode * pNode);
         void render (bool bRenderEverything);

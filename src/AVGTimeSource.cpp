@@ -66,17 +66,17 @@ AVGTimeSource::~AVGTimeSource()
     }
 }
 
-int AVGTimeSource::getCurrentTicks()
+long long AVGTimeSource::getCurrentTicks()
 {
     struct timeval now;
     int ticks;
 
     gettimeofday(&now, NULL);
-    ticks=now.tv_sec*1000+now.tv_usec/1000;
+    ticks=((long long)now.tv_sec)*1000+now.tv_usec/1000;
     return(ticks);
 }
 
-void AVGTimeSource::sleepUntil(int ticks)
+void AVGTimeSource::sleepUntil(long long ticks)
 {
     if (m_bUseRTC) {
         while(getCurrentTicks()<ticks) {
@@ -91,7 +91,7 @@ void AVGTimeSource::sleepUntil(int ticks)
         }
     } else {
         unsigned int jitter = 20;
-        int now = getCurrentTicks();
+        long long now = getCurrentTicks();
         while (now+jitter<ticks) {
             if (ticks-now<=20) {
                 usleep(0);

@@ -9,19 +9,19 @@
 #include <string>
 
 bool getDefaultedBoolAttr (const xmlNodePtr& xmlNode, 
-        const xmlChar * attr, bool def);
+        const char * attr, bool def);
 
 int getDefaultedIntAttr (const xmlNodePtr& xmlNode, 
-        const xmlChar * attr, int def);
+        const char * attr, int def);
 
 double getDefaultedDoubleAttr (const xmlNodePtr& xmlNode, 
-       const xmlChar * attr, double def);
+       const char * attr, double def);
 
 std::string getDefaultedStringAttr (const xmlNodePtr& xmlNode, 
-       const xmlChar * attr, const std::string & def);
+       const char * attr, const std::string & def);
 
 std::string getRequiredStringAttr (const xmlNodePtr& xmlNode, 
-       const xmlChar * attr);
+       const char * attr);
 
 #endif //_XMLHelper_H_
 

@@ -58,6 +58,12 @@
   overlay CDATA #IMPLIED
   mode CDATA #IMPLIED
   framerate CDATA #IMPLIED
+  brightness CDATA #IMPLIED
+  exposure CDATA #IMPLIED
+  sharpness CDATA #IMPLIED
+  saturation CDATA #IMPLIED
+  gamma CDATA #IMPLIED
+  shutter CDATA #IMPLIED
   %graphicsElementEvents; > 
 
 <!ELEMENT words EMPTY>

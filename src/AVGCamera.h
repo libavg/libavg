@@ -41,6 +41,9 @@ class AVGCamera : public AVGVideoBase , public IAVGCamera
             AVGPlayer * pPlayer);
         virtual std::string getTypeStr ();
 
+        unsigned int getFeature (const std::string& sFeature);
+        void setFeature (const std::string& sFeature, int Value);
+
     private:
         bool findCameraOnPort(int port, raw1394handle_t& FWHandle);
         
@@ -49,12 +52,13 @@ class AVGCamera : public AVGVideoBase , public IAVGCamera
         void YUV411toBGR24Line(PLBYTE* pSrc, int y, PLPixel24 * pDestLine);
         void YUV411toBGR24(PLBYTE* pSrc, PLBmpBase * pBmp);
        
-        virtual bool open(int* pWidth, int* pHeight);
+        virtual void open(int* pWidth, int* pHeight);
         virtual void close();
         virtual double getFPS();
         void checkDC1394Error(int Code, const std::string & sMsg);
         void fatalError(const std::string & sMsg);
-        void dumpCameraInfo(raw1394handle_t PortHandle, nodeid_t CameraNode);
+        void dumpCameraInfo();
+        int getFeatureID(const std::string& sFeature);
 
         std::string m_sDevice;
         double m_FrameRate;
@@ -64,6 +68,9 @@ class AVGCamera : public AVGVideoBase , public IAVGCamera
 
         dc1394_cameracapture m_Camera;
         raw1394handle_t m_FWHandle;
+        dc1394_feature_set m_FeatureSet;
+        long long m_LastFrameTime;
+        bool m_bCameraAvailable;
 
         static void initCameraSupport();
         static void initYUV2RGBConversionMatrix();

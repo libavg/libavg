@@ -13,6 +13,7 @@
 #include "AVGContainer.h"
 #include "IAVGSurface.h"
 #include "AVGOGLSurface.h"
+#include "AVGTimeSource.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/plpngenc.h>
@@ -31,8 +32,8 @@ using namespace std;
 
 #define MAX_PORTS 4
 #define MAX_RESETS 10
-#define DROP_FRAMES 1
-#define NUM_BUFFERS 2
+#define DROP_FRAMES 0
+#define NUM_BUFFERS 3
 
 // Precomputed conversion matrix entries
 static int y2colTable[256]; // y to any color component;
@@ -113,18 +114,41 @@ void AVGCamera::init (const std::string& id, const std::string& sDevice,
 }
 
 string AVGCamera::getTypeStr ()
-
 {
     return "AVGCamera";
 }
 
-bool AVGCamera::open(int* pWidth, int* pHeight)
+unsigned int AVGCamera::getFeature (const std::string& sFeature)
+{
+    int FeatureID = getFeatureID(sFeature);
+    unsigned int Value;
+    dc1394_get_feature_value(m_FWHandle, m_Camera.node, FeatureID, &Value);
+    return Value;
+}
+
+void AVGCamera::setFeature (const std::string& sFeature, int Value)
+{
+    int FeatureID = getFeatureID(sFeature);
+    if (Value == -1) {
+        dc1394_auto_on_off(m_FWHandle, m_Camera.node, FeatureID, 1);
+    } else {
+        dc1394_auto_on_off(m_FWHandle, m_Camera.node, FeatureID, 0);
+        dc1394_set_feature_value(m_FWHandle, m_Camera.node, FeatureID, 
+            (unsigned int)Value);
+    }
+}
+
+void AVGCamera::open(int* pWidth, int* pHeight)
 {
     int rc;
+    // TODO: Support other resolutions.
+    *pWidth=640;
+    *pHeight=480;
          
     m_FWHandle = raw1394_new_handle();
     if (m_FWHandle==NULL) {
-        AVG_TRACE(AVGPlayer::DEBUG_ERROR, "Unable to aquire a raw1394 handle (Node: " 
+        AVG_TRACE(AVGPlayer::DEBUG_ERROR,
+                "Unable to aquire a raw1394 handle (Node: " 
                 << getID() << ").");
         AVG_TRACE(AVGPlayer::DEBUG_ERROR, "Please check");
         AVG_TRACE(AVGPlayer::DEBUG_ERROR, 
@@ -155,10 +179,14 @@ bool AVGCamera::open(int* pWidth, int* pHeight)
     } /* next reset retry */
 
     if (!bFound) {
-        fatalError(string("No firewire cameras found (Node: ") +
-                getID() + ").");
+        AVG_TRACE(AVGPlayer::DEBUG_WARNING, 
+                "No firewire cameras found (Node: " + getID() + ").");
+        m_bCameraAvailable = false;
+        dc1394_destroy_handle(m_FWHandle);
+        return;
     }
-    
+    m_bCameraAvailable = true;
+    m_LastFrameTime = 0;
     if (j == MAX_RESETS) {
         fatalError(string("Failed to not make camera root node (Node: ")+
                 getID() + ").");
@@ -168,22 +196,26 @@ bool AVGCamera::open(int* pWidth, int* pHeight)
     unsigned int speed;
     int err;
     err = dc1394_get_iso_channel_and_speed(m_FWHandle,
-                m_Camera.node,
-                &channel, &speed);
+                m_Camera.node, &channel, &speed);
     checkDC1394Error(err, 
-            "Unable to get the firewire camera iso channel number");
+            "Unable to get the firewire camera iso channel number.");
+
+    err = dc1394_get_camera_feature_set(m_FWHandle,
+                m_Camera.node, &m_FeatureSet);
+    checkDC1394Error(err, 
+            "Unable to get firewire camera feature set.");
+    dumpCameraInfo();
 
     err = dc1394_dma_setup_capture(m_FWHandle, m_Camera.node,
                 channel+1, FORMAT_VGA_NONCOMPRESSED, m_Mode,
                 SPEED_400, m_FrameRateConstant, NUM_BUFFERS, DROP_FRAMES, 0,
                 &m_Camera);
     if (err != DC1394_SUCCESS) {
-        // TODO: Include current settings in message :-).
         AVG_TRACE(AVGPlayer::DEBUG_ERROR, 
                 "Unable to setup camera. Make sure that");
         AVG_TRACE(AVGPlayer::DEBUG_ERROR, 
-                "video mode (" << m_sMode << "), framerate (" <<
-                m_FrameRate << ") and format are");
+                "video mode (" << m_sMode << ") and framerate (" <<
+                m_FrameRate << ") are");
         AVG_TRACE(AVGPlayer::DEBUG_ERROR, "supported by your camera");
         dc1394_dma_release_camera(m_FWHandle,&m_Camera);
         dc1394_destroy_handle(m_FWHandle);
@@ -193,9 +225,6 @@ bool AVGCamera::open(int* pWidth, int* pHeight)
     err = dc1394_start_iso_transmission(m_FWHandle, m_Camera.node);
     checkDC1394Error(err, "Unable to start camera iso transmission");
     
-    // TODO: Support other resolutions.
-    *pWidth=640;
-    *pHeight=480;
 }
 
 bool AVGCamera::findCameraOnPort(int port, raw1394handle_t& FWHandle) 
@@ -214,7 +243,6 @@ bool AVGCamera::findCameraOnPort(int port, raw1394handle_t& FWHandle)
     if (numCameras > 0) {
         /* use the first camera found */
         m_Camera.node = camera_nodes[0];
-        dumpCameraInfo(FWHandle, m_Camera.node);
         bFound = true;
 
         /* camera can not be root--highest order node */
@@ -234,9 +262,11 @@ bool AVGCamera::findCameraOnPort(int port, raw1394handle_t& FWHandle)
 
 void AVGCamera::close()
 {
-    dc1394_dma_unlisten(m_FWHandle, &m_Camera);
-    dc1394_dma_release_camera(m_FWHandle, &m_Camera);
-    dc1394_destroy_handle(m_FWHandle);
+    if (m_bCameraAvailable) {
+        dc1394_dma_unlisten(m_FWHandle, &m_Camera);
+        dc1394_dma_release_camera(m_FWHandle, &m_Camera);
+        dc1394_destroy_handle(m_FWHandle);
+    }
 }
 
 double AVGCamera::getFPS()
@@ -255,73 +285,92 @@ void AVGCamera::fatalError(const string & sMsg)
 {
     AVG_TRACE(AVGPlayer::DEBUG_ERROR, sMsg);
     dc1394_destroy_handle(m_FWHandle);
-    // TODO: Disable node instead of exit(-1).
     exit(-1);
 }
 
 bool AVGCamera::renderToSurface(IAVGSurface * pSurface)
 {
-    int rc = dc1394_dma_single_capture_poll(&m_Camera);
-//    int rc = dc1394_dma_single_capture(&m_Camera);
-    if (rc == DC1394_SUCCESS) {
-        AVGOGLSurface * pOGLSurface = dynamic_cast<AVGOGLSurface *>(pSurface);
-        // New frame available
-        switch (m_Mode) {
-            case MODE_640x480_YUV411:
-                {
-                    PLBmpBase * pBmp = pSurface->getBmp();
-                    YUV411toBGR24((PLBYTE*)(m_Camera.capture_buffer), pBmp);
-                }
-                break;
-            case MODE_640x480_RGB:
-                {
-                    if (pOGLSurface) {
-                        pOGLSurface->createFromBits(640, 480, 24, false,
-                                (PLBYTE*)(m_Camera.capture_buffer), 640*3);
-                    } else {
+    if (m_bCameraAvailable) {
+        int rc = dc1394_dma_single_capture_poll(&m_Camera);
+        if (rc == DC1394_NO_FRAME) {
+            AVG_TRACE(AVGPlayer::DEBUG_WARNING,
+                        "Camera: Frame delay.");
+            usleep(10);
+            rc = dc1394_dma_single_capture_poll(&m_Camera);
+        }
+        //    int rc = dc1394_dma_single_capture(&m_Camera);
+        if (rc == DC1394_SUCCESS) {
+            m_LastFrameTime = AVGTimeSource::get()->getCurrentTicks();
+            AVGOGLSurface * pOGLSurface = dynamic_cast<AVGOGLSurface *>(pSurface);
+            // New frame available
+            switch (m_Mode) {
+                case MODE_640x480_YUV411:
+                    {
                         PLBmpBase * pBmp = pSurface->getBmp();
-                        PLBYTE ** ppLines = pBmp->GetLineArray();
-                        int WidthBytes = pBmp->GetWidth()*3;
-
-                        if (getEngine()->hasRGBOrdering()) {
-                            for (int y = 0; y < pBmp->GetHeight(); y++) {
-                                memcpy(ppLines[y],
-                                        (PLBYTE*)(m_Camera.capture_buffer)+
-                                        y*WidthBytes,
-                                        WidthBytes);
-                            }
+                        YUV411toBGR24((PLBYTE*)(m_Camera.capture_buffer), pBmp);
+                    }
+                    break;
+                case MODE_640x480_RGB:
+                    {
+                        if (pOGLSurface) {
+                            pOGLSurface->createFromBits(640, 480, 24, false,
+                                    (PLBYTE*)(m_Camera.capture_buffer), 640*3);
                         } else {
-                            for (int y = 0; y < pBmp->GetHeight(); y++) {
-                                PLBYTE * pDestLine = ppLines[y];
-                                PLBYTE * pSrcLine = (PLBYTE*)
+                            PLBmpBase * pBmp = pSurface->getBmp();
+                            PLBYTE ** ppLines = pBmp->GetLineArray();
+                            int WidthBytes = pBmp->GetWidth()*3;
+
+                            if (getEngine()->hasRGBOrdering()) {
+                                for (int y = 0; y < pBmp->GetHeight(); y++) {
+                                    memcpy(ppLines[y],
+                                            (PLBYTE*)(m_Camera.capture_buffer)+
+                                            y*WidthBytes,
+                                            WidthBytes);
+                                }
+                            } else {
+                                for (int y = 0; y < pBmp->GetHeight(); y++) {
+                                    PLBYTE * pDestLine = ppLines[y];
+                                    PLBYTE * pSrcLine = (PLBYTE*)
                                         m_Camera.capture_buffer+y*WidthBytes;
-                                for (int x = 0; x < WidthBytes; x+=3) {
-                                    pDestLine[x] = pSrcLine[x+2];
-                                    pDestLine[x+1] = pSrcLine[x+1];
-                                    pDestLine[x+2] = pSrcLine[x];
+                                    for (int x = 0; x < WidthBytes; x+=3) {
+                                        pDestLine[x] = pSrcLine[x+2];
+                                        pDestLine[x+1] = pSrcLine[x+1];
+                                        pDestLine[x+2] = pSrcLine[x];
+                                    }
                                 }
                             }
                         }
                     }
-                }
-                break;
-            default:
-                AVG_TRACE(AVGPlayer::DEBUG_WARNING, 
-                        "Illegal Mode in renderToBmp");
-                break;
-        }
-        getEngine()->surfaceChanged(pSurface);
-        dc1394_dma_done_with_buffer(&m_Camera);
-    } else {
-        if (rc == DC1394_NO_FRAME) {
-            AVG_TRACE(AVGPlayer::DEBUG_WARNING,
-                    "Camera: Frame not available.");
+                    break;
+                default:
+                    AVG_TRACE(AVGPlayer::DEBUG_WARNING, 
+                            "Illegal Mode in renderToBmp");
+                    break;
+            }
+            getEngine()->surfaceChanged(pSurface);
+            dc1394_dma_done_with_buffer(&m_Camera);
         } else {
-            AVG_TRACE(AVGPlayer::DEBUG_WARNING,
-                    "Camera: Frame capture failed.");
+            if (rc == DC1394_NO_FRAME) {
+                AVG_TRACE(AVGPlayer::DEBUG_WARNING,
+                        "Camera: Frame not available.");
+            } else {
+                AVG_TRACE(AVGPlayer::DEBUG_WARNING,
+                        "Camera: Frame capture failed.");
 
-//            fatalError("Frame capture failed.");
+                //            fatalError("Frame capture failed.");
+            }
         }
+    } 
+    if (m_LastFrameTime != 0 && 
+        AVGTimeSource::get()->getCurrentTicks() > m_LastFrameTime+3000)
+    {
+        AVG_TRACE(AVGPlayer::DEBUG_WARNING,
+                "Camera: Reinitializing camera...");
+        close();
+        int Width, Height; // Dummys
+        open(&Width, &Height);
+        AVG_TRACE(AVGPlayer::DEBUG_WARNING,
+                "Camera: Camera reinit done.");
     }
     return true;
 }
@@ -414,10 +463,10 @@ void AVGCamera::YUV411toBGR24(PLBYTE* pSrc, PLBmpBase * pBmp)
     }
 }
 
-void AVGCamera::dumpCameraInfo(raw1394handle_t PortHandle, nodeid_t CameraNode)
+void AVGCamera::dumpCameraInfo()
 {
     dc1394_camerainfo info;
-    int rc = dc1394_get_camera_info(PortHandle, CameraNode, &info);
+    int rc = dc1394_get_camera_info(m_FWHandle, m_Camera.node, &info);
     if (rc == DC1394_SUCCESS)
     {
         AVG_TRACE(AVGPlayer::DEBUG_CONFIG, "Firewire camera:");
@@ -436,19 +485,51 @@ void AVGCamera::dumpCameraInfo(raw1394handle_t PortHandle, nodeid_t CameraNode)
         AVG_TRACE(AVGPlayer::DEBUG_ERROR, 
                 "Unable to get firewire camera info.");
     }
-
-    dc1394_feature_set features;
-    if (dc1394_get_camera_feature_set(PortHandle, 
-                CameraNode, &features) 
-            != DC1394_SUCCESS) 
-    {
-        AVG_TRACE(AVGPlayer::DEBUG_WARNING, 
-                "Unable to get firewire camera feature set.");
-    } else {
-        // TODO: do this using AVG_TRACE
-        dc1394_print_feature_set(&features);
-    }
-
+    // TODO: do this using AVG_TRACE
+    dc1394_print_feature_set(&m_FeatureSet);
+}
+ 
+int AVGCamera::getFeatureID(const std::string& sFeature)
+{
+    if (sFeature == "brightness") {
+        return FEATURE_BRIGHTNESS;
+    } else if (sFeature == "exposure") {
+        return FEATURE_EXPOSURE;
+    } else if (sFeature == "sharpness") {
+        return FEATURE_SHARPNESS;
+    } else if (sFeature == "white_balance") {
+        return FEATURE_WHITE_BALANCE;
+    } else if (sFeature == "hue") {
+        return FEATURE_HUE;
+    } else if (sFeature == "saturation") {
+        return FEATURE_SATURATION;
+    } else if (sFeature == "gamma") {
+        return FEATURE_GAMMA;
+    } else if (sFeature == "shutter") {
+        return FEATURE_SHUTTER;
+    } else if (sFeature == "gain") {
+        return FEATURE_GAIN;
+    } else if (sFeature == "iris") {
+        return FEATURE_IRIS;
+    } else if (sFeature == "focus") {
+        return FEATURE_FOCUS;
+    } else if (sFeature == "temperature") {
+        return FEATURE_TEMPERATURE;
+    } else if (sFeature == "trigger") {
+        return FEATURE_TRIGGER;
+    } else if (sFeature == "zoom") {
+        return FEATURE_ZOOM;
+    } else if (sFeature == "pan") {
+        return FEATURE_PAN;
+    } else if (sFeature == "tilt") {
+        return FEATURE_TILT;
+    } else if (sFeature == "optical_filter") {
+        return FEATURE_OPTICAL_FILTER;
+    } else if (sFeature == "capture_size") {
+        return FEATURE_CAPTURE_SIZE;
+    } else if (sFeature == "capture_quality") {
+        return FEATURE_CAPTURE_QUALITY;
+    } 
 }
 
 void AVGCamera::initCameraSupport()

@@ -10,9 +10,9 @@ public:
     static AVGTimeSource* get();
     ~AVGTimeSource();
    
-    static int getCurrentTicks();
+    static long long getCurrentTicks();
 
-    void sleepUntil(int ticks);
+    void sleepUntil(long long ticks);
 
 private:    
     AVGTimeSource();
