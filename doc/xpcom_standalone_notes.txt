@@ -1,0 +1,14 @@
+This worked:
+
+  export CVSROOT=":pserver:anonymous@cvs-mirror.mozilla.org:/cvsroot"
+  cvs -z 3 co mozilla/client.mk
+  cd mozilla
+  make -f client.mk pull_all BUILD_MODULES=xpconnect MOZ_CO_TAG=MOZILLA_1_1_RELEASE
+
+  ./configure --enable-modules=xpconnect
+  make BUILD_MODULES=xpconnect
+
+Dependencies: 
+  gtk_devel
+  ORBit_devel
+

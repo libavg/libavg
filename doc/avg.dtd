@@ -1,0 +1,60 @@
+<!ENTITY % graphicsElementEvents
+  "onfocusin CDATA #IMPLIED
+   onfocusout CDATA #IMPLIED
+   onactivate CDATA #IMPLIED
+   onclick CDATA #IMPLIED
+   onmousedown CDATA #IMPLIED
+   onmouseup CDATA #IMPLIED
+   onmouseover CDATA #IMPLIED
+   onmousemove CDATA #IMPLIED
+   onmouseout CDATA #IMPLIED
+   onload CDATA #IMPLIED" >
+   
+<!ELEMENT avg (avg|excl|image|video|audio)* >
+<!ATTLIST avg
+  id ID #IMPLIED
+  x CDATA "0"
+  y CDATA "0"
+  z CDATA #IMPLIED
+  width CDATA #REQUIRED
+  height CDATA #REQUIRED
+  opacity CDATA #IMPLIED
+  fullscreen CDATA "false"
+  %graphicsElementEvents; >
+  
+<!ELEMENT excl (avg|excl|image|video|audio)+ >
+<!ATTLIST excl 
+  id ID #IMPLIED
+  activechild CDATA #IMPLIED >
+
+<!ELEMENT image EMPTY>
+<!ATTLIST image
+  id ID #IMPLIED
+  href CDATA #REQUIRED
+  x CDATA #REQUIRED
+  y CDATA #REQUIRED
+  z CDATA #IMPLIED
+  width CDATA #IMPLIED
+  height CDATA #IMPLIED
+  opacity CDATA #IMPLIED
+  %graphicsElementEvents; >
+  
+<!ELEMENT video EMPTY>
+<!ATTLIST video
+  id ID #IMPLIED
+  href CDATA #REQUIRED
+  x CDATA #REQUIRED
+  y CDATA #REQUIRED
+  z CDATA #IMPLIED
+  width CDATA #REQUIRED
+  height CDATA #REQUIRED
+  opacity CDATA #IMPLIED
+  %graphicsElementEvents; 
+  onstop CDATA #IMPLIED >
+
+<!ELEMENT audio EMPTY>
+<!ATTLIST audio
+  id ID #IMPLIED
+  href CDATA #REQUIRED
+  volume CDATA #IMPLIED
+  onstop CDATA #IMPLIED >

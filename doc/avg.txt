@@ -1,0 +1,45 @@
+AVG
+---
+
+supported svg nodes:
+
+- image
+- video
+- parallel
+- exclusive
+- audio
+(- animation stuff)
+
+
+concepts:
+
+- def/use?
+- local coordinate systems
+
+
+todo
+
+- dtd
+- main loop
+- xerces factory?!
+- generate classes, main lib code
+- xpcom standalone test
+- framebuffer lib? (sdl? sdl_gui?)
+- smpeg/libmpeg test
+- sodipodi?
+
+ver 2.0
+
+  text
+  styles
+  defs/use
+  dynamic graph changes
+
+main loop
+
+  get input events
+  process events
+  process graph
+  update display 
+  (process sound)
+  

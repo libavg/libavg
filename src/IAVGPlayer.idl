@@ -1,0 +1,24 @@
+//
+// $Id$
+//
+
+#include "nsISupports.idl"
+#include "IJSEvalKruecke.idl"
+
+[scriptable, uuid(e3890769-a960-43ec-bc4f-ded28ef99103)]
+interface IAVGPlayer : nsISupports
+{
+//   IAVGNode getElementById(in string id);
+//   IAVGNode getRootNode(in string id);
+    boolean loadFile(in string fileName, in IJSEvalKruecke kruecke);
+    void play();
+    void stop();
+
+    long setInterval(in long time, in string code);
+    long setTimeout(in long time, in string code);
+    boolean clearInterval(in long id);
+
+    string getErrStr();
+    long getErrCode();
+};
+

@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE avg SYSTEM "../doc/avg.dtd">
+<avg width="400" height="300">
+  <excl id="switch" activechild="0">
+    <image id="img1" x="0" y="0" z="1" width="100" height="100" 
+       href="rgb24.tif"/>
+    <image id="img2" x="100" y="0" z="2" width="100" height="100" 
+       href="rgb24.tif"/>
+    <image id="img3" x="0" y="100" z="3" width="100" height="100" 
+       href="rgb24.tif"/>
+    <image id="img4" x="100" y="100" z="4" width="100" height="100" 
+       href="rgb24.tif"/>
+  </excl>
+</avg>
