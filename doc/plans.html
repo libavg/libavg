@@ -64,13 +64,11 @@ body { }
 </TABLE>
 </div>
 <div id="textbox">
-       These are my current ideas on what to do with libavg. To make this thing fly and set prioritites, I'm depending on lots of input: u.zadow at gmx.de.
+       These are my current ideas on what to do with libavg. To make this thing fly and set prioritites, I'm depending on lots of input: u.zadow at gmx.de. Of course, I can't promise anything and I welcome help of any kind.
        <p><b>Short- to Medium-term</b>
        <ul>
        <li>Support for PowerPC linux: Thanks to the ingenious Mr. Bogk, we have about 20 PowerPCs sitting in the c-base. libavg compiles on these machines, but colors are completely out of whak because somewhere between libavg, DirectFB, the framebuffer device, the pci bus and the processor, bytes that shouldn't be are swapped around. We're working on it.
-       <li>Touchscreen support: We've got half a dozen MicroTouch touchscreens laying around in the c-base and we'd like to use them.</li>
-       <li>Support for hardware acceleration: Currently, all rendering is done in software. The software renderer is pretty well optimized, and this is ok for older systems, but for systems that support it, the graphic card's processing power stays unused. In the short term, at least hardware video overlays should be supported.</li>
-       <li>Better font rendering quality: Something's wrong with the antialiasing on some fonts...</li>
+       <li>Support for hardware acceleration using DirectFB: Currently, when DirectFB is used as output layer, all rendering is done in software. The software renderer is pretty well optimized, and this is ok for older systems, but for systems that support it, the graphic card's processing power stays unused. In the short term, at least hardware video overlays should be supported.</li>
        <li>Networking support: We'd like to have external systems tell an avg session what to do. The basic idea is that we'll open a port and just accept valid javascript strings that get executed in the context of the session. Getting two avg sessions on different computers to comunicate is the next step. Both shouldn't involve a lot of work.</li>
        <li>Sound: I've been given permission to take the cool multi-channel sound library sitting around at my employer <a href="http://www.artcom.de">Art+Com</a> and add it to libavg. Now I just have to find the time to do it.</li>
        </ul>

@@ -40,6 +40,8 @@ long&nbsp;</td><td class="memItemRight" valign=bottom><b>getErrCode</b> ()</td><
 
 <tr><td class="memItemLeft" nowrap align=right valign=top><a class="el" href="interfaceIAVGConradRelais.html">IAVGConradRelais</a>&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="interfaceIAVGPlayer.html#a13">createRelais</a> (in short port)</td></tr>
 
+<tr><td class="memItemLeft" nowrap align=right valign=top>void&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="interfaceIAVGPlayer.html#a14">showCursor</a> (in boolean bShow)</td></tr>
+
 <tr><td colspan=2><br><h2>Public Attributes</h2></td></tr>
 <tr><td class="memItemLeft" nowrap align=right valign=top>const long&nbsp;</td><td class="memItemRight" valign=bottom><a class="el" href="interfaceIAVGPlayer.html#o0">DEBUG_NONE</a> = 0</td></tr>
 
@@ -397,6 +399,35 @@ Sets javascript code that should be executed every time milliseconds. The smalle
 Sets javascript code that should be executed after time milliseconds. The function returns an id that can be used to call <a class="el" href="interfaceIAVGPlayer.html#a7">clearInterval()</a> to stop the code from being called.     </td>
   </tr>
 </table>
+<a name="a14" doxytag="IAVGPlayer::showCursor"></a><p>
+<table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
+  <tr>
+    <td class="mdRow">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void IAVGPlayer::showCursor </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">in boolean&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap> <em>bShow</em>          </td>
+          <td class="md" valign="top">&nbsp;)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Shows or hides the mouse cursor. (Currently, this only works for OpenGL. Showing the DirectFB mouse cursor seems to expose some issue with DirectFB.)     </td>
+  </tr>
+</table>
 <a name="a2" doxytag="IAVGPlayer::stop"></a><p>
 <table class="mdTable" width="100%" cellpadding="2" cellspacing="0">
   <tr>
@@ -604,7 +635,7 @@ Outputs warning messages. Default is on.     </td>
 </table>
 <hr>The documentation for this interface was generated from the following file:<ul>
 <li><a class="el" href="IAVGPlayer_8idl-source.html">IAVGPlayer.idl</a></ul>
-<hr size="1"><address style="align: right;"><small>Generated on Tue Apr 20 23:19:35 2004 for libavg by
+<hr size="1"><address style="align: right;"><small>Generated on Mon Apr 26 19:40:50 2004 for libavg by
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border=0 > 
 </a>1.3.2 </small></address>
