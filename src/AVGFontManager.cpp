@@ -36,7 +36,7 @@ IAVGFont * AVGFontManager::getFont(const string& Name, int Size)
     it = m_FontMap.find(Desc);
     if (it == m_FontMap.end()) {
         string FontPath = m_sFontPath+"/"+Name+".ttf";
-        AVG_TRACE(AVGPlayer::DEBUG_MEMORY, "Loading " << FontPath << ", size " << Size);
+        AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "Loading " << FontPath << ", size " << Size);
         IAVGFont * pFont = loadFont(FontPath, Size);
         m_FontMap.insert(FontMap::value_type(Desc, pFont));
         return pFont;

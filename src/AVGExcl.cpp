@@ -100,7 +100,7 @@ void AVGExcl::setActiveChild(int activeChild)
 {
     invalidate();
     if (activeChild < -1 || activeChild > getNumChildren()) {
-        AVG_TRACE(IAVGPlayer::DEBUG_ERROR, 
+        AVG_TRACE(IAVGPlayer::DEBUG_WARNING, 
                 getID() << ".setActiveChild() called with illegal value " 
                     << activeChild << ".");
     } else {

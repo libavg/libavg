@@ -23,7 +23,7 @@ AVGLogger * AVGLogger::get()
 AVGLogger::AVGLogger()
 {
     m_pDest = &cerr;
-    m_Flags = IAVGPlayer::DEBUG_ERROR;
+    m_Flags = IAVGPlayer::DEBUG_ERROR | IAVGPlayer::DEBUG_WARNING;
 }
 
 AVGLogger::~AVGLogger()
@@ -54,20 +54,23 @@ void AVGLogger::trace(int category, const std::string& msg)
                 setw(3) << setfill('0') << time.tv_usec/1000 << setw(0) << "] "; 
         switch(category) {
             case IAVGPlayer::DEBUG_BLTS:
-                (*m_pDest) << "   BLIT: ";
+                (*m_pDest) << "    BLIT: ";
                 break;
             case IAVGPlayer::DEBUG_PROFILE:
-                (*m_pDest) << "PROFILE: ";
-                break;
-            case IAVGPlayer::DEBUG_MEMORY:
-                (*m_pDest) << " MEMORY: ";
+                (*m_pDest) << " PROFILE: ";
                 break;
             case IAVGPlayer::DEBUG_EVENTS:
             case IAVGPlayer::DEBUG_EVENTS2:
-                (*m_pDest) << " EVENTS: ";
+                (*m_pDest) << "  EVENTS: ";
+                break;
+            case IAVGPlayer::DEBUG_CONFIG:
+                (*m_pDest) << "  CONFIG: ";
+                break;
+            case IAVGPlayer::DEBUG_WARNING:
+                (*m_pDest) << " WARNING: ";
                 break;
             case IAVGPlayer::DEBUG_ERROR:
-                (*m_pDest) << "  ERROR: ";
+                (*m_pDest) << "   ERROR: ";
                 break;
         }
         (*m_pDest) << msg << endl;

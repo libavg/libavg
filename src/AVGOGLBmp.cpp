@@ -149,11 +149,11 @@ int AVGOGLBmp::getTextureMode()
         // proprietary NVidia stuff
         if (queryOGLExtension("GL_NV_texture_rectangle")) {
             m_TextureMode = GL_TEXTURE_RECTANGLE_NV;
-            AVG_TRACE(AVGPlayer::DEBUG_PROFILE, 
+            AVG_TRACE(AVGPlayer::DEBUG_CONFIG, 
                     "Using NVidia texture rectangle extension.");
         } else {
             m_TextureMode = GL_TEXTURE_2D;
-            AVG_TRACE(AVGPlayer::DEBUG_PROFILE, 
+            AVG_TRACE(AVGPlayer::DEBUG_CONFIG, 
                     "Using power of 2 textures.");
         }
     }

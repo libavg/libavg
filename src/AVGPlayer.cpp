@@ -97,7 +97,7 @@ NS_IMETHODIMP
 AVGPlayer::LoadFile(const char * fileName, 
         PRBool * pResult)
 {
-    AVG_TRACE(DEBUG_MEMORY, 
+    AVG_TRACE(DEBUG_PROFILE, 
           std::string("AVGPlayer::LoadFile(") + fileName + ")");
     try {
         loadFile (fileName);
@@ -131,7 +131,7 @@ AVGPlayer::GetElementByID(const char *id, IAVGNode **_retval)
 {
     AVGNode * pNode = getElementByID(id);
     if (!pNode) {
-        AVG_TRACE(DEBUG_ERROR, "getElementByID(" << id << ") failed");
+        AVG_TRACE(DEBUG_WARNING, "getElementByID(" << id << ") failed");
     }
     *_retval = getElementByID(id);
     NS_IF_ADDREF(*_retval);
@@ -245,7 +245,8 @@ AVGPlayer::CreateRelais(PRInt16 port, IAVGConradRelais **_retval)
     rv = nsComponentManager::CreateInstance ("@c-base.org/avgconradrelais;1", 0,
             NS_GET_IID(IAVGConradRelais), (void**)&pRelais);
     if (NS_FAILED(rv)) {
-        AVG_TRACE(DEBUG_ERROR, "CreateRelais failed: " << rv);
+        AVG_TRACE(DEBUG_ERROR, "CreateRelais failed: " << rv << ". Aborting.");
+        exit(-1);
     }
     pRelais->init(port);
     m_pRelais.push_back(pRelais);
@@ -427,7 +428,7 @@ void AVGPlayer::readConfigFile(const string& sFName) {
     if (doc) {
         xmlNodePtr pRoot = xmlDocGetRootElement(doc);
         if (xmlStrcmp(pRoot->name, (const xmlChar *)"avgrc")) {
-            AVG_TRACE(DEBUG_PROFILE, 
+            AVG_TRACE(DEBUG_ERROR, 
                     "/etc/avgrc: Root node must be <avgrc>. Aborting.");
             exit(-1);
         }
@@ -504,10 +505,16 @@ void AVGPlayer::initConfig() {
     FILE * pFile = fopen (m_sFontDir.c_str(), "r");
     fclose (pFile);
     if (!pFile) {
-        AVG_TRACE(DEBUG_ERROR, "Font directory " << m_sFontDir << 
+        AVG_TRACE(DEBUG_WARNING, "Font directory " << m_sFontDir << 
                 " could not be opened (" <<
                 strerror(errno) << ")."); 
     } 
+
+    AVG_TRACE(DEBUG_CONFIG, "Font directory: " << m_sFontDir);
+    AVG_TRACE(DEBUG_CONFIG, "Display subsystem: " << 
+            m_sDisplaySubsystem?"true":"false");
+    AVG_TRACE(DEBUG_CONFIG, "Display bpp: " << m_BPP);
+    AVG_TRACE(DEBUG_CONFIG, "Display fullscreen: " << m_bFullscreen);
 }
 
 AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode, 

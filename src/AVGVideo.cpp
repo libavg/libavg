@@ -81,7 +81,7 @@ NS_IMETHODIMP AVGVideo::GetNumFrames(int *_retval)
     if (m_State != Unloaded) {
         *_retval = mpeg3_video_frames(m_pMPEG, 0);
     } else {
-        AVG_TRACE(IAVGPlayer::DEBUG_ERROR,
+        AVG_TRACE(IAVGPlayer::DEBUG_WARNING,
                "Error in AVGVideo::GetNumFrames: Video not loaded.");
         *_retval = -1;
     }
@@ -93,7 +93,7 @@ NS_IMETHODIMP AVGVideo::GetCurFrame(int *_retval)
     if (m_State != Unloaded) {
         *_retval = mpeg3_get_frame(m_pMPEG, 0);
     } else {
-        AVG_TRACE(IAVGPlayer::DEBUG_ERROR, "Error in AVGVideo::GetCurFrame: Video not loaded.");
+        AVG_TRACE(IAVGPlayer::DEBUG_WARNING, "Error in AVGVideo::GetCurFrame: Video not loaded.");
         *_retval = -1;
     }
     return NS_OK;
@@ -105,7 +105,7 @@ NS_IMETHODIMP AVGVideo::SeekToFrame(int num)
     if (m_State != Unloaded) {
         mpeg3_set_frame(m_pMPEG, num, 0);
     } else {
-        AVG_TRACE(IAVGPlayer::DEBUG_ERROR, "Error in AVGVideo::SeekToFrame: Video not loaded.");
+        AVG_TRACE(IAVGPlayer::DEBUG_WARNING, "Error in AVGVideo::SeekToFrame: Video not loaded.");
     }
     return NS_OK;
 }
@@ -127,7 +127,7 @@ void AVGVideo::init (const std::string& id, const std::string& filename,
     AVGNode::init(id, pEngine, pParent, pPlayer);
     
     m_Filename = filename;
-    AVG_TRACE(AVGPlayer::DEBUG_MEMORY, "Video: opening " << m_Filename << endl);
+    AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "Opening " << m_Filename);
     open (&m_Width, &m_Height);
     m_bLoop = bLoop;
     m_bOverlay = bOverlay;

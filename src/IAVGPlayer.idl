@@ -81,21 +81,25 @@ interface IAVGPlayer : nsISupports
      */
     const long DEBUG_PROFILE=2;
     /**
-     * Outputs memory usage information.
-     */
-    const long DEBUG_MEMORY=4;
-    /**
      * Outputs basic event data.
      */
-    const long DEBUG_EVENTS=8;
+    const long DEBUG_EVENTS=4;
     /**
      * Outputs all event data available.
      */
-    const long DEBUG_EVENTS2=16;
+    const long DEBUG_EVENTS2=8;
+    /**
+     * Outputs configuration data.
+     */
+    const long DEBUG_CONFIG=16;  
+    /**
+     * Outputs warning messages. Default is on.
+     */
+    const long DEBUG_WARNING=32;
     /**
      * Outputs error messages. Can't be shut off.
      */
-    const long DEBUG_ERROR=32;  
+    const long DEBUG_ERROR=64;  
     
     /**
      * Sets the amount and type of debug data that should be displayed on the 

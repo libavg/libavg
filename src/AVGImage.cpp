@@ -57,7 +57,7 @@ void AVGImage::init (const std::string& id, const std::string& filename,
     AVGNode::init(id, pEngine, pParent, pPlayer);
 
     m_Filename = filename;
-    AVG_TRACE(AVGPlayer::DEBUG_MEMORY, "Loading " << m_Filename << endl);
+    AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "Loading " << m_Filename);
     m_pBmp = getEngine()->createSurface();
 
     PLAnyPicDecoder decoder;

@@ -57,6 +57,7 @@ AVGSDLDisplayEngine::AVGSDLDisplayEngine()
 {
     if (SDL_InitSubSystem(SDL_INIT_VIDEO)==-1) {
         AVG_TRACE(IAVGPlayer::DEBUG_ERROR, "Can't init SDL display subsystem.");
+        exit(-1);
     }
     initTranslationTable();
 }
@@ -88,6 +89,7 @@ void AVGSDLDisplayEngine::init(int width, int height, bool isFullscreen, int bpp
     if (!m_pScreen) {
         AVG_TRACE(IAVGPlayer::DEBUG_ERROR, "Setting SDL video mode failed: " 
                 << SDL_GetError());
+        exit(-1);
     }   
     SDL_WM_SetCaption("AVG Renderer", 0);
 //    dumpSDLGLParams();
