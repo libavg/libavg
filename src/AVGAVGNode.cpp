@@ -36,55 +36,11 @@ AVGAVGNode::GetType(PRInt32 *_retval)
     return NS_OK;
 }
 
-AVGNode * AVGAVGNode::getElementByPos (const AVGPoint<double> & pos)
+void AVGAVGNode::initKeyEventHandlers (const string& sKeyDownHandler, 
+        const string& sKeyUpHandler)
 {
-    if (!getVisibleRect().Contains(pos)) {
-        return 0; // pos is not in parent.
-    }
-    for (int i=getNumChildren()-1; i>=0; i--) {
-        AVGNode * pFoundNode = getChild(i)->getElementByPos(pos);
-        if (pFoundNode) {
-            return pFoundNode;
-        }
-    }
-    return this; // pos is in current node, but not in any child.
-}
-
-void AVGAVGNode::prepareRender (int time, const AVGRect<double>& parent)
-{
-    AVGNode::prepareRender(time, parent);
-    for (int i=0; i<getNumChildren(); i++){
-        getChild(i)->prepareRender(time, getAbsViewport());
-    }
-}
-
-void AVGAVGNode::render(const AVGRect<double>& rect)
-{
-    for (int i=0; i<getNumChildren(); i++) {
-        getChild(i)->maybeRender(rect);
-    }
-}
-
-bool AVGAVGNode::obscures (const AVGRect<double>& rect, int z)
-{
-    for (int i=0; i<getNumChildren(); i++){
-        if (getChild(i)->getZ() > z && getChild(i)->obscures(rect, 0))
-            return true;
-    }
-    return false;
- 
-}
-
-void AVGAVGNode::getDirtyRegion (AVGRegion& Region)
-{
-    for (int i=0; i<getNumChildren(); i++){
-        AVGRegion ChildRegion;
-        getChild(i)->getDirtyRegion(ChildRegion);
-        Region.addRegion(ChildRegion);
-    }
-    AVGRegion myRegion;
-    AVGNode::getDirtyRegion(myRegion);
-    Region.addRegion(myRegion);
+    m_sKeyUpHandler = sKeyUpHandler;
+    m_sKeyDownHandler = sKeyDownHandler;
 }
 
 string AVGAVGNode::getTypeStr ()
@@ -92,4 +48,22 @@ string AVGAVGNode::getTypeStr ()
     return "AVGAVGNode";
 }
 
-
+void AVGAVGNode::handleKeyEvent (AVGKeyEvent* pEvent, JSContext * pJSContext)
+{
+    string Code;
+    int EventType;
+    pEvent->GetType(&EventType);
+    switch (EventType) {
+        case IAVGEvent::KEYDOWN:
+            Code = m_sKeyDownHandler;
+            break;
+        case IAVGEvent::KEYUP:
+            Code = m_sKeyUpHandler;
+            break;
+         default:
+            break;
+    }
+    if (!Code.empty()) {
+        callJS(Code, pJSContext);
+    } 
+}

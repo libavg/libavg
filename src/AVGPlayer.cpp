@@ -5,6 +5,7 @@
 #include <avgconfig.h>
 #include "AVGPlayer.h"
 #include "AVGAVGNode.h"
+#include "AVGDivNode.h"
 #include "AVGImage.h"
 #include "AVGVideo.h"
 #ifdef AVG_ENABLE_1394
@@ -303,7 +304,8 @@ AVGPlayer::SetDebugOutputFile(const char *name)
     }
     m_pDebugDest = new ofstream(name, ios::out | ios::app);
     if (!*m_pDebugDest) {
-        AVG_TRACE(DEBUG_ERROR, "Could not open " << name << " as log destination.");
+        AVG_TRACE(DEBUG_ERROR, "Could not open " << name 
+                << " as log destination.");
     } else {
         AVGLogger::get()->setDestination(m_pDebugDest);
         AVG_TRACE(DEBUG_ERROR, "Logging started ");
@@ -641,12 +643,18 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
     AVGNode * curNode = 0;
     string id = getDefaultedStringAttr (xmlNode, "id", "");
     if (!strcmp (nodeType, "avg")) {
-        curNode = AVGAVGNode::create();
+        AVGAVGNode * rootNode = AVGAVGNode::create();
+        curNode = rootNode;
+        curNode->init(id, m_pDisplayEngine, 0, this);
+        initVisible(xmlNode, curNode);
+        string sKeyDownHandler = getDefaultedStringAttr(xmlNode, "onkeydown", "");
+        string sKeyUpHandler = getDefaultedStringAttr(xmlNode, "onkeyup", "");
+        rootNode->initKeyEventHandlers(sKeyDownHandler, sKeyUpHandler);
+        initDisplay(rootNode);
+    } else if (!strcmp (nodeType, "div")) {
+        curNode = AVGDivNode::create();
         curNode->init(id, m_pDisplayEngine, pParent, this);
         initVisible(xmlNode, curNode);
-        if (!pParent) {
-            initDisplay(dynamic_cast<AVGAVGNode*>(curNode));
-        }
     } else if (!strcmp (nodeType, "image")) {
         string filename = initFileName(xmlNode);
         AVGImage * pImage = AVGImage::create();
@@ -836,7 +844,8 @@ bool AVGPlayer::handleEvent(AVGEvent * pEvent)
         case AVGEvent::MOUSEBUTTONDOWN:
             {
                 AVGMouseEvent * pMouseEvent = dynamic_cast<AVGMouseEvent*>(pEvent);
-                AVGDPoint pos(pMouseEvent->getXPosition(), pMouseEvent->getYPosition());
+                AVGDPoint pos(pMouseEvent->getXPosition(), 
+                        pMouseEvent->getYPosition());
                 AVGNode * pNode = m_pRootNode->getElementByPos(pos);            
                 if (pNode != m_pLastMouseNode) {
                     if (pNode) {
@@ -845,20 +854,21 @@ bool AVGPlayer::handleEvent(AVGEvent * pEvent)
                     if (m_pLastMouseNode) {
                         createMouseOver(pMouseEvent, IAVGEvent::MOUSEOUT);
                     }
-
                     m_pLastMouseNode = pNode;
-
                 }
-
                 if (pNode) {
                     pNode->handleMouseEvent(pMouseEvent, m_pJSContext);
                 }
             }
             break;
         case AVGEvent::KEYDOWN:
+        case AVGEvent::KEYUP:
             {
                 AVGKeyEvent * pKeyEvent = dynamic_cast<AVGKeyEvent*>(pEvent);
-                if (pKeyEvent->getKeyCode() == 27) {
+                m_pRootNode->handleKeyEvent(pKeyEvent, m_pJSContext);
+                if (pEvent->getType() == AVGEvent::KEYDOWN &&
+                    pKeyEvent->getKeyCode() == 27) 
+                {
                     m_bStopping = true;
                 }
             }

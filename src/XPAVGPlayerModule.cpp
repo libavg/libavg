@@ -19,6 +19,7 @@
 #endif
 #include "AVGWords.h"
 #include "AVGAVGNode.h"
+#include "AVGDivNode.h"
 #include "AVGExcl.h"
 #include "AVGConradRelais.h"
 #include "acJSContextPublisher.h"
@@ -35,6 +36,7 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(AVGCamera)
 #endif
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGWords)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGAVGNode)
+NS_GENERIC_FACTORY_CONSTRUCTOR(AVGDivNode)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGExcl)
 NS_GENERIC_FACTORY_CONSTRUCTOR(AVGConradRelais)
 NS_GENERIC_FACTORY_CONSTRUCTOR(acJSContextPublisher)
@@ -68,6 +70,7 @@ NS_DECL_CLASSINFO(AVGCamera)
 #endif
 NS_DECL_CLASSINFO(AVGWords)
 NS_DECL_CLASSINFO(AVGAVGNode)
+NS_DECL_CLASSINFO(AVGDivNode)
 NS_DECL_CLASSINFO(AVGExcl)
 NS_DECL_CLASSINFO(AVGConradRelais)
 NS_DECL_CLASSINFO(acJSContextPublisher)
@@ -186,6 +189,17 @@ static const nsModuleComponentInfo components[] =
     NULL /* no language helper */,
     &NS_CLASSINFO_NAME(AVGAVGNode)
   },
+  { "c-base avgdivnode Component", 
+    AVGDIVNODE_CID, 
+    AVGDIVNODE_CONTRACTID, 
+    AVGDivNodeConstructor,
+    AVGPlayerRegistrationProc,
+    AVGPlayerUnregistrationProc,
+    NULL /* no factory destructor */,
+    NS_CI_INTERFACE_GETTER_NAME(AVGDivNode),
+    NULL /* no language helper */,
+    &NS_CLASSINFO_NAME(AVGDivNode)
+  },
   { "c-base avgexcl Component", 
     AVGEXCL_CID, 
     AVGEXCL_CONTRACTID, 
@@ -227,6 +241,9 @@ NS_IMPL_NSGETMODULE(AVGPlayerModule, components)
 //==============================================================================
 //
 // $Log$
+// Revision 1.16  2004/07/05 16:01:33  uzadow
+// Separated div and avg nodes, added keyboard event handling.
+//
 // Revision 1.15  2004/06/01 10:36:37  artcom
 // Added OGL 15 and 24 bpp modes, updates to camera code.
 //

@@ -68,7 +68,7 @@ class AVGNode: public IAVGNode
         virtual const std::string& getID ();
         virtual AVGContainer * getParent();
         
-        virtual bool handleMouseEvent (AVGMouseEvent* pEvent, 
+        virtual void handleMouseEvent (AVGMouseEvent* pEvent, 
                 JSContext * pJSContext);
 
     protected:
@@ -77,9 +77,9 @@ class AVGNode: public IAVGNode
         AVGDPoint getPivot();
         AVGPlayer * getPlayer();
         IAVGDisplayEngine * getEngine();
+        void callJS (const std::string& Code, JSContext * pJSContext);
 
     private:
-        void callJS (const std::string& Code, JSContext * pJSContext);
         void calcAbsViewport();
 
         std::string m_ID;

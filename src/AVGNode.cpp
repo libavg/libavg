@@ -265,7 +265,7 @@ void AVGNode::prepareRender (int time, const AVGDRect& parent)
 void AVGNode::maybeRender (const AVGDRect& Rect)
 {
     bool bVisible;
-    if (dynamic_cast<AVGAVGNode*>(this) != 0) {
+    if (dynamic_cast<AVGDivNode*>(this) != 0) {
         bVisible = getEngine()->pushClipRect(getVisibleRect(), true);
     } else {
         bVisible = getEngine()->pushClipRect(getVisibleRect(), false);
@@ -441,7 +441,7 @@ AVGContainer * AVGNode::getParent()
     return m_pParent;
 }
 
-bool AVGNode::handleMouseEvent (AVGMouseEvent* pEvent, JSContext * pJSContext)
+void AVGNode::handleMouseEvent (AVGMouseEvent* pEvent, JSContext * pJSContext)
 {
     string Code;
     pEvent->setElement(this);

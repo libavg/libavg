@@ -51,7 +51,7 @@ ALL_H = AVGAVGNode.h AVGContainer.h AVGEvent.h \
           IDisplayEngine.h XMLHelper.h AVGTimeSource.h \
           AVGWords.h AVGFontManager.h AVGVideo.h xpshell.h \
           acJSContextPublisher.h AVGJSScript.h AVGLogger.h \
-          IAVGFont.h FileHelper.h JSHelper.h \
+          IAVGFont.h FileHelper.h JSHelper.h AVGDivNode.h \
           IAVGVideoDecoder.h AVGFFMpegDecoder.h AVGVideoBase.h \
           $(DC1394_INCLUDES) $(GL_INCLUDES) $(DFB_INCLUDES)
           
@@ -77,7 +77,7 @@ libavg_la_SOURCES = AVGEvent.cpp AVGMouseEvent.cpp AVGKeyEvent.cpp \
                     AVGTimeSource.cpp AVGWords.cpp AVGFontManager.cpp\
                     AVGVideo.cpp acJSContextPublisher.cpp AVGJSScript.cpp\
                     AVGLogger.cpp AVGConradRelais.cpp \
-                    FileHelper.cpp JSHelper.cpp \
+                    FileHelper.cpp JSHelper.cpp AVGDivNode.cpp\
                     AVGFFMpegDecoder.cpp AVGVideoBase.cpp \
                     $(DC1394_SOURCES) $(GL_SOURCES) $(DFB_SOURCES)\
                     $(ALL_H) 

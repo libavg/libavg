@@ -5,8 +5,9 @@
 #ifndef _AVGAVGNode_H_
 #define _AVGAVGNode_H_
 
-#include "AVGContainer.h"
+#include "AVGDivNode.h"
 #include "AVGPoint.h"
+#include "AVGKeyEvent.h"
 #include <string>
 
 // 84d8c8d3-2af2-482a-a238-608452b93b6f
@@ -15,7 +16,7 @@
 
 #define AVGAVGNODE_CONTRACTID "@c-base.org/avgavgnode;1"
 
-class AVGAVGNode : public AVGContainer
+class AVGAVGNode : public AVGDivNode
 {
 	public:
         NS_DECL_ISUPPORTS_INHERITED
@@ -27,12 +28,14 @@ class AVGAVGNode : public AVGContainer
 
         NS_IMETHOD GetType(PRInt32 *_retval);
 
-        virtual AVGNode * getElementByPos (const AVGPoint<double> & pos);
-        virtual void prepareRender (int time, const AVGRect<double>& parent);
-        virtual void render (const AVGRect<double>& rect);
-        virtual bool obscures (const AVGRect<double>& rect, int z);
-        virtual void getDirtyRegion (AVGRegion& Region);
+        void initKeyEventHandlers (const std::string& sKeyDownHandler, 
+                const std::string& sKeyUpHandler);
         virtual std::string getTypeStr ();
+        void handleKeyEvent (AVGKeyEvent* pEvent, JSContext * pJSContext);
+
+    private:
+        std::string m_sKeyUpHandler;
+        std::string m_sKeyDownHandler;
 
 };
 

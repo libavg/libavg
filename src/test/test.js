@@ -11,6 +11,24 @@ function interval()
     dump (".");
 }
 
+function keyDown()
+{
+    var Event = AVGPlayer.getCurEvent();
+    print ("JS: KeyDown (type= "+Event.type+", scanCode="+Event.scanCode+
+           ", keyCode="+Event.keyCode+", keyString="+Event.keyString+
+           ", modifiers="+Event.modifiers +
+           ")");
+}
+
+function keyUp()
+{
+    var Event = AVGPlayer.getCurEvent();
+    print ("JS: KeyUp (type= "+Event.type+", scanCode="+Event.scanCode+
+           ", keyCode="+Event.keyCode+", keyString="+Event.keyString+
+           ", modifiers="+Event.modifiers +
+           ")");
+}
+
 function onMouseMove()
 {
 //    print ("JS: onMouseMove()");
@@ -360,6 +378,8 @@ function testExcl()
         AVGPlayer.play(30);
     }
 }
+
+/*
     var output = new Object();
     print (AVGPlayer.exec("uname -a","",output));
     print (output.value);
@@ -375,8 +395,11 @@ function testExcl()
     testExcl();
 
     playAVG("empty.avg");
+*/    
     playAVG("events.avg");
+/*    
     playAVG("avg.avg");
     playAVG("noavg.avg");
     playAVG("noxml.avg");
+*/    
     
