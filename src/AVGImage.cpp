@@ -80,7 +80,7 @@ void AVGImage::render (const PLRect& Rect)
     if (getRelViewport().tl.x < 0) {
         SrcRect.tl.x = -getRelViewport().tl.x;
     }
-    if (getRelViewport().tl.x < 0) {
+    if (getRelViewport().tl.y < 0) {
         SrcRect.tl.y = -getRelViewport().tl.y;
     }
     getEngine()->render(m_pBmp, &SrcRect, getAbsViewport().tl, getEffectiveOpacity());
