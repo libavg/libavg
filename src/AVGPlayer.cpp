@@ -256,6 +256,8 @@ void AVGPlayer::loadFile (const std::string& filename)
 {
     jsgc();
     PLASSERT (!m_pRootNode);
+
+    // Get display configuration.
     if (!m_pDisplayEngine) {
         char * pszDisplay = getenv("AVG_DISPLAY");
         if (!pszDisplay || strcmp(pszDisplay, "DFB") == 0) {
@@ -273,6 +275,16 @@ void AVGPlayer::loadFile (const std::string& filename)
         }
     }
 
+    // Find and parse dtd.
+    string sDTDFName = getenv("AVG_INCLUDE_PATH");
+    sDTDFName += "/avg.dtd";
+    xmlDtdPtr dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
+    if (!dtd) {
+        AVG_TRACE(DEBUG_ERROR, 
+                "Required DTD not found at " << sDTDFName << ". Aborting.");
+        exit(-1);
+    }
+
     // Construct path.
     const char * pCurFilename;
     int lineno;
@@ -281,13 +293,23 @@ void AVGPlayer::loadFile (const std::string& filename)
     string RealFilename = Path+filename;
 
     xmlPedanticParserDefault(1);
-    xmlDoValidityCheckingDefaultValue =1;
+    xmlDoValidityCheckingDefaultValue =0;
     
     xmlDocPtr doc;
     doc = xmlParseFile(RealFilename.c_str());
     if (!doc) {
         throw (AVGException(AVG_ERR_XML_PARSE, 
                 string("Error parsing xml document ")+RealFilename));
+    }
+    xmlValidCtxtPtr cvp = xmlNewValidCtxt();
+    cvp->error = xmlParserValidityError;
+    cvp->warning = xmlParserValidityWarning;
+    int valid=xmlValidateDtd(cvp, doc, dtd);  
+    xmlFreeValidCtxt(cvp);
+    if (!valid) {
+        AVG_TRACE(DEBUG_ERROR, 
+                filename + " does not validate. Aborting.");
+        exit(-1);
     }
 
     m_CurDirName = RealFilename.substr(0,RealFilename.rfind('/')+1);
