@@ -73,14 +73,16 @@ body { }
        It should be almost as easy to build installations as it is to build a web page. Designing interactive systems will still need some programming skills, but this should be kept to a minimum. A libavg installation consists of one or more xml files that describe screen layout(s) and corresponding javascript files that describe the dynamics of the installation: What to do when a user interacts with the system, some time has elapsed or any other input has arrived. The result is that the xml files are as easy to edit as html is - and the syntax used for the interactive parts should be very familiar to anyone who's used javascript on a web page.
        <p><b>Status Quo</b>
        <p>
-       Currently, libavg is a stable proof of concept and has the major features nessesary to build small and medium-sized multimedia presentations. It supports images (in 15 formats), videos (mpeg1) and scalable fonts. Transparency and alpha channels are fully supported and rendering speed is near-optimal in many cases, with old computers being better supported than new ones. Input can come from mouse or keyboard. Scripts can react to these inputs, and change most of the attributes - position, size, opacity,... - of all the active media on the fly. The complete Javascript language is available to scripts.
+       Currently, libavg is a stable proof of concept and has the major features nessesary to build small and medium-sized multimedia presentations. It supports images (in 15 formats), videos (mpeg1 and 2) and scalable fonts. Transparency and alpha channels are fully supported and rendering speed is near-optimal in many cases. Rendering is either done in software using DirectFB or in hardware using OpenGL. If OpenGL is used as backend, images and even videos can be scaled and rotated without using the cpu.
+       <p>
+       Input can come from mouse or keyboard. Scripts can react to these inputs, and change most of the attributes - position, size, opacity, rotation angle... - of all the active media on the fly. The complete Javascript language is available to scripts.
        <p>
        Oh, and the C++ code that implements all this looks readable and is very open for expansion. 
        <p><b>Missing</b>
        <p>
-       libavg currently has no sound support. In large projects, performance is likely to go down the drain because there is no smart memory management. Networking between two or more computers and communication with other programs isn't implemented yet.
+       libavg currently has no sound support. In very large projects, performance is likely to go down the drain because there is no smart memory management. Networking between two or more computers and communication with other programs isn't implemented yet.
        <p>
-       But the most important thing that's missing is use. Other than some small demos, the system has not been tested in real life. We're currently building some installations for the c-base (www.c-base.org) using libavg so this should change in the near future. At the moment, however, libavg is not ready for mission-critical projects.
+       But the most important thing that's missing is use. Other than some small demos, the system has not been tested in real life. We're currently building some installations for the c-base (<a href="http://www.c-base.org/">http://www.c-base.org/</a>) using libavg so this should change in the near future. 
        <p><b>Ain't Vector Graphics?!</b>
        <p>
        Some presumably pretty smart people defined the svg (Scalable Vector Graphics - <a href="http://www.w3.org/Graphics/SVG/">http://www.w3.org/Graphics/SVG/</a>) file format that is used as a portable way to describe two-dimensional graphics. The avg file format is loosely based on svg, but with a focus on pixel- rather than vector-oriented graphics. 

@@ -65,24 +65,18 @@ body { }
 </div>
 <div id="textbox">
        <b>Hic sunt leones</b>
-       <p>Be warned that this is stuff under heavy development. libavg is not polished enough to be easy to install yet. We've had it running on a Debian unstable and a SuSE box, and it shouldn't be impossible to get running on a sane Linux system, but it isn't packaged well yet, so things will hiccup and stutter and spit out compiler errors and in general behave badly until tamed. Of course, at this stage I'm more than happy to help anyone trying to install the beast: uzadow at gmx.de.
+       <p>Be warned that this is stuff under heavy development. libavg is not polished enough to be easy to install yet. We've had it running on Debian unstable and SuSE boxes, and it shouldn't be impossible to get running on a sane Linux system, but it isn't packaged well yet, so things will hiccup and stutter and spit out compiler errors and in general behave badly until tamed. Of course, at this stage I'm more than happy to help anyone trying to install the beast: uzadow at gmx.de.
        <p><b>Prerequisites</b>
-       <p>libavg uses a lot of third-party libraries. What follows is a list of packages you'll need. I have had neither the time to figure out the exact dependencies nor am I sure that the package names are exact, but the list should enable you to find what's needed.
+       <p>libavg uses a lot of third-party libraries. What follows is a list of packages you'll need. I am not sure that the package names are exact, but the list should enable you to find what's needed.
        <ul>
-       <li>pkgconfig (for DirectFB)</li>
-       <li>libpango1.0-dev</li>
-       <li>The image format libraries libjpeg62-devel, libpng-devel, libtiff-devel (all optional but highly recommended)</li>
-       <li>slang-dev</li>
-       <li>nasm</li>
+       <li>The image format libraries libjpeg62-dev, libpng-dev, libtiff-dev (all optional but highly recommended)</li>
        <li>libmpeg3-dev</li>
        <li>libsdl1.2-dev (only needed for non-fullscreen support)</li>
-       <li>DirectFB. (from www.directfb.org. I've used ver. 0.9.19 and several cvs versions of this library without problems.)</li>
+       <li>DirectFB. (from www.directfb.org. I've used ver. 0.9.19 and several cvs versions of this library. The debian developer package works as well.)</li>
+       <li>OpenGL (installed OpenGL headers are nessesary to compile at the moment, but libavg will run without OpenGL support if DirectFB is working.)
        <li>libxml2-dev</li>
-       <li>libcurl2-dev (optional, for paintlib url image loading support)</li>
        <li>paintlib-2.5.devel (from www.paintlib.de. Make sure the library finds DirectFB and the image format libraries during configure.)</li>
-       <li>gtk-devel</li>
-       <li>orbit-devel</li>
-       <li>mozilla-devel (we're using ver. 1.4)</li>
+       <li>mozilla-dev (tested with versions 1.4 and 1.6)</li>
        </ul>
        <p><b>libavg itself</b>
        <p>Do a cvs checkout:
@@ -95,7 +89,7 @@ body { }
        <pre>cvs -d:ext:uzadow@cvs.libavg.sourceforge.net:/cvsroot/libavg co libavg</pre>
        <p>Then ./configure, make, make install as usual.
        <p><b>Linux kernel config</b>
-       <p>You need a working framebuffer. Also, installing the low-latency and preemptive patches is recommended to get a stable framerate.
+       <p>For DirectFB support, you need a working framebuffer. Also, installing the low-latency and preemptive patches is recommended to get a stable framerate.
 </div>
 </BODY>
 </HTML>
