@@ -75,7 +75,15 @@ void AVGImage::init (const std::string& id, int x, int y, int z,
 void AVGImage::render (const PLRect& Rect)
 {
 //    cerr << "render " << getID() << endl;
-    getEngine()->render(m_pBmp, getAbsViewport().tl, getEffectiveOpacity());
+    
+    PLRect SrcRect(0, 0, getRelViewport().Width(), getRelViewport().Height());
+    if (getRelViewport().tl.x < 0) {
+        SrcRect.tl.x = -getRelViewport().tl.x;
+    }
+    if (getRelViewport().tl.x < 0) {
+        SrcRect.tl.y = -getRelViewport().tl.y;
+    }
+    getEngine()->render(m_pBmp, &SrcRect, getAbsViewport().tl, getEffectiveOpacity());
 }
 
 bool AVGImage::obscures (const PLRect& Rect, int z) 

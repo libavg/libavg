@@ -267,23 +267,26 @@ void AVGDFBDisplayEngine::clear()
     AVG_TRACE(AVGPlayer::DEBUG_BLTS, "Clear rect: " << m_DirtyRect.tl.x << "x" << 
             m_DirtyRect.tl.y << ", width: " << m_DirtyRect.Width() << 
             ", height: " << m_DirtyRect.Height() << endl);
-    err = m_pBackBuffer->FillRectangle(m_pBackBuffer, 
-            m_DirtyRect.tl.x, m_DirtyRect.tl.y, 
-            m_DirtyRect.Width(), m_DirtyRect.Height());
-    DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::clear", err);
+    if (m_DirtyRect.Width() >= 0 && m_DirtyRect.Height() >= 0) {
+        err = m_pBackBuffer->FillRectangle(m_pBackBuffer, 
+                m_DirtyRect.tl.x, m_DirtyRect.tl.y, 
+                m_DirtyRect.Width(), m_DirtyRect.Height());
+        DFBErrorCheck(AVG_ERR_VIDEO_GENERAL, "AVGDFBDisplayEngine::clear", err);
+    }
 }
 
-void AVGDFBDisplayEngine::render(PLBmp * pBmp, const PLPoint& pos, double opacity)
+void AVGDFBDisplayEngine::render(PLBmp * pBmp, const PLRect* pSrcRect, 
+        const PLPoint& pos, double opacity)
 {
     PLDirectFBBmp * pDFBBmp = dynamic_cast<PLDirectFBBmp *>(pBmp);
     PLASSERT(pDFBBmp); // createSurface() should have been used to create 
                        // the bitmap.
     IDirectFBSurface * pSurf = pDFBBmp->GetSurface();
-    render (pSurf, pos, opacity, pBmp->HasAlpha());
+    render (pSurf, pSrcRect, pos, opacity, pBmp->HasAlpha());
 }
 
-void AVGDFBDisplayEngine::render(IDirectFBSurface * pSrc, const PLPoint& pos,   
-        double opacity, bool bAlpha)
+void AVGDFBDisplayEngine::render(IDirectFBSurface * pSrc, const PLRect* pSrcRect, 
+        const PLPoint& pos, double opacity, bool bAlpha)
 {
     DFBSurfaceBlittingFlags BltFlags;
     if (bAlpha) {
@@ -299,7 +302,16 @@ void AVGDFBDisplayEngine::render(IDirectFBSurface * pSrc, const PLPoint& pos,
     m_pBackBuffer->SetBlittingFlags(m_pBackBuffer, BltFlags);
 //    dumpSurface (pSurf, "pDFBBmp");
 //    dumpSurface (m_pBackBuffer, "m_pBackBuffer");
-    DFBResult err = m_pBackBuffer->Blit(m_pBackBuffer, pSrc, 0, 
+    DFBRectangle * pDFBRect = 0;
+    DFBRectangle DFBRect;
+    if (pSrcRect) {
+        pDFBRect = &DFBRect;
+        DFBRect.x = pSrcRect->tl.x;
+        DFBRect.y = pSrcRect->tl.y;
+        DFBRect.w = pSrcRect->Width();
+        DFBRect.h = pSrcRect->Height();
+    }
+    DFBResult err = m_pBackBuffer->Blit(m_pBackBuffer, pSrc, pDFBRect, 
             pos.x, pos.y);
         
     int width;

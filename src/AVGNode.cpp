@@ -72,7 +72,7 @@ NS_IMETHODIMP AVGNode::GetX(PRInt32 *aX)
 NS_IMETHODIMP AVGNode::SetX(PRInt32 aX)
 {
     invalidate();
-    setViewport(aX, -1, -1, -1);
+    setViewport(aX, -32767, -32767, -32767);
     invalidate();
     return NS_OK;
 }
@@ -87,7 +87,7 @@ NS_IMETHODIMP AVGNode::GetY(PRInt32 *aY)
 NS_IMETHODIMP AVGNode::SetY(PRInt32 aY)
 {
     invalidate();
-    setViewport(-1, aY, -1, -1);
+    setViewport(-32767, aY, -32767, -32767);
     invalidate();
     return NS_OK;
 }
@@ -119,7 +119,7 @@ NS_IMETHODIMP AVGNode::GetWidth(PRInt32 *aWidth)
 NS_IMETHODIMP AVGNode::SetWidth(PRInt32 aWidth)
 {
     invalidate();
-    setViewport(-1, -1, aWidth, -1);
+    setViewport(-32767, -32767, aWidth, -32767);
     invalidate();
     return NS_OK;
 }
@@ -134,7 +134,7 @@ NS_IMETHODIMP AVGNode::GetHeight(PRInt32 *aHeight)
 NS_IMETHODIMP AVGNode::SetHeight(PRInt32 aHeight)
 {
     invalidate();
-    setViewport(-1, -1, -1, aHeight);
+    setViewport(-32767, -32767, -32767, aHeight);
     invalidate();
     return NS_OK;
 }
@@ -266,16 +266,16 @@ AVGPlayer * AVGNode::getPlayer()
 
 void AVGNode::setViewport (int x, int y, int width, int height)
 {
-    if (x == -1) {
+    if (x == -32767) {
         x = m_RelViewport.tl.x;
     }
-    if (y == -1) {
+    if (y == -32767) {
         y = m_RelViewport.tl.y;
     }
-    if (width == -1) {
+    if (width == -32767) {
         width = m_RelViewport.Width();
     }
-    if (height == -1) {
+    if (height == -32767) {
         height = m_RelViewport.Height();
     }
     PLPoint pos = m_AbsViewport.tl-m_RelViewport.tl;
