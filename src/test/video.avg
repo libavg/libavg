@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg width="640" height="480" fullscreen="true" bpp="16">
+<avg width="640" height="480">
         
   <video id="clogo2" x="150" y="50" z="3" opacity="0.5" loop="true"
-      href="test.mpg"/> <!-- width="176" height="144"/>-->
+      href="test.mpg" width="176" height="144"/>
   <video id="clogo1" x="0" y="0" z="1" loop="true"
-      href="test.mpg" width="352" height="288"/>
+      href="test.mpg"/>
 
 <!--  
   <video id="clogo" x="100" y="130" z="2" opacity="1"
@@ -15,5 +15,5 @@
   -->
 
   <video id="clogo" x="300" y="150" z="3" opacity="1" loop="true"
-      href="test.mpg" width="352" height="288"/>
+      href="test.mpg"/>
 </avg>

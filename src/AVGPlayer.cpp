@@ -129,6 +129,10 @@ AVGPlayer::Stop()
 NS_IMETHODIMP 
 AVGPlayer::GetElementByID(const char *id, IAVGNode **_retval)
 {
+    if (!id) {
+        AVG_TRACE(DEBUG_WARNING, "getElementByID() called with empty ID");
+        return NS_OK; 
+    }
     AVGNode * pNode = getElementByID(id);
     if (!pNode) {
         AVG_TRACE(DEBUG_WARNING, "getElementByID(" << id << ") failed");
@@ -556,8 +560,7 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         double angle;
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
                 &opacity, &angle, &pivotx, &pivoty);
-        string filename = m_CurDirName + 
-                getRequiredStringAttr(xmlNode, (const xmlChar *)"href");
+        string filename = initFileName(xmlNode);
 
         AVGImage * pImage = AVGImage::create();
         curNode = pImage;
@@ -573,8 +576,7 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         double angle;
         getVisibleNodeAttrs(xmlNode, &id, &x, &y, &z, &width, &height, 
                 &opacity, &angle, &pivotx, &pivoty);
-        string filename = m_CurDirName + 
-                getRequiredStringAttr(xmlNode, (const xmlChar *)"href");
+        string filename = initFileName(xmlNode);
         bool bLoop = getDefaultedBoolAttr(xmlNode, (const xmlChar *)"loop", false); 
         bool bOverlay = getDefaultedBoolAttr(xmlNode, (const xmlChar *)"overlay", false); 
         AVGVideo * pVideo = AVGVideo::create();
@@ -640,6 +642,15 @@ AVGNode * AVGPlayer::createNodeFromXml (const xmlNodePtr xmlNode,
         m_IDMap.insert(NodeIDMap::value_type(ID, curNode));
     }
     return curNode;
+}
+
+string AVGPlayer::initFileName(const xmlNodePtr xmlNode) {
+    string origFName = getRequiredStringAttr(xmlNode, (const xmlChar *)"href");
+    if (origFName[0] != '/') {
+        return m_CurDirName + origFName;
+    } else {
+        return origFName;
+    }
 }
 
 void AVGPlayer::initDisplay(AVGAVGNode * pNode) {

@@ -9,11 +9,11 @@
 #include "IAVGVideo.h"
 #include "AVGRect.h"
 
-#include <libmpeg3.h>
-
 #include <string>
 
 class PLBmp;
+class IAVGVideoDecoder;
+
 //8d8abfe4-a725-4908-96a6-53c575f1f574
 #define AVGVIDEO_CID \
 { 0x8d8abfe4, 0xa725, 0x4908, { 0x96, 0xa6, 0x53, 0xc5, 0x75, 0xf1, 0xf5, 0x74 } }
@@ -22,7 +22,7 @@ class PLBmp;
 
 class AVGVideo : public AVGNode, IAVGVideo
 {
-	public:
+    public:
         NS_DECL_ISUPPORTS
         NS_DECL_IAVGVIDEO
 
@@ -46,28 +46,33 @@ class AVGVideo : public AVGNode, IAVGVideo
         virtual AVGDPoint getPreferredMediaSize();
     
     private:
+        void initVideoSupport();
+
         void open (int* pWidth, int* pHeight);
+        void close();
         typedef enum VideoState {Unloaded, Paused, Playing};
         void changeState(VideoState NewState);
-        void readFrame();
+        void renderToBmp();
         void renderToBackbuffer();
-        void initOverlay();
-        void renderToOverlay();
+        void seek(int DestFrame);
         void advancePlayback();
-        
+       
         std::string m_Filename;
         int m_Width;
         int m_Height;
         bool m_bLoop;
-        bool m_bOverlay;
 
         PLBmp * m_pBmp;
-        mpeg3_t* m_pMPEG;
         bool m_bFrameAvailable;
 
         VideoState m_State;
         int m_CurFrame;
         AVGDPoint m_PreferredSize;
+        bool m_bEOF;
+
+        IAVGVideoDecoder * m_pDecoder;
+
+        static bool m_bInitialized;
 };
 
 #endif 

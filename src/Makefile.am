@@ -16,7 +16,7 @@ ALL_H = AVGAVGNode.h AVGContainer.h  AVGDFBDisplayEngine.h AVGEvent.h \
           acJSContextPublisher.h AVGJSScript.h AVGLogger.h \
           AVGDFBFontManager.h IAVGFont.h AVGDFBFont.h FileHelper.h JSHelper.h \
           AVGSDLDisplayEngine.h AVGOGLBmp.h OGLHelper.h AVGSDLFontManager.h \
-          AVGSDLFont.h
+          AVGSDLFont.h IAVGVideoDecoder.h AVGFFMpegDecoder.h
 
 libavg_PROGRAMS = xpshell
 xpshell_SOURCES = xpshell.cpp FileHelper.cpp FileHelper.h xpshell.h acJSContextPublisher.h
@@ -26,7 +26,7 @@ libavg_LTLIBRARIES = libavg.la
 
 libavg_la_LDFLAGS =  -lmpeg3 `mozilla-config --libs nspr` `paintlib-config --libs` \
                     `xml2-config --libs` `directfb-config --libs` \
-                    -lGL -lGLU -lSDL_ttf
+                    -lGL -lGLU -lSDL_ttf -lavformat -lavcodec
 
 libavg_la_SOURCES = AVGEvent.cpp AVGMouseEvent.cpp AVGKeyEvent.cpp AVGWindowEvent.cpp \
                     AVGEventDispatcher.cpp AVGDebugEventSink.cpp AVGAVGNode.cpp AVGExcl.cpp \
@@ -39,7 +39,8 @@ libavg_la_SOURCES = AVGEvent.cpp AVGMouseEvent.cpp AVGKeyEvent.cpp AVGWindowEven
                     AVGLogger.cpp AVGConradRelais.cpp AVGDFBFontManager.cpp\
                     AVGDFBFont.cpp FileHelper.cpp JSHelper.cpp AVGSDLDisplayEngine.cpp\
                     AVGOGLBmp.cpp OGLHelper.cpp AVGSDLFontManager.cpp \
-                    AVGSDLFont.cpp $(ALL_H) 
+                    AVGSDLFont.cpp AVGFFMpegDecoder.cpp \
+                    $(ALL_H) 
  
 BUILT_SOURCES = IAVGPlayer.h IAVGEvent.h IAVGNode.h IAVGVideo.h \
                 acIJSContextPublisher.h IAVGWords.h IAVGExcl.h \

@@ -8,6 +8,7 @@
 #include "AVGPlayer.h"
 #include "AVGLogger.h"
 #include "AVGContainer.h"
+#include "AVGFFMpegDecoder.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/pldirectfbbmp.h>
@@ -26,6 +27,7 @@ using namespace std;
 
 NS_IMPL_ISUPPORTS2_CI(AVGVideo, IAVGNode, IAVGVideo);
 
+bool AVGVideo::m_bInitialized = false;
 
 AVGVideo * AVGVideo::create()
 {
@@ -33,8 +35,9 @@ AVGVideo * AVGVideo::create()
 }       
 
 AVGVideo::AVGVideo ()
-    : m_pMPEG(0),
-      m_State(Unloaded)
+    : m_State(Unloaded),
+      m_pDecoder(0),
+      m_pBmp(0)
 {
     NS_INIT_ISUPPORTS();
     m_bFrameAvailable = false;
@@ -42,8 +45,8 @@ AVGVideo::AVGVideo ()
 
 AVGVideo::~AVGVideo ()
 {
-    if (m_pMPEG) {
-        mpeg3_close(m_pMPEG);
+    if (m_pDecoder) {
+        delete m_pDecoder;
     }
     if (m_pBmp) {
         delete m_pBmp;
@@ -79,7 +82,7 @@ NS_IMETHODIMP AVGVideo::Pause()
 NS_IMETHODIMP AVGVideo::GetNumFrames(int *_retval)
 {
     if (m_State != Unloaded) {
-        *_retval = mpeg3_video_frames(m_pMPEG, 0);
+        *_retval = m_pDecoder->getNumFrames();
     } else {
         AVG_TRACE(IAVGPlayer::DEBUG_WARNING,
                "Error in AVGVideo::GetNumFrames: Video not loaded.");
@@ -91,9 +94,10 @@ NS_IMETHODIMP AVGVideo::GetNumFrames(int *_retval)
 NS_IMETHODIMP AVGVideo::GetCurFrame(int *_retval)
 {
     if (m_State != Unloaded) {
-        *_retval = mpeg3_get_frame(m_pMPEG, 0);
+        *_retval = m_CurFrame;
     } else {
-        AVG_TRACE(IAVGPlayer::DEBUG_WARNING, "Error in AVGVideo::GetCurFrame: Video not loaded.");
+        AVG_TRACE(IAVGPlayer::DEBUG_WARNING, 
+                "Error in AVGVideo::GetCurFrame: Video not loaded.");
         *_retval = -1;
     }
     return NS_OK;
@@ -101,11 +105,11 @@ NS_IMETHODIMP AVGVideo::GetCurFrame(int *_retval)
 
 NS_IMETHODIMP AVGVideo::SeekToFrame(int num)
 {
-    // TODO: Figure out why/when libmpeg3 has problems seeking.
     if (m_State != Unloaded) {
-        mpeg3_set_frame(m_pMPEG, num, 0);
+        seek(num);
     } else {
-        AVG_TRACE(IAVGPlayer::DEBUG_WARNING, "Error in AVGVideo::SeekToFrame: Video not loaded.");
+        AVG_TRACE(IAVGPlayer::DEBUG_WARNING, 
+                "Error in AVGVideo::SeekToFrame: Video not loaded.");
     }
     return NS_OK;
 }
@@ -113,7 +117,8 @@ NS_IMETHODIMP AVGVideo::SeekToFrame(int num)
 NS_IMETHODIMP AVGVideo::GetFPS(PRInt32 *_retval)
 {
     if (m_State != Unloaded) {
-        *_retval = (int)mpeg3_frame_rate(m_pMPEG, 0);
+        // TODO: This shouldn't be an int...
+        *_retval = int(m_pDecoder->getFPS());
     } else {
         *_retval = -1;
     }
@@ -127,13 +132,11 @@ void AVGVideo::init (const std::string& id, const std::string& filename,
     AVGNode::init(id, pEngine, pParent, pPlayer);
     
     m_Filename = filename;
-    AVG_TRACE(AVGPlayer::DEBUG_PROFILE, "Opening " << m_Filename);
-    open (&m_Width, &m_Height);
+    m_pDecoder = new AVGFFMpegDecoder();
+    changeState(Paused);
+//    bool bOk = m_pDecoder->open(m_Filename, &m_Width, &m_Height);
+
     m_bLoop = bLoop;
-    m_bOverlay = bOverlay;
-    if (m_bOverlay) {
-        initOverlay();
-    }
 }
 
 void AVGVideo::prepareRender (int time, const AVGDRect& parent)
@@ -149,24 +152,25 @@ void AVGVideo::render (const AVGDRect& Rect)
     switch(m_State) 
     {
         case Playing:
-            if (m_bOverlay) {
-                renderToOverlay();    
-            } else {
+            {
                 if (getEffectiveOpacity() < 0.001) {
                     return;
                 }
                 AVGDRect relVpt = getRelViewport();
                 AVGDRect absVpt = getParent()->getAbsViewport();   
                 if (getEffectiveOpacity() > 0.999 && 
-                    dynamic_cast<AVGDFBDisplayEngine*>(getEngine()) &&
-                    relVpt.tl.x >= 0 && relVpt.tl.y >= 0 && 
-                    absVpt.Width() > relVpt.br.x && absVpt.Height() > relVpt.br.y)
+                        dynamic_cast<AVGDFBDisplayEngine*>(getEngine()) &&
+                        m_pDecoder->canRenderToBuffer(getEngine()->getBPP()) &&
+                        relVpt.tl.x >= 0 && relVpt.tl.y >= 0 && 
+                        absVpt.Width() > relVpt.br.x && absVpt.Height() > relVpt.br.y &&
+                        m_Width == relVpt.Width() && m_Height == relVpt.Height())
                 {
-                    // No alpha blending: render frame to backbuffer directly.
-                    // (DirectFB only).
+                    // Render frame to backbuffer directly.
+                    // (DirectFB only, no alpha, no scale, no crop, 
+                    // bpp must be supported by decoder).
                     renderToBackbuffer();
                 } else {
-                    readFrame();
+                    renderToBmp();
                     getEngine()->blt32(m_pBmp, &getAbsViewport(), 
                             getEffectiveOpacity(), getAngle(), getPivot());
                 }
@@ -174,7 +178,7 @@ void AVGVideo::render (const AVGDRect& Rect)
             break;
         case Paused:
             if (!m_bFrameAvailable) {
-                readFrame();
+                renderToBmp();
             }
             getEngine()->blt32(m_pBmp, &getAbsViewport(), 
                     getEffectiveOpacity(), getAngle(), getPivot());
@@ -195,20 +199,19 @@ void AVGVideo::changeState(VideoState NewState)
         return;
     }
     if (m_State == Unloaded) {
-        if (!m_pMPEG) {
-            open (&m_Width, &m_Height);
+        bool m_bOk = m_pDecoder->open(m_Filename, &m_Width, &m_Height);
+        m_CurFrame = 0;
+        if (!m_bOk) {
+            return;
         }
-
         m_pBmp = getEngine()->createSurface();
         AVGDRect vpt = getRelViewport();
         
-        // libmpeg3 wants the bitmap to be larger than nessesary :-(.
-        m_pBmp->Create(int(vpt.Width()), int(vpt.Height())+1, 24, false, false);
+        m_pBmp->Create(m_Width, m_Height, 24, false, false);
         m_bFrameAvailable = false;
     }
     if (NewState == Unloaded) {
-        mpeg3_close(m_pMPEG);
-        m_pMPEG = 0;
+        m_pDecoder->close();
         delete m_pBmp;
         m_pBmp = 0;
     }
@@ -216,30 +219,10 @@ void AVGVideo::changeState(VideoState NewState)
     m_State = NewState;
 }
 
-void AVGVideo::open (int* pWidth, int* pHeight)
-{
-    int ok = mpeg3_check_sig(const_cast<char*>(m_Filename.c_str()));
-    if (ok != 1) {
-        throw AVGException(AVG_ERR_VIDEO_LOAD_FAILED, 
-                m_Filename + " is not a valid mpeg file (check_sig failed).");
-    }
-    m_pMPEG = mpeg3_open(const_cast<char*>(m_Filename.c_str()));
-    if (!m_pMPEG) {
-        throw AVGException(AVG_ERR_VIDEO_LOAD_FAILED, 
-                m_Filename + " is not a valid mpeg file (open failed).");
-    }
-    mpeg3_set_mmx(m_pMPEG, 0);
-
-
-    if (!mpeg3_total_vstreams(m_pMPEG)) {
-        throw AVGException(AVG_ERR_VIDEO_LOAD_FAILED, 
-                m_Filename + " does not contain any video streams.");
-    }
-
-    *pWidth = mpeg3_video_width(m_pMPEG, 0);
-    *pHeight = mpeg3_video_height(m_pMPEG, 0);
-
-    m_CurFrame = 0;
+void AVGVideo::seek(int DestFrame) {
+    m_pDecoder->seek(DestFrame, m_CurFrame);
+    m_CurFrame = DestFrame;
+    m_bFrameAvailable = false;
 }
 
 void dumpBmpLineArray(PLBmp* pBmp)
@@ -250,69 +233,38 @@ void dumpBmpLineArray(PLBmp* pBmp)
     }
 }
 
-void AVGVideo::readFrame()
+void AVGVideo::renderToBmp()
 {
-    AVGDRect vpt = getRelViewport();
-    mpeg3_read_frame(m_pMPEG, m_pBmp->GetLineArray(), 0, 0, 
-            m_Width-1, m_Height-1, int(vpt.Width()), int(vpt.Height()), 
-            MPEG3_BGR888, 0);
-#ifdef i386
-    // libmpeg3 forgets to turn mmx off, killing floating point operations.
-    __asm__ __volatile__ ("emms");  
-#endif    
-    m_bFrameAvailable = true;
-    getEngine()->surfaceChanged(m_pBmp);
+    m_bEOF = m_pDecoder->renderToBmp(m_pBmp);
+
+    if (!m_bEOF) {
+        m_bFrameAvailable = true;
+        getEngine()->surfaceChanged(m_pBmp);
+    }
     advancePlayback();
 }
 
 void AVGVideo::renderToBackbuffer()
 {
-    AVGDFBDisplayEngine* pEngine = dynamic_cast<AVGDFBDisplayEngine*>(getEngine());
+    AVGDFBDisplayEngine* pEngine = 
+        dynamic_cast<AVGDFBDisplayEngine*>(getEngine());
     AVGDRect vpt = getVisibleRect();
     // Calc row ptr array.
     IDirectFBSurface * pSurface = pEngine->getPrimary();
-    PLBYTE * pBits;
+    PLBYTE * pSurfBits;
     int Pitch;
-    DFBResult err = pSurface->Lock(pSurface, DFBSurfaceLockFlags(DSLF_WRITE), 
-            (void **)&pBits, &Pitch);
-    pEngine->DFBErrorCheck(AVG_ERR_DFB, "AVGVideo::renderToBackbuffer", err);
-    PLBYTE ** ppRows = new (PLBYTE *)[int(vpt.Height())];
-    int BytesPerPixel;
-    int ColorModel;
-    if (getEngine()->getBPP() == 16) {
-        BytesPerPixel = 2;
-        ColorModel = MPEG3_RGB565;
-    } else {
-        BytesPerPixel = 3;
-        ColorModel = MPEG3_RGB888;
-    }
-    int x1 = int(vpt.tl.x);
-    int y1 = int(vpt.tl.y);
-    for (int y=int(vpt.tl.y); y<int(vpt.br.y); y++) {
-        ppRows[y-y1] = pBits+Pitch*y+BytesPerPixel*x1;
-    }
-    mpeg3_read_frame(m_pMPEG, ppRows, 0, 0,
-            m_Width-1, m_Height-1,
-            int(vpt.Width()), int(vpt.Height()), 
-            ColorModel, 0);
-#ifdef i386
-    // libmpeg3 forgets to turn mmx off, killing floating point operations.
-    __asm__ __volatile__ ("emms");  
-#endif    
-
-    delete[] ppRows;
+    DFBResult err = pSurface->Lock(pSurface, 
+            DFBSurfaceLockFlags(DSLF_WRITE), (void **)&pSurfBits, &Pitch);
+    pEngine->DFBErrorCheck(AVG_ERR_DFB, 
+            "AVGFFMpegDecoder::renderToBackbuffer", err);
+    // TODO: 16 bpp support.
+    m_bEOF = m_pDecoder->renderToBuffer(pSurfBits, Pitch, 
+            getEngine()->getBPP()/8, vpt);
     pSurface->Unlock(pSurface);
+
     m_bFrameAvailable=false;
     advancePlayback();
-}
 
-void AVGVideo::initOverlay()
-{
-//    getEngine()->getOverlaySurface();
-}
-
-void AVGVideo::renderToOverlay()
-{
 }
 
 bool AVGVideo::obscures (const AVGDRect& Rect, int z)
@@ -325,10 +277,9 @@ bool AVGVideo::obscures (const AVGDRect& Rect, int z)
 void AVGVideo::advancePlayback()
 {
     m_CurFrame++;
-    if (m_CurFrame >= mpeg3_video_frames(m_pMPEG, 0)) {
+    if (m_bEOF) {
         if (m_bLoop) {
-            mpeg3_set_frame(m_pMPEG, 0, 0);
-            m_CurFrame = 0;
+            seek(0);
         } else {
             changeState(Paused);
         }
@@ -337,6 +288,7 @@ void AVGVideo::advancePlayback()
 
 string AVGVideo::dump (int indent)
 {
+/*
     stringstream s;
     s << AVGNode::dump(indent)
         << string(indent+8,  ' ') << "File: " << m_Filename
@@ -350,6 +302,8 @@ string AVGVideo::dump (int indent)
         << ", frames: " << mpeg3_video_frames(m_pMPEG, 0);
 
     return s.str();
+*/
+    return "";
 }
 
 AVGDPoint AVGVideo::getPreferredMediaSize()

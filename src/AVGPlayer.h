@@ -65,6 +65,7 @@ class AVGPlayer: public IAVGPlayer, IAVGEventSink
         void readConfigFile(const std::string& sFName);
         void initConfig();
         AVGNode * createNodeFromXml(const xmlNodePtr xmlNode, AVGContainer * pParent);
+        std::string initFileName(const xmlNodePtr xmlNode);
         void getVisibleNodeAttrs (const xmlNodePtr xmlNode, 
                 std::string * pid, int * px, int * py, int * pz,
                 int * pWidth, int * pHeight, double * pOpacity, double * pAngle,
