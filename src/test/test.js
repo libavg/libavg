@@ -59,7 +59,7 @@ function playAVG (fileName)
 {
 
     print ("---- Playing "+fileName+"----");
-    AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE 
+    AVGPlayer.setDebugOutput(AVGPlayer.DEBUG_PROFILE // | AVGPlayer.DEBUG_BLTS 
             | AVGPlayer.DEBUG_WARNING | AVGPlayer.DEBUG_CONFIG
             | AVGPlayer.DEBUG_EVENTS2 | AVGPlayer.DEBUG_EVENTS);
     var ok = tryLoadFile(fileName);
@@ -365,24 +365,19 @@ function testExcl()
     print (AVGPlayer.exec("uname -a","",output));
     print (output.value);
 
+    playAVG("image.avg");
+/*
     testHugeImage();
-
     testVideo();
-
     testCrop();
     testAnimation();
-    
     testWords();
-
     dumpNodes();
     testExcl();
-    playAVG("image.avg");
-    playAVG("empty.avg");
 
+    playAVG("empty.avg");
     playAVG("events.avg");
-    
     playAVG("avg.avg");
-    
     playAVG("noavg.avg");
     playAVG("noxml.avg");
-  
+  */

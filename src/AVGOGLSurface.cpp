@@ -163,6 +163,8 @@ void AVGOGLSurface::bind()
                     Tile.m_TexWidth = nextpow2(CurSize.x);
                     Tile.m_TexHeight = nextpow2(CurSize.y);
                 }
+cerr << "(" << x << ", " << y << "): (" 
+        << Tile.m_TexWidth << ", " << Tile.m_TexHeight << ")" << endl;
                 glGenTextures(1, &Tile.m_TexID);
                 OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                         "AVGOGLSurface::bindOneTexture: glGenTextures()");
@@ -271,7 +273,7 @@ void AVGOGLSurface::bltTexture(const AVGDRect* pDestRect,
 {
     AVGDPoint center(pDestRect->tl.x+pivot.x,
             pDestRect->tl.y+pivot.y);
-
+    
     glPushMatrix();
     glTranslated(center.x, center.y, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "bltTexture: glTranslated");
@@ -302,7 +304,9 @@ void AVGOGLSurface::bltTexture(const AVGDRect* pDestRect,
 
     AVG_TRACE(AVGPlayer::DEBUG_BLTS, "(" << pDestRect->tl.x << ", " 
             << pDestRect->tl.y << ")" << ", width:" << pDestRect->Width() 
-            << ", height: " << pDestRect->Height());
+            << ", height: " << pDestRect->Height() << ", " 
+            << getGlModeString(getSrcMode()) << "-->" 
+            << getGlModeString(getDestMode()) << endl);
     glPopMatrix();
     
 }
@@ -334,7 +338,7 @@ int AVGOGLSurface::bltTile(const TextureTile& Tile,
     glVertex3d (DestRect.tl.x, DestRect.br.y, 0.0);
     glEnd();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "AVGSDLDisplayEngine::bltTexture: glEnd()");
+            "AVGSDLDisplayEngine::bltTile: glEnd()");
 }
 
 int AVGOGLSurface::getDestMode()
