@@ -222,7 +222,7 @@ void AVGPlayer::play (double framerate)
 {
     DFBResult err;
     PLASSERT (m_pRootNode);
-    setRealtimePriority();
+//    setRealtimePriority();
     
     m_pFramerateManager = new AVGFramerateManager;
     m_pFramerateManager->SetRate(framerate);

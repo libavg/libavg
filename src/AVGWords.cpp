@@ -177,7 +177,7 @@ void AVGWords::drawString()
     m_pSurface->SetFont(m_pSurface, m_pFont);
     m_pSurface->DrawString(m_pSurface, m_Str.c_str(), -1, 0, 0, 
             DFBSurfaceTextFlags(DSTF_LEFT | DSTF_TOP));    
-    setViewport(-1, -1, m_StringExtents.x, m_StringExtents.y);
+    setViewport(-32767, -32767, m_StringExtents.x, m_StringExtents.y);
 }
 
 void AVGWords::render(const PLRect& Rect)
