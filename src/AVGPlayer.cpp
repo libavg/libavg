@@ -509,7 +509,8 @@ void AVGPlayer::handleTimers()
 
 void AVGPlayer::handleEvents()
 {
-    IDirectFBEventBuffer * pEventBuffer = m_pDisplayEngine->getEventBuffer();
+    IDirectFBEventBuffer * pEventBuffer = 
+            dynamic_cast<AVGDFBDisplayEngine *>(m_pDisplayEngine)->getEventBuffer();
     DFBEvent dfbEvent;
 
     while (pEventBuffer->HasEvent(pEventBuffer) == DFB_OK && !m_bStopping) {

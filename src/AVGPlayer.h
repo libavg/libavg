@@ -25,7 +25,7 @@ class AVGAVGNode;
 class AVGNode;
 class AVGContainer;
 class AVGEvent;
-class AVGDFBDisplayEngine;
+class IAVGDisplayEngine;
 
 class PLPoint;
 
@@ -67,7 +67,7 @@ class AVGPlayer: public IAVGPlayer
         void setRealtimePriority();
 	
         AVGAVGNode * m_pRootNode;
-        AVGDFBDisplayEngine * m_pDisplayEngine;
+        IAVGDisplayEngine * m_pDisplayEngine;
 
         IDirectFB * m_pDFB;
 

@@ -5,21 +5,15 @@
 #ifndef _AVGDFBDisplayEngine_H_
 #define _AVGDFBDisplayEngine_H_
 
-#include "AVGFontManager.h"
+#include "AVGDFBFontManager.h"
+#include "IAVGDisplayEngine.h"
 
 #include <directfb/directfb.h>
 #include <paintlib/plrect.h>
 
 #include <string>
 
-class PLBmp;
 class PLDirectFBBmp;
-class PLPoint;
-class PLPixel32;
-
-class AVGRegion;
-class AVGNode;
-class AVGFramerateManager;
 
 class AVGDFBDisplayEngine: public IAVGDisplayEngine
 {
@@ -42,15 +36,16 @@ class AVGDFBDisplayEngine: public IAVGDisplayEngine
         virtual void swapBuffers(const AVGRegion & UpdateRegion);
 
 	    virtual PLBmp * createSurface();
-        void dumpSurface(IDirectFBSurface * pSurf, const std::string & name);
+
+        virtual int getWidth();
+        virtual int getHeight();
+        virtual int getBPP();
+
+        virtual AVGFontManager * getFontManager();
 
         IDirectFB * getDFB();
         IDirectFBSurface * getPrimary();
         IDirectFBEventBuffer * getEventBuffer();
-        AVGFontManager * getFontManager();
-        int getWidth();
-        int getHeight();
-        int getBPP();
         void DFBErrorCheck(int avgcode, std::string where, DFBResult dfbcode); 
 
     private:
@@ -65,6 +60,8 @@ class AVGDFBDisplayEngine: public IAVGDisplayEngine
                 const PLPoint& pos, double opacity, bool bAlpha);
         void blt(IDirectFBSurface * pSrc, const PLRect* pSrcRect, 
                 const PLPoint& pos);
+
+        void dumpSurface(IDirectFBSurface * pSurf, const std::string & name);
         
         int m_Width;
         int m_Height;
@@ -80,7 +77,7 @@ class AVGDFBDisplayEngine: public IAVGDisplayEngine
         
         IDirectFBEventBuffer * m_pEventBuffer;
 
-        AVGFontManager *m_pFontManager;
+        AVGDFBFontManager *m_pFontManager;
 };
 
 #endif //_AVGDFBDisplayEngine_H_

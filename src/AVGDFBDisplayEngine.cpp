@@ -9,6 +9,7 @@
 #include "AVGNode.h"
 #include "AVGLogger.h"
 #include "AVGFramerateManager.h"
+#include "AVGDFBFontManager.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/pldirectfbbmp.h>
@@ -81,7 +82,7 @@ void AVGDFBDisplayEngine::init(int width, int height, bool isFullscreen, int bpp
 
     dumpSurface (m_pBackBuffer, "Backbuffer surface");
 
-    m_pFontManager = new AVGFontManager;
+    m_pFontManager = new AVGDFBFontManager(m_pDirectFB);
     pLayerSurf->Release(pLayerSurf);
 }
 

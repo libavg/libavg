@@ -21,6 +21,8 @@
 
 #define AVGWORDS_CONTRACTID "@c-base.org/avgwords;1"
 
+class IAVGFont;
+
 class AVGWords : public AVGNode, IAVGWords
 {
 	public:
@@ -37,7 +39,7 @@ class AVGWords : public AVGNode, IAVGWords
         virtual void init (const std::string& id, int x, int y, int z, 
            double opacity, int size, const std::string& font, 
            const std::string& str, const std::string& color,
-           AVGDFBDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer);
+           IAVGDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer);
 		virtual void render (const PLRect& Rect);
         virtual std::string getTypeStr ();
 
@@ -54,7 +56,7 @@ class AVGWords : public AVGNode, IAVGWords
         std::string m_ColorName;
         PLPixel32 m_Color;
         int m_Size;
-        IDirectFBFont * m_pFont;
+        IAVGFont * m_pFont;
         PLBmp * m_pBmp;
         PLPoint m_StringExtents;
 };

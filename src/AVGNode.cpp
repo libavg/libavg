@@ -7,7 +7,7 @@
 #include "AVGAVGNode.h"
 #include "AVGJSScript.h"
 #include "AVGPlayer.h"
-#include "AVGDFBDisplayEngine.h"
+#include "IAVGDisplayEngine.h"
 
 #include <paintlib/plpoint.h>
 
@@ -160,7 +160,7 @@ NS_IMETHODIMP AVGNode::SetOpacity(float aOpacity)
     return NS_OK;
 }
 
-void AVGNode::init(const string& id, AVGDFBDisplayEngine * pEngine, 
+void AVGNode::init(const string& id, IAVGDisplayEngine * pEngine, 
         AVGContainer * pParent, AVGPlayer * pPlayer)
 {
     m_ID = id;
@@ -318,7 +318,7 @@ double AVGNode::getEffectiveOpacity()
     }
 }
 
-AVGDFBDisplayEngine * AVGNode::getEngine()
+IAVGDisplayEngine * AVGNode::getEngine()
 {
     return m_pEngine;
 }

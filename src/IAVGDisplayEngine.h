@@ -1,0 +1,46 @@
+//
+// $Id$
+//
+
+#ifndef _IAVGDisplayEngine_H_
+#define _IAVGDisplayEngine_H_
+
+class PLBmp;
+class PLRect;
+class PLPixel32;
+class PLPoint;
+
+class AVGRegion;
+class AVGFramerateManager;
+class AVGNode;
+class AVGFontManager;
+
+class IAVGDisplayEngine
+{	
+	public:
+        virtual void init(int width, int height, bool isFullscreen, int bpp) = 0;
+        virtual void teardown() = 0;
+
+        virtual void render(AVGNode * pRootNode, 
+                AVGFramerateManager * pFramerateManager, bool bRenderEverything) = 0;
+        
+        virtual void setClipRect() = 0;
+        virtual bool setClipRect(const PLRect& rc) = 0;
+        virtual const PLRect& getClipRect() = 0;
+        virtual void blt32(PLBmp * pBmp, const PLRect* pSrcRect, 
+                const PLPoint& pos, double opacity) = 0;
+        virtual void blta8(PLBmp * pBmp, const PLRect* pSrcRect,
+                const PLPoint& pos, double opacity, const PLPixel32& color) = 0;
+        virtual void swapBuffers(const AVGRegion & UpdateRegion) = 0;
+
+	    virtual PLBmp * createSurface() = 0;
+
+        virtual int getWidth() = 0;
+        virtual int getHeight() = 0;
+        virtual int getBPP() = 0;
+
+        virtual AVGFontManager * getFontManager() = 0;
+};
+
+#endif //_IAVGDisplayEngine_H_
+

@@ -121,7 +121,7 @@ NS_IMETHODIMP AVGVideo::GetFPS(PRInt32 *_retval)
 void AVGVideo::init (const std::string& id, int x, int y, int z, 
        int width, int height, double opacity, const std::string& filename,
        bool bLoop, bool bOverlay, 
-       AVGDFBDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer)
+       IAVGDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer)
 {
     AVGNode::init(id, pEngine, pParent, pPlayer);
     
@@ -157,12 +157,15 @@ void AVGVideo::render (const PLRect& Rect)
                 if (getEffectiveOpacity() < 0.001) {
                     return;
                 }
-                if (getEffectiveOpacity() < 0.999) {
+                if (getEffectiveOpacity() > 0.999 && 
+                    dynamic_cast<AVGDFBDisplayEngine*>(getEngine()))
+                {
+                    // No alpha blending: render frame to backbuffer directly.
+                    // (DirectFB only).
+                    renderToBackbuffer();
+                } else {
                     readFrame();
                     getEngine()->blt32(m_pBmp, 0, getAbsViewport().tl, getEffectiveOpacity());
-                } else {
-                    // No alpha blending: render frame to backbuffer directly.
-                    renderToBackbuffer();
                 }
             }
             break;
@@ -259,14 +262,15 @@ void AVGVideo::readFrame()
 
 void AVGVideo::renderToBackbuffer()
 {
+    AVGDFBDisplayEngine* pEngine = dynamic_cast<AVGDFBDisplayEngine*>(getEngine());
     PLRect vpt = getAbsViewport();
     // Calc row ptr array.
-    IDirectFBSurface * pSurface = getEngine()->getPrimary();
+    IDirectFBSurface * pSurface = pEngine->getPrimary();
     PLBYTE * pBits;
     int Pitch;
     DFBResult err = pSurface->Lock(pSurface, DFBSurfaceLockFlags(DSLF_WRITE), 
             (void **)&pBits, &Pitch);
-    getEngine()->DFBErrorCheck(AVG_ERR_DFB, "AVGVideo::renderToBackbuffer", err);
+    pEngine->DFBErrorCheck(AVG_ERR_DFB, "AVGVideo::renderToBackbuffer", err);
     PLBYTE ** ppRows = new (PLBYTE *)[vpt.Height()];
     int BytesPerPixel;
     int ColorModel;

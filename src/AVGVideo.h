@@ -35,7 +35,7 @@ class AVGVideo : public AVGNode, IAVGVideo
         virtual void init (const std::string& id, int x, int y, int z, 
            int width, int height, double opacity, const std::string& filename, 
            bool bLoop, bool bOverlay, 
-           AVGDFBDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer);
+           IAVGDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer);
         virtual void prepareRender (int time, const PLRect& parent);
         virtual void render (const PLRect& Rect);
         bool obscures (const PLRect& Rect, int z);

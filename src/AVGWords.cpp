@@ -5,10 +5,7 @@
 #include "AVGWords.h"
 #include "AVGDFBDisplayEngine.h"
 #include "AVGException.h"
-
-#include <paintlib/pldirectfbbmp.h>
-#include <paintlib/Filter/plfilterfill.h>
-#include <paintlib/plpixel8.h>
+#include "IAVGFont.h"
 
 #include <nsMemory.h>
 #include <xpcom/nsComponentManagerUtils.h>
@@ -125,7 +122,7 @@ void
 AVGWords::init (const string& id, int x, int y, int z, 
            double opacity, int size, const string& font, 
            const string& str, const string& color,
-           AVGDFBDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer)
+           IAVGDisplayEngine * pEngine, AVGContainer * pParent, AVGPlayer * pPlayer)
 {
     AVGNode::init(id, pEngine, pParent, pPlayer);
     m_Size = size;
@@ -145,34 +142,14 @@ string AVGWords::getTypeStr ()
 
 void AVGWords::changeFont()
 {
-    IDirectFB * pDFB = getEngine()->getDFB();
-    m_pFont = getEngine()->getFontManager()->getFont(pDFB, m_FontName, m_Size);
+    m_pFont = getEngine()->getFontManager()->getFont(m_FontName, m_Size);
     drawString();
 }
 
 void AVGWords::drawString()
 {
-    IDirectFB * pDFB = getEngine()->getDFB();
-
-    DFBRectangle DFBExtents; 
-    // TODO: This gets the logical extent of the string, not the ink rect.
-    //       Change that and adjust the blit accordingly.
-    m_pFont->GetStringExtents(m_pFont, m_Str.c_str(), -1, &DFBExtents, 0);
-    m_StringExtents=PLPoint(DFBExtents.w, DFBExtents.h);
-    if (m_StringExtents.x == 0) {
-        m_StringExtents = PLPoint(1,1);
-    }
-    m_pBmp->Create(m_StringExtents.x, m_StringExtents.y, 8, false, false);
-    m_pBmp->ApplyFilter(PLFilterFill<PLPixel8>(PLPixel8(0x0)));
-    IDirectFBSurface * pSurface = dynamic_cast<PLDirectFBBmp*>(m_pBmp)->GetSurface();
-    getEngine()->dumpSurface(pSurface, "Text field.");
-    pSurface->SetColor(pSurface, 0xFF, 0xFF, 0xFF, 0xFF);
-
-    pSurface->SetDrawingFlags(pSurface, DSDRAW_BLEND);
-    pSurface->SetFont(pSurface, m_pFont);
-    DFBResult err = pSurface->DrawString(pSurface, m_Str.c_str(), -1, 0, 0, 
-            DFBSurfaceTextFlags(DSTF_LEFT | DSTF_TOP));
-    getEngine()->DFBErrorCheck(AVG_ERR_FONT_INIT_FAILED, "AVGWords::drawString", err);    
+    m_pFont->render(*m_pBmp, m_Str);
+    m_StringExtents = PLPoint(m_pBmp->GetWidth(), m_pBmp->GetHeight());
     setViewport(-32767, -32767, m_StringExtents.x, m_StringExtents.y);
 }
 

@@ -21,7 +21,8 @@ ALL_H = AVGAVGNode.h AVGContainer.h  AVGDFBDisplayEngine.h AVGEvent.h \
           IAVGEvent.h IAVGNode.h IAVGPlayer.h IAVGConradRelais.h \
           IDisplayEngine.h XMLHelper.h AVGTimeSource.h \
           AVGWords.h AVGFontManager.h AVGVideo.h xpshell.h \
-          acJSContextPublisher.h AVGJSScript.h AVGLogger.h
+          acJSContextPublisher.h AVGJSScript.h AVGLogger.h \
+          AVGDFBFontManager.h IAVGFont.h AVGDFBFont.h
 
 libavg_PROGRAMS = xpshell
 xpshell_SOURCES =  xpshell.cpp xpshell.h acJSContextPublisher.h
@@ -40,7 +41,8 @@ libavg_la_SOURCES = AVGAVGNode.cpp AVGExcl.cpp \
                     AVGException.cpp AVGPlayer.cpp XPAVGPlayerModule.cpp \
                     AVGTimeSource.cpp AVGWords.cpp AVGFontManager.cpp\
                     AVGVideo.cpp acJSContextPublisher.cpp AVGJSScript.cpp\
-                    AVGLogger.cpp AVGConradRelais.cpp\
+                    AVGLogger.cpp AVGConradRelais.cpp AVGDFBFontManager.cpp\
+                    AVGDFBFont.cpp \
                     $(ALL_H) 
 BUILT_SOURCES = IAVGPlayer.h IAVGEvent.h IAVGNode.h IAVGVideo.h \
                 acIJSContextPublisher.h IAVGWords.h IAVGExcl.h \

@@ -5,7 +5,7 @@
 #ifndef _AVGFONTMANAGER_H_
 #define _AVGFONTMANAGER_H_
 
-#include <directfb/directfb.h>
+#include "IAVGFont.h"
 
 #include <map>
 #include <string>
@@ -16,14 +16,13 @@ class AVGFontManager
         AVGFontManager ();
         virtual ~AVGFontManager ();
 
-        IDirectFBFont * getFont(IDirectFB * pDFB, const std::string& Name, int size);
-
+        IAVGFont * getFont(const std::string& Name, int size);
 
     private:
-        IDirectFBFont * loadFont(IDirectFB * pDFB, const std::string& Name, int Size);
+        virtual IAVGFont * loadFont(const std::string& Filename, int Size) = 0;
         const std::string & getFontPath();
 
-        typedef std::map<std::string, IDirectFBFont *> FontMap;
+        typedef std::map<std::string, IAVGFont *> FontMap;
         FontMap m_FontMap;
 };
 

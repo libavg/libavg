@@ -21,12 +21,12 @@ AVGFontManager::~AVGFontManager ()
 {
     FontMap::iterator it;
     for (it = m_FontMap.begin(); it != m_FontMap.end(); it++) {
-      IDirectFBFont * pFont = (*it).second;
-      pFont->Release(pFont);
+        IAVGFont * pFont = (*it).second;
+        delete pFont;
     }
 }
 
-IDirectFBFont * AVGFontManager::getFont(IDirectFB * pDFB, const string& Name, int Size)
+IAVGFont * AVGFontManager::getFont(const string& Name, int Size)
 {
     FontMap::iterator it;
     stringstream s;
@@ -34,33 +34,14 @@ IDirectFBFont * AVGFontManager::getFont(IDirectFB * pDFB, const string& Name, in
     string Desc(s.str());
     it = m_FontMap.find(Desc);
     if (it == m_FontMap.end()) {
-        IDirectFBFont * pFont = loadFont(pDFB, Name, Size);
+        string FontPath = getFontPath()+"/"+Name+".ttf";
+        AVG_TRACE(AVGPlayer::DEBUG_MEMORY, "Loading " << FontPath << ", size " << Size);
+        IAVGFont * pFont = loadFont(FontPath, Size);
         m_FontMap.insert(FontMap::value_type(Desc, pFont));
         return pFont;
     } else {
         return (*it).second;
     }
-}
-
-IDirectFBFont * AVGFontManager::loadFont(IDirectFB * pDFB, const string& Name, int Size)
-{
-    DFBFontDescription fontDesc;
-
-    fontDesc.flags = DFBFontDescriptionFlags(DFDESC_HEIGHT | DFDESC_ATTRIBUTES);
-    fontDesc.height = Size;
-    fontDesc.attributes = (DFBFontAttributes)0;
-
-    string FontPath = getFontPath()+"/"+Name+".ttf";
-    AVG_TRACE(AVGPlayer::DEBUG_MEMORY, "Loading " << FontPath << ", size " << Size);
-
-    IDirectFBFont * pFont;
-    DFBResult err = pDFB->CreateFont(pDFB, FontPath.c_str(), &fontDesc, &pFont);
-    if (err) {
-        throw AVGException(AVG_ERR_FONT_INIT_FAILED, 
-                string("Font init failed: ") + DirectFBErrorString(err));
-    }
-
-    return pFont;
 }
 
 const string & AVGFontManager::getFontPath()
