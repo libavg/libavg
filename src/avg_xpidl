@@ -1,4 +1,0 @@
-#!/bin/bash
-source ../avgenv.sh
-$MOZ_XPIDL -m header -I $MOZ_IDLDIR -w -o $1 $2
-$MOZ_XPIDL -m typelib -I $MOZ_IDLDIR -w -o $1 $2
