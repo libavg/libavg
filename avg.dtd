@@ -1,0 +1,126 @@
+<!ENTITY % graphicsElementEvents
+  "onmousedown CDATA #IMPLIED
+   onmouseup CDATA #IMPLIED
+   onmouseover CDATA #IMPLIED
+   onmousemove CDATA #IMPLIED
+   onmouseout CDATA #IMPLIED" >
+   
+<!ENTITY % nodeAttrs
+  "id ID #IMPLIED
+   x CDATA #IMPLIED
+   y CDATA #IMPLIED
+   z CDATA #IMPLIED
+   width CDATA #IMPLIED
+   height CDATA #IMPLIED
+   opacity CDATA #IMPLIED
+   active CDATA #IMPLIED
+   %graphicsElementEvents;">
+
+<!ENTITY % rasterAttrs
+  "maxtilewidth CDATA #IMPLIED
+   maxtileheight CDATA #IMPLIED
+   angle CDATA #IMPLIED
+   pivotx CDATA #IMPLIED
+   pivoty CDATA #IMPLIED
+   blendmode CDATA #IMPLIED
+   %nodeAttrs;" >
+
+<!ELEMENT avg (div|excl|image|video|camera|audio|words|panoimage)* >
+<!ATTLIST avg
+  id ID #IMPLIED
+  width CDATA #IMPLIED
+  height CDATA #IMPLIED
+  onkeydown CDATA #IMPLIED
+  onkeyup CDATA #IMPLIED
+  enablecrop CDATA #IMPLIED
+  %graphicsElementEvents; >
+
+
+<!ELEMENT div (div|excl|image|video|camera|audio|words|panoimage)* >
+<!ATTLIST div
+  %nodeAttrs; >
+  
+<!ELEMENT excl (div|excl|image|video|camera|audio|words|panoimage)+ >
+<!ATTLIST excl 
+  id ID #IMPLIED >
+
+<!ELEMENT image EMPTY>
+<!ATTLIST image
+  %rasterAttrs;
+  href CDATA #REQUIRED
+  hue CDATA #IMPLIED
+  saturation CDATA #IMPLIED >
+  
+<!ELEMENT video EMPTY>
+<!ATTLIST video
+  %rasterAttrs;
+  href CDATA #REQUIRED
+  loop CDATA #IMPLIED> 
+
+<!ELEMENT camera EMPTY>
+<!ATTLIST camera
+  %rasterAttrs;
+  device CDATA #REQUIRED
+  mode CDATA #IMPLIED
+  framerate CDATA #IMPLIED
+  brightness CDATA #IMPLIED
+  exposure CDATA #IMPLIED
+  sharpness CDATA #IMPLIED
+  saturation CDATA #IMPLIED
+  gamma CDATA #IMPLIED
+  shutter CDATA #IMPLIED > 
+
+<!ELEMENT words (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>
+<!ATTLIST words
+  %rasterAttrs;
+  size CDATA #IMPLIED
+  font CDATA #IMPLIED
+  text CDATA #IMPLIED
+  parawidth CDATA #IMPLIED
+  color CDATA #IMPLIED
+  indent CDATA #IMPLIED
+  linespacing CDATA #IMPLIED
+  alignment CDATA #IMPLIED
+  weight CDATA #IMPLIED
+  italic CDATA #IMPLIED
+  stretch CDATA #IMPLIED
+  smallcaps CDATA #IMPLIED>
+
+<!ELEMENT panoimage EMPTY>
+<!ATTLIST panoimage
+  %nodeAttrs;
+  href CDATA #REQUIRED
+  sensorwidth CDATA #REQUIRED
+  sensorheight CDATA #REQUIRED
+  focallength CDATA #REQUIRED
+  hue CDATA #IMPLIED
+  saturation CDATA #IMPLIED >
+
+<!ELEMENT span (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>
+<!ATTLIST span
+  font_desc CDATA #IMPLIED
+  font_family CDATA #IMPLIED
+  face CDATA #IMPLIED
+  size CDATA #IMPLIED
+  style CDATA #IMPLIED
+  weight CDATA #IMPLIED
+  variant CDATA #IMPLIED
+  stretch CDATA #IMPLIED
+  foreground CDATA #IMPLIED
+  background CDATA #IMPLIED
+  underline CDATA #IMPLIED
+  rise CDATA #IMPLIED
+  strikethrough CDATA #IMPLIED
+  fallback CDATA #IMPLIED
+  lang CDATA #IMPLIED >
+  
+<!ELEMENT b (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>
+<!ELEMENT big (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>
+<!ELEMENT i (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>
+<!ELEMENT s (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>
+<!ELEMENT sub (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>
+<!ELEMENT sup (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>
+<!ELEMENT small (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>
+<!ELEMENT tt (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>
+<!ELEMENT u (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>
+

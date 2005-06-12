@@ -1,7 +1,7 @@
 .ad 1 
 .nh
 .hlm 0
-.TH avgrc 5 "20 April 2004" "paintlib"
+.TH avgrc 5 "13 January 2005" "avg"
 .SH NAME
 avgrc \- avg configuration file
 .SH DESCRIPTION
@@ -15,48 +15,11 @@ for a system-wide file in
 .I /etc/
 and a user-specific file in
 .I $HOME.
-The file is xml-based. Its format is:
-
-.PD 0
-  <avgrc>
-.P 
-    <font
-.RB dir=" "fontdir" \*(lq/>
-    <display
-.RI subsystem=" "OGL|DFB" \*(lq
-.IP "" 13 
-.RI         fullscreen=" "true|false" \*(lq
-.IP "" 13
-.RI        bpp=" "16|24" \*(lq/>
-.P
-  </avgrc>
-.PD
-
-fontdir is a directory that contains truetype (ttf) fonts that can be used by
-avg. For a description of the display parameters, see the 
+The file is xml-based. There is an example avgrc.default in the  
+avg source directory. The available options are described in the 
 .B avg
 (1) man page. 
 
-.SH EXAMPLE
-This is the default /etc/avgrc installed by the build if none is present yet:
-
-.PD 0
-  <avgrc>
-.P 
-    <font
-.RB dir=" "/usr/X11R6/lib/X11/fonts/truetype" \*(lq/>
-    <display
-.RI subsystem=" "OGL" \*(lq
-.IP "" 13 
-.RI         fullscreen=" "false" \*(lq
-.IP "" 13
-.RI        bpp=" "24" \*(lq/>
-.P
-  </avgrc>
-.PD
-
-The default file sets the font directory to the X11 font directory and selects 
-the OpenGL display subsystem in windowed mode with 24 bits per pixel.
 .SH FILES
 .PD 0
 /etc/avgrc - System-wide configuration file.

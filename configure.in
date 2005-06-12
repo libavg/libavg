@@ -1,0 +1,63 @@
+
+AC_PREREQ(2.53)
+AC_INIT(avg, 0.1, coder@c-base.org)
+MAJOR_VERSION=0
+MINOR_VERSION=1
+MICRO_VERSION=0
+VERSION=$MAJOR_VERSION.$MINOR_VERSION.$MICRO_VERSION dnl
+
+AC_SUBST(VERSION)
+AC_CONFIG_SRCDIR([src/avg.cpp])
+AM_INIT_AUTOMAKE(avg, $VERSION)
+# Checks for programs.
+AC_PROG_CXX
+AC_PROG_CC
+AC_PROG_CPP
+
+AC_DISABLE_STATIC
+AC_PROG_LIBTOOL
+
+AC_ARG_ENABLE(dc1394,
+              AC_HELP_STRING([--enable-dc1394], 
+                    [compile support for firewire cameras]),
+                    enable_1394=$enableval, enable_1394=maybe)
+if test "$enable_1394" = maybe; then
+    AC_CHECK_LIB(dc1394_control, main, enable_1394=yes, enable_1394=no, -lraw1394)
+fi
+AM_CONDITIONAL(ENABLE_1394, test x$enable_1394 = xyes)
+if test "$enable_1394" = yes; then
+    AC_DEFINE(AVG_ENABLE_1394, 1, [Enable firewire camera support])
+fi 
+
+AC_ARG_ENABLE(DFB,
+              AC_HELP_STRING([--enable-DFB], 
+                    [compile support for DirectFB rendering backend]),
+                    enable_DFB=$enableval, enable_DFB=maybe, )
+if test "$enable_DFB" = maybe; then
+    AC_CHECK_PROG(libdfb_config, directfb-config, yes)
+    if test "$libdfb_config" = yes; then
+        AC_CHECK_LIB(directfb, main, enable_DFB=yes, enable_DFB=false,
+                    `directfb-config --libs`)
+    fi
+fi
+AM_CONDITIONAL(ENABLE_DFB, test x$enable_DFB = xyes)
+if test "$enable_DFB" = yes; then
+    AC_DEFINE(AVG_ENABLE_DFB, 1, [Enable DirectFB rendering backend])
+fi
+
+AC_CHECK_HEADER([linux/ppdev.h], [enable_ParPort=yes], [enable_ParPort=no])
+AM_CONDITIONAL(ENABLE_PARPORT, test x$enable_ParPort = xyes)
+
+AX_CHECK_GL
+AX_CHECK_GLU
+
+AM_CONDITIONAL(ENABLE_GL, test x$no_GL != xyes)
+if test x$no_gl != xyes; then
+    AC_DEFINE(AVG_ENABLE_GL, 1, [Enable OpenGL rendering backend])
+fi
+
+AM_CONFIG_HEADER(src/avgconfig.h)
+AC_OUTPUT(avg-config Makefile src/Makefile man/Makefile src/js/Makefile 
+    src/base/Makefile src/conradrelais/Makefile src/system/Makefile
+    src/player/Makefile src/js/fdlibm/Makefile src/parport/Makefile
+    src/serial/Makefile)

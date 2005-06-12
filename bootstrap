@@ -1,0 +1,16 @@
+#!/bin/bash
+set -x
+if [[ `uname` = Darwin ]] 
+then
+    # If we're running on Mac OS X, we need to make sure that we're not
+    # using fink's autotools stuff.
+    glibtoolize --force
+    /usr/bin/aclocal
+    /usr/bin/automake --foreign --add-missing --copy 
+    /usr/bin/autoconf
+else
+    libtoolize --force
+    aclocal
+    automake --foreign --add-missing --copy 
+    autoconf
+fi

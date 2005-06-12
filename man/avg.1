@@ -1,16 +1,19 @@
 .ad l
 .nh
 .hlm 0
-.TH avg 1 "20 April 2004" "libavg"
+.TH avg 1 "13 January 2005" "avg"
 .SH NAME
 avg \- player for avg media presentations.
 .SH SYNOPSIS
 .B avg 
 .I scriptfile.js
-.B [--display=DFB|OGL]
-.B [--bpp=16|24]
-.B [--fullscreen=true|false]
-.B [--debug]
+.B [--includepath=/usr/local/share/avg]
+.B [--modulepath=/usr/local/lib/avg]
+.B [--scr:subsys=DFB|OGL]
+.B [--scr:bpp=16|24]
+.B [--scr:fullscreen=true|false]
+.B [--scr:windowwidth=n]
+.B [--scr:windowheight=n]
 .SH DESCRIPTION
 .B avg
 plays back an 
@@ -38,36 +41,50 @@ using the system defaults, use:
   
 To play back the presentation 
 .I core_control.js
-in fullscreen, using avgs OpenGL display engine, use:
+in fullscreen, using avg's OpenGL display engine, use:
 
 .nf
-.B  avg core_control.js --display=OGL --fullscreen=true
+.B  avg core_control.js --scr:subsys=OGL --scr:fullscreen=true
 .fi
 
 .SH OPTIONS
 .TP
-.B --display=DFB|OGL
+.B --includepath=...
+Set the path used to find javascript include files. This path is also 
+used to find avg.dtd.
+.TP
+.B --modulepath=...
+Set the path used to find avg modules. 
+.TP
+.B --scr:subsys=DFB|OGL
 Set the display engine to use. 
 .I DFB
 selects the DirectFB display engine, and 
 .I OGL
 selects the OpenGL display engine.
 .TP
-.B --bpp=16|24
+.B --scr:bpp=15|16|24|32
 Set the bits per pixel for the back- and frontbuffers. All internal 
 calculations are done with 32 bpp - 24 bpp plus 8 bpp transparency -
 regardless of this setting.
 .TP
-.B --fullscreen=true|false
-Determines whether playback should happen in fullscreen mode (true) or 
+.B --scr:fullscreen=true|false
+Determine whether playback should happen in fullscreen mode (true) or 
 in a window (false). The DirectFB engine uses a slow SDL backend in 
 windowed mode - this mode is meant for debugging, not performance.
 .TP
-.B --debug
-Start gdb with the avg player.
+.B --scr:windowwidth=n
+Set the width of the window used in windowed mode. The presentation contents
+are scaled to fit this width. OpenGL only.
+.TP
+.B --scr:windowheight=n
+Set the height of the window used in windowed mode. The presentation contents
+are scaled to fit this height. OpenGL only.
+.TP
+All of these options can be set in the avgrc files as well.
 .SH SEE ALSO
 .B avgrc
 (5)
 .SH COPYRIGHT
-The libavg source code and all documentation are copyright (c)
-2003-2004 Ulrich von Zadow (coder@c-base.org).
+The avg source code and all documentation are copyright (c)
+2003-2005 Ulrich von Zadow (coder@c-base.org).
