@@ -84,14 +84,12 @@ class Node: public Object
             { return DPoint(0,0); };
         Player * getPlayer();
         IDisplayEngine * getEngine();
-        void callJS (const std::string& Code, JSContext * pJSContext);
+
+//        void callJS (const std::string& Code, JSContext * pJSContext);
         void initFilename(Player * pPlayer, std::string& sFilename);
         bool isInitialized();
  
     private:
-        template <class NATIVE_T>
-            friend class NodeFactory;
-    
         void calcAbsViewport();
 
         Container * m_pParent;

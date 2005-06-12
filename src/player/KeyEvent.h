@@ -24,11 +24,8 @@ class KeyEvent : public Event {
         int getModifiers();
 
         void trace();
-        virtual JSFactoryBase* getFactory();
 
     private: 
-        friend class KeyEventFactory;
-                
         int m_ScanCode; 
         int m_KeyCode;
         std::string m_KeyString;

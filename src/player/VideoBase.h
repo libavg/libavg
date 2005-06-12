@@ -46,9 +46,6 @@ class VideoBase : public RasterNode
         int getMediaHeight();
    
     private:
-        template <class NATIVE_T>
-            friend class VideoBaseFactory;
-    
         void renderToBackbuffer();
         void open();
 

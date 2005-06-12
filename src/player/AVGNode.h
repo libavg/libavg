@@ -25,8 +25,6 @@ class AVGNode : public DivNode
         bool getCropSetting();
 
     private:
-        friend class AVGNodeFactory;
-
         std::string m_sKeyUpHandler;
         std::string m_sKeyDownHandler;
         bool m_bEnableCrop;

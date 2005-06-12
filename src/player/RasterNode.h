@@ -43,9 +43,6 @@ class RasterNode: public Node
         ISurface * getSurface();
  
     private:
-        template <class NATIVE_T>
-            friend class RasterNodeFactory;
-    
         ISurface * m_pSurface;
 
         double m_Angle;

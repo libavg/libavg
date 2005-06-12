@@ -28,15 +28,12 @@ class Excl : public Container
         virtual void setActiveChild(int activeChild);
 
         std::string getTypeStr ();
-        virtual JSFactoryBase* getFactory();
         virtual Node * getElementByPos (const DPoint & pos);
 
     protected:
         void invalidate();
 
     private:
-        friend class ExclFactory;
-    
         int m_ActiveChild;
 };
 

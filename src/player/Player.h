@@ -10,10 +10,6 @@
 #include "DebugEventSink.h"
 #include "Timeout.h"
 
-#include "../Object.h"
-
-#include "../js/jsapi.h"
-
 #include "../base/IFrameListener.h"
 
 #include <libxml/parser.h>
@@ -36,7 +32,7 @@ class IDisplayEngine;
 class Camera;
 class FramerateManager;
 
-class Player: public Object, IEventSink
+class Player: IEventSink
 {
     public:
         Player ();
@@ -116,7 +112,6 @@ class Player: public Object, IEventSink
         void registerFrameListener(IFrameListener* pListener);
         std::string getCurDirName();
         void initNode(Node * pNode, Container * pParent);
-        virtual JSFactoryBase* getFactory();
 
     private:
         void initConfig();

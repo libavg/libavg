@@ -5,14 +5,12 @@
 #ifndef _Point_H_
 #define _Point_H_
 
-#include "../Object.h"
-
 #include <paintlib/plpoint.h>
 
 namespace avg {
 
 template<class NUM>
-class Point: public Object
+class Point
 {
 public:
   NUM x;
@@ -34,7 +32,6 @@ public:
   Point<NUM> operator - (const Point<NUM> & pt) const;
   Point<NUM> operator / (double f) const;
 
-  virtual JSFactoryBase* getFactory();
 };
 
 typedef Point<double> DPoint;
@@ -120,13 +117,6 @@ template<class NUM>
 Point<NUM> Point<NUM>::operator / (double f) const
 {
   return Point<NUM> (x/f, y/f);
-}
-
-template<class NUM>
-JSFactoryBase* Point<NUM>::getFactory()
-{
-    // TODO: Make this work.
-    return 0;
 }
 
 }

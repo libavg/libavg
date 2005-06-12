@@ -31,7 +31,6 @@ class Words : public RasterNode
         virtual void initVisible();
         virtual void render (const DRect& Rect);
         virtual std::string getTypeStr ();
-        virtual JSFactoryBase* getFactory();
 
         void setFont(const std::string& sName);
         void setText(const std::string& sText);
@@ -54,8 +53,6 @@ class Words : public RasterNode
         virtual DPoint getPreferredMediaSize();
     
     private:
-        friend class WordsFactory;
-    
         void drawString();
         PLPixel32 colorStringToColor(const std::string & colorString);
         std::string removeExcessSpaces(const std::string & sText);

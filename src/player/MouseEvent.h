@@ -30,7 +30,6 @@ class MouseEvent : public Event {
 
         void setElement(Node * pNode);
         virtual void trace();
-        virtual JSFactoryBase* getFactory();
         
         static const long NO_BUTTON=0;
         static const long LEFT_BUTTON=1;
@@ -38,8 +37,6 @@ class MouseEvent : public Event {
         static const long MIDDLE_BUTTON=3;
 
     private:
-        friend class MouseEventFactory;
-
         bool m_LeftButtonState;
         bool m_MiddleButtonState;
         bool m_RightButtonState;

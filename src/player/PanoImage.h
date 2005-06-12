@@ -28,14 +28,11 @@ class PanoImage : public Node
         virtual void render (const DRect& Rect);
         virtual bool obscures (const DRect& Rect, int z);
         virtual std::string getTypeStr ();
-        virtual JSFactoryBase* getFactory();
 
     protected:        
         virtual DPoint getPreferredMediaSize();
 
     private:
-        friend class PanoImageFactory;
-    
         void calcProjection();
         void setupTextures();
     

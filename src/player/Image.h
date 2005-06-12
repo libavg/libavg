@@ -24,14 +24,11 @@ class Image : public RasterNode
         virtual void render (const DRect& Rect);
         virtual bool obscures (const DRect& Rect, int z);
         virtual std::string getTypeStr ();
-        virtual JSFactoryBase* getFactory();
 
     protected:        
         virtual DPoint getPreferredMediaSize();
 
     private:
-        friend class ImageFactory;
-       
         std::string m_Filename;
         std::string m_href;
     

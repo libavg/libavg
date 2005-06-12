@@ -25,7 +25,6 @@ class DivNode : public Container
         virtual bool obscures (const DRect& rect, int z);
         virtual void getDirtyRegion (Region& Dirtyregion);
         virtual std::string getTypeStr ();
-        virtual JSFactoryBase* getFactory();
 
 };
 

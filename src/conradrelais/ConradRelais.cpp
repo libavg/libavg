@@ -3,7 +3,6 @@
 //
 
 #include "ConradRelais.h"
-#include "ConradRelaisFactory.h"
 #include "../base/Logger.h"
 
 #include <termios.h>
@@ -159,11 +158,6 @@ void ConradRelais::sendCmd(unsigned char  a, unsigned char b, unsigned char c)
 void ConradRelais::onFrameEnd()
 {
     send();
-}
-
-JSFactoryBase* ConradRelais::getFactory()
-{
-    return ConradRelaisFactory::getInstance();
 }
 
 }

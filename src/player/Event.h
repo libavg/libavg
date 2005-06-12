@@ -5,13 +5,11 @@
 #ifndef _Event_H_
 #define _Event_H_
 
-#include "../Object.h"
-
 #include <functional>
 
 namespace avg {
 
-class Event: public Object {
+class Event {
     public:
         enum {
             KEYUP,
@@ -30,7 +28,6 @@ class Event: public Object {
         virtual ~Event();
         
         virtual void trace();
-        virtual JSFactoryBase* getFactory();
 
         int getWhen() const;
         int getType() const;
@@ -38,9 +35,6 @@ class Event: public Object {
         friend struct isEventAfter;
 
     private:
-        template <class NATIVE_T>
-                friend class EventFactory;
-
         int m_When;
         int m_Type;
         int m_Counter;

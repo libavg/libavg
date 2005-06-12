@@ -31,10 +31,8 @@ class Video : public VideoBase
         void seekToFrame(int num);
 
         virtual std::string getTypeStr ();
-        virtual JSFactoryBase* getFactory();
 
     private:
-        friend class VideoFactory;
         void initVideoSupport();
 
         bool renderToSurface(ISurface * pSurface);

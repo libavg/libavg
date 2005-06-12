@@ -36,8 +36,6 @@ class Camera : public VideoBase
         void setFeature (const std::string& sFeature, int Value);
 
     private:
-        friend class CameraFactory;
-    
         virtual bool renderToSurface(ISurface * pSurface);
         virtual bool canRenderToBackbuffer(int BitsPerPixel);
         virtual double getFPS();
