@@ -1,0 +1,688 @@
+//
+// $Id$
+//
+
+#include "../avgconfig.h"
+#include "Player.h"
+#include "PlayerFactory.h"
+
+#include "AVGNode.h"
+#include "AVGNodeFactory.h"
+#include "DivNode.h"
+#include "DivNodeFactory.h"
+#include "Image.h"
+#include "ImageFactory.h"
+#include "Words.h"
+#include "WordsFactory.h"
+#include "Video.h"
+#include "VideoFactory.h"
+#include "PanoImage.h"
+#include "PanoImageFactory.h"
+#include "Camera.h"
+#include "CameraFactory.h"
+#include "Excl.h"
+#include "ExclFactory.h"
+
+#include "Event.h"
+#include "MouseEvent.h"
+#include "MouseEventFactory.h"
+#include "KeyEvent.h"
+
+#ifdef AVG_ENABLE_DFB
+#include "DFBDisplayEngine.h"
+#endif
+#ifdef AVG_ENABLE_GL
+#include "SDLDisplayEngine.h"
+#endif
+
+#include "FramerateManager.h"
+#include "../JSHelper.h"
+
+#include "../base/FileHelper.h"
+#include "../base/Exception.h"
+#include "../base/Logger.h"
+#include "../base/ConfigMgr.h"
+#include "../base/XMLHelper.h"
+#include "../base/Profiler.h"
+#include "../base/ScopeTimer.h"
+#include "../base/TimeSource.h"
+
+#include <paintlib/plexcept.h>
+#include <paintlib/plpngenc.h>
+#include <paintlib/pljpegenc.h>
+#include <paintlib/planybmp.h>
+
+#include <libxml/xmlmemory.h>
+
+#include <algorithm>
+#include <iostream>
+#include <sstream>
+
+using namespace std;
+
+namespace avg {
+
+Player::Player()
+    : m_pRootNode (0),
+      m_pDisplayEngine(0),
+      m_pFramerateManager(0),
+      m_bInHandleTimers(false),
+      m_pLastMouseNode(0)
+{
+    TimeSource::get()->getCyclesPerSecond();
+}
+
+Player::~Player()
+{
+    if (m_pDisplayEngine) {
+        delete m_pDisplayEngine;
+    }
+}
+
+void Player::loadFile (const std::string& filename)
+{
+    try {
+        AVG_TRACE(Logger::PROFILE, 
+                std::string("Player::LoadFile(") + filename + ")");
+        jsgc();
+        PLASSERT (!m_pRootNode);
+
+        initConfig();
+
+        // Get display configuration.
+        if (!m_pDisplayEngine) {
+            if (m_sDisplaySubsystem == "DFB") {
+#ifdef AVG_ENABLE_DFB
+                cerr << "DFB" << endl;
+                m_pDisplayEngine = new DFBDisplayEngine ();
+                m_pEventSource =
+                        dynamic_cast<DFBDisplayEngine *>(m_pDisplayEngine);
+#else
+                AVG_TRACE(Logger::ERROR,
+                        "Display subsystem set to DFB but no DFB support compiled."
+                        << " Aborting.");
+                exit(-1);
+#endif
+            } else if (m_sDisplaySubsystem == "OGL") {
+#ifdef AVG_ENABLE_GL
+                m_pDisplayEngine = new SDLDisplayEngine ();
+                m_pEventSource = 
+                        dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine);
+#else
+                AVG_TRACE(Logger::ERROR,
+                        "Display subsystem set to GL but no GL support compiled."
+                        << " Aborting.");
+                exit(-1);
+#endif
+            } else {
+                AVG_TRACE(Logger::ERROR, 
+                        "Display subsystem set to unknown value " << 
+                        m_sDisplaySubsystem << ". Aborting.");
+                exit(-1);
+            }
+        }
+
+        // Find and parse dtd.
+        string sDTDFName = findFile("avg.dtd", "", "includepath", "");
+        if (sDTDFName == "") {
+            AVG_TRACE(Logger::ERROR,
+                    "Required file avg.dtd not found. Search path was " 
+                    << *ConfigMgr::get()->getGlobalOption("includepath")
+                    << ". Aborting.");
+            exit(-1);
+        }
+        xmlDtdPtr dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
+        if (!dtd) {
+            AVG_TRACE(Logger::ERROR, 
+                    "Required DTD not found at " << sDTDFName << ". Aborting.");
+            exit(-1);
+        }
+
+        // Construct path.
+        string sCurFilename;
+        int lineno;
+
+        getFileLine(JSContextWrapper::getContext(), 0, 0, sCurFilename, 
+                lineno, 1);
+        string Path = getPath(sCurFilename.c_str());
+        string RealFilename = Path+filename;
+
+        xmlPedanticParserDefault(1);
+        xmlDoValidityCheckingDefaultValue =0;
+
+        xmlDocPtr doc;
+        doc = xmlParseFile(RealFilename.c_str());
+        if (!doc) {
+            throw (Exception(AVG_ERR_XML_PARSE, 
+                        string("Error parsing xml document ")+RealFilename));
+        }
+        xmlValidCtxtPtr cvp = xmlNewValidCtxt();
+        cvp->error = xmlParserValidityError;
+        cvp->warning = xmlParserValidityWarning;
+        int valid=xmlValidateDtd(cvp, doc, dtd);  
+        xmlFreeValidCtxt(cvp);
+        if (!valid) {
+            AVG_TRACE(Logger::ERROR, 
+                    filename + " does not validate. Aborting.");
+            exit(-1);
+        }
+
+        m_CurDirName = RealFilename.substr(0,RealFilename.rfind('/')+1);
+        m_pRootNode = dynamic_cast<AVGNode*>
+            (createNodeFromXml(doc, xmlDocGetRootElement(doc), 0));
+        initDisplay(xmlDocGetRootElement(doc));
+        initNode(m_pRootNode, 0);
+        DRect rc = m_pRootNode->getRelViewport();
+
+        xmlFreeDoc(doc);
+    } catch (Exception& ex) {
+        AVG_TRACE(Logger::ERROR, ex.GetStr());
+    } catch (PLTextException& ex) {
+        AVG_TRACE(Logger::ERROR, (const char*)ex);
+    }
+}
+
+void Player::play (double framerate)
+{
+    try {
+        if (!m_pRootNode) {
+            AVG_TRACE(Logger::ERROR, "play called, but no xml file loaded.");
+        }
+        PLASSERT (m_pRootNode);
+
+        m_EventDispatcher.addSource(m_pEventSource);
+        m_EventDispatcher.addSink(&m_EventDumper);
+        m_EventDispatcher.addSink(this);
+
+        m_pFramerateManager = new FramerateManager;
+        m_pFramerateManager->SetRate(framerate);
+        m_bStopping = false;
+
+        m_pDisplayEngine->render(m_pRootNode, m_pFramerateManager, true);
+        
+//        setPriority();
+        
+        Profiler::get().start();
+        while (!m_bStopping) {
+            doFrame();
+        }
+        // Kill all timeouts.
+        vector<Timeout*>::iterator it;
+        for (it=m_PendingTimeouts.begin(); it!=m_PendingTimeouts.end(); it++) {
+            delete *it;
+        }
+        m_PendingTimeouts.clear();
+        Profiler::get().dumpStatistics();
+
+        JSFactoryBase::removeParent(m_pRootNode->getJSPeer(), getJSPeer());
+        m_pRootNode = 0;
+        
+        delete m_pFramerateManager;
+        m_IDMap.clear();
+    } catch  (Exception& ex) {
+        AVG_TRACE(Logger::ERROR, ex.GetStr());
+    }
+}
+
+void Player::stop ()
+{
+    m_bStopping = true;
+}
+
+int Player::setInterval(int time, const std::string& code)
+{
+    
+    Timeout *t = new Timeout(time, code, true, 
+           JSContextWrapper::getContext());
+    if (m_bInHandleTimers) {
+        m_NewTimeouts.push_back(t);
+    } else {
+        addTimeout(t);
+    }
+    return t->GetID();
+}
+
+int Player::setTimeout(int time, const std::string& code)
+{
+    Timeout *t = new Timeout(time, code, false, JSContextWrapper::getContext());
+    if (m_bInHandleTimers) {
+        m_NewTimeouts.push_back(t);
+    } else {
+        addTimeout(t);
+    }
+    return t->GetID();
+    
+    return 0;
+}
+
+bool Player::clearInterval(int id)
+{
+    vector<Timeout*>::iterator it;
+    for (it=m_PendingTimeouts.begin(); it!=m_PendingTimeouts.end(); it++) {
+        if (id == (*it)->GetID()) {
+            if (m_bInHandleTimers) {
+                // Can't kill timeouts during timeout handling...
+                m_KilledTimeouts.push_back(id);
+            } else {
+                delete *it;
+                m_PendingTimeouts.erase(it);
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+Event& Player::getCurEvent()
+{
+    return *m_pCurEvent;
+}
+
+bool Player::screenshot(const std::string& sFilename)
+{
+    PLAnyBmp Bmp;
+    m_pDisplayEngine->screenshot(sFilename, Bmp);
+    PLPicEncoder * pEncoder;
+    string sExt = sFilename.substr(sFilename.length()-3);
+    if (sExt == "jpg") {
+        pEncoder = new PLJPEGEncoder;
+    } else if (sExt == "png") {
+        pEncoder = new PLPNGEncoder;
+    } else {
+        AVG_TRACE(Logger::WARNING, "Unsupported screenshot format " << sExt << ".");
+        return false;
+    }
+    try {
+        pEncoder->MakeFileFromBmp(sFilename.c_str(), &Bmp);
+        AVG_TRACE(Logger::WARNING, "Saved screen as " << sFilename << ".");
+    } catch (PLTextException& ex) {
+        AVG_TRACE(Logger::WARNING, "Could not save screenshot. Error: " 
+                << ex << ".");
+        delete pEncoder;
+        return false;
+    }
+    delete pEncoder;
+    return true;
+}
+
+void Player::showCursor(bool bShow)
+{
+    if (m_pDisplayEngine) {
+        m_pDisplayEngine->showCursor(bShow);
+    } else {
+        AVG_TRACE(Logger::ERROR, "Error: Player::showCursor called before display was initialized");
+    }
+}
+
+
+Node * Player::getElementByID (const std::string& id)
+{
+    if (m_IDMap.find(id) != m_IDMap.end()) {
+        return m_IDMap.find(id)->second;
+    } else {
+        AVG_TRACE(Logger::WARNING, "getElementByID(" << id << ") failed.");
+        return 0;
+    }
+}
+
+AVGNode * Player::getRootNode ()
+{
+    return m_pRootNode;
+}
+
+void Player::registerFrameListener(IFrameListener* pListener)
+{
+    m_Listeners.push_back(pListener);
+}
+
+string Player::getCurDirName()
+{
+    return m_CurDirName;
+}
+
+static ProfilingZone MainProfilingZone("Player - Total frame time");
+static ProfilingZone TimersProfilingZone("Player - handleTimers");
+static ProfilingZone EventsProfilingZone("Player - dispatch events");
+static ProfilingZone RenderProfilingZone("Player - render");
+static ProfilingZone ListenerProfilingZone("Player - listeners");
+static ProfilingZone GCProfilingZone("Player - JS Garbage collection");
+
+void Player::doFrame ()
+{
+    {
+        ScopeTimer Timer(MainProfilingZone);
+        {
+            ScopeTimer Timer(TimersProfilingZone);
+            handleTimers();
+        }
+        {
+            ScopeTimer Timer(EventsProfilingZone);
+            m_EventDispatcher.dispatch();
+        }
+        if (!m_bStopping) {
+            ScopeTimer Timer(RenderProfilingZone);
+            m_pDisplayEngine->render(m_pRootNode, m_pFramerateManager, false);
+        }
+        {
+            ScopeTimer Timer(ListenerProfilingZone);
+            for (unsigned int i=0; i<m_Listeners.size(); ++i) {
+                m_Listeners[i]->onFrameEnd();
+            }
+        }
+        {
+            ScopeTimer Timer(GCProfilingZone);
+            jsgc();
+        }
+    }
+    long FrameTime = long(MainProfilingZone.getUSecs()/1000);
+    long TargetTime = long(1000/m_pFramerateManager->GetRate());
+    if (FrameTime > TargetTime+2) {
+        AVG_TRACE(Logger::PROFILE_LATEFRAMES, "frame too late by " <<
+                FrameTime-TargetTime << " ms.");
+        Profiler::get().dumpFrame();
+    }
+    Profiler::get().reset();
+}
+
+void Player::setPriority() 
+{
+    pthread_t ThisThreadID = pthread_self();
+    int Policy;
+    sched_param Params;
+    int err = pthread_getschedparam(ThisThreadID, &Policy, &Params);
+    if (err) {
+        AVG_TRACE(Logger::ERROR, "Player::play: getschedparam failed.");
+    }
+    Params.sched_priority++; //  = PTHREAD_MAX_PRIORITY;
+    err = pthread_setschedparam(ThisThreadID, Policy, &Params);
+    if (err) {
+        AVG_TRACE(Logger::ERROR, "Player::play: setschedparam failed.");
+    }
+}
+        
+
+double Player::getFramerate ()
+{
+    return m_pFramerateManager->GetRate();
+}
+
+void Player::initConfig() {
+    // Get data from config files.
+    ConfigMgr* pMgr = ConfigMgr::get();
+    
+    m_sDisplaySubsystem = *pMgr->getOption("scr", "subsys");
+    
+    m_BPP = atoi(pMgr->getOption("scr", "bpp")->c_str());
+    if (m_BPP != 15 && m_BPP != 16 && m_BPP != 24 && m_BPP != 32) {
+        AVG_TRACE(Logger::ERROR, 
+                "BPP must be 15, 16, 24 or 32. Current value is " 
+                << m_BPP << ". Aborting." );
+        exit(-1);
+    }
+
+    string sFullscreen = *pMgr->getOption("scr", "fullscreen");
+    if (sFullscreen == "true") {
+        m_bFullscreen = true;
+    } else if (sFullscreen == "false") {
+        m_bFullscreen = false;
+    } else {
+        AVG_TRACE(Logger::ERROR, 
+                "Unrecognized value for option fullscreen: " 
+                << sFullscreen);
+        exit(-1);
+    }
+
+    m_WindowWidth = atoi(pMgr->getOption("scr", "windowwidth")->c_str());
+    m_WindowHeight = atoi(pMgr->getOption("scr", "windowheight")->c_str());
+
+    if (m_bFullscreen && (m_WindowWidth != 0 || m_WindowHeight != 0)) {
+        AVG_TRACE(Logger::ERROR, 
+                "Can't set fullscreen and window size at once. Aborting.");
+        exit(-1);
+    }
+    if (m_WindowWidth != 0 && m_WindowHeight != 0) {
+        AVG_TRACE(Logger::ERROR, "Can't set window width and height at once");
+        AVG_TRACE(Logger::ERROR, 
+                "(aspect ratio is determined by avg file). Aborting.");
+        exit(-1);
+    }
+
+    AVG_TRACE(Logger::CONFIG, "Display subsystem: " << 
+            m_sDisplaySubsystem);
+    AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_BPP);
+    AVG_TRACE(Logger::CONFIG, "Display fullscreen: "
+            << m_bFullscreen?"true":"false");
+}
+
+void Player::jsgc()
+{
+    JS_GC(JSContextWrapper::getContext());
+}
+
+Node * Player::createNodeFromXml (const string& sXML)
+{
+    try {
+        xmlDocPtr doc;
+        doc = xmlParseMemory(sXML.c_str(), sXML.length());
+        if (!doc) {
+            throw (Exception(AVG_ERR_XML_PARSE, 
+                        string("Error parsing xml:\n  ")+sXML));
+        }
+        Node * pNode = createNodeFromXml(doc, xmlDocGetRootElement(doc), 0);
+
+        xmlFreeDoc(doc);
+        return pNode;
+    } catch (Exception& ex) {
+        AVG_TRACE(Logger::ERROR, ex.GetStr());
+        return 0;
+    } catch (PLTextException& ex) {
+        AVG_TRACE(Logger::ERROR, (const char*)ex);
+        return 0;
+    }
+}
+
+Node * Player::createNodeFromXml (const xmlDocPtr xmlDoc, 
+        const xmlNodePtr xmlNode, Container * pParent)
+{
+    const char * nodeType = (const char *)xmlNode->name;
+    Node * curNode = 0;
+    string id = getDefaultedStringAttr (xmlNode, "id", "");
+    if (!strcmp (nodeType, "avg")) {
+        curNode = AVGNodeFactory::createFromXML(xmlNode, this);
+    } else if (!strcmp (nodeType, "div")) {
+        curNode = DivNodeFactory<DivNode>::createFromXML(xmlNode, pParent);
+    } else if (!strcmp (nodeType, "image")) {
+        curNode = ImageFactory::createFromXML(xmlNode, pParent);
+    } else if (!strcmp (nodeType, "words")) {
+        curNode = WordsFactory::createFromXML(xmlNode, pParent);
+        string s = getXmlChildrenAsString(xmlDoc, xmlNode);
+        dynamic_cast<Words*>(curNode)->initText(s);
+    } else if (!strcmp (nodeType, "video")) {
+        curNode = VideoFactory::createFromXML(xmlNode, pParent);
+    } else if (!strcmp (nodeType, "excl")) {
+        curNode = ExclFactory::createFromXML(xmlNode, pParent);
+    } else if (!strcmp (nodeType, "camera")) {
+        curNode = CameraFactory::createFromXML(xmlNode, pParent);
+    }
+    else if (!strcmp (nodeType, "panoimage")) {
+        curNode = PanoImageFactory::createFromXML(xmlNode, pParent);
+    } 
+    else if (!strcmp (nodeType, "text") || 
+               !strcmp (nodeType, "comment")) {
+        // Ignore whitespace & comments
+        return 0;
+    } else {
+        throw (Exception (AVG_ERR_XML_NODE_UNKNOWN, 
+            string("Unknown node type ")+(const char *)nodeType+" encountered."));
+    }
+    // If this is a container, recurse into children
+    Container * curContainer = dynamic_cast<Container*>(curNode);
+    if (curContainer) {
+        xmlNodePtr curXmlChild = xmlNode->xmlChildrenNode;
+        while (curXmlChild) {
+            Node *curChild = createNodeFromXml (xmlDoc, curXmlChild, 
+                    curContainer);
+            if (curChild) {
+                curContainer->addChild(curChild, false);
+            }
+            curXmlChild = curXmlChild->next;
+        }
+    }
+    return curNode;
+}
+
+void Player::initNode(Node * pNode, Container * pParent)
+{
+    const string& ID = pNode->getID();
+    pNode->init(m_pDisplayEngine, pParent, this);
+    pNode->initVisible();
+    // If this is a container, recurse into children
+    Container * curContainer = dynamic_cast<Container*>(pNode);
+    if (curContainer) {
+        for (int i=0; i<curContainer->getNumChildren(); ++i) {
+            initNode(curContainer->getChild(i), curContainer);
+        }
+    }
+    if (ID != "") {
+        if (m_IDMap.find(ID) != m_IDMap.end()) {
+            throw (Exception (AVG_ERR_XML_DUPLICATE_ID,
+                string("Error: duplicate id ")+ID));
+        }
+        m_IDMap.insert(NodeIDMap::value_type(ID, pNode));
+    }
+}
+
+JSFactoryBase* Player::getFactory()
+{
+    return PlayerFactory::getInstance();
+}
+
+void Player::initDisplay(const xmlNodePtr xmlNode) {
+    int Height = getDefaultedIntAttr (xmlNode, "height", 0);
+    int Width = getDefaultedIntAttr (xmlNode, "width", 0);
+    m_pDisplayEngine->init(Width, Height, m_bFullscreen, m_BPP, 
+            m_WindowWidth, m_WindowHeight);
+}
+
+void Player::handleTimers()
+{
+    vector<Timeout *>::iterator it;
+    m_bInHandleTimers = true;
+    it = m_PendingTimeouts.begin();
+    while (it != m_PendingTimeouts.end() && (*it)->IsReady() && !m_bStopping)
+    {
+        (*it)->Fire(JSContextWrapper::getContext());
+        if (!(*it)->IsInterval()) {
+            delete *it;
+            it = m_PendingTimeouts.erase(it);
+        } else {
+//            cerr << "Interval fired." << endl;
+            Timeout* pTempTimeout = *it;
+            it = m_PendingTimeouts.erase(it);
+            addTimeout(pTempTimeout);
+        }
+    }
+    for (it = m_NewTimeouts.begin(); it != m_NewTimeouts.end(); ++it) {
+        addTimeout(*it);
+    }
+    m_NewTimeouts.clear();
+    vector<int>::iterator i;
+    for (i = m_KilledTimeouts.begin(); i != m_KilledTimeouts.end(); ++i) {
+        int id = *i;
+        
+        vector<Timeout *>::iterator it2;
+        for (it2=m_PendingTimeouts.begin(); it2 != m_PendingTimeouts.end(); ++it2) {
+            if (id == (*it2)->GetID()) {
+                m_PendingTimeouts.erase(it2);
+                break;
+            }
+        }
+    }
+    m_KilledTimeouts.clear();
+    m_bInHandleTimers = false;
+    
+}
+
+bool Player::handleEvent(Event * pEvent)
+{
+    m_pCurEvent = pEvent;
+    switch (pEvent->getType()) {
+        case Event::MOUSEMOTION:
+        case Event::MOUSEBUTTONUP:
+        case Event::MOUSEBUTTONDOWN:
+            {
+                MouseEvent * pMouseEvent = dynamic_cast<MouseEvent*>(pEvent);
+                DPoint pos(pMouseEvent->getXPosition(), 
+                        pMouseEvent->getYPosition());
+                Node * pNode = m_pRootNode->getElementByPos(pos);            
+                if (pNode != m_pLastMouseNode) {
+                    if (pNode) {
+                        createMouseOver(pMouseEvent, Event::MOUSEOVER);
+                    }
+                    if (m_pLastMouseNode) {
+                        createMouseOver(pMouseEvent, Event::MOUSEOUT);
+                    }
+                    m_pLastMouseNode = pNode;
+                }
+                if (pNode) {
+                    pNode->handleMouseEvent(pMouseEvent, 
+                            JSContextWrapper::getContext());
+                }
+            }
+            break;
+        case Event::KEYDOWN:
+        case Event::KEYUP:
+            {
+                KeyEvent * pKeyEvent = dynamic_cast<KeyEvent*>(pEvent);
+                m_pRootNode->handleKeyEvent(pKeyEvent, 
+                        JSContextWrapper::getContext());
+                if (pEvent->getType() == Event::KEYDOWN &&
+                    pKeyEvent->getKeyCode() == 27) 
+                {
+                    m_bStopping = true;
+                }
+            }
+            break;
+        case Event::QUIT:
+            m_bStopping = true;
+            break;
+    }
+    // Don't pass on any events.
+    return true; 
+}
+
+void Player::createMouseOver(MouseEvent * pOtherEvent, int Type)
+{
+    MouseEvent * pNewEvent = MouseEventFactory::create();
+    pNewEvent->init(Type, 
+            pOtherEvent->getLeftButtonState(),
+            pOtherEvent->getMiddleButtonState(),
+            pOtherEvent->getRightButtonState(),
+            pOtherEvent->getXPosition(),
+            pOtherEvent->getYPosition(),
+            pOtherEvent->getButton());
+    m_EventDispatcher.addEvent(pNewEvent);
+}
+
+int Player::addTimeout(Timeout* pTimeout)
+{
+    vector<Timeout*>::iterator it=m_PendingTimeouts.begin();
+    while (it != m_PendingTimeouts.end() && (**it)<*pTimeout) {
+        it++;
+    }
+    m_PendingTimeouts.insert(it, pTimeout);
+    return pTimeout->GetID();
+}
+
+
+void Player::removeTimeout(Timeout* pTimeout)
+{
+    delete pTimeout;
+    vector<Timeout*>::iterator it=m_PendingTimeouts.begin();
+    while (*it != pTimeout) {
+        it++;
+    }
+    m_PendingTimeouts.erase(it);
+}
+
+}

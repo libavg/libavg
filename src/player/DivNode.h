@@ -1,0 +1,35 @@
+//
+// $Id$
+// 
+
+#ifndef _DivNode_H_
+#define _DivNode_H_
+
+#include "Container.h"
+#include "Point.h"
+#include <string>
+
+namespace avg {
+    
+class DivNode : public Container
+{
+	public:
+        DivNode ();
+        virtual ~DivNode ();
+        virtual void init(IDisplayEngine * pEngine, Container * pParent, 
+                Player * pPlayer);
+
+        virtual Node * getElementByPos (const DPoint & pos);
+        virtual void prepareRender (int time, const DRect& parent);
+        virtual void render (const DRect& rect);
+        virtual bool obscures (const DRect& rect, int z);
+        virtual void getDirtyRegion (Region& Dirtyregion);
+        virtual std::string getTypeStr ();
+        virtual JSFactoryBase* getFactory();
+
+};
+
+}
+
+#endif //_DivNode_H_
+

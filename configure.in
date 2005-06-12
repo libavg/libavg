@@ -7,7 +7,7 @@ MICRO_VERSION=0
 VERSION=$MAJOR_VERSION.$MINOR_VERSION.$MICRO_VERSION dnl
 
 AC_SUBST(VERSION)
-AC_CONFIG_SRCDIR([src/avg.cpp])
+AC_CONFIG_SRCDIR([src/avgconfig.h.in])
 AM_INIT_AUTOMAKE(avg, $VERSION)
 # Checks for programs.
 AC_PROG_CXX
@@ -16,6 +16,11 @@ AC_PROG_CPP
 
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
+
+AM_PATH_PYTHON(2.3)
+AC_PROG_SWIG(1.3.21)
+SWIG_ENABLE_CXX
+SWIG_PYTHON
 
 AC_ARG_ENABLE(dc1394,
               AC_HELP_STRING([--enable-dc1394], 
@@ -45,7 +50,8 @@ if test "$enable_DFB" = yes; then
     AC_DEFINE(AVG_ENABLE_DFB, 1, [Enable DirectFB rendering backend])
 fi
 
-AC_CHECK_HEADER([linux/ppdev.h], [enable_ParPort=yes], [enable_ParPort=no])
+SWIG_PYTHON
+
 AM_CONDITIONAL(ENABLE_PARPORT, test x$enable_ParPort = xyes)
 
 AX_CHECK_GL
@@ -57,7 +63,5 @@ if test x$no_gl != xyes; then
 fi
 
 AM_CONFIG_HEADER(src/avgconfig.h)
-AC_OUTPUT(avg-config Makefile src/Makefile man/Makefile src/js/Makefile 
-    src/base/Makefile src/conradrelais/Makefile src/system/Makefile
-    src/player/Makefile src/js/fdlibm/Makefile src/parport/Makefile
-    src/serial/Makefile)
+AC_OUTPUT(avg-config Makefile src/Makefile man/Makefile  
+    src/base/Makefile src/conradrelais/Makefile src/python/Makefile)
