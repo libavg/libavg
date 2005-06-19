@@ -14,11 +14,11 @@ using namespace std;
 namespace avg {
 
 RasterNode::RasterNode ()
-    : m_Angle(0),
+    : m_pSurface(0),
+      m_Angle(0),
       m_Pivot(-32767, -32767),
       m_MaxTileSize(PLPoint(-1,-1)),
-      m_sBlendMode("blend"),
-      m_pSurface(0)
+      m_sBlendMode("blend")
 {
 }
 

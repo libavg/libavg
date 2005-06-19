@@ -9,11 +9,11 @@
 #include "AVGNode.h"
 #include "FramerateManager.h"
 
+/*
 #include "Event.h"
 #include "MouseEvent.h"
-#include "MouseEventFactory.h"
 #include "KeyEvent.h"
-#include "KeyEventFactory.h"
+*/
 
 #include "OGLSurface.h"
 #include "OGLHelper.h"
@@ -390,7 +390,7 @@ void SDLDisplayEngine::initInput()
 {
     initJoysticks();
 }
-
+/*
 vector<Event *> SDLDisplayEngine::pollEvents()
 {
     SDL_Event sdlEvent;
@@ -427,9 +427,11 @@ vector<Event *> SDLDisplayEngine::pollEvents()
                 break;
             case SDL_QUIT:
                 {
+                    
                     Event * pEvent = EventFactory<Event>::create();
                     pEvent->init(Event::QUIT);
                     Events.push_back(pEvent);
+                    
                 }
                 break;
             case SDL_VIDEORESIZE:
@@ -482,7 +484,7 @@ Event * SDLDisplayEngine::createMouseButtonEvent
                 x, y, Button);
     return pEvent; 
 }
-
+*/
 /*
 Event * SDLDisplayEngine::createAxisEvent(const SDL_Event & SDLEvent)
 {
@@ -498,7 +500,7 @@ Event * SDLDisplayEngine::createButtonEvent
                 SDLEvent.jbutton.button));
 }
 */
-
+/*
 Event * SDLDisplayEngine::createKeyEvent
         (int Type, const SDL_Event & SDLEvent)
 {
@@ -535,7 +537,7 @@ Event * SDLDisplayEngine::createKeyEvent
                 SDL_GetKeyName(SDLEvent.key.keysym.sym), Modifiers);
     return pEvent;
 }
-
+*/
 
 void SDLDisplayEngine::initJoysticks() 
 {

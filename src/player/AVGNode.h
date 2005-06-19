@@ -19,9 +19,8 @@ class AVGNode : public DivNode
         virtual ~AVGNode ();
 
         virtual std::string getTypeStr ();
-        virtual JSFactoryBase* getFactory();
 
-        void handleKeyEvent (KeyEvent* pEvent, JSContext * pJSContext);
+//        void handleKeyEvent (KeyEvent* pEvent);
         bool getCropSetting();
 
     private:

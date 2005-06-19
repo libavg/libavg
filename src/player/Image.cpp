@@ -3,7 +3,6 @@
 // 
 
 #include "Image.h"
-#include "ImageFactory.h"
 #include "IDisplayEngine.h"
 #include "Player.h"
 #include "ISurface.h"
@@ -83,11 +82,6 @@ bool Image::obscures (const DRect& Rect, int z)
 string Image::getTypeStr ()
 {
     return "Image";
-}
-
-JSFactoryBase* Image::getFactory()
-{
-    return ImageFactory::getInstance();
 }
 
 DPoint Image::getPreferredMediaSize()

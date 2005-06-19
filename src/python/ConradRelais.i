@@ -4,7 +4,7 @@
 
 %module avg
 %{
-#include "../ConradRelais/ConradRelais.h"
+#include "../conradrelais/ConradRelais.h"
 #include "../base/IFrameListener.h"
 #include "../player/Player.h"
 %}

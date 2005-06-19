@@ -7,9 +7,10 @@
 #include "Region.h"
 #include "Player.h"
 
-#include "../JSFactoryBase.h"
+#include "../base/Exception.h"
 
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -30,7 +31,7 @@ int Container::getNumChildren ()
 
 Node * Container::getChild (int i)
 {
-    if (i >= m_Children.size() || i < 0) {
+    if (i >= (int)m_Children.size() || i < 0) {
         stringstream s;
         s << "Index " << i << " is out of range in Container::getChild()";
         throw(Exception(AVG_ERR_OUT_OF_RANGE, s.str()));
@@ -51,25 +52,27 @@ void Container::addChild (Node * pNewNode, bool bInit)
     }
     m_Children.insert (it, pNewNode);
 
+/*    
     // This happens when addChild() is called from js.
     if (bInit) {
         JSFactoryBase::setParent(pNewNode->getJSPeer(), this);
         getPlayer()->initNode(pNewNode, this);
     }
+*/    
 }
 
 void Container::removeChild (int i)
 {
     Node * pNode = getChild(i);
     pNode->invalidate();
-    JSObject * pJSNode = pNode->getJSPeer();
-    JSFactoryBase::removeParent(pJSNode, getJSPeer());
+//    JSObject * pJSNode = pNode->getJSPeer();
+//    JSFactoryBase::removeParent(pJSNode, getJSPeer());
     m_Children.erase(m_Children.begin()+i);
 }
 
 int Container::indexOf(Node * pChild)
 {
-    for  (int i = 0; i< m_Children.size(); ++i) {
+    for  (int i = 0; i< (int)m_Children.size(); ++i) {
         if (m_Children[i] == pChild) {
             return i;
         }

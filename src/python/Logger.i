@@ -4,8 +4,6 @@
 
 %module avg
 %{
-#include <iostream>
-#include <sstream>
 #include "../base/Logger.h"
 %}
 %include "std_string.i"

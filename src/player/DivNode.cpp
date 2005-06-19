@@ -3,7 +3,6 @@
 // 
 
 #include "DivNode.h"
-#include "DivNodeFactory.h"
 #include "Container.h"
 #include "IDisplayEngine.h"
 
@@ -88,11 +87,5 @@ string DivNode::getTypeStr ()
 {
     return "DivNode";
 }
-
-JSFactoryBase* DivNode::getFactory()
-{
-    return DivNodeFactory<DivNode>::getInstance();
-}
-
 
 }

@@ -4,28 +4,18 @@
 
 #include "../avgconfig.h"
 #include "Player.h"
-#include "PlayerFactory.h"
 
 #include "AVGNode.h"
-#include "AVGNodeFactory.h"
 #include "DivNode.h"
-#include "DivNodeFactory.h"
 #include "Image.h"
-#include "ImageFactory.h"
 #include "Words.h"
-#include "WordsFactory.h"
 #include "Video.h"
-#include "VideoFactory.h"
 #include "PanoImage.h"
-#include "PanoImageFactory.h"
 #include "Camera.h"
-#include "CameraFactory.h"
 #include "Excl.h"
-#include "ExclFactory.h"
 
 #include "Event.h"
 #include "MouseEvent.h"
-#include "MouseEventFactory.h"
 #include "KeyEvent.h"
 
 #ifdef AVG_ENABLE_DFB
@@ -36,7 +26,6 @@
 #endif
 
 #include "FramerateManager.h"
-#include "../JSHelper.h"
 
 #include "../base/FileHelper.h"
 #include "../base/Exception.h"
@@ -84,7 +73,7 @@ void Player::loadFile (const std::string& filename)
     try {
         AVG_TRACE(Logger::PROFILE, 
                 std::string("Player::LoadFile(") + filename + ")");
-        jsgc();
+        // TODO: Call GC
         PLASSERT (!m_pRootNode);
 
         initConfig();
@@ -95,8 +84,8 @@ void Player::loadFile (const std::string& filename)
 #ifdef AVG_ENABLE_DFB
                 cerr << "DFB" << endl;
                 m_pDisplayEngine = new DFBDisplayEngine ();
-                m_pEventSource =
-                        dynamic_cast<DFBDisplayEngine *>(m_pDisplayEngine);
+//                m_pEventSource =
+//                        dynamic_cast<DFBDisplayEngine *>(m_pDisplayEngine);
 #else
                 AVG_TRACE(Logger::ERROR,
                         "Display subsystem set to DFB but no DFB support compiled."
@@ -106,8 +95,8 @@ void Player::loadFile (const std::string& filename)
             } else if (m_sDisplaySubsystem == "OGL") {
 #ifdef AVG_ENABLE_GL
                 m_pDisplayEngine = new SDLDisplayEngine ();
-                m_pEventSource = 
-                        dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine);
+//                m_pEventSource = 
+//                        dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine);
 #else
                 AVG_TRACE(Logger::ERROR,
                         "Display subsystem set to GL but no GL support compiled."
@@ -140,10 +129,10 @@ void Player::loadFile (const std::string& filename)
 
         // Construct path.
         string sCurFilename;
-        int lineno;
 
-        getFileLine(JSContextWrapper::getContext(), 0, 0, sCurFilename, 
-                lineno, 1);
+        // TODO: Read current script file dir into sCurFilename
+//        getFileLine(JSContextWrapper::getContext(), 0, 0, sCurFilename, 
+//                lineno, 1);
         string Path = getPath(sCurFilename.c_str());
         string RealFilename = Path+filename;
 
@@ -189,11 +178,11 @@ void Player::play (double framerate)
             AVG_TRACE(Logger::ERROR, "play called, but no xml file loaded.");
         }
         PLASSERT (m_pRootNode);
-
+/*
         m_EventDispatcher.addSource(m_pEventSource);
         m_EventDispatcher.addSink(&m_EventDumper);
         m_EventDispatcher.addSink(this);
-
+*/
         m_pFramerateManager = new FramerateManager;
         m_pFramerateManager->SetRate(framerate);
         m_bStopping = false;
@@ -207,14 +196,16 @@ void Player::play (double framerate)
             doFrame();
         }
         // Kill all timeouts.
+/*        
         vector<Timeout*>::iterator it;
         for (it=m_PendingTimeouts.begin(); it!=m_PendingTimeouts.end(); it++) {
             delete *it;
         }
         m_PendingTimeouts.clear();
+*/        
         Profiler::get().dumpStatistics();
 
-        JSFactoryBase::removeParent(m_pRootNode->getJSPeer(), getJSPeer());
+//        JSFactoryBase::removeParent(m_pRootNode->getJSPeer(), getJSPeer());
         m_pRootNode = 0;
         
         delete m_pFramerateManager;
@@ -229,32 +220,35 @@ void Player::stop ()
     m_bStopping = true;
 }
 
+
 int Player::setInterval(int time, const std::string& code)
 {
-    
-    Timeout *t = new Timeout(time, code, true, 
-           JSContextWrapper::getContext());
+/*    
+    Timeout *t = new Timeout(time, code, true);
     if (m_bInHandleTimers) {
         m_NewTimeouts.push_back(t);
     } else {
         addTimeout(t);
     }
     return t->GetID();
+*/
+    return 0;
 }
 
 int Player::setTimeout(int time, const std::string& code)
 {
-    Timeout *t = new Timeout(time, code, false, JSContextWrapper::getContext());
+/*    
+    Timeout *t = new Timeout(time, code, false);
     if (m_bInHandleTimers) {
         m_NewTimeouts.push_back(t);
     } else {
         addTimeout(t);
     }
     return t->GetID();
-    
+*/    
     return 0;
 }
-
+/*
 bool Player::clearInterval(int id)
 {
     vector<Timeout*>::iterator it;
@@ -272,12 +266,13 @@ bool Player::clearInterval(int id)
     }
     return false;
 }
-
+*/
+/*
 Event& Player::getCurEvent()
 {
     return *m_pCurEvent;
 }
-
+*/
 bool Player::screenshot(const std::string& sFilename)
 {
     PLAnyBmp Bmp;
@@ -353,11 +348,11 @@ void Player::doFrame ()
         ScopeTimer Timer(MainProfilingZone);
         {
             ScopeTimer Timer(TimersProfilingZone);
-            handleTimers();
+//            handleTimers();
         }
         {
             ScopeTimer Timer(EventsProfilingZone);
-            m_EventDispatcher.dispatch();
+//            m_EventDispatcher.dispatch();
         }
         if (!m_bStopping) {
             ScopeTimer Timer(RenderProfilingZone);
@@ -371,7 +366,7 @@ void Player::doFrame ()
         }
         {
             ScopeTimer Timer(GCProfilingZone);
-            jsgc();
+            // TODO: Garbage collection
         }
     }
     long FrameTime = long(MainProfilingZone.getUSecs()/1000);
@@ -454,11 +449,6 @@ void Player::initConfig() {
             << m_bFullscreen?"true":"false");
 }
 
-void Player::jsgc()
-{
-    JS_GC(JSContextWrapper::getContext());
-}
-
 Node * Player::createNodeFromXml (const string& sXML)
 {
     try {
@@ -484,8 +474,9 @@ Node * Player::createNodeFromXml (const string& sXML)
 Node * Player::createNodeFromXml (const xmlDocPtr xmlDoc, 
         const xmlNodePtr xmlNode, Container * pParent)
 {
-    const char * nodeType = (const char *)xmlNode->name;
+//    const char * nodeType = (const char *)xmlNode->name;
     Node * curNode = 0;
+/*    
     string id = getDefaultedStringAttr (xmlNode, "id", "");
     if (!strcmp (nodeType, "avg")) {
         curNode = AVGNodeFactory::createFromXML(xmlNode, this);
@@ -528,6 +519,7 @@ Node * Player::createNodeFromXml (const xmlDocPtr xmlDoc,
             curXmlChild = curXmlChild->next;
         }
     }
+*/    
     return curNode;
 }
 
@@ -552,18 +544,13 @@ void Player::initNode(Node * pNode, Container * pParent)
     }
 }
 
-JSFactoryBase* Player::getFactory()
-{
-    return PlayerFactory::getInstance();
-}
-
 void Player::initDisplay(const xmlNodePtr xmlNode) {
     int Height = getDefaultedIntAttr (xmlNode, "height", 0);
     int Width = getDefaultedIntAttr (xmlNode, "width", 0);
     m_pDisplayEngine->init(Width, Height, m_bFullscreen, m_BPP, 
             m_WindowWidth, m_WindowHeight);
 }
-
+/*
 void Player::handleTimers()
 {
     vector<Timeout *>::iterator it;
@@ -571,7 +558,7 @@ void Player::handleTimers()
     it = m_PendingTimeouts.begin();
     while (it != m_PendingTimeouts.end() && (*it)->IsReady() && !m_bStopping)
     {
-        (*it)->Fire(JSContextWrapper::getContext());
+        (*it)->Fire();
         if (!(*it)->IsInterval()) {
             delete *it;
             it = m_PendingTimeouts.erase(it);
@@ -602,7 +589,8 @@ void Player::handleTimers()
     m_bInHandleTimers = false;
     
 }
-
+*/
+/*
 bool Player::handleEvent(Event * pEvent)
 {
     m_pCurEvent = pEvent;
@@ -625,8 +613,7 @@ bool Player::handleEvent(Event * pEvent)
                     m_pLastMouseNode = pNode;
                 }
                 if (pNode) {
-                    pNode->handleMouseEvent(pMouseEvent, 
-                            JSContextWrapper::getContext());
+                    pNode->handleMouseEvent(pMouseEvent);
                 }
             }
             break;
@@ -684,5 +671,5 @@ void Player::removeTimeout(Timeout* pTimeout)
     }
     m_PendingTimeouts.erase(it);
 }
-
+*/
 }

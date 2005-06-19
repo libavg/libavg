@@ -2,37 +2,19 @@
 // $Id$
 //
 
-#ifndef _Player_H_
-#define _Player_H_
+%module avg
+%{
+#include "../player/Player.h"
+#include "../player/Node.h"
+#include "../player/AVGNode.h"
+%}
 
-/*
-#include "IEventSink.h"
-#include "EventDispatcher.h"
-#include "DebugEventSink.h"
-#include "Timeout.h"
-*/
-
-#include "../base/IFrameListener.h"
-
-#include <libxml/parser.h>
-
-#include <map>
-#include <string>
-#include <vector>
-
-class PLPoint;
+%include "std_string.i"
 
 namespace avg {
 
-class AVGNode;
 class Node;
-class Container;
-//class Event;
-//class MouseEvent;
-class ConradRelais;
-class IDisplayEngine;
-class Camera;
-class FramerateManager;
+class AVGNode;
 
 class Player //: IEventSink
 {
@@ -60,7 +42,7 @@ class Player //: IEventSink
         Node * createNodeFromXml (const std::string& sXML);
 
         /**
-         * Sets javascript code that should be executed every time milliseconds.
+         * Sets code that should be executed every time milliseconds.
          * The smallest timeframe that can be set is once per frame. If less
          * than that is specified, the code will be executed exactly once per 
          * frame. The function returns an id that can be used to call 
@@ -68,7 +50,7 @@ class Player //: IEventSink
          */
         int setInterval(int time, const std::string& code);
         /**
-         * Sets javascript code that should be executed after time milliseconds.
+         * Sets code that should be executed after time milliseconds.
          * The function returns an id that can be used to call clearInterval() 
          * to stop the code from being called.
          */
@@ -106,59 +88,7 @@ class Player //: IEventSink
          * Returns the outermost element in the avg tree. 
          */
         AVGNode * getRootNode ();
-        void doFrame ();
-        void setPriority();
         double getFramerate ();
-//        virtual bool handleEvent(Event * pEvent);
-
-        void registerFrameListener(IFrameListener* pListener);
-        std::string getCurDirName();
-        void initNode(Node * pNode, Container * pParent);
-
-    private:
-        void initConfig();
-
-        Node * createNodeFromXml(const xmlDocPtr xmlDoc, 
-                const xmlNodePtr xmlNode, Container * pParent);
-
-        void initDisplay(const xmlNodePtr xmlNode);
-        void render (bool bRenderEverything);
-        void teardownDFB();
-//        void createMouseOver(MouseEvent * pOtherEvent, int Type);
-	
-        AVGNode * m_pRootNode;
-        IDisplayEngine * m_pDisplayEngine;
-//        IEventSource * m_pEventSource;
-
-        std::string m_CurDirName;
-        FramerateManager * m_pFramerateManager;
-        bool m_bStopping;
-        typedef std::map<std::string, Node*> NodeIDMap;
-        NodeIDMap m_IDMap;
-
-//        int addTimeout(Timeout* pTimeout);
-//        void removeTimeout(Timeout* pTimeout);
-//        void handleTimers();
-        bool m_bInHandleTimers;
-
-//        std::vector<Timeout *> m_PendingTimeouts;
-//        std::vector<Timeout *> m_NewTimeouts; // Timeouts to be added this frame.
-//        std::vector<int> m_KilledTimeouts; // Timeouts to be deleted this frame.
-
-//        EventDispatcher m_EventDispatcher;
-//        DebugEventSink  m_EventDumper;
-//        Event * m_pCurEvent;
-        Node * m_pLastMouseNode;
-
-        // Configuration variables.
-        std::string m_sDisplaySubsystem;
-        bool m_bFullscreen;
-        int m_BPP;
-        int m_WindowWidth;
-        int m_WindowHeight;
-
-        std::vector<IFrameListener*> m_Listeners;
 };
 
 }
-#endif //_Player_H_

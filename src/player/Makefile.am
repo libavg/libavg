@@ -33,47 +33,46 @@ else
     DFB_INCLUDES =
 endif
             
-ALL_H = Player.h PlayerFactory.h IEventSource.h IEventSink.h \
+ALL_H = Player.h IEventSource.h IEventSink.h \
         IDisplayEngine.h Rect.h Point.h Region.h Node.h \
         ISurface.h FramerateManager.h Container.h \
-        MathHelper.h NodeFactory.h AVGNode.h DivNode.h AVGNodeFactory.h \
-        ContainerFactory.h DivNodeFactory.h Image.h ImageFactory.h \
-        Timeout.h Words.h WordsFactory.h \
+        MathHelper.h AVGNode.h DivNode.h \
+        Image.h \
+        Timeout.h Words.h \
         DebugEventSink.h EventDispatcher.h MouseEvent.h \
-        Event.h KeyEvent.h EventFactory.h KeyEventFactory.h \
-        MouseEventFactory.h VideoBase.h VideoBaseFactory.h \
-        Video.h VideoFactory.h FFMpegDecoder.h IVideoDecoder.h \
-        ExclFactory.h Excl.h PointFactory.h PanoImage.h PanoImageFactory.h\
-        RasterNode.h RasterNodeFactory.h Camera.h CameraFactory.h\
+        Event.h KeyEvent.h \
+        VideoBase.h \
+        Video.h FFMpegDecoder.h IVideoDecoder.h \
+        Excl.h PanoImage.h \
+        RasterNode.h Camera.h \
         $(GL_INCLUDES) $(DFB_INCLUDES)
 
 avgdir = $(libdir)/avg
-avg_LTLIBRARIES = libplayer.la
-libplayer_la_SOURCES = Player.cpp PlayerFactory.cpp \
+lib_LTLIBRARIES = libplayer.la
+libplayer_la_SOURCES = Player.cpp \
         Region.cpp Node.cpp FramerateManager.cpp \
         Container.cpp  MathHelper.cpp \
-        NodeFactory.cpp AVGNode.cpp DivNode.cpp AVGNodeFactory.cpp \
-        ContainerFactory.cpp Image.cpp ImageFactory.cpp \
-        Timeout.cpp Words.cpp WordsFactory.cpp \
-        DebugEventSink.cpp EventDispatcher.cpp MouseEvent.cpp \
-        Event.cpp KeyEvent.cpp KeyEventFactory.cpp\
-        MouseEventFactory.cpp VideoBase.cpp VideoBaseFactory.cpp  \
-        Video.cpp VideoFactory.cpp FFMpegDecoder.cpp \
-        ExclFactory.cpp Excl.cpp PointFactory.cpp PanoImage.cpp \
-        PanoImageFactory.cpp RasterNode.cpp RasterNodeFactory.cpp \
-        Camera.cpp CameraFactory.cpp $(GL_SOURCES) $(DFB_SOURCES) \
-        $(ALL_H)
+        AVGNode.cpp DivNode.cpp \
+        Image.cpp \
+        RasterNode.cpp $(GL_SOURCES) $(DFB_SOURCES) \
+		$(ALL_H)
+#		Words.cpp Timeout.cpp\
+#        DebugEventSink.cpp EventDispatcher.cpp MouseEvent.cpp \
+#        Event.cpp KeyEvent.cpp KeyEventFactory.cpp\
+#        VideoBase.cpp \
+#        Video.cpp FFMpegDecoder.cpp \
+#        Excl.cpp PanoImage.cpp \
+#        Camera.cpp $(GL_SOURCES) $(DFB_SOURCES)
 libplayer_ladir=$(includedir)/avg/player
 libplayer_la_HEADERS = $(ALL_H)
-
 libplayer_la_LIBADD = ../base/libbase.la        
-
 libplayer_la_LDFLAGS = `xml2-config --libs` `paintlib-config --libs` \
-        $(DC1394_LIBS) $(GL_LIBS) $(GLU_LIBS) $(SDL_LIBS) $(DFB_LIBS) -lavformat -lavcodec \
+        $(DC1394_LIBS) $(GL_LIBS) $(GLU_LIBS) $(SDL_LIBS) $(DFB_LIBS) \
+		-lavformat -lavcodec \
         `pkg-config --libs pangoft2`
 
 # TODO: Remove -fpermissive
-AM_CXXFLAGS = -DXP_UNIX -fpermissive $(CXXFLAGS)
+AM_CXXFLAGS = -fpermissive $(CXXFLAGS)
 
 libplayerHEADERS = $(ALL_H)
 

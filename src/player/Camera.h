@@ -30,7 +30,6 @@ class Camera : public VideoBase
         virtual void init (IDisplayEngine * pEngine, Container * pParent, 
             Player * pPlayer);
         virtual std::string getTypeStr ();
-        virtual JSFactoryBase* getFactory();
 
         unsigned int getFeature (const std::string& sFeature);
         void setFeature (const std::string& sFeature, int Value);

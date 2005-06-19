@@ -12,12 +12,12 @@ namespace avg {
 class Timeout
 {
     public:
-//        Timeout (int time, std::string code, bool isInterval, JSContext * pContext);
+        Timeout (int time, std::string code, bool isInterval);
         virtual ~Timeout ();
 
         bool IsReady() const;
         bool IsInterval() const;
-//        void Fire(JSContext * pJSContext);
+        void Fire();
         int GetID() const;
         bool operator <(const Timeout& other) const;
 
@@ -28,7 +28,6 @@ class Timeout
         bool m_IsInterval;
         int m_ID;
         static int s_LastID;
-//        JSScript m_Script;
 };
 
 }

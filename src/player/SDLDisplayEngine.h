@@ -5,7 +5,7 @@
 #ifndef _SDLDisplayEngine_H_
 #define _SDLDisplayEngine_H_
 
-#include "IEventSource.h"
+// #include "IEventSource.h"
 #include "IDisplayEngine.h"
 #include "VBlank.h"
 
@@ -20,7 +20,7 @@ namespace avg {
 
 class OGLSurface;
 
-class SDLDisplayEngine: public IDisplayEngine, public IEventSource
+class SDLDisplayEngine: public IDisplayEngine //, public IEventSource
 {
     public:
         SDLDisplayEngine();
@@ -59,7 +59,7 @@ class SDLDisplayEngine: public IDisplayEngine, public IEventSource
                 PLBmp& Bmp);
 
         // From IEventSource
-        virtual std::vector<Event *> pollEvents();
+//        virtual std::vector<Event *> pollEvents();
 
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);
@@ -71,14 +71,15 @@ class SDLDisplayEngine: public IDisplayEngine, public IEventSource
         virtual void swapBuffers();
         void clip();
         void setClipPlane(double Eqn[4], int WhichPlane);
-        
+
+/*        
         Event * createMouseMotionEvent 
                 (int Type, const SDL_Event & SDLEvent);
         Event * createMouseButtonEvent
                 (int Type, const SDL_Event & SDLEvent);
         Event * createKeyEvent
                 (int Type, const SDL_Event & SDLEvent);
-
+*/
         int m_Width;
         int m_Height;
         bool m_IsFullscreen;

@@ -5,8 +5,6 @@
 #ifndef _Node_H_
 #define _Node_H_
 
-#include "../Object.h"
-
 #include "Region.h"
 #include "Point.h"
 #include "Rect.h"
@@ -14,8 +12,6 @@
 
 #include <vector>
 #include <string>
-
-#include "../js/jsapi.h"
 
 namespace avg {
 
@@ -27,7 +23,7 @@ class Player;
 class MouseEvent;
 class OGLSurface;
 
-class Node: public Object
+class Node
 {
     public:
         Node ();
@@ -71,8 +67,8 @@ class Node: public Object
         virtual std::string getTypeStr ();
         void setParent(Container * pParent);
         
-        virtual void handleMouseEvent (MouseEvent* pEvent, 
-                JSContext * pJSContext);
+//        virtual void handleMouseEvent (MouseEvent* pEvent, 
+//                JSContext * pJSContext);
         virtual void invalidate();
         
         // TODO: Do we still need this? Isn't rtti good enough?

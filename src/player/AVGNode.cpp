@@ -4,7 +4,6 @@
 
 #include "AVGNode.h"
 #include "IDisplayEngine.h"
-#include "AVGNodeFactory.h"
 
 #include <paintlib/plpoint.h>
 
@@ -27,13 +26,8 @@ string AVGNode::getTypeStr ()
 {
     return "AVGNode";
 }
-
-JSFactoryBase* AVGNode::getFactory()
-{
-    return AVGNodeFactory::getInstance();
-}
-
-void AVGNode::handleKeyEvent (KeyEvent* pEvent, JSContext * pJSContext)
+/*
+void AVGNode::handleKeyEvent (KeyEvent* pEvent)
 {
     string Code;
     int EventType = pEvent->getType();
@@ -51,7 +45,7 @@ void AVGNode::handleKeyEvent (KeyEvent* pEvent, JSContext * pJSContext)
         callJS(Code, pJSContext);
     } 
 }
-
+*/
 bool AVGNode::getCropSetting() {
     return m_bEnableCrop;
 }

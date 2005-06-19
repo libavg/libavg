@@ -15,7 +15,7 @@
 
 namespace avg {
 
-class DFBDisplayEngine: public IDisplayEngine, public IEventSource
+class DFBDisplayEngine: public IDisplayEngine //, public IEventSource
 {
     public:
         DFBDisplayEngine();
@@ -56,7 +56,7 @@ class DFBDisplayEngine: public IDisplayEngine, public IEventSource
         virtual void screenshot (const std::string& sFilename, PLBmp& Bmp);
 
         // From IEventSource
-        virtual std::vector<Event *> pollEvents();
+//        virtual std::vector<Event *> pollEvents();
        
     private:
         void initDFB(int width, int height, bool isFullscreen, int bpp);
@@ -72,11 +72,11 @@ class DFBDisplayEngine: public IDisplayEngine, public IEventSource
         void blt(IDirectFBSurface * pSrc, const DRect* pDestRect);
 
         void dumpSurface(IDirectFBSurface * pSurf, const std::string & name);
-
+/*
         Event * createEvent(const char * pTypeName);
         int translateModifiers(DFBInputDeviceModifierMask DFBModifiers);
         Event * createEvent(DFBWindowEvent* pdfbwEvent);
-        
+*/      
         int m_Width;
         int m_Height;
         bool m_IsFullscreen;

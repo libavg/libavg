@@ -10,12 +10,11 @@
 #include "FramerateManager.h"
 #include "DFBSurface.h"
 
+/*
 #include "Event.h"
 #include "MouseEvent.h"
-#include "MouseEventFactory.h"
 #include "KeyEvent.h"
-#include "KeyEventFactory.h"
-
+*/
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 
@@ -574,7 +573,7 @@ void DFBDisplayEngine::screenshot (const string& sFilename, PLBmp& Bmp)
     Bmp.Create(m_Width, m_Height, pf, pBits, Pitch, PLPoint(72,72));
     Bmp.ApplyFilter(PLFilterFlipRGB());
 }
-
+/*
 vector<Event *> DFBDisplayEngine::pollEvents()
 {
     vector<Event *> Events;
@@ -688,6 +687,7 @@ Event * DFBDisplayEngine::createEvent(DFBWindowEvent* pdfbwEvent)
     }
     return pEvent;
 }
+*/
 
 int DFBDisplayEngine::getWidth()
 {

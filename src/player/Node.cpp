@@ -11,8 +11,6 @@
 #include "Player.h"
 #include "IDisplayEngine.h"
 
-#include "../JSScript.h"
-#include "../JSFactoryBase.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -310,9 +308,8 @@ void Node::setParent(Container * pParent)
                 "Can't change parent of node."));
     }
     m_pParent = pParent;
-    JSFactoryBase::setParent(getJSPeer(), pParent);
 }
-
+/*
 void Node::handleMouseEvent (MouseEvent* pEvent, JSContext * pJSContext)
 {
     string Code;
@@ -344,7 +341,8 @@ void Node::handleMouseEvent (MouseEvent* pEvent, JSContext * pJSContext)
         m_pParent->handleMouseEvent (pEvent, pJSContext);
     }
 }
-
+*/
+/*
 void Node::callJS (const string& Code, JSContext * pJSContext)
 {
 
@@ -352,7 +350,7 @@ void Node::callJS (const string& Code, JSContext * pJSContext)
     JSScript Script(Code, "EventScript", 0, pJSContext);
     Script.run();
 }
-
+*/
 void Node::initFilename(Player * pPlayer, string& sFilename)
 {
     if (sFilename[0] != '/') {
