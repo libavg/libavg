@@ -20,6 +20,11 @@ Container::Container ()
 {
 }
 
+Container::Container (const xmlNodePtr xmlNode, Container * pParent)
+    : Node(xmlNode, pParent)
+{
+}
+
 Container::~Container ()
 {
 }

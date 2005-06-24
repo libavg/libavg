@@ -15,6 +15,7 @@ class DivNode : public Container
 {
 	public:
         DivNode ();
+        DivNode (const xmlNodePtr xmlNode, Container * pParent);
         virtual ~DivNode ();
         virtual void init(IDisplayEngine * pEngine, Container * pParent, 
                 Player * pPlayer);

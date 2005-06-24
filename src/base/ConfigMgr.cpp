@@ -49,6 +49,25 @@ ConfigMgr::ConfigMgr()
             "The width of the window to use. Contents are scaled.");
     addOption("scr", "windowheight", "0",
             "The height of the window to use. Contents are scaled.");
+
+    m_sFName = "avgrc";
+    bool bOk1 = loadFile("/etc/"+m_sFName);
+    bool bOk2 = loadFile("~/."+m_sFName);
+    if (!bOk1 && !bOk2) {
+        AVG_TRACE(Logger::ERROR,
+                "Neither /etc/avgrc nor ~/.avgrc was found. If");
+        AVG_TRACE(Logger::ERROR,
+                "this is your initial install, you need to");
+        AVG_TRACE(Logger::ERROR,
+                "copy avgrc.default from the package source");
+        AVG_TRACE(Logger::ERROR,
+                "directory to /etc. Have a look at the contents to");
+        AVG_TRACE(Logger::ERROR,
+                "check if all directories are set correctly.");
+        AVG_TRACE(Logger::ERROR,
+                "Aborting.");
+        exit(255);
+    }
 }
 
 void ConfigMgr::printUsage()
@@ -95,24 +114,6 @@ void ConfigMgr::addGlobalOption(const string& sName, const string& sDefault,
 
 void ConfigMgr::parseOptions(const CmdLine& cmdLine)
 {
-    m_sFName = "avgrc";
-    bool bOk1 = loadFile("/etc/"+m_sFName);
-    bool bOk2 = loadFile("~/."+m_sFName);
-    if (!bOk1 && !bOk2) {
-        AVG_TRACE(Logger::ERROR,
-                "Neither /etc/avgrc nor ~/.avgrc was found. If");
-        AVG_TRACE(Logger::ERROR,
-                "this is your initial install, you need to");
-        AVG_TRACE(Logger::ERROR,
-                "copy avgrc.default from the package source");
-        AVG_TRACE(Logger::ERROR,
-                "directory to /etc. Have a look at the contents to");
-        AVG_TRACE(Logger::ERROR,
-                "check if all directories are set correctly.");
-        AVG_TRACE(Logger::ERROR,
-                "Aborting.");
-        exit(255);
-    }
     loadFromCmdLine(cmdLine);
 //    dump();
 }

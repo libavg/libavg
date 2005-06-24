@@ -3,8 +3,9 @@
 // 
 
 #include "Excl.h"
-#include "ExclFactory.h"
+
 #include "../base/Logger.h"
+#include "../base/XMLHelper.h"
 
 #include <iostream>
 #include <sstream>
@@ -16,6 +17,13 @@ namespace avg {
 Excl::Excl ()
     : m_ActiveChild(-1)
 {
+}
+
+Excl::Excl (const xmlNodePtr xmlNode, Container * pParent)
+    : Container(xmlNode, pParent),
+      m_ActiveChild(-1)
+{
+    m_ActiveChild = getDefaultedIntAttr (xmlNode, "activechild", -1);
 }
 
 Excl::~Excl ()
@@ -60,7 +68,7 @@ const DRect& Excl::getAbsViewport()
     return getParent()->getAbsViewport();
 }
 
-int Excl::getActiveChild()
+int Excl::getActiveChild() const
 {
     return m_ActiveChild;
 }
@@ -81,11 +89,6 @@ void Excl::setActiveChild(int activeChild)
 string Excl::getTypeStr ()
 {
     return "Excl";
-}
-
-JSFactoryBase* Excl::getFactory()
-{
-    return ExclFactory::getInstance();
 }
 
 Node * Excl::getElementByPos (const DPoint & pos)

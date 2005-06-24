@@ -37,6 +37,15 @@ VideoBase::VideoBase ()
 {
 }
 
+VideoBase::VideoBase (const xmlNodePtr xmlNode, Container * pParent)
+    : RasterNode(xmlNode, pParent),
+      m_State(Unloaded),
+      m_Width(0),
+      m_Height(0),
+      m_bFrameAvailable(false)
+{
+}
+
 VideoBase::~VideoBase ()
 {
 }
@@ -213,7 +222,7 @@ DPoint VideoBase::getPreferredMediaSize()
     return DPoint(m_Width, m_Height);
 }
 
-VideoBase::VideoState VideoBase::getState()
+VideoBase::VideoState VideoBase::getState() const
 {
     return m_State;
 }

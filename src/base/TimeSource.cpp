@@ -138,7 +138,7 @@ void TimeSource::calcCyclesPerSecond() {
     usleep(500*1000);
     m_CyclesPerSecond = (getCurrentCycles()-start)*2;
 #endif
-    cerr << "Cycles per second: " << m_CyclesPerSecond << endl;
+//    cerr << "Cycles per second: " << m_CyclesPerSecond << endl;
 }
 
 }

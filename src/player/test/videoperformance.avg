@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
+<avg width="1024" height="768">
+<!--  <image x="100" y="100" z="0"
+      href="rgb24.png"/>-->
+  <video id="mpeg1" x="176" y="60" z="1" opacity="0.8" blendmode="add"
+      href="enterprise/enterprise - 1 - 03 - fight_or_flight.vcd.gamblor-wow.mpg"/> 
+  <video id="mpeg2" x="176" y="180" z="1" opacity="0.8" blendmode="add"
+      href="enterprise/enterprise - 1 - 04 - strange new world.vcd.cid-wow.mpg"/> 
+  <video id="mpeg3" x="528" y="60" z="1" opacity="0.8" blendmode="add"
+      href="enterprise/enterprise - 1 - 05 - unexpected.vcd.cid-wow.mpg"/> 
+  <video id="mpeg4" x="528" y="180" z="1" opacity="0.8" blendmode="add"
+      href="enterprise/enterprise - 1 - 06 - terra_nova.vcd.cid-wow.mpg"/> 
+  <video id="mpeg5" x="176" y="300" z="1" opacity="0.8" blendmode="add"
+      href="enterprise/Enterprise - 1 - 07 - The Andorian Incident.mpg"/> 
+  <video id="mpeg6" x="528" y="300" z="1" opacity="0.8" blendmode="add"
+      href="enterprise/enterprise - 1 - 08 - Breaking The Ice.mpg"/> 
+  <video id="mpeg7" x="704" y="0" z="1" opacity="0.6"
+      href="enterprise/Enterprise - 1 - 09 - Civilization(chaos).mpg"/> 
+  <video id="mpeg8" x="704" y="240" z="1" opacity="0.6"
+      href="enterprise/Enterprise - 1 - 10 - Fortunate Son.mpg"/> 
+</avg>

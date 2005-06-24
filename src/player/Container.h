@@ -10,11 +10,9 @@
 
 namespace avg {
 
-class Container : 	
-    public Node
+class Container : public Node
 {
     public:
-        Container ();
         virtual ~Container ();
 
         virtual void prepareRender (int time, const Rect<double>& parent);
@@ -30,6 +28,9 @@ class Container :
         void zorderChange (Node * pChild);
         
     protected:        
+        Container ();
+        Container (const xmlNodePtr xmlNode, Container * pParent);
+
         virtual Point<double> getPreferredMediaSize();	
     
     private:

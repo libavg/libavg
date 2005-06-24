@@ -10,6 +10,8 @@
 #include "Rect.h"
 #include "ISurface.h"
 
+#include <libxml/parser.h>
+
 #include <vector>
 #include <string>
 
@@ -26,20 +28,37 @@ class OGLSurface;
 class Node
 {
     public:
-        Node ();
-        virtual ~Node ();
+        virtual ~Node () = 0;
         virtual void init(IDisplayEngine * pEngine, Container * pParent,
                 Player * pPlayer);
         virtual void initVisible();
         
-        // JS interface
-        void setZ(int z);
-        void setActive(bool bActive);
-
         /**
          * Returns the unique id that can be used to reference the node.
          */
-        virtual const std::string& getID ();
+        virtual const std::string& getID () const;
+
+        double getX() const;
+        void setX(double x);
+        
+        double getY() const;
+        void setY(double Y);
+        
+        int getZ() const;
+        void setZ(int z);
+
+        double getWidth() const;
+        void setWidth(double width);
+        
+        double getHeight() const;
+        void setHeight(double height);
+        
+        double getOpacity() const;
+        void setOpacity(double opacity);
+        
+        bool getActive() const;
+        void setActive(bool bActive);
+
         /**
          * Returns the parent node, if there is one.
          */
@@ -55,12 +74,10 @@ class Node
         virtual void getDirtyRegion (Region& Region);
         virtual void setViewport (double x, double y, double width, 
                 double height);
-        virtual const DRect& getRelViewport ();
-        virtual const DRect& getAbsViewport();
+        virtual const DRect& getRelViewport () const;
+        virtual const DRect& getAbsViewport () const;
         DRect getVisibleRect();
         virtual int getZ();
-        double getOpacity();
-        void setOpacity(double o);
         virtual double getEffectiveOpacity();
 
         virtual std::string dump (int indent = 0);
@@ -76,6 +93,8 @@ class Node
                 NT_CAMERA, NT_DIV, NT_PANOIMAGE};
 
     protected:
+        Node ();
+        Node (const xmlNodePtr xmlNode, Container * pParent);
         virtual DPoint getPreferredMediaSize() 
             { return DPoint(0,0); };
         Player * getPlayer();
@@ -107,8 +126,8 @@ class Node
         
         // Initialization helpers.
         bool m_bInitialized;
-        int m_InitialWidth;
-        int m_InitialHeight;
+        double m_InitialWidth;
+        double m_InitialHeight;
 
         Region m_DirtyRegion;
 };

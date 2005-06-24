@@ -21,14 +21,16 @@ class Video : public VideoBase
 {
     public:
         Video ();
+        Video (const xmlNodePtr xmlNode, Container * pParent);
         virtual ~Video ();
         
         virtual void init (IDisplayEngine * pEngine, Container * pParent, 
                 Player * pPlayer);
 
-        int getNumFrames();
-        int getCurFrame();
+        int getNumFrames() const;
+        int getCurFrame() const;
         void seekToFrame(int num);
+        bool getLoop() const;
 
         virtual std::string getTypeStr ();
 

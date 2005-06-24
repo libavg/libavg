@@ -15,7 +15,6 @@ namespace avg {
 class RasterNode: public Node
 {
     public:
-        RasterNode ();
         virtual ~RasterNode ();
         void initVisible();
         
@@ -39,6 +38,8 @@ class RasterNode: public Node
         Node * getElementByPos (const DPoint & pos);
         
     protected:
+        RasterNode ();
+        RasterNode (const xmlNodePtr xmlNode, Container * pParent);
         DPoint getPivot();
         ISurface * getSurface();
  

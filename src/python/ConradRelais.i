@@ -15,7 +15,7 @@ namespace avg {
  * Interface to one or more conrad relais cards connected to a serial 
  * port. Per card, up to eight 220V devices can be turned on or off.
  */
-class ConradRelais: public IFrameListener
+class ConradRelais
 {
     public:
         ConradRelais ();

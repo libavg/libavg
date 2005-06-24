@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
+<avg id="mainavgnode" width="640" height="480">
+    <image id="background" x="0" y="0" z="0" href="freidrehen.jpg"/>
+    <image id="blend0" x="20" y="20" z="1" opacity="0.6" 
+            width="100" height="100" href="rgb24.png"/>
+    <image id="blend1" x="20" y="120" z="1" opacity="0.6" 
+            width="100" height="100" href="rgb24.png" blendmode="add"/>
+    <image id="blend2" x="20" y="240" z="1" opacity="0.6" 
+            width="100" height="100" href="rgb24.png" blendmode="min"/>
+    <image id="blend3" x="20" y="360" z="1" opacity="0.6" 
+            width="100" height="100" href="rgb24.png" blendmode="max"/>
+</avg>

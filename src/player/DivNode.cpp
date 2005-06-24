@@ -18,6 +18,12 @@ DivNode::DivNode()
 {
 }
 
+DivNode::DivNode (const xmlNodePtr xmlNode, Container * pParent)
+    : Container(xmlNode, pParent)
+{
+    
+}
+
 DivNode::~DivNode()
 {
 }

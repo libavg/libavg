@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
+<avg width="640" height="480">
+    <words id="terminal" x="10" y="10" parawidth="600" size="12" 
+            font="arial" text="."/>
+</avg>

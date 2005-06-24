@@ -33,7 +33,7 @@ else
     DFB_INCLUDES =
 endif
             
-ALL_H = Player.h IEventSource.h IEventSink.h \
+ALL_H = Player.h IEventSource.h IEventSink.h Excl.h VideoBase.h Video.h\
         IDisplayEngine.h Rect.h Point.h Region.h Node.h \
         ISurface.h FramerateManager.h Container.h \
         MathHelper.h AVGNode.h DivNode.h \
@@ -49,20 +49,13 @@ ALL_H = Player.h IEventSource.h IEventSink.h \
 
 avgdir = $(libdir)/avg
 lib_LTLIBRARIES = libplayer.la
-libplayer_la_SOURCES = Player.cpp \
-        Region.cpp Node.cpp FramerateManager.cpp \
+libplayer_la_SOURCES = Player.cpp Excl.cpp VideoBase.cpp Video.cpp \
+        Region.cpp Node.cpp FramerateManager.cpp FFMpegDecoder.cpp \
         Container.cpp  MathHelper.cpp \
         AVGNode.cpp DivNode.cpp \
         Image.cpp \
         RasterNode.cpp $(GL_SOURCES) $(DFB_SOURCES) \
 		$(ALL_H)
-#		Words.cpp Timeout.cpp\
-#        DebugEventSink.cpp EventDispatcher.cpp MouseEvent.cpp \
-#        Event.cpp KeyEvent.cpp KeyEventFactory.cpp\
-#        VideoBase.cpp \
-#        Video.cpp FFMpegDecoder.cpp \
-#        Excl.cpp PanoImage.cpp \
-#        Camera.cpp $(GL_SOURCES) $(DFB_SOURCES)
 libplayer_ladir=$(includedir)/avg/player
 libplayer_la_HEADERS = $(ALL_H)
 libplayer_la_LIBADD = ../base/libbase.la        

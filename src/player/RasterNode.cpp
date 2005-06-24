@@ -22,6 +22,16 @@ RasterNode::RasterNode ()
 {
 }
 
+RasterNode::RasterNode (const xmlNodePtr xmlNode, Container * pParent)
+    : Node(xmlNode, pParent),
+      m_pSurface(0),
+      m_Angle(0),
+      m_Pivot(-32767, -32767),
+      m_MaxTileSize(PLPoint(-1,-1)),
+      m_sBlendMode("blend")
+{
+}
+
 RasterNode::~RasterNode()
 {
     delete m_pSurface;

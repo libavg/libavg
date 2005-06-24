@@ -11,9 +11,9 @@
 #include "Player.h"
 #include "IDisplayEngine.h"
 
-
 #include "../base/Logger.h"
 #include "../base/Exception.h"
+#include "../base/XMLHelper.h"
 
 #include <paintlib/plpoint.h>
 #include <paintlib/plrect.h>
@@ -42,6 +42,30 @@ Node::Node ()
       m_InitialWidth(0),
       m_InitialHeight(0)
 {
+}
+
+Node::Node (const xmlNodePtr xmlNode, Container * pParent)
+    : m_pParent(pParent),
+      m_pPlayer(0),
+      m_MouseMoveHandler(""),
+      m_MouseButtonUpHandler(""),
+      m_MouseButtonDownHandler(""),
+      m_MouseOverHandler(""),
+      m_MouseOutHandler(""),
+      m_RelViewport(0,0,0,0),
+      m_AbsViewport(0,0,0,0),
+      m_bInitialized(false),
+      m_InitialWidth(0),
+      m_InitialHeight(0)
+{
+    m_ID = getDefaultedStringAttr (xmlNode, "id", "");
+    m_RelViewport.tl.x = getDefaultedDoubleAttr (xmlNode, "x", 0.0);
+    m_RelViewport.tl.y = getDefaultedDoubleAttr (xmlNode, "y", 0.0);
+    m_InitialWidth = getDefaultedDoubleAttr (xmlNode, "width", 0.0);
+    m_InitialHeight = getDefaultedDoubleAttr (xmlNode, "height", 0.0);
+    m_z = getDefaultedIntAttr (xmlNode, "z", 0);
+    m_Opacity = getDefaultedDoubleAttr (xmlNode, "opacity", 1.0);
+    m_bActive = getDefaultedBoolAttr (xmlNode, "active", true);
 }
 
 Node::~Node()
@@ -76,14 +100,29 @@ void Node::initVisible()
     m_bInitialized = true;
 }
 
-const string& Node::getID ()
+const string& Node::getID () const
 {
     return m_ID;
 }
 
-Container* Node::getParent()
-{
-    return m_pParent;
+double Node::getX() const {
+    return m_RelViewport.tl.x;
+}
+
+void Node::setX(double x) {
+    setViewport(x, -32767, -32767, -32767);
+}
+
+double Node::getY() const {
+    return m_RelViewport.tl.y;
+}
+
+void Node::setY(double y) {
+    setViewport(-32767, y, -32767, -32767);
+}
+
+int Node::getZ() const {
+    return m_z;
 }
 
 void Node::setZ(int z)
@@ -97,12 +136,48 @@ void Node::setZ(int z)
     }
 }
 
+double Node::getWidth() const {
+    return getRelViewport().Width();
+}
+
+void Node::setWidth(double width) {
+    setViewport(-32767, -32767, width, -32767);
+}
+
+double Node::getHeight() const {
+    return getRelViewport().Height();
+}
+
+void Node::setHeight(double height) {
+    setViewport(-32767, -32767, -32767, height);
+}
+
+double Node::getOpacity() const {
+    return m_Opacity;
+}
+
+void Node::setOpacity(double opacity) {
+    m_Opacity = opacity;
+    if (m_bActive) {
+        invalidate();
+    }
+}
+
+bool Node::getActive() const {
+    return m_bActive;
+}
+
 void Node::setActive(bool bActive)
 {
     if (bActive != m_bActive) {
         m_bActive = bActive;
         invalidate();
     }
+}
+
+Container* Node::getParent()
+{
+    return m_pParent;
 }
 
 bool Node::isActive()
@@ -209,14 +284,14 @@ void Node::setViewport (double x, double y, double width, double height)
     }
 }
 
-const DRect& Node::getRelViewport ()
+const DRect& Node::getRelViewport () const
 {
 //    cerr << "Node " << m_ID << ": (" << m_RelViewport.tl.x << ", " 
 //            << m_RelViewport.tl.y << ")" << endl;
     return m_RelViewport;
 }
 
-const DRect& Node::getAbsViewport ()
+const DRect& Node::getAbsViewport () const
 {
     return m_AbsViewport;
 }
@@ -250,19 +325,6 @@ void Node::calcAbsViewport()
 int Node::getZ ()
 {
     return m_z;
-}
-
-double Node::getOpacity()
-{
-    return m_Opacity;
-}
-
-void Node::setOpacity(double o)
-{
-    m_Opacity = o;
-    if (m_bActive) {
-        invalidate();
-    }
 }
 
 double Node::getEffectiveOpacity()

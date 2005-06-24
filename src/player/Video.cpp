@@ -3,7 +3,6 @@
 // 
 
 #include "Video.h"
-#include "VideoFactory.h"
 #include "IDisplayEngine.h"
 #include "Player.h"
 #include "FFMpegDecoder.h"
@@ -12,6 +11,7 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
+#include "../base/XMLHelper.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/plpngenc.h>
@@ -32,8 +32,15 @@ Video::Video ()
     : m_Filename(""),
       m_bLoop(false),
       m_pDecoder(0)
- 
 {
+}
+
+Video::Video (const xmlNodePtr xmlNode, Container * pParent)
+    : m_pDecoder(0)
+{
+    m_Filename = getDefaultedStringAttr (xmlNode, "href", "");
+    m_bLoop = getDefaultedBoolAttr (xmlNode, "loop", false);
+    
 }
 
 Video::~Video ()
@@ -43,7 +50,7 @@ Video::~Video ()
     }
 }
 
-int Video::getNumFrames()
+int Video::getNumFrames() const
 {
     if (getState() != Unloaded) {
         return m_pDecoder->getNumFrames();
@@ -54,7 +61,7 @@ int Video::getNumFrames()
     }
 }
 
-int Video::getCurFrame()
+int Video::getCurFrame() const
 {
     if (getState() != Unloaded) {
         return m_CurFrame;
@@ -75,6 +82,11 @@ void Video::seekToFrame(int num)
     }
 }
 
+bool Video::getLoop() const
+{
+    return m_bLoop;
+}
+
 void Video::init (IDisplayEngine * pEngine, Container * pParent, 
         Player * pPlayer)
 {
@@ -86,11 +98,6 @@ void Video::init (IDisplayEngine * pEngine, Container * pParent,
 string Video::getTypeStr ()
 {
     return "Video";
-}
-
-JSFactoryBase* Video::getFactory()
-{
-    return VideoFactory::getInstance();
 }
 
 void Video::seek(int DestFrame) {

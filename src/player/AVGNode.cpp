@@ -5,6 +5,8 @@
 #include "AVGNode.h"
 #include "IDisplayEngine.h"
 
+#include "../base/XMLHelper.h"
+
 #include <paintlib/plpoint.h>
 
 #include <iostream>
@@ -16,6 +18,12 @@ namespace avg {
 AVGNode::AVGNode()
     : m_bEnableCrop(true)
 {
+}
+
+AVGNode::AVGNode (const xmlNodePtr xmlNode)
+    : DivNode(xmlNode, 0)
+{
+    m_bEnableCrop = getDefaultedBoolAttr (xmlNode, "enablecrop", true);
 }
 
 AVGNode::~AVGNode()

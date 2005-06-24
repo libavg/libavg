@@ -128,14 +128,12 @@ void Player::loadFile (const std::string& filename)
         }
 
         // Construct path.
-        string sCurFilename;
-
-        // TODO: Read current script file dir into sCurFilename
-//        getFileLine(JSContextWrapper::getContext(), 0, 0, sCurFilename, 
-//                lineno, 1);
-        string Path = getPath(sCurFilename.c_str());
-        string RealFilename = Path+filename;
-
+        char szBuf[1024];
+        getcwd(szBuf, 1024);
+        m_CurDirName = string(szBuf)+"/";
+        string RealFilename = m_CurDirName+filename;
+        m_CurDirName = RealFilename.substr(0, RealFilename.rfind('/')+1);
+        
         xmlPedanticParserDefault(1);
         xmlDoValidityCheckingDefaultValue =0;
 
@@ -156,7 +154,6 @@ void Player::loadFile (const std::string& filename)
             exit(-1);
         }
 
-        m_CurDirName = RealFilename.substr(0,RealFilename.rfind('/')+1);
         m_pRootNode = dynamic_cast<AVGNode*>
             (createNodeFromXml(doc, xmlDocGetRootElement(doc), 0));
         initDisplay(xmlDocGetRootElement(doc));
@@ -188,13 +185,13 @@ void Player::play (double framerate)
         m_bStopping = false;
 
         m_pDisplayEngine->render(m_pRootNode, m_pFramerateManager, true);
-        
+        sleep(1);
 //        setPriority();
         
         Profiler::get().start();
-        while (!m_bStopping) {
-            doFrame();
-        }
+//        while (!m_bStopping) {
+//            doFrame();
+//        }
         // Kill all timeouts.
 /*        
         vector<Timeout*>::iterator it;
@@ -207,7 +204,7 @@ void Player::play (double framerate)
 
 //        JSFactoryBase::removeParent(m_pRootNode->getJSPeer(), getJSPeer());
         m_pRootNode = 0;
-        
+           
         delete m_pFramerateManager;
         m_IDMap.clear();
     } catch  (Exception& ex) {
@@ -474,29 +471,33 @@ Node * Player::createNodeFromXml (const string& sXML)
 Node * Player::createNodeFromXml (const xmlDocPtr xmlDoc, 
         const xmlNodePtr xmlNode, Container * pParent)
 {
-//    const char * nodeType = (const char *)xmlNode->name;
+    const char * nodeType = (const char *)xmlNode->name;
     Node * curNode = 0;
-/*    
+    
     string id = getDefaultedStringAttr (xmlNode, "id", "");
     if (!strcmp (nodeType, "avg")) {
-        curNode = AVGNodeFactory::createFromXML(xmlNode, this);
+        curNode = new AVGNode(xmlNode);
     } else if (!strcmp (nodeType, "div")) {
-        curNode = DivNodeFactory<DivNode>::createFromXML(xmlNode, pParent);
+        curNode = new DivNode(xmlNode, pParent);
     } else if (!strcmp (nodeType, "image")) {
-        curNode = ImageFactory::createFromXML(xmlNode, pParent);
+        curNode = new Image(xmlNode, pParent);
+/*
     } else if (!strcmp (nodeType, "words")) {
         curNode = WordsFactory::createFromXML(xmlNode, pParent);
         string s = getXmlChildrenAsString(xmlDoc, xmlNode);
         dynamic_cast<Words*>(curNode)->initText(s);
+*/        
     } else if (!strcmp (nodeType, "video")) {
-        curNode = VideoFactory::createFromXML(xmlNode, pParent);
+        curNode = new Video(xmlNode, pParent);
     } else if (!strcmp (nodeType, "excl")) {
-        curNode = ExclFactory::createFromXML(xmlNode, pParent);
+        curNode = new Excl(xmlNode, pParent);
+/*       
     } else if (!strcmp (nodeType, "camera")) {
         curNode = CameraFactory::createFromXML(xmlNode, pParent);
     }
     else if (!strcmp (nodeType, "panoimage")) {
         curNode = PanoImageFactory::createFromXML(xmlNode, pParent);
+*/        
     } 
     else if (!strcmp (nodeType, "text") || 
                !strcmp (nodeType, "comment")) {
@@ -519,7 +520,6 @@ Node * Player::createNodeFromXml (const xmlDocPtr xmlDoc,
             curXmlChild = curXmlChild->next;
         }
     }
-*/    
     return curNode;
 }
 

@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
+<avg id="mainavgnode" width="640" height="480">
+  <div id="nestedavg" x="100" y="100" z="2" opacity="1" 
+       width="400" height="300">
+    <div id="nestedavg2" x="0" y="0" z="2" opacity="1">
+      <div id="nestedavg3" x="0" y="0" z="2" opacity="1">
+        <image id="img" x="100" y="50" z="1" 
+                href="rgb24.png"/>
+      </div>
+    </div>
+  </div>
+  <image id="bkgd" x="0" y="0" z="0" href="freidrehen.jpg"/>
+</avg>

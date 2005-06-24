@@ -17,10 +17,13 @@ class Image : public RasterNode
 {
 	public:
         Image ();
+        Image (const xmlNodePtr xmlNode, Container * pParent);
         virtual ~Image ();
-        
         virtual void init (IDisplayEngine * pEngine, 
                 Container * pParent, Player * pPlayer);
+
+        const std::string& getHRef() const;
+        
         virtual void render (const DRect& Rect);
         virtual bool obscures (const DRect& Rect, int z);
         virtual std::string getTypeStr ();

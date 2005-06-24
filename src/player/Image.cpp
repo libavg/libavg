@@ -9,6 +9,7 @@
 
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
+#include "../base/XMLHelper.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/planybmp.h>
@@ -30,6 +31,15 @@ Image::Image ()
     : m_Hue(-1),
       m_Saturation(-1)
 {
+}
+
+Image::Image (const xmlNodePtr xmlNode, Container * pParent)
+    : RasterNode(xmlNode, pParent)
+{
+    m_href = getRequiredStringAttr (xmlNode, "href");
+    m_Hue = getDefaultedIntAttr (xmlNode, "hue", -1);
+    m_Saturation = getDefaultedIntAttr (xmlNode, "saturation", -1);
+    
 }
 
 Image::~Image ()
@@ -61,6 +71,10 @@ void Image::init (IDisplayEngine * pEngine, Container * pParent,
     if (pEngine->hasRGBOrdering()) {
         PLFilterFlipRGB().ApplyInPlace(getSurface()->getBmp());
     }
+}
+
+const std::string& Image::getHRef() const {
+    return m_href;
 }
 
 static ProfilingZone RenderProfilingZone("  Image::render");

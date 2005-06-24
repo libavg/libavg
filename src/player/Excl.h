@@ -15,6 +15,7 @@ class Excl : public Container
 {
     public:
         Excl ();
+        Excl (const xmlNodePtr xmlNode, Container * pParent);
         virtual ~Excl ();
 
         virtual std::string dump (int indent = 0);
@@ -24,7 +25,7 @@ class Excl : public Container
         virtual const DRect& getRelViewport();
         virtual const DRect& getAbsViewport();
 
-        virtual int getActiveChild();
+        virtual int getActiveChild() const;
         virtual void setActiveChild(int activeChild);
 
         std::string getTypeStr ();

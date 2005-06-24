@@ -20,7 +20,6 @@ namespace avg {
 class VideoBase : public RasterNode
 {
     public:
-        VideoBase ();
         virtual ~VideoBase ();
         
         virtual void init (IDisplayEngine * pEngine, Container * pParent, 
@@ -37,9 +36,11 @@ class VideoBase : public RasterNode
         virtual std::string dump (int indent = 0);
 
     protected:        
+        VideoBase ();
+        VideoBase (const xmlNodePtr xmlNode, Container * pParent);
         virtual DPoint getPreferredMediaSize();
         typedef enum VideoState {Unloaded, Paused, Playing};
-        virtual VideoState getState();
+        virtual VideoState getState() const;
         void setFrameAvailable(bool bAvailable);
         void changeState(VideoState NewState);
         int getMediaWidth();

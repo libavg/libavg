@@ -16,6 +16,7 @@ class AVGNode : public DivNode
 {
 	public:
         AVGNode ();
+        AVGNode (const xmlNodePtr xmlNode);
         virtual ~AVGNode ();
 
         virtual std::string getTypeStr ();
