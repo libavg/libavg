@@ -97,6 +97,14 @@ double getDefaultedDoubleAttr (const xmlNodePtr& xmlNode,
     return RVal;
 }
 
+double getRequiredDoubleAttr (const xmlNodePtr& xmlNode, 
+       const char * attr)
+{
+    double RVal;
+    xmlAttrToDouble(xmlNode, attr, &RVal);
+    return RVal;
+}
+
 string getDefaultedStringAttr (const xmlNodePtr& xmlNode, 
        const char * attr, const string & def)
 {

@@ -18,7 +18,6 @@ class RasterNode: public Node
         virtual ~RasterNode ();
         void initVisible();
         
-        // JS interface
         void setAngle(double Angle);
         void setPivotX(double Pivotx);
         void setPivotY(double Pivoty);

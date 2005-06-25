@@ -27,6 +27,11 @@ class Video : public VideoBase
         virtual void init (IDisplayEngine * pEngine, Container * pParent, 
                 Player * pPlayer);
 
+        const std::string& getHRef() const
+        {
+            return m_Filename;
+        }
+        
         int getNumFrames() const;
         int getCurFrame() const;
         void seekToFrame(int num);

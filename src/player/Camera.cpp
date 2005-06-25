@@ -1,12 +1,11 @@
 //
 // $Id$
-// 
-// The 1394-specific code here was adapted from 
+//
+// The 1394-specific code here was adapted from
 // libdc1394/examples/grab_color_image.c and
 // dc1394_multiview.c
 
 #include "Camera.h"
-#include "CameraFactory.h"
 #include "IDisplayEngine.h"
 #include "Player.h"
 #include "Container.h"
@@ -17,6 +16,7 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
+#include "../base/XMLHelper.h"
 
 #include <paintlib/plbitmap.h>
 #include <paintlib/plpngenc.h>
@@ -62,11 +62,36 @@ Camera::Camera ()
 {
 }
 
+Camera::Camera (const xmlNodePtr xmlNode, Container * pParent)
+    : VideoBase(xmlNode, pParent),
+#ifdef AVG_ENABLE_1394
+      m_sDevice("Default"),
+      m_FrameRate(15),
+      m_sMode("640x480_RGB"),
+      m_FWHandle(0)
+#else
+      m_sDevice("Camera disabled"),
+      m_FrameRate(15),
+      m_sMode("---")
+#endif
+{
+    m_sDevice = getDefaultedStringAttr (xmlNode, "device", "Default");
+    m_FrameRate = getDefaultedDoubleAttr (xmlNode, "framerate", 15);
+    m_sMode = getDefaultedStringAttr (xmlNode, "mode", "640x480_RGB");
+    setFeature ("brightness", getDefaultedIntAttr(xmlNode, "brightness", -1));
+    setFeature ("exposure", getDefaultedIntAttr(xmlNode, "exposure", -1));
+    setFeature ("sharpness", getDefaultedIntAttr(xmlNode, "sharpness", -1));
+    setFeature ("saturation", getDefaultedIntAttr(xmlNode, "saturation", -1));
+    setFeature ("gamma", getDefaultedIntAttr(xmlNode, "gamma", -1));
+    setFeature ("shutter", getDefaultedIntAttr(xmlNode, "shutter", -1));
+    setFeature ("gain", getDefaultedIntAttr(xmlNode, "gain", -1));
+}
+
 Camera::~Camera ()
 {
 }
 
-void Camera::init (IDisplayEngine * pEngine, Container * pParent, 
+void Camera::init (IDisplayEngine * pEngine, Container * pParent,
         Player * pPlayer)
 {
 #ifdef AVG_ENABLE_1394
@@ -90,7 +115,7 @@ void Camera::init (IDisplayEngine * pEngine, Container * pParent,
         m_Mode = MODE_160x120_YUV444;
     } else if (sMode == "320x240_YUV422") {
         m_Mode = MODE_320x240_YUV422;
-    } else 
+    } else
 */
     if (m_sMode == "640x480_YUV411") {
         m_Mode = MODE_640x480_YUV411;
@@ -105,10 +130,10 @@ void Camera::init (IDisplayEngine * pEngine, Container * pParent,
     }*/ else {
         fatalError ("Unsupported or illegal value for camera mode.");
     }
-#else    
+#else
     AVG_TRACE(Logger::ERROR,
             "Unable to setup camera. Camera support not compiled.");
-#endif    
+#endif
     VideoBase::init(pEngine, pParent, pPlayer);
 }
 
@@ -117,12 +142,7 @@ string Camera::getTypeStr ()
     return "Camera";
 }
 
-JSFactoryBase* Camera::getFactory()
-{
-    return CameraFactory::getInstance();
-}
-
-unsigned int Camera::getFeature (const std::string& sFeature)
+unsigned int Camera::getFeature (const std::string& sFeature) const
 {
 #ifdef AVG_ENABLE_1394
     int FeatureID = getFeatureID(sFeature);
@@ -144,12 +164,12 @@ void Camera::setFeature (const std::string& sFeature, int Value)
                 dc1394_auto_on_off(m_FWHandle, m_Camera.node, FeatureID, 1);
             } else {
                 dc1394_auto_on_off(m_FWHandle, m_Camera.node, FeatureID, 0);
-                dc1394_set_feature_value(m_FWHandle, m_Camera.node, FeatureID, 
+                dc1394_set_feature_value(m_FWHandle, m_Camera.node, FeatureID,
                         (unsigned int)Value);
             }
         }
     }
-#endif    
+#endif
 }
 
 double Camera::getFPS()
@@ -159,32 +179,32 @@ double Camera::getFPS()
 
 void Camera::open(int* pWidth, int* pHeight)
 {
-#ifdef AVG_ENABLE_1394
     // TODO: Support other resolutions.
     *pWidth=640;
     *pHeight=480;
 
+#ifdef AVG_ENABLE_1394
     m_FWHandle = raw1394_new_handle();
     if (m_FWHandle==NULL) {
         AVG_TRACE(Logger::ERROR,
-                "Unable to aquire a raw1394 handle (Node: " 
+                "Unable to aquire a raw1394 handle (Node: "
                 << getID() << ").");
         AVG_TRACE(Logger::ERROR, "Please check");
-        AVG_TRACE(Logger::ERROR, 
+        AVG_TRACE(Logger::ERROR,
                 "  - if the kernel modules `ieee1394',`raw1394' and `ohci1394' are loaded");
-        AVG_TRACE(Logger::ERROR, 
+        AVG_TRACE(Logger::ERROR,
                 "  - if you have read/write access to /dev/raw1394.");
         // TODO: Disable node instead of exit(-1).
         exit(-1);
     }
-    
+
     /* get the number of ports (cards) */
     struct raw1394_portinfo ports[MAX_PORTS];
     int numPorts = 0;
     numPorts = raw1394_get_port_info(m_FWHandle, ports, numPorts);
     raw1394_destroy_handle(m_FWHandle);
     m_FWHandle = 0;
-    
+
     bool bFound = false;
     int j;
     for (j = 0; j < MAX_RESETS && !bFound; j++) {
@@ -198,7 +218,7 @@ void Camera::open(int* pWidth, int* pHeight)
     } /* next reset retry */
 
     if (!bFound) {
-        AVG_TRACE(Logger::WARNING, 
+        AVG_TRACE(Logger::WARNING,
                 "No firewire cameras found (Node: " + getID() + ").");
         m_bCameraAvailable = false;
         if (m_FWHandle != 0) {
@@ -218,12 +238,12 @@ void Camera::open(int* pWidth, int* pHeight)
     int err;
     err = dc1394_get_iso_channel_and_speed(m_FWHandle,
                 m_Camera.node, &channel, &speed);
-    checkDC1394Error(err, 
+    checkDC1394Error(err,
             "Unable to get the firewire camera iso channel number.");
 
     err = dc1394_get_camera_feature_set(m_FWHandle,
                 m_Camera.node, &m_FeatureSet);
-    checkDC1394Error(err, 
+    checkDC1394Error(err,
             "Unable to get firewire camera feature set.");
 //    dumpCameraInfo();
 
@@ -232,9 +252,9 @@ void Camera::open(int* pWidth, int* pHeight)
                 SPEED_400, m_FrameRateConstant, NUM_BUFFERS, DROP_FRAMES, 0,
                 &m_Camera);
     if (err != DC1394_SUCCESS) {
-        AVG_TRACE(Logger::ERROR, 
+        AVG_TRACE(Logger::ERROR,
                 "Unable to setup camera. Make sure that");
-        AVG_TRACE(Logger::ERROR, 
+        AVG_TRACE(Logger::ERROR,
                 "video mode (" << m_sMode << ") and framerate (" <<
                 m_FrameRate << ") are");
         AVG_TRACE(Logger::ERROR, "supported by your camera");
@@ -242,20 +262,20 @@ void Camera::open(int* pWidth, int* pHeight)
         dc1394_destroy_handle(m_FWHandle);
         exit(-1);
     }
-    
+
     err = dc1394_start_iso_transmission(m_FWHandle, m_Camera.node);
     checkDC1394Error(err, "Unable to start camera iso transmission");
 #endif
 }
 
 #ifdef AVG_ENABLE_1394
-bool Camera::findCameraOnPort(int port, raw1394handle_t& FWHandle) 
+bool Camera::findCameraOnPort(int port, raw1394handle_t& FWHandle)
 {
     bool bFound = false;
     FWHandle = dc1394_create_handle(port);
     if (FWHandle == NULL) {
-        AVG_TRACE(Logger::ERROR, 
-                "Unable to aquire a raw1394 handle for port " 
+        AVG_TRACE(Logger::ERROR,
+                "Unable to aquire a raw1394 handle for port "
                 << port << " (Node: " << getID() << ").");
         // TODO: Disable node instead of exit(-1).
         exit(-1);
@@ -270,15 +290,15 @@ bool Camera::findCameraOnPort(int port, raw1394handle_t& FWHandle)
         /* camera can not be root--highest order node */
         if (m_Camera.node == raw1394_get_nodecount(FWHandle)-1) {
             /* reset and retry if root */
-            AVG_TRACE(Logger::WARNING, 
-                    "Resetting firewire bus for camera support... (Node: " 
+            AVG_TRACE(Logger::WARNING,
+                    "Resetting firewire bus for camera support... (Node: "
                     << getID() << ").");
             raw1394_reset_bus(FWHandle);
             sleep(2);
             bFound = false;
         }
         dc1394_free_camera_nodes(camera_nodes);
-    } 
+    }
     return bFound;
 }
 #endif
@@ -302,7 +322,7 @@ void Camera::checkDC1394Error(int Code, const string & sMsg)
     }
 }
 
-void Camera::fatalError(const string & sMsg) 
+void Camera::fatalError(const string & sMsg)
 {
     AVG_TRACE(Logger::ERROR, sMsg);
     dc1394_destroy_handle(m_FWHandle);
@@ -342,7 +362,7 @@ bool Camera::renderToSurface(ISurface * pSurface)
                 case MODE_640x480_RGB:
                     {
                         if (pOGLSurface) {
-                            pOGLSurface->createFromBits(640, 480, 
+                            pOGLSurface->createFromBits(640, 480,
                                     PLPixelFormat::R8G8B8,
                                     (PLBYTE*)(m_Camera.capture_buffer), 640*3);
                         } else {
@@ -373,7 +393,7 @@ bool Camera::renderToSurface(ISurface * pSurface)
                     }
                     break;
                 default:
-                    AVG_TRACE(Logger::WARNING, 
+                    AVG_TRACE(Logger::WARNING,
                             "Illegal Mode in renderToBmp");
                     break;
             }
@@ -391,8 +411,8 @@ bool Camera::renderToSurface(ISurface * pSurface)
                         "Camera: Frame capture failed.");
             }
         }
-    } 
-    if (m_LastFrameTime != 0 && 
+    }
+    if (m_LastFrameTime != 0 &&
         TimeSource::get()->getCurrentTicks() > m_LastFrameTime+3000)
     {
         AVG_TRACE(Logger::WARNING,
@@ -403,8 +423,8 @@ bool Camera::renderToSurface(ISurface * pSurface)
         AVG_TRACE(Logger::WARNING,
                 "Camera: Camera reinit done.");
     }
+#endif
     return true;
-#endif    
 }
 
 bool Camera::canRenderToBackbuffer(int BitsPerPixel)
@@ -442,19 +462,19 @@ inline void YUVtoBGR24Pixel(PLPixel24* pDest, PLBYTE y, PLBYTE u, PLBYTE v)
                   "imul $0x010101, %%eax;  \n\t"
                   "mov %0, %%ebx;            \n\t"
                   "movl %%eax, (%%ebx)       \n\t"
-                  : 
+                  :
                   :"m"(pDest), "m"(y) // , "m"(byte2rgba_factor)
                   : "eax", "ebx", "memory");
-*/                  
+*/
 }
 
 void Camera::YUV411toBGR24Line(PLBYTE* pSrc, int y, PLPixel24 * pDestLine)
 {
     PLPixel24 * pDestPixel = pDestLine;
     int width = getMediaWidth();
-    // We need the previous and next values to interpolate between the 
+    // We need the previous and next values to interpolate between the
     // sampled u and v values.
-    PLBYTE v = *(pSrc+y*(width*3)/2+3); 
+    PLBYTE v = *(pSrc+y*(width*3)/2+3);
     PLBYTE v0; // Previous v
     PLBYTE v1; // Next v;
     PLBYTE u;
@@ -484,7 +504,7 @@ void Camera::YUV411toBGR24Line(PLBYTE* pSrc, int y, PLPixel24 * pDestLine)
         pSrcPixels+=6;
         pDestPixel+=4;
     }
-    
+
 }
 
 void Camera::YUV411toBGR24(PLBYTE* pSrc, PLBmpBase * pBmp)
@@ -508,21 +528,21 @@ void Camera::dumpCameraInfo()
         // TODO: This prints the wrong UUID. Why?
         unsigned long val0 = info.euid_64 & 0xffffffff;
         unsigned long val1 = (info.euid_64 >>32) & 0xffffffff;
-        AVG_TRACE(Logger::CONFIG, "  UUID: 0x" 
+        AVG_TRACE(Logger::CONFIG, "  UUID: 0x"
             << ios::hex << val1 << val0 << ios::dec);
-         */                        
+         */
         AVG_TRACE(Logger::CONFIG, "  Vendor: " << info.vendor);
         AVG_TRACE(Logger::CONFIG, "  Model: " << info.model);
 //        dc1394_print_camera_info(&info);
     } else {
-        AVG_TRACE(Logger::ERROR, 
+        AVG_TRACE(Logger::ERROR,
                 "Unable to get firewire camera info.");
     }
     // TODO: do this using AVG_TRACE
     dc1394_print_feature_set(&m_FeatureSet);
 }
- 
-int Camera::getFeatureID(const std::string& sFeature)
+
+int Camera::getFeatureID(const std::string& sFeature) const
 {
     if (sFeature == "brightness") {
         return FEATURE_BRIGHTNESS;
@@ -585,12 +605,12 @@ void Camera::initYUV2RGBConversionMatrix()
         v2gTable[comp] = -(comp-128)*208;
         v2rTable[comp] = (comp-128)*409;
     }
-    
+
 /*
          r = (256 * y            + 351 * cr) >> 8 + 16;
          g = (256 * y -  86 * cb - 179 * cr) >> 8 + 16;
          b = (256 * y + 444 * cb           ) >> 8 + 16;
-*/         
+*/
     // This is RGB235 mode.
 /*
     for (int comp=0; comp<256; comp++) {
@@ -600,7 +620,7 @@ void Camera::initYUV2RGBConversionMatrix()
         v2gTable[comp] = -(comp-128)*179;
         v2rTable[comp] = (comp-128)*351;
     }
-*/    
+*/
 }
 #endif
 

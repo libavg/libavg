@@ -1,14 +1,14 @@
 //
 // $Id$
-// 
+//
 
 #include "Words.h"
-#include "WordsFactory.h"
 #include "IDisplayEngine.h"
 #include "ISurface.h"
 
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
+#include "../base/XMLHelper.h"
 
 #include <paintlib/Filter/plfilterfill.h>
 #include <paintlib/plpixel8.h>
@@ -41,6 +41,23 @@ Words::Words ()
 {
 }
 
+Words::Words (const xmlNodePtr xmlNode, Container * pParent)
+    : RasterNode(xmlNode, pParent)
+{
+    m_FontName = getDefaultedStringAttr (xmlNode, "font", "arial");
+    m_Text = getDefaultedStringAttr (xmlNode, "text", "");
+    m_ColorName = getDefaultedStringAttr (xmlNode, "color", "FFFFFF");
+    m_Size = getDefaultedIntAttr (xmlNode, "size", 15);
+    m_ParaWidth = getDefaultedIntAttr (xmlNode, "parawidth", -1);
+    m_Indent = getDefaultedIntAttr (xmlNode, "indent", 0);
+    m_LineSpacing = getDefaultedDoubleAttr (xmlNode, "linespacing", -1);
+    setAlignment(getDefaultedStringAttr (xmlNode, "alignment", "left"));
+    setWeight(getDefaultedStringAttr (xmlNode, "weight", "normal"));
+    m_bItalic = getDefaultedBoolAttr (xmlNode, "italic", false);
+    setStretch(getDefaultedStringAttr (xmlNode, "stretch", "normal"));
+    m_bSmallCaps = getDefaultedBoolAttr (xmlNode, "smallcaps", false);
+}
+
 Words::~Words ()
 {
     if (m_pSurface) {
@@ -58,7 +75,7 @@ void Words::initText(const string& sText)
     }
 }
 
-void Words::init (IDisplayEngine * pEngine, Container * pParent, 
+void Words::init (IDisplayEngine * pEngine, Container * pParent,
            Player * pPlayer)
 {
     Node::init(pEngine, pParent, pPlayer);
@@ -66,13 +83,13 @@ void Words::init (IDisplayEngine * pEngine, Container * pParent,
     m_pSurface = getEngine()->createSurface();
     m_pContext = pango_ft2_get_context(72, 72);
 
-    pango_context_set_language(m_pContext, 
+    pango_context_set_language(m_pContext,
             pango_language_from_string ("en_US"));
     pango_context_set_base_dir(m_pContext, PANGO_DIRECTION_LTR);
     m_pFontDescription = pango_font_description_new();
 }
 
-void Words::initVisible () 
+void Words::initVisible ()
 {
     Node::initVisible();
     drawString();
@@ -83,48 +100,7 @@ string Words::getTypeStr ()
     return "Words";
 }
 
-JSFactoryBase* Words::getFactory()
-{
-    return WordsFactory::getInstance();
-}
-
-void Words::setFont(const string& sName)
-{
-    m_FontName = sName;
-}
-
-void Words::setText(const string& sText) 
-{
-    m_Text = sText;
-}
-
-void Words::setColor(const string& sColor) 
-{
-    m_ColorName = sColor;
-    m_Color = colorStringToColor(m_ColorName);
-}
-
-void Words::setSize(double Size)
-{
-    m_Size = Size;
-}
-
-void Words::setParaWidth(int ParaWidth)
-{
-    m_ParaWidth = ParaWidth;
-}
-
-void Words::setIndent(int Indent)
-{
-    m_Indent = Indent;
-}
-
-void Words::setLineSpacing(double LineSpacing)
-{
-    m_LineSpacing = LineSpacing;
-}
-
-bool Words::setAlignment(const string& sAlign)
+void Words::setAlignment(const string& sAlign)
 {
     if (sAlign == "left") {
         m_Alignment = PANGO_ALIGN_LEFT;
@@ -133,17 +109,11 @@ bool Words::setAlignment(const string& sAlign)
     } else if (sAlign == "right") {
         m_Alignment = PANGO_ALIGN_RIGHT;
     } else {
-        return false;
+        // TODO: Throw exception.
     }
-    return true;
 }
 
-void Words::setItalic(bool bItalic)
-{
-    m_bItalic = bItalic;
-}
-
-bool Words::setWeight(const string& sWeight)
+void Words::setWeight(const string& sWeight)
 {
     if (sWeight == "ultralight") {
         m_Weight = PANGO_WEIGHT_ULTRALIGHT;
@@ -151,6 +121,8 @@ bool Words::setWeight(const string& sWeight)
         m_Weight = PANGO_WEIGHT_LIGHT;
     } else if (sWeight == "normal") {
         m_Weight = PANGO_WEIGHT_NORMAL;
+    } else if (sWeight == "semibold") {
+        m_Weight = PANGO_WEIGHT_SEMIBOLD;
     } else if (sWeight == "bold") {
         m_Weight = PANGO_WEIGHT_BOLD;
     } else if (sWeight == "ultrabold") {
@@ -158,17 +130,11 @@ bool Words::setWeight(const string& sWeight)
     } else if (sWeight == "heavy") {
         m_Weight = PANGO_WEIGHT_HEAVY;
     } else {
-        return false;
+        // TODO: Throw exception.
     }
-    return true;
 }
 
-void Words::setSmallCaps(bool bSmallCaps)
-{
-    m_bSmallCaps = bSmallCaps;
-}
-
-bool Words::setStretch(const string& sStretch)
+void Words::setStretch(const string& sStretch)
 {
     if (sStretch == "ultracondensed") {
         m_Stretch = PANGO_STRETCH_ULTRA_CONDENSED;
@@ -191,12 +157,11 @@ bool Words::setStretch(const string& sStretch)
     } else if (sStretch == "ultraexpanded") {
         m_Stretch = PANGO_STRETCH_ULTRA_EXPANDED;
     } else {
-        return false;
+        // TODO: Throw exception.
     }
-    return true;
 }
-    
-string Words::getAlignment()
+
+string Words::getAlignment() const
 {
     switch(m_Alignment) {
         case PANGO_ALIGN_LEFT:
@@ -209,7 +174,7 @@ string Words::getAlignment()
     return "";
 }
 
-string Words::getWeight()
+string Words::getWeight() const
 {
     switch (m_Weight) {
         case PANGO_WEIGHT_ULTRALIGHT:
@@ -218,6 +183,8 @@ string Words::getWeight()
             return "light";
         case PANGO_WEIGHT_NORMAL:
             return "normal";
+        case PANGO_WEIGHT_SEMIBOLD:
+            return "semibold";
         case PANGO_WEIGHT_BOLD:
             return "bold";
         case PANGO_WEIGHT_ULTRABOLD:
@@ -228,7 +195,7 @@ string Words::getWeight()
     return "";
 }
 
-string Words::getStretch()
+string Words::getStretch() const
 {
     switch (m_Stretch) {
         case PANGO_STRETCH_ULTRA_CONDENSED:
@@ -264,17 +231,17 @@ void Words::drawString()
     if (m_Text.length() == 0) {
         m_StringExtents = DPoint(0,0);
     } else {
-        pango_font_description_set_family(m_pFontDescription, 
+        pango_font_description_set_family(m_pFontDescription,
                 g_strdup(m_FontName.c_str()));
-        pango_font_description_set_style(m_pFontDescription, 
+        pango_font_description_set_style(m_pFontDescription,
                 m_bItalic?PANGO_STYLE_ITALIC:PANGO_STYLE_NORMAL);
-        pango_font_description_set_variant(m_pFontDescription, 
+        pango_font_description_set_variant(m_pFontDescription,
                 m_bSmallCaps?PANGO_VARIANT_SMALL_CAPS:PANGO_VARIANT_NORMAL);
-        pango_font_description_set_weight(m_pFontDescription, 
+        pango_font_description_set_weight(m_pFontDescription,
                 m_Weight);
-        pango_font_description_set_stretch(m_pFontDescription, 
+        pango_font_description_set_stretch(m_pFontDescription,
                 m_Stretch);
-        pango_font_description_set_size(m_pFontDescription, 
+        pango_font_description_set_size(m_pFontDescription,
                 (int)(m_Size * PANGO_SCALE));
 
         pango_context_set_font_description(m_pContext, m_pFontDescription);
@@ -282,7 +249,7 @@ void Words::drawString()
         PangoRectangle logical_rect;
         PangoLayout *layout = pango_layout_new (m_pContext);
         pango_layout_set_markup(layout, m_Text.c_str(), m_Text.length());
-        
+
         pango_layout_set_alignment (layout, m_Alignment);
         pango_layout_set_width (layout, m_ParaWidth * PANGO_SCALE);
 
@@ -295,8 +262,8 @@ void Words::drawString()
         if (m_ParaWidth == -1) {
             m_StringExtents.x = PANGO_PIXELS(logical_rect.width);
         }
-        m_pSurface->create((int)m_StringExtents.x, (int)m_StringExtents.y, 
-                PLPixelFormat::L8); 
+        m_pSurface->create((int)m_StringExtents.x, (int)m_StringExtents.y,
+                PLPixelFormat::L8);
 
         PLBmpBase * pBmp = m_pSurface->getBmp();
         PLFilterFill<PLPixel8>(0).ApplyInPlace(pBmp);
@@ -327,8 +294,8 @@ void Words::render(const DRect& Rect)
     if (m_Text.length() != 0 && getEffectiveOpacity() > 0.001) {
         bool bVisible = getEngine()->pushClipRect(getVisibleRect(), false);
         if (bVisible) {
-            getEngine()->blta8(m_pSurface, &getAbsViewport(), 
-                    getEffectiveOpacity(), m_Color, getAngle(), 
+            getEngine()->blta8(m_pSurface, &getAbsViewport(),
+                    getEffectiveOpacity(), m_Color, getAngle(),
                     getPivot(), getBlendMode());
         }
         getEngine()->popClipRect();
@@ -336,7 +303,7 @@ void Words::render(const DRect& Rect)
 }
 
 PLPixel32 Words::colorStringToColor(const string & colorString)
-{   
+{
     int r,g,b;
     sscanf(colorString.c_str(), "%2x%2x%2x", &r, &g, &b);
     return PLPixel32(r,g,b);

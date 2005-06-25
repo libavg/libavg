@@ -185,10 +185,10 @@ void Player::play (double framerate)
         m_bStopping = false;
 
         m_pDisplayEngine->render(m_pRootNode, m_pFramerateManager, true);
-        sleep(1);
 //        setPriority();
         
         Profiler::get().start();
+        sleep(1);
 //        while (!m_bStopping) {
 //            doFrame();
 //        }
@@ -481,23 +481,19 @@ Node * Player::createNodeFromXml (const xmlDocPtr xmlDoc,
         curNode = new DivNode(xmlNode, pParent);
     } else if (!strcmp (nodeType, "image")) {
         curNode = new Image(xmlNode, pParent);
-/*
     } else if (!strcmp (nodeType, "words")) {
-        curNode = WordsFactory::createFromXML(xmlNode, pParent);
+        curNode = new Words(xmlNode, pParent);
         string s = getXmlChildrenAsString(xmlDoc, xmlNode);
         dynamic_cast<Words*>(curNode)->initText(s);
-*/        
     } else if (!strcmp (nodeType, "video")) {
         curNode = new Video(xmlNode, pParent);
     } else if (!strcmp (nodeType, "excl")) {
         curNode = new Excl(xmlNode, pParent);
-/*       
     } else if (!strcmp (nodeType, "camera")) {
-        curNode = CameraFactory::createFromXML(xmlNode, pParent);
+        curNode = new Camera(xmlNode, pParent);
     }
     else if (!strcmp (nodeType, "panoimage")) {
-        curNode = PanoImageFactory::createFromXML(xmlNode, pParent);
-*/        
+        curNode = new PanoImage(xmlNode, pParent);
     } 
     else if (!strcmp (nodeType, "text") || 
                !strcmp (nodeType, "comment")) {

@@ -12,7 +12,7 @@
 
 namespace avg {
 
-class Node
+class Video: public VideoBase
 {
     public:
         int getNumFrames() const;

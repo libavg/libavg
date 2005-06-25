@@ -21,6 +21,7 @@ class PanoImage : public Node
 {
 	public:
         PanoImage ();
+        PanoImage (const xmlNodePtr xmlNode, Container * pParent);
         virtual ~PanoImage ();
         
         virtual void init (IDisplayEngine * pEngine, 
@@ -28,6 +29,17 @@ class PanoImage : public Node
         virtual void render (const DRect& Rect);
         virtual bool obscures (const DRect& Rect, int z);
         virtual std::string getTypeStr ();
+
+        const std::string& getFilename () const;
+        double getSensorWidth () const;
+        double getSensorHeight () const;
+        double getFocalLength () const;
+        void setFocalLength (double focalLength);
+        int getHue () const;
+        int getSaturation () const;
+        double getRotation () const;
+        void setRotation (double rotation);
+        double getMaxRotation () const;
 
     protected:        
         virtual DPoint getPreferredMediaSize();

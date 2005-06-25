@@ -1,6 +1,6 @@
 //
 // $Id$
-// 
+//
 
 #ifndef _XMLHelper_H_
 #define _XMLHelper_H_
@@ -22,22 +22,25 @@ void xmlAttrToDouble(const xmlNodePtr& xmlNode, const char * attr,
 void xmlAttrToString(const xmlNodePtr& xmlNode, const char * attr,
         std::string * pString);
 
-std::string getXmlChildrenAsString(const xmlDocPtr xmlDoc, 
+std::string getXmlChildrenAsString(const xmlDocPtr xmlDoc,
         const xmlNodePtr& xmlNode);
 
-bool getDefaultedBoolAttr (const xmlNodePtr& xmlNode, 
+bool getDefaultedBoolAttr (const xmlNodePtr& xmlNode,
         const char * attr, bool def);
 
-int getDefaultedIntAttr (const xmlNodePtr& xmlNode, 
+int getDefaultedIntAttr (const xmlNodePtr& xmlNode,
         const char * attr, int def);
 
-double getDefaultedDoubleAttr (const xmlNodePtr& xmlNode, 
+double getDefaultedDoubleAttr (const xmlNodePtr& xmlNode,
        const char * attr, double def);
 
-std::string getDefaultedStringAttr (const xmlNodePtr& xmlNode, 
+double getRequiredDoubleAttr (const xmlNodePtr& xmlNode,
+       const char * attr);
+
+std::string getDefaultedStringAttr (const xmlNodePtr& xmlNode,
        const char * attr, const std::string & def);
 
-std::string getRequiredStringAttr (const xmlNodePtr& xmlNode, 
+std::string getRequiredStringAttr (const xmlNodePtr& xmlNode,
        const char * attr);
 
 }

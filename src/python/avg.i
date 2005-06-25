@@ -20,3 +20,6 @@
 %include "Excl.i"
 %include "VideoBase.i"
 %include "Video.i"
+%include "PanoImage.i"
+%include "Words.i"
+%include "Camera.i"

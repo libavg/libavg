@@ -1,6 +1,6 @@
 //
 // $Id$
-// 
+//
 
 #ifndef _Camera_H_
 #define _Camera_H_
@@ -25,13 +25,99 @@ class Camera : public VideoBase
 {
     public:
         Camera ();
+        Camera (const xmlNodePtr xmlNode, Container * pParent);
         virtual ~Camera ();
-        
-        virtual void init (IDisplayEngine * pEngine, Container * pParent, 
+
+        virtual void init (IDisplayEngine * pEngine, Container * pParent,
             Player * pPlayer);
         virtual std::string getTypeStr ();
 
-        unsigned int getFeature (const std::string& sFeature);
+        const std::string& getDevice() const 
+        {
+            return m_sDevice;
+        }
+
+        double getFrameRate() const
+        {
+            return m_FrameRate;
+        }
+
+        const std::string& getMode() const
+        {
+            return m_sMode;
+        }
+
+        int getBrightness() const
+        {
+            return getFeature ("brightness");
+        }
+
+        void setBrightness(int Value)
+        {
+            setFeature ("brightness", Value);
+        }
+        
+        int getExposure() const
+        {
+            return getFeature ("exposure");
+        }
+
+        void setExposure(int Value)
+        {
+            setFeature ("exposure", Value);
+        }
+        
+        int getSharpness() const
+        {
+            return getFeature ("sharpness");
+        }
+
+        void setSharpness(int Value)
+        {
+            setFeature ("sharpness", Value);
+        }
+        
+        int getSaturation() const
+        {
+            return getFeature ("saturation");
+        }
+
+        void setSaturation(int Value)
+        {
+            setFeature ("saturation", Value);
+        }
+        
+        int getGamma() const
+        {
+            return getFeature ("gamma");
+        }
+
+        void setGamma(int Value)
+        {
+            setFeature ("gamma", Value);
+        }
+        
+        int getShutter() const
+        {
+            return getFeature ("shutter");
+        }
+
+        void setShutter(int Value)
+        {
+            setFeature ("shutter", Value);
+        }
+        
+        int getGain() const
+        {
+            return getFeature ("gain");
+        }
+
+        void setGain(int Value)
+        {
+            setFeature ("gain", Value);
+        }
+        
+        unsigned int getFeature (const std::string& sFeature) const;
         void setFeature (const std::string& sFeature, int Value);
 
     private:
@@ -46,18 +132,18 @@ class Camera : public VideoBase
         int m_FrameRateConstant;  // libdc1394 constant for framerate.
         std::string m_sMode;
         int m_Mode;               // libdc1394 constant for mode.
-        
+
 #ifdef AVG_ENABLE_1394
         void YUV411toBGR24Line(PLBYTE* pSrc, int y, PLPixel24 * pDestLine);
         void YUV411toBGR24(PLBYTE* pSrc, PLBmpBase * pBmp);
-       
+
         bool findCameraOnPort(int port, raw1394handle_t& FWHandle);
-        
+
         void checkDC1394Error(int Code, const std::string & sMsg);
         void fatalError(const std::string & sMsg);
         void dumpCameraInfo();
-        int getFeatureID(const std::string& sFeature);
-        
+        int getFeatureID(const std::string& sFeature) const;
+
         dc1394_cameracapture m_Camera;
         raw1394handle_t m_FWHandle;
         dc1394_feature_set m_FeatureSet;
@@ -73,5 +159,5 @@ class Camera : public VideoBase
 
 }
 
-#endif 
+#endif
 
