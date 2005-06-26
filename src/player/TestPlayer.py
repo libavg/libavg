@@ -15,30 +15,41 @@ Image.x = 10
 print(Image.x)
 Player = avg.Player()
 
+def Stop():
+    Player.stop()
+
 Player.loadFile("test/image.avg")
+Player.setTimeout(1000, Stop)
 Player.play(30)
 
 Player.loadFile("test/hugeimage.avg")
+Player.setTimeout(1000, Stop)
 Player.play(30)
 
 Player.loadFile("test/panoimage.avg")
+Player.setTimeout(1000, Stop)
 Player.play(30)
 
 Player.loadFile("test/noxml.avg")
 #Player.loadFile("test/noavg.avg")
 
 Player.loadFile("test/crop2.avg")
+Player.setTimeout(1000, Stop)
 Player.play(30)
 
 Player.loadFile("test/excl.avg")
+Player.setTimeout(1000, Stop)
 Player.play(30)
 
 Player.loadFile("test/video.avg")
+Player.setTimeout(1000, Stop)
 Player.play(30)
 
 Player.loadFile("test/text.avg")
+Player.setTimeout(1000, Stop)
 Player.play(30)
 
 Player.loadFile("test/camera.avg")
+Player.setTimeout(1000, Stop)
 Player.play(30)
 

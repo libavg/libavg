@@ -5,6 +5,8 @@
 #ifndef _Timeout_H_
 #define _Timeout_H_
 
+#include <python2.3/Python.h> // Python doc sais this should be included before 
+                              // any standard headers (!)
 #include <string>
 
 namespace avg {
@@ -12,7 +14,7 @@ namespace avg {
 class Timeout
 {
     public:
-        Timeout (int time, std::string code, bool isInterval);
+        Timeout (int time, PyObject * pyfunc, bool isInterval);
         virtual ~Timeout ();
 
         bool IsReady() const;
@@ -24,7 +26,7 @@ class Timeout
     private:
         long long m_Interval;
         long long m_NextTimeout;
-        std::string m_Code;
+        PyObject * m_PyFunc;
         bool m_IsInterval;
         int m_ID;
         static int s_LastID;

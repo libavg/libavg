@@ -6,7 +6,7 @@ BUILT_SOURCES = $(srcdir)/avg_wrap.cpp
 #		$(srcdir)/Player_wrap.cpp
 SWIG_SOURCES = avg.i Player.i Logger.i ConradRelais.i Node.i Image.i \
 		RasterNode.i Container.i DivNode.i AVGNode.i Excl.i VideoBase.i \
-		Video.i PanoImage.i Words.i Camera.i
+		Video.i PanoImage.i Words.i Camera.i Point.i
 
 pkgpython_PYTHON = avg.py
 pkgpyexec_LTLIBRARIES = _avg.la

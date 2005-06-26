@@ -23,3 +23,4 @@
 %include "PanoImage.i"
 %include "Words.i"
 %include "Camera.i"
+%include "Point.i"

@@ -13,6 +13,14 @@
 
 namespace avg {
 
+%typemap(python,in) PyObject *PyFunc {
+  if (!PyCallable_Check($source)) {
+      PyErr_SetString(PyExc_TypeError, "Need a callable object!");
+      return NULL;
+  }
+  $target = $source;
+}
+
 class Node;
 class AVGNode;
 
@@ -48,18 +56,18 @@ class Player //: IEventSink
          * frame. The function returns an id that can be used to call 
          * clearInterval() to stop the code from being called.
          */
-        int setInterval(int time, const std::string& code);
+//        int setInterval(int time, TimeoutFunc code);
         /**
          * Sets code that should be executed after time milliseconds.
          * The function returns an id that can be used to call clearInterval() 
          * to stop the code from being called.
          */
-        int setTimeout(int time, const std::string& code);
+        int setTimeout(int time, PyObject * pyfunc);
         /**
          * Stops a timeout or an interval from being called. Returns true if 
          * there was an interval with the given id, false if not.
          */
-//        bool clearInterval(int id);
+        bool clearInterval(int id);
 
         /**
          * Gets an interface to the current event. Only valid inside event 

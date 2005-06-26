@@ -188,10 +188,9 @@ void Player::play (double framerate)
 //        setPriority();
         
         Profiler::get().start();
-        sleep(1);
-//        while (!m_bStopping) {
-//            doFrame();
-//        }
+        while (!m_bStopping) {
+            doFrame();
+        }
         // Kill all timeouts.
 /*        
         vector<Timeout*>::iterator it;
@@ -218,34 +217,28 @@ void Player::stop ()
 }
 
 
-int Player::setInterval(int time, const std::string& code)
+int Player::setInterval(int time, PyObject * pyfunc)
 {
-/*    
-    Timeout *t = new Timeout(time, code, true);
+    Timeout *t = new Timeout(time, pyfunc, true);
     if (m_bInHandleTimers) {
         m_NewTimeouts.push_back(t);
     } else {
         addTimeout(t);
     }
     return t->GetID();
-*/
-    return 0;
 }
 
-int Player::setTimeout(int time, const std::string& code)
+int Player::setTimeout(int time, PyObject * pyfunc)
 {
-/*    
-    Timeout *t = new Timeout(time, code, false);
+    Timeout *t = new Timeout(time, pyfunc, false);
     if (m_bInHandleTimers) {
         m_NewTimeouts.push_back(t);
     } else {
         addTimeout(t);
     }
     return t->GetID();
-*/    
-    return 0;
 }
-/*
+
 bool Player::clearInterval(int id)
 {
     vector<Timeout*>::iterator it;
@@ -263,7 +256,7 @@ bool Player::clearInterval(int id)
     }
     return false;
 }
-*/
+
 /*
 Event& Player::getCurEvent()
 {
@@ -345,7 +338,7 @@ void Player::doFrame ()
         ScopeTimer Timer(MainProfilingZone);
         {
             ScopeTimer Timer(TimersProfilingZone);
-//            handleTimers();
+            handleTimers();
         }
         {
             ScopeTimer Timer(EventsProfilingZone);
@@ -546,7 +539,7 @@ void Player::initDisplay(const xmlNodePtr xmlNode) {
     m_pDisplayEngine->init(Width, Height, m_bFullscreen, m_BPP, 
             m_WindowWidth, m_WindowHeight);
 }
-/*
+
 void Player::handleTimers()
 {
     vector<Timeout *>::iterator it;
@@ -585,7 +578,7 @@ void Player::handleTimers()
     m_bInHandleTimers = false;
     
 }
-*/
+
 /*
 bool Player::handleEvent(Event * pEvent)
 {
@@ -646,7 +639,7 @@ void Player::createMouseOver(MouseEvent * pOtherEvent, int Type)
             pOtherEvent->getButton());
     m_EventDispatcher.addEvent(pNewEvent);
 }
-
+*/
 int Player::addTimeout(Timeout* pTimeout)
 {
     vector<Timeout*>::iterator it=m_PendingTimeouts.begin();
@@ -667,5 +660,5 @@ void Player::removeTimeout(Timeout* pTimeout)
     }
     m_PendingTimeouts.erase(it);
 }
-*/
+
 }

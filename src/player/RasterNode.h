@@ -18,11 +18,6 @@ class RasterNode: public Node
         virtual ~RasterNode ();
         void initVisible();
         
-        void setAngle(double Angle);
-        void setPivotX(double Pivotx);
-        void setPivotY(double Pivoty);
-        bool setBlendMode(const std::string& sBlendMode);
-
         // Warping support.
         int getNumVerticesX();
         int getNumVerticesY();
@@ -30,9 +25,28 @@ class RasterNode: public Node
         DPoint getWarpedVertexCoord(int x, int y);
         void setWarpedVertexCoord(int x, int y, const DPoint& Vertex);
 
+        double getAngle() const;
+        void setAngle(double Angle);
+        double getPivotX() const;
+        void setPivotX(double Pivotx);
+        double getPivotY() const;
+        void setPivotY(double Pivoty);
+
+        int getMaxTileWidth() const
+        {
+            return m_MaxTileSize.x;
+        }
+
+        int getMaxTileHeight() const
+        {
+            return m_MaxTileSize.y;
+        }
+        
+        const std::string& getBlendModeStr() const;
+        void setBlendModeStr(const std::string& sBlendMode);
+
         OGLSurface * RasterNode::getOGLSurface();
-        IDisplayEngine::BlendMode getBlendMode();
-        double getAngle();
+        IDisplayEngine::BlendMode getBlendMode() const;
         virtual std::string getTypeStr ();
         Node * getElementByPos (const DPoint & pos);
         

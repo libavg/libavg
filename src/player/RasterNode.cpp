@@ -8,6 +8,7 @@
 #include "IDisplayEngine.h"
 
 #include "../base/Logger.h"
+#include "../base/XMLHelper.h"
 
 using namespace std;
 
@@ -30,6 +31,12 @@ RasterNode::RasterNode (const xmlNodePtr xmlNode, Container * pParent)
       m_MaxTileSize(PLPoint(-1,-1)),
       m_sBlendMode("blend")
 {
+    m_Angle = getDefaultedDoubleAttr (xmlNode, "angle", 0);
+    m_Pivot.x = getDefaultedDoubleAttr (xmlNode, "pivotx", -32767);
+    m_Pivot.y = getDefaultedDoubleAttr (xmlNode, "pivoty", -32767);
+    m_MaxTileSize.x = getDefaultedIntAttr (xmlNode, "maxtilewidth", -1);
+    m_MaxTileSize.y = getDefaultedIntAttr (xmlNode, "maxtileheight", -1);
+    setBlendModeStr(getDefaultedStringAttr (xmlNode, "blendmode", "blend"));
 }
 
 RasterNode::~RasterNode()
@@ -55,7 +62,7 @@ void RasterNode::initVisible()
             pOGLSurface->setMaxTileSize(m_MaxTileSize);
         }
     }
-    setBlendMode(m_sBlendMode);
+    setBlendModeStr(m_sBlendMode);
 }
 
 int RasterNode::getNumVerticesX()
@@ -88,10 +95,20 @@ void RasterNode::setWarpedVertexCoord(int x, int y, const DPoint& Vertex)
     pOGLSurface->setWarpedVertexCoord(x, y, Vertex);
 }
 
+double RasterNode::getAngle() const
+{
+    return m_Angle;
+}
+
 void RasterNode::setAngle(double Angle)
 {
     m_Angle = fmod(Angle, 2*PI);
     invalidate();
+}
+
+double RasterNode::getPivotX() const
+{
+    return m_Pivot.x;
 }
 
 void RasterNode::setPivotX(double Pivotx)
@@ -101,6 +118,11 @@ void RasterNode::setPivotX(double Pivotx)
     m_bHasCustomPivot = true;
 }
 
+double RasterNode::getPivotY() const
+{
+    return m_Pivot.y;
+}
+
 void RasterNode::setPivotY(double Pivoty)
 {
     m_Pivot = getPivot();
@@ -108,7 +130,12 @@ void RasterNode::setPivotY(double Pivoty)
     m_bHasCustomPivot = true;
 }
 
-bool RasterNode::setBlendMode(const std::string& sBlendMode)
+const std::string& RasterNode::getBlendModeStr() const
+{
+    return m_sBlendMode;
+}
+
+void RasterNode::setBlendModeStr(const std::string& sBlendMode)
 {
     m_sBlendMode = sBlendMode;
     if (m_sBlendMode == "blend") {
@@ -120,9 +147,8 @@ bool RasterNode::setBlendMode(const std::string& sBlendMode)
     } else if (m_sBlendMode == "max") {
         m_BlendMode = IDisplayEngine::BLEND_MAX;
     } else {
-        return false;
+        // TODO: throw exception here
     }
-    return true;
 }
 
 Node * RasterNode::getElementByPos (const DPoint & pos)
@@ -158,14 +184,9 @@ OGLSurface * RasterNode::getOGLSurface()
     }
 }
 
-IDisplayEngine::BlendMode RasterNode::getBlendMode()
+IDisplayEngine::BlendMode RasterNode::getBlendMode() const
 {
     return m_BlendMode;
-}
-
-double RasterNode::getAngle()
-{
-    return m_Angle;
 }
 
 ISurface * RasterNode::getSurface()

@@ -9,8 +9,9 @@
 #include "IEventSink.h"
 #include "EventDispatcher.h"
 #include "DebugEventSink.h"
-#include "Timeout.h"
 */
+#include "Timeout.h"
+
 
 #include "../base/IFrameListener.h"
 
@@ -66,18 +67,18 @@ class Player //: IEventSink
          * frame. The function returns an id that can be used to call 
          * clearInterval() to stop the code from being called.
          */
-        int setInterval(int time, const std::string& code);
+        int setInterval(int time, PyObject * pyfunc);
         /**
          * Sets javascript code that should be executed after time milliseconds.
          * The function returns an id that can be used to call clearInterval() 
          * to stop the code from being called.
          */
-        int setTimeout(int time, const std::string& code);
+        int setTimeout(int time, PyObject * pyfunc);
         /**
          * Stops a timeout or an interval from being called. Returns true if 
          * there was an interval with the given id, false if not.
          */
-//        bool clearInterval(int id);
+        bool clearInterval(int id);
 
         /**
          * Gets an interface to the current event. Only valid inside event 
@@ -136,14 +137,14 @@ class Player //: IEventSink
         typedef std::map<std::string, Node*> NodeIDMap;
         NodeIDMap m_IDMap;
 
-//        int addTimeout(Timeout* pTimeout);
-//        void removeTimeout(Timeout* pTimeout);
-//        void handleTimers();
+        int addTimeout(Timeout* pTimeout);
+        void removeTimeout(Timeout* pTimeout);
+        void handleTimers();
         bool m_bInHandleTimers;
 
-//        std::vector<Timeout *> m_PendingTimeouts;
-//        std::vector<Timeout *> m_NewTimeouts; // Timeouts to be added this frame.
-//        std::vector<int> m_KilledTimeouts; // Timeouts to be deleted this frame.
+        std::vector<Timeout *> m_PendingTimeouts;
+        std::vector<Timeout *> m_NewTimeouts; // Timeouts to be added this frame.
+        std::vector<int> m_KilledTimeouts; // Timeouts to be deleted this frame.
 
 //        EventDispatcher m_EventDispatcher;
 //        DebugEventSink  m_EventDumper;

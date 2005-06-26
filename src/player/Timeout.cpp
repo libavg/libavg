@@ -15,20 +15,23 @@ namespace avg {
 
 int Timeout::s_LastID = 0;
 
-Timeout::Timeout(int time, string code, bool isInterval, JSContext * pContext)
+Timeout::Timeout(int time, PyObject * pyfunc, bool isInterval)
     : m_Interval(time),
-      m_IsInterval(isInterval),
-      m_Script(code, "timeout", 0, pContext)
+      m_PyFunc(pyfunc),
+      m_IsInterval(isInterval)
 {
     m_NextTimeout = m_Interval+TimeSource::get()->getCurrentTicks();
 //    cerr << "New timeout. m_Interval=" << m_Interval << ", m_NextTimeout="
 //            << m_NextTimeout << endl;
     s_LastID++;
     m_ID = s_LastID;
+
+    Py_INCREF(m_PyFunc);
 }
 
 Timeout::~Timeout()
 {
+    Py_DECREF(m_PyFunc);
 }
 
 bool Timeout::IsReady() const
@@ -41,9 +44,14 @@ bool Timeout::IsInterval() const
     return m_IsInterval;
 }
 
-void Timeout::Fire(JSContext * pJSContext)
+void Timeout::Fire()
 {
-    m_Script.run();
+    PyObject * arglist = Py_BuildValue("()");
+    PyObject * result = PyEval_CallObject(m_PyFunc, arglist);
+    if (result == NULL) {
+        // TODO: This is an exception.
+    }
+    Py_DECREF(arglist);    
     if (m_IsInterval) {
         m_NextTimeout = m_Interval + TimeSource::get()->getCurrentTicks();
 //        cerr << "Interval::Fire. m_Interval=" << m_Interval << ", m_NextTimeout="
