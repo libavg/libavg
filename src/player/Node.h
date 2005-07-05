@@ -84,8 +84,7 @@ class Node
         virtual std::string getTypeStr ();
         void setParent(Container * pParent);
         
-//        virtual void handleMouseEvent (MouseEvent* pEvent, 
-//                JSContext * pJSContext);
+        virtual void handleMouseEvent (MouseEvent* pEvent); 
         virtual void invalidate();
         
         // TODO: Do we still need this? Isn't rtti good enough?
@@ -100,9 +99,10 @@ class Node
         Player * getPlayer();
         IDisplayEngine * getEngine();
 
-//        void callJS (const std::string& Code, JSContext * pJSContext);
-        void initFilename(Player * pPlayer, std::string& sFilename);
-        bool isInitialized();
+        void Node::callPython (const std::string& Code, const avg::Event& Event);
+            
+        void initFilename (Player * pPlayer, std::string& sFilename);
+        bool isInitialized ();
  
     private:
         void calcAbsViewport();

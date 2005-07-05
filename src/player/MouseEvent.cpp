@@ -3,7 +3,6 @@
 //
 
 #include "MouseEvent.h"
-#include "MouseEventFactory.h"
 #include "Node.h"
 
 #include "../base/Logger.h"
@@ -15,20 +14,12 @@ using namespace std;
 
 namespace avg {
 
-MouseEvent::MouseEvent()
-    : m_pNode(0)
-{
-}
-
-MouseEvent::~MouseEvent()
-{
-}
-
-void MouseEvent::init(int eventType,
+MouseEvent::MouseEvent(int eventType,
         bool leftButtonState, bool middleButtonState, bool rightButtonState,
         int xPosition, int yPosition, int button)
+    : Event(eventType),
+      m_pNode(0)
 {
-    Event::init(eventType);
     m_LeftButtonState = leftButtonState;
     m_MiddleButtonState = middleButtonState;
     m_RightButtonState = rightButtonState;
@@ -41,37 +32,41 @@ void MouseEvent::init(int eventType,
     }
 }
 
-Node * MouseEvent::getElement()
+MouseEvent::~MouseEvent()
+{
+}
+
+Node * MouseEvent::getElement() const
 {
     return m_pNode;
 }
 
-bool MouseEvent::getLeftButtonState()
+bool MouseEvent::getLeftButtonState() const
 {
     return m_LeftButtonState;
 }
 
-bool MouseEvent::getMiddleButtonState()
+bool MouseEvent::getMiddleButtonState() const
 {
     return m_MiddleButtonState;
 }
 
-bool MouseEvent::getRightButtonState()
+bool MouseEvent::getRightButtonState() const
 {
     return m_RightButtonState;
 }
 
-int MouseEvent::getXPosition()
+int MouseEvent::getXPosition() const
 {
     return m_XPosition;
 }
 
-int MouseEvent::getYPosition()
+int MouseEvent::getYPosition() const
 {
     return m_YPosition;
 }
 
-int MouseEvent::getButton()
+int MouseEvent::getButton() const
 {
     return m_Button;
 }
@@ -87,11 +82,6 @@ void MouseEvent::trace()
     AVG_TRACE(Logger::EVENTS2, "pos: (" << m_XPosition 
             << ", " << m_YPosition << ")" 
             << ", button: " << m_Button);
-}
-
-JSFactoryBase* MouseEvent::getFactory()
-{
-    return MouseEventFactory::getInstance();
 }
 
 }

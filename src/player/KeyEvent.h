@@ -13,15 +13,14 @@ namespace avg {
 
 class KeyEvent : public Event {
     public:
-        KeyEvent();
-        virtual ~KeyEvent();
-        void init(int eventType, unsigned char scanCode, int keyCode, 
+        KeyEvent(int eventType, unsigned char scanCode, int keyCode, 
                 const std::string& keyString, int modifiers);
+        virtual ~KeyEvent();
 
-        unsigned char getScanCode();
-        int getKeyCode();
-        const std::string& getKeyString();
-        int getModifiers();
+        unsigned char getScanCode() const;
+        int getKeyCode() const;
+        const std::string& getKeyString() const;
+        int getModifiers() const;
 
         void trace();
 

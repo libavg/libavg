@@ -18,7 +18,13 @@
 #include <paintlib/plpoint.h>
 #include <paintlib/plrect.h>
 
+#include <python2.3/Python.h>
+#include <python2.3/object.h>
+#include <python2.3/compile.h>
+#include <python2.3/eval.h>
+
 #include <iostream>
+
 
 using namespace std;
 
@@ -371,8 +377,8 @@ void Node::setParent(Container * pParent)
     }
     m_pParent = pParent;
 }
-/*
-void Node::handleMouseEvent (MouseEvent* pEvent, JSContext * pJSContext)
+
+void Node::handleMouseEvent (MouseEvent* pEvent)
 {
     string Code;
     pEvent->setElement(this);
@@ -397,22 +403,39 @@ void Node::handleMouseEvent (MouseEvent* pEvent, JSContext * pJSContext)
             break;
     }
     if (!Code.empty()) {
-        callJS(Code, pJSContext);
+        callPython(Code, *pEvent);
     }
     if (m_pParent) {
-        m_pParent->handleMouseEvent (pEvent, pJSContext);
+        m_pParent->handleMouseEvent (pEvent);
     }
 }
-*/
-/*
-void Node::callJS (const string& Code, JSContext * pJSContext)
-{
 
-    // TODO: precompile.
-    JSScript Script(Code, "EventScript", 0, pJSContext);
-    Script.run();
+void Node::callPython (const string& Code, const Event& Event)
+{
+    // TODO:
+    //   - Pass Event to python.
+    //   - Handle python return code/exception and pass to caller.
+    PyObject * pModule = PyImport_AddModule("__main__");
+    if (!pModule) {
+        cerr << "Could not find module __main__." << endl;
+        exit(-1);
+    }
+    PyObject * pDict = PyModule_GetDict(pModule);
+    PyObject * pFunc = PyDict_GetItemString(pDict, Code.c_str());
+    if (!pFunc) {
+        cerr << "Could not find \"" << Code << "\" in dictionary." << endl;
+        exit(-1);
+    }
+    PyObject * pArgList = Py_BuildValue("()");
+    PyObject * pResult = PyObject_CallObject(pFunc, pArgList);
+    if (!pResult) {
+        cerr << "Exception!" << endl;
+        exit(-1);
+        // TODO: The python function terminated with an exception.
+    }
+    Py_DECREF(pArgList);
 }
-*/
+
 void Node::initFilename(Player * pPlayer, string& sFilename)
 {
     if (sFilename[0] != '/') {

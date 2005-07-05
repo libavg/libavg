@@ -4,7 +4,6 @@
 
 #include "EventDispatcher.h"
 #include "Event.h"
-#include "../JSFactoryBase.h"
 
 #include <string>
 

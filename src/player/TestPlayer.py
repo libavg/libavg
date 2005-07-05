@@ -18,8 +18,24 @@ Player = avg.Player()
 def Stop():
     Player.stop()
 
-Player.loadFile("test/image.avg")
-Player.setTimeout(1000, Stop)
+def keyUp():
+    print "keyUp"
+
+def keyDown():
+    print "keyDown"
+
+def DoScreenshot():
+    Player.screenshot("test.png")
+
+def PlayAVG(fileName):
+    Player.loadFile(fileName)
+    Player.setTimeout(100, DoScreenshot)
+    Player.setTimeout(200, Stop)
+    Player.play(30)
+
+PlayAVG("test/image.avg")
+
+Player.loadFile("test/events.avg")
 Player.play(30)
 
 Player.loadFile("test/hugeimage.avg")

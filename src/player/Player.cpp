@@ -84,8 +84,8 @@ void Player::loadFile (const std::string& filename)
 #ifdef AVG_ENABLE_DFB
                 cerr << "DFB" << endl;
                 m_pDisplayEngine = new DFBDisplayEngine ();
-//                m_pEventSource =
-//                        dynamic_cast<DFBDisplayEngine *>(m_pDisplayEngine);
+                m_pEventSource =
+                        dynamic_cast<DFBDisplayEngine *>(m_pDisplayEngine);
 #else
                 AVG_TRACE(Logger::ERROR,
                         "Display subsystem set to DFB but no DFB support compiled."
@@ -95,8 +95,8 @@ void Player::loadFile (const std::string& filename)
             } else if (m_sDisplaySubsystem == "OGL") {
 #ifdef AVG_ENABLE_GL
                 m_pDisplayEngine = new SDLDisplayEngine ();
-//                m_pEventSource = 
-//                        dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine);
+                m_pEventSource = 
+                        dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine);
 #else
                 AVG_TRACE(Logger::ERROR,
                         "Display subsystem set to GL but no GL support compiled."
@@ -175,11 +175,11 @@ void Player::play (double framerate)
             AVG_TRACE(Logger::ERROR, "play called, but no xml file loaded.");
         }
         PLASSERT (m_pRootNode);
-/*
+        
         m_EventDispatcher.addSource(m_pEventSource);
         m_EventDispatcher.addSink(&m_EventDumper);
         m_EventDispatcher.addSink(this);
-*/
+        
         m_pFramerateManager = new FramerateManager;
         m_pFramerateManager->SetRate(framerate);
         m_bStopping = false;
@@ -192,16 +192,13 @@ void Player::play (double framerate)
             doFrame();
         }
         // Kill all timeouts.
-/*        
         vector<Timeout*>::iterator it;
         for (it=m_PendingTimeouts.begin(); it!=m_PendingTimeouts.end(); it++) {
             delete *it;
         }
         m_PendingTimeouts.clear();
-*/        
         Profiler::get().dumpStatistics();
 
-//        JSFactoryBase::removeParent(m_pRootNode->getJSPeer(), getJSPeer());
         m_pRootNode = 0;
            
         delete m_pFramerateManager;
@@ -257,12 +254,6 @@ bool Player::clearInterval(int id)
     return false;
 }
 
-/*
-Event& Player::getCurEvent()
-{
-    return *m_pCurEvent;
-}
-*/
 bool Player::screenshot(const std::string& sFilename)
 {
     PLAnyBmp Bmp;
@@ -295,7 +286,8 @@ void Player::showCursor(bool bShow)
     if (m_pDisplayEngine) {
         m_pDisplayEngine->showCursor(bShow);
     } else {
-        AVG_TRACE(Logger::ERROR, "Error: Player::showCursor called before display was initialized");
+        AVG_TRACE(Logger::ERROR, 
+                "Error: Player::showCursor called before display was initialized");
     }
 }
 
@@ -342,7 +334,7 @@ void Player::doFrame ()
         }
         {
             ScopeTimer Timer(EventsProfilingZone);
-//            m_EventDispatcher.dispatch();
+            m_EventDispatcher.dispatch();
         }
         if (!m_bStopping) {
             ScopeTimer Timer(RenderProfilingZone);
@@ -579,7 +571,7 @@ void Player::handleTimers()
     
 }
 
-/*
+
 bool Player::handleEvent(Event * pEvent)
 {
     m_pCurEvent = pEvent;
@@ -610,8 +602,7 @@ bool Player::handleEvent(Event * pEvent)
         case Event::KEYUP:
             {
                 KeyEvent * pKeyEvent = dynamic_cast<KeyEvent*>(pEvent);
-                m_pRootNode->handleKeyEvent(pKeyEvent, 
-                        JSContextWrapper::getContext());
+                m_pRootNode->handleKeyEvent(pKeyEvent);
                 if (pEvent->getType() == Event::KEYDOWN &&
                     pKeyEvent->getKeyCode() == 27) 
                 {
@@ -629,8 +620,7 @@ bool Player::handleEvent(Event * pEvent)
 
 void Player::createMouseOver(MouseEvent * pOtherEvent, int Type)
 {
-    MouseEvent * pNewEvent = MouseEventFactory::create();
-    pNewEvent->init(Type, 
+    MouseEvent * pNewEvent = new MouseEvent(Event::MOUSEOVER,
             pOtherEvent->getLeftButtonState(),
             pOtherEvent->getMiddleButtonState(),
             pOtherEvent->getRightButtonState(),
@@ -639,7 +629,7 @@ void Player::createMouseOver(MouseEvent * pOtherEvent, int Type)
             pOtherEvent->getButton());
     m_EventDispatcher.addEvent(pNewEvent);
 }
-*/
+
 int Player::addTimeout(Timeout* pTimeout)
 {
     vector<Timeout*>::iterator it=m_PendingTimeouts.begin();

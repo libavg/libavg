@@ -52,9 +52,9 @@ lib_LTLIBRARIES = libplayer.la
 libplayer_la_SOURCES = Player.cpp Excl.cpp VideoBase.cpp Video.cpp \
         Region.cpp Node.cpp FramerateManager.cpp FFMpegDecoder.cpp \
         Container.cpp  MathHelper.cpp PanoImage.cpp Words.cpp Camera.cpp \
-        AVGNode.cpp DivNode.cpp Timeout.cpp\
-        Image.cpp \
-        RasterNode.cpp $(GL_SOURCES) $(DFB_SOURCES) \
+        DivNode.cpp Timeout.cpp DebugEventSink.cpp Event.cpp \
+        Image.cpp EventDispatcher.cpp KeyEvent.cpp MouseEvent.cpp\
+        RasterNode.cpp AVGNode.cpp $(GL_SOURCES) $(DFB_SOURCES) \
 		$(ALL_H)
 libplayer_ladir=$(includedir)/avg/player
 libplayer_la_HEADERS = $(ALL_H)

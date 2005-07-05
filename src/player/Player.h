@@ -5,11 +5,9 @@
 #ifndef _Player_H_
 #define _Player_H_
 
-/*
 #include "IEventSink.h"
 #include "EventDispatcher.h"
 #include "DebugEventSink.h"
-*/
 #include "Timeout.h"
 
 
@@ -28,14 +26,14 @@ namespace avg {
 class AVGNode;
 class Node;
 class Container;
-//class Event;
-//class MouseEvent;
+class Event;
+class MouseEvent;
 class ConradRelais;
 class IDisplayEngine;
 class Camera;
 class FramerateManager;
 
-class Player //: IEventSink
+class Player : IEventSink
 {
     public:
         Player ();
@@ -81,16 +79,11 @@ class Player //: IEventSink
         bool clearInterval(int id);
 
         /**
-         * Gets an interface to the current event. Only valid inside event 
-         * handlers (onmouseup, onmousedown, etc.)
-         */
-//        Event& getCurEvent();
-
-        /**
          * Saves the contents of the current screen in a png file. Returns 
          * true on success, false if the screen couldn't be saved.
          */
         bool screenshot(const std::string& sFilename);
+
         /**
          * Shows or hides the mouse cursor. (Currently, this only works for 
          * OpenGL. Showing the DirectFB mouse cursor seems to expose some 
@@ -110,7 +103,7 @@ class Player //: IEventSink
         void doFrame ();
         void setPriority();
         double getFramerate ();
-//        virtual bool handleEvent(Event * pEvent);
+        virtual bool handleEvent(Event * pEvent);
 
         void registerFrameListener(IFrameListener* pListener);
         std::string getCurDirName();
@@ -125,11 +118,11 @@ class Player //: IEventSink
         void initDisplay(const xmlNodePtr xmlNode);
         void render (bool bRenderEverything);
         void teardownDFB();
-//        void createMouseOver(MouseEvent * pOtherEvent, int Type);
+        void createMouseOver(MouseEvent * pOtherEvent, int Type);
 	
         AVGNode * m_pRootNode;
         IDisplayEngine * m_pDisplayEngine;
-//        IEventSource * m_pEventSource;
+        IEventSource * m_pEventSource;
 
         std::string m_CurDirName;
         FramerateManager * m_pFramerateManager;
@@ -146,9 +139,9 @@ class Player //: IEventSink
         std::vector<Timeout *> m_NewTimeouts; // Timeouts to be added this frame.
         std::vector<int> m_KilledTimeouts; // Timeouts to be deleted this frame.
 
-//        EventDispatcher m_EventDispatcher;
-//        DebugEventSink  m_EventDumper;
-//        Event * m_pCurEvent;
+        EventDispatcher m_EventDispatcher;
+        DebugEventSink  m_EventDumper;
+        Event * m_pCurEvent;
         Node * m_pLastMouseNode;
 
         // Configuration variables.

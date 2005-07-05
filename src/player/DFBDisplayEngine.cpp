@@ -10,11 +10,10 @@
 #include "FramerateManager.h"
 #include "DFBSurface.h"
 
-/*
 #include "Event.h"
 #include "MouseEvent.h"
 #include "KeyEvent.h"
-*/
+
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 
@@ -573,7 +572,7 @@ void DFBDisplayEngine::screenshot (const string& sFilename, PLBmp& Bmp)
     Bmp.Create(m_Width, m_Height, pf, pBits, Pitch, PLPoint(72,72));
     Bmp.ApplyFilter(PLFilterFlipRGB());
 }
-/*
+
 vector<Event *> DFBDisplayEngine::pollEvents()
 {
     vector<Event *> Events;
@@ -628,7 +627,6 @@ Event * DFBDisplayEngine::createEvent(DFBWindowEvent* pdfbwEvent)
                 // TODO: This only works for normal keys... 
                 //       Function key mapping etc.
                 //       is screwed up badly.
-                pEvent = KeyEventFactory::create();
                 string KeyString;
                 KeyString[0] = char(pdfbwEvent->key_symbol);
                 int Type;
@@ -637,7 +635,7 @@ Event * DFBDisplayEngine::createEvent(DFBWindowEvent* pdfbwEvent)
                 } else {
                     Type = Event::KEYUP;
                 }
-                dynamic_cast<KeyEvent *>(pEvent)->init(Type,
+                pEvent = new KeyEvent(Type,
                         pdfbwEvent->key_code, pdfbwEvent->key_symbol, KeyString, 
                         translateModifiers(pdfbwEvent->modifiers));
             }
@@ -645,8 +643,8 @@ Event * DFBDisplayEngine::createEvent(DFBWindowEvent* pdfbwEvent)
         case DWET_BUTTONDOWN:
         case DWET_BUTTONUP:
         case DWET_MOTION:
-            pEvent = MouseEventFactory::create();
-            int Button;
+            int Button; 
+            Button = 0;
             switch (pdfbwEvent->button) {
                 case DIBI_LEFT:
                     Button = MouseEvent::LEFT_BUTTON;
@@ -661,6 +659,7 @@ Event * DFBDisplayEngine::createEvent(DFBWindowEvent* pdfbwEvent)
                     break;
             }
             int Type;
+            Type = 0;
             switch (pdfbwEvent->type) {
                 case DWET_BUTTONDOWN:
                     Type = Event::MOUSEBUTTONDOWN;
@@ -675,7 +674,7 @@ Event * DFBDisplayEngine::createEvent(DFBWindowEvent* pdfbwEvent)
                     fatalError("Unknown event type in DFBDisplayEngine::createEvent.");
                     break;
             }
-            dynamic_cast<MouseEvent *>(pEvent)->init(Type,
+            pEvent = new MouseEvent(Type,
                     (pdfbwEvent->buttons & DIBM_LEFT)!=0, 
                     (pdfbwEvent->buttons & DIBM_MIDDLE)!=0,
                     (pdfbwEvent->buttons & DIBM_RIGHT)!=0,
@@ -687,7 +686,6 @@ Event * DFBDisplayEngine::createEvent(DFBWindowEvent* pdfbwEvent)
     }
     return pEvent;
 }
-*/
 
 int DFBDisplayEngine::getWidth()
 {

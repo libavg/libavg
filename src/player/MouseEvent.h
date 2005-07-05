@@ -13,20 +13,19 @@ class Node;
 
 class MouseEvent : public Event {
     public:
-        MouseEvent();
-        virtual ~MouseEvent();
-        void init(int eventType,
+        MouseEvent(int eventType,
                 bool leftButtonState, bool middleButtonState, 
                 bool rightButtonState,
                 int xPosition, int yPosition, int button);
+        virtual ~MouseEvent();
        
-        Node * getElement();
-        bool getLeftButtonState();
-        bool getMiddleButtonState();
-        bool getRightButtonState();
-        int getXPosition();
-        int getYPosition();
-        int getButton();
+        Node * getElement() const;
+        bool getLeftButtonState() const;
+        bool getMiddleButtonState() const;
+        bool getRightButtonState() const;
+        int getXPosition() const;
+        int getYPosition() const;
+        int getButton() const;
 
         void setElement(Node * pNode);
         virtual void trace();

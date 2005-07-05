@@ -3,7 +3,6 @@
 //
 
 #include "Event.h"
-#include "EventFactory.h"
 
 #include "../base/TimeSource.h"
 #include "../base/Logger.h"
@@ -15,19 +14,9 @@ namespace avg {
 
 int Event::s_CurCounter = 0;
 
-Event::Event()
-    : m_When(-1),
-      m_Type(-1)
+Event::Event(int type, int when)
+    : m_Type(type)
 {
-}
-
-Event::~Event()
-{
-}
-
-void Event::init(int type, int when)
-{
-    m_Type = type;
     if (when == -1) {
         m_When = TimeSource::get()->getCurrentTicks();
     } else {
@@ -35,7 +24,11 @@ void Event::init(int type, int when)
     }
     // Make sure two events with the same timestamp are ordered correctly.
     s_CurCounter++;
-    m_Counter = s_CurCounter;
+    m_Counter = s_CurCounter;    
+}
+
+Event::~Event()
+{
 }
 
 int Event::getWhen() const
@@ -79,11 +72,6 @@ void Event::trace()
             AVG_TRACE(Logger::EVENTS, "QUIT");
             break;
     }
-}
-
-JSFactoryBase* Event::getFactory()
-{
-    return EventFactory<Event>::getInstance();
 }
 
 }

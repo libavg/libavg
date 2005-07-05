@@ -24,3 +24,6 @@
 %include "Words.i"
 %include "Camera.i"
 %include "Point.i"
+%include "Event.i"
+%include "KeyEvent.i"
+%include "MouseEvent.i"

@@ -14,17 +14,17 @@
 namespace avg {
 
 %typemap(python,in) PyObject *PyFunc {
-  if (!PyCallable_Check($source)) {
+  if (!PyCallable_Check($input)) {
       PyErr_SetString(PyExc_TypeError, "Need a callable object!");
       return NULL;
   }
-  $target = $source;
+  $1 = $input;
 }
 
 class Node;
 class AVGNode;
 
-class Player //: IEventSink
+class Player 
 {
     public:
         Player ();
@@ -56,7 +56,7 @@ class Player //: IEventSink
          * frame. The function returns an id that can be used to call 
          * clearInterval() to stop the code from being called.
          */
-//        int setInterval(int time, TimeoutFunc code);
+        int setInterval(int time, PyObject * pyfunc);
         /**
          * Sets code that should be executed after time milliseconds.
          * The function returns an id that can be used to call clearInterval() 
@@ -68,12 +68,6 @@ class Player //: IEventSink
          * there was an interval with the given id, false if not.
          */
         bool clearInterval(int id);
-
-        /**
-         * Gets an interface to the current event. Only valid inside event 
-         * handlers (onmouseup, onmousedown, etc.)
-         */
-//        Event& getCurEvent();
 
         /**
          * Saves the contents of the current screen in a png file. Returns 

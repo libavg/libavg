@@ -9,11 +9,9 @@
 #include "AVGNode.h"
 #include "FramerateManager.h"
 
-/*
 #include "Event.h"
 #include "MouseEvent.h"
 #include "KeyEvent.h"
-*/
 
 #include "OGLSurface.h"
 #include "OGLHelper.h"
@@ -365,7 +363,7 @@ void SDLDisplayEngine::screenshot (const string& sFilename, PLBmp& Bmp)
     glReadPixels(0, 0, m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE, 
             Bmp.GetLineArray()[0]);
     Bmp.ApplyFilter(PLFilterFlip());
-    Bmp.ApplyFilter(PLFilterFlipRGB());
+//    Bmp.ApplyFilter(PLFilterFlipRGB());
 }
 
 int SDLDisplayEngine::getWidth()
@@ -390,7 +388,7 @@ void SDLDisplayEngine::initInput()
 {
     initJoysticks();
 }
-/*
+
 vector<Event *> SDLDisplayEngine::pollEvents()
 {
     SDL_Event sdlEvent;
@@ -427,11 +425,8 @@ vector<Event *> SDLDisplayEngine::pollEvents()
                 break;
             case SDL_QUIT:
                 {
-                    
-                    Event * pEvent = EventFactory<Event>::create();
-                    pEvent->init(Event::QUIT);
+                    Event * pEvent = new Event(Event::QUIT);
                     Events.push_back(pEvent);
-                    
                 }
                 break;
             case SDL_VIDEORESIZE:
@@ -447,10 +442,10 @@ vector<Event *> SDLDisplayEngine::pollEvents()
 Event * SDLDisplayEngine::createMouseMotionEvent
         (int Type, const SDL_Event & SDLEvent)
 {
-    MouseEvent * pEvent = MouseEventFactory::create();
     int x = int((SDLEvent.motion.x*m_Width)/m_WindowWidth);
     int y = int((SDLEvent.motion.y*m_Height)/m_WindowHeight);
-    pEvent->init(Type, SDLEvent.motion.state & SDL_BUTTON(1),
+    MouseEvent * pEvent = new MouseEvent (Type, 
+            SDLEvent.motion.state & SDL_BUTTON(1),
             SDLEvent.motion.state & SDL_BUTTON(3), 
             SDLEvent.motion.state & SDL_BUTTON(2),
             x, y, 
@@ -461,7 +456,6 @@ Event * SDLDisplayEngine::createMouseMotionEvent
 Event * SDLDisplayEngine::createMouseButtonEvent
         (int Type, const SDL_Event & SDLEvent) 
 {
-    MouseEvent * pEvent = MouseEventFactory::create();
     long Button = 0;
     switch (SDLEvent.button.button) {
         case SDL_BUTTON_LEFT:
@@ -478,13 +472,14 @@ Event * SDLDisplayEngine::createMouseButtonEvent
     SDL_GetMouseState(&x, &y);
     x = int((x*m_Width)/m_WindowWidth);
     y = int((y*m_Height)/m_WindowHeight);
-    pEvent->init(Type, SDLEvent.button.button == SDL_BUTTON_LEFT,
-                SDLEvent.button.button == SDL_BUTTON_MIDDLE, 
-                SDLEvent.button.button == SDL_BUTTON_RIGHT,
-                x, y, Button);
+    MouseEvent * pEvent = new MouseEvent(Type, 
+            SDLEvent.button.button == SDL_BUTTON_LEFT,
+            SDLEvent.button.button == SDL_BUTTON_MIDDLE, 
+            SDLEvent.button.button == SDL_BUTTON_RIGHT,
+            x, y, Button);
     return pEvent; 
 }
-*/
+
 /*
 Event * SDLDisplayEngine::createAxisEvent(const SDL_Event & SDLEvent)
 {
@@ -500,7 +495,7 @@ Event * SDLDisplayEngine::createButtonEvent
                 SDLEvent.jbutton.button));
 }
 */
-/*
+
 Event * SDLDisplayEngine::createKeyEvent
         (int Type, const SDL_Event & SDLEvent)
 {
@@ -532,12 +527,11 @@ Event * SDLDisplayEngine::createKeyEvent
     if (SDLEvent.key.keysym.mod & KMOD_RESERVED) 
         { Modifiers |= key::KEYMOD_RESERVED; }
 
-    KeyEvent * pEvent = KeyEventFactory::create();
-    pEvent->init(Type, SDLEvent.key.keysym.scancode, KeyCode,
-                SDL_GetKeyName(SDLEvent.key.keysym.sym), Modifiers);
+    KeyEvent * pEvent = new KeyEvent(Type, 
+            SDLEvent.key.keysym.scancode, KeyCode,
+            SDL_GetKeyName(SDLEvent.key.keysym.sym), Modifiers);
     return pEvent;
 }
-*/
 
 void SDLDisplayEngine::initJoysticks() 
 {

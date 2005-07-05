@@ -11,7 +11,7 @@ namespace avg {
 
 class Event {
     public:
-        enum {
+        enum Type {
             KEYUP,
             KEYDOWN,
             MOUSEMOTION,
@@ -23,8 +23,7 @@ class Event {
             QUIT 
         };
     
-        Event();
-        void init (int type, int when=-1);
+        Event(int type, int when=-1);
         virtual ~Event();
         
         virtual void trace();

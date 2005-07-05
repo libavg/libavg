@@ -48,8 +48,10 @@ void Timeout::Fire()
 {
     PyObject * arglist = Py_BuildValue("()");
     PyObject * result = PyEval_CallObject(m_PyFunc, arglist);
-    if (result == NULL) {
-        // TODO: This is an exception.
+    if (!result) {
+        cerr << "Exception!" << endl;
+        exit(-1);
+        // TODO: The python function terminated with an exception.
     }
     Py_DECREF(arglist);    
     if (m_IsInterval) {

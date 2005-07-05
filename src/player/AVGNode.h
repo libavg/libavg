@@ -21,7 +21,7 @@ class AVGNode : public DivNode
 
         virtual std::string getTypeStr ();
 
-//        void handleKeyEvent (KeyEvent* pEvent);
+        void handleKeyEvent (KeyEvent* pEvent);
         bool getCropSetting();
 
     private:

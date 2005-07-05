@@ -3,7 +3,6 @@
 //
 
 #include "KeyEvent.h"
-#include "KeyEventFactory.h"
 #include "Player.h"
 #include "../base/Logger.h"
 
@@ -14,40 +13,36 @@ using namespace std;
 
 namespace avg {
 
-KeyEvent::KeyEvent()
-{
-}
-
-KeyEvent::~KeyEvent()
-{
-}
-
-void KeyEvent::init(int eventType, unsigned char scanCode, int keyCode, 
+KeyEvent::KeyEvent(int eventType, unsigned char scanCode, int keyCode, 
                 const string& keyString, int modifiers)
+    : Event(eventType)
 {
-    Event::init(eventType);
     m_ScanCode = scanCode;
     m_KeyCode = keyCode;
     m_KeyString = keyString;
     m_Modifiers = modifiers;
 }
 
-unsigned char KeyEvent::getScanCode()
+KeyEvent::~KeyEvent()
+{
+}
+
+unsigned char KeyEvent::getScanCode() const
 {
     return m_ScanCode;
 }
 
-int KeyEvent::getKeyCode()
+int KeyEvent::getKeyCode() const
 {
     return m_KeyCode;
 }
 
-const std::string& KeyEvent::getKeyString()
+const std::string& KeyEvent::getKeyString() const
 {
     return m_KeyString;
 }
 
-int KeyEvent::getModifiers()
+int KeyEvent::getModifiers() const
 {
     return m_Modifiers;
 }
@@ -58,11 +53,6 @@ void KeyEvent::trace()
     AVG_TRACE(Logger::EVENTS2, "Scancode: " << m_ScanCode 
             << ", Keycode: " << m_KeyCode << ", KeyString: " 
             << m_KeyString << ", Modifiers: " << m_Modifiers);
-}
-
-JSFactoryBase* KeyEvent::getFactory()
-{
-    return KeyEventFactory::getInstance();
 }
 
 }
