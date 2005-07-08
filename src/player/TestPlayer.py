@@ -24,6 +24,27 @@ def keyUp():
 def keyDown():
     print "keyDown"
 
+def mainMouseUp():
+    print "mainMouseUp"
+
+def mainMouseDown():
+    print "mainMouseDown"
+
+def onMouseMove():
+    print "onMouseMove"
+
+def onMouseUp():
+    print "onMouseUp"
+
+def onMouseOver():
+    print "onMouseOver"
+
+def onMouseOut():
+    print "onMouseOut"
+
+def onMouseDown():
+    print "onMouseDown"
+
 def DoScreenshot():
     Player.screenshot("test.png")
 
