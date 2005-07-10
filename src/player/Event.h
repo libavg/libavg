@@ -29,13 +29,13 @@ class Event {
         virtual void trace();
 
         int getWhen() const;
-        int getType() const;
+        Type getType() const;
         
         friend struct isEventAfter;
 
     private:
         int m_When;
-        int m_Type;
+        Type m_Type;
         int m_Counter;
 
         static int s_CurCounter;

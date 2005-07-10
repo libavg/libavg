@@ -18,47 +18,45 @@ public:
     void setDestination(const std::string& sFName);
     void setCategories(int flags);
     void trace(int category, const std::string& msg);
-    void trace(int category, const char * msg);
-
 
     /**
      * Turns off debug output.
      */
-    static const long NONE=0;
+    static const long NONE;
     /**
      * Outputs data about the display subsystem. Useful for timing/performance
      * measurements.
      */
-    static const long BLTS=1;
+    static const long BLTS;
     /**
      * Outputs performance statistics and frames displayed too late.
      */
-    static const long PROFILE=2;
-    static const long PROFILE_LATEFRAMES=4;
+    static const long PROFILE;
+    static const long PROFILE_LATEFRAMES;
     
     /**
      * Outputs basic event data.
      */
-    static const long EVENTS=8;
+    static const long EVENTS;
     /**
      * Outputs all event data available.
      */
-    static const long EVENTS2=16;
+    static const long EVENTS2;
     /**
      * Outputs configuration data.
      */
-    static const long CONFIG=32;  
+    static const long CONFIG;  
     /**
      * Outputs warning messages. Default is on.
      */
-    static const long WARNING=64;
+    static const long WARNING;
     /**
      * Outputs error messages. Can't be shut off.
      */
-    static const long ERROR=128;  
+    static const long ERROR;  
 
-    static const long MEMORY=256;
-    static const long APP=512;
+    static const long MEMORY;
+    static const long APP;
 
 private:
     Logger();

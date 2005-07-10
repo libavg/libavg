@@ -9,6 +9,8 @@
 #include "EventDispatcher.h"
 #include "DebugEventSink.h"
 #include "Timeout.h"
+#include "KeyEvent.h"
+#include "MouseEvent.h"
 
 
 #include "../base/IFrameListener.h"
@@ -77,6 +79,12 @@ class Player : IEventSink
          * there was an interval with the given id, false if not.
          */
         bool clearInterval(int id);
+
+        /**
+         * Gets an interface to the current event. Only valid inside 
+         * event handlers (onmouseup, onmousedown, etc.)
+         */
+        const Event& getCurEvent() const;
 
         /**
          * Saves the contents of the current screen in a png file. Returns 

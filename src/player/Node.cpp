@@ -53,11 +53,6 @@ Node::Node ()
 Node::Node (const xmlNodePtr xmlNode, Container * pParent)
     : m_pParent(pParent),
       m_pPlayer(0),
-      m_MouseMoveHandler(""),
-      m_MouseButtonUpHandler(""),
-      m_MouseButtonDownHandler(""),
-      m_MouseOverHandler(""),
-      m_MouseOutHandler(""),
       m_RelViewport(0,0,0,0),
       m_AbsViewport(0,0,0,0),
       m_bInitialized(false),
@@ -65,6 +60,11 @@ Node::Node (const xmlNodePtr xmlNode, Container * pParent)
       m_InitialHeight(0)
 {
     m_ID = getDefaultedStringAttr (xmlNode, "id", "");
+    m_MouseMoveHandler = getDefaultedStringAttr (xmlNode, "onmousemove", "");
+    m_MouseButtonUpHandler = getDefaultedStringAttr (xmlNode, "onmouseup", "");
+    m_MouseButtonDownHandler = getDefaultedStringAttr (xmlNode, "onmousedown", "");
+    m_MouseOverHandler = getDefaultedStringAttr (xmlNode, "onmouseover", "");
+    m_MouseOutHandler = getDefaultedStringAttr (xmlNode, "onmouseout", "");
     m_RelViewport.tl.x = getDefaultedDoubleAttr (xmlNode, "x", 0.0);
     m_RelViewport.tl.y = getDefaultedDoubleAttr (xmlNode, "y", 0.0);
     m_InitialWidth = getDefaultedDoubleAttr (xmlNode, "width", 0.0);
@@ -423,13 +423,14 @@ void Node::callPython (const string& Code, const Event& Event)
     PyObject * pDict = PyModule_GetDict(pModule);
     PyObject * pFunc = PyDict_GetItemString(pDict, Code.c_str());
     if (!pFunc) {
-        cerr << "Could not find \"" << Code << "\" in dictionary." << endl;
+        cerr << "Function \"" << Code << "\" not defined." << endl;
         exit(-1);
     }
     PyObject * pArgList = Py_BuildValue("()");
     PyObject * pResult = PyObject_CallObject(pFunc, pArgList);
     if (!pResult) {
         cerr << "Exception!" << endl;
+        PyErr_Print();
         exit(-1);
         // TODO: The python function terminated with an exception.
     }

@@ -36,7 +36,7 @@ int Event::getWhen() const
     return m_When;
 }
 
-int Event::getType() const
+Event::Type Event::getType() const
 {
     return m_Type;
 }

@@ -23,6 +23,14 @@ class Image : public RasterNode
                 Container * pParent, Player * pPlayer);
 
         const std::string& getHRef() const;
+        int getHue() const
+        {
+            return m_Hue;
+        }
+        int getSaturation() const
+        {
+            return m_Saturation;
+        }
         
         virtual void render (const DRect& Rect);
         virtual bool obscures (const DRect& Rect, int z);

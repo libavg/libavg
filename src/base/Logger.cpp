@@ -12,6 +12,18 @@ using namespace std;
 
 namespace avg {
 
+const long Logger::NONE=0;
+const long Logger::BLTS=1;
+const long Logger::PROFILE=2;
+const long Logger::PROFILE_LATEFRAMES=4;
+const long Logger::EVENTS=8;
+const long Logger::EVENTS2=16;
+const long Logger::CONFIG=32;  
+const long Logger::WARNING=64;
+const long Logger::ERROR=128;  
+const long Logger::MEMORY=256;
+const long Logger::APP=512;
+
 Logger* Logger::m_pLogger = 0;
 
 Logger * Logger::get()
@@ -95,9 +107,10 @@ void Logger::trace(int category, const std::string& msg)
     }
 }
 
+/*
 void Logger::trace(int category, const char * msg)
 {
     trace(category, (std::string&)msg);
 }
-
+*/
 }

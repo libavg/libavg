@@ -254,6 +254,22 @@ bool Player::clearInterval(int id)
     return false;
 }
 
+const Event& Player::getCurEvent() const
+{
+    return *m_pCurEvent;
+}
+
+/*
+KeyEvent& Player::getCurKeyEvent()
+{
+    return *(dynamic_cast<KeyEvent*>(m_pCurEvent));
+}
+
+MouseEvent& Player::getCurMouseEvent()
+{
+    return *(dynamic_cast<MouseEvent*>(m_pCurEvent));
+}
+*/
 bool Player::screenshot(const std::string& sFilename)
 {
     PLAnyBmp Bmp;
@@ -613,6 +629,12 @@ bool Player::handleEvent(Event * pEvent)
         case Event::QUIT:
             m_bStopping = true;
             break;
+        case Event::MOUSEOVER:
+        case Event::MOUSEOUT:
+            break;
+        default:
+            AVG_TRACE(Logger::ERROR, "Unknown event type in Player::handleEvent.");
+            break;
     }
     // Don't pass on any events.
     return true; 
@@ -620,7 +642,7 @@ bool Player::handleEvent(Event * pEvent)
 
 void Player::createMouseOver(MouseEvent * pOtherEvent, int Type)
 {
-    MouseEvent * pNewEvent = new MouseEvent(Event::MOUSEOVER,
+    MouseEvent * pNewEvent = new MouseEvent(Type,
             pOtherEvent->getLeftButtonState(),
             pOtherEvent->getMiddleButtonState(),
             pOtherEvent->getRightButtonState(),

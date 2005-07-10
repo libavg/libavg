@@ -9,7 +9,7 @@ Log.setCategories(Log.APP | Log.WARNING | Log.PROFILE)
 
 Image = avg.Image()
 print(Image)
-print(Image.ID)
+print(Image.id)
 print(Image.href)
 Image.x = 10
 print(Image.x)
@@ -23,6 +23,14 @@ def keyUp():
 
 def keyDown():
     print "keyDown"
+    Event = Player.getCurEvent()
+    print Event
+    print "  Type: "+str(Event.type)
+    print "  keystring: "+Event.keystring
+    print "  scancode: "+str(Event.scancode)
+    print "  keycode: "+str(Event.keycode)
+    print "  modifiers: "+str(Event.modifiers)
+    
 
 def mainMouseUp():
     print "mainMouseUp"

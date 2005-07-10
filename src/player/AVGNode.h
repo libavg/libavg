@@ -24,6 +24,16 @@ class AVGNode : public DivNode
         void handleKeyEvent (KeyEvent* pEvent);
         bool getCropSetting();
 
+        const std::string& getOnKeyUp()
+        {
+            return m_sKeyUpHandler;
+        }
+        
+        const std::string& getOnKeyDown()
+        {
+            return m_sKeyDownHandler;
+        }
+        
     private:
         std::string m_sKeyUpHandler;
         std::string m_sKeyDownHandler;
