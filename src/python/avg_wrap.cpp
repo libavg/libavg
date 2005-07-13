@@ -49,6 +49,8 @@ BOOST_PYTHON_MODULE(avg)
                 return_value_policy<copy_const_reference>()))
         .add_property("x", &Node::getX, &Node::setX)
         .add_property("y", &Node::getY, &Node::setY)
+        .add_property("width", &Node::getWidth, &Node::setWidth)
+        .add_property("height", &Node::getHeight, &Node::setHeight)
     ;
 
     export_raster();
@@ -93,7 +95,8 @@ BOOST_PYTHON_MODULE(avg)
         .def("loadFile", &Player::loadFile)
         .def("play", &Player::play)
         .def("stop", &Player::stop)
-//        .def("createNodeFromXml", &Player::createNodeFromXml)
+        .def("createNode", &Player::createNodeFromXmlString,
+                return_value_policy<manage_new_object>())
         .def("setInterval", &Player::setInterval)
         .def("setTimeout", &Player::setTimeout)
         .def("clearInterval", &Player::clearInterval)

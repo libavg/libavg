@@ -49,7 +49,8 @@ void Timeout::Fire()
     PyObject * arglist = Py_BuildValue("()");
     PyObject * result = PyEval_CallObject(m_PyFunc, arglist);
     if (!result) {
-        cerr << "Exception!" << endl;
+        cerr << "Error in timeout:" << endl;
+        PyErr_Print();
         exit(-1);
         // TODO: The python function terminated with an exception.
     }

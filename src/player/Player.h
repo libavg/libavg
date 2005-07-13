@@ -58,7 +58,7 @@ class Player : IEventSink
          */
         void stop ();
 
-        Node * createNodeFromXml (const std::string& sXML);
+        Node * createNodeFromXmlString (const std::string& sXML);
 
         /**
          * Sets javascript code that should be executed every time milliseconds.

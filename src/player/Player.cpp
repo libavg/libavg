@@ -447,7 +447,7 @@ void Player::initConfig() {
             << m_bFullscreen?"true":"false");
 }
 
-Node * Player::createNodeFromXml (const string& sXML)
+Node * Player::createNodeFromXmlString (const string& sXML)
 {
     try {
         xmlDocPtr doc;
@@ -512,7 +512,7 @@ Node * Player::createNodeFromXml (const xmlDocPtr xmlDoc,
             Node *curChild = createNodeFromXml (xmlDoc, curXmlChild, 
                     curContainer);
             if (curChild) {
-                curContainer->addChild(curChild, false);
+                curContainer->addChild(curChild);
             }
             curXmlChild = curXmlChild->next;
         }

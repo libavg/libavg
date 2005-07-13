@@ -45,7 +45,7 @@ Node * Container::getChild (int i)
     return m_Children[i];
 }
 
-void Container::addChild (Node * pNewNode, bool bInit)
+void Container::addChild (Node * pNewNode)
 {
     // Children are ordered according to z-position.
     vector<Node*>::iterator it;
@@ -56,14 +56,6 @@ void Container::addChild (Node * pNewNode, bool bInit)
         }
     }
     m_Children.insert (it, pNewNode);
-
-/*    
-    // This happens when addChild() is called from js.
-    if (bInit) {
-        JSFactoryBase::setParent(pNewNode->getJSPeer(), this);
-        getPlayer()->initNode(pNewNode, this);
-    }
-*/    
 }
 
 void Container::removeChild (int i)
@@ -97,7 +89,7 @@ void Container::zorderChange (Node * pChild)
     }
 
     // Add it again.
-    addChild(pChild, false);
+    addChild(pChild);
 }
 
 void Container::prepareRender (int time, const DRect& parent)

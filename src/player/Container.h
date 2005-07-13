@@ -21,7 +21,7 @@ class Container : public Node
         
         int getNumChildren ();
         Node * getChild (int i);
-        void addChild (Node * newNode, bool bInit);
+        void addChild (Node * newNode);
         void removeChild (int i);
         int indexOf(Node * pChild);
 

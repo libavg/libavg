@@ -429,7 +429,6 @@ void Node::callPython (const string& Code, const Event& Event)
     PyObject * pArgList = Py_BuildValue("()");
     PyObject * pResult = PyObject_CallObject(pFunc, pArgList);
     if (!pResult) {
-        cerr << "Exception!" << endl;
         PyErr_Print();
         exit(-1);
         // TODO: The python function terminated with an exception.
