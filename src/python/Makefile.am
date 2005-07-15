@@ -7,8 +7,8 @@ INCLUDES = -I. \
 ALL_H = 
 
 pkgpyexec_LTLIBRARIES = avg.la
-avg_la_SOURCES = avg_wrap.cpp raster_wrap.cpp event_wrap.cpp
-avg_la_LDFLAGS = -module -lboost_python
+avg_la_SOURCES = avg_wrap.cpp raster_wrap.cpp event_wrap.cpp parapin_wrap.cpp
+avg_la_LDFLAGS = -module -lboost_python -lparapin
 avg_la_LIBADD = ../base/libbase.la ../conradrelais/libconradrelais.la \
                 ../player/libplayer.la 
 

@@ -19,6 +19,14 @@ class LoggerTestCase(unittest.TestCase):
                   self.Log.EVENTS)
         self.Log.trace(self.Log.APP, "Test JS log entry.")
 
+class ParaPinTestCase(unittest.TestCase):
+    def test(self):
+        parapin.set_pin(PIN.PIN01)
+        set_pin(PIN.PIN02)
+        clear_pin(PIN.PIN02)
+        set_pin(PIN.PIN03 | PIN.PIN04)
+        clear_pin(PIN.PIN04)
+
 class NodeTestCase(unittest.TestCase):
     def testAttributes(self):
         self.Image = avg.Image()
@@ -177,6 +185,7 @@ class PlayerTestCase(unittest.TestCase):
 def playerTestSuite():
     suite = unittest.TestSuite()
     suite.addTest(LoggerTestCase("test"))
+    suite.addTest(ParaPinTestCase("test"))
     suite.addTest(NodeTestCase("testAttributes"))
     suite.addTest(PlayerTestCase("testImage"))
     suite.addTest(PlayerTestCase("testEvents"))

@@ -4,6 +4,7 @@
 
 void export_raster();
 void export_event();
+void export_parapin();
 
 #include "../base/Logger.h"
 #include "../conradrelais/ConradRelais.h"
