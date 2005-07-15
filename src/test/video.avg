@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
+<avg width="640" height="480">
+        
+  <video id="clogo1" x="150" y="50" z="3" opacity="0.5" loop="true"
+      href="test.m1v" width="100" height="100"/>
+  <video id="clogo2" x="0" y="0" z="1" loop="true"
+      href="test.m2v" maxtilewidth="100" maxtileheight="40"/>
+  <image id="testtiles" x="400" y="200" z="4"
+      opacity="1" href="rgb24.png" maxtilewidth="50" maxtileheight="65"/>
+  <video id="clogo" x="300" y="150" z="3" opacity="1" loop="true"
+      href="test.m1v"/>
+</avg>

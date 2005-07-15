@@ -4,7 +4,7 @@
 
 void export_raster();
 void export_event();
-void export_parapin();
+void export_parport();
 
 #include "../base/Logger.h"
 #include "../conradrelais/ConradRelais.h"
@@ -41,6 +41,7 @@ BOOST_PYTHON_MODULE(avg)
         .def_readonly("APP", &Logger::APP)
     ;
 
+    export_parport();
     export_event();
     
     class_<Node, boost::noncopyable>("Node", no_init)

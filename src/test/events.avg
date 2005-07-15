@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
+<avg width="400" height="400"  
+    onmousedown="mainMouseDown" onmouseup="mainMouseUp"
+    onkeydown="keyDown" onkeyup="keyUp">
+    <image id="mousemove" x="0" y="0" z="1" opacity="0.8"
+        href="rgb24.png" onmousemove="onMouseMove" onmouseup="onMouseUp"/>
+    <image id="mouseover" x="200" y="0" z="2" 
+        href="rgb24.png" onmouseover="onMouseOver()" 
+        onmouseout="onMouseOut" onmousedown="onMouseDown"/>
+    <image id="tilted" x="100" y="200" width="100" height="100" angle="0.785"
+        href="rgb24.png" z="3" onmouseover="onTiltedOver"/>
+</avg>
