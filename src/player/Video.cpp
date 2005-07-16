@@ -36,7 +36,8 @@ Video::Video ()
 }
 
 Video::Video (const xmlNodePtr xmlNode, Container * pParent)
-    : m_pDecoder(0)
+    : VideoBase(xmlNode, pParent),
+      m_pDecoder(0)
 {
     m_Filename = getDefaultedStringAttr (xmlNode, "href", "");
     m_bLoop = getDefaultedBoolAttr (xmlNode, "loop", false);

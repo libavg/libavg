@@ -149,9 +149,8 @@ void Player::loadFile (const std::string& filename)
         int valid=xmlValidateDtd(cvp, doc, dtd);  
         xmlFreeValidCtxt(cvp);
         if (!valid) {
-            AVG_TRACE(Logger::ERROR, 
-                    filename + " does not validate. Aborting.");
-            exit(-1);
+            throw (Exception(AVG_ERR_XML_PARSE, 
+                    filename + " does not validate."));
         }
 
         m_pRootNode = dynamic_cast<AVGNode*>

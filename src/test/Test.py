@@ -38,11 +38,11 @@ class ParPortTestCase(unittest.TestCase):
         print self.ParPort.getStatusLine(avg.STATUS_ACK)
         print self.ParPort.getStatusLine(avg.STATUS_BUSY)
         self.ParPort.setDataLines(avg.PARPORTDATA0 | avg.PARPORTDATA1)
-        time.sleep(0.5)
+        time.sleep(0.2)
         self.ParPort.setDataLines(avg.PARPORTDATA2 | avg.PARPORTDATA3)
-        time.sleep(0.5)
+        time.sleep(0.2)
         self.ParPort.clearDataLines(avg.PARPORTDATA2 | avg.PARPORTDATA3)
-        time.sleep(0.5)
+        time.sleep(0.2)
         self.ParPort.clearDataLines(avg.PARPORTDATA0 | avg.PARPORTDATA1)
 
 class NodeTestCase(unittest.TestCase):
@@ -105,6 +105,7 @@ class PlayerTestCase(unittest.TestCase):
         
     def testEvents(self):
         Player.loadFile("events.avg")
+        Player.setTimeout(200, Player.stop)
         Player.play(30)
         
     def createNodes(self):
@@ -148,7 +149,109 @@ class PlayerTestCase(unittest.TestCase):
 #        Player.setTimeout(250, self.deleteNodes)
 #        Player.setTimeout(500, self.createNodes)
 #        Player.play(30)
-            
+    def moveImage(self):
+        Player.getElementByID("mainimg").x -= 50
+    def testHugeImage(self):
+        Player.loadFile("hugeimage.avg")
+        timerid = Player.setInterval(10, self.moveImage)
+        Player.setTimeout(1000, Player.stop)
+        Player.play(25)
+    def testPanoImage(self):
+        self.playAVG("panoimage.avg")
+    def testBroken(self):
+        Player.loadFile("noxml.avg")
+        Player.loadFile("noavg.avg")
+    def setExcl(self, i):
+        node = Player.getElementByID("switch")
+        node.activechild = i
+    def activateExcl(self, b):
+        node = Player.getElementByID("switch")
+        node.active = b
+    def testExcl(self):
+        Player.loadFile("excl.avg")
+        Player.setTimeout(300, lambda : self.setExcl(0))
+        Player.setTimeout(600, lambda : self.setExcl(1))
+        Player.setTimeout(900, lambda : self.setExcl(2))
+        Player.setTimeout(1200, lambda : self.setExcl(3))
+        Player.setTimeout(1500, lambda : self.activateExcl(0))
+        Player.setTimeout(1500, lambda : self.activateExcl(1))
+        Player.setTimeout(2000, Player.stop)
+        Player.play(30)
+    def moveit(self):
+        node = Player.getElementByID("nestedimg1")
+        node.x += 1
+        node.opacity -= 0.01
+    def testAnimation(self):
+        Player.loadFile("avg.avg")
+        node = Player.getElementByID("nestedimg1")
+        print("    Node id: "+node.id)
+        Player.setInterval(10, self.moveit)
+        Player.setTimeout(2000, Player.stop)
+        Player.play(30)
+    def moveBlended(self):
+        for i in range(4):
+            node = Player.getElementByID("blend"+str(i))
+            node.x += 1
+    def testBlend(self):
+        Player.loadFile("blend.avg")
+        Player.setInterval(10, self.moveBlended)
+        Player.setTimeout(2000, Player.stop)
+        Player.play(30)
+    def cropTL(self):
+        node = Player.getElementByID("img")
+        node.x -= 2
+        node.y -= 2
+        if node.x < -250:
+            Player.clearInterval(self.cropInterval)
+            self.cropInterval = Player.setInterval(10, self.cropBR)
+    def cropBR(self):
+        node = Player.getElementByID("img")
+        if node.x < 0:
+            node.x = 100
+            node.y = 50
+        node.x +=2
+        node.y +=2
+        if node.x > 700:
+            Player.clearInterval(self.cropInterval)
+            Player.stop()
+    def goneTL(self):
+        node = Player.getElementByID("img")
+        node.x = -250
+        node.y = -250
+    def goneBR(self):
+        node = Player.getElementByID("img")
+        node.x = 750
+        node.y = 650
+    def testCrop(self):
+        Player.loadFile("crop.avg")
+        self.cropInterval = Player.setInterval(10, self.cropTL)
+        Player.getElementByID("img").play()
+        Player.play(30)
+        Player.loadFile("crop2.avg")
+        self.cropInterval = Player.setInterval(10, self.cropTL)
+        Player.play(60)
+    def moveVertex(self):
+        node = Player.getElementByID("testtiles")
+        pos = node.getWarpedVertexCoord(1,1)
+        pos.x += 0.002
+        pos.y += 0.002
+        node.setWarpedVertexCoord(1,1,pos)
+        node = Player.getElementByID("clogo1")
+        pos = node.getWarpedVertexCoord(0,0)
+        pos.x += 0.002
+        pos.y += 0.002
+        node.setWarpedVertexCoord(0,0,pos)
+    def testWarp(self):
+        Player.loadFile("video.avg")
+        node = Player.getElementByID("testtiles")
+        print("Vertices: "+str(node.getNumVerticesX())+"x"
+                +str(node.getNumVerticesY()))
+        Player.setInterval(10, self.moveVertex)
+        Player.setTimeout(5000, Player.stop)
+        Player.play(30)  
+        
+        
+class WordsTestCase(unittest.TestCase):
     def textInterval(self):
         node = Player.getElementByID("cbasetext")
         self.delay += 1
@@ -179,26 +282,66 @@ class PlayerTestCase(unittest.TestCase):
         node.size = 50
     def changeFont2(self):
         node = Player.getElementByID("cbasetext")
-        node.size = 30;
-    def testWords(self):
-        self.delay = 0;
-        self.numChars = 0;
+        node.size = 30
+    def test(self):
+        self.delay = 0
+        self.numChars = 0
         Player.loadFile("text.avg")
         node = Player.getElementByID("paramarkup")
         timerid = Player.setInterval(10, self.textInterval)
-        Player.setTimeout(1000, self.changeTextHeight)
-        Player.setTimeout(2000, self.changeColor)
-        Player.setTimeout(2300, self.deactivateText)
-        Player.setTimeout(2600, self.activateText)
-        Player.setTimeout(3000, self.changeFont)
-        Player.setTimeout(4000, self.changeFont2)
-        Player.setTimeout(10000, Player.stop)
-        Player.play(25);
-        
-    def testHugeImage(self):
-        self.playAVG("hugeimage.avg")
-    def testPanoImage(self):
-        self.playAVG("panoimage.avg")
+        Player.setTimeout(300, self.changeTextHeight)
+        Player.setTimeout(600, self.changeColor)
+        Player.setTimeout(900, self.deactivateText)
+        Player.setTimeout(1200, self.activateText)
+        Player.setTimeout(1500, self.changeFont)
+        Player.setTimeout(1800, self.changeFont2)
+        Player.setTimeout(2000, Player.stop)
+        Player.play(25)
+
+class VideoTestCase(unittest.TestCase):
+    def playVideo(self, nodeName):
+        node = Player.getElementByID(nodeName)
+        node.play()
+        if nodeName == "clogo2":
+            node.seekToFrame(25)
+    def playclogo(self):
+        self.playVideo("clogo")
+    def playclogo1(self):
+        self.playVideo("clogo1")
+    def playclogo2(self):
+        self.playVideo("clogo2")
+    def interval(self):
+        node = Player.getElementByID("clogo2")
+        node.x += 1
+        self.curFrame -= 1
+        if self.curFrame == 0:
+            self.curFrame = 200
+        node.seekToFrame(self.curFrame)
+    def activateclogo2(self):
+        Player.getElementByID('clogo2').active=1
+    def deactivateclogo2(self):
+        Player.getElementByID('clogo2').active=0
+    def pause(self):
+        node = Player.getElementByID("clogo")
+        node.pause()
+    def stop(self):
+        node = Player.getElementByID("clogo")
+        node.stop()
+    def test(self):
+        self.curFrame = 200
+        Player.loadFile("video.avg")
+        self.playVideo("clogo")
+        Player.setTimeout(1000, self.playclogo1)
+        self.timerid = Player.setInterval(10, self.interval)
+        Player.setTimeout(1500, self.playclogo2)
+        Player.setTimeout(2000, self.pause)
+        Player.setTimeout(2500, self.playclogo)
+        Player.setTimeout(2500, self.deactivateclogo2)
+        Player.setTimeout(3000, self.activateclogo2)
+        Player.setTimeout(3000, self.stop)
+        Player.setTimeout(3500, self.playclogo)
+        Player.setTimeout(5000, Player.stop)
+        Player.play(25)
 
 def playerTestSuite():
     suite = unittest.TestSuite()
@@ -210,28 +353,16 @@ def playerTestSuite():
 #    suite.addTest(PlayerTestCase("testDynamics"))
     suite.addTest(PlayerTestCase("testHugeImage"))
     suite.addTest(PlayerTestCase("testPanoImage"))
-    suite.addTest(PlayerTestCase("testWords"))
+    suite.addTest(PlayerTestCase("testBroken"))
+    suite.addTest(PlayerTestCase("testExcl"))
+    suite.addTest(PlayerTestCase("testAnimation"))
+    suite.addTest(PlayerTestCase("testBlend"))
+    suite.addTest(PlayerTestCase("testCrop"))
+    suite.addTest(PlayerTestCase("testWarp"))
+    suite.addTest(WordsTestCase("test"))
+    suite.addTest(VideoTestCase("test"))
     return suite
 
 runner = unittest.TextTestRunner()
 runner.run(playerTestSuite())
-
-Player.loadFile("noxml.avg")
-#Player.loadFile("noavg.avg")
-
-Player.loadFile("crop2.avg")
-Player.setTimeout(1000, Stop)
-Player.play(30)
-
-Player.loadFile("excl.avg")
-Player.setTimeout(1000, Stop)
-Player.play(30)
-
-Player.loadFile("video.avg")
-Player.setTimeout(1000, Stop)
-Player.play(30)
-
-Player.loadFile("camera.avg")
-Player.setTimeout(1000, Stop)
-Player.play(30)
 

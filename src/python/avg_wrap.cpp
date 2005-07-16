@@ -53,6 +53,7 @@ BOOST_PYTHON_MODULE(avg)
         .add_property("y", &Node::getY, &Node::setY)
         .add_property("width", &Node::getWidth, &Node::setWidth)
         .add_property("height", &Node::getHeight, &Node::setHeight)
+        .add_property("opacity", &Node::getOpacity, &Node::setOpacity)
     ;
 
     export_raster();
