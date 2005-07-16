@@ -26,7 +26,8 @@ namespace avg {
 ParPort::ParPort()
     : _myFileDescriptor(-1),
       _myDeviceName(""),
-      _isOpen(false)
+      _isOpen(false),
+      _myDataLines(0)
 {
 }
 
@@ -83,6 +84,37 @@ bool ParPort::getStatusLine(int theLine) {
         return false;
     }
     return (myStatus & theLine) == theLine;
+}
+
+bool ParPort::setDataLines(unsigned char theData)
+{
+    if (_myFileDescriptor == -1) {
+        return false;
+    }
+    _myDataLines |= theData;
+    int myOk = ioctl(_myFileDescriptor, PPWDATA, &_myDataLines);
+    if (myOk == -1) {
+        AVG_TRACE(Logger::ERROR,
+                "Could not write parallel port data.");
+        return false;
+    }    
+    return true;
+}
+
+bool ParPort::clearDataLines(unsigned char theData)
+{
+    if (_myFileDescriptor == -1) {
+        return false;
+    }
+    _myDataLines &= ~theData;
+    int myOk = ioctl(_myFileDescriptor, PPWDATA, &_myDataLines);
+    if (myOk == -1) {
+        AVG_TRACE(Logger::ERROR,
+                "Could not write parallel port data.");
+        return false;
+    }    
+    return true;
+    
 }
 
 bool ParPort::isAvailable() 

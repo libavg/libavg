@@ -30,13 +30,20 @@ class ParPortTestCase(unittest.TestCase):
         self.ParPort = avg.ParPort()
         self.ParPort.init("")
         self.setAllLines(1)
-        time.sleep(0.2)
+        time.sleep(0.5)
         self.setAllLines(0)
         print self.ParPort.getStatusLine(avg.STATUS_ERROR)
         print self.ParPort.getStatusLine(avg.STATUS_SELECT)
         print self.ParPort.getStatusLine(avg.STATUS_PAPEROUT)
         print self.ParPort.getStatusLine(avg.STATUS_ACK)
         print self.ParPort.getStatusLine(avg.STATUS_BUSY)
+        self.ParPort.setDataLines(avg.PARPORTDATA0 | avg.PARPORTDATA1)
+        time.sleep(0.5)
+        self.ParPort.setDataLines(avg.PARPORTDATA2 | avg.PARPORTDATA3)
+        time.sleep(0.5)
+        self.ParPort.clearDataLines(avg.PARPORTDATA2 | avg.PARPORTDATA3)
+        time.sleep(0.5)
+        self.ParPort.clearDataLines(avg.PARPORTDATA0 | avg.PARPORTDATA1)
 
 class NodeTestCase(unittest.TestCase):
     def testAttributes(self):
