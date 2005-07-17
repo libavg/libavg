@@ -21,17 +21,17 @@ class LoggerTestCase(unittest.TestCase):
         self.Log.trace(self.Log.APP, "Test JS log entry.")
 
 class ParPortTestCase(unittest.TestCase):
-    def setAllLines(self, val):
-        self.ParPort.setControlLine(avg.CONTROL_STROBE, val)
-        self.ParPort.setControlLine(avg.CONTROL_AUTOFD, val)
-        self.ParPort.setControlLine(avg.CONTROL_SELECT, val)
-        self.ParPort.setControlLine(avg.CONTROL_INIT, val)
     def test(self):
+        def setAllLines(val):
+            self.ParPort.setControlLine(avg.CONTROL_STROBE, val)
+            self.ParPort.setControlLine(avg.CONTROL_AUTOFD, val)
+            self.ParPort.setControlLine(avg.CONTROL_SELECT, val)
+            self.ParPort.setControlLine(avg.CONTROL_INIT, val)
         self.ParPort = avg.ParPort()
         self.ParPort.init("")
-        self.setAllLines(1)
+        setAllLines(1)
         time.sleep(0.5)
-        self.setAllLines(0)
+        setAllLines(0)
         print self.ParPort.getStatusLine(avg.STATUS_ERROR)
         print self.ParPort.getStatusLine(avg.STATUS_SELECT)
         print self.ParPort.getStatusLine(avg.STATUS_PAPEROUT)
@@ -45,6 +45,13 @@ class ParPortTestCase(unittest.TestCase):
         time.sleep(0.2)
         self.ParPort.clearDataLines(avg.PARPORTDATA0 | avg.PARPORTDATA1)
 
+class ConradRelaisTestCase(unittest.TestCase):
+    def test(self):
+        ConradRelais = avg.ConradRelais(Player, 0)
+        print ConradRelais.getNumCards()
+        for i in range(6):
+            ConradRelais.set(0, i, 1)
+
 class NodeTestCase(unittest.TestCase):
     def testAttributes(self):
         self.Image = avg.Image()
@@ -52,8 +59,6 @@ class NodeTestCase(unittest.TestCase):
         self.Image.x = 10
         self.Image.x += 1
         assert self.Image.x == 11
-
-Player = avg.Player()
 
 def keyUp():
     print "keyUp"
@@ -90,14 +95,10 @@ def onMouseDown():
     print "onMouseDown"
 
 class PlayerTestCase(unittest.TestCase):
-    def Stop(self):
-        Player.stop()
-    def DoScreenshot(self):
-        Player.screenshot("test.png")
     def playAVG(self, fileName):
         Player.loadFile(fileName)
-        Player.setTimeout(100, self.DoScreenshot)
-        Player.setTimeout(200, self.Stop)
+        Player.setTimeout(100, lambda : Player.screenshot("test.png"))
+        Player.setTimeout(200, Player.stop)
         Player.play(30)
         
     def testImage(self):
@@ -149,11 +150,11 @@ class PlayerTestCase(unittest.TestCase):
 #        Player.setTimeout(250, self.deleteNodes)
 #        Player.setTimeout(500, self.createNodes)
 #        Player.play(30)
-    def moveImage(self):
-        Player.getElementByID("mainimg").x -= 50
     def testHugeImage(self):
+        def moveImage():
+            Player.getElementByID("mainimg").x -= 50
         Player.loadFile("hugeimage.avg")
-        timerid = Player.setInterval(10, self.moveImage)
+        timerid = Player.setInterval(10, moveImage)
         Player.setTimeout(1000, Player.stop)
         Player.play(25)
     def testPanoImage(self):
@@ -161,185 +162,185 @@ class PlayerTestCase(unittest.TestCase):
     def testBroken(self):
         Player.loadFile("noxml.avg")
         Player.loadFile("noavg.avg")
-    def setExcl(self, i):
-        node = Player.getElementByID("switch")
-        node.activechild = i
-    def activateExcl(self, b):
-        node = Player.getElementByID("switch")
-        node.active = b
     def testExcl(self):
+        def setExcl(i):
+            node = Player.getElementByID("switch")
+            node.activechild = i
+        def activateExcl(b):
+            node = Player.getElementByID("switch")
+            node.active = b
         Player.loadFile("excl.avg")
-        Player.setTimeout(300, lambda : self.setExcl(0))
-        Player.setTimeout(600, lambda : self.setExcl(1))
-        Player.setTimeout(900, lambda : self.setExcl(2))
-        Player.setTimeout(1200, lambda : self.setExcl(3))
-        Player.setTimeout(1500, lambda : self.activateExcl(0))
-        Player.setTimeout(1500, lambda : self.activateExcl(1))
+        Player.setTimeout(300, lambda : setExcl(0))
+        Player.setTimeout(600, lambda : setExcl(1))
+        Player.setTimeout(900, lambda : setExcl(2))
+        Player.setTimeout(1200, lambda : setExcl(3))
+        Player.setTimeout(1500, lambda : activateExcl(0))
+        Player.setTimeout(1500, lambda : activateExcl(1))
         Player.setTimeout(2000, Player.stop)
         Player.play(30)
-    def moveit(self):
-        node = Player.getElementByID("nestedimg1")
-        node.x += 1
-        node.opacity -= 0.01
     def testAnimation(self):
+        def moveit():
+            node = Player.getElementByID("nestedimg1")
+            node.x += 1
+            node.opacity -= 0.01
         Player.loadFile("avg.avg")
         node = Player.getElementByID("nestedimg1")
         print("    Node id: "+node.id)
-        Player.setInterval(10, self.moveit)
+        Player.setInterval(10, moveit)
         Player.setTimeout(2000, Player.stop)
         Player.play(30)
-    def moveBlended(self):
-        for i in range(4):
-            node = Player.getElementByID("blend"+str(i))
-            node.x += 1
     def testBlend(self):
+        def moveBlended():
+            for i in range(4):
+                node = Player.getElementByID("blend"+str(i))
+                node.x += 1
         Player.loadFile("blend.avg")
-        Player.setInterval(10, self.moveBlended)
+        Player.setInterval(10, moveBlended)
         Player.setTimeout(2000, Player.stop)
         Player.play(30)
-    def cropTL(self):
-        node = Player.getElementByID("img")
-        node.x -= 2
-        node.y -= 2
-        if node.x < -250:
-            Player.clearInterval(self.cropInterval)
-            self.cropInterval = Player.setInterval(10, self.cropBR)
-    def cropBR(self):
-        node = Player.getElementByID("img")
-        if node.x < 0:
-            node.x = 100
-            node.y = 50
-        node.x +=2
-        node.y +=2
-        if node.x > 700:
-            Player.clearInterval(self.cropInterval)
-            Player.stop()
-    def goneTL(self):
-        node = Player.getElementByID("img")
-        node.x = -250
-        node.y = -250
-    def goneBR(self):
-        node = Player.getElementByID("img")
-        node.x = 750
-        node.y = 650
     def testCrop(self):
+        def cropTL():
+            node = Player.getElementByID("img")
+            node.x -= 2
+            node.y -= 2
+            if node.x < -250:
+                Player.clearInterval(self.cropInterval)
+                self.cropInterval = Player.setInterval(10, cropBR)
+        def cropBR():
+            node = Player.getElementByID("img")
+            if node.x < 0:
+                node.x = 100
+                node.y = 50
+            node.x +=2
+            node.y +=2
+            if node.x > 700:
+                Player.clearInterval(self.cropInterval)
+                Player.stop()
+        def goneTL():
+            node = Player.getElementByID("img")
+            node.x = -250
+            node.y = -250
+        def goneBR():
+            node = Player.getElementByID("img")
+            node.x = 750
+            node.y = 650
         Player.loadFile("crop.avg")
-        self.cropInterval = Player.setInterval(10, self.cropTL)
+        self.cropInterval = Player.setInterval(10, cropTL)
         Player.getElementByID("img").play()
         Player.play(30)
         Player.loadFile("crop2.avg")
-        self.cropInterval = Player.setInterval(10, self.cropTL)
+        self.cropInterval = Player.setInterval(10, cropTL)
         Player.play(60)
-    def moveVertex(self):
-        node = Player.getElementByID("testtiles")
-        pos = node.getWarpedVertexCoord(1,1)
-        pos.x += 0.002
-        pos.y += 0.002
-        node.setWarpedVertexCoord(1,1,pos)
-        node = Player.getElementByID("clogo1")
-        pos = node.getWarpedVertexCoord(0,0)
-        pos.x += 0.002
-        pos.y += 0.002
-        node.setWarpedVertexCoord(0,0,pos)
     def testWarp(self):
+        def moveVertex():
+            node = Player.getElementByID("testtiles")
+            pos = node.getWarpedVertexCoord(1,1)
+            pos.x += 0.002
+            pos.y += 0.002
+            node.setWarpedVertexCoord(1,1,pos)
+            node = Player.getElementByID("clogo1")
+            pos = node.getWarpedVertexCoord(0,0)
+            pos.x += 0.002
+            pos.y += 0.002
+            node.setWarpedVertexCoord(0,0,pos)
         Player.loadFile("video.avg")
         node = Player.getElementByID("testtiles")
         print("Vertices: "+str(node.getNumVerticesX())+"x"
                 +str(node.getNumVerticesY()))
-        Player.setInterval(10, self.moveVertex)
+        Player.setInterval(10, moveVertex)
         Player.setTimeout(5000, Player.stop)
         Player.play(30)  
         
         
 class WordsTestCase(unittest.TestCase):
-    def textInterval(self):
-        node = Player.getElementByID("cbasetext")
-        self.delay += 1
-        if self.delay == 10:
-            self.numChars += 1
-            self.delay = 0
-        str = "hello c-base"[:self.numChars]
-        node.text = str
-        node.x += 1
-    def changeTextHeight(self):
-        node = Player.getElementByID("cbasetext")
-        node.height = 50
-        l = node.x
-        t = node.y
-        w = node.width
-        h = node.height
-        print "Pos: (",l,",",t,",",w,",",h,")"
-    def changeColor(self):
-        node = Player.getElementByID("cbasetext")
-        node.color = "404080"
-    def activateText(self):
-        Player.getElementByID('cbasetext').active = 1
-    def deactivateText(self):
-        Player.getElementByID('cbasetext').active = 0
-    def changeFont(self):
-        node = Player.getElementByID("cbasetext")
-        node.font = "Lucida Console"
-        node.size = 50
-    def changeFont2(self):
-        node = Player.getElementByID("cbasetext")
-        node.size = 30
     def test(self):
+        def textInterval():
+            node = Player.getElementByID("cbasetext")
+            self.delay += 1
+            if self.delay == 10:
+                self.numChars += 1
+                self.delay = 0
+            str = "hello c-base"[:self.numChars]
+            node.text = str
+            node.x += 1
+        def changeTextHeight():
+            node = Player.getElementByID("cbasetext")
+            node.height = 50
+            l = node.x
+            t = node.y
+            w = node.width
+            h = node.height
+            print "Pos: (",l,",",t,",",w,",",h,")"
+        def changeColor():
+            node = Player.getElementByID("cbasetext")
+            node.color = "404080"
+        def activateText():
+            Player.getElementByID('cbasetext').active = 1
+        def deactivateText():
+            Player.getElementByID('cbasetext').active = 0
+        def changeFont():
+            node = Player.getElementByID("cbasetext")
+            node.font = "Lucida Console"
+            node.size = 50
+        def changeFont2():
+            node = Player.getElementByID("cbasetext")
+            node.size = 30
         self.delay = 0
         self.numChars = 0
         Player.loadFile("text.avg")
         node = Player.getElementByID("paramarkup")
-        timerid = Player.setInterval(10, self.textInterval)
-        Player.setTimeout(300, self.changeTextHeight)
-        Player.setTimeout(600, self.changeColor)
-        Player.setTimeout(900, self.deactivateText)
-        Player.setTimeout(1200, self.activateText)
-        Player.setTimeout(1500, self.changeFont)
-        Player.setTimeout(1800, self.changeFont2)
+        timerid = Player.setInterval(10, textInterval)
+        Player.setTimeout(300, changeTextHeight)
+        Player.setTimeout(600, changeColor)
+        Player.setTimeout(900, deactivateText)
+        Player.setTimeout(1200, activateText)
+        Player.setTimeout(1500, changeFont)
+        Player.setTimeout(1800, changeFont2)
         Player.setTimeout(2000, Player.stop)
         Player.play(25)
 
 class VideoTestCase(unittest.TestCase):
-    def playVideo(self, nodeName):
-        node = Player.getElementByID(nodeName)
-        node.play()
-        if nodeName == "clogo2":
-            node.seekToFrame(25)
-    def playclogo(self):
-        self.playVideo("clogo")
-    def playclogo1(self):
-        self.playVideo("clogo1")
-    def playclogo2(self):
-        self.playVideo("clogo2")
-    def interval(self):
-        node = Player.getElementByID("clogo2")
-        node.x += 1
-        self.curFrame -= 1
-        if self.curFrame == 0:
-            self.curFrame = 200
-        node.seekToFrame(self.curFrame)
-    def activateclogo2(self):
-        Player.getElementByID('clogo2').active=1
-    def deactivateclogo2(self):
-        Player.getElementByID('clogo2').active=0
-    def pause(self):
-        node = Player.getElementByID("clogo")
-        node.pause()
-    def stop(self):
-        node = Player.getElementByID("clogo")
-        node.stop()
     def test(self):
+        def playVideo(nodeName):
+            node = Player.getElementByID(nodeName)
+            node.play()
+            if nodeName == "clogo2":
+                node.seekToFrame(25)
+        def playclogo():
+            playVideo("clogo")
+        def playclogo1():
+            playVideo("clogo1")
+        def playclogo2():
+            playVideo("clogo2")
+        def interval():
+            node = Player.getElementByID("clogo2")
+            node.x += 1
+            self.curFrame -= 1
+            if self.curFrame == 0:
+                self.curFrame = 200
+            node.seekToFrame(self.curFrame)
+        def activateclogo2():
+            Player.getElementByID('clogo2').active=1
+        def deactivateclogo2():
+            Player.getElementByID('clogo2').active=0
+        def pause():
+            node = Player.getElementByID("clogo")
+            node.pause()
+        def stop():
+            node = Player.getElementByID("clogo")
+            node.stop()
         self.curFrame = 200
         Player.loadFile("video.avg")
-        self.playVideo("clogo")
-        Player.setTimeout(1000, self.playclogo1)
-        self.timerid = Player.setInterval(10, self.interval)
-        Player.setTimeout(1500, self.playclogo2)
-        Player.setTimeout(2000, self.pause)
-        Player.setTimeout(2500, self.playclogo)
-        Player.setTimeout(2500, self.deactivateclogo2)
-        Player.setTimeout(3000, self.activateclogo2)
-        Player.setTimeout(3000, self.stop)
-        Player.setTimeout(3500, self.playclogo)
+        playVideo("clogo")
+        Player.setTimeout(1000, playclogo1)
+        self.timerid = Player.setInterval(10, interval)
+        Player.setTimeout(1500, playclogo2)
+        Player.setTimeout(2000, pause)
+        Player.setTimeout(2500, playclogo)
+        Player.setTimeout(2500, deactivateclogo2)
+        Player.setTimeout(3000, activateclogo2)
+        Player.setTimeout(3000, stop)
+        Player.setTimeout(3500, playclogo)
         Player.setTimeout(5000, Player.stop)
         Player.play(25)
 
@@ -347,6 +348,7 @@ def playerTestSuite():
     suite = unittest.TestSuite()
     suite.addTest(LoggerTestCase("test"))
     suite.addTest(ParPortTestCase("test"))
+    suite.addTest(ConradRelaisTestCase("test"))
     suite.addTest(NodeTestCase("testAttributes"))
     suite.addTest(PlayerTestCase("testImage"))
     suite.addTest(PlayerTestCase("testEvents"))
@@ -362,6 +364,8 @@ def playerTestSuite():
     suite.addTest(WordsTestCase("test"))
     suite.addTest(VideoTestCase("test"))
     return suite
+
+Player = avg.Player()
 
 runner = unittest.TextTestRunner()
 runner.run(playerTestSuite())

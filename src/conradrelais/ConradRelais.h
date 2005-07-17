@@ -18,7 +18,7 @@ namespace avg {
 class ConradRelais: public IFrameListener
 {
     public:
-        ConradRelais ();
+        ConradRelais (Player * pPlayer, int port);
         virtual ~ConradRelais ();
 
         /**
@@ -36,7 +36,6 @@ class ConradRelais: public IFrameListener
          */
         bool get(int card, int index);
 
-        void init(Player * pPlayer, int port);
         void send();
 
         virtual void onFrameEnd();

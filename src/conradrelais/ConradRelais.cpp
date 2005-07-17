@@ -20,11 +20,25 @@ using namespace std;
 
 namespace avg {
 
-ConradRelais::ConradRelais()
+ConradRelais::ConradRelais(Player * pPlayer, int port)
     : m_IsInitialized(false),
       m_File(-1),
       m_NumCards(0)
 {
+    m_Port = port;
+    stringstream s;
+    s << "/dev/ttyS" << m_Port;
+    m_File = open(s.str().c_str(), O_RDWR | O_NOCTTY | O_NDELAY); //O_NONBLOCK);
+    if (m_File == -1) {
+        AVG_TRACE(Logger::ERROR, "Could not open " << s.str() 
+                << " for conrad relais card (Reason:'" << strerror(errno) 
+                << "'). Disabling.");
+    } else {
+        initBoard();
+        if (m_File != -1) {
+            pPlayer->registerFrameListener(this);
+        }
+    }
 }
 
 ConradRelais::~ConradRelais()
@@ -55,24 +69,6 @@ bool ConradRelais::get(int card, int index)
 {
     unsigned char bitMask = (unsigned char)(pow((double)2, index));
     return (bitMask & m_State[card]) == bitMask;
-}
-
-void ConradRelais::init(Player * pPlayer, int port)
-{
-    m_Port = port;
-    stringstream s;
-    s << "/dev/ttyS" << m_Port;
-    m_File = open(s.str().c_str(), O_RDWR | O_NOCTTY | O_NDELAY); //O_NONBLOCK);
-    if (m_File == -1) {
-        AVG_TRACE(Logger::ERROR, "Could not open " << s.str() 
-                << " for conrad relais card (Reason:'" << strerror(errno) 
-                << "'). Disabling.");
-    } else {
-        initBoard();
-        if (m_File != -1) {
-            pPlayer->registerFrameListener(this);
-        }
-    }
 }
 
 void ConradRelais::send()

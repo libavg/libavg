@@ -4,10 +4,9 @@
 
 void export_raster();
 void export_event();
-void export_parport();
+void export_devices();
 
 #include "../base/Logger.h"
-#include "../conradrelais/ConradRelais.h"
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
 #include "../player/DivNode.h"
@@ -41,7 +40,7 @@ BOOST_PYTHON_MODULE(avg)
         .def_readonly("APP", &Logger::APP)
     ;
 
-    export_parport();
+    export_devices();
     export_event();
     
     class_<Node, boost::noncopyable>("Node", no_init)
