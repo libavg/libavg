@@ -4,6 +4,7 @@
 
 #include "../player/KeyEvent.h"
 #include "../player/MouseEvent.h"
+#include "../player/Node.h"
 
 #include <boost/python.hpp>
 
@@ -36,4 +37,15 @@ void export_event()
                 return_value_policy<copy_const_reference>()))
         .add_property("modifiers",  &KeyEvent::getModifiers)
     ;    
+    
+    class_<MouseEvent, bases<Event> >("MouseEvent", no_init)
+        .add_property("leftbuttonstate", &MouseEvent::getLeftButtonState)
+        .add_property("middlebuttonstate", &MouseEvent::getMiddleButtonState)
+        .add_property("rightbuttonstate", &MouseEvent::getRightButtonState)
+        .add_property("x", &MouseEvent::getXPosition)
+        .add_property("y", &MouseEvent::getYPosition)
+        .add_property("button", &MouseEvent::getButton)
+        .add_property("node", make_function(&MouseEvent::getElement,
+                return_value_policy<reference_existing_object>()));
+        
 }

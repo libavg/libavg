@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg width="640" height="480" onkeydown="onkeydown();">
+<avg width="640" height="480">
 <!--  <camera id="camera" x="160" y="120" z="1" width="320" height="240"
       device="bla"/> -->
     <image id="below" x="0" y="0" z="0" width="320" height="240"

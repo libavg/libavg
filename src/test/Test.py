@@ -73,26 +73,44 @@ def keyDown():
     print "  keycode: "+str(Event.keycode)
     print "  modifiers: "+str(Event.modifiers)
 
+def dumpMouseEvent():
+    Event = Player.getCurEvent()
+    print Event
+    print "  type: "+str(Event.type)
+    print "  leftbuttonstate: "+str(Event.leftbuttonstate)
+    print "  middlebuttonstate: "+str(Event.middlebuttonstate)
+    print "  rightbuttonstate: "+str(Event.rightbuttonstate)
+    print "  position: "+str(Event.x)+","+str(Event.y)
+    print "  node: "+Event.node.id
+
+
 def mainMouseUp():
     print "mainMouseUp"
+    dumpMouseEvent()
 
 def mainMouseDown():
     print "mainMouseDown"
+    dumpMouseEvent()
 
 def onMouseMove():
     print "onMouseMove"
+    dumpMouseEvent()
 
 def onMouseUp():
     print "onMouseUp"
+    dumpMouseEvent()
 
 def onMouseOver():
     print "onMouseOver"
+    dumpMouseEvent()
 
 def onMouseOut():
     print "onMouseOut"
+    dumpMouseEvent()
 
 def onMouseDown():
     print "onMouseDown"
+    dumpMouseEvent()
 
 class PlayerTestCase(unittest.TestCase):
     def playAVG(self, fileName):
@@ -106,7 +124,7 @@ class PlayerTestCase(unittest.TestCase):
         
     def testEvents(self):
         Player.loadFile("events.avg")
-        Player.setTimeout(200, Player.stop)
+#        Player.setTimeout(200, Player.stop)
         Player.play(30)
         
     def createNodes(self):
