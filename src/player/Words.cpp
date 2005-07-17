@@ -102,6 +102,7 @@ string Words::getTypeStr ()
 
 void Words::setAlignment(const string& sAlign)
 {
+    invalidate();
     if (sAlign == "left") {
         m_Alignment = PANGO_ALIGN_LEFT;
     } else if (sAlign == "center") {
@@ -111,10 +112,13 @@ void Words::setAlignment(const string& sAlign)
     } else {
         // TODO: Throw exception.
     }
+    drawString();
+    invalidate();
 }
 
 void Words::setWeight(const string& sWeight)
 {
+    invalidate();
     if (sWeight == "ultralight") {
         m_Weight = PANGO_WEIGHT_ULTRALIGHT;
     } else if (sWeight == "light") {
@@ -132,10 +136,13 @@ void Words::setWeight(const string& sWeight)
     } else {
         // TODO: Throw exception.
     }
+    drawString();
+    invalidate();
 }
 
 void Words::setStretch(const string& sStretch)
 {
+    invalidate();
     if (sStretch == "ultracondensed") {
         m_Stretch = PANGO_STRETCH_ULTRA_CONDENSED;
     } else if (sStretch == "extracondensed") {
@@ -159,6 +166,8 @@ void Words::setStretch(const string& sStretch)
     } else {
         // TODO: Throw exception.
     }
+    drawString();
+    invalidate();
 }
 
 string Words::getAlignment() const

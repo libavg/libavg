@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+# -*- coding: utf-8 -*-
 import unittest
 
 import sys
@@ -249,6 +249,11 @@ class PlayerTestCase(unittest.TestCase):
         Player.loadFile("crop2.avg")
         self.cropInterval = Player.setInterval(10, cropTL)
         Player.play(60)
+    def testUnicode(self):
+        Player.loadFile("unicode.avg")
+        Player.getElementByID("dynamictext").text = "Arabic nonsense: ﯿﭗ"
+#        Player.setTimeout(1000, Player.stop)
+        Player.play(30)
     def testWarp(self):
         def moveVertex():
             node = Player.getElementByID("testtiles")
@@ -378,6 +383,7 @@ def playerTestSuite():
     suite.addTest(PlayerTestCase("testAnimation"))
     suite.addTest(PlayerTestCase("testBlend"))
     suite.addTest(PlayerTestCase("testCrop"))
+    suite.addTest(PlayerTestCase("testUnicode"))
     suite.addTest(PlayerTestCase("testWarp"))
     suite.addTest(WordsTestCase("test"))
     suite.addTest(VideoTestCase("test"))

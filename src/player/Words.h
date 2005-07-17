@@ -40,7 +40,10 @@ class Words : public RasterNode
         
         void setFont(const std::string& sName)
         {
+            invalidate();
             m_FontName = sName;
+            drawString();
+            invalidate();
         }
             
         const std::string& getText() const 
@@ -50,7 +53,10 @@ class Words : public RasterNode
         
         void setText(const std::string& sText)
         {
+            invalidate();
             m_Text = sText;
+            drawString();
+            invalidate();
         }
 
         const std::string& getColor() const
@@ -60,8 +66,11 @@ class Words : public RasterNode
 
         void setColor(const std::string& sColor)
         {
+            invalidate();
             m_ColorName = sColor;
             m_Color = colorStringToColor(m_ColorName);
+            drawString();
+            invalidate();
         }
 
         double getSize() const
@@ -71,7 +80,10 @@ class Words : public RasterNode
         
         void setSize(double Size)
         {
+            invalidate();
             m_Size = Size;
+            drawString();
+            invalidate();
         }
 
         int getParaWidth() const
@@ -81,7 +93,10 @@ class Words : public RasterNode
         
         void setParaWidth(int ParaWidth)
         {
+            invalidate();
             m_ParaWidth = ParaWidth;
+            drawString();
+            invalidate();
         }
         
         int getIndent() const
@@ -91,7 +106,10 @@ class Words : public RasterNode
         
         void setIndent(int Indent)
         {
+            invalidate();
             m_Indent = Indent;
+            drawString();
+            invalidate();
         }
 
         double getLineSpacing() const
@@ -101,7 +119,10 @@ class Words : public RasterNode
         
         void setLineSpacing(double LineSpacing)
         {
+            invalidate();
             m_LineSpacing = LineSpacing;
+            drawString();
+            invalidate();
         }
 
         std::string getAlignment() const;
@@ -113,7 +134,10 @@ class Words : public RasterNode
         
         void setItalic(bool bItalic)
         {
+            invalidate();
             m_bItalic = bItalic;
+            drawString();
+            invalidate();
         }
         
         std::string getWeight() const;
@@ -126,7 +150,10 @@ class Words : public RasterNode
         
         void setSmallCaps(bool bSmallCaps)
         {
+            invalidate();
             m_bSmallCaps = bSmallCaps;
+            drawString();
+            invalidate();
         }
         
         std::string getStretch() const;
