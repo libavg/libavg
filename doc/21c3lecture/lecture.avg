@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
+<avg width="1024" height="768" onkeyup="onKeyUp()">
+  <div id="mainscreen">
+    <div>
+      <image id="background" href="media/background.tif"/>
+      <image id="icons" x="245" y="170" href="media/icons.tif"/>
+      <image id="icons_background" x="244" y="0" href="media/icons_background.tif"/>
+      <image id="logo" x="60" y="22" href="media/logo.tif"/>
+    </div>
+    <div id="images" x="352" y="235" width="546" height="410">
+      <image id="title" href="media/title.tif" opacity="0"/>
+      <image id="contents" href="media/contents.tif" opacity="0"/>
+      <image id="requirements" href="media/requirements.tif" opacity="0"/>
+      <image id="concept" href="media/concept.tif" opacity="0"/>
+      <image id="basetech" href="media/basetech.tif" opacity="0"/>
+      <image id="features" href="media/features.tif" opacity="0"/>
+      <image id="samples" href="media/samples.tif" opacity="0"/>
+      <image id="future" href="media/future.tif" opacity="0"/>
+      <image id="wishlist" href="media/wishlist.tif" opacity="0"/>
+      <div id="layoutsample" opacity="0">
+        <words id="sample1" x="50" y="130" z="2" size="80" parawidth="500" font="SimSun"
+               color="000000" text="一二三四五六七八九" angle="-0.4"/>
+        <words id="sample2" y="80" size="40" parawidth="600"
+               font="Eurostile-Demi" color="404080" opacity="0.4" angle="0.2">
+The quick brown fox jumped over the lazy dog.
+The <span size="40000" rise="10000">quick</span> brown fox jumped
+<span font_desc="Eurostile-Demi Italic" size="40000">over</span> the lazy dog.
+<span font_desc="Courier">The quick brown fox jumped over the</span> lazy dog.
+        </words>
+      </div>
+      <video id="timescope" width="546" height="410" z="1" opacity="0.0"
+        href="media/wittenbergplatz.mpg"/> 
+      <image id="timescope_rendering" href="media/timescope_rendering.tif"
+             opacity="0"/>
+      <image id="airlock1" href="media/airlock1.tif" opacity="0"/>
+      <image id="airlock2" href="media/airlock2.tif" opacity="0"/>
+      <image id="airlock3" href="media/airlock3.tif" opacity="0"/>
+
+    </div>
+    <div id="headings">
+      <words id="title_heading" x="0" y="200" z="2" parawidth="233" alignment="right"
+             font="eurostile" size="28" text="" color="000000" opacity="1"/>
+      <words id="contents_heading" x="0" y="200" z="2" parawidth="233" alignment="right"
+             font="eurostile" size="28" text="Contents" color="000000" opacity="1"/>
+      <words id="requirements_heading" x="0" y="265" z="2" parawidth="233" alignment="right"
+             font="eurostile" size="28" text="Requirements" color="000000" opacity="1"/>
+      <words id="concept_heading" x="0" y="329" z="2" parawidth="233" alignment="right"
+             font="eurostile" size="28" text="Concept" color="000000" opacity="1"/>
+      <words id="basetech_heading" x="0" y="394" z="2" parawidth="233" alignment="right"
+             font="eurostile" size="28" text="Base Technology" color="000000" opacity="1"/>
+      <words id="features_heading" x="0" y="458" z="2" parawidth="233" alignment="right"
+             font="eurostile" size="28" text="Features" color="000000" opacity="1"/>
+      <words id="samples_heading" x="0" y="523" z="2" parawidth="233" alignment="right"
+             font="eurostile" size="28" text="Samples" color="000000" opacity="1"/>
+      <words id="future_heading" x="0" y="585" z="2" parawidth="233" alignment="right"
+             font="eurostile" size="28" text="The Future" color="000000" opacity="1"/>
+      <words id="wishlist_heading" x="0" y="650" z="2" parawidth="233" alignment="right"
+             font="eurostile" size="28" text="Wishlist" color="000000" opacity="1"/>
+    </div>
+    <words id="slide_title" x="363" y="142" font="eurostile" size="36" color="000000"/>
+    <words id="slide_text0" x="363" y="246" font="eurostile" size="28" color="000000"/>
+    <words id="slide_text1" x="363" y="246" font="eurostile" size="28" color="000000"/>
+    <words id="slide_text2" x="363" y="246" font="eurostile" size="28" color="000000"/>
+    <words id="slide_text3" x="363" y="246" font="eurostile" size="28" color="000000"/>
+    <words id="slide_text4" x="363" y="246" font="eurostile" size="28" color="000000"/>
+    <words id="slide_text5" x="363" y="246" font="eurostile" size="28" color="000000"/>
+    <words id="slide_text6" x="363" y="246" font="eurostile" size="28" color="000000"/>
+    <words id="slide_text7" x="363" y="246" font="eurostile" size="28" color="000000"/>
+    <words id="slide_text8" x="363" y="246" font="eurostile" size="28" color="000000"/>
+    <words id="slide_text9" x="363" y="246" font="eurostile" size="28" color="000000"/>
+    <words id="slide_text10" x="363" y="246" font="eurostile" size="28" color="000000"/>
+    <words id="slide_text11" x="363" y="246" font="eurostile" size="28" color="000000"/>
+    <words id="slide_text12" x="363" y="246" font="eurostile" size="28" color="000000"/>
+    <words id="slide_text13" x="363" y="246" font="eurostile" size="28" color="000000"/>
+    <words id="slide_text14" x="363" y="246" font="eurostile" size="28" color="000000"/>
+  </div>
+  <div id="videosample" opacity="0">
+    <video id="mpeg1" x="-8" y="80" width="528" height="360" z="1" opacity="0.0" blendmode="add"
+        href="../avg/src/test/enterprise/enterprise - 1 - 03 - fight_or_flight.vcd.gamblor-wow.mpg"/> 
+    <video id="mpeg2" x="-8" y="220" width="528" height="360" z="1" opacity="0.0" blendmode="add"
+        href="../avg/src/test/enterprise/enterprise - 1 - 04 - strange new world.vcd.cid-wow.mpg"/> 
+    <video id="mpeg3" x="504" y="80"  width="528" height="360" z="1" opacity="0.0" blendmode="add"
+        href="../avg/src/test/enterprise/enterprise - 1 - 05 - unexpected.vcd.cid-wow.mpg"/> 
+    <video id="mpeg4" x="504" y="220" width="528" height="360" z="1" opacity="0.0" blendmode="add"
+        href="../avg/src/test/enterprise/enterprise - 1 - 06 - terra_nova.vcd.cid-wow.mpg"/> 
+    <video id="mpeg5" x="-8" y="380" width="528" height="360" z="1" opacity="0.0" blendmode="add"
+        href="../avg/src/test/enterprise/Enterprise - 1 - 07 - The Andorian Incident.mpg"/> 
+    <video id="mpeg6" x="504" y="380" width="528" height="360" z="1" opacity="0.0" blendmode="add"
+        href="../avg/src/test/enterprise/enterprise - 1 - 08 - Breaking The Ice.mpg"/> 
+  </div>
+</avg>
