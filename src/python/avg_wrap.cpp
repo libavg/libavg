@@ -93,7 +93,15 @@ BOOST_PYTHON_MODULE(avg)
         .add_property("maxrotation", &PanoImage::getMaxRotation)
     ;
 
+    enum_<Player::DisplayEngineType>("DisplayEngineType")
+        .value("DFB", Player::DFB)
+        .value("OGL", Player::OGL)
+        .export_values()
+    ;
+
     class_<Player>("Player")
+        .def("setDisplayEngine", &Player::setDisplayEngine)
+        .def("setResolution", &Player::setResolution)
         .def("loadFile", &Player::loadFile)
         .def("play", &Player::play)
         .def("stop", &Player::stop)

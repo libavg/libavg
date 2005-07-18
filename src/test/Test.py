@@ -124,9 +124,12 @@ class PlayerTestCase(unittest.TestCase):
         
     def testEvents(self):
         Player.loadFile("events.avg")
-#        Player.setTimeout(200, Player.stop)
+        Player.setTimeout(200, Player.stop)
         Player.play(30)
-        
+    def testConfig(self):
+        Player.setDisplayEngine(avg.DFB)
+        Player.setResolution(0, 100, 100, 16)
+        self.testEvents()
     def createNodes(self):
         node=Player.createNode("<image href='rgb24.png'/>")
         node.x = 10
@@ -252,7 +255,7 @@ class PlayerTestCase(unittest.TestCase):
     def testUnicode(self):
         Player.loadFile("unicode.avg")
         Player.getElementByID("dynamictext").text = "Arabic nonsense: ﯿﭗ"
-#        Player.setTimeout(1000, Player.stop)
+        Player.setTimeout(1000, Player.stop)
         Player.play(30)
     def testWarp(self):
         def moveVertex():
@@ -375,6 +378,7 @@ def playerTestSuite():
     suite.addTest(NodeTestCase("testAttributes"))
     suite.addTest(PlayerTestCase("testImage"))
     suite.addTest(PlayerTestCase("testEvents"))
+    suite.addTest(PlayerTestCase("testConfig"))
 #    suite.addTest(PlayerTestCase("testDynamics"))
     suite.addTest(PlayerTestCase("testHugeImage"))
     suite.addTest(PlayerTestCase("testPanoImage"))

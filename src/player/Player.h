@@ -41,6 +41,11 @@ class Player : IEventSink
         Player ();
         virtual ~Player ();
 
+        enum DisplayEngineType{DFB, OGL};
+        void setDisplayEngine(DisplayEngineType engine);
+        void setResolution(bool bFullscreen, 
+                int width=0, int height=0, int bpp=0);
+        
         /**
          * Loads the avg file specified in fileName. Returns false if the file 
          * could not be opened.

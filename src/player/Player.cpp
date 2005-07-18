@@ -59,12 +59,56 @@ Player::Player()
       m_pLastMouseNode(0)
 {
     TimeSource::get()->getCyclesPerSecond();
+    initConfig();
 }
 
 Player::~Player()
 {
     if (m_pDisplayEngine) {
         delete m_pDisplayEngine;
+    }
+}
+
+void Player::setDisplayEngine(DisplayEngineType engine)
+{
+    if (m_pRootNode) {
+        AVG_TRACE(Logger::ERROR,
+                "Player::setDisplayEngine called after loadFile."
+                << " Aborting.");
+        exit(-1);
+    }
+    switch (engine) {
+        case DFB:
+            m_sDisplaySubsystem="DFB";
+            break;
+        case OGL:
+            m_sDisplaySubsystem="OGL";
+            break;
+        default:
+            AVG_TRACE(Logger::ERROR,
+                    "Unknown display engine type in setDisplayEngine. Aborting.");
+            exit(-1);
+    }
+}
+
+void Player::setResolution(bool bFullscreen, 
+                int width, int height, int bpp)
+{
+    if (m_pRootNode) {
+        AVG_TRACE(Logger::ERROR,
+                "Player::setResolution called after loadFile."
+                << " Aborting.");
+        exit(-1);
+    }
+    m_bFullscreen = bFullscreen;
+    if (bpp) {
+        m_BPP = bpp;
+    }
+    if (width) {
+        m_WindowWidth = width;
+    }
+    if (height) {
+        m_WindowHeight = height;
     }
 }
 
@@ -76,16 +120,14 @@ void Player::loadFile (const std::string& filename)
         // TODO: Call GC
         PLASSERT (!m_pRootNode);
 
-        initConfig();
 
         // Get display configuration.
         if (!m_pDisplayEngine) {
             if (m_sDisplaySubsystem == "DFB") {
 #ifdef AVG_ENABLE_DFB
-                cerr << "DFB" << endl;
                 m_pDisplayEngine = new DFBDisplayEngine ();
                 m_pEventSource =
-                        dynamic_cast<DFBDisplayEngine *>(m_pDisplayEngine);
+                    dynamic_cast<DFBDisplayEngine *>(m_pDisplayEngine);
 #else
                 AVG_TRACE(Logger::ERROR,
                         "Display subsystem set to DFB but no DFB support compiled."
@@ -96,7 +138,7 @@ void Player::loadFile (const std::string& filename)
 #ifdef AVG_ENABLE_GL
                 m_pDisplayEngine = new SDLDisplayEngine ();
                 m_pEventSource = 
-                        dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine);
+                    dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine);
 #else
                 AVG_TRACE(Logger::ERROR,
                         "Display subsystem set to GL but no GL support compiled."
@@ -202,6 +244,7 @@ void Player::play (double framerate)
            
         delete m_pFramerateManager;
         m_IDMap.clear();
+        initConfig();
     } catch  (Exception& ex) {
         AVG_TRACE(Logger::ERROR, ex.GetStr());
     }
@@ -258,17 +301,6 @@ const Event& Player::getCurEvent() const
     return *m_pCurEvent;
 }
 
-/*
-KeyEvent& Player::getCurKeyEvent()
-{
-    return *(dynamic_cast<KeyEvent*>(m_pCurEvent));
-}
-
-MouseEvent& Player::getCurMouseEvent()
-{
-    return *(dynamic_cast<MouseEvent*>(m_pCurEvent));
-}
-*/
 bool Player::screenshot(const std::string& sFilename)
 {
     PLAnyBmp Bmp;
