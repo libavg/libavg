@@ -177,8 +177,13 @@ void FFMpegDecoder::close()
 
 void FFMpegDecoder::seek(int DestFrame, int CurFrame) 
 {
+#if LIBAVFORMAT_BUILD <= 4616
     av_seek_frame(m_pFormatContext, m_VStreamIndex, 
             int((double(DestFrame)*1000000*1000)/m_pVStream->r_frame_rate));
+#else
+    av_seek_frame(m_pFormatContext, m_VStreamIndex, 
+            int((double(DestFrame)*1000000*1000)/m_pVStream->r_frame_rate), 0);
+#endif    
 }
 
 int FFMpegDecoder::getNumFrames()
