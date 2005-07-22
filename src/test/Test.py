@@ -140,16 +140,12 @@ class PlayerTestCase(unittest.TestCase):
         node.blendmode = "add"
 #        print node.toXML()
         self.rootNode.addChild(node)
-        print 1
 #        nodeCopy = node
 #        self.rootNode.addChild(nodeCopy)
         node = Player.createNode("<video href='test.m1v'/>")
-        print 2
         self.rootNode.addChild(node)
-        print 3
         node = Player.createNode("<words text='Lorem ipsum dolor'/>")
         self.rootNode.addChild(node)
-        print 4
         node.size = 18
         node.font = "times new roman"
         node.parawidth = 200
@@ -157,7 +153,6 @@ class PlayerTestCase(unittest.TestCase):
         node.getChild(0).x=10
         node.x=10
         self.rootNode.addChild(node)
-        print 5
     def deleteNodes(self):
         for i in range(self.rootNode.getNumChildren()-1,0):
 #            print ("Deleting node #"+i);
