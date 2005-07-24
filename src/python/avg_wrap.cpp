@@ -99,26 +99,77 @@ BOOST_PYTHON_MODULE(avg)
         .export_values()
     ;
 
-    class_<Player>("Player")
-        .def("setDisplayEngine", &Player::setDisplayEngine)
-        .def("setResolution", &Player::setResolution)
-        .def("loadFile", &Player::loadFile)
-        .def("play", &Player::play)
-        .def("stop", &Player::stop)
+    class_<Player>("Player", 
+                "class Player\n\n"
+                "The class used to load and play avg files.")
+        .def("setDisplayEngine", &Player::setDisplayEngine,
+                "setDisplayEngine(engine) -> None\n\n"
+                "Determines which display backend to use. Parameter can be either\n"
+                "avg.DFB (for DirectFB rendering) or avg.OGL (for OpenGL rendering).\n"
+                "Must be called before loadFile.")
+        .def("setResolution", &Player::setResolution,
+                "setResolution(fullscreen, width, height, bpp) -> None\n\n",
+                "Sets display engine parameters. width and height set the window size\n"
+                "(if fullscreen is false) or screen resolution (if fullscreen is true).\n"
+                "bpp is the number of bits per pixel to use. Must be called before\n"
+                "loadFile.")
+        .def("loadFile", &Player::loadFile,
+                "loadFile(fileName) -> None\n\n"
+                "Loads the avg file specified in fileName. Returns false if the file\n"
+                "could not be opened.")
+        .def("play", &Player::play,
+                "play(framerate) -> None\n\n"
+                "Opens a playback window or screen and starts playback. framerate is\n"
+                "the number of frames per second that should be displayed. play returns\n"
+                "when playback has ended.")
+        .def("stop", &Player::stop,
+                "stop() -> None\n\n"
+                "Stops playback and resets the video mode if nessesary.")
         .def("createNode", &Player::createNodeFromXmlString,
-                return_value_policy<manage_new_object>())
-        .def("setInterval", &Player::setInterval)
-        .def("setTimeout", &Player::setTimeout)
-        .def("clearInterval", &Player::clearInterval)
+                return_value_policy<manage_new_object>(),
+                "createNode(xml) -> Node\n\n"
+                "Creates a new Node from an xml string. This node can be used as\n"
+                "parameter to Container::addChild().")
+        .def("setInterval", &Player::setInterval,
+                "setInterval(time, pyfunc) -> id\n\n"
+                "Sets a python callable object that should be executed every time\n"
+                "milliseconds. setInterval returns an id that can be used to\n"
+                "call clearInterval() to stop the code from being called.")
+        .def("setTimeout", &Player::setTimeout, 
+                "setTimeout(time, pyfunc) -> id\n\n"
+                "Sets a python callable object that should be executed after time\n"
+                "milliseconds. setTimeout returns an id that can be used to\n"
+                "call clearInterval() to stop the code from being called.")
+        .def("clearInterval", &Player::clearInterval,
+                "clearInterval(id) -> ok\n\n"
+                "Stops a timeout or an interval from being called. Returns 1 if\n"
+                "there was an interval with the given id, 0 if not.\n")
         .def("getCurEvent", &Player::getCurEvent,
-                return_value_policy<reference_existing_object>())
-        .def("screenshot", &Player::screenshot)
-        .def("showCursor", &Player::showCursor)
+                return_value_policy<reference_existing_object>(),
+                "getCurEvent() -> Event\n\n"
+                "Gets an interface to the current event. Only valid inside event\n"
+                "handlers (onmouseup, onmousedown, etc.)")
+        .def("screenshot", &Player::screenshot,
+                "screenshot(filename) -> ok\n\n"
+                "Saves the contents of the current screen in a png file. Returns\n"
+                "1 on success, 0 if the screen couldn't be saved.\n")
+        .def("showCursor", &Player::showCursor,
+                "showCursor(show) -> None\n\n"
+                "Shows or hides the mouse cursor. (Currently, this only works for\n"
+                "OpenGL. Showing the DirectFB mouse cursor seems to expose some\n"
+                "issue with DirectFB.)")
         .def("getElementByID", &Player::getElementByID,
-                return_value_policy<reference_existing_object>())
+                return_value_policy<reference_existing_object>(),
+                "getElementByID(id) -> Node\n\n"
+                "Returns an element in the avg tree. The id corresponds to the id\n"
+                "attribute of the node.")
         .def("getRootNode", &Player::getRootNode,
-                return_value_policy<reference_existing_object>())
-        .def("getFramerate", &Player::getFramerate)
+                return_value_policy<reference_existing_object>(),
+                "getRootNode() -> AVGNode\n\n"
+                "Returns the outermost element in the avg tree.")
+        .def("getFramerate", &Player::getFramerate,
+                "getFramerate() -> framerate\n\n"
+                "Returns the current framerate in frames per second.")
     ;
 
 }

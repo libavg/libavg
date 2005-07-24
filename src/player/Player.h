@@ -45,73 +45,19 @@ class Player : IEventSink
         void setDisplayEngine(DisplayEngineType engine);
         void setResolution(bool bFullscreen, 
                 int width=0, int height=0, int bpp=0);
-        
-        /**
-         * Loads the avg file specified in fileName. Returns false if the file 
-         * could not be opened.
-         */
         void loadFile (const std::string& fileName);
-        
-        /**
-         * Opens a playback window or screen and starts playback. framerate is 
-         * the number of frames per second that should be displayed. 
-         */
         void play (double framerate);
-        
-        /**
-         * Stops playback and resets the video mode if nessesary.
-         */
         void stop ();
 
         Node * createNodeFromXmlString (const std::string& sXML);
-
-        /**
-         * Sets javascript code that should be executed every time milliseconds.
-         * The smallest timeframe that can be set is once per frame. If less
-         * than that is specified, the code will be executed exactly once per 
-         * frame. The function returns an id that can be used to call 
-         * clearInterval() to stop the code from being called.
-         */
         int setInterval(int time, PyObject * pyfunc);
-        /**
-         * Sets javascript code that should be executed after time milliseconds.
-         * The function returns an id that can be used to call clearInterval() 
-         * to stop the code from being called.
-         */
         int setTimeout(int time, PyObject * pyfunc);
-        /**
-         * Stops a timeout or an interval from being called. Returns true if 
-         * there was an interval with the given id, false if not.
-         */
         bool clearInterval(int id);
-
-        /**
-         * Gets an interface to the current event. Only valid inside 
-         * event handlers (onmouseup, onmousedown, etc.)
-         */
         const Event& getCurEvent() const;
-
-        /**
-         * Saves the contents of the current screen in a png file. Returns 
-         * true on success, false if the screen couldn't be saved.
-         */
         bool screenshot(const std::string& sFilename);
-
-        /**
-         * Shows or hides the mouse cursor. (Currently, this only works for 
-         * OpenGL. Showing the DirectFB mouse cursor seems to expose some 
-         * issue with DirectFB.)
-         */
         void showCursor(bool bShow);
 
-        /**
-         * Returns an element in the avg tree. The id corresponds to the id 
-         * attribute of the node. 
-         */
         Node * getElementByID (const std::string& id);
-        /**
-         * Returns the outermost element in the avg tree. 
-         */
         AVGNode * getRootNode ();
         void doFrame ();
         void setPriority();
