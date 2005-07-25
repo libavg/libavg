@@ -13,7 +13,13 @@ using namespace avg;
 
 void export_event()
 {
-    class_<Event, boost::noncopyable>("Event", no_init)
+    class_<Event, boost::noncopyable>("Event", 
+            "Base class for user input events.\n"
+            "Properties:\n"
+            "    type: One of KEYUP, KEYDOWN, MOUSEMOTION, MOUSEBUTTONUP,\n"
+            "          MOUSEBUTTONDOWN, MOUSEOVER, MOUSEOUT, RESIZE or QUIT.\n"
+            "    when: The timestamp of the event in milliseconds.\n",
+            no_init)
         .add_property("type", &Event::getType)
         .add_property("when", &Event::getWhen)
     ;
@@ -30,15 +36,33 @@ void export_event()
         .value("QUIT", Event::QUIT)
     ;
 
-    class_<KeyEvent, bases<Event> >("KeyEvent", no_init)
+    class_<KeyEvent, bases<Event> >("KeyEvent", 
+            "Raised when a key is pressed or released.\n"
+            "Properties:\n"
+            "    scancode: The untranslated scancode of the key pressed. (ro)\n"
+            "    keycode: The keycode of the key according to the current layout. (ro)\n"
+            "    keystring: A character or word describing the key pressed. (ro)\n"
+            "    modifiers: Any modifiers (shift, ctrl,...) pressed as well. (ro)\n",
+            no_init)
         .add_property("scancode", &KeyEvent::getScanCode)
         .add_property("keycode", &KeyEvent::getKeyCode)
         .add_property("keystring", make_function(&KeyEvent::getKeyString, 
                 return_value_policy<copy_const_reference>()))
-        .add_property("modifiers",  &KeyEvent::getModifiers)
+        // TODO: Export possible modifiers as enum.
+        .add_property("modifiers", &KeyEvent::getModifiers)
     ;    
     
-    class_<MouseEvent, bases<Event> >("MouseEvent", no_init)
+    class_<MouseEvent, bases<Event> >("MouseEvent", 
+            "Raised when a mouse-related event occurs.\n"
+            "Properties:\n"
+            "    leftbuttonstate: (ro)\n"
+            "    middlebuttonstate: (ro)\n"
+            "    rightbuttonstate: (ro)\n"
+            "    x: x position in the global coordinate system. (ro)\n"
+            "    y: y position in the global coordinate system. (ro)\n"
+            "    button: The button that caused the event. (ro)\n"
+            "    node: The node that the event handler was declared in. (ro)\n",
+            no_init)
         .add_property("leftbuttonstate", &MouseEvent::getLeftButtonState)
         .add_property("middlebuttonstate", &MouseEvent::getMiddleButtonState)
         .add_property("rightbuttonstate", &MouseEvent::getRightButtonState)

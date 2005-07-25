@@ -20,13 +20,44 @@ using namespace avg;
 
 BOOST_PYTHON_MODULE(avg)
 {
-    class_<Logger>("Logger", no_init)
+    class_<Logger>("Logger", 
+            "Interface to the logger used by the avg player. Enables the setting\n"
+            "of different logging categories and a destination file. Can be used\n"
+            "to log application-specific messages as well.\n"
+            "Each log entry contains the time the message was written, the category\n"
+            "of the entry and the message itself.",
+            no_init)
         .def("get", &Logger::get, 
-                return_value_policy<reference_existing_object>())
+                return_value_policy<reference_existing_object>(),
+                "get() -> Logger\n\n"
+                "There is only one logger. This method gives access to it.")
         .staticmethod("get")
-        .def("setDestination", &Logger::setDestination)
-        .def("setCategories", &Logger::setCategories)
-        .def("trace", &Logger::trace)
+        .def("setDestination", &Logger::setDestination,
+                "setDestination(filename) -> None\n\n"
+                "Sets the file that the log should be written to. Default is stderr.\n")
+        .def("setCategories", &Logger::setCategories,
+                "setCategories(categories) -> None\n\n"
+                "Sets the types of messages that should be logged. Possible \n"
+                "categories are:\n"
+                "    NONE: No logging except for errors.\n"
+                "    BLTS: Display subsystem logging. Useful for timing/performance\n"
+                "          measurements.\n"
+                "    PROFILE: Outputs performance statistics on player termination.\n"
+                "    PROFILE_LATEFRAMES: Outputs performance statistics whenever a\n"
+                "                        frame is displayed late.\n"
+                "    EVENTS: Outputs basic event data.\n"
+                "    EVENTS2: Outputs all event data available.\n"
+                "    CONFIG: Outputs configuration data.\n"
+                "    WARNING: Outputs warning messages. Default is on.\n"
+                "    ERROR: Outputs error messages. Can't be shut off.\n"
+                "    MEMORY: Currently unused.\n"
+                "    APP: Reserved for application-level messages issued by python\n"
+                "         code.\n"
+                "Categories can be or'ed together.")
+        .def("trace", &Logger::trace,
+                "trace(category, message) -> None\n\n"
+                "Logs message to the log if category is active. The category should\n"
+                "in most cases be APP.")
         .def_readonly("NONE", &Logger::NONE)
         .def_readonly("BLTS", &Logger::BLTS)
         .def_readonly("PROFILE", &Logger::PROFILE)
@@ -43,9 +74,23 @@ BOOST_PYTHON_MODULE(avg)
     export_devices();
     export_event();
     
-    class_<Node, boost::noncopyable>("Node", no_init)
+    class_<Node, boost::noncopyable>("Node",
+            "Base class for all elements in the avg tree.\n"
+            "Properties:\n"
+            "    id: A unique identifier that can be used to reference the node (ro).\n"
+            "    x: The position of the node's left edge relative to it's parent node.\n"
+            "    y: The position of the node's top edge relative to it's parent node.\n"
+            "    width\n"
+            "    height\n"
+            "    opacity: A measure of the node's transparency. 0.0 is completely\n"
+            "             transparent, 1.0 is completely opaque. Opacity is relative to\n"
+            "             the parent node's opacity.", 
+            no_init)
         .def("getParent", &Node::getParent,
-                return_internal_reference<>())
+                return_internal_reference<>(),
+                "getParent() -> Node\n\n"
+                "Returns the container (AVGNode, DivNode or Excl) the node is in. For\n"
+                "the root node, returns None.\n")
         .add_property("id", make_function(&Node::getID, 
                 return_value_policy<copy_const_reference>()))
         .add_property("x", &Node::getX, &Node::setX)
@@ -57,31 +102,75 @@ BOOST_PYTHON_MODULE(avg)
 
     export_raster();
     
-    class_<Container, bases<Node>, boost::noncopyable>("Container", no_init)
-        .def("getNumChildren", &Container::getNumChildren)
+    class_<Container, bases<Node>, boost::noncopyable>("Container",
+            "Base class for all nodes containing other nodes (DivNode, AVGNode, Excl)",
+            no_init)
+        .def("getNumChildren", &Container::getNumChildren,
+                "getNumChildren() -> numChildren\n\n")
         .def("getChild", &Container::getChild, 
-                return_value_policy<reference_existing_object>())
-        .def("addChild", &Container::addChild)
-        .def("removeChild", &Container::removeChild)
-        .def("indexOf", &Container::indexOf)
+                return_value_policy<reference_existing_object>(),
+                "getChild(i) -> Node\n\n"
+                "Returns the ith child in z-order.")
+        .def("addChild", &Container::addChild,
+                "addChild(Node) -> None\n\n"
+                "Adds a new child to the container.")
+        .def("removeChild", &Container::removeChild,
+                "removeChild(i) -> None\n\n"
+                "Removes the child at index i.")
+        .def("indexOf", &Container::indexOf,
+                "indexOf(childNode) -> i\n\n"
+                "Returns the index of the child given or -1 if childNode isn't a\n"
+                "child of the container.")
     ;
     
-    class_<DivNode, bases<Container>, boost::noncopyable>("DivNode", no_init)
+    class_<DivNode, bases<Container>, boost::noncopyable>("DivNode", 
+            "A div node is a node that groups other nodes logically and visually.\n"
+            "Its upper left corner is used as point of origin for the coordinates\n"
+            "of its child nodes. Its extents are used to clip the children. Its\n"
+            "opacity is used as base opacity for the child nodes' opacities.\n",
+            no_init)
     ;
     
-    class_<AVGNode, bases<DivNode> >("AVGNode")
-        .def("getCropSetting", &AVGNode::getCropSetting)
+    class_<AVGNode, bases<DivNode> >("AVGNode",
+            "Root node of any avg tree. Defines the properties of the display and\n"
+            "handles key press events. The AVGNode's width and height define the\n"
+            "coordinate system for the display and are the default for the window\n"
+            "size used (i.e. by default, the coordinate system is pixel-based.\n"
+            "Properties:\n"
+            "    onkeydown: The python code to execute when a key is pressed (ro).\n"
+            "    onkeyup: The python code to execute when a key is released (ro).\n")
+        .def("getCropSetting", &AVGNode::getCropSetting,
+                "getCropSetting() -> isCropActive\n\n"
+                "Returns true if cropping is active. Cropping can be turned off globally\n"
+                "in the avg file. (Deprecated. This attribute is only nessesary because\n"
+                "of certain buggy display drivers that don't work with cropping.)")
         .add_property("onkeydown", make_function(&AVGNode::getOnKeyDown,
                 return_value_policy<copy_const_reference>()))
         .add_property("onkeyup", make_function(&AVGNode::getOnKeyUp,
                 return_value_policy<copy_const_reference>()))
     ;
 
-    class_<Excl, bases<Container> >("Excl")
+    class_<Excl, bases<Container> >("Excl",
+            "Node that displays only one of its children.\n"
+            "Properties:\n"
+            "    activechild: The child that is currently displayed and reacting to\n"
+            "                 events.")
         .add_property("activechild", &Excl::getActiveChild, &Excl::setActiveChild)
     ;
 
-    class_<PanoImage, bases<Node> >("PanoImage")
+    class_<PanoImage, bases<Node> >("PanoImage",
+            "A panorama image.\n"
+            "Properties:\n"
+            "    href: The source filename of the image.\n"
+            "    sensorwidth: The width of the sensor used to make the image. This value\n"
+            "                 is used together with sensorheight and focallength to\n"
+            "                 determine the projection to use. (ro)\n"
+            "    sensorheight: The height of the sensor used to make the image. (ro)\n"
+            "    focallength: The focal length of the lens in millimeters. (ro)\n"
+            "    hue: A hue to color the image in. (ro, deprecated)\n"
+            "    saturation: The saturation the image should have. (ro, deprecated)\n"
+            "    rotation: The current angle the viewer is looking at in radians.\n"
+            "    maxrotation: The maximum angle the viewer can look at.\n")
         .add_property("href", make_function(&PanoImage::getFilename,
                 return_value_policy<copy_const_reference>()))
         .add_property("sensorwidth", &PanoImage::getSensorWidth)
@@ -100,7 +189,6 @@ BOOST_PYTHON_MODULE(avg)
     ;
 
     class_<Player>("Player", 
-                "class Player\n\n"
                 "The class used to load and play avg files.")
         .def("setDisplayEngine", &Player::setDisplayEngine,
                 "setDisplayEngine(engine) -> None\n\n"

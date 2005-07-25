@@ -59,9 +59,6 @@ class Node
         bool getActive() const;
         void setActive(bool bActive);
 
-        /**
-         * Returns the parent node, if there is one.
-         */
         virtual Container * getParent();
 
         bool isActive();

@@ -54,17 +54,58 @@ void export_devices()
         .value("PARPORTDATA7", BIT7)
         .export_values();
     
-    class_<ParPort>("ParPort")
-        .def("init", &ParPort::init)
-        .def("setControlLine", &ParPort::setControlLine)
-        .def("getStatusLine", &ParPort::getStatusLine)
-        .def("setDataLines", &ParPort::setDataLines)
-        .def("clearDataLines", &ParPort::clearDataLines)
-        .def("isAvailable", &ParPort::isAvailable)
+    class_<ParPort>("ParPort",
+            "Used for low-level control of the parallel port's data, status and control\n"
+            "lines.")
+        .def("init", &ParPort::init,
+                "init(DeviceName) -> None\n\n"
+                "Opens the given device as a parallel port. If DeviceName is an empty\n"
+                "string, /dev/parport0 is used as device name.")
+        .def("setControlLine", &ParPort::setControlLine,
+                "setControlLine(line, value) -> ok\n\n",
+                "Sets or clears one of the control lines. Possible values for line are\n"
+                "CONTROL_STROBE, CONTROL_AUTOFD, CONTROL_INIT and CONTROL_SELECT.\n"
+                "Returns 1 if the value was set successfully, 0 otherwise.")
+        .def("getStatusLine", &ParPort::getStatusLine,
+                "getStatusLine(line) -> value\n\n"
+                "Returns the value of one of the parallel port status lines. Possible\n"
+                "lines are STATUS_ERROR, STATUS_SELECT, STATUS_PAPEROUT, STATUS_ACK\n"
+                "and STATUS_BUSY.")
+        .def("setDataLines", &ParPort::setDataLines,
+                "setDataLines(lines) -> ok\n\n"
+                "Sets the data lines given as argument. Constants to used for these\n"
+                "lines are PARPORTDATA0-PARPORTDATA7. Several of these constants can\n"
+                "be or'ed together to set several lines. The lines not mentioned in\n"
+                "the parameter are left unchanged. Returns 1 if the lines were set,\n"
+                "0 otherwise.")
+        .def("clearDataLines", &ParPort::clearDataLines,
+                "clearDataLines(lines) -> ok\n\n"
+                "Clears the data lines given as argument. Constants to used for these\n"
+                "lines are PARPORTDATA0-PARPORTDATA7. Several of these constants can\n"
+                "be or'ed together to clear several lines. The lines not mentioned in\n"
+                "the parameter are left unchanged.")
+        .def("isAvailable", &ParPort::isAvailable,
+                "isAvailable() -> ok\n\n"
+                "Returns 1 if the parallel port has been opened successfully, 0\n"
+                "otherwise.")
         ;
 
-    class_<ConradRelais>("ConradRelais", init<Player*, int>())
-        .def("getNumCards", &ConradRelais::getNumCards)
-        .def("set", &ConradRelais::set)
-        .def("get", &ConradRelais::get);
+    class_<ConradRelais>("ConradRelais",
+            "Interface to one or more conrad relais cards connected to a serial port.\n"
+            "Per card, up to eight 220V devices can be connected.",
+            init<Player*, int>(
+                "ConradRelais(AVGPlayer, port)\n\n"
+                "Opens a connection to the relais card(s) connected to the port given.\n"
+                "port is an integer. The actual device opened is /dev/ttyS<port>."))
+        .def("getNumCards", &ConradRelais::getNumCards,
+                "getNumCards() -> num\n\n"
+                "Returns the number of cards connected to the serial port.")
+        .def("set", &ConradRelais::set,
+                "set(card, index, value) -> None\n\n"
+                "Sets or resets one of the relais. card and index select the relais\n"
+                "to set.")
+        .def("get", &ConradRelais::get,
+                "get(card, index) -> value\n\n"
+                "Returns the state of one of the relais. card and index select the\n"
+                "relais to query.");
 }
