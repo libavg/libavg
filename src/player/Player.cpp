@@ -369,7 +369,6 @@ static ProfilingZone TimersProfilingZone("Player - handleTimers");
 static ProfilingZone EventsProfilingZone("Player - dispatch events");
 static ProfilingZone RenderProfilingZone("Player - render");
 static ProfilingZone ListenerProfilingZone("Player - listeners");
-static ProfilingZone GCProfilingZone("Player - JS Garbage collection");
 
 void Player::doFrame ()
 {
@@ -392,10 +391,6 @@ void Player::doFrame ()
             for (unsigned int i=0; i<m_Listeners.size(); ++i) {
                 m_Listeners[i]->onFrameEnd();
             }
-        }
-        {
-            ScopeTimer Timer(GCProfilingZone);
-            // TODO: Garbage collection
         }
     }
     long FrameTime = long(MainProfilingZone.getUSecs()/1000);
