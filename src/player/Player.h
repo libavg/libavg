@@ -109,6 +109,7 @@ class Player : IEventSink
         int m_BPP;
         int m_WindowWidth;
         int m_WindowHeight;
+        bool m_bShowCursor;
 
         std::vector<IFrameListener*> m_Listeners;
 };

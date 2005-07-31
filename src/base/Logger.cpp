@@ -54,6 +54,7 @@ void Logger::setDestination(const string& sFName)
     }
     m_pDest = new ofstream(sFName.c_str(), ios::out | ios::app);
     if (!*m_pDest) {
+        m_pDest = &cerr;
         AVG_TRACE(ERROR, "Could not open " << sFName 
                 << " as log destination.");
     } else {

@@ -56,7 +56,8 @@ Player::Player()
       m_pDisplayEngine(0),
       m_pFramerateManager(0),
       m_bInHandleTimers(false),
-      m_pLastMouseNode(0)
+      m_pLastMouseNode(0),
+      m_bShowCursor(true)
 {
     TimeSource::get()->getCyclesPerSecond();
     initConfig();
@@ -151,6 +152,7 @@ void Player::loadFile (const std::string& filename)
                         m_sDisplaySubsystem << ". Aborting.");
                 exit(-1);
             }
+            m_pDisplayEngine->showCursor(m_bShowCursor);
         }
 
         // Find and parse dtd.
@@ -333,8 +335,7 @@ void Player::showCursor(bool bShow)
     if (m_pDisplayEngine) {
         m_pDisplayEngine->showCursor(bShow);
     } else {
-        AVG_TRACE(Logger::ERROR, 
-                "Error: Player::showCursor called before display was initialized");
+        m_bShowCursor = bShow;
     }
 }
 

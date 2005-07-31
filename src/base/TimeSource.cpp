@@ -128,6 +128,7 @@ void TimeSource::tryOpenRTC()
 }
 
 void TimeSource::calcCyclesPerSecond() {
+    // TODO: This isn't always accurate. 
 #ifdef __APPLE__
     mach_timebase_info_data_t timebase;
 
