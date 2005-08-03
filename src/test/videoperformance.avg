@@ -15,8 +15,9 @@
       href="enterprise/Enterprise - 1 - 07 - The Andorian Incident.mpg"/> 
   <video id="mpeg6" x="528" y="300" z="1" opacity="0.8" blendmode="add"
       href="enterprise/enterprise - 1 - 08 - Breaking The Ice.mpg"/> 
-  <video id="mpeg7" x="704" y="0" z="1" opacity="0.6"
+<!--  <video id="mpeg7" x="704" y="0" z="1" opacity="0.6"
       href="enterprise/Enterprise - 1 - 09 - Civilization(chaos).mpg"/> 
   <video id="mpeg8" x="704" y="240" z="1" opacity="0.6"
       href="enterprise/Enterprise - 1 - 10 - Fortunate Son.mpg"/> 
+-->
 </avg>
