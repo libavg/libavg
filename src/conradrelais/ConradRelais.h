@@ -48,6 +48,8 @@ class ConradRelais: public IFrameListener
         int m_Port;
         int m_File;
         int m_NumCards;
+
+        Player * m_pPlayer;
 };
 
 }

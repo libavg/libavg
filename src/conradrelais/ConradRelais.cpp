@@ -23,7 +23,8 @@ namespace avg {
 ConradRelais::ConradRelais(Player * pPlayer, int port)
     : m_IsInitialized(false),
       m_File(-1),
-      m_NumCards(0)
+      m_NumCards(0),
+      m_pPlayer(pPlayer)
 {
     m_Port = port;
     stringstream s;
@@ -44,7 +45,10 @@ ConradRelais::ConradRelais(Player * pPlayer, int port)
 ConradRelais::~ConradRelais()
 {
     if (m_File != -1) {
+        send();
+        m_pPlayer->unregisterFrameListener(this);
         close(m_File);
+        m_File = -1;
     }
 }
 
@@ -73,8 +77,10 @@ bool ConradRelais::get(int card, int index)
 
 void ConradRelais::send()
 {
-    for (int i=0; i<m_NumCards; i++) {
-        sendCmd(3,i+1,m_State[i]);
+    if (m_File != -1) {
+        for (int i=0; i<m_NumCards; i++) {
+            sendCmd(3,i+1,m_State[i]);
+        }
     }
 }
 
@@ -118,11 +124,8 @@ void ConradRelais::initBoard()
     while (bOk) {
         ssize_t rc = read(m_File, rbuf, 4);
         if (rc != 4  || rbuf[0] != 254 || rbuf[1] != m_NumCards+1) {
-//            cerr << "rc: " << rc << ", rbuf: " << (int)rbuf[0] << ":" << (int)rbuf[1] 
-//		 << ":" << (int)rbuf[2] << ":" << (int)rbuf[3] << endl;
-	    bOk = false;
+    	    bOk = false;
         } else {
-//	    cerr << "card init." << endl;
             m_NumCards++;
         }
     }

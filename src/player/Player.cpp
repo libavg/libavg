@@ -360,6 +360,17 @@ void Player::registerFrameListener(IFrameListener* pListener)
     m_Listeners.push_back(pListener);
 }
 
+void Player::unregisterFrameListener(IFrameListener* pListener)
+{
+    std::vector<IFrameListener*>::iterator it;
+    for (it=m_Listeners.begin(); it != m_Listeners.end(); ++it) {
+        if (*it == pListener) {
+            m_Listeners.erase(it);
+            break;
+        }
+    }
+}
+
 string Player::getCurDirName()
 {
     return m_CurDirName;
@@ -587,7 +598,6 @@ void Player::handleTimers()
             delete *it;
             it = m_PendingTimeouts.erase(it);
         } else {
-//            cerr << "Interval fired." << endl;
             Timeout* pTempTimeout = *it;
             it = m_PendingTimeouts.erase(it);
             addTimeout(pTempTimeout);

@@ -48,13 +48,14 @@ void Timeout::Fire()
 {
     PyObject * arglist = Py_BuildValue("()");
     PyObject * result = PyEval_CallObject(m_PyFunc, arglist);
+    Py_DECREF(arglist);    
     if (!result) {
-        cerr << "Error in timeout:" << endl;
+        cerr << "Error in timeout" << endl;
         PyErr_Print();
-        exit(-1);
+        throw std::exception();
+//        exit(-1);
         // TODO: The python function terminated with an exception.
     }
-    Py_DECREF(arglist);    
     if (m_IsInterval) {
         m_NextTimeout = m_Interval + TimeSource::get()->getCurrentTicks();
 //        cerr << "Interval::Fire. m_Interval=" << m_Interval << ", m_NextTimeout="

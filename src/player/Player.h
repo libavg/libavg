@@ -65,6 +65,7 @@ class Player : IEventSink
         virtual bool handleEvent(Event * pEvent);
 
         void registerFrameListener(IFrameListener* pListener);
+        void unregisterFrameListener(IFrameListener* pListener);
         std::string getCurDirName();
         void initNode(Node * pNode, Container * pParent);
 

@@ -121,7 +121,14 @@ class PlayerTestCase(unittest.TestCase):
         
     def testImage(self):
         self.playAVG("image.avg")
-        
+    def testError(self):
+        Player.setTimeout(100, lambda: undefinedFunction)
+        try:
+            self.playAVG("image.avg")
+        except:
+            self.assert_(1)
+        else:
+            self.assert_(0)
     def testEvents(self):
         Player.loadFile("events.avg")
         Player.setTimeout(200, Player.stop)
@@ -372,9 +379,10 @@ def playerTestSuite():
     suite.addTest(ConradRelaisTestCase("test"))
     suite.addTest(NodeTestCase("testAttributes"))
     suite.addTest(PlayerTestCase("testImage"))
+    suite.addTest(PlayerTestCase("testError"))
     suite.addTest(PlayerTestCase("testEvents"))
     suite.addTest(PlayerTestCase("testConfig"))
-#    suite.addTest(PlayerTestCase("testDynamics"))
+    suite.addTest(PlayerTestCase("testDynamics"))
     suite.addTest(PlayerTestCase("testHugeImage"))
     suite.addTest(PlayerTestCase("testPanoImage"))
     suite.addTest(PlayerTestCase("testBroken"))
