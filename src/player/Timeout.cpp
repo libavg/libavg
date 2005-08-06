@@ -7,8 +7,11 @@
 #include "../base/TimeSource.h"
 #include "../base/Exception.h"
 
+#include <boost/python.hpp>
+
 #include <iostream>
 
+using namespace boost::python;
 using namespace std;
 
 namespace avg {
@@ -21,8 +24,6 @@ Timeout::Timeout(int time, PyObject * pyfunc, bool isInterval)
       m_IsInterval(isInterval)
 {
     m_NextTimeout = m_Interval+TimeSource::get()->getCurrentTicks();
-//    cerr << "New timeout. m_Interval=" << m_Interval << ", m_NextTimeout="
-//            << m_NextTimeout << endl;
     s_LastID++;
     m_ID = s_LastID;
 
@@ -50,16 +51,10 @@ void Timeout::Fire()
     PyObject * result = PyEval_CallObject(m_PyFunc, arglist);
     Py_DECREF(arglist);    
     if (!result) {
-        cerr << "Error in timeout" << endl;
-        PyErr_Print();
-        throw std::exception();
-//        exit(-1);
-        // TODO: The python function terminated with an exception.
+        throw error_already_set();
     }
     if (m_IsInterval) {
         m_NextTimeout = m_Interval + TimeSource::get()->getCurrentTicks();
-//        cerr << "Interval::Fire. m_Interval=" << m_Interval << ", m_NextTimeout="
-//            << m_NextTimeout << endl;
     }
 }
 

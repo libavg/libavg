@@ -231,22 +231,16 @@ void Player::play (double framerate)
 //        setPriority();
         
         Profiler::get().start();
-        while (!m_bStopping) {
-            doFrame();
+        try {
+            while (!m_bStopping) {
+                doFrame();
+            }
+        } catch (...) {
+            cleanup();
+            throw;
         }
-        // Kill all timeouts.
-        vector<Timeout*>::iterator it;
-        for (it=m_PendingTimeouts.begin(); it!=m_PendingTimeouts.end(); it++) {
-            delete *it;
-        }
-        m_PendingTimeouts.clear();
-        Profiler::get().dumpStatistics();
+        cleanup();
 
-        m_pRootNode = 0;
-           
-        delete m_pFramerateManager;
-        m_IDMap.clear();
-        initConfig();
     } catch  (Exception& ex) {
         AVG_TRACE(Logger::ERROR, ex.GetStr());
     }
@@ -687,6 +681,23 @@ void Player::createMouseOver(MouseEvent * pOtherEvent, int Type)
             pOtherEvent->getYPosition(),
             pOtherEvent->getButton());
     m_EventDispatcher.addEvent(pNewEvent);
+}
+
+void Player::cleanup() 
+{
+    // Kill all timeouts.
+    vector<Timeout*>::iterator it;
+    for (it=m_PendingTimeouts.begin(); it!=m_PendingTimeouts.end(); it++) {
+        delete *it;
+    }
+    m_PendingTimeouts.clear();
+    Profiler::get().dumpStatistics();
+
+    m_pRootNode = 0;
+
+    delete m_pFramerateManager;
+    m_IDMap.clear();
+    initConfig();
 }
 
 int Player::addTimeout(Timeout* pTimeout)

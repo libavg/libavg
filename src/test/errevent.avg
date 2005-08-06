@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
+<avg width="400" height="400"  onmouseover="onErrMouseOver">
+    <image id="tilted" x="100" y="200" width="100" height="100" angle="0.785"
+        href="rgb24.png" z="3" />
+</avg>

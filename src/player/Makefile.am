@@ -5,7 +5,8 @@ INCLUDES = -I. \
         `freetype-config --cflags` \
         `directfb-config --cflags` \
         `pkg-config --cflags pango` \
-        $(GL_CFLAGS)
+        -I/usr/include/python2.4 \
+$(GL_CFLAGS)
         
 if ENABLE_1394
     DC1394_LIBS = -ldc1394_control -lraw1394

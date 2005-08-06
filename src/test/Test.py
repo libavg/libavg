@@ -3,7 +3,7 @@
 import unittest
 
 import sys
-sys.path.append('/usr/local/lib/python2.3/site-packages/avg')
+sys.path.append('/usr/local/lib/python2.4/site-packages/avg')
 import avg
 import time
 
@@ -112,6 +112,9 @@ def onMouseDown():
     print "onMouseDown"
     dumpMouseEvent()
 
+def onErrMouseOver():
+    undefinedFunction()
+
 class PlayerTestCase(unittest.TestCase):
     def playAVG(self, fileName):
         Player.loadFile(fileName)
@@ -125,7 +128,7 @@ class PlayerTestCase(unittest.TestCase):
         Player.setTimeout(100, lambda: undefinedFunction)
         try:
             self.playAVG("image.avg")
-        except:
+        except NameError:
             self.assert_(1)
         else:
             self.assert_(0)
@@ -133,6 +136,13 @@ class PlayerTestCase(unittest.TestCase):
         Player.loadFile("events.avg")
         Player.setTimeout(200, Player.stop)
         Player.play(30)
+    def testEventErr(self):
+        Player.loadFile("errevent.avg")
+        Player.setTimeout(1000, Player.stop)
+        try:
+            Player.play(30)
+        except NameError:
+            self.assert_(1)
     def testConfig(self):
         Player.setDisplayEngine(avg.DFB)
         Player.setResolution(0, 100, 100, 16)
@@ -381,8 +391,9 @@ def playerTestSuite():
     suite.addTest(PlayerTestCase("testImage"))
     suite.addTest(PlayerTestCase("testError"))
     suite.addTest(PlayerTestCase("testEvents"))
+    suite.addTest(PlayerTestCase("testEventErr"))
     suite.addTest(PlayerTestCase("testConfig"))
-    suite.addTest(PlayerTestCase("testDynamics"))
+#    suite.addTest(PlayerTestCase("testDynamics"))
     suite.addTest(PlayerTestCase("testHugeImage"))
     suite.addTest(PlayerTestCase("testPanoImage"))
     suite.addTest(PlayerTestCase("testBroken"))

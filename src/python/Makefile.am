@@ -2,7 +2,7 @@
 INCLUDES = -I. \
         `xml2-config --cflags` \
         `pkg-config --cflags pango` \
-        -I/usr/include/python2.3
+        -I/usr/include/python2.4
 		
 ALL_H = 
 

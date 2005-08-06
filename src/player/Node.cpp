@@ -22,9 +22,11 @@
 #include <python2.3/object.h>
 #include <python2.3/compile.h>
 #include <python2.3/eval.h>
+#include <boost/python.hpp>
 
 #include <iostream>
 
+using namespace boost::python;
 
 using namespace std;
 
@@ -429,9 +431,7 @@ void Node::callPython (const string& Code, const Event& Event)
     PyObject * pArgList = Py_BuildValue("()");
     PyObject * pResult = PyObject_CallObject(pFunc, pArgList);
     if (!pResult) {
-        PyErr_Print();
-        exit(-1);
-        // TODO: The python function terminated with an exception.
+        throw error_already_set();
     }
     Py_DECREF(pArgList);
 }
