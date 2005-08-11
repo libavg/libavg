@@ -97,7 +97,7 @@ void export_raster()
         .def("getFPS", &VideoBase::getFPS)
     ;  
 
-    class_<Camera, bases<VideoBase> >("Camera"
+    class_<Camera, bases<VideoBase> >("Camera",
             "A node that displays the image of a firewire camera.\n"
             "Properties:\n"
             "    device (ro)\n"
@@ -118,7 +118,7 @@ void export_raster()
         .add_property("gain", &Camera::getGain, &Camera::setGain)
     ;
         
-    class_<Video, bases<VideoBase> >("Video"
+    class_<Video, bases<VideoBase> >("Video",
             "Video nodes display a video file. Video formats and codecs supported\n"
             "are all formats that ffmpeg/libavcodec supports.\n"
             "Properties:\n"
@@ -137,7 +137,7 @@ void export_raster()
         .add_property("loop", &Video::getLoop)
     ;
 
-    class_<Words, bases<RasterNode> >("Words"
+    class_<Words, bases<RasterNode> >("Words",
             "A words node displays formatted text. Rendering is done by pango. All\n"
             "properties are set in pixels. International and multi-byte character\n"
             "sets are fully supported. Words nodes should use UTF-8 to encode\n"
