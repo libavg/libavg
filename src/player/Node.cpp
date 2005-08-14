@@ -15,9 +15,6 @@
 #include "../base/Exception.h"
 #include "../base/XMLHelper.h"
 
-#include <paintlib/plpoint.h>
-#include <paintlib/plrect.h>
-
 #include <python2.3/Python.h>
 #include <python2.3/object.h>
 #include <python2.3/compile.h>

@@ -17,16 +17,13 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 
-#include <paintlib/plbitmap.h>
-#include <paintlib/plrect.h>
-#include <paintlib/Filter/plfilterfliprgb.h>
-
 #include <directfb.h>
 #include <signal.h>
 
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
+#include <assert.h>
 
 using namespace std;
 
@@ -211,7 +208,7 @@ void DFBDisplayEngine::initLayer(int width, int height)
     DFBDisplayLayerDescription LayerDesc;
     err = m_pDFBLayer->GetDescription(m_pDFBLayer, &LayerDesc);
     DFBErrorCheck(AVG_ERR_DFB, "DFBDisplayEngine::init", err);
-    PLASSERT (int(LayerDesc.type) && int(DLTF_GRAPHICS) == int(DLTF_GRAPHICS));
+    assert(int(LayerDesc.type) && int(DLTF_GRAPHICS) == int(DLTF_GRAPHICS));
     
     DFBDisplayLayerConfig LayerConfig;
     err = m_pDFBLayer->GetConfiguration(m_pDFBLayer, &LayerConfig);
@@ -368,19 +365,19 @@ void DFBDisplayEngine::blt32(ISurface * pSurface,
 {
     DFBSurface * pDFBSurface = 
             dynamic_cast<DFBSurface *>(pSurface);
-    PLASSERT(pDFBSurface); // Make sure we have the correct type of surface
+    assert(pDFBSurface); // Make sure we have the correct type of surface
     IDirectFBSurface * pSurf = pDFBSurface->getSurface();
-    blt32(pSurf, pDestRect, opacity, pSurface->getBmp()->HasAlpha(),
+    blt32(pSurf, pDestRect, opacity, (pSurface->getBmp()->getPixelFormat() == R8G8B8A8),
             Mode);
 }
 
 void DFBDisplayEngine::blta8(ISurface * pSurface, 
         const DRect* pDestRect, 
-        double opacity, const PLPixel32& color, double angle, 
+        double opacity, const Pixel32& color, double angle, 
         const DPoint& pivot, BlendMode Mode)
 {
     m_pBackBuffer->SetColor(m_pBackBuffer, 
-            color.GetR(), color.GetG(), color.GetB(),
+            color.getR(), color.getG(), color.getB(),
             __u8(opacity*256));
 
     DFBSurfaceBlittingFlags BltFlags;
@@ -389,7 +386,7 @@ void DFBDisplayEngine::blta8(ISurface * pSurface,
     m_pBackBuffer->SetBlittingFlags(m_pBackBuffer, BltFlags);
     DFBSurface * pDFBSurface = 
             dynamic_cast<DFBSurface *>(pSurface);
-    PLASSERT(pDFBSurface); // Make sure we have the correct type of surface
+    assert(pDFBSurface); // Make sure we have the correct type of surface
     IDirectFBSurface * pSurf = pDFBSurface->getSurface();
 
     blt(pSurf, pDestRect);
@@ -549,28 +546,30 @@ void DFBDisplayEngine::showCursor (bool bShow)
     DFBErrorCheck(AVG_ERR_DFB,"DFBDisplayEngine::showCursor",  err);
 }
 
-void DFBDisplayEngine::screenshot (const string& sFilename, PLBmp& Bmp)
+BitmapPtr DFBDisplayEngine::screenshot ()
 {
     IDirectFBSurface * pSurface;
     m_pDFBLayer->GetSurface(m_pDFBLayer, &pSurface);
-    PLBYTE * pBits;
+    unsigned char * pBits;
     int Pitch;
     pSurface->Lock(pSurface, DSLF_WRITE, (void **)&pBits, &Pitch);
-    PLPixelFormat pf;
+    PixelFormat pf;
     switch (m_bpp) {
         case 15:
         case 16:
-            pf = PLPixelFormat::R5G6B5;
+            pf = R5G6B5;
             break;
         case 24:
-            pf = PLPixelFormat::R8G8B8;
+            pf = R8G8B8;
             break;
         case 32:
-            pf = PLPixelFormat::X8R8G8B8;
+            pf = X8R8G8B8;
             break;
+        default:
+            assert(false);
     }
-    Bmp.Create(m_Width, m_Height, pf, pBits, Pitch, PLPoint(72,72));
-    Bmp.ApplyFilter(PLFilterFlipRGB());
+    return BitmapPtr(new Bitmap(IntPoint(m_Width, m_Height), pf, 
+                pBits, Pitch, true));
 }
 
 vector<Event *> DFBDisplayEngine::pollEvents()

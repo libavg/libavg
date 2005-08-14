@@ -8,11 +8,8 @@
 #include "RasterNode.h"
 #include "Rect.h"
 
-#include <paintlib/plbitmap.h>
-
 #include <string>
 
-class PLBmp;
 class ISurface;
 
 namespace avg {

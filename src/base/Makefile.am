@@ -12,4 +12,4 @@ libbase_la_SOURCES = FileHelper.cpp CmdLine.cpp Exception.cpp Logger.cpp \
     ProfilingZone.cpp Profiler.cpp ScopeTimer.cpp
 libbase_ladir=$(includedir)/avg/base
 libbase_la_HEADERS = $(ALL_H)
-libbase_la_LDFLAGS = `paintlib-config --libs` `xml2-config --libs`
+libbase_la_LDFLAGS = `xml2-config --libs`

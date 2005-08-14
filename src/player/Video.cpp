@@ -13,11 +13,6 @@
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
 
-#include <paintlib/plbitmap.h>
-#include <paintlib/plpngenc.h>
-#include <paintlib/planybmp.h>
-#include <paintlib/Filter/plfilterfill.h>
-
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
@@ -128,8 +123,7 @@ static ProfilingZone RenderProfilingZone("  Video::render");
 bool Video::renderToSurface(ISurface * pSurface)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    m_bEOF = m_pDecoder->renderToBmp(pSurface->getBmp(), 
-            getEngine()->hasRGBOrdering());
+    m_bEOF = m_pDecoder->renderToBmp(pSurface->getBmp());
     if (!m_bEOF) {
         getEngine()->surfaceChanged(pSurface);
     }

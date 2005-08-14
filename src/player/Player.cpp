@@ -36,16 +36,14 @@
 #include "../base/ScopeTimer.h"
 #include "../base/TimeSource.h"
 
-#include <paintlib/plexcept.h>
-#include <paintlib/plpngenc.h>
-#include <paintlib/pljpegenc.h>
-#include <paintlib/planybmp.h>
+#include <Magick++.h>
 
 #include <libxml/xmlmemory.h>
 
 #include <algorithm>
 #include <iostream>
 #include <sstream>
+#include <assert.h>
 
 using namespace std;
 
@@ -118,9 +116,7 @@ void Player::loadFile (const std::string& filename)
     try {
         AVG_TRACE(Logger::PROFILE, 
                 std::string("Player::LoadFile(") + filename + ")");
-        // TODO: Call GC
-        PLASSERT (!m_pRootNode);
-
+        assert (!m_pRootNode);
 
         // Get display configuration.
         if (!m_pDisplayEngine) {
@@ -206,8 +202,8 @@ void Player::loadFile (const std::string& filename)
         xmlFreeDoc(doc);
     } catch (Exception& ex) {
         AVG_TRACE(Logger::ERROR, ex.GetStr());
-    } catch (PLTextException& ex) {
-        AVG_TRACE(Logger::ERROR, (const char*)ex);
+    } catch (Magick::Exception & ex) {
+        AVG_TRACE(Logger::ERROR, ex.what());
     }
 }
 
@@ -217,7 +213,7 @@ void Player::play (double framerate)
         if (!m_pRootNode) {
             AVG_TRACE(Logger::ERROR, "play called, but no xml file loaded.");
         }
-        PLASSERT (m_pRootNode);
+        assert(m_pRootNode);
         
         m_EventDispatcher.addSource(m_pEventSource);
         m_EventDispatcher.addSink(&m_EventDumper);
@@ -299,28 +295,15 @@ const Event& Player::getCurEvent() const
 
 bool Player::screenshot(const std::string& sFilename)
 {
-    PLAnyBmp Bmp;
-    m_pDisplayEngine->screenshot(sFilename, Bmp);
-    PLPicEncoder * pEncoder;
-    string sExt = sFilename.substr(sFilename.length()-3);
-    if (sExt == "jpg") {
-        pEncoder = new PLJPEGEncoder;
-    } else if (sExt == "png") {
-        pEncoder = new PLPNGEncoder;
-    } else {
-        AVG_TRACE(Logger::WARNING, "Unsupported screenshot format " << sExt << ".");
-        return false;
-    }
+    BitmapPtr pBmp = m_pDisplayEngine->screenshot();
     try {
-        pEncoder->MakeFileFromBmp(sFilename.c_str(), &Bmp);
+        pBmp->save(sFilename);
         AVG_TRACE(Logger::WARNING, "Saved screen as " << sFilename << ".");
-    } catch (PLTextException& ex) {
+    } catch (Magick::Exception& ex) {
         AVG_TRACE(Logger::WARNING, "Could not save screenshot. Error: " 
-                << ex << ".");
-        delete pEncoder;
+                << ex.what() << ".");
         return false;
     }
-    delete pEncoder;
     return true;
 }
 
@@ -495,8 +478,8 @@ Node * Player::createNodeFromXmlString (const string& sXML)
     } catch (Exception& ex) {
         AVG_TRACE(Logger::ERROR, ex.GetStr());
         return 0;
-    } catch (PLTextException& ex) {
-        AVG_TRACE(Logger::ERROR, (const char*)ex);
+    } catch (Magick::Exception& ex) {
+        AVG_TRACE(Logger::ERROR, ex.what());
         return 0;
     }
 }

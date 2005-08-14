@@ -11,15 +11,6 @@
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
 
-#include <paintlib/plbitmap.h>
-#include <paintlib/planybmp.h>
-#include <paintlib/plpngenc.h>
-#include <paintlib/planydec.h>
-#include <paintlib/Filter/plfilterresizebilinear.h>
-#include <paintlib/Filter/plfilterfliprgb.h>
-#include <paintlib/Filter/plfilterfill.h>
-#include <paintlib/Filter/plfiltercolorize.h>
-
 #include <iostream>
 #include <sstream>
 
@@ -54,16 +45,15 @@ void Image::init (IDisplayEngine * pEngine, Container * pParent,
     initFilename(pPlayer, m_Filename);
     AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
 
-    PLAnyPicDecoder decoder;
-    PLAnyBmp TempBmp;
-    decoder.MakeBmpFromFile(m_Filename.c_str(), &TempBmp);
-    PLPixelFormat pf = PLPixelFormat::R8G8B8;
-    if (TempBmp.HasAlpha()) {
-        pf = PLPixelFormat::A8R8G8B8;
+    Bitmap TempBmp(m_Filename);
+    
+    PixelFormat pf = R8G8B8;
+    if (TempBmp.hasAlpha()) {
+        pf = R8G8B8A8;
     }
-
-    getSurface()->create(TempBmp.GetWidth(), TempBmp.GetHeight(), pf);
-    getSurface()->getBmp()->CopyPixels(TempBmp);
+    getSurface()->create(TempBmp.getSize(), pf);
+    getSurface()->getBmp()->copyPixels(TempBmp);
+/*    
     if (m_Saturation != -1) {
         PLFilterColorize(m_Hue, m_Saturation).ApplyInPlace(
                 getSurface()->getBmp());
@@ -71,6 +61,7 @@ void Image::init (IDisplayEngine * pEngine, Container * pParent,
     if (pEngine->hasRGBOrdering()) {
         PLFilterFlipRGB().ApplyInPlace(getSurface()->getBmp());
     }
+*/    
 }
 
 const std::string& Image::getHRef() const {
@@ -89,7 +80,7 @@ void Image::render (const DRect& Rect)
 bool Image::obscures (const DRect& Rect, int z) 
 {
     return (isActive() && getEffectiveOpacity() > 0.999
-            && !getSurface()->getBmp()->HasAlpha() 
+            && !getSurface()->getBmp()->hasAlpha() 
             && getZ() > z && getVisibleRect().Contains(Rect));
 }
 
@@ -100,7 +91,7 @@ string Image::getTypeStr ()
 
 DPoint Image::getPreferredMediaSize()
 {
-    return DPoint(getSurface()->getBmp()->GetSize());
+    return DPoint(getSurface()->getBmp()->getSize());
 }
 
 }

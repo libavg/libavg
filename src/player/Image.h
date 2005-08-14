@@ -49,5 +49,5 @@ class Image : public RasterNode
 
 }
 
-#endif //_Image_H_
+#endif
 

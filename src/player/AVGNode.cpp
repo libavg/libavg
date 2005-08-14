@@ -7,8 +7,6 @@
 
 #include "../base/XMLHelper.h"
 
-#include <paintlib/plpoint.h>
-
 #include <iostream>
 
 using namespace std;

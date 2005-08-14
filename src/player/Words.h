@@ -6,9 +6,7 @@
 #define _Words_H_
 
 #include "RasterNode.h"
-
-#include <paintlib/plpixel32.h>
-#include <paintlib/plbitmap.h>
+#include "Pixel32.h"
 
 #include <pango/pango.h>
 #include <fontconfig/fontconfig.h>
@@ -165,7 +163,7 @@ class Words : public RasterNode
     
     private:
         void drawString();
-        PLPixel32 colorStringToColor(const std::string & colorString);
+        Pixel32 colorStringToColor(const std::string & colorString);
         std::string removeExcessSpaces(const std::string & sText);
         static void FT2SubstituteFunc (FcPattern *pattern, gpointer data);
 
@@ -173,7 +171,7 @@ class Words : public RasterNode
         std::string m_FontName;
         std::string m_Text;
         std::string m_ColorName;
-        PLPixel32 m_Color;
+        Pixel32 m_Color;
         double m_Size;
         int m_ParaWidth;
         int m_Indent;

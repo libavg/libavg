@@ -21,8 +21,6 @@
 #include <string>
 #include <vector>
 
-class PLPoint;
-
 namespace avg {
 
 class AVGNode;

@@ -1,10 +1,10 @@
 
 INCLUDES = -I. \
         `xml2-config --cflags` \
-        `paintlib-config --cflags` \
         `freetype-config --cflags` \
         `directfb-config --cflags` \
         `pkg-config --cflags pango` \
+		`Magick++-config --cppflags` \
         -I/usr/include/python2.4 \
 $(GL_CFLAGS)
         
@@ -34,7 +34,7 @@ else
     DFB_INCLUDES =
 endif
             
-ALL_H = Player.h IEventSource.h IEventSink.h Excl.h VideoBase.h Video.h\
+ALL_H = Bitmap.h Player.h IEventSource.h IEventSink.h Excl.h VideoBase.h Video.h\
         IDisplayEngine.h Rect.h Point.h Region.h Node.h \
         ISurface.h FramerateManager.h Container.h \
         MathHelper.h AVGNode.h DivNode.h \
@@ -46,24 +46,27 @@ ALL_H = Player.h IEventSource.h IEventSink.h Excl.h VideoBase.h Video.h\
         Video.h FFMpegDecoder.h IVideoDecoder.h \
         Excl.h PanoImage.h \
         RasterNode.h Camera.h \
+		Pixeldefs.h Pixel32.h Pixel24.h Pixel16.h \
         $(GL_INCLUDES) $(DFB_INCLUDES)
 
 avgdir = $(libdir)/avg
 lib_LTLIBRARIES = libplayer.la
-libplayer_la_SOURCES = Player.cpp Excl.cpp VideoBase.cpp Video.cpp \
+libplayer_la_SOURCES = Bitmap.cpp $(GL_SOURCES) $(DFB_SOURCES) \
+		Player.cpp Excl.cpp VideoBase.cpp Video.cpp \
         Region.cpp Node.cpp FramerateManager.cpp FFMpegDecoder.cpp \
         Container.cpp  MathHelper.cpp PanoImage.cpp Words.cpp Camera.cpp \
         DivNode.cpp Timeout.cpp DebugEventSink.cpp Event.cpp \
         Image.cpp EventDispatcher.cpp KeyEvent.cpp MouseEvent.cpp\
-        RasterNode.cpp AVGNode.cpp $(GL_SOURCES) $(DFB_SOURCES) \
+        RasterNode.cpp AVGNode.cpp \
 		$(ALL_H)
 libplayer_ladir=$(includedir)/avg/player
 libplayer_la_HEADERS = $(ALL_H)
 libplayer_la_LIBADD = ../base/libbase.la        
-libplayer_la_LDFLAGS = `xml2-config --libs` `paintlib-config --libs` \
+libplayer_la_LDFLAGS = `xml2-config --libs` \
         $(DC1394_LIBS) $(GL_LIBS) $(GLU_LIBS) $(SDL_LIBS) $(DFB_LIBS) \
 		-lavformat -lavcodec \
-        `pkg-config --libs pangoft2`
+        `pkg-config --libs pangoft2` \
+		`Magick++-config --libs`
 
 # TODO: Remove -fpermissive
 AM_CXXFLAGS = -fpermissive $(CXXFLAGS)

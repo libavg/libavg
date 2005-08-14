@@ -9,7 +9,6 @@
 #include "IDisplayEngine.h"
 
 #include <directfb/directfb.h>
-#include <paintlib/plrect.h>
 
 #include <string>
 
@@ -37,7 +36,7 @@ class DFBDisplayEngine: public IDisplayEngine, public IEventSource
                 double opacity, double angle, const DPoint& pivot,
                 BlendMode Mode);
         virtual void blta8(ISurface * pSurface, const DRect* pDestRect, 
-                double opacity, const PLPixel32& color, double angle,
+                double opacity, const Pixel32& color, double angle,
                 const DPoint& pivot, BlendMode Mode);
 
         virtual ISurface * createSurface();
@@ -53,7 +52,7 @@ class DFBDisplayEngine: public IDisplayEngine, public IEventSource
         virtual bool hasRGBOrdering();
 
         virtual void showCursor (bool bShow);
-        virtual void screenshot (const std::string& sFilename, PLBmp& Bmp);
+        virtual BitmapPtr screenshot ();
 
         // From IEventSource
         virtual std::vector<Event *> pollEvents();

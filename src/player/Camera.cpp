@@ -18,12 +18,6 @@
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
 
-#include <paintlib/plbitmap.h>
-#include <paintlib/plpngenc.h>
-#include <paintlib/planybmp.h>
-#include <paintlib/Filter/plfilterfill.h>
-#include <paintlib/Filter/plfilterfliprgb.h>
-
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
@@ -355,32 +349,32 @@ bool Camera::renderToSurface(ISurface * pSurface)
             switch (m_Mode) {
                 case MODE_640x480_YUV411:
                     {
-                        PLBmpBase * pBmp = pSurface->getBmp();
-                        YUV411toBGR24((PLBYTE*)(m_Camera.capture_buffer), pBmp);
+                        BitmapPtr pBmp = pSurface->getBmp();
+                        YUV411toBGR24((unsigned char *)(m_Camera.capture_buffer), pBmp);
                     }
                     break;
                 case MODE_640x480_RGB:
                     {
                         if (pOGLSurface) {
-                            pOGLSurface->createFromBits(640, 480,
-                                    PLPixelFormat::R8G8B8,
-                                    (PLBYTE*)(m_Camera.capture_buffer), 640*3);
+                            pOGLSurface->createFromBits(IntPoint(640, 480), R8G8B8,
+                                    (unsigned char *)(m_Camera.capture_buffer), 640*3);
                         } else {
-                            PLBmpBase * pBmp = pSurface->getBmp();
-                            PLBYTE ** ppLines = pBmp->GetLineArray();
-                            int WidthBytes = pBmp->GetWidth()*3;
+                            BitmapPtr pBmp = pSurface->getBmp();
+                            unsigned char * pPixels = pBmp->getPixels();
+                            int WidthBytes = pBmp->getSize().x*3;
 
                             if (getEngine()->hasRGBOrdering()) {
-                                for (int y = 0; y < pBmp->GetHeight(); y++) {
-                                    memcpy(ppLines[y],
-                                            (PLBYTE*)(m_Camera.capture_buffer)+
+                                for (int y = 0; y < pBmp->getSize().y; y++) {
+                                    memcpy(pPixels+y*pBmp->getStride(),
+                                            (unsigned char*)(m_Camera.capture_buffer)+
                                             y*WidthBytes,
                                             WidthBytes);
                                 }
                             } else {
-                                for (int y = 0; y < pBmp->GetHeight(); y++) {
-                                    PLBYTE * pDestLine = ppLines[y];
-                                    PLBYTE * pSrcLine = (PLBYTE*)
+                                for (int y = 0; y < pBmp->getSize().x; y++) {
+                                    unsigned char * pDestLine = 
+                                        pPixels+y*pBmp->getStride();
+                                    unsigned char * pSrcLine = (unsigned char*)
                                         m_Camera.capture_buffer+y*WidthBytes;
                                     for (int x = 0; x < WidthBytes; x+=3) {
                                         pDestLine[x] = pSrcLine[x+2];
@@ -433,7 +427,8 @@ bool Camera::canRenderToBackbuffer(int BitsPerPixel)
 }
 
 #ifdef AVG_ENABLE_1394
-inline void YUVtoBGR24Pixel(PLPixel24* pDest, PLBYTE y, PLBYTE u, PLBYTE v)
+inline void YUVtoBGR24Pixel(Pixel24* pDest, 
+        unsigned char y, unsigned char u, unsigned char v)
 {
 //    pDest->Set(y,y,y);
     // u = Cb, v = Cr
@@ -468,18 +463,18 @@ inline void YUVtoBGR24Pixel(PLPixel24* pDest, PLBYTE y, PLBYTE u, PLBYTE v)
 */
 }
 
-void Camera::YUV411toBGR24Line(PLBYTE* pSrc, int y, PLPixel24 * pDestLine)
+void Camera::YUV411toBGR24Line(unsigned char* pSrc, int y, Pixel24 * pDestLine)
 {
-    PLPixel24 * pDestPixel = pDestLine;
+    Pixel24 * pDestPixel = pDestLine;
     int width = getMediaWidth();
     // We need the previous and next values to interpolate between the
     // sampled u and v values.
-    PLBYTE v = *(pSrc+y*(width*3)/2+3);
-    PLBYTE v0; // Previous v
-    PLBYTE v1; // Next v;
-    PLBYTE u;
-    PLBYTE u1; // Next u;
-    PLBYTE * pSrcPixels = pSrc+y*(width*3)/2;
+    unsigned char v = *(pSrc+y*(width*3)/2+3);
+    unsigned char v0; // Previous v
+    unsigned char v1; // Next v;
+    unsigned char u;
+    unsigned char u1; // Next u;
+    unsigned char * pSrcPixels = pSrc+y*(width*3)/2;
 
     for (int x = 0; x < width/4; x++) {
         // Four pixels at a time.
@@ -507,11 +502,11 @@ void Camera::YUV411toBGR24Line(PLBYTE* pSrc, int y, PLPixel24 * pDestLine)
 
 }
 
-void Camera::YUV411toBGR24(PLBYTE* pSrc, PLBmpBase * pBmp)
+void Camera::YUV411toBGR24(unsigned char* pSrc, BitmapPtr pBmp)
 {
-    PLPixel24 ** ppBits = pBmp->GetLineArray24();
+    Pixel24 * pBits = (Pixel24 *)(pBmp->getPixels());
     for (int y = 0; y < getMediaHeight(); y++) {
-        PLPixel24 * pDest = ppBits[y];
+        Pixel24 * pDest = pBits+y*pBmp->getStride();
         YUV411toBGR24Line(pSrc, y, pDest);
     }
 }

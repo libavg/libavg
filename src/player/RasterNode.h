@@ -7,6 +7,7 @@
 
 #include "Node.h"
 #include "IDisplayEngine.h"
+#include "Point.h"
 
 #include <string>
 
@@ -63,7 +64,7 @@ class RasterNode: public Node
         bool m_bHasCustomPivot;
         DPoint m_Pivot;
         
-        PLPoint m_MaxTileSize;
+        IntPoint m_MaxTileSize;
         std::string m_sBlendMode;
         IDisplayEngine::BlendMode m_BlendMode;
 };

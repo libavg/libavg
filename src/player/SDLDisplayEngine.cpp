@@ -20,11 +20,6 @@
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 
-#include <paintlib/plbitmap.h>
-#include <paintlib/plrect.h>
-#include <paintlib/Filter/plfilterflip.h>
-#include <paintlib/Filter/plfilterfliprgb.h>
-
 #define XMD_H 1
 #include "GL/gl.h"
 #include "GL/glu.h"
@@ -252,12 +247,12 @@ void SDLDisplayEngine::blt32(ISurface * pSurface, const DRect* pDestRect,
 
 void SDLDisplayEngine::blta8(ISurface * pSurface, 
         const DRect* pDestRect, double opacity, 
-        const PLPixel32& color, double angle, 
+        const Pixel32& color, double angle, 
         const DPoint& pivot, BlendMode Mode)
 {
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface*>(pSurface);
-    glColor4f(float(color.GetR())/256, float(color.GetG())/256, 
-            float(color.GetB())/256, opacity);
+    glColor4f(float(color.getR())/256, float(color.getG())/256, 
+            float(color.getB())/256, opacity);
     pOGLSurface->blt(pDestRect, opacity, angle, pivot, Mode);
 }
 
@@ -355,15 +350,15 @@ void SDLDisplayEngine::showCursor (bool bShow)
     }
 }
 
-void SDLDisplayEngine::screenshot (const string& sFilename, PLBmp& Bmp)
+BitmapPtr SDLDisplayEngine::screenshot ()
 {
-    Bmp.Create(m_Width, m_Height, PLPixelFormat::X8R8G8B8, 0, 0, 
-            PLPoint(72, 72));
+    BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(m_Width, m_Height), R8G8B8X8));
     glReadBuffer(GL_FRONT);
     glReadPixels(0, 0, m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE, 
-            Bmp.GetLineArray()[0]);
-    Bmp.ApplyFilter(PLFilterFlip());
+            pBmp->getPixels());
+//    pBmp->ApplyFilter(PLFilterFlip());
 //    Bmp.ApplyFilter(PLFilterFlipRGB());
+    return pBmp;
 }
 
 int SDLDisplayEngine::getWidth()

@@ -16,11 +16,6 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 
-#include <paintlib/plbitmap.h>
-#include <paintlib/plpngenc.h>
-#include <paintlib/planybmp.h>
-#include <paintlib/Filter/plfilterfill.h>
-
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
@@ -161,14 +156,14 @@ void VideoBase::renderToBackbuffer()
         dynamic_cast<DFBDisplayEngine*>(getEngine());
     DRect vpt = getVisibleRect();
     IDirectFBSurface * pSurface = pEngine->getPrimary();
-    PLBYTE * pSurfBits;
+    unsigned char * pSurfBits;
     int Pitch;
     DFBResult err = pSurface->Lock(pSurface, 
             DFBSurfaceLockFlags(DSLF_WRITE), (void **)&pSurfBits, &Pitch);
     pEngine->DFBErrorCheck(AVG_ERR_DFB, 
             "VideoBase::renderToBackbuffer", err);
     DFBSurface SubSurface;
-    PLRect plvpt = PLRect(vpt);
+    IntRect plvpt = IntRect(vpt);
     SubSurface.createFromDFBSurface(pSurface, &plvpt);
     renderToSurface(&SubSurface);
     pSurface->Unlock(pSurface);
@@ -186,10 +181,10 @@ void VideoBase::open()
     open(&m_Width, &m_Height);
 
     DRect vpt = getRelViewport();
-    getSurface()->create(m_Width, m_Height, PLPixelFormat::R8G8B8);
+    getSurface()->create(IntPoint(m_Width, m_Height), R8G8B8);
 
-    PLFilterFill<PLPixel24> Filter(PLPixel24(0,0,0));
-    Filter.ApplyInPlace(getSurface()->getBmp());
+//    PLFilterFill<PLPixel24> Filter(PLPixel24(0,0,0));
+//    Filter.ApplyInPlace(getSurface()->getBmp());
     
     m_bFrameAvailable = false;
     m_State = Paused;

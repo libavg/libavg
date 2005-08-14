@@ -6,12 +6,10 @@
 #define _IDisplayEngine_H_
 
 #include "Rect.h"
-
-#include <paintlib/plbitmap.h>
+#include "Pixel32.h"
+#include "Bitmap.h"
 
 #include <string>
-
-class PLPixel32;
 
 namespace avg {
 
@@ -44,7 +42,7 @@ class IDisplayEngine
                 double opacity, double angle, const DPoint& pivot,
                 BlendMode Mode) = 0;
         virtual void blta8(ISurface * pSurface, const DRect* pDestRect, 
-                double opacity, const PLPixel32& color, double angle,
+                double opacity, const Pixel32& color, double angle,
                 const DPoint& pivot, BlendMode Mode) = 0;
         virtual ISurface * createSurface() = 0;
         virtual void surfaceChanged(ISurface * pSurface) {};
@@ -59,8 +57,7 @@ class IDisplayEngine
         virtual bool hasRGBOrdering() = 0; 
         virtual void showCursor (bool bShow) = 0;
 
-        virtual void screenshot (const std::string& sFilename,
-                PLBmp& Bmp) = 0;
+        virtual BitmapPtr screenshot () = 0;
 
 };
 

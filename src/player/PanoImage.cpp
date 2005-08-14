@@ -13,13 +13,6 @@
 #include "../base/Exception.h"
 #include "../base/XMLHelper.h"
 
-#include <paintlib/planydec.h>
-#include <paintlib/Filter/plfilterresizebilinear.h>
-#include <paintlib/Filter/plfilterfliprgb.h>
-#include <paintlib/Filter/plfilterfill.h>
-#include <paintlib/Filter/plfiltercolorize.h>
-#include <paintlib/plpngenc.h>
-
 #include "GL/gl.h"
 #include "GL/glu.h"
 
@@ -76,18 +69,15 @@ void PanoImage::init (IDisplayEngine * pEngine,
         exit(-1);
     }
     AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
-    PLAnyPicDecoder decoder;
-    decoder.MakeBmpFromFile(m_Filename.c_str(), &m_Bmp,
-            PLPixelFormat::DONTCARE);
-//            PLPixelFormat::A8R8G8B8);  //Huh?
-
+    m_pBmp = BitmapPtr(new Bitmap(m_Filename));
+/*
     if (m_Saturation != -1) {
         m_Bmp.ApplyFilter(PLFilterColorize(m_Hue, m_Saturation));
     }
     if (pEngine->hasRGBOrdering()) {
         m_Bmp.ApplyFilter(PLFilterFlipRGB());
     }
-
+*/
     calcProjection();
     if (m_Rotation == -1) {
         m_Rotation = m_MaxRotation/2;
@@ -207,7 +197,7 @@ void PanoImage::render(const DRect& Rect)
 
 bool PanoImage::obscures (const DRect& Rect, int z)
 {
-    return (isActive() && getEffectiveOpacity() > 0.999 && !m_Bmp.HasAlpha()
+    return (isActive() && getEffectiveOpacity() > 0.999 && !m_pBmp->hasAlpha()
             && getZ() > z && getVisibleRect().Contains(Rect));
 }
 
@@ -273,43 +263,43 @@ void PanoImage::calcProjection()
     m_fovy = 2*atan((m_SensorHeight/2)/m_FocalLength);
     m_aspect = m_SensorWidth/m_SensorHeight;
     m_CylHeight = tan(m_fovy)/2;
-    m_CylAngle = m_fovy*m_Bmp.GetWidth()/m_Bmp.GetHeight();
-    m_SliceAngle = m_CylAngle*TEX_WIDTH/double(m_Bmp.GetWidth());
+    m_CylAngle = m_fovy*m_pBmp->getSize().x/m_pBmp->getSize().y;
+    m_SliceAngle = m_CylAngle*TEX_WIDTH/double(m_pBmp->getSize().x);
     m_MaxRotation = m_CylAngle-m_fovy*m_aspect;
 }
 
 DPoint PanoImage::getPreferredMediaSize()
 {
     double SensorAspect = m_SensorWidth/m_SensorHeight;
-    double Width = m_Bmp.GetHeight()*SensorAspect;
-    return DPoint(Width, m_Bmp.GetHeight());
+    double Width = m_pBmp->getSize().x*SensorAspect;
+    return DPoint(Width, m_pBmp->getSize().y);
 }
 
 void PanoImage::setupTextures()
 {
-    int TexHeight = nextpow2(m_Bmp.GetHeight());
-    int NumTextures = int(ceil(double(m_Bmp.GetWidth())/TEX_WIDTH));
+    int TexHeight = nextpow2(m_pBmp->getSize().y);
+    int NumTextures = int(ceil(double(m_pBmp->getSize().x)/TEX_WIDTH));
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImage::setupTextures: glPixelStorei(GL_UNPACK_ALIGNMENT)");
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, m_Bmp.GetWidth());
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, m_pBmp->getSize().x);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImage::setupTextures: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
     glEnable(GL_TEXTURE_2D);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImage::setupTextures: glEnable(GL_TEXTURE_2D);");
     for (int i=0; i<NumTextures; i++) {
-        PLSubBmp Region;
+        BitmapPtr pRegion;
         if (i != NumTextures-1) {
-            Region.Create(m_Bmp,
-                    PLRect(i*TEX_WIDTH, 0, (i+1)*TEX_WIDTH, m_Bmp.GetHeight()));
+            pRegion = BitmapPtr(new Bitmap(*m_pBmp,
+                    IntRect(i*TEX_WIDTH, 0, (i+1)*TEX_WIDTH, m_pBmp->getSize().y)));
         } else {
             // The last column isn't necessarily as wide as the others.
-            Region.Create (m_Bmp,
-                    PLRect(i*TEX_WIDTH, 0,
-                           m_Bmp.GetWidth(), m_Bmp.GetHeight()));
+            pRegion = BitmapPtr(new Bitmap(*m_pBmp,
+                    IntRect(i*TEX_WIDTH, 0,
+                           m_pBmp->getSize().x, m_pBmp->getSize().y)));
         }
-
+        
         unsigned int TexID;
         glGenTextures(1, &TexID);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
@@ -327,15 +317,21 @@ void PanoImage::setupTextures()
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
                 "PanoImage::setupTextures: glTexParameteri()");
-
+        
+        int DestMode;
+        if (pRegion->getPixelFormat() == R8G8B8X8) {
+            DestMode = GL_RGB;
+        } else {
+            DestMode = GL_RGBA;
+        }
         glTexImage2D(GL_TEXTURE_2D, 0,
-                GL_RGBA, TEX_WIDTH, TexHeight, 0,
+                DestMode, TEX_WIDTH, TexHeight, 0,
                 GL_RGBA, GL_UNSIGNED_BYTE, 0);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
                 "PanoImage::setupTextures: glTexImage2D()");
-        PLBYTE * pStartPos = Region.GetLineArray()[0];
+        unsigned char * pStartPos = pRegion->getPixels();
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0,
-                Region.GetWidth(), Region.GetHeight(),
+                pRegion->getSize().x, pRegion->getSize().y,
                 GL_RGBA, GL_UNSIGNED_BYTE, pStartPos);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
                 "PanoImage::setupTextures: glTexSubImage2D()");

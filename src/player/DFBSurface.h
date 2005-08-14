@@ -6,8 +6,8 @@
 #define _DFBSurface_H_
 
 #include "ISurface.h"
-
-#include <paintlib/plsubbmp.h>
+#include "Bitmap.h"
+#include "Rect.h"
 
 #include <directfb.h>
 
@@ -23,25 +23,25 @@ class DFBSurface: public ISurface {
 
         // Implementation of ISurface.
 
-        virtual void create(int Width, int Height, const PLPixelFormat& pf);
+        virtual void create(const IntPoint& Size, PixelFormat pf);
 
-        virtual PLBmpBase* getBmp();
+        virtual BitmapPtr getBmp();
 
         // Methods specific to DFBSurface
 
-        // Creates a surface containing a PLSubBmp that encompasses
+        // Creates a surface containing a Bitmap that encompasses
         // a recangle in a DirectFBSurface. Ownership of the 
         // original DirectFBSurface remains with the caller. An internal
         // DirectFBSurface is created via IDirectFBSurface::GetSubSurface().
         void createFromDFBSurface(IDirectFBSurface * pSurface,
-                const PLRect * SrcRect);
+                const IntRect * SrcRect);
 
         IDirectFBSurface* getSurface();
 
     private:
         static IDirectFB * s_pDirectFB; 
         IDirectFBSurface * m_pSurface;
-        PLSubBmp m_Bmp;
+        BitmapPtr m_pBmp;
 };
 
 }

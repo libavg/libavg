@@ -7,8 +7,7 @@
 
 #include "Node.h"
 #include "OGLSurface.h"
-
-#include <paintlib/planybmp.h>
+#include "Bitmap.h"
 
 #include <string>
 #include <vector>
@@ -52,7 +51,7 @@ class PanoImage : public Node
         double m_SensorWidth;
         double m_SensorHeight;
         double m_FocalLength;
-        PLAnyBmp m_Bmp;
+        BitmapPtr m_pBmp;
         std::vector<unsigned int> m_TileTextureIDs;
         SDLDisplayEngine * m_pEngine;
 

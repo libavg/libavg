@@ -22,7 +22,7 @@ class FFMpegDecoder: public IVideoDecoder
         virtual void seek(int DestFrame, int CurFrame);
         virtual int getNumFrames();
         virtual double getFPS();
-        virtual bool renderToBmp(PLBmpBase * pBmp, bool bHasRGBOrdering);
+        virtual bool renderToBmp(BitmapPtr pBmp);
         virtual bool canRenderToBuffer(int BPP);
 
     private:

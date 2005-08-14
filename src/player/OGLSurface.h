@@ -9,9 +9,6 @@
 #include "IDisplayEngine.h"
 #include "Rect.h"
 
-#include <paintlib/plsubbmp.h>
-#include <paintlib/plrect.h>
-
 #include <vector>
 
 namespace avg {
@@ -19,18 +16,15 @@ namespace avg {
 class OGLSurface: public ISurface {
     public:
         OGLSurface();
-
         virtual ~OGLSurface();
 
         // Implementation of ISurface.
-
-        virtual void create(int Width, int Height, const PLPixelFormat& pf);
-
-        virtual PLBmpBase* getBmp();
+        virtual void create(const IntPoint& Size, PixelFormat PF);
+        virtual BitmapPtr getBmp();
 
         // Methods specific to OGLSurface
-        void createFromBits(int Width, int Height, const PLPixelFormat& pf,
-                PLBYTE* pBits, int Stride);
+        void createFromBits(Point<int> Size, PixelFormat pf,
+                unsigned char * pBits, int Stride);
 
         // Discards the bitmap data but leaves the texture intact.
         void discardBmp();
@@ -44,7 +38,7 @@ class OGLSurface: public ISurface {
                 IDisplayEngine::BlendMode Mode);
         unsigned int getTexID();
 
-        void setMaxTileSize(const PLPoint& MaxTileSize);
+        void setMaxTileSize(const Point<int>& MaxTileSize);
         int getNumVerticesX();
         int getNumVerticesY();
         DPoint getOrigVertexCoord(int x, int y);
@@ -55,7 +49,7 @@ class OGLSurface: public ISurface {
 
     private:
         struct TextureTile {
-            PLRect m_Extent;
+            IntRect m_Extent;
             unsigned int m_TexID;
             int m_TexWidth;
             int m_TexHeight;
@@ -79,11 +73,10 @@ class OGLSurface: public ISurface {
    
         bool m_bBound;
 
-        PLBmpBase * m_pBmp;
-        PLSubBmp * m_pSubBmp;   // Cached pointer to avoid slow dynamic_cast.
+        BitmapPtr m_pBmp;
 
-        PLPoint m_MaxTileSize;
-        PLPoint m_TileSize;
+        Point<int> m_MaxTileSize;
+        Point<int> m_TileSize;
         int m_NumHorizTextures;
         int m_NumVertTextures;
         std::vector<std::vector<TextureTile> > m_Tiles;

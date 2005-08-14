@@ -18,7 +18,7 @@ RasterNode::RasterNode ()
     : m_pSurface(0),
       m_Angle(0),
       m_Pivot(-32767, -32767),
-      m_MaxTileSize(PLPoint(-1,-1)),
+      m_MaxTileSize(IntPoint(-1,-1)),
       m_sBlendMode("blend")
 {
 }
@@ -28,7 +28,7 @@ RasterNode::RasterNode (const xmlNodePtr xmlNode, Container * pParent)
       m_pSurface(0),
       m_Angle(0),
       m_Pivot(-32767, -32767),
-      m_MaxTileSize(PLPoint(-1,-1)),
+      m_MaxTileSize(IntPoint(-1,-1)),
       m_sBlendMode("blend")
 {
     m_Angle = getDefaultedDoubleAttr (xmlNode, "angle", 0);
@@ -50,7 +50,7 @@ void RasterNode::initVisible()
 
     m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
 
-    if (m_MaxTileSize != PLPoint(-1, -1)) {
+    if (m_MaxTileSize != IntPoint(-1, -1)) {
         OGLSurface * pOGLSurface = 
             dynamic_cast<OGLSurface*>(m_pSurface);
         if (!pOGLSurface) {
@@ -154,7 +154,7 @@ void RasterNode::setBlendModeStr(const std::string& sBlendMode)
 Node * RasterNode::getElementByPos (const DPoint & pos)
 {
     // Node isn't pickable if it's tilted or warped.
-    if (fabs(m_Angle)<0.0001 && m_MaxTileSize == PLPoint(-1, -1)) {
+    if (fabs(m_Angle)<0.0001 && m_MaxTileSize == IntPoint(-1, -1)) {
         return Node::getElementByPos(pos);
     } else {
         return 0;

@@ -5,8 +5,6 @@
 #ifndef _Point_H_
 #define _Point_H_
 
-#include <paintlib/plpoint.h>
-
 namespace avg {
 
 template<class NUM>
@@ -17,7 +15,7 @@ public:
   NUM y;
 
   Point ();
-  explicit Point(const PLPoint& p);
+  template<class ORIGNUM> explicit Point(const Point<ORIGNUM>& p);
   Point (NUM X, NUM Y);
   Point(const Point<NUM>& p);
 
@@ -35,15 +33,17 @@ public:
 };
 
 typedef Point<double> DPoint;
+typedef Point<int> IntPoint;
 
 template<class NUM>
 Point<NUM>::Point ()
 {}
 
 template<class NUM>
-Point<NUM>::Point(const PLPoint& p)
-    : x(p.x),
-      y(p.y)
+template<class ORIGNUM>
+Point<NUM>::Point(const Point<ORIGNUM>& p)
+    : x(NUM(p.x)),
+      y(NUM(p.y))
 {
 }
 

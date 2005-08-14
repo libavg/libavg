@@ -4,10 +4,9 @@
 
 #include "DFBSurface.h"
 #include "Player.h"
+#include "Bitmap.h"
 
 #include "../base/Logger.h"
-
-#include <paintlib/plrect.h>
 
 #include <iostream>
 #include <sstream>
@@ -45,7 +44,7 @@ DFBSurface::~DFBSurface()
 // Note that this function unlocks the surface after getting the pixel offsets,
 // which is probably ok for system memory surfaces but will definitely break 
 // for video memory surfaces.
-void DFBSurface::create(int Width, int Height, const PLPixelFormat& pf)
+void DFBSurface::create(const IntPoint& Size, PixelFormat pf)
 {
     if (!s_pDirectFB) {
         AVG_TRACE(Logger::ERROR, 
@@ -56,17 +55,17 @@ void DFBSurface::create(int Width, int Height, const PLPixelFormat& pf)
     Desc.flags = DFBSurfaceDescriptionFlags (DSDESC_CAPS | DSDESC_WIDTH | 
             DSDESC_HEIGHT | DSDESC_PIXELFORMAT);
     Desc.caps = DSCAPS_SYSTEMONLY;
-    Desc.width = Width;
-    Desc.height = Height;
-    if (pf == PLPixelFormat::A8R8G8B8) {
+    Desc.width = Size.x;
+    Desc.height = Size.y;
+    if (pf == A8R8G8B8) {
         Desc.pixelformat = DSPF_ARGB;
-    } else if (pf == PLPixelFormat::X8R8G8B8) {
+    } else if (pf == X8R8G8B8) {
         Desc.pixelformat = DSPF_RGB32;
-    } else if (pf == PLPixelFormat::R8G8B8) {
+    } else if (pf == R8G8B8) {
         Desc.pixelformat = DSPF_RGB24;
-    } else if (pf == PLPixelFormat::R5G6B5) {
+    } else if (pf == R5G6B5) {
         Desc.pixelformat = DSPF_RGB16;
-    } else if (pf == PLPixelFormat::L8) {
+    } else if (pf == I8) {
         Desc.pixelformat = DSPF_A8;
     } else {
         AVG_TRACE(Logger::ERROR, 
@@ -83,52 +82,53 @@ void DFBSurface::create(int Width, int Height, const PLPixelFormat& pf)
     int Pitch;
     m_pSurface->Lock(m_pSurface, DFBSurfaceLockFlags (DSLF_READ | DSLF_WRITE), 
             &pPixels, &Pitch);
-    m_Bmp.Create(Width, Height, pf, (PLBYTE*)pPixels, Pitch);
+    m_pBmp = BitmapPtr(new Bitmap(Size, pf, 
+                (unsigned char*)pPixels, Pitch, false));
     m_pSurface->Unlock(m_pSurface);
 }
 
-PLBmpBase* DFBSurface::getBmp()
+BitmapPtr DFBSurface::getBmp()
 {
-    return &m_Bmp;
+    return m_pBmp;
 }
 
 void DFBSurface::createFromDFBSurface(IDirectFBSurface * pSurface,
-                const PLRect * pSrcRect)
+                const IntRect * pSrcRect)
 {
     DFBRectangle DFBRect;
-    PLRect SrcRect;
+    IntRect SrcRect;
     if (pSrcRect) {
         SrcRect = *pSrcRect;
     } else {
         int w, h;
         m_pSurface->GetSize(m_pSurface, &w, &h);
-        SrcRect = PLRect(0,0,w,h);
+        SrcRect = IntRect(0,0,w,h);
     }
     DFBRect.x = SrcRect.tl.x;
     DFBRect.y = SrcRect.tl.x;
     DFBRect.w = SrcRect.Width();
     DFBRect.h = SrcRect.Height();
 
-    DFBSurfacePixelFormat PixelFormat;
-    m_pSurface->GetPixelFormat(m_pSurface, &PixelFormat); 
+    DFBSurfacePixelFormat DFBPF;
+    m_pSurface->GetPixelFormat(m_pSurface, &DFBPF); 
 
-    PLPixelFormat pf;
-    switch (PixelFormat) 
+    PixelFormat pf;
+    switch (DFBPF) 
     {
         case DSPF_ARGB:
-            pf = PLPixelFormat::A8R8G8B8;
+            pf = A8R8G8B8;
             break;
         case DSPF_RGB32:
-            pf = PLPixelFormat::X8R8G8B8;
+            pf = X8R8G8B8;
             break;
         case DSPF_RGB24:
-            pf = PLPixelFormat::R8G8B8;
+            pf = R8G8B8;
             break;
         case DSPF_RGB16:
-            pf = PLPixelFormat::R5G6B5;
+            pf = R5G6B5;
             break;
         case DSPF_A8:
-            pf = PLPixelFormat::L8;
+            pf = I8;
             break;
         default:
             AVG_TRACE(Logger::ERROR, 
@@ -142,8 +142,8 @@ void DFBSurface::createFromDFBSurface(IDirectFBSurface * pSurface,
     m_pSurface->Lock(m_pSurface, DFBSurfaceLockFlags (DSLF_READ | DSLF_WRITE), 
             &pPixels, &Pitch);
     
-    m_Bmp.Create(SrcRect.Width(), SrcRect.Height(), pf, 
-            (PLBYTE*)pPixels, Pitch);
+    m_pBmp = BitmapPtr(new Bitmap(SrcRect.tl, pf, (unsigned char*)pPixels, Pitch,
+                false));
     m_pSurface->Unlock(m_pSurface);
 }
 

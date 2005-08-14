@@ -5,16 +5,17 @@
 #ifndef _ISurface_H_
 #define _ISurface_H_
 
-class PLBmpBase;
-class PLPixelFormat;
+#include "Bitmap.h"
+
+#include <string>
 
 namespace avg {
 
 class ISurface {
     public:
         virtual ~ISurface(){};
-        virtual void create(int Width, int Height, const PLPixelFormat& pf) = 0;
-        virtual PLBmpBase* getBmp() = 0;
+        virtual void create(const IntPoint& Size, PixelFormat PF) = 0;
+        virtual BitmapPtr getBmp() = 0;
 
 };
 

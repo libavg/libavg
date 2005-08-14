@@ -9,8 +9,6 @@
 #include "VideoBase.h"
 #include "Rect.h"
 
-#include <paintlib/plbitmap.h>
-
 #include <string>
 
 namespace avg {

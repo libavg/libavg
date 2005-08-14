@@ -9,8 +9,6 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 
-#include <paintlib/plbitmap.h>
-
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
@@ -198,7 +196,7 @@ double FFMpegDecoder::getFPS()
     return m_pVStream->r_frame_rate;
 }
 
-bool FFMpegDecoder::renderToBmp(PLBmpBase * pBmp, bool bHasRGBOrdering)
+bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
 {
 /* Speedup possibilities:
     fast YUV->RGB conversion? incl. scaling?
@@ -210,19 +208,23 @@ bool FFMpegDecoder::renderToBmp(PLBmpBase * pBmp, bool bHasRGBOrdering)
         AVPicture DestPict;
         int x1 = 0;
         int y1 = 0;
-        PLBYTE ** ppDestLines = pBmp->GetLineArray();
-        PLBYTE * pDestBits = ppDestLines[y1]+3*x1;
+        unsigned char * pDestBits = pBmp->getPixels()+pBmp->getStride()*y1+3*x1;
         DestPict.data[0] = pDestBits;
         DestPict.data[1] = pDestBits+1;
         DestPict.data[2] = pDestBits+2;
-        DestPict.linesize[0] = ppDestLines[1] - ppDestLines[0];
-        DestPict.linesize[1] = DestPict.linesize[0];   
-        DestPict.linesize[2] = DestPict.linesize[0];  
+        DestPict.linesize[0] = pBmp->getStride();
+        DestPict.linesize[1] = pBmp->getStride();
+        DestPict.linesize[2] = pBmp->getStride();
         int DestFmt;
-        if (bHasRGBOrdering) {
-            DestFmt = PIX_FMT_RGB24;
-        } else {
-            DestFmt = PIX_FMT_BGR24;
+        switch(pBmp->getPixelFormat()) {
+            case R8G8B8:
+                DestFmt = PIX_FMT_RGB24;
+                break;
+            case B8G8R8:
+                DestFmt = PIX_FMT_BGR24;
+                break;
+            default:
+                assert(false);
         }
         img_convert(&DestPict, DestFmt,
                 (AVPicture*)&Frame, m_pVStream->codec.pix_fmt,
@@ -233,6 +235,8 @@ bool FFMpegDecoder::renderToBmp(PLBmpBase * pBmp, bool bHasRGBOrdering)
 
 bool FFMpegDecoder::canRenderToBuffer(int BPP)
 {
+//TODO: This is a bug: We should enable direct rendering if DFB is being 
+//      used and not just compiled in!
 #ifdef AVG_ENABLE_DFB
     return (BPP == 24);
 #else

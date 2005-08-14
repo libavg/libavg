@@ -6,8 +6,6 @@
 #include "Container.h"
 #include "IDisplayEngine.h"
 
-#include <paintlib/plpoint.h>
-
 #include <iostream>
 
 using namespace std;

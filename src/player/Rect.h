@@ -7,8 +7,6 @@
 
 #include "Point.h"
 
-#include <paintlib/plrect.h>
-
 namespace avg {
 
 // Simple rectangle class.
@@ -24,7 +22,7 @@ public:
   Rect ();
   Rect (NUM left, NUM top, NUM right, NUM bottom);
   Rect (const Point<NUM>& TL, const Point<NUM>& BR);
-  Rect (const PLRect& rc);
+  template<class ORIGNUM> Rect (const Rect<ORIGNUM>& rc);
 
   bool operator == (const Rect<NUM>& rect) const;
   bool operator != (const Rect<NUM> & rect) const;
@@ -37,11 +35,10 @@ public:
   bool Intersects (const Rect<NUM>& rect) const;
   void Expand (const Rect<NUM>& rect);
   void Intersect (const Rect<NUM>& rect);
-
-  operator PLRect () const;
 };
 
 typedef Rect<double> DRect;
+typedef Rect<int> IntRect;
 
 template<class NUM>
 Rect<NUM>::Rect ()
@@ -55,13 +52,14 @@ Rect<NUM>::Rect (const Point<NUM>& TL, const Point<NUM>& BR)
 template<class NUM>
 Rect<NUM>::Rect (NUM left, NUM top, NUM right, NUM bottom) 
     : tl(left, top), 
-      br (right, bottom)
+      br(right, bottom)
 {}
 
 template<class NUM>
-Rect<NUM>::Rect (const PLRect& rc)
-    : tl (rc.tl.x, rc.tl.y),
-      br (rc.br.x, rc.br.y)
+template<class ORIGNUM>
+Rect<NUM>::Rect (const Rect<ORIGNUM>& rc)
+    : tl (NUM(rc.tl.x), NUM(rc.tl.y)),
+      br (NUM(rc.br.x), NUM(rc.br.y))
 {
 }
 
@@ -149,12 +147,6 @@ void Rect<NUM>::Intersect (const Rect<NUM>& rect)
     tl.y = max(tl.y, rect.tl.y);
     br.x = min(br.x, rect.br.x);
     br.y = min(br.y, rect.br.y);
-}
-
-template<class NUM>
-Rect<NUM>::operator PLRect () const
-{
-    return PLRect(int(tl.x), int(tl.y), int(br.x), int(br.y));
 }
 
 #undef min

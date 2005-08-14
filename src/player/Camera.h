@@ -9,8 +9,7 @@
 
 #include "VideoBase.h"
 #include "Rect.h"
-
-#include <paintlib/plbitmap.h>
+#include "Pixel24.h"
 
 #ifdef AVG_ENABLE_1394
 #include <libraw1394/raw1394.h>
@@ -134,8 +133,8 @@ class Camera : public VideoBase
         int m_Mode;               // libdc1394 constant for mode.
 
 #ifdef AVG_ENABLE_1394
-        void YUV411toBGR24Line(PLBYTE* pSrc, int y, PLPixel24 * pDestLine);
-        void YUV411toBGR24(PLBYTE* pSrc, PLBmpBase * pBmp);
+        void YUV411toBGR24Line(unsigned char * pSrc, int y, Pixel24 * pDestLine);
+        void YUV411toBGR24(unsigned char * pSrc, BitmapPtr pBmp);
 
         bool findCameraOnPort(int port, raw1394handle_t& FWHandle);
 

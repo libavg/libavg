@@ -10,9 +10,6 @@
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
 
-#include <paintlib/Filter/plfilterfill.h>
-#include <paintlib/plpixel8.h>
-
 #include <pango/pangoft2.h>
 
 #include <iostream>
@@ -271,17 +268,16 @@ void Words::drawString()
         if (m_ParaWidth == -1) {
             m_StringExtents.x = PANGO_PIXELS(logical_rect.width);
         }
-        m_pSurface->create((int)m_StringExtents.x, (int)m_StringExtents.y,
-                PLPixelFormat::L8);
+        m_pSurface->create(IntPoint(m_StringExtents), I8);
 
-        PLBmpBase * pBmp = m_pSurface->getBmp();
-        PLFilterFill<PLPixel8>(0).ApplyInPlace(pBmp);
+        BitmapPtr pBmp = m_pSurface->getBmp();
+//        PLFilterFill<PLPixel8>(0).ApplyInPlace(pBmp);
         FT_Bitmap bitmap;
         bitmap.rows = (int)m_StringExtents.y;
         bitmap.width = (int)m_StringExtents.x;
-        PLBYTE ** ppLines = pBmp->GetLineArray();
-        bitmap.pitch = ppLines[1]-ppLines[0];
-        bitmap.buffer = ppLines[0];
+        unsigned char * pLines = pBmp->getPixels();
+        bitmap.pitch = pBmp->getStride();
+        bitmap.buffer = pLines;
         bitmap.num_grays = 256;
         bitmap.pixel_mode = ft_pixel_mode_grays;
 
@@ -311,11 +307,11 @@ void Words::render(const DRect& Rect)
     }
 }
 
-PLPixel32 Words::colorStringToColor(const string & colorString)
+Pixel32 Words::colorStringToColor(const string & colorString)
 {
     int r,g,b;
     sscanf(colorString.c_str(), "%2x%2x%2x", &r, &g, &b);
-    return PLPixel32(r,g,b);
+    return Pixel32(r,g,b);
 }
 
 DPoint Words::getPreferredMediaSize()

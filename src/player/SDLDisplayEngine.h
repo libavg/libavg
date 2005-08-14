@@ -8,8 +8,7 @@
 #include "IEventSource.h"
 #include "IDisplayEngine.h"
 #include "VBlank.h"
-
-#include <paintlib/plrect.h>
+#include "Pixel32.h"
 
 #include <SDL/SDL.h>
 
@@ -42,7 +41,7 @@ class SDLDisplayEngine: public IDisplayEngine, public IEventSource
                 double opacity, double angle, const DPoint& pivot,
                 BlendMode Mode);
         virtual void blta8(ISurface * pSurface, const DRect* pDestRect,
-                double opacity, const PLPixel32& color, double angle, 
+                double opacity, const Pixel32& color, double angle, 
                 const DPoint& pivot, BlendMode Mode);
 
         virtual ISurface * createSurface();
@@ -55,8 +54,7 @@ class SDLDisplayEngine: public IDisplayEngine, public IEventSource
         virtual bool supportsBpp(int bpp);
         virtual bool hasRGBOrdering(); 
         virtual void showCursor (bool bShow);
-        virtual void screenshot (const std::string& sFilename,
-                PLBmp& Bmp);
+        virtual BitmapPtr screenshot ();
 
         // From IEventSource
         virtual std::vector<Event *> pollEvents();
