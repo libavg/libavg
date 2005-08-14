@@ -118,8 +118,8 @@ def onErrMouseOver():
 class PlayerTestCase(unittest.TestCase):
     def playAVG(self, fileName):
         Player.loadFile(fileName)
-        Player.setTimeout(100, lambda : Player.screenshot("test.png"))
-#        Player.setTimeout(200, Player.stop)
+#        Player.setTimeout(100, lambda : Player.screenshot("test.png"))
+        Player.setTimeout(200, Player.stop)
         Player.play(30)
         
     def testImage(self):
@@ -385,18 +385,18 @@ class VideoTestCase(unittest.TestCase):
 def playerTestSuite():
     suite = unittest.TestSuite()
     suite.addTest(LoggerTestCase("test"))
-#    suite.addTest(ParPortTestCase("test"))
-#    suite.addTest(ConradRelaisTestCase("test"))
-#    suite.addTest(NodeTestCase("testAttributes"))
+    suite.addTest(ParPortTestCase("test"))
+    suite.addTest(ConradRelaisTestCase("test"))
+    suite.addTest(NodeTestCase("testAttributes"))
     suite.addTest(PlayerTestCase("testImage"))
-#    suite.addTest(PlayerTestCase("testError"))
-#    suite.addTest(PlayerTestCase("testEvents"))
-#    suite.addTest(PlayerTestCase("testEventErr"))
-#    suite.addTest(PlayerTestCase("testConfig"))
-   #    suite.addTest(PlayerTestCase("testDynamics"))
+    suite.addTest(PlayerTestCase("testError"))
+    suite.addTest(PlayerTestCase("testEvents"))
+    suite.addTest(PlayerTestCase("testEventErr"))
+    suite.addTest(PlayerTestCase("testConfig"))
+#    suite.addTest(PlayerTestCase("testDynamics"))
     suite.addTest(PlayerTestCase("testHugeImage"))
     suite.addTest(PlayerTestCase("testPanoImage"))
-#    suite.addTest(PlayerTestCase("testBroken"))
+    suite.addTest(PlayerTestCase("testBroken"))
     suite.addTest(PlayerTestCase("testExcl"))
     suite.addTest(PlayerTestCase("testAnimation"))
     suite.addTest(PlayerTestCase("testBlend"))

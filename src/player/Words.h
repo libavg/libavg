@@ -6,7 +6,7 @@
 #define _Words_H_
 
 #include "RasterNode.h"
-#include "Pixel32.h"
+#include "../graphics/Pixel32.h"
 
 #include <pango/pango.h>
 #include <fontconfig/fontconfig.h>

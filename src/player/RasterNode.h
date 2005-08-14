@@ -7,7 +7,7 @@
 
 #include "Node.h"
 #include "IDisplayEngine.h"
-#include "Point.h"
+#include "../graphics/Point.h"
 
 #include <string>
 

@@ -4,7 +4,7 @@
 
 #include "DFBSurface.h"
 #include "Player.h"
-#include "Bitmap.h"
+#include "../graphics/Bitmap.h"
 
 #include "../base/Logger.h"
 

@@ -7,7 +7,7 @@
 
 #include "ISurface.h"
 #include "IDisplayEngine.h"
-#include "Rect.h"
+#include "../graphics/Rect.h"
 
 #include <vector>
 

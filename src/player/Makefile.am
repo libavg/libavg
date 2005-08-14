@@ -34,8 +34,8 @@ else
     DFB_INCLUDES =
 endif
             
-ALL_H = Bitmap.h Player.h IEventSource.h IEventSink.h Excl.h VideoBase.h Video.h\
-        IDisplayEngine.h Rect.h Point.h Region.h Node.h \
+ALL_H = Player.h IEventSource.h IEventSink.h Excl.h VideoBase.h Video.h\
+        IDisplayEngine.h Region.h Node.h \
         ISurface.h FramerateManager.h Container.h \
         MathHelper.h AVGNode.h DivNode.h \
         Image.h \
@@ -46,12 +46,11 @@ ALL_H = Bitmap.h Player.h IEventSource.h IEventSink.h Excl.h VideoBase.h Video.h
         Video.h FFMpegDecoder.h IVideoDecoder.h \
         Excl.h PanoImage.h \
         RasterNode.h Camera.h \
-		Pixeldefs.h Pixel32.h Pixel24.h Pixel16.h \
         $(GL_INCLUDES) $(DFB_INCLUDES)
 
 avgdir = $(libdir)/avg
 lib_LTLIBRARIES = libplayer.la
-libplayer_la_SOURCES = Bitmap.cpp $(GL_SOURCES) $(DFB_SOURCES) \
+libplayer_la_SOURCES = $(GL_SOURCES) $(DFB_SOURCES) \
 		Player.cpp Excl.cpp VideoBase.cpp Video.cpp \
         Region.cpp Node.cpp FramerateManager.cpp FFMpegDecoder.cpp \
         Container.cpp  MathHelper.cpp PanoImage.cpp Words.cpp Camera.cpp \
@@ -61,7 +60,7 @@ libplayer_la_SOURCES = Bitmap.cpp $(GL_SOURCES) $(DFB_SOURCES) \
 		$(ALL_H)
 libplayer_ladir=$(includedir)/avg/player
 libplayer_la_HEADERS = $(ALL_H)
-libplayer_la_LIBADD = ../base/libbase.la        
+libplayer_la_LIBADD = ../base/libbase.la ../graphics/libgraphics.la
 libplayer_la_LDFLAGS = `xml2-config --libs` \
         $(DC1394_LIBS) $(GL_LIBS) $(GLU_LIBS) $(SDL_LIBS) $(DFB_LIBS) \
 		-lavformat -lavcodec \

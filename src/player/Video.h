@@ -7,7 +7,7 @@
 
 #include "Node.h"
 #include "VideoBase.h"
-#include "Rect.h"
+#include "../graphics/Rect.h"
 
 #include <string>
 

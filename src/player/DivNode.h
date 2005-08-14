@@ -6,7 +6,7 @@
 #define _DivNode_H_
 
 #include "Container.h"
-#include "Point.h"
+#include "../graphics/Point.h"
 #include <string>
 
 namespace avg {

@@ -9,8 +9,6 @@
 
 #include <string>
 
-class PLBmp;
-
 namespace avg {
 
 class Image : public RasterNode

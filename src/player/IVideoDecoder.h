@@ -5,7 +5,7 @@
 #ifndef _IVideoDecoder_H_
 #define _IVideoDecoder_H_
 
-#include "Bitmap.h"
+#include "../graphics/Bitmap.h"
 
 #include <string>
 

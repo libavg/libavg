@@ -8,8 +8,8 @@
 #include "../avgconfig.h"
 
 #include "VideoBase.h"
-#include "Rect.h"
-#include "Pixel24.h"
+#include "../graphics/Rect.h"
+#include "../graphics/Pixel24.h"
 
 #ifdef AVG_ENABLE_1394
 #include <libraw1394/raw1394.h>

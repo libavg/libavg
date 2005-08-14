@@ -5,7 +5,7 @@
 #ifndef _Timeout_H_
 #define _Timeout_H_
 
-#include <python2.3/Python.h> // Python doc sais this should be included before 
+#include <python2.4/Python.h> // Python doc sais this should be included before 
                               // any standard headers (!)
 #include <string>
 

@@ -8,7 +8,7 @@
 #include "IEventSource.h"
 #include "IDisplayEngine.h"
 #include "VBlank.h"
-#include "Pixel32.h"
+#include "../graphics/Pixel32.h"
 
 #include <SDL/SDL.h>
 

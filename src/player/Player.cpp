@@ -7,12 +7,12 @@
 
 #include "AVGNode.h"
 #include "DivNode.h"
-#include "Image.h"
 #include "Words.h"
 #include "Video.h"
 #include "PanoImage.h"
 #include "Camera.h"
 #include "Excl.h"
+#include "Image.h"
 
 #include "Event.h"
 #include "MouseEvent.h"

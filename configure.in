@@ -60,4 +60,4 @@ fi
 AM_CONFIG_HEADER(src/avgconfig.h)
 AC_OUTPUT(avg-config Makefile src/Makefile man/Makefile  
     src/base/Makefile src/conradrelais/Makefile src/python/Makefile 
-    src/player/Makefile src/parport/Makefile)
+    src/player/Makefile src/parport/Makefile src/graphics/Makefile)

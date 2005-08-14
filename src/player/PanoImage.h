@@ -7,7 +7,7 @@
 
 #include "Node.h"
 #include "OGLSurface.h"
-#include "Bitmap.h"
+#include "../graphics/Bitmap.h"
 
 #include <string>
 #include <vector>

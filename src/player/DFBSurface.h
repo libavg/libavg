@@ -6,8 +6,8 @@
 #define _DFBSurface_H_
 
 #include "ISurface.h"
-#include "Bitmap.h"
-#include "Rect.h"
+#include "../graphics/Bitmap.h"
+#include "../graphics/Rect.h"
 
 #include <directfb.h>
 

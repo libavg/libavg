@@ -4,11 +4,11 @@
 
 #include "OGLSurface.h"
 #include "Player.h"
-#include "Point.h"
 #include "OGLHelper.h"
+#include "MathHelper.h"
 #include "../base/Logger.h"
 #include "../base/Exception.h"
-#include "MathHelper.h"
+#include "../graphics/Point.h"
 
 #include "GL/gl.h"
 #include "GL/glu.h"

@@ -6,8 +6,9 @@
 #define _AVGNode_H_
 
 #include "DivNode.h"
-#include "Point.h"
 #include "KeyEvent.h"
+#include "../graphics/Point.h"
+
 #include <string>
 
 namespace avg {

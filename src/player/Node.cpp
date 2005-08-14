@@ -15,10 +15,10 @@
 #include "../base/Exception.h"
 #include "../base/XMLHelper.h"
 
-#include <python2.3/Python.h>
-#include <python2.3/object.h>
-#include <python2.3/compile.h>
-#include <python2.3/eval.h>
+#include <python2.4/Python.h>
+#include <python2.4/object.h>
+#include <python2.4/compile.h>
+#include <python2.4/eval.h>
 #include <boost/python.hpp>
 
 #include <iostream>

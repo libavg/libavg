@@ -5,9 +5,9 @@
 #ifndef _IDisplayEngine_H_
 #define _IDisplayEngine_H_
 
-#include "Rect.h"
-#include "Pixel32.h"
-#include "Bitmap.h"
+#include "../graphics/Rect.h"
+#include "../graphics/Pixel32.h"
+#include "../graphics/Bitmap.h"
 
 #include <string>
 

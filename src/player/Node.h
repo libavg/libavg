@@ -6,9 +6,9 @@
 #define _Node_H_
 
 #include "Region.h"
-#include "Point.h"
-#include "Rect.h"
 #include "ISurface.h"
+#include "../graphics/Point.h"
+#include "../graphics/Rect.h"
 
 #include <libxml/parser.h>
 

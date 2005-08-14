@@ -6,7 +6,7 @@
 #define _VideoBase_H_
 
 #include "RasterNode.h"
-#include "Rect.h"
+#include "../graphics/Rect.h"
 
 #include <string>
 

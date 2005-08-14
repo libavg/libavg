@@ -1,0 +1,72 @@
+//
+// $Id$
+//
+
+#ifndef _Bitmap_H_
+#define _Bitmap_H_
+
+#include "Point.h"
+#include "Rect.h"
+
+#include <boost/shared_ptr.hpp>
+#include <string>
+
+namespace avg {
+
+// The pixelformats are named in the order the components appear in memory.
+//      I.e.: B8G8R8X8 is blue at byte 0, green at byte 1, red at byte 2
+// Pixelformats used:
+//   - ImageMagick: R8G8B8X8 and R8G8B8A8
+//   - OpenGL:
+//   - DFB: Uses RGB ordering. DSPF_RGB16 is R5G6B5, DSPF_RGB24 is R8G8B8, 
+//          DSPF_RGB32 is X8R8G8B8
+typedef enum {
+    B5G6R5, B8G8R8, B8G8R8A8, B8G8R8X8, A8B8G8R8, X8B8G8R8,
+    R5G6B5, R8G8B8, R8G8B8A8, R8G8B8X8, A8R8G8B8, X8R8G8B8,
+    I8
+} PixelFormat;
+    
+class Bitmap
+{
+public:
+    Bitmap(IntPoint Size, PixelFormat PF, const std::string& sName="");
+    Bitmap(IntPoint Size, PixelFormat PF, unsigned char * pBits, 
+            int Stride, bool bCopyBits, const std::string& sName="");
+    Bitmap(const Bitmap& Orig);
+    Bitmap(Bitmap& Orig, const IntRect& Rect);
+    Bitmap(const std::string& sURI);
+    virtual ~Bitmap();
+
+    Bitmap &operator= (const Bitmap & Orig);
+    
+    // Does pixel format conversion if nessesary.
+    void copyPixels(const Bitmap & Orig);
+    void save(const std::string& sName);
+    
+    IntPoint getSize() const;
+    int getStride() const;
+    PixelFormat getPixelFormat() const;
+    std::string getPixelFormatString() const;
+    unsigned char * getPixels();
+    const unsigned char * getPixels() const;
+    bool ownsBits() const;
+    const std::string& getName() const;
+    int getBytesPerPixel() const;
+    bool hasAlpha() const;
+
+private:
+    void initWithData(unsigned char * pBits, int Stride, bool bCopyBits);
+    void allocBits();
+
+    IntPoint m_Size;
+    int m_Stride;
+    PixelFormat m_PF;
+    unsigned char * m_pBits;
+    bool m_bOwnsBits;
+    std::string m_sName;
+};
+
+typedef boost::shared_ptr<Bitmap> BitmapPtr;
+
+}
+#endif

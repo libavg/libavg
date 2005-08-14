@@ -1,0 +1,376 @@
+//
+// $Id$
+//
+
+#include "Bitmap.h"
+#include "Pixel32.h"
+#include "Pixel24.h"
+#include "Pixel16.h"
+
+#include "../base/Exception.h"
+
+#include <Magick++.h>
+#include <assert.h>
+#include <iostream>
+
+using namespace Magick;
+using namespace std;
+
+namespace avg {
+
+template<class Pixel>
+void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src);
+
+Bitmap::Bitmap(IntPoint Size, PixelFormat PF, const std::string& sName)
+    : m_Size(Size),
+      m_PF(PF),
+      m_bOwnsBits(true),
+      m_sName(sName)
+{
+    allocBits();
+}
+
+Bitmap::Bitmap(IntPoint Size, PixelFormat PF, unsigned char * pBits, 
+        int Stride, bool bCopyBits, const std::string& sName)
+    : m_Size(Size),
+      m_PF(PF),
+      m_sName(sName)
+{
+    initWithData(pBits, Stride, bCopyBits);
+}
+
+Bitmap::Bitmap(const Bitmap& Orig)
+    : m_Size(Orig.getSize()),
+      m_PF(Orig.getPixelFormat()),
+      m_bOwnsBits(Orig.m_bOwnsBits),
+      m_sName(Orig.getName())
+{
+    initWithData(const_cast<unsigned char *>(Orig.getPixels()), Orig.getStride(), 
+            m_bOwnsBits);
+}
+
+// Creates a bitmap that is a rectangle in another bitmap. The pixels are
+// still owned by the original bitmap.
+Bitmap::Bitmap(Bitmap& Orig, const IntRect& Rect)
+    : m_Size(Rect.Width(), Rect.Height()),
+      m_PF(Orig.getPixelFormat()),
+      m_bOwnsBits(false),
+      m_sName(Orig.getName()+" part")
+{
+    unsigned char * pRegionStart = Orig.getPixels()+Rect.tl.y*Orig.getStride()+
+            Rect.tl.x*getBytesPerPixel();
+    initWithData(pRegionStart, Orig.getStride(), false);
+}
+
+Bitmap::Bitmap(const std::string& sURI)
+    : m_sName(sURI)
+{
+    Image Img;
+    try {
+        Img.read(sURI);
+    } catch( Magick::WarningCoder &warning ) {
+    }
+    PixelPacket * pSrcPixels = Img.getPixels(0, 0, Img.columns(), Img.rows());
+    m_Size = IntPoint(Img.columns(), Img.rows());
+    if (Img.matte()) {
+        m_PF = R8G8B8A8;
+    } else {
+        m_PF = R8G8B8X8;
+    }
+    allocBits();
+    for (int y=0; y<m_Size.y; ++y) {
+        Pixel32 * pDestLine = (Pixel32 *)(m_pBits+m_Stride*y);
+        PixelPacket * pSrcLine = pSrcPixels+y*Img.columns();
+        for (int x=0; x<m_Size.x; ++x) {
+            *pDestLine = Pixel32(pSrcLine->red, pSrcLine->green, 
+                    pSrcLine->blue, pSrcLine->opacity);
+            pSrcLine++;
+            pDestLine++;
+        }
+    }
+    m_bOwnsBits = true;
+}
+
+Bitmap::~Bitmap()
+{
+    if (m_bOwnsBits) {
+        delete m_pBits;
+    }
+}
+
+Bitmap &Bitmap::operator= (const Bitmap &Orig)
+{
+    m_Size = Orig.getSize();
+    m_PF = Orig.getPixelFormat();
+    m_bOwnsBits = Orig.m_bOwnsBits;
+    m_sName = Orig.getName();
+    initWithData(const_cast<unsigned char *>(Orig.getPixels()), Orig.getStride(),
+            m_bOwnsBits);
+    
+    return *this;
+}
+
+void Bitmap::copyPixels(const Bitmap & Orig)
+{
+    if (&Orig == this) {
+        return;
+    }
+    if (Orig.getPixelFormat() == m_PF) {
+        const unsigned char * pSrc = Orig.getPixels();
+        unsigned char * pDest = m_pBits;
+        int Height = min(Orig.getSize().y, m_Size.y);
+        int Width = min(Orig.getSize().x, m_Size.x);
+        int LineLen = Width*getBytesPerPixel();
+        for (int y=0; y<Height; ++y) {
+            memcpy(pDest, pSrc, LineLen);
+            pDest += m_Stride;
+            pSrc += Orig.getStride();
+        }
+    } else {
+        switch(m_PF) {
+            //TODO: this is broken if the component ordering changes.
+            case B8G8R8A8:
+            case B8G8R8X8:
+            case A8B8G8R8:
+            case X8B8G8R8:
+            case R8G8B8A8:
+            case R8G8B8X8:
+            case A8R8G8B8:
+            case X8R8G8B8:
+                createTrueColorCopy<Pixel32>(*this, Orig);
+                break;
+            case B8G8R8:
+            case R8G8B8:
+                createTrueColorCopy<Pixel24>(*this, Orig);
+                break;
+            case B5G6R5:
+            case R5G6B5:
+                createTrueColorCopy<Pixel16>(*this, Orig);
+                break;
+            default:
+                // Unimplemented conversion.
+                assert(false);
+        }
+    }
+}
+
+void Bitmap::save(const std::string& sFilename)
+{
+    string sPF;
+    BitmapPtr pBmp;
+    // TODO: Not all of these are tested.
+    switch(m_PF) {
+        case B8G8R8A8:
+            pBmp = BitmapPtr(new Bitmap(*this));
+            sPF = "BGRA";
+            break;
+        case B8G8R8X8:
+            pBmp = BitmapPtr(new Bitmap(m_Size, B8G8R8));
+            pBmp->copyPixels(*this);
+            sPF = "BGR";
+            break;
+        case A8B8G8R8:
+            pBmp = BitmapPtr(new Bitmap(*this));
+            sPF = "ABGR";
+            break;
+        case X8B8G8R8:
+            pBmp = BitmapPtr(new Bitmap(m_Size, B8G8R8));
+            pBmp->copyPixels(*this);
+            sPF = "BGR";
+            break;
+        case R8G8B8A8:
+            pBmp = BitmapPtr(new Bitmap(*this));
+            sPF = "RGBA";
+            break;
+        case R8G8B8X8:
+            pBmp = BitmapPtr(new Bitmap(m_Size, R8G8B8));
+            pBmp->copyPixels(*this);
+            sPF = "RGB";
+            break;
+        case A8R8G8B8:
+            pBmp = BitmapPtr(new Bitmap(*this));
+            sPF = "ARGB";
+            break;
+        case X8R8G8B8:
+            pBmp = BitmapPtr(new Bitmap(m_Size, R8G8B8));
+            pBmp->copyPixels(*this);
+            sPF = "RGB";
+            break;
+        case B8G8R8:
+            pBmp = BitmapPtr(new Bitmap(*this));
+            sPF = "BGR";
+            break;
+        case R8G8B8:
+            pBmp = BitmapPtr(new Bitmap(*this));
+            sPF = "RGB";
+            break;
+        case I8:
+            pBmp = BitmapPtr(new Bitmap(*this));
+            sPF = "A";
+            break;
+        default:
+            assert(false);
+    }
+    Magick::Image Img(m_Size.x, m_Size.y, sPF, Magick::CharPixel, pBmp->getPixels());
+    Img.write(sFilename);
+}
+
+IntPoint Bitmap::getSize() const
+{
+    return m_Size;
+}
+
+int Bitmap::getStride() const
+{
+    return m_Stride;
+}
+
+PixelFormat Bitmap::getPixelFormat() const
+{
+    return m_PF;
+}
+    
+std::string Bitmap::getPixelFormatString() const
+{
+    switch (m_PF) {
+        case I8:
+            return "I";
+        case R8G8B8:
+            return "R8G8B8";
+        case R8G8B8A8:
+            return "R8G8B8A8";
+        case R8G8B8X8:
+            return "R8G8B8X8";
+        case B8G8R8:
+            return "B8G8R8";
+        case B8G8R8A8:
+            return "B8G8R8A8";
+        case B8G8R8X8:
+            return "B8G8R8X8";
+        default:
+            return "Unknown";
+    }
+}
+
+unsigned char * Bitmap::getPixels()
+{
+    return m_pBits;
+}
+
+const unsigned char * Bitmap::getPixels() const
+{
+    return m_pBits;
+}
+
+const std::string& Bitmap::getName() const
+{
+    return m_sName;
+}
+
+bool Bitmap::ownsBits() const
+{
+    return m_bOwnsBits;
+}
+
+int Bitmap::getBytesPerPixel() const
+{
+    switch (m_PF) {
+        case A8B8G8R8:
+        case X8B8G8R8:
+        case A8R8G8B8:
+        case X8R8G8B8:
+        case B8G8R8A8:
+        case B8G8R8X8:
+        case R8G8B8A8:
+        case R8G8B8X8:
+            return 4;
+        case R8G8B8:
+        case B8G8R8:
+            return 3;
+        case B5G6R5:
+        case R5G6B5:
+            return 2;
+        case I8:
+            return 1;
+        default:
+            fatalError("Bitmap::getBytesPerPixel(): Unknown format.");
+            return 0;
+    }
+}
+
+bool Bitmap::hasAlpha() const
+{
+    return (m_PF == B8G8R8A8 || m_PF == R8G8B8A8 || m_PF == A8B8G8R8 ||
+            m_PF == A8R8G8B8);
+}
+
+void Bitmap::initWithData(unsigned char * pBits, int Stride, bool bCopyBits)
+{
+    if (bCopyBits) {
+        allocBits();
+        for (int y=0; y<m_Size.y; ++y) {
+            memcpy(m_pBits+m_Stride*y, pBits+Stride*y, Stride);
+        }
+        m_bOwnsBits = true;
+    } else {
+        m_pBits = pBits;
+        m_Stride = Stride;
+        m_bOwnsBits = false;
+    }
+}
+
+void Bitmap::allocBits()
+{
+    m_pBits = new unsigned char[m_Size.x*m_Size.y*getBytesPerPixel()];
+    m_Stride = m_Size.x*getBytesPerPixel();
+}
+
+template<class DestPixel, class SrcPixel>
+void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src)
+{
+    SrcPixel * pSrcLine = (SrcPixel*) Src.getPixels();
+    DestPixel * pDestLine = (DestPixel*) Dest.getPixels();
+    int Height = min(Src.getSize().y, Dest.getSize().y);
+    int Width = min(Src.getSize().x, Dest.getSize().x);
+    for (int y = 0; y<Height; ++y) {
+        SrcPixel * pSrcPixel = pSrcLine;
+        DestPixel * pDestPixel = pDestLine;
+        for (int x = 0; x < Width; ++x) {
+            *pDestPixel = *pSrcPixel;
+            ++pSrcPixel;
+            ++pDestPixel;
+        }
+        pSrcLine = (SrcPixel *)((unsigned char *)pSrcLine + Src.getStride());
+        pDestLine = (DestPixel *)((unsigned char *)pDestLine + Dest.getStride());
+    }
+}
+
+template<class Pixel>
+void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src)
+{
+    switch(Src.getPixelFormat()) {
+        case B8G8R8A8:
+        case B8G8R8X8:
+        case A8B8G8R8:
+        case X8B8G8R8:
+        case R8G8B8A8:
+        case R8G8B8X8:
+        case A8R8G8B8:
+        case X8R8G8B8:
+            createTrueColorCopy<Pixel, Pixel32>(Dest, Src);
+            break;
+        case B8G8R8:
+        case R8G8B8:
+            createTrueColorCopy<Pixel, Pixel24>(Dest, Src);
+            break;
+        case B5G6R5:
+        case R5G6B5:
+            createTrueColorCopy<Pixel, Pixel16>(Dest, Src);
+            break;
+        default:
+            // Unimplemented conversion.
+            assert(false);
+    }
+}
+    
+};

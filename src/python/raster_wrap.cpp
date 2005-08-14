@@ -2,7 +2,7 @@
 // $Id$
 //
 
-#include "../player/Point.h"
+#include "../graphics/Point.h"
 #include "../player/Camera.h"
 #include "../player/Image.h"
 #include "../player/Video.h"

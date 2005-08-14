@@ -5,7 +5,7 @@
 #ifndef _Region_H_
 #define _Region_H_
 
-#include "Rect.h"
+#include "../graphics/Rect.h"
 
 #include <vector>
 

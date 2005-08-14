@@ -5,7 +5,7 @@
 #ifndef _ISurface_H_
 #define _ISurface_H_
 
-#include "Bitmap.h"
+#include "../graphics/Bitmap.h"
 
 #include <string>
 
