@@ -6,6 +6,7 @@
 #define _Pixel24_H_
 
 #include "Pixeldefs.h"
+#include "Pixel32.h"
 
 #include <stdlib.h>
 
@@ -31,6 +32,7 @@ class Pixel24
 
         return *this;
     }
+    
     operator Pixel32 () const;
 
     bool operator ==(const Pixel24&) const;

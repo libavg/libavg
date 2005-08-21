@@ -5,8 +5,8 @@
 #ifndef _Pixeldefs_H_
 #define _Pixeldefs_H_
 
-#define PIXEL_BGRA_ORDER
+#define PIXEL_RGBA_ORDER
 
-enum {BLUEPOS=0, GREENPOS=1, REDPOS=2, ALPHAPOS=3};
+enum {REDPOS=0, GREENPOS=1, BLUEPOS=2, ALPHAPOS=3};
 
 #endif

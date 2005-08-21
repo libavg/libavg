@@ -5,37 +5,46 @@
 #ifndef _Test_H_ 
 #define _Test_H_
 
+#include <boost/shared_ptr.hpp>
+
 #include <iostream>
 #include <sstream>
+#include <string>
 
 namespace avg {
 class Test
 {
 public:
-    Test();
+    Test(const std::string & sName, int IndentLevel);
     virtual ~Test();
 
-    bool isOk ();
-    virtual void runTests () = 0;
+    bool isOk();
+    virtual void runTests() = 0;
 
-    void test (bool b, const char * pszFile, int Line);
-    void setFailed ();
+    void test(bool b, const char * pszFile, int Line);
+    void setFailed();
 
-    int getNumSucceeded () const;
-    int getNumFailed () const;
+    int getNumSucceeded() const;
+    int getNumFailed() const;
+    const std::string& getName() const;
 
-    void aggregateStatistics (const Test& ChildTest);
-    void printResults();
+    void aggregateStatistics(const Test& ChildTest);
+    virtual void printResults();
 
+protected:
+    int m_IndentLevel;
+    
 private:
     bool m_bOk;
     int m_NumSucceeded;
     int m_NumFailed;
-
+    std::string m_sName;
 };
 
+typedef boost::shared_ptr<Test> TestPtr;
+
 #define TEST(b)                            \
-    cerr << "  TEST(" << #b << ")" << endl;  \
+    cerr << string(m_IndentLevel, ' ') << "  TEST(" << #b << ")" << endl;  \
     test(b, __FILE__, __LINE__);
     
 }

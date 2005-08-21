@@ -10,10 +10,12 @@ using namespace std;
 
 namespace avg {
 
-Test::Test()
+Test::Test(const string & sName, int IndentLevel)
     : m_bOk(true),
       m_NumSucceeded(0),
-      m_NumFailed(0)
+      m_NumFailed(0),
+      m_sName(sName),
+      m_IndentLevel(IndentLevel)
 {
 }
 
@@ -26,7 +28,8 @@ void Test::test (bool b, const char * pszFile, int Line)
     if (b) {
         m_NumSucceeded++;
     } else {
-        cerr << "    ---->> failed at " << pszFile << ", " << Line << endl;
+        cerr << string(m_IndentLevel, ' ') << "    ---->> failed at " << pszFile
+                << ", " << Line << endl;
         m_bOk = false;
         m_NumFailed++;
     }
@@ -54,6 +57,11 @@ int Test::getNumFailed() const
     return m_NumFailed;
 }
 
+const std::string& Test::getName() const
+{
+    return m_sName;
+}
+
 void Test::aggregateStatistics (const Test& ChildTest)
 {
     m_NumSucceeded += ChildTest.getNumSucceeded();
@@ -63,9 +71,10 @@ void Test::aggregateStatistics (const Test& ChildTest)
 void Test::printResults()
 {
     if (m_NumFailed == 0) {
-        cerr << "Test succeeded." << endl;
+        cerr << string(m_IndentLevel, ' ') << m_sName << " succeeded." << endl;
     } else {
-        cerr << "######## Test failed. ########" << endl;
+        cerr << string(m_IndentLevel, ' ') << "######## " << m_sName << 
+            " failed. ########" << endl;
     }
         
 }

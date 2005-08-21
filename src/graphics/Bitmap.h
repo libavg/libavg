@@ -46,6 +46,7 @@ public:
     IntPoint getSize() const;
     int getStride() const;
     PixelFormat getPixelFormat() const;
+    void setPixelFormat(PixelFormat PF);
     std::string getPixelFormatString() const;
     unsigned char * getPixels();
     const unsigned char * getPixels() const;
@@ -53,6 +54,9 @@ public:
     const std::string& getName() const;
     int getBytesPerPixel() const;
     bool hasAlpha() const;
+
+    bool operator ==(const Bitmap & otherBmp);
+    void dump(bool bDumpPixels=true);
 
 private:
     void initWithData(unsigned char * pBits, int Stride, bool bCopyBits);

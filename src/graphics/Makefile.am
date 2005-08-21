@@ -2,12 +2,20 @@
 INCLUDES = -I. \
 		`Magick++-config --cppflags` 
         
-ALL_H = Bitmap.h Rect.h Point.h \
-		Pixel32.h Pixel24.h Pixel16.h Pixel8.h Pixeldefs.h
+ALL_H = Bitmap.h Rect.h Point.h Filter.h\
+		Pixel32.h Pixel24.h Pixel16.h Pixel8.h Pixeldefs.h \
+		Filtercolorize.h Filterfill.h Filterfillrect.h Filterflip.h \
+		Filterfliprgb.h Filtergrayscale.h 
+ALL_CPP = Bitmap.cpp Filter.cpp Filtergrayscale.cpp \
+		Filtercolorize.cpp Filterflip.cpp Filterfliprgb.cpp
 
 lib_LTLIBRARIES = libgraphics.la
-libgraphics_la_SOURCES = Bitmap.cpp $(ALL_H)
+libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
 libgraphics_ladir=$(includedir)/avg/graphics
 libgraphics_la_HEADERS = $(ALL_H)
 libgraphics_la_LIBADD = ../base/libbase.la        
-libgraphics_la_LDFLAGS = `Magick++-config --libs` -lboost_python
+libgraphics_la_LDFLAGS = `Magick++-config --libs`
+
+noinst_PROGRAMS=testgraphics
+testgraphics_SOURCES=testgraphics.cpp $(ALL_H)
+testgraphics_LDFLAGS = ../base/libbase.la libgraphics.la

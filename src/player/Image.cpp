@@ -8,6 +8,10 @@
 #include "Player.h"
 #include "ISurface.h"
 
+#include "../graphics/Bitmap.h"
+#include "../graphics/Filtercolorize.h"
+#include "../graphics/Filterfliprgb.h"
+
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
@@ -54,15 +58,16 @@ void Image::init (IDisplayEngine * pEngine, Container * pParent,
     }
     getSurface()->create(TempBmp.getSize(), pf);
     getSurface()->getBmp()->copyPixels(TempBmp);
-/*    
+    
     if (m_Saturation != -1) {
-        PLFilterColorize(m_Hue, m_Saturation).ApplyInPlace(
+        getSurface()->getBmp()->dump(false);
+        FilterColorize(m_Hue, m_Saturation).applyInPlace(
                 getSurface()->getBmp());
+        getSurface()->getBmp()->dump(false);
     }
-    if (pEngine->hasRGBOrdering()) {
-        PLFilterFlipRGB().ApplyInPlace(getSurface()->getBmp());
+    if (!(pEngine->hasRGBOrdering())) {
+        FilterFlipRGB().applyInPlace(getSurface()->getBmp());
     }
-*/    
 }
 
 const std::string& Image::getHRef() const {

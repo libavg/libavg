@@ -12,6 +12,7 @@
 #include <Magick++.h>
 #include <assert.h>
 #include <iostream>
+#include <iomanip>
 
 using namespace Magick;
 using namespace std;
@@ -54,9 +55,13 @@ Bitmap::Bitmap(const Bitmap& Orig)
 Bitmap::Bitmap(Bitmap& Orig, const IntRect& Rect)
     : m_Size(Rect.Width(), Rect.Height()),
       m_PF(Orig.getPixelFormat()),
-      m_bOwnsBits(false),
-      m_sName(Orig.getName()+" part")
+      m_bOwnsBits(false)
 {
+    if (!Orig.getName().empty()) {
+        m_sName = Orig.getName()+" part";
+    } else {
+        m_sName = "";
+    }
     unsigned char * pRegionStart = Orig.getPixels()+Rect.tl.y*Orig.getStride()+
             Rect.tl.x*getBytesPerPixel();
     initWithData(pRegionStart, Orig.getStride(), false);
@@ -83,7 +88,7 @@ Bitmap::Bitmap(const std::string& sURI)
         PixelPacket * pSrcLine = pSrcPixels+y*Img.columns();
         for (int x=0; x<m_Size.x; ++x) {
             *pDestLine = Pixel32(pSrcLine->red, pSrcLine->green, 
-                    pSrcLine->blue, pSrcLine->opacity);
+                    pSrcLine->blue, 255-pSrcLine->opacity);
             pSrcLine++;
             pDestLine++;
         }
@@ -100,13 +105,17 @@ Bitmap::~Bitmap()
 
 Bitmap &Bitmap::operator= (const Bitmap &Orig)
 {
-    m_Size = Orig.getSize();
-    m_PF = Orig.getPixelFormat();
-    m_bOwnsBits = Orig.m_bOwnsBits;
-    m_sName = Orig.getName();
-    initWithData(const_cast<unsigned char *>(Orig.getPixels()), Orig.getStride(),
-            m_bOwnsBits);
-    
+    if (this != &Orig) {
+        if (m_bOwnsBits) {
+            delete m_pBits;
+        }
+        m_Size = Orig.getSize();
+        m_PF = Orig.getPixelFormat();
+        m_bOwnsBits = Orig.m_bOwnsBits;
+        m_sName = Orig.getName();
+        initWithData(const_cast<unsigned char *>(Orig.getPixels()), Orig.getStride(),
+                m_bOwnsBits);
+    }
     return *this;
 }
 
@@ -128,7 +137,6 @@ void Bitmap::copyPixels(const Bitmap & Orig)
         }
     } else {
         switch(m_PF) {
-            //TODO: this is broken if the component ordering changes.
             case B8G8R8A8:
             case B8G8R8X8:
             case A8B8G8R8:
@@ -229,6 +237,11 @@ PixelFormat Bitmap::getPixelFormat() const
 {
     return m_PF;
 }
+
+void Bitmap::setPixelFormat(PixelFormat PF)
+{
+    m_PF = PF;
+}
     
 std::string Bitmap::getPixelFormatString() const
 {
@@ -302,6 +315,55 @@ bool Bitmap::hasAlpha() const
 {
     return (m_PF == B8G8R8A8 || m_PF == R8G8B8A8 || m_PF == A8B8G8R8 ||
             m_PF == A8R8G8B8);
+}
+
+bool Bitmap::operator ==(const Bitmap & otherBmp)
+{
+    // We allow Name, Stride and bOwnsBits to be different here, since we're looking for
+    // equal value only.
+    if (m_Size != otherBmp.m_Size || m_PF != otherBmp.m_PF)
+    {
+        return false;
+    }
+
+    const unsigned char * pSrc = otherBmp.getPixels();
+    unsigned char * pDest = m_pBits;
+    int LineLen = getSize().x*getBytesPerPixel();
+    for (int y=0; y<getSize().y; ++y) {
+        if (memcmp(pDest, pSrc, LineLen) != 0) {
+            return false;
+        }
+        pDest += m_Stride;
+        pSrc += otherBmp.getStride();
+    }
+    return true;
+}
+
+void Bitmap::dump(bool bDumpPixels)
+{
+    cerr << "Bitmap: " << m_sName << endl;
+    cerr << "  m_Size: " << m_Size.x << "x" << m_Size.y << endl;
+    cerr << "  m_Stride: " << m_Stride << endl;
+    cerr << "  m_PF: " << getPixelFormatString() << endl;
+    cerr << "  m_pBits: " << (void *)m_pBits << endl;
+    cerr << "  m_bOwnsBits: " << m_bOwnsBits << endl;
+    if (bDumpPixels) {
+        cerr << "  Pixel data: " << endl;
+        for (int y=0; y<m_Size.y; ++y) {
+            unsigned char * pLine = m_pBits+m_Stride*y;
+            cerr << "    ";
+            for (int x=0; x<m_Size.x; ++x) {
+                unsigned char * pPixel = pLine+getBytesPerPixel()*x;
+                cerr << "[";
+                for (int i=0; i<getBytesPerPixel(); ++i) {
+                    cerr << hex << setw(2) << (int)(pPixel[i]) << " ";
+                }
+                cerr << "]";
+            }
+            cerr << endl;
+        }
+        cerr << dec;
+    }
 }
 
 void Bitmap::initWithData(unsigned char * pBits, int Stride, bool bCopyBits)
