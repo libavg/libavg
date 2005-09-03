@@ -25,9 +25,9 @@ using namespace std;
 
 BitmapPtr initBmp(PixelFormat PF)
 {
-    BitmapPtr pBmp(new Bitmap(IntPoint(5,5), PF));
-    for(int y=0; y<5; ++y) {
-        for (int x=0; x<5; ++x) {
+    BitmapPtr pBmp(new Bitmap(IntPoint(4,7), PF));
+    for(int y=0; y<7; ++y) {
+        for (int x=0; x<4; ++x) {
             unsigned char * pPixel = 
                 pBmp->getPixels()+y*pBmp->getStride()+x*pBmp->getBytesPerPixel();
             *(pPixel) = x;
@@ -60,22 +60,30 @@ public:
         runPFTests(R8G8B8);
         runPFTests(I8);
         
-        unsigned char pData[5*5*3];
-        Bitmap Bmp1 = Bitmap(IntPoint(5,5), R8G8B8, pData, 15, true, "");
-        Bitmap Bmp2 = Bitmap(IntPoint(5,5), R8G8B8, pData, 15, false, "");
+        unsigned char pData[4*7*3];
+        Bitmap Bmp1 = Bitmap(IntPoint(4,7), R8G8B8, pData, 12, true, "");
+        Bitmap Bmp2 = Bitmap(IntPoint(4,7), R8G8B8, pData, 12, false, "");
         testEqual(Bmp1, Bmp2);
         {
             BitmapPtr pBmp = initBmp(R8G8B8X8);
-            Bitmap Bmp1(IntPoint(5,5), R8G8B8);
+            Bitmap Bmp1(IntPoint(4,7), R8G8B8);
             Bmp1.copyPixels(*pBmp);
-            Bitmap Bmp2(IntPoint(5,5), R8G8B8X8);
+            Bitmap Bmp2(IntPoint(4,7), R8G8B8X8);
             Bmp2.copyPixels(Bmp1);
-            for(int y=0; y<5; ++y) {
-                for (int x=0; x<5; ++x) {
+            for(int y=0; y<7; ++y) {
+                for (int x=0; x<4; ++x) {
                     *(Bmp2.getPixels()+y*Bmp2.getStride()+x*Bmp2.getBytesPerPixel()+3) = 0xFF;
                 }
             }
             testEqual(*pBmp, Bmp2);
+        }
+        {
+            BitmapPtr pBmp = initBmp(R8G8B8A8);
+            BitmapPtr pBaselineBmp = initBmp(R8G8B8A8);
+            BitmapPtr pCopyBmp = BitmapPtr(new Bitmap(IntPoint(4,7), R8G8B8));
+            pCopyBmp->copyPixels(*pBmp);
+            pBmp->copyPixels(*pCopyBmp);
+            testEqual(*pBmp, *pBaselineBmp);
         }
         {
             BitmapPtr pBmp = initBmp(R8G8B8A8);
@@ -98,7 +106,7 @@ private:
             testEqual(*pBmp, BmpCopy2);
         }
         {
-            Bitmap BmpCopy3 (*pBmp, IntRect(0,0,5,5));
+            Bitmap BmpCopy3 (*pBmp, IntRect(0,0,4,7));
             testEqual(*pBmp, BmpCopy3);
         }
     }
@@ -194,6 +202,7 @@ public:
     void runTests() 
     {
         runPFTests(R8G8B8A8);
+        runPFTests(B8G8R8X8);
         runPFTests(R8G8B8);
         runPFTests(I8);
     }
@@ -206,6 +215,7 @@ private:
             BitmapPtr pBmp2 = FilterFlip().apply(pBmp1);
             TEST(*pBmp == *pBmp2);
         }
+        pBmp = initBmp(PF);
         { 
             Bitmap BmpBaseline = *pBmp;
             FilterFlip().applyInPlace(pBmp);
@@ -247,6 +257,33 @@ private:
     }
 };
 
+class FilterComboTest: public Test {
+public:
+    FilterComboTest()
+        : Test("FilterComboTest", 2)
+    {
+    }
+
+    void runTests() 
+    {
+        Bitmap TempBmp("../test/rgb24.png");
+        PixelFormat pf = R8G8B8;    
+        BitmapPtr pBmp;
+        pBmp = createBmp(TempBmp.getSize(), pf);
+        pBmp->copyPixels(TempBmp);
+        FilterColorize(15, 50).applyInPlace(pBmp);
+        FilterFlipRGB().applyInPlace(pBmp);
+    }
+
+private:
+    BitmapPtr createBmp(const IntPoint& Size, PixelFormat pf)
+    {
+        BitmapPtr pBmp;
+        pBmp = BitmapPtr(new Bitmap(Size, pf));
+        return pBmp;
+    }
+};
+
 class GraphicsTestSuite: public TestSuite {
 public:
     GraphicsTestSuite() 
@@ -258,6 +295,7 @@ public:
         addTest(TestPtr(new FilterFillTest));
         addTest(TestPtr(new FilterFlipTest));
         addTest(TestPtr(new FilterFlipRGBTest));
+        addTest(TestPtr(new FilterComboTest));
     }
 };
 

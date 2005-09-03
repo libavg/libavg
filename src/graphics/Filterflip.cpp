@@ -17,7 +17,7 @@ FilterFlip::~FilterFlip()
 BitmapPtr FilterFlip::apply(BitmapPtr pBmpSource) const
 {
     IntPoint Size = pBmpSource->getSize();
-    BitmapPtr pBmpDest = BitmapPtr(new Bitmap (Size, 
+    BitmapPtr pBmpDest(new Bitmap (Size, 
                 pBmpSource->getPixelFormat(), pBmpSource->getName()));
 
     unsigned char* pSrcLine = pBmpSource->getPixels();

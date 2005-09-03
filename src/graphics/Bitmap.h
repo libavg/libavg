@@ -56,7 +56,7 @@ public:
     bool hasAlpha() const;
 
     bool operator ==(const Bitmap & otherBmp);
-    void dump(bool bDumpPixels=true);
+    void dump(bool bDumpPixels=false);
 
 private:
     void initWithData(unsigned char * pBits, int Stride, bool bCopyBits);

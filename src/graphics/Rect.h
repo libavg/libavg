@@ -16,26 +16,34 @@ template<class NUM>
 class Rect
 {
 public:
-  Point<NUM> tl;
-  Point<NUM> br;
+    Point<NUM> tl;
+    Point<NUM> br;
 
-  Rect ();
-  Rect (NUM left, NUM top, NUM right, NUM bottom);
-  Rect (const Point<NUM>& TL, const Point<NUM>& BR);
-  template<class ORIGNUM> Rect (const Rect<ORIGNUM>& rc);
+    Rect ();
+    Rect (NUM left, NUM top, NUM right, NUM bottom);
+    Rect (const Point<NUM>& TL, const Point<NUM>& BR);
+    template<class ORIGNUM> Rect (const Rect<ORIGNUM>& rc);
 
-  bool operator == (const Rect<NUM>& rect) const;
-  bool operator != (const Rect<NUM> & rect) const;
-  NUM Width () const;
-  NUM Height () const;
-  void SetWidth (NUM width);
-  void SetHeight (NUM height);
-  bool Contains (const Point<NUM>& pt) const;
-  bool Contains (const Rect<NUM>& rect) const;
-  bool Intersects (const Rect<NUM>& rect) const;
-  void Expand (const Rect<NUM>& rect);
-  void Intersect (const Rect<NUM>& rect);
+    bool operator == (const Rect<NUM>& rect) const;
+    bool operator != (const Rect<NUM> & rect) const;
+    NUM Width () const;
+    NUM Height () const;
+    void SetWidth (NUM width);
+    void SetHeight (NUM height);
+    bool Contains (const Point<NUM>& pt) const;
+    bool Contains (const Rect<NUM>& rect) const;
+    bool Intersects (const Rect<NUM>& rect) const;
+    void Expand (const Rect<NUM>& rect);
+    void Intersect (const Rect<NUM>& rect);
 };
+
+template<class NUM>
+std::ostream& operator<<( std::ostream& os, const Rect<NUM> &r)
+{
+    os << "(" << r.tl << "-" << r.br << ")";
+    return os;
+}
+
 
 typedef Rect<double> DRect;
 typedef Rect<int> IntRect;

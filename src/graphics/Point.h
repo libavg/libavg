@@ -5,6 +5,8 @@
 #ifndef _Point_H_
 #define _Point_H_
 
+#include <ostream>
+
 namespace avg {
 
 template<class NUM>
@@ -31,6 +33,13 @@ public:
   Point<NUM> operator / (double f) const;
 
 };
+
+template<class NUM>
+std::ostream& operator<<( std::ostream& os, const Point<NUM> &p)
+{
+    os << "(" << p.x << "," << p.y << ")";
+    return os;
+}
 
 typedef Point<double> DPoint;
 typedef Point<int> IntPoint;
