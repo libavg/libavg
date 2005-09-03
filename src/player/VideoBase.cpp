@@ -16,6 +16,9 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 
+#include "../graphics/Filterfill.h"
+#include "../graphics/Pixel24.h"
+
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
@@ -183,8 +186,8 @@ void VideoBase::open()
     DRect vpt = getRelViewport();
     getSurface()->create(IntPoint(m_Width, m_Height), R8G8B8);
 
-//    PLFilterFill<PLPixel24> Filter(PLPixel24(0,0,0));
-//    Filter.ApplyInPlace(getSurface()->getBmp());
+    FilterFill<Pixel24> Filter(Pixel24(0,0,0));
+    Filter.applyInPlace(getSurface()->getBmp());
     
     m_bFrameAvailable = false;
     m_State = Paused;

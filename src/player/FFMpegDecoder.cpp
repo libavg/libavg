@@ -249,6 +249,7 @@ void FFMpegDecoder::initVideoSupport()
     if (!m_bInitialized) {
         av_register_all();
         m_bInitialized = true;
+        av_log_set_level(AV_LOG_INFO);
     }
 }
 

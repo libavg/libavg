@@ -10,6 +10,8 @@
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
 
+#include "../graphics/Filterfill.h"
+
 #include <pango/pangoft2.h>
 
 #include <iostream>
@@ -271,7 +273,7 @@ void Words::drawString()
         m_pSurface->create(IntPoint(m_StringExtents), I8);
 
         BitmapPtr pBmp = m_pSurface->getBmp();
-//        PLFilterFill<PLPixel8>(0).ApplyInPlace(pBmp);
+        FilterFill<unsigned char>(0).applyInPlace(pBmp);
         FT_Bitmap bitmap;
         bitmap.rows = (int)m_StringExtents.y;
         bitmap.width = (int)m_StringExtents.x;

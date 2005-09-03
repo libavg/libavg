@@ -58,13 +58,12 @@ void Image::init (IDisplayEngine * pEngine, Container * pParent,
     }
     getSurface()->create(TempBmp.getSize(), pf);
     getSurface()->getBmp()->copyPixels(TempBmp);
-    
+/*    
     if (m_Saturation != -1) {
-        getSurface()->getBmp()->dump(false);
         FilterColorize(m_Hue, m_Saturation).applyInPlace(
                 getSurface()->getBmp());
-        getSurface()->getBmp()->dump(false);
     }
+*/
     if (!(pEngine->hasRGBOrdering())) {
         FilterFlipRGB().applyInPlace(getSurface()->getBmp());
     }

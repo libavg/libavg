@@ -13,6 +13,9 @@
 #include "../base/Exception.h"
 #include "../base/XMLHelper.h"
 
+#include "../graphics/Filtercolorize.h"
+#include "../graphics/Filterfliprgb.h"
+
 #include "GL/gl.h"
 #include "GL/glu.h"
 
@@ -74,10 +77,10 @@ void PanoImage::init (IDisplayEngine * pEngine,
     if (m_Saturation != -1) {
         m_Bmp.ApplyFilter(PLFilterColorize(m_Hue, m_Saturation));
     }
-    if (pEngine->hasRGBOrdering()) {
-        m_Bmp.ApplyFilter(PLFilterFlipRGB());
+*/    
+    if (!(pEngine->hasRGBOrdering())) {
+        FilterFlipRGB().applyInPlace(m_pBmp);
     }
-*/
     calcProjection();
     if (m_Rotation == -1) {
         m_Rotation = m_MaxRotation/2;

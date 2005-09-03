@@ -20,6 +20,9 @@
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 
+#include "../graphics/Filterflip.h"
+#include "../graphics/Filterfliprgb.h"
+
 #define XMD_H 1
 #include "GL/gl.h"
 #include "GL/glu.h"
@@ -352,12 +355,17 @@ void SDLDisplayEngine::showCursor (bool bShow)
 
 BitmapPtr SDLDisplayEngine::screenshot ()
 {
-    BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(m_Width, m_Height), R8G8B8X8));
+    BitmapPtr pBmp (new Bitmap(IntPoint(m_Width, m_Height), R8G8B8X8));
     glReadBuffer(GL_FRONT);
     glReadPixels(0, 0, m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE, 
             pBmp->getPixels());
-//    pBmp->ApplyFilter(PLFilterFlip());
-//    Bmp.ApplyFilter(PLFilterFlipRGB());
+//    pBmp->dump(false);
+    FilterFlipRGB().applyInPlace(pBmp);
+//    cerr << "1" << endl;
+    pBmp->dump(false);
+    FilterFlip().applyInPlace(pBmp);
+//    cerr << "2" << endl;
+//    pBmp->dump(false);
     return pBmp;
 }
 

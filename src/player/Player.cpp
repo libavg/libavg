@@ -148,7 +148,6 @@ void Player::loadFile (const std::string& filename)
                         m_sDisplaySubsystem << ". Aborting.");
                 exit(-1);
             }
-            m_pDisplayEngine->showCursor(m_bShowCursor);
         }
 
         // Find and parse dtd.
@@ -561,6 +560,7 @@ void Player::initDisplay(const xmlNodePtr xmlNode) {
     int Width = getDefaultedIntAttr (xmlNode, "width", 0);
     m_pDisplayEngine->init(Width, Height, m_bFullscreen, m_BPP, 
             m_WindowWidth, m_WindowHeight);
+    m_pDisplayEngine->showCursor(m_bShowCursor);
 }
 
 void Player::handleTimers()
