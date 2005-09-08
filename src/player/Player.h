@@ -75,7 +75,7 @@ class Player : IEventSink
 
         void initDisplay(const xmlNodePtr xmlNode);
         void render (bool bRenderEverything);
-        void createMouseOver(MouseEvent * pOtherEvent, int Type);
+        void createMouseOver(MouseEvent * pOtherEvent, Event::Type Type);
         void cleanup();
 	
         AVGNode * m_pRootNode;

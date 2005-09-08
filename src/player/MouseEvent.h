@@ -13,7 +13,7 @@ class Node;
 
 class MouseEvent : public Event {
     public:
-        MouseEvent(int eventType,
+        MouseEvent(Event::Type eventType,
                 bool leftButtonState, bool middleButtonState, 
                 bool rightButtonState,
                 int xPosition, int yPosition, int button);

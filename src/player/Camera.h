@@ -6,6 +6,11 @@
 #define _Camera_H_
 
 #include "../avgconfig.h"
+#undef PACKAGE_BUGREPORT
+#undef PACKAGE_NAME
+#undef PACKAGE_STRING
+#undef PACKAGE_TARNAME
+#undef PACKAGE_VERSION
 
 #include "VideoBase.h"
 #include "../graphics/Rect.h"

@@ -14,7 +14,7 @@ namespace avg {
 
 int Event::s_CurCounter = 0;
 
-Event::Event(int type, int when)
+Event::Event(Type type, int when)
     : m_Type(type)
 {
     if (when == -1) {

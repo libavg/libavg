@@ -71,11 +71,11 @@ class SDLDisplayEngine: public IDisplayEngine, public IEventSource
         void setClipPlane(double Eqn[4], int WhichPlane);
 
         Event * createMouseMotionEvent 
-                (int Type, const SDL_Event & SDLEvent);
+                (Event::Type Type, const SDL_Event & SDLEvent);
         Event * createMouseButtonEvent
-                (int Type, const SDL_Event & SDLEvent);
+                (Event::Type Type, const SDL_Event & SDLEvent);
         Event * createKeyEvent
-                (int Type, const SDL_Event & SDLEvent);
+                (Event::Type Type, const SDL_Event & SDLEvent);
         
         int m_Width;
         int m_Height;

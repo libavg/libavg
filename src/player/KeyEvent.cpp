@@ -13,7 +13,7 @@ using namespace std;
 
 namespace avg {
 
-KeyEvent::KeyEvent(int eventType, unsigned char scanCode, int keyCode, 
+KeyEvent::KeyEvent(Type eventType, unsigned char scanCode, int keyCode, 
                 const string& keyString, int modifiers)
     : Event(eventType)
 {

@@ -13,7 +13,7 @@ namespace avg {
 
 class KeyEvent : public Event {
     public:
-        KeyEvent(int eventType, unsigned char scanCode, int keyCode, 
+        KeyEvent(Type eventType, unsigned char scanCode, int keyCode, 
                 const std::string& keyString, int modifiers);
         virtual ~KeyEvent();
 

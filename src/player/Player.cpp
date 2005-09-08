@@ -3,6 +3,12 @@
 //
 
 #include "../avgconfig.h"
+#undef PACKAGE_BUGREPORT
+#undef PACKAGE_NAME
+#undef PACKAGE_STRING
+#undef PACKAGE_TARNAME
+#undef PACKAGE_VERSION
+
 #include "Player.h"
 
 #include "AVGNode.h"
@@ -654,7 +660,7 @@ bool Player::handleEvent(Event * pEvent)
     return true; 
 }
 
-void Player::createMouseOver(MouseEvent * pOtherEvent, int Type)
+void Player::createMouseOver(MouseEvent * pOtherEvent, Event::Type Type)
 {
     MouseEvent * pNewEvent = new MouseEvent(Type,
             pOtherEvent->getLeftButtonState(),

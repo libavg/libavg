@@ -23,7 +23,7 @@ class Event {
             QUIT 
         };
     
-        Event(int type, int when=-1);
+        Event(Type type, int when=-1);
         virtual ~Event();
         
         virtual void trace();

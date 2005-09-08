@@ -5,8 +5,8 @@ INCLUDES = -I. \
         `directfb-config --cflags` \
         `pkg-config --cflags pango` \
 		`Magick++-config --cppflags` \
-        -I/usr/include/python2.4 \
-$(GL_CFLAGS)
+        $(PYTHON_CSPEC) \
+        $(GL_CFLAGS)
         
 if ENABLE_1394
     DC1394_LIBS = -ldc1394_control -lraw1394
@@ -65,10 +65,8 @@ libplayer_la_LDFLAGS = `xml2-config --libs` \
         $(DC1394_LIBS) $(GL_LIBS) $(GLU_LIBS) $(SDL_LIBS) $(DFB_LIBS) \
 		-lavformat -lavcodec \
         `pkg-config --libs pangoft2` \
-		`Magick++-config --libs`
-
-# TODO: Remove -fpermissive
-AM_CXXFLAGS = -fpermissive $(CXXFLAGS)
+		`Magick++-config --libs` \
+        $(PYTHON_LSPEC)
 
 libplayerHEADERS = $(ALL_H)
 

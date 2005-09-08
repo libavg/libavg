@@ -14,7 +14,7 @@ using namespace std;
 
 namespace avg {
 
-MouseEvent::MouseEvent(int eventType,
+MouseEvent::MouseEvent(Event::Type eventType,
         bool leftButtonState, bool middleButtonState, bool rightButtonState,
         int xPosition, int yPosition, int button)
     : Event(eventType),

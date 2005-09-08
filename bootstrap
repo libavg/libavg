@@ -2,12 +2,12 @@
 set -x
 if [[ `uname` = Darwin ]] 
 then
-    # If we're running on Mac OS X, we need to make sure that we're not
-    # using fink's autotools stuff.
+    # If we're running on Mac OS X, libtoolize is named glibtoolize to
+    # avoid name clashes.
     glibtoolize --force
-    /usr/bin/aclocal -I m4
-    /usr/bin/automake --foreign --add-missing --copy 
-    /usr/bin/autoconf
+    aclocal -I m4
+    automake --foreign --add-missing --copy 
+    autoconf
 else
     libtoolize --force
     aclocal -I m4

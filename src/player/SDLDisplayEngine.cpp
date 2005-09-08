@@ -443,7 +443,7 @@ vector<Event *> SDLDisplayEngine::pollEvents()
 }
 
 Event * SDLDisplayEngine::createMouseMotionEvent
-        (int Type, const SDL_Event & SDLEvent)
+        (Event::Type Type, const SDL_Event & SDLEvent)
 {
     int x = int((SDLEvent.motion.x*m_Width)/m_WindowWidth);
     int y = int((SDLEvent.motion.y*m_Height)/m_WindowHeight);
@@ -457,7 +457,7 @@ Event * SDLDisplayEngine::createMouseMotionEvent
 }
 
 Event * SDLDisplayEngine::createMouseButtonEvent
-        (int Type, const SDL_Event & SDLEvent) 
+        (Event::Type Type, const SDL_Event & SDLEvent) 
 {
     long Button = 0;
     switch (SDLEvent.button.button) {
@@ -500,7 +500,7 @@ Event * SDLDisplayEngine::createButtonEvent
 */
 
 Event * SDLDisplayEngine::createKeyEvent
-        (int Type, const SDL_Event & SDLEvent)
+        (Event::Type Type, const SDL_Event & SDLEvent)
 {
     long KeyCode = KeyCodeTranslationTable[SDLEvent.key.keysym.sym];
     unsigned int Modifiers = key::KEYMOD_NONE;
