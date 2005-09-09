@@ -19,6 +19,7 @@ class LoggerTestCase(unittest.TestCase):
 #                  self.Log.MEMORY  |
 #                  self.Log.BLTS    |
                   self.Log.EVENTS)
+        self.Log.setDestination("avgdfb.log")
         self.Log.trace(self.Log.APP, "Test JS log entry.")
 
 class ParPortTestCase(unittest.TestCase):
@@ -120,6 +121,7 @@ class PlayerTestCase(unittest.TestCase):
     def playAVG(self, fileName):
         Player.loadFile(fileName)
 #        Player.setTimeout(100, lambda : Player.screenshot("test.png"))
+#        Player.setTimeout(150, lambda : Player.screenshot("test1.png"))
         Player.setTimeout(200, Player.stop)
         Player.play(30)
         
@@ -146,7 +148,7 @@ class PlayerTestCase(unittest.TestCase):
             self.assert_(1)
     def testConfig(self):
         Player.setDisplayEngine(avg.DFB)
-        Player.setResolution(0, 100, 100, 16)
+        Player.setResolution(0, 0, 0, 24)
         self.testEvents()
     def createNodes(self):
         node=Player.createNode("<image href='rgb24.png'/>")
@@ -385,18 +387,19 @@ class VideoTestCase(unittest.TestCase):
 
 def playerTestSuite():
     suite = unittest.TestSuite()
+    
     suite.addTest(LoggerTestCase("test"))
     suite.addTest(ParPortTestCase("test"))
     suite.addTest(ConradRelaisTestCase("test"))
     suite.addTest(NodeTestCase("testAttributes"))
     suite.addTest(PlayerTestCase("testImage"))
+    suite.addTest(PlayerTestCase("testPanoImage"))
     suite.addTest(PlayerTestCase("testError"))
     suite.addTest(PlayerTestCase("testEvents"))
     suite.addTest(PlayerTestCase("testEventErr"))
     suite.addTest(PlayerTestCase("testConfig"))
 #    suite.addTest(PlayerTestCase("testDynamics"))
     suite.addTest(PlayerTestCase("testHugeImage"))
-    suite.addTest(PlayerTestCase("testPanoImage"))
     suite.addTest(PlayerTestCase("testBroken"))
     suite.addTest(PlayerTestCase("testExcl"))
     suite.addTest(PlayerTestCase("testAnimation"))

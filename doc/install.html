@@ -15,7 +15,7 @@ body { }
 <div id="navbox">
 <TABLE WIDTH=164 BORDER=0 CELLPADDING=0 CELLSPACING=0>
   <TR>
-    <TD COLSPAN=2><a href="index.html"><IMG SRC="Bilder/avglogo.jpg" WIDTH=150 HEIGHT=44                                           
+    <TD COLSPAN=2><a href="index.html"><IMG SRC="Bilder/avglogo.jpg" WIDTH=150 HEIGHT=44
                                             border="0" ALT="Index"></a></TD>
   </TR>
   <TR>
@@ -64,19 +64,32 @@ body { }
 </TABLE>
 </div>
 <div id="textbox">
-       <b>Hic sunt leones</b>
-       <p>Be warned that this is stuff under development. avg is not polished enough to be easy to install yet. We've had it running on Debian unstable, Gentoo and SuSE boxes, and it shouldn't be impossible to get running on a sane Linux system, but it isn't packaged well yet, so things will hiccup and stutter and spit out compiler errors and in general behave badly until tamed. Of course, at this stage I'm more than happy to help anyone trying to install the beast: coder at c-base.org.
+       <b>System State</b>
+       <p>We've had libavg running on Debian, Gentoo and SuSE boxes, and it shouldn't be
+       impossible to get running on a sane Linux system. I've also gotten it to work on
+       Mac OS X, but that's broken at the moment.
        <p><b>Prerequisites</b>
-       <p>avg uses a lot of third-party libraries. What follows is a list of packages you'll need. I am not sure that the package names are exact, but the list should enable you to find what's needed. At the moment, avg doesn't check during configure that these libraries are installed, so you'll probably get compiler errors if they aren't.
+       <p>libavg uses a lot of third-party libraries. What follows is a list of packages 
+       you'll need. The package names are the names of the gentoo packages needed. For 
+       other distributions, the list should enable you to find what's needed. At the 
+       moment, libavg doesn't check during configure that these libraries are installed, 
+       so you'll probably get compiler errors if they aren't.
        <ul>
-       <li>The image format libraries libjpeg62, libpng, libtiff (all optional but highly recommended).</li>
-       <li>libavcodec 0.4.9pre1. Debian users need to add <i>deb ftp://ftp.nerim.net/debian-marillat/ unstable main</i> to /etc/apt/sources.list to get this package. The gentoo package name is ffmpeg.</li>
-       <li>libsdl1.2 (only needed for non-fullscreen and OpenGL support).</li>
-       <li>OpenGL and/or DirectFB (from www.directfb.org. I've used ver. 0.9.19 and several cvs versions of this library. The debian developer package works as well). configure should detect which of the libraries is installed.</li>
-       <li>libxml2.</li>
-       <li>paintlib (from www.paintlib.de. Download version 2.6.2. Make sure the library finds the image format libraries during configure.)</li>
-       <li>libfreetype and pango.</li>
-       <li>Optional: libdc1394 for Firewire digital camera support.</li>
+       <li>imagemagick (Tested with 6.2.2.3)</li>
+       <li>ffmpeg 0.4.9pre1 or later. 0.4.8 doesn't work. Actually, ffmpeg isn't 
+       needed directly, but it's base libraries libavcodec and libavformat are. Debian 
+       users need to add <i>deb ftp://ftp.nerim.net/debian-marillat/ unstable main</i> 
+       to /etc/apt/sources.list to get this package.</li>
+       <li>libsdl. Tested with 1.2.5 and 1.2.8 (only needed for OpenGL and
+       non-fullscreen DirectFB support).</li>
+       <li>Working OpenGL in some form or other or</li>
+       <li>DirectFB (Tested with 0.9.22, 0.9.19 and up should work.)</li>
+       <li>libxml2 (Tested with 2.6.19.)</li>
+       <li>libfreetype (Tested with 2.1.9)</li>
+       <li>pango (Tested with 1.8.1)</li>
+       <li>Optional: libdc1394 for Firewire digital camera support. (Tested with 0.9.3)</li>
+       <li>python 2.4.x. 2.3.x doesn't work.</li>
+       <li>boost (Tested with 1.31.0).</li>
        </ul>
        <p><b>avg itself</b>
        <p>Download the tarball: <a href="avg-0.1.0.tar.gz">avg-0.1.0.tar.gz</a>.</p>

@@ -6,6 +6,7 @@
 #define _Event_H_
 
 #include <functional>
+#undef _POSIX_C_SOURCE
 
 namespace avg {
 

@@ -3,20 +3,20 @@
 //
 
 #include "../avgconfig.h"
-#ifdef ENABLE_PARPORT
+#ifdef AVG_ENABLE_PARPORT
 #include "../parport/ParPort.h"
 #endif
 #include "../conradrelais/ConradRelais.h"
 
 #include <boost/python.hpp>
-#ifdef ENABLE_PARPORT
+#ifdef AVG_ENABLE_PARPORT
 #include <linux/parport.h>
 #endif
 
 using namespace boost::python;
 using namespace avg;
 
-#ifdef ENABLE_PARPORT
+#ifdef AVG_ENABLE_PARPORT
 enum ControlLines {
     CONTROL_STROBE = PARPORT_CONTROL_STROBE,
     CONTROL_AUTOFD = PARPORT_CONTROL_AUTOFD,
@@ -35,7 +35,7 @@ enum StatusLines {
 
 void export_devices()
 {
-#ifdef ENABLE_PARPORT
+#ifdef AVG_ENABLE_PARPORT
     enum_<ControlLines>("controllines")
         .value("CONTROL_STROBE", CONTROL_STROBE)
         .value("CONTROL_AUTOFD", CONTROL_AUTOFD)

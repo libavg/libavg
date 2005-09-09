@@ -9,6 +9,9 @@
 /* Enable OpenGL rendering backend */
 #undef AVG_ENABLE_GL
 
+/* Enable parallel port support */
+#undef AVG_ENABLE_PARPORT
+
 /* Use the Apple OpenGL framework. */
 #undef HAVE_APPLE_OPENGL_FRAMEWORK
 

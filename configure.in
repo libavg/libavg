@@ -1,8 +1,8 @@
 
 AC_PREREQ(2.53)
-AC_INIT(avg, 0.1, coder@c-base.org)
+AC_INIT(avg, 0.2, coder@c-base.org)
 MAJOR_VERSION=0
-MINOR_VERSION=1
+MINOR_VERSION=2
 MICRO_VERSION=0
 VERSION=$MAJOR_VERSION.$MINOR_VERSION.$MICRO_VERSION dnl
 
@@ -52,7 +52,11 @@ if test "$enable_DFB" = yes; then
     AC_DEFINE(AVG_ENABLE_DFB, 1, [Enable DirectFB rendering backend])
 fi
 
+AC_CHECK_HEADER([linux/ppdev.h], enable_ParPort=yes, enable_ParPort=no)
 AM_CONDITIONAL(ENABLE_PARPORT, test x$enable_ParPort = xyes)
+if test "$enable_ParPort" = yes; then
+    AC_DEFINE(AVG_ENABLE_PARPORT, 1, [Enable parallel port support])
+fi 
 
 AX_CHECK_GL
 AX_CHECK_GLU

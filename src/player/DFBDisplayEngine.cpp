@@ -628,7 +628,7 @@ Event * DFBDisplayEngine::createEvent(DFBWindowEvent* pdfbwEvent)
                 //       is screwed up badly.
                 string KeyString;
                 KeyString[0] = char(pdfbwEvent->key_symbol);
-                int Type;
+                Event::Type Type;
                 if (pdfbwEvent->type == DWET_KEYDOWN) {
                     Type = Event::KEYDOWN;
                 } else {
@@ -657,8 +657,7 @@ Event * DFBDisplayEngine::createEvent(DFBWindowEvent* pdfbwEvent)
                 default:
                     break;
             }
-            int Type;
-            Type = 0;
+            Event::Type Type;
             switch (pdfbwEvent->type) {
                 case DWET_BUTTONDOWN:
                     Type = Event::MOUSEBUTTONDOWN;
@@ -671,6 +670,7 @@ Event * DFBDisplayEngine::createEvent(DFBWindowEvent* pdfbwEvent)
                     break;
                 default:
                     fatalError("Unknown event type in DFBDisplayEngine::createEvent.");
+                    Type = Event::QUIT;
                     break;
             }
             pEvent = new MouseEvent(Type,
