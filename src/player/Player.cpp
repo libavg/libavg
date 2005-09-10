@@ -124,7 +124,13 @@ void Player::loadFile (const std::string& filename)
                 std::string("Player::LoadFile(") + filename + ")");
         assert (!m_pRootNode);
 
-        // Get display configuration.
+        // Init display configuration.
+        AVG_TRACE(Logger::CONFIG, "Display subsystem: " << 
+                m_sDisplaySubsystem);
+        AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_BPP);
+        AVG_TRACE(Logger::CONFIG, "Display fullscreen: "
+                << m_bFullscreen?"true":"false");
+
         if (!m_pDisplayEngine) {
             if (m_sDisplaySubsystem == "DFB") {
 #ifdef AVG_ENABLE_DFB
@@ -459,12 +465,6 @@ void Player::initConfig() {
                 "(aspect ratio is determined by avg file). Aborting.");
         exit(-1);
     }
-
-    AVG_TRACE(Logger::CONFIG, "Display subsystem: " << 
-            m_sDisplaySubsystem);
-    AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_BPP);
-    AVG_TRACE(Logger::CONFIG, "Display fullscreen: "
-            << m_bFullscreen?"true":"false");
 }
 
 Node * Player::createNodeFromXmlString (const string& sXML)

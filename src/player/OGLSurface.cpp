@@ -463,7 +463,8 @@ int OGLSurface::getDestMode()
             return GL_RGB;    
         default:
             AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << 
-                    m_pBmp->getPixelFormatString() << " in OGLSurface::bind()");
+                    Bitmap::getPixelFormatString(m_pBmp->getPixelFormat()) <<
+                    " in OGLSurface::bind()");
     }
     return 0;
 }    
@@ -478,8 +479,8 @@ int OGLSurface::getSrcMode()
         case R8G8B8A8:
             return GL_RGBA;
         default:
-            AVG_TRACE(Logger::ERROR, "Unsupportedpixel format " << 
-                    m_pBmp->getPixelFormatString() <<
+            AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << 
+                    Bitmap::getPixelFormatString(m_pBmp->getPixelFormat()) <<
                     " in OGLSurface::getSrcMode()");
     }
     return 0;

@@ -57,19 +57,23 @@ void DFBSurface::create(const IntPoint& Size, PixelFormat pf)
     Desc.caps = DSCAPS_SYSTEMONLY;
     Desc.width = Size.x;
     Desc.height = Size.y;
-    if (pf == A8R8G8B8) {
+
+    // We allow BGR and RGB pixel formats here and expect the surface user to
+    // swap red and blue if an RGB format is passed in here.
+    if (pf == B8G8R8A8 || pf == R8G8B8A8) {
         Desc.pixelformat = DSPF_ARGB;
-    } else if (pf == X8R8G8B8) {
+    } else if (pf == B8G8R8X8 || pf == R8G8B8X8) {
         Desc.pixelformat = DSPF_RGB32;
-    } else if (pf == R8G8B8) {
+    } else if (pf == B8G8R8 || pf == R8G8B8) {
         Desc.pixelformat = DSPF_RGB24;
-    } else if (pf == R5G6B5) {
+    } else if (pf == B5G6R5 || pf == R5G6B5) {
         Desc.pixelformat = DSPF_RGB16;
     } else if (pf == I8) {
         Desc.pixelformat = DSPF_A8;
     } else {
         AVG_TRACE(Logger::ERROR, 
-                "Illegal pixelformat in DFBSurface::create(). Aborting.");
+                "Illegal pixelformat " << Bitmap::getPixelFormatString(pf) <<
+                " in DFBSurface::create(). Aborting.");
         exit(-1);
     }
     DFBResult err = s_pDirectFB->CreateSurface(s_pDirectFB, &Desc, &m_pSurface);
@@ -116,23 +120,23 @@ void DFBSurface::createFromDFBSurface(IDirectFBSurface * pSurface,
     switch (DFBPF) 
     {
         case DSPF_ARGB:
-            pf = A8R8G8B8;
+            pf = B8G8R8A8;
             break;
         case DSPF_RGB32:
-            pf = X8R8G8B8;
+            pf = B8G8R8X8;
             break;
         case DSPF_RGB24:
-            pf = R8G8B8;
+            pf = B8G8R8;
             break;
         case DSPF_RGB16:
-            pf = R5G6B5;
+            pf = B5G6R5;
             break;
         case DSPF_A8:
             pf = I8;
             break;
         default:
             AVG_TRACE(Logger::ERROR, 
-                    "Unsupported pixel format in DFBSurface::create(). Aborting.");
+                    "Unsupported pixel format in DFBSurface::createFromDFBSurface(). Aborting.");
             exit(-1);
     }
 

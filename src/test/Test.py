@@ -19,7 +19,7 @@ class LoggerTestCase(unittest.TestCase):
 #                  self.Log.MEMORY  |
 #                  self.Log.BLTS    |
                   self.Log.EVENTS)
-        self.Log.setDestination("avgdfb.log")
+#        self.Log.setDestination("avgdfb.log")
         self.Log.trace(self.Log.APP, "Test JS log entry.")
 
 class ParPortTestCase(unittest.TestCase):
@@ -118,6 +118,15 @@ def onErrMouseOver():
     undefinedFunction()
 
 class PlayerTestCase(unittest.TestCase):
+    def __init__(self, testFuncName, engine, bpp):
+        self.__engine = engine
+        self.__bpp = bpp
+        self.__testFuncName = testFuncName
+        unittest.TestCase.__init__(self, testFuncName)
+    def setUp(self):
+        Player.setDisplayEngine(self.__engine)
+        Player.setResolution(0, 0, 0, self.__bpp)
+        print "-------- ", self.__testFuncName, " --------"
     def playAVG(self, fileName):
         Player.loadFile(fileName)
 #        Player.setTimeout(100, lambda : Player.screenshot("test.png"))
@@ -146,10 +155,6 @@ class PlayerTestCase(unittest.TestCase):
             Player.play(30)
         except NameError:
             self.assert_(1)
-    def testConfig(self):
-        Player.setDisplayEngine(avg.DFB)
-        Player.setResolution(0, 0, 0, 24)
-        self.testEvents()
     def createNodes(self):
         node=Player.createNode("<image href='rgb24.png'/>")
         node.x = 10
@@ -294,6 +299,15 @@ class PlayerTestCase(unittest.TestCase):
         
         
 class WordsTestCase(unittest.TestCase):
+    def __init__(self, testFuncName, engine, bpp):
+        self.__engine = engine
+        self.__bpp = bpp;
+        self.__testFuncName = testFuncName
+        unittest.TestCase.__init__(self, testFuncName)
+    def setUp(self):
+        Player.setDisplayEngine(self.__engine)
+        Player.setResolution(0, 0, 0, self.__bpp)
+        print "-------- ", self.__testFuncName, " --------"
     def test(self):
         def textInterval():
             node = Player.getElementByID("cbasetext")
@@ -341,6 +355,15 @@ class WordsTestCase(unittest.TestCase):
         Player.play(25)
 
 class VideoTestCase(unittest.TestCase):
+    def __init__(self, testFuncName, engine, bpp):
+        self.__engine = engine
+        self.__bpp = bpp;
+        self.__testFuncName = testFuncName
+        unittest.TestCase.__init__(self, testFuncName)
+        print "-------- ", self.__testFuncName, " --------"
+    def setUp(self):
+        Player.setDisplayEngine(self.__engine)
+        Player.setResolution(0, 0, 0, self.__bpp)
     def test(self):
         def playVideo(nodeName):
             node = Player.getElementByID(nodeName)
@@ -385,34 +408,38 @@ class VideoTestCase(unittest.TestCase):
         Player.setTimeout(5000, Player.stop)
         Player.play(25)
 
-def playerTestSuite():
+def playerTestSuite(engine, bpp):
     suite = unittest.TestSuite()
     
     suite.addTest(LoggerTestCase("test"))
     suite.addTest(ParPortTestCase("test"))
     suite.addTest(ConradRelaisTestCase("test"))
     suite.addTest(NodeTestCase("testAttributes"))
-    suite.addTest(PlayerTestCase("testImage"))
-    suite.addTest(PlayerTestCase("testPanoImage"))
-    suite.addTest(PlayerTestCase("testError"))
-    suite.addTest(PlayerTestCase("testEvents"))
-    suite.addTest(PlayerTestCase("testEventErr"))
-    suite.addTest(PlayerTestCase("testConfig"))
-#    suite.addTest(PlayerTestCase("testDynamics"))
-    suite.addTest(PlayerTestCase("testHugeImage"))
-    suite.addTest(PlayerTestCase("testBroken"))
-    suite.addTest(PlayerTestCase("testExcl"))
-    suite.addTest(PlayerTestCase("testAnimation"))
-    suite.addTest(PlayerTestCase("testBlend"))
-    suite.addTest(PlayerTestCase("testCrop"))
-    suite.addTest(PlayerTestCase("testUnicode"))
-    suite.addTest(PlayerTestCase("testWarp"))
-    suite.addTest(WordsTestCase("test"))
-    suite.addTest(VideoTestCase("test"))
+    suite.addTest(PlayerTestCase("testImage", engine, bpp))
+    suite.addTest(PlayerTestCase("testError", engine, bpp))
+    suite.addTest(PlayerTestCase("testEvents", engine, bpp))
+    suite.addTest(PlayerTestCase("testEventErr", engine, bpp))
+#    suite.addTest(PlayerTestCase("testDynamics", engine, bpp))
+    suite.addTest(PlayerTestCase("testHugeImage", engine, bpp))
+    suite.addTest(PlayerTestCase("testBroken", engine, bpp))
+    suite.addTest(PlayerTestCase("testExcl", engine, bpp))
+    suite.addTest(PlayerTestCase("testAnimation", engine, bpp))
+    suite.addTest(PlayerTestCase("testBlend", engine, bpp))
+    suite.addTest(PlayerTestCase("testCrop", engine, bpp))
+    suite.addTest(PlayerTestCase("testUnicode", engine, bpp))
+    suite.addTest(WordsTestCase("test", engine, bpp))
+    suite.addTest(VideoTestCase("test", engine, bpp))
+    if engine == avg.OGL:
+        suite.addTest(PlayerTestCase("testPanoImage", engine, bpp))
+        suite.addTest(PlayerTestCase("testWarp", engine, bpp))
     return suite
 
 Player = avg.Player()
 
 runner = unittest.TextTestRunner()
-runner.run(playerTestSuite())
+
+runner.run(playerTestSuite(avg.OGL, 24))
+#runner.run(playerTestSuite(avg.OGL, 16))
+#runner.run(playerTestSuite(avg.DFB, 24))
+#runner.run(playerTestSuite(avg.DFB, 16))
 

@@ -28,7 +28,7 @@ Bitmap::Bitmap(IntPoint Size, PixelFormat PF, const std::string& sName)
       m_bOwnsBits(true),
       m_sName(sName)
 {
-//    cerr << "Bitmap::Bitmap(" << Size << ", " << getPixelFormatString() 
+//    cerr << "Bitmap::Bitmap(" << Size << ", " << getPixelFormatString(m_PF) 
 //        << sName << ")" << endl;
     allocBits();
 }
@@ -39,7 +39,7 @@ Bitmap::Bitmap(IntPoint Size, PixelFormat PF, unsigned char * pBits,
       m_PF(PF),
       m_sName(sName)
 {
-//    cerr << "Bitmap::Bitmap(" << Size << ", " << getPixelFormatString() << ", " 
+//    cerr << "Bitmap::Bitmap(" << Size << ", " << getPixelFormatString(m_PF) << ", " 
 //        << (void *)pBits << ", " << Stride << ", " << bCopyBits << sName << ")" << endl;
     initWithData(pBits, Stride, bCopyBits);
 }
@@ -130,8 +130,8 @@ Bitmap &Bitmap::operator= (const Bitmap &Orig)
 
 void Bitmap::copyPixels(const Bitmap & Orig)
 {
-//    cerr << "Bitmap::copyPixels(): " << Orig.getPixelFormatString() << "->" 
-//            << getPixelFormatString() << endl;
+//    cerr << "Bitmap::copyPixels(): " << getPixelFormatString(Orig.getPixelFormat()) << "->" 
+//            << getPixelFormatString(m_PF) << endl;
     if (&Orig == this) {
         return;
     }
@@ -255,9 +255,9 @@ void Bitmap::setPixelFormat(PixelFormat PF)
     m_PF = PF;
 }
     
-std::string Bitmap::getPixelFormatString() const
+std::string Bitmap::getPixelFormatString(PixelFormat PF)
 {
-    switch (m_PF) {
+    switch (PF) {
         case I8:
             return "I8";
         case R8G8B8:
@@ -356,7 +356,7 @@ void Bitmap::dump(bool bDumpPixels)
     cerr << "Bitmap: " << m_sName << endl;
     cerr << "  m_Size: " << m_Size.x << "x" << m_Size.y << endl;
     cerr << "  m_Stride: " << m_Stride << endl;
-    cerr << "  m_PF: " << getPixelFormatString() << endl;
+    cerr << "  m_PF: " << getPixelFormatString(m_PF) << endl;
     cerr << "  m_pBits: " << (void *)m_pBits << endl;
     cerr << "  m_bOwnsBits: " << m_bOwnsBits << endl;
     if (bDumpPixels) {

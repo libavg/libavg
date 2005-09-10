@@ -38,7 +38,7 @@ BitmapPtr initBmp(PixelFormat PF)
                 *(pPixel+2) = 16*y;
             }
             if (pBmp->getBytesPerPixel() > 3) {
-                *(pPixel+3) = 0xFF;
+                *(pPixel+3) = 0x80;
             }
         }
     }
@@ -60,11 +60,13 @@ public:
         runPFTests(R8G8B8);
         runPFTests(I8);
         
+        cerr << "    Testing OwnsBits." << endl;
         unsigned char pData[4*7*3];
         Bitmap Bmp1 = Bitmap(IntPoint(4,7), R8G8B8, pData, 12, true, "");
         Bitmap Bmp2 = Bitmap(IntPoint(4,7), R8G8B8, pData, 12, false, "");
         testEqual(Bmp1, Bmp2);
         {
+            cerr << "    Testing copyPixels - R8G8B8X8->R8G8B8->R8G8B8X8." << endl;
             BitmapPtr pBmp = initBmp(R8G8B8X8);
             Bitmap Bmp1(IntPoint(4,7), R8G8B8);
             Bmp1.copyPixels(*pBmp);
@@ -72,17 +74,25 @@ public:
             Bmp2.copyPixels(Bmp1);
             for(int y=0; y<7; ++y) {
                 for (int x=0; x<4; ++x) {
-                    *(Bmp2.getPixels()+y*Bmp2.getStride()+x*Bmp2.getBytesPerPixel()+3) = 0xFF;
+                    *(Bmp2.getPixels()+y*Bmp2.getStride()+x
+                            *Bmp2.getBytesPerPixel()+3) = 0x80;
                 }
             }
             testEqual(*pBmp, Bmp2);
         }
         {
+            cerr << "    Testing copyPixels - R8G8B8A8->R8G8B8->R8G8B8A8." << endl;
             BitmapPtr pBmp = initBmp(R8G8B8A8);
             BitmapPtr pBaselineBmp = initBmp(R8G8B8A8);
             BitmapPtr pCopyBmp = BitmapPtr(new Bitmap(IntPoint(4,7), R8G8B8));
             pCopyBmp->copyPixels(*pBmp);
             pBmp->copyPixels(*pCopyBmp);
+            for(int y=0; y<7; ++y) {
+                for (int x=0; x<4; ++x) {
+                    *(pBmp->getPixels()+y*pBmp->getStride()+x
+                            *pBmp->getBytesPerPixel()+3) = 0x80;
+                }
+            }
             testEqual(*pBmp, *pBaselineBmp);
         }
         {
@@ -96,16 +106,20 @@ public:
     
 private:
     void runPFTests(PixelFormat PF) {
+        cerr << "    Testing " << Bitmap::getPixelFormatString(PF) << endl;
         BitmapPtr pBmp = initBmp(PF);
         {
+            cerr << "      Testing copy constructor." << endl;
             Bitmap BmpCopy1(*pBmp);
             testEqual(*pBmp, BmpCopy1);
         }
         {
+            cerr << "      Testing assignment operator." << endl;
             Bitmap BmpCopy2 = *pBmp;
             testEqual(*pBmp, BmpCopy2);
         }
         {
+            cerr << "      Testing sub-bitmap constructor." << endl;
             Bitmap BmpCopy3 (*pBmp, IntRect(0,0,4,7));
             testEqual(*pBmp, BmpCopy3);
         }
@@ -235,6 +249,7 @@ public:
 
     void runTests() 
     {
+        runPFTests(B8G8R8A8);
         runPFTests(R8G8B8A8);
         runPFTests(R8G8B8);
     }
@@ -249,8 +264,8 @@ private:
         }
         { 
             Bitmap BmpBaseline = *pBmp;
-            FilterFlip().applyInPlace(pBmp);
-            FilterFlip().applyInPlace(pBmp);
+            FilterFlipRGB().applyInPlace(pBmp);
+            FilterFlipRGB().applyInPlace(pBmp);
             TEST(*pBmp == BmpBaseline);
         }
 //        pBmp->dump();

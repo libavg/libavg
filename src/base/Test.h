@@ -44,7 +44,7 @@ private:
 typedef boost::shared_ptr<Test> TestPtr;
 
 #define TEST(b)                            \
-    cerr << string(m_IndentLevel, ' ') << "  TEST(" << #b << ")" << endl;  \
+    cerr << string(m_IndentLevel+4, ' ') << "  TEST(" << #b << ")" << endl;  \
     test(b, __FILE__, __LINE__);
     
 }

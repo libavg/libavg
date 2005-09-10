@@ -51,8 +51,9 @@ void Image::init (IDisplayEngine * pEngine, Container * pParent,
     AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
 
     Bitmap TempBmp(m_Filename);
-    
-    PixelFormat pf = R8G8B8;
+
+    PixelFormat pf;
+    pf = R8G8B8;
     if (TempBmp.hasAlpha()) {
         pf = R8G8B8A8;
     }

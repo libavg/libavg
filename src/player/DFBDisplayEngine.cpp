@@ -252,17 +252,17 @@ void DFBDisplayEngine::initInput() {
     WinDesc.posx = 0;
     WinDesc.posy = 0;
     err = m_pDFBLayer->CreateWindow(m_pDFBLayer, &WinDesc, &m_pDFBWindow);
-    DFBErrorCheck(AVG_ERR_DFB, "DFBDisplayEngine::initInput", err);
+    DFBErrorCheck(AVG_ERR_DFB, "DFBDisplayEngine::initInput CreateWindow", err);
 
     err = m_pDFBWindow->CreateEventBuffer (m_pDFBWindow, &m_pEventBuffer);
-    DFBErrorCheck (AVG_ERR_DFB, "DFBDisplayEngine::initInput", err);
+    DFBErrorCheck (AVG_ERR_DFB, "DFBDisplayEngine::initInput CreateEventBuffer", err);
     err = m_pDFBWindow->EnableEvents (m_pDFBWindow, DWET_ALL);
-    DFBErrorCheck (AVG_ERR_DFB, "DFBDisplayEngine::initInput", err);
+    DFBErrorCheck (AVG_ERR_DFB, "DFBDisplayEngine::initInput EnableEvents", err);
 
     err = m_pDFBWindow->GrabKeyboard(m_pDFBWindow);
-    DFBErrorCheck (AVG_ERR_DFB, "DFBDisplayEngine::initInput", err);
+    DFBErrorCheck (AVG_ERR_DFB, "DFBDisplayEngine::initInput GrabKeyboard", err);
     err = m_pDFBWindow->GrabPointer(m_pDFBWindow);
-    DFBErrorCheck (AVG_ERR_DFB, "DFBDisplayEngine::initInput", err);
+    DFBErrorCheck (AVG_ERR_DFB, "DFBDisplayEngine::initInput GrabPointer", err);
 }
 
 void DFBDisplayEngine::initBackbuffer()
@@ -367,7 +367,7 @@ void DFBDisplayEngine::blt32(ISurface * pSurface,
             dynamic_cast<DFBSurface *>(pSurface);
     assert(pDFBSurface); // Make sure we have the correct type of surface
     IDirectFBSurface * pSurf = pDFBSurface->getSurface();
-    blt32(pSurf, pDestRect, opacity, (pSurface->getBmp()->getPixelFormat() == R8G8B8A8),
+    blt32(pSurf, pDestRect, opacity, (pSurface->getBmp()->getPixelFormat() == B8G8R8A8),
             Mode);
 }
 
