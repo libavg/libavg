@@ -17,6 +17,33 @@ AC_PROG_CPP
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
+AC_CHECK_PROG(xml2_installed, [xml2-config], "yes")
+if test -z "$xml2_installed"
+then
+    AC_MSG_ERROR([libxml2 not found. Aborting.])
+fi
+
+PKG_CHECK_MODULES([pango], [pango])
+
+AC_CHECK_PROG(magick_installed, [Magick++-config], "yes")
+if test -z "$magick_installed"
+then
+    AC_MSG_ERROR([ImageMagick not found. Aborting.])
+fi
+
+AC_CHECK_LIB(avformat, main, libavformat_installed=yes, , -lavcodec )
+if test -z "$libavformat_installed"
+then
+    AC_MSG_ERROR([libavformat (ffmpeg) not found. Aborting.])
+fi
+AC_CHECK_LIB(avformat, main)
+AC_CHECK_LIB(avcodec, main)
+AC_CHECK_FUNC(av_seek_frame, libavformat_seek=yes)
+if test -z "$libavformat_seek"
+then
+    AC_MSG_ERROR([libavformat (ffmpeg) does not support av_seek_frame. Aborting.])
+fi
+
 AM_PATH_PYTHON
 
 AZ_PYTHON_PATH( ) 
@@ -24,6 +51,12 @@ AZ_PYTHON_VERSION_ENSURE( [2.3] )
 AZ_PYTHON_CSPEC
 AZ_PYTHON_LSPEC
 
+AC_CHECK_LIB(boost_python, main, libboost_python_installed=yes, , $PYTHON_LSPEC)
+if test -z "$libboost_python_installed"
+then
+    AC_MSG_ERROR([boost.python not found. Aborting.])
+fi
+    
 AC_ARG_ENABLE(dc1394,
               AC_HELP_STRING([--enable-dc1394], 
                     [compile support for firewire cameras]),
@@ -61,9 +94,12 @@ fi
 AX_CHECK_GL
 AX_CHECK_GLU
 
-AM_CONDITIONAL(ENABLE_GL, test x$no_GL != xyes)
-if test x$no_gl != xyes; then
+AC_CHECK_PROG(sdl_installed, [sdl-config], "yes")
+AM_CONDITIONAL(ENABLE_GL, [test x$no_GL != xyes] && [test x$sdl_installed = xyes])
+if [test x$no_GL != xyes] && [test x$sdl_installed = xyes]; then
     AC_DEFINE(AVG_ENABLE_GL, 1, [Enable OpenGL rendering backend])
+else
+    AC_MSG_WARN([OpenGL rendering not enabled])
 fi
 
 AM_CONFIG_HEADER(src/avgconfig.h)

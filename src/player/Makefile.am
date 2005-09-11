@@ -63,7 +63,6 @@ libplayer_la_HEADERS = $(ALL_H)
 libplayer_la_LIBADD = ../base/libbase.la ../graphics/libgraphics.la
 libplayer_la_LDFLAGS = `xml2-config --libs` \
         $(DC1394_LIBS) $(GL_LIBS) $(GLU_LIBS) $(SDL_LIBS) $(DFB_LIBS) \
-		-lavformat -lavcodec \
         `pkg-config --libs pangoft2` \
 		`Magick++-config --libs` \
         $(PYTHON_LSPEC)
