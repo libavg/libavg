@@ -114,8 +114,22 @@ bool ParPort::clearDataLines(unsigned char theData)
         return false;
     }    
     return true;
-    
 }
+
+bool ParPort::setAllDataLines(unsigned char theData)
+{
+    if (_myFileDescriptor == -1) {
+        return false;
+    }
+    _myDataLines = theData;
+    int myOk = ioctl(_myFileDescriptor, PPWDATA, &_myDataLines);
+    if (myOk == -1) {
+        AVG_TRACE(Logger::ERROR,
+                "Could not write parallel port data.");
+        return false;
+    }    
+    return true;
+}    
 
 bool ParPort::isAvailable() 
 {

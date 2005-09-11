@@ -92,6 +92,14 @@ void export_devices()
                 "lines are PARPORTDATA0-PARPORTDATA7. Several of these constants can\n"
                 "be or'ed together to clear several lines. The lines not mentioned in\n"
                 "the parameter are left unchanged.")
+        .def("setAllDataLines", &ParPort::setDataLines,
+                "setAllDataLines(lines) -> ok\n\n"
+                "Sets and resets all data lines according to the bits set in the\n"
+                "argument. Constants to used for these\n"
+                "lines are PARPORTDATA0-PARPORTDATA7. Several of these constants can\n"
+                "be or'ed together to set several lines. The lines not mentioned in\n"
+                "the parameter are set to 0. Returns 1 if the lines were set,\n"
+                "0 otherwise.")
         .def("isAvailable", &ParPort::isAvailable,
                 "isAvailable() -> ok\n\n"
                 "Returns 1 if the parallel port has been opened successfully, 0\n"

@@ -30,6 +30,7 @@ class ParPort
         bool getStatusLine(int theLine);
         bool setDataLines(unsigned char theData);
         bool clearDataLines(unsigned char theData);
+        bool setAllDataLines(unsigned char theData);
         bool isAvailable();
 
     private:
