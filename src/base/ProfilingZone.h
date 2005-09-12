@@ -19,17 +19,17 @@ public:
     
     void start();
     void reset();
-    CycleCount getUSecs() const;
-    CycleCount getAvgUSecs() const;
+    long long getUSecs() const;
+    long long getAvgUSecs() const;
     const std::string& getName() const;
 
     // Interface to AVGScopeTimer.
-    void addCycles(CycleCount Cycles);
+    void add(long long usecs);
 
 private:
     std::string m_sName;
-    CycleCount m_TimeSum;
-    CycleCount m_AvgTime;
+    long long m_TimeSum;
+    long long m_AvgTime;
     int m_NumFrames;
     bool m_bIsRegistered;
 };

@@ -17,7 +17,7 @@ public:
    
 private:
     ProfilingZone& m_Zone;
-    CycleCount m_StartTime;
+    long long m_StartTime;
 };
 
 }

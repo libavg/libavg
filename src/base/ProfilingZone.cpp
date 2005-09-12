@@ -52,14 +52,14 @@ void ProfilingZone::reset()
     m_TimeSum = 0;
 }
 
-CycleCount ProfilingZone::getUSecs() const
+long long ProfilingZone::getUSecs() const
 {
-    return (m_TimeSum*1000*1000)/TimeSource::get()->getCyclesPerSecond();
+    return m_TimeSum;
 }
 
-CycleCount ProfilingZone::getAvgUSecs() const
+long long ProfilingZone::getAvgUSecs() const
 {
-    return (m_AvgTime*1000*1000)/TimeSource::get()->getCyclesPerSecond();
+    return m_AvgTime;
 }
 
 const std::string& ProfilingZone::getName() const
@@ -68,9 +68,9 @@ const std::string& ProfilingZone::getName() const
 }
 
 
-void ProfilingZone::addCycles(CycleCount Cycles)
+void ProfilingZone::add(long long usecs)
 {
-    m_TimeSum += Cycles;
+    m_TimeSum += usecs;
 }
 
 }

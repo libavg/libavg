@@ -63,7 +63,6 @@ Player::Player()
       m_pLastMouseNode(0),
       m_bShowCursor(true)
 {
-    TimeSource::get()->getCyclesPerSecond();
     initConfig();
 }
 

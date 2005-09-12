@@ -25,7 +25,7 @@ void TestSuite::addTest(TestPtr newTest)
 void TestSuite::runTests()
 {
     cerr << string(m_IndentLevel, ' ') << "Running suite " << getName() << endl;
-    for (int i=0; i<m_Tests.size(); ++i) {
+    for (unsigned i=0; i<m_Tests.size(); ++i) {
         cerr << string(m_IndentLevel, ' ') << "  Running " 
                 << m_Tests[i]->getName() << endl;
         m_Tests[i]->runTests();

@@ -10,7 +10,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef __APPLE__  // TODO: Replace this with a linux-specific macro
+#ifdef __APPLE__ 
 #include <mach/mach_time.h>
 #else
 #include <linux/rtc.h>
@@ -36,7 +36,6 @@ TimeSource * TimeSource::get()
 
 TimeSource::TimeSource()
 {
-    calcCyclesPerSecond();
 #ifndef __APPLE__   
     tryOpenRTC();
 #endif
@@ -58,13 +57,17 @@ long long TimeSource::getCurrentTicks()
 
     gettimeofday(&now, NULL);
     ticks=((long long)now.tv_sec)*1000+now.tv_usec/1000;
-//    cerr << "getCurrentTicks() = " << ticks << endl;
     return(ticks);
 }
 
-CycleCount TimeSource::getCyclesPerSecond()
+long long TimeSource::getCurrentMicrosecs()
 {
-    return m_CyclesPerSecond;
+    struct timeval now;
+    long long ticks;
+
+    gettimeofday(&now, NULL);
+    ticks=((long long)now.tv_sec)*1000000+now.tv_usec;
+    return(ticks);
 }
 
 void TimeSource::sleepUntil(long long TargetTime)
@@ -125,21 +128,6 @@ void TimeSource::tryOpenRTC()
         }
     }
 #endif
-}
-
-void TimeSource::calcCyclesPerSecond() {
-    // TODO: This isn't always accurate. 
-#ifdef __APPLE__
-    mach_timebase_info_data_t timebase;
-
-    mach_timebase_info(&timebase);
-    m_CyclesPerSecond = ((double)timebase.denom/(double)timebase.numer)*1e9;
-#else
-    CycleCount start = getCurrentCycles();
-    usleep(500*1000);
-    m_CyclesPerSecond = (getCurrentCycles()-start)*2;
-#endif
-//    cerr << "Cycles per second: " << m_CyclesPerSecond << endl;
 }
 
 }
