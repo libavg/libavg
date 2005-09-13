@@ -1,6 +1,6 @@
 
 AC_PREREQ(2.53)
-AC_INIT(avg, 0.2, coder@c-base.org)
+AC_INIT(libavg, 0.2, coder@c-base.org)
 MAJOR_VERSION=0
 MINOR_VERSION=2
 MICRO_VERSION=0
@@ -8,7 +8,7 @@ VERSION=$MAJOR_VERSION.$MINOR_VERSION.$MICRO_VERSION dnl
 
 AC_SUBST(VERSION)
 AC_CONFIG_SRCDIR([src/avgconfig.h.in])
-AM_INIT_AUTOMAKE(avg, $VERSION)
+AM_INIT_AUTOMAKE(libavg, $VERSION)
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
