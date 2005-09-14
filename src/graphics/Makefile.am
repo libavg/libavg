@@ -14,7 +14,7 @@ libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
 libgraphics_ladir=$(includedir)/avg/graphics
 libgraphics_la_HEADERS = $(ALL_H)
 libgraphics_la_LIBADD = ../base/libbase.la        
-libgraphics_la_LDFLAGS = `Magick++-config --libs`
+libgraphics_la_LDFLAGS = `Magick++-config --ldflags --libs`
 
 noinst_PROGRAMS=testgraphics
 testgraphics_SOURCES=testgraphics.cpp $(ALL_H)

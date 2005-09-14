@@ -3,8 +3,9 @@
 import unittest
 
 import sys
-sys.path.append('/usr/local/lib/python2.3/site-packages/avg')
-sys.path.append('/usr/local/lib/python2.4/site-packages/avg')
+# TODO: set this path via configure or similar.
+sys.path.append('/usr/local/lib/python2.3/site-packages/libavg')
+sys.path.append('/usr/local/lib/python2.4/site-packages/libavg')
 import avg
 import time
 
