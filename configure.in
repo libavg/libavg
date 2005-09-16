@@ -1,6 +1,5 @@
 #TODO: Don't install headers.
-#TODO: Clean up manual pages.
-#TODO: Move auxillary libraries/link statically.
+#TODO: Clean up manual pages, add avg file format manual page
 #TODO: avg.dtd search path via configure prefix...
 
 AC_PREREQ(2.53)

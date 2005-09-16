@@ -48,8 +48,7 @@ ALL_H = Player.h IEventSource.h IEventSink.h Excl.h VideoBase.h Video.h\
         RasterNode.h Camera.h \
         $(GL_INCLUDES) $(DFB_INCLUDES)
 
-avgdir = $(libdir)/avg
-lib_LTLIBRARIES = libplayer.la
+noinst_LTLIBRARIES = libplayer.la
 libplayer_la_SOURCES = $(GL_SOURCES) $(DFB_SOURCES) \
 		Player.cpp Excl.cpp VideoBase.cpp Video.cpp \
         Region.cpp Node.cpp FramerateManager.cpp FFMpegDecoder.cpp \
@@ -59,14 +58,10 @@ libplayer_la_SOURCES = $(GL_SOURCES) $(DFB_SOURCES) \
         RasterNode.cpp AVGNode.cpp \
 		$(ALL_H)
 libplayer_ladir=$(includedir)/avg/player
-libplayer_la_HEADERS = $(ALL_H)
-libplayer_la_LIBADD = ../base/libbase.la ../graphics/libgraphics.la
+libplayer_la_LIBADD = ../graphics/libgraphics.la
 libplayer_la_LDFLAGS = `xml2-config --libs` \
         $(DC1394_LIBS) $(GL_LIBS) $(GLU_LIBS) $(SDL_LIBS) $(DFB_LIBS) \
         `pkg-config --libs pangoft2` \
 		`Magick++-config --ldflags --libs` \
         $(PYTHON_LSPEC)
-
-libplayerHEADERS = $(ALL_H)
-
 
