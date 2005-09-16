@@ -59,9 +59,9 @@ ConfigMgr::ConfigMgr()
         AVG_TRACE(Logger::ERROR,
                 "this is your initial install, you need to");
         AVG_TRACE(Logger::ERROR,
-                "copy avgrc.default from the package source");
+                "copy src/avgrc from the package directory");
         AVG_TRACE(Logger::ERROR,
-                "directory to /etc. Have a look at the contents to");
+                "to /etc. Have a look at the contents to");
         AVG_TRACE(Logger::ERROR,
                 "check if all directories are set correctly.");
         AVG_TRACE(Logger::ERROR,

@@ -4,6 +4,4 @@
     <bpp>24</bpp>
     <fullscreen>false</fullscreen>
   </scr>
-  <modulepath>/usr/local/lib/avg</modulepath>
-  <includepath>/usr/local/share/avg</includepath>
 </avgrc>
