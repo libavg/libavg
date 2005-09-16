@@ -162,14 +162,8 @@ void Player::loadFile (const std::string& filename)
         }
 
         // Find and parse dtd.
-        string sDTDFName = findFile("avg.dtd", "", "includepath", "");
-        if (sDTDFName == "") {
-            AVG_TRACE(Logger::ERROR,
-                    "Required file avg.dtd not found. Search path was " 
-                    << *ConfigMgr::get()->getGlobalOption("includepath")
-                    << ". Aborting.");
-            exit(-1);
-        }
+        // PREFIXDIR is the install prefix set by configure.
+        string sDTDFName = string(PREFIXDIR)+"/share/avg/avg.dtd";
         xmlDtdPtr dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
         if (!dtd) {
             AVG_TRACE(Logger::ERROR, 

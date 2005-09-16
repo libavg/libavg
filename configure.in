@@ -1,6 +1,5 @@
-#TODO: Don't install headers.
-#TODO: Clean up manual pages, add avg file format manual page
-#TODO: avg.dtd search path via configure prefix...
+# TODO: Clean up manual pages, add avg file format manual page
+# TODO: Add --enable-OpenGL parameter support.
 
 AC_PREREQ(2.53)
 AC_INIT(libavg, 0.2, coder@c-base.org)
@@ -94,7 +93,6 @@ if test "$enable_ParPort" = yes; then
     AC_DEFINE(AVG_ENABLE_PARPORT, 1, [Enable parallel port support])
 fi 
 
-# TODO: Add --enable-OpenGL parameter support.
 AX_CHECK_GL
 AX_CHECK_GLU
 
