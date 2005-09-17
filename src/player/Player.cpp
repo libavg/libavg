@@ -15,10 +15,10 @@
 #include "DivNode.h"
 #include "Words.h"
 #include "Video.h"
-#include "PanoImage.h"
 #include "Camera.h"
 #include "Excl.h"
 #include "Image.h"
+#include "PanoImage.h"
 
 #include "Event.h"
 #include "MouseEvent.h"

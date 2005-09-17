@@ -11,6 +11,8 @@
 
 #include <string>
 
+#include "../avgconfig.h"
+
 namespace avg {
 
 class RasterNode: public Node
@@ -45,8 +47,9 @@ class RasterNode: public Node
         
         const std::string& getBlendModeStr() const;
         void setBlendModeStr(const std::string& sBlendMode);
-
+#ifdef AVG_ENABLE_GL
         OGLSurface * RasterNode::getOGLSurface();
+#endif
         IDisplayEngine::BlendMode getBlendMode() const;
         virtual std::string getTypeStr ();
         Node * getElementByPos (const DPoint & pos);

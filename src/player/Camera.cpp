@@ -5,12 +5,16 @@
 // libdc1394/examples/grab_color_image.c and
 // dc1394_multiview.c
 
+#include "../avgconfig.h"
+
 #include "Camera.h"
 #include "IDisplayEngine.h"
 #include "Player.h"
 #include "Container.h"
 #include "ISurface.h"
+#ifdef AVG_ENABLE_GL
 #include "OGLSurface.h"
+#endif
 
 #include "../base/TimeSource.h"
 #include "../base/Logger.h"
@@ -344,7 +348,9 @@ bool Camera::renderToSurface(ISurface * pSurface)
         //    int rc = dc1394_dma_single_capture(&m_Camera);
         if (rc == DC1394_SUCCESS) {
             m_LastFrameTime = TimeSource::get()->getCurrentTicks();
+#ifdef AVG_ENABLE_GL            
             OGLSurface * pOGLSurface = dynamic_cast<OGLSurface *>(pSurface);
+#endif            
             // New frame available
             switch (m_Mode) {
                 case MODE_640x480_YUV411:
@@ -355,10 +361,12 @@ bool Camera::renderToSurface(ISurface * pSurface)
                     break;
                 case MODE_640x480_RGB:
                     {
+#ifdef AVG_ENABLE_GL                        
                         if (pOGLSurface) {
                             pOGLSurface->createFromBits(IntPoint(640, 480), R8G8B8,
                                     (unsigned char *)(m_Camera.capture_buffer), 640*3);
                         } else {
+#endif                            
                             BitmapPtr pBmp = pSurface->getBmp();
                             unsigned char * pPixels = pBmp->getPixels();
                             int WidthBytes = pBmp->getSize().x*3;
@@ -383,7 +391,9 @@ bool Camera::renderToSurface(ISurface * pSurface)
                                     }
                                 }
                             }
+#ifdef AVG_ENABLE_GL                            
                         }
+#endif                        
                     }
                     break;
                 default:

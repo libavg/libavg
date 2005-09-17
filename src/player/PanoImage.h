@@ -5,8 +5,11 @@
 #ifndef _PanoImage_H_
 #define _PanoImage_H_
 
+#include "../avgconfig.h"
 #include "Node.h"
+#ifdef AVG_ENABLE_GL
 #include "OGLSurface.h"
+#endif
 #include "../graphics/Bitmap.h"
 
 #include <string>

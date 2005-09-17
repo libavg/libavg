@@ -2,8 +2,13 @@
 // $Id$
 // 
 
+#include "../avgconfig.h"
+
 #include "RasterNode.h"
+
+#ifdef AVG_ENABLE_GL
 #include "OGLSurface.h"
+#endif
 #include "MathHelper.h"
 #include "IDisplayEngine.h"
 
@@ -51,6 +56,7 @@ void RasterNode::initVisible()
     m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
 
     if (m_MaxTileSize != IntPoint(-1, -1)) {
+#ifdef AVG_ENABLE_GL        
         OGLSurface * pOGLSurface = 
             dynamic_cast<OGLSurface*>(m_pSurface);
         if (!pOGLSurface) {
@@ -61,38 +67,62 @@ void RasterNode::initVisible()
         } else {
             pOGLSurface->setMaxTileSize(m_MaxTileSize);
         }
+#else
+            AVG_TRACE(Logger::WARNING, 
+                    "Node "+getID()+":"
+                    "Custom tile sizes are only allowed when "
+                    "the display engine is OpenGL. Ignoring.");
+#endif        
     }
     setBlendModeStr(m_sBlendMode);
 }
 
 int RasterNode::getNumVerticesX()
 {
+#ifdef AVG_ENABLE_GL
     OGLSurface * pOGLSurface = getOGLSurface();
     return pOGLSurface->getNumVerticesX(); 
+#else
+    return 1;
+#endif
 }
 
 int RasterNode::getNumVerticesY()
 {
+#ifdef AVG_ENABLE_GL
     OGLSurface * pOGLSurface = getOGLSurface();
     return pOGLSurface->getNumVerticesY(); 
+#else
+    return 1;
+#endif
 }
 
 DPoint RasterNode::getOrigVertexCoord(int x, int y)
 {
+#ifdef AVG_ENABLE_GL
     OGLSurface * pOGLSurface = getOGLSurface();
     return pOGLSurface->getOrigVertexCoord(x, y);
+#else
+    return DPoint(0,0);
+#endif
 }
 
 DPoint RasterNode::getWarpedVertexCoord(int x, int y) 
 {
+#ifdef AVG_ENABLE_GL
     OGLSurface * pOGLSurface = getOGLSurface();
     return pOGLSurface->getWarpedVertexCoord(x, y);
+#else
+    return DPoint(0,0);
+#endif
 }
 
 void RasterNode::setWarpedVertexCoord(int x, int y, const DPoint& Vertex)
 {
+#ifdef AVG_ENABLE_GL
     OGLSurface * pOGLSurface = getOGLSurface();
     pOGLSurface->setWarpedVertexCoord(x, y, Vertex);
+#endif
 }
 
 double RasterNode::getAngle() const
@@ -171,6 +201,7 @@ DPoint RasterNode::getPivot()
     }
 }
 
+#ifdef AVG_ENABLE_GL
 OGLSurface * RasterNode::getOGLSurface()
 {
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface *>(m_pSurface);
@@ -183,6 +214,7 @@ OGLSurface * RasterNode::getOGLSurface()
         exit(-1);
     }
 }
+#endif
 
 IDisplayEngine::BlendMode RasterNode::getBlendMode() const
 {

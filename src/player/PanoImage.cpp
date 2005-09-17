@@ -2,10 +2,14 @@
 // $Id$
 //
 
+#include "../avgconfig.h"
+
 #include "PanoImage.h"
 #include "SDLDisplayEngine.h"
 #include "MathHelper.h"
+#ifdef AVG_ENABLE_GL
 #include "OGLHelper.h"
+#endif
 
 #include "../base/Logger.h"
 #include "../base/ProfilingZone.h"
@@ -16,8 +20,10 @@
 #include "../graphics/Filtercolorize.h"
 #include "../graphics/Filterfliprgb.h"
 
+#ifdef AVG_ENABLE_GL
 #include "GL/gl.h"
 #include "GL/glu.h"
+#endif
 
 #include <iostream>
 #include <sstream>
@@ -63,7 +69,11 @@ void PanoImage::init (IDisplayEngine * pEngine,
 {
     Node::init(pEngine, pParent, pPlayer);
     initFilename(pPlayer, m_Filename);
+#ifdef AVG_ENABLE_GL    
     m_pEngine = dynamic_cast<SDLDisplayEngine*>(pEngine);
+#else
+    m_pEngine = 0;
+#endif
     if (!m_pEngine) {
         AVG_TRACE(Logger::ERROR,
                 "Panorama images are only allowed when "
@@ -93,6 +103,7 @@ static ProfilingZone PanoRenderProfilingZone("  PanoImage::render");
 
 void PanoImage::render(const DRect& Rect)
 {
+#ifdef AVG_ENABLE_GL
     ScopeTimer Timer(PanoRenderProfilingZone);
     glPushMatrix();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
@@ -196,6 +207,7 @@ void PanoImage::render(const DRect& Rect)
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
+#endif    
 }
 
 bool PanoImage::obscures (const DRect& Rect, int z)
@@ -280,6 +292,7 @@ DPoint PanoImage::getPreferredMediaSize()
 
 void PanoImage::setupTextures()
 {
+#ifdef AVG_ENABLE_GL
     int TexHeight = nextpow2(m_pBmp->getSize().y);
     int NumTextures = int(ceil(double(m_pBmp->getSize().x)/TEX_WIDTH));
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -338,8 +351,8 @@ void PanoImage::setupTextures()
                 GL_RGBA, GL_UNSIGNED_BYTE, pStartPos);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
                 "PanoImage::setupTextures: glTexSubImage2D()");
-
    }
+#endif
 }
 
 }
