@@ -211,6 +211,9 @@ class PlayerTestCase(unittest.TestCase):
         def activateExcl(b):
             node = Player.getElementByID("switch")
             node.active = b
+        def move():
+            node = Player.getElementByID("div")
+            node.x += 1
         Player.loadFile("excl.avg")
         Player.setTimeout(300, lambda : setExcl(0))
         Player.setTimeout(600, lambda : setExcl(1))
@@ -218,6 +221,7 @@ class PlayerTestCase(unittest.TestCase):
         Player.setTimeout(1200, lambda : setExcl(3))
         Player.setTimeout(1500, lambda : activateExcl(0))
         Player.setTimeout(1500, lambda : activateExcl(1))
+        Player.setInterval(10, move)
         Player.setTimeout(2000, Player.stop)
         Player.play(30)
     def testAnimation(self):
@@ -225,10 +229,14 @@ class PlayerTestCase(unittest.TestCase):
             node = Player.getElementByID("nestedimg1")
             node.x += 1
             node.opacity -= 0.01
+        def moveit2():
+            node = Player.getElementByID("nestedavg")
+            node.x += 1
         Player.loadFile("avg.avg")
         node = Player.getElementByID("nestedimg1")
         print("    Node id: "+node.id)
         Player.setInterval(10, moveit)
+        Player.setInterval(10, moveit2)
         Player.setTimeout(2000, Player.stop)
         Player.play(30)
     def testBlend(self):

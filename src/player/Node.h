@@ -59,7 +59,7 @@ class Node
         bool getActive() const;
         void setActive(bool bActive);
 
-        virtual Container * getParent();
+        virtual Container * getParent() const;
 
         bool isActive();
         virtual Node * getElementByPos (const DPoint & pos);

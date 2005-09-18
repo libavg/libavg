@@ -58,12 +58,12 @@ void Excl::getDirtyRegion (Region& Region)
     }
 }
 
-const DRect& Excl::getRelViewport()
+const DRect& Excl::getRelViewport() const
 {
     return getParent()->getRelViewport();
 }
 
-const DRect& Excl::getAbsViewport()
+const DRect& Excl::getAbsViewport() const
 {
     return getParent()->getAbsViewport();
 }

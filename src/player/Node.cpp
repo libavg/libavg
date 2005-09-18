@@ -180,7 +180,7 @@ void Node::setActive(bool bActive)
     }
 }
 
-Container* Node::getParent()
+Container* Node::getParent() const
 {
     return m_pParent;
 }

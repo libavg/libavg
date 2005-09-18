@@ -6,4 +6,4 @@ endif
 SUBDIRS = base graphics player conradrelais $(PARPORT_SUBDIR) python
 
 EXTRA_DIST = test/*.avg test/*.py test/*.png test/*.jpg test/*.tif \
-    test/test.m1v test/test.m2v avgrc.default
+    test/test.m1v test/test.m2v avgrc

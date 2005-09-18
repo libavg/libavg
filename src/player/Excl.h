@@ -22,8 +22,8 @@ class Excl : public Container
 		virtual void render (const DRect& Rect);
         virtual bool obscures (const DRect& Rect, int z);
         virtual void getDirtyRegion (Region& Region);
-        virtual const DRect& getRelViewport();
-        virtual const DRect& getAbsViewport();
+        virtual const DRect& getRelViewport() const;
+        virtual const DRect& getAbsViewport() const;
 
         virtual int getActiveChild() const;
         virtual void setActiveChild(int activeChild);
