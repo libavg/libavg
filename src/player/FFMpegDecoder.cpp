@@ -112,7 +112,11 @@ bool FFMpegDecoder::open (const std::string& sFilename,
     
     m_VStreamIndex = -1;
     for(int i = 0; i < m_pFormatContext->nb_streams; i++) {
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
         AVCodecContext *enc = &m_pFormatContext->streams[i]->codec;
+#else         
+        AVCodecContext *enc = m_pFormatContext->streams[i]->codec;
+#endif
         switch(enc->codec_type) {
 /*
            case CODEC_TYPE_AUDIO:
@@ -136,7 +140,11 @@ bool FFMpegDecoder::open (const std::string& sFilename,
         return false;
     }                
     AVCodecContext *enc;
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     enc = &(m_pFormatContext->streams[m_VStreamIndex]->codec);
+#else
+    enc = m_pFormatContext->streams[m_VStreamIndex]->codec;
+#endif
 //    enc->debug = 0x0001; // see avcodec.h
 
     AVCodec * codec = avcodec_find_decoder(enc->codec_id);
@@ -148,10 +156,13 @@ bool FFMpegDecoder::open (const std::string& sFilename,
         return false;
     }                
     m_pVStream = m_pFormatContext->streams[m_VStreamIndex];
-    
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     *pWidth =  m_pVStream->codec.width;
     *pHeight = m_pVStream->codec.height;
-    
+#else
+    *pWidth =  m_pVStream->codec->width;
+    *pHeight = m_pVStream->codec->height;
+#endif
     m_bFirstPacket = true;
     m_PacketLenLeft = 0;
     m_bEOF = false;
