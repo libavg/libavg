@@ -173,7 +173,11 @@ void FFMpegDecoder::close()
 {
     AVG_TRACE(Logger::PROFILE, "Closing " << m_sFilename);
     AVCodecContext * enc;
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     enc = &(m_pFormatContext->streams[m_VStreamIndex]->codec);
+#else
+    enc = m_pFormatContext->streams[m_VStreamIndex]->codec;
+#endif
     if (!m_bFirstPacket) {
         av_free_packet(&m_Packet);
     }
@@ -190,8 +194,14 @@ void FFMpegDecoder::seek(int DestFrame, int CurFrame)
     av_seek_frame(m_pFormatContext, m_VStreamIndex, 
             int((double(DestFrame)*1000000*1000)/m_pVStream->r_frame_rate));
 #else
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     av_seek_frame(m_pFormatContext, m_VStreamIndex, 
             int((double(DestFrame)*1000000*1000)/m_pVStream->r_frame_rate), 0);
+#else
+    double framerate = (m_pVStream->r_frame_rate.num)/m_pVStream->r_frame_rate.den;
+    av_seek_frame(m_pFormatContext, m_VStreamIndex, 
+            int((double(DestFrame)*1000000*1000)/framerate), 0);
+#endif
 #endif    
 }
 
@@ -199,12 +209,20 @@ int FFMpegDecoder::getNumFrames()
 {
     // This is broken for some videos, but the code here is correct.
     // So fix the videos or ffmpeg :-).
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     return m_pVStream->r_frame_rate*(m_pVStream->duration/AV_TIME_BASE);
+#else
+    return (m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den)*(m_pVStream->duration/AV_TIME_BASE);
+#endif 
 }
 
 double FFMpegDecoder::getFPS()
 {
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     return m_pVStream->r_frame_rate;
+#else
+    return (m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den);
+#endif 
 }
 
 bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
