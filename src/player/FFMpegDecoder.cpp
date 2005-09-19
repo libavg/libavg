@@ -255,9 +255,14 @@ bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
             default:
                 assert(false);
         }
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
+        AVCodecContext *enc = &m_pVStream->codec;
+#else
+        AVCodecContext *enc = m_pVStream->codec;
+#endif
         img_convert(&DestPict, DestFmt,
-                (AVPicture*)&Frame, m_pVStream->codec.pix_fmt,
-                m_pVStream->codec.width, m_pVStream->codec.height);
+                (AVPicture*)&Frame, enc->pix_fmt,
+                enc->width, enc->height);
     }
     return m_bEOF;
 }
@@ -286,15 +291,20 @@ void FFMpegDecoder::initVideoSupport()
 
 void FFMpegDecoder::readFrame(AVFrame& Frame)
 {
-    if (m_pVStream->codec.codec_id == CODEC_ID_RAWVIDEO) {
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
+        AVCodecContext *enc = &m_pVStream->codec;
+#else
+        AVCodecContext *enc = m_pVStream->codec;
+#endif
+    if (enc->codec_id == CODEC_ID_RAWVIDEO) {
         AVPacket Packet;
         m_bEOF = getNextVideoPacket(Packet);
         if (m_bEOF) {
             return ;
         }
         avpicture_fill((AVPicture*)&Frame, Packet.data, 
-                m_pVStream->codec.pix_fmt, 
-                m_pVStream->codec.width, m_pVStream->codec.height);
+                enc->pix_fmt, 
+                enc->width, enc->height);
     } else {
         int gotPicture = 0;
         while (!gotPicture) {
@@ -310,7 +320,7 @@ void FFMpegDecoder::readFrame(AVFrame& Frame)
                 m_PacketLenLeft = m_Packet.size;
                 m_pPacketData = m_Packet.data;
             }
-            int Len1 = avcodec_decode_video(&m_pVStream->codec, &Frame,
+            int Len1 = avcodec_decode_video(enc, &Frame,
                     &gotPicture, m_pPacketData, m_PacketLenLeft);
             if (Len1 < 0) {
                 AVG_TRACE(Logger::WARNING, "Error decoding " <<
