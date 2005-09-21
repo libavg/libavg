@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <cerrno>
 
 using namespace std;
 

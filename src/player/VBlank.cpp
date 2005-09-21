@@ -19,6 +19,7 @@
 #include <sys/fcntl.h>
 
 #include <unistd.h>
+#include <cerrno>
 
 using namespace std;
 
