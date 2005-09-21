@@ -1,5 +1,9 @@
 AC_PREREQ(2.53)
 AC_INIT(libavg, 0.2, coder@c-base.org)
+
+AC_DISABLE_STATIC
+AC_PROG_LIBTOOL
+
 MAJOR_VERSION=0
 MINOR_VERSION=2
 MICRO_VERSION=0
@@ -12,9 +16,6 @@ AM_INIT_AUTOMAKE(libavg, $VERSION)
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_CPP
-
-AC_DISABLE_STATIC
-AC_PROG_LIBTOOL
 
 AC_CHECK_PROG(xml2_installed, [xml2-config], "yes")
 if test -z "$xml2_installed"
