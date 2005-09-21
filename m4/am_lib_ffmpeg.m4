@@ -1,3 +1,4 @@
+# Cool ffmpeg check taken from GplFlash :-)
 AC_DEFUN([AM_LIB_FFMPEG], [
     #Test for ffmpeg
     #See if ffmpeg-config is available...
