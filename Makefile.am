@@ -2,7 +2,7 @@ SUBDIRS = src man
 
 ACLOCAL_AMFLAGS = -I m4
 
-EXTRA_DIST = avg.dtd doc bootstrap
+EXTRA_DIST = avg.dtd doc bootstrap COPYING
 
 dist-hook:
 	rm -rf `find $(distdir)/doc -name CVS`
