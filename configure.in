@@ -31,18 +31,19 @@ then
     AC_MSG_ERROR([ImageMagick not found. Aborting.])
 fi
 
-AC_CHECK_LIB(avformat, main, libavformat_installed=yes, , -lavcodec )
-if test -z "$libavformat_installed"
-then
-    AC_MSG_ERROR([libavformat (ffmpeg) not found. Aborting.])
-fi
-AC_CHECK_LIB(avformat, main)
-AC_CHECK_LIB(avcodec, main)
-AC_CHECK_FUNC(av_seek_frame, libavformat_seek=yes)
-if test -z "$libavformat_seek"
-then
-    AC_MSG_ERROR([libavformat (ffmpeg) does not support av_seek_frame. Aborting.])
-fi
+#AC_CHECK_LIB(avformat, main, libavformat_installed=yes, , -lavcodec )
+#if test -z "$libavformat_installed"
+#then
+#    AC_MSG_ERROR([libavformat (ffmpeg) not found. Aborting.])
+#fi
+#AC_CHECK_LIB(avformat, main)
+#AC_CHECK_LIB(avcodec, main)
+#AC_CHECK_FUNC(av_seek_frame, libavformat_seek=yes)
+#if test -z "$libavformat_seek"
+#then
+#    AC_MSG_ERROR([libavformat (ffmpeg) does not support av_seek_frame. Aborting.])
+#fi
+AM_LIB_FFMPEG
 
 AM_PATH_PYTHON
 

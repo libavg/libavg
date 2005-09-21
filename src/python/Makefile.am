@@ -16,6 +16,6 @@ pkgpyexec_LTLIBRARIES = avg.la
 avg_la_SOURCES = avg_wrap.cpp raster_wrap.cpp event_wrap.cpp device_wrap.cpp
 avg_la_LDFLAGS = -module $(PYTHON_LSPEC) -lboost_python 
 avg_la_LIBADD = ../conradrelais/libconradrelais.la \
-                $(PARPORT_LIB) \
+                $(PARPORT_LIB) $(LIBFFMPEG)\
                 ../player/libplayer.la 
 

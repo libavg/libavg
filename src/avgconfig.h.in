@@ -21,12 +21,6 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
-/* Define to 1 if you have the `avcodec' library (-lavcodec). */
-#undef HAVE_LIBAVCODEC
-
-/* Define to 1 if you have the `avformat' library (-lavformat). */
-#undef HAVE_LIBAVFORMAT
-
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
