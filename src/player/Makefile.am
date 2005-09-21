@@ -17,7 +17,8 @@ endif
 if ENABLE_GL
     SDL_LIBS = `sdl-config --libs`
     GL_SOURCES = OGLHelper.cpp OGLSurface.cpp SDLDisplayEngine.cpp VBlank.cpp
-    GL_INCLUDES = SDLDisplayEngine.h OGLHelper.h OGLSurface.h VBlank.h
+    GL_INCLUDES = SDLDisplayEngine.h OGLHelper.h OGLSurface.h VBlank.h \
+	              GL/gl.h GL/glext.h GL/glu.h
 else
     SDL_LIBS =
     GL_SOURCES =
@@ -64,4 +65,5 @@ libplayer_la_LDFLAGS = `xml2-config --libs` \
         `pkg-config --libs pangoft2` \
 		`Magick++-config --ldflags --libs` \
         $(PYTHON_LSPEC)
+libplayer_la_HEADERS = $(ALL_H)
 libplayer_la_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"

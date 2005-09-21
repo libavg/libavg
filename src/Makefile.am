@@ -3,7 +3,6 @@ if ENABLE_PARPORT
 else
     PARPORT_SUBDIR =
 endif
-SUBDIRS = base graphics player conradrelais $(PARPORT_SUBDIR) python
+SUBDIRS = base graphics player conradrelais $(PARPORT_SUBDIR) python test
 
-EXTRA_DIST = test/*.avg test/*.py test/*.png test/*.jpg test/*.tif \
-    test/test.m1v test/test.m2v avgrc
+EXTRA_DIST = avgrc
