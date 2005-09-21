@@ -9,7 +9,8 @@ namespace avg {
     
 class IFrameListener {
 public:
-    virtual void onFrameEnd() = 0;   
+    virtual ~IFrameListener() {};
+    virtual void onFrameEnd() = 0;
 };
 
 }

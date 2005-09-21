@@ -13,6 +13,7 @@ namespace avg {
 
 class IEventSource {
     public:
+        virtual ~IEventSource() {};
         virtual void initEventSource() {};
         virtual std::vector<Event *> pollEvents()=0;
 };

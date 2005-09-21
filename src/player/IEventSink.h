@@ -12,6 +12,7 @@ namespace avg {
 
 class IEventSink {
     public:
+        virtual ~IEventSink() {};
         virtual bool handleEvent(Event * pEvent) =0;
 };
 
