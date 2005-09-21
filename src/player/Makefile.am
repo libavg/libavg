@@ -65,5 +65,4 @@ libplayer_la_LDFLAGS = `xml2-config --libs` \
         `pkg-config --libs pangoft2` \
 		`Magick++-config --ldflags --libs` \
         $(PYTHON_LSPEC)
-libplayer_la_HEADERS = $(ALL_H)
 libplayer_la_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"
