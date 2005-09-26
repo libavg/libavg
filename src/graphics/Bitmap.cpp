@@ -28,7 +28,7 @@ Bitmap::Bitmap(IntPoint Size, PixelFormat PF, const std::string& sName)
       m_bOwnsBits(true),
       m_sName(sName)
 {
-//    cerr << "Bitmap::Bitmap(" << Size << ", " << getPixelFormatString(m_PF) 
+//    cerr << "Bitmap::Bitmap(" << Size << ", " << getPixelFormatString(m_PF) << ", " 
 //        << sName << ")" << endl;
     allocBits();
 }
@@ -40,7 +40,8 @@ Bitmap::Bitmap(IntPoint Size, PixelFormat PF, unsigned char * pBits,
       m_sName(sName)
 {
 //    cerr << "Bitmap::Bitmap(" << Size << ", " << getPixelFormatString(m_PF) << ", " 
-//        << (void *)pBits << ", " << Stride << ", " << bCopyBits << sName << ")" << endl;
+//        << (void *)pBits << ", " << Stride << ", " << bCopyBits << ", "
+//        << sName << ")" << endl;
     initWithData(pBits, Stride, bCopyBits);
 }
 
@@ -48,7 +49,7 @@ Bitmap::Bitmap(const Bitmap& Orig)
     : m_Size(Orig.getSize()),
       m_PF(Orig.getPixelFormat()),
       m_bOwnsBits(Orig.m_bOwnsBits),
-      m_sName(Orig.getName())
+      m_sName(Orig.getName()+" copy")
 {
 //    cerr << "Bitmap::Bitmap(Bitmap), Name: " << m_sName << endl;
     initWithData(const_cast<unsigned char *>(Orig.getPixels()), Orig.getStride(), 
@@ -203,7 +204,7 @@ void Bitmap::save(const std::string& sFilename)
             sPF = "RGBA";
             break;
         case R8G8B8X8:
-            pBmp = BitmapPtr(new Bitmap(m_Size, R8G8B8));
+            pBmp = BitmapPtr(new Bitmap(m_Size, R8G8B8, "temp copy"));
             pBmp->copyPixels(*this);
             sPF = "RGB";
             break;
@@ -342,8 +343,21 @@ bool Bitmap::operator ==(const Bitmap & otherBmp)
     unsigned char * pDest = m_pBits;
     int LineLen = getSize().x*getBytesPerPixel();
     for (int y=0; y<getSize().y; ++y) {
-        if (memcmp(pDest, pSrc, LineLen) != 0) {
-            return false;
+        switch(m_PF) {
+            case R8G8B8X8:
+            case B8G8R8X8:
+                for (int x=0; x<getSize().x; ++x) {
+                    const unsigned char * pSrcPixel = pSrc+x*getBytesPerPixel();
+                    unsigned char * pDestPixel = pDest+x*getBytesPerPixel();
+                    if (*((Pixel24*)(pDestPixel)) != *((Pixel24*)(pSrcPixel))) {
+                        return false;
+                    }
+                }
+                break;
+            default:
+                if (memcmp(pDest, pSrc, LineLen) != 0) {
+                    return false;
+                }
         }
         pDest += m_Stride;
         pSrc += otherBmp.getStride();

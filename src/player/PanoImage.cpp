@@ -83,11 +83,11 @@ void PanoImage::init (IDisplayEngine * pEngine,
     }
     AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
     m_pBmp = BitmapPtr(new Bitmap(m_Filename));
-/*
+
     if (m_Saturation != -1) {
-        m_Bmp.ApplyFilter(PLFilterColorize(m_Hue, m_Saturation));
+        FilterColorize(m_Hue, m_Saturation).applyInPlace(m_pBmp);
     }
-*/    
+    
     if (!(pEngine->hasRGBOrdering())) {
         FilterFlipRGB().applyInPlace(m_pBmp);
     }

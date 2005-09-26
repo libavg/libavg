@@ -18,7 +18,7 @@ typedef unsigned long long CycleCount;
 class TimeSource {
 public:
     static TimeSource* get();
-    ~TimeSource();
+    virtual ~TimeSource();
    
     long long getCurrentTicks();     // For millisecond accuracy.
     long long getCurrentMicrosecs();

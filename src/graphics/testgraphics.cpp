@@ -95,13 +95,8 @@ public:
             }
             testEqual(*pBmp, *pBaselineBmp);
         }
-        {
-            BitmapPtr pBmp = initBmp(R8G8B8A8);
-            pBmp->save("test.tiff");
-            Bitmap LoadedBmp("test.tiff");
-            ::remove("test.tiff");
-            testEqual(*pBmp, LoadedBmp);
-        }
+        runSaveTest(R8G8B8A8);
+        runSaveTest(R8G8B8X8);
     }
     
 private:
@@ -123,6 +118,15 @@ private:
             Bitmap BmpCopy3 (*pBmp, IntRect(0,0,4,7));
             testEqual(*pBmp, BmpCopy3);
         }
+    }
+
+    void runSaveTest(PixelFormat PF) {
+        cerr << "    Testing save for " << Bitmap::getPixelFormatString(PF) << endl;
+        BitmapPtr pBmp = initBmp(PF);
+        pBmp->save("test.tif");
+        Bitmap LoadedBmp("test.tif");
+        ::remove("test.tif");
+        testEqual(*pBmp, LoadedBmp);
     }
 
     void testEqual(Bitmap& Bmp1, Bitmap& Bmp2) 

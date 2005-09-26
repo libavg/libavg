@@ -13,7 +13,7 @@ namespace avg {
 class ScopeTimer {
 public:
     ScopeTimer(ProfilingZone& Zone);
-    ~ScopeTimer();
+    virtual ~ScopeTimer();
    
 private:
     ProfilingZone& m_Zone;

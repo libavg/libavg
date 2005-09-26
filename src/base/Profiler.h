@@ -14,7 +14,7 @@ namespace avg {
 class Profiler {
 public:
     static Profiler& get();
-    ~Profiler();
+    virtual ~Profiler();
  
     void addZone(ProfilingZone& Zone);
     void clear();

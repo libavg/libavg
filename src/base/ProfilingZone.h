@@ -14,7 +14,7 @@ namespace avg {
 class ProfilingZone {
 public:
     ProfilingZone(const std::string& sName);
-    ~ProfilingZone();
+    virtual ~ProfilingZone();
     void clear();
     
     void start();
