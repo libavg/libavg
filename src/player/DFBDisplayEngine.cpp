@@ -159,7 +159,7 @@ void DFBDisplayEngine::initDFB(int width, int height,
         bool isFullscreen, int bpp)
 {
     // Init DFB system
-    char ** argv = new (char *)[7];
+    char ** argv = new char *[7];
     int argc = 3;
     argv[0] = strdup ("bogus_appname");
     argv[1] = strdup("--dfb:no-banner");
