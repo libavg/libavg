@@ -288,6 +288,11 @@ int OGLSurface::getTextureMode()
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &s_MaxTexSize);
         AVG_TRACE(Logger::CONFIG,
                 "Max. texture size is " << s_MaxTexSize);
+        if (s_MaxTexSize == 0) {
+            s_MaxTexSize = 512;
+            AVG_TRACE(Logger::WARNING,
+                "This looks like a broken OpenGL driver. Using max. texture size of 512.");
+        }
     }
     return s_TextureMode;
 }

@@ -48,7 +48,7 @@ bool queryOGLExtension(char *extName)
     p = (char *)glGetString(GL_EXTENSIONS);
 //    cout << "OpenGL extensions string: " << p << endl;
     if (NULL == p) {
-        return false;
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "Couldn't get OpenGL extension string.");
     }
 
     end = p + strlen(p);

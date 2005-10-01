@@ -69,6 +69,7 @@ class SDLDisplayEngine: public IDisplayEngine, public IEventSource
         virtual void swapBuffers();
         void clip();
         void setClipPlane(double Eqn[4], int WhichPlane);
+        void safeSetAttribute( SDL_GLattr attr, int value);
 
         Event * createMouseMotionEvent 
                 (Event::Type Type, const SDL_Event & SDLEvent);

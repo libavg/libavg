@@ -94,36 +94,36 @@ void SDLDisplayEngine::init(int width, int height, bool isFullscreen,
     
     switch (bpp) {
         case 32:
-            SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
-            SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
-            SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
-            SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, 32 );
+            safeSetAttribute( SDL_GL_RED_SIZE, 8 );
+            safeSetAttribute( SDL_GL_GREEN_SIZE, 8 );
+            safeSetAttribute( SDL_GL_BLUE_SIZE, 8 );
+            safeSetAttribute( SDL_GL_BUFFER_SIZE, 32 );
             break;
         case 24:
-            SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
-            SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
-            SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
-            SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, 24 );
+            safeSetAttribute( SDL_GL_RED_SIZE, 8 );
+            safeSetAttribute( SDL_GL_GREEN_SIZE, 8 );
+            safeSetAttribute( SDL_GL_BLUE_SIZE, 8 );
+            safeSetAttribute( SDL_GL_BUFFER_SIZE, 24 );
             break;
         case 16:
-            SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 5 );
-            SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 6 );
-            SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 5 );
-            SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, 16 );
+            safeSetAttribute( SDL_GL_RED_SIZE, 5 );
+            safeSetAttribute( SDL_GL_GREEN_SIZE, 6 );
+            safeSetAttribute( SDL_GL_BLUE_SIZE, 5 );
+            safeSetAttribute( SDL_GL_BUFFER_SIZE, 16 );
             break;
         case 15:
-            SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 5 );
-            SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 5 );
-            SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 5 );
-            SDL_GL_SetAttribute( SDL_GL_BUFFER_SIZE, 15 );
+            safeSetAttribute( SDL_GL_RED_SIZE, 5 );
+            safeSetAttribute( SDL_GL_GREEN_SIZE, 5 );
+            safeSetAttribute( SDL_GL_BLUE_SIZE, 5 );
+            safeSetAttribute( SDL_GL_BUFFER_SIZE, 15 );
             break;
         default:
             AVG_TRACE(Logger::ERROR, "Unsupported bpp " << bpp <<
                     "in SDLDisplayEngine::init()");
             exit(-1);
     }
-    SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 0 );
-    SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+    safeSetAttribute( SDL_GL_DEPTH_SIZE, 0 );
+    safeSetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 
     unsigned int Flags = SDL_OPENGL;
     if (isFullscreen) {
@@ -551,6 +551,13 @@ void SDLDisplayEngine::initJoysticks()
         }
     }
 */
+}
+
+void SDLDisplayEngine::safeSetAttribute( SDL_GLattr attr, int value) {
+    int err = SDL_GL_SetAttribute(attr, value);
+    if (err == -1) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, SDL_GetError());
+    }
 }
 
 void SDLDisplayEngine::initTranslationTable()
