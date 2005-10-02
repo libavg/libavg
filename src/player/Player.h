@@ -58,7 +58,6 @@ class Player : IEventSink
         Node * getElementByID (const std::string& id);
         AVGNode * getRootNode ();
         void doFrame ();
-        void setPriority();
         double getFramerate ();
         virtual bool handleEvent(Event * pEvent);
 

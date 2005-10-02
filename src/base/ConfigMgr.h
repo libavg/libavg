@@ -30,16 +30,12 @@ class ConfigMgr {
 public:
     static ConfigMgr* get();
 
-    void printUsage();
-    
     void addSubsys(const std::string& sName);
     void addOption(const std::string& sSubsys, const std::string& sName,
             const std::string& sDefault, const std::string& sDescription);
     void addGlobalOption(const std::string& sName, const std::string& sDefault, 
             const std::string& sDescription);
     
-    void parseOptions(const CmdLine& cmdLine);
-
     const ConfigOptionVector* getOptions(const std::string& sSubsys) 
         const;
     const std::string* getOption(const std::string& sSubsys, 
@@ -52,7 +48,6 @@ private:
     ConfigMgr();
 
     bool loadFile(const std::string& sPath);
-    void loadFromCmdLine(const CmdLine& cmdLine);
     ConfigOptionVector& getSubsys(const std::string& sName);
     void setOption(ConfigOptionVector& OptionVector, 
             xmlDocPtr doc, xmlNodePtr pNode);

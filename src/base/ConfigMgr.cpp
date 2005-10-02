@@ -9,6 +9,7 @@
 #include <libxml/xmlmemory.h>
 
 #include <iostream>
+#include <stdlib.h>
 
 using namespace std;
  
@@ -34,10 +35,6 @@ ConfigMgr* ConfigMgr::get()
 ConfigMgr::ConfigMgr()
 {
     // TODO: Find some way of moving this code to the individual modules.
-    addGlobalOption("includepath", "/usr/local/include",
-            "The path that is used to find js includes and the dtd.");
-    addGlobalOption("modulepath", "/usr/local/lib/avg",
-            "The path that is used to find avg modules.");
     addSubsys("scr");
     addOption("scr", "subsys", "OGL",
             "Whether to use OpenGL (OGL) or DirectFB (DFB) for video output");
@@ -52,7 +49,14 @@ ConfigMgr::ConfigMgr()
 
     m_sFName = "avgrc";
     bool bOk1 = loadFile("/etc/"+m_sFName);
-    bool bOk2 = loadFile("~/."+m_sFName);
+    char * pHome = getenv("HOME");
+    bool bOk2;
+    if (!pHome) {
+        AVG_TRACE(Logger::WARNING, "No home directory set.");
+        bOk2 = false;
+    } else {
+        bOk2 = loadFile(string(pHome)+"/."+m_sFName);
+    }
     if (!bOk1 && !bOk2) {
         AVG_TRACE(Logger::ERROR,
                 "Neither /etc/avgrc nor ~/.avgrc was found. If");
@@ -68,30 +72,6 @@ ConfigMgr::ConfigMgr()
                 "Aborting.");
         exit(255);
     }
-}
-
-void ConfigMgr::printUsage()
-{
-    cerr << "Usage: " << endl;
-    cerr << "  avg scriptfile.js [--option=value]" << endl << endl;
-    cerr << "Available options:" << endl;
-    for (unsigned int i=0; i<m_GlobalOptions.size(); ++i) {
-        cerr << "   " << m_GlobalOptions[i].m_sName << " - " 
-                << m_GlobalOptions[i].m_sDescription << endl;
-    }
-    SubsysOptionMap::const_iterator it;
-    for (it=m_SubsysOptionMap.begin(); it != m_SubsysOptionMap.end(); ++it) {
-        string sSubsys = (*it).first;
-        const ConfigOptionVector& SubsysOptions = (*it).second;
-        for (unsigned int j=0; j<SubsysOptions.size(); ++j) {
-            cerr << "   " << sSubsys << ":" << SubsysOptions[j].m_sName << " - " 
-                << SubsysOptions[j].m_sDescription << endl;
-        }
-    }
-    cerr << endl;
-    cerr << "These options can also be specified in /etc/avgrc or ~/.avgrc." 
-            << endl;
-    cerr << "For full documentation, see man avg(1)." << endl;
 }
 
 void ConfigMgr::addSubsys(const string& sName)
@@ -110,12 +90,6 @@ void ConfigMgr::addGlobalOption(const string& sName, const string& sDefault,
         const string& sDescription)
 {
     m_GlobalOptions.push_back(ConfigOption(sName, sDefault, sDescription));
-}
-
-void ConfigMgr::parseOptions(const CmdLine& cmdLine)
-{
-    loadFromCmdLine(cmdLine);
-//    dump();
 }
 
 const ConfigOptionVector* ConfigMgr::getOptions(const string& sSubsys) const
@@ -211,57 +185,17 @@ bool ConfigMgr::loadFile(const std::string& sPath) {
             case AVG_ERR_OPTION_SUBSYS_UNKNOWN:
                 AVG_TRACE(Logger::ERROR, "While parsing " << sPath 
                         << ": Option group " << e.GetStr() << " unknown. Aborting.");
-                printUsage();
                 exit(255);
             case AVG_ERR_OPTION_UNKNOWN: 
                 AVG_TRACE(Logger::ERROR, "While parsing " << sPath 
                         << ": Option " << sSubsys << ":" << e.GetStr() 
                         << " unknown. Aborting.");
-                printUsage();
                 exit(255);
             default:
                 throw;
         }
     }
     return true;
-}
-
-void ConfigMgr::loadFromCmdLine(const CmdLine& cmdLine) 
-{
-    try {
-        const OptionMap& Options = cmdLine.getOptions();
-        OptionMap::const_iterator it = Options.begin();
-        for (; it != Options.end(); ++it) {
-            string sName = (*it).first;
-            string sValue = (*it).second;
-            unsigned int pos = sName.find(':');
-            if (pos != string::npos) {
-                // Subsystem option
-                string sSubsys = sName.substr(0, pos);
-                string sLocalName = sName.substr(pos+1);
-                ConfigOptionVector& SubsysOptions = getSubsys(sSubsys);
-                setOption(SubsysOptions, sLocalName, sValue);
-            } else {
-                // Global option
-                setOption(m_GlobalOptions, sName, sValue);
-            }
-        }
-    } catch (Exception& e) {
-        switch (e.GetCode()) {
-            case AVG_ERR_OPTION_SUBSYS_UNKNOWN:
-                AVG_TRACE(Logger::ERROR, "Command line option group " << e.GetStr()
-                        << " unknown. Aborting.");
-                printUsage();
-                exit(255);
-            case AVG_ERR_OPTION_UNKNOWN: 
-                AVG_TRACE(Logger::ERROR, "Command line option " << e.GetStr()
-                        << " unknown. Aborting.");
-                printUsage();
-                exit(255);
-            default:
-                throw;
-        }
-    }
 }
 
 ConfigOptionVector& ConfigMgr::getSubsys(const string& sName)

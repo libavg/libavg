@@ -228,7 +228,6 @@ void Player::play (double framerate)
         m_bStopping = false;
 
         m_pDisplayEngine->render(m_pRootNode, m_pFramerateManager, true);
-//        setPriority();
         
         Profiler::get().start();
         try {
@@ -395,23 +394,6 @@ void Player::doFrame ()
     }
     Profiler::get().reset();
 }
-
-void Player::setPriority() 
-{
-    pthread_t ThisThreadID = pthread_self();
-    int Policy;
-    sched_param Params;
-    int err = pthread_getschedparam(ThisThreadID, &Policy, &Params);
-    if (err) {
-        AVG_TRACE(Logger::ERROR, "Player::play: getschedparam failed.");
-    }
-    Params.sched_priority++; //  = PTHREAD_MAX_PRIORITY;
-    err = pthread_setschedparam(ThisThreadID, Policy, &Params);
-    if (err) {
-        AVG_TRACE(Logger::ERROR, "Player::play: setschedparam failed.");
-    }
-}
-        
 
 double Player::getFramerate ()
 {
