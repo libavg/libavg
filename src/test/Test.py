@@ -130,8 +130,8 @@ class PlayerTestCase(unittest.TestCase):
         print "-------- ", self.__testFuncName, " --------"
     def playAVG(self, fileName):
         Player.loadFile(fileName)
-        Player.setTimeout(100, lambda : Player.screenshot("test.png"))
-        Player.setTimeout(150, lambda : Player.screenshot("test1.png"))
+#        Player.setTimeout(100, lambda : Player.screenshot("test.png"))
+#        Player.setTimeout(150, lambda : Player.screenshot("test1.png"))
         Player.setTimeout(200, Player.stop)
         Player.play(30)
         
@@ -457,6 +457,5 @@ else:
     else:
         print "First parameter must be OGL or DFB"
     bpp = int(sys.argv[2])
-
-runner.run(playerTestSuite(engine, bpp))
+    runner.run(playerTestSuite(engine, bpp))
 

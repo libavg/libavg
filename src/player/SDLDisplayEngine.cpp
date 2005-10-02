@@ -152,7 +152,7 @@ void SDLDisplayEngine::init(int width, int height, bool isFullscreen,
     m_Height = height;
     initInput();
     // SDL sets up a signal handler we really don't want.
-//    signal(SIGSEGV, SIG_DFL);
+    signal(SIGSEGV, SIG_DFL);
     m_VBlank.init();
     
     logConfig();
