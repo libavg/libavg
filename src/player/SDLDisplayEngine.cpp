@@ -379,7 +379,6 @@ int SDLDisplayEngine::getBPP()
     return m_bpp;
 }
 
-
 vector<long> SDLDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
 
 void SDLDisplayEngine::initInput()

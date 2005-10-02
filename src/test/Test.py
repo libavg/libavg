@@ -447,8 +447,16 @@ Player = avg.Player()
 
 runner = unittest.TextTestRunner()
 
-runner.run(playerTestSuite(avg.OGL, 24))
-#runner.run(playerTestSuite(avg.OGL, 16))
-#runner.run(playerTestSuite(avg.DFB, 24))
-#runner.run(playerTestSuite(avg.DFB, 16))
+if len(sys.argv) != 3:
+    print "Usage: Test.py <display engine> <bpp>"
+else:
+    if sys.argv[1] == "OGL":
+        engine = avg.OGL
+    elif sys.argv[1] == "DFB":
+        engine = avg.DFB
+    else:
+        print "First parameter must be OGL or DFB"
+    bpp = int(sys.argv[2])
+
+runner.run(playerTestSuite(engine, bpp))
 

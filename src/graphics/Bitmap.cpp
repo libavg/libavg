@@ -181,6 +181,15 @@ void Bitmap::save(const std::string& sFilename)
     BitmapPtr pBmp;
     // TODO: Not all of these are tested.
     switch(m_PF) {
+        case B5G6R5:
+            pBmp = BitmapPtr(new Bitmap(m_Size, B8G8R8));
+            pBmp->copyPixels(*this);
+            sPF = "BGR";
+            break;
+        case B8G8R8:
+            pBmp = BitmapPtr(new Bitmap(*this));
+            sPF = "BGR";
+            break;
         case B8G8R8A8:
             pBmp = BitmapPtr(new Bitmap(*this));
             sPF = "BGRA";
@@ -198,6 +207,15 @@ void Bitmap::save(const std::string& sFilename)
             pBmp = BitmapPtr(new Bitmap(m_Size, B8G8R8));
             pBmp->copyPixels(*this);
             sPF = "BGR";
+            break;
+        case R5G6B5:
+            pBmp = BitmapPtr(new Bitmap(m_Size, R8G8B8));
+            pBmp->copyPixels(*this);
+            sPF = "RGB";
+            break;
+        case R8G8B8:
+            pBmp = BitmapPtr(new Bitmap(*this));
+            sPF = "RGB";
             break;
         case R8G8B8A8:
             pBmp = BitmapPtr(new Bitmap(*this));
@@ -217,19 +235,13 @@ void Bitmap::save(const std::string& sFilename)
             pBmp->copyPixels(*this);
             sPF = "RGB";
             break;
-        case B8G8R8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            sPF = "BGR";
-            break;
-        case R8G8B8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            sPF = "RGB";
-            break;
         case I8:
             pBmp = BitmapPtr(new Bitmap(*this));
             sPF = "A";
             break;
         default:
+            cerr << "Unsupported pixel format " << getPixelFormatString(m_PF) 
+                    << endl;
             assert(false);
     }
     Magick::Image Img(m_Size.x, m_Size.y, sPF, Magick::CharPixel, pBmp->getPixels());
@@ -259,20 +271,32 @@ void Bitmap::setPixelFormat(PixelFormat PF)
 std::string Bitmap::getPixelFormatString(PixelFormat PF)
 {
     switch (PF) {
-        case I8:
-            return "I8";
-        case R8G8B8:
-            return "R8G8B8";
-        case R8G8B8A8:
-            return "R8G8B8A8";
-        case R8G8B8X8:
-            return "R8G8B8X8";
+        case B5G6R5:
+            return "B5G6R5";
         case B8G8R8:
             return "B8G8R8";
         case B8G8R8A8:
             return "B8G8R8A8";
         case B8G8R8X8:
             return "B8G8R8X8";
+        case A8B8G8R8:
+            return "A8B8G8R8";
+        case X8B8G8R8:
+            return "X8B8G8R8";
+        case R5G6B5:
+            return "R5G6B5";
+        case R8G8B8:
+            return "R8G8B8";
+        case R8G8B8A8:
+            return "R8G8B8A8";
+        case R8G8B8X8:
+            return "R8G8B8X8";
+        case A8R8G8B8:
+            return "A8R8G8B8";
+        case X8R8G8B8:
+            return "X8R8G8B8";
+        case I8:
+            return "I8";
         default:
             return "Unknown";
     }

@@ -557,13 +557,13 @@ BitmapPtr DFBDisplayEngine::screenshot ()
     switch (m_bpp) {
         case 15:
         case 16:
-            pf = R5G6B5;
+            pf = B5G6R5;
             break;
         case 24:
-            pf = R8G8B8;
+            pf = B8G8R8;
             break;
         case 32:
-            pf = X8R8G8B8;
+            pf = X8B8G8R8;
             break;
         default:
             assert(false);
