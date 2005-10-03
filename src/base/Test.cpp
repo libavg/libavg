@@ -14,8 +14,8 @@ Test::Test(const string & sName, int IndentLevel)
     : m_bOk(true),
       m_NumSucceeded(0),
       m_NumFailed(0),
-      m_sName(sName),
-      m_IndentLevel(IndentLevel)
+      m_IndentLevel(IndentLevel),
+      m_sName(sName)
 {
 }
 

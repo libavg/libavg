@@ -1,5 +1,5 @@
 
-INCLUDES = -I. \
+INCLUDES = -I.. \
         `xml2-config --cflags` \
         `freetype-config --cflags` \
         `directfb-config --cflags` \

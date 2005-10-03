@@ -1,5 +1,5 @@
 
-INCLUDES = -I. \
+INCLUDES = -I.. \
 		`Magick++-config --cppflags` 
         
 ALL_H = Bitmap.h Rect.h Point.h Filter.h\

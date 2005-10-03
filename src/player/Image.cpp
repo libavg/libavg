@@ -61,8 +61,8 @@ void Image::init (IDisplayEngine * pEngine, Container * pParent,
     getSurface()->getBmp()->copyPixels(TempBmp);
     
     if (m_Saturation != -1) {
-//        FilterColorize(m_Hue, m_Saturation).applyInPlace(
-//                getSurface()->getBmp());
+        FilterColorize(m_Hue, m_Saturation).applyInPlace(
+                getSurface()->getBmp());
     }
 
     if (!(pEngine->hasRGBOrdering())) {
