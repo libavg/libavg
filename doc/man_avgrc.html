@@ -1,74 +1,8 @@
-<HTML>
-<HEAD>
-<TITLE>avgrc</TITLE>
-</HEAD>
+Content-type: text/html
+
+<HTML><HEAD><TITLE>man2html: bad invocation</TITLE></HEAD>
 <BODY>
-<H1>avgrc</H1>
-<HR>
-<PRE>
-<!-- Manpage converted by man2html 3.0.1 -->
-
-</PRE>
-<H2>DESCRIPTION</H2><PRE>
-       <I>avgrc</I>  contains  configuration  information  for  the  <B>avg</B>
-       player,  including  display  data   and   font   directory
-       information.   <B>avg</B>  looks  for a system-wide file in <I>/etc/</I>
-       and a user-specific file in <I>$HOME.</I>  The file is xml-based.
-       Its format is:
-
-         &lt;avgrc&gt;
-           &lt;font dir="<B>fontdir</B>"/&gt;
-           &lt;display subsystem="<I>OGL|DFB</I>"
-                    fullscreen="<I>true|false</I>"
-                    bpp="<I>16|24</I>"/&gt;
-         &lt;/avgrc&gt;
-
-       fontdir  is a directory that contains truetype (ttf) fonts
-       that can be used by avg. For a description of the  display
-       parameters, see the <B>avg</B> (1) man page.
-
-
-
-</PRE>
-<H2>EXAMPLE</H2><PRE>
-       This  is  the default /etc/avgrc installed by the build if
-       none is present yet:
-
-         &lt;avgrc&gt;
-           &lt;font dir="<B>/usr/X11R6/lib/X11/fonts/truetype</B>"/&gt;
-           &lt;display subsystem="<I>OGL</I>"
-                    fullscreen="<I>false</I>"
-                    bpp="<I>24</I>"/&gt;
-         &lt;/avgrc&gt;
-
-       The default file sets the font directory to the  X11  font
-       directory  and  selects  the  OpenGL  display subsystem in
-       windowed mode with 24 bits per pixel.
-
-
-</PRE>
-<H2>FILES</H2><PRE>
-       /etc/avgrc - System-wide configuration file.
-       $HOME/avgrc - User-specific configuration file.
-
-
-</PRE>
-<H2>SEE ALSO</H2><PRE>
-       <B>avg</B> (1)
-
-
-</PRE>
-<H2>AUTHORS</H2><PRE>
-       Ulrich von Zadow (coder@c-base.org)
-
-
-
-paintlib                  20 April 2004                  <B>avgrc(5)</B>
-</PRE>
-<HR>
-<ADDRESS>
-Man(1) output converted with
-<a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
-</ADDRESS>
-</BODY>
-</HTML>
+<H1>man2html: bad invocation</H1>
+Call: man2html [-l|-h host.domain:port] [-p|-q] [filename]
+or:   man2html -r [filename]
+</BODY></HTML>

@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>avg.Player</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="avg-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" align="right" width="100%">
+      <table border="0" cellpadding="0" cellspacing="0">
+      <tr><th class="navbar" align="center">
+        <p class="nomargin">
+          <a class="navbar" target="_top" href="../index.html">libavg</a>
+      </p></th></tr></table>
+    </th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        <a href="avg-module.html">Module&nbsp;avg</a> ::
+        Class&nbsp;Player
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="avg.Player-class.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF CLASS DESCRIPTION =========== -->
+<h2 class="class">Type Player</h2>
+
+<pre class="base-tree">
+<a href="__builtin__.object-class.html"><code>object</code></a> --+    
+         |    
+  <a href="None.instance-class.html"><code>instance</code></a> --+
+             |
+            <b>Player</b>
+</pre><br />
+
+<hr/>
+
+<pre class="literalblock">
+The class used to load and play avg files.
+</pre>
+<hr/>
+
+
+<!-- =========== START OF METHOD SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Method Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><a name="__init__"></a><span class="summary-sig"><span class="summary-sig-name">__init__</span>(<span class="summary-sig-vararg">...</span>)</span></code>
+</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">ok</font></td>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#clearInterval" class="summary-sig-name"><code>clearInterval</code></a>(<span class=summary-sig-arg>id</span>)</span></code>
+<br />
+Stops a timeout or an interval from being called.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">Node</font></td>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#createNode" class="summary-sig-name"><code>createNode</code></a>(<span class=summary-sig-arg>xml</span>)</span></code>
+<br />
+Creates a new Node from an xml string.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">Event</font></td>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#getCurEvent" class="summary-sig-name"><code>getCurEvent</code></a>()</span></code>
+<br />
+Gets an interface to the current event.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">Node</font></td>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#getElementByID" class="summary-sig-name"><code>getElementByID</code></a>(<span class=summary-sig-arg>id</span>)</span></code>
+<br />
+Returns an element in the avg tree.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">framerate</font></td>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#getFramerate" class="summary-sig-name"><code>getFramerate</code></a>()</span></code>
+<br />
+Returns the current framerate in frames per second.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">AVGNode</font></td>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#getRootNode" class="summary-sig-name"><code>getRootNode</code></a>()</span></code>
+<br />
+Returns the outermost element in the avg tree.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">None</font></td>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#loadFile" class="summary-sig-name"><code>loadFile</code></a>(<span class=summary-sig-arg>fileName</span>)</span></code>
+<br />
+Loads the avg file specified in fileName.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">None</font></td>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#play" class="summary-sig-name"><code>play</code></a>(<span class=summary-sig-arg>framerate</span>)</span></code>
+<br />
+Opens a playback window or screen and starts playback.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">ok</font></td>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#screenshot" class="summary-sig-name"><code>screenshot</code></a>(<span class=summary-sig-arg>filename</span>)</span></code>
+<br />
+Saves the contents of the current screen in a png file.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">None</font></td>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#setDisplayEngine" class="summary-sig-name"><code>setDisplayEngine</code></a>(<span class=summary-sig-arg>engine</span>)</span></code>
+<br />
+Determines which display backend to use.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">id</font></td>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#setInterval" class="summary-sig-name"><code>setInterval</code></a>(<span class=summary-sig-arg>time</span>,
+          <span class=summary-sig-arg>pyfunc</span>)</span></code>
+<br />
+Sets a python callable object that should be executed every time
+milliseconds.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">None</font></td>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#setResolution" class="summary-sig-name"><code>setResolution</code></a>(<span class=summary-sig-arg>fullscreen</span>,
+          <span class=summary-sig-arg>width</span>,
+          <span class=summary-sig-arg>height</span>,
+          <span class=summary-sig-arg>bpp</span>)</span></code>
+<br />
+setResolution(fullscreen, width, height, bpp) -&gt; None...</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">id</font></td>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#setTimeout" class="summary-sig-name"><code>setTimeout</code></a>(<span class=summary-sig-arg>time</span>,
+          <span class=summary-sig-arg>pyfunc</span>)</span></code>
+<br />
+Sets a python callable object that should be executed after time
+milliseconds.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">None</font></td>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#showCursor" class="summary-sig-name"><code>showCursor</code></a>(<span class=summary-sig-arg>show</span>)</span></code>
+<br />
+Shows or hides the mouse cursor.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">None</font></td>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#stop" class="summary-sig-name"><code>stop</code></a>()</span></code>
+<br />
+Stops playback and resets the video mode if nessesary.</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from instance</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="None.instance-class.html#__new__" class="summary-sig-name"><code>__new__</code></a>(<span class=summary-sig-arg>T</span>,
+          <span class=summary-sig-arg>S</span>,
+          <span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+T.__new__(S, ...) -&gt; a new object with type S, a subtype of T...</td></tr>
+<tr bgcolor="#e8f0f8" class="group">
+  <th colspan="2">&nbsp;&nbsp;&nbsp;&nbsp;Inherited from object</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__delattr__" class="summary-sig-name"><code>__delattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__delattr__('name') &lt;==&gt; del x.name...</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__getattribute__" class="summary-sig-name"><code>__getattribute__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__getattribute__('name') &lt;==&gt; x.name...</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__hash__" class="summary-sig-name"><code>__hash__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__hash__() &lt;==&gt; hash(x)...</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce__" class="summary-sig-name"><code>__reduce__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle...</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__reduce_ex__" class="summary-sig-name"><code>__reduce_ex__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+helper for pickle...</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__repr__" class="summary-sig-name"><code>__repr__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__repr__() &lt;==&gt; repr(x)...</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__setattr__" class="summary-sig-name"><code>__setattr__</code></a>(<span class="summary-sig-vararg">...</span>)</span></code>
+<br />
+x.__setattr__('name', value) &lt;==&gt; x.name = value...</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">&nbsp;</font></td>
+  <td><code><span class="summary-sig"><a href="__builtin__.object-class.html#__str__" class="summary-sig-name"><code>__str__</code></a>(<span class=summary-sig-arg>x</span>)</span></code>
+<br />
+x.__str__() &lt;==&gt; str(x)...</td></tr>
+</table><br />
+
+
+<!-- =========== START OF CLASS VARIABLE SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Class Variable Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>int</code></font></td>
+<td><b><a href="avg.Player-class.html#__instance_size__"><code>__instance_size__</code></a></b> = <span title="180">180&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>
+</table><br />
+
+
+<!-- =========== START OF METHOD DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Method Details</th></tr>
+</table>
+
+<a name="clearInterval"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">clearInterval</span>(<span class=sig-arg>id</span>)</span>
+  </h3>
+<pre class="literalblock">
+Stops a timeout or an interval from being called. Returns 1 if
+there was an interval with the given id, 0 if not.
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+ok      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="createNode"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">createNode</span>(<span class=sig-arg>xml</span>)</span>
+  </h3>
+<pre class="literalblock">
+Creates a new Node from an xml string. This node can be used as
+parameter to Container::addChild().
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+Node      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="getCurEvent"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">getCurEvent</span>()</span>
+  </h3>
+<pre class="literalblock">
+Gets an interface to the current event. Only valid inside event
+handlers (onmouseup, onmousedown, etc.)
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+Event      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="getElementByID"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">getElementByID</span>(<span class=sig-arg>id</span>)</span>
+  </h3>
+<pre class="literalblock">
+Returns an element in the avg tree. The id corresponds to the id
+attribute of the node.
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+Node      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="getFramerate"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">getFramerate</span>()</span>
+  </h3>
+<pre class="literalblock">
+Returns the current framerate in frames per second.
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+framerate      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="getRootNode"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">getRootNode</span>()</span>
+  </h3>
+<pre class="literalblock">
+Returns the outermost element in the avg tree.
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+AVGNode      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="loadFile"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">loadFile</span>(<span class=sig-arg>fileName</span>)</span>
+  </h3>
+<pre class="literalblock">
+Loads the avg file specified in fileName. Returns false if the file
+could not be opened.
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+None      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="play"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">play</span>(<span class=sig-arg>framerate</span>)</span>
+  </h3>
+<pre class="literalblock">
+Opens a playback window or screen and starts playback. framerate is
+the number of frames per second that should be displayed. play returns
+when playback has ended.
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+None      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="screenshot"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">screenshot</span>(<span class=sig-arg>filename</span>)</span>
+  </h3>
+<pre class="literalblock">
+Saves the contents of the current screen in a png file. Returns
+1 on success, 0 if the screen couldn't be saved.
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+ok      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="setDisplayEngine"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">setDisplayEngine</span>(<span class=sig-arg>engine</span>)</span>
+  </h3>
+<pre class="literalblock">
+Determines which display backend to use. Parameter can be either
+avg.DFB (for DirectFB rendering) or avg.OGL (for OpenGL rendering).
+Must be called before loadFile.
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+None      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="setInterval"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">setInterval</span>(<span class=sig-arg>time</span>,
+          <span class=sig-arg>pyfunc</span>)</span>
+  </h3>
+<pre class="literalblock">
+Sets a python callable object that should be executed every time
+milliseconds. setInterval returns an id that can be used to
+call clearInterval() to stop the code from being called.
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+id      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="setResolution"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">setResolution</span>(<span class=sig-arg>fullscreen</span>,
+          <span class=sig-arg>width</span>,
+          <span class=sig-arg>height</span>,
+          <span class=sig-arg>bpp</span>)</span>
+  </h3>
+<pre class="literalblock">
+setResolution(fullscreen, width, height, bpp) -&gt; None
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+None      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="setTimeout"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">setTimeout</span>(<span class=sig-arg>time</span>,
+          <span class=sig-arg>pyfunc</span>)</span>
+  </h3>
+<pre class="literalblock">
+Sets a python callable object that should be executed after time
+milliseconds. setTimeout returns an id that can be used to
+call clearInterval() to stop the code from being called.
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+id      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="showCursor"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">showCursor</span>(<span class=sig-arg>show</span>)</span>
+  </h3>
+<pre class="literalblock">
+Shows or hides the mouse cursor. (Currently, this only works for
+OpenGL. Showing the DirectFB mouse cursor seems to expose some
+issue with DirectFB.)
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+None      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="stop"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">stop</span>()</span>
+  </h3>
+<pre class="literalblock">
+Stops playback and resets the video mode if nessesary.
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+None      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+<br />
+
+
+<!-- =========== START OF CLASS VARIABLE DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Class Variable Details</th></tr>
+</table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="__instance_size__"></a>
+<h3>__instance_size__</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>int</code>
+
+      </dd>
+<span title="180">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+180&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="avg-module.html">Home</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" align="right" width="100%">
+      <table border="0" cellpadding="0" cellspacing="0">
+      <tr><th class="navbar" align="center">
+        <p class="nomargin">
+          <a class="navbar" target="_top" href="../index.html">libavg</a>
+      </p></th></tr></table>
+    </th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Mon Oct  3 22:36:27 2005</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>

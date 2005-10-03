@@ -1,0 +1,604 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>avg</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css"></link>
+</head>
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th bgcolor="#70b0f0" class="navselect">&nbsp;&nbsp;&nbsp;Home&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" align="right" width="100%">
+      <table border="0" cellpadding="0" cellspacing="0">
+      <tr><th class="navbar" align="center">
+        <p class="nomargin">
+          <a class="navbar" target="_top" href="../index.html">libavg</a>
+      </p></th></tr></table>
+    </th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <font size="-1"><b class="breadcrumbs">
+        Module&nbsp;avg
+      </b></font></br>
+    </td>
+    <td><table cellpadding="0" cellspacing="0">
+      <tr><td align="right"><font size="-2">[<a href="frames.html"target="_top">frames</a>&nbsp;|&nbsp;<a href="avg-module.html" target="_top">no&nbsp;frames</a>]</font></td></tr>
+    </table></td>
+</tr></table>
+
+<!-- =========== START OF MODULE DESCRIPTION =========== -->
+<h2 class="module">Module avg</h2>
+
+
+<!-- =========== START OF CLASSES =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Classes</th></tr>
+<tr><td width="15%">
+  <b><a href="avg.AVGNode-class.html"><code>AVGNode</code></a></b></td>
+  <td>Root node of any avg tree.</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.Camera-class.html"><code>Camera</code></a></b></td>
+  <td>A node that displays the image of a firewire camera.</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.ConradRelais-class.html"><code>ConradRelais</code></a></b></td>
+  <td>Interface to one or more conrad relais cards connected to a serial port.</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.Container-class.html"><code>Container</code></a></b></td>
+  <td>Base class for all nodes containing other nodes (DivNode, AVGNode, Excl)...</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.avg.controllines-class.html"><code>controllines</code></a></b></td>
+  <td>&nbsp;</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.avg.DataBits-class.html"><code>DataBits</code></a></b></td>
+  <td>&nbsp;</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.avg.DisplayEngineType-class.html"><code>DisplayEngineType</code></a></b></td>
+  <td>&nbsp;</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.DivNode-class.html"><code>DivNode</code></a></b></td>
+  <td>A div node is a node that groups other nodes logically and visually.</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.Event-class.html"><code>Event</code></a></b></td>
+  <td>Base class for user input events.</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.Excl-class.html"><code>Excl</code></a></b></td>
+  <td>Node that displays only one of its children.</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.Image-class.html"><code>Image</code></a></b></td>
+  <td>A static raster image on the screen.</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.KeyEvent-class.html"><code>KeyEvent</code></a></b></td>
+  <td>Raised when a key is pressed or released.</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.Logger-class.html"><code>Logger</code></a></b></td>
+  <td>Interface to the logger used by the avg player.</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.MouseEvent-class.html"><code>MouseEvent</code></a></b></td>
+  <td>Raised when a mouse-related event occurs.</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.Node-class.html"><code>Node</code></a></b></td>
+  <td>Base class for all elements in the avg tree.</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.PanoImage-class.html"><code>PanoImage</code></a></b></td>
+  <td>A panorama image.</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.ParPort-class.html"><code>ParPort</code></a></b></td>
+  <td>Used for low-level control of the parallel port's data, status and control
+lines.</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.Player-class.html"><code>Player</code></a></b></td>
+  <td>The class used to load and play avg files.</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.Point-class.html"><code>Point</code></a></b></td>
+  <td>A point is the basic coordinate in avg.</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.RasterNode-class.html"><code>RasterNode</code></a></b></td>
+  <td>Base class for all nodes that have a direct 2d raster representation.</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.avg.statuslines-class.html"><code>statuslines</code></a></b></td>
+  <td>&nbsp;</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.avg.Type-class.html"><code>Type</code></a></b></td>
+  <td>&nbsp;</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.Video-class.html"><code>Video</code></a></b></td>
+  <td>Video nodes display a video file.</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.VideoBase-class.html"><code>VideoBase</code></a></b></td>
+  <td>Base class for video and camera image nodes.</td></tr>
+<tr><td width="15%">
+  <b><a href="avg.Words-class.html"><code>Words</code></a></b></td>
+  <td>A words node displays formatted text.</td></tr>
+</table><br />
+
+
+<!-- =========== START OF VARIABLE SUMMARY =========== -->
+<table class="summary" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="summary">
+  <th colspan="2">Variable Summary</th></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>avg.controllines</code></font></td>
+<td><b><a href="avg-module.html#CONTROL_AUTOFD"><code>CONTROL_AUTOFD</code></a></b> = <span title="avg.controllines.CONTROL_AUTOFD"><code>avg.controllines.CONTROL_AUTOFD         </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>avg.controllines</code></font></td>
+<td><b><a href="avg-module.html#CONTROL_INIT"><code>CONTROL_INIT</code></a></b> = <span title="avg.controllines.CONTROL_INIT"><code>avg.controllines.CONTROL_INIT             </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>avg.controllines</code></font></td>
+<td><b><a href="avg-module.html#CONTROL_SELECT"><code>CONTROL_SELECT</code></a></b> = <span title="avg.controllines.CONTROL_SELECT"><code>avg.controllines.CONTROL_SELECT         </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>avg.controllines</code></font></td>
+<td><b><a href="avg-module.html#CONTROL_STROBE"><code>CONTROL_STROBE</code></a></b> = <span title="avg.controllines.CONTROL_STROBE"><code>avg.controllines.CONTROL_STROBE         </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>avg.DisplayEngineType</code></font></td>
+<td><b><a href="avg-module.html#DFB"><code>DFB</code></a></b> = <span title="avg.DisplayEngineType.DFB"><code>avg.DisplayEngineType.DFB                          </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>avg.DisplayEngineType</code></font></td>
+<td><b><a href="avg-module.html#OGL"><code>OGL</code></a></b> = <span title="avg.DisplayEngineType.OGL"><code>avg.DisplayEngineType.OGL                          </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>avg.DataBits</code></font></td>
+<td><b><a href="avg-module.html#PARPORTDATA0"><code>PARPORTDATA0</code></a></b> = <span title="avg.DataBits.PARPORTDATA0"><code>avg.DataBits.PARPORTDATA0                 </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>avg.DataBits</code></font></td>
+<td><b><a href="avg-module.html#PARPORTDATA1"><code>PARPORTDATA1</code></a></b> = <span title="avg.DataBits.PARPORTDATA1"><code>avg.DataBits.PARPORTDATA1                 </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>avg.DataBits</code></font></td>
+<td><b><a href="avg-module.html#PARPORTDATA2"><code>PARPORTDATA2</code></a></b> = <span title="avg.DataBits.PARPORTDATA2"><code>avg.DataBits.PARPORTDATA2                 </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>avg.DataBits</code></font></td>
+<td><b><a href="avg-module.html#PARPORTDATA3"><code>PARPORTDATA3</code></a></b> = <span title="avg.DataBits.PARPORTDATA3"><code>avg.DataBits.PARPORTDATA3                 </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>avg.DataBits</code></font></td>
+<td><b><a href="avg-module.html#PARPORTDATA4"><code>PARPORTDATA4</code></a></b> = <span title="avg.DataBits.PARPORTDATA4"><code>avg.DataBits.PARPORTDATA4                 </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>avg.DataBits</code></font></td>
+<td><b><a href="avg-module.html#PARPORTDATA5"><code>PARPORTDATA5</code></a></b> = <span title="avg.DataBits.PARPORTDATA5"><code>avg.DataBits.PARPORTDATA5                 </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>avg.DataBits</code></font></td>
+<td><b><a href="avg-module.html#PARPORTDATA6"><code>PARPORTDATA6</code></a></b> = <span title="avg.DataBits.PARPORTDATA6"><code>avg.DataBits.PARPORTDATA6                 </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>avg.DataBits</code></font></td>
+<td><b><a href="avg-module.html#PARPORTDATA7"><code>PARPORTDATA7</code></a></b> = <span title="avg.DataBits.PARPORTDATA7"><code>avg.DataBits.PARPORTDATA7                 </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>avg.statuslines</code></font></td>
+<td><b><a href="avg-module.html#STATUS_ACK"><code>STATUS_ACK</code></a></b> = <span title="avg.statuslines.STATUS_ACK"><code>avg.statuslines.STATUS_ACK                  </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>avg.statuslines</code></font></td>
+<td><b><a href="avg-module.html#STATUS_BUSY"><code>STATUS_BUSY</code></a></b> = <span title="avg.statuslines.STATUS_BUSY"><code>avg.statuslines.STATUS_BUSY                </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>avg.statuslines</code></font></td>
+<td><b><a href="avg-module.html#STATUS_ERROR"><code>STATUS_ERROR</code></a></b> = <span title="avg.statuslines.STATUS_ERROR"><code>avg.statuslines.STATUS_ERROR              </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>avg.statuslines</code></font></td>
+<td><b><a href="avg-module.html#STATUS_PAPEROUT"><code>STATUS_PAPEROUT</code></a></b> = <span title="avg.statuslines.STATUS_PAPEROUT"><code>avg.statuslines.STATUS_PAPEROUT        </code>
+</span></td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1"><code>avg.statuslines</code></font></td>
+<td><b><a href="avg-module.html#STATUS_SELECT"><code>STATUS_SELECT</code></a></b> = <span title="avg.statuslines.STATUS_SELECT"><code>avg.statuslines.STATUS_SELECT            </code>
+</span></td></tr>
+</table><br />
+
+
+<!-- =========== START OF VARIABLE DETAILS =========== -->
+<table class="details" border="1" cellpadding="3" cellspacing="0" width="100%" bgcolor="white">
+<tr bgcolor="#70b0f0" class="details">
+  <th colspan="2">Variable Details</th></tr>
+</table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="CONTROL_AUTOFD"></a>
+<h3>CONTROL_AUTOFD</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>avg.controllines</code>
+
+      </dd>
+<span title="avg.controllines.CONTROL_AUTOFD">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+avg.controllines.CONTROL_AUTOFD                                        </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="CONTROL_INIT"></a>
+<h3>CONTROL_INIT</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>avg.controllines</code>
+
+      </dd>
+<span title="avg.controllines.CONTROL_INIT">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+avg.controllines.CONTROL_INIT                                          </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="CONTROL_SELECT"></a>
+<h3>CONTROL_SELECT</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>avg.controllines</code>
+
+      </dd>
+<span title="avg.controllines.CONTROL_SELECT">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+avg.controllines.CONTROL_SELECT                                        </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="CONTROL_STROBE"></a>
+<h3>CONTROL_STROBE</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>avg.controllines</code>
+
+      </dd>
+<span title="avg.controllines.CONTROL_STROBE">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+avg.controllines.CONTROL_STROBE                                        </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="DFB"></a>
+<h3>DFB</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>avg.DisplayEngineType</code>
+
+      </dd>
+<span title="avg.DisplayEngineType.DFB">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+avg.DisplayEngineType.DFB                                              </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="OGL"></a>
+<h3>OGL</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>avg.DisplayEngineType</code>
+
+      </dd>
+<span title="avg.DisplayEngineType.OGL">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+avg.DisplayEngineType.OGL                                              </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="PARPORTDATA0"></a>
+<h3>PARPORTDATA0</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>avg.DataBits</code>
+
+      </dd>
+<span title="avg.DataBits.PARPORTDATA0">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+avg.DataBits.PARPORTDATA0                                              </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="PARPORTDATA1"></a>
+<h3>PARPORTDATA1</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>avg.DataBits</code>
+
+      </dd>
+<span title="avg.DataBits.PARPORTDATA1">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+avg.DataBits.PARPORTDATA1                                              </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="PARPORTDATA2"></a>
+<h3>PARPORTDATA2</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>avg.DataBits</code>
+
+      </dd>
+<span title="avg.DataBits.PARPORTDATA2">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+avg.DataBits.PARPORTDATA2                                              </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="PARPORTDATA3"></a>
+<h3>PARPORTDATA3</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>avg.DataBits</code>
+
+      </dd>
+<span title="avg.DataBits.PARPORTDATA3">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+avg.DataBits.PARPORTDATA3                                              </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="PARPORTDATA4"></a>
+<h3>PARPORTDATA4</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>avg.DataBits</code>
+
+      </dd>
+<span title="avg.DataBits.PARPORTDATA4">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+avg.DataBits.PARPORTDATA4                                              </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="PARPORTDATA5"></a>
+<h3>PARPORTDATA5</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>avg.DataBits</code>
+
+      </dd>
+<span title="avg.DataBits.PARPORTDATA5">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+avg.DataBits.PARPORTDATA5                                              </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="PARPORTDATA6"></a>
+<h3>PARPORTDATA6</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>avg.DataBits</code>
+
+      </dd>
+<span title="avg.DataBits.PARPORTDATA6">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+avg.DataBits.PARPORTDATA6                                              </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="PARPORTDATA7"></a>
+<h3>PARPORTDATA7</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>avg.DataBits</code>
+
+      </dd>
+<span title="avg.DataBits.PARPORTDATA7">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+avg.DataBits.PARPORTDATA7                                              </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="STATUS_ACK"></a>
+<h3>STATUS_ACK</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>avg.statuslines</code>
+
+      </dd>
+<span title="avg.statuslines.STATUS_ACK">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+avg.statuslines.STATUS_ACK                                             </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="STATUS_BUSY"></a>
+<h3>STATUS_BUSY</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>avg.statuslines</code>
+
+      </dd>
+<span title="avg.statuslines.STATUS_BUSY">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+avg.statuslines.STATUS_BUSY                                            </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="STATUS_ERROR"></a>
+<h3>STATUS_ERROR</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>avg.statuslines</code>
+
+      </dd>
+<span title="avg.statuslines.STATUS_ERROR">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+avg.statuslines.STATUS_ERROR                                           </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="STATUS_PAPEROUT"></a>
+<h3>STATUS_PAPEROUT</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>avg.statuslines</code>
+
+      </dd>
+<span title="avg.statuslines.STATUS_PAPEROUT">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+avg.statuslines.STATUS_PAPEROUT                                        </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<table width="100%" class="var-details" bgcolor="#e0e0e0"><tr><td>
+<a name="STATUS_SELECT"></a>
+<h3>STATUS_SELECT</h3>
+<dl>
+  <dt></dt>
+  <dd>
+    <dl>
+      <dt><b>Type:</b></dt>
+      <dd>
+          <code>avg.statuslines</code>
+
+      </dd>
+<span title="avg.statuslines.STATUS_SELECT">      <dt><b>Value:</b></dt>
+      <dd><table><tr><td>
+<pre class="variable">
+avg.statuslines.STATUS_SELECT                                          </pre>
+        </td></tr></table></dd>
+</span>    </dl>
+  </dd>
+</dl></td></tr></table>
+<br />
+
+
+<!-- =========== START OF NAVBAR =========== -->
+<table class="navbar" border="0" width="100%" cellpadding="0" bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="center">
+    <th bgcolor="#70b0f0" class="navselect">&nbsp;&nbsp;&nbsp;Home&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="trees.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="indices.html">Index</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar">&nbsp;&nbsp;&nbsp;<a class="navbar" href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+    <th class="navbar" align="right" width="100%">
+      <table border="0" cellpadding="0" cellspacing="0">
+      <tr><th class="navbar" align="center">
+        <p class="nomargin">
+          <a class="navbar" target="_top" href="../index.html">libavg</a>
+      </p></th></tr></table>
+    </th>
+  </tr>
+</table>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <tr>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Mon Oct  3 22:36:27 2005</font></td>
+    <td align="right"><a href="http://epydoc.sourceforge.net"
+                      ><font size="-2">http://epydoc.sf.net</font></a></td>
+  </tr>
+</table>
+</body>
+</html>
