@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-sys.path.append('/usr/local/lib/python2.3/site-packages/avg')
+sys.path.append('/usr/local/lib/python2.4/site-packages/libavg')
 import avg
 import time
 
