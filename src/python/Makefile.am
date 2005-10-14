@@ -18,4 +18,5 @@ avg_la_LDFLAGS = -module $(PYTHON_LSPEC) -lboost_python
 avg_la_LIBADD = ../conradrelais/libconradrelais.la \
                 $(PARPORT_LIB) $(LIBFFMPEG)\
                 ../player/libplayer.la 
+pkgpyexec_PYTHON = anim.py
 
