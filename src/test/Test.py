@@ -3,11 +3,12 @@
 import unittest
 
 import sys
-# TODO: set this path via configure or similar.
+# TODO: set this path via configure or something similar.
 sys.path.append('/usr/local/lib/python2.3/site-packages/libavg')
 sys.path.append('/usr/local/lib/python2.4/site-packages/libavg')
 import avg
 import time
+import anim
 
 class LoggerTestCase(unittest.TestCase):
     def test(self):
@@ -130,8 +131,8 @@ class PlayerTestCase(unittest.TestCase):
         print "-------- ", self.__testFuncName, " --------"
     def playAVG(self, fileName):
         Player.loadFile(fileName)
-        Player.setTimeout(100, lambda : Player.screenshot("test.png"))
-        Player.setTimeout(150, lambda : Player.screenshot("test1.png"))
+        Player.setTimeout(100, lambda: Player.screenshot("test.png"))
+        Player.setTimeout(150, lambda: Player.screenshot("test1.png"))
         Player.setTimeout(200, Player.stop)
         Player.play(30)
         
@@ -417,30 +418,60 @@ class VideoTestCase(unittest.TestCase):
         Player.setTimeout(5000, Player.stop)
         Player.play(25)
 
+class AnimTestCase(unittest.TestCase):
+    def __init__(self, testFuncName, engine, bpp):
+        self.__engine = engine
+        self.__bpp = bpp;
+        self.__testFuncName = testFuncName
+        unittest.TestCase.__init__(self, testFuncName)
+    def setUp(self):
+        Player.setDisplayEngine(self.__engine)
+        Player.setResolution(0, 0, 0, self.__bpp)
+    def test(self):
+        def startAnim():
+            anim.fadeOut(Player.getElementByID("nestedimg2"), 1000)
+            Player.getElementByID("nestedimg1").opacity = 0
+            anim.fadeIn(Player.getElementByID("nestedimg1"), 1000, 1)
+            anim.LinearAnim(Player.getElementByID("nestedimg1"), "x", 
+                    1000, 0, 100)
+        def startSplineAnim():
+            anim.SplineAnim(Player.getElementByID("mainimg"), "x", 
+                    2000, 100, -400, 10, 0)
+            anim.SplineAnim(Player.getElementByID("mainimg"), "y", 
+                    2000, 100, 0, 10, -400)
+        anim.init(Player)
+        Player.loadFile("avg.avg")
+        Player.setTimeout(4200, Player.stop)
+        Player.setTimeout(10, startAnim)
+        Player.setTimeout(1100, startSplineAnim)
+        Player.play(75)
+
+
 def playerTestSuite(engine, bpp):
     suite = unittest.TestSuite()
-    
-    suite.addTest(LoggerTestCase("test"))
-    suite.addTest(ParPortTestCase("test"))
-    suite.addTest(ConradRelaisTestCase("test"))
-    suite.addTest(NodeTestCase("testAttributes"))
-    suite.addTest(PlayerTestCase("testImage", engine, bpp))
-    suite.addTest(PlayerTestCase("testError", engine, bpp))
-    suite.addTest(PlayerTestCase("testEvents", engine, bpp))
-    suite.addTest(PlayerTestCase("testEventErr", engine, bpp))
-#    suite.addTest(PlayerTestCase("testDynamics", engine, bpp))
-    suite.addTest(PlayerTestCase("testHugeImage", engine, bpp))
-    suite.addTest(PlayerTestCase("testBroken", engine, bpp))
-    suite.addTest(PlayerTestCase("testExcl", engine, bpp))
-    suite.addTest(PlayerTestCase("testAnimation", engine, bpp))
-    suite.addTest(PlayerTestCase("testBlend", engine, bpp))
-    suite.addTest(PlayerTestCase("testCrop", engine, bpp))
-    suite.addTest(PlayerTestCase("testUnicode", engine, bpp))
-    suite.addTest(WordsTestCase("test", engine, bpp))
-    suite.addTest(VideoTestCase("test", engine, bpp))
-    if engine == avg.OGL:
-        suite.addTest(PlayerTestCase("testPanoImage", engine, bpp))
-        suite.addTest(PlayerTestCase("testWarp", engine, bpp))
+    suite.addTest(AnimTestCase("test", engine, bpp))
+ 
+#    suite.addTest(LoggerTestCase("test"))
+#    suite.addTest(ParPortTestCase("test"))
+#    suite.addTest(ConradRelaisTestCase("test"))
+#    suite.addTest(NodeTestCase("testAttributes"))
+#    suite.addTest(PlayerTestCase("testImage", engine, bpp))
+#    suite.addTest(PlayerTestCase("testError", engine, bpp))
+#    suite.addTest(PlayerTestCase("testEvents", engine, bpp))
+#    suite.addTest(PlayerTestCase("testEventErr", engine, bpp))
+##    suite.addTest(PlayerTestCase("testDynamics", engine, bpp))
+#    suite.addTest(PlayerTestCase("testHugeImage", engine, bpp))
+#    suite.addTest(PlayerTestCase("testBroken", engine, bpp))
+#    suite.addTest(PlayerTestCase("testExcl", engine, bpp))
+#    suite.addTest(PlayerTestCase("testAnimation", engine, bpp))
+#    suite.addTest(PlayerTestCase("testBlend", engine, bpp))
+#    suite.addTest(PlayerTestCase("testCrop", engine, bpp))
+#    suite.addTest(PlayerTestCase("testUnicode", engine, bpp))
+#    suite.addTest(WordsTestCase("test", engine, bpp))
+#    suite.addTest(VideoTestCase("test", engine, bpp))
+#    if engine == avg.OGL:
+#        suite.addTest(PlayerTestCase("testPanoImage", engine, bpp))
+#        suite.addTest(PlayerTestCase("testWarp", engine, bpp))
     return suite
 
 Player = avg.Player()

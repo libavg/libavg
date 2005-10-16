@@ -10,6 +10,9 @@
 
 #include <iostream>
 #include <stdlib.h>
+#include <unistd.h>
+
+// TODO: Refactor - this stuff is left over from pre-python days.
 
 using namespace std;
  
@@ -34,7 +37,6 @@ ConfigMgr* ConfigMgr::get()
 
 ConfigMgr::ConfigMgr()
 {
-    // TODO: Find some way of moving this code to the individual modules.
     addSubsys("scr");
     addOption("scr", "subsys", "OGL",
             "Whether to use OpenGL (OGL) or DirectFB (DFB) for video output");
@@ -67,7 +69,7 @@ ConfigMgr::ConfigMgr()
         AVG_TRACE(Logger::ERROR,
                 "to /etc. Have a look at the contents to");
         AVG_TRACE(Logger::ERROR,
-                "check if all directories are set correctly.");
+                "check if everything is set correctly.");
         AVG_TRACE(Logger::ERROR,
                 "Aborting.");
         exit(255);
@@ -137,6 +139,14 @@ const string* ConfigMgr::getGlobalOption(const string& sName) const
 bool ConfigMgr::loadFile(const std::string& sPath) {
     string sSubsys;
     try {
+        int err = access(sPath.c_str(), R_OK);
+        if (err == -1) {
+            if (errno == EACCES) {
+                AVG_TRACE(Logger::WARNING,
+                        sPath+": File exists, but process doesn't have read permissions!");
+            }
+            return false;
+        }
         xmlDocPtr doc;
         doc = xmlParseFile(sPath.c_str());
         if (!doc) {
