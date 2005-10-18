@@ -40,7 +40,7 @@ class Words : public RasterNode
         {
             invalidate();
             m_FontName = sName;
-            drawString();
+            drawString(true);
             invalidate();
         }
             
@@ -51,10 +51,12 @@ class Words : public RasterNode
         
         void setText(const std::string& sText)
         {
-            invalidate();
-            m_Text = sText;
-            drawString();
-            invalidate();
+            if (m_Text != sText) {
+                invalidate();
+                m_Text = sText;
+                drawString(false);
+                invalidate();
+            }
         }
 
         const std::string& getColor() const
@@ -67,7 +69,7 @@ class Words : public RasterNode
             invalidate();
             m_ColorName = sColor;
             m_Color = colorStringToColor(m_ColorName);
-            drawString();
+            drawString(false);
             invalidate();
         }
 
@@ -80,7 +82,7 @@ class Words : public RasterNode
         {
             invalidate();
             m_Size = Size;
-            drawString();
+            drawString(true);
             invalidate();
         }
 
@@ -93,7 +95,7 @@ class Words : public RasterNode
         {
             invalidate();
             m_ParaWidth = ParaWidth;
-            drawString();
+            drawString(false);
             invalidate();
         }
         
@@ -106,7 +108,7 @@ class Words : public RasterNode
         {
             invalidate();
             m_Indent = Indent;
-            drawString();
+            drawString(false);
             invalidate();
         }
 
@@ -119,7 +121,7 @@ class Words : public RasterNode
         {
             invalidate();
             m_LineSpacing = LineSpacing;
-            drawString();
+            drawString(false);
             invalidate();
         }
 
@@ -134,7 +136,7 @@ class Words : public RasterNode
         {
             invalidate();
             m_bItalic = bItalic;
-            drawString();
+            drawString(true);
             invalidate();
         }
         
@@ -150,7 +152,7 @@ class Words : public RasterNode
         {
             invalidate();
             m_bSmallCaps = bSmallCaps;
-            drawString();
+            drawString(true);
             invalidate();
         }
         
@@ -162,7 +164,7 @@ class Words : public RasterNode
         virtual DPoint getPreferredMediaSize();
     
     private:
-        void drawString();
+        void drawString(bool bFontChanged);
         Pixel32 colorStringToColor(const std::string & colorString);
         std::string removeExcessSpaces(const std::string & sText);
         static void FT2SubstituteFunc (FcPattern *pattern, gpointer data);

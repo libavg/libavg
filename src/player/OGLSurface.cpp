@@ -39,6 +39,10 @@ OGLSurface::~OGLSurface()
 
 void OGLSurface::create(const IntPoint& Size, PixelFormat pf)
 {
+    if (m_bBound && m_pBmp->getSize() == Size && m_pBmp->getPixelFormat() == pf) {
+        // If nothing's changed, we can ignore everything.
+        return;
+    }
     unbind();
     m_pBmp = BitmapPtr(new Bitmap(Size, pf));
     setupTiles();

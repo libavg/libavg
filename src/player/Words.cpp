@@ -91,7 +91,7 @@ void Words::init (IDisplayEngine * pEngine, Container * pParent,
 void Words::initVisible ()
 {
     Node::initVisible();
-    drawString();
+    drawString(true);
 }
 
 string Words::getTypeStr ()
@@ -111,7 +111,7 @@ void Words::setAlignment(const string& sAlign)
     } else {
         // TODO: Throw exception.
     }
-    drawString();
+    drawString(false);
     invalidate();
 }
 
@@ -135,7 +135,7 @@ void Words::setWeight(const string& sWeight)
     } else {
         // TODO: Throw exception.
     }
-    drawString();
+    drawString(true);
     invalidate();
 }
 
@@ -165,7 +165,7 @@ void Words::setStretch(const string& sStretch)
     } else {
         // TODO: Throw exception.
     }
-    drawString();
+    drawString(true);
     invalidate();
 }
 
@@ -230,7 +230,7 @@ string Words::getStretch() const
 
 static ProfilingZone DrawStringProfilingZone("  Words::drawString");
 
-void Words::drawString()
+void Words::drawString(bool bFontChanged)
 {
     if (!isInitialized()) {
         return;
@@ -239,20 +239,22 @@ void Words::drawString()
     if (m_Text.length() == 0) {
         m_StringExtents = DPoint(0,0);
     } else {
-        pango_font_description_set_family(m_pFontDescription,
-                g_strdup(m_FontName.c_str()));
-        pango_font_description_set_style(m_pFontDescription,
-                m_bItalic?PANGO_STYLE_ITALIC:PANGO_STYLE_NORMAL);
-        pango_font_description_set_variant(m_pFontDescription,
-                m_bSmallCaps?PANGO_VARIANT_SMALL_CAPS:PANGO_VARIANT_NORMAL);
-        pango_font_description_set_weight(m_pFontDescription,
-                m_Weight);
-        pango_font_description_set_stretch(m_pFontDescription,
-                m_Stretch);
-        pango_font_description_set_size(m_pFontDescription,
-                (int)(m_Size * PANGO_SCALE));
+        if (bFontChanged) {
+            pango_font_description_set_family(m_pFontDescription,
+                    g_strdup(m_FontName.c_str()));
+            pango_font_description_set_style(m_pFontDescription,
+                    m_bItalic?PANGO_STYLE_ITALIC:PANGO_STYLE_NORMAL);
+            pango_font_description_set_variant(m_pFontDescription,
+                    m_bSmallCaps?PANGO_VARIANT_SMALL_CAPS:PANGO_VARIANT_NORMAL);
+            pango_font_description_set_weight(m_pFontDescription,
+                    m_Weight);
+            pango_font_description_set_stretch(m_pFontDescription,
+                    m_Stretch);
+            pango_font_description_set_size(m_pFontDescription,
+                    (int)(m_Size * PANGO_SCALE));
 
-        pango_context_set_font_description(m_pContext, m_pFontDescription);
+            pango_context_set_font_description(m_pContext, m_pFontDescription);
+        }
 
         PangoRectangle logical_rect;
         PangoLayout *layout = pango_layout_new (m_pContext);
