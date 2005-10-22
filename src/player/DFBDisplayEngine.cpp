@@ -535,6 +535,11 @@ bool DFBDisplayEngine::hasRGBOrdering()
     return false;
 }
 
+bool DFBDisplayEngine::isYCbCrSupported()
+{
+    return false;
+}
+
 void DFBDisplayEngine::showCursor (bool bShow)
 {
     DFBResult err;

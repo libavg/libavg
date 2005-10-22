@@ -8,6 +8,7 @@
 #include "MathHelper.h"
 #include "../base/Logger.h"
 #include "../base/Exception.h"
+#include "../base/ScopeTimer.h"
 #include "../graphics/Point.h"
 
 #include "GL/gl.h"
@@ -144,6 +145,7 @@ void OGLSurface::bind()
 //        AVG_TRACE(Logger::PROFILE, "OGLSurface::bind()");
         int DestMode = getDestMode();
         int SrcMode = getSrcMode();
+        int PixelType = getPixelType();
         int Width = m_pBmp->getSize().x;
         int Height = m_pBmp->getSize().y;
         m_Tiles.clear();
@@ -195,7 +197,7 @@ void OGLSurface::bind()
 
                 glTexImage2D(s_TextureMode, 0,
                         DestMode, Tile.m_TexWidth, Tile.m_TexHeight, 0,
-                        SrcMode, GL_UNSIGNED_BYTE, 0); 
+                        SrcMode, PixelType, 0); 
                 OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                         "OGLSurface::bind: glTexImage2D()");
                 unsigned char * pStartPos = 
@@ -203,7 +205,7 @@ void OGLSurface::bind()
                         + Tile.m_Extent.tl.x*m_pBmp->getBytesPerPixel();
                 glTexSubImage2D(s_TextureMode, 0, 0, 0, 
                         Tile.m_Extent.Width(), Tile.m_Extent.Height(),
-                        SrcMode, GL_UNSIGNED_BYTE, pStartPos);
+                        SrcMode, PixelType, pStartPos);
                 OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                         "OGLSurface::bind: glTexSubImage2D()");
             }
@@ -228,6 +230,8 @@ void OGLSurface::unbind()
     m_bBound = false;
 }
 
+static ProfilingZone TexSubImageProfilingZone("    OGLSurface::texture upload");
+
 void OGLSurface::rebind()
 {
     int Width = m_pBmp->getSize().x;
@@ -246,9 +250,12 @@ void OGLSurface::rebind()
             unsigned char * pStartPos = 
                     m_pBmp->getPixels()+Tile.m_Extent.tl.y*m_pBmp->getStride()+
                     + Tile.m_Extent.tl.x*m_pBmp->getBytesPerPixel();
-            glTexSubImage2D(s_TextureMode, 0, 0, 0, 
-                    Tile.m_Extent.Width(), Tile.m_Extent.Height(),
-                    getSrcMode(), GL_UNSIGNED_BYTE, pStartPos);
+            {
+                ScopeTimer Timer(TexSubImageProfilingZone);
+                glTexSubImage2D(s_TextureMode, 0, 0, 0, 
+                        Tile.m_Extent.Width(), Tile.m_Extent.Height(),
+                        getSrcMode(), getPixelType(), pStartPos);
+            }
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                     "OGLSurface::rebind: glTexSubImage2D()");
         }
@@ -470,6 +477,8 @@ int OGLSurface::getDestMode()
             return GL_RGBA;
         case R8G8B8X8:
             return GL_RGB;    
+        case YCbCr422:
+            return GL_YCBCR_MESA;    
         default:
             AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << 
                     Bitmap::getPixelFormatString(m_pBmp->getPixelFormat()) <<
@@ -487,12 +496,23 @@ int OGLSurface::getSrcMode()
             return GL_RGB;
         case R8G8B8A8:
             return GL_RGBA;
+        case YCbCr422:
+            return GL_YCBCR_MESA;    
         default:
             AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << 
                     Bitmap::getPixelFormatString(m_pBmp->getPixelFormat()) <<
                     " in OGLSurface::getSrcMode()");
     }
     return 0;
+}
+
+int OGLSurface::getPixelType()
+{
+    if (m_pBmp->getPixelFormat() == YCbCr422) {
+        return GL_UNSIGNED_SHORT_8_8_REV_MESA;
+    } else {
+        return GL_UNSIGNED_BYTE;
+    }
 }
 
 }

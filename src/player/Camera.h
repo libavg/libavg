@@ -123,6 +123,7 @@ class Camera : public VideoBase
         
         unsigned int getFeature (const std::string& sFeature) const;
         void setFeature (const std::string& sFeature, int Value);
+        bool isYCbCrSupported();
 
     private:
         virtual bool renderToSurface(ISurface * pSurface);

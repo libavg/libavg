@@ -26,12 +26,13 @@ class VideoBase : public RasterNode
         void stop();
         void pause();
         virtual double getFPS() = 0;
+        virtual bool isYCbCrSupported() = 0;
         
         virtual void prepareRender (int time, const DRect& parent);
         virtual void render (const DRect& Rect);
         bool obscures (const DRect& Rect, int z);
         virtual std::string dump (int indent = 0);
-
+        
     protected:        
         VideoBase ();
         VideoBase (const xmlNodePtr xmlNode, Container * pParent);

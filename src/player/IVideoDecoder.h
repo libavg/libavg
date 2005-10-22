@@ -24,6 +24,7 @@ class IVideoDecoder
 
         virtual bool renderToBmp(BitmapPtr pBmp) = 0;
         virtual bool canRenderToBuffer(int BPP) = 0;
+        virtual bool isYCbCrSupported() = 0;
 };
 
 }

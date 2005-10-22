@@ -83,6 +83,11 @@ bool Video::getLoop() const
     return m_bLoop;
 }
 
+bool Video::isYCbCrSupported() 
+{
+    return m_pDecoder->isYCbCrSupported();
+}
+
 void Video::init (IDisplayEngine * pEngine, Container * pParent, 
         Player * pPlayer)
 {

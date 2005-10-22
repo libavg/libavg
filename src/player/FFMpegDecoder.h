@@ -24,6 +24,7 @@ class FFMpegDecoder: public IVideoDecoder
         virtual double getFPS();
         virtual bool renderToBmp(BitmapPtr pBmp);
         virtual bool canRenderToBuffer(int BPP);
+        bool isYCbCrSupported(); 
 
     private:
         void initVideoSupport();

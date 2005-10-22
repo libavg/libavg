@@ -53,6 +53,7 @@ class SDLDisplayEngine: public IDisplayEngine, public IEventSource
 
         virtual bool supportsBpp(int bpp);
         virtual bool hasRGBOrdering(); 
+        virtual bool isYCbCrSupported(); 
         virtual void showCursor (bool bShow);
         virtual BitmapPtr screenshot ();
 

@@ -190,10 +190,14 @@ void VideoBase::open()
     open(&m_Width, &m_Height);
 
     DRect vpt = getRelViewport();
-    if (getEngine()->hasRGBOrdering()) {
-        getSurface()->create(IntPoint(m_Width, m_Height), R8G8B8);
+    if (isYCbCrSupported()  && getEngine()->isYCbCrSupported()) {
+        getSurface()->create(IntPoint(m_Width, m_Height), YCbCr422);
     } else {
-        getSurface()->create(IntPoint(m_Width, m_Height), B8G8R8);
+        if (getEngine()->hasRGBOrdering()) {
+            getSurface()->create(IntPoint(m_Width, m_Height), R8G8B8);
+        } else {
+            getSurface()->create(IntPoint(m_Width, m_Height), B8G8R8);
+        }
     }
 
     FilterFill<Pixel24> Filter(Pixel24(0,0,0));

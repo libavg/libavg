@@ -70,6 +70,7 @@ class OGLSurface: public ISurface {
                 const DPoint& BLPoint, const DPoint& BRPoint);
         int getDestMode();
         int getSrcMode();
+        int getPixelType();
    
         bool m_bBound;
 

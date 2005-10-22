@@ -8,6 +8,7 @@
 #include "Player.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"
+#include "../base/ScopeTimer.h"
 
 #include <iostream>
 #include <sstream>
@@ -225,8 +226,13 @@ double FFMpegDecoder::getFPS()
 #endif 
 }
 
+static ProfilingZone RenderToBmpProfilingZone("    FFMpegDecoder::renderToBmp");
+static ProfilingZone ImgConvertProfilingZone("    FFMpegDecoder::img_convert");
+
 bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
 {
+    ScopeTimer Timer(RenderToBmpProfilingZone);
+    
 /* Speedup possibilities:
     fast YUV->RGB conversion? incl. scaling?
     draw_horiz_band?
@@ -252,6 +258,9 @@ bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
             case B8G8R8:
                 DestFmt = PIX_FMT_BGR24;
                 break;
+            case YCbCr422:
+                DestFmt = PIX_FMT_YUV422;
+                break;
             default:
                 assert(false);
         }
@@ -260,11 +269,20 @@ bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
 #else
         AVCodecContext *enc = m_pVStream->codec;
 #endif
-        img_convert(&DestPict, DestFmt,
-                (AVPicture*)&Frame, enc->pix_fmt,
-                enc->width, enc->height);
+        {
+//            cerr << "Converting " << enc->pix_fmt << " to " << DestFmt << endl;
+            ScopeTimer Timer(ImgConvertProfilingZone);
+            img_convert(&DestPict, DestFmt,
+                    (AVPicture*)&Frame, enc->pix_fmt,
+                    enc->width, enc->height);
+        }
     }
     return m_bEOF;
+}
+
+bool FFMpegDecoder::isYCbCrSupported() 
+{
+    return true;
 }
 
 bool FFMpegDecoder::canRenderToBuffer(int BPP)

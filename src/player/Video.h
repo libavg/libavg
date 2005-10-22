@@ -34,6 +34,7 @@ class Video : public VideoBase
         int getCurFrame() const;
         void seekToFrame(int num);
         bool getLoop() const;
+        virtual bool isYCbCrSupported();
 
         virtual std::string getTypeStr ();
 

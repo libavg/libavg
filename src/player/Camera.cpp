@@ -431,6 +431,11 @@ bool Camera::renderToSurface(ISurface * pSurface)
     return true;
 }
 
+bool Camera::isYCbCrSupported() 
+{
+    return false;
+}
+
 bool Camera::canRenderToBackbuffer(int BitsPerPixel)
 {
     return (BitsPerPixel == 24);

@@ -297,6 +297,8 @@ std::string Bitmap::getPixelFormatString(PixelFormat PF)
             return "X8R8G8B8";
         case I8:
             return "I8";
+        case YCbCr422:
+            return "YCbCr422";
         default:
             return "Unknown";
     }
@@ -342,6 +344,8 @@ int Bitmap::getBytesPerPixel() const
             return 2;
         case I8:
             return 1;
+        case YCbCr422:
+            return 2;
         default:
             fatalError("Bitmap::getBytesPerPixel(): Unknown format.");
             return 0;

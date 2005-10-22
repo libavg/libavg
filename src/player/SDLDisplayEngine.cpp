@@ -168,6 +168,13 @@ void SDLDisplayEngine::logConfig()
     AVG_TRACE(Logger::CONFIG, "OpenGL version: " << glGetString(GL_VERSION));
     AVG_TRACE(Logger::CONFIG, "OpenGL vendor: " << glGetString(GL_VENDOR));
     AVG_TRACE(Logger::CONFIG, "OpenGL renderer: " << glGetString(GL_RENDERER));
+    if (isYCbCrSupported()) {
+        AVG_TRACE(Logger::CONFIG, 
+                "YCbCr texture support enabled.");
+    } else {
+        AVG_TRACE(Logger::CONFIG, 
+                "YCbCr texture support not enabled.");
+    }
 }
 
 void SDLDisplayEngine::render(AVGNode * pRootNode, 
@@ -342,6 +349,11 @@ bool SDLDisplayEngine::supportsBpp(int bpp)
 bool SDLDisplayEngine::hasRGBOrdering()
 {
     return true;
+}
+
+bool SDLDisplayEngine::isYCbCrSupported()
+{
+    return queryOGLExtension("GL_MESA_ycbcr_texture");
 }
 
 void SDLDisplayEngine::showCursor (bool bShow)

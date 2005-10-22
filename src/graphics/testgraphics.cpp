@@ -59,6 +59,7 @@ public:
         runPFTests(R8G8B8X8);
         runPFTests(R8G8B8);
         runPFTests(I8);
+        runPFTests(YCbCr422);
         
         cerr << "    Testing OwnsBits." << endl;
         unsigned char pData[4*7*3];
