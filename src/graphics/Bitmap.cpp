@@ -8,6 +8,7 @@
 #include "Pixel16.h"
 
 #include "../base/Exception.h"
+#include "../base/Logger.h"
 
 #include <Magick++.h>
 #include <assert.h>
@@ -423,6 +424,13 @@ void Bitmap::dump(bool bDumpPixels)
 void Bitmap::initWithData(unsigned char * pBits, int Stride, bool bCopyBits)
 {
 //    cerr << "Bitmap::initWithData()" << endl;
+    if (m_PF == YCbCr422) {
+        if (m_Size.x%2 == 1 || m_Size.y%2 == 1) {
+            AVG_TRACE(Logger::ERROR, "Odd size for YCbCr bitmap.");
+        }
+        assert(m_Size.x%2 == 0);
+        assert(m_Size.y%2 == 0);
+    }
     if (bCopyBits) {
         allocBits();
         for (int y=0; y<m_Size.y; ++y) {
@@ -438,9 +446,17 @@ void Bitmap::initWithData(unsigned char * pBits, int Stride, bool bCopyBits)
 
 void Bitmap::allocBits()
 {
-//    cerr << "Bitmap::allocBits()" << endl;
-    m_pBits = new unsigned char[m_Size.x*m_Size.y*getBytesPerPixel()];
+//    cerr << "Bitmap::allocBits():" << m_Size <<  endl;
+    
+    if (m_PF == YCbCr422) {
+        if (m_Size.x%2 == 1 || m_Size.y%2 == 1) {
+            AVG_TRACE(Logger::ERROR, "Odd size for YCbCr bitmap.");
+        }
+        assert(m_Size.x%2 == 0);
+        assert(m_Size.y%2 == 0);
+    }
     m_Stride = m_Size.x*getBytesPerPixel();
+    m_pBits = new unsigned char[m_Stride*m_Size.y];
 }
 
 template<class DestPixel, class SrcPixel>

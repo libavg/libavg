@@ -243,13 +243,15 @@ bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
         AVPicture DestPict;
         int x1 = 0;
         int y1 = 0;
-        unsigned char * pDestBits = pBmp->getPixels()+pBmp->getStride()*y1+3*x1;
+        unsigned char * pDestBits = pBmp->getPixels(); //+pBmp->getStride()*y1+3*x1;
         DestPict.data[0] = pDestBits;
         DestPict.data[1] = pDestBits+1;
-        DestPict.data[2] = pDestBits+2;
         DestPict.linesize[0] = pBmp->getStride();
         DestPict.linesize[1] = pBmp->getStride();
-        DestPict.linesize[2] = pBmp->getStride();
+        if (pBmp->getPixelFormat() != YCbCr422) {
+            DestPict.data[2] = pDestBits+2;
+            DestPict.linesize[2] = pBmp->getStride();
+        }
         int DestFmt;
         switch(pBmp->getPixelFormat()) {
             case R8G8B8:
@@ -270,7 +272,6 @@ bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
         AVCodecContext *enc = m_pVStream->codec;
 #endif
         {
-//            cerr << "Converting " << enc->pix_fmt << " to " << DestFmt << endl;
             ScopeTimer Timer(ImgConvertProfilingZone);
             img_convert(&DestPict, DestFmt,
                     (AVPicture*)&Frame, enc->pix_fmt,
