@@ -19,6 +19,7 @@ class VBlank
 
         void init();
         void wait();
+        bool isActive() const;
 
     private:
         

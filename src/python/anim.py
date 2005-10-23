@@ -5,7 +5,6 @@
 # - loops
 # - Folgen, Gruppen
 # - Abort animation
-# - splines
 # - onEnd callback
 
 import time

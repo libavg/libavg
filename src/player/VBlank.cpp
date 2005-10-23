@@ -156,4 +156,9 @@ void VBlank::wait()
     }
 }
 
+bool VBlank::isActive() const
+{
+    return (m_Method != VB_KAPUTT);
+}
+
 }

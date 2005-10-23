@@ -15,7 +15,7 @@ class FramerateManager
 
         void SetRate(double Rate);
         double GetRate();
-        void FrameWait();
+        void FrameWait(bool bVBlank);
         void CheckJitter();
 
     private:
@@ -30,6 +30,7 @@ class FramerateManager
         bool m_bLastFrameLate;
         long long m_TotalJitter;
         long long m_StartTime;
+        long long m_FrameWaitStartTime;
         
 };
 

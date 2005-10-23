@@ -209,7 +209,7 @@ void SDLDisplayEngine::render(AVGNode * pRootNode,
     const DRect rc(0,0, m_Width, m_Height);
     glMatrixMode(GL_MODELVIEW);
     pRootNode->maybeRender(rc);
-    pFramerateManager->FrameWait();
+    pFramerateManager->FrameWait(m_VBlank.isActive());
     swapBuffers();
     pFramerateManager->CheckJitter();
 }

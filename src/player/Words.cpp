@@ -240,6 +240,7 @@ void Words::drawString(bool bFontChanged)
         m_StringExtents = DPoint(0,0);
     } else {
         if (bFontChanged) {
+            // TODO: check if the family exists (via pango_font_map_list_families ()?)
             pango_font_description_set_family(m_pFontDescription,
                     g_strdup(m_FontName.c_str()));
             pango_font_description_set_style(m_pFontDescription,
