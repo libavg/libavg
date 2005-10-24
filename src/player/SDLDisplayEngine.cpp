@@ -61,7 +61,8 @@ void dumpSDLGLParams() {
 }
 
 SDLDisplayEngine::SDLDisplayEngine()
-    : m_pScreen(0)
+    : m_pScreen(0),
+      m_bEnableCrop(false)
 {
     if (SDL_InitSubSystem(SDL_INIT_VIDEO)==-1) {
         AVG_TRACE(Logger::ERROR, "Can't init SDL display subsystem.");
@@ -147,7 +148,7 @@ void SDLDisplayEngine::init(int width, int height, bool isFullscreen,
     int TexMode = OGLSurface::getTextureMode();
     glEnable(TexMode);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(TexMode);");
-
+    
     m_Width = width;
     m_Height = height;
     initInput();
@@ -180,7 +181,16 @@ void SDLDisplayEngine::logConfig()
 void SDLDisplayEngine::render(AVGNode * pRootNode, 
         FramerateManager * pFramerateManager, bool bRenderEverything)
 {
-    m_bEnableCrop = pRootNode->getCropSetting();
+    if (!m_bEnableCrop && pRootNode->getCropSetting()) {
+        m_bEnableCrop = true;
+        glEnable (GL_CLIP_PLANE0);
+        glEnable (GL_CLIP_PLANE1);
+        glEnable (GL_CLIP_PLANE2);
+        glEnable (GL_CLIP_PLANE3);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                "setClipPlane: glEnable()");
+    }
+
     pRootNode->prepareRender(0, pRootNode->getAbsViewport());
     glClearColor(0.0, 0.0, 0.0, 0.0); 
     glClear(GL_COLOR_BUFFER_BIT);
@@ -269,9 +279,6 @@ void SDLDisplayEngine::blta8(ISurface * pSurface,
 
 void SDLDisplayEngine::setClipPlane(double Eqn[4], int WhichPlane)
 {
-    glEnable (WhichPlane);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "setClipPlane: glEnable()");
     glClipPlane(WhichPlane, Eqn);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "setClipPlane: glClipPlane()");

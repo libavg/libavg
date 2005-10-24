@@ -368,17 +368,18 @@ void OGLSurface::bltTexture(const DRect* pDestRect,
                 double angle, const DPoint& pivot, 
                 IDisplayEngine::BlendMode Mode)
 {
-//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    DPoint center(pDestRect->tl.x+pivot.x,
-            pDestRect->tl.y+pivot.y);
-    
-    glPushMatrix();
-    glTranslated(center.x, center.y, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "bltTexture: glTranslated");
-    glRotated(angle*180.0/PI, 0, 0, 1);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "bltTexture: glRotated");
-    glTranslated(-center.x, -center.y, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "bltTexture: glTranslated");
+    if (fabs(angle) > 0.001) {
+        DPoint center(pDestRect->tl.x+pivot.x,
+                pDestRect->tl.y+pivot.y);
+
+        glPushMatrix();
+        glTranslated(center.x, center.y, 0);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "bltTexture: glTranslated");
+        glRotated(angle*180.0/PI, 0, 0, 1);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "bltTexture: glRotated");
+        glTranslated(-center.x, -center.y, 0);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "bltTexture: glTranslated");
+    }
 
     switch(Mode) {
         case IDisplayEngine::BLEND_BLEND:
@@ -420,8 +421,9 @@ void OGLSurface::bltTexture(const DRect* pDestRect,
             << ", height: " << pDestRect->Height() << ", " 
             << getGlModeString(getSrcMode()) << "-->" 
             << getGlModeString(getDestMode()) << endl);
-    glPopMatrix();
-    
+    if (fabs(angle) > 0.001) {
+        glPopMatrix();
+    }
 }
 
 DPoint OGLSurface::calcFinalVertex(const DRect* pDestRect,

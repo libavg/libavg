@@ -302,13 +302,13 @@ void Words::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_Text.length() != 0 && getEffectiveOpacity() > 0.001) {
-        bool bVisible = getEngine()->pushClipRect(getVisibleRect(), false);
-        if (bVisible) {
+//        bool bVisible = getEngine()->pushClipRect(getVisibleRect(), false);
+//        if (bVisible) {
             getEngine()->blta8(m_pSurface, &getAbsViewport(),
                     getEffectiveOpacity(), m_Color, getAngle(),
                     getPivot(), getBlendMode());
-        }
-        getEngine()->popClipRect();
+//        }
+//        getEngine()->popClipRect();
     }
 }
 
