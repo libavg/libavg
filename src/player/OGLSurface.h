@@ -10,6 +10,7 @@
 #include "../graphics/Rect.h"
 
 #include <vector>
+#include <string>
 
 namespace avg {
 
@@ -71,6 +72,7 @@ class OGLSurface: public ISurface {
         int getDestMode();
         int getSrcMode();
         int getPixelType();
+        void checkBlendModeError(std::string sMode); 
    
         bool m_bBound;
 

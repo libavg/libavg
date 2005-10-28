@@ -18,7 +18,7 @@ class LoggerTestCase(unittest.TestCase):
                   self.Log.PROFILE |
                   self.Log.PROFILE_LATEFRAMES |
                   self.Log.CONFIG |
-#                  self.Log.MEMORY  |
+                  self.Log.MEMORY  |
 #                  self.Log.BLTS    |
                   self.Log.EVENTS)
 #        self.Log.setDestination("avgdfb.log")

@@ -385,21 +385,24 @@ void OGLSurface::bltTexture(const DRect* pDestRect,
         case IDisplayEngine::BLEND_BLEND:
             glBlendEquation(GL_FUNC_ADD);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            checkBlendModeError("blend");
             break;
         case IDisplayEngine::BLEND_ADD:
             glBlendEquation(GL_FUNC_ADD);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+            checkBlendModeError("add");
             break;
         case IDisplayEngine::BLEND_MIN:
             glBlendEquation(GL_MIN);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            checkBlendModeError("min");
             break;
         case IDisplayEngine::BLEND_MAX:
             glBlendEquation(GL_MAX);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            checkBlendModeError("max");
             break;
     }
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "bltTexture: glBlendStuff");
 
     for (unsigned int y=0; y<m_Tiles.size(); y++) {
         for (unsigned int x=0; x<m_Tiles[y].size(); x++) {
@@ -514,6 +517,18 @@ int OGLSurface::getPixelType()
         return GL_UNSIGNED_SHORT_8_8_REV_MESA;
     } else {
         return GL_UNSIGNED_BYTE;
+    }
+}
+
+void OGLSurface::checkBlendModeError(string sMode) 
+{    
+    GLenum err = glGetError();
+    if (err != GL_NO_ERROR) {
+        static bool bErrorReported = false;
+        if (!bErrorReported) {
+            AVG_TRACE(Logger::WARNING, "Blendmode "+sMode+" not supported by OpenGL implementation.");
+            bErrorReported = true;
+        }
     }
 }
 

@@ -116,6 +116,7 @@ void VBlank::init()
             m_Method = VB_DRI;
         }
     }
+//    m_Method = VB_KAPUTT;
 #endif
     switch(m_Method) {
         case VB_DRI:

@@ -104,7 +104,7 @@ void TimeSource::sleepUntil(long long TargetTime)
 
 void TimeSource::tryOpenRTC()
 {
-#ifndef __APPLE__   
+#ifndef __APPLE__
     m_bUseRTC = true;
     m_RTCFD = open("/dev/rtc", O_RDONLY);
     if (m_RTCFD == -1) {
