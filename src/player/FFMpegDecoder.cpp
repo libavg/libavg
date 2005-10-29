@@ -226,17 +226,13 @@ double FFMpegDecoder::getFPS()
 #endif 
 }
 
-static ProfilingZone RenderToBmpProfilingZone("    FFMpegDecoder::renderToBmp");
-static ProfilingZone ImgConvertProfilingZone("    FFMpegDecoder::img_convert");
+static ProfilingZone RenderToBmpProfilingZone("      FFMpegDecoder::renderToBmp");
+static ProfilingZone ImgConvertProfilingZone("        FFMpegDecoder::img_convert");
 
 bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
 {
     ScopeTimer Timer(RenderToBmpProfilingZone);
     
-/* Speedup possibilities:
-    fast YUV->RGB conversion? incl. scaling?
-    draw_horiz_band?
-*/
     AVFrame Frame;
     readFrame(Frame);
     if (!m_bEOF) {

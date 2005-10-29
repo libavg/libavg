@@ -123,7 +123,7 @@ double Video::getFPS()
     return m_pDecoder->getFPS();
 }
 
-static ProfilingZone RenderProfilingZone("  Video::render");
+static ProfilingZone RenderProfilingZone("    Video::render");
 
 bool Video::renderToSurface(ISurface * pSurface)
 {

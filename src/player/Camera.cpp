@@ -328,8 +328,8 @@ void Camera::fatalError(const string & sMsg)
 }
 #endif
 
-static ProfilingZone CameraProfilingZone("  Camera::render");
-static ProfilingZone CameraUploadProfilingZone("    Camera::render tex upload");
+static ProfilingZone CameraProfilingZone("    Camera::render");
+static ProfilingZone CameraUploadProfilingZone("      Camera::render tex upload");
 
 bool Camera::renderToSurface(ISurface * pSurface)
 {

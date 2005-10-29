@@ -98,7 +98,7 @@ void PanoImage::init (IDisplayEngine * pEngine,
     setupTextures();
 }
 
-static ProfilingZone PanoRenderProfilingZone("  PanoImage::render");
+static ProfilingZone PanoRenderProfilingZone("    PanoImage::render");
 //static ProfilingZone PanoRenderQuadsProfilingZone("PanoImage::render quads");
 
 void PanoImage::render(const DRect& Rect)
