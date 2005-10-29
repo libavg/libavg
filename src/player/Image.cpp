@@ -74,7 +74,7 @@ const std::string& Image::getHRef() const {
     return m_href;
 }
 
-static ProfilingZone RenderProfilingZone("  Image::render");
+static ProfilingZone RenderProfilingZone("    Image::render");
 
 void Image::render (const DRect& Rect)
 {

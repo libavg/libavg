@@ -296,7 +296,7 @@ void Words::drawString(bool bFontChanged)
     setViewport(-32767, -32767, m_StringExtents.x, m_StringExtents.y);
 }
 
-static ProfilingZone RenderProfilingZone("  Words::render");
+static ProfilingZone RenderProfilingZone("    Words::render");
 
 void Words::render(const DRect& Rect)
 {

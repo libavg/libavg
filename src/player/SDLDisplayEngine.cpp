@@ -178,6 +178,9 @@ void SDLDisplayEngine::logConfig()
     }
 }
 
+static ProfilingZone PrepareRenderProfilingZone("  Root node: prepareRender");
+static ProfilingZone RootRenderProfilingZone("  Root node: render");
+
 void SDLDisplayEngine::render(AVGNode * pRootNode, 
         FramerateManager * pFramerateManager, bool bRenderEverything)
 {
@@ -191,7 +194,10 @@ void SDLDisplayEngine::render(AVGNode * pRootNode,
                 "setClipPlane: glEnable()");
     }
 
-    pRootNode->prepareRender(0, pRootNode->getAbsViewport());
+    {
+        ScopeTimer Timer(PrepareRenderProfilingZone);
+        pRootNode->prepareRender(0, pRootNode->getAbsViewport());
+    }
     glClearColor(0.0, 0.0, 0.0, 0.0); 
     glClear(GL_COLOR_BUFFER_BIT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
@@ -218,7 +224,10 @@ void SDLDisplayEngine::render(AVGNode * pRootNode,
     
     const DRect rc(0,0, m_Width, m_Height);
     glMatrixMode(GL_MODELVIEW);
-    pRootNode->maybeRender(rc);
+    {
+        ScopeTimer Timer(RootRenderProfilingZone);
+        pRootNode->maybeRender(rc);
+    }
     pFramerateManager->FrameWait(m_VBlank.isActive());
     swapBuffers();
     pFramerateManager->CheckJitter();
@@ -230,8 +239,12 @@ void SDLDisplayEngine::setClipRect()
     m_ClipRects.push_back(DRect(0, 0, m_Width, m_Height));
 }
 
+static ProfilingZone PushClipRectProfilingZone("      pushClipRect");
+
 bool SDLDisplayEngine::pushClipRect(const DRect& rc, bool bClip)
 {
+    ScopeTimer Timer(PushClipRectProfilingZone);
+
     m_ClipRects.push_back(rc);
 
     glPushMatrix();
@@ -245,8 +258,11 @@ bool SDLDisplayEngine::pushClipRect(const DRect& rc, bool bClip)
     return true;
 }
 
+static ProfilingZone PopClipRectProfilingZone("      popClipRect");
+
 void SDLDisplayEngine::popClipRect()
 {
+    ScopeTimer Timer(PopClipRectProfilingZone);
     glPopMatrix();
     m_ClipRects.pop_back();
     clip();

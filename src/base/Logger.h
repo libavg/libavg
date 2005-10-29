@@ -18,6 +18,9 @@ public:
     void setDestination(const std::string& sFName);
     void setCategories(int flags);
     void trace(int category, const std::string& msg);
+    inline bool isFlagSet(int category) {
+        return (category & m_Flags);
+    }
 
     static const long NONE;
     static const long BLTS;
@@ -42,9 +45,11 @@ private:
 };
 
 #define AVG_TRACE(category, msg) { \
-    std::stringstream tmp(std::stringstream::in | std::stringstream::out); \
-    tmp << msg; \
-    Logger::get()->trace(category, tmp.str()); \
+    if (Logger::get()->isFlagSet(category)) { \
+        std::stringstream tmp(std::stringstream::in | std::stringstream::out); \
+        tmp << msg; \
+        Logger::get()->trace(category, tmp.str()); \
+    }\
 }
 
 }
