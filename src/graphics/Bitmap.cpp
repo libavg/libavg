@@ -450,13 +450,19 @@ void Bitmap::allocBits()
     
     if (m_PF == YCbCr422) {
         if (m_Size.x%2 == 1 || m_Size.y%2 == 1) {
-            AVG_TRACE(Logger::ERROR, "Odd size for YCbCr bitmap.");
+            AVG_TRACE(Logger::WARNING, "Odd size for YCbCr bitmap.");
         }
         assert(m_Size.x%2 == 0);
         assert(m_Size.y%2 == 0);
+        m_Stride = m_Size.x*getBytesPerPixel();
+        //XXX: We allocate more than nessesary here because ffmpeg seems to
+        // overwrite memory after the bits - probably during yuv conversion.
+        // Yuck.
+        m_pBits = new unsigned char[(m_Stride+1)*(m_Size.y+1)];
+    } else {
+        m_Stride = m_Size.x*getBytesPerPixel();
+        m_pBits = new unsigned char[m_Stride*m_Size.y];
     }
-    m_Stride = m_Size.x*getBytesPerPixel();
-    m_pBits = new unsigned char[m_Stride*m_Size.y];
 }
 
 template<class DestPixel, class SrcPixel>

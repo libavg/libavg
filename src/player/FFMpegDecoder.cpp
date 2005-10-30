@@ -300,6 +300,7 @@ void FFMpegDecoder::initVideoSupport()
         m_bInitialized = true;
         // Avoid libavcodec console spam - turn this up again when libavcodec
         // doesn't spam anymore :-).
+//        av_log_set_level(AV_LOG_DEBUG);
         av_log_set_level(AV_LOG_QUIET);
     }
 }
@@ -320,6 +321,7 @@ void FFMpegDecoder::readFrame(AVFrame& Frame)
         avpicture_fill((AVPicture*)&Frame, Packet.data, 
                 enc->pix_fmt, 
                 enc->width, enc->height);
+        av_free_packet(&Packet);
     } else {
         int gotPicture = 0;
         while (!gotPicture) {

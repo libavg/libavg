@@ -526,7 +526,8 @@ void OGLSurface::checkBlendModeError(string sMode)
     if (err != GL_NO_ERROR) {
         static bool bErrorReported = false;
         if (!bErrorReported) {
-            AVG_TRACE(Logger::WARNING, "Blendmode "+sMode+" not supported by OpenGL implementation.");
+            AVG_TRACE(Logger::WARNING, "Blendmode "+sMode+
+                    " not supported by OpenGL implementation.");
             bErrorReported = true;
         }
     }
