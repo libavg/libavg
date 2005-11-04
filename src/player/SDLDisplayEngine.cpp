@@ -61,8 +61,8 @@ void dumpSDLGLParams() {
 }
 
 SDLDisplayEngine::SDLDisplayEngine()
-    : m_pScreen(0),
-      m_bEnableCrop(false)
+    : m_bEnableCrop(false),
+      m_pScreen(0)
 {
     if (SDL_InitSubSystem(SDL_INIT_VIDEO)==-1) {
         AVG_TRACE(Logger::ERROR, "Can't init SDL display subsystem.");
@@ -154,7 +154,6 @@ void SDLDisplayEngine::init(int width, int height, bool isFullscreen,
     initInput();
     // SDL sets up a signal handler we really don't want.
     signal(SIGSEGV, SIG_DFL);
-    m_VBlank.init();
     
     logConfig();
 }
@@ -228,7 +227,7 @@ void SDLDisplayEngine::render(AVGNode * pRootNode,
         ScopeTimer Timer(RootRenderProfilingZone);
         pRootNode->maybeRender(rc);
     }
-    pFramerateManager->FrameWait(m_VBlank.isActive());
+    pFramerateManager->FrameWait();
     swapBuffers();
     pFramerateManager->CheckJitter();
 }
@@ -336,15 +335,10 @@ void SDLDisplayEngine::setDirtyRect(const DRect& rc)
             ", height: " << m_DirtyRect.Height());
 }
 
-static ProfilingZone VBlankProfilingZone("  Render - VBlank wait");
 static ProfilingZone SwapBufferProfilingZone("  Render - swap buffers");
 
 void SDLDisplayEngine::swapBuffers()
 {
-    {   
-        ScopeTimer VBlankTimer(VBlankProfilingZone);
-        m_VBlank.wait();
-    }
     {
         ScopeTimer Timer(SwapBufferProfilingZone);
         SDL_GL_SwapBuffers();

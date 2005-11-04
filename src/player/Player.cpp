@@ -211,7 +211,7 @@ void Player::loadFile (const std::string& filename)
     }
 }
 
-void Player::play (double framerate)
+void Player::play (double framerate, bool bSyncToVBlank)
 {
     try {
         if (!m_pRootNode) {
@@ -224,7 +224,7 @@ void Player::play (double framerate)
         m_EventDispatcher.addSink(this);
         
         m_pFramerateManager = new FramerateManager;
-        m_pFramerateManager->SetRate(framerate);
+        m_pFramerateManager->SetRate(framerate, bSyncToVBlank);
         m_bStopping = false;
 
         m_pDisplayEngine->render(m_pRootNode, m_pFramerateManager, true);

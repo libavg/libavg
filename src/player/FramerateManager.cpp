@@ -12,6 +12,8 @@
 
 #include <sys/time.h>
 #include <unistd.h>
+#include <X11/Xlib.h>
+#include <X11/extensions/xf86vmode.h>
 
 #include <iostream>
 #include <sstream>
@@ -27,6 +29,7 @@ FramerateManager::FramerateManager ()
       m_bLastFrameLate(false),
       m_TotalJitter(0)
 {
+    calcRefreshRate();
 }
 
 FramerateManager::~FramerateManager ()
@@ -47,7 +50,7 @@ FramerateManager::~FramerateManager ()
     }
 }
 
-void FramerateManager::SetRate(double Rate)
+void FramerateManager::SetRate(double Rate, bool bSyncToVBlank)
 {
     m_Rate = Rate;
     m_NumFrames = 0;
@@ -57,6 +60,8 @@ void FramerateManager::SetRate(double Rate)
     m_LastFrameTime = TimeSource::get()->getCurrentTicks();
     m_StartTime = TimeSource::get()->getCurrentTicks();
     m_TotalJitter = 0;
+    
+    m_VBlank.init(bSyncToVBlank);
 }
 
 double FramerateManager::GetRate()
@@ -65,8 +70,9 @@ double FramerateManager::GetRate()
 }
 
 static ProfilingZone WaitProfilingZone("  Render - wait");
+static ProfilingZone VBlankProfilingZone("  Render -   VBlank wait");
 
-void FramerateManager::FrameWait(bool bVBlank)
+void FramerateManager::FrameWait()
 {
     ScopeTimer Timer(WaitProfilingZone);
     
@@ -78,10 +84,12 @@ void FramerateManager::FrameWait(bool bVBlank)
     if (m_FrameWaitStartTime <= TargetTime) 
     {
         long long WaitTime = TargetTime-m_FrameWaitStartTime;
-        if (bVBlank) {
+        if (m_VBlank.isActive()) {
             // Don't wait quite as long so we don't miss the vblank interval.
-            if (WaitTime >= 5) {
-                WaitTime -= 5;
+            long long VBlankTime = 1000/m_RefreshRate;
+            WaitTime -= VBlankTime;
+            if (WaitTime < 0) {
+                WaitTime = 0;
             }
         }
         if (WaitTime > 200) {
@@ -106,11 +114,15 @@ void FramerateManager::FrameWait(bool bVBlank)
 //                "FramerateManager: frame too late by " 
 //                << m_FrameWaitStartTime - TargetTime << " ms.");
     }
+    {   
+        ScopeTimer VBlankTimer(VBlankProfilingZone);
+        m_VBlank.wait();
+    }
 }
 
 void FramerateManager::CheckJitter() {
-    long long CurTime = TimeSource::get()->getCurrentTicks();
-    long long TargetTime = m_LastFrameTime+(int)((1000/m_Rate)*m_NumRegularFrames);
+//    long long CurTime = TimeSource::get()->getCurrentTicks();
+//    long long TargetTime = m_LastFrameTime+(int)((1000/m_Rate)*m_NumRegularFrames);
 //    if (CurTime >= TargetTime+2 && !m_bLastFrameLate) {
 //        AVG_TRACE(Logger::PROFILE, "FramerateManager: swap too late by " <<
 //                CurTime-TargetTime << " ms."); 
@@ -120,6 +132,26 @@ void FramerateManager::CheckJitter() {
         m_LastFrameTime = TimeSource::get()->getCurrentTicks();
     }
     m_TimeSpentWaiting += TimeSource::get()->getCurrentTicks()-m_FrameWaitStartTime;
+}
+
+void FramerateManager::calcRefreshRate() {
+#ifdef __APPLE__
+#warning calcRefreshRate unimplemented on Mac!
+#else    
+    Display * display = XOpenDisplay(0);
+    
+    int PixelClock;
+    XF86VidModeModeLine mode_line;
+    bool bOK = XF86VidModeGetModeLine (display, DefaultScreen(display), 
+            &PixelClock, &mode_line);
+    if (!bOK) {
+        AVG_TRACE (Logger::WARNING, 
+                "Could not get current refresh rate (XF86VidModeGetModeLine failed).");
+    }
+    double HSyncRate = PixelClock*1000.0/mode_line.htotal;
+    m_RefreshRate = HSyncRate/mode_line.vtotal;
+    AVG_TRACE(Logger::CONFIG, "Vertical Refresh Rate: " << m_RefreshRate);
+#endif    
 }
 
 }

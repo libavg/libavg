@@ -17,7 +17,7 @@ class VBlank
         VBlank();
         virtual ~VBlank();
 
-        void init();
+        void init(bool bSync);
         void wait();
         bool isActive() const;
 

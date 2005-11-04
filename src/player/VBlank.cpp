@@ -75,48 +75,51 @@ VBlank::~VBlank()
     }    
 }
 
-void VBlank::init()
+void VBlank::init(bool bSync)
 {
+    if (bSync) {
 #ifdef __APPLE__
-    GLint swapInt = 1;
-    // TODO: Find out why aglGetCurrentContext doesn't work.
-    AGLContext Context = aglGetCurrentContext();
-    if (Context == 0) {
-        AVG_TRACE(Logger::WARNING,
-                "Mac VBlank setup failed in aglGetCurrentContext(). Error was "
-                << aglGetError() << ".");
-    }
-    bool bOk = aglSetInteger(Context, AGL_SWAP_INTERVAL, &swapInt);
-    m_Method = VB_APPLE;
-    
-    if (bOk == GL_FALSE) {
-        AVG_TRACE(Logger::WARNING,
-                "Mac VBlank setup failed with error code " << aglGetError() << ".");
+        GLint swapInt = 1;
+        // TODO: Find out why aglGetCurrentContext doesn't work.
+        AGLContext Context = aglGetCurrentContext();
+        if (Context == 0) {
+            AVG_TRACE(Logger::WARNING,
+                    "Mac VBlank setup failed in aglGetCurrentContext(). Error was "
+                    << aglGetError() << ".");
+        }
+        bool bOk = aglSetInteger(Context, AGL_SWAP_INTERVAL, &swapInt);
+        m_Method = VB_APPLE;
+
+        if (bOk == GL_FALSE) {
+            AVG_TRACE(Logger::WARNING,
+                    "Mac VBlank setup failed with error code " << aglGetError() << ".");
+            m_Method = VB_KAPUTT;
+        }
+#else
+        string sVendor = (const char *)(glGetString(GL_VENDOR));
+        if (sVendor.find("NVIDIA") != string::npos && getenv("__GL_SYNC_TO_VBLANK") != 0) {
+            m_Method = VB_NVIDIA;
+        } else {
+            if (sVendor.find("NVIDIA") != string::npos && 
+                    getenv("__GL_SYNC_TO_VBLANK") == 0) 
+            {
+                AVG_TRACE(Logger::WARNING, 
+                        "Using NVIDIA graphics card but __GL_SYNC_TO_VBLANK not set.");
+            }
+
+            m_dri_fd = open("/dev/dri/card0", O_RDWR);
+            if (m_dri_fd < 0)
+            {
+                AVG_TRACE(Logger::WARNING, "Could not open /dev/dri/card0 for vblank. Reason: "
+                        <<strerror(errno));
+                m_Method = VB_KAPUTT;
+            } else {
+                m_Method = VB_DRI;
+            }
+        }
+    } else {
         m_Method = VB_KAPUTT;
     }
-#else
-    string sVendor = (const char *)(glGetString(GL_VENDOR));
-    if (sVendor.find("NVIDIA") != string::npos && getenv("__GL_SYNC_TO_VBLANK") != 0) {
-        m_Method = VB_NVIDIA;
-    } else {
-        if (sVendor.find("NVIDIA") != string::npos && 
-            getenv("__GL_SYNC_TO_VBLANK") == 0) 
-        {
-            AVG_TRACE(Logger::WARNING, 
-                    "Using NVIDIA graphics card but __GL_SYNC_TO_VBLANK not set.");
-        }
-    
-        m_dri_fd = open("/dev/dri/card0", O_RDWR);
-        if (m_dri_fd < 0)
-        {
-            AVG_TRACE(Logger::WARNING, "Could not open /dev/dri/card0 for vblank. Reason: "
-                    <<strerror(errno));
-            m_Method = VB_KAPUTT;
-        } else {
-            m_Method = VB_DRI;
-        }
-    }
-//    m_Method = VB_KAPUTT;
 #endif
     switch(m_Method) {
         case VB_DRI:
@@ -129,7 +132,7 @@ void VBlank::init()
             AVG_TRACE(Logger::CONFIG, "Using Apple GL vertical blank support.");
             break;
         case VB_KAPUTT:
-            AVG_TRACE(Logger::WARNING, "Vertical blank support disabled.");
+            AVG_TRACE(Logger::CONFIG, "Vertical blank support disabled.");
             break;
     }
 }

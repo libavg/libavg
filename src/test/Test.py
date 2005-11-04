@@ -134,7 +134,7 @@ class PlayerTestCase(unittest.TestCase):
         Player.setTimeout(100, lambda: Player.screenshot("test.png"))
         Player.setTimeout(150, lambda: Player.screenshot("test1.png"))
         Player.setTimeout(200, Player.stop)
-        Player.play(30)
+        Player.play(30, 1)
         
     def testImage(self):
         self.playAVG("image.avg")
@@ -149,12 +149,12 @@ class PlayerTestCase(unittest.TestCase):
     def testEvents(self):
         Player.loadFile("events.avg")
         Player.setTimeout(200, Player.stop)
-        Player.play(30)
+        Player.play(30, 1)
     def testEventErr(self):
         Player.loadFile("errevent.avg")
         Player.setTimeout(1000, Player.stop)
         try:
-            Player.play(30)
+            Player.play(30, 1)
         except NameError:
             self.assert_(1)
     def createNodes(self):
@@ -192,14 +192,14 @@ class PlayerTestCase(unittest.TestCase):
 #        self.createNodes()
 #        Player.setTimeout(250, self.deleteNodes)
 #        Player.setTimeout(500, self.createNodes)
-#        Player.play(30)
+#        Player.play(30, 1)
     def testHugeImage(self):
         def moveImage():
             Player.getElementByID("mainimg").x -= 50
         Player.loadFile("hugeimage.avg")
         timerid = Player.setInterval(10, moveImage)
         Player.setTimeout(1000, Player.stop)
-        Player.play(25)
+        Player.play(25, 1)
     def testPanoImage(self):
         self.playAVG("panoimage.avg")
     def testBroken(self):
@@ -224,7 +224,7 @@ class PlayerTestCase(unittest.TestCase):
         Player.setTimeout(1500, lambda : activateExcl(1))
         Player.setInterval(10, move)
         Player.setTimeout(2000, Player.stop)
-        Player.play(30)
+        Player.play(30, 1)
     def testAnimation(self):
         def moveit():
             node = Player.getElementByID("nestedimg1")
@@ -239,7 +239,7 @@ class PlayerTestCase(unittest.TestCase):
         Player.setInterval(10, moveit)
         Player.setInterval(10, moveit2)
         Player.setTimeout(2000, Player.stop)
-        Player.play(30)
+        Player.play(30, 1)
     def testBlend(self):
         def moveBlended():
             for i in range(4):
@@ -248,7 +248,7 @@ class PlayerTestCase(unittest.TestCase):
         Player.loadFile("blend.avg")
         Player.setInterval(10, moveBlended)
         Player.setTimeout(2000, Player.stop)
-        Player.play(30)
+        Player.play(30, 1)
     def testCrop(self):
         def cropTL():
             node = Player.getElementByID("img")
@@ -278,15 +278,15 @@ class PlayerTestCase(unittest.TestCase):
         Player.loadFile("crop.avg")
         self.cropInterval = Player.setInterval(10, cropTL)
         Player.getElementByID("img").play()
-        Player.play(30)
+        Player.play(30, 1)
         Player.loadFile("crop2.avg")
         self.cropInterval = Player.setInterval(10, cropTL)
-        Player.play(60)
+        Player.play(60, 1)
     def testUnicode(self):
         Player.loadFile("unicode.avg")
         Player.getElementByID("dynamictext").text = "Arabic nonsense: ﯿﭗ"
         Player.setTimeout(1000, Player.stop)
-        Player.play(30)
+        Player.play(30, 1)
     def testWarp(self):
         def moveVertex():
             node = Player.getElementByID("testtiles")
@@ -305,7 +305,7 @@ class PlayerTestCase(unittest.TestCase):
                 +str(node.getNumVerticesY()))
         Player.setInterval(10, moveVertex)
         Player.setTimeout(5000, Player.stop)
-        Player.play(30)  
+        Player.play(30, 1)  
         
         
 class WordsTestCase(unittest.TestCase):
@@ -362,7 +362,7 @@ class WordsTestCase(unittest.TestCase):
         Player.setTimeout(1500, changeFont)
         Player.setTimeout(1800, changeFont2)
         Player.setTimeout(2000, Player.stop)
-        Player.play(25)
+        Player.play(25, 1)
 
 class VideoTestCase(unittest.TestCase):
     def __init__(self, testFuncName, engine, bpp):
@@ -416,7 +416,7 @@ class VideoTestCase(unittest.TestCase):
         Player.setTimeout(3000, stop)
         Player.setTimeout(3500, playclogo)
         Player.setTimeout(5000, Player.stop)
-        Player.play(25)
+        Player.play(25, 1)
 
 class AnimTestCase(unittest.TestCase):
     def __init__(self, testFuncName, engine, bpp):
@@ -444,7 +444,7 @@ class AnimTestCase(unittest.TestCase):
         Player.setTimeout(4200, Player.stop)
         Player.setTimeout(10, startAnim)
         Player.setTimeout(1100, startSplineAnim)
-        Player.play(75)
+        Player.play(75, 1)
 
 
 def playerTestSuite(engine, bpp):

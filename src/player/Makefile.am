@@ -15,7 +15,7 @@ else
 endif
 
 if ENABLE_GL
-    SDL_LIBS = `sdl-config --libs`
+    SDL_LIBS = `sdl-config --libs` -lXxf86vm
     GL_SOURCES = OGLHelper.cpp OGLSurface.cpp SDLDisplayEngine.cpp VBlank.cpp
     GL_INCLUDES = SDLDisplayEngine.h OGLHelper.h OGLSurface.h VBlank.h \
 	              GL/gl.h GL/glext.h GL/glu.h

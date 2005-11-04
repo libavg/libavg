@@ -320,7 +320,7 @@ void DFBDisplayEngine::render(AVGNode * pRootNode,
         clear();
         pRootNode->maybeRender(rc);
     }
-    pFramerateManager->FrameWait(false);
+    pFramerateManager->FrameWait();
     swapBuffers(UpdateRegion);
     pFramerateManager->CheckJitter();
 }

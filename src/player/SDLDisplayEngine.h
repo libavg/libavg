@@ -91,8 +91,6 @@ class SDLDisplayEngine: public IDisplayEngine, public IEventSource
 
         SDL_Surface * m_pScreen;
 
-        VBlank m_VBlank;
-        
         static std::vector<long> KeyCodeTranslationTable;
 };
 

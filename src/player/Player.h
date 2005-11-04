@@ -44,7 +44,7 @@ class Player : IEventSink
         void setResolution(bool bFullscreen, 
                 int width=0, int height=0, int bpp=0);
         void loadFile (const std::string& fileName);
-        void play (double framerate);
+        void play (double framerate, bool bSyncToVBlank);
         void stop ();
 
         Node * createNodeFromXmlString (const std::string& sXML);
@@ -55,10 +55,11 @@ class Player : IEventSink
         bool screenshot(const std::string& sFilename);
         void showCursor(bool bShow);
 
-        Node * getElementByID (const std::string& id);
-        AVGNode * getRootNode ();
-        void doFrame ();
-        double getFramerate ();
+        Node * getElementByID(const std::string& id);
+        AVGNode * getRootNode();
+        void doFrame();
+        double getFramerate();
+        double getVideoRefreshRate();
         virtual bool handleEvent(Event * pEvent);
 
         void registerFrameListener(IFrameListener* pListener);

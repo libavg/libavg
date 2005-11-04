@@ -5,21 +5,25 @@
 #ifndef _Framerate_H_
 #define _Framerate_H_
 
+#include "VBlank.h"
+
 namespace avg {
 
 class FramerateManager
 {
     public:
-        FramerateManager ();
-        virtual ~FramerateManager ();
+        FramerateManager();
+        virtual ~FramerateManager();
 
-        void SetRate(double Rate);
+        void SetRate(double Rate, bool bSyncToVBlank);
         double GetRate();
-        void FrameWait(bool bVBlank);
+        double GetRefreshRate();
+        void FrameWait();
         void CheckJitter();
 
     private:
         int getCurrentTicks();
+        void calcRefreshRate();
 
         int m_NumFrames;
         int m_FramesTooLate;
@@ -31,7 +35,10 @@ class FramerateManager
         long long m_TotalJitter;
         long long m_StartTime;
         long long m_FrameWaitStartTime;
-        
+
+        double m_RefreshRate;
+
+        VBlank m_VBlank;
 };
 
 }
