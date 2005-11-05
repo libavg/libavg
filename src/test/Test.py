@@ -133,11 +133,14 @@ class PlayerTestCase(unittest.TestCase):
         Player.loadFile(fileName)
         Player.setTimeout(100, lambda: Player.screenshot("test.png"))
         Player.setTimeout(150, lambda: Player.screenshot("test1.png"))
-        Player.setTimeout(200, Player.stop)
+        Player.setTimeout(200, lambda: self.assert_(Player.isPlaying() == 1)) 
+        Player.setTimeout(250, Player.stop)
         Player.play(Player.getVideoRefreshRate(), 1)
         
     def testImage(self):
+        self.assert_(Player.isPlaying() == 0)
         self.playAVG("image.avg")
+        self.assert_(Player.isPlaying() == 0)
     def testError(self):
         Player.setTimeout(100, lambda: undefinedFunction)
         try:

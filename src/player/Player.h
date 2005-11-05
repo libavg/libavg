@@ -46,6 +46,7 @@ class Player : IEventSink
         void loadFile (const std::string& fileName);
         void play (double framerate, bool bSyncToVBlank);
         void stop ();
+        bool isPlaying();
 
         Node * createNodeFromXmlString (const std::string& sXML);
         int setInterval(int time, PyObject * pyfunc);
@@ -109,6 +110,8 @@ class Player : IEventSink
         int m_WindowWidth;
         int m_WindowHeight;
         bool m_bShowCursor;
+
+        bool m_bIsPlaying;
 
         std::vector<IFrameListener*> m_Listeners;
 };

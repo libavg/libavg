@@ -61,7 +61,8 @@ Player::Player()
       m_pFramerateManager(0),
       m_bInHandleTimers(false),
       m_pLastMouseNode(0),
-      m_bShowCursor(true)
+      m_bShowCursor(true),
+      m_bIsPlaying(false)
 {
     initConfig();
 }
@@ -213,6 +214,7 @@ void Player::loadFile (const std::string& filename)
 
 void Player::play (double framerate, bool bSyncToVBlank)
 {
+    m_bIsPlaying = true;
     try {
         if (!m_pRootNode) {
             AVG_TRACE(Logger::ERROR, "play called, but no xml file loaded.");
@@ -243,6 +245,7 @@ void Player::play (double framerate, bool bSyncToVBlank)
     } catch  (Exception& ex) {
         AVG_TRACE(Logger::ERROR, ex.GetStr());
     }
+    m_bIsPlaying = false;
 }
 
 void Player::stop ()
@@ -250,6 +253,10 @@ void Player::stop ()
     m_bStopping = true;
 }
 
+bool Player::isPlaying()
+{
+    return m_bIsPlaying;
+}
 
 int Player::setInterval(int time, PyObject * pyfunc)
 {

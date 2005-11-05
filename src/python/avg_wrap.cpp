@@ -203,16 +203,20 @@ BOOST_PYTHON_MODULE(avg)
                 "loadFile.")
         .def("loadFile", &Player::loadFile,
                 "loadFile(fileName) -> None\n\n"
-                "Loads the avg file specified in fileName. Returns false if the file\n"
-                "could not be opened.")
+                "Loads the avg file specified in fileName.")
         .def("play", &Player::play,
-                "play(framerate) -> None\n\n"
+                "play(framerate, syncToVBlank) -> None\n\n"
                 "Opens a playback window or screen and starts playback. framerate is\n"
                 "the number of frames per second that should be displayed. play returns\n"
-                "when playback has ended.")
+                "when playback has ended. syncToVBlank specifies whether to wait for\n"
+                "the screen's vertical blanking interval before showing the next\n"
+                "frame.")
         .def("stop", &Player::stop,
                 "stop() -> None\n\n"
                 "Stops playback and resets the video mode if nessesary.")
+        .def("isPlaying", &Player::isPlaying,
+                "isPlaying() -> bool\n\n"
+                "Returns true if play() is currently executing, false if not.")
         .def("createNode", &Player::createNodeFromXmlString,
                 return_value_policy<manage_new_object>(),
                 "createNode(xml) -> Node\n\n"
