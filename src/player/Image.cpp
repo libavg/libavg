@@ -46,32 +46,19 @@ void Image::init (IDisplayEngine * pEngine, Container * pParent,
         Player * pPlayer)
 {
     Node::init(pEngine, pParent, pPlayer);
-    m_Filename = m_href;
-    initFilename(pPlayer, m_Filename);
-    AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
-
-    Bitmap TempBmp(m_Filename);
-
-    PixelFormat pf;
-    pf = R8G8B8;
-    if (TempBmp.hasAlpha()) {
-        pf = R8G8B8A8;
-    }
-    getSurface()->create(TempBmp.getSize(), pf);
-    getSurface()->getBmp()->copyPixels(TempBmp);
-    
-    if (m_Saturation != -1) {
-        FilterColorize(m_Hue, m_Saturation).applyInPlace(
-                getSurface()->getBmp());
-    }
-
-    if (!(pEngine->hasRGBOrdering())) {
-        FilterFlipRGB().applyInPlace(getSurface()->getBmp());
-    }
+    m_pPlayer = pPlayer;
+    load();
 }
 
 const std::string& Image::getHRef() const {
     return m_href;
+}
+
+void Image::setHRef(const string& href) {
+    m_href = href;
+    load();
+    DPoint Size = getPreferredMediaSize();
+    setViewport(-32767, -32767, Size.x, Size.y);
 }
 
 static ProfilingZone RenderProfilingZone("    Image::render");
@@ -98,6 +85,32 @@ string Image::getTypeStr ()
 DPoint Image::getPreferredMediaSize()
 {
     return DPoint(getSurface()->getBmp()->getSize());
+}
+
+void Image::load()
+{
+    m_Filename = m_href;
+    initFilename(m_pPlayer, m_Filename);
+    AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
+
+    Bitmap TempBmp(m_Filename);
+
+    PixelFormat pf;
+    pf = R8G8B8;
+    if (TempBmp.hasAlpha()) {
+        pf = R8G8B8A8;
+    }
+    getSurface()->create(TempBmp.getSize(), pf);
+    getSurface()->getBmp()->copyPixels(TempBmp);
+    
+    if (m_Saturation != -1) {
+        FilterColorize(m_Hue, m_Saturation).applyInPlace(
+                getSurface()->getBmp());
+    }
+
+    if (!(m_pPlayer->getDisplayEngine()->hasRGBOrdering())) {
+        FilterFlipRGB().applyInPlace(getSurface()->getBmp());
+    }
 }
 
 }

@@ -652,6 +652,11 @@ bool Player::handleEvent(Event * pEvent)
     return true; 
 }
 
+IDisplayEngine * Player::getDisplayEngine() const 
+{
+    return m_pDisplayEngine;
+}
+
 void Player::createMouseOver(MouseEvent * pOtherEvent, Event::Type Type)
 {
     MouseEvent * pNewEvent = new MouseEvent(Type,

@@ -21,6 +21,7 @@ class Image : public RasterNode
                 Container * pParent, Player * pPlayer);
 
         const std::string& getHRef() const;
+        void setHRef(const std::string& href);
         int getHue() const
         {
             return m_Hue;
@@ -38,11 +39,13 @@ class Image : public RasterNode
         virtual DPoint getPreferredMediaSize();
 
     private:
+        void load();
         std::string m_Filename;
         std::string m_href;
     
         int m_Hue;
         int m_Saturation;
+        Player * m_pPlayer;
 };
 
 }

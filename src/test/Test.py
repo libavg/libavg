@@ -138,8 +138,15 @@ class PlayerTestCase(unittest.TestCase):
         Player.play(Player.getVideoRefreshRate(), 1)
         
     def testImage(self):
+        def loadNewFile():
+            Player.getElementByID("test").href = "1x1_schachbrett.png"
+            Player.getElementByID("testtiles").href = "freidrehen.jpg"
+            Player.getElementByID("testhue").href = "freidrehen.jpg"
         self.assert_(Player.isPlaying() == 0)
-        self.playAVG("image.avg")
+        Player.loadFile("image.avg")
+        Player.setTimeout(1000, loadNewFile)
+        Player.setTimeout(2000, Player.stop)
+        Player.play(Player.getVideoRefreshRate(), 1)
         self.assert_(Player.isPlaying() == 0)
     def testError(self):
         Player.setTimeout(100, lambda: undefinedFunction)

@@ -74,8 +74,11 @@ void export_raster()
             "    href: The source filename of the image.\n"
             "    hue: A hue to color the image in. (ro, deprecated)\n"
             "    saturation: The saturation the image should have. (ro, deprecated)\n")
-        .add_property("href", make_function(&Image::getHRef,
-                return_value_policy<copy_const_reference>()))
+        .add_property("href", 
+                make_function(&Image::getHRef,
+                        return_value_policy<copy_const_reference>()),
+                make_function(&Image::setHRef,
+                        return_value_policy<copy_const_reference>()))        
         .add_property("hue", &Image::getHue)
         .add_property("saturation", &Image::getSaturation)
     ;

@@ -63,6 +63,7 @@ class Player : IEventSink
         double getFramerate();
         double getVideoRefreshRate();
         virtual bool handleEvent(Event * pEvent);
+        IDisplayEngine * getDisplayEngine() const;
 
         void registerFrameListener(IFrameListener* pListener);
         void unregisterFrameListener(IFrameListener* pListener);
