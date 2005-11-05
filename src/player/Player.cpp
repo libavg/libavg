@@ -303,6 +303,11 @@ const Event& Player::getCurEvent() const
     return *m_pCurEvent;
 }
 
+const MouseEvent& Player::getMouseState() const
+{
+    return m_EventDispatcher.getLastMouseEvent();
+}
+
 bool Player::screenshot(const std::string& sFilename)
 {
     BitmapPtr pBmp = m_pDisplayEngine->screenshot();

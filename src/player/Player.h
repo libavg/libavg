@@ -53,6 +53,7 @@ class Player : IEventSink
         int setTimeout(int time, PyObject * pyfunc);
         bool clearInterval(int id);
         const Event& getCurEvent() const;
+        const MouseEvent& getMouseState() const;
         bool screenshot(const std::string& sFilename);
         void showCursor(bool bShow);
 

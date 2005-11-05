@@ -7,6 +7,7 @@
 
 #include "IEventSink.h"
 #include "IEventSource.h"
+#include "MouseEvent.h"
 
 #include <vector>
 #include <queue>
@@ -21,6 +22,8 @@ class EventDispatcher {
         EventDispatcher();
         virtual ~EventDispatcher();
         void dispatch();
+        const MouseEvent& getLastMouseEvent() const;
+        
         void addSource(IEventSource * pSource);
         void addSink(IEventSink * pSink);
 
@@ -32,6 +35,8 @@ class EventDispatcher {
 
         std::priority_queue<Event *,std::vector<Event *>,isEventAfter> 
             m_Events;
+
+        MouseEvent m_LastMouseEvent;
 };
 
 }

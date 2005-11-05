@@ -241,6 +241,10 @@ BOOST_PYTHON_MODULE(avg)
                 "getCurEvent() -> Event\n\n"
                 "Gets an interface to the current event. Only valid inside event\n"
                 "handlers (onmouseup, onmousedown, etc.)")
+        .def("getMouseState", &Player::getMouseState,
+                return_value_policy<reference_existing_object>(),
+                "getMouseState() -> Event\n\n"
+                "Gets an interface to the last mouse event.")
         .def("screenshot", &Player::screenshot,
                 "screenshot(filename) -> ok\n\n"
                 "Saves the contents of the current screen in a png file. Returns\n"

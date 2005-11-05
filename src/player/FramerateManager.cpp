@@ -146,10 +146,11 @@ void FramerateManager::CheckJitter() {
 }
 
 void FramerateManager::calcRefreshRate() {
+    double lastRefreshRate = s_RefreshRate;
 #ifdef __APPLE__
 #warning calcRefreshRate unimplemented on Mac!
-    s_RefreshRate = 120
-#else    
+    s_RefreshRate = 120;
+#else 
     Display * display = XOpenDisplay(0);
     
     int PixelClock;
@@ -162,8 +163,11 @@ void FramerateManager::calcRefreshRate() {
     }
     double HSyncRate = PixelClock*1000.0/mode_line.htotal;
     s_RefreshRate = HSyncRate/mode_line.vtotal;
-    AVG_TRACE(Logger::CONFIG, "Vertical Refresh Rate: " << s_RefreshRate);
-#endif    
+#endif
+    if (lastRefreshRate != s_RefreshRate) {
+        AVG_TRACE(Logger::CONFIG, "Vertical Refresh Rate: " << s_RefreshRate);
+    }
+
 }
 
 }

@@ -150,7 +150,11 @@ class PlayerTestCase(unittest.TestCase):
         else:
             self.assert_(0)
     def testEvents(self):
+        def getMouseState():
+            Event = Player.getMouseState()
+            print(str(Event.x)+","+str(Event.y))
         Player.loadFile("events.avg")
+        Player.setTimeout(100, getMouseState);
         Player.setTimeout(200, Player.stop)
         Player.play(Player.getVideoRefreshRate(), 1)
     def testEventErr(self):
