@@ -400,6 +400,11 @@ double Player::getFramerate ()
     return m_pFramerateManager->GetRate();
 }
 
+double Player::getVideoRefreshRate()
+{
+    return m_pFramerateManager->GetRefreshRate();
+}
+
 void Player::initConfig() {
     // Get data from config files.
     ConfigMgr* pMgr = ConfigMgr::get();

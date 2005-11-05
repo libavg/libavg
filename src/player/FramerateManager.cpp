@@ -22,6 +22,8 @@ using namespace std;
 
 namespace avg {
 
+double FramerateManager::s_RefreshRate = 0.0;
+
 FramerateManager::FramerateManager ()
     : m_NumFrames(0),
       m_NumRegularFrames(0),
@@ -69,6 +71,14 @@ double FramerateManager::GetRate()
     return m_Rate;
 }
 
+double FramerateManager::GetRefreshRate()
+{
+    if (s_RefreshRate == 0.0) {
+        calcRefreshRate();
+    }
+    return s_RefreshRate;
+}
+
 static ProfilingZone WaitProfilingZone("  Render - wait");
 static ProfilingZone VBlankProfilingZone("  Render -   VBlank wait");
 
@@ -86,7 +96,7 @@ void FramerateManager::FrameWait()
         long long WaitTime = TargetTime-m_FrameWaitStartTime;
         if (m_VBlank.isActive()) {
             // Don't wait quite as long so we don't miss the vblank interval.
-            long long VBlankTime = 1000/m_RefreshRate;
+            long long VBlankTime = (long long)(1000/s_RefreshRate);
             WaitTime -= VBlankTime;
             if (WaitTime < 0) {
                 WaitTime = 0;
@@ -131,12 +141,14 @@ void FramerateManager::CheckJitter() {
     if (m_bLastFrameLate) {
         m_LastFrameTime = TimeSource::get()->getCurrentTicks();
     }
-    m_TimeSpentWaiting += TimeSource::get()->getCurrentTicks()-m_FrameWaitStartTime;
+    m_TimeSpentWaiting += TimeSource::get()->getCurrentTicks()
+            -m_FrameWaitStartTime;
 }
 
 void FramerateManager::calcRefreshRate() {
 #ifdef __APPLE__
 #warning calcRefreshRate unimplemented on Mac!
+    s_RefreshRate = 120
 #else    
     Display * display = XOpenDisplay(0);
     
@@ -149,8 +161,8 @@ void FramerateManager::calcRefreshRate() {
                 "Could not get current refresh rate (XF86VidModeGetModeLine failed).");
     }
     double HSyncRate = PixelClock*1000.0/mode_line.htotal;
-    m_RefreshRate = HSyncRate/mode_line.vtotal;
-    AVG_TRACE(Logger::CONFIG, "Vertical Refresh Rate: " << m_RefreshRate);
+    s_RefreshRate = HSyncRate/mode_line.vtotal;
+    AVG_TRACE(Logger::CONFIG, "Vertical Refresh Rate: " << s_RefreshRate);
 #endif    
 }
 

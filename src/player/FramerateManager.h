@@ -17,13 +17,13 @@ class FramerateManager
 
         void SetRate(double Rate, bool bSyncToVBlank);
         double GetRate();
-        double GetRefreshRate();
+        static double GetRefreshRate();
         void FrameWait();
         void CheckJitter();
 
     private:
         int getCurrentTicks();
-        void calcRefreshRate();
+        static void calcRefreshRate();
 
         int m_NumFrames;
         int m_FramesTooLate;
@@ -36,7 +36,7 @@ class FramerateManager
         long long m_StartTime;
         long long m_FrameWaitStartTime;
 
-        double m_RefreshRate;
+        static double s_RefreshRate;
 
         VBlank m_VBlank;
 };

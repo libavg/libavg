@@ -258,6 +258,10 @@ BOOST_PYTHON_MODULE(avg)
         .def("getFramerate", &Player::getFramerate,
                 "getFramerate() -> framerate\n\n"
                 "Returns the current framerate in frames per second.")
+        .def("getVideoRefreshRate", &Player::getVideoRefreshRate,
+                "getVideoRefreshRate() -> refreshrate\n\n"
+                "Returns the current hardware video refresh rate in number of\n"
+                "refreshes per second.")
     ;
 
 }
