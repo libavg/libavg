@@ -12,6 +12,7 @@
 #include <fontconfig/fontconfig.h>
 
 #include <string>
+#include <iostream>
 
 namespace avg {
 
@@ -40,7 +41,8 @@ class Words : public RasterNode
         {
             invalidate();
             m_FontName = sName;
-            drawString(true);
+            m_bFontChanged = true;
+            drawString();
             invalidate();
         }
             
@@ -54,7 +56,7 @@ class Words : public RasterNode
             if (m_Text != sText) {
                 invalidate();
                 m_Text = sText;
-                drawString(false);
+                drawString();
                 invalidate();
             }
         }
@@ -69,7 +71,7 @@ class Words : public RasterNode
             invalidate();
             m_ColorName = sColor;
             m_Color = colorStringToColor(m_ColorName);
-            drawString(false);
+            drawString();
             invalidate();
         }
 
@@ -82,7 +84,8 @@ class Words : public RasterNode
         {
             invalidate();
             m_Size = Size;
-            drawString(true);
+            m_bFontChanged = true;
+            drawString();
             invalidate();
         }
 
@@ -95,7 +98,7 @@ class Words : public RasterNode
         {
             invalidate();
             m_ParaWidth = ParaWidth;
-            drawString(false);
+            drawString();
             invalidate();
         }
         
@@ -108,7 +111,7 @@ class Words : public RasterNode
         {
             invalidate();
             m_Indent = Indent;
-            drawString(false);
+            drawString();
             invalidate();
         }
 
@@ -121,7 +124,7 @@ class Words : public RasterNode
         {
             invalidate();
             m_LineSpacing = LineSpacing;
-            drawString(false);
+            drawString();
             invalidate();
         }
 
@@ -136,7 +139,8 @@ class Words : public RasterNode
         {
             invalidate();
             m_bItalic = bItalic;
-            drawString(true);
+            m_bFontChanged = true;
+            drawString();
             invalidate();
         }
         
@@ -152,7 +156,8 @@ class Words : public RasterNode
         {
             invalidate();
             m_bSmallCaps = bSmallCaps;
-            drawString(true);
+            m_bFontChanged = true;
+            drawString();
             invalidate();
         }
         
@@ -164,7 +169,7 @@ class Words : public RasterNode
         virtual DPoint getPreferredMediaSize();
     
     private:
-        void drawString(bool bFontChanged);
+        void drawString();
         Pixel32 colorStringToColor(const std::string & colorString);
         std::string removeExcessSpaces(const std::string & sText);
         static void FT2SubstituteFunc (FcPattern *pattern, gpointer data);
@@ -188,6 +193,8 @@ class Words : public RasterNode
         DPoint m_StringExtents;
         PangoContext * m_pContext;
         PangoFontDescription * m_pFontDescription;
+
+        bool m_bFontChanged;
         
 };
 

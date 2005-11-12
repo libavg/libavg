@@ -34,9 +34,9 @@ Words::Words ()
       m_bItalic(false),
       m_Stretch(PANGO_STRETCH_NORMAL),
       m_bSmallCaps(false),
-
       m_pSurface(0),
-      m_StringExtents(0,0)
+      m_StringExtents(0,0),
+      m_bFontChanged(true)
 {
 }
 
@@ -91,7 +91,8 @@ void Words::init (IDisplayEngine * pEngine, Container * pParent,
 void Words::initVisible ()
 {
     Node::initVisible();
-    drawString(true);
+    m_bFontChanged = true;
+    drawString();
 }
 
 string Words::getTypeStr ()
@@ -111,7 +112,7 @@ void Words::setAlignment(const string& sAlign)
     } else {
         // TODO: Throw exception.
     }
-    drawString(false);
+    drawString();
     invalidate();
 }
 
@@ -135,7 +136,8 @@ void Words::setWeight(const string& sWeight)
     } else {
         // TODO: Throw exception.
     }
-    drawString(true);
+    m_bFontChanged = true;
+    drawString();
     invalidate();
 }
 
@@ -165,7 +167,8 @@ void Words::setStretch(const string& sStretch)
     } else {
         // TODO: Throw exception.
     }
-    drawString(true);
+    m_bFontChanged = true;
+    drawString();
     invalidate();
 }
 
@@ -230,7 +233,7 @@ string Words::getStretch() const
 
 static ProfilingZone DrawStringProfilingZone("  Words::drawString");
 
-void Words::drawString(bool bFontChanged)
+void Words::drawString()
 {
     if (!isInitialized()) {
         return;
@@ -239,7 +242,7 @@ void Words::drawString(bool bFontChanged)
     if (m_Text.length() == 0) {
         m_StringExtents = DPoint(0,0);
     } else {
-        if (bFontChanged) {
+        if (m_bFontChanged) {
             // TODO: check if the family exists (via pango_font_map_list_families ()?)
             pango_font_description_set_family(m_pFontDescription,
                     g_strdup(m_FontName.c_str()));
@@ -255,6 +258,7 @@ void Words::drawString(bool bFontChanged)
                     (int)(m_Size * PANGO_SCALE));
 
             pango_context_set_font_description(m_pContext, m_pFontDescription);
+            m_bFontChanged = false;
         }
 
         PangoRectangle logical_rect;
