@@ -10,15 +10,16 @@
 import time
 
 class SimpleAnim:
-    def __init__(self, node, attrName, duration):
+    def __init__(self, node, attrName, duration, onStop):
         self.node = node
         self.attrName = attrName
         self.duration = duration
         self.startTime = time.time()
+        self.onStop = onStop
 
 class LinearAnim(SimpleAnim):
-    def __init__(self, node, attrName, duration, startValue, endValue):
-        SimpleAnim.__init__(self, node, attrName, duration)
+    def __init__(self, node, attrName, duration, startValue, endValue, onStop):
+        SimpleAnim.__init__(self, node, attrName, duration, onStop)
         g_Player.setTimeout(duration, self.__stop)
         self.interval = g_Player.setInterval(10, self.__step)
         self.__startValue = startValue
@@ -31,11 +32,13 @@ class LinearAnim(SimpleAnim):
     def __stop(self):
         setattr(self.node, self.attrName, self.__endValue)
         g_Player.clearInterval(self.interval)
+        if self.onStop != None:
+            self.onStop()
 
 class SplineAnim(SimpleAnim):
     def __init__(self, node, attrName, duration, 
-            startValue, startSpeed, endValue, endSpeed):
-        SimpleAnim.__init__(self, node, attrName, duration)
+            startValue, startSpeed, endValue, endSpeed, onStop):
+        SimpleAnim.__init__(self, node, attrName, duration, onStop)
         g_Player.setTimeout(duration, self.__stop)
         self.interval = g_Player.setInterval(10, self.__step)
         self.__startValue = startValue+0.0
@@ -55,15 +58,16 @@ class SplineAnim(SimpleAnim):
     def __stop(self):
         setattr(self.node, self.attrName, self.__endValue)
         g_Player.clearInterval(self.interval)
-    
+        if self.onStop != None:
+            self.onStop()
 
 def fadeOut(node, duration):
     curValue = getattr(node, "opacity")
-    LinearAnim(node, "opacity", duration, curValue, 0)
+    LinearAnim(node, "opacity", duration, curValue, 0, None)
 
 def fadeIn(node, duration, max):
     curValue = getattr(node, "opacity")
-    LinearAnim(node, "opacity", duration, curValue, max)
+    LinearAnim(node, "opacity", duration, curValue, max, None)
 
 def init(Player):
     global g_Player
