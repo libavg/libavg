@@ -23,7 +23,7 @@ Timeout::Timeout(int time, PyObject * pyfunc, bool isInterval)
       m_PyFunc(pyfunc),
       m_IsInterval(isInterval)
 {
-    m_NextTimeout = m_Interval+TimeSource::get()->getCurrentTicks();
+    m_NextTimeout = m_Interval+TimeSource::get()->getCurrentMillisecs();
     s_LastID++;
     m_ID = s_LastID;
 
@@ -37,7 +37,7 @@ Timeout::~Timeout()
 
 bool Timeout::IsReady() const
 {
-    return m_NextTimeout <= TimeSource::get()->getCurrentTicks();
+    return m_NextTimeout <= TimeSource::get()->getCurrentMillisecs();
 }
 
 bool Timeout::IsInterval() const
@@ -54,7 +54,7 @@ void Timeout::Fire()
         throw error_already_set();
     }
     if (m_IsInterval) {
-        m_NextTimeout = m_Interval + TimeSource::get()->getCurrentTicks();
+        m_NextTimeout = m_Interval + TimeSource::get()->getCurrentMillisecs();
     }
 }
 

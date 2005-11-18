@@ -7,10 +7,12 @@
 #include "OGLHelper.h"
 
 #include "../base/Logger.h"
+#include "../base/Exception.h"
 
 #define XMD_H 1
 #include "GL/gl.h"
 #include "GL/glu.h"
+#include "GL/glx.h"
 #ifdef __APPLE__
 #include <AGL/agl.h>
 #endif
@@ -25,59 +27,22 @@ using namespace std;
 
 namespace avg {
 
-#define DRM_VBLANK_RELATIVE 0x1;
-
-struct drm_wait_vblank_request {
-    int type;
-    unsigned int sequence;
-    unsigned long signal;
-};
-
-struct drm_wait_vblank_reply {
-    int type;
-    unsigned int sequence;
-    long tval_sec;
-    long tval_usec;
-};
-
-typedef union drm_wait_vblank {
-    struct drm_wait_vblank_request request;
-    struct drm_wait_vblank_reply reply;
-} drm_wait_vblank_t;
-
-#define DRM_IOCTL_BASE                  'd'
-#define DRM_IOWR(nr,type)               _IOWR(DRM_IOCTL_BASE,nr,type)
-
-#define DRM_IOCTL_WAIT_VBLANK           DRM_IOWR(0x3a, drm_wait_vblank_t)
-
-static int drmWaitVBlank(int fd, drm_wait_vblank_t *vbl)
-{
-    int ret;
-    int rc;
-
-    do {
-       ret = ioctl(fd, DRM_IOCTL_WAIT_VBLANK, vbl);
-       vbl->request.type &= ~DRM_VBLANK_RELATIVE;
-       rc = errno;
-    } while (ret && rc == EINTR);
-
-    return rc;
-}
-
 VBlank::VBlank()
+    : m_Rate(0),
+      m_Method(VB_KAPUTT),
+      m_Mod(0),
+      m_LastFrame(0),
+      m_bFirstFrame(true)
 {
 }
 
 VBlank::~VBlank()
 {
-    if (m_Method == VB_DRI) {
-        close(m_dri_fd);
-    }    
 }
 
-void VBlank::init(bool bSync)
+bool VBlank::init(int Rate)
 {
-    if (bSync) {
+    if (Rate > 0) {
 #ifdef __APPLE__
         GLint swapInt = 1;
         // TODO: Find out why aglGetCurrentContext doesn't work.
@@ -92,71 +57,59 @@ void VBlank::init(bool bSync)
 
         if (bOk == GL_FALSE) {
             AVG_TRACE(Logger::WARNING,
-                    "Mac VBlank setup failed with error code " << aglGetError() << ".");
+                    "Mac VBlank setup failed with error code " << 
+                    aglGetError() << ".");
             m_Method = VB_KAPUTT;
         }
 #else
-        string sVendor = (const char *)(glGetString(GL_VENDOR));
-        if (sVendor.find("NVIDIA") != string::npos && getenv("__GL_SYNC_TO_VBLANK") != 0) {
-            m_Method = VB_NVIDIA;
+        if (queryGLXExtension("GLX_SGI_video_sync")) {
+            m_Method = VB_SGI;
+            m_bFirstFrame = true;
         } else {
-            if (sVendor.find("NVIDIA") != string::npos && 
-                    getenv("__GL_SYNC_TO_VBLANK") == 0) 
-            {
-                AVG_TRACE(Logger::WARNING, 
-                        "Using NVIDIA graphics card but __GL_SYNC_TO_VBLANK not set.");
-            }
-
-            m_dri_fd = open("/dev/dri/card0", O_RDWR);
-            if (m_dri_fd < 0)
-            {
-                AVG_TRACE(Logger::WARNING, "Could not open /dev/dri/card0 for vblank. Reason: "
-                        <<strerror(errno));
-                m_Method = VB_KAPUTT;
-            } else {
-                m_Method = VB_DRI;
-            }
+            m_Method = VB_KAPUTT;
         }
     } else {
         m_Method = VB_KAPUTT;
     }
 #endif
+    m_Rate = Rate;
     switch(m_Method) {
-        case VB_DRI:
-            AVG_TRACE(Logger::CONFIG, "Using DRI interface for vertical blank support.");
-            break;
-        case VB_NVIDIA:
-            AVG_TRACE(Logger::CONFIG, "Using NVIDIA driver vertical blank support.");
+        case VB_SGI:
+            AVG_TRACE(Logger::CONFIG, 
+                    "Using SGI interface for vertical blank support.");
             break;
         case VB_APPLE:
             AVG_TRACE(Logger::CONFIG, "Using Apple GL vertical blank support.");
             break;
         case VB_KAPUTT:
+            m_Rate = Rate;
             AVG_TRACE(Logger::CONFIG, "Vertical blank support disabled.");
             break;
     }
+    return (m_Method != VB_KAPUTT);
 }
 
 void VBlank::wait()
 {
-    switch (m_Method) {
-        case VB_DRI:
-            {
-                drm_wait_vblank_t blank;
-                blank.request.type = DRM_VBLANK_RELATIVE;
-                blank.request.sequence = 1;
-                int rc = drmWaitVBlank (m_dri_fd, &blank);
-                if (rc) {
-                    AVG_TRACE(Logger::WARNING, 
-                            "Could not wait for vblank. Reason: "
-                            << strerror(errno));
-                    AVG_TRACE(Logger::WARNING, "Vertical blank support disabled.");
-                    m_Method = VB_KAPUTT;
-                }
-            }
-            break;
-        default:
-            break;
+    if (m_Method == VB_SGI) {
+        unsigned int count;
+        int err = glXWaitVideoSyncSGI(m_Rate, m_Mod, &count);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VBlank::glXWaitVideoSyncSGI");
+        if (err) {
+            AVG_TRACE(Logger::ERROR, "glXWaitVideoSyncSGI returned " << err << ".");
+            AVG_TRACE(Logger::ERROR, "Rate was " << m_Rate << ", Mod was " << m_Mod);
+            AVG_TRACE(Logger::ERROR, "Disabling VBlank support.");
+            m_Method = VB_KAPUTT;
+            m_Rate = 0;
+            return;
+        }
+        m_Mod = count % m_Rate;
+        if (!m_bFirstFrame && int(count) != m_LastFrame+m_Rate) {
+            AVG_TRACE(Logger::PROFILE_LATEFRAMES, count-m_LastFrame
+                    << " VBlank intervals missed, shound be " << m_Rate);
+        }
+        m_LastFrame = count;
+        m_bFirstFrame = false;
     }
 }
 

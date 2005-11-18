@@ -347,7 +347,7 @@ bool Camera::renderToSurface(ISurface * pSurface)
         */
         //    int rc = dc1394_dma_single_capture(&m_Camera);
         if (rc == DC1394_SUCCESS) {
-            m_LastFrameTime = TimeSource::get()->getCurrentTicks();
+            m_LastFrameTime = TimeSource::get()->getCurrentMillisecs();
 #ifdef AVG_ENABLE_GL            
             OGLSurface * pOGLSurface = dynamic_cast<OGLSurface *>(pSurface);
 #endif            
@@ -417,7 +417,7 @@ bool Camera::renderToSurface(ISurface * pSurface)
         }
     }
     if (m_LastFrameTime != 0 &&
-        TimeSource::get()->getCurrentTicks() > m_LastFrameTime+3000)
+        TimeSource::get()->getCurrentMillisecs() > m_LastFrameTime+3000)
     {
         AVG_TRACE(Logger::WARNING,
                 "Camera: Reinitializing camera...");

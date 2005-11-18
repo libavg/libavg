@@ -7,8 +7,6 @@
 
 #include <string>
 
-// The DRI stuff was mostly taken from MythTV VBlank handling. Thanks, guys.
-
 namespace avg {
 
 class VBlank
@@ -17,15 +15,17 @@ class VBlank
         VBlank();
         virtual ~VBlank();
 
-        void init(bool bSync);
+        bool init(int Rate);
         void wait();
         bool isActive() const;
 
     private:
-        
-        int m_dri_fd;
-        typedef enum Method { VB_DRI, VB_NVIDIA, VB_APPLE, VB_KAPUTT };
+        typedef enum Method {VB_SGI, VB_APPLE, VB_KAPUTT };
+        int m_Rate;
         Method m_Method;
+        int m_Mod;
+        int m_LastFrame;
+        bool m_bFirstFrame;
 };
 
 }

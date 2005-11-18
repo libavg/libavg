@@ -339,12 +339,10 @@ static ProfilingZone SwapBufferProfilingZone("  Render - swap buffers");
 
 void SDLDisplayEngine::swapBuffers()
 {
-    {
-        ScopeTimer Timer(SwapBufferProfilingZone);
-        SDL_GL_SwapBuffers();
-        AVG_TRACE(Logger::BLTS, "GL SwapBuffers");
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "swapBuffers()");
-    }
+    ScopeTimer Timer(SwapBufferProfilingZone);
+    SDL_GL_SwapBuffers();
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "swapBuffers()");
+    AVG_TRACE(Logger::BLTS, "GL SwapBuffers");
 }
 
 ISurface * SDLDisplayEngine::createSurface()

@@ -205,7 +205,7 @@ BOOST_PYTHON_MODULE(avg)
                 "loadFile(fileName) -> None\n\n"
                 "Loads the avg file specified in fileName.")
         .def("play", &Player::play,
-                "play(framerate, syncToVBlank) -> None\n\n"
+                "play() -> None\n\n"
                 "Opens a playback window or screen and starts playback. framerate is\n"
                 "the number of frames per second that should be displayed. play returns\n"
                 "when playback has ended. syncToVBlank specifies whether to wait for\n"
@@ -217,11 +217,20 @@ BOOST_PYTHON_MODULE(avg)
         .def("isPlaying", &Player::isPlaying,
                 "isPlaying() -> bool\n\n"
                 "Returns true if play() is currently executing, false if not.")
+        .def("setFramerate", &Player::setFramerate,
+                "setFramerate(rate) -> None\n\n"
+                "Sets the desired framerate for playback and turns off syncronization\n"
+                "to the vertical blanking interval.")
+        .def("setVBlankFramerate", &Player::setVBlankFramerate,
+                "setVBlankFramerate(rate) -> bool\n\n"
+                "Sets the desired number of vertical blanking intervals before the next\n"
+                "frame is displayed. The resulting framerate is determined by the\n"
+                "monitor refresh rate divided by the rate parameter.")
         .def("createNode", &Player::createNodeFromXmlString,
                 return_value_policy<manage_new_object>(),
                 "createNode(xml) -> Node\n\n"
                 "Creates a new Node from an xml string. This node can be used as\n"
-                "parameter to Container::addChild().")
+                "parameter to Container::addChild(). BROKEN!")
         .def("setInterval", &Player::setInterval,
                 "setInterval(time, pyfunc) -> id\n\n"
                 "Sets a python callable object that should be executed every time\n"

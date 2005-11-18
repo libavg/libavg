@@ -18,7 +18,7 @@ Event::Event(Type type, int when)
     : m_Type(type)
 {
     if (when == -1) {
-        m_When = TimeSource::get()->getCurrentTicks();
+        m_When = TimeSource::get()->getCurrentMillisecs();
     } else {
         m_When = when;
     }

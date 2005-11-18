@@ -9,6 +9,9 @@
 
 #include "GL/gl.h"
 #include "GL/glu.h"
+#include "GL/glx.h"
+
+#include <X11/Xlib.h>
 
 #include <iostream>
 #include <sstream>
@@ -40,10 +43,7 @@ bool queryOGLExtension(char *extName)
     ** string returned by glGetString might be in read-only memory.
     */
     char *p;
-    char *end;
-    int extNameLen;
-
-    extNameLen = strlen(extName);
+    int extNameLen = strlen(extName);
 
     p = (char *)glGetString(GL_EXTENSIONS);
 //    cout << "OpenGL extensions string: " << p << endl;
@@ -51,7 +51,7 @@ bool queryOGLExtension(char *extName)
         throw Exception(AVG_ERR_VIDEO_GENERAL, "Couldn't get OpenGL extension string.");
     }
 
-    end = p + strlen(p);
+    char * end = p + strlen(p);
 
     while (p < end) {
         int n = strcspn(p, " ");
@@ -61,6 +61,28 @@ bool queryOGLExtension(char *extName)
         p += (n + 1);
     }
     return false;
+}
+
+bool queryGLXExtension(char *extName) {
+    int extNameLen = strlen(extName);
+
+    Display * display = XOpenDisplay(0);
+    char * p = (char *)glXQueryExtensionsString(display, DefaultScreen(display));
+    if (NULL == p) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "Couldn't get GLX extension string.");
+    }
+
+    char * end = p + strlen(p);
+
+    while (p < end) {
+        int n = strcspn(p, " ");
+        if ((extNameLen == n) && (strncmp(extName, p, n) == 0)) {
+            return true;
+        }
+        p += (n + 1);
+    }
+    return false;
+    
 }
 
 }

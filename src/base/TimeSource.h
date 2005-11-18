@@ -20,19 +20,15 @@ public:
     static TimeSource* get();
     virtual ~TimeSource();
    
-    long long getCurrentTicks();     // For millisecond accuracy.
+    long long getCurrentMillisecs();     // For millisecond accuracy.
     long long getCurrentMicrosecs();
     
     void sleepUntil(long long ticks);
 
 private:    
     TimeSource();
-    void tryOpenRTC();
-    bool m_bUseRTC;
-    int m_RTCFD;
     
     static TimeSource* m_pTimeSource;
-
 };
 
 }

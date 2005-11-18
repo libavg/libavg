@@ -135,7 +135,8 @@ class PlayerTestCase(unittest.TestCase):
         Player.setTimeout(150, lambda: Player.screenshot("test1.png"))
         Player.setTimeout(200, lambda: self.assert_(Player.isPlaying() == 1)) 
         Player.setTimeout(250, Player.stop)
-        Player.play(Player.getVideoRefreshRate(), 1)
+        Player.setVBlankFramerate(1)
+        Player.play()
         
     def testImage(self):
         def loadNewFile():
@@ -146,7 +147,8 @@ class PlayerTestCase(unittest.TestCase):
         Player.loadFile("image.avg")
         Player.setTimeout(1000, loadNewFile)
         Player.setTimeout(2000, Player.stop)
-        Player.play(Player.getVideoRefreshRate(), 1)
+        Player.setVBlankFramerate(1)
+        Player.play()
         self.assert_(Player.isPlaying() == 0)
     def testError(self):
         Player.setTimeout(100, lambda: undefinedFunction)
@@ -163,12 +165,13 @@ class PlayerTestCase(unittest.TestCase):
         Player.loadFile("events.avg")
         Player.setTimeout(100, getMouseState);
         Player.setTimeout(200, Player.stop)
-        Player.play(Player.getVideoRefreshRate(), 1)
+        Player.setVBlankFramerate(1)
+        Player.play()
     def testEventErr(self):
         Player.loadFile("errevent.avg")
         Player.setTimeout(1000, Player.stop)
         try:
-            Player.play(Player.getVideoRefreshRate(), 1)
+            Player.play()
         except NameError:
             self.assert_(1)
     def createNodes(self):
@@ -206,14 +209,15 @@ class PlayerTestCase(unittest.TestCase):
 #        self.createNodes()
 #        Player.setTimeout(250, self.deleteNodes)
 #        Player.setTimeout(500, self.createNodes)
-#        Player.play(Player.getVideoRefreshRate(), 1)
+#        Player.play()
     def testHugeImage(self):
         def moveImage():
             Player.getElementByID("mainimg").x -= 50
         Player.loadFile("hugeimage.avg")
         timerid = Player.setInterval(10, moveImage)
         Player.setTimeout(1000, Player.stop)
-        Player.play(Player.getVideoRefreshRate(), 1)
+        Player.setVBlankFramerate(3)
+        Player.play()
     def testPanoImage(self):
         self.playAVG("panoimage.avg")
     def testBroken(self):
@@ -238,7 +242,7 @@ class PlayerTestCase(unittest.TestCase):
         Player.setTimeout(1500, lambda : activateExcl(1))
         Player.setInterval(10, move)
         Player.setTimeout(2000, Player.stop)
-        Player.play(Player.getVideoRefreshRate(), 1)
+        Player.play()
     def testAnimation(self):
         def moveit():
             node = Player.getElementByID("nestedimg1")
@@ -253,7 +257,7 @@ class PlayerTestCase(unittest.TestCase):
         Player.setInterval(10, moveit)
         Player.setInterval(10, moveit2)
         Player.setTimeout(2000, Player.stop)
-        Player.play(Player.getVideoRefreshRate(), 1)
+        Player.play()
     def testBlend(self):
         def moveBlended():
             for i in range(4):
@@ -262,7 +266,7 @@ class PlayerTestCase(unittest.TestCase):
         Player.loadFile("blend.avg")
         Player.setInterval(10, moveBlended)
         Player.setTimeout(2000, Player.stop)
-        Player.play(Player.getVideoRefreshRate(), 1)
+        Player.play()
     def testCrop(self):
         def cropTL():
             node = Player.getElementByID("img")
@@ -292,15 +296,15 @@ class PlayerTestCase(unittest.TestCase):
         Player.loadFile("crop.avg")
         self.cropInterval = Player.setInterval(10, cropTL)
         Player.getElementByID("img").play()
-        Player.play(Player.getVideoRefreshRate(), 1)
+        Player.play()
         Player.loadFile("crop2.avg")
         self.cropInterval = Player.setInterval(10, cropTL)
-        Player.play(Player.getVideoRefreshRate(), 1)
+        Player.play()
     def testUnicode(self):
         Player.loadFile("unicode.avg")
         Player.getElementByID("dynamictext").text = "Arabic nonsense: ﯿﭗ"
         Player.setTimeout(1000, Player.stop)
-        Player.play(Player.getVideoRefreshRate(), 1)
+        Player.play()
     def testWarp(self):
         def moveVertex():
             node = Player.getElementByID("testtiles")
@@ -319,7 +323,7 @@ class PlayerTestCase(unittest.TestCase):
                 +str(node.getNumVerticesY()))
         Player.setInterval(10, moveVertex)
         Player.setTimeout(5000, Player.stop)
-        Player.play(Player.getVideoRefreshRate(), 1)  
+        Player.play()  
         
         
 class WordsTestCase(unittest.TestCase):
@@ -376,7 +380,7 @@ class WordsTestCase(unittest.TestCase):
         Player.setTimeout(1500, changeFont)
         Player.setTimeout(1800, changeFont2)
         Player.setTimeout(2000, Player.stop)
-        Player.play(Player.getVideoRefreshRate(), 1)
+        Player.play()
 
 class VideoTestCase(unittest.TestCase):
     def __init__(self, testFuncName, engine, bpp):
@@ -430,7 +434,8 @@ class VideoTestCase(unittest.TestCase):
         Player.setTimeout(3000, stop)
         Player.setTimeout(3500, playclogo)
         Player.setTimeout(5000, Player.stop)
-        Player.play(Player.getVideoRefreshRate(), 1)
+        Player.setFramerate(25)
+        Player.play()
 
 class AnimTestCase(unittest.TestCase):
     def __init__(self, testFuncName, engine, bpp):
@@ -462,33 +467,33 @@ class AnimTestCase(unittest.TestCase):
         Player.setTimeout(10, startAnim)
         Player.setTimeout(1100, startSplineAnim)
         Player.setTimeout(1500, lambda: self.assert_(self.__animStopped == 1))
-        Player.play(Player.getVideoRefreshRate(), 1)
+        Player.play()
 
 
 def playerTestSuite(engine, bpp):
     suite = unittest.TestSuite()
  
-#    suite.addTest(LoggerTestCase("test"))
-#    suite.addTest(ParPortTestCase("test"))
-#    suite.addTest(ConradRelaisTestCase("test"))
-#    suite.addTest(NodeTestCase("testAttributes"))
-#    suite.addTest(PlayerTestCase("testImage", engine, bpp))
-#    suite.addTest(PlayerTestCase("testError", engine, bpp))
-#    suite.addTest(PlayerTestCase("testEvents", engine, bpp))
-#    suite.addTest(PlayerTestCase("testEventErr", engine, bpp))
-##    suite.addTest(PlayerTestCase("testDynamics", engine, bpp))
-#    suite.addTest(PlayerTestCase("testHugeImage", engine, bpp))
-#    suite.addTest(PlayerTestCase("testBroken", engine, bpp))
-#    suite.addTest(PlayerTestCase("testExcl", engine, bpp))
-#    suite.addTest(PlayerTestCase("testAnimation", engine, bpp))
-#    suite.addTest(PlayerTestCase("testBlend", engine, bpp))
-#    suite.addTest(PlayerTestCase("testCrop", engine, bpp))
-#    suite.addTest(PlayerTestCase("testUnicode", engine, bpp))
-#    suite.addTest(WordsTestCase("test", engine, bpp))
-#    suite.addTest(VideoTestCase("test", engine, bpp))
-#    if engine == avg.OGL:
-#        suite.addTest(PlayerTestCase("testPanoImage", engine, bpp))
-#        suite.addTest(PlayerTestCase("testWarp", engine, bpp))
+    suite.addTest(LoggerTestCase("test"))
+    suite.addTest(ParPortTestCase("test"))
+    suite.addTest(ConradRelaisTestCase("test"))
+    suite.addTest(NodeTestCase("testAttributes"))
+    suite.addTest(PlayerTestCase("testImage", engine, bpp))
+    suite.addTest(PlayerTestCase("testError", engine, bpp))
+    suite.addTest(PlayerTestCase("testEvents", engine, bpp))
+    suite.addTest(PlayerTestCase("testEventErr", engine, bpp))
+#    suite.addTest(PlayerTestCase("testDynamics", engine, bpp))
+    suite.addTest(PlayerTestCase("testHugeImage", engine, bpp))
+    suite.addTest(PlayerTestCase("testBroken", engine, bpp))
+    suite.addTest(PlayerTestCase("testExcl", engine, bpp))
+    suite.addTest(PlayerTestCase("testAnimation", engine, bpp))
+    suite.addTest(PlayerTestCase("testBlend", engine, bpp))
+    suite.addTest(PlayerTestCase("testCrop", engine, bpp))
+    suite.addTest(PlayerTestCase("testUnicode", engine, bpp))
+    suite.addTest(WordsTestCase("test", engine, bpp))
+    suite.addTest(VideoTestCase("test", engine, bpp))
+    if engine == avg.OGL:
+        suite.addTest(PlayerTestCase("testPanoImage", engine, bpp))
+        suite.addTest(PlayerTestCase("testWarp", engine, bpp))
     suite.addTest(AnimTestCase("test", engine, bpp))
     return suite
 

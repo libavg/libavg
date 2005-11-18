@@ -58,12 +58,12 @@ namespace avg {
 Player::Player()
     : m_pRootNode (0),
       m_pDisplayEngine(0),
-      m_pFramerateManager(0),
       m_bInHandleTimers(false),
       m_pLastMouseNode(0),
       m_bShowCursor(true),
       m_bIsPlaying(false)
 {
+    m_pFramerateManager = new FramerateManager;
     initConfig();
 }
 
@@ -72,6 +72,7 @@ Player::~Player()
     if (m_pDisplayEngine) {
         delete m_pDisplayEngine;
     }
+    delete m_pFramerateManager;
 }
 
 void Player::setDisplayEngine(DisplayEngineType engine)
@@ -212,7 +213,7 @@ void Player::loadFile (const std::string& filename)
     }
 }
 
-void Player::play (double framerate, bool bSyncToVBlank)
+void Player::play()
 {
     m_bIsPlaying = true;
     try {
@@ -225,8 +226,7 @@ void Player::play (double framerate, bool bSyncToVBlank)
         m_EventDispatcher.addSink(&m_EventDumper);
         m_EventDispatcher.addSink(this);
         
-        m_pFramerateManager = new FramerateManager;
-        m_pFramerateManager->SetRate(framerate, bSyncToVBlank);
+        m_pFramerateManager->Init();
         m_bStopping = false;
 
         m_pDisplayEngine->render(m_pRootNode, m_pFramerateManager, true);
@@ -256,6 +256,14 @@ void Player::stop ()
 bool Player::isPlaying()
 {
     return m_bIsPlaying;
+}
+
+void Player::setFramerate(double rate) {
+    m_pFramerateManager->SetRate(rate);
+}
+
+bool Player::setVBlankFramerate(int rate) {
+    m_pFramerateManager->SetVBlankRate(rate);
 }
 
 int Player::setInterval(int time, PyObject * pyfunc)
@@ -678,10 +686,9 @@ void Player::cleanup()
     }
     m_PendingTimeouts.clear();
     Profiler::get().dumpStatistics();
-
+    m_pFramerateManager->Deinit();
     m_pRootNode = 0;
 
-    delete m_pFramerateManager;
     m_IDMap.clear();
     initConfig();
 }

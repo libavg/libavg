@@ -44,9 +44,11 @@ class Player : IEventSink
         void setResolution(bool bFullscreen, 
                 int width=0, int height=0, int bpp=0);
         void loadFile (const std::string& fileName);
-        void play (double framerate, bool bSyncToVBlank);
-        void stop ();
+        void play();
+        void stop();
         bool isPlaying();
+        void setFramerate(double rate);
+        bool setVBlankFramerate(int rate);
 
         Node * createNodeFromXmlString (const std::string& sXML);
         int setInterval(int time, PyObject * pyfunc);
