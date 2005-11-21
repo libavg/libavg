@@ -29,9 +29,8 @@ class Container;
 class Event;
 class MouseEvent;
 class ConradRelais;
-class IDisplayEngine;
+class DisplayEngine;
 class Camera;
-class FramerateManager;
 
 class Player : IEventSink
 {
@@ -65,7 +64,7 @@ class Player : IEventSink
         double getFramerate();
         double getVideoRefreshRate();
         virtual bool handleEvent(Event * pEvent);
-        IDisplayEngine * getDisplayEngine() const;
+        DisplayEngine * getDisplayEngine() const;
 
         void registerFrameListener(IFrameListener* pListener);
         void unregisterFrameListener(IFrameListener* pListener);
@@ -84,11 +83,10 @@ class Player : IEventSink
         void cleanup();
 	
         AVGNode * m_pRootNode;
-        IDisplayEngine * m_pDisplayEngine;
+        DisplayEngine * m_pDisplayEngine;
         IEventSource * m_pEventSource;
 
         std::string m_CurDirName;
-        FramerateManager * m_pFramerateManager;
         bool m_bStopping;
         typedef std::map<std::string, Node*> NodeIDMap;
         NodeIDMap m_IDMap;

@@ -17,7 +17,7 @@ class Image : public RasterNode
         Image ();
         Image (const xmlNodePtr xmlNode, Container * pParent);
         virtual ~Image ();
-        virtual void init (IDisplayEngine * pEngine, 
+        virtual void init (DisplayEngine * pEngine, 
                 Container * pParent, Player * pPlayer);
 
         const std::string& getHRef() const;

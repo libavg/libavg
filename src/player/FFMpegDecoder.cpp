@@ -4,7 +4,6 @@
 
 #include "FFMpegDecoder.h"
 
-#include "IDisplayEngine.h"
 #include "Player.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -237,9 +236,7 @@ bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
     readFrame(Frame);
     if (!m_bEOF) {
         AVPicture DestPict;
-        int x1 = 0;
-        int y1 = 0;
-        unsigned char * pDestBits = pBmp->getPixels(); //+pBmp->getStride()*y1+3*x1;
+        unsigned char * pDestBits = pBmp->getPixels();
         DestPict.data[0] = pDestBits;
         DestPict.data[1] = pDestBits+1;
         DestPict.linesize[0] = pBmp->getStride();

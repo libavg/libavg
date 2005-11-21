@@ -7,7 +7,6 @@
 #include "Player.h"
 #include "Node.h"
 #include "AVGNode.h"
-#include "FramerateManager.h"
 #include "DFBSurface.h"
 
 #include "Event.h"
@@ -301,8 +300,13 @@ void DFBDisplayEngine::teardown()
     m_pDirectFB = 0;
 }
 
-void DFBDisplayEngine::render(AVGNode * pRootNode, 
-        FramerateManager * pFramerateManager, bool bRenderEverything)
+double DFBDisplayEngine::getRefreshRate() 
+{
+    // TODO
+    return 0;
+}
+
+void DFBDisplayEngine::render(AVGNode * pRootNode, bool bRenderEverything)
 {
     pRootNode->prepareRender(0, pRootNode->getAbsViewport());
     Region UpdateRegion;
@@ -320,9 +324,9 @@ void DFBDisplayEngine::render(AVGNode * pRootNode,
         clear();
         pRootNode->maybeRender(rc);
     }
-    pFramerateManager->FrameWait();
+    frameWait();
     swapBuffers(UpdateRegion);
-    pFramerateManager->CheckJitter();
+    checkJitter();
 }
 
 void DFBDisplayEngine::setClipRect()
@@ -690,6 +694,25 @@ Event * DFBDisplayEngine::createEvent(DFBWindowEvent* pdfbwEvent)
     }
     return pEvent;
 }
+
+bool DFBDisplayEngine::initVBlank(int rate) 
+{
+    if (rate > 1) {
+        AVG_TRACE(Logger::ERROR, 
+                "The DFB display engine only supports a VBlank rate of 1. ");
+        AVG_TRACE(Logger::ERROR,
+                rate << " was given.");
+        return false;
+    } 
+}
+
+bool DFBDisplayEngine::vbWait(int rate)
+{
+    if (rate != 0) {
+        m_pDirectFB->WaitForSync(m_pDirectFB);
+    }
+}
+
 
 int DFBDisplayEngine::getWidth()
 {

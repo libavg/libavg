@@ -8,7 +8,7 @@
 #include "../avgconfig.h"
 
 #include "Camera.h"
-#include "IDisplayEngine.h"
+#include "DisplayEngine.h"
 #include "Player.h"
 #include "Container.h"
 #include "ISurface.h"
@@ -89,7 +89,7 @@ Camera::~Camera ()
 {
 }
 
-void Camera::init (IDisplayEngine * pEngine, Container * pParent,
+void Camera::init (DisplayEngine * pEngine, Container * pParent,
         Player * pPlayer)
 {
 #ifdef AVG_ENABLE_1394

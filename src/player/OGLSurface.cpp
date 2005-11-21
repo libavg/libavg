@@ -264,7 +264,7 @@ void OGLSurface::rebind()
 
 void OGLSurface::blt(const DRect* pDestRect, double opacity, 
                 double angle, const DPoint& pivot, 
-                IDisplayEngine::BlendMode Mode)
+                DisplayEngine::BlendMode Mode)
 {
     if (!m_bBound) {
         bind();
@@ -366,7 +366,7 @@ void OGLSurface::initTileVertex (int x, int y, DPoint& Vertex)
 
 void OGLSurface::bltTexture(const DRect* pDestRect, 
                 double angle, const DPoint& pivot, 
-                IDisplayEngine::BlendMode Mode)
+                DisplayEngine::BlendMode Mode)
 {
     if (fabs(angle) > 0.001) {
         DPoint center(pDestRect->tl.x+pivot.x,
@@ -382,22 +382,22 @@ void OGLSurface::bltTexture(const DRect* pDestRect,
     }
 
     switch(Mode) {
-        case IDisplayEngine::BLEND_BLEND:
+        case DisplayEngine::BLEND_BLEND:
             glBlendEquation(GL_FUNC_ADD);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             checkBlendModeError("blend");
             break;
-        case IDisplayEngine::BLEND_ADD:
+        case DisplayEngine::BLEND_ADD:
             glBlendEquation(GL_FUNC_ADD);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE);
             checkBlendModeError("add");
             break;
-        case IDisplayEngine::BLEND_MIN:
+        case DisplayEngine::BLEND_MIN:
             glBlendEquation(GL_MIN);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             checkBlendModeError("min");
             break;
-        case IDisplayEngine::BLEND_MAX:
+        case DisplayEngine::BLEND_MAX:
             glBlendEquation(GL_MAX);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             checkBlendModeError("max");

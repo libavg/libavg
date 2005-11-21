@@ -6,7 +6,7 @@
 #define _RasterNode_H_
 
 #include "Node.h"
-#include "IDisplayEngine.h"
+#include "DisplayEngine.h"
 #include "../graphics/Point.h"
 
 #include <string>
@@ -50,7 +50,7 @@ class RasterNode: public Node
 #ifdef AVG_ENABLE_GL
         OGLSurface * RasterNode::getOGLSurface();
 #endif
-        IDisplayEngine::BlendMode getBlendMode() const;
+        DisplayEngine::BlendMode getBlendMode() const;
         virtual std::string getTypeStr ();
         Node * getElementByPos (const DPoint & pos);
         
@@ -69,7 +69,7 @@ class RasterNode: public Node
         
         IntPoint m_MaxTileSize;
         std::string m_sBlendMode;
-        IDisplayEngine::BlendMode m_BlendMode;
+        DisplayEngine::BlendMode m_BlendMode;
 };
 
 }

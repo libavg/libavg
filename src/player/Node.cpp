@@ -9,7 +9,7 @@
 #include "MouseEvent.h"
 #include "Container.h"
 #include "Player.h"
-#include "IDisplayEngine.h"
+#include "DisplayEngine.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -77,7 +77,7 @@ Node::~Node()
 {
 }
 
-void Node::init(IDisplayEngine * pEngine, Container * pParent, 
+void Node::init(DisplayEngine * pEngine, Container * pParent, 
         Player * pPlayer)
 {
     m_pParent = pParent;
@@ -341,7 +341,7 @@ double Node::getEffectiveOpacity()
     }
 }
 
-IDisplayEngine * Node::getEngine()
+DisplayEngine * Node::getEngine()
 {
     return m_pEngine;
 }

@@ -6,7 +6,7 @@
 #define _DFBDisplayEngine_H_
 
 #include "IEventSource.h"
-#include "IDisplayEngine.h"
+#include "DisplayEngine.h"
 
 #include <directfb/directfb.h>
 
@@ -14,7 +14,7 @@
 
 namespace avg {
 
-class DFBDisplayEngine: public IDisplayEngine, public IEventSource
+class DFBDisplayEngine: public DisplayEngine, public IEventSource
 {
     public:
         DFBDisplayEngine();
@@ -24,9 +24,9 @@ class DFBDisplayEngine: public IDisplayEngine, public IEventSource
         virtual void init(int width, int height, bool isFullscreen, int bpp,
                 int WindowWidth, int WindowHeight);
         virtual void teardown();
+        virtual double getRefreshRate();
 
-        virtual void render(AVGNode * pRootNode, 
-                FramerateManager * pFramerateManager, bool bRenderEverything);
+        virtual void render(AVGNode * pRootNode, bool bRenderEverything);
         
         virtual void setClipRect();
         virtual bool pushClipRect(const DRect& rc, bool bClip);
@@ -77,6 +77,9 @@ class DFBDisplayEngine: public IDisplayEngine, public IEventSource
         int translateModifiers(DFBInputDeviceModifierMask DFBModifiers);
         Event * createEvent(DFBWindowEvent* pdfbwEvent);
       
+        virtual bool initVBlank(int rate);
+        virtual bool vbWait(int rate);
+
         int m_Width;
         int m_Height;
         bool m_IsFullscreen;

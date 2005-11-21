@@ -31,8 +31,6 @@
 #include "SDLDisplayEngine.h"
 #endif
 
-#include "FramerateManager.h"
-
 #include "../base/FileHelper.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -63,7 +61,6 @@ Player::Player()
       m_bShowCursor(true),
       m_bIsPlaying(false)
 {
-    m_pFramerateManager = new FramerateManager;
     initConfig();
 }
 
@@ -72,7 +69,6 @@ Player::~Player()
     if (m_pDisplayEngine) {
         delete m_pDisplayEngine;
     }
-    delete m_pFramerateManager;
 }
 
 void Player::setDisplayEngine(DisplayEngineType engine)
@@ -226,10 +222,10 @@ void Player::play()
         m_EventDispatcher.addSink(&m_EventDumper);
         m_EventDispatcher.addSink(this);
         
-        m_pFramerateManager->Init();
+        m_pDisplayEngine->initRender();
         m_bStopping = false;
 
-        m_pDisplayEngine->render(m_pRootNode, m_pFramerateManager, true);
+        m_pDisplayEngine->render(m_pRootNode, true);
         
         Profiler::get().start();
         try {
@@ -259,11 +255,11 @@ bool Player::isPlaying()
 }
 
 void Player::setFramerate(double rate) {
-    m_pFramerateManager->SetRate(rate);
+    m_pDisplayEngine->setFramerate(rate);
 }
 
 bool Player::setVBlankFramerate(int rate) {
-    m_pFramerateManager->SetVBlankRate(rate);
+    m_pDisplayEngine->setVBlankRate(rate);
 }
 
 int Player::setInterval(int time, PyObject * pyfunc)
@@ -396,7 +392,7 @@ void Player::doFrame ()
         }
         if (!m_bStopping) {
             ScopeTimer Timer(RenderProfilingZone);
-            m_pDisplayEngine->render(m_pRootNode, m_pFramerateManager, false);
+            m_pDisplayEngine->render(m_pRootNode, false);
         }
         {
             ScopeTimer Timer(ListenerProfilingZone);
@@ -406,7 +402,7 @@ void Player::doFrame ()
         }
     }
     long FrameTime = long(MainProfilingZone.getUSecs()/1000);
-    long TargetTime = long(1000/m_pFramerateManager->GetRate());
+    long TargetTime = long(1000/m_pDisplayEngine->getRefreshRate());
     if (FrameTime > TargetTime+2) {
         AVG_TRACE(Logger::PROFILE_LATEFRAMES, "frame too late by " <<
                 FrameTime-TargetTime << " ms.");
@@ -417,12 +413,12 @@ void Player::doFrame ()
 
 double Player::getFramerate ()
 {
-    return m_pFramerateManager->GetRate();
+    return m_pDisplayEngine->getFramerate();
 }
 
 double Player::getVideoRefreshRate()
 {
-    return m_pFramerateManager->GetRefreshRate();
+    return m_pDisplayEngine->getRefreshRate();
 }
 
 void Player::initConfig() {
@@ -660,7 +656,7 @@ bool Player::handleEvent(Event * pEvent)
     return true; 
 }
 
-IDisplayEngine * Player::getDisplayEngine() const 
+DisplayEngine * Player::getDisplayEngine() const 
 {
     return m_pDisplayEngine;
 }
@@ -686,7 +682,7 @@ void Player::cleanup()
     }
     m_PendingTimeouts.clear();
     Profiler::get().dumpStatistics();
-    m_pFramerateManager->Deinit();
+    m_pDisplayEngine->deinitRender();
     m_pRootNode = 0;
 
     m_IDMap.clear();

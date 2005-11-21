@@ -2,12 +2,12 @@
 // $Id$
 //
 
+
 #include "SDLDisplayEngine.h"
 #include "Region.h"
 #include "Player.h"
 #include "Node.h"
 #include "AVGNode.h"
-#include "FramerateManager.h"
 
 #include "Event.h"
 #include "MouseEvent.h"
@@ -23,9 +23,14 @@
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
 
+// TODO: This will break on OS X.
+#include <X11/Xlib.h>
+#include <X11/extensions/xf86vmode.h>
+
 #define XMD_H 1
 #include "GL/gl.h"
 #include "GL/glu.h"
+#include "GL/glx.h"
 
 #include <sys/ioctl.h>
 #include <sys/fcntl.h>
@@ -34,10 +39,13 @@
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
+#include <assert.h>
 
 using namespace std;
 
 namespace avg {
+
+double SDLDisplayEngine::s_RefreshRate = 0.0;
 
 void dumpSDLGLParams() {
     int value;
@@ -62,13 +70,15 @@ void dumpSDLGLParams() {
 
 SDLDisplayEngine::SDLDisplayEngine()
     : m_bEnableCrop(false),
-      m_pScreen(0)
+      m_pScreen(0),
+      m_VBMod(0)
 {
     if (SDL_InitSubSystem(SDL_INIT_VIDEO)==-1) {
         AVG_TRACE(Logger::ERROR, "Can't init SDL display subsystem.");
         exit(-1);
     }
     initTranslationTable();
+    calcRefreshRate();
 }
 
 SDLDisplayEngine::~SDLDisplayEngine()
@@ -163,6 +173,13 @@ void SDLDisplayEngine::teardown()
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
+double SDLDisplayEngine::getRefreshRate() {
+    if (s_RefreshRate == 0.0) {
+        calcRefreshRate();
+    }
+    return s_RefreshRate;
+}
+
 void SDLDisplayEngine::logConfig() 
 {
     AVG_TRACE(Logger::CONFIG, "OpenGL version: " << glGetString(GL_VERSION));
@@ -180,8 +197,7 @@ void SDLDisplayEngine::logConfig()
 static ProfilingZone PrepareRenderProfilingZone("  Root node: prepareRender");
 static ProfilingZone RootRenderProfilingZone("  Root node: render");
 
-void SDLDisplayEngine::render(AVGNode * pRootNode, 
-        FramerateManager * pFramerateManager, bool bRenderEverything)
+void SDLDisplayEngine::render(AVGNode * pRootNode, bool bRenderEverything)
 {
     if (!m_bEnableCrop && pRootNode->getCropSetting()) {
         m_bEnableCrop = true;
@@ -227,9 +243,9 @@ void SDLDisplayEngine::render(AVGNode * pRootNode,
         ScopeTimer Timer(RootRenderProfilingZone);
         pRootNode->maybeRender(rc);
     }
-    pFramerateManager->FrameWait();
+    frameWait();
     swapBuffers();
-    pFramerateManager->CheckJitter();
+    checkJitter();
 }
  
 void SDLDisplayEngine::setClipRect()
@@ -404,6 +420,96 @@ int SDLDisplayEngine::getHeight()
 int SDLDisplayEngine::getBPP()
 {
     return m_bpp;
+}
+
+bool SDLDisplayEngine::initVBlank(int rate) {
+    if (rate > 0) {
+#ifdef __APPLE__
+        GLint swapInt = rate;
+        // TODO: Find out why aglGetCurrentContext doesn't work.
+        AGLContext Context = aglGetCurrentContext();
+        if (Context == 0) {
+            AVG_TRACE(Logger::WARNING,
+                    "Mac VBlank setup failed in aglGetCurrentContext(). Error was "
+                    << aglGetError() << ".");
+        }
+        bool bOk = aglSetInteger(Context, AGL_SWAP_INTERVAL, &swapInt);
+        m_VBMethod = VB_APPLE;
+
+        if (bOk == GL_FALSE) {
+            AVG_TRACE(Logger::WARNING,
+                    "Mac VBlank setup failed with error code " << 
+                    aglGetError() << ".");
+            m_VBMethod = VB_NONE;
+        }
+#else
+        if (queryGLXExtension("GLX_SGI_video_sync")) {
+            m_VBMethod = VB_SGI;
+            m_bFirstVBFrame = true;
+            if (getenv("__GL_SYNC_TO_VBLANK") != 0) 
+            {
+                AVG_TRACE(Logger::WARNING, 
+                        "__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
+                m_VBMethod = VB_NONE;
+            }
+        } else {
+            m_VBMethod = VB_NONE;
+        }
+    } else {
+        m_VBMethod = VB_NONE;
+    }
+#endif
+    switch(m_VBMethod) {
+        case VB_SGI:
+            AVG_TRACE(Logger::CONFIG, 
+                    "Using SGI interface for vertical blank support.");
+            break;
+        case VB_APPLE:
+            AVG_TRACE(Logger::CONFIG, "Using Apple GL vertical blank support.");
+            break;
+        case VB_NONE:
+            AVG_TRACE(Logger::CONFIG, "Vertical blank support disabled.");
+            break;
+    }
+    return m_VBMethod != VB_NONE;
+}
+
+bool SDLDisplayEngine::vbWait(int rate) {
+    switch(m_VBMethod) {
+        case VB_SGI: {
+                unsigned int count;
+                int err = glXWaitVideoSyncSGI(rate, m_VBMod, &count);
+                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                        "VBlank::glXWaitVideoSyncSGI");
+                if (err) {
+                    AVG_TRACE(Logger::ERROR, "glXWaitVideoSyncSGI returned " 
+                            << err << ".");
+                    AVG_TRACE(Logger::ERROR, "Rate was " << rate 
+                            << ", Mod was " << m_VBMod);
+                    AVG_TRACE(Logger::ERROR, "Aborting.");
+                    assert(false);
+                }
+                m_VBMod = count % rate;
+                bool bMissed;
+                if (!m_bFirstVBFrame && int(count) != m_LastVBCount+rate) {
+                    AVG_TRACE(Logger::PROFILE_LATEFRAMES, count-m_LastVBCount
+                            << " VBlank intervals missed, shound be " 
+                            << rate);
+                    bMissed = true;
+                } else {
+                    bMissed = false;
+                }
+                m_LastVBCount = count;
+                m_bFirstVBFrame = false;
+                return !bMissed;
+            }
+            break;
+        case VB_APPLE:
+            // Nothing needs to be done.
+            return false;
+        case VB_NONE:
+            assert(false);
+    }
 }
 
 vector<long> SDLDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
@@ -822,6 +928,31 @@ void SDLDisplayEngine::initTranslationTable()
     TRANSLATION_ENTRY(POWER);
     TRANSLATION_ENTRY(EURO);
     TRANSLATION_ENTRY(UNDO);
+}
+
+void SDLDisplayEngine::calcRefreshRate() {
+    double lastRefreshRate = s_RefreshRate;
+#ifdef __APPLE__
+#warning calcRefreshRate unimplemented on Mac!
+    s_RefreshRate = 120;
+#else 
+    Display * display = XOpenDisplay(0);
+    
+    int PixelClock;
+    XF86VidModeModeLine mode_line;
+    bool bOK = XF86VidModeGetModeLine (display, DefaultScreen(display), 
+            &PixelClock, &mode_line);
+    if (!bOK) {
+        AVG_TRACE (Logger::WARNING, 
+                "Could not get current refresh rate (XF86VidModeGetModeLine failed).");
+    }
+    double HSyncRate = PixelClock*1000.0/mode_line.htotal;
+    s_RefreshRate = HSyncRate/mode_line.vtotal;
+#endif
+    if (lastRefreshRate != s_RefreshRate) {
+        AVG_TRACE(Logger::CONFIG, "Vertical Refresh Rate: " << s_RefreshRate);
+    }
+
 }
 
 }

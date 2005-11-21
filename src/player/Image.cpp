@@ -4,7 +4,7 @@
 
 #include "Image.h"
 
-#include "IDisplayEngine.h"
+#include "DisplayEngine.h"
 #include "Player.h"
 #include "ISurface.h"
 
@@ -42,7 +42,7 @@ Image::~Image ()
 {
 }
 
-void Image::init (IDisplayEngine * pEngine, Container * pParent,
+void Image::init (DisplayEngine * pEngine, Container * pParent,
         Player * pPlayer)
 {
     Node::init(pEngine, pParent, pPlayer);

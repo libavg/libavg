@@ -10,7 +10,7 @@
 #include "OGLSurface.h"
 #endif
 #include "MathHelper.h"
-#include "IDisplayEngine.h"
+#include "DisplayEngine.h"
 
 #include "../base/Logger.h"
 #include "../base/XMLHelper.h"
@@ -169,13 +169,13 @@ void RasterNode::setBlendModeStr(const std::string& sBlendMode)
 {
     m_sBlendMode = sBlendMode;
     if (m_sBlendMode == "blend") {
-        m_BlendMode = IDisplayEngine::BLEND_BLEND;
+        m_BlendMode = DisplayEngine::BLEND_BLEND;
     } else if (m_sBlendMode == "add") {
-        m_BlendMode = IDisplayEngine::BLEND_ADD;
+        m_BlendMode = DisplayEngine::BLEND_ADD;
     } else if (m_sBlendMode == "min") {
-        m_BlendMode = IDisplayEngine::BLEND_MIN;
+        m_BlendMode = DisplayEngine::BLEND_MIN;
     } else if (m_sBlendMode == "max") {
-        m_BlendMode = IDisplayEngine::BLEND_MAX;
+        m_BlendMode = DisplayEngine::BLEND_MAX;
     } else {
         // TODO: throw exception here
     }
@@ -216,7 +216,7 @@ OGLSurface * RasterNode::getOGLSurface()
 }
 #endif
 
-IDisplayEngine::BlendMode RasterNode::getBlendMode() const
+DisplayEngine::BlendMode RasterNode::getBlendMode() const
 {
     return m_BlendMode;
 }

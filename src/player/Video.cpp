@@ -3,7 +3,7 @@
 // 
 
 #include "Video.h"
-#include "IDisplayEngine.h"
+#include "DisplayEngine.h"
 #include "Player.h"
 #include "FFMpegDecoder.h"
 #include "ISurface.h"
@@ -87,7 +87,7 @@ bool Video::isYCbCrSupported()
     return m_pDecoder->isYCbCrSupported();
 }
 
-void Video::init (IDisplayEngine * pEngine, Container * pParent, 
+void Video::init (DisplayEngine * pEngine, Container * pParent, 
         Player * pPlayer)
 {
     m_pDecoder = new FFMpegDecoder();

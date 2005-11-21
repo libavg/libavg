@@ -10,7 +10,7 @@
 #undef PACKAGE_VERSION
 
 #include "VideoBase.h"
-#include "IDisplayEngine.h"
+#include "DisplayEngine.h"
 #ifdef AVG_ENABLE_DFB
 #include "DFBDisplayEngine.h"
 #include "DFBSurface.h"
@@ -81,7 +81,7 @@ void VideoBase::pause()
     changeState(Paused);
 }
 
-void VideoBase::init(IDisplayEngine * pEngine, Container * pParent, 
+void VideoBase::init(DisplayEngine * pEngine, Container * pParent, 
         Player * pPlayer)
 {
     Node::init(pEngine, pParent, pPlayer);

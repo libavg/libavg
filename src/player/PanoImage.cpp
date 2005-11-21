@@ -64,7 +64,7 @@ PanoImage::~PanoImage ()
 {
 }
 
-void PanoImage::init (IDisplayEngine * pEngine,
+void PanoImage::init (DisplayEngine * pEngine,
         Container * pParent, Player * pPlayer)
 {
     Node::init(pEngine, pParent, pPlayer);

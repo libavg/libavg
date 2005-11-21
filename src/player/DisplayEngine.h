@@ -2,8 +2,8 @@
 // $Id$
 //
 
-#ifndef _IDisplayEngine_H_
-#define _IDisplayEngine_H_
+#ifndef _DisplayEngine_H_
+#define _DisplayEngine_H_
 
 #include "../graphics/Rect.h"
 #include "../graphics/Pixel32.h"
@@ -16,23 +16,28 @@ namespace avg {
 class ISurface;
 
 class Region;
-class FramerateManager;
 class Node;
 class AVGNode;
 
-class IDisplayEngine
+class DisplayEngine
 {	
     public:
         typedef enum BlendMode {BLEND_BLEND, BLEND_ADD, BLEND_MIN, BLEND_MAX};
 
-        virtual ~IDisplayEngine(){};
+        DisplayEngine();
+        virtual ~DisplayEngine();
         virtual void init(int width, int height, bool isFullscreen, 
                 int bpp, int WindowWidth, int WindowHeight) = 0;
         virtual void teardown() = 0;
+        void initRender();
+        void deinitRender();
+        void setFramerate(double rate);
+        double getFramerate();
+        bool setVBlankRate(int rate);
+        virtual double getRefreshRate() = 0;
 
-        virtual void render(AVGNode * pRootNode, 
-                FramerateManager * pFramerateManager, 
-                bool bRenderEverything) = 0;
+        virtual void render(AVGNode * pRootNode, bool bRenderEverything) = 0;
+        void frameWait();
         
         virtual void setClipRect() = 0;
         virtual bool pushClipRect(const DRect& rc, bool bClip) = 0;
@@ -59,10 +64,28 @@ class IDisplayEngine
         virtual void showCursor (bool bShow) = 0;
 
         virtual BitmapPtr screenshot () = 0;
-
+    
+    protected:
+        void checkJitter();
+        
+    private:
+        virtual bool initVBlank(int rate) = 0;
+        virtual bool vbWait(int rate) = 0;
+        
+        int m_NumFrames;
+        int m_FramesTooLate;
+        long long m_FrameWaitStartTime;
+        long long m_TimeSpentWaiting;
+        long long m_StartTime;
+        long long m_TargetTime;
+        long long m_LastFrameTime;
+        int m_VBRate;
+        double m_Framerate;
+        bool m_bInitialized;
+        
 };
 
 }
 
-#endif //_IDisplayEngine_H_
+#endif //_DisplayEngine_H_
 

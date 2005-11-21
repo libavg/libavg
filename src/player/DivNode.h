@@ -17,7 +17,7 @@ class DivNode : public Container
         DivNode ();
         DivNode (const xmlNodePtr xmlNode, Container * pParent);
         virtual ~DivNode ();
-        virtual void init(IDisplayEngine * pEngine, Container * pParent, 
+        virtual void init(DisplayEngine * pEngine, Container * pParent, 
                 Player * pPlayer);
 
         virtual Node * getElementByPos (const DPoint & pos);

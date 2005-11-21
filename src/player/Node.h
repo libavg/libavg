@@ -20,7 +20,7 @@ namespace avg {
 class Container;
 class Event;
 class Region;
-class IDisplayEngine;
+class DisplayEngine;
 class Player;
 class MouseEvent;
 class OGLSurface;
@@ -29,7 +29,7 @@ class Node
 {
     public:
         virtual ~Node () = 0;
-        virtual void init(IDisplayEngine * pEngine, Container * pParent,
+        virtual void init(DisplayEngine * pEngine, Container * pParent,
                 Player * pPlayer);
         virtual void initVisible();
         
@@ -94,7 +94,7 @@ class Node
         virtual DPoint getPreferredMediaSize() 
             { return DPoint(0,0); };
         Player * getPlayer();
-        IDisplayEngine * getEngine();
+        DisplayEngine * getEngine();
 
         void Node::callPython (const std::string& Code, const avg::Event& Event);
             
@@ -105,7 +105,7 @@ class Node
         void calcAbsViewport();
 
         Container * m_pParent;
-        IDisplayEngine * m_pEngine;
+        DisplayEngine * m_pEngine;
         Player * m_pPlayer;
 
         std::string m_ID;

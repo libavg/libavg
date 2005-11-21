@@ -6,7 +6,7 @@
 #define _OGLSurface_H_
 
 #include "ISurface.h"
-#include "IDisplayEngine.h"
+#include "DisplayEngine.h"
 #include "../graphics/Rect.h"
 
 #include <vector>
@@ -36,7 +36,7 @@ class OGLSurface: public ISurface {
 
         void blt(const DRect* pDestRect, double opacity, 
                 double angle, const DPoint& pivot, 
-                IDisplayEngine::BlendMode Mode);
+                DisplayEngine::BlendMode Mode);
         unsigned int getTexID();
 
         void setMaxTileSize(const Point<int>& MaxTileSize);
@@ -63,7 +63,7 @@ class OGLSurface: public ISurface {
         void bindOneTexture(TextureTile& Tile);
         void bltTexture(const DRect* pDestRect, 
                 double angle, const DPoint& pivot, 
-                IDisplayEngine::BlendMode Mode);
+                DisplayEngine::BlendMode Mode);
         DPoint calcFinalVertex(const DRect* pDestRect,
                 const DPoint & NormalizedVertex);
         void bltTile(const TextureTile& Tile, 

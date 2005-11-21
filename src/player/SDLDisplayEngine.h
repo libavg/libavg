@@ -6,8 +6,7 @@
 #define _SDLDisplayEngine_H_
 
 #include "IEventSource.h"
-#include "IDisplayEngine.h"
-#include "VBlank.h"
+#include "DisplayEngine.h"
 #include "../graphics/Pixel32.h"
 
 #include <SDL/SDL.h>
@@ -19,19 +18,19 @@ namespace avg {
 
 class OGLSurface;
 
-class SDLDisplayEngine: public IDisplayEngine, public IEventSource
+class SDLDisplayEngine: public DisplayEngine, public IEventSource
 {
     public:
         SDLDisplayEngine();
         virtual ~SDLDisplayEngine();
 
-        // From IDisplayEngine
+        // From DisplayEngine
         virtual void init(int width, int height, bool isFullscreen, int bpp,
                 int WindowWidth, int WindowHeight);
         virtual void teardown();
+        virtual double getRefreshRate();
 
-        virtual void render(AVGNode * pRootNode, 
-                FramerateManager * pFramerateManager, bool bRenderEverything);
+        virtual void render(AVGNode * pRootNode, bool bRenderEverything);
         
         virtual void setClipRect();
         virtual bool pushClipRect(const DRect& rc, bool bClip);
@@ -90,6 +89,18 @@ class SDLDisplayEngine: public IDisplayEngine, public IEventSource
         bool m_bEnableCrop;
 
         SDL_Surface * m_pScreen;
+
+        // Vertical blank stuff.
+        virtual bool initVBlank(int rate);
+        bool vbWait(int rate);
+        typedef enum VBMethod {VB_SGI, VB_APPLE, VB_NONE};
+        VBMethod m_VBMethod;
+        int m_VBMod;
+        int m_LastVBCount;
+        bool m_bFirstVBFrame;
+
+        static void calcRefreshRate();
+        static double s_RefreshRate;
 
         static std::vector<long> KeyCodeTranslationTable;
 };

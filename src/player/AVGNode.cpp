@@ -3,7 +3,6 @@
 // 
 
 #include "AVGNode.h"
-#include "IDisplayEngine.h"
 
 #include "../base/XMLHelper.h"
 

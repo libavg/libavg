@@ -26,7 +26,7 @@ class Words : public RasterNode
         virtual ~Words ();
         
         virtual void initText(const std::string& sText);
-        virtual void init (IDisplayEngine * pEngine, Container * pParent,
+        virtual void init (DisplayEngine * pEngine, Container * pParent,
                 Player * pPlayer);
         virtual void initVisible();
         virtual void render (const DRect& Rect);

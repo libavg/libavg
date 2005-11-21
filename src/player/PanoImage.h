@@ -26,7 +26,7 @@ class PanoImage : public Node
         PanoImage (const xmlNodePtr xmlNode, Container * pParent);
         virtual ~PanoImage ();
         
-        virtual void init (IDisplayEngine * pEngine, 
+        virtual void init (DisplayEngine * pEngine, 
                 Container * pParent, Player * pPlayer);
         virtual void render (const DRect& Rect);
         virtual bool obscures (const DRect& Rect, int z);

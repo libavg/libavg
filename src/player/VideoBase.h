@@ -19,7 +19,7 @@ class VideoBase : public RasterNode
     public:
         virtual ~VideoBase ();
         
-        virtual void init (IDisplayEngine * pEngine, Container * pParent, 
+        virtual void init (DisplayEngine * pEngine, Container * pParent, 
                 Player * pPlayer);
 
         void play();

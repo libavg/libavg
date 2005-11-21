@@ -4,7 +4,7 @@
 
 #include "DivNode.h"
 #include "Container.h"
-#include "IDisplayEngine.h"
+#include "DisplayEngine.h"
 
 #include <iostream>
 
@@ -26,7 +26,7 @@ DivNode::~DivNode()
 {
 }
 
-void DivNode::init(IDisplayEngine * pEngine, Container * pParent, 
+void DivNode::init(DisplayEngine * pEngine, Container * pParent, 
         Player * pPlayer)
 {
     Node::init(pEngine, pParent, pPlayer);

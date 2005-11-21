@@ -16,9 +16,9 @@ endif
 
 if ENABLE_GL
     SDL_LIBS = `sdl-config --libs` -lXxf86vm
-    GL_SOURCES = OGLHelper.cpp OGLSurface.cpp SDLDisplayEngine.cpp VBlank.cpp
-    GL_INCLUDES = SDLDisplayEngine.h OGLHelper.h OGLSurface.h VBlank.h \
-	              GL/gl.h GL/glext.h GL/glu.h
+    GL_SOURCES = OGLHelper.cpp OGLSurface.cpp SDLDisplayEngine.cpp
+    GL_INCLUDES = SDLDisplayEngine.h OGLHelper.h OGLSurface.h \
+	              GL/gl.h GL/glext.h GL/glu.h GL/glx.h
 else
     SDL_LIBS =
     GL_SOURCES =
@@ -36,8 +36,8 @@ else
 endif
             
 ALL_H = Player.h IEventSource.h IEventSink.h Excl.h VideoBase.h Video.h\
-        IDisplayEngine.h Region.h Node.h \
-        ISurface.h FramerateManager.h Container.h \
+        DisplayEngine.h Region.h Node.h \
+        ISurface.h Container.h \
         MathHelper.h AVGNode.h DivNode.h \
         Image.h \
         Timeout.h Words.h \
@@ -51,8 +51,8 @@ ALL_H = Player.h IEventSource.h IEventSink.h Excl.h VideoBase.h Video.h\
 
 noinst_LTLIBRARIES = libplayer.la
 libplayer_la_SOURCES = $(GL_SOURCES) $(DFB_SOURCES) \
-		Player.cpp Excl.cpp VideoBase.cpp Video.cpp \
-        Region.cpp Node.cpp FramerateManager.cpp FFMpegDecoder.cpp \
+		Player.cpp Excl.cpp VideoBase.cpp Video.cpp DisplayEngine.cpp\
+        Region.cpp Node.cpp FFMpegDecoder.cpp \
         Container.cpp  MathHelper.cpp PanoImage.cpp Words.cpp Camera.cpp \
         DivNode.cpp Timeout.cpp DebugEventSink.cpp Event.cpp \
         Image.cpp EventDispatcher.cpp KeyEvent.cpp MouseEvent.cpp\

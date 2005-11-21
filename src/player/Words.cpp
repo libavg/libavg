@@ -3,7 +3,7 @@
 //
 
 #include "Words.h"
-#include "IDisplayEngine.h"
+#include "DisplayEngine.h"
 #include "ISurface.h"
 
 #include "../base/Exception.h"
@@ -74,7 +74,7 @@ void Words::initText(const string& sText)
     }
 }
 
-void Words::init (IDisplayEngine * pEngine, Container * pParent,
+void Words::init (DisplayEngine * pEngine, Container * pParent,
            Player * pPlayer)
 {
     Node::init(pEngine, pParent, pPlayer);

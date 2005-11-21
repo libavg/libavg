@@ -16,7 +16,7 @@ class LoggerTestCase(unittest.TestCase):
         self.Log.setCategories(self.Log.APP |
                   self.Log.WARNING | 
                   self.Log.PROFILE |
-                  self.Log.PROFILE_LATEFRAMES |
+#                  self.Log.PROFILE_LATEFRAMES |
                   self.Log.CONFIG |
                   self.Log.MEMORY  |
 #                  self.Log.BLTS    |
