@@ -32,16 +32,16 @@ void DisplayEngine::initRender()
     if (m_VBRate != 0) {
         bUseVBlank = initVBlank(m_VBRate);
     }
+    m_NumFrames = 0;
+    m_FramesTooLate = 0;
+    m_TimeSpentWaiting = 0;
+    m_StartTime = TimeSource::get()->getCurrentMillisecs();
+    m_LastFrameTime = m_StartTime;
+    m_bInitialized = true;
     if (bUseVBlank) {
         m_Framerate = 0;
     } else {
         m_VBRate = 0;
-        m_NumFrames = 0;
-        m_FramesTooLate = 0;
-        m_TimeSpentWaiting = 0;
-        m_StartTime = TimeSource::get()->getCurrentMillisecs();
-        m_LastFrameTime = m_StartTime;
-        m_bInitialized = true;
     }
 }
 

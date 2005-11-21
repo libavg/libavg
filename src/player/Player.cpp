@@ -402,7 +402,7 @@ void Player::doFrame ()
         }
     }
     long FrameTime = long(MainProfilingZone.getUSecs()/1000);
-    long TargetTime = long(1000/m_pDisplayEngine->getRefreshRate());
+    long TargetTime = long(1000/m_pDisplayEngine->getFramerate());
     if (FrameTime > TargetTime+2) {
         AVG_TRACE(Logger::PROFILE_LATEFRAMES, "frame too late by " <<
                 FrameTime-TargetTime << " ms.");

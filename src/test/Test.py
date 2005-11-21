@@ -165,7 +165,7 @@ class PlayerTestCase(unittest.TestCase):
         Player.loadFile("events.avg")
         Player.setTimeout(100, getMouseState);
         Player.setTimeout(200, Player.stop)
-        Player.setVBlankFramerate(1)
+        Player.setVBlankFramerate(3)
         Player.play()
     def testEventErr(self):
         Player.loadFile("errevent.avg")
@@ -216,7 +216,7 @@ class PlayerTestCase(unittest.TestCase):
         Player.loadFile("hugeimage.avg")
         timerid = Player.setInterval(10, moveImage)
         Player.setTimeout(1000, Player.stop)
-        Player.setVBlankFramerate(3)
+        Player.setVBlankFramerate(1)
         Player.play()
     def testPanoImage(self):
         self.playAVG("panoimage.avg")
@@ -467,6 +467,7 @@ class AnimTestCase(unittest.TestCase):
         Player.setTimeout(10, startAnim)
         Player.setTimeout(1100, startSplineAnim)
         Player.setTimeout(1500, lambda: self.assert_(self.__animStopped == 1))
+        Player.setVBlankFramerate(1)
         Player.play()
 
 
