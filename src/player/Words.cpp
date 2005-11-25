@@ -277,9 +277,9 @@ void Words::drawString()
         if (m_ParaWidth == -1) {
             m_StringExtents.x = PANGO_PIXELS(logical_rect.width);
         }
-        m_pSurface->create(IntPoint(m_StringExtents), I8);
+        m_pSurface->create(IntPoint(m_StringExtents), I8, false);
 
-        BitmapPtr pBmp = m_pSurface->getBmp();
+        BitmapPtr pBmp = m_pSurface->lockBmp();
         FilterFill<unsigned char>(0).applyInPlace(pBmp);
         FT_Bitmap bitmap;
         bitmap.rows = (int)m_StringExtents.y;

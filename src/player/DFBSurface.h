@@ -23,9 +23,10 @@ class DFBSurface: public ISurface {
 
         // Implementation of ISurface.
 
-        virtual void create(const IntPoint& Size, PixelFormat pf);
+        virtual void create(const IntPoint& Size, PixelFormat pf, 
+                bool bFastDownload);
 
-        virtual BitmapPtr getBmp();
+        virtual BitmapPtr lockBmp();
 
         // Methods specific to DFBSurface
 

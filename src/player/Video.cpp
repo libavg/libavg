@@ -127,7 +127,8 @@ static ProfilingZone RenderProfilingZone("    Video::render");
 bool Video::renderToSurface(ISurface * pSurface)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    m_bEOF = m_pDecoder->renderToBmp(pSurface->getBmp());
+    m_bEOF = m_pDecoder->renderToBmp(pSurface->lockBmp());
+    pSurface->unlockBmp();
     if (!m_bEOF) {
         getEngine()->surfaceChanged(pSurface);
     }

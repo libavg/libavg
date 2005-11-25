@@ -44,7 +44,8 @@ DFBSurface::~DFBSurface()
 // Note that this function unlocks the surface after getting the pixel offsets,
 // which is probably ok for system memory surfaces but will definitely break 
 // for video memory surfaces.
-void DFBSurface::create(const IntPoint& Size, PixelFormat pf)
+void DFBSurface::create(const IntPoint& Size, PixelFormat pf, 
+                bool bFastDownload)
 {
     if (!s_pDirectFB) {
         AVG_TRACE(Logger::ERROR, 
@@ -91,8 +92,9 @@ void DFBSurface::create(const IntPoint& Size, PixelFormat pf)
     m_pSurface->Unlock(m_pSurface);
 }
 
-BitmapPtr DFBSurface::getBmp()
+BitmapPtr DFBSurface::lockBmp()
 {
+    // DFB surfaces are always locked.
     return m_pBmp;
 }
 

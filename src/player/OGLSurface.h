@@ -9,6 +9,9 @@
 #include "DisplayEngine.h"
 #include "../graphics/Rect.h"
 
+#define GL_GLEXT_PROTOTYPES
+#include "GL/gl.h"
+
 #include <vector>
 #include <string>
 
@@ -20,8 +23,10 @@ class OGLSurface: public ISurface {
         virtual ~OGLSurface();
 
         // Implementation of ISurface.
-        virtual void create(const IntPoint& Size, PixelFormat PF);
-        virtual BitmapPtr getBmp();
+        virtual void create(const IntPoint& Size, PixelFormat PF,
+                bool bFastDownload);
+        virtual BitmapPtr lockBmp();
+        virtual void unlockBmp();
 
         // Methods specific to OGLSurface
         void createFromBits(Point<int> Size, PixelFormat pf,
@@ -72,11 +77,14 @@ class OGLSurface: public ISurface {
         int getDestMode();
         int getSrcMode();
         int getPixelType();
-        void checkBlendModeError(std::string sMode); 
+        void checkBlendModeError(std::string sMode);
+        static bool arePixelBuffersAvailable();
    
         bool m_bBound;
 
         BitmapPtr m_pBmp;
+        IntPoint m_Size;
+        PixelFormat m_pf;
 
         Point<int> m_MaxTileSize;
         Point<int> m_TileSize;
@@ -85,6 +93,9 @@ class OGLSurface: public ISurface {
         std::vector<std::vector<TextureTile> > m_Tiles;
         std::vector<std::vector<DPoint> > m_TileVertices;
 
+        bool m_bUsePixelBuffers;
+        GLuint m_hPixelBuffer;
+        
         static int s_TextureMode;
         static int s_MaxTexSize;
 };

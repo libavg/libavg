@@ -191,17 +191,18 @@ void VideoBase::open()
 
     DRect vpt = getRelViewport();
     if (isYCbCrSupported()  && getEngine()->isYCbCrSupported()) {
-        getSurface()->create(IntPoint(m_Width, m_Height), YCbCr422);
+        getSurface()->create(IntPoint(m_Width, m_Height), YCbCr422, true);
     } else {
         if (getEngine()->hasRGBOrdering()) {
-            getSurface()->create(IntPoint(m_Width, m_Height), R8G8B8);
+            getSurface()->create(IntPoint(m_Width, m_Height), R8G8B8, true);
         } else {
-            getSurface()->create(IntPoint(m_Width, m_Height), B8G8R8);
+            getSurface()->create(IntPoint(m_Width, m_Height), B8G8R8, true);
         }
     }
 
     FilterFill<Pixel24> Filter(Pixel24(0,0,0));
-    Filter.applyInPlace(getSurface()->getBmp());
+    Filter.applyInPlace(getSurface()->lockBmp());
+    getSurface()->unlockBmp();
     
     m_bFrameAvailable = false;
     m_State = Paused;

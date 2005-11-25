@@ -73,7 +73,7 @@ void Image::render (const DRect& Rect)
 bool Image::obscures (const DRect& Rect, int z) 
 {
     return (isActive() && getEffectiveOpacity() > 0.999
-            && !getSurface()->getBmp()->hasAlpha() 
+            && !getSurface()->lockBmp()->hasAlpha() 
             && getZ() > z && getVisibleRect().Contains(Rect));
 }
 
@@ -84,7 +84,7 @@ string Image::getTypeStr ()
 
 DPoint Image::getPreferredMediaSize()
 {
-    return DPoint(getSurface()->getBmp()->getSize());
+    return DPoint(getSurface()->lockBmp()->getSize());
 }
 
 void Image::load()
@@ -100,16 +100,16 @@ void Image::load()
     if (TempBmp.hasAlpha()) {
         pf = R8G8B8A8;
     }
-    getSurface()->create(TempBmp.getSize(), pf);
-    getSurface()->getBmp()->copyPixels(TempBmp);
+    getSurface()->create(TempBmp.getSize(), pf, false);
+    getSurface()->lockBmp()->copyPixels(TempBmp);
     
     if (m_Saturation != -1) {
         FilterColorize(m_Hue, m_Saturation).applyInPlace(
-                getSurface()->getBmp());
+                getSurface()->lockBmp());
     }
 
     if (!(m_pPlayer->getDisplayEngine()->hasRGBOrdering())) {
-        FilterFlipRGB().applyInPlace(getSurface()->getBmp());
+        FilterFlipRGB().applyInPlace(getSurface()->lockBmp());
     }
 }
 

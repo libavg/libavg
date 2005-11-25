@@ -12,7 +12,7 @@ def videoPlay(nodeName):
     node.play()
 
 def rotate():
-    for i in range(4):
+    for i in range(6):
         node = AVGPlayer.getElementByID("mpeg"+str(i+1))
         node.angle += 0.02
 
@@ -25,7 +25,7 @@ Log.setCategories(Log.APP |
           Log.EVENTS)
 
 AVGPlayer = avg.Player()
-AVGPlayer.setResolution(1,0,0,0)
+AVGPlayer.setResolution(0,0,0,0)
 
 AVGPlayer.loadFile("videoperformance.avg")
 
@@ -38,5 +38,6 @@ AVGPlayer.setTimeout(160, lambda: videoPlay('mpeg5'))
 AVGPlayer.setTimeout(200, lambda: videoPlay('mpeg6'))
 #AVGPlayer.setTimeout(24000, lambda: videoPlay('mpeg7'))
 #AVGPlayer.setTimeout(28000, lambda: videoPlay('mpeg8'))
-AVGPlayer.play(25, 0)
+AVGPlayer.setVBlankFramerate(2)
+AVGPlayer.play()
 

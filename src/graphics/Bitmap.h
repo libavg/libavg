@@ -56,6 +56,7 @@ public:
     bool ownsBits() const;
     const std::string& getName() const;
     int getBytesPerPixel() const;
+    static int getBytesPerPixel(PixelFormat PF);
     bool hasAlpha() const;
 
     bool operator ==(const Bitmap & otherBmp);

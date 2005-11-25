@@ -327,7 +327,12 @@ bool Bitmap::ownsBits() const
 
 int Bitmap::getBytesPerPixel() const
 {
-    switch (m_PF) {
+    return getBytesPerPixel(m_PF);
+}
+
+int Bitmap::getBytesPerPixel(PixelFormat PF)
+{
+    switch (PF) {
         case A8B8G8R8:
         case X8B8G8R8:
         case A8R8G8B8:

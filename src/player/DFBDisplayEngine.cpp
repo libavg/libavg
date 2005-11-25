@@ -371,8 +371,8 @@ void DFBDisplayEngine::blt32(ISurface * pSurface,
             dynamic_cast<DFBSurface *>(pSurface);
     assert(pDFBSurface); // Make sure we have the correct type of surface
     IDirectFBSurface * pSurf = pDFBSurface->getSurface();
-    blt32(pSurf, pDestRect, opacity, (pSurface->getBmp()->getPixelFormat() == B8G8R8A8),
-            Mode);
+    blt32(pSurf, pDestRect, opacity, 
+            (pSurface->lockBmp()->getPixelFormat() == B8G8R8A8), Mode);
 }
 
 void DFBDisplayEngine::blta8(ISurface * pSurface, 

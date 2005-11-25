@@ -355,7 +355,7 @@ bool Camera::renderToSurface(ISurface * pSurface)
             switch (m_Mode) {
                 case MODE_640x480_YUV411:
                     {
-                        BitmapPtr pBmp = pSurface->getBmp();
+                        BitmapPtr pBmp = pSurface->lockBmp();
                         YUV411toBGR24((unsigned char *)(m_Camera.capture_buffer), pBmp);
                     }
                     break;
@@ -367,7 +367,7 @@ bool Camera::renderToSurface(ISurface * pSurface)
                                     (unsigned char *)(m_Camera.capture_buffer), 640*3);
                         } else {
 #endif                            
-                            BitmapPtr pBmp = pSurface->getBmp();
+                            BitmapPtr pBmp = pSurface->lockBmp();
                             unsigned char * pPixels = pBmp->getPixels();
                             int WidthBytes = pBmp->getSize().x*3;
 
@@ -401,6 +401,7 @@ bool Camera::renderToSurface(ISurface * pSurface)
                             "Illegal Mode in renderToBmp");
                     break;
             }
+            pSurface->unlockBmp();
             {
                 ScopeTimer Timer(CameraUploadProfilingZone);
                 getEngine()->surfaceChanged(pSurface);

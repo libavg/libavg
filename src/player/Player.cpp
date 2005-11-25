@@ -401,6 +401,7 @@ void Player::doFrame ()
             }
         }
     }
+/*
     long FrameTime = long(MainProfilingZone.getUSecs()/1000);
     long TargetTime = long(1000/m_pDisplayEngine->getFramerate());
     if (FrameTime > TargetTime+2) {
@@ -408,6 +409,7 @@ void Player::doFrame ()
                 FrameTime-TargetTime << " ms.");
         Profiler::get().dumpFrame();
     }
+*/    
     Profiler::get().reset();
 }
 

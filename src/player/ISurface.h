@@ -14,8 +14,10 @@ namespace avg {
 class ISurface {
     public:
         virtual ~ISurface(){};
-        virtual void create(const IntPoint& Size, PixelFormat PF) = 0;
-        virtual BitmapPtr getBmp() = 0;
+        virtual void create(const IntPoint& Size, PixelFormat PF, 
+                bool bFastDownload) = 0;
+        virtual BitmapPtr lockBmp() = 0;
+        virtual void unlockBmp() {};
 
 };
 
