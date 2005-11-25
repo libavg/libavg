@@ -25,7 +25,12 @@ using namespace std;
 
 BitmapPtr initBmp(PixelFormat PF)
 {
-    BitmapPtr pBmp(new Bitmap(IntPoint(4,7), PF));
+    BitmapPtr pBmp;
+    if (PF == YCbCr422) {
+        pBmp = BitmapPtr(new Bitmap(IntPoint(4,10), PF));
+    } else {
+        pBmp = BitmapPtr(new Bitmap(IntPoint(4,7), PF));
+    }
     for(int y=0; y<7; ++y) {
         for (int x=0; x<4; ++x) {
             unsigned char * pPixel = 
@@ -116,7 +121,7 @@ private:
         }
         {
             cerr << "      Testing sub-bitmap constructor." << endl;
-            Bitmap BmpCopy3 (*pBmp, IntRect(0,0,4,7));
+            Bitmap BmpCopy3 (*pBmp, IntRect(IntPoint(0,0), pBmp->getSize()));
             testEqual(*pBmp, BmpCopy3);
         }
     }
