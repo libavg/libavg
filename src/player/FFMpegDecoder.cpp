@@ -239,14 +239,23 @@ bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
         unsigned char * pDestBits = pBmp->getPixels();
         DestPict.data[0] = pDestBits;
         DestPict.data[1] = pDestBits+1;
+        DestPict.data[2] = pDestBits+2;
+        DestPict.data[3] = pDestBits+3;
         DestPict.linesize[0] = pBmp->getStride();
         DestPict.linesize[1] = pBmp->getStride();
-        if (pBmp->getPixelFormat() != YCbCr422) {
-            DestPict.data[2] = pDestBits+2;
-            DestPict.linesize[2] = pBmp->getStride();
-        }
+        DestPict.linesize[2] = pBmp->getStride();
+        DestPict.linesize[3] = pBmp->getStride();
         int DestFmt;
         switch(pBmp->getPixelFormat()) {
+            case R8G8B8X8:
+                DestFmt = PIX_FMT_RGBA32;
+                break;
+            case B8G8R8X8:
+                // This isn't supported directly by FFMpeg.
+                DestFmt = PIX_FMT_RGBA32;
+                DestPict.data[1] = pDestBits+3;
+                DestPict.data[3] = pDestBits+1;
+                break;
             case R8G8B8:
                 DestFmt = PIX_FMT_RGB24;
                 break;
@@ -257,6 +266,8 @@ bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
                 DestFmt = PIX_FMT_YUV422;
                 break;
             default:
+                AVG_TRACE(Logger::ERROR, "FFMpegDecoder: Dest format " 
+                        << pBmp->getPixelFormatString() << " not supported.");
                 assert(false);
         }
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)

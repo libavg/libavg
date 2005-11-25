@@ -268,6 +268,11 @@ void Bitmap::setPixelFormat(PixelFormat PF)
 {
     m_PF = PF;
 }
+
+std::string Bitmap::getPixelFormatString()
+{
+    return getPixelFormatString(m_PF);
+}
     
 std::string Bitmap::getPixelFormatString(PixelFormat PF)
 {

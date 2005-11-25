@@ -96,9 +96,9 @@ void Image::load()
     Bitmap TempBmp(m_Filename);
 
     PixelFormat pf;
-    pf = R8G8B8;
+    pf = B8G8R8;
     if (TempBmp.hasAlpha()) {
-        pf = R8G8B8A8;
+        pf = B8G8R8A8;
     }
     getSurface()->create(TempBmp.getSize(), pf, false);
     getSurface()->lockBmp()->copyPixels(TempBmp);

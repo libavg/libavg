@@ -379,7 +379,8 @@ bool SDLDisplayEngine::supportsBpp(int bpp)
 
 bool SDLDisplayEngine::hasRGBOrdering()
 {
-    return true;
+    // TODO: Should this be graphics-card dependent?
+    return false;
 }
 
 bool SDLDisplayEngine::isYCbCrSupported()

@@ -27,6 +27,7 @@ public:
     unsigned char getG () const;
     unsigned char getB () const;
     unsigned char getA () const;
+    void flipRB();
 
     bool operator ==(const Pixel32 Pix) const;
     bool operator !=(const Pixel32 Pix) const;
@@ -127,6 +128,13 @@ inline unsigned char Pixel32::getB() const
 inline unsigned char Pixel32::getA() const
 {
   return m_Data[ALPHAPOS];
+}
+
+inline void Pixel32::flipRB() 
+{
+    unsigned char tmp = m_Data[BLUEPOS];
+    m_Data[BLUEPOS] = m_Data[REDPOS];
+    m_Data[REDPOS] = tmp;
 }
 
 inline int Pixel32::boxDist (const Pixel32 Pix) const

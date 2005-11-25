@@ -94,6 +94,29 @@ void FilterColorize::applyInPlace(BitmapPtr pBmp) const
                     }
                 }
                 break;
+            case B8G8R8A8:
+            case B8G8R8X8:
+                {
+                    Pixel32 * pDestPixel = (Pixel32 *)pDestLine;
+                    for (int x = 0; x < pTempBmp->getSize().x; ++x) {
+                        *pDestPixel = ColorTable[*pSrcPixel];
+//                        pDestPixel->flipRB();
+                        ++pSrcPixel;
+                        ++pDestPixel;
+                    }
+                }
+                break;
+            case B8G8R8:
+                {
+                    Pixel24 * pDestPixel = (Pixel24 *)pDestLine;
+                    for (int x = 0; x < pTempBmp->getSize().x; ++x) {
+                        *pDestPixel = ColorTable[*pSrcPixel];
+//                        pDestPixel->flipRB();
+                        ++pSrcPixel;
+                        ++pDestPixel;
+                    }
+                }
+                break;
             default:
                 assert(false);
         }

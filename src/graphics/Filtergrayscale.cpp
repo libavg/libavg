@@ -27,8 +27,6 @@ BitmapPtr FilterGrayscale::apply(BitmapPtr pBmpSrc) const
     if (PF == I8) {
         return BitmapPtr(new Bitmap(*pBmpSrc));
     }
-    assert (PF == R8G8B8A8 || PF == R8G8B8X8 || PF == R8G8B8);
-
     BitmapPtr pBmpDest = BitmapPtr(new Bitmap(pBmpSrc->getSize(), I8,
              pBmpSrc->getName()));
     unsigned char * pSrcLine = pBmpSrc->getPixels();
@@ -39,11 +37,19 @@ BitmapPtr FilterGrayscale::apply(BitmapPtr pBmpSrc) const
         for (int x = 0; x < pBmpDest->getSize().x; ++x) {
             // For the coefficients used, see http://www.inforamp.net/~poynton/
             // Appoximations curtesy of libpng :-).
-            *pDstPixel = (unsigned char)((pSrcPixel[REDPOS]*54+
-                    pSrcPixel[GREENPOS]*183+
-                    pSrcPixel[BLUEPOS]*19)/256);
-            pSrcPixel += pBmpSrc->getBytesPerPixel();
-            ++pDstPixel;
+            if (PF == R8G8B8A8 || PF == R8G8B8X8 || PF == R8G8B8) {
+                *pDstPixel = (unsigned char)((pSrcPixel[REDPOS]*54+
+                        pSrcPixel[GREENPOS]*183+
+                        pSrcPixel[BLUEPOS]*19)/256);
+                pSrcPixel += pBmpSrc->getBytesPerPixel();
+                ++pDstPixel;
+            } else {
+                *pDstPixel = (unsigned char)((pSrcPixel[BLUEPOS]*54+
+                        pSrcPixel[GREENPOS]*183+
+                        pSrcPixel[REDPOS]*19)/256);
+                pSrcPixel += pBmpSrc->getBytesPerPixel();
+                ++pDstPixel;
+            }
         }
         pSrcLine = pSrcLine + pBmpSrc->getStride();
         pDestLine = pDestLine + pBmpDest->getStride();

@@ -297,6 +297,7 @@ class PlayerTestCase(unittest.TestCase):
         self.cropInterval = Player.setInterval(10, cropTL)
         Player.getElementByID("img").play()
         Player.play()
+        self.setUp()
         Player.loadFile("crop2.avg")
         self.cropInterval = Player.setInterval(10, cropTL)
         Player.play()

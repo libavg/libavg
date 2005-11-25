@@ -22,6 +22,7 @@ class Pixel24
     unsigned char getR () const;
     unsigned char getG () const;
     unsigned char getB () const;
+    void flipRB();
 
     template<class SrcPixel>
     Pixel24 Pixel24::operator = (const SrcPixel& Pix)
@@ -97,6 +98,13 @@ inline unsigned char Pixel24::getG() const
 inline unsigned char Pixel24::getB() const
 {
   return m_Data[BLUEPOS];
+}
+
+inline void Pixel24::flipRB() 
+{
+    unsigned char tmp = m_Data[BLUEPOS];
+    m_Data[BLUEPOS] = m_Data[REDPOS];
+    m_Data[REDPOS] = tmp;
 }
 
 inline int Pixel24::BoxDist (const Pixel24 Pix) const

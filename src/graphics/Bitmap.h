@@ -50,6 +50,7 @@ public:
     int getStride() const;
     PixelFormat getPixelFormat() const;
     void setPixelFormat(PixelFormat PF);
+    std::string getPixelFormatString();
     static std::string getPixelFormatString(PixelFormat PF);
     unsigned char * getPixels();
     const unsigned char * getPixels() const;

@@ -565,17 +565,20 @@ int OGLSurface::getDestMode()
         case I8:
             return GL_ALPHA;
         case R8G8B8:
+        case B8G8R8:
             return GL_RGB;
         case R8G8B8A8:
+        case B8G8R8A8:
             return GL_RGBA;
         case R8G8B8X8:
+        case B8G8R8X8:
             return GL_RGB;    
         case YCbCr422:
             return GL_YCBCR_MESA;    
         default:
             AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << 
                     Bitmap::getPixelFormatString(m_pf) <<
-                    " in OGLSurface::bind()");
+                    " in OGLSurface::getDestMode()");
     }
     return 0;
 }    
@@ -587,6 +590,12 @@ int OGLSurface::getSrcMode()
             return GL_ALPHA;
         case R8G8B8:
             return GL_RGB;
+        case B8G8R8:
+            return GL_BGR;
+        case B8G8R8X8:
+        case B8G8R8A8:
+            return GL_BGRA;
+        case R8G8B8X8:
         case R8G8B8A8:
             return GL_RGBA;
         case YCbCr422:
@@ -623,7 +632,6 @@ void OGLSurface::checkBlendModeError(string sMode)
 
 bool OGLSurface::arePixelBuffersAvailable()
 {
-    return false;
     static bool s_bChecked = false;
     static bool s_bUsePixelBuffers;
     if (!s_bChecked) {
