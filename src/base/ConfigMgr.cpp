@@ -11,6 +11,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <unistd.h>
+#include <errno.h>
 
 // TODO: Refactor - this stuff is left over from pre-python days.
 

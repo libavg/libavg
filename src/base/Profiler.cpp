@@ -91,14 +91,14 @@ void Profiler::dumpStatistics()
     AVG_TRACE(Logger::PROFILE,
             "Profile Statistics (in us):");
     AVG_TRACE(Logger::PROFILE,
-            "  Zone name                           Avg. time");
+            "  Zone name                          Avg. time");
     AVG_TRACE(Logger::PROFILE,
-            "  ---------                           ---------");
+            "  ---------                          ---------");
 
     ZoneList::iterator it;
     for (it=m_Zones.begin(); it != m_Zones.end(); ++it) {
         AVG_TRACE(Logger::PROFILE,
-                "  " << std::setw(34) << std::left << (*it)->getName() << ": " 
+                "  " << std::setw(33) << std::left << (*it)->getName() << ": " 
                 << std::setw(9) << std::right << (*it)->getAvgUSecs());
     }
     AVG_TRACE(Logger::PROFILE, "");
