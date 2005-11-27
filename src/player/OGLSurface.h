@@ -10,7 +10,9 @@
 #include "../graphics/Rect.h"
 
 #define GL_GLEXT_PROTOTYPES
+#define GLX_GLXEXT_PROTOTYPES
 #include "GL/gl.h"
+#include "GL/glx.h"
 
 #include <vector>
 #include <string>
@@ -105,6 +107,8 @@ class OGLSurface: public ISurface {
         
         static int s_TextureMode;
         static int s_MaxTexSize;
+        static PFNGLXALLOCATEMEMORYMESAPROC s_AllocMemMESAProc;
+        static PFNGLXFREEMEMORYMESAPROC s_FreeMemMESAProc;
 };
 
 }

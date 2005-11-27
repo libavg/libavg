@@ -71,7 +71,7 @@ bool queryGLXExtension(char *extName) {
     if (NULL == p) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, "Couldn't get GLX extension string.");
     }
-    cout << "GLX extensions string: " << p << endl;
+//    cout << "GLX extensions string: " << p << endl;
 
     char * end = p + strlen(p);
 

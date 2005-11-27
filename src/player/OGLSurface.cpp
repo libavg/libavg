@@ -11,11 +11,7 @@
 #include "OGLSurface.h"
 #include "OGLHelper.h"
 
-#define GL_GLEXT_PROTOTYPES
-#define GLX_GLXEXT_PROTOTYPES
-#include "GL/gl.h"
 #include "GL/glu.h"
-#include "GL/glx.h"
 
 #include <iostream>
 #include <sstream>
@@ -27,6 +23,8 @@ namespace avg {
 
 int OGLSurface::s_TextureMode = 0;
 int OGLSurface::s_MaxTexSize = 0;
+PFNGLXALLOCATEMEMORYMESAPROC OGLSurface::s_AllocMemMESAProc = 0;
+PFNGLXFREEMEMORYMESAPROC OGLSurface::s_FreeMemMESAProc = 0;
 
 OGLSurface::OGLSurface()
     : m_bBound(false),
@@ -48,7 +46,7 @@ OGLSurface::~OGLSurface()
         case MESA:
             {
                 Display * display = XOpenDisplay(0);
-                glXFreeMemoryMESA(display, DefaultScreen(display), m_pMESABuffer);
+                s_FreeMemMESAProc(display, DefaultScreen(display), m_pMESABuffer);
             }
             break;
         default:
@@ -68,7 +66,7 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
     if (bFastDownload) {
         m_MemoryMode = getMemoryModeSupported();
     }
-    switch (getMemoryModeSupported()) {
+    switch (m_MemoryMode) {
         case PBO:
             glGenBuffers(1, &m_hPixelBuffer);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
@@ -89,7 +87,7 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
         case MESA:
             {
                 Display * display = XOpenDisplay(0);
-                m_pMESABuffer = glXAllocateMemoryMESA(display, DefaultScreen(display),
+                m_pMESABuffer = s_AllocMemMESAProc(display, DefaultScreen(display),
                         (Size.x+1)*(Size.y+1)*Bitmap::getBytesPerPixel(pf), 0, 1.0 ,0);
                 if (!m_pMESABuffer) {
                     AVG_TRACE(Logger::WARNING, "Failed to allocate MESA memory");
@@ -101,9 +99,9 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
         default:
             break;
     }
-    if (getMemoryModeSupported() == OGL) {
+    if (m_MemoryMode == OGL) {
         // Can't do this in the switch because memory allocation might fail.
-        // so this is needed as a fallback.
+        // In that case, this is needed as a fallback.
         m_pBmp = BitmapPtr(new Bitmap(Size, pf));
     }
         
@@ -114,7 +112,7 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
 
 BitmapPtr OGLSurface::lockBmp()
 {
-    switch (getMemoryModeSupported()) {
+    switch (m_MemoryMode) {
         case PBO:
             {
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffer);
@@ -142,7 +140,7 @@ BitmapPtr OGLSurface::lockBmp()
 
 void OGLSurface::unlockBmp()
 {
-    switch (getMemoryModeSupported()) {
+    switch (m_MemoryMode) {
         case PBO:
             glBindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffer);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
@@ -692,6 +690,10 @@ OGLSurface::MemoryMode OGLSurface::getMemoryModeSupported()
             AVG_TRACE(Logger::CONFIG, "Using pixel buffer objects.");
         } else if (queryGLXExtension("GLX_MESA_allocate_memory")) {
             s_MemoryMode = MESA;
+            s_AllocMemMESAProc = (PFNGLXALLOCATEMEMORYMESAPROC)
+                    glXGetProcAddressARB((const GLubyte*)"glXAllocateMemoryMESA");
+            s_FreeMemMESAProc = (PFNGLXFREEMEMORYMESAPROC)
+                    glXGetProcAddressARB((const GLubyte*)"glXFreeMemoryMESA");
             AVG_TRACE(Logger::CONFIG, "Using MESA extension to allocate AGP memory.");
         } else {
             s_MemoryMode = OGL;
