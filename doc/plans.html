@@ -65,24 +65,20 @@ body { }
 </div>
 <div id="textbox">
        These are my current ideas on what to do with libavg. To make this thing fly and set prioritites, I'm depending on lots of input: u.zadow at gmx.de. Of course, I can't promise anything and I welcome help of any kind.
-       <p><b>Short- to Medium-term</b>
        <ul>
-       <li>Support for hardware acceleration using DirectFB: Currently, when DirectFB is used as output layer, all rendering is done in software. The software renderer is pretty well optimized, and this is ok for older systems, but for systems that support it, the graphic card's processing power stays unused. In the short term, at least hardware video overlays should be supported.</li>
-       <li>Networking support: We'd like to have external systems tell an avg session what to do. The basic idea is that we'll open a port and just accept valid javascript strings that get executed in the context of the session. Getting two avg sessions on different computers to comunicate is the next step. Both shouldn't involve a lot of work.</li>
-       <li>Sound: I've been given permission to take the cool multi-channel sound library sitting around at my employer <a href="http://www.artcom.de">Art+Com</a> and add it to libavg. Now I just have to find the time to do it.</li>
-       </ul>
-       <p><b>Long-term</b>
-       <ul>
+       <li>Support for hardware acceleration using DirectFB: Currently, when DirectFB is used as output layer, all rendering is done in software. The software renderer is pretty well optimized, and this is ok for older systems, but for systems that support it, the graphic card's processing power stays unused.</li>
+       <li>Support for dynamic creation of avg nodes.</li>
+       <li>Support for loading images from the network.</li>
        <li>Stylesheets are nice in html. They'd be nice for avg, too.</li>
        <li>Memory management: Currently, all images are loaded on startup. That's good for small- to medium-sized projects, but some kind of caching/preload scheme would be nessesary for larger projects.</li>
-       <li>Support for full javascript debugging.</li>
        <li>Better Mac OS X support. Of course, Windows might happen, too.</li>
        <li>Vector graphics support (svg?).</li>
        <li>Support for realtime image processing operators
        (Brightness, Contrast, Gamma, Blur,...) and blend modes
-       (Darken, Lighten, Multiply, Screen, Soft Light, Hard Light,...)
+       (Multiply, Screen, Soft Light, Hard Light,...)
        using the hardware fragment shaders available on modern
-       graphics cards.</li>
+       graphics cards. Darken, Lighten and Additive Blending already work, 
+       even on older graphics cards.</li>
        </ul>
 </div>
 </BODY>

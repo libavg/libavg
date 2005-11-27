@@ -84,16 +84,29 @@ Returns an element in the avg tree.</td></tr>
   <td><code><span class="summary-sig"><a href="avg.Player-class.html#getFramerate" class="summary-sig-name"><code>getFramerate</code></a>()</span></code>
 <br />
 Returns the current framerate in frames per second.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">Event</font></td>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#getMouseState" class="summary-sig-name"><code>getMouseState</code></a>()</span></code>
+<br />
+Gets an interface to the last mouse event.</td></tr>
 <tr><td align="right" valign="top" width="15%"><font size="-1">AVGNode</font></td>
   <td><code><span class="summary-sig"><a href="avg.Player-class.html#getRootNode" class="summary-sig-name"><code>getRootNode</code></a>()</span></code>
 <br />
 Returns the outermost element in the avg tree.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">refreshrate</font></td>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#getVideoRefreshRate" class="summary-sig-name"><code>getVideoRefreshRate</code></a>()</span></code>
+<br />
+Returns the current hardware video refresh rate in number of
+refreshes per second.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">bool</font></td>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#isPlaying" class="summary-sig-name"><code>isPlaying</code></a>()</span></code>
+<br />
+Returns true if play() is currently executing, false if not.</td></tr>
 <tr><td align="right" valign="top" width="15%"><font size="-1">None</font></td>
   <td><code><span class="summary-sig"><a href="avg.Player-class.html#loadFile" class="summary-sig-name"><code>loadFile</code></a>(<span class=summary-sig-arg>fileName</span>)</span></code>
 <br />
 Loads the avg file specified in fileName.</td></tr>
 <tr><td align="right" valign="top" width="15%"><font size="-1">None</font></td>
-  <td><code><span class="summary-sig"><a href="avg.Player-class.html#play" class="summary-sig-name"><code>play</code></a>(<span class=summary-sig-arg>framerate</span>)</span></code>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#play" class="summary-sig-name"><code>play</code></a>()</span></code>
 <br />
 Opens a playback window or screen and starts playback.</td></tr>
 <tr><td align="right" valign="top" width="15%"><font size="-1">ok</font></td>
@@ -104,6 +117,11 @@ Saves the contents of the current screen in a png file.</td></tr>
   <td><code><span class="summary-sig"><a href="avg.Player-class.html#setDisplayEngine" class="summary-sig-name"><code>setDisplayEngine</code></a>(<span class=summary-sig-arg>engine</span>)</span></code>
 <br />
 Determines which display backend to use.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">None</font></td>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#setFramerate" class="summary-sig-name"><code>setFramerate</code></a>(<span class=summary-sig-arg>rate</span>)</span></code>
+<br />
+Sets the desired framerate for playback and turns off syncronization
+to the vertical blanking interval.</td></tr>
 <tr><td align="right" valign="top" width="15%"><font size="-1">id</font></td>
   <td><code><span class="summary-sig"><a href="avg.Player-class.html#setInterval" class="summary-sig-name"><code>setInterval</code></a>(<span class=summary-sig-arg>time</span>,
           <span class=summary-sig-arg>pyfunc</span>)</span></code>
@@ -123,6 +141,11 @@ setResolution(fullscreen, width, height, bpp) -&gt; None...</td></tr>
 <br />
 Sets a python callable object that should be executed after time
 milliseconds.</td></tr>
+<tr><td align="right" valign="top" width="15%"><font size="-1">bool</font></td>
+  <td><code><span class="summary-sig"><a href="avg.Player-class.html#setVBlankFramerate" class="summary-sig-name"><code>setVBlankFramerate</code></a>(<span class=summary-sig-arg>rate</span>)</span></code>
+<br />
+Sets the desired number of vertical blanking intervals before the next
+frame is displayed.</td></tr>
 <tr><td align="right" valign="top" width="15%"><font size="-1">None</font></td>
   <td><code><span class="summary-sig"><a href="avg.Player-class.html#showCursor" class="summary-sig-name"><code>showCursor</code></a>(<span class=summary-sig-arg>show</span>)</span></code>
 <br />
@@ -181,7 +204,7 @@ x.__str__() &lt;==&gt; str(x)...</td></tr>
 <tr bgcolor="#70b0f0" class="summary">
   <th colspan="2">Class Variable Summary</th></tr>
 <tr><td align="right" valign="top" width="15%"><font size="-1"><code>int</code></font></td>
-<td><b><a href="avg.Player-class.html#__instance_size__"><code>__instance_size__</code></a></b> = <span title="180">180&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>
+<td><b><a href="avg.Player-class.html#__instance_size__"><code>__instance_size__</code></a></b> = <span title="212">212&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></td></tr>
 </table><br />
 
 
@@ -213,7 +236,7 @@ ok      </dd>
   </h3>
 <pre class="literalblock">
 Creates a new Node from an xml string. This node can be used as
-parameter to Container::addChild().
+parameter to Container::addChild(). BROKEN!
 </pre>
   <dl><dt></dt><dd>
     <dl><dt><b>Returns:</b></dt>
@@ -270,6 +293,21 @@ framerate      </dd>
   </dd></dl>
 </td></tr></table>
 
+<a name="getMouseState"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">getMouseState</span>()</span>
+  </h3>
+<pre class="literalblock">
+Gets an interface to the last mouse event.
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+Event      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
 <a name="getRootNode"></a>
 <table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
   <h3><span class="sig"><span class="sig-name">getRootNode</span>()</span>
@@ -285,13 +323,43 @@ AVGNode      </dd>
   </dd></dl>
 </td></tr></table>
 
+<a name="getVideoRefreshRate"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">getVideoRefreshRate</span>()</span>
+  </h3>
+<pre class="literalblock">
+Returns the current hardware video refresh rate in number of
+refreshes per second.
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+refreshrate      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="isPlaying"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">isPlaying</span>()</span>
+  </h3>
+<pre class="literalblock">
+Returns true if play() is currently executing, false if not.
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+bool      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
 <a name="loadFile"></a>
 <table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
   <h3><span class="sig"><span class="sig-name">loadFile</span>(<span class=sig-arg>fileName</span>)</span>
   </h3>
 <pre class="literalblock">
-Loads the avg file specified in fileName. Returns false if the file
-could not be opened.
+Loads the avg file specified in fileName.
 </pre>
   <dl><dt></dt><dd>
     <dl><dt><b>Returns:</b></dt>
@@ -303,12 +371,14 @@ None      </dd>
 
 <a name="play"></a>
 <table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
-  <h3><span class="sig"><span class="sig-name">play</span>(<span class=sig-arg>framerate</span>)</span>
+  <h3><span class="sig"><span class="sig-name">play</span>()</span>
   </h3>
 <pre class="literalblock">
 Opens a playback window or screen and starts playback. framerate is
 the number of frames per second that should be displayed. play returns
-when playback has ended.
+when playback has ended. syncToVBlank specifies whether to wait for
+the screen's vertical blanking interval before showing the next
+frame.
 </pre>
   <dl><dt></dt><dd>
     <dl><dt><b>Returns:</b></dt>
@@ -342,6 +412,22 @@ ok      </dd>
 Determines which display backend to use. Parameter can be either
 avg.DFB (for DirectFB rendering) or avg.OGL (for OpenGL rendering).
 Must be called before loadFile.
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+None      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
+<a name="setFramerate"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">setFramerate</span>(<span class=sig-arg>rate</span>)</span>
+  </h3>
+<pre class="literalblock">
+Sets the desired framerate for playback and turns off syncronization
+to the vertical blanking interval.
 </pre>
   <dl><dt></dt><dd>
     <dl><dt><b>Returns:</b></dt>
@@ -405,6 +491,23 @@ id      </dd>
   </dd></dl>
 </td></tr></table>
 
+<a name="setVBlankFramerate"></a>
+<table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
+  <h3><span class="sig"><span class="sig-name">setVBlankFramerate</span>(<span class=sig-arg>rate</span>)</span>
+  </h3>
+<pre class="literalblock">
+Sets the desired number of vertical blanking intervals before the next
+frame is displayed. The resulting framerate is determined by the
+monitor refresh rate divided by the rate parameter.
+</pre>
+  <dl><dt></dt><dd>
+    <dl><dt><b>Returns:</b></dt>
+      <dd>
+bool      </dd>
+    </dl>
+  </dd></dl>
+</td></tr></table>
+
 <a name="showCursor"></a>
 <table width="100%" class="func-details" bgcolor="#e0e0e0"><tr><td>
   <h3><span class="sig"><span class="sig-name">showCursor</span>(<span class=sig-arg>show</span>)</span>
@@ -456,10 +559,10 @@ None      </dd>
           <code>int</code>
 
       </dd>
-<span title="180">      <dt><b>Value:</b></dt>
+<span title="212">      <dt><b>Value:</b></dt>
       <dd><table><tr><td>
 <pre class="variable">
-180&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</pre>
+212&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</pre>
         </td></tr></table></dd>
 </span>    </dl>
   </dd>
@@ -486,7 +589,7 @@ None      </dd>
 
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tr>
-    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Mon Oct  3 22:36:27 2005</font></td>
+    <td align="left"><font size="-2">Generated by Epydoc 2.1 on Sun Nov 27 16:16:14 2005</font></td>
     <td align="right"><a href="http://epydoc.sourceforge.net"
                       ><font size="-2">http://epydoc.sf.net</font></a></td>
   </tr>

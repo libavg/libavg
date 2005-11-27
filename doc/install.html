@@ -71,9 +71,9 @@ body { }
        <p><b>Prerequisites</b>
        <p>libavg uses a lot of third-party libraries. What follows is a list of packages 
        you'll need. The package names are the names of the gentoo packages needed. For 
-       other distributions, the list should enable you to find what's needed. libavg checks
-       during configure that these libraries are installed, so you'll probably get configure 
-       failures if they aren't.
+       other distributions, the list should enable you to find what's needed. In many
+       cases, libavg checks during configure that these libraries are installed, so you'll 
+       probably get configure failures if they aren't.
        <ul>
        <li>imagemagick (Tested with 6.2.2.3)</li>
        <li>ffmpeg 0.4.9pre1 or later. 0.4.8 doesn't work. Actually, ffmpeg isn't 
@@ -94,7 +94,7 @@ body { }
        <p>Debian users can do something like: </p>
        <pre>apt-get install libmagick++6-dev libavcodec-dev libavformat-dev \
        libsdl1.2-dev libdirectfb-dev libxml2-dev libpango1.0-dev python2.3 \
-       libboost-dev libboost-python-dev
+       libboost-dev libboost-python-dev libxxf86vm-dev
        </pre>
        <p><b>Direct Rendering</b>
        <p>You can test if OpenGL is running accelerated by running glxinfo. If it sais 
@@ -112,6 +112,7 @@ body { }
        <p>cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/libavg co libavg </p>
        <p>Then <i>./bootstrap</i> to generate configure.</p>
        </p> Now run <i>./configure, make, make install</i> as usual.</p>
+       <p>Running bootstrap requires a working autotools setup: autoconf, automake and libtool need to be installed. If you get bootstrap failures, chances are you're using different versions of these tools than I am: autoconf 2.59, automake 1.9.6, libtool 1.5.18.
 </div>
 </BODY>
 </HTML>
