@@ -12,8 +12,10 @@
 #include "OGLHelper.h"
 
 #define GL_GLEXT_PROTOTYPES
+#define GLX_GLXEXT_PROTOTYPES
 #include "GL/gl.h"
 #include "GL/glu.h"
+#include "GL/glx.h"
 
 #include <iostream>
 #include <sstream>
@@ -32,16 +34,25 @@ OGLSurface::OGLSurface()
 {
     // Do an NVIDIA texture support query if it hasn't happened already.
     getTextureMode();
-    
 }
 
 OGLSurface::~OGLSurface()
 {
     unbind();
-    if (m_bUsePixelBuffers) {
-        glDeleteBuffers(1, &m_hPixelBuffer);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "OGLSurface::~OGLSurface: glDeleteBuffers()");
+    switch(m_MemoryMode) {
+        case PBO:
+            glDeleteBuffers(1, &m_hPixelBuffer);
+            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                    "OGLSurface::~OGLSurface: glDeleteBuffers()");
+            break;
+        case MESA:
+            {
+                Display * display = XOpenDisplay(0);
+                glXFreeMemoryMESA(display, DefaultScreen(display), m_pMESABuffer);
+            }
+            break;
+        default:
+            break;
     }
 }
 
@@ -53,24 +64,46 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
     }
     m_Size = Size;
     m_pf = pf;
-    m_bUsePixelBuffers = (bFastDownload && arePixelBuffersAvailable());
-    if (m_bUsePixelBuffers) {
-        glGenBuffers(1, &m_hPixelBuffer);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "OGLSurface::create: glGenBuffers()");
-        glBindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffer);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "OGLSurface::rebind: glBindBuffer()");
-        glBufferData(GL_PIXEL_UNPACK_BUFFER_EXT, 
-                Size.x*Size.y*Bitmap::getBytesPerPixel(pf), NULL, 
-                GL_STREAM_DRAW);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "OGLSurface::create: glBufferData()");
-        glBindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "OGLSurface::rebind: glBindBuffer(0)");
-        m_pBmp = BitmapPtr();
-    } else {
+    m_MemoryMode = OGL;
+    if (bFastDownload) {
+        m_MemoryMode = getMemoryModeSupported();
+    }
+    switch (getMemoryModeSupported()) {
+        case PBO:
+            glGenBuffers(1, &m_hPixelBuffer);
+            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                    "OGLSurface::create: glGenBuffers()");
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffer);
+            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                    "OGLSurface::rebind: glBindBuffer()");
+            glBufferData(GL_PIXEL_UNPACK_BUFFER_EXT, 
+                    (Size.x+1)*(Size.y+1)*Bitmap::getBytesPerPixel(pf), NULL, 
+                    GL_STREAM_DRAW);
+            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                    "OGLSurface::create: glBufferData()");
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
+            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                    "OGLSurface::rebind: glBindBuffer(0)");
+            m_pBmp = BitmapPtr();
+            break;
+        case MESA:
+            {
+                Display * display = XOpenDisplay(0);
+                m_pMESABuffer = glXAllocateMemoryMESA(display, DefaultScreen(display),
+                        (Size.x+1)*(Size.y+1)*Bitmap::getBytesPerPixel(pf), 0, 1.0 ,0);
+                if (!m_pMESABuffer) {
+                    AVG_TRACE(Logger::WARNING, "Failed to allocate MESA memory");
+                    m_MemoryMode = OGL;
+                }
+                m_pBmp = BitmapPtr();
+            }
+            break;
+        default:
+            break;
+    }
+    if (getMemoryModeSupported() == OGL) {
+        // Can't do this in the switch because memory allocation might fail.
+        // so this is needed as a fallback.
         m_pBmp = BitmapPtr(new Bitmap(Size, pf));
     }
         
@@ -81,36 +114,52 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
 
 BitmapPtr OGLSurface::lockBmp()
 {
-    if (m_bUsePixelBuffers) {
-        glBindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffer);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "OGLSurface::lockBmp: glBindBuffer()");
-        unsigned char * pBuffer = (unsigned char *)
-                glMapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "OGLSurface::lockBmp: glMapBuffer()");
-        glBindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "OGLSurface::lockBmp: glBindBuffer(0)");
-        m_pBmp = BitmapPtr(new Bitmap(m_Size, m_pf, pBuffer, 
+    switch (getMemoryModeSupported()) {
+        case PBO:
+            {
+                glBindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffer);
+                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                        "OGLSurface::lockBmp: glBindBuffer()");
+                unsigned char * pBuffer = (unsigned char *)
+                    glMapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
+                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                        "OGLSurface::lockBmp: glMapBuffer()");
+                glBindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
+                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                        "OGLSurface::lockBmp: glBindBuffer(0)");
+                m_pBmp = BitmapPtr(new Bitmap(m_Size, m_pf, pBuffer, 
+                            m_Size.x*Bitmap::getBytesPerPixel(m_pf), false));
+            }
+            break;
+        case MESA:
+            m_pBmp = BitmapPtr(new Bitmap(m_Size, m_pf, (unsigned char *)m_pMESABuffer, 
                     m_Size.x*Bitmap::getBytesPerPixel(m_pf), false));
+        default:
+            break;
     }
     return m_pBmp;
 }
 
 void OGLSurface::unlockBmp()
 {
-    if (m_bUsePixelBuffers) {
-        glBindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffer);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "OGLSurface::unlockBmp: glBindBuffer()");
-        glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "OGLSurface::unlockBmp: glUnmapBuffer()");
-        glBindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "OGLSurface::lockBmp: glBindBuffer(0)");
-        m_pBmp = BitmapPtr();
+    switch (getMemoryModeSupported()) {
+        case PBO:
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffer);
+            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                    "OGLSurface::unlockBmp: glBindBuffer()");
+            glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
+            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                    "OGLSurface::unlockBmp: glUnmapBuffer()");
+            glBindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
+            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                    "OGLSurface::lockBmp: glBindBuffer(0)");
+            m_pBmp = BitmapPtr();
+            break;
+        case MESA:
+            m_pBmp = BitmapPtr();
+            break;
+        default:
+            break;
     }
 }
 
@@ -162,8 +211,9 @@ void OGLSurface::setWarpedVertexCoord(int x, int y, const DPoint& Vertex)
 void OGLSurface::createFromBits(IntPoint Size, PixelFormat pf,
         unsigned char * pBits, int Stride)
 {
-    if (m_bUsePixelBuffers) {
-        AVG_TRACE(Logger::ERROR, "createFromBits called in pixel buffer mode.");
+    if (m_MemoryMode != OGL) {
+        AVG_TRACE(Logger::ERROR, 
+                "createFromBits called while memory mode wasn't standard OpenGL.");
     }
 
     if (Size != m_pBmp->getSize() || pf != m_pBmp->getPixelFormat())
@@ -205,7 +255,7 @@ void OGLSurface::bind()
     if (m_bBound) {
         rebind();
     } else {
-        if (m_bUsePixelBuffers) {
+        if (m_MemoryMode == PBO) {
             glBindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffer);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                     "OGLSurface::bind: glBindBuffer()");
@@ -271,7 +321,7 @@ void OGLSurface::bind()
                 unsigned char * pStartPos = (unsigned char *) 
                         (Tile.m_Extent.tl.y*m_Size.x*bpp+
                         + Tile.m_Extent.tl.x*bpp);
-                if (!m_bUsePixelBuffers) {
+                if (m_MemoryMode != PBO) {
                     pStartPos += (unsigned int)(m_pBmp->getPixels());
                 }
                 glTexSubImage2D(s_TextureMode, 0, 0, 0, 
@@ -281,7 +331,7 @@ void OGLSurface::bind()
                         "OGLSurface::bind: glTexSubImage2D()");
             }
         }
-        if (m_bUsePixelBuffers) {
+        if (m_MemoryMode == PBO) {
             glBindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                     "OGLSurface::bind: glBindBuffer(0)");
@@ -316,7 +366,7 @@ void OGLSurface::rebind()
     glPixelStorei(GL_UNPACK_ROW_LENGTH, Width);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGOGLSurface::rebind: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
-    if (m_bUsePixelBuffers) {
+    if (m_MemoryMode == PBO) {
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffer);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "OGLSurface::rebind: glBindBuffer()");
@@ -331,7 +381,7 @@ void OGLSurface::rebind()
             unsigned char * pStartPos = (unsigned char *) 
                     (Tile.m_Extent.tl.y*m_Size.x*bpp+
                     + Tile.m_Extent.tl.x*bpp);
-            if (!m_bUsePixelBuffers) {
+            if (m_MemoryMode != PBO) {
                 pStartPos += (unsigned int)(m_pBmp->getPixels());
             }
             {
@@ -344,7 +394,7 @@ void OGLSurface::rebind()
                     "OGLSurface::rebind: glTexSubImage2D()");
         }
     }
-    if (m_bUsePixelBuffers) {
+    if (m_MemoryMode == PBO) {
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "OGLSurface::rebind: glBindBuffer(0)");
@@ -630,23 +680,26 @@ void OGLSurface::checkBlendModeError(string sMode)
     }
 }
 
-bool OGLSurface::arePixelBuffersAvailable()
+OGLSurface::MemoryMode OGLSurface::getMemoryModeSupported()
 {
     static bool s_bChecked = false;
-    static bool s_bUsePixelBuffers;
+    static MemoryMode s_MemoryMode;
     if (!s_bChecked) {
         if (queryOGLExtension("GL_ARB_pixel_buffer_object") || 
             queryOGLExtension("GL_EXT_pixel_buffer_object"))
         {
-            s_bUsePixelBuffers = true;
+            s_MemoryMode = PBO;
             AVG_TRACE(Logger::CONFIG, "Using pixel buffer objects.");
+        } else if (queryGLXExtension("GLX_MESA_allocate_memory")) {
+            s_MemoryMode = MESA;
+            AVG_TRACE(Logger::CONFIG, "Using MESA extension to allocate AGP memory.");
         } else {
-            s_bUsePixelBuffers = false;
-            AVG_TRACE(Logger::CONFIG, "Not using pixel buffer objects.");
+            s_MemoryMode = OGL;
+            AVG_TRACE(Logger::CONFIG, "Not using GL memory extensions.");
         }
         s_bChecked = true;
     }
-    return s_bUsePixelBuffers;
+    return s_MemoryMode;
 }
 
 }

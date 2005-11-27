@@ -28,6 +28,8 @@
 #include <X11/extensions/xf86vmode.h>
 
 #define XMD_H 1
+#define GLX_GLXEXT_PROTOTYPES
+#define GL_GLEXT_PROTOTYPES
 #include "GL/gl.h"
 #include "GL/glu.h"
 #include "GL/glx.h"

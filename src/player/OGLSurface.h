@@ -54,6 +54,11 @@ class OGLSurface: public ISurface {
         static int getTextureMode();
 
     private:
+        enum MemoryMode { 
+            OGL,  // Standard OpenGL
+            MESA, // glXAllocateMemoryMESA
+            PBO   // pixel buffer objects
+        };
         struct TextureTile {
             IntRect m_Extent;
             unsigned int m_TexID;
@@ -78,7 +83,8 @@ class OGLSurface: public ISurface {
         int getSrcMode();
         int getPixelType();
         void checkBlendModeError(std::string sMode);
-        static bool arePixelBuffersAvailable();
+
+        static MemoryMode getMemoryModeSupported();
    
         bool m_bBound;
 
@@ -93,8 +99,9 @@ class OGLSurface: public ISurface {
         std::vector<std::vector<TextureTile> > m_Tiles;
         std::vector<std::vector<DPoint> > m_TileVertices;
 
-        bool m_bUsePixelBuffers;
+        MemoryMode m_MemoryMode;
         GLuint m_hPixelBuffer;
+        void * m_pMESABuffer;
         
         static int s_TextureMode;
         static int s_MaxTexSize;
