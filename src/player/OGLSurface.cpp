@@ -319,8 +319,15 @@ void OGLSurface::bind()
                 unsigned char * pStartPos = (unsigned char *) 
                         (Tile.m_Extent.tl.y*m_Size.x*bpp+
                         + Tile.m_Extent.tl.x*bpp);
-                if (m_MemoryMode != PBO) {
-                    pStartPos += (unsigned int)(m_pBmp->getPixels());
+                switch (m_MemoryMode) {
+                    case OGL:
+                        pStartPos += (unsigned int)(m_pBmp->getPixels());
+                        break;
+                    case MESA:
+                        pStartPos += (unsigned int)(m_pMESABuffer);
+                        break;
+                    default:
+                        break;
                 }
                 glTexSubImage2D(s_TextureMode, 0, 0, 0, 
                         Tile.m_Extent.Width(), Tile.m_Extent.Height(),
@@ -379,8 +386,15 @@ void OGLSurface::rebind()
             unsigned char * pStartPos = (unsigned char *) 
                     (Tile.m_Extent.tl.y*m_Size.x*bpp+
                     + Tile.m_Extent.tl.x*bpp);
-            if (m_MemoryMode != PBO) {
-                pStartPos += (unsigned int)(m_pBmp->getPixels());
+            switch (m_MemoryMode) {
+                case OGL:
+                    pStartPos += (unsigned int)(m_pBmp->getPixels());
+                    break;
+                case MESA:
+                    pStartPos += (unsigned int)(m_pMESABuffer);
+                    break;
+                default:
+                    break;
             }
             {
                 ScopeTimer Timer(TexSubImageProfilingZone);
@@ -688,7 +702,8 @@ OGLSurface::MemoryMode OGLSurface::getMemoryModeSupported()
         {
             s_MemoryMode = PBO;
             AVG_TRACE(Logger::CONFIG, "Using pixel buffer objects.");
-        } else if (queryGLXExtension("GLX_MESA_allocate_memory")) {
+        } else if (false) { // queryGLXExtension("GLX_MESA_allocate_memory")) {
+            // Turned off - it seems to be slower than anything else...
             s_MemoryMode = MESA;
             s_AllocMemMESAProc = (PFNGLXALLOCATEMEMORYMESAPROC)
                     glXGetProcAddressARB((const GLubyte*)"glXAllocateMemoryMESA");
