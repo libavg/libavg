@@ -225,8 +225,8 @@ double FFMpegDecoder::getFPS()
 #endif 
 }
 
-static ProfilingZone RenderToBmpProfilingZone("      FFMpegDecoder::renderToBmp");
-static ProfilingZone ImgConvertProfilingZone("        FFMpegDecoder::img_convert");
+static ProfilingZone RenderToBmpProfilingZone("      FFMpeg: renderToBmp");
+static ProfilingZone ImgConvertProfilingZone("        FFMpeg: img_convert");
 
 bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
 {
