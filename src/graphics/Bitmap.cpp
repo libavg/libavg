@@ -435,11 +435,17 @@ void Bitmap::initWithData(unsigned char * pBits, int Stride, bool bCopyBits)
 {
 //    cerr << "Bitmap::initWithData()" << endl;
     if (m_PF == YCbCr422) {
+        if (m_Size.x%2 == 1) {
+            AVG_TRACE(Logger::WARNING, "Odd size for YCbCr bitmap.");
+            m_Size.x++;
+        }
+        if (m_Size.y%2 == 1) {
+            AVG_TRACE(Logger::WARNING, "Odd size for YCbCr bitmap.");
+            m_Size.y++;
+        }
         if (m_Size.x%2 == 1 || m_Size.y%2 == 1) {
             AVG_TRACE(Logger::ERROR, "Odd size for YCbCr bitmap.");
         }
-        assert(m_Size.x%2 == 0);
-        assert(m_Size.y%2 == 0);
     }
     if (bCopyBits) {
         allocBits();
@@ -459,11 +465,14 @@ void Bitmap::allocBits()
 //    cerr << "Bitmap::allocBits():" << m_Size <<  endl;
     
     if (m_PF == YCbCr422) {
-        if (m_Size.x%2 == 1 || m_Size.y%2 == 1) {
+        if (m_Size.x%2 == 1) {
             AVG_TRACE(Logger::WARNING, "Odd size for YCbCr bitmap.");
+            m_Size.x++;
         }
-        assert(m_Size.x%2 == 0);
-        assert(m_Size.y%2 == 0);
+        if (m_Size.y%2 == 1) {
+            AVG_TRACE(Logger::WARNING, "Odd size for YCbCr bitmap.");
+            m_Size.y++;
+        }
         m_Stride = m_Size.x*getBytesPerPixel();
         //XXX: We allocate more than nessesary here because ffmpeg seems to
         // overwrite memory after the bits - probably during yuv conversion.
