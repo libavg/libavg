@@ -81,7 +81,7 @@ void PanoImage::init (DisplayEngine * pEngine,
         // TODO: Disable image.
         exit(-1);
     }
-    AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
+//    AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
     m_pBmp = BitmapPtr(new Bitmap(m_Filename));
 
     if (m_Saturation != -1) {

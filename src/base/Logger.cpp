@@ -86,7 +86,6 @@ void Logger::trace(int category, const std::string& msg)
 {
     if (category & m_Flags) {
         if (m_DestType == CONSOLE || m_DestType == FILE) {
-            cerr << "CONSOLE || FILE" << endl;
             struct timeval time;
             gettimeofday(&time, NULL);
             struct tm* pTime;
@@ -99,7 +98,6 @@ void Logger::trace(int category, const std::string& msg)
             (*m_pDest) << categoryToString(category) << ": ";
             (*m_pDest) << msg << endl;
         } else {
-            cerr << "SYSLOG" << endl;
             int prio;
             switch(category) {
                 case EVENTS:

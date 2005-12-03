@@ -91,7 +91,7 @@ void Image::load()
 {
     m_Filename = m_href;
     initFilename(m_pPlayer, m_Filename);
-    AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
+//    AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
 
     Bitmap TempBmp(m_Filename);
 
@@ -107,7 +107,6 @@ void Image::load()
         FilterColorize(m_Hue, m_Saturation).applyInPlace(
                 getSurface()->lockBmp());
     }
-
     if (!(m_pPlayer->getDisplayEngine()->hasRGBOrdering())) {
         FilterFlipRGB().applyInPlace(getSurface()->lockBmp());
     }
