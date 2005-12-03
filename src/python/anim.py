@@ -24,13 +24,16 @@ class LinearAnim(SimpleAnim):
         self.interval = g_Player.setInterval(10, self.__step)
         self.__startValue = startValue
         self.__endValue = endValue
+        self.__done = 0
         self.__step()
     def __step(self):
-        part = ((time.time()-self.startTime)/self.duration)*1000
-        curValue = self.__startValue+(self.__endValue-self.__startValue)*part
-        setattr(self.node, self.attrName, curValue)
+        if not(self.__done):
+            part = ((time.time()-self.startTime)/self.duration)*1000
+            curValue = self.__startValue+(self.__endValue-self.__startValue)*part
+            setattr(self.node, self.attrName, curValue)
     def __stop(self):
         setattr(self.node, self.attrName, self.__endValue)
+        self.__done = 1
         g_Player.clearInterval(self.interval)
         if self.onStop != None:
             self.onStop()
@@ -49,14 +52,16 @@ class SplineAnim(SimpleAnim):
         self.__b = 3*(self.__endValue-self.__startValue)-2*self.__startSpeed-self.__endSpeed
         self.__c = self.__startSpeed
         self.__d = self.__startValue
-
+        self.__done = 0
         self.__step()
     def __step(self):
-        part = ((time.time()-self.startTime)/self.duration)*1000
-        curValue = ((self.__a*part+self.__b)*part+self.__c)*part+self.__d
-        setattr(self.node, self.attrName, curValue)
+        if not(self.__done):
+            part = ((time.time()-self.startTime)/self.duration)*1000
+            curValue = ((self.__a*part+self.__b)*part+self.__c)*part+self.__d
+            setattr(self.node, self.attrName, curValue)
     def __stop(self):
         setattr(self.node, self.attrName, self.__endValue)
+        self.__done = 1
         g_Player.clearInterval(self.interval)
         if self.onStop != None:
             self.onStop()
