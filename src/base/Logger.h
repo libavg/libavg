@@ -15,7 +15,9 @@ public:
     static Logger* get();
     virtual ~Logger();
    
-    void setDestination(const std::string& sFName);
+    void setConsoleDest();
+    void setFileDest(const std::string& sFName);
+    void setSyslogDest(int facility, int logopt);
     void setCategories(int flags);
     void trace(int category, const std::string& msg);
     inline bool isFlagSet(int category) {
@@ -34,13 +36,20 @@ public:
 
     static const long MEMORY;
     static const long APP;
+    static const long LOGGER;
 
 private:
     Logger();
+    static const char * categoryToString(int category);
+    void closeDest();
    
     static Logger* m_pLogger;
 
-    std::ostream * m_pDest;
+    enum DestType {CONSOLE, FILE, SYSLOG};
+    DestType m_DestType;
+    
+    std::ostream * m_pDest; // For console and file
+    
     int m_Flags;
 };
 

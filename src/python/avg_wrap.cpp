@@ -32,9 +32,20 @@ BOOST_PYTHON_MODULE(avg)
                 "get() -> Logger\n\n"
                 "There is only one logger. This method gives access to it.")
         .staticmethod("get")
-        .def("setDestination", &Logger::setDestination,
-                "setDestination(filename) -> None\n\n"
-                "Sets the file that the log should be written to. Default is stderr.\n")
+        .def("setConsoleDest", &Logger::setConsoleDest,
+                "setConsoleDest() -> None\n\n"
+                "Sets the log to be output to the console (stderr, to be precise).\n"
+                "This is the default.")
+        .def("setFileDest", &Logger::setFileDest,
+                "setFileDest(filename) -> None\n\n"
+                "Sets a file that the log should be written to. If opening the file\n"
+                "fails, the console is used instead.")
+        .def("setSyslogDest", &Logger::setSyslogDest,
+                "setSyslogDest(facility, logopt) -> None\n\n"
+                "Causes log output to be written to the unix system log facility.\n"
+                "facility and logopt are passed to the system log verbatim. See\n"
+                "man 3 syslog for details of these parameters. Ident is set to\n"
+                "'libavg'")
         .def("setCategories", &Logger::setCategories,
                 "setCategories(categories) -> None\n\n"
                 "Sets the types of messages that should be logged. Possible \n"

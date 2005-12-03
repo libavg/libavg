@@ -7,6 +7,7 @@
 #include <sys/time.h>
 #include <fstream>
 #include <iomanip>
+#include <syslog.h>
 
 using namespace std;
 
@@ -23,6 +24,7 @@ const long Logger::WARNING=64;
 const long Logger::ERROR=128;  
 const long Logger::MEMORY=256;
 const long Logger::APP=512;
+const long Logger::LOGGER=1024;
 
 Logger* Logger::m_pLogger = 0;
 
@@ -37,29 +39,42 @@ Logger * Logger::get()
 Logger::Logger()
 {
     m_pDest = &cerr;
-    m_Flags = ERROR | WARNING | APP;
+    m_Flags = ERROR | WARNING | APP | LOGGER;
 }
 
 Logger::~Logger()
 {
-    if (m_pDest != &cerr) {
-        delete m_pDest;
-    }
+    closeDest();
 }
 
-void Logger::setDestination(const string& sFName)
+void Logger::setConsoleDest()
 {
-    if (m_pDest != &cerr) {
-        delete m_pDest;
-    }
+    closeDest();
+    m_DestType = CONSOLE;
+    m_pDest = &cerr;
+    AVG_TRACE(LOGGER, "Logging started ");
+}
+
+void Logger::setFileDest(const std::string& sFName)
+{
+    closeDest();
+    m_DestType = FILE;
     m_pDest = new ofstream(sFName.c_str(), ios::out | ios::app);
     if (!*m_pDest) {
         m_pDest = &cerr;
-        AVG_TRACE(ERROR, "Could not open " << sFName 
+        m_DestType = CONSOLE;
+        AVG_TRACE(LOGGER, "Could not open " << sFName 
                 << " as log destination.");
     } else {
-        AVG_TRACE(ERROR, "Logging started ");
+        AVG_TRACE(LOGGER, "Logging started ");
     }
+}
+
+void Logger::setSyslogDest(int facility, int logopt)
+{
+    closeDest();
+    m_DestType = SYSLOG;
+    openlog("libavg", logopt, facility);
 }
     
 void Logger::setCategories(int flags)
@@ -70,48 +85,89 @@ void Logger::setCategories(int flags)
 void Logger::trace(int category, const std::string& msg)
 {
     if (category & m_Flags) {
-        struct timeval time;
-        gettimeofday(&time, NULL);
-        struct tm* pTime;
-        pTime = localtime(&time.tv_sec);
-        char timeString[256];
-        strftime(timeString, sizeof(timeString), "%y-%m-%d %H:%M:%S", pTime);
-        
-        (*m_pDest) << "[" << timeString << "." << 
-                setw(3) << setfill('0') << time.tv_usec/1000 << setw(0) << "] "; 
-        switch(category) {
-            case BLTS:
-                (*m_pDest) << "    BLIT: ";
-                break;
-            case PROFILE:
-            case PROFILE_LATEFRAMES:
-                (*m_pDest) << " PROFILE: ";
-                break;
-            case EVENTS:
-            case EVENTS2:
-                (*m_pDest) << "  EVENTS: ";
-                break;
-            case CONFIG:
-                (*m_pDest) << "  CONFIG: ";
-                break;
-            case WARNING:
-                (*m_pDest) << " WARNING: ";
-                break;
-            case ERROR:
-                (*m_pDest) << "   ERROR: ";
-                break;
-            case APP:
-                (*m_pDest) << "     APP: ";
-                break;
+        if (m_DestType == CONSOLE || m_DestType == FILE) {
+            cerr << "CONSOLE || FILE" << endl;
+            struct timeval time;
+            gettimeofday(&time, NULL);
+            struct tm* pTime;
+            pTime = localtime(&time.tv_sec);
+            char timeString[256];
+            strftime(timeString, sizeof(timeString), "%y-%m-%d %H:%M:%S", pTime);
+
+            (*m_pDest) << "[" << timeString << "." << 
+                setw(3) << setfill('0') << time.tv_usec/1000 << setw(0) << "] ";
+            (*m_pDest) << categoryToString(category) << ": ";
+            (*m_pDest) << msg << endl;
+        } else {
+            cerr << "SYSLOG" << endl;
+            int prio;
+            switch(category) {
+                case EVENTS:
+                case EVENTS2:
+                case BLTS:
+                    prio = LOG_INFO;
+                    break;
+                case PROFILE:
+                case PROFILE_LATEFRAMES:
+                case CONFIG:
+                case APP:
+                case LOGGER:
+                    prio = LOG_NOTICE;
+                    break;
+                case WARNING:
+                    prio = LOG_WARNING;
+                    break;
+                case ERROR:
+                    prio = LOG_ERR;
+                    break;
+                default:
+                    prio = LOG_ERR;
+            }
+            syslog(prio, "%s: %s", categoryToString(category),
+                    msg.c_str());
         }
-        (*m_pDest) << msg << endl;
     }
 }
 
-/*
-void Logger::trace(int category, const char * msg)
+const char * Logger::categoryToString(int category)
 {
-    trace(category, (std::string&)msg);
+    switch(category) {
+        case BLTS:
+            return "BLIT";
+        case PROFILE:
+        case PROFILE_LATEFRAMES:
+            return "PROFILE";
+        case EVENTS:
+        case EVENTS2:
+            return "EVENTS";
+        case CONFIG:
+            return "CONFIG";
+        case WARNING:
+            return "WARNING";
+        case ERROR:
+            return "ERROR";
+        case APP:
+            return "APP";
+        case LOGGER:
+            return "LOGGER";
+        default:
+            return "UNKNOWN";
+    }
 }
-*/
+
+void Logger::closeDest()
+{
+    switch (m_DestType) {
+        case CONSOLE:
+            break;
+        case FILE:
+            delete m_pDest;
+            m_pDest = 0;
+            break;
+        case SYSLOG:
+            closelog();
+            
+    }
+}
+
 }

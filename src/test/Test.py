@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-import sys
+import sys, syslog
 # TODO: set this path via configure or something similar.
 sys.path.append('/usr/local/lib/python2.3/site-packages/libavg')
 sys.path.append('/usr/local/lib/python2.4/site-packages/libavg')
@@ -21,8 +21,11 @@ class LoggerTestCase(unittest.TestCase):
                   self.Log.MEMORY  |
 #                  self.Log.BLTS    |
                   self.Log.EVENTS)
-#        self.Log.setDestination("avgdfb.log")
-        self.Log.trace(self.Log.APP, "Test JS log entry.")
+        self.Log.setFileDest("testavg.log")
+        self.Log.trace(self.Log.APP, "Test file log entry.")
+        self.Log.setSyslogDest(syslog.LOG_USER, syslog.LOG_CONS)
+        self.Log.trace(self.Log.APP, "Test syslog entry.")
+        self.Log.setConsoleDest()
 
 class ParPortTestCase(unittest.TestCase):
     def test(self):
