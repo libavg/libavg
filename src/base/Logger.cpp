@@ -38,8 +38,10 @@ Logger * Logger::get()
 
 Logger::Logger()
 {
-    m_pDest = &cerr;
     m_Flags = ERROR | WARNING | APP | LOGGER;
+    m_DestType = CONSOLE;
+    m_pDest = &cerr;
+    trace(LOGGER, "Logging started ");
 }
 
 Logger::~Logger()

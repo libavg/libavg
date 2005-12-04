@@ -53,6 +53,7 @@ void Timeout::Fire()
     if (!result) {
         throw error_already_set();
     }
+    Py_DECREF(result);
     if (m_IsInterval) {
         m_NextTimeout = m_Interval + TimeSource::get()->getCurrentMillisecs();
     }
