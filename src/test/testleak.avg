@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!DOCTYPE avg SYSTEM "../../libavg/doc/avg.dtd">
+<avg id="main" width="800" height="600">
+  <div id="topscreen" x="0" y="0" width="800" height="300" z="2">
+    <div id="hinweise" x="16" y="50" width="768" height="250">
+      <div id="linie1" x="0" y="26">
+        <words id = "linie1_top" x="60" y="0" text="Seminar: prejambug" 
+                font="Eurostile" color="0D1C45" size="14"/>
+        <words id = "linie1_bottom" x="60" y="16" text="14.11.2005, 15:30" 
+                font="Eurostile" color="0D1C45" size="14"/>
+      </div>
+      <div id="linie2" x="0" y="83">
+        <words id = "linie2_top" x="60" y="0" text="Seminar: prejambug" 
+                font="Eurostile" color="0D1C45" size="14"/>
+        <words id = "linie2_bottom" x="60" y="16" text="14.11.2005, 15:30" 
+                font="Eurostile" color="0D1C45" size="14"/>
+      </div>
+      <div id="linie3" x="0" y="138">
+        <words id = "linie3_top" x="60" y="0" text="Seminar: prejambug" 
+                font="Eurostile" color="0D1C45" size="14"/>
+        <words id = "linie3_bottom" x="60" y="16" text="14.11.2005, 15:30" 
+                font="Eurostile" color="0D1C45" size="14"/>
+      </div>
+    </div>
+  </div>
+</avg>
