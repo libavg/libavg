@@ -10,16 +10,17 @@
 import time
 
 class SimpleAnim:
-    def __init__(self, node, attrName, duration, onStop):
+    def __init__(self, node, attrName, duration, useInt, onStop):
         self.node = node
         self.attrName = attrName
         self.duration = duration
         self.startTime = time.time()
         self.onStop = onStop
+        self.useInt = useInt
 
 class LinearAnim(SimpleAnim):
-    def __init__(self, node, attrName, duration, startValue, endValue, onStop):
-        SimpleAnim.__init__(self, node, attrName, duration, onStop)
+    def __init__(self, node, attrName, duration, startValue, endValue, useInt, onStop):
+        SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop)
         g_Player.setTimeout(duration, self.__stop)
         self.interval = g_Player.setInterval(10, self.__step)
         self.__startValue = startValue
@@ -30,6 +31,8 @@ class LinearAnim(SimpleAnim):
         if not(self.__done):
             part = ((time.time()-self.startTime)/self.duration)*1000
             curValue = self.__startValue+(self.__endValue-self.__startValue)*part
+            if self.useInt:
+                curValue = int(curValue+0.5)
             setattr(self.node, self.attrName, curValue)
     def __stop(self):
         setattr(self.node, self.attrName, self.__endValue)
@@ -40,8 +43,8 @@ class LinearAnim(SimpleAnim):
 
 class SplineAnim(SimpleAnim):
     def __init__(self, node, attrName, duration, 
-            startValue, startSpeed, endValue, endSpeed, onStop):
-        SimpleAnim.__init__(self, node, attrName, duration, onStop)
+            startValue, startSpeed, endValue, endSpeed, useInt, onStop):
+        SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop)
         g_Player.setTimeout(duration, self.__stop)
         self.interval = g_Player.setInterval(10, self.__step)
         self.__startValue = startValue+0.0
@@ -58,6 +61,8 @@ class SplineAnim(SimpleAnim):
         if not(self.__done):
             part = ((time.time()-self.startTime)/self.duration)*1000
             curValue = ((self.__a*part+self.__b)*part+self.__c)*part+self.__d
+            if self.useInt:
+                curValue = int(curValue+0.5)
             setattr(self.node, self.attrName, curValue)
     def __stop(self):
         setattr(self.node, self.attrName, self.__endValue)
@@ -68,11 +73,11 @@ class SplineAnim(SimpleAnim):
 
 def fadeOut(node, duration):
     curValue = getattr(node, "opacity")
-    LinearAnim(node, "opacity", duration, curValue, 0, None)
+    LinearAnim(node, "opacity", duration, curValue, 0, 0, None)
 
 def fadeIn(node, duration, max):
     curValue = getattr(node, "opacity")
-    LinearAnim(node, "opacity", duration, curValue, max, None)
+    LinearAnim(node, "opacity", duration, curValue, max, 0, None)
 
 def init(Player):
     global g_Player

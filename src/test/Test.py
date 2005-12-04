@@ -459,12 +459,12 @@ class AnimTestCase(unittest.TestCase):
             Player.getElementByID("nestedimg1").opacity = 0
             anim.fadeIn(Player.getElementByID("nestedimg1"), 1000, 1)
             anim.LinearAnim(Player.getElementByID("nestedimg1"), "x", 
-                    1000, 0, 100, onStop)
+                    1000, 0, 100, 0, onStop)
         def startSplineAnim():
             anim.SplineAnim(Player.getElementByID("mainimg"), "x", 
-                    2000, 100, -400, 10, 0, None)
+                    2000, 100, -400, 10, 0, 0, None)
             anim.SplineAnim(Player.getElementByID("mainimg"), "y", 
-                    2000, 100, 0, 10, -400, None)
+                    2000, 100, 0, 10, -400, 1, None)
         anim.init(Player)
         Player.loadFile("avg.avg")
         Player.setTimeout(4200, Player.stop)
