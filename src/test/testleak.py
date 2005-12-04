@@ -2,12 +2,33 @@
 # -*- coding: utf-8 -*-
 
 
-import sys, os, math, urllib, re, datetime, time, random, thread
+import sys, os, math, urllib, re, datetime, time, random, thread, gc
 sys.path.append('/usr/local/lib/python2.4/site-packages/libavg')
 import avg
 
 sys.path.append('../')
 import anim
+
+def step_anim():
+    pass
+
+def start_anim():
+#    id = Player.setInterval(1, step_anim)
+#    Player.setTimeout(5, lambda: Player.clearInterval(id))
+    curTermin = Player.getElementByID("linie1")
+    anim.SplineAnim(curTermin, "x", 100, -800, 2000, 10, -20, None)
+    print gc.collect()
+
+class autonomous:
+    def __init__(self):
+        self.__id = Player.setInterval(1, step_anim)
+#        self.__id = Player.setInterval(1, self.__step)
+        Player.setTimeout(10, lambda: Player.clearInterval(self.__id))
+        print gc.collect()
+    def __del__(self):
+        print("del")
+    def __step(self):
+        pass
 
 class Termin:
     def __init__(self, date, time, event):
@@ -87,12 +108,10 @@ def start_termin():
     bottomLine = Player.getElementByID("linie"+str(curTerminNum)+"_bottom")
     bottomLine.text = curInfo.date+", "+curInfo.time
     if terminVonLinks:
-        anim.SplineAnim(curTermin, "x", 1000, -800, 2000, 10, -20, 
-                lambda: anim.SplineAnim(curTermin, "x", 400, 10, -20, 0, 0, None))
+        anim.SplineAnim(curTermin, "x", 100, -800, 2000, 10, -20, None)
     else:
-        anim.SplineAnim(curTermin, "x", 1000, 800, -2000, -10, 20, 
-                lambda: anim.SplineAnim(curTermin, "x", 400, -10, 20, 0, 0, None))
-    Player.setTimeout(100, termin_weg)
+        anim.SplineAnim(curTermin, "x", 100, 800, -2000, -10, 20, None)
+    Player.setTimeout(10, termin_weg)
     if termineBereit:
         parse_termine()
 
@@ -105,10 +124,11 @@ def termin_weg():
     terminVonLinks = (random.random() > 0.5)
     curTermin = Player.getElementByID("linie"+str(curTerminNum))
     if terminVonLinks:
-        anim.SplineAnim(curTermin, "x", 1000, 0, 0, 800, -2000, None)
+        anim.SplineAnim(curTermin, "x", 100, 0, 0, 800, -2000, None)
     else:
-        anim.SplineAnim(curTermin, "x", 1400, 0, 0, -1200, 2000, None)
-    Player.setTimeout(100, start_termin)
+        anim.SplineAnim(curTermin, "x", 140, 0, 0, -1200, 2000, None)
+    Player.setTimeout(10, start_termin)
+    print gc.collect()
 
 
 def init_termine():
@@ -134,9 +154,13 @@ Log.setCategories(Log.APP |
 #                 Log.BLTS    |
 #                  Log.EVENTS
                   )
+gc.set_debug(gc.DEBUG_COLLECTABLE | gc.DEBUG_UNCOLLECTABLE | gc.DEBUG_INSTANCES | 
+        gc.DEBUG_OBJECTS | gc.DEBUG_STATS)
 Player.loadFile("testleak.avg")
 anim.init(Player)
-init_termine()
-Player.setVBlankFramerate(2)
+#init_termine()
+Player.setInterval(5, start_anim)
+#Player.setInterval(5, autonomous)
+Player.setFramerate(1000)
 Player.play()
 done = 1

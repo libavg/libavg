@@ -259,7 +259,7 @@ void Player::setFramerate(double rate) {
 }
 
 bool Player::setVBlankFramerate(int rate) {
-    m_pDisplayEngine->setVBlankRate(rate);
+    return m_pDisplayEngine->setVBlankRate(rate);
 }
 
 int Player::setInterval(int time, PyObject * pyfunc)
@@ -595,6 +595,7 @@ void Player::handleTimers()
         vector<Timeout *>::iterator it2;
         for (it2=m_PendingTimeouts.begin(); it2 != m_PendingTimeouts.end(); ++it2) {
             if (id == (*it2)->GetID()) {
+                delete *it2;
                 m_PendingTimeouts.erase(it2);
                 break;
             }
