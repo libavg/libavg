@@ -85,7 +85,8 @@ void VideoBase::init(DisplayEngine * pEngine, Container * pParent,
         Player * pPlayer)
 {
     Node::init(pEngine, pParent, pPlayer);
-    open();
+    m_State = Unloaded;
+//    open();
 }
 
 void VideoBase::prepareRender (int time, const DRect& parent)
@@ -203,6 +204,7 @@ void VideoBase::open()
     FilterFill<Pixel24> Filter(Pixel24(0,0,0));
     Filter.applyInPlace(getSurface()->lockBmp());
     getSurface()->unlockBmp();
+    initVisible();
     
     m_bFrameAvailable = false;
     m_State = Paused;

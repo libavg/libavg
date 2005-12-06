@@ -135,8 +135,11 @@ void export_raster()
         .def("seekToFrame", &Video::seekToFrame,
                 "seekToFrame(num) -> None\n\n"
                 "Moves the playback cursor to the frame given.")
-        .add_property("href", make_function(&Video::getHRef,
-                return_value_policy<copy_const_reference>()))
+        .add_property("href", 
+                make_function(&Video::getHRef,
+                        return_value_policy<copy_const_reference>()),
+                make_function(&Video::setHRef,
+                        return_value_policy<copy_const_reference>()))        
         .add_property("loop", &Video::getLoop)
     ;
 
@@ -165,7 +168,7 @@ void export_raster()
             "    alignment: The paragraph alignment. Possible values are 'left',\n"
             "        'center' and 'right'.\n"
             "    weight: Sets the character weight. Possible values are\n"
-            "        'ultralight', 'light', 'normal', 'semibold', 'bold', 'ultrabold'"
+            "        'ultralight', 'light', 'normal', 'semibold', 'bold', 'ultrabold'\n"
             "        and 'heavy'. This value is mapped to the weights implemented\n"
             "        in the font chosen. In most cases, working weights are limited\n"
             "        to 'normal' and 'bold'.\n"

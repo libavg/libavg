@@ -322,6 +322,7 @@ class PlayerTestCase(unittest.TestCase):
             pos.y += 0.002
             node.setWarpedVertexCoord(0,0,pos)
         Player.loadFile("video.avg")
+        Player.getElementByID("clogo1").play()
         node = Player.getElementByID("testtiles")
         print("Vertices: "+str(node.getNumVerticesX())+"x"
                 +str(node.getNumVerticesY()))
@@ -425,9 +426,15 @@ class VideoTestCase(unittest.TestCase):
         def stop():
             node = Player.getElementByID("clogo")
             node.stop()
+        def newHRef():
+            node = Player.getElementByID("clogo2")
+            node.href = "test.m1v"
+            node.play()
         self.curFrame = 200
         Player.loadFile("video.avg")
         playVideo("clogo")
+        Player.getElementByID("clogo2").pause()
+        Player.setTimeout(500, newHRef)
         Player.setTimeout(1000, playclogo1)
         self.timerid = Player.setInterval(10, interval)
         Player.setTimeout(1500, playclogo2)

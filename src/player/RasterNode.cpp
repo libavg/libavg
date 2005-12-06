@@ -58,10 +58,10 @@ void RasterNode::initVisible()
     if (m_MaxTileSize != IntPoint(-1, -1)) {
 #ifdef AVG_ENABLE_GL        
         OGLSurface * pOGLSurface = 
-            dynamic_cast<OGLSurface*>(m_pSurface);
+            dynamic_cast<OGLSurface*>(getSurface());
         if (!pOGLSurface) {
             AVG_TRACE(Logger::WARNING, 
-                    "Node "+getID()+":"
+                    "Node "+getID()+": "
                     "Custom tile sizes are only allowed when "
                     "the display engine is OpenGL. Ignoring.");
         } else {
@@ -69,7 +69,7 @@ void RasterNode::initVisible()
         }
 #else
             AVG_TRACE(Logger::WARNING, 
-                    "Node "+getID()+":"
+                    "Node "+getID()+": "
                     "Custom tile sizes are only allowed when "
                     "the display engine is OpenGL. Ignoring.");
 #endif        
@@ -204,7 +204,7 @@ DPoint RasterNode::getPivot()
 #ifdef AVG_ENABLE_GL
 OGLSurface * RasterNode::getOGLSurface()
 {
-    OGLSurface * pOGLSurface = dynamic_cast<OGLSurface *>(m_pSurface);
+    OGLSurface * pOGLSurface = dynamic_cast<OGLSurface *>(getSurface());
     if (pOGLSurface) {
         return pOGLSurface; 
     } else {

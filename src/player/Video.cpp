@@ -95,6 +95,22 @@ void Video::init (DisplayEngine * pEngine, Container * pParent,
     VideoBase::init(pEngine, pParent, pPlayer);
 }
 
+const string& Video::getHRef() const
+{
+    return m_Filename;
+}
+
+void Video::setHRef(const string& href)
+{
+    string fileName (href);
+    initFilename(getPlayer(), fileName);
+    if (fileName != m_Filename) {
+        changeState(Unloaded);
+        m_Filename = fileName;
+        changeState(Paused);
+    }
+}
+
 string Video::getTypeStr ()
 {
     return "Video";

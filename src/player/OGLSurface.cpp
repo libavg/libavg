@@ -164,9 +164,7 @@ void OGLSurface::unlockBmp()
 void OGLSurface::setMaxTileSize(const IntPoint& MaxTileSize)
 {
     if (m_bBound) {
-        AVG_TRACE(Logger::WARNING, 
-                "Ignoring setMaxTileSize because textures are already bound.");
-        return;
+        unbind();
     }
     m_MaxTileSize = MaxTileSize;
     if (m_MaxTileSize.x != -1) {
@@ -175,8 +173,10 @@ void OGLSurface::setMaxTileSize(const IntPoint& MaxTileSize)
     if (m_MaxTileSize.y != -1) {
         m_MaxTileSize.y = nextpow2(m_MaxTileSize.y/2+1);
     }
-    setupTiles();
-    initTileVertices();
+    if (m_pBmp) {
+        setupTiles();
+        initTileVertices();
+    }
 }
 
 int OGLSurface::getNumVerticesX()
@@ -191,6 +191,16 @@ int OGLSurface::getNumVerticesY()
 
 DPoint OGLSurface::getOrigVertexCoord(int x, int y)
 {
+    if (!m_bBound) {
+        AVG_TRACE(Logger::WARNING, 
+                "getOrigVertexCoord called, but image not available.");
+        return DPoint(0,0);
+    }
+    if (x < 0 || x >= m_NumHorizTextures || y < 0 || y >= m_NumVertTextures) {
+        AVG_TRACE(Logger::WARNING, 
+                "getOrigVertexCoord called, but coordinate out of bounds.");
+        return DPoint(0,0);
+    }
     DPoint Vertex;
     initTileVertex(x, y, Vertex);
     return Vertex;
@@ -198,11 +208,31 @@ DPoint OGLSurface::getOrigVertexCoord(int x, int y)
 
 DPoint OGLSurface::getWarpedVertexCoord(int x, int y)
 {
+    if (!m_bBound) {
+        AVG_TRACE(Logger::WARNING, 
+                "getWarpedVertexCoord called, but image not available.");
+        return DPoint(0,0);
+    }
+    if (x < 0 || x >= m_NumHorizTextures || y < 0 || y >= m_NumVertTextures) {
+        AVG_TRACE(Logger::WARNING, 
+                "getWarpedVertexCoord called, but coordinate out of bounds.");
+        return DPoint(0,0);
+    }
     return m_TileVertices[y][x];
 }
 
 void OGLSurface::setWarpedVertexCoord(int x, int y, const DPoint& Vertex)
 {
+    if (!m_bBound) {
+        AVG_TRACE(Logger::WARNING, 
+                "setWarpedVertexCoord called, but image not available.");
+        return;
+    }
+    if (x < 0 || x >= m_NumHorizTextures || y < 0 || y >= m_NumVertTextures) {
+        AVG_TRACE(Logger::WARNING, 
+                "setWarpedVertexCoord called, but coordinate out of bounds.");
+        return;
+    }
     m_TileVertices[y][x] = Vertex;
 }
 

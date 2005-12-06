@@ -25,10 +25,8 @@ class Video : public VideoBase
         virtual void init (DisplayEngine * pEngine, Container * pParent, 
                 Player * pPlayer);
 
-        const std::string& getHRef() const
-        {
-            return m_Filename;
-        }
+        const std::string& getHRef() const;
+        void setHRef(const std::string& href);
         
         int getNumFrames() const;
         int getCurFrame() const;
