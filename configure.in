@@ -84,7 +84,7 @@ AC_ARG_ENABLE(GL,
               AC_HELP_STRING([--enable-GL], 
                     [compile support for OpenGL rendering backend]),
                     enable_GL=$enableval, enable_GL=maybe, )
-if test "$enable_GL" = maybe; then
+if (test "$enable_GL" = maybe) || (test "$enable_GL" = yes); then
     AX_CHECK_GL
     AX_CHECK_GLU
     AC_CHECK_PROG(sdl_installed, [sdl-config], "yes")
