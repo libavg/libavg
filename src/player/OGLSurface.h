@@ -102,13 +102,23 @@ class OGLSurface: public ISurface {
         std::vector<std::vector<DPoint> > m_TileVertices;
 
         MemoryMode m_MemoryMode;
+
+        // PBO memory mode
         GLuint m_hPixelBuffer;
+        static PFNGLGENBUFFERSPROC s_GenBuffersProc;
+        static PFNGLBUFFERDATAPROC s_BufferDataProc;
+        static PFNGLDELETEBUFFERSPROC s_DeleteBuffersProc;
+        static PFNGLBINDBUFFERPROC s_BindBufferProc;
+        static PFNGLMAPBUFFERPROC s_MapBufferProc;
+        static PFNGLUNMAPBUFFERPROC s_UnmapBufferProc;
+
+        // MESA memory mode
         void * m_pMESABuffer;
+        static PFNGLXALLOCATEMEMORYMESAPROC s_AllocMemMESAProc;
+        static PFNGLXFREEMEMORYMESAPROC s_FreeMemMESAProc;
         
         static int s_TextureMode;
         static int s_MaxTexSize;
-        static PFNGLXALLOCATEMEMORYMESAPROC s_AllocMemMESAProc;
-        static PFNGLXFREEMEMORYMESAPROC s_FreeMemMESAProc;
 };
 
 }
