@@ -369,25 +369,20 @@ bool Camera::renderToSurface(ISurface * pSurface)
 #endif                            
                             BitmapPtr pBmp = pSurface->lockBmp();
                             unsigned char * pPixels = pBmp->getPixels();
-                            int WidthBytes = pBmp->getSize().x*3;
 
                             if (getEngine()->hasRGBOrdering()) {
-                                for (int y = 0; y < pBmp->getSize().y; y++) {
-                                    memcpy(pPixels+y*pBmp->getStride(),
-                                            (unsigned char*)(m_Camera.capture_buffer)+
-                                            y*WidthBytes,
-                                            WidthBytes);
-                                }
+                                AVG_TRACE(Logger::ERROR,
+                                        "Wrong engine rgb order for camera. Aborting.");
                             } else {
-                                for (int y = 0; y < pBmp->getSize().x; y++) {
+                                for (int y = 0; y < pBmp->getSize().y; y++) {
                                     unsigned char * pDestLine = 
                                         pPixels+y*pBmp->getStride();
                                     unsigned char * pSrcLine = (unsigned char*)
-                                        m_Camera.capture_buffer+y*WidthBytes;
-                                    for (int x = 0; x < WidthBytes; x+=3) {
-                                        pDestLine[x] = pSrcLine[x+2];
-                                        pDestLine[x+1] = pSrcLine[x+1];
-                                        pDestLine[x+2] = pSrcLine[x];
+                                        m_Camera.capture_buffer+3*pBmp->getSize().x*y;
+                                    for (int x = 0; x<pBmp->getSize().x; x++) {
+                                        pDestLine[x*4] = pSrcLine[x*3+2];
+                                        pDestLine[x*4+1] = pSrcLine[x*3+1];
+                                        pDestLine[x*4+2] = pSrcLine[x*3];
                                     }
                                 }
                             }
