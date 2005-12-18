@@ -422,7 +422,8 @@ void Node::callPython (const string& Code, const Event& Event)
     PyObject * pDict = PyModule_GetDict(pModule);
     PyObject * pFunc = PyDict_GetItemString(pDict, Code.c_str());
     if (!pFunc) {
-        cerr << "Function \"" << Code << "\" not defined." << endl;
+        AVG_TRACE(Logger::ERROR, "Function \"" << Code << 
+                "\" not defined for node with id '"+m_ID+"'. Aborting.");
         exit(-1);
     }
     PyObject * pArgList = Py_BuildValue("()");

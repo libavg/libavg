@@ -614,17 +614,30 @@ bool Player::handleEvent(Event * pEvent)
         case Event::MOUSEMOTION:
         case Event::MOUSEBUTTONUP:
         case Event::MOUSEBUTTONDOWN:
+        case Event::MOUSEOVER:
+        case Event::MOUSEOUT:
             {
                 MouseEvent * pMouseEvent = dynamic_cast<MouseEvent*>(pEvent);
                 DPoint pos(pMouseEvent->getXPosition(), 
                         pMouseEvent->getYPosition());
-                Node * pNode = m_pRootNode->getElementByPos(pos);            
-                if (pNode != m_pLastMouseNode) {
+                Node * pNode;
+                if (pEvent->getType() != Event::MOUSEOVER &&
+                        pEvent->getType() != Event::MOUSEOUT)
+                {
+                    pNode = m_pRootNode->getElementByPos(pos); 
+                } else {
+                    pNode = pMouseEvent->getElement();
+                }
+                if (pNode != m_pLastMouseNode && 
+                        pEvent->getType() != Event::MOUSEOVER &&
+                        pEvent->getType() != Event::MOUSEOUT)
+                {
                     if (pNode) {
-                        createMouseOver(pMouseEvent, Event::MOUSEOVER);
+                        createMouseOver(pMouseEvent, Event::MOUSEOVER, pNode);
                     }
                     if (m_pLastMouseNode) {
-                        createMouseOver(pMouseEvent, Event::MOUSEOUT);
+                        createMouseOver(pMouseEvent, Event::MOUSEOUT, 
+                                m_pLastMouseNode);
                     }
                     m_pLastMouseNode = pNode;
                 }
@@ -648,9 +661,6 @@ bool Player::handleEvent(Event * pEvent)
         case Event::QUIT:
             m_bStopping = true;
             break;
-        case Event::MOUSEOVER:
-        case Event::MOUSEOUT:
-            break;
         default:
             AVG_TRACE(Logger::ERROR, "Unknown event type in Player::handleEvent.");
             break;
@@ -664,7 +674,8 @@ DisplayEngine * Player::getDisplayEngine() const
     return m_pDisplayEngine;
 }
 
-void Player::createMouseOver(MouseEvent * pOtherEvent, Event::Type Type)
+void Player::createMouseOver(MouseEvent * pOtherEvent, Event::Type Type, 
+                Node * pNode)
 {
     MouseEvent * pNewEvent = new MouseEvent(Type,
             pOtherEvent->getLeftButtonState(),
@@ -673,6 +684,7 @@ void Player::createMouseOver(MouseEvent * pOtherEvent, Event::Type Type)
             pOtherEvent->getXPosition(),
             pOtherEvent->getYPosition(),
             pOtherEvent->getButton());
+    pNewEvent->setElement(pNode);
     m_EventDispatcher.addEvent(pNewEvent);
 }
 

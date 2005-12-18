@@ -18,9 +18,10 @@ class LoggerTestCase(unittest.TestCase):
                   self.Log.PROFILE |
 #                  self.Log.PROFILE_LATEFRAMES |
                   self.Log.CONFIG |
-                  self.Log.MEMORY  |
+                  self.Log.MEMORY | 
 #                  self.Log.BLTS    |
-                  self.Log.EVENTS)
+                  self.Log.EVENTS
+                  )
         self.Log.setFileDest("testavg.log")
         self.Log.trace(self.Log.APP, "Test file log entry.")
         self.Log.setSyslogDest(syslog.LOG_USER, syslog.LOG_CONS)
@@ -93,19 +94,19 @@ def dumpMouseEvent():
 
 def mainMouseUp():
     print "mainMouseUp"
-    dumpMouseEvent()
+#    dumpMouseEvent()
 
 def mainMouseDown():
     print "mainMouseDown"
-    dumpMouseEvent()
+#    dumpMouseEvent()
 
 def onMouseMove():
     print "onMouseMove"
-    dumpMouseEvent()
+#    dumpMouseEvent()
 
 def onMouseUp():
     print "onMouseUp"
-    dumpMouseEvent()
+#    dumpMouseEvent()
 
 def onMouseOver():
     print "onMouseOver"
@@ -168,7 +169,7 @@ class PlayerTestCase(unittest.TestCase):
         Player.loadFile("events.avg")
         Player.setTimeout(100, getMouseState);
         Player.setTimeout(200, Player.stop)
-        Player.setVBlankFramerate(3)
+        Player.setVBlankFramerate(2)
         Player.play()
     def testEventErr(self):
         Player.loadFile("errevent.avg")
@@ -493,7 +494,7 @@ def playerTestSuite(engine, bpp):
     suite.addTest(PlayerTestCase("testError", engine, bpp))
     suite.addTest(PlayerTestCase("testEvents", engine, bpp))
     suite.addTest(PlayerTestCase("testEventErr", engine, bpp))
-#    suite.addTest(PlayerTestCase("testDynamics", engine, bpp))
+    suite.addTest(PlayerTestCase("testDynamics", engine, bpp))
     suite.addTest(PlayerTestCase("testHugeImage", engine, bpp))
     suite.addTest(PlayerTestCase("testBroken", engine, bpp))
     suite.addTest(PlayerTestCase("testExcl", engine, bpp))
