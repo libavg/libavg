@@ -117,6 +117,18 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
     initTileVertices();
 }
 
+void OGLSurface::createFromBits(IntPoint Size, PixelFormat pf,
+        unsigned char * pBits, int Stride)
+{
+    unbind();
+    m_MemoryMode = OGL;
+    m_Size = Size;
+    m_pf = pf;
+    m_pBmp = BitmapPtr(new Bitmap(Size, pf, pBits, Stride, false, ""));
+    
+    setupTiles();
+}
+
 BitmapPtr OGLSurface::lockBmp()
 {
     switch (m_MemoryMode) {
@@ -241,25 +253,6 @@ void OGLSurface::setWarpedVertexCoord(int x, int y, const DPoint& Vertex)
         return;
     }
     m_TileVertices[y][x] = Vertex;
-}
-
-void OGLSurface::createFromBits(IntPoint Size, PixelFormat pf,
-        unsigned char * pBits, int Stride)
-{
-    if (m_MemoryMode != OGL) {
-        AVG_TRACE(Logger::ERROR, 
-                "createFromBits called while memory mode wasn't standard OpenGL.");
-    }
-
-    if (Size != m_pBmp->getSize() || pf != m_pBmp->getPixelFormat())
-    {
-        unbind();
-    }
-    if (!m_pBmp || m_pBmp->ownsBits()) {
-        m_pBmp = BitmapPtr(new Bitmap(Size, pf, pBits, Stride, false, ""));
-    }
-    
-    setupTiles();
 }
 
 void OGLSurface::discardBmp()
