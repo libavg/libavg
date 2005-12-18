@@ -128,6 +128,7 @@ void DisplayEngine::checkJitter()
             AVG_TRACE (Logger::PROFILE_LATEFRAMES, 
                     "DisplayEngine: frame too late by " 
                     << m_LastFrameTime - m_TargetTime << " ms.");
+            Profiler::get().dumpFrame();
             m_FramesTooLate++;
         }
     }

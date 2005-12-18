@@ -19,6 +19,7 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
+#include "../base/Profiler.h"
 
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
@@ -498,6 +499,7 @@ bool SDLDisplayEngine::vbWait(int rate) {
                     AVG_TRACE(Logger::PROFILE_LATEFRAMES, count-m_LastVBCount
                             << " VBlank intervals missed, shound be " 
                             << rate);
+                    Profiler::get().dumpFrame();
                     bMissed = true;
                 } else {
                     bMissed = false;

@@ -494,7 +494,7 @@ def playerTestSuite(engine, bpp):
     suite.addTest(PlayerTestCase("testError", engine, bpp))
     suite.addTest(PlayerTestCase("testEvents", engine, bpp))
     suite.addTest(PlayerTestCase("testEventErr", engine, bpp))
-    suite.addTest(PlayerTestCase("testDynamics", engine, bpp))
+#    suite.addTest(PlayerTestCase("testDynamics", engine, bpp))
     suite.addTest(PlayerTestCase("testHugeImage", engine, bpp))
     suite.addTest(PlayerTestCase("testBroken", engine, bpp))
     suite.addTest(PlayerTestCase("testExcl", engine, bpp))
