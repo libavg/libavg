@@ -68,7 +68,8 @@
   sharpness CDATA #IMPLIED
   saturation CDATA #IMPLIED
   gamma CDATA #IMPLIED
-  shutter CDATA #IMPLIED > 
+  shutter CDATA #IMPLIED
+  whitebalance CDATA #IMPLIED> 
 
 <!ELEMENT words (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>
 <!ATTLIST words

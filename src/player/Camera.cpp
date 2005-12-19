@@ -83,6 +83,7 @@ Camera::Camera (const xmlNodePtr xmlNode, Container * pParent)
     setFeature ("gamma", getDefaultedIntAttr(xmlNode, "gamma", -1));
     setFeature ("shutter", getDefaultedIntAttr(xmlNode, "shutter", -1));
     setFeature ("gain", getDefaultedIntAttr(xmlNode, "gain", -1));
+    setFeature ("white_balance", getDefaultedIntAttr(xmlNode, "whitebalance", -1));
 }
 
 Camera::~Camera ()
@@ -155,16 +156,25 @@ unsigned int Camera::getFeature (const std::string& sFeature) const
 void Camera::setFeature (const std::string& sFeature, int Value)
 {
 #ifdef AVG_ENABLE_1394
+    int FeatureID = getFeatureID(sFeature);
+    m_Features[FeatureID] = Value;
     if (m_bCameraAvailable) {
-        int FeatureID = getFeatureID(sFeature);
-        if (m_FWHandle != 0) {
-            if (Value == -1) {
-                dc1394_auto_on_off(m_FWHandle, m_Camera.node, FeatureID, 1);
-            } else {
-                dc1394_auto_on_off(m_FWHandle, m_Camera.node, FeatureID, 0);
-                dc1394_set_feature_value(m_FWHandle, m_Camera.node, FeatureID,
-                        (unsigned int)Value);
-            }
+        setFeature(FeatureID);
+    }
+#endif
+}
+
+void Camera::setFeature(int FeatureID)
+{
+#ifdef AVG_ENABLE_1394
+    if (m_bCameraAvailable && m_FWHandle != 0) {
+        int Value = m_Features[FeatureID];
+        if (Value == -1) {
+            dc1394_auto_on_off(m_FWHandle, m_Camera.node, FeatureID, 1);
+        } else {
+            dc1394_auto_on_off(m_FWHandle, m_Camera.node, FeatureID, 0);
+            dc1394_set_feature_value(m_FWHandle, m_Camera.node, FeatureID,
+                    (unsigned int)Value);
         }
     }
 #endif
@@ -264,6 +274,11 @@ void Camera::open(int* pWidth, int* pHeight)
     err = dc1394_start_iso_transmission(m_FWHandle, m_Camera.node);
     checkDC1394Error(err, "Unable to start camera iso transmission");
 #endif
+
+    std::map<int, int>::iterator it;
+    for (it=m_Features.begin(); it != m_Features.end(); ++it) {
+        setFeature((*it).first);
+    }
 }
 
 #ifdef AVG_ENABLE_1394
@@ -356,7 +371,7 @@ bool Camera::renderToSurface(ISurface * pSurface)
                 case MODE_640x480_YUV411:
                     {
                         BitmapPtr pBmp = pSurface->lockBmp();
-                        YUV411toBGR24((unsigned char *)(m_Camera.capture_buffer), pBmp);
+                        YUV411toBGR32((unsigned char *)(m_Camera.capture_buffer), pBmp);
                     }
                     break;
                 case MODE_640x480_RGB:
@@ -438,7 +453,7 @@ bool Camera::canRenderToBackbuffer(int BitsPerPixel)
 }
 
 #ifdef AVG_ENABLE_1394
-inline void YUVtoBGR24Pixel(Pixel24* pDest, 
+inline void YUVtoBGR32Pixel(Pixel32* pDest, 
         unsigned char y, unsigned char u, unsigned char v)
 {
 //    pDest->Set(y,y,y);
@@ -461,7 +476,7 @@ inline void YUVtoBGR24Pixel(Pixel24* pDest,
     if (g>255) g= 255;
     if (r<0) r = 0;
     if (r>255) r= 255;
-    pDest->Set(b,g,r);
+    pDest->set(b,g,r);
 /*
     asm volatile ("sub %%eax, %%eax;         \n\t"
                   "mov %1, %%al;             \n\t"
@@ -474,9 +489,9 @@ inline void YUVtoBGR24Pixel(Pixel24* pDest,
 */
 }
 
-void Camera::YUV411toBGR24Line(unsigned char* pSrc, int y, Pixel24 * pDestLine)
+void Camera::YUV411toBGR32Line(unsigned char* pSrc, int y, Pixel32 * pDestLine)
 {
-    Pixel24 * pDestPixel = pDestLine;
+    Pixel32 * pDestPixel = pDestLine;
     int width = getMediaWidth();
     // We need the previous and next values to interpolate between the
     // sampled u and v values.
@@ -502,10 +517,10 @@ void Camera::YUV411toBGR24Line(unsigned char* pSrc, int y, Pixel24 * pDestLine)
             v1 = v;
         }
 
-        YUVtoBGR24Pixel(pDestPixel, pSrcPixels[1], u, v0/2+v/2);
-        YUVtoBGR24Pixel(pDestPixel+1, pSrcPixels[2], (u*3)/4+u1/4, v0/4+(v*3)/4);
-        YUVtoBGR24Pixel(pDestPixel+2, pSrcPixels[4], u/2+u1/2, v);
-        YUVtoBGR24Pixel(pDestPixel+3, pSrcPixels[5], u/4+(u1*3)/4, (v*3)/4+v1/4);
+        YUVtoBGR32Pixel(pDestPixel, pSrcPixels[1], u, v0/2+v/2);
+        YUVtoBGR32Pixel(pDestPixel+1, pSrcPixels[2], (u*3)/4+u1/4, v0/4+(v*3)/4);
+        YUVtoBGR32Pixel(pDestPixel+2, pSrcPixels[4], u/2+u1/2, v);
+        YUVtoBGR32Pixel(pDestPixel+3, pSrcPixels[5], u/4+(u1*3)/4, (v*3)/4+v1/4);
 
         pSrcPixels+=6;
         pDestPixel+=4;
@@ -513,12 +528,12 @@ void Camera::YUV411toBGR24Line(unsigned char* pSrc, int y, Pixel24 * pDestLine)
 
 }
 
-void Camera::YUV411toBGR24(unsigned char* pSrc, BitmapPtr pBmp)
+void Camera::YUV411toBGR32(unsigned char* pSrc, BitmapPtr pBmp)
 {
-    Pixel24 * pBits = (Pixel24 *)(pBmp->getPixels());
+    Pixel32 * pBits = (Pixel32 *)(pBmp->getPixels());
     for (int y = 0; y < getMediaHeight(); y++) {
-        Pixel24 * pDest = pBits+y*pBmp->getStride();
-        YUV411toBGR24Line(pSrc, y, pDest);
+        Pixel32 * pDest = pBits+(y*pBmp->getStride())/4;
+        YUV411toBGR32Line(pSrc, y, pDest);
     }
 }
 
@@ -589,6 +604,7 @@ int Camera::getFeatureID(const std::string& sFeature) const
     } else if (sFeature == "capture_quality") {
         return FEATURE_CAPTURE_QUALITY;
     }
+    AVG_TRACE(Logger::WARNING, "Camera::getFeatureID: "+sFeature+" unknown.");
     return 0;
 }
 

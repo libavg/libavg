@@ -21,7 +21,7 @@ class VideoTestCase(unittest.TestCase):
     def test(self):
         self.curFrame = 200
         Player.loadFile("camera.avg")
-        Player.setFramerate(15)
+        Player.setFramerate(30)
         Player.getElementByID("camera").play()
         Player.play()
 

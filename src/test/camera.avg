@@ -6,5 +6,5 @@
         <image x="0" y="200" z="4"
                 opacity="1" href="rgb24alpha.tif"/>
     <camera id="camera" x="200" y="0" z="3" width="640" height="480"
-          device="bla"/>
+          device="bla" mode="640x480_YUV411" framerate="30" whitebalance="-1"/>
 </avg>

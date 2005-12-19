@@ -22,6 +22,7 @@
 #endif
 
 #include <string>
+#include <map>
 
 namespace avg {
 
@@ -75,6 +76,11 @@ class Camera : public VideoBase
         {
             return getFeature ("sharpness");
         }
+        
+        int getWhiteBalance() const
+        {
+            return getFeature ("whitebalance");
+        }
 
         void setSharpness(int Value)
         {
@@ -121,6 +127,11 @@ class Camera : public VideoBase
             setFeature ("gain", Value);
         }
         
+        void setWhiteBalance(int Value)
+        {
+            setFeature ("whitebalance", Value);
+        }
+
         unsigned int getFeature (const std::string& sFeature) const;
         void setFeature (const std::string& sFeature, int Value);
         bool isYCbCrSupported();
@@ -131,16 +142,18 @@ class Camera : public VideoBase
         virtual double getFPS();
         virtual void open(int* pWidth, int* pHeight);
         virtual void close();
+        void setFeature(int FeatureID);
 
         std::string m_sDevice;
         double m_FrameRate;
         int m_FrameRateConstant;  // libdc1394 constant for framerate.
         std::string m_sMode;
         int m_Mode;               // libdc1394 constant for mode.
+        std::map<int, int> m_Features;
 
 #ifdef AVG_ENABLE_1394
-        void YUV411toBGR24Line(unsigned char * pSrc, int y, Pixel24 * pDestLine);
-        void YUV411toBGR24(unsigned char * pSrc, BitmapPtr pBmp);
+        void YUV411toBGR32Line(unsigned char * pSrc, int y, Pixel32 * pDestLine);
+        void YUV411toBGR32(unsigned char * pSrc, BitmapPtr pBmp);
 
         bool findCameraOnPort(int port, raw1394handle_t& FWHandle);
 
