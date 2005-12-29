@@ -401,6 +401,10 @@ void Player::doFrame ()
             }
         }
     }
+    if (m_pDisplayEngine->wasFrameLate()) {
+        Profiler::get().dumpFrame();
+    }
+    
 /*
     long FrameTime = long(MainProfilingZone.getUSecs()/1000);
     long TargetTime = long(1000/m_pDisplayEngine->getFramerate());

@@ -93,6 +93,10 @@ bool DisplayEngine::setVBlankRate(int rate) {
     }
 }
 
+bool DisplayEngine::wasFrameLate()
+{
+    return m_bFrameLate;
+}
 
 static ProfilingZone WaitProfilingZone("  Render - wait");
 
@@ -103,8 +107,8 @@ void DisplayEngine::frameWait()
     m_NumFrames++;
     m_FrameWaitStartTime = TimeSource::get()->getCurrentMillisecs();
     if (m_Framerate == 0) {
-        bool bOk = vbWait(m_VBRate);
-        if (!bOk) {
+        m_bFrameLate = !vbWait(m_VBRate);
+        if (m_bFrameLate) {
             m_FramesTooLate++;
         }
     } else {
@@ -128,8 +132,10 @@ void DisplayEngine::checkJitter()
             AVG_TRACE (Logger::PROFILE_LATEFRAMES, 
                     "DisplayEngine: frame too late by " 
                     << m_LastFrameTime - m_TargetTime << " ms.");
-            Profiler::get().dumpFrame();
+            m_bFrameLate = true;
             m_FramesTooLate++;
+        } else {
+            m_bFrameLate = false;
         }
     }
     m_TimeSpentWaiting += m_LastFrameTime-m_FrameWaitStartTime;

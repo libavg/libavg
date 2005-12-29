@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg width="1280" height="1024">
+<avg width="1024" height="768">
 <!--  <image x="100" y="100" z="0"
       href="rgb24.png"/>-->
   <video id="mpeg1" x="100" y="60" z="1"  opacity="0.8"  blendmode="blend"

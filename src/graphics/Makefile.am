@@ -16,4 +16,4 @@ libgraphics_la_LIBADD = ../base/libbase.la
 libgraphics_la_LDFLAGS = `Magick++-config --ldflags --libs`
 noinst_PROGRAMS=testgraphics
 testgraphics_SOURCES=testgraphics.cpp $(ALL_H)
-testgraphics_LDFLAGS = ../base/libbase.la libgraphics.la
+testgraphics_LDFLAGS = ../base/libbase.la ./libgraphics.la

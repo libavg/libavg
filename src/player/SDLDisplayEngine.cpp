@@ -497,9 +497,8 @@ bool SDLDisplayEngine::vbWait(int rate) {
                 bool bMissed;
                 if (!m_bFirstVBFrame && int(count) != m_LastVBCount+rate) {
                     AVG_TRACE(Logger::PROFILE_LATEFRAMES, count-m_LastVBCount
-                            << " VBlank intervals missed, shound be " 
+                            << " VBlank intervals missed, should be " 
                             << rate);
-                    Profiler::get().dumpFrame();
                     bMissed = true;
                 } else {
                     bMissed = false;

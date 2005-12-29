@@ -29,7 +29,7 @@ AVGPlayer.setResolution(1,0,0,0)
 
 AVGPlayer.loadFile("videoperformance.avg")
 
-#AVGPlayer.setInterval(10, rotate)
+AVGPlayer.setInterval(10, rotate)
 AVGPlayer.setTimeout(10, lambda: videoPlay('mpeg1'))
 AVGPlayer.setTimeout(40, lambda: videoPlay('mpeg2'))
 AVGPlayer.setTimeout(80, lambda: videoPlay('mpeg3'))

@@ -34,6 +34,7 @@ class DisplayEngine
         void setFramerate(double rate);
         double getFramerate();
         bool setVBlankRate(int rate);
+        bool wasFrameLate();
         virtual double getRefreshRate() = 0;
 
         virtual void render(AVGNode * pRootNode, bool bRenderEverything) = 0;
@@ -82,7 +83,7 @@ class DisplayEngine
         int m_VBRate;
         double m_Framerate;
         bool m_bInitialized;
-        
+        bool m_bFrameLate;
 };
 
 }
