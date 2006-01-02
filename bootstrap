@@ -4,12 +4,12 @@ if [[ `uname` = Darwin ]]
 then
     # If we're running on Mac OS X, libtoolize is named glibtoolize to
     # avoid name clashes.
-    glibtoolize --force
+    glibtoolize --copy --force
     aclocal -I m4
     automake --foreign --add-missing --copy 
     autoconf
 else
-    libtoolize --force
+    libtoolize --copy --force
     aclocal -I m4
     automake --foreign --add-missing --copy 
     autoconf
