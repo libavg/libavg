@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!DOCTYPE avg SYSTEM "../../libavg/doc/avg.dtd">
+<avg id="main" width="1024" height="768"> 
+  <video id="video1" href="/mnt/beaujolais/data/videos/friends/Friends.-.1x02.-.Familienfreuden_by_dmm.avi" loop="true"/>
+  <video id="video2" href="" loop="true"/>
+  <video id="video3" href="" loop="true"/>
+  <video id="video4" href="" loop="true"/>
+  <video id="video5" href="" loop="true"/>
+  <video id="video6" href="" loop="true"/>
+  <video id="video7" href="" loop="true"/>
+  <video id="video8" href="" loop="true"/>
+  <video id="video9" href="" loop="true"/>
+  <video id="video10" href="" loop="true"/>
+  <video id="video11" href="" loop="true"/>
+  <video id="video12" href="" loop="true"/>
+  <video id="video13" href="" loop="true"/>
+  <video id="video14" href="" loop="true"/>
+  <video id="video15" href="" loop="true"/>
+  <video id="video16" href="" loop="true"/>
+  <video id="video17" href="" loop="true"/>
+  <video id="video18" href="" loop="true"/>
+  <video id="video19" href="" loop="true"/>
+  <video id="video20" href="" loop="true"/>
+  <video id="video21" href="" loop="true"/>
+  <video id="video22" href="" loop="true"/>
+  <video id="video23" href="" loop="true"/>
+</avg>
