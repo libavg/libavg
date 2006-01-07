@@ -3,7 +3,7 @@ INCLUDES = -I..\
            `xml2-config --cflags` 
 ALL_H = FileHelper.h CmdLine.h Exception.h Logger.h ConfigMgr.h \
         XMLHelper.h TimeSource.h ProfilingZone.h Profiler.h \
-        ScopeTimer.h IFrameListener.h Test.h TestSuite.h
+        ScopeTimer.h IFrameListener.h Test.h TestSuite.h CountedPointer.h
 		
 noinst_LTLIBRARIES = libbase.la
 libbase_la_SOURCES = FileHelper.cpp CmdLine.cpp Exception.cpp Logger.cpp \

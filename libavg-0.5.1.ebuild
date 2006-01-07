@@ -21,7 +21,7 @@ DEPEND="media-gfx/imagemagick
 	directfb?(=dev-libs/DirectFB-0.9.22)
 	ieee1394?(<=media-libs/libdc1394-1.0.0)
 	>=dev-lang/python-2.3.4-r1
-	>=dev-libs/boost-1.33"
+	dev-libs/boost"
 RDEPEND=""
 
 src_compile() {

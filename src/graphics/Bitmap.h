@@ -8,7 +8,7 @@
 #include "Point.h"
 #include "Rect.h"
 
-#include <boost/shared_ptr.hpp>
+#include <../base/CountedPointer.h>
 #include <string>
 
 namespace avg {
@@ -75,7 +75,7 @@ private:
     std::string m_sName;
 };
 
-typedef boost::shared_ptr<Bitmap> BitmapPtr;
+typedef CountedPointer<Bitmap> BitmapPtr;
 
 }
 #endif

@@ -9,6 +9,7 @@
 #include "Pixel32.h"
 
 #include <stdlib.h>
+#include <assert.h>
 
 class Pixel24
 {
