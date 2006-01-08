@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys, os, math, random, stat
+# Change this to whereever libavg was installed on your computer.
 sys.path.append('/usr/local/lib/python2.3/site-packages/libavg')
 sys.path.append('/usr/lib/python2.4/site-packages/libavg')
 import avg

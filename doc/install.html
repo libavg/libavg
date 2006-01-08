@@ -89,25 +89,22 @@ body { }
        <li>pango (Tested with 1.8.1)</li>
        <li>Optional: libdc1394 for Firewire digital camera support. (Tested with 0.9.3)</li>
        <li>python 2.3.x or newer.</li>
-       <li>boost (Tested with 1.33.0. Version 1.31.0 doesn't work and will cause crashes).</li>
+       <li>boost (Tested with 1.31.0 and 1.33.0).</li>
        </ul>
        <p>Debian users can do something like: </p>
        <pre>apt-get install libmagick++6-dev libavcodec-dev libavformat-dev \
        libsdl1.2-dev libdirectfb-dev libxml2-dev libpango1.0-dev python2.3 \
        libboost-dev libboost-python-dev libxxf86vm-dev
        </pre>
-       If you get libboost ver. 1.31 installed this way, deinstall both boost packages 
-       again and install boost from the tarball available at the website. (Sorry - this 
-       problem will disappear as boost 1.31 disappears from distributions.)
        <p>For Gentoo, there's an ebuild here:</p>
-       <a href="libavg-0.5.0.ebuild">libavg-0.5.0.ebuild</a>
+       <a href="libavg-0.5.2.ebuild">libavg-0.5.2.ebuild</a>
        <p><b>Direct Rendering</b>
        <p>You can test if OpenGL is running accelerated by running glxinfo. If it sais 
        "Direct Rendering: yes", everything is set. If not, you'll have to google 
        for instructions involving your graphics card and your distribution. avg
        will run with unaccelerated OpenGL, but that's slow.
        <p><b>avg itself</b>
-       <p>Download the tarball: <a href="libavg-0.5.0.tar.gz">libavg-0.5.0.tar.gz</a>.</p>
+       <p>Download the tarball: <a href="libavg-0.5.2.tar.gz">libavg-0.5.2.tar.gz</a>.</p>
        <p>Unpack it and run <i>./configure, make, make install</i>
        <br>
        <p>or
