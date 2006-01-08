@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import sys, os, math, random, os, stat
+import sys, os, math, random, stat
 sys.path.append('/usr/local/lib/python2.3/site-packages/libavg')
 sys.path.append('/usr/lib/python2.4/site-packages/libavg')
 import avg
