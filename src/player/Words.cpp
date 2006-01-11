@@ -284,7 +284,6 @@ void Words::drawString()
 
         pango_layout_set_alignment (layout, m_Alignment);
         pango_layout_set_width (layout, m_ParaWidth * PANGO_SCALE);
-
         if (m_LineSpacing != -1) {
             pango_layout_set_spacing(layout, (int)(m_LineSpacing*PANGO_SCALE));
         }
@@ -293,6 +292,9 @@ void Words::drawString()
         m_StringExtents.x = m_ParaWidth;
         if (m_ParaWidth == -1) {
             m_StringExtents.x = PANGO_PIXELS(logical_rect.width);
+            if (m_StringExtents.x == 0) {
+                m_StringExtents.x = 1;
+            }
         }
         m_pSurface->create(IntPoint(m_StringExtents), I8, false);
 
