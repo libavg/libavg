@@ -1,5 +1,6 @@
 
 INCLUDES = -I. \
+        -I../player \
         `xml2-config --cflags` \
         `pkg-config --cflags pango` \
         $(PYTHON_CSPEC)
