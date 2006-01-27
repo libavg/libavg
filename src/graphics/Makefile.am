@@ -1,6 +1,6 @@
 
 INCLUDES = -I.. \
-		`Magick++-config --cppflags` 
+		`pkg-config --libs ImageMagick++` 
         
 ALL_H = Bitmap.h Rect.h Point.h Filter.h\
 		Pixel32.h Pixel24.h Pixel16.h Pixel8.h Pixeldefs.h \

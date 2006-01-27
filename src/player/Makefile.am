@@ -4,7 +4,7 @@ INCLUDES = -I.. \
         `freetype-config --cflags` \
         `directfb-config --cflags` \
         `pkg-config --cflags pango` \
-		`Magick++-config --cppflags` \
+		`pkg-config --libs ImageMagick++` \
         $(PYTHON_CSPEC) \
         $(GL_CFLAGS)
         
