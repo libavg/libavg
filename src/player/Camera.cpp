@@ -77,7 +77,7 @@ Camera::Camera ()
 Camera::Camera (const xmlNodePtr xmlNode, Container * pParent)
     : VideoBase(xmlNode, pParent),
 #ifdef AVG_ENABLE_1394
-      m_sDevice("Default"),
+      m_sDevice(""),
       m_FrameRate(15),
       m_sMode("640x480_RGB"),
       m_FWHandle(0)
@@ -87,7 +87,7 @@ Camera::Camera (const xmlNodePtr xmlNode, Container * pParent)
       m_sMode("---")
 #endif
 {
-    m_sDevice = getDefaultedStringAttr (xmlNode, "device", "Default");
+    m_sDevice = getDefaultedStringAttr (xmlNode, "device", "");
     m_FrameRate = getDefaultedDoubleAttr (xmlNode, "framerate", 15);
     m_sMode = getDefaultedStringAttr (xmlNode, "mode", "640x480_RGB");
     setFeature ("brightness", getDefaultedIntAttr(xmlNode, "brightness", -1));
@@ -301,17 +301,21 @@ void Camera::open(int* pWidth, int* pHeight)
             "Unable to get firewire camera feature set.");
 //    dumpCameraInfo();
 
+    const char * pDeviceFileName = 0;
+    if (m_sDevice != "") {
+        pDeviceFileName = m_sDevice.c_str();
+    }
     err = dc1394_dma_setup_capture(m_FWHandle, m_Camera.node,
                 channel+1, CaptureFormat, m_Mode,
-                SPEED_400, m_FrameRateConstant, NUM_BUFFERS, DROP_FRAMES, 0,
-                &m_Camera);
+                SPEED_400, m_FrameRateConstant, NUM_BUFFERS, DROP_FRAMES, 
+                pDeviceFileName, &m_Camera);
     if (err != DC1394_SUCCESS) {
         AVG_TRACE(Logger::ERROR,
                 "Unable to setup camera. Make sure that");
         AVG_TRACE(Logger::ERROR,
                 "video mode (" << m_sMode << ") and framerate (" <<
                 m_FrameRate << ") are");
-        AVG_TRACE(Logger::ERROR, "supported by your camera");
+        AVG_TRACE(Logger::ERROR, "supported by your camera.");
         dc1394_dma_release_camera(m_FWHandle,&m_Camera);
         dc1394_destroy_handle(m_FWHandle);
         exit(-1);
