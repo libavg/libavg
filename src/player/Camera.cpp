@@ -107,6 +107,7 @@ Camera::~Camera ()
 void Camera::init (DisplayEngine * pEngine, Container * pParent,
         Player * pPlayer)
 {
+    cerr << "Camera::init" << endl;
 #ifdef AVG_ENABLE_1394
     initCameraSupport();
     if (m_FrameRate == 1.875) {
@@ -132,15 +133,19 @@ void Camera::init (DisplayEngine * pEngine, Container * pParent,
 */
     if (m_sMode == "640x480_YUV411") {
         m_Mode = MODE_640x480_YUV411;
-    } /*else if (sMode == "640x480_YUV422") {
+/*    } else if (sMode == "640x480_YUV422") {
         m_Mode = MODE_640x480_YUV422;
-    } */ else if (m_sMode == "640x480_RGB") {
+*/        
+    } else if (m_sMode == "640x480_RGB") {
         m_Mode = MODE_640x480_RGB;
-    } /*else if (sMode == "640x480_MONO") {
+/*    } else if (sMode == "640x480_MONO") {
         m_Mode = MODE_640x480_MONO;
     } else if (sMode == "640x480_MONO16") {
         m_Mode = MODE_640x480_MONO16;
-    }*/ else {
+*/        
+    } else if (m_sMode == "1024x768_RGB") {
+        m_Mode = MODE_1024x768_RGB;
+    } else {
         fatalError ("Unsupported or illegal value for camera mode.");
     }
 #else
@@ -194,6 +199,20 @@ void Camera::setFeature(int FeatureID)
 #endif
 }
 
+IntPoint Camera::getNativeSize() 
+{
+    switch(m_Mode) {
+        case MODE_640x480_YUV411:
+        case MODE_640x480_RGB:
+            return IntPoint(640, 480);
+        case MODE_1024x768_RGB:
+            return IntPoint(1024, 768);
+        default:
+            fatalError ("Camera::getNativeSize: Unsupported or illegal value for camera resolution:");
+            return IntPoint(0,0);
+    }
+}
+
 double Camera::getFPS()
 {
     return m_FrameRate;
@@ -201,10 +220,23 @@ double Camera::getFPS()
 
 void Camera::open(int* pWidth, int* pHeight)
 {
+    int CaptureFormat;
+    *pWidth = getNativeSize().x;
+    *pHeight = getNativeSize().y;
+    
     // TODO: Support other resolutions.
-    *pWidth=640;
-    *pHeight=480;
-
+    switch(m_Mode) {
+        case MODE_640x480_YUV411:
+        case MODE_640x480_RGB:
+            CaptureFormat=FORMAT_VGA_NONCOMPRESSED;
+            break;
+        case MODE_1024x768_RGB:
+            CaptureFormat=FORMAT_SVGA_NONCOMPRESSED_1;
+            break;
+        default:
+            fatalError ("Camera::open: Unsupported or illegal value for camera resolution:");
+    }
+            
 #ifdef AVG_ENABLE_1394
     m_FWHandle = raw1394_new_handle();
     if (m_FWHandle==NULL) {
@@ -270,7 +302,7 @@ void Camera::open(int* pWidth, int* pHeight)
 //    dumpCameraInfo();
 
     err = dc1394_dma_setup_capture(m_FWHandle, m_Camera.node,
-                channel+1, FORMAT_VGA_NONCOMPRESSED, m_Mode,
+                channel+1, CaptureFormat, m_Mode,
                 SPEED_400, m_FrameRateConstant, NUM_BUFFERS, DROP_FRAMES, 0,
                 &m_Camera);
     if (err != DC1394_SUCCESS) {
@@ -389,11 +421,13 @@ bool Camera::renderToSurface(ISurface * pSurface)
                     }
                     break;
                 case MODE_640x480_RGB:
+                case MODE_1024x768_RGB:
                     {
 #ifdef AVG_ENABLE_GL                        
                         if (pOGLSurface) {
-                            pOGLSurface->createFromBits(IntPoint(640, 480), R8G8B8,
-                                    (unsigned char *)(m_Camera.capture_buffer), 640*3);
+                            pOGLSurface->createFromBits(getNativeSize(), R8G8B8,
+                                    (unsigned char *)(m_Camera.capture_buffer), 
+                                    getNativeSize().x*3);
                         } else {
 #endif                            
                             BitmapPtr pBmp = pSurface->lockBmp();

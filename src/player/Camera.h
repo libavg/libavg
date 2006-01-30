@@ -160,6 +160,7 @@ class Camera : public VideoBase
         virtual void open(int* pWidth, int* pHeight);
         virtual void close();
         void setFeature(int FeatureID);
+        IntPoint getNativeSize();
 
         std::string m_sDevice;
         double m_FrameRate;
