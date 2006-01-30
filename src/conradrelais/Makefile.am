@@ -1,7 +1,5 @@
 
-INCLUDES = -I.  \
-        `xml2-config --cflags` \
-        $(PYTHON_CSPEC)
+INCLUDES = -I. $(XML2_CFLAGS) $(PYTHON_CSPEC)
 
 ALL_H = ConradRelais.h
 

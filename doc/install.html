@@ -87,7 +87,8 @@ body { }
        <li>libxml2 (Tested with 2.6.19.)</li>
        <li>libfreetype (Tested with 2.1.9)</li>
        <li>pango (Tested with 1.8.1)</li>
-       <li>Optional: libdc1394 for Firewire digital camera support. (Tested with 0.9.3)</li>
+       <li>Optional: libdc1394 for Firewire digital camera support. (Tested with 0.9.3 and 1.0.
+       2.0 won't work)</li>
        <li>python 2.3.x or newer.</li>
        <li>boost-python (Tested with 1.31.0 and 1.33.0).</li>
        </ul>
@@ -102,7 +103,7 @@ body { }
        <p>You can test if OpenGL is running accelerated by running glxinfo. If it sais 
        "Direct Rendering: yes", everything is set. If not, you'll have to google 
        for instructions involving your graphics card and your distribution. avg
-       will run with unaccelerated OpenGL, but that's slow.
+       will run with unaccelerated OpenGL, but that's very slow.
        <p><b>avg itself</b>
        <p>Download the tarball: <a href="libavg-0.5.4.tar.gz">libavg-0.5.4.tar.gz</a>.</p>
        <p>Unpack it and run <i>./configure, make, make install</i>
@@ -114,7 +115,10 @@ body { }
        <p>cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/libavg co libavg </p>
        <p>Then <i>./bootstrap</i> to generate configure.</p>
        </p> Now run <i>./configure, make, make install</i> as usual.</p>
-       <p>Running bootstrap requires a working autotools setup: autoconf, automake and libtool need to be installed. If you get bootstrap failures, chances are you're using different versions of these tools than I am: autoconf 2.59, automake 1.9.6, libtool 1.5.18.
+       <p>Running bootstrap requires a working autotools setup: autoconf, automake 
+       and libtool need to be installed. If you get bootstrap failures, chances are 
+       you're using different versions of these tools than I am: autoconf 2.59, 
+       automake 1.9.6, libtool 1.5.18.
 </div>
 </BODY>
 </HTML>

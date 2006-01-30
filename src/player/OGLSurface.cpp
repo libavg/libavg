@@ -351,8 +351,8 @@ void OGLSurface::bind()
                         GL_TEXTURE_MIN_FILTER, GL_LINEAR);
                 glTexParameteri(s_TextureMode, 
                         GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glTexParameteri(s_TextureMode, GL_TEXTURE_WRAP_S, GL_CLAMP);
-                glTexParameteri(s_TextureMode, GL_TEXTURE_WRAP_T, GL_CLAMP);
+                glTexParameteri(s_TextureMode, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(s_TextureMode, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
                 OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                         "OGLSurface::bind: glTexParameteri()");
 

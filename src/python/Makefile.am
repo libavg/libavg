@@ -1,9 +1,6 @@
 
-INCLUDES = -I. \
-        -I../player \
-        `xml2-config --cflags` \
-        `pkg-config --cflags pango` \
-        $(PYTHON_CSPEC)
+INCLUDES = -I. -I../player \
+		$(XML2_CFLAGS) $(PANGO_CFLAGS) $(PYTHON_CSPEC)
 		
 ALL_H = 
 

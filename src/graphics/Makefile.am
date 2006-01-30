@@ -1,6 +1,6 @@
 
 INCLUDES = -I.. \
-		`pkg-config --libs ImageMagick++` 
+		`pkg-config --cflags ImageMagick++` 
         
 ALL_H = Bitmap.h Rect.h Point.h Filter.h\
 		Pixel32.h Pixel24.h Pixel16.h Pixel8.h Pixeldefs.h \
@@ -13,7 +13,7 @@ noinst_LTLIBRARIES = libgraphics.la
 libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
 libgraphics_ladir=$(includedir)/avg/graphics
 libgraphics_la_LIBADD = ../base/libbase.la        
-libgraphics_la_LDFLAGS = `Magick++-config --ldflags --libs`
+libgraphics_la_LDFLAGS = `pkg-config --libs ImageMagick++`
 noinst_PROGRAMS=testgraphics
 testgraphics_SOURCES=testgraphics.cpp $(ALL_H)
 testgraphics_LDADD = ../base/libbase.la ./libgraphics.la
