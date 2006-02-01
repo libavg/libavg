@@ -1,6 +1,6 @@
 
 INCLUDES = -I.. $(XML2_CFLAGS) $(FREETYPE_CFLAGS) $(DIRECTFB_CFLAGS) \
-		$(PANGOFT2_CFLAGS) $(PYTHON_CSPEC) $(GL_CFLAGS) \
+		$(PANGOFT2_CFLAGS) $(PYTHON_INCLUDES) $(GL_CFLAGS) $(FFMPEG_CFLAGS)\
 		`pkg-config --cflags ImageMagick++`
         
 if ENABLE_1394
@@ -55,8 +55,8 @@ libplayer_la_SOURCES = $(GL_SOURCES) $(DFB_SOURCES) \
 		$(ALL_H)
 libplayer_ladir=$(includedir)/avg/player
 libplayer_la_LIBADD = ../graphics/libgraphics.la
-libplayer_la_LDFLAGS = $(XML2_LIBS) $(PANGO_LIBS) $(PANGOFT2_LIBS)\
+libplayer_la_LDFLAGS = $(XML2_LIBS)  $(PANGOFT2_LIBS)\
         $(DC1394_LIBS) $(GLU_LIBS) $(ALL_GL_LIBS) $(DFB_LIBS) \
 		`pkg-config --libs ImageMagick++` \
-        $(PYTHON_LSPEC)
+        $(PYTHON_LSPEC) $(FFMPEG_LIBS)
 libplayer_la_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"

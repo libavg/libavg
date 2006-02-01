@@ -41,16 +41,22 @@
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
 
-// TODO: This will break on OS X.
+#ifndef __APPLE__
 #include <X11/Xlib.h>
 #include <X11/extensions/xf86vmode.h>
+#endif
 
 #define XMD_H 1
 #define GLX_GLXEXT_PROTOTYPES
 #define GL_GLEXT_PROTOTYPES
 #include "GL/gl.h"
 #include "GL/glu.h"
+
+#ifdef __APPLE__
+#include "AGL/agl.h"
+#else
 #include "GL/glx.h"
+#endif
 
 #include <sys/ioctl.h>
 #include <sys/fcntl.h>
@@ -476,10 +482,10 @@ bool SDLDisplayEngine::initVBlank(int rate) {
         } else {
             m_VBMethod = VB_NONE;
         }
+#endif
     } else {
         m_VBMethod = VB_NONE;
     }
-#endif
     switch(m_VBMethod) {
         case VB_SGI:
             AVG_TRACE(Logger::CONFIG, 
@@ -498,6 +504,7 @@ bool SDLDisplayEngine::initVBlank(int rate) {
 bool SDLDisplayEngine::vbWait(int rate) {
     switch(m_VBMethod) {
         case VB_SGI: {
+#ifndef __APPLE__
                 unsigned int count;
                 int err = glXWaitVideoSyncSGI(rate, m_VBMod, &count);
                 OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
@@ -523,6 +530,7 @@ bool SDLDisplayEngine::vbWait(int rate) {
                 m_LastVBCount = count;
                 m_bFirstVBFrame = false;
                 return !bMissed;
+#endif
             }
             break;
         case VB_APPLE:
@@ -533,7 +541,7 @@ bool SDLDisplayEngine::vbWait(int rate) {
     }
 }
 
-vector<long> SDLDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
+// vector<long> SDLDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
 
 void SDLDisplayEngine::initInput()
 {

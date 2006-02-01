@@ -26,9 +26,10 @@
 
 #include "GL/gl.h"
 #include "GL/glu.h"
+#ifndef __APPLE__
 #include "GL/glx.h"
-
 #include <X11/Xlib.h>
+#endif
 
 #include <iostream>
 #include <sstream>
@@ -81,6 +82,9 @@ bool queryOGLExtension(char *extName)
 }
 
 bool queryGLXExtension(char *extName) {
+#ifdef __APPLE__
+    return false;
+#else
     int extNameLen = strlen(extName);
 
     Display * display = XOpenDisplay(0);
@@ -100,7 +104,7 @@ bool queryGLXExtension(char *extName) {
         p += (n + 1);
     }
     return false;
-    
+#endif
 }
 
 }

@@ -31,10 +31,17 @@ AM_LIB_FFMPEG
 
 AM_PATH_PYTHON
 
-AZ_PYTHON_PATH( ) 
-AZ_PYTHON_VERSION_ENSURE( [2.3] )
-AZ_PYTHON_CSPEC
-AZ_PYTHON_LSPEC
+AM_CHECK_PYTHON_HEADERS
+AM_CHECK_PYTHON_LIB
+if test -z "$PYTHON_INCLUDES" || test -z "$PYTHON_LIBS"; then
+  AC_MSG_ERROR([could not find files required to build python plugin])
+fi
+
+#AZ_PYTHON_DEFAULT
+#AZ_PYTHON_INSIST( ) 
+#AZ_PYTHON_VERSION_ENSURE( [2.3] )
+#AZ_PYTHON_CSPEC
+#AZ_PYTHON_LSPEC
 
 AC_CHECK_LIB(boost_python, main, libboost_python_installed=yes, , $PYTHON_LSPEC)
 if test -z "$libboost_python_installed"

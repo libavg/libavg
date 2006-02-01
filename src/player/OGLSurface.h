@@ -27,9 +27,11 @@
 #include "../graphics/Rect.h"
 
 #define GL_GLEXT_PROTOTYPES
-#define GLX_GLXEXT_PROTOTYPES
 #include "GL/gl.h"
+#ifndef __APPLE__
+#define GLX_GLXEXT_PROTOTYPES
 #include "GL/glx.h"
+#endif
 
 #include <vector>
 #include <string>
@@ -75,7 +77,6 @@ class OGLSurface: public ISurface {
     private:
         enum MemoryMode { 
             OGL,  // Standard OpenGL
-            MESA, // glXAllocateMemoryMESA
             PBO   // pixel buffer objects
         };
         struct TextureTile {
@@ -129,11 +130,6 @@ class OGLSurface: public ISurface {
         static PFNGLMAPBUFFERPROC s_MapBufferProc;
         static PFNGLUNMAPBUFFERPROC s_UnmapBufferProc;
 
-        // MESA memory mode
-        void * m_pMESABuffer;
-        static PFNGLXALLOCATEMEMORYMESAPROC s_AllocMemMESAProc;
-        static PFNGLXFREEMEMORYMESAPROC s_FreeMemMESAProc;
-        
         static int s_TextureMode;
         static int s_MaxTexSize;
 };
