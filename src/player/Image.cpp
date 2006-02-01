@@ -111,7 +111,7 @@ void Image::load()
 //    AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
 
     Bitmap TempBmp(m_Filename);
-
+        
     PixelFormat pf;
     pf = B8G8R8;
     if (TempBmp.hasAlpha()) {
@@ -127,6 +127,8 @@ void Image::load()
     if (!(m_pPlayer->getDisplayEngine()->hasRGBOrdering())) {
         FilterFlipRGB().applyInPlace(getSurface()->lockBmp());
     }
+    getSurface()->unlockBmp();
+    getEngine()->surfaceChanged(getSurface());
 }
 
 }
