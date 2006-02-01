@@ -541,7 +541,7 @@ bool SDLDisplayEngine::vbWait(int rate) {
     }
 }
 
-// vector<long> SDLDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
+vector<long> SDLDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
 
 void SDLDisplayEngine::initInput()
 {
