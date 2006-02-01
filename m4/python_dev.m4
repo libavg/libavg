@@ -42,14 +42,12 @@ dnl now the actual libpython
     PYTHON_LIBS="-L${py_config_dir} -lpython${PYTHON_VERSION} $py_localmodlibs $py_basemodlibs $py_other_libs"
     AC_MSG_RESULT(found)
   else
-    AC_MSG_RESULT(not found)
-  fi
-else
-  if test -e "/usr/lib/libpython${PYTHON_VERSION}.dylib"; then
-    PYTHON_LIBS="-lpython${PYTHON_VERSION} $py_localmodlibs $py_basemodlibs $py_other_libs"
-    AC_MSG_RESULT(found)
-  else
-    AC_MSG_RESULT(not found)
+    if test -e "/usr/lib/libpython${PYTHON_VERSION}.dylib"; then
+      PYTHON_LIBS="-lpython${PYTHON_VERSION} $py_localmodlibs $py_basemodlibs $py_other_libs"
+      AC_MSG_RESULT(found)
+    else
+     AC_MSG_RESULT(not found)
+    fi
   fi
 fi
 AC_SUBST(PYTHON_LIBS)])

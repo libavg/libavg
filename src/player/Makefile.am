@@ -1,6 +1,6 @@
 
-INCLUDES = -I.. $(XML2_CFLAGS) $(FREETYPE_CFLAGS) $(DIRECTFB_CFLAGS) \
-		$(PANGOFT2_CFLAGS) $(PYTHON_INCLUDES) $(GL_CFLAGS) $(FFMPEG_CFLAGS)\
+INCLUDES = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ @DIRECTFB_CFLAGS@ \
+		@PANGOFT2_CFLAGS@ @PYTHON_INCLUDES@ @GL_CFLAGS@ @FFMPEG_CFLAGS@ \
 		`pkg-config --cflags ImageMagick++`
         
 if ENABLE_1394
@@ -10,7 +10,7 @@ else
 endif
 
 if ENABLE_GL
-    ALL_GL_LIBS = $(SDL_LIBS) -lXxf86vm
+    ALL_GL_LIBS = @SDL_LIBS@ -lXxf86vm
     GL_SOURCES = OGLHelper.cpp OGLSurface.cpp SDLDisplayEngine.cpp
     GL_INCLUDES = SDLDisplayEngine.h OGLHelper.h OGLSurface.h \
 	              GL/gl.h GL/glext.h GL/glu.h GL/glx.h
@@ -21,7 +21,7 @@ else
 endif
 
 if ENABLE_DFB
-    DFB_LIBS = $(DIRECTFB_LIBS)
+    DFB_LIBS = @DIRECTFB_LIBS@
     DFB_SOURCES = DFBDisplayEngine.cpp DFBSurface.cpp 
     DFB_INCLUDES = DFBDisplayEngine.h DFBSurface.h 
 else
@@ -55,8 +55,8 @@ libplayer_la_SOURCES = $(GL_SOURCES) $(DFB_SOURCES) \
 		$(ALL_H)
 libplayer_ladir=$(includedir)/avg/player
 libplayer_la_LIBADD = ../graphics/libgraphics.la
-libplayer_la_LDFLAGS = $(XML2_LIBS)  $(PANGOFT2_LIBS)\
-        $(DC1394_LIBS) $(GLU_LIBS) $(ALL_GL_LIBS) $(DFB_LIBS) \
+libplayer_la_LDFLAGS = @XML2_LIBS@ @PANGOFT2_LIBS@\
+        @DC1394_LIBS@ @GLU_LIBS@ @ALL_GL_LIBS@ @DFB_LIBS@ \
 		`pkg-config --libs ImageMagick++` \
-        $(FFMPEG_LIBS)
+        @FFMPEG_LIBS@
 libplayer_la_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"
