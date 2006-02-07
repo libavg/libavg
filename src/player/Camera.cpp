@@ -201,6 +201,7 @@ void Camera::setFeature(int FeatureID)
 
 IntPoint Camera::getNativeSize() 
 {
+#ifdef AVG_ENABLE_1394
     switch(m_Mode) {
         case MODE_640x480_YUV411:
         case MODE_640x480_RGB:
@@ -211,6 +212,9 @@ IntPoint Camera::getNativeSize()
             fatalError ("Camera::getNativeSize: Unsupported or illegal value for camera resolution:");
             return IntPoint(0,0);
     }
+#else
+    return IntPoint(640, 480);
+#endif
 }
 
 double Camera::getFPS()
@@ -224,6 +228,7 @@ void Camera::open(int* pWidth, int* pHeight)
     *pWidth = getNativeSize().x;
     *pHeight = getNativeSize().y;
     
+#ifdef AVG_ENABLE_1394
     // TODO: Support other resolutions.
     switch(m_Mode) {
         case MODE_640x480_YUV411:
@@ -237,7 +242,6 @@ void Camera::open(int* pWidth, int* pHeight)
             fatalError ("Camera::open: Unsupported or illegal value for camera resolution:");
     }
             
-#ifdef AVG_ENABLE_1394
     m_FWHandle = raw1394_new_handle();
     if (m_FWHandle==NULL) {
         AVG_TRACE(Logger::ERROR,
