@@ -13,7 +13,8 @@ noinst_LTLIBRARIES = libgraphics.la
 libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
 libgraphics_ladir=$(includedir)/avg/graphics
 libgraphics_la_LIBADD = ../base/libbase.la        
-libgraphics_la_LDFLAGS = `pkg-config --libs ImageMagick++`
 noinst_PROGRAMS=testgraphics
 testgraphics_SOURCES=testgraphics.cpp $(ALL_H)
+testgraphics_LDFLAGS = `pkg-config --libs ImageMagick++`
 testgraphics_LDADD = ../base/libbase.la ./libgraphics.la
+

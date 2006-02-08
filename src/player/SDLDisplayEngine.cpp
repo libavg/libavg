@@ -21,6 +21,10 @@
 
 
 #include "SDLDisplayEngine.h"
+#ifdef __APPLE__
+#include "SDLMain.h"
+#endif
+
 #include "Region.h"
 #include "Player.h"
 #include "Node.h"
@@ -99,6 +103,9 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_pScreen(0),
       m_VBMod(0)
 {
+#ifdef __APPLE__
+    CustomSDLMain();
+#endif
     if (SDL_InitSubSystem(SDL_INIT_VIDEO)==-1) {
         AVG_TRACE(Logger::ERROR, "Can't init SDL display subsystem.");
         exit(-1);

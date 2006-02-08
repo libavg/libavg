@@ -1,5 +1,6 @@
 AC_PREREQ(2.53)
 AC_INIT(libavg, 0.5.4, coder@c-base.org)
+AC_CANONICAL_TARGET
 
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
@@ -16,6 +17,13 @@ AM_INIT_AUTOMAKE(libavg, $VERSION)
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_CPP
+OBJC="gcc"
+OBJCFLAGS=""
+OBJCLDFLAGS="-lobjc"
+AC_SUBST(OBJC)
+AC_SUBST(OBJCFLAGS)
+AC_SUBST(OBJCLDFLAGS)
+_AM_DEPENDENCIES([OBJC])
 
 AC_PATH_GENERIC(xml2,,,AC_MSG_ERROR([libxml2 not found. Aborting.]))
 PKG_CHECK_MODULES([PANGOFT2], [pangoft2])
@@ -92,6 +100,8 @@ if (test $enable_GL = yes) || ([test x$no_GL != xyes] && [test x$sdl_installed =
 else
     AC_MSG_NOTICE([Disabling OpenGL])
 fi
+    
+AM_CONDITIONAL(APPLE, test $target_vendor = apple)
 
 AM_CONFIG_HEADER(src/avgconfig.h)
 AC_OUTPUT(Makefile src/Makefile man/Makefile src/test/Makefile 

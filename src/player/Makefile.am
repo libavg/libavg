@@ -29,7 +29,13 @@ else
     DFB_SOURCES =
     DFB_INCLUDES =
 endif
-            
+
+if APPLE
+    APPLE_SOURCES = SDLMain.m
+else
+    APPLE_SOURCES =
+endif
+
 ALL_H = Player.h IEventSource.h IEventSink.h Excl.h VideoBase.h Video.h\
         DisplayEngine.h Region.h Node.h \
         ISurface.h Container.h \
@@ -52,11 +58,12 @@ libplayer_la_SOURCES = $(GL_SOURCES) $(DFB_SOURCES) \
         DivNode.cpp Timeout.cpp DebugEventSink.cpp Event.cpp \
         Image.cpp EventDispatcher.cpp KeyEvent.cpp MouseEvent.cpp\
         RasterNode.cpp AVGNode.cpp \
+        $(APPLE_SOURCES) \
 		$(ALL_H)
 libplayer_ladir=$(includedir)/avg/player
 libplayer_la_LIBADD = ../graphics/libgraphics.la
-libplayer_la_LDFLAGS = @XML2_LIBS@ @PANGOFT2_LIBS@\
+libplayer_la_LDFLAGS = @XML2_LIBS@ \
         $(DC1394_LIBS) @GLU_LIBS@ $(ALL_GL_LIBS) $(DFB_LIBS) \
 		`pkg-config --libs ImageMagick++` \
-        @FFMPEG_LIBS@
+        @FFMPEG_LIBS@ @PANGOFT2_LIBS@ 
 libplayer_la_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"

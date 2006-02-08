@@ -6,6 +6,9 @@ then
     # avoid name clashes.
     glibtoolize --copy --force
     aclocal -I m4
+    # The next two lines are an incredibly dirty hack.
+    awk '{sub("-all_load ",""); print}' aclocal.m4 > aclocal_new.m4
+    mv aclocal_new.m4 aclocal.m4
     automake --foreign --add-missing --copy 
     autoconf
 else
