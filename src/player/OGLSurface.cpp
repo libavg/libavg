@@ -450,12 +450,16 @@ unsigned int OGLSurface::getTexID()
 int OGLSurface::getTextureMode()
 {
      if (s_TextureMode == 0) {
-        // TODO: Support GL_TEXTURE_RECTANGLE_EXT so we don't depend on 
-        // proprietary NVidia stuff
         if (queryOGLExtension("GL_NV_texture_rectangle")) {
             s_TextureMode = GL_TEXTURE_RECTANGLE_NV;
             AVG_TRACE(Logger::CONFIG, 
                     "Using NVidia texture rectangle extension.");
+        } else if (queryOGLExtension("GL_EXT_texture_rectangle") ||
+                   queryOGLExtension("GL_ARB_texture_rectangle")) 
+        {
+            s_TextureMode = GL_TEXTURE_RECTANGLE_ARB;
+            AVG_TRACE(Logger::CONFIG, 
+                    "Using portable texture rectangle extension.");
         } else {
             s_TextureMode = GL_TEXTURE_2D;
             AVG_TRACE(Logger::CONFIG, 
@@ -654,7 +658,7 @@ int OGLSurface::getDestMode(SDLDisplayEngine * pEngine)
                 case SDLDisplayEngine::MESA:
                     return GL_YCBCR_MESA;    
                 case SDLDisplayEngine::APPLE:
-                    return GL_RGB;
+                    return GL_RGBA;
                 default:
                     AVG_TRACE(Logger::ERROR, "OGLSurface: YCbCr not supported.");
             }
