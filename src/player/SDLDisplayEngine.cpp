@@ -1,4 +1,4 @@
-//
+
 //  libavg - Media Playback Engine. 
 //  Copyright (C) 2003-2006 Ulrich von Zadow
 //
@@ -104,7 +104,11 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_VBMod(0)
 {
 #ifdef __APPLE__
-    CustomSDLMain();
+    static bool bSDLInitialized = false;
+    if (!bSDLInitialized) {
+        CustomSDLMain();
+        bSDLInitialized = true;
+    }
 #endif
     if (SDL_InitSubSystem(SDL_INIT_VIDEO)==-1) {
         AVG_TRACE(Logger::ERROR, "Can't init SDL display subsystem.");
@@ -191,7 +195,14 @@ void SDLDisplayEngine::init(int width, int height, bool isFullscreen,
     int TexMode = OGLSurface::getTextureMode();
     glEnable(TexMode);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(TexMode);");
-    
+
+    m_YCbCrMode = NONE;
+    if (queryOGLExtension("GL_MESA_ycbcr_texture")) {
+        m_YCbCrMode = MESA;
+    } else if (queryOGLExtension("GL_APPLE_ycbcr_422")) {
+        m_YCbCrMode = APPLE;
+    }
+
     m_Width = width;
     m_Height = height;
     initInput();
@@ -199,6 +210,7 @@ void SDLDisplayEngine::init(int width, int height, bool isFullscreen,
     signal(SIGSEGV, SIG_DFL);
     
     logConfig();
+    m_bEnableCrop = false;
 }
 
 void SDLDisplayEngine::teardown()
@@ -326,7 +338,7 @@ void SDLDisplayEngine::blt32(ISurface * pSurface, const DRect* pDestRect,
 {
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface*>(pSurface);
     glColor4f(1.0f, 1.0f, 1.0f, opacity);
-    pOGLSurface->blt(pDestRect, opacity, angle, pivot, Mode);
+    pOGLSurface->blt(this, pDestRect, opacity, angle, pivot, Mode);
 }
 
 void SDLDisplayEngine::blta8(ISurface * pSurface, 
@@ -337,7 +349,7 @@ void SDLDisplayEngine::blta8(ISurface * pSurface,
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface*>(pSurface);
     glColor4f(float(color.getR())/256, float(color.getG())/256, 
             float(color.getB())/256, opacity);
-    pOGLSurface->blt(pDestRect, opacity, angle, pivot, Mode);
+    pOGLSurface->blt(this, pDestRect, opacity, angle, pivot, Mode);
 }
 
 
@@ -402,7 +414,7 @@ ISurface * SDLDisplayEngine::createSurface()
 void SDLDisplayEngine::surfaceChanged(ISurface * pSurface) 
 {
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface *>(pSurface);
-    pOGLSurface->bind();
+    pOGLSurface->bind(this);
 }
 
 bool SDLDisplayEngine::supportsBpp(int bpp)
@@ -418,7 +430,12 @@ bool SDLDisplayEngine::hasRGBOrdering()
 
 bool SDLDisplayEngine::isYCbCrSupported()
 {
-    return queryOGLExtension("GL_MESA_ycbcr_texture");
+    return (m_YCbCrMode != NONE);
+}
+
+SDLDisplayEngine::YCbCrMode SDLDisplayEngine::getYCbCrMode()
+{
+    return m_YCbCrMode;
 }
 
 void SDLDisplayEngine::showCursor (bool bShow)

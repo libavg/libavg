@@ -68,8 +68,14 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual int getBPP();
 
         virtual bool supportsBpp(int bpp);
-        virtual bool hasRGBOrdering(); 
-        virtual bool isYCbCrSupported(); 
+        virtual bool hasRGBOrdering();
+        
+        enum YCbCrMode {
+            NONE, MESA, APPLE
+        };
+        virtual bool isYCbCrSupported();
+        virtual YCbCrMode getYCbCrMode();
+        
         virtual void showCursor (bool bShow);
         virtual BitmapPtr screenshot ();
 
@@ -106,6 +112,8 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         bool m_bEnableCrop;
 
         SDL_Surface * m_pScreen;
+
+        YCbCrMode m_YCbCrMode;
 
         // Vertical blank stuff.
         virtual bool initVBlank(int rate);

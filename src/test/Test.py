@@ -487,7 +487,8 @@ def playerTestSuite(engine, bpp):
     suite = unittest.TestSuite()
  
     suite.addTest(LoggerTestCase("test"))
-    suite.addTest(ParPortTestCase("test"))
+    if sys.platform != "darwin":
+        suite.addTest(ParPortTestCase("test"))
     suite.addTest(ConradRelaisTestCase("test"))
     suite.addTest(NodeTestCase("testAttributes"))
     suite.addTest(PlayerTestCase("testImage", engine, bpp))
@@ -511,7 +512,6 @@ def playerTestSuite(engine, bpp):
     return suite
 
 Player = avg.Player()
-
 runner = unittest.TextTestRunner()
 
 if len(sys.argv) != 3:
@@ -524,5 +524,7 @@ else:
     else:
         print "First parameter must be OGL or DFB"
     bpp = int(sys.argv[2])
+#    runner.run(LoggerTestCase("test"))
+#    runner.run(PlayerTestCase("testCrop", engine, bpp))
     runner.run(playerTestSuite(engine, bpp))
 

@@ -268,19 +268,19 @@ string getGlModeString(int Mode)
     }
 }
 
-void OGLSurface::bind() 
+void OGLSurface::bind(SDLDisplayEngine * pEngine) 
 {
     if (m_bBound) {
-        rebind();
+        rebind(pEngine);
     } else {
         if (m_MemoryMode == PBO) {
             s_BindBufferProc(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffer);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                     "OGLSurface::bind: glBindBuffer()");
         }
-        int DestMode = getDestMode();
-        int SrcMode = getSrcMode();
-        int PixelType = getPixelType();
+        int DestMode = getDestMode(pEngine);
+        int SrcMode = getSrcMode(pEngine);
+        int PixelType = getPixelType(pEngine);
         int Width = m_Size.x;
         int Height = m_Size.y;
         m_Tiles.clear();
@@ -379,7 +379,7 @@ void OGLSurface::unbind()
 
 static ProfilingZone TexSubImageProfilingZone("    OGLSurface::texture upload");
 
-void OGLSurface::rebind()
+void OGLSurface::rebind(SDLDisplayEngine * pEngine)
 {
     int Width = m_Size.x;
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -414,7 +414,7 @@ void OGLSurface::rebind()
                 ScopeTimer Timer(TexSubImageProfilingZone);
                 glTexSubImage2D(s_TextureMode, 0, 0, 0, 
                         Tile.m_Extent.Width(), Tile.m_Extent.Height(),
-                        getSrcMode(), getPixelType(), pStartPos);
+                        getSrcMode(pEngine), getPixelType(pEngine), pStartPos);
             }
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                     "OGLSurface::rebind: glTexSubImage2D()");
@@ -427,14 +427,14 @@ void OGLSurface::rebind()
     }
 }
 
-void OGLSurface::blt(const DRect* pDestRect, double opacity, 
-                double angle, const DPoint& pivot, 
-                DisplayEngine::BlendMode Mode)
+void OGLSurface::blt(SDLDisplayEngine * pEngine, const DRect* pDestRect, 
+        double opacity, double angle, const DPoint& pivot, 
+        DisplayEngine::BlendMode Mode)
 {
     if (!m_bBound) {
-        bind();
+        bind(pEngine);
     }
-    bltTexture(pDestRect, angle, pivot, Mode);
+    bltTexture(pEngine, pDestRect, angle, pivot, Mode);
 }
 
 unsigned int OGLSurface::getTexID()
@@ -528,7 +528,7 @@ void OGLSurface::initTileVertex (int x, int y, DPoint& Vertex)
 }
 
 
-void OGLSurface::bltTexture(const DRect* pDestRect, 
+void OGLSurface::bltTexture(SDLDisplayEngine * pEngine, const DRect* pDestRect, 
                 double angle, const DPoint& pivot, 
                 DisplayEngine::BlendMode Mode)
 {
@@ -586,8 +586,8 @@ void OGLSurface::bltTexture(const DRect* pDestRect,
     AVG_TRACE(Logger::BLTS, "(" << pDestRect->tl.x << ", " 
             << pDestRect->tl.y << ")" << ", width:" << pDestRect->Width() 
             << ", height: " << pDestRect->Height() << ", " 
-            << getGlModeString(getSrcMode()) << "-->" 
-            << getGlModeString(getDestMode()) << endl);
+            << getGlModeString(getSrcMode(pEngine)) << "-->" 
+            << getGlModeString(getDestMode(pEngine)) << endl);
     if (fabs(angle) > 0.001) {
         glPopMatrix();
     }
@@ -635,7 +635,7 @@ void OGLSurface::bltTile(const TextureTile& Tile,
             "OGLSurface::bltTile: glEnd()");
 }
 
-int OGLSurface::getDestMode()
+int OGLSurface::getDestMode(SDLDisplayEngine * pEngine)
 {
     switch (m_pf) {
         case I8:
@@ -650,7 +650,14 @@ int OGLSurface::getDestMode()
         case B8G8R8X8:
             return GL_RGB;    
         case YCbCr422:
-            return GL_YCBCR_MESA;    
+            switch (pEngine->getYCbCrMode()) {
+                case SDLDisplayEngine::MESA:
+                    return GL_YCBCR_MESA;    
+                case SDLDisplayEngine::APPLE:
+                    return GL_RGB;
+                default:
+                    AVG_TRACE(Logger::ERROR, "OGLSurface: YCbCr not supported.");
+            }
         default:
             AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << 
                     Bitmap::getPixelFormatString(m_pf) <<
@@ -659,7 +666,7 @@ int OGLSurface::getDestMode()
     return 0;
 }    
 
-int OGLSurface::getSrcMode()
+int OGLSurface::getSrcMode(SDLDisplayEngine * pEngine)
 {
     switch (m_pf) {
         case I8:
@@ -675,7 +682,14 @@ int OGLSurface::getSrcMode()
         case R8G8B8A8:
             return GL_RGBA;
         case YCbCr422:
-            return GL_YCBCR_MESA;    
+            switch (pEngine->getYCbCrMode()) {
+                case SDLDisplayEngine::MESA:
+                    return GL_YCBCR_MESA;    
+                case SDLDisplayEngine::APPLE:
+                    return GL_YCBCR_422_APPLE;
+                default:
+                    AVG_TRACE(Logger::ERROR, "OGLSurface: YCbCr not supported.");
+            }
         default:
             AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << 
                     Bitmap::getPixelFormatString(m_pf) <<
@@ -684,10 +698,14 @@ int OGLSurface::getSrcMode()
     return 0;
 }
 
-int OGLSurface::getPixelType()
+int OGLSurface::getPixelType(SDLDisplayEngine* pEngine)
 {
     if (m_pf == YCbCr422) {
-        return GL_UNSIGNED_SHORT_8_8_REV_MESA;
+        if (pEngine->getYCbCrMode() == SDLDisplayEngine::MESA) {
+            return GL_UNSIGNED_SHORT_8_8_REV_MESA;
+        } else {
+            return GL_UNSIGNED_SHORT_8_8_APPLE;
+        }
     } else {
         return GL_UNSIGNED_BYTE;
     }

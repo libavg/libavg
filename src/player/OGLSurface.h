@@ -23,7 +23,7 @@
 #define _OGLSurface_H_
 
 #include "ISurface.h"
-#include "DisplayEngine.h"
+#include "SDLDisplayEngine.h"
 #include "../graphics/Rect.h"
 
 #define GL_GLEXT_PROTOTYPES
@@ -56,11 +56,11 @@ class OGLSurface: public ISurface {
         // Discards the bitmap data but leaves the texture intact.
         void discardBmp();
 
-        void bind();
+        void bind(SDLDisplayEngine * pEngine);
         void unbind();
-        void rebind();
+        void rebind(SDLDisplayEngine * pEngine);
 
-        void blt(const DRect* pDestRect, double opacity, 
+        void blt(SDLDisplayEngine * pEngine, const DRect* pDestRect, double opacity, 
                 double angle, const DPoint& pivot, 
                 DisplayEngine::BlendMode Mode);
         unsigned int getTexID();
@@ -91,7 +91,7 @@ class OGLSurface: public ISurface {
         void initTileVertex (int x, int y, DPoint& Vertex);
 
         void bindOneTexture(TextureTile& Tile);
-        void bltTexture(const DRect* pDestRect, 
+        void bltTexture(SDLDisplayEngine * pEngine, const DRect* pDestRect, 
                 double angle, const DPoint& pivot, 
                 DisplayEngine::BlendMode Mode);
         DPoint calcFinalVertex(const DRect* pDestRect,
@@ -99,9 +99,9 @@ class OGLSurface: public ISurface {
         void bltTile(const TextureTile& Tile, 
                 const DPoint& TLPoint, const DPoint& TRPoint,
                 const DPoint& BLPoint, const DPoint& BRPoint);
-        int getDestMode();
-        int getSrcMode();
-        int getPixelType();
+        int getDestMode(SDLDisplayEngine * pEngine);
+        int getSrcMode(SDLDisplayEngine * pEngine);
+        int getPixelType(SDLDisplayEngine * pEngine);
         void checkBlendModeError(std::string sMode);
 
         static MemoryMode getMemoryModeSupported();
