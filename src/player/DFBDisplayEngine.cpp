@@ -727,7 +727,9 @@ bool DFBDisplayEngine::vbWait(int rate)
 {
     if (rate != 0) {
         m_pDirectFB->WaitForSync(m_pDirectFB);
+        return true;
     }
+    return false;
 }
 
 

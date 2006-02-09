@@ -61,7 +61,7 @@ class Node
         double getY() const;
         void setY(double Y);
         
-        int getZ() const;
+        int getZVal() const;
         void setZ(int z);
 
         double getWidth() const;

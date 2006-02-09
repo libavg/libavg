@@ -143,7 +143,7 @@ void Node::setY(double y) {
     setViewport(-32767, y, -32767, -32767);
 }
 
-int Node::getZ() const {
+int Node::getZVal() const {
     return m_z;
 }
 
