@@ -1,4 +1,4 @@
-EXTRA_DIST = 1x1_schachbrett.png panoimage.jpg test.png freidrehen.jpg widebmp.jpg \
+EXTRA_DIST = 1x1_schachbrett.png panoimage.jpg freidrehen.jpg widebmp.jpg \
 rgb24.png rgb24alpha.tif \
 camera.avg events.avg panoimage.avg videoperformance.avg excl.avg crop.avg parport.avg \
 testserial.avg crop2.avg hugeimage.avg text.avg alphaimage.avg empty.avg image.avg \
