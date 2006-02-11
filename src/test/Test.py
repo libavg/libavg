@@ -118,6 +118,8 @@ def onMouseOut():
 
 def onMouseDown():
     print "onMouseDown"
+    Player.getElementByID("mouseover1").active=0
+    Player.getElementByID("rightdiv").active=0
     dumpMouseEvent()
 
 def onErrMouseOver():
@@ -525,6 +527,6 @@ else:
         print "First parameter must be OGL or DFB"
     bpp = int(sys.argv[2])
 #    runner.run(LoggerTestCase("test"))
-#    runner.run(PlayerTestCase("testCrop", engine, bpp))
+#    runner.run(PlayerTestCase("testEvents", engine, bpp))
     runner.run(playerTestSuite(engine, bpp))
 

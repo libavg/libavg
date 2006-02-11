@@ -113,7 +113,9 @@ BOOST_PYTHON_MODULE(avg)
             "    height\n"
             "    opacity: A measure of the node's transparency. 0.0 is completely\n"
             "             transparent, 1.0 is completely opaque. Opacity is relative to\n"
-            "             the parent node's opacity.", 
+            "             the parent node's opacity.\n"
+            "    active: If this attribute is true, the node behaves as usual. If not, it\n"
+            "            is neither drawn nor does it react to events. Videos are paused.",
             no_init)
         .def("getParent", &Node::getParent,
                 return_internal_reference<>(),
@@ -128,6 +130,7 @@ BOOST_PYTHON_MODULE(avg)
         .add_property("width", &Node::getWidth, &Node::setWidth)
         .add_property("height", &Node::getHeight, &Node::setHeight)
         .add_property("opacity", &Node::getOpacity, &Node::setOpacity)
+        .add_property("active", &Node::getActive, &Node::setActive)
     ;
 
     export_raster();

@@ -52,8 +52,8 @@ void DivNode::init(DisplayEngine * pEngine, Container * pParent,
 
 Node * DivNode::getElementByPos (const DPoint & pos)
 {
-    if (!getVisibleRect().Contains(pos)) {
-        return 0; // pos is not in parent.
+    if (!getVisibleRect().Contains(pos) || !isActive()) {
+        return 0;
     }
     for (int i=getNumChildren()-1; i>=0; i--) {
         Node * pFoundNode = getChild(i)->getElementByPos(pos);
