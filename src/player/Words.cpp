@@ -295,6 +295,9 @@ void Words::drawString()
             if (m_StringExtents.x == 0) {
                 m_StringExtents.x = 1;
             }
+            if (m_StringExtents.y == 0) {
+                m_StringExtents.y = 1;
+            }
         }
         m_pSurface->create(IntPoint(m_StringExtents), I8, false);
 
