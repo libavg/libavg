@@ -45,7 +45,9 @@
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
 
-#ifndef __APPLE__
+#ifdef __APPLE__
+#include <ApplicationServices/ApplicationServices.h>
+#else
 #include <X11/Xlib.h>
 #include <X11/extensions/xf86vmode.h>
 #endif
@@ -474,6 +476,7 @@ int SDLDisplayEngine::getBPP()
 }
 
 bool SDLDisplayEngine::initVBlank(int rate) {
+    
     if (rate > 0) {
 #ifdef __APPLE__
         GLint swapInt = rate;
@@ -986,9 +989,26 @@ void SDLDisplayEngine::initTranslationTable()
 
 void SDLDisplayEngine::calcRefreshRate() {
     double lastRefreshRate = s_RefreshRate;
+    s_RefreshRate = 0;
 #ifdef __APPLE__
-#warning calcRefreshRate unimplemented on Mac!
-    s_RefreshRate = 120;
+    CFDictionaryRef modeInfo = CGDisplayCurrentMode(CGMainDisplayID());
+    if (modeInfo) {
+        CFNumberRef value = (CFNumberRef) CFDictionaryGetValue(modeInfo, 
+                kCGDisplayRefreshRate);
+        if (value) {
+            CFNumberGetValue(value, kCFNumberIntType, &s_RefreshRate);
+            if (s_RefreshRate < 1.0) {
+                AVG_TRACE(Logger::CONFIG, "This seems to be an LCD screen.");
+                s_RefreshRate = 60;
+            }
+        } else {
+            AVG_TRACE(Logger::WARNING, 
+                    "Apple refresh rate calculation (CFDictionaryGetValue) failed");
+        }
+    } else {
+        AVG_TRACE(Logger::WARNING, 
+                "Apple refresh rate calculation (CGDisplayCurrentMode) failed");
+    }
 #else 
     Display * display = XOpenDisplay(0);
     
@@ -999,10 +1019,16 @@ void SDLDisplayEngine::calcRefreshRate() {
     if (!bOK) {
         AVG_TRACE (Logger::WARNING, 
                 "Could not get current refresh rate (XF86VidModeGetModeLine failed).");
+        AVG_TRACE (Logger::WARNING, 
+                "Defaulting to 60 Hz refresh rate.");
     }
     double HSyncRate = PixelClock*1000.0/mode_line.htotal;
     s_RefreshRate = HSyncRate/mode_line.vtotal;
 #endif
+    if (s_RefreshRate == 0) {
+        s_RefreshRate = 60;
+        AVG_TRACE (Logger::WARNING, "Assuming 60 Hz refresh rate.");
+    }
     if (lastRefreshRate != s_RefreshRate) {
         AVG_TRACE(Logger::CONFIG, "Vertical Refresh Rate: " << s_RefreshRate);
     }

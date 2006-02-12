@@ -33,7 +33,7 @@ namespace avg {
 DisplayEngine::DisplayEngine()
     : m_NumFrames(0),
       m_VBRate(0),
-      m_Framerate(25),
+      m_Framerate(30),
       m_bInitialized(false)
 {
 }
@@ -48,6 +48,11 @@ void DisplayEngine::initRender()
     bool bUseVBlank = false;
     if (m_VBRate != 0) {
         bUseVBlank = initVBlank(m_VBRate);
+        if (!bUseVBlank) {
+            m_Framerate = getRefreshRate()/m_VBRate;
+            AVG_TRACE(Logger::WARNING, "Using framerate of " << m_Framerate << 
+                    " instead of VBRate of " << m_VBRate);
+        }
     }
     m_NumFrames = 0;
     m_FramesTooLate = 0;
