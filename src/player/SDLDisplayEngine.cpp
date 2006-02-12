@@ -212,6 +212,8 @@ void SDLDisplayEngine::init(int width, int height, bool isFullscreen,
     signal(SIGSEGV, SIG_DFL);
     
     logConfig();
+    
+//    dumpSDLGLParams();
     m_bEnableCrop = false;
 }
 
