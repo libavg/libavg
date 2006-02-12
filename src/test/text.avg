@@ -4,7 +4,7 @@
     <words id="normal" x="10" y="10" size="18" font="arial" text="Arial"/>
     <words id="bold" x="10" y="35" size="18" font="arial" weight="bold"
             text="Arial bold"/>
-    <words id="italic" x="10" y="60" size="18" font="arial" italic="true" 
+    <words id="italic" x="10" y="60" size="18" font="arial" italic="True" 
             text="Arial italic"/>
     <words id="bolditalic" x="10" y="85" size="18" font="arial" weight="bold" 
             italic="true" text="Arial bold italic"/>
