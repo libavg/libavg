@@ -32,7 +32,11 @@ void xmlAttrToBool(const xmlNodePtr& xmlNode, const char * attr,
 {
     char * retStr = (char *)xmlGetProp(xmlNode, (const xmlChar *)attr);
     if (retStr) {
-        *pBool = !strcmp(retStr, "true");
+        // avg usually wants xml attributes in lowercase, but python only
+        // sees 'True' as true, so we'll accept that too. Also, python 2.3
+        // has 1 as true, so that has to be ok too.
+        *pBool = !strcmp(retStr, "True") || !strcmp(retStr, "true") 
+                || !strcmp(retStr, "1");
         xmlFree(retStr);
     }    
 }
