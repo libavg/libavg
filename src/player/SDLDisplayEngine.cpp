@@ -566,6 +566,7 @@ bool SDLDisplayEngine::vbWait(int rate) {
             // Nothing needs to be done.
             return false;
         case VB_NONE:
+        default:
             assert(false);
             return false;
     }

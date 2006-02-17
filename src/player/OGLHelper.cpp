@@ -29,6 +29,7 @@
 #ifdef __APPLE__
 #include "AppleGLHelper.h"
 #else
+#define GLX_GLXEXT_PROTOTYPES
 #include "GL/glx.h"
 #include <X11/Xlib.h>
 #endif

@@ -224,7 +224,7 @@ double Camera::getFPS()
 
 void Camera::open(int* pWidth, int* pHeight)
 {
-    int CaptureFormat;
+    int CaptureFormat = 0;
     *pWidth = getNativeSize().x;
     *pHeight = getNativeSize().y;
     
