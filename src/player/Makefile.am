@@ -31,9 +31,11 @@ else
 endif
 
 if APPLE
-    APPLE_SOURCES = SDLMain.m
+    APPLE_SOURCES = SDLMain.m AppleGLHelper.cpp
+    APPLE_INCLUDES = AppleGLHelper.h
 else
     APPLE_SOURCES =
+    APPLE_INCLUDES = 
 endif
 
 ALL_H = Player.h IEventSource.h IEventSink.h Excl.h VideoBase.h Video.h\
@@ -48,7 +50,7 @@ ALL_H = Player.h IEventSource.h IEventSink.h Excl.h VideoBase.h Video.h\
         Video.h FFMpegDecoder.h IVideoDecoder.h \
         Excl.h PanoImage.h \
         RasterNode.h Camera.h \
-        $(GL_INCLUDES) $(DFB_INCLUDES)
+        $(GL_INCLUDES) $(DFB_INCLUDES) $(APPLE_INCLUDES)
 
 noinst_LTLIBRARIES = libplayer.la
 libplayer_la_SOURCES = $(GL_SOURCES) $(DFB_SOURCES) \

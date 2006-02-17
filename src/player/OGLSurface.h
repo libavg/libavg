@@ -129,6 +129,9 @@ class OGLSurface: public ISurface {
         static PFNGLBINDBUFFERPROC s_BindBufferProc;
         static PFNGLMAPBUFFERPROC s_MapBufferProc;
         static PFNGLUNMAPBUFFERPROC s_UnmapBufferProc;
+#ifdef __APPLE__
+        static bool s_bEntryPointsInitialized;
+#endif
 
         static int s_TextureMode;
         static int s_MaxTexSize;

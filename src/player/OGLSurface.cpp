@@ -291,7 +291,7 @@ void OGLSurface::bind(SDLDisplayEngine * pEngine)
         glPixelStorei(GL_UNPACK_ROW_LENGTH, Width);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "OGLSurface::bind: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
-
+        
         for (int y=0; y<m_NumVertTextures; y++) {
             m_Tiles.push_back(v);
             for (int x=0; x<m_NumHorizTextures; x++) {
@@ -726,22 +726,6 @@ void OGLSurface::checkBlendModeError(string sMode)
             bErrorReported = true;
         }
     }
-}
-
-typedef void (*GLfunction)();
-
-GLfunction getFuzzyProcAddress(const char * psz)
-{
-#ifdef __APPLE__
-    return 0;
-#else
-    GLfunction pProc = glXGetProcAddressARB((const GLubyte*)psz);
-    if (!pProc) {
-        string s = string(psz)+"ARB";
-        pProc = glXGetProcAddressARB((const GLubyte*)(s.c_str()));
-    }
-    return pProc;
-#endif
 }
 
 OGLSurface::MemoryMode OGLSurface::getMemoryModeSupported()

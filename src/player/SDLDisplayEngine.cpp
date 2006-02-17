@@ -1000,7 +1000,7 @@ void SDLDisplayEngine::calcRefreshRate() {
         if (value) {
             CFNumberGetValue(value, kCFNumberIntType, &s_RefreshRate);
             if (s_RefreshRate < 1.0) {
-                AVG_TRACE(Logger::CONFIG, "This seems to be an LCD screen.");
+                AVG_TRACE(Logger::CONFIG, "This seems to be an TFT screen.");
                 s_RefreshRate = 60;
             }
         } else {

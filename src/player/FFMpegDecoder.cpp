@@ -248,7 +248,6 @@ static ProfilingZone ImgConvertProfilingZone("        FFMpeg: img_convert");
 bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
 {
     ScopeTimer Timer(RenderToBmpProfilingZone);
-    
     AVFrame Frame;
     readFrame(Frame);
     if (!m_bEOF) {

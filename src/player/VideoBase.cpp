@@ -217,7 +217,6 @@ void VideoBase::open()
             getSurface()->create(IntPoint(m_Width, m_Height), B8G8R8X8, true);
         }
     }
-
     FilterFill<Pixel24> Filter(Pixel24(0,0,0));
     Filter.applyInPlace(getSurface()->lockBmp());
     getSurface()->unlockBmp();

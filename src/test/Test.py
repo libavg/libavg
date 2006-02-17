@@ -526,7 +526,8 @@ else:
     else:
         print "First parameter must be OGL or DFB"
     bpp = int(sys.argv[2])
+
 #    runner.run(LoggerTestCase("test"))
-#    runner.run(PlayerTestCase("testEvents", engine, bpp))
+#    runner.run(VideoTestCase("test", engine, bpp))
     runner.run(playerTestSuite(engine, bpp))
 

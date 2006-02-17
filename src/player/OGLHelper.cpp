@@ -26,7 +26,9 @@
 
 #include "GL/gl.h"
 #include "GL/glu.h"
-#ifndef __APPLE__
+#ifdef __APPLE__
+#include "AppleGLHelper.h"
+#else
 #include "GL/glx.h"
 #include <X11/Xlib.h>
 #endif
@@ -106,5 +108,36 @@ bool queryGLXExtension(char *extName) {
     return false;
 #endif
 }
+
+GLfunction getFuzzyProcAddress(const char * psz)
+{
+#ifdef __APPLE__
+    static bool s_bEntryPointsInitialized = false;
+    if (!s_bEntryPointsInitialized) {
+        s_bEntryPointsInitialized = true;
+        OSStatus err = aglInitEntryPoints();
+        if (noErr != err) {
+            AVG_TRACE(Logger::ERROR, 
+                    "Couldn't initialize Apple OpenGL entry points.");
+        }
+    }
+    GLfunction pProc = (GLfunction)aglGetProcAddress(psz);
+    if (!pProc) {
+        string s = string(psz)+"ARB";
+        pProc = (GLfunction)aglGetProcAddress(s.c_str());
+    }
+#else
+    GLfunction pProc = glXGetProcAddressARB((const GLubyte*)psz);
+    if (!pProc) {
+        string s = string(psz)+"ARB";
+        pProc = glXGetProcAddressARB((const GLubyte*)(s.c_str()));
+    }
+#endif
+    if (!pProc) {
+        AVG_TRACE(Logger::ERROR, "Couldn't initialize pointer to " << psz);
+    }
+    return pProc;
+}
+
 
 }

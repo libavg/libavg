@@ -19,27 +19,14 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _OGLHelper_H_
-#define _OGLHelper_H_
+#ifndef _AppleGLHelper_H_
+#define _AppleGLHelper_H_
 
-#include <string>
+#include <Carbon/Carbon.h>
 
-namespace avg {
-
-void OGLErrorCheck(int avgcode, std::string where);
-bool queryOGLExtension(char *extName);
-bool queryGLXExtension(char *extName);
-
-typedef void (*GLfunction)();
-GLfunction getFuzzyProcAddress(const char * psz);
-
-}
-
-// This should be in a system-wide gl header, but for some reason it isn't
-// always there...
-#ifndef GL_TEXTURE_RECTANGLE_NV
-#define GL_TEXTURE_RECTANGLE_NV           0x84F5
-#endif
+OSStatus aglInitEntryPoints (void);
+void aglDellocEntryPoints (void);
+void * aglGetProcAddress (const char * pszProc);
 
 #endif
- 
+
