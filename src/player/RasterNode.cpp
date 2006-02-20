@@ -208,6 +208,57 @@ Node * RasterNode::getElementByPos (const DPoint & pos)
     }
 }
 
+DPoint RasterNode::getImageSize() 
+{
+    IntPoint pt = m_pSurface->lockBmp()->getSize();
+    m_pSurface->unlockBmp();
+    return DPoint(pt.x, pt.y);
+}
+
+string RasterNode::getImageFormat()
+{
+    PixelFormat pf = m_pSurface->lockBmp()->getPixelFormat();
+    m_pSurface->unlockBmp();
+    switch(pf) {
+        case B8G8R8:
+            return "BGR";
+        case B8G8R8A8:
+            return "BGRA";
+        case B8G8R8X8:
+            return "BGRX";
+        case A8B8G8R8:
+            return "ABGR";
+        case X8B8G8R8:
+            return "XBGR";
+        case R8G8B8:
+            return "RGB";
+        case R8G8B8A8:
+            return "RGBA";
+        case R8G8B8X8:
+            return "RGBX";
+        case A8R8G8B8:
+            return "ARGB";
+        case X8R8G8B8:
+            return "XRGB";
+        case I8:
+            return "L";
+        case YCbCr422:
+            return "YCbCr";
+        default:
+            return Bitmap::getPixelFormatString(pf);
+    }
+}
+
+string RasterNode::getImageAsString()
+{
+    // TODO: This might be slow.
+    BitmapPtr pBmp = m_pSurface->lockBmp();
+    string s;
+    s.assign((char*)(pBmp->getPixels()), pBmp->getMemNeeded());
+    m_pSurface->unlockBmp();
+    return s;
+}
+
 DPoint RasterNode::getPivot()
 {
     if (m_bHasCustomPivot) {

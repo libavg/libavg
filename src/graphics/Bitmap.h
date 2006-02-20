@@ -75,6 +75,7 @@ public:
     const std::string& getName() const;
     int getBytesPerPixel() const;
     static int getBytesPerPixel(PixelFormat PF);
+    int getMemNeeded();
     bool hasAlpha() const;
 
     bool operator ==(const Bitmap & otherBmp);

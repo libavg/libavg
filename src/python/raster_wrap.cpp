@@ -72,6 +72,9 @@ void export_raster()
         .def("setWarpedVertexCoord", &RasterNode::setWarpedVertexCoord,
                 "setWarpedVertexCoord(x,y, Point) -> None\n\n"
                 "Changes the current coordinate of a vertex.")
+        .def("getImage", &RasterNode::getImageAsString,
+                "getImage() -> string\n\n"
+                "Returns the bitmap pixels of the node as a string.")
         .add_property("angle", &RasterNode::getAngle, &RasterNode::setAngle)
         .add_property("pivotx", &RasterNode::getPivotX, &RasterNode::setPivotX)
         .add_property("pivoty", &RasterNode::getPivotY, &RasterNode::setPivotY)
@@ -81,6 +84,9 @@ void export_raster()
                 make_function(&RasterNode::getBlendModeStr, 
                         return_value_policy<copy_const_reference>()),
                 &RasterNode::setBlendModeStr)
+        .add_property("imagesize", &RasterNode::getImageSize)
+        .add_property("imageformat", &RasterNode::getImageFormat)
+                
     ;
     
     class_<Image, bases<RasterNode> >("Image",

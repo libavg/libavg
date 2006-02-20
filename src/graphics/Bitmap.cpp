@@ -380,6 +380,12 @@ int Bitmap::getBytesPerPixel(PixelFormat PF)
     }
 }
 
+int Bitmap::getMemNeeded()
+{
+    // This assumes a positive value for stride.
+    return m_Stride*m_Size.y;
+}
+
 bool Bitmap::hasAlpha() const
 {
     return (m_PF == B8G8R8A8 || m_PF == R8G8B8A8 || m_PF == A8B8G8R8 ||

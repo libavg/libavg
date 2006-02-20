@@ -67,5 +67,5 @@ libplayer_la_LIBADD = ../graphics/libgraphics.la
 libplayer_la_LDFLAGS = @XML2_LIBS@ \
         $(DC1394_LIBS) @GLU_LIBS@ $(ALL_GL_LIBS) $(DFB_LIBS) \
 		`pkg-config --libs ImageMagick++` \
-        @FFMPEG_LIBS@ @PANGOFT2_LIBS@ 
+        @LIBFFMPEG@ @PANGOFT2_LIBS@ 
 libplayer_la_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"

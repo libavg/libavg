@@ -70,6 +70,10 @@ class RasterNode: public Node
         DisplayEngine::BlendMode getBlendMode() const;
         virtual std::string getTypeStr ();
         Node * getElementByPos (const DPoint & pos);
+
+        DPoint getImageSize();
+        std::string getImageFormat();
+        std::string getImageAsString();
         
     protected:
         RasterNode ();
