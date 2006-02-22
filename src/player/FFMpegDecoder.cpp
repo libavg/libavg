@@ -216,8 +216,9 @@ void FFMpegDecoder::seek(int DestFrame, int CurFrame)
             int((double(DestFrame)*1000000*1000)/m_pVStream->r_frame_rate), 0);
 #else
     double framerate = (m_pVStream->r_frame_rate.num)/m_pVStream->r_frame_rate.den;
+    
     av_seek_frame(m_pFormatContext, m_VStreamIndex, 
-            int((double(DestFrame)*1000000*1000)/framerate), 0);
+            int((double(DestFrame)*AV_TIME_BASE)/framerate), 0);
 #endif
 #endif    
 }
