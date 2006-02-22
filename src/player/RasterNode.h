@@ -71,9 +71,7 @@ class RasterNode: public Node
         virtual std::string getTypeStr ();
         Node * getElementByPos (const DPoint & pos);
 
-        DPoint getImageSize();
-        std::string getImageFormat();
-        std::string getImageAsString();
+        Bitmap* getBitmap();
         
     protected:
         RasterNode ();

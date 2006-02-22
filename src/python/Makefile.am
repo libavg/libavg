@@ -11,7 +11,7 @@ else
 endif
 
 pkgpyexec_LTLIBRARIES = avg.la
-avg_la_SOURCES = avg_wrap.cpp raster_wrap.cpp event_wrap.cpp device_wrap.cpp 
+avg_la_SOURCES = avg_wrap.cpp raster_wrap.cpp event_wrap.cpp device_wrap.cpp bitmap_wrap.cpp 
 avg_la_LDFLAGS = -module -XCClinker -lboost_python 
 avg_la_LIBADD = ../conradrelais/libconradrelais.la \
                 ../player/libplayer.la \

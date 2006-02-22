@@ -67,15 +67,28 @@ void Image::init (DisplayEngine * pEngine, Container * pParent,
     load();
 }
 
-const std::string& Image::getHRef() const {
+const std::string& Image::getHRef() const
+{
     return m_href;
 }
 
-void Image::setHRef(const string& href) {
+void Image::setHRef(const string& href)
+{
     m_href = href;
     load();
     DPoint Size = getPreferredMediaSize();
     setViewport(-32767, -32767, Size.x, Size.y);
+}
+
+void Image::setBitmap(const Bitmap * pBmp)
+{
+    m_href = "";
+    
+    getSurface()->create(pBmp->getSize(), pBmp->getPixelFormat(), false);
+    getSurface()->lockBmp()->copyPixels(*pBmp);
+    getSurface()->unlockBmp();
+    getEngine()->surfaceChanged(getSurface());
+    
 }
 
 static ProfilingZone RenderProfilingZone("    Image::render");
@@ -111,11 +124,10 @@ void Image::load()
 //    AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
 
     Bitmap TempBmp(m_Filename);
-        
     PixelFormat pf;
-    pf = B8G8R8;
+    pf = R8G8B8;
     if (TempBmp.hasAlpha()) {
-        pf = B8G8R8A8;
+        pf = R8G8B8A8;
     }
     getSurface()->create(TempBmp.getSize(), pf, false);
     getSurface()->lockBmp()->copyPixels(TempBmp);

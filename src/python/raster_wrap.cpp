@@ -32,15 +32,6 @@ using namespace avg;
 
 void export_raster()
 {
-    class_<DPoint>("Point",
-            "A point is the basic coordinate in avg. Points are usually expressed\n"
-            "in floating-point coordinates.")
-        .def(init<double, double>())
-        .def(init<DPoint>())
-        .def_readwrite("x", &DPoint::x)
-        .def_readwrite("y", &DPoint::y)
-    ;
-
     class_<RasterNode, bases<Node>, boost::noncopyable>("RasterNode",
             "Base class for all nodes that have a direct 2d raster representation.\n"
             "This includes Image, Word, Camera, and Video nodes. RasterNodes can\n"
@@ -72,9 +63,11 @@ void export_raster()
         .def("setWarpedVertexCoord", &RasterNode::setWarpedVertexCoord,
                 "setWarpedVertexCoord(x,y, Point) -> None\n\n"
                 "Changes the current coordinate of a vertex.")
-        .def("getImage", &RasterNode::getImageAsString,
-                "getImage() -> string\n\n"
-                "Returns the bitmap pixels of the node as a string.")
+        .def("getBitmap", 
+                make_function(&RasterNode::getBitmap,
+                        return_value_policy<manage_new_object>()),
+                "getBitmap() -> Bitmap\n\n"
+                "Returns the bitmap that the node contains.")
         .add_property("angle", &RasterNode::getAngle, &RasterNode::setAngle)
         .add_property("pivotx", &RasterNode::getPivotX, &RasterNode::setPivotX)
         .add_property("pivoty", &RasterNode::getPivotY, &RasterNode::setPivotY)
@@ -84,9 +77,6 @@ void export_raster()
                 make_function(&RasterNode::getBlendModeStr, 
                         return_value_policy<copy_const_reference>()),
                 &RasterNode::setBlendModeStr)
-        .add_property("imagesize", &RasterNode::getImageSize)
-        .add_property("imageformat", &RasterNode::getImageFormat)
-                
     ;
     
     class_<Image, bases<RasterNode> >("Image",
@@ -97,6 +87,9 @@ void export_raster()
             "    href: The source filename of the image.\n"
             "    hue: A hue to color the image in. (ro, deprecated)\n"
             "    saturation: The saturation the image should have. (ro, deprecated)\n")
+        .def("setBitmap", &Image::setBitmap, 
+                "setBitmap(Bitmap)-> None\n"
+                "Sets the bitmap pixels of the image.")
         .add_property("href", 
                 make_function(&Image::getHRef,
                         return_value_policy<copy_const_reference>()),

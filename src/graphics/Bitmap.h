@@ -71,11 +71,13 @@ public:
     static std::string getPixelFormatString(PixelFormat PF);
     unsigned char * getPixels();
     const unsigned char * getPixels() const;
+    std::string getPixelsAsString() const;
+    void setPixels(const unsigned char * pPixels);
     bool ownsBits() const;
     const std::string& getName() const;
     int getBytesPerPixel() const;
     static int getBytesPerPixel(PixelFormat PF);
-    int getMemNeeded();
+    int getMemNeeded() const;
     bool hasAlpha() const;
 
     bool operator ==(const Bitmap & otherBmp);

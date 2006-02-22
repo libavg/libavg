@@ -19,6 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
+void export_bitmap();
 void export_raster();
 void export_event();
 void export_devices();
@@ -133,6 +134,7 @@ BOOST_PYTHON_MODULE(avg)
         .add_property("active", &Node::getActive, &Node::setActive)
     ;
 
+    export_bitmap();
     export_raster();
     
     class_<Container, bases<Node>, boost::noncopyable>("Container",

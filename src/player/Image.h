@@ -47,6 +47,7 @@ class Image : public RasterNode
         {
             return m_Saturation;
         }
+        void setBitmap(const Bitmap * pBmp);
         
         virtual void render (const DRect& Rect);
         virtual bool obscures (const DRect& Rect, int z);

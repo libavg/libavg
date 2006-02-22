@@ -152,6 +152,7 @@ BitmapPtr OGLSurface::lockBmp()
 
 void OGLSurface::unlockBmp()
 {
+    m_pf = m_pBmp->getPixelFormat();
     switch (m_MemoryMode) {
         case PBO:
             s_BindBufferProc(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffer);

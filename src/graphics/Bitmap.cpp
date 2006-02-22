@@ -337,6 +337,16 @@ const unsigned char * Bitmap::getPixels() const
     return m_pBits;
 }
 
+string Bitmap::getPixelsAsString() const
+{
+    return string((char*)m_pBits, getMemNeeded());
+}
+
+void Bitmap::setPixels(const unsigned char * pPixels)
+{
+    memcpy(m_pBits, pPixels, getMemNeeded());
+}
+
 const std::string& Bitmap::getName() const
 {
     return m_sName;
@@ -380,7 +390,7 @@ int Bitmap::getBytesPerPixel(PixelFormat PF)
     }
 }
 
-int Bitmap::getMemNeeded()
+int Bitmap::getMemNeeded() const
 {
     // This assumes a positive value for stride.
     return m_Stride*m_Size.y;

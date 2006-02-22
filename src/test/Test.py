@@ -451,6 +451,30 @@ class VideoTestCase(unittest.TestCase):
         Player.setFramerate(25)
         Player.play()
 
+class BitmapTestCase(unittest.TestCase):
+    def __init__(self, testFuncName, engine, bpp):
+        self.__engine = engine
+        self.__bpp = bpp;
+        self.__testFuncName = testFuncName
+        unittest.TestCase.__init__(self, testFuncName)
+        print "-------- ", self.__testFuncName, " --------"
+    def setUp(self):
+        Player.setDisplayEngine(self.__engine)
+        Player.setResolution(0, 0, 0, self.__bpp)
+    def test(self):
+        def getBitmap():
+            node = Player.getElementByID("test")
+            bitmap = node.getBitmap()
+            self.assert_(bitmap.getSize() == (199,199))
+            self.assert_(bitmap.getFormat() == avg.R8G8B8 or 
+                    bitmap.getFormat() == avg.B8G8R8)
+            self.assert_(len(bitmap.getPixels()) == 199*199*3)
+            bitmap.save("test.png")
+        Player.loadFile("image.avg")
+        Player.setTimeout(100, getBitmap)
+        Player.setTimeout(250, Player.stop)
+        Player.play()
+
 class AnimTestCase(unittest.TestCase):
     def __init__(self, testFuncName, engine, bpp):
         self.__engine = engine
@@ -483,7 +507,7 @@ class AnimTestCase(unittest.TestCase):
         Player.setTimeout(1500, lambda: self.assert_(self.__animStopped == 1))
         Player.setVBlankFramerate(1)
         Player.play()
-
+ 
 
 def playerTestSuite(engine, bpp):
     suite = unittest.TestSuite()
@@ -493,6 +517,7 @@ def playerTestSuite(engine, bpp):
         suite.addTest(ParPortTestCase("test"))
     suite.addTest(ConradRelaisTestCase("test"))
     suite.addTest(NodeTestCase("testAttributes"))
+    suite.addTest(BitmapTestCase("test", engine, bpp))
     suite.addTest(PlayerTestCase("testImage", engine, bpp))
     suite.addTest(PlayerTestCase("testError", engine, bpp))
     suite.addTest(PlayerTestCase("testEvents", engine, bpp))
@@ -528,6 +553,6 @@ else:
     bpp = int(sys.argv[2])
 
 #    runner.run(LoggerTestCase("test"))
-#    runner.run(VideoTestCase("test", engine, bpp))
+#    runner.run(BitmapTestCase("test", engine, bpp))
     runner.run(playerTestSuite(engine, bpp))
 
