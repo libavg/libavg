@@ -429,7 +429,9 @@ bool SDLDisplayEngine::supportsBpp(int bpp)
 bool SDLDisplayEngine::hasRGBOrdering()
 {
     // TODO: Should this be graphics-card dependent?
-    return false;
+    // So far, the setting doesn't make a difference on NVIDIA, but true is a lot 
+    // faster for intel i810 MESA.
+    return true;
 }
 
 bool SDLDisplayEngine::isYCbCrSupported()

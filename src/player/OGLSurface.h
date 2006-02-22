@@ -77,6 +77,7 @@ class OGLSurface: public ISurface {
     private:
         enum MemoryMode { 
             OGL,  // Standard OpenGL
+            MESA,
             PBO   // pixel buffer objects
         };
         struct TextureTile {
@@ -129,6 +130,10 @@ class OGLSurface: public ISurface {
         static PFNGLBINDBUFFERPROC s_BindBufferProc;
         static PFNGLMAPBUFFERPROC s_MapBufferProc;
         static PFNGLUNMAPBUFFERPROC s_UnmapBufferProc;
+
+        void * m_pMESABuffer;
+        static PFNGLXALLOCATEMEMORYMESAPROC s_AllocMemMESAProc;
+        static PFNGLXFREEMEMORYMESAPROC s_FreeMemMESAProc;
 #ifdef __APPLE__
         static bool s_bEntryPointsInitialized;
 #endif

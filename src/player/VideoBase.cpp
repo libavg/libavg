@@ -208,7 +208,7 @@ void VideoBase::open()
     open(&m_Width, &m_Height);
 
     DRect vpt = getRelViewport();
-    if (isYCbCrSupported()  && getEngine()->isYCbCrSupported()) {
+    if (isYCbCrSupported() && getEngine()->isYCbCrSupported()) {
         getSurface()->create(IntPoint(m_Width, m_Height), YCbCr422, true);
     } else {
         if (getEngine()->hasRGBOrdering()) {

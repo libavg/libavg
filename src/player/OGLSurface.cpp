@@ -47,6 +47,9 @@ PFNGLBINDBUFFERPROC OGLSurface::s_BindBufferProc = 0;
 PFNGLMAPBUFFERPROC OGLSurface::s_MapBufferProc = 0;
 PFNGLUNMAPBUFFERPROC OGLSurface::s_UnmapBufferProc = 0;
 
+PFNGLXALLOCATEMEMORYMESAPROC OGLSurface::s_AllocMemMESAProc = 0;
+PFNGLXFREEMEMORYMESAPROC OGLSurface::s_FreeMemMESAProc = 0;
+
 OGLSurface::OGLSurface()
     : m_bBound(false),
       m_MaxTileSize(-1,-1)
@@ -99,6 +102,19 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
                     "OGLSurface::rebind: glBindBuffer(0)");
             m_pBmp = BitmapPtr();
             break;
+        case MESA:
+            {
+                Display * display = XOpenDisplay(0);
+                int stride = m_Size.x*Bitmap::getBytesPerPixel(m_pf);
+                m_pMESABuffer = s_AllocMemMESAProc(display, DefaultScreen(display),
+                        stride*(Size.y+1), 0, 1.0 ,0);
+                if (!m_pMESABuffer) {
+                    AVG_TRACE(Logger::WARNING, "Failed to allocate MESA memory");
+                    m_MemoryMode = OGL;
+                }
+                m_pBmp = BitmapPtr();
+            }
+            break;
         default:
             break;
     }
@@ -144,6 +160,12 @@ BitmapPtr OGLSurface::lockBmp()
                             m_Size.x*Bitmap::getBytesPerPixel(m_pf), false));
             }
             break;
+        case MESA:
+            {
+                int stride = m_Size.x*Bitmap::getBytesPerPixel(m_pf);
+                m_pBmp = BitmapPtr(new Bitmap(m_Size, m_pf, 
+                        (unsigned char *)m_pMESABuffer, stride, false));
+            }
         default:
             break;
     }
@@ -745,6 +767,14 @@ OGLSurface::MemoryMode OGLSurface::getMemoryModeSupported()
             s_MapBufferProc = (PFNGLMAPBUFFERPROC)getFuzzyProcAddress("glMapBuffer");
             s_UnmapBufferProc = (PFNGLUNMAPBUFFERPROC)getFuzzyProcAddress("glUnmapBuffer");
             AVG_TRACE(Logger::CONFIG, "Using pixel buffer objects.");
+        } else if (queryGLXExtension("GLX_MESA_allocate_memoryx")) {
+            // Disabled because it's buggy.
+            s_MemoryMode = MESA;
+            s_AllocMemMESAProc = (PFNGLXALLOCATEMEMORYMESAPROC)
+                    glXGetProcAddressARB((const GLubyte*)"glXAllocateMemoryMESA");
+            s_FreeMemMESAProc = (PFNGLXFREEMEMORYMESAPROC)
+                    glXGetProcAddressARB((const GLubyte*)"glXFreeMemoryMESA");
+            AVG_TRACE(Logger::CONFIG, "Using MESA extension to allocate AGP memory.");
         } else {
             s_MemoryMode = OGL;
             AVG_TRACE(Logger::CONFIG, "Not using GL memory extensions.");

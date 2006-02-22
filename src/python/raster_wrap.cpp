@@ -32,6 +32,7 @@ using namespace avg;
 
 void export_raster()
 {
+ 
     class_<RasterNode, bases<Node>, boost::noncopyable>("RasterNode",
             "Base class for all nodes that have a direct 2d raster representation.\n"
             "This includes Image, Word, Camera, and Video nodes. RasterNodes can\n"
@@ -78,7 +79,7 @@ void export_raster()
                         return_value_policy<copy_const_reference>()),
                 &RasterNode::setBlendModeStr)
     ;
-    
+
     class_<Image, bases<RasterNode> >("Image",
             "A static raster image on the screen. Images are loaded from files on\n"
             "program start. Alpha channels of the image files are used as\n"
@@ -221,5 +222,4 @@ void export_raster()
         .add_property("stretch", &Words::getStretch,&Words::setStretch)
         .add_property("smallcaps", &Words::getSmallCaps, &Words::setSmallCaps)
     ;
-    
 }

@@ -8,9 +8,6 @@ sys.path.append('/usr/local/lib/python2.3/site-packages/libavg')
 sys.path.append('/usr/local/lib/python2.4/site-packages/libavg')
 import avg
 
-import Image, ImageFilter
-
-
 class BigVideoTestCase(unittest.TestCase):
     def test(self):
         def onFrame():
