@@ -90,6 +90,10 @@ void export_bitmap()
         .def("getPixels", &Bitmap::getPixelsAsString, 
                 "getPixels() -> string\n\n"
                 "Returns the raw pixel data in the bitmap.")
+        .def("setPixels", &Bitmap::setPixelsFromString,
+                "setPixels(string) -> None\n\n"
+                "Changes the raw pixel data in the bitmap. Doesn't change dimensions \n"
+                "or pixel format.")
         .def("getName", make_function(&Bitmap::getName, 
                     return_value_policy<copy_const_reference>()),
                 "getName() -> string\n\n")

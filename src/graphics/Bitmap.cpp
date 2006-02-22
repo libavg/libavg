@@ -347,6 +347,12 @@ void Bitmap::setPixels(const unsigned char * pPixels)
     memcpy(m_pBits, pPixels, getMemNeeded());
 }
 
+void Bitmap::setPixelsFromString(const std::string& sPixels)
+{
+    memcpy(m_pBits, sPixels.c_str(), getMemNeeded());
+}
+
+
 const std::string& Bitmap::getName() const
 {
     return m_sName;

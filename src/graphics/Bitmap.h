@@ -73,6 +73,7 @@ public:
     const unsigned char * getPixels() const;
     std::string getPixelsAsString() const;
     void setPixels(const unsigned char * pPixels);
+    void setPixelsFromString(const std::string& sPixels);
     bool ownsBits() const;
     const std::string& getName() const;
     int getBytesPerPixel() const;

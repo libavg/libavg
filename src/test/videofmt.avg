@@ -1,10 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg width="800" height="600">
-  <image x="100" y="100" z="0"
-      href="rgb24.png"/>
-  <video id="divx" x="10" y="10" z="3" opacity="0.6"
-      href="/mnt/data/videos/Ronin - german - DivX4_by_Mistkerl.avi"/>
-  <video id="mpeg1" x="20" y="20" z="1" width="768" height="576" opacity="0.6"
-      href="/mnt/data/enterprise/Enterprise - 2 - 12 - THECATWALK_.MPG"/> 
+<avg width="1280" height="1024">
+  <video id="video" width="768" height="512" z="3" opacity="0.6"
+      href="T2_pan_7.mpg"/>
 </avg>
