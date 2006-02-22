@@ -81,7 +81,9 @@ void TimeSource::sleepUntil(long long TargetTime)
 {
     long long now = getCurrentMillisecs();
 #ifdef __APPLE__
-    usleep((TargetTime-now)*1000);
+    if (TargetTime > now) { 
+        usleep((TargetTime-now)*1000);
+    }
 #else
     while (now<TargetTime) {
         if (TargetTime-now<=2) {

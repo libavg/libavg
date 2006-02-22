@@ -131,9 +131,12 @@ class OGLSurface: public ISurface {
         static PFNGLMAPBUFFERPROC s_MapBufferProc;
         static PFNGLUNMAPBUFFERPROC s_UnmapBufferProc;
 
+#ifndef __APPLE__
         void * m_pMESABuffer;
         static PFNGLXALLOCATEMEMORYMESAPROC s_AllocMemMESAProc;
         static PFNGLXFREEMEMORYMESAPROC s_FreeMemMESAProc;
+#endif
+
 #ifdef __APPLE__
         static bool s_bEntryPointsInitialized;
 #endif

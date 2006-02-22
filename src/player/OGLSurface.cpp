@@ -47,8 +47,10 @@ PFNGLBINDBUFFERPROC OGLSurface::s_BindBufferProc = 0;
 PFNGLMAPBUFFERPROC OGLSurface::s_MapBufferProc = 0;
 PFNGLUNMAPBUFFERPROC OGLSurface::s_UnmapBufferProc = 0;
 
+#ifndef __APPLE__
 PFNGLXALLOCATEMEMORYMESAPROC OGLSurface::s_AllocMemMESAProc = 0;
 PFNGLXFREEMEMORYMESAPROC OGLSurface::s_FreeMemMESAProc = 0;
+#endif
 
 OGLSurface::OGLSurface()
     : m_bBound(false),
@@ -102,6 +104,7 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
                     "OGLSurface::rebind: glBindBuffer(0)");
             m_pBmp = BitmapPtr();
             break;
+#ifndef __APPLE__
         case MESA:
             {
                 Display * display = XOpenDisplay(0);
@@ -115,6 +118,7 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
                 m_pBmp = BitmapPtr();
             }
             break;
+#endif
         default:
             break;
     }
@@ -160,12 +164,14 @@ BitmapPtr OGLSurface::lockBmp()
                             m_Size.x*Bitmap::getBytesPerPixel(m_pf), false));
             }
             break;
+#ifndef __APPLE__
         case MESA:
             {
                 int stride = m_Size.x*Bitmap::getBytesPerPixel(m_pf);
                 m_pBmp = BitmapPtr(new Bitmap(m_Size, m_pf, 
                         (unsigned char *)m_pMESABuffer, stride, false));
             }
+#endif
         default:
             break;
     }
@@ -767,6 +773,7 @@ OGLSurface::MemoryMode OGLSurface::getMemoryModeSupported()
             s_MapBufferProc = (PFNGLMAPBUFFERPROC)getFuzzyProcAddress("glMapBuffer");
             s_UnmapBufferProc = (PFNGLUNMAPBUFFERPROC)getFuzzyProcAddress("glUnmapBuffer");
             AVG_TRACE(Logger::CONFIG, "Using pixel buffer objects.");
+#ifndef __APPLE__
         } else if (queryGLXExtension("GLX_MESA_allocate_memoryx")) {
             // Disabled because it's buggy.
             s_MemoryMode = MESA;
@@ -775,6 +782,7 @@ OGLSurface::MemoryMode OGLSurface::getMemoryModeSupported()
             s_FreeMemMESAProc = (PFNGLXFREEMEMORYMESAPROC)
                     glXGetProcAddressARB((const GLubyte*)"glXFreeMemoryMESA");
             AVG_TRACE(Logger::CONFIG, "Using MESA extension to allocate AGP memory.");
+#endif
         } else {
             s_MemoryMode = OGL;
             AVG_TRACE(Logger::CONFIG, "Not using GL memory extensions.");
