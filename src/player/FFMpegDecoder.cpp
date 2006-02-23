@@ -265,6 +265,7 @@ bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
         int DestFmt;
         switch(pBmp->getPixelFormat()) {
             case R8G8B8X8:
+                // XXX: Unused and broken.
                 DestFmt = PIX_FMT_RGBA32;
                 break;
             case B8G8R8X8:
