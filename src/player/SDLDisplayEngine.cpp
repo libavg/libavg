@@ -432,7 +432,6 @@ bool SDLDisplayEngine::hasRGBOrdering()
     // So far, false is lots faster on NVIDIA, but true is faster for intel 
     // i810 MESA.
     if (!strcmp((char *)glGetString(GL_VENDOR), "NVIDIA Corporation")) {
-        cerr << "BGR order" << endl;
         return false;
     } else {
         return true;

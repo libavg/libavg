@@ -14,7 +14,7 @@ class BigVideoTestCase(unittest.TestCase):
             Player.getElementByID("video").seekToFrame(self.__curFrame)
             self.__curFrame -= 3
             if self.__curFrame < 2:
-                Player.stop()
+                self.__curFrame = 200
         self.__curFrame = 200 
         Player.loadFile("videofmt.avg")
         Player.getElementByID("video").play()
