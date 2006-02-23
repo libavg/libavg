@@ -212,9 +212,9 @@ void VideoBase::open()
         getSurface()->create(IntPoint(m_Width, m_Height), YCbCr422, true);
     } else {
         if (getEngine()->hasRGBOrdering()) {
-            getSurface()->create(IntPoint(m_Width, m_Height), R8G8B8, true);
+            getSurface()->create(IntPoint(m_Width, m_Height), R8G8B8X8, true);
         } else {
-            getSurface()->create(IntPoint(m_Width, m_Height), B8G8R8, true);
+            getSurface()->create(IntPoint(m_Width, m_Height), B8G8R8X8, true);
         }
     }
     FilterFill<Pixel24> Filter(Pixel24(0,0,0));

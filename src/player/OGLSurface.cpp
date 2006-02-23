@@ -96,7 +96,8 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
                     "OGLSurface::rebind: glBindBuffer()");
             s_BufferDataProc(GL_PIXEL_UNPACK_BUFFER_EXT, 
                     (Size.x+1)*(Size.y+1)*Bitmap::getBytesPerPixel(pf), NULL, 
-                    GL_STREAM_DRAW);
+                    GL_DYNAMIC_DRAW);
+//                    GL_STREAM_DRAW);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                     "OGLSurface::create: glBufferData()");
             s_BindBufferProc(GL_PIXEL_UNPACK_BUFFER_EXT, 0);

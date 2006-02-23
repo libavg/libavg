@@ -78,7 +78,7 @@ if len(sys.argv) < 2:
 else:
     Player = avg.Player()
     Log = avg.Logger.get()
-#   Player.setResolution(1, 0, 0, 0) 
+    Player.setResolution(1, 0, 0, 0) 
     Log.setCategories(Log.APP |
                       Log.WARNING | 
                       Log.PROFILE |
