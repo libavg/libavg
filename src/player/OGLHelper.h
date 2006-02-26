@@ -30,6 +30,13 @@ void OGLErrorCheck(int avgcode, std::string where);
 bool queryOGLExtension(char *extName);
 bool queryGLXExtension(char *extName);
 
+enum OGLMemoryMode { 
+    OGL,  // Standard OpenGL
+    MESA,
+    PBO   // pixel buffer objects
+};
+        
+
 typedef void (*GLfunction)();
 GLfunction getFuzzyProcAddress(const char * psz);
 

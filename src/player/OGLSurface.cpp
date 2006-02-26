@@ -19,14 +19,13 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include "OGLSurface.h"
 #include "Player.h"
 #include "MathHelper.h"
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 #include "../graphics/Point.h"
-#include "OGLSurface.h"
-#include "OGLHelper.h"
 
 #include "GL/glu.h"
 
@@ -36,9 +35,6 @@
 using namespace std;
 
 namespace avg {
-
-int OGLSurface::s_TextureMode = 0;
-int OGLSurface::s_MaxTexSize = 0;
 
 PFNGLGENBUFFERSPROC OGLSurface::s_GenBuffersProc = 0;
 PFNGLBUFFERDATAPROC OGLSurface::s_BufferDataProc = 0;
@@ -52,12 +48,13 @@ PFNGLXALLOCATEMEMORYMESAPROC OGLSurface::s_AllocMemMESAProc = 0;
 PFNGLXFREEMEMORYMESAPROC OGLSurface::s_FreeMemMESAProc = 0;
 #endif
 
-OGLSurface::OGLSurface()
-    : m_bBound(false),
+OGLSurface::OGLSurface(SDLDisplayEngine * pEngine)
+    : m_pEngine(pEngine),
+      m_bBound(false),
       m_MaxTileSize(-1,-1)
 {
     // Do an NVIDIA texture support query if it hasn't happened already.
-    getTextureMode();
+//    getTextureMode();
 }
 
 OGLSurface::~OGLSurface()
@@ -93,7 +90,7 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
                     "OGLSurface::create: glGenBuffers()");
             s_BindBufferProc(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffer);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                    "OGLSurface::rebind: glBindBuffer()");
+                    "OGLSurface::create: glBindBuffer()");
             s_BufferDataProc(GL_PIXEL_UNPACK_BUFFER_EXT, 
                     (Size.x+1)*(Size.y+1)*Bitmap::getBytesPerPixel(pf), NULL, 
                     GL_DYNAMIC_DRAW);
@@ -102,7 +99,7 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
                     "OGLSurface::create: glBufferData()");
             s_BindBufferProc(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                    "OGLSurface::rebind: glBindBuffer(0)");
+                    "OGLSurface::create: glBindBuffer(0)");
             m_pBmp = BitmapPtr();
             break;
 #ifndef __APPLE__
@@ -298,23 +295,22 @@ string getGlModeString(int Mode)
     }
 }
 
-void OGLSurface::bind(SDLDisplayEngine * pEngine) 
+void OGLSurface::bind() 
 {
+//    cerr << "OGLSurface::bind()" << endl;
     if (m_bBound) {
-        rebind(pEngine);
+        rebind();
     } else {
         if (m_MemoryMode == PBO) {
             s_BindBufferProc(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffer);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                     "OGLSurface::bind: glBindBuffer()");
         }
-        int DestMode = getDestMode(pEngine);
-        int SrcMode = getSrcMode(pEngine);
-        int PixelType = getPixelType(pEngine);
+        int TextureMode = m_pEngine->getTextureMode();
         int Width = m_Size.x;
         int Height = m_Size.y;
-        m_Tiles.clear();
-        vector<TextureTile> v;
+        m_pTiles.clear();
+        vector<OGLTilePtr> v;
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "OGLSurface::bind: glPixelStorei(GL_UNPACK_ALIGNMENT)");
@@ -322,8 +318,17 @@ void OGLSurface::bind(SDLDisplayEngine * pEngine)
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "OGLSurface::bind: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
         
+        glTexParameteri(TextureMode, 
+                GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(TextureMode, 
+                GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(TextureMode, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(TextureMode, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                "OGLSurface::bind: glTexParameteri()");
+
         for (int y=0; y<m_NumVertTextures; y++) {
-            m_Tiles.push_back(v);
+            m_pTiles.push_back(v);
             for (int x=0; x<m_NumHorizTextures; x++) {
                 IntPoint CurSize = m_TileSize;
                 if (y == m_NumVertTextures-1) {
@@ -334,53 +339,15 @@ void OGLSurface::bind(SDLDisplayEngine * pEngine)
                 }
                 Rect<int> CurExtent(x*m_TileSize.x, y*m_TileSize.y,
                         x*m_TileSize.x+CurSize.x, y*m_TileSize.y+CurSize.y);
-                TextureTile Tile;
-                Tile.m_Extent = CurExtent;
-                Tile.m_TexWidth = CurSize.x;
-                Tile.m_TexHeight = CurSize.y;
-                if (getTextureMode() == GL_TEXTURE_2D) {
-                    Tile.m_TexWidth = nextpow2(CurSize.x);
-                    Tile.m_TexHeight = nextpow2(CurSize.y);
+                if (m_pEngine->getTextureMode() == GL_TEXTURE_2D) {
+                    CurSize.x = nextpow2(CurSize.x);
+                    CurSize.y = nextpow2(CurSize.y);
                 }
-                glGenTextures(1, &Tile.m_TexID);
-                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                        "OGLSurface::bind: glGenTextures()");
-                m_Tiles[y].push_back(Tile);
-
-                glBindTexture(s_TextureMode, Tile.m_TexID);
-                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-                        "OGLSurface::bind: glBindTexture()");
-
-                glTexParameteri(s_TextureMode, 
-                        GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameteri(s_TextureMode, 
-                        GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glTexParameteri(s_TextureMode, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                glTexParameteri(s_TextureMode, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                        "OGLSurface::bind: glTexParameteri()");
-
-                glTexImage2D(s_TextureMode, 0,
-                        DestMode, Tile.m_TexWidth, Tile.m_TexHeight, 0,
-                        SrcMode, PixelType, 0); 
-                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                        "OGLSurface::bind: glTexImage2D()");
-                int bpp = Bitmap::getBytesPerPixel(m_pf);
-                unsigned char * pStartPos = (unsigned char *) 
-                        (Tile.m_Extent.tl.y*m_Size.x*bpp+
-                        + Tile.m_Extent.tl.x*bpp);
-                switch (m_MemoryMode) {
-                    case OGL:
-                        pStartPos += (unsigned int)(m_pBmp->getPixels());
-                        break;
-                    default:
-                        break;
-                }
-                glTexSubImage2D(s_TextureMode, 0, 0, 0, 
-                        Tile.m_Extent.Width(), Tile.m_Extent.Height(),
-                        SrcMode, PixelType, pStartPos);
-                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                        "OGLSurface::bind: glTexSubImage2D()");
+                
+                OGLTilePtr pTile = OGLTilePtr(new OGLTile(CurExtent, CurSize, m_pf,
+                            m_pEngine));
+                m_pTiles[y].push_back(pTile);
+                pTile->downloadTextures(m_pBmp, m_Size.x, m_MemoryMode);
             }
         }
         if (m_MemoryMode == PBO) {
@@ -394,23 +361,16 @@ void OGLSurface::bind(SDLDisplayEngine * pEngine)
 
 void OGLSurface::unbind() 
 {
+//    cerr << "OGLSurface::unbind()" << endl;
     if (m_bBound) {
-        for (unsigned int y=0; y<m_Tiles.size(); y++) {
-            for (unsigned int x=0; x<m_Tiles[y].size(); x++) {
-                glDeleteTextures(1, &m_Tiles[y][x].m_TexID);
-                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                        "OGLSurface::unbind: glDeleteTextures()");
-            }
-        }
-        m_Tiles.clear();
+        m_pTiles.clear();
     }
     m_bBound = false;
 }
 
-static ProfilingZone TexSubImageProfilingZone("    OGLSurface::texture upload");
-
-void OGLSurface::rebind(SDLDisplayEngine * pEngine)
+void OGLSurface::rebind()
 {
+//    cerr << "OGLSurface::rebind()" << endl;
     int Width = m_Size.x;
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
@@ -423,31 +383,9 @@ void OGLSurface::rebind(SDLDisplayEngine * pEngine)
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "OGLSurface::rebind: glBindBuffer()");
     }
-    for (unsigned int y=0; y<m_Tiles.size(); y++) {
-        for (unsigned int x=0; x<m_Tiles[y].size(); x++) {
-            TextureTile Tile = m_Tiles[y][x];
-            glBindTexture(s_TextureMode, m_Tiles[y][x].m_TexID);
-            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                    "OGLSurface::rebind: glBindTexture()");
-            int bpp = Bitmap::getBytesPerPixel(m_pf);
-            unsigned char * pStartPos = (unsigned char *) 
-                    (Tile.m_Extent.tl.y*m_Size.x*bpp+
-                    + Tile.m_Extent.tl.x*bpp);
-            switch (m_MemoryMode) {
-                case OGL:
-                    pStartPos += (unsigned int)(m_pBmp->getPixels());
-                    break;
-                default:
-                    break;
-            }
-            {
-                ScopeTimer Timer(TexSubImageProfilingZone);
-                glTexSubImage2D(s_TextureMode, 0, 0, 0, 
-                        Tile.m_Extent.Width(), Tile.m_Extent.Height(),
-                        getSrcMode(pEngine), getPixelType(pEngine), pStartPos);
-            }
-            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                    "OGLSurface::rebind: glTexSubImage2D()");
+    for (unsigned int y=0; y<m_pTiles.size(); y++) {
+        for (unsigned int x=0; x<m_pTiles[y].size(); x++) {
+            m_pTiles[y][x]->downloadTextures(m_pBmp, m_Size.x, m_MemoryMode);
         }
     }
     if (m_MemoryMode == PBO) {
@@ -457,62 +395,24 @@ void OGLSurface::rebind(SDLDisplayEngine * pEngine)
     }
 }
 
-void OGLSurface::blt(SDLDisplayEngine * pEngine, const DRect* pDestRect, 
+void OGLSurface::blt(const DRect* pDestRect, 
         double opacity, double angle, const DPoint& pivot, 
         DisplayEngine::BlendMode Mode)
 {
     if (!m_bBound) {
-        bind(pEngine);
+        bind();
     }
-    bltTexture(pEngine, pDestRect, angle, pivot, Mode);
-}
-
-unsigned int OGLSurface::getTexID()
-{
-    if (m_Tiles.size() != 1 || m_Tiles[0].size() != 1) {
-        AVG_TRACE(Logger::ERROR, 
-                "OGLSurface::getTexID() called for tiled surface. Aborting");
-        exit(-1);
-    }
-    return m_Tiles[0][0].m_TexID;
-}
-
-int OGLSurface::getTextureMode()
-{
-     if (s_TextureMode == 0) {
-        if (queryOGLExtension("GL_NV_texture_rectangle")) {
-            s_TextureMode = GL_TEXTURE_RECTANGLE_NV;
-            AVG_TRACE(Logger::CONFIG, 
-                    "Using NVidia texture rectangle extension.");
-        } else if (queryOGLExtension("GL_EXT_texture_rectangle") ||
-                   queryOGLExtension("GL_ARB_texture_rectangle")) 
-        {
-            s_TextureMode = GL_TEXTURE_RECTANGLE_ARB;
-            AVG_TRACE(Logger::CONFIG, 
-                    "Using portable texture rectangle extension.");
-        } else {
-            s_TextureMode = GL_TEXTURE_2D;
-            AVG_TRACE(Logger::CONFIG, 
-                    "Using power of 2 textures.");
-        }
-        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &s_MaxTexSize);
-        AVG_TRACE(Logger::CONFIG,
-                "Max. texture size is " << s_MaxTexSize);
-        if (s_MaxTexSize == 0) {
-            s_MaxTexSize = 512;
-            AVG_TRACE(Logger::WARNING,
-                "This looks like a broken OpenGL driver. Using max. texture size of 512.");
-        }
-    }
-    return s_TextureMode;
+    bltTexture(pDestRect, angle, pivot, Mode);
 }
 
 void OGLSurface::setupTiles()
 {
-    if (m_Size.x > s_MaxTexSize || m_Size.y > s_MaxTexSize) {
-        m_TileSize = IntPoint(s_MaxTexSize/2, s_MaxTexSize/2);
+    if (m_Size.x > m_pEngine->getMaxTexSize() || 
+        m_Size.y > m_pEngine->getMaxTexSize()) 
+    {
+        m_TileSize = IntPoint(m_pEngine->getMaxTexSize(), m_pEngine->getMaxTexSize());
     } else {
-        if (getTextureMode() == GL_TEXTURE_2D) {
+        if (m_pEngine->getTextureMode() == GL_TEXTURE_2D) {
             if ((m_Size.x > 256 && nextpow2(m_Size.x) > m_Size.x*1.3) ||
                     (m_Size.y > 256 && nextpow2(m_Size.y) > m_Size.y*1.3)) 
             {
@@ -562,7 +462,7 @@ void OGLSurface::initTileVertex (int x, int y, DPoint& Vertex)
 }
 
 
-void OGLSurface::bltTexture(SDLDisplayEngine * pEngine, const DRect* pDestRect, 
+void OGLSurface::bltTexture(const DRect* pDestRect, 
                 double angle, const DPoint& pivot, 
                 DisplayEngine::BlendMode Mode)
 {
@@ -602,9 +502,8 @@ void OGLSurface::bltTexture(SDLDisplayEngine * pEngine, const DRect* pDestRect,
             break;
     }
 
-    for (unsigned int y=0; y<m_Tiles.size(); y++) {
-        for (unsigned int x=0; x<m_Tiles[y].size(); x++) {
-            TextureTile& CurTile = m_Tiles[y][x];
+    for (unsigned int y=0; y<m_pTiles.size(); y++) {
+        for (unsigned int x=0; x<m_pTiles[y].size(); x++) {
             DPoint TLPoint = 
                     calcFinalVertex(pDestRect, m_TileVertices[y][x]);
             DPoint TRPoint = 
@@ -613,15 +512,16 @@ void OGLSurface::bltTexture(SDLDisplayEngine * pEngine, const DRect* pDestRect,
                     calcFinalVertex(pDestRect, m_TileVertices[y+1][x]);
             DPoint BRPoint = 
                     calcFinalVertex(pDestRect, m_TileVertices[y+1][x+1]);
-            bltTile(CurTile, TLPoint, TRPoint, BLPoint, BRPoint); 
+            OGLTilePtr pCurTile = m_pTiles[y][x];
+            pCurTile->blt(TLPoint, TRPoint, BLPoint, BRPoint); 
         }
     }
 
     AVG_TRACE(Logger::BLTS, "(" << pDestRect->tl.x << ", " 
             << pDestRect->tl.y << ")" << ", width:" << pDestRect->Width() 
             << ", height: " << pDestRect->Height() << ", " 
-            << getGlModeString(getSrcMode(pEngine)) << "-->" 
-            << getGlModeString(getDestMode(pEngine)) << endl);
+            << getGlModeString(m_pEngine->getOGLSrcMode(m_pf)) << "-->" 
+            << getGlModeString(m_pEngine->getOGLDestMode(m_pf)) << endl);
     if (fabs(angle) > 0.001) {
         glPopMatrix();
     }
@@ -638,112 +538,7 @@ DPoint OGLSurface::calcFinalVertex(const DRect* pDestRect,
     return Point;
 }
 
-void OGLSurface::bltTile(const TextureTile& Tile,
-        const DPoint& TLPoint, const DPoint& TRPoint,
-        const DPoint& BLPoint, const DPoint& BRPoint)
-{
-    double TexWidth;
-    double TexHeight;
-    if (getTextureMode() == GL_TEXTURE_2D) {
-        TexWidth = double(Tile.m_Extent.Width())/Tile.m_TexWidth;
-        TexHeight = double(Tile.m_Extent.Height())/Tile.m_TexHeight;
-    } else {
-        TexWidth = Tile.m_TexWidth;
-        TexHeight = Tile.m_TexHeight;
-    }
-    
-    glBindTexture(s_TextureMode, Tile.m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "GOGLSurface::bltTile: glBindTexture()");
-    glBegin(GL_QUADS);
-    glTexCoord2d(0.0, 0.0);
-    glVertex3d (TLPoint.x, TLPoint.y, 0.0);
-    glTexCoord2d(TexWidth, 0.0);
-    glVertex3d (TRPoint.x, TRPoint.y, 0.0);
-    glTexCoord2d(TexWidth, TexHeight);
-    glVertex3d (BRPoint.x, BRPoint.y, 0.0);
-    glTexCoord2d(0.0, TexHeight);
-    glVertex3d (BLPoint.x, BLPoint.y, 0.0);
-    glEnd();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "OGLSurface::bltTile: glEnd()");
-}
 
-int OGLSurface::getDestMode(SDLDisplayEngine * pEngine)
-{
-    switch (m_pf) {
-        case I8:
-            return GL_ALPHA;
-        case R8G8B8:
-        case B8G8R8:
-            return GL_RGB;
-        case R8G8B8A8:
-        case B8G8R8A8:
-            return GL_RGBA;
-        case R8G8B8X8:
-        case B8G8R8X8:
-            return GL_RGB;    
-        case YCbCr422:
-            switch (pEngine->getYCbCrMode()) {
-                case SDLDisplayEngine::MESA:
-                    return GL_YCBCR_MESA;    
-                case SDLDisplayEngine::APPLE:
-                    return GL_RGBA;
-                default:
-                    AVG_TRACE(Logger::ERROR, "OGLSurface: YCbCr not supported.");
-            }
-        default:
-            AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << 
-                    Bitmap::getPixelFormatString(m_pf) <<
-                    " in OGLSurface::getDestMode()");
-    }
-    return 0;
-}    
-
-int OGLSurface::getSrcMode(SDLDisplayEngine * pEngine)
-{
-    switch (m_pf) {
-        case I8:
-            return GL_ALPHA;
-        case R8G8B8:
-            return GL_RGB;
-        case B8G8R8:
-            return GL_BGR;
-        case B8G8R8X8:
-        case B8G8R8A8:
-            return GL_BGRA;
-        case R8G8B8X8:
-        case R8G8B8A8:
-            return GL_RGBA;
-        case YCbCr422:
-            switch (pEngine->getYCbCrMode()) {
-                case SDLDisplayEngine::MESA:
-                    return GL_YCBCR_MESA;    
-                case SDLDisplayEngine::APPLE:
-                    return GL_YCBCR_422_APPLE;
-                default:
-                    AVG_TRACE(Logger::ERROR, "OGLSurface: YCbCr not supported.");
-            }
-        default:
-            AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << 
-                    Bitmap::getPixelFormatString(m_pf) <<
-                    " in OGLSurface::getSrcMode()");
-    }
-    return 0;
-}
-
-int OGLSurface::getPixelType(SDLDisplayEngine* pEngine)
-{
-    if (m_pf == YCbCr422) {
-        if (pEngine->getYCbCrMode() == SDLDisplayEngine::MESA) {
-            return GL_UNSIGNED_SHORT_8_8_REV_MESA;
-        } else {
-            return GL_UNSIGNED_SHORT_8_8_APPLE;
-        }
-    } else {
-        return GL_UNSIGNED_BYTE;
-    }
-}
 
 void OGLSurface::checkBlendModeError(string sMode) 
 {    
@@ -758,10 +553,10 @@ void OGLSurface::checkBlendModeError(string sMode)
     }
 }
 
-OGLSurface::MemoryMode OGLSurface::getMemoryModeSupported()
+OGLMemoryMode OGLSurface::getMemoryModeSupported()
 {
     static bool s_bChecked = false;
-    static MemoryMode s_MemoryMode;
+    static OGLMemoryMode s_MemoryMode;
     if (!s_bChecked) {
         if (queryOGLExtension("GL_ARB_pixel_buffer_object") || 
             queryOGLExtension("GL_EXT_pixel_buffer_object"))

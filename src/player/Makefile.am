@@ -11,8 +11,8 @@ endif
 
 if ENABLE_GL
     ALL_GL_LIBS = @SDL_LIBS@ -lXxf86vm
-    GL_SOURCES = OGLHelper.cpp OGLSurface.cpp SDLDisplayEngine.cpp
-    GL_INCLUDES = SDLDisplayEngine.h OGLHelper.h OGLSurface.h \
+    GL_SOURCES = OGLHelper.cpp OGLSurface.cpp SDLDisplayEngine.cpp OGLTile.cpp
+    GL_INCLUDES = SDLDisplayEngine.h OGLHelper.h OGLSurface.h OGLTile.h \
 	              GL/gl.h GL/glext.h GL/glu.h GL/glx.h
 else
     ALL_GL_LIBS =

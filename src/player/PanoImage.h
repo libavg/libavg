@@ -66,6 +66,8 @@ class PanoImage : public Node
     private:
         void calcProjection();
         void setupTextures();
+
+        SDLDisplayEngine * getSDLEngine();
     
         std::string m_Filename;
         double m_SensorWidth;

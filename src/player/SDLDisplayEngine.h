@@ -22,8 +22,10 @@
 #ifndef _SDLDisplayEngine_H_
 #define _SDLDisplayEngine_H_
 
+#include "OGLHelper.h"
 #include "IEventSource.h"
 #include "DisplayEngine.h"
+#include "../graphics/Bitmap.h"
 #include "../graphics/Pixel32.h"
 
 #include <SDL/SDL.h>
@@ -82,6 +84,14 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         // From IEventSource
         virtual std::vector<Event *> pollEvents();
 
+        // Texture config.
+        int getTextureMode();
+        int getMaxTexSize();
+        
+        int getOGLDestMode(PixelFormat pf);
+        int getOGLSrcMode(PixelFormat pf);
+        int getOGLPixelType(PixelFormat pf);
+
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);
         void initInput();
@@ -128,6 +138,10 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         static double s_RefreshRate;
 
         static std::vector<long> KeyCodeTranslationTable;
+
+        // Texture config.
+        int m_TextureMode;
+        int m_MaxTexSize;
 };
 
 }

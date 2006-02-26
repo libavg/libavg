@@ -103,7 +103,9 @@ void dumpSDLGLParams() {
 SDLDisplayEngine::SDLDisplayEngine()
     : m_bEnableCrop(false),
       m_pScreen(0),
-      m_VBMod(0)
+      m_VBMod(0),
+      m_TextureMode(0),
+      m_MaxTexSize(0)
 {
 #ifdef __APPLE__
     static bool bSDLInitialized = false;
@@ -194,7 +196,7 @@ void SDLDisplayEngine::init(int width, int height, bool isFullscreen,
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glShadeModel()");
     glDisable(GL_DEPTH_TEST);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glDisable(GL_DEPTH_TEST)");
-    int TexMode = OGLSurface::getTextureMode();
+    int TexMode = getTextureMode();
     glEnable(TexMode);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(TexMode);");
 
@@ -342,7 +344,7 @@ void SDLDisplayEngine::blt32(ISurface * pSurface, const DRect* pDestRect,
 {
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface*>(pSurface);
     glColor4f(1.0f, 1.0f, 1.0f, opacity);
-    pOGLSurface->blt(this, pDestRect, opacity, angle, pivot, Mode);
+    pOGLSurface->blt(pDestRect, opacity, angle, pivot, Mode);
 }
 
 void SDLDisplayEngine::blta8(ISurface * pSurface, 
@@ -353,7 +355,7 @@ void SDLDisplayEngine::blta8(ISurface * pSurface,
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface*>(pSurface);
     glColor4f(float(color.getR())/256, float(color.getG())/256, 
             float(color.getB())/256, opacity);
-    pOGLSurface->blt(this, pDestRect, opacity, angle, pivot, Mode);
+    pOGLSurface->blt(pDestRect, opacity, angle, pivot, Mode);
 }
 
 
@@ -412,13 +414,13 @@ void SDLDisplayEngine::swapBuffers()
 
 ISurface * SDLDisplayEngine::createSurface()
 {
-    return new OGLSurface;
+    return new OGLSurface(this);
 }
 
 void SDLDisplayEngine::surfaceChanged(ISurface * pSurface) 
 {
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface *>(pSurface);
-    pOGLSurface->bind(this);
+    pOGLSurface->bind();
 }
 
 bool SDLDisplayEngine::supportsBpp(int bpp)
@@ -576,6 +578,54 @@ bool SDLDisplayEngine::vbWait(int rate) {
             assert(false);
             return false;
     }
+}
+
+void SDLDisplayEngine::calcRefreshRate() {
+    double lastRefreshRate = s_RefreshRate;
+    s_RefreshRate = 0;
+#ifdef __APPLE__
+    CFDictionaryRef modeInfo = CGDisplayCurrentMode(CGMainDisplayID());
+    if (modeInfo) {
+        CFNumberRef value = (CFNumberRef) CFDictionaryGetValue(modeInfo, 
+                kCGDisplayRefreshRate);
+        if (value) {
+            CFNumberGetValue(value, kCFNumberIntType, &s_RefreshRate);
+            if (s_RefreshRate < 1.0) {
+                AVG_TRACE(Logger::CONFIG, "This seems to be an TFT screen.");
+                s_RefreshRate = 60;
+            }
+        } else {
+            AVG_TRACE(Logger::WARNING, 
+                    "Apple refresh rate calculation (CFDictionaryGetValue) failed");
+        }
+    } else {
+        AVG_TRACE(Logger::WARNING, 
+                "Apple refresh rate calculation (CGDisplayCurrentMode) failed");
+    }
+#else 
+    Display * display = XOpenDisplay(0);
+    
+    int PixelClock;
+    XF86VidModeModeLine mode_line;
+    bool bOK = XF86VidModeGetModeLine (display, DefaultScreen(display), 
+            &PixelClock, &mode_line);
+    if (!bOK) {
+        AVG_TRACE (Logger::WARNING, 
+                "Could not get current refresh rate (XF86VidModeGetModeLine failed).");
+        AVG_TRACE (Logger::WARNING, 
+                "Defaulting to 60 Hz refresh rate.");
+    }
+    double HSyncRate = PixelClock*1000.0/mode_line.htotal;
+    s_RefreshRate = HSyncRate/mode_line.vtotal;
+#endif
+    if (s_RefreshRate == 0) {
+        s_RefreshRate = 60;
+        AVG_TRACE (Logger::WARNING, "Assuming 60 Hz refresh rate.");
+    }
+    if (lastRefreshRate != s_RefreshRate) {
+        AVG_TRACE(Logger::CONFIG, "Vertical Refresh Rate: " << s_RefreshRate);
+    }
+
 }
 
 vector<long> SDLDisplayEngine::KeyCodeTranslationTable(SDLK_LAST, key::KEY_UNKNOWN);
@@ -996,52 +1046,112 @@ void SDLDisplayEngine::initTranslationTable()
     TRANSLATION_ENTRY(UNDO);
 }
 
-void SDLDisplayEngine::calcRefreshRate() {
-    double lastRefreshRate = s_RefreshRate;
-    s_RefreshRate = 0;
-#ifdef __APPLE__
-    CFDictionaryRef modeInfo = CGDisplayCurrentMode(CGMainDisplayID());
-    if (modeInfo) {
-        CFNumberRef value = (CFNumberRef) CFDictionaryGetValue(modeInfo, 
-                kCGDisplayRefreshRate);
-        if (value) {
-            CFNumberGetValue(value, kCFNumberIntType, &s_RefreshRate);
-            if (s_RefreshRate < 1.0) {
-                AVG_TRACE(Logger::CONFIG, "This seems to be an TFT screen.");
-                s_RefreshRate = 60;
-            }
+int SDLDisplayEngine::getTextureMode()
+{
+     if (m_TextureMode == 0) {
+        if (queryOGLExtension("GL_NV_texture_rectangle")) {
+            m_TextureMode = GL_TEXTURE_RECTANGLE_NV;
+            AVG_TRACE(Logger::CONFIG, 
+                    "Using NVidia texture rectangle extension.");
+        } else if (queryOGLExtension("GL_EXT_texture_rectangle") ||
+                   queryOGLExtension("GL_ARB_texture_rectangle")) 
+        {
+            m_TextureMode = GL_TEXTURE_RECTANGLE_ARB;
+            AVG_TRACE(Logger::CONFIG, 
+                    "Using portable texture rectangle extension.");
         } else {
-            AVG_TRACE(Logger::WARNING, 
-                    "Apple refresh rate calculation (CFDictionaryGetValue) failed");
+            m_TextureMode = GL_TEXTURE_2D;
+            AVG_TRACE(Logger::CONFIG, 
+                    "Using power of 2 textures.");
+        }
+    }
+    return m_TextureMode;
+}
+
+int SDLDisplayEngine::getMaxTexSize() 
+{
+    if (m_MaxTexSize == 0) {
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_MaxTexSize);
+        AVG_TRACE(Logger::CONFIG,
+                "Max. texture size is " << m_MaxTexSize);
+    }
+    return m_MaxTexSize;
+}
+
+int SDLDisplayEngine::getOGLDestMode(PixelFormat pf)
+{
+    switch (pf) {
+        case I8:
+            return GL_ALPHA;
+        case R8G8B8:
+        case B8G8R8:
+            return GL_RGB;
+        case R8G8B8A8:
+        case B8G8R8A8:
+            return GL_RGBA;
+        case R8G8B8X8:
+        case B8G8R8X8:
+            return GL_RGB;    
+        case YCbCr422:
+            switch (getYCbCrMode()) {
+                case SDLDisplayEngine::MESA:
+                    return GL_YCBCR_MESA;    
+                case SDLDisplayEngine::APPLE:
+                    return GL_RGBA;
+                default:
+                    AVG_TRACE(Logger::ERROR, "SDLDisplayEngine: YCbCr not supported.");
+            }
+        default:
+            AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << 
+                    Bitmap::getPixelFormatString(pf) <<
+                    " in SDLDisplayEngine::getDestMode()");
+    }
+    return 0;
+}    
+
+int SDLDisplayEngine::getOGLSrcMode(PixelFormat pf)
+{
+    switch (pf) {
+        case I8:
+            return GL_ALPHA;
+        case R8G8B8:
+            return GL_RGB;
+        case B8G8R8:
+            return GL_BGR;
+        case B8G8R8X8:
+        case B8G8R8A8:
+            return GL_BGRA;
+        case R8G8B8X8:
+        case R8G8B8A8:
+            return GL_RGBA;
+        case YCbCr422:
+            switch (getYCbCrMode()) {
+                case SDLDisplayEngine::MESA:
+                    return GL_YCBCR_MESA;    
+                case SDLDisplayEngine::APPLE:
+                    return GL_YCBCR_422_APPLE;
+                default:
+                    AVG_TRACE(Logger::ERROR, "SDLDisplayEngine: YCbCr not supported.");
+            }
+        default:
+            AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << 
+                    Bitmap::getPixelFormatString(pf) <<
+                    " in SDLDisplayEngine::getSrcMode()");
+    }
+    return 0;
+}
+
+int SDLDisplayEngine::getOGLPixelType(PixelFormat pf)
+{
+    if (pf == YCbCr422) {
+        if (getYCbCrMode() == SDLDisplayEngine::MESA) {
+            return GL_UNSIGNED_SHORT_8_8_REV_MESA;
+        } else {
+            return GL_UNSIGNED_SHORT_8_8_APPLE;
         }
     } else {
-        AVG_TRACE(Logger::WARNING, 
-                "Apple refresh rate calculation (CGDisplayCurrentMode) failed");
+        return GL_UNSIGNED_BYTE;
     }
-#else 
-    Display * display = XOpenDisplay(0);
-    
-    int PixelClock;
-    XF86VidModeModeLine mode_line;
-    bool bOK = XF86VidModeGetModeLine (display, DefaultScreen(display), 
-            &PixelClock, &mode_line);
-    if (!bOK) {
-        AVG_TRACE (Logger::WARNING, 
-                "Could not get current refresh rate (XF86VidModeGetModeLine failed).");
-        AVG_TRACE (Logger::WARNING, 
-                "Defaulting to 60 Hz refresh rate.");
-    }
-    double HSyncRate = PixelClock*1000.0/mode_line.htotal;
-    s_RefreshRate = HSyncRate/mode_line.vtotal;
-#endif
-    if (s_RefreshRate == 0) {
-        s_RefreshRate = 60;
-        AVG_TRACE (Logger::WARNING, "Assuming 60 Hz refresh rate.");
-    }
-    if (lastRefreshRate != s_RefreshRate) {
-        AVG_TRACE(Logger::CONFIG, "Vertical Refresh Rate: " << s_RefreshRate);
-    }
-
 }
 
 }

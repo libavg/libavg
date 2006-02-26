@@ -23,6 +23,9 @@
 #define _OGLSurface_H_
 
 #include "ISurface.h"
+#include "OGLTile.h"
+#include "OGLHelper.h"
+
 #include "SDLDisplayEngine.h"
 #include "../graphics/Rect.h"
 
@@ -40,7 +43,7 @@ namespace avg {
 
 class OGLSurface: public ISurface {
     public:
-        OGLSurface();
+        OGLSurface(SDLDisplayEngine * pEngine);
         virtual ~OGLSurface();
 
         // Implementation of ISurface.
@@ -56,14 +59,13 @@ class OGLSurface: public ISurface {
         // Discards the bitmap data but leaves the texture intact.
         void discardBmp();
 
-        void bind(SDLDisplayEngine * pEngine);
+        void bind();
         void unbind();
-        void rebind(SDLDisplayEngine * pEngine);
+        void rebind();
 
-        void blt(SDLDisplayEngine * pEngine, const DRect* pDestRect, double opacity, 
+        void blt(const DRect* pDestRect, double opacity, 
                 double angle, const DPoint& pivot, 
                 DisplayEngine::BlendMode Mode);
-        unsigned int getTexID();
 
         void setMaxTileSize(const Point<int>& MaxTileSize);
         int getNumVerticesX();
@@ -72,41 +74,22 @@ class OGLSurface: public ISurface {
         DPoint getWarpedVertexCoord(int x, int y);
         void setWarpedVertexCoord(int x, int y, const DPoint& Vertex);
  
-        static int getTextureMode();
-
     private:
-        enum MemoryMode { 
-            OGL,  // Standard OpenGL
-            MESA,
-            PBO   // pixel buffer objects
-        };
-        struct TextureTile {
-            IntRect m_Extent;
-            unsigned int m_TexID;
-            int m_TexWidth;
-            int m_TexHeight;
-        };
-        
         void setupTiles();
         void initTileVertices();
         void initTileVertex (int x, int y, DPoint& Vertex);
 
-        void bindOneTexture(TextureTile& Tile);
-        void bltTexture(SDLDisplayEngine * pEngine, const DRect* pDestRect, 
-                double angle, const DPoint& pivot, 
+        void bindOneTexture(OGLTile& Tile);
+        void bltTexture(const DRect* pDestRect, double angle, const DPoint& pivot, 
                 DisplayEngine::BlendMode Mode);
         DPoint calcFinalVertex(const DRect* pDestRect,
                 const DPoint & NormalizedVertex);
-        void bltTile(const TextureTile& Tile, 
-                const DPoint& TLPoint, const DPoint& TRPoint,
-                const DPoint& BLPoint, const DPoint& BRPoint);
-        int getDestMode(SDLDisplayEngine * pEngine);
-        int getSrcMode(SDLDisplayEngine * pEngine);
-        int getPixelType(SDLDisplayEngine * pEngine);
         void checkBlendModeError(std::string sMode);
 
-        static MemoryMode getMemoryModeSupported();
+        static OGLMemoryMode getMemoryModeSupported();
    
+        SDLDisplayEngine * m_pEngine;
+        
         bool m_bBound;
 
         BitmapPtr m_pBmp;
@@ -117,10 +100,10 @@ class OGLSurface: public ISurface {
         Point<int> m_TileSize;
         int m_NumHorizTextures;
         int m_NumVertTextures;
-        std::vector<std::vector<TextureTile> > m_Tiles;
+        std::vector<std::vector<OGLTilePtr> > m_pTiles;
         std::vector<std::vector<DPoint> > m_TileVertices;
 
-        MemoryMode m_MemoryMode;
+        OGLMemoryMode m_MemoryMode;
 
         // PBO memory mode
         GLuint m_hPixelBuffer;
@@ -140,9 +123,6 @@ class OGLSurface: public ISurface {
 #ifdef __APPLE__
         static bool s_bEntryPointsInitialized;
 #endif
-
-        static int s_TextureMode;
-        static int s_MaxTexSize;
 };
 
 }
