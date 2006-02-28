@@ -435,7 +435,7 @@ class VideoTestCase(unittest.TestCase):
             node.play()
         self.curFrame = 200
         Player.loadFile("video.avg")
-        playVideo("clogo")
+        playVideo("clogo2")
         Player.getElementByID("clogo2").pause()
         Player.setTimeout(500, newHRef)
         Player.setTimeout(1000, playclogo1)
@@ -553,6 +553,6 @@ else:
     bpp = int(sys.argv[2])
 
 #    runner.run(LoggerTestCase("test"))
-#    runner.run(BitmapTestCase("test", engine, bpp))
+#    runner.run(PlayerTestCase("testCrop", engine, bpp))
     runner.run(playerTestSuite(engine, bpp))
 

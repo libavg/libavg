@@ -1,0 +1,85 @@
+//
+//  libavg - Media Playback Engine. 
+//  Copyright (C) 2003-2006 Ulrich von Zadow
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2 of the License, or (at your option) any later version.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  Current versions can be found at www.libavg.de
+//
+
+#include "OGLShader.h"
+#include "../base/Logger.h"
+#include "../base/Exception.h"
+
+#include <iostream>
+
+namespace avg {
+
+using namespace std;
+    
+OGLShader::OGLShader(string sProgram)
+    : m_sProgram(sProgram)
+{
+    m_hFragmentShader = glCreateShaderObjectARB(GL_FRAGMENT_SHADER);
+    const char * pProgramStr = m_sProgram.c_str();
+    glShaderSourceARB(m_hFragmentShader, 1, &pProgramStr, 0);
+    glCompileShaderARB(m_hFragmentShader);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::OGLShader: glCompileShader()");
+    dumpInfoLog(m_hFragmentShader);
+
+    m_hProgram = glCreateProgramObjectARB();
+    glAttachObjectARB(m_hProgram, m_hFragmentShader);
+    glLinkProgramARB(m_hProgram);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::OGLShader: glLinkProgram()");
+
+    GLint bLinked;
+    glGetObjectParameterivARB(m_hProgram, GL_OBJECT_LINK_STATUS_ARB, &bLinked);
+    dumpInfoLog(m_hProgram);
+    if (!bLinked) {
+        AVG_TRACE(Logger::ERROR, "Linking shader program failed. Aborting.");
+        exit(-1);
+    }
+    
+}
+
+OGLShader::~OGLShader()
+{
+}
+
+GLhandleARB OGLShader::getProgram()
+{
+    return m_hProgram;
+}
+
+void OGLShader::dumpInfoLog(GLhandleARB hObj)
+{
+    int InfoLogLength;
+    GLcharARB * pInfoLog;
+
+    glGetObjectParameterivARB(hObj, GL_OBJECT_INFO_LOG_LENGTH_ARB, &InfoLogLength);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "OGLShader::dumpInfoLog: glGetObjectParameteriv()");
+    if (InfoLogLength > 1) {
+        pInfoLog = (GLcharARB*)malloc(InfoLogLength);
+        int CharsWritten;
+        glGetInfoLogARB(hObj, InfoLogLength, &CharsWritten, pInfoLog);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                "OGLShader::dumpInfoLog: glGetInfoLog()");
+        AVG_TRACE(Logger::WARNING, pInfoLog);
+        free(pInfoLog);
+    }
+}
+
+}

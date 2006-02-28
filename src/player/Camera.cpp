@@ -467,7 +467,7 @@ bool Camera::renderToSurface(ISurface * pSurface)
                             "Illegal Mode in renderToBmp");
                     break;
             }
-            pSurface->unlockBmp();
+            pSurface->unlockBmps();
             {
                 ScopeTimer Timer(CameraUploadProfilingZone);
                 getEngine()->surfaceChanged(pSurface);

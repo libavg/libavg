@@ -255,7 +255,7 @@ void Bitmap::save(const std::string& sFilename)
             break;
         case I8:
             pBmp = BitmapPtr(new Bitmap(*this));
-            sPF = "A";
+            sPF = "I";
             break;
         default:
             cerr << "Unsupported pixel format " << getPixelFormatString(m_PF) 
@@ -322,6 +322,8 @@ std::string Bitmap::getPixelFormatString(PixelFormat PF)
             return "I8";
         case YCbCr422:
             return "YCbCr422";
+        case YCbCr420p:
+            return "YCbCr420p";
         default:
             return "Unknown";
     }

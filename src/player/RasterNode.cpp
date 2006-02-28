@@ -211,7 +211,7 @@ Node * RasterNode::getElementByPos (const DPoint & pos)
 Bitmap* RasterNode::getBitmap()
 {
     Bitmap * pBmp = new Bitmap(*(m_pSurface->lockBmp()));
-    m_pSurface->unlockBmp();
+    m_pSurface->unlockBmps();
     return pBmp;
 }
 
@@ -219,7 +219,7 @@ Bitmap* RasterNode::getBitmap()
 string RasterNode::getImageFormat()
 {
     PixelFormat pf = m_pSurface->lockBmp()->getPixelFormat();
-    m_pSurface->unlockBmp();
+    m_pSurface->unlockBmps();
     switch(pf) {
         case B8G8R8:
             return "RGB";

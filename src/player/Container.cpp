@@ -44,7 +44,7 @@ Container::Container (const xmlNodePtr xmlNode, Container * pParent)
 
 Container::~Container ()
 {
-    for (int i = 0; i< m_Children.size(); i++) {
+    for (unsigned int i = 0; i< m_Children.size(); i++) {
         delete m_Children[i];
     }
 }

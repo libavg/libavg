@@ -644,7 +644,7 @@ bool Player::handleEvent(Event * pEvent)
                 if (pEvent->getType() != Event::MOUSEOVER &&
                         pEvent->getType() != Event::MOUSEOUT)
                 {
-                    pNode = m_pRootNode->getElementByPos(pos); 
+                    pNode = m_pRootNode->getElementByPos(pos);
                 } else {
                     pNode = pMouseEvent->getElement();
                 }
@@ -720,7 +720,7 @@ void Player::cleanup()
     m_pDisplayEngine->deinitRender();
     delete m_pRootNode;
     m_pRootNode = 0;
-
+    m_pLastMouseNode = 0;
     m_IDMap.clear();
     initConfig();
 }

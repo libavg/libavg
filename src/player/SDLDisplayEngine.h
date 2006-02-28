@@ -23,6 +23,7 @@
 #define _SDLDisplayEngine_H_
 
 #include "OGLHelper.h"
+#include "OGLShader.h"
 #include "IEventSource.h"
 #include "DisplayEngine.h"
 #include "../graphics/Bitmap.h"
@@ -72,11 +73,8 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual bool supportsBpp(int bpp);
         virtual bool hasRGBOrdering();
         
-        enum YCbCrMode {
-            NONE, MESA, APPLE
-        };
-        virtual bool isYCbCrSupported();
         virtual YCbCrMode getYCbCrMode();
+        OGLShaderPtr getYCbCr420pShader();
         
         virtual void showCursor (bool bShow);
         virtual BitmapPtr screenshot ();
@@ -123,7 +121,9 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
 
         SDL_Surface * m_pScreen;
 
+        void checkYCbCrSupport();
         YCbCrMode m_YCbCrMode;
+        OGLShaderPtr m_pYCbCrShader;
 
         // Vertical blank stuff.
         virtual bool initVBlank(int rate);

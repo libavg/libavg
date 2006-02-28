@@ -43,7 +43,11 @@ namespace avg {
 typedef enum {
     B5G6R5, B8G8R8, B8G8R8A8, B8G8R8X8, A8B8G8R8, X8B8G8R8,
     R5G6B5, R8G8B8, R8G8B8A8, R8G8B8X8, A8R8G8B8, X8R8G8B8,
-    I8, YCbCr422
+    I8, 
+    YCbCr422,  // Interleaved YCbCr: Y,Cb,Y,Cr,...
+    YCbCr420p  // Not really a valid pixel format. Signifies separate bitmaps
+               // for Y, Cb and Cr components, with Cb and Cr half as big in 
+               // both x and y dimensions.
 } PixelFormat;
     
 class Bitmap

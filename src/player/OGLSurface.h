@@ -25,6 +25,7 @@
 #include "ISurface.h"
 #include "OGLTile.h"
 #include "OGLHelper.h"
+#include "OGLShader.h"
 
 #include "SDLDisplayEngine.h"
 #include "../graphics/Rect.h"
@@ -49,15 +50,12 @@ class OGLSurface: public ISurface {
         // Implementation of ISurface.
         virtual void create(const IntPoint& Size, PixelFormat PF,
                 bool bFastDownload);
-        virtual BitmapPtr lockBmp();
-        virtual void unlockBmp();
+        virtual BitmapPtr lockBmp(int index=0);
+        virtual void unlockBmps();
 
         // Methods specific to OGLSurface
         void createFromBits(Point<int> Size, PixelFormat pf,
                 unsigned char * pBits, int Stride);
-
-        // Discards the bitmap data but leaves the texture intact.
-        void discardBmp();
 
         void bind();
         void unbind();
@@ -79,6 +77,8 @@ class OGLSurface: public ISurface {
         void initTileVertices();
         void initTileVertex (int x, int y, DPoint& Vertex);
 
+        void createBitmap(const IntPoint& Size, PixelFormat pf, int index);
+        void unlockBmp(int i);
         void bindOneTexture(OGLTile& Tile);
         void bltTexture(const DRect* pDestRect, double angle, const DPoint& pivot, 
                 DisplayEngine::BlendMode Mode);
@@ -92,7 +92,7 @@ class OGLSurface: public ISurface {
         
         bool m_bBound;
 
-        BitmapPtr m_pBmp;
+        BitmapPtr m_pBmps[3];
         IntPoint m_Size;
         PixelFormat m_pf;
 
@@ -106,19 +106,20 @@ class OGLSurface: public ISurface {
         OGLMemoryMode m_MemoryMode;
 
         // PBO memory mode
-        GLuint m_hPixelBuffer;
+        GLuint m_hPixelBuffers[3];
         static PFNGLGENBUFFERSPROC s_GenBuffersProc;
         static PFNGLBUFFERDATAPROC s_BufferDataProc;
         static PFNGLDELETEBUFFERSPROC s_DeleteBuffersProc;
         static PFNGLBINDBUFFERPROC s_BindBufferProc;
         static PFNGLMAPBUFFERPROC s_MapBufferProc;
         static PFNGLUNMAPBUFFERPROC s_UnmapBufferProc;
-
+/*
 #ifndef __APPLE__
         void * m_pMESABuffer;
         static PFNGLXALLOCATEMEMORYMESAPROC s_AllocMemMESAProc;
         static PFNGLXFREEMEMORYMESAPROC s_FreeMemMESAProc;
 #endif
+*/
 
 #ifdef __APPLE__
         static bool s_bEntryPointsInitialized;

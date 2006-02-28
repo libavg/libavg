@@ -43,7 +43,7 @@ class DFBSurface: public ISurface {
         virtual void create(const IntPoint& Size, PixelFormat pf, 
                 bool bFastDownload);
 
-        virtual BitmapPtr lockBmp();
+        virtual BitmapPtr lockBmp(int i = 0);
 
         // Methods specific to DFBSurface
 

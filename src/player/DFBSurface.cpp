@@ -109,7 +109,7 @@ void DFBSurface::create(const IntPoint& Size, PixelFormat pf,
     m_pSurface->Unlock(m_pSurface);
 }
 
-BitmapPtr DFBSurface::lockBmp()
+BitmapPtr DFBSurface::lockBmp(int i)
 {
     // DFB surfaces are always locked.
     return m_pBmp;

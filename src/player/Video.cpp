@@ -160,8 +160,13 @@ static ProfilingZone RenderProfilingZone("    Video::render");
 bool Video::renderToSurface(ISurface * pSurface)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    m_bEOF = m_pDecoder->renderToBmp(pSurface->lockBmp());
-    pSurface->unlockBmp();
+    if (getEngine()->getYCbCrMode() == DisplayEngine::OGL_SHADER) {
+        m_bEOF == m_pDecoder->renderToYCbCr420p(pSurface->lockBmp(0),
+                pSurface->lockBmp(1), pSurface->lockBmp(2));
+    } else {
+        m_bEOF = m_pDecoder->renderToBmp(pSurface->lockBmp());
+    }
+    pSurface->unlockBmps();
     if (!m_bEOF) {
         getEngine()->surfaceChanged(pSurface);
     }

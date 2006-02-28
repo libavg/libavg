@@ -200,12 +200,7 @@ void SDLDisplayEngine::init(int width, int height, bool isFullscreen,
     glEnable(TexMode);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(TexMode);");
 
-    m_YCbCrMode = NONE;
-    if (queryOGLExtension("GL_MESA_ycbcr_texture")) {
-        m_YCbCrMode = MESA;
-    } else if (queryOGLExtension("GL_APPLE_ycbcr_422")) {
-        m_YCbCrMode = APPLE;
-    }
+    checkYCbCrSupport();
 
     m_Width = width;
     m_Height = height;
@@ -236,12 +231,19 @@ void SDLDisplayEngine::logConfig()
     AVG_TRACE(Logger::CONFIG, "OpenGL version: " << glGetString(GL_VERSION));
     AVG_TRACE(Logger::CONFIG, "OpenGL vendor: " << glGetString(GL_VENDOR));
     AVG_TRACE(Logger::CONFIG, "OpenGL renderer: " << glGetString(GL_RENDERER));
-    if (isYCbCrSupported()) {
-        AVG_TRACE(Logger::CONFIG, 
-                "YCbCr texture support enabled.");
-    } else {
-        AVG_TRACE(Logger::CONFIG, 
-                "YCbCr texture support not enabled.");
+    switch (m_YCbCrMode) {
+        case NONE:
+            AVG_TRACE(Logger::CONFIG, "YCbCr texture support not enabled.");
+            break;
+        case OGL_MESA:
+            AVG_TRACE(Logger::CONFIG, "Using Mesa YCbCr texture support.");
+            break;
+        case OGL_APPLE:
+            AVG_TRACE(Logger::CONFIG, "Using Apple YCbCr texture support.");
+            break;
+        case OGL_SHADER:
+            AVG_TRACE(Logger::CONFIG, "Using fragment shader YCbCr texture support.");
+            break;
     }
 }
 
@@ -440,14 +442,14 @@ bool SDLDisplayEngine::hasRGBOrdering()
     }
 }
 
-bool SDLDisplayEngine::isYCbCrSupported()
-{
-    return (m_YCbCrMode != NONE);
-}
-
-SDLDisplayEngine::YCbCrMode SDLDisplayEngine::getYCbCrMode()
+DisplayEngine::YCbCrMode SDLDisplayEngine::getYCbCrMode()
 {
     return m_YCbCrMode;
+}
+
+OGLShaderPtr SDLDisplayEngine::getYCbCr420pShader()
+{
+    return m_pYCbCrShader;
 }
 
 void SDLDisplayEngine::showCursor (bool bShow)
@@ -483,6 +485,42 @@ int SDLDisplayEngine::getHeight()
 int SDLDisplayEngine::getBPP()
 {
     return m_bpp;
+}
+    
+void SDLDisplayEngine::checkYCbCrSupport()
+{
+    m_YCbCrMode = NONE;
+    if (queryOGLExtension("GL_ARB_fragment_shader") &&
+        queryOGLExtension("GL_ARB_texture_rectangle") &&
+        (queryOGLExtension("GL_ARB_pixel_buffer_object") || 
+         queryOGLExtension("GL_EXT_pixel_buffer_object")))
+    {
+        m_YCbCrMode = OGL_SHADER;
+        string sProgram =
+            "uniform samplerRect YTexture;\n"
+            "uniform samplerRect CbTexture;\n"
+            "uniform samplerRect CrTexture;\n"
+            "\n"
+            "void main(void)\n"
+            "{\n"
+            "  vec3 YCbCr;\n"
+            "  YCbCr.r = textureRect(YTexture, gl_TexCoord[0].st).a-0.0625;\n"
+            "  YCbCr.g = textureRect(CbTexture, (gl_TexCoord[0].st)/2.0).a-0.5;\n"
+            "  YCbCr.b = textureRect(CrTexture, (gl_TexCoord[0].st)/2.0).a-0.5;\n"
+            "  vec3 RGB;"
+            "  RGB = YCbCr*mat3(1.16, 0.0 , 1.60,\n"
+            "                   1.16, -0.39, -0.81,\n"
+            "                   1.16, 2.01, 0.0 );\n"
+            "  gl_FragColor = vec4(RGB,1.0);\n"
+            "}\n"
+            ;
+        m_pYCbCrShader = OGLShaderPtr(new OGLShader(sProgram));
+    } else 
+    if (queryOGLExtension("GL_MESA_ycbcr_texture")) {
+        m_YCbCrMode = OGL_MESA;
+    } else if (queryOGLExtension("GL_APPLE_ycbcr_422")) {
+        m_YCbCrMode = OGL_APPLE;
+    }
 }
 
 bool SDLDisplayEngine::initVBlank(int rate) {
@@ -1094,17 +1132,18 @@ int SDLDisplayEngine::getOGLDestMode(PixelFormat pf)
             return GL_RGB;    
         case YCbCr422:
             switch (getYCbCrMode()) {
-                case SDLDisplayEngine::MESA:
+                case DisplayEngine::OGL_MESA:
                     return GL_YCBCR_MESA;    
-                case SDLDisplayEngine::APPLE:
+                case DisplayEngine::OGL_APPLE:
                     return GL_RGBA;
                 default:
-                    AVG_TRACE(Logger::ERROR, "SDLDisplayEngine: YCbCr not supported.");
+                    AVG_TRACE(Logger::ERROR, 
+                            "SDLDisplayEngine: YCbCr422 not supported.");
             }
         default:
             AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << 
                     Bitmap::getPixelFormatString(pf) <<
-                    " in SDLDisplayEngine::getDestMode()");
+                    " in SDLDisplayEngine::getOGLDestMode()");
     }
     return 0;
 }    
@@ -1126,17 +1165,17 @@ int SDLDisplayEngine::getOGLSrcMode(PixelFormat pf)
             return GL_RGBA;
         case YCbCr422:
             switch (getYCbCrMode()) {
-                case SDLDisplayEngine::MESA:
+                case DisplayEngine::OGL_MESA:
                     return GL_YCBCR_MESA;    
-                case SDLDisplayEngine::APPLE:
+                case DisplayEngine::OGL_APPLE:
                     return GL_YCBCR_422_APPLE;
                 default:
-                    AVG_TRACE(Logger::ERROR, "SDLDisplayEngine: YCbCr not supported.");
+                    AVG_TRACE(Logger::ERROR, "SDLDisplayEngine: YCbCr422 not supported.");
             }
         default:
             AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << 
                     Bitmap::getPixelFormatString(pf) <<
-                    " in SDLDisplayEngine::getSrcMode()");
+                    " in SDLDisplayEngine::getOGLSrcMode()");
     }
     return 0;
 }
@@ -1144,7 +1183,7 @@ int SDLDisplayEngine::getOGLSrcMode(PixelFormat pf)
 int SDLDisplayEngine::getOGLPixelType(PixelFormat pf)
 {
     if (pf == YCbCr422) {
-        if (getYCbCrMode() == SDLDisplayEngine::MESA) {
+        if (getYCbCrMode() == DisplayEngine::OGL_MESA) {
             return GL_UNSIGNED_SHORT_8_8_REV_MESA;
         } else {
             return GL_UNSIGNED_SHORT_8_8_APPLE;

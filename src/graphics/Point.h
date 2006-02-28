@@ -142,7 +142,7 @@ Point<NUM> Point<NUM>::operator - (const Point<NUM> & pt) const
 template<class NUM>
 Point<NUM> Point<NUM>::operator / (double f) const
 {
-  return Point<NUM> (x/f, y/f);
+  return Point<NUM> (NUM(x/f), NUM(y/f));
 }
 
 }

@@ -40,6 +40,8 @@ class IVideoDecoder
         virtual double getFPS() = 0;
 
         virtual bool renderToBmp(BitmapPtr pBmp) = 0;
+        virtual bool renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
+                BitmapPtr pBmpCr) = 0;
         virtual bool canRenderToBuffer(int BPP) = 0;
         virtual bool isYCbCrSupported() = 0;
 };

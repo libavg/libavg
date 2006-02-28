@@ -86,7 +86,7 @@ void Image::setBitmap(const Bitmap * pBmp)
     
     getSurface()->create(pBmp->getSize(), pBmp->getPixelFormat(), false);
     getSurface()->lockBmp()->copyPixels(*pBmp);
-    getSurface()->unlockBmp();
+    getSurface()->unlockBmps();
     getEngine()->surfaceChanged(getSurface());
     
 }
@@ -139,7 +139,7 @@ void Image::load()
     if (!(m_pPlayer->getDisplayEngine()->hasRGBOrdering())) {
         FilterFlipRGB().applyInPlace(getSurface()->lockBmp());
     }
-    getSurface()->unlockBmp();
+    getSurface()->unlockBmps();
     getEngine()->surfaceChanged(getSurface());
 }
 

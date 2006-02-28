@@ -46,12 +46,16 @@ class OGLTile {
         const IntRect& getExtent() const;
         const IntPoint& getTexSize() const;
         int getTexID(int i) const;
-        void downloadTextures(BitmapPtr pBmp, int width, 
+        void downloadTexture(int i, BitmapPtr pBmp, int width, 
                 OGLMemoryMode MemoryMode) const;
+//        void downloadTextures(BitmapPtr pBmp, int width, 
+//                OGLMemoryMode MemoryMode) const;
         void blt(const DPoint& TLPoint, const DPoint& TRPoint,
                 const DPoint& BLPoint, const DPoint& BRPoint) const;
 
     private:
+        void createTexture(int i, IntPoint Size, PixelFormat pf);
+
         IntRect m_Extent;
         IntPoint m_TexSize;
         PixelFormat m_pf;

@@ -19,24 +19,40 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _ISurface_H_
-#define _ISurface_H_
+#ifndef _OGLShader_H_
+#define _OGLShader_H_
 
-#include "../graphics/Bitmap.h"
+#include "OGLHelper.h"
+
+#include <../base/CountedPointer.h>
+
+#define GL_GLEXT_PROTOTYPES
+#include "GL/gl.h"
+#ifndef __APPLE__
+#define GLX_GLXEXT_PROTOTYPES
+#include "GL/glx.h"
+#endif
 
 #include <string>
 
 namespace avg {
 
-class ISurface {
+class OGLShader {
     public:
-        virtual ~ISurface(){};
-        virtual void create(const IntPoint& Size, PixelFormat PF, 
-                bool bFastDownload) = 0;
-        virtual BitmapPtr lockBmp(int i=0) = 0;
-        virtual void unlockBmps() {};
+        OGLShader(std::string sProgram);
+        virtual ~OGLShader();
 
+        GLhandleARB getProgram();
+        
+    private:
+        void dumpInfoLog(GLhandleARB hObj);
+        
+        GLhandleARB m_hFragmentShader;
+        GLhandleARB m_hProgram;
+        std::string m_sProgram;
 };
+
+typedef CountedPointer<OGLShader> OGLShaderPtr;
 
 }
 

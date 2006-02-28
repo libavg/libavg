@@ -303,6 +303,32 @@ bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
     return m_bEOF;
 }
 
+void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int Stride)
+{
+    unsigned char * pSrc=pData;
+    unsigned char * pDest= pBmp->getPixels();
+    for (int y=0; y<pBmp->getSize().y; y++) {
+        memcpy(pDest, pSrc, pBmp->getSize().x);
+        pSrc+=Stride;
+        pDest+=pBmp->getStride();
+    }
+
+}
+
+bool FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
+        BitmapPtr pBmpCr)
+{
+    ScopeTimer Timer(RenderToBmpProfilingZone);
+    AVFrame Frame;
+    readFrame(Frame);
+    if (!m_bEOF) {
+        copyPlaneToBmp(pBmpY, Frame.data[0], Frame.linesize[0]);
+        copyPlaneToBmp(pBmpCb, Frame.data[1], Frame.linesize[1]);
+        copyPlaneToBmp(pBmpCr, Frame.data[2], Frame.linesize[2]);
+    }
+    return m_bEOF;
+}
+
 bool FFMpegDecoder::isYCbCrSupported() 
 {
     return true;

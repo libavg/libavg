@@ -208,18 +208,29 @@ void VideoBase::open()
     open(&m_Width, &m_Height);
 
     DRect vpt = getRelViewport();
-    if (isYCbCrSupported() && getEngine()->isYCbCrSupported()) {
-        getSurface()->create(IntPoint(m_Width, m_Height), YCbCr422, true);
-    } else {
-        if (getEngine()->hasRGBOrdering()) {
-            getSurface()->create(IntPoint(m_Width, m_Height), R8G8B8X8, true);
-        } else {
-            getSurface()->create(IntPoint(m_Width, m_Height), B8G8R8X8, true);
-        }
+    DisplayEngine::YCbCrMode Mode = DisplayEngine::NONE;
+    if (isYCbCrSupported() && getEngine()->getYCbCrMode() != DisplayEngine::NONE) {
+        Mode = getEngine()->getYCbCrMode();
     }
-    FilterFill<Pixel24> Filter(Pixel24(0,0,0));
-    Filter.applyInPlace(getSurface()->lockBmp());
-    getSurface()->unlockBmp();
+    switch (Mode) {
+        case DisplayEngine::OGL_MESA:
+        case DisplayEngine::OGL_APPLE:
+            getSurface()->create(IntPoint(m_Width, m_Height), YCbCr422, true);
+            break;
+        case DisplayEngine::OGL_SHADER:
+            getSurface()->create(IntPoint(m_Width, m_Height), YCbCr420p, true);
+            break;
+        case DisplayEngine::NONE:
+            if (getEngine()->hasRGBOrdering()) {
+                getSurface()->create(IntPoint(m_Width, m_Height), R8G8B8X8, true);
+            } else {
+                getSurface()->create(IntPoint(m_Width, m_Height), B8G8R8X8, true);
+            }
+            FilterFill<Pixel24> Filter(Pixel24(0,0,0));
+            Filter.applyInPlace(getSurface()->lockBmp());
+            getSurface()->unlockBmps();
+            break;
+    }
     initVisible();
     
     m_bFrameAvailable = false;
