@@ -315,6 +315,8 @@ void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int Stride)
 
 }
 
+static ProfilingZone ConvertImageProfilingZone("        FFMpeg: convert image");
+
 bool FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
         BitmapPtr pBmpCr)
 {
@@ -322,6 +324,7 @@ bool FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb,
     AVFrame Frame;
     readFrame(Frame);
     if (!m_bEOF) {
+        ScopeTimer Timer(ConvertImageProfilingZone);
         copyPlaneToBmp(pBmpY, Frame.data[0], Frame.linesize[0]);
         copyPlaneToBmp(pBmpCb, Frame.data[1], Frame.linesize[1]);
         copyPlaneToBmp(pBmpCr, Frame.data[2], Frame.linesize[2]);
@@ -412,7 +415,10 @@ void FFMpegDecoder::readFrame(AVFrame& Frame)
     }
 }
 
+static ProfilingZone VideoPacketProfilingZone("        FFMpeg: read packets");
+
 bool FFMpegDecoder::getNextVideoPacket(AVPacket & Packet) {
+    ScopeTimer Timer(VideoPacketProfilingZone);
     AVPacket CurPacket;
     int err = av_read_frame(m_pFormatContext, &CurPacket);
     if (err < 0) {
