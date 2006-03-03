@@ -68,18 +68,6 @@ int OGLTile::getTexID(int i) const
     return m_TexID[i];
 }
 
-/*
-void OGLTile::downloadTextures(BitmapPtr pBmp, int width, 
-        OGLMemoryMode MemoryMode) const
-{
-    if (m_pf == YCbCr420p) {
-        downloadTexture(0, pBmp, width, I8, MemoryMode);
-    } else {
-        downloadTexture(0, pBmp, width, m_pf, MemoryMode);
-    }
-}
-*/
-
 void OGLTile::blt(const DPoint& TLPoint, const DPoint& TRPoint,
         const DPoint& BLPoint, const DPoint& BRPoint) const
 {
@@ -127,12 +115,30 @@ void OGLTile::blt(const DPoint& TLPoint, const DPoint& TRPoint,
     glVertex3d (BLPoint.x, BLPoint.y, 0.0);
     glEnd();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::bltTile: glEnd()");
+    glActiveTexture(GL_TEXTURE1);
+    glDisable(TextureMode);
+    glActiveTexture(GL_TEXTURE2);
+    glDisable(TextureMode);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::bltTile: glDisable(TextureMode)");
 }
 
 void OGLTile::createTexture(int i, IntPoint Size, PixelFormat pf)
 {
     glGenTextures(1, &m_TexID[i]);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::createTexture: glGenTextures()");
+    switch(i) {
+        case 0:
+            glActiveTexture(GL_TEXTURE0);
+            break;
+        case 1:
+            glActiveTexture(GL_TEXTURE1);
+            break;
+        case 2:
+            glActiveTexture(GL_TEXTURE2);
+            break;
+        default:
+            break;
+    }
     glBindTexture(m_pEngine->getTextureMode(), m_TexID[i]);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::createTexture: glBindTexture()");
 

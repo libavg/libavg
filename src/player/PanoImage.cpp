@@ -125,6 +125,7 @@ void PanoImage::render(const DRect& Rect)
     glPushMatrix();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImage::render: glPushMatrix()");
+    glActiveTexture(GL_TEXTURE0);
     if (getSDLEngine()->getTextureMode() != GL_TEXTURE_2D) {
         glDisable(getSDLEngine()->getTextureMode());
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
@@ -312,6 +313,9 @@ void PanoImage::setupTextures()
 #ifdef AVG_ENABLE_GL
     int TexHeight = nextpow2(m_pBmp->getSize().y);
     int NumTextures = int(ceil(double(m_pBmp->getSize().x)/TEX_WIDTH));
+    glActiveTexture(GL_TEXTURE0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
+            "PanoImage::setupTextures: glActiveTexture(GL_TEXTURE0);");
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImage::setupTextures: glPixelStorei(GL_UNPACK_ALIGNMENT)");
