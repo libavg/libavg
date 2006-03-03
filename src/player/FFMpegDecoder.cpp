@@ -85,7 +85,6 @@ void avcodecError(const string & filename, int err)
 
 void dump_stream_info(AVFormatContext *s)
 {
-    cerr << "Stream info: " << endl;
     if (s->track != 0)
         fprintf(stderr, "  Track: %d\n", s->track);
     if (s->title[0] != '\0')
@@ -207,6 +206,10 @@ void FFMpegDecoder::close()
 
 void FFMpegDecoder::seek(int DestFrame, int CurFrame) 
 {
+    if (m_bFirstPacket) {
+        AVFrame Frame;
+        readFrame(Frame);
+    }
 #if LIBAVFORMAT_BUILD <= 4616
     av_seek_frame(m_pFormatContext, m_VStreamIndex, 
             int((double(DestFrame)*1000000*1000)/m_pVStream->r_frame_rate));
@@ -216,9 +219,8 @@ void FFMpegDecoder::seek(int DestFrame, int CurFrame)
             int((double(DestFrame)*1000000*1000)/m_pVStream->r_frame_rate), 0);
 #else
     double framerate = (m_pVStream->r_frame_rate.num)/m_pVStream->r_frame_rate.den;
-    
     av_seek_frame(m_pFormatContext, m_VStreamIndex, 
-            int((double(DestFrame)*AV_TIME_BASE)/framerate), 0);
+            int((double(DestFrame)*AV_TIME_BASE)/framerate), AVSEEK_FLAG_ANY);
 #endif
 #endif    
 }

@@ -143,6 +143,7 @@ void Video::open(int* pWidth, int* pHeight)
 {
     m_CurFrame = 0;
     m_pDecoder->open(m_Filename, pWidth, pHeight);
+    m_bEOF = false;
 }
 
 void Video::close()

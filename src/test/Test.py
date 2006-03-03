@@ -553,6 +553,6 @@ else:
     bpp = int(sys.argv[2])
 
 #    runner.run(LoggerTestCase("test"))
-#    runner.run(PlayerTestCase("testCrop", engine, bpp))
+#    runner.run(VideoTestCase("test", engine, bpp))
     runner.run(playerTestSuite(engine, bpp))
 
