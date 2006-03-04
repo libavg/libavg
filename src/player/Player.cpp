@@ -91,10 +91,8 @@ Player::~Player()
 void Player::setDisplayEngine(DisplayEngineType engine)
 {
     if (m_pRootNode) {
-        AVG_TRACE(Logger::ERROR,
-                "Player::setDisplayEngine called after loadFile."
-                << " Aborting.");
-        exit(-1);
+        throw Exception(AVG_ERR_VIDEO_INIT_FAILED,
+                "Player::setDisplayEngine called after loadFile.");
     }
     switch (engine) {
         case DFB:

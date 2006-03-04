@@ -30,7 +30,6 @@
 #include "SDLDisplayEngine.h"
 #include "../graphics/Rect.h"
 
-#define GL_GLEXT_PROTOTYPES
 #include "GL/gl.h"
 #ifndef __APPLE__
 #define GLX_GLXEXT_PROTOTYPES
@@ -107,12 +106,6 @@ class OGLSurface: public ISurface {
 
         // PBO memory mode
         GLuint m_hPixelBuffers[3];
-        static PFNGLGENBUFFERSPROC s_GenBuffersProc;
-        static PFNGLBUFFERDATAPROC s_BufferDataProc;
-        static PFNGLDELETEBUFFERSPROC s_DeleteBuffersProc;
-        static PFNGLBINDBUFFERPROC s_BindBufferProc;
-        static PFNGLMAPBUFFERPROC s_MapBufferProc;
-        static PFNGLUNMAPBUFFERPROC s_UnmapBufferProc;
 /*
 #ifndef __APPLE__
         void * m_pMESABuffer;
@@ -120,10 +113,6 @@ class OGLSurface: public ISurface {
         static PFNGLXFREEMEMORYMESAPROC s_FreeMemMESAProc;
 #endif
 */
-
-#ifdef __APPLE__
-        static bool s_bEntryPointsInitialized;
-#endif
 };
 
 }

@@ -20,6 +20,8 @@
 //
 
 #include "OGLShader.h"
+#include "OGLHelper.h"
+
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 
@@ -32,20 +34,20 @@ using namespace std;
 OGLShader::OGLShader(string sProgram)
     : m_sProgram(sProgram)
 {
-    m_hFragmentShader = glCreateShaderObjectARB(GL_FRAGMENT_SHADER);
+    m_hFragmentShader = glproc::CreateShaderObject(GL_FRAGMENT_SHADER);
     const char * pProgramStr = m_sProgram.c_str();
-    glShaderSourceARB(m_hFragmentShader, 1, &pProgramStr, 0);
-    glCompileShaderARB(m_hFragmentShader);
+    glproc::ShaderSource(m_hFragmentShader, 1, &pProgramStr, 0);
+    glproc::CompileShader(m_hFragmentShader);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::OGLShader: glCompileShader()");
     dumpInfoLog(m_hFragmentShader);
 
-    m_hProgram = glCreateProgramObjectARB();
-    glAttachObjectARB(m_hProgram, m_hFragmentShader);
-    glLinkProgramARB(m_hProgram);
+    m_hProgram = glproc::CreateProgramObject();
+    glproc::AttachObject(m_hProgram, m_hFragmentShader);
+    glproc::LinkProgram(m_hProgram);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::OGLShader: glLinkProgram()");
 
     GLint bLinked;
-    glGetObjectParameterivARB(m_hProgram, GL_OBJECT_LINK_STATUS_ARB, &bLinked);
+    glproc::GetObjectParameteriv(m_hProgram, GL_OBJECT_LINK_STATUS_ARB, &bLinked);
     dumpInfoLog(m_hProgram);
     if (!bLinked) {
         AVG_TRACE(Logger::ERROR, "Linking shader program failed. Aborting.");
@@ -68,13 +70,13 @@ void OGLShader::dumpInfoLog(GLhandleARB hObj)
     int InfoLogLength;
     GLcharARB * pInfoLog;
 
-    glGetObjectParameterivARB(hObj, GL_OBJECT_INFO_LOG_LENGTH_ARB, &InfoLogLength);
+    glproc::GetObjectParameteriv(hObj, GL_OBJECT_INFO_LOG_LENGTH_ARB, &InfoLogLength);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "OGLShader::dumpInfoLog: glGetObjectParameteriv()");
     if (InfoLogLength > 1) {
         pInfoLog = (GLcharARB*)malloc(InfoLogLength);
         int CharsWritten;
-        glGetInfoLogARB(hObj, InfoLogLength, &CharsWritten, pInfoLog);
+        glproc::GetInfoLog(hObj, InfoLogLength, &CharsWritten, pInfoLog);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "OGLShader::dumpInfoLog: glGetInfoLog()");
         AVG_TRACE(Logger::WARNING, pInfoLog);

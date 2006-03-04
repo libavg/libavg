@@ -36,13 +36,6 @@ using namespace std;
 
 namespace avg {
 
-PFNGLGENBUFFERSPROC OGLSurface::s_GenBuffersProc = 0;
-PFNGLBUFFERDATAPROC OGLSurface::s_BufferDataProc = 0;
-PFNGLDELETEBUFFERSPROC OGLSurface::s_DeleteBuffersProc = 0;
-PFNGLBINDBUFFERPROC OGLSurface::s_BindBufferProc = 0;
-PFNGLMAPBUFFERPROC OGLSurface::s_MapBufferProc = 0;
-PFNGLUNMAPBUFFERPROC OGLSurface::s_UnmapBufferProc = 0;
-
 /*
 #ifndef __APPLE__
 PFNGLXALLOCATEMEMORYMESAPROC OGLSurface::s_AllocMemMESAProc = 0;
@@ -65,10 +58,10 @@ OGLSurface::~OGLSurface()
         case PBO:
             if (m_pf == YCbCr420p) {
                 for (int i=0; i<3; i++) {
-                    s_DeleteBuffersProc(1, &m_hPixelBuffers[i]);
+                    glproc::DeleteBuffers(1, &m_hPixelBuffers[i]);
                 }
             } else {
-                s_DeleteBuffersProc(1, &m_hPixelBuffers[0]);
+                glproc::DeleteBuffers(1, &m_hPixelBuffers[0]);
             }
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                     "OGLSurface::~OGLSurface: glDeleteBuffers()");
@@ -124,14 +117,14 @@ BitmapPtr OGLSurface::lockBmp(int i)
     switch (m_MemoryMode) {
         case PBO:
             {
-                s_BindBufferProc(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
+                glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
                 OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                         "OGLSurface::lockBmp: glBindBuffer()");
                 unsigned char * pBuffer = (unsigned char *)
-                    s_MapBufferProc(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
+                    glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
                 OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                         "OGLSurface::lockBmp: glMapBuffer()");
-                s_BindBufferProc(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
+                glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
                 OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                         "OGLSurface::lockBmp: glBindBuffer(0)");
                 IntPoint Size;
@@ -317,13 +310,13 @@ void OGLSurface::bind()
                 if (m_MemoryMode == PBO) {
                     if (m_pf == YCbCr420p) {
                         for (int i=0; i<3; i++) {
-                            s_BindBufferProc(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
+                            glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
                             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                                     "OGLSurface::bind: glBindBuffer()");
                             pTile->downloadTexture(i, m_pBmps[i], m_Size.x, m_MemoryMode);
                         }
                     } else {
-                        s_BindBufferProc(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[0]);
+                        glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[0]);
                         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                                 "OGLSurface::bind: glBindBuffer()");
                         pTile->downloadTexture(0, m_pBmps[0], m_Size.x, m_MemoryMode);
@@ -334,7 +327,7 @@ void OGLSurface::bind()
             }
         }
         if (m_MemoryMode == PBO) {
-            s_BindBufferProc(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
+            glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                     "OGLSurface::bind: glBindBuffer(0)");
         }
@@ -354,7 +347,6 @@ void OGLSurface::unbind()
 void OGLSurface::rebind()
 {
 //    cerr << "OGLSurface::rebind()" << endl;
-    int Width = m_Size.x;
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGOGLSurface::rebind: glPixelStorei(GL_UNPACK_ALIGNMENT)");
@@ -364,13 +356,13 @@ void OGLSurface::rebind()
             if (m_MemoryMode == PBO) {
                 if (m_pf == YCbCr420p) {
                     for (int i=0; i<3; i++) {
-                        s_BindBufferProc(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
+                        glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
                         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                                 "OGLSurface::bind: glBindBuffer()");
                         pTile->downloadTexture(i, m_pBmps[i], m_Size.x, m_MemoryMode);
                     }
                 } else {
-                    s_BindBufferProc(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[0]);
+                    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[0]);
                     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                             "OGLSurface::bind: glBindBuffer()");
                     pTile->downloadTexture(0, m_pBmps[0], m_Size.x, m_MemoryMode);
@@ -381,7 +373,7 @@ void OGLSurface::rebind()
         }
     }
     if (m_MemoryMode == PBO) {
-        s_BindBufferProc(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
+        glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "OGLSurface::rebind: glBindBuffer(0)");
     }
@@ -458,19 +450,19 @@ void OGLSurface::createBitmap(const IntPoint& Size, PixelFormat pf, int i)
 {
     switch (m_MemoryMode) {
         case PBO:
-            s_GenBuffersProc(1, &m_hPixelBuffers[i]);
+            glproc::GenBuffers(1, &m_hPixelBuffers[i]);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                     "OGLSurface::createBitmap: glGenBuffers()");
-            s_BindBufferProc(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
+            glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                     "OGLSurface::createBitmap: glBindBuffer()");
-            s_BufferDataProc(GL_PIXEL_UNPACK_BUFFER_EXT, 
+            glproc::BufferData(GL_PIXEL_UNPACK_BUFFER_EXT, 
                     (Size.x+1)*(Size.y+1)*Bitmap::getBytesPerPixel(pf), NULL, 
                     GL_DYNAMIC_DRAW);
 //                    GL_STREAM_DRAW);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                     "OGLSurface::createBitmap: glBufferData()");
-            s_BindBufferProc(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
+            glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                     "OGLSurface::createBitmap: glBindBuffer(0)");
             m_pBmps[i] = BitmapPtr();
@@ -481,7 +473,7 @@ void OGLSurface::createBitmap(const IntPoint& Size, PixelFormat pf, int i)
             {
                 Display * display = XOpenDisplay(0);
                 int stride = m_Size.x*Bitmap::getBytesPerPixel(m_pf);
-                m_pMESABuffer = s_AllocMemMESAProc(display, DefaultScreen(display),
+                m_pMESABuffer = s_AllocMemMESA(display, DefaultScreen(display),
                         stride*(Size.y+1), 0, 1.0 ,0);
                 if (!m_pMESABuffer) {
                     AVG_TRACE(Logger::WARNING, "Failed to allocate MESA memory");
@@ -506,13 +498,13 @@ void OGLSurface::unlockBmp(int i)
 {
     switch (m_MemoryMode) {
         case PBO:
-            s_BindBufferProc(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
+            glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                     "OGLSurface::unlockBmp: glBindBuffer()");
-            s_UnmapBufferProc(GL_PIXEL_UNPACK_BUFFER_EXT);
+            glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                     "OGLSurface::unlockBmp: glUnmapBuffer()");
-            s_BindBufferProc(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
+            glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                     "OGLSurface::lockBmp: glBindBuffer(0)");
             m_pBmps[i] = BitmapPtr();
@@ -622,12 +614,6 @@ OGLMemoryMode OGLSurface::getMemoryModeSupported()
             queryOGLExtension("GL_EXT_pixel_buffer_object"))
         {
             s_MemoryMode = PBO;
-            s_GenBuffersProc = (PFNGLGENBUFFERSPROC)getFuzzyProcAddress("glGenBuffers");
-            s_BufferDataProc = (PFNGLBUFFERDATAPROC)getFuzzyProcAddress("glBufferData");
-            s_DeleteBuffersProc = (PFNGLDELETEBUFFERSPROC)getFuzzyProcAddress("glDeleteBuffers");
-            s_BindBufferProc = (PFNGLBINDBUFFERPROC)getFuzzyProcAddress("glBindBuffer");
-            s_MapBufferProc = (PFNGLMAPBUFFERPROC)getFuzzyProcAddress("glMapBuffer");
-            s_UnmapBufferProc = (PFNGLUNMAPBUFFERPROC)getFuzzyProcAddress("glUnmapBuffer");
             AVG_TRACE(Logger::CONFIG, "Using pixel buffer objects.");
 /*
 #ifndef __APPLE__

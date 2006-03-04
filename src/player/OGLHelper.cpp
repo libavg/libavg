@@ -41,6 +41,27 @@ using namespace std;
 
 namespace avg {
 
+namespace glproc {
+    PFNGLGENBUFFERSPROC GenBuffers;
+    PFNGLBUFFERDATAPROC BufferData;
+    PFNGLDELETEBUFFERSPROC DeleteBuffers;
+    PFNGLBINDBUFFERPROC BindBuffer;
+    PFNGLMAPBUFFERPROC MapBuffer;
+    PFNGLUNMAPBUFFERPROC UnmapBuffer;
+    
+    PFNGLCREATESHADEROBJECTARBPROC CreateShaderObject;
+    PFNGLSHADERSOURCEARBPROC ShaderSource;
+    PFNGLCOMPILESHADERARBPROC CompileShader;
+    PFNGLCREATEPROGRAMOBJECTARBPROC CreateProgramObject;
+    PFNGLATTACHOBJECTARBPROC AttachObject;
+    PFNGLLINKPROGRAMARBPROC LinkProgram;
+    PFNGLGETOBJECTPARAMETERIVARBPROC GetObjectParameteriv;
+    PFNGLGETINFOLOGARBPROC GetInfoLog;
+    PFNGLUSEPROGRAMOBJECTARBPROC UseProgramObject;
+    PFNGLGETUNIFORMLOCATIONARBPROC GetUniformLocation;
+    PFNGLUNIFORM1IARBPROC Uniform1i;
+}    
+
 void OGLErrorCheck(int avgcode, string where) {
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
@@ -110,18 +131,17 @@ bool queryGLXExtension(char *extName) {
 #endif
 }
 
+void invalidGLCall()
+{
+    // Use this to cause core dump so we have the stack.
+//    printf("%s");
+    throw Exception(AVG_ERR_VIDEO_GENERAL, "Illegal gl entry point called.");
+    // Cause core dump.
+}
+
 GLfunction getFuzzyProcAddress(const char * psz)
 {
 #ifdef __APPLE__
-    static bool s_bEntryPointsInitialized = false;
-    if (!s_bEntryPointsInitialized) {
-        s_bEntryPointsInitialized = true;
-        OSStatus err = aglInitEntryPoints();
-        if (noErr != err) {
-            AVG_TRACE(Logger::ERROR, 
-                    "Couldn't initialize Apple OpenGL entry points.");
-        }
-    }
     GLfunction pProc = (GLfunction)aglGetProcAddress(psz);
     if (!pProc) {
         string s = string(psz)+"ARB";
@@ -135,10 +155,50 @@ GLfunction getFuzzyProcAddress(const char * psz)
     }
 #endif
     if (!pProc) {
-        AVG_TRACE(Logger::ERROR, "Couldn't initialize pointer to " << psz);
+        pProc = invalidGLCall;
+//        AVG_TRACE(Logger::WARNING, "Couldn't initialize pointer to " << psz);
     }
     return pProc;
 }
 
+namespace glproc {
+
+    void init() {
+        cerr << "glproc::init" << endl;
+#ifdef __APPLE__
+        OSStatus err = aglInitEntryPoints();
+        if (noErr != err) {
+            AVG_TRACE(Logger::ERROR, 
+                    "Couldn't initialize Apple OpenGL entry points.");
+        }
+#endif    
+        GenBuffers = (PFNGLGENBUFFERSPROC)getFuzzyProcAddress("glGenBuffers");
+        BufferData = (PFNGLBUFFERDATAPROC)getFuzzyProcAddress("glBufferData");
+        DeleteBuffers = (PFNGLDELETEBUFFERSPROC)getFuzzyProcAddress("glDeleteBuffers");
+        BindBuffer = (PFNGLBINDBUFFERPROC)getFuzzyProcAddress("glBindBuffer");
+        MapBuffer = (PFNGLMAPBUFFERPROC)getFuzzyProcAddress("glMapBuffer");
+        UnmapBuffer = (PFNGLUNMAPBUFFERPROC)getFuzzyProcAddress("glUnmapBuffer");
+
+        CreateShaderObject = (PFNGLCREATESHADEROBJECTARBPROC)
+                getFuzzyProcAddress("glCreateShaderObject");
+        ShaderSource = (PFNGLSHADERSOURCEARBPROC)
+                getFuzzyProcAddress("glShaderSource");
+        CompileShader = (PFNGLCOMPILESHADERARBPROC)
+                getFuzzyProcAddress("glCompileShader");
+        CreateProgramObject = (PFNGLCREATEPROGRAMOBJECTARBPROC)
+                getFuzzyProcAddress("glCreateProgramObject");
+        AttachObject = (PFNGLATTACHOBJECTARBPROC)
+                getFuzzyProcAddress("glAttachObject");
+        LinkProgram = (PFNGLLINKPROGRAMARBPROC)getFuzzyProcAddress("glLinkProgram");
+        GetObjectParameteriv = (PFNGLGETOBJECTPARAMETERIVARBPROC)
+                getFuzzyProcAddress("glGetObjectParameteriv");
+        GetInfoLog = (PFNGLGETINFOLOGARBPROC)getFuzzyProcAddress("glGetInfoLog");
+        UseProgramObject =(PFNGLUSEPROGRAMOBJECTARBPROC) 
+                getFuzzyProcAddress("glUseProgramObject");
+        GetUniformLocation = (PFNGLGETUNIFORMLOCATIONARBPROC)
+                getFuzzyProcAddress("glGetUniformLocation");
+        Uniform1i = (PFNGLUNIFORM1IARBPROC)getFuzzyProcAddress("glUniform1i");
+    }
+}
 
 }

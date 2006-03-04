@@ -28,7 +28,6 @@
 #include "../graphics/Bitmap.h"
 #include "../base/CountedPointer.h"
 
-#define GL_GLEXT_PROTOTYPES
 #include "GL/gl.h"
 #ifndef __APPLE__
 #define GLX_GLXEXT_PROTOTYPES

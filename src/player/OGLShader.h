@@ -22,11 +22,8 @@
 #ifndef _OGLShader_H_
 #define _OGLShader_H_
 
-#include "OGLHelper.h"
-
 #include <../base/CountedPointer.h>
 
-#define GL_GLEXT_PROTOTYPES
 #include "GL/gl.h"
 #ifndef __APPLE__
 #define GLX_GLXEXT_PROTOTYPES

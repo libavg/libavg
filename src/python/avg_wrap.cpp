@@ -25,6 +25,7 @@ void export_event();
 void export_devices();
 
 #include "../base/Logger.h"
+#include "../base/Exception.h"
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
 #include "../player/DivNode.h"
@@ -36,8 +37,15 @@ void export_devices();
 using namespace boost::python;
 using namespace avg;
 
+void exception_translator(Exception const & e) 
+{
+    PyErr_SetString(PyExc_RuntimeError, e.GetStr().c_str());
+}
+
 BOOST_PYTHON_MODULE(avg)
 {
+    register_exception_translator<Exception>(exception_translator);
+
     class_<Logger>("Logger", 
             "Interface to the logger used by the avg player. Enables the setting\n"
             "of different logging categories and a destination file. Can be used\n"

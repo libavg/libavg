@@ -87,22 +87,22 @@ void OGLTile::blt(const DPoint& TLPoint, const DPoint& TRPoint,
             "OGLTile::bltTile: glBindTexture()");
     if (m_pf == YCbCr420p) {
         GLhandleARB hProgram = m_pEngine->getYCbCr420pShader()->getProgram();
-        glUseProgramObjectARB(hProgram);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::bltTile: glUseProgramObjectARB()");
+        glproc::UseProgramObject(hProgram);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::bltTile: glUseProgramObject()");
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(TextureMode, m_TexID[0]);
-        glUniform1iARB(glGetUniformLocationARB(hProgram, "YTexture"), 0);
+        glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "YTexture"), 0);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(TextureMode, m_TexID[1]);
-        glUniform1iARB(glGetUniformLocationARB(hProgram, "CbTexture"), 1);
+        glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "CbTexture"), 1);
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(TextureMode, m_TexID[2]);
-        glUniform1iARB(glGetUniformLocationARB(hProgram, "CrTexture"), 2);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::bltTile: glUniform1iARB()");
+        glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "CrTexture"), 2);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::bltTile: glUniform1i()");
     } else {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(TextureMode, m_TexID[0]);
-        glUseProgramObjectARB(0);
+        glproc::UseProgramObject(0);
     }
     glBegin(GL_QUADS);
     glTexCoord2d(0.0, 0.0);

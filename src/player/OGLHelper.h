@@ -22,6 +22,12 @@
 #ifndef _OGLHelper_H_
 #define _OGLHelper_H_
 
+#include "GL/gl.h"
+#ifndef __APPLE__
+#define GLX_GLXEXT_PROTOTYPES
+#include "GL/glx.h"
+#endif
+
 #include <string>
 
 namespace avg {
@@ -35,10 +41,33 @@ enum OGLMemoryMode {
     MESA,
     PBO   // pixel buffer objects
 };
-        
 
 typedef void (*GLfunction)();
 GLfunction getFuzzyProcAddress(const char * psz);
+
+namespace glproc {
+    extern PFNGLGENBUFFERSPROC GenBuffers;
+    extern PFNGLBUFFERDATAPROC BufferData;
+    extern PFNGLDELETEBUFFERSPROC DeleteBuffers;
+    extern PFNGLBINDBUFFERPROC BindBuffer;
+    extern PFNGLMAPBUFFERPROC MapBuffer;
+    extern PFNGLUNMAPBUFFERPROC UnmapBuffer;
+
+    extern PFNGLCREATESHADEROBJECTARBPROC CreateShaderObject;
+    extern PFNGLSHADERSOURCEARBPROC ShaderSource;
+    extern PFNGLCOMPILESHADERARBPROC CompileShader;
+    extern PFNGLCREATEPROGRAMOBJECTARBPROC CreateProgramObject;
+    extern PFNGLATTACHOBJECTARBPROC AttachObject;
+    extern PFNGLLINKPROGRAMARBPROC LinkProgram;
+    extern PFNGLGETOBJECTPARAMETERIVARBPROC GetObjectParameteriv;
+    extern PFNGLGETINFOLOGARBPROC GetInfoLog;
+    extern PFNGLUSEPROGRAMOBJECTARBPROC UseProgramObject;
+    extern PFNGLGETUNIFORMLOCATIONARBPROC GetUniformLocation;
+    extern PFNGLUNIFORM1IARBPROC Uniform1i;
+
+    void init();
+}
+
 
 }
 

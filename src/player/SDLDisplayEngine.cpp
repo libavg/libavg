@@ -53,14 +53,13 @@
 #endif
 
 #define XMD_H 1
-#define GLX_GLXEXT_PROTOTYPES
-#define GL_GLEXT_PROTOTYPES
 #include "GL/gl.h"
 #include "GL/glu.h"
 
 #ifdef __APPLE__
 #include "AGL/agl.h"
 #else
+#define GLX_GLXEXT_PROTOTYPES
 #include "GL/glx.h"
 #endif
 
@@ -120,6 +119,8 @@ SDLDisplayEngine::SDLDisplayEngine()
     }
     initTranslationTable();
     calcRefreshRate();
+
+    glproc::init();
 }
 
 SDLDisplayEngine::~SDLDisplayEngine()
