@@ -433,7 +433,6 @@ bool SDLDisplayEngine::supportsBpp(int bpp)
 
 bool SDLDisplayEngine::hasRGBOrdering()
 {
-    // TODO: Should this be graphics-card dependent?
     // So far, false is lots faster on NVIDIA, but true is faster for intel 
     // i810 MESA.
     if (!strcmp((char *)glGetString(GL_VENDOR), "NVIDIA Corporation")) {
@@ -498,6 +497,10 @@ void SDLDisplayEngine::checkYCbCrSupport()
     {
         m_YCbCrMode = OGL_SHADER;
         string sProgram =
+#ifdef __APPLE__
+            "#define textureRect texture2DRect\n"
+            "#define samplerRect sampler2DRect\n"
+#endif
             "uniform samplerRect YTexture;\n"
             "uniform samplerRect CbTexture;\n"
             "uniform samplerRect CrTexture;\n"

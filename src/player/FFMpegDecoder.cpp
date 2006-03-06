@@ -187,7 +187,7 @@ bool FFMpegDecoder::open (const std::string& sFilename,
 
 void FFMpegDecoder::close() 
 {
-    AVG_TRACE(Logger::PROFILE, "Closing " << m_sFilename);
+//    AVG_TRACE(Logger::PROFILE, "Closing " << m_sFilename);
     AVCodecContext * enc;
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     enc = &(m_pFormatContext->streams[m_VStreamIndex]->codec);

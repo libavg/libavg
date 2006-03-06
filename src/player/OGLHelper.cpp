@@ -164,7 +164,6 @@ GLfunction getFuzzyProcAddress(const char * psz)
 namespace glproc {
 
     void init() {
-        cerr << "glproc::init" << endl;
 #ifdef __APPLE__
         OSStatus err = aglInitEntryPoints();
         if (noErr != err) {

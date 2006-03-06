@@ -31,7 +31,7 @@ namespace avg {
 
 using namespace std;
     
-OGLTile::OGLTile(IntRect Extent, IntPoint TexSize, PixelFormat pf, 
+OGLTile::OGLTile(IntRect Extent, IntPoint TexSize, int Stride, PixelFormat pf, 
         SDLDisplayEngine * pEngine) 
     : m_Extent(Extent),
       m_TexSize(TexSize),
@@ -39,11 +39,11 @@ OGLTile::OGLTile(IntRect Extent, IntPoint TexSize, PixelFormat pf,
       m_pEngine(pEngine)
 {
     if (m_pf == YCbCr420p) {
-        createTexture(0, m_TexSize, I8);
-        createTexture(1, m_TexSize/2, I8);
-        createTexture(2, m_TexSize/2, I8);
+        createTexture(0, m_TexSize, Stride, I8);
+        createTexture(1, m_TexSize/2, Stride/2, I8);
+        createTexture(2, m_TexSize/2, Stride/2, I8);
     } else {
-        createTexture(0, m_TexSize, m_pf);
+        createTexture(0, m_TexSize, Stride, m_pf);
     }
 }
 
@@ -83,12 +83,10 @@ void OGLTile::blt(const DPoint& TLPoint, const DPoint& TRPoint,
         TexHeight = m_TexSize.y;
     }
     
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "OGLTile::bltTile: glBindTexture()");
     if (m_pf == YCbCr420p) {
         GLhandleARB hProgram = m_pEngine->getYCbCr420pShader()->getProgram();
         glproc::UseProgramObject(hProgram);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::bltTile: glUseProgramObject()");
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::blt: glUseProgramObject()");
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(TextureMode, m_TexID[0]);
         glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "YTexture"), 0);
@@ -98,7 +96,7 @@ void OGLTile::blt(const DPoint& TLPoint, const DPoint& TRPoint,
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(TextureMode, m_TexID[2]);
         glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "CrTexture"), 2);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::bltTile: glUniform1i()");
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::blt: glUniform1i()");
     } else {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(TextureMode, m_TexID[0]);
@@ -114,36 +112,36 @@ void OGLTile::blt(const DPoint& TLPoint, const DPoint& TRPoint,
     glTexCoord2d(0.0, TexHeight);
     glVertex3d (BLPoint.x, BLPoint.y, 0.0);
     glEnd();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::bltTile: glEnd()");
-    glActiveTexture(GL_TEXTURE1);
-    glDisable(TextureMode);
-    glActiveTexture(GL_TEXTURE2);
-    glDisable(TextureMode);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::bltTile: glDisable(TextureMode)");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::blt: glEnd()");
+    if (m_pf == YCbCr420p) {
+        glActiveTexture(GL_TEXTURE1);
+        glDisable(TextureMode);
+        glActiveTexture(GL_TEXTURE2);
+        glDisable(TextureMode);
+        glActiveTexture(GL_TEXTURE0);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::blt: glDisable(TextureMode)");
+    }
 }
 
-void OGLTile::createTexture(int i, IntPoint Size, PixelFormat pf)
+void OGLTile::createTexture(int i, IntPoint Size, int Stride, PixelFormat pf)
 {
     glGenTextures(1, &m_TexID[i]);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::createTexture: glGenTextures()");
-    switch(i) {
-        case 0:
-            glActiveTexture(GL_TEXTURE0);
-            break;
-        case 1:
-            glActiveTexture(GL_TEXTURE1);
-            break;
-        case 2:
-            glActiveTexture(GL_TEXTURE2);
-            break;
-        default:
-            break;
-    }
+    glActiveTexture(GL_TEXTURE0+i);
     glBindTexture(m_pEngine->getTextureMode(), m_TexID[i]);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::createTexture: glBindTexture()");
+    
+    GLenum DestMode = m_pEngine->getOGLDestMode(pf);
+#ifdef __APPLE__    
+    // XXX: Hack to work around broken Mac OS X GL_ALPHA/GL_UNPACK_ROW_LENGTH.
+    // If this is gone, the Stride parameter can be removed too :-).
+    if (Stride != Size.x && DestMode == GL_ALPHA) {
+        DestMode = GL_RGBA;
+    }
+#endif
 
     glTexImage2D(m_pEngine->getTextureMode(), 0,
-            m_pEngine->getOGLDestMode(pf), Size.x, Size.y, 0,
+            DestMode, Size.x, Size.y, 0,
             m_pEngine->getOGLSrcMode(pf), m_pEngine->getOGLPixelType(pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "OGLTile::createTexture: glTexImage2D()");
@@ -152,7 +150,7 @@ void OGLTile::createTexture(int i, IntPoint Size, PixelFormat pf)
 
 static ProfilingZone TexSubImageProfilingZone("    OGLTile::texture download");
 
-void OGLTile::downloadTexture(int i, BitmapPtr pBmp, int width, 
+void OGLTile::downloadTexture(int i, BitmapPtr pBmp, int stride, 
                 OGLMemoryMode MemoryMode) const
 {
     PixelFormat pf;
@@ -163,7 +161,7 @@ void OGLTile::downloadTexture(int i, BitmapPtr pBmp, int width,
     }
     IntRect Extent = m_Extent;
     if (i != 0) {
-        width /= 2;
+        stride /= 2;
         Extent = IntRect(m_Extent.tl/2.0, m_Extent.br/2.0);
     }
     int TextureMode = m_pEngine->getTextureMode();
@@ -171,11 +169,11 @@ void OGLTile::downloadTexture(int i, BitmapPtr pBmp, int width,
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "OGLTile::downloadTexture: glBindTexture()");
     int bpp = Bitmap::getBytesPerPixel(pf);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, width);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, stride);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGOGLSurface::rebind: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
     unsigned char * pStartPos = (unsigned char *)
-            (Extent.tl.y*width*bpp + Extent.tl.x*bpp);
+            (Extent.tl.y*stride*bpp + Extent.tl.x*bpp);
     if (MemoryMode == OGL) {
         pStartPos += (unsigned int)(pBmp->getPixels());
     }

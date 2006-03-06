@@ -38,7 +38,7 @@ namespace avg {
 
 class OGLTile {
     public:
-        OGLTile(IntRect Extent, IntPoint TexSize, PixelFormat pf, 
+        OGLTile(IntRect Extent, IntPoint TexSize, int Stride, PixelFormat pf, 
                 SDLDisplayEngine * pEngine);
         virtual ~OGLTile();
 
@@ -53,7 +53,7 @@ class OGLTile {
                 const DPoint& BLPoint, const DPoint& BRPoint) const;
 
     private:
-        void createTexture(int i, IntPoint Size, PixelFormat pf);
+        void createTexture(int i, IntPoint Size, int Stride, PixelFormat pf);
 
         IntRect m_Extent;
         IntPoint m_TexSize;

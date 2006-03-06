@@ -260,6 +260,10 @@ string getGlModeString(int Mode)
             return "GL_BGR";
         case GL_BGRA:
             return "GL_BGRA";
+        case GL_YCBCR_MESA:
+            return "GL_YCBCR_MESA";
+        case GL_YCBCR_422_APPLE:
+            return "GL_YCBCR_422_APPLE";
         default:
             return "UNKNOWN";
     }
@@ -304,13 +308,14 @@ void OGLSurface::bind()
                     CurSize.y = nextpow2(CurSize.y);
                 }
                 
-                OGLTilePtr pTile = OGLTilePtr(new OGLTile(CurExtent, CurSize, m_pf,
-                            m_pEngine));
+                OGLTilePtr pTile = OGLTilePtr(new OGLTile(CurExtent, CurSize,
+                        m_Size.x, m_pf, m_pEngine));
                 m_pTiles[y].push_back(pTile);
                 if (m_MemoryMode == PBO) {
                     if (m_pf == YCbCr420p) {
                         for (int i=0; i<3; i++) {
-                            glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
+                            glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 
+                                    m_hPixelBuffers[i]);
                             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                                     "OGLSurface::bind: glBindBuffer()");
                             pTile->downloadTexture(i, m_pBmps[i], m_Size.x, m_MemoryMode);
@@ -321,6 +326,7 @@ void OGLSurface::bind()
                                 "OGLSurface::bind: glBindBuffer()");
                         pTile->downloadTexture(0, m_pBmps[0], m_Size.x, m_MemoryMode);
                     }
+                    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
                 } else {
                     pTile->downloadTexture(0, m_pBmps[0], m_Size.x, m_MemoryMode);
                 }
@@ -367,6 +373,7 @@ void OGLSurface::rebind()
                             "OGLSurface::bind: glBindBuffer()");
                     pTile->downloadTexture(0, m_pBmps[0], m_Size.x, m_MemoryMode);
                 }
+                glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
             } else {
                 pTile->downloadTexture(0, m_pBmps[0], m_Size.x, m_MemoryMode);
             }
