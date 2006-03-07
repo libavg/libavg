@@ -145,8 +145,10 @@ void Camera::init (DisplayEngine * pEngine, Container * pParent,
 */        
     } else if (m_sMode == "1024x768_RGB") {
         m_Mode = MODE_1024x768_RGB;
+    } else if (m_sMode == "1024x768_YUV422") {
+        m_Mode = MODE_1024x768_YUV422;
     } else {
-        fatalError ("Unsupported or illegal value for camera mode.");
+        fatalError (std::string("Unsupported or illegal value for camera mode \"") + m_sMode + std::string("\"."));
     }
 #else
     AVG_TRACE(Logger::ERROR,
@@ -207,6 +209,7 @@ IntPoint Camera::getNativeSize()
         case MODE_640x480_RGB:
             return IntPoint(640, 480);
         case MODE_1024x768_RGB:
+        case MODE_1024x768_YUV422:
             return IntPoint(1024, 768);
         default:
             fatalError ("Camera::getNativeSize: Unsupported or illegal value for camera resolution:");
@@ -224,7 +227,7 @@ double Camera::getFPS()
 
 void Camera::open(int* pWidth, int* pHeight)
 {
-    int CaptureFormat = 0;
+    int CaptureFormat;
     *pWidth = getNativeSize().x;
     *pHeight = getNativeSize().y;
     
@@ -236,6 +239,7 @@ void Camera::open(int* pWidth, int* pHeight)
             CaptureFormat=FORMAT_VGA_NONCOMPRESSED;
             break;
         case MODE_1024x768_RGB:
+        case MODE_1024x768_YUV422:
             CaptureFormat=FORMAT_SVGA_NONCOMPRESSED_1;
             break;
         default:
@@ -422,6 +426,12 @@ bool Camera::renderToSurface(ISurface * pSurface)
 #endif            
             // New frame available
             switch (m_Mode) {
+                case MODE_1024x768_YUV422:
+                    {
+                        BitmapPtr pBmp = pSurface->lockBmp();
+                        YUV422toBGR32((unsigned char *)(m_Camera.capture_buffer), pBmp);
+                    }
+                    break;
                 case MODE_640x480_YUV411:
                     {
                         BitmapPtr pBmp = pSurface->lockBmp();
@@ -590,6 +600,52 @@ void Camera::YUV411toBGR32(unsigned char* pSrc, BitmapPtr pBmp)
     for (int y = 0; y < getMediaHeight(); y++) {
         Pixel32 * pDest = pBits+(y*pBmp->getStride())/4;
         YUV411toBGR32Line(pSrc, y, pDest);
+    }
+}
+
+void Camera::YUV422toBGR32Line(unsigned char* pSrc, int y, Pixel32 * pDestLine)
+{
+    Pixel32 * pDestPixel = pDestLine;
+    int width = getMediaWidth();
+    // We need the previous and next values to interpolate between the
+    // sampled u and v values.
+    unsigned char v = *(pSrc+y*(width*2)+2);
+    unsigned char v0; // Previous v
+    unsigned char v1; // Next v;
+    unsigned char u;
+    unsigned char u1; // Next u;
+    unsigned char * pSrcPixels = pSrc+y*(width*2);
+
+    for (int x = 0; x < width/2; x++) {
+        // Two pixels at a time.
+        // Source format is UYVY.
+        u = pSrcPixels[0];
+        v0 = v;
+        v = pSrcPixels[2];
+
+        if (x < width/2-1) {
+            u1 = pSrcPixels[4];
+            v1 = pSrcPixels[6];
+        } else {
+            u1 = u;
+            v1 = v;
+        }
+
+        YUVtoBGR32Pixel(pDestPixel, pSrcPixels[1], u, v0/2+v/2);
+        YUVtoBGR32Pixel(pDestPixel+1, pSrcPixels[3], u/2+u1/2, v);
+
+        pSrcPixels+=4;
+        pDestPixel+=2;
+    }
+
+}
+
+void Camera::YUV422toBGR32(unsigned char* pSrc, BitmapPtr pBmp)
+{
+    Pixel32 * pBits = (Pixel32 *)(pBmp->getPixels());
+    for (int y = 0; y < getMediaHeight(); y++) {
+        Pixel32 * pDest = pBits+(y*pBmp->getStride())/4;
+        YUV422toBGR32Line(pSrc, y, pDest);
     }
 }
 

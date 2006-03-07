@@ -172,6 +172,8 @@ class Camera : public VideoBase
 #ifdef AVG_ENABLE_1394
         void YUV411toBGR32Line(unsigned char * pSrc, int y, Pixel32 * pDestLine);
         void YUV411toBGR32(unsigned char * pSrc, BitmapPtr pBmp);
+        void YUV422toBGR32Line(unsigned char * pSrc, int y, Pixel32 * pDestLine);
+        void YUV422toBGR32(unsigned char * pSrc, BitmapPtr pBmp);
 
         bool findCameraOnPort(int port, raw1394handle_t& FWHandle);
 
