@@ -49,17 +49,6 @@ namespace avg {
 #define DROP_FRAMES 1
 #define NUM_BUFFERS 3
 
-// Precomputed conversion matrix entries
-static int y2colTable[256]; // y to any color component
-static int u2bTable[256]; // u to blue
-static int u2gTable[256]; // u to green
-static int v2gTable[256]; // v to green
-static int v2rTable[256]; // v to red
-
-#ifdef AVG_ENABLE_1394
-bool Camera::m_bInitialized = false;
-#endif
-
 Camera::Camera ()
 #ifdef AVG_ENABLE_1394
     : m_sDevice("Default"),
@@ -107,9 +96,7 @@ Camera::~Camera ()
 void Camera::init (DisplayEngine * pEngine, Container * pParent,
         Player * pPlayer)
 {
-    cerr << "Camera::init" << endl;
 #ifdef AVG_ENABLE_1394
-    initCameraSupport();
     if (m_FrameRate == 1.875) {
         m_FrameRateConstant = FRAMERATE_1_875;
     } else if (m_FrameRate == 3.75) {
@@ -402,7 +389,8 @@ void Camera::fatalError(const string & sMsg)
 #endif
 
 static ProfilingZone CameraProfilingZone("    Camera::render");
-static ProfilingZone CameraUploadProfilingZone("      Camera::render tex upload");
+static ProfilingZone CameraUploadProfilingZone("      Camera tex upload");
+static ProfilingZone CameraYUVConvertProfilingZone("      Camera YUV conversion");
 
 bool Camera::renderToSurface(ISurface * pSurface)
 {
@@ -429,12 +417,14 @@ bool Camera::renderToSurface(ISurface * pSurface)
                 case MODE_1024x768_YUV422:
                     {
                         BitmapPtr pBmp = pSurface->lockBmp();
+                        ScopeTimer Timer(CameraYUVConvertProfilingZone);
                         YUV422toBGR32((unsigned char *)(m_Camera.capture_buffer), pBmp);
                     }
                     break;
                 case MODE_640x480_YUV411:
                     {
                         BitmapPtr pBmp = pSurface->lockBmp();
+                        ScopeTimer Timer(CameraYUVConvertProfilingZone);
                         YUV411toBGR32((unsigned char *)(m_Camera.capture_buffer), pBmp);
                     }
                     break;
@@ -524,17 +514,12 @@ inline void YUVtoBGR32Pixel(Pixel32* pDest,
 {
 //    pDest->Set(y,y,y);
     // u = Cb, v = Cr
-/*    y -= 16;
-    u -= 128;
-    v -= 128;
-    int b = (298 * y + 516 * u          ) >> 8;
-    int g = (298 * y - 100 * u - 208 * v) >> 8;
-    int r = (298 * y           + 409 * v) >> 8;
-*/
-    int ycomp = y2colTable[y];
-    int b = ((ycomp+u2bTable[u])>>8);
-    int g = ((ycomp+u2gTable[u]+v2gTable[v])>>8);
-    int r = ((ycomp+v2rTable[v])>>8);
+    int y1 = y - 16;
+    int u1 = u - 128;
+    int v1 = v - 128;
+    int b = (298 * y1 + 516 * u1           ) >> 8;
+    int g = (298 * y1 - 100 * u1 - 208 * v1) >> 8;
+    int r = (298 * y1            + 409 * v1) >> 8;
 
     if (b<0) b = 0;
     if (b>255) b= 255;
@@ -543,16 +528,6 @@ inline void YUVtoBGR32Pixel(Pixel32* pDest,
     if (r<0) r = 0;
     if (r>255) r= 255;
     pDest->set(b,g,r);
-/*
-    asm volatile ("sub %%eax, %%eax;         \n\t"
-                  "mov %1, %%al;             \n\t"
-                  "imul $0x010101, %%eax;  \n\t"
-                  "mov %0, %%ebx;            \n\t"
-                  "movl %%eax, (%%ebx)       \n\t"
-                  :
-                  :"m"(pDest), "m"(y) // , "m"(byte2rgba_factor)
-                  : "eax", "ebx", "memory");
-*/
 }
 
 void Camera::YUV411toBGR32Line(unsigned char* pSrc, int y, Pixel32 * pDestLine)
@@ -720,42 +695,6 @@ int Camera::getFeatureID(const std::string& sFeature) const
     return 0;
 }
 
-void Camera::initCameraSupport()
-{
-    if (!m_bInitialized) {
-        m_bInitialized = true;
-        initYUV2RGBConversionMatrix();
-    }
-}
-
-void Camera::initYUV2RGBConversionMatrix()
-{
-    // This is for the full 0...255 range
-
-    for (int comp=0; comp<256; comp++) {
-        y2colTable[comp] = (comp-16)*298;
-        u2bTable[comp] = (comp-128)*516;
-        u2gTable[comp] = -(comp-128)*100;
-        v2gTable[comp] = -(comp-128)*208;
-        v2rTable[comp] = (comp-128)*409;
-    }
-
-/*
-         r = (256 * y            + 351 * cr) >> 8 + 16;
-         g = (256 * y -  86 * cb - 179 * cr) >> 8 + 16;
-         b = (256 * y + 444 * cb           ) >> 8 + 16;
-*/
-    // This is RGB235 mode.
-/*
-    for (int comp=0; comp<256; comp++) {
-        y2colTable[comp] = (comp-16)*256;
-        u2bTable[comp] = (comp-128)*444;
-        u2gTable[comp] = -(comp-128)*86;
-        v2gTable[comp] = -(comp-128)*179;
-        v2rTable[comp] = (comp-128)*351;
-    }
-*/
-}
 #endif
 
 }

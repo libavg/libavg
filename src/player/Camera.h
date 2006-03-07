@@ -187,10 +187,6 @@ class Camera : public VideoBase
         dc1394_feature_set m_FeatureSet;
         long long m_LastFrameTime;
         bool m_bCameraAvailable;
-
-        static void initCameraSupport();
-        static void initYUV2RGBConversionMatrix();
-        static bool m_bInitialized;
 #endif
 
 };

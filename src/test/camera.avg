@@ -7,5 +7,5 @@
 <!--    <camera id="camera" x="200" y="0" z="3" width="1024" height="768"
           device="/dev/video1394/0" mode="1024x768_RGB" framerate="7.5"/>-->
     <camera id="camera" x="200" y="0" z="3" width="1024" height="768"
-          device="/dev/video1394/0" mode="640x480_RGB"/>
+          device="/dev/video1394/0" mode="640x480_YUV411"/>
 </avg>
