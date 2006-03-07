@@ -119,6 +119,7 @@ void OGLTile::blt(const DPoint& TLPoint, const DPoint& TRPoint,
         glActiveTexture(GL_TEXTURE2);
         glDisable(TextureMode);
         glActiveTexture(GL_TEXTURE0);
+        glproc::UseProgramObject(0);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::blt: glDisable(TextureMode)");
     }
 }
