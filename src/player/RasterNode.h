@@ -75,7 +75,7 @@ class RasterNode: public Node
         
     protected:
         RasterNode ();
-        RasterNode (const xmlNodePtr xmlNode, Container * pParent);
+        RasterNode (const xmlNodePtr xmlNode, DivNode * pParent);
         DPoint getPivot();
         ISurface * getSurface();
  

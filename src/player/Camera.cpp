@@ -24,7 +24,6 @@
 #include "Camera.h"
 #include "DisplayEngine.h"
 #include "Player.h"
-#include "Container.h"
 #include "ISurface.h"
 #ifdef AVG_ENABLE_GL
 #include "OGLSurface.h"
@@ -63,7 +62,7 @@ Camera::Camera ()
 {
 }
 
-Camera::Camera (const xmlNodePtr xmlNode, Container * pParent)
+Camera::Camera (const xmlNodePtr xmlNode, DivNode * pParent)
     : VideoBase(xmlNode, pParent),
 #ifdef AVG_ENABLE_1394
       m_sDevice(""),
@@ -93,7 +92,7 @@ Camera::~Camera ()
 {
 }
 
-void Camera::init (DisplayEngine * pEngine, Container * pParent,
+void Camera::init (DisplayEngine * pEngine, DivNode * pParent,
         Player * pPlayer)
 {
 #ifdef AVG_ENABLE_1394

@@ -63,7 +63,7 @@ PanoImage::PanoImage ()
 {
 }
 
-PanoImage::PanoImage (const xmlNodePtr xmlNode, Container * pParent)
+PanoImage::PanoImage (const xmlNodePtr xmlNode, DivNode * pParent)
     : Node (xmlNode, pParent)
 {
     m_Filename = getRequiredStringAttr (xmlNode, "href");
@@ -82,7 +82,7 @@ PanoImage::~PanoImage ()
 }
 
 void PanoImage::init (DisplayEngine * pEngine,
-        Container * pParent, Player * pPlayer)
+        DivNode * pParent, Player * pPlayer)
 {
     Node::init(pEngine, pParent, pPlayer);
     initFilename(pPlayer, m_Filename);

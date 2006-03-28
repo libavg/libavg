@@ -45,7 +45,7 @@ RasterNode::RasterNode ()
 {
 }
 
-RasterNode::RasterNode (const xmlNodePtr xmlNode, Container * pParent)
+RasterNode::RasterNode (const xmlNodePtr xmlNode, DivNode * pParent)
     : Node(xmlNode, pParent),
       m_pSurface(0),
       m_Angle(0),

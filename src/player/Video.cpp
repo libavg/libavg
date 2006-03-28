@@ -47,7 +47,7 @@ Video::Video ()
 {
 }
 
-Video::Video (const xmlNodePtr xmlNode, Container * pParent)
+Video::Video (const xmlNodePtr xmlNode, DivNode * pParent)
     : VideoBase(xmlNode, pParent),
       m_pDecoder(0)
 {
@@ -104,7 +104,7 @@ bool Video::isYCbCrSupported()
     return m_pDecoder->isYCbCrSupported();
 }
 
-void Video::init (DisplayEngine * pEngine, Container * pParent, 
+void Video::init (DisplayEngine * pEngine, DivNode * pParent, 
         Player * pPlayer)
 {
     m_pDecoder = new FFMpegDecoder();

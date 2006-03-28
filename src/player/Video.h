@@ -36,10 +36,10 @@ class Video : public VideoBase
 {
     public:
         Video ();
-        Video (const xmlNodePtr xmlNode, Container * pParent);
+        Video (const xmlNodePtr xmlNode, DivNode * pParent);
         virtual ~Video ();
         
-        virtual void init (DisplayEngine * pEngine, Container * pParent, 
+        virtual void init (DisplayEngine * pEngine, DivNode * pParent, 
                 Player * pPlayer);
 
         const std::string& getHRef() const;

@@ -39,11 +39,11 @@ class Words : public RasterNode
 {
 	public:
         Words ();
-        Words (const xmlNodePtr xmlNode, Container * pParent);
+        Words (const xmlNodePtr xmlNode, DivNode * pParent);
         virtual ~Words ();
         
         virtual void initText(const std::string& sText);
-        virtual void init (DisplayEngine * pEngine, Container * pParent,
+        virtual void init (DisplayEngine * pEngine, DivNode * pParent,
                 Player * pPlayer);
         virtual void initVisible();
         virtual void render (const DRect& Rect);

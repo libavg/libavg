@@ -33,7 +33,6 @@
 #include "Words.h"
 #include "Video.h"
 #include "Camera.h"
-#include "Excl.h"
 #include "Image.h"
 #include "PanoImage.h"
 
@@ -506,7 +505,7 @@ Node * Player::createNodeFromXmlString (const string& sXML)
 }
 
 Node * Player::createNodeFromXml (const xmlDocPtr xmlDoc, 
-        const xmlNodePtr xmlNode, Container * pParent)
+        const xmlNodePtr xmlNode, DivNode * pParent)
 {
     const char * nodeType = (const char *)xmlNode->name;
     Node * curNode = 0;
@@ -524,8 +523,6 @@ Node * Player::createNodeFromXml (const xmlDocPtr xmlDoc,
         dynamic_cast<Words*>(curNode)->initText(s);
     } else if (!strcmp (nodeType, "video")) {
         curNode = new Video(xmlNode, pParent);
-    } else if (!strcmp (nodeType, "excl")) {
-        curNode = new Excl(xmlNode, pParent);
     } else if (!strcmp (nodeType, "camera")) {
         curNode = new Camera(xmlNode, pParent);
     }
@@ -541,14 +538,14 @@ Node * Player::createNodeFromXml (const xmlDocPtr xmlDoc,
             string("Unknown node type ")+(const char *)nodeType+" encountered."));
     }
     // If this is a container, recurse into children
-    Container * curContainer = dynamic_cast<Container*>(curNode);
-    if (curContainer) {
+    DivNode * curDivNode = dynamic_cast<DivNode*>(curNode);
+    if (curDivNode) {
         xmlNodePtr curXmlChild = xmlNode->xmlChildrenNode;
         while (curXmlChild) {
             Node *curChild = createNodeFromXml (xmlDoc, curXmlChild, 
-                    curContainer);
+                    curDivNode);
             if (curChild) {
-                curContainer->addChild(curChild);
+                curDivNode->addChild(curChild);
             }
             curXmlChild = curXmlChild->next;
         }
@@ -556,16 +553,16 @@ Node * Player::createNodeFromXml (const xmlDocPtr xmlDoc,
     return curNode;
 }
 
-void Player::initNode(Node * pNode, Container * pParent)
+void Player::initNode(Node * pNode, DivNode * pParent)
 {
     const string& ID = pNode->getID();
     pNode->init(m_pDisplayEngine, pParent, this);
     pNode->initVisible();
     // If this is a container, recurse into children
-    Container * curContainer = dynamic_cast<Container*>(pNode);
-    if (curContainer) {
-        for (int i=0; i<curContainer->getNumChildren(); ++i) {
-            initNode(curContainer->getChild(i), curContainer);
+    DivNode * curDivNode = dynamic_cast<DivNode*>(pNode);
+    if (curDivNode) {
+        for (int i=0; i<curDivNode->getNumChildren(); ++i) {
+            initNode(curDivNode->getChild(i), curDivNode);
         }
     }
     if (ID != "") {

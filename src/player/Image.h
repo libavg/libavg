@@ -32,10 +32,10 @@ class Image : public RasterNode
 {
 	public:
         Image ();
-        Image (const xmlNodePtr xmlNode, Container * pParent);
+        Image (const xmlNodePtr xmlNode, DivNode * pParent);
         virtual ~Image ();
         virtual void init (DisplayEngine * pEngine, 
-                Container * pParent, Player * pPlayer);
+                DivNode * pParent, Player * pPlayer);
 
         const std::string& getHRef() const;
         void setHRef(const std::string& href);

@@ -27,13 +27,13 @@
 #undef PACKAGE_VERSION
 
 #include "VideoBase.h"
+#include "DivNode.h"
 #include "DisplayEngine.h"
 #ifdef AVG_ENABLE_DFB
 #include "DFBDisplayEngine.h"
 #include "DFBSurface.h"
 #endif
 #include "Player.h"
-#include "Container.h"
 #include "ISurface.h"
 
 #include "../base/Exception.h"
@@ -58,7 +58,7 @@ VideoBase::VideoBase ()
 {
 }
 
-VideoBase::VideoBase (const xmlNodePtr xmlNode, Container * pParent)
+VideoBase::VideoBase (const xmlNodePtr xmlNode, DivNode * pParent)
     : RasterNode(xmlNode, pParent),
       m_State(Unloaded),
       m_Width(0),
@@ -98,7 +98,7 @@ void VideoBase::pause()
     changeState(Paused);
 }
 
-void VideoBase::init(DisplayEngine * pEngine, Container * pParent, 
+void VideoBase::init(DisplayEngine * pEngine, DivNode * pParent, 
         Player * pPlayer)
 {
     Node::init(pEngine, pParent, pPlayer);

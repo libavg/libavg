@@ -42,7 +42,7 @@ namespace avg {
 
 class AVGNode;
 class Node;
-class Container;
+class DivNode;
 class Event;
 class MouseEvent;
 class ConradRelais;
@@ -86,13 +86,13 @@ class Player : IEventSink
         void registerFrameListener(IFrameListener* pListener);
         void unregisterFrameListener(IFrameListener* pListener);
         std::string getCurDirName();
-        void initNode(Node * pNode, Container * pParent);
+        void initNode(Node * pNode, DivNode * pParent);
 
     private:
         void initConfig();
 
         Node * createNodeFromXml(const xmlDocPtr xmlDoc, 
-                const xmlNodePtr xmlNode, Container * pParent);
+                const xmlNodePtr xmlNode, DivNode * pParent);
 
         void initDisplay(const xmlNodePtr xmlNode);
         void render (bool bRenderEverything);

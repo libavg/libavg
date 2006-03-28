@@ -29,7 +29,6 @@ void export_devices();
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
 #include "../player/DivNode.h"
-#include "../player/Excl.h"
 #include "../player/PanoImage.h"
 
 #include <boost/python.hpp>
@@ -129,7 +128,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("getParent", &Node::getParent,
                 return_internal_reference<>(),
                 "getParent() -> Node\n\n"
-                "Returns the container (AVGNode, DivNode or Excl) the node is in. For\n"
+                "Returns the container (AVGNode or DivNode) the node is in. For\n"
                 "the root node, returns None.\n")
         .add_property("id", make_function(&Node::getID, 
                 return_value_policy<copy_const_reference>()))
@@ -145,40 +144,35 @@ BOOST_PYTHON_MODULE(avg)
     export_bitmap();
     export_raster();
     
-    class_<Container, bases<Node>, boost::noncopyable>("Container",
-            "Base class for all nodes containing other nodes (DivNode, AVGNode, Excl)",
-            no_init)
-        .def("getNumChildren", &Container::getNumChildren,
-                "getNumChildren() -> numChildren\n\n")
-        .def("getChild", &Container::getChild, 
-                return_value_policy<reference_existing_object>(),
-                "getChild(i) -> Node\n\n"
-                "Returns the ith child in z-order.")
-        .def("addChild", &Container::addChild,
-                "addChild(Node) -> None\n\n"
-                "Adds a new child to the container.")
-        .def("removeChild", &Container::removeChild,
-                "removeChild(i) -> None\n\n"
-                "Removes the child at index i.")
-        .def("indexOf", &Container::indexOf,
-                "indexOf(childNode) -> i\n\n"
-                "Returns the index of the child given or -1 if childNode isn't a\n"
-                "child of the container.")
-    ;
-    
-    class_<DivNode, bases<Container>, boost::noncopyable>("DivNode", 
+    class_<DivNode, bases<Node>, boost::noncopyable>("DivNode", 
             "A div node is a node that groups other nodes logically and visually.\n"
             "Its upper left corner is used as point of origin for the coordinates\n"
             "of its child nodes. Its extents are used to clip the children. Its\n"
             "opacity is used as base opacity for the child nodes' opacities.\n",
             no_init)
+        .def("getNumChildren", &DivNode::getNumChildren,
+                "getNumChildren() -> numChildren\n\n")
+        .def("getChild", &DivNode::getChild, 
+                return_value_policy<reference_existing_object>(),
+                "getChild(i) -> Node\n\n"
+                "Returns the ith child in z-order.")
+        .def("addChild", &DivNode::addChild,
+                "addChild(Node) -> None\n\n"
+                "Adds a new child to the container.")
+        .def("removeChild", &DivNode::removeChild,
+                "removeChild(i) -> None\n\n"
+                "Removes the child at index i.")
+        .def("indexOf", &DivNode::indexOf,
+                "indexOf(childNode) -> i\n\n"
+                "Returns the index of the child given or -1 if childNode isn't a\n"
+                "child of the container.")
     ;
     
     class_<AVGNode, bases<DivNode> >("AVGNode",
             "Root node of any avg tree. Defines the properties of the display and\n"
             "handles key press events. The AVGNode's width and height define the\n"
             "coordinate system for the display and are the default for the window\n"
-            "size used (i.e. by default, the coordinate system is pixel-based.\n"
+            "size used (i.e. by default, the coordinate system is pixel-based.)\n"
             "Properties:\n"
             "    onkeydown: The python code to execute when a key is pressed (ro).\n"
             "    onkeyup: The python code to execute when a key is released (ro).\n")
@@ -191,14 +185,6 @@ BOOST_PYTHON_MODULE(avg)
                 return_value_policy<copy_const_reference>()))
         .add_property("onkeyup", make_function(&AVGNode::getOnKeyUp,
                 return_value_policy<copy_const_reference>()))
-    ;
-
-    class_<Excl, bases<Container> >("Excl",
-            "Node that displays only one of its children.\n"
-            "Properties:\n"
-            "    activechild: The child that is currently displayed and reacting to\n"
-            "                 events.")
-        .add_property("activechild", &Excl::getActiveChild, &Excl::setActiveChild)
     ;
 
     class_<PanoImage, bases<Node> >("PanoImage",
@@ -273,7 +259,7 @@ BOOST_PYTHON_MODULE(avg)
                 return_value_policy<manage_new_object>(),
                 "createNode(xml) -> Node\n\n"
                 "Creates a new Node from an xml string. This node can be used as\n"
-                "parameter to Container::addChild(). BROKEN!")
+                "parameter to DivNode::addChild(). BROKEN!")
         .def("setInterval", &Player::setInterval,
                 "setInterval(time, pyfunc) -> id\n\n"
                 "Sets a python callable object that should be executed every time\n"

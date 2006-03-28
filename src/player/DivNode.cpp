@@ -20,10 +20,12 @@
 //
 
 #include "DivNode.h"
-#include "Container.h"
 #include "DisplayEngine.h"
 
+#include "../base/Exception.h"
+
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -33,21 +35,87 @@ DivNode::DivNode()
 {
 }
 
-DivNode::DivNode (const xmlNodePtr xmlNode, Container * pParent)
-    : Container(xmlNode, pParent)
+DivNode::DivNode (const xmlNodePtr xmlNode, DivNode * pParent)
+    : Node(xmlNode, pParent)
 {
     
 }
 
 DivNode::~DivNode()
 {
+    for (unsigned int i = 0; i< m_Children.size(); i++) {
+        delete m_Children[i];
+    }
 }
 
-void DivNode::init(DisplayEngine * pEngine, Container * pParent, 
+void DivNode::init(DisplayEngine * pEngine, DivNode * pParent, 
         Player * pPlayer)
 {
     Node::init(pEngine, pParent, pPlayer);
     Node::initVisible();
+}
+
+int DivNode::getNumChildren ()
+{
+    return m_Children.size();
+}
+
+Node * DivNode::getChild (int i)
+{
+    if (i >= (int)m_Children.size() || i < 0) {
+        stringstream s;
+        s << "Index " << i << " is out of range in DivNode::getChild()";
+        throw(Exception(AVG_ERR_OUT_OF_RANGE, s.str()));
+        
+    }
+    return m_Children[i];
+}
+
+void DivNode::addChild (Node * pNewNode)
+{
+    // Children are ordered according to z-position.
+    vector<Node*>::iterator it;
+    for  (it = m_Children.begin(); it < m_Children.end(); it++) {
+        Node * pOtherNode = *it;
+        if (pNewNode->getZ() < pOtherNode->getZ()) {
+            break;
+        }
+    }
+    m_Children.insert (it, pNewNode);
+}
+
+void DivNode::removeChild (int i)
+{
+    Node * pNode = getChild(i);
+    pNode->invalidate();
+//    JSObject * pJSNode = pNode->getJSPeer();
+//    JSFactoryBase::removeParent(pJSNode, getJSPeer());
+    m_Children.erase(m_Children.begin()+i);
+}
+
+int DivNode::indexOf(Node * pChild)
+{
+    for  (int i = 0; i< (int)m_Children.size(); ++i) {
+        if (m_Children[i] == pChild) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void DivNode::zorderChange (Node * pChild)
+{
+    // Remove child
+    vector<Node*>::iterator it;
+    for  (it = m_Children.begin(); it < m_Children.end(); it++) {
+        if ((*it) == pChild) {
+            m_Children.erase(it);
+            break;
+        }
+    }
+
+    // Add it again.
+    addChild(pChild);
 }
 
 Node * DivNode::getElementByPos (const DPoint & pos)
@@ -107,6 +175,20 @@ void DivNode::getDirtyRegion (Region& DirtyRegion)
 string DivNode::getTypeStr ()
 {
     return "DivNode";
+}
+string DivNode::dump (int indent)
+{
+    string dumpStr = Node::dump () + "\n";
+    vector<Node*>::iterator it;
+    for (it=m_Children.begin(); it<m_Children.end(); it++) {
+        dumpStr += (*it)->dump(indent+2)+"\n";
+    }
+    return dumpStr;
+}
+
+DPoint DivNode::getPreferredMediaSize()
+{
+    return DPoint(10000,10000);
 }
 
 }

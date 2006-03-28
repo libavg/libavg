@@ -46,7 +46,7 @@ Image::Image ()
 {
 }
 
-Image::Image (const xmlNodePtr xmlNode, Container * pParent)
+Image::Image (const xmlNodePtr xmlNode, DivNode * pParent)
     : RasterNode(xmlNode, pParent)
 {
     m_href = getRequiredStringAttr (xmlNode, "href");
@@ -59,7 +59,7 @@ Image::~Image ()
 {
 }
 
-void Image::init (DisplayEngine * pEngine, Container * pParent,
+void Image::init (DisplayEngine * pEngine, DivNode * pParent,
         Player * pPlayer)
 {
     Node::init(pEngine, pParent, pPlayer);

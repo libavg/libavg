@@ -57,7 +57,7 @@ Words::Words ()
 {
 }
 
-Words::Words (const xmlNodePtr xmlNode, Container * pParent)
+Words::Words (const xmlNodePtr xmlNode, DivNode * pParent)
     : RasterNode(xmlNode, pParent)
 {
     m_FontName = getDefaultedStringAttr (xmlNode, "font", "arial");
@@ -91,7 +91,7 @@ void Words::initText(const string& sText)
     }
 }
 
-void Words::init (DisplayEngine * pEngine, Container * pParent,
+void Words::init (DisplayEngine * pEngine, DivNode * pParent,
            Player * pPlayer)
 {
     Node::init(pEngine, pParent, pPlayer);

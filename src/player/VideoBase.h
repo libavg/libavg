@@ -36,7 +36,7 @@ class VideoBase : public RasterNode
     public:
         virtual ~VideoBase ();
         
-        virtual void init (DisplayEngine * pEngine, Container * pParent, 
+        virtual void init (DisplayEngine * pEngine, DivNode * pParent, 
                 Player * pPlayer);
 
         void play();
@@ -52,7 +52,7 @@ class VideoBase : public RasterNode
         
     protected:        
         VideoBase ();
-        VideoBase (const xmlNodePtr xmlNode, Container * pParent);
+        VideoBase (const xmlNodePtr xmlNode, DivNode * pParent);
         virtual DPoint getPreferredMediaSize();
         typedef enum VideoState {Unloaded, Paused, Playing};
         virtual VideoState getState() const;

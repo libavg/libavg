@@ -24,7 +24,7 @@
 
 #include "Event.h"
 #include "MouseEvent.h"
-#include "Container.h"
+#include "DivNode.h"
 #include "Player.h"
 #include "DisplayEngine.h"
 
@@ -66,7 +66,7 @@ Node::Node ()
 {
 }
 
-Node::Node (const xmlNodePtr xmlNode, Container * pParent)
+Node::Node (const xmlNodePtr xmlNode, DivNode * pParent)
     : m_pParent(pParent),
       m_pPlayer(0),
       m_RelViewport(0,0,0,0),
@@ -94,7 +94,7 @@ Node::~Node()
 {
 }
 
-void Node::init(DisplayEngine * pEngine, Container * pParent, 
+void Node::init(DisplayEngine * pEngine, DivNode * pParent, 
         Player * pPlayer)
 {
     m_pParent = pParent;
@@ -197,7 +197,7 @@ void Node::setActive(bool bActive)
     }
 }
 
-Container* Node::getParent() const
+DivNode* Node::getParent() const
 {
     return m_pParent;
 }
@@ -385,7 +385,7 @@ string Node::getTypeStr ()
 }
 
 
-void Node::setParent(Container * pParent)
+void Node::setParent(DivNode * pParent)
 {
     if (m_pParent) {
         throw(Exception(AVG_ERR_UNSUPPORTED, 

@@ -22,21 +22,31 @@
 #ifndef _DivNode_H_
 #define _DivNode_H_
 
-#include "Container.h"
+#include "Node.h"
+
 #include "../graphics/Point.h"
+
 #include <string>
 
 namespace avg {
     
-class DivNode : public Container
+class DivNode : public Node
 {
 	public:
         DivNode ();
-        DivNode (const xmlNodePtr xmlNode, Container * pParent);
+        DivNode (const xmlNodePtr xmlNode, DivNode * pParent);
         virtual ~DivNode ();
-        virtual void init(DisplayEngine * pEngine, Container * pParent, 
+        virtual void init(DisplayEngine * pEngine, DivNode * pParent, 
                 Player * pPlayer);
 
+        int getNumChildren ();
+        Node * getChild (int i);
+        void addChild (Node * newNode);
+        void removeChild (int i);
+        int indexOf(Node * pChild);
+
+        void zorderChange (Node * pChild);
+        
         virtual Node * getElementByPos (const DPoint & pos);
         virtual void prepareRender (int time, const DRect& parent);
         virtual void render (const DRect& rect);
@@ -44,6 +54,13 @@ class DivNode : public Container
         virtual void getDirtyRegion (Region& Dirtyregion);
         virtual std::string getTypeStr ();
 
+        virtual std::string dump (int indent = 0);
+
+    protected:
+        virtual Point<double> getPreferredMediaSize();	
+    
+    private:
+        std::vector <Node *> m_Children;
 };
 
 }

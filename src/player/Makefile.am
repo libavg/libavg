@@ -39,9 +39,9 @@ else
     APPLE_INCLUDES = 
 endif
 
-ALL_H = Player.h IEventSource.h IEventSink.h Excl.h VideoBase.h Video.h\
+ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
         DisplayEngine.h Region.h Node.h \
-        ISurface.h Container.h \
+        ISurface.h \
         MathHelper.h AVGNode.h DivNode.h \
         Image.h \
         Timeout.h Words.h \
@@ -49,15 +49,15 @@ ALL_H = Player.h IEventSource.h IEventSink.h Excl.h VideoBase.h Video.h\
         Event.h KeyEvent.h \
         VideoBase.h \
         Video.h FFMpegDecoder.h IVideoDecoder.h \
-        Excl.h PanoImage.h \
+        PanoImage.h \
         RasterNode.h Camera.h \
         $(GL_INCLUDES) $(DFB_INCLUDES) $(APPLE_INCLUDES)
 
 noinst_LTLIBRARIES = libplayer.la
 libplayer_la_SOURCES = $(GL_SOURCES) $(DFB_SOURCES) \
-		Player.cpp Excl.cpp VideoBase.cpp Video.cpp DisplayEngine.cpp\
+		Player.cpp VideoBase.cpp Video.cpp DisplayEngine.cpp\
         Region.cpp Node.cpp FFMpegDecoder.cpp \
-        Container.cpp  MathHelper.cpp PanoImage.cpp Words.cpp Camera.cpp \
+        MathHelper.cpp PanoImage.cpp Words.cpp Camera.cpp \
         DivNode.cpp Timeout.cpp DebugEventSink.cpp Event.cpp \
         Image.cpp EventDispatcher.cpp KeyEvent.cpp MouseEvent.cpp\
         RasterNode.cpp AVGNode.cpp \

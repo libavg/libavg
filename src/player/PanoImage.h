@@ -40,11 +40,11 @@ class PanoImage : public Node
 {
 	public:
         PanoImage ();
-        PanoImage (const xmlNodePtr xmlNode, Container * pParent);
+        PanoImage (const xmlNodePtr xmlNode, DivNode * pParent);
         virtual ~PanoImage ();
         
         virtual void init (DisplayEngine * pEngine, 
-                Container * pParent, Player * pPlayer);
+                DivNode * pParent, Player * pPlayer);
         virtual void render (const DRect& Rect);
         virtual bool obscures (const DRect& Rect, int z);
         virtual std::string getTypeStr ();

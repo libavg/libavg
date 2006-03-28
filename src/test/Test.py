@@ -229,26 +229,6 @@ class PlayerTestCase(unittest.TestCase):
     def testBroken(self):
         Player.loadFile("noxml.avg")
         Player.loadFile("noavg.avg")
-    def testExcl(self):
-        def setExcl(i):
-            node = Player.getElementByID("switch")
-            node.activechild = i
-        def activateExcl(b):
-            node = Player.getElementByID("switch")
-            node.active = b
-        def move():
-            node = Player.getElementByID("div")
-            node.x += 1
-        Player.loadFile("excl.avg")
-        Player.setTimeout(300, lambda : setExcl(0))
-        Player.setTimeout(600, lambda : setExcl(1))
-        Player.setTimeout(900, lambda : setExcl(2))
-        Player.setTimeout(1200, lambda : setExcl(3))
-        Player.setTimeout(1500, lambda : activateExcl(0))
-        Player.setTimeout(1500, lambda : activateExcl(1))
-        Player.setInterval(10, move)
-        Player.setTimeout(2000, Player.stop)
-        Player.play()
     def testAnimation(self):
         def moveit():
             node = Player.getElementByID("nestedimg1")
@@ -525,7 +505,6 @@ def playerTestSuite(engine, bpp):
 #    suite.addTest(PlayerTestCase("testDynamics", engine, bpp))
     suite.addTest(PlayerTestCase("testHugeImage", engine, bpp))
     suite.addTest(PlayerTestCase("testBroken", engine, bpp))
-    suite.addTest(PlayerTestCase("testExcl", engine, bpp))
     suite.addTest(PlayerTestCase("testAnimation", engine, bpp))
     suite.addTest(PlayerTestCase("testBlend", engine, bpp))
     suite.addTest(PlayerTestCase("testCrop", engine, bpp))

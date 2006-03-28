@@ -34,7 +34,7 @@
 
 namespace avg {
 
-class Container;
+class DivNode;
 class Event;
 class Region;
 class DisplayEngine;
@@ -46,7 +46,7 @@ class Node
 {
     public:
         virtual ~Node () = 0;
-        virtual void init(DisplayEngine * pEngine, Container * pParent,
+        virtual void init(DisplayEngine * pEngine, DivNode * pParent,
                 Player * pPlayer);
         virtual void initVisible();
         
@@ -76,7 +76,7 @@ class Node
         bool getActive() const;
         void setActive(bool bActive);
 
-        virtual Container * getParent() const;
+        virtual DivNode * getParent() const;
 
         bool isActive();
         virtual Node * getElementByPos (const DPoint & pos);
@@ -96,7 +96,7 @@ class Node
 
         virtual std::string dump (int indent = 0);
         virtual std::string getTypeStr ();
-        void setParent(Container * pParent);
+        void setParent(DivNode * pParent);
         
         virtual void handleMouseEvent (MouseEvent* pEvent); 
         virtual void invalidate();
@@ -107,7 +107,7 @@ class Node
 
     protected:
         Node ();
-        Node (const xmlNodePtr xmlNode, Container * pParent);
+        Node (const xmlNodePtr xmlNode, DivNode * pParent);
         virtual DPoint getPreferredMediaSize() 
             { return DPoint(0,0); };
         Player * getPlayer();
@@ -121,7 +121,7 @@ class Node
     private:
         void calcAbsViewport();
 
-        Container * m_pParent;
+        DivNode * m_pParent;
         DisplayEngine * m_pEngine;
         Player * m_pPlayer;
 
