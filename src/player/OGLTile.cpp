@@ -100,7 +100,9 @@ void OGLTile::blt(const DPoint& TLPoint, const DPoint& TRPoint,
     } else {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(TextureMode, m_TexID[0]);
-        glproc::UseProgramObject(0);
+        if (m_pEngine->getYCbCrMode() == SDLDisplayEngine::OGL_SHADER) {
+            glproc::UseProgramObject(0);
+        }
     }
     glBegin(GL_QUADS);
     glTexCoord2d(0.0, 0.0);

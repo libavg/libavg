@@ -207,7 +207,7 @@ DPoint OGLSurface::getOrigVertexCoord(int x, int y)
                 "getOrigVertexCoord called, but image not available.");
         return DPoint(0,0);
     }
-    if (x < 0 || x >= m_NumHorizTextures || y < 0 || y >= m_NumVertTextures) {
+    if (x < 0 || x > m_NumHorizTextures || y < 0 || y > m_NumVertTextures) {
         AVG_TRACE(Logger::WARNING, 
                 "getOrigVertexCoord called, but coordinate out of bounds.");
         return DPoint(0,0);
@@ -224,7 +224,7 @@ DPoint OGLSurface::getWarpedVertexCoord(int x, int y)
                 "getWarpedVertexCoord called, but image not available.");
         return DPoint(0,0);
     }
-    if (x < 0 || x >= m_NumHorizTextures || y < 0 || y >= m_NumVertTextures) {
+    if (x < 0 || x > m_NumHorizTextures || y < 0 || y > m_NumVertTextures) {
         AVG_TRACE(Logger::WARNING, 
                 "getWarpedVertexCoord called, but coordinate out of bounds.");
         return DPoint(0,0);
@@ -239,7 +239,7 @@ void OGLSurface::setWarpedVertexCoord(int x, int y, const DPoint& Vertex)
                 "setWarpedVertexCoord called, but image not available.");
         return;
     }
-    if (x < 0 || x >= m_NumHorizTextures || y < 0 || y >= m_NumVertTextures) {
+    if (x < 0 || x > m_NumHorizTextures || y < 0 || y > m_NumVertTextures) {
         AVG_TRACE(Logger::WARNING, 
                 "setWarpedVertexCoord called, but coordinate out of bounds.");
         return;
@@ -284,16 +284,16 @@ void OGLSurface::bind()
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "OGLSurface::bind: glPixelStorei(GL_UNPACK_ALIGNMENT)");
         
-        glTexParameteri(TextureMode, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(TextureMode, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(TextureMode, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(TextureMode, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "OGLSurface::bind: glTexParameteri()");
-
         for (int y=0; y<m_NumVertTextures; y++) {
             m_pTiles.push_back(v);
             for (int x=0; x<m_NumHorizTextures; x++) {
+                glTexParameteri(TextureMode, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(TextureMode, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                glTexParameteri(TextureMode, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                glTexParameteri(TextureMode, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                        "OGLSurface::bind: glTexParameteri()");
+
                 IntPoint CurSize = m_TileSize;
                 if (y == m_NumVertTextures-1) {
                     CurSize.y = Height-y*m_TileSize.y;

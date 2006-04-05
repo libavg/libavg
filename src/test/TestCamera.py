@@ -8,7 +8,7 @@ sys.path.append('/usr/local/lib/python2.3/site-packages/libavg')
 sys.path.append('/usr/local/lib/python2.4/site-packages/libavg')
 import avg
 
-class VideoTestCase(unittest.TestCase):
+class CameraTestCase(unittest.TestCase):
     def __init__(self, testFuncName, engine, bpp):
         self.__engine = engine
         self.__bpp = bpp;
@@ -19,17 +19,25 @@ class VideoTestCase(unittest.TestCase):
         Player.setDisplayEngine(self.__engine)
         Player.setResolution(0, 0, 0, self.__bpp)
     def test(self):
+        def onFrame():
+            print "wb: ", self.__camera.whitebalance
+        def setWhitebalance():
+            self.__camera.whitebalance = 24407
+        def resetWhitebalance():
+            self.__camera.whitebalance = -1
         self.curFrame = 200
         Player.loadFile("camera.avg")
         Player.setFramerate(30)
-        Player.getElementByID("camera").play()
+        self.__camera = Player.getElementByID("camera")
+        self.__camera.play()
+        Player.setInterval(100, onFrame)
+        Player.setTimeout(500, setWhitebalance)
+        Player.setTimeout(1000, resetWhitebalance)
         Player.play()
-
-
 
 def playerTestSuite(engine, bpp):
     suite = unittest.TestSuite()
-    suite.addTest(VideoTestCase("test", engine, bpp))
+    suite.addTest(CameraTestCase("test", engine, bpp))
     return suite
 
 Player = avg.Player()

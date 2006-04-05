@@ -304,13 +304,22 @@ class PlayerTestCase(unittest.TestCase):
             pos.x += 0.002
             pos.y += 0.002
             node.setWarpedVertexCoord(0,0,pos)
+        def flip():
+            Player.clearInterval(self.__moverID)
+            node = Player.getElementByID("testtiles")
+            for y in range(node.getNumVerticesY()):
+                for x in range(node.getNumVerticesX()):
+                    pos = node.getOrigVertexCoord(x,y)
+                    pos.x = 1-pos.x
+                    node.setWarpedVertexCoord(x,y,pos)
         Player.loadFile("video.avg")
         Player.getElementByID("clogo1").play()
         node = Player.getElementByID("testtiles")
         print("Vertices: "+str(node.getNumVerticesX())+"x"
                 +str(node.getNumVerticesY()))
-        Player.setInterval(10, moveVertex)
-        Player.setTimeout(5000, Player.stop)
+        self.__moverID = Player.setInterval(10, moveVertex)
+        Player.setTimeout(1000, flip)
+        Player.setTimeout(2000, Player.stop)
         Player.play()  
         
         
@@ -532,6 +541,6 @@ else:
     bpp = int(sys.argv[2])
 
 #    runner.run(LoggerTestCase("test"))
-#    runner.run(VideoTestCase("test", engine, bpp))
+#    runner.run(PlayerTestCase("testWarp", engine, bpp))
     runner.run(playerTestSuite(engine, bpp))
 

@@ -112,7 +112,7 @@ void export_raster()
                 "cursor.")
         .def("pause", &VideoBase::pause,
                 "pause() -> None\n\n"
-                "Stpos video playback but doesn't close the file. The playback\n"
+                "Stops video playback but doesn't close the file. The playback\n"
                 "cursor stays at the same position.")
         .def("getFPS", &VideoBase::getFPS)
     ;  
@@ -123,7 +123,7 @@ void export_raster()
             "    device (ro)\n"
             "    framerate (ro)\n"
             "    mode (ro)\n"
-            "    brightness, exposure, sharpness, saturation, gamma, shutter, gain")
+            "    brightness, exposure, sharpness, saturation, gamma, shutter, gain, whitebalance")
         .add_property("device", make_function(&Camera::getDevice,
                 return_value_policy<copy_const_reference>()))
         .add_property("framerate", &Camera::getFrameRate)
@@ -136,6 +136,7 @@ void export_raster()
         .add_property("gamma", &Camera::getGamma, &Camera::setGamma)
         .add_property("shutter", &Camera::getShutter, &Camera::setShutter)
         .add_property("gain", &Camera::getGain, &Camera::setGain)
+        .add_property("whitebalance", &Camera::getWhiteBalance, &Camera::setWhiteBalance)
     ;
         
     class_<Video, bases<VideoBase> >("Video",

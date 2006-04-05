@@ -94,7 +94,7 @@ class Camera : public VideoBase
             return getFeature ("sharpness");
         }
         
-        int getWhiteBalance() const
+        unsigned int getWhiteBalance() const
         {
             return getFeature ("whitebalance");
         }
@@ -148,6 +148,7 @@ class Camera : public VideoBase
         {
             setFeature ("whitebalance", Value);
         }
+            
 
         unsigned int getFeature (const std::string& sFeature) const;
         void setFeature (const std::string& sFeature, int Value);

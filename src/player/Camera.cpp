@@ -85,7 +85,7 @@ Camera::Camera (const xmlNodePtr xmlNode, DivNode * pParent)
     setFeature ("gamma", getDefaultedIntAttr(xmlNode, "gamma", -1));
     setFeature ("shutter", getDefaultedIntAttr(xmlNode, "shutter", -1));
     setFeature ("gain", getDefaultedIntAttr(xmlNode, "gain", -1));
-    setFeature ("white_balance", getDefaultedIntAttr(xmlNode, "whitebalance", -1));
+    setFeature ("whitebalance", getDefaultedIntAttr(xmlNode, "whitebalance", -1));
 }
 
 Camera::~Camera ()
@@ -153,7 +153,19 @@ unsigned int Camera::getFeature (const std::string& sFeature) const
 #ifdef AVG_ENABLE_1394
     int FeatureID = getFeatureID(sFeature);
     unsigned int Value;
-    dc1394_get_feature_value(m_FWHandle, m_Camera.node, FeatureID, &Value);
+    int err;
+    if (FeatureID == FEATURE_WHITE_BALANCE) {
+        unsigned u_b_value;
+        unsigned v_r_value;
+        err = dc1394_get_white_balance(m_FWHandle, m_Camera.node, &u_b_value, &v_r_value);
+        Value = ((u_b_value & 0xff) << 8) | (v_r_value & 0xff);
+    } else {
+        err = dc1394_get_feature_value(m_FWHandle, m_Camera.node, FeatureID, &Value);
+    }
+    if (err != DC1394_SUCCESS) {
+        AVG_TRACE(Logger::WARNING, "Camera: Unable to get " << sFeature << 
+                ". Error was " << err);
+    }
     return Value;
 #else
     return 0;
@@ -180,8 +192,20 @@ void Camera::setFeature(int FeatureID)
             dc1394_auto_on_off(m_FWHandle, m_Camera.node, FeatureID, 1);
         } else {
             dc1394_auto_on_off(m_FWHandle, m_Camera.node, FeatureID, 0);
-            dc1394_set_feature_value(m_FWHandle, m_Camera.node, FeatureID,
-                    (unsigned int)Value);
+            int err;
+            if (FeatureID == FEATURE_WHITE_BALANCE) {
+                unsigned u_b_value = (Value >> 8) & 0xff;
+                unsigned v_r_value = Value & 0xff;
+                err = dc1394_set_white_balance(m_FWHandle, m_Camera.node, 
+                        u_b_value, v_r_value);
+            } else {
+                err = dc1394_set_feature_value(m_FWHandle, m_Camera.node, FeatureID, 
+                        (unsigned int)Value);
+            } 
+            if (err != DC1394_SUCCESS) {
+                AVG_TRACE(Logger::WARNING, "Camera: Unable to set " << FeatureID << 
+                        ". Error was " << err);
+            }
         }
     }
 #endif
@@ -213,7 +237,7 @@ double Camera::getFPS()
 
 void Camera::open(int* pWidth, int* pHeight)
 {
-    int CaptureFormat;
+    int CaptureFormat = 0;
     *pWidth = getNativeSize().x;
     *pHeight = getNativeSize().y;
     
@@ -657,7 +681,7 @@ int Camera::getFeatureID(const std::string& sFeature) const
         return FEATURE_EXPOSURE;
     } else if (sFeature == "sharpness") {
         return FEATURE_SHARPNESS;
-    } else if (sFeature == "white_balance") {
+    } else if (sFeature == "whitebalance") {
         return FEATURE_WHITE_BALANCE;
     } else if (sFeature == "hue") {
         return FEATURE_HUE;

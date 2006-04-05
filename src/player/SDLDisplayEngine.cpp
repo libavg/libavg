@@ -433,13 +433,9 @@ bool SDLDisplayEngine::supportsBpp(int bpp)
 
 bool SDLDisplayEngine::hasRGBOrdering()
 {
-    // So far, false is lots faster on NVIDIA, but true is faster for intel 
-    // i810 MESA.
-    if (!strcmp((char *)glGetString(GL_VENDOR), "NVIDIA Corporation")) {
-        return false;
-    } else {
-        return true;
-    }
+    // So far, false is alot faster on linux NVIDIA proprietary drivers.
+    // Not sure for other drivers.
+    return false;
 }
 
 DisplayEngine::YCbCrMode SDLDisplayEngine::getYCbCrMode()
