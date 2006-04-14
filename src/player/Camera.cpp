@@ -119,9 +119,9 @@ void Camera::init (DisplayEngine * pEngine, DivNode * pParent,
 */
     if (m_sMode == "640x480_YUV411") {
         m_Mode = MODE_640x480_YUV411;
-/*    } else if (sMode == "640x480_YUV422") {
+    } else if (m_sMode == "640x480_YUV422") {
         m_Mode = MODE_640x480_YUV422;
-*/        
+        
     } else if (m_sMode == "640x480_RGB") {
         m_Mode = MODE_640x480_RGB;
 /*    } else if (sMode == "640x480_MONO") {
@@ -134,7 +134,8 @@ void Camera::init (DisplayEngine * pEngine, DivNode * pParent,
     } else if (m_sMode == "1024x768_YUV422") {
         m_Mode = MODE_1024x768_YUV422;
     } else {
-        fatalError (std::string("Unsupported or illegal value for camera mode \"") + m_sMode + std::string("\"."));
+        fatalError (std::string("Unsupported or illegal value for camera mode \"") 
+                + m_sMode + std::string("\"."));
     }
 #else
     AVG_TRACE(Logger::ERROR,
@@ -216,6 +217,7 @@ IntPoint Camera::getNativeSize()
 #ifdef AVG_ENABLE_1394
     switch(m_Mode) {
         case MODE_640x480_YUV411:
+        case MODE_640x480_YUV422:
         case MODE_640x480_RGB:
             return IntPoint(640, 480);
         case MODE_1024x768_RGB:
@@ -437,6 +439,7 @@ bool Camera::renderToSurface(ISurface * pSurface)
 #endif            
             // New frame available
             switch (m_Mode) {
+                case MODE_640x480_YUV422:
                 case MODE_1024x768_YUV422:
                     {
                         BitmapPtr pBmp = pSurface->lockBmp();

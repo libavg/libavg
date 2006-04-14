@@ -140,7 +140,7 @@ void Player::loadFile (const std::string& filename)
                 m_sDisplaySubsystem);
         AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_BPP);
         AVG_TRACE(Logger::CONFIG, "Display fullscreen: "
-                << m_bFullscreen?"true":"false");
+                << (m_bFullscreen?"true":"false"));
 
         if (!m_pDisplayEngine) {
             if (m_sDisplaySubsystem == "DFB") {
@@ -156,6 +156,29 @@ void Player::loadFile (const std::string& filename)
 #endif
             } else if (m_sDisplaySubsystem == "OGL") {
 #ifdef AVG_ENABLE_GL
+                AVG_TRACE(Logger::CONFIG, "Requested OGL configuration: ");
+                AVG_TRACE(Logger::CONFIG, "  POW2 textures: " 
+                        << (m_bUsePOW2Textures?"true":"false"));
+                string sMode;
+                switch (m_YCbCrMode) {
+                    case DisplayEngine::NONE:
+                        AVG_TRACE(Logger::CONFIG, "  No YCbCr texture support.");
+                        break;
+                    case DisplayEngine::OGL_MESA:
+                        AVG_TRACE(Logger::CONFIG, "  Mesa YCbCr texture support.");
+                        break;
+                    case DisplayEngine::OGL_APPLE:
+                        AVG_TRACE(Logger::CONFIG, "  Apple YCbCr texture support.");
+                        break;
+                    case DisplayEngine::OGL_SHADER:
+                        AVG_TRACE(Logger::CONFIG, "  Fragment shader YCbCr texture support.");
+                        break;
+                }
+                AVG_TRACE(Logger::CONFIG, "  RGB order: " 
+                        << (m_bUseRGBOrder?"true":"false"));
+                AVG_TRACE(Logger::CONFIG, "  Use pixel buffers: " 
+                        << (m_bUsePixelBuffers?"true":"false"));
+                
                 m_pDisplayEngine = new SDLDisplayEngine ();
                 m_pEventSource = 
                     dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine);
@@ -453,18 +476,7 @@ void Player::initConfig() {
                 << m_BPP << ". Aborting." );
         exit(-1);
     }
-
-    string sFullscreen = *pMgr->getOption("scr", "fullscreen");
-    if (sFullscreen == "true") {
-        m_bFullscreen = true;
-    } else if (sFullscreen == "false") {
-        m_bFullscreen = false;
-    } else {
-        AVG_TRACE(Logger::ERROR, 
-                "Unrecognized value for option fullscreen: " 
-                << sFullscreen);
-        exit(-1);
-    }
+    m_bFullscreen = pMgr->getBoolOption("scr", "fullscreen", false);
 
     m_WindowWidth = atoi(pMgr->getOption("scr", "windowwidth")->c_str());
     m_WindowHeight = atoi(pMgr->getOption("scr", "windowheight")->c_str());
@@ -479,6 +491,38 @@ void Player::initConfig() {
         AVG_TRACE(Logger::ERROR, 
                 "(aspect ratio is determined by avg file). Aborting.");
         exit(-1);
+    }
+
+    if (m_sDisplaySubsystem == "DFB") {
+        if  (pMgr->getOption("scr", "usepow2textures") != 0 || 
+             pMgr->getOption("scr", "ycbcrmode") != 0 ||
+             pMgr->getOption("scr", "usergborder") != 0 ||
+             pMgr->getOption("scr", "usepixelbuffers") != 0) 
+        {
+            AVG_TRACE(Logger::WARNING, 
+                    "avgrc: usepow2textures, ycbcrmode, usergborder and usepixelbuffers are unsupported in the DirectFB backend. Ignoring.");
+        }
+    } else {
+        m_bUsePOW2Textures = pMgr->getBoolOption("scr", "usepow2textures", false);
+        
+        const string * psYCbCrMode =pMgr->getOption("scr", "ycbcrmode");
+        if (psYCbCrMode == 0 || *psYCbCrMode == "shader") {
+            m_YCbCrMode = DisplayEngine::OGL_SHADER;
+        } else if (*psYCbCrMode == "mesa") {
+            m_YCbCrMode = DisplayEngine::OGL_MESA;
+        } else if (*psYCbCrMode == "apple") {
+            m_YCbCrMode = DisplayEngine::OGL_APPLE;
+        } else if (*psYCbCrMode == "none") {
+            m_YCbCrMode = DisplayEngine::NONE;
+        } else {
+            AVG_TRACE(Logger::ERROR, 
+                    "avgrc: ycbcrmode must be shader, mesa, apple or none. Current value is " 
+                    << *psYCbCrMode << ". Aborting." );
+            exit(-1);
+        }
+
+        m_bUseRGBOrder = pMgr->getBoolOption("scr", "usergborder", false);
+        m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
     }
 }
 
@@ -577,6 +621,11 @@ void Player::initNode(Node * pNode, DivNode * pParent)
 void Player::initDisplay(const xmlNodePtr xmlNode) {
     int Height = getDefaultedIntAttr (xmlNode, "height", 0);
     int Width = getDefaultedIntAttr (xmlNode, "width", 0);
+    SDLDisplayEngine * pSDLDisplayEngine = dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine);
+    if (pSDLDisplayEngine) {
+        pSDLDisplayEngine->setOGLOptions(m_bUsePOW2Textures, m_YCbCrMode, m_bUseRGBOrder,
+                m_bUsePixelBuffers);
+    }
     m_pDisplayEngine->init(Width, Height, m_bFullscreen, m_BPP, 
             m_WindowWidth, m_WindowHeight);
     m_pDisplayEngine->showCursor(m_bShowCursor);

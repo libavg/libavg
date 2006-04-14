@@ -104,7 +104,8 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_pScreen(0),
       m_VBMod(0),
       m_TextureMode(0),
-      m_MaxTexSize(0)
+      m_MaxTexSize(0),
+      m_bCheckedMemoryMode(false)
 {
 #ifdef __APPLE__
     static bool bSDLInitialized = false;
@@ -435,7 +436,7 @@ bool SDLDisplayEngine::hasRGBOrdering()
 {
     // So far, false is alot faster on linux NVIDIA proprietary drivers.
     // Not sure for other drivers.
-    return false;
+    return m_bShouldUseRGBOrder;
 }
 
 DisplayEngine::YCbCrMode SDLDisplayEngine::getYCbCrMode()
@@ -489,7 +490,8 @@ void SDLDisplayEngine::checkYCbCrSupport()
     if (queryOGLExtension("GL_ARB_fragment_shader") &&
         queryOGLExtension("GL_ARB_texture_rectangle") &&
         (queryOGLExtension("GL_ARB_pixel_buffer_object") || 
-         queryOGLExtension("GL_EXT_pixel_buffer_object")))
+         queryOGLExtension("GL_EXT_pixel_buffer_object")) &&
+        m_DesiredYCbCrMode == OGL_SHADER && m_bShouldUsePixelBuffers)
     {
         m_YCbCrMode = OGL_SHADER;
         string sProgram =
@@ -516,9 +518,13 @@ void SDLDisplayEngine::checkYCbCrSupport()
             ;
         m_pYCbCrShader = OGLShaderPtr(new OGLShader(sProgram));
     } else 
-    if (queryOGLExtension("GL_MESA_ycbcr_texture")) {
+    if (queryOGLExtension("GL_MESA_ycbcr_texture") &&
+            (m_DesiredYCbCrMode == OGL_SHADER || m_DesiredYCbCrMode == OGL_MESA))
+    {
         m_YCbCrMode = OGL_MESA;
-    } else if (queryOGLExtension("GL_APPLE_ycbcr_422")) {
+    } else if (queryOGLExtension("GL_APPLE_ycbcr_422") &&
+            (m_DesiredYCbCrMode == OGL_SHADER || m_DesiredYCbCrMode == OGL_APPLE))
+    {
         m_YCbCrMode = OGL_APPLE;
     }
 }
@@ -1086,21 +1092,25 @@ void SDLDisplayEngine::initTranslationTable()
 
 int SDLDisplayEngine::getTextureMode()
 {
-     if (m_TextureMode == 0) {
-        if (queryOGLExtension("GL_NV_texture_rectangle")) {
-            m_TextureMode = GL_TEXTURE_RECTANGLE_NV;
-            AVG_TRACE(Logger::CONFIG, 
-                    "Using NVidia texture rectangle extension.");
-        } else if (queryOGLExtension("GL_EXT_texture_rectangle") ||
-                   queryOGLExtension("GL_ARB_texture_rectangle")) 
-        {
-            m_TextureMode = GL_TEXTURE_RECTANGLE_ARB;
-            AVG_TRACE(Logger::CONFIG, 
-                    "Using portable texture rectangle extension.");
-        } else {
+    if (m_TextureMode == 0) {
+        if (m_bShouldUsePOW2Textures) {
             m_TextureMode = GL_TEXTURE_2D;
-            AVG_TRACE(Logger::CONFIG, 
-                    "Using power of 2 textures.");
+            AVG_TRACE(Logger::CONFIG, "Using power of 2 textures.");
+        } else {
+            if (queryOGLExtension("GL_NV_texture_rectangle")) {
+                m_TextureMode = GL_TEXTURE_RECTANGLE_NV;
+                AVG_TRACE(Logger::CONFIG, 
+                        "Using NVidia texture rectangle extension.");
+            } else if (queryOGLExtension("GL_EXT_texture_rectangle") ||
+                    queryOGLExtension("GL_ARB_texture_rectangle")) 
+            {
+                m_TextureMode = GL_TEXTURE_RECTANGLE_ARB;
+                AVG_TRACE(Logger::CONFIG, 
+                        "Using portable texture rectangle extension.");
+            } else {
+                m_TextureMode = GL_TEXTURE_2D;
+                AVG_TRACE(Logger::CONFIG, "Using power of 2 textures.");
+            }
         }
     }
     return m_TextureMode;
@@ -1191,6 +1201,52 @@ int SDLDisplayEngine::getOGLPixelType(PixelFormat pf)
     } else {
         return GL_UNSIGNED_BYTE;
     }
+}
+
+OGLMemoryMode SDLDisplayEngine::getMemoryModeSupported()
+{
+    if (!m_bCheckedMemoryMode) {
+        if ((queryOGLExtension("GL_ARB_pixel_buffer_object") || 
+             queryOGLExtension("GL_EXT_pixel_buffer_object")) &&
+            m_bShouldUsePixelBuffers)
+        {
+            m_MemoryMode = PBO;
+            AVG_TRACE(Logger::CONFIG, "Using pixel buffer objects.");
+/*
+#ifndef __APPLE__
+        } else if (queryGLXExtension("GLX_MESA_allocate_memory")) {
+            // Disabled because it's buggy.
+            s_MemoryMode = MESA;
+            s_AllocMemMESAProc = (PFNGLXALLOCATEMEMORYMESAPROC)
+                    glXGetProcAddressARB((const GLubyte*)"glXAllocateMemoryMESA");
+            s_FreeMemMESAProc = (PFNGLXFREEMEMORYMESAPROC)
+                    glXGetProcAddressARB((const GLubyte*)"glXFreeMemoryMESA");
+            AVG_TRACE(Logger::CONFIG, "Using MESA extension to allocate AGP memory.");
+#endif
+*/
+        } else {
+            m_MemoryMode = OGL;
+            AVG_TRACE(Logger::CONFIG, "Not using GL memory extensions.");
+        }
+        m_bCheckedMemoryMode = true;
+    }
+    return m_MemoryMode;
+}
+
+
+
+void SDLDisplayEngine::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode, 
+        bool bUseRGBOrder, bool bUsePixelBuffers)
+{
+    if (m_pScreen) {
+        AVG_TRACE(Logger::ERROR, 
+                "setOGLOptions called after display initialization. Ignored.");
+        return;
+    }
+    m_bShouldUsePOW2Textures = bUsePOW2Textures;
+    m_DesiredYCbCrMode = DesiredYCbCrMode;
+    m_bShouldUseRGBOrder = bUseRGBOrder;
+    m_bShouldUsePixelBuffers = bUsePixelBuffers;
 }
 
 }

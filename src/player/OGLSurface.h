@@ -85,8 +85,6 @@ class OGLSurface: public ISurface {
                 const DPoint & NormalizedVertex);
         void checkBlendModeError(std::string sMode);
 
-        static OGLMemoryMode getMemoryModeSupported();
-   
         SDLDisplayEngine * m_pEngine;
         
         bool m_bBound;

@@ -501,7 +501,6 @@ class AnimTestCase(unittest.TestCase):
 def playerTestSuite(engine, bpp):
     suite = unittest.TestSuite()
  
-    suite.addTest(LoggerTestCase("test"))
     if sys.platform != "darwin":
         suite.addTest(ParPortTestCase("test"))
     suite.addTest(ConradRelaisTestCase("test"))
@@ -540,7 +539,7 @@ else:
         print "First parameter must be OGL or DFB"
     bpp = int(sys.argv[2])
 
-#    runner.run(LoggerTestCase("test"))
+    runner.run(LoggerTestCase("test"))
 #    runner.run(PlayerTestCase("testWarp", engine, bpp))
     runner.run(playerTestSuite(engine, bpp))
 

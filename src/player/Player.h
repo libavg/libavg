@@ -28,7 +28,7 @@
 #include "Timeout.h"
 #include "KeyEvent.h"
 #include "MouseEvent.h"
-
+#include "DisplayEngine.h"
 
 #include "../base/IFrameListener.h"
 
@@ -45,9 +45,7 @@ class Node;
 class DivNode;
 class Event;
 class MouseEvent;
-class ConradRelais;
 class DisplayEngine;
-class Camera;
 
 class Player : IEventSink
 {
@@ -130,6 +128,11 @@ class Player : IEventSink
         int m_WindowWidth;
         int m_WindowHeight;
         bool m_bShowCursor;
+        bool m_bUsePOW2Textures;
+        DisplayEngine::YCbCrMode m_YCbCrMode;
+        bool m_bUseRGBOrder;
+        bool m_bUsePixelBuffers;
+        
 
         bool m_bIsPlaying;
 

@@ -89,6 +89,10 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         int getOGLDestMode(PixelFormat pf);
         int getOGLSrcMode(PixelFormat pf);
         int getOGLPixelType(PixelFormat pf);
+        OGLMemoryMode getMemoryModeSupported();
+
+        void setOGLOptions(bool bUsePOW2Textures, YCbCrMode ycbcrMode, bool bUseRGBOrder,
+                bool bUsePixelBuffers);
 
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);
@@ -142,6 +146,14 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         // Texture config.
         int m_TextureMode;
         int m_MaxTexSize;
+
+        bool m_bShouldUsePOW2Textures;
+        YCbCrMode m_DesiredYCbCrMode;
+        bool m_bShouldUseRGBOrder;
+        bool m_bShouldUsePixelBuffers;
+
+        bool m_bCheckedMemoryMode;
+        OGLMemoryMode m_MemoryMode;
 };
 
 }

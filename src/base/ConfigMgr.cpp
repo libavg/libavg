@@ -30,11 +30,10 @@
 #include <unistd.h>
 #include <errno.h>
 
-// TODO: Refactor - this stuff is left over from pre-python days.
-
 using namespace std;
  
 namespace avg {
+
 ConfigOption::ConfigOption(const string& sName, const string& sValue,
             const string& sDescription)
     : m_sName(sName),
@@ -66,6 +65,14 @@ ConfigMgr::ConfigMgr()
             "The width of the window to use. Contents are scaled.");
     addOption("scr", "windowheight", "0",
             "The height of the window to use. Contents are scaled.");
+    addOption("scr", "usepow2textures", "false",
+            "OpenGL backend only: If set to true, use only power of 2 textures.");
+    addOption("scr", "ycbcrmode", "shader",
+            "OpenGL backend only: How to render YCbCr surfaces. Valid values are shader, mesa, apple and none.");
+    addOption("scr", "usergborder", "false",
+            "OpenGL backend only: Whether to use RGB (false) or BGR (true) ordering internally for pixels.");
+    addOption("scr", "usepixelbuffers", "true",
+            "OpenGL backend only: Whether to use pixel buffer objects.");
 
     m_sFName = "avgrc";
     bool bOk1 = loadFile("/etc/"+m_sFName);
@@ -135,6 +142,25 @@ const string* ConfigMgr::getOption(const string& sSubsys,
             }
         }
         return 0;
+    }
+}
+
+bool ConfigMgr::getBoolOption(const std::string& sSubsys, 
+            const std::string& sName, bool bDefault) const
+{
+    const string * psOption = getOption(sSubsys, sName);
+    if (psOption == 0) {
+        return bDefault;
+    }
+    if (*psOption == "true") {
+        return true;
+    } else if (*psOption == "false") {
+        return false;
+    } else {
+        AVG_TRACE(Logger::ERROR, 
+                "Unrecognized value for option "<<sName<<": " 
+                << *psOption << ". Must be true or false. Aborting.");
+        exit(-1);
     }
 }
 

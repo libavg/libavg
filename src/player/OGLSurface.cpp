@@ -83,7 +83,7 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
     m_pf = pf;
     m_MemoryMode = OGL;
     if (bFastDownload) {
-        m_MemoryMode = getMemoryModeSupported();
+        m_MemoryMode = m_pEngine->getMemoryModeSupported();
     }
     if (m_pf == YCbCr420p) {
         createBitmap(Size, I8, 0);
@@ -610,37 +610,6 @@ void OGLSurface::checkBlendModeError(string sMode)
             bErrorReported = true;
         }
     }
-}
-
-OGLMemoryMode OGLSurface::getMemoryModeSupported()
-{
-    static bool s_bChecked = false;
-    static OGLMemoryMode s_MemoryMode;
-    if (!s_bChecked) {
-        if (queryOGLExtension("GL_ARB_pixel_buffer_object") || 
-            queryOGLExtension("GL_EXT_pixel_buffer_object"))
-        {
-            s_MemoryMode = PBO;
-            AVG_TRACE(Logger::CONFIG, "Using pixel buffer objects.");
-/*
-#ifndef __APPLE__
-        } else if (queryGLXExtension("GLX_MESA_allocate_memory")) {
-            // Disabled because it's buggy.
-            s_MemoryMode = MESA;
-            s_AllocMemMESAProc = (PFNGLXALLOCATEMEMORYMESAPROC)
-                    glXGetProcAddressARB((const GLubyte*)"glXAllocateMemoryMESA");
-            s_FreeMemMESAProc = (PFNGLXFREEMEMORYMESAPROC)
-                    glXGetProcAddressARB((const GLubyte*)"glXFreeMemoryMESA");
-            AVG_TRACE(Logger::CONFIG, "Using MESA extension to allocate AGP memory.");
-#endif
-*/
-        } else {
-            s_MemoryMode = OGL;
-            AVG_TRACE(Logger::CONFIG, "Not using GL memory extensions.");
-        }
-        s_bChecked = true;
-    }
-    return s_MemoryMode;
 }
 
 }
