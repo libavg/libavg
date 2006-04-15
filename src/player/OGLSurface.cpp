@@ -203,9 +203,7 @@ int OGLSurface::getNumVerticesY()
 DPoint OGLSurface::getOrigVertexCoord(int x, int y)
 {
     if (!m_bBound) {
-        AVG_TRACE(Logger::WARNING, 
-                "getOrigVertexCoord called, but image not available.");
-        return DPoint(0,0);
+        bind();
     }
     if (x < 0 || x > m_NumHorizTextures || y < 0 || y > m_NumVertTextures) {
         AVG_TRACE(Logger::WARNING, 
@@ -220,9 +218,7 @@ DPoint OGLSurface::getOrigVertexCoord(int x, int y)
 DPoint OGLSurface::getWarpedVertexCoord(int x, int y)
 {
     if (!m_bBound) {
-        AVG_TRACE(Logger::WARNING, 
-                "getWarpedVertexCoord called, but image not available.");
-        return DPoint(0,0);
+        bind();
     }
     if (x < 0 || x > m_NumHorizTextures || y < 0 || y > m_NumVertTextures) {
         AVG_TRACE(Logger::WARNING, 
@@ -235,9 +231,7 @@ DPoint OGLSurface::getWarpedVertexCoord(int x, int y)
 void OGLSurface::setWarpedVertexCoord(int x, int y, const DPoint& Vertex)
 {
     if (!m_bBound) {
-        AVG_TRACE(Logger::WARNING, 
-                "setWarpedVertexCoord called, but image not available.");
-        return;
+        bind();
     }
     if (x < 0 || x > m_NumHorizTextures || y < 0 || y > m_NumVertTextures) {
         AVG_TRACE(Logger::WARNING, 
@@ -364,13 +358,13 @@ void OGLSurface::rebind()
                     for (int i=0; i<3; i++) {
                         glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
                         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                                "OGLSurface::bind: glBindBuffer()");
+                                "OGLSurface::rebind: glBindBuffer()");
                         pTile->downloadTexture(i, m_pBmps[i], m_Size.x, m_MemoryMode);
                     }
                 } else {
                     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[0]);
                     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                            "OGLSurface::bind: glBindBuffer()");
+                            "OGLSurface::rebind: glBindBuffer()");
                     pTile->downloadTexture(0, m_pBmps[0], m_Size.x, m_MemoryMode);
                 }
                 glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
