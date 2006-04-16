@@ -151,7 +151,7 @@ class PlayerTestCase(unittest.TestCase):
             Player.getElementByID("testhue").href = "freidrehen.jpg"
         self.assert_(Player.isPlaying() == 0)
         Player.loadFile("image.avg")
-#        Player.setTimeout(1000, loadNewFile)
+        Player.setTimeout(1000, loadNewFile)
         Player.setTimeout(2000, Player.stop)
         Player.setVBlankFramerate(1)
         Player.play()
@@ -290,7 +290,7 @@ class PlayerTestCase(unittest.TestCase):
     def testUnicode(self):
         Player.loadFile("unicode.avg")
         Player.getElementByID("dynamictext").text = "Arabic nonsense: ﯿﭗ"
-        Player.setTimeout(1000, Player.stop)
+        Player.setTimeout(3000, Player.stop)
         Player.play()
     def testWarp(self):
         def moveVertex():
@@ -540,6 +540,6 @@ else:
     bpp = int(sys.argv[2])
 
     runner.run(LoggerTestCase("test"))
-#    runner.run(PlayerTestCase("testImage", engine, bpp))
+#    runner.run(PlayerTestCase("testUnicode", engine, bpp))
     runner.run(playerTestSuite(engine, bpp))
 
