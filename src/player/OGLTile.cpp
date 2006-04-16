@@ -133,6 +133,13 @@ void OGLTile::createTexture(int i, IntPoint Size, int Stride, PixelFormat pf)
     glActiveTexture(GL_TEXTURE0+i);
     glBindTexture(m_pEngine->getTextureMode(), m_TexID[i]);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::createTexture: glBindTexture()");
+    int TextureMode = m_pEngine->getTextureMode();
+    glTexParameteri(TextureMode, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(TextureMode, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(TextureMode, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(TextureMode, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "OGLSurface::bind: glTexParameteri()");
     
     GLenum DestMode = m_pEngine->getOGLDestMode(pf);
 #ifdef __APPLE__    

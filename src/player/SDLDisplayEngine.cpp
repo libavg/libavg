@@ -126,9 +126,7 @@ SDLDisplayEngine::SDLDisplayEngine()
 
 SDLDisplayEngine::~SDLDisplayEngine()
 {
-    if (m_pScreen) {
-        teardown();
-    }
+    SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
 void SDLDisplayEngine::init(int width, int height, bool isFullscreen, 
@@ -218,7 +216,7 @@ void SDLDisplayEngine::init(int width, int height, bool isFullscreen,
 
 void SDLDisplayEngine::teardown()
 {
-    SDL_QuitSubSystem(SDL_INIT_VIDEO);
+    m_pScreen = 0;
 }
 
 double SDLDisplayEngine::getRefreshRate() {

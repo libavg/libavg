@@ -762,6 +762,7 @@ void Player::cleanup()
     m_PendingTimeouts.clear();
     Profiler::get().dumpStatistics();
     m_pDisplayEngine->deinitRender();
+    m_pDisplayEngine->teardown();
     delete m_pRootNode;
     m_pRootNode = 0;
     m_pLastMouseNode = 0;

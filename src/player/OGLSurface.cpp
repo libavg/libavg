@@ -269,7 +269,6 @@ void OGLSurface::bind()
     if (m_bBound) {
         rebind();
     } else {
-        int TextureMode = m_pEngine->getTextureMode();
         int Width = m_Size.x;
         int Height = m_Size.y;
         m_pTiles.clear();
@@ -281,12 +280,6 @@ void OGLSurface::bind()
         for (int y=0; y<m_NumVertTextures; y++) {
             m_pTiles.push_back(v);
             for (int x=0; x<m_NumHorizTextures; x++) {
-                glTexParameteri(TextureMode, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-                glTexParameteri(TextureMode, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-                glTexParameteri(TextureMode, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                glTexParameteri(TextureMode, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                        "OGLSurface::bind: glTexParameteri()");
 
                 IntPoint CurSize = m_TileSize;
                 if (y == m_NumVertTextures-1) {
