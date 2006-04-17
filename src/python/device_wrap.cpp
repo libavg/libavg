@@ -126,7 +126,7 @@ void export_devices()
 
     class_<ConradRelais>("ConradRelais",
             "Interface to one or more conrad relais cards connected to a serial port.\n"
-            "Per card, up to eight 220V devices can be connected.",
+            "Per card, up to eight 230V devices can be connected.",
             init<Player*, int>(
                 "ConradRelais(AVGPlayer, port)\n\n"
                 "Opens a connection to the relais card(s) connected to the port given.\n"
@@ -143,3 +143,4 @@ void export_devices()
                 "Returns the state of one of the relais. card and index select the\n"
                 "relais to query.");
 }
+

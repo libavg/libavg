@@ -267,7 +267,7 @@ string getGlModeString(int Mode)
 
 void OGLSurface::bind() 
 {
-//    cerr << "OGLSurface::bind()" << endl;
+    // cerr << "OGLSurface::bind()" << endl;
     if (m_bBound) {
         rebind();
     } else {
@@ -282,7 +282,6 @@ void OGLSurface::bind()
         for (int y=0; y<m_NumVertTextures; y++) {
             m_pTiles.push_back(v);
             for (int x=0; x<m_NumHorizTextures; x++) {
-
                 IntPoint CurSize = m_TileSize;
                 if (y == m_NumVertTextures-1) {
                     CurSize.y = Height-y*m_TileSize.y;

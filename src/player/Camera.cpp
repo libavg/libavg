@@ -111,9 +111,9 @@ void Camera::init (DisplayEngine * pEngine, DivNode * pParent,
     } else {
         fatalError ("Unsupported or illegal value for camera framerate.");
     }
-/*    if (sMode == "160x120_YUV444") {
+/*    if (m_sMode == "160x120_YUV444") {
         m_Mode = MODE_160x120_YUV444;
-    } else if (sMode == "320x240_YUV422") {
+    } else if (m_sMode == "320x240_YUV422") {
         m_Mode = MODE_320x240_YUV422;
     } else
 */
@@ -121,12 +121,11 @@ void Camera::init (DisplayEngine * pEngine, DivNode * pParent,
         m_Mode = MODE_640x480_YUV411;
     } else if (m_sMode == "640x480_YUV422") {
         m_Mode = MODE_640x480_YUV422;
-        
     } else if (m_sMode == "640x480_RGB") {
         m_Mode = MODE_640x480_RGB;
-/*    } else if (sMode == "640x480_MONO") {
+/*    } else if (m_sMode == "640x480_MONO") {
         m_Mode = MODE_640x480_MONO;
-    } else if (sMode == "640x480_MONO16") {
+    } else if (m_sMode == "640x480_MONO16") {
         m_Mode = MODE_640x480_MONO16;
 */        
     } else if (m_sMode == "1024x768_RGB") {
@@ -156,8 +155,8 @@ unsigned int Camera::getFeature (const std::string& sFeature) const
     unsigned int Value;
     int err;
     if (FeatureID == FEATURE_WHITE_BALANCE) {
-        unsigned u_b_value;
-        unsigned v_r_value;
+        unsigned int u_b_value = 0;
+        unsigned int v_r_value = 0;
         err = dc1394_get_white_balance(m_FWHandle, m_Camera.node, &u_b_value, &v_r_value);
         Value = ((u_b_value & 0xff) << 8) | (v_r_value & 0xff);
     } else {
@@ -195,8 +194,8 @@ void Camera::setFeature(int FeatureID)
             dc1394_auto_on_off(m_FWHandle, m_Camera.node, FeatureID, 0);
             int err;
             if (FeatureID == FEATURE_WHITE_BALANCE) {
-                unsigned u_b_value = (Value >> 8) & 0xff;
-                unsigned v_r_value = Value & 0xff;
+                unsigned int u_b_value = (Value >> 8) & 0xff;
+                unsigned int v_r_value = Value & 0xff;
                 err = dc1394_set_white_balance(m_FWHandle, m_Camera.node, 
                         u_b_value, v_r_value);
             } else {
@@ -246,6 +245,7 @@ void Camera::open(int* pWidth, int* pHeight)
 #ifdef AVG_ENABLE_1394
     // TODO: Support other resolutions.
     switch(m_Mode) {
+        case MODE_640x480_YUV422:
         case MODE_640x480_YUV411:
         case MODE_640x480_RGB:
             CaptureFormat=FORMAT_VGA_NONCOMPRESSED;

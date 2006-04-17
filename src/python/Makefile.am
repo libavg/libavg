@@ -1,7 +1,7 @@
 
 INCLUDES = -I. -I../player \
 		@XML2_CFLAGS@ @PANGOFT2_CFLAGS@ @PYTHON_INCLUDES@
-		
+
 ALL_H = 
 
 if ENABLE_PARPORT

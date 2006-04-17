@@ -74,7 +74,7 @@ void OGLTile::blt(const DPoint& TLPoint, const DPoint& TRPoint,
     double TexWidth;
     double TexHeight;
     int TextureMode = m_pEngine->getTextureMode();
-
+    
     if (TextureMode == GL_TEXTURE_2D) {
         TexWidth = double(m_Extent.Width())/m_TexSize.x;
         TexHeight = double(m_Extent.Height())/m_TexSize.y;
