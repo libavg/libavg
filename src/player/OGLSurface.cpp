@@ -45,7 +45,9 @@ PFNGLXFREEMEMORYMESAPROC OGLSurface::s_FreeMemMESAProc = 0;
 OGLSurface::OGLSurface(SDLDisplayEngine * pEngine)
     : m_pEngine(pEngine),
       m_bBound(false),
-      m_MaxTileSize(-1,-1)
+      m_MaxTileSize(-1,-1),
+      m_NumHorizTextures(-1),
+      m_NumVertTextures(-1)
 {
     // Do an NVIDIA texture support query if it hasn't happened already.
 //    getTextureMode();

@@ -134,6 +134,8 @@ class PlayerTestCase(unittest.TestCase):
     def setUp(self):
         Player.setDisplayEngine(self.__engine)
         Player.setResolution(0, 0, 0, self.__bpp)
+        if customOGLOptions:
+            Player.setOGLOptions(UsePOW2Textures, YCbCrMode, UseRGBOrder, UsePixelBuffers)
         print "-------- ", self.__testFuncName, " --------"
     def playAVG(self, fileName):
         Player.loadFile(fileName)
@@ -528,8 +530,18 @@ def playerTestSuite(engine, bpp):
 Player = avg.Player()
 runner = unittest.TextTestRunner()
 
-if len(sys.argv) != 3:
+def getBoolParam(paramIndex):
+    param = sys.argv[paramIndex].upper()
+    if param == "TRUE":
+        return True
+    elif param == "FALSE":
+        return False
+    else:
+        print "Parameter "+paramIndex+" must be 'true' or 'false'"
+
+if len(sys.argv) != 3 and len(sys.argv) != 7:
     print "Usage: Test.py <display engine> <bpp>"
+    print "              [<UsePOW2Textures> <YCbCrMode> <UseRGBOrder> <UsePixelBuffers>]"
 else:
     if sys.argv[1] == "OGL":
         engine = avg.OGL
@@ -538,8 +550,26 @@ else:
     else:
         print "First parameter must be OGL or DFB"
     bpp = int(sys.argv[2])
+    if (len(sys.argv) == 7):
+        customOGLOptions = True
+        UsePOW2Textures = getBoolParam(3)
+        s = sys.argv[4]
+        if s == "shader":
+            YCbCrMode = avg.shader
+        elif s == "apple":
+            YCbCrMode = avg.apple
+        elif s == "mesa":
+            YCbCrMode = avg.mesa
+        elif s == "none":
+            YCbCrMode = avg.none
+        else:
+            print "Fourth parameter must be shader, apple, mesa or none"
+        UseRGBOrder = getBoolParam(5)
+        UsePixelBuffers = getBoolParam(6)
+    else:
+        customOGLOptions = False
 
     runner.run(LoggerTestCase("test"))
-#    runner.run(PlayerTestCase("testUnicode", engine, bpp))
+#    runner.run(PlayerTestCase("testImage", engine, bpp))
     runner.run(playerTestSuite(engine, bpp))
 

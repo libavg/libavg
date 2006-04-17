@@ -19,8 +19,6 @@ class CameraTestCase(unittest.TestCase):
         Player.setDisplayEngine(self.__engine)
         Player.setResolution(0, 0, 0, self.__bpp)
     def test(self):
-        def onFrame():
-            print "wb: ", self.__camera.whitebalance
         def setWhitebalance():
             self.__camera.whitebalance = 24407
         def resetWhitebalance():
@@ -30,7 +28,6 @@ class CameraTestCase(unittest.TestCase):
         Player.setFramerate(30)
         self.__camera = Player.getElementByID("camera")
         self.__camera.play()
-        Player.setInterval(100, onFrame)
         Player.setTimeout(500, setWhitebalance)
         Player.setTimeout(1000, resetWhitebalance)
         Player.play()

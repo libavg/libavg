@@ -490,7 +490,7 @@ bool Camera::renderToSurface(ISurface * pSurface)
                     break;
                 default:
                     AVG_TRACE(Logger::WARNING,
-                            "Illegal Mode in renderToBmp");
+                            "Illegal Mode in renderToSurface");
                     break;
             }
             pSurface->unlockBmps();

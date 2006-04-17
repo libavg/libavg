@@ -217,6 +217,14 @@ BOOST_PYTHON_MODULE(avg)
         .export_values()
     ;
 
+    enum_<DisplayEngine::YCbCrMode>("YCbCrMode")
+        .value("shader", DisplayEngine::OGL_SHADER)
+        .value("mesa", DisplayEngine::OGL_MESA)
+        .value("apple", DisplayEngine::OGL_APPLE)
+        .value("none", DisplayEngine::NONE)
+        .export_values()
+    ;
+
     class_<Player>("Player", 
                 "The class used to load and play avg files.")
         .def("setDisplayEngine", &Player::setDisplayEngine,
@@ -225,11 +233,22 @@ BOOST_PYTHON_MODULE(avg)
                 "avg.DFB (for DirectFB rendering) or avg.OGL (for OpenGL rendering).\n"
                 "Must be called before loadFile.")
         .def("setResolution", &Player::setResolution,
-                "setResolution(fullscreen, width, height, bpp) -> None\n\n",
+                "setResolution(fullscreen, width, height, bpp) -> None\n\n"
                 "Sets display engine parameters. width and height set the window size\n"
                 "(if fullscreen is false) or screen resolution (if fullscreen is true).\n"
                 "bpp is the number of bits per pixel to use. Must be called before\n"
                 "loadFile.")
+        .def("setOGLOptions", &Player::setOGLOptions,
+                "setOGLOptions(UsePOW2Textures, YCbCrMode, UseRGBOrder, UsePixelBuffers)\n"
+                "       -> None\n\n"
+                "Determines which OpenGL extensions to check for and use if possible.\n"
+                "Mainly used for debugging purposes while developing libavg, but can\n"
+                "also be used to work around buggy drivers.\n"
+                "UsePOW2Textures=true restricts textures to power-of-two dimensions.\n"
+                "YCbCrMode can be shader, mesa, apple or none and selects the preferred\n"
+                "method of copying video textures to the screen.\n"
+                "UseRGBOrder=true swaps the order of red and blue components in textures.\n"
+                "UserPixelBuffers=false disables the use of OpenGL pixel buffer objects.\n")
         .def("loadFile", &Player::loadFile,
                 "loadFile(fileName) -> None\n\n"
                 "Loads the avg file specified in fileName.")

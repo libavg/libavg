@@ -57,6 +57,8 @@ class Player : IEventSink
         void setDisplayEngine(DisplayEngineType engine);
         void setResolution(bool bFullscreen, 
                 int width=0, int height=0, int bpp=0);
+        void setOGLOptions(bool bUsePOW2Textures, DisplayEngine::YCbCrMode DesiredYCbCrMode, 
+                bool bUseRGBOrder, bool bUsePixelBuffers);
         void loadFile (const std::string& fileName);
         void play();
         void stop();
