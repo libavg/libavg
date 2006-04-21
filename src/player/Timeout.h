@@ -24,6 +24,14 @@
 
 #include <Python.h> // Python doc sais this should be included before 
                               // any standard headers (!)
+#undef HAVE_STAT
+#undef PACKAGE
+#undef PACKAGE_BUGREPORT
+#undef PACKAGE_NAME
+#undef PACKAGE_STRING
+#undef PACKAGE_TARNAME
+#undef PACKAGE_VERSION
+
 #include <string>
 
 namespace avg {

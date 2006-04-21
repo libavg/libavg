@@ -20,6 +20,7 @@
 //
 
 #include "../avgconfig.h"
+#undef PACKAGE
 #undef PACKAGE_BUGREPORT
 #undef PACKAGE_NAME
 #undef PACKAGE_STRING

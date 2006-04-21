@@ -9,8 +9,18 @@ else
     DC1394_LIBS =
 endif
 
+if APPLE
+    APPLE_SOURCES = SDLMain.m AppleGLHelper.cpp
+    APPLE_INCLUDES = AppleGLHelper.h
+    XGL_LIBS =
+else
+    APPLE_SOURCES =
+    APPLE_INCLUDES = 
+    XGL_LIBS = -lXxf86vm
+endif
+
 if ENABLE_GL
-    ALL_GL_LIBS = @SDL_LIBS@ -lXxf86vm
+    ALL_GL_LIBS = @SDL_LIBS@ $(XGL_LIBS)
     GL_SOURCES = OGLHelper.cpp OGLSurface.cpp SDLDisplayEngine.cpp OGLTile.cpp \
 				 OGLShader.cpp
     GL_INCLUDES = SDLDisplayEngine.h OGLHelper.h OGLSurface.h OGLTile.h \
@@ -29,14 +39,6 @@ else
     DFB_LIBS =
     DFB_SOURCES =
     DFB_INCLUDES =
-endif
-
-if APPLE
-    APPLE_SOURCES = SDLMain.m AppleGLHelper.cpp
-    APPLE_INCLUDES = AppleGLHelper.h
-else
-    APPLE_SOURCES =
-    APPLE_INCLUDES = 
 endif
 
 ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
