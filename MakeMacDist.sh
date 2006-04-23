@@ -3,26 +3,25 @@
 set -e
 
 export VERSION=0.5.5
-export AVG_PATH="/Users/uzadow/libavg/"
 export INSTALL_PATH="/Library/Python/2.3/site-packages"
 
 fixLib()
 {
-    install_name_tool -change ${AVG_PATH}lib/$2.dylib $INSTALL_PATH/avg_libs/$2.dylib avg_libs/$1 
-    install_name_tool -id $INSTALL_PATH/avg_libs/$2.dylib avg_libs/$2.dylib
+    install_name_tool -change ${AVG_PATH}/lib/$2.dylib $INSTALL_PATH/avg/$2.dylib avg/$1 
+    install_name_tool -id $INSTALL_PATH/avg/$2.dylib avg/$2.dylib
 }
 
 distLib()
 {
-    cp -v ../lib/$1.dylib ./avg_libs
-    install_name_tool -change $AVG_PATH/lib/$1.dylib $INSTALL_PATH/avg_libs/$1.dylib avg.0.so
+    cp -v ../lib/$1.dylib ./avg
+    install_name_tool -change $AVG_PATH//lib/$1.dylib $INSTALL_PATH/avg/$1.dylib avg.0.so
     fixLib ../avg.0.so $1
 }
 
 cd ../dist
 
 rm -rf *
-mkdir avg_libs
+mkdir avg
 
 cp -RP ../lib/python2.3/site-packages/libavg/ .
 

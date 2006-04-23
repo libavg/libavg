@@ -68,9 +68,11 @@ ConfigMgr::ConfigMgr()
     addOption("scr", "usepow2textures", "false",
             "OpenGL backend only: If set to true, use only power of 2 textures.");
     addOption("scr", "ycbcrmode", "shader",
-            "OpenGL backend only: How to render YCbCr surfaces. Valid values are shader, mesa, apple and none.");
+            "OpenGL backend only: How to render YCbCr surfaces. Valid values are"
+            " shader, mesa, apple and none.");
     addOption("scr", "usergborder", "false",
-            "OpenGL backend only: Whether to use RGB (false) or BGR (true) ordering internally for pixels.");
+            "OpenGL backend only: Whether to use RGB (false) or BGR (true)"
+            " ordering internally for pixels.");
     addOption("scr", "usepixelbuffers", "true",
             "OpenGL backend only: Whether to use pixel buffer objects.");
 
@@ -83,21 +85,6 @@ ConfigMgr::ConfigMgr()
         bOk2 = false;
     } else {
         bOk2 = loadFile(string(pHome)+"/."+m_sFName);
-    }
-    if (!bOk1 && !bOk2) {
-        AVG_TRACE(Logger::ERROR,
-                "Neither /etc/avgrc nor ~/.avgrc was found. If");
-        AVG_TRACE(Logger::ERROR,
-                "this is your initial install, you need to");
-        AVG_TRACE(Logger::ERROR,
-                "copy src/avgrc from the package directory");
-        AVG_TRACE(Logger::ERROR,
-                "to /etc. Have a look at the contents to");
-        AVG_TRACE(Logger::ERROR,
-                "check if everything is set correctly.");
-        AVG_TRACE(Logger::ERROR,
-                "Aborting.");
-        exit(255);
     }
 }
 
