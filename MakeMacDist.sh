@@ -22,6 +22,7 @@ cd ../dist
 
 rm -rf *
 mkdir avg
+mkdir avg/test
 
 cp -RP ../lib/python2.3/site-packages/libavg/ .
 
@@ -82,6 +83,10 @@ fixLib libglib-2.0.0.dylib libintl.3
 fixLib libgmodule-2.0.0.dylib libintl.3
 
 cd ../libavg
+
+cd src/test
+cp Test.py *.avg 1x1_schachbrett.png panoimage.jpg freidrehen.jpg widebmp.jpg rgb24.png rgb24alpha.tif test.m1v videoperformance.py Test.py TestPar.py parport.py ${AVG_PATH}/dist/avg/test
+cd ../..
 
 /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -proj libavg.pmproj -v -p libavg.pkg
 zip -ry libavg-mac.${VERSION}.zip libavg.pkg

@@ -539,10 +539,12 @@ def getBoolParam(paramIndex):
     else:
         print "Parameter "+paramIndex+" must be 'true' or 'false'"
 
-if len(sys.argv) != 3 and len(sys.argv) != 7:
-    print "Usage: Test.py <display engine> <bpp>"
-    print "              [<UsePOW2Textures> <YCbCrMode> <UseRGBOrder> <UsePixelBuffers>]"
-else:
+
+if len(sys.argv) == 1:
+    engine = avg.OGL
+    bpp = 24
+    customOGLOptions = False
+elif len(sys.argv) == 3 or len(sys.argv) == 7:
     if sys.argv[1] == "OGL":
         engine = avg.OGL
     elif sys.argv[1] == "DFB":
@@ -568,8 +570,11 @@ else:
         UsePixelBuffers = getBoolParam(6)
     else:
         customOGLOptions = False
+else:
+    print "Usage: Test.py [<display engine> <bpp>"
+    print "               [<UsePOW2Textures> <YCbCrMode> <UseRGBOrder> <UsePixelBuffers>]]"
 
-    runner.run(LoggerTestCase("test"))
-#    runner.run(PlayerTestCase("testImage", engine, bpp))
-    runner.run(playerTestSuite(engine, bpp))
+runner.run(LoggerTestCase("test"))
+#runner.run(PlayerTestCase("testImage", engine, bpp))
+runner.run(playerTestSuite(engine, bpp))
 
