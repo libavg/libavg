@@ -29,6 +29,7 @@
 
 #include "Player.h"
 
+#include "avgdtd.h"
 #include "AVGNode.h"
 #include "DivNode.h"
 #include "Words.h"
@@ -79,6 +80,7 @@ Player::Player()
       m_bIsPlaying(false)
 {
     initConfig();
+    registerDTDEntityLoader(g_pAVGDTD);
 }
 
 Player::~Player()
@@ -214,12 +216,12 @@ void Player::loadFile (const std::string& filename)
 
         // Find and parse dtd.
         // PREFIXDIR is the install prefix set by configure.
-        string sDTDFName = string(PREFIXDIR)+"/share/avg/avg.dtd";
+
+        string sDTDFName = "avg.dtd";
         xmlDtdPtr dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
         if (!dtd) {
-            AVG_TRACE(Logger::ERROR, 
-                    "Required DTD not found at " << sDTDFName << ". Aborting.");
-            exit(-1);
+            AVG_TRACE(Logger::WARNING, 
+                    "DTD not found at " << sDTDFName << ". Not validating xml files.");
         }
 
         // Construct path.
@@ -238,6 +240,7 @@ void Player::loadFile (const std::string& filename)
             throw (Exception(AVG_ERR_XML_PARSE, 
                         string("Error parsing xml document ")+RealFilename));
         }
+/*
         xmlValidCtxtPtr cvp = xmlNewValidCtxt();
         cvp->error = xmlParserValidityError;
         cvp->warning = xmlParserValidityWarning;
@@ -247,6 +250,7 @@ void Player::loadFile (const std::string& filename)
             throw (Exception(AVG_ERR_XML_PARSE, 
                     filename + " does not validate."));
         }
+*/
         m_pRootNode = dynamic_cast<AVGNode*>
             (createNodeFromXml(doc, xmlDocGetRootElement(doc), 0));
         initDisplay(xmlDocGetRootElement(doc));

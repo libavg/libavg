@@ -60,6 +60,8 @@ std::string getDefaultedStringAttr (const xmlNodePtr& xmlNode,
 std::string getRequiredStringAttr (const xmlNodePtr& xmlNode,
        const char * attr);
 
+void registerDTDEntityLoader(const char * sDTD);
+
 }
 
 #endif //_XMLHelper_H_

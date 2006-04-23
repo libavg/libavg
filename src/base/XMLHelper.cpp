@@ -21,6 +21,7 @@
 
 #include "XMLHelper.h"
 
+#include <libxml/parserInternals.h>
 #include <iostream>
 
 using namespace std;
@@ -141,6 +142,31 @@ string getRequiredStringAttr (const xmlNodePtr& xmlNode,
     string s(retStr);
     xmlFree(retStr);
     return s;
+}
+
+static xmlExternalEntityLoader DefaultLoaderProc;
+static string g_sDTD;
+
+xmlParserInputPtr
+DTDExternalEntityLoader(const char *URL, const char *ID,
+                               xmlParserCtxtPtr ctxt) 
+{
+    xmlParserInputPtr ret;
+    const char *fileID = NULL;
+    /* lookup for the fileID depending on ID */
+    if (!strcmp(URL, "avg.dtd")) {
+        ret = xmlNewStringInputStream(ctxt, (const xmlChar *)(g_sDTD.c_str()));
+        return(ret);
+    }
+    ret = DefaultLoaderProc(URL, ID, ctxt);
+    return(ret);
+}
+
+void registerDTDEntityLoader(const char * pDTD)
+{
+    g_sDTD = pDTD;
+    DefaultLoaderProc = xmlGetExternalEntityLoader();
+    xmlSetExternalEntityLoader(DTDExternalEntityLoader);
 }
 
 }
