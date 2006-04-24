@@ -2,7 +2,7 @@ SUBDIRS = src man
 
 ACLOCAL_AMFLAGS = -I m4
 
-EXTRA_DIST = avg.dtd doc bootstrap COPYING \
+EXTRA_DIST = doc bootstrap COPYING \
 	samples/videochooser/videochooser.py samples/videochooser/videochooser.avg
 
 dist-hook:
@@ -11,4 +11,3 @@ dist-hook:
 
 install-data-hook:
 	$(mkinstalldirs) $(DESTDIR)/$(datadir)/avg/
-	$(INSTALL) -m 644 $(srcdir)/avg.dtd $(DESTDIR)$(datadir)/avg/
