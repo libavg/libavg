@@ -1,7 +1,7 @@
 
 INCLUDES = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ @DIRECTFB_CFLAGS@ \
 		@PANGOFT2_CFLAGS@ @PYTHON_INCLUDES@ @GL_CFLAGS@ @FFMPEG_CFLAGS@ \
-		`pkg-config --cflags ImageMagick++`
+		`pkg-config --cflags-only-I ImageMagick++`
         
 if ENABLE_1394
     DC1394_LIBS = -ldc1394_control -lraw1394
