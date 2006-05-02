@@ -2,7 +2,7 @@
 
 set -e
 
-export VERSION=0.5.5
+export VERSION=0.5.6
 export INSTALL_PATH="/Library/Python/2.3/site-packages"
 
 fixLib()
