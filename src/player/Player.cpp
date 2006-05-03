@@ -311,10 +311,20 @@ bool Player::isPlaying()
 }
 
 void Player::setFramerate(double rate) {
+    if (!m_pDisplayEngine) {
+        AVG_TRACE(Logger::ERROR, 
+                "Player::setFramerate called without a loaded avg file. Aborting.");
+        exit(-1);
+    }
     m_pDisplayEngine->setFramerate(rate);
 }
 
 bool Player::setVBlankFramerate(int rate) {
+    if (!m_pDisplayEngine) {
+        AVG_TRACE(Logger::ERROR, 
+                "Player::setVBlankFramerate called without a loaded avg file. Aborting.");
+        exit(-1);
+    }
     return m_pDisplayEngine->setVBlankRate(rate);
 }
 
@@ -475,11 +485,17 @@ void Player::doFrame ()
 
 double Player::getFramerate ()
 {
+    if (!m_pDisplayEngine) {
+        return 0;
+    }
     return m_pDisplayEngine->getFramerate();
 }
 
 double Player::getVideoRefreshRate()
 {
+    if (!m_pDisplayEngine) {
+        return 0;
+    }
     return m_pDisplayEngine->getRefreshRate();
 }
 
