@@ -166,6 +166,18 @@ class PlayerTestCase(unittest.TestCase):
             self.assert_(1)
         else:
             self.assert_(0)
+    def testExceptionInTimeout(self):
+        def throwException():
+            raise ZeroDivisionError
+        Player.loadFile("image.avg")
+        Player.setTimeout(100, throwException)
+        Player.setTimeout(200, Player.stop)
+        try:
+            Player.play()
+        except ZeroDivisionError:
+            self.assert_(1)
+        else:
+            self.assert_(0)
     def testEvents(self):
         def getMouseState():
             Event = Player.getMouseState()
@@ -181,6 +193,7 @@ class PlayerTestCase(unittest.TestCase):
         try:
             Player.play()
         except NameError:
+            print("(Intentional) NameError caught")
             self.assert_(1)
     def createNodes(self):
         node=Player.createNode("<image href='rgb24.png'/>")
@@ -510,6 +523,7 @@ def playerTestSuite(engine, bpp):
     suite.addTest(BitmapTestCase("test", engine, bpp))
     suite.addTest(PlayerTestCase("testImage", engine, bpp))
     suite.addTest(PlayerTestCase("testError", engine, bpp))
+    suite.addTest(PlayerTestCase("testExceptionInTimeout", engine, bpp))
     suite.addTest(PlayerTestCase("testEvents", engine, bpp))
     suite.addTest(PlayerTestCase("testEventErr", engine, bpp))
 #    suite.addTest(PlayerTestCase("testDynamics", engine, bpp))
@@ -575,6 +589,6 @@ else:
     print "               [<UsePOW2Textures> <YCbCrMode> <UseRGBOrder> <UsePixelBuffers>]]"
 
 runner.run(LoggerTestCase("test"))
-#runner.run(PlayerTestCase("testImage", engine, bpp))
+#runner.run(PlayerTestCase("testEventErr", engine, bpp))
 runner.run(playerTestSuite(engine, bpp))
 
