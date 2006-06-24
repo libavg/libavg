@@ -158,6 +158,13 @@ class PlayerTestCase(unittest.TestCase):
         Player.setVBlankFramerate(1)
         Player.play()
         self.assert_(Player.isPlaying() == 0)
+    def testInvalidImageFilename(self):
+        def activateNode():
+            Player.getElementByID("enclosingdiv").active = 1
+        Player.loadFile("invalidfilename.avg")
+        Player.setTimeout(100, activateNode)
+        Player.setTimeout(200, Player.stop)
+        Player.play()
     def testError(self):
         Player.setTimeout(100, lambda: undefinedFunction)
         try:
@@ -526,6 +533,7 @@ def playerTestSuite(engine, bpp):
     suite.addTest(PlayerTestCase("testExceptionInTimeout", engine, bpp))
     suite.addTest(PlayerTestCase("testEvents", engine, bpp))
     suite.addTest(PlayerTestCase("testEventErr", engine, bpp))
+    suite.addTest(PlayerTestCase("testInvalidImageFilename", engine, bpp))
 #    suite.addTest(PlayerTestCase("testDynamics", engine, bpp))
     suite.addTest(PlayerTestCase("testHugeImage", engine, bpp))
     suite.addTest(PlayerTestCase("testBroken", engine, bpp))
@@ -589,6 +597,6 @@ else:
     print "               [<UsePOW2Textures> <YCbCrMode> <UseRGBOrder> <UsePixelBuffers>]]"
 
 runner.run(LoggerTestCase("test"))
-#runner.run(PlayerTestCase("testEventErr", engine, bpp))
+#runner.run(PlayerTestCase("testInvalidImageFilename", engine, bpp))
 runner.run(playerTestSuite(engine, bpp))
 

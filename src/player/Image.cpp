@@ -33,6 +33,8 @@
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
 
+#include <Magick++.h>
+
 #include <iostream>
 #include <sstream>
 
@@ -123,14 +125,19 @@ void Image::load()
     initFilename(m_pPlayer, m_Filename);
 //    AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
 
-    Bitmap TempBmp(m_Filename);
-    PixelFormat pf;
-    pf = R8G8B8;
-    if (TempBmp.hasAlpha()) {
-        pf = R8G8B8A8;
+    try {
+        Bitmap TempBmp(m_Filename);
+        PixelFormat pf;
+        pf = R8G8B8;
+        if (TempBmp.hasAlpha()) {
+            pf = R8G8B8A8;
+        }
+        getSurface()->create(TempBmp.getSize(), pf, false);
+        getSurface()->lockBmp()->copyPixels(TempBmp);
+    } catch (Magick::Exception & ex) {
+        AVG_TRACE(Logger::ERROR, ex.what());
+        getSurface()->create(IntPoint(1,1), R8G8B8, false);
     }
-    getSurface()->create(TempBmp.getSize(), pf, false);
-    getSurface()->lockBmp()->copyPixels(TempBmp);
     
     if (m_Saturation != -1) {
         FilterColorize(m_Hue, m_Saturation).applyInPlace(
