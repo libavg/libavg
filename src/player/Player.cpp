@@ -225,10 +225,15 @@ void Player::loadFile (const std::string& filename)
         }
 
         // Construct path.
-        char szBuf[1024];
-        getcwd(szBuf, 1024);
-        m_CurDirName = string(szBuf)+"/";
-        string RealFilename = m_CurDirName+filename;
+        string RealFilename;
+        if (filename[0] == '/') {
+            RealFilename = filename; 
+        } else {
+            char szBuf[1024];
+            getcwd(szBuf, 1024);
+            m_CurDirName = string(szBuf)+"/";
+            RealFilename = m_CurDirName+filename;
+        }
         m_CurDirName = RealFilename.substr(0, RealFilename.rfind('/')+1);
         
         xmlPedanticParserDefault(1);
