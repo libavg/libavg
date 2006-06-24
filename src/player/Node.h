@@ -113,7 +113,7 @@ class Node
         Player * getPlayer();
         DisplayEngine * getEngine();
 
-        void Node::callPython (const std::string& Code, const avg::Event& Event);
+        void callPython (const std::string& Code, const avg::Event& Event);
             
         void initFilename (Player * pPlayer, std::string& sFilename);
         bool isInitialized ();

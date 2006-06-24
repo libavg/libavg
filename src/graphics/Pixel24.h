@@ -43,7 +43,7 @@ class Pixel24
     void flipRB();
 
     template<class SrcPixel>
-    Pixel24 Pixel24::operator = (const SrcPixel& Pix)
+    Pixel24 operator = (const SrcPixel& Pix)
     {
         SetR (Pix.getR());
         SetG (Pix.getG());
