@@ -123,7 +123,8 @@ BOOST_PYTHON_MODULE(avg)
             "             transparent, 1.0 is completely opaque. Opacity is relative to\n"
             "             the parent node's opacity.\n"
             "    active: If this attribute is true, the node behaves as usual. If not, it\n"
-            "            is neither drawn nor does it react to events. Videos are paused.",
+            "            is neither drawn nor does it react to events. Videos are paused.\n"
+            "    sensitive: A node only reacts to events if sensitive is true.",
             no_init)
         .def("getParent", &Node::getParent,
                 return_internal_reference<>(),
@@ -139,6 +140,7 @@ BOOST_PYTHON_MODULE(avg)
         .add_property("height", &Node::getHeight, &Node::setHeight)
         .add_property("opacity", &Node::getOpacity, &Node::setOpacity)
         .add_property("active", &Node::getActive, &Node::setActive)
+        .add_property("sensitive", &Node::getSensitive, &Node::setSensitive)
     ;
 
     export_bitmap();

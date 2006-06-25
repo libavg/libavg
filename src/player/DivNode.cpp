@@ -120,7 +120,7 @@ void DivNode::zorderChange (Node * pChild)
 
 Node * DivNode::getElementByPos (const DPoint & pos)
 {
-    if (!getVisibleRect().Contains(pos) || !isActive()) {
+    if (!getVisibleRect().Contains(pos) || !reactsToMouseEvents()) {
         return 0;
     }
     for (int i=getNumChildren()-1; i>=0; i--) {

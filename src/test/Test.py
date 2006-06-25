@@ -251,6 +251,7 @@ class PlayerTestCase(unittest.TestCase):
     def testBroken(self):
         Player.loadFile("noxml.avg")
         Player.loadFile("noavg.avg")
+        Player.loadFile("noavg2.avg")
     def testAnimation(self):
         def moveit():
             node = Player.getElementByID("nestedimg1")
@@ -479,7 +480,6 @@ class BitmapTestCase(unittest.TestCase):
             self.assert_(bitmap.getSize() == (199,199))
             self.assert_(bitmap.getFormat() == avg.R8G8B8 or 
                     bitmap.getFormat() == avg.B8G8R8)
-            self.assert_(len(bitmap.getPixels()) == 199*199*3)
             bitmap.save("test.png")
         Player.loadFile("image.avg")
         Player.setTimeout(100, getBitmap)
@@ -597,6 +597,6 @@ else:
     print "               [<UsePOW2Textures> <YCbCrMode> <UseRGBOrder> <UsePixelBuffers>]]"
 
 runner.run(LoggerTestCase("test"))
-#runner.run(PlayerTestCase("testInvalidImageFilename", engine, bpp))
+#runner.run(BitmapTestCase("test", engine, bpp))
 runner.run(playerTestSuite(engine, bpp))
 

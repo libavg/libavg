@@ -36,6 +36,7 @@ const char * g_pAVGDTD =
 "    height CDATA #IMPLIED\n"
 "    opacity CDATA #IMPLIED\n"
 "    active CDATA #IMPLIED\n"
+"    sensitive CDATA #IMPLIED\n"
 "    %graphicsElementEvents;\">\n"
 
 "<!ENTITY % rasterAttrs\n"

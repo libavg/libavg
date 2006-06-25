@@ -245,7 +245,7 @@ void Player::loadFile (const std::string& filename)
             throw (Exception(AVG_ERR_XML_PARSE, 
                         string("Error parsing xml document ")+RealFilename));
         }
-/*
+
         xmlValidCtxtPtr cvp = xmlNewValidCtxt();
         cvp->error = xmlParserValidityError;
         cvp->warning = xmlParserValidityWarning;
@@ -255,7 +255,7 @@ void Player::loadFile (const std::string& filename)
             throw (Exception(AVG_ERR_XML_PARSE, 
                     filename + " does not validate."));
         }
-*/
+
         m_pRootNode = dynamic_cast<AVGNode*>
             (createNodeFromXml(doc, xmlDocGetRootElement(doc), 0));
         initDisplay(xmlDocGetRootElement(doc));

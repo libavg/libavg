@@ -60,6 +60,7 @@ Node::Node ()
       m_z(0),
       m_Opacity(1.0),
       m_bActive(true),
+      m_bSensitive(true),
       m_bInitialized(false),
       m_InitialWidth(0),
       m_InitialHeight(0)
@@ -88,6 +89,7 @@ Node::Node (const xmlNodePtr xmlNode, DivNode * pParent)
     m_z = getDefaultedIntAttr (xmlNode, "z", 0);
     m_Opacity = getDefaultedDoubleAttr (xmlNode, "opacity", 1.0);
     m_bActive = getDefaultedBoolAttr (xmlNode, "active", true);
+    m_bSensitive = getDefaultedBoolAttr (xmlNode, "sensitive", true);
 }
 
 Node::~Node()
@@ -197,6 +199,15 @@ void Node::setActive(bool bActive)
     }
 }
 
+bool Node::getSensitive() const {
+    return m_bSensitive;
+}
+
+void Node::setSensitive(bool bSensitive)
+{
+    m_bSensitive = bSensitive;
+}
+
 DivNode* Node::getParent() const
 {
     return m_pParent;
@@ -207,9 +218,14 @@ bool Node::isActive()
     return m_bActive;
 }
 
+bool Node::reactsToMouseEvents()
+{
+    return m_bActive && m_bSensitive;
+}
+
 Node * Node::getElementByPos (const DPoint & pos)
 {
-    if (getVisibleRect().Contains(pos) && m_bActive) {
+    if (getVisibleRect().Contains(pos) && reactsToMouseEvents()) {
         return this;
     } else {
         return 0;

@@ -75,10 +75,14 @@ class Node
         
         bool getActive() const;
         void setActive(bool bActive);
+        
+        bool getSensitive() const;
+        void setSensitive(bool bSensitive);
 
         virtual DivNode * getParent() const;
 
         bool isActive();
+        bool reactsToMouseEvents();
         virtual Node * getElementByPos (const DPoint & pos);
         virtual void prepareRender (int time, const DRect& parent);
         virtual void maybeRender (const DRect& Rect);
@@ -137,6 +141,7 @@ class Node
         int m_z;
         double m_Opacity;
         bool m_bActive;
+        bool m_bSensitive;
         
         // Initialization helpers.
         bool m_bInitialized;
