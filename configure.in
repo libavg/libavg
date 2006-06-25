@@ -29,11 +29,12 @@ AC_PATH_GENERIC(xml2,,,AC_MSG_ERROR([libxml2 not found. Aborting.]))
 PKG_CHECK_MODULES([PANGOFT2], [pangoft2])
 AC_PATH_GENERIC(freetype,,,AC_MSG_ERROR([libfreetype not found. Aborting.]))
 
-AC_CHECK_PROG(magick_installed, [Magick++-config], "yes")
-if test -z "$magick_installed"
-then
-    AC_MSG_ERROR([ImageMagick not found. Aborting.])
-fi
+PKG_CHECK_MODULES([MAGICK], [ImageMagick++])
+#AC_CHECK_PROG(magick_installed, [Magick++-config], "yes")
+#if test -z "$magick_installed"
+#then
+#    AC_MSG_ERROR([ImageMagick not found. Aborting.])
+#fi
 
 AM_LIB_FFMPEG
 
