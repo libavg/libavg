@@ -32,6 +32,7 @@ void export_devices();
 #include "../player/PanoImage.h"
 
 #include <boost/python.hpp>
+#include <boost/version.hpp>
 
 using namespace boost::python;
 using namespace avg;
@@ -43,7 +44,9 @@ void exception_translator(Exception const & e)
 
 BOOST_PYTHON_MODULE(avg)
 {
+#if (BOOST_VERSION / 100000) > 1 || ((BOOST_VERSION / 100) % 1000) >= 33
     register_exception_translator<Exception>(exception_translator);
+#endif
 
     class_<Logger>("Logger", 
             "Interface to the logger used by the avg player. Enables the setting\n"
