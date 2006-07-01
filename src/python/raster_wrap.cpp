@@ -64,11 +64,10 @@ void export_raster()
         .def("setWarpedVertexCoord", &RasterNode::setWarpedVertexCoord,
                 "setWarpedVertexCoord(x,y, Point) -> None\n\n"
                 "Changes the current coordinate of a vertex.")
-        .def("getBitmap", 
-                make_function(&RasterNode::getBitmap,
-                        return_value_policy<manage_new_object>()),
+        .def("getBitmap", &RasterNode::getBitmap,
+                return_value_policy<manage_new_object>(),
                 "getBitmap() -> Bitmap\n\n"
-                "Returns the bitmap that the node contains.")
+                "Returns a copy of the bitmap that the node contains.")
         .add_property("angle", &RasterNode::getAngle, &RasterNode::setAngle)
         .add_property("pivotx", &RasterNode::getPivotX, &RasterNode::setPivotX)
         .add_property("pivoty", &RasterNode::getPivotY, &RasterNode::setPivotY)
