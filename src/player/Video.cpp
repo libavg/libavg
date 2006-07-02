@@ -29,6 +29,7 @@
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
+#include "../graphics/Filterflipuv.h"
 
 #include <iostream>
 #include <sstream>
@@ -165,7 +166,13 @@ bool Video::renderToSurface(ISurface * pSurface)
         m_bEOF = m_pDecoder->renderToYCbCr420p(pSurface->lockBmp(0),
                 pSurface->lockBmp(1), pSurface->lockBmp(2));
     } else {
-        m_bEOF = m_pDecoder->renderToBmp(pSurface->lockBmp());
+        BitmapPtr pBmp = pSurface->lockBmp();
+        m_bEOF = m_pDecoder->renderToBmp(pBmp);
+        if (isYCbCrSupported() && 
+            getEngine()->getYCbCrMode() == DisplayEngine::OGL_MESA)
+        {
+            FilterFlipUV().applyInPlace(pBmp);
+        }   
     }
     pSurface->unlockBmps();
     if (!m_bEOF) {

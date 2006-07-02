@@ -25,6 +25,7 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
+#include "../graphics/Filterflipuv.h"
 
 #include <iostream>
 #include <sstream>

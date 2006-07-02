@@ -29,6 +29,7 @@
 #include "Filterfill.h"
 #include "Filterflip.h"
 #include "Filterfliprgb.h"
+#include "Filterflipuv.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -299,6 +300,31 @@ private:
     }
 };
 
+class FilterFlipUVTest: public Test {
+public:
+    FilterFlipUVTest()
+        : Test("FilterFlipUVTest", 2)
+    {
+    }
+
+    void runTests() 
+    {
+        BitmapPtr pBmp = initBmp(YCbCr422);
+        {
+            BitmapPtr pBmp1 = FilterFlipUV().apply(pBmp);
+            BitmapPtr pBmp2 = FilterFlipUV().apply(pBmp1);
+            TEST(*pBmp == *pBmp2);
+        }
+        { 
+            Bitmap BmpBaseline = *pBmp;
+            FilterFlipUV().applyInPlace(pBmp);
+            FilterFlipUV().applyInPlace(pBmp);
+            TEST(*pBmp == BmpBaseline);
+        }
+//        pBmp->dump();
+    }
+};
+
 class FilterComboTest: public Test {
 public:
     FilterComboTest()
@@ -337,6 +363,7 @@ public:
         addTest(TestPtr(new FilterFillTest));
         addTest(TestPtr(new FilterFlipTest));
         addTest(TestPtr(new FilterFlipRGBTest));
+        addTest(TestPtr(new FilterFlipUVTest));
         addTest(TestPtr(new FilterComboTest));
     }
 };
