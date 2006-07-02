@@ -2,12 +2,7 @@ SUBDIRS = src man
 
 ACLOCAL_AMFLAGS = -I m4
 
-EXTRA_DIST = doc bootstrap COPYING \
-	samples/videochooser/videochooser.py samples/videochooser/videochooser.avg
-
-dist-hook:
-	rm -rf `find $(distdir)/doc -name CVS`
-	rm -rf $(distdir)/doc/21c3lecture
+EXTRA_DIST = bootstrap COPYING
 
 install-data-hook:
 	$(mkinstalldirs) $(DESTDIR)/$(datadir)/avg/
