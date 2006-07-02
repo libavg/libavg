@@ -355,6 +355,8 @@ class WordsTestCase(unittest.TestCase):
     def setUp(self):
         Player.setDisplayEngine(self.__engine)
         Player.setResolution(0, 0, 0, self.__bpp)
+        if customOGLOptions:
+            Player.setOGLOptions(UsePOW2Textures, YCbCrMode, UseRGBOrder, UsePixelBuffers)
         print "-------- ", self.__testFuncName, " --------"
     def test(self):
         def textInterval():
@@ -412,6 +414,8 @@ class VideoTestCase(unittest.TestCase):
     def setUp(self):
         Player.setDisplayEngine(self.__engine)
         Player.setResolution(0, 0, 0, self.__bpp)
+        if customOGLOptions:
+            Player.setOGLOptions(UsePOW2Textures, YCbCrMode, UseRGBOrder, UsePixelBuffers)
     def test(self):
         def playVideo(nodeName):
             node = Player.getElementByID(nodeName)
@@ -473,6 +477,8 @@ class BitmapTestCase(unittest.TestCase):
     def setUp(self):
         Player.setDisplayEngine(self.__engine)
         Player.setResolution(0, 0, 0, self.__bpp)
+        if customOGLOptions:
+            Player.setOGLOptions(UsePOW2Textures, YCbCrMode, UseRGBOrder, UsePixelBuffers)
     def test(self):
         def getBitmap():
             node = Player.getElementByID("test")
@@ -496,6 +502,8 @@ class AnimTestCase(unittest.TestCase):
     def setUp(self):
         Player.setDisplayEngine(self.__engine)
         Player.setResolution(0, 0, 0, self.__bpp)
+        if customOGLOptions:
+            Player.setOGLOptions(UsePOW2Textures, YCbCrMode, UseRGBOrder, UsePixelBuffers)
     def test(self):
         def startAnim():
             def onStop():
@@ -595,8 +603,9 @@ elif len(sys.argv) == 3 or len(sys.argv) == 7:
 else:
     print "Usage: Test.py [<display engine> <bpp>"
     print "               [<UsePOW2Textures> <YCbCrMode> <UseRGBOrder> <UsePixelBuffers>]]"
+    sys.exit(1)
 
 runner.run(LoggerTestCase("test"))
-#runner.run(BitmapTestCase("test", engine, bpp))
+#runner.run(VideoTestCase("test", engine, bpp))
 runner.run(playerTestSuite(engine, bpp))
 
