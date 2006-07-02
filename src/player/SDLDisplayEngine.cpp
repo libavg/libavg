@@ -489,7 +489,10 @@ void SDLDisplayEngine::checkYCbCrSupport()
         queryOGLExtension("GL_ARB_texture_rectangle") &&
         (queryOGLExtension("GL_ARB_pixel_buffer_object") || 
          queryOGLExtension("GL_EXT_pixel_buffer_object")) &&
-        m_DesiredYCbCrMode == OGL_SHADER && m_bShouldUsePixelBuffers)
+        m_DesiredYCbCrMode == OGL_SHADER && 
+        m_bShouldUsePixelBuffers &&
+        getTextureMode() != GL_TEXTURE_2D
+        )
     {
         m_YCbCrMode = OGL_SHADER;
         string sProgram =
