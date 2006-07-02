@@ -38,7 +38,6 @@ FilterFlipUV::~FilterFlipUV()
 
 void FilterFlipUV::applyInPlace(BitmapPtr pBmp) const
 {
-    PixelFormat PF = pBmp->getPixelFormat();
     assert(pBmp->getPixelFormat() == YCbCr422);
 
     for (int y = 0; y < pBmp->getSize().y; y++) {
