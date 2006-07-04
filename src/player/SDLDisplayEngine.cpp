@@ -119,7 +119,6 @@ SDLDisplayEngine::SDLDisplayEngine()
         exit(-1);
     }
     initTranslationTable();
-    calcRefreshRate();
 
     glproc::init();
 }
@@ -189,6 +188,7 @@ void SDLDisplayEngine::init(int width, int height, bool isFullscreen,
         exit(-1);
     }   
     SDL_WM_SetCaption("AVG Renderer", 0);
+    calcRefreshRate();
 
     glEnable(GL_BLEND);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(GL_BLEND)");
@@ -649,7 +649,6 @@ void SDLDisplayEngine::calcRefreshRate() {
     }
 #else 
     Display * display = XOpenDisplay(0);
-    
     int PixelClock;
     XF86VidModeModeLine mode_line;
     bool bOK = XF86VidModeGetModeLine (display, DefaultScreen(display), 
@@ -662,6 +661,7 @@ void SDLDisplayEngine::calcRefreshRate() {
     }
     double HSyncRate = PixelClock*1000.0/mode_line.htotal;
     s_RefreshRate = HSyncRate/mode_line.vtotal;
+    XCloseDisplay(display);
 #endif
     if (s_RefreshRate == 0) {
         s_RefreshRate = 60;
