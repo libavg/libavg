@@ -3,7 +3,7 @@ INCLUDES = -I.. \
 		`pkg-config --cflags-only-I ImageMagick++` 
         
 ALL_H = Bitmap.h Rect.h Point.h Filter.h\
-		Pixel32.h Pixel24.h Pixel16.h Pixel8.h Pixeldefs.h \
+		Pixel32.h Pixel24.h Pixel16.h Pixeldefs.h \
 		Filtercolorize.h Filterfill.h Filterfillrect.h Filterflip.h \
 		Filterfliprgb.h Filterflipuv.h Filtergrayscale.h 
 ALL_CPP = Bitmap.cpp Filter.cpp Filtergrayscale.cpp \
