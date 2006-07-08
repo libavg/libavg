@@ -298,9 +298,12 @@ bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
 #endif
         {
             ScopeTimer Timer(ImgConvertProfilingZone);
-            img_convert(&DestPict, DestFmt,
+            int rc = img_convert(&DestPict, DestFmt,
                     (AVPicture*)&Frame, enc->pix_fmt,
                     enc->width, enc->height);
+            if (rc != 0) {
+                AVG_TRACE(Logger::ERROR, "FFFMpegDecoder: img_convert failed.");
+            }
         }
     }
     return m_bEOF;
