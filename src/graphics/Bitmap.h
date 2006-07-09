@@ -86,6 +86,7 @@ public:
     bool hasAlpha() const;
 
     bool operator ==(const Bitmap & otherBmp);
+    bool almostEqual(const Bitmap & otherBmp, int epsilon);
     void dump(bool bDumpPixels=false);
 
 private:

@@ -74,6 +74,7 @@ namespace avg {
 Player::Player()
     : m_pRootNode (0),
       m_pDisplayEngine(0),
+      m_TestHelper(this),
       m_bInHandleTimers(false),
       m_pLastMouseNode(0),
       m_bShowCursor(true),
@@ -331,6 +332,11 @@ bool Player::setVBlankFramerate(int rate) {
         exit(-1);
     }
     return m_pDisplayEngine->setVBlankRate(rate);
+}
+
+TestHelper * Player::getTestHelper()
+{
+    return &m_TestHelper;
 }
 
 int Player::setInterval(int time, PyObject * pyfunc)

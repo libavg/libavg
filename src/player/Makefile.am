@@ -51,7 +51,7 @@ ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
         Event.h KeyEvent.h \
         VideoBase.h \
         Video.h FFMpegDecoder.h IVideoDecoder.h \
-        PanoImage.h \
+        PanoImage.h TestHelper.h \
         RasterNode.h Camera.h \
         $(GL_INCLUDES) $(DFB_INCLUDES) $(APPLE_INCLUDES)
 
@@ -62,7 +62,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) $(DFB_SOURCES) \
         MathHelper.cpp PanoImage.cpp Words.cpp Camera.cpp \
         DivNode.cpp Timeout.cpp DebugEventSink.cpp Event.cpp \
         Image.cpp EventDispatcher.cpp KeyEvent.cpp MouseEvent.cpp\
-        RasterNode.cpp AVGNode.cpp avgdtd.cpp\
+        RasterNode.cpp AVGNode.cpp avgdtd.cpp TestHelper.cpp\
         $(APPLE_SOURCES) \
 		$(ALL_H)
 libplayer_ladir=$(includedir)/avg/player

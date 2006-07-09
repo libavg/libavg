@@ -142,6 +142,17 @@ private:
             Bitmap BmpCopy3 (*pBmp, IntRect(IntPoint(0,0), pBmp->getSize()));
             testEqual(*pBmp, BmpCopy3);
         }
+        if (PF == R8G8B8X8 || PF == R8G8B8) {
+            cerr << "      Testing almostEqual." << endl;
+            Bitmap BmpCopy4 (*pBmp);
+            TEST(pBmp->almostEqual(BmpCopy4, 0));
+            
+            unsigned char * pPixel = BmpCopy4.getPixels();
+            *pPixel += 27;
+            TEST(pBmp->almostEqual(BmpCopy4, 1));
+            *pPixel += 2;
+            TEST(!pBmp->almostEqual(BmpCopy4, 1));
+        }
     }
 
     void runSaveTest(PixelFormat PF) {

@@ -445,6 +445,52 @@ bool Bitmap::operator ==(const Bitmap & otherBmp)
     return true;
 }
 
+template<class Pixel>
+int lineDist(const unsigned char * pSrc, unsigned char * pDest, int lineLen) {
+    int Result = 0;
+    const Pixel * pSrcPixel = (const Pixel *)pSrc;
+    Pixel * pDestPixel = (Pixel *)pDest;
+    for (int x=0; x<lineLen; ++x) {
+        Result += pSrcPixel->boxDist(*pDestPixel);
+        pSrcPixel++;
+        pDestPixel++;
+    }
+    return Result;
+}
+
+bool Bitmap::almostEqual(const Bitmap & otherBmp, int epsilon)
+{
+    // We allow Name, Stride and bOwnsBits to be different here, since we're looking for
+    // equal value only.
+    if (m_Size != otherBmp.m_Size || m_PF != otherBmp.m_PF)
+    {
+        return false;
+    }
+
+    const unsigned char * pSrc = otherBmp.getPixels();
+    unsigned char * pDest = m_pBits;
+    int Dist = 0;
+    for (int y=0; y<getSize().y; ++y) {
+        switch(m_PF) {
+            case R8G8B8X8:
+            case B8G8R8X8:
+                Dist += lineDist<Pixel32>(pSrc, pDest, m_Size.x);
+                break;
+            case R8G8B8:
+            case B8G8R8:
+                Dist += lineDist<Pixel24>(pSrc, pDest, m_Size.x);
+                break;
+            default:
+                // Unimplemented comparison.
+                assert(false);
+        }
+        pDest += m_Stride;
+        pSrc += otherBmp.getStride();
+    }
+    double avgDist = double(Dist)/(m_Size.x*m_Size.y);
+    return (avgDist <= epsilon);
+}
+
 void Bitmap::dump(bool bDumpPixels)
 {
     cerr << "Bitmap: " << m_sName << endl;

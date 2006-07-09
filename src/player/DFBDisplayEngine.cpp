@@ -720,7 +720,8 @@ bool DFBDisplayEngine::initVBlank(int rate)
         AVG_TRACE(Logger::ERROR,
                 rate << " was given.");
         return false;
-    } 
+    }
+    return true;
 }
 
 bool DFBDisplayEngine::vbWait(int rate)

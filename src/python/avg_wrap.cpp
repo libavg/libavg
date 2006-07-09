@@ -230,6 +230,10 @@ BOOST_PYTHON_MODULE(avg)
         .export_values()
     ;
 
+    class_<TestHelper>("TestHelper", "", no_init)
+        .def("bmpAlmostEqual", &TestHelper::bmpAlmostEqual, "")
+    ;
+
     class_<Player>("Player", 
                 "The class used to load and play avg files.")
         .def("setDisplayEngine", &Player::setDisplayEngine,
@@ -279,6 +283,9 @@ BOOST_PYTHON_MODULE(avg)
                 "Sets the desired number of vertical blanking intervals before the next\n"
                 "frame is displayed. The resulting framerate is determined by the\n"
                 "monitor refresh rate divided by the rate parameter.")
+        .def("getTestHelper", &Player::getTestHelper,
+                return_value_policy<reference_existing_object>(),
+                "")
         .def("createNode", &Player::createNodeFromXmlString,
                 return_value_policy<manage_new_object>(),
                 "createNode(xml) -> Node\n\n"

@@ -60,7 +60,7 @@ class Pixel24
     // Simple and fast 'distance' between two pixels. Just adds the
     // distances between the color components and treats colors
     // equally.
-    int BoxDist (const Pixel24 Pix) const;
+    int boxDist (const Pixel24 Pix) const;
 
     // Returns a weighed average between two pixels. Factor must be 
     // between 0 and 256. Factor=256 means Pix1 is the result, Factor=0 
@@ -125,7 +125,7 @@ inline void Pixel24::flipRB()
     m_Data[REDPOS] = tmp;
 }
 
-inline int Pixel24::BoxDist (const Pixel24 Pix) const
+inline int Pixel24::boxDist (const Pixel24 Pix) const
 {
   return (abs ((int)getR()-Pix.getR()) +
           abs ((int)getG()-Pix.getG()) +

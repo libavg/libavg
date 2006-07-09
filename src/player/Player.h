@@ -29,6 +29,7 @@
 #include "KeyEvent.h"
 #include "MouseEvent.h"
 #include "DisplayEngine.h"
+#include "TestHelper.h"
 
 #include "../base/IFrameListener.h"
 
@@ -50,8 +51,8 @@ class DisplayEngine;
 class Player : IEventSink
 {
     public:
-        Player ();
-        virtual ~Player ();
+        Player();
+        virtual ~Player();
 
         enum DisplayEngineType{DFB, OGL};
         void setDisplayEngine(DisplayEngineType engine);
@@ -65,6 +66,7 @@ class Player : IEventSink
         bool isPlaying();
         void setFramerate(double rate);
         bool setVBlankFramerate(int rate);
+        TestHelper * getTestHelper();
 
         Node * createNodeFromXmlString (const std::string& sXML);
         int setInterval(int time, PyObject * pyfunc);
@@ -103,7 +105,8 @@ class Player : IEventSink
         AVGNode * m_pRootNode;
         DisplayEngine * m_pDisplayEngine;
         IEventSource * m_pEventSource;
-
+        TestHelper m_TestHelper;
+        
         std::string m_CurDirName;
         bool m_bStopping;
         typedef std::map<std::string, Node*> NodeIDMap;
@@ -134,7 +137,6 @@ class Player : IEventSink
         DisplayEngine::YCbCrMode m_YCbCrMode;
         bool m_bUseRGBOrder;
         bool m_bUsePixelBuffers;
-        
 
         bool m_bIsPlaying;
 
