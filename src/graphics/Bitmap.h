@@ -87,7 +87,7 @@ public:
 
     bool operator ==(const Bitmap & otherBmp);
     bool almostEqual(const Bitmap & otherBmp, int epsilon);
-    void dump(bool bDumpPixels=false);
+    void dump(bool bDumpPixels=false) const;
 
 private:
     void initWithData(unsigned char * pBits, int Stride, bool bCopyBits);

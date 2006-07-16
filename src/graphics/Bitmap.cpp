@@ -491,7 +491,7 @@ bool Bitmap::almostEqual(const Bitmap & otherBmp, int epsilon)
     return (avgDist <= epsilon);
 }
 
-void Bitmap::dump(bool bDumpPixels)
+void Bitmap::dump(bool bDumpPixels) const
 {
     cerr << "Bitmap: " << m_sName << endl;
     cerr << "  m_Size: " << m_Size.x << "x" << m_Size.y << endl;

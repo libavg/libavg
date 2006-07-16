@@ -128,6 +128,14 @@ private:
         cerr << "    Testing " << Bitmap::getPixelFormatString(PF) << endl;
         BitmapPtr pBmp = initBmp(PF);
         {
+            cerr << "      Testing size." <<endl;
+            if (PF == YCbCr422) {
+                TEST(pBmp->getSize() == IntPoint(4,10));
+            } else {
+                TEST(pBmp->getSize() == IntPoint(4,7));
+            }
+        }
+        {
             cerr << "      Testing copy constructor." << endl;
             Bitmap BmpCopy1(*pBmp);
             testEqual(*pBmp, BmpCopy1);
