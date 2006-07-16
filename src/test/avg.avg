@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg id="mainavgnode" width="640" height="480">
-  <div id="nestedavg" x="0" y="100" z="2" opacity="1" width="400" height="100">
-    <image id="nestedimg1" x="0" y="0" z="1" width="300" height="150" 
-            href="rgb24.png"/>
-    <image id="obscured" x="0" y="20" z="0" width="300" height="120"
-            href="rgb24.png"/>
-    <image id="nestedimg2" x="200" y="0" z="2" 
-            href="rgb24alpha.tif"/>
+<avg id="mainavgnode" width="160" height="120">
+  <image id="mainimg" x="0" y="0" width="100" height="75" 
+      href="rgb24-65x65.png"/>
+  <div id="nestedavg" x="0" y="32" opacity="1" width="128" height="32">
+    <image id="obscured" x="0" y="20" width="96" height="40"
+            href="rgb24-65x65.png"/>
+    <image id="nestedimg1" x="0" y="0" width="96" height="48" 
+            href="rgb24-65x65.png"/>
+    <image id="nestedimg2" x="65" y="0"
+            href="rgb24alpha-64x64.png"/>
   </div>
-  <image id="mainimg" x="0" y="0" z="1" width="400" height="300" 
-      href="rgb24.png"/>
 </avg>

@@ -315,9 +315,9 @@ BOOST_PYTHON_MODULE(avg)
                 "getMouseState() -> Event\n\n"
                 "Gets an interface to the last mouse event.")
         .def("screenshot", &Player::screenshot,
-                "screenshot(filename) -> ok\n\n"
-                "Saves the contents of the current screen in a png file. Returns\n"
-                "1 on success, 0 if the screen couldn't be saved.\n")
+                return_value_policy<manage_new_object>(),
+                "screenshot() -> ok\n\n"
+                "Returns the contents of the current screen as a bitmap.\n")
         .def("showCursor", &Player::showCursor,
                 "showCursor(show) -> None\n\n"
                 "Shows or hides the mouse cursor. (Currently, this only works for\n"

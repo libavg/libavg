@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 
-<avg width="800" height="600">
+<avg width="160" height="120">
   <div id="enclosingdiv" active="0">
     <image href="filedoesntexist.png"/>
     <words font="times" size="64">

@@ -91,7 +91,7 @@ void Video::seekToFrame(int num)
         seek(num);
     } else {
         AVG_TRACE(Logger::WARNING, 
-                "Error in Video::SeekToFrame: Video not loaded.");
+                "Error in Video::SeekToFrame: Video "+getID()+" not loaded.");
     }
 }
 

@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
+<avg width="1024" height="768">
+       <image x="10" y="200" z="-1"
+              opacity="0.5" href="rgb24alpha.tif"/>
+       <camera id="camera" x="200" y="100" z="0" width="640" height="480" opacity="1"
+               device="/dev/raw1394/0" mode="640x480_RGB" framerate="30"/>
+</avg>

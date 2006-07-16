@@ -38,5 +38,5 @@
     
         
     <words id="cbasetext" x="20" y="250" z="3" 
-        opacity="1" size="30" font="arial" text="hello c-base" color="FF8000"/>
+        opacity="1" size="30" font="arial" text="hello" color="FF8000"/>
 </avg>

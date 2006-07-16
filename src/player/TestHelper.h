@@ -39,7 +39,7 @@ class TestHelper : IEventSource
         TestHelper(Player * pPlayer);
         virtual ~TestHelper();
 
-        bool bmpAlmostEqual(BitmapPtr pBmp1, BitmapPtr pBmp2);
+        bool bmpAlmostEqual(Bitmap* pBmp1, Bitmap* pBmp2);
         void fakeMouseEvent(Event::Type eventType,
                 bool leftButtonState, bool middleButtonState, 
                 bool rightButtonState,

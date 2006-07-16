@@ -74,7 +74,7 @@ class Player : IEventSink
         bool clearInterval(int id);
         const Event& getCurEvent() const;
         const MouseEvent& getMouseState() const;
-        bool screenshot(const std::string& sFilename);
+        Bitmap * screenshot();
         void showCursor(bool bShow);
 
         Node * getElementByID(const std::string& id);

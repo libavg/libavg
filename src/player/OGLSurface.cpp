@@ -375,7 +375,7 @@ void OGLSurface::rebind()
 }
 
 void OGLSurface::blt(const DRect* pDestRect, 
-        double opacity, double angle, const DPoint& pivot, 
+        double angle, const DPoint& pivot, 
         DisplayEngine::BlendMode Mode)
 {
 //    cerr << "OGLSurface::blt()" << endl;

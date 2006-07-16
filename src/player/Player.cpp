@@ -296,6 +296,7 @@ void Player::play()
             }
         } catch (...) {
             cleanup();
+            m_bIsPlaying = false;
             throw;
         }
         cleanup();
@@ -389,18 +390,10 @@ const MouseEvent& Player::getMouseState() const
     return m_EventDispatcher.getLastMouseEvent();
 }
 
-bool Player::screenshot(const std::string& sFilename)
+Bitmap * Player::screenshot()
 {
     BitmapPtr pBmp = m_pDisplayEngine->screenshot();
-    try {
-        pBmp->save(sFilename);
-        AVG_TRACE(Logger::WARNING, "Saved screen as " << sFilename << ".");
-    } catch (Magick::Exception& ex) {
-        AVG_TRACE(Logger::WARNING, "Could not save screenshot. Error: " 
-                << ex.what() << ".");
-        return false;
-    }
-    return true;
+    return new Bitmap(*pBmp);
 }
 
 void Player::showCursor(bool bShow)

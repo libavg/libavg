@@ -60,7 +60,7 @@ class OGLSurface: public ISurface {
         void unbind();
         void rebind();
 
-        void blt(const DRect* pDestRect, double opacity, 
+        void blt(const DRect* pDestRect,
                 double angle, const DPoint& pivot, 
                 DisplayEngine::BlendMode Mode);
 

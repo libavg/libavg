@@ -35,9 +35,9 @@ TestHelper::~TestHelper()
 {
 }
 
-bool TestHelper::bmpAlmostEqual(BitmapPtr pBmp1, BitmapPtr pBmp2)
+bool TestHelper::bmpAlmostEqual(Bitmap* pBmp1, Bitmap* pBmp2)
 {
-    return pBmp1->almostEqual(*pBmp2, 3);
+    return pBmp1->almostEqual(*pBmp2, 0.3);
 }
 
 void TestHelper::fakeMouseEvent(Event::Type eventType,

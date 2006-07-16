@@ -346,7 +346,7 @@ void SDLDisplayEngine::blt32(ISurface * pSurface, const DRect* pDestRect,
 {
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface*>(pSurface);
     glColor4f(1.0f, 1.0f, 1.0f, opacity);
-    pOGLSurface->blt(pDestRect, opacity, angle, pivot, Mode);
+    pOGLSurface->blt(pDestRect, angle, pivot, Mode);
 }
 
 void SDLDisplayEngine::blta8(ISurface * pSurface, 
@@ -357,7 +357,7 @@ void SDLDisplayEngine::blta8(ISurface * pSurface,
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface*>(pSurface);
     glColor4f(float(color.getR())/256, float(color.getG())/256, 
             float(color.getB())/256, opacity);
-    pOGLSurface->blt(pDestRect, opacity, angle, pivot, Mode);
+    pOGLSurface->blt(pDestRect, angle, pivot, Mode);
 }
 
 
@@ -462,7 +462,7 @@ BitmapPtr SDLDisplayEngine::screenshot ()
     glReadBuffer(GL_FRONT);
     glReadPixels(0, 0, m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE, 
             pBmp->getPixels());
-    FilterFlipRGB().applyInPlace(pBmp);
+//    FilterFlipRGB().applyInPlace(pBmp);
     FilterFlip().applyInPlace(pBmp);
     return pBmp;
 }
@@ -514,7 +514,7 @@ void SDLDisplayEngine::checkYCbCrSupport()
             "  RGB = YCbCr*mat3(1.16, 0.0 , 1.60,\n"
             "                   1.16, -0.39, -0.81,\n"
             "                   1.16, 2.01, 0.0 );\n"
-            "  gl_FragColor = vec4(RGB,1.0);\n"
+            "  gl_FragColor = vec4(RGB,gl_Color.a);\n"
             "}\n"
             ;
         m_pYCbCrShader = OGLShaderPtr(new OGLShader(sProgram));
