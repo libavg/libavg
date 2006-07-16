@@ -382,28 +382,47 @@ public:
 
     void runTests() 
     {
-        BitmapPtr pBmp(new Bitmap(IntPoint(3, 3), R8G8B8));
-        Pixel24 * pPixels = (Pixel24 *)(pBmp->getPixels());
-        Pixel24 Color(0,0,0);
-        FilterFill<Pixel24>(Color).applyInPlace(pBmp);
-        pPixels[0] = Pixel24(1,0,0);
-        pPixels[2] = Pixel24(2,0,0);
-        pPixels = (Pixel24*)((char *)pPixels+2*pBmp->getStride());
-        pPixels[0] = Pixel24(3,0,0);
-        pPixels[2] = Pixel24(4,0,0);
+        runPFTests<Pixel24>(R8G8B8);
+        runPFTests<Pixel32>(R8G8B8X8);
+    }
 
+private:
+    template<class PixelT>
+    void runPFTests(PixelFormat PF)
+    {
+        BitmapPtr pBmp(new Bitmap(IntPoint(4, 4), PF));
+        initBmp<PixelT>(pBmp);
         double Mat[3][3] = 
                 {{1,0,2},
-                 {0,0,0},
+                 {0,1,0},
                  {3,0,4}};
         BitmapPtr pNewBmp = Filter3x3(Mat).apply(pBmp);
-        TEST(pNewBmp->getSize() == IntPoint(1,1));
-        TEST(*(Pixel24*)(pNewBmp->getPixels()) == Pixel24(30,0,0));
+        TEST(pNewBmp->getSize() == IntPoint(2,2));
+        unsigned char * pLine0 = pNewBmp->getPixels();
+        TEST(*(PixelT*)pLine0 == PixelT(1,0,0));
+        TEST(*(((PixelT*)pLine0)+1) == PixelT(4,0,0));
+        unsigned char * pLine1 = pNewBmp->getPixels()+pNewBmp->getStride();
+        TEST(*(PixelT*)(pLine1) == PixelT(0,0,9));
+        TEST(*((PixelT*)(pLine1)+1) == PixelT(0,0,16));
+        
+    }
+    
+    template<class PixelT>
+    void initBmp(BitmapPtr pBmp) 
+    {
+        PixelT * pPixels = (PixelT *)(pBmp->getPixels());
+        PixelT Color = PixelT(0,0,0);
+        FilterFill<PixelT>(Color).applyInPlace(pBmp);
+        pPixels[0] = PixelT(1,0,0);
+        pPixels[3] = PixelT(2,0,0);
+        pPixels = (PixelT*)((char *)pPixels+3*pBmp->getStride());
+        pPixels[0] = PixelT(0,0,3);
+        pPixels[3] = PixelT(0,0,4);
     }
 };
     
 
-    class GraphicsTestSuite: public TestSuite {
+class GraphicsTestSuite: public TestSuite {
 public:
     GraphicsTestSuite() 
         : TestSuite("GraphicsTestSuite")

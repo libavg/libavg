@@ -461,9 +461,9 @@ void lineSubtract(const unsigned char * pSrc, unsigned char * pDest, int lineLen
     }
 }
 
-void Bitmap::subtract(const Bitmap & otherBmp)
+void Bitmap::subtract(const Bitmap *pOtherBmp)
 {
-    const unsigned char * pSrc = otherBmp.getPixels();
+    const unsigned char * pSrc = pOtherBmp->getPixels();
     unsigned char * pDest = m_pBits;
     for (int y=0; y<getSize().y; ++y) {
         switch(m_PF) {
@@ -480,7 +480,7 @@ void Bitmap::subtract(const Bitmap & otherBmp)
                 assert(false);
         }
         pDest += m_Stride;
-        pSrc += otherBmp.getStride();
+        pSrc += pOtherBmp->getStride();
     }
 }
 
@@ -491,7 +491,7 @@ int lineBrightPixels(const unsigned char * pSrc, int lineLen)
     int Result = 0;
     for (int x=0; x<lineLen; ++x) {
         int Val = pSrcPixel->getR()+pSrcPixel->getG()+pSrcPixel->getB();
-        if (Val > 32) {
+        if (Val > 48) {
             Result++;
         }
         pSrcPixel++;
@@ -509,7 +509,7 @@ bool Bitmap::almostEqual(const Bitmap & otherBmp, int MaxBrightPixels)
 
     BitmapPtr pTempBmp(new Bitmap(*this));
 //    pTempBmp->dump(true);
-    pTempBmp->subtract(otherBmp);
+    pTempBmp->subtract(&otherBmp);
 //    pTempBmp->dump(true);
     double Matrix[3][3] = {
             {0.111,0.111,0.111},
@@ -517,13 +517,12 @@ bool Bitmap::almostEqual(const Bitmap & otherBmp, int MaxBrightPixels)
             {0.111,0.111,0.111}
     };
     Filter3x3(Matrix).applyInPlace(pTempBmp);
-//    pTempBmp->dump(true);
 
     int NumBrightPixels = 0;
     for (int y = 0; y < m_Size.y-2; y++) {
         const unsigned char * pLine = pTempBmp->getPixels()+y*pTempBmp->getStride();
         
-        switch (getBytesPerPixel()) {
+        switch (pTempBmp->getBytesPerPixel()) {
             case 4:
                 NumBrightPixels += lineBrightPixels<Pixel32>(pLine, m_Size.x-2);
                 break;

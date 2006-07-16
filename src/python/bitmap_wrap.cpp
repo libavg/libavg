@@ -94,6 +94,8 @@ void export_bitmap()
                 "setPixels(string) -> None\n\n"
                 "Changes the raw pixel data in the bitmap. Doesn't change dimensions \n"
                 "or pixel format.")
+        .def("subtract", &Bitmap::subtract, 
+                "getName() -> None\n\n")
         .def("getName", &Bitmap::getName, 
                 return_value_policy<copy_const_reference>(),
                 "getName() -> string\n\n")

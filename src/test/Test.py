@@ -69,13 +69,15 @@ class AVGTestCase(unittest.TestCase):
         global CREATE_BASELINE_IMAGES
         Bmp = Player.screenshot()
         if CREATE_BASELINE_IMAGES:
-            Bmp.save(BASELINE_DIR+"/"+fileName)
+            Bmp.save(BASELINE_DIR+"/"+fileName+".png")
         else:
-            BaselineBmp = avg.Bitmap(BASELINE_DIR+"/"+fileName)
+            BaselineBmp = avg.Bitmap(BASELINE_DIR+"/"+fileName+".png")
             if (not(Player.getTestHelper().bmpAlmostEqual(Bmp, BaselineBmp))):
-                Bmp.save(RESULT_DIR+"/"+fileName)
-                BaselineBmp.save(RESULT_DIR+"/baseline_"+fileName)
-            self.assert_(Player.getTestHelper().bmpAlmostEqual(Bmp, BaselineBmp))
+                Bmp.save(RESULT_DIR+"/"+fileName+".png")
+                BaselineBmp.save(RESULT_DIR+"/"+fileName+"_baseline.png")
+                Bmp.subtract(BaselineBmp)
+                Bmp.save(RESULT_DIR+"/"+fileName+"_diff.png")
+                self.assert_(False)
 
 def keyUp():
     print "keyUp"
@@ -149,13 +151,13 @@ class PlayerTestCase(AVGTestCase):
 #            BaselineBmp = avg.Bitmap("rgb24-65x65.png")
 #            if (not(Player.getTestHelper().bmpAlmostEqual(Bmp, BaselineBmp))):
 #                Bmp.save(RESULT_DIR+"/rgb24-65x65.png")
-#                BaselineBmp.save(RESULT_DIR+"/baseline_rgb24-65x65.png")
+#                BaselineBmp.save(RESULT_DIR+"/rgb24-65x65_baseline.png")
 #            self.assert_(Player.getTestHelper().bmpAlmostEqual(Bmp, BaselineBmp))
         self.start("image.avg",
-                (lambda: self.compareImage("testimg.png"), 
+                (lambda: self.compareImage("testimg"), 
                  getBitmap,
                  loadNewFile, 
-                 lambda: self.compareImage("testimgload.png"),
+                 lambda: self.compareImage("testimgload"),
                  Player.stop))
     def testError(self):
         Player.loadFile("image.avg")
@@ -187,10 +189,10 @@ class PlayerTestCase(AVGTestCase):
     def testEvents(self):
         def getMouseState():
             Event = Player.getMouseState()
-            print(str(Event.x)+","+str(Event.y))
+            Event.x
         self.start("events.avg", 
                 (getMouseState, 
-                 lambda: self.compareImage("testEvents.png"), 
+                 lambda: self.compareImage("testEvents"), 
                  Player.stop))
     def testEventErr(self):
         Player.loadFile("errevent.avg")
@@ -204,13 +206,13 @@ class PlayerTestCase(AVGTestCase):
         def moveImage():
             Player.getElementByID("mainimg").x -= 2000
         self.start("hugeimage.avg",
-                (lambda: self.compareImage("testHugeImage0.png"),
+                (lambda: self.compareImage("testHugeImage0"),
                  moveImage,
-                 lambda: self.compareImage("testHugeImage1.png"),
+                 lambda: self.compareImage("testHugeImage1"),
                  Player.stop))
     def testPanoImage(self):
         self.start("panoimage.avg",
-                (lambda: self.compareImage("testPanoImage.png"),
+                (lambda: self.compareImage("testPanoImage"),
                  Player.stop))
     def testBroken(self):
         Player.loadFile("noxml.avg")
@@ -224,13 +226,13 @@ class PlayerTestCase(AVGTestCase):
             node = Player.getElementByID("nestedavg")
             node.x += 50
         self.start("avg.avg",
-                (lambda: self.compareImage("testMove1.png"),
+                (lambda: self.compareImage("testMove1"),
                  moveit,
-                 lambda: self.compareImage("testMove2.png"),
+                 lambda: self.compareImage("testMove2"),
                  Player.stop))
     def testBlend(self):
         self.start("blend.avg",
-                (lambda: self.compareImage("testBlend.png"),
+                (lambda: self.compareImage("testBlend"),
                  Player.stop))
     def testCropImage(self):
         def moveTLCrop():
@@ -250,15 +252,15 @@ class PlayerTestCase(AVGTestCase):
             node.x = 140
             node.y = 100
         self.start("crop2.avg",
-                (lambda: self.compareImage("testCropImage1.png"),
+                (lambda: self.compareImage("testCropImage1"),
                  moveTLCrop,
-                 lambda: self.compareImage("testCropImage2.png"),
+                 lambda: self.compareImage("testCropImage2"),
                  moveBRCrop,
-                 lambda: self.compareImage("testCropImage3.png"),
+                 lambda: self.compareImage("testCropImage3"),
                  moveTLNegative,
-                 lambda: self.compareImage("testCropImage4.png"),
+                 lambda: self.compareImage("testCropImage4"),
                  moveBRGone,
-                 lambda: self.compareImage("testCropImage5.png"),
+                 lambda: self.compareImage("testCropImage5"),
                  Player.stop))
     def testCropMovie(self):
         def playMovie():
@@ -282,22 +284,22 @@ class PlayerTestCase(AVGTestCase):
             node.y = 100
         self.start("crop.avg",
                 (playMovie,
-                 lambda: self.compareImage("testCropMovie1.png"),
+                 lambda: self.compareImage("testCropMovie1"),
                  moveTLCrop,
-                 lambda: self.compareImage("testCropMovie2.png"),
+                 lambda: self.compareImage("testCropMovie2"),
                  moveBRCrop,
-                 lambda: self.compareImage("testCropMovie3.png"),
+                 lambda: self.compareImage("testCropMovie3"),
                  moveTLNegative,
-                 lambda: self.compareImage("testCropMovie4.png"),
+                 lambda: self.compareImage("testCropMovie4"),
                  moveBRGone,
-                 lambda: self.compareImage("testCropMovie5.png"),
+                 lambda: self.compareImage("testCropMovie5"),
                  Player.stop))
     def testUnicode(self):
         def setDynamicText():
             Player.getElementByID("dynamictext").text = "Arabic nonsense: ﯿﭗ"
         self.start("unicode.avg",
                 (setDynamicText,
-                 lambda: self.compareImage("testUnicode.png"),
+                 lambda: self.compareImage("testUnicode"),
                  Player.stop))
     def testWarp(self):
         def moveVertex():
@@ -320,11 +322,11 @@ class PlayerTestCase(AVGTestCase):
                     node.setWarpedVertexCoord(x,y,pos)
         self.start("video.avg",
                 (lambda: Player.getElementByID("clogo1").play(),
-                 lambda: self.compareImage("testWarp1.png"),
+                 lambda: self.compareImage("testWarp1"),
                  moveVertex,
-                 lambda: self.compareImage("testWarp2.png"),
+                 lambda: self.compareImage("testWarp2"),
                  flip,
-                 lambda: self.compareImage("testWarp3.png"),
+                 lambda: self.compareImage("testWarp3"),
                  Player.stop))
     def testWords(self):
         def changeText():
@@ -350,21 +352,21 @@ class PlayerTestCase(AVGTestCase):
             node = Player.getElementByID("cbasetext")
             node.size = 30
         self.start("text.avg",
-                (lambda: self.compareImage("testWords1.png"),
+                (lambda: self.compareImage("testWords1"),
                  changeText,
-                 lambda: self.compareImage("testWords2.png"),
+                 lambda: self.compareImage("testWords2"),
                  changeHeight,
-                 lambda: self.compareImage("testWords3.png"),
+                 lambda: self.compareImage("testWords3"),
                  changeColor,
-                 lambda: self.compareImage("testWords4.png"),
+                 lambda: self.compareImage("testWords4"),
                  deactivateText,
-                 lambda: self.compareImage("testWords5.png"),
+                 lambda: self.compareImage("testWords5"),
                  activateText,
-                 lambda: self.compareImage("testWords6.png"),
+                 lambda: self.compareImage("testWords6"),
                  changeFont,
-                 lambda: self.compareImage("testWords7.png"),
+                 lambda: self.compareImage("testWords7"),
                  changeFont2,
-                 lambda: self.compareImage("testWords8.png"),
+                 lambda: self.compareImage("testWords8"),
                  Player.stop))
     def testVideo(self):
         def seek():
@@ -383,33 +385,33 @@ class PlayerTestCase(AVGTestCase):
         def deactivateclogo():
             Player.getElementByID('clogo').active=0
         self.start("video.avg",
-                (lambda: self.compareImage("testVideo1.png"),
+                (lambda: self.compareImage("testVideo1"),
                  lambda: Player.getElementByID("clogo2").play(),
                  seek,
 #                 foo,
-                 lambda: self.compareImage("testVideo2.png"),
+                 lambda: self.compareImage("testVideo2"),
                  lambda: Player.getElementByID("clogo2").pause(),
-                 lambda: self.compareImage("testVideo3.png"),
+                 lambda: self.compareImage("testVideo3"),
                  lambda: Player.getElementByID("clogo2").play(),
-                 lambda: self.compareImage("testVideo4.png"),
+                 lambda: self.compareImage("testVideo4"),
                  newHRef,
                  lambda: Player.getElementByID("clogo1").play(),
-                 lambda: self.compareImage("testVideo5.png"),
+                 lambda: self.compareImage("testVideo5"),
                  move,
                  lambda: Player.getElementByID("clogo").pause(),
-                 lambda: self.compareImage("testVideo6.png"),
+                 lambda: self.compareImage("testVideo6"),
                  deactivateclogo,
-                 lambda: self.compareImage("testVideo7.png"),
+                 lambda: self.compareImage("testVideo7"),
                  activateclogo,
-                 lambda: self.compareImage("testVideo8.png"),
+                 lambda: self.compareImage("testVideo8"),
                  lambda: Player.getElementByID("clogo").stop(),
-                 lambda: self.compareImage("testVideo9.png"),
+                 lambda: self.compareImage("testVideo9"),
                  Player.stop))
     def testAnim(self):
         def startAnim():
             def onStop():
                 self.__animStopped = 1
-            self.compareImage("testAnim1.png")
+            self.compareImage("testAnim1")
             anim.fadeOut(Player.getElementByID("nestedimg2"), 200)
             Player.getElementByID("nestedimg1").opacity = 0
             anim.fadeIn(Player.getElementByID("nestedimg1"), 200, 1)
@@ -417,7 +419,7 @@ class PlayerTestCase(AVGTestCase):
                     200, 0, 100, 0, onStop)
         def startSplineAnim():
             self.assert_(self.__animStopped == 1)
-            self.compareImage("testAnim2.png")
+            self.compareImage("testAnim2")
             anim.SplineAnim(Player.getElementByID("mainimg"), "x", 
                     200, 100, -400, 10, 0, 0, None)
             anim.SplineAnim(Player.getElementByID("mainimg"), "y", 
@@ -426,7 +428,7 @@ class PlayerTestCase(AVGTestCase):
         Player.loadFile("avg.avg")
         Player.setTimeout(10, startAnim)
         Player.setTimeout(390, startSplineAnim)
-        Player.setTimeout(800, lambda: self.compareImage("testAnim3.png"))
+        Player.setTimeout(800, lambda: self.compareImage("testAnim3"))
         Player.setTimeout(850, Player.stop)
         Player.setVBlankFramerate(1)
         Player.play()
