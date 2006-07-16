@@ -85,6 +85,8 @@ public:
     int getMemNeeded() const;
     bool hasAlpha() const;
 
+    void subtract(const Bitmap & otherBmp);
+
     bool operator ==(const Bitmap & otherBmp);
     bool almostEqual(const Bitmap & otherBmp, int epsilon);
     void dump(bool bDumpPixels=false) const;

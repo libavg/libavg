@@ -30,6 +30,7 @@
 #include "Filterflip.h"
 #include "Filterfliprgb.h"
 #include "Filterflipuv.h"
+#include "Filter3x3.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -157,9 +158,10 @@ private:
             
             unsigned char * pPixel = BmpCopy4.getPixels();
             *pPixel += 27;
-            TEST(pBmp->almostEqual(BmpCopy4, 1));
-            *pPixel += 2;
-            TEST(!pBmp->almostEqual(BmpCopy4, 1));
+            TEST(pBmp->almostEqual(BmpCopy4, 0));
+            *pPixel = 255;
+            *(pPixel+BmpCopy4.getStride()) = 255;
+            TEST(!pBmp->almostEqual(BmpCopy4, 0));
         }
     }
 
@@ -371,12 +373,43 @@ private:
     }
 };
 
-class GraphicsTestSuite: public TestSuite {
+class Filter3x3Test: public Test {
+public:
+    Filter3x3Test()
+        : Test("Filter3x3Test", 2)
+    {
+    }
+
+    void runTests() 
+    {
+        BitmapPtr pBmp(new Bitmap(IntPoint(3, 3), R8G8B8));
+        Pixel24 * pPixels = (Pixel24 *)(pBmp->getPixels());
+        Pixel24 Color(0,0,0);
+        FilterFill<Pixel24>(Color).applyInPlace(pBmp);
+        pPixels[0] = Pixel24(1,0,0);
+        pPixels[2] = Pixel24(2,0,0);
+        pPixels = (Pixel24*)((char *)pPixels+2*pBmp->getStride());
+        pPixels[0] = Pixel24(3,0,0);
+        pPixels[2] = Pixel24(4,0,0);
+
+        double Mat[3][3] = 
+                {{1,0,2},
+                 {0,0,0},
+                 {3,0,4}};
+        BitmapPtr pNewBmp = Filter3x3(Mat).apply(pBmp);
+        TEST(pNewBmp->getSize() == IntPoint(1,1));
+        TEST(*(Pixel24*)(pNewBmp->getPixels()) == Pixel24(30,0,0));
+    }
+};
+    
+
+    class GraphicsTestSuite: public TestSuite {
 public:
     GraphicsTestSuite() 
         : TestSuite("GraphicsTestSuite")
     {
         addTest(TestPtr(new BitmapTest));
+        addTest(TestPtr(new Filter3x3Test));
         addTest(TestPtr(new FilterColorizeTest));
         addTest(TestPtr(new FilterGrayscaleTest));
         addTest(TestPtr(new FilterFillTest));

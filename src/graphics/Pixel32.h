@@ -49,6 +49,7 @@ public:
     bool operator ==(const Pixel32 Pix) const;
     bool operator !=(const Pixel32 Pix) const;
     void operator +=(const Pixel32 Pix);
+    void operator -=(const Pixel32 Pix);
     Pixel32 operator *(float f) const;
 
     // Simple and fast 'distance' between two pixels. Just adds the
@@ -184,6 +185,13 @@ inline void Pixel32::operator += (const Pixel32 Pix)
   m_Data[0] += Pix.m_Data[0];
   m_Data[1] += Pix.m_Data[1];
   m_Data[2] += Pix.m_Data[2];
+}
+
+inline void Pixel32::operator -= (const Pixel32 Pix)
+{
+  m_Data[0] -= Pix.m_Data[0];
+  m_Data[1] -= Pix.m_Data[1];
+  m_Data[2] -= Pix.m_Data[2];
 }
 
 inline Pixel32 Pixel32::operator *(float f) const

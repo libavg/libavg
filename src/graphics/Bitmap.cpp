@@ -23,6 +23,7 @@
 #include "Pixel32.h"
 #include "Pixel24.h"
 #include "Pixel16.h"
+#include "Filter3x3.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -31,6 +32,7 @@
 #include <assert.h>
 #include <iostream>
 #include <iomanip>
+#include <stdlib.h>
 
 using namespace Magick;
 using namespace std;
@@ -446,19 +448,57 @@ bool Bitmap::operator ==(const Bitmap & otherBmp)
 }
 
 template<class Pixel>
-int lineDist(const unsigned char * pSrc, unsigned char * pDest, int lineLen) {
-    int Result = 0;
-    const Pixel * pSrcPixel = (const Pixel *)pSrc;
+void lineSubtract(const unsigned char * pSrc, unsigned char * pDest, int lineLen)
+{
+    Pixel * pSrcPixel = (Pixel *)pSrc;
     Pixel * pDestPixel = (Pixel *)pDest;
     for (int x=0; x<lineLen; ++x) {
-        Result += pSrcPixel->boxDist(*pDestPixel);
+        pDestPixel->setR(abs(pSrcPixel->getR()-pDestPixel->getR()));
+        pDestPixel->setG(abs(pSrcPixel->getG()-pDestPixel->getG()));
+        pDestPixel->setB(abs(pSrcPixel->getB()-pDestPixel->getB()));
         pSrcPixel++;
         pDestPixel++;
     }
-    return Result;
 }
 
-bool Bitmap::almostEqual(const Bitmap & otherBmp, int epsilon)
+void Bitmap::subtract(const Bitmap & otherBmp)
+{
+    const unsigned char * pSrc = otherBmp.getPixels();
+    unsigned char * pDest = m_pBits;
+    for (int y=0; y<getSize().y; ++y) {
+        switch(m_PF) {
+            case R8G8B8X8:
+            case B8G8R8X8:
+                lineSubtract<Pixel32>(pSrc, pDest, m_Size.x);
+                break;
+            case R8G8B8:
+            case B8G8R8:
+                lineSubtract<Pixel24>(pSrc, pDest, m_Size.x);
+                break;
+            default:
+                // Unimplemented.
+                assert(false);
+        }
+        pDest += m_Stride;
+        pSrc += otherBmp.getStride();
+    }
+}
+
+template<class Pixel>
+int lineBrightPixels(const unsigned char * pSrc, int lineLen)
+{
+    Pixel * pSrcPixel = (Pixel *)pSrc;
+    int Result = 0;
+    for (int x=0; x<lineLen; ++x) {
+        int Val = pSrcPixel->getR()+pSrcPixel->getG()+pSrcPixel->getB();
+        if (Val > 32) {
+            Result++;
+        }
+        pSrcPixel++;
+    }
+    return Result;
+}
+bool Bitmap::almostEqual(const Bitmap & otherBmp, int MaxBrightPixels)
 {
     // We allow Name, Stride and bOwnsBits to be different here, since we're looking for
     // equal value only.
@@ -467,28 +507,34 @@ bool Bitmap::almostEqual(const Bitmap & otherBmp, int epsilon)
         return false;
     }
 
-    const unsigned char * pSrc = otherBmp.getPixels();
-    unsigned char * pDest = m_pBits;
-    int Dist = 0;
-    for (int y=0; y<getSize().y; ++y) {
-        switch(m_PF) {
-            case R8G8B8X8:
-            case B8G8R8X8:
-                Dist += lineDist<Pixel32>(pSrc, pDest, m_Size.x);
+    BitmapPtr pTempBmp(new Bitmap(*this));
+//    pTempBmp->dump(true);
+    pTempBmp->subtract(otherBmp);
+//    pTempBmp->dump(true);
+    double Matrix[3][3] = {
+            {0.111,0.111,0.111},
+            {0.111,0.111,0.111},
+            {0.111,0.111,0.111}
+    };
+    Filter3x3(Matrix).applyInPlace(pTempBmp);
+//    pTempBmp->dump(true);
+
+    int NumBrightPixels = 0;
+    for (int y = 0; y < m_Size.y-2; y++) {
+        const unsigned char * pLine = pTempBmp->getPixels()+y*pTempBmp->getStride();
+        
+        switch (getBytesPerPixel()) {
+            case 4:
+                NumBrightPixels += lineBrightPixels<Pixel32>(pLine, m_Size.x-2);
                 break;
-            case R8G8B8:
-            case B8G8R8:
-                Dist += lineDist<Pixel24>(pSrc, pDest, m_Size.x);
+            case 3:
+                NumBrightPixels += lineBrightPixels<Pixel24>(pLine, m_Size.x-2);
                 break;
             default:
-                // Unimplemented comparison.
                 assert(false);
         }
-        pDest += m_Stride;
-        pSrc += otherBmp.getStride();
     }
-    double avgDist = double(Dist)/(m_Size.x*m_Size.y);
-    return (avgDist <= epsilon);
+    return (NumBrightPixels <= MaxBrightPixels);
 }
 
 void Bitmap::dump(bool bDumpPixels) const

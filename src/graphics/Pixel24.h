@@ -33,10 +33,10 @@ class Pixel24
   public:
     Pixel24 ();
     Pixel24 (unsigned char r, unsigned char g, unsigned char b);
-    void Set (unsigned char r, unsigned char g, unsigned char b);
-    void SetR (unsigned char r);
-    void SetG (unsigned char g);
-    void SetB (unsigned char b);
+    void set (unsigned char r, unsigned char g, unsigned char b);
+    void setR (unsigned char r);
+    void setG (unsigned char g);
+    void setB (unsigned char b);
     unsigned char getR () const;
     unsigned char getG () const;
     unsigned char getB () const;
@@ -45,9 +45,9 @@ class Pixel24
     template<class SrcPixel>
     Pixel24 operator = (const SrcPixel& Pix)
     {
-        SetR (Pix.getR());
-        SetG (Pix.getG());
-        SetB (Pix.getB());
+        setR (Pix.getR());
+        setG (Pix.getG());
+        setB (Pix.getB());
 
         return *this;
     }
@@ -56,6 +56,8 @@ class Pixel24
 
     bool operator ==(const Pixel24&) const;
     bool operator !=(const Pixel24&) const;
+    void operator +=(const Pixel24&);
+    void operator -=(const Pixel24&);
 
     // Simple and fast 'distance' between two pixels. Just adds the
     // distances between the color components and treats colors
@@ -78,27 +80,27 @@ inline Pixel24::Pixel24()
 
 inline Pixel24::Pixel24(unsigned char r, unsigned char g, unsigned char b)
 {
-  Set (r, g, b);
+  set (r, g, b);
 }
 
-inline void Pixel24::Set(unsigned char r, unsigned char g, unsigned char b)
+inline void Pixel24::set(unsigned char r, unsigned char g, unsigned char b)
 {
   m_Data[REDPOS] = r;
   m_Data[GREENPOS] = g;
   m_Data[BLUEPOS] = b;
 }
 
-inline void Pixel24::SetR(unsigned char r)
+inline void Pixel24::setR(unsigned char r)
 {
   m_Data[REDPOS] = r;
 }
 
-inline void Pixel24::SetG(unsigned char g)
+inline void Pixel24::setG(unsigned char g)
 {
   m_Data[GREENPOS] = g;
 }
 
-inline void Pixel24::SetB(unsigned char b)
+inline void Pixel24::setB(unsigned char b)
 {
   m_Data[BLUEPOS] = b;
 }
@@ -154,6 +156,20 @@ inline bool Pixel24::operator ==(const Pixel24& Pix) const
 inline bool Pixel24::operator !=(const Pixel24& Pix) const
 {
   return (!(*this == Pix));
+}
+
+inline void Pixel24::operator += (const Pixel24& Pix)
+{
+  m_Data[0] += Pix.m_Data[0];
+  m_Data[1] += Pix.m_Data[1];
+  m_Data[2] += Pix.m_Data[2];
+}
+
+inline void Pixel24::operator -= (const Pixel24& Pix)
+{
+  m_Data[0] -= Pix.m_Data[0];
+  m_Data[1] -= Pix.m_Data[1];
+  m_Data[2] -= Pix.m_Data[2];
 }
 
 #endif
