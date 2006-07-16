@@ -204,7 +204,7 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(1)
     def testHugeImage(self):
         def moveImage():
-            Player.getElementByID("mainimg").x -= 2000
+            Player.getElementByID("mainimg").x -= 2500
         self.start("hugeimage.avg",
                 (lambda: self.compareImage("testHugeImage0"),
                  moveImage,
@@ -294,13 +294,6 @@ class PlayerTestCase(AVGTestCase):
                  moveBRGone,
                  lambda: self.compareImage("testCropMovie5"),
                  Player.stop))
-    def testUnicode(self):
-        def setDynamicText():
-            Player.getElementByID("dynamictext").text = "Arabic nonsense: ﯿﭗ"
-        self.start("unicode.avg",
-                (setDynamicText,
-                 lambda: self.compareImage("testUnicode"),
-                 Player.stop))
     def testWarp(self):
         def moveVertex():
             node = Player.getElementByID("testtiles")
@@ -331,15 +324,13 @@ class PlayerTestCase(AVGTestCase):
     def testWords(self):
         def changeText():
             node = Player.getElementByID("cbasetext")
-            str = "hello c-base"
+            str = "blue"
             node.text = str
+            node.color = "404080"
             node.x += 10
         def changeHeight():
             node = Player.getElementByID("cbasetext")
-            node.height = 50
-        def changeColor():
-            node = Player.getElementByID("cbasetext")
-            node.color = "404080"
+            node.height = 28
         def activateText():
             Player.getElementByID('cbasetext').active = 1
         def deactivateText():
@@ -347,25 +338,27 @@ class PlayerTestCase(AVGTestCase):
         def changeFont():
             node = Player.getElementByID("cbasetext")
             node.font = "Times New Roman"
-            node.size = 50
+            node.size = 30
         def changeFont2():
             node = Player.getElementByID("cbasetext")
-            node.size = 30
+            node.size = 18
+        def changeUnicodeText():
+            Player.getElementByID("dynamictext").text = "Arabic nonsense: ﯿﭗ"
         self.start("text.avg",
                 (lambda: self.compareImage("testWords1"),
                  changeText,
                  lambda: self.compareImage("testWords2"),
                  changeHeight,
                  lambda: self.compareImage("testWords3"),
-                 changeColor,
-                 lambda: self.compareImage("testWords4"),
                  deactivateText,
-                 lambda: self.compareImage("testWords5"),
+                 lambda: self.compareImage("testWords4"),
                  activateText,
-                 lambda: self.compareImage("testWords6"),
+                 lambda: self.compareImage("testWords5"),
                  changeFont,
-                 lambda: self.compareImage("testWords7"),
+                 lambda: self.compareImage("testWords6"),
                  changeFont2,
+                 lambda: self.compareImage("testWords7"),
+                 changeUnicodeText,
                  lambda: self.compareImage("testWords8"),
                  Player.stop))
     def testVideo(self):
@@ -492,7 +485,6 @@ def playerTestSuite(engine, bpp):
     suite.addTest(PlayerTestCase("testBlend", engine, bpp))
     suite.addTest(PlayerTestCase("testCropImage", engine, bpp))
     suite.addTest(PlayerTestCase("testCropMovie", engine, bpp))
-    suite.addTest(PlayerTestCase("testUnicode", engine, bpp))
     suite.addTest(PlayerTestCase("testWarp", engine, bpp))
     suite.addTest(PlayerTestCase("testWords", engine, bpp))
     suite.addTest(PlayerTestCase("testVideo", engine, bpp))

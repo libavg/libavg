@@ -1,8 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg width="320" height="240">
-<!--  <camera id="camera" x="160" y="120" z="1" width="320" height="240"
-      device="bla"/> -->
+<avg width="320" height="120">
     <image id="below" x="0" y="0" width="320" height="240"
             href="rgb24-65x65.png"/>
     <panoimage id="pano" x="0" y="0" width="320" height="240"

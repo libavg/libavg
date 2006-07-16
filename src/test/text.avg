@@ -1,42 +1,32 @@
 <?xml version="1.0"?>
-<avg id="imageavg" width="640" height="480">
-    <words id="normal" x="10" y="10" size="18" font="arial" text="Arial"/>
-    <words id="bold" x="10" y="35" size="18" font="arial" weight="bold"
-            text="Arial bold"/>
-    <words id="italic" x="10" y="60" size="18" font="arial" italic="True" 
-            text="Arial italic"/>
-    <words id="bolditalic" x="10" y="85" size="18" font="arial" weight="bold" 
-            italic="true" text="Arial bold italic"/>
-    <words id="condensed" x="10" y="110" size="18" font="arial" 
-            stretch="ultracondensed" text="Arial condensed"/>
-    <words id="color" x="10" y="135" size="18" font="arial" color="FF8000"
-            text="Arial orange"/>
-    <words id="smallcaps" x="10" y="160" size="18" font="arial" 
-            smallcaps="true" text="Arial smallcaps"/>
-    <words id="times" x="10" y="210" size="18" font="times new roman"
+<avg id="imageavg" width="320" height="240">
+    <words id="normal" x="1" y="1" size="12" font="arial" text="Arial"/>
+    <words id="bold" x="32" y="1" size="12" font="arial" weight="bold"
+            text="bold"/>
+    <words id="times" x="64" y="1" size="12" font="times new roman"
             text="Times New Roman"/>
-
-    <words id="para" x="200" y="10" size="16" parawidth="300" font="arial"
-            text="This is a whole paragraph of text. It demonstrates working line breaks. It is left-justified."/>
-    <words id="paracenter" x="200" y="90" size="16.5" parawidth="300" 
+    <words id="para" x="1" y="16" size="12" parawidth="60" font="arial"
+            text="Left-justified paragraph."/>
+    <words id="paracenter" x="64" y="16" size="12" parawidth="60" 
             font="arial" alignment="center"
-            text="This is a whole paragraph of text. It demonstrates working line breaks. It is centered."/>
-    <words id="pararight" x="200" y="170" size="17" parawidth="300" 
+            text="Centered paragraph"/>
+    <words id="pararight" x="128" y="16" size="12" parawidth="60" 
             font="arial" alignment="right"
-            text="This is a whole paragraph of text. It demonstrates working line breaks. It is right-justified."/>
-    <words id="paralinespacing" x="200" y="250" size="17.5" parawidth="300" 
-            font="arial" linespacing="-8"
-            text="This is a whole paragraph of text. It demonstrates working line breaks. It has custom line spacing."/>
-     <words id="paramarkup" x="200" y="330" size="17.5" parawidth="300" 
+            text="Right-justified paragraph."/>
+    <words id="paralinespacing" x="192" y="16" size="12" parawidth="60" 
+            font="arial" linespacing="-4"
+            text="Paragraph with custom line spacing."/>
+     <words id="paramarkup" x="1" y="80" size="12.5" parawidth="80" 
             font="arial">
-        This is a whole paragraph of text. It demonstrates <i>working</i>
-        line breaks. It has 
-        custom 
-        <span size='23000' rise='5000' foreground='red'><b>markup</b></span> 
-        all over.
+        Custom 
+        <span size='16000' rise='5000' foreground='red'><b>markup</b></span> 
+        <i>all</i> over.
      </words>
-    
         
-    <words id="cbasetext" x="20" y="250" z="3" 
-        opacity="1" size="30" font="arial" text="hello" color="FF8000"/>
+    <words id="cbasetext" x="128" y="80"
+        opacity="1" size="18" font="arial" text="orange" color="FF8000"/>
+    <words x="1" y="160" size="18" font="arial" 
+            text="一二三四五六七八九"/>
+    <words id="dynamictext" x="1" y="196" size="12" font="arial"
+            text="foo"/>
 </avg>
