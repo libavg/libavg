@@ -35,8 +35,9 @@
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
 
-#include <iostream>
+#include <Magick++.h>
 
+#include <iostream>
 #include <stdio.h>
 
 using namespace avg;
@@ -355,13 +356,18 @@ public:
 
     void runTests() 
     {
-        Bitmap TempBmp("../test/rgb24.png");
-        PixelFormat pf = R8G8B8;    
-        BitmapPtr pBmp;
-        pBmp = createBmp(TempBmp.getSize(), pf);
-        pBmp->copyPixels(TempBmp);
-        FilterColorize(15, 50).applyInPlace(pBmp);
-        FilterFlipRGB().applyInPlace(pBmp);
+        try {
+            Bitmap TempBmp("rgb24-64x64.png");
+            PixelFormat pf = R8G8B8;    
+            BitmapPtr pBmp;
+            pBmp = createBmp(TempBmp.getSize(), pf);
+            pBmp->copyPixels(TempBmp);
+            FilterColorize(15, 50).applyInPlace(pBmp);
+            FilterFlipRGB().applyInPlace(pBmp);
+        } catch (Magick::Exception & ex) {
+            cerr << ex.what() << endl;
+            setFailed();
+        }
     }
 
 private:

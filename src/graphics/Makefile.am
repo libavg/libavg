@@ -10,6 +10,10 @@ ALL_CPP = Bitmap.cpp Filter.cpp Filtergrayscale.cpp \
 		Filtercolorize.cpp Filterflip.cpp Filterfliprgb.cpp \
         Filterflipuv.cpp Filter3x3.cpp
 
+TESTS=testgraphics
+
+EXTRA_DIST = rgb24-64x64.png
+
 noinst_LTLIBRARIES = libgraphics.la
 libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
 libgraphics_ladir=$(includedir)/avg/graphics

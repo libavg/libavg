@@ -1,0 +1,3 @@
+libavg 0.5.9
+
+    * Test suite now completely automatic and a lot faster.

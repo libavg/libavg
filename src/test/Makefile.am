@@ -6,3 +6,4 @@ unicode.avg avg.avg noavg.avg video.avg blend.avg errevent.avg noxml.avg videofm
 test.m2v test.m1v \
 videoperformance.py Test.py TestPar.py parport.py
 
+TESTS=test.py

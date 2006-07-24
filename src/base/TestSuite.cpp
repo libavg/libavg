@@ -45,9 +45,15 @@ void TestSuite::runTests()
     for (unsigned i=0; i<m_Tests.size(); ++i) {
         cerr << string(m_IndentLevel, ' ') << "  Running " 
                 << m_Tests[i]->getName() << endl;
-        m_Tests[i]->runTests();
-        aggregateStatistics(*m_Tests[i]);
-        m_Tests[i]->printResults();
+        try {
+            m_Tests[i]->runTests();
+            aggregateStatistics(*m_Tests[i]);
+            m_Tests[i]->printResults();
+        } catch (...) {
+            cerr << cerr << string(m_IndentLevel, ' ') <<
+                    "    ---->> failed, unknown exception caught" << endl;
+            setFailed();
+        }
     }
     
     printResults();
