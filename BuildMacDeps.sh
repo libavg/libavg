@@ -11,7 +11,7 @@ buildLib()
     cd ${LIBNAME}
     ./configure --prefix=${AVG_PATH} $2
     make clean
-    make
+    make -j3
     make install
     cd ..
     
@@ -24,7 +24,7 @@ buildlibjpeg()
     cp /usr/share/libtool/config.guess .
     ./configure --prefix=${AVG_PATH}
     make clean
-    make
+    make -j3
     make install-lib
     make install-headers
     ranlib ../../lib/libjpeg.a
@@ -36,7 +36,7 @@ buildglib()
     cd glib-2.10.0 
     LDFLAGS="-framework CoreFoundation $LDFLAGS" ./configure  --prefix=${AVG_PATH} --disable-shared
     make clean
-    LDFLAGS="-framework CoreFoundation $LDFLAGS" make
+    LDFLAGS="-framework CoreFoundation $LDFLAGS" make -j3
     make install
     cd ..
 }
@@ -46,11 +46,12 @@ buildpango()
     cd pango-1.13.3
     LDFLAGS="-framework CoreFoundation $LDFLAGS" ./configure  --prefix=${AVG_PATH} --disable-shared
     make clean
-    LDFLAGS="-framework CoreFoundation $LDFLAGS" make
+    LDFLAGS="-framework CoreFoundation $LDFLAGS" make -j3
     make install
     cd ..
 }
 
+# Fix broken mac ffmpeg libav*.pc files
 fixpkgconfig()
 {
   Filename=$1
@@ -61,9 +62,14 @@ fixpkgconfig()
 buildffmpeg()
 {
     cd ffmpeg
-    ./configure --prefix=${AVG_PATH} --disable-shared
+    MMX=
+    if [[ `uname -m` == i386 ]]
+    then
+        MMX=--disable-mmx
+    fi
+    ./configure --prefix=${AVG_PATH} --disable-shared ${MMX}
     make clean
-    make
+    make -j3
     fixpkgconfig libavcodec.pc 
     fixpkgconfig libavformat.pc 
     fixpkgconfig libavutil.pc 
@@ -71,17 +77,21 @@ buildffmpeg()
     cd ..    
 }
 
-if [[ x"${AVG_PATH}" == x"" ]]
+if [[ x"${PKG_CONFIG_PATH}" == "x" ]]
 then
-    echo Please set AVG_PATH
+    echo Please call 'source mac_avg_env.sh' before calling this script.
     exit -1 
 fi
 
 cd ../deps
 
-rm -rf ${AVG_PATH}/bin/*
-rm -rf ${AVG_PATH}/lib/*
-rm -rf ${AVG_PATH}/include/*
+rm -rf ${AVG_PATH}/bin/
+rm -rf ${AVG_PATH}/lib/
+rm -rf ${AVG_PATH}/include/
+
+mkdir ${AVG_PATH}/bin
+mkdir ${AVG_PATH}/lib
+mkdir ${AVG_PATH}/include
 
 buildlibjpeg
 buildLib tiff-3.8.2 --disable-shared 
@@ -95,7 +105,7 @@ buildLib gettext-0.14.6 "--disable-shared --with-included-gettext"
 buildglib
 buildLib freetype-2.1.10 --disable-shared
 buildLib expat-2.0.0 --disable-shared 
-buildLib fontconfig-2.3.1 "--disable-shared --with-add-fonts=/Library/Fonts,/Network/Library/Fonts,/System/Library/Fonts"
+buildLib fontconfig-2.3.1 --disable-shared
 buildpango
 buildLib boost_1_33_1 --with-libraries=python 
 
