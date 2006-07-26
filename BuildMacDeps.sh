@@ -97,7 +97,7 @@ buildlibjpeg
 buildLib tiff-3.8.2 --disable-shared 
 buildLib zlib-1.2.3
 buildLib libpng-1.2.12 --disable-shared 
-buildLib ImageMagick-6.2.8 "--disable-shared --without-x --without-fontconfig --without-freetype --without-perl --without-xml"
+buildLib ImageMagick-6.2.8 "--without-x --without-fontconfig --without-freetype --without-perl --without-xml"
 buildLib pkg-config-0.20
 buildffmpeg
 buildLib SDL-1.2.11 "--disable-shared --disable-audio --disable-cdrom --disable-threads --disable-file --disable-video-x11 --without-x"
@@ -108,5 +108,6 @@ buildLib expat-2.0.0 --disable-shared
 buildLib fontconfig-2.3.1 --disable-shared
 buildpango
 buildLib boost_1_33_1 --with-libraries=python 
+ln -s ../include/boost-1_33_1/boost/ ../include/boost
 
 cd ../libavg
