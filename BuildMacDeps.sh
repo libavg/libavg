@@ -74,6 +74,9 @@ buildffmpeg()
     fixpkgconfig libavformat.pc 
     fixpkgconfig libavutil.pc 
     make install
+    ranlib ../../lib/libavformat.a
+    ranlib ../../lib/libavcodec.a
+    ranlib ../../lib/libavutil.a
     cd ..    
 }
 
@@ -93,6 +96,8 @@ mkdir ${AVG_PATH}/bin
 mkdir ${AVG_PATH}/lib
 mkdir ${AVG_PATH}/include
 
+buildLib libtool-1.5.22
+buildLib automake-1.9.6
 buildlibjpeg
 buildLib tiff-3.8.2 --disable-shared 
 buildLib zlib-1.2.3

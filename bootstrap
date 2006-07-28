@@ -1,15 +1,15 @@
 #!/bin/bash
 set -x
+set -e
 if [[ `uname` = Darwin ]] 
 then
-    # If we're running on Mac OS X, libtoolize is named glibtoolize to
-    # avoid name clashes.
-    glibtoolize --copy --force
-    aclocal -I m4
-    # The next two lines are an incredibly dirty hack.
-    awk '{sub("-all_load ",""); print}' aclocal.m4 > aclocal_new.m4
-    mv aclocal_new.m4 aclocal.m4
-    automake --foreign --add-missing --copy 
+    # This uses locally-installed libtoolize and automake since the apple-supplied one is buggy
+    # as of OS X 10.4.7
+    ../bin/libtoolize --copy --force
+    ../bin/aclocal -I m4
+    # Patch that fixes 'local relocation entries in non-writable section' linker error.
+    patch < aclocal.m4.patch
+    ../bin/automake --foreign --add-missing --copy 
     autoconf
 else
     libtoolize --copy --force

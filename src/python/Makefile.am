@@ -47,3 +47,4 @@ avg_la_LIBADD = ../conradrelais/libconradrelais.a \
 				$(PARPORT_LIB)
 pkgpyexec_PYTHON = anim.py
 
+
