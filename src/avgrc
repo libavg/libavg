@@ -7,5 +7,6 @@
     <ycbcrmode>shader</ycbcrmode>
     <usergborder>false</usergborder>
     <usepixelbuffers>true</usepixelbuffers>
+    <multisamplesamples>4</multisamplesamples>
   </scr>
 </avgrc>

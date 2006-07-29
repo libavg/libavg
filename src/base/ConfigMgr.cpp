@@ -75,6 +75,9 @@ ConfigMgr::ConfigMgr()
             " ordering internally for pixels.");
     addOption("scr", "usepixelbuffers", "true",
             "OpenGL backend only: Whether to use pixel buffer objects.");
+    addOption("scr", "multisamplesamples", "1",
+            "OpenGL backend only: Whether to use multisampling and how many"
+            "samples per pixel to use.");
 
     m_sFName = "avgrc";
     bool bOk1 = loadFile("/etc/"+m_sFName);
@@ -149,6 +152,24 @@ bool ConfigMgr::getBoolOption(const std::string& sSubsys,
                 << *psOption << ". Must be true or false. Aborting.");
         exit(-1);
     }
+}
+
+int ConfigMgr::getIntOption(const std::string& sSubsys, 
+        const std::string& sName, int Default) const
+{
+    const string * psOption = getOption(sSubsys, sName);
+    if (psOption == 0) {
+        return Default;
+    }
+    int Result = strtol(psOption->c_str(), 0, 10);
+    int rc = errno;
+    if (rc == EINVAL || rc == ERANGE) {
+        AVG_TRACE(Logger::ERROR,
+                "Unrecognized value for option "<<sName<<": " 
+                << *psOption << ". Must be an integer. Aborting.");
+        exit(-1);
+    }
+    return Result;
 }
 
 const ConfigOptionVector* ConfigMgr::getGlobalOptions() const

@@ -59,7 +59,7 @@ class Player : IEventSink
         void setResolution(bool bFullscreen, 
                 int width=0, int height=0, int bpp=0);
         void setOGLOptions(bool bUsePOW2Textures, DisplayEngine::YCbCrMode DesiredYCbCrMode, 
-                bool bUseRGBOrder, bool bUsePixelBuffers);
+                bool bUseRGBOrder, bool bUsePixelBuffers, int MultiSampleSamples);
         void loadFile (const std::string& fileName);
         void play();
         void stop();
@@ -137,6 +137,7 @@ class Player : IEventSink
         DisplayEngine::YCbCrMode m_YCbCrMode;
         bool m_bUseRGBOrder;
         bool m_bUsePixelBuffers;
+        int m_MultiSampleSamples;
 
         bool m_bIsPlaying;
 

@@ -59,6 +59,8 @@ public:
             const std::string& sName) const;
     bool getBoolOption(const std::string& sSubsys, 
             const std::string& sName, bool bDefault) const;
+    int getIntOption(const std::string& sSubsys, 
+            const std::string& sName, int Default) const;
 
     const ConfigOptionVector* getGlobalOptions() const;
     const std::string* getGlobalOption(const std::string& sName) const;

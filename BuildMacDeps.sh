@@ -67,7 +67,7 @@ buildffmpeg()
     then
         MMX=--disable-mmx
     fi
-    ./configure --prefix=${AVG_PATH} --disable-shared ${MMX}
+    ./configure --prefix=${AVG_PATH} --disable-shared ${MMX} --disable-debug --disable-encoders
     make clean
     make -j3
     fixpkgconfig libavcodec.pc 
@@ -100,7 +100,7 @@ buildLib libtool-1.5.22
 buildLib automake-1.9.6
 buildlibjpeg
 buildLib tiff-3.8.2 --disable-shared 
-buildLib zlib-1.2.3
+#buildLib zlib-1.2.3
 buildLib libpng-1.2.12 --disable-shared 
 buildLib ImageMagick-6.2.8 "--without-x --without-fontconfig --without-freetype --without-perl --without-xml"
 buildLib pkg-config-0.20

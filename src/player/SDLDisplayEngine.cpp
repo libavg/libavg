@@ -173,8 +173,14 @@ void SDLDisplayEngine::init(int width, int height, bool isFullscreen,
                     "in SDLDisplayEngine::init()");
             exit(-1);
     }
-    safeSetAttribute( SDL_GL_DEPTH_SIZE, 0 );
-    safeSetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
+    safeSetAttribute(SDL_GL_DEPTH_SIZE, 0);
+    safeSetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    if (m_MultiSampleSamples > 1) {
+        safeSetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+        safeSetAttribute(SDL_GL_MULTISAMPLESAMPLES, m_MultiSampleSamples);
+    } else {
+        safeSetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 0);
+    }
 
     unsigned int Flags = SDL_OPENGL;
     if (isFullscreen) {
@@ -199,6 +205,13 @@ void SDLDisplayEngine::init(int width, int height, bool isFullscreen,
     int TexMode = getTextureMode();
     glEnable(TexMode);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(TexMode);");
+    if (m_MultiSampleSamples > 1) {
+        glEnable(GL_MULTISAMPLE);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(GL_MULTISAMPLE);");
+    } else {
+        glDisable(GL_MULTISAMPLE);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glDisable(GL_MULTISAMPLE);");
+    }
 
     checkYCbCrSupport();
 
@@ -244,6 +257,12 @@ void SDLDisplayEngine::logConfig()
         case OGL_SHADER:
             AVG_TRACE(Logger::CONFIG, "Using fragment shader YCbCr texture support.");
             break;
+    }
+    if (m_MultiSampleSamples == 1) {
+        AVG_TRACE(Logger::CONFIG, "Not using multisampling.");
+    } else {
+        AVG_TRACE(Logger::CONFIG, "Using multisampling with " << m_MultiSampleSamples 
+                << " samples");
     }
 }
 
@@ -1237,7 +1256,7 @@ OGLMemoryMode SDLDisplayEngine::getMemoryModeSupported()
 
 
 void SDLDisplayEngine::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode, 
-        bool bUseRGBOrder, bool bUsePixelBuffers)
+        bool bUseRGBOrder, bool bUsePixelBuffers, int MultiSampleSamples)
 {
     if (m_pScreen) {
         AVG_TRACE(Logger::ERROR, 
@@ -1248,6 +1267,7 @@ void SDLDisplayEngine::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCb
     m_DesiredYCbCrMode = DesiredYCbCrMode;
     m_bShouldUseRGBOrder = bUseRGBOrder;
     m_bShouldUsePixelBuffers = bUsePixelBuffers;
+    m_MultiSampleSamples = MultiSampleSamples;
 }
 
 }

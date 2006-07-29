@@ -133,7 +133,7 @@ void Player::setResolution(bool bFullscreen,
 }
         
 void Player::setOGLOptions(bool bUsePOW2Textures, DisplayEngine::YCbCrMode DesiredYCbCrMode, 
-                bool bUseRGBOrder, bool bUsePixelBuffers)
+                bool bUseRGBOrder, bool bUsePixelBuffers, int MultiSampleSamples)
 {
     if (m_pRootNode) {
         AVG_TRACE(Logger::ERROR,
@@ -145,6 +145,8 @@ void Player::setOGLOptions(bool bUsePOW2Textures, DisplayEngine::YCbCrMode Desir
     m_YCbCrMode = DesiredYCbCrMode;
     m_bUseRGBOrder = bUseRGBOrder;
     m_bUsePixelBuffers = bUsePixelBuffers;
+    m_MultiSampleSamples = MultiSampleSamples;
+    cerr << "Player::setOGLOptions: " << m_MultiSampleSamples << endl;
 }
 
 void Player::loadFile (const std::string& filename)
@@ -197,6 +199,8 @@ void Player::loadFile (const std::string& filename)
                         << (m_bUseRGBOrder?"true":"false"));
                 AVG_TRACE(Logger::CONFIG, "  Use pixel buffers: " 
                         << (m_bUsePixelBuffers?"true":"false"));
+                AVG_TRACE(Logger::CONFIG, "  Multisample samples: " 
+                        << m_MultiSampleSamples);
                 
                 m_pDisplayEngine = new SDLDisplayEngine ();
                 m_pEventSource = 
@@ -563,6 +567,7 @@ void Player::initConfig() {
 
         m_bUseRGBOrder = pMgr->getBoolOption("scr", "usergborder", false);
         m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
+        m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 1);
     }
 }
 
@@ -664,7 +669,7 @@ void Player::initDisplay(const xmlNodePtr xmlNode) {
     SDLDisplayEngine * pSDLDisplayEngine = dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine);
     if (pSDLDisplayEngine) {
         pSDLDisplayEngine->setOGLOptions(m_bUsePOW2Textures, m_YCbCrMode, m_bUseRGBOrder,
-                m_bUsePixelBuffers);
+                m_bUsePixelBuffers, m_MultiSampleSamples);
     }
     m_pDisplayEngine->init(Width, Height, m_bFullscreen, m_BPP, 
             m_WindowWidth, m_WindowHeight);

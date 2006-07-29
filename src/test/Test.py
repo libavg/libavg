@@ -50,8 +50,7 @@ class AVGTestCase(unittest.TestCase):
     def setUp(self):
         Player.setDisplayEngine(self.__engine)
         Player.setResolution(0, 0, 0, self.__bpp)
-        if customOGLOptions:
-            Player.setOGLOptions(UsePOW2Textures, YCbCrMode, UseRGBOrder, UsePixelBuffers)
+        Player.setOGLOptions(UsePOW2Textures, YCbCrMode, UseRGBOrder, UsePixelBuffers, 1)
         print "-------- ", self.__testFuncName, " --------"
     def start(self, filename, actions):
         self.assert_(Player.isPlaying() == 0)
@@ -540,6 +539,12 @@ else:
     print "Usage: Test.py [<display engine> <bpp>"
     print "               [<UsePOW2Textures> <YCbCrMode> <UseRGBOrder> <UsePixelBuffers>]]"
     sys.exit(1)
+
+if not(customOGLOptions): 
+    UsePOW2Textures = False 
+    YCbCrMode = avg.shader
+    UseRGBOrder = False 
+    UsePixelBuffers = True
 
 Player = avg.Player()
 runner = unittest.TextTestRunner()
