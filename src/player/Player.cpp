@@ -146,7 +146,6 @@ void Player::setOGLOptions(bool bUsePOW2Textures, DisplayEngine::YCbCrMode Desir
     m_bUseRGBOrder = bUseRGBOrder;
     m_bUsePixelBuffers = bUsePixelBuffers;
     m_MultiSampleSamples = MultiSampleSamples;
-    cerr << "Player::setOGLOptions: " << m_MultiSampleSamples << endl;
 }
 
 void Player::loadFile (const std::string& filename)
