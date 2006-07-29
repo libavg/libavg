@@ -1,0 +1,40 @@
+--- aclocal_new.m4	2006-07-28 23:04:35.000000000 +0200
++++ aclocal.m4	2006-07-28 23:06:45.000000000 +0200
+@@ -3032,15 +3032,15 @@
+       darwin* | rhapsody*)
+         case $host_os in
+         rhapsody* | darwin1.[[012]])
+-         _LT_AC_TAGVAR(allow_undefined_flag, $1)='${wl}-undefined ${wl}suppress'
++         _LT_AC_TAGVAR(allow_undefined_flag, $1)='${wl}-undefined ${wl}suppress ${wl}-read_only_relocs ${wl}suppress'
+          ;;
+        *) # Darwin 1.3 on
+          if test -z ${MACOSX_DEPLOYMENT_TARGET} ; then
+-           _LT_AC_TAGVAR(allow_undefined_flag, $1)='${wl}-flat_namespace ${wl}-undefined ${wl}suppress'
++           _LT_AC_TAGVAR(allow_undefined_flag, $1)='${wl}-flat_namespace ${wl}-undefined ${wl}suppress ${wl}-read_only_relocs ${wl}suppress'
+          else
+            case ${MACOSX_DEPLOYMENT_TARGET} in
+              10.[[012]])
+-               _LT_AC_TAGVAR(allow_undefined_flag, $1)='${wl}-flat_namespace ${wl}-undefined ${wl}suppress'
++               _LT_AC_TAGVAR(allow_undefined_flag, $1)='${wl}-flat_namespace ${wl}-undefined ${wl}suppress ${wl}-read_only_relocs ${wl}suppress'
+                ;;
+              10.*)
+                _LT_AC_TAGVAR(allow_undefined_flag, $1)='${wl}-undefined ${wl}dynamic_lookup'
+@@ -5807,15 +5807,15 @@
+     darwin* | rhapsody*)
+       case $host_os in
+         rhapsody* | darwin1.[[012]])
+-         _LT_AC_TAGVAR(allow_undefined_flag, $1)='${wl}-undefined ${wl}suppress'
++         _LT_AC_TAGVAR(allow_undefined_flag, $1)='${wl}-undefined ${wl}suppress ${wl}-read_only_relocs ${wl}suppress'
+          ;;
+        *) # Darwin 1.3 on
+          if test -z ${MACOSX_DEPLOYMENT_TARGET} ; then
+-           _LT_AC_TAGVAR(allow_undefined_flag, $1)='${wl}-flat_namespace ${wl}-undefined ${wl}suppress'
++           _LT_AC_TAGVAR(allow_undefined_flag, $1)='${wl}-flat_namespace ${wl}-undefined ${wl}suppress ${wl}-read_only_relocs ${wl}suppress'
+          else
+            case ${MACOSX_DEPLOYMENT_TARGET} in
+              10.[[012]])
+-               _LT_AC_TAGVAR(allow_undefined_flag, $1)='${wl}-flat_namespace ${wl}-undefined ${wl}suppress'
++               _LT_AC_TAGVAR(allow_undefined_flag, $1)='${wl}-flat_namespace ${wl}-undefined ${wl}suppress ${wl}-read_only_relocs ${wl}suppress'
+                ;;
+              10.*)
+                _LT_AC_TAGVAR(allow_undefined_flag, $1)='${wl}-undefined ${wl}dynamic_lookup'
