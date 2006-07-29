@@ -44,7 +44,7 @@ buildglib()
 buildpango()
 {
     cd pango-1.13.3
-    LDFLAGS="-framework CoreFoundation $LDFLAGS" ./configure  --prefix=${AVG_PATH} --disable-shared
+    LDFLAGS="-framework CoreFoundation $LDFLAGS" ./configure  --prefix=${AVG_PATH} --disable-shared --without-x --with-included-modules=yes
     make clean
     LDFLAGS="-framework CoreFoundation $LDFLAGS" make -j3
     make install
@@ -115,7 +115,6 @@ patch fontconfig-2.3.1/fontconfig.pc.in ../libavg/fontconfig.pc.in.diff
 buildLib fontconfig-2.3.1 --disable-shared
 
 buildpango
-buildLib libxml2-2.6.26
 buildLib boost_1_33_1 --with-libraries=python 
 ln -s ../include/boost-1_33_1/boost/ ../include/boost
 
