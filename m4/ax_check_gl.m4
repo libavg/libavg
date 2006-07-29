@@ -216,8 +216,8 @@ AC_ARG_WITH([apple-opengl-framework],
 if test "X$with_apple_opengl_framework" = "Xyes"; then
   AC_DEFINE([HAVE_APPLE_OPENGL_FRAMEWORK], [1],
             [Use the Apple OpenGL framework.])
-  GL_CFLAGS="-framework OpenGL"
-  GL_LIBS="-framework OpenGL"
+  GL_CFLAGS=""
+  GL_LIBS="-framework OpenGL -framework AGL"
 else
   GL_CFLAGS="${PTHREAD_CFLAGS}"
   GL_LIBS="${PTHREAD_LIBS} -lm"

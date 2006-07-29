@@ -109,9 +109,13 @@ buildLib SDL-1.2.11 "--disable-shared --disable-audio --disable-cdrom --disable-
 buildLib gettext-0.14.6 "--disable-shared --with-included-gettext"
 buildglib
 buildLib freetype-2.1.10 --disable-shared
-buildLib expat-2.0.0 --disable-shared 
+buildLib expat-2.0.0 --disable-shared
+
+patch fontconfig-2.3.1/fontconfig.pc.in ../libavg/fontconfig.pc.in.diff
 buildLib fontconfig-2.3.1 --disable-shared
+
 buildpango
+buildLib libxml2-2.6.26
 buildLib boost_1_33_1 --with-libraries=python 
 ln -s ../include/boost-1_33_1/boost/ ../include/boost
 

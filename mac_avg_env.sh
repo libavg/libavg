@@ -2,7 +2,7 @@ if [[ x"${AVG_PATH}" == x"" ]]
 then
     echo Please set AVG_PATH
 else
-    export PATH=${PATH}:${AVG_PATH}/bin
+    export PATH=${AVG_PATH}/bin:${PATH}
     export CPPFLAGS="-I${AVG_PATH}/include "$CPPFLAGS
     export CXXFLAGS="-g "$CXXFLAGS
     export LDFLAGS="-L${AVG_PATH}/lib "$LDFLAGS

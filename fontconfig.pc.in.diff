@@ -1,0 +1,4 @@
+9c9
+< Libs: -L${libdir} -lfontconfig
+---
+> Libs: -L${libdir} -lfontconfig -lexpat

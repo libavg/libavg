@@ -17,7 +17,7 @@ else
 endif
 
 if ENABLE_GL
-    ALL_GL_LIBS = @SDL_LIBS@ $(XGL_LIBS)
+    ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 else
     ALL_GL_LIBS =
 endif
