@@ -553,6 +553,7 @@ bool SDLDisplayEngine::initVBlank(int rate) {
     
     if (rate > 0) {
 #ifdef __APPLE__
+/*
         GLint swapInt = rate;
         // TODO: Find out why aglGetCurrentContext doesn't work.
         AGLContext Context = aglGetCurrentContext();
@@ -570,6 +571,8 @@ bool SDLDisplayEngine::initVBlank(int rate) {
                     aglGetError() << ".");
             m_VBMethod = VB_NONE;
         }
+*/
+        m_VBMethod = VB_NONE;
 #else
         if (queryGLXExtension("GLX_SGI_video_sync")) {
             m_VBMethod = VB_SGI;
