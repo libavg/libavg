@@ -23,6 +23,7 @@
 #include "DisplayEngine.h"
 #include "ISurface.h"
 
+#include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
@@ -33,6 +34,8 @@
 
 #include <iostream>
 #include <stdlib.h>
+#include <algorithm>
+#include <cctype> // for toupper
 
 using namespace std;
 
@@ -250,6 +253,14 @@ string Words::getStretch() const
 
 static ProfilingZone DrawStringProfilingZone("  Words::drawString");
 
+bool equalIgnoreCase(const string& s1, const string& s2) {
+    string sUpper1;
+    string sUpper2;
+	transform(s1.begin(), s1.end(), std::back_inserter(sUpper1), (int(*)(int)) toupper);
+	transform(s2.begin(), s2.end(), std::back_inserter(sUpper2), (int(*)(int)) toupper);
+    return sUpper1 == sUpper2;
+}
+
 void Words::drawString()
 {
     if (!isInitialized()) {
@@ -260,7 +271,6 @@ void Words::drawString()
         m_StringExtents = DPoint(0,0);
     } else {
         if (m_bFontChanged) {
-            // TODO: check if the family exists (via pango_font_map_list_families ()?)
             pango_font_description_set_family(m_pFontDescription,
                     g_strdup(m_FontName.c_str()));
             pango_font_description_set_style(m_pFontDescription,
@@ -276,6 +286,17 @@ void Words::drawString()
 
             pango_context_set_font_description(m_pContext, m_pFontDescription);
             m_bFontChanged = false;
+
+            PangoFontMap* pFontMap = pango_context_get_font_map(m_pContext);
+            PangoFont* pUsedFont = pango_font_map_load_font(pFontMap, m_pContext,
+                    m_pFontDescription);
+            PangoFontDescription * pUsedDescription = pango_font_describe(pUsedFont);
+            string sUsedName = pango_font_description_get_family(pUsedDescription);
+            if (!equalIgnoreCase(sUsedName, m_FontName)) {
+                AVG_TRACE(Logger::WARNING, "Could not find font face " << m_FontName <<
+                        ". Using " << sUsedName << " instead.");
+            }
+            pango_font_description_free(pUsedDescription);
         }
 
         PangoRectangle logical_rect;
@@ -313,6 +334,7 @@ void Words::drawString()
         bitmap.pixel_mode = ft_pixel_mode_grays;
 
         pango_ft2_render_layout(&bitmap, layout, 0, 0);
+
         getEngine()->surfaceChanged(m_pSurface);
         if (m_LineSpacing == -1) {
             m_LineSpacing = pango_layout_get_spacing(layout)/PANGO_SCALE;
