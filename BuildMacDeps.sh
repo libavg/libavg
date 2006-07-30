@@ -112,7 +112,7 @@ buildLib freetype-2.1.10 --disable-shared
 buildLib expat-2.0.0 --disable-shared
 
 patch fontconfig-2.3.1/fontconfig.pc.in ../libavg/fontconfig.pc.in.diff
-buildLib fontconfig-2.3.1 --disable-shared
+buildLib fontconfig-2.3.1 "--disable-shared --with-add-fonts=/usr/share/fonts,/Library/Fonts,/System/Library/Fonts,~/fonts"
 
 buildpango
 buildLib boost_1_33_1 --with-libraries=python 
