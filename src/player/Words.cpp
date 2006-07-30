@@ -286,7 +286,8 @@ void Words::drawString()
 
             pango_context_set_font_description(m_pContext, m_pFontDescription);
             m_bFontChanged = false;
-
+            
+            // Test if the font is actually available and warn if not.
             PangoFontMap* pFontMap = pango_context_get_font_map(m_pContext);
             PangoFont* pUsedFont = pango_font_map_load_font(pFontMap, m_pContext,
                     m_pFontDescription);
@@ -295,6 +296,11 @@ void Words::drawString()
             if (!equalIgnoreCase(sUsedName, m_FontName)) {
                 AVG_TRACE(Logger::WARNING, "Could not find font face " << m_FontName <<
                         ". Using " << sUsedName << " instead.");
+            } else {
+                if (m_Weight != pango_font_description_get_weight(m_pFontDescription)) {
+                    AVG_TRACE(Logger::WARNING, "Font face " << m_FontName <<
+                        " not available in " << getWeight() << ".");
+                }
             }
             pango_font_description_free(pUsedDescription);
         }
