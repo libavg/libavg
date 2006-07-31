@@ -38,7 +38,7 @@ public:
     void setCategories(int flags);
     void trace(int category, const std::string& msg);
     inline bool isFlagSet(int category) {
-        return (category & m_Flags);
+        return (category & m_Flags) != 0;
     }
 
     static const long NONE;

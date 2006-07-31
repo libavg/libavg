@@ -23,7 +23,9 @@
 #include "ConfigMgr.h"
 #include "Exception.h"
 
+#ifndef _WIN32
 #include <libgen.h>
+#endif
 #include <stdio.h>
 #include <sys/stat.h>
 
@@ -40,13 +42,22 @@ string getPath(const string& Filename)
     if (Filename.length() > 0 && Filename.at(Filename.length()-1) == '/') {
         return Filename;
     }
+#ifdef _WIN32
+    int pos = Filename.find_last_of("\\");
+    string DirName;
+    if (pos >= 0) {
+        DirName = Filename.substr(0, pos);
+    } else {
+        DirName = Filename;
+    }
+#else
     char * pszBuffer = strdup(Filename.c_str());
 
     string DirName(dirname(pszBuffer));
     free(pszBuffer);
+#endif
 
     DirName += "/";
-    
     return DirName;
 }
 

@@ -23,21 +23,80 @@
 
 #include "../base/Logger.h"
 
+#ifdef _WIN32
+#include <time.h>
+#include <sys/timeb.h>
+#define WIN32_LEAN_AND_MEAN  /* somewhat limit Win32 pollution */
+#include <windows.h>
+#include <Mmsystem.h>
+#else
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #ifdef __APPLE__ 
 #include <mach/mach_time.h>
 #endif
+#endif
+#include <sys/stat.h>
+#include <sys/types.h>
+
 #include <errno.h>
-#include <sys/ioctl.h>
+//#include <sys/ioctl.h>
 #include <iostream>
 #include <sstream>
 
 using namespace std;
 
 namespace avg {
+#ifdef _WIN32
+static int gettimeofday(struct timeval *time_Info, struct timezone *timezone_Info)
+{
+  // remarks: a DWORD is an unsigned long
+  static DWORD time_t0, time_delta, mm_t0;
+  static int t_initialized = 0;
+  DWORD mm_t, delta_t;
+
+  if( !t_initialized )
+  {
+    time_t0 = time(NULL);
+    time_delta = 0;
+    mm_t0 = timeGetTime();
+    t_initialized = 1;
+  }
+  /* Get the time, if they want it */
+  if (time_Info != NULL) 
+  {
+    // timeGetTime() returns the system time in milliseconds
+    mm_t = timeGetTime();
+  
+    // handle wrap around of system time (happens every 
+    // 2^32 milliseconds = 49.71 days)
+    if( mm_t < mm_t0 )
+      delta_t = (0xffffffff - mm_t0) + mm_t + 1; 
+    else
+      delta_t = mm_t - mm_t0;
+    mm_t0 = mm_t;
+
+    time_delta += delta_t;
+    if( time_delta >= 1000 )
+    {
+      time_t0 += time_delta / 1000;
+      time_delta = time_delta % 1000;
+    }
+    time_Info->tv_sec = time_t0;
+    time_Info->tv_usec = time_delta * 1000;
+  }
+  /* Get the timezone, if they want it */
+/*
+  if (timezone_Info != NULL) {
+    _tzset();
+    timezone_Info->tz_minuteswest = _timezone;
+    timezone_Info->tz_dsttime = _daylight;
+  }
+  */
+  /* And return */
+  return 0;
+}
+#endif
 
 TimeSource* TimeSource::m_pTimeSource = 0;
 
@@ -87,9 +146,17 @@ void TimeSource::sleepUntil(long long TargetTime)
 #else
     while (now<TargetTime) {
         if (TargetTime-now<=2) {
+#if _WIN32
+            Sleep(0);
+#else
             usleep(0);
-        } else {
+#endif
+         } else {
+#if _WIN32
+            Sleep(TargetTime-now-2);
+#else
             usleep((TargetTime-now-2)*1000);
+#endif
         }
         now = getCurrentMillisecs();
     }
