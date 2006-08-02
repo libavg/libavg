@@ -352,19 +352,15 @@ class PlayerTestCase(AVGTestCase):
         self.start("text.avg",
                 (lambda: self.compareImage("testWords1", True),
                  changeText,
-                 lambda: self.compareImage("testWords2", True),
                  changeHeight,
-                 lambda: self.compareImage("testWords3", True),
                  deactivateText,
-                 lambda: self.compareImage("testWords4", True),
+                 lambda: self.compareImage("testWords2", True),
                  activateText,
-                 lambda: self.compareImage("testWords5", True),
                  changeFont,
-                 lambda: self.compareImage("testWords6", True),
+                 lambda: self.compareImage("testWords3", True),
                  changeFont2,
-                 lambda: self.compareImage("testWords7", True),
                  changeUnicodeText,
-                 lambda: self.compareImage("testWords8", True),
+                 lambda: self.compareImage("testWords4", True),
                  Player.stop))
     def testVideo(self):
         def seek():
