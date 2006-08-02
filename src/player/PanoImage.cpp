@@ -42,6 +42,8 @@
 #include "GL/glu.h"
 #endif
 
+#include <Magick++.h>
+
 #include <iostream>
 #include <sstream>
 #include <math.h>
@@ -99,13 +101,18 @@ void PanoImage::init (DisplayEngine * pEngine,
         exit(-1);
     }
 //    AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
-    m_pBmp = BitmapPtr(new Bitmap(m_Filename));
+    try {
+        m_pBmp = BitmapPtr(new Bitmap(m_Filename));
+    } catch (Magick::Exception & ex) {
+        AVG_TRACE(Logger::ERROR, ex.what());
+        m_pBmp = BitmapPtr(new Bitmap(IntPoint(1, 1), R8G8B8, "Fake PanoImage"));
+    }
 
     if (m_Saturation != -1) {
         FilterColorize(m_Hue, m_Saturation).applyInPlace(m_pBmp);
     }
     
-    if (!(pEngine->hasRGBOrdering())) {
+    if (pEngine->hasRGBOrdering()) {
         FilterFlipRGB().applyInPlace(m_pBmp);
     }
     calcProjection();
