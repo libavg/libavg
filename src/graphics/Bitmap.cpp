@@ -491,14 +491,15 @@ int lineBrightPixels(const unsigned char * pSrc, int lineLen)
     int Result = 0;
     for (int x=0; x<lineLen; ++x) {
         int Val = pSrcPixel->getR()+pSrcPixel->getG()+pSrcPixel->getB();
-        if (Val > 48) {
+        if (Val > 256) {
             Result++;
         }
         pSrcPixel++;
     }
     return Result;
 }
-bool Bitmap::almostEqual(const Bitmap & otherBmp, int MaxBrightPixels)
+
+int Bitmap::getNumDifferentPixels(const Bitmap & otherBmp)
 {
     // We allow Name, Stride and bOwnsBits to be different here, since we're looking for
     // equal value only.
@@ -533,7 +534,7 @@ bool Bitmap::almostEqual(const Bitmap & otherBmp, int MaxBrightPixels)
                 assert(false);
         }
     }
-    return (NumBrightPixels <= MaxBrightPixels);
+    return NumBrightPixels;
 }
 
 void Bitmap::dump(bool bDumpPixels) const

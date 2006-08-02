@@ -153,16 +153,16 @@ private:
             testEqual(*pBmp, BmpCopy3);
         }
         if (PF == R8G8B8X8 || PF == R8G8B8) {
-            cerr << "      Testing almostEqual." << endl;
+            cerr << "      Testing getNumDifferentPixels." << endl;
             Bitmap BmpCopy4 (*pBmp);
-            TEST(pBmp->almostEqual(BmpCopy4, 0));
+            TEST(pBmp->getNumDifferentPixels(BmpCopy4) == 0);
             
             unsigned char * pPixel = BmpCopy4.getPixels();
             *pPixel += 27;
-            TEST(pBmp->almostEqual(BmpCopy4, 0));
+            TEST(pBmp->getNumDifferentPixels(BmpCopy4) == 0);
             *pPixel = 255;
             *(pPixel+BmpCopy4.getStride()) = 255;
-            TEST(!pBmp->almostEqual(BmpCopy4, 0));
+            TEST(!pBmp->getNumDifferentPixels(BmpCopy4) == 0);
         }
     }
 

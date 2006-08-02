@@ -88,7 +88,7 @@ public:
     void subtract(const Bitmap* pOtherBmp);
 
     bool operator ==(const Bitmap & otherBmp);
-    bool almostEqual(const Bitmap & otherBmp, int epsilon);
+    int getNumDifferentPixels(const Bitmap & otherBmp);
     void dump(bool bDumpPixels=false) const;
 
 private:

@@ -231,7 +231,7 @@ BOOST_PYTHON_MODULE(avg)
     ;
 
     class_<TestHelper>("TestHelper", "", no_init)
-        .def("bmpAlmostEqual", &TestHelper::bmpAlmostEqual, "")
+        .def("getNumDifferentPixels", &TestHelper::getNumDifferentPixels, "")
     ;
 
     class_<Player>("Player", 

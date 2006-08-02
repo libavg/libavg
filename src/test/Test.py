@@ -23,7 +23,10 @@ class LoggerTestCase(unittest.TestCase):
 #                  self.Log.BLTS    |
                   self.Log.EVENTS
                   )
-        os.remove("testavg.log")
+        try:
+            os.remove("testavg.log")
+        except OSError:
+            pass
         self.Log.setFileDest("testavg.log")
         self.Log.trace(self.Log.APP, "Test file log entry.")
         stats = os.stat("testavg.log")
@@ -72,11 +75,14 @@ class AVGTestCase(unittest.TestCase):
             Bmp.save(BASELINE_DIR+"/"+fileName+".png")
         else:
             BaselineBmp = avg.Bitmap(BASELINE_DIR+"/"+fileName+".png")
-            if (not(Player.getTestHelper().bmpAlmostEqual(Bmp, BaselineBmp))):
+            NumPixels = Player.getTestHelper().getNumDifferentPixels(Bmp, BaselineBmp)
+            if (NumPixels > 20):
                 Bmp.save(RESULT_DIR+"/"+fileName+".png")
                 BaselineBmp.save(RESULT_DIR+"/"+fileName+"_baseline.png")
                 Bmp.subtract(BaselineBmp)
                 Bmp.save(RESULT_DIR+"/"+fileName+"_diff.png")
+                self.Log.trace(self.Log.WARNING, "Image compare: "+str(NumPixels)+
+                        " bright pixels.")
                 if warn:
                     self.Log.trace(self.Log.WARNING, "Image "+fileName
                             +" differs from original.")
@@ -465,9 +471,12 @@ class PlayerTestCase(AVGTestCase):
             
 def playerTestSuite(engine, bpp):
     def rmBrokenDir():
-        files = os.listdir(RESULT_DIR)
-        for file in files:
-            os.remove(RESULT_DIR+"/"+file)
+        try:
+            files = os.listdir(RESULT_DIR)
+            for file in files:
+                os.remove(RESULT_DIR+"/"+file)
+        except OSError:
+            os.mkdir(RESULT_DIR)
     rmBrokenDir()
     suite = unittest.TestSuite()
     suite.addTest(NodeTestCase("testAttributes"))
