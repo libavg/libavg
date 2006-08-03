@@ -53,5 +53,4 @@ libplayer_a_SOURCES = $(GL_SOURCES) $(DFB_SOURCES) \
         RasterNode.cpp AVGNode.cpp avgdtd.cpp TestHelper.cpp\
         $(APPLE_SOURCES) \
 		$(ALL_H)
-libplayer_a_LIBADD = ../graphics/libgraphics.la
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"
