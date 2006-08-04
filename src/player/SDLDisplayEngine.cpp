@@ -57,7 +57,7 @@
 #include "GL/glu.h"
 
 #ifdef __APPLE__
-#include "AGL/agl.h"
+#include <OpenGL/OpenGL.h>
 #else
 #define GLX_GLXEXT_PROTOTYPES
 #include "GL/glx.h"
@@ -553,26 +553,20 @@ bool SDLDisplayEngine::initVBlank(int rate) {
     
     if (rate > 0) {
 #ifdef __APPLE__
-/*
-        GLint swapInt = rate;
-        // TODO: Find out why aglGetCurrentContext doesn't work.
-        AGLContext Context = aglGetCurrentContext();
+        CGLContextObj Context = CGLGetCurrentContext();
         if (Context == 0) {
             AVG_TRACE(Logger::WARNING,
-                    "Mac VBlank setup failed in aglGetCurrentContext(). Error was "
-                    << aglGetError() << ".");
+                    "Mac VBlank setup failed in CGLGetCurrentContext().");
         }
-        bool bOk = aglSetInteger(Context, AGL_SWAP_INTERVAL, &swapInt);
+        const long l = rate;
+        CGLError err = CGLSetParameter(Context, kCGLCPSwapInterval, &l);
         m_VBMethod = VB_APPLE;
-
-        if (bOk == GL_FALSE) {
+        if (err) {
             AVG_TRACE(Logger::WARNING,
                     "Mac VBlank setup failed with error code " << 
-                    aglGetError() << ".");
+                    CGLErrorString(err) << "(" << err << ").");
             m_VBMethod = VB_NONE;
         }
-*/
-        m_VBMethod = VB_NONE;
 #else
         if (queryGLXExtension("GLX_SGI_video_sync")) {
             m_VBMethod = VB_SGI;
