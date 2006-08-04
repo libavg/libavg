@@ -56,7 +56,7 @@ Camera::Camera ()
       m_FWHandle(0)
 #else
     : m_sDevice("Camera disabled"),
-      m_FrameRate(15),
+      m_FrameRate(30),
       m_sMode("---")
 #endif
 {
@@ -138,7 +138,7 @@ void Camera::init (DisplayEngine * pEngine, DivNode * pParent,
     }
 #else
     AVG_TRACE(Logger::ERROR,
-            "Unable to setup camera. Camera support not compiled.");
+            "Unable to set up camera. Camera support not compiled.");
 #endif
     VideoBase::init(pEngine, pParent, pPlayer);
 }

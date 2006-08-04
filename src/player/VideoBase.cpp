@@ -250,7 +250,7 @@ int VideoBase::getMediaHeight()
 bool VideoBase::obscures (const DRect& Rect, int z)
 {
     return (isActive() && getEffectiveOpacity() > 0.999 &&
-            getZ() > z && getVisibleRect().Contains(Rect));
+            getZ() > z && getVisibleRect().Contains(Rect) && m_State != Unloaded);
 }
 
 string VideoBase::dump (int indent)
