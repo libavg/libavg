@@ -51,28 +51,13 @@ buildpango()
     cd ..
 }
 
-# Fix broken mac ffmpeg libav*.pc files
-fixpkgconfig()
-{
-  Filename=$1
-  sed 's/PREFIX/prefix/' ${Filename} > ${Filename}.tmp
-  mv ${Filename}.tmp ${Filename}
-}
-
 buildffmpeg()
 {
     cd ffmpeg
-    MMX=
-    if [[ `uname -m` == i386 ]]
-    then
-        MMX=--disable-mmx
-    fi
-    ./configure --prefix=${AVG_PATH} --disable-shared ${MMX} --disable-debug --disable-encoders
+    patch -p0 < ../../libavg/macpatches/ffmpeg-svn-mactel.patch
+    ./configure --prefix=${AVG_PATH} --disable-shared --disable-debug --disable-encoders
     make clean
     make -j3
-    fixpkgconfig libavcodec.pc 
-    fixpkgconfig libavformat.pc 
-    fixpkgconfig libavutil.pc 
     make install
     ranlib ../../lib/libavformat.a
     ranlib ../../lib/libavcodec.a
@@ -111,7 +96,7 @@ buildglib
 buildLib freetype-2.1.10 --disable-shared
 buildLib expat-2.0.0 --disable-shared
 
-patch fontconfig-2.3.1/fontconfig.pc.in ../libavg/fontconfig.pc.in.diff
+patch fontconfig-2.3.1/fontconfig.pc.in ../libavg/macpatches/fontconfig.pc.in.diff
 buildLib fontconfig-2.3.1 "--disable-shared --with-add-fonts=/usr/share/fonts,/Library/Fonts,/System/Library/Fonts,~/fonts"
 
 buildpango
