@@ -414,7 +414,7 @@ void Camera::fatalError(const string & sMsg)
 #endif
 
 static ProfilingZone CameraProfilingZone("    Camera::render");
-static ProfilingZone CameraUploadProfilingZone("      Camera tex upload");
+static ProfilingZone CameraUploadProfilingZone("      Camera tex download");
 static ProfilingZone CameraYUVConvertProfilingZone("      Camera YUV conversion");
 
 bool Camera::renderToSurface(ISurface * pSurface)
@@ -423,15 +423,6 @@ bool Camera::renderToSurface(ISurface * pSurface)
     ScopeTimer Timer(CameraProfilingZone);
     if (m_bCameraAvailable) {
         int rc = dc1394_dma_single_capture(&m_Camera);
-        /*
-        if (rc == DC1394_NO_FRAME) {
-            AVG_TRACE(Logger::WARNING,
-                        "Camera: Frame delay.");
-            usleep(10);
-            rc = dc1394_dma_single_capture_poll(&m_Camera);
-        }
-        */
-        //    int rc = dc1394_dma_single_capture(&m_Camera);
         if (rc == DC1394_SUCCESS) {
             m_LastFrameTime = TimeSource::get()->getCurrentMillisecs();
 #ifdef AVG_ENABLE_GL            
