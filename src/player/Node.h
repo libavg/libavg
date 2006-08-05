@@ -61,9 +61,6 @@ class Node
         double getY() const;
         void setY(double Y);
         
-        int getZVal() const;
-        void setZ(int z);
-
         double getWidth() const;
         void setWidth(double width);
         
@@ -87,7 +84,7 @@ class Node
         virtual void prepareRender (int time, const DRect& parent);
         virtual void maybeRender (const DRect& Rect);
         virtual void render (const DRect& Rect);
-        virtual bool obscures (const DRect& Rect, int z);
+        virtual bool obscures (const DRect& Rect, int Child);
         virtual void addDirtyRect(const DRect& Rect);
         virtual void getDirtyRegion (Region& Region);
         virtual void setViewport (double x, double y, double width, 
@@ -95,7 +92,6 @@ class Node
         virtual const DRect& getRelViewport () const;
         virtual const DRect& getAbsViewport () const;
         DRect getVisibleRect();
-        virtual int getZ();
         virtual double getEffectiveOpacity();
 
         virtual std::string dump (int indent = 0);
@@ -138,7 +134,6 @@ class Node
 
         DRect m_RelViewport;      // In coordinates relative to the parent.
         DRect m_AbsViewport;      // In window coordinates.
-        int m_z;
         double m_Opacity;
         bool m_bActive;
         bool m_bSensitive;

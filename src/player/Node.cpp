@@ -57,7 +57,6 @@ Node::Node ()
       m_MouseOutHandler(""),
       m_RelViewport(0,0,0,0),
       m_AbsViewport(0,0,0,0),
-      m_z(0),
       m_Opacity(1.0),
       m_bActive(true),
       m_bSensitive(true),
@@ -86,7 +85,6 @@ Node::Node (const xmlNodePtr xmlNode, DivNode * pParent)
     m_RelViewport.tl.y = getDefaultedDoubleAttr (xmlNode, "y", 0.0);
     m_InitialWidth = getDefaultedDoubleAttr (xmlNode, "width", 0.0);
     m_InitialHeight = getDefaultedDoubleAttr (xmlNode, "height", 0.0);
-    m_z = getDefaultedIntAttr (xmlNode, "z", 0);
     m_Opacity = getDefaultedDoubleAttr (xmlNode, "opacity", 1.0);
     m_bActive = getDefaultedBoolAttr (xmlNode, "active", true);
     m_bSensitive = getDefaultedBoolAttr (xmlNode, "sensitive", true);
@@ -143,21 +141,6 @@ double Node::getY() const {
 
 void Node::setY(double y) {
     setViewport(-32767, y, -32767, -32767);
-}
-
-int Node::getZVal() const {
-    return m_z;
-}
-
-void Node::setZ(int z)
-{
-    m_z = z;
-    if (getParent()) {
-        getParent()->zorderChange(this);
-    }
-    if (m_bActive) {
-        invalidate();
-    }
 }
 
 double Node::getWidth() const {
@@ -250,7 +233,8 @@ void Node::maybeRender (const DRect& Rect)
         if (bVisible) {
             if (getEffectiveOpacity() > 0.01) {
                 if (!getParent() || 
-                    !getParent()->obscures(getEngine()->getClipRect(), getZ()))
+                    !getParent()->obscures(getEngine()->getClipRect(), 
+                            getParent()->indexOf(this)))
                 {
                     if (m_ID != "") {
                         AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
@@ -270,7 +254,7 @@ void Node::render (const DRect& Rect)
 {
 }
 
-bool Node::obscures (const DRect& Rect, int z)  
+bool Node::obscures (const DRect& Rect, int Child)  
 {
     return false;
 }
@@ -360,11 +344,6 @@ void Node::calcAbsViewport()
     }
 }
 
-int Node::getZ ()
-{
-    return m_z;
-}
-
 double Node::getEffectiveOpacity()
 {
     if (getParent()) {
@@ -383,8 +362,8 @@ string Node::dump (int indent)
 {
     string dumpStr = string(indent, ' ') + getTypeStr() + ": m_ID=" + m_ID;
     char sz[256];
-    sprintf (sz, ", x=%.1f, y=%.1f, z=%i, width=%.1f, height=%.1f, opacity=%.2f\n",
-            m_RelViewport.tl.x, m_RelViewport.tl.y, m_z, 
+    sprintf (sz, ", x=%.1f, y=%.1f, width=%.1f, height=%.1f, opacity=%.2f\n",
+            m_RelViewport.tl.x, m_RelViewport.tl.y,
             m_RelViewport.Width(), m_RelViewport.Height(), m_Opacity);
     dumpStr += sz;
     sprintf (sz, "        Abs: (x=%.1f, y=%.1f, width=%.1f, height=%.1f)\n",

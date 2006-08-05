@@ -53,7 +53,7 @@ class PanoImage : public Node
         virtual void init (DisplayEngine * pEngine, 
                 DivNode * pParent, Player * pPlayer);
         virtual void render (const DRect& Rect);
-        virtual bool obscures (const DRect& Rect, int z);
+        virtual bool obscures (const DRect& Rect, int Child);
         virtual std::string getTypeStr ();
 
         const std::string& getFilename () const;

@@ -73,23 +73,13 @@ Node * DivNode::getChild (int i)
 
 void DivNode::addChild (Node * pNewNode)
 {
-    // Children are ordered according to z-position.
-    vector<Node*>::iterator it;
-    for  (it = m_Children.begin(); it < m_Children.end(); it++) {
-        Node * pOtherNode = *it;
-        if (pNewNode->getZ() < pOtherNode->getZ()) {
-            break;
-        }
-    }
-    m_Children.insert (it, pNewNode);
+    m_Children.push_back(pNewNode);
 }
 
 void DivNode::removeChild (int i)
 {
     Node * pNode = getChild(i);
     pNode->invalidate();
-//    JSObject * pJSNode = pNode->getJSPeer();
-//    JSFactoryBase::removeParent(pJSNode, getJSPeer());
     m_Children.erase(m_Children.begin()+i);
 }
 
@@ -101,21 +91,6 @@ int DivNode::indexOf(Node * pChild)
         }
     }
     return -1;
-}
-
-void DivNode::zorderChange (Node * pChild)
-{
-    // Remove child
-    vector<Node*>::iterator it;
-    for  (it = m_Children.begin(); it < m_Children.end(); it++) {
-        if ((*it) == pChild) {
-            m_Children.erase(it);
-            break;
-        }
-    }
-
-    // Add it again.
-    addChild(pChild);
 }
 
 Node * DivNode::getElementByPos (const DPoint & pos)
@@ -147,13 +122,13 @@ void DivNode::render(const DRect& rect)
     }
 }
 
-bool DivNode::obscures (const DRect& rect, int z)
+bool DivNode::obscures (const DRect& rect, int Child)
 {
     if (!isActive()) {
         return false;
     }
-    for (int i=0; i<getNumChildren(); i++){
-        if (getChild(i)->getZ() > z && getChild(i)->obscures(rect, 0))
+    for (int i=Child+1; i<getNumChildren(); i++) {
+        if (getChild(i)->obscures(rect, -1))
             return true;
     }
     return false;

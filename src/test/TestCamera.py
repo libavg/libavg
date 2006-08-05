@@ -1,12 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import unittest
 
-import sys, syslog
-# TODO: set this path via configure or something similar.
-sys.path.append('/usr/local/lib/python2.3/site-packages/libavg')
-sys.path.append('/usr/local/lib/python2.4/site-packages/libavg')
 import avg
+
+import unittest
+import sys, syslog
 
 class CameraTestCase(unittest.TestCase):
     def __init__(self, testFuncName, engine, bpp):

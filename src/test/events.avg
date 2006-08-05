@@ -8,8 +8,6 @@
     <image id="mouseover1" x="65" y="0"  
         href="rgb24-65x65.png" onmouseover="onMouseOver" 
         onmouseout="onMouseOut" onmousedown="onMouseDown"/>
-    <image id="tilted" x="100" y="64" width="32" height="32" angle="0.785"
-        href="rgb24.png" z="3" onmouseover="onTiltedOver"/>
     <div id="leftdiv" y="65">
         <image id="mousemove2" x="0" y="0" opacity="0.8"
             href="rgb24-65x65.png" onmousemove="onMouseMove" onmouseup="onMouseUp"/>
@@ -19,4 +17,6 @@
             href="rgb24-65x65.png" onmouseover="onMouseOver" 
             onmouseout="onMouseOut" onmousedown="onMouseDown"/>
     </div>
+    <image id="tilted" x="100" y="64" width="32" height="32" angle="0.785"
+        href="rgb24.png" onmouseover="onTiltedOver"/>
 </avg>

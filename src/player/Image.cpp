@@ -102,11 +102,11 @@ void Image::render (const DRect& Rect)
             getAngle(), getPivot(), getBlendMode());
 }
 
-bool Image::obscures (const DRect& Rect, int z) 
+bool Image::obscures (const DRect& Rect, int Child) 
 {
     return (isActive() && getEffectiveOpacity() > 0.999
             && !getSurface()->lockBmp()->hasAlpha() 
-            && getZ() > z && getVisibleRect().Contains(Rect));
+            && getVisibleRect().Contains(Rect));
 }
 
 string Image::getTypeStr ()

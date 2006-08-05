@@ -235,10 +235,10 @@ void PanoImage::render(const DRect& Rect)
 #endif    
 }
 
-bool PanoImage::obscures (const DRect& Rect, int z)
+bool PanoImage::obscures (const DRect& Rect, int Child)
 {
     return (isActive() && getEffectiveOpacity() > 0.999 && !m_pBmp->hasAlpha()
-            && getZ() > z && getVisibleRect().Contains(Rect));
+            && getVisibleRect().Contains(Rect));
 }
 
 string PanoImage::getTypeStr ()

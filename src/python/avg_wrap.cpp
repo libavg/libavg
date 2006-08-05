@@ -119,7 +119,6 @@ BOOST_PYTHON_MODULE(avg)
             "    id: A unique identifier that can be used to reference the node (ro).\n"
             "    x: The position of the node's left edge relative to it's parent node.\n"
             "    y: The position of the node's top edge relative to it's parent node.\n"
-            "    z: The position of the node above or below its siblings.\n"
             "    width\n"
             "    height\n"
             "    opacity: A measure of the node's transparency. 0.0 is completely\n"
@@ -138,7 +137,6 @@ BOOST_PYTHON_MODULE(avg)
                 return_value_policy<copy_const_reference>()))
         .add_property("x", &Node::getX, &Node::setX)
         .add_property("y", &Node::getY, &Node::setY)
-        .add_property("z", &Node::getZVal, &Node::setZ)
         .add_property("width", &Node::getWidth, &Node::setWidth)
         .add_property("height", &Node::getHeight, &Node::setHeight)
         .add_property("opacity", &Node::getOpacity, &Node::setOpacity)

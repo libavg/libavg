@@ -47,7 +47,7 @@ class VideoBase : public RasterNode
         
         virtual void prepareRender (int time, const DRect& parent);
         virtual void render (const DRect& Rect);
-        bool obscures (const DRect& Rect, int z);
+        bool obscures (const DRect& Rect, int Child);
         virtual std::string dump (int indent = 0);
         
     protected:        

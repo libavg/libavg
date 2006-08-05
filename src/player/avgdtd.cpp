@@ -31,7 +31,6 @@ const char * g_pAVGDTD =
 "   \"id ID #IMPLIED\n"
 "    x CDATA #IMPLIED\n"
 "    y CDATA #IMPLIED\n"
-"    z CDATA #IMPLIED\n"
 "    width CDATA #IMPLIED\n"
 "    height CDATA #IMPLIED\n"
 "    opacity CDATA #IMPLIED\n"

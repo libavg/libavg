@@ -45,12 +45,10 @@ class DivNode : public Node
         void removeChild (int i);
         int indexOf(Node * pChild);
 
-        void zorderChange (Node * pChild);
-        
         virtual Node * getElementByPos (const DPoint & pos);
         virtual void prepareRender (int time, const DRect& parent);
         virtual void render (const DRect& rect);
-        virtual bool obscures (const DRect& rect, int z);
+        virtual bool obscures (const DRect& rect, int Child);
         virtual void getDirtyRegion (Region& Dirtyregion);
         virtual std::string getTypeStr ();
 
