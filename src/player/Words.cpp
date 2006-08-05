@@ -305,7 +305,6 @@ void Words::drawString()
             pango_font_description_free(pUsedDescription);
         }
 
-        PangoRectangle logical_rect;
         PangoLayout *layout = pango_layout_new (m_pContext);
         pango_layout_set_markup(layout, m_Text.c_str(), m_Text.length());
 
@@ -314,17 +313,21 @@ void Words::drawString()
         if (m_LineSpacing != -1) {
             pango_layout_set_spacing(layout, (int)(m_LineSpacing*PANGO_SCALE));
         }
-        pango_layout_get_extents (layout, 0, &logical_rect);
-        m_StringExtents.y = PANGO_PIXELS (logical_rect.height);
+        PangoRectangle logical_rect;
+        pango_layout_get_pixel_extents (layout, 0, &logical_rect);
+        m_StringExtents.y = logical_rect.height;
         m_StringExtents.x = m_ParaWidth;
         if (m_ParaWidth == -1) {
-            m_StringExtents.x = PANGO_PIXELS(logical_rect.width);
-            if (m_StringExtents.x == 0) {
-                m_StringExtents.x = 1;
-            }
-            if (m_StringExtents.y == 0) {
-                m_StringExtents.y = 1;
-            }
+            m_StringExtents.x = logical_rect.width;
+            // Work around what appears to be a pango bug when computing the 
+            // extents of italic text by adding an arbritary amount to the width.
+            m_StringExtents.x += m_Size/6+1;
+        }
+        if (m_StringExtents.x == 0) {
+            m_StringExtents.x = 1;
+        }
+        if (m_StringExtents.y == 0) {
+            m_StringExtents.y = 1;
         }
         m_pSurface->create(IntPoint(m_StringExtents), I8, false);
 
