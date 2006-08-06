@@ -232,12 +232,22 @@ void SDLDisplayEngine::teardown()
     m_pScreen = 0;
 }
 
-double SDLDisplayEngine::getRefreshRate() {
+double SDLDisplayEngine::getRefreshRate() 
+{
     if (s_RefreshRate == 0.0) {
         calcRefreshRate();
     }
     return s_RefreshRate;
 }
+
+void SDLDisplayEngine::setGamma(double Red, double Green, double Blue)
+{
+    int err = SDL_SetGamma(Red, Green, Blue);
+    if (err == -1) {
+        AVG_TRACE(Logger::WARNING, "Unable to set display gamma.");
+    }
+}
+
 
 void SDLDisplayEngine::logConfig() 
 {

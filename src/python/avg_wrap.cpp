@@ -340,6 +340,12 @@ BOOST_PYTHON_MODULE(avg)
                 "getVideoRefreshRate() -> refreshrate\n\n"
                 "Returns the current hardware video refresh rate in number of\n"
                 "refreshes per second.")
+        .def("setGamma", &Player::setGamma,
+                "setGamma(red, green, blue) -> None\n\n"
+                "Sets display gamma. This is a control for overall brightness and\n"
+                "contrast that leaves black and white unchanged but adjusts greyscale\n"
+                "values. 1.0 is identity, higher values give a brighter image, lower\n"
+                "values a darker one.\n")
     ;
 
 }

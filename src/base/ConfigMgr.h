@@ -61,6 +61,8 @@ public:
             const std::string& sName, bool bDefault) const;
     int getIntOption(const std::string& sSubsys, 
             const std::string& sName, int Default) const;
+    void getGammaOption(const std::string& sSubsys, 
+            const std::string& sName, double* Val) const;
 
     const ConfigOptionVector* getGlobalOptions() const;
     const std::string* getGlobalOption(const std::string& sName) const;

@@ -506,6 +506,15 @@ double Player::getVideoRefreshRate()
     return m_pDisplayEngine->getRefreshRate();
 }
 
+void Player::setGamma(double Red, double Green, double Blue)
+{
+    if (!m_pDisplayEngine) {
+        AVG_TRACE(Logger::ERROR, 
+                "Player::setVBlankFramerate called without a loaded avg file. Ignoring.");
+    }
+    return m_pDisplayEngine->setGamma(Red, Green, Blue);
+}
+
 void Player::initConfig() {
     // Get data from config files.
     ConfigMgr* pMgr = ConfigMgr::get();
@@ -567,6 +576,10 @@ void Player::initConfig() {
         m_bUseRGBOrder = pMgr->getBoolOption("scr", "usergborder", false);
         m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
         m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 1);
+        m_Gamma[0] = 1.0;
+        m_Gamma[1] = 1.0;
+        m_Gamma[2] = 1.0;
+        pMgr->getGammaOption("scr", "gamma", m_Gamma);
     }
 }
 
@@ -670,6 +683,7 @@ void Player::initDisplay(const xmlNodePtr xmlNode) {
         pSDLDisplayEngine->setOGLOptions(m_bUsePOW2Textures, m_YCbCrMode, m_bUseRGBOrder,
                 m_bUsePixelBuffers, m_MultiSampleSamples);
     }
+    m_pDisplayEngine->setGamma(m_Gamma[0], m_Gamma[1], m_Gamma[2]);
     m_pDisplayEngine->init(Width, Height, m_bFullscreen, m_BPP, 
             m_WindowWidth, m_WindowHeight);
     m_pDisplayEngine->showCursor(m_bShowCursor);

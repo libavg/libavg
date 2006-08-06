@@ -42,6 +42,7 @@ class DFBDisplayEngine: public DisplayEngine, public IEventSource
                 int WindowWidth, int WindowHeight);
         virtual void teardown();
         virtual double getRefreshRate();
+        virtual void setGamma(double Red, double Green, double Blue);
 
         virtual void render(AVGNode * pRootNode, bool bRenderEverything);
         

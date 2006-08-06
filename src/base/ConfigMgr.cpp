@@ -78,6 +78,9 @@ ConfigMgr::ConfigMgr()
     addOption("scr", "multisamplesamples", "1",
             "OpenGL backend only: Whether to use multisampling and how many"
             "samples per pixel to use.");
+    addOption("scr", "gamma", "1,1,1",
+            "OpenGL backend only: Display gamma correction values for red,"
+            "green and blue.");
 
     m_sFName = "avgrc";
     bool bOk1 = loadFile("/etc/"+m_sFName);
@@ -170,6 +173,22 @@ int ConfigMgr::getIntOption(const std::string& sSubsys,
         exit(-1);
     }
     return Result;
+}
+
+void ConfigMgr::getGammaOption(const std::string& sSubsys, 
+            const std::string& sName, double* Val) const
+{
+    const string * psOption = getOption(sSubsys, sName);
+    if (psOption == 0) {
+        return;
+    }
+    int rc = sscanf(psOption->c_str(), "%lf,%lf,%lf", Val, Val+1, Val+2);
+    if (rc < 3) {
+        AVG_TRACE(Logger::ERROR,
+                "Unrecognized value for option "<<sName<<": " 
+                << *psOption << ". Must be three comma-separated numbers. Aborting.");
+        exit(-1);
+    }
 }
 
 const ConfigOptionVector* ConfigMgr::getGlobalOptions() const

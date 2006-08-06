@@ -323,6 +323,12 @@ double DFBDisplayEngine::getRefreshRate()
     return 0;
 }
 
+void DFBDisplayEngine::setGamma(double Red, double Green, double Blue)
+{
+    // TODO
+    AVG_TRACE(Logger::WARNING, "Setting display gamma is unsupported on DirectFB backend.");
+}
+
 void DFBDisplayEngine::render(AVGNode * pRootNode, bool bRenderEverything)
 {
     pRootNode->prepareRender(0, pRootNode->getAbsViewport());

@@ -53,6 +53,8 @@ class DisplayEngine
         bool setVBlankRate(int rate);
         bool wasFrameLate();
         virtual double getRefreshRate() = 0;
+        virtual void setGamma(double Red, double Green, double Blue) = 0;
+
 
         virtual void render(AVGNode * pRootNode, bool bRenderEverything) = 0;
         void frameWait();

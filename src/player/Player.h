@@ -82,6 +82,7 @@ class Player : IEventSink
         void doFrame();
         double getFramerate();
         double getVideoRefreshRate();
+        void setGamma(double Red, double Green, double Blue);
         virtual bool handleEvent(Event * pEvent);
         DisplayEngine * getDisplayEngine() const;
 
@@ -138,6 +139,7 @@ class Player : IEventSink
         bool m_bUseRGBOrder;
         bool m_bUsePixelBuffers;
         int m_MultiSampleSamples;
+        double m_Gamma[3];
 
         bool m_bIsPlaying;
 

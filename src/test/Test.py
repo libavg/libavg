@@ -163,6 +163,8 @@ class PlayerTestCase(AVGTestCase):
                  getBitmap,
                  loadNewFile, 
                  lambda: self.compareImage("testimgload", False),
+                 lambda: Player.setGamma(0.7, 0.7, 0.7),
+                 lambda: Player.setGamma(1.0, 1.0, 1.0),
                  Player.stop))
     def testError(self):
         Player.loadFile("image.avg")
