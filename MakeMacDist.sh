@@ -1,8 +1,9 @@
 #!/bin/bash
 
 set -e
+#set -x
 
-export VERSION=0.5.8
+export VERSION=0.5.9
 export INSTALL_PATH="/Library/Python/2.3/site-packages"
 
 fixLib()
@@ -17,6 +18,20 @@ distLib()
     install_name_tool -change $AVG_PATH//lib/$1.dylib $INSTALL_PATH/avg/$1.dylib avg.0.so
     fixLib ../avg.0.so $1
 }
+ 
+if [[ x"${PKG_CONFIG_PATH}" == "x" ]]
+then
+    echo Please call 'source mac_avg_env.sh' before calling this script.
+    exit -1 
+fi
+
+if [[ x$1 == x ]]
+then
+    echo Usage: MakeMacDist "<intel|ppc>"
+    exit 1
+fi
+
+PLATFORM=$1
 
 cd ../dist
 
@@ -24,69 +39,20 @@ rm -rf *
 mkdir avg
 mkdir avg/test
 
-cp -RP ../lib/python2.3/site-packages/libavg/ .
+cp -Rv ../lib/python2.3/site-packages/libavg/ .
 
-distLib libSDL-1.2.0
 distLib libMagick++.10
 distLib libWand.10
 fixLib libMagick++.10.dylib libWand.10
 distLib libMagick.10
 fixLib libMagick++.10.dylib libMagick.10
 fixLib libWand.10.dylib libMagick.10
-distLib libtiff.3
-distLib libpng.3
-distLib libavformat
-distLib libavcodec
-fixLib libavformat.dylib libavcodec
-distLib libavutil
-fixLib libavformat.dylib libavutil
-fixLib libavcodec.dylib libavutil
-distLib libpangoft2-1.0.0
-distLib libpango-1.0.0
-fixLib libpangoft2-1.0.0.dylib libpango-1.0.0
-distLib libxml2.2
-fixLib libMagick++.10.dylib libxml2.2
-fixLib libMagick.10.dylib libxml2.2
-fixLib libWand.10.dylib libxml2.2
-distLib libtiff.3
-fixLib libMagick++.10.dylib libtiff.3
-fixLib libMagick.10.dylib libtiff.3
-fixLib libWand.10.dylib libtiff.3
-distLib libpng.3
-fixLib libMagick++.10.dylib libpng.3
-fixLib libMagick.10.dylib libpng.3
-fixLib libWand.10.dylib libpng.3
-distLib libfontconfig.1
-fixLib libpangoft2-1.0.0.dylib libfontconfig.1
-distLib libexpat.1
-fixLib libpangoft2-1.0.0.dylib libexpat.1
-fixLib libfontconfig.1.dylib libexpat.1
-distLib libfreetype.6
-fixLib libpangoft2-1.0.0.dylib libfreetype.6
-fixLib libfontconfig.1.dylib libfreetype.6
-distLib libgobject-2.0.0
-fixLib libpangoft2-1.0.0.dylib libgobject-2.0.0
-fixLib libpango-1.0.0.dylib libgobject-2.0.0
-distLib libgmodule-2.0.0
-fixLib libpango-1.0.0.dylib libgmodule-2.0.0
-fixLib libpangoft2-1.0.0.dylib libgmodule-2.0.0
-distLib libglib-2.0.0
-fixLib libpangoft2-1.0.0.dylib libglib-2.0.0
-fixLib libpango-1.0.0.dylib libglib-2.0.0
-fixLib libgobject-2.0.0.dylib libglib-2.0.0
-fixLib libgmodule-2.0.0.dylib libglib-2.0.0
-distLib libintl.3
-fixLib libpangoft2-1.0.0.dylib libintl.3
-fixLib libpango-1.0.0.dylib libintl.3
-fixLib libgobject-2.0.0.dylib libintl.3
-fixLib libglib-2.0.0.dylib libintl.3
-fixLib libgmodule-2.0.0.dylib libintl.3
 
 cd ../libavg
 
 cd src/test
-cp Test.py *.avg 1x1_schachbrett.png panoimage.jpg freidrehen.jpg widebmp.jpg rgb24.png rgb24alpha.tif test.m1v videoperformance.py Test.py TestPar.py parport.py ${AVG_PATH}/dist/avg/test
+cp -Rv Test.py *.avg 1x1_schachbrett.png crop_bkgd.png panoimage.png freidrehen.jpg widebmp.jpg rgb24.png rgb24-65x65.png rgb24-64x64.png rgb24alpha-64x64.png rgb24alpha.tif test.m2v test.m1v videoperformance.py Test.py TestPar.py parport.py baseline ${AVG_PATH}/dist/avg/test
 cd ../..
 
 /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -proj libavg.pmproj -v -p libavg.pkg
-zip -ry libavg-mac.${VERSION}.zip libavg.pkg
+zip -ry libavg-mac-${PLATFORM}.${VERSION}.zip libavg.pkg

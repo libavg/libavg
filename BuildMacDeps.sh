@@ -14,7 +14,6 @@ buildLib()
     make -j3
     make install
     cd ..
-    
 }
 
 buildlibjpeg()
@@ -28,6 +27,16 @@ buildlibjpeg()
     make install-lib
     make install-headers
     ranlib ../../lib/libjpeg.a
+    cd ..
+}
+
+buildlibpng()
+{
+    cd libpng-1.2.12
+    CFLAGS="-fno-common" ./configure --prefix=${AVG_PATH} --disable-shared
+    make clean
+    make -j3
+    make install
     cd ..
 }
 
@@ -54,7 +63,7 @@ buildpango()
 buildffmpeg()
 {
     cd ffmpeg
-    patch -p0 < ../../libavg/macpatches/ffmpeg-svn-mactel.patch
+#    patch -p0 < ../../libavg/macpatches/ffmpeg-svn-mactel.patch
     ./configure --prefix=${AVG_PATH} --disable-shared --disable-debug --disable-encoders
     make clean
     make -j3
@@ -79,6 +88,7 @@ mkdir ${AVG_PATH}/bin
 mkdir ${AVG_PATH}/lib
 mkdir ${AVG_PATH}/include
 
+export CFLAGS=-O2
 #cp macpatches/gcc-fat.sh ${AVG_PATH}/bin
 #export CC="sh gcc-fat.sh"
 
@@ -89,8 +99,8 @@ buildLib automake-1.9.6
 buildlibjpeg
 buildLib tiff-3.8.2 --disable-shared 
 #buildLib zlib-1.2.3
-buildLib libpng-1.2.12 --disable-shared 
-buildLib ImageMagick-6.2.8 "--without-x --without-fontconfig --without-freetype --without-perl --without-xml"
+buildlibpng
+buildLib ImageMagick-6.2.8 "--without-x --without-fontconfig --without-freetype --without-perl --disable-delegate-build --without-modules"
 buildLib pkg-config-0.20
 buildffmpeg
 buildLib SDL-1.2.11 "--disable-shared --disable-audio --disable-cdrom --disable-threads --disable-file --disable-video-x11 --without-x"
@@ -99,7 +109,7 @@ buildglib
 buildLib freetype-2.1.10 --disable-shared
 buildLib expat-2.0.0 --disable-shared
 
-patch fontconfig-2.3.1/fontconfig.pc.in ../libavg/macpatches/fontconfig.pc.in.diff
+#patch fontconfig-2.3.1/fontconfig.pc.in ../libavg/macpatches/fontconfig.pc.in.diff
 buildLib fontconfig-2.3.1 "--disable-shared --with-add-fonts=/usr/share/fonts,/Library/Fonts,/System/Library/Fonts,~/fonts"
 
 buildpango
