@@ -361,8 +361,8 @@ void FFMpegDecoder::initVideoSupport()
         m_bInitialized = true;
         // Avoid libavcodec console spam - turn this up again when libavcodec
         // doesn't spam anymore :-).
-//        av_log_set_level(AV_LOG_DEBUG);
-        av_log_set_level(AV_LOG_QUIET);
+        av_log_set_level(AV_LOG_DEBUG);
+//        av_log_set_level(AV_LOG_QUIET);
     }
 }
 
@@ -403,10 +403,11 @@ void FFMpegDecoder::readFrame(AVFrame& Frame)
             if (Len1 < 0) {
                 AVG_TRACE(Logger::WARNING, "Error decoding " <<
                         m_sFilename);
-                // TODO: simulate eof.
+                m_PacketLenLeft = 0;
+            } else {
+                m_pPacketData += Len1;
+                m_PacketLenLeft -= Len1;
             }
-            m_pPacketData += Len1;
-            m_PacketLenLeft -= Len1;
         }
 /*
         cerr << "coded_picture_number: " << Frame.coded_picture_number <<
