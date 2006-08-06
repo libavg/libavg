@@ -11,6 +11,8 @@ CREATE_BASELINE_IMAGES = False
 BASELINE_DIR = "baseline"
 RESULT_DIR = "resultimages"
 
+ourSaveDifferences = True
+
 class LoggerTestCase(unittest.TestCase):
     def test(self):
         self.Log = avg.Logger.get()
@@ -77,10 +79,11 @@ class AVGTestCase(unittest.TestCase):
             BaselineBmp = avg.Bitmap(BASELINE_DIR+"/"+fileName+".png")
             NumPixels = Player.getTestHelper().getNumDifferentPixels(Bmp, BaselineBmp)
             if (NumPixels > 20):
-                Bmp.save(RESULT_DIR+"/"+fileName+".png")
-                BaselineBmp.save(RESULT_DIR+"/"+fileName+"_baseline.png")
-                Bmp.subtract(BaselineBmp)
-                Bmp.save(RESULT_DIR+"/"+fileName+"_diff.png")
+                if ourSaveDifferences:
+                    Bmp.save(RESULT_DIR+"/"+fileName+".png")
+                    BaselineBmp.save(RESULT_DIR+"/"+fileName+"_baseline.png")
+                    Bmp.subtract(BaselineBmp)
+                    Bmp.save(RESULT_DIR+"/"+fileName+"_diff.png")
                 self.Log.trace(self.Log.WARNING, "Image compare: "+str(NumPixels)+
                         " bright pixels.")
                 if warn:
@@ -474,7 +477,12 @@ def playerTestSuite(engine, bpp):
             for file in files:
                 os.remove(RESULT_DIR+"/"+file)
         except OSError:
-            os.mkdir(RESULT_DIR)
+            try:
+                os.mkdir(RESULT_DIR)
+            except OSError:
+                # This can happen on make distcheck - permission denied...
+                global ourSaveDifferences
+                ourSaveDifferences = False
     rmBrokenDir()
     suite = unittest.TestSuite()
     suite.addTest(NodeTestCase("testAttributes"))
@@ -553,6 +561,10 @@ if not(customOGLOptions):
     UseRGBOrder = False 
     UsePixelBuffers = True
 
+SrcDir = os.getenv("srcdir",".")
+os.chdir(SrcDir)
+print(os.getcwd())
+os.system("whoami")
 Player = avg.Player()
 runner = unittest.TextTestRunner()
 runner.run(completeTestSuite(engine, bpp))

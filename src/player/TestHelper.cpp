@@ -50,6 +50,7 @@ void TestHelper::fakeMouseEvent(Event::Type eventType,
 // From IEventSource
 std::vector<Event *> TestHelper::pollEvents()
 {
+    return std::vector<Event *>();
 }
 
     

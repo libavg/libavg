@@ -28,8 +28,7 @@ using namespace std;
 namespace avg {
 
 Test::Test(const string & sName, int IndentLevel)
-    : m_bOk(true),
-      m_NumSucceeded(0),
+    : m_NumSucceeded(0),
       m_NumFailed(0),
       m_IndentLevel(IndentLevel),
       m_sName(sName)
@@ -47,7 +46,6 @@ void Test::test (bool b, const char * pszFile, int Line)
     } else {
         cerr << string(m_IndentLevel, ' ') << "    ---->> failed at " << pszFile
                 << ", " << Line << endl;
-        m_bOk = false;
         m_NumFailed++;
     }
 }
@@ -55,13 +53,12 @@ void Test::test (bool b, const char * pszFile, int Line)
 
 bool Test::isOk ()
 {
-    return m_bOk;
+    return m_NumFailed == 0;
 }
 
 void Test::setFailed ()
 {
     m_NumFailed++;
-    m_bOk = false;
 }
 
 int Test::getNumSucceeded () const

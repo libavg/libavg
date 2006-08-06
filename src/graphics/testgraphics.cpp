@@ -39,6 +39,7 @@
 
 #include <iostream>
 #include <stdio.h>
+ #include <stdlib.h>
 
 using namespace avg;
 using namespace std;
@@ -162,7 +163,7 @@ private:
             TEST(pBmp->getNumDifferentPixels(BmpCopy4) == 0);
             *pPixel = 255;
             *(pPixel+BmpCopy4.getStride()) = 255;
-            TEST(!pBmp->getNumDifferentPixels(BmpCopy4) == 0);
+            TEST(!pBmp->getNumDifferentPixels(BmpCopy4) == 1);
         }
     }
 
@@ -357,7 +358,14 @@ public:
     void runTests() 
     {
         try {
-            Bitmap TempBmp("rgb24-64x64.png");
+            char * pSrcDir = getenv("srcdir");
+            string sFilename;
+            if (pSrcDir) {
+                cerr << pSrcDir << endl;
+                sFilename = (string)pSrcDir+"/";
+            }
+            sFilename += "../test/rgb24-64x64.png";
+            Bitmap TempBmp(sFilename);
             PixelFormat pf = R8G8B8;    
             BitmapPtr pBmp;
             pBmp = createBmp(TempBmp.getSize(), pf);
