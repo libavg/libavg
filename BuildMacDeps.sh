@@ -71,8 +71,6 @@ then
     exit -1 
 fi
 
-cd ../deps
-
 rm -rf ${AVG_PATH}/bin/
 rm -rf ${AVG_PATH}/lib/
 rm -rf ${AVG_PATH}/include/
@@ -80,6 +78,11 @@ rm -rf ${AVG_PATH}/include/
 mkdir ${AVG_PATH}/bin
 mkdir ${AVG_PATH}/lib
 mkdir ${AVG_PATH}/include
+
+#cp macpatches/gcc-fat.sh ${AVG_PATH}/bin
+#export CC="sh gcc-fat.sh"
+
+cd ../deps
 
 buildLib libtool-1.5.22
 buildLib automake-1.9.6
@@ -91,7 +94,7 @@ buildLib ImageMagick-6.2.8 "--without-x --without-fontconfig --without-freetype 
 buildLib pkg-config-0.20
 buildffmpeg
 buildLib SDL-1.2.11 "--disable-shared --disable-audio --disable-cdrom --disable-threads --disable-file --disable-video-x11 --without-x"
-buildLib gettext-0.14.6 "--disable-shared --with-included-gettext"
+buildLib gettext-0.14.6 "--disable-shared --with-included-gettext --disable-csharp  --disable-libasprintf"
 buildglib
 buildLib freetype-2.1.10 --disable-shared
 buildLib expat-2.0.0 --disable-shared
