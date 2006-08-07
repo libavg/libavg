@@ -94,13 +94,29 @@ void Words::initText(const string& sText)
     }
 }
 
+static void
+text_subst_func (FcPattern *pattern, gpointer data)
+{
+//  GimpText *text = GIMP_TEXT (data);
+
+  FcPatternAddBool (pattern, FC_HINTING,true);
+  FcPatternAddBool (pattern, FC_AUTOHINT, true);
+  FcPatternAddBool (pattern, FC_ANTIALIAS, true);
+}
+
 void Words::init (DisplayEngine * pEngine, DivNode * pParent,
            Player * pPlayer)
 {
     Node::init(pEngine, pParent, pPlayer);
     m_Color = colorStringToColor(m_ColorName);
     m_pSurface = getEngine()->createSurface();
-    m_pContext = pango_ft2_get_context(72, 72);
+
+    PangoFT2FontMap *fontmap;
+    fontmap = PANGO_FT2_FONT_MAP (pango_ft2_font_map_new ());
+    pango_ft2_font_map_set_resolution (fontmap, 85, 83);
+    pango_ft2_font_map_set_default_substitute (fontmap, text_subst_func, 0, 0);
+    m_pContext = pango_ft2_font_map_create_context (fontmap);
+    g_object_unref (fontmap);
 
     pango_context_set_language(m_pContext,
             pango_language_from_string ("en_US"));
