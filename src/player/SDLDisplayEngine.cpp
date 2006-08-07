@@ -76,6 +76,46 @@ using namespace std;
 
 namespace avg {
 
+
+#define DRM_VBLANK_RELATIVE 0x1;
+
+struct drm_wait_vblank_request {
+    int type;
+    unsigned int sequence;
+    unsigned long signal;
+};
+
+struct drm_wait_vblank_reply {
+    int type;
+    unsigned int sequence;
+    long tval_sec;
+    long tval_usec;
+};
+
+typedef union drm_wait_vblank {
+    struct drm_wait_vblank_request request;
+    struct drm_wait_vblank_reply reply;
+} drm_wait_vblank_t;
+
+#define DRM_IOCTL_BASE                  'd'
+#define DRM_IOWR(nr,type)               _IOWR(DRM_IOCTL_BASE,nr,type)
+
+#define DRM_IOCTL_WAIT_VBLANK           DRM_IOWR(0x3a, drm_wait_vblank_t)
+
+static int drmWaitVBlank(int fd, drm_wait_vblank_t *vbl)
+{
+    int ret;
+    int rc;
+
+    do {
+       ret = ioctl(fd, DRM_IOCTL_WAIT_VBLANK, vbl);
+       vbl->request.type &= ~DRM_VBLANK_RELATIVE;
+       rc = errno;
+    } while (ret && rc == EINTR);
+
+    return rc;
+}
+
 double SDLDisplayEngine::s_RefreshRate = 0.0;
 
 void dumpSDLGLParams() {
@@ -103,6 +143,7 @@ SDLDisplayEngine::SDLDisplayEngine()
     : m_bEnableCrop(false),
       m_pScreen(0),
       m_VBMod(0),
+      m_dri_fd(0),
       m_TextureMode(0),
       m_MaxTexSize(0),
       m_bCheckedMemoryMode(false)
@@ -229,6 +270,9 @@ void SDLDisplayEngine::init(int width, int height, bool isFullscreen,
 
 void SDLDisplayEngine::teardown()
 {
+    if (m_VBMethod == VB_DRI) {
+        close(m_dri_fd);
+    }    
     m_pScreen = 0;
 }
 
@@ -578,17 +622,31 @@ bool SDLDisplayEngine::initVBlank(int rate) {
             m_VBMethod = VB_NONE;
         }
 #else
-        if (queryGLXExtension("GLX_SGI_video_sync")) {
-            m_VBMethod = VB_SGI;
-            m_bFirstVBFrame = true;
-            if (getenv("__GL_SYNC_TO_VBLANK") != 0) 
+        string sVendor = (const char *)(glGetString(GL_VENDOR));
+        if (sVendor.find("VIA Technology") != string::npos) {
+            m_dri_fd = open("/dev/dri/card0", O_RDWR);
+            if (m_dri_fd < 0)
             {
                 AVG_TRACE(Logger::WARNING, 
-                        "__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
+                        "Could not open /dev/dri/card0 for vblank. Reason: "
+                        <<strerror(errno));
                 m_VBMethod = VB_NONE;
+            } else {
+                m_VBMethod = VB_DRI;
             }
         } else {
-            m_VBMethod = VB_NONE;
+            if (queryGLXExtension("GLX_SGI_video_sync")) {
+                m_VBMethod = VB_SGI;
+                m_bFirstVBFrame = true;
+                if (getenv("__GL_SYNC_TO_VBLANK") != 0) 
+                {
+                    AVG_TRACE(Logger::WARNING, 
+                            "__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
+                    m_VBMethod = VB_NONE;
+                }
+            } else {
+                m_VBMethod = VB_NONE;
+            }
         }
 #endif
     } else {
@@ -644,6 +702,26 @@ bool SDLDisplayEngine::vbWait(int rate) {
         case VB_APPLE:
             // Nothing needs to be done.
             return false;
+        case VB_DRI:
+            {
+                drm_wait_vblank_t blank;
+                blank.request.type = DRM_VBLANK_RELATIVE;
+                blank.request.sequence = 1;
+                int rc = drmWaitVBlank (m_dri_fd, &blank);
+                if (rc) {
+                    static bool bFirstVBlankError = true;
+//                    if (bFirstVBlankError) {
+//                        bFirstVBlankError = false;
+                        int err = errno;
+                        AVG_TRACE(Logger::WARNING, 
+                                "Could not wait for vblank. Reason: "
+                                << strerror(err) << " (" << err << ")");
+//                      AVG_TRACE(Logger::WARNING, "Vertical blank support disabled.");
+//                      m_Method = VB_KAPUTT;
+//                    }
+                }
+            }
+            break;
         case VB_NONE:
         default:
             assert(false);
