@@ -710,15 +710,15 @@ bool SDLDisplayEngine::vbWait(int rate) {
                 int rc = drmWaitVBlank (m_dri_fd, &blank);
                 if (rc) {
                     static bool bFirstVBlankError = true;
-//                    if (bFirstVBlankError) {
-//                        bFirstVBlankError = false;
+                    if (bFirstVBlankError) {
+                        bFirstVBlankError = false;
                         int err = errno;
                         AVG_TRACE(Logger::WARNING, 
                                 "Could not wait for vblank. Reason: "
                                 << strerror(err) << " (" << err << ")");
 //                      AVG_TRACE(Logger::WARNING, "Vertical blank support disabled.");
 //                      m_Method = VB_KAPUTT;
-//                    }
+                    }
                 }
             }
             break;
