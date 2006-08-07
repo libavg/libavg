@@ -78,7 +78,7 @@ ConfigMgr::ConfigMgr()
     addOption("scr", "multisamplesamples", "1",
             "OpenGL backend only: Whether to use multisampling and how many"
             "samples per pixel to use.");
-    addOption("scr", "gamma", "1,1,1",
+    addOption("scr", "gamma", "-1,-1,-1",
             "OpenGL backend only: Display gamma correction values for red,"
             "green and blue.");
 

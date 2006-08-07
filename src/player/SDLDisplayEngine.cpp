@@ -286,9 +286,12 @@ double SDLDisplayEngine::getRefreshRate()
 
 void SDLDisplayEngine::setGamma(double Red, double Green, double Blue)
 {
-    int err = SDL_SetGamma(Red, Green, Blue);
-    if (err == -1) {
-        AVG_TRACE(Logger::WARNING, "Unable to set display gamma.");
+    if (Red > 0) {
+        AVG_TRACE(Logger::CONFIG, "Setting gamma to " << Red << ", " << Green << ", " << Blue);
+        int err = SDL_SetGamma(Red, Green, Blue);
+        if (err == -1) {
+            AVG_TRACE(Logger::WARNING, "Unable to set display gamma.");
+        }
     }
 }
 
