@@ -118,7 +118,7 @@ void Words::init (DisplayEngine * pEngine, DivNode * pParent,
     m_pContext = pango_ft2_font_map_create_context (fontmap);
     g_object_unref (fontmap);
 */
-    m_pContext = pango_ft2_get_context(81, 81);
+    m_pContext = pango_ft2_get_context(72, 72);
     
     pango_context_set_language(m_pContext,
             pango_language_from_string ("en_US"));
@@ -299,7 +299,7 @@ void Words::drawString()
                     m_Weight);
             pango_font_description_set_stretch(m_pFontDescription,
                     m_Stretch);
-            pango_font_description_set_size(m_pFontDescription,
+            pango_font_description_set_absolute_size(m_pFontDescription,
                     (int)(m_Size * PANGO_SCALE));
 
             pango_context_set_font_description(m_pContext, m_pFontDescription);
