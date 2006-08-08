@@ -76,7 +76,7 @@ using namespace std;
 
 namespace avg {
 
-
+#ifdef linux
 #define DRM_VBLANK_RELATIVE 0x1;
 
 struct drm_wait_vblank_request {
@@ -115,6 +115,7 @@ static int drmWaitVBlank(int fd, drm_wait_vblank_t *vbl)
 
     return rc;
 }
+#endif
 
 double SDLDisplayEngine::s_RefreshRate = 0.0;
 
@@ -624,31 +625,30 @@ bool SDLDisplayEngine::initVBlank(int rate) {
                     CGLErrorString(err) << "(" << err << ").");
             m_VBMethod = VB_NONE;
         }
-#else
-        string sVendor = (const char *)(glGetString(GL_VENDOR));
-        if (sVendor.find("VIA Technology") != string::npos) {
-            m_dri_fd = open("/dev/dri/card0", O_RDWR);
-            if (m_dri_fd < 0)
-            {
-                AVG_TRACE(Logger::WARNING, 
-                        "Could not open /dev/dri/card0 for vblank. Reason: "
-                        <<strerror(errno));
-                m_VBMethod = VB_NONE;
-            } else {
-                m_VBMethod = VB_DRI;
-            }
+#elif defined linux
+        if (getenv("__GL_SYNC_TO_VBLANK") != 0) 
+        {
+            AVG_TRACE(Logger::WARNING, 
+                    "__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
+            m_VBMethod = VB_NONE;
         } else {
-            if (queryGLXExtension("GLX_SGI_video_sync")) {
-                m_VBMethod = VB_SGI;
-                m_bFirstVBFrame = true;
-                if (getenv("__GL_SYNC_TO_VBLANK") != 0) 
+            string sVendor = (const char *)(glGetString(GL_VENDOR));
+            if (sVendor.find("VIA Technology") != string::npos || 
+                    !queryGLXExtension("GLX_SGI_video_sync"))
+            {
+                m_dri_fd = open("/dev/dri/card0", O_RDWR);
+                if (m_dri_fd < 0)
                 {
                     AVG_TRACE(Logger::WARNING, 
-                            "__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
+                            "Could not open /dev/dri/card0 for vblank. Reason: "
+                            <<strerror(errno));
                     m_VBMethod = VB_NONE;
+                } else {
+                    m_VBMethod = VB_DRI;
                 }
             } else {
-                m_VBMethod = VB_NONE;
+                m_VBMethod = VB_SGI;
+                m_bFirstVBFrame = true;
             }
         }
 #endif
@@ -658,7 +658,10 @@ bool SDLDisplayEngine::initVBlank(int rate) {
     switch(m_VBMethod) {
         case VB_SGI:
             AVG_TRACE(Logger::CONFIG, 
-                    "Using SGI interface for vertical blank support.");
+                    "Using SGI OpenGL extension for vertical blank support.");
+            break;
+        case VB_DRI:
+            AVG_TRACE(Logger::CONFIG, "Using DRI vertical blank support.");
             break;
         case VB_APPLE:
             AVG_TRACE(Logger::CONFIG, "Using Apple GL vertical blank support.");
@@ -672,8 +675,8 @@ bool SDLDisplayEngine::initVBlank(int rate) {
 
 bool SDLDisplayEngine::vbWait(int rate) {
     switch(m_VBMethod) {
+#ifdef linux
         case VB_SGI: {
-#ifndef __APPLE__
                 unsigned int count;
                 int err = glXWaitVideoSyncSGI(rate, m_VBMod, &count);
                 OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
@@ -699,12 +702,8 @@ bool SDLDisplayEngine::vbWait(int rate) {
                 m_LastVBCount = count;
                 m_bFirstVBFrame = false;
                 return !bMissed;
-#endif
             }
             break;
-        case VB_APPLE:
-            // Nothing needs to be done.
-            return false;
         case VB_DRI:
             {
                 drm_wait_vblank_t blank;
@@ -724,6 +723,10 @@ bool SDLDisplayEngine::vbWait(int rate) {
                     }
                 }
             }
+#endif
+        case VB_APPLE:
+            // Nothing needs to be done.
+            return false;
             break;
         case VB_NONE:
         default:
@@ -743,7 +746,7 @@ void SDLDisplayEngine::calcRefreshRate() {
         if (value) {
             CFNumberGetValue(value, kCFNumberIntType, &s_RefreshRate);
             if (s_RefreshRate < 1.0) {
-                AVG_TRACE(Logger::CONFIG, "This seems to be an TFT screen.");
+                AVG_TRACE(Logger::CONFIG, "This seems to be a TFT screen.");
                 s_RefreshRate = 60;
             }
         } else {
