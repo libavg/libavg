@@ -131,15 +131,18 @@ void OGLTile::createTexture(int i, IntPoint Size, int Stride, PixelFormat pf)
     glGenTextures(1, &m_TexID[i]);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::createTexture: glGenTextures()");
     glActiveTexture(GL_TEXTURE0+i);
-    glBindTexture(m_pEngine->getTextureMode(), m_TexID[i]);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::createTexture: glBindTexture()");
     int TextureMode = m_pEngine->getTextureMode();
+    glBindTexture(TextureMode, m_TexID[i]);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::createTexture: glBindTexture()");
     glTexParameteri(TextureMode, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(TextureMode, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(TextureMode, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(TextureMode, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "OGLSurface::bind: glTexParameteri()");
+            "OGLTile::createTexture: glTexParameteri()");
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, Size.x);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "OGLTile::createTexture: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
     
     GLenum DestMode = m_pEngine->getOGLDestMode(pf);
 #ifdef __APPLE__    
@@ -149,13 +152,21 @@ void OGLTile::createTexture(int i, IntPoint Size, int Stride, PixelFormat pf)
         DestMode = GL_RGBA;
     }
 #endif
-
-    glTexImage2D(m_pEngine->getTextureMode(), 0,
-            DestMode, Size.x, Size.y, 0,
-            m_pEngine->getOGLSrcMode(pf), m_pEngine->getOGLPixelType(pf), 0);
+    char * pPixels = 0;
+    if (TextureMode == GL_TEXTURE_2D) {
+        // Make everything with black and transparent, otherwise garbage can be
+        // seen at the edges of the texture.
+        int TexMemNeeded = Size.x*Size.y*Bitmap::getBytesPerPixel(pf);
+        pPixels = new char[TexMemNeeded];
+        memset(pPixels, 0, TexMemNeeded);
+    }
+    glTexImage2D(TextureMode, 0, DestMode, Size.x, Size.y, 0,
+            m_pEngine->getOGLSrcMode(pf), m_pEngine->getOGLPixelType(pf), pPixels);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "OGLTile::createTexture: glTexImage2D()");
-    
+    if (TextureMode == GL_TEXTURE_2D) {
+        free(pPixels);
+    }
 }
 
 static ProfilingZone TexSubImageProfilingZone("    OGLTile::texture download");
@@ -181,7 +192,7 @@ void OGLTile::downloadTexture(int i, BitmapPtr pBmp, int stride,
     int bpp = Bitmap::getBytesPerPixel(pf);
     glPixelStorei(GL_UNPACK_ROW_LENGTH, stride);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "AVGOGLSurface::rebind: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
+            "OGLTile::downloadTexture: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
     unsigned char * pStartPos = (unsigned char *)
             (Extent.tl.y*stride*bpp + Extent.tl.x*bpp);
     if (MemoryMode == OGL) {
