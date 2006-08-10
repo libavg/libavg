@@ -1250,7 +1250,7 @@ int SDLDisplayEngine::getOGLDestMode(PixelFormat pf)
             return GL_RGBA;
         case R8G8B8X8:
         case B8G8R8X8:
-            return GL_RGB;    
+            return GL_RGBA;    
         case YCbCr422:
             switch (getYCbCrMode()) {
                 case DisplayEngine::OGL_MESA:

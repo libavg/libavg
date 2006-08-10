@@ -154,8 +154,8 @@ void OGLTile::createTexture(int i, IntPoint Size, int Stride, PixelFormat pf)
 #endif
     char * pPixels = 0;
     if (TextureMode == GL_TEXTURE_2D) {
-        // Make everything with black and transparent, otherwise garbage can be
-        // seen at the edges of the texture.
+        // Make sure the texture is transparent and black before loading stuff 
+        // into it to avoid garbage at the borders.
         int TexMemNeeded = Size.x*Size.y*Bitmap::getBytesPerPixel(pf);
         pPixels = new char[TexMemNeeded];
         memset(pPixels, 0, TexMemNeeded);

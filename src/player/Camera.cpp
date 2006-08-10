@@ -425,9 +425,11 @@ bool Camera::renderToSurface(ISurface * pSurface)
         int rc = dc1394_dma_single_capture(&m_Camera);
         if (rc == DC1394_SUCCESS) {
             m_LastFrameTime = TimeSource::get()->getCurrentMillisecs();
+/*
 #ifdef AVG_ENABLE_GL            
             OGLSurface * pOGLSurface = dynamic_cast<OGLSurface *>(pSurface);
-#endif            
+#endif
+*/
             // New frame available
             switch (m_Mode) {
                 case MODE_640x480_YUV422:
@@ -448,13 +450,15 @@ bool Camera::renderToSurface(ISurface * pSurface)
                 case MODE_640x480_RGB:
                 case MODE_1024x768_RGB:
                     {
-#ifdef AVG_ENABLE_GL                        
+/*
+#ifdef AVG_ENABLE_GL
                         if (pOGLSurface) {
                             pOGLSurface->createFromBits(getNativeSize(), R8G8B8,
                                     (unsigned char *)(m_Camera.capture_buffer), 
                                     getNativeSize().x*3);
                         } else {
-#endif                            
+#endif
+*/
                             BitmapPtr pBmp = pSurface->lockBmp();
                             unsigned char * pPixels = pBmp->getPixels();
 
@@ -471,12 +475,15 @@ bool Camera::renderToSurface(ISurface * pSurface)
                                         pDestLine[x*4] = pSrcLine[x*3+2];
                                         pDestLine[x*4+1] = pSrcLine[x*3+1];
                                         pDestLine[x*4+2] = pSrcLine[x*3];
+                                        pDestLine[x*4+3] = 0xFF;
                                     }
                                 }
                             }
-#ifdef AVG_ENABLE_GL                            
+/*
+#ifdef AVG_ENABLE_GL
                         }
-#endif                        
+#endif
+*/
                     }
                     break;
                 default:

@@ -567,7 +567,8 @@ void OGLSurface::bltTexture(const DRect* pDestRect,
 
     AVG_TRACE(Logger::BLTS, "(" << pDestRect->tl.x << ", " 
             << pDestRect->tl.y << ")" << ", width:" << pDestRect->Width() 
-            << ", height: " << pDestRect->Height() << ", " 
+            << ", height: " << pDestRect->Height() << ", m_pf: " 
+            << Bitmap::getPixelFormatString(m_pf) << ", " 
             << getGlModeString(m_pEngine->getOGLSrcMode(m_pf)) << "-->" 
             << getGlModeString(m_pEngine->getOGLDestMode(m_pf)) << endl);
     if (fabs(angle) > 0.001) {
