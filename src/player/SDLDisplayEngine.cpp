@@ -616,7 +616,7 @@ bool SDLDisplayEngine::initVBlank(int rate) {
             AVG_TRACE(Logger::WARNING,
                     "Mac VBlank setup failed in CGLGetCurrentContext().");
         }
-        const long l = rate;
+        const long l = 1;
         CGLError err = CGLSetParameter(Context, kCGLCPSwapInterval, &l);
         m_VBMethod = VB_APPLE;
         if (err) {
@@ -722,12 +722,11 @@ bool SDLDisplayEngine::vbWait(int rate) {
 //                      m_Method = VB_KAPUTT;
                     }
                 }
+                return true;
             }
 #endif
         case VB_APPLE:
-            // Nothing needs to be done.
-            return false;
-            break;
+            return true;
         case VB_NONE:
         default:
             assert(false);

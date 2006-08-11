@@ -9,3 +9,4 @@ else
     export PKG_CONFIG_PATH=${AVG_PATH}/lib/pkgconfig
     export PYTHONPATH=${AVG_PATH}/lib/python2.3/site-packages/libavg/:$PYTHONPATH
 fi
+export CFLAGS=-g

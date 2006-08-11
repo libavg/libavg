@@ -48,8 +48,8 @@ void DisplayEngine::initRender()
     bool bUseVBlank = false;
     if (m_VBRate != 0) {
         bUseVBlank = initVBlank(m_VBRate);
+        m_Framerate = getRefreshRate()/m_VBRate;
         if (!bUseVBlank) {
-            m_Framerate = getRefreshRate()/m_VBRate;
             AVG_TRACE(Logger::WARNING, "Using framerate of " << m_Framerate << 
                     " instead of VBRate of " << m_VBRate);
         }
@@ -60,9 +60,7 @@ void DisplayEngine::initRender()
     m_StartTime = TimeSource::get()->getCurrentMillisecs();
     m_LastFrameTime = m_StartTime;
     m_bInitialized = true;
-    if (bUseVBlank) {
-        m_Framerate = 0;
-    } else {
+    if (!bUseVBlank) {
         m_VBRate = 0;
     }
 }
@@ -128,13 +126,13 @@ void DisplayEngine::frameWait()
 
     m_NumFrames++;
     m_FrameWaitStartTime = TimeSource::get()->getCurrentMillisecs();
-    if (m_Framerate == 0) {
+    m_TargetTime = m_LastFrameTime+(long long)(1000/m_Framerate);
+    if (m_VBRate != 0) {
         m_bFrameLate = !vbWait(m_VBRate);
         if (m_bFrameLate) {
             m_FramesTooLate++;
         }
     } else {
-        m_TargetTime = m_LastFrameTime+(long long)(1000/m_Framerate);
         if (m_FrameWaitStartTime <= m_TargetTime) {
             long long WaitTime = m_TargetTime-m_FrameWaitStartTime;
             if (WaitTime > 200) {
@@ -149,7 +147,7 @@ void DisplayEngine::frameWait()
 void DisplayEngine::checkJitter()
 {
     m_LastFrameTime = TimeSource::get()->getCurrentMillisecs();
-    if (m_Framerate != 0) {
+    if (m_VBRate == 0) {
         if (m_LastFrameTime - m_TargetTime > 2) {
             AVG_TRACE (Logger::PROFILE_LATEFRAMES, 
                     "DisplayEngine: frame too late by " 

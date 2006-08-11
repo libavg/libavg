@@ -266,9 +266,7 @@ BOOST_PYTHON_MODULE(avg)
                 "play() -> None\n\n"
                 "Opens a playback window or screen and starts playback. framerate is\n"
                 "the number of frames per second that should be displayed. play returns\n"
-                "when playback has ended. syncToVBlank specifies whether to wait for\n"
-                "the screen's vertical blanking interval before showing the next\n"
-                "frame.")
+                "when playback has ended.")
         .def("stop", &Player::stop,
                 "stop() -> None\n\n"
                 "Stops playback and resets the video mode if nessesary.")
@@ -283,7 +281,8 @@ BOOST_PYTHON_MODULE(avg)
                 "setVBlankFramerate(rate) -> bool\n\n"
                 "Sets the desired number of vertical blanking intervals before the next\n"
                 "frame is displayed. The resulting framerate is determined by the\n"
-                "monitor refresh rate divided by the rate parameter.")
+                "monitor refresh rate divided by the rate parameter. On Mac OS X, only 0\n"
+                "are supported as rate.")
         .def("getTestHelper", &Player::getTestHelper,
                 return_value_policy<reference_existing_object>(),
                 "")
