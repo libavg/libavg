@@ -60,6 +60,7 @@ class VideoBase : public RasterNode
         void changeState(VideoState NewState);
         int getMediaWidth();
         int getMediaHeight();
+        DisplayEngine::YCbCrMode getYCbCrMode();
    
     private:
         void renderToBackbuffer();
@@ -74,6 +75,7 @@ class VideoBase : public RasterNode
        
         int m_Width;
         int m_Height;
+        DisplayEngine::YCbCrMode m_YCbCrMode;
 
         bool m_bFrameAvailable;
 };

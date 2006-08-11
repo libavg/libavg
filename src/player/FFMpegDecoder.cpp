@@ -340,7 +340,16 @@ bool FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb,
 
 bool FFMpegDecoder::isYCbCrSupported() 
 {
-    return true;
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
+        AVCodecContext *enc = &m_pVStream->codec;
+#else
+        AVCodecContext *enc = m_pVStream->codec;
+#endif
+    if (enc->pix_fmt == PIX_FMT_YUV420P) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool FFMpegDecoder::canRenderToBuffer(int BPP)

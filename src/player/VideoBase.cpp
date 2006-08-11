@@ -54,6 +54,7 @@ VideoBase::VideoBase ()
     : m_State(Unloaded),
       m_Width(0),
       m_Height(0),
+      m_YCbCrMode(DisplayEngine::NONE),
       m_bFrameAvailable(false)
 {
 }
@@ -208,11 +209,11 @@ void VideoBase::open()
     open(&m_Width, &m_Height);
 
     DRect vpt = getRelViewport();
-    DisplayEngine::YCbCrMode Mode = DisplayEngine::NONE;
+    m_YCbCrMode = DisplayEngine::NONE;
     if (isYCbCrSupported() && getEngine()->getYCbCrMode() != DisplayEngine::NONE) {
-        Mode = getEngine()->getYCbCrMode();
+        m_YCbCrMode = getEngine()->getYCbCrMode();
     }
-    switch (Mode) {
+    switch (m_YCbCrMode) {
         case DisplayEngine::OGL_MESA:
         case DisplayEngine::OGL_APPLE:
             getSurface()->create(IntPoint(m_Width, m_Height), YCbCr422, true);
@@ -245,6 +246,11 @@ int VideoBase::getMediaWidth()
 int VideoBase::getMediaHeight()
 {
     return m_Height;
+}
+
+DisplayEngine::YCbCrMode VideoBase::getYCbCrMode()
+{
+    return m_YCbCrMode;
 }
 
 bool VideoBase::obscures (const DRect& Rect, int Child)

@@ -162,15 +162,13 @@ static ProfilingZone RenderProfilingZone("    Video::render");
 bool Video::renderToSurface(ISurface * pSurface)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    if (getEngine()->getYCbCrMode() == DisplayEngine::OGL_SHADER) {
+    if (getYCbCrMode() == DisplayEngine::OGL_SHADER) {
         m_bEOF = m_pDecoder->renderToYCbCr420p(pSurface->lockBmp(0),
                 pSurface->lockBmp(1), pSurface->lockBmp(2));
     } else {
         BitmapPtr pBmp = pSurface->lockBmp();
         m_bEOF = m_pDecoder->renderToBmp(pBmp);
-        if (isYCbCrSupported() && 
-            getEngine()->getYCbCrMode() == DisplayEngine::OGL_MESA)
-        {
+        if (getYCbCrMode() == DisplayEngine::OGL_MESA) {
             FilterFlipUV().applyInPlace(pBmp);
         }   
     }

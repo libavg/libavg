@@ -1,8 +1,5 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "avg.dtd">
-<avg width="1920" height="1080">
-    <video id="video" width="1536" height="1024" z="3" opacity="0.6" href="T2_pan_7.mpg"/>
-<!--
-    <video id="video" href="hdvideo/Odoru_720p.wmv"/>
--->
+<avg width="1024" height="768">
+    <video id="video" href="gehirnscan.mov"/>
 </avg>
