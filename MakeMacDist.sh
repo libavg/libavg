@@ -51,7 +51,7 @@ fixLib libWand.10.dylib libMagick.10
 cd ../libavg
 
 cd src/test
-cp -Rv Test.py *.avg 1x1_schachbrett.png crop_bkgd.png panoimage.png freidrehen.jpg widebmp.jpg rgb24.png rgb24-65x65.png rgb24-64x64.png rgb24alpha-64x64.png rgb24alpha.tif test.m2v test.m1v videoperformance.py Test.py TestPar.py parport.py baseline ${AVG_PATH}/dist/avg/test
+cp -Rv Test.py *.avg 1x1_schachbrett.png crop_bkgd.png panoimage.png freidrehen.jpg widebmp.jpg rgb24.png rgb24-65x65.png rgb24-64x64.png rgb24alpha-64x64.png rgb24alpha.tif test.m2v test.m1v gehirnscan.mov videoperformance.py Test.py TestPar.py parport.py baseline ${AVG_PATH}/dist/avg/test
 cd ../..
 
 /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -proj libavg.pmproj -v -p libavg.pkg

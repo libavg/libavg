@@ -26,12 +26,12 @@ class LoggerTestCase(unittest.TestCase):
                   self.Log.EVENTS
                   )
         try:
-            os.remove("testavg.log")
+            os.remove("/tmp/testavg.log")
         except OSError:
             pass
-        self.Log.setFileDest("testavg.log")
+        self.Log.setFileDest("/tmp/testavg.log")
         self.Log.trace(self.Log.APP, "Test file log entry.")
-        stats = os.stat("testavg.log")
+        stats = os.stat("/tmp/testavg.log")
         self.assert_(stats.st_size == 50)
         
         self.Log.setSyslogDest(syslog.LOG_USER, syslog.LOG_CONS)
