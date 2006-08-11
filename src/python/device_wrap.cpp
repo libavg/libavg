@@ -20,9 +20,7 @@
 //
 
 #include "../avgconfig.h"
-#ifdef AVG_ENABLE_PARPORT
 #include "../parport/ParPort.h"
-#endif
 #include "../conradrelais/ConradRelais.h"
 
 #include <boost/python.hpp>
@@ -33,7 +31,6 @@
 using namespace boost::python;
 using namespace avg;
 
-#ifdef AVG_ENABLE_PARPORT
 enum ControlLines {
     CONTROL_STROBE = PARPORT_CONTROL_STROBE,
     CONTROL_AUTOFD = PARPORT_CONTROL_AUTOFD,
@@ -48,11 +45,9 @@ enum StatusLines {
     STATUS_ACK = PARPORT_STATUS_ACK,
     STATUS_BUSY = PARPORT_STATUS_BUSY
 };
-#endif
 
 void export_devices()
 {
-#ifdef AVG_ENABLE_PARPORT
     enum_<ControlLines>("controllines")
         .value("CONTROL_STROBE", CONTROL_STROBE)
         .value("CONTROL_AUTOFD", CONTROL_AUTOFD)
@@ -122,7 +117,6 @@ void export_devices()
                 "Returns 1 if the parallel port has been opened successfully, 0\n"
                 "otherwise.")
         ;
-#endif
 
     class_<ConradRelais>("ConradRelais",
             "Interface to one or more conrad relais cards connected to a serial port.\n"

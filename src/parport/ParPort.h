@@ -24,6 +24,18 @@
 
 #include <string>
 
+// Copied from linux/parport.h so we have a plattform-independent interface.
+#define PARPORT_CONTROL_STROBE    0x1
+#define PARPORT_CONTROL_AUTOFD    0x2
+#define PARPORT_CONTROL_INIT      0x4
+#define PARPORT_CONTROL_SELECT    0x8
+
+#define PARPORT_STATUS_ERROR      0x8
+#define PARPORT_STATUS_SELECT     0x10
+#define PARPORT_STATUS_PAPEROUT   0x20
+#define PARPORT_STATUS_ACK        0x40
+#define PARPORT_STATUS_BUSY       0x80
+
 namespace avg {
     
 enum ParPortData {

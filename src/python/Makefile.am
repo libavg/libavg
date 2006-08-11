@@ -28,12 +28,6 @@ else
     DFB_LIBS =
 endif
 
-if ENABLE_PARPORT
-    PARPORT_LIB = ../parport/libparport.a
-else
-    PARPORT_LIB =
-endif
-
 pkgpyexec_LTLIBRARIES = avg.la
 avg_la_SOURCES = avg_wrap.cpp raster_wrap.cpp event_wrap.cpp device_wrap.cpp bitmap_wrap.cpp 
 avg_la_LDFLAGS = -module -XCClinker -lboost_python @XML2_LIBS@ \
@@ -44,7 +38,7 @@ avg_la_LIBADD = ../conradrelais/libconradrelais.a \
                 ../player/libplayer.a \
 				../graphics/libgraphics.a \
 				../base/libbase.a \
-				$(PARPORT_LIB)
+				../parport/libparport.a
 pkgpyexec_PYTHON = anim.py
 
 

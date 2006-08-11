@@ -19,14 +19,17 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include "../avgconfig.h"
 #include "ParPort.h"
 
 #include "../base/Logger.h"
 #include "../player/MathHelper.h"
 #include "../base/Exception.h"
 
+#ifdef AVG_ENABLE_PARPORT 
 #include <linux/ppdev.h>
 #include <linux/parport.h>
+#endif
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -56,6 +59,7 @@ ParPort::~ParPort() {
 void 
 ParPort::init(const string& theDevice) {
     string myDevice = theDevice;
+#ifdef AVG_ENABLE_PARPORT
     if (myDevice.empty()) {
         myDevice = "/dev/parport0";
     }
@@ -77,6 +81,11 @@ ParPort::init(const string& theDevice) {
         return;
     }
     _isOpen = true;
+#else
+    AVG_TRACE(Logger::ERROR,
+            "Failed to open parallel port. Support not compiled in.");
+    _myFileDescriptor = -1;
+#endif
     _myDeviceName = myDevice;
 }
 
@@ -91,6 +100,7 @@ bool ParPort::setControlLine(int theLine, bool theValue) {
 }
 
 bool ParPort::getStatusLine(int theLine) {
+#ifdef AVG_ENABLE_PARPORT
     if (_myFileDescriptor == -1) {
         return false;
     }
@@ -102,10 +112,14 @@ bool ParPort::getStatusLine(int theLine) {
         return false;
     }
     return (myStatus & theLine) == theLine;
+#else
+    return false;
+#endif
 }
 
 bool ParPort::setDataLines(unsigned char theData)
 {
+#ifdef AVG_ENABLE_PARPORT
     if (_myFileDescriptor == -1) {
         return false;
     }
@@ -117,10 +131,14 @@ bool ParPort::setDataLines(unsigned char theData)
         return false;
     }    
     return true;
+#else
+    return false;
+#endif
 }
 
 bool ParPort::clearDataLines(unsigned char theData)
 {
+#ifdef AVG_ENABLE_PARPORT
     if (_myFileDescriptor == -1) {
         return false;
     }
@@ -132,10 +150,14 @@ bool ParPort::clearDataLines(unsigned char theData)
         return false;
     }    
     return true;
+#else
+    return false;
+#endif
 }
 
 bool ParPort::setAllDataLines(unsigned char theData)
 {
+#ifdef AVG_ENABLE_PARPORT
     if (_myFileDescriptor == -1) {
         return false;
     }
@@ -147,6 +169,9 @@ bool ParPort::setAllDataLines(unsigned char theData)
         return false;
     }    
     return true;
+#else
+    return false;
+#endif
 }    
 
 bool ParPort::isAvailable() 
@@ -154,7 +179,9 @@ bool ParPort::isAvailable()
     return (_myFileDescriptor != -1);
 }
 
-bool ParPort::frob(int theLines, int theStatus) {
+bool ParPort::frob(int theLines, int theStatus) 
+{
+#ifdef AVG_ENABLE_PARPORT
     if (_myFileDescriptor == -1) {
         return false;
     }
@@ -168,6 +195,9 @@ bool ParPort::frob(int theLines, int theStatus) {
         return false;
     }
     return true;
+#else
+    return false;
+#endif
 }
 
 void ParPort::deinit() {
@@ -184,6 +214,7 @@ void ParPort::deinit() {
 
 bool
 ParPort::writeControlRegister(unsigned char theStatus) {
+#ifdef AVG_ENABLE_PARPORT
     if (_isOpen) {
         if (ioctl(_myFileDescriptor, PPWCONTROL, & theStatus) == -1) {
             AVG_TRACE(Logger::ERROR,
@@ -193,6 +224,7 @@ ParPort::writeControlRegister(unsigned char theStatus) {
         }
         return true;
     }
+#endif
     return false;
 }
 
