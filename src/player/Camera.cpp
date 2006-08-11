@@ -522,9 +522,9 @@ bool Camera::renderToSurface(ISurface * pSurface)
     return true;
 }
 
-bool Camera::isYCbCrSupported() 
+PixelFormat Camera::getDesiredPixelFormat() 
 {
-    return false;
+    return R8G8B8X8;
 }
 
 bool Camera::canRenderToBackbuffer(int BitsPerPixel)

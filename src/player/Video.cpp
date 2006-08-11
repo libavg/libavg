@@ -100,11 +100,6 @@ bool Video::getLoop() const
     return m_bLoop;
 }
 
-bool Video::isYCbCrSupported() 
-{
-    return m_pDecoder->isYCbCrSupported();
-}
-
 void Video::init (DisplayEngine * pEngine, DivNode * pParent, 
         Player * pPlayer)
 {
@@ -150,6 +145,11 @@ void Video::open(int* pWidth, int* pHeight)
 void Video::close()
 {
     m_pDecoder->close();
+}
+
+PixelFormat Video::getDesiredPixelFormat() 
+{
+    return m_pDecoder->getDesiredPixelFormat();
 }
 
 double Video::getFPS()

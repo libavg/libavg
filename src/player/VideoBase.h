@@ -43,7 +43,6 @@ class VideoBase : public RasterNode
         void stop();
         void pause();
         virtual double getFPS() = 0;
-        virtual bool isYCbCrSupported() = 0;
         
         virtual void prepareRender (int time, const DRect& parent);
         virtual void render (const DRect& Rect);
@@ -70,6 +69,7 @@ class VideoBase : public RasterNode
         virtual bool canRenderToBackbuffer(int BitsPerPixel) = 0;
         virtual void open(int* pWidth, int* pHeight) = 0;
         virtual void close() = 0;
+        virtual PixelFormat getDesiredPixelFormat() = 0;
 
         VideoState m_State;
        

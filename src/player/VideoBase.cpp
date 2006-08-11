@@ -210,7 +210,9 @@ void VideoBase::open()
 
     DRect vpt = getRelViewport();
     m_YCbCrMode = DisplayEngine::NONE;
-    if (isYCbCrSupported() && getEngine()->getYCbCrMode() != DisplayEngine::NONE) {
+    if (getDesiredPixelFormat() == YCbCr420p && 
+            getEngine()->getYCbCrMode() != DisplayEngine::NONE) 
+    {
         m_YCbCrMode = getEngine()->getYCbCrMode();
     }
     switch (m_YCbCrMode) {
@@ -222,14 +224,29 @@ void VideoBase::open()
             getSurface()->create(IntPoint(m_Width, m_Height), YCbCr420p, true);
             break;
         case DisplayEngine::NONE:
-            if (getEngine()->hasRGBOrdering()) {
-                getSurface()->create(IntPoint(m_Width, m_Height), R8G8B8X8, true);
-            } else {
-                getSurface()->create(IntPoint(m_Width, m_Height), B8G8R8X8, true);
+            {
+                PixelFormat pf;
+                if (getDesiredPixelFormat() == R8G8B8X8) {
+                    if (getEngine()->hasRGBOrdering()) {
+                        pf = R8G8B8X8;
+                    } else {
+                        pf = B8G8R8X8;
+                    }
+                    getSurface()->create(IntPoint(m_Width, m_Height), pf, true);
+                    FilterFill<Pixel24> Filter(Pixel24(0,0,0));
+                    Filter.applyInPlace(getSurface()->lockBmp());
+                } else { 
+                    if (getEngine()->hasRGBOrdering()) {
+                        pf = R8G8B8A8;
+                    } else {
+                        pf = B8G8R8A8;
+                    }
+                    getSurface()->create(IntPoint(m_Width, m_Height), pf, true);
+                    FilterFill<Pixel32> Filter(Pixel32(0,0,0, 255));
+                    Filter.applyInPlace(getSurface()->lockBmp());
+                }
+                getSurface()->unlockBmps();
             }
-            FilterFill<Pixel24> Filter(Pixel24(0,0,0));
-            Filter.applyInPlace(getSurface()->lockBmp());
-            getSurface()->unlockBmps();
             break;
     }
     initVisible();

@@ -49,7 +49,6 @@ class Video : public VideoBase
         int getCurFrame() const;
         void seekToFrame(int num);
         bool getLoop() const;
-        virtual bool isYCbCrSupported();
 
         virtual std::string getTypeStr ();
 
@@ -63,6 +62,7 @@ class Video : public VideoBase
        
         virtual void open(int* pWidth, int* pHeight);
         virtual void close();
+        virtual PixelFormat getDesiredPixelFormat();
         virtual double getFPS();
 
         std::string m_Filename;

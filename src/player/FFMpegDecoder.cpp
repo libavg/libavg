@@ -258,24 +258,18 @@ bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
         AVPicture DestPict;
         unsigned char * pDestBits = pBmp->getPixels();
         DestPict.data[0] = pDestBits;
-        DestPict.data[1] = pDestBits+1;
-        DestPict.data[2] = pDestBits+2;
-        DestPict.data[3] = pDestBits+3;
         DestPict.linesize[0] = pBmp->getStride();
-        DestPict.linesize[1] = pBmp->getStride();
-        DestPict.linesize[2] = pBmp->getStride();
-        DestPict.linesize[3] = pBmp->getStride();
         int DestFmt;
         switch(pBmp->getPixelFormat()) {
             case R8G8B8X8:
+            case R8G8B8A8:
                 // XXX: Unused and broken.
                 DestFmt = PIX_FMT_RGBA32;
                 break;
             case B8G8R8X8:
+            case B8G8R8A8:
                 // This isn't supported directly by FFMpeg.
                 DestFmt = PIX_FMT_RGBA32;
-                DestPict.data[1] = pDestBits+3;
-                DestPict.data[3] = pDestBits+1;
                 break;
             case R8G8B8:
                 DestFmt = PIX_FMT_RGB24;
@@ -338,17 +332,20 @@ bool FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb,
     return m_bEOF;
 }
 
-bool FFMpegDecoder::isYCbCrSupported() 
+PixelFormat FFMpegDecoder::getDesiredPixelFormat()
 {
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
         AVCodecContext *enc = &m_pVStream->codec;
 #else
         AVCodecContext *enc = m_pVStream->codec;
 #endif
-    if (enc->pix_fmt == PIX_FMT_YUV420P) {
-        return true;
-    } else {
-        return false;
+    switch(enc->pix_fmt) {
+        case PIX_FMT_YUV420P:
+            return YCbCr420p;
+        case PIX_FMT_RGBA32:
+            return R8G8B8A8;
+        default:
+            return R8G8B8X8;
     }
 }
 
