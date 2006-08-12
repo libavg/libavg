@@ -3,7 +3,8 @@
 import unittest
 
 import sys, syslog, time, os
-
+sys.path.append('../python/.libs')
+sys.path.append('../python')
 import avg
 import anim
 
