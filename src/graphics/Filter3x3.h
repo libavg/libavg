@@ -41,7 +41,7 @@ public:
 
 private:
     template<class Pixel>
-    void Filter3x3::convolveLine(const unsigned char * pSrc, unsigned char * pDest, 
+    void convolveLine(const unsigned char * pSrc, unsigned char * pDest, 
             int lineLen, int stride) const;
     double m_Mat[3][3];
 };

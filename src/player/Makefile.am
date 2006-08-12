@@ -43,8 +43,8 @@ ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
         RasterNode.h Camera.h \
         $(GL_INCLUDES) $(DFB_INCLUDES) $(APPLE_INCLUDES)
 
-noinst_LIBRARIES = libplayer.a
-libplayer_a_SOURCES = $(GL_SOURCES) $(DFB_SOURCES) \
+noinst_LTLIBRARIES = libplayer.la
+libplayer_la_SOURCES = $(GL_SOURCES) $(DFB_SOURCES) \
 		Player.cpp VideoBase.cpp Video.cpp DisplayEngine.cpp\
         Region.cpp Node.cpp FFMpegDecoder.cpp \
         MathHelper.cpp PanoImage.cpp Words.cpp Camera.cpp \

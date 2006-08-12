@@ -34,11 +34,11 @@ avg_la_LDFLAGS = -module -XCClinker -lboost_python @XML2_LIBS@ \
         $(DC1394_LIBS) @GLU_LIBS@ $(ALL_GL_LIBS) $(DFB_LIBS) \
 		`pkg-config --libs ImageMagick++` \
         @LIBFFMPEG@ @PANGOFT2_LIBS@ 
-avg_la_LIBADD = ../conradrelais/libconradrelais.a \
-                ../player/libplayer.a \
-				../graphics/libgraphics.a \
-				../base/libbase.a \
-				../parport/libparport.a
+avg_la_LIBADD = ../conradrelais/libconradrelais.la \
+                ../player/libplayer.la \
+				../graphics/libgraphics.la \
+				../base/libbase.la \
+				../parport/libparport.la
 pkgpyexec_PYTHON = anim.py
 
 

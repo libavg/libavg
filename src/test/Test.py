@@ -567,5 +567,9 @@ print(os.getcwd())
 os.system("whoami")
 Player = avg.Player()
 runner = unittest.TextTestRunner()
-runner.run(completeTestSuite(engine, bpp))
+rc = runner.run(completeTestSuite(engine, bpp))
+if rc.wasSuccessful():
+    sys.exit(0)
+else:
+    sys.exit(1)
 
