@@ -2,10 +2,10 @@
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 <avg width="1024" height="768">
 <!--  <camera id="camera" x="160" y="120" z="1" width="320" height="240"/> -->
-        <image x="0" y="200" z="4"
-                opacity="1" href="rgb24alpha.tif"/>
 <!--    <camera id="camera" x="200" y="0" z="3" width="1024" height="768"
           device="/dev/video1394/0" mode="1024x768_RGB" framerate="7.5"/>-->
-    <camera id="camera" x="190" y="0" z="3" width="1024" height="768"
-          device="/dev/video1394/0" mode="640x480_RGB" framerate="15"/>
+    <camera id="camera" x="190" y="0" width="640" height="480"
+            device="/dev/video1394/0" mode="640x480_RGB" framerate="15"/>
+    <image x="0" y="200" 
+            opacity="1" href="rgb24alpha.tif"/>
 </avg>

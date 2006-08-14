@@ -306,15 +306,7 @@ void Camera::open(int* pWidth, int* pHeight)
         fatalError(string("Failed to not make camera root node (Node: ")+
                 getID() + ").");
     }
-
-    unsigned int channel;
-    unsigned int speed;
     int err;
-    err = dc1394_get_iso_channel_and_speed(m_FWHandle,
-                m_Camera.node, &channel, &speed);
-    checkDC1394Error(err,
-            "Unable to get the firewire camera iso channel number.");
-
     err = dc1394_get_camera_feature_set(m_FWHandle,
                 m_Camera.node, &m_FeatureSet);
     checkDC1394Error(err,
@@ -326,7 +318,7 @@ void Camera::open(int* pWidth, int* pHeight)
         pDeviceFileName = m_sDevice.c_str();
     }
     err = dc1394_dma_setup_capture(m_FWHandle, m_Camera.node,
-                channel+1, CaptureFormat, m_Mode,
+                1, CaptureFormat, m_Mode,
                 SPEED_400, m_FrameRateConstant, NUM_BUFFERS, DROP_FRAMES, 
                 pDeviceFileName, &m_Camera);
     if (err != DC1394_SUCCESS) {
@@ -390,6 +382,7 @@ void Camera::close()
 {
 #ifdef AVG_ENABLE_1394
     if (m_bCameraAvailable) {
+//        dc1394_stop_iso_transmission(m_FWHandle, m_Camera.node);
         dc1394_dma_unlisten(m_FWHandle, &m_Camera);
         dc1394_dma_release_camera(m_FWHandle, &m_Camera);
         dc1394_destroy_handle(m_FWHandle);

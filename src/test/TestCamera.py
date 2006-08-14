@@ -21,6 +21,9 @@ class CameraTestCase(unittest.TestCase):
             self.__camera.whitebalance = 24407
         def resetWhitebalance():
             self.__camera.whitebalance = -1
+        def stopPlayback():
+            self.__camera.stop()
+            Player.setTimeout(500, self.__camera.play)
         self.curFrame = 200
         Player.loadFile("camera.avg")
         Player.setFramerate(30)
@@ -28,6 +31,7 @@ class CameraTestCase(unittest.TestCase):
         self.__camera.play()
         Player.setTimeout(500, setWhitebalance)
         Player.setTimeout(1000, resetWhitebalance)
+        Player.setInterval(1000, stopPlayback)
         Player.play()
 
 def playerTestSuite(engine, bpp):
