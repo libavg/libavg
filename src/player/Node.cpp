@@ -165,6 +165,11 @@ double Node::getOpacity() const {
 
 void Node::setOpacity(double opacity) {
     m_Opacity = opacity;
+    if (m_Opacity < 0.0) {
+        m_Opacity = 0.0;
+    } else if (m_Opacity > 1.0) {
+        m_Opacity = 1.0;
+    }
     if (m_bActive) {
         invalidate();
     }

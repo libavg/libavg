@@ -27,6 +27,8 @@ class LinearAnim(SimpleAnim):
     def __step(self):
         if not(self.__done):
             part = ((time.time()-self.startTime)/self.duration)*1000
+            if part > 1.0:
+                part = 1.0
             curValue = self.__startValue+(self.__endValue-self.__startValue)*part
             if self.useInt:
                 curValue = int(curValue+0.5)
