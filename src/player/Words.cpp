@@ -360,7 +360,7 @@ void Words::drawString()
         bitmap.num_grays = 256;
         bitmap.pixel_mode = ft_pixel_mode_grays;
 
-        pango_ft2_render_layout(&bitmap, layout, 0, 0);
+        pango_ft2_render_layout(&bitmap, layout, 1, 0);
 
         getEngine()->surfaceChanged(m_pSurface);
         if (m_LineSpacing == -1) {
