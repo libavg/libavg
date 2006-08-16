@@ -56,9 +56,12 @@ class PanoImage : public Node
         virtual bool obscures (const DRect& Rect, int Child);
         virtual std::string getTypeStr ();
 
-        const std::string& getFilename () const;
+        const std::string& getHRef () const;
+        void setHRef (const std::string& href);
         double getSensorWidth () const;
+        void setSensorWidth (double sensorWidth);
         double getSensorHeight () const;
+        void setSensorHeight (double sensorHeight);
         double getFocalLength () const;
         void setFocalLength (double focalLength);
         int getHue () const;
@@ -71,11 +74,14 @@ class PanoImage : public Node
         virtual DPoint getPreferredMediaSize();
 
     private:
+        void load();
         void calcProjection();
         void setupTextures();
+        void clearTextures();
 
         SDLDisplayEngine * getSDLEngine();
     
+        std::string m_href;
         std::string m_Filename;
         double m_SensorWidth;
         double m_SensorHeight;

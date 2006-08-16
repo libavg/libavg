@@ -221,8 +221,18 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testHugeImage1", False),
                  Player.stop))
     def testPanoImage(self):
+        def changeProperties():
+            node = Player.getElementByID("pano")
+            node.sensorheight=10
+            node.sensorwidth=15
+            node.focallength=25
+        def loadImage():
+            node = Player.getElementByID("pano")
+            node.href = "rgb24.png"
         self.start("panoimage.avg",
                 (lambda: self.compareImage("testPanoImage", False),
+                 changeProperties,
+                 loadImage,
                  Player.stop))
     def testBroken(self):
         Player.loadFile("noxml.avg")

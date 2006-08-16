@@ -51,7 +51,7 @@ Image::Image ()
 Image::Image (const xmlNodePtr xmlNode, DivNode * pParent)
     : RasterNode(xmlNode, pParent)
 {
-    m_href = getRequiredStringAttr (xmlNode, "href");
+    m_href = getDefaultedStringAttr (xmlNode, "href", "");
     m_Hue = getDefaultedIntAttr (xmlNode, "hue", -1);
     m_Saturation = getDefaultedIntAttr (xmlNode, "saturation", -1);
     
@@ -122,20 +122,23 @@ DPoint Image::getPreferredMediaSize()
 void Image::load()
 {
     m_Filename = m_href;
-    initFilename(m_pPlayer, m_Filename);
-//    AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
-
-    try {
-        Bitmap TempBmp(m_Filename);
-        PixelFormat pf;
-        pf = R8G8B8;
-        if (TempBmp.hasAlpha()) {
-            pf = R8G8B8A8;
+    if (m_Filename != "") {
+        initFilename(m_pPlayer, m_Filename);
+        //    AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
+        try {
+            Bitmap TempBmp(m_Filename);
+            PixelFormat pf;
+            pf = R8G8B8;
+            if (TempBmp.hasAlpha()) {
+                pf = R8G8B8A8;
+            }
+            getSurface()->create(TempBmp.getSize(), pf, false);
+            getSurface()->lockBmp()->copyPixels(TempBmp);
+        } catch (Magick::Exception & ex) {
+            AVG_TRACE(Logger::ERROR, ex.what());
+            getSurface()->create(IntPoint(1,1), R8G8B8, false);
         }
-        getSurface()->create(TempBmp.getSize(), pf, false);
-        getSurface()->lockBmp()->copyPixels(TempBmp);
-    } catch (Magick::Exception & ex) {
-        AVG_TRACE(Logger::ERROR, ex.what());
+    } else {
         getSurface()->create(IntPoint(1,1), R8G8B8, false);
     }
     

@@ -49,7 +49,13 @@ OGLTile::OGLTile(IntRect Extent, IntPoint TexSize, int Stride, PixelFormat pf,
 
 OGLTile::~OGLTile()
 {
-    glDeleteTextures(1, &m_TexID[0]);
+    if (m_pf == YCbCr420p) {
+        glDeleteTextures(1, &m_TexID[0]);
+        glDeleteTextures(2, &m_TexID[0]);
+        glDeleteTextures(3, &m_TexID[0]);
+    } else {
+        glDeleteTextures(1, &m_TexID[0]);
+    }
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::~OGLTile: glDeleteTextures()");
 }
 

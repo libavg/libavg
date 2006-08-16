@@ -68,10 +68,10 @@ PanoImage::PanoImage ()
 PanoImage::PanoImage (const xmlNodePtr xmlNode, DivNode * pParent)
     : Node (xmlNode, pParent)
 {
-    m_Filename = getRequiredStringAttr (xmlNode, "href");
-    m_SensorWidth = getRequiredDoubleAttr (xmlNode, "sensorwidth");
-    m_SensorHeight = getRequiredDoubleAttr (xmlNode, "sensorheight");
-    m_FocalLength = getRequiredDoubleAttr (xmlNode, "focallength");
+    m_href = getDefaultedStringAttr (xmlNode, "href", "");
+    m_SensorWidth = getDefaultedDoubleAttr (xmlNode, "sensorwidth", 1.0);
+    m_SensorHeight = getDefaultedDoubleAttr (xmlNode, "sensorheight", 1.0);
+    m_FocalLength = getDefaultedDoubleAttr (xmlNode, "focallength", 10.0);
 
     m_Rotation = getDefaultedDoubleAttr (xmlNode, "rotation", -1);
 
@@ -81,13 +81,13 @@ PanoImage::PanoImage (const xmlNodePtr xmlNode, DivNode * pParent)
 
 PanoImage::~PanoImage ()
 {
+    clearTextures();
 }
 
 void PanoImage::init (DisplayEngine * pEngine,
         DivNode * pParent, Player * pPlayer)
 {
     Node::init(pEngine, pParent, pPlayer);
-    initFilename(pPlayer, m_Filename);
 #ifdef AVG_ENABLE_GL    
     m_pEngine = dynamic_cast<SDLDisplayEngine*>(pEngine);
 #else
@@ -100,26 +100,7 @@ void PanoImage::init (DisplayEngine * pEngine,
         // TODO: Disable image.
         exit(-1);
     }
-//    AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
-    try {
-        m_pBmp = BitmapPtr(new Bitmap(m_Filename));
-    } catch (Magick::Exception & ex) {
-        AVG_TRACE(Logger::ERROR, ex.what());
-        m_pBmp = BitmapPtr(new Bitmap(IntPoint(1, 1), R8G8B8, "Fake PanoImage"));
-    }
-
-    if (m_Saturation != -1) {
-        FilterColorize(m_Hue, m_Saturation).applyInPlace(m_pBmp);
-    }
-    
-    if (pEngine->hasRGBOrdering()) {
-        FilterFlipRGB().applyInPlace(m_pBmp);
-    }
-    calcProjection();
-    if (m_Rotation == -1) {
-        m_Rotation = m_MaxRotation/2;
-    }
-    setupTextures();
+    load();
 }
 
 static ProfilingZone PanoRenderProfilingZone("    PanoImage::render");
@@ -246,9 +227,17 @@ string PanoImage::getTypeStr ()
     return "PanoImage";
 }
 
-const std::string& PanoImage::getFilename () const
+const std::string& PanoImage::getHRef () const
 {
-    return m_Filename;
+    return m_href;
+}
+
+void PanoImage::setHRef(const string& href)
+{
+    m_href = href;
+    load();
+    DPoint Size = getPreferredMediaSize();
+    setViewport(-32767, -32767, Size.x, Size.y);
 }
 
 double PanoImage::getSensorWidth () const
@@ -256,9 +245,19 @@ double PanoImage::getSensorWidth () const
     return m_SensorWidth;
 }
 
+void PanoImage::setSensorWidth (double sensorWidth)
+{
+    m_SensorWidth = sensorWidth;
+}
+
 double PanoImage::getSensorHeight () const
 {
     return m_SensorHeight;
+}
+
+void PanoImage::setSensorHeight (double sensorHeight)
+{
+    m_SensorHeight = sensorHeight;
 }
 
 double PanoImage::getFocalLength () const
@@ -311,13 +310,46 @@ void PanoImage::calcProjection()
 DPoint PanoImage::getPreferredMediaSize()
 {
     double SensorAspect = m_SensorWidth/m_SensorHeight;
-    double Width = m_pBmp->getSize().x*SensorAspect;
+    double Width = m_pBmp->getSize().y*SensorAspect;
     return DPoint(Width, m_pBmp->getSize().y);
+}
+
+void PanoImage::load()
+{
+    m_Filename = m_href;
+//    AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
+    if (m_Filename != "") {
+        initFilename(getPlayer(), m_Filename);
+        try {
+            m_pBmp = BitmapPtr(new Bitmap(m_Filename));
+        } catch (Magick::Exception & ex) {
+            AVG_TRACE(Logger::ERROR, ex.what());
+            m_pBmp = BitmapPtr(new Bitmap(IntPoint(1, 1), R8G8B8, "Fake PanoImage"));
+        }
+    } else {
+        m_pBmp = BitmapPtr(new Bitmap(IntPoint(1, 1), R8G8B8, "Fake PanoImage"));
+    }
+
+    if (m_Saturation != -1) {
+        FilterColorize(m_Hue, m_Saturation).applyInPlace(m_pBmp);
+    }
+    
+    if (m_pEngine->hasRGBOrdering()) {
+        FilterFlipRGB().applyInPlace(m_pBmp);
+    }
+    calcProjection();
+    if (m_Rotation == -1) {
+        m_Rotation = m_MaxRotation/2;
+    }
+    setupTextures();
 }
 
 void PanoImage::setupTextures()
 {
 #ifdef AVG_ENABLE_GL
+    if (!m_TileTextureIDs.empty()) {
+        clearTextures();
+    }
     int TexHeight = nextpow2(m_pBmp->getSize().y);
     int NumTextures = int(ceil(double(m_pBmp->getSize().x)/TEX_WIDTH));
     glActiveTexture(GL_TEXTURE0);
@@ -381,6 +413,15 @@ void PanoImage::setupTextures()
                 "PanoImage::setupTextures: glTexSubImage2D()");
    }
 #endif
+}
+
+void PanoImage::clearTextures()
+{
+    for (unsigned int i=0; i<m_TileTextureIDs.size(); ++i) {
+        unsigned int TexID = m_TileTextureIDs[i];
+        glDeleteTextures(1, &TexID);
+    }
+    m_TileTextureIDs.clear();
 }
 
 SDLDisplayEngine * PanoImage::getSDLEngine()

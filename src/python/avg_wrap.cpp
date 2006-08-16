@@ -203,10 +203,12 @@ BOOST_PYTHON_MODULE(avg)
             "    saturation: The saturation the image should have. (ro, deprecated)\n"
             "    rotation: The current angle the viewer is looking at in radians.\n"
             "    maxrotation: The maximum angle the viewer can look at.\n")
-        .add_property("href", make_function(&PanoImage::getFilename,
-                return_value_policy<copy_const_reference>()))
-        .add_property("sensorwidth", &PanoImage::getSensorWidth)
-        .add_property("sensorheight", &PanoImage::getSensorHeight)
+        .add_property("href", make_function(&PanoImage::getHRef, 
+                return_value_policy<copy_const_reference>()), &PanoImage::setHRef)
+        .add_property("sensorwidth", &PanoImage::getSensorWidth, 
+                &PanoImage::setSensorWidth)
+        .add_property("sensorheight", &PanoImage::getSensorHeight, 
+                &PanoImage::setSensorHeight)
         .add_property("focallength", &PanoImage::getFocalLength, 
                 &PanoImage::setFocalLength)
         .add_property("hue", &PanoImage::getHue)
