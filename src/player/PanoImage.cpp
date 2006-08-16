@@ -236,8 +236,6 @@ void PanoImage::setHRef(const string& href)
 {
     m_href = href;
     load();
-    DPoint Size = getPreferredMediaSize();
-    setViewport(-32767, -32767, Size.x, Size.y);
 }
 
 double PanoImage::getSensorWidth () const
