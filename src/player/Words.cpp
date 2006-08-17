@@ -56,7 +56,8 @@ Words::Words ()
       m_bSmallCaps(false),
       m_pSurface(0),
       m_StringExtents(0,0),
-      m_bFontChanged(true)
+      m_bFontChanged(true),
+      m_bDrawNeeded(true)
 {
 }
 
@@ -130,7 +131,7 @@ void Words::initVisible ()
 {
     Node::initVisible();
     m_bFontChanged = true;
-    drawString();
+    m_bDrawNeeded = true;
 }
 
 string Words::getTypeStr ()
@@ -150,7 +151,8 @@ void Words::setAlignment(const string& sAlign)
     } else {
         // TODO: Throw exception.
     }
-    drawString();
+
+    m_bDrawNeeded = true;
     invalidate();
 }
 
@@ -175,7 +177,7 @@ void Words::setWeight(const string& sWeight)
         // TODO: Throw exception.
     }
     m_bFontChanged = true;
-    drawString();
+    m_bDrawNeeded = true;
     invalidate();
 }
 
@@ -206,7 +208,7 @@ void Words::setStretch(const string& sStretch)
         // TODO: Throw exception.
     }
     m_bFontChanged = true;
-    drawString();
+    m_bDrawNeeded = true;
     invalidate();
 }
 
@@ -269,8 +271,6 @@ string Words::getStretch() const
     return "";
 }
 
-static ProfilingZone DrawStringProfilingZone("  Words::drawString");
-
 bool equalIgnoreCase(const string& s1, const string& s2) {
     string sUpper1;
     string sUpper2;
@@ -278,6 +278,8 @@ bool equalIgnoreCase(const string& s1, const string& s2) {
 	transform(s2.begin(), s2.end(), std::back_inserter(sUpper2), (int(*)(int)) toupper);
     return sUpper1 == sUpper2;
 }
+
+static ProfilingZone DrawStringProfilingZone("  Words::drawString");
 
 void Words::drawString()
 {
@@ -360,6 +362,7 @@ void Words::drawString()
         bitmap.num_grays = 256;
         bitmap.pixel_mode = ft_pixel_mode_grays;
 
+        // Use 1 as x-position here to make sure italic text is never cut off.
         pango_ft2_render_layout(&bitmap, layout, 1, 0);
 
         getEngine()->surfaceChanged(m_pSurface);
@@ -369,6 +372,7 @@ void Words::drawString()
         g_object_unref(layout);
     }
     setViewport(-32767, -32767, m_StringExtents.x, m_StringExtents.y);
+    m_bDrawNeeded = false;
 }
 
 static ProfilingZone RenderProfilingZone("    Words::render");
@@ -376,14 +380,16 @@ static ProfilingZone RenderProfilingZone("    Words::render");
 void Words::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
+    if (m_bDrawNeeded) {
+        drawString();
+    }
     if (m_Text.length() != 0 && getEffectiveOpacity() > 0.001) {
-//        bool bVisible = getEngine()->pushClipRect(getVisibleRect(), false);
-//        if (bVisible) {
-            getEngine()->blta8(m_pSurface, &getAbsViewport(),
-                    getEffectiveOpacity(), m_Color, getAngle(),
-                    getPivot(), getBlendMode());
-//        }
-//        getEngine()->popClipRect();
+    DRect TextPos = getAbsViewport();
+    TextPos.tl.x--;   // Compensate for italic hack in call to pango_ft2_render_layout
+    TextPos.br.x--; 
+    getEngine()->blta8(m_pSurface, &TextPos,
+            getEffectiveOpacity(), m_Color, getAngle(),
+            getPivot(), getBlendMode());
     }
 }
 
@@ -396,6 +402,9 @@ Pixel32 Words::colorStringToColor(const string & colorString)
 
 DPoint Words::getPreferredMediaSize()
 {
+    if (m_bDrawNeeded) {
+        drawString();
+    }
     return m_StringExtents;
 }
 

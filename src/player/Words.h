@@ -59,7 +59,7 @@ class Words : public RasterNode
             invalidate();
             m_FontName = sName;
             m_bFontChanged = true;
-            drawString();
+            m_bDrawNeeded = true;
             invalidate();
         }
             
@@ -73,7 +73,7 @@ class Words : public RasterNode
             if (m_Text != sText) {
                 invalidate();
                 m_Text = sText;
-                drawString();
+                m_bDrawNeeded = true;
                 invalidate();
             }
         }
@@ -88,7 +88,7 @@ class Words : public RasterNode
             invalidate();
             m_ColorName = sColor;
             m_Color = colorStringToColor(m_ColorName);
-            drawString();
+            m_bDrawNeeded = true;
             invalidate();
         }
 
@@ -102,7 +102,7 @@ class Words : public RasterNode
             invalidate();
             m_Size = Size;
             m_bFontChanged = true;
-            drawString();
+            m_bDrawNeeded = true;
             invalidate();
         }
 
@@ -115,7 +115,7 @@ class Words : public RasterNode
         {
             invalidate();
             m_ParaWidth = ParaWidth;
-            drawString();
+            m_bDrawNeeded = true;
             invalidate();
         }
         
@@ -128,7 +128,7 @@ class Words : public RasterNode
         {
             invalidate();
             m_Indent = Indent;
-            drawString();
+            m_bDrawNeeded = true;
             invalidate();
         }
 
@@ -141,7 +141,7 @@ class Words : public RasterNode
         {
             invalidate();
             m_LineSpacing = LineSpacing;
-            drawString();
+            m_bDrawNeeded = true;
             invalidate();
         }
 
@@ -157,7 +157,7 @@ class Words : public RasterNode
             invalidate();
             m_bItalic = bItalic;
             m_bFontChanged = true;
-            drawString();
+            m_bDrawNeeded = true;
             invalidate();
         }
         
@@ -174,7 +174,7 @@ class Words : public RasterNode
             invalidate();
             m_bSmallCaps = bSmallCaps;
             m_bFontChanged = true;
-            drawString();
+            m_bDrawNeeded = true;
             invalidate();
         }
         
@@ -212,6 +212,7 @@ class Words : public RasterNode
         PangoFontDescription * m_pFontDescription;
 
         bool m_bFontChanged;
+        bool m_bDrawNeeded;
         
 };
 
