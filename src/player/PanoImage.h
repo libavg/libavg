@@ -56,6 +56,7 @@ class PanoImage : public Node
         virtual bool obscures (const DRect& Rect, int Child);
         virtual std::string getTypeStr ();
 
+        double getScreenPos(int PanoPos) const;
         const std::string& getHRef () const;
         void setHRef (const std::string& href);
         double getSensorWidth () const;
@@ -91,12 +92,12 @@ class PanoImage : public Node
         SDLDisplayEngine * m_pEngine;
 
         // Derived values calculated in calcProjection
-        double m_fovy;
-        double m_aspect;
+        double m_fovy;         // Vertical field of view 
+        double m_aspect;       // Sensor aspect ratio
         double m_CylHeight;
-        double m_CylAngle;
-        double m_SliceAngle;
-        double m_MaxRotation;
+        double m_CylAngle;     // Total angle covered by panorama
+        double m_SliceAngle;   // Angle per slice
+        double m_MaxRotation;  // Maximum rotation angle (=Total angle - visible area)
 
         double m_Rotation;
 

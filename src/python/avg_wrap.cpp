@@ -203,6 +203,10 @@ BOOST_PYTHON_MODULE(avg)
             "    saturation: The saturation the image should have. (ro, deprecated)\n"
             "    rotation: The current angle the viewer is looking at in radians.\n"
             "    maxrotation: The maximum angle the viewer can look at.\n")
+        .def("getScreenPos", &PanoImage::getScreenPos,
+                "getScreenPos(panoPos) -> pos\n\n"
+                "Converts a position in panorama image pixels to pixels in coordinates\n"
+                "relative to the node, taking into account the current rotation angle.\n")
         .add_property("href", make_function(&PanoImage::getHRef, 
                 return_value_policy<copy_const_reference>()), &PanoImage::setHRef)
         .add_property("sensorwidth", &PanoImage::getSensorWidth, 

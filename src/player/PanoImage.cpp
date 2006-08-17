@@ -227,6 +227,15 @@ string PanoImage::getTypeStr ()
     return "PanoImage";
 }
 
+double PanoImage::getScreenPos(int PanoPos) const
+{
+    double AnglePerPixel = m_CylAngle*1/double(m_pBmp->getSize().x);
+    double HorizOffsetAngle = PanoPos*AnglePerPixel-m_Rotation-m_fovy*m_aspect/2;
+    double PixelDistFromCenter = m_FocalLength*tan(HorizOffsetAngle)/m_SensorWidth
+            *getRelViewport().Width();
+    return PixelDistFromCenter+getRelViewport().Width()/2;
+}
+
 const std::string& PanoImage::getHRef () const
 {
     return m_href;
