@@ -88,6 +88,7 @@ class PanoImage : public Node
         double m_SensorHeight;
         double m_FocalLength;
         BitmapPtr m_pBmp;
+        int m_TexHeight;
         std::vector<unsigned int> m_TileTextureIDs;
         SDLDisplayEngine * m_pEngine;
 

@@ -182,13 +182,13 @@ void PanoImage::render(const DRect& Rect)
         }
         double EndX = sin(EndAngle);
         double EndZ = -cos(EndAngle);
-
+        double TexPartUsed = double(m_pBmp->getSize().y)/m_TexHeight;
         glBegin(GL_QUADS);
         glTexCoord2d(0.0, 0.0);
         glVertex3d(StartX, m_CylHeight, StartZ);
-        glTexCoord2d(0.0, 1.0);
+        glTexCoord2d(0.0, TexPartUsed);
         glVertex3d(StartX, -m_CylHeight, StartZ);
-        glTexCoord2d(1.0, 1.0);
+        glTexCoord2d(1.0, TexPartUsed);
         glVertex3d(EndX, -m_CylHeight, EndZ);
         glTexCoord2d(1.0, 0.0);
         glVertex3d(EndX, m_CylHeight, EndZ);
@@ -357,7 +357,7 @@ void PanoImage::setupTextures()
     if (!m_TileTextureIDs.empty()) {
         clearTextures();
     }
-    int TexHeight = nextpow2(m_pBmp->getSize().y);
+    m_TexHeight = nextpow2(m_pBmp->getSize().y);
     int NumTextures = int(ceil(double(m_pBmp->getSize().x)/TEX_WIDTH));
     glActiveTexture(GL_TEXTURE0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
@@ -408,7 +408,7 @@ void PanoImage::setupTextures()
             DestMode = GL_RGBA;
         }
         glTexImage2D(GL_TEXTURE_2D, 0,
-                DestMode, TEX_WIDTH, TexHeight, 0,
+                DestMode, TEX_WIDTH, m_TexHeight, 0,
                 GL_RGBA, GL_UNSIGNED_BYTE, 0);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
                 "PanoImage::setupTextures: glTexImage2D()");
