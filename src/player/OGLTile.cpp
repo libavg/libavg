@@ -202,7 +202,7 @@ void OGLTile::downloadTexture(int i, BitmapPtr pBmp, int stride,
     unsigned char * pStartPos = (unsigned char *)
             (Extent.tl.y*stride*bpp + Extent.tl.x*bpp);
     if (MemoryMode == OGL) {
-        pStartPos += (unsigned int)(pBmp->getPixels());
+        pStartPos += (unsigned long)(pBmp->getPixels());
     }
     {
         ScopeTimer Timer(TexSubImageProfilingZone);
