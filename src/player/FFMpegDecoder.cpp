@@ -229,11 +229,12 @@ void FFMpegDecoder::seek(int DestFrame, int CurFrame)
 int FFMpegDecoder::getNumFrames()
 {
     // This is broken for some videos, but the code here is correct.
-    // So fix the videos or ffmpeg :-).
+    // So fix ffmpeg :-).
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     return m_pVStream->r_frame_rate*(m_pVStream->duration/AV_TIME_BASE);
 #else
-    return (m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den)*(m_pVStream->duration/AV_TIME_BASE);
+    return (m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den)*
+            (m_pVStream->duration/AV_TIME_BASE);
 #endif 
 }
 
@@ -365,8 +366,7 @@ void FFMpegDecoder::initVideoSupport()
     if (!m_bInitialized) {
         av_register_all();
         m_bInitialized = true;
-        // Avoid libavcodec console spam - turn this up again when libavcodec
-        // doesn't spam anymore :-).
+        // Tune libavcodec console spam.
         av_log_set_level(AV_LOG_DEBUG);
 //        av_log_set_level(AV_LOG_QUIET);
     }
@@ -432,19 +432,17 @@ static ProfilingZone VideoPacketProfilingZone("        FFMpeg: read packets");
 
 bool FFMpegDecoder::getNextVideoPacket(AVPacket & Packet) {
     ScopeTimer Timer(VideoPacketProfilingZone);
-    AVPacket CurPacket;
-    int err = av_read_frame(m_pFormatContext, &CurPacket);
+    int err = av_read_frame(m_pFormatContext, &Packet);
     if (err < 0) {
         return true;
     }
-    while (CurPacket.stream_index != m_VStreamIndex) {
-        av_free_packet(&CurPacket);
-        int err = av_read_frame(m_pFormatContext, &CurPacket);
+    while (Packet.stream_index != m_VStreamIndex) {
+        av_free_packet(&Packet);
+        int err = av_read_frame(m_pFormatContext, &Packet);
         if (err < 0) {
             return true;
         }
     }   
-    Packet = CurPacket;
 /*    if (Packet.pts != AV_NOPTS_VALUE) {
         cerr << "Packet.pts: " << 
             double(Packet.pts)*m_pFormatContext->pts_num/m_pFormatContext->pts_den << endl;
