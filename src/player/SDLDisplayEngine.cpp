@@ -61,7 +61,7 @@
 #include <OpenGL/OpenGL.h>
 #endif
 
-#ifndef linux
+#ifdef linux
 #include <sys/ioctl.h>
 #include <sys/fcntl.h>
 #endif
