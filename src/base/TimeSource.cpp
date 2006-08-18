@@ -47,56 +47,6 @@
 using namespace std;
 
 namespace avg {
-#ifdef _WIN32
-static int gettimeofday(struct timeval *time_Info, struct timezone *timezone_Info)
-{
-  // remarks: a DWORD is an unsigned long
-  static DWORD time_t0, time_delta, mm_t0;
-  static int t_initialized = 0;
-  DWORD mm_t, delta_t;
-
-  if( !t_initialized )
-  {
-    time_t0 = time(NULL);
-    time_delta = 0;
-    mm_t0 = timeGetTime();
-    t_initialized = 1;
-  }
-  /* Get the time, if they want it */
-  if (time_Info != NULL) 
-  {
-    // timeGetTime() returns the system time in milliseconds
-    mm_t = timeGetTime();
-  
-    // handle wrap around of system time (happens every 
-    // 2^32 milliseconds = 49.71 days)
-    if( mm_t < mm_t0 )
-      delta_t = (0xffffffff - mm_t0) + mm_t + 1; 
-    else
-      delta_t = mm_t - mm_t0;
-    mm_t0 = mm_t;
-
-    time_delta += delta_t;
-    if( time_delta >= 1000 )
-    {
-      time_t0 += time_delta / 1000;
-      time_delta = time_delta % 1000;
-    }
-    time_Info->tv_sec = time_t0;
-    time_Info->tv_usec = time_delta * 1000;
-  }
-  /* Get the timezone, if they want it */
-/*
-  if (timezone_Info != NULL) {
-    _tzset();
-    timezone_Info->tz_minuteswest = _timezone;
-    timezone_Info->tz_dsttime = _daylight;
-  }
-  */
-  /* And return */
-  return 0;
-}
-#endif
 
 TimeSource* TimeSource::m_pTimeSource = 0;
 
@@ -118,21 +68,27 @@ TimeSource::~TimeSource()
 
 long long TimeSource::getCurrentMillisecs()
 {
-    struct timeval now;
     long long ticks;
-
+#ifdef _WIN32
+    ticks = timeGetTime();
+#else
+    struct timeval now;
     gettimeofday(&now, NULL);
     ticks=((long long)now.tv_sec)*1000+now.tv_usec/1000;
-    return(ticks);
+#endif
+    return ticks;
 }
 
 long long TimeSource::getCurrentMicrosecs()
 {
     struct timeval now;
     long long ticks;
-
+#ifdef _WIN32
+    ticks = timeGetTime()*1000;
+#else
     gettimeofday(&now, NULL);
     ticks=((long long)now.tv_sec)*1000000+now.tv_usec;
+#endif    
     return(ticks);
 }
 
@@ -141,25 +97,26 @@ void TimeSource::sleepUntil(long long TargetTime)
     long long now = getCurrentMillisecs();
 #ifdef __APPLE__
     if (TargetTime > now) { 
-        usleep((TargetTime-now)*1000);
+        msleep(TargetTime-now);
     }
 #else
     while (now<TargetTime) {
         if (TargetTime-now<=2) {
-#if _WIN32
-            Sleep(0);
-#else
-            usleep(0);
-#endif
+            msleep(0);
          } else {
-#if _WIN32
-            Sleep(TargetTime-now-2);
-#else
-            usleep((TargetTime-now-2)*1000);
-#endif
+            msleep(TargetTime-now-2);
         }
         now = getCurrentMillisecs();
     }
+#endif
+}
+    
+void TimeSource::msleep(int millisecs)
+{
+#if _WIN32
+            Sleep(millisecs);
+#else
+            usleep((long long)(millisecs)*1000);
 #endif
 }
 

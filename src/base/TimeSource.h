@@ -44,10 +44,11 @@ public:
     static TimeSource* get();
     virtual ~TimeSource();
    
-    long long getCurrentMillisecs();     // For millisecond accuracy.
+    long long getCurrentMillisecs();
     long long getCurrentMicrosecs();
     
     void sleepUntil(long long ticks);
+    void msleep(int millisecs);
 
 private:    
     TimeSource();
