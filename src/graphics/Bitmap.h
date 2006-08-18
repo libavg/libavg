@@ -25,7 +25,7 @@
 #include "Point.h"
 #include "Rect.h"
 
-#include <../base/CountedPointer.h>
+#include "../base/CountedPointer.h"
 #include <string>
 
 namespace avg {

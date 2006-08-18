@@ -28,12 +28,6 @@
 #include "../graphics/Bitmap.h"
 #include "../base/CountedPointer.h"
 
-#include "GL/gl.h"
-#ifndef __APPLE__
-#define GLX_GLXEXT_PROTOTYPES
-#include "GL/glx.h"
-#endif
-
 namespace avg {
 
 class OGLTile {

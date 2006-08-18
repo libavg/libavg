@@ -47,24 +47,24 @@
 
 #ifdef __APPLE__
 #include <ApplicationServices/ApplicationServices.h>
-#else
+#endif
+#ifdef linux
 #include <X11/Xlib.h>
 #include <X11/extensions/xf86vmode.h>
 #endif
 
-#define XMD_H 1
-#include "GL/gl.h"
-#include "GL/glu.h"
+//#define XMD_H 1
+#include "OGLHelper.h"
+
 
 #ifdef __APPLE__
 #include <OpenGL/OpenGL.h>
-#else
-#define GLX_GLXEXT_PROTOTYPES
-#include "GL/glx.h"
 #endif
 
+#ifndef linux
 #include <sys/ioctl.h>
 #include <sys/fcntl.h>
+#endif
 
 #include <signal.h>
 #include <iostream>
@@ -756,7 +756,7 @@ void SDLDisplayEngine::calcRefreshRate() {
         AVG_TRACE(Logger::WARNING, 
                 "Apple refresh rate calculation (CGDisplayCurrentMode) failed");
     }
-#else 
+#elif defined linux 
     Display * display = XOpenDisplay(0);
     int PixelClock;
     XF86VidModeModeLine mode_line;

@@ -21,18 +21,21 @@
 
 #include "OGLHelper.h"
 
+#ifdef __APPLE__
+#include "AppleGLHelper.h"
+#endif
+
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 
-#include "GL/gl.h"
-#include "GL/glu.h"
-#ifdef __APPLE__
-#include "AppleGLHelper.h"
-#else
-#define GLX_GLXEXT_PROTOTYPES
-#include "GL/glx.h"
-#include <X11/Xlib.h>
+/* Where is a good place for this?
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#undef ERROR
+#undef WARNING
 #endif
+*/
 
 #include <iostream>
 #include <sstream>
@@ -60,6 +63,8 @@ namespace glproc {
     PFNGLUSEPROGRAMOBJECTARBPROC UseProgramObject;
     PFNGLGETUNIFORMLOCATIONARBPROC GetUniformLocation;
     PFNGLUNIFORM1IARBPROC Uniform1i;
+    PFNGLBLENDEQUATIONPROC BlendEquation;
+    PFNGLACTIVETEXTUREPROC ActiveTexture;
 }    
 
 void OGLErrorCheck(int avgcode, string where) {
@@ -106,7 +111,7 @@ bool queryOGLExtension(char *extName)
 }
 
 bool queryGLXExtension(char *extName) {
-#ifdef __APPLE__
+#if (defined __APPLE__) || (defined _WIN32)
     return false;
 #else
     int extNameLen = strlen(extName);
@@ -147,6 +152,13 @@ GLfunction getFuzzyProcAddress(const char * psz)
         string s = string(psz)+"ARB";
         pProc = (GLfunction)aglGetProcAddress(s.c_str());
     }
+#else 
+#ifdef _WIN32
+    GLfunction pProc = (GLfunction) wglGetProcAddress((const char*)psz);
+    if (!pProc) {
+        string s = string(psz)+"ARB";
+        pProc = (GLfunction) wglGetProcAddress((const char*)(s.c_str()));
+    }
 #else
     GLfunction pProc = glXGetProcAddressARB((const GLubyte*)psz);
     if (!pProc) {
@@ -154,9 +166,12 @@ GLfunction getFuzzyProcAddress(const char * psz)
         pProc = glXGetProcAddressARB((const GLubyte*)(s.c_str()));
     }
 #endif
+#endif
     if (!pProc) {
         pProc = invalidGLCall;
 //        AVG_TRACE(Logger::WARNING, "Couldn't initialize pointer to " << psz);
+    } else {
+//        AVG_TRACE(Logger::WARNING, "Pointer to " << psz << " initialized.");
     }
     return pProc;
 }
@@ -197,6 +212,8 @@ namespace glproc {
         GetUniformLocation = (PFNGLGETUNIFORMLOCATIONARBPROC)
                 getFuzzyProcAddress("glGetUniformLocation");
         Uniform1i = (PFNGLUNIFORM1IARBPROC)getFuzzyProcAddress("glUniform1i");
+        BlendEquation = (PFNGLBLENDEQUATIONPROC)getFuzzyProcAddress("glBlendEquation");
+        ActiveTexture = (PFNGLACTIVETEXTUREPROC)getFuzzyProcAddress("glActiveTexture");
     }
 }
 

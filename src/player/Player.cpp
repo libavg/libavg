@@ -62,6 +62,11 @@
 
 #include <libxml/xmlmemory.h>
 
+#ifdef _WIN32
+#include <direct.h>
+#define getcwd _getcwd
+#endif
+
 #include <algorithm>
 #include <iostream>
 #include <sstream>

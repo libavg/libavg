@@ -22,7 +22,6 @@
 #include "../avgconfig.h"
 #include "../parport/ParPort.h"
 #include "../conradrelais/ConradRelais.h"
-
 #include <boost/python.hpp>
 #ifdef AVG_ENABLE_PARPORT
 #include <linux/parport.h>

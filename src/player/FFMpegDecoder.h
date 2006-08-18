@@ -24,6 +24,9 @@
 
 #include "IVideoDecoder.h"
 
+#ifdef _WIN32
+#define EMULATE_INTTYPES
+#endif
 #include <ffmpeg/avformat.h>
 
 namespace avg {

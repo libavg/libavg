@@ -20,14 +20,13 @@
 //
 
 #include "OGLSurface.h"
+#include "OGLHelper.h"
 #include "Player.h"
 #include "MathHelper.h"
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 #include "../graphics/Point.h"
-
-#include "GL/glu.h"
 
 #include <iostream>
 #include <sstream>
@@ -529,22 +528,22 @@ void OGLSurface::bltTexture(const DRect* pDestRect,
 
     switch(Mode) {
         case DisplayEngine::BLEND_BLEND:
-            glBlendEquation(GL_FUNC_ADD);
+            glproc::BlendEquation(GL_FUNC_ADD);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             checkBlendModeError("blend");
             break;
         case DisplayEngine::BLEND_ADD:
-            glBlendEquation(GL_FUNC_ADD);
+            glproc::BlendEquation(GL_FUNC_ADD);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE);
             checkBlendModeError("add");
             break;
         case DisplayEngine::BLEND_MIN:
-            glBlendEquation(GL_MIN);
+            glproc::BlendEquation(GL_MIN);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             checkBlendModeError("min");
             break;
         case DisplayEngine::BLEND_MAX:
-            glBlendEquation(GL_MAX);
+            glproc::BlendEquation(GL_MAX);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             checkBlendModeError("max");
             break;

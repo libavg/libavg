@@ -30,12 +30,6 @@
 #include "SDLDisplayEngine.h"
 #include "../graphics/Rect.h"
 
-#include "GL/gl.h"
-#ifndef __APPLE__
-#define GLX_GLXEXT_PROTOTYPES
-#include "GL/glx.h"
-#endif
-
 #include <vector>
 #include <string>
 

@@ -93,18 +93,18 @@ void OGLTile::blt(const DPoint& TLPoint, const DPoint& TRPoint,
         GLhandleARB hProgram = m_pEngine->getYCbCr420pShader()->getProgram();
         glproc::UseProgramObject(hProgram);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::blt: glUseProgramObject()");
-        glActiveTexture(GL_TEXTURE0);
+        glproc::ActiveTexture(GL_TEXTURE0);
         glBindTexture(TextureMode, m_TexID[0]);
         glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "YTexture"), 0);
-        glActiveTexture(GL_TEXTURE1);
+        glproc::ActiveTexture(GL_TEXTURE1);
         glBindTexture(TextureMode, m_TexID[1]);
         glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "CbTexture"), 1);
-        glActiveTexture(GL_TEXTURE2);
+        glproc::ActiveTexture(GL_TEXTURE2);
         glBindTexture(TextureMode, m_TexID[2]);
         glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "CrTexture"), 2);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::blt: glUniform1i()");
     } else {
-        glActiveTexture(GL_TEXTURE0);
+        glproc::ActiveTexture(GL_TEXTURE0);
         glBindTexture(TextureMode, m_TexID[0]);
         if (m_pEngine->getYCbCrMode() == SDLDisplayEngine::OGL_SHADER) {
             glproc::UseProgramObject(0);
@@ -122,11 +122,11 @@ void OGLTile::blt(const DPoint& TLPoint, const DPoint& TRPoint,
     glEnd();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::blt: glEnd()");
     if (m_pf == YCbCr420p) {
-        glActiveTexture(GL_TEXTURE1);
+        glproc::ActiveTexture(GL_TEXTURE1);
         glDisable(TextureMode);
-        glActiveTexture(GL_TEXTURE2);
+        glproc::ActiveTexture(GL_TEXTURE2);
         glDisable(TextureMode);
-        glActiveTexture(GL_TEXTURE0);
+        glproc::ActiveTexture(GL_TEXTURE0);
         glproc::UseProgramObject(0);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::blt: glDisable(TextureMode)");
     }
@@ -136,7 +136,7 @@ void OGLTile::createTexture(int i, IntPoint Size, int Stride, PixelFormat pf)
 {
     glGenTextures(1, &m_TexID[i]);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::createTexture: glGenTextures()");
-    glActiveTexture(GL_TEXTURE0+i);
+    glproc::ActiveTexture(GL_TEXTURE0+i);
     int TextureMode = m_pEngine->getTextureMode();
     glBindTexture(TextureMode, m_TexID[i]);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::createTexture: glBindTexture()");

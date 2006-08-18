@@ -22,8 +22,18 @@
 #ifndef _OGLHelper_H_
 #define _OGLHelper_H_
 
+#ifdef _WIN32
+#define APIENTRY __stdcall
+#define CALLBACK __stdcall
+#define WINGDIAPI __declspec(dllimport)
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include "GL/glext.h"
+#else
 #include "GL/gl.h"
-#ifndef __APPLE__
+#include "GL/glu.h"
+#endif
+#ifdef linux
 #define GLX_GLXEXT_PROTOTYPES
 #include "GL/glx.h"
 #endif
@@ -64,6 +74,8 @@ namespace glproc {
     extern PFNGLUSEPROGRAMOBJECTARBPROC UseProgramObject;
     extern PFNGLGETUNIFORMLOCATIONARBPROC GetUniformLocation;
     extern PFNGLUNIFORM1IARBPROC Uniform1i;
+    extern PFNGLBLENDEQUATIONPROC BlendEquation;
+    extern PFNGLACTIVETEXTUREPROC ActiveTexture;
 
     void init();
 }
