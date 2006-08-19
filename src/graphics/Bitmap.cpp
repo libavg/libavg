@@ -503,9 +503,8 @@ int Bitmap::getNumDifferentPixels(const Bitmap & otherBmp)
 {
     // We allow Name, Stride and bOwnsBits to be different here, since we're looking for
     // equal value only.
-    if (m_Size != otherBmp.m_Size || m_PF != otherBmp.m_PF)
-    {
-        return false;
+    if (m_Size != otherBmp.m_Size || m_PF != otherBmp.m_PF) {
+        return m_Size.x*m_Size.y;
     }
 
     BitmapPtr pTempBmp(new Bitmap(*this));
