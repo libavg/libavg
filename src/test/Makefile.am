@@ -4,7 +4,7 @@ rgba-48x48.mov \
 camera.avg events.avg panoimage.avg videoperformance.avg crop.avg parport.avg \
 testserial.avg crop2.avg hugeimage.avg text.avg image.avg \
 avg.avg noavg.avg noavg2.avg video.avg blend.avg errevent.avg noxml.avg videofmt.avg \
-test.m2v test.m1v invalidfilename.avg \
+mpeg1-48x48.mpg h264-48x48.h264 invalidfilename.avg \
 videoperformance.py Test.py TestPar.py parport.py
 
 TESTS=Test.py

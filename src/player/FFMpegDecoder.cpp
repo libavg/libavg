@@ -367,7 +367,7 @@ void FFMpegDecoder::initVideoSupport()
         av_register_all();
         m_bInitialized = true;
         // Tune libavcodec console spam.
-        av_log_set_level(AV_LOG_DEBUG);
+//        av_log_set_level(AV_LOG_DEBUG);
 //        av_log_set_level(AV_LOG_QUIET);
     }
 }

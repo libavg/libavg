@@ -385,7 +385,7 @@ class PlayerTestCase(AVGTestCase):
             pass
         def newHRef():
             node = Player.getElementByID("clogo2")
-            node.href = "test.m2v"
+            node.href = "h264-48x48.h264"
             node.play()
         def move():
             node = Player.getElementByID("clogo2")
@@ -455,7 +455,7 @@ class PlayerTestCase(AVGTestCase):
 #        self.rootNode.addChild(node)
 ##        nodeCopy = node
 ##        self.rootNode.addChild(nodeCopy)
-#        node = Player.createNode("<video href='test.m1v'/>")
+#        node = Player.createNode("<video href='mpeg1-48x48.mpg'/>")
 #        self.rootNode.addChild(node)
 #        node = Player.createNode("<words text='Lorem ipsum dolor'/>")
 #        self.rootNode.addChild(node)
