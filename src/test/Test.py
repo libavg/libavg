@@ -231,6 +231,7 @@ class PlayerTestCase(AVGTestCase):
             node.href = "rgb24-65x65.png"
         self.start("panoimage.avg",
                 (lambda: self.compareImage("testPanoImage", False),
+                 lambda: time.sleep,
                  changeProperties,
                  loadImage,
                  Player.stop))
