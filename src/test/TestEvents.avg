@@ -3,35 +3,25 @@
 
 <avg id="main" width="1280" height="1024">
  
-   <image id="backgrd" x="0" y="0" z="0" href="rgb24.png"/>
-<!--
-   <image id="WB_logo" x="20" y="10" z="0" href="../media/WB_logo.png" />
-   <image id="Marplon_logo" x="920" y="10" z="0" href="../media/Marplon_logo.png"  />
-   <image id="Titelschrift" x="200" y="10" z="0" href="../media/PB_title.png" />
--->
-<!-- Bilder : xwdth = 360, yhght = 340 , spaeter Postkartenformat, x = 1.5 * y -->
-   <image id="muster1" x="40"  y="180" z="1" onmouseover="onMouseOver" 
+   <image id="backgrd" x="0" y="0" href="rgb24-64x64.png"/>
+   <image id="muster1" x="40"  y="180" onmouseover="onMouseOver" 
         onmouseout="onMouseOut" onmousedown="onMouseDown" onmouseup="onMouseUp"
-        href="rgb24.png" />
-   <image id="muster2" x="400" y="180" z="1" onmouseover="onMouseOver" 
+        href="rgb24-64x64.png" />
+   <image id="muster2" x="400" y="180" onmouseover="onMouseOver" 
         onmouseout="onMouseOut" onmousedown="onMouseDown" onmouseup="onMouseUp"
-        href="rgb24.png" />
-   <image id="muster3" x="760" y="180" z="1" onmouseover="onMouseOver" 
+        href="rgb24-64x64.png" />
+   <image id="muster3" x="760" y="180" onmouseover="onMouseOver" 
         onmouseout="onMouseOut" onmousedown="onMouseDown" onmouseup="onMouseUp"
-        href="rgb24.png" />
-   <image id="muster4" x="40"  y="520" z="1" onmouseover="onMouseOver" 
+        href="rgb24-64x64.png" />
+   <image id="muster4" x="40"  y="520" onmouseover="onMouseOver" 
         onmouseout="onMouseOut" onmousedown="onMouseDown" onmouseup="onMouseUp"
-        href="rgb24.png" />
-   <image id="muster5" x="400" y="520" z="1" onmouseover="onMouseOver" 
+        href="rgb24-64x64.png" />
+   <image id="muster5" x="400" y="520" onmouseover="onMouseOver" 
         onmouseout="onMouseOut" onmousedown="onMouseDown" onmouseup="onMouseUp"
-        href="rgb24.png" />
-   <image id="muster6" x="760" y="520" z="1" onmouseover="onMouseOver" 
+        href="rgb24-64x64.png" />
+   <image id="muster6" x="760" y="520" onmouseover="onMouseOver" 
         onmouseout="onMouseOut" onmousedown="onMouseDown" onmouseup="onMouseUp"
-        href="rgb24.png" /> 
-   <image id="selected" x="400" y="300" z="2" opacity="0" href="rgb24.png" />
-   <image id="snapshot" x="40" y="300" z="2" opacity="0" href="rgb24.png" />
-<!--   
-   <camera id="camera" x="520" y="220" z="2" width="640" height="480" opacity="1"
-           device="/dev/video1394/0" mode="640x480_RGB" framerate="15" />
--->           
+        href="rgb24-64x64.png" /> 
+   <image id="selected" x="400" y="300" opacity="0" href="rgb24-64x64.png" />
+   <image id="snapshot" x="40" y="300" opacity="0" href="rgb24-64x64.png" />
 </avg>

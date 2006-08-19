@@ -6,7 +6,7 @@
        width="80" height="60">
     <div id="nestedavg2" x="0" y="0" opacity="1">
       <div id="nestedavg3" x="0" y="0" opacity="1">
-        <image id="img" x="10" y="10" width="40" height="40" href="rgb24.png"/>
+        <image id="img" x="10" y="10" width="40" height="40" href="rgb24-64x64.png"/>
       </div>
     </div>
   </div>

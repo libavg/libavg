@@ -228,7 +228,7 @@ class PlayerTestCase(AVGTestCase):
             node.focallength=25
         def loadImage():
             node = Player.getElementByID("pano")
-            node.href = "rgb24.png"
+            node.href = "rgb24-65x65.png"
         self.start("panoimage.avg",
                 (lambda: self.compareImage("testPanoImage", False),
                  changeProperties,
@@ -443,7 +443,7 @@ class PlayerTestCase(AVGTestCase):
         Player.play()
         
 #    def createNodes(self):
-#        node=Player.createNode("<image href='rgb24.png'/>")
+#        node=Player.createNode("<image href='rgb24-64x64.png'/>")
 #        node.x = 10
 #        node.y = 20
 #        node.z = 2
@@ -461,7 +461,7 @@ class PlayerTestCase(AVGTestCase):
 #        node.size = 18
 #        node.font = "times new roman"
 #        node.parawidth = 200
-#        node = Player.createNode("<div><image href='rgb24.png'/></div>")
+#        node = Player.createNode("<div><image href='rgb24-64x64.png'/></div>")
 #        node.getChild(0).x=10
 #        node.x=10
 #        self.rootNode.addChild(node)

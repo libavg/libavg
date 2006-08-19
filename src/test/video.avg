@@ -4,7 +4,7 @@
   <image id="testtiles" x="0" y="0" opacity="1" href="rgb24-64x64.png"
       maxtilewidth="40" maxtileheight="40"/>
   <video id="clogo" x="0" y="0" opacity="1" loop="true"
-      href="gehirnscan.mov"/>
+      href="rgba-48x48.mov"/>
   <video id="clogo1" x="40" y="0"  width="80" height="80" opacity="0.5" loop="true"
       href="test.m1v"/>
   <video id="clogo2" x="80" y="0" width="80" height="80" loop="true"

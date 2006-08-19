@@ -2,7 +2,7 @@
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 <avg width="1024" height="768">
 <!--  <image x="100" y="100" z="0"
-      href="rgb24.png"/>-->
+      href="rgb24-64x64.png"/>-->
   <video id="mpeg1" x="100" y="60" z="1"  opacity="0.8"  blendmode="blend"
       href="enterprise/enterprise - 1 - 03 - fight_or_flight.vcd.gamblor-wow.mpg"/> 
   <video id="mpeg2" x="100" y="180" z="1"  opacity="0.8" blendmode="blend"

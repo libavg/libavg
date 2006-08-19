@@ -15,8 +15,8 @@ class BigVideoTestCase(unittest.TestCase):
         self.__curFrame = 200 
         Player.loadFile("videofmt.avg")
         Player.getElementByID("video").play()
-        Player.setFramerate(100)
-        Player.setInterval(10, onFrame)
+        Player.setFramerate(10)
+#        Player.setInterval(10, onFrame)
         Player.play()
 
 Player = avg.Player()
