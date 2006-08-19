@@ -63,14 +63,10 @@ buildpango()
 buildffmpeg()
 {
     cd ffmpeg
-#    patch -p0 < ../../libavg/macpatches/ffmpeg-svn-mactel.patch
     ./configure --prefix=${AVG_PATH} --disable-shared --disable-debug --disable-encoders
     make clean
     make -j3
     make install
-    ranlib ../../lib/libavformat.a
-    ranlib ../../lib/libavcodec.a
-    ranlib ../../lib/libavutil.a
     cd ..    
 }
 
