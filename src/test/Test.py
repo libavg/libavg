@@ -398,7 +398,6 @@ class PlayerTestCase(AVGTestCase):
                 (lambda: self.compareImage("testVideo1", False),
                  lambda: Player.getElementByID("clogo2").play(),
                  seek,
-#                 foo,
                  lambda: self.compareImage("testVideo2", False),
                  lambda: Player.getElementByID("clogo2").pause(),
                  lambda: self.compareImage("testVideo3", False),
