@@ -152,7 +152,6 @@ DTDExternalEntityLoader(const char *URL, const char *ID,
                                xmlParserCtxtPtr ctxt) 
 {
     xmlParserInputPtr ret;
-    const char *fileID = NULL;
     /* lookup for the fileID depending on ID */
     if (!strcmp(URL, "avg.dtd")) {
         ret = xmlNewStringInputStream(ctxt, (const xmlChar *)(g_sDTD.c_str()));

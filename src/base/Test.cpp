@@ -28,9 +28,9 @@ using namespace std;
 namespace avg {
 
 Test::Test(const string & sName, int IndentLevel)
-    : m_NumSucceeded(0),
+    : m_IndentLevel(IndentLevel),
+      m_NumSucceeded(0),
       m_NumFailed(0),
-      m_IndentLevel(IndentLevel),
       m_sName(sName)
 {
 }

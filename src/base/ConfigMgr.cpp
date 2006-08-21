@@ -83,14 +83,12 @@ ConfigMgr::ConfigMgr()
             "green and blue.");
 
     m_sFName = "avgrc";
-    bool bOk1 = loadFile("/etc/"+m_sFName);
+    loadFile("/etc/"+m_sFName);
     char * pHome = getenv("HOME");
-    bool bOk2;
     if (!pHome) {
         AVG_TRACE(Logger::WARNING, "No home directory set.");
-        bOk2 = false;
     } else {
-        bOk2 = loadFile(string(pHome)+"/."+m_sFName);
+        loadFile(string(pHome)+"/."+m_sFName);
     }
 }
 
