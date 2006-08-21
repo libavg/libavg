@@ -145,16 +145,6 @@ BitmapPtr OGLSurface::lockBmp(int i)
                         Size.x*Bitmap::getBytesPerPixel(pf), false));
             }
             break;
-/*
-#ifndef __APPLE__
-        case MESA:
-            {
-                int stride = m_Size.x*Bitmap::getBytesPerPixel(m_pf);
-                m_pBmp = BitmapPtr(new Bitmap(m_Size, m_pf, 
-                        (unsigned char *)m_pMESABuffer, stride, false));
-            }
-#endif
-*/
         default:
             break;
     }
@@ -462,23 +452,6 @@ void OGLSurface::createBitmap(const IntPoint& Size, PixelFormat pf, int i)
                     "OGLSurface::createBitmap: glBindBuffer(0)");
             m_pBmps[i] = BitmapPtr();
             break;
-/*            
-#ifndef __APPLE__
-        case MESA:
-            {
-                Display * display = XOpenDisplay(0);
-                int stride = m_Size.x*Bitmap::getBytesPerPixel(m_pf);
-                m_pMESABuffer = s_AllocMemMESA(display, DefaultScreen(display),
-                        stride*(Size.y+1), 0, 1.0 ,0);
-                if (!m_pMESABuffer) {
-                    AVG_TRACE(Logger::WARNING, "Failed to allocate MESA memory");
-                    m_MemoryMode = OGL;
-                }
-                m_pBmps[index] = BitmapPtr();
-            }
-            break;
-#endif
-*/
         default:
             break;
     }

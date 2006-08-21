@@ -129,10 +129,8 @@ void DisplayEngine::frameWait()
     m_TargetTime = m_LastFrameTime+(long long)(1000/m_Framerate);
     if (m_VBRate != 0) {
         m_bFrameLate = !vbWait(m_VBRate);
-        if (m_bFrameLate) {
-            m_FramesTooLate++;
-        }
     } else {
+        m_bFrameLate = false;
         if (m_FrameWaitStartTime <= m_TargetTime) {
             long long WaitTime = m_TargetTime-m_FrameWaitStartTime;
             if (WaitTime > 200) {
@@ -147,16 +145,18 @@ void DisplayEngine::frameWait()
 void DisplayEngine::checkJitter()
 {
     m_LastFrameTime = TimeSource::get()->getCurrentMillisecs();
+    int maxDelay;
     if (m_VBRate == 0) {
-        if (m_LastFrameTime - m_TargetTime > 2) {
-            AVG_TRACE (Logger::PROFILE_LATEFRAMES, 
-                    "DisplayEngine: frame too late by " 
-                    << m_LastFrameTime - m_TargetTime << " ms.");
-            m_bFrameLate = true;
-            m_FramesTooLate++;
-        } else {
-            m_bFrameLate = false;
-        }
+        maxDelay = 2;
+    } else {
+        maxDelay = 6;
+    }
+    if (m_LastFrameTime - m_TargetTime > maxDelay || m_bFrameLate) {
+        AVG_TRACE (Logger::PROFILE_LATEFRAMES, 
+                "DisplayEngine: frame too late by " 
+                << m_LastFrameTime - m_TargetTime << " ms.");
+        m_bFrameLate = true;
+        m_FramesTooLate++;
     }
     m_TimeSpentWaiting += m_LastFrameTime-m_FrameWaitStartTime;
 }

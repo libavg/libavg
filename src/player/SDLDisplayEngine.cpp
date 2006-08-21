@@ -745,7 +745,8 @@ void SDLDisplayEngine::calcRefreshRate() {
         if (value) {
             CFNumberGetValue(value, kCFNumberIntType, &s_RefreshRate);
             if (s_RefreshRate < 1.0) {
-                AVG_TRACE(Logger::CONFIG, "This seems to be a TFT screen.");
+                AVG_TRACE(Logger::CONFIG, 
+                        "This seems to be a TFT screen, assuming 60 Hz refresh rate.");
                 s_RefreshRate = 60;
             }
         } else {
@@ -1322,18 +1323,6 @@ OGLMemoryMode SDLDisplayEngine::getMemoryModeSupported()
         {
             m_MemoryMode = PBO;
             AVG_TRACE(Logger::CONFIG, "Using pixel buffer objects.");
-/*
-#ifndef __APPLE__
-        } else if (queryGLXExtension("GLX_MESA_allocate_memory")) {
-            // Disabled because it's buggy.
-            s_MemoryMode = MESA;
-            s_AllocMemMESAProc = (PFNGLXALLOCATEMEMORYMESAPROC)
-                    glXGetProcAddressARB((const GLubyte*)"glXAllocateMemoryMESA");
-            s_FreeMemMESAProc = (PFNGLXFREEMEMORYMESAPROC)
-                    glXGetProcAddressARB((const GLubyte*)"glXFreeMemoryMESA");
-            AVG_TRACE(Logger::CONFIG, "Using MESA extension to allocate AGP memory.");
-#endif
-*/
         } else {
             m_MemoryMode = OGL;
             AVG_TRACE(Logger::CONFIG, "Not using GL memory extensions.");
