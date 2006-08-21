@@ -38,16 +38,17 @@ class ISurface;
 class Words : public RasterNode
 {
 	public:
-        Words ();
-        Words (const xmlNodePtr xmlNode, DivNode * pParent);
-        virtual ~Words ();
+        Words();
+        Words(const xmlNodePtr xmlNode, DivNode * pParent);
+        virtual ~Words();
         
         virtual void initText(const std::string& sText);
         virtual void init (DisplayEngine * pEngine, DivNode * pParent,
                 Player * pPlayer);
         virtual void initVisible();
-        virtual void render (const DRect& Rect);
-        virtual std::string getTypeStr ();
+        virtual void prepareRender(int time, const DRect& parent);
+        virtual void render(const DRect& Rect);
+        virtual std::string getTypeStr();
 
         const std::string& getFont() const
         {

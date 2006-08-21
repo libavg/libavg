@@ -295,9 +295,12 @@ void Player::play()
         m_pDisplayEngine->initRender();
         m_bStopping = false;
 
-        m_pDisplayEngine->render(m_pRootNode, true);
-        
         Profiler::get().start();
+        m_pDisplayEngine->render(m_pRootNode, true);
+        if (m_pDisplayEngine->wasFrameLate()) {
+            Profiler::get().dumpFrame();
+        }
+        
         try {
             while (!m_bStopping) {
                 doFrame();

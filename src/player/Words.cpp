@@ -375,14 +375,19 @@ void Words::drawString()
     m_bDrawNeeded = false;
 }
 
+void Words::prepareRender(int time, const DRect& parent)
+{
+    if (m_bDrawNeeded) {
+        drawString();
+    }
+    Node::prepareRender(time, parent);
+}
+
 static ProfilingZone RenderProfilingZone("    Words::render");
 
 void Words::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    if (m_bDrawNeeded) {
-        drawString();
-    }
     if (m_Text.length() != 0 && getEffectiveOpacity() > 0.001) {
     DRect TextPos = getAbsViewport();
     TextPos.tl.x--;   // Compensate for italic hack in call to pango_ft2_render_layout
