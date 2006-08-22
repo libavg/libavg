@@ -233,12 +233,13 @@ void Player::loadFile (const std::string& filename)
                     "DTD not found at " << sDTDFName << ". Not validating xml files.");
         }
 
-        // Construct path.
+        // When loading an avg file, assets are loaded from a directory relative
+        // to the file.
+        char szBuf[1024];
         string RealFilename;
         if (filename[0] == '/') {
             RealFilename = filename; 
         } else {
-            char szBuf[1024];
             getcwd(szBuf, 1024);
             m_CurDirName = string(szBuf)+"/";
             RealFilename = m_CurDirName+filename;
@@ -270,6 +271,10 @@ void Player::loadFile (const std::string& filename)
         initDisplay(xmlDocGetRootElement(doc));
         initNode(m_pRootNode, 0);
         DRect rc = m_pRootNode->getRelViewport();
+        
+        // Reset the directory to load assets from to the current dir.
+        getcwd(szBuf, 1024);
+        m_CurDirName = string(szBuf)+"/";
 
         xmlFreeDoc(doc);
     } catch (Exception& ex) {
