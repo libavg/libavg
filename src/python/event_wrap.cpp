@@ -51,6 +51,7 @@ void export_event()
         .value("MOUSEOUT", Event::MOUSEOUT)
         .value("RESIZE", Event::RESIZE)
         .value("QUIT", Event::QUIT)
+        .export_values()
     ;
 
     class_<KeyEvent, bases<Event> >("KeyEvent", 

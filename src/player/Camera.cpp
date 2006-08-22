@@ -238,11 +238,11 @@ double Camera::getFPS()
 
 void Camera::open(int* pWidth, int* pHeight)
 {
-    int CaptureFormat = 0;
     *pWidth = getNativeSize().x;
     *pHeight = getNativeSize().y;
     
 #ifdef AVG_ENABLE_1394
+    int CaptureFormat = 0;
     // TODO: Support other resolutions.
     switch(m_Mode) {
         case MODE_640x480_YUV422:

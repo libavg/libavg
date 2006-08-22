@@ -32,7 +32,7 @@ namespace avg {
     
 class Player;
     
-class TestHelper : IEventSource
+class TestHelper : public IEventSource
 {
 
     public: 
@@ -51,6 +51,7 @@ class TestHelper : IEventSource
 
     private:
         Player * m_pPlayer;
+        std::vector<Event*> m_Events;
 };
 
 }

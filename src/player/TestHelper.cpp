@@ -21,6 +21,7 @@
 
 #include "TestHelper.h"
 #include "Player.h"
+#include "MouseEvent.h"
 
 using namespace std;
 
@@ -45,12 +46,17 @@ void TestHelper::fakeMouseEvent(Event::Type eventType,
         bool rightButtonState,
         int xPosition, int yPosition, int button)
 {
+    MouseEvent * pEvent = new MouseEvent(eventType, leftButtonState, 
+            middleButtonState, rightButtonState, xPosition, yPosition, button);
+    m_Events.push_back(pEvent);
 }
 
 // From IEventSource
 std::vector<Event *> TestHelper::pollEvents()
 {
-    return std::vector<Event *>();
+    vector<Event *> TempEvents = m_Events;
+    m_Events.clear();
+    return TempEvents;
 }
 
     

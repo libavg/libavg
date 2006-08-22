@@ -241,6 +241,7 @@ BOOST_PYTHON_MODULE(avg)
 
     class_<TestHelper>("TestHelper", "", no_init)
         .def("getNumDifferentPixels", &TestHelper::getNumDifferentPixels, "")
+        .def("fakeMouseEvent", &TestHelper::fakeMouseEvent, "")
     ;
 
     class_<Player>("Player", 

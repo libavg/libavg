@@ -24,6 +24,7 @@ class LoggerTestCase(unittest.TestCase):
                   self.Log.MEMORY | 
 #                  self.Log.BLTS    |
                   self.Log.EVENTS
+#                  self.Log.EVENTS2
                   )
         try:
             os.remove("/tmp/testavg.log")
@@ -115,36 +116,53 @@ def dumpMouseEvent():
     print "  position: "+str(Event.x)+","+str(Event.y)
     print "  node: "+Event.node.id
 
+mainMouseDownCalled = False
+mouseMove1Called = False
+mouseUp1Called = False
+mouseDown1Called = False
+mouseOver1Called = False
+mouseOut1Called = False
+divMouseDownCalled = False
+obscuredMouseDownCalled = False
 
 def mainMouseUp():
-    print "mainMouseUp"
-#    dumpMouseEvent()
+    global mainMouseUpCalled
+    mainMouseUpCalled = True
 
 def mainMouseDown():
-    print "mainMouseDown"
-#    dumpMouseEvent()
+    global mainMouseDownCalled
+    mainMouseDownCalled = True
 
-def onMouseMove():
-    print "onMouseMove"
-#    dumpMouseEvent()
+def onMouseMove1():
+    print "onMouseMove1"
 
-def onMouseUp():
-    print "onMouseUp"
-#    dumpMouseEvent()
+def onMouseUp1():
+    global mouseUp1Called
+    mouseUp1Called = True
 
-def onMouseOver():
-    print "onMouseOver"
-    dumpMouseEvent()
+def onMouseDown1():
+    global mouseDown1Called
+    mouseDown1Called = True
 
-def onMouseOut():
-    print "onMouseOut"
-    dumpMouseEvent()
+def onMouseOver1():
+    global mouseOver1Called
+    mouseOver1Called = True
 
-def onMouseDown():
-    print "onMouseDown"
-    Player.getElementByID("mouseover1").active=0
-    Player.getElementByID("rightdiv").active=0
-    dumpMouseEvent()
+def onMouseOut1():
+    global mouseOut1Called
+    mouseOut1Called = True
+
+def onDivMouseDown():
+    global divMouseDownCalled
+    divMouseDownCalled = True
+
+def onMouseDown2():
+    global mouseDown2Called
+    mouseDown2Called = True
+
+def onObscuredMouseDown():
+    global obscuredMouseDownCalled
+    obscuredMouseDownCalled = True
 
 def onErrMouseOver():
     undefinedFunction()
@@ -199,10 +217,39 @@ class PlayerTestCase(AVGTestCase):
     def testEvents(self):
         def getMouseState():
             Event = Player.getMouseState()
-            Event.x
+        def testInactiveDiv():
+            Player.getElementByID("div1").active = False
+            Helper.fakeMouseEvent(avg.MOUSEBUTTONDOWN, True, False, False,
+                70, 70, 1)
+        Helper = Player.getTestHelper()
+        global mainMouseDownCalled
+        global mouseMove1Called
+        global mouseUp1Called
+        global mouseDown1Called
+        global mouseOver1Called
+        global mouseOut1Called
+        global divMouseDownCalled
+        global obscuredMouseDownCalled
+
         self.start("events.avg", 
-                (getMouseState, 
-                 lambda: self.compareImage("testEvents", False), 
+                (lambda: self.compareImage("testEvents", False),
+                 lambda: Helper.fakeMouseEvent(avg.MOUSEBUTTONDOWN, True, False, False,
+                        10, 10, 1),
+                 lambda: self.assert_(mouseDown1Called and mouseOver1Called 
+                        and mainMouseDownCalled),
+                 getMouseState,
+                 lambda: Helper.fakeMouseEvent(avg.MOUSEBUTTONUP, True, False, False,
+                        12, 12, 1),
+                 lambda: self.assert_(mouseUp1Called and mainMouseUpCalled),
+                 lambda: Helper.fakeMouseEvent(avg.MOUSEBUTTONDOWN, True, False, False,
+                        70, 70, 1),
+                 lambda: self.assert_(mouseDown2Called and divMouseDownCalled and 
+                        mouseOut1Called and not(obscuredMouseDownCalled)),
+                 testInactiveDiv,
+                 lambda: self.assert_(obscuredMouseDownCalled),
+                 # XXX
+                 # - errMouseOver
+                 # - active=False
                  Player.stop))
     def testEventErr(self):
         Player.loadFile("errevent.avg")
@@ -490,7 +537,7 @@ def playerTestSuite(engine, bpp):
             try:
                 os.mkdir(RESULT_DIR)
             except OSError:
-                # This can happen on make distcheck - permission denied...
+                # This can happen on make distcheck (permission denied...)
                 global ourSaveDifferences
                 ourSaveDifferences = False
     rmBrokenDir()

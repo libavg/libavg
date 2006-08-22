@@ -294,6 +294,7 @@ void Player::play()
         assert(m_pRootNode);
         
         m_EventDispatcher.addSource(m_pEventSource);
+        m_EventDispatcher.addSource(&m_TestHelper);
         m_EventDispatcher.addSink(&m_EventDumper);
         m_EventDispatcher.addSink(this);
         
