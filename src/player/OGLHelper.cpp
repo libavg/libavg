@@ -28,14 +28,13 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 
-/* Where is a good place for this?
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #undef ERROR
 #undef WARNING
 #endif
-*/
+#include <SDL/SDL.h>
 
 #include <iostream>
 #include <sstream>
@@ -146,27 +145,11 @@ void invalidGLCall()
 
 GLfunction getFuzzyProcAddress(const char * psz)
 {
-#ifdef __APPLE__
-    GLfunction pProc = (GLfunction)aglGetProcAddress(psz);
+    GLfunction pProc = (GLfunction)SDL_GL_GetProcAddress(psz);
     if (!pProc) {
         string s = string(psz)+"ARB";
-        pProc = (GLfunction)aglGetProcAddress(s.c_str());
+        pProc = (GLfunction)SDL_GL_GetProcAddress(s.c_str());
     }
-#else 
-#ifdef _WIN32
-    GLfunction pProc = (GLfunction) wglGetProcAddress((const char*)psz);
-    if (!pProc) {
-        string s = string(psz)+"ARB";
-        pProc = (GLfunction) wglGetProcAddress((const char*)(s.c_str()));
-    }
-#else
-    GLfunction pProc = glXGetProcAddressARB((const GLubyte*)psz);
-    if (!pProc) {
-        string s = string(psz)+"ARB";
-        pProc = glXGetProcAddressARB((const GLubyte*)(s.c_str()));
-    }
-#endif
-#endif
     if (!pProc) {
         pProc = invalidGLCall;
 //        AVG_TRACE(Logger::WARNING, "Couldn't initialize pointer to " << psz);

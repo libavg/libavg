@@ -112,6 +112,10 @@ void Logger::trace(int category, const std::string& msg)
 {
     if (category & m_Flags) {
         if (m_DestType == CONSOLE || m_DestType == FILE) {
+#ifdef _WIN32
+            // XXX TODO: use TimeSource here?
+            (*m_pDest) << "[" << "XXX" << "] ";
+#else
             struct timeval time;
             gettimeofday(&time, NULL);
             struct tm* pTime;
@@ -121,6 +125,7 @@ void Logger::trace(int category, const std::string& msg)
 
             (*m_pDest) << "[" << timeString << "." << 
                 setw(3) << setfill('0') << time.tv_usec/1000 << setw(0) << "] ";
+#endif
             (*m_pDest) << categoryToString(category) << ": ";
             (*m_pDest) << msg << endl;
         } else {

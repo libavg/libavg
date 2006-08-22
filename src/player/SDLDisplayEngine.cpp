@@ -161,8 +161,6 @@ SDLDisplayEngine::SDLDisplayEngine()
         exit(-1);
     }
     initTranslationTable();
-
-    glproc::init();
 }
 
 SDLDisplayEngine::~SDLDisplayEngine()
@@ -235,6 +233,8 @@ void SDLDisplayEngine::init(int width, int height, bool isFullscreen,
                 << m_WindowHeight << ", bpp=" << bpp << ").");
         exit(-1);
     }   
+    glproc::init();
+    
     SDL_WM_SetCaption("AVG Renderer", 0);
     calcRefreshRate();
 

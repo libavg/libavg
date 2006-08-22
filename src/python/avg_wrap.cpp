@@ -22,7 +22,9 @@
 void export_bitmap();
 void export_raster();
 void export_event();
+#ifndef WIN32
 void export_devices();
+#endif
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -110,7 +112,9 @@ BOOST_PYTHON_MODULE(avg)
         .def_readonly("APP", &Logger::APP)
     ;
 
-    export_devices();
+#ifndef WIN32
+     export_devices();
+#endif
     export_event();
     
     class_<Node, boost::noncopyable>("Node",
