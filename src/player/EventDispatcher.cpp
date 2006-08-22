@@ -40,6 +40,13 @@ namespace avg {
 
     void EventDispatcher::dispatch() 
     {
+        // TODO:
+        // Events:
+        // - Replace by one loop that gets individual events and dispatches them 
+        //   immediately.
+        // - Remove EventSource::pollEvents(), add EventSource::getEvent().
+        // Timeouts:
+        // - In Player, kill deleted timeouts immediately! 
         for (unsigned int i = 0; i<m_EventSources.size(); ++i) {
             vector<Event*> curEvents = m_EventSources[i]->pollEvents();
             for (unsigned int i= 0; i<curEvents.size(); i++) {
