@@ -56,7 +56,8 @@ class PanoImage : public Node
         virtual bool obscures (const DRect& Rect, int Child);
         virtual std::string getTypeStr ();
 
-        double getScreenPos(int PanoPos) const;
+        double getScreenPosFromPanoPos(int PanoPos) const;
+        double getScreenPosFromAngle(double Angle) const;
         const std::string& getHRef () const;
         void setHRef (const std::string& href);
         double getSensorWidth () const;
