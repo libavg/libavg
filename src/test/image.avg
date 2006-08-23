@@ -6,7 +6,7 @@
     <image id="testtiles" x="0" y="30"
         opacity="1" href="rgb24-65x65.png" maxtilewidth="25" maxtileheight="33"/>
     <image id="test" x="64" y="30"
-        opacity="1" href="rgb24-65x65.png"/>
+        opacity="1" href="rgb24-65x65.png" pivotx="0" pivoty="0" angle="0.274"/>
     <image id="testhue" x="129" y="30"
         opacity="1" href="rgb24-65x65.png" hue="195" saturation="30"/>
 </avg>
