@@ -47,11 +47,10 @@ class Camera : public VideoBase
 {
     public:
         Camera ();
-        Camera (const xmlNodePtr xmlNode, DivNode * pParent);
+        Camera (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual ~Camera ();
 
-        virtual void init (DisplayEngine * pEngine, DivNode * pParent,
-            Player * pPlayer);
+        virtual void connect(DisplayEngine * pEngine, DivNode * pParent);
         virtual std::string getTypeStr ();
 
         const std::string& getDevice() const 

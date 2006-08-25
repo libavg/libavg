@@ -14,4 +14,7 @@
   </div>
   <image id="tilted" x="0" y="64" width="32" height="32" angle="0.785"
       href="rgb24-64x64.png" onmouseover="onTiltedOver"/>
+  <image id="deact" x="65" y="0" href="rgb24-65x65.png" onmouseover="onDeactMouseOver"
+      onmousedown="onDeactMouseDown" onmouseout="onDeactMouseOut" 
+      onmousemove="onDeactMouseMove"/>
 </avg>

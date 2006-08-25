@@ -36,7 +36,7 @@ class RasterNode: public Node
 {
     public:
         virtual ~RasterNode ();
-        void initVisible();
+        virtual void connect(DisplayEngine * pEngine, DivNode * pParent);
         
         // Warping support.
         int getNumVerticesX();
@@ -75,7 +75,7 @@ class RasterNode: public Node
         
     protected:
         RasterNode ();
-        RasterNode (const xmlNodePtr xmlNode, DivNode * pParent);
+        RasterNode (const xmlNodePtr xmlNode, Player * pPlayer);
         DPoint getPivot();
         ISurface * getSurface();
  

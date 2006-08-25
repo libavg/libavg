@@ -81,6 +81,7 @@ Player::Player()
       m_pDisplayEngine(0),
       m_TestHelper(this),
       m_bInHandleTimers(false),
+      m_bCurrentTimeoutDeleted(false), 
       m_pLastMouseNode(0),
       m_bShowCursor(true),
       m_bIsPlaying(false)
@@ -384,13 +385,11 @@ bool Player::clearInterval(int id)
     vector<Timeout*>::iterator it;
     for (it=m_PendingTimeouts.begin(); it!=m_PendingTimeouts.end(); it++) {
         if (id == (*it)->GetID()) {
-            if (m_bInHandleTimers) {
-                // Can't kill timeouts during timeout handling...
-                m_KilledTimeouts.push_back(id);
-            } else {
-                delete *it;
-                m_PendingTimeouts.erase(it);
+            if (it == m_PendingTimeouts.begin()) {
+                m_bCurrentTimeoutDeleted = true;
             }
+            delete *it;
+            m_PendingTimeouts.erase(it);
             return true;
         }
     }
@@ -629,20 +628,20 @@ Node * Player::createNodeFromXml (const xmlDocPtr xmlDoc,
     if (!strcmp (nodeType, "avg")) {
         curNode = new AVGNode(xmlNode);
     } else if (!strcmp (nodeType, "div")) {
-        curNode = new DivNode(xmlNode, pParent);
+        curNode = new DivNode(xmlNode, this);
     } else if (!strcmp (nodeType, "image")) {
-        curNode = new Image(xmlNode, pParent);
+        curNode = new Image(xmlNode, this);
     } else if (!strcmp (nodeType, "words")) {
-        curNode = new Words(xmlNode, pParent);
+        curNode = new Words(xmlNode, this);
         string s = getXmlChildrenAsString(xmlDoc, xmlNode);
         dynamic_cast<Words*>(curNode)->initText(s);
     } else if (!strcmp (nodeType, "video")) {
-        curNode = new Video(xmlNode, pParent);
+        curNode = new Video(xmlNode, this);
     } else if (!strcmp (nodeType, "camera")) {
-        curNode = new Camera(xmlNode, pParent);
+        curNode = new Camera(xmlNode, this);
     }
     else if (!strcmp (nodeType, "panoimage")) {
-        curNode = new PanoImage(xmlNode, pParent);
+        curNode = new PanoImage(xmlNode, this);
     } 
     else if (!strcmp (nodeType, "text") || 
                !strcmp (nodeType, "comment")) {
@@ -671,8 +670,7 @@ Node * Player::createNodeFromXml (const xmlDocPtr xmlDoc,
 void Player::initNode(Node * pNode, DivNode * pParent)
 {
     const string& ID = pNode->getID();
-    pNode->init(m_pDisplayEngine, pParent, this);
-    pNode->initVisible();
+    pNode->connect(m_pDisplayEngine, pParent);
     // If this is a container, recurse into children
     DivNode * curDivNode = dynamic_cast<DivNode*>(pNode);
     if (curDivNode) {
@@ -707,37 +705,28 @@ void Player::handleTimers()
 {
     vector<Timeout *>::iterator it;
     m_bInHandleTimers = true;
+    vector<Timeout *> IntervalsFired;
+    
     it = m_PendingTimeouts.begin();
     while (it != m_PendingTimeouts.end() && (*it)->IsReady() && !m_bStopping)
     {
         (*it)->Fire();
-        if (!(*it)->IsInterval()) {
-            delete *it;
-            it = m_PendingTimeouts.erase(it);
-        } else {
-            Timeout* pTempTimeout = *it;
-            it = m_PendingTimeouts.erase(it);
-            addTimeout(pTempTimeout);
+        if (!m_bCurrentTimeoutDeleted) {
+            if ((*it)->IsInterval()) {
+                Timeout* pTempTimeout = *it;
+                it = m_PendingTimeouts.erase(it);
+                addTimeout(pTempTimeout);
+            } else {
+                delete *it;
+                it = m_PendingTimeouts.erase(it);
+            }
         }
+        m_bCurrentTimeoutDeleted = false;
     }
     for (it = m_NewTimeouts.begin(); it != m_NewTimeouts.end(); ++it) {
         addTimeout(*it);
     }
     m_NewTimeouts.clear();
-    vector<int>::iterator i;
-    for (i = m_KilledTimeouts.begin(); i != m_KilledTimeouts.end(); ++i) {
-        int id = *i;
-        
-        vector<Timeout *>::iterator it2;
-        for (it2=m_PendingTimeouts.begin(); it2 != m_PendingTimeouts.end(); ++it2) {
-            if (id == (*it2)->GetID()) {
-                delete *it2;
-                m_PendingTimeouts.erase(it2);
-                break;
-            }
-        }
-    }
-    m_KilledTimeouts.clear();
     m_bInHandleTimers = false;
     
 }
@@ -768,16 +757,16 @@ bool Player::handleEvent(Event * pEvent)
                         pEvent->getType() != Event::MOUSEOVER &&
                         pEvent->getType() != Event::MOUSEOUT)
                 {
-                    if (pNode) {
-                        createMouseOver(pMouseEvent, Event::MOUSEOVER, pNode);
-                    }
-                    if (m_pLastMouseNode) {
-                        createMouseOver(pMouseEvent, Event::MOUSEOUT, 
+                    if (m_pLastMouseNode && m_pLastMouseNode->getSensitive()) {
+                        sendMouseOver(pMouseEvent, Event::MOUSEOUT, 
                                 m_pLastMouseNode);
+                    }
+                    if (pNode && pNode->getSensitive()) {
+                        sendMouseOver(pMouseEvent, Event::MOUSEOVER, pNode);
                     }
                     m_pLastMouseNode = pNode;
                 }
-                if (pNode) {
+                if (pNode && pNode->getSensitive()) {
                     pNode->handleMouseEvent(pMouseEvent);
                 }
             }
@@ -810,7 +799,7 @@ DisplayEngine * Player::getDisplayEngine() const
     return m_pDisplayEngine;
 }
 
-void Player::createMouseOver(MouseEvent * pOtherEvent, Event::Type Type, 
+void Player::sendMouseOver(MouseEvent * pOtherEvent, Event::Type Type, 
                 Node * pNode)
 {
     MouseEvent * pNewEvent = new MouseEvent(Type,
@@ -821,7 +810,7 @@ void Player::createMouseOver(MouseEvent * pOtherEvent, Event::Type Type,
             pOtherEvent->getYPosition(),
             pOtherEvent->getButton());
     pNewEvent->setElement(pNode);
-    m_EventDispatcher.addEvent(pNewEvent);
+    m_EventDispatcher.sendEvent(pNewEvent);
 }
 
 void Player::cleanup() 

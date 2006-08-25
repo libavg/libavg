@@ -45,8 +45,8 @@ RasterNode::RasterNode ()
 {
 }
 
-RasterNode::RasterNode (const xmlNodePtr xmlNode, DivNode * pParent)
-    : Node(xmlNode, pParent),
+RasterNode::RasterNode (const xmlNodePtr xmlNode, Player * pPlayer)
+    : Node(xmlNode, pPlayer),
       m_pSurface(0),
       m_Angle(0),
       m_Pivot(-32767, -32767),
@@ -66,9 +66,9 @@ RasterNode::~RasterNode()
     delete m_pSurface;
 }
 
-void RasterNode::initVisible()
+void RasterNode::connect(DisplayEngine * pEngine, DivNode * pParent)
 {
-    Node::initVisible();
+    Node::connect(pEngine, pParent);
 
     m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
 

@@ -58,10 +58,11 @@ PanoImage::PanoImage ()
       m_Hue(-1),
       m_Saturation(-1)
 {
+    m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8));
 }
 
-PanoImage::PanoImage (const xmlNodePtr xmlNode, DivNode * pParent)
-    : Node (xmlNode, pParent)
+PanoImage::PanoImage (const xmlNodePtr xmlNode, Player * pPlayer)
+    : Node (xmlNode, pPlayer)
 {
     m_href = getDefaultedStringAttr (xmlNode, "href", "");
     m_SensorWidth = getDefaultedDoubleAttr (xmlNode, "sensorwidth", 1.0);
@@ -72,6 +73,8 @@ PanoImage::PanoImage (const xmlNodePtr xmlNode, DivNode * pParent)
 
     m_Hue = getDefaultedIntAttr (xmlNode, "hue", -1);
     m_Saturation = getDefaultedIntAttr (xmlNode, "saturation", -1);
+    m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8));
+    load();
 }
 
 PanoImage::~PanoImage ()
@@ -79,23 +82,24 @@ PanoImage::~PanoImage ()
     clearTextures();
 }
 
-void PanoImage::init (DisplayEngine * pEngine,
-        DivNode * pParent, Player * pPlayer)
+void PanoImage::connect (DisplayEngine * pEngine, DivNode * pParent)
 {
-    Node::init(pEngine, pParent, pPlayer);
+    SDLDisplayEngine * pSDLEngine;
 #ifdef AVG_ENABLE_GL    
-    m_pEngine = dynamic_cast<SDLDisplayEngine*>(pEngine);
+    pSDLEngine = dynamic_cast<SDLDisplayEngine*>(pEngine);
 #else
-    m_pEngine = 0;
+    pSDLEngine = 0;
 #endif
-    if (!m_pEngine) {
+    if (!pSDLEngine) {
         AVG_TRACE(Logger::ERROR,
                 "Panorama images are only allowed when "
                 "the display engine is OpenGL. Aborting.");
         // TODO: Disable image.
         exit(-1);
     }
-    load();
+    Node::connect(pEngine, pParent);
+    
+    setupTextures();
 }
 
 static ProfilingZone PanoRenderProfilingZone("    PanoImage::render");
@@ -193,7 +197,7 @@ void PanoImage::render(const DRect& Rect)
     }
 
     // Restore previous GL state.
-    glViewport(0, 0, m_pEngine->getWidth(), m_pEngine->getHeight());
+    glViewport(0, 0, getEngine()->getWidth(), getEngine()->getHeight());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImage::render: glViewport() restore");
     if (getSDLEngine()->getTextureMode() != GL_TEXTURE_2D) {
@@ -245,6 +249,9 @@ void PanoImage::setHRef(const string& href)
 {
     m_href = href;
     load();
+    if (getState() == NS_CONNECTED) {
+        setupTextures();
+    }
 }
 
 double PanoImage::getSensorWidth () const
@@ -328,31 +335,28 @@ void PanoImage::load()
     if (m_Filename != "") {
         initFilename(getPlayer(), m_Filename);
         try {
+            
             m_pBmp = BitmapPtr(new Bitmap(m_Filename));
         } catch (Magick::Exception & ex) {
             AVG_TRACE(Logger::ERROR, ex.what());
-            m_pBmp = BitmapPtr(new Bitmap(IntPoint(1, 1), R8G8B8, "Fake PanoImage"));
         }
-    } else {
-        m_pBmp = BitmapPtr(new Bitmap(IntPoint(1, 1), R8G8B8, "Fake PanoImage"));
     }
 
     if (m_Saturation != -1) {
         FilterColorize(m_Hue, m_Saturation).applyInPlace(m_pBmp);
     }
     
-    if (m_pEngine->hasRGBOrdering()) {
-        FilterFlipRGB().applyInPlace(m_pBmp);
-    }
     calcProjection();
     if (m_Rotation == -1) {
         m_Rotation = m_MaxRotation/2;
     }
-    setupTextures();
 }
 
 void PanoImage::setupTextures()
 {
+    if (getEngine()->hasRGBOrdering()) {
+        FilterFlipRGB().applyInPlace(m_pBmp);
+    }
 #ifdef AVG_ENABLE_GL
     if (!m_TileTextureIDs.empty()) {
         clearTextures();

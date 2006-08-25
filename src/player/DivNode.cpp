@@ -35,8 +35,8 @@ DivNode::DivNode()
 {
 }
 
-DivNode::DivNode (const xmlNodePtr xmlNode, DivNode * pParent)
-    : Node(xmlNode, pParent)
+DivNode::DivNode (const xmlNodePtr xmlNode, Player * pPlayer)
+    : Node(xmlNode, pPlayer)
 {
     
 }
@@ -46,13 +46,6 @@ DivNode::~DivNode()
     for (unsigned int i = 0; i< m_Children.size(); i++) {
         delete m_Children[i];
     }
-}
-
-void DivNode::init(DisplayEngine * pEngine, DivNode * pParent, 
-        Player * pPlayer)
-{
-    Node::init(pEngine, pParent, pPlayer);
-    Node::initVisible();
 }
 
 int DivNode::getNumChildren ()
@@ -74,6 +67,9 @@ Node * DivNode::getChild (int i)
 void DivNode::addChild (Node * pNewNode)
 {
     m_Children.push_back(pNewNode);
+    if (getState()==NS_CONNECTED) {
+        pNewNode->connect(getEngine(), this);
+    }
 }
 
 void DivNode::removeChild (int i)

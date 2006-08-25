@@ -24,6 +24,8 @@
 
 #include "RasterNode.h"
 
+#include "../graphics/Bitmap.h"
+
 #include <string>
 
 namespace avg {
@@ -32,10 +34,9 @@ class Image : public RasterNode
 {
 	public:
         Image ();
-        Image (const xmlNodePtr xmlNode, DivNode * pParent);
+        Image (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual ~Image ();
-        virtual void init (DisplayEngine * pEngine, 
-                DivNode * pParent, Player * pPlayer);
+        virtual void connect(DisplayEngine * pEngine, DivNode * pParent);
 
         const std::string& getHRef() const;
         void setHRef(const std::string& href);
@@ -58,12 +59,13 @@ class Image : public RasterNode
 
     private:
         void load();
+        void setupSurface();
         std::string m_Filename;
         std::string m_href;
+        BitmapPtr m_pBmp;
     
         int m_Hue;
         int m_Saturation;
-        Player * m_pPlayer;
 };
 
 }

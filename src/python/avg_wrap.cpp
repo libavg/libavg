@@ -164,6 +164,7 @@ BOOST_PYTHON_MODULE(avg)
                 "getChild(i) -> Node\n\n"
                 "Returns the ith child in z-order.")
         .def("addChild", &DivNode::addChild,
+                with_custodian_and_ward<1, 2>(),
                 "addChild(Node) -> None\n\n"
                 "Adds a new child to the container.")
         .def("removeChild", &DivNode::removeChild,

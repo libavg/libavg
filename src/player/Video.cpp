@@ -48,8 +48,8 @@ Video::Video ()
 {
 }
 
-Video::Video (const xmlNodePtr xmlNode, DivNode * pParent)
-    : VideoBase(xmlNode, pParent),
+Video::Video (const xmlNodePtr xmlNode, Player * pPlayer)
+    : VideoBase(xmlNode, pPlayer),
       m_pDecoder(0)
 {
     m_Filename = getDefaultedStringAttr (xmlNode, "href", "");
@@ -100,12 +100,11 @@ bool Video::getLoop() const
     return m_bLoop;
 }
 
-void Video::init (DisplayEngine * pEngine, DivNode * pParent, 
-        Player * pPlayer)
+void Video::connect(DisplayEngine * pEngine, DivNode * pParent)
 {
     m_pDecoder = new FFMpegDecoder();
-    initFilename(pPlayer, m_Filename);
-    VideoBase::init(pEngine, pParent, pPlayer);
+    initFilename(getPlayer(), m_Filename);
+    VideoBase::connect(pEngine, pParent);
 }
 
 const string& Video::getHRef() const

@@ -62,8 +62,8 @@ Camera::Camera ()
 {
 }
 
-Camera::Camera (const xmlNodePtr xmlNode, DivNode * pParent)
-    : VideoBase(xmlNode, pParent),
+Camera::Camera (const xmlNodePtr xmlNode, Player * pPlayer)
+    : VideoBase(xmlNode, pPlayer),
 #ifdef AVG_ENABLE_1394
       m_sDevice(""),
       m_FrameRate(15),
@@ -92,8 +92,7 @@ Camera::~Camera ()
 {
 }
 
-void Camera::init (DisplayEngine * pEngine, DivNode * pParent,
-        Player * pPlayer)
+void Camera::connect(DisplayEngine * pEngine, DivNode * pParent)
 {
 #ifdef AVG_ENABLE_1394
     if (m_FrameRate == 1.875) {
@@ -140,7 +139,7 @@ void Camera::init (DisplayEngine * pEngine, DivNode * pParent,
     AVG_TRACE(Logger::ERROR,
             "Unable to set up camera. Camera support not compiled.");
 #endif
-    VideoBase::init(pEngine, pParent, pPlayer);
+    VideoBase::connect(pEngine, pParent);
 }
 
 string Camera::getTypeStr ()

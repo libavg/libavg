@@ -45,10 +45,10 @@ class OGLSurface;
 class Node
 {
     public:
+        enum NodeState {NS_UNCONNECTED, NS_CONNECTED, NS_DISABLED};
+        
         virtual ~Node () = 0;
-        virtual void init(DisplayEngine * pEngine, DivNode * pParent,
-                Player * pPlayer);
-        virtual void initVisible();
+        virtual void connect(DisplayEngine * pEngine, DivNode * pParent);
         
         /**
          * Returns the unique id that can be used to reference the node.
@@ -100,6 +100,7 @@ class Node
         
         virtual void handleMouseEvent (MouseEvent* pEvent); 
         virtual void invalidate();
+        NodeState getState();
         
         // TODO: Do we still need this? Isn't rtti good enough?
         enum {NT_UNKNOWN, NT_IMAGE, NT_AVG, NT_VIDEO, NT_TEXT, NT_EXCL, 
@@ -107,7 +108,7 @@ class Node
 
     protected:
         Node ();
-        Node (const xmlNodePtr xmlNode, DivNode * pParent);
+        Node (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual DPoint getPreferredMediaSize() 
             { return DPoint(0,0); };
         Player * getPlayer();
@@ -117,6 +118,7 @@ class Node
             
         void initFilename (Player * pPlayer, std::string& sFilename);
         bool isInitialized ();
+        void setState(NodeState State);
  
     private:
         void calcAbsViewport();
@@ -144,6 +146,7 @@ class Node
         double m_InitialHeight;
 
         Region m_DirtyRegion;
+        NodeState m_State;
 };
 
 }

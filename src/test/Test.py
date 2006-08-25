@@ -124,6 +124,9 @@ mouseOver1Called = False
 mouseOut1Called = False
 divMouseDownCalled = False
 obscuredMouseDownCalled = False
+deactMouseDownCalled = False
+deactMouseOverLate = False
+deactMouseOverCalled = False
 
 def mainMouseUp():
     global mainMouseUpCalled
@@ -166,6 +169,25 @@ def onObscuredMouseDown():
 
 def onErrMouseOver():
     undefinedFunction()
+
+def onDeactMouseDown():
+    global deactMouseDownCalled
+    deactMouseDownCalled = True
+    print("down")
+
+def onDeactMouseOver():
+    global deactMouseDownCalled
+    global deactMouseOverLate
+    global deactMouseOverCalled
+    deactMouseOverLate = deactMouseDownCalled
+    deactMouseOverCalled = True
+    print("over")
+
+def onDeactMouseMove():
+    print("move")
+
+def onDeactMouseOut():
+    print("out")
 
 class PlayerTestCase(AVGTestCase):
     def __init__(self, testFuncName, engine, bpp):
@@ -230,6 +252,9 @@ class PlayerTestCase(AVGTestCase):
         global mouseOut1Called
         global divMouseDownCalled
         global obscuredMouseDownCalled
+        global deactMouseOverCalled
+        global deactMouseOverLate
+        global deactMouseDownCalled
 
         self.start("events.avg", 
                 (lambda: self.compareImage("testEvents", False),
@@ -247,9 +272,29 @@ class PlayerTestCase(AVGTestCase):
                         mouseOut1Called and not(obscuredMouseDownCalled)),
                  testInactiveDiv,
                  lambda: self.assert_(obscuredMouseDownCalled),
+                 # Test if deactivation between mouse click and mouse out works.
+                 lambda: Helper.fakeMouseEvent(avg.MOUSEBUTTONDOWN, True, False, False,
+                        70, 10, 1),
+                 lambda: self.assert_(deactMouseOverCalled and not(deactMouseOverLate)),
                  # XXX
                  # - errMouseOver
                  # - active=False
+                 Player.stop))
+    def testTimeouts(self):
+        self.timeout1called = False
+        self.timeout2called = False
+        def timeout1():
+            Player.clearInterval(self.timeout1ID)
+            Player.clearInterval(self.timeout2ID)
+            self.timeout1called = True
+        def timeout2():
+            self.timeout2called = True
+        def setupTimeouts():
+            self.timeout1ID = Player.setTimeout(0, timeout1)
+            self.timeout2ID = Player.setTimeout(1, timeout2)
+        self.start("image.avg",
+                (setupTimeouts,
+                 lambda: self.assert_(self.timeout1called and not(self.timeout2called)),
                  Player.stop))
     def testEventErr(self):
         Player.loadFile("errevent.avg")
@@ -516,16 +561,26 @@ class PlayerTestCase(AVGTestCase):
 #        for i in range(self.rootNode.getNumChildren()-1,0):
 ##            print ("Deleting node #"+i);
 #            self.rootNode.removeChild(i)
-#    def testDynamics(self):
-#        Player.loadFile("image.avg")
-#        self.rootNode = Player.getRootNode()
-#        print self.rootNode.indexOf(Player.getElementByID("mainimg"));
-#        print self.rootNode.indexOf(Player.getElementByID("testtiles"));
-#        self.createNodes()
-#        Player.setTimeout(250, self.deleteNodes)
-#        Player.setTimeout(500, self.createNodes)
-#        Player.play()
-   
+    def testDynamics(self):
+        def printNodes():
+            self.rootNode = Player.getRootNode()
+#            print self.rootNode.indexOf(Player.getElementByID("mainimg"));
+#            print self.rootNode.indexOf(Player.getElementByID("testtiles"));
+        def createNode():
+            node = Player.createNode("<image href='rgb24-64x64.png'/>")
+            node.x = 10
+            node.y = 20
+            node.z = 2
+            node.opacity = 0.333
+            node.angle = 0.1
+            node.blendmode = "add"
+            print node
+#            print node.toXML()
+#            self.rootNode.addChild(node)
+        self.start("empty.avg",
+                (printNodes,
+                 createNode,
+                 Player.stop))
             
 def playerTestSuite(engine, bpp):
     def rmBrokenDir():
@@ -548,6 +603,7 @@ def playerTestSuite(engine, bpp):
     suite.addTest(PlayerTestCase("testExceptionInTimeout", engine, bpp))
     suite.addTest(PlayerTestCase("testInvalidImageFilename", engine, bpp))
     suite.addTest(PlayerTestCase("testEvents", engine, bpp))
+    suite.addTest(PlayerTestCase("testTimeouts", engine, bpp))
     suite.addTest(PlayerTestCase("testEventErr", engine, bpp))
     suite.addTest(PlayerTestCase("testHugeImage", engine, bpp))
     suite.addTest(PlayerTestCase("testPanoImage", engine, bpp))
@@ -560,6 +616,7 @@ def playerTestSuite(engine, bpp):
     suite.addTest(PlayerTestCase("testWords", engine, bpp))
     suite.addTest(PlayerTestCase("testVideo", engine, bpp))
     suite.addTest(PlayerTestCase("testAnim", engine, bpp))
+    suite.addTest(PlayerTestCase("testDynamics", engine, bpp))
     return suite
 
 def completeTestSuite(engine, bpp):

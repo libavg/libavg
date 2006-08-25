@@ -34,10 +34,8 @@ class DivNode : public Node
 {
 	public:
         DivNode ();
-        DivNode (const xmlNodePtr xmlNode, DivNode * pParent);
+        DivNode (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual ~DivNode ();
-        virtual void init(DisplayEngine * pEngine, DivNode * pParent, 
-                Player * pPlayer);
 
         int getNumChildren ();
         Node * getChild (int i);

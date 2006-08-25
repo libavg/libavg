@@ -36,11 +36,10 @@ class Video : public VideoBase
 {
     public:
         Video ();
-        Video (const xmlNodePtr xmlNode, DivNode * pParent);
+        Video (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual ~Video ();
         
-        virtual void init (DisplayEngine * pEngine, DivNode * pParent, 
-                Player * pPlayer);
+        virtual void connect (DisplayEngine * pEngine, DivNode * pParent);
 
         const std::string& getHRef() const;
         void setHRef(const std::string& href);

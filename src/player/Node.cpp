@@ -66,9 +66,9 @@ Node::Node ()
 {
 }
 
-Node::Node (const xmlNodePtr xmlNode, DivNode * pParent)
-    : m_pParent(pParent),
-      m_pPlayer(0),
+Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
+    : m_pParent(0),
+      m_pPlayer(pPlayer),
       m_RelViewport(0,0,0,0),
       m_AbsViewport(0,0,0,0),
       m_bInitialized(false),
@@ -88,22 +88,18 @@ Node::Node (const xmlNodePtr xmlNode, DivNode * pParent)
     m_Opacity = getDefaultedDoubleAttr (xmlNode, "opacity", 1.0);
     m_bActive = getDefaultedBoolAttr (xmlNode, "active", true);
     m_bSensitive = getDefaultedBoolAttr (xmlNode, "sensitive", true);
+    setState(NS_UNCONNECTED);
 }
 
 Node::~Node()
 {
 }
 
-void Node::init(DisplayEngine * pEngine, DivNode * pParent, 
-        Player * pPlayer)
+void Node::connect(DisplayEngine * pEngine, DivNode * pParent)
 {
     m_pParent = pParent;
     m_pEngine = pEngine;
-    m_pPlayer = pPlayer;
-}
-
-void Node::initVisible()
-{
+    
     DPoint PreferredSize = getPreferredMediaSize();
     
     if (m_InitialWidth == 0) {
@@ -119,6 +115,7 @@ void Node::initVisible()
         pos = m_pParent->getAbsViewport().tl;
     } 
     m_AbsViewport = DRect (pos+getRelViewport().tl, pos+getRelViewport().br);
+    m_State = NS_CONNECTED;
     m_bInitialized = true;
 }
 
@@ -280,6 +277,11 @@ void Node::invalidate()
     if (m_bInitialized) {
         addDirtyRect(getVisibleRect());
     }
+}
+
+Node::NodeState Node::getState()
+{
+    return m_State;
 }
 
 Player * Node::getPlayer()
@@ -461,6 +463,11 @@ void Node::initFilename(Player * pPlayer, string& sFilename)
 bool Node::isInitialized()
 {
     return m_bInitialized;
+}
+
+void Node::setState(Node::NodeState State)
+{
+    m_State = State;
 }
 
 }

@@ -99,7 +99,7 @@ class Player : IEventSink
 
         void initDisplay(const xmlNodePtr xmlNode);
         void render (bool bRenderEverything);
-        void createMouseOver(MouseEvent * pOtherEvent, Event::Type Type, 
+        void sendMouseOver(MouseEvent * pOtherEvent, Event::Type Type, 
                 Node * pNode);
         void cleanup();
 	
@@ -117,10 +117,10 @@ class Player : IEventSink
         void removeTimeout(Timeout* pTimeout);
         void handleTimers();
         bool m_bInHandleTimers;
+        bool m_bCurrentTimeoutDeleted;
 
         std::vector<Timeout *> m_PendingTimeouts;
         std::vector<Timeout *> m_NewTimeouts; // Timeouts to be added this frame.
-        std::vector<int> m_KilledTimeouts; // Timeouts to be deleted this frame.
 
         EventDispatcher m_EventDispatcher;
         DebugEventSink  m_EventDumper;

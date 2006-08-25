@@ -47,11 +47,10 @@ class PanoImage : public Node
 {
 	public:
         PanoImage ();
-        PanoImage (const xmlNodePtr xmlNode, DivNode * pParent);
+        PanoImage (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual ~PanoImage ();
         
-        virtual void init (DisplayEngine * pEngine, 
-                DivNode * pParent, Player * pPlayer);
+        virtual void connect (DisplayEngine * pEngine, DivNode * pParent);
         virtual void render (const DRect& Rect);
         virtual bool obscures (const DRect& Rect, int Child);
         virtual std::string getTypeStr ();
@@ -91,7 +90,6 @@ class PanoImage : public Node
         BitmapPtr m_pBmp;
         int m_TexHeight;
         std::vector<unsigned int> m_TileTextureIDs;
-        SDLDisplayEngine * m_pEngine;
 
         // Derived values calculated in calcProjection
         double m_fovy;         // Vertical field of view 

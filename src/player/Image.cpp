@@ -25,7 +25,6 @@
 #include "Player.h"
 #include "ISurface.h"
 
-#include "../graphics/Bitmap.h"
 #include "../graphics/Filtercolorize.h"
 #include "../graphics/Filterfliprgb.h"
 
@@ -46,27 +45,28 @@ Image::Image ()
     : m_Hue(-1),
       m_Saturation(-1)
 {
+    m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8));
 }
 
-Image::Image (const xmlNodePtr xmlNode, DivNode * pParent)
-    : RasterNode(xmlNode, pParent)
+Image::Image (const xmlNodePtr xmlNode, Player * pPlayer)
+    : RasterNode(xmlNode, pPlayer)
 {
     m_href = getDefaultedStringAttr (xmlNode, "href", "");
     m_Hue = getDefaultedIntAttr (xmlNode, "hue", -1);
     m_Saturation = getDefaultedIntAttr (xmlNode, "saturation", -1);
-    
+    m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8));
+    load();
 }
 
 Image::~Image ()
 {
 }
 
-void Image::init (DisplayEngine * pEngine, DivNode * pParent,
-        Player * pPlayer)
+void Image::connect(DisplayEngine * pEngine, DivNode * pParent)
 {
-    Node::init(pEngine, pParent, pPlayer);
-    m_pPlayer = pPlayer;
-    load();
+    RasterNode::connect(pEngine, pParent);
+
+    setupSurface();
 }
 
 const std::string& Image::getHRef() const
@@ -78,6 +78,9 @@ void Image::setHRef(const string& href)
 {
     m_href = href;
     load();
+    if (getState() == NS_CONNECTED) {
+        setupSurface();
+    }
     DPoint Size = getPreferredMediaSize();
     setViewport(-32767, -32767, Size.x, Size.y);
 }
@@ -116,41 +119,47 @@ string Image::getTypeStr ()
 
 DPoint Image::getPreferredMediaSize()
 {
-    return DPoint(getSurface()->lockBmp()->getSize());
+    if (getState() == NS_UNCONNECTED) {
+        return DPoint(m_pBmp->getSize());
+    } else {
+        return DPoint(getSurface()->lockBmp()->getSize());
+    }
 }
 
 void Image::load()
 {
     m_Filename = m_href;
     if (m_Filename != "") {
-        initFilename(m_pPlayer, m_Filename);
-        //    AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
+        initFilename(getPlayer(), m_Filename);
+        AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
         try {
-            Bitmap TempBmp(m_Filename);
-            PixelFormat pf;
-            pf = R8G8B8;
-            if (TempBmp.hasAlpha()) {
-                pf = R8G8B8A8;
-            }
-            getSurface()->create(TempBmp.getSize(), pf, false);
-            getSurface()->lockBmp()->copyPixels(TempBmp);
+            m_pBmp = BitmapPtr(new Bitmap(m_Filename));
         } catch (Magick::Exception & ex) {
             AVG_TRACE(Logger::ERROR, ex.what());
-            getSurface()->create(IntPoint(1,1), R8G8B8, false);
         }
-    } else {
-        getSurface()->create(IntPoint(1,1), R8G8B8, false);
     }
-    
     if (m_Saturation != -1) {
         FilterColorize(m_Hue, m_Saturation).applyInPlace(
-                getSurface()->lockBmp());
+                m_pBmp);
     }
-    if (!(m_pPlayer->getDisplayEngine()->hasRGBOrdering())) {
+}
+
+void Image::setupSurface()
+{
+    PixelFormat pf;
+    pf = R8G8B8;
+    if (m_pBmp->hasAlpha()) {
+        pf = R8G8B8A8;
+    }
+    getSurface()->create(m_pBmp->getSize(), pf, false);
+    getSurface()->lockBmp()->copyPixels(*m_pBmp);
+    if (!(getPlayer()->getDisplayEngine()->hasRGBOrdering())) {
         FilterFlipRGB().applyInPlace(getSurface()->lockBmp());
     }
+
     getSurface()->unlockBmps();
     getEngine()->surfaceChanged(getSurface());
+    m_pBmp=BitmapPtr(0);
 }
 
 }

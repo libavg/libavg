@@ -40,13 +40,6 @@ namespace avg {
 
     void EventDispatcher::dispatch() 
     {
-        // TODO:
-        // Events:
-        // - Replace by one loop that gets individual events and dispatches them 
-        //   immediately.
-        // - Remove EventSource::pollEvents(), add EventSource::getEvent().
-        // Timeouts:
-        // - In Player, kill deleted timeouts immediately! 
         for (unsigned int i = 0; i<m_EventSources.size(); ++i) {
             vector<Event*> curEvents = m_EventSources[i]->pollEvents();
             for (unsigned int i= 0; i<curEvents.size(); i++) {
@@ -55,16 +48,9 @@ namespace avg {
         }
 
         while (!m_Events.empty()) {
-            Event * curEvent = m_Events.top();
+            Event * pCurEvent = m_Events.top();
             m_Events.pop();
-            if (dynamic_cast<MouseEvent*>(curEvent) != 0) {
-                m_LastMouseEvent = *(dynamic_cast<MouseEvent*>(curEvent));
-            }
-            for (unsigned int i = 0; i < m_EventSinks.size(); ++i) {
-                if (m_EventSinks[i]->handleEvent(curEvent)) {
-                    break;
-                }
-            }
+            sendEvent(pCurEvent);
         }
     }
 
@@ -84,9 +70,16 @@ namespace avg {
         m_EventSinks.push_back(pSink);
     }
 
-    void EventDispatcher::addEvent(Event* pEvent)
+    void EventDispatcher::sendEvent(Event* pEvent)
     {
-        m_Events.push(pEvent);
+        if (dynamic_cast<MouseEvent*>(pEvent) != 0) {
+            m_LastMouseEvent = *(dynamic_cast<MouseEvent*>(pEvent));
+        }
+        for (unsigned int i = 0; i < m_EventSinks.size(); ++i) {
+            if (m_EventSinks[i]->handleEvent(pEvent)) {
+                break;
+            }
+        }
     }
 
 }

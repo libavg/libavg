@@ -61,8 +61,8 @@ Words::Words ()
 {
 }
 
-Words::Words (const xmlNodePtr xmlNode, DivNode * pParent)
-    : RasterNode(xmlNode, pParent)
+Words::Words (const xmlNodePtr xmlNode, Player * pPlayer)
+    : RasterNode(xmlNode, pPlayer)
 {
     m_FontName = getDefaultedStringAttr (xmlNode, "font", "arial");
     m_Text = getDefaultedStringAttr (xmlNode, "text", "");
@@ -105,12 +105,10 @@ text_subst_func (FcPattern *pattern, gpointer data)
   FcPatternAddBool (pattern, FC_ANTIALIAS, true);
 }
 
-void Words::init (DisplayEngine * pEngine, DivNode * pParent,
-           Player * pPlayer)
+void Words::connect (DisplayEngine * pEngine, DivNode * pParent)
 {
-    Node::init(pEngine, pParent, pPlayer);
     m_Color = colorStringToColor(m_ColorName);
-    m_pSurface = getEngine()->createSurface();
+    m_pSurface = pEngine->createSurface();
 
     PangoFT2FontMap *fontmap;
     fontmap = PANGO_FT2_FONT_MAP (pango_ft2_font_map_new ());
@@ -125,13 +123,10 @@ void Words::init (DisplayEngine * pEngine, DivNode * pParent,
             pango_language_from_string ("en_US"));
     pango_context_set_base_dir(m_pContext, PANGO_DIRECTION_LTR);
     m_pFontDescription = pango_font_description_new();
-}
-
-void Words::initVisible ()
-{
-    Node::initVisible();
+    
     m_bFontChanged = true;
     m_bDrawNeeded = true;
+    Node::connect(pEngine, pParent);
 }
 
 string Words::getTypeStr ()

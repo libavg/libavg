@@ -59,8 +59,8 @@ VideoBase::VideoBase ()
 {
 }
 
-VideoBase::VideoBase (const xmlNodePtr xmlNode, DivNode * pParent)
-    : RasterNode(xmlNode, pParent),
+VideoBase::VideoBase (const xmlNodePtr xmlNode, Player * pPlayer)
+    : RasterNode(xmlNode, pPlayer),
       m_State(Unloaded),
       m_Width(0),
       m_Height(0),
@@ -97,14 +97,6 @@ void VideoBase::pause()
                 "VideoBase::pause() called on object not in scene.");
     }
     changeState(Paused);
-}
-
-void VideoBase::init(DisplayEngine * pEngine, DivNode * pParent, 
-        Player * pPlayer)
-{
-    Node::init(pEngine, pParent, pPlayer);
-    m_State = Unloaded;
-//    open();
 }
 
 void VideoBase::prepareRender (int time, const DRect& parent)
@@ -249,7 +241,6 @@ void VideoBase::open()
             }
             break;
     }
-    initVisible();
     
     m_bFrameAvailable = false;
     m_State = Paused;

@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 <avg id="imageavg" width="160" height="120">
     <image id="mainimg" x="0" y="0"
         opacity = "1" href="1x1_schachbrett.png"/>
