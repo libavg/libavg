@@ -63,7 +63,9 @@ RasterNode::RasterNode (const xmlNodePtr xmlNode, Player * pPlayer)
 
 RasterNode::~RasterNode()
 {
-    delete m_pSurface;
+    if (m_pSurface) {
+        delete m_pSurface;
+    }
 }
 
 void RasterNode::connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent)
@@ -92,6 +94,15 @@ void RasterNode::connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent)
 #endif        
     }
     setBlendModeStr(m_sBlendMode);
+}
+
+void RasterNode::disconnect()
+{
+    if (m_pSurface) {
+        delete m_pSurface;
+        m_pSurface = 0;
+    }
+    Node::disconnect();
 }
 
 int RasterNode::getNumVerticesX()

@@ -62,6 +62,7 @@ class Node
         virtual ~Node () = 0;
         virtual void setThis(NodeWeakPtr This);
         virtual void connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent);
+        virtual void disconnect();
         
         /**
          * Returns the unique id that can be used to reference the node.
@@ -126,7 +127,7 @@ class Node
             { return DPoint(0,0); };
         Player * getPlayer() const;
         DisplayEngine * getEngine() const;
-        NodeWeakPtr getThis() const;
+        NodePtr getThis() const;
 
         void callPython (const std::string& Code, const avg::Event& Event);
             

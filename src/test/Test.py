@@ -565,23 +565,26 @@ class PlayerTestCase(AVGTestCase):
 ##            print ("Deleting node #"+i);
 #            self.rootNode.removeChild(i)
     def testDynamics(self):
-        def printNodes():
-            self.rootNode = Player.getRootNode()
-#            print self.rootNode.indexOf(Player.getElementByID("mainimg"));
-#            print self.rootNode.indexOf(Player.getElementByID("testtiles"));
         def createNode():
-            node = Player.createNode("<image href='rgb24-64x64.png'/>")
+            node = Player.createNode("<image id='newImage' href='rgb24-64x64.png'/>")
             node.x = 10
             node.y = 20
             node.opacity = 0.666
             node.angle = 0.1
             node.blendmode = "add"
 #            print node.toXML()
+            self.rootNode = Player.getRootNode()
             self.rootNode.addChild(node)
+            self.assert_(self.rootNode.indexOf(Player.getElementByID("newImage")) == 0)
+        def removeNode():
+            self.rootNode.removeChild(
+                    self.rootNode.indexOf(Player.getElementByID("newImage")))
+            self.assert_(Player.getElementByID("newImage") == None)
         self.start("empty.avg",
-                (printNodes,
-                 createNode,
+                (createNode,
                  lambda: self.compareImage("testDynamics1", False),
+                 removeNode,
+                 lambda: self.compareImage("testDynamics2", False),
                  Player.stop))
             
 def playerTestSuite(engine, bpp):

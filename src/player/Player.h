@@ -76,6 +76,8 @@ class Player : IEventSink
         void showCursor(bool bShow);
 
         NodePtr getElementByID(const std::string& id);
+        void addNodeID(const std::string& id, NodePtr pNode);
+        void removeNodeID(const std::string& id);
         AVGNodePtr getRootNode();
         void doFrame();
         double getFramerate();

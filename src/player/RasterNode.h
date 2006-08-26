@@ -37,6 +37,7 @@ class RasterNode: public Node
     public:
         virtual ~RasterNode ();
         virtual void connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent);
+        virtual void disconnect();
         
         // Warping support.
         int getNumVerticesX();

@@ -34,8 +34,8 @@ AVGNode::AVGNode()
 {
 }
 
-AVGNode::AVGNode (const xmlNodePtr xmlNode)
-    : DivNode(xmlNode, 0)
+AVGNode::AVGNode (const xmlNodePtr xmlNode, Player * pPlayer)
+    : DivNode(xmlNode, pPlayer)
 {
     m_bEnableCrop = getDefaultedBoolAttr (xmlNode, "enablecrop", true);
     m_sKeyUpHandler = getDefaultedStringAttr (xmlNode, "onkeyup", "");

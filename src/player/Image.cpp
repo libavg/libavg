@@ -69,6 +69,15 @@ void Image::connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent)
     setupSurface();
 }
 
+void Image::disconnect()
+{
+    // Unload textures but keep bitmap in memory.
+    ISurface * pSurface = getSurface();
+    m_pBmp = BitmapPtr(new Bitmap(*(pSurface->lockBmp())));
+    getSurface()->unlockBmps();
+    RasterNode::disconnect();
+}
+
 const std::string& Image::getHRef() const
 {
     return m_href;

@@ -117,7 +117,16 @@ void Node::connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent)
         pos = getParent()->getAbsViewport().tl;
     }
     m_AbsViewport = DRect (pos+getRelViewport().tl, pos+getRelViewport().br);
+    getPlayer()->addNodeID(m_ID, getThis());
     setState(NS_CONNECTED);
+}
+
+void Node::disconnect()
+{
+    m_pParent = DivNodeWeakPtr();
+    m_pEngine = 0;
+    getPlayer()->removeNodeID(m_ID);
+    setState(NS_UNCONNECTED);
 }
 
 const string& Node::getID () const
@@ -367,9 +376,9 @@ DisplayEngine * Node::getEngine() const
     return m_pEngine;
 }
 
-NodeWeakPtr Node::getThis() const
+NodePtr Node::getThis() const
 {
-    return m_This;
+    return m_This.lock();
 }
 
 string Node::dump (int indent)

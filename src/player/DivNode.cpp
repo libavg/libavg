@@ -65,7 +65,7 @@ void DivNode::addChild (NodePtr pNewNode)
 {
     m_Children.push_back(pNewNode);
     if (getState()==NS_CONNECTED) {
-        DivNodePtr Ptr = boost::dynamic_pointer_cast<DivNode>(getThis().lock());
+        DivNodePtr Ptr = boost::dynamic_pointer_cast<DivNode>(getThis());
         pNewNode->connect(getEngine(), Ptr);
     }
 }
@@ -74,6 +74,7 @@ void DivNode::removeChild (int i)
 {
     NodePtr pNode = getChild(i);
     pNode->invalidate();
+    pNode->disconnect();
     m_Children.erase(m_Children.begin()+i);
 }
 
@@ -98,7 +99,7 @@ NodePtr DivNode::getElementByPos (const DPoint & pos)
             return pFoundNode;
         }
     }
-    return getThis().lock(); // pos is in current node, but not in any child.
+    return getThis(); // pos is in current node, but not in any child.
 }
 
 void DivNode::prepareRender (int time, const DRect& parent)

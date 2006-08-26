@@ -34,7 +34,7 @@ class AVGNode : public DivNode
 {
 	public:
         AVGNode ();
-        AVGNode (const xmlNodePtr xmlNode);
+        AVGNode (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual ~AVGNode ();
 
         virtual std::string getTypeStr ();

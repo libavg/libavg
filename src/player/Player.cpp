@@ -431,6 +431,29 @@ NodePtr Player::getElementByID (const std::string& id)
         return NodePtr();
     }
 }
+        
+void Player::addNodeID(const std::string& id, NodePtr pNode)
+{
+    if (id != "") {
+        if (m_IDMap.find(id) != m_IDMap.end()) {
+            throw (Exception (AVG_ERR_XML_DUPLICATE_ID,
+                string("Error: duplicate id ")+id));
+        }
+        m_IDMap.insert(NodeIDMap::value_type(id, pNode));
+    }
+}
+
+void Player::removeNodeID(const std::string& id)
+{
+    std::map<std::string, NodePtr>::iterator it;
+    it = m_IDMap.find(id);
+    if (it != m_IDMap.end()) {
+        m_IDMap.erase(it);
+    } else {
+        AVG_TRACE(Logger::ERROR, "removeNodeID("+id+") failed.");
+        exit(1);
+    }
+}
 
 AVGNodePtr Player::getRootNode ()
 {
@@ -626,7 +649,7 @@ NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc,
     
     string id = getDefaultedStringAttr (xmlNode, "id", "");
     if (!strcmp (nodeType, "avg")) {
-        curNode = NodePtr(new AVGNode(xmlNode));
+        curNode = NodePtr(new AVGNode(xmlNode, this));
     } else if (!strcmp (nodeType, "div")) {
         curNode = NodePtr(new DivNode(xmlNode, this));
     } else if (!strcmp (nodeType, "image")) {
@@ -670,7 +693,6 @@ NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc,
 
 void Player::initNode(NodePtr pNode, DivNodeWeakPtr pParent)
 {
-    const string& ID = pNode->getID();
     pNode->connect(m_pDisplayEngine, pParent);
     // If this is a container, recurse into children
     DivNodePtr curDivNode = boost::dynamic_pointer_cast<DivNode>(pNode);
@@ -678,13 +700,6 @@ void Player::initNode(NodePtr pNode, DivNodeWeakPtr pParent)
         for (int i=0; i<curDivNode->getNumChildren(); ++i) {
             initNode(curDivNode->getChild(i), curDivNode);
         }
-    }
-    if (ID != "") {
-        if (m_IDMap.find(ID) != m_IDMap.end()) {
-            throw (Exception (AVG_ERR_XML_DUPLICATE_ID,
-                string("Error: duplicate id ")+ID));
-        }
-        m_IDMap.insert(NodeIDMap::value_type(ID, pNode));
     }
 }
 
