@@ -26,7 +26,8 @@
 #include "SDLDisplayEngine.h"
 #include "../graphics/Rect.h"
 #include "../graphics/Bitmap.h"
-#include "../base/CountedPointer.h"
+
+#include <boost/shared_ptr.hpp>
 
 namespace avg {
 
@@ -57,7 +58,7 @@ class OGLTile {
         unsigned int m_TexID[3];
 };
 
-typedef CountedPointer<OGLTile> OGLTilePtr;
+typedef boost::shared_ptr<OGLTile> OGLTilePtr;
 
 }
 

@@ -51,9 +51,9 @@ class VideoBase : public RasterNode
         VideoBase (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual DPoint getPreferredMediaSize();
         typedef enum VideoState {Unloaded, Paused, Playing};
-        virtual VideoState getState() const;
+        virtual VideoState getVideoState() const;
         void setFrameAvailable(bool bAvailable);
-        void changeState(VideoState NewState);
+        void changeVideoState(VideoState NewVideoState);
         int getMediaWidth();
         int getMediaHeight();
         DisplayEngine::YCbCrMode getYCbCrMode();
@@ -68,7 +68,7 @@ class VideoBase : public RasterNode
         virtual void close() = 0;
         virtual PixelFormat getDesiredPixelFormat() = 0;
 
-        VideoState m_State;
+        VideoState m_VideoState;
        
         int m_Width;
         int m_Height;

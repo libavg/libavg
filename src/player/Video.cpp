@@ -65,7 +65,7 @@ Video::~Video ()
 
 int Video::getNumFrames() const
 {
-    if (getState() != Unloaded) {
+    if (getVideoState() != Unloaded) {
         return m_pDecoder->getNumFrames();
     } else {
         AVG_TRACE(Logger::WARNING,
@@ -76,7 +76,7 @@ int Video::getNumFrames() const
 
 int Video::getCurFrame() const
 {
-    if (getState() != Unloaded) {
+    if (getVideoState() != Unloaded) {
         return m_CurFrame;
     } else {
         AVG_TRACE(Logger::WARNING, 
@@ -87,7 +87,7 @@ int Video::getCurFrame() const
 
 void Video::seekToFrame(int num)
 {
-    if (getState() != Unloaded) {
+    if (getVideoState() != Unloaded) {
         seek(num);
     } else {
         AVG_TRACE(Logger::WARNING, 
@@ -100,7 +100,7 @@ bool Video::getLoop() const
     return m_bLoop;
 }
 
-void Video::connect(DisplayEngine * pEngine, DivNode * pParent)
+void Video::connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent)
 {
     m_pDecoder = new FFMpegDecoder();
     initFilename(getPlayer(), m_Filename);
@@ -117,9 +117,9 @@ void Video::setHRef(const string& href)
     string fileName (href);
     initFilename(getPlayer(), fileName);
     if (fileName != m_Filename) {
-        changeState(Unloaded);
+        changeVideoState(Unloaded);
         m_Filename = fileName;
-        changeState(Paused);
+        changeVideoState(Paused);
     }
 }
 
@@ -191,7 +191,7 @@ void Video::advancePlayback()
         if (m_bLoop) {
             seek(0);
         } else {
-            changeState(Paused);
+            changeVideoState(Paused);
         }
     }
 }

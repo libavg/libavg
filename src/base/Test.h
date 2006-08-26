@@ -24,6 +24,8 @@
 
 #include "CountedPointer.h"
 
+#include <boost/shared_ptr.hpp>
+
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -58,7 +60,7 @@ private:
     std::string m_sName;
 };
 
-typedef CountedPointer<Test> TestPtr;
+typedef boost::shared_ptr<Test> TestPtr;
 
 #define TEST(b)                            \
     cerr << string(m_IndentLevel+4, ' ') << "  TEST(" << #b << ")" << endl;  \

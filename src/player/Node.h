@@ -29,12 +29,17 @@
 
 #include <libxml/parser.h>
 
+#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
+
 #include <vector>
 #include <string>
 
 namespace avg {
 
+class Node;
 class DivNode;
+class AVGNode;
 class Event;
 class Region;
 class DisplayEngine;
@@ -42,13 +47,21 @@ class Player;
 class MouseEvent;
 class OGLSurface;
 
+typedef boost::shared_ptr<Node> NodePtr;
+typedef boost::weak_ptr<Node> NodeWeakPtr;
+typedef boost::shared_ptr<DivNode> DivNodePtr;
+typedef boost::weak_ptr<DivNode> DivNodeWeakPtr;
+typedef boost::shared_ptr<AVGNode> AVGNodePtr;
+typedef boost::weak_ptr<AVGNode> AVGNodeWeakPtr;
+
 class Node
 {
     public:
         enum NodeState {NS_UNCONNECTED, NS_CONNECTED, NS_DISABLED};
         
         virtual ~Node () = 0;
-        virtual void connect(DisplayEngine * pEngine, DivNode * pParent);
+        virtual void setThis(NodeWeakPtr This);
+        virtual void connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent);
         
         /**
          * Returns the unique id that can be used to reference the node.
@@ -76,11 +89,11 @@ class Node
         bool getSensitive() const;
         void setSensitive(bool bSensitive);
 
-        virtual DivNode * getParent() const;
+        virtual DivNodePtr getParent() const;
 
         bool isActive();
         bool reactsToMouseEvents();
-        virtual Node * getElementByPos (const DPoint & pos);
+        virtual NodePtr getElementByPos (const DPoint & pos);
         virtual void prepareRender (int time, const DRect& parent);
         virtual void maybeRender (const DRect& Rect);
         virtual void render (const DRect& Rect);
@@ -95,12 +108,12 @@ class Node
         virtual double getEffectiveOpacity();
 
         virtual std::string dump (int indent = 0);
-        virtual std::string getTypeStr ();
-        void setParent(DivNode * pParent);
+        virtual std::string getTypeStr () const;
+        void setParent(DivNodeWeakPtr pParent);
         
         virtual void handleMouseEvent (MouseEvent* pEvent); 
         virtual void invalidate();
-        NodeState getState();
+        NodeState getState() const;
         
         // TODO: Do we still need this? Isn't rtti good enough?
         enum {NT_UNKNOWN, NT_IMAGE, NT_AVG, NT_VIDEO, NT_TEXT, NT_EXCL, 
@@ -111,19 +124,20 @@ class Node
         Node (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual DPoint getPreferredMediaSize() 
             { return DPoint(0,0); };
-        Player * getPlayer();
-        DisplayEngine * getEngine();
+        Player * getPlayer() const;
+        DisplayEngine * getEngine() const;
+        NodeWeakPtr getThis() const;
 
         void callPython (const std::string& Code, const avg::Event& Event);
             
         void initFilename (Player * pPlayer, std::string& sFilename);
-        bool isInitialized ();
         void setState(NodeState State);
  
     private:
         void calcAbsViewport();
 
-        DivNode * m_pParent;
+        DivNodeWeakPtr m_pParent;
+        NodeWeakPtr m_This;
         DisplayEngine * m_pEngine;
         Player * m_pPlayer;
 
@@ -141,7 +155,6 @@ class Node
         bool m_bSensitive;
         
         // Initialization helpers.
-        bool m_bInitialized;
         double m_InitialWidth;
         double m_InitialHeight;
 

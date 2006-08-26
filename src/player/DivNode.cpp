@@ -43,9 +43,6 @@ DivNode::DivNode (const xmlNodePtr xmlNode, Player * pPlayer)
 
 DivNode::~DivNode()
 {
-    for (unsigned int i = 0; i< m_Children.size(); i++) {
-        delete m_Children[i];
-    }
 }
 
 int DivNode::getNumChildren ()
@@ -53,7 +50,7 @@ int DivNode::getNumChildren ()
     return m_Children.size();
 }
 
-Node * DivNode::getChild (int i)
+NodePtr DivNode::getChild (int i)
 {
     if (i >= (int)m_Children.size() || i < 0) {
         stringstream s;
@@ -64,22 +61,23 @@ Node * DivNode::getChild (int i)
     return m_Children[i];
 }
 
-void DivNode::addChild (Node * pNewNode)
+void DivNode::addChild (NodePtr pNewNode)
 {
     m_Children.push_back(pNewNode);
     if (getState()==NS_CONNECTED) {
-        pNewNode->connect(getEngine(), this);
+        DivNodePtr Ptr = boost::dynamic_pointer_cast<DivNode>(getThis().lock());
+        pNewNode->connect(getEngine(), Ptr);
     }
 }
 
 void DivNode::removeChild (int i)
 {
-    Node * pNode = getChild(i);
+    NodePtr pNode = getChild(i);
     pNode->invalidate();
     m_Children.erase(m_Children.begin()+i);
 }
 
-int DivNode::indexOf(Node * pChild)
+int DivNode::indexOf(NodePtr pChild)
 {
     for  (int i = 0; i< (int)m_Children.size(); ++i) {
         if (m_Children[i] == pChild) {
@@ -89,18 +87,18 @@ int DivNode::indexOf(Node * pChild)
     return -1;
 }
 
-Node * DivNode::getElementByPos (const DPoint & pos)
+NodePtr DivNode::getElementByPos (const DPoint & pos)
 {
     if (!getVisibleRect().Contains(pos) || !reactsToMouseEvents()) {
-        return 0;
+        return NodePtr();
     }
     for (int i=getNumChildren()-1; i>=0; i--) {
-        Node * pFoundNode = getChild(i)->getElementByPos(pos);
+        NodePtr pFoundNode = getChild(i)->getElementByPos(pos);
         if (pFoundNode) {
             return pFoundNode;
         }
     }
-    return this; // pos is in current node, but not in any child.
+    return getThis().lock(); // pos is in current node, but not in any child.
 }
 
 void DivNode::prepareRender (int time, const DRect& parent)
@@ -150,7 +148,7 @@ string DivNode::getTypeStr ()
 string DivNode::dump (int indent)
 {
     string dumpStr = Node::dump () + "\n";
-    vector<Node*>::iterator it;
+    vector<NodePtr>::iterator it;
     for (it=m_Children.begin(); it<m_Children.end(); it++) {
         dumpStr += (*it)->dump(indent+2)+"\n";
     }

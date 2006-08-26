@@ -77,21 +77,26 @@ class AVGTestCase(unittest.TestCase):
         if CREATE_BASELINE_IMAGES:
             Bmp.save(BASELINE_DIR+"/"+fileName+".png")
         else:
-            BaselineBmp = avg.Bitmap(BASELINE_DIR+"/"+fileName+".png")
-            NumPixels = Player.getTestHelper().getNumDifferentPixels(Bmp, BaselineBmp)
-            if (NumPixels > 20):
-                if ourSaveDifferences:
-                    Bmp.save(RESULT_DIR+"/"+fileName+".png")
-                    BaselineBmp.save(RESULT_DIR+"/"+fileName+"_baseline.png")
-                    Bmp.subtract(BaselineBmp)
-                    Bmp.save(RESULT_DIR+"/"+fileName+"_diff.png")
-                self.Log.trace(self.Log.WARNING, "Image compare: "+str(NumPixels)+
-                        " bright pixels.")
-                if warn:
-                    self.Log.trace(self.Log.WARNING, "Image "+fileName
-                            +" differs from original.")
-                else:
-                    self.assert_(False)
+            try:
+                BaselineBmp = avg.Bitmap(BASELINE_DIR+"/"+fileName+".png")
+                NumPixels = Player.getTestHelper().getNumDifferentPixels(Bmp, BaselineBmp)
+                if (NumPixels > 20):
+                    if ourSaveDifferences:
+                        Bmp.save(RESULT_DIR+"/"+fileName+".png")
+                        BaselineBmp.save(RESULT_DIR+"/"+fileName+"_baseline.png")
+                        Bmp.subtract(BaselineBmp)
+                        Bmp.save(RESULT_DIR+"/"+fileName+"_diff.png")
+                    self.Log.trace(self.Log.WARNING, "Image compare: "+str(NumPixels)+
+                            " bright pixels.")
+                    if warn:
+                        self.Log.trace(self.Log.WARNING, "Image "+fileName
+                                +" differs from original.")
+                    else:
+                        self.assert_(False)
+            except RuntimeError:
+                Bmp.save(RESULT_DIR+"/"+fileName+".png")
+                self.Log.trace(self.Log.WARNING, "Could not load image "+fileName+".png")
+                self.assert_(False)
 
 def keyUp():
     print "keyUp"
@@ -173,7 +178,6 @@ def onErrMouseOver():
 def onDeactMouseDown():
     global deactMouseDownCalled
     deactMouseDownCalled = True
-    print("down")
 
 def onDeactMouseOver():
     global deactMouseDownCalled
@@ -181,7 +185,6 @@ def onDeactMouseOver():
     global deactMouseOverCalled
     deactMouseOverLate = deactMouseDownCalled
     deactMouseOverCalled = True
-    print("over")
 
 def onDeactMouseMove():
     print("move")
@@ -570,16 +573,15 @@ class PlayerTestCase(AVGTestCase):
             node = Player.createNode("<image href='rgb24-64x64.png'/>")
             node.x = 10
             node.y = 20
-            node.z = 2
-            node.opacity = 0.333
+            node.opacity = 0.666
             node.angle = 0.1
             node.blendmode = "add"
-            print node
 #            print node.toXML()
-#            self.rootNode.addChild(node)
+            self.rootNode.addChild(node)
         self.start("empty.avg",
                 (printNodes,
                  createNode,
+                 lambda: self.compareImage("testDynamics1", False),
                  Player.stop))
             
 def playerTestSuite(engine, bpp):

@@ -327,7 +327,7 @@ void SDLDisplayEngine::logConfig()
 static ProfilingZone PrepareRenderProfilingZone("  Root node: prepareRender");
 static ProfilingZone RootRenderProfilingZone("  Root node: render");
 
-void SDLDisplayEngine::render(AVGNode * pRootNode, bool bRenderEverything)
+void SDLDisplayEngine::render(AVGNodePtr pRootNode, bool bRenderEverything)
 {
     if (!m_bEnableCrop && pRootNode->getCropSetting()) {
         m_bEnableCrop = true;
@@ -338,7 +338,6 @@ void SDLDisplayEngine::render(AVGNode * pRootNode, bool bRenderEverything)
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "setClipPlane: glEnable()");
     }
-
     {
         ScopeTimer Timer(PrepareRenderProfilingZone);
         pRootNode->prepareRender(0, pRootNode->getAbsViewport());

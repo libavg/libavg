@@ -50,7 +50,7 @@ class Camera : public VideoBase
         Camera (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual ~Camera ();
 
-        virtual void connect(DisplayEngine * pEngine, DivNode * pParent);
+        virtual void connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent);
         virtual std::string getTypeStr ();
 
         const std::string& getDevice() const 

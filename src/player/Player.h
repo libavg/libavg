@@ -30,6 +30,7 @@
 #include "MouseEvent.h"
 #include "DisplayEngine.h"
 #include "TestHelper.h"
+#include "Node.h"
 
 #include "../base/IFrameListener.h"
 
@@ -41,9 +42,6 @@
 
 namespace avg {
 
-class AVGNode;
-class Node;
-class DivNode;
 class Event;
 class MouseEvent;
 class DisplayEngine;
@@ -68,7 +66,7 @@ class Player : IEventSink
         bool setVBlankFramerate(int rate);
         TestHelper * getTestHelper();
 
-        Node * createNodeFromXmlString (const std::string& sXML);
+        NodePtr createNodeFromXmlString (const std::string& sXML);
         int setInterval(int time, PyObject * pyfunc);
         int setTimeout(int time, PyObject * pyfunc);
         bool clearInterval(int id);
@@ -77,8 +75,8 @@ class Player : IEventSink
         Bitmap * screenshot();
         void showCursor(bool bShow);
 
-        Node * getElementByID(const std::string& id);
-        AVGNode * getRootNode();
+        NodePtr getElementByID(const std::string& id);
+        AVGNodePtr getRootNode();
         void doFrame();
         double getFramerate();
         double getVideoRefreshRate();
@@ -89,28 +87,28 @@ class Player : IEventSink
         void registerFrameListener(IFrameListener* pListener);
         void unregisterFrameListener(IFrameListener* pListener);
         std::string getCurDirName();
-        void initNode(Node * pNode, DivNode * pParent);
 
     private:
         void initConfig();
+        void initNode(NodePtr pNode, DivNodeWeakPtr pParent);
 
-        Node * createNodeFromXml(const xmlDocPtr xmlDoc, 
-                const xmlNodePtr xmlNode, DivNode * pParent);
+        NodePtr createNodeFromXml(const xmlDocPtr xmlDoc, 
+                const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);
 
         void initDisplay(const xmlNodePtr xmlNode);
         void render (bool bRenderEverything);
         void sendMouseOver(MouseEvent * pOtherEvent, Event::Type Type, 
-                Node * pNode);
+                NodePtr pNode);
         void cleanup();
 	
-        AVGNode * m_pRootNode;
+        AVGNodePtr m_pRootNode;
         DisplayEngine * m_pDisplayEngine;
         IEventSource * m_pEventSource;
         TestHelper m_TestHelper;
         
         std::string m_CurDirName;
         bool m_bStopping;
-        typedef std::map<std::string, Node*> NodeIDMap;
+        typedef std::map<std::string, NodePtr> NodeIDMap;
         NodeIDMap m_IDMap;
 
         int addTimeout(Timeout* pTimeout);
@@ -125,7 +123,7 @@ class Player : IEventSink
         EventDispatcher m_EventDispatcher;
         DebugEventSink  m_EventDumper;
         Event * m_pCurEvent;
-        Node * m_pLastMouseNode;
+        NodePtr m_pLastMouseNode;
 
         // Configuration variables.
         std::string m_sDisplaySubsystem;

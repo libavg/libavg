@@ -51,7 +51,7 @@ using namespace std;
 namespace avg {
 
 VideoBase::VideoBase ()
-    : m_State(Unloaded),
+    : m_VideoState(Unloaded),
       m_Width(0),
       m_Height(0),
       m_YCbCrMode(DisplayEngine::NONE),
@@ -61,7 +61,7 @@ VideoBase::VideoBase ()
 
 VideoBase::VideoBase (const xmlNodePtr xmlNode, Player * pPlayer)
     : RasterNode(xmlNode, pPlayer),
-      m_State(Unloaded),
+      m_VideoState(Unloaded),
       m_Width(0),
       m_Height(0),
       m_bFrameAvailable(false)
@@ -74,42 +74,42 @@ VideoBase::~VideoBase ()
 
 void VideoBase::play()
 {
-    if (!isInitialized()) {
+    if (getState() != NS_CONNECTED) {
         throw Exception(AVG_ERR_NOT_IN_SCENE,
                 "VideoBase::play() called on object not in scene.");
     }
-    changeState(Playing);
+    changeVideoState(Playing);
 }
 
 void VideoBase::stop()
 {
-    if (!isInitialized()) {
+    if (getState() != NS_CONNECTED) {
         throw Exception(AVG_ERR_NOT_IN_SCENE,
                 "VideoBase::stop() called on object not in scene.");
     }
-    changeState(Unloaded);
+    changeVideoState(Unloaded);
 }
 
 void VideoBase::pause()
 {
-    if (!isInitialized()) {
+    if (getState() != NS_CONNECTED) {
         throw Exception(AVG_ERR_NOT_IN_SCENE,
                 "VideoBase::pause() called on object not in scene.");
     }
-    changeState(Paused);
+    changeVideoState(Paused);
 }
 
 void VideoBase::prepareRender (int time, const DRect& parent)
 {
     Node::prepareRender(time, parent);
-    if (m_State == Playing) {
+    if (m_VideoState == Playing) {
         invalidate();
     }
 }
 
 void VideoBase::render (const DRect& Rect)
 {
-    switch(m_State) 
+    switch(m_VideoState) 
     {
         case Playing:
             {
@@ -154,19 +154,19 @@ void VideoBase::render (const DRect& Rect)
     }
 }
 
-void VideoBase::changeState(VideoState NewState)
+void VideoBase::changeVideoState(VideoState NewVideoState)
 {
-    if (m_State == NewState) {
+    if (m_VideoState == NewVideoState) {
         return;
     }
-    if (m_State == Unloaded) {
+    if (m_VideoState == Unloaded) {
         open();
     }
-    if (NewState == Unloaded) {
+    if (NewVideoState == Unloaded) {
         close();
     }
     addDirtyRect(getVisibleRect());
-    m_State = NewState;
+    m_VideoState = NewVideoState;
 }
 
 void VideoBase::renderToBackbuffer()
@@ -243,7 +243,7 @@ void VideoBase::open()
     }
     
     m_bFrameAvailable = false;
-    m_State = Paused;
+    m_VideoState = Paused;
 }
 
 int VideoBase::getMediaWidth()
@@ -264,7 +264,7 @@ DisplayEngine::YCbCrMode VideoBase::getYCbCrMode()
 bool VideoBase::obscures (const DRect& Rect, int Child)
 {
     return (isActive() && getEffectiveOpacity() > 0.999 &&
-            getVisibleRect().Contains(Rect) && m_State != Unloaded);
+            getVisibleRect().Contains(Rect) && m_VideoState != Unloaded);
 }
 
 string VideoBase::dump (int indent)
@@ -277,9 +277,9 @@ DPoint VideoBase::getPreferredMediaSize()
     return DPoint(m_Width, m_Height);
 }
 
-VideoBase::VideoState VideoBase::getState() const
+VideoBase::VideoState VideoBase::getVideoState() const
 {
-    return m_State;
+    return m_VideoState;
 }
 
 void VideoBase::setFrameAvailable(bool bAvailable)

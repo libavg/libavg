@@ -35,7 +35,7 @@ MouseEvent::MouseEvent(Event::Type eventType,
         bool leftButtonState, bool middleButtonState, bool rightButtonState,
         int xPosition, int yPosition, int button)
     : Event(eventType),
-      m_pNode(0)
+      m_pNode()
 {
     m_LeftButtonState = leftButtonState;
     m_MiddleButtonState = middleButtonState;
@@ -53,7 +53,7 @@ MouseEvent::~MouseEvent()
 {
 }
 
-Node * MouseEvent::getElement() const
+NodePtr MouseEvent::getElement() const
 {
     return m_pNode;
 }
@@ -88,7 +88,7 @@ int MouseEvent::getButton() const
     return m_Button;
 }
 
-void MouseEvent::setElement(Node * pNode)
+void MouseEvent::setElement(NodePtr pNode)
 {
     m_pNode = pNode;
 }

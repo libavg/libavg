@@ -1,4 +1,4 @@
-//
+
 //  libavg - Media Playback Engine. 
 //  Copyright (C) 2003-2006 Ulrich von Zadow
 //
@@ -22,6 +22,8 @@
 #ifndef _DisplayEngine_H_
 #define _DisplayEngine_H_
 
+#include "Node.h"
+
 #include "../graphics/Rect.h"
 #include "../graphics/Pixel32.h"
 #include "../graphics/Bitmap.h"
@@ -33,8 +35,6 @@ namespace avg {
 class ISurface;
 
 class Region;
-class Node;
-class AVGNode;
 
 class DisplayEngine
 {	
@@ -56,7 +56,7 @@ class DisplayEngine
         virtual void setGamma(double Red, double Green, double Blue) = 0;
 
 
-        virtual void render(AVGNode * pRootNode, bool bRenderEverything) = 0;
+        virtual void render(AVGNodePtr pRootNode, bool bRenderEverything) = 0;
         void frameWait();
         
         virtual void setClipRect() = 0;

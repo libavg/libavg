@@ -36,7 +36,7 @@ class RasterNode: public Node
 {
     public:
         virtual ~RasterNode ();
-        virtual void connect(DisplayEngine * pEngine, DivNode * pParent);
+        virtual void connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent);
         
         // Warping support.
         int getNumVerticesX();
@@ -69,7 +69,7 @@ class RasterNode: public Node
 #endif
         DisplayEngine::BlendMode getBlendMode() const;
         virtual std::string getTypeStr ();
-        Node * getElementByPos (const DPoint & pos);
+        NodePtr getElementByPos (const DPoint & pos);
 
         Bitmap* getBitmap();
         

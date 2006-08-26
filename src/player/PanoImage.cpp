@@ -82,7 +82,7 @@ PanoImage::~PanoImage ()
     clearTextures();
 }
 
-void PanoImage::connect (DisplayEngine * pEngine, DivNode * pParent)
+void PanoImage::connect (DisplayEngine * pEngine, DivNodeWeakPtr pParent)
 {
     SDLDisplayEngine * pSDLEngine;
 #ifdef AVG_ENABLE_GL    

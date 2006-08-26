@@ -35,6 +35,7 @@ void export_devices();
 
 #include <boost/python.hpp>
 #include <boost/version.hpp>
+#include <boost/shared_ptr.hpp>
 
 using namespace boost::python;
 using namespace avg;
@@ -49,6 +50,9 @@ BOOST_PYTHON_MODULE(avg)
 #if (BOOST_VERSION / 100000) > 1 || ((BOOST_VERSION / 100) % 1000) >= 33
     register_exception_translator<Exception>(exception_translator);
 #endif
+    register_ptr_to_python< NodePtr >();
+    register_ptr_to_python< DivNodePtr >();
+    register_ptr_to_python< AVGNodePtr >();
 
     class_<Logger>("Logger", 
             "Interface to the logger used by the avg player. Enables the setting\n"
@@ -116,8 +120,8 @@ BOOST_PYTHON_MODULE(avg)
      export_devices();
 #endif
     export_event();
-    
-    class_<Node, boost::noncopyable>("Node",
+
+    class_<Node, boost::shared_ptr<Node>, boost::noncopyable>("Node",
             "Base class for all elements in the avg tree.\n"
             "Properties:\n"
             "    id: A unique identifier that can be used to reference the node (ro).\n"
@@ -133,7 +137,6 @@ BOOST_PYTHON_MODULE(avg)
             "    sensitive: A node only reacts to events if sensitive is true.",
             no_init)
         .def("getParent", &Node::getParent,
-                return_internal_reference<>(),
                 "getParent() -> Node\n\n"
                 "Returns the container (AVGNode or DivNode) the node is in. For\n"
                 "the root node, returns None.\n")
@@ -160,11 +163,9 @@ BOOST_PYTHON_MODULE(avg)
         .def("getNumChildren", &DivNode::getNumChildren,
                 "getNumChildren() -> numChildren\n\n")
         .def("getChild", &DivNode::getChild, 
-                return_value_policy<reference_existing_object>(),
                 "getChild(i) -> Node\n\n"
                 "Returns the ith child in z-order.")
         .def("addChild", &DivNode::addChild,
-                with_custodian_and_ward<1, 2>(),
                 "addChild(Node) -> None\n\n"
                 "Adds a new child to the container.")
         .def("removeChild", &DivNode::removeChild,
@@ -304,7 +305,6 @@ BOOST_PYTHON_MODULE(avg)
                 return_value_policy<reference_existing_object>(),
                 "")
         .def("createNode", &Player::createNodeFromXmlString,
-                return_value_policy<manage_new_object>(),
                 "createNode(xml) -> Node\n\n"
                 "Creates a new Node from an xml string. This node can be used as\n"
                 "parameter to DivNode::addChild(). BROKEN!")
@@ -341,12 +341,10 @@ BOOST_PYTHON_MODULE(avg)
                 "OpenGL. Showing the DirectFB mouse cursor seems to expose some\n"
                 "issue with DirectFB.)")
         .def("getElementByID", &Player::getElementByID,
-                return_value_policy<reference_existing_object>(),
                 "getElementByID(id) -> Node\n\n"
                 "Returns an element in the avg tree. The id corresponds to the id\n"
                 "attribute of the node.")
         .def("getRootNode", &Player::getRootNode,
-                return_value_policy<reference_existing_object>(),
                 "getRootNode() -> AVGNode\n\n"
                 "Returns the outermost element in the avg tree.")
         .def("getFramerate", &Player::getFramerate,

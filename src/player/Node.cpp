@@ -47,7 +47,7 @@ using namespace std;
 namespace avg {
 
 Node::Node ()
-    : m_pParent(0),
+    : m_pParent(),
       m_pPlayer(0),
       m_ID(""),
       m_MouseMoveHandler(""),
@@ -60,20 +60,17 @@ Node::Node ()
       m_Opacity(1.0),
       m_bActive(true),
       m_bSensitive(true),
-      m_bInitialized(false),
       m_InitialWidth(0),
       m_InitialHeight(0)
 {
+    setState(NS_UNCONNECTED);
 }
 
 Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
-    : m_pParent(0),
+    : m_pParent(),
       m_pPlayer(pPlayer),
       m_RelViewport(0,0,0,0),
-      m_AbsViewport(0,0,0,0),
-      m_bInitialized(false),
-      m_InitialWidth(0),
-      m_InitialHeight(0)
+      m_AbsViewport(0,0,0,0)
 {
     m_ID = getDefaultedStringAttr (xmlNode, "id", "");
     m_MouseMoveHandler = getDefaultedStringAttr (xmlNode, "onmousemove", "");
@@ -95,7 +92,12 @@ Node::~Node()
 {
 }
 
-void Node::connect(DisplayEngine * pEngine, DivNode * pParent)
+void Node::setThis(NodeWeakPtr This)
+{
+    m_This = This;
+}
+
+void Node::connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent)
 {
     m_pParent = pParent;
     m_pEngine = pEngine;
@@ -111,12 +113,11 @@ void Node::connect(DisplayEngine * pEngine, DivNode * pParent)
     m_RelViewport.SetWidth(m_InitialWidth);
     m_RelViewport.SetHeight(m_InitialHeight);
     DPoint pos(0,0);
-    if (m_pParent) {
-        pos = m_pParent->getAbsViewport().tl;
-    } 
+    if (getParent()) {
+        pos = getParent()->getAbsViewport().tl;
+    }
     m_AbsViewport = DRect (pos+getRelViewport().tl, pos+getRelViewport().br);
-    m_State = NS_CONNECTED;
-    m_bInitialized = true;
+    setState(NS_CONNECTED);
 }
 
 const string& Node::getID () const
@@ -193,9 +194,13 @@ void Node::setSensitive(bool bSensitive)
     m_bSensitive = bSensitive;
 }
 
-DivNode* Node::getParent() const
+DivNodePtr Node::getParent() const
 {
-    return m_pParent;
+    if (m_pParent.expired()) {
+        return DivNodePtr();
+    } else {
+        return m_pParent.lock();
+    }
 }
 
 bool Node::isActive()
@@ -208,12 +213,12 @@ bool Node::reactsToMouseEvents()
     return m_bActive && m_bSensitive;
 }
 
-Node * Node::getElementByPos (const DPoint & pos)
+NodePtr Node::getElementByPos (const DPoint & pos)
 {
     if (getVisibleRect().Contains(pos) && reactsToMouseEvents()) {
-        return this;
+        return m_This.lock();
     } else {
-        return 0;
+        return NodePtr();
     }
 }
 
@@ -232,20 +237,17 @@ void Node::maybeRender (const DRect& Rect)
         } else {
             bVisible = getEngine()->pushClipRect(getVisibleRect(), false);
         }
-        if (bVisible) {
-            if (getEffectiveOpacity() > 0.01) {
-                if (!getParent() || 
-                    !getParent()->obscures(getEngine()->getClipRect(), 
-                            getParent()->indexOf(this)))
-                {
-                    if (m_ID != "") {
-                        AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
-                                " with ID " << m_ID);
-                    } else {
-                        AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
-                    }
-                    render(Rect);
-                } 
+        if (bVisible && getEffectiveOpacity() > 0.01) {
+            if (!getParent() || !getParent()->obscures(getEngine()->getClipRect(), 
+                    getParent()->indexOf(m_This.lock())))
+            {
+                if (m_ID != "") {
+                    AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
+                            " with ID " << m_ID);
+                } else {
+                    AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
+                }
+                render(Rect);
             }
         }
         getEngine()->popClipRect();
@@ -274,17 +276,17 @@ void Node::getDirtyRegion (Region& Region)
 
 void Node::invalidate()
 {
-    if (m_bInitialized) {
+    if (m_State == NS_CONNECTED) {
         addDirtyRect(getVisibleRect());
     }
 }
 
-Node::NodeState Node::getState()
+Node::NodeState Node::getState() const
 {
     return m_State;
 }
 
-Player * Node::getPlayer()
+Player * Node::getPlayer() const
 {
     return m_pPlayer;
 }
@@ -327,10 +329,10 @@ const DRect& Node::getAbsViewport () const
 
 DRect Node::getVisibleRect()
 {
-    Node * pParent = getParent();
     DRect visRect = getAbsViewport();
+    NodePtr pParent = getParent();
     if (pParent) {
-        DRect parent = getParent()->getVisibleRect();
+        DRect parent = pParent->getVisibleRect();
         visRect.Intersect(parent);
     }
     return visRect;
@@ -338,7 +340,7 @@ DRect Node::getVisibleRect()
 
 void Node::calcAbsViewport()
 {
-    Node * pParent = getParent();
+    NodePtr pParent = getParent();
     if (pParent) {
         DRect parent = pParent->getAbsViewport();
         m_AbsViewport = DRect(parent.tl+getRelViewport().tl, 
@@ -360,9 +362,14 @@ double Node::getEffectiveOpacity()
     }
 }
 
-DisplayEngine * Node::getEngine()
+DisplayEngine * Node::getEngine() const
 {
     return m_pEngine;
+}
+
+NodeWeakPtr Node::getThis() const
+{
+    return m_This;
 }
 
 string Node::dump (int indent)
@@ -381,15 +388,15 @@ string Node::dump (int indent)
     return dumpStr; 
 }
 
-string Node::getTypeStr ()
+string Node::getTypeStr () const 
 {
     return "Node";
 }
 
 
-void Node::setParent(DivNode * pParent)
+void Node::setParent(DivNodeWeakPtr pParent)
 {
-    if (m_pParent) {
+    if (getParent()) {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
                 "Can't change parent of node."));
     }
@@ -399,7 +406,7 @@ void Node::setParent(DivNode * pParent)
 void Node::handleMouseEvent (MouseEvent* pEvent)
 {
     string Code;
-    pEvent->setElement(this);
+    pEvent->setElement(m_This.lock());
     int EventType = pEvent->getType();
     switch (EventType) {
         case Event::MOUSEMOTION:
@@ -423,8 +430,8 @@ void Node::handleMouseEvent (MouseEvent* pEvent)
     if (!Code.empty()) {
         callPython(Code, *pEvent);
     }
-    if (m_pParent) {
-        m_pParent->handleMouseEvent (pEvent);
+    if (getParent()) {
+        getParent()->handleMouseEvent (pEvent);
     }
 }
 
@@ -460,13 +467,22 @@ void Node::initFilename(Player * pPlayer, string& sFilename)
     }
 }
 
-bool Node::isInitialized()
-{
-    return m_bInitialized;
-}
-
 void Node::setState(Node::NodeState State)
 {
+/*
+    cerr << m_ID << "state: ";
+    switch(State) {
+        case NS_UNCONNECTED:
+            cerr << "unconnected" << endl;
+            break;
+        case NS_CONNECTED:
+            cerr << "connected" << endl;
+            break;
+        case NS_DISABLED:
+            cerr << "disabled" << endl;
+            break;
+    }
+*/
     m_State = State;
 }
 

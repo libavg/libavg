@@ -92,7 +92,7 @@ Camera::~Camera ()
 {
 }
 
-void Camera::connect(DisplayEngine * pEngine, DivNode * pParent)
+void Camera::connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent)
 {
 #ifdef AVG_ENABLE_1394
     if (m_FrameRate == 1.875) {

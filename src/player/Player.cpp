@@ -77,12 +77,12 @@ using namespace std;
 namespace avg {
 
 Player::Player()
-    : m_pRootNode (0),
+    : m_pRootNode(),
       m_pDisplayEngine(0),
       m_TestHelper(this),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false), 
-      m_pLastMouseNode(0),
+      m_pLastMouseNode(),
       m_bShowCursor(true),
       m_bIsPlaying(false)
 {
@@ -267,10 +267,10 @@ void Player::loadFile (const std::string& filename)
                     filename + " does not validate."));
         }
 
-        m_pRootNode = dynamic_cast<AVGNode*>
-            (createNodeFromXml(doc, xmlDocGetRootElement(doc), 0));
+        m_pRootNode = boost::dynamic_pointer_cast<AVGNode>
+            (createNodeFromXml(doc, xmlDocGetRootElement(doc), DivNodePtr()));
         initDisplay(xmlDocGetRootElement(doc));
-        initNode(m_pRootNode, 0);
+        initNode(m_pRootNode, DivNodePtr());
         DRect rc = m_pRootNode->getRelViewport();
         
         // Reset the directory to load assets from to the current dir.
@@ -422,17 +422,17 @@ void Player::showCursor(bool bShow)
 }
 
 
-Node * Player::getElementByID (const std::string& id)
+NodePtr Player::getElementByID (const std::string& id)
 {
     if (m_IDMap.find(id) != m_IDMap.end()) {
         return m_IDMap.find(id)->second;
     } else {
         AVG_TRACE(Logger::WARNING, "getElementByID(" << id << ") failed.");
-        return 0;
+        return NodePtr();
     }
 }
 
-AVGNode * Player::getRootNode ()
+AVGNodePtr Player::getRootNode ()
 {
     return m_pRootNode;
 }
@@ -596,7 +596,7 @@ void Player::initConfig() {
     }
 }
 
-Node * Player::createNodeFromXmlString (const string& sXML)
+NodePtr Player::createNodeFromXmlString (const string& sXML)
 {
     try {
         xmlDocPtr doc;
@@ -605,58 +605,59 @@ Node * Player::createNodeFromXmlString (const string& sXML)
             throw (Exception(AVG_ERR_XML_PARSE, 
                         string("Error parsing xml:\n  ")+sXML));
         }
-        Node * pNode = createNodeFromXml(doc, xmlDocGetRootElement(doc), 0);
+        NodePtr pNode = createNodeFromXml(doc, xmlDocGetRootElement(doc), DivNodePtr());
 
         xmlFreeDoc(doc);
         return pNode;
     } catch (Exception& ex) {
         AVG_TRACE(Logger::ERROR, ex.GetStr());
-        return 0;
+        return NodePtr();
     } catch (Magick::Exception& ex) {
         AVG_TRACE(Logger::ERROR, ex.what());
-        return 0;
+        return NodePtr();
     }
 }
 
-Node * Player::createNodeFromXml (const xmlDocPtr xmlDoc, 
-        const xmlNodePtr xmlNode, DivNode * pParent)
+NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc, 
+        const xmlNodePtr xmlNode, DivNodeWeakPtr pParent)
 {
     const char * nodeType = (const char *)xmlNode->name;
-    Node * curNode = 0;
+    NodePtr curNode;
     
     string id = getDefaultedStringAttr (xmlNode, "id", "");
     if (!strcmp (nodeType, "avg")) {
-        curNode = new AVGNode(xmlNode);
+        curNode = NodePtr(new AVGNode(xmlNode));
     } else if (!strcmp (nodeType, "div")) {
-        curNode = new DivNode(xmlNode, this);
+        curNode = NodePtr(new DivNode(xmlNode, this));
     } else if (!strcmp (nodeType, "image")) {
-        curNode = new Image(xmlNode, this);
+        curNode = NodePtr(new Image(xmlNode, this));
     } else if (!strcmp (nodeType, "words")) {
-        curNode = new Words(xmlNode, this);
+        curNode = NodePtr(new Words(xmlNode, this));
         string s = getXmlChildrenAsString(xmlDoc, xmlNode);
-        dynamic_cast<Words*>(curNode)->initText(s);
+        boost::dynamic_pointer_cast<Words>(curNode)->initText(s);
     } else if (!strcmp (nodeType, "video")) {
-        curNode = new Video(xmlNode, this);
+        curNode = NodePtr(new Video(xmlNode, this));
     } else if (!strcmp (nodeType, "camera")) {
-        curNode = new Camera(xmlNode, this);
+        curNode = NodePtr(new Camera(xmlNode, this));
     }
     else if (!strcmp (nodeType, "panoimage")) {
-        curNode = new PanoImage(xmlNode, this);
+        curNode = NodePtr(new PanoImage(xmlNode, this));
     } 
     else if (!strcmp (nodeType, "text") || 
                !strcmp (nodeType, "comment")) {
         // Ignore whitespace & comments
-        return 0;
+        return NodePtr();
     } else {
         throw (Exception (AVG_ERR_XML_NODE_UNKNOWN, 
             string("Unknown node type ")+(const char *)nodeType+" encountered."));
     }
+    curNode->setThis(curNode);
     // If this is a container, recurse into children
-    DivNode * curDivNode = dynamic_cast<DivNode*>(curNode);
+    DivNodePtr curDivNode = boost::dynamic_pointer_cast<DivNode>(curNode);
     if (curDivNode) {
         xmlNodePtr curXmlChild = xmlNode->xmlChildrenNode;
         while (curXmlChild) {
-            Node *curChild = createNodeFromXml (xmlDoc, curXmlChild, 
+            NodePtr curChild = createNodeFromXml (xmlDoc, curXmlChild, 
                     curDivNode);
             if (curChild) {
                 curDivNode->addChild(curChild);
@@ -667,12 +668,12 @@ Node * Player::createNodeFromXml (const xmlDocPtr xmlDoc,
     return curNode;
 }
 
-void Player::initNode(Node * pNode, DivNode * pParent)
+void Player::initNode(NodePtr pNode, DivNodeWeakPtr pParent)
 {
     const string& ID = pNode->getID();
     pNode->connect(m_pDisplayEngine, pParent);
     // If this is a container, recurse into children
-    DivNode * curDivNode = dynamic_cast<DivNode*>(pNode);
+    DivNodePtr curDivNode = boost::dynamic_pointer_cast<DivNode>(pNode);
     if (curDivNode) {
         for (int i=0; i<curDivNode->getNumChildren(); ++i) {
             initNode(curDivNode->getChild(i), curDivNode);
@@ -745,7 +746,7 @@ bool Player::handleEvent(Event * pEvent)
                 MouseEvent * pMouseEvent = dynamic_cast<MouseEvent*>(pEvent);
                 DPoint pos(pMouseEvent->getXPosition(), 
                         pMouseEvent->getYPosition());
-                Node * pNode;
+                NodePtr pNode;
                 if (pEvent->getType() != Event::MOUSEOVER &&
                         pEvent->getType() != Event::MOUSEOUT)
                 {
@@ -800,7 +801,7 @@ DisplayEngine * Player::getDisplayEngine() const
 }
 
 void Player::sendMouseOver(MouseEvent * pOtherEvent, Event::Type Type, 
-                Node * pNode)
+                NodePtr pNode)
 {
     MouseEvent * pNewEvent = new MouseEvent(Type,
             pOtherEvent->getLeftButtonState(),
@@ -824,9 +825,8 @@ void Player::cleanup()
     Profiler::get().dumpStatistics();
     m_pDisplayEngine->deinitRender();
     m_pDisplayEngine->teardown();
-    delete m_pRootNode;
-    m_pRootNode = 0;
-    m_pLastMouseNode = 0;
+    m_pRootNode = AVGNodePtr();
+    m_pLastMouseNode = NodePtr();
     m_IDMap.clear();
     initConfig();
 }

@@ -87,7 +87,6 @@ void export_event()
         .add_property("x", &MouseEvent::getXPosition)
         .add_property("y", &MouseEvent::getYPosition)
         .add_property("button", &MouseEvent::getButton)
-        .add_property("node", make_function(&MouseEvent::getElement,
-                return_value_policy<reference_existing_object>()));
+        .add_property("node", &MouseEvent::getElement);
         
 }

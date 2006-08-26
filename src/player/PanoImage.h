@@ -50,7 +50,7 @@ class PanoImage : public Node
         PanoImage (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual ~PanoImage ();
         
-        virtual void connect (DisplayEngine * pEngine, DivNode * pParent);
+        virtual void connect (DisplayEngine * pEngine, DivNodeWeakPtr pParent);
         virtual void render (const DRect& Rect);
         virtual bool obscures (const DRect& Rect, int Child);
         virtual std::string getTypeStr ();

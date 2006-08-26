@@ -22,7 +22,7 @@
 #ifndef _OGLShader_H_
 #define _OGLShader_H_
 
-#include "../base/CountedPointer.h"
+#include <boost/shared_ptr.hpp>
 
 #include "OGLHelper.h"
 
@@ -45,7 +45,7 @@ class OGLShader {
         std::string m_sProgram;
 };
 
-typedef CountedPointer<OGLShader> OGLShaderPtr;
+typedef boost::shared_ptr<OGLShader> OGLShaderPtr;
 
 }
 

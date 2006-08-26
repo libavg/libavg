@@ -62,7 +62,7 @@ Image::~Image ()
 {
 }
 
-void Image::connect(DisplayEngine * pEngine, DivNode * pParent)
+void Image::connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent)
 {
     RasterNode::connect(pEngine, pParent);
 
@@ -159,7 +159,7 @@ void Image::setupSurface()
 
     getSurface()->unlockBmps();
     getEngine()->surfaceChanged(getSurface());
-    m_pBmp=BitmapPtr(0);
+    m_pBmp=BitmapPtr();
 }
 
 }

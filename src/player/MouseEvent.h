@@ -23,10 +23,9 @@
 #define _MouseEvent_h_
 
 #include "Event.h"
+#include "Node.h"
 
 namespace avg {
-
-class Node;
 
 class MouseEvent : public Event {
     public:
@@ -36,7 +35,7 @@ class MouseEvent : public Event {
                 int xPosition, int yPosition, int button);
         virtual ~MouseEvent();
        
-        Node * getElement() const;
+        NodePtr getElement() const;
         bool getLeftButtonState() const;
         bool getMiddleButtonState() const;
         bool getRightButtonState() const;
@@ -44,7 +43,7 @@ class MouseEvent : public Event {
         int getYPosition() const;
         int getButton() const;
 
-        void setElement(Node * pNode);
+        void setElement(NodePtr pNode);
         virtual void trace();
         
         static const long NO_BUTTON=0;
@@ -59,7 +58,7 @@ class MouseEvent : public Event {
         int m_XPosition;
         int m_YPosition;
         int m_Button; // only used in button events
-        Node * m_pNode;
+        NodePtr m_pNode;
 };
 
 }

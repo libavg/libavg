@@ -66,7 +66,7 @@ RasterNode::~RasterNode()
     delete m_pSurface;
 }
 
-void RasterNode::connect(DisplayEngine * pEngine, DivNode * pParent)
+void RasterNode::connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent)
 {
     Node::connect(pEngine, pParent);
 
@@ -198,13 +198,13 @@ void RasterNode::setBlendModeStr(const std::string& sBlendMode)
     }
 }
 
-Node * RasterNode::getElementByPos (const DPoint & pos)
+NodePtr RasterNode::getElementByPos (const DPoint & pos)
 {
     // Node isn't pickable if it's tilted or warped.
     if (fabs(m_Angle)<0.0001 && m_MaxTileSize == IntPoint(-1, -1)) {
         return Node::getElementByPos(pos);
     } else {
-        return 0;
+        return NodePtr();
     }
 }
 

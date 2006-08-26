@@ -38,12 +38,12 @@ class DivNode : public Node
         virtual ~DivNode ();
 
         int getNumChildren ();
-        Node * getChild (int i);
-        void addChild (Node * newNode);
+        NodePtr getChild (int i);
+        void addChild (NodePtr newNode);
         void removeChild (int i);
-        int indexOf(Node * pChild);
+        int indexOf(NodePtr pChild);
 
-        virtual Node * getElementByPos (const DPoint & pos);
+        virtual NodePtr getElementByPos (const DPoint & pos);
         virtual void prepareRender (int time, const DRect& parent);
         virtual void render (const DRect& rect);
         virtual bool obscures (const DRect& rect, int Child);
@@ -56,7 +56,7 @@ class DivNode : public Node
         virtual Point<double> getPreferredMediaSize();	
     
     private:
-        std::vector <Node *> m_Children;
+        std::vector <NodePtr> m_Children;
 };
 
 }
