@@ -62,9 +62,9 @@ Image::~Image ()
 {
 }
 
-void Image::connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent)
+void Image::connect(DisplayEngine * pEngine)
 {
-    RasterNode::connect(pEngine, pParent);
+    RasterNode::connect(pEngine);
 
     setupSurface();
 }
@@ -74,6 +74,10 @@ void Image::disconnect()
     // Unload textures but keep bitmap in memory.
     ISurface * pSurface = getSurface();
     m_pBmp = BitmapPtr(new Bitmap(*(pSurface->lockBmp())));
+    // XXX Yuck
+    if (!(getPlayer()->getDisplayEngine()->hasRGBOrdering())) {
+        FilterFlipRGB().applyInPlace(m_pBmp);
+    }
     getSurface()->unlockBmps();
     RasterNode::disconnect();
 }

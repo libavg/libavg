@@ -375,9 +375,9 @@ void FFMpegDecoder::initVideoSupport()
 void FFMpegDecoder::readFrame(AVFrame& Frame)
 {
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-        AVCodecContext *enc = &m_pVStream->codec;
+    AVCodecContext *enc = &m_pVStream->codec;
 #else
-        AVCodecContext *enc = m_pVStream->codec;
+    AVCodecContext *enc = m_pVStream->codec;
 #endif
     if (enc->codec_id == CODEC_ID_RAWVIDEO) {
         AVPacket Packet;

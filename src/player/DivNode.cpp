@@ -23,6 +23,7 @@
 #include "DisplayEngine.h"
 
 #include "../base/Exception.h"
+#include "../base/Logger.h"
 
 #include <iostream>
 #include <sstream>
@@ -45,6 +46,23 @@ DivNode::~DivNode()
 {
 }
 
+void DivNode::connect(DisplayEngine * pEngine)
+{
+    Node::connect(pEngine);
+    for  (int i = 0; i< (int)m_Children.size(); ++i) {
+        m_Children[i]->connect(pEngine);
+    }
+    
+}
+
+void DivNode::disconnect()
+{
+    for  (int i = 0; i< (int)m_Children.size(); ++i) {
+        m_Children[i]->disconnect();
+    }
+    Node::disconnect();
+}
+
 int DivNode::getNumChildren ()
 {
     return m_Children.size();
@@ -56,17 +74,22 @@ NodePtr DivNode::getChild (int i)
         stringstream s;
         s << "Index " << i << " is out of range in DivNode::getChild()";
         throw(Exception(AVG_ERR_OUT_OF_RANGE, s.str()));
-        
     }
     return m_Children[i];
 }
 
 void DivNode::addChild (NodePtr pNewNode)
 {
+    if (pNewNode->getState() == NS_CONNECTED) {
+        throw(Exception(AVG_ERR_ALREADY_CONNECTED,
+                "Can't connect node with id "+pNewNode->getID()+
+                ": already connected."));
+    }
     m_Children.push_back(pNewNode);
+    DivNodePtr Ptr = boost::dynamic_pointer_cast<DivNode>(getThis());
+    pNewNode->setParent(Ptr);
     if (getState()==NS_CONNECTED) {
-        DivNodePtr Ptr = boost::dynamic_pointer_cast<DivNode>(getThis());
-        pNewNode->connect(getEngine(), Ptr);
+        pNewNode->connect(getEngine());
     }
 }
 
@@ -75,6 +98,7 @@ void DivNode::removeChild (int i)
     NodePtr pNode = getChild(i);
     pNode->invalidate();
     pNode->disconnect();
+    pNode->setParent(DivNodePtr());
     m_Children.erase(m_Children.begin()+i);
 }
 

@@ -42,17 +42,21 @@ namespace avg {
 bool Video::m_bInitialized = false;
 
 Video::Video ()
-    : m_Filename(""),
+    : m_href(""),
+      m_Filename(""),
       m_bLoop(false),
+      m_bEOF(false),
       m_pDecoder(0)
 {
 }
 
 Video::Video (const xmlNodePtr xmlNode, Player * pPlayer)
     : VideoBase(xmlNode, pPlayer),
+      m_Filename(""),
+      m_bEOF(false),
       m_pDecoder(0)
 {
-    m_Filename = getDefaultedStringAttr (xmlNode, "href", "");
+    m_href = getDefaultedStringAttr (xmlNode, "href", "");
     m_bLoop = getDefaultedBoolAttr (xmlNode, "loop", false);
 }
 
@@ -100,11 +104,20 @@ bool Video::getLoop() const
     return m_bLoop;
 }
 
-void Video::connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent)
+void Video::connect(DisplayEngine * pEngine)
 {
     m_pDecoder = new FFMpegDecoder();
+    m_Filename = m_href;
     initFilename(getPlayer(), m_Filename);
-    VideoBase::connect(pEngine, pParent);
+    VideoBase::connect(pEngine);
+}
+
+void Video::disconnect()
+{
+    stop();
+    VideoBase::disconnect();
+    delete m_pDecoder;
+    m_pDecoder = 0;
 }
 
 const string& Video::getHRef() const

@@ -61,13 +61,12 @@ class Node
         
         virtual ~Node () = 0;
         virtual void setThis(NodeWeakPtr This);
-        virtual void connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent);
+        void setParent(DivNodeWeakPtr pParent);
+        virtual void connect(DisplayEngine * pEngine);
         virtual void disconnect();
         
-        /**
-         * Returns the unique id that can be used to reference the node.
-         */
         virtual const std::string& getID () const;
+        void setID(const std::string& ID);
 
         double getX() const;
         void setX(double x);
@@ -110,7 +109,6 @@ class Node
 
         virtual std::string dump (int indent = 0);
         virtual std::string getTypeStr () const;
-        void setParent(DivNodeWeakPtr pParent);
         
         virtual void handleMouseEvent (MouseEvent* pEvent); 
         virtual void invalidate();

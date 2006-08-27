@@ -96,9 +96,8 @@ void Node::setThis(NodeWeakPtr This)
     m_This = This;
 }
 
-void Node::connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent)
+void Node::connect(DisplayEngine * pEngine)
 {
-    m_pParent = pParent;
     m_pEngine = pEngine;
     
     if (m_WantedSize.x == 0.0) {
@@ -120,7 +119,6 @@ void Node::connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent)
 
 void Node::disconnect()
 {
-    m_pParent = DivNodeWeakPtr();
     m_pEngine = 0;
     getPlayer()->removeNodeID(m_ID);
     setState(NS_UNCONNECTED);
@@ -129,6 +127,15 @@ void Node::disconnect()
 const string& Node::getID () const
 {
     return m_ID;
+}
+
+void Node::setID(const std::string& ID)
+{
+    if (getState() != NS_UNCONNECTED) {
+        throw(Exception(AVG_ERR_UNSUPPORTED, "Node with ID "+m_ID
+                +" is connected. setID invalid."));
+    }
+    m_ID = ID;
 }
 
 double Node::getX() const {
@@ -413,7 +420,7 @@ string Node::getTypeStr () const
 
 void Node::setParent(DivNodeWeakPtr pParent)
 {
-    if (getParent()) {
+    if (getParent() && !!(pParent.lock())) {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
                 "Can't change parent of node."));
     }

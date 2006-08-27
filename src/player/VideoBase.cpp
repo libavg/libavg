@@ -244,7 +244,6 @@ void VideoBase::open()
     }
     
     m_bFrameAvailable = false;
-    m_VideoState = Paused;
 }
 
 int VideoBase::getMediaWidth()

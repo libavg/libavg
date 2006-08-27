@@ -92,7 +92,7 @@ Camera::~Camera ()
 {
 }
 
-void Camera::connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent)
+void Camera::connect(DisplayEngine * pEngine)
 {
 #ifdef AVG_ENABLE_1394
     if (m_FrameRate == 1.875) {
@@ -139,7 +139,7 @@ void Camera::connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent)
     AVG_TRACE(Logger::ERROR,
             "Unable to set up camera. Camera support not compiled.");
 #endif
-    VideoBase::connect(pEngine, pParent);
+    VideoBase::connect(pEngine);
 }
 
 string Camera::getTypeStr ()

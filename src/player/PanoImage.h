@@ -46,30 +46,31 @@ class SDLDisplayEngine;
 class PanoImage : public Node
 {
 	public:
-        PanoImage ();
-        PanoImage (const xmlNodePtr xmlNode, Player * pPlayer);
-        virtual ~PanoImage ();
+        PanoImage();
+        PanoImage(const xmlNodePtr xmlNode, Player * pPlayer);
+        virtual ~PanoImage();
         
-        virtual void connect (DisplayEngine * pEngine, DivNodeWeakPtr pParent);
-        virtual void render (const DRect& Rect);
-        virtual bool obscures (const DRect& Rect, int Child);
-        virtual std::string getTypeStr ();
+        virtual void connect(DisplayEngine * pEngine);
+        virtual void disconnect();
+        virtual void render(const DRect& Rect);
+        virtual bool obscures(const DRect& Rect, int Child);
+        virtual std::string getTypeStr();
 
         double getScreenPosFromPanoPos(int PanoPos) const;
         double getScreenPosFromAngle(double Angle) const;
-        const std::string& getHRef () const;
-        void setHRef (const std::string& href);
-        double getSensorWidth () const;
-        void setSensorWidth (double sensorWidth);
-        double getSensorHeight () const;
-        void setSensorHeight (double sensorHeight);
-        double getFocalLength () const;
-        void setFocalLength (double focalLength);
-        int getHue () const;
-        int getSaturation () const;
-        double getRotation () const;
-        void setRotation (double rotation);
-        double getMaxRotation () const;
+        const std::string& getHRef() const;
+        void setHRef(const std::string& href);
+        double getSensorWidth() const;
+        void setSensorWidth(double sensorWidth);
+        double getSensorHeight() const;
+        void setSensorHeight(double sensorHeight);
+        double getFocalLength() const;
+        void setFocalLength(double focalLength);
+        int getHue() const;
+        int getSaturation() const;
+        double getRotation() const;
+        void setRotation(double rotation);
+        double getMaxRotation() const;
 
     protected:        
         virtual DPoint getPreferredMediaSize();

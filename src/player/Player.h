@@ -144,6 +144,7 @@ class Player : IEventSink
         bool m_bIsPlaying;
 
         std::vector<IFrameListener*> m_Listeners;
+        xmlDtdPtr m_dtd;
 };
 
 }

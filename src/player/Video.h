@@ -39,7 +39,8 @@ class Video : public VideoBase
         Video (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual ~Video ();
         
-        virtual void connect (DisplayEngine * pEngine, DivNodeWeakPtr pParent);
+        virtual void connect(DisplayEngine * pEngine);
+        virtual void disconnect();
 
         const std::string& getHRef() const;
         void setHRef(const std::string& href);
@@ -64,6 +65,7 @@ class Video : public VideoBase
         virtual PixelFormat getDesiredPixelFormat();
         virtual double getFPS();
 
+        std::string m_href;
         std::string m_Filename;
         bool m_bLoop;
 

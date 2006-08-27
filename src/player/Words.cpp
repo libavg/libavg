@@ -82,6 +82,7 @@ Words::~Words ()
 {
     if (m_pSurface) {
         delete m_pSurface;
+        m_pSurface = 0;
         g_object_unref(m_pContext);
         pango_font_description_free(m_pFontDescription);
     }
@@ -105,12 +106,12 @@ text_subst_func (FcPattern *pattern, gpointer data)
   FcPatternAddBool (pattern, FC_ANTIALIAS, true);
 }
 
-void Words::connect (DisplayEngine * pEngine, DivNodeWeakPtr pParent)
+void Words::connect (DisplayEngine * pEngine)
 {
     m_Color = colorStringToColor(m_ColorName);
     m_pSurface = pEngine->createSurface();
 
-    PangoContext * pContext = pango_ft2_get_context(72, 72);
+    pango_ft2_get_context(72, 72);
     
     PangoFT2FontMap *fontmap;
     fontmap = PANGO_FT2_FONT_MAP (pango_ft2_font_map_new ());
@@ -126,7 +127,18 @@ void Words::connect (DisplayEngine * pEngine, DivNodeWeakPtr pParent)
     
     m_bFontChanged = true;
     m_bDrawNeeded = true;
-    RasterNode::connect(pEngine, pParent);
+    RasterNode::connect(pEngine);
+}
+
+void Words::disconnect()
+{
+    if (m_pSurface) {
+        delete m_pSurface;
+        m_pSurface = 0;
+        g_object_unref(m_pContext);
+        pango_font_description_free(m_pFontDescription);
+    }
+    RasterNode::disconnect();
 }
 
 string Words::getTypeStr ()

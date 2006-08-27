@@ -87,7 +87,14 @@ Player::Player()
       m_bIsPlaying(false)
 {
     initConfig();
+    // Find and parse dtd.
     registerDTDEntityLoader(g_pAVGDTD);
+    string sDTDFName = "avg.dtd";
+    m_dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
+    if (!m_dtd) {
+        AVG_TRACE(Logger::WARNING, 
+                "DTD not found at " << sDTDFName << ". Not validating xml files.");
+    }
 }
 
 Player::~Player()
@@ -224,16 +231,6 @@ void Player::loadFile (const std::string& filename)
             }
         }
 
-        // Find and parse dtd.
-        // PREFIXDIR is the install prefix set by configure.
-
-        string sDTDFName = "avg.dtd";
-        xmlDtdPtr dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
-        if (!dtd) {
-            AVG_TRACE(Logger::WARNING, 
-                    "DTD not found at " << sDTDFName << ". Not validating xml files.");
-        }
-
         // When loading an avg file, assets are loaded from a directory relative
         // to the file.
         char szBuf[1024];
@@ -260,7 +257,7 @@ void Player::loadFile (const std::string& filename)
         xmlValidCtxtPtr cvp = xmlNewValidCtxt();
         cvp->error = xmlParserValidityError;
         cvp->warning = xmlParserValidityWarning;
-        int valid=xmlValidateDtd(cvp, doc, dtd);  
+        int valid=xmlValidateDtd(cvp, doc, m_dtd);  
         xmlFreeValidCtxt(cvp);
         if (!valid) {
             throw (Exception(AVG_ERR_XML_PARSE, 
@@ -622,6 +619,9 @@ void Player::initConfig() {
 NodePtr Player::createNodeFromXmlString (const string& sXML)
 {
     try {
+        xmlPedanticParserDefault(1);
+        xmlDoValidityCheckingDefaultValue =0;
+        
         xmlDocPtr doc;
         doc = xmlParseMemory(sXML.c_str(), sXML.length());
         if (!doc) {
@@ -629,6 +629,16 @@ NodePtr Player::createNodeFromXmlString (const string& sXML)
                         string("Error parsing xml:\n  ")+sXML));
         }
         NodePtr pNode = createNodeFromXml(doc, xmlDocGetRootElement(doc), DivNodePtr());
+
+        xmlValidCtxtPtr cvp = xmlNewValidCtxt();
+        cvp->error = xmlParserValidityError;
+        cvp->warning = xmlParserValidityWarning;
+        int valid=xmlValidateDtd(cvp, doc, m_dtd);  
+        xmlFreeValidCtxt(cvp);
+        if (!valid) {
+            throw (Exception(AVG_ERR_XML_PARSE, 
+                    "Could not validate '"+sXML+"'"));
+        }
 
         xmlFreeDoc(doc);
         return pNode;
@@ -693,7 +703,7 @@ NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc,
 
 void Player::initNode(NodePtr pNode, DivNodeWeakPtr pParent)
 {
-    pNode->connect(m_pDisplayEngine, pParent);
+    pNode->connect(m_pDisplayEngine);
     // If this is a container, recurse into children
     DivNodePtr curDivNode = boost::dynamic_pointer_cast<DivNode>(pNode);
     if (curDivNode) {

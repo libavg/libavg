@@ -43,7 +43,8 @@ class Words : public RasterNode
         virtual ~Words();
         
         virtual void initText(const std::string& sText);
-        virtual void connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent);
+        virtual void connect(DisplayEngine * pEngine);
+        virtual void disconnect();
         virtual void prepareRender(int time, const DRect& parent);
         virtual void render(const DRect& Rect);
         virtual std::string getTypeStr();
@@ -212,7 +213,7 @@ class Words : public RasterNode
 
         bool m_bFontChanged;
         bool m_bDrawNeeded;
-        
+
 };
 
 }

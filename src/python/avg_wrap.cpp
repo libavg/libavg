@@ -139,8 +139,8 @@ BOOST_PYTHON_MODULE(avg)
                 "getParent() -> Node\n\n"
                 "Returns the container (AVGNode or DivNode) the node is in. For\n"
                 "the root node, returns None.\n")
-        .add_property("id", make_function(&Node::getID, 
-                return_value_policy<copy_const_reference>()))
+        .add_property("id", make_function(&Node::getID,
+                return_value_policy<copy_const_reference>()), &Node::setID)
         .add_property("x", &Node::getX, &Node::setX)
         .add_property("y", &Node::getY, &Node::setY)
         .add_property("width", &Node::getWidth, &Node::setWidth)

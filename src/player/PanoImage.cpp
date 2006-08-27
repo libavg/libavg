@@ -82,7 +82,7 @@ PanoImage::~PanoImage ()
     clearTextures();
 }
 
-void PanoImage::connect (DisplayEngine * pEngine, DivNodeWeakPtr pParent)
+void PanoImage::connect (DisplayEngine * pEngine)
 {
     SDLDisplayEngine * pSDLEngine;
 #ifdef AVG_ENABLE_GL    
@@ -97,9 +97,15 @@ void PanoImage::connect (DisplayEngine * pEngine, DivNodeWeakPtr pParent)
         // TODO: Disable image.
         exit(-1);
     }
-    Node::connect(pEngine, pParent);
+    Node::connect(pEngine);
     
     setupTextures();
+}
+
+void PanoImage::disconnect()
+{
+    clearTextures();
+    Node::disconnect();
 }
 
 static ProfilingZone PanoRenderProfilingZone("    PanoImage::render");
