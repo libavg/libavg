@@ -199,6 +199,7 @@ void VideoBase::renderToBackbuffer()
 void VideoBase::open() 
 {
     open(&m_Width, &m_Height);
+    setViewport(-32767, -32767, -32767, -32767);
 
     DRect vpt = getRelViewport();
     m_YCbCrMode = DisplayEngine::NONE;

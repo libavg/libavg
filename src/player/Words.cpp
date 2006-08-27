@@ -126,7 +126,7 @@ void Words::connect (DisplayEngine * pEngine, DivNodeWeakPtr pParent)
     
     m_bFontChanged = true;
     m_bDrawNeeded = true;
-    Node::connect(pEngine, pParent);
+    RasterNode::connect(pEngine, pParent);
 }
 
 string Words::getTypeStr ()
@@ -366,8 +366,8 @@ void Words::drawString()
         }
         g_object_unref(layout);
     }
-    setViewport(-32767, -32767, m_StringExtents.x, m_StringExtents.y);
     m_bDrawNeeded = false;
+    setViewport(-32767, -32767, -32767, -32767);
 }
 
 void Words::prepareRender(int time, const DRect& parent)
@@ -384,12 +384,12 @@ void Words::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_Text.length() != 0 && getEffectiveOpacity() > 0.001) {
-    DRect TextPos = getAbsViewport();
-    TextPos.tl.x--;   // Compensate for italic hack in call to pango_ft2_render_layout
-    TextPos.br.x--; 
-    getEngine()->blta8(m_pSurface, &TextPos,
-            getEffectiveOpacity(), m_Color, getAngle(),
-            getPivot(), getBlendMode());
+        DRect TextPos = getAbsViewport();
+        TextPos.tl.x--;   // Compensate for italic hack in call to pango_ft2_render_layout
+        TextPos.br.x--; 
+        getEngine()->blta8(m_pSurface, &TextPos,
+                getEffectiveOpacity(), m_Color, getAngle(),
+                getPivot(), getBlendMode());
     }
 }
 

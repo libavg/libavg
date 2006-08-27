@@ -155,9 +155,8 @@ class Node
         bool m_bActive;
         bool m_bSensitive;
         
-        // Initialization helpers.
-        double m_InitialWidth;
-        double m_InitialHeight;
+        // Size specified by user.
+        DPoint m_WantedSize;
 
         Region m_DirtyRegion;
         NodeState m_State;

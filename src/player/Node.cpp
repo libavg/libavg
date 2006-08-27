@@ -60,8 +60,7 @@ Node::Node ()
       m_Opacity(1.0),
       m_bActive(true),
       m_bSensitive(true),
-      m_InitialWidth(0),
-      m_InitialHeight(0)
+      m_WantedSize(0, 0)
 {
     setState(NS_UNCONNECTED);
 }
@@ -80,8 +79,8 @@ Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
     m_MouseOutHandler = getDefaultedStringAttr (xmlNode, "onmouseout", "");
     m_RelViewport.tl.x = getDefaultedDoubleAttr (xmlNode, "x", 0.0);
     m_RelViewport.tl.y = getDefaultedDoubleAttr (xmlNode, "y", 0.0);
-    m_InitialWidth = getDefaultedDoubleAttr (xmlNode, "width", 0.0);
-    m_InitialHeight = getDefaultedDoubleAttr (xmlNode, "height", 0.0);
+    m_WantedSize.x = getDefaultedDoubleAttr (xmlNode, "width", 0.0);
+    m_WantedSize.y = getDefaultedDoubleAttr (xmlNode, "height", 0.0);
     m_Opacity = getDefaultedDoubleAttr (xmlNode, "opacity", 1.0);
     m_bActive = getDefaultedBoolAttr (xmlNode, "active", true);
     m_bSensitive = getDefaultedBoolAttr (xmlNode, "sensitive", true);
@@ -102,16 +101,14 @@ void Node::connect(DisplayEngine * pEngine, DivNodeWeakPtr pParent)
     m_pParent = pParent;
     m_pEngine = pEngine;
     
-    DPoint PreferredSize = getPreferredMediaSize();
-    
-    if (m_InitialWidth == 0) {
-        m_InitialWidth = (int)PreferredSize.x;
-    }
-    if (m_InitialHeight == 0) {
-        m_InitialHeight = (int)PreferredSize.y;
-    }
-    m_RelViewport.SetWidth(m_InitialWidth);
-    m_RelViewport.SetHeight(m_InitialHeight);
+    if (m_WantedSize.x == 0.0) {
+        DPoint PreferredSize = getPreferredMediaSize();
+        m_RelViewport.SetWidth(PreferredSize.x);
+        m_RelViewport.SetHeight(PreferredSize.y);
+    } else {
+        m_RelViewport.SetWidth(m_WantedSize.x);
+        m_RelViewport.SetHeight(m_WantedSize.y);
+    } 
     DPoint pos(0,0);
     if (getParent()) {
         pos = getParent()->getAbsViewport().tl;
@@ -155,6 +152,7 @@ double Node::getWidth() const {
 }
 
 void Node::setWidth(double width) {
+    m_WantedSize.x = width;
     setViewport(-32767, -32767, width, -32767);
 }
 
@@ -163,6 +161,7 @@ double Node::getHeight() const {
 }
 
 void Node::setHeight(double height) {
+    m_WantedSize.y = height;
     setViewport(-32767, -32767, -32767, height);
 }
 
@@ -311,11 +310,20 @@ void Node::setViewport (double x, double y, double width, double height)
     if (y == -32767) {
         y = getRelViewport().tl.y;
     }
+    DPoint MediaSize = getPreferredMediaSize();
     if (width == -32767) {
-        width = getRelViewport().Width();
+        if (m_WantedSize.x == 0.0) {
+            width = MediaSize.x;
+        } else {
+            width = m_WantedSize.x;
+        } 
     }
     if (height == -32767) {
-        height = getRelViewport().Height();
+        if (m_WantedSize.y == 0.0) {
+            height = MediaSize.y;
+        } else {
+            height = m_WantedSize.y;
+        } 
     }
     m_RelViewport = DRect (x, y, x+width, y+height);
     calcAbsViewport();
