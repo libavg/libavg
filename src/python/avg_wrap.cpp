@@ -50,7 +50,6 @@ BOOST_PYTHON_MODULE(avg)
 #if (BOOST_VERSION / 100000) > 1 || ((BOOST_VERSION / 100) % 1000) >= 33
     register_exception_translator<Exception>(exception_translator);
 #endif
-    register_ptr_to_python< NodePtr >();
     register_ptr_to_python< DivNodePtr >();
     register_ptr_to_python< AVGNodePtr >();
 
