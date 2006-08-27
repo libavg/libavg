@@ -454,6 +454,7 @@ class PlayerTestCase(AVGTestCase):
         def changeFont():
             node = Player.getElementByID("cbasetext")
             node.font = "Times New Roman"
+            node.height = 0
             node.size = 30
         def changeFont2():
             node = Player.getElementByID("cbasetext")

@@ -110,6 +110,8 @@ void Words::connect (DisplayEngine * pEngine, DivNodeWeakPtr pParent)
     m_Color = colorStringToColor(m_ColorName);
     m_pSurface = pEngine->createSurface();
 
+    PangoContext * pContext = pango_ft2_get_context(72, 72);
+    
     PangoFT2FontMap *fontmap;
     fontmap = PANGO_FT2_FONT_MAP (pango_ft2_font_map_new ());
     pango_ft2_font_map_set_resolution (fontmap, 72, 72);
@@ -117,8 +119,6 @@ void Words::connect (DisplayEngine * pEngine, DivNodeWeakPtr pParent)
     m_pContext = pango_ft2_font_map_create_context (fontmap);
     g_object_unref (fontmap);
 
-//    m_pContext = pango_ft2_get_context(72, 72);
-    
     pango_context_set_language(m_pContext,
             pango_language_from_string ("en_US"));
     pango_context_set_base_dir(m_pContext, PANGO_DIRECTION_LTR);
