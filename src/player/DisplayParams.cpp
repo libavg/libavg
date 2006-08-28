@@ -23,15 +23,15 @@
 namespace avg {
 
 DisplayParams::DisplayParams()
-    : m_bShowCursor(true),
-      m_VBRate(1),
-      m_Framerate(0),
-      m_Width(0),
+    : m_Width(0),
       m_Height(0),
       m_bFullscreen(false),
       m_BPP(24),
       m_WindowWidth(0),
-      m_WindowHeight(0)
+      m_WindowHeight(0),
+      m_bShowCursor(true),
+      m_VBRate(1),
+      m_Framerate(0)
 { 
     m_Gamma[0] = -1.0;
     m_Gamma[1] = -1.0;

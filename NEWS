@@ -1,3 +1,10 @@
+libavg 0.5.10.rc1
+
+    * Added support for dynamically adding and removing nodes to/from the tree.
+    * Some panorama image improvements.
+    * Compiles and links (doesn't run) under windows.
+    * Text rendering speed improvements, minor text rendering quality improvements.
+
 libavg 0.5.9
 
     * Test suite now completely automatic and a lot faster.

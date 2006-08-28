@@ -135,10 +135,9 @@ void DFBDisplayEngine::dumpSurface (IDirectFBSurface * pSurf, const string & nam
 }
 
 
-void DFBDisplayEngine::init(int width, int height, bool isFullscreen, int bpp,
-        int WindowWidth, int WindowHeight)
+void DFBDisplayEngine::init(const DisplayParams& DP)
 {
-    if (WindowWidth != 0 || WindowHeight != 0) {
+    if (DP.m_WindowWidth != 0 || DP.m_WindowHeight != 0) {
         AVG_TRACE(Logger::ERROR, 
                 "Can't set window width or height in DFB renderer. Aborting.");
         exit(-1);
@@ -149,8 +148,8 @@ void DFBDisplayEngine::init(int width, int height, bool isFullscreen, int bpp,
         teardown();
     }
 
-    initDFB(width, height, isFullscreen, bpp);
-    initLayer(width, height);
+    initDFB(DP.m_Width, DP.m_Height, DP.m_bFullscreen, DP.m_BPP);
+    initLayer(DP.m_Width, DP.m_Height);
     
     initBackbuffer();
     
