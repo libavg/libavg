@@ -1,7 +1,7 @@
 
 INCLUDES = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ @DIRECTFB_CFLAGS@ \
 		@PANGOFT2_CFLAGS@ @PYTHON_INCLUDES@ @GL_CFLAGS@ @FFMPEG_CFLAGS@ \
-		`pkg-config --cflags-only-I ImageMagick++`
+		$(MAGICK_CFLAGS)
         
 if APPLE
     APPLE_SOURCES = SDLMain.m AppleGLHelper.cpp

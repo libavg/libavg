@@ -32,8 +32,7 @@ pkgpyexec_LTLIBRARIES = avg.la
 avg_la_SOURCES = avg_wrap.cpp raster_wrap.cpp event_wrap.cpp device_wrap.cpp bitmap_wrap.cpp 
 avg_la_LDFLAGS = -module -XCClinker -lboost_python @XML2_LIBS@ \
         $(DC1394_LIBS) @GLU_LIBS@ $(ALL_GL_LIBS) $(DFB_LIBS) \
-		`pkg-config --libs ImageMagick++` \
-        @LIBFFMPEG@ @PANGOFT2_LIBS@ 
+        @LIBFFMPEG@ $(MAGICK_LIBS) @PANGOFT2_LIBS@ 
 avg_la_LIBADD = ../conradrelais/libconradrelais.la \
                 ../player/libplayer.la \
 				../graphics/libgraphics.la \
