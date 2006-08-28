@@ -31,6 +31,7 @@
 #include "DisplayEngine.h"
 #include "TestHelper.h"
 #include "Node.h"
+#include "DisplayParams.h"
 
 #include "../base/IFrameListener.h"
 
@@ -92,11 +93,12 @@ class Player : IEventSink
 
     private:
         void initConfig();
+        void initGraphics();
+        void registerNode(NodePtr pNode);
 
         NodePtr createNodeFromXml(const xmlDocPtr xmlDoc, 
                 const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);
 
-        void initDisplay(const xmlNodePtr xmlNode);
         void render (bool bRenderEverything);
         void sendMouseOver(MouseEvent * pOtherEvent, Event::Type Type, 
                 NodePtr pNode);
@@ -128,17 +130,13 @@ class Player : IEventSink
 
         // Configuration variables.
         std::string m_sDisplaySubsystem;
-        bool m_bFullscreen;
-        int m_BPP;
-        int m_WindowWidth;
-        int m_WindowHeight;
-        bool m_bShowCursor;
+        DisplayParams m_DP;
+        
         bool m_bUsePOW2Textures;
         DisplayEngine::YCbCrMode m_YCbCrMode;
         bool m_bUseRGBOrder;
         bool m_bUsePixelBuffers;
         int m_MultiSampleSamples;
-        double m_Gamma[3];
 
         bool m_bIsPlaying;
 

@@ -31,7 +31,7 @@ endif
 
 ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
         DisplayEngine.h Region.h Node.h \
-        ISurface.h avgdtd.h\
+        ISurface.h avgdtd.h DisplayParams.h \
         MathHelper.h AVGNode.h DivNode.h \
         Image.h \
         Timeout.h Words.h \
@@ -48,7 +48,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) $(DFB_SOURCES) \
 		Node.cpp RasterNode.cpp DivNode.cpp VideoBase.cpp Video.cpp \
         Player.cpp DisplayEngine.cpp Region.cpp FFMpegDecoder.cpp \
         MathHelper.cpp PanoImage.cpp Words.cpp Camera.cpp \
-        Timeout.cpp DebugEventSink.cpp Event.cpp \
+        Timeout.cpp DebugEventSink.cpp Event.cpp DisplayParams.cpp \
         Image.cpp EventDispatcher.cpp KeyEvent.cpp MouseEvent.cpp\
         AVGNode.cpp avgdtd.cpp TestHelper.cpp\
         $(APPLE_SOURCES) \

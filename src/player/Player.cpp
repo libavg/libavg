@@ -83,7 +83,6 @@ Player::Player()
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false), 
       m_pLastMouseNode(),
-      m_bShowCursor(true),
       m_bIsPlaying(false)
 {
     initConfig();
@@ -127,21 +126,15 @@ void Player::setDisplayEngine(DisplayEngineType engine)
 void Player::setResolution(bool bFullscreen, 
                 int width, int height, int bpp)
 {
-    if (m_pRootNode) {
-        AVG_TRACE(Logger::ERROR,
-                "Player::setResolution called after loadFile."
-                << " Aborting.");
-        exit(-1);
-    }
-    m_bFullscreen = bFullscreen;
+    m_DP.m_bFullscreen = bFullscreen;
     if (bpp) {
-        m_BPP = bpp;
+        m_DP.m_BPP = bpp;
     }
     if (width) {
-        m_WindowWidth = width;
+        m_DP.m_WindowWidth = width;
     }
     if (height) {
-        m_WindowHeight = height;
+        m_DP.m_WindowHeight = height;
     }
 }
         
@@ -167,69 +160,6 @@ void Player::loadFile (const std::string& filename)
         AVG_TRACE(Logger::PROFILE, 
                 std::string("Player::LoadFile(") + filename + ")");
         assert (!m_pRootNode);
-
-        // Init display configuration.
-        AVG_TRACE(Logger::CONFIG, "Display subsystem: " << 
-                m_sDisplaySubsystem);
-        AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_BPP);
-        AVG_TRACE(Logger::CONFIG, "Display fullscreen: "
-                << (m_bFullscreen?"true":"false"));
-
-        if (!m_pDisplayEngine) {
-            if (m_sDisplaySubsystem == "DFB") {
-#ifdef AVG_ENABLE_DFB
-                m_pDisplayEngine = new DFBDisplayEngine ();
-                m_pEventSource =
-                    dynamic_cast<DFBDisplayEngine *>(m_pDisplayEngine);
-#else
-                AVG_TRACE(Logger::ERROR,
-                        "Display subsystem set to DFB but no DFB support compiled."
-                        << " Aborting.");
-                exit(-1);
-#endif
-            } else if (m_sDisplaySubsystem == "OGL") {
-#ifdef AVG_ENABLE_GL
-                AVG_TRACE(Logger::CONFIG, "Requested OGL configuration: ");
-                AVG_TRACE(Logger::CONFIG, "  POW2 textures: " 
-                        << (m_bUsePOW2Textures?"true":"false"));
-                string sMode;
-                switch (m_YCbCrMode) {
-                    case DisplayEngine::NONE:
-                        AVG_TRACE(Logger::CONFIG, "  No YCbCr texture support.");
-                        break;
-                    case DisplayEngine::OGL_MESA:
-                        AVG_TRACE(Logger::CONFIG, "  Mesa YCbCr texture support.");
-                        break;
-                    case DisplayEngine::OGL_APPLE:
-                        AVG_TRACE(Logger::CONFIG, "  Apple YCbCr texture support.");
-                        break;
-                    case DisplayEngine::OGL_SHADER:
-                        AVG_TRACE(Logger::CONFIG, "  Fragment shader YCbCr texture support.");
-                        break;
-                }
-                AVG_TRACE(Logger::CONFIG, "  RGB order: " 
-                        << (m_bUseRGBOrder?"true":"false"));
-                AVG_TRACE(Logger::CONFIG, "  Use pixel buffers: " 
-                        << (m_bUsePixelBuffers?"true":"false"));
-                AVG_TRACE(Logger::CONFIG, "  Multisample samples: " 
-                        << m_MultiSampleSamples);
-                
-                m_pDisplayEngine = new SDLDisplayEngine ();
-                m_pEventSource = 
-                    dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine);
-#else
-                AVG_TRACE(Logger::ERROR,
-                        "Display subsystem set to GL but no GL support compiled."
-                        << " Aborting.");
-                exit(-1);
-#endif
-            } else {
-                AVG_TRACE(Logger::ERROR, 
-                        "Display subsystem set to unknown value " << 
-                        m_sDisplaySubsystem << ". Aborting.");
-                exit(-1);
-            }
-        }
 
         // When loading an avg file, assets are loaded from a directory relative
         // to the file.
@@ -263,12 +193,13 @@ void Player::loadFile (const std::string& filename)
             throw (Exception(AVG_ERR_XML_PARSE, 
                     filename + " does not validate."));
         }
+        xmlNodePtr xmlNode = xmlDocGetRootElement(doc);
         m_pRootNode = boost::dynamic_pointer_cast<AVGNode>
-            (createNodeFromXml(doc, xmlDocGetRootElement(doc), DivNodePtr()));
-        initDisplay(xmlDocGetRootElement(doc));
-        m_pRootNode->connect(m_pDisplayEngine);
-        DRect rc = m_pRootNode->getRelViewport();
-        
+            (createNodeFromXml(doc, xmlNode, DivNodePtr()));
+        m_DP.m_Height = getDefaultedIntAttr (xmlNode, "height", 0);
+        m_DP.m_Width = getDefaultedIntAttr (xmlNode, "width", 0);
+        registerNode(m_pRootNode);
+
         // Reset the directory to load assets from to the current dir.
         getcwd(szBuf, 1024);
         m_CurDirName = string(szBuf)+"/";
@@ -291,6 +222,8 @@ void Player::play()
             AVG_TRACE(Logger::ERROR, "play called, but no xml file loaded.");
         }
         assert(m_pRootNode);
+        initGraphics();
+        m_pRootNode->connect(m_pDisplayEngine);
         
         m_EventDispatcher.addSource(m_pEventSource);
         m_EventDispatcher.addSource(&m_TestHelper);
@@ -317,8 +250,9 @@ void Player::play()
         }
         cleanup();
 
-    } catch  (Exception& ex) {
+    } catch (Exception& ex) {
         AVG_TRACE(Logger::ERROR, ex.GetStr());
+        throw;
     }
     m_bIsPlaying = false;
 }
@@ -334,21 +268,23 @@ bool Player::isPlaying()
 }
 
 void Player::setFramerate(double rate) {
-    if (!m_pDisplayEngine) {
-        AVG_TRACE(Logger::ERROR, 
-                "Player::setFramerate called without a loaded avg file. Aborting.");
-        exit(-1);
+    if (m_pDisplayEngine) {
+        m_pDisplayEngine->setFramerate(rate);
+    } else {
+        m_DP.m_Framerate = rate;
+        m_DP.m_VBRate = 0;
     }
-    m_pDisplayEngine->setFramerate(rate);
 }
 
 bool Player::setVBlankFramerate(int rate) {
-    if (!m_pDisplayEngine) {
-        AVG_TRACE(Logger::ERROR, 
-                "Player::setVBlankFramerate called without a loaded avg file. Aborting.");
-        exit(-1);
+    // TODO: Why does this function return anything?
+    if (m_pDisplayEngine) {
+        return m_pDisplayEngine->setVBlankRate(rate);
+    } else {
+        m_DP.m_Framerate = 0;
+        m_DP.m_VBRate = rate;
+        return true;
     }
-    return m_pDisplayEngine->setVBlankRate(rate);
 }
 
 TestHelper * Player::getTestHelper()
@@ -415,7 +351,7 @@ void Player::showCursor(bool bShow)
     if (m_pDisplayEngine) {
         m_pDisplayEngine->showCursor(bShow);
     } else {
-        m_bShowCursor = bShow;
+        m_DP.m_bShowCursor = bShow;
     }
 }
 
@@ -433,7 +369,9 @@ NodePtr Player::getElementByID (const std::string& id)
 void Player::addNodeID(const std::string& id, NodePtr pNode)
 {
     if (id != "") {
-        if (m_IDMap.find(id) != m_IDMap.end()) {
+        if (m_IDMap.find(id) != m_IDMap.end() &&
+            m_IDMap.find(id)->second != pNode)
+        {
             throw (Exception (AVG_ERR_XML_DUPLICATE_ID,
                 string("Error: duplicate id ")+id));
         }
@@ -527,7 +465,7 @@ void Player::doFrame ()
 double Player::getFramerate ()
 {
     if (!m_pDisplayEngine) {
-        return 0;
+        return m_DP.m_Framerate;
     }
     return m_pDisplayEngine->getFramerate();
 }
@@ -542,11 +480,13 @@ double Player::getVideoRefreshRate()
 
 void Player::setGamma(double Red, double Green, double Blue)
 {
-    if (!m_pDisplayEngine) {
-        AVG_TRACE(Logger::ERROR, 
-                "Player::setVBlankFramerate called without a loaded avg file. Ignoring.");
+    if (m_pDisplayEngine) {
+        m_pDisplayEngine->setGamma(Red, Green, Blue);
+    } else {
+        m_DP.m_Gamma[0] = Red;
+        m_DP.m_Gamma[1] = Green;
+        m_DP.m_Gamma[2] = Blue;
     }
-    return m_pDisplayEngine->setGamma(Red, Green, Blue);
 }
 
 void Player::initConfig() {
@@ -554,25 +494,25 @@ void Player::initConfig() {
     ConfigMgr* pMgr = ConfigMgr::get();
     
     m_sDisplaySubsystem = *pMgr->getOption("scr", "subsys");
-    
-    m_BPP = atoi(pMgr->getOption("scr", "bpp")->c_str());
-    if (m_BPP != 15 && m_BPP != 16 && m_BPP != 24 && m_BPP != 32) {
+   
+    m_DP.m_BPP = atoi(pMgr->getOption("scr", "bpp")->c_str());
+    if (m_DP.m_BPP != 15 && m_DP.m_BPP != 16 && m_DP.m_BPP != 24 && m_DP.m_BPP != 32) {
         AVG_TRACE(Logger::ERROR, 
                 "BPP must be 15, 16, 24 or 32. Current value is " 
-                << m_BPP << ". Aborting." );
+                << m_DP.m_BPP << ". Aborting." );
         exit(-1);
     }
-    m_bFullscreen = pMgr->getBoolOption("scr", "fullscreen", false);
+    m_DP.m_bFullscreen = pMgr->getBoolOption("scr", "fullscreen", false);
 
-    m_WindowWidth = atoi(pMgr->getOption("scr", "windowwidth")->c_str());
-    m_WindowHeight = atoi(pMgr->getOption("scr", "windowheight")->c_str());
+    m_DP.m_WindowWidth = atoi(pMgr->getOption("scr", "windowwidth")->c_str());
+    m_DP.m_WindowHeight = atoi(pMgr->getOption("scr", "windowheight")->c_str());
 
-    if (m_bFullscreen && (m_WindowWidth != 0 || m_WindowHeight != 0)) {
+    if (m_DP.m_bFullscreen && (m_DP.m_WindowWidth != 0 || m_DP.m_WindowHeight != 0)) {
         AVG_TRACE(Logger::ERROR, 
                 "Can't set fullscreen and window size at once. Aborting.");
         exit(-1);
     }
-    if (m_WindowWidth != 0 && m_WindowHeight != 0) {
+    if (m_DP.m_WindowWidth != 0 && m_DP.m_WindowHeight != 0) {
         AVG_TRACE(Logger::ERROR, "Can't set window width and height at once");
         AVG_TRACE(Logger::ERROR, 
                 "(aspect ratio is determined by avg file). Aborting.");
@@ -610,10 +550,91 @@ void Player::initConfig() {
         m_bUseRGBOrder = pMgr->getBoolOption("scr", "usergborder", false);
         m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
         m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 1);
-        m_Gamma[0] = -1.0;
-        m_Gamma[1] = -1.0;
-        m_Gamma[2] = -1.0;
-        pMgr->getGammaOption("scr", "gamma", m_Gamma);
+        pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
+    }
+}
+
+void Player::initGraphics()
+{
+    // Init display configuration.
+    AVG_TRACE(Logger::CONFIG, "Display subsystem: " << 
+            m_sDisplaySubsystem);
+    AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_DP.m_BPP);
+    AVG_TRACE(Logger::CONFIG, "Display fullscreen: "
+            << (m_DP.m_bFullscreen?"true":"false"));
+
+    if (!m_pDisplayEngine) {
+        if (m_sDisplaySubsystem == "DFB") {
+#ifdef AVG_ENABLE_DFB
+            m_pDisplayEngine = new DFBDisplayEngine ();
+            m_pEventSource =
+                dynamic_cast<DFBDisplayEngine *>(m_pDisplayEngine);
+#else
+            AVG_TRACE(Logger::ERROR,
+                    "Display subsystem set to DFB but no DFB support compiled."
+                    << " Aborting.");
+            exit(-1);
+#endif
+        } else if (m_sDisplaySubsystem == "OGL") {
+#ifdef AVG_ENABLE_GL
+            AVG_TRACE(Logger::CONFIG, "Requested OGL configuration: ");
+            AVG_TRACE(Logger::CONFIG, "  POW2 textures: " 
+                    << (m_bUsePOW2Textures?"true":"false"));
+            string sMode;
+            switch (m_YCbCrMode) {
+                case DisplayEngine::NONE:
+                    AVG_TRACE(Logger::CONFIG, "  No YCbCr texture support.");
+                    break;
+                case DisplayEngine::OGL_MESA:
+                    AVG_TRACE(Logger::CONFIG, "  Mesa YCbCr texture support.");
+                    break;
+                case DisplayEngine::OGL_APPLE:
+                    AVG_TRACE(Logger::CONFIG, "  Apple YCbCr texture support.");
+                    break;
+                case DisplayEngine::OGL_SHADER:
+                    AVG_TRACE(Logger::CONFIG, "  Fragment shader YCbCr texture support.");
+                    break;
+            }
+            AVG_TRACE(Logger::CONFIG, "  RGB order: " 
+                    << (m_bUseRGBOrder?"true":"false"));
+            AVG_TRACE(Logger::CONFIG, "  Use pixel buffers: " 
+                    << (m_bUsePixelBuffers?"true":"false"));
+            AVG_TRACE(Logger::CONFIG, "  Multisample samples: " 
+                    << m_MultiSampleSamples);
+
+            m_pDisplayEngine = new SDLDisplayEngine ();
+            m_pEventSource = 
+                dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine);
+#else
+            AVG_TRACE(Logger::ERROR,
+                    "Display subsystem set to GL but no GL support compiled."
+                    << " Aborting.");
+            exit(-1);
+#endif
+        } else {
+            AVG_TRACE(Logger::ERROR, 
+                    "Display subsystem set to unknown value " << 
+                    m_sDisplaySubsystem << ". Aborting.");
+            exit(-1);
+        }
+    }
+    SDLDisplayEngine * pSDLDisplayEngine = 
+            dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine);
+    if (pSDLDisplayEngine) {
+        pSDLDisplayEngine->setOGLOptions(m_bUsePOW2Textures, m_YCbCrMode, 
+                m_bUseRGBOrder, m_bUsePixelBuffers, m_MultiSampleSamples);
+    }
+    m_pDisplayEngine->init(m_DP);
+}
+
+void Player::registerNode(NodePtr pNode)
+{
+    addNodeID(pNode->getID(), pNode);
+    DivNodePtr pDivNode = boost::dynamic_pointer_cast<DivNode>(pNode);
+    if (pDivNode) {
+        for (int i=0; i<pDivNode->getNumChildren(); i++) {
+            registerNode(pDivNode->getChild(i));
+        }
     }
 }
 
@@ -700,20 +721,6 @@ NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc,
         }
     }
     return curNode;
-}
-
-void Player::initDisplay(const xmlNodePtr xmlNode) {
-    int Height = getDefaultedIntAttr (xmlNode, "height", 0);
-    int Width = getDefaultedIntAttr (xmlNode, "width", 0);
-    SDLDisplayEngine * pSDLDisplayEngine = dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine);
-    if (pSDLDisplayEngine) {
-        pSDLDisplayEngine->setOGLOptions(m_bUsePOW2Textures, m_YCbCrMode, m_bUseRGBOrder,
-                m_bUsePixelBuffers, m_MultiSampleSamples);
-    }
-    m_pDisplayEngine->init(Width, Height, m_bFullscreen, m_BPP, 
-            m_WindowWidth, m_WindowHeight);
-    m_pDisplayEngine->setGamma(m_Gamma[0], m_Gamma[1], m_Gamma[2]);
-    m_pDisplayEngine->showCursor(m_bShowCursor);
 }
 
 void Player::handleTimers()

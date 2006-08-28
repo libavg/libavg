@@ -23,6 +23,7 @@
 #define _DisplayEngine_H_
 
 #include "Node.h"
+#include "DisplayParams.h"
 
 #include "../graphics/Rect.h"
 #include "../graphics/Pixel32.h"
@@ -43,8 +44,7 @@ class DisplayEngine
 
         DisplayEngine();
         virtual ~DisplayEngine();
-        virtual void init(int width, int height, bool isFullscreen, 
-                int bpp, int WindowWidth, int WindowHeight) = 0;
+        virtual void init(const DisplayParams& DP) = 0;
         virtual void teardown() = 0;
         void initRender();
         void deinitRender();

@@ -168,22 +168,21 @@ SDLDisplayEngine::~SDLDisplayEngine()
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
 }
 
-void SDLDisplayEngine::init(int width, int height, bool isFullscreen, 
-        int bpp, int WindowWidth, int WindowHeight)
+void SDLDisplayEngine::init(const DisplayParams& DP) 
 {
-    double AspectRatio = double(width)/double(height);
-    if (WindowWidth == 0 && WindowHeight == 0) {
-        m_WindowWidth = width;
-        m_WindowHeight = height;
-    } else if (WindowWidth == 0) {
-        m_WindowWidth = int(WindowHeight*AspectRatio);
-        m_WindowHeight = WindowHeight;
+    double AspectRatio = double(DP.m_Width)/double(DP.m_Height);
+    if (DP.m_WindowWidth == 0 && DP.m_WindowHeight == 0) {
+        m_WindowWidth = DP.m_Width;
+        m_WindowHeight = DP.m_Height;
+    } else if (DP.m_WindowWidth == 0) {
+        m_WindowWidth = int(DP.m_WindowHeight*AspectRatio);
+        m_WindowHeight = DP.m_WindowHeight;
     } else {
-        m_WindowWidth = WindowWidth;
-        m_WindowHeight = int(WindowWidth/AspectRatio);
+        m_WindowWidth = DP.m_WindowWidth;
+        m_WindowHeight = int(DP.m_WindowWidth/AspectRatio);
     }
     
-    switch (bpp) {
+    switch (DP.m_BPP) {
         case 32:
             safeSetAttribute( SDL_GL_RED_SIZE, 8 );
             safeSetAttribute( SDL_GL_GREEN_SIZE, 8 );
@@ -209,7 +208,7 @@ void SDLDisplayEngine::init(int width, int height, bool isFullscreen,
             safeSetAttribute( SDL_GL_BUFFER_SIZE, 15 );
             break;
         default:
-            AVG_TRACE(Logger::ERROR, "Unsupported bpp " << bpp <<
+            AVG_TRACE(Logger::ERROR, "Unsupported bpp " << DP.m_BPP <<
                     "in SDLDisplayEngine::init()");
             exit(-1);
     }
@@ -223,14 +222,14 @@ void SDLDisplayEngine::init(int width, int height, bool isFullscreen,
     }
 
     unsigned int Flags = SDL_OPENGL;
-    if (isFullscreen) {
+    if (DP.m_bFullscreen) {
         Flags |= SDL_FULLSCREEN;
     }
-    m_pScreen = SDL_SetVideoMode(m_WindowWidth, m_WindowHeight, bpp, Flags);
+    m_pScreen = SDL_SetVideoMode(m_WindowWidth, m_WindowHeight, DP.m_BPP, Flags);
     if (!m_pScreen) {
         AVG_TRACE(Logger::ERROR, "Setting SDL video mode failed: " 
                 << SDL_GetError() <<". (width=" << m_WindowWidth << ", height=" 
-                << m_WindowHeight << ", bpp=" << bpp << ").");
+                << m_WindowHeight << ", bpp=" << DP.m_BPP << ").");
         exit(-1);
     }   
     glproc::init();
@@ -254,11 +253,18 @@ void SDLDisplayEngine::init(int width, int height, bool isFullscreen,
         glDisable(GL_MULTISAMPLE);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glDisable(GL_MULTISAMPLE);");
     }
+    setGamma(DP.m_Gamma[0], DP.m_Gamma[1], DP.m_Gamma[2]);
+    showCursor(DP.m_bShowCursor);
+    if (DP.m_Framerate == 0) {
+        setVBlankRate(DP.m_VBRate);
+    } else {
+        setFramerate(DP.m_Framerate);
+    }
 
     checkYCbCrSupport();
 
-    m_Width = width;
-    m_Height = height;
+    m_Width = DP.m_Width;
+    m_Height = DP.m_Height;
     initInput();
     // SDL sets up a signal handler we really don't want.
     signal(SIGSEGV, SIG_DFL);

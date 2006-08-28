@@ -45,8 +45,7 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual ~SDLDisplayEngine();
 
         // From DisplayEngine
-        virtual void init(int width, int height, bool isFullscreen, int bpp,
-                int WindowWidth, int WindowHeight);
+        virtual void init(const DisplayParams& DP);
         virtual void teardown();
         virtual double getRefreshRate();
         virtual void setGamma(double Red, double Green, double Blue);
