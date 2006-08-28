@@ -269,16 +269,18 @@ void Player::loadFile (const std::string& filename)
         m_pRootNode->connect(m_pDisplayEngine);
         DRect rc = m_pRootNode->getRelViewport();
         
+        // Reset the directory to load assets from to the current dir.
+        getcwd(szBuf, 1024);
+        m_CurDirName = string(szBuf)+"/";
+        
         xmlFreeDoc(doc);
     } catch (Exception& ex) {
         AVG_TRACE(Logger::ERROR, ex.GetStr());
+        throw;
     } catch (Magick::Exception & ex) {
         AVG_TRACE(Logger::ERROR, ex.what());
+        throw;
     }
-    // Reset the directory to load assets from to the current dir.
-    char szBuf[1024];
-    getcwd(szBuf, 1024);
-    m_CurDirName = string(szBuf)+"/";
 }
 
 void Player::play()

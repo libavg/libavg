@@ -331,9 +331,16 @@ class PlayerTestCase(AVGTestCase):
                  loadImage,
                  Player.stop))
     def testBroken(self):
-        Player.loadFile("noxml.avg")
-        Player.loadFile("noavg.avg")
-        Player.loadFile("noavg2.avg")
+        def testBrokenFile(filename):
+            exceptionRaised = False
+            try:
+                Player.loadFile(filename)
+            except RuntimeError:
+                exceptionRaised = True
+            self.assert_(exceptionRaised)
+        testBrokenFile("noxml.avg")
+        testBrokenFile("noavg.avg")
+        testBrokenFile("noavg2.avg")
     def testMove(self):
         def moveit():
             node = Player.getElementByID("nestedimg1")
