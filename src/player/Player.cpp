@@ -263,23 +263,22 @@ void Player::loadFile (const std::string& filename)
             throw (Exception(AVG_ERR_XML_PARSE, 
                     filename + " does not validate."));
         }
-
         m_pRootNode = boost::dynamic_pointer_cast<AVGNode>
             (createNodeFromXml(doc, xmlDocGetRootElement(doc), DivNodePtr()));
         initDisplay(xmlDocGetRootElement(doc));
-        initNode(m_pRootNode, DivNodePtr());
+        m_pRootNode->connect(m_pDisplayEngine);
         DRect rc = m_pRootNode->getRelViewport();
         
-        // Reset the directory to load assets from to the current dir.
-        getcwd(szBuf, 1024);
-        m_CurDirName = string(szBuf)+"/";
-
         xmlFreeDoc(doc);
     } catch (Exception& ex) {
         AVG_TRACE(Logger::ERROR, ex.GetStr());
     } catch (Magick::Exception & ex) {
         AVG_TRACE(Logger::ERROR, ex.what());
     }
+    // Reset the directory to load assets from to the current dir.
+    char szBuf[1024];
+    getcwd(szBuf, 1024);
+    m_CurDirName = string(szBuf)+"/";
 }
 
 void Player::play()
@@ -699,18 +698,6 @@ NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc,
         }
     }
     return curNode;
-}
-
-void Player::initNode(NodePtr pNode, DivNodeWeakPtr pParent)
-{
-    pNode->connect(m_pDisplayEngine);
-    // If this is a container, recurse into children
-    DivNodePtr curDivNode = boost::dynamic_pointer_cast<DivNode>(pNode);
-    if (curDivNode) {
-        for (int i=0; i<curDivNode->getNumChildren(); ++i) {
-            initNode(curDivNode->getChild(i), curDivNode);
-        }
-    }
 }
 
 void Player::initDisplay(const xmlNodePtr xmlNode) {

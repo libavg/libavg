@@ -92,7 +92,6 @@ class Player : IEventSink
 
     private:
         void initConfig();
-        void initNode(NodePtr pNode, DivNodeWeakPtr pParent);
 
         NodePtr createNodeFromXml(const xmlDocPtr xmlDoc, 
                 const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);
