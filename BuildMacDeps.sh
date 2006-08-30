@@ -30,6 +30,14 @@ buildlibjpeg()
     cd ..
 }
 
+buildbzip2()
+{
+    cd bzip2-1.0.3
+    make
+    make install PREFIX=${AVG_PATH}
+    cd ..
+}
+
 buildlibpng()
 {
     cd libpng-1.2.12
@@ -94,7 +102,8 @@ buildLib libtool-1.5.22
 buildLib automake-1.9.6
 buildlibjpeg
 buildLib tiff-3.8.2 --disable-shared 
-#buildLib zlib-1.2.3
+buildLib zlib-1.2.3
+buildbzip2
 buildlibpng
 buildLib ImageMagick-6.2.8 "--without-x --without-fontconfig --without-freetype --without-perl --disable-delegate-build --without-modules"
 buildLib pkg-config-0.20
