@@ -102,11 +102,11 @@ buildffmpeg
 buildLib SDL-1.2.11 "--disable-shared --disable-audio --disable-cdrom --disable-threads --disable-file --disable-video-x11 --without-x"
 buildLib gettext-0.14.6 "--disable-shared --with-included-gettext --disable-csharp  --disable-libasprintf"
 buildglib
-buildLib freetype-2.1.10 --disable-shared
+buildLib freetype-2.1.10 "--disable-shared" # --with-old-mac-fonts"
 buildLib expat-2.0.0 --disable-shared
 
 #patch fontconfig-2.3.1/fontconfig.pc.in ../libavg/macpatches/fontconfig.pc.in.diff
-buildLib fontconfig-2.3.1 "--disable-shared --with-add-fonts=/usr/share/fonts,/Library/Fonts,/System/Library/Fonts,~/fonts"
+buildLib fontconfig-2.3.1 "--disable-shared --with-add-fonts=/usr/share/fonts,/Library/Fonts,/System/Library/Fonts,~/fonts --with-confdir=/etc/fonts"
 
 buildpango
 buildLib boost_1_33_1 --with-libraries=python 
