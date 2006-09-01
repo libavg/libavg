@@ -3,7 +3,7 @@
 set -e
 set -x
 
-export VERSION=0.5.9
+export VERSION=0.5.10.pre1
 export INSTALL_PATH="/Library/Python/2.3/site-packages"
 
 fixLib()
@@ -51,7 +51,9 @@ fixLib libWand.10.dylib libMagick.10
 cd ../libavg
 
 cd src/test
-cp -Rv Test.py *.avg 1x1_schachbrett.png crop_bkgd.png panoimage.png freidrehen.jpg widebmp.jpg rgb24.png rgb24-65x65.png rgb24-64x64.png rgb24alpha-64x64.png rgb24alpha.tif videoperformance.py Test.py TestPar.py parport.py baseline ${AVG_PATH}/dist/avg/test
+cp -Rv Test.py *.avg 1x1_schachbrett.png crop_bkgd.png panoimage.png freidrehen.jpg widebmp.jpg rgb24-65x65.png rgb24-64x64.png rgb24alpha-64x64.png rgb24alpha.tif videoperformance.py Test.py TestPar.py parport.py ${AVG_PATH}/dist/avg/test
+mkdir ${AVG_PATH}/dist/avg/test/baseline
+cp baseline/* ${AVG_PATH}/dist/avg/test/baseline
 cd ../..
 
 /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -proj libavg.pmproj -v -p libavg.pkg
