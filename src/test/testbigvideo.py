@@ -7,6 +7,8 @@ import avg
 
 class BigVideoTestCase(unittest.TestCase):
     def test(self):
+        def init():
+            Player.getElementByID("video").play()
         def onFrame():
             Player.getElementByID("video").seekToFrame(self.__curFrame)
             self.__curFrame -= 3
@@ -14,8 +16,8 @@ class BigVideoTestCase(unittest.TestCase):
                 self.__curFrame = 200
         self.__curFrame = 200 
         Player.loadFile("videofmt.avg")
-        Player.getElementByID("video").play()
         Player.setFramerate(10)
+        Player.setTimeout(10, init)
 #        Player.setInterval(10, onFrame)
         Player.play()
 

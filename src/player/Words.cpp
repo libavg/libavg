@@ -56,6 +56,8 @@ Words::Words ()
       m_bSmallCaps(false),
       m_pSurface(0),
       m_StringExtents(0,0),
+      m_pContext(0),
+      m_pFontDescription(0),
       m_bFontChanged(true),
       m_bDrawNeeded(true)
 {
@@ -136,7 +138,9 @@ void Words::disconnect()
         delete m_pSurface;
         m_pSurface = 0;
         g_object_unref(m_pContext);
+        m_pContext = 0;
         pango_font_description_free(m_pFontDescription);
+        m_pFontDescription = 0;
     }
     RasterNode::disconnect();
 }

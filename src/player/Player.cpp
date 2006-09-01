@@ -141,12 +141,6 @@ void Player::setResolution(bool bFullscreen,
 void Player::setOGLOptions(bool bUsePOW2Textures, DisplayEngine::YCbCrMode DesiredYCbCrMode, 
                 bool bUseRGBOrder, bool bUsePixelBuffers, int MultiSampleSamples)
 {
-    if (m_pRootNode) {
-        AVG_TRACE(Logger::ERROR,
-                "Player::setOGLOptions called before loadFile."
-                << " Aborting.");
-        exit(-1);
-    }
     m_bUsePOW2Textures = bUsePOW2Textures;
     m_YCbCrMode = DesiredYCbCrMode;
     m_bUseRGBOrder = bUseRGBOrder;

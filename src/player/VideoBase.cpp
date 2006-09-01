@@ -76,7 +76,7 @@ void VideoBase::play()
 {
     if (getState() != NS_CONNECTED) {
         throw Exception(AVG_ERR_NOT_IN_SCENE,
-                "VideoBase::play() called on object not in scene.");
+                "VideoBase::play() called before Player::play() or on object not in scene.");
     }
     changeVideoState(Playing);
 }
@@ -85,7 +85,7 @@ void VideoBase::stop()
 {
     if (getState() != NS_CONNECTED) {
         throw Exception(AVG_ERR_NOT_IN_SCENE,
-                "VideoBase::stop() called on object not in scene.");
+                "VideoBase::stop() called before Player::play() or on object not in scene.");
     }
     changeVideoState(Unloaded);
 }
@@ -94,7 +94,7 @@ void VideoBase::pause()
 {
     if (getState() != NS_CONNECTED) {
         throw Exception(AVG_ERR_NOT_IN_SCENE,
-                "VideoBase::pause() called on object not in scene.");
+                "VideoBase::pause() called before Player::play() or on object not in scene.");
     }
     changeVideoState(Paused);
 }

@@ -1312,7 +1312,7 @@ int SDLDisplayEngine::getOGLPixelType(PixelFormat pf)
         if (getYCbCrMode() == DisplayEngine::OGL_MESA) {
             return GL_UNSIGNED_SHORT_8_8_REV_MESA;
         } else {
-            return GL_UNSIGNED_SHORT_8_8_APPLE;
+            return GL_UNSIGNED_SHORT_8_8_REV_APPLE;
         }
     } else {
         return GL_UNSIGNED_BYTE;
