@@ -82,7 +82,7 @@ PanoImage::~PanoImage ()
     clearTextures();
 }
 
-void PanoImage::connect (DisplayEngine * pEngine)
+void PanoImage::setDisplayEngine (DisplayEngine * pEngine)
 {
     SDLDisplayEngine * pSDLEngine;
 #ifdef AVG_ENABLE_GL    
@@ -97,7 +97,7 @@ void PanoImage::connect (DisplayEngine * pEngine)
         // TODO: Disable image.
         exit(-1);
     }
-    Node::connect(pEngine);
+    Node::setDisplayEngine(pEngine);
     
     setupTextures();
 }
@@ -255,7 +255,7 @@ void PanoImage::setHRef(const string& href)
 {
     m_href = href;
     load();
-    if (getState() == NS_CONNECTED) {
+    if (isDisplayAvailable()) {
         setupTextures();
     }
 }

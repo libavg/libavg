@@ -43,6 +43,7 @@
 #define AVG_ERR_NOT_IN_SCENE 16
 #define AVG_ERR_OUT_OF_RANGE 17
 #define AVG_ERR_ALREADY_CONNECTED 18
+#define AVG_ERR_LOAD_DURING_PLAYBACK 19
 
 namespace avg {
  

@@ -571,6 +571,8 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(Player.getElementByID("newImage") == None)
         def reAddImg():
             self.rootNode.addChild(self.imgNode)
+        Player.loadFile("empty.avg")
+        createImg()
         self.start("empty.avg",
                 (createImg,
                  lambda: self.compareImage("testImgDynamics1", False),
@@ -597,6 +599,8 @@ class PlayerTestCase(AVGTestCase):
                 exceptionRaised = True
             self.assert_(exceptionRaised)
             self.videoNode.play()
+        Player.loadFile("empty.avg")
+        createVideo()
         self.start("empty.avg",
                 (createVideo,
                  lambda: self.compareImage("testVideoDynamics1", False),
@@ -620,6 +624,8 @@ class PlayerTestCase(AVGTestCase):
         def reAddWords():
             self.rootNode.addChild(self.wordsNode)
             self.wordsNode.text='test2'
+        Player.loadFile("empty.avg")
+        createWords()
         self.start("empty.avg",
                 (createWords,
                  lambda: self.compareImage("testWordsDynamics1", False),
@@ -638,6 +644,8 @@ class PlayerTestCase(AVGTestCase):
             self.rootNode.removeChild(self.rootNode.indexOf(self.wordsNode))
         def reAddCamera():
             self.rootNode.addChild(self.cameraNode)
+        Player.loadFile("empty.avg")
+        createCamera()
         self.start("empty.avg",
                 (createCamera,
                  lambda: self.compareImage("testCameraDynamics1", False),
@@ -656,6 +664,8 @@ class PlayerTestCase(AVGTestCase):
             self.rootNode.removeChild(self.rootNode.indexOf(self.panoNode))
         def reAddPano():
             self.rootNode.addChild(self.panoNode)
+        Player.loadFile("empty.avg")
+        createPano()
         self.start("empty.avg",
                 (createPano,
                  lambda: self.compareImage("testPanoDynamics1", False),
@@ -676,6 +686,8 @@ class PlayerTestCase(AVGTestCase):
             node = Player.createNode("<image id='img2' href='rgb24-64x64.png' x='64'/>")
             self.divNode.addChild(node)
             self.rootNode.addChild(self.divNode)
+        Player.loadFile("empty.avg")
+        createDiv()
         self.start("empty.avg",
                 (createDiv,
                  lambda: self.compareImage("testDivDynamics1", False),

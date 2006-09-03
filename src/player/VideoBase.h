@@ -35,6 +35,7 @@ class VideoBase : public RasterNode
 {
     public:
         virtual ~VideoBase ();
+        void setDisplayEngine(DisplayEngine * pEngine);
         
         void play();
         void stop();

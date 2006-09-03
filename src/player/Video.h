@@ -39,7 +39,7 @@ class Video : public VideoBase
         Video (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual ~Video ();
         
-        virtual void connect(DisplayEngine * pEngine);
+        virtual void setDisplayEngine(DisplayEngine * pEngine);
         virtual void disconnect();
 
         const std::string& getHRef() const;

@@ -104,12 +104,12 @@ bool Video::getLoop() const
     return m_bLoop;
 }
 
-void Video::connect(DisplayEngine * pEngine)
+void Video::setDisplayEngine(DisplayEngine * pEngine)
 {
     m_pDecoder = new FFMpegDecoder();
     m_Filename = m_href;
     initFilename(getPlayer(), m_Filename);
-    VideoBase::connect(pEngine);
+    VideoBase::setDisplayEngine(pEngine);
 }
 
 void Video::disconnect()
@@ -128,6 +128,7 @@ const string& Video::getHRef() const
 void Video::setHRef(const string& href)
 {
     string fileName (href);
+    m_href = href;
     initFilename(getPlayer(), fileName);
     if (fileName != m_Filename) {
         changeVideoState(Unloaded);

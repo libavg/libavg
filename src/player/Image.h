@@ -36,7 +36,7 @@ class Image : public RasterNode
         Image ();
         Image (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual ~Image ();
-        virtual void connect(DisplayEngine * pEngine);
+        virtual void setDisplayEngine(DisplayEngine * pEngine);
         virtual void disconnect();
 
         const std::string& getHRef() const;

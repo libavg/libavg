@@ -72,30 +72,26 @@ VideoBase::~VideoBase ()
 {
 }
 
+void VideoBase::setDisplayEngine(DisplayEngine * pEngine)
+{
+    RasterNode::setDisplayEngine(pEngine);
+    VideoState TempVideoState = m_VideoState;
+    m_VideoState = Unloaded;
+    changeVideoState(TempVideoState);
+}
+
 void VideoBase::play()
 {
-    if (getState() != NS_CONNECTED) {
-        throw Exception(AVG_ERR_NOT_IN_SCENE,
-                "VideoBase::play() called before Player::play() or on object not in scene.");
-    }
     changeVideoState(Playing);
 }
 
 void VideoBase::stop()
 {
-    if (getState() != NS_CONNECTED) {
-        throw Exception(AVG_ERR_NOT_IN_SCENE,
-                "VideoBase::stop() called before Player::play() or on object not in scene.");
-    }
     changeVideoState(Unloaded);
 }
 
 void VideoBase::pause()
 {
-    if (getState() != NS_CONNECTED) {
-        throw Exception(AVG_ERR_NOT_IN_SCENE,
-                "VideoBase::pause() called before Player::play() or on object not in scene.");
-    }
     changeVideoState(Paused);
 }
 
@@ -156,16 +152,18 @@ void VideoBase::render (const DRect& Rect)
 
 void VideoBase::changeVideoState(VideoState NewVideoState)
 {
-    if (m_VideoState == NewVideoState) {
-        return;
+    if (isDisplayAvailable()) {
+        if (m_VideoState == NewVideoState) {
+            return;
+        }
+        if (m_VideoState == Unloaded) {
+            open();
+        }
+        if (NewVideoState == Unloaded) {
+            close();
+        }
+        addDirtyRect(getVisibleRect());
     }
-    if (m_VideoState == Unloaded) {
-        open();
-    }
-    if (NewVideoState == Unloaded) {
-        close();
-    }
-    addDirtyRect(getVisibleRect());
     m_VideoState = NewVideoState;
 }
 

@@ -68,9 +68,9 @@ RasterNode::~RasterNode()
     }
 }
 
-void RasterNode::connect(DisplayEngine * pEngine)
+void RasterNode::setDisplayEngine(DisplayEngine * pEngine)
 {
-    Node::connect(pEngine);
+    Node::setDisplayEngine(pEngine);
 
     m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
 

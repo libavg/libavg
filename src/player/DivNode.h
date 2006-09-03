@@ -36,7 +36,7 @@ class DivNode : public Node
         DivNode ();
         DivNode (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual ~DivNode ();
-        virtual void connect(DisplayEngine * pEngine);
+        virtual void setDisplayEngine(DisplayEngine * pEngine);
         virtual void disconnect();
 
         int getNumChildren ();

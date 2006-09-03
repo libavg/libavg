@@ -57,12 +57,12 @@ typedef boost::weak_ptr<AVGNode> AVGNodeWeakPtr;
 class Node
 {
     public:
-        enum NodeState {NS_UNCONNECTED, NS_CONNECTED, NS_DISABLED};
+        enum NodeState {NS_UNCONNECTED, NS_CONNECTED};
         
         virtual ~Node () = 0;
         virtual void setThis(NodeWeakPtr This);
         void setParent(DivNodeWeakPtr pParent);
-        virtual void connect(DisplayEngine * pEngine);
+        virtual void setDisplayEngine(DisplayEngine * pEngine);
         virtual void disconnect();
         
         virtual const std::string& getID () const;
@@ -113,6 +113,7 @@ class Node
         virtual void handleMouseEvent (MouseEvent* pEvent); 
         virtual void invalidate();
         NodeState getState() const;
+        bool isDisplayAvailable() const;
         
         // TODO: Do we still need this? Isn't rtti good enough?
         enum {NT_UNKNOWN, NT_IMAGE, NT_AVG, NT_VIDEO, NT_TEXT, NT_EXCL, 

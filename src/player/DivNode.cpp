@@ -21,6 +21,7 @@
 
 #include "DivNode.h"
 #include "DisplayEngine.h"
+#include "Player.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -46,11 +47,11 @@ DivNode::~DivNode()
 {
 }
 
-void DivNode::connect(DisplayEngine * pEngine)
+void DivNode::setDisplayEngine(DisplayEngine * pEngine)
 {
-    Node::connect(pEngine);
+    Node::setDisplayEngine(pEngine);
     for  (int i = 0; i< (int)m_Children.size(); ++i) {
-        m_Children[i]->connect(pEngine);
+        m_Children[i]->setDisplayEngine(pEngine);
     }
     
 }
@@ -88,8 +89,11 @@ void DivNode::addChild (NodePtr pNewNode)
     m_Children.push_back(pNewNode);
     DivNodePtr Ptr = boost::dynamic_pointer_cast<DivNode>(getThis());
     pNewNode->setParent(Ptr);
-    if (getState()==NS_CONNECTED) {
-        pNewNode->connect(getEngine());
+    if (getState() == NS_CONNECTED) {
+        getPlayer()->addNodeID(pNewNode);
+    }
+    if (isDisplayAvailable()) {
+        pNewNode->setDisplayEngine(getEngine());
     }
 }
 
@@ -97,8 +101,8 @@ void DivNode::removeChild (int i)
 {
     NodePtr pNode = getChild(i);
     pNode->invalidate();
-    pNode->disconnect();
     pNode->setParent(DivNodePtr());
+    pNode->disconnect();
     m_Children.erase(m_Children.begin()+i);
 }
 

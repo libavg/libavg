@@ -36,7 +36,7 @@ class RasterNode: public Node
 {
     public:
         virtual ~RasterNode ();
-        virtual void connect(DisplayEngine * pEngine);
+        virtual void setDisplayEngine(DisplayEngine * pEngine);
         virtual void disconnect();
         
         // Warping support.

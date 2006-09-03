@@ -108,7 +108,7 @@ text_subst_func (FcPattern *pattern, gpointer data)
   FcPatternAddBool (pattern, FC_ANTIALIAS, true);
 }
 
-void Words::connect (DisplayEngine * pEngine)
+void Words::setDisplayEngine (DisplayEngine * pEngine)
 {
     m_Color = colorStringToColor(m_ColorName);
     m_pSurface = pEngine->createSurface();
@@ -129,7 +129,7 @@ void Words::connect (DisplayEngine * pEngine)
     
     m_bFontChanged = true;
     m_bDrawNeeded = true;
-    RasterNode::connect(pEngine);
+    RasterNode::setDisplayEngine(pEngine);
 }
 
 void Words::disconnect()
@@ -294,7 +294,7 @@ static ProfilingZone DrawStringProfilingZone("  Words::drawString");
 
 void Words::drawString()
 {
-    if (getState() != NS_CONNECTED) {
+    if (!isDisplayAvailable()) {
         return;
     }
     ScopeTimer Timer(DrawStringProfilingZone);

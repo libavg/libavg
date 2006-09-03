@@ -62,9 +62,9 @@ Image::~Image ()
 {
 }
 
-void Image::connect(DisplayEngine * pEngine)
+void Image::setDisplayEngine(DisplayEngine * pEngine)
 {
-    RasterNode::connect(pEngine);
+    RasterNode::setDisplayEngine(pEngine);
 
     setupSurface();
 }
@@ -91,7 +91,7 @@ void Image::setHRef(const string& href)
 {
     m_href = href;
     load();
-    if (getState() == NS_CONNECTED) {
+    if (isDisplayAvailable()) {
         setupSurface();
     }
     DPoint Size = getPreferredMediaSize();
@@ -132,10 +132,10 @@ string Image::getTypeStr ()
 
 DPoint Image::getPreferredMediaSize()
 {
-    if (getState() == NS_UNCONNECTED) {
-        return DPoint(m_pBmp->getSize());
-    } else {
+    if (isDisplayAvailable()) {
         return DPoint(getSurface()->lockBmp()->getSize());
+    } else {
+        return DPoint(m_pBmp->getSize());
     }
 }
 

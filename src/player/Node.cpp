@@ -48,6 +48,8 @@ namespace avg {
 
 Node::Node ()
     : m_pParent(),
+      m_This(),
+      m_pEngine(0),
       m_pPlayer(0),
       m_ID(""),
       m_MouseMoveHandler(""),
@@ -67,6 +69,8 @@ Node::Node ()
 
 Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
     : m_pParent(),
+      m_This(),
+      m_pEngine(0),
       m_pPlayer(pPlayer),
       m_RelViewport(0,0,0,0),
       m_AbsViewport(0,0,0,0)
@@ -96,10 +100,18 @@ void Node::setThis(NodeWeakPtr This)
     m_This = This;
 }
 
-void Node::connect(DisplayEngine * pEngine)
+void Node::setParent(DivNodeWeakPtr pParent)
 {
-    m_pEngine = pEngine;
-    
+    if (getParent() && !!(pParent.lock())) {
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "Can't change parent of node."));
+    }
+    m_pParent = pParent;
+    setState(NS_CONNECTED);
+}
+
+void Node::setDisplayEngine(DisplayEngine * pEngine)
+{
     if (m_WantedSize.x == 0.0) {
         DPoint PreferredSize = getPreferredMediaSize();
         m_RelViewport.SetWidth(PreferredSize.x);
@@ -108,13 +120,13 @@ void Node::connect(DisplayEngine * pEngine)
         m_RelViewport.SetWidth(m_WantedSize.x);
         m_RelViewport.SetHeight(m_WantedSize.y);
     } 
+    m_pEngine = pEngine;
     DPoint pos(0,0);
     if (getParent()) {
         pos = getParent()->getAbsViewport().tl;
     }
     m_AbsViewport = DRect (pos+getRelViewport().tl, pos+getRelViewport().br);
-    getPlayer()->addNodeID(m_ID, getThis());
-    setState(NS_CONNECTED);
+    getPlayer()->addNodeID(getThis());
 }
 
 void Node::disconnect()
@@ -131,7 +143,7 @@ const string& Node::getID () const
 
 void Node::setID(const std::string& ID)
 {
-    if (getState() != NS_UNCONNECTED) {
+    if (getState() == NS_CONNECTED) {
         throw(Exception(AVG_ERR_UNSUPPORTED, "Node with ID "+m_ID
                 +" is connected. setID invalid."));
     }
@@ -291,7 +303,7 @@ void Node::getDirtyRegion (Region& Region)
 
 void Node::invalidate()
 {
-    if (m_State == NS_CONNECTED) {
+    if (isDisplayAvailable()) {
         addDirtyRect(getVisibleRect());
     }
 }
@@ -300,6 +312,12 @@ Node::NodeState Node::getState() const
 {
     return m_State;
 }
+
+bool Node::isDisplayAvailable() const
+{
+    return (getState() == NS_CONNECTED) && m_pEngine;
+}
+
 
 Player * Node::getPlayer() const
 {
@@ -415,16 +433,6 @@ string Node::dump (int indent)
 string Node::getTypeStr () const 
 {
     return "Node";
-}
-
-
-void Node::setParent(DivNodeWeakPtr pParent)
-{
-    if (getParent() && !!(pParent.lock())) {
-        throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "Can't change parent of node."));
-    }
-    m_pParent = pParent;
 }
 
 void Node::handleMouseEvent (MouseEvent* pEvent)

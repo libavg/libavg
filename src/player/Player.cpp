@@ -153,6 +153,9 @@ void Player::loadFile (const std::string& filename)
     try {
         AVG_TRACE(Logger::PROFILE, 
                 std::string("Player::LoadFile(") + filename + ")");
+        if (m_pRootNode) {
+            cleanup();
+        }
         assert (!m_pRootNode);
 
         // When loading an avg file, assets are loaded from a directory relative
@@ -190,6 +193,7 @@ void Player::loadFile (const std::string& filename)
         xmlNodePtr xmlNode = xmlDocGetRootElement(doc);
         m_pRootNode = boost::dynamic_pointer_cast<AVGNode>
             (createNodeFromXml(doc, xmlNode, DivNodePtr()));
+        m_pRootNode->setParent(DivNodeWeakPtr());
         m_DP.m_Height = getDefaultedIntAttr (xmlNode, "height", 0);
         m_DP.m_Width = getDefaultedIntAttr (xmlNode, "width", 0);
         registerNode(m_pRootNode);
@@ -217,7 +221,7 @@ void Player::play()
         }
         assert(m_pRootNode);
         initGraphics();
-        m_pRootNode->connect(m_pDisplayEngine);
+        m_pRootNode->setDisplayEngine(m_pDisplayEngine);
         
         m_EventDispatcher.addSource(m_pEventSource);
         m_EventDispatcher.addSource(&m_TestHelper);
@@ -355,13 +359,14 @@ NodePtr Player::getElementByID (const std::string& id)
     if (m_IDMap.find(id) != m_IDMap.end()) {
         return m_IDMap.find(id)->second;
     } else {
-        AVG_TRACE(Logger::WARNING, "getElementByID(" << id << ") failed.");
+        AVG_TRACE(Logger::WARNING, "getElementByID(\"" << id << "\") failed.");
         return NodePtr();
     }
 }
         
-void Player::addNodeID(const std::string& id, NodePtr pNode)
+void Player::addNodeID(NodePtr pNode)
 {
+    const string& id = pNode->getID();
     if (id != "") {
         if (m_IDMap.find(id) != m_IDMap.end() &&
             m_IDMap.find(id)->second != pNode)
@@ -623,7 +628,7 @@ void Player::initGraphics()
 
 void Player::registerNode(NodePtr pNode)
 {
-    addNodeID(pNode->getID(), pNode);
+    addNodeID(pNode);
     DivNodePtr pDivNode = boost::dynamic_pointer_cast<DivNode>(pNode);
     if (pDivNode) {
         for (int i=0; i<pDivNode->getNumChildren(); i++) {
@@ -838,8 +843,10 @@ void Player::cleanup()
     }
     m_PendingTimeouts.clear();
     Profiler::get().dumpStatistics();
-    m_pDisplayEngine->deinitRender();
-    m_pDisplayEngine->teardown();
+    if (m_pDisplayEngine) {
+        m_pDisplayEngine->deinitRender();
+        m_pDisplayEngine->teardown();
+    }
     m_pRootNode = AVGNodePtr();
     m_pLastMouseNode = NodePtr();
     m_IDMap.clear();
