@@ -337,8 +337,26 @@ void Words::drawString()
         }
 
         PangoLayout *layout = pango_layout_new (m_pContext);
-        pango_layout_set_markup(layout, m_Text.c_str(), m_Text.length());
+       
+        {
+            bool bOk;
+            PangoAttrList * pAttrList = 0;
+            char * pText = 0;
+            GError * pError = 0;
+            bOk = pango_parse_markup(m_Text.c_str(), m_Text.length(), 0,
+                    &pAttrList, &pText, 0, &pError);
+            if (!bOk) {
+                throw Exception(AVG_ERR_CANT_PARSE_STRING,
+                        string("Can't parse string '")+m_Text+"' in node with id '"+
+                            getID()+"' ("+pError->message+")");
+            }
+            pango_layout_set_text (layout, pText, -1);
+            pango_layout_set_attributes (layout, pAttrList);
+            pango_attr_list_unref (pAttrList);
+            g_free (pText);
 
+//        pango_layout_set_markup(layout, m_Text.c_str(), m_Text.length());
+        }
         pango_layout_set_alignment (layout, m_Alignment);
         pango_layout_set_width (layout, m_ParaWidth * PANGO_SCALE);
         if (m_LineSpacing != -1) {
