@@ -369,7 +369,7 @@ const DRect& Node::getAbsViewport () const
     return m_AbsViewport;
 }
 
-DRect Node::getVisibleRect()
+DRect Node::getVisibleRect() const
 {
     DRect visRect = getAbsViewport();
     NodePtr pParent = getParent();

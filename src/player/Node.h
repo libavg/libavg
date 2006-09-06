@@ -104,7 +104,7 @@ class Node
                 double height);
         virtual const DRect& getRelViewport () const;
         virtual const DRect& getAbsViewport () const;
-        DRect getVisibleRect();
+        DRect getVisibleRect() const;
         virtual double getEffectiveOpacity();
 
         virtual std::string dump (int indent = 0);

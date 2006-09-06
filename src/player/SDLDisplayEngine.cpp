@@ -25,7 +25,6 @@
 #include "SDLMain.h"
 #endif
 
-#include "Region.h"
 #include "Player.h"
 #include "Node.h"
 #include "AVGNode.h"
@@ -453,8 +452,8 @@ void SDLDisplayEngine::setClipPlane(double Eqn[4], int WhichPlane)
 void SDLDisplayEngine::clip()
 {
     
-    DRect rc = m_ClipRects.back();
-    if (m_bEnableCrop) {       
+    if (m_bEnableCrop && !m_ClipRects.empty()) {       
+        DRect rc = m_ClipRects.back();
         double yEqn[4] = {0.0, 1.0, 0.0, -rc.tl.y};
         //    yEqn[3] = -rc.tl.y;
         setClipPlane(yEqn, GL_CLIP_PLANE0);

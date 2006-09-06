@@ -45,11 +45,12 @@ void Region::addRect(const DRect& NewRect) {
     do {
         bFound = false;
         std::vector<DRect>::iterator it;
-        for (it = m_Rects.begin(); it != m_Rects.end() && !bFound; it++) {
+        for (it = m_Rects.begin(); it != m_Rects.end(); it++) {
             if ((*it).Intersects(CurRect)) {
                 CurRect.Expand(*it); 
                 m_Rects.erase(it);
                 bFound = true;
+                break;
             }
         }
     } while (bFound);
