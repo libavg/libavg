@@ -4,5 +4,5 @@
 <!--    <image id="testtiles" x="0" y="0"
         opacity="1" href="rgb24-65x65.png" maxtilewidth="25" maxtileheight="33"/>
 -->
-    <video id="video" href="/Users/uzadow/avg_media/scanner/medien/03_handscan/scanbalken.mpg"/>
+    <video id="video" href="mpeg1-48x48.mpg"/>
 </avg>

@@ -33,7 +33,7 @@ class LoggerTestCase(unittest.TestCase):
         self.Log.setFileDest("/tmp/testavg.log")
         self.Log.trace(self.Log.APP, "Test file log entry.")
         stats = os.stat("/tmp/testavg.log")
-        self.assert_(stats.st_size == 50)
+        self.assert_(stats.st_size in [50, 51])
         
         self.Log.setSyslogDest(syslog.LOG_USER, syslog.LOG_CONS)
         self.Log.trace(self.Log.APP, "Test syslog entry.")

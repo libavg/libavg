@@ -66,7 +66,7 @@ namespace glproc {
     PFNGLACTIVETEXTUREPROC ActiveTexture;
 }    
 
-void OGLErrorCheck(int avgcode, string where) {
+void OGLErrorCheck(int avgcode, const string & where) {
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
         stringstream s;

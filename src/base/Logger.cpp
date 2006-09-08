@@ -28,6 +28,7 @@
 #include <Winsock2.h>
 #undef ERROR
 #undef WARNING
+#include <time.h>
 #endif
 #include <fstream>
 #include <iomanip>
@@ -112,20 +113,24 @@ void Logger::trace(int category, const std::string& msg)
 {
     if (category & m_Flags) {
         if (m_DestType == CONSOLE || m_DestType == FILE) {
+            struct tm* pTime;
 #ifdef _WIN32
-            // XXX TODO: use TimeSource here?
-            (*m_pDest) << "[" << "XXX" << "] ";
+            __int64 now;
+            struct tm newTime;
+            _time64(&now);
+            _localtime64_s(&newTime, &now);
+            unsigned millis = unsigned((now / 1000) % 1000);
+            pTime = &newTime;
 #else
             struct timeval time;
             gettimeofday(&time, NULL);
-            struct tm* pTime;
             pTime = localtime(&time.tv_sec);
+            unsigned millis = time.tv_usec/1000;
+#endif
             char timeString[256];
             strftime(timeString, sizeof(timeString), "%y-%m-%d %H:%M:%S", pTime);
-
             (*m_pDest) << "[" << timeString << "." << 
-                setw(3) << setfill('0') << time.tv_usec/1000 << setw(0) << "] ";
-#endif
+                setw(3) << setfill('0') << millis << setw(0) << "] ";
             (*m_pDest) << categoryToString(category) << ": ";
             (*m_pDest) << msg << endl;
         } else {

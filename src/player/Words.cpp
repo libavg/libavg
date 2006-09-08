@@ -64,7 +64,10 @@ Words::Words ()
 }
 
 Words::Words (const xmlNodePtr xmlNode, Player * pPlayer)
-    : RasterNode(xmlNode, pPlayer)
+    : RasterNode(xmlNode, pPlayer), 
+      m_pSurface(0), 
+      m_pContext(0), 
+      m_pFontDescription(0)
 {
     m_FontName = getDefaultedStringAttr (xmlNode, "font", "arial");
     m_Text = getDefaultedStringAttr (xmlNode, "text", "");
