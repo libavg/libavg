@@ -230,6 +230,19 @@ DivNodePtr Node::getParent() const
     }
 }
 
+double Node::getRelXPos(double x) 
+{
+    DRect VP = getAbsViewport();
+    return x-VP.tl.x;
+}
+
+double Node::getRelYPos(double y)
+{
+    DRect VP = getAbsViewport();
+    return y-VP.tl.y;
+}
+
+
 bool Node::isActive()
 {
     return m_bActive;
@@ -459,6 +472,10 @@ void Node::handleMouseEvent (MouseEvent* pEvent)
          default:
             break;
     }
+    if (getID() != "" && EventType != Event::MOUSEMOTION) {
+        AVG_TRACE(Logger::EVENTS2, "Event handler: "+getID());
+    }
+    
     if (!Code.empty()) {
         callPython(Code, *pEvent);
     }

@@ -342,6 +342,7 @@ PixelFormat FFMpegDecoder::getDesiredPixelFormat()
 #endif
     switch(enc->pix_fmt) {
         case PIX_FMT_YUV420P:
+        case PIX_FMT_YUVJ420P:
             return YCbCr420p;
         case PIX_FMT_RGBA32:
             return R8G8B8A8;

@@ -139,6 +139,10 @@ BOOST_PYTHON_MODULE(avg)
                 "getParent() -> Node\n\n"
                 "Returns the container (AVGNode or DivNode) the node is in. For\n"
                 "the root node, returns None.\n")
+        .def("getRelXPos", &Node::getRelXPos,
+                "getRelXPos(absXPos) -> relXPos\n\n"
+                "Converts a screen x-coordinate to an x coordinate relative to the node's\n"
+                "left edge.\n")
         .add_property("id", make_function(&Node::getID,
                 return_value_policy<copy_const_reference>()), &Node::setID)
         .add_property("x", &Node::getX, &Node::setX)

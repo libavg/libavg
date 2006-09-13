@@ -90,6 +90,8 @@ class Node
         void setSensitive(bool bSensitive);
 
         virtual DivNodePtr getParent() const;
+        double getRelXPos(double x);
+        double getRelYPos(double y);
 
         bool isActive();
         bool reactsToMouseEvents();
