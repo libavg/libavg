@@ -129,11 +129,16 @@ void Video::setHRef(const string& href)
 {
     string fileName (href);
     m_href = href;
-    initFilename(getPlayer(), fileName);
-    if (fileName != m_Filename) {
+    if (m_href != "") {
+        initFilename(getPlayer(), fileName);
+        if (fileName != m_Filename) {
+            changeVideoState(Unloaded);
+            m_Filename = fileName;
+            changeVideoState(Paused);
+        }
+    } else {
         changeVideoState(Unloaded);
-        m_Filename = fileName;
-        changeVideoState(Paused);
+        m_Filename = "";
     }
 }
 
@@ -189,7 +194,9 @@ bool Video::renderToSurface(ISurface * pSurface)
     if (!m_bEOF) {
         getEngine()->surfaceChanged(pSurface);
     }
-    advancePlayback();
+    if (getVideoState() == Playing) {
+        advancePlayback();
+    }
     return !m_bEOF;
 }
 

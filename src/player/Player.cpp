@@ -379,13 +379,15 @@ void Player::addNodeID(NodePtr pNode)
 
 void Player::removeNodeID(const std::string& id)
 {
-    std::map<std::string, NodePtr>::iterator it;
-    it = m_IDMap.find(id);
-    if (it != m_IDMap.end()) {
-        m_IDMap.erase(it);
-    } else {
-        AVG_TRACE(Logger::ERROR, "removeNodeID("+id+") failed.");
-        exit(1);
+    if (id != "") {
+        std::map<std::string, NodePtr>::iterator it;
+        it = m_IDMap.find(id);
+        if (it != m_IDMap.end()) {
+            m_IDMap.erase(it);
+        } else {
+            AVG_TRACE(Logger::ERROR, "removeNodeID("+id+") failed.");
+            exit(1);
+        }
     }
 }
 

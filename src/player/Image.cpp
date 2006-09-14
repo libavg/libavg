@@ -114,8 +114,10 @@ static ProfilingZone RenderProfilingZone("    Image::render");
 void Image::render (const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    getEngine()->blt32(getSurface(), &getAbsViewport(), getEffectiveOpacity(), 
-            getAngle(), getPivot(), getBlendMode());
+    if (m_href != "") {
+        getEngine()->blt32(getSurface(), &getAbsViewport(), getEffectiveOpacity(), 
+                getAngle(), getPivot(), getBlendMode());
+    }
 }
 
 bool Image::obscures (const DRect& Rect, int Child) 
@@ -150,6 +152,8 @@ void Image::load()
         } catch (Magick::Exception & ex) {
             AVG_TRACE(Logger::ERROR, ex.what());
         }
+    } else {
+        m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8));
     }
     if (m_Saturation != -1) {
         FilterColorize(m_Hue, m_Saturation).applyInPlace(
