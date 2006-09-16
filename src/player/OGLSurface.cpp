@@ -58,7 +58,7 @@ OGLSurface::~OGLSurface()
     unbind();
     switch(m_MemoryMode) {
         case PBO:
-            if (m_pf == YCbCr420p) {
+            if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
                 for (int i=0; i<3; i++) {
                     glproc::DeleteBuffers(1, &m_hPixelBuffers[i]);
                 }
@@ -87,7 +87,7 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
     if (bFastDownload) {
         m_MemoryMode = m_pEngine->getMemoryModeSupported();
     }
-    if (m_pf == YCbCr420p) {
+    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
         createBitmap(Size, I8, 0);
         IntPoint HalfSize(Size.x/2, Size.y/2);
         createBitmap(HalfSize, I8, 1);
@@ -136,7 +136,7 @@ BitmapPtr OGLSurface::lockBmp(int i)
                     Size = IntPoint(m_Size.x/2, m_Size.y/2);
                 }
                 PixelFormat pf;
-                if (m_pf == YCbCr420p) {
+                if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
                     pf = I8;
                 } else {
                     pf = m_pf;
@@ -154,7 +154,7 @@ BitmapPtr OGLSurface::lockBmp(int i)
 void OGLSurface::unlockBmps()
 {
 //    cerr << "unlockBmps" << endl;
-    if (m_pf == YCbCr420p) {
+    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
         for (int i=0; i<3; i++) {
             unlockBmp(i);
         }
@@ -290,7 +290,7 @@ void OGLSurface::bind()
                         m_Size.x, m_pf, m_pEngine));
                 m_pTiles[y].push_back(pTile);
                 if (m_MemoryMode == PBO) {
-                    if (m_pf == YCbCr420p) {
+                    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
                         for (int i=0; i<3; i++) {
                             glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 
                                     m_hPixelBuffers[i]);
@@ -338,7 +338,7 @@ void OGLSurface::rebind()
         for (unsigned int x=0; x<m_pTiles[y].size(); x++) {
             OGLTilePtr pTile = m_pTiles[y][x];
             if (m_MemoryMode == PBO) {
-                if (m_pf == YCbCr420p) {
+                if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
                     for (int i=0; i<3; i++) {
                         glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
                         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 

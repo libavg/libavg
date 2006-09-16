@@ -528,6 +528,11 @@ OGLShaderPtr SDLDisplayEngine::getYCbCr420pShader()
     return m_pYCbCrShader;
 }
 
+OGLShaderPtr SDLDisplayEngine::getYCbCrJ420pShader()
+{
+    return m_pYCbCrJShader;
+}
+
 void SDLDisplayEngine::showCursor (bool bShow)
 {
     if (bShow) {
@@ -576,7 +581,7 @@ void SDLDisplayEngine::checkYCbCrSupport()
         )
     {
         m_YCbCrMode = OGL_SHADER;
-        string sProgram =
+        string sProgramInit = 
 #ifdef __APPLE__
             "#define textureRect texture2DRect\n"
             "#define samplerRect sampler2DRect\n"
@@ -584,7 +589,9 @@ void SDLDisplayEngine::checkYCbCrSupport()
             "uniform samplerRect YTexture;\n"
             "uniform samplerRect CbTexture;\n"
             "uniform samplerRect CrTexture;\n"
-            "\n"
+            "\n";
+        string sProgram =
+            sProgramInit + 
             "void main(void)\n"
             "{\n"
             "  vec3 YCbCr;\n"
@@ -592,15 +599,32 @@ void SDLDisplayEngine::checkYCbCrSupport()
             "  YCbCr.g = textureRect(CbTexture, (gl_TexCoord[0].st)/2.0).a-0.5;\n"
             "  YCbCr.b = textureRect(CrTexture, (gl_TexCoord[0].st)/2.0).a-0.5;\n"
             "  vec3 RGB;"
-            "  RGB = YCbCr*mat3(1.16, 0.0 , 1.60,\n"
+            "  RGB = YCbCr*mat3(1.16,  0.0,   1.60,\n"
             "                   1.16, -0.39, -0.81,\n"
-            "                   1.16, 2.01, 0.0 );\n"
+            "                   1.16,  2.01,  0.0 );\n"
             "  gl_FragColor = vec4(RGB,gl_Color.a);\n"
             "}\n"
             ;
         m_pYCbCrShader = OGLShaderPtr(new OGLShader(sProgram));
-    } else 
-    if (queryOGLExtension("GL_MESA_ycbcr_texture") &&
+
+        sProgram =
+            sProgramInit + 
+            "void main(void)\n"
+            "{\n"
+            "  vec3 YCbCr;\n"
+            "  YCbCr.r = textureRect(YTexture, gl_TexCoord[0].st).a;\n"
+            "  YCbCr.g = textureRect(CbTexture, (gl_TexCoord[0].st)/2.0).a-0.5;\n"
+            "  YCbCr.b = textureRect(CrTexture, (gl_TexCoord[0].st)/2.0).a-0.5;\n"
+            "  vec3 RGB;"
+            "  RGB = YCbCr*mat3(1,  0.0  , 1.40,\n"
+            "                   1, -0.34, -0.71,\n"
+            "                   1,  1.77,  0.0 );\n"
+            "  gl_FragColor = vec4(RGB,gl_Color.a);\n"
+            "}\n"
+            ;
+        m_pYCbCrJShader = OGLShaderPtr(new OGLShader(sProgram));
+
+    } else if (queryOGLExtension("GL_MESA_ycbcr_texture") &&
             (m_DesiredYCbCrMode == OGL_SHADER || m_DesiredYCbCrMode == OGL_MESA))
     {
         m_YCbCrMode = OGL_MESA;

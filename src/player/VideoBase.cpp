@@ -201,7 +201,7 @@ void VideoBase::open()
 
     DRect vpt = getRelViewport();
     m_YCbCrMode = DisplayEngine::NONE;
-    if (getDesiredPixelFormat() == YCbCr420p && 
+    if ((getDesiredPixelFormat() == YCbCr420p || getDesiredPixelFormat() == YCbCrJ420p) && 
             getEngine()->getYCbCrMode() != DisplayEngine::NONE) 
     {
         m_YCbCrMode = getEngine()->getYCbCrMode();
@@ -212,7 +212,8 @@ void VideoBase::open()
             getSurface()->create(IntPoint(m_Width, m_Height), YCbCr422, true);
             break;
         case DisplayEngine::OGL_SHADER:
-            getSurface()->create(IntPoint(m_Width, m_Height), YCbCr420p, true);
+            getSurface()->create(IntPoint(m_Width, m_Height), getDesiredPixelFormat(),
+                    true);
             break;
         case DisplayEngine::NONE:
             {

@@ -326,6 +326,8 @@ std::string Bitmap::getPixelFormatString(PixelFormat PF)
             return "YCbCr422";
         case YCbCr420p:
             return "YCbCr420p";
+        case YCbCrJ420p:
+            return "YCbCrJ420p";
         default:
             return "Unknown";
     }

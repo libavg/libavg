@@ -233,9 +233,9 @@ int FFMpegDecoder::getNumFrames()
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     return m_pVStream->r_frame_rate*(m_pVStream->duration/AV_TIME_BASE);
 #else
-    int timeUnitsPerSecond = 1.0/av_q2d(m_pVStream->time_base);
+    double timeUnitsPerSecond = 1/av_q2d(m_pVStream->time_base);
     return (m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den)*
-            (m_pVStream->duration/timeUnitsPerSecond);
+            int(m_pVStream->duration/timeUnitsPerSecond);
 #endif 
 }
 
@@ -343,8 +343,9 @@ PixelFormat FFMpegDecoder::getDesiredPixelFormat()
 #endif
     switch(enc->pix_fmt) {
         case PIX_FMT_YUV420P:
-        case PIX_FMT_YUVJ420P:
             return YCbCr420p;
+        case PIX_FMT_YUVJ420P:
+            return YCbCrJ420p;
         case PIX_FMT_RGBA32:
             return R8G8B8A8;
         default:

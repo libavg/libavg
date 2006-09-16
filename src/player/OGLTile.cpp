@@ -38,7 +38,7 @@ OGLTile::OGLTile(IntRect Extent, IntPoint TexSize, int Stride, PixelFormat pf,
       m_pf(pf),
       m_pEngine(pEngine)
 {
-    if (m_pf == YCbCr420p) {
+    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
         createTexture(0, m_TexSize, Stride, I8);
         createTexture(1, m_TexSize/2, Stride/2, I8);
         createTexture(2, m_TexSize/2, Stride/2, I8);
@@ -49,7 +49,7 @@ OGLTile::OGLTile(IntRect Extent, IntPoint TexSize, int Stride, PixelFormat pf,
 
 OGLTile::~OGLTile()
 {
-    if (m_pf == YCbCr420p) {
+    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
         glDeleteTextures(1, &m_TexID[0]);
         glDeleteTextures(2, &m_TexID[0]);
         glDeleteTextures(3, &m_TexID[0]);
@@ -89,8 +89,13 @@ void OGLTile::blt(const DPoint& TLPoint, const DPoint& TRPoint,
         TexHeight = m_TexSize.y;
     }
     
-    if (m_pf == YCbCr420p) {
-        GLhandleARB hProgram = m_pEngine->getYCbCr420pShader()->getProgram();
+    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+        GLhandleARB hProgram;
+        if (m_pf == YCbCr420p) {
+            hProgram = m_pEngine->getYCbCr420pShader()->getProgram();
+        } else {
+            hProgram = m_pEngine->getYCbCrJ420pShader()->getProgram();
+        }
         glproc::UseProgramObject(hProgram);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::blt: glUseProgramObject()");
         glproc::ActiveTexture(GL_TEXTURE0);
@@ -121,7 +126,7 @@ void OGLTile::blt(const DPoint& TLPoint, const DPoint& TRPoint,
     glVertex3d (BLPoint.x, BLPoint.y, 0.0);
     glEnd();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::blt: glEnd()");
-    if (m_pf == YCbCr420p) {
+    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
         glproc::ActiveTexture(GL_TEXTURE1);
         glDisable(TextureMode);
         glproc::ActiveTexture(GL_TEXTURE2);
@@ -154,7 +159,9 @@ void OGLTile::createTexture(int i, IntPoint Size, int Stride, PixelFormat pf)
 #ifdef __APPLE__    
     // XXX: Hack to work around broken Mac OS X GL_ALPHA/GL_UNPACK_ROW_LENGTH.
     // If this is gone, the Stride parameter can be removed too :-).
-    if (Stride != Size.x && DestMode == GL_ALPHA && m_pf == YCbCr420p) {
+    if (Stride != Size.x && DestMode == GL_ALPHA && 
+            (m_pf == YCbCr420p || m_pf == YCbCrJ420p)) 
+    {
         DestMode = GL_RGBA;
     }
 #endif
@@ -181,7 +188,7 @@ void OGLTile::downloadTexture(int i, BitmapPtr pBmp, int stride,
                 OGLMemoryMode MemoryMode) const
 {
     PixelFormat pf;
-    if (m_pf == YCbCr420p) {
+    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
         pf = I8;
     } else {
         pf = m_pf;

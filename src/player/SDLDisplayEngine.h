@@ -75,6 +75,7 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         
         virtual YCbCrMode getYCbCrMode();
         OGLShaderPtr getYCbCr420pShader();
+        OGLShaderPtr getYCbCrJ420pShader();
         
         virtual void showCursor (bool bShow);
         virtual BitmapPtr screenshot ();
@@ -128,6 +129,7 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         void checkYCbCrSupport();
         YCbCrMode m_YCbCrMode;
         OGLShaderPtr m_pYCbCrShader;
+        OGLShaderPtr m_pYCbCrJShader;
 
         // Vertical blank stuff.
         virtual bool initVBlank(int rate);

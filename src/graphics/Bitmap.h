@@ -45,9 +45,13 @@ typedef enum {
     R5G6B5, R8G8B8, R8G8B8A8, R8G8B8X8, A8R8G8B8, X8R8G8B8,
     I8, 
     YCbCr422,  // Interleaved YCbCr: Y,Cb,Y,Cr,...
-    YCbCr420p  // Not really a valid pixel format. Signifies separate bitmaps
+    YCbCr420p, // Not really a valid pixel format. Signifies separate bitmaps
                // for Y, Cb and Cr components, with Cb and Cr half as big in 
-               // both x and y dimensions.
+               // both x and y dimensions. This is mpeg YCbCr, where the 
+               // components have values from 16-235.
+    YCbCrJ420p // Same as YCbCr420p, but this is the jpeg version with component
+               // values in the range 0.255
+
 } PixelFormat;
     
 class Bitmap

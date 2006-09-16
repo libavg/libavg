@@ -8,5 +8,5 @@
   <video id="clogo1" x="40" y="0"  width="80" height="80" opacity="0.5" loop="true"
       href="mpeg1-48x48.mpg"/>
   <video id="clogo2" x="80" y="0" width="80" height="80" loop="true"
-      href="mpeg1-48x48.mpg" maxtilewidth="40" maxtileheight="40"/>
+      href="mjpeg-48x48.avi" maxtilewidth="40" maxtileheight="40"/>
 </avg>

@@ -490,7 +490,7 @@ class PlayerTestCase(AVGTestCase):
                  Player.stop))
     def testVideo(self):
         def seek():
-            Player.getElementByID("clogo2").seekToFrame(180)
+            Player.getElementByID("clogo2").seekToFrame(100)
         def foo():
             pass
         def newHRef():
