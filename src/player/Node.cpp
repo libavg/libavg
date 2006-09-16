@@ -451,7 +451,6 @@ string Node::getTypeStr () const
 void Node::handleMouseEvent (MouseEvent* pEvent)
 {
     string Code;
-    pEvent->setElement(m_This.lock());
     int EventType = pEvent->getType();
     switch (EventType) {
         case Event::MOUSEMOTION:
@@ -475,8 +474,8 @@ void Node::handleMouseEvent (MouseEvent* pEvent)
     if (getID() != "" && EventType != Event::MOUSEMOTION) {
         AVG_TRACE(Logger::EVENTS2, "Event handler: "+getID());
     }
-    
     if (!Code.empty()) {
+        pEvent->setElement(m_This.lock());
         callPython(Code, *pEvent);
     }
     if (getParent()) {

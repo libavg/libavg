@@ -133,6 +133,7 @@ void Logger::trace(int category, const std::string& msg)
                 setw(3) << setfill('0') << millis << setw(0) << "] ";
             (*m_pDest) << categoryToString(category) << ": ";
             (*m_pDest) << msg << endl;
+            m_pDest->flush();
         } else {
             int prio;
             switch(category) {
