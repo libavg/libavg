@@ -64,7 +64,7 @@ buildglib()
 buildpango()
 {
     cd pango-1.13.3
-    LDFLAGS="-framework CoreFoundation $LDFLAGS" ./configure  --prefix=${AVG_PATH} --disable-shared --without-x --with-included-modules=yes
+    LDFLAGS="-framework CoreFoundation -framework ApplicationServices $LDFLAGS" ./configure  --prefix=${AVG_PATH} --disable-shared --without-x --with-included-modules=yes
     make clean
     LDFLAGS="-framework CoreFoundation $LDFLAGS" make -j3
     make install
@@ -76,7 +76,7 @@ buildfontconfig()
     cd fontconfig-2.3.2
 #    patch fontconfig.pc.in ../../libavg/macpatches/fontconfig.pc.in.diff
 #    patch -p1 <../../libavg/macpatches/fontconfig-2.3.2-noftinternals.patch
-     LDFLAGS="-framework ApplicationServices ${LDFLAGS}" ./configure --prefix=${AVG_PATH} --disable-shared --with-add-fonts=/Library/Fonts,/System/Library/Fonts,~/fonts --with-confdir=/etc/fonts
+    LDFLAGS="-framework ApplicationServices ${LDFLAGS}" ./configure --prefix=${AVG_PATH} --disable-shared --with-add-fonts=/Library/Fonts,/System/Library/Fonts,~/fonts --with-confdir=/etc/fonts
     make clean
     make -j3
     make install
@@ -89,7 +89,7 @@ then
     exit -1 
 fi
 
-clean()
+clean
 
 export CFLAGS=-O2
 
@@ -108,12 +108,11 @@ buildLib SDL-1.2.11 "--disable-shared --disable-audio --disable-cdrom --disable-
 buildLib gettext-0.14.6 "--disable-shared --with-included-gettext --disable-csharp  --disable-libasprintf"
 buildglib
 
-buildLib freetype-2.1.10 "--disable-shared"
-#buildLib freetype-2.2.1 "--disable-shared --with-old-mac-fonts"
+#buildLib freetype-2.1.10 "--disable-shared --with-old-mac-fonts"
+buildLib freetype-2.2.1 "--disable-shared --with-old-mac-fonts"
 buildLib expat-2.0.0 --disable-shared
 
 buildfontconfig
-#buildLib fontconfig-2.3.2 "--disable-shared --with-add-fonts=/Library/Fonts,/System/Library/Fonts,~/fonts --with-confdir=/etc/fonts"
 
 buildpango
 buildLib boost_1_33_1 --with-libraries=python 
