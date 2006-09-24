@@ -83,7 +83,8 @@ Player::Player()
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false), 
       m_pLastMouseNode(),
-      m_bIsPlaying(false)
+      m_bIsPlaying(false),
+      m_pEventCaptureNode()
 {
     initConfig();
     // Find and parse dtd.
@@ -353,6 +354,24 @@ void Player::showCursor(bool bShow)
     }
 }
 
+void Player::setEventCapture(NodeWeakPtr pNode) {
+    if (!m_pEventCaptureNode.expired()) {
+        throw Exception(AVG_ERR_INVALID_CAPTURE,
+                "setEventCapture called, but mouse already captured.");
+    } else {
+        m_pEventCaptureNode = pNode;
+    }
+}
+
+void Player::releaseEventCapture(NodeWeakPtr pNode) {
+    if (m_pEventCaptureNode.expired()) {
+        throw Exception(AVG_ERR_INVALID_CAPTURE,
+                "releaseEventCapture called, but mouse not captured.");
+    } else {
+        m_pEventCaptureNode = NodeWeakPtr();
+    }
+
+}
 
 NodePtr Player::getElementByID (const std::string& id)
 {
@@ -769,13 +788,17 @@ bool Player::handleEvent(Event * pEvent)
                 DPoint pos(pMouseEvent->getXPosition(), 
                         pMouseEvent->getYPosition());
                 NodePtr pNode;
-                if (pEvent->getType() != Event::MOUSEOVER &&
-                        pEvent->getType() != Event::MOUSEOUT)
-                {
-                    pNode = m_pRootNode->getElementByPos(pos);
+                if (m_pEventCaptureNode.expired()) {
+                    if (pEvent->getType() != Event::MOUSEOVER &&
+                            pEvent->getType() != Event::MOUSEOUT)
+                    {
+                        pNode = m_pRootNode->getElementByPos(pos);
+                    } else {
+                        pNode = pMouseEvent->getElement();
+                    }
                 } else {
-                    pNode = pMouseEvent->getElement();
-                }
+                    pNode = m_pEventCaptureNode.lock();
+                } 
                 if (pNode != m_pLastMouseNode && 
                         pEvent->getType() != Event::MOUSEOVER &&
                         pEvent->getType() != Event::MOUSEOUT)

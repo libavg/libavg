@@ -93,6 +93,9 @@ class Node
         double getRelXPos(double x);
         double getRelYPos(double y);
 
+        void setEventCapture();
+        void releaseEventCapture();
+
         bool isActive();
         bool reactsToMouseEvents();
         virtual NodePtr getElementByPos (const DPoint & pos);

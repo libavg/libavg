@@ -199,6 +199,17 @@ def onDeactMouseMove():
 def onDeactMouseOut():
     print("out")
 
+mainCaptureMouseDownCalled = False
+captureMouseDownCalled = False
+
+def onMainCaptureMouseDown():
+    global mainCaptureMouseDownCalled
+    mainCaptureMouseDownCalled = True
+
+def onCaptureMouseDown():
+    global captureMouseDownCalled
+    captureMouseDownCalled = True
+
 class PlayerTestCase(AVGTestCase):
     def __init__(self, testFuncName, engine, bpp):
         AVGTestCase.__init__(self, testFuncName, engine, bpp)
@@ -288,6 +299,37 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.assert_(deactMouseOverCalled and not(deactMouseOverLate)),
                  # XXX
                  # - errMouseOver
+                 Player.stop))
+    def testEventCapture(self):
+        def captureEvent():
+            global captureMouseDownCalled
+            Helper = Player.getTestHelper()
+            captureMouseDownCalled = False
+            mainCaptureMouseDownCalled = False
+            Player.getElementByID("img1").setEventCapture()
+            Helper.fakeMouseEvent(avg.MOUSEBUTTONDOWN, True, False, False,
+                    100, 10, 1)
+        def noCaptureEvent():
+            global captureMouseDownCalled
+            Helper = Player.getTestHelper()
+            captureMouseDownCalled = False
+            mainCaptureMouseDownCalled = False
+            Player.getElementByID("img1").releaseEventCapture()
+            Helper.fakeMouseEvent(avg.MOUSEBUTTONDOWN, True, False, False,
+                    100, 10, 1)
+        global captureMouseDownCalled
+        global mainCaptureMouseDownCalled
+        Helper = Player.getTestHelper()
+        self.start("eventcapture.avg",
+                (lambda: Helper.fakeMouseEvent(avg.MOUSEBUTTONDOWN, True, False, False,
+                        10, 10, 1),
+                 lambda: self.assert_(captureMouseDownCalled),
+                 captureEvent,
+                 lambda: self.assert_(captureMouseDownCalled and 
+                        mainCaptureMouseDownCalled),
+                 noCaptureEvent,
+                 lambda: self.assert_(not(captureMouseDownCalled) and 
+                        mainCaptureMouseDownCalled),
                  Player.stop))
     def testTimeouts(self):
         self.timeout1called = False
@@ -725,6 +767,7 @@ def playerTestSuite(engine, bpp):
     suite.addTest(PlayerTestCase("testExceptionInTimeout", engine, bpp))
     suite.addTest(PlayerTestCase("testInvalidImageFilename", engine, bpp))
     suite.addTest(PlayerTestCase("testEvents", engine, bpp))
+    suite.addTest(PlayerTestCase("testEventCapture", engine, bpp))
     suite.addTest(PlayerTestCase("testTimeouts", engine, bpp))
     suite.addTest(PlayerTestCase("testEventErr", engine, bpp))
     suite.addTest(PlayerTestCase("testHugeImage", engine, bpp))

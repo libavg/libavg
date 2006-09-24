@@ -242,6 +242,13 @@ double Node::getRelYPos(double y)
     return y-VP.tl.y;
 }
 
+void Node::setEventCapture() {
+    m_pPlayer->setEventCapture(m_This);
+}
+
+void Node::releaseEventCapture() {
+    m_pPlayer->releaseEventCapture(m_This);
+}
 
 bool Node::isActive()
 {

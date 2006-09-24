@@ -75,6 +75,8 @@ class Player : IEventSink
         const MouseEvent& getMouseState() const;
         Bitmap * screenshot();
         void showCursor(bool bShow);
+        void setEventCapture(NodeWeakPtr pNode);
+        void releaseEventCapture(NodeWeakPtr pNode);
 
         NodePtr getElementByID(const std::string& id);
         void addNodeID(NodePtr pNode);
@@ -127,6 +129,7 @@ class Player : IEventSink
         DebugEventSink  m_EventDumper;
         Event * m_pCurEvent;
         NodePtr m_pLastMouseNode;
+        NodeWeakPtr m_pEventCaptureNode;
 
         // Configuration variables.
         std::string m_sDisplaySubsystem;
