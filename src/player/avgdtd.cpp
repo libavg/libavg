@@ -61,10 +61,6 @@ const char * g_pAVGDTD =
 "<!ATTLIST div\n"
 "   %nodeAttrs; >\n"
 
-"<!ELEMENT excl (div|excl|image|video|camera|audio|words|panoimage)+ >\n"
-"<!ATTLIST excl\n"
-"   id ID #IMPLIED >\n"
-
 "<!ELEMENT image EMPTY>\n"
 "<!ATTLIST image\n"
 "   %rasterAttrs;\n"
