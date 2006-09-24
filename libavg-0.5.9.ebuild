@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
-inherit eutils
+inherit eutils python
 
 DESCRIPTION="libavg is an engine for media installations"
 HOMEPAGE="www.libavg.de"
@@ -19,7 +19,7 @@ DEPEND="media-gfx/imagemagick
 	dev-libs/libxml2
 	x11-libs/pango
 	directfb?(=dev-libs/DirectFB-0.9.22)
-	ieee1394?(<=media-libs/libdc1394-1.0.0)
+	ieee1394?(<=media-libs/libdc1394-1.9.9)
 	>=dev-lang/python-2.3.4-r1
 	dev-libs/boost"
 RDEPEND=""
@@ -30,9 +30,10 @@ src_compile() {
 }
 
 src_install () {
+	python_version
 	einstall || die "install failed"
 	dodir /etc/env.d
-	echo "PYTHONPATH=/usr/lib/python2.3/site-packages/libavg/:/usr/lib/python2.4/site-packages/libavg/" \
+	echo "PYTHONPATH=/usr/lib/python${PYVER}/site-packages/libavg/" \
 		> ${D}/etc/env.d/99libavg
 }
 

@@ -353,6 +353,7 @@ void Player::showCursor(bool bShow)
     }
 }
 
+
 NodePtr Player::getElementByID (const std::string& id)
 {
     if (m_IDMap.find(id) != m_IDMap.end()) {
