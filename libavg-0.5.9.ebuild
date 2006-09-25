@@ -24,6 +24,13 @@ DEPEND="media-gfx/imagemagick
 	dev-libs/boost"
 RDEPEND=""
 
+pkg_setup() {
+	if ! built_with_use media-libs/libsdl opengl; then
+		einfo "Please re-emerge media-libs/libsdl with the opengl USE flag set."
+		die "libsdl needs opengl USE flag set."
+	fi
+}
+
 src_compile() {
 	econf || die "econf failed"
 	emake || die "emake failed"
