@@ -1,4 +1,4 @@
-# Copyright 1999-2005 Gentoo Foundation
+# Copyright 1999-2006 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header$
 
@@ -18,8 +18,8 @@ DEPEND="media-gfx/imagemagick
 	media-libs/libsdl
 	dev-libs/libxml2
 	x11-libs/pango
-	directfb?(=dev-libs/DirectFB-0.9.22)
-	ieee1394?(<=media-libs/libdc1394-1.9.9)
+	directfb? ( >=dev-libs/DirectFB-0.9.22 )
+	ieee1394? ( <=media-libs/libdc1394-1.9.9 )
 	>=dev-lang/python-2.3.4-r1
 	dev-libs/boost"
 RDEPEND=""
