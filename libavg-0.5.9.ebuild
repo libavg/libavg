@@ -12,9 +12,10 @@ LICENSE="LGPL-2.1"
 SLOT="0"
 KEYWORDS="~x86"
 IUSE="ieee1394 directfb"
+RESTRICT="test"
 
 DEPEND="media-gfx/imagemagick
-	>=media-video/ffmpeg-0.4.9_pre1-r1
+	media-video/ffmpeg
 	media-libs/libsdl
 	dev-libs/libxml2
 	x11-libs/pango
