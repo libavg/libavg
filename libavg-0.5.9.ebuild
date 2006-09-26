@@ -20,7 +20,6 @@ DEPEND="media-gfx/imagemagick
 	x11-libs/pango
 	directfb? ( >=dev-libs/DirectFB-0.9.22 )
 	ieee1394? ( <=media-libs/libdc1394-1.9.9 )
-	>=dev-lang/python-2.3.4-r1
 	dev-libs/boost"
 RDEPEND=""
 
@@ -44,3 +43,10 @@ src_install () {
 		> ${D}/etc/env.d/99libavg
 }
 
+pkg_postinst(){
+	ewarn "To run libavg, the environment variable PYTHONPATH must be set"
+	ewarn "correctly. The installer does this, but it can't change the"
+	ewarn "environment in shells that are already running. In these shells,"
+	ewarn "you need to execute 'source /etc/profile' before you run libavg."
+	ewarn ""
+}	
