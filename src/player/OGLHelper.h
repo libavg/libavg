@@ -77,6 +77,10 @@ namespace glproc {
     extern PFNGLBLENDEQUATIONPROC BlendEquation;
     extern PFNGLACTIVETEXTUREPROC ActiveTexture;
 
+#ifdef linux
+    extern PFNGLXWAITVIDEOSYNCSGIPROC WaitVideoSyncSGI;
+#endif
+
     void init();
 }
 

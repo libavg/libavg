@@ -83,8 +83,8 @@ Player::Player()
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false), 
       m_pLastMouseNode(),
-      m_bIsPlaying(false),
-      m_pEventCaptureNode()
+      m_pEventCaptureNode(),
+      m_bIsPlaying(false)
 {
     initConfig();
     // Find and parse dtd.

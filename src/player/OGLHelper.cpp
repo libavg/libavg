@@ -64,6 +64,9 @@ namespace glproc {
     PFNGLUNIFORM1IARBPROC Uniform1i;
     PFNGLBLENDEQUATIONPROC BlendEquation;
     PFNGLACTIVETEXTUREPROC ActiveTexture;
+#ifdef linux    
+    PFNGLXWAITVIDEOSYNCSGIPROC WaitVideoSyncSGI;
+#endif
 }    
 
 void OGLErrorCheck(int avgcode, const string & where) {
@@ -159,6 +162,17 @@ GLfunction getFuzzyProcAddress(const char * psz)
     return pProc;
 }
 
+#ifdef linux
+GLfunction getglXProcAddress(const char * psz)
+{
+    GLfunction pProc = (GLfunction)glXGetProcAddress((const GLubyte *)psz);
+    if (!pProc) {
+        pProc = invalidGLCall;
+    }
+    return pProc;
+}
+#endif
+
 namespace glproc {
 
     void init() {
@@ -197,6 +211,9 @@ namespace glproc {
         Uniform1i = (PFNGLUNIFORM1IARBPROC)getFuzzyProcAddress("glUniform1i");
         BlendEquation = (PFNGLBLENDEQUATIONPROC)getFuzzyProcAddress("glBlendEquation");
         ActiveTexture = (PFNGLACTIVETEXTUREPROC)getFuzzyProcAddress("glActiveTexture");
+#ifdef linux
+        WaitVideoSyncSGI = (PFNGLXWAITVIDEOSYNCSGIPROC)getglXProcAddress("glXWaitVideoSyncSGI");
+#endif
     }
 }
 

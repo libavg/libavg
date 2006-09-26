@@ -706,7 +706,7 @@ bool SDLDisplayEngine::vbWait(int rate) {
 #ifdef linux
         case VB_SGI: {
                 unsigned int count;
-                int err = glXWaitVideoSyncSGI(rate, m_VBMod, &count);
+                int err = glproc::WaitVideoSyncSGI(rate, m_VBMod, &count);
                 OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                         "VBlank::glXWaitVideoSyncSGI");
                 if (err) {
