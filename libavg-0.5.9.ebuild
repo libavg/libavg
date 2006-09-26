@@ -48,5 +48,4 @@ pkg_postinst(){
 	ewarn "correctly. The installer does this, but it can't change the"
 	ewarn "environment in shells that are already running. In these shells,"
 	ewarn "you need to execute 'source /etc/profile' before you run libavg."
-	ewarn ""
-}	
+}
