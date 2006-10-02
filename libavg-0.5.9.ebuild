@@ -29,6 +29,10 @@ pkg_setup() {
 		einfo "Please re-emerge media-libs/libsdl with the opengl USE flag set."
 		die "libsdl needs opengl USE flag set."
 	fi
+	if ! built_with_use media-libs/libsdl X; then
+		einfo "Please re-emerge media-libs/libsdl with the X USE flag set."
+		die "libsdl needs X USE flag set."
+	fi
 }
 
 src_compile() {
