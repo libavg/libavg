@@ -165,7 +165,7 @@ GLfunction getFuzzyProcAddress(const char * psz)
 #ifdef linux
 GLfunction getglXProcAddress(const char * psz)
 {
-    GLfunction pProc = (GLfunction)glXGetProcAddress((const GLubyte *)psz);
+    GLfunction pProc = (GLfunction)glXGetProcAddressARB((const GLubyte *)psz);
     if (!pProc) {
         pProc = invalidGLCall;
     }

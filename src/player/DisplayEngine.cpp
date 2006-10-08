@@ -133,7 +133,7 @@ void DisplayEngine::frameWait()
         m_bFrameLate = false;
         if (m_FrameWaitStartTime <= m_TargetTime) {
             long long WaitTime = m_TargetTime-m_FrameWaitStartTime;
-            if (WaitTime > 200) {
+            if (WaitTime > 5000) {
                 AVG_TRACE (Logger::WARNING, 
                         "DisplayEngine: waiting " << WaitTime << " ms.");
             }

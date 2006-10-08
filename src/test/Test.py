@@ -648,6 +648,8 @@ class PlayerTestCase(AVGTestCase):
                 exceptionRaised = True
             self.assert_(exceptionRaised)
             self.videoNode.play()
+        def foo():
+            pass
         Player.loadFile("empty.avg")
         createVideo()
         self.start("empty.avg",
