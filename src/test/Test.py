@@ -679,11 +679,11 @@ class PlayerTestCase(AVGTestCase):
         createWords()
         self.start("empty.avg",
                 (createWords,
-                 lambda: self.compareImage("testWordsDynamics1", False),
+                 lambda: self.compareImage("testWordsDynamics1", True),
                  removeWords,
-                 lambda: self.compareImage("testWordsDynamics2", False),
+                 lambda: self.compareImage("testWordsDynamics2", True),
                  reAddWords,
-                 lambda: self.compareImage("testWordsDynamics3", False),
+                 lambda: self.compareImage("testWordsDynamics3", True),
                  Player.stop))
     def testCameraDynamics(self):
         def createCamera():
