@@ -258,7 +258,11 @@ void Player::play()
 
 void Player::stop ()
 {
-    m_bStopping = true;
+    if (m_bIsPlaying) {
+        m_bStopping = true;
+    } else {
+        cleanup();
+    }
 }
 
 bool Player::isPlaying()

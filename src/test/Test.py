@@ -61,10 +61,12 @@ class AVGTestCase(unittest.TestCase):
         self.__testFuncName = testFuncName
         self.Log = avg.Logger.get()
         unittest.TestCase.__init__(self, testFuncName)
-    def setUp(self):
+    def setUpVideo(self):
         Player.setDisplayEngine(self.__engine)
         Player.setResolution(0, 0, 0, self.__bpp)
         Player.setOGLOptions(UsePOW2Textures, YCbCrMode, UseRGBOrder, UsePixelBuffers, 1)
+    def setUp(self):
+        self.setUpVideo()
         print "-------- ", self.__testFuncName, " --------"
     def start(self, filename, actions):
         self.assert_(Player.isPlaying() == 0)
@@ -135,6 +137,7 @@ mouseDown1Called = False
 mouseOver1Called = False
 mouseOut1Called = False
 divMouseDownCalled = False
+mouseDown2Called = False
 obscuredMouseDownCalled = False
 deactMouseDownCalled = False
 deactMouseOverLate = False
@@ -272,6 +275,7 @@ class PlayerTestCase(AVGTestCase):
         global mouseOver1Called
         global mouseOut1Called
         global divMouseDownCalled
+        global mouseDown2Called
         global obscuredMouseDownCalled
         global deactMouseOverCalled
         global deactMouseOverLate
@@ -622,6 +626,8 @@ class PlayerTestCase(AVGTestCase):
             self.rootNode.addChild(self.imgNode)
         Player.loadFile("empty.avg")
         createImg()
+        Player.stop()
+        self.setUpVideo()
         self.start("empty.avg",
                 (createImg,
                  lambda: self.compareImage("testImgDynamics1", False),
@@ -630,6 +636,7 @@ class PlayerTestCase(AVGTestCase):
                  reAddImg,
                  lambda: self.compareImage("testImgDynamics3", False),
                  Player.stop))
+
     def testVideoDynamics(self):
         def createVideo():
             node = Player.createNode("<video id='newVideo' href='mpeg1-48x48.mpg'/>")
@@ -652,6 +659,8 @@ class PlayerTestCase(AVGTestCase):
             pass
         Player.loadFile("empty.avg")
         createVideo()
+        Player.stop()
+        self.setUpVideo()
         self.start("empty.avg",
                 (createVideo,
                  lambda: self.compareImage("testVideoDynamics1", False),
@@ -677,6 +686,8 @@ class PlayerTestCase(AVGTestCase):
             self.wordsNode.text='test2'
         Player.loadFile("empty.avg")
         createWords()
+        Player.stop()
+        self.setUpVideo()
         self.start("empty.avg",
                 (createWords,
                  lambda: self.compareImage("testWordsDynamics1", True),
@@ -697,6 +708,8 @@ class PlayerTestCase(AVGTestCase):
             self.rootNode.addChild(self.cameraNode)
         Player.loadFile("empty.avg")
         createCamera()
+        Player.stop()
+        self.setUpVideo()
         self.start("empty.avg",
                 (createCamera,
                  lambda: self.compareImage("testCameraDynamics1", False),
@@ -717,6 +730,8 @@ class PlayerTestCase(AVGTestCase):
             self.rootNode.addChild(self.panoNode)
         Player.loadFile("empty.avg")
         createPano()
+        Player.stop()
+        self.setUpVideo()
         self.start("empty.avg",
                 (createPano,
                  lambda: self.compareImage("testPanoDynamics1", False),
@@ -739,6 +754,8 @@ class PlayerTestCase(AVGTestCase):
             self.rootNode.addChild(self.divNode)
         Player.loadFile("empty.avg")
         createDiv()
+        Player.stop()
+        self.setUpVideo()
         self.start("empty.avg",
                 (createDiv,
                  lambda: self.compareImage("testDivDynamics1", False),
