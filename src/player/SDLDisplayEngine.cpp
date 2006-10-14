@@ -228,7 +228,8 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
     if (!m_pScreen) {
         AVG_TRACE(Logger::ERROR, "Setting SDL video mode failed: " 
                 << SDL_GetError() <<". (width=" << m_WindowWidth << ", height=" 
-                << m_WindowHeight << ", bpp=" << DP.m_BPP << ").");
+                << m_WindowHeight << ", bpp=" << DP.m_BPP << ", multisamplesamples="
+                << m_MultiSampleSamples << ").");
         exit(-1);
     }   
     glproc::init();
