@@ -206,6 +206,9 @@ void OGLTile::downloadTexture(int i, BitmapPtr pBmp, int stride,
     glPixelStorei(GL_UNPACK_ROW_LENGTH, stride);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "OGLTile::downloadTexture: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
+//    cerr << "OGLTile::downloadTexture(" << pBmp << ", stride=" << stride 
+//        << ", Extent= " << m_Extent << ", pf= " << Bitmap::getPixelFormatString(m_pf)
+//        << ", bpp= " << bpp << endl;
     unsigned char * pStartPos = (unsigned char *)
             (Extent.tl.y*stride*bpp + Extent.tl.x*bpp);
     if (MemoryMode == OGL) {

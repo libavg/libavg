@@ -349,7 +349,7 @@ PixelFormat FFMpegDecoder::getDesiredPixelFormat()
         case PIX_FMT_RGBA32:
             return R8G8B8A8;
         default:
-            return R8G8B8X8;
+            return R8G8B8;
     }
 }
 
