@@ -35,12 +35,6 @@ using namespace std;
 
 namespace avg {
 
-/*
-#ifndef __APPLE__
-PFNGLXALLOCATEMEMORYMESAPROC OGLSurface::s_AllocMemMESAProc = 0;
-PFNGLXFREEMEMORYMESAPROC OGLSurface::s_FreeMemMESAProc = 0;
-#endif
-*/
 OGLSurface::OGLSurface(SDLDisplayEngine * pEngine)
     : m_pEngine(pEngine),
       m_bBound(false),
