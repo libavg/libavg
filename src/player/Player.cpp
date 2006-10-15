@@ -761,7 +761,7 @@ void Player::handleTimers()
             if ((*it)->IsInterval()) {
                 Timeout* pTempTimeout = *it;
                 it = m_PendingTimeouts.erase(it);
-                addTimeout(pTempTimeout);
+                m_NewTimeouts.push_back(pTempTimeout);
             } else {
                 delete *it;
                 it = m_PendingTimeouts.erase(it);
