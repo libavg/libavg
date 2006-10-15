@@ -74,7 +74,7 @@ class AVGTestCase(unittest.TestCase):
         self.actions = actions
         self.curFrame = 0
         Player.setInterval(1, self.nextAction)
-        Player.setFramerate(1000)
+        Player.setFramerate(10)
         Player.play()
         self.assert_(Player.isPlaying() == 0)
     def nextAction(self):
@@ -573,9 +573,15 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testVideo9", False),
                  Player.stop))
     def testAnim(self):
+        def onStart():
+            Player.setTimeout(10, startAnim)
+            Player.setTimeout(380, startSplineAnim)
+            Player.setTimeout(800, lambda: self.compareImage("testAnim3", False))
+            Player.setTimeout(850, Player.stop)
         def startAnim():
             def onStop():
-                self.__animStopped = 1
+                self.Log.trace(self.Log.APP, "onStop")
+                self.__animStopped = True
             self.compareImage("testAnim1", False)
             anim.fadeOut(Player.getElementByID("nestedimg2"), 200)
             Player.getElementByID("nestedimg1").opacity = 0
@@ -583,18 +589,17 @@ class PlayerTestCase(AVGTestCase):
             anim.LinearAnim(Player.getElementByID("nestedimg1"), "x", 
                     200, 0, 100, 0, onStop)
         def startSplineAnim():
-            self.assert_(self.__animStopped == 1)
+            self.Log.trace(self.Log.APP, "Start spline")
+            self.assert_(self.__animStopped)
             self.compareImage("testAnim2", False)
             anim.SplineAnim(Player.getElementByID("mainimg"), "x", 
                     200, 100, -400, 10, 0, 0, None)
             anim.SplineAnim(Player.getElementByID("mainimg"), "y", 
                     200, 100, 0, 10, -400, 1, None)
+        self.__animStopped = False
         anim.init(Player)
         Player.loadFile("avg.avg")
-        Player.setTimeout(10, startAnim)
-        Player.setTimeout(390, startSplineAnim)
-        Player.setTimeout(800, lambda: self.compareImage("testAnim3", False))
-        Player.setTimeout(850, Player.stop)
+        Player.setTimeout(1, onStart)
         Player.setVBlankFramerate(1)
         Player.play()
         

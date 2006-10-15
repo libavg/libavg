@@ -19,7 +19,7 @@ class LinearAnim(SimpleAnim):
     def __init__(self, node, attrName, duration, startValue, endValue, useInt, onStop):
         SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop)
         g_Player.setTimeout(duration, self.__stop)
-        self.interval = g_Player.setInterval(10, self.__step)
+        self.interval = g_Player.setInterval(1, self.__step)
         self.__startValue = startValue
         self.__endValue = endValue
         self.__done = 0
@@ -45,7 +45,7 @@ class SplineAnim(SimpleAnim):
             startValue, startSpeed, endValue, endSpeed, useInt, onStop):
         SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop)
         g_Player.setTimeout(duration, self.__stop)
-        self.interval = g_Player.setInterval(10, self.__step)
+        self.interval = g_Player.setInterval(1, self.__step)
         self.__startValue = startValue+0.0
         self.__startSpeed = startSpeed
         self.__endValue = endValue
