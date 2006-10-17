@@ -429,14 +429,14 @@ bool Camera::renderToSurface(ISurface * pSurface)
                     {
                         BitmapPtr pBmp = pSurface->lockBmp();
                         ScopeTimer Timer(CameraYUVConvertProfilingZone);
-                        YUV422toBGR32((unsigned char *)(m_Camera.capture_buffer), pBmp);
+                        YUV422toBGR24((unsigned char *)(m_Camera.capture_buffer), pBmp);
                     }
                     break;
                 case MODE_640x480_YUV411:
                     {
                         BitmapPtr pBmp = pSurface->lockBmp();
                         ScopeTimer Timer(CameraYUVConvertProfilingZone);
-                        YUV411toBGR32((unsigned char *)(m_Camera.capture_buffer), pBmp);
+                        YUV411toBGR24((unsigned char *)(m_Camera.capture_buffer), pBmp);
                     }
                     break;
                 case MODE_640x480_RGB:
@@ -463,10 +463,10 @@ bool Camera::renderToSurface(ISurface * pSurface)
                                     unsigned char * pSrcLine = (unsigned char*)
                                         m_Camera.capture_buffer+3*pBmp->getSize().x*y;
                                     for (int x = 0; x<pBmp->getSize().x; x++) {
-                                        pDestLine[x*4] = pSrcLine[x*3+2];
-                                        pDestLine[x*4+1] = pSrcLine[x*3+1];
-                                        pDestLine[x*4+2] = pSrcLine[x*3];
-                                        pDestLine[x*4+3] = 0xFF;
+                                        pDestLine[x*3] = pSrcLine[x*3+2];
+                                        pDestLine[x*3+1] = pSrcLine[x*3+1];
+                                        pDestLine[x*3+2] = pSrcLine[x*3];
+//                                        pDestLine[x*4+3] = 0xFF;
                                     }
                                 }
                             }
@@ -524,7 +524,7 @@ bool Camera::canRenderToBackbuffer(int BitsPerPixel)
 }
 
 #ifdef AVG_ENABLE_1394
-inline void YUVtoBGR32Pixel(Pixel32* pDest, 
+inline void YUVtoBGR24Pixel(Pixel24* pDest, 
         unsigned char y, unsigned char u, unsigned char v)
 {
 //    pDest->Set(y,y,y);
@@ -545,9 +545,9 @@ inline void YUVtoBGR32Pixel(Pixel32* pDest,
     pDest->set(b,g,r);
 }
 
-void Camera::YUV411toBGR32Line(unsigned char* pSrc, int y, Pixel32 * pDestLine)
+void Camera::YUV411toBGR24Line(unsigned char* pSrc, int y, Pixel24 * pDestLine)
 {
-    Pixel32 * pDestPixel = pDestLine;
+    Pixel24 * pDestPixel = pDestLine;
     int width = getMediaWidth();
     // We need the previous and next values to interpolate between the
     // sampled u and v values.
@@ -573,10 +573,10 @@ void Camera::YUV411toBGR32Line(unsigned char* pSrc, int y, Pixel32 * pDestLine)
             v1 = v;
         }
 
-        YUVtoBGR32Pixel(pDestPixel, pSrcPixels[1], u, v0/2+v/2);
-        YUVtoBGR32Pixel(pDestPixel+1, pSrcPixels[2], (u*3)/4+u1/4, v0/4+(v*3)/4);
-        YUVtoBGR32Pixel(pDestPixel+2, pSrcPixels[4], u/2+u1/2, v);
-        YUVtoBGR32Pixel(pDestPixel+3, pSrcPixels[5], u/4+(u1*3)/4, (v*3)/4+v1/4);
+        YUVtoBGR24Pixel(pDestPixel, pSrcPixels[1], u, v0/2+v/2);
+        YUVtoBGR24Pixel(pDestPixel+1, pSrcPixels[2], (u*3)/4+u1/4, v0/4+(v*3)/4);
+        YUVtoBGR24Pixel(pDestPixel+2, pSrcPixels[4], u/2+u1/2, v);
+        YUVtoBGR24Pixel(pDestPixel+3, pSrcPixels[5], u/4+(u1*3)/4, (v*3)/4+v1/4);
 
         pSrcPixels+=6;
         pDestPixel+=4;
@@ -584,18 +584,18 @@ void Camera::YUV411toBGR32Line(unsigned char* pSrc, int y, Pixel32 * pDestLine)
 
 }
 
-void Camera::YUV411toBGR32(unsigned char* pSrc, BitmapPtr pBmp)
+void Camera::YUV411toBGR24(unsigned char* pSrc, BitmapPtr pBmp)
 {
-    Pixel32 * pBits = (Pixel32 *)(pBmp->getPixels());
+    Pixel24 * pBits = (Pixel24 *)(pBmp->getPixels());
     for (int y = 0; y < getMediaHeight(); y++) {
-        Pixel32 * pDest = pBits+(y*pBmp->getStride())/4;
-        YUV411toBGR32Line(pSrc, y, pDest);
+        Pixel24 * pDest = pBits+(y*pBmp->getStride())/3;
+        YUV411toBGR24Line(pSrc, y, pDest);
     }
 }
 
-void Camera::YUV422toBGR32Line(unsigned char* pSrc, int y, Pixel32 * pDestLine)
+void Camera::YUV422toBGR24Line(unsigned char* pSrc, int y, Pixel24 * pDestLine)
 {
-    Pixel32 * pDestPixel = pDestLine;
+    Pixel24 * pDestPixel = pDestLine;
     int width = getMediaWidth();
     // We need the previous and next values to interpolate between the
     // sampled u and v values.
@@ -621,8 +621,8 @@ void Camera::YUV422toBGR32Line(unsigned char* pSrc, int y, Pixel32 * pDestLine)
             v1 = v;
         }
 
-        YUVtoBGR32Pixel(pDestPixel, pSrcPixels[1], u, v0/2+v/2);
-        YUVtoBGR32Pixel(pDestPixel+1, pSrcPixels[3], u/2+u1/2, v);
+        YUVtoBGR24Pixel(pDestPixel, pSrcPixels[1], u, v0/2+v/2);
+        YUVtoBGR24Pixel(pDestPixel+1, pSrcPixels[3], u/2+u1/2, v);
 
         pSrcPixels+=4;
         pDestPixel+=2;
@@ -630,12 +630,12 @@ void Camera::YUV422toBGR32Line(unsigned char* pSrc, int y, Pixel32 * pDestLine)
 
 }
 
-void Camera::YUV422toBGR32(unsigned char* pSrc, BitmapPtr pBmp)
+void Camera::YUV422toBGR24(unsigned char* pSrc, BitmapPtr pBmp)
 {
-    Pixel32 * pBits = (Pixel32 *)(pBmp->getPixels());
+    Pixel24 * pBits = (Pixel24 *)(pBmp->getPixels());
     for (int y = 0; y < getMediaHeight(); y++) {
-        Pixel32 * pDest = pBits+(y*pBmp->getStride())/4;
-        YUV422toBGR32Line(pSrc, y, pDest);
+        Pixel24 * pDest = pBits+(y*pBmp->getStride())/3;
+        YUV422toBGR24Line(pSrc, y, pDest);
     }
 }
 
