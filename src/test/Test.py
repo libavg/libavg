@@ -74,7 +74,7 @@ class AVGTestCase(unittest.TestCase):
         self.actions = actions
         self.curFrame = 0
         Player.setInterval(1, self.nextAction)
-        Player.setFramerate(1000)
+        Player.setFramerate(100)
         Player.play()
         self.assert_(Player.isPlaying() == 0)
     def nextAction(self):
@@ -580,7 +580,6 @@ class PlayerTestCase(AVGTestCase):
             Player.setTimeout(850, Player.stop)
         def startAnim():
             def onStop():
-                self.Log.trace(self.Log.APP, "onStop")
                 self.__animStopped = True
             self.compareImage("testAnim1", False)
             anim.fadeOut(Player.getElementByID("nestedimg2"), 200)
@@ -589,7 +588,6 @@ class PlayerTestCase(AVGTestCase):
             anim.LinearAnim(Player.getElementByID("nestedimg1"), "x", 
                     200, 0, 100, 0, onStop)
         def startSplineAnim():
-            self.Log.trace(self.Log.APP, "Start spline")
             self.assert_(self.__animStopped)
             self.compareImage("testAnim2", False)
             anim.SplineAnim(Player.getElementByID("mainimg"), "x", 

@@ -30,9 +30,9 @@ runTest $1  true none    false false
 cd ${0%/*}
 testOGL 24
 testOGL 16
-if [[ `uname` = Linux ]]
-then
-    ./Test.py DFB 24
+#if [[ `uname` = Linux ]]
+#then
+#    ./Test.py DFB 24
 #    ./Test.py DFB 16
-fi
+#fi
 #cd -
