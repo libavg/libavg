@@ -18,13 +18,13 @@ class LoggerTestCase(unittest.TestCase):
     def test(self):
         self.Log = avg.Logger.get()
         self.Log.setCategories(self.Log.APP |
-                  self.Log.WARNING | 
+                  self.Log.WARNING
 #                  self.Log.PROFILE |
 #                  self.Log.PROFILE_LATEFRAMES |
-                  self.Log.CONFIG |
-                  self.Log.MEMORY | 
+#                  self.Log.CONFIG |
+#                  self.Log.MEMORY | 
 #                  self.Log.BLTS    |
-                  self.Log.EVENTS
+#                  self.Log.EVENTS
 #                  self.Log.EVENTS2
                   )
         myTempFile = os.path.join(tempfile.gettempdir(), "testavg.log")
@@ -79,6 +79,7 @@ class AVGTestCase(unittest.TestCase):
         self.assert_(Player.isPlaying() == 0)
     def nextAction(self):
         self.actions[self.curFrame]()
+#        print (self.curFrame)
         self.curFrame += 1
     def compareImage(self, fileName, warn):
         global CREATE_BASELINE_IMAGES
@@ -706,7 +707,7 @@ class PlayerTestCase(AVGTestCase):
             self.rootNode.addChild(node)
         def removeCamera():
             self.cameraNode = Player.getElementByID("newCamera")
-            self.rootNode.removeChild(self.rootNode.indexOf(self.wordsNode))
+            self.rootNode.removeChild(self.rootNode.indexOf(self.cameraNode))
         def reAddCamera():
             self.rootNode.addChild(self.cameraNode)
         Player.loadFile("empty.avg")
@@ -715,11 +716,8 @@ class PlayerTestCase(AVGTestCase):
         self.setUpVideo()
         self.start("empty.avg",
                 (createCamera,
-                 lambda: self.compareImage("testCameraDynamics1", False),
                  removeCamera,
-                 lambda: self.compareImage("testCameraDynamics2", False),
                  reAddCamera,
-                 lambda: self.compareImage("testCameraDynamics3", False),
                  Player.stop))
     def testPanoDynamics(self):
         def createPano():
@@ -807,7 +805,7 @@ def playerTestSuite(engine, bpp):
     suite.addTest(PlayerTestCase("testVideoDynamics", engine, bpp))
     suite.addTest(PlayerTestCase("testWordsDynamics", engine, bpp))
     suite.addTest(PlayerTestCase("testPanoDynamics", engine, bpp))
-#    suite.addTest(PlayerTestCase("testCameraDynamics", engine, bpp))
+    suite.addTest(PlayerTestCase("testCameraDynamics", engine, bpp))
     suite.addTest(PlayerTestCase("testDivDynamics", engine, bpp))
     return suite
 

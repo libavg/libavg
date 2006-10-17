@@ -453,7 +453,6 @@ bool Camera::renderToSurface(ISurface * pSurface)
 */
                             BitmapPtr pBmp = pSurface->lockBmp();
                             unsigned char * pPixels = pBmp->getPixels();
-
                             if (getEngine()->hasRGBOrdering()) {
                                 AVG_TRACE(Logger::ERROR,
                                         "Wrong engine rgb order for camera. Aborting.");

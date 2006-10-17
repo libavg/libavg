@@ -229,9 +229,9 @@ void VideoBase::open()
                     Filter.applyInPlace(getSurface()->lockBmp());
                 } else {
                     if (getEngine()->hasRGBOrdering()) {
-                        pf = R8G8B8;
+                        pf = R8G8B8X8;
                     } else {
-                        pf = B8G8R8;
+                        pf = B8G8R8X8;
                     }
                     getSurface()->create(IntPoint(m_Width, m_Height), pf, true);
                     FilterFill<Pixel24> Filter(Pixel24(0,0,0));
