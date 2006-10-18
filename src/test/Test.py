@@ -73,7 +73,7 @@ class AVGTestCase(unittest.TestCase):
         Player.loadFile(filename)
         self.actions = actions
         self.curFrame = 0
-        Player.setInterval(1, self.nextAction)
+        Player.setInterval(0, self.nextAction)
         Player.setFramerate(100)
         Player.play()
         self.assert_(Player.isPlaying() == 0)
@@ -345,11 +345,14 @@ class PlayerTestCase(AVGTestCase):
             self.timeout1called = True
         def timeout2():
             self.timeout2called = True
+        def wait():
+            pass
         def setupTimeouts():
             self.timeout1ID = Player.setTimeout(0, timeout1)
             self.timeout2ID = Player.setTimeout(1, timeout2)
         self.start("image.avg",
                 (setupTimeouts,
+                 wait,
                  lambda: self.assert_(self.timeout1called),
                  lambda: self.assert_(not(self.timeout2called)),
                  Player.stop))
