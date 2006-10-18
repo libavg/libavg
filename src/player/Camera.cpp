@@ -51,14 +51,15 @@ namespace avg {
 Camera::Camera ()
 #ifdef AVG_ENABLE_1394
     : m_sDevice(""),
+      m_FrameRate(15),
       m_sMode("640x480_RGB"),
       m_FWHandle(0),
+      m_bCameraAvailable(false)
 #else
     : m_sDevice("Camera disabled"),
-      m_sMode("---"),
-#endif
       m_FrameRate(15),
-      m_bCameraAvailable(false)
+      m_sMode("---")
+#endif
 {
 }
 
@@ -66,14 +67,15 @@ Camera::Camera (const xmlNodePtr xmlNode, Player * pPlayer)
     : VideoBase(xmlNode, pPlayer),
 #ifdef AVG_ENABLE_1394
       m_sDevice(""),
+      m_FrameRate(15),
       m_sMode("640x480_RGB"),
       m_FWHandle(0),
+      m_bCameraAvailable(false),
 #else
       m_sDevice("Camera disabled"),
-      m_sMode("---"),
-#endif
       m_FrameRate(15),
-      m_bCameraAvailable(false)
+      m_sMode("---")
+#endif
 {
     m_sDevice = getDefaultedStringAttr (xmlNode, "device", "");
     m_FrameRate = getDefaultedDoubleAttr (xmlNode, "framerate", 15);
