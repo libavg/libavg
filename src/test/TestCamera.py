@@ -29,9 +29,9 @@ class CameraTestCase(unittest.TestCase):
         Player.setFramerate(30)
         self.__camera = Player.getElementByID("camera")
         self.__camera.play()
-#        Player.setTimeout(200, setWhitebalance)
-#        Player.setTimeout(300, resetWhitebalance)
-#        Player.setInterval(500, stopPlayback)
+        Player.setTimeout(200, setWhitebalance)
+        Player.setTimeout(300, resetWhitebalance)
+        Player.setInterval(500, stopPlayback)
         Player.play()
 
 def playerTestSuite(engine, bpp):

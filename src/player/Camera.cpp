@@ -50,15 +50,15 @@ namespace avg {
 
 Camera::Camera ()
 #ifdef AVG_ENABLE_1394
-    : m_sDevice("Default"),
-      m_FrameRate(15),
+    : m_sDevice(""),
       m_sMode("640x480_RGB"),
-      m_FWHandle(0)
+      m_FWHandle(0),
 #else
     : m_sDevice("Camera disabled"),
-      m_FrameRate(30),
-      m_sMode("---")
+      m_sMode("---"),
 #endif
+      m_FrameRate(15),
+      m_bCameraAvailable(false)
 {
 }
 
@@ -66,14 +66,14 @@ Camera::Camera (const xmlNodePtr xmlNode, Player * pPlayer)
     : VideoBase(xmlNode, pPlayer),
 #ifdef AVG_ENABLE_1394
       m_sDevice(""),
-      m_FrameRate(15),
       m_sMode("640x480_RGB"),
-      m_FWHandle(0)
+      m_FWHandle(0),
 #else
       m_sDevice("Camera disabled"),
-      m_FrameRate(15),
-      m_sMode("---")
+      m_sMode("---"),
 #endif
+      m_FrameRate(15),
+      m_bCameraAvailable(false)
 {
     m_sDevice = getDefaultedStringAttr (xmlNode, "device", "");
     m_FrameRate = getDefaultedDoubleAttr (xmlNode, "framerate", 15);
@@ -90,6 +90,7 @@ Camera::Camera (const xmlNodePtr xmlNode, Player * pPlayer)
 
 Camera::~Camera ()
 {
+    close();
 }
 
 void Camera::setDisplayEngine(DisplayEngine * pEngine)
@@ -385,6 +386,7 @@ void Camera::close()
         dc1394_dma_unlisten(m_FWHandle, &m_Camera);
         dc1394_dma_release_camera(m_FWHandle, &m_Camera);
         dc1394_destroy_handle(m_FWHandle);
+        m_bCameraAvailable = false;
     }
 #endif
 }
