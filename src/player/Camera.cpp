@@ -429,7 +429,10 @@ bool Camera::renderToSurface(ISurface * pSurface)
                     {
                         BitmapPtr pBmp = pSurface->lockBmp();
                         ScopeTimer Timer(CameraYUVConvertProfilingZone);
-                        YUV422toBGR24((unsigned char *)(m_Camera.capture_buffer), pBmp);
+                        Bitmap TempBmp(pBmp->getSize(), YCbCr422, 
+                                (unsigned char *)(m_Camera.capture_buffer),
+                                getNativeSize().x*2, false, "TempCameraBmp");
+                        pBmp->copyPixels(TempBmp);
                     }
                     break;
                 case MODE_640x480_YUV411:

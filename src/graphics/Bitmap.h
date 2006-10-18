@@ -48,10 +48,9 @@ typedef enum {
     YCbCr420p, // Not really a valid pixel format. Signifies separate bitmaps
                // for Y, Cb and Cr components, with Cb and Cr half as big in 
                // both x and y dimensions. This is mpeg YCbCr, where the 
-               // components have values from 16-235.
+               // color components have values from 16-235.
     YCbCrJ420p // Same as YCbCr420p, but this is the jpeg version with component
                // values in the range 0.255
-
 } PixelFormat;
     
 class Bitmap
@@ -98,6 +97,7 @@ public:
 private:
     void initWithData(unsigned char * pBits, int Stride, bool bCopyBits);
     void allocBits();
+    void YCbCr422toBGR(const Bitmap& Orig);
 
     IntPoint m_Size;
     int m_Stride;

@@ -156,40 +156,50 @@ void Bitmap::copyPixels(const Bitmap & Orig)
     if (&Orig == this) {
         return;
     }
-    if (Orig.getPixelFormat() == m_PF) {
-        const unsigned char * pSrc = Orig.getPixels();
-        unsigned char * pDest = m_pBits;
-        int Height = min(Orig.getSize().y, m_Size.y);
-        int Width = min(Orig.getSize().x, m_Size.x);
-        int LineLen = Width*getBytesPerPixel();
-        for (int y=0; y<Height; ++y) {
-            memcpy(pDest, pSrc, LineLen);
-            pDest += m_Stride;
-            pSrc += Orig.getStride();
+    if (Orig.getPixelFormat() == YCbCr422) {
+        if (m_PF == B8G8R8) {
+            YCbCr422toBGR(Orig);
+        } else {
+            Bitmap TempBmp(getSize(), B8G8R8, "TempColorConversion");
+            TempBmp.YCbCr422toBGR(Orig);
+            copyPixels(TempBmp);
         }
     } else {
-        switch(m_PF) {
-            case B8G8R8A8:
-            case B8G8R8X8:
-            case A8B8G8R8:
-            case X8B8G8R8:
-            case R8G8B8A8:
-            case R8G8B8X8:
-            case A8R8G8B8:
-            case X8R8G8B8:
-                createTrueColorCopy<Pixel32>(*this, Orig);
-                break;
-            case B8G8R8:
-            case R8G8B8:
-                createTrueColorCopy<Pixel24>(*this, Orig);
-                break;
-            case B5G6R5:
-            case R5G6B5:
-                createTrueColorCopy<Pixel16>(*this, Orig);
-                break;
-            default:
-                // Unimplemented conversion.
-                assert(false);
+        if (Orig.getPixelFormat() == m_PF) {
+            const unsigned char * pSrc = Orig.getPixels();
+            unsigned char * pDest = m_pBits;
+            int Height = min(Orig.getSize().y, m_Size.y);
+            int Width = min(Orig.getSize().x, m_Size.x);
+            int LineLen = Width*getBytesPerPixel();
+            for (int y=0; y<Height; ++y) {
+                memcpy(pDest, pSrc, LineLen);
+                pDest += m_Stride;
+                pSrc += Orig.getStride();
+            }
+        } else {
+            switch(m_PF) {
+                case B8G8R8A8:
+                case B8G8R8X8:
+                case A8B8G8R8:
+                case X8B8G8R8:
+                case R8G8B8A8:
+                case R8G8B8X8:
+                case A8R8G8B8:
+                case X8R8G8B8:
+                    createTrueColorCopy<Pixel32>(*this, Orig);
+                    break;
+                case B8G8R8:
+                case R8G8B8:
+                    createTrueColorCopy<Pixel24>(*this, Orig);
+                    break;
+                case B5G6R5:
+                case R5G6B5:
+                    createTrueColorCopy<Pixel16>(*this, Orig);
+                    break;
+                default:
+                    // Unimplemented conversion.
+                    assert(false);
+            }
         }
     }
 }
@@ -616,6 +626,79 @@ void Bitmap::allocBits()
         m_Stride = m_Size.x*getBytesPerPixel();
         m_pBits = new unsigned char[m_Stride*m_Size.y];
     }
+}
+
+inline void YUVtoBGR24Pixel(Pixel24* pDest, int y, int u, int v)
+{
+//    pDest->Set(y,y,y);
+    // u = Cb, v = Cr
+    int u1 = u - 128;
+    int v1 = v - 128;
+    int tempy = 298*(y-16);
+    int b = (tempy + 516 * u1           ) >> 8;
+    int g = (tempy - 100 * u1 - 208 * v1) >> 8;
+    int r = (tempy            + 409 * v1) >> 8;
+
+    if (b<0) b = 0;
+    if (b>255) b= 255;
+    if (g<0) g = 0;
+    if (g>255) g= 255;
+    if (r<0) r = 0;
+    if (r>255) r= 255;
+    pDest->set(b,g,r);
+}
+
+void YUV422toBGR24Line(const unsigned char* pSrcLine, Pixel24 * pDestLine, int Width)
+{
+    Pixel24 * pDestPixel = pDestLine;
+    
+    // We need the previous and next values to interpolate between the
+    // sampled u and v values.
+    int v = *(pSrcLine+2);
+    int v0; // Previous v
+    int v1; // Next v;
+    int u;
+    int u1; // Next u;
+    const unsigned char * pSrcPixels = pSrcLine;
+
+    for (int x = 0; x < Width/2-1; x++) {
+        // Two pixels at a time.
+        // Source format is UYVY.
+        u = pSrcPixels[0];
+        v0 = v;
+        v = pSrcPixels[2];
+
+        u1 = pSrcPixels[4];
+        v1 = pSrcPixels[6];
+
+        YUVtoBGR24Pixel(pDestPixel, pSrcPixels[1], u, (v0+v)/2);
+        YUVtoBGR24Pixel(pDestPixel+1, pSrcPixels[3], (u+u1)/2, v);
+
+        pSrcPixels+=4;
+        pDestPixel+=2;
+    }
+    // Last pixel.
+    u = pSrcPixels[0];
+    v0 = v;
+    v = pSrcPixels[2];
+    YUVtoBGR24Pixel(pDestPixel, pSrcPixels[1], u, v0/2+v/2);
+    YUVtoBGR24Pixel(pDestPixel+1, pSrcPixels[3], u, v);
+
+
+}
+ 
+void Bitmap::YCbCr422toBGR(const Bitmap& Orig)
+{
+    const unsigned char * pSrc = Orig.getPixels();
+    Pixel24 * pDest = (Pixel24*)m_pBits;
+    int Height = min(Orig.getSize().y, m_Size.y);
+    int Width = min(Orig.getSize().x, m_Size.x);
+    for (int y=0; y<Height; ++y) {
+        YUV422toBGR24Line(pSrc, pDest, Width);
+        pDest += m_Stride/getBytesPerPixel();
+        pSrc += Orig.getStride();
+    }
+
 }
 
 template<class DestPixel, class SrcPixel>
