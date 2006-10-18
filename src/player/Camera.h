@@ -170,11 +170,6 @@ class Camera : public VideoBase
         std::map<int, int> m_Features;
 
 #ifdef AVG_ENABLE_1394
-        void YUV411toBGR24Line(unsigned char * pSrc, int y, Pixel24 * pDestLine);
-        void YUV411toBGR24(unsigned char * pSrc, BitmapPtr pBmp);
-        void YUV422toBGR24Line(unsigned char * pSrc, int y, Pixel24 * pDestLine);
-        void YUV422toBGR24(unsigned char * pSrc, BitmapPtr pBmp);
-
         bool findCameraOnPort(int port, raw1394handle_t& FWHandle);
 
         void checkDC1394Error(int Code, const std::string & sMsg);

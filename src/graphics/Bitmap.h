@@ -44,6 +44,7 @@ typedef enum {
     B5G6R5, B8G8R8, B8G8R8A8, B8G8R8X8, A8B8G8R8, X8B8G8R8,
     R5G6B5, R8G8B8, R8G8B8A8, R8G8B8X8, A8R8G8B8, X8R8G8B8,
     I8, 
+    YCbCr411,  // Interleaved YCbCr: Y,Y,Cb,Y,Y,Cr,... Effectively 12 bits per pixel.
     YCbCr422,  // Interleaved YCbCr: Y,Cb,Y,Cr,...
     YCbCr420p, // Not really a valid pixel format. Signifies separate bitmaps
                // for Y, Cb and Cr components, with Cb and Cr half as big in 
@@ -85,6 +86,7 @@ public:
     const std::string& getName() const;
     int getBytesPerPixel() const;
     static int getBytesPerPixel(PixelFormat PF);
+    int getLineLen() const;
     int getMemNeeded() const;
     bool hasAlpha() const;
 
@@ -97,7 +99,7 @@ public:
 private:
     void initWithData(unsigned char * pBits, int Stride, bool bCopyBits);
     void allocBits();
-    void YCbCr422toBGR(const Bitmap& Orig);
+    void YCbCrtoBGR(const Bitmap& Orig);
 
     IntPoint m_Size;
     int m_Stride;

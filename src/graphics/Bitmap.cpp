@@ -156,12 +156,12 @@ void Bitmap::copyPixels(const Bitmap & Orig)
     if (&Orig == this) {
         return;
     }
-    if (Orig.getPixelFormat() == YCbCr422) {
+    if (Orig.getPixelFormat() == YCbCr422 || Orig.getPixelFormat() == YCbCr411) {
         if (m_PF == B8G8R8) {
-            YCbCr422toBGR(Orig);
+            YCbCrtoBGR(Orig);
         } else {
             Bitmap TempBmp(getSize(), B8G8R8, "TempColorConversion");
-            TempBmp.YCbCr422toBGR(Orig);
+            TempBmp.YCbCrtoBGR(Orig);
             copyPixels(TempBmp);
         }
     } else {
@@ -169,8 +169,7 @@ void Bitmap::copyPixels(const Bitmap & Orig)
             const unsigned char * pSrc = Orig.getPixels();
             unsigned char * pDest = m_pBits;
             int Height = min(Orig.getSize().y, m_Size.y);
-            int Width = min(Orig.getSize().x, m_Size.x);
-            int LineLen = Width*getBytesPerPixel();
+            int LineLen = getLineLen();
             for (int y=0; y<Height; ++y) {
                 memcpy(pDest, pSrc, LineLen);
                 pDest += m_Stride;
@@ -332,6 +331,8 @@ std::string Bitmap::getPixelFormatString(PixelFormat PF)
             return "X8R8G8B8";
         case I8:
             return "I8";
+        case YCbCr411:
+            return "YCbCr411";
         case YCbCr422:
             return "YCbCr422";
         case YCbCr420p:
@@ -412,6 +413,15 @@ int Bitmap::getBytesPerPixel(PixelFormat PF)
     }
 }
 
+int Bitmap::getLineLen() const
+{
+    if (m_PF == YCbCr411) {
+        return int(m_Size.x*1.5);
+    } else {
+        return m_Size.x*getBytesPerPixel();
+    }
+}
+
 int Bitmap::getMemNeeded() const
 {
     // This assumes a positive value for stride.
@@ -435,7 +445,7 @@ bool Bitmap::operator ==(const Bitmap & otherBmp)
 
     const unsigned char * pSrc = otherBmp.getPixels();
     unsigned char * pDest = m_pBits;
-    int LineLen = getSize().x*getBytesPerPixel();
+    int LineLen = getLineLen();
     for (int y=0; y<getSize().y; ++y) {
         switch(m_PF) {
             case R8G8B8X8:
@@ -607,7 +617,7 @@ void Bitmap::initWithData(unsigned char * pBits, int Stride, bool bCopyBits)
 void Bitmap::allocBits()
 {
 //    cerr << "Bitmap::allocBits():" << m_Size <<  endl;
-    
+    m_Stride = getLineLen();
     if (m_PF == YCbCr422) {
         if (m_Size.x%2 == 1) {
             AVG_TRACE(Logger::WARNING, "Odd size for YCbCr bitmap.");
@@ -617,13 +627,11 @@ void Bitmap::allocBits()
             AVG_TRACE(Logger::WARNING, "Odd size for YCbCr bitmap.");
             m_Size.y++;
         }
-        m_Stride = m_Size.x*getBytesPerPixel();
         //XXX: We allocate more than nessesary here because ffmpeg seems to
         // overwrite memory after the bits - probably during yuv conversion.
         // Yuck.
         m_pBits = new unsigned char[(m_Stride+1)*(m_Size.y+1)];
     } else {
-        m_Stride = m_Size.x*getBytesPerPixel();
         m_pBits = new unsigned char[m_Stride*m_Size.y];
     }
 }
@@ -656,7 +664,6 @@ void YUV422toBGR24Line(const unsigned char* pSrcLine, Pixel24 * pDestLine, int W
     // sampled u and v values.
     int v = *(pSrcLine+2);
     int v0; // Previous v
-    int v1; // Next v;
     int u;
     int u1; // Next u;
     const unsigned char * pSrcPixels = pSrcLine;
@@ -667,9 +674,7 @@ void YUV422toBGR24Line(const unsigned char* pSrcLine, Pixel24 * pDestLine, int W
         u = pSrcPixels[0];
         v0 = v;
         v = pSrcPixels[2];
-
         u1 = pSrcPixels[4];
-        v1 = pSrcPixels[6];
 
         YUVtoBGR24Pixel(pDestPixel, pSrcPixels[1], u, (v0+v)/2);
         YUVtoBGR24Pixel(pDestPixel+1, pSrcPixels[3], (u+u1)/2, v);
@@ -677,26 +682,78 @@ void YUV422toBGR24Line(const unsigned char* pSrcLine, Pixel24 * pDestLine, int W
         pSrcPixels+=4;
         pDestPixel+=2;
     }
-    // Last pixel.
+    // Last pixels.
     u = pSrcPixels[0];
     v0 = v;
     v = pSrcPixels[2];
     YUVtoBGR24Pixel(pDestPixel, pSrcPixels[1], u, v0/2+v/2);
     YUVtoBGR24Pixel(pDestPixel+1, pSrcPixels[3], u, v);
-
-
 }
  
-void Bitmap::YCbCr422toBGR(const Bitmap& Orig)
+void YUV411toBGR24Line(const unsigned char* pSrcLine, Pixel24 * pDestLine, int Width)
 {
+    Pixel24 * pDestPixel = pDestLine;
+    
+    // We need the previous and next values to interpolate between the
+    // sampled u and v values.
+    int v = *(pSrcLine+3);
+    int v0; // Previous v
+    int v1; // Next v;
+    int u;
+    int u1; // Next u;
+    const unsigned char * pSrcPixels = pSrcLine;
+
+    for (int x = 0; x < Width/4; x++) {
+        // Four pixels at a time.
+        // Source format is UYYVYY.
+        u = pSrcPixels[0];
+        v0 = v;
+        v = pSrcPixels[3];
+
+        if (x < Width/4-1) {
+            u1 = pSrcPixels[6];
+            v1 = pSrcPixels[9];
+        } else {
+            u1 = u;
+            v1 = v;
+        }
+
+        YUVtoBGR24Pixel(pDestPixel, pSrcPixels[1], u, v0/2+v/2);
+        YUVtoBGR24Pixel(pDestPixel+1, pSrcPixels[2], (u*3)/4+u1/4, v0/4+(v*3)/4);
+        YUVtoBGR24Pixel(pDestPixel+2, pSrcPixels[4], u/2+u1/2, v);
+        YUVtoBGR24Pixel(pDestPixel+3, pSrcPixels[5], u/4+(u1*3)/4, (v*3)/4+v1/4);
+
+        pSrcPixels+=6;
+        pDestPixel+=4;
+    }
+}
+
+void Bitmap::YCbCrtoBGR(const Bitmap& Orig)
+{
+    assert(m_PF==B8G8R8);
     const unsigned char * pSrc = Orig.getPixels();
     Pixel24 * pDest = (Pixel24*)m_pBits;
     int Height = min(Orig.getSize().y, m_Size.y);
     int Width = min(Orig.getSize().x, m_Size.x);
-    for (int y=0; y<Height; ++y) {
-        YUV422toBGR24Line(pSrc, pDest, Width);
-        pDest += m_Stride/getBytesPerPixel();
-        pSrc += Orig.getStride();
+    int StrideInPixels = m_Stride/getBytesPerPixel();
+    switch(Orig.m_PF) {
+        case YCbCr422:
+            for (int y=0; y<Height; ++y) {
+                YUV422toBGR24Line(pSrc, pDest, Width);
+                pDest += StrideInPixels;
+                pSrc += Orig.getStride();
+            }
+            break;
+        case YCbCr411:
+            for (int y=0; y<Height; ++y) {
+                YUV411toBGR24Line(pSrc, pDest, Width);
+                pDest += StrideInPixels;
+                pSrc += Orig.getStride();
+            }
+            break;
+        default:
+            // This routine shouldn't be called with other pixel formats.
+            assert(false);
     }
 
 }
