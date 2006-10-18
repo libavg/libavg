@@ -1316,9 +1316,17 @@ int SDLDisplayEngine::getOGLSrcMode(PixelFormat pf)
         case YCbCr422:
             switch (getYCbCrMode()) {
                 case DisplayEngine::OGL_MESA:
+#ifdef __i386__
                     return GL_YCBCR_MESA;    
+#else
+                    return GL_YCBCR_422_REV_MESA;
+#endif
                 case DisplayEngine::OGL_APPLE:
+#ifdef __i386__
                     return GL_YCBCR_422_APPLE;
+#else
+                    return GL_YCBCR_422_REV_APPLE;
+#endif
                 default:
                     AVG_TRACE(Logger::ERROR, "SDLDisplayEngine: YCbCr422 not supported.");
             }

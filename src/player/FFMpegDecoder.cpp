@@ -248,42 +248,6 @@ double FFMpegDecoder::getFPS()
 #endif 
 }
 
-void YCbCr420pToYCbCr422(const AVPicture *pSrcPict, BitmapPtr pDestBmp)
-{
-    int Height = pDestBmp->getSize().y;
-    int Width = pDestBmp->getSize().x;
-    
-    unsigned char * pDestLine = (unsigned char*)(pDestBmp->getPixels());
-    unsigned char * pLumLine = pSrcPict->data[0];
-    unsigned char *cb2 = pSrcPict->data[1];
-    unsigned char *cr2 = pSrcPict->data[2];
-
-    for(int y = Height / 2; y--;) {
-        unsigned char * pDest1 = pDestLine;
-        unsigned char * pDest2 = pDestLine+pDestBmp->getStride();
-
-        unsigned char * pLum1 = pLumLine;
-        unsigned char * pLum2 = pLumLine+pSrcPict->linesize[0];
-
-        unsigned char * cb1 = cb2;
-        unsigned char * cr1 = cr2;
-
-        for(int x = Width / 2; x--;) {
-                *pDest1++ = *pLum1++; 
-                *pDest2++ = *pLum2++;
-                *pDest1++ = *pDest2++ = *cb1++;
-                *pDest1++ = *pLum1++; 
-                *pDest2++ = *pLum2++;
-                *pDest1++ = *pDest2++ = *cr1++;
-        }
-
-        pDestLine += pDestBmp->getStride()*2;
-        pLumLine += pSrcPict->linesize[0]*2;
-        cb2 += pSrcPict->linesize[1];
-        cr2 += pSrcPict->linesize[2];
-    }
-}
-
 static ProfilingZone RenderToBmpProfilingZone("      FFMpeg: renderToBmp");
 static ProfilingZone ImgConvertProfilingZone("        FFMpeg: img_convert");
 
@@ -293,54 +257,48 @@ bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
     AVFrame Frame;
     readFrame(Frame);
     if (!m_bEOF) {
-        if (pBmp->getPixelFormat() == YCbCr422) {
-            // Bypass ffmpeg's conversion since it's buggy.
-            ScopeTimer Timer(ImgConvertProfilingZone);
-            YCbCr420pToYCbCr422((AVPicture*)&Frame, pBmp);
-        } else {
-            AVPicture DestPict;
-            unsigned char * pDestBits = pBmp->getPixels();
-            DestPict.data[0] = pDestBits;
-            DestPict.linesize[0] = pBmp->getStride();
-            int DestFmt;
-            switch(pBmp->getPixelFormat()) {
-                case R8G8B8X8:
-                case R8G8B8A8:
-                    // XXX: Unused and broken.
-                    DestFmt = PIX_FMT_RGBA32;
-                    break;
-                case B8G8R8X8:
-                case B8G8R8A8:
-                    // This isn't supported directly by FFMpeg.
-                    DestFmt = PIX_FMT_RGBA32;
-                    break;
-                case R8G8B8:
-                    DestFmt = PIX_FMT_RGB24;
-                    break;
-                case B8G8R8:
-                    DestFmt = PIX_FMT_BGR24;
-                    break;
-                case YCbCr422:
-                    DestFmt = PIX_FMT_YUV422;
-                    break;
-                default:
-                    AVG_TRACE(Logger::ERROR, "FFMpegDecoder: Dest format " 
-                            << pBmp->getPixelFormatString() << " not supported.");
-                    assert(false);
-            }
+        AVPicture DestPict;
+        unsigned char * pDestBits = pBmp->getPixels();
+        DestPict.data[0] = pDestBits;
+        DestPict.linesize[0] = pBmp->getStride();
+        int DestFmt;
+        switch(pBmp->getPixelFormat()) {
+            case R8G8B8X8:
+            case R8G8B8A8:
+                // XXX: Unused and broken.
+                DestFmt = PIX_FMT_RGBA32;
+                break;
+            case B8G8R8X8:
+            case B8G8R8A8:
+                // This isn't supported directly by FFMpeg.
+                DestFmt = PIX_FMT_RGBA32;
+                break;
+            case R8G8B8:
+                DestFmt = PIX_FMT_RGB24;
+                break;
+            case B8G8R8:
+                DestFmt = PIX_FMT_BGR24;
+                break;
+            case YCbCr422:
+                DestFmt = PIX_FMT_YUV422;
+                break;
+            default:
+                AVG_TRACE(Logger::ERROR, "FFMpegDecoder: Dest format " 
+                        << pBmp->getPixelFormatString() << " not supported.");
+                assert(false);
+        }
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-            AVCodecContext *enc = &m_pVStream->codec;
+        AVCodecContext *enc = &m_pVStream->codec;
 #else
-            AVCodecContext *enc = m_pVStream->codec;
+        AVCodecContext *enc = m_pVStream->codec;
 #endif
-            {
-                ScopeTimer Timer(ImgConvertProfilingZone);
-                int rc = img_convert(&DestPict, DestFmt,
-                        (AVPicture*)&Frame, enc->pix_fmt,
-                        enc->width, enc->height);
-                if (rc != 0) {
-                    AVG_TRACE(Logger::ERROR, "FFFMpegDecoder: img_convert failed.");
-                }
+        {
+            ScopeTimer Timer(ImgConvertProfilingZone);
+            int rc = img_convert(&DestPict, DestFmt,
+                    (AVPicture*)&Frame, enc->pix_fmt,
+                    enc->width, enc->height);
+            if (rc != 0) {
+                AVG_TRACE(Logger::ERROR, "FFFMpegDecoder: img_convert failed.");
             }
         }
     }
