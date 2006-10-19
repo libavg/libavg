@@ -1266,6 +1266,7 @@ int SDLDisplayEngine::getMaxTexSize()
     return m_MaxTexSize;
 }
 
+// This is what OpenGL calls InternalFormat
 int SDLDisplayEngine::getOGLDestMode(PixelFormat pf)
 {
     switch (pf) {
@@ -1332,18 +1333,22 @@ int SDLDisplayEngine::getOGLSrcMode(PixelFormat pf)
 
 int SDLDisplayEngine::getOGLPixelType(PixelFormat pf)
 {
-    if (pf == YCbCr422) {
-        if (getYCbCrMode() == DisplayEngine::OGL_MESA) {
-            return GL_UNSIGNED_SHORT_8_8_REV_MESA;
-        } else {
+    switch (pf) {
+        case YCbCr422:
+            if (getYCbCrMode() == DisplayEngine::OGL_MESA) {
+                return GL_UNSIGNED_SHORT_8_8_REV_MESA;
+            } else {
 #ifdef __i386__
-            return GL_UNSIGNED_SHORT_8_8_REV_APPLE;
+                return GL_UNSIGNED_SHORT_8_8_REV_APPLE;
 #else
-            return GL_UNSIGNED_SHORT_8_8_APPLE;
+                return GL_UNSIGNED_SHORT_8_8_APPLE;
 #endif 
-        }
-    } else {
-        return GL_UNSIGNED_BYTE;
+            }
+        case B8G8R8X8:
+        case B8G8R8A8:
+            return GL_UNSIGNED_INT_8_8_8_8_REV;
+        default:
+            return GL_UNSIGNED_BYTE;
     }
 }
 
@@ -1383,3 +1388,4 @@ void SDLDisplayEngine::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCb
 }
 
 }
+
