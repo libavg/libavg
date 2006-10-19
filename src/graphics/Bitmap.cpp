@@ -157,10 +157,10 @@ void Bitmap::copyPixels(const Bitmap & Orig)
         return;
     }
     if (Orig.getPixelFormat() == YCbCr422 || Orig.getPixelFormat() == YCbCr411) {
-        if (m_PF == B8G8R8) {
+        if (m_PF == B8G8R8X8) {
             YCbCrtoBGR(Orig);
         } else {
-            Bitmap TempBmp(getSize(), B8G8R8, "TempColorConversion");
+            Bitmap TempBmp(getSize(), B8G8R8X8, "TempColorConversion");
             TempBmp.YCbCrtoBGR(Orig);
             copyPixels(TempBmp);
         }
@@ -636,9 +636,8 @@ void Bitmap::allocBits()
     }
 }
 
-inline void YUVtoBGR24Pixel(Pixel24* pDest, int y, int u, int v)
+inline void YUVtoBGR32Pixel(Pixel32* pDest, int y, int u, int v)
 {
-//    pDest->Set(y,y,y);
     // u = Cb, v = Cr
     int u1 = u - 128;
     int v1 = v - 128;
@@ -653,12 +652,12 @@ inline void YUVtoBGR24Pixel(Pixel24* pDest, int y, int u, int v)
     if (g>255) g= 255;
     if (r<0) r = 0;
     if (r>255) r= 255;
-    pDest->set(b,g,r);
+    pDest->set(b,g,r,255);
 }
 
-void YUV422toBGR24Line(const unsigned char* pSrcLine, Pixel24 * pDestLine, int Width)
+void YUV422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int Width)
 {
-    Pixel24 * pDestPixel = pDestLine;
+    Pixel32 * pDestPixel = pDestLine;
     
     // We need the previous and next values to interpolate between the
     // sampled u and v values.
@@ -676,8 +675,8 @@ void YUV422toBGR24Line(const unsigned char* pSrcLine, Pixel24 * pDestLine, int W
         v = pSrcPixels[2];
         u1 = pSrcPixels[4];
 
-        YUVtoBGR24Pixel(pDestPixel, pSrcPixels[1], u, (v0+v)/2);
-        YUVtoBGR24Pixel(pDestPixel+1, pSrcPixels[3], (u+u1)/2, v);
+        YUVtoBGR32Pixel(pDestPixel, pSrcPixels[1], u, (v0+v)/2);
+        YUVtoBGR32Pixel(pDestPixel+1, pSrcPixels[3], (u+u1)/2, v);
 
         pSrcPixels+=4;
         pDestPixel+=2;
@@ -686,13 +685,13 @@ void YUV422toBGR24Line(const unsigned char* pSrcLine, Pixel24 * pDestLine, int W
     u = pSrcPixels[0];
     v0 = v;
     v = pSrcPixels[2];
-    YUVtoBGR24Pixel(pDestPixel, pSrcPixels[1], u, v0/2+v/2);
-    YUVtoBGR24Pixel(pDestPixel+1, pSrcPixels[3], u, v);
+    YUVtoBGR32Pixel(pDestPixel, pSrcPixels[1], u, v0/2+v/2);
+    YUVtoBGR32Pixel(pDestPixel+1, pSrcPixels[3], u, v);
 }
  
-void YUV411toBGR24Line(const unsigned char* pSrcLine, Pixel24 * pDestLine, int Width)
+void YUV411toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int Width)
 {
-    Pixel24 * pDestPixel = pDestLine;
+    Pixel32 * pDestPixel = pDestLine;
     
     // We need the previous and next values to interpolate between the
     // sampled u and v values.
@@ -718,10 +717,10 @@ void YUV411toBGR24Line(const unsigned char* pSrcLine, Pixel24 * pDestLine, int W
             v1 = v;
         }
 
-        YUVtoBGR24Pixel(pDestPixel, pSrcPixels[1], u, v0/2+v/2);
-        YUVtoBGR24Pixel(pDestPixel+1, pSrcPixels[2], (u*3)/4+u1/4, v0/4+(v*3)/4);
-        YUVtoBGR24Pixel(pDestPixel+2, pSrcPixels[4], u/2+u1/2, v);
-        YUVtoBGR24Pixel(pDestPixel+3, pSrcPixels[5], u/4+(u1*3)/4, (v*3)/4+v1/4);
+        YUVtoBGR32Pixel(pDestPixel, pSrcPixels[1], u, v0/2+v/2);
+        YUVtoBGR32Pixel(pDestPixel+1, pSrcPixels[2], (u*3)/4+u1/4, v0/4+(v*3)/4);
+        YUVtoBGR32Pixel(pDestPixel+2, pSrcPixels[4], u/2+u1/2, v);
+        YUVtoBGR32Pixel(pDestPixel+3, pSrcPixels[5], u/4+(u1*3)/4, (v*3)/4+v1/4);
 
         pSrcPixels+=6;
         pDestPixel+=4;
@@ -730,23 +729,23 @@ void YUV411toBGR24Line(const unsigned char* pSrcLine, Pixel24 * pDestLine, int W
 
 void Bitmap::YCbCrtoBGR(const Bitmap& Orig)
 {
-    assert(m_PF==B8G8R8);
+    assert(m_PF==B8G8R8X8);
     const unsigned char * pSrc = Orig.getPixels();
-    Pixel24 * pDest = (Pixel24*)m_pBits;
+    Pixel32 * pDest = (Pixel32*)m_pBits;
     int Height = min(Orig.getSize().y, m_Size.y);
     int Width = min(Orig.getSize().x, m_Size.x);
     int StrideInPixels = m_Stride/getBytesPerPixel();
     switch(Orig.m_PF) {
         case YCbCr422:
             for (int y=0; y<Height; ++y) {
-                YUV422toBGR24Line(pSrc, pDest, Width);
+                YUV422toBGR32Line(pSrc, pDest, Width);
                 pDest += StrideInPixels;
                 pSrc += Orig.getStride();
             }
             break;
         case YCbCr411:
             for (int y=0; y<Height; ++y) {
-                YUV411toBGR24Line(pSrc, pDest, Width);
+                YUV411toBGR32Line(pSrc, pDest, Width);
                 pDest += StrideInPixels;
                 pSrc += Orig.getStride();
             }
@@ -755,7 +754,6 @@ void Bitmap::YCbCrtoBGR(const Bitmap& Orig)
             // This routine shouldn't be called with other pixel formats.
             assert(false);
     }
-
 }
 
 template<class DestPixel, class SrcPixel>
