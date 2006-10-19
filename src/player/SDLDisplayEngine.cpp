@@ -1345,7 +1345,6 @@ int SDLDisplayEngine::getOGLPixelType(PixelFormat pf)
 #endif 
             }
         case B8G8R8X8:
-        case B8G8R8A8:
             return GL_UNSIGNED_INT_8_8_8_8_REV;
         default:
             return GL_UNSIGNED_BYTE;

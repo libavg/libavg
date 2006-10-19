@@ -15,14 +15,18 @@ testOGL()
 #       BPP POW2  YCbCr  RGB   PBO
 # Linux NVidia GeForce 6x00 and Mac OS X GeForce FX
 runTest $1  false shader false true
-# Older Linux NVidia
-runTest $1  false none   false true
-# MESA Matrox (not sure about pow2...)
-runTest $1  false mesa   false false
-# Mac OS X 10.2.6, NVidia GeForce2 MX
-runTest $1  false apple  false false
-# Mac OS X 10.2.6, ATi Rage 128 pro 
-runTest $1  true  apple  false false
+if [[ `uname` == Linux ]]
+then
+    # Older Linux NVidia
+    runTest $1  false none   false true
+    # MESA Matrox (not sure about pow2...)
+    runTest $1  false mesa   false false
+else
+    # Mac OS X 10.2.6, NVidia GeForce2 MX
+    runTest $1  false apple  false false
+    # Mac OS X 10.2.6, ATi Rage 128 pro 
+    runTest $1  true  apple  false false
+fi
 # A card that doesn't support anything at all.
 runTest $1  true none    false false
 }
@@ -35,4 +39,4 @@ testOGL 16
 #    ./Test.py DFB 24
 #    ./Test.py DFB 16
 #fi
-#cd -
+cd -
