@@ -70,7 +70,7 @@ Camera::Camera (const xmlNodePtr xmlNode, Player * pPlayer)
       m_FrameRate(15),
       m_sMode("640x480_RGB"),
       m_FWHandle(0),
-      m_bCameraAvailable(false),
+      m_bCameraAvailable(false)
 #else
       m_sDevice("Camera disabled"),
       m_FrameRate(15),
@@ -411,7 +411,7 @@ void Camera::fatalError(const string & sMsg)
 
 static ProfilingZone CameraProfilingZone("    Camera::render");
 static ProfilingZone CameraUploadProfilingZone("      Camera tex download");
-static ProfilingZone CameraYUVConvertProfilingZone("      Camera YUV conversion");
+static ProfilingZone CameraConvertProfilingZone("      Camera format conversion");
 
 bool Camera::renderToSurface(ISurface * pSurface)
 {
@@ -428,67 +428,61 @@ bool Camera::renderToSurface(ISurface * pSurface)
 */
             // New frame available
             BitmapPtr pBmp = pSurface->lockBmp();
-            switch (m_Mode) {
-                case MODE_640x480_YUV422:
-                case MODE_1024x768_YUV422:
-                    {
-                        ScopeTimer Timer(CameraYUVConvertProfilingZone);
-                        Bitmap TempBmp(pBmp->getSize(), YCbCr422, 
-                                (unsigned char *)(m_Camera.capture_buffer),
-                                getNativeSize().x*2, false, "TempCameraBmp");
-                        pBmp->copyPixels(TempBmp);
-                    }
-                    break;
-                case MODE_640x480_YUV411:
-                    {
-                        ScopeTimer Timer(CameraYUVConvertProfilingZone);
-                        Bitmap TempBmp(pBmp->getSize(), YCbCr411, 
-                                (unsigned char *)(m_Camera.capture_buffer),
-                                getNativeSize().x*1.5, false, "TempCameraBmp");
-                        pBmp->copyPixels(TempBmp);
-                    }
-                    break;
-                case MODE_640x480_RGB:
-                case MODE_1024x768_RGB:
-                    {
-/*
-#ifdef AVG_ENABLE_GL
-                        if (pOGLSurface) {
-                            pOGLSurface->createFromBits(getNativeSize(), R8G8B8,
-                                    (unsigned char *)(m_Camera.capture_buffer), 
-                                    getNativeSize().x*3);
-                        } else {
-#endif
-*/
-                            unsigned char * pPixels = pBmp->getPixels();
+            {
+                ScopeTimer Timer(CameraConvertProfilingZone);
+                switch (m_Mode) {
+                    case MODE_640x480_YUV422:
+                    case MODE_1024x768_YUV422:
+                        {
+                            Bitmap TempBmp(pBmp->getSize(), YCbCr422, 
+                                    (unsigned char *)(m_Camera.capture_buffer),
+                                    getNativeSize().x*2, false, "TempCameraBmp");
+                            pBmp->copyPixels(TempBmp);
+                        }
+                        break;
+                    case MODE_640x480_YUV411:
+                        {
+                            Bitmap TempBmp(pBmp->getSize(), YCbCr411, 
+                                    (unsigned char *)(m_Camera.capture_buffer),
+                                    (int)(getNativeSize().x*1.5), false, "TempCameraBmp");
+                            pBmp->copyPixels(TempBmp);
+                        }
+                        break;
+                    case MODE_640x480_RGB:
+                    case MODE_1024x768_RGB:
+                        {
                             if (getEngine()->hasRGBOrdering()) {
                                 AVG_TRACE(Logger::ERROR,
                                         "Wrong engine rgb order for camera. Aborting.");
                             } else {
-                                for (int y = 0; y < pBmp->getSize().y; y++) {
-                                    unsigned char * pDestLine = 
-                                        pPixels+y*pBmp->getStride();
-                                    unsigned char * pSrcLine = (unsigned char*)
-                                        m_Camera.capture_buffer+3*pBmp->getSize().x*y;
-                                    for (int x = 0; x<pBmp->getSize().x; x++) {
-                                        pDestLine[x*3] = pSrcLine[x*3+2];
-                                        pDestLine[x*3+1] = pSrcLine[x*3+1];
-                                        pDestLine[x*3+2] = pSrcLine[x*3];
-//                                        pDestLine[x*4+3] = 0xFF;
+                                unsigned char * pSrcLine = (unsigned char*)
+                                        m_Camera.capture_buffer;
+                                int SrcStride = 3*pBmp->getSize().x;
+                                unsigned char * pDestLine = pBmp->getPixels();
+                                int DestStride = pBmp->getStride();
+                                int Height = pBmp->getSize().y;
+                                int Width = pBmp->getSize().x;
+                                for (int y = 0; y < Height; y++) {
+                                    unsigned char * pDest = pDestLine;
+                                    unsigned char * pSrc = pSrcLine;
+                                    for (int x = 0; x<Width; x++) {
+                                        *pDest++ = *(pSrc+2);
+                                        *pDest++ = *(pSrc+1);
+                                        *pDest++ = *pSrc;
+                                        *pDest++ = 0xFF;
+                                        pSrc += 3;
                                     }
+                                    pSrcLine += SrcStride;
+                                    pDestLine += DestStride;
                                 }
                             }
-/*
-#ifdef AVG_ENABLE_GL
                         }
-#endif
-*/
-                    }
-                    break;
-                default:
-                    AVG_TRACE(Logger::WARNING,
-                            "Illegal Mode in renderToSurface");
-                    break;
+                        break;
+                    default:
+                        AVG_TRACE(Logger::WARNING,
+                                "Illegal Mode in renderToSurface");
+                        break;
+                }
             }
             pSurface->unlockBmps();
             {
