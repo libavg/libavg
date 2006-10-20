@@ -50,6 +50,9 @@ fixLib libWand.10.dylib libMagick.10
 
 cd ../libavg
 
+cp src/avgrc ${AVG_PATH}/dist/avg/
+cp ../bin/fc-cache ${AVG_PATH}/dist/avg/
+
 cd src/test
 cp -Rv Test.py *.avg 1x1_schachbrett.png crop_bkgd.png panoimage.png freidrehen.jpg widebmp.jpg rgb24-65x65.png rgb24-64x64.png rgb24alpha-64x64.png rgb24alpha.tif videoperformance.py Test.py TestPar.py parport.py ${AVG_PATH}/dist/avg/test
 mkdir ${AVG_PATH}/dist/avg/test/baseline
