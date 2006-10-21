@@ -305,6 +305,7 @@ void Words::drawString()
         m_StringExtents = DPoint(0,0);
     } else {
         if (m_bFontChanged) {
+//            AVG_TRACE(Logger::PROFILE, "Opening font " << m_FontName);
             pango_font_description_set_family(m_pFontDescription,
                     g_strdup(m_FontName.c_str()));
             pango_font_description_set_style(m_pFontDescription,
