@@ -1,10 +1,5 @@
-EXTRA_DIST = 1x1_schachbrett.png panoimage.png freidrehen.jpg widebmp.jpg \
-rgb24-65x65.png rgb24-64x64.png rgb24alpha-64x64.png rgb24alpha.tif \
-rgba-48x48.mov \
-camera.avg events.avg panoimage.avg videoperformance.avg crop.avg parport.avg \
-testserial.avg crop2.avg hugeimage.avg text.avg image.avg empty.avg\
-avg.avg noavg.avg noavg2.avg video.avg blend.avg errevent.avg noxml.avg videofmt.avg \
-mpeg1-48x48.mpg h264-48x48.h264 invalidfilename.avg \
-videoperformance.py Test.py TestPar.py parport.py
+EXTRA_DIST = $(wildcard *.avg) $(wildcard *.png) $(wildcard *.jpg) $(wildcard *.tif) \
+	$(wildcard *.py) $(wildcard *.mov) $(wildcard *.mpg) $(wildcard *.avi) $(wildcard *.h264) \
+	baseline
 
 TESTS=Test.py
