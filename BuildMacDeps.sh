@@ -74,8 +74,8 @@ buildpango()
 buildfontconfig()
 {
     cd fontconfig-2.3.2
-#    patch fontconfig.pc.in ../../libavg/macpatches/fontconfig.pc.in.diff
-#    patch -p1 <../../libavg/macpatches/fontconfig-2.3.2-noftinternals.patch
+#    patch fontconfig.pc.in ../../libavg/mac/fontconfig.pc.in.diff
+#    patch -p1 <../../libavg/mac/fontconfig-2.3.2-noftinternals.patch
     LDFLAGS="-framework ApplicationServices ${LDFLAGS}" ./configure --prefix=${AVG_PATH} --disable-shared --with-add-fonts=/Library/Fonts,/System/Library/Fonts,~/fonts --with-confdir=/etc/fonts
     make clean
     make -j3

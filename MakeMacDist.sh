@@ -59,5 +59,5 @@ mkdir ${AVG_PATH}/dist/avg/test/baseline
 cp baseline/* ${AVG_PATH}/dist/avg/test/baseline
 cd ../..
 
-/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -proj libavg.pmproj -v -p libavg.pkg
+/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -proj mac/libavg.pmproj -v -p libavg.pkg
 zip -ry libavg-mac-${PLATFORM}.${VERSION}.zip libavg.pkg
