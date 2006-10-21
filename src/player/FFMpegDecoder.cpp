@@ -258,7 +258,6 @@ bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
                 break;
             case B8G8R8X8:
             case B8G8R8A8:
-                // This isn't supported directly by FFMpeg.
                 DestFmt = PIX_FMT_RGBA32;
                 break;
             case R8G8B8:

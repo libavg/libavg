@@ -75,9 +75,11 @@ void Image::disconnect()
     ISurface * pSurface = getSurface();
     m_pBmp = BitmapPtr(new Bitmap(*(pSurface->lockBmp())));
     // XXX Yuck
+#ifdef __i386__
     if (!(getPlayer()->getDisplayEngine()->hasRGBOrdering())) {
         FilterFlipRGB().applyInPlace(m_pBmp);
     }
+#endif
     getSurface()->unlockBmps();
     RasterNode::disconnect();
 }
@@ -170,10 +172,11 @@ void Image::setupSurface()
     }
     getSurface()->create(m_pBmp->getSize(), pf, false);
     getSurface()->lockBmp()->copyPixels(*m_pBmp);
+#ifdef __i386__
     if (!(getPlayer()->getDisplayEngine()->hasRGBOrdering())) {
         FilterFlipRGB().applyInPlace(getSurface()->lockBmp());
     }
-
+#endif
     getSurface()->unlockBmps();
     getEngine()->surfaceChanged(getSurface());
     m_pBmp=BitmapPtr();
