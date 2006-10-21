@@ -30,6 +30,7 @@
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
+#include <sstream>
 
 using namespace std;
 
@@ -53,34 +54,23 @@ FFMpegDecoder::~FFMpegDecoder ()
 }
 
 
-void avcodecError(const string & filename, int err)
+void avcodecError(const string & sFilename, int err)
 {
     switch(err) {
         case AVERROR_NUMEXPECTED:
-            AVG_TRACE(Logger::ERROR, 
-                    filename << ": Incorrect image filename syntax.");
-            AVG_TRACE(Logger::ERROR, 
-                    "Use '%%d' to specify the image number:");
-            AVG_TRACE(Logger::ERROR, 
-                    "  for img1.jpg, img2.jpg, ..., use 'img%%d.jpg';");
-            AVG_TRACE(Logger::ERROR, 
-                    "  for img001.jpg, img002.jpg, ..., use 'img%%03d.jpg'."); 
-            break;
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                    sFilename + ": Incorrect image filename syntax (use %%d to specify the image number:");
         case AVERROR_INVALIDDATA:
-            AVG_TRACE(Logger::ERROR, 
-                    filename << ": Error while parsing header");
-            break;
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                    sFilename + ": Error while parsing header");
         case AVERROR_NOFMT:
-            AVG_TRACE(Logger::ERROR, 
-                    filename << ": Unknown format");
-            break;
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                    sFilename + ": Unknown format");
         default:
-            AVG_TRACE(Logger::ERROR, 
-                    filename << ": Error while opening file (Num:" << err << ")");
-            break;
+            stringstream s;
+            s << sFilename << ": Error while opening file (Num:" << err << ")";
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, s.str());
     }
-    // TODO: Continue without video.
-    exit(-1);
 }
 
 
@@ -101,7 +91,7 @@ void dump_stream_info(AVFormatContext *s)
 }
 
 
-bool FFMpegDecoder::open (const std::string& sFilename, 
+void FFMpegDecoder::open (const std::string& sFilename, 
         int* pWidth, int* pHeight)
 {
     AVFormatParameters params;
@@ -115,14 +105,14 @@ bool FFMpegDecoder::open (const std::string& sFilename,
     err = av_open_input_file(&m_pFormatContext, sFilename.c_str(), 
             0, 0, &params);
     if (err < 0) {
+        m_sFilename = "";
         avcodecError(sFilename, err);
     }
     
     err = av_find_stream_info(m_pFormatContext);
     if (err < 0) {
-        AVG_TRACE(Logger::ERROR, 
-                    sFilename << ": Could not find codec parameters.");
-        return false;
+        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                sFilename + ": Could not find codec parameters.");
     }
 
     av_read_play(m_pFormatContext);
@@ -152,9 +142,8 @@ bool FFMpegDecoder::open (const std::string& sFilename,
 //    dump_format(m_pFormatContext, 0, m_sFilename.c_str(), 0);
 //    dump_stream_info(m_pFormatContext);
     if (m_VStreamIndex < 0) {
-        AVG_TRACE(Logger::ERROR, 
-                    sFilename << " does not contain any video streams.");
-        return false;
+        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                sFilename + " does not contain any video streams.");
     }                
     AVCodecContext *enc;
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
@@ -168,9 +157,8 @@ bool FFMpegDecoder::open (const std::string& sFilename,
     if (!codec ||
         avcodec_open(enc, codec) < 0)
     {
-        AVG_TRACE(Logger::ERROR, 
-                    sFilename << ": could not open codec (?!).");
-        return false;
+        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                sFilename + ": could not open codec (?!).");
     }                
     m_pVStream = m_pFormatContext->streams[m_VStreamIndex];
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
@@ -183,7 +171,7 @@ bool FFMpegDecoder::open (const std::string& sFilename,
     m_bFirstPacket = true;
     m_PacketLenLeft = 0;
     m_bEOF = false;
-    return true;
+    m_sFilename = sFilename;
 } 
 
 void FFMpegDecoder::close() 

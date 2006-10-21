@@ -32,7 +32,7 @@ class IVideoDecoder
 {
     public:
         virtual ~IVideoDecoder() {};
-        virtual bool open(const std::string& sFilename, 
+        virtual void open(const std::string& sFilename, 
                 int* pWidth, int* pHeight) = 0;
         virtual void close() = 0;
         virtual void seek(int DestFrame, int CurFrame) = 0;

@@ -108,7 +108,9 @@ void Video::setDisplayEngine(DisplayEngine * pEngine)
 {
     m_pDecoder = new FFMpegDecoder();
     m_Filename = m_href;
-    initFilename(getPlayer(), m_Filename);
+    if (m_Filename != "") {
+        initFilename(getPlayer(), m_Filename);
+    }
     VideoBase::setDisplayEngine(pEngine);
 }
 

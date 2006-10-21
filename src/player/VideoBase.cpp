@@ -77,7 +77,11 @@ void VideoBase::setDisplayEngine(DisplayEngine * pEngine)
     RasterNode::setDisplayEngine(pEngine);
     VideoState TempVideoState = m_VideoState;
     m_VideoState = Unloaded;
-    changeVideoState(TempVideoState);
+    try {
+        changeVideoState(TempVideoState);
+    } catch (Exception& ex) {
+        AVG_TRACE(Logger::WARNING, ex.GetStr());
+    }
 }
 
 void VideoBase::play()
