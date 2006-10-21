@@ -112,12 +112,15 @@ void Node::setParent(DivNodeWeakPtr pParent)
 
 void Node::setDisplayEngine(DisplayEngine * pEngine)
 {
+    DPoint PreferredSize = getPreferredMediaSize();
     if (m_WantedSize.x == 0.0) {
-        DPoint PreferredSize = getPreferredMediaSize();
         m_RelViewport.SetWidth(PreferredSize.x);
-        m_RelViewport.SetHeight(PreferredSize.y);
     } else {
         m_RelViewport.SetWidth(m_WantedSize.x);
+    }
+    if (m_WantedSize.y == 0.0) {
+        m_RelViewport.SetHeight(PreferredSize.y);
+    } else {
         m_RelViewport.SetHeight(m_WantedSize.y);
     } 
     m_pEngine = pEngine;
