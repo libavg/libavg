@@ -1,9 +1,11 @@
-libavg 0.6.0 - October 7, 2006
+libavg 0.6.0 - October 7, 2006 
+
+  svn Revision 1664
 
   Major new features:
 
     * Added support for dynamically adding and removing nodes to/from the tree.
-    * libavg now runs under windows, curtesy of Thomas Schüppel
+    * libavg now runs under windows, curtesy of Thomas Schüppel. 
 
   Other improvements:
 
@@ -15,6 +17,8 @@ libavg 0.6.0 - October 7, 2006
     * Text rendering speed improvements, minor text rendering quality improvements.
     * Fixed mac fontconfig configuration directory issue.
     * Fixed camera bug that caused an endless loop after 16 open/close cycles.
+    * Better error checking for broken videos and missing video files.
+    * More minor bugfixes.
 
 libavg 0.5.9 - August 11, 2006
 
