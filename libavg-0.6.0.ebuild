@@ -20,23 +20,18 @@ DEPEND="media-gfx/imagemagick
 	dev-libs/libxml2
 	x11-libs/pango
 	directfb? ( >=dev-libs/DirectFB-0.9.22 )
-	ieee1394? ( <=media-libs/libdc1394-1.9.9 )
+	ieee1394? ( =media-libs/libdc1394-1* )
 	dev-libs/boost"
-RDEPEND=""
 
 pkg_setup() {
-	if ! built_with_use media-libs/libsdl opengl; then
-		einfo "Please re-emerge media-libs/libsdl with the opengl USE flag set."
-		die "libsdl needs opengl USE flag set."
-	fi
-	if ! built_with_use media-libs/libsdl X; then
-		einfo "Please re-emerge media-libs/libsdl with the X USE flag set."
-		die "libsdl needs X USE flag set."
+	if ! built_with_use media-libs/libsdl opengl X; then
+		einfo "Please re-emerge media-libs/libsdl with the opengl and X USE flags set."
+		die "libsdl needs opengl and X USE flags set."
 	fi
 }
 
 src_compile() {
-	econf || die "econf failed"
+	econf `use_enable ieee1394 dc1394` || die "econf failed"
 	emake || die "emake failed"
 }
 
@@ -46,11 +41,4 @@ src_install () {
 	dodir /etc/env.d
 	echo "PYTHONPATH=/usr/lib/python${PYVER}/site-packages/libavg/" \
 		> ${D}/etc/env.d/99libavg
-}
-
-pkg_postinst(){
-	ewarn "To run libavg, the environment variable PYTHONPATH must be set"
-	ewarn "correctly. The installer does this, but it can't change the"
-	ewarn "environment in shells that are already running. In these shells,"
-	ewarn "you need to execute 'source /etc/profile' before you run libavg."
 }
