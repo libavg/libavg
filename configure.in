@@ -73,6 +73,7 @@ if test "$enable_DFB" = maybe; then
 fi
 AM_CONDITIONAL(ENABLE_DFB, test x$enable_DFB = xyes)
 if test "$enable_DFB" = yes; then
+    AC_PATH_GENERIC(directfb,, [enable_DFB=yes], AC_MSG_ERROR([directfb not found. Aborting.]))
     AC_DEFINE(AVG_ENABLE_DFB, 1, [Enable DirectFB rendering backend])
 fi
 
