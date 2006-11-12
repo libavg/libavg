@@ -21,7 +21,7 @@
 
 #include "../avgconfig.h"
 
-#include "Camera.h"
+#include "CameraNode.h"
 #include "DisplayEngine.h"
 #include "Player.h"
 #include "ISurface.h"
@@ -48,7 +48,7 @@ namespace avg {
 #define DROP_FRAMES 1
 #define NUM_BUFFERS 3
 
-Camera::Camera ()
+CameraNode::CameraNode ()
     : m_sDevice(""),
       m_FrameRate(15),
       m_sMode("640x480_RGB"),
@@ -62,7 +62,7 @@ Camera::Camera ()
 {
 }
 
-Camera::Camera (const xmlNodePtr xmlNode, Player * pPlayer)
+CameraNode::CameraNode (const xmlNodePtr xmlNode, Player * pPlayer)
     : VideoBase(xmlNode, pPlayer),
 #ifdef AVG_ENABLE_1394
       m_FWHandle(0),
@@ -85,12 +85,12 @@ Camera::Camera (const xmlNodePtr xmlNode, Player * pPlayer)
     setFeature ("whitebalance", getDefaultedIntAttr(xmlNode, "whitebalance", -1));
 }
 
-Camera::~Camera ()
+CameraNode::~CameraNode ()
 {
     close();
 }
 
-void Camera::setDisplayEngine(DisplayEngine * pEngine)
+void CameraNode::setDisplayEngine(DisplayEngine * pEngine)
 {
 #ifdef AVG_ENABLE_1394
     if (m_FrameRate == 1.875) {
@@ -187,12 +187,12 @@ void Camera::setDisplayEngine(DisplayEngine * pEngine)
     VideoBase::setDisplayEngine(pEngine);
 }
 
-string Camera::getTypeStr ()
+string CameraNode::getTypeStr ()
 {
     return "Camera";
 }
 
-unsigned int Camera::getFeature (const std::string& sFeature) const
+unsigned int CameraNode::getFeature (const std::string& sFeature) const
 {
 #ifdef AVG_ENABLE_1394
     int FeatureID = getFeatureID(sFeature);
@@ -216,7 +216,7 @@ unsigned int Camera::getFeature (const std::string& sFeature) const
 #endif
 }
 
-void Camera::setFeature (const std::string& sFeature, int Value)
+void CameraNode::setFeature (const std::string& sFeature, int Value)
 {
 #ifdef AVG_ENABLE_1394
     int FeatureID = getFeatureID(sFeature);
@@ -227,7 +227,7 @@ void Camera::setFeature (const std::string& sFeature, int Value)
 #endif
 }
 
-void Camera::setFeature(int FeatureID)
+void CameraNode::setFeature(int FeatureID)
 {
 #ifdef AVG_ENABLE_1394
     if (m_bCameraAvailable && m_FWHandle != 0) {
@@ -255,7 +255,7 @@ void Camera::setFeature(int FeatureID)
 #endif
 }
 
-IntPoint Camera::getNativeSize() 
+IntPoint CameraNode::getNativeSize() 
 {
 #ifdef AVG_ENABLE_1394
     switch(m_Mode) {
@@ -292,12 +292,12 @@ IntPoint Camera::getNativeSize()
 #endif
 }
 
-double Camera::getFPS()
+double CameraNode::getFPS()
 {
     return m_FrameRate;
 }
 
-void Camera::open(int* pWidth, int* pHeight)
+void CameraNode::open(int* pWidth, int* pHeight)
 {
     *pWidth = getNativeSize().x;
     *pHeight = getNativeSize().y;
@@ -428,6 +428,11 @@ void Camera::open(int* pWidth, int* pHeight)
         dc1394_free_camera(ppCameras[i]);
     free(ppCameras);
 
+    err = dc1394_get_camera_feature_set(m_pCamera, &m_FeatureSet);
+    checkDC1394Error(err,
+            "Unable to get firewire camera feature set.");
+//    dumpCameraInfo();
+
     dc1394_video_set_iso_speed(m_pCamera, DC1394_ISO_SPEED_400);
     dc1394_video_set_mode(m_pCamera, m_Mode);
     dc1394_video_set_framerate(m_pCamera, m_FrameRateConstant);
@@ -469,7 +474,7 @@ void Camera::open(int* pWidth, int* pHeight)
 }
 
 #ifdef AVG_ENABLE_1394
-bool Camera::findCameraOnPort(int port, raw1394handle_t& FWHandle)
+bool CameraNode::findCameraOnPort(int port, raw1394handle_t& FWHandle)
 {
     bool bFound = false;
     FWHandle = dc1394_create_handle(port);
@@ -503,7 +508,7 @@ bool Camera::findCameraOnPort(int port, raw1394handle_t& FWHandle)
 }
 #endif
 
-void Camera::close()
+void CameraNode::close()
 {
 #ifdef AVG_ENABLE_1394
     if (m_bCameraAvailable) {
@@ -525,7 +530,15 @@ void Camera::close()
 }
 
 #ifdef AVG_ENABLE_1394
-void Camera::checkDC1394Error(int Code, const string & sMsg)
+void CameraNode::checkDC1394Error(int Code, const string & sMsg)
+{
+    if (Code != DC1394_SUCCESS) {
+        fatalError(sMsg);
+    }
+}
+#endif
+#ifdef AVG_ENABLE_1394_2
+void CameraNode::checkDC1394Error(int Code, const string & sMsg)
 {
     if (Code != DC1394_SUCCESS) {
         fatalError(sMsg);
@@ -534,7 +547,7 @@ void Camera::checkDC1394Error(int Code, const string & sMsg)
 #endif
 
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-void Camera::fatalError(const string & sMsg)
+void CameraNode::fatalError(const string & sMsg)
 {
     AVG_TRACE(Logger::ERROR, sMsg);
     close();
@@ -546,7 +559,7 @@ static ProfilingZone CameraProfilingZone("    Camera::render");
 static ProfilingZone CameraUploadProfilingZone("      Camera tex download");
 static ProfilingZone CameraConvertProfilingZone("      Camera format conversion");
 
-bool Camera::renderToSurface(ISurface * pSurface)
+bool CameraNode::renderToSurface(ISurface * pSurface)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     ScopeTimer Timer(CameraProfilingZone);
@@ -656,8 +669,6 @@ bool Camera::renderToSurface(ISurface * pSurface)
             }
 #ifdef AVG_ENABLE_1394
             dc1394_dma_done_with_buffer(&m_Camera);
-#else
-//            dc1394_capture_dma_done_with_buffer(m_pCamera);
 #endif
         } else {
             if (rc == DC1394_NO_FRAME) {
@@ -684,18 +695,18 @@ bool Camera::renderToSurface(ISurface * pSurface)
     return true;
 }
 
-PixelFormat Camera::getDesiredPixelFormat() 
+PixelFormat CameraNode::getDesiredPixelFormat() 
 {
     return R8G8B8X8;
 }
 
-bool Camera::canRenderToBackbuffer(int BitsPerPixel)
+bool CameraNode::canRenderToBackbuffer(int BitsPerPixel)
 {
     return (BitsPerPixel == 24);
 }
 
 #ifdef AVG_ENABLE_1394
-void Camera::dumpCameraInfo()
+void CameraNode::dumpCameraInfo()
 {
     dc1394_camerainfo info;
     int rc = dc1394_get_camera_info(m_FWHandle, m_Camera.node, &info);
@@ -721,7 +732,7 @@ void Camera::dumpCameraInfo()
     dc1394_print_feature_set(&m_FeatureSet);
 }
 
-int Camera::getFeatureID(const std::string& sFeature) const
+int CameraNode::getFeatureID(const std::string& sFeature) const
 {
     if (sFeature == "brightness") {
         return FEATURE_BRIGHTNESS;
@@ -762,10 +773,19 @@ int Camera::getFeatureID(const std::string& sFeature) const
     } else if (sFeature == "capture_quality") {
         return FEATURE_CAPTURE_QUALITY;
     }
-    AVG_TRACE(Logger::WARNING, "Camera::getFeatureID: "+sFeature+" unknown.");
+    AVG_TRACE(Logger::WARNING, "CameraNode::getFeatureID: "+sFeature+" unknown.");
     return 0;
 }
+#else
+#ifdef AVG_ENABLE_1394_2
+void CameraNode::dumpCameraInfo()
+{
+    // TODO: do this using AVG_TRACE
+    dc1394_print_camera_info(m_pCamera);
+    dc1394_print_feature_set(&m_FeatureSet);
+}
 
+#endif
 #endif
 
 }

@@ -20,7 +20,7 @@
 //
 
 #include "../graphics/Point.h"
-#include "../player/Camera.h"
+#include "../player/CameraNode.h"
 #include "../player/Image.h"
 #include "../player/Video.h"
 #include "../player/Words.h"
@@ -116,26 +116,27 @@ void export_raster()
         .def("getFPS", &VideoBase::getFPS)
     ;  
 
-    class_<Camera, bases<VideoBase> >("Camera",
+    class_<CameraNode, bases<VideoBase> >("Camera",
             "A node that displays the image of a firewire camera.\n"
             "Properties:\n"
             "    device (ro)\n"
             "    framerate (ro)\n"
             "    mode (ro)\n"
             "    brightness, exposure, sharpness, saturation, gamma, shutter, gain, whitebalance")
-        .add_property("device", make_function(&Camera::getDevice,
+        .add_property("device", make_function(&CameraNode::getDevice,
                 return_value_policy<copy_const_reference>()))
-        .add_property("framerate", &Camera::getFrameRate)
-        .add_property("mode", make_function(&Camera::getMode,
+        .add_property("framerate", &CameraNode::getFrameRate)
+        .add_property("mode", make_function(&CameraNode::getMode,
                 return_value_policy<copy_const_reference>()))
-        .add_property("brightness", &Camera::getBrightness, &Camera::setBrightness)
-        .add_property("exposure", &Camera::getExposure, &Camera::setExposure)
-        .add_property("sharpness", &Camera::getSharpness, &Camera::setSharpness)
-        .add_property("saturation", &Camera::getSaturation, &Camera::setSaturation)
-        .add_property("gamma", &Camera::getGamma, &Camera::setGamma)
-        .add_property("shutter", &Camera::getShutter, &Camera::setShutter)
-        .add_property("gain", &Camera::getGain, &Camera::setGain)
-        .add_property("whitebalance", &Camera::getWhiteBalance, &Camera::setWhiteBalance)
+        .add_property("brightness", &CameraNode::getBrightness, &CameraNode::setBrightness)
+        .add_property("exposure", &CameraNode::getExposure, &CameraNode::setExposure)
+        .add_property("sharpness", &CameraNode::getSharpness, &CameraNode::setSharpness)
+        .add_property("saturation", &CameraNode::getSaturation, &CameraNode::setSaturation)
+        .add_property("gamma", &CameraNode::getGamma, &CameraNode::setGamma)
+        .add_property("shutter", &CameraNode::getShutter, &CameraNode::setShutter)
+        .add_property("gain", &CameraNode::getGain, &CameraNode::setGain)
+        .add_property("whitebalance", &CameraNode::getWhiteBalance, 
+                &CameraNode::setWhiteBalance)
     ;
         
     class_<Video, bases<VideoBase> >("Video",

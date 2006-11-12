@@ -34,7 +34,7 @@
 #include "DivNode.h"
 #include "Words.h"
 #include "Video.h"
-#include "Camera.h"
+#include "CameraNode.h"
 #include "Image.h"
 #include "PanoImage.h"
 
@@ -717,7 +717,7 @@ NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc,
     } else if (!strcmp (nodeType, "video")) {
         curNode = NodePtr(new Video(xmlNode, this));
     } else if (!strcmp (nodeType, "camera")) {
-        curNode = NodePtr(new Camera(xmlNode, this));
+        curNode = NodePtr(new CameraNode(xmlNode, this));
     }
     else if (!strcmp (nodeType, "panoimage")) {
         curNode = NodePtr(new PanoImage(xmlNode, this));

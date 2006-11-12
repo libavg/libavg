@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Camera_H_
-#define _Camera_H_
+#ifndef _CameraNode_H_
+#define _CameraNode_H_
 
 #include "../avgconfig.h"
 #undef PACKAGE_BUGREPORT
@@ -46,12 +46,12 @@
 
 namespace avg {
 
-class Camera : public VideoBase
+class CameraNode : public VideoBase
 {
     public:
-        Camera ();
-        Camera (const xmlNodePtr xmlNode, Player * pPlayer);
-        virtual ~Camera ();
+        CameraNode ();
+        CameraNode (const xmlNodePtr xmlNode, Player * pPlayer);
+        virtual ~CameraNode ();
 
         virtual void setDisplayEngine(DisplayEngine * pEngine);
         virtual std::string getTypeStr ();
@@ -172,7 +172,6 @@ class Camera : public VideoBase
 
 #ifdef AVG_ENABLE_1394
         bool findCameraOnPort(int port, raw1394handle_t& FWHandle);
-        void checkDC1394Error(int Code, const std::string & sMsg);
 
         dc1394_cameracapture m_Camera;
         raw1394handle_t m_FWHandle;
@@ -187,6 +186,7 @@ class Camera : public VideoBase
         dc1394video_mode_t m_Mode;            
 #endif
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
+        void checkDC1394Error(int Code, const std::string & sMsg);
         void fatalError(const std::string & sMsg);
         void dumpCameraInfo();
         int getFeatureID(const std::string& sFeature) const;
