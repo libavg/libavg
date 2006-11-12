@@ -24,6 +24,7 @@
 
 #include "Pixeldefs.h"
 #include "Pixel32.h"
+#include "Pixel8.h"
 
 #include <stdlib.h>
 #include <assert.h>
@@ -51,7 +52,16 @@ class Pixel24
 
         return *this;
     }
+
+    Pixel24 operator = (const Pixel8& Pix)
+    {
+        m_Data[0] = Pix.get();
+        m_Data[1] = m_Data[0];
+        m_Data[2] = m_Data[0];
+        return *this;
+    }
     
+
     operator Pixel32 () const;
 
     bool operator ==(const Pixel24&) const;

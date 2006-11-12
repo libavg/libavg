@@ -49,16 +49,15 @@ namespace avg {
 #define NUM_BUFFERS 3
 
 Camera::Camera ()
-#ifdef AVG_ENABLE_1394
     : m_sDevice(""),
       m_FrameRate(15),
       m_sMode("640x480_RGB"),
+#ifdef AVG_ENABLE_1394
       m_FWHandle(0),
       m_bCameraAvailable(false)
-#else
-    : m_sDevice("Camera disabled"),
-      m_FrameRate(15),
-      m_sMode("---")
+#endif
+#ifdef AVG_ENABLE_1394_2
+      m_bCameraAvailable(false)
 #endif
 {
 }
@@ -66,15 +65,11 @@ Camera::Camera ()
 Camera::Camera (const xmlNodePtr xmlNode, Player * pPlayer)
     : VideoBase(xmlNode, pPlayer),
 #ifdef AVG_ENABLE_1394
-      m_sDevice(""),
-      m_FrameRate(15),
-      m_sMode("640x480_RGB"),
       m_FWHandle(0),
       m_bCameraAvailable(false)
-#else
-      m_sDevice("Camera disabled"),
-      m_FrameRate(15),
-      m_sMode("---")
+#endif
+#ifdef AVG_ENABLE_1394_2
+      m_bCameraAvailable(false)
 #endif
 {
     m_sDevice = getDefaultedStringAttr (xmlNode, "device", "");
@@ -119,7 +114,9 @@ void Camera::setDisplayEngine(DisplayEngine * pEngine)
         m_Mode = MODE_320x240_YUV422;
     } else
 */
-    if (m_sMode == "640x480_YUV411") {
+    if (m_sMode == "640x480_MONO8") {
+        m_Mode = MODE_640x480_MONO8;
+    } else if (m_sMode == "640x480_YUV411") {
         m_Mode = MODE_640x480_YUV411;
     } else if (m_sMode == "640x480_YUV422") {
         m_Mode = MODE_640x480_YUV422;
@@ -139,8 +136,57 @@ void Camera::setDisplayEngine(DisplayEngine * pEngine)
                 + m_sMode + std::string("\"."));
     }
 #else
+#ifdef AVG_ENABLE_1394_2
+    if (m_FrameRate == 1.875) {
+        m_FrameRateConstant = DC1394_FRAMERATE_1_875;
+    } else if (m_FrameRate == 3.75) {
+        m_FrameRateConstant = DC1394_FRAMERATE_3_75;
+    } else if (m_FrameRate == 7.5) {
+        m_FrameRateConstant = DC1394_FRAMERATE_7_5;
+    } else if (m_FrameRate == 15) {
+        m_FrameRateConstant = DC1394_FRAMERATE_15;
+    } else if (m_FrameRate == 30) {
+        m_FrameRateConstant = DC1394_FRAMERATE_30;
+    } else if (m_FrameRate == 60) {
+        m_FrameRateConstant = DC1394_FRAMERATE_60;
+    } else if (m_FrameRate == 120) {
+        m_FrameRateConstant = DC1394_FRAMERATE_120;
+    } else if (m_FrameRate == 240) {
+        m_FrameRateConstant = DC1394_FRAMERATE_240;
+    } else {
+        fatalError ("Unsupported or illegal value for camera framerate.");
+    }
+/*    if (m_sMode == "160x120_YUV444") {
+        m_Mode = DC1394_VIDEO_MODE_160x120_YUV444;
+    } else if (m_sMode == "320x240_YUV422") {
+        m_Mode = DC1394_VIDEO_MODE_320x240_YUV422;
+    } else
+*/
+    if (m_sMode == "640x480_MONO8") {
+        m_Mode = DC1394_VIDEO_MODE_640x480_MONO8;
+    } else if (m_sMode == "640x480_YUV411") {
+        m_Mode = DC1394_VIDEO_MODE_640x480_YUV411;
+    } else if (m_sMode == "640x480_YUV422") {
+        m_Mode = DC1394_VIDEO_MODE_640x480_YUV422;
+    } else if (m_sMode == "640x480_RGB") {
+        m_Mode = DC1394_VIDEO_MODE_640x480_RGB8;
+/*    } else if (m_sMode == "640x480_MONO") {
+        m_Mode = DC1394_VIDEO_MODE_640x480_MONO;
+    } else if (m_sMode == "640x480_MONO16") {
+        m_Mode = DC1394_VIDEO_MODE_640x480_MONO16;
+*/        
+    } else if (m_sMode == "1024x768_RGB") {
+        m_Mode = DC1394_VIDEO_MODE_1024x768_RGB8;
+    } else if (m_sMode == "1024x768_YUV422") {
+        m_Mode = DC1394_VIDEO_MODE_1024x768_YUV422;
+    } else {
+        fatalError (std::string("Unsupported or illegal value for camera mode \"") 
+                + m_sMode + std::string("\"."));
+    }
+#else
     AVG_TRACE(Logger::ERROR,
             "Unable to set up camera. Camera support not compiled.");
+#endif
 #endif
     VideoBase::setDisplayEngine(pEngine);
 }
@@ -217,6 +263,7 @@ IntPoint Camera::getNativeSize()
 {
 #ifdef AVG_ENABLE_1394
     switch(m_Mode) {
+        case MODE_640x480_MONO8:
         case MODE_640x480_YUV411:
         case MODE_640x480_YUV422:
         case MODE_640x480_RGB:
@@ -229,7 +276,23 @@ IntPoint Camera::getNativeSize()
             return IntPoint(0,0);
     }
 #else
+#ifdef AVG_ENABLE_1394_2
+    switch(m_Mode) {
+        case DC1394_VIDEO_MODE_640x480_MONO8:
+        case DC1394_VIDEO_MODE_640x480_YUV411:
+        case DC1394_VIDEO_MODE_640x480_YUV422:
+        case DC1394_VIDEO_MODE_640x480_RGB8:
+            return IntPoint(640, 480);
+        case DC1394_VIDEO_MODE_1024x768_RGB8:
+        case DC1394_VIDEO_MODE_1024x768_YUV422:
+            return IntPoint(1024, 768);
+        default:
+            fatalError ("Camera::getNativeSize: Unsupported or illegal value for camera resolution:");
+            return IntPoint(0,0);
+    }
+#else
     return IntPoint(640, 480);
+#endif
 #endif
 }
 
@@ -247,6 +310,7 @@ void Camera::open(int* pWidth, int* pHeight)
     int CaptureFormat = 0;
     // TODO: Support other resolutions.
     switch(m_Mode) {
+        case MODE_640x480_MONO8:
         case MODE_640x480_YUV422:
         case MODE_640x480_YUV411:
         case MODE_640x480_RGB:
@@ -332,11 +396,74 @@ void Camera::open(int* pWidth, int* pHeight)
         AVG_TRACE(Logger::ERROR, "supported by your camera.");
         dc1394_dma_release_camera(m_FWHandle,&m_Camera);
         dc1394_destroy_handle(m_FWHandle);
-        exit(-1);
+        exit(1);
     }
 
     err = dc1394_start_iso_transmission(m_FWHandle, m_Camera.node);
     checkDC1394Error(err, "Unable to start camera iso transmission");
+#endif
+#ifdef AVG_ENABLE_1394_2
+    dc1394camera_t **ppCameras=NULL;
+    uint32_t numCameras;
+    m_bCameraAvailable = true;
+    m_LastFrameTime = 0;
+
+    int err=dc1394_find_cameras(&ppCameras, &numCameras);
+
+    if (err!=DC1394_SUCCESS && err != DC1394_NO_CAMERA) {
+        AVG_TRACE(Logger::ERROR, "Unable to look for cameras\n\n"
+                "On Linux, please check \n"
+                "  - if the kernel modules `ieee1394',`raw1394' and `ohci1394' are loaded \n"
+                "  - if you have read/write access to /dev/raw1394\n\n");
+        exit(1);
+    }
+    
+    if (numCameras<1) {
+        AVG_TRACE(Logger::WARNING,
+                "No firewire cameras found (Node: " + getID() + ").");
+        m_bCameraAvailable = false;
+        return;
+    }
+    // This always uses the first camera on the bus.
+    m_pCamera=ppCameras[0];
+
+    // Free the other cameras
+    for (unsigned int i=1;i<numCameras;i++)
+        dc1394_free_camera(ppCameras[i]);
+    free(ppCameras);
+
+    dc1394_video_set_iso_speed(m_pCamera, DC1394_ISO_SPEED_400);
+    dc1394_video_set_mode(m_pCamera, m_Mode);
+    dc1394_video_set_framerate(m_pCamera, m_FrameRateConstant);
+    if (dc1394_capture_setup_dma(m_pCamera,8)!=DC1394_SUCCESS) {
+        AVG_TRACE(Logger::ERROR,
+                "Unable to setup camera. Make sure that");
+        AVG_TRACE(Logger::ERROR,
+                "video mode (" << m_sMode << ") and framerate (" <<
+                m_FrameRate << ") are");
+        AVG_TRACE(Logger::ERROR, "supported by your camera.");
+        dc1394_capture_stop(m_pCamera);
+        dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
+        dc1394_free_camera(m_pCamera);
+        exit(1);
+    }
+    if (dc1394_video_set_transmission(m_pCamera, DC1394_ON) !=DC1394_SUCCESS) {
+        fatalError("Unable to start camera iso transmission\n");
+    }
+
+    dc1394switch_t status = DC1394_OFF;
+
+    int i = 0;
+    while( status == DC1394_OFF && i++ < 5 ) {
+        usleep(50000);
+        if (dc1394_video_get_transmission(m_pCamera, &status)!=DC1394_SUCCESS) {
+            fatalError("unable to get transmision status\n");
+        }
+    }
+
+    if( i == 5 ) {
+        fatalError("Camera doesn't seem to want to turn on!\n");
+    }
 #endif
 
     std::map<int, int>::iterator it;
@@ -391,6 +518,14 @@ void Camera::close()
         m_bCameraAvailable = false;
     }
 #endif
+#ifdef AVG_ENABLE_1394_2
+    if (m_bCameraAvailable) {
+        dc1394_capture_stop(m_pCamera);
+        dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
+        dc1394_free_camera(m_pCamera);
+        m_bCameraAvailable = false;
+    }
+#endif
 }
 
 #ifdef AVG_ENABLE_1394
@@ -400,11 +535,13 @@ void Camera::checkDC1394Error(int Code, const string & sMsg)
         fatalError(sMsg);
     }
 }
+#endif
 
+#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
 void Camera::fatalError(const string & sMsg)
 {
     AVG_TRACE(Logger::ERROR, sMsg);
-    dc1394_destroy_handle(m_FWHandle);
+    close();
     exit(-1);
 }
 #endif
@@ -415,10 +552,16 @@ static ProfilingZone CameraConvertProfilingZone("      Camera format conversion"
 
 bool Camera::renderToSurface(ISurface * pSurface)
 {
-#ifdef AVG_ENABLE_1394
+#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     ScopeTimer Timer(CameraProfilingZone);
     if (m_bCameraAvailable) {
+#ifdef AVG_ENABLE_1394
         int rc = dc1394_dma_single_capture(&m_Camera);
+        unsigned char * pCaptureBuffer = (unsigned char *)(m_Camera.capture_buffer);
+#else
+        int rc = dc1394_capture(&m_pCamera,1);
+        unsigned char * pCaptureBuffer = (unsigned char *)dc1394_capture_get_buffer(m_pCamera);
+#endif
         if (rc == DC1394_SUCCESS) {
             m_LastFrameTime = TimeSource::get()->getCurrentMillisecs();
 /*
@@ -431,32 +574,58 @@ bool Camera::renderToSurface(ISurface * pSurface)
             {
                 ScopeTimer Timer(CameraConvertProfilingZone);
                 switch (m_Mode) {
+#ifdef AVG_ENABLE_1394
+                    case MODE_640x480_MONO8:
+#else
+                    case DC1394_VIDEO_MODE_640x480_MONO8:
+#endif                    
+                        {
+                            Bitmap TempBmp(pBmp->getSize(), I8, 
+                                    pCaptureBuffer,
+                                    getNativeSize().x, false, "TempCameraBmp");
+                            pBmp->copyPixels(TempBmp);
+                        }
+                        break;
+#ifdef AVG_ENABLE_1394
                     case MODE_640x480_YUV422:
                     case MODE_1024x768_YUV422:
+#else
+                    case DC1394_VIDEO_MODE_640x480_YUV422:
+                    case DC1394_VIDEO_MODE_1024x768_YUV422:
+#endif                    
                         {
                             Bitmap TempBmp(pBmp->getSize(), YCbCr422, 
-                                    (unsigned char *)(m_Camera.capture_buffer),
+                                    pCaptureBuffer,
                                     getNativeSize().x*2, false, "TempCameraBmp");
                             pBmp->copyPixels(TempBmp);
                         }
                         break;
+#ifdef AVG_ENABLE_1394
                     case MODE_640x480_YUV411:
+#else
+                    case DC1394_VIDEO_MODE_640x480_YUV411:
+#endif                    
                         {
                             Bitmap TempBmp(pBmp->getSize(), YCbCr411, 
-                                    (unsigned char *)(m_Camera.capture_buffer),
+                                    pCaptureBuffer,
                                     (int)(getNativeSize().x*1.5), false, "TempCameraBmp");
                             pBmp->copyPixels(TempBmp);
                         }
                         break;
+#ifdef AVG_ENABLE_1394
                     case MODE_640x480_RGB:
                     case MODE_1024x768_RGB:
+#else
+                    case DC1394_VIDEO_MODE_640x480_RGB8:
+                    case DC1394_VIDEO_MODE_1024x768_RGB8:
+#endif
                         {
                             if (getEngine()->hasRGBOrdering()) {
                                 AVG_TRACE(Logger::ERROR,
                                         "Wrong engine rgb order for camera. Aborting.");
                             } else {
                                 unsigned char * pSrcLine = (unsigned char*)
-                                        m_Camera.capture_buffer;
+                                        pCaptureBuffer;
                                 int SrcStride = 3*pBmp->getSize().x;
                                 unsigned char * pDestLine = pBmp->getPixels();
                                 int DestStride = pBmp->getStride();
@@ -489,7 +658,11 @@ bool Camera::renderToSurface(ISurface * pSurface)
                 ScopeTimer Timer(CameraUploadProfilingZone);
                 getEngine()->surfaceChanged(pSurface);
             }
+#ifdef AVG_ENABLE_1394
             dc1394_dma_done_with_buffer(&m_Camera);
+#else
+//            dc1394_capture_dma_done_with_buffer(m_pCamera);
+#endif
         } else {
             if (rc == DC1394_NO_FRAME) {
                 AVG_TRACE(Logger::WARNING,

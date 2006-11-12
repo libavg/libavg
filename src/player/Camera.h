@@ -37,6 +37,9 @@
 #include <libraw1394/raw1394.h>
 #include <libdc1394/dc1394_control.h>
 #endif
+#ifdef AVG_ENABLE_1394_2
+#include <dc1394/control.h>
+#endif
 
 #include <string>
 #include <map>
@@ -164,25 +167,34 @@ class Camera : public VideoBase
 
         std::string m_sDevice;
         double m_FrameRate;
-        int m_FrameRateConstant;  // libdc1394 constant for framerate.
         std::string m_sMode;
-        int m_Mode;               // libdc1394 constant for mode.
         std::map<int, int> m_Features;
 
 #ifdef AVG_ENABLE_1394
         bool findCameraOnPort(int port, raw1394handle_t& FWHandle);
-
         void checkDC1394Error(int Code, const std::string & sMsg);
-        void fatalError(const std::string & sMsg);
-        void dumpCameraInfo();
-        int getFeatureID(const std::string& sFeature) const;
 
         dc1394_cameracapture m_Camera;
         raw1394handle_t m_FWHandle;
         dc1394_feature_set m_FeatureSet;
+        int m_FrameRateConstant;  // libdc1394 constant for framerate.
+        int m_Mode;               // libdc1394 constant for mode.
+#endif
+#ifdef AVG_ENABLE_1394_2
+        dc1394camera_t * m_pCamera;
+        dc1394featureset_t m_FeatureSet;
+        dc1394framerate_t m_FrameRateConstant; 
+        dc1394video_mode_t m_Mode;            
+#endif
+#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
+        void fatalError(const std::string & sMsg);
+        void dumpCameraInfo();
+        int getFeatureID(const std::string& sFeature) const;
+
         long long m_LastFrameTime;
         bool m_bCameraAvailable;
 #endif
+
 
 };
 

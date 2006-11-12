@@ -23,6 +23,7 @@
 #include "Pixel32.h"
 #include "Pixel24.h"
 #include "Pixel16.h"
+#include "Pixel8.h"
 #include "Filter3x3.h"
 
 #include "../base/Exception.h"
@@ -776,6 +777,31 @@ void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src)
     }
 }
 
+template<>
+void createTrueColorCopy<Pixel32, Pixel8>(Bitmap& Dest, const Bitmap & Src)
+{
+    const unsigned char * pSrcLine = Src.getPixels();
+    unsigned char * pDestLine = Dest.getPixels();
+    int Height = min(Src.getSize().y, Dest.getSize().y);
+    int Width = min(Src.getSize().x, Dest.getSize().x);
+    int SrcStride = Src.getStride();
+    int DestStride = Dest.getStride();
+    for (int y = 0; y<Height; ++y) {
+        const unsigned char * pSrcPixel = pSrcLine;
+        unsigned char * pDestPixel = pDestLine;
+        for (int x = 0; x < Width; ++x) {
+            pDestPixel[0] =
+            pDestPixel[1] =
+            pDestPixel[2] = *pSrcPixel;
+            pDestPixel[3] = 255;
+            ++pSrcPixel;
+            pDestPixel+=4;
+        }
+        pSrcLine = pSrcLine + SrcStride;
+        pDestLine = pDestLine + DestStride;
+    }
+}
+
 template<class Pixel>
 void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src)
 {
@@ -797,6 +823,9 @@ void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src)
         case B5G6R5:
         case R5G6B5:
             createTrueColorCopy<Pixel, Pixel16>(Dest, Src);
+            break;
+        case I8:
+            createTrueColorCopy<Pixel, Pixel8>(Dest, Src);
             break;
         default:
             // Unimplemented conversion.

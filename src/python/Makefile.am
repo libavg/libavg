@@ -1,6 +1,6 @@
 
 INCLUDES = -I. -I../player \
-		@XML2_CFLAGS@ @PANGOFT2_CFLAGS@ @PYTHON_INCLUDES@
+		@XML2_CFLAGS@ @PANGOFT2_CFLAGS@ @PYTHON_INCLUDES@ @DC1394_2_CFLAGS@
 
 ALL_H = 
 
@@ -31,7 +31,7 @@ endif
 pkgpyexec_LTLIBRARIES = avg.la
 avg_la_SOURCES = avg_wrap.cpp raster_wrap.cpp event_wrap.cpp device_wrap.cpp bitmap_wrap.cpp 
 avg_la_LDFLAGS = -module -XCClinker -lboost_python @XML2_LIBS@ \
-        $(DC1394_LIBS) @GLU_LIBS@ $(ALL_GL_LIBS) $(DFB_LIBS) \
+        $(DC1394_LIBS) @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) $(DFB_LIBS) \
         @LIBFFMPEG@ $(MAGICK_LIBS) @PANGOFT2_LIBS@ 
 avg_la_LIBADD = ../conradrelais/libconradrelais.la \
                 ../player/libplayer.la \

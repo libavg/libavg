@@ -118,4 +118,9 @@ buildpango
 buildLib boost_1_33_1 --with-libraries=python 
 ln -fs ../include/boost-1_33_1/boost/ ../include/boost
 
+cd libdc1394-2.0.0-rc4/dc1394/macosx/
+patch -p0 <../../../../libavg/mac/libdc1394.patch
+buildLib libdc1394-2.0.0-rc4 --disable-shared
+
+
 cd ../libavg
