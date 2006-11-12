@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
     avg::DPointList *ev;
     double stddev;
     for(int i=0;i<20;i++){
-        avg::BlobList *bloblist = avg::connected_components(im);
+        avg::BlobList *bloblist = avg::connected_components(im,100);
         for(avg::BlobList::iterator b=bloblist->begin();b!=bloblist->end();b++){
             center = (*b)->center();
             area = (*b)->area();

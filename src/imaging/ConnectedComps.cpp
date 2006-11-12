@@ -90,12 +90,13 @@ DPointList *Blob::pca(){
         c_xx += ( (*r)->m_EndCol * ((*r)->m_EndCol+1) * (2*(*r)->m_EndCol+1) - ((*r)->m_StartCol-1) * (*r)->m_StartCol * (2*(*r)->m_StartCol -1))/6. - 
             c.x * ( (*r)->m_EndCol*((*r)->m_EndCol+1) - ((*r)->m_StartCol-1)*(*r)->m_StartCol  )
             + ll* c.x*c.x;
-        c_xy += ((*r)->m_EndCol-c.y)*0.5*( (*r)->m_EndCol*((*r)->m_EndCol+1) - ((*r)->m_StartCol-1)*(*r)->m_StartCol) + ll *(c.x*c.y - c.x*(*r)->m_Row);
+        c_xy += ((*r)->m_Row-c.y)*0.5*( (*r)->m_EndCol*((*r)->m_EndCol+1) - ((*r)->m_StartCol-1)*(*r)->m_StartCol) + ll *(c.x*c.y - c.x*(*r)->m_Row);
     }
 
     c_xx/=A;c_yy/=A;c_xy/=A;
 
-
+    //the l_i are variances (unit L^2) so to arrive at numbers that 
+    //correspond to lengths in the picture we use sqrt
     if (fabs(c_xy) > 1e-30) {
         //FIXME. check l1!=0 l2!=0. li=0 happens for line-like components
         l1 = 0.5 * ( (c_xx+c_yy) + sqrt( (c_xx+c_yy)*(c_xx+c_yy) - 4 * (c_xx*c_yy-c_xy*c_xy) ) );
@@ -103,16 +104,16 @@ DPointList *Blob::pca(){
         tmp_x = c_xy/l1 - c_xx*c_yy/(c_xy*l1)+ (c_xx/c_xy);
         tmp_y = 1.;
         mag = sqrt(tmp_x*tmp_x + tmp_y*tmp_y);
-        res->push_back(DPoint(l1*tmp_x/mag, l1*tmp_y/mag));
+        res->push_back(DPoint(sqrt(l1)*tmp_x/mag, sqrt(l1)*tmp_y/mag));
         tmp_x = c_xy/l2 - c_xx*c_yy/(c_xy*l2)+ (c_xx/c_xy);
         tmp_y = 1.;
         mag = sqrt(tmp_x*tmp_x + tmp_y*tmp_y);
-        res->push_back(DPoint(l2*tmp_x/mag, l2*tmp_y/mag));
+        res->push_back(DPoint(sqrt(l2)*tmp_x/mag, sqrt(l2)*tmp_y/mag));
 
     }else{
         //matrix already diagonal
-        res->push_back(  DPoint(c_xx,0) );
-        res->push_back(  DPoint(0,c_yy) );
+        res->push_back(  DPoint(sqrt(c_xx),0) );
+        res->push_back(  DPoint(0,sqrt(c_yy)) );
     }
     return res;
 }
@@ -180,7 +181,7 @@ RunPtr new_run(CompsMap *comps, int row, int col1, int col2, int color)
     return run;
 }
 
-BlobList* connected_components(BitmapPtr image){
+BlobList* connected_components(BitmapPtr image, int object_threshold){
     assert(image->getPixelFormat() == I8);
     CompsMap *comps = new CompsMap();
     const unsigned char *pixels = image->getPixels();
@@ -191,35 +192,39 @@ BlobList* connected_components(BitmapPtr image){
     RunList *tmp;
 
     int run_start=0, run_stop=0;
-    unsigned char cur=pixels[0], p=0;
-//    std::cout<<"w="<<size.x<<" h="<<size.y<<std::endl;
+    unsigned char cur=(pixels[0]>object_threshold)?1:0, p=0;
+    std::cerr<<"w="<<size.x<<" h="<<size.y<<std::endl;
     //First line
     for(int x=0; x<size.x ;x++){
-        p = pixels[x];
+        p = (pixels[x]>object_threshold)?1:0;
         if (cur!=p) {
             run_stop = x - 1;
-            runs1->push_back ( new_run(comps, 0, run_start, run_stop, cur) );
+            if (cur)
+                runs1->push_back ( new_run(comps, 0, run_start, run_stop, cur) );
             run_start = x;
             cur = p;
         }
     }
-    runs1->push_back( new_run(comps, 0, run_start, size.x-1, cur) );
+    if (cur)
+        runs1->push_back( new_run(comps, 0, run_start, size.x-1, cur) );
     //All other lines
     for(int y=1; y<size.y; y++){
         run_start = 0;run_stop = 0;
-        cur = pixels[stride*y+0];
+        cur = (pixels[stride*y+0]>object_threshold)?1:0;
         for(int x=0; x<size.x ;x++){
-            p = pixels[y*stride+x];
+            p = (pixels[y*stride+x]>object_threshold)?1:0;
             //std::cerr<<"("<<x<<","<<y<<"):"<<(int)p<<std::endl;
             if (cur!=p) {
                 run_stop = x - 1;
-                runs2->push_back(  new_run(comps, y, run_start, run_stop, cur) );
+                if (cur)
+                    runs2->push_back(  new_run(comps, y, run_start, run_stop, cur) );
                 run_start = x;
                 cur = p;
             }
         }
         {
-            runs2->push_back( new_run(comps,y, run_start, size.x-1, cur) );
+            if (cur)
+                runs2->push_back( new_run(comps,y, run_start, size.x-1, cur) );
             store_runs(comps, runs1, runs2);
             tmp = runs1;
             runs1 = runs2;

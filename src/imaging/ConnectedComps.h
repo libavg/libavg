@@ -48,5 +48,5 @@ class Blob {
 
 typedef std::list<BlobPtr> BlobList;
 typedef std::map<int, BlobPtr> CompsMap;
-BlobList *connected_components(BitmapPtr image);
+BlobList *connected_components(BitmapPtr image, int object_threshold);
 }
