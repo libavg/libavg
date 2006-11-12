@@ -58,7 +58,7 @@ AC_ARG_ENABLE(dc1394,
                     enable_1394=$enableval, enable_1394=maybe)
 if test "$enable_1394" = maybe; then
     AC_CHECK_LIB(dc1394_control, main, enable_1394=yes, enable_1394=no, -lraw1394)
-    PKG_CHECK_MODULES([DC1394_2], [libdc1394])
+    PKG_CHECK_MODULES([DC1394_2], [libdc1394],,AC_MSG_NOTICE([libdc1394 ver 2 not found]))
 fi
 AM_CONDITIONAL(ENABLE_1394, test x$enable_1394 = xyes)
 if test "$enable_1394" = yes; then

@@ -115,16 +115,14 @@ void Camera::setDisplayEngine(DisplayEngine * pEngine)
     } else
 */
     if (m_sMode == "640x480_MONO8") {
-        m_Mode = MODE_640x480_MONO8;
+        m_Mode = MODE_640x480_MONO;
     } else if (m_sMode == "640x480_YUV411") {
         m_Mode = MODE_640x480_YUV411;
     } else if (m_sMode == "640x480_YUV422") {
         m_Mode = MODE_640x480_YUV422;
     } else if (m_sMode == "640x480_RGB") {
         m_Mode = MODE_640x480_RGB;
-/*    } else if (m_sMode == "640x480_MONO") {
-        m_Mode = MODE_640x480_MONO;
-    } else if (m_sMode == "640x480_MONO16") {
+/*    } else if (m_sMode == "640x480_MONO16") {
         m_Mode = MODE_640x480_MONO16;
 */        
     } else if (m_sMode == "1024x768_RGB") {
@@ -170,9 +168,7 @@ void Camera::setDisplayEngine(DisplayEngine * pEngine)
         m_Mode = DC1394_VIDEO_MODE_640x480_YUV422;
     } else if (m_sMode == "640x480_RGB") {
         m_Mode = DC1394_VIDEO_MODE_640x480_RGB8;
-/*    } else if (m_sMode == "640x480_MONO") {
-        m_Mode = DC1394_VIDEO_MODE_640x480_MONO;
-    } else if (m_sMode == "640x480_MONO16") {
+/*  } else if (m_sMode == "640x480_MONO16") {
         m_Mode = DC1394_VIDEO_MODE_640x480_MONO16;
 */        
     } else if (m_sMode == "1024x768_RGB") {
@@ -263,7 +259,7 @@ IntPoint Camera::getNativeSize()
 {
 #ifdef AVG_ENABLE_1394
     switch(m_Mode) {
-        case MODE_640x480_MONO8:
+        case MODE_640x480_MONO:
         case MODE_640x480_YUV411:
         case MODE_640x480_YUV422:
         case MODE_640x480_RGB:
@@ -310,7 +306,7 @@ void Camera::open(int* pWidth, int* pHeight)
     int CaptureFormat = 0;
     // TODO: Support other resolutions.
     switch(m_Mode) {
-        case MODE_640x480_MONO8:
+        case MODE_640x480_MONO:
         case MODE_640x480_YUV422:
         case MODE_640x480_YUV411:
         case MODE_640x480_RGB:
@@ -575,7 +571,7 @@ bool Camera::renderToSurface(ISurface * pSurface)
                 ScopeTimer Timer(CameraConvertProfilingZone);
                 switch (m_Mode) {
 #ifdef AVG_ENABLE_1394
-                    case MODE_640x480_MONO8:
+                    case MODE_640x480_MONO:
 #else
                     case DC1394_VIDEO_MODE_640x480_MONO8:
 #endif                    
