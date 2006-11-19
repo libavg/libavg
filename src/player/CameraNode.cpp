@@ -144,11 +144,15 @@ bool CameraNode::renderToSurface(ISurface * pSurface)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     ScopeTimer Timer(CameraProfilingZone);
-    BitmapPtr pTempBmp = m_pCamera->getImage();
-    if (pTempBmp) {
+    BitmapPtr pCurBmp = m_pCamera->getImage();
+    if (pCurBmp) {
+        BitmapPtr pTempBmp;
+        while (pTempBmp = m_pCamera->getImage()) {
+            pCurBmp = pTempBmp;
+        }
         BitmapPtr pBmp = pSurface->lockBmp();
-        assert(pBmp->getPixelFormat() == pTempBmp->getPixelFormat());
-        pBmp->copyPixels(*pTempBmp);
+        assert(pBmp->getPixelFormat() == pCurBmp->getPixelFormat());
+        pBmp->copyPixels(*pCurBmp);
         pSurface->unlockBmps();
         {
             ScopeTimer Timer(CameraUploadProfilingZone);
