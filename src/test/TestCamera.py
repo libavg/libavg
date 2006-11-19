@@ -26,12 +26,12 @@ class CameraTestCase(unittest.TestCase):
             Player.setTimeout(200, self.__camera.play)
         self.curFrame = 200
         Player.loadFile("camera.avg")
-        Player.setFramerate(30)
+        Player.setFramerate(60)
         self.__camera = Player.getElementByID("camera")
         self.__camera.play()
         Player.setTimeout(200, setWhitebalance)
         Player.setTimeout(300, resetWhitebalance)
-        Player.setInterval(500, stopPlayback)
+#        Player.setInterval(500, stopPlayback)
         Player.play()
 
 def playerTestSuite(engine, bpp):

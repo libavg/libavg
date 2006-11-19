@@ -30,16 +30,10 @@
 #undef PACKAGE_VERSION
 
 #include "VideoBase.h"
-#include "../graphics/Rect.h"
-#include "../graphics/Pixel24.h"
 
-#ifdef AVG_ENABLE_1394
-#include <libraw1394/raw1394.h>
-#include <libdc1394/dc1394_control.h>
-#endif
-#ifdef AVG_ENABLE_1394_2
-#include <dc1394/control.h>
-#endif
+#include "../imaging/Camera.h"
+
+#include <boost/thread/thread.hpp>
 
 #include <string>
 #include <map>
@@ -49,26 +43,26 @@ namespace avg {
 class CameraNode : public VideoBase
 {
     public:
-        CameraNode ();
-        CameraNode (const xmlNodePtr xmlNode, Player * pPlayer);
-        virtual ~CameraNode ();
+        CameraNode();
+        CameraNode(const xmlNodePtr xmlNode, Player * pPlayer);
+        virtual ~CameraNode();
 
         virtual void setDisplayEngine(DisplayEngine * pEngine);
-        virtual std::string getTypeStr ();
+        virtual std::string getTypeStr();
 
         const std::string& getDevice() const 
         {
-            return m_sDevice;
+            return m_pCamera->getDevice();
         }
 
         double getFrameRate() const
         {
-            return m_FrameRate;
+            return m_pCamera->getFrameRate();
         }
 
         const std::string& getMode() const
         {
-            return m_sMode;
+            return m_pCamera->getMode();
         }
 
         int getBrightness() const
@@ -165,37 +159,7 @@ class CameraNode : public VideoBase
         void setFeature(int FeatureID);
         IntPoint getNativeSize();
 
-        std::string m_sDevice;
-        double m_FrameRate;
-        std::string m_sMode;
-        std::map<int, int> m_Features;
-
-#ifdef AVG_ENABLE_1394
-        bool findCameraOnPort(int port, raw1394handle_t& FWHandle);
-
-        dc1394_cameracapture m_Camera;
-        raw1394handle_t m_FWHandle;
-        dc1394_feature_set m_FeatureSet;
-        int m_FrameRateConstant;  // libdc1394 constant for framerate.
-        int m_Mode;               // libdc1394 constant for mode.
-#endif
-#ifdef AVG_ENABLE_1394_2
-        dc1394camera_t * m_pCamera;
-        dc1394featureset_t m_FeatureSet;
-        dc1394framerate_t m_FrameRateConstant; 
-        dc1394video_mode_t m_Mode;            
-#endif
-#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-        void checkDC1394Error(int Code, const std::string & sMsg);
-        void fatalError(const std::string & sMsg);
-        void dumpCameraInfo();
-        int getFeatureID(const std::string& sFeature) const;
-
-        long long m_LastFrameTime;
-        bool m_bCameraAvailable;
-#endif
-
-
+        CameraPtr m_pCamera;
 };
 
 }

@@ -19,51 +19,42 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Test_H_ 
-#define _Test_H_
+#ifndef _CameraUtils_H_
+#define _CameraUtils_H_
 
-#include <boost/shared_ptr.hpp>
+#include "../avgconfig.h"
+#undef PACKAGE_BUGREPORT
+#undef PACKAGE_NAME
+#undef PACKAGE_STRING
+#undef PACKAGE_TARNAME
+#undef PACKAGE_VERSION
 
-#include <iostream>
-#include <sstream>
+#include "../graphics/Point.h"
+
+#ifdef AVG_ENABLE_1394
+#include <libraw1394/raw1394.h>
+#include <libdc1394/dc1394_control.h>
+#endif
+#ifdef AVG_ENABLE_1394_2
+#include <dc1394/control.h>
+#endif
+
 #include <string>
 
 namespace avg {
-class Test
-{
-public:
-    Test(const std::string & sName, int IndentLevel);
-    virtual ~Test();
 
-    bool isOk();
-    virtual void runTests() = 0;
-
-    void test(bool b, const char * pszFile, int Line);
-    void setFailed();
-
-    int getNumSucceeded() const;
-    int getNumFailed() const;
-    const std::string& getName() const;
-
-    void aggregateStatistics(const Test& ChildTest);
-    virtual void printResults();
-
-protected:
-    int m_IndentLevel;
-    
-private:
-    bool m_bOk;
-    int m_NumSucceeded;
-    int m_NumFailed;
-    std::string m_sName;
-};
-
-typedef boost::shared_ptr<Test> TestPtr;
-
-#define TEST(b)                            \
-    cerr << string(m_IndentLevel+4, ' ') << "  TEST(" << #b << ")" << endl;  \
-    test(b, __FILE__, __LINE__);
-    
-}
+#ifdef AVG_ENABLE_1394
+int getCamMode(std::string sMode);
+IntPoint getCamImgSize(int Mode);
+int getFrameRateConst(double FrameRate);
+int getFeatureID(const std::string& sFeature);
+#else
+dc1394video_mode_t getCamMode(std::string sMode);
+IntPoint getCamImgSize(dc1394video_mode_t Mode);
+dc1394framerate_t getFrameRateConst(double FrameRate);
 #endif
 
+
+}
+
+#endif

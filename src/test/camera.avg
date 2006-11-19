@@ -1,11 +1,12 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg width="1024" height="768">
-<!--  <camera id="camera" x="160" y="120" z="1" width="320" height="240"/> -->
-<!--    <camera id="camera" x="200" y="0" z="3" width="1024" height="768"
-          device="/dev/video1394/0" mode="1024x768_RGB" framerate="7.5"/>-->
-    <camera id="camera" x="190" y="0" width="640" height="480"
+<avg width="640" height="480">
+    <camera id="camera" x="0" y="0" width="640" height="480"
             device="/dev/video1394/0" mode="640x480_MONO8" framerate="30"/>
-    <image x="0" y="200" 
-            opacity="1" href="rgb24alpha.tif"/>
 </avg>
+<!--<avg width="1280" height="960">
+    <camera id="camera" x="0" y="0" width="1280" height="960"
+            device="/dev/video1394/0" mode="640x480_RGB" framerate="15"/>
+</avg>
+-->
+

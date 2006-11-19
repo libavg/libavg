@@ -52,6 +52,18 @@ then
     AC_MSG_ERROR([boost.python not found. Aborting.])
 fi
     
+AX_BOOST_THREAD
+if test -z "$BOOST_THREAD_LIB"; then
+   AC_MSG_ERROR([boost.thread not found. Aborting.])
+fi
+
+#AC_CHECK_LIB(boost_thread, main, libboost_thread_installed=yes, , )
+#if test -z "$libboost_thread_installed"
+#then
+#    # TODO: Check for boost_thread_mt here.
+#    AC_MSG_ERROR([boost.thread not found. Aborting.])
+#fi
+    
 AC_ARG_ENABLE(dc1394,
               AC_HELP_STRING([--enable-dc1394], 
                     [compile support for firewire cameras]),
