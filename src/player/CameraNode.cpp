@@ -48,7 +48,7 @@ CameraNode::CameraNode()
 #endif
 }
 
-CameraNode::CameraNode (const xmlNodePtr xmlNode, Player * pPlayer)
+CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
     : VideoBase(xmlNode, pPlayer)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
@@ -71,8 +71,9 @@ CameraNode::CameraNode (const xmlNodePtr xmlNode, Player * pPlayer)
 #endif
 }
 
-CameraNode::~CameraNode ()
+CameraNode::~CameraNode()
 {
+    close();
 }
 
 void CameraNode::setDisplayEngine(DisplayEngine * pEngine)
@@ -80,7 +81,7 @@ void CameraNode::setDisplayEngine(DisplayEngine * pEngine)
     VideoBase::setDisplayEngine(pEngine);
 }
 
-string CameraNode::getTypeStr ()
+string CameraNode::getTypeStr()
 {
     return "Camera";
 }
@@ -88,7 +89,6 @@ string CameraNode::getTypeStr ()
 IntPoint CameraNode::getNativeSize() 
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-    cerr << m_pCamera->getImgSize() << endl;
     return m_pCamera->getImgSize();
 #else
     return IntPoint(640,480);

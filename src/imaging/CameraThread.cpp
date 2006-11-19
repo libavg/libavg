@@ -71,6 +71,7 @@ void CameraThread::operator()()
     open();
     while (!m_bShouldStop && m_bCameraAvailable) {
         captureImage();
+        checkMessages();
     }
     close();
 }
@@ -374,6 +375,16 @@ bool CameraThread::captureImage()
             TimeSource::get()->msleep(50);
             AVG_TRACE(Logger::WARNING,
                     "Camera: Frame capture failed.");
+        }
+    }
+}
+
+void CameraThread::checkMessages()
+{
+    while (!m_CmdQ.empty()) {
+        CameraCmd Cmd = m_CmdQ.pop();
+        if (Cmd == STOP) {
+            m_bShouldStop = true;
         }
     }
 }

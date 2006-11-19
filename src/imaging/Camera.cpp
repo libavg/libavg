@@ -50,6 +50,7 @@ Camera::Camera (std::string sDevice, double FrameRate, std::string sMode)
 
 Camera::~Camera()
 {
+    close();
 }
 
 void Camera::open()
