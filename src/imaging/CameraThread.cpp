@@ -27,7 +27,6 @@
 
 namespace avg {
 
-
 #ifdef AVG_ENABLE_1394
 #define MAX_PORTS 4
 #define MAX_RESETS 10
