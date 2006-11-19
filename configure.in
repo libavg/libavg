@@ -76,6 +76,7 @@ AM_CONDITIONAL(ENABLE_1394, test x$enable_1394 = xyes)
 if test "$enable_1394" = yes; then
     AC_DEFINE(AVG_ENABLE_1394, 1, [Enable firewire camera support])
 fi 
+AM_CONDITIONAL(ENABLE_1394_2, test x"$DC1394_2_LIBS" != x )
 if test x"$DC1394_2_LIBS" != "x"; then
     AC_DEFINE(AVG_ENABLE_1394_2, 1, [Enable firewire camera support v.2])
 fi

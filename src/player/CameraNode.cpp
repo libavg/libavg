@@ -68,6 +68,9 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
     m_pCamera->setFeature ("gain", getDefaultedIntAttr(xmlNode, "gain", -1));
     m_pCamera->setFeature ("whitebalance", getDefaultedIntAttr(xmlNode, "whitebalance", -1));
 */
+#else
+    AVG_TRACE(Logger::ERROR,
+            "Unable to set up camera. Camera support not compiled.");
 #endif
 }
 
@@ -111,6 +114,9 @@ void CameraNode::open(int* pWidth, int* pHeight)
     m_pCamera->open();
     *pWidth = m_pCamera->getImgSize().x;
     *pHeight = m_pCamera->getImgSize().y;
+#else
+    *pWidth = 640;
+    *pHeight = 480;
 #endif    
 }
 
@@ -125,6 +131,8 @@ unsigned int CameraNode::getFeature (const std::string& sFeature) const
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     return m_pCamera->getFeature(sFeature);
+#else
+    return 0;
 #endif
 }
 

@@ -20,7 +20,6 @@
 //
 
 #include "Camera.h"
-#include "CameraUtils.h"
 
 #include "../base/TimeSource.h"
 #include "../base/Logger.h"
@@ -34,11 +33,6 @@
 using namespace std;
 
 namespace avg {
-
-#define MAX_PORTS 4
-#define MAX_RESETS 10
-#define DROP_FRAMES 1
-#define NUM_BUFFERS 3
 
 Camera::Camera (std::string sDevice, double FrameRate, std::string sMode)
     : m_sDevice(sDevice),
@@ -55,32 +49,44 @@ Camera::~Camera()
 
 void Camera::open()
 {
+#if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
     m_pThread = new boost::thread(CameraThread(m_BitmapQ, m_CmdQ, m_sDevice, 
             getCamMode(m_sMode), m_FrameRate));
+#endif
 }
 
 void Camera::close() 
 {
+#if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
     if (m_pThread) {
         m_CmdQ.push(STOP);
         m_pThread->join();
         delete m_pThread;
         m_pThread = 0;
     }
+#endif
 }
 
 IntPoint Camera::getImgSize() 
 {
+#if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
     return getCamImgSize(getCamMode(m_sMode));
+#else
+    return IntPoint(640, 480);
+#endif
 }
 
 BitmapPtr Camera::getImage() 
 {
+#if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
     if (m_pThread && !m_BitmapQ.empty()) {
         return m_BitmapQ.pop();
     } else {
         return BitmapPtr();
     }
+#else
+    return BitmapPtr();
+#endif
 }
 
 

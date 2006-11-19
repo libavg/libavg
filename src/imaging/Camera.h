@@ -22,7 +22,16 @@
 #ifndef _Camera_H_
 #define _Camera_H_
 
+#include "../avgconfig.h"
+#undef PACKAGE_BUGREPORT
+#undef PACKAGE_NAME
+#undef PACKAGE_STRING
+#undef PACKAGE_TARNAME
+#undef PACKAGE_VERSION
+#if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
+#include "CameraUtils.h"
 #include "CameraThread.h"
+#endif
 
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel24.h"
@@ -35,8 +44,6 @@
 #include <map>
 
 namespace avg {
-
-typedef Queue<BitmapPtr> BitmapQueue;
 
 class Camera
 {
@@ -65,9 +72,10 @@ class Camera
         std::string m_sMode;
         std::map<int, int> m_Features;
 
+#if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
         BitmapQueue m_BitmapQ;
         CameraCmdQueue m_CmdQ;
-
+#endif
         boost::thread* m_pThread;
 };
 

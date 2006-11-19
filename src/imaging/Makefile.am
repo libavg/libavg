@@ -1,8 +1,22 @@
 
 INCLUDES = -I.. @PTHREAD_CFLAGS@
 
-ALL_H = ConnectedComps.h Camera.h CameraThread.h CameraUtils.h
-ALL_CPP = ConnectedComps.cpp Camera.cpp CameraThread.cpp CameraUtils.cpp
+if ENABLE_1394
+    DC1394_SOURCES = CameraThread.cpp CameraUtils.cpp
+    DC1394_INCLUDES = CameraThread.h CameraUtils.h
+else
+if ENABLE_1394_2
+    DC1394_SOURCES = CameraThread.cpp CameraUtils.cpp
+    DC1394_INCLUDES = CameraThread.h CameraUtils.h
+else
+
+    DC1394_SOURCES =
+    DC1394_INCLUDES =
+endif
+endif
+
+ALL_H = ConnectedComps.h Camera.h $(DC1394_INCLUDES)
+ALL_CPP = ConnectedComps.cpp Camera.cpp $(DC1394_SOURCES) 
 
 #TESTS=testcomps
 
