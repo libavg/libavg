@@ -31,6 +31,7 @@ pkg_setup() {
 }
 
 src_compile() {
+# TODO: configure using --with-boost-thread=mt
 	econf `use_enable ieee1394 dc1394` || die "econf failed"
 	emake || die "emake failed"
 }

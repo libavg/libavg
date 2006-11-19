@@ -70,108 +70,8 @@ static ProfilingZone CameraConvertProfilingZone("      [CameraThread] format con
 void CameraThread::operator()()
 {
     open();
-    while (!m_bShouldStop) {
-        IntPoint ImgSize = getCamImgSize(m_Mode);
-        BitmapPtr pCurBitmap = BitmapPtr(new Bitmap(ImgSize, B8G8R8X8));
-#ifdef AVG_ENABLE_1394
-        int rc = dc1394_dma_single_capture(&m_Camera);
-        unsigned char * pCaptureBuffer = (unsigned char *)(m_Camera.capture_buffer);
-#else
-        int rc = dc1394_capture(&m_pCamera,1);
-        unsigned char * pCaptureBuffer = 
-                (unsigned char *)dc1394_capture_get_buffer(m_pCamera);
-#endif
-        if (rc == DC1394_SUCCESS) {
-            {
-                ScopeTimer Timer(CameraConvertProfilingZone);
-                switch (m_Mode) {
-#ifdef AVG_ENABLE_1394
-                    case MODE_640x480_MONO:
-#else
-                    case DC1394_VIDEO_MODE_640x480_MONO8:
-#endif                    
-                        {
-                            Bitmap TempBmp(ImgSize, I8, 
-                                    pCaptureBuffer,
-                                    ImgSize.x, false, "TempCameraBmp");
-                            pCurBitmap->copyPixels(TempBmp);
-                        }
-                        break;
-#ifdef AVG_ENABLE_1394
-                    case MODE_640x480_YUV422:
-                    case MODE_1024x768_YUV422:
-#else
-                    case DC1394_VIDEO_MODE_640x480_YUV422:
-                    case DC1394_VIDEO_MODE_1024x768_YUV422:
-#endif                    
-                        {
-                            Bitmap TempBmp(ImgSize, YCbCr422, 
-                                    pCaptureBuffer,
-                                    ImgSize.x*2, false, "TempCameraBmp");
-                            pCurBitmap->copyPixels(TempBmp);
-                        }
-                        break;
-#ifdef AVG_ENABLE_1394
-                    case MODE_640x480_YUV411:
-#else
-                    case DC1394_VIDEO_MODE_640x480_YUV411:
-#endif                    
-                        {
-                            Bitmap TempBmp(ImgSize, YCbCr411, 
-                                    pCaptureBuffer,
-                                    (int)(ImgSize.x*1.5), false, "TempCameraBmp");
-                            pCurBitmap->copyPixels(TempBmp);
-                        }
-                        break;
-#ifdef AVG_ENABLE_1394
-                    case MODE_640x480_RGB:
-                    case MODE_1024x768_RGB:
-#else
-                    case DC1394_VIDEO_MODE_640x480_RGB8:
-                    case DC1394_VIDEO_MODE_1024x768_RGB8:
-#endif
-                        {
-                            unsigned char * pSrcLine = (unsigned char*)
-                                pCaptureBuffer;
-                            int SrcStride = 3*ImgSize.x;
-                            unsigned char * pDestLine = pCurBitmap->getPixels();
-                            int DestStride = pCurBitmap->getStride();
-                            for (int y = 0; y < ImgSize.y; y++) {
-                                unsigned char * pDest = pDestLine;
-                                unsigned char * pSrc = pSrcLine;
-                                for (int x = 0; x<ImgSize.x; x++) {
-                                    *pDest++ = *(pSrc+2);
-                                    *pDest++ = *(pSrc+1);
-                                    *pDest++ = *pSrc;
-                                    *pDest++ = 0xFF;
-                                    pSrc += 3;
-                                }
-                                pSrcLine += SrcStride;
-                                pDestLine += DestStride;
-                            }
-                        }
-                        break;
-                    default:
-                        AVG_TRACE(Logger::WARNING,
-                                "Illegal Mode in renderToSurface");
-                        break;
-                }
-            }
-#ifdef AVG_ENABLE_1394
-            dc1394_dma_done_with_buffer(&m_Camera);
-#endif
-            m_BitmapQ.push(pCurBitmap);
-        } else {
-            if (rc == DC1394_NO_FRAME) {
-                TimeSource::get()->msleep(50);
-                AVG_TRACE(Logger::WARNING,
-                        "Camera: Frame not available.");
-            } else {
-                TimeSource::get()->msleep(50);
-                AVG_TRACE(Logger::WARNING,
-                        "Camera: Frame capture failed.");
-            }
-        }
+    while (!m_bShouldStop && m_bCameraAvailable) {
+        captureImage();
     }
     close();
 }
@@ -371,6 +271,111 @@ void CameraThread::close()
         dc1394_free_camera(m_pCamera);
 #endif
         m_bCameraAvailable = false;
+    }
+}
+
+bool CameraThread::captureImage()
+{
+    IntPoint ImgSize = getCamImgSize(m_Mode);
+    BitmapPtr pCurBitmap = BitmapPtr(new Bitmap(ImgSize, B8G8R8X8));
+#ifdef AVG_ENABLE_1394
+    int rc = dc1394_dma_single_capture(&m_Camera);
+    unsigned char * pCaptureBuffer = (unsigned char *)(m_Camera.capture_buffer);
+#else
+    int rc = dc1394_capture(&m_pCamera,1);
+    unsigned char * pCaptureBuffer = 
+        (unsigned char *)dc1394_capture_get_buffer(m_pCamera);
+#endif
+    if (rc == DC1394_SUCCESS) {
+        {
+            ScopeTimer Timer(CameraConvertProfilingZone);
+            switch (m_Mode) {
+#ifdef AVG_ENABLE_1394
+                case MODE_640x480_MONO:
+#else
+                case DC1394_VIDEO_MODE_640x480_MONO8:
+#endif                    
+                    {
+                        Bitmap TempBmp(ImgSize, I8, 
+                                pCaptureBuffer,
+                                ImgSize.x, false, "TempCameraBmp");
+                        pCurBitmap->copyPixels(TempBmp);
+                    }
+                    break;
+#ifdef AVG_ENABLE_1394
+                case MODE_640x480_YUV422:
+                case MODE_1024x768_YUV422:
+#else
+                case DC1394_VIDEO_MODE_640x480_YUV422:
+                case DC1394_VIDEO_MODE_1024x768_YUV422:
+#endif                    
+                    {
+                        Bitmap TempBmp(ImgSize, YCbCr422, 
+                                pCaptureBuffer,
+                                ImgSize.x*2, false, "TempCameraBmp");
+                        pCurBitmap->copyPixels(TempBmp);
+                    }
+                    break;
+#ifdef AVG_ENABLE_1394
+                case MODE_640x480_YUV411:
+#else
+                case DC1394_VIDEO_MODE_640x480_YUV411:
+#endif                    
+                    {
+                        Bitmap TempBmp(ImgSize, YCbCr411, 
+                                pCaptureBuffer,
+                                (int)(ImgSize.x*1.5), false, "TempCameraBmp");
+                        pCurBitmap->copyPixels(TempBmp);
+                    }
+                    break;
+#ifdef AVG_ENABLE_1394
+                case MODE_640x480_RGB:
+                case MODE_1024x768_RGB:
+#else
+                case DC1394_VIDEO_MODE_640x480_RGB8:
+                case DC1394_VIDEO_MODE_1024x768_RGB8:
+#endif
+                    {
+                        unsigned char * pSrcLine = (unsigned char*)
+                            pCaptureBuffer;
+                        int SrcStride = 3*ImgSize.x;
+                        unsigned char * pDestLine = pCurBitmap->getPixels();
+                        int DestStride = pCurBitmap->getStride();
+                        for (int y = 0; y < ImgSize.y; y++) {
+                            unsigned char * pDest = pDestLine;
+                            unsigned char * pSrc = pSrcLine;
+                            for (int x = 0; x<ImgSize.x; x++) {
+                                *pDest++ = *(pSrc+2);
+                                *pDest++ = *(pSrc+1);
+                                *pDest++ = *pSrc;
+                                *pDest++ = 0xFF;
+                                pSrc += 3;
+                            }
+                            pSrcLine += SrcStride;
+                            pDestLine += DestStride;
+                        }
+                    }
+                    break;
+                default:
+                    AVG_TRACE(Logger::WARNING,
+                            "Illegal Mode in renderToSurface");
+                    break;
+            }
+        }
+#ifdef AVG_ENABLE_1394
+        dc1394_dma_done_with_buffer(&m_Camera);
+#endif
+        m_BitmapQ.push(pCurBitmap);
+    } else {
+        if (rc == DC1394_NO_FRAME) {
+            TimeSource::get()->msleep(50);
+            AVG_TRACE(Logger::WARNING,
+                    "Camera: Frame not available.");
+        } else {
+            TimeSource::get()->msleep(50);
+            AVG_TRACE(Logger::WARNING,
+                    "Camera: Frame capture failed.");
+        }
     }
 }
 

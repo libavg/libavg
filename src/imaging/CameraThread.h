@@ -68,6 +68,7 @@ public:
 private:
     void open();
     void close();
+    bool captureImage();
 
     bool m_bShouldStop;
     BitmapQueue& m_BitmapQ;
