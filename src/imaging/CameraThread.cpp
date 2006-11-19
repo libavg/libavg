@@ -69,8 +69,13 @@ static ProfilingZone CameraConvertProfilingZone("      [CameraThread] format con
 void CameraThread::operator()()
 {
     open();
-    while (!m_bShouldStop && m_bCameraAvailable) {
-        captureImage();
+    while (!m_bShouldStop) {
+        if (m_bCameraAvailable) {
+            captureImage();
+        } else {
+            TimeSource::get()->msleep(100);
+            open();
+        }
         checkMessages();
     }
     close();
@@ -194,8 +199,11 @@ void CameraThread::open()
     }
     
     if (numCameras<1) {
-        AVG_TRACE(Logger::WARNING,
-                "No firewire cameras found.");
+        static bool bFirstWarning = true;
+        if (bFirstWarning) {
+            AVG_TRACE(Logger::WARNING, "No firewire cameras found.");
+            bFirstWarning = false;
+        }
         m_bCameraAvailable = false;
         return;
     }
@@ -274,19 +282,25 @@ void CameraThread::close()
     }
 }
 
-bool CameraThread::captureImage()
+void CameraThread::captureImage()
 {
     IntPoint ImgSize = getCamImgSize(m_Mode);
     BitmapPtr pCurBitmap = BitmapPtr(new Bitmap(ImgSize, B8G8R8X8));
+    bool bGotFrame = false;
+    unsigned char * pCaptureBuffer = 0;
 #ifdef AVG_ENABLE_1394
     int rc = dc1394_dma_single_capture(&m_Camera);
-    unsigned char * pCaptureBuffer = (unsigned char *)(m_Camera.capture_buffer);
+    pCaptureBuffer = (unsigned char *)(m_Camera.capture_buffer);
+    bGotFrame = (rc == DC1394_SUCCESS);
 #else
-    int rc = dc1394_capture(&m_pCamera,1);
-    unsigned char * pCaptureBuffer = 
-        (unsigned char *)dc1394_capture_get_buffer(m_pCamera);
+    dc1394video_frame_t * pFrame;
+    pFrame = dc1394_capture_dequeue_dma(m_pCamera, DC1394_VIDEO1394_WAIT);
+    if (pFrame) {
+        bGotFrame = true;
+        pCaptureBuffer = pFrame->image;
+    }
 #endif
-    if (rc == DC1394_SUCCESS) {
+    if (bGotFrame) {
         {
             ScopeTimer Timer(CameraConvertProfilingZone);
             switch (m_Mode) {
@@ -364,18 +378,14 @@ bool CameraThread::captureImage()
         }
 #ifdef AVG_ENABLE_1394
         dc1394_dma_done_with_buffer(&m_Camera);
+#else
+        dc1394_capture_enqueue_dma (m_pCamera, pFrame);
 #endif
         m_BitmapQ.push(pCurBitmap);
     } else {
-        if (rc == DC1394_NO_FRAME) {
-            TimeSource::get()->msleep(50);
-            AVG_TRACE(Logger::WARNING,
-                    "Camera: Frame not available.");
-        } else {
-            TimeSource::get()->msleep(50);
-            AVG_TRACE(Logger::WARNING,
-                    "Camera: Frame capture failed.");
-        }
+        AVG_TRACE(Logger::WARNING,
+                "Camera: Frame capture failed.");
+        close();
     }
 }
 

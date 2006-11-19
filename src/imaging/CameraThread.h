@@ -68,7 +68,7 @@ public:
 private:
     void open();
     void close();
-    bool captureImage();
+    void captureImage();
     void checkMessages();
 
     bool m_bShouldStop;
