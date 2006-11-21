@@ -52,6 +52,9 @@ void Camera::open()
 #if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
     m_pThread = new boost::thread(CameraThread(m_BitmapQ, m_CmdQ, m_sDevice, 
             getCamMode(m_sMode), m_FrameRate));
+    for (FeatureMap::iterator it=m_Features.begin(); it != m_Features.end(); it++) {
+        m_CmdQ.push(CameraCmd(CameraCmd::FEATURE, it->first, it->second));
+    }
 #endif
 }
 
@@ -114,8 +117,8 @@ const string& Camera::getMode() const
         
 unsigned int Camera::getFeature (const std::string& sFeature) const
 {
-    int FeatureID = getFeatureID(sFeature);
-    std::map<int, int>::const_iterator it = m_Features.find(FeatureID);
+    dc1394feature_t FeatureID = getFeatureID(sFeature);
+    FeatureMap::const_iterator it = m_Features.find(FeatureID);
     if (it == m_Features.end()) {
         return 0;
     } else {
@@ -125,9 +128,9 @@ unsigned int Camera::getFeature (const std::string& sFeature) const
 
 void Camera::setFeature (const std::string& sFeature, int Value)
 {
+    dc1394feature_t FeatureID = getFeatureID(sFeature);
+    m_Features[FeatureID] = Value;
     if (m_pThread) {
-        dc1394feature_t FeatureID = getFeatureID(sFeature);
-        m_Features[FeatureID] = Value;
         m_CmdQ.push(CameraCmd(CameraCmd::FEATURE, FeatureID, Value));
     }
 }
