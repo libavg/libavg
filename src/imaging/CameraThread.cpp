@@ -224,6 +224,26 @@ void CameraThread::open()
     checkDC1394Error(err, "Unable to set camera iso speed.");
     err = dc1394_video_set_mode(m_pCamera, m_Mode);
     checkDC1394Error(err, "Unable to set camera mode.");
+
+    dc1394framerates_t FrameRates;
+    err = dc1394_video_get_supported_framerates(m_pCamera, m_Mode, &FrameRates);
+    checkDC1394Error(err, "Unable to get supported framerates.");
+    bool bFrameRateSupported = false;
+    for (unsigned int i=0; i<FrameRates.num; i++) {
+        if (FrameRates.framerates[i] == m_FrameRateConstant) {
+            bFrameRateSupported = true;
+            break;
+        }
+    }
+    if (!bFrameRateSupported) {
+        AVG_TRACE(Logger::ERROR, "Camera does not support framerate " << m_FrameRate 
+                << " in the current video mode.");
+        dc1394_capture_stop(m_pCamera);
+        dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
+        dc1394_free_camera(m_pCamera);
+        exit(1);
+    }
+
     err = dc1394_video_set_framerate(m_pCamera, m_FrameRateConstant);
     checkDC1394Error(err, "Unable to set camera framerate.");
 
@@ -410,15 +430,14 @@ void CameraThread::setFeature(dc1394feature_t Feature, int Value) {
     if (Value == -1) {
         err = dc1394_auto_on_off(m_FWHandle, m_Camera.node, Feature, 1);
     } else {
-        err = dc1394_auto_on_off(m_FWHandle, m_Camera.node, Feature, 0);
-        int err;
+        dc1394_auto_on_off(m_FWHandle, m_Camera.node, Feature, 0);
         err = dc1394_set_feature_value(m_FWHandle, m_Camera.node, Feature, 
                 (unsigned int)Value);
     } 
 #else
     dc1394error_t err;
     if (Value == -1) {
-        dc1394_feature_set_mode(m_pCamera, Feature, DC1394_FEATURE_MODE_AUTO);
+        err = dc1394_feature_set_mode(m_pCamera, Feature, DC1394_FEATURE_MODE_AUTO);
     } else {
         dc1394_feature_set_mode(m_pCamera, Feature, DC1394_FEATURE_MODE_MANUAL);
         err = dc1394_feature_set_value(m_pCamera, Feature, Value);
