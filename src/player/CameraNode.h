@@ -149,6 +149,8 @@ class CameraNode : public VideoBase
         unsigned int getFeature (const std::string& sFeature) const;
         void setFeature (const std::string& sFeature, int Value);
 
+        int getFrameNum() const;
+
     private:
         virtual bool renderToSurface(ISurface * pSurface);
         virtual bool canRenderToBackbuffer(int BitsPerPixel);
@@ -160,6 +162,7 @@ class CameraNode : public VideoBase
         IntPoint getNativeSize();
 
         CameraPtr m_pCamera;
+        int m_FrameNum;
 };
 
 }

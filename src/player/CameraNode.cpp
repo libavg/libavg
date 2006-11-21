@@ -39,6 +39,7 @@ using namespace std;
 namespace avg {
 
 CameraNode::CameraNode()
+    : m_FrameNum(0)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     m_pCamera = CameraPtr(new Camera("", 15, "640x480_RGB"));
@@ -49,7 +50,8 @@ CameraNode::CameraNode()
 }
 
 CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
-    : VideoBase(xmlNode, pPlayer)
+    : VideoBase(xmlNode, pPlayer),
+      m_FrameNum(0)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     string sDevice = getDefaultedStringAttr (xmlNode, "device", "");
@@ -143,7 +145,10 @@ void CameraNode::setFeature (const std::string& sFeature, int Value)
 #endif
 }
 
-
+int CameraNode::getFrameNum() const
+{
+    return m_FrameNum;
+}
 
 static ProfilingZone CameraProfilingZone("    Camera::render");
 static ProfilingZone CameraUploadProfilingZone("      Camera tex download");
@@ -158,6 +163,7 @@ bool CameraNode::renderToSurface(ISurface * pSurface)
         while (pTempBmp = m_pCamera->getImage()) {
             pCurBmp = pTempBmp;
         }
+        m_FrameNum++;
         BitmapPtr pBmp = pSurface->lockBmp();
         assert(pBmp->getPixelFormat() == pCurBmp->getPixelFormat());
         pBmp->copyPixels(*pCurBmp);

@@ -29,6 +29,8 @@
 #undef PACKAGE_TARNAME
 #undef PACKAGE_VERSION
 
+#include "CameraCmd.h"
+
 #include "../graphics/Rect.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel24.h"
@@ -48,10 +50,6 @@
 namespace avg {
 
 typedef Queue<BitmapPtr> BitmapQueue;
-
-typedef enum {
-    STOP
-} CameraCmd;
 typedef Queue<CameraCmd> CameraCmdQueue;
 
 class CameraThread {
@@ -70,6 +68,7 @@ private:
     void close();
     void captureImage();
     void checkMessages();
+    void setFeature(dc1394feature_t Feature, int Value);
 
     bool m_bShouldStop;
     BitmapQueue& m_BitmapQ;

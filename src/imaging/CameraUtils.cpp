@@ -219,6 +219,51 @@ dc1394framerate_t getFrameRateConst(double FrameRate)
     }
 }
 
+dc1394feature_t getFeatureID(const std::string& sFeature)
+{
+    if (sFeature == "brightness") {
+        return DC1394_FEATURE_BRIGHTNESS;
+    } else if (sFeature == "exposure") {
+        return DC1394_FEATURE_EXPOSURE;
+    } else if (sFeature == "sharpness") {
+        return DC1394_FEATURE_SHARPNESS;
+    } else if (sFeature == "whitebalance") {
+        return DC1394_FEATURE_WHITE_BALANCE;
+    } else if (sFeature == "hue") {
+        return DC1394_FEATURE_HUE;
+    } else if (sFeature == "saturation") {
+        return DC1394_FEATURE_SATURATION;
+    } else if (sFeature == "gamma") {
+        return DC1394_FEATURE_GAMMA;
+    } else if (sFeature == "shutter") {
+        return DC1394_FEATURE_SHUTTER;
+    } else if (sFeature == "gain") {
+        return DC1394_FEATURE_GAIN;
+    } else if (sFeature == "iris") {
+        return DC1394_FEATURE_IRIS;
+    } else if (sFeature == "focus") {
+        return DC1394_FEATURE_FOCUS;
+    } else if (sFeature == "temperature") {
+        return DC1394_FEATURE_TEMPERATURE;
+    } else if (sFeature == "trigger") {
+        return DC1394_FEATURE_TRIGGER;
+    } else if (sFeature == "zoom") {
+        return DC1394_FEATURE_ZOOM;
+    } else if (sFeature == "pan") {
+        return DC1394_FEATURE_PAN;
+    } else if (sFeature == "tilt") {
+        return DC1394_FEATURE_TILT;
+    } else if (sFeature == "optical_filter") {
+        return DC1394_FEATURE_OPTICAL_FILTER;
+    } else if (sFeature == "capture_size") {
+        return DC1394_FEATURE_CAPTURE_SIZE;
+    } else if (sFeature == "capture_quality") {
+        return DC1394_FEATURE_CAPTURE_QUALITY;
+    }
+    AVG_TRACE(Logger::WARNING, "getFeatureID: "+sFeature+" unknown.");
+    return DC1394_FEATURE_MIN;
+}
+
 #endif
 
 

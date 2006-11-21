@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _CameraUtils_H_
-#define _CameraUtils_H_
+#ifndef _CameraCmd_H_
+#define _CameraCmd_H_
 
 #include "../avgconfig.h"
 #undef PACKAGE_BUGREPORT
@@ -29,32 +29,28 @@
 #undef PACKAGE_TARNAME
 #undef PACKAGE_VERSION
 
-#include "../graphics/Point.h"
-
 #ifdef AVG_ENABLE_1394
-#include <libraw1394/raw1394.h>
 #include <libdc1394/dc1394_control.h>
 #endif
 #ifdef AVG_ENABLE_1394_2
 #include <dc1394/control.h>
 #endif
 
-#include <string>
+
 
 namespace avg {
 
 #ifdef AVG_ENABLE_1394
-int getCamMode(std::string sMode);
-IntPoint getCamImgSize(int Mode);
-int getFrameRateConst(double FrameRate);
-int getFeatureID(const std::string& sFeature);
-#else
-dc1394video_mode_t getCamMode(std::string sMode);
-IntPoint getCamImgSize(dc1394video_mode_t Mode);
-dc1394framerate_t getFrameRateConst(double FrameRate);
-dc1394feature_t getFeatureID(const std::string& sFeature);
+typedef int dc1394feature_t; 
 #endif
 
+struct CameraCmd {
+    typedef enum { STOP, FEATURE } CmdType;
+    CameraCmd(CmdType Cmd, dc1394feature_t Feature = DC1394_FEATURE_MIN, int Value = -1);
+    CmdType m_Cmd;
+    dc1394feature_t m_Feature;
+    int m_Value;
+};
 
 }
 

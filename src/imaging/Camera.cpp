@@ -59,7 +59,7 @@ void Camera::close()
 {
 #if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
     if (m_pThread) {
-        m_CmdQ.push(STOP);
+        m_CmdQ.push(CameraCmd(CameraCmd::STOP));
         m_pThread->join();
         delete m_pThread;
         m_pThread = 0;
@@ -112,70 +112,23 @@ const string& Camera::getMode() const
         
 unsigned int Camera::getFeature (const std::string& sFeature) const
 {
-    /*
-#ifdef AVG_ENABLE_1394
     int FeatureID = getFeatureID(sFeature);
-    unsigned int Value;
-    int err;
-    if (FeatureID == FEATURE_WHITE_BALANCE) {
-        unsigned int u_b_value = 0;
-        unsigned int v_r_value = 0;
-        err = dc1394_get_white_balance(m_FWHandle, m_Camera.node, &u_b_value, &v_r_value);
-        Value = ((u_b_value & 0xff) << 8) | (v_r_value & 0xff);
+    std::map<int, int>::const_iterator it = m_Features.find(FeatureID);
+    if (it == m_Features.end()) {
+        return 0;
     } else {
-        err = dc1394_get_feature_value(m_FWHandle, m_Camera.node, FeatureID, &Value);
+        return it->second;
     }
-    if (err != DC1394_SUCCESS) {
-        AVG_TRACE(Logger::WARNING, "Camera: Unable to get " << sFeature << 
-                ". Error was " << err);
-    }
-    return Value;
-#else
-*/    
-    return 0;
 }
 
 void Camera::setFeature (const std::string& sFeature, int Value)
 {
-/*
-#ifdef AVG_ENABLE_1394
-    int FeatureID = getFeatureID(sFeature);
-    m_Features[FeatureID] = Value;
-    if (m_bCameraAvailable) {
-        setFeature(FeatureID);
+    if (m_pThread) {
+        dc1394feature_t FeatureID = getFeatureID(sFeature);
+        m_Features[FeatureID] = Value;
+        m_CmdQ.push(CameraCmd(CameraCmd::FEATURE, FeatureID, Value));
     }
-#endif
-*/
 }
 
-void Camera::setFeature(int FeatureID)
-{
-/*
-#ifdef AVG_ENABLE_1394
-    if (m_bCameraAvailable && m_FWHandle != 0) {
-        int Value = m_Features[FeatureID];
-        if (Value == -1) {
-            dc1394_auto_on_off(m_FWHandle, m_Camera.node, FeatureID, 1);
-        } else {
-            dc1394_auto_on_off(m_FWHandle, m_Camera.node, FeatureID, 0);
-            int err;
-            if (FeatureID == FEATURE_WHITE_BALANCE) {
-                unsigned int u_b_value = (Value >> 8) & 0xff;
-                unsigned int v_r_value = Value & 0xff;
-                err = dc1394_set_white_balance(m_FWHandle, m_Camera.node, 
-                        u_b_value, v_r_value);
-            } else {
-                err = dc1394_set_feature_value(m_FWHandle, m_Camera.node, FeatureID, 
-                        (unsigned int)Value);
-            } 
-            if (err != DC1394_SUCCESS) {
-                AVG_TRACE(Logger::WARNING, "Camera: Unable to set " << FeatureID << 
-                        ". Error was " << err);
-            }
-        }
-    }
-#endif
-*/    
-}
 
 }

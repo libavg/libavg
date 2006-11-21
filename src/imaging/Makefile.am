@@ -2,12 +2,12 @@
 INCLUDES = -I.. @PTHREAD_CFLAGS@
 
 if ENABLE_1394
-    DC1394_SOURCES = CameraThread.cpp CameraUtils.cpp
-    DC1394_INCLUDES = CameraThread.h CameraUtils.h
+    DC1394_SOURCES = CameraThread.cpp CameraUtils.cpp CameraCmd.cpp
+    DC1394_INCLUDES = CameraThread.h CameraUtils.h CameraCmd.h
 else
 if ENABLE_1394_2
-    DC1394_SOURCES = CameraThread.cpp CameraUtils.cpp
-    DC1394_INCLUDES = CameraThread.h CameraUtils.h
+    DC1394_SOURCES = CameraThread.cpp CameraUtils.cpp CameraCmd.cpp
+    DC1394_INCLUDES = CameraThread.h CameraUtils.h CameraCmd.h
 else
 
     DC1394_SOURCES =

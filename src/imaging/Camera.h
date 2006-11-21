@@ -65,7 +65,6 @@ class Camera
         void setFeature(const std::string& sFeature, int Value);
 
     private:
-        void setFeature(int FeatureID);
 
         std::string m_sDevice;
         double m_FrameRate;

@@ -126,6 +126,7 @@ void export_raster()
         .add_property("device", make_function(&CameraNode::getDevice,
                 return_value_policy<copy_const_reference>()))
         .add_property("framerate", &CameraNode::getFrameRate)
+        .add_property("framenum", &CameraNode::getFrameNum)
         .add_property("mode", make_function(&CameraNode::getMode,
                 return_value_policy<copy_const_reference>()))
         .add_property("brightness", &CameraNode::getBrightness, &CameraNode::setBrightness)
