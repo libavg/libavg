@@ -137,8 +137,11 @@ void CameraThread::open()
     } /* next reset retry */
 
     if (!bFound) {
-        AVG_TRACE(Logger::WARNING,
-                "No firewire cameras found.");
+        static bool bFirstWarning = true;
+        if (bFirstWarning) {
+            AVG_TRACE(Logger::WARNING, "No firewire cameras found.");
+            bFirstWarning = false;
+        }
         m_bCameraAvailable = false;
         if (m_FWHandle != 0) {
             dc1394_destroy_handle(m_FWHandle);
