@@ -408,9 +408,9 @@ void CameraThread::setFeature(dc1394feature_t Feature, int Value) {
 #ifdef AVG_ENABLE_1394
     int err;
     if (Value == -1) {
-        dc1394_auto_on_off(m_FWHandle, m_Camera.node, Feature, 1);
+        err = dc1394_auto_on_off(m_FWHandle, m_Camera.node, Feature, 1);
     } else {
-        dc1394_auto_on_off(m_FWHandle, m_Camera.node, Feature, 0);
+        err = dc1394_auto_on_off(m_FWHandle, m_Camera.node, Feature, 0);
         int err;
         err = dc1394_set_feature_value(m_FWHandle, m_Camera.node, Feature, 
                 (unsigned int)Value);
@@ -421,8 +421,8 @@ void CameraThread::setFeature(dc1394feature_t Feature, int Value) {
         dc1394_feature_set_mode(m_pCamera, Feature, DC1394_FEATURE_MODE_AUTO);
     } else {
         dc1394_feature_set_mode(m_pCamera, Feature, DC1394_FEATURE_MODE_MANUAL);
+        err = dc1394_feature_set_value(m_pCamera, Feature, Value);
     }
-    err = dc1394_feature_set_value(m_pCamera, Feature, Value);
 #endif
     if (err != DC1394_SUCCESS) {
         AVG_TRACE(Logger::WARNING, "Camera: Unable to set " << Feature << 
