@@ -79,11 +79,13 @@ IntPoint Camera::getImgSize()
 BitmapPtr Camera::getImage() 
 {
 #if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
-    if (m_pThread && !m_BitmapQ.empty()) {
-        return m_BitmapQ.pop();
-    } else {
-        return BitmapPtr();
-    }
+    if (m_pThread) {
+        try {
+            return m_BitmapQ.pop(false);
+        } catch (Exception& ex) {
+        }
+    } 
+    return BitmapPtr();
 #else
     return BitmapPtr();
 #endif

@@ -411,16 +411,20 @@ void CameraThread::captureImage()
 
 void CameraThread::checkMessages()
 {
-    while (!m_CmdQ.empty()) {
-        CameraCmd Cmd = m_CmdQ.pop();
-        switch(Cmd.m_Cmd) {
-            case CameraCmd::STOP:
-                m_bShouldStop = true;
-                break;
-            case CameraCmd::FEATURE:
-                setFeature(Cmd.m_Feature, Cmd.m_Value);
-                break;
+    try {
+        // This loop always ends in an exception when the Queue is empty.
+        while (true) {
+            CameraCmd Cmd = m_CmdQ.pop(false);
+            switch(Cmd.m_Cmd) {
+                case CameraCmd::STOP:
+                    m_bShouldStop = true;
+                    break;
+                case CameraCmd::FEATURE:
+                    setFeature(Cmd.m_Feature, Cmd.m_Value);
+                    break;
+            }
         }
+    } catch (Exception& ex) {
     }
 }
     

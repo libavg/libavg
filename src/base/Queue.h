@@ -22,6 +22,8 @@
 #ifndef _Queue_H_
 #define _Queue_H_
 
+#include "Exception.h"
+
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
 
@@ -37,7 +39,7 @@ class Queue
         virtual ~Queue();
 
         bool empty() const;
-        QElement pop();
+        QElement pop(bool bBlock = true);
         void push(const QElement& Elem);
         int size() const;
 
@@ -69,12 +71,16 @@ bool Queue<QElement>::empty() const
 }
 
 template<class QElement>
-QElement Queue<QElement>::pop()
+QElement Queue<QElement>::pop(bool bBlock)
 {
     scoped_lock Lock(m_Mutex);
     if(m_Elements.empty()) {
-        while(m_Elements.empty()) {
-            m_Cond.wait(Lock);
+        if (bBlock) {
+            while(m_Elements.empty()) {
+                m_Cond.wait(Lock);
+            }
+        } else {
+            throw Exception(AVG_ERR_QUEUE_EMPTY);
         }
     }
     QElement Elem = m_Elements.front(); 

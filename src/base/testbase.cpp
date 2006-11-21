@@ -65,6 +65,15 @@ private:
         TEST(q.pop() == 3);
         TEST(q.pop() == 4);
         TEST(q.empty());
+        bool bExceptionThrown = false;
+        try {
+            q.pop(false);
+        } catch (Exception& ex) {
+            if (ex.GetCode() == AVG_ERR_QUEUE_EMPTY) {
+                bExceptionThrown = true;
+            }
+        }
+        TEST(bExceptionThrown);
     }
 
     void runMultiThreadTests()

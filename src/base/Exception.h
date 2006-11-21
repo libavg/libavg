@@ -31,8 +31,6 @@
 #define AVG_ERR_XML_DUPLICATE_ID 4
 #define AVG_ERR_VIDEO_INIT_FAILED 5
 #define AVG_ERR_VIDEO_GENERAL 6
-#define AVG_ERR_JS 7
-#define AVG_ERR_JS_TYPE 8
 #define AVG_ERR_DFB 9
 #define AVG_ERR_FONT_INIT_FAILED 10
 #define AVG_ERR_VIDEO_LOAD_FAILED 11
@@ -46,13 +44,14 @@
 #define AVG_ERR_LOAD_DURING_PLAYBACK 19
 #define AVG_ERR_CANT_PARSE_STRING 20
 #define AVG_ERR_INVALID_CAPTURE 21
+#define AVG_ERR_QUEUE_EMPTY 22
 
 namespace avg {
  
 class Exception 
 {
     public:
-        Exception (int Code, const std::string& sErr);
+        Exception (int Code, const std::string& sErr = "");
         Exception (const Exception& ex);
         virtual ~Exception ();
         virtual int GetCode () const;

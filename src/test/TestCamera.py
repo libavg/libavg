@@ -33,7 +33,7 @@ class CameraTestCase(unittest.TestCase):
         self.__camera = Player.getElementByID("camera")
         self.__camera.play()
         self.brightness = 0
-        Player.setInterval(200, changeBrightness)
+#        Player.setInterval(200, changeBrightness)
 #        Player.setTimeout(200, setWhitebalance)
 #        Player.setTimeout(300, resetWhitebalance)
 #        Player.setInterval(500, stopPlayback)
