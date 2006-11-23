@@ -26,6 +26,23 @@ typedef boost::shared_ptr<class Run> RunPtr;
 typedef std::list<RunPtr> RunList;
 typedef std::list<DPoint> DPointList;
 
+class BlobInfo {
+    public:
+        int m_ID;
+        DPoint m_Center;
+        double m_Area;
+        IntRect m_BoundingBox;
+        double m_Eccentricity;
+        double m_Inertia;
+        double m_Orientation;
+        DPoint m_ScaledBasis[2];
+        DPoint m_EigenVectors[2];
+        DPoint m_EigenValues;
+        // More to follow?
+};
+
+typedef boost::shared_ptr<BlobInfo> BlobInfoPtr;
+
 class Blob;
 typedef boost::shared_ptr<class Blob> BlobPtr;
 class Blob {
@@ -36,17 +53,18 @@ class Blob {
         BlobPtr m_pParent;
         DPoint center();
         int area();
-        double stddev();
-        DPointList *pca();
+        BlobInfoPtr getInfo();
         IntRect bbox();
         void merge( BlobPtr other);
         RunList* getlist();
+        BitmapPtr render();
     private:
         RunList *m_pRuns;
 };
 
 
 typedef std::list<BlobPtr> BlobList;
+typedef boost::shared_ptr<BlobList> BlobListPtr;
 typedef std::map<int, BlobPtr> CompsMap;
 BlobList *connected_components(BitmapPtr image, int object_threshold);
 }
