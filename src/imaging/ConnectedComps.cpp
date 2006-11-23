@@ -218,7 +218,7 @@ RunPtr new_run(CompsMap *comps, int row, int col1, int col2, int color)
     return run;
 }
 
-BlobList* connected_components(BitmapPtr image, int object_threshold){
+BlobListPtr connected_components(BitmapPtr image, int object_threshold){
     assert(image->getPixelFormat() == I8);
     CompsMap *comps = new CompsMap();
     const unsigned char *pixels = image->getPixels();
@@ -279,6 +279,6 @@ BlobList* connected_components(BitmapPtr image, int object_threshold){
     comps->clear();
     delete comps;
         
-    return result;
+    return BlobListPtr(result);
 }
 }

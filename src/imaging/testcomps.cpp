@@ -3,7 +3,7 @@
 #include "../graphics/Filtergrayscale.h"
 
 #include <iostream>
-
+#include <math.h>
 using namespace avg;
 
 int main(int argc, char **argv) {
@@ -15,25 +15,21 @@ int main(int argc, char **argv) {
 
     avg::DPoint center;
     int area;
-    avg::DPointList *ev;
-    double stddev;
+    avg::BlobInfoPtr info;
     for(int i=0;i<20;i++){
-        avg::BlobList *bloblist = avg::connected_components(im,100);
+        avg::BlobListPtr bloblist = avg::connected_components(im,100);
         for(avg::BlobList::iterator b=bloblist->begin();b!=bloblist->end();b++){
-            center = (*b)->center();
-            area = (*b)->area();
-            ev = (*b)->pca();
-            std::cout<<"center = ("<<center.x<<","<<center.y<<")"<<std::endl;
-            std::cout<<"area = "<<area<<std::endl;
-            for (avg::DPointList::iterator e = ev->begin();e!=ev->end();e++){
-                std::cout<<"["<<(*e).x<<","<<(*e).y<<"]"<<std::endl;
-            }
+            info = (*b)->getInfo();
+            std::cout<<"center = ("<<info->m_Center.x<<","<<info->m_Center.y<<")"<<std::endl;
+            std::cout<<"area = "<<info->m_Area<<std::endl;
+            std::cout<<"orientation = "<<360*(info->m_Orientation/(2*M_PI))<<std::endl;
+            std::cout<<"eccentricity = "<<info->m_Eccentricity<<std::endl;
+            std::cout<<"["<<(info->m_ScaledBasis[0]).x<<","<<(info->m_ScaledBasis[0]).y<<"]"<<std::endl;
+            std::cout<<"["<<(info->m_ScaledBasis[1]).x<<","<<(info->m_ScaledBasis[1]).y<<"]"<<std::endl;
             //std::cout<<"stddev = "<<stddev<<std::endl;
             std::cout<<"==============================="<<std::endl;
-            ev->clear();
-            delete ev;
         }
 //        std::cout<<i<<std::endl;
-        delete bloblist;
+        bloblist->clear();
     }
 }
