@@ -70,10 +70,9 @@ class Camera
         double m_FrameRate;
         std::string m_sMode;
 
+#if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
         typedef std::map<dc1394feature_t, int> FeatureMap;
         FeatureMap m_Features;
-
-#if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
         BitmapQueue m_BitmapQ;
         CameraCmdQueue m_CmdQ;
 #endif

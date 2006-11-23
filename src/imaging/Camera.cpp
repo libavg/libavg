@@ -117,6 +117,7 @@ const string& Camera::getMode() const
         
 unsigned int Camera::getFeature (const std::string& sFeature) const
 {
+#if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
     dc1394feature_t FeatureID = getFeatureID(sFeature);
     FeatureMap::const_iterator it = m_Features.find(FeatureID);
     if (it == m_Features.end()) {
@@ -124,15 +125,20 @@ unsigned int Camera::getFeature (const std::string& sFeature) const
     } else {
         return it->second;
     }
+#else
+    return 0;
+#endif
 }
 
 void Camera::setFeature (const std::string& sFeature, int Value)
 {
+#if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
     dc1394feature_t FeatureID = getFeatureID(sFeature);
     m_Features[FeatureID] = Value;
     if (m_pThread) {
         m_CmdQ.push(CameraCmd(CameraCmd::FEATURE, FeatureID, Value));
     }
+#endif
 }
 
 
