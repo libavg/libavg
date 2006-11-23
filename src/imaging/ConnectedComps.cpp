@@ -148,10 +148,10 @@ BlobInfoPtr Blob::getInfo(){
             res->m_EigenValues.y = c_xx;
         }
     }
-    res->m_ScaledBasis[0].x = res->m_EigenVectors[0].x/sqrt(res->m_EigenValues.x);
-    res->m_ScaledBasis[0].y = res->m_EigenVectors[0].y/sqrt(res->m_EigenValues.x);
-    res->m_ScaledBasis[1].x = res->m_EigenVectors[1].x/sqrt(res->m_EigenValues.y);
-    res->m_ScaledBasis[1].y = res->m_EigenVectors[1].y/sqrt(res->m_EigenValues.y);
+    res->m_ScaledBasis[0].x = res->m_EigenVectors[0].x*sqrt(res->m_EigenValues.x);
+    res->m_ScaledBasis[0].y = res->m_EigenVectors[0].y*sqrt(res->m_EigenValues.x);
+    res->m_ScaledBasis[1].x = res->m_EigenVectors[1].x*sqrt(res->m_EigenValues.y);
+    res->m_ScaledBasis[1].y = res->m_EigenVectors[1].y*sqrt(res->m_EigenValues.y);
     return res;
 }
 /*
