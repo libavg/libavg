@@ -39,7 +39,7 @@
 
 #include <iostream>
 #include <stdio.h>
- #include <stdlib.h>
+#include <stdlib.h>
 
 using namespace avg;
 using namespace std;
@@ -85,6 +85,7 @@ public:
         runPFTests(R8G8B8X8);
         runPFTests(R8G8B8);
         runPFTests(I8);
+        runPFTests(I16);
         runPFTests(YCbCr422);
         
         cerr << "    Testing OwnsBits." << endl;
@@ -121,6 +122,16 @@ public:
                 }
             }
             testEqual(*pBmp, *pBaselineBmp);
+        }
+        {
+            cerr << "    Testing copyPixels - I8->I16->I8." << endl;
+            BitmapPtr pBmp = initBmp(I8);
+            BitmapPtr pBaselineBmp = initBmp(I8);
+            BitmapPtr pCopyBmp = BitmapPtr(new Bitmap(IntPoint(4,7), I16));
+            pCopyBmp->copyPixels(*pBmp);
+            pBmp->copyPixels(*pCopyBmp);
+            testEqual(*pBmp, *pBaselineBmp);
+
         }
         runSaveTest(R8G8B8A8);
         runSaveTest(R8G8B8X8);

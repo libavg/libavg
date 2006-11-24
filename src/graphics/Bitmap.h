@@ -100,6 +100,8 @@ private:
     void initWithData(unsigned char * pBits, int Stride, bool bCopyBits);
     void allocBits();
     void YCbCrtoBGR(const Bitmap& Orig);
+    void I8toI16(const Bitmap& Orig);
+    void I16toI8(const Bitmap& Orig);
 
     IntPoint m_Size;
     int m_Stride;

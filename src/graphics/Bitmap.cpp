@@ -151,55 +151,76 @@ Bitmap &Bitmap::operator= (const Bitmap &Orig)
 }
 
 void Bitmap::copyPixels(const Bitmap & Orig)
+// TODO: I8->RGB conversion, I8->I16 conversion, I8 conversion tests.
 {
 //    cerr << "Bitmap::copyPixels(): " << getPixelFormatString(Orig.getPixelFormat()) << "->" 
 //            << getPixelFormatString(m_PF) << endl;
     if (&Orig == this) {
         return;
     }
-    if (Orig.getPixelFormat() == YCbCr422 || Orig.getPixelFormat() == YCbCr411) {
-        if (m_PF == B8G8R8X8) {
-            YCbCrtoBGR(Orig);
-        } else {
-            Bitmap TempBmp(getSize(), B8G8R8X8, "TempColorConversion");
-            TempBmp.YCbCrtoBGR(Orig);
-            copyPixels(TempBmp);
+    if (Orig.getPixelFormat() == m_PF) {
+        const unsigned char * pSrc = Orig.getPixels();
+        unsigned char * pDest = m_pBits;
+        int Height = min(Orig.getSize().y, m_Size.y);
+        int LineLen = getLineLen();
+        for (int y=0; y<Height; ++y) {
+            memcpy(pDest, pSrc, LineLen);
+            pDest += m_Stride;
+            pSrc += Orig.getStride();
         }
     } else {
-        if (Orig.getPixelFormat() == m_PF) {
-            const unsigned char * pSrc = Orig.getPixels();
-            unsigned char * pDest = m_pBits;
-            int Height = min(Orig.getSize().y, m_Size.y);
-            int LineLen = getLineLen();
-            for (int y=0; y<Height; ++y) {
-                memcpy(pDest, pSrc, LineLen);
-                pDest += m_Stride;
-                pSrc += Orig.getStride();
-            }
-        } else {
-            switch(m_PF) {
-                case B8G8R8A8:
-                case B8G8R8X8:
-                case A8B8G8R8:
-                case X8B8G8R8:
-                case R8G8B8A8:
-                case R8G8B8X8:
-                case A8R8G8B8:
-                case X8R8G8B8:
-                    createTrueColorCopy<Pixel32>(*this, Orig);
-                    break;
-                case B8G8R8:
-                case R8G8B8:
-                    createTrueColorCopy<Pixel24>(*this, Orig);
-                    break;
-                case B5G6R5:
-                case R5G6B5:
-                    createTrueColorCopy<Pixel16>(*this, Orig);
-                    break;
-                default:
-                    // Unimplemented conversion.
+        switch (Orig.getPixelFormat()) {
+            case YCbCr422:
+            case YCbCr411:
+                if (m_PF == B8G8R8X8) {
+                    YCbCrtoBGR(Orig);
+                } else {
+                    Bitmap TempBmp(getSize(), B8G8R8X8, "TempColorConversion");
+                    TempBmp.YCbCrtoBGR(Orig);
+                    copyPixels(TempBmp);
+                }
+                break;
+            case I16:
+                if (m_PF == I8) {
+                    I16toI8(Orig);
+                } else {
+                    Bitmap TempBmp(getSize(), I8, "TempColorConversion");
+                    TempBmp.I16toI8(Orig);
+                    copyPixels(TempBmp);
+                }
+                break;
+            case I8:
+                if (m_PF == I16) {
+                    I8toI16(Orig);
+                } else {
+                    // I8 to color conversion is not implemented.
                     assert(false);
-            }
+                }
+                break;
+            default:
+                switch(m_PF) {
+                    case B8G8R8A8:
+                    case B8G8R8X8:
+                    case A8B8G8R8:
+                    case X8B8G8R8:
+                    case R8G8B8A8:
+                    case R8G8B8X8:
+                    case A8R8G8B8:
+                    case X8R8G8B8:
+                        createTrueColorCopy<Pixel32>(*this, Orig);
+                        break;
+                    case B8G8R8:
+                    case R8G8B8:
+                        createTrueColorCopy<Pixel24>(*this, Orig);
+                        break;
+                    case B5G6R5:
+                    case R5G6B5:
+                        createTrueColorCopy<Pixel16>(*this, Orig);
+                        break;
+                    default:
+                        // Unimplemented conversion.
+                        assert(false);
+                }
         }
     }
 }
@@ -209,7 +230,7 @@ void Bitmap::save(const std::string& sFilename)
 //    cerr << "Bitmap::save()" << endl;
     string sPF;
     BitmapPtr pBmp;
-    // TODO: Not all of these are tested.
+    Magick::StorageType ChannelFormat = Magick::CharPixel;
     switch(m_PF) {
         case B5G6R5:
             pBmp = BitmapPtr(new Bitmap(m_Size, B8G8R8));
@@ -264,6 +285,11 @@ void Bitmap::save(const std::string& sFilename)
             pBmp = BitmapPtr(new Bitmap(m_Size, R8G8B8));
             pBmp->copyPixels(*this);
             sPF = "RGB";
+            break;
+        case I16:   
+            pBmp = BitmapPtr(new Bitmap(*this));
+            ChannelFormat = Magick::ShortPixel;
+            sPF = "I";
             break;
         case I8:
             pBmp = BitmapPtr(new Bitmap(*this));
@@ -332,6 +358,8 @@ std::string Bitmap::getPixelFormatString(PixelFormat PF)
             return "X8R8G8B8";
         case I8:
             return "I8";
+        case I16:
+            return "I16";
         case YCbCr411:
             return "YCbCr411";
         case YCbCr422:
@@ -403,6 +431,7 @@ int Bitmap::getBytesPerPixel(PixelFormat PF)
             return 3;
         case B5G6R5:
         case R5G6B5:
+        case I16:
             return 2;
         case I8:
             return 1;
@@ -754,6 +783,46 @@ void Bitmap::YCbCrtoBGR(const Bitmap& Orig)
         default:
             // This routine shouldn't be called with other pixel formats.
             assert(false);
+    }
+}
+    
+void Bitmap::I16toI8(const Bitmap& Orig)
+{
+    assert(m_PF == I8);
+    assert(Orig.getPixelFormat() == I16);
+    const unsigned short * pSrc = (const unsigned short *)Orig.getPixels();
+    unsigned char * pDest = m_pBits;
+    int Height = min(Orig.getSize().y, m_Size.y);
+    int Width = min(Orig.getSize().x, m_Size.x);
+    int SrcStrideInPixels = Orig.getStride()/Orig.getBytesPerPixel();
+    for (int y=0; y<Height; ++y) {
+        const unsigned short * pSrcPixel = pSrc;
+        unsigned char * pDestPixel = pDest;
+        for (int x=0; x<Width; ++x) {
+            *pDestPixel++ = *pSrcPixel++ >> 8;
+        }
+        pDest += m_Stride;
+        pSrc += SrcStrideInPixels;
+    }
+}
+
+void Bitmap::I8toI16(const Bitmap& Orig)
+{
+    assert(m_PF == I16);
+    assert(Orig.getPixelFormat() == I8);
+    const unsigned char * pSrc = Orig.getPixels();
+    unsigned short * pDest = (unsigned short *)m_pBits;
+    int Height = min(Orig.getSize().y, m_Size.y);
+    int Width = min(Orig.getSize().x, m_Size.x);
+    int DestStrideInPixels = m_Stride/getBytesPerPixel();
+    for (int y=0; y<Height; ++y) {
+        const unsigned char * pSrcPixel = pSrc;
+        unsigned short * pDestPixel = pDest;
+        for (int x=0; x<Width; ++x) {
+            *pDestPixel++ = *pSrcPixel++ << 8;
+        }
+        pDest += DestStrideInPixels;
+        pSrc += Orig.getStride();
     }
 }
 
