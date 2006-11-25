@@ -20,7 +20,7 @@
 //
 
 #ifndef _DebugEventSink_h_
-#define _AVGDebugEventSink_h_
+#define _DebugEventSink_h_
 
 #include "Event.h"
 #include "IEventSink.h"

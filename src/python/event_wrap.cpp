@@ -22,6 +22,7 @@
 #include "../player/KeyEvent.h"
 #include "../player/MouseEvent.h"
 #include "../player/Node.h"
+#include "../player/TrackerEventSource.h"
 
 #include <boost/python.hpp>
 
@@ -88,5 +89,15 @@ void export_event()
         .add_property("y", &MouseEvent::getYPosition)
         .add_property("button", &MouseEvent::getButton)
         .add_property("node", &MouseEvent::getElement);
-        
+    
+    class_<TrackerEventSource, boost::noncopyable>("Tracker",
+            "A tracker that uses a firewire camera to track moving objects\n"
+            "(e.g. fingers) and delivers them to the player as avg events.\n"
+            "Create using Player::addTracker().\n",
+            no_init)
+        .def("setThreshold", &TrackerEventSource::setThreshold)
+        .def("getImage", &TrackerEventSource::getImage,
+            return_value_policy<manage_new_object>(),
+            "getImage(ImageID) -> Bitmap\n\n" 
+            "Returns one of the intermediate images nessesary for tracking.\n");
 }

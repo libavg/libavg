@@ -60,7 +60,6 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
 
     m_pCamera = CameraPtr(new Camera(sDevice, FrameRate, sMode));
     
-/*
     m_pCamera->setFeature ("brightness", getDefaultedIntAttr(xmlNode, "brightness", -1));
     m_pCamera->setFeature ("exposure", getDefaultedIntAttr(xmlNode, "exposure", -1));
     m_pCamera->setFeature ("sharpness", getDefaultedIntAttr(xmlNode, "sharpness", -1));
@@ -69,7 +68,6 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
     m_pCamera->setFeature ("shutter", getDefaultedIntAttr(xmlNode, "shutter", -1));
     m_pCamera->setFeature ("gain", getDefaultedIntAttr(xmlNode, "gain", -1));
     m_pCamera->setFeature ("whitebalance", getDefaultedIntAttr(xmlNode, "whitebalance", -1));
-*/
 #else
     AVG_TRACE(Logger::ERROR,
             "Unable to set up camera. Camera support not compiled.");
@@ -157,10 +155,10 @@ bool CameraNode::renderToSurface(ISurface * pSurface)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     ScopeTimer Timer(CameraProfilingZone);
-    BitmapPtr pCurBmp = m_pCamera->getImage();
+    BitmapPtr pCurBmp = m_pCamera->getImage(false);
     if (pCurBmp) {
         BitmapPtr pTempBmp;
-        while (pTempBmp = m_pCamera->getImage()) {
+        while (pTempBmp = m_pCamera->getImage(false)) {
             pCurBmp = pTempBmp;
         }
         m_FrameNum++;

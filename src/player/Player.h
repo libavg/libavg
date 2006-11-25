@@ -32,6 +32,7 @@
 #include "TestHelper.h"
 #include "Node.h"
 #include "DisplayParams.h"
+#include "TrackerEventSource.h"
 
 #include "../base/IFrameListener.h"
 
@@ -68,6 +69,8 @@ class Player : IEventSink
         TestHelper * getTestHelper();
 
         NodePtr createNodeFromXmlString (const std::string& sXML);
+        TrackerEventSourcePtr addTracker(std::string sDevice, double FrameRate,
+                std::string sMode);
         int setInterval(int time, PyObject * pyfunc);
         int setTimeout(int time, PyObject * pyfunc);
         bool clearInterval(int id);
@@ -115,6 +118,8 @@ class Player : IEventSink
         bool m_bStopping;
         typedef std::map<std::string, NodePtr> NodeIDMap;
         NodeIDMap m_IDMap;
+
+        TrackerEventSourcePtr m_pTracker;
 
         int addTimeout(Timeout* pTimeout);
         void removeTimeout(Timeout* pTimeout);

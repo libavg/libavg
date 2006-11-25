@@ -19,56 +19,44 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "KeyEvent.h"
-#include "../base/Logger.h"
+#ifndef _Tracker_H_
+#define _Tracker_H_
 
-#include <iostream>
-#include <sstream>
+#include "Camera.h"
+#include "TrackerThread.h"
 
-using namespace std;
+#include "../graphics/Bitmap.h"
+
+#include <boost/thread.hpp>
+
+#include <string>
+#include <map>
 
 namespace avg {
 
-KeyEvent::KeyEvent(Type eventType, unsigned char scanCode, int keyCode, 
-                const string& keyString, int modifiers)
-    : Event(eventType)
+class Tracker
 {
-    m_ScanCode = scanCode;
-    m_KeyCode = keyCode;
-    m_KeyString = keyString;
-    m_Modifiers = modifiers;
-}
+    public:
+        Tracker(std::string sDevice, double FrameRate, std::string sMode);
+        virtual ~Tracker();
 
-KeyEvent::~KeyEvent()
-{
-}
+        // More parameters possible: Barrel/pincushion, history length,...
+        void setThreshold(int Threshold);
 
-unsigned char KeyEvent::getScanCode() const
-{
-    return m_ScanCode;
-}
+        const BitmapPtr getImage(TrackerImageID ImageID) const;
+        TouchInfoListPtr getTouches();
 
-int KeyEvent::getKeyCode() const
-{
-    return m_KeyCode;
-}
+    private:
+        boost::thread* m_pThread;
 
-const std::string& KeyEvent::getKeyString() const
-{
-    return m_KeyString;
-}
-
-int KeyEvent::getModifiers() const
-{
-    return m_Modifiers;
-}
-
-void KeyEvent::trace()
-{
-    Event::trace();
-    AVG_TRACE(Logger::EVENTS2, "Scancode: " << m_ScanCode 
-            << ", Keycode: " << m_KeyCode << ", KeyString: " 
-            << m_KeyString << ", Modifiers: " << m_Modifiers);
-}
+        TouchInfoListPtr m_pTouchInfoList;
+        BitmapPtr m_pBitmaps[3];
+        MutexPtr m_pMutex;
+        // We'll need a Command Queue too, at least for stop & threshold, possibly for 
+        // other params.
+};
 
 }
+
+#endif
+

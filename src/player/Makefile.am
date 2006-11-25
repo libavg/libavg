@@ -41,7 +41,7 @@ ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
         VideoBase.h \
         Video.h FFMpegDecoder.h IVideoDecoder.h \
         PanoImage.h TestHelper.h \
-        RasterNode.h CameraNode.h \
+        RasterNode.h CameraNode.h TrackerEventSource.h\
         $(GL_INCLUDES) $(DFB_INCLUDES) $(APPLE_INCLUDES)
 
 noinst_LTLIBRARIES = libplayer.la
@@ -51,7 +51,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) $(DFB_SOURCES) \
         MathHelper.cpp PanoImage.cpp Words.cpp CameraNode.cpp \
         Timeout.cpp DebugEventSink.cpp Event.cpp DisplayParams.cpp \
         Image.cpp EventDispatcher.cpp KeyEvent.cpp MouseEvent.cpp\
-        AVGNode.cpp avgdtd.cpp TestHelper.cpp\
+        AVGNode.cpp avgdtd.cpp TestHelper.cpp TrackerEventSource.cpp\
         $(APPLE_SOURCES) \
 		$(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"

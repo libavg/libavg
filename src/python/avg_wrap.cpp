@@ -309,15 +309,19 @@ BOOST_PYTHON_MODULE(avg)
                 "setVBlankFramerate(rate) -> bool\n\n"
                 "Sets the desired number of vertical blanking intervals before the next\n"
                 "frame is displayed. The resulting framerate is determined by the\n"
-                "monitor refresh rate divided by the rate parameter. On Mac OS X, only 0\n"
-                "are supported as rate.")
+                "monitor refresh rate divided by the rate parameter.")
         .def("getTestHelper", &Player::getTestHelper,
                 return_value_policy<reference_existing_object>(),
                 "")
         .def("createNode", &Player::createNodeFromXmlString,
                 "createNode(xml) -> Node\n\n"
                 "Creates a new Node from an xml string. This node can be used as\n"
-                "parameter to DivNode::addChild(). BROKEN!")
+                "parameter to DivNode::addChild().")
+        .def("addTracker", &Player::addTracker,
+//                return_value_policy<reference_existing_object>(),
+                "addTracker(device, framerate, mode) -> tracker\n\n"
+                "Adds a tracker to the avg player. The tracker immediately starts\n"
+                "reporting events.")
         .def("setInterval", &Player::setInterval,
                 "setInterval(time, pyfunc) -> id\n\n"
                 "Sets a python callable object that should be executed every time\n"
@@ -343,7 +347,7 @@ BOOST_PYTHON_MODULE(avg)
                 "Gets an interface to the last mouse event.")
         .def("screenshot", &Player::screenshot,
                 return_value_policy<manage_new_object>(),
-                "screenshot() -> ok\n\n"
+                "screenshot() -> Bitmap\n\n"
                 "Returns the contents of the current screen as a bitmap.\n")
         .def("showCursor", &Player::showCursor,
                 "showCursor(show) -> None\n\n"

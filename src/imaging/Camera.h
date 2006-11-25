@@ -54,7 +54,7 @@ class Camera
         void close();
 
         IntPoint getImgSize();
-        BitmapPtr getImage();
+        BitmapPtr getImage(bool bWait);
         bool isCameraAvailabe();
 
         const std::string& getDevice() const; 
@@ -65,7 +65,6 @@ class Camera
         void setFeature(const std::string& sFeature, int Value);
 
     private:
-
         std::string m_sDevice;
         double m_FrameRate;
         std::string m_sMode;
