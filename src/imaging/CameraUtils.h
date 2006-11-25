@@ -43,7 +43,7 @@
 
 namespace avg {
 
-#ifdef AVG_ENABLE_1394
+#ifndef AVG_ENABLE_1394
 int getCamMode(std::string sMode);
 IntPoint getCamImgSize(int Mode);
 int getFrameRateConst(double FrameRate);
