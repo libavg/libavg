@@ -76,7 +76,11 @@ void TrackerThread::track()
         boost::mutex::scoped_lock Lock(*m_pMutex);
         *(m_pBitmaps[TRACKER_IMG_CAMERA]) = *pTempBmp;
     }
-//    calcHistory();
+    calcHistory();
+    {
+        boost::mutex::scoped_lock Lock(*m_pMutex);
+        m_pBitmaps[TRACKER_IMG_HISTORY]->copyPixels(*m_pHistoryBmp);
+    }
 }
 
 void TrackerThread::checkMessages()
@@ -93,7 +97,7 @@ void TrackerThread::calcHistory()
         const unsigned char * pSrcPixel = pSrc;
         unsigned short * pDestPixel = pDest;
         for (int x=0; x<Size.x; x++) {
-            *pDestPixel = (255*(*pDestPixel)) << 8 + *pSrcPixel;
+            *pDestPixel = (255*((long)*pDestPixel))/256 + *pSrcPixel;
             pDestPixel++;
             pSrcPixel++;
         }

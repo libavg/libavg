@@ -56,7 +56,7 @@ void Tracker::setThreshold(int Threshold)
 Bitmap * Tracker::getImage(TrackerImageID ImageID) const
 {
     boost::mutex::scoped_lock Lock(*m_pMutex);
-    return new Bitmap(m_pBitmaps[ImageID]);
+    return new Bitmap(*m_pBitmaps[ImageID]);
 }
 
 TouchInfoListPtr Tracker::getTouches()

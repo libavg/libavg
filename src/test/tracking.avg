@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
+<avg width="1280" height="960">
+    <image id="camera" x="0" y="0" width="640" height="480"/>
+    <image id="history" x="0" y="480" width="640" height="480"/>
+    <image id="nohistory" x="640" y="480" width="640" height="480"/>
+    <image id="components" x="640" y="480" width="640" height="480"/>
+</avg>
+
