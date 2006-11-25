@@ -69,7 +69,7 @@ class Player : IEventSink
         TestHelper * getTestHelper();
 
         NodePtr createNodeFromXmlString (const std::string& sXML);
-        TrackerEventSourcePtr addTracker(std::string sDevice, double FrameRate,
+        TrackerEventSource * addTracker(std::string sDevice, double FrameRate,
                 std::string sMode);
         int setInterval(int time, PyObject * pyfunc);
         int setTimeout(int time, PyObject * pyfunc);

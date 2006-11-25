@@ -64,7 +64,7 @@ const char * g_pAVGDTD =
 "<!ELEMENT image EMPTY>\n"
 "<!ATTLIST image\n"
 "   %rasterAttrs;\n"
-"   href CDATA #REQUIRED\n"
+"   href CDATA #IMPLIED\n"
 "   hue CDATA #IMPLIED\n"
 "   saturation CDATA #IMPLIED >\n"
 

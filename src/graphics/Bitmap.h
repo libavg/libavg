@@ -101,6 +101,7 @@ private:
     void allocBits();
     void YCbCrtoBGR(const Bitmap& Orig);
     void I8toI16(const Bitmap& Orig);
+    void I8toRGB(const Bitmap& Orig);
     void I16toI8(const Bitmap& Orig);
 
     IntPoint m_Size;

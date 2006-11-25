@@ -151,7 +151,6 @@ Bitmap &Bitmap::operator= (const Bitmap &Orig)
 }
 
 void Bitmap::copyPixels(const Bitmap & Orig)
-// TODO: I8->RGB conversion, I8->I16 conversion, I8 conversion tests.
 {
 //    cerr << "Bitmap::copyPixels(): " << getPixelFormatString(Orig.getPixelFormat()) << "->" 
 //            << getPixelFormatString(m_PF) << endl;
@@ -190,11 +189,21 @@ void Bitmap::copyPixels(const Bitmap & Orig)
                 }
                 break;
             case I8:
-                if (m_PF == I16) {
-                    I8toI16(Orig);
-                } else {
-                    // I8 to color conversion is not implemented.
-                    assert(false);
+                switch(m_PF) {
+                    case I16:
+                        I8toI16(Orig);
+                        break;
+                    case B8G8R8X8:
+                    case B8G8R8A8:
+                    case R8G8B8X8:
+                    case R8G8B8A8:
+                    case B8G8R8:
+                    case R8G8B8:
+                        I8toRGB(Orig);
+                        break;
+                    default: 
+                        // Unimplemented conversion.
+                        assert(false);
                 }
                 break;
             default:
@@ -823,6 +832,44 @@ void Bitmap::I8toI16(const Bitmap& Orig)
         }
         pDest += DestStrideInPixels;
         pSrc += Orig.getStride();
+    }
+}
+
+void Bitmap::I8toRGB(const Bitmap& Orig)
+{
+    assert(getBytesPerPixel() == 4 || getBytesPerPixel() == 3);
+    assert(Orig.getPixelFormat() == I8);
+    const unsigned char * pSrc = Orig.getPixels();
+    unsigned char * pDest = m_pBits;
+    int Height = min(Orig.getSize().y, m_Size.y);
+    int Width = min(Orig.getSize().x, m_Size.x);
+    if (getBytesPerPixel() == 4) {
+        for (int y=0; y<Height; ++y) {
+            const unsigned char * pSrcPixel = pSrc;
+            unsigned char * pDestPixel = pDest;
+            for (int x=0; x<Width; ++x) {
+                *pDestPixel++ = *pSrcPixel;
+                *pDestPixel++ = *pSrcPixel;
+                *pDestPixel++ = *pSrcPixel;
+                *pDestPixel++ = 255;
+                pSrcPixel++;
+            }
+            pDest += getStride();
+            pSrc += Orig.getStride();
+        }
+    } else {
+        for (int y=0; y<Height; ++y) {
+            const unsigned char * pSrcPixel = pSrc;
+            unsigned char * pDestPixel = pDest;
+            for (int x=0; x<Width; ++x) {
+                *pDestPixel++ = *pSrcPixel;
+                *pDestPixel++ = *pSrcPixel;
+                *pDestPixel++ = *pSrcPixel;
+                pSrcPixel++;
+            }
+            pDest += getStride();
+            pSrc += Orig.getStride();
+        }
     }
 }
 

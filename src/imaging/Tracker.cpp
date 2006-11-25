@@ -22,9 +22,13 @@
 #include "Tracker.h"
 #include "CameraUtils.h"
 
+#include <iostream>
+
+using namespace std;
+
 namespace avg {
 
-Tracker::Tracker(std::string sDevice, double FrameRate, std::string sMode) 
+Tracker::Tracker(std::string sDevice, double FrameRate, std::string sMode)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     IntPoint ImgDimensions = getCamImgSize(getCamMode(sMode));
@@ -34,6 +38,7 @@ Tracker::Tracker(std::string sDevice, double FrameRate, std::string sMode)
     for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
         m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgDimensions, I8));
     }
+    m_pMutex = MutexPtr(new boost::mutex);
     m_pThread = new boost::thread(TrackerThread(sDevice, FrameRate, sMode, 
                 m_pTouchInfoList, m_pBitmaps, m_pMutex));
 }
@@ -48,10 +53,10 @@ void Tracker::setThreshold(int Threshold)
 {
 }
 
-const BitmapPtr Tracker::getImage(TrackerImageID ImageID) const
+Bitmap * Tracker::getImage(TrackerImageID ImageID) const
 {
     boost::mutex::scoped_lock Lock(*m_pMutex);
-    return m_pBitmaps[ImageID];
+    return new Bitmap(m_pBitmaps[ImageID]);
 }
 
 TouchInfoListPtr Tracker::getTouches()

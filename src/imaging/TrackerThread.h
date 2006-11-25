@@ -44,6 +44,7 @@ typedef boost::shared_ptr<TouchInfoList> TouchInfoListPtr;
 
 typedef enum {
         TRACKER_IMG_CAMERA,
+        TRACKER_IMG_HISTORY,
         TRACKER_IMG_NOHISTORY,
         TRACKER_IMG_COMPONENTS,
         NUM_TRACKER_IMAGES
@@ -55,7 +56,7 @@ class TrackerThread
 {
     public:
         TrackerThread(std::string sDevice, double FrameRate, std::string sMode, 
-                TouchInfoListPtr pTouchInfoList, BitmapPtr ppBitmaps[3],
+                TouchInfoListPtr pTouchInfoList, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
                 MutexPtr pMutex);
         virtual ~TrackerThread();
 
@@ -73,7 +74,7 @@ class TrackerThread
         std::string m_sMode;
 
         TouchInfoListPtr m_pTouchInfoList;
-        BitmapPtr m_pBitmaps[3];
+        BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
         MutexPtr m_pMutex;
         BitmapPtr m_pHistoryBmp;
 

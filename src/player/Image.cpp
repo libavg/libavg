@@ -66,7 +66,8 @@ void Image::setDisplayEngine(DisplayEngine * pEngine)
 {
     RasterNode::setDisplayEngine(pEngine);
 
-    setupSurface();
+    setupSurface(&*m_pBmp);
+    m_pBmp=BitmapPtr();
 }
 
 void Image::disconnect()
@@ -94,7 +95,8 @@ void Image::setHRef(const string& href)
     m_href = href;
     load();
     if (isDisplayAvailable()) {
-        setupSurface();
+        setupSurface(&*m_pBmp);
+        m_pBmp=BitmapPtr();
     }
     DPoint Size = getPreferredMediaSize();
     setViewport(-32767, -32767, Size.x, Size.y);
@@ -102,13 +104,11 @@ void Image::setHRef(const string& href)
 
 void Image::setBitmap(const Bitmap * pBmp)
 {
-    m_href = "";
-    
-    getSurface()->create(pBmp->getSize(), pBmp->getPixelFormat(), false);
-    getSurface()->lockBmp()->copyPixels(*pBmp);
-    getSurface()->unlockBmps();
-    getEngine()->surfaceChanged(getSurface());
-    
+    // TODO: Replace the href with something that makes sense.
+    m_href = "calc://";
+    setupSurface(&*pBmp);
+    DPoint Size = getPreferredMediaSize();
+    setViewport(-32767, -32767, Size.x, Size.y);
 }
 
 static ProfilingZone RenderProfilingZone("    Image::render");
@@ -163,15 +163,16 @@ void Image::load()
     }
 }
 
-void Image::setupSurface()
+void Image::setupSurface(const Bitmap * pBmp)
 {
     PixelFormat pf;
     pf = R8G8B8;
-    if (m_pBmp->hasAlpha()) {
+    if (pBmp->hasAlpha()) {
         pf = R8G8B8A8;
     }
-    getSurface()->create(m_pBmp->getSize(), pf, false);
-    getSurface()->lockBmp()->copyPixels(*m_pBmp);
+    getSurface()->create(pBmp->getSize(), pf, false);
+    BitmapPtr pSurfaceBmp = getSurface()->lockBmp();
+    pSurfaceBmp->copyPixels(*pBmp);
 #ifdef __i386__
     if (!(getPlayer()->getDisplayEngine()->hasRGBOrdering())) {
         FilterFlipRGB().applyInPlace(getSurface()->lockBmp());
@@ -179,7 +180,6 @@ void Image::setupSurface()
 #endif
     getSurface()->unlockBmps();
     getEngine()->surfaceChanged(getSurface());
-    m_pBmp=BitmapPtr();
 }
 
 }

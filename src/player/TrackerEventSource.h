@@ -72,13 +72,14 @@ class TrackerEventSource
         // More parameters possible: Barrel/pincushion, history length,...
         void setThreshold(int Threshold);
 
-        Bitmap * getImage() const;
+        Bitmap * getImage(TrackerImageID ImageID) const;
 //        EventListPtr pollevents();
     protected:
 //        void update(BlobListPtr new_blobs);
 //        bool isfinger(BlobPtr blob); //should actually be a functor
 //        BlobPtr matchblob(BlobPtr new_blob, BlobListPtr old_blobs);
     private:
+        Tracker m_Tracker;
 //        EventMap m_Events;
 //        MutexPtr m_pMutex;
         // We'll need a Command Queue too, at leas for threshold, possibly for 

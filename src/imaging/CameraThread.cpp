@@ -38,12 +38,13 @@ using namespace std;
 
 #ifdef AVG_ENABLE_1394
 CameraThread::CameraThread(BitmapQueue& BitmapQ, CameraCmdQueue& CmdQ, 
-        string sDevice, int Mode, double FrameRate)
+        string sDevice, int Mode, double FrameRate, bool bColor)
     : m_bShouldStop(false),
       m_BitmapQ(BitmapQ),
       m_CmdQ(CmdQ),
       m_sDevice(sDevice),
       m_FrameRate(FrameRate),
+      m_bColor(bColor),
       m_Mode(Mode),
       m_bCameraAvailable(false)
 {
@@ -51,12 +52,13 @@ CameraThread::CameraThread(BitmapQueue& BitmapQ, CameraCmdQueue& CmdQ,
 }
 #else
 CameraThread::CameraThread(BitmapQueue& BitmapQ, CameraCmdQueue& CmdQ, 
-        string sDevice, dc1394video_mode_t Mode, double FrameRate)
+        string sDevice, dc1394video_mode_t Mode, double FrameRate, bool bColor)
     : m_bShouldStop(false),
       m_BitmapQ(BitmapQ),
       m_CmdQ(CmdQ),
       m_sDevice(sDevice),
       m_FrameRate(FrameRate),
+      m_bColor(bColor),
       m_Mode(Mode),
       m_bCameraAvailable(false)
 {
@@ -308,7 +310,12 @@ void CameraThread::close()
 void CameraThread::captureImage()
 {
     IntPoint ImgSize = getCamImgSize(m_Mode);
-    BitmapPtr pCurBitmap = BitmapPtr(new Bitmap(ImgSize, B8G8R8X8));
+    BitmapPtr pCurBitmap;
+    if (m_bColor) { 
+        pCurBitmap = BitmapPtr(new Bitmap(ImgSize, B8G8R8X8));
+    } else {
+        pCurBitmap = BitmapPtr(new Bitmap(ImgSize, I8));
+    }
     bool bGotFrame = false;
     unsigned char * pCaptureBuffer = 0;
 #ifdef AVG_ENABLE_1394
@@ -325,6 +332,7 @@ void CameraThread::captureImage()
 #endif
     if (bGotFrame) {
         {
+            static int framenum = 0;
             ScopeTimer Timer(CameraConvertProfilingZone);
             switch (m_Mode) {
 #ifdef AVG_ENABLE_1394

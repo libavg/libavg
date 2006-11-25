@@ -295,11 +295,11 @@ TestHelper * Player::getTestHelper()
     return &m_TestHelper;
 }
 
-TrackerEventSourcePtr Player::addTracker(std::string sDevice, double FrameRate, 
+TrackerEventSource * Player::addTracker(std::string sDevice, double FrameRate, 
         std::string sMode)
 {
     m_pTracker = TrackerEventSourcePtr(new TrackerEventSource(sDevice, FrameRate, sMode));
-    return m_pTracker;
+    return &(*m_pTracker);
 }
 
 int Player::setInterval(int time, PyObject * pyfunc)

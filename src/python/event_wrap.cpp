@@ -90,6 +90,15 @@ void export_event()
         .add_property("button", &MouseEvent::getButton)
         .add_property("node", &MouseEvent::getElement);
     
+    enum_<TrackerImageID>("TrackerImageID")
+        .value("IMG_CAMERA", TRACKER_IMG_CAMERA)
+        .value("IMG_HISTORY", TRACKER_IMG_HISTORY)
+        .value("IMG_NOHISTORY", TRACKER_IMG_NOHISTORY)
+        .value("IMG_COMPONENTS", TRACKER_IMG_COMPONENTS)
+        .export_values()
+    ;
+
+
     class_<TrackerEventSource, boost::noncopyable>("Tracker",
             "A tracker that uses a firewire camera to track moving objects\n"
             "(e.g. fingers) and delivers them to the player as avg events.\n"

@@ -318,7 +318,7 @@ BOOST_PYTHON_MODULE(avg)
                 "Creates a new Node from an xml string. This node can be used as\n"
                 "parameter to DivNode::addChild().")
         .def("addTracker", &Player::addTracker,
-//                return_value_policy<reference_existing_object>(),
+                return_value_policy<reference_existing_object>(),
                 "addTracker(device, framerate, mode) -> tracker\n\n"
                 "Adds a tracker to the avg player. The tracker immediately starts\n"
                 "reporting events.")

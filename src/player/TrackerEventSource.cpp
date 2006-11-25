@@ -5,6 +5,9 @@
 
 #include <map>
 #include <list>
+#include <iostream>
+
+using namespace std;
 
 namespace avg {
 /*
@@ -76,6 +79,7 @@ namespace avg {
 
     TrackerEventSource::TrackerEventSource(std::string sDevice, 
             double FrameRate, std::string sMode)
+        : m_Tracker(sDevice, FrameRate, sMode)
     {
         
     }
@@ -89,8 +93,9 @@ namespace avg {
     {
     }
 
-    Bitmap * TrackerEventSource::getImage() const
+    Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const
     {
+        return m_Tracker.getImage(ImageID);
     }
     
 /*

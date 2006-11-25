@@ -43,14 +43,14 @@ class Tracker
         // More parameters possible: Barrel/pincushion, history length,...
         void setThreshold(int Threshold);
 
-        const BitmapPtr getImage(TrackerImageID ImageID) const;
+        Bitmap * getImage(TrackerImageID ImageID) const;
         TouchInfoListPtr getTouches();
 
     private:
         boost::thread* m_pThread;
 
         TouchInfoListPtr m_pTouchInfoList;
-        BitmapPtr m_pBitmaps[3];
+        BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
         MutexPtr m_pMutex;
         // We'll need a Command Queue too, at least for stop & threshold, possibly for 
         // other params.

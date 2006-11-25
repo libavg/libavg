@@ -48,7 +48,8 @@ namespace avg {
 class Camera
 {
     public:
-        Camera(std::string sDevice, double FrameRate, std::string sMode);
+        Camera(std::string sDevice, double FrameRate, std::string sMode, 
+                bool bColor);
         virtual ~Camera();
         void open();
         void close();
@@ -68,6 +69,7 @@ class Camera
         std::string m_sDevice;
         double m_FrameRate;
         std::string m_sMode;
+        bool m_bColor;
 
 #if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
         typedef std::map<dc1394feature_t, int> FeatureMap;

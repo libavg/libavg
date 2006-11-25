@@ -20,10 +20,14 @@
 
 #include "TrackerThread.h"
 
+#include <iostream>
+
+using namespace std;
+
 namespace avg {
 
 TrackerThread::TrackerThread(std::string sDevice, double FrameRate, std::string sMode, 
-        TouchInfoListPtr pTouchInfoList, BitmapPtr ppBitmaps[3],
+        TouchInfoListPtr pTouchInfoList, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
         MutexPtr pMutex)
     : m_sDevice(sDevice),
       m_FrameRate(FrameRate),
@@ -56,7 +60,7 @@ void TrackerThread::operator()()
 
 void TrackerThread::open()
 {
-    m_pCamera = CameraPtr(new Camera(m_sDevice, m_FrameRate, m_sMode));
+    m_pCamera = CameraPtr(new Camera(m_sDevice, m_FrameRate, m_sMode, false));
     m_pCamera->open();
 }
 
@@ -72,7 +76,7 @@ void TrackerThread::track()
         boost::mutex::scoped_lock Lock(*m_pMutex);
         *(m_pBitmaps[TRACKER_IMG_CAMERA]) = *pTempBmp;
     }
-    calcHistory();
+//    calcHistory();
 }
 
 void TrackerThread::checkMessages()

@@ -34,10 +34,11 @@ using namespace std;
 
 namespace avg {
 
-Camera::Camera (std::string sDevice, double FrameRate, std::string sMode)
+Camera::Camera (std::string sDevice, double FrameRate, std::string sMode, bool bColor)
     : m_sDevice(sDevice),
       m_FrameRate(FrameRate),
-      m_sMode(sMode)
+      m_sMode(sMode),
+      m_bColor(bColor)
 {
     m_pThread = 0;
 }
@@ -51,7 +52,7 @@ void Camera::open()
 {
 #if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
     m_pThread = new boost::thread(CameraThread(m_BitmapQ, m_CmdQ, m_sDevice, 
-            getCamMode(m_sMode), m_FrameRate));
+            getCamMode(m_sMode), m_FrameRate, m_bColor));
     for (FeatureMap::iterator it=m_Features.begin(); it != m_Features.end(); it++) {
         m_CmdQ.push(CameraCmd(CameraCmd::FEATURE, it->first, it->second));
     }
