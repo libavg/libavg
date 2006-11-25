@@ -1,3 +1,6 @@
+#ifndef _ConnectedComps
+#define _ConnectedComps
+
 
 #include "../graphics/Bitmap.h"
 #include "../graphics/Point.h"
@@ -68,3 +71,4 @@ typedef boost::shared_ptr<BlobList> BlobListPtr;
 typedef std::map<int, BlobPtr> CompsMap;
 BlobListPtr connected_components(BitmapPtr image, int object_threshold);
 }
+#endif
