@@ -45,7 +45,7 @@ Image::Image ()
     : m_Hue(-1),
       m_Saturation(-1)
 {
-    m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8));
+    m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
 }
 
 Image::Image (const xmlNodePtr xmlNode, Player * pPlayer)
@@ -54,7 +54,7 @@ Image::Image (const xmlNodePtr xmlNode, Player * pPlayer)
     m_href = getDefaultedStringAttr (xmlNode, "href", "");
     m_Hue = getDefaultedIntAttr (xmlNode, "hue", -1);
     m_Saturation = getDefaultedIntAttr (xmlNode, "saturation", -1);
-    m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8));
+    m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
     load();
 }
 
@@ -175,7 +175,7 @@ void Image::load()
             AVG_TRACE(Logger::ERROR, ex.what());
         }
     } else {
-        m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8));
+        m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
     }
     if (m_Saturation != -1) {
         FilterColorize(m_Hue, m_Saturation).applyInPlace(
@@ -190,7 +190,13 @@ void Image::setupSurface(const Bitmap * pBmp)
     if (pBmp->hasAlpha()) {
         pf = R8G8B8A8;
     }
-    getSurface()->create(pBmp->getSize(), pf, true);
+    bool bUsePBO = true;
+#ifdef __APPLE__
+    if (getSurface()->wouldTile(pBmp->getSize())) {
+        bUsePBO = false;
+    }
+#endif
+    getSurface()->create(pBmp->getSize(), pf, bUsePBO);
     BitmapPtr pSurfaceBmp = getSurface()->lockBmp();
     pSurfaceBmp->copyPixels(*pBmp);
 #ifdef __i386__

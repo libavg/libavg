@@ -68,6 +68,8 @@ class OGLSurface: public ISurface {
         DPoint getWarpedVertexCoord(int x, int y);
         void setWarpedVertexCoord(int x, int y, const DPoint& Vertex);
  
+        bool wouldTile(IntPoint Size);
+
     private:
         void setupTiles();
         void initTileVertices();

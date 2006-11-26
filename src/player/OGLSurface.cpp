@@ -379,6 +379,19 @@ void OGLSurface::blt(const DRect* pDestRect,
     bltTexture(pDestRect, angle, pivot, Mode);
 }
 
+bool OGLSurface::wouldTile(IntPoint Size)
+{
+    if (m_MaxTileSize.x != -1 || m_MaxTileSize.y != -1 ||
+        Size.x > m_pEngine->getMaxTexSize() || 
+        Size.y > m_pEngine->getMaxTexSize() ||
+        m_pEngine->getTextureMode() == GL_TEXTURE_2D)
+    {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 void OGLSurface::setupTiles()
 {
     if (m_Size.x > m_pEngine->getMaxTexSize() || 

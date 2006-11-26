@@ -38,6 +38,8 @@ class ISurface {
         
         virtual PixelFormat getPixelFormat() = 0;
         virtual IntPoint getSize() = 0;
+
+        virtual bool wouldTile(IntPoint Size) { return false; }
 };
 
 }
