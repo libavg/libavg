@@ -21,6 +21,7 @@
 #include "TrackerThread.h"
 
 #include <iostream>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -81,6 +82,11 @@ void TrackerThread::track()
         boost::mutex::scoped_lock Lock(*m_pMutex);
         m_pBitmaps[TRACKER_IMG_HISTORY]->copyPixels(*m_pHistoryBmp);
     }
+    pTempBmp = subtractHistory();
+    {
+        boost::mutex::scoped_lock Lock(*m_pMutex);
+        m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pTempBmp);
+    }
 }
 
 void TrackerThread::checkMessages()
@@ -104,6 +110,26 @@ void TrackerThread::calcHistory()
         pDest += DestStride;
         pSrc += m_pBitmaps[TRACKER_IMG_CAMERA]->getStride();
     }
+}
+
+BitmapPtr TrackerThread::subtractHistory()
+{
+    BitmapPtr pNoHistoryBmp(new Bitmap(*m_pBitmaps[TRACKER_IMG_CAMERA]));
+    const unsigned char * pSrc = m_pBitmaps[TRACKER_IMG_HISTORY]->getPixels();
+    unsigned char * pDest = pNoHistoryBmp->getPixels();
+    IntPoint Size = pNoHistoryBmp->getSize();
+    for (int y=0; y<Size.y; y++) {
+        const unsigned char * pSrcPixel = pSrc;
+        unsigned char * pDestPixel = pDest;
+        for (int x=0; x<Size.x; x++) {
+            *pDestPixel = (unsigned char)abs(*pDestPixel - *pSrcPixel);
+            pDestPixel++;
+            pSrcPixel++;
+        }
+        pDest += pNoHistoryBmp->getStride();
+        pSrc += m_pBitmaps[TRACKER_IMG_CAMERA]->getStride();
+    }
+    return pNoHistoryBmp;
 }
 
 }

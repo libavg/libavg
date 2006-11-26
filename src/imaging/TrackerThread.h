@@ -68,6 +68,7 @@ class TrackerThread
         void track();
         void checkMessages();
         void calcHistory();
+        BitmapPtr subtractHistory();
 
         std::string m_sDevice;
         double m_FrameRate;

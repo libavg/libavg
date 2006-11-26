@@ -16,12 +16,14 @@ class TrackingTestCase(unittest.TestCase):
         Player.getElementByID("camera").setBitmap(Bitmap)
         Bitmap = self.__tracker.getImage(avg.IMG_HISTORY)
         Player.getElementByID("history").setBitmap(Bitmap)
+        Bitmap = self.__tracker.getImage(avg.IMG_NOHISTORY)
+        Player.getElementByID("nohistory").setBitmap(Bitmap)
     def test(self):
         Player.loadFile("tracking.avg")
         Player.setFramerate(60)
         self.__tracker = Player.addTracker("", 60, "640x480_MONO8")
         Player.setInterval(1, self.onFrame)
-        Player.setResolution(0, 640, 480, 24)
+#        Player.setResolution(0, 640, 480, 24)
         Player.play()
 
 def playerTestSuite():
