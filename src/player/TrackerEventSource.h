@@ -26,43 +26,24 @@
 
 #include "../graphics/Bitmap.h"
 #include "../imaging/Tracker.h"
+#include "../imaging/ConnectedComps.h"
 
 #include <string>
 #include <map>
 #include <list>
-
+#include <vector>
+#include <utility>
 namespace avg {
 
-class TrackerEventSource;
-/*
-class  EventStream
-{
-    public:
-        EventStream(BlobPtr first_blob);
-        void update(BlobPtr new_blob);
-        EventPtr pollevent();
-    private:
-        enum StreamState {
-            FRESH, //fresh stream. not polled yet
-            TOUCH_DELIVERED, //initial finger down delivered
-            INMOTION, //recent position change
-            RESTING, //finger resting
-            FINGERUP, //finger disappeared, but fingerup yet to be delivered
-            DONE // waiting to be cleared.
-        };
-        int m_Id;
-        StreamState m_State;
-        DPoint m_Pos;
-        BlobPtr m_pBlob;
-        static int s_LastLabel;
-        bool m_Stale;
-    friend class TrackerEventSource;
-}
+class EventStream;
 typedef boost::shared_ptr<EventStream> EventStreamPtr;
-*/
-typedef std::list<EventPtr> EventList;
-typedef boost::shared_ptr<EventList> EventListPtr;
-//typedef std::map<BlobPtr, EventStreamPtr> EventMap;
+typedef std::map<BlobPtr, EventStreamPtr> EventMap;
+class BlobSelector {
+    public:
+        std::pair<double, double> m_AreaBounds; //min, max for area in percents of screen size
+        std::pair<double, double> m_EccentricityBounds; //min, max for Eccentricity
+
+};
 class TrackerEventSource
 {
     public:
@@ -73,15 +54,16 @@ class TrackerEventSource
         void setThreshold(int Threshold);
 
         Bitmap * getImage(TrackerImageID ImageID) const;
-//        EventListPtr pollevents();
+        std::vector<Event *> pollEvents();
     protected:
-//        void update(BlobListPtr new_blobs);
-//        bool isfinger(BlobPtr blob); //should actually be a functor
-//        BlobPtr matchblob(BlobPtr new_blob, BlobListPtr old_blobs);
+        void update(BlobListPtr new_blobs);
+        bool isfinger(BlobPtr blob); //should actually be a functor
+        BlobPtr matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold);
+        BlobSelector m_BlobSelector;
     private:
         Tracker m_Tracker;
-//        EventMap m_Events;
-//        MutexPtr m_pMutex;
+        EventMap m_Events;
+        MutexPtr m_pMutex;
         // We'll need a Command Queue too, at leas for threshold, possibly for 
         // other params.
 };
