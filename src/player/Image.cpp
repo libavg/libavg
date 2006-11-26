@@ -104,9 +104,27 @@ void Image::setHRef(const string& href)
 
 void Image::setBitmap(const Bitmap * pBmp)
 {
-    // TODO: Replace the href with something that makes sense.
-    m_href = "calc://";
-    setupSurface(&*pBmp);
+    // TODO: Add a unique bitmap identifier to the URI.
+    m_href = "mem://";
+    PixelFormat pf;
+    pf = R8G8B8X8;
+    if (pBmp->hasAlpha()) {
+        pf = R8G8B8A8;
+    }
+#ifdef __i386__
+    if (!(getPlayer()->getDisplayEngine()->hasRGBOrdering())) {
+        if (pf == R8G8B8X8) {
+            pf = B8G8R8X8;
+        } else {
+            pf = B8G8R8A8;
+        }
+    }
+#endif
+    getSurface()->create(pBmp->getSize(), pf, false);
+    BitmapPtr pSurfaceBmp = getSurface()->lockBmp();
+    pSurfaceBmp->copyPixels(*pBmp);
+    getSurface()->unlockBmps();
+    getEngine()->surfaceChanged(getSurface());
     DPoint Size = getPreferredMediaSize();
     setViewport(-32767, -32767, Size.x, Size.y);
 }
