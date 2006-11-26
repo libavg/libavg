@@ -358,6 +358,16 @@ void OGLSurface::rebind()
     }
 }
 
+PixelFormat OGLSurface::getPixelFormat()
+{
+    return m_pf;
+}
+        
+IntPoint OGLSurface::getSize()
+{
+    return m_Size;
+}
+
 void OGLSurface::blt(const DRect* pDestRect, 
         double angle, const DPoint& pivot, 
         DisplayEngine::BlendMode Mode)

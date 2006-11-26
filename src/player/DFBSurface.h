@@ -45,6 +45,9 @@ class DFBSurface: public ISurface {
 
         virtual BitmapPtr lockBmp(int i = 0);
 
+        PixelFormat getPixelFormat();
+        IntPoint getSize();
+
         // Methods specific to DFBSurface
 
         // Creates a surface containing a Bitmap that encompasses

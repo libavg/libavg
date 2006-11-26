@@ -35,7 +35,9 @@ class ISurface {
                 bool bFastDownload) = 0;
         virtual BitmapPtr lockBmp(int i=0) = 0;
         virtual void unlockBmps() {};
-
+        
+        virtual PixelFormat getPixelFormat() = 0;
+        virtual IntPoint getSize() = 0;
 };
 
 }

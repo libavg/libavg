@@ -115,6 +115,16 @@ BitmapPtr DFBSurface::lockBmp(int i)
     return m_pBmp;
 }
 
+PixelFormat DFBSurface::getPixelFormat()
+{
+    return m_pBmp->getPixelFormat();
+}
+
+IntPoint DFBSurface::getSize()
+{
+    return m_pBmp->getSize();
+}
+
 void DFBSurface::createFromDFBSurface(IDirectFBSurface * pSurface,
                 const IntRect * pSrcRect)
 {

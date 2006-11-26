@@ -54,6 +54,9 @@ class OGLSurface: public ISurface {
         void unbind();
         void rebind();
 
+        PixelFormat getPixelFormat();
+        IntPoint getSize();
+
         void blt(const DRect* pDestRect,
                 double angle, const DPoint& pivot, 
                 DisplayEngine::BlendMode Mode);

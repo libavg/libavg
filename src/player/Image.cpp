@@ -120,7 +120,8 @@ void Image::setBitmap(const Bitmap * pBmp)
         }
     }
 #endif
-    getSurface()->create(pBmp->getSize(), pf, false);
+//    cerr << "pf: " << Bitmap::getPixelFormatString(pf) << endl;
+    getSurface()->create(pBmp->getSize(), pf, true);
     BitmapPtr pSurfaceBmp = getSurface()->lockBmp();
     pSurfaceBmp->copyPixels(*pBmp);
     getSurface()->unlockBmps();
@@ -142,9 +143,10 @@ void Image::render (const DRect& Rect)
 
 bool Image::obscures (const DRect& Rect, int Child) 
 {
+    PixelFormat pf = getSurface()->getPixelFormat();
+    bool bHasAlpha = (pf == R8G8B8A8 || pf == B8G8R8A8);
     return (isActive() && getEffectiveOpacity() > 0.999
-            && !getSurface()->lockBmp()->hasAlpha() 
-            && getVisibleRect().Contains(Rect));
+            && bHasAlpha && getVisibleRect().Contains(Rect));
 }
 
 string Image::getTypeStr ()
@@ -155,7 +157,7 @@ string Image::getTypeStr ()
 DPoint Image::getPreferredMediaSize()
 {
     if (isDisplayAvailable()) {
-        return DPoint(getSurface()->lockBmp()->getSize());
+        return DPoint(getSurface()->getSize());
     } else {
         return DPoint(m_pBmp->getSize());
     }
@@ -188,12 +190,12 @@ void Image::setupSurface(const Bitmap * pBmp)
     if (pBmp->hasAlpha()) {
         pf = R8G8B8A8;
     }
-    getSurface()->create(pBmp->getSize(), pf, false);
+    getSurface()->create(pBmp->getSize(), pf, true);
     BitmapPtr pSurfaceBmp = getSurface()->lockBmp();
     pSurfaceBmp->copyPixels(*pBmp);
 #ifdef __i386__
     if (!(getPlayer()->getDisplayEngine()->hasRGBOrdering())) {
-        FilterFlipRGB().applyInPlace(getSurface()->lockBmp());
+        FilterFlipRGB().applyInPlace(pSurfaceBmp);
     }
 #endif
     getSurface()->unlockBmps();
