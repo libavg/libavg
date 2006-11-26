@@ -225,7 +225,7 @@ class PlayerTestCase(AVGTestCase):
             node = Player.getElementByID("test")
             Bmp = node.getBitmap()
             self.assert_(Bmp.getSize() == (65,65))
-            self.assert_(Bmp.getFormat() == avg.R8G8B8 or Bmp.getFormat() == avg.B8G8R8)
+            self.assert_(Bmp.getFormat() == avg.R8G8B8X8 or Bmp.getFormat() == avg.B8G8R8X8)
         Player.showCursor(0)
         Player.showCursor(1)
         self.start("image.avg",

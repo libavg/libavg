@@ -186,7 +186,7 @@ void Image::load()
 void Image::setupSurface(const Bitmap * pBmp)
 {
     PixelFormat pf;
-    pf = R8G8B8;
+    pf = R8G8B8X8;
     if (pBmp->hasAlpha()) {
         pf = R8G8B8A8;
     }
