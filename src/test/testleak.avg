@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../libavg/doc/avg.dtd">
 <avg id="main" width="800" height="600">
-  <div id="topscreen" x="0" y="0" width="800" height="300" z="2">
+  <div id="topscreen" x="0" y="0" width="800" height="300">
     <div id="hinweise" x="16" y="50" width="768" height="250">
       <div id="linie1" x="0" y="26">
         <words id = "linie1_top" x="60" y="0" text="Seminar: prejambug" 

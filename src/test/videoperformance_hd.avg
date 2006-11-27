@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 <avg width="1280" height="1024">
-  <video id="hd1" x="0" y="0" z="1"  opacity="0.8"  blendmode="add"
+  <video id="hd1" x="0" y="0" opacity="0.8"  blendmode="add"
       href="hdvideo/Venetia_720p.wmv"/> 
-  <video id="hd2" x="0" y="256" z="1"  opacity="0.8" blendmode="add"
+  <video id="hd2" x="0" y="256" opacity="0.8" blendmode="add"
       href="hdvideo/Odoru_720p.wmv"/> 
 </avg>
