@@ -12,6 +12,7 @@ using namespace std;
 
 namespace avg {
     class  EventStream
+    //internal class to keep track of blob/event states
     {
         public:
             EventStream(BlobPtr first_blob);
@@ -32,6 +33,8 @@ namespace avg {
             static int s_LastLabel;
             bool m_Stale;
     };
+    
+    int EventStream::s_LastLabel = 0;
 
     EventStream::EventStream(BlobPtr first_blob){
         //need to lock s_LastLabel???
@@ -94,6 +97,9 @@ namespace avg {
                 m_State = DONE;
                 //return fingerup
                 break;
+            case TOUCH_DELIVERED:
+            case RESTING:
+            case DONE:
             default:
                 //return no event
                 break;
@@ -140,6 +146,7 @@ namespace avg {
     BlobPtr TrackerEventSource::matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold = 10.0)
     {
         std::vector<BlobPtr> candidates;
+        BlobPtr res;
         for(BlobList::iterator it=old_blobs->begin();it!=old_blobs->end();it++)
         {
             if (distance( (*it), new_blob)<threshold) 
@@ -147,15 +154,22 @@ namespace avg {
         }
         switch (candidates.size()) {
             case 0:
-                return BlobPtr();
+                res = BlobPtr();
                 break;
             case 1:
-                return candidates[0];
+                res = candidates[0];
                 break;
             default:
-                //FIXME!!! sort by distance!
-                return candidates[0];
+                //FIXME duplicate calculation of distance should be eliminated...
+                double act=1e10, tmp;
+                for(std::vector<BlobPtr>::iterator it=candidates.begin();it!=candidates.end();it++){
+                    if ((tmp = distance( (*it), new_blob))<act){
+                        res = (*it);
+                        act = tmp;
+                    }
+                }
         }
+        return res;
 
     }
 
