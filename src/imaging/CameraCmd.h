@@ -31,6 +31,7 @@
 
 #ifdef AVG_ENABLE_1394
 #include <libdc1394/dc1394_control.h>
+#define DC1394_FEATURE_MIN FEATURE_MIN
 #endif
 #ifdef AVG_ENABLE_1394_2
 #include <dc1394/control.h>
