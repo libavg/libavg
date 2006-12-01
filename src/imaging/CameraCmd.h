@@ -36,12 +36,13 @@
 #include <dc1394/control.h>
 #endif
 
-
+#ifdef AVG_ENABLE_1394
+typedef int dc1394feature_t;
+#endif
 
 namespace avg {
 
-#ifndef AVG_ENABLE_1394
-typedef int dc1394feature_t;
+#if !defined(AVG_ENABLE_1394) && !defined(AVG_ENABLE_1394_2)
 #define DC1394_FEATURE_MIN -1
 #endif
 

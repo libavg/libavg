@@ -27,22 +27,18 @@ using namespace std;
 
 namespace avg {
 
-TrackerThread::TrackerThread(std::string sDevice, 
-        double FrameRate, std::string sMode, 
-        BlobListPtr pBlobList, 
+TrackerThread::TrackerThread(CameraPtr pCamera, int Threshold, 
         BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
         MutexPtr pMutex,
         TrackerCmdQueuePtr pCmdQueue,
         IBlobTarget *target
         )
-    : m_sDevice(sDevice),
-      m_FrameRate(FrameRate),
-      m_sMode(sMode),
-      m_pBlobList(pBlobList),
+    : m_pCamera(pCamera),
+      m_Threshold(Threshold),
       m_pMutex(pMutex),
-      m_bShouldStop(false),
       m_pCmdQueue(pCmdQueue),
-      m_pTarget(target)
+      m_pTarget(target),
+      m_bShouldStop(false)
 
 {
     for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
@@ -69,7 +65,6 @@ void TrackerThread::operator()()
 
 void TrackerThread::open()
 {
-    m_pCamera = CameraPtr(new Camera(m_sDevice, m_FrameRate, m_sMode, false));
     m_pCamera->open();
 }
 
@@ -96,9 +91,10 @@ void TrackerThread::track()
         m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pTempBmp);
     }
     //get bloblist
-    BlobListPtr comps = connected_components(m_pBitmaps[TRACKER_IMG_NOHISTORY], m_TrackerConfig.threshold);
+    BlobListPtr comps = connected_components(m_pBitmaps[TRACKER_IMG_NOHISTORY], m_Threshold);
     //feed the TrackerEventSource
-    m_pTarget->update(comps);
+
+//    m_pTarget->update(comps);
 }
 
 void TrackerThread::checkMessages()

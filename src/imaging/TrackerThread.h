@@ -47,16 +47,15 @@ typedef boost::shared_ptr<boost::mutex> MutexPtr;
 
 class IBlobTarget {
     public:
-        virtual void update(BlobListPtr blobs);
+        virtual ~IBlobTarget() {};
+        virtual void update(BlobListPtr blobs) = 0;
 };
 
 
 class TrackerThread
 {
     public:
-        TrackerThread(std::string sDevice, 
-                double FrameRate, std::string sMode, 
-                BlobListPtr pBlobList, 
+        TrackerThread(CameraPtr pCamera, int Threshold, 
                 BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
                 MutexPtr pMutex,
                 TrackerCmdQueuePtr pCmdQueue,
@@ -77,9 +76,8 @@ class TrackerThread
         std::string m_sDevice;
         double m_FrameRate;
         std::string m_sMode;
-        //the values in m_TrackerConfig are given in physical coordinates
 
-        TrackerConfig m_TrackerConfig;
+        int m_Threshold;
         BlobListPtr m_pBlobList;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
         MutexPtr m_pMutex;

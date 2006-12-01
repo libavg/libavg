@@ -25,7 +25,8 @@
 #include "Event.h"
 #include "IEventSource.h"
 #include "../graphics/Bitmap.h"
-#include "../imaging/Tracker.h"
+#include "../imaging/Camera.h"
+#include "../imaging/TrackerThread.h"
 #include "../imaging/ConnectedComps.h"
 
 #include <string>
@@ -38,10 +39,10 @@ namespace avg {
 class EventStream;
 typedef boost::shared_ptr<EventStream> EventStreamPtr;
 typedef std::map<BlobPtr, EventStreamPtr> EventMap;
-class TrackerEventSource:public IBlobTarget, IEventSource
+class TrackerEventSource:public IBlobTarget, public IEventSource
 {
     public:
-        TrackerEventSource(std::string sDevice, double FrameRate, std::string sMode);
+        TrackerEventSource(CameraPtr pCamera);
         virtual ~TrackerEventSource();
 
         // More parameters possible: Barrel/pincushion, history length,...
@@ -53,16 +54,19 @@ class TrackerEventSource:public IBlobTarget, IEventSource
         /*implement IBlobTarget*/
         virtual void update(BlobListPtr new_blobs);//tracker thread
 
-    protected:
+    private:
         bool isfinger(BlobPtr blob);
         BlobPtr matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold);
-    private:
-        Tracker m_Tracker;
+
         TrackerConfig m_TrackerConfig;
         EventMap m_Events;
         MutexPtr m_pMutex;
-        // We'll need a Command Queue too, at leas for threshold, possibly for 
-        // other params.
+        
+        boost::thread* m_pThread;
+
+        TrackerCmdQueuePtr m_pCmdQueue;
+        BlobListPtr m_pBlobList;
+        BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
 };
 
 typedef boost::shared_ptr<TrackerEventSource> TrackerEventSourcePtr;

@@ -49,6 +49,7 @@
 #include "SDLDisplayEngine.h"
 #endif
 
+#include "../imaging/Camera.h"
 #include "../base/FileHelper.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -298,7 +299,9 @@ TestHelper * Player::getTestHelper()
 TrackerEventSource * Player::addTracker(std::string sDevice, double FrameRate, 
         std::string sMode)
 {
-    m_pTracker = TrackerEventSourcePtr(new TrackerEventSource(sDevice, FrameRate, sMode));
+    CameraPtr  pCamera = CameraPtr(new Camera(sDevice, FrameRate, sMode, false));
+    m_pTracker = TrackerEventSourcePtr(new TrackerEventSource(pCamera));
+//    m_EventDispatcher.addSource(&(*m_pTracker));
     return &(*m_pTracker);
 }
 
@@ -788,6 +791,7 @@ void Player::handleTimers()
 bool Player::handleEvent(Event * pEvent)
 {
     m_pCurEvent = pEvent;
+    assert(pEvent); 
     switch (pEvent->getType()) {
         case Event::MOUSEMOTION:
         case Event::MOUSEBUTTONUP:

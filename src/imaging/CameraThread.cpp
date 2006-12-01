@@ -332,7 +332,6 @@ void CameraThread::captureImage()
 #endif
     if (bGotFrame) {
         {
-            static int framenum = 0;
             ScopeTimer Timer(CameraConvertProfilingZone);
             switch (m_Mode) {
 #ifdef AVG_ENABLE_1394

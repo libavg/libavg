@@ -2,7 +2,10 @@
 #include "TrackerEventSource.h"
 
 #include "../imaging/ConnectedComps.h"
-
+#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
+#include "../imaging/CameraUtils.h"
+#endif
+#include "../imaging/Camera.h"
 #include "MouseEvent.h"
 #include <map>
 #include <list>
@@ -18,7 +21,7 @@ namespace avg {
         public:
             EventStream(BlobPtr first_blob);
             void update(BlobPtr new_blob);
-            EventPtr pollevent();
+            Event* pollevent();
             enum StreamState {
                 FRESH, //fresh stream. not polled yet
                 TOUCH_DELIVERED, //initial finger down delivered
@@ -47,9 +50,15 @@ namespace avg {
     };
     void EventStream::update(BlobPtr new_blob){
 
-        if (!new_blob){
+        if ((!new_blob)||(!m_pBlob)){
             m_pBlob = BlobPtr();
-            m_State = FINGERUP;
+            switch(m_State) {
+                case FRESH:
+                    m_State = DONE;
+                    break;
+                default:
+                    m_State = FINGERUP;
+            }
             return;
         }
         DPoint c = new_blob->center();
@@ -85,7 +94,7 @@ namespace avg {
         m_pBlob = new_blob;
         m_Stale = false;
     };
-    EventPtr EventStream::pollevent(){
+    Event* EventStream::pollevent(){
         switch(m_State){
             //FIXME translate coords
             case FRESH:
@@ -113,26 +122,50 @@ namespace avg {
         }
     };
 
-    TrackerEventSource::TrackerEventSource(std::string sDevice, 
-            double FrameRate, std::string sMode)
-        :m_Tracker(sDevice, FrameRate, sMode, this)
+    TrackerEventSource::TrackerEventSource(CameraPtr pCamera)
+        : m_TrackerConfig(128, 10, 6, 50, 1, 3)
     {
-        
+#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
+        IntPoint ImgDimensions = pCamera->getImgSize();
+#else
+        IntPoint ImgDimensions(640,480);
+#endif
+        for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
+            m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgDimensions, I8));
+        }
+        m_pMutex = MutexPtr(new boost::mutex);
+        m_pCmdQueue = TrackerCmdQueuePtr(new TrackerCmdQueue());
+        m_pThread = new boost::thread(
+                TrackerThread(pCamera,
+                    m_TrackerConfig.m_Threshold,
+                    m_pBitmaps, 
+                    m_pMutex,
+                    m_pCmdQueue,
+                    this
+                    )
+                );
+
     }
 
     TrackerEventSource::~TrackerEventSource()
     {
+        // TODO: Send stop to thread, join()
+        delete m_pThread;
     }
 
     // More parameters possible: Barrel/pincushion, history length,...
     void TrackerEventSource::setConfig(TrackerConfig config) 
     {
-        m_Tracker.setConfig(config);
+        TrackerCmdPtr cmd = TrackerCmdPtr( new TrackerCmd(TrackerCmd::CONFIG) );
+        //FIXME convert the numbers from logical to physical!!
+        cmd->config = TrackerConfigPtr(new TrackerConfig(config));
+        m_pCmdQueue->push(cmd);
     }
 
     Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const
     {
-        return m_Tracker.getImage(ImageID);
+        boost::mutex::scoped_lock Lock(*m_pMutex);
+        return new Bitmap(*m_pBitmaps[ImageID]);
     }
     
 
@@ -142,10 +175,11 @@ namespace avg {
 
         return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
     }
-    BlobPtr TrackerEventSource::matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold = 10.0)
+    BlobPtr TrackerEventSource::matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold)
     {
         std::vector<BlobPtr> candidates;
         BlobPtr res;
+        if (!new_blob) return BlobPtr();
         for(BlobList::iterator it=old_blobs->begin();it!=old_blobs->end();it++)
         {
             if (distance( (*it), new_blob)<threshold) 
@@ -174,7 +208,7 @@ namespace avg {
     bool TrackerEventSource::isfinger(BlobPtr blob)
     {
         BlobInfoPtr info = blob->getInfo();
-#define IN(x, pair) (((x)>=pair.first)&&((x)<=pair.second))
+#define IN(x, pair) (((x)>=pair[0])&&((x)<=pair[1]))
         bool res;
         res = IN(info->m_Area, m_TrackerConfig.m_AreaBounds) && IN(info->m_Eccentricity, m_TrackerConfig.m_EccentricityBounds);
         return res;
@@ -193,7 +227,7 @@ namespace avg {
            if (!isfinger(*it2)){
                continue;
            }
-            BlobPtr old_match = matchblob((*it2), old_blobs);
+            BlobPtr old_match = matchblob((*it2), old_blobs, m_TrackerConfig.m_Similarity);
             if(old_match){
                 //this blob has been identified with an old one
                 e = m_Events.find(old_match)->second;
@@ -218,10 +252,17 @@ namespace avg {
         boost::mutex::scoped_lock Lock(*m_pMutex);
         std::vector<Event*> res = std::vector<Event *>();
         Event *t;
-        for (EventMap::iterator it = m_Events.begin(); it!= m_Events.end();it++){
+        for (EventMap::iterator it = m_Events.begin(); it!= m_Events.end();){
             t = (*it).second->pollevent();
             if (t) res.push_back(t);
-            if ((*it).second->m_State == EventStream::DONE) m_Events.erase(it);
+            if ((*it).second->m_State == EventStream::DONE){
+                EventMap::iterator tempit=it;
+                it++;
+                m_Events.erase(tempit);
+            }else{
+                it++;
+            }
+
         }
         return res;
     }

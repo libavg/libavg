@@ -43,6 +43,7 @@ RunList *Blob::getlist(){
 }
 
 void Blob::merge(BlobPtr other) {
+    assert(other);
     m_pRuns->splice(m_pRuns->end(), *(other->getlist()));
 }
 
@@ -232,7 +233,7 @@ BlobListPtr connected_components(BitmapPtr image, int object_threshold){
 
     int run_start=0, run_stop=0;
     unsigned char cur=(pixels[0]>object_threshold)?1:0, p=0;
-    std::cerr<<"w="<<size.x<<" h="<<size.y<<std::endl;
+    //std::cerr<<"w="<<size.x<<" h="<<size.y<<std::endl;
     //First line
     for(int x=0; x<size.x ;x++){
         p = (pixels[x]>object_threshold)?1:0;
