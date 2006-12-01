@@ -18,4 +18,4 @@ libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
 noinst_PROGRAMS=testgraphics
 testgraphics_SOURCES=testgraphics.cpp $(ALL_H)
 testgraphics_LDADD = ./libgraphics.la ../base/libbase.la
-testgraphics_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@
+testgraphics_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@
