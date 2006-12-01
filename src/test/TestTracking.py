@@ -21,9 +21,9 @@ class TrackingTestCase(unittest.TestCase):
     def test(self):
         Player.loadFile("tracking.avg")
         Player.setFramerate(60)
-        self.__tracker = Player.addTracker("", 60, "640x480_MONO8")
+        self.__tracker = Player.addTracker("/dev/video1394/0", 30, "640x480_MONO8")
         Player.setInterval(1, self.onFrame)
-#        Player.setResolution(0, 640, 480, 24)
+        Player.setResolution(0, 640, 480, 24)
         Player.play()
 
 def playerTestSuite():
@@ -39,6 +39,7 @@ Log.setCategories(Log.APP |
 #          Log.PROFILE_LATEFRAMES |
           Log.CONFIG |
           Log.MEMORY  |
+          Log.EVENTS2 |
 #          Log.BLTS    |
           Log.EVENTS)
 

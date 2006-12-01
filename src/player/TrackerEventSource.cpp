@@ -7,6 +7,7 @@
 #endif
 #include "../imaging/Camera.h"
 #include "MouseEvent.h"
+#include "../base/Logger.h"
 #include <map>
 #include <list>
 #include <vector>
@@ -54,6 +55,7 @@ namespace avg {
             m_pBlob = BlobPtr();
             switch(m_State) {
                 case FRESH:
+                    AVG_TRACE(Logger::EVENTS2, "Spurious blob suppressed.");
                     m_State = DONE;
                     break;
                 default:
@@ -123,8 +125,9 @@ namespace avg {
     };
 
     TrackerEventSource::TrackerEventSource(CameraPtr pCamera)
-        : m_TrackerConfig(128, 10, 6, 50, 1, 3)
+        : m_TrackerConfig(20, 10, 6, 50, 1, 3)
     {
+        AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
         IntPoint ImgDimensions = pCamera->getImgSize();
 #else
@@ -144,6 +147,7 @@ namespace avg {
                     this
                     )
                 );
+        AVG_TRACE(Logger::CONFIG,"TrackerThread created");
 
     }
 
@@ -223,12 +227,16 @@ namespace avg {
            (*it).second->m_Stale = true;
            old_blobs->push_back((*it).first);
        }
+       int known_counter=0, new_counter=0, ignored_counter=0; 
        for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();it2++){
            if (!isfinger(*it2)){
+               ignored_counter++;
                continue;
            }
+            AVG_TRACE(Logger::EVENTS2, "Spurious blob suppressed.");
             BlobPtr old_match = matchblob((*it2), old_blobs, m_TrackerConfig.m_Similarity);
             if(old_match){
+                known_counter++;
                 //this blob has been identified with an old one
                 e = m_Events.find(old_match)->second;
                 e->update( (*it2) );
@@ -236,22 +244,28 @@ namespace avg {
                 m_Events.erase(old_match);
                 m_Events[(*it2)] = e;
             } else {
+                new_counter++;
                 //this is a new one
                 m_Events[(*it2)] = EventStreamPtr( new EventStream((*it2)) ) ;
             }
        }
+       AVG_TRACE(Logger::EVENTS2, "matched blobs: "<<known_counter<<"; new blobs: "<<new_counter<<"; ignored: "<<ignored_counter);
+       int gone_counter = 0;
        for(EventMap::iterator it3=m_Events.begin();it3!=m_Events.end();it3++){
            //all event streams that are still stale haven't been updated: blob is gone, send the sentinel for this.
            if ((*it3).second->m_Stale) {
                (*it3).second->update( BlobPtr() );
+               gone_counter++;
            }
-
         }
+        
+       AVG_TRACE(Logger::EVENTS2, ""<<gone_counter<<" fingers disappeared.");
     };
    std::vector<Event*> TrackerEventSource::pollEvents(){
         boost::mutex::scoped_lock Lock(*m_pMutex);
         std::vector<Event*> res = std::vector<Event *>();
         Event *t;
+        int kill_counter = 0;
         for (EventMap::iterator it = m_Events.begin(); it!= m_Events.end();){
             t = (*it).second->pollevent();
             if (t) res.push_back(t);
@@ -259,11 +273,14 @@ namespace avg {
                 EventMap::iterator tempit=it;
                 it++;
                 m_Events.erase(tempit);
+                kill_counter++;
             }else{
                 it++;
             }
-
         }
+
+        if (kill_counter)
+            AVG_TRACE(Logger::EVENTS2, ""<<kill_counter<<" EventStreams removed.");
         return res;
     }
     

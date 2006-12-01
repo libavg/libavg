@@ -20,6 +20,7 @@
 
 #include "TrackerThread.h"
 #include "ConnectedComps.h"
+#include "../base/Logger.h"
 #include <iostream>
 #include <stdlib.h>
 
@@ -47,6 +48,7 @@ TrackerThread::TrackerThread(CameraPtr pCamera, int Threshold,
     m_pHistoryBmp = BitmapPtr(new Bitmap(ppBitmaps[0]->getSize(), I16));
     memset(m_pHistoryBmp->getPixels(), 0, 
             m_pHistoryBmp->getSize().y*m_pHistoryBmp->getStride());
+        AVG_TRACE(Logger::CONFIG, "Tracker thread started.");
 }
 
 TrackerThread::~TrackerThread()
@@ -55,6 +57,7 @@ TrackerThread::~TrackerThread()
 
 void TrackerThread::operator()()
 {
+    AVG_TRACE(Logger::CONFIG, "Tracker thread stopped.");
     open();
     while (!m_bShouldStop) {
         track();
@@ -92,9 +95,10 @@ void TrackerThread::track()
     }
     //get bloblist
     BlobListPtr comps = connected_components(m_pBitmaps[TRACKER_IMG_NOHISTORY], m_Threshold);
-    //feed the TrackerEventSource
 
-//    m_pTarget->update(comps);
+    AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
+    //feed the IBlobTarget
+    m_pTarget->update(comps);
 }
 
 void TrackerThread::checkMessages()
