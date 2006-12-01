@@ -55,10 +55,10 @@ typedef Queue<CameraCmd> CameraCmdQueue;
 class CameraThread {
 public:
 #ifdef AVG_ENABLE_1394
-    CameraThread::CameraThread(BitmapQueue& BitmapQ, CameraCmdQueue& CmdQ, 
+    CameraThread(BitmapQueue& BitmapQ, CameraCmdQueue& CmdQ, 
             std::string sDevice, int Mode, double FrameRate, bool bColor);
 #else
-    CameraThread::CameraThread(BitmapQueue& BitmapQ, CameraCmdQueue& CmdQ, 
+    CameraThread(BitmapQueue& BitmapQ, CameraCmdQueue& CmdQ, 
             std::string sDevice, dc1394video_mode_t Mode, double FrameRate, bool bColor);
 #endif
     void operator()();
