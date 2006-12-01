@@ -7,7 +7,7 @@
 
 namespace avg {
 
-int Run::last_label = 0;
+int Run::s_LastLabel= 0;
 
 Run::Run(int row, int start_col, int end_col, int color){
     m_Row = row;
@@ -15,8 +15,8 @@ Run::Run(int row, int start_col, int end_col, int color){
     m_StartCol = start_col;
     m_EndCol = end_col;
     m_Color = color;
-    last_label++;
-    m_Label = last_label;
+    s_LastLabel++;
+    m_Label = s_LastLabel;
 }
 
 int Run::length(){
@@ -158,7 +158,7 @@ BlobInfoPtr Blob::getInfo(){
 double Blob::stddev(){
     DPoint c = center();
 
-    double res = 0;
+double res = 0;
     for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();r++){
         //This is the evaluated expression for the variance when using runs...
         res +=
@@ -191,10 +191,12 @@ void store_runs(CompsMap  *comps, RunList *runs1, RunList *runs2){
            if ( ((*run1_it)->m_Color == (*run2_it)->m_Color) && connected(*run1_it, *run2_it)){
                p_blob = comps->find((*run1_it)->m_Label)->second;
                c_blob = comps->find((*run2_it)->m_Label)->second;
-                while (p_blob->m_pParent)
+                while (p_blob->m_pParent){
                     p_blob = p_blob->m_pParent;
-                while (c_blob->m_pParent)
+                }
+                while (c_blob->m_pParent){
                     c_blob = c_blob->m_pParent;
+                }
                 if (c_blob==p_blob){
                     //pass
                     ;
@@ -236,14 +238,16 @@ BlobListPtr connected_components(BitmapPtr image, int object_threshold){
         p = (pixels[x]>object_threshold)?1:0;
         if (cur!=p) {
             run_stop = x - 1;
-            if (cur)
+            if (cur){
                 runs1->push_back ( new_run(comps, 0, run_start, run_stop, cur) );
+            }
             run_start = x;
             cur = p;
         }
     }
-    if (cur)
+    if (cur){
         runs1->push_back( new_run(comps, 0, run_start, size.x-1, cur) );
+    }
     //All other lines
     for(int y=1; y<size.y; y++){
         run_start = 0;run_stop = 0;
@@ -253,15 +257,17 @@ BlobListPtr connected_components(BitmapPtr image, int object_threshold){
             //std::cerr<<"("<<x<<","<<y<<"):"<<(int)p<<std::endl;
             if (cur!=p) {
                 run_stop = x - 1;
-                if (cur)
+                if (cur){
                     runs2->push_back(  new_run(comps, y, run_start, run_stop, cur) );
+                }
                 run_start = x;
                 cur = p;
             }
         }
         {
-            if (cur)
+            if (cur){
                 runs2->push_back( new_run(comps,y, run_start, size.x-1, cur) );
+            }
             store_runs(comps, runs1, runs2);
             tmp = runs1;
             runs1 = runs2;

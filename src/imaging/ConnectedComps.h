@@ -22,12 +22,11 @@ class Run {
         DPoint center();
         int m_Label;
     private:
-        static int last_label;
+        static int s_LastLabel;
 };
 
 typedef boost::shared_ptr<class Run> RunPtr;
 typedef std::list<RunPtr> RunList;
-typedef std::list<DPoint> DPointList;
 
 class BlobInfo {
     public:
@@ -45,6 +44,8 @@ class BlobInfo {
 };
 
 typedef boost::shared_ptr<BlobInfo> BlobInfoPtr;
+typedef std::list<BlobInfoPtr> BlobInfoList;
+typedef boost::shared_ptr<BlobInfoList> BlobInfoListPtr;
 
 class Blob;
 typedef boost::shared_ptr<class Blob> BlobPtr;

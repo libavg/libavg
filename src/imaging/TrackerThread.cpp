@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 
 #include "TrackerThread.h"
-
+#include "ConnectedComps.h"
 #include <iostream>
 #include <stdlib.h>
 
@@ -27,15 +27,23 @@ using namespace std;
 
 namespace avg {
 
-TrackerThread::TrackerThread(std::string sDevice, double FrameRate, std::string sMode, 
-        TouchInfoListPtr pTouchInfoList, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
-        MutexPtr pMutex)
+TrackerThread::TrackerThread(std::string sDevice, 
+        double FrameRate, std::string sMode, 
+        BlobListPtr pBlobList, 
+        BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
+        MutexPtr pMutex,
+        TrackerCmdQueuePtr pCmdQueue,
+        IBlobTarget *target
+        )
     : m_sDevice(sDevice),
       m_FrameRate(FrameRate),
       m_sMode(sMode),
-      m_pTouchInfoList(pTouchInfoList),
+      m_pBlobList(pBlobList),
       m_pMutex(pMutex),
-      m_bShouldStop(false)
+      m_bShouldStop(false),
+      m_pCmdQueue(pCmdQueue),
+      m_pTarget(target)
+
 {
     for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
         m_pBitmaps[i] = ppBitmaps[i];
@@ -87,6 +95,10 @@ void TrackerThread::track()
         boost::mutex::scoped_lock Lock(*m_pMutex);
         m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pTempBmp);
     }
+    //get bloblist
+    BlobListPtr comps = connected_components(m_pBitmaps[TRACKER_IMG_NOHISTORY], m_TrackerConfig.threshold);
+    //feed the TrackerEventSource
+    m_pTarget->update(comps);
 }
 
 void TrackerThread::checkMessages()

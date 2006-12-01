@@ -40,7 +40,7 @@
 
 namespace avg {
 
-#ifdef AVG_ENABLE_1394
+#ifndef AVG_ENABLE_1394
 typedef int dc1394feature_t;
 #define DC1394_FEATURE_MIN -1
 #endif

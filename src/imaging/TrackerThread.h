@@ -20,27 +20,17 @@
 
 #ifndef _TrackerThread_H_
 #define _TrackerThread_H_
-
+#include "TrackerCmd.h"
 #include "Camera.h"
 
 #include "../graphics/Bitmap.h"
-
+#include "ConnectedComps.h"
 #include <boost/thread.hpp>
 
 #include <string>
 #include <list>
 
 namespace avg {
-
-struct TouchInfo {
-    int m_ID;
-    DPoint m_Center;
-    int m_Area;
-    // More to follow?
-};
-
-typedef std::list<TouchInfo> TouchInfoList;
-typedef boost::shared_ptr<TouchInfoList> TouchInfoListPtr;
 
 typedef enum {
         TRACKER_IMG_CAMERA,
@@ -50,14 +40,27 @@ typedef enum {
         NUM_TRACKER_IMAGES
 } TrackerImageID;
 
+typedef Queue<TrackerCmdPtr> TrackerCmdQueue;
+typedef boost::shared_ptr<TrackerCmdQueue> TrackerCmdQueuePtr;
+
 typedef boost::shared_ptr<boost::mutex> MutexPtr;
+
+class IBlobTarget {
+    public:
+        virtual void update(BlobListPtr blobs);
+};
+
 
 class TrackerThread
 {
     public:
-        TrackerThread(std::string sDevice, double FrameRate, std::string sMode, 
-                TouchInfoListPtr pTouchInfoList, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
-                MutexPtr pMutex);
+        TrackerThread(std::string sDevice, 
+                double FrameRate, std::string sMode, 
+                BlobListPtr pBlobList, 
+                BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
+                MutexPtr pMutex,
+                TrackerCmdQueuePtr pCmdQueue,
+                IBlobTarget *target);
         virtual ~TrackerThread();
 
         void operator()();
@@ -68,19 +71,23 @@ class TrackerThread
         void track();
         void checkMessages();
         void calcHistory();
+        bool isfinger(BlobPtr blob);
         BitmapPtr subtractHistory();
 
         std::string m_sDevice;
         double m_FrameRate;
         std::string m_sMode;
+        //the values in m_TrackerConfig are given in physical coordinates
 
-        TouchInfoListPtr m_pTouchInfoList;
+        TrackerConfig m_TrackerConfig;
+        BlobListPtr m_pBlobList;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
         MutexPtr m_pMutex;
         BitmapPtr m_pHistoryBmp;
 
         CameraPtr  m_pCamera;
-
+        TrackerCmdQueuePtr m_pCmdQueue;
+        IBlobTarget *m_pTarget;
         bool m_bShouldStop;
 };
 

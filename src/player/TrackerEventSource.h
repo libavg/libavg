@@ -23,7 +23,7 @@
 #define _TrackerEventSource_H_
 
 #include "Event.h"
-
+#include "IEventSource.h"
 #include "../graphics/Bitmap.h"
 #include "../imaging/Tracker.h"
 #include "../imaging/ConnectedComps.h"
@@ -38,30 +38,27 @@ namespace avg {
 class EventStream;
 typedef boost::shared_ptr<EventStream> EventStreamPtr;
 typedef std::map<BlobPtr, EventStreamPtr> EventMap;
-class BlobSelector {
-    public:
-        std::pair<double, double> m_AreaBounds; //min, max for area in percents of screen size
-        std::pair<double, double> m_EccentricityBounds; //min, max for Eccentricity
-
-};
-class TrackerEventSource
+class TrackerEventSource:public IBlobTarget, IEventSource
 {
     public:
         TrackerEventSource(std::string sDevice, double FrameRate, std::string sMode);
         virtual ~TrackerEventSource();
 
         // More parameters possible: Barrel/pincushion, history length,...
-        void setThreshold(int Threshold);
+        void setConfig(TrackerConfig tracker_config);
 
         Bitmap * getImage(TrackerImageID ImageID) const;
-        std::vector<Event *> pollEvents();
+        std::vector<Event *> pollEvents();//main thread
+
+        /*implement IBlobTarget*/
+        virtual void update(BlobListPtr new_blobs);//tracker thread
+
     protected:
-        void update(BlobListPtr new_blobs);
-        bool isfinger(BlobPtr blob); //should actually be a functor
+        bool isfinger(BlobPtr blob);
         BlobPtr matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold);
-        BlobSelector m_BlobSelector;
     private:
         Tracker m_Tracker;
+        TrackerConfig m_TrackerConfig;
         EventMap m_Events;
         MutexPtr m_pMutex;
         // We'll need a Command Queue too, at leas for threshold, possibly for 

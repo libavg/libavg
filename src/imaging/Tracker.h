@@ -22,9 +22,10 @@
 #ifndef _Tracker_H_
 #define _Tracker_H_
 
+#include "TrackerCmd.h"
 #include "Camera.h"
 #include "TrackerThread.h"
-
+#include "ConnectedComps.h"
 #include "../graphics/Bitmap.h"
 
 #include <boost/thread.hpp>
@@ -37,23 +38,19 @@ namespace avg {
 class Tracker
 {
     public:
-        Tracker(std::string sDevice, double FrameRate, std::string sMode);
+        Tracker(std::string sDevice, double FrameRate, std::string sMode, IBlobTarget *target);
         virtual ~Tracker();
 
-        // More parameters possible: Barrel/pincushion, history length,...
-        void setThreshold(int Threshold);
-
         Bitmap * getImage(TrackerImageID ImageID) const;
-        TouchInfoListPtr getTouches();
-
+        //config here operates in view coordinates, where the whole table is [0,1]^2
+        bool setConfig(TrackerConfig config);
     private:
         boost::thread* m_pThread;
 
-        TouchInfoListPtr m_pTouchInfoList;
+        TrackerCmdQueuePtr m_pCmdQueue;
+        BlobListPtr m_pBlobList;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
         MutexPtr m_pMutex;
-        // We'll need a Command Queue too, at least for stop & threshold, possibly for 
-        // other params.
 };
 
 }

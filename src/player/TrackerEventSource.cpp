@@ -3,6 +3,7 @@
 
 #include "../imaging/ConnectedComps.h"
 
+#include "MouseEvent.h"
 #include <map>
 #include <list>
 #include <vector>
@@ -45,6 +46,7 @@ namespace avg {
         m_Stale = false;
     };
     void EventStream::update(BlobPtr new_blob){
+
         if (!new_blob){
             m_pBlob = BlobPtr();
             m_State = FINGERUP;
@@ -85,16 +87,20 @@ namespace avg {
     };
     EventPtr EventStream::pollevent(){
         switch(m_State){
+            //FIXME translate coords
             case FRESH:
                 m_State = TOUCH_DELIVERED;
                 //return fingerdown
+                return new MouseEvent(MouseEvent::MOUSEBUTTONDOWN, true, false, false, m_Pos.x,m_Pos.y, MouseEvent::LEFT_BUTTON); 
                 break;
             case INMOTION:
                 m_State = RESTING;
                 //return motion
+                return new MouseEvent(MouseEvent::MOUSEMOTION, true, false, false, m_Pos.x,m_Pos.y, MouseEvent::NO_BUTTON); 
                 break;
             case FINGERUP:
                 m_State = DONE;
+                return new MouseEvent(MouseEvent::MOUSEBUTTONUP, false, false, false, m_Pos.x,m_Pos.y, MouseEvent::LEFT_BUTTON); 
                 //return fingerup
                 break;
             case TOUCH_DELIVERED:
@@ -102,13 +108,14 @@ namespace avg {
             case DONE:
             default:
                 //return no event
+                return 0;
                 break;
         }
     };
 
     TrackerEventSource::TrackerEventSource(std::string sDevice, 
             double FrameRate, std::string sMode)
-        : m_Tracker(sDevice, FrameRate, sMode)
+        :m_Tracker(sDevice, FrameRate, sMode, this)
     {
         
     }
@@ -118,8 +125,9 @@ namespace avg {
     }
 
     // More parameters possible: Barrel/pincushion, history length,...
-    void TrackerEventSource::setThreshold(int Threshold) 
+    void TrackerEventSource::setConfig(TrackerConfig config) 
     {
+        m_Tracker.setConfig(config);
     }
 
     Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const
@@ -128,15 +136,6 @@ namespace avg {
     }
     
 
-    bool TrackerEventSource::isfinger(BlobPtr blob)
-    {
-        BlobInfoPtr info = blob->getInfo();
-#define IN(x, pair) (((x)>=pair.first)&&((x)<=pair.second))
-        bool res;
-        res = IN(info->m_Area, m_BlobSelector.m_AreaBounds) && IN(info->m_Eccentricity, m_BlobSelector.m_EccentricityBounds);
-        return res;
-#undef IN
-    }
     double distance(BlobPtr p1, BlobPtr p2) {
         DPoint c1 = p1->center();
         DPoint c2 = p2->center();
@@ -172,8 +171,18 @@ namespace avg {
         return res;
 
     }
+    bool TrackerEventSource::isfinger(BlobPtr blob)
+    {
+        BlobInfoPtr info = blob->getInfo();
+#define IN(x, pair) (((x)>=pair.first)&&((x)<=pair.second))
+        bool res;
+        res = IN(info->m_Area, m_TrackerConfig.m_AreaBounds) && IN(info->m_Eccentricity, m_TrackerConfig.m_EccentricityBounds);
+        return res;
+#undef IN
+    }
 
     void TrackerEventSource::update(BlobListPtr new_blobs){
+       boost::mutex::scoped_lock Lock(*m_pMutex);
        BlobListPtr old_blobs = BlobListPtr(new BlobList());
        EventStreamPtr e;
        for(EventMap::iterator it=m_Events.begin();it!=m_Events.end();it++){
@@ -181,6 +190,9 @@ namespace avg {
            old_blobs->push_back((*it).first);
        }
        for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();it2++){
+           if (!isfinger(*it2)){
+               continue;
+           }
             BlobPtr old_match = matchblob((*it2), old_blobs);
             if(old_match){
                 //this blob has been identified with an old one
@@ -203,6 +215,7 @@ namespace avg {
         }
     };
    std::vector<Event*> TrackerEventSource::pollEvents(){
+        boost::mutex::scoped_lock Lock(*m_pMutex);
         std::vector<Event*> res = std::vector<Event *>();
         Event *t;
         for (EventMap::iterator it = m_Events.begin(); it!= m_Events.end();it++){
