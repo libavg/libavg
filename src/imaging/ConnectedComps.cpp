@@ -91,8 +91,9 @@ void render(Bitmap *target, BlobPtr blob, unsigned char col){
     for(RunList::iterator r=blob->getList()->begin();r!=blob->getList()->end();++r){
         ptr = target->getPixels()+(*r)->m_Row*target->getStride();
         int x_pos = (*r)->m_StartCol;
+        ptr+= x_pos;
         while(x_pos<=(*r)->m_EndCol){
-            *ptr=col;
+            *(ptr++)=col;
             x_pos++;
         }
     }    

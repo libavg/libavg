@@ -21,6 +21,7 @@
 #include "TrackerThread.h"
 #include "ConnectedComps.h"
 #include "../base/Logger.h"
+#include "../graphics/Filterfill.h"
 #include <iostream>
 #include <stdlib.h>
 
@@ -96,7 +97,13 @@ void TrackerThread::track()
     }
     //get bloblist
     BlobListPtr comps = connected_components(m_pBitmaps[TRACKER_IMG_NOHISTORY], m_Threshold);
-
+    {
+        boost::mutex::scoped_lock Lock(*m_pMutex);
+        FilterFill<Pixel8>(0x00).applyInPlace(m_pBitmaps[TRACKER_IMG_COMPONENTS]);
+        for (BlobList::iterator it=comps->begin(); it != comps->end(); ++it) {
+            render(&(*m_pBitmaps[TRACKER_IMG_COMPONENTS]), *it, 0xFF);
+        }
+    }
     AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
     //feed the IBlobTarget
     m_pTarget->update(comps);

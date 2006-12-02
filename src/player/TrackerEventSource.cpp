@@ -50,7 +50,6 @@ namespace avg {
         m_Stale = false;
     };
     void EventStream::update(BlobPtr new_blob){
-
         if ((!new_blob)||(!m_pBlob)){
             m_pBlob = BlobPtr();
             switch(m_State) {
@@ -236,21 +235,23 @@ double distance(BlobPtr p1, BlobPtr p2) {
                ignored_counter++;
                continue;
            }
-            AVG_TRACE(Logger::EVENTS2, "Spurious blob suppressed.");
-            BlobPtr old_match = matchblob((*it2), old_blobs, m_TrackerConfig.m_Similarity);
-            if(old_match){
-                known_counter++;
-                //this blob has been identified with an old one
-                e = m_Events.find(old_match)->second;
-                e->update( (*it2) );
-                //update the mapping!
-                m_Events[(*it2)] = e;
-                m_Events.erase(old_match);
-            } else {
-                new_counter++;
-                //this is a new one
-                m_Events[(*it2)] = EventStreamPtr( new EventStream((*it2)) ) ;
-            }
+           BlobPtr old_match = matchblob((*it2), old_blobs, m_TrackerConfig.m_Similarity);
+           if(old_match){
+               known_counter++;
+               //this blob has been identified with an old one
+               if (m_Events.find(old_match) == m_Events.end()) {
+                   continue;
+               }
+               e = m_Events.find(old_match)->second;
+               e->update( (*it2) );
+               //update the mapping!
+               m_Events[(*it2)] = e;
+               m_Events.erase(old_match);
+           } else {
+               new_counter++;
+               //this is a new one
+               m_Events[(*it2)] = EventStreamPtr( new EventStream((*it2)) ) ;
+           }
        }
        AVG_TRACE(Logger::EVENTS2, "matched blobs: "<<known_counter<<"; new blobs: "<<new_counter<<"; ignored: "<<ignored_counter);
        int gone_counter = 0;
