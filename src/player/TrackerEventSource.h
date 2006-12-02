@@ -60,9 +60,10 @@ class TrackerEventSource:public IBlobTarget, public IEventSource
 
         TrackerConfig m_TrackerConfig;
         EventMap m_Events;
-        MutexPtr m_pMutex;
+        MutexPtr m_pTrackerMutex;
+        MutexPtr m_pUpdateMutex;
         
-        boost::thread* m_pThread;
+        boost::thread* m_pTrackerThread;
 
         TrackerCmdQueuePtr m_pCmdQueue;
         BlobListPtr m_pBlobList;

@@ -136,13 +136,14 @@ namespace avg {
         for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
             m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgDimensions, I8));
         }
-        m_pMutex = MutexPtr(new boost::mutex);
+        m_pUpdateMutex = MutexPtr(new boost::mutex);
+        m_pTrackerMutex = MutexPtr(new boost::mutex);
         m_pCmdQueue = TrackerCmdQueuePtr(new TrackerCmdQueue());
-        m_pThread = new boost::thread(
+        m_pTrackerThread = new boost::thread(
                 TrackerThread(pCamera,
                     m_TrackerConfig.m_Threshold,
                     m_pBitmaps, 
-                    m_pMutex,
+                    m_pTrackerMutex,
                     m_pCmdQueue,
                     this
                     )
@@ -154,7 +155,7 @@ namespace avg {
     TrackerEventSource::~TrackerEventSource()
     {
         // TODO: Send stop to thread, join()
-        delete m_pThread;
+        delete m_pTrackerThread;
     }
 
     // More parameters possible: Barrel/pincushion, history length,...
@@ -168,23 +169,24 @@ namespace avg {
 
     Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const
     {
-        boost::mutex::scoped_lock Lock(*m_pMutex);
+        boost::mutex::scoped_lock Lock(*m_pTrackerMutex);
         return new Bitmap(*m_pBitmaps[ImageID]);
     }
     
 
-    double distance(BlobPtr p1, BlobPtr p2) {
-        DPoint c1 = p1->center();
-        DPoint c2 = p2->center();
+double distance(BlobPtr p1, BlobPtr p2) {
+    DPoint c1 = p1->center();
+    DPoint c2 = p2->center();
 
-        return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
-    }
+    return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
+}
+
     BlobPtr TrackerEventSource::matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold)
     {
         std::vector<BlobPtr> candidates;
         BlobPtr res;
         if (!new_blob) return BlobPtr();
-        for(BlobList::iterator it=old_blobs->begin();it!=old_blobs->end();it++)
+        for(BlobList::iterator it=old_blobs->begin();it!=old_blobs->end();++it)
         {
             if (distance( (*it), new_blob)<threshold) 
                 candidates.push_back( (*it) );
@@ -199,7 +201,7 @@ namespace avg {
             default:
                 //FIXME duplicate calculation of distance should be eliminated...
                 double act=1e10, tmp;
-                for(std::vector<BlobPtr>::iterator it=candidates.begin();it!=candidates.end();it++){
+                for(std::vector<BlobPtr>::iterator it=candidates.begin();it!=candidates.end();++it){
                     if ((tmp = distance( (*it), new_blob))<act){
                         res = (*it);
                         act = tmp;
@@ -220,15 +222,15 @@ namespace avg {
     }
 
     void TrackerEventSource::update(BlobListPtr new_blobs){
-       boost::mutex::scoped_lock Lock(*m_pMutex);
+       boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
        BlobListPtr old_blobs = BlobListPtr(new BlobList());
        EventStreamPtr e;
-       for(EventMap::iterator it=m_Events.begin();it!=m_Events.end();it++){
+       for(EventMap::iterator it=m_Events.begin();it!=m_Events.end();++it){
            (*it).second->m_Stale = true;
            old_blobs->push_back((*it).first);
        }
        int known_counter=0, new_counter=0, ignored_counter=0; 
-       for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();it2++){
+       for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2){
            if (!isfinger(*it2)){
                ignored_counter++;
                continue;
@@ -241,8 +243,8 @@ namespace avg {
                 e = m_Events.find(old_match)->second;
                 e->update( (*it2) );
                 //update the mapping!
-                m_Events.erase(old_match);
                 m_Events[(*it2)] = e;
+                m_Events.erase(old_match);
             } else {
                 new_counter++;
                 //this is a new one
@@ -251,7 +253,7 @@ namespace avg {
        }
        AVG_TRACE(Logger::EVENTS2, "matched blobs: "<<known_counter<<"; new blobs: "<<new_counter<<"; ignored: "<<ignored_counter);
        int gone_counter = 0;
-       for(EventMap::iterator it3=m_Events.begin();it3!=m_Events.end();it3++){
+       for(EventMap::iterator it3=m_Events.begin();it3!=m_Events.end();++it3){
            //all event streams that are still stale haven't been updated: blob is gone, send the sentinel for this.
            if ((*it3).second->m_Stale) {
                (*it3).second->update( BlobPtr() );
@@ -262,7 +264,7 @@ namespace avg {
        AVG_TRACE(Logger::EVENTS2, ""<<gone_counter<<" fingers disappeared.");
     };
    std::vector<Event*> TrackerEventSource::pollEvents(){
-        boost::mutex::scoped_lock Lock(*m_pMutex);
+        boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
         std::vector<Event*> res = std::vector<Event *>();
         Event *t;
         int kill_counter = 0;
@@ -270,12 +272,10 @@ namespace avg {
             t = (*it).second->pollevent();
             if (t) res.push_back(t);
             if ((*it).second->m_State == EventStream::DONE){
-                EventMap::iterator tempit=it;
-                it++;
-                m_Events.erase(tempit);
+                m_Events.erase(it++);
                 kill_counter++;
             }else{
-                it++;
+                ++it;
             }
         }
 
@@ -285,3 +285,4 @@ namespace avg {
     }
     
 }
+

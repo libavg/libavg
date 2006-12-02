@@ -38,19 +38,19 @@ Blob::~Blob() {
     delete m_pRuns;
 }
 
-RunList *Blob::getlist(){
+RunList *Blob::getList(){
     return m_pRuns;
 }
 
 void Blob::merge(BlobPtr other) {
     assert(other);
-    m_pRuns->splice(m_pRuns->end(), *(other->getlist()));
+    m_pRuns->splice(m_pRuns->end(), *(other->getList()));
 }
 
 DPoint Blob::center() {
     DPoint d = DPoint(0,0);
     int c = 0;
-    for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();r++){
+    for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r){
         d+=(*r)->center();
         c++;
     }
@@ -59,7 +59,7 @@ DPoint Blob::center() {
 }
 IntRect Blob::bbox(){
     int x1=__INT_MAX__,y1=__INT_MAX__,x2=0,y2=0;
-    for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();r++){
+    for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r){
         x1 = std::min(x1, (*r)->m_StartCol);
         y1 = std::min(y1, (*r)->m_Row);
         x2 = std::max(x2, (*r)->m_EndCol);
@@ -71,16 +71,33 @@ IntRect Blob::bbox(){
 
 int Blob::area(){
     int res = 0;
-    for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();r++){
+    for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r){
         res+= (*r)->length();
     }
     return res;
 }
 
-BitmapPtr Blob::render(){
-    //Create a new Bitmap of bbox dimension
-    return BitmapPtr();
+int Blob::getLabel(){
+    if(!m_pRuns->empty()){
+        return (*m_pRuns->begin())->m_Label;
+    }else{
+        return 0;//actually invalid
+    }
 }
+
+void render(Bitmap *target, BlobPtr blob, unsigned char col){
+    //assert I8
+    unsigned char *ptr;
+    for(RunList::iterator r=blob->getList()->begin();r!=blob->getList()->end();++r){
+        ptr = target->getPixels()+(*r)->m_Row*target->getStride();
+        int x_pos = (*r)->m_StartCol;
+        while(x_pos<=(*r)->m_EndCol){
+            *ptr=col;
+            x_pos++;
+        }
+    }    
+}
+
 BlobInfoPtr Blob::getInfo(){
     /*
         more useful numbers that can be calculated from c
@@ -98,7 +115,7 @@ BlobInfoPtr Blob::getInfo(){
     double A = res->m_Area = area();
     double l1, l2;
     double tmp_x, tmp_y, mag;
-    for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();r++){
+    for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r){
         //This is the evaluated expression for the variance when using runs...
         ll = (*r)->length();
         c_yy += ll* ((*r)->m_Row- c.y)*((*r)->m_Row- c.y);
@@ -187,8 +204,8 @@ int connected(RunPtr r1, RunPtr r2){
 void store_runs(CompsMap  *comps, RunList *runs1, RunList *runs2){
    BlobPtr p_blob;
    BlobPtr c_blob;
-   for (RunList::iterator run1_it = runs1->begin(); run1_it!=runs1->end(); run1_it++){
-       for (RunList::iterator run2_it = runs2->begin(); run2_it!=runs2->end(); run2_it++){
+   for (RunList::iterator run1_it = runs1->begin(); run1_it!=runs1->end(); ++run1_it){
+       for (RunList::iterator run2_it = runs2->begin(); run2_it!=runs2->end(); ++run2_it){
            if ( ((*run1_it)->m_Color == (*run2_it)->m_Color) && connected(*run1_it, *run2_it)){
                p_blob = comps->find((*run1_it)->m_Label)->second;
                c_blob = comps->find((*run2_it)->m_Label)->second;
@@ -277,7 +294,7 @@ BlobListPtr connected_components(BitmapPtr image, int object_threshold){
         }
     }
     BlobList *result = new BlobList();
-    for (CompsMap::iterator b=comps->begin();b!=comps->end();b++){
+    for (CompsMap::iterator b=comps->begin();b!=comps->end();++b){
         if (! b->second->m_pParent){
             result->push_back(b->second);
         }
