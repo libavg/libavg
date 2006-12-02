@@ -31,13 +31,13 @@ namespace avg {
 TrackerThread::TrackerThread(CameraPtr pCamera, int Threshold, 
         BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
         MutexPtr pMutex,
-        TrackerCmdQueuePtr pCmdQueue,
+        TrackerCmdQueuePtr pCmdQ,
         IBlobTarget *target
         )
-    : m_pCamera(pCamera),
-      m_Threshold(Threshold),
+    : m_Threshold(Threshold),
       m_pMutex(pMutex),
-      m_pCmdQueue(pCmdQueue),
+      m_pCamera(pCamera),
+      m_pCmdQ(pCmdQ),
       m_pTarget(target),
       m_bShouldStop(false)
 
@@ -79,6 +79,7 @@ void TrackerThread::close()
 void TrackerThread::track()
 {
     BitmapPtr pTempBmp = m_pCamera->getImage(true);
+    assert(pTempBmp);
     {
         boost::mutex::scoped_lock Lock(*m_pMutex);
         *(m_pBitmaps[TRACKER_IMG_CAMERA]) = *pTempBmp;
@@ -103,6 +104,20 @@ void TrackerThread::track()
 
 void TrackerThread::checkMessages()
 {
+    try {
+        // This loop always ends in an exception when the Queue is empty.
+        while (true) {
+            TrackerCmdPtr Cmd = m_pCmdQ->pop(false);
+            switch(Cmd->m_Cmd) {
+                case TrackerCmd::STOP:
+                    m_bShouldStop = true;
+                    break;
+                default:
+                    break;
+            }
+        }
+    } catch (Exception& ex) {
+    }
 }
 
 void TrackerThread::calcHistory()

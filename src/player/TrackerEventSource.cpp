@@ -154,7 +154,8 @@ namespace avg {
 
     TrackerEventSource::~TrackerEventSource()
     {
-        // TODO: Send stop to thread, join()
+        m_pCmdQueue->push(TrackerCmdPtr(new TrackerCmd(TrackerCmd::STOP)));
+        m_pTrackerThread->join();
         delete m_pTrackerThread;
     }
 
@@ -285,4 +286,5 @@ double distance(BlobPtr p1, BlobPtr p2) {
     }
     
 }
+
 

@@ -84,7 +84,7 @@ class TrackerThread
         BitmapPtr m_pHistoryBmp;
 
         CameraPtr  m_pCamera;
-        TrackerCmdQueuePtr m_pCmdQueue;
+        TrackerCmdQueuePtr m_pCmdQ;
         IBlobTarget *m_pTarget;
         bool m_bShouldStop;
 };

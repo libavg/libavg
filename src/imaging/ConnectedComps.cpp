@@ -24,7 +24,7 @@ int Run::length(){
 }
 
 DPoint Run::center(){
-    DPoint d = DPoint(m_StartCol + length()/2., m_Row);
+    DPoint d = DPoint((m_StartCol + m_EndCol)/2., m_Row);
     return d;
 }
 Blob::Blob(RunPtr run) {
@@ -63,9 +63,9 @@ IntRect Blob::bbox(){
         x1 = std::min(x1, (*r)->m_StartCol);
         y1 = std::min(y1, (*r)->m_Row);
         x2 = std::max(x2, (*r)->m_EndCol);
-        y2 = std::min(y2, (*r)->m_Row);
+        y2 = std::max(y2, (*r)->m_Row);
     }
-    return IntRect(x1,y1,x2,y2);
+    return IntRect(x1,y1,x2+1,y2+1);
 
 }
 

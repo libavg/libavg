@@ -96,7 +96,7 @@ BitmapPtr Camera::getImage(bool bWait)
 }
 
 
-bool Camera::isCameraAvailabe()
+bool Camera::isCameraAvailable()
 {
     return m_pThread;
 }
