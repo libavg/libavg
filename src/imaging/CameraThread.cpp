@@ -282,6 +282,7 @@ void CameraThread::open()
         fatalError("Camera doesn't seem to want to turn on!\n");
     }
 #endif
+    AVG_TRACE(Logger::CONFIG, "Camera successfully opened.");
 /*
     std::map<int, int>::iterator it;
     for (it=m_Features.begin(); it != m_Features.end(); ++it) {

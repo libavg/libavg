@@ -301,9 +301,6 @@ TrackerEventSource * Player::addTracker(std::string sDevice, double FrameRate,
 {
     AVG_TRACE(Logger::CONFIG, "Adding a Tracker for camera "<<sDevice<<" using "<<sMode<<" at "<<FrameRate<<" fps");
     CameraPtr  pCamera = CameraPtr(new Camera(sDevice, FrameRate, sMode, false));
-    if(pCamera)
-        AVG_TRACE(Logger::CONFIG, "Camera successfully opened for tracker");
-    assert(pCamera);
     m_pTracker = TrackerEventSourcePtr(new TrackerEventSource(pCamera));
     m_EventDispatcher.addSource(&(*m_pTracker));
     return &(*m_pTracker);
