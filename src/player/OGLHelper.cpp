@@ -35,7 +35,6 @@
 #undef WARNING
 #endif
 #include <SDL/SDL.h>
-#include <GL/glx.h>
 #include <iostream>
 #include <sstream>
 
