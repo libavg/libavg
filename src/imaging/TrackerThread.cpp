@@ -37,6 +37,7 @@ TrackerThread::TrackerThread(CameraPtr pCamera, int Threshold,
         )
     : m_Threshold(Threshold),
       m_pMutex(pMutex),
+      m_bHistoryInitialized(false),
       m_pCamera(pCamera),
       m_pCmdQ(pCmdQ),
       m_pTarget(target),
@@ -129,20 +130,25 @@ void TrackerThread::checkMessages()
 
 void TrackerThread::calcHistory()
 {
-    const unsigned char * pSrc = m_pBitmaps[TRACKER_IMG_CAMERA]->getPixels();
-    unsigned short * pDest = (unsigned short *)(m_pHistoryBmp->getPixels());
-    int DestStride = m_pHistoryBmp->getStride()/m_pHistoryBmp->getBytesPerPixel();
-    IntPoint Size = m_pHistoryBmp->getSize();
-    for (int y=0; y<Size.y; y++) {
-        const unsigned char * pSrcPixel = pSrc;
-        unsigned short * pDestPixel = pDest;
-        for (int x=0; x<Size.x; x++) {
-            *pDestPixel = (255*((long)*pDestPixel))/256 + *pSrcPixel;
-            pDestPixel++;
-            pSrcPixel++;
+    if (m_bHistoryInitialized) {
+        const unsigned char * pSrc = m_pBitmaps[TRACKER_IMG_CAMERA]->getPixels();
+        unsigned short * pDest = (unsigned short *)(m_pHistoryBmp->getPixels());
+        int DestStride = m_pHistoryBmp->getStride()/m_pHistoryBmp->getBytesPerPixel();
+        IntPoint Size = m_pHistoryBmp->getSize();
+        for (int y=0; y<Size.y; y++) {
+            const unsigned char * pSrcPixel = pSrc;
+            unsigned short * pDestPixel = pDest;
+            for (int x=0; x<Size.x; x++) {
+                *pDestPixel = (255*((long)*pDestPixel))/256 + *pSrcPixel;
+                pDestPixel++;
+                pSrcPixel++;
+            }
+            pDest += DestStride;
+            pSrc += m_pBitmaps[TRACKER_IMG_CAMERA]->getStride();
         }
-        pDest += DestStride;
-        pSrc += m_pBitmaps[TRACKER_IMG_CAMERA]->getStride();
+    } else {
+        m_pHistoryBmp->copyPixels(*m_pBitmaps[TRACKER_IMG_CAMERA]);
+        m_bHistoryInitialized = true;
     }
 }
 

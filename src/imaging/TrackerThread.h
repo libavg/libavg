@@ -82,6 +82,7 @@ class TrackerThread
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
         MutexPtr m_pMutex;
         BitmapPtr m_pHistoryBmp;
+        bool m_bHistoryInitialized;
 
         CameraPtr  m_pCamera;
         TrackerCmdQueuePtr m_pCmdQ;
