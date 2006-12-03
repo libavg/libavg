@@ -840,24 +840,25 @@ void Bitmap::I8toRGB(const Bitmap& Orig)
     assert(getBytesPerPixel() == 4 || getBytesPerPixel() == 3);
     assert(Orig.getPixelFormat() == I8);
     const unsigned char * pSrc = Orig.getPixels();
-    unsigned char * pDest = m_pBits;
     int Height = min(Orig.getSize().y, m_Size.y);
     int Width = min(Orig.getSize().x, m_Size.x);
     if (getBytesPerPixel() == 4) {
+        unsigned int * pDest = (unsigned int *)m_pBits;
+        int DestStrideInPixels = m_Stride/getBytesPerPixel();
         for (int y=0; y<Height; ++y) {
             const unsigned char * pSrcPixel = pSrc;
-            unsigned char * pDestPixel = pDest;
+            unsigned int * pDestPixel = pDest;
             for (int x=0; x<Width; ++x) {
-                *pDestPixel++ = *pSrcPixel;
-                *pDestPixel++ = *pSrcPixel;
-                *pDestPixel++ = *pSrcPixel;
-                *pDestPixel++ = 255;
+                *pDestPixel = (((((255 << 8)+(*pSrcPixel)) << 8)+
+                        *pSrcPixel) << 8) +(*pSrcPixel);
+                pDestPixel ++;
                 pSrcPixel++;
             }
-            pDest += getStride();
+            pDest += DestStrideInPixels;
             pSrc += Orig.getStride();
         }
     } else {
+        unsigned char * pDest = m_pBits;
         for (int y=0; y<Height; ++y) {
             const unsigned char * pSrcPixel = pSrc;
             unsigned char * pDestPixel = pDest;

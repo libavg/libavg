@@ -23,7 +23,7 @@ class TrackingTestCase(unittest.TestCase):
     def test(self):
         Player.loadFile("tracking.avg")
         Player.setFramerate(60)
-        Player.getTestHelper().useFakeCamera(True)
+#        Player.getTestHelper().useFakeCamera(True)
         self.__tracker = Player.addTracker("/dev/video1394/0", 60, "640x480_MONO8")
         Player.setInterval(1, self.onFrame)
         Player.setResolution(0, 640, 480, 24)
