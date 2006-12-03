@@ -19,10 +19,16 @@
 //  Current versions can be found at www.libavg.de
 
 #include "TrackerCmd.h"
+#include "TrackerThread.h"
+
 namespace avg {
-    TrackerConfig::TrackerConfig(int Threshold, double Similarity, double MinArea, double MaxArea, 
+    TrackerConfig::TrackerConfig(int Brightness, int Exposure,
+            int Threshold, double Similarity, 
+            double MinArea, double MaxArea, 
             double MinEccentricity, double MaxEccentricity)
-        : m_Threshold(Threshold),
+        : m_Brightness(Brightness),
+          m_Exposure(Exposure),
+          m_Threshold(Threshold),
           m_Similarity(Similarity)
     {
           m_AreaBounds[0] = MinArea;
@@ -31,8 +37,42 @@ namespace avg {
           m_EccentricityBounds[1] = MaxEccentricity;
     } 
 
-    TrackerCmd::TrackerCmd(CmdType Cmd)
-        : m_Cmd(Cmd)
+    TrackerStopCmd::TrackerStopCmd()
     {
+    }
+
+    void TrackerStopCmd::execute(TrackerThread* pTarget)
+    {
+        pTarget->stop();
+    }
+
+    TrackerThresholdCmd::TrackerThresholdCmd(int Threshold)
+      : m_Threshold(Threshold)
+    {
+    }
+
+    void TrackerThresholdCmd::execute(TrackerThread* pTarget)
+    {
+        pTarget->setThreshold(m_Threshold);
+    }
+
+    TrackerBrightnessCmd::TrackerBrightnessCmd(int Brightness)
+      : m_Brightness(Brightness)
+    {
+    }
+
+    void TrackerBrightnessCmd::execute(TrackerThread* pTarget)
+    {
+        pTarget->setBrightness(m_Brightness);
+    }
+
+    TrackerExposureCmd::TrackerExposureCmd(int Exposure)
+      : m_Exposure(Exposure)
+    {
+    }
+
+    void TrackerExposureCmd::execute(TrackerThread* pTarget)
+    {
+        pTarget->setExposure(m_Exposure);
     }
 }

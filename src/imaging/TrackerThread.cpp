@@ -115,17 +115,31 @@ void TrackerThread::checkMessages()
     try {
         // This loop always ends in an exception when the Queue is empty.
         while (true) {
-            TrackerCmdPtr Cmd = m_pCmdQ->pop(false);
-            switch(Cmd->m_Cmd) {
-                case TrackerCmd::STOP:
-                    m_bShouldStop = true;
-                    break;
-                default:
-                    break;
-            }
+            TrackerCmdPtr pCmd = m_pCmdQ->pop(false);
+            pCmd->execute(this);
         }
     } catch (Exception& ex) {
     }
+}
+
+void TrackerThread::stop()
+{
+    m_bShouldStop = true;
+}
+
+void TrackerThread::setThreshold(int Threshold) 
+{
+    m_Threshold = Threshold;
+}
+
+void TrackerThread::setBrightness(int Brightness) 
+{
+    m_pCamera->setFeature("brightness", Brightness);
+}
+
+void TrackerThread::setExposure(int Exposure) 
+{
+    m_pCamera->setFeature("exposure", Exposure);
 }
 
 void TrackerThread::calcHistory()

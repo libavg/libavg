@@ -64,6 +64,11 @@ class TrackerThread
 
         void operator()();
 
+        void stop();
+        void setThreshold(int Threshold); 
+        void setBrightness(int Brightness); 
+        void setExposure(int Exposure); 
+
     private:
         void open();
         void close();

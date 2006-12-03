@@ -124,7 +124,7 @@ namespace avg {
     };
 
     TrackerEventSource::TrackerEventSource(CameraPtr pCamera)
-        : m_TrackerConfig(20, 10, 6, 50, 1, 3)
+        : m_TrackerConfig(128, 128, 20, 10, 6, 50, 1, 3)
     {
         AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
@@ -153,18 +153,42 @@ namespace avg {
 
     TrackerEventSource::~TrackerEventSource()
     {
-        m_pCmdQueue->push(TrackerCmdPtr(new TrackerCmd(TrackerCmd::STOP)));
+        m_pCmdQueue->push(TrackerCmdPtr(new TrackerStopCmd()));
         m_pTrackerThread->join();
         delete m_pTrackerThread;
     }
 
-    // More parameters possible: Barrel/pincushion, history length,...
-    void TrackerEventSource::setConfig(TrackerConfig config) 
+    void TrackerEventSource::setThreshold(int Threshold) 
     {
-        TrackerCmdPtr cmd = TrackerCmdPtr( new TrackerCmd(TrackerCmd::CONFIG) );
-        //FIXME convert the numbers from logical to physical!!
-        cmd->config = TrackerConfigPtr(new TrackerConfig(config));
-        m_pCmdQueue->push(cmd);
+        m_TrackerConfig.m_Threshold = Threshold;
+        m_pCmdQueue->push(TrackerCmdPtr(new TrackerThresholdCmd(Threshold)));
+    }
+
+    int TrackerEventSource::getThreshold()
+    {
+        return m_TrackerConfig.m_Threshold;
+    }
+
+    void TrackerEventSource::setBrightness(int Brightness) 
+    {
+        m_TrackerConfig.m_Brightness = Brightness;
+        m_pCmdQueue->push(TrackerCmdPtr(new TrackerBrightnessCmd(Brightness)));
+    }
+
+    int TrackerEventSource::getBrightness()
+    {
+        return m_TrackerConfig.m_Brightness;
+    }
+
+    void TrackerEventSource::setExposure(int Exposure) 
+    {
+        m_TrackerConfig.m_Exposure = Exposure;
+        m_pCmdQueue->push(TrackerCmdPtr(new TrackerExposureCmd(Exposure)));
+    }
+
+    int TrackerEventSource::getExposure()
+    {
+        return m_TrackerConfig.m_Exposure;
     }
 
     Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const

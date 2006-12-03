@@ -6,11 +6,38 @@ import avg
 import unittest
 import sys, syslog
 
+global ourTrackingTestCase
+
+def onKeyUp():
+    Event = Player.getCurEvent()
+    ourTrackingTestCase.onKeyUp(Event)
+
 class TrackingTestCase(unittest.TestCase):
     def __init__(self, testFuncName):
         self.__testFuncName = testFuncName
         unittest.TestCase.__init__(self, testFuncName)
         print "-------- ", self.__testFuncName, " --------"
+        global ourTrackingTestCase
+        ourTrackingTestCase = self
+    def onKeyUp(self, Event):
+        if Event.keystring == "a":
+            self.__tracker.threshold += 1
+            print "Threshold: ", self.__tracker.threshold
+        elif Event.keystring == "y":
+            self.__tracker.threshold -= 1
+            print "Threshold: ", self.__tracker.threshold
+        elif Event.keystring == "s":
+            self.__tracker.brightness += 5
+            print "Brightness: ", self.__tracker.brightness
+        elif Event.keystring == "x":
+            self.__tracker.brightness -= 5
+            print "Brightness: ", self.__tracker.brightness
+        elif Event.keystring == "d":
+            self.__tracker.exposure += 1
+            print "Exposure: ", self.__tracker.exposure
+        elif Event.keystring == "c":
+            self.__tracker.exposure -= 1
+            print "Exposure: ", self.__tracker.exposure
     def onFrame(self):
         Bitmap = self.__tracker.getImage(avg.IMG_CAMERA)
         Player.getElementByID("camera").setBitmap(Bitmap)
@@ -24,7 +51,7 @@ class TrackingTestCase(unittest.TestCase):
         Player.loadFile("tracking.avg")
         Player.setFramerate(60)
 #        Player.getTestHelper().useFakeCamera(True)
-        self.__tracker = Player.addTracker("/dev/video1394/0", 60, "640x480_MONO8")
+        self.__tracker = Player.addTracker("/dev/video1394/0", 30, "640x480_MONO8")
         Player.setInterval(1, self.onFrame)
         Player.setResolution(0, 640, 480, 24)
         Player.play()
@@ -41,10 +68,11 @@ Log.setCategories(Log.APP |
           Log.PROFILE |
 #          Log.PROFILE_LATEFRAMES |
           Log.CONFIG |
-          Log.MEMORY  |
+          Log.MEMORY  
 #          Log.EVENTS2 |
 #          Log.BLTS    |
-          Log.EVENTS)
+#          Log.EVENTS
+          )
 
 runner = unittest.TextTestRunner()
 runner.run(playerTestSuite())

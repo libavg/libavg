@@ -104,9 +104,15 @@ void export_event()
             "(e.g. fingers) and delivers them to the player as avg events.\n"
             "Create using Player::addTracker().\n",
             no_init)
-//        .def("setThreshold", &TrackerEventSource::setThreshold)
         .def("getImage", &TrackerEventSource::getImage,
             return_value_policy<manage_new_object>(),
             "getImage(ImageID) -> Bitmap\n\n" 
-            "Returns one of the intermediate images nessesary for tracking.\n");
+            "Returns one of the intermediate images necessary for tracking.\n")
+        .add_property("threshold", &TrackerEventSource::getThreshold,
+            &TrackerEventSource::setThreshold)
+        .add_property("brightness", &TrackerEventSource::getBrightness,
+            &TrackerEventSource::setBrightness)
+        .add_property("exposure", &TrackerEventSource::getExposure,
+            &TrackerEventSource::setExposure)
+        ;
 }

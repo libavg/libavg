@@ -85,7 +85,7 @@ public:
                 break;
             case 5:
                 TEST(pBlobs->size() == 0);
-                m_pCmdQ->push(TrackerCmdPtr(new TrackerCmd(TrackerCmd::STOP)));
+                m_pCmdQ->push(TrackerCmdPtr(new TrackerStopCmd()));
                 break;
             default:
                 break;

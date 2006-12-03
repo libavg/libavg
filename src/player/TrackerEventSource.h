@@ -46,7 +46,12 @@ class TrackerEventSource:public IBlobTarget, public IEventSource
         virtual ~TrackerEventSource();
 
         // More parameters possible: Barrel/pincushion, history length,...
-        void setConfig(TrackerConfig tracker_config);
+        void setThreshold(int Threshold);
+        int getThreshold();
+        void setBrightness(int Brightness);
+        int getBrightness();
+        void setExposure(int Exposure);
+        int getExposure();
 
         Bitmap * getImage(TrackerImageID ImageID) const;
         std::vector<Event *> pollEvents();//main thread
