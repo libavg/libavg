@@ -9,6 +9,7 @@
 #include <assert.h>
 #include <boost/shared_ptr.hpp>
 #include <list>
+#include <vector>
 #include <map>
 namespace avg {
 struct Run {
@@ -25,7 +26,7 @@ struct Run {
 };
 
 typedef boost::shared_ptr<struct Run> RunPtr;
-typedef std::list<RunPtr> RunList;
+typedef std::vector<struct Run> RunList;
 
 struct BlobInfo {
     int m_ID;
@@ -49,7 +50,7 @@ class Blob;
 typedef boost::shared_ptr<class Blob> BlobPtr;
 class Blob {
     public:
-        Blob(RunPtr run);
+        Blob(Run run);
         ~Blob();
         RunList& get_runs();
         DPoint center();
