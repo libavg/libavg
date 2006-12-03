@@ -58,6 +58,9 @@ public:
         static int BmpIndex = 0;
         switch(BmpIndex) {
             case 0:
+                TEST(pBlobs->size() == 0);
+                break;
+            case 1:
                 {
                     TEST(pBlobs->size() == 1);
                     BlobInfoPtr pBlobInfo = (*pBlobs->begin())->getInfo();
@@ -67,10 +70,8 @@ public:
                     TEST(pBlobInfo->m_BoundingBox == IntRect(10,6,14,10)); 
                 }
                 break;
-            case 1:
-                    TEST(pBlobs->size() == 2);
-                break;
             case 2:
+                TEST(pBlobs->size() == 2);
                 break;
             case 3:
                 break;

@@ -27,6 +27,10 @@
 #include "../graphics/Filtergrayscale.h"
 
 #include "../base/TimeSource.h"
+#include "../base/Exception.h"
+#include "../base/Logger.h"
+
+#include <Magick++.h>
 
 #include <sstream>
 
@@ -43,9 +47,17 @@ FakeCamera::FakeCamera()
     for (int i=0; i<6; ++i) {
         stringstream s;
         s << "../imaging/testimages/Blob" << i << ".png";
-        BitmapPtr pBmp (new Bitmap(s.str()));
-        FilterGrayscale().applyInPlace(pBmp); 
-        m_pBmpQ->push(pBmp);
+        try {
+            BitmapPtr pBmp (new Bitmap(s.str()));
+            FilterGrayscale().applyInPlace(pBmp); 
+            m_pBmpQ->push(pBmp);
+        } catch (Exception& ex) {
+            AVG_TRACE(Logger::ERROR, ex.GetStr());
+            throw;
+        } catch (Magick::Exception & ex) {
+            AVG_TRACE(Logger::ERROR, ex.what());
+            throw;
+        }
     }
 }
 
