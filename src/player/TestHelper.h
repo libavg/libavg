@@ -40,7 +40,7 @@ class TestHelper : public IEventSource
         virtual ~TestHelper();
 
         int getNumDifferentPixels(Bitmap* pBmp1, Bitmap* pBmp2);
-        bool bmpAlmostEqual(Bitmap* pBmp1, Bitmap* pBmp2);
+        void useFakeCamera(bool bFake);
         void fakeMouseEvent(Event::Type eventType,
                 bool leftButtonState, bool middleButtonState, 
                 bool rightButtonState,

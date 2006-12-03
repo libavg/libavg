@@ -50,6 +50,7 @@
 #endif
 
 #include "../imaging/Camera.h"
+#include "../imaging/FakeCamera.h"
 #include "../base/FileHelper.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -85,6 +86,7 @@ Player::Player()
       m_bCurrentTimeoutDeleted(false), 
       m_pLastMouseNode(),
       m_pEventCaptureNode(),
+      m_bUseFakeCamera(false),
       m_bIsPlaying(false)
 {
     initConfig();
@@ -300,7 +302,12 @@ TrackerEventSource * Player::addTracker(std::string sDevice, double FrameRate,
         std::string sMode)
 {
     AVG_TRACE(Logger::CONFIG, "Adding a Tracker for camera "<<sDevice<<" using "<<sMode<<" at "<<FrameRate<<" fps");
-    CameraPtr  pCamera = CameraPtr(new Camera(sDevice, FrameRate, sMode, false));
+    CameraPtr  pCamera;
+    if (m_bUseFakeCamera) {
+        pCamera = CameraPtr(new FakeCamera());
+    } else {
+        pCamera = CameraPtr(new Camera(sDevice, FrameRate, sMode, false));
+    }
     m_pTracker = TrackerEventSourcePtr(new TrackerEventSource(pCamera));
     m_EventDispatcher.addSource(&(*m_pTracker));
     return &(*m_pTracker);
@@ -859,6 +866,11 @@ bool Player::handleEvent(Event * pEvent)
 DisplayEngine * Player::getDisplayEngine() const 
 {
     return m_pDisplayEngine;
+}
+
+void Player::useFakeCamera(bool bFake)
+{
+    m_bUseFakeCamera = bFake;
 }
 
 void Player::sendMouseOver(MouseEvent * pOtherEvent, Event::Type Type, 

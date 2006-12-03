@@ -36,7 +36,7 @@ typedef boost::shared_ptr<std::queue<BitmapPtr> > BitmapQueuePtr;
 class FakeCamera: public ICamera
 {
     public:
-        FakeCamera(const IntPoint& ImgSize, BitmapQueuePtr pBmpQ);
+        FakeCamera();
         virtual ~FakeCamera();
         virtual void open();
         virtual void close();

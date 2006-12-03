@@ -26,9 +26,6 @@
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
 
-#include "../graphics/Filtergrayscale.h"
-
-#include <iostream>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,19 +42,10 @@ public:
 
     void runTests() 
     {
-        IntPoint ImgDimensions(40, 30);
-        BitmapQueuePtr pBmpQ(new std::queue<BitmapPtr>());
-        for (int i=0; i<6; ++i) {
-            stringstream s;
-            s << "testimages/Blob" << i << ".png";
-            BitmapPtr pBmp (new Bitmap(s.str()));
-            FilterGrayscale().applyInPlace(pBmp); 
-            pBmpQ->push(pBmp);
-        }
-        CameraPtr pCam = CameraPtr(new FakeCamera(ImgDimensions, pBmpQ));
+        CameraPtr pCam = CameraPtr(new FakeCamera());
         BitmapPtr pBitmaps[NUM_TRACKER_IMAGES];
         for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
-            pBitmaps[i] = BitmapPtr(new Bitmap(ImgDimensions, I8));
+            pBitmaps[i] = BitmapPtr(new Bitmap(pCam->getImgSize(), I8));
         }
         MutexPtr pMutex(new boost::mutex);
         m_pCmdQ = TrackerCmdQueuePtr(new TrackerCmdQueue());

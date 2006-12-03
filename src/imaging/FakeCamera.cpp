@@ -24,16 +24,29 @@
 #include "../graphics/Pixel8.h"
 #include "../graphics/Filterfill.h"
 #include "../graphics/Filterfillrect.h"
+#include "../graphics/Filtergrayscale.h"
+
+#include "../base/TimeSource.h"
+
+#include <sstream>
 
 using namespace std;
 
 namespace avg {
 
-FakeCamera::FakeCamera(const IntPoint& ImgSize, BitmapQueuePtr pBmpQ)
-    : m_ImgSize(ImgSize),
-      m_pBmpQ(pBmpQ),
+const IntPoint IMAGE_SIZE = IntPoint(40,30);
+
+FakeCamera::FakeCamera()
+    : m_pBmpQ(new std::queue<BitmapPtr>()),
       m_bIsOpen(false)
 {
+    for (int i=0; i<6; ++i) {
+        stringstream s;
+        s << "../imaging/testimages/Blob" << i << ".png";
+        BitmapPtr pBmp (new Bitmap(s.str()));
+        FilterGrayscale().applyInPlace(pBmp); 
+        m_pBmpQ->push(pBmp);
+    }
 }
 
 FakeCamera::~FakeCamera()
@@ -53,7 +66,7 @@ void FakeCamera::close()
 
 IntPoint FakeCamera::getImgSize()
 {
-    return m_ImgSize;
+    return IMAGE_SIZE;
 }
 
 BitmapPtr FakeCamera::getImage(bool bWait)
@@ -61,6 +74,7 @@ BitmapPtr FakeCamera::getImage(bool bWait)
     if (!m_bIsOpen) {
         return BitmapPtr();
     } else {
+        TimeSource::get()->msleep(100);
         BitmapPtr pBmp = m_pBmpQ->front();
         if (m_pBmpQ->size() > 1) {
             m_pBmpQ->pop(); 

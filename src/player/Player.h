@@ -91,6 +91,7 @@ class Player : IEventSink
         void setGamma(double Red, double Green, double Blue);
         virtual bool handleEvent(Event * pEvent);
         DisplayEngine * getDisplayEngine() const;
+        void useFakeCamera(bool bFake);
 
         void registerFrameListener(IFrameListener* pListener);
         void unregisterFrameListener(IFrameListener* pListener);
@@ -145,6 +146,7 @@ class Player : IEventSink
         bool m_bUseRGBOrder;
         bool m_bUsePixelBuffers;
         int m_MultiSampleSamples;
+        bool m_bUseFakeCamera;
 
         bool m_bIsPlaying;
 
