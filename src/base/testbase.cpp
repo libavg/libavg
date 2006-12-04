@@ -107,9 +107,12 @@ private:
 
 class TestWorkerThread: public WorkerThread<TestWorkerThread> {
 public:
-    TestWorkerThread(CmdQueue& CmdQ, int* pNumFuncCalls)
+    TestWorkerThread(CmdQueue& CmdQ, int* pNumFuncCalls, int* pIntParam, 
+            std::string* pStringParam)
         : WorkerThread<TestWorkerThread>(CmdQ),
-          m_pNumFuncCalls(pNumFuncCalls)
+          m_pNumFuncCalls(pNumFuncCalls),
+          m_pIntParam(pIntParam),
+          m_pStringParam(pStringParam)
     {
     }
 
@@ -130,8 +133,16 @@ public:
         (*m_pNumFuncCalls)++;
     }
 
+    void doSomething(int i, std::string s)
+    {
+        *m_pIntParam = i;
+        *m_pStringParam = s;
+    }
+
 private:
     int * m_pNumFuncCalls;
+    int * m_pIntParam;
+    std::string * m_pStringParam;
 };
 
 class WorkerThreadTest: public Test {
@@ -146,11 +157,18 @@ public:
         TestWorkerThread::CmdQueue CmdQ;
         boost::thread* pTestThread;
         int NumFuncCalls = 0;
+        int IntParam = 0;
+        std::string StringParam;
+        CmdQ.push(Command<TestWorkerThread>(boost::bind(&TestWorkerThread::doSomething,
+                _1, 23, "foo")));
         CmdQ.push(Command<TestWorkerThread>(boost::bind(&TestWorkerThread::stop, _1)));
-        pTestThread = new boost::thread(TestWorkerThread(CmdQ, &NumFuncCalls));
+        pTestThread = new boost::thread(TestWorkerThread(CmdQ, &NumFuncCalls,
+                &IntParam, &StringParam));
         pTestThread->join();
         delete pTestThread;
         TEST(NumFuncCalls == 3);
+        TEST(IntParam == 23);
+        TEST(StringParam == "foo");
     }
 };
 
