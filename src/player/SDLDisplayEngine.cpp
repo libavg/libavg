@@ -1335,15 +1335,11 @@ int SDLDisplayEngine::getOGLPixelType(PixelFormat pf)
 {
     switch (pf) {
         case YCbCr422:
-            if (getYCbCrMode() == DisplayEngine::OGL_MESA) {
-                return GL_UNSIGNED_SHORT_8_8_REV_MESA;
-            } else {
 #ifdef __i386__
-                return GL_UNSIGNED_SHORT_8_8_REV_APPLE;
+            return GL_UNSIGNED_SHORT_8_8_REV_APPLE;
 #else
-                return GL_UNSIGNED_SHORT_8_8_APPLE;
+            return GL_UNSIGNED_SHORT_8_8_APPLE;
 #endif 
-            }
         case B8G8R8X8:
         case B8G8R8A8:
             return GL_UNSIGNED_INT_8_8_8_8_REV;
