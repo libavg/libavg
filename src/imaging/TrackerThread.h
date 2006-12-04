@@ -22,9 +22,12 @@
 #define _TrackerThread_H_
 #include "TrackerCmd.h"
 #include "Camera.h"
+#include "ConnectedComps.h"
 
 #include "../graphics/Bitmap.h"
-#include "ConnectedComps.h"
+#include "../base/WorkerThread.h"
+#include "../base/Command.h"
+
 #include <boost/thread.hpp>
 
 #include <string>
@@ -40,9 +43,6 @@ typedef enum {
         NUM_TRACKER_IMAGES
 } TrackerImageID;
 
-typedef Queue<TrackerCmdPtr> TrackerCmdQueue;
-typedef boost::shared_ptr<TrackerCmdQueue> TrackerCmdQueuePtr;
-
 typedef boost::shared_ptr<boost::mutex> MutexPtr;
 
 class IBlobTarget {
@@ -52,27 +52,25 @@ class IBlobTarget {
 };
 
 
-class TrackerThread
+class TrackerThread: public WorkerThread<TrackerThread>
 {
     public:
         TrackerThread(CameraPtr pCamera, int Threshold, 
                 BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
                 MutexPtr pMutex,
-                TrackerCmdQueuePtr pCmdQueue,
+                CmdQueue& CmdQ,
                 IBlobTarget *target);
         virtual ~TrackerThread();
 
-        void operator()();
+        bool init();
+        bool work();
+        void deinit();
 
-        void stop();
         void setThreshold(int Threshold); 
         void setBrightness(int Brightness); 
         void setExposure(int Exposure); 
 
     private:
-        void open();
-        void close();
-        void track();
         void checkMessages();
         void calcHistory();
         bool isfinger(BlobPtr blob);
@@ -90,9 +88,7 @@ class TrackerThread
         bool m_bHistoryInitialized;
 
         CameraPtr  m_pCamera;
-        TrackerCmdQueuePtr m_pCmdQ;
         IBlobTarget *m_pTarget;
-        bool m_bShouldStop;
 };
 
 }

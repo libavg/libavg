@@ -25,6 +25,7 @@
 #include "Command.h"
 #include "Queue.h"
 
+#include <boost/shared_ptr.hpp>
 #include <iostream>
 
 namespace avg {
@@ -34,6 +35,7 @@ template<class DERIVED_THREAD>
 class WorkerThread {
 public:
     typedef Queue<Command<DERIVED_THREAD> > CmdQueue;
+    typedef boost::shared_ptr<CmdQueue> CmdQueuePtr;
 
     WorkerThread(CmdQueue& CmdQ);
     virtual ~WorkerThread() {};
@@ -42,9 +44,9 @@ public:
     void stop();
 
 private:
-    virtual bool init() = 0;
+    virtual bool init();
     virtual bool work() = 0;
-    virtual void deinit() = 0;
+    virtual void deinit() {};
 
     void processCommands();
 
@@ -76,6 +78,12 @@ void WorkerThread<DERIVED_THREAD>::operator()()
         }
     }
     deinit();
+}
+    
+template<class DERIVED_THREAD>
+bool WorkerThread<DERIVED_THREAD>::init()
+{
+    return true;
 }
 
 template<class DERIVED_THREAD>

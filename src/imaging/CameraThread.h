@@ -63,6 +63,7 @@ public:
     bool init();
     bool work();
     void deinit();
+
     void setFeature(dc1394feature_t Feature, int Value);
 
 private:

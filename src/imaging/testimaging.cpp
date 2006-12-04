@@ -26,6 +26,9 @@
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
 
+#include <boost/thread/thread.hpp>
+#include <boost/bind.hpp>
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,9 +51,9 @@ public:
             pBitmaps[i] = BitmapPtr(new Bitmap(pCam->getImgSize(), I8));
         }
         MutexPtr pMutex(new boost::mutex);
-        m_pCmdQ = TrackerCmdQueuePtr(new TrackerCmdQueue());
+        m_pCmdQ = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
         boost::thread Thread(
-                TrackerThread(pCam, 128, pBitmaps, pMutex,  m_pCmdQ, this));
+                TrackerThread(pCam, 128, pBitmaps, pMutex,  *m_pCmdQ, this));
         Thread.join();
     }
     
@@ -85,7 +88,7 @@ public:
                 break;
             case 5:
                 TEST(pBlobs->size() == 0);
-                m_pCmdQ->push(TrackerCmdPtr(new TrackerStopCmd()));
+                m_pCmdQ->push(Command<TrackerThread>(boost::bind(&TrackerThread::stop, _1)));
                 break;
             default:
                 break;
@@ -94,7 +97,7 @@ public:
     }
 
 private:
-    TrackerCmdQueuePtr m_pCmdQ;
+    TrackerThread::CmdQueuePtr m_pCmdQ;
 };
 
 class ImagingTestSuite: public TestSuite {

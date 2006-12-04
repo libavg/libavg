@@ -36,43 +36,4 @@ namespace avg {
           m_EccentricityBounds[0] = MinEccentricity; 
           m_EccentricityBounds[1] = MaxEccentricity;
     } 
-
-    TrackerStopCmd::TrackerStopCmd()
-    {
-    }
-
-    void TrackerStopCmd::execute(TrackerThread* pTarget)
-    {
-        pTarget->stop();
-    }
-
-    TrackerThresholdCmd::TrackerThresholdCmd(int Threshold)
-      : m_Threshold(Threshold)
-    {
-    }
-
-    void TrackerThresholdCmd::execute(TrackerThread* pTarget)
-    {
-        pTarget->setThreshold(m_Threshold);
-    }
-
-    TrackerBrightnessCmd::TrackerBrightnessCmd(int Brightness)
-      : m_Brightness(Brightness)
-    {
-    }
-
-    void TrackerBrightnessCmd::execute(TrackerThread* pTarget)
-    {
-        pTarget->setBrightness(m_Brightness);
-    }
-
-    TrackerExposureCmd::TrackerExposureCmd(int Exposure)
-      : m_Exposure(Exposure)
-    {
-    }
-
-    void TrackerExposureCmd::execute(TrackerThread* pTarget)
-    {
-        pTarget->setExposure(m_Exposure);
-    }
 }

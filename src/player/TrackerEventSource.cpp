@@ -1,13 +1,18 @@
 
 #include "TrackerEventSource.h"
+#include "MouseEvent.h"
+
+#include "../base/Logger.h"
 
 #include "../imaging/ConnectedComps.h"
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
 #include "../imaging/CameraUtils.h"
 #endif
 #include "../imaging/Camera.h"
-#include "MouseEvent.h"
-#include "../base/Logger.h"
+
+#include <boost/thread/thread.hpp>
+#include <boost/bind.hpp>
+
 #include <map>
 #include <list>
 #include <vector>
@@ -137,13 +142,13 @@ namespace avg {
         }
         m_pUpdateMutex = MutexPtr(new boost::mutex);
         m_pTrackerMutex = MutexPtr(new boost::mutex);
-        m_pCmdQueue = TrackerCmdQueuePtr(new TrackerCmdQueue());
+        m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
         m_pTrackerThread = new boost::thread(
                 TrackerThread(pCamera,
                     m_TrackerConfig.m_Threshold,
                     m_pBitmaps, 
                     m_pTrackerMutex,
-                    m_pCmdQueue,
+                    *m_pCmdQueue,
                     this
                     )
                 );
@@ -153,7 +158,7 @@ namespace avg {
 
     TrackerEventSource::~TrackerEventSource()
     {
-        m_pCmdQueue->push(TrackerCmdPtr(new TrackerStopCmd()));
+        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::stop, _1)));
         m_pTrackerThread->join();
         delete m_pTrackerThread;
     }
@@ -161,7 +166,8 @@ namespace avg {
     void TrackerEventSource::setThreshold(int Threshold) 
     {
         m_TrackerConfig.m_Threshold = Threshold;
-        m_pCmdQueue->push(TrackerCmdPtr(new TrackerThresholdCmd(Threshold)));
+        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::setThreshold,
+                _1, Threshold)));
     }
 
     int TrackerEventSource::getThreshold()
@@ -172,7 +178,8 @@ namespace avg {
     void TrackerEventSource::setBrightness(int Brightness) 
     {
         m_TrackerConfig.m_Brightness = Brightness;
-        m_pCmdQueue->push(TrackerCmdPtr(new TrackerBrightnessCmd(Brightness)));
+        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::setThreshold,
+                _1, Brightness)));
     }
 
     int TrackerEventSource::getBrightness()
@@ -183,7 +190,8 @@ namespace avg {
     void TrackerEventSource::setExposure(int Exposure) 
     {
         m_TrackerConfig.m_Exposure = Exposure;
-        m_pCmdQueue->push(TrackerCmdPtr(new TrackerExposureCmd(Exposure)));
+        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::setThreshold,
+                _1, Exposure)));
     }
 
     int TrackerEventSource::getExposure()

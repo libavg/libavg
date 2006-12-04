@@ -39,7 +39,8 @@ namespace avg {
 class EventStream;
 typedef boost::shared_ptr<EventStream> EventStreamPtr;
 typedef std::map<BlobPtr, EventStreamPtr> EventMap;
-class TrackerEventSource:public IBlobTarget, public IEventSource
+
+class TrackerEventSource: public IBlobTarget, public IEventSource
 {
     public:
         TrackerEventSource(CameraPtr pCamera);
@@ -70,7 +71,7 @@ class TrackerEventSource:public IBlobTarget, public IEventSource
         
         boost::thread* m_pTrackerThread;
 
-        TrackerCmdQueuePtr m_pCmdQueue;
+        TrackerThread::CmdQueuePtr m_pCmdQueue;
         BlobListPtr m_pBlobList;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
 };

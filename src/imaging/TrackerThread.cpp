@@ -32,53 +32,37 @@ namespace avg {
 TrackerThread::TrackerThread(CameraPtr pCamera, int Threshold, 
         BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
         MutexPtr pMutex,
-        TrackerCmdQueuePtr pCmdQ,
+        CmdQueue& CmdQ,
         IBlobTarget *target
         )
-    : m_Threshold(Threshold),
+    : WorkerThread<TrackerThread>(CmdQ),
+      m_Threshold(Threshold),
       m_pMutex(pMutex),
       m_bHistoryInitialized(false),
       m_pCamera(pCamera),
-      m_pCmdQ(pCmdQ),
-      m_pTarget(target),
-      m_bShouldStop(false)
+      m_pTarget(target)
 
 {
     for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
         m_pBitmaps[i] = ppBitmaps[i];
     }
-    m_pHistoryBmp = BitmapPtr(new Bitmap(ppBitmaps[0]->getSize(), I16));
-    memset(m_pHistoryBmp->getPixels(), 0, 
-            m_pHistoryBmp->getSize().y*m_pHistoryBmp->getStride());
-        AVG_TRACE(Logger::CONFIG, "Tracker thread started.");
 }
 
 TrackerThread::~TrackerThread()
 {
 }
 
-void TrackerThread::operator()()
+bool TrackerThread::init()
 {
-    AVG_TRACE(Logger::CONFIG, "Tracker thread stopped.");
-    open();
-    while (!m_bShouldStop) {
-        track();
-        checkMessages();
-    }
-    close();
-}
-
-void TrackerThread::open()
-{
+    m_pHistoryBmp = BitmapPtr(new Bitmap(m_pBitmaps[0]->getSize(), I16));
+    memset(m_pHistoryBmp->getPixels(), 0, 
+            m_pHistoryBmp->getSize().y*m_pHistoryBmp->getStride());
+    AVG_TRACE(Logger::CONFIG, "Tracker thread started.");
     m_pCamera->open();
+    return true;
 }
 
-void TrackerThread::close()
-{
-    m_pCamera->close();
-}
-
-void TrackerThread::track()
+bool TrackerThread::work()
 {
     BitmapPtr pTempBmp = m_pCamera->getImage(true);
     {
@@ -107,23 +91,12 @@ void TrackerThread::track()
     AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
     //feed the IBlobTarget
     m_pTarget->update(comps);
+    return true;
 }
 
-void TrackerThread::checkMessages()
+void TrackerThread::deinit()
 {
-    try {
-        // This loop always ends in an exception when the Queue is empty.
-        while (true) {
-            TrackerCmdPtr pCmd = m_pCmdQ->pop(false);
-            pCmd->execute(this);
-        }
-    } catch (Exception& ex) {
-    }
-}
-
-void TrackerThread::stop()
-{
-    m_bShouldStop = true;
+    m_pCamera->close();
 }
 
 void TrackerThread::setThreshold(int Threshold) 
