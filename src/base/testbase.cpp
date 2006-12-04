@@ -20,6 +20,8 @@
 //
 
 #include "Queue.h"
+#include "Command.h"
+#include "WorkerThread.h"
 
 #include "../base/TestSuite.h"
 #include "../base/TimeSource.h"
@@ -103,6 +105,55 @@ private:
     }
 };
 
+class TestWorkerThread: public WorkerThread<TestWorkerThread> {
+public:
+    TestWorkerThread(CmdQueue& CmdQ, int* pNumFuncCalls)
+        : WorkerThread<TestWorkerThread>(CmdQ),
+          m_pNumFuncCalls(pNumFuncCalls)
+    {
+    }
+
+    bool init() 
+    {
+        (*m_pNumFuncCalls)++;
+        return true;
+    }
+
+    bool work()
+    {
+        (*m_pNumFuncCalls)++;
+        return true;
+    }
+
+    void deinit()
+    {
+        (*m_pNumFuncCalls)++;
+    }
+
+private:
+    int * m_pNumFuncCalls;
+};
+
+class WorkerThreadTest: public Test {
+public:
+    WorkerThreadTest()
+        : Test("WorkerThreadTest", 2)
+    {
+    }
+
+    void runTests() 
+    {
+        TestWorkerThread::CmdQueue CmdQ;
+        boost::thread* pTestThread;
+        int NumFuncCalls = 0;
+        CmdQ.push(Command<TestWorkerThread>(boost::bind(&TestWorkerThread::stop, _1)));
+        pTestThread = new boost::thread(TestWorkerThread(CmdQ, &NumFuncCalls));
+        pTestThread->join();
+        delete pTestThread;
+        TEST(NumFuncCalls == 3);
+    }
+};
+
 
 class BaseTestSuite: public TestSuite {
 public:
@@ -110,6 +161,7 @@ public:
         : TestSuite("BaseTestSuite")
     {
         addTest(TestPtr(new QueueTest));
+        addTest(TestPtr(new WorkerThreadTest));
     }
 };
 
