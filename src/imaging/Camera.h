@@ -77,7 +77,7 @@ class Camera: public ICamera
         typedef std::map<dc1394feature_t, int> FeatureMap;
         FeatureMap m_Features;
         BitmapQueue m_BitmapQ;
-        CameraCmdQueue m_CmdQ;
+        CameraThread::CmdQueue m_CmdQ;
 #endif
         boost::thread* m_pThread;
 };

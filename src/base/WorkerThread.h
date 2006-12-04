@@ -25,6 +25,8 @@
 #include "Command.h"
 #include "Queue.h"
 
+#include <iostream>
+
 namespace avg {
 
 

@@ -37,11 +37,10 @@ namespace avg {
 using namespace std;
 
 #ifdef AVG_ENABLE_1394
-CameraThread::CameraThread(BitmapQueue& BitmapQ, CameraCmdQueue& CmdQ, 
+CameraThread::CameraThread(BitmapQueue& BitmapQ, CmdQueue& CmdQ, 
         string sDevice, int Mode, double FrameRate, bool bColor)
-    : m_bShouldStop(false),
+    : WorkerThread<CameraThread>(CmdQ),
       m_BitmapQ(BitmapQ),
-      m_CmdQ(CmdQ),
       m_sDevice(sDevice),
       m_FrameRate(FrameRate),
       m_bColor(bColor),
@@ -51,11 +50,10 @@ CameraThread::CameraThread(BitmapQueue& BitmapQ, CameraCmdQueue& CmdQ,
     m_FrameRateConstant = getFrameRateConst(m_FrameRate);
 }
 #else
-CameraThread::CameraThread(BitmapQueue& BitmapQ, CameraCmdQueue& CmdQ, 
+CameraThread::CameraThread(BitmapQueue& BitmapQ, CmdQueue& CmdQ, 
         string sDevice, dc1394video_mode_t Mode, double FrameRate, bool bColor)
-    : m_bShouldStop(false),
+    : WorkerThread<CameraThread>(CmdQ),
       m_BitmapQ(BitmapQ),
-      m_CmdQ(CmdQ),
       m_sDevice(sDevice),
       m_FrameRate(FrameRate),
       m_bColor(bColor),
@@ -68,24 +66,8 @@ CameraThread::CameraThread(BitmapQueue& BitmapQ, CameraCmdQueue& CmdQ,
 
 static ProfilingZone CameraConvertProfilingZone("      [CameraThread] format conversion");
 
-void CameraThread::operator()()
+bool CameraThread::init()
 {
-    open();
-    while (!m_bShouldStop) {
-        if (m_bCameraAvailable) {
-            captureImage();
-        } else {
-            TimeSource::get()->msleep(100);
-            open();
-        }
-        checkMessages();
-    }
-    close();
-}
-
-void CameraThread::open()
-{
-
 #ifdef AVG_ENABLE_1394
     int CaptureFormat = 0;
     // TODO: Support other resolutions.
@@ -148,7 +130,7 @@ void CameraThread::open()
         if (m_FWHandle != 0) {
             dc1394_destroy_handle(m_FWHandle);
         }
-        return;
+        return true;
     }
     m_bCameraAvailable = true;
     if (j == MAX_RESETS) {
@@ -210,7 +192,7 @@ void CameraThread::open()
             bFirstWarning = false;
         }
         m_bCameraAvailable = false;
-        return;
+        return true;
     }
     // This always uses the first camera on the bus.
     m_pCamera=ppCameras[0];
@@ -283,15 +265,21 @@ void CameraThread::open()
     }
 #endif
     AVG_TRACE(Logger::CONFIG, "Camera successfully opened.");
-/*
-    std::map<int, int>::iterator it;
-    for (it=m_Features.begin(); it != m_Features.end(); ++it) {
-        setFeature((*it).first);
-    }
-*/    
+    return true;
 }
 
-void CameraThread::close()
+bool CameraThread::work()
+{
+    if (m_bCameraAvailable) {
+        captureImage();
+    } else {
+        TimeSource::get()->msleep(100);
+        init();
+    }
+    return true;
+}
+
+void CameraThread::deinit()
 {
     if (m_bCameraAvailable) {
 
@@ -416,29 +404,10 @@ void CameraThread::captureImage()
     } else {
         AVG_TRACE(Logger::WARNING,
                 "Camera: Frame capture failed.");
-        close();
+        deinit();
     }
 }
 
-void CameraThread::checkMessages()
-{
-    try {
-        // This loop always ends in an exception when the Queue is empty.
-        while (true) {
-            CameraCmd Cmd = m_CmdQ.pop(false);
-            switch(Cmd.m_Cmd) {
-                case CameraCmd::STOP:
-                    m_bShouldStop = true;
-                    break;
-                case CameraCmd::FEATURE:
-                    setFeature(Cmd.m_Feature, Cmd.m_Value);
-                    break;
-            }
-        }
-    } catch (Exception& ex) {
-    }
-}
-    
 void CameraThread::setFeature(dc1394feature_t Feature, int Value) {
 #ifdef AVG_ENABLE_1394
     int err;
@@ -508,7 +477,7 @@ void CameraThread::checkDC1394Error(int Code, const string & sMsg)
 void CameraThread::fatalError(const string & sMsg)
 {
     AVG_TRACE(Logger::ERROR, sMsg);
-    close();
+    deinit();
     exit(-1);
 }
 
