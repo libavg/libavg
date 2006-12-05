@@ -33,6 +33,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <sstream>
+
 using namespace avg;
 using namespace std;
 
@@ -45,7 +47,13 @@ public:
 
     void runTests() 
     {
-        CameraPtr pCam = CameraPtr(new FakeCamera());
+        std::vector<std::string> p = std::vector<std::string>();
+        for (int i=0; i<6; ++i) {
+            stringstream s;
+            s << "../imaging/testimages/Blob" << i << ".png";
+            p.push_back(s.str());
+        }
+        CameraPtr pCam = CameraPtr(new FakeCamera(p));
         BitmapPtr pBitmaps[NUM_TRACKER_IMAGES];
         for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
             pBitmaps[i] = BitmapPtr(new Bitmap(pCam->getImgSize(), I8));
@@ -67,7 +75,9 @@ public:
                 {
                     TEST(pBlobs->size() == 1);
                     BlobInfoPtr pBlobInfo = (*pBlobs->begin())->getInfo();
+                    cerr<<pBlobInfo->m_Orientation<<endl;
                     TEST(fabs(pBlobInfo->m_Area-16)<0.001);
+                    TEST(fabs(pBlobInfo->m_Orientation)<0.001);
                     TEST(fabs(pBlobInfo->m_Center.x-11.5)<0.0001); 
                     TEST(fabs(pBlobInfo->m_Center.y-7.5)<0.0001);
                     TEST(pBlobInfo->m_BoundingBox == IntRect(10,6,14,10)); 
@@ -82,6 +92,7 @@ public:
                 {
                     TEST(pBlobs->size() == 1);
                     BlobInfoPtr pBlobInfo = (*pBlobs->begin())->getInfo();
+                    cerr<<pBlobInfo->m_Orientation<<endl;
                     TEST(fabs(pBlobInfo->m_Area-114)<0.001);
                     TEST(pBlobInfo->m_BoundingBox == IntRect(4,15,31,21)); 
                 }
