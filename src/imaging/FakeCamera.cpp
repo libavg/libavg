@@ -32,7 +32,6 @@
 
 #include <Magick++.h>
 
-#include <sstream>
 
 using namespace std;
 
@@ -40,15 +39,16 @@ namespace avg {
 
 const IntPoint IMAGE_SIZE = IntPoint(40,30);
 
-FakeCamera::FakeCamera()
+FakeCamera::FakeCamera(std::vector<std::string> &pictures)
     : m_pBmpQ(new std::queue<BitmapPtr>()),
       m_bIsOpen(false)
 {
-    for (int i=0; i<6; ++i) {
-        stringstream s;
-        s << "../imaging/testimages/Blob" << i << ".png";
+    //for (int i=0; i<6; ++i) {
+    //    stringstream s;
+    //    s << "../imaging/testimages/Blob" << i << ".png";
+    for(std::vector<std::string>::iterator it=pictures.begin();it!=pictures.end();++it){
         try {
-            BitmapPtr pBmp (new Bitmap(s.str()));
+            BitmapPtr pBmp (new Bitmap(*it));
             FilterGrayscale().applyInPlace(pBmp); 
             m_pBmpQ->push(pBmp);
         } catch (Exception& ex) {
