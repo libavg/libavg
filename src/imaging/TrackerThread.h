@@ -69,6 +69,8 @@ class TrackerThread: public WorkerThread<TrackerThread>
         void setThreshold(int Threshold); 
         void setBrightness(int Brightness); 
         void setExposure(int Exposure); 
+        void setGain(int Gain); 
+        void setShutter(int Shutter); 
 
     private:
         void checkMessages();

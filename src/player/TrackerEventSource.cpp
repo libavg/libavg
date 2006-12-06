@@ -129,7 +129,7 @@ namespace avg {
     };
 
     TrackerEventSource::TrackerEventSource(CameraPtr pCamera)
-        : m_TrackerConfig(128, 128, 20, 10, 6, 50, 1, 3)
+        : m_TrackerConfig(255, 62, 0, 532, 20, 10, 6, 50, 1, 3)
     {
         AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
@@ -178,7 +178,7 @@ namespace avg {
     void TrackerEventSource::setBrightness(int Brightness) 
     {
         m_TrackerConfig.m_Brightness = Brightness;
-        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::setThreshold,
+        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::setBrightness,
                 _1, Brightness)));
     }
 
@@ -190,13 +190,37 @@ namespace avg {
     void TrackerEventSource::setExposure(int Exposure) 
     {
         m_TrackerConfig.m_Exposure = Exposure;
-        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::setThreshold,
+        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::setExposure,
                 _1, Exposure)));
     }
 
     int TrackerEventSource::getExposure()
     {
         return m_TrackerConfig.m_Exposure;
+    }
+
+    void TrackerEventSource::setGain(int Gain) 
+    {
+        m_TrackerConfig.m_Gain = Gain;
+        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::setGain,
+                _1, Gain)));
+    }
+
+    int TrackerEventSource::getGain()
+    {
+        return m_TrackerConfig.m_Gain;
+    }
+
+    void TrackerEventSource::setShutter(int Shutter) 
+    {
+        m_TrackerConfig.m_Shutter = Shutter;
+        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::setShutter,
+                _1, Shutter)));
+    }
+
+    int TrackerEventSource::getShutter()
+    {
+        return m_TrackerConfig.m_Shutter;
     }
 
     Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const

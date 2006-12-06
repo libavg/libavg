@@ -53,6 +53,10 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         int getBrightness();
         void setExposure(int Exposure);
         int getExposure();
+        void setGain(int Gain);
+        int getGain();
+        void setShutter(int Shutter);
+        int getShutter();
 
         Bitmap * getImage(TrackerImageID ImageID) const;
         std::vector<Event *> pollEvents();//main thread

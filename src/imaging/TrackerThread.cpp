@@ -114,6 +114,16 @@ void TrackerThread::setExposure(int Exposure)
     m_pCamera->setFeature("exposure", Exposure);
 }
 
+void TrackerThread::setGain(int Gain) 
+{
+    m_pCamera->setFeature("gain", Gain);
+}
+
+void TrackerThread::setShutter(int Shutter) 
+{
+    m_pCamera->setFeature("shutter", Shutter);
+}
+
 void TrackerThread::calcHistory()
 {
     if (m_bHistoryInitialized) {

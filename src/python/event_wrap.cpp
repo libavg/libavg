@@ -114,5 +114,9 @@ void export_event()
             &TrackerEventSource::setBrightness)
         .add_property("exposure", &TrackerEventSource::getExposure,
             &TrackerEventSource::setExposure)
+        .add_property("gain", &TrackerEventSource::getGain,
+            &TrackerEventSource::setGain)
+        .add_property("shutter", &TrackerEventSource::getShutter,
+            &TrackerEventSource::setShutter)
         ;
 }

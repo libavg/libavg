@@ -22,12 +22,13 @@
 #include "TrackerThread.h"
 
 namespace avg {
-    TrackerConfig::TrackerConfig(int Brightness, int Exposure,
-            int Threshold, double Similarity, 
+    TrackerConfig::TrackerConfig(int Brightness, int Exposure, int Gain, 
+            int Shutter, int Threshold, double Similarity, 
             double MinArea, double MaxArea, 
             double MinEccentricity, double MaxEccentricity)
         : m_Brightness(Brightness),
           m_Exposure(Exposure),
+          m_Gain(Gain),
           m_Threshold(Threshold),
           m_Similarity(Similarity)
     {
