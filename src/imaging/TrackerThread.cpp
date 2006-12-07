@@ -65,6 +65,10 @@ bool TrackerThread::init()
 bool TrackerThread::work()
 {
     BitmapPtr pTempBmp = m_pCamera->getImage(true);
+    BitmapPtr pTempBmp1;
+    while (pTempBmp1 = m_pCamera->getImage(false)) {
+        pTempBmp = pTempBmp1;
+    }
     {
         boost::mutex::scoped_lock Lock(*m_pMutex);
         *(m_pBitmaps[TRACKER_IMG_CAMERA]) = *pTempBmp;
