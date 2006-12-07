@@ -303,11 +303,11 @@ TrackerEventSource * Player::addTracker(std::string sDevice, double FrameRate,
 {
     AVG_TRACE(Logger::CONFIG, "Adding a Tracker for camera "<<sDevice<<" using "<<sMode<<" at "<<FrameRate<<" fps");
     CameraPtr  pCamera;
-    if (m_bUseFakeCamera) {
-        pCamera = CameraPtr(new FakeCamera());
-    } else {
+//    if (m_bUseFakeCamera) {
+//        pCamera = CameraPtr(new FakeCamera());
+//    } else {
         pCamera = CameraPtr(new Camera(sDevice, FrameRate, sMode, false));
-    }
+//    }
     m_pTracker = TrackerEventSourcePtr(new TrackerEventSource(pCamera));
     m_EventDispatcher.addSource(&(*m_pTracker));
     return &(*m_pTracker);
