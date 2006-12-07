@@ -23,6 +23,8 @@
 #define _Pixel16_H_
 
 #include "Pixeldefs.h"
+#include "Pixel24.h"
+#include "Pixel32.h"
 
 #include <stdlib.h>
 #include <math.h>
