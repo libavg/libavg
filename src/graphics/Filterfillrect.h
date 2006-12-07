@@ -37,7 +37,7 @@ template<class PixelC>
 public:
     FilterFillRect (IntRect Rect, const PixelC& Color);
     virtual ~FilterFillRect();
-    virtual void applyInPlace(BitmapPtr pBmp) const;
+    virtual void applyInPlace(BitmapPtr pBmp) ;
 
 private:
     PixelC m_Color;
@@ -57,7 +57,7 @@ FilterFillRect<PixelC>::~FilterFillRect ()
 }
 
 template<class PixelC>
-void FilterFillRect<PixelC>::applyInPlace (BitmapPtr pBmp) const
+void FilterFillRect<PixelC>::applyInPlace (BitmapPtr pBmp)
 {
     for (int y=m_Rect.tl.y; y<m_Rect.br.y; ++y) {
         PixelC * pLine = (PixelC*)(pBmp->getPixels()+y*pBmp->getStride());

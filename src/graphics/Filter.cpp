@@ -32,12 +32,12 @@ Filter::Filter()
 {
 }
 
-void Filter::applyInPlace(BitmapPtr pBmp) const
+void Filter::applyInPlace(BitmapPtr pBmp)
 {
     *pBmp = *(apply(pBmp));
 }
 
-BitmapPtr Filter::apply(BitmapPtr pBmpSource) const
+BitmapPtr Filter::apply(BitmapPtr pBmpSource)
 {
     BitmapPtr pBmpDest = BitmapPtr(new Bitmap(*pBmpSource));
     applyInPlace (pBmpDest);

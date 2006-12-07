@@ -32,7 +32,7 @@ class FilterFlipUV : public Filter
 public:
   FilterFlipUV();
   virtual ~FilterFlipUV();
-  virtual void applyInPlace(BitmapPtr pBmp) const;
+  virtual void applyInPlace(BitmapPtr pBmp) ;
 
 private:
 };

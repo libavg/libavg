@@ -36,13 +36,13 @@ FilterFlipUV::~FilterFlipUV()
 
 }
 
-void FilterFlipUV::applyInPlace(BitmapPtr pBmp) const
+void FilterFlipUV::applyInPlace(BitmapPtr pBmp) 
 {
     assert(pBmp->getPixelFormat() == YCbCr422);
-
-    for (int y = 0; y < pBmp->getSize().y; y++) {
+    IntPoint size = pBmp->getSize();
+    for (int y = 0; y < size.y; y++) {
         unsigned char * pLine = pBmp->getPixels()+y*pBmp->getStride();
-        for (int x = 0; x < pBmp->getSize().x/2; x++) { 
+        for (int x = 0; x < size.x/2; x++) { 
                 unsigned char tmp = pLine[x*4+1];
                 pLine[x*4+1] = pLine[x*4+3];
                 pLine[x*4+3] = tmp;

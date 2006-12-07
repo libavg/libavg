@@ -37,7 +37,7 @@ class Filter3x3 : public Filter
 public:
     Filter3x3(double Mat[3][3]);
     virtual ~Filter3x3();
-    virtual BitmapPtr apply(BitmapPtr pBmpSource) const;
+    virtual BitmapPtr apply(BitmapPtr pBmpSource);
 
 private:
     template<class Pixel>

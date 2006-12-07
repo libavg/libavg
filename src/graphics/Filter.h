@@ -38,12 +38,12 @@ public:
 
   // In-Place Apply. Applies the filter to pBmp. The base-class
   // version copies the bitmap after calling Apply (pBmp, pTempBmp).
-  virtual void applyInPlace(BitmapPtr pBmp) const;  
+  virtual void applyInPlace(BitmapPtr pBmp) ;  
 
   // Applies the Filter to pBmpSource and returns the result
   // The base-class version copies the bitmap before calling
   // applyInPlace.
-  virtual BitmapPtr apply(BitmapPtr pBmpSource) const;
+  virtual BitmapPtr apply(BitmapPtr pBmpSource) ;
 };
 
 } // namespace

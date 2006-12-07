@@ -34,7 +34,7 @@ class FilterColorize : public Filter
 public:
   FilterColorize(double Hue, double Saturation);
   virtual ~FilterColorize();
-  virtual void applyInPlace(BitmapPtr pBmp) const;
+  virtual void applyInPlace(BitmapPtr pBmp) ;
 
 private:
   double m_Hue;
