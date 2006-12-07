@@ -260,7 +260,7 @@ BlobListPtr connected_components(BitmapPtr image, int object_threshold){
         p = (pixels[x]>object_threshold)?1:0;
         if (cur!=p) {
             run_stop = x - 1;
-            if (cur){
+            if (cur && (run_stop-run_start > 0)){
                 runs1->push_back ( new_run(comps, 0, run_start, run_stop, cur) );
             }
             run_start = x;
@@ -279,7 +279,7 @@ BlobListPtr connected_components(BitmapPtr image, int object_threshold){
             //std::cerr<<"("<<x<<","<<y<<"):"<<(int)p<<std::endl;
             if (cur!=p) {
                 run_stop = x - 1;
-                if (cur){
+                if (cur && (run_stop-run_start > 0)){
                     runs2->push_back(  new_run(comps, y, run_start, run_stop, cur) );
                 }
                 run_start = x;
