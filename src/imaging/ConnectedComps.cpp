@@ -195,8 +195,8 @@ double res = 0;
 */
 int connected(Run &r1, Run &r2){
     int res=0;
-    if (abs(r2.m_Row - r1.m_Row) != 1)
-        return 0;
+//    if (abs(r2.m_Row - r1.m_Row) != 1)
+//        return 0;
     if (r1.m_StartCol > r2.m_StartCol){
         //use > here to do 8-connectivity
         res = r2.m_EndCol >= r1.m_StartCol;

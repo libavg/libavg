@@ -49,7 +49,7 @@ public:
     void runTests() 
     {
         std::vector<std::string> p = std::vector<std::string>();
-        for (int i=0; i<2; ++i) {
+        for (int i=0; i<3; ++i) {
             stringstream s;
             s << "../imaging/testimages/Big" << i << ".png";
             p.push_back(s.str());
@@ -84,11 +84,11 @@ public:
                 //    TEST(fabs(pBlobInfo->m_Center.x-11.5)<0.0001); 
                 //    TEST(fabs(pBlobInfo->m_Center.y-7.5)<0.0001);
                 //    TEST(pBlobInfo->m_BoundingBox == IntRect(10,6,14,10)); 
-                m_pCmdQ->push(Command<TrackerThread>(boost::bind(&TrackerThread::stop, _1)));
                 }
                 break;
             case 2:
                 //TEST(pBlobs->size() == 2);
+                m_pCmdQ->push(Command<TrackerThread>(boost::bind(&TrackerThread::stop, _1)));
                 break;
             case 3:
                 break;
