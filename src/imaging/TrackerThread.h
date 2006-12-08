@@ -20,7 +20,7 @@
 
 #ifndef _TrackerThread_H_
 #define _TrackerThread_H_
-#include "TrackerCmd.h"
+#include "TrackerConfig.h"
 #include "Camera.h"
 #include "ConnectedComps.h"
 #include "../graphics/HistoryPreProcessor.h"

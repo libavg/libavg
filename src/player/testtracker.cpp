@@ -21,7 +21,7 @@
 
 #include "../imaging/FakeCamera.h"
 #include "../imaging/TrackerThread.h"
-#include "../imaging/TrackerCmd.h"
+#include "../imaging/TrackerConfig.h"
 #include "../graphics/FilterId.h"
 #include "TrackerEventSource.h"
 

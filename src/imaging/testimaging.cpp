@@ -21,7 +21,7 @@
 
 #include "FakeCamera.h"
 #include "TrackerThread.h"
-#include "TrackerCmd.h"
+#include "TrackerConfig.h"
 #include "../graphics/FilterId.h"
 
 #include "../base/TestSuite.h"

@@ -1,5 +1,6 @@
-#ifndef _TrackerCmd
-#define _TrackerCmd
+#ifndef _TrackerConfig
+#define _TrackerConfig
+
 #include <boost/shared_ptr.hpp>
 
 namespace avg {

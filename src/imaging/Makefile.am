@@ -15,9 +15,9 @@ else
 endif
 endif
 
-ALL_H = TrackerThread.h TrackerCmd.h ConnectedComps.h Camera.h \
+ALL_H = TrackerThread.h TrackerConfig.h ConnectedComps.h Camera.h \
         FakeCamera.h $(DC1394_INCLUDES)
-ALL_CPP = TrackerThread.cpp TrackerCmd.cpp ConnectedComps.cpp Camera.cpp \
+ALL_CPP = TrackerThread.cpp TrackerConfig.cpp ConnectedComps.cpp Camera.cpp \
         FakeCamera.cpp $(DC1394_SOURCES) 
 
 TESTS=testimaging

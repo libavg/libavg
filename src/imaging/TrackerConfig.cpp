@@ -18,7 +18,7 @@
 //
 //  Current versions can be found at www.libavg.de
 
-#include "TrackerCmd.h"
+#include "TrackerConfig.h"
 #include "TrackerThread.h"
 
 namespace avg {
