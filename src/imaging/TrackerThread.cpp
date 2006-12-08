@@ -57,7 +57,6 @@ TrackerThread::~TrackerThread()
 
 bool TrackerThread::init()
 {
-    AVG_TRACE(Logger::CONFIG, "Tracker thread started.");
     m_pCamera->open();
     return true;
 }
@@ -90,7 +89,7 @@ bool TrackerThread::work()
             render(&(*m_pBitmaps[TRACKER_IMG_COMPONENTS]), *it, 0xFF);
         }
     }
-    AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
+//    AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
     //feed the IBlobTarget
     m_pTarget->update(comps);
     return true;

@@ -139,7 +139,7 @@ namespace avg {
     TrackerEventSource::TrackerEventSource(CameraPtr pCamera, bool bSubtractHistory)
         : m_TrackerConfig()
     {
-        AVG_TRACE(Logger::CONFIG,"TrackerEventSource using default filter created");
+        AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
         IntPoint ImgDimensions = pCamera->getImgSize();
         for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
             m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgDimensions, I8));
@@ -157,7 +157,6 @@ namespace avg {
                     bSubtractHistory
                     )
                 );
-        AVG_TRACE(Logger::CONFIG,"TrackerThread created");
     }
 
     TrackerEventSource::~TrackerEventSource()
@@ -327,7 +326,7 @@ double distance(BlobPtr p1, BlobPtr p2) {
                m_Events[(*it2)] = EventStreamPtr( new EventStream((*it2)) ) ;
            }
        }
-       AVG_TRACE(Logger::EVENTS2, "matched blobs: "<<known_counter<<"; new blobs: "<<new_counter<<"; ignored: "<<ignored_counter);
+//       AVG_TRACE(Logger::EVENTS2, "matched blobs: "<<known_counter<<"; new blobs: "<<new_counter<<"; ignored: "<<ignored_counter);
        int gone_counter = 0;
        for(EventMap::iterator it3=m_Events.begin();it3!=m_Events.end();++it3){
            //all event streams that are still stale haven't been updated: blob is gone, send the sentinel for this.
@@ -337,7 +336,7 @@ double distance(BlobPtr p1, BlobPtr p2) {
            }
         }
         
-       AVG_TRACE(Logger::EVENTS2, ""<<gone_counter<<" fingers disappeared.");
+//       AVG_TRACE(Logger::EVENTS2, ""<<gone_counter<<" fingers disappeared.");
     };
    std::vector<Event*> TrackerEventSource::pollEvents(){
         boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
@@ -355,8 +354,8 @@ double distance(BlobPtr p1, BlobPtr p2) {
             }
         }
 
-        if (kill_counter)
-            AVG_TRACE(Logger::EVENTS2, ""<<kill_counter<<" EventStreams removed.");
+//        if (kill_counter)
+//            AVG_TRACE(Logger::EVENTS2, ""<<kill_counter<<" EventStreams removed.");
         return res;
     }
     

@@ -84,10 +84,10 @@ Log.setCategories(Log.APP |
           Log.PROFILE |
 #          Log.PROFILE_LATEFRAMES |
           Log.CONFIG |
-          Log.MEMORY | 
-          Log.EVENTS2 |
+          Log.MEMORY
+#          Log.EVENTS2 |
 #          Log.BLTS    |
-          Log.EVENTS
+#          Log.EVENTS
           )
 
 runner = unittest.TextTestRunner()
