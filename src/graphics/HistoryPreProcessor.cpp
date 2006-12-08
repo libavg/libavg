@@ -4,9 +4,8 @@
 #include <iostream>
 namespace avg {
     
-HistoryPreProcessor::HistoryPreProcessor(IntPoint dimensions, unsigned short N, unsigned int frame_skip)
-    :m_N(N),
-    m_FrameCounter(0),
+HistoryPreProcessor::HistoryPreProcessor(IntPoint dimensions, unsigned int frame_skip)
+    :m_FrameCounter(0),
     m_FrameSkip(frame_skip),
     m_bHistoryInitialized(false)
 {
@@ -19,7 +18,6 @@ HistoryPreProcessor::~HistoryPreProcessor()
 void HistoryPreProcessor::reconfigure(unsigned short N, unsigned int frame_skip, bool reset)
 {
     m_FrameCounter = 0;
-    m_N = N;
     m_FrameSkip = frame_skip;
     if(reset){
         //FilterFill<Pixel16> filt(0x0).applyInPlace(m_pHistoryBmp);
@@ -45,8 +43,8 @@ void HistoryPreProcessor::updateHistory(BitmapPtr new_img)
             const unsigned char * pSrcPixel = pSrc;
             unsigned char * pDestPixel = pDest;
             for (int x=0; x<Size.x; x++) {
-                int t = (m_N-1)*(*pDestPixel);
-                *pDestPixel = (t)/m_N + *pSrcPixel;
+                int t = 255*(*pDestPixel);
+                *pDestPixel = (t)/256 + *pSrcPixel;
                 pDestPixel++;
                 pSrcPixel++;
             }
