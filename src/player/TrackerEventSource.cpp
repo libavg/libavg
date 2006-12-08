@@ -114,7 +114,7 @@ namespace avg {
             case INMOTION:
                 m_State = RESTING;
                 //return motion
-                return new MouseEvent(MouseEvent::MOUSEMOTION, true, false, false, m_Pos.x,m_Pos.y, MouseEvent::NO_BUTTON); 
+                return new MouseEvent(MouseEvent::MOUSEMOTION, true, false, false, m_Pos.x,m_Pos.y, MouseEvent::LEFT_BUTTON); 
                 break;
             case FINGERUP:
                 m_State = DONE;
@@ -136,6 +136,11 @@ namespace avg {
     TrackerEventSource::TrackerEventSource(CameraPtr pCamera)
         : m_TrackerConfig(128, 128, 128, 128, 20, 31, 80, 450, 1, 3)
     {
+        TrackerEventSource(pCamera, new HistoryPreProcessor(pCamera->getImgSize()));
+    }
+    TrackerEventSource::TrackerEventSource(CameraPtr pCamera, Filter *preproc)
+        : m_TrackerConfig(128, 128, 128, 128, 20, 31, 80, 450, 1, 3)
+    {
         AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
         IntPoint ImgDimensions = pCamera->getImgSize();
         for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
@@ -144,7 +149,7 @@ namespace avg {
         m_pUpdateMutex = MutexPtr(new boost::mutex);
         m_pTrackerMutex = MutexPtr(new boost::mutex);
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
-        m_pPreProcessor = new HistoryPreProcessor(pCamera->getImgSize());
+        m_pPreProcessor = preproc;
         m_pTrackerThread = new boost::thread(
                 TrackerThread(pCamera,
                     m_TrackerConfig.m_Threshold,

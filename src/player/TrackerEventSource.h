@@ -45,6 +45,7 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
 {
     public:
         TrackerEventSource(CameraPtr pCamera);
+        TrackerEventSource(CameraPtr pCamera, Filter *preproc);
         virtual ~TrackerEventSource();
 
         // More parameters possible: Barrel/pincushion, history length,...
