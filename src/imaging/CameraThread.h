@@ -43,6 +43,9 @@
 #ifdef AVG_ENABLE_1394_2
 #include <dc1394/control.h>
 #endif
+#ifndef AVG_ENABLE_1394_2
+typedef unsigned int dc1394feature_t;
+#endif
 
 #include <string>
 

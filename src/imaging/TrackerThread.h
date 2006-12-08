@@ -23,6 +23,7 @@
 #include "TrackerCmd.h"
 #include "Camera.h"
 #include "ConnectedComps.h"
+#include "../graphics/Filter.h"
 
 #include "../graphics/Bitmap.h"
 #include "../base/WorkerThread.h"
@@ -59,7 +60,8 @@ class TrackerThread: public WorkerThread<TrackerThread>
                 BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
                 MutexPtr pMutex,
                 CmdQueue& CmdQ,
-                IBlobTarget *target);
+                IBlobTarget *target,
+                Filter *preproc);
         virtual ~TrackerThread();
 
         bool init();
@@ -91,6 +93,7 @@ class TrackerThread: public WorkerThread<TrackerThread>
 
         CameraPtr  m_pCamera;
         IBlobTarget *m_pTarget;
+        Filter *m_pPreProcessor;
 };
 
 }

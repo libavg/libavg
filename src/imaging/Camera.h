@@ -45,6 +45,10 @@
 #include <string>
 #include <map>
 
+#ifndef AVG_ENABLE_1394_2
+typedef unsigned int dc1394feature_t;
+#endif
+
 namespace avg {
 
 class Camera: public ICamera

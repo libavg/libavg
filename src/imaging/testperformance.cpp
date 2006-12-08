@@ -23,7 +23,7 @@
 #include "TrackerThread.h"
 #include "TrackerCmd.h"
 #include "../graphics/FilterId.h"
-
+#include "../graphics/HistoryPreProcessor.h"
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
 
@@ -49,9 +49,9 @@ public:
     void runTests() 
     {
         std::vector<std::string> p = std::vector<std::string>();
-        for (int i=0; i<6; ++i) {
+        for (int i=0; i<2; ++i) {
             stringstream s;
-            s << "../imaging/testimages/Blob" << i << ".png";
+            s << "../imaging/testimages/Big" << i << ".png";
             p.push_back(s.str());
         }
         CameraPtr pCam = CameraPtr(new FakeCamera(p));
@@ -60,10 +60,11 @@ public:
             pBitmaps[i] = BitmapPtr(new Bitmap(pCam->getImgSize(), I8));
         }
         MutexPtr pMutex(new boost::mutex);
-        FilterIdPtr pp = FilterIdPtr(new FilterId());
         m_pCmdQ = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
+        //FilterIdPtr pp = FilterIdPtr(new FilterId());
+        HistoryPreProcessorPtr pp = HistoryPreProcessorPtr(new HistoryPreProcessor(pCam->getImgSize()));
         boost::thread Thread(
-                TrackerThread(pCam, 128, pBitmaps, pMutex,  *m_pCmdQ, this, &*pp));
+                TrackerThread(pCam, 128, pBitmaps, pMutex,  *m_pCmdQ, this,&*pp));
         Thread.join();
     }
     
@@ -75,33 +76,34 @@ public:
                 break;
             case 1:
                 {
-                    TEST(pBlobs->size() == 1);
-                    BlobInfoPtr pBlobInfo = (*pBlobs->begin())->getInfo();
-                    cerr<<pBlobInfo->m_Orientation<<endl;
-                    TEST(fabs(pBlobInfo->m_Area-16)<0.001);
-                    TEST(fabs(pBlobInfo->m_Orientation)<0.001);
-                    TEST(fabs(pBlobInfo->m_Center.x-11.5)<0.0001); 
-                    TEST(fabs(pBlobInfo->m_Center.y-7.5)<0.0001);
-                    TEST(pBlobInfo->m_BoundingBox == IntRect(10,6,14,10)); 
+                    TEST(pBlobs->size() >10);
+                //    BlobInfoPtr pBlobInfo = (*pBlobs->begin())->getInfo();
+                //    cerr<<pBlobInfo->m_Orientation<<endl;
+                //    TEST(fabs(pBlobInfo->m_Area-16)<0.001);
+                //    TEST(fabs(pBlobInfo->m_Orientation)<0.001);
+                //    TEST(fabs(pBlobInfo->m_Center.x-11.5)<0.0001); 
+                //    TEST(fabs(pBlobInfo->m_Center.y-7.5)<0.0001);
+                //    TEST(pBlobInfo->m_BoundingBox == IntRect(10,6,14,10)); 
+                m_pCmdQ->push(Command<TrackerThread>(boost::bind(&TrackerThread::stop, _1)));
                 }
                 break;
             case 2:
-                TEST(pBlobs->size() == 2);
+                //TEST(pBlobs->size() == 2);
                 break;
             case 3:
                 break;
             case 4:
                 {
-                    TEST(pBlobs->size() == 1);
-                    BlobInfoPtr pBlobInfo = (*pBlobs->begin())->getInfo();
-                    cerr<<pBlobInfo->m_Orientation<<endl;
-                    TEST(fabs(pBlobInfo->m_Area-114)<0.001);
-                    TEST(pBlobInfo->m_BoundingBox == IntRect(4,15,31,21)); 
+                //    TEST(pBlobs->size() == 1);
+                //    BlobInfoPtr pBlobInfo = (*pBlobs->begin())->getInfo();
+                //    cerr<<pBlobInfo->m_Orientation<<endl;
+                //    TEST(fabs(pBlobInfo->m_Area-114)<0.001);
+                //    TEST(pBlobInfo->m_BoundingBox == IntRect(4,15,31,21)); 
                 }
                 break;
             case 5:
-                TEST(pBlobs->size() == 0);
-                m_pCmdQ->push(Command<TrackerThread>(boost::bind(&TrackerThread::stop, _1)));
+                //TEST(pBlobs->size() == 0);
+                //m_pCmdQ->push(Command<TrackerThread>(boost::bind(&TrackerThread::stop, _1)));
                 break;
             default:
                 break;

@@ -88,6 +88,10 @@ void Event::trace()
         case QUIT:
             AVG_TRACE(Logger::EVENTS, "QUIT");
             break;
+        default:
+            AVG_TRACE(Logger::EVENTS, "UNKNOWN EVENT "<<m_Type);
+            break;
+
     }
 }
 

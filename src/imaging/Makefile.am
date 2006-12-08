@@ -26,7 +26,10 @@ EXTRA_DIST = test_comp.png
 
 noinst_LTLIBRARIES = libimaging.la
 libimaging_la_SOURCES = $(ALL_CPP) $(ALL_H)
-noinst_PROGRAMS=testimaging testcomps
+noinst_PROGRAMS=testimaging testcomps testperformance
+testperformance_SOURCES=testperformance.cpp $(ALL_H)
+testperformance_LDADD = ./libimaging.la ../graphics/libgraphics.la ../base/libbase.la
+testperformance_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@
 testimaging_SOURCES=testimaging.cpp $(ALL_H)
 testimaging_LDADD = ./libimaging.la ../graphics/libgraphics.la ../base/libbase.la
 testimaging_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@

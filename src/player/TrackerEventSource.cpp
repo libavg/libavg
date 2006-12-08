@@ -1,5 +1,6 @@
 
 #include "TrackerEventSource.h"
+
 #include "MouseEvent.h"
 
 #include "../base/Logger.h"
@@ -9,6 +10,8 @@
 #include "../imaging/CameraUtils.h"
 #endif
 #include "../imaging/Camera.h"
+
+#include "../graphics/HistoryPreProcessor.h"
 
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
@@ -128,28 +131,28 @@ namespace avg {
         }
     };
 
+
+
     TrackerEventSource::TrackerEventSource(CameraPtr pCamera)
-        : m_TrackerConfig(255, 62, 0, 532, 20, 10, 6, 50, 1, 3)
+        : m_TrackerConfig(128, 128, 128, 128, 20, 31, 80, 450, 1, 3)
     {
         AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
-#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
         IntPoint ImgDimensions = pCamera->getImgSize();
-#else
-        IntPoint ImgDimensions(640,480);
-#endif
         for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
             m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgDimensions, I8));
         }
         m_pUpdateMutex = MutexPtr(new boost::mutex);
         m_pTrackerMutex = MutexPtr(new boost::mutex);
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
+        m_pPreProcessor = new HistoryPreProcessor(pCamera->getImgSize());
         m_pTrackerThread = new boost::thread(
                 TrackerThread(pCamera,
                     m_TrackerConfig.m_Threshold,
                     m_pBitmaps, 
                     m_pTrackerMutex,
                     *m_pCmdQueue,
-                    this
+                    this,
+                    &*m_pPreProcessor
                     )
                 );
         AVG_TRACE(Logger::CONFIG,"TrackerThread created");
@@ -161,6 +164,7 @@ namespace avg {
         m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::stop, _1)));
         m_pTrackerThread->join();
         delete m_pTrackerThread;
+        delete m_pPreProcessor;
     }
 
     void TrackerEventSource::setThreshold(int Threshold) 
@@ -293,9 +297,11 @@ double distance(BlobPtr p1, BlobPtr p2) {
            }
            BlobPtr old_match = matchblob((*it2), old_blobs, m_TrackerConfig.m_Similarity);
            if(old_match){
-               known_counter++;
                //this blob has been identified with an old one
+               known_counter++;
                if (m_Events.find(old_match) == m_Events.end()) {
+                   //..but the blob already disappeared from the map
+                   //=>EventStream already updated
                    continue;
                }
                e = m_Events.find(old_match)->second;

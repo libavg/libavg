@@ -37,7 +37,6 @@ using namespace std;
 
 namespace avg {
 
-const IntPoint IMAGE_SIZE = IntPoint(40,30);
 
 FakeCamera::FakeCamera(std::vector<std::string> &pictures)
     : m_pBmpQ(new std::queue<BitmapPtr>()),
@@ -49,7 +48,8 @@ FakeCamera::FakeCamera(std::vector<std::string> &pictures)
     for(std::vector<std::string>::iterator it=pictures.begin();it!=pictures.end();++it){
         try {
             BitmapPtr pBmp (new Bitmap(*it));
-            FilterGrayscale().applyInPlace(pBmp); 
+            FilterGrayscale().applyInPlace(pBmp);
+            m_ImgSize = pBmp->getSize();
             m_pBmpQ->push(pBmp);
         } catch (Exception& ex) {
             AVG_TRACE(Logger::ERROR, ex.GetStr());
@@ -78,7 +78,7 @@ void FakeCamera::close()
 
 IntPoint FakeCamera::getImgSize()
 {
-    return IMAGE_SIZE;
+    return m_ImgSize;
 }
 
 BitmapPtr FakeCamera::getImage(bool bWait)

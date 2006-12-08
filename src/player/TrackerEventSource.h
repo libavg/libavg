@@ -25,6 +25,7 @@
 #include "Event.h"
 #include "IEventSource.h"
 #include "../graphics/Bitmap.h"
+#include "../graphics/Filter.h"
 #include "../imaging/Camera.h"
 #include "../imaging/TrackerThread.h"
 #include "../imaging/ConnectedComps.h"
@@ -72,7 +73,8 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         EventMap m_Events;
         MutexPtr m_pTrackerMutex;
         MutexPtr m_pUpdateMutex;
-        
+
+        Filter *m_pPreProcessor;
         boost::thread* m_pTrackerThread;
 
         TrackerThread::CmdQueuePtr m_pCmdQueue;

@@ -43,7 +43,7 @@ struct BlobInfo {
 };
 
 typedef boost::shared_ptr<BlobInfo> BlobInfoPtr;
-typedef std::list<BlobInfoPtr> BlobInfoList;
+typedef std::vector<BlobInfoPtr> BlobInfoList;
 typedef boost::shared_ptr<BlobInfoList> BlobInfoListPtr;
 
 class Blob;
@@ -68,7 +68,7 @@ class Blob {
 };
 
 
-typedef std::list<BlobPtr> BlobList;
+typedef std::vector<BlobPtr> BlobList;
 typedef boost::shared_ptr<BlobList> BlobListPtr;
 typedef std::map<int, BlobPtr> CompsMap;
 

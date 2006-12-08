@@ -21,6 +21,7 @@
 #include "TrackerThread.h"
 #include "ConnectedComps.h"
 #include "../base/Logger.h"
+#include "../graphics/Filter.h"
 #include "../graphics/Filterfill.h"
 #include <iostream>
 #include <stdlib.h>
@@ -33,14 +34,16 @@ TrackerThread::TrackerThread(CameraPtr pCamera, int Threshold,
         BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
         MutexPtr pMutex,
         CmdQueue& CmdQ,
-        IBlobTarget *target
+        IBlobTarget *target,
+        Filter *preproc
         )
     : WorkerThread<TrackerThread>(CmdQ),
       m_Threshold(Threshold),
       m_pMutex(pMutex),
       m_bHistoryInitialized(false),
       m_pCamera(pCamera),
-      m_pTarget(target)
+      m_pTarget(target),
+      m_pPreProcessor(preproc)
 
 {
     for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
@@ -73,18 +76,14 @@ bool TrackerThread::work()
         boost::mutex::scoped_lock Lock(*m_pMutex);
         *(m_pBitmaps[TRACKER_IMG_CAMERA]) = *pTempBmp;
     }
-    calcHistory();
-    {
-        boost::mutex::scoped_lock Lock(*m_pMutex);
-        m_pBitmaps[TRACKER_IMG_HISTORY]->copyPixels(*m_pHistoryBmp);
-    }
-    pTempBmp = subtractHistory();
+    m_pPreProcessor->applyInPlace(pTempBmp);
     {
         boost::mutex::scoped_lock Lock(*m_pMutex);
         m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pTempBmp);
     }
     //get bloblist
-    BlobListPtr comps = connected_components(m_pBitmaps[TRACKER_IMG_NOHISTORY], m_Threshold);
+    //BlobListPtr comps = connected_components(m_pBitmaps[TRACKER_IMG_NOHISTORY], m_Threshold);
+    BlobListPtr comps = connected_components(pTempBmp, m_Threshold);
     {
         boost::mutex::scoped_lock Lock(*m_pMutex);
         FilterFill<Pixel8>(0x00).applyInPlace(m_pBitmaps[TRACKER_IMG_COMPONENTS]);
@@ -128,48 +127,5 @@ void TrackerThread::setShutter(int Shutter)
     m_pCamera->setFeature("shutter", Shutter);
 }
 
-void TrackerThread::calcHistory()
-{
-    if (m_bHistoryInitialized) {
-        const unsigned char * pSrc = m_pBitmaps[TRACKER_IMG_CAMERA]->getPixels();
-        unsigned short * pDest = (unsigned short *)(m_pHistoryBmp->getPixels());
-        int DestStride = m_pHistoryBmp->getStride()/m_pHistoryBmp->getBytesPerPixel();
-        IntPoint Size = m_pHistoryBmp->getSize();
-        for (int y=0; y<Size.y; y++) {
-            const unsigned char * pSrcPixel = pSrc;
-            unsigned short * pDestPixel = pDest;
-            for (int x=0; x<Size.x; x++) {
-                *pDestPixel = (255*((long)*pDestPixel))/256 + *pSrcPixel;
-                pDestPixel++;
-                pSrcPixel++;
-            }
-            pDest += DestStride;
-            pSrc += m_pBitmaps[TRACKER_IMG_CAMERA]->getStride();
-        }
-    } else {
-        m_pHistoryBmp->copyPixels(*m_pBitmaps[TRACKER_IMG_CAMERA]);
-        m_bHistoryInitialized = true;
-    }
-}
-
-BitmapPtr TrackerThread::subtractHistory()
-{
-    BitmapPtr pNoHistoryBmp(new Bitmap(*m_pBitmaps[TRACKER_IMG_CAMERA]));
-    const unsigned char * pSrc = m_pBitmaps[TRACKER_IMG_HISTORY]->getPixels();
-    unsigned char * pDest = pNoHistoryBmp->getPixels();
-    IntPoint Size = pNoHistoryBmp->getSize();
-    for (int y=0; y<Size.y; y++) {
-        const unsigned char * pSrcPixel = pSrc;
-        unsigned char * pDestPixel = pDest;
-        for (int x=0; x<Size.x; x++) {
-            *pDestPixel = (unsigned char)abs(*pDestPixel - *pSrcPixel);
-            pDestPixel++;
-            pSrcPixel++;
-        }
-        pDest += pNoHistoryBmp->getStride();
-        pSrc += m_pBitmaps[TRACKER_IMG_CAMERA]->getStride();
-    }
-    return pNoHistoryBmp;
-}
 
 }
