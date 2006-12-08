@@ -22,19 +22,18 @@
 #include "TrackerThread.h"
 
 namespace avg {
-    TrackerConfig::TrackerConfig(int Brightness, int Exposure, int Gain, 
-            int Shutter, int Threshold, double Similarity, 
-            double MinArea, double MaxArea, 
-            double MinEccentricity, double MaxEccentricity)
-        : m_Brightness(Brightness),
-          m_Exposure(Exposure),
-          m_Gain(Gain),
-          m_Threshold(Threshold),
-          m_Similarity(Similarity)
+    TrackerConfig::TrackerConfig()
+        : m_Brightness(128),
+          m_Exposure(128),
+          m_Gain(128),
+          m_Shutter(128),
+          m_Threshold(20),
+          m_HistoryUpdateInterval(5),
+          m_Similarity(31)
     {
-          m_AreaBounds[0] = MinArea;
-          m_AreaBounds[1] = MaxArea;
-          m_EccentricityBounds[0] = MinEccentricity; 
-          m_EccentricityBounds[1] = MaxEccentricity;
+          m_AreaBounds[0] = 80;
+          m_AreaBounds[1] = 450;
+          m_EccentricityBounds[0] = 1; 
+          m_EccentricityBounds[1] = 3;
     } 
 }

@@ -137,7 +137,7 @@ namespace avg {
 
 
     TrackerEventSource::TrackerEventSource(CameraPtr pCamera, bool bSubtractHistory)
-        : m_TrackerConfig(128, 128, 128, 128, 20, 31, 80, 450, 1, 3)
+        : m_TrackerConfig()
     {
         AVG_TRACE(Logger::CONFIG,"TrackerEventSource using default filter created");
         IntPoint ImgDimensions = pCamera->getImgSize();
@@ -177,6 +177,18 @@ namespace avg {
     int TrackerEventSource::getThreshold()
     {
         return m_TrackerConfig.m_Threshold;
+    }
+    
+    void TrackerEventSource::setHistorySpeed(int UpdateInterval)
+    {
+        m_TrackerConfig.m_HistoryUpdateInterval = UpdateInterval;
+        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
+                &TrackerThread::setHistorySpeed, _1, UpdateInterval)));
+    }
+    
+    int TrackerEventSource::getHistorySpeed()
+    {
+        return m_TrackerConfig.m_HistoryUpdateInterval;
     }
 
     void TrackerEventSource::setBrightness(int Brightness) 

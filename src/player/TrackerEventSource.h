@@ -47,9 +47,10 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         TrackerEventSource(CameraPtr pCamera, bool bSubtractHistory = true);
         virtual ~TrackerEventSource();
 
-        // More parameters possible: Barrel/pincushion, history length,...
         void setThreshold(int Threshold);
         int getThreshold();
+        void setHistorySpeed(int UpdateInterval);
+        int getHistorySpeed();
         void setBrightness(int Brightness);
         int getBrightness();
         void setExposure(int Exposure);

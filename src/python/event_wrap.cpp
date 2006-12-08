@@ -109,6 +109,8 @@ void export_event()
             "Returns one of the intermediate images necessary for tracking.\n")
         .add_property("threshold", &TrackerEventSource::getThreshold,
             &TrackerEventSource::setThreshold)
+        .add_property("historyspeed", &TrackerEventSource::getHistorySpeed,
+            &TrackerEventSource::setHistorySpeed)
         .add_property("brightness", &TrackerEventSource::getBrightness,
             &TrackerEventSource::setBrightness)
         .add_property("exposure", &TrackerEventSource::getExposure,

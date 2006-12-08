@@ -50,6 +50,12 @@ class TrackingTestCase(unittest.TestCase):
         elif Event.keystring == "b":
             self.__tracker.gain -= 5
             print "Gain: ", self.__tracker.gain
+        elif Event.keystring == "h":
+            self.__tracker.historyspeed += 1
+            print "HistorySpeed: ", self.__tracker.historyspeed
+        elif Event.keystring == "n":
+            self.__tracker.historyspeed -= 1
+            print "HistorySpeed: ", self.__tracker.historyspeed
     def onFrame(self):
         Bitmap = self.__tracker.getImage(avg.IMG_CAMERA)
         Player.getElementByID("camera").setBitmap(Bitmap)
@@ -78,10 +84,10 @@ Log.setCategories(Log.APP |
           Log.PROFILE |
 #          Log.PROFILE_LATEFRAMES |
           Log.CONFIG |
-          Log.MEMORY  
-#          Log.EVENTS2 |
+          Log.MEMORY | 
+          Log.EVENTS2 |
 #          Log.BLTS    |
-#          Log.EVENTS
+          Log.EVENTS
           )
 
 runner = unittest.TextTestRunner()

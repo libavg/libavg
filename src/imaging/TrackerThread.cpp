@@ -106,6 +106,11 @@ void TrackerThread::setThreshold(int Threshold)
     m_Threshold = Threshold;
 }
 
+void TrackerThread::setHistorySpeed(int UpdateInterval)
+{
+    m_pHistoryPreProcessor->reconfigure(UpdateInterval, false);
+}
+
 void TrackerThread::setBrightness(int Brightness) 
 {
     m_pCamera->setFeature("brightness", Brightness);

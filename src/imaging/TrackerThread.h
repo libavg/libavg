@@ -66,7 +66,9 @@ class TrackerThread: public WorkerThread<TrackerThread>
         bool work();
         void deinit();
 
-        void setThreshold(int Threshold); 
+        void setThreshold(int Threshold);
+        void setHistorySpeed(int UpdateInterval);
+
         void setBrightness(int Brightness); 
         void setExposure(int Exposure); 
         void setGain(int Gain); 
