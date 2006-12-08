@@ -39,16 +39,16 @@ class TrackingTestCase(unittest.TestCase):
             self.__tracker.exposure -= 1
             print "Exposure: ", self.__tracker.exposure
         elif Event.keystring == "f":
-            self.__tracker.shutter += 1
+            self.__tracker.shutter += 5
             print "Shutter: ", self.__tracker.shutter
         elif Event.keystring == "v":
-            self.__tracker.shutter -= 1
+            self.__tracker.shutter -= 5
             print "Shutter: ", self.__tracker.shutter
         elif Event.keystring == "g":
-            self.__tracker.gain += 1
+            self.__tracker.gain += 5
             print "Gain: ", self.__tracker.gain
         elif Event.keystring == "b":
-            self.__tracker.gain -= 1
+            self.__tracker.gain -= 5
             print "Gain: ", self.__tracker.gain
     def onFrame(self):
         Bitmap = self.__tracker.getImage(avg.IMG_CAMERA)
@@ -65,7 +65,7 @@ class TrackingTestCase(unittest.TestCase):
 #        Player.getTestHelper().useFakeCamera(True)
         self.__tracker = Player.addTracker("/dev/video1394/0", 60, "640x480_MONO8")
         Player.setInterval(1, self.onFrame)
-        Player.setResolution(0, 640, 480, 24)
+#        Player.setResolution(0, 640, 480, 24)
         Player.play()
 
 def playerTestSuite():

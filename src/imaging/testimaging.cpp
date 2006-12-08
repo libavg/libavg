@@ -77,7 +77,6 @@ public:
                 {
                     TEST(pBlobs->size() == 1);
                     BlobInfoPtr pBlobInfo = (*pBlobs->begin())->getInfo();
-                    cerr<<pBlobInfo->m_Orientation<<endl;
                     TEST(fabs(pBlobInfo->m_Area-16)<0.001);
                     TEST(fabs(pBlobInfo->m_Orientation)<0.001);
                     TEST(fabs(pBlobInfo->m_Center.x-11.5)<0.0001); 
@@ -94,7 +93,6 @@ public:
                 {
                     TEST(pBlobs->size() == 1);
                     BlobInfoPtr pBlobInfo = (*pBlobs->begin())->getInfo();
-                    cerr<<pBlobInfo->m_Orientation<<endl;
                     TEST(fabs(pBlobInfo->m_Area-114)<0.001);
                     TEST(pBlobInfo->m_BoundingBox == IntRect(4,15,31,21)); 
                 }

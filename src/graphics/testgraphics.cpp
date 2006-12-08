@@ -372,7 +372,6 @@ public:
             char * pSrcDir = getenv("srcdir");
             string sFilename;
             if (pSrcDir) {
-                cerr << pSrcDir << endl;
                 sFilename = (string)pSrcDir+"/";
             }
             sFilename += "../test/rgb24-64x64.png";
@@ -451,55 +450,33 @@ public:
     HistoryPreProcessorTest()
         : Test("HistoryPreProcessor", 2)
     {
-        try {
-            char * pSrcDir = getenv("srcdir");
-            string sFilename;
-            if (pSrcDir) {
-                cerr << pSrcDir << endl;
-                sFilename = (string)pSrcDir+"/";
-            }
-            sFilename += "../test/rgb24-64x64.png";
-            m_pBmp = FilterGrayscale().apply(BitmapPtr(new Bitmap(sFilename)));
-        } catch (Magick::Exception & ex) {
-            cerr << ex.what() << endl;
-            setFailed();
-        }
     }
     void testEqual(Bitmap& Bmp1, Bitmap& Bmp2) 
     {
         TEST(Bmp1 == Bmp2);
         if (!(Bmp1 == Bmp2)) {
             cerr << "Bmp1: " << endl;
-            Bmp1.dump();
-            for(int i=0;i<Bmp1.getSize().x;++i){
-                cerr<<(int)*(Bmp1.getPixels()+i);
-            }
-            cerr<<endl;
+            Bmp1.dump(true);
             cerr << "Bmp2: " << endl;
-            for(int i=0;i<Bmp2.getSize().x;++i){
-                cerr<<(int)*(Bmp2.getPixels()+i);
-            }
-            cerr<<endl;
-            Bmp2.dump();
+            Bmp2.dump(true);
         }
     }
 
     void runTests() 
     {
-        BitmapPtr pBmp = BitmapPtr(new Bitmap(*m_pBmp));
+        BitmapPtr pBaseBmp = initBmp(I8);
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(*pBaseBmp));
         BitmapPtr nullBmp = FilterFill<Pixel8>(0).apply(pBmp);
-        pBmp->copyPixels(*m_pBmp);
-        HistoryPreProcessor filt=HistoryPreProcessor(m_pBmp->getSize());
-        filt.applyInPlace(pBmp);
+        pBmp->copyPixels(*pBaseBmp);
+        HistoryPreProcessor filt=HistoryPreProcessor(pBaseBmp->getSize());
+        pBmp = filt.apply(pBaseBmp);
         testEqual(*pBmp, *nullBmp);
         for(int i=0;i<1;i++){
-            filt.applyInPlace(pBmp);
+            pBmp = filt.apply(pBaseBmp);
             testEqual(*pBmp, *nullBmp);
         }
     }
 
-private:
-    BitmapPtr m_pBmp;
 };
     
 

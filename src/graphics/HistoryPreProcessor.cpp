@@ -1,21 +1,25 @@
 #include "HistoryPreProcessor.h"
 #include "Bitmap.h"
 #include "Filterfill.h"
+
 #include <iostream>
+
+using namespace std;
+
 namespace avg {
     
 HistoryPreProcessor::HistoryPreProcessor(IntPoint dimensions, unsigned int frame_skip)
-    :m_FrameCounter(0),
-    m_FrameSkip(frame_skip),
-    m_bHistoryInitialized(false)
+    : m_FrameCounter(0),
+      m_FrameSkip(frame_skip),
+      m_bHistoryInitialized(false)
 {
-    m_pHistoryBmp = BitmapPtr(new Bitmap(dimensions, I8));
+    m_pHistoryBmp = BitmapPtr(new Bitmap(dimensions, I16));
 }
 
 HistoryPreProcessor::~HistoryPreProcessor()
 {
 }
-void HistoryPreProcessor::reconfigure(unsigned short N, unsigned int frame_skip, bool reset)
+void HistoryPreProcessor::reconfigure(unsigned int frame_skip, bool reset)
 {
     m_FrameCounter = 0;
     m_FrameSkip = frame_skip;
@@ -36,14 +40,14 @@ void HistoryPreProcessor::updateHistory(BitmapPtr new_img)
         }
         m_FrameCounter = 0;
         const unsigned char * pSrc = new_img->getPixels();
-        unsigned char * pDest = (m_pHistoryBmp->getPixels());
+        unsigned short * pDest = (unsigned short*)(m_pHistoryBmp->getPixels());
         int DestStride = m_pHistoryBmp->getStride()/m_pHistoryBmp->getBytesPerPixel();
         IntPoint Size = m_pHistoryBmp->getSize();
         for (int y=0; y<Size.y; y++) {
             const unsigned char * pSrcPixel = pSrc;
-            unsigned char * pDestPixel = pDest;
+            unsigned short * pDestPixel = pDest;
             for (int x=0; x<Size.x; x++) {
-                int t = 255*(*pDestPixel);
+                int t = 255*int(*pDestPixel);
                 *pDestPixel = (t)/256 + *pSrcPixel;
                 pDestPixel++;
                 pSrcPixel++;
@@ -55,24 +59,19 @@ void HistoryPreProcessor::updateHistory(BitmapPtr new_img)
         m_pHistoryBmp->copyPixels(*new_img);
         m_bHistoryInitialized = true;
     }
-    m_pHistoryBmp->dump();
-    for(int i=0;i<m_pHistoryBmp->getSize().x;++i){
-        std::cerr<<(int)*(m_pHistoryBmp->getPixels()+i);
-    }
-    std::cerr<<std::endl;
 }
 
 void HistoryPreProcessor::applyInPlace(BitmapPtr img){
     updateHistory(img);
-    unsigned char * pSrc = m_pHistoryBmp->getPixels();
+    unsigned short * pSrc = (unsigned short*)m_pHistoryBmp->getPixels();
     int SrcStride = m_pHistoryBmp->getStride()/m_pHistoryBmp->getBytesPerPixel();
     unsigned char * pDest = img->getPixels();
     IntPoint Size = img->getSize();
     for (int y=0; y<Size.y; y++) {
-        const unsigned char * pSrcPixel = pSrc;
+        const unsigned short * pSrcPixel = pSrc;
         unsigned char * pDestPixel = pDest;
         for (int x=0; x<Size.x; x++) {
-            *pDestPixel = (unsigned char)abs((int)*pDestPixel - (int)*pSrcPixel);
+            *pDestPixel = (unsigned char)abs((int)*pDestPixel - (int)(*pSrcPixel)/256);
             pDestPixel++;
             pSrcPixel++;
         }
