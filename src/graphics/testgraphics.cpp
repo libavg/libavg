@@ -31,7 +31,7 @@
 #include "Filterfliprgb.h"
 #include "Filterflipuv.h"
 #include "Filter3x3.h"
-
+#include "HistoryPreProcessor.h"
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
 
@@ -446,6 +446,62 @@ private:
     }
 };
     
+class HistoryPreProcessorTest: public Test {
+public:
+    HistoryPreProcessorTest()
+        : Test("HistoryPreProcessor", 2)
+    {
+        try {
+            char * pSrcDir = getenv("srcdir");
+            string sFilename;
+            if (pSrcDir) {
+                cerr << pSrcDir << endl;
+                sFilename = (string)pSrcDir+"/";
+            }
+            sFilename += "../test/rgb24-64x64.png";
+            m_pBmp = FilterGrayscale().apply(BitmapPtr(new Bitmap(sFilename)));
+        } catch (Magick::Exception & ex) {
+            cerr << ex.what() << endl;
+            setFailed();
+        }
+    }
+    void testEqual(Bitmap& Bmp1, Bitmap& Bmp2) 
+    {
+        TEST(Bmp1 == Bmp2);
+        if (!(Bmp1 == Bmp2)) {
+            cerr << "Bmp1: " << endl;
+            Bmp1.dump();
+            for(int i=0;i<Bmp1.getSize().x;++i){
+                cerr<<(int)*(Bmp1.getPixels()+i);
+            }
+            cerr<<endl;
+            cerr << "Bmp2: " << endl;
+            for(int i=0;i<Bmp2.getSize().x;++i){
+                cerr<<(int)*(Bmp2.getPixels()+i);
+            }
+            cerr<<endl;
+            Bmp2.dump();
+        }
+    }
+
+    void runTests() 
+    {
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(*m_pBmp));
+        BitmapPtr nullBmp = FilterFill<Pixel8>(0).apply(pBmp);
+        pBmp->copyPixels(*m_pBmp);
+        HistoryPreProcessor filt=HistoryPreProcessor(m_pBmp->getSize());
+        filt.applyInPlace(pBmp);
+        testEqual(*pBmp, *nullBmp);
+        for(int i=0;i<1;i++){
+            filt.applyInPlace(pBmp);
+            testEqual(*pBmp, *nullBmp);
+        }
+    }
+
+private:
+    BitmapPtr m_pBmp;
+};
+    
 
 class GraphicsTestSuite: public TestSuite {
 public:
@@ -461,6 +517,7 @@ public:
         addTest(TestPtr(new FilterFlipRGBTest));
         addTest(TestPtr(new FilterFlipUVTest));
         addTest(TestPtr(new FilterComboTest));
+        addTest(TestPtr(new HistoryPreProcessorTest));
     }
 };
 
