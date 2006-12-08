@@ -49,6 +49,7 @@ BitmapPtr FilterGrayscale::apply(BitmapPtr pBmpSrc)
     unsigned char * pSrcLine = pBmpSrc->getPixels();
     unsigned char * pDestLine = pBmpDest->getPixels();
     IntPoint size = pBmpDest->getSize();
+    int bpp = pBmpSrc->getBytesPerPixel();
     for (int y = 0; y<size.y; ++y) {
         unsigned char * pSrcPixel = pSrcLine;
         unsigned char * pDstPixel = pDestLine;
@@ -59,13 +60,13 @@ BitmapPtr FilterGrayscale::apply(BitmapPtr pBmpSrc)
                 *pDstPixel = (unsigned char)((pSrcPixel[REDPOS]*54+
                         pSrcPixel[GREENPOS]*183+
                         pSrcPixel[BLUEPOS]*19)/256);
-                pSrcPixel += pBmpSrc->getBytesPerPixel();
+                pSrcPixel += bpp;
                 ++pDstPixel;
             } else {
                 *pDstPixel = (unsigned char)((pSrcPixel[BLUEPOS]*54+
                         pSrcPixel[GREENPOS]*183+
                         pSrcPixel[REDPOS]*19)/256);
-                pSrcPixel += pBmpSrc->getBytesPerPixel();
+                pSrcPixel += bpp;
                 ++pDstPixel;
             }
         }
