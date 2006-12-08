@@ -8,9 +8,9 @@ using namespace std;
 
 namespace avg {
     
-HistoryPreProcessor::HistoryPreProcessor(IntPoint dimensions, unsigned int frame_skip)
+HistoryPreProcessor::HistoryPreProcessor(IntPoint dimensions, unsigned int UpdateInterval)
     : m_FrameCounter(0),
-      m_FrameSkip(frame_skip),
+      m_UpdateInterval(UpdateInterval),
       m_bHistoryInitialized(false)
 {
     m_pHistoryBmp = BitmapPtr(new Bitmap(dimensions, I16));
@@ -19,13 +19,12 @@ HistoryPreProcessor::HistoryPreProcessor(IntPoint dimensions, unsigned int frame
 HistoryPreProcessor::~HistoryPreProcessor()
 {
 }
-void HistoryPreProcessor::reconfigure(unsigned int frame_skip, bool reset)
+void HistoryPreProcessor::reconfigure(unsigned int UpdateInterval, bool reset)
 {
     m_FrameCounter = 0;
-    m_FrameSkip = frame_skip;
+    m_UpdateInterval = UpdateInterval;
     if(reset){
-        //FilterFill<Pixel16> filt(0x0).applyInPlace(m_pHistoryBmp);
-        //FIXME
+        m_bHistoryInitialized = false;
     }
 }
 
@@ -34,7 +33,7 @@ void HistoryPreProcessor::updateHistory(BitmapPtr new_img)
     assert(new_img->getSize() == m_pHistoryBmp->getSize());
     //else
     if (m_bHistoryInitialized) {
-        if (m_FrameSkip && (m_FrameCounter <= m_FrameSkip)){
+        if (m_FrameCounter < m_UpdateInterval-1){
             m_FrameCounter++;
             return;
         }

@@ -32,7 +32,6 @@
 #include "TestHelper.h"
 #include "Node.h"
 #include "DisplayParams.h"
-#include "TrackerEventSource.h"
 
 #include "../base/IFrameListener.h"
 
@@ -47,6 +46,7 @@ namespace avg {
 class Event;
 class MouseEvent;
 class DisplayEngine;
+class TrackerEventSource;
 
 class Player : IEventSink
 {
@@ -120,7 +120,7 @@ class Player : IEventSink
         typedef std::map<std::string, NodePtr> NodeIDMap;
         NodeIDMap m_IDMap;
 
-        TrackerEventSourcePtr m_pTracker;
+        TrackerEventSource * m_pTracker;
 
         int addTimeout(Timeout* pTimeout);
         void removeTimeout(Timeout* pTimeout);

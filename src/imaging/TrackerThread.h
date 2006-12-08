@@ -23,8 +23,7 @@
 #include "TrackerCmd.h"
 #include "Camera.h"
 #include "ConnectedComps.h"
-#include "../graphics/Filter.h"
-
+#include "../graphics/HistoryPreProcessor.h"
 #include "../graphics/Bitmap.h"
 #include "../base/WorkerThread.h"
 #include "../base/Command.h"
@@ -38,7 +37,6 @@ namespace avg {
 
 typedef enum {
         TRACKER_IMG_CAMERA,
-        TRACKER_IMG_HISTORY,
         TRACKER_IMG_NOHISTORY,
         TRACKER_IMG_COMPONENTS,
         NUM_TRACKER_IMAGES
@@ -61,7 +59,7 @@ class TrackerThread: public WorkerThread<TrackerThread>
                 MutexPtr pMutex,
                 CmdQueue& CmdQ,
                 IBlobTarget *target,
-                Filter *preproc);
+                bool bSubtractHistory);
         virtual ~TrackerThread();
 
         bool init();
@@ -78,7 +76,6 @@ class TrackerThread: public WorkerThread<TrackerThread>
         void checkMessages();
         void calcHistory();
         bool isfinger(BlobPtr blob);
-        BitmapPtr subtractHistory();
 
         std::string m_sDevice;
         double m_FrameRate;
@@ -88,12 +85,10 @@ class TrackerThread: public WorkerThread<TrackerThread>
         BlobListPtr m_pBlobList;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
         MutexPtr m_pMutex;
-        BitmapPtr m_pHistoryBmp;
-        bool m_bHistoryInitialized;
 
         CameraPtr  m_pCamera;
         IBlobTarget *m_pTarget;
-        Filter *m_pPreProcessor;
+        HistoryPreProcessorPtr m_pHistoryPreProcessor;
 };
 
 }

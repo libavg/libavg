@@ -35,19 +35,19 @@ TrackerThread::TrackerThread(CameraPtr pCamera, int Threshold,
         MutexPtr pMutex,
         CmdQueue& CmdQ,
         IBlobTarget *target,
-        Filter *preproc
-        )
+        bool bSubtractHistory)
     : WorkerThread<TrackerThread>(CmdQ),
       m_Threshold(Threshold),
       m_pMutex(pMutex),
-      m_bHistoryInitialized(false),
       m_pCamera(pCamera),
-      m_pTarget(target),
-      m_pPreProcessor(preproc)
-
+      m_pTarget(target)
 {
     for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
         m_pBitmaps[i] = ppBitmaps[i];
+    }
+    if (bSubtractHistory) {
+        m_pHistoryPreProcessor = HistoryPreProcessorPtr(
+                new HistoryPreProcessor(m_pBitmaps[0]->getSize(), 1));
     }
 }
 
@@ -57,9 +57,6 @@ TrackerThread::~TrackerThread()
 
 bool TrackerThread::init()
 {
-    m_pHistoryBmp = BitmapPtr(new Bitmap(m_pBitmaps[0]->getSize(), I16));
-    memset(m_pHistoryBmp->getPixels(), 0, 
-            m_pHistoryBmp->getSize().y*m_pHistoryBmp->getStride());
     AVG_TRACE(Logger::CONFIG, "Tracker thread started.");
     m_pCamera->open();
     return true;
@@ -76,7 +73,9 @@ bool TrackerThread::work()
         boost::mutex::scoped_lock Lock(*m_pMutex);
         *(m_pBitmaps[TRACKER_IMG_CAMERA]) = *pTempBmp;
     }
-    m_pPreProcessor->applyInPlace(pTempBmp);
+    if (m_pHistoryPreProcessor) {
+        m_pHistoryPreProcessor->applyInPlace(pTempBmp);
+    }
     {
         boost::mutex::scoped_lock Lock(*m_pMutex);
         m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pTempBmp);

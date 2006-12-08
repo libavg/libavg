@@ -109,16 +109,19 @@ namespace avg {
             case FRESH:
                 m_State = TOUCH_DELIVERED;
                 //return fingerdown
-                return new MouseEvent(MouseEvent::MOUSEBUTTONDOWN, true, false, false, m_Pos.x,m_Pos.y, MouseEvent::LEFT_BUTTON); 
+                return new MouseEvent(MouseEvent::MOUSEBUTTONDOWN, true, false, false, 
+                        (int)m_Pos.x, (int)m_Pos.y, MouseEvent::LEFT_BUTTON); 
                 break;
             case INMOTION:
                 m_State = RESTING;
                 //return motion
-                return new MouseEvent(MouseEvent::MOUSEMOTION, true, false, false, m_Pos.x,m_Pos.y, MouseEvent::LEFT_BUTTON); 
+                return new MouseEvent(MouseEvent::MOUSEMOTION, true, false, false,
+                        (int)m_Pos.x, (int)m_Pos.y, MouseEvent::LEFT_BUTTON); 
                 break;
             case FINGERUP:
                 m_State = DONE;
-                return new MouseEvent(MouseEvent::MOUSEBUTTONUP, false, false, false, m_Pos.x,m_Pos.y, MouseEvent::LEFT_BUTTON); 
+                return new MouseEvent(MouseEvent::MOUSEBUTTONUP, false, false, false,
+                        (int)m_Pos.x, (int)m_Pos.y, MouseEvent::LEFT_BUTTON); 
                 //return fingerup
                 break;
             case TOUCH_DELIVERED:
@@ -133,15 +136,10 @@ namespace avg {
 
 
 
-    TrackerEventSource::TrackerEventSource(CameraPtr pCamera)
+    TrackerEventSource::TrackerEventSource(CameraPtr pCamera, bool bSubtractHistory)
         : m_TrackerConfig(128, 128, 128, 128, 20, 31, 80, 450, 1, 3)
     {
-        TrackerEventSource(pCamera, new HistoryPreProcessor(pCamera->getImgSize()));
-    }
-    TrackerEventSource::TrackerEventSource(CameraPtr pCamera, Filter *preproc)
-        : m_TrackerConfig(128, 128, 128, 128, 20, 31, 80, 450, 1, 3)
-    {
-        AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
+        AVG_TRACE(Logger::CONFIG,"TrackerEventSource using default filter created");
         IntPoint ImgDimensions = pCamera->getImgSize();
         for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
             m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgDimensions, I8));
@@ -149,7 +147,6 @@ namespace avg {
         m_pUpdateMutex = MutexPtr(new boost::mutex);
         m_pTrackerMutex = MutexPtr(new boost::mutex);
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
-        m_pPreProcessor = preproc;
         m_pTrackerThread = new boost::thread(
                 TrackerThread(pCamera,
                     m_TrackerConfig.m_Threshold,
@@ -157,11 +154,10 @@ namespace avg {
                     m_pTrackerMutex,
                     *m_pCmdQueue,
                     this,
-                    &*m_pPreProcessor
+                    bSubtractHistory
                     )
                 );
         AVG_TRACE(Logger::CONFIG,"TrackerThread created");
-
     }
 
     TrackerEventSource::~TrackerEventSource()
@@ -169,7 +165,6 @@ namespace avg {
         m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::stop, _1)));
         m_pTrackerThread->join();
         delete m_pTrackerThread;
-        delete m_pPreProcessor;
     }
 
     void TrackerEventSource::setThreshold(int Threshold) 

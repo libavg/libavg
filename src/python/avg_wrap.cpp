@@ -31,6 +31,7 @@ void export_devices();
 #include "../player/AVGNode.h"
 #include "../player/DivNode.h"
 #include "../player/PanoImage.h"
+#include "../player/TrackerEventSource.h"
 
 #include <boost/python.hpp>
 #include <boost/version.hpp>

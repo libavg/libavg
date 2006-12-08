@@ -8,7 +8,7 @@
 namespace avg {
 class HistoryPreProcessor: public Filter{
     public:
-        HistoryPreProcessor(IntPoint dimensions, unsigned int frame_skip = 0);
+        HistoryPreProcessor(IntPoint dimensions, unsigned int UpdateInterval = 1);
         ~HistoryPreProcessor();
         virtual void applyInPlace(BitmapPtr pBmp);
         void reconfigure(unsigned int frame_skip, bool reset);
@@ -17,7 +17,7 @@ class HistoryPreProcessor: public Filter{
         BitmapPtr substractHistory(BitmapPtr new_img);
         BitmapPtr m_pHistoryBmp;
         unsigned int m_FrameCounter;
-        unsigned int m_FrameSkip;
+        unsigned int m_UpdateInterval;
         bool m_bHistoryInitialized;
 };
 

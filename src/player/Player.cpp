@@ -38,6 +38,7 @@
 #include "Image.h"
 #include "PanoImage.h"
 
+#include "TrackerEventSource.h"
 #include "Event.h"
 #include "MouseEvent.h"
 #include "KeyEvent.h"
@@ -82,6 +83,7 @@ Player::Player()
     : m_pRootNode(),
       m_pDisplayEngine(0),
       m_TestHelper(this),
+      m_pTracker(0),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false), 
       m_pLastMouseNode(),
@@ -104,6 +106,9 @@ Player::~Player()
 {
     if (m_pDisplayEngine) {
         delete m_pDisplayEngine;
+    }
+    if (m_pTracker) {
+        delete m_pTracker;
     }
 }
 
@@ -308,9 +313,9 @@ TrackerEventSource * Player::addTracker(std::string sDevice, double FrameRate,
 //    } else {
         pCamera = CameraPtr(new Camera(sDevice, FrameRate, sMode, false));
 //    }
-    m_pTracker = TrackerEventSourcePtr(new TrackerEventSource(pCamera));
-    m_EventDispatcher.addSource(&(*m_pTracker));
-    return &(*m_pTracker);
+    m_pTracker = new TrackerEventSource(pCamera);
+    m_EventDispatcher.addSource(m_pTracker);
+    return m_pTracker;
 }
 
 int Player::setInterval(int time, PyObject * pyfunc)

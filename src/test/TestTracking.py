@@ -53,8 +53,6 @@ class TrackingTestCase(unittest.TestCase):
     def onFrame(self):
         Bitmap = self.__tracker.getImage(avg.IMG_CAMERA)
         Player.getElementByID("camera").setBitmap(Bitmap)
-        Bitmap = self.__tracker.getImage(avg.IMG_HISTORY)
-        Player.getElementByID("history").setBitmap(Bitmap)
         Bitmap = self.__tracker.getImage(avg.IMG_NOHISTORY)
         Player.getElementByID("nohistory").setBitmap(Bitmap)
         Bitmap = self.__tracker.getImage(avg.IMG_COMPONENTS)

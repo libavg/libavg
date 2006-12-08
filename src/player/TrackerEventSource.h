@@ -44,8 +44,7 @@ typedef std::map<BlobPtr, EventStreamPtr> EventMap;
 class TrackerEventSource: public IBlobTarget, public IEventSource
 {
     public:
-        TrackerEventSource(CameraPtr pCamera);
-        TrackerEventSource(CameraPtr pCamera, Filter *preproc);
+        TrackerEventSource(CameraPtr pCamera, bool bSubtractHistory = true);
         virtual ~TrackerEventSource();
 
         // More parameters possible: Barrel/pincushion, history length,...
@@ -75,7 +74,6 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         MutexPtr m_pTrackerMutex;
         MutexPtr m_pUpdateMutex;
 
-        Filter *m_pPreProcessor;
         boost::thread* m_pTrackerThread;
 
         TrackerThread::CmdQueuePtr m_pCmdQueue;
