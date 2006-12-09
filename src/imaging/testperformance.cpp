@@ -64,7 +64,8 @@ public:
         //FilterIdPtr pp = FilterIdPtr(new FilterId());
         HistoryPreProcessorPtr pp = HistoryPreProcessorPtr(new HistoryPreProcessor(pCam->getImgSize()));
         boost::thread Thread(
-                TrackerThread(pCam, 128, pBitmaps, pMutex,  *m_pCmdQ, this,&*pp));
+                TrackerThread(pCam, pBitmaps, pMutex,  *m_pCmdQ, this,&*pp));
+        // TODO: Set TrackerConfig.
         Thread.join();
     }
     

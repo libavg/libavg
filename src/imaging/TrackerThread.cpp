@@ -30,14 +30,14 @@ using namespace std;
 
 namespace avg {
 
-TrackerThread::TrackerThread(CameraPtr pCamera, int Threshold, 
+TrackerThread::TrackerThread(CameraPtr pCamera,
         BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
         MutexPtr pMutex,
         CmdQueue& CmdQ,
         IBlobTarget *target,
         bool bSubtractHistory)
     : WorkerThread<TrackerThread>(CmdQ),
-      m_Threshold(Threshold),
+      m_Threshold(128),
       m_pMutex(pMutex),
       m_pCamera(pCamera),
       m_pTarget(target)
@@ -100,35 +100,14 @@ void TrackerThread::deinit()
     m_pCamera->close();
 }
 
-void TrackerThread::setThreshold(int Threshold) 
+void TrackerThread::setConfig(TrackerConfig Config)
 {
-    m_Threshold = Threshold;
+    m_Threshold = Config.m_Threshold;
+    m_pHistoryPreProcessor->reconfigure(Config.m_HistoryUpdateInterval, false);
+    m_pCamera->setFeature("brightness", Config.m_Brightness);
+    m_pCamera->setFeature("exposure", Config.m_Exposure);
+    m_pCamera->setFeature("gain", Config.m_Gain);
+    m_pCamera->setFeature("shutter", Config.m_Shutter);
 }
-
-void TrackerThread::setHistorySpeed(int UpdateInterval)
-{
-    m_pHistoryPreProcessor->reconfigure(UpdateInterval, false);
-}
-
-void TrackerThread::setBrightness(int Brightness) 
-{
-    m_pCamera->setFeature("brightness", Brightness);
-}
-
-void TrackerThread::setExposure(int Exposure) 
-{
-    m_pCamera->setFeature("exposure", Exposure);
-}
-
-void TrackerThread::setGain(int Gain) 
-{
-    m_pCamera->setFeature("gain", Gain);
-}
-
-void TrackerThread::setShutter(int Shutter) 
-{
-    m_pCamera->setFeature("shutter", Shutter);
-}
-
 
 }

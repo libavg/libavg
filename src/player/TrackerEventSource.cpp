@@ -149,7 +149,6 @@ namespace avg {
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
         m_pTrackerThread = new boost::thread(
                 TrackerThread(pCamera,
-                    m_TrackerConfig.m_Threshold,
                     m_pBitmaps, 
                     m_pTrackerMutex,
                     *m_pCmdQueue,
@@ -157,6 +156,7 @@ namespace avg {
                     bSubtractHistory
                     )
                 );
+        setConfig();
     }
 
     TrackerEventSource::~TrackerEventSource()
@@ -169,8 +169,7 @@ namespace avg {
     void TrackerEventSource::setThreshold(int Threshold) 
     {
         m_TrackerConfig.m_Threshold = Threshold;
-        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::setThreshold,
-                _1, Threshold)));
+        setConfig();
     }
 
     int TrackerEventSource::getThreshold()
@@ -181,8 +180,7 @@ namespace avg {
     void TrackerEventSource::setHistorySpeed(int UpdateInterval)
     {
         m_TrackerConfig.m_HistoryUpdateInterval = UpdateInterval;
-        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
-                &TrackerThread::setHistorySpeed, _1, UpdateInterval)));
+        setConfig();
     }
     
     int TrackerEventSource::getHistorySpeed()
@@ -193,8 +191,7 @@ namespace avg {
     void TrackerEventSource::setBrightness(int Brightness) 
     {
         m_TrackerConfig.m_Brightness = Brightness;
-        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::setBrightness,
-                _1, Brightness)));
+        setConfig();
     }
 
     int TrackerEventSource::getBrightness()
@@ -205,8 +202,7 @@ namespace avg {
     void TrackerEventSource::setExposure(int Exposure) 
     {
         m_TrackerConfig.m_Exposure = Exposure;
-        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::setExposure,
-                _1, Exposure)));
+        setConfig();
     }
 
     int TrackerEventSource::getExposure()
@@ -217,8 +213,7 @@ namespace avg {
     void TrackerEventSource::setGain(int Gain) 
     {
         m_TrackerConfig.m_Gain = Gain;
-        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::setGain,
-                _1, Gain)));
+        setConfig();
     }
 
     int TrackerEventSource::getGain()
@@ -229,13 +224,18 @@ namespace avg {
     void TrackerEventSource::setShutter(int Shutter) 
     {
         m_TrackerConfig.m_Shutter = Shutter;
-        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::setShutter,
-                _1, Shutter)));
+        setConfig();
     }
 
     int TrackerEventSource::getShutter()
     {
         return m_TrackerConfig.m_Shutter;
+    }
+       
+    void TrackerEventSource::setConfig()
+    {
+        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
+                &TrackerThread::setConfig, _1, m_TrackerConfig)));
     }
 
     Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const

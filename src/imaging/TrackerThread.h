@@ -54,7 +54,7 @@ class IBlobTarget {
 class TrackerThread: public WorkerThread<TrackerThread>
 {
     public:
-        TrackerThread(CameraPtr pCamera, int Threshold, 
+        TrackerThread(CameraPtr pCamera, 
                 BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
                 MutexPtr pMutex,
                 CmdQueue& CmdQ,
@@ -66,14 +66,8 @@ class TrackerThread: public WorkerThread<TrackerThread>
         bool work();
         void deinit();
 
-        void setThreshold(int Threshold);
-        void setHistorySpeed(int UpdateInterval);
-
-        void setBrightness(int Brightness); 
-        void setExposure(int Exposure); 
-        void setGain(int Gain); 
-        void setShutter(int Shutter); 
-
+        void setConfig(TrackerConfig Config);
+    
     private:
         void checkMessages();
         void calcHistory();

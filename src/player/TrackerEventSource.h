@@ -69,6 +69,7 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
     private:
         bool isfinger(BlobPtr blob);
         BlobPtr matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold);
+        void setConfig();
 
         TrackerConfig m_TrackerConfig;
         EventMap m_Events;

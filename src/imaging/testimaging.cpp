@@ -63,7 +63,7 @@ public:
         FilterIdPtr pp = FilterIdPtr(new FilterId());
         m_pCmdQ = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
         boost::thread Thread(
-                TrackerThread(pCam, 128, pBitmaps, pMutex,  *m_pCmdQ, this, &*pp));
+                TrackerThread(pCam, pBitmaps, pMutex,  *m_pCmdQ, this, &*pp));
         Thread.join();
     }
     
