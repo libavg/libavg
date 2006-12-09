@@ -1,12 +1,17 @@
 #ifndef _TrackerConfig
 #define _TrackerConfig
 
-#include <boost/shared_ptr.hpp>
+#include <string>
 
 namespace avg {
 
 struct TrackerConfig{
     TrackerConfig();
+    virtual ~TrackerConfig();
+    
+    void load(std::string sFilename);
+    void save(std::string sFilename);
+
     int m_Brightness;
     int m_Exposure;
     int m_Gain;

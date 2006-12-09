@@ -19,9 +19,47 @@
 //  Current versions can be found at www.libavg.de
 
 #include "TrackerConfig.h"
-#include "TrackerThread.h"
+
+#include "../base/XMLHelper.h"
+#include "../base/Logger.h"
+
+#include <libxml/parser.h>
+#include <libxml/xmlwriter.h>
+#include <libxml/xmlstring.h>
+
+#include <sstream>
+
+using namespace std;
 
 namespace avg {
+
+    template<class T>
+    void writeSimpleXMLNode(xmlTextWriterPtr writer, string sName, T Value)
+    {
+        int rc;
+        rc = xmlTextWriterStartElement(writer, BAD_CAST sName.c_str());
+        stringstream strs;
+        strs << Value;
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "value", 
+                BAD_CAST strs.str().c_str());
+        rc = xmlTextWriterEndElement(writer);
+    }
+        
+    void writeMinMaxXMLNode(xmlTextWriterPtr writer, string sName, double Val[2])
+    {
+        int rc;
+        rc = xmlTextWriterStartElement(writer, BAD_CAST sName.c_str());
+        stringstream strs1;
+        strs1 << Val[0];
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "min", 
+                BAD_CAST strs1.str().c_str());
+        stringstream strs2;
+        strs2 << Val[1];
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "max", 
+                BAD_CAST strs2.str().c_str());
+        rc = xmlTextWriterEndElement(writer);
+    }
+
     TrackerConfig::TrackerConfig()
         : m_Brightness(128),
           m_Exposure(128),
@@ -35,5 +73,70 @@ namespace avg {
           m_AreaBounds[1] = 450;
           m_EccentricityBounds[0] = 1; 
           m_EccentricityBounds[1] = 3;
+          load("TrackerConfig.xml");
     } 
+    
+    TrackerConfig::~TrackerConfig()
+    {
+//        save("TrackerConfig.xml");
+    }
+
+    void TrackerConfig::load(std::string sFilename)
+    {
+        xmlDocPtr doc;
+        doc = xmlParseFile(sFilename.c_str());
+        if (!doc) {
+            AVG_TRACE(Logger::WARNING, "Could not open tracker config file " 
+                    << sFilename << ".");
+            return;
+        }
+        xmlNodePtr pRoot = xmlDocGetRootElement(doc);
+        xmlNodePtr curXmlChild = pRoot->xmlChildrenNode;
+        while (curXmlChild) {
+            const char * pNodeName = (const char *)curXmlChild->name;
+            if (!strcmp(pNodeName, "brightness")) {
+                m_Brightness = getRequiredIntAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "exposure")) {
+                m_Exposure = getRequiredIntAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "gain")) {
+                m_Gain = getRequiredIntAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "shutter")) {
+                m_Shutter = getRequiredIntAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "threshold")) {
+                m_Threshold = getRequiredIntAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "historyupdateinterval")) {
+                m_HistoryUpdateInterval = getRequiredIntAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "similarity")) {
+                m_Similarity = getRequiredDoubleAttr(curXmlChild, "value");
+            }
+            curXmlChild = curXmlChild->next;
+        }
+
+    }
+
+    void TrackerConfig::save(std::string sFilename)
+    {
+        xmlDocPtr doc;
+        int rc;
+        stringstream ss;
+        xmlTextWriterPtr writer = xmlNewTextWriterDoc(&doc, 0);
+        rc = xmlTextWriterSetIndent(writer, 4);
+        rc = xmlTextWriterStartDocument(writer, NULL, "utf-8", NULL);
+        rc = xmlTextWriterStartElement(writer, BAD_CAST "trackerconfig");
+        writeSimpleXMLNode(writer, "brightness", m_Brightness);
+        writeSimpleXMLNode(writer, "exposure", m_Exposure);
+        writeSimpleXMLNode(writer, "gain", m_Gain);
+        writeSimpleXMLNode(writer, "shutter", m_Shutter);
+        writeSimpleXMLNode(writer, "threshold", m_Threshold);
+        writeSimpleXMLNode(writer, "historyupdateinterval", m_HistoryUpdateInterval);
+        writeSimpleXMLNode(writer, "similarity", m_Similarity);
+        writeMinMaxXMLNode(writer, "areabounds", m_AreaBounds);
+        writeMinMaxXMLNode(writer, "eccentricitybounds", m_EccentricityBounds);
+        rc = xmlTextWriterEndElement(writer);
+        rc = xmlTextWriterEndDocument(writer);
+        xmlFreeTextWriter(writer);
+        xmlSaveFileEnc(sFilename.c_str(), doc, "utf-8");
+        xmlFreeDoc(doc);
+    }
+
 }

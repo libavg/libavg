@@ -1,5 +1,5 @@
 
-INCLUDES = -I.. @PTHREAD_CFLAGS@
+INCLUDES = -I.. @PTHREAD_CFLAGS@  @XML2_CFLAGS@
 
 if ENABLE_1394
     DC1394_SOURCES = CameraThread.cpp CameraUtils.cpp

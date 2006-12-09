@@ -111,6 +111,14 @@ int getDefaultedIntAttr (const xmlNodePtr& xmlNode,
     return RVal;
 }
 
+int getRequiredIntAttr (const xmlNodePtr& xmlNode, 
+       const char * attr)
+{
+    int RVal;
+    xmlAttrToInt(xmlNode, attr, &RVal);
+    return RVal;
+}
+
 double getDefaultedDoubleAttr (const xmlNodePtr& xmlNode, 
        const char * attr, double def)
 {
