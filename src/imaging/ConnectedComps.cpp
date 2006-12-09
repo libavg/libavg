@@ -88,7 +88,7 @@ int Blob::getLabel(){
     }
 }
 
-void render(Bitmap *target, BlobPtr blob, unsigned char col){
+void render(Bitmap *target, BlobPtr blob, unsigned char col, bool mark_center ){
     //assert I8
     unsigned char *ptr;
     for(RunList::iterator r=blob->getList()->begin();r!=blob->getList()->end();++r){
@@ -99,7 +99,23 @@ void render(Bitmap *target, BlobPtr blob, unsigned char col){
             *(ptr++)=col;
             x_pos++;
         }
-    }    
+    }
+    if(mark_center) { 
+        DPoint c = blob->center();
+        IntPoint size = target->getSize();
+        int xstart = std::max(0,int(c.x-5)), xstop = std::min(int(c.x+5),size.x);
+        int ystart = std::max(0,int(c.y-5)), ystop = std::min(int(c.y+5),size.y);
+
+        ptr = target->getPixels()+int(c.y)*target->getStride();
+        for(int x=xstart;x<=xstop;++x){
+            *(ptr++)=0xaa^col;
+        }
+        ptr = target->getPixels()+ystart*target->getStride();
+        for(int y=ystart;y<=ystop;++y){
+            *ptr=0xaa^col;
+            ptr+=target->getStride();
+        }
+    }
 }
 
 BlobInfoPtr Blob::getInfo(){

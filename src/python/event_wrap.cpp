@@ -94,6 +94,7 @@ void export_event()
         .value("IMG_CAMERA", TRACKER_IMG_CAMERA)
         .value("IMG_NOHISTORY", TRACKER_IMG_NOHISTORY)
         .value("IMG_COMPONENTS", TRACKER_IMG_COMPONENTS)
+        .value("IMG_FINGERS", TRACKER_IMG_FINGERS)
         .export_values()
     ;
 

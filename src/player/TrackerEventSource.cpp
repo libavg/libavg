@@ -12,6 +12,8 @@
 #include "../imaging/Camera.h"
 
 #include "../graphics/HistoryPreProcessor.h"
+#include "../graphics/Filterfill.h"
+#include "../graphics/Pixel8.h"
 
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
@@ -301,6 +303,7 @@ double distance(BlobPtr p1, BlobPtr p2) {
        boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
        BlobListPtr old_blobs = BlobListPtr(new BlobList());
        EventStreamPtr e;
+       FilterFill<Pixel8>(0).applyInPlace(m_pBitmaps[TRACKER_IMG_FINGERS]);
        for(EventMap::iterator it=m_Events.begin();it!=m_Events.end();++it){
            (*it).second->m_Stale = true;
            old_blobs->push_back((*it).first);
@@ -308,8 +311,11 @@ double distance(BlobPtr p1, BlobPtr p2) {
        int known_counter=0, new_counter=0, ignored_counter=0; 
        for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2){
            if (!isfinger(*it2)){
+               render(&*m_pBitmaps[TRACKER_IMG_FINGERS], *it2, 0x99, false); 
                ignored_counter++;
                continue;
+           }else {
+               render(&*m_pBitmaps[TRACKER_IMG_FINGERS], *it2, 0xff, true); 
            }
            BlobPtr old_match = matchblob((*it2), old_blobs, m_TrackerConfig.m_Similarity);
            if(old_match){
