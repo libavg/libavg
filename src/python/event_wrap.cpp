@@ -107,6 +107,10 @@ void export_event()
             return_value_policy<manage_new_object>(),
             "getImage(ImageID) -> Bitmap\n\n" 
             "Returns one of the intermediate images necessary for tracking.\n")
+        .def("saveConfig", &TrackerEventSource::saveConfig,
+            "saveConfig() -> None\n\n"
+            "Saves the tracker configuration to TrackerConfig.xml in the current\n"
+            "directory.\n")
         .add_property("threshold", &TrackerEventSource::getThreshold,
             &TrackerEventSource::setThreshold)
         .add_property("historyspeed", &TrackerEventSource::getHistorySpeed,

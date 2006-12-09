@@ -232,6 +232,11 @@ namespace avg {
         return m_TrackerConfig.m_Shutter;
     }
        
+    void TrackerEventSource::saveConfig()
+    {
+        m_TrackerConfig.save("TrackerConfig.xml");
+    }
+
     void TrackerEventSource::setConfig()
     {
         m_pCmdQueue->push(Command<TrackerThread>(boost::bind(

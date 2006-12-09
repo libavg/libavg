@@ -78,7 +78,6 @@ namespace avg {
     
     TrackerConfig::~TrackerConfig()
     {
-//        save("TrackerConfig.xml");
     }
 
     void TrackerConfig::load(std::string sFilename)

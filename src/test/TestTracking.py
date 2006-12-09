@@ -56,6 +56,9 @@ class TrackingTestCase(unittest.TestCase):
         elif Event.keystring == "n":
             self.__tracker.historyspeed -= 1
             print "HistorySpeed: ", self.__tracker.historyspeed
+        elif Event.keystring == "w":
+            self.__tracker.saveConfig()
+            print ("Tracker configuration saved.")
     def onFrame(self):
         Bitmap = self.__tracker.getImage(avg.IMG_CAMERA)
         Player.getElementByID("camera").setBitmap(Bitmap)

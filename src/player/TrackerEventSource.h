@@ -60,6 +60,8 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         void setShutter(int Shutter);
         int getShutter();
 
+        void saveConfig();
+
         Bitmap * getImage(TrackerImageID ImageID) const;
         std::vector<Event *> pollEvents();//main thread
 
