@@ -24,11 +24,9 @@
 #define _Filterfillrect_H_
 
 #include "Filter.h"
+#include "Rect.h"
 
 namespace avg {
-
-#include "Filter.h"
-#include "Rect.h"
 
 // Filter that fills a rectangle in a Bitmap with a color. 
 template<class PixelC> 

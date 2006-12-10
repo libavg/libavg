@@ -176,6 +176,21 @@ private:
             *(pPixel+BmpCopy4.getStride()) = 255;
             TEST(!pBmp->getNumDifferentPixels(BmpCopy4) == 1);
         }
+        if (PF == I8) {
+            cerr << "      Testing getHistogram." << endl;
+            HistogramPtr pHist = pBmp->getHistogram();
+            TEST((*pHist)[0] == 7);
+            TEST((*pHist)[1] == 7);
+            TEST((*pHist)[2] == 7);
+            TEST((*pHist)[3] == 7);
+            for (int i=4; i<256; ++i) {
+                bool bOk = true;
+                if (bOk) {
+                    bOk = ((*pHist)[i] == 0);
+                }
+            }
+            TEST(bOk);   
+        }
     }
 
     void runSaveTest(PixelFormat PF) {

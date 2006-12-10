@@ -473,6 +473,22 @@ bool Bitmap::hasAlpha() const
             m_PF == A8R8G8B8);
 }
 
+HistogramPtr Bitmap::getHistogram() const
+{
+    assert (m_PF == I8);
+    HistogramPtr pHist(new Histogram(256,0));
+    const unsigned char * pSrcLine = m_pBits;
+    for (int y=0; y < m_Size.y; ++y) {
+        const unsigned char * pSrc = pSrcLine;
+        for (int x=0; x<m_Size.x; ++x) {
+            (*pHist)[(*pSrc)]++;
+            pSrc++;
+        }
+        pSrcLine += m_Stride;
+    }
+    return pHist;
+}
+
 bool Bitmap::operator ==(const Bitmap & otherBmp)
 {
     // We allow Name, Stride and bOwnsBits to be different here, since we're looking for
