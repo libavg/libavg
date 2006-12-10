@@ -61,7 +61,7 @@ class Blob {
         void merge( BlobPtr other);
         RunList* getList();
         BlobPtr m_pParent;
-        friend void render(const Bitmap *target, BlobPtr blob);
+        friend void render(const Bitmap *target, BlobPtr blob, bool mark_center);
     private:
         Blob(const Blob &);
         RunList *m_pRuns;
@@ -74,7 +74,7 @@ typedef std::map<int, BlobPtr> CompsMap;
 
 
 
-void render(Bitmap *target, BlobPtr blob, unsigned char col);
+void render(Bitmap *target, BlobPtr blob, unsigned char col, bool mark_center = false);
 BlobListPtr connected_components(BitmapPtr image, int object_threshold);
 }
 #endif
