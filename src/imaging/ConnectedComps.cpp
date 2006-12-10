@@ -88,32 +88,39 @@ int Blob::getLabel(){
     }
 }
 
-void render(Bitmap *target, BlobPtr blob, unsigned char col, bool mark_center ){
-    //assert I8
+void Blob::render(Bitmap *pTarget, Pixel32 Color, bool bMarkCenter, 
+        Pixel32 CenterColor)
+{
+    assert (pTarget->getBytesPerPixel() == 4);
     unsigned char *ptr;
-    for(RunList::iterator r=blob->getList()->begin();r!=blob->getList()->end();++r){
-        ptr = target->getPixels()+r->m_Row*target->getStride();
+    for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r){
+        ptr = pTarget->getPixels()+r->m_Row*pTarget->getStride();
         int x_pos = r->m_StartCol;
-        ptr+= x_pos;
+        ptr+= x_pos*4;
         while(x_pos<=r->m_EndCol){
-            *(ptr++)=col;
+            *((unsigned int *)ptr)=(unsigned int)Color;
+            ptr += 4;
             x_pos++;
         }
     }
-    if(mark_center) { 
-        DPoint c = blob->center();
-        IntPoint size = target->getSize();
-        int xstart = std::max(0,int(c.x-5)), xstop = std::min(int(c.x+5),size.x);
-        int ystart = std::max(0,int(c.y-5)), ystop = std::min(int(c.y+5),size.y);
+    if(bMarkCenter) {
+        DPoint DCenter = center();
+        IntPoint Center = IntPoint(int(DCenter.x+0.5), int(DCenter.y+0.5));
+        IntPoint size = pTarget->getSize();
+        int xstart = std::max(0,Center.x-5);
+        int xstop = std::min(Center.x+5,size.x);
+        int ystart = std::max(0,Center.y-5);
+        int ystop = std::min(Center.y+5,size.y);
 
-        ptr = target->getPixels()+int(c.y)*target->getStride();
+        ptr = pTarget->getPixels()+Center.y*pTarget->getStride()+xstart*4;
         for(int x=xstart;x<=xstop;++x){
-            *(ptr++)=0xaa^col;
+            *((unsigned int *)ptr)=(unsigned int)CenterColor;
+            ptr += 4;
         }
-        ptr = target->getPixels()+ystart*target->getStride();
+        ptr = pTarget->getPixels()+ystart*pTarget->getStride()+Center.x*4;
         for(int y=ystart;y<=ystop;++y){
-            *ptr=0xaa^col;
-            ptr+=target->getStride();
+            *((unsigned int *)ptr)=(unsigned int)CenterColor;
+            ptr+=pTarget->getStride();
         }
     }
 }

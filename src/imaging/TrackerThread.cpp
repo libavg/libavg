@@ -82,13 +82,6 @@ bool TrackerThread::work()
     //get bloblist
     //BlobListPtr comps = connected_components(m_pBitmaps[TRACKER_IMG_NOHISTORY], m_Threshold);
     BlobListPtr comps = connected_components(pTempBmp, m_Threshold);
-    {
-        boost::mutex::scoped_lock Lock(*m_pMutex);
-        FilterFill<Pixel8>(0x00).applyInPlace(m_pBitmaps[TRACKER_IMG_COMPONENTS]);
-        for (BlobList::iterator it=comps->begin(); it != comps->end(); ++it) {
-            render(&(*m_pBitmaps[TRACKER_IMG_COMPONENTS]), *it, 0xFF);
-        }
-    }
 //    AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
     //feed the IBlobTarget
     m_pTarget->update(comps);
@@ -103,11 +96,16 @@ void TrackerThread::deinit()
 void TrackerThread::setConfig(TrackerConfig Config)
 {
     m_Threshold = Config.m_Threshold;
-    m_pHistoryPreProcessor->reconfigure(Config.m_HistoryUpdateInterval, false);
+    m_pHistoryPreProcessor->setInterval(Config.m_HistoryUpdateInterval);
     m_pCamera->setFeature("brightness", Config.m_Brightness);
     m_pCamera->setFeature("exposure", Config.m_Exposure);
     m_pCamera->setFeature("gain", Config.m_Gain);
     m_pCamera->setFeature("shutter", Config.m_Shutter);
+}
+
+void TrackerThread::resetHistory()
+{
+    m_pHistoryPreProcessor->reset();
 }
 
 }

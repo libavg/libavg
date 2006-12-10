@@ -5,6 +5,7 @@
 #include "../graphics/Bitmap.h"
 #include "../graphics/Point.h"
 #include "../graphics/Rect.h"
+#include "../graphics/Pixel32.h"
 
 #include <assert.h>
 #include <boost/shared_ptr.hpp>
@@ -60,8 +61,9 @@ class Blob {
         IntRect bbox();
         void merge( BlobPtr other);
         RunList* getList();
+        void render(Bitmap *pTarget, Pixel32 Color, bool bMarkCenter, 
+                Pixel32 CenterColor= Pixel32(0x00, 0x00, 0xFF, 0xFF));
         BlobPtr m_pParent;
-        friend void render(const Bitmap *target, BlobPtr blob, bool mark_center);
     private:
         Blob(const Blob &);
         RunList *m_pRuns;
@@ -72,9 +74,6 @@ typedef std::vector<BlobPtr> BlobList;
 typedef boost::shared_ptr<BlobList> BlobListPtr;
 typedef std::map<int, BlobPtr> CompsMap;
 
-
-
-void render(Bitmap *target, BlobPtr blob, unsigned char col, bool mark_center = false);
 BlobListPtr connected_components(BitmapPtr image, int object_threshold);
 }
 #endif

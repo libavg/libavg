@@ -51,21 +51,20 @@ class TrackingTestCase(unittest.TestCase):
             self.__tracker.gain -= 5
             print "Gain: ", self.__tracker.gain
         elif Event.keystring == "h":
-            self.__tracker.historyspeed += 1
-            print "HistorySpeed: ", self.__tracker.historyspeed
-        elif Event.keystring == "n":
-            self.__tracker.historyspeed -= 1
-            print "HistorySpeed: ", self.__tracker.historyspeed
+            self.__tracker.resetHistory()
+            print "History reset"
         elif Event.keystring == "w":
             self.__tracker.saveConfig()
             print ("Tracker configuration saved.")
+        elif Event.keystring == "e":
+            self.__saveIndex += 1
+            self.__tracker.getImage(avg.IMG_NOHISTORY).save("img"+str(self.__saveIndex)+".png")
+            print ("Image saved.")
     def onFrame(self):
         Bitmap = self.__tracker.getImage(avg.IMG_CAMERA)
         Player.getElementByID("camera").setBitmap(Bitmap)
         Bitmap = self.__tracker.getImage(avg.IMG_NOHISTORY)
         Player.getElementByID("nohistory").setBitmap(Bitmap)
-        Bitmap = self.__tracker.getImage(avg.IMG_COMPONENTS)
-        Player.getElementByID("components").setBitmap(Bitmap)
         Bitmap = self.__tracker.getImage(avg.IMG_FINGERS)
         Player.getElementByID("fingers").setBitmap(Bitmap)
     def test(self):
@@ -75,6 +74,7 @@ class TrackingTestCase(unittest.TestCase):
         self.__tracker = Player.addTracker("/dev/video1394/0", 60, "640x480_MONO8")
         Player.setInterval(1, self.onFrame)
 #        Player.setResolution(0, 640, 480, 24)
+        self.__saveIndex = 0
         Player.play()
 
 def playerTestSuite():

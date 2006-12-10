@@ -143,9 +143,10 @@ namespace avg {
     {
         AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
         IntPoint ImgDimensions = pCamera->getImgSize();
-        for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
+        for (int i=0; i<NUM_TRACKER_IMAGES-1; i++) {
             m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgDimensions, I8));
         }
+        m_pBitmaps[TRACKER_IMG_FINGERS] = BitmapPtr(new Bitmap(ImgDimensions, R8G8B8X8));
         m_pUpdateMutex = MutexPtr(new boost::mutex);
         m_pTrackerMutex = MutexPtr(new boost::mutex);
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
@@ -234,6 +235,12 @@ namespace avg {
         return m_TrackerConfig.m_Shutter;
     }
        
+    void TrackerEventSource::resetHistory()
+    {
+        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
+                &TrackerThread::resetHistory, _1)));
+    }
+
     void TrackerEventSource::saveConfig()
     {
         m_TrackerConfig.save("TrackerConfig.xml");
@@ -300,54 +307,58 @@ double distance(BlobPtr p1, BlobPtr p2) {
     }
 
     void TrackerEventSource::update(BlobListPtr new_blobs){
-       boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
-       BlobListPtr old_blobs = BlobListPtr(new BlobList());
-       EventStreamPtr e;
-       FilterFill<Pixel8>(0).applyInPlace(m_pBitmaps[TRACKER_IMG_FINGERS]);
-       for(EventMap::iterator it=m_Events.begin();it!=m_Events.end();++it){
-           (*it).second->m_Stale = true;
-           old_blobs->push_back((*it).first);
-       }
-       int known_counter=0, new_counter=0, ignored_counter=0; 
-       for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2){
-           if (!isfinger(*it2)){
-               render(&*m_pBitmaps[TRACKER_IMG_FINGERS], *it2, 0x99, false); 
-               ignored_counter++;
-               continue;
-           }else {
-               render(&*m_pBitmaps[TRACKER_IMG_FINGERS], *it2, 0xff, true); 
-           }
-           BlobPtr old_match = matchblob((*it2), old_blobs, m_TrackerConfig.m_Similarity);
-           if(old_match){
-               //this blob has been identified with an old one
-               known_counter++;
-               if (m_Events.find(old_match) == m_Events.end()) {
-                   //..but the blob already disappeared from the map
-                   //=>EventStream already updated
-                   continue;
-               }
-               e = m_Events.find(old_match)->second;
-               e->update( (*it2) );
-               //update the mapping!
-               m_Events[(*it2)] = e;
-               m_Events.erase(old_match);
-           } else {
-               new_counter++;
-               //this is a new one
-               m_Events[(*it2)] = EventStreamPtr( new EventStream((*it2)) ) ;
-           }
-       }
-//       AVG_TRACE(Logger::EVENTS2, "matched blobs: "<<known_counter<<"; new blobs: "<<new_counter<<"; ignored: "<<ignored_counter);
-       int gone_counter = 0;
-       for(EventMap::iterator it3=m_Events.begin();it3!=m_Events.end();++it3){
-           //all event streams that are still stale haven't been updated: blob is gone, send the sentinel for this.
-           if ((*it3).second->m_Stale) {
-               (*it3).second->update( BlobPtr() );
-               gone_counter++;
-           }
+        boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
+        BlobListPtr old_blobs = BlobListPtr(new BlobList());
+        EventStreamPtr e;
+        FilterFill<Pixel32>(Pixel32(0x00, 0x00, 0x00, 0xFF)).applyInPlace(
+                m_pBitmaps[TRACKER_IMG_FINGERS]);
+        for(EventMap::iterator it=m_Events.begin();it!=m_Events.end();++it){
+            (*it).second->m_Stale = true;
+            old_blobs->push_back((*it).first);
         }
-        
-//       AVG_TRACE(Logger::EVENTS2, ""<<gone_counter<<" fingers disappeared.");
+        int known_counter=0, new_counter=0, ignored_counter=0; 
+        for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2){
+            if (!isfinger(*it2)){
+                (*it2)->render(&*m_pBitmaps[TRACKER_IMG_FINGERS], 
+                        Pixel32(0x80, 0x80, 0x80, 0xFF), false); 
+                ignored_counter++;
+                continue;
+            }else {
+                (*it2)->render(&*m_pBitmaps[TRACKER_IMG_FINGERS], 
+                        Pixel32(0xFF, 0xFF, 0xFF, 0xFF), true, 
+                        Pixel32(0x00, 0x00, 0xFF, 0xFF)); 
+            }
+            BlobPtr old_match = matchblob((*it2), old_blobs, m_TrackerConfig.m_Similarity);
+            if(old_match){
+                //this blob has been identified with an old one
+                known_counter++;
+                if (m_Events.find(old_match) == m_Events.end()) {
+                    //..but the blob already disappeared from the map
+                    //=>EventStream already updated
+                    continue;
+                }
+                e = m_Events.find(old_match)->second;
+                e->update( (*it2) );
+                //update the mapping!
+                m_Events[(*it2)] = e;
+                m_Events.erase(old_match);
+            } else {
+                new_counter++;
+                //this is a new one
+                m_Events[(*it2)] = EventStreamPtr( new EventStream((*it2)) ) ;
+            }
+        }
+        //       AVG_TRACE(Logger::EVENTS2, "matched blobs: "<<known_counter<<"; new blobs: "<<new_counter<<"; ignored: "<<ignored_counter);
+        int gone_counter = 0;
+        for(EventMap::iterator it3=m_Events.begin();it3!=m_Events.end();++it3){
+            //all event streams that are still stale haven't been updated: blob is gone, send the sentinel for this.
+            if ((*it3).second->m_Stale) {
+                (*it3).second->update( BlobPtr() );
+                gone_counter++;
+            }
+        }
+
+        //       AVG_TRACE(Logger::EVENTS2, ""<<gone_counter<<" fingers disappeared.");
     };
    std::vector<Event*> TrackerEventSource::pollEvents(){
         boost::mutex::scoped_lock Lock(*m_pUpdateMutex);

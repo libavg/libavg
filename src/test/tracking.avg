@@ -3,7 +3,6 @@
 <avg width="1280" height="960" onkeyup="onKeyUp">
     <image id="camera" x="0" y="0" width="640" height="480"/>
     <image id="nohistory" x="0" y="480" width="640" height="480"/>
-    <image id="components" x="640" y="0" width="640" height="480"/>
-    <image id="fingers" x="640" y="480" width="640" height="480"/>
+    <image id="fingers" x="640" y="0" width="640" height="480"/>
 </avg>
 

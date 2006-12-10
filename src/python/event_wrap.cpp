@@ -93,7 +93,6 @@ void export_event()
     enum_<TrackerImageID>("TrackerImageID")
         .value("IMG_CAMERA", TRACKER_IMG_CAMERA)
         .value("IMG_NOHISTORY", TRACKER_IMG_NOHISTORY)
-        .value("IMG_COMPONENTS", TRACKER_IMG_COMPONENTS)
         .value("IMG_FINGERS", TRACKER_IMG_FINGERS)
         .export_values()
     ;
@@ -112,6 +111,10 @@ void export_event()
             "saveConfig() -> None\n\n"
             "Saves the tracker configuration to TrackerConfig.xml in the current\n"
             "directory.\n")
+        .def("resetHistory", &TrackerEventSource::resetHistory,
+            "resetHistory() -> None\n\n"
+            "Throws away the current history image and generates a new one from\n"
+            "the current image.\n")
         .add_property("threshold", &TrackerEventSource::getThreshold,
             &TrackerEventSource::setThreshold)
         .add_property("historyspeed", &TrackerEventSource::getHistorySpeed,

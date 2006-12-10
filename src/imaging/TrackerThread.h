@@ -38,7 +38,6 @@ namespace avg {
 typedef enum {
         TRACKER_IMG_CAMERA,
         TRACKER_IMG_NOHISTORY,
-        TRACKER_IMG_COMPONENTS,
         TRACKER_IMG_FINGERS,
         NUM_TRACKER_IMAGES
 } TrackerImageID;
@@ -68,6 +67,7 @@ class TrackerThread: public WorkerThread<TrackerThread>
         void deinit();
 
         void setConfig(TrackerConfig Config);
+        void resetHistory();
     
     private:
         void checkMessages();

@@ -19,13 +19,15 @@ HistoryPreProcessor::HistoryPreProcessor(IntPoint dimensions, unsigned int Updat
 HistoryPreProcessor::~HistoryPreProcessor()
 {
 }
-void HistoryPreProcessor::reconfigure(unsigned int UpdateInterval, bool reset)
+void HistoryPreProcessor::setInterval(unsigned int UpdateInterval)
 {
     m_FrameCounter = 0;
     m_UpdateInterval = UpdateInterval;
-    if(reset){
-        m_bHistoryInitialized = false;
-    }
+}
+
+void HistoryPreProcessor::reset()
+{
+    m_bHistoryInitialized = false;
 }
 
 void HistoryPreProcessor::updateHistory(BitmapPtr new_img)
