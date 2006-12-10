@@ -583,10 +583,9 @@ void SDLDisplayEngine::checkYCbCrSupport()
     {
         m_YCbCrMode = OGL_SHADER;
         string sProgramInit = 
-#ifdef __APPLE__
+            "#extension GL_ARB_texture_rectangle : enable\n"
             "#define textureRect texture2DRect\n"
             "#define samplerRect sampler2DRect\n"
-#endif
             "uniform samplerRect YTexture;\n"
             "uniform samplerRect CbTexture;\n"
             "uniform samplerRect CrTexture;\n"
