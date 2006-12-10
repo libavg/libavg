@@ -66,6 +66,8 @@ class TrackingTestCase(unittest.TestCase):
         Player.getElementByID("nohistory").setBitmap(Bitmap)
         Bitmap = self.__tracker.getImage(avg.IMG_COMPONENTS)
         Player.getElementByID("components").setBitmap(Bitmap)
+        Bitmap = self.__tracker.getImage(avg.IMG_FINGERS)
+        Player.getElementByID("fingers").setBitmap(Bitmap)
     def test(self):
         Player.loadFile("tracking.avg")
         Player.setFramerate(60)
