@@ -34,14 +34,20 @@ class CoordTransformer {
         void load(const std::string & sFilename);
         void save(const std::string & sFilename);
 
-        IntPoint transform(const DPoint & pt);
-        DPoint getPixelSize(const DPoint & pt);
+        DPoint transform_point(const DPoint & pt); //(x,y) -> (x', y')
+        DPoint transform_volume(cont DPoint & pt); //A(x,y) -> A'(x',y')
 
     private:
-        DPoint m_SrcSize;
+        IntRect m_SrcRect;
         IntRect m_DestRect;
         double m_TrapezoidFactor;
-        // Fehlen noch Kissen/Tonnenparameter...
+        //pincushion/barrel correction
+        //K1<0 correct barrel
+        //K1>0 correct pincushion
+        //see http://www.imatest.com/docs/distortion.html
+        double m_K1; 
+
+        //DPoint **m_pCache; // m_pCache[x][y] - (new_x, new_y)
 };
 
 }
