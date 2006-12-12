@@ -38,6 +38,7 @@ namespace avg {
 typedef enum {
         TRACKER_IMG_CAMERA,
         TRACKER_IMG_NOHISTORY,
+        TRACKER_IMG_HISTOGRAM,
         TRACKER_IMG_FINGERS,
         NUM_TRACKER_IMAGES
 } TrackerImageID;
@@ -73,6 +74,7 @@ class TrackerThread: public WorkerThread<TrackerThread>
         void checkMessages();
         void calcHistory();
         bool isfinger(BlobPtr blob);
+        void drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp);
 
         std::string m_sDevice;
         double m_FrameRate;

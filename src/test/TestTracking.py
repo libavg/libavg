@@ -65,6 +65,8 @@ class TrackingTestCase(unittest.TestCase):
         Player.getElementByID("camera").setBitmap(Bitmap)
         Bitmap = self.__tracker.getImage(avg.IMG_NOHISTORY)
         Player.getElementByID("nohistory").setBitmap(Bitmap)
+        Bitmap = self.__tracker.getImage(avg.IMG_HISTOGRAM)
+        Player.getElementByID("histogram").setBitmap(Bitmap)
         Bitmap = self.__tracker.getImage(avg.IMG_FINGERS)
         Player.getElementByID("fingers").setBitmap(Bitmap)
     def test(self):

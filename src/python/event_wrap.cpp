@@ -93,6 +93,7 @@ void export_event()
     enum_<TrackerImageID>("TrackerImageID")
         .value("IMG_CAMERA", TRACKER_IMG_CAMERA)
         .value("IMG_NOHISTORY", TRACKER_IMG_NOHISTORY)
+        .value("IMG_HISTOGRAM", TRACKER_IMG_HISTOGRAM)
         .value("IMG_FINGERS", TRACKER_IMG_FINGERS)
         .export_values()
     ;

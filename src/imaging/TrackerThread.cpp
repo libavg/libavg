@@ -79,6 +79,11 @@ bool TrackerThread::work()
         boost::mutex::scoped_lock Lock(*m_pMutex);
         m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pTempBmp);
     }
+    {
+        boost::mutex::scoped_lock Lock(*m_pMutex);
+        drawHistogram(m_pBitmaps[TRACKER_IMG_HISTOGRAM], 
+                m_pBitmaps[TRACKER_IMG_NOHISTORY]);
+    }
     //get bloblist
     //BlobListPtr comps = connected_components(m_pBitmaps[TRACKER_IMG_NOHISTORY], m_Threshold);
     BlobListPtr comps = connected_components(pTempBmp, m_Threshold);
@@ -108,6 +113,44 @@ void TrackerThread::resetHistory()
 {
     if(m_pHistoryPreProcessor)
         m_pHistoryPreProcessor->reset();
+}
+        
+void TrackerThread::drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp)
+{
+    HistogramPtr pHist = pSrcBmp->getHistogram();
+    assert(pDestBmp->getPixelFormat() == I8);
+    // Normalize Histogram to 0..255
+    int Max = 0;
+    for (int i=0; i<256; ++i) {
+        if ((*pHist)[i] > Max) {
+            Max = (*pHist)[i];
+        }
+    }
+    if (Max == 0) {
+        Max = 1;
+    }
+    for (int i=0; i<256; ++i) {
+        (*pHist)[i] = int((*pHist)[i]*256.0/Max)+1;
+    }
+    FilterFill<Pixel8>(0).applyInPlace(pDestBmp);
+    int Height = pDestBmp->getSize().y;
+    int Stride = pDestBmp->getStride();
+    int EndCol = 256;
+    if (pDestBmp->getSize().x < 256) {
+        EndCol = pDestBmp->getSize().x;
+    }
+    for (int i=0; i<EndCol; ++i) {
+        int StartLine =Height-(*pHist)[i];
+        if (StartLine < 0) { 
+            StartLine = 0;
+        }
+        unsigned char * pDest = pDestBmp->getPixels()+Stride*StartLine+i;
+        for (int y=StartLine-1; y < Height-1; ++y) {
+            *pDest = 255;
+            pDest += Stride;
+        }
+        
+    }
 }
 
 }
