@@ -96,7 +96,8 @@ void TrackerThread::deinit()
 void TrackerThread::setConfig(TrackerConfig Config)
 {
     m_Threshold = Config.m_Threshold;
-    m_pHistoryPreProcessor->setInterval(Config.m_HistoryUpdateInterval);
+    if(m_pHistoryPreProcessor)
+        m_pHistoryPreProcessor->setInterval(Config.m_HistoryUpdateInterval);
     m_pCamera->setFeature("brightness", Config.m_Brightness);
     m_pCamera->setFeature("exposure", Config.m_Exposure);
     m_pCamera->setFeature("gain", Config.m_Gain);
@@ -105,7 +106,8 @@ void TrackerThread::setConfig(TrackerConfig Config)
 
 void TrackerThread::resetHistory()
 {
-    m_pHistoryPreProcessor->reset();
+    if(m_pHistoryPreProcessor)
+        m_pHistoryPreProcessor->reset();
 }
 
 }
