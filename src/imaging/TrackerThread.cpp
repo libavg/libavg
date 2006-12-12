@@ -120,17 +120,21 @@ void TrackerThread::drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp)
     HistogramPtr pHist = pSrcBmp->getHistogram();
     assert(pDestBmp->getPixelFormat() == I8);
     // Normalize Histogram to 0..255
-    int Max = 0;
+    int Max1 = 0;
+    int Max2 = 0;
     for (int i=0; i<256; ++i) {
-        if ((*pHist)[i] > Max) {
-            Max = (*pHist)[i];
+        if ((*pHist)[i] > Max1) {
+            Max2 = Max1;
+            Max1 = (*pHist)[i];
+        } else if ((*pHist)[i] > Max2) {
+            Max2 = (*pHist)[i];
         }
     }
-    if (Max == 0) {
-        Max = 1;
+    if (Max2== 0) {
+        Max2= 1;
     }
     for (int i=0; i<256; ++i) {
-        (*pHist)[i] = int((*pHist)[i]*256.0/Max)+1;
+        (*pHist)[i] = int((*pHist)[i]*256.0/Max2)+1;
     }
     FilterFill<Pixel8>(0).applyInPlace(pDestBmp);
     int Height = pDestBmp->getSize().y;
