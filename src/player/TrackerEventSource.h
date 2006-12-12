@@ -24,6 +24,7 @@
 
 #include "Event.h"
 #include "IEventSource.h"
+#include "../graphics/Rect.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/Filter.h"
 #include "../imaging/Camera.h"
@@ -44,7 +45,7 @@ typedef std::map<BlobPtr, EventStreamPtr> EventMap;
 class TrackerEventSource: public IBlobTarget, public IEventSource
 {
     public:
-        TrackerEventSource(CameraPtr pCamera, bool bSubtractHistory = true);
+        TrackerEventSource(CameraPtr pCamera, DRect TargetRect, bool bSubtractHistory = true);
         virtual ~TrackerEventSource();
 
         void setThreshold(int Threshold);

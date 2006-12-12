@@ -22,7 +22,7 @@
 #include "../imaging/FakeCamera.h"
 #include "../imaging/TrackerThread.h"
 #include "../imaging/TrackerConfig.h"
-#include "../graphics/FilterId.h"
+#include "../graphics/Rect.h"
 #include "TrackerEventSource.h"
 
 #include "../base/TimeSource.h"
@@ -66,7 +66,7 @@ public:
         }
         MutexPtr pMutex(new boost::mutex);
 
-        TrackerEventSourcePtr pTracker = TrackerEventSourcePtr(new TrackerEventSource(pCam, new FilterId()));
+        TrackerEventSourcePtr pTracker = TrackerEventSourcePtr(new TrackerEventSource(pCam, DRect(0,0,1,1), false));
         
 
         while(1){

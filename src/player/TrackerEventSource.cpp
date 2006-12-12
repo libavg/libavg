@@ -1,6 +1,5 @@
 
 #include "TrackerEventSource.h"
-
 #include "MouseEvent.h"
 
 #include "../base/Logger.h"
@@ -11,6 +10,7 @@
 #endif
 #include "../imaging/Camera.h"
 
+#include "../graphics/Rect.h"
 #include "../graphics/HistoryPreProcessor.h"
 #include "../graphics/Filterfill.h"
 #include "../graphics/Pixel8.h"
@@ -137,8 +137,7 @@ namespace avg {
     };
 
 
-
-    TrackerEventSource::TrackerEventSource(CameraPtr pCamera, bool bSubtractHistory)
+    TrackerEventSource::TrackerEventSource(CameraPtr pCamera, DRect TargetRect, bool bSubtractHistory)
         : m_TrackerConfig()
     {
         AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");

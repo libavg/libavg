@@ -61,6 +61,8 @@
 #include "../base/ScopeTimer.h"
 #include "../base/TimeSource.h"
 
+#include "../graphics/Rect.h"
+
 #include <Magick++.h>
 
 #include <libxml/xmlmemory.h>
@@ -313,7 +315,7 @@ TrackerEventSource * Player::addTracker(std::string sDevice, double FrameRate,
 //    } else {
         pCamera = CameraPtr(new Camera(sDevice, FrameRate, sMode, false));
 //    }
-    m_pTracker = new TrackerEventSource(pCamera);
+    m_pTracker = new TrackerEventSource(pCamera, DRect(0,0,m_DP.m_Width, m_DP.m_Height), true);
     m_EventDispatcher.addSource(m_pTracker);
     return m_pTracker;
 }
