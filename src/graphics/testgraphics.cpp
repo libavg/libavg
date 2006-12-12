@@ -183,8 +183,8 @@ private:
             TEST((*pHist)[1] == 7);
             TEST((*pHist)[2] == 7);
             TEST((*pHist)[3] == 7);
+            bool bOk = true;
             for (int i=4; i<256; ++i) {
-                bool bOk = true;
                 if (bOk) {
                     bOk = ((*pHist)[i] == 0);
                 }
