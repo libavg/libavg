@@ -34,8 +34,8 @@ class CoordTransformer {
         void load(const std::string & sFilename);
         void save(const std::string & sFilename);
 
-        DPoint transform_point(const DPoint & pt); //(x,y) -> (x', y')
-        DPoint transform_volume(cont DPoint & pt); //A(x,y) -> A'(x',y')
+        DPoint transform(const DPoint & pt); //(x,y) -> (x', y')
+        DPoint getPixelSize(const DPoint & pt); //A(x,y) -> A'(x',y')
 
     private:
         IntRect m_SrcRect;
