@@ -9,12 +9,12 @@
 #include "../imaging/CameraUtils.h"
 #endif
 #include "../imaging/Camera.h"
+#include "../imaging/CoordTransformer.h"
 
 #include "../graphics/Rect.h"
 #include "../graphics/HistoryPreProcessor.h"
 #include "../graphics/Filterfill.h"
 #include "../graphics/Pixel8.h"
-
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
 
@@ -26,6 +26,15 @@
 using namespace std;
 
 namespace avg {
+    //hmmm. just don't use two TrackerEventSources...
+    //if you do, put these into thread local storage or something
+    static double s_XOffset;
+    static double s_YOffset;
+    static double s_XScale;
+    static double s_YScale;
+    
+    static CoordTransformerPtr s_Trafo; //
+
     class  EventStream
     //internal class to keep track of blob/event states
     {
@@ -107,23 +116,29 @@ namespace avg {
     };
     Event* EventStream::pollevent(){
         switch(m_State){
-            //FIXME translate coords
+            m_Pos = s_Trafo->transform_point(m_Pos);
             case FRESH:
                 m_State = TOUCH_DELIVERED;
                 //return fingerdown
                 return new MouseEvent(MouseEvent::MOUSEBUTTONDOWN, true, false, false, 
-                        (int)m_Pos.x, (int)m_Pos.y, MouseEvent::LEFT_BUTTON); 
+                        (int)(s_XScale*m_Pos.x+s_XOffset), 
+                        (int)(s_YScale*m_Pos.y+s_YOffset), 
+                        MouseEvent::LEFT_BUTTON); 
                 break;
             case INMOTION:
                 m_State = RESTING;
                 //return motion
                 return new MouseEvent(MouseEvent::MOUSEMOTION, true, false, false,
-                        (int)m_Pos.x, (int)m_Pos.y, MouseEvent::LEFT_BUTTON); 
+                        (int)(s_XScale*m_Pos.x+s_XOffset), 
+                        (int)(s_YScale*m_Pos.y+s_YOffset), 
+                        MouseEvent::LEFT_BUTTON); 
                 break;
             case FINGERUP:
                 m_State = DONE;
                 return new MouseEvent(MouseEvent::MOUSEBUTTONUP, false, false, false,
-                        (int)m_Pos.x, (int)m_Pos.y, MouseEvent::LEFT_BUTTON); 
+                        (int)(s_XScale*m_Pos.x+s_XOffset), 
+                        (int)(s_YScale*m_Pos.y+s_YOffset), 
+                        MouseEvent::LEFT_BUTTON); 
                 //return fingerup
                 break;
             case TOUCH_DELIVERED:
@@ -142,6 +157,12 @@ namespace avg {
     {
         AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
         IntPoint ImgDimensions = pCamera->getImgSize();
+
+        s_XOffset = TargetRect.tl.x;
+        s_XOffset = TargetRect.tl.y;
+        s_XScale = TargetRect.Width()/ImgDimensions.x;
+        s_YScale = TargetRect.Height()/ImgDimensions.y;
+        s_Trafo = CoordTransformerPtr( new CoordTransformer( IntRect(0,0,ImgDimensions.x,ImgDimensions.y), 0,0 ));
         for (int i=0; i<NUM_TRACKER_IMAGES-1; i++) {
             m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgDimensions, I8));
         }

@@ -15,6 +15,7 @@ CoordTransformer::CoordTransformer(IntRect srcRect, double K1, double T)
 
 
 }
+    CoordTransformer::~CoordTransformer(){};
     DPoint CoordTransformer::distortion(const DPoint &pt){
         DPoint pt_norm = (pt - m_Center)/m_Scale;
         double r_d_squared = pt_norm.x*pt_norm.x + pt_norm.y*pt_norm.y;
@@ -31,7 +32,8 @@ CoordTransformer::CoordTransformer(IntRect srcRect, double K1, double T)
     DPoint CoordTransformer::transform_point(const DPoint &pt){
         return trapezoid(distortion(pt));
     }
-    double getPixelSize(const DPoint &pt){
+    double CoordTransformer::getPixelSize(const DPoint &pt){
         return 1; // FIXME
     }
+    
 }

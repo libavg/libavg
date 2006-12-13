@@ -24,6 +24,8 @@
 #include "../graphics/Point.h"
 #include "../graphics/Rect.h"
 
+#include <boost/shared_ptr.hpp>
+
 namespace avg {
 
 class CoordTransformer {
@@ -64,5 +66,6 @@ class CoordTransformer {
         //DPoint **m_pCache; // m_pCache[x][y] - (new_x, new_y)
 };
 
+typedef boost::shared_ptr<CoordTransformer> CoordTransformerPtr;
 }
 #endif
