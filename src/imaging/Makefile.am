@@ -16,9 +16,9 @@ endif
 endif
 
 ALL_H = TrackerThread.h TrackerConfig.h ConnectedComps.h Camera.h \
-        FakeCamera.h $(DC1394_INCLUDES)
+        FakeCamera.h CoordTransformer.h $(DC1394_INCLUDES)
 ALL_CPP = TrackerThread.cpp TrackerConfig.cpp ConnectedComps.cpp Camera.cpp \
-        FakeCamera.cpp $(DC1394_SOURCES) 
+        FakeCamera.cpp CoordTransformer.cpp $(DC1394_SOURCES) 
 
 TESTS=testimaging
 
