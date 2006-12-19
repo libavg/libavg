@@ -340,7 +340,7 @@ double distance(BlobPtr p1, BlobPtr p2) {
         for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2){
             if (!isfinger(*it2)){
                 (*it2)->render(&*m_pBitmaps[TRACKER_IMG_FINGERS], 
-                        Pixel32(0x80, 0x80, 0x80, 0xFF), false); 
+                        Pixel32(0xFF, 0x00, 0x00, 0xFF), false); 
                 ignored_counter++;
                 continue;
             }else {

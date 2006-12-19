@@ -89,7 +89,10 @@ bool TrackerThread::work()
     BlobListPtr comps = connected_components(pTempBmp, m_Threshold);
 //    AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
     //feed the IBlobTarget
-    m_pTarget->update(comps);
+    {
+        boost::mutex::scoped_lock Lock(*m_pMutex);
+        m_pTarget->update(comps);
+    }
     return true;
 }
 
