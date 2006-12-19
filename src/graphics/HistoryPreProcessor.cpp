@@ -11,7 +11,7 @@ namespace avg {
 HistoryPreProcessor::HistoryPreProcessor(IntPoint dimensions, unsigned int UpdateInterval)
     : m_FrameCounter(0),
       m_UpdateInterval(UpdateInterval),
-      m_bHistoryInitialized(false)
+      m_HistoryInitialized(1)
 {
     m_pHistoryBmp = BitmapPtr(new Bitmap(dimensions, I16));
 }
@@ -27,15 +27,15 @@ void HistoryPreProcessor::setInterval(unsigned int UpdateInterval)
 
 void HistoryPreProcessor::reset()
 {
-    m_bHistoryInitialized = false;
+    m_HistoryInitialized = 100;
 }
 
 void HistoryPreProcessor::updateHistory(BitmapPtr new_img)
 {
     assert(new_img->getSize() == m_pHistoryBmp->getSize());
     //else
-    if (m_bHistoryInitialized) {
-        if (m_FrameCounter < m_UpdateInterval-1){
+    if (m_HistoryInitialized <= 0) {
+        if (m_FrameCounter < m_UpdateInterval-1||(m_HistoryInitialized<0)){
             m_FrameCounter++;
             return;
         }
@@ -56,9 +56,10 @@ void HistoryPreProcessor::updateHistory(BitmapPtr new_img)
             pDest += DestStride;
             pSrc += new_img->getStride();
         }
+        m_HistoryInitialized = (m_HistoryInitialized<0)?m_HistoryInitialized++:0;
     } else {
         m_pHistoryBmp->copyPixels(*new_img);
-        m_bHistoryInitialized = true;
+        m_HistoryInitialized *= -1;
     }
 }
 
@@ -72,7 +73,8 @@ void HistoryPreProcessor::applyInPlace(BitmapPtr img){
         const unsigned short * pSrcPixel = pSrc;
         unsigned char * pDestPixel = pDest;
         for (int x=0; x<Size.x; x++) {
-            *pDestPixel = (unsigned char)abs((int)*pDestPixel - (int)(*pSrcPixel)/256);
+            //*pDestPixel = (unsigned char)abs((int)*pDestPixel - (int)(*pSrcPixel)/256);
+            *pDestPixel = (*pDestPixel)>(*pSrcPixel/256)?*pDestPixel:0;
             pDestPixel++;
             pSrcPixel++;
         }

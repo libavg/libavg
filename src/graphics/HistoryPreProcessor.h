@@ -19,7 +19,11 @@ class HistoryPreProcessor: public Filter{
         BitmapPtr m_pHistoryBmp;
         unsigned int m_FrameCounter;
         unsigned int m_UpdateInterval;
-        bool m_bHistoryInitialized;
+        //interpretation of m_HistoryInitialized
+        //==0 normal operation
+        //<0 add continue resetting the history while ignoring UpdateInterval, then m_HistoryInitialized++;
+        //>0 copy a fresh frame into m_pHistoryBmp and reverse sign of m_HistoryInitialized
+        int m_HistoryInitialized;
 };
 
 typedef boost::shared_ptr<HistoryPreProcessor> HistoryPreProcessorPtr;
