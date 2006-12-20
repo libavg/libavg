@@ -23,12 +23,18 @@
 #include "../base/Logger.h"
 #include "../graphics/Filter.h"
 #include "../graphics/Filterfill.h"
+#include "FilterDistortion.h"
 #include <iostream>
 #include <stdlib.h>
+
+#include "../base/ProfilingZone.h"
+#include "../base/ScopeTimer.h"
 
 using namespace std;
 
 namespace avg {
+static ProfilingZone ProfilingZonePreproc ("    Tracker::PreProcess");
+static ProfilingZone ProfilingZoneComps("    Tracker::ConnectedComps");
 
 TrackerThread::TrackerThread(CameraPtr pCamera,
         BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
@@ -49,6 +55,8 @@ TrackerThread::TrackerThread(CameraPtr pCamera,
         m_pHistoryPreProcessor = HistoryPreProcessorPtr(
                 new HistoryPreProcessor(m_pBitmaps[0]->getSize(), 1));
     }
+
+    m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), 0.1, 0.2));
 }
 
 TrackerThread::~TrackerThread()
@@ -72,12 +80,16 @@ bool TrackerThread::work()
         boost::mutex::scoped_lock Lock(*m_pMutex);
         *(m_pBitmaps[TRACKER_IMG_CAMERA]) = *pTempBmp;
     }
-    if (m_pHistoryPreProcessor) {
-        m_pHistoryPreProcessor->applyInPlace(pTempBmp);
+    {
+        ScopeTimer Timer(ProfilingZonePreproc);
+        if (m_pHistoryPreProcessor) {
+            m_pHistoryPreProcessor->applyInPlace(pTempBmp);
+        }
+        pTempBmp1 = m_pDistorter->apply(pTempBmp);
     }
     {
         boost::mutex::scoped_lock Lock(*m_pMutex);
-        m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pTempBmp);
+        m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pTempBmp1);
     }
     {
         boost::mutex::scoped_lock Lock(*m_pMutex);
@@ -85,8 +97,12 @@ bool TrackerThread::work()
                 m_pBitmaps[TRACKER_IMG_NOHISTORY]);
     }
     //get bloblist
-    //BlobListPtr comps = connected_components(m_pBitmaps[TRACKER_IMG_NOHISTORY], m_Threshold);
-    BlobListPtr comps = connected_components(pTempBmp, m_Threshold);
+    //
+    BlobListPtr comps;
+    {
+        ScopeTimer Timer(ProfilingZoneComps);
+        comps = connected_components(pTempBmp1, m_Threshold);
+    }
 //    AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
     //feed the IBlobTarget
     {

@@ -24,6 +24,7 @@
 #include "Camera.h"
 #include "ConnectedComps.h"
 #include "../graphics/HistoryPreProcessor.h"
+#include "FilterDistortion.h"
 #include "../graphics/Bitmap.h"
 #include "../base/WorkerThread.h"
 #include "../base/Command.h"
@@ -88,6 +89,7 @@ class TrackerThread: public WorkerThread<TrackerThread>
         CameraPtr  m_pCamera;
         IBlobTarget *m_pTarget;
         HistoryPreProcessorPtr m_pHistoryPreProcessor;
+        FilterDistortionPtr m_pDistorter;
 };
 
 }
