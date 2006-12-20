@@ -30,10 +30,42 @@ CoordTransformer::CoordTransformer(IntRect srcRect, double K1, double T)
                 pt.y);
     }
     DPoint CoordTransformer::transform_point(const DPoint &pt){
-        return trapezoid(distortion(pt));
+        return distortion(trapezoid(pt));
     }
     double CoordTransformer::getPixelSize(const DPoint &pt){
-        return 1; // FIXME
+        //volume dxdy transforms as |D|dx'dy' where |D| is the functional determinant
+        //det { { dx'/dx, dx'/dy}, {dy'/dx,dy'/dy}}
+        //|D| = dx'/dx * dy'/dy - dx'/dy * dy'/dx
+        //
+        //with x'=x'(x,y) are the new coordinates in terms of the old ones
+        //in our case.
+        //trapezoid:
+        //x' = m0 + (x-m0)*(1+m_TrapezoidFactor*yn)
+        //y' = y
+        //|D| = (1+m_TrapezoidFactor*yn)|(x,y)
+        //
+        //distortion:
+        //x' = S*(x-x0) + x0
+        //y' = S*(y-y0) + y0
+        //oBdA x0=y0=0 (volume invariant under translation)
+        //S = (1+m_K1*|(x,y)|^2/m_Scale)
+        //dx'/dx = S+x*dS/dx
+        //dx'/dy = x*dS/dy
+        //dy'/dx = y*dS/dx
+        //dy'/dy = S+y*dS/dx
+        //maxima:
+        //S(x,y):= (1+K1 *(x**2+y**2));
+        //dS/dx = 2xK1
+        //dS/dy = 2yK1
+        //xd(x,y):=S(x,y)*x;
+        //yd(x,y):=S(x,y)*y;
+        //
+        //diff(xd(x,y),x)*diff(yd(x,y),y)-diff(xd(x,y),y)*diff(yd(x,y),x);
+        //|D| = S^2 + 2*x*y*dS/dx*dS/dy = S^2 + 16 x^2*y^2 K1^2
+        //|D| = (...)|(xt,yt) where xt,yt are the coords after trapezoid trafo 
+        double yn = (pt.y - m_Center.y)/m_Scale;
+        DPoint pt2 = trapezoid(pt);
+        return (1+m_TrapezoidFactor*yn); // FIXME
     }
     
 }
