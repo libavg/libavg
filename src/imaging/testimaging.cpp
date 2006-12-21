@@ -38,24 +38,39 @@
 
 #include <sstream>
 
+// #define GENERATE_BASELINE
+
 using namespace avg;
 using namespace std;
 
-class FilterTest: public Test {
+class DistortionTest: public Test {
     public:
-        FilterTest():Test("FilterTest",2){}
+        DistortionTest():Test("DistortionTest",2){}
         void runTests(){
-            BitmapPtr in_bmp = FilterGrayscale().apply(BitmapPtr(new Bitmap("squares.png")));
-            FilterDistortion trapezoid = FilterDistortion(in_bmp->getSize(),0,0.3);
-            FilterDistortion barrel = FilterDistortion(in_bmp->getSize(),0.3,0);
-            FilterDistortion combined = FilterDistortion(in_bmp->getSize(),0.08,0.08);
-            BitmapPtr out1 = trapezoid.apply(in_bmp);
-            BitmapPtr out2 = barrel.apply(in_bmp);
-            BitmapPtr out3 = combined.apply(in_bmp);
-            out1->save("trapezoid.tif");
-            out2->save("barrel.tif");
-            out3->save("combined.tif");
-
+            BitmapPtr in_bmp = FilterGrayscale().apply(BitmapPtr(new Bitmap("baseline/squares.png")));
+            FilterDistortion BarrelFilter = FilterDistortion(in_bmp->getSize(),0.3,0);
+            BitmapPtr pBarrelBmp = BarrelFilter.apply(in_bmp);
+            FilterDistortion TrapezoidFilter = FilterDistortion(in_bmp->getSize(),0,0.3);
+            BitmapPtr pTrapezoidBmp = TrapezoidFilter.apply(in_bmp);
+            FilterDistortion CombinedFilter = FilterDistortion(in_bmp->getSize(),0.08,0.08);
+            BitmapPtr pCombinedBmp = CombinedFilter.apply(in_bmp);
+#ifdef GENERATE_BASELINE
+            cerr << "    ---- WARNING: Generating new baseline images, not executing tests." 
+                    << endl;
+            pBarrelBmp->save("baseline/barrel.png");
+            pTrapezoidBmp->save("baseline/trapezoid.png");
+            pCombinedBmp->save("baseline/combined.png");
+#else
+            BitmapPtr pBarrelBaselineBmp = FilterGrayscale().apply(BitmapPtr(
+                    new Bitmap("baseline/barrel.png")));
+            TEST(*pBarrelBmp == *pBarrelBaselineBmp);
+            BitmapPtr pTrapezoidBaselineBmp = FilterGrayscale().apply(BitmapPtr(
+                    new Bitmap("baseline/trapezoid.png")));
+            TEST(*pTrapezoidBmp == *pTrapezoidBaselineBmp);
+            BitmapPtr pCombinedBaselineBmp = FilterGrayscale().apply(BitmapPtr(
+                    new Bitmap("baseline/combined.png")));
+            TEST(*pCombinedBmp == *pCombinedBaselineBmp);
+#endif
         }
 };
 
@@ -137,7 +152,7 @@ public:
         : TestSuite("ImagingTestSuite")
     {
         addTest(TestPtr(new TrackingTest));
-        addTest(TestPtr(new FilterTest));
+        addTest(TestPtr(new DistortionTest));
     }
 };
 
