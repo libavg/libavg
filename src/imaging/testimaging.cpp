@@ -47,7 +47,7 @@ class DistortionTest: public Test {
     public:
         DistortionTest():Test("DistortionTest",2){}
         void runTests(){
-            BitmapPtr in_bmp = FilterGrayscale().apply(BitmapPtr(new Bitmap("baseline/squares.png")));
+            BitmapPtr in_bmp = FilterGrayscale().apply(BitmapPtr(new Bitmap("testimages/squares.png")));
             FilterDistortion BarrelFilter = FilterDistortion(in_bmp->getSize(),0.3,0);
             BitmapPtr pBarrelBmp = BarrelFilter.apply(in_bmp);
             FilterDistortion TrapezoidFilter = FilterDistortion(in_bmp->getSize(),0,0.3);
@@ -55,20 +55,20 @@ class DistortionTest: public Test {
             FilterDistortion CombinedFilter = FilterDistortion(in_bmp->getSize(),0.08,0.08);
             BitmapPtr pCombinedBmp = CombinedFilter.apply(in_bmp);
 #ifdef GENERATE_BASELINE
-            cerr << "    ---- WARNING: Generating new baseline images, not executing tests." 
+            cerr << "    ---- WARNING: Generating new testimages images, not executing tests." 
                     << endl;
-            pBarrelBmp->save("baseline/barrel.png");
-            pTrapezoidBmp->save("baseline/trapezoid.png");
-            pCombinedBmp->save("baseline/combined.png");
+            pBarrelBmp->save("testimages/barrel.png");
+            pTrapezoidBmp->save("testimages/trapezoid.png");
+            pCombinedBmp->save("testimages/combined.png");
 #else
             BitmapPtr pBarrelBaselineBmp = FilterGrayscale().apply(BitmapPtr(
-                    new Bitmap("baseline/barrel.png")));
+                    new Bitmap("testimages/barrel.png")));
             TEST(*pBarrelBmp == *pBarrelBaselineBmp);
             BitmapPtr pTrapezoidBaselineBmp = FilterGrayscale().apply(BitmapPtr(
-                    new Bitmap("baseline/trapezoid.png")));
+                    new Bitmap("testimages/trapezoid.png")));
             TEST(*pTrapezoidBmp == *pTrapezoidBaselineBmp);
             BitmapPtr pCombinedBaselineBmp = FilterGrayscale().apply(BitmapPtr(
-                    new Bitmap("baseline/combined.png")));
+                    new Bitmap("testimages/combined.png")));
             TEST(*pCombinedBmp == *pCombinedBaselineBmp);
 #endif
         }
