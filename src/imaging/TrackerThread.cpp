@@ -56,7 +56,7 @@ TrackerThread::TrackerThread(CameraPtr pCamera,
                 new HistoryPreProcessor(m_pBitmaps[0]->getSize(), 1));
     }
 
-    m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), 0.1, 0.2));
+    m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), 0, 0));
 }
 
 TrackerThread::~TrackerThread()

@@ -22,6 +22,8 @@
 #include "FakeCamera.h"
 #include "TrackerThread.h"
 #include "TrackerConfig.h"
+#include "FilterDistortion.h"
+#include "../graphics/Filtergrayscale.h"
 #include "../graphics/FilterId.h"
 
 #include "../base/TestSuite.h"
@@ -38,6 +40,24 @@
 
 using namespace avg;
 using namespace std;
+
+class FilterTest: public Test {
+    public:
+        FilterTest():Test("FilterTest",2){}
+        void runTests(){
+            BitmapPtr in_bmp = FilterGrayscale().apply(BitmapPtr(new Bitmap("squares.png")));
+            FilterDistortion trapezoid = FilterDistortion(in_bmp->getSize(),0,0.3);
+            FilterDistortion barrel = FilterDistortion(in_bmp->getSize(),0.3,0);
+            FilterDistortion combined = FilterDistortion(in_bmp->getSize(),0.08,0.08);
+            BitmapPtr out1 = trapezoid.apply(in_bmp);
+            BitmapPtr out2 = barrel.apply(in_bmp);
+            BitmapPtr out3 = combined.apply(in_bmp);
+            out1->save("trapezoid.tif");
+            out2->save("barrel.tif");
+            out3->save("combined.tif");
+
+        }
+};
 
 class TrackingTest: public Test, public IBlobTarget {
 public:
@@ -60,10 +80,10 @@ public:
             pBitmaps[i] = BitmapPtr(new Bitmap(pCam->getImgSize(), I8));
         }
         MutexPtr pMutex(new boost::mutex);
-        FilterIdPtr pp = FilterIdPtr(new FilterId());
+        //FilterIdPtr pp = FilterIdPtr(new FilterId());
         m_pCmdQ = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
         boost::thread Thread(
-                TrackerThread(pCam, pBitmaps, pMutex,  *m_pCmdQ, this, &*pp));
+                TrackerThread(pCam, pBitmaps, pMutex,  *m_pCmdQ, this, true));
         Thread.join();
     }
     
@@ -117,6 +137,7 @@ public:
         : TestSuite("ImagingTestSuite")
     {
         addTest(TestPtr(new TrackingTest));
+        addTest(TestPtr(new FilterTest));
     }
 };
 
