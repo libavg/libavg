@@ -57,11 +57,16 @@ FilterFillRect<PixelC>::~FilterFillRect ()
 template<class PixelC>
 void FilterFillRect<PixelC>::applyInPlace (BitmapPtr pBmp)
 {
+    int Stride = pBmp->getStride()/pBmp->getBytesPerPixel();
+    PixelC * pLine = (PixelC*)(pBmp->getPixels())+(m_Rect.tl.y*Stride);
+    PixelC * pPixel;
     for (int y=m_Rect.tl.y; y<m_Rect.br.y; ++y) {
-        PixelC * pLine = (PixelC*)(pBmp->getPixels()+y*pBmp->getStride());
+        pPixel = pLine+m_Rect.tl.x;
         for (int x=m_Rect.tl.x; x<m_Rect.br.x; ++x) {
-            pLine[x] = m_Color;
+            *pPixel = m_Color;
+            pPixel++;
         }
+        pLine += Stride;
     }
 }
 
