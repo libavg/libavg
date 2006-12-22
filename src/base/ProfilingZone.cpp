@@ -28,12 +28,13 @@ using namespace std;
 
 namespace avg {
 
-ProfilingZone::ProfilingZone(const string& sName)
+ProfilingZone::ProfilingZone(const string& sName, const string& ThreadID)
     : m_sName(sName),
       m_TimeSum(0),
       m_AvgTime(0),
       m_NumFrames(0),
-      m_bIsRegistered(false)
+      m_bIsRegistered(false),
+      m_ThreadID(ThreadID)
 {
 }
 
@@ -82,6 +83,11 @@ long long ProfilingZone::getAvgUSecs() const
 const std::string& ProfilingZone::getName() const
 {
     return m_sName;
+}
+    
+const std::string ProfilingZone::getThreadID() const
+{
+    return m_ThreadID;
 }
 
 

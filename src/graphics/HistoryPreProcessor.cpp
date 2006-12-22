@@ -36,7 +36,6 @@ void HistoryPreProcessor::reset()
 void HistoryPreProcessor::updateHistory(BitmapPtr new_img)
 {
     assert(new_img->getSize() == m_pHistoryBmp->getSize());
-    //else
     if (m_HistoryInitialized > 0) {
         m_pHistoryBmp->copyPixels(*new_img);
         m_HistoryInitialized *= -1;
@@ -76,11 +75,6 @@ void HistoryPreProcessor::updateHistory(BitmapPtr new_img)
                 pDest += DestStride;
                 pSrc += new_img->getStride();
             }
-            stringstream ss;
-            ss << "test" << m_HistoryInitialized << ".png";
-            Bitmap TempBmp(m_pHistoryBmp->getSize(), I8);
-            TempBmp.copyPixels(*m_pHistoryBmp);
-            TempBmp.save(ss.str());
             m_HistoryInitialized++;
         }
     }

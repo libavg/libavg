@@ -25,6 +25,7 @@
 #include "ProfilingZone.h"
 
 #include <list>
+#include <map>
 
 namespace avg {
     
@@ -47,7 +48,8 @@ private:
     Profiler();
 
     typedef std::list<ProfilingZone*> ZoneList;
-    ZoneList m_Zones;
+    typedef std::map<std::string, ZoneList> ZoneMap;
+    ZoneMap m_Zones;
     ProfilingZone * m_pActiveZone;
     bool m_bRunning;
 };

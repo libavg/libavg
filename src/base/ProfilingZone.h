@@ -30,7 +30,7 @@ namespace avg {
 
 class ProfilingZone {
 public:
-    ProfilingZone(const std::string& sName);
+    ProfilingZone(const std::string& sName, const std::string& ThreadID = "Main");
     virtual ~ProfilingZone();
     void clear();
     
@@ -39,6 +39,7 @@ public:
     long long getUSecs() const;
     long long getAvgUSecs() const;
     const std::string& getName() const;
+    const std::string getThreadID() const;
 
     // Interface to AVGScopeTimer.
     void add(long long usecs);
@@ -49,6 +50,7 @@ private:
     long long m_AvgTime;
     int m_NumFrames;
     bool m_bIsRegistered;
+    std::string m_ThreadID;
 };
 
 }

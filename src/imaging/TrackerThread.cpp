@@ -33,8 +33,11 @@
 using namespace std;
 
 namespace avg {
-static ProfilingZone ProfilingZonePreproc ("    Tracker::PreProcess");
-static ProfilingZone ProfilingZoneComps("    Tracker::ConnectedComps");
+static ProfilingZone ProfilingZoneTracker ("Tracker", "Tracker");
+static ProfilingZone ProfilingZoneHistory ("  History", "Tracker");
+static ProfilingZone ProfilingZoneDistort ("  Distort", "Tracker");
+static ProfilingZone ProfilingZoneHistogram ("  Histogram", "Tracker");
+static ProfilingZone ProfilingZoneComps("  ConnectedComps", "Tracker");
 
 TrackerThread::TrackerThread(CameraPtr pCamera,
         BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
@@ -77,37 +80,44 @@ bool TrackerThread::work()
         pTempBmp = pTempBmp1;
     }
     {
-        boost::mutex::scoped_lock Lock(*m_pMutex);
-        *(m_pBitmaps[TRACKER_IMG_CAMERA]) = *pTempBmp;
-    }
-    {
-        ScopeTimer Timer(ProfilingZonePreproc);
-        if (m_pHistoryPreProcessor) {
-            m_pHistoryPreProcessor->applyInPlace(pTempBmp);
+        ScopeTimer Timer(ProfilingZoneTracker);
+        {
+            boost::mutex::scoped_lock Lock(*m_pMutex);
+            *(m_pBitmaps[TRACKER_IMG_CAMERA]) = *pTempBmp;
         }
-        pTempBmp1 = m_pDistorter->apply(pTempBmp);
-    }
-    {
-        boost::mutex::scoped_lock Lock(*m_pMutex);
-        m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pTempBmp1);
-    }
-    {
-        boost::mutex::scoped_lock Lock(*m_pMutex);
-        drawHistogram(m_pBitmaps[TRACKER_IMG_HISTOGRAM], 
-                m_pBitmaps[TRACKER_IMG_NOHISTORY]);
-    }
-    //get bloblist
-    //
-    BlobListPtr comps;
-    {
-        ScopeTimer Timer(ProfilingZoneComps);
-        comps = connected_components(pTempBmp1, m_Threshold);
-    }
-//    AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
-    //feed the IBlobTarget
-    {
-        boost::mutex::scoped_lock Lock(*m_pMutex);
-        m_pTarget->update(comps);
+        {
+            if (m_pHistoryPreProcessor) {
+                ScopeTimer Timer(ProfilingZoneHistory);
+                m_pHistoryPreProcessor->applyInPlace(pTempBmp);
+            }
+            {
+                ScopeTimer Timer(ProfilingZoneDistort);
+                pTempBmp1 = m_pDistorter->apply(pTempBmp);
+            }
+        }
+        {
+            boost::mutex::scoped_lock Lock(*m_pMutex);
+            m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pTempBmp1);
+        }
+        {
+            ScopeTimer Timer(ProfilingZoneHistogram);
+            boost::mutex::scoped_lock Lock(*m_pMutex);
+            drawHistogram(m_pBitmaps[TRACKER_IMG_HISTOGRAM], 
+                    m_pBitmaps[TRACKER_IMG_NOHISTORY]);
+        }
+        //get bloblist
+        //
+        BlobListPtr comps;
+        {
+            ScopeTimer Timer(ProfilingZoneComps);
+            comps = connected_components(pTempBmp1, m_Threshold);
+        }
+        //    AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
+        //feed the IBlobTarget
+        {
+            boost::mutex::scoped_lock Lock(*m_pMutex);
+            m_pTarget->update(comps);
+        }
     }
     return true;
 }
