@@ -168,24 +168,21 @@ void TrackerThread::drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp)
     for (int i=0; i<256; ++i) {
         (*pHist)[i] = int((*pHist)[i]*256.0/Max2)+1;
     }
+    
     FilterFill<Pixel8>(0).applyInPlace(pDestBmp);
-    int Height = pDestBmp->getSize().y;
+    int Width = pDestBmp->getSize().x;
     int Stride = pDestBmp->getStride();
-    int EndCol = 256;
-    if (pDestBmp->getSize().x < 256) {
-        EndCol = pDestBmp->getSize().x;
+    int EndRow = 256;
+    if (pDestBmp->getSize().y < 256) {
+        EndRow = pDestBmp->getSize().y;
     }
-    for (int i=0; i<EndCol; ++i) {
-        int StartLine =Height-(*pHist)[i];
-        if (StartLine < 0) { 
-            StartLine = 0;
+    for (int i=0; i<EndRow; ++i) {
+        int StartCol =Width-(*pHist)[i];
+        if (StartCol < 0) { 
+            StartCol = 0;
         }
-        unsigned char * pDest = pDestBmp->getPixels()+Stride*StartLine+i;
-        for (int y=StartLine-1; y < Height-1; ++y) {
-            *pDest = 255;
-            pDest += Stride;
-        }
-        
+        unsigned char * pDest = pDestBmp->getPixels()+Stride*i+StartCol;
+        memset(pDest, 255, Width-StartCol);
     }
 }
 
