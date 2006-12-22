@@ -20,15 +20,18 @@
 
 #include "TrackerThread.h"
 #include "ConnectedComps.h"
-#include "../base/Logger.h"
-#include "../graphics/Filter.h"
-#include "../graphics/Filterfill.h"
 #include "FilterDistortion.h"
-#include <iostream>
-#include <stdlib.h>
 
+#include "../base/Profiler.h"
+#include "../base/Logger.h"
 #include "../base/ProfilingZone.h"
 #include "../base/ScopeTimer.h"
+
+#include "../graphics/Filter.h"
+#include "../graphics/Filterfill.h"
+
+#include <iostream>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -102,8 +105,7 @@ bool TrackerThread::work()
         {
             ScopeTimer Timer(ProfilingZoneHistogram);
             boost::mutex::scoped_lock Lock(*m_pMutex);
-            drawHistogram(m_pBitmaps[TRACKER_IMG_HISTOGRAM], 
-                    m_pBitmaps[TRACKER_IMG_NOHISTORY]);
+            drawHistogram(m_pBitmaps[TRACKER_IMG_HISTOGRAM], pTempBmp1);
         }
         //get bloblist
         //
@@ -119,6 +121,7 @@ bool TrackerThread::work()
             m_pTarget->update(comps);
         }
     }
+    Profiler::get().reset("Tracker");
     return true;
 }
 

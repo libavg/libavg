@@ -137,10 +137,11 @@ void Profiler::dumpStatistics()
     AVG_TRACE(Logger::PROFILE, "");
 }
 
-void Profiler::reset()
+void Profiler::reset(const string& ThreadID)
 {
     ZoneMap::iterator it1;
-    for (it1=m_Zones.begin(); it1 != m_Zones.end(); ++it1) {
+    it1 = m_Zones.find(ThreadID);
+    if (it1 != m_Zones.end()) {
         ZoneList List = (*it1).second;
         ZoneList::iterator it2;
         for (it2=List.begin(); it2 != List.end(); ++it2) {

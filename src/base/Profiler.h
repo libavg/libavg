@@ -41,7 +41,7 @@ public:
     void setActiveZone(ProfilingZone * pZone);
     void dumpFrame();
     void dumpStatistics();
-    void reset();
+    void reset(const std::string& ThreadID = "Main");
 
 
 private:
