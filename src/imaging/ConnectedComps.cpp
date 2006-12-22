@@ -1,5 +1,7 @@
 #include "ConnectedComps.h"
 
+#include "../graphics/Filterfill.h"
+#include "../graphics/Pixel8.h"
 #include <stdlib.h>
 #include <math.h>
 #include <iostream>
@@ -265,10 +267,15 @@ Run new_run(CompsMap *comps, int row, int col1, int col2, int color)
     return run;
 }
 
-BlobListPtr connected_components(BitmapPtr image, int object_threshold){
+BlobListPtr connected_components(BitmapPtr image, unsigned char object_threshold){
+    return connected_components(image, (FilterFill<Pixel8>(object_threshold)).apply(image));
+
+}
+BlobListPtr connected_components(BitmapPtr image, BitmapPtr thresholds){
     assert(image->getPixelFormat() == I8);
     CompsMap *comps = new CompsMap();
     const unsigned char *pixels = image->getPixels();
+    const unsigned char *object_threshold = thresholds->getPixels();
     int stride = image->getStride();
     IntPoint size = image->getSize();
     RunList *runs1=new RunList();
@@ -276,11 +283,13 @@ BlobListPtr connected_components(BitmapPtr image, int object_threshold){
     RunList *tmp;
 
     int run_start=0, run_stop=0;
-    unsigned char cur=(pixels[0]>object_threshold)?1:0, p=0;
+    int x=0;
+    int y=0;
+    unsigned char cur=(pixels[0]>*(object_threshold))?1:0, p=0;
     //std::cerr<<"w="<<size.x<<" h="<<size.y<<std::endl;
     //First line
-    for(int x=0; x<size.x ;x++){
-        p = (pixels[x]>object_threshold)?1:0;
+    for(x=0; x<size.x ;x++){
+        p = (pixels[x]>object_threshold[x])?1:0;
         if (cur!=p) {
             run_stop = x - 1;
             if (cur && (run_stop-run_start > 0)){
@@ -294,11 +303,11 @@ BlobListPtr connected_components(BitmapPtr image, int object_threshold){
         runs1->push_back( new_run(comps, 0, run_start, size.x-1, cur) );
     }
     //All other lines
-    for(int y=1; y<size.y; y++){
+    for(y=1; y<size.y; y++){
         run_start = 0;run_stop = 0;
-        cur = (pixels[stride*y+0]>object_threshold)?1:0;
-        for(int x=0; x<size.x ;x++){
-            p = (pixels[y*stride+x]>object_threshold)?1:0;
+        cur = (pixels[stride*y+0]>object_threshold[stride*y+0])?1:0;
+        for(x=0; x<size.x ;x++){
+            p = (pixels[y*stride+x]>object_threshold[y*stride+x])?1:0;
             //std::cerr<<"("<<x<<","<<y<<"):"<<(int)p<<std::endl;
             if (cur!=p) {
                 run_stop = x - 1;

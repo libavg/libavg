@@ -74,6 +74,7 @@ typedef std::vector<BlobPtr> BlobList;
 typedef boost::shared_ptr<BlobList> BlobListPtr;
 typedef std::map<int, BlobPtr> CompsMap;
 
-BlobListPtr connected_components(BitmapPtr image, int object_threshold);
+BlobListPtr connected_components(BitmapPtr image, unsigned char object_threshold);
+BlobListPtr connected_components(BitmapPtr image, BitmapPtr thresholds);
 }
 #endif
