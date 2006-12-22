@@ -21,11 +21,21 @@ namespace avg{
         for(int y=0;y<srcSize.y;++y){
             for(int x=0;x<srcSize.x;++x){
                 DPoint tmp = m_trafo.transform_point(DPoint(int(x),int(y)));
-                IntPoint tmp2 = IntPoint(int(tmp.x+0.5),int(tmp.y+0.5));
+                IntPoint tmp2(int(tmp.x+0.5),int(tmp.y+0.5));
                 if(m_srcRect.Contains(tmp2)){
                     m_pMap[y*w+x] = tmp2;
                 }else{
-                    m_pMap[y*w+x] = IntPoint(0,0); //booooh
+                    IntPoint SrcPoint(tmp2);
+                    if (SrcPoint.x < m_srcRect.tl.x) {
+                        SrcPoint.x = m_srcRect.tl.x);
+                    } else if (SrcPoint.x >= m_srcRect.br.x) {
+                        SrcPoint.x = m_srcRect.br.x;
+                    } else if (SrcPoint.y < m_srcRect.tl.y) {
+                        SrcPoint.y = m_srcRect.tl.y;
+                    } else if (SrcPoint.y >= m_srcRect.br.y) {
+                        SrcPoint.y = m_srcRect.br.y;
+                    }
+                    m_pMap[y*w+x] = SrcPoint;
                 }
 
             }
