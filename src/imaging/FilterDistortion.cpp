@@ -27,7 +27,7 @@ namespace avg{
                 }else{
                     IntPoint SrcPoint(tmp2);
                     if (SrcPoint.x < m_srcRect.tl.x) {
-                        SrcPoint.x = m_srcRect.tl.x);
+                        SrcPoint.x = m_srcRect.tl.x;
                     } else if (SrcPoint.x >= m_srcRect.br.x) {
                         SrcPoint.x = m_srcRect.br.x;
                     } else if (SrcPoint.y < m_srcRect.tl.y) {
