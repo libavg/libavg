@@ -93,7 +93,7 @@ public:
     int getLineLen() const;
     int getMemNeeded() const;
     bool hasAlpha() const;
-    HistogramPtr getHistogram() const;
+    HistogramPtr getHistogram(int Stride = 1) const;
 
     void subtract(const Bitmap* pOtherBmp);
 

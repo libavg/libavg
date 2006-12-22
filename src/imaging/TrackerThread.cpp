@@ -149,7 +149,7 @@ void TrackerThread::resetHistory()
         
 void TrackerThread::drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp)
 {
-    HistogramPtr pHist = pSrcBmp->getHistogram();
+    HistogramPtr pHist = pSrcBmp->getHistogram(3);
     assert(pDestBmp->getPixelFormat() == I8);
     // Normalize Histogram to 0..255
     int Max1 = 0;

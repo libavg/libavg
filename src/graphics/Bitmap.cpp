@@ -473,15 +473,14 @@ bool Bitmap::hasAlpha() const
             m_PF == A8R8G8B8);
 }
 
-// This actually only looks at every fourth pixel of an image.
-HistogramPtr Bitmap::getHistogram() const
+HistogramPtr Bitmap::getHistogram(int Stride) const
 {
     assert (m_PF == I8);
     HistogramPtr pHist(new Histogram(256,0));
     const unsigned char * pSrcLine = m_pBits;
-    for (int y=0; y < m_Size.y; y+=2) {
+    for (int y=0; y < m_Size.y; y+=Stride) {
         const unsigned char * pSrc = pSrcLine;
-        for (int x=0; x<m_Size.x; x+=2) {
+        for (int x=0; x<m_Size.x; x+=Stride) {
             (*pHist)[(*pSrc)]++;
             pSrc++;
         }
