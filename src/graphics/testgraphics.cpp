@@ -32,6 +32,7 @@
 #include "Filterflipuv.h"
 #include "Filter3x3.h"
 #include "HistoryPreProcessor.h"
+#include "FilterHighpass.h"
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
 
@@ -494,6 +495,24 @@ public:
 
 };
     
+class FilterHighpassTest: public Test {
+public:
+    FilterHighpassTest()
+        : Test("FilterHighpassTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(8,8), I8));
+        FilterFill<Pixel8>(0).applyInPlace(pBmp);
+        *(pBmp->getPixels()+pBmp->getStride()*3+3) = 255;
+        BitmapPtr pDestBmp = FilterHighpass().apply(pBmp);
+        BitmapPtr pBaselineBmp = FilterGrayscale().apply(
+                BitmapPtr(new Bitmap("testimages/HighpassResult.png")));
+        TEST(*pDestBmp == *pBaselineBmp);
+    }
+};
 
 class GraphicsTestSuite: public TestSuite {
 public:
@@ -510,6 +529,7 @@ public:
         addTest(TestPtr(new FilterFlipUVTest));
         addTest(TestPtr(new FilterComboTest));
         addTest(TestPtr(new HistoryPreProcessorTest));
+        addTest(TestPtr(new FilterHighpassTest));
     }
 };
 
