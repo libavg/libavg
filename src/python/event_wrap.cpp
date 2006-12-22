@@ -95,9 +95,9 @@ void export_event()
         .value("IMG_NOHISTORY", TRACKER_IMG_NOHISTORY)
         .value("IMG_HISTOGRAM", TRACKER_IMG_HISTOGRAM)
         .value("IMG_FINGERS", TRACKER_IMG_FINGERS)
+        .value("IMG_HIGHPASS", TRACKER_IMG_HIGHPASS)
         .export_values()
     ;
-
 
     class_<TrackerEventSource, boost::noncopyable>("Tracker",
             "A tracker that uses a firewire camera to track moving objects\n"

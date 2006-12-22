@@ -553,10 +553,11 @@ public:
 
     void runTests()
     {
-        BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(8,8), I8));
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(16,16), I8));
         FilterFill<Pixel8>(0).applyInPlace(pBmp);
-        *(pBmp->getPixels()+pBmp->getStride()*3+3) = 255;
+        *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
         BitmapPtr pDestBmp = FilterHighpass().apply(pBmp);
+//        pDestBmp->save("testimages/HighpassResult.png");
         BitmapPtr pBaselineBmp = FilterGrayscale().apply(
                 BitmapPtr(new Bitmap("testimages/HighpassResult.png")));
         TEST(*pDestBmp == *pBaselineBmp);

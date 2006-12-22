@@ -46,38 +46,43 @@ BitmapPtr FilterHighpass::apply(BitmapPtr pBmpSrc)
             pBmpSrc->getName()));
     int SrcStride = pBmpSrc->getStride();
     int DestStride = pBmpDest->getStride();
-    unsigned char * pSrcLine = pBmpSrc->getPixels()+2*SrcStride;
-    unsigned char * pDestLine = pBmpDest->getPixels()+2*DestStride;
+    unsigned char * pSrcLine = pBmpSrc->getPixels()+3*SrcStride;
+    unsigned char * pDestLine = pBmpDest->getPixels()+3*DestStride;
     IntPoint size = pBmpDest->getSize();
-    for (int y = 2; y<size.y-2; ++y) {
-        unsigned char * pSrcPixel = pSrcLine+2;
+    for (int y = 3; y<size.y-3; ++y) {
+        unsigned char * pSrcPixel = pSrcLine+3;
         unsigned char * pDstPixel = pDestLine;
         *pDstPixel++ = 128;
         *pDstPixel++ = 128;
-        for (int x = 2; x < size.x-2; ++x) {
+        *pDstPixel++ = 128;
+        for (int x = 3; x < size.x-3; ++x) {
             // Convolution Matrix is
             // -1  0  0   0  -1
             //  0 -1  0  -1   0
             //  0  0  8   0   0
             //  0 -1  0  -1   0
             // -1  0  0   0  -1
+            // Actually, it's 7x7, but you get the idea.
             *pDstPixel = 
                 128 - int(*(pSrcPixel-2*SrcStride-2) + *(pSrcPixel-2*SrcStride+2) + 
                 *(pSrcPixel-SrcStride-1) + *(pSrcPixel-1*SrcStride+1) +
                 *(pSrcPixel+SrcStride-1) + *(pSrcPixel+1*SrcStride+1) + 
-                *(pSrcPixel+2*SrcStride-2) + *(pSrcPixel+2*SrcStride+2))/16 +
-                *(pSrcPixel)/2;
+                *(pSrcPixel+2*SrcStride-2) + *(pSrcPixel+2*SrcStride+2))/4 +
+                *(pSrcPixel)*3;
+            *pDstPixel -= int(*(pSrcPixel-3*SrcStride-3) + *(pSrcPixel-3*SrcStride+3) +
+                *(pSrcPixel+3*SrcStride-3) + *(pSrcPixel+3*SrcStride+3))/4; 
             ++pSrcPixel;
             ++pDstPixel;
         }
+        *pDstPixel++ = 128;
         *pDstPixel++ = 128;
         *pDstPixel++ = 128;
         pSrcLine += SrcStride;
         pDestLine += DestStride;
     }
     // Set top and bottom borders.
-    memset(pBmpDest->getPixels(), 128, DestStride*2);
-    memset(pBmpDest->getPixels()+DestStride*(size.y-2), 128, DestStride*2);
+    memset(pBmpDest->getPixels(), 128, DestStride*3);
+    memset(pBmpDest->getPixels()+DestStride*(size.y-3), 128, DestStride*3);
     return pBmpDest;
 }
 

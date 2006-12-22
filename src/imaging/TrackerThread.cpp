@@ -29,6 +29,7 @@
 
 #include "../graphics/Filter.h"
 #include "../graphics/Filterfill.h"
+#include "../graphics/FilterHighpass.h"
 
 #include <iostream>
 #include <stdlib.h>
@@ -40,6 +41,7 @@ static ProfilingZone ProfilingZoneTracker ("Tracker", "Tracker");
 static ProfilingZone ProfilingZoneHistory ("  History", "Tracker");
 static ProfilingZone ProfilingZoneDistort ("  Distort", "Tracker");
 static ProfilingZone ProfilingZoneHistogram ("  Histogram", "Tracker");
+static ProfilingZone ProfilingZoneHighpass ("  Highpass", "Tracker");
 static ProfilingZone ProfilingZoneComps("  ConnectedComps", "Tracker");
 
 TrackerThread::TrackerThread(CameraPtr pCamera,
@@ -79,6 +81,7 @@ bool TrackerThread::work()
 {
     BitmapPtr pTempBmp = m_pCamera->getImage(true);
     BitmapPtr pTempBmp1;
+    BitmapPtr pBmpHighpass;
     while (pTempBmp1 = m_pCamera->getImage(false)) {
         pTempBmp = pTempBmp1;
     }
@@ -107,12 +110,20 @@ bool TrackerThread::work()
             boost::mutex::scoped_lock Lock(*m_pMutex);
             drawHistogram(m_pBitmaps[TRACKER_IMG_HISTOGRAM], pTempBmp1);
         }
+        {
+            ScopeTimer Timer(ProfilingZoneHighpass);
+            pBmpHighpass = FilterHighpass().apply(pTempBmp1);
+        }
+        {
+            boost::mutex::scoped_lock Lock(*m_pMutex);
+            *(m_pBitmaps[TRACKER_IMG_HIGHPASS]) = *pBmpHighpass;
+        }
         //get bloblist
         //
         BlobListPtr comps;
         {
             ScopeTimer Timer(ProfilingZoneComps);
-            comps = connected_components(pTempBmp1, m_Threshold);
+            comps = connected_components(pBmpHighpass, m_Threshold);
         }
         //    AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
         //feed the IBlobTarget

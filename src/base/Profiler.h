@@ -28,7 +28,8 @@
 #include <map>
 
 namespace avg {
-    
+
+// XXX: This thing isn't really thread-safe!
 class Profiler {
 public:
     static Profiler& get();

@@ -40,6 +40,7 @@ typedef enum {
         TRACKER_IMG_CAMERA,
         TRACKER_IMG_NOHISTORY,
         TRACKER_IMG_HISTOGRAM,
+        TRACKER_IMG_HIGHPASS,
         TRACKER_IMG_FINGERS,
         NUM_TRACKER_IMAGES
 } TrackerImageID;

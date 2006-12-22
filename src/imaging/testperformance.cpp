@@ -49,22 +49,24 @@ public:
     void runTests() 
     {
         std::vector<std::string> p = std::vector<std::string>();
-        for (int i=0; i<3; ++i) {
+        p.push_back("../imaging/testimages/big0.png");
+        for (int i=2; i<7; ++i) {
             stringstream s;
-            s << "../imaging/testimages/Big" << i << ".png";
+            s << "../imaging/img" << i << ".png";
             p.push_back(s.str());
         }
         CameraPtr pCam = CameraPtr(new FakeCamera(p));
-        BitmapPtr pBitmaps[NUM_TRACKER_IMAGES];
         for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
-            pBitmaps[i] = BitmapPtr(new Bitmap(pCam->getImgSize(), I8));
+            m_pBitmaps[i] = BitmapPtr(new Bitmap(pCam->getImgSize(), I8));
         }
         MutexPtr pMutex(new boost::mutex);
         m_pCmdQ = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
         //FilterIdPtr pp = FilterIdPtr(new FilterId());
-        HistoryPreProcessorPtr pp = HistoryPreProcessorPtr(new HistoryPreProcessor(pCam->getImgSize()));
+//        HistoryPreProcessorPtr pp = HistoryPreProcessorPtr(new HistoryPreProcessor(pCam->getImgSize()));
         boost::thread Thread(
-                TrackerThread(pCam, pBitmaps, pMutex,  *m_pCmdQ, this,&*pp));
+                TrackerThread(pCam, m_pBitmaps, pMutex,  *m_pCmdQ, this, false));
+        m_pCmdQ->push(Command<TrackerThread>(boost::bind(
+                &TrackerThread::setConfig, _1, m_TrackerConfig)));
         // TODO: Set TrackerConfig.
         Thread.join();
     }
@@ -73,38 +75,19 @@ public:
         static int BmpIndex = 0;
         switch(BmpIndex) {
             case 0:
-                TEST(pBlobs->size() == 0);
                 break;
             case 1:
-                {
-                    TEST(pBlobs->size() >10);
-                //    BlobInfoPtr pBlobInfo = (*pBlobs->begin())->getInfo();
-                //    cerr<<pBlobInfo->m_Orientation<<endl;
-                //    TEST(fabs(pBlobInfo->m_Area-16)<0.001);
-                //    TEST(fabs(pBlobInfo->m_Orientation)<0.001);
-                //    TEST(fabs(pBlobInfo->m_Center.x-11.5)<0.0001); 
-                //    TEST(fabs(pBlobInfo->m_Center.y-7.5)<0.0001);
-                //    TEST(pBlobInfo->m_BoundingBox == IntRect(10,6,14,10)); 
-                }
-                break;
             case 2:
-                //TEST(pBlobs->size() == 2);
-                m_pCmdQ->push(Command<TrackerThread>(boost::bind(&TrackerThread::stop, _1)));
-                break;
             case 3:
-                break;
             case 4:
                 {
-                //    TEST(pBlobs->size() == 1);
-                //    BlobInfoPtr pBlobInfo = (*pBlobs->begin())->getInfo();
-                //    cerr<<pBlobInfo->m_Orientation<<endl;
-                //    TEST(fabs(pBlobInfo->m_Area-114)<0.001);
-                //    TEST(pBlobInfo->m_BoundingBox == IntRect(4,15,31,21)); 
+                    stringstream s;
+                    s << "result" << BmpIndex << ".png";
+                    m_pBitmaps[TRACKER_IMG_HIGHPASS]->save(s.str());
                 }
                 break;
             case 5:
-                //TEST(pBlobs->size() == 0);
-                //m_pCmdQ->push(Command<TrackerThread>(boost::bind(&TrackerThread::stop, _1)));
+                m_pCmdQ->push(Command<TrackerThread>(boost::bind(&TrackerThread::stop, _1)));
                 break;
             default:
                 break;
@@ -114,6 +97,8 @@ public:
 
 private:
     TrackerThread::CmdQueuePtr m_pCmdQ;
+    TrackerConfig m_TrackerConfig;
+    BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
 };
 
 class ImagingTestSuite: public TestSuite {

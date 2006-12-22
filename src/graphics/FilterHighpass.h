@@ -28,6 +28,10 @@
 #include <boost/shared_ptr.hpp>
 
 namespace avg {
+
+// This is a pretty specialized highpass filter that uses a 7x7 kernel. 
+// It assumes a low contrast in the original image and will break on high-
+// contrast images.
 class FilterHighpass: public Filter{
     public:
         FilterHighpass();
