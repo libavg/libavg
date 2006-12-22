@@ -31,6 +31,7 @@
 #include "Filterfliprgb.h"
 #include "Filterflipuv.h"
 #include "Filter3x3.h"
+#include "FilterConvol.h"
 #include "HistoryPreProcessor.h"
 #include "FilterHighpass.h"
 #include "../base/TestSuite.h"
@@ -413,6 +414,54 @@ private:
     }
 };
 
+class FilterConvolTest: public Test {
+public:
+    FilterConvolTest()
+        : Test("FilterConvolTest", 2)
+    {
+    }
+
+    void runTests() 
+    {
+        runPFTests<Pixel24>(R8G8B8);
+        runPFTests<Pixel32>(R8G8B8X8);
+        //FIXME runPFTests<Pixel8>(I8);
+    }
+
+private:
+    template<class PixelT>
+    void runPFTests(PixelFormat PF)
+    {
+        BitmapPtr pBmp(new Bitmap(IntPoint(4, 4), PF));
+        initBmp<PixelT>(pBmp);
+        double Mat[9] = 
+                {1,0,2,
+                 0,1,0,
+                 3,0,4};
+        BitmapPtr pNewBmp = FilterConvol<PixelT>(&(Mat[0]),3,3).apply(pBmp);
+        TEST(pNewBmp->getSize() == IntPoint(2,2));
+        unsigned char * pLine0 = pNewBmp->getPixels();
+        TEST(*(PixelT*)pLine0 == PixelT(1,0,0));
+        TEST(*(((PixelT*)pLine0)+1) == PixelT(4,0,0));
+        unsigned char * pLine1 = pNewBmp->getPixels()+pNewBmp->getStride();
+        TEST(*(PixelT*)(pLine1) == PixelT(0,0,9));
+        TEST(*((PixelT*)(pLine1)+1) == PixelT(0,0,16));
+        
+    }
+    
+    template<class PixelT>
+    void initBmp(BitmapPtr pBmp) 
+    {
+        PixelT * pPixels = (PixelT *)(pBmp->getPixels());
+        PixelT Color = PixelT(0,0,0);
+        FilterFill<PixelT>(Color).applyInPlace(pBmp);
+        pPixels[0] = PixelT(1,0,0);
+        pPixels[3] = PixelT(2,0,0);
+        pPixels = (PixelT*)((char *)pPixels+3*pBmp->getStride());
+        pPixels[0] = PixelT(0,0,3);
+        pPixels[3] = PixelT(0,0,4);
+    }
+};
 class Filter3x3Test: public Test {
 public:
     Filter3x3Test()
@@ -521,6 +570,7 @@ public:
     {
         addTest(TestPtr(new BitmapTest));
         addTest(TestPtr(new Filter3x3Test));
+        addTest(TestPtr(new FilterConvolTest));
         addTest(TestPtr(new FilterColorizeTest));
         addTest(TestPtr(new FilterGrayscaleTest));
         addTest(TestPtr(new FilterFillTest));
