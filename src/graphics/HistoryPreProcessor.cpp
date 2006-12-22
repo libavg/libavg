@@ -80,12 +80,15 @@ void HistoryPreProcessor::updateHistory(BitmapPtr new_img)
     }
 }
 
-void HistoryPreProcessor::applyInPlace(BitmapPtr img){
+void HistoryPreProcessor::applyInPlace(BitmapPtr img)
+{
     updateHistory(img);
     unsigned short * pSrc = (unsigned short*)m_pHistoryBmp->getPixels();
     int SrcStride = m_pHistoryBmp->getStride()/m_pHistoryBmp->getBytesPerPixel();
+    int DestStride = img->getStride();
     unsigned char * pDest = img->getPixels();
     IntPoint Size = img->getSize();
+    unsigned char Max = 0;
     for (int y=0; y<Size.y; y++) {
         const unsigned short * pSrcPixel = pSrc;
         unsigned char * pDestPixel = pDest;
@@ -94,14 +97,37 @@ void HistoryPreProcessor::applyInPlace(BitmapPtr img){
             unsigned char Src = *pSrcPixel/256;
             if ((*pDestPixel)>Src) {
                 *pDestPixel = *pDestPixel-Src;
+                if (Max < *pDestPixel) {
+                    Max = *pDestPixel;
+                }
             } else {
                 *pDestPixel = 0;
             }
             pDestPixel++;
             pSrcPixel++;
         }
-        pDest += img->getStride();
+        pDest += DestStride;
         pSrc += SrcStride;
     }
+    normalizeHistogram(img, Max);
 }
+
+// Fast pseudo-normalization with an integer factor.
+void HistoryPreProcessor::normalizeHistogram(BitmapPtr pBmp, unsigned char Max)
+{
+    int Factor = int(256.0/Max);
+    unsigned char * pLine = pBmp->getPixels();
+    IntPoint Size = pBmp->getSize();
+    int Stride = pBmp->getStride();
+    for (int y=0; y<Size.y; y++) {
+        unsigned char * pPixel = pLine;
+        for (int x=0; x<Size.x; x++) {
+            *pPixel *= Factor;
+            pPixel++;
+        }
+        pLine += Stride;
+    }
 }
+
+}
+

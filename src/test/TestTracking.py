@@ -60,15 +60,18 @@ class TrackingTestCase(unittest.TestCase):
             self.__saveIndex += 1
             self.__tracker.getImage(avg.IMG_NOHISTORY).save("img"+str(self.__saveIndex)+".png")
             print ("Image saved.")
+    def updateBitmap(self, ImgName, ID):
+        Bitmap = self.__tracker.getImage(ID)
+        Node = Player.getElementByID(ImgName)
+        Node.setBitmap(Bitmap)
+        Node.width=320
+        Node.height=240
     def onFrame(self):
-        Bitmap = self.__tracker.getImage(avg.IMG_CAMERA)
-        Player.getElementByID("camera").setBitmap(Bitmap)
-        Bitmap = self.__tracker.getImage(avg.IMG_NOHISTORY)
-        Player.getElementByID("nohistory").setBitmap(Bitmap)
-        Bitmap = self.__tracker.getImage(avg.IMG_HISTOGRAM)
-        Player.getElementByID("histogram").setBitmap(Bitmap)
-        Bitmap = self.__tracker.getImage(avg.IMG_FINGERS)
-        Player.getElementByID("fingers").setBitmap(Bitmap)
+        self.updateBitmap("camera", avg.IMG_CAMERA);
+        self.updateBitmap("nohistory", avg.IMG_NOHISTORY);
+        self.updateBitmap("histogram", avg.IMG_HISTOGRAM);
+        self.updateBitmap("highpass", avg.IMG_HIGHPASS);
+        self.updateBitmap("fingers", avg.IMG_FINGERS);
     def test(self):
         Player.loadFile("tracking.avg")
         Player.setFramerate(60)

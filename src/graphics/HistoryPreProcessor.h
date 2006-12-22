@@ -16,6 +16,7 @@ class HistoryPreProcessor: public Filter{
 
     private:
         void updateHistory(BitmapPtr new_img);
+        void normalizeHistogram(BitmapPtr pBmp, unsigned char Max);
         BitmapPtr m_pHistoryBmp;
         unsigned int m_FrameCounter;
         unsigned int m_UpdateInterval;
