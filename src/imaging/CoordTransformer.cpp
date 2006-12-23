@@ -10,7 +10,7 @@ CoordTransformer::CoordTransformer(IntRect srcRect, double K1, double T, double 
     m_TrapezoidFactor(T),
     m_RescaleFactor(RescaleFactor)
 {
-    m_Center = DPoint(srcRect.tl.x+(srcRect.Width()-1)/2., srcRect.tl.y+(srcRect.Height()-1)/2.);
+    m_Center = DPoint((srcRect.tl.x+srcRect.br.x-1)/2., (srcRect.tl.y+srcRect.br.y-1)/2.);
     //normalize to center-edge distance
     m_Scale = sqrt( pow(m_Center.x - srcRect.Width(),2) +  pow(m_Center.y - srcRect.Height(),2) );
     m_TrapezoidScale = srcRect.Height()/2;
