@@ -5,26 +5,27 @@
 #include "math.h"
 
 namespace avg{
-CoordTransformer::CoordTransformer(IntRect srcRect, double K1, double T)
+CoordTransformer::CoordTransformer(IntRect srcRect, double K1, double T, double RescaleFactor)
     :m_K1(K1),
-    m_TrapezoidFactor(T)
+    m_TrapezoidFactor(T),
+    m_RescaleFactor(RescaleFactor)
 {
     m_Center = DPoint(srcRect.tl.x+(srcRect.Width()-1)/2., srcRect.tl.y+(srcRect.Height()-1)/2.);
     //normalize to center-edge distance
     m_Scale = sqrt( pow(m_Center.x - srcRect.Width(),2) +  pow(m_Center.y - srcRect.Height(),2) );
-
+    m_TrapezoidScale = srcRect.Height()/2;
 
 }
     CoordTransformer::~CoordTransformer(){};
     DPoint CoordTransformer::distortion(const DPoint &pt){
         DPoint pt_norm = (pt - m_Center)/m_Scale;
         double r_d_squared = pt_norm.x*pt_norm.x + pt_norm.y*pt_norm.y;
-        double S = (1 + m_K1*r_d_squared);
+        double S = (1 + m_K1*r_d_squared)/m_RescaleFactor;
         return pt_norm*S*m_Scale + m_Center;
     }
     DPoint CoordTransformer::trapezoid(const DPoint &pt){
         //stretch x coord
-        double yn = (pt.y - m_Center.y)/m_Scale;
+        double yn = (pt.y - m_Center.y)/m_TrapezoidScale;
         return DPoint( 
                 m_Center.x + ( pt.x - m_Center.x) * (1 + m_TrapezoidFactor * yn), 
                 pt.y);

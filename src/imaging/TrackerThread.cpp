@@ -68,7 +68,7 @@ TrackerThread::TrackerThread(CameraPtr pCamera,
                 new HistoryPreProcessor(m_pBitmaps[0]->getSize(), 1));
     }
 
-    m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), 0, 0));
+    m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), 0.0, 0));
 }
 
 TrackerThread::~TrackerThread()
@@ -149,8 +149,12 @@ void TrackerThread::deinit()
 void TrackerThread::setConfig(TrackerConfig Config)
 {
     m_Threshold = Config.m_Threshold;
-    if(m_pHistoryPreProcessor)
+    if(m_pHistoryPreProcessor) {
         m_pHistoryPreProcessor->setInterval(Config.m_HistoryUpdateInterval);
+    }
+    m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(),
+            Config.m_K1, Config.m_T));
+
     m_pCamera->setFeature("brightness", Config.m_Brightness);
     m_pCamera->setFeature("exposure", Config.m_Exposure);
     m_pCamera->setFeature("gain", Config.m_Gain);

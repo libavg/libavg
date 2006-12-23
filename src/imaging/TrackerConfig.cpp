@@ -97,10 +97,10 @@ namespace avg {
             const char * pNodeName = (const char *)curXmlChild->name;
             if (!strcmp(pNodeName, "brightness")) {
                 m_Brightness = getRequiredIntAttr(curXmlChild, "value");
-            } else if (!strcmp(pNodeName, "pincushion")) {
+            } else if (!strcmp(pNodeName, "barrel")) {
                 m_K1 = getRequiredDoubleAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "trapezoid")) {
-                m_Exposure = getRequiredDoubleAttr(curXmlChild, "value");
+                m_T = getRequiredDoubleAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "exposure")) {
                 m_Exposure = getRequiredIntAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "gain")) {
@@ -128,7 +128,7 @@ namespace avg {
         rc = xmlTextWriterSetIndent(writer, 4);
         rc = xmlTextWriterStartDocument(writer, NULL, "utf-8", NULL);
         rc = xmlTextWriterStartElement(writer, BAD_CAST "trackerconfig");
-        writeSimpleXMLNode(writer, "pincushion", m_K1);
+        writeSimpleXMLNode(writer, "barrel", m_K1);
         writeSimpleXMLNode(writer, "trapezoid", m_T);
         writeSimpleXMLNode(writer, "brightness", m_Brightness);
         writeSimpleXMLNode(writer, "exposure", m_Exposure);

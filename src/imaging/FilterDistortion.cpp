@@ -1,16 +1,17 @@
 #include "FilterDistortion.h"
+
 #include "../graphics/Rect.h"
 #include "../graphics/Point.h"
-#include <boost/multi_array.hpp>
+
+#include <iostream>
 #include <math.h>
 
-//Really ugly code. do not use...
-
+using namespace std;
 
 namespace avg{
     FilterDistortion::FilterDistortion(IntPoint srcSize, double K1, double T):
         m_srcRect(0,0,srcSize.x,srcSize.y),
-        m_trafo(m_srcRect, -K1, -T) //inverse of Distortion by reversing the sign.
+        m_trafo(m_srcRect, -K1, -T, 1/(1+K1)) //inverse of Distortion by reversing the sign.
     {
         //we use the same dimensions for both of src and dest and just crop...
         //for each pixel at (x,y) in the dest
@@ -24,18 +25,24 @@ namespace avg{
                 IntPoint tmp2(int(tmp.x+0.5),int(tmp.y+0.5));
                 if(m_srcRect.Contains(tmp2)){
                     m_pMap[y*w+x] = tmp2;
-                }else{
+                } else {
+                    m_pMap[y*w+x] = IntPoint(0,0);
+/*
                     IntPoint SrcPoint(tmp2);
                     if (SrcPoint.x < m_srcRect.tl.x) {
                         SrcPoint.x = m_srcRect.tl.x;
-                    } else if (SrcPoint.x >= m_srcRect.br.x) {
-                        SrcPoint.x = m_srcRect.br.x;
-                    } else if (SrcPoint.y < m_srcRect.tl.y) {
+                    } 
+                    if (SrcPoint.x >= m_srcRect.br.x) {
+                        SrcPoint.x = m_srcRect.br.x-1;
+                    } 
+                    if (SrcPoint.y < m_srcRect.tl.y) {
                         SrcPoint.y = m_srcRect.tl.y;
-                    } else if (SrcPoint.y >= m_srcRect.br.y) {
-                        SrcPoint.y = m_srcRect.br.y;
+                    } 
+                    if (SrcPoint.y >= m_srcRect.br.y) {
+                        SrcPoint.y = m_srcRect.br.y-1;
                     }
                     m_pMap[y*w+x] = SrcPoint;
+*/
                 }
 
             }
@@ -43,7 +50,6 @@ namespace avg{
     }
 
     BitmapPtr FilterDistortion::apply(BitmapPtr pBmpSource){
-        
         BitmapPtr res = BitmapPtr(new Bitmap(*pBmpSource));
         unsigned char *p = res->getPixels();
         unsigned char *src = pBmpSource->getPixels();

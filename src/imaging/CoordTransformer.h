@@ -60,9 +60,10 @@ class CoordTransformer {
         //K1>0 correct pincushion
         //see http://www.imatest.com/docs/distortion.html
         DPoint m_Center;
-        double m_K1; 
+        double m_K1;
+        double m_RescaleFactor;
         double m_Scale;
-
+        double m_TrapezoidScale;
         //DPoint **m_pCache; // m_pCache[x][y] - (new_x, new_y)
 };
 

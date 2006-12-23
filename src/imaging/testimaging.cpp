@@ -38,7 +38,7 @@
 
 #include <sstream>
 
-// #define GENERATE_BASELINE
+//#define GENERATE_BASELINE
 
 using namespace avg;
 using namespace std;
@@ -47,6 +47,17 @@ class DistortionTest: public Test {
     public:
         DistortionTest():Test("DistortionTest",2){}
         void runTests(){
+            CoordTransformer Transformer(IntRect(0,0,100,100), 0, 0, 1);
+            TEST(Transformer.transform_point(DPoint(0,0)) == DPoint(0,0));
+            TEST(Transformer.transform_point(DPoint(100,100)) == DPoint(100,100));
+            CoordTransformer TrapezoidT(IntRect(0,0,100,100), 0, 1, 1);
+            cerr << TrapezoidT.transform_point(DPoint(100,0)) << endl;
+            cerr << TrapezoidT.transform_point(DPoint(100,50)) << endl;
+            cerr << TrapezoidT.transform_point(DPoint(100,100)) << endl;
+            TEST(TrapezoidT.transform_point(DPoint(100,0)) == DPoint(50,0));
+            TEST(TrapezoidT.transform_point(DPoint(100,100)) == DPoint(150,100));
+            
+
             BitmapPtr in_bmp = FilterGrayscale().apply(BitmapPtr(new Bitmap("testimages/squares.png")));
             FilterDistortion BarrelFilter = FilterDistortion(in_bmp->getSize(),0.3,0);
             BitmapPtr pBarrelBmp = BarrelFilter.apply(in_bmp);
