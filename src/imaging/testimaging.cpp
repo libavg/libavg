@@ -129,8 +129,6 @@ class DistortionTest: public Test {
         {
             DPoint TempPt = T.transform_point(Pt);
             DPoint SamePt = T.inverse_transform_point(TempPt);
-            cerr << "      Pt: " << Pt << ", transformed: " << TempPt << ", back: " 
-                    << SamePt << endl;
             TEST(SamePt.x - Pt.x < 1 && SamePt.y - Pt.y < 1);
         }
 };
