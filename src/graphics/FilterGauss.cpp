@@ -96,6 +96,7 @@ BitmapPtr FilterGauss::apply(BitmapPtr pBmpSrc)
         pSrcLine += SrcStride;
         pTempLine += TempStride;
     }
+
     // Convolve in y-direction
     IntPoint DestSize(TempSize.x, TempSize.y-2*IntRadius);
     BitmapPtr pDestBmp = BitmapPtr(new Bitmap(DestSize, I8, pBmpSrc->getName()));
