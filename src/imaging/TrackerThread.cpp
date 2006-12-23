@@ -42,6 +42,7 @@ static ProfilingZone ProfilingZoneTracker ("Tracker", "Tracker");
 static ProfilingZone ProfilingZoneHistory ("  History", "Tracker");
 static ProfilingZone ProfilingZoneDistort ("  Distort", "Tracker");
 static ProfilingZone ProfilingZoneHistogram ("  Histogram", "Tracker");
+static ProfilingZone ProfilingZoneGauss ("  Gauss", "Tracker");
 static ProfilingZone ProfilingZoneHighpass ("  Highpass", "Tracker");
 static ProfilingZone ProfilingZoneComps("  ConnectedComps", "Tracker");
 
@@ -113,8 +114,10 @@ bool TrackerThread::work()
             drawHistogram(m_pBitmaps[TRACKER_IMG_HISTOGRAM], pTempBmp);
         }
         {
-            ScopeTimer Timer(ProfilingZoneHighpass);
+            ScopeTimer Timer(ProfilingZoneLowpass);
             pBmpLowpass = FilterGauss(1).apply(pTempBmp1);
+        }
+            ScopeTimer Timer(ProfilingZoneHighpass);
             pBmpHighpass = FilterHighpass().apply(pBmpLowpass);
         }
         {
