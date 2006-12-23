@@ -116,6 +116,9 @@ void export_event()
             "resetHistory() -> None\n\n"
             "Throws away the current history image and generates a new one from\n"
             "the current image.\n")
+        .def("enableDebug", &TrackerEventSource::enableDebug,
+            "enableDebug(Enable) -> None\n\n"
+            "Enable or disable generation of debug images.\n")
         .add_property("threshold", &TrackerEventSource::getThreshold,
             &TrackerEventSource::setThreshold)
         .add_property("historyspeed", &TrackerEventSource::getHistorySpeed,

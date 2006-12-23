@@ -45,6 +45,7 @@ static ProfilingZone ProfilingZoneHistogram ("  Histogram", "Tracker");
 static ProfilingZone ProfilingZoneBlur ("  Blur", "Tracker");
 static ProfilingZone ProfilingZoneHighpass ("  Highpass", "Tracker");
 static ProfilingZone ProfilingZoneComps("  ConnectedComps", "Tracker");
+static ProfilingZone ProfilingZoneUpdate("  Update", "Tracker");
 
 TrackerThread::TrackerThread(CameraPtr pCamera,
         BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
@@ -56,7 +57,8 @@ TrackerThread::TrackerThread(CameraPtr pCamera,
       m_Threshold(128),
       m_pMutex(pMutex),
       m_pCamera(pCamera),
-      m_pTarget(target)
+      m_pTarget(target),
+      m_bDebugEnabled(false)
 {
     for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
         m_pBitmaps[i] = ppBitmaps[i];
@@ -90,27 +92,22 @@ bool TrackerThread::work()
     }
     {
         ScopeTimer Timer(ProfilingZoneTracker);
-        {
+        if (m_bDebugEnabled) {
             boost::mutex::scoped_lock Lock(*m_pMutex);
             *(m_pBitmaps[TRACKER_IMG_CAMERA]) = *pTempBmp;
         }
-        {
-            if (m_pHistoryPreProcessor) {
-                ScopeTimer Timer(ProfilingZoneHistory);
-                m_pHistoryPreProcessor->applyInPlace(pTempBmp);
-            }
-            {
-                ScopeTimer Timer(ProfilingZoneDistort);
-                pTempBmp1 = m_pDistorter->apply(pTempBmp);
-            }
+        if (m_pHistoryPreProcessor) {
+            ScopeTimer Timer(ProfilingZoneHistory);
+            m_pHistoryPreProcessor->applyInPlace(pTempBmp);
         }
         {
+            ScopeTimer Timer(ProfilingZoneDistort);
+            pTempBmp1 = m_pDistorter->apply(pTempBmp);
+        }
+        if (m_bDebugEnabled) {
             boost::mutex::scoped_lock Lock(*m_pMutex);
             m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pTempBmp1);
-        }
-        {
             ScopeTimer Timer(ProfilingZoneHistogram);
-            boost::mutex::scoped_lock Lock(*m_pMutex);
             drawHistogram(m_pBitmaps[TRACKER_IMG_HISTOGRAM], pTempBmp);
         }
         {
@@ -121,7 +118,7 @@ bool TrackerThread::work()
             ScopeTimer Timer(ProfilingZoneHighpass);
             pBmpHighpass = FilterHighpass().apply(pBmpLowpass);
         }
-        {
+        if (m_bDebugEnabled) {
             boost::mutex::scoped_lock Lock(*m_pMutex);
             *(m_pBitmaps[TRACKER_IMG_HIGHPASS]) = *pBmpHighpass;
         }
@@ -136,7 +133,8 @@ bool TrackerThread::work()
         //feed the IBlobTarget
         {
             boost::mutex::scoped_lock Lock(*m_pMutex);
-            m_pTarget->update(comps);
+            ScopeTimer Timer(ProfilingZoneUpdate);
+            m_pTarget->update(comps, m_bDebugEnabled);
         }
     }
     Profiler::get().reset("Tracker");
@@ -165,6 +163,11 @@ void TrackerThread::resetHistory()
         m_pHistoryPreProcessor->reset();
 }
         
+void TrackerThread::enableDebug(bool bEnable)
+{
+    m_bDebugEnabled = bEnable;
+}
+
 void TrackerThread::drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp)
 {
     HistogramPtr pHist = pSrcBmp->getHistogram(3);

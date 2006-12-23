@@ -50,7 +50,7 @@ typedef boost::shared_ptr<boost::mutex> MutexPtr;
 class IBlobTarget {
     public:
         virtual ~IBlobTarget() {};
-        virtual void update(BlobListPtr blobs) = 0;
+        virtual void update(BlobListPtr blobs, bool bRenderBlobs) = 0;
 };
 
 
@@ -71,6 +71,7 @@ class TrackerThread: public WorkerThread<TrackerThread>
 
         void setConfig(TrackerConfig Config);
         void resetHistory();
+        void enableDebug(bool bEnable);
     
     private:
         void checkMessages();
@@ -91,6 +92,8 @@ class TrackerThread: public WorkerThread<TrackerThread>
         IBlobTarget *m_pTarget;
         HistoryPreProcessorPtr m_pHistoryPreProcessor;
         FilterDistortionPtr m_pDistorter;
+
+        bool m_bDebugEnabled;
 };
 
 }

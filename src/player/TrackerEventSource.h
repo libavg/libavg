@@ -61,6 +61,7 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         void setShutter(int Shutter);
         int getShutter();
         void resetHistory();
+        void enableDebug(bool bEnable);
 
         void saveConfig();
 
@@ -68,7 +69,7 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         std::vector<Event *> pollEvents();//main thread
 
         /*implement IBlobTarget*/
-        virtual void update(BlobListPtr new_blobs);//tracker thread
+        virtual void update(BlobListPtr new_blobs, bool bRenderBlobs);//tracker thread
 
     private:
         bool isfinger(BlobPtr blob);

@@ -60,6 +60,9 @@ class TrackingTestCase(unittest.TestCase):
             self.__saveIndex += 1
             self.__tracker.getImage(avg.IMG_NOHISTORY).save("img"+str(self.__saveIndex)+".png")
             print ("Image saved.")
+        elif Event.keystring == "r":
+            self.__tracker.enableDebug(True)
+            print ("Debug image generation enabled.")
     def updateBitmap(self, ImgName, ID):
         Bitmap = self.__tracker.getImage(ID)
         Node = Player.getElementByID(ImgName)

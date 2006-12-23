@@ -260,6 +260,12 @@ namespace avg {
         m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
                 &TrackerThread::resetHistory, _1)));
     }
+    
+    void TrackerEventSource::enableDebug(bool bEnable)
+    {
+        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
+                &TrackerThread::enableDebug, _1, bEnable)));
+    }
 
     void TrackerEventSource::saveConfig()
     {
@@ -326,12 +332,14 @@ double distance(BlobPtr p1, BlobPtr p2) {
 #undef IN
     }
 
-    void TrackerEventSource::update(BlobListPtr new_blobs){
+    void TrackerEventSource::update(BlobListPtr new_blobs, bool bRenderBlobs){
         boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
         BlobListPtr old_blobs = BlobListPtr(new BlobList());
         EventStreamPtr e;
-        FilterFill<Pixel32>(Pixel32(0x00, 0x00, 0x00, 0xFF)).applyInPlace(
-                m_pBitmaps[TRACKER_IMG_FINGERS]);
+        if (bRenderBlobs) {
+            FilterFill<Pixel32>(Pixel32(0x00, 0x00, 0x00, 0xFF)).applyInPlace(
+                    m_pBitmaps[TRACKER_IMG_FINGERS]);
+        }
         for(EventMap::iterator it=m_Events.begin();it!=m_Events.end();++it){
             (*it).second->m_Stale = true;
             old_blobs->push_back((*it).first);
@@ -339,14 +347,18 @@ double distance(BlobPtr p1, BlobPtr p2) {
         int known_counter=0, new_counter=0, ignored_counter=0; 
         for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2){
             if (!isfinger(*it2)){
-                (*it2)->render(&*m_pBitmaps[TRACKER_IMG_FINGERS], 
-                        Pixel32(0xFF, 0x00, 0x00, 0xFF), false); 
+                if (bRenderBlobs) {
+                    (*it2)->render(&*m_pBitmaps[TRACKER_IMG_FINGERS], 
+                            Pixel32(0xFF, 0x00, 0x00, 0xFF), false);
+                }
                 ignored_counter++;
                 continue;
             }else {
-                (*it2)->render(&*m_pBitmaps[TRACKER_IMG_FINGERS], 
-                        Pixel32(0xFF, 0xFF, 0xFF, 0xFF), true, 
-                        Pixel32(0x00, 0x00, 0xFF, 0xFF)); 
+                if (bRenderBlobs) {
+                    (*it2)->render(&*m_pBitmaps[TRACKER_IMG_FINGERS], 
+                            Pixel32(0xFF, 0xFF, 0xFF, 0xFF), true, 
+                            Pixel32(0x00, 0x00, 0xFF, 0xFF)); 
+                }
             }
             BlobPtr old_match = matchblob((*it2), old_blobs, m_TrackerConfig.m_Similarity);
             if(old_match){
