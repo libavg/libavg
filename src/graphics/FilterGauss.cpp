@@ -56,16 +56,42 @@ BitmapPtr FilterGauss::apply(BitmapPtr pBmpSrc)
     for (int y = 0; y<TempSize.y; ++y) {
         unsigned char * pSrcPixel = pSrcLine+IntRadius;
         unsigned char * pTempPixel = pTempLine;
-        for (int x = 0; x < TempSize.x; ++x) {
-            *pTempPixel = (*(pSrcPixel-3)*m_Kernel[0] + 
-                    *(pSrcPixel-2)*m_Kernel[1] +
-                    *(pSrcPixel-1)*m_Kernel[2] + 
-                    *(pSrcPixel)*m_Kernel[3] +
-                    *(pSrcPixel+1)*m_Kernel[4] + 
-                    *(pSrcPixel+2)*m_Kernel[5] +
-                    *(pSrcPixel+3)*m_Kernel[6])/256;
-            ++pSrcPixel;
-            ++pTempPixel;
+        switch (IntRadius) {
+            case 3:
+                for (int x = 0; x < TempSize.x; ++x) {
+                    *pTempPixel = (*(pSrcPixel-3)*m_Kernel[0] + 
+                            *(pSrcPixel-2)*m_Kernel[1] +
+                            *(pSrcPixel-1)*m_Kernel[2] + 
+                            *(pSrcPixel)*m_Kernel[3] +
+                            *(pSrcPixel+1)*m_Kernel[4] + 
+                            *(pSrcPixel+2)*m_Kernel[5] +
+                            *(pSrcPixel+3)*m_Kernel[6])/256;
+                    ++pSrcPixel;
+                    ++pTempPixel;
+                }
+                break;
+            case 2:
+                for (int x = 0; x < TempSize.x; ++x) {
+                    *pTempPixel = (*(pSrcPixel-2)*m_Kernel[0] +
+                            *(pSrcPixel-1)*m_Kernel[1] + 
+                            *(pSrcPixel)*m_Kernel[2] +
+                            *(pSrcPixel+1)*m_Kernel[3] + 
+                            *(pSrcPixel+2)*m_Kernel[4])/256;
+                    ++pSrcPixel;
+                    ++pTempPixel;
+                }
+                break;
+            case 1:
+                for (int x = 0; x < TempSize.x; ++x) {
+                    *pTempPixel = (*(pSrcPixel-1)*m_Kernel[0] + 
+                            *(pSrcPixel)*m_Kernel[1] +
+                            *(pSrcPixel+1)*m_Kernel[2])/256;
+                    ++pSrcPixel;
+                    ++pTempPixel;
+                }
+                break;
+            default:
+                assert(false);
         }
         pSrcLine += SrcStride;
         pTempLine += TempStride;
@@ -79,16 +105,42 @@ BitmapPtr FilterGauss::apply(BitmapPtr pBmpSrc)
     for (int y = 0; y<DestSize.y; ++y) {
         unsigned char * pTempPixel = pTempLine;
         unsigned char * pDestPixel = pDestLine;
-        for (int x = 0; x < DestSize.x; ++x) {
-            *pDestPixel = (*(pTempPixel-3*TempStride)*m_Kernel[0] +
-                    *(pTempPixel-2*TempStride)*m_Kernel[1] +
-                    *(pTempPixel-1*TempStride)*m_Kernel[2] + 
-                    *(pTempPixel)*m_Kernel[3] +
-                    *(pTempPixel+1*TempStride)*m_Kernel[4] + 
-                    *(pTempPixel+2*TempStride)*m_Kernel[5] +
-                    *(pTempPixel+3*TempStride)*m_Kernel[6])/256;
-            ++pTempPixel;
-            ++pDestPixel;
+        switch (IntRadius) {
+            case 3:
+                for (int x = 0; x < DestSize.x; ++x) {
+                    *pDestPixel = (*(pTempPixel-3*TempStride)*m_Kernel[0] +
+                            *(pTempPixel-2*TempStride)*m_Kernel[1] +
+                            *(pTempPixel-1*TempStride)*m_Kernel[2] + 
+                            *(pTempPixel)*m_Kernel[3] +
+                            *(pTempPixel+1*TempStride)*m_Kernel[4] + 
+                            *(pTempPixel+2*TempStride)*m_Kernel[5] +
+                            *(pTempPixel+3*TempStride)*m_Kernel[6])/256;
+                    ++pTempPixel;
+                    ++pDestPixel;
+                }
+                break;
+            case 2:
+                for (int x = 0; x < DestSize.x; ++x) {
+                    *pDestPixel = (*(pTempPixel-2*TempStride)*m_Kernel[0] +
+                            *(pTempPixel-1*TempStride)*m_Kernel[1] + 
+                            *(pTempPixel)*m_Kernel[2] +
+                            *(pTempPixel+1*TempStride)*m_Kernel[3] + 
+                            *(pTempPixel+2*TempStride)*m_Kernel[4])/256;
+                    ++pTempPixel;
+                    ++pDestPixel;
+                }
+                break;
+            case 1:
+                for (int x = 0; x < DestSize.x; ++x) {
+                    *pDestPixel = (*(pTempPixel-1*TempStride)*m_Kernel[0] + 
+                            *(pTempPixel)*m_Kernel[1] +
+                            *(pTempPixel+1*TempStride)*m_Kernel[2])/256;
+                    ++pTempPixel;
+                    ++pDestPixel;
+                }
+                break;
+            default:
+                assert(false);
         }
         pTempLine += TempStride;
         pDestLine += DestStride;

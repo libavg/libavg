@@ -578,14 +578,24 @@ public:
         BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(16,16), I8));
         FilterFill<Pixel8>(0).applyInPlace(pBmp);
         *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
-        FilterGauss(1).dumpKernel();
-        FilterGauss(3).dumpKernel();
-        FilterGauss(2.1).dumpKernel();
-        FilterGauss(1.9).dumpKernel();
+//        FilterGauss(1).dumpKernel();
+//        FilterGauss(3).dumpKernel();
+//        FilterGauss(2.1).dumpKernel();
+//        FilterGauss(1.9).dumpKernel();
         BitmapPtr pDestBmp = FilterGauss(3).apply(pBmp);
 //        pDestBmp->save("testimages/Gauss3Result.png");
         BitmapPtr pBaselineBmp = FilterGrayscale().apply(
                 BitmapPtr(new Bitmap("testimages/Gauss3Result.png")));
+        TEST(*pDestBmp == *pBaselineBmp);
+        pDestBmp = FilterGauss(1).apply(pBmp);
+//        pDestBmp->save("testimages/Gauss1Result.png");
+        pBaselineBmp = FilterGrayscale().apply(
+                BitmapPtr(new Bitmap("testimages/Gauss1Result.png")));
+        TEST(*pDestBmp == *pBaselineBmp);
+        pDestBmp = FilterGauss(1.5).apply(pBmp);
+        pDestBmp->save("testimages/Gauss15Result.png");
+        pBaselineBmp = FilterGrayscale().apply(
+                BitmapPtr(new Bitmap("testimages/Gauss15Result.png")));
         TEST(*pDestBmp == *pBaselineBmp);
     }
 };
