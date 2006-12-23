@@ -20,7 +20,7 @@
 //
 
 #include "FilterBandpass.h"
-#include "FilterFill.h"
+#include "Filterfill.h"
 #include "Pixel8.h"
 #include "Bitmap.h"
 
