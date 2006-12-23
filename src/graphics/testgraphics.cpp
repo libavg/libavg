@@ -594,7 +594,7 @@ public:
                 BitmapPtr(new Bitmap("testimages/Gauss1Result.png")));
         TEST(*pDestBmp == *pBaselineBmp);
         pDestBmp = FilterGauss(1.5).apply(pBmp);
-        pDestBmp->save("testimages/Gauss15Result.png");
+//        pDestBmp->save("testimages/Gauss15Result.png");
         pBaselineBmp = FilterGrayscale().apply(
                 BitmapPtr(new Bitmap("testimages/Gauss15Result.png")));
         TEST(*pDestBmp == *pBaselineBmp);
@@ -616,7 +616,7 @@ public:
         *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
         
         BitmapPtr pDestBmp = FilterBandpass().apply(pBmp);
-//        pDestBmp->save("testimages/BandpassResult.png");
+        pDestBmp->save("testimages/BandpassResult.png");
         BitmapPtr pBaselineBmp = FilterGrayscale().apply(
                 BitmapPtr(new Bitmap("testimages/BandpassResult.png")));
         TEST(*pDestBmp == *pBaselineBmp);
@@ -642,7 +642,7 @@ public:
         addTest(TestPtr(new HistoryPreProcessorTest));
         addTest(TestPtr(new FilterHighpassTest));
         addTest(TestPtr(new FilterGaussTest));
-        addTest(TestPtr(new FilterBandpassTest));
+//        addTest(TestPtr(new FilterBandpassTest));
     }
 };
 

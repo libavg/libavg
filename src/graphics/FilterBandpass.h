@@ -30,6 +30,7 @@
 
 namespace avg {
 
+// XXX: Warning, possibly buggy.
 class FilterBandpass: public Filter{
     public:
         FilterBandpass();

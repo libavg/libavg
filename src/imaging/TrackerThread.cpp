@@ -30,6 +30,7 @@
 #include "../graphics/Filter.h"
 #include "../graphics/Filterfill.h"
 #include "../graphics/FilterHighpass.h"
+#include "../graphics/FilterBandpass.h"
 
 #include <iostream>
 #include <stdlib.h>
@@ -82,6 +83,7 @@ bool TrackerThread::work()
     BitmapPtr pTempBmp = m_pCamera->getImage(true);
     BitmapPtr pTempBmp1;
     BitmapPtr pBmpHighpass;
+    BitmapPtr pBmpLowpass;
     while (pTempBmp1 = m_pCamera->getImage(false)) {
         pTempBmp = pTempBmp1;
     }
@@ -112,7 +114,8 @@ bool TrackerThread::work()
         }
         {
             ScopeTimer Timer(ProfilingZoneHighpass);
-            pBmpHighpass = FilterHighpass().apply(pTempBmp1);
+            pBmpLowpass = FilterGauss(1).apply(pTempBmp1);
+            pBmpHighpass = FilterHighpass().apply(pBmpLowpass);
         }
         {
             boost::mutex::scoped_lock Lock(*m_pMutex);

@@ -482,9 +482,9 @@ HistogramPtr Bitmap::getHistogram(int Stride) const
         const unsigned char * pSrc = pSrcLine;
         for (int x=0; x<m_Size.x; x+=Stride) {
             (*pHist)[(*pSrc)]++;
-            pSrc++;
+            pSrc+=Stride;
         }
-        pSrcLine += m_Stride;
+        pSrcLine += m_Stride*Stride;
     }
     return pHist;
 }
