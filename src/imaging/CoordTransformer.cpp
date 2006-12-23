@@ -17,18 +17,35 @@ CoordTransformer::CoordTransformer(IntRect srcRect, double K1, double T, double 
 
 }
     CoordTransformer::~CoordTransformer(){};
+    DPoint CoordTransformer::inv_distortion(const DPoint &pt){
+        DPoint pt_norm = (pt - m_Center)/m_Scale;
+        double r_d_squared = pt_norm.x*pt_norm.x + pt_norm.y*pt_norm.y;
+        double S = (1 - m_K1*r_d_squared)*m_RescaleFactor;
+        return (pt_norm*S)*m_Scale + m_Center;
+    }
     DPoint CoordTransformer::distortion(const DPoint &pt){
         DPoint pt_norm = (pt - m_Center)/m_Scale;
         double r_d_squared = pt_norm.x*pt_norm.x + pt_norm.y*pt_norm.y;
         double S = (1 + m_K1*r_d_squared)/m_RescaleFactor;
         return pt_norm*S*m_Scale + m_Center;
     }
+    DPoint CoordTransformer::inv_trapezoid(const DPoint &pt){
+        //stretch x coord
+        double yn = (pt.y - m_Center.y)/m_TrapezoidScale;
+        return DPoint( 
+                (pt.x + m_Center.x * yn*m_TrapezoidFactor)/(1+yn*m_TrapezoidFactor),
+                pt.y);
+    }
     DPoint CoordTransformer::trapezoid(const DPoint &pt){
         //stretch x coord
         double yn = (pt.y - m_Center.y)/m_TrapezoidScale;
         return DPoint( 
-                m_Center.x + ( pt.x - m_Center.x) * (1 + m_TrapezoidFactor * yn), 
+                //m_Center.x + ( pt.x - m_Center.x) * (1 + m_TrapezoidFactor * yn), 
+                pt.x + m_TrapezoidFactor * (pt.x - m_Center.x),
                 pt.y);
+    }
+    DPoint CoordTransformer::inverse_transform_point(const DPoint &pt){
+        return inv_trapezoid(inv_distortion(pt));
     }
     DPoint CoordTransformer::transform_point(const DPoint &pt){
         return distortion(trapezoid(pt));

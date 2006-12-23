@@ -37,6 +37,7 @@ class CoordTransformer {
         void save(const std::string & sFilename);
 
         DPoint transform_point(const DPoint & pt); //(x,y) -> (x', y')
+        DPoint inverse_transform_point(const DPoint & pt); //(x,y) -> (x', y')
         //l_x = srcRect.width
         //l_y = srcRect.height
         //c_x = l_x/2.
@@ -54,6 +55,8 @@ class CoordTransformer {
     private:
         DPoint trapezoid(const DPoint &pt);
         DPoint distortion(const DPoint &pt);
+        DPoint inv_trapezoid(const DPoint &pt);
+        DPoint inv_distortion(const DPoint &pt);
         double m_TrapezoidFactor;
         //pincushion/barrel correction
         //K1<0 correct barrel
