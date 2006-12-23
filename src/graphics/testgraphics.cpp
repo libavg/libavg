@@ -34,6 +34,7 @@
 #include "FilterConvol.h"
 #include "HistoryPreProcessor.h"
 #include "FilterHighpass.h"
+#include "FilterGauss.h"
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
 
@@ -564,6 +565,33 @@ public:
     }
 };
 
+
+class FilterGaussTest: public Test {
+public:
+    FilterGaussTest()
+        : Test("FilterGaussTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(16,16), I8));
+        FilterFill<Pixel8>(0).applyInPlace(pBmp);
+        *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
+        FilterGauss(1).dumpKernel();
+        FilterGauss(3).dumpKernel();
+        FilterGauss(2.1).dumpKernel();
+        FilterGauss(1.9).dumpKernel();
+        BitmapPtr pDestBmp = FilterGauss(3).apply(pBmp);
+//        pDestBmp->save("testimages/Gauss3Result.png");
+        BitmapPtr pBaselineBmp = FilterGrayscale().apply(
+                BitmapPtr(new Bitmap("testimages/Gauss3Result.png")));
+        TEST(*pDestBmp == *pBaselineBmp);
+    }
+};
+
+
+
 class GraphicsTestSuite: public TestSuite {
 public:
     GraphicsTestSuite() 
@@ -581,6 +609,7 @@ public:
         addTest(TestPtr(new FilterComboTest));
         addTest(TestPtr(new HistoryPreProcessorTest));
         addTest(TestPtr(new FilterHighpassTest));
+        addTest(TestPtr(new FilterGaussTest));
     }
 };
 

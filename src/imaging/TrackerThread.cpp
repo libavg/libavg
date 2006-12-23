@@ -108,7 +108,7 @@ bool TrackerThread::work()
         {
             ScopeTimer Timer(ProfilingZoneHistogram);
             boost::mutex::scoped_lock Lock(*m_pMutex);
-            drawHistogram(m_pBitmaps[TRACKER_IMG_HISTOGRAM], pTempBmp1);
+            drawHistogram(m_pBitmaps[TRACKER_IMG_HISTOGRAM], pTempBmp);
         }
         {
             ScopeTimer Timer(ProfilingZoneHighpass);
