@@ -47,10 +47,50 @@ class DistortionTest: public Test {
     public:
         DistortionTest():Test("DistortionTest",2){}
         void runTests(){
+            cerr << "    Identical Transformer" << endl;
             CoordTransformer Transformer(IntRect(0,0,100,100), 0, 0, 1);
             TEST(Transformer.transform_point(DPoint(0,0)) == DPoint(0,0));
             TEST(Transformer.transform_point(DPoint(100,100)) == DPoint(100,100));
-            CoordTransformer TrapezoidT(IntRect(0,0,100,100), 0, 1, 1);
+            
+            cerr << "    Trapezoid Transformer 1" << endl;
+            CoordTransformer TrapT(IntRect(0,0,100,100), 0, 1, 1);
+            DPoint TestPt(100,0);
+            testNullTransform(TrapT, TestPt);
+            TestPt = DPoint(0,0);
+            testNullTransform(TrapT, TestPt);
+            TestPt = DPoint(100,100);
+            testNullTransform(TrapT, TestPt);
+            TestPt = DPoint(100,50);
+            testNullTransform(TrapT, TestPt);
+            
+            cerr << "    Trapezoid Transformer 2" << endl;
+            CoordTransformer TrapT1(IntRect(0,0,100,100), 0, 0.1, 1);
+            TestPt = DPoint(100,10);
+            testNullTransform(TrapT1, TestPt);
+
+            cerr << "    Barrel Transformer" << endl;
+            CoordTransformer BarrelT(IntRect(0,0,100,100), 0.1, 0, 1);
+            TestPt = DPoint(100,0);
+            testNullTransform(BarrelT, TestPt);
+            TestPt = DPoint(0,0);
+            testNullTransform(BarrelT, TestPt);
+            TestPt = DPoint(50,0);
+            testNullTransform(BarrelT, TestPt);
+            TestPt = DPoint(0,50);
+            testNullTransform(BarrelT, TestPt);
+            TestPt = DPoint(23,42);
+            testNullTransform(BarrelT, TestPt);
+            
+            cerr << "    Combined Transformer" << endl;
+            CoordTransformer CombinedT(IntRect(0,0,100,100), 0.1, 0.1, 1);
+            TestPt = DPoint(100,0);
+            testNullTransform(BarrelT, TestPt);
+            TestPt = DPoint(0,100);
+            testNullTransform(BarrelT, TestPt);
+            TestPt = DPoint(0,50);
+            testNullTransform(BarrelT, TestPt);
+            TestPt = DPoint(23,42);
+            testNullTransform(BarrelT, TestPt);
 /*
             cerr << TrapezoidT.transform_point(DPoint(100,0)) << endl;
             cerr << TrapezoidT.transform_point(DPoint(100,50)) << endl;
@@ -83,6 +123,15 @@ class DistortionTest: public Test {
                     new Bitmap("testimages/combined.png")));
             TEST(*pCombinedBmp == *pCombinedBaselineBmp);
 #endif
+        }
+
+        void testNullTransform(CoordTransformer& T, DPoint& Pt)
+        {
+            DPoint TempPt = T.transform_point(Pt);
+            DPoint SamePt = T.inverse_transform_point(TempPt);
+            cerr << "      Pt: " << Pt << ", transformed: " << TempPt << ", back: " 
+                    << SamePt << endl;
+            TEST(SamePt.x - Pt.x < 1 && SamePt.y - Pt.y < 1);
         }
 };
 

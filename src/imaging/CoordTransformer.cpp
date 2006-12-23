@@ -41,7 +41,7 @@ CoordTransformer::CoordTransformer(IntRect srcRect, double K1, double T, double 
         double yn = (pt.y - m_Center.y)/m_TrapezoidScale;
         return DPoint( 
                 //m_Center.x + ( pt.x - m_Center.x) * (1 + m_TrapezoidFactor * yn), 
-                pt.x + m_TrapezoidFactor * (pt.x - m_Center.x),
+                pt.x + yn*m_TrapezoidFactor * (pt.x - m_Center.x),
                 pt.y);
     }
     DPoint CoordTransformer::inverse_transform_point(const DPoint &pt){
