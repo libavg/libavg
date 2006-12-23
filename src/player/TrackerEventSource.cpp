@@ -198,6 +198,7 @@ namespace avg {
     void TrackerEventSource::setTopLeft(IntPoint& Pt)
     {
         m_TrackerConfig.m_ROI.tl = Pt;
+        setConfig();
     }
 
     IntPoint TrackerEventSource::getTopLeft()
@@ -208,6 +209,7 @@ namespace avg {
     void TrackerEventSource::setBottomRight(IntPoint& Pt)
     {
         m_TrackerConfig.m_ROI.br = Pt;
+        setConfig();
     }
 
     IntPoint TrackerEventSource::getBottomRight()

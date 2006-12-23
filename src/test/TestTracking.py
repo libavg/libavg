@@ -73,8 +73,8 @@ class TrackingTestCase(unittest.TestCase):
         Bitmap = self.__tracker.getImage(ID)
         Node = Player.getElementByID(ImgName)
         Node.setBitmap(Bitmap)
-        Node.width=320
-        Node.height=240
+        Node.width=Bitmap.getSize()[0]/2
+        Node.height=Bitmap.getSize()[1]/2
     def onFrame(self):
         self.updateBitmap("camera", avg.IMG_CAMERA);
         self.updateBitmap("nohistory", avg.IMG_NOHISTORY);

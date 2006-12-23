@@ -63,6 +63,7 @@ TrackerThread::TrackerThread(CameraPtr pCamera,
     for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
         m_pBitmaps[i] = ppBitmaps[i];
     }
+    m_ROI = IntRect(IntPoint(0,0), m_pBitmaps[0]->getSize());
     if (bSubtractHistory) {
         m_pHistoryPreProcessor = HistoryPreProcessorPtr(
                 new HistoryPreProcessor(m_pBitmaps[0]->getSize(), 1));
@@ -83,37 +84,39 @@ bool TrackerThread::init()
 
 bool TrackerThread::work()
 {
-    BitmapPtr pTempBmp = m_pCamera->getImage(true);
+    BitmapPtr pCamBmp = m_pCamera->getImage(true);
     BitmapPtr pTempBmp1;
-    BitmapPtr pBmpHighpass;
-    BitmapPtr pBmpLowpass;
     while (pTempBmp1 = m_pCamera->getImage(false)) {
-        pTempBmp = pTempBmp1;
+        pCamBmp = pTempBmp1;
     }
     {
         ScopeTimer Timer(ProfilingZoneTracker);
         if (m_bDebugEnabled) {
             boost::mutex::scoped_lock Lock(*m_pMutex);
-            *(m_pBitmaps[TRACKER_IMG_CAMERA]) = *pTempBmp;
+            *(m_pBitmaps[TRACKER_IMG_CAMERA]) = *pCamBmp;
+            ScopeTimer Timer(ProfilingZoneHistogram);
+            drawHistogram(m_pBitmaps[TRACKER_IMG_HISTOGRAM], pCamBmp);
         }
-        if (m_pHistoryPreProcessor) {
-            ScopeTimer Timer(ProfilingZoneHistory);
-            m_pHistoryPreProcessor->applyInPlace(pTempBmp);
-        }
+        BitmapPtr pDistortedBmp;
         {
             ScopeTimer Timer(ProfilingZoneDistort);
-            pTempBmp1 = m_pDistorter->apply(pTempBmp);
+            pDistortedBmp = m_pDistorter->apply(pCamBmp);
+        }
+        BitmapPtr pCroppedBmp(new Bitmap(*pDistortedBmp, m_ROI));
+        if (m_pHistoryPreProcessor) {
+            ScopeTimer Timer(ProfilingZoneHistory);
+            m_pHistoryPreProcessor->applyInPlace(pCroppedBmp);
         }
         if (m_bDebugEnabled) {
             boost::mutex::scoped_lock Lock(*m_pMutex);
-            m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pTempBmp1);
-            ScopeTimer Timer(ProfilingZoneHistogram);
-            drawHistogram(m_pBitmaps[TRACKER_IMG_HISTOGRAM], pTempBmp);
+            m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pCroppedBmp);
         }
+        BitmapPtr pBmpLowpass;
         {
             ScopeTimer Timer(ProfilingZoneBlur);
-            pBmpLowpass = FilterBlur().apply(pTempBmp1);
+            pBmpLowpass = FilterBlur().apply(pCroppedBmp);
         }
+        BitmapPtr pBmpHighpass;
         {
             ScopeTimer Timer(ProfilingZoneHighpass);
             pBmpHighpass = FilterHighpass().apply(pBmpLowpass);
@@ -154,7 +157,14 @@ void TrackerThread::setConfig(TrackerConfig Config)
     }
     m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(),
             Config.m_K1, Config.m_T));
-
+    if (m_ROI != Config.m_ROI) {
+        m_ROI = Config.m_ROI;
+        if (m_pHistoryPreProcessor) {
+            m_pHistoryPreProcessor = HistoryPreProcessorPtr(
+                    new HistoryPreProcessor(IntPoint(m_ROI.Width(), m_ROI.Height()), 1));
+        }
+    }
+        
     m_pCamera->setFeature("brightness", Config.m_Brightness);
     m_pCamera->setFeature("exposure", Config.m_Exposure);
     m_pCamera->setFeature("gain", Config.m_Gain);

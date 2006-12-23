@@ -23,11 +23,13 @@
 #include "TrackerConfig.h"
 #include "Camera.h"
 #include "ConnectedComps.h"
-#include "../graphics/HistoryPreProcessor.h"
 #include "FilterDistortion.h"
-#include "../graphics/Bitmap.h"
+
 #include "../base/WorkerThread.h"
 #include "../base/Command.h"
+
+#include "../graphics/HistoryPreProcessor.h"
+#include "../graphics/Bitmap.h"
 
 #include <boost/thread.hpp>
 
@@ -92,7 +94,7 @@ class TrackerThread: public WorkerThread<TrackerThread>
         IBlobTarget *m_pTarget;
         HistoryPreProcessorPtr m_pHistoryPreProcessor;
         FilterDistortionPtr m_pDistorter;
-
+        IntRect m_ROI;
         bool m_bDebugEnabled;
 };
 
