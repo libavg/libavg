@@ -45,9 +45,14 @@ typedef std::map<BlobPtr, EventStreamPtr> EventMap;
 class TrackerEventSource: public IBlobTarget, public IEventSource
 {
     public:
-        TrackerEventSource(CameraPtr pCamera, DRect TargetRect, bool bSubtractHistory = true);
+        TrackerEventSource(CameraPtr pCamera, DRect TargetRect, 
+                bool bSubtractHistory = true);
         virtual ~TrackerEventSource();
 
+        void setBarrel(double Barrel);
+        double getBarrel();
+        void setTrapezoid(double Trapezoid);
+        double getTrapezoid();
         void setThreshold(int Threshold);
         int getThreshold();
         void setHistorySpeed(int UpdateInterval);

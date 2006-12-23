@@ -9,7 +9,6 @@
 #include "../imaging/CameraUtils.h"
 #endif
 #include "../imaging/Camera.h"
-#include "../imaging/CoordTransformer.h"
 
 #include "../graphics/Rect.h"
 #include "../graphics/HistoryPreProcessor.h"
@@ -33,8 +32,6 @@ namespace avg {
     static double s_XScale;
     static double s_YScale;
     
-    static CoordTransformerPtr s_Trafo; //
-
     class  EventStream
     //internal class to keep track of blob/event states
     {
@@ -116,7 +113,6 @@ namespace avg {
     };
     Event* EventStream::pollevent(){
         switch(m_State){
-            m_Pos = s_Trafo->transform_point(m_Pos);
             case FRESH:
                 m_State = TOUCH_DELIVERED;
                 //return fingerdown
@@ -162,7 +158,6 @@ namespace avg {
         s_XOffset = TargetRect.tl.y;
         s_XScale = TargetRect.Width()/ImgDimensions.x;
         s_YScale = TargetRect.Height()/ImgDimensions.y;
-        s_Trafo = CoordTransformerPtr( new CoordTransformer( IntRect(0,0,ImgDimensions.x,ImgDimensions.y), 0,0 ));
         for (int i=0; i<NUM_TRACKER_IMAGES-1; i++) {
             m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgDimensions, I8));
         }
@@ -187,6 +182,28 @@ namespace avg {
         m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::stop, _1)));
         m_pTrackerThread->join();
         delete m_pTrackerThread;
+    }
+        
+    void TrackerEventSource::setTrapezoid(double Trapezoid)
+    {
+        m_TrackerConfig.m_T = Trapezoid;
+        setConfig();
+    }
+    
+    double TrackerEventSource::getTrapezoid()
+    {
+        return m_TrackerConfig.m_T;
+    }
+
+    void TrackerEventSource::setBarrel(double Barrel)
+    {
+        m_TrackerConfig.m_K1 = Barrel;
+        setConfig();
+    }
+    
+    double TrackerEventSource::getBarrel()
+    {
+        return m_TrackerConfig.m_K1;
     }
 
     void TrackerEventSource::setThreshold(int Threshold) 

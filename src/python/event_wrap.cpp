@@ -119,8 +119,10 @@ void export_event()
         .def("enableDebug", &TrackerEventSource::enableDebug,
             "enableDebug(Enable) -> None\n\n"
             "Enable or disable generation of debug images.\n")
-        .add_property("threshold", &TrackerEventSource::getThreshold,
-            &TrackerEventSource::setThreshold)
+        .add_property("barrel", &TrackerEventSource::getBarrel,
+            &TrackerEventSource::setBarrel)
+        .add_property("trapezoid", &TrackerEventSource::getTrapezoid,
+            &TrackerEventSource::setTrapezoid)
         .add_property("historyspeed", &TrackerEventSource::getHistorySpeed,
             &TrackerEventSource::setHistorySpeed)
         .add_property("brightness", &TrackerEventSource::getBrightness,
