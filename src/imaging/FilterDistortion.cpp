@@ -11,7 +11,7 @@ using namespace std;
 namespace avg{
     FilterDistortion::FilterDistortion(IntPoint srcSize, double K1, double T):
         m_srcRect(0,0,srcSize.x,srcSize.y),
-        m_trafo(m_srcRect, K1, T, (1+K1)) //inverse of Distortion by reversing the sign.
+        m_trafo(m_srcRect, K1, T, (1+K1)) 
     {
         //we use the same dimensions for both of src and dest and just crop...
         //for each pixel at (x,y) in the dest

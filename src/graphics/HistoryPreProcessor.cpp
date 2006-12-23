@@ -109,7 +109,7 @@ void HistoryPreProcessor::applyInPlace(BitmapPtr img)
         pDest += DestStride;
         pSrc += SrcStride;
     }
-    normalizeHistogram(img, Max);
+//    normalizeHistogram(img, Max);
 }
 
 // Fast pseudo-normalization with an integer factor.

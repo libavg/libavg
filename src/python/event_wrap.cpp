@@ -127,6 +127,8 @@ void export_event()
             &TrackerEventSource::setTopLeft)
         .add_property("bottomright", &TrackerEventSource::getBottomRight,
             &TrackerEventSource::setBottomRight)
+        .add_property("threshold", &TrackerEventSource::getThreshold,
+            &TrackerEventSource::setThreshold)
         .add_property("historyspeed", &TrackerEventSource::getHistorySpeed,
             &TrackerEventSource::setHistorySpeed)
         .add_property("brightness", &TrackerEventSource::getBrightness,

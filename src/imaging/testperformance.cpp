@@ -61,13 +61,12 @@ public:
         }
         MutexPtr pMutex(new boost::mutex);
         m_pCmdQ = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
-        //FilterIdPtr pp = FilterIdPtr(new FilterId());
-//        HistoryPreProcessorPtr pp = HistoryPreProcessorPtr(new HistoryPreProcessor(pCam->getImgSize()));
         boost::thread Thread(
                 TrackerThread(pCam, m_pBitmaps, pMutex,  *m_pCmdQ, this, false));
         m_pCmdQ->push(Command<TrackerThread>(boost::bind(
+                &TrackerThread::enableDebug, _1, true)));
+        m_pCmdQ->push(Command<TrackerThread>(boost::bind(
                 &TrackerThread::setConfig, _1, m_TrackerConfig)));
-        // TODO: Set TrackerConfig.
         Thread.join();
     }
     
