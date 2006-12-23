@@ -51,10 +51,10 @@ class TrackingTestCase(unittest.TestCase):
             self.__tracker.gain -= 5
             print "Gain: ", self.__tracker.gain
         elif Event.keystring == "j":
-            self.__tracker.trapezoid -= 0.05
+            self.__tracker.trapezoid -= 0.01
             print "Trapezoid: ", self.__tracker.trapezoid
         elif Event.keystring == "m":
-            self.__tracker.trapezoid += 0.05
+            self.__tracker.trapezoid += 0.01
             print "Trapezoid: ", self.__tracker.trapezoid
         elif Event.keystring == "h":
             self.__tracker.resetHistory()

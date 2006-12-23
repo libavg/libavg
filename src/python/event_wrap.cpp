@@ -123,6 +123,10 @@ void export_event()
             &TrackerEventSource::setBarrel)
         .add_property("trapezoid", &TrackerEventSource::getTrapezoid,
             &TrackerEventSource::setTrapezoid)
+        .add_property("topleft", &TrackerEventSource::getTopLeft,
+            &TrackerEventSource::setTopLeft)
+        .add_property("bottomright", &TrackerEventSource::getBottomRight,
+            &TrackerEventSource::setBottomRight)
         .add_property("historyspeed", &TrackerEventSource::getHistorySpeed,
             &TrackerEventSource::setHistorySpeed)
         .add_property("brightness", &TrackerEventSource::getBrightness,

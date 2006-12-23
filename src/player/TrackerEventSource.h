@@ -53,6 +53,11 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         double getBarrel();
         void setTrapezoid(double Trapezoid);
         double getTrapezoid();
+        void setTopLeft(IntPoint& Pt);
+        IntPoint getTopLeft();
+        void setBottomRight(IntPoint& Pt);
+        IntPoint getBottomRight();
+
         void setThreshold(int Threshold);
         int getThreshold();
         void setHistorySpeed(int UpdateInterval);

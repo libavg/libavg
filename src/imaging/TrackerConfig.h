@@ -13,7 +13,8 @@ struct TrackerConfig{
     void save(std::string sFilename);
     IntRect m_ROI;//after applying de-distortion, take this as the table surface
     double m_K1; //amount of barrel/pincushion distortion to correct
-    double m_T; //amount of trapez distortion to correct
+    double m_T; //amount of trapezoid distortion to correct
+    
 
     int m_Brightness;
     int m_Exposure;

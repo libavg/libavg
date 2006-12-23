@@ -34,14 +34,21 @@ using namespace std;
 namespace avg {
 
     template<class T>
+    void writeAttribute(xmlTextWriterPtr writer, string sName, T Value)
+    {
+        int rc;
+        stringstream strs;
+        strs << Value;
+        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST sName.c_str(), 
+                BAD_CAST strs.str().c_str());
+    }
+
+    template<class T>
     void writeSimpleXMLNode(xmlTextWriterPtr writer, string sName, T Value)
     {
         int rc;
         rc = xmlTextWriterStartElement(writer, BAD_CAST sName.c_str());
-        stringstream strs;
-        strs << Value;
-        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "value", 
-                BAD_CAST strs.str().c_str());
+        writeAttribute(writer, "value", Value);
         rc = xmlTextWriterEndElement(writer);
     }
         
@@ -49,15 +56,21 @@ namespace avg {
     {
         int rc;
         rc = xmlTextWriterStartElement(writer, BAD_CAST sName.c_str());
-        stringstream strs1;
-        strs1 << Val[0];
-        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "min", 
-                BAD_CAST strs1.str().c_str());
-        stringstream strs2;
-        strs2 << Val[1];
-        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST "max", 
-                BAD_CAST strs2.str().c_str());
+        writeAttribute(writer, "min", Val[0]);
+        writeAttribute(writer, "max", Val[1]);
         rc = xmlTextWriterEndElement(writer);
+    }
+
+    void writeRect(xmlTextWriterPtr writer, string sName, IntRect& Val)
+    {
+        int rc;
+        rc = xmlTextWriterStartElement(writer, BAD_CAST sName.c_str());
+        writeAttribute(writer, "tlx", Val.tl.x);
+        writeAttribute(writer, "tly", Val.tl.y);
+        writeAttribute(writer, "brx", Val.br.x);
+        writeAttribute(writer, "bry", Val.br.y);
+        rc = xmlTextWriterEndElement(writer);
+
     }
 
     TrackerConfig::TrackerConfig()
@@ -101,6 +114,11 @@ namespace avg {
                 m_K1 = getRequiredDoubleAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "trapezoid")) {
                 m_T = getRequiredDoubleAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "ROI")) {
+                m_ROI.tl.x = getRequiredIntAttr(curXmlChild, "tlx");
+                m_ROI.tl.y = getRequiredIntAttr(curXmlChild, "tly");
+                m_ROI.br.x = getRequiredIntAttr(curXmlChild, "brx");
+                m_ROI.br.y = getRequiredIntAttr(curXmlChild, "bry");
             } else if (!strcmp(pNodeName, "exposure")) {
                 m_Exposure = getRequiredIntAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "gain")) {
@@ -113,6 +131,12 @@ namespace avg {
                 m_HistoryUpdateInterval = getRequiredIntAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "similarity")) {
                 m_Similarity = getRequiredDoubleAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "areabounds")) {
+                m_AreaBounds[0] = getRequiredIntAttr(curXmlChild, "min");
+                m_AreaBounds[1] = getRequiredIntAttr(curXmlChild, "max");
+            } else if (!strcmp(pNodeName, "eccentricitybounds")) {
+                m_EccentricityBounds[0] = getRequiredIntAttr(curXmlChild, "min");
+                m_EccentricityBounds[1] = getRequiredIntAttr(curXmlChild, "max");
             }
             curXmlChild = curXmlChild->next;
         }
@@ -130,6 +154,7 @@ namespace avg {
         rc = xmlTextWriterStartElement(writer, BAD_CAST "trackerconfig");
         writeSimpleXMLNode(writer, "barrel", m_K1);
         writeSimpleXMLNode(writer, "trapezoid", m_T);
+        writeRect(writer, "ROI", m_ROI);
         writeSimpleXMLNode(writer, "brightness", m_Brightness);
         writeSimpleXMLNode(writer, "exposure", m_Exposure);
         writeSimpleXMLNode(writer, "gain", m_Gain);

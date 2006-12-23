@@ -195,6 +195,26 @@ namespace avg {
         return m_TrackerConfig.m_T;
     }
 
+    void TrackerEventSource::setTopLeft(IntPoint& Pt)
+    {
+        m_TrackerConfig.m_ROI.tl = Pt;
+    }
+
+    IntPoint TrackerEventSource::getTopLeft()
+    {
+        return m_TrackerConfig.m_ROI.tl;
+    }
+
+    void TrackerEventSource::setBottomRight(IntPoint& Pt)
+    {
+        m_TrackerConfig.m_ROI.br = Pt;
+    }
+
+    IntPoint TrackerEventSource::getBottomRight()
+    {
+        return m_TrackerConfig.m_ROI.br;
+    }
+
     void TrackerEventSource::setBarrel(double Barrel)
     {
         m_TrackerConfig.m_K1 = Barrel;
