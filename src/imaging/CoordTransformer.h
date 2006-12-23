@@ -30,7 +30,7 @@ namespace avg {
 
 class CoordTransformer {
     public:
-        CoordTransformer(IntRect srcRect, double K1, double T);
+        CoordTransformer(IntRect srcRect, double K1, double T, double RescaleFactor = 1);
         virtual ~CoordTransformer();
 
         void load(const std::string & sFilename);
