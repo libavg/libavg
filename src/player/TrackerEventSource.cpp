@@ -196,26 +196,48 @@ namespace avg {
         return m_TrackerConfig.m_T;
     }
 
-    void TrackerEventSource::setTopLeft(IntPoint& Pt)
+    void TrackerEventSource::setLeft(int Left)
     {
-        m_TrackerConfig.m_ROI.tl = Pt;
+        m_TrackerConfig.m_ROI.tl.x = Left;
         setConfig();
     }
 
-    IntPoint TrackerEventSource::getTopLeft()
+    int TrackerEventSource::getLeft()
     {
-        return m_TrackerConfig.m_ROI.tl;
+        return m_TrackerConfig.m_ROI.tl.x;
     }
 
-    void TrackerEventSource::setBottomRight(IntPoint& Pt)
+    void TrackerEventSource::setTop(int Top)
     {
-        m_TrackerConfig.m_ROI.br = Pt;
+        m_TrackerConfig.m_ROI.tl.y = Top;
         setConfig();
     }
 
-    IntPoint TrackerEventSource::getBottomRight()
+    int TrackerEventSource::getTop()
     {
-        return m_TrackerConfig.m_ROI.br;
+        return m_TrackerConfig.m_ROI.tl.y;
+    }
+
+    void TrackerEventSource::setRight(int Right)
+    {
+        m_TrackerConfig.m_ROI.br.x = Right;
+        setConfig();
+    }
+
+    int TrackerEventSource::getRight()
+    {
+        return m_TrackerConfig.m_ROI.br.x;
+    }
+
+    void TrackerEventSource::setBottom(int Bottom)
+    {
+        m_TrackerConfig.m_ROI.br.y = Bottom;
+        setConfig();
+    }
+
+    int TrackerEventSource::getBottom()
+    {
+        return m_TrackerConfig.m_ROI.br.y;
     }
 
     void TrackerEventSource::setBarrel(double Barrel)
