@@ -23,7 +23,7 @@ CoordTransformer::CoordTransformer(IntRect srcRect, double K1, double T, double 
             return DPoint(pt);
         }
         DPoint pt_norm = (pt - m_Center)/m_Scale;
-        double r_d = sqrt(pt_norm.x*pt_norm.x + pt_norm.y*pt_norm.y)/m_RescaleFactor;
+        double r_d = sqrt(pt_norm.x*pt_norm.x + pt_norm.y*pt_norm.y)*m_RescaleFactor;
         double sub1;
         if (m_K1>0){
             sub1 =pow(sqrt((27*r_d*r_d*m_K1 + 4)/m_K1)/(6*sqrt(3)*m_K1) +
@@ -33,7 +33,7 @@ CoordTransformer::CoordTransformer(IntRect srcRect, double K1, double T, double 
                         r_d/(2*m_K1), 1./3.);  
         }
         double oldr = (sub1 - 1./(3*m_K1*sub1));
-        double inv_S = oldr/(r_d*m_RescaleFactor);
+        double inv_S = oldr/r_d*m_RescaleFactor;
         return (pt_norm*inv_S)*m_Scale + m_Center;
     }
     DPoint CoordTransformer::distortion(const DPoint &pt){
