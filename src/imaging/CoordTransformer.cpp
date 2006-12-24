@@ -33,7 +33,7 @@ CoordTransformer::CoordTransformer(IntRect srcRect, double K1, double T, double 
                         r_d/(2*m_K1), 1./3.);  
         }
         double oldr = (sub1 - 1./(3*m_K1*sub1));
-        double inv_S = oldr/r_d;
+        double inv_S = oldr/r_d*m_RescaleFactor;
         return (pt_norm*inv_S)*m_Scale + m_Center;
     }
     DPoint CoordTransformer::distortion(const DPoint &pt){
