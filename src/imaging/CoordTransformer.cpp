@@ -13,7 +13,7 @@ CoordTransformer::CoordTransformer(IntRect srcRect, double K1, double T, double 
 {
     m_Center = DPoint((srcRect.tl.x+srcRect.br.x-1)/2., (srcRect.tl.y+srcRect.br.y-1)/2.);
     //normalize to center-edge distance
-    m_Scale = sqrt( pow(m_Center.x - srcRect.Width(),2) +  pow(m_Center.y - srcRect.Height(),2) );
+    m_Scale = sqrt( pow(m_Center.x - srcRect.Width()+1,2) +  pow(m_Center.y - srcRect.Height()+1,2) );
     m_TrapezoidScale = srcRect.Height()/2;
 
 }
@@ -33,7 +33,7 @@ CoordTransformer::CoordTransformer(IntRect srcRect, double K1, double T, double 
                         r_d/(2*m_K1), 1./3.);  
         }
         double oldr = (sub1 - 1./(3*m_K1*sub1));
-        double inv_S = m_RescaleFactor*oldr/r_d;
+        double inv_S = oldr/r_d;
         return (pt_norm*inv_S)*m_Scale + m_Center;
     }
     DPoint CoordTransformer::distortion(const DPoint &pt){
