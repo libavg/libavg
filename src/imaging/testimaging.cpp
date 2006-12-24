@@ -69,7 +69,7 @@ class DistortionTest: public Test {
             testNullTransform(TrapT1, TestPt);
 
             cerr << "    Barrel Transformer" << endl;
-            CoordTransformer BarrelT(IntRect(0,0,100,100), 0.1, 0, 1);
+            CoordTransformer BarrelT(IntRect(0,0,100,100), 0.1, 0, 1.1);
             TestPt = DPoint(100,0);
             testNullTransform(BarrelT, TestPt);
             TestPt = DPoint(0,0);
@@ -80,6 +80,13 @@ class DistortionTest: public Test {
             testNullTransform(BarrelT, TestPt);
             TestPt = DPoint(23,42);
             testNullTransform(BarrelT, TestPt);
+            TestPt = DPoint(0,0);
+            DPoint SamePt = BarrelT.transform_point(TestPt);
+            TEST(SamePt.x - TestPt.x < 0.001 && SamePt.y - TestPt.y < 0.001);
+            cerr << "Result: " << SamePt << endl;
+            SamePt = BarrelT.inverse_transform_point(TestPt);
+            TEST(SamePt.x - TestPt.x < 0.001 && SamePt.y - TestPt.y < 0.001);
+            cerr << "Result: " << SamePt << endl;
             
             cerr << "    Combined Transformer" << endl;
             CoordTransformer CombinedT(IntRect(0,0,100,100), 0.1, 0.1, 1);
@@ -91,13 +98,6 @@ class DistortionTest: public Test {
             testNullTransform(BarrelT, TestPt);
             TestPt = DPoint(23,42);
             testNullTransform(BarrelT, TestPt);
-/*
-            cerr << TrapezoidT.transform_point(DPoint(100,0)) << endl;
-            cerr << TrapezoidT.transform_point(DPoint(100,50)) << endl;
-            cerr << TrapezoidT.transform_point(DPoint(100,100)) << endl;
-            TEST(TrapezoidT.transform_point(DPoint(100,0)) == DPoint(50,0));
-            TEST(TrapezoidT.transform_point(DPoint(100,100)) == DPoint(150,100));
-*/          
 
             BitmapPtr in_bmp = FilterGrayscale().apply(BitmapPtr(new Bitmap("testimages/squares.png")));
             FilterDistortion BarrelFilter = FilterDistortion(in_bmp->getSize(),0.3,0);

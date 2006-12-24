@@ -111,16 +111,15 @@ bool TrackerThread::work()
             boost::mutex::scoped_lock Lock(*m_pMutex);
             m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pCroppedBmp);
         }
-/*        BitmapPtr pBmpLowpass;
+        BitmapPtr pBmpLowpass;
         {
             ScopeTimer Timer(ProfilingZoneBlur);
             pBmpLowpass = FilterBlur().apply(pCroppedBmp);
         }
-*/
         BitmapPtr pBmpHighpass;
         {
             ScopeTimer Timer(ProfilingZoneHighpass);
-            pBmpHighpass = FilterHighpass().apply(pCroppedBmp);
+            pBmpHighpass = FilterHighpass().apply(pBmpLowpass);
         }
         if (m_bDebugEnabled) {
             boost::mutex::scoped_lock Lock(*m_pMutex);

@@ -56,6 +56,7 @@ BitmapPtr FilterHighpass::apply(BitmapPtr pBmpSrc)
         *pDstPixel++ = 128;
         *pDstPixel++ = 128;
         for (int x = 3; x < size.x-3; ++x) {
+/*            
             // Convolution Matrix is
             // -1  0  0   0  -1
             //  0 -1  0  -1   0
@@ -71,6 +72,41 @@ BitmapPtr FilterHighpass::apply(BitmapPtr pBmpSrc)
                 *(pSrcPixel)*3/4;
             *pDstPixel -= int(*(pSrcPixel-3*SrcStride-3) + *(pSrcPixel-3*SrcStride+3) +
                 *(pSrcPixel+3*SrcStride-3) + *(pSrcPixel+3*SrcStride+3))/16; 
+*/
+            unsigned char *pSrc = pSrcPixel-3*SrcStride;
+            int Dest = *pSrc;
+            pSrc += SrcStride;
+            Dest += *pSrc;
+            pSrc += SrcStride;
+            Dest += *pSrc;
+            pSrc += SrcStride-3;
+            Dest += *pSrc++;
+            Dest += *pSrc++;
+            Dest += *pSrc++;
+            pSrc++;
+            Dest += *pSrc++;
+            Dest += *pSrc++;
+            Dest += *pSrc;
+            pSrc += SrcStride-3;
+            Dest += *pSrc;
+            pSrc += SrcStride;
+            Dest += *pSrc;
+            pSrc += SrcStride;
+            Dest += *pSrc;
+            Dest /= 16;
+            *pDstPixel = 128-Dest+*(pSrcPixel)*3/4;
+/*            
+            *pDstPixel = 
+                128 - int(*(pSrcPixel-3*SrcStride) + 
+                        *(pSrcPixel-2*SrcStride) + 
+                        *(pSrcPixel-SrcStride) + 
+                        *(pSrcPixel-3) + *(pSrcPixel-2) + *(pSrcPixel-1) +
+                        *(pSrcPixel+3) + *(pSrcPixel+2) + *(pSrcPixel+1) +
+                        *(pSrcPixel+1*SrcStride) + 
+                        *(pSrcPixel+2*SrcStride) + 
+                        *(pSrcPixel+3*SrcStride))/16 +
+                *(pSrcPixel)*3/4;
+*/
             ++pSrcPixel;
             ++pDstPixel;
         }
