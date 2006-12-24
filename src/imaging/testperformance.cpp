@@ -63,8 +63,7 @@ public:
         m_pCmdQ = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
         boost::thread Thread(
                 TrackerThread(pCam, m_pBitmaps, pMutex,  *m_pCmdQ, this, false));
-        m_pCmdQ->push(Command<TrackerThread>(boost::bind(
-                &TrackerThread::enableDebug, _1, true)));
+        m_TrackerConfig.m_bDebug = true;
         m_pCmdQ->push(Command<TrackerThread>(boost::bind(
                 &TrackerThread::setConfig, _1, m_TrackerConfig)));
         Thread.join();

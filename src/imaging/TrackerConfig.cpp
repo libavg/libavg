@@ -100,9 +100,9 @@ namespace avg {
         xmlDocPtr doc;
         doc = xmlParseFile(sFilename.c_str());
         if (!doc) {
-            AVG_TRACE(Logger::WARNING, "Could not open tracker config file " 
+            AVG_TRACE(Logger::ERROR, "Could not open tracker config file " 
                     << sFilename << ".");
-            return;
+            exit(5);
         }
         xmlNodePtr pRoot = xmlDocGetRootElement(doc);
         xmlNodePtr curXmlChild = pRoot->xmlChildrenNode;
@@ -137,6 +137,8 @@ namespace avg {
             } else if (!strcmp(pNodeName, "eccentricitybounds")) {
                 m_EccentricityBounds[0] = getRequiredIntAttr(curXmlChild, "min");
                 m_EccentricityBounds[1] = getRequiredIntAttr(curXmlChild, "max");
+            } else if (!strcmp(pNodeName, "debug")) {
+                m_bDebug = getRequiredIntAttr(curXmlChild, "value");
             }
             curXmlChild = curXmlChild->next;
         }
@@ -164,6 +166,7 @@ namespace avg {
         writeSimpleXMLNode(writer, "similarity", m_Similarity);
         writeMinMaxXMLNode(writer, "areabounds", m_AreaBounds);
         writeMinMaxXMLNode(writer, "eccentricitybounds", m_EccentricityBounds);
+        writeSimpleXMLNode(writer, "debug", m_bDebug);
         rc = xmlTextWriterEndElement(writer);
         rc = xmlTextWriterEndDocument(writer);
         xmlFreeTextWriter(writer);

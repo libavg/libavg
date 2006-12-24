@@ -169,6 +169,8 @@ void TrackerThread::setConfig(TrackerConfig Config)
     m_pCamera->setFeature("exposure", Config.m_Exposure);
     m_pCamera->setFeature("gain", Config.m_Gain);
     m_pCamera->setFeature("shutter", Config.m_Shutter);
+
+    m_bDebugEnabled = Config.m_bDebug;
 }
 
 void TrackerThread::resetHistory()
@@ -177,11 +179,6 @@ void TrackerThread::resetHistory()
         m_pHistoryPreProcessor->reset();
 }
         
-void TrackerThread::enableDebug(bool bEnable)
-{
-    m_bDebugEnabled = bEnable;
-}
-
 void TrackerThread::drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp)
 {
     HistogramPtr pHist = pSrcBmp->getHistogram(3);

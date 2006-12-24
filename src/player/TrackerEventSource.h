@@ -70,8 +70,9 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         int getGain();
         void setShutter(int Shutter);
         int getShutter();
+        void setDebug(bool bDebug);
+        bool getDebug();
         void resetHistory();
-        void enableDebug(bool bEnable);
 
         void saveConfig();
 

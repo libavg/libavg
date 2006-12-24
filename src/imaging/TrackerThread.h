@@ -73,7 +73,6 @@ class TrackerThread: public WorkerThread<TrackerThread>
 
         void setConfig(TrackerConfig Config);
         void resetHistory();
-        void enableDebug(bool bEnable);
     
     private:
         void checkMessages();

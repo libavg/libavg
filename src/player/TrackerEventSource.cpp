@@ -148,7 +148,8 @@ namespace avg {
     };
 
 
-    TrackerEventSource::TrackerEventSource(CameraPtr pCamera, DRect TargetRect, bool bSubtractHistory)
+    TrackerEventSource::TrackerEventSource(CameraPtr pCamera, DRect TargetRect, 
+            bool bSubtractHistory)
         : m_TrackerConfig()
     {
         AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
@@ -294,18 +295,23 @@ namespace avg {
         return m_TrackerConfig.m_Shutter;
     }
        
+    void TrackerEventSource::setDebug(bool bDebug)
+    {
+        m_TrackerConfig.m_bDebug = bDebug;
+        setConfig();
+    }
+
+    bool TrackerEventSource::getDebug()
+    {
+        return m_TrackerConfig.m_bDebug;
+    }
+
     void TrackerEventSource::resetHistory()
     {
         m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
                 &TrackerThread::resetHistory, _1)));
     }
     
-    void TrackerEventSource::enableDebug(bool bEnable)
-    {
-        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
-                &TrackerThread::enableDebug, _1, bEnable)));
-    }
-
     void TrackerEventSource::saveConfig()
     {
         m_TrackerConfig.save("TrackerConfig.xml");
