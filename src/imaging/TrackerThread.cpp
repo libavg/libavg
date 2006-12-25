@@ -103,6 +103,10 @@ bool TrackerThread::work()
             pDistortedBmp = m_pDistorter->apply(pCamBmp);
         }
         BitmapPtr pCroppedBmp(new Bitmap(*pDistortedBmp, m_ROI));
+        if (m_bDebugEnabled) {
+            boost::mutex::scoped_lock Lock(*m_pMutex);
+            m_pBitmaps[TRACKER_IMG_DISTORTED]->copyPixels(*pCroppedBmp);
+        }
         if (m_pHistoryPreProcessor) {
             ScopeTimer Timer(ProfilingZoneHistory);
             m_pHistoryPreProcessor->applyInPlace(pCroppedBmp);
@@ -166,7 +170,7 @@ void TrackerThread::setConfig(TrackerConfig Config)
     }
         
     m_pCamera->setFeature("brightness", Config.m_Brightness);
-//    m_pCamera->setFeature("exposure", Config.m_Exposure);
+    m_pCamera->setFeature("gamma", Config.m_Gamma);
     m_pCamera->setFeature("gain", Config.m_Gain);
     m_pCamera->setFeature("shutter", Config.m_Shutter);
 

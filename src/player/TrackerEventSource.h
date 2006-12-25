@@ -70,6 +70,8 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         int getBrightness();
         void setExposure(int Exposure);
         int getExposure();
+        void setGamma(int Gamma);
+        int getGamma();
         void setGain(int Gain);
         int getGain();
         void setShutter(int Shutter);

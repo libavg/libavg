@@ -295,6 +295,17 @@ namespace avg {
         return m_TrackerConfig.m_Exposure;
     }
 
+    void TrackerEventSource::setGamma(int Gamma) 
+    {
+        m_TrackerConfig.m_Gamma = Gamma;
+        setConfig();
+    }
+
+    int TrackerEventSource::getGamma()
+    {
+        return m_TrackerConfig.m_Gamma;
+    }
+
     void TrackerEventSource::setGain(int Gain) 
     {
         m_TrackerConfig.m_Gain = Gain;

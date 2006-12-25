@@ -20,6 +20,7 @@ struct TrackerConfig{
     // Camera params
     int m_Brightness;
     int m_Exposure;
+    int m_Gamma;
     int m_Gain;
     int m_Shutter;
 

@@ -92,6 +92,7 @@ void export_event()
     
     enum_<TrackerImageID>("TrackerImageID")
         .value("IMG_CAMERA", TRACKER_IMG_CAMERA)
+        .value("IMG_DISTORTED", TRACKER_IMG_DISTORTED)
         .value("IMG_NOHISTORY", TRACKER_IMG_NOHISTORY)
         .value("IMG_HISTOGRAM", TRACKER_IMG_HISTOGRAM)
         .value("IMG_FINGERS", TRACKER_IMG_FINGERS)
@@ -136,6 +137,8 @@ void export_event()
             &TrackerEventSource::setBrightness)
         .add_property("exposure", &TrackerEventSource::getExposure,
             &TrackerEventSource::setExposure)
+        .add_property("gamma", &TrackerEventSource::getGamma,
+            &TrackerEventSource::setGamma)
         .add_property("gain", &TrackerEventSource::getGain,
             &TrackerEventSource::setGain)
         .add_property("shutter", &TrackerEventSource::getShutter,

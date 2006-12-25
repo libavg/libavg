@@ -40,6 +40,7 @@ namespace avg {
 
 typedef enum {
         TRACKER_IMG_CAMERA,
+        TRACKER_IMG_DISTORTED,
         TRACKER_IMG_NOHISTORY,
         TRACKER_IMG_HISTOGRAM,
         TRACKER_IMG_HIGHPASS,

@@ -121,6 +121,8 @@ namespace avg {
                 m_ROI.br.y = getRequiredIntAttr(curXmlChild, "bry");
             } else if (!strcmp(pNodeName, "exposure")) {
                 m_Exposure = getRequiredIntAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "gamma")) {
+                m_Gamma = getRequiredIntAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "gain")) {
                 m_Gain = getRequiredIntAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "shutter")) {
@@ -159,6 +161,7 @@ namespace avg {
         writeRect(writer, "ROI", m_ROI);
         writeSimpleXMLNode(writer, "brightness", m_Brightness);
         writeSimpleXMLNode(writer, "exposure", m_Exposure);
+        writeSimpleXMLNode(writer, "gamma", m_Gamma);
         writeSimpleXMLNode(writer, "gain", m_Gain);
         writeSimpleXMLNode(writer, "shutter", m_Shutter);
         writeSimpleXMLNode(writer, "threshold", m_Threshold);
