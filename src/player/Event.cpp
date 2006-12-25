@@ -20,6 +20,7 @@
 //
 
 #include "Event.h"
+#include "Node.h"
 
 #include "../base/TimeSource.h"
 #include "../base/Logger.h"
@@ -32,7 +33,8 @@ namespace avg {
 int Event::s_CurCounter = 0;
 
 Event::Event(Type type, int when)
-    : m_Type(type)
+    : m_Type(type),
+    m_pNode()
 {
     if (when == -1) {
         m_When = TimeSource::get()->getCurrentMillisecs();
@@ -58,6 +60,15 @@ Event::Type Event::getType() const
     return m_Type;
 }
 
+void Event::setElement(NodePtr pNode)
+{
+    m_pNode = pNode;
+}
+
+NodePtr Event::getElement() const
+{
+    return m_pNode;
+}
 void Event::trace()
 {
     switch(m_Type) {
@@ -76,10 +87,10 @@ void Event::trace()
         case MOUSEBUTTONDOWN:
             AVG_TRACE(Logger::EVENTS, "MOUSEBUTTONDOWN");
             break;
-        case MOUSEOVER:
+        case CURSOROVER:
             AVG_TRACE(Logger::EVENTS, "MOUSEOVER");
             break;
-        case MOUSEOUT:
+        case CURSOROUT:
             AVG_TRACE(Logger::EVENTS, "MOUSEOUT");
             break;
         case RESIZE:

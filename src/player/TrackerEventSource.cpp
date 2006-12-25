@@ -1,6 +1,6 @@
 
 #include "TrackerEventSource.h"
-#include "MouseEvent.h"
+#include "TouchEvent.h"
 
 #include "../base/Logger.h"
 
@@ -27,18 +27,13 @@ using namespace std;
 namespace avg {
     //hmmm. just don't use two TrackerEventSources...
     //if you do, put these into thread local storage or something
-    static double s_XOffset;
-    static double s_YOffset;
-    static double s_XScale;
-    static double s_YScale;
-    
     class  EventStream
     //internal class to keep track of blob/event states
     {
         public:
             EventStream(BlobPtr first_blob);
             void update(BlobPtr new_blob);
-            Event* pollevent();
+            Event* pollevent(CoordTransformerPtr Trafo, double XScale, double YScale, double XOffset, double YOffset);
             enum StreamState {
                 FRESH, //fresh stream. not polled yet
                 TOUCH_DELIVERED, //initial finger down delivered
@@ -111,30 +106,37 @@ namespace avg {
         m_pBlob = new_blob;
         m_Stale = false;
     };
-    Event* EventStream::pollevent(){
+    Event* EventStream::pollevent(CoordTransformerPtr Trafo, double XScale, double YScale, double XOffset, double YOffset){
         switch(m_State){
             case FRESH:
                 m_State = TOUCH_DELIVERED;
                 //return fingerdown
-                return new MouseEvent(MouseEvent::MOUSEBUTTONDOWN, true, false, false, 
-                        (int)(s_XScale*m_Pos.x+s_XOffset), 
-                        (int)(s_YScale*m_Pos.y+s_YOffset), 
-                        MouseEvent::LEFT_BUTTON); 
+                return new TouchEvent(m_Id, Event::TOUCHDOWN,
+                        *(m_pBlob->getInfo()), m_pBlob);
+
+//                return new MouseEvent(MouseEvent::MOUSEBUTTONDOWN, true, false, false, 
+//                        (int)(XScale*m_Pos.x+XOffset), 
+//                        (int)(YScale*m_Pos.y+YOffset), 
+//                        MouseEvent::LEFT_BUTTON); 
                 break;
             case INMOTION:
                 m_State = RESTING;
                 //return motion
-                return new MouseEvent(MouseEvent::MOUSEMOTION, true, false, false,
-                        (int)(s_XScale*m_Pos.x+s_XOffset), 
-                        (int)(s_YScale*m_Pos.y+s_YOffset), 
-                        MouseEvent::LEFT_BUTTON); 
+                return new TouchEvent(m_Id, Event::TOUCHMOTION,
+                        *(m_pBlob->getInfo()), m_pBlob);
+//                return new MouseEvent(MouseEvent::MOUSEMOTION, true, false, false,
+//                        (int)(XScale*m_Pos.x+XOffset), 
+//                        (int)(YScale*m_Pos.y+YOffset), 
+//                        MouseEvent::LEFT_BUTTON); 
                 break;
             case FINGERUP:
                 m_State = DONE;
-                return new MouseEvent(MouseEvent::MOUSEBUTTONUP, false, false, false,
-                        (int)(s_XScale*m_Pos.x+s_XOffset), 
-                        (int)(s_YScale*m_Pos.y+s_YOffset), 
-                        MouseEvent::LEFT_BUTTON); 
+                return new TouchEvent(m_Id, Event::TOUCHUP,
+                        *(m_pBlob->getInfo()), m_pBlob);
+//                return new MouseEvent(MouseEvent::MOUSEBUTTONUP, false, false, false,
+//                        (int)(XScale*m_Pos.x+XOffset), 
+//                        (int)(YScale*m_Pos.y+YOffset), 
+//                        MouseEvent::LEFT_BUTTON); 
                 //return fingerup
                 break;
             case TOUCH_DELIVERED:
@@ -155,10 +157,10 @@ namespace avg {
         AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
         IntPoint ImgDimensions = pCamera->getImgSize();
 
-        s_XOffset = TargetRect.tl.x;
-        s_XOffset = TargetRect.tl.y;
-        s_XScale = TargetRect.Width()/ImgDimensions.x;
-        s_YScale = TargetRect.Height()/ImgDimensions.y;
+        m_XOffset = TargetRect.tl.x;
+        m_XOffset = TargetRect.tl.y;
+        m_XScale = TargetRect.Width()/ImgDimensions.x;
+        m_YScale = TargetRect.Height()/ImgDimensions.y;
         m_pBitmaps[0] = BitmapPtr(new Bitmap(pCamera->getImgSize(), I8));
         setBitmaps();
         m_pUpdateMutex = MutexPtr(new boost::mutex);
@@ -491,7 +493,7 @@ double distance(BlobPtr p1, BlobPtr p2) {
         Event *t;
         int kill_counter = 0;
         for (EventMap::iterator it = m_Events.begin(); it!= m_Events.end();){
-            t = (*it).second->pollevent();
+            t = (*it).second->pollevent(m_Trafo,m_XOffset,m_YOffset,m_XScale,m_YScale);
             if (t) res.push_back(t);
             if ((*it).second->m_State == EventStream::DONE){
                 m_Events.erase(it++);

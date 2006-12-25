@@ -39,6 +39,7 @@ class EventDispatcher {
         EventDispatcher();
         virtual ~EventDispatcher();
         void dispatch();
+        //REFACTORME: this method should be in Player -- to say the least
         const MouseEvent& getLastMouseEvent() const;
         
         void addSource(IEventSource * pSource);

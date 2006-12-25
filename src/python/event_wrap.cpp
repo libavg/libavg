@@ -21,6 +21,7 @@
 
 #include "../player/KeyEvent.h"
 #include "../player/MouseEvent.h"
+#include "../player/TouchEvent.h"
 #include "../player/Node.h"
 #include "../player/TrackerEventSource.h"
 
@@ -48,8 +49,8 @@ void export_event()
         .value("MOUSEMOTION", Event::MOUSEMOTION)
         .value("MOUSEBUTTONUP", Event::MOUSEBUTTONUP)
         .value("MOUSEBUTTONDOWN", Event::MOUSEBUTTONDOWN)
-        .value("MOUSEOVER", Event::MOUSEOVER)
-        .value("MOUSEOUT", Event::MOUSEOUT)
+        .value("MOUSEOVER", Event::CURSOROVER)
+        .value("MOUSEOUT", Event::CURSOROUT)
         .value("RESIZE", Event::RESIZE)
         .value("QUIT", Event::QUIT)
         .export_values()
@@ -87,8 +88,30 @@ void export_event()
         .add_property("rightbuttonstate", &MouseEvent::getRightButtonState)
         .add_property("x", &MouseEvent::getXPosition)
         .add_property("y", &MouseEvent::getYPosition)
+        .add_property("cursorid", &MouseEvent::getCursorID)
         .add_property("button", &MouseEvent::getButton)
         .add_property("node", &MouseEvent::getElement);
+
+    class_<TouchEvent, bases<Event> >("TouchEvent", 
+            "Raised when a touch event occurs.\n"
+            "Properties:\n"
+            "    area: size of the blob(ro)\n"
+            "    orientation: (ro)\n"
+            "    inertia: (ro)\n"
+            "    eccentricity: (ro)\n"
+            "    cursorid: (ro)\n"
+            "    x: x position in the global coordinate system. (ro)\n"
+            "    y: y position in the global coordinate system. (ro)\n"
+            "    node: The node that the event handler was declared in. (ro)\n",
+            no_init)
+        .add_property("area", &TouchEvent::getArea)
+        .add_property("orientation", &TouchEvent::getOrientation)
+        .add_property("inertia", &TouchEvent::getInertia)
+        .add_property("eccentricity", &TouchEvent::getInertia)
+        .add_property("x", &TouchEvent::getXPosition)
+        .add_property("y", &TouchEvent::getYPosition)
+        .add_property("cursorid", &TouchEvent::getCursorID)
+        .add_property("node", &TouchEvent::getElement);
     
     enum_<TrackerImageID>("TrackerImageID")
         .value("IMG_CAMERA", TRACKER_IMG_CAMERA)

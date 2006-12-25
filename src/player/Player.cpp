@@ -102,6 +102,7 @@ Player::Player()
         AVG_TRACE(Logger::WARNING, 
                 "DTD not found at " << sDTDFName << ". Not validating xml files.");
     }
+    m_pLastMouseNode[MOUSECURSORID]=NodePtr();
 }
 
 Player::~Player()
@@ -383,21 +384,23 @@ void Player::showCursor(bool bShow)
     }
 }
 
-void Player::setEventCapture(NodeWeakPtr pNode) {
-    if (!m_pEventCaptureNode.expired()) {
+void Player::setEventCapture(NodeWeakPtr pNode, int cursorID) {
+    std::map<int, NodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
+    if (it!=m_pEventCaptureNode.end()&&!it->second.expired()) {
         throw Exception(AVG_ERR_INVALID_CAPTURE,
                 "setEventCapture called, but mouse already captured.");
     } else {
-        m_pEventCaptureNode = pNode;
+        m_pEventCaptureNode[cursorID] = pNode;
     }
 }
 
-void Player::releaseEventCapture(NodeWeakPtr pNode) {
-    if (m_pEventCaptureNode.expired()) {
+void Player::releaseEventCapture(NodeWeakPtr pNode, int cursorID) {
+    std::map<int, NodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
+    if(it==m_pEventCaptureNode.end()||(it->second.expired())) {
         throw Exception(AVG_ERR_INVALID_CAPTURE,
                 "releaseEventCapture called, but mouse not captured.");
     } else {
-        m_pEventCaptureNode = NodeWeakPtr();
+        m_pEventCaptureNode[cursorID] = NodeWeakPtr();
     }
 
 }
@@ -807,66 +810,55 @@ bool Player::handleEvent(Event * pEvent)
 {
     m_pCurEvent = pEvent;
     assert(pEvent); 
-    switch (pEvent->getType()) {
-        case Event::MOUSEMOTION:
-        case Event::MOUSEBUTTONUP:
-        case Event::MOUSEBUTTONDOWN:
-        case Event::MOUSEOVER:
-        case Event::MOUSEOUT:
+    if(MouseEvent * pMouseEvent = dynamic_cast<MouseEvent*>(pEvent)) {
+        DPoint pos(pMouseEvent->getXPosition(), 
+                pMouseEvent->getYPosition());
+        NodePtr pNode;
+        if (m_pEventCaptureNode[MOUSECURSORID].expired()) {
+            if (pEvent->getType() != Event::CURSOROVER &&
+                    pEvent->getType() != Event::CURSOROUT)
             {
-                MouseEvent * pMouseEvent = dynamic_cast<MouseEvent*>(pEvent);
-                DPoint pos(pMouseEvent->getXPosition(), 
-                        pMouseEvent->getYPosition());
-                NodePtr pNode;
-                if (m_pEventCaptureNode.expired()) {
-                    if (pEvent->getType() != Event::MOUSEOVER &&
-                            pEvent->getType() != Event::MOUSEOUT)
-                    {
-                        pNode = m_pRootNode->getElementByPos(pos);
-                    } else {
-                        pNode = pMouseEvent->getElement();
-                    }
-                } else {
-                    pNode = m_pEventCaptureNode.lock();
-                } 
-                if (pNode != m_pLastMouseNode && 
-                        pEvent->getType() != Event::MOUSEOVER &&
-                        pEvent->getType() != Event::MOUSEOUT)
-                {
-                    if (m_pLastMouseNode && m_pLastMouseNode->getSensitive()) {
-                        sendMouseOver(pMouseEvent, Event::MOUSEOUT, 
-                                m_pLastMouseNode);
-                    }
-                    if (pNode && pNode->getSensitive()) {
-                        sendMouseOver(pMouseEvent, Event::MOUSEOVER, pNode);
-                    }
-                    m_pLastMouseNode = pNode;
-                }
-                if (pNode && pNode->getSensitive()) {
-                    pNode->handleMouseEvent(pMouseEvent);
-                }
+                pNode = m_pRootNode->getElementByPos(pos);
+            } else {
+                pNode = pMouseEvent->getElement();
             }
-            break;
-        case Event::KEYDOWN:
-        case Event::KEYUP:
-            {
-                KeyEvent * pKeyEvent = dynamic_cast<KeyEvent*>(pEvent);
-                m_pRootNode->handleKeyEvent(pKeyEvent);
-                if (pEvent->getType() == Event::KEYDOWN &&
-                    pKeyEvent->getKeyCode() == 27) 
-                {
-                    m_bStopping = true;
-                }
+        } else {
+            pNode = m_pEventCaptureNode[MOUSECURSORID].lock();
+        } 
+        if (pNode != m_pLastMouseNode[MOUSECURSORID] && 
+                pEvent->getType() != Event::CURSOROVER &&
+                pEvent->getType() != Event::CURSOROUT)
+        {
+            if (m_pLastMouseNode[MOUSECURSORID] && m_pLastMouseNode[MOUSECURSORID]->getSensitive()) {
+                sendOver(pMouseEvent, Event::CURSOROUT, 
+                        m_pLastMouseNode[MOUSECURSORID]);
             }
-            break;
-        case Event::QUIT:
+            if (pNode && pNode->getSensitive()) {
+                sendOver(pMouseEvent, Event::CURSOROVER, pNode);
+            }
+            m_pLastMouseNode[MOUSECURSORID] = pNode;
+        }
+        if (pNode && pNode->getSensitive()) {
+            pNode->handleEvent(pMouseEvent);
+        }
+    } else if ( KeyEvent * pKeyEvent = dynamic_cast<KeyEvent*>(pEvent)){
+        m_pRootNode->handleEvent(pKeyEvent);
+        if (pEvent->getType() == Event::KEYDOWN &&
+            pKeyEvent->getKeyCode() == 27) 
+        {
             m_bStopping = true;
-            break;
-        default:
-            AVG_TRACE(Logger::ERROR, "Unknown event type in Player::handleEvent.");
-            break;
-    }
+        }
+    }else {
+        switch(pEvent->getType()){
+            case Event::QUIT:
+                m_bStopping = true;
+                break;
+            default:
+                AVG_TRACE(Logger::ERROR, "Unknown event type in Player::handleEvent.");
+                break;
+        }
     // Don't pass on any events.
+    }
     return true; 
 }
 
@@ -880,16 +872,10 @@ void Player::useFakeCamera(bool bFake)
     m_bUseFakeCamera = bFake;
 }
 
-void Player::sendMouseOver(MouseEvent * pOtherEvent, Event::Type Type, 
+void Player::sendOver(CursorEvent * pOtherEvent, Event::Type Type, 
                 NodePtr pNode)
 {
-    MouseEvent * pNewEvent = new MouseEvent(Type,
-            pOtherEvent->getLeftButtonState(),
-            pOtherEvent->getMiddleButtonState(),
-            pOtherEvent->getRightButtonState(),
-            pOtherEvent->getXPosition(),
-            pOtherEvent->getYPosition(),
-            pOtherEvent->getButton());
+    Event * pNewEvent = pOtherEvent->cloneAs(Type);
     pNewEvent->setElement(pNode);
     m_EventDispatcher.sendEvent(pNewEvent);
 }
@@ -908,7 +894,7 @@ void Player::cleanup()
         m_pDisplayEngine->teardown();
     }
     m_pRootNode = AVGNodePtr();
-    m_pLastMouseNode = NodePtr();
+    m_pLastMouseNode.clear();
     m_IDMap.clear();
     initConfig();
 }

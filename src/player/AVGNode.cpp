@@ -51,7 +51,7 @@ string AVGNode::getTypeStr ()
     return "AVGNode";
 }
 
-void AVGNode::handleKeyEvent (KeyEvent* pEvent)
+void AVGNode::handleEvent (KeyEvent* pEvent)
 {
     string Code;
     int EventType = pEvent->getType();

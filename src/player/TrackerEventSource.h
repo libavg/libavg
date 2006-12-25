@@ -104,6 +104,12 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         TrackerThread::CmdQueuePtr m_pCmdQueue;
         BlobListPtr m_pBlobList;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
+        double m_XOffset;
+        double m_YOffset;
+        double m_XScale;
+        double m_YScale;
+        
+        CoordTransformerPtr m_Trafo; //
 };
 
 typedef boost::shared_ptr<TrackerEventSource> TrackerEventSourcePtr;

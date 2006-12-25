@@ -38,7 +38,7 @@
 
 #include <sstream>
 
-//#define GENERATE_BASELINE
+#define GENERATE_BASELINE
 
 using namespace avg;
 using namespace std;
@@ -89,7 +89,7 @@ class DistortionTest: public Test {
             cerr << "Result: " << SamePt << endl;
             
             cerr << "    Combined Transformer" << endl;
-            CoordTransformer CombinedT(IntRect(0,0,100,100), 0.1, 0.1, 1);
+            CoordTransformer CombinedT(IntRect(0,0,100,100), 0.2, 0.1, 1.2);
             TestPt = DPoint(100,0);
             testNullTransform(BarrelT, TestPt);
             TestPt = DPoint(0,100);

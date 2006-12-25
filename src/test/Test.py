@@ -24,8 +24,8 @@ class LoggerTestCase(unittest.TestCase):
 #                  self.Log.CONFIG |
 #                  self.Log.MEMORY | 
 #                  self.Log.BLTS    |
-#                  self.Log.EVENTS
-#                  self.Log.EVENTS2
+                  |self.Log.EVENTS|
+                  self.Log.EVENTS2
                   )
         myTempFile = os.path.join(tempfile.gettempdir(), "testavg.log")
         try:

@@ -23,11 +23,18 @@
 #define _MouseEvent_h_
 
 #include "Event.h"
+#include "CursorEvent.h"
 #include "Node.h"
 
 namespace avg {
 
-class MouseEvent : public Event {
+const int MOUSECURSORID=-1;
+
+//REFACTORME: turn Event->{MouseEvent,KeyEvent} into Event->{CursorEvent->{MouseEvent, TouchEvent},KeyEvent}
+//
+//CursorEvents have a position and can be captured, 
+//i.e. they have a CursorID.  CursorID == MOUSECURSOR == const for plain mouse events and something unique for each touch
+class MouseEvent : public CursorEvent {
     public:
         MouseEvent(Event::Type eventType,
                 bool leftButtonState, bool middleButtonState, 
@@ -35,17 +42,13 @@ class MouseEvent : public Event {
                 int xPosition, int yPosition, int button);
         virtual ~MouseEvent();
        
-        NodePtr getElement() const;
+        //REFACTORME: get*ButtonState -> getButtonState(num=*)
         bool getLeftButtonState() const;
         bool getMiddleButtonState() const;
         bool getRightButtonState() const;
-        int getXPosition() const;
-        int getYPosition() const;
         int getButton() const;
-
-        void setElement(NodePtr pNode);
+        virtual Event* cloneAs(Type EventType);
         virtual void trace();
-        
         static const long NO_BUTTON=0;
         static const long LEFT_BUTTON=1;
         static const long RIGHT_BUTTON=2;
@@ -55,10 +58,7 @@ class MouseEvent : public Event {
         bool m_LeftButtonState;
         bool m_MiddleButtonState;
         bool m_RightButtonState;
-        int m_XPosition;
-        int m_YPosition;
         int m_Button; // only used in button events
-        NodePtr m_pNode;
 };
 
 }
