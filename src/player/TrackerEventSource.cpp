@@ -24,6 +24,8 @@
 
 using namespace std;
 
+const int MAXMISSINGFRAMES=5;
+
 namespace avg {
     //hmmm. just don't use two TrackerEventSources...
     //if you do, put these into thread local storage or something
@@ -39,10 +41,12 @@ namespace avg {
                 TOUCH_DELIVERED, //initial finger down delivered
                 INMOTION, //recent position change
                 RESTING, //finger resting
+                VANISHED, // oops, no followup found -- wait a little while
                 FINGERUP, //finger disappeared, but fingerup yet to be delivered
                 DONE // waiting to be cleared.
             };
             int m_Id;
+            int m_VanishCounter;
             StreamState m_State;
             DPoint m_Pos;
             BlobPtr m_pBlob;
@@ -61,24 +65,36 @@ namespace avg {
         m_Stale = false;
     };
     void EventStream::update(BlobPtr new_blob){
-        if ((!new_blob)||(!m_pBlob)){
-            m_pBlob = BlobPtr();
+        if (!new_blob){
             switch(m_State) {
                 case FRESH:
                     AVG_TRACE(Logger::EVENTS2, "Spurious blob suppressed.");
                     m_State = DONE;
                     break;
+                case FINGERUP:
+                case DONE:
+                    break;
                 default:
-                    m_State = FINGERUP;
+                    m_State = VANISHED;
+                    m_VanishCounter++;
+                    if(m_VanishCounter>=MAXMISSINGFRAMES){
+                        m_State = FINGERUP;
+                    }
+                    break;
             }
+
             return;
         }
+        m_VanishCounter = 0;
         DPoint c = new_blob->center();
         //Fixme replace m_Pos == c with something that takes resolution into account
         bool pos_unchanged = (c == m_Pos);
         switch(m_State) {
             case FRESH:
                 //finger touch has not been polled yet. update position
+                break;
+            case VANISHED:
+                m_State = INMOTION;
                 break;
             case TOUCH_DELIVERED:
                 //fingerdown delivered, change to motion states
