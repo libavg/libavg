@@ -166,7 +166,7 @@ void TrackerThread::setConfig(TrackerConfig Config)
     }
         
     m_pCamera->setFeature("brightness", Config.m_Brightness);
-    m_pCamera->setFeature("exposure", Config.m_Exposure);
+//    m_pCamera->setFeature("exposure", Config.m_Exposure);
     m_pCamera->setFeature("gain", Config.m_Gain);
     m_pCamera->setFeature("shutter", Config.m_Shutter);
 
