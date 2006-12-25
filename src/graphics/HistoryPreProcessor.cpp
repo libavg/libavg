@@ -115,6 +115,9 @@ void HistoryPreProcessor::applyInPlace(BitmapPtr img)
 // Fast pseudo-normalization with an integer factor.
 void HistoryPreProcessor::normalizeHistogram(BitmapPtr pBmp, unsigned char Max)
 {
+    if (Max < 128) {
+        Max = 128;
+    }
     int Factor = int(256.0/Max);
     unsigned char * pLine = pBmp->getPixels();
     IntPoint Size = pBmp->getSize();

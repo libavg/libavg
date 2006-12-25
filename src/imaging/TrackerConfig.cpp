@@ -135,8 +135,8 @@ namespace avg {
                 m_AreaBounds[0] = getRequiredIntAttr(curXmlChild, "min");
                 m_AreaBounds[1] = getRequiredIntAttr(curXmlChild, "max");
             } else if (!strcmp(pNodeName, "eccentricitybounds")) {
-                m_EccentricityBounds[0] = getRequiredIntAttr(curXmlChild, "min");
-                m_EccentricityBounds[1] = getRequiredIntAttr(curXmlChild, "max");
+                m_EccentricityBounds[0] = getRequiredDoubleAttr(curXmlChild, "min");
+                m_EccentricityBounds[1] = getRequiredDoubleAttr(curXmlChild, "max");
             } else if (!strcmp(pNodeName, "debug")) {
                 m_bDebug = getRequiredIntAttr(curXmlChild, "value");
             }
