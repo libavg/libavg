@@ -3,18 +3,19 @@
 
 #include "CursorEvent.h"
 #include "Node.h"
+
 #include "../graphics/Point.h"
 #include "../graphics/Bitmap.h"
+
 #include "../imaging/ConnectedComps.h"
 
-#include "math.h"
+#include <math.h>
+
 namespace avg {
 class TouchEvent: public CursorEvent {
-    protected:
-        BlobInfoPtr m_Info;
-        BlobPtr m_Blob;
     public:
-        TouchEvent(int id, Type EventType, BlobInfoPtr info, BlobPtr blob);
+        TouchEvent(int id, Type EventType, BlobInfoPtr info, BlobPtr blob, 
+                DPoint& Offset, DPoint& Scale);
         virtual Event* cloneAs(Type EventType);
 
         double getOrientation(){return m_Info->m_Orientation;};
@@ -26,6 +27,14 @@ class TouchEvent: public CursorEvent {
         DPoint getEigenValues(){return m_Info->m_EigenValues;};
         //BitmapPtr getBitmap();
         //DPoint[2] getScaledBasis(){return m_Info.m_ScaledBasis;};
+        virtual void trace();
+    
+    protected:
+        BlobInfoPtr m_Info;
+        BlobPtr m_Blob;
+
+    private:
+        IntPoint transformPoint(DPoint& pt, DPoint& Offset, DPoint& Scale);
 };
 
 }

@@ -39,7 +39,7 @@ class MouseEvent : public CursorEvent {
         MouseEvent(Event::Type eventType,
                 bool leftButtonState, bool middleButtonState, 
                 bool rightButtonState,
-                int xPosition, int yPosition, int button);
+                IntPoint Position, int button);
         virtual ~MouseEvent();
        
         //REFACTORME: get*ButtonState -> getButtonState(num=*)

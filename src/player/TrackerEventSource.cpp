@@ -35,7 +35,7 @@ namespace avg {
         public:
             EventStream(BlobPtr first_blob);
             void update(BlobPtr new_blob);
-            Event* pollevent(CoordTransformerPtr Trafo, double XScale, double YScale, double XOffset, double YOffset);
+            Event* pollevent(DPoint& Offset, DPoint& XScale);
             enum StreamState {
                 FRESH, //fresh stream. not polled yet
                 TOUCH_DELIVERED, //initial finger down delivered
@@ -85,6 +85,7 @@ namespace avg {
 
             return;
         }
+        assert(m_pBlob);
         m_VanishCounter = 0;
         DPoint c = new_blob->center();
         //Fixme replace m_Pos == c with something that takes resolution into account
@@ -122,13 +123,14 @@ namespace avg {
         m_pBlob = new_blob;
         m_Stale = false;
     };
-    Event* EventStream::pollevent(CoordTransformerPtr Trafo, double XScale, double YScale, double XOffset, double YOffset){
+    Event* EventStream::pollevent(DPoint& Offset, DPoint& Scale){
+        assert(m_pBlob);
         switch(m_State){
             case FRESH:
                 m_State = TOUCH_DELIVERED;
                 //return fingerdown
                 return new TouchEvent(m_Id, Event::TOUCHDOWN,
-                        (m_pBlob->getInfo()), m_pBlob);
+                        (m_pBlob->getInfo()), m_pBlob, Offset, Scale);
 
 //                return new MouseEvent(MouseEvent::MOUSEBUTTONDOWN, true, false, false, 
 //                        (int)(XScale*m_Pos.x+XOffset), 
@@ -139,7 +141,7 @@ namespace avg {
                 m_State = RESTING;
                 //return motion
                 return new TouchEvent(m_Id, Event::TOUCHMOTION,
-                        (m_pBlob->getInfo()), m_pBlob);
+                        (m_pBlob->getInfo()), m_pBlob, Offset, Scale);
 //                return new MouseEvent(MouseEvent::MOUSEMOTION, true, false, false,
 //                        (int)(XScale*m_Pos.x+XOffset), 
 //                        (int)(YScale*m_Pos.y+YOffset), 
@@ -148,7 +150,7 @@ namespace avg {
             case FINGERUP:
                 m_State = DONE;
                 return new TouchEvent(m_Id, Event::TOUCHUP,
-                        (m_pBlob->getInfo()), m_pBlob);
+                        (m_pBlob->getInfo()), m_pBlob, Offset, Scale);
 //                return new MouseEvent(MouseEvent::MOUSEBUTTONUP, false, false, false,
 //                        (int)(XScale*m_Pos.x+XOffset), 
 //                        (int)(YScale*m_Pos.y+YOffset), 
@@ -168,17 +170,14 @@ namespace avg {
 
     TrackerEventSource::TrackerEventSource(CameraPtr pCamera, DRect TargetRect, 
             bool bSubtractHistory)
-        : m_TrackerConfig()
+        : m_TrackerConfig(),
+          m_TargetRect(TargetRect)
     {
         AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
         IntPoint ImgDimensions = pCamera->getImgSize();
 
-        m_XOffset = TargetRect.tl.x;
-        m_XOffset = TargetRect.tl.y;
-        m_XScale = TargetRect.Width()/ImgDimensions.x;
-        m_YScale = TargetRect.Height()/ImgDimensions.y;
         m_pBitmaps[0] = BitmapPtr(new Bitmap(pCamera->getImgSize(), I8));
-        setBitmaps();
+        handleROIChange();
         m_pUpdateMutex = MutexPtr(new boost::mutex);
         m_pTrackerMutex = MutexPtr(new boost::mutex);
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
@@ -216,7 +215,7 @@ namespace avg {
     {
         m_TrackerConfig.m_ROI.tl.x = Left;
         setConfig();
-        setBitmaps();
+        handleROIChange();
     }
 
     int TrackerEventSource::getLeft()
@@ -228,7 +227,7 @@ namespace avg {
     {
         m_TrackerConfig.m_ROI.tl.y = Top;
         setConfig();
-        setBitmaps();
+        handleROIChange();
     }
 
     int TrackerEventSource::getTop()
@@ -240,7 +239,7 @@ namespace avg {
     {
         m_TrackerConfig.m_ROI.br.x = Right;
         setConfig();
-        setBitmaps();
+        handleROIChange();
     }
 
     int TrackerEventSource::getRight()
@@ -252,7 +251,7 @@ namespace avg {
     {
         m_TrackerConfig.m_ROI.br.y = Bottom;
         setConfig();
-        setBitmaps();
+        handleROIChange();
     }
 
     int TrackerEventSource::getBottom()
@@ -376,7 +375,7 @@ namespace avg {
                 &TrackerThread::setConfig, _1, m_TrackerConfig)));
     }
 
-    void TrackerEventSource::setBitmaps()
+    void TrackerEventSource::handleROIChange()
     {
         IntPoint ImgDimensions(m_TrackerConfig.m_ROI.br - m_TrackerConfig.m_ROI.tl);
         for (int i=1; i<NUM_TRACKER_IMAGES-1; i++) {
@@ -387,6 +386,9 @@ namespace avg {
             m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
                     &TrackerThread::setBitmaps, _1, m_pBitmaps)));
         }
+        m_Offset = DPoint(m_TargetRect.tl.x, m_TargetRect.br.y);
+        m_Scale.x = m_TargetRect.Width()/ImgDimensions.x;
+        m_Scale.y = -m_TargetRect.Height()/ImgDimensions.y;
     }
 
     Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const
@@ -509,7 +511,7 @@ double distance(BlobPtr p1, BlobPtr p2) {
         Event *t;
         int kill_counter = 0;
         for (EventMap::iterator it = m_Events.begin(); it!= m_Events.end();){
-            t = (*it).second->pollevent(m_Trafo,m_XOffset,m_YOffset,m_XScale,m_YScale);
+            t = (*it).second->pollevent(m_Offset, m_Scale);
             if (t) res.push_back(t);
             if ((*it).second->m_State == EventStream::DONE){
                 m_Events.erase(it++);
@@ -525,5 +527,7 @@ double distance(BlobPtr p1, BlobPtr p2) {
     }
     
 }
+
+
 
 

@@ -42,7 +42,7 @@ ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
         Video.h FFMpegDecoder.h IVideoDecoder.h \
         PanoImage.h TestHelper.h \
         RasterNode.h CameraNode.h TrackerEventSource.h\
-	TouchEvent.h \ 
+	    TouchEvent.h \
         $(GL_INCLUDES) $(DFB_INCLUDES) $(APPLE_INCLUDES)
 
 noinst_LTLIBRARIES = libplayer.la

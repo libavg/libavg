@@ -78,6 +78,15 @@ void Event::trace()
         case KEYDOWN:
             AVG_TRACE(Logger::EVENTS, "KEYDOWN");
             break;
+        case TOUCHMOTION:
+            AVG_TRACE(Logger::EVENTS, "TOUCHMOTION");
+            break;
+        case TOUCHUP:
+            AVG_TRACE(Logger::EVENTS, "TOUCHUP");
+            break;
+        case TOUCHDOWN:
+            AVG_TRACE(Logger::EVENTS, "TOUCHDOWN");
+            break;
         case MOUSEMOTION:
             AVG_TRACE(Logger::EVENTS, "MOUSEMOTION");
             break;
@@ -88,10 +97,10 @@ void Event::trace()
             AVG_TRACE(Logger::EVENTS, "MOUSEBUTTONDOWN");
             break;
         case CURSOROVER:
-            AVG_TRACE(Logger::EVENTS, "MOUSEOVER");
+            AVG_TRACE(Logger::EVENTS, "CURSOROVER");
             break;
         case CURSOROUT:
-            AVG_TRACE(Logger::EVENTS, "MOUSEOUT");
+            AVG_TRACE(Logger::EVENTS, "CURSOROUT");
             break;
         case RESIZE:
             AVG_TRACE(Logger::EVENTS, "RESIZE");

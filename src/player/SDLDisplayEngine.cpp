@@ -877,7 +877,7 @@ Event * SDLDisplayEngine::createMouseMotionEvent
             SDLEvent.motion.state & SDL_BUTTON(1),
             SDLEvent.motion.state & SDL_BUTTON(3), 
             SDLEvent.motion.state & SDL_BUTTON(2),
-            x, y, 
+            IntPoint(x, y), 
             MouseEvent::NO_BUTTON);
     return pEvent;
 }
@@ -905,7 +905,7 @@ Event * SDLDisplayEngine::createMouseButtonEvent
             SDLEvent.button.button == SDL_BUTTON_LEFT,
             SDLEvent.button.button == SDL_BUTTON_MIDDLE, 
             SDLEvent.button.button == SDL_BUTTON_RIGHT,
-            x, y, Button);
+            IntPoint(x, y), Button);
     return pEvent; 
 }
 

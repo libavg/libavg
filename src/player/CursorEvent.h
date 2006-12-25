@@ -4,20 +4,21 @@
 #include "Event.h"
 #include "Node.h"
 
+#include "../graphics/Point.h"
+
 namespace avg{
 class CursorEvent: public Event {
-    protected:
-        int m_XPosition;
-        int m_YPosition;
-        int m_ID;
     public:
-        CursorEvent(int id, Type eventType, int xPosition, int yPosition);
+        CursorEvent(int id, Type eventType, IntPoint Position);
         virtual ~CursorEvent();
         virtual Event* cloneAs(Type EventType);
         int getXPosition() const;
         int getYPosition() const;
         int getCursorID() const;
 
+    protected:
+        IntPoint m_Position;
+        int m_ID;
 };
 }
 

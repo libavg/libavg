@@ -72,6 +72,9 @@ Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
       m_AbsViewport(0,0,0,0)
 {
     m_ID = getDefaultedStringAttr (xmlNode, "id", "");
+    m_EventHandlerMap[Event::TOUCHMOTION] = getDefaultedStringAttr (xmlNode, "ontouchmove", "");
+    m_EventHandlerMap[Event::TOUCHUP] = getDefaultedStringAttr (xmlNode, "ontouchup", "");
+    m_EventHandlerMap[Event::TOUCHDOWN] = getDefaultedStringAttr (xmlNode, "ontouchdown", "");
     m_EventHandlerMap[Event::MOUSEMOTION] = getDefaultedStringAttr (xmlNode, "onmousemove", "");
     m_EventHandlerMap[Event::MOUSEBUTTONUP] = getDefaultedStringAttr (xmlNode, "onmouseup", "");
     m_EventHandlerMap[Event::MOUSEBUTTONDOWN] = getDefaultedStringAttr (xmlNode, "onmousedown", "");

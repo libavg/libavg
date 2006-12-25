@@ -810,9 +810,9 @@ bool Player::handleEvent(Event * pEvent)
 {
     m_pCurEvent = pEvent;
     assert(pEvent); 
-    if(MouseEvent * pMouseEvent = dynamic_cast<MouseEvent*>(pEvent)) {
-        DPoint pos(pMouseEvent->getXPosition(), 
-                pMouseEvent->getYPosition());
+    if(CursorEvent * pCursorEvent = dynamic_cast<CursorEvent*>(pEvent)) {
+        DPoint pos(pCursorEvent->getXPosition(), 
+                pCursorEvent->getYPosition());
         NodePtr pNode;
         if (m_pEventCaptureNode[MOUSECURSORID].expired()) {
             if (pEvent->getType() != Event::CURSOROVER &&
@@ -820,7 +820,7 @@ bool Player::handleEvent(Event * pEvent)
             {
                 pNode = m_pRootNode->getElementByPos(pos);
             } else {
-                pNode = pMouseEvent->getElement();
+                pNode = pCursorEvent->getElement();
             }
         } else {
             pNode = m_pEventCaptureNode[MOUSECURSORID].lock();
@@ -830,16 +830,16 @@ bool Player::handleEvent(Event * pEvent)
                 pEvent->getType() != Event::CURSOROUT)
         {
             if (m_pLastMouseNode[MOUSECURSORID] && m_pLastMouseNode[MOUSECURSORID]->getSensitive()) {
-                sendOver(pMouseEvent, Event::CURSOROUT, 
+                sendOver(pCursorEvent, Event::CURSOROUT, 
                         m_pLastMouseNode[MOUSECURSORID]);
             }
             if (pNode && pNode->getSensitive()) {
-                sendOver(pMouseEvent, Event::CURSOROVER, pNode);
+                sendOver(pCursorEvent, Event::CURSOROVER, pNode);
             }
             m_pLastMouseNode[MOUSECURSORID] = pNode;
         }
         if (pNode && pNode->getSensitive()) {
-            pNode->handleEvent(pMouseEvent);
+            pNode->handleEvent(pCursorEvent);
         }
     } else if ( KeyEvent * pKeyEvent = dynamic_cast<KeyEvent*>(pEvent)){
         m_pRootNode->handleEvent(pKeyEvent);

@@ -21,10 +21,13 @@
 
 const char * g_pAVGDTD = 
 "<!ENTITY % graphicsElementEvents\n"
-"  \"onmousedown CDATA #IMPLIED\n"
+"  \"ontouchdown CDATA #IMPLIED\n"
+"    ontouchup CDATA #IMPLIED\n"
+"    ontouchmove CDATA #IMPLIED\n"
+"    onmousedown CDATA #IMPLIED\n"
 "    onmouseup CDATA #IMPLIED\n"
-"    onmouseover CDATA #IMPLIED\n"
 "    onmousemove CDATA #IMPLIED\n"
+"    onmouseover CDATA #IMPLIED\n"
 "    onmouseout CDATA #IMPLIED\" >\n"
 
 "<!ENTITY % nodeAttrs\n"

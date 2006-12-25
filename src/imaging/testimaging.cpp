@@ -38,7 +38,7 @@
 
 #include <sstream>
 
-#define GENERATE_BASELINE
+// #define GENERATE_BASELINE
 
 using namespace avg;
 using namespace std;

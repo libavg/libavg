@@ -92,9 +92,10 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         bool isfinger(BlobPtr blob);
         BlobPtr matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold);
         void setConfig();
-        void setBitmaps();
+        void handleROIChange();
 
         TrackerConfig m_TrackerConfig;
+        DRect m_TargetRect;
         EventMap m_Events;
         MutexPtr m_pTrackerMutex;
         MutexPtr m_pUpdateMutex;
@@ -104,10 +105,8 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         TrackerThread::CmdQueuePtr m_pCmdQueue;
         BlobListPtr m_pBlobList;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
-        double m_XOffset;
-        double m_YOffset;
-        double m_XScale;
-        double m_YScale;
+        DPoint m_Offset;
+        DPoint m_Scale;
         
         CoordTransformerPtr m_Trafo; //
 };

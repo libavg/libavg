@@ -33,8 +33,8 @@ namespace avg {
 
 MouseEvent::MouseEvent(Event::Type eventType,
         bool leftButtonState, bool middleButtonState, bool rightButtonState,
-        int xPosition, int yPosition, int button)
-    : CursorEvent(MOUSECURSORID, eventType, xPosition, yPosition)
+        IntPoint Position, int button)
+    : CursorEvent(MOUSECURSORID, eventType, Position)
 {
     m_LeftButtonState = leftButtonState;
     m_MiddleButtonState = middleButtonState;
@@ -73,8 +73,7 @@ bool MouseEvent::getRightButtonState() const
 void MouseEvent::trace()
 {
     Event::trace();
-    AVG_TRACE(Logger::EVENTS2, "pos: (" << m_XPosition 
-            << ", " << m_YPosition << ")" 
+    AVG_TRACE(Logger::EVENTS2, "pos: " << m_Position 
             << ", button: " << m_Button);
 }
 

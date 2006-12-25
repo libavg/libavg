@@ -1,10 +1,9 @@
 #include "Node.h"
 #include "CursorEvent.h"
 namespace avg{
-CursorEvent::CursorEvent(int id, Type eventType, int xPosition, int yPosition)
+CursorEvent::CursorEvent(int id, Type eventType, IntPoint Position)
             :Event(eventType),
-            m_XPosition(xPosition),
-            m_YPosition(yPosition),
+            m_Position(Position),
             m_ID(id)
 {}
 
@@ -17,19 +16,18 @@ Event *CursorEvent::cloneAs(Type EventType)
 
 int CursorEvent::getXPosition() const
 {
-    return m_XPosition;
+    return m_Position.x;
+}
+
+int CursorEvent::getYPosition() const
+{
+    return m_Position.y;
 }
 
 int CursorEvent::getCursorID() const
 {
     return m_ID;
 }
-
-int CursorEvent::getYPosition() const
-{
-    return m_YPosition;
-}
-
 
 }
 
