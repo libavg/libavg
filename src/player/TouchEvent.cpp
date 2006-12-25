@@ -6,8 +6,8 @@
 #include "../graphics/Pixel8.h"
 
 namespace avg {
-TouchEvent::TouchEvent(int id, Type EventType, BlobInfo &info, BlobPtr blob):
-    CursorEvent(id, EventType, int(round(info.m_Center.x)), int(round(info.m_Center.y))),
+TouchEvent::TouchEvent(int id, Type EventType, BlobInfoPtr info, BlobPtr blob):
+    CursorEvent(id, EventType, int(round(info->m_Center.x)), int(round(info->m_Center.y))),
     m_Blob(blob),
     m_Info(info){}
 Event* TouchEvent::cloneAs(Type EventType){

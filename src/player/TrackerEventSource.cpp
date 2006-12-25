@@ -112,7 +112,7 @@ namespace avg {
                 m_State = TOUCH_DELIVERED;
                 //return fingerdown
                 return new TouchEvent(m_Id, Event::TOUCHDOWN,
-                        *(m_pBlob->getInfo()), m_pBlob);
+                        (m_pBlob->getInfo()), m_pBlob);
 
 //                return new MouseEvent(MouseEvent::MOUSEBUTTONDOWN, true, false, false, 
 //                        (int)(XScale*m_Pos.x+XOffset), 
@@ -123,7 +123,7 @@ namespace avg {
                 m_State = RESTING;
                 //return motion
                 return new TouchEvent(m_Id, Event::TOUCHMOTION,
-                        *(m_pBlob->getInfo()), m_pBlob);
+                        (m_pBlob->getInfo()), m_pBlob);
 //                return new MouseEvent(MouseEvent::MOUSEMOTION, true, false, false,
 //                        (int)(XScale*m_Pos.x+XOffset), 
 //                        (int)(YScale*m_Pos.y+YOffset), 
@@ -132,7 +132,7 @@ namespace avg {
             case FINGERUP:
                 m_State = DONE;
                 return new TouchEvent(m_Id, Event::TOUCHUP,
-                        *(m_pBlob->getInfo()), m_pBlob);
+                        (m_pBlob->getInfo()), m_pBlob);
 //                return new MouseEvent(MouseEvent::MOUSEBUTTONUP, false, false, false,
 //                        (int)(XScale*m_Pos.x+XOffset), 
 //                        (int)(YScale*m_Pos.y+YOffset), 
