@@ -60,9 +60,7 @@ TrackerThread::TrackerThread(CameraPtr pCamera,
       m_pTarget(target),
       m_bDebugEnabled(false)
 {
-    for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
-        m_pBitmaps[i] = ppBitmaps[i];
-    }
+    setBitmaps(ppBitmaps);
     m_ROI = IntRect(IntPoint(0,0), m_pBitmaps[0]->getSize());
     if (bSubtractHistory) {
         m_pHistoryPreProcessor = HistoryPreProcessorPtr(
@@ -175,6 +173,13 @@ void TrackerThread::setConfig(TrackerConfig Config)
     m_pCamera->setFeature("shutter", Config.m_Shutter);
 
     m_bDebugEnabled = Config.m_bDebug;
+}
+
+void TrackerThread::setBitmaps(BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES])
+{
+    for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
+        m_pBitmaps[i] = ppBitmaps[i];
+    }
 }
 
 void TrackerThread::resetHistory()

@@ -73,6 +73,7 @@ class TrackerThread: public WorkerThread<TrackerThread>
         void deinit();
 
         void setConfig(TrackerConfig Config);
+        void setBitmaps(BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES]);
         void resetHistory();
     
     private:

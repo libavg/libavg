@@ -159,10 +159,8 @@ namespace avg {
         s_XOffset = TargetRect.tl.y;
         s_XScale = TargetRect.Width()/ImgDimensions.x;
         s_YScale = TargetRect.Height()/ImgDimensions.y;
-        for (int i=0; i<NUM_TRACKER_IMAGES-1; i++) {
-            m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgDimensions, I8));
-        }
-        m_pBitmaps[TRACKER_IMG_FINGERS] = BitmapPtr(new Bitmap(ImgDimensions, R8G8B8X8));
+        m_pBitmaps[0] = BitmapPtr(new Bitmap(pCamera->getImgSize(), I8));
+        setBitmaps();
         m_pUpdateMutex = MutexPtr(new boost::mutex);
         m_pTrackerMutex = MutexPtr(new boost::mutex);
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
@@ -200,6 +198,7 @@ namespace avg {
     {
         m_TrackerConfig.m_ROI.tl.x = Left;
         setConfig();
+        setBitmaps();
     }
 
     int TrackerEventSource::getLeft()
@@ -211,6 +210,7 @@ namespace avg {
     {
         m_TrackerConfig.m_ROI.tl.y = Top;
         setConfig();
+        setBitmaps();
     }
 
     int TrackerEventSource::getTop()
@@ -222,6 +222,7 @@ namespace avg {
     {
         m_TrackerConfig.m_ROI.br.x = Right;
         setConfig();
+        setBitmaps();
     }
 
     int TrackerEventSource::getRight()
@@ -233,6 +234,7 @@ namespace avg {
     {
         m_TrackerConfig.m_ROI.br.y = Bottom;
         setConfig();
+        setBitmaps();
     }
 
     int TrackerEventSource::getBottom()
@@ -354,6 +356,19 @@ namespace avg {
     {
         m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
                 &TrackerThread::setConfig, _1, m_TrackerConfig)));
+    }
+
+    void TrackerEventSource::setBitmaps()
+    {
+        IntPoint ImgDimensions(m_TrackerConfig.m_ROI.br - m_TrackerConfig.m_ROI.tl);
+        for (int i=1; i<NUM_TRACKER_IMAGES-1; i++) {
+            m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgDimensions, I8));
+        }
+        m_pBitmaps[TRACKER_IMG_FINGERS] = BitmapPtr(new Bitmap(ImgDimensions, R8G8B8X8));
+        if (m_pCmdQueue) {
+            m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
+                    &TrackerThread::setBitmaps, _1, m_pBitmaps)));
+        }
     }
 
     Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const
