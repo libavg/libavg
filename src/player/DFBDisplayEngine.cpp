@@ -708,7 +708,7 @@ Event * DFBDisplayEngine::createEvent(DFBWindowEvent* pdfbwEvent)
                     (pdfbwEvent->buttons & DIBM_LEFT)!=0, 
                     (pdfbwEvent->buttons & DIBM_MIDDLE)!=0,
                     (pdfbwEvent->buttons & DIBM_RIGHT)!=0,
-                    pdfbwEvent->cx, pdfbwEvent->cy, Button);
+                    IntPoint(pdfbwEvent->cx, pdfbwEvent->cy), Button);
             break;
         default:
             break;
