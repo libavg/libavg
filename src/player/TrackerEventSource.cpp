@@ -384,7 +384,7 @@ namespace avg {
         m_pBitmaps[TRACKER_IMG_FINGERS] = BitmapPtr(new Bitmap(ImgDimensions, R8G8B8X8));
         if (m_pCmdQueue) {
             m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
-                    &TrackerThread::setBitmaps, _1, m_pBitmaps)));
+                    &TrackerThread::setBitmaps, _1, m_TrackerConfig.m_ROI, m_pBitmaps)));
         }
         m_Offset = DPoint(m_TargetRect.tl.x, m_TargetRect.br.y);
         m_Scale.x = m_TargetRect.Width()/ImgDimensions.x;

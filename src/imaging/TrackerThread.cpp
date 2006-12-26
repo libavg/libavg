@@ -60,8 +60,8 @@ TrackerThread::TrackerThread(CameraPtr pCamera,
       m_pTarget(target),
       m_bDebugEnabled(false)
 {
-    setBitmaps(ppBitmaps);
-    m_ROI = IntRect(IntPoint(0,0), m_pBitmaps[0]->getSize());
+    m_ROI = IntRect(IntPoint(0,0), ppBitmaps[0]->getSize());
+    setBitmaps(m_ROI, ppBitmaps);
     if (bSubtractHistory) {
         m_pHistoryPreProcessor = HistoryPreProcessorPtr(
                 new HistoryPreProcessor(m_pBitmaps[0]->getSize(), 1));
@@ -159,13 +159,6 @@ void TrackerThread::setConfig(TrackerConfig Config)
     }
     m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(),
             Config.m_K1, Config.m_T));
-    if (m_ROI != Config.m_ROI) {
-        m_ROI = Config.m_ROI;
-        if (m_pHistoryPreProcessor) {
-            m_pHistoryPreProcessor = HistoryPreProcessorPtr(
-                    new HistoryPreProcessor(IntPoint(m_ROI.Width(), m_ROI.Height()), 1));
-        }
-    }
         
     m_pCamera->setFeature("brightness", Config.m_Brightness);
     m_pCamera->setFeature("gamma", Config.m_Gamma);
@@ -175,10 +168,15 @@ void TrackerThread::setConfig(TrackerConfig Config)
     m_bDebugEnabled = Config.m_bDebug;
 }
 
-void TrackerThread::setBitmaps(BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES])
+void TrackerThread::setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES])
 {
     for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
         m_pBitmaps[i] = ppBitmaps[i];
+    }
+    m_ROI = ROI;
+    if (m_pHistoryPreProcessor) {
+        m_pHistoryPreProcessor = HistoryPreProcessorPtr(
+                new HistoryPreProcessor(IntPoint(m_ROI.Width(), m_ROI.Height()), 1));
     }
 }
 
