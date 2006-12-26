@@ -396,7 +396,7 @@ void Player::setEventCapture(NodeWeakPtr pNode, int cursorID) {
 
 void Player::releaseEventCapture(NodeWeakPtr pNode, int cursorID) {
     std::map<int, NodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
-    ifi(it==m_pEventCaptureNode.end()||(it->second.expired()) ) {
+    if(it==m_pEventCaptureNode.end()||(it->second.expired()) ) {
         if(cursorID==MOUSECURSORID)
             throw Exception(AVG_ERR_INVALID_CAPTURE,
                 "releaseEventCapture called, but mouse not captured.");
@@ -843,9 +843,9 @@ bool Player::handleEvent(Event * pEvent)
             pNode->handleEvent(pCursorEvent);
         }
         //touch ids are transient, need to keep map clean of expired events
-        if(pCursorEvent->getType() == "TOUCHUP") {
-            m_pLastMouseNode.erase(pCursorEvent->getCursorId());
-            m_pEventCaptureNode.erase(pCursorEvent->getCursorId());
+        if(pCursorEvent->getType() == Event::TOUCHUP) {
+            m_pLastMouseNode.erase(pCursorEvent->getCursorID());
+            m_pEventCaptureNode.erase(pCursorEvent->getCursorID());
         }
 
     } else if ( KeyEvent * pKeyEvent = dynamic_cast<KeyEvent*>(pEvent)){

@@ -49,10 +49,10 @@ public:
     void runTests() 
     {
         std::vector<std::string> p = std::vector<std::string>();
-        p.push_back("../imaging/testimages/big0.png");
-        for (int i=2; i<7; ++i) {
+        //p.push_back("../imaging/testimages/Big0.png");
+        for (int i=0; i<3; ++i) {
             stringstream s;
-            s << "../imaging/img" << i << ".png";
+            s << "../imaging/testimages/Big" << i << ".png";
             p.push_back(s.str());
         }
         CameraPtr pCam = CameraPtr(new FakeCamera(p));
