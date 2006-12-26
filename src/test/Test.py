@@ -315,7 +315,7 @@ class PlayerTestCase(AVGTestCase):
             Helper = Player.getTestHelper()
             captureMouseDownCalled = False
             mainCaptureMouseDownCalled = False
-            Player.getElementByID("img1").setEventCapture(-1)
+            Player.getElementByID("img1").setEventCapture()
             Helper.fakeMouseEvent(avg.MOUSEBUTTONDOWN, True, False, False,
                     100, 10, 1)
         def noCaptureEvent():
@@ -323,7 +323,7 @@ class PlayerTestCase(AVGTestCase):
             Helper = Player.getTestHelper()
             captureMouseDownCalled = False
             mainCaptureMouseDownCalled = False
-            Player.getElementByID("img1").releaseEventCapture(-1)
+            Player.getElementByID("img1").releaseEventCapture()
             Helper.fakeMouseEvent(avg.MOUSEBUTTONDOWN, True, False, False,
                     100, 10, 1)
         global captureMouseDownCalled

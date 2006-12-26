@@ -61,14 +61,18 @@ void export_node()
                 "getParent() -> Node\n\n"
                 "Returns the container (AVGNode or DivNode) the node is in. For\n"
                 "the root node, returns None.\n")
+        .def("setEventCapture", &Node::setMouseEventCapture,
+                "setEventCapture() -> None\n\n")
         .def("setEventCapture", &Node::setEventCapture,
-                "setEventCapture() -> None\n\n"
+                "setEventCapture(CursorID) -> None\n\n"
                 "Sets up event capturing so that all mouse events are sent to this node\n"
                 "regardless of the mouse cursor position. If the node doesn't handle the\n"
                 "event, it propagates to its parent normally. Useful for the\n"
                 "implementation of user interface elements such as scroll bars. Only one\n"
                 "node can capture the mouse at any one time. Normal mouse operation can\n"
                 "be restored by calling releaseEventCapture().\n")
+        .def("releaseEventCapture", &Node::releaseMouseEventCapture,
+                "releaseEventCapture() -> None\n\n")
         .def("releaseEventCapture", &Node::releaseEventCapture,
                 "releaseEventCapture() -> None\n\n"
                 "Restores normal nouse operation after a call to setEventCapture()\n")

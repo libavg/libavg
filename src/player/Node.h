@@ -94,8 +94,10 @@ class Node
         double getRelXPos(double x);
         double getRelYPos(double y);
 
-        void setEventCapture(int cursorID=MOUSECURSORID);
-        void releaseEventCapture(int cursorID=MOUSECURSORID);
+        void setMouseEventCapture();
+        void releaseMouseEventCapture();
+        void setEventCapture(int cursorID);
+        void releaseEventCapture(int cursorID);
 
         bool isActive();
         bool reactsToMouseEvents();

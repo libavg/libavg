@@ -244,6 +244,16 @@ double Node::getRelYPos(double y)
     return y-VP.tl.y;
 }
 
+void Node::setMouseEventCapture()
+{
+    setEventCapture(MOUSECURSORID);
+}
+
+void Node::releaseMouseEventCapture()
+{
+    releaseEventCapture(MOUSECURSORID);
+}
+
 void Node::setEventCapture(int cursorID) {
     m_pPlayer->setEventCapture(m_This, cursorID);
 }
