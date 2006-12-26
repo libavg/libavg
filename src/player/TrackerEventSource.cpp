@@ -168,10 +168,9 @@ namespace avg {
     };
 
 
-    TrackerEventSource::TrackerEventSource(CameraPtr pCamera, DRect TargetRect, 
+    TrackerEventSource::TrackerEventSource(CameraPtr pCamera, 
             bool bSubtractHistory)
-        : m_TrackerConfig(),
-          m_TargetRect(TargetRect)
+        : m_TrackerConfig()
     {
         AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
         IntPoint ImgDimensions = pCamera->getImgSize();
@@ -211,50 +210,50 @@ namespace avg {
         return m_TrackerConfig.m_T;
     }
 
-    void TrackerEventSource::setLeft(int Left)
+    void TrackerEventSource::setROILeft(int Left)
     {
         m_TrackerConfig.m_ROI.tl.x = Left;
         setConfig();
         handleROIChange();
     }
 
-    int TrackerEventSource::getLeft()
+    int TrackerEventSource::getROILeft()
     {
         return m_TrackerConfig.m_ROI.tl.x;
     }
 
-    void TrackerEventSource::setTop(int Top)
+    void TrackerEventSource::setROITop(int Top)
     {
         m_TrackerConfig.m_ROI.tl.y = Top;
         setConfig();
         handleROIChange();
     }
 
-    int TrackerEventSource::getTop()
+    int TrackerEventSource::getROITop()
     {
         return m_TrackerConfig.m_ROI.tl.y;
     }
 
-    void TrackerEventSource::setRight(int Right)
+    void TrackerEventSource::setROIRight(int Right)
     {
         m_TrackerConfig.m_ROI.br.x = Right;
         setConfig();
         handleROIChange();
     }
 
-    int TrackerEventSource::getRight()
+    int TrackerEventSource::getROIRight()
     {
         return m_TrackerConfig.m_ROI.br.x;
     }
 
-    void TrackerEventSource::setBottom(int Bottom)
+    void TrackerEventSource::setROIBottom(int Bottom)
     {
         m_TrackerConfig.m_ROI.br.y = Bottom;
         setConfig();
         handleROIChange();
     }
 
-    int TrackerEventSource::getBottom()
+    int TrackerEventSource::getROIBottom()
     {
         return m_TrackerConfig.m_ROI.br.y;
     }
@@ -386,9 +385,10 @@ namespace avg {
             m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
                     &TrackerThread::setBitmaps, _1, m_TrackerConfig.m_ROI, m_pBitmaps)));
         }
-        m_Offset = DPoint(m_TargetRect.tl.x, m_TargetRect.Height()-m_TargetRect.tl.y);
-        m_Scale.x = m_TargetRect.Width()/ImgDimensions.x;
-        m_Scale.y = -m_TargetRect.Height()/ImgDimensions.y;
+        IntRect Dest = m_TrackerConfig.m_DestRect;
+        m_Offset = DPoint(Dest.tl.x, Dest.Height()-Dest.tl.y);
+        m_Scale.x = Dest.Width()/ImgDimensions.x;
+        m_Scale.y = -Dest.Height()/ImgDimensions.y;
     }
 
     Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const

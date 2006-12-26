@@ -66,7 +66,7 @@ public:
         }
         MutexPtr pMutex(new boost::mutex);
 
-        TrackerEventSourcePtr pTracker = TrackerEventSourcePtr(new TrackerEventSource(pCam, DRect(0,0,1,1), false));
+        TrackerEventSourcePtr pTracker = TrackerEventSourcePtr(new TrackerEventSource(pCam, false));
         
 
         while(1){

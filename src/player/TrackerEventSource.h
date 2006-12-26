@@ -45,7 +45,7 @@ typedef std::map<BlobPtr, EventStreamPtr> EventMap;
 class TrackerEventSource: public IBlobTarget, public IEventSource
 {
     public:
-        TrackerEventSource(CameraPtr pCamera, DRect TargetRect, 
+        TrackerEventSource(CameraPtr pCamera, 
                 bool bSubtractHistory = true);
         virtual ~TrackerEventSource();
 
@@ -53,14 +53,14 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         double getBarrel();
         void setTrapezoid(double Trapezoid);
         double getTrapezoid();
-        void setLeft(int Left);
-        int getLeft();
-        void setTop(int Top);
-        int getTop();
-        void setRight(int Right);
-        int getRight();
-        void setBottom(int Bottom);
-        int getBottom();
+        void setROILeft(int Left);
+        int getROILeft();
+        void setROITop(int Top);
+        int getROITop();
+        void setROIRight(int Right);
+        int getROIRight();
+        void setROIBottom(int Bottom);
+        int getROIBottom();
 
         void setThreshold(int Threshold);
         int getThreshold();
@@ -95,7 +95,6 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         void handleROIChange();
 
         TrackerConfig m_TrackerConfig;
-        DRect m_TargetRect;
         EventMap m_Events;
         MutexPtr m_pTrackerMutex;
         MutexPtr m_pUpdateMutex;

@@ -16,6 +16,7 @@ struct TrackerConfig{
     IntRect m_ROI;//after applying de-distortion, take this as the table surface
     double m_K1; //amount of barrel/pincushion distortion to correct
     double m_T; //amount of trapezoid distortion to correct
+    IntRect m_DestRect; // Transform all blobs to be in this rect at the end
     
     // Camera params
     int m_Brightness;

@@ -144,14 +144,16 @@ void export_event()
             &TrackerEventSource::setBarrel)
         .add_property("trapezoid", &TrackerEventSource::getTrapezoid,
             &TrackerEventSource::setTrapezoid)
-        .add_property("left", &TrackerEventSource::getLeft,
-            &TrackerEventSource::setLeft)
-        .add_property("top", &TrackerEventSource::getTop,
-            &TrackerEventSource::setTop)
-        .add_property("right", &TrackerEventSource::getRight,
-            &TrackerEventSource::setRight)
-        .add_property("bottom", &TrackerEventSource::getBottom,
-            &TrackerEventSource::setBottom)
+
+        .add_property("roileft", &TrackerEventSource::getROILeft,
+            &TrackerEventSource::setROILeft)
+        .add_property("roitop", &TrackerEventSource::getROITop,
+            &TrackerEventSource::setROITop)
+        .add_property("roiright", &TrackerEventSource::getROIRight,
+            &TrackerEventSource::setROIRight)
+        .add_property("roibottom", &TrackerEventSource::getROIBottom,
+            &TrackerEventSource::setROIBottom)
+        
         .add_property("threshold", &TrackerEventSource::getThreshold,
             &TrackerEventSource::setThreshold)
         .add_property("historyspeed", &TrackerEventSource::getHistorySpeed,
