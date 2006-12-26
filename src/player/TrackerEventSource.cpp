@@ -386,7 +386,7 @@ namespace avg {
             m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
                     &TrackerThread::setBitmaps, _1, m_TrackerConfig.m_ROI, m_pBitmaps)));
         }
-        m_Offset = DPoint(0, m_TargetRect.Height());
+        m_Offset = DPoint(m_TargetRect.tl.x, m_TargetRect.Height()-m_TargetRect.tl.y);
         m_Scale.x = m_TargetRect.Width()/ImgDimensions.x;
         m_Scale.y = -m_TargetRect.Height()/ImgDimensions.y;
     }
