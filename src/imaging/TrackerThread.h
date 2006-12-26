@@ -53,7 +53,7 @@ typedef boost::shared_ptr<boost::mutex> MutexPtr;
 class IBlobTarget {
     public:
         virtual ~IBlobTarget() {};
-        virtual void update(BlobListPtr blobs, bool bRenderBlobs) = 0;
+        virtual void update(BlobListPtr blobs, BitmapPtr pBitmap) = 0;
 };
 
 

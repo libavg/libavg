@@ -12,6 +12,7 @@ class HistoryPreProcessor: public Filter{
         virtual ~HistoryPreProcessor();
         virtual void applyInPlace(BitmapPtr pBmp);
         void setInterval(unsigned int UpdateInterval);
+        unsigned int getInterval(); 
         void reset();
 
     private:

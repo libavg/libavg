@@ -69,7 +69,7 @@ public:
         Thread.join();
     }
     
-    virtual void update(BlobListPtr pBlobs, bool) {
+    virtual void update(BlobListPtr pBlobs, BitmapPtr) {
         static int BmpIndex = 0;
         switch(BmpIndex) {
             case 0:

@@ -139,7 +139,7 @@ bool TrackerThread::work()
         {
             boost::mutex::scoped_lock Lock(*m_pMutex);
             ScopeTimer Timer(ProfilingZoneUpdate);
-            m_pTarget->update(comps, m_bDebugEnabled);
+            m_pTarget->update(comps, m_pBitmaps[TRACKER_IMG_FINGERS]);
         }
     }
     Profiler::get().reset("Tracker");
@@ -176,7 +176,8 @@ void TrackerThread::setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAG
     m_ROI = ROI;
     if (m_pHistoryPreProcessor) {
         m_pHistoryPreProcessor = HistoryPreProcessorPtr(
-                new HistoryPreProcessor(IntPoint(m_ROI.Width(), m_ROI.Height()), 1));
+                new HistoryPreProcessor(IntPoint(m_ROI.Width(), m_ROI.Height()), 
+                        m_pHistoryPreProcessor->getInterval()));
     }
 }
 

@@ -86,7 +86,7 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         std::vector<Event *> pollEvents();//main thread
 
         /*implement IBlobTarget*/
-        virtual void update(BlobListPtr new_blobs, bool bRenderBlobs);//tracker thread
+        virtual void update(BlobListPtr new_blobs, BitmapPtr pBitmap);//tracker thread
 
     private:
         bool isfinger(BlobPtr blob);

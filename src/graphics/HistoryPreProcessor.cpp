@@ -28,6 +28,11 @@ void HistoryPreProcessor::setInterval(unsigned int UpdateInterval)
     m_UpdateInterval = UpdateInterval;
 }
 
+unsigned int HistoryPreProcessor::getInterval()
+{
+    return m_UpdateInterval;
+}
+
 void HistoryPreProcessor::reset()
 {
     m_HistoryInitialized = 256/FAST_HISTORY_SPEED;

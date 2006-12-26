@@ -445,13 +445,13 @@ double distance(BlobPtr p1, BlobPtr p2) {
 #undef IN
     }
 
-    void TrackerEventSource::update(BlobListPtr new_blobs, bool bRenderBlobs){
+    void TrackerEventSource::update(BlobListPtr new_blobs, BitmapPtr pBitmap){
         boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
         BlobListPtr old_blobs = BlobListPtr(new BlobList());
         EventStreamPtr e;
-        if (bRenderBlobs) {
+        if (pBitmap) {
             FilterFill<Pixel32>(Pixel32(0x00, 0x00, 0x00, 0xFF)).applyInPlace(
-                    m_pBitmaps[TRACKER_IMG_FINGERS]);
+                pBitmap);
         }
         for(EventMap::iterator it=m_Events.begin();it!=m_Events.end();++it){
             (*it).second->m_Stale = true;
@@ -460,15 +460,15 @@ double distance(BlobPtr p1, BlobPtr p2) {
         int known_counter=0, new_counter=0, ignored_counter=0; 
         for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2){
             if (!isfinger(*it2)){
-                if (bRenderBlobs) {
-                    (*it2)->render(&*m_pBitmaps[TRACKER_IMG_FINGERS], 
+                if (pBitmap) {
+                    (*it2)->render(&*pBitmap, 
                             Pixel32(0xFF, 0x00, 0x00, 0xFF), false);
                 }
                 ignored_counter++;
                 continue;
             }else {
-                if (bRenderBlobs) {
-                    (*it2)->render(&*m_pBitmaps[TRACKER_IMG_FINGERS], 
+                if (pBitmap) {
+                    (*it2)->render(&*pBitmap, 
                             Pixel32(0xFF, 0xFF, 0xFF, 0xFF), true, 
                             Pixel32(0x00, 0x00, 0xFF, 0xFF)); 
                 }
