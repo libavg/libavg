@@ -44,7 +44,6 @@
 namespace avg {
 
 class Event;
-class MouseEvent;
 class DisplayEngine;
 class TrackerEventSource;
 

@@ -24,6 +24,7 @@
 
 #include "Region.h"
 #include "Event.h"
+#include "CursorEvent.h"
 #include "ISurface.h"
 #include "../graphics/Point.h"
 #include "../graphics/Rect.h"
@@ -93,8 +94,8 @@ class Node
         double getRelXPos(double x);
         double getRelYPos(double y);
 
-        void setEventCapture();
-        void releaseEventCapture();
+        void setEventCapture(int cursorID=MOUSECURSORID);
+        void releaseEventCapture(int cursorID=MOUSECURSORID);
 
         bool isActive();
         bool reactsToMouseEvents();

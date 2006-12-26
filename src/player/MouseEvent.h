@@ -28,8 +28,6 @@
 
 namespace avg {
 
-const int MOUSECURSORID=-1;
-
 //REFACTORME: turn Event->{MouseEvent,KeyEvent} into Event->{CursorEvent->{MouseEvent, TouchEvent},KeyEvent}
 //
 //CursorEvents have a position and can be captured, 

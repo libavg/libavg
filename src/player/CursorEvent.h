@@ -2,9 +2,10 @@
 #define _CursorEvent_h_
 
 #include "Event.h"
-#include "Node.h"
 
 #include "../graphics/Point.h"
+
+const int MOUSECURSORID=-1;
 
 namespace avg{
 class CursorEvent: public Event {
