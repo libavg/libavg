@@ -60,11 +60,11 @@ TrackerThread::TrackerThread(CameraPtr pCamera,
       m_pTarget(target),
       m_bDebugEnabled(false)
 {
-    m_ROI = IntRect(IntPoint(0,0), ppBitmaps[0]->getSize());
+    m_ROI = IntRect(IntPoint(0,0), ppBitmaps[1]->getSize());
     setBitmaps(m_ROI, ppBitmaps);
     if (bSubtractHistory) {
         m_pHistoryPreProcessor = HistoryPreProcessorPtr(
-                new HistoryPreProcessor(m_pBitmaps[0]->getSize(), 1));
+                new HistoryPreProcessor(m_pBitmaps[1]->getSize(), 1));
     }
 
     m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), 0.0, 0));
