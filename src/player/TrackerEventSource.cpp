@@ -176,6 +176,7 @@ namespace avg {
         IntPoint ImgDimensions = pCamera->getImgSize();
 
         m_pBitmaps[0] = BitmapPtr(new Bitmap(pCamera->getImgSize(), I8));
+        // TODO: Clean this ROI handling mess up.
         handleROIChange();
         m_pUpdateMutex = MutexPtr(new boost::mutex);
         m_pTrackerMutex = MutexPtr(new boost::mutex);
@@ -190,6 +191,7 @@ namespace avg {
                     )
                 );
         setConfig();
+        handleROIChange();
     }
 
     TrackerEventSource::~TrackerEventSource()
