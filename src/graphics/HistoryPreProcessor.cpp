@@ -13,10 +13,10 @@ namespace avg {
     
 HistoryPreProcessor::HistoryPreProcessor(IntPoint dimensions, unsigned int UpdateInterval)
     : m_FrameCounter(0),
-      m_UpdateInterval(UpdateInterval),
-      m_HistoryInitialized(1)
+      m_UpdateInterval(UpdateInterval)
 {
     m_pHistoryBmp = BitmapPtr(new Bitmap(dimensions, I16));
+    reset();
 }
 
 HistoryPreProcessor::~HistoryPreProcessor()
@@ -73,7 +73,8 @@ void HistoryPreProcessor::updateHistory(BitmapPtr new_img)
                 unsigned short * pDestPixel = pDest;
                 for (int x=0; x<Size.x; x++) {
                     int t = (FAST_HISTORY_SPEED-1)*int(*pDestPixel);
-                    *pDestPixel = (t)/FAST_HISTORY_SPEED + int(*pSrcPixel)*(256/FAST_HISTORY_SPEED);
+                    *pDestPixel = (t)/FAST_HISTORY_SPEED + int(*pSrcPixel)*
+                            (256/FAST_HISTORY_SPEED);
                     pDestPixel++;
                     pSrcPixel++;
                 }
