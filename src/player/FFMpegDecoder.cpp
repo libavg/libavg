@@ -100,7 +100,6 @@ void FFMpegDecoder::open (const std::string& sFilename,
 
     AVG_TRACE(Logger::PROFILE, "Opening " << sFilename);
     memset(&params, 0, sizeof(params));
-    params.image_format = 0;
 
     err = av_open_input_file(&m_pFormatContext, sFilename.c_str(), 
             0, 0, &params);
