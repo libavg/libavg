@@ -24,6 +24,7 @@
 
 #include "Filter.h"
 
+#include "Pixel8.h"
 #include "Pixel24.h"
 #include "Pixel32.h"
 
@@ -37,7 +38,7 @@ class Filter3x3 : public Filter
 public:
     Filter3x3(double Mat[3][3]);
     virtual ~Filter3x3();
-    virtual BitmapPtr apply(BitmapPtr pBmpSource) const;
+    virtual BitmapPtr apply(BitmapPtr pBmpSource);
 
 private:
     template<class Pixel>
@@ -66,7 +67,7 @@ void Filter3x3::convolveLine(const unsigned char * pSrc, unsigned char * pDest,
                 NewB += SrcPixel.getB()*m_Mat[i][j];
             }
         }
-        *pDestPixel = Pixel24((unsigned char)NewR, (unsigned char)NewG, 
+        *pDestPixel = Pixel((unsigned char)NewR, (unsigned char)NewG, 
                 (unsigned char)NewB);
         
         pSrcPixel++;

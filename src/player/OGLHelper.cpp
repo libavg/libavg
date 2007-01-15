@@ -35,7 +35,6 @@
 #undef WARNING
 #endif
 #include <SDL/SDL.h>
-
 #include <iostream>
 #include <sstream>
 
@@ -161,18 +160,17 @@ GLfunction getFuzzyProcAddress(const char * psz)
     }
     return pProc;
 }
-
 #ifdef linux
 GLfunction getglXProcAddress(const char * psz)
 {
-    GLfunction pProc = (GLfunction)glXGetProcAddressARB((const GLubyte *)psz);
+    GLfunction pProc = (GLfunction)glXGetProcAddress((const GLubyte *)psz);
+    //GLfunction pProc = (GLfunction)glXGetProcAddressARB((const GLubyte *)psz);
     if (!pProc) {
         pProc = invalidGLCall;
     }
     return pProc;
 }
 #endif
-
 namespace glproc {
 
     void init() {

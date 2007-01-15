@@ -52,11 +52,7 @@ Node::Node ()
       m_pEngine(0),
       m_pPlayer(0),
       m_ID(""),
-      m_MouseMoveHandler(""),
-      m_MouseButtonUpHandler(""),
-      m_MouseButtonDownHandler(""),
-      m_MouseOverHandler(""),
-      m_MouseOutHandler(""),
+      m_EventHandlerMap(),
       m_RelViewport(0,0,0,0),
       m_AbsViewport(0,0,0,0),
       m_Opacity(1.0),
@@ -76,11 +72,14 @@ Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
       m_AbsViewport(0,0,0,0)
 {
     m_ID = getDefaultedStringAttr (xmlNode, "id", "");
-    m_MouseMoveHandler = getDefaultedStringAttr (xmlNode, "onmousemove", "");
-    m_MouseButtonUpHandler = getDefaultedStringAttr (xmlNode, "onmouseup", "");
-    m_MouseButtonDownHandler = getDefaultedStringAttr (xmlNode, "onmousedown", "");
-    m_MouseOverHandler = getDefaultedStringAttr (xmlNode, "onmouseover", "");
-    m_MouseOutHandler = getDefaultedStringAttr (xmlNode, "onmouseout", "");
+    m_EventHandlerMap[Event::TOUCHMOTION] = getDefaultedStringAttr (xmlNode, "ontouchmove", "");
+    m_EventHandlerMap[Event::TOUCHUP] = getDefaultedStringAttr (xmlNode, "ontouchup", "");
+    m_EventHandlerMap[Event::TOUCHDOWN] = getDefaultedStringAttr (xmlNode, "ontouchdown", "");
+    m_EventHandlerMap[Event::MOUSEMOTION] = getDefaultedStringAttr (xmlNode, "onmousemove", "");
+    m_EventHandlerMap[Event::MOUSEBUTTONUP] = getDefaultedStringAttr (xmlNode, "onmouseup", "");
+    m_EventHandlerMap[Event::MOUSEBUTTONDOWN] = getDefaultedStringAttr (xmlNode, "onmousedown", "");
+    m_EventHandlerMap[Event::CURSOROVER] = getDefaultedStringAttr (xmlNode, "onmouseover", "");
+    m_EventHandlerMap[Event::CURSOROUT] = getDefaultedStringAttr (xmlNode, "onmouseout", "");
     m_RelViewport.tl.x = getDefaultedDoubleAttr (xmlNode, "x", 0.0);
     m_RelViewport.tl.y = getDefaultedDoubleAttr (xmlNode, "y", 0.0);
     m_WantedSize.x = getDefaultedDoubleAttr (xmlNode, "width", 0.0);
@@ -245,12 +244,22 @@ double Node::getRelYPos(double y)
     return y-VP.tl.y;
 }
 
-void Node::setEventCapture() {
-    m_pPlayer->setEventCapture(m_This);
+void Node::setMouseEventCapture()
+{
+    setEventCapture(MOUSECURSORID);
 }
 
-void Node::releaseEventCapture() {
-    m_pPlayer->releaseEventCapture(m_This);
+void Node::releaseMouseEventCapture()
+{
+    releaseEventCapture(MOUSECURSORID);
+}
+
+void Node::setEventCapture(int cursorID) {
+    m_pPlayer->setEventCapture(m_This, cursorID);
+}
+
+void Node::releaseEventCapture(int cursorID) {
+    m_pPlayer->releaseEventCapture(m_This, cursorID);
 }
 
 bool Node::isActive()
@@ -458,38 +467,19 @@ string Node::getTypeStr () const
     return "Node";
 }
 
-void Node::handleMouseEvent (MouseEvent* pEvent)
+void Node::handleEvent (Event* pEvent)
 {
-    string Code;
-    int EventType = pEvent->getType();
-    switch (EventType) {
-        case Event::MOUSEMOTION:
-            Code = m_MouseMoveHandler;
-            break;
-        case Event::MOUSEBUTTONDOWN:
-            Code = m_MouseButtonDownHandler;
-            break;
-        case Event::MOUSEBUTTONUP:
-            Code = m_MouseButtonUpHandler;
-            break;
-        case Event::MOUSEOVER:
-            Code = m_MouseOverHandler;
-            break;
-        case Event::MOUSEOUT:
-            Code = m_MouseOutHandler;
-            break;
-         default:
-            break;
-    }
+    Event::Type EventType = pEvent->getType();
+    map<Event::Type, string>::iterator it = m_EventHandlerMap.find(EventType);
     if (getID() != "" && EventType != Event::MOUSEMOTION) {
         AVG_TRACE(Logger::EVENTS2, "Event handler: "+getID());
     }
-    if (!Code.empty()) {
+    if (it!=m_EventHandlerMap.end() && !(it->second.empty())) {
         pEvent->setElement(m_This.lock());
-        callPython(Code, *pEvent);
+        callPython(it->second, *pEvent);
     }
     if (getParent()) {
-        getParent()->handleMouseEvent (pEvent);
+        getParent()->handleEvent (pEvent);
     }
 }
 

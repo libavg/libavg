@@ -33,7 +33,7 @@ class FilterFlip: public Filter
 public:
   FilterFlip();
   virtual ~FilterFlip();
-  virtual BitmapPtr apply(BitmapPtr pBmpSource) const;
+  virtual BitmapPtr apply(BitmapPtr pBmpSource) ;
 };
 
 } // namespace

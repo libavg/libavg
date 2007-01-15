@@ -23,10 +23,13 @@
 #define _Event_H_
 
 #include <functional>
+#include <boost/shared_ptr.hpp>
 #undef _POSIX_C_SOURCE
 
 namespace avg {
 
+class Node;
+typedef boost::shared_ptr<class Node> NodePtr;
 class Event {
     public:
         enum Type {
@@ -35,8 +38,11 @@ class Event {
             MOUSEMOTION,
             MOUSEBUTTONUP,
             MOUSEBUTTONDOWN,
-            MOUSEOVER,  
-            MOUSEOUT,
+            CURSOROVER,  
+            CURSOROUT,
+            TOUCHDOWN,
+            TOUCHMOTION,
+            TOUCHUP,
             RESIZE,
             QUIT 
         };
@@ -48,12 +54,15 @@ class Event {
 
         int getWhen() const;
         Type getType() const;
+        NodePtr getElement() const;
+        void setElement(NodePtr pNode);
         
         friend struct isEventAfter;
-
-    private:
+    protected:
+        NodePtr m_pNode;
         int m_When;
         Type m_Type;
+    private:
         int m_Counter;
 
         static int s_CurCounter;

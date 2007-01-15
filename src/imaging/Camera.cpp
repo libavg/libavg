@@ -26,6 +26,8 @@
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 
+#include <boost/bind.hpp>
+
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
@@ -54,7 +56,8 @@ void Camera::open()
     m_pThread = new boost::thread(CameraThread(m_BitmapQ, m_CmdQ, m_sDevice, 
             getCamMode(m_sMode), m_FrameRate, m_bColor));
     for (FeatureMap::iterator it=m_Features.begin(); it != m_Features.end(); it++) {
-        m_CmdQ.push(CameraCmd(CameraCmd::FEATURE, it->first, it->second));
+        m_CmdQ.push(Command<CameraThread>(boost::bind(&CameraThread::setFeature, _1,
+            it->first, it->second)));
     }
 #endif
 }
@@ -63,7 +66,7 @@ void Camera::close()
 {
 #if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
     if (m_pThread) {
-        m_CmdQ.push(CameraCmd(CameraCmd::STOP));
+        m_CmdQ.push(Command<CameraThread>(boost::bind(&CameraThread::stop, _1)));
         m_pThread->join();
         delete m_pThread;
         m_pThread = 0;
@@ -96,7 +99,7 @@ BitmapPtr Camera::getImage(bool bWait)
 }
 
 
-bool Camera::isCameraAvailabe()
+bool Camera::isCameraAvailable()
 {
     return m_pThread;
 }
@@ -137,7 +140,8 @@ void Camera::setFeature (const std::string& sFeature, int Value)
     dc1394feature_t FeatureID = getFeatureID(sFeature);
     m_Features[FeatureID] = Value;
     if (m_pThread) {
-        m_CmdQ.push(CameraCmd(CameraCmd::FEATURE, FeatureID, Value));
+        m_CmdQ.push(Command<CameraThread>(boost::bind(&CameraThread::setFeature, _1,
+            FeatureID, Value)));
     }
 #endif
 }

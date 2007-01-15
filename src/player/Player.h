@@ -32,7 +32,6 @@
 #include "TestHelper.h"
 #include "Node.h"
 #include "DisplayParams.h"
-#include "TrackerEventSource.h"
 
 #include "../base/IFrameListener.h"
 
@@ -45,8 +44,8 @@
 namespace avg {
 
 class Event;
-class MouseEvent;
 class DisplayEngine;
+class TrackerEventSource;
 
 class Player : IEventSink
 {
@@ -78,8 +77,8 @@ class Player : IEventSink
         const MouseEvent& getMouseState() const;
         Bitmap * screenshot();
         void showCursor(bool bShow);
-        void setEventCapture(NodeWeakPtr pNode);
-        void releaseEventCapture(NodeWeakPtr pNode);
+        void setEventCapture(NodeWeakPtr pNode, int cursorID=MOUSECURSORID);
+        void releaseEventCapture(NodeWeakPtr pNode, int cursorID=MOUSECURSORID);
 
         NodePtr getElementByID(const std::string& id);
         void addNodeID(NodePtr pNode);
@@ -91,6 +90,7 @@ class Player : IEventSink
         void setGamma(double Red, double Green, double Blue);
         virtual bool handleEvent(Event * pEvent);
         DisplayEngine * getDisplayEngine() const;
+        void useFakeCamera(bool bFake);
 
         void registerFrameListener(IFrameListener* pListener);
         void unregisterFrameListener(IFrameListener* pListener);
@@ -105,7 +105,7 @@ class Player : IEventSink
                 const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);
 
         void render (bool bRenderEverything);
-        void sendMouseOver(MouseEvent * pOtherEvent, Event::Type Type, 
+        void sendOver(CursorEvent * pOtherEvent, Event::Type Type, 
                 NodePtr pNode);
         void cleanup();
 	
@@ -119,7 +119,7 @@ class Player : IEventSink
         typedef std::map<std::string, NodePtr> NodeIDMap;
         NodeIDMap m_IDMap;
 
-        TrackerEventSourcePtr m_pTracker;
+        TrackerEventSource * m_pTracker;
 
         int addTimeout(Timeout* pTimeout);
         void removeTimeout(Timeout* pTimeout);
@@ -133,8 +133,11 @@ class Player : IEventSink
         EventDispatcher m_EventDispatcher;
         DebugEventSink  m_EventDumper;
         Event * m_pCurEvent;
-        NodePtr m_pLastMouseNode;
-        NodeWeakPtr m_pEventCaptureNode;
+        std::map<int, NodePtr> m_pLastMouseNode;
+        //NodePtr m_pLastMouseNode;
+        //REFACTORME: turn into a map: CURSOR -> NodeWeakPtr, where CURSOR==MOUSECURSOR
+        //for mouse
+        std::map<int, NodeWeakPtr> m_pEventCaptureNode;
 
         // Configuration variables.
         std::string m_sDisplaySubsystem;
@@ -145,6 +148,7 @@ class Player : IEventSink
         bool m_bUseRGBOrder;
         bool m_bUsePixelBuffers;
         int m_MultiSampleSamples;
+        bool m_bUseFakeCamera;
 
         bool m_bIsPlaying;
 

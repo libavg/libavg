@@ -29,13 +29,12 @@
 #undef PACKAGE_TARNAME
 #undef PACKAGE_VERSION
 
-#include "CameraCmd.h"
-
 #include "../graphics/Rect.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel24.h"
 
 #include "../base/Queue.h"
+#include "../base/WorkerThread.h"
 
 #ifdef AVG_ENABLE_1394
 #include <libraw1394/raw1394.h>
@@ -44,35 +43,36 @@
 #ifdef AVG_ENABLE_1394_2
 #include <dc1394/control.h>
 #endif
+#ifndef AVG_ENABLE_1394_2
+typedef unsigned int dc1394feature_t;
+#endif
 
 #include <string>
 
 namespace avg {
 
 typedef Queue<BitmapPtr> BitmapQueue;
-typedef Queue<CameraCmd> CameraCmdQueue;
 
-class CameraThread {
+class CameraThread: public WorkerThread<CameraThread> {
 public:
 #ifdef AVG_ENABLE_1394
-    CameraThread::CameraThread(BitmapQueue& BitmapQ, CameraCmdQueue& CmdQ, 
+    CameraThread(BitmapQueue& BitmapQ, CmdQueue& CmdQ, 
             std::string sDevice, int Mode, double FrameRate, bool bColor);
 #else
-    CameraThread::CameraThread(BitmapQueue& BitmapQ, CameraCmdQueue& CmdQ, 
+    CameraThread(BitmapQueue& BitmapQ, CmdQueue& CmdQ, 
             std::string sDevice, dc1394video_mode_t Mode, double FrameRate, bool bColor);
 #endif
-    void operator()();
 
-private:
-    void open();
-    void close();
-    void captureImage();
-    void checkMessages();
+    bool init();
+    bool work();
+    void deinit();
+
     void setFeature(dc1394feature_t Feature, int Value);
 
-    bool m_bShouldStop;
+private:
+    void captureImage();
+
     BitmapQueue& m_BitmapQ;
-    CameraCmdQueue& m_CmdQ;
 
     std::string m_sDevice;
     double m_FrameRate;

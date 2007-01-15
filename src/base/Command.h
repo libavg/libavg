@@ -19,39 +19,36 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _CameraCmd_H_
-#define _CameraCmd_H_
+#ifndef _Command_H_
+#define _Command_H_
 
-#include "../avgconfig.h"
-#undef PACKAGE_BUGREPORT
-#undef PACKAGE_NAME
-#undef PACKAGE_STRING
-#undef PACKAGE_TARNAME
-#undef PACKAGE_VERSION
-
-#ifdef AVG_ENABLE_1394
-#include <libdc1394/dc1394_control.h>
-#endif
-#ifdef AVG_ENABLE_1394_2
-#include <dc1394/control.h>
-#endif
-
-
+#include <boost/function.hpp>
 
 namespace avg {
 
-#ifdef AVG_ENABLE_1394
-typedef int dc1394feature_t;
-#define DC1394_FEATURE_MIN -1
-#endif
+template<class RECEIVER>
+class Command {
+    typedef boost::function<void(RECEIVER*)> CmdFunc;
 
-struct CameraCmd {
-    typedef enum { STOP, FEATURE } CmdType;
-    CameraCmd(CmdType Cmd, dc1394feature_t Feature = DC1394_FEATURE_MIN, int Value = -1);
-    CmdType m_Cmd;
-    dc1394feature_t m_Feature;
-    int m_Value;
+public:
+    Command(CmdFunc Func);
+    void execute(RECEIVER* pTarget);
+
+private:
+    CmdFunc m_Func;
 };
+
+template<class RECEIVER>
+Command<RECEIVER>::Command(CmdFunc Func)
+    : m_Func(Func)
+{
+}
+
+template<class RECEIVER>
+void Command<RECEIVER>::execute(RECEIVER* pTarget)
+{
+    m_Func(pTarget);
+}
 
 }
 

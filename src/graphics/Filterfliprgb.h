@@ -32,7 +32,7 @@ class FilterFlipRGB : public Filter
 public:
   FilterFlipRGB();
   virtual ~FilterFlipRGB();
-  virtual void applyInPlace(BitmapPtr pBmp) const;
+  virtual void applyInPlace(BitmapPtr pBmp) ;
 
 private:
 };

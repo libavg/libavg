@@ -22,6 +22,8 @@
 #ifndef _Camera_H_
 #define _Camera_H_
 
+#include "ICamera.h"
+
 #include "../avgconfig.h"
 #undef PACKAGE_BUGREPORT
 #undef PACKAGE_NAME
@@ -43,9 +45,13 @@
 #include <string>
 #include <map>
 
+#ifndef AVG_ENABLE_1394_2
+typedef unsigned int dc1394feature_t;
+#endif
+
 namespace avg {
 
-class Camera
+class Camera: public ICamera
 {
     public:
         Camera(std::string sDevice, double FrameRate, std::string sMode, 
@@ -56,7 +62,7 @@ class Camera
 
         IntPoint getImgSize();
         BitmapPtr getImage(bool bWait);
-        bool isCameraAvailabe();
+        bool isCameraAvailable();
 
         const std::string& getDevice() const; 
         double getFrameRate() const;
@@ -75,12 +81,10 @@ class Camera
         typedef std::map<dc1394feature_t, int> FeatureMap;
         FeatureMap m_Features;
         BitmapQueue m_BitmapQ;
-        CameraCmdQueue m_CmdQ;
+        CameraThread::CmdQueue m_CmdQ;
 #endif
         boost::thread* m_pThread;
 };
-
-typedef boost::shared_ptr<Camera> CameraPtr;
 
 }
 

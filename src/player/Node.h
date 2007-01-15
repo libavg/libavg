@@ -23,6 +23,8 @@
 #define _Node_H_
 
 #include "Region.h"
+#include "Event.h"
+#include "CursorEvent.h"
 #include "ISurface.h"
 #include "../graphics/Point.h"
 #include "../graphics/Rect.h"
@@ -34,17 +36,16 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 namespace avg {
 
 class Node;
 class DivNode;
 class AVGNode;
-class Event;
 class Region;
 class DisplayEngine;
 class Player;
-class MouseEvent;
 class OGLSurface;
 
 typedef boost::shared_ptr<Node> NodePtr;
@@ -93,8 +94,10 @@ class Node
         double getRelXPos(double x);
         double getRelYPos(double y);
 
-        void setEventCapture();
-        void releaseEventCapture();
+        void setMouseEventCapture();
+        void releaseMouseEventCapture();
+        void setEventCapture(int cursorID);
+        void releaseEventCapture(int cursorID);
 
         bool isActive();
         bool reactsToMouseEvents();
@@ -115,7 +118,7 @@ class Node
         virtual std::string dump (int indent = 0);
         virtual std::string getTypeStr () const;
         
-        virtual void handleMouseEvent (MouseEvent* pEvent); 
+        virtual void handleEvent (Event* pEvent); 
         virtual void invalidate();
         NodeState getState() const;
         bool isDisplayAvailable() const;
@@ -147,11 +150,7 @@ class Node
         Player * m_pPlayer;
 
         std::string m_ID;
-        std::string m_MouseMoveHandler;
-        std::string m_MouseButtonUpHandler;
-        std::string m_MouseButtonDownHandler;
-        std::string m_MouseOverHandler;
-        std::string m_MouseOutHandler;
+        std::map<Event::Type, std::string> m_EventHandlerMap;
 
         DRect m_RelViewport;      // In coordinates relative to the parent.
         DRect m_AbsViewport;      // In window coordinates.

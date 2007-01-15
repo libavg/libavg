@@ -48,6 +48,7 @@ public:
   Point<NUM> operator + (const Point<NUM> & pt) const;
   Point<NUM> operator - (const Point<NUM> & pt) const;
   Point<NUM> operator / (double f) const;
+  Point<NUM> operator * (double f) const;
 
 };
 
@@ -143,6 +144,12 @@ template<class NUM>
 Point<NUM> Point<NUM>::operator / (double f) const
 {
   return Point<NUM> (NUM(x/f), NUM(y/f));
+}
+
+template<class NUM>
+Point<NUM> Point<NUM>::operator * (double f) const
+{
+  return Point<NUM> (NUM(x*f), NUM(y*f));
 }
 
 }

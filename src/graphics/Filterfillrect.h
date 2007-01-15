@@ -24,11 +24,9 @@
 #define _Filterfillrect_H_
 
 #include "Filter.h"
+#include "Rect.h"
 
 namespace avg {
-
-#include "Filter.h"
-#include "Rect.h"
 
 // Filter that fills a rectangle in a Bitmap with a color. 
 template<class PixelC> 
@@ -37,7 +35,7 @@ template<class PixelC>
 public:
     FilterFillRect (IntRect Rect, const PixelC& Color);
     virtual ~FilterFillRect();
-    virtual void applyInPlace(BitmapPtr pBmp) const;
+    virtual void applyInPlace(BitmapPtr pBmp) ;
 
 private:
     PixelC m_Color;
@@ -57,13 +55,18 @@ FilterFillRect<PixelC>::~FilterFillRect ()
 }
 
 template<class PixelC>
-void FilterFillRect<PixelC>::applyInPlace (BitmapPtr pBmp) const
+void FilterFillRect<PixelC>::applyInPlace (BitmapPtr pBmp)
 {
+    int Stride = pBmp->getStride()/pBmp->getBytesPerPixel();
+    PixelC * pLine = (PixelC*)(pBmp->getPixels())+(m_Rect.tl.y*Stride);
+    PixelC * pPixel;
     for (int y=m_Rect.tl.y; y<m_Rect.br.y; ++y) {
-        PixelC * pLine = (PixelC*)(pBmp->getPixels()+y*pBmp->getStride());
+        pPixel = pLine+m_Rect.tl.x;
         for (int x=m_Rect.tl.x; x<m_Rect.br.x; ++x) {
-            pLine[x] = m_Color;
+            *pPixel = m_Color;
+            pPixel++;
         }
+        pLine += Stride;
     }
 }
 

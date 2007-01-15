@@ -48,6 +48,9 @@ bool getDefaultedBoolAttr (const xmlNodePtr& xmlNode,
 int getDefaultedIntAttr (const xmlNodePtr& xmlNode,
         const char * attr, int def);
 
+int getRequiredIntAttr (const xmlNodePtr& xmlNode,
+       const char * attr);
+
 double getDefaultedDoubleAttr (const xmlNodePtr& xmlNode,
        const char * attr, double def);
 

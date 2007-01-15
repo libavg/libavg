@@ -3,7 +3,7 @@ INCLUDES = -I.. @XML2_CFLAGS@ @PTHREAD_CFLAGS@
 ALL_H = FileHelper.h CmdLine.h Exception.h Logger.h ConfigMgr.h \
         XMLHelper.h TimeSource.h ProfilingZone.h Profiler.h \
         ScopeTimer.h IFrameListener.h Test.h TestSuite.h  \
-        Queue.h
+        Queue.h WorkerThread.h Command.h
 		
 TESTS=testbase
 

@@ -113,12 +113,20 @@ void Image::setBitmap(const Bitmap * pBmp)
     if (pBmp->hasAlpha()) {
         pf = R8G8B8A8;
     }
+    if (pBmp->getPixelFormat() == I8) {
+        pf = I8;
+    }
 #ifdef __i386__
     if (!(getPlayer()->getDisplayEngine()->hasRGBOrdering())) {
-        if (pf == R8G8B8X8) {
-            pf = B8G8R8X8;
-        } else {
-            pf = B8G8R8A8;
+        switch (pf) {
+            case R8G8B8X8:
+                pf = B8G8R8X8;
+                break;
+            case R8G8B8A8:
+                pf = B8G8R8A8;
+                break;
+            default:
+                break;
         }
     }
 #endif

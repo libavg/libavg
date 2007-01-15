@@ -31,7 +31,7 @@ FilterFlip::~FilterFlip()
 {
 }
 
-BitmapPtr FilterFlip::apply(BitmapPtr pBmpSource) const
+BitmapPtr FilterFlip::apply(BitmapPtr pBmpSource) 
 {
     IntPoint Size = pBmpSource->getSize();
     BitmapPtr pBmpDest(new Bitmap (Size, 

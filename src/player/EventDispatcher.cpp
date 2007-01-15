@@ -30,7 +30,7 @@ namespace avg {
 
     EventDispatcher::EventDispatcher()
         : m_LastMouseEvent(MouseEvent(Event::MOUSEMOTION, false, false, false, 
-                0, 0, MouseEvent::NO_BUTTON))
+                IntPoint(0, 0), MouseEvent::NO_BUTTON))
     {
     }
 

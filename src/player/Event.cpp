@@ -20,6 +20,7 @@
 //
 
 #include "Event.h"
+#include "Node.h"
 
 #include "../base/TimeSource.h"
 #include "../base/Logger.h"
@@ -32,7 +33,8 @@ namespace avg {
 int Event::s_CurCounter = 0;
 
 Event::Event(Type type, int when)
-    : m_Type(type)
+    : m_Type(type),
+    m_pNode()
 {
     if (when == -1) {
         m_When = TimeSource::get()->getCurrentMillisecs();
@@ -58,6 +60,15 @@ Event::Type Event::getType() const
     return m_Type;
 }
 
+void Event::setElement(NodePtr pNode)
+{
+    m_pNode = pNode;
+}
+
+NodePtr Event::getElement() const
+{
+    return m_pNode;
+}
 void Event::trace()
 {
     switch(m_Type) {
@@ -66,6 +77,15 @@ void Event::trace()
             break;
         case KEYDOWN:
             AVG_TRACE(Logger::EVENTS, "KEYDOWN");
+            break;
+        case TOUCHMOTION:
+            AVG_TRACE(Logger::EVENTS, "TOUCHMOTION");
+            break;
+        case TOUCHUP:
+            AVG_TRACE(Logger::EVENTS, "TOUCHUP");
+            break;
+        case TOUCHDOWN:
+            AVG_TRACE(Logger::EVENTS, "TOUCHDOWN");
             break;
         case MOUSEMOTION:
             AVG_TRACE(Logger::EVENTS, "MOUSEMOTION");
@@ -76,11 +96,11 @@ void Event::trace()
         case MOUSEBUTTONDOWN:
             AVG_TRACE(Logger::EVENTS, "MOUSEBUTTONDOWN");
             break;
-        case MOUSEOVER:
-            AVG_TRACE(Logger::EVENTS, "MOUSEOVER");
+        case CURSOROVER:
+            AVG_TRACE(Logger::EVENTS, "CURSOROVER");
             break;
-        case MOUSEOUT:
-            AVG_TRACE(Logger::EVENTS, "MOUSEOUT");
+        case CURSOROUT:
+            AVG_TRACE(Logger::EVENTS, "CURSOROUT");
             break;
         case RESIZE:
             AVG_TRACE(Logger::EVENTS, "RESIZE");
@@ -88,6 +108,10 @@ void Event::trace()
         case QUIT:
             AVG_TRACE(Logger::EVENTS, "QUIT");
             break;
+        default:
+            AVG_TRACE(Logger::EVENTS, "UNKNOWN EVENT "<<m_Type);
+            break;
+
     }
 }
 

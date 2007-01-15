@@ -23,9 +23,12 @@
 #define _TrackerEventSource_H_
 
 #include "Event.h"
-
+#include "IEventSource.h"
+#include "../graphics/Rect.h"
 #include "../graphics/Bitmap.h"
-#include "../imaging/Tracker.h"
+#include "../graphics/Filter.h"
+#include "../imaging/Camera.h"
+#include "../imaging/TrackerThread.h"
 #include "../imaging/ConnectedComps.h"
 
 #include <string>
@@ -38,34 +41,73 @@ namespace avg {
 class EventStream;
 typedef boost::shared_ptr<EventStream> EventStreamPtr;
 typedef std::map<BlobPtr, EventStreamPtr> EventMap;
-class BlobSelector {
-    public:
-        std::pair<double, double> m_AreaBounds; //min, max for area in percents of screen size
-        std::pair<double, double> m_EccentricityBounds; //min, max for Eccentricity
 
-};
-class TrackerEventSource
+class TrackerEventSource: public IBlobTarget, public IEventSource
 {
     public:
-        TrackerEventSource(std::string sDevice, double FrameRate, std::string sMode);
+        TrackerEventSource(CameraPtr pCamera, 
+                bool bSubtractHistory = true);
         virtual ~TrackerEventSource();
 
-        // More parameters possible: Barrel/pincushion, history length,...
+        void setBarrel(double Barrel);
+        double getBarrel();
+        void setTrapezoid(double Trapezoid);
+        double getTrapezoid();
+        void setROILeft(int Left);
+        int getROILeft();
+        void setROITop(int Top);
+        int getROITop();
+        void setROIRight(int Right);
+        int getROIRight();
+        void setROIBottom(int Bottom);
+        int getROIBottom();
+
         void setThreshold(int Threshold);
+        int getThreshold();
+        void setHistorySpeed(int UpdateInterval);
+        int getHistorySpeed();
+        void setBrightness(int Brightness);
+        int getBrightness();
+        void setExposure(int Exposure);
+        int getExposure();
+        void setGamma(int Gamma);
+        int getGamma();
+        void setGain(int Gain);
+        int getGain();
+        void setShutter(int Shutter);
+        int getShutter();
+        void setDebug(bool bDebug);
+        bool getDebug();
+        void resetHistory();
+
+        void saveConfig();
 
         Bitmap * getImage(TrackerImageID ImageID) const;
-        std::vector<Event *> pollEvents();
-    protected:
-        void update(BlobListPtr new_blobs);
-        bool isfinger(BlobPtr blob); //should actually be a functor
-        BlobPtr matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold);
-        BlobSelector m_BlobSelector;
+        std::vector<Event *> pollEvents();//main thread
+
+        /*implement IBlobTarget*/
+        virtual void update(BlobListPtr new_blobs, BitmapPtr pBitmap);//tracker thread
+
     private:
-        Tracker m_Tracker;
+        bool isfinger(BlobPtr blob);
+        BlobPtr matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold);
+        void setConfig();
+        void handleROIChange();
+
+        TrackerConfig m_TrackerConfig;
         EventMap m_Events;
-        MutexPtr m_pMutex;
-        // We'll need a Command Queue too, at leas for threshold, possibly for 
-        // other params.
+        MutexPtr m_pTrackerMutex;
+        MutexPtr m_pUpdateMutex;
+
+        boost::thread* m_pTrackerThread;
+
+        TrackerThread::CmdQueuePtr m_pCmdQueue;
+        BlobListPtr m_pBlobList;
+        BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
+        DPoint m_Offset;
+        DPoint m_Scale;
+        
+        CoordTransformerPtr m_Trafo; //
 };
 
 typedef boost::shared_ptr<TrackerEventSource> TrackerEventSourcePtr;

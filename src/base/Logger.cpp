@@ -33,7 +33,7 @@
 #include <fstream>
 #include <iomanip>
 #include <syslog.h>
-
+#include <boost/thread.hpp>
 using namespace std;
 
 namespace avg {
@@ -52,11 +52,17 @@ const long Logger::APP=512;
 const long Logger::LOGGER=1024;
 
 Logger* Logger::m_pLogger = 0;
+boost::mutex log_Mutex;
 
 Logger * Logger::get()
 {
+
     if (!m_pLogger) {
+        {
+        boost::mutex::scoped_lock Lock(log_Mutex);
         m_pLogger = new Logger;
+        }
+        m_pLogger->trace(LOGGER, "Logging started ");
     }
     return m_pLogger;
 }
@@ -66,7 +72,6 @@ Logger::Logger()
     m_Flags = ERROR | WARNING | APP | LOGGER;
     m_DestType = CONSOLE;
     m_pDest = &cerr;
-    trace(LOGGER, "Logging started ");
 }
 
 Logger::~Logger()
@@ -76,6 +81,7 @@ Logger::~Logger()
 
 void Logger::setConsoleDest()
 {
+    boost::mutex::scoped_lock Lock(log_Mutex);
     closeDest();
     m_DestType = CONSOLE;
     m_pDest = &cerr;
@@ -84,6 +90,7 @@ void Logger::setConsoleDest()
 
 void Logger::setFileDest(const std::string& sFName)
 {
+    boost::mutex::scoped_lock Lock(log_Mutex);
     closeDest();
     m_DestType = FILE;
     m_pDest = new ofstream(sFName.c_str(), ios::out | ios::app);
@@ -99,6 +106,7 @@ void Logger::setFileDest(const std::string& sFName)
 
 void Logger::setSyslogDest(int facility, int logopt)
 {
+    boost::mutex::scoped_lock Lock(log_Mutex);
     closeDest();
     m_DestType = SYSLOG;
     openlog("libavg", logopt, facility);
@@ -106,11 +114,13 @@ void Logger::setSyslogDest(int facility, int logopt)
     
 void Logger::setCategories(int flags)
 {
+    boost::mutex::scoped_lock Lock(log_Mutex);
     m_Flags = flags | ERROR | APP;
 }
 
 void Logger::trace(int category, const std::string& msg)
 {
+    boost::mutex::scoped_lock Lock(log_Mutex);
     if (category & m_Flags) {
         if (m_DestType == CONSOLE || m_DestType == FILE) {
             struct tm* pTime;

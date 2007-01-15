@@ -20,6 +20,8 @@
 //
 
 #include "Queue.h"
+#include "Command.h"
+#include "WorkerThread.h"
 
 #include "../base/TestSuite.h"
 #include "../base/TimeSource.h"
@@ -103,6 +105,73 @@ private:
     }
 };
 
+class TestWorkerThread: public WorkerThread<TestWorkerThread> {
+public:
+    TestWorkerThread(CmdQueue& CmdQ, int* pNumFuncCalls, int* pIntParam, 
+            std::string* pStringParam)
+        : WorkerThread<TestWorkerThread>(CmdQ),
+          m_pNumFuncCalls(pNumFuncCalls),
+          m_pIntParam(pIntParam),
+          m_pStringParam(pStringParam)
+    {
+    }
+
+    bool init() 
+    {
+        (*m_pNumFuncCalls)++;
+        return true;
+    }
+
+    bool work()
+    {
+        (*m_pNumFuncCalls)++;
+        return true;
+    }
+
+    void deinit()
+    {
+        (*m_pNumFuncCalls)++;
+    }
+
+    void doSomething(int i, std::string s)
+    {
+        *m_pIntParam = i;
+        *m_pStringParam = s;
+    }
+
+private:
+    int * m_pNumFuncCalls;
+    int * m_pIntParam;
+    std::string * m_pStringParam;
+};
+
+class WorkerThreadTest: public Test {
+public:
+    WorkerThreadTest()
+        : Test("WorkerThreadTest", 2)
+    {
+    }
+
+    void runTests() 
+    {
+        TestWorkerThread::CmdQueue CmdQ;
+        boost::thread* pTestThread;
+        int NumFuncCalls = 0;
+        int IntParam = 0;
+        std::string StringParam;
+        CmdQ.push(Command<TestWorkerThread>(boost::bind(&TestWorkerThread::doSomething,
+                _1, 23, "foo")));
+        CmdQ.push(Command<TestWorkerThread>(boost::bind(&TestWorkerThread::stop, _1)));
+        pTestThread = new boost::thread(TestWorkerThread(CmdQ, &NumFuncCalls,
+                &IntParam, &StringParam));
+        pTestThread->join();
+        delete pTestThread;
+        TEST(NumFuncCalls == 3);
+        TEST(IntParam == 23);
+        TEST(StringParam == "foo");
+    }
+};
+
 
 class BaseTestSuite: public TestSuite {
 public:
@@ -110,6 +179,7 @@ public:
         : TestSuite("BaseTestSuite")
     {
         addTest(TestPtr(new QueueTest));
+        addTest(TestPtr(new WorkerThreadTest));
     }
 };
 

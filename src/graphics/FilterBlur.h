@@ -19,44 +19,26 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Tracker_H_
-#define _Tracker_H_
+#ifndef _FilterBlur_H_
+#define _FilterBlur_H_
 
-#include "Camera.h"
-#include "TrackerThread.h"
+#include "Filter.h"
+#include "Bitmap.h"
 
-#include "../graphics/Bitmap.h"
-
-#include <boost/thread.hpp>
-
-#include <string>
-#include <map>
+#include <boost/shared_ptr.hpp>
 
 namespace avg {
 
-class Tracker
-{
+class FilterBlur: public Filter{
     public:
-        Tracker(std::string sDevice, double FrameRate, std::string sMode);
-        virtual ~Tracker();
+        FilterBlur();
+        virtual ~FilterBlur();
 
-        // More parameters possible: Barrel/pincushion, history length,...
-        void setThreshold(int Threshold);
-
-        Bitmap * getImage(TrackerImageID ImageID) const;
-        TouchInfoListPtr getTouches();
+        virtual BitmapPtr apply(BitmapPtr pBmpSrc);
 
     private:
-        boost::thread* m_pThread;
-
-        TouchInfoListPtr m_pTouchInfoList;
-        BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
-        MutexPtr m_pMutex;
-        // We'll need a Command Queue too, at least for stop & threshold, possibly for 
-        // other params.
 };
 
+typedef boost::shared_ptr<FilterBlur> FilterBlurPtr;
 }
-
 #endif
-

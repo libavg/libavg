@@ -25,9 +25,11 @@
 #include "ProfilingZone.h"
 
 #include <list>
+#include <map>
 
 namespace avg {
-    
+
+// XXX: This thing isn't really thread-safe!
 class Profiler {
 public:
     static Profiler& get();
@@ -40,14 +42,15 @@ public:
     void setActiveZone(ProfilingZone * pZone);
     void dumpFrame();
     void dumpStatistics();
-    void reset();
+    void reset(const std::string& ThreadID = "Main");
 
 
 private:
     Profiler();
 
     typedef std::list<ProfilingZone*> ZoneList;
-    ZoneList m_Zones;
+    typedef std::map<std::string, ZoneList> ZoneMap;
+    ZoneMap m_Zones;
     ProfilingZone * m_pActiveZone;
     bool m_bRunning;
 };

@@ -47,9 +47,10 @@ Profiler::~Profiler()
 
 void Profiler::addZone(ProfilingZone& Zone)
 {
+    ZoneList& List = m_Zones[Zone.getThreadID()];
     ZoneList::iterator it;
-    ZoneList::iterator itPrevZone = m_Zones.begin();
-    for (it=m_Zones.begin(); it != m_Zones.end(); ++it) {
+    ZoneList::iterator itPrevZone = List.begin();
+    for (it=List.begin(); it != List.end(); ++it) {
         if (Zone.getName() == (*it)->getName()) {
             AVG_TRACE(Logger::WARNING,
                     "Warning: Two profiling zones have name " <<
@@ -60,16 +61,20 @@ void Profiler::addZone(ProfilingZone& Zone)
             itPrevZone++;
         }
     }
-    m_Zones.insert(itPrevZone, &Zone);
+    List.insert(itPrevZone, &Zone);
 }
 
 void Profiler::clear()
 {
-    ZoneList::iterator it;
-    for (it=m_Zones.begin(); it != m_Zones.end(); ++it) {
-        (*it)->clear();
+    ZoneMap::iterator it1;
+    for (it1=m_Zones.begin(); it1 != m_Zones.end(); ++it1) {
+        ZoneList& List = (*it1).second;
+        ZoneList::iterator it2;
+        for (it2=List.begin(); it2 != List.end(); ++it2) {
+            (*it2)->clear();
+        }
+        List.clear();
     }
-    m_Zones.clear();
     m_pActiveZone = 0;
     m_bRunning = false;
 }
@@ -92,13 +97,18 @@ void Profiler::setActiveZone(ProfilingZone * pZone)
 
 void Profiler::dumpFrame()
 {
-    AVG_TRACE(Logger::PROFILE_LATEFRAMES,
-            "Frame Profile:");
-    ZoneList::iterator it;
-    for (it=m_Zones.begin(); it != m_Zones.end(); ++it) {
+    AVG_TRACE(Logger::PROFILE_LATEFRAMES, "Frame Profile:");
+    ZoneMap::iterator it1;
+    for (it1=m_Zones.begin(); it1 != m_Zones.end(); ++it1) {
         AVG_TRACE(Logger::PROFILE_LATEFRAMES,
-                "  " << std::setw(30) << std::left << (*it)->getName() << ": " 
-                << std::setw(9) << std::right << (*it)->getUSecs());
+                "  " << "Thread " << (*it1).first << ":");
+        ZoneList& List = (*it1).second;
+        ZoneList::iterator it2;
+        for (it2=List.begin(); it2 != List.end(); ++it2) {
+            AVG_TRACE(Logger::PROFILE_LATEFRAMES,
+                    "    " << std::setw(30) << std::left << (*it2)->getName() << ": " 
+                    << std::setw(9) << std::right << (*it2)->getUSecs());
+        }
     }
     AVG_TRACE(Logger::PROFILE_LATEFRAMES, "");
 }
@@ -112,20 +122,31 @@ void Profiler::dumpStatistics()
     AVG_TRACE(Logger::PROFILE,
             "  ---------                          ---------");
 
-    ZoneList::iterator it;
-    for (it=m_Zones.begin(); it != m_Zones.end(); ++it) {
+    ZoneMap::iterator it1;
+    for (it1=m_Zones.begin(); it1 != m_Zones.end(); ++it1) {
         AVG_TRACE(Logger::PROFILE,
-                "  " << std::setw(33) << std::left << (*it)->getName() << ": " 
-                << std::setw(9) << std::right << (*it)->getAvgUSecs());
+                "  " << "Thread " << (*it1).first << ":");
+        ZoneList& List = (*it1).second;
+        ZoneList::iterator it2;
+        for (it2=List.begin(); it2 != List.end(); ++it2) {
+            AVG_TRACE(Logger::PROFILE,
+                    "    " << std::setw(33) << std::left << (*it2)->getName() << ": " 
+                    << std::setw(9) << std::right << (*it2)->getAvgUSecs());
+        }
     }
     AVG_TRACE(Logger::PROFILE, "");
 }
 
-void Profiler::reset()
+void Profiler::reset(const string& ThreadID)
 {
-    ZoneList::iterator it;
-    for (it=m_Zones.begin(); it != m_Zones.end(); ++it) {
-        (*it)->reset();
+    ZoneMap::iterator it1;
+    it1 = m_Zones.find(ThreadID);
+    if (it1 != m_Zones.end()) {
+        ZoneList& List = (*it1).second;
+        ZoneList::iterator it2;
+        for (it2=List.begin(); it2 != List.end(); ++it2) {
+            (*it2)->reset();
+        }
     }
 }
 

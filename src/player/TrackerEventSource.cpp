@@ -1,7 +1,21 @@
 
 #include "TrackerEventSource.h"
+#include "TouchEvent.h"
+
+#include "../base/Logger.h"
 
 #include "../imaging/ConnectedComps.h"
+#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
+#include "../imaging/CameraUtils.h"
+#endif
+#include "../imaging/Camera.h"
+
+#include "../graphics/Rect.h"
+#include "../graphics/HistoryPreProcessor.h"
+#include "../graphics/Filterfill.h"
+#include "../graphics/Pixel8.h"
+#include <boost/thread/thread.hpp>
+#include <boost/bind.hpp>
 
 #include <map>
 #include <list>
@@ -10,23 +24,29 @@
 
 using namespace std;
 
+const int MAXMISSINGFRAMES=5;
+
 namespace avg {
+    //hmmm. just don't use two TrackerEventSources...
+    //if you do, put these into thread local storage or something
     class  EventStream
     //internal class to keep track of blob/event states
     {
         public:
             EventStream(BlobPtr first_blob);
             void update(BlobPtr new_blob);
-            EventPtr pollevent();
+            Event* pollevent(DPoint& Offset, DPoint& Scale);
             enum StreamState {
                 FRESH, //fresh stream. not polled yet
                 TOUCH_DELIVERED, //initial finger down delivered
                 INMOTION, //recent position change
                 RESTING, //finger resting
+                VANISHED, // oops, no followup found -- wait a little while
                 FINGERUP, //finger disappeared, but fingerup yet to be delivered
                 DONE // waiting to be cleared.
             };
             int m_Id;
+            int m_VanishCounter;
             StreamState m_State;
             DPoint m_Pos;
             BlobPtr m_pBlob;
@@ -46,16 +66,36 @@ namespace avg {
     };
     void EventStream::update(BlobPtr new_blob){
         if (!new_blob){
-            m_pBlob = BlobPtr();
-            m_State = FINGERUP;
+            switch(m_State) {
+                case FRESH:
+                    AVG_TRACE(Logger::EVENTS2, "Spurious blob suppressed.");
+                    m_State = DONE;
+                    break;
+                case FINGERUP:
+                case DONE:
+                    break;
+                default:
+                    m_State = VANISHED;
+                    m_VanishCounter++;
+                    if(m_VanishCounter>=MAXMISSINGFRAMES){
+                        m_State = FINGERUP;
+                    }
+                    break;
+            }
+
             return;
         }
+        assert(m_pBlob);
+        m_VanishCounter = 0;
         DPoint c = new_blob->center();
         //Fixme replace m_Pos == c with something that takes resolution into account
         bool pos_unchanged = (c == m_Pos);
         switch(m_State) {
             case FRESH:
                 //finger touch has not been polled yet. update position
+                break;
+            case VANISHED:
+                m_State = INMOTION;
                 break;
             case TOUCH_DELIVERED:
                 //fingerdown delivered, change to motion states
@@ -83,18 +123,38 @@ namespace avg {
         m_pBlob = new_blob;
         m_Stale = false;
     };
-    EventPtr EventStream::pollevent(){
+    Event* EventStream::pollevent(DPoint& Offset, DPoint& Scale){
+        assert(m_pBlob);
         switch(m_State){
             case FRESH:
                 m_State = TOUCH_DELIVERED;
                 //return fingerdown
+                return new TouchEvent(m_Id, Event::TOUCHDOWN,
+                        (m_pBlob->getInfo()), m_pBlob, Offset, Scale);
+
+//                return new MouseEvent(MouseEvent::MOUSEBUTTONDOWN, true, false, false, 
+//                        (int)(XScale*m_Pos.x+XOffset), 
+//                        (int)(YScale*m_Pos.y+YOffset), 
+//                        MouseEvent::LEFT_BUTTON); 
                 break;
             case INMOTION:
                 m_State = RESTING;
                 //return motion
+                return new TouchEvent(m_Id, Event::TOUCHMOTION,
+                        (m_pBlob->getInfo()), m_pBlob, Offset, Scale);
+//                return new MouseEvent(MouseEvent::MOUSEMOTION, true, false, false,
+//                        (int)(XScale*m_Pos.x+XOffset), 
+//                        (int)(YScale*m_Pos.y+YOffset), 
+//                        MouseEvent::LEFT_BUTTON); 
                 break;
             case FINGERUP:
                 m_State = DONE;
+                return new TouchEvent(m_Id, Event::TOUCHUP,
+                        (m_pBlob->getInfo()), m_pBlob, Offset, Scale);
+//                return new MouseEvent(MouseEvent::MOUSEBUTTONUP, false, false, false,
+//                        (int)(XScale*m_Pos.x+XOffset), 
+//                        (int)(YScale*m_Pos.y+YOffset), 
+//                        MouseEvent::LEFT_BUTTON); 
                 //return fingerup
                 break;
             case TOUCH_DELIVERED:
@@ -102,52 +162,257 @@ namespace avg {
             case DONE:
             default:
                 //return no event
+                return 0;
                 break;
         }
     };
 
-    TrackerEventSource::TrackerEventSource(std::string sDevice, 
-            double FrameRate, std::string sMode)
-        : m_Tracker(sDevice, FrameRate, sMode)
+
+    TrackerEventSource::TrackerEventSource(CameraPtr pCamera, 
+            bool bSubtractHistory)
+        : m_TrackerConfig()
     {
-        
+        AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
+        IntPoint ImgDimensions = pCamera->getImgSize();
+
+        m_pBitmaps[0] = BitmapPtr(new Bitmap(pCamera->getImgSize(), I8));
+        // TODO: Clean this ROI handling mess up.
+        handleROIChange();
+        m_pUpdateMutex = MutexPtr(new boost::mutex);
+        m_pTrackerMutex = MutexPtr(new boost::mutex);
+        m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
+        m_pTrackerThread = new boost::thread(
+                TrackerThread(pCamera,
+                    m_pBitmaps, 
+                    m_pTrackerMutex,
+                    *m_pCmdQueue,
+                    this,
+                    bSubtractHistory
+                    )
+                );
+        setConfig();
+        handleROIChange();
     }
 
     TrackerEventSource::~TrackerEventSource()
     {
+        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::stop, _1)));
+        m_pTrackerThread->join();
+        delete m_pTrackerThread;
+    }
+        
+    void TrackerEventSource::setTrapezoid(double Trapezoid)
+    {
+        m_TrackerConfig.m_T = Trapezoid;
+        setConfig();
+    }
+    
+    double TrackerEventSource::getTrapezoid()
+    {
+        return m_TrackerConfig.m_T;
     }
 
-    // More parameters possible: Barrel/pincushion, history length,...
+    void TrackerEventSource::setROILeft(int Left)
+    {
+        m_TrackerConfig.m_ROI.tl.x = Left;
+        setConfig();
+        handleROIChange();
+    }
+
+    int TrackerEventSource::getROILeft()
+    {
+        return m_TrackerConfig.m_ROI.tl.x;
+    }
+
+    void TrackerEventSource::setROITop(int Top)
+    {
+        m_TrackerConfig.m_ROI.tl.y = Top;
+        setConfig();
+        handleROIChange();
+    }
+
+    int TrackerEventSource::getROITop()
+    {
+        return m_TrackerConfig.m_ROI.tl.y;
+    }
+
+    void TrackerEventSource::setROIRight(int Right)
+    {
+        m_TrackerConfig.m_ROI.br.x = Right;
+        setConfig();
+        handleROIChange();
+    }
+
+    int TrackerEventSource::getROIRight()
+    {
+        return m_TrackerConfig.m_ROI.br.x;
+    }
+
+    void TrackerEventSource::setROIBottom(int Bottom)
+    {
+        m_TrackerConfig.m_ROI.br.y = Bottom;
+        setConfig();
+        handleROIChange();
+    }
+
+    int TrackerEventSource::getROIBottom()
+    {
+        return m_TrackerConfig.m_ROI.br.y;
+    }
+
+    void TrackerEventSource::setBarrel(double Barrel)
+    {
+        m_TrackerConfig.m_K1 = Barrel;
+        setConfig();
+    }
+    
+    double TrackerEventSource::getBarrel()
+    {
+        return m_TrackerConfig.m_K1;
+    }
+
     void TrackerEventSource::setThreshold(int Threshold) 
     {
+        m_TrackerConfig.m_Threshold = Threshold;
+        setConfig();
+    }
+
+    int TrackerEventSource::getThreshold()
+    {
+        return m_TrackerConfig.m_Threshold;
+    }
+    
+    void TrackerEventSource::setHistorySpeed(int UpdateInterval)
+    {
+        m_TrackerConfig.m_HistoryUpdateInterval = UpdateInterval;
+        setConfig();
+    }
+    
+    int TrackerEventSource::getHistorySpeed()
+    {
+        return m_TrackerConfig.m_HistoryUpdateInterval;
+    }
+
+    void TrackerEventSource::setBrightness(int Brightness) 
+    {
+        m_TrackerConfig.m_Brightness = Brightness;
+        setConfig();
+    }
+
+    int TrackerEventSource::getBrightness()
+    {
+        return m_TrackerConfig.m_Brightness;
+    }
+
+    void TrackerEventSource::setExposure(int Exposure) 
+    {
+        m_TrackerConfig.m_Exposure = Exposure;
+        setConfig();
+    }
+
+    int TrackerEventSource::getExposure()
+    {
+        return m_TrackerConfig.m_Exposure;
+    }
+
+    void TrackerEventSource::setGamma(int Gamma) 
+    {
+        m_TrackerConfig.m_Gamma = Gamma;
+        setConfig();
+    }
+
+    int TrackerEventSource::getGamma()
+    {
+        return m_TrackerConfig.m_Gamma;
+    }
+
+    void TrackerEventSource::setGain(int Gain) 
+    {
+        m_TrackerConfig.m_Gain = Gain;
+        setConfig();
+    }
+
+    int TrackerEventSource::getGain()
+    {
+        return m_TrackerConfig.m_Gain;
+    }
+
+    void TrackerEventSource::setShutter(int Shutter) 
+    {
+        m_TrackerConfig.m_Shutter = Shutter;
+        setConfig();
+    }
+
+    int TrackerEventSource::getShutter()
+    {
+        return m_TrackerConfig.m_Shutter;
+    }
+       
+    void TrackerEventSource::setDebug(bool bDebug)
+    {
+        m_TrackerConfig.m_bDebug = bDebug;
+        setConfig();
+    }
+
+    bool TrackerEventSource::getDebug()
+    {
+        return m_TrackerConfig.m_bDebug;
+    }
+
+    void TrackerEventSource::resetHistory()
+    {
+        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
+                &TrackerThread::resetHistory, _1)));
+    }
+    
+    void TrackerEventSource::saveConfig()
+    {
+        m_TrackerConfig.save("TrackerConfig.xml");
+    }
+
+    void TrackerEventSource::setConfig()
+    {
+        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
+                &TrackerThread::setConfig, _1, m_TrackerConfig)));
+    }
+
+    void TrackerEventSource::handleROIChange()
+    {
+        IntPoint ImgDimensions(m_TrackerConfig.m_ROI.br - m_TrackerConfig.m_ROI.tl);
+        for (int i=1; i<NUM_TRACKER_IMAGES-1; i++) {
+            m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgDimensions, I8));
+        }
+        m_pBitmaps[TRACKER_IMG_FINGERS] = BitmapPtr(new Bitmap(ImgDimensions, R8G8B8X8));
+        if (m_pCmdQueue) {
+            m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
+                    &TrackerThread::setBitmaps, _1, m_TrackerConfig.m_ROI, m_pBitmaps)));
+        }
+        IntRect Dest = m_TrackerConfig.m_DestRect;
+        m_Offset = DPoint(Dest.tl.x, Dest.Height()-Dest.tl.y);
+        m_Scale.x = Dest.Width()/double(ImgDimensions.x);
+        m_Scale.y = -Dest.Height()/double(ImgDimensions.y);
     }
 
     Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const
     {
-        return m_Tracker.getImage(ImageID);
+        boost::mutex::scoped_lock Lock(*m_pTrackerMutex);
+        return new Bitmap(*m_pBitmaps[ImageID]);
     }
     
 
-    bool TrackerEventSource::isfinger(BlobPtr blob)
-    {
-        BlobInfoPtr info = blob->getInfo();
-#define IN(x, pair) (((x)>=pair.first)&&((x)<=pair.second))
-        bool res;
-        res = IN(info->m_Area, m_BlobSelector.m_AreaBounds) && IN(info->m_Eccentricity, m_BlobSelector.m_EccentricityBounds);
-        return res;
-#undef IN
-    }
-    double distance(BlobPtr p1, BlobPtr p2) {
-        DPoint c1 = p1->center();
-        DPoint c2 = p2->center();
+double distance(BlobPtr p1, BlobPtr p2) {
+    DPoint c1 = p1->center();
+    DPoint c2 = p2->center();
 
-        return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
-    }
-    BlobPtr TrackerEventSource::matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold = 10.0)
+    return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
+}
+
+    BlobPtr TrackerEventSource::matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold)
     {
         std::vector<BlobPtr> candidates;
         BlobPtr res;
-        for(BlobList::iterator it=old_blobs->begin();it!=old_blobs->end();it++)
+        if (!new_blob) return BlobPtr();
+        for(BlobList::iterator it=old_blobs->begin();it!=old_blobs->end();++it)
         {
             if (distance( (*it), new_blob)<threshold) 
                 candidates.push_back( (*it) );
@@ -162,7 +427,7 @@ namespace avg {
             default:
                 //FIXME duplicate calculation of distance should be eliminated...
                 double act=1e10, tmp;
-                for(std::vector<BlobPtr>::iterator it=candidates.begin();it!=candidates.end();it++){
+                for(std::vector<BlobPtr>::iterator it=candidates.begin();it!=candidates.end();++it){
                     if ((tmp = distance( (*it), new_blob))<act){
                         res = (*it);
                         act = tmp;
@@ -172,45 +437,99 @@ namespace avg {
         return res;
 
     }
+    bool TrackerEventSource::isfinger(BlobPtr blob)
+    {
+        BlobInfoPtr info = blob->getInfo();
+#define IN(x, pair) (((x)>=pair[0])&&((x)<=pair[1]))
+        bool res;
+        res = IN(info->m_Area, m_TrackerConfig.m_AreaBounds) && IN(info->m_Eccentricity, m_TrackerConfig.m_EccentricityBounds);
+        return res;
+#undef IN
+    }
 
-    void TrackerEventSource::update(BlobListPtr new_blobs){
-       BlobListPtr old_blobs = BlobListPtr(new BlobList());
-       EventStreamPtr e;
-       for(EventMap::iterator it=m_Events.begin();it!=m_Events.end();it++){
-           (*it).second->m_Stale = true;
-           old_blobs->push_back((*it).first);
-       }
-       for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();it2++){
-            BlobPtr old_match = matchblob((*it2), old_blobs);
+    void TrackerEventSource::update(BlobListPtr new_blobs, BitmapPtr pBitmap){
+        boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
+        BlobListPtr old_blobs = BlobListPtr(new BlobList());
+        EventStreamPtr e;
+        if (pBitmap) {
+            FilterFill<Pixel32>(Pixel32(0x00, 0x00, 0x00, 0xFF)).applyInPlace(
+                pBitmap);
+        }
+        for(EventMap::iterator it=m_Events.begin();it!=m_Events.end();++it){
+            (*it).second->m_Stale = true;
+            old_blobs->push_back((*it).first);
+        }
+        int known_counter=0, new_counter=0, ignored_counter=0; 
+        for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2){
+            if (!isfinger(*it2)){
+                if (pBitmap) {
+                    (*it2)->render(&*pBitmap, 
+                            Pixel32(0xFF, 0x00, 0x00, 0xFF), false);
+                }
+                ignored_counter++;
+                continue;
+            }else {
+                if (pBitmap) {
+                    (*it2)->render(&*pBitmap, 
+                            Pixel32(0xFF, 0xFF, 0xFF, 0xFF), true, 
+                            Pixel32(0x00, 0x00, 0xFF, 0xFF)); 
+                }
+            }
+            BlobPtr old_match = matchblob((*it2), old_blobs, m_TrackerConfig.m_Similarity);
             if(old_match){
                 //this blob has been identified with an old one
+                known_counter++;
+                if (m_Events.find(old_match) == m_Events.end()) {
+                    //..but the blob already disappeared from the map
+                    //=>EventStream already updated
+                    continue;
+                }
                 e = m_Events.find(old_match)->second;
                 e->update( (*it2) );
                 //update the mapping!
-                m_Events.erase(old_match);
                 m_Events[(*it2)] = e;
+                m_Events.erase(old_match);
             } else {
+                new_counter++;
                 //this is a new one
                 m_Events[(*it2)] = EventStreamPtr( new EventStream((*it2)) ) ;
             }
-       }
-       for(EventMap::iterator it3=m_Events.begin();it3!=m_Events.end();it3++){
-           //all event streams that are still stale haven't been updated: blob is gone, send the sentinel for this.
-           if ((*it3).second->m_Stale) {
-               (*it3).second->update( BlobPtr() );
-           }
-
         }
+        //       AVG_TRACE(Logger::EVENTS2, "matched blobs: "<<known_counter<<"; new blobs: "<<new_counter<<"; ignored: "<<ignored_counter);
+        int gone_counter = 0;
+        for(EventMap::iterator it3=m_Events.begin();it3!=m_Events.end();++it3){
+            //all event streams that are still stale haven't been updated: blob is gone, send the sentinel for this.
+            if ((*it3).second->m_Stale) {
+                (*it3).second->update( BlobPtr() );
+                gone_counter++;
+            }
+        }
+
+        //       AVG_TRACE(Logger::EVENTS2, ""<<gone_counter<<" fingers disappeared.");
     };
    std::vector<Event*> TrackerEventSource::pollEvents(){
+        boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
         std::vector<Event*> res = std::vector<Event *>();
         Event *t;
-        for (EventMap::iterator it = m_Events.begin(); it!= m_Events.end();it++){
-            t = (*it).second->pollevent();
+        int kill_counter = 0;
+        for (EventMap::iterator it = m_Events.begin(); it!= m_Events.end();){
+            t = (*it).second->pollevent(m_Offset, m_Scale);
             if (t) res.push_back(t);
-            if ((*it).second->m_State == EventStream::DONE) m_Events.erase(it);
+            if ((*it).second->m_State == EventStream::DONE){
+                m_Events.erase(it++);
+                kill_counter++;
+            }else{
+                ++it;
+            }
         }
+
+//        if (kill_counter)
+//            AVG_TRACE(Logger::EVENTS2, ""<<kill_counter<<" EventStreams removed.");
         return res;
     }
     
 }
+
+
+
+

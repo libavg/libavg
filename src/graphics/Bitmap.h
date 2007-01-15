@@ -27,6 +27,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <string>
+#include <vector>
 
 namespace avg {
 
@@ -53,7 +54,10 @@ typedef enum {
     YCbCrJ420p // Same as YCbCr420p, but this is the jpeg version with component
                // values in the range 0.255
 } PixelFormat;
-    
+
+typedef std::vector<int> Histogram;
+typedef boost::shared_ptr<Histogram> HistogramPtr;
+
 class Bitmap
 {
 public:
@@ -89,6 +93,7 @@ public:
     int getLineLen() const;
     int getMemNeeded() const;
     bool hasAlpha() const;
+    HistogramPtr getHistogram(int Stride = 1) const;
 
     void subtract(const Bitmap* pOtherBmp);
 

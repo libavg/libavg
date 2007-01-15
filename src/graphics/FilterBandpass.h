@@ -19,17 +19,30 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "CameraCmd.h"
+#ifndef _FilterBandpass_H_
+#define _FilterBandpass_H_
+
+#include "Filter.h"
+#include "FilterGauss.h"
+#include "Bitmap.h"
+
+#include <boost/shared_ptr.hpp>
 
 namespace avg {
 
-using namespace std;
+// XXX: Warning, possibly buggy.
+class FilterBandpass: public Filter{
+    public:
+        FilterBandpass();
+        virtual ~FilterBandpass();
 
-CameraCmd::CameraCmd(CmdType Cmd, dc1394feature_t Feature, int Value)
-    : m_Cmd(Cmd),
-      m_Feature(Feature),
-      m_Value(Value)
-{
-}
+        virtual BitmapPtr apply(BitmapPtr pBmpSrc);
 
+    private:
+        FilterGauss m_HighpassFilter;
+        FilterGauss m_LowpassFilter;
+};
+
+typedef boost::shared_ptr<FilterBandpass> FilterBandpassPtr;
 }
+#endif

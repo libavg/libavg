@@ -36,7 +36,7 @@ FilterFlipRGB::~FilterFlipRGB()
 
 }
 
-void FilterFlipRGB::applyInPlace(BitmapPtr pBmp) const
+void FilterFlipRGB::applyInPlace(BitmapPtr pBmp) 
 {
     PixelFormat PF = pBmp->getPixelFormat();
     switch(PF) {
@@ -62,17 +62,17 @@ void FilterFlipRGB::applyInPlace(BitmapPtr pBmp) const
             // Only 24 and 32 bpp supported.
             assert(false);
     }
-
-    for (int y = 0; y < pBmp->getSize().y; y++) {
+    IntPoint size = pBmp->getSize();
+    for (int y = 0; y < size.y; y++) {
         unsigned char * pLine = pBmp->getPixels()+y*pBmp->getStride();
         if (pBmp->getBytesPerPixel() == 4) {
-            for (int x = 0; x < pBmp->getSize().x; x++) { 
+            for (int x = 0; x < size.x; x++) { 
                 unsigned char tmp = pLine[x*4+REDPOS];
                 pLine[x*4+REDPOS] = pLine[x*4+BLUEPOS];
                 pLine[x*4+BLUEPOS] = tmp;
             }
         } else {
-            for (int x = 0; x < pBmp->getSize().x; x++) { 
+            for (int x = 0; x < size.x; x++) { 
                 unsigned char tmp = pLine[x*3+REDPOS];
                 pLine[x*3+REDPOS] = pLine[x*3+BLUEPOS];
                 pLine[x*3+BLUEPOS] = tmp;

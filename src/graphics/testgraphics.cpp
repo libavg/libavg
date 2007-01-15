@@ -31,7 +31,11 @@
 #include "Filterfliprgb.h"
 #include "Filterflipuv.h"
 #include "Filter3x3.h"
-
+#include "FilterConvol.h"
+#include "HistoryPreProcessor.h"
+#include "FilterHighpass.h"
+#include "FilterGauss.h"
+#include "FilterBandpass.h"
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
 
@@ -175,6 +179,21 @@ private:
             *pPixel = 255;
             *(pPixel+BmpCopy4.getStride()) = 255;
             TEST(!pBmp->getNumDifferentPixels(BmpCopy4) == 1);
+        }
+        if (PF == I8) {
+            cerr << "      Testing getHistogram." << endl;
+            HistogramPtr pHist = pBmp->getHistogram();
+            TEST((*pHist)[0] == 7);
+            TEST((*pHist)[1] == 7);
+            TEST((*pHist)[2] == 7);
+            TEST((*pHist)[3] == 7);
+            bool bOk = true;
+            for (int i=4; i<256; ++i) {
+                if (bOk) {
+                    bOk = ((*pHist)[i] == 0);
+                }
+            }
+            TEST(bOk);   
         }
     }
 
@@ -372,7 +391,6 @@ public:
             char * pSrcDir = getenv("srcdir");
             string sFilename;
             if (pSrcDir) {
-                cerr << pSrcDir << endl;
                 sFilename = (string)pSrcDir+"/";
             }
             sFilename += "../test/rgb24-64x64.png";
@@ -398,6 +416,54 @@ private:
     }
 };
 
+class FilterConvolTest: public Test {
+public:
+    FilterConvolTest()
+        : Test("FilterConvolTest", 2)
+    {
+    }
+
+    void runTests() 
+    {
+        runPFTests<Pixel24>(R8G8B8);
+        runPFTests<Pixel32>(R8G8B8X8);
+        //FIXME runPFTests<Pixel8>(I8);
+    }
+
+private:
+    template<class PixelT>
+    void runPFTests(PixelFormat PF)
+    {
+        BitmapPtr pBmp(new Bitmap(IntPoint(4, 4), PF));
+        initBmp<PixelT>(pBmp);
+        double Mat[9] = 
+                {1,0,2,
+                 0,1,0,
+                 3,0,4};
+        BitmapPtr pNewBmp = FilterConvol<PixelT>(&(Mat[0]),3,3).apply(pBmp);
+        TEST(pNewBmp->getSize() == IntPoint(2,2));
+        unsigned char * pLine0 = pNewBmp->getPixels();
+        TEST(*(PixelT*)pLine0 == PixelT(1,0,0));
+        TEST(*(((PixelT*)pLine0)+1) == PixelT(4,0,0));
+        unsigned char * pLine1 = pNewBmp->getPixels()+pNewBmp->getStride();
+        TEST(*(PixelT*)(pLine1) == PixelT(0,0,9));
+        TEST(*((PixelT*)(pLine1)+1) == PixelT(0,0,16));
+        
+    }
+    
+    template<class PixelT>
+    void initBmp(BitmapPtr pBmp) 
+    {
+        PixelT * pPixels = (PixelT *)(pBmp->getPixels());
+        PixelT Color = PixelT(0,0,0);
+        FilterFill<PixelT>(Color).applyInPlace(pBmp);
+        pPixels[0] = PixelT(1,0,0);
+        pPixels[3] = PixelT(2,0,0);
+        pPixels = (PixelT*)((char *)pPixels+3*pBmp->getStride());
+        pPixels[0] = PixelT(0,0,3);
+        pPixels[3] = PixelT(0,0,4);
+    }
+};
 class Filter3x3Test: public Test {
 public:
     Filter3x3Test()
@@ -446,6 +512,117 @@ private:
     }
 };
     
+class HistoryPreProcessorTest: public Test {
+public:
+    HistoryPreProcessorTest()
+        : Test("HistoryPreProcessor", 2)
+    {
+    }
+    void testEqual(Bitmap& Bmp1, Bitmap& Bmp2) 
+    {
+        TEST(Bmp1 == Bmp2);
+        if (!(Bmp1 == Bmp2)) {
+            cerr << "Bmp1: " << endl;
+            Bmp1.dump(true);
+            cerr << "Bmp2: " << endl;
+            Bmp2.dump(true);
+        }
+    }
+
+    void runTests() 
+    {
+        BitmapPtr pBaseBmp = initBmp(I8);
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(*pBaseBmp));
+        BitmapPtr nullBmp = FilterFill<Pixel8>(0).apply(pBmp);
+        pBmp->copyPixels(*pBaseBmp);
+        HistoryPreProcessor filt=HistoryPreProcessor(pBaseBmp->getSize());
+        pBmp = filt.apply(pBaseBmp);
+        testEqual(*pBmp, *nullBmp);
+        for(int i=0;i<1;i++){
+            pBmp = filt.apply(pBaseBmp);
+            testEqual(*pBmp, *nullBmp);
+        }
+    }
+
+};
+    
+class FilterHighpassTest: public Test {
+public:
+    FilterHighpassTest()
+        : Test("FilterHighpassTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(16,16), I8));
+        FilterFill<Pixel8>(0).applyInPlace(pBmp);
+        *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
+        BitmapPtr pDestBmp = FilterHighpass().apply(pBmp);
+//        pDestBmp->save("testimages/HighpassResult.png");
+        BitmapPtr pBaselineBmp = FilterGrayscale().apply(
+                BitmapPtr(new Bitmap("testimages/HighpassResult.png")));
+        TEST(*pDestBmp == *pBaselineBmp);
+    }
+};
+
+
+class FilterGaussTest: public Test {
+public:
+    FilterGaussTest()
+        : Test("FilterGaussTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(16,16), I8));
+        FilterFill<Pixel8>(0).applyInPlace(pBmp);
+        *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
+//        FilterGauss(1).dumpKernel();
+//        FilterGauss(3).dumpKernel();
+//        FilterGauss(2.1).dumpKernel();
+//        FilterGauss(1.9).dumpKernel();
+        BitmapPtr pDestBmp = FilterGauss(3).apply(pBmp);
+//        pDestBmp->save("testimages/Gauss3Result.png");
+        BitmapPtr pBaselineBmp = FilterGrayscale().apply(
+                BitmapPtr(new Bitmap("testimages/Gauss3Result.png")));
+        TEST(*pDestBmp == *pBaselineBmp);
+        pDestBmp = FilterGauss(1).apply(pBmp);
+//        pDestBmp->save("testimages/Gauss1Result.png");
+        pBaselineBmp = FilterGrayscale().apply(
+                BitmapPtr(new Bitmap("testimages/Gauss1Result.png")));
+        TEST(*pDestBmp == *pBaselineBmp);
+        pDestBmp = FilterGauss(1.5).apply(pBmp);
+//        pDestBmp->save("testimages/Gauss15Result.png");
+        pBaselineBmp = FilterGrayscale().apply(
+                BitmapPtr(new Bitmap("testimages/Gauss15Result.png")));
+        TEST(*pDestBmp == *pBaselineBmp);
+    }
+};
+
+
+class FilterBandpassTest: public Test {
+public:
+    FilterBandpassTest()
+        : Test("FilterBandpassTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(16,16), I8));
+        FilterFill<Pixel8>(0).applyInPlace(pBmp);
+        *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
+        
+        BitmapPtr pDestBmp = FilterBandpass().apply(pBmp);
+        pDestBmp->save("testimages/BandpassResult.png");
+        BitmapPtr pBaselineBmp = FilterGrayscale().apply(
+                BitmapPtr(new Bitmap("testimages/BandpassResult.png")));
+        TEST(*pDestBmp == *pBaselineBmp);
+    }
+};
+
 
 class GraphicsTestSuite: public TestSuite {
 public:
@@ -454,6 +631,7 @@ public:
     {
         addTest(TestPtr(new BitmapTest));
         addTest(TestPtr(new Filter3x3Test));
+        addTest(TestPtr(new FilterConvolTest));
         addTest(TestPtr(new FilterColorizeTest));
         addTest(TestPtr(new FilterGrayscaleTest));
         addTest(TestPtr(new FilterFillTest));
@@ -461,6 +639,10 @@ public:
         addTest(TestPtr(new FilterFlipRGBTest));
         addTest(TestPtr(new FilterFlipUVTest));
         addTest(TestPtr(new FilterComboTest));
+        addTest(TestPtr(new HistoryPreProcessorTest));
+        addTest(TestPtr(new FilterHighpassTest));
+        addTest(TestPtr(new FilterGaussTest));
+//        addTest(TestPtr(new FilterBandpassTest));
     }
 };
 

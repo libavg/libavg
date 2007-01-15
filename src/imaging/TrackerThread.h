@@ -20,9 +20,15 @@
 
 #ifndef _TrackerThread_H_
 #define _TrackerThread_H_
-
+#include "TrackerConfig.h"
 #include "Camera.h"
+#include "ConnectedComps.h"
+#include "FilterDistortion.h"
 
+#include "../base/WorkerThread.h"
+#include "../base/Command.h"
+
+#include "../graphics/HistoryPreProcessor.h"
 #include "../graphics/Bitmap.h"
 
 #include <boost/thread.hpp>
@@ -32,56 +38,65 @@
 
 namespace avg {
 
-struct TouchInfo {
-    int m_ID;
-    DPoint m_Center;
-    int m_Area;
-    // More to follow?
-};
-
-typedef std::list<TouchInfo> TouchInfoList;
-typedef boost::shared_ptr<TouchInfoList> TouchInfoListPtr;
-
 typedef enum {
         TRACKER_IMG_CAMERA,
-        TRACKER_IMG_HISTORY,
+        TRACKER_IMG_DISTORTED,
         TRACKER_IMG_NOHISTORY,
-        TRACKER_IMG_COMPONENTS,
+        TRACKER_IMG_HISTOGRAM,
+        TRACKER_IMG_HIGHPASS,
+        TRACKER_IMG_FINGERS,
         NUM_TRACKER_IMAGES
 } TrackerImageID;
 
 typedef boost::shared_ptr<boost::mutex> MutexPtr;
 
-class TrackerThread
+class IBlobTarget {
+    public:
+        virtual ~IBlobTarget() {};
+        virtual void update(BlobListPtr blobs, BitmapPtr pBitmap) = 0;
+};
+
+
+class TrackerThread: public WorkerThread<TrackerThread>
 {
     public:
-        TrackerThread(std::string sDevice, double FrameRate, std::string sMode, 
-                TouchInfoListPtr pTouchInfoList, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
-                MutexPtr pMutex);
+        TrackerThread(CameraPtr pCamera, 
+                BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
+                MutexPtr pMutex,
+                CmdQueue& CmdQ,
+                IBlobTarget *target,
+                bool bSubtractHistory);
         virtual ~TrackerThread();
 
-        void operator()();
+        bool init();
+        bool work();
+        void deinit();
 
+        void setConfig(TrackerConfig Config);
+        void setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES]);
+        void resetHistory();
+    
     private:
-        void open();
-        void close();
-        void track();
         void checkMessages();
         void calcHistory();
-        BitmapPtr subtractHistory();
+        bool isfinger(BlobPtr blob);
+        void drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp);
 
         std::string m_sDevice;
         double m_FrameRate;
         std::string m_sMode;
 
-        TouchInfoListPtr m_pTouchInfoList;
+        int m_Threshold;
+        BlobListPtr m_pBlobList;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
         MutexPtr m_pMutex;
-        BitmapPtr m_pHistoryBmp;
 
         CameraPtr  m_pCamera;
-
-        bool m_bShouldStop;
+        IBlobTarget *m_pTarget;
+        HistoryPreProcessorPtr m_pHistoryPreProcessor;
+        FilterDistortionPtr m_pDistorter;
+        IntRect m_ROI;
+        bool m_bDebugEnabled;
 };
 
 }

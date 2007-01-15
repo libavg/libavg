@@ -21,6 +21,7 @@
 
 #include "../player/KeyEvent.h"
 #include "../player/MouseEvent.h"
+#include "../player/TouchEvent.h"
 #include "../player/Node.h"
 #include "../player/TrackerEventSource.h"
 
@@ -48,8 +49,8 @@ void export_event()
         .value("MOUSEMOTION", Event::MOUSEMOTION)
         .value("MOUSEBUTTONUP", Event::MOUSEBUTTONUP)
         .value("MOUSEBUTTONDOWN", Event::MOUSEBUTTONDOWN)
-        .value("MOUSEOVER", Event::MOUSEOVER)
-        .value("MOUSEOUT", Event::MOUSEOUT)
+        .value("MOUSEOVER", Event::CURSOROVER)
+        .value("MOUSEOUT", Event::CURSOROUT)
         .value("RESIZE", Event::RESIZE)
         .value("QUIT", Event::QUIT)
         .export_values()
@@ -87,26 +88,87 @@ void export_event()
         .add_property("rightbuttonstate", &MouseEvent::getRightButtonState)
         .add_property("x", &MouseEvent::getXPosition)
         .add_property("y", &MouseEvent::getYPosition)
+        .add_property("cursorid", &MouseEvent::getCursorID)
         .add_property("button", &MouseEvent::getButton)
         .add_property("node", &MouseEvent::getElement);
+
+    class_<TouchEvent, bases<Event> >("TouchEvent", 
+            "Raised when a touch event occurs.\n"
+            "Properties:\n"
+            "    area: size of the blob(ro)\n"
+            "    orientation: (ro)\n"
+            "    inertia: (ro)\n"
+            "    eccentricity: (ro)\n"
+            "    cursorid: (ro)\n"
+            "    x: x position in the global coordinate system. (ro)\n"
+            "    y: y position in the global coordinate system. (ro)\n"
+            "    node: The node that the event handler was declared in. (ro)\n",
+            no_init)
+        .add_property("area", &TouchEvent::getArea)
+        .add_property("orientation", &TouchEvent::getOrientation)
+        .add_property("inertia", &TouchEvent::getInertia)
+        .add_property("eccentricity", &TouchEvent::getInertia)
+        .add_property("x", &TouchEvent::getXPosition)
+        .add_property("y", &TouchEvent::getYPosition)
+        .add_property("cursorid", &TouchEvent::getCursorID)
+        .add_property("node", &TouchEvent::getElement);
     
     enum_<TrackerImageID>("TrackerImageID")
         .value("IMG_CAMERA", TRACKER_IMG_CAMERA)
-        .value("IMG_HISTORY", TRACKER_IMG_HISTORY)
+        .value("IMG_DISTORTED", TRACKER_IMG_DISTORTED)
         .value("IMG_NOHISTORY", TRACKER_IMG_NOHISTORY)
-        .value("IMG_COMPONENTS", TRACKER_IMG_COMPONENTS)
+        .value("IMG_HISTOGRAM", TRACKER_IMG_HISTOGRAM)
+        .value("IMG_FINGERS", TRACKER_IMG_FINGERS)
+        .value("IMG_HIGHPASS", TRACKER_IMG_HIGHPASS)
         .export_values()
     ;
-
 
     class_<TrackerEventSource, boost::noncopyable>("Tracker",
             "A tracker that uses a firewire camera to track moving objects\n"
             "(e.g. fingers) and delivers them to the player as avg events.\n"
             "Create using Player::addTracker().\n",
             no_init)
-        .def("setThreshold", &TrackerEventSource::setThreshold)
         .def("getImage", &TrackerEventSource::getImage,
             return_value_policy<manage_new_object>(),
             "getImage(ImageID) -> Bitmap\n\n" 
-            "Returns one of the intermediate images nessesary for tracking.\n");
+            "Returns one of the intermediate images necessary for tracking.\n")
+        .def("saveConfig", &TrackerEventSource::saveConfig,
+            "saveConfig() -> None\n\n"
+            "Saves the tracker configuration to TrackerConfig.xml in the current\n"
+            "directory.\n")
+        .def("resetHistory", &TrackerEventSource::resetHistory,
+            "resetHistory() -> None\n\n"
+            "Throws away the current history image and generates a new one from\n"
+            "the current image.\n")
+        .add_property("barrel", &TrackerEventSource::getBarrel,
+            &TrackerEventSource::setBarrel)
+        .add_property("trapezoid", &TrackerEventSource::getTrapezoid,
+            &TrackerEventSource::setTrapezoid)
+
+        .add_property("roileft", &TrackerEventSource::getROILeft,
+            &TrackerEventSource::setROILeft)
+        .add_property("roitop", &TrackerEventSource::getROITop,
+            &TrackerEventSource::setROITop)
+        .add_property("roiright", &TrackerEventSource::getROIRight,
+            &TrackerEventSource::setROIRight)
+        .add_property("roibottom", &TrackerEventSource::getROIBottom,
+            &TrackerEventSource::setROIBottom)
+        
+        .add_property("threshold", &TrackerEventSource::getThreshold,
+            &TrackerEventSource::setThreshold)
+        .add_property("historyspeed", &TrackerEventSource::getHistorySpeed,
+            &TrackerEventSource::setHistorySpeed)
+        .add_property("brightness", &TrackerEventSource::getBrightness,
+            &TrackerEventSource::setBrightness)
+        .add_property("exposure", &TrackerEventSource::getExposure,
+            &TrackerEventSource::setExposure)
+        .add_property("gamma", &TrackerEventSource::getGamma,
+            &TrackerEventSource::setGamma)
+        .add_property("gain", &TrackerEventSource::getGain,
+            &TrackerEventSource::setGain)
+        .add_property("shutter", &TrackerEventSource::getShutter,
+            &TrackerEventSource::setShutter)
+        .add_property("debug", &TrackerEventSource::getDebug,
+            &TrackerEventSource::setDebug)
+        ;
 }

@@ -77,7 +77,7 @@ FilterColorize::~FilterColorize()
 
 }
 
-void FilterColorize::applyInPlace(BitmapPtr pBmp) const
+void FilterColorize::applyInPlace(BitmapPtr pBmp)
 {
     BitmapPtr pTempBmp (FilterGrayscale().apply(pBmp));
     Pixel24 ColorTable[256];
@@ -87,14 +87,15 @@ void FilterColorize::applyInPlace(BitmapPtr pBmp) const
 
     unsigned char * pSrcLine = pTempBmp->getPixels();
     unsigned char * pDestLine = pBmp->getPixels();
-    for (int y = 0; y<pTempBmp->getSize().y; ++y) {
+    IntPoint size = pTempBmp->getSize();
+    for (int y = 0; y<size.y; ++y) {
         unsigned char * pSrcPixel = pSrcLine;
         switch (pBmp->getPixelFormat()) {
             case R8G8B8A8:
             case R8G8B8X8:
                 {
                     Pixel32 * pDestPixel = (Pixel32 *)pDestLine;
-                    for (int x = 0; x < pTempBmp->getSize().x; ++x) {
+                    for (int x = 0; x < size.x; ++x) {
                         *pDestPixel = ColorTable[*pSrcPixel];
                         ++pSrcPixel;
                         ++pDestPixel;
@@ -104,7 +105,7 @@ void FilterColorize::applyInPlace(BitmapPtr pBmp) const
             case R8G8B8:
                 {
                     Pixel24 * pDestPixel = (Pixel24 *)pDestLine;
-                    for (int x = 0; x < pTempBmp->getSize().x; ++x) {
+                    for (int x = 0; x < size.x; ++x) {
                         *pDestPixel = ColorTable[*pSrcPixel];
                         ++pSrcPixel;
                         ++pDestPixel;
@@ -115,7 +116,7 @@ void FilterColorize::applyInPlace(BitmapPtr pBmp) const
             case B8G8R8X8:
                 {
                     Pixel32 * pDestPixel = (Pixel32 *)pDestLine;
-                    for (int x = 0; x < pTempBmp->getSize().x; ++x) {
+                    for (int x = 0; x < size.x; ++x) {
                         *pDestPixel = ColorTable[*pSrcPixel];
 //                        pDestPixel->flipRB();
                         ++pSrcPixel;
@@ -126,7 +127,7 @@ void FilterColorize::applyInPlace(BitmapPtr pBmp) const
             case B8G8R8:
                 {
                     Pixel24 * pDestPixel = (Pixel24 *)pDestLine;
-                    for (int x = 0; x < pTempBmp->getSize().x; ++x) {
+                    for (int x = 0; x < size.x; ++x) {
                         *pDestPixel = ColorTable[*pSrcPixel];
 //                        pDestPixel->flipRB();
                         ++pSrcPixel;

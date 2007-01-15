@@ -33,15 +33,12 @@ namespace avg {
 
 MouseEvent::MouseEvent(Event::Type eventType,
         bool leftButtonState, bool middleButtonState, bool rightButtonState,
-        int xPosition, int yPosition, int button)
-    : Event(eventType),
-      m_pNode()
+        IntPoint Position, int button)
+    : CursorEvent(MOUSECURSORID, eventType, Position)
 {
     m_LeftButtonState = leftButtonState;
     m_MiddleButtonState = middleButtonState;
     m_RightButtonState = rightButtonState;
-    m_XPosition = xPosition;
-    m_YPosition = yPosition;
     if (eventType == MOUSEMOTION) {
         m_Button = 0;
     } else {
@@ -53,9 +50,9 @@ MouseEvent::~MouseEvent()
 {
 }
 
-NodePtr MouseEvent::getElement() const
+int MouseEvent::getButton() const
 {
-    return m_pNode;
+    return m_Button;
 }
 
 bool MouseEvent::getLeftButtonState() const
@@ -73,32 +70,16 @@ bool MouseEvent::getRightButtonState() const
     return m_RightButtonState;
 }
 
-int MouseEvent::getXPosition() const
-{
-    return m_XPosition;
-}
-
-int MouseEvent::getYPosition() const
-{
-    return m_YPosition;
-}
-
-int MouseEvent::getButton() const
-{
-    return m_Button;
-}
-
-void MouseEvent::setElement(NodePtr pNode)
-{
-    m_pNode = pNode;
-}
-
 void MouseEvent::trace()
 {
     Event::trace();
-    AVG_TRACE(Logger::EVENTS2, "pos: (" << m_XPosition 
-            << ", " << m_YPosition << ")" 
+    AVG_TRACE(Logger::EVENTS2, "pos: " << m_Position 
             << ", button: " << m_Button);
 }
 
+Event* MouseEvent::cloneAs(Type EventType){
+    MouseEvent *res = new MouseEvent(*this);
+    res->m_Type = EventType;
+    return res;
+}
 }

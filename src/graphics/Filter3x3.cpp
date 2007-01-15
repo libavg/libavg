@@ -41,7 +41,7 @@ Filter3x3::~Filter3x3()
 
 }
 
-BitmapPtr Filter3x3::apply(BitmapPtr pBmpSource) const
+BitmapPtr Filter3x3::apply(BitmapPtr pBmpSource) 
 {
     IntPoint NewSize(pBmpSource->getSize().x-2, pBmpSource->getSize().y-2);
     BitmapPtr pNewBmp(new Bitmap(NewSize, pBmpSource->getPixelFormat(),

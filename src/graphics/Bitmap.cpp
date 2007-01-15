@@ -161,7 +161,7 @@ void Bitmap::copyPixels(const Bitmap & Orig)
         const unsigned char * pSrc = Orig.getPixels();
         unsigned char * pDest = m_pBits;
         int Height = min(Orig.getSize().y, m_Size.y);
-        int LineLen = getLineLen();
+        int LineLen = min(Orig.getLineLen(), getLineLen());
         for (int y=0; y<Height; ++y) {
             memcpy(pDest, pSrc, LineLen);
             pDest += m_Stride;
@@ -471,6 +471,22 @@ bool Bitmap::hasAlpha() const
 {
     return (m_PF == B8G8R8A8 || m_PF == R8G8B8A8 || m_PF == A8B8G8R8 ||
             m_PF == A8R8G8B8);
+}
+
+HistogramPtr Bitmap::getHistogram(int Stride) const
+{
+    assert (m_PF == I8);
+    HistogramPtr pHist(new Histogram(256,0));
+    const unsigned char * pSrcLine = m_pBits;
+    for (int y=0; y < m_Size.y; y+=Stride) {
+        const unsigned char * pSrc = pSrcLine;
+        for (int x=0; x<m_Size.x; x+=Stride) {
+            (*pHist)[(*pSrc)]++;
+            pSrc+=Stride;
+        }
+        pSrcLine += m_Stride*Stride;
+    }
+    return pHist;
 }
 
 bool Bitmap::operator ==(const Bitmap & otherBmp)
@@ -840,24 +856,25 @@ void Bitmap::I8toRGB(const Bitmap& Orig)
     assert(getBytesPerPixel() == 4 || getBytesPerPixel() == 3);
     assert(Orig.getPixelFormat() == I8);
     const unsigned char * pSrc = Orig.getPixels();
-    unsigned char * pDest = m_pBits;
     int Height = min(Orig.getSize().y, m_Size.y);
     int Width = min(Orig.getSize().x, m_Size.x);
     if (getBytesPerPixel() == 4) {
+        unsigned int * pDest = (unsigned int *)m_pBits;
+        int DestStrideInPixels = m_Stride/getBytesPerPixel();
         for (int y=0; y<Height; ++y) {
             const unsigned char * pSrcPixel = pSrc;
-            unsigned char * pDestPixel = pDest;
+            unsigned int * pDestPixel = pDest;
             for (int x=0; x<Width; ++x) {
-                *pDestPixel++ = *pSrcPixel;
-                *pDestPixel++ = *pSrcPixel;
-                *pDestPixel++ = *pSrcPixel;
-                *pDestPixel++ = 255;
+                *pDestPixel = (((((255 << 8)+(*pSrcPixel)) << 8)+
+                        *pSrcPixel) << 8) +(*pSrcPixel);
+                pDestPixel ++;
                 pSrcPixel++;
             }
-            pDest += getStride();
+            pDest += DestStrideInPixels;
             pSrc += Orig.getStride();
         }
     } else {
+        unsigned char * pDest = m_pBits;
         for (int y=0; y<Height; ++y) {
             const unsigned char * pSrcPixel = pSrc;
             unsigned char * pDestPixel = pDest;

@@ -33,7 +33,7 @@ class FilterGrayscale : public Filter
 public:
   FilterGrayscale();
   virtual ~FilterGrayscale();
-  virtual BitmapPtr apply(BitmapPtr pBmpSource) const;
+  virtual BitmapPtr apply(BitmapPtr pBmpSource) ;
 
 private:
 };
