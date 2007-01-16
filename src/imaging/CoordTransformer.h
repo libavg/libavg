@@ -17,6 +17,7 @@
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 //  Current versions can be found at www.libavg.de
+//
 
 #ifndef _CoordTransformer_H_
 #define _CoordTransformer_H_
@@ -28,7 +29,8 @@
 
 namespace avg {
 
-class CoordTransformer {
+class CoordTransformer
+{
     public:
         CoordTransformer(IntRect srcRect, double K1, double T, double RescaleFactor = 1);
         virtual ~CoordTransformer();

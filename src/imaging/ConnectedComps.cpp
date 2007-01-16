@@ -1,7 +1,31 @@
+//
+//  libavg - Media Playback Engine. 
+//  Copyright (C) 2003-2006 Ulrich von Zadow
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2 of the License, or (at your option) any later version.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  Current versions can be found at www.libavg.de
+//
+//  Original author of this file is igor@c-base.org 
+//
+
 #include "ConnectedComps.h"
 
 #include "../graphics/Filterfill.h"
 #include "../graphics/Pixel8.h"
+
 #include <stdlib.h>
 #include <math.h>
 #include <iostream>
@@ -12,7 +36,8 @@ namespace avg {
 
 int Run::s_LastLabel= 0;
 
-Run::Run(int row, int start_col, int end_col, int color){
+Run::Run(int row, int start_col, int end_col, int color)
+{
     m_Row = row;
     assert(end_col>=start_col);
     m_StartCol = start_col;
@@ -22,29 +47,36 @@ Run::Run(int row, int start_col, int end_col, int color){
     m_Label = s_LastLabel;
 }
 
-int Run::length(){
+int Run::length()
+{
     return m_EndCol-m_StartCol+1;
 }
 
-DPoint Run::center(){
+DPoint Run::center()
+{
     DPoint d = DPoint((m_StartCol + m_EndCol)/2., m_Row);
     return d;
 }
-Blob::Blob(Run run) {
+
+Blob::Blob(Run run) 
+{
     m_pRuns = new RunList();
     m_pRuns->push_back(run);
     m_pParent = BlobPtr();
 }
 
-Blob::~Blob() {
+Blob::~Blob() 
+{
     delete m_pRuns;
 }
 
-RunList *Blob::getList(){
+RunList *Blob::getList()
+{
     return m_pRuns;
 }
 
-void Blob::merge(BlobPtr other) {
+void Blob::merge(BlobPtr other)
+{
     assert(other);
     RunList *other_runs=other->getList();
     for(RunList::iterator it=other_runs->begin();it!=other_runs->end();++it){
@@ -53,7 +85,8 @@ void Blob::merge(BlobPtr other) {
     //m_pRuns->splice(m_pRuns->end(), *(other->getList()));
 }
 
-DPoint Blob::center() {
+DPoint Blob::center()
+{
     DPoint d = DPoint(0,0);
     int c = 0;
     for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r){
@@ -63,7 +96,8 @@ DPoint Blob::center() {
 
     return d/double(c);
 }
-IntRect Blob::bbox(){
+IntRect Blob::bbox()
+{
     int x1=__INT_MAX__,y1=__INT_MAX__,x2=0,y2=0;
     for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r){
         x1 = std::min(x1, r->m_StartCol);
@@ -75,7 +109,8 @@ IntRect Blob::bbox(){
 
 }
 
-int Blob::area(){
+int Blob::area()
+{
     int res = 0;
     for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r){
         res+= r->length();
@@ -83,7 +118,8 @@ int Blob::area(){
     return res;
 }
 
-int Blob::getLabel(){
+int Blob::getLabel()
+{
     if(!m_pRuns->empty()){
         return (m_pRuns->begin())->m_Label;
     }else{
@@ -128,7 +164,8 @@ void Blob::render(Bitmap *pTarget, Pixel32 Color, bool bMarkCenter,
     }
 }
 
-BlobInfoPtr Blob::getInfo(){
+BlobInfoPtr Blob::getInfo()
+{
     /*
         more useful numbers that can be calculated from c
         see e.g. 
@@ -219,7 +256,9 @@ double res = 0;
     return sqrt(res/area());
 }
 */
-int connected(Run &r1, Run &r2){
+
+int connected(Run &r1, Run &r2)
+{
     int res=0;
 //    if (abs(r2.m_Row - r1.m_Row) != 1)
 //        return 0;
@@ -231,7 +270,9 @@ int connected(Run &r1, Run &r2){
     }
     return res;
 }
-void store_runs(CompsMap  *comps, RunList *runs1, RunList *runs2){
+
+void store_runs(CompsMap  *comps, RunList *runs1, RunList *runs2)
+{
    BlobPtr p_blob;
    BlobPtr c_blob;
    for (RunList::iterator run1_it = runs1->begin(); run1_it!=runs1->end(); ++run1_it){
@@ -268,11 +309,13 @@ Run new_run(CompsMap *comps, int row, int col1, int col2, int color)
     return run;
 }
 
-BlobListPtr connected_components(BitmapPtr image, unsigned char object_threshold){
+BlobListPtr connected_components(BitmapPtr image, unsigned char object_threshold)
+{
     return connected_components(image, (FilterFill<Pixel8>(object_threshold)).apply(image));
-
 }
-BlobListPtr connected_components(BitmapPtr image, BitmapPtr thresholds){
+
+BlobListPtr connected_components(BitmapPtr image, BitmapPtr thresholds)
+{
     assert(image->getPixelFormat() == I8);
     CompsMap *comps = new CompsMap();
     const unsigned char *pixels = image->getPixels();
@@ -343,4 +386,5 @@ BlobListPtr connected_components(BitmapPtr image, BitmapPtr thresholds){
     delete runs2;
     return BlobListPtr(result);
 }
+
 }

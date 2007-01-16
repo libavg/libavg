@@ -1,8 +1,35 @@
+//
+//  libavg - Media Playback Engine. 
+//  Copyright (C) 2003-2006 Ulrich von Zadow
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2 of the License, or (at your option) any later version.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  Current versions can be found at www.libavg.de
+//
+//  Original author of this file is igor@c-base.org
+//
 
 #include "TrackerEventSource.h"
 #include "TouchEvent.h"
 
 #include "../base/Logger.h"
+
+#include "../graphics/Rect.h"
+#include "../graphics/HistoryPreProcessor.h"
+#include "../graphics/Filterfill.h"
+#include "../graphics/Pixel8.h"
 
 #include "../imaging/ConnectedComps.h"
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
@@ -10,10 +37,6 @@
 #endif
 #include "../imaging/Camera.h"
 
-#include "../graphics/Rect.h"
-#include "../graphics/HistoryPreProcessor.h"
-#include "../graphics/Filterfill.h"
-#include "../graphics/Pixel8.h"
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
 
@@ -27,8 +50,7 @@ using namespace std;
 const int MAXMISSINGFRAMES=5;
 
 namespace avg {
-    //hmmm. just don't use two TrackerEventSources...
-    //if you do, put these into thread local storage or something
+
     class  EventStream
     //internal class to keep track of blob/event states
     {
@@ -56,7 +78,8 @@ namespace avg {
     
     int EventStream::s_LastLabel = 0;
 
-    EventStream::EventStream(BlobPtr first_blob){
+    EventStream::EventStream(BlobPtr first_blob)
+    {
         //need to lock s_LastLabel???
         m_Id = s_LastLabel++;
         m_pBlob = first_blob;
@@ -64,7 +87,9 @@ namespace avg {
         m_State = FRESH;
         m_Stale = false;
     };
-    void EventStream::update(BlobPtr new_blob){
+
+    void EventStream::update(BlobPtr new_blob)
+    {
         if (!new_blob){
             switch(m_State) {
                 case FRESH:
@@ -123,7 +148,9 @@ namespace avg {
         m_pBlob = new_blob;
         m_Stale = false;
     };
-    Event* EventStream::pollevent(DPoint& Offset, DPoint& Scale){
+
+    Event* EventStream::pollevent(DPoint& Offset, DPoint& Scale)
+    {
         assert(m_pBlob);
         switch(m_State){
             case FRESH:
@@ -400,12 +427,13 @@ namespace avg {
     }
     
 
-double distance(BlobPtr p1, BlobPtr p2) {
-    DPoint c1 = p1->center();
-    DPoint c2 = p2->center();
+    double distance(BlobPtr p1, BlobPtr p2) 
+    {
+        DPoint c1 = p1->center();
+        DPoint c2 = p2->center();
 
-    return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
-}
+        return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
+    }
 
     BlobPtr TrackerEventSource::matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold)
     {
@@ -435,8 +463,8 @@ double distance(BlobPtr p1, BlobPtr p2) {
                 }
         }
         return res;
-
     }
+
     bool TrackerEventSource::isfinger(BlobPtr blob)
     {
         BlobInfoPtr info = blob->getInfo();
@@ -447,7 +475,8 @@ double distance(BlobPtr p1, BlobPtr p2) {
 #undef IN
     }
 
-    void TrackerEventSource::update(BlobListPtr new_blobs, BitmapPtr pBitmap){
+    void TrackerEventSource::update(BlobListPtr new_blobs, BitmapPtr pBitmap)
+    {
         boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
         BlobListPtr old_blobs = BlobListPtr(new BlobList());
         EventStreamPtr e;
@@ -507,7 +536,9 @@ double distance(BlobPtr p1, BlobPtr p2) {
 
         //       AVG_TRACE(Logger::EVENTS2, ""<<gone_counter<<" fingers disappeared.");
     };
-   std::vector<Event*> TrackerEventSource::pollEvents(){
+
+    std::vector<Event*> TrackerEventSource::pollEvents()
+    {
         boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
         std::vector<Event*> res = std::vector<Event *>();
         Event *t;

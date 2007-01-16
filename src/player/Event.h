@@ -59,9 +59,9 @@ class Event {
         
         friend struct isEventAfter;
     protected:
+        Type m_Type;
         NodePtr m_pNode;
         int m_When;
-        Type m_Type;
     private:
         int m_Counter;
 

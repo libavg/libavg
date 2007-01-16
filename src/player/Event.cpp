@@ -34,7 +34,7 @@ int Event::s_CurCounter = 0;
 
 Event::Event(Type type, int when)
     : m_Type(type),
-    m_pNode()
+      m_pNode()
 {
     if (when == -1) {
         m_When = TimeSource::get()->getCurrentMillisecs();
