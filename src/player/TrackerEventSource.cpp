@@ -481,7 +481,8 @@ namespace avg {
         BlobListPtr old_blobs = BlobListPtr(new BlobList());
         EventStreamPtr e;
         if (pBitmap) {
-            FilterFill<Pixel32>(Pixel32(0x00, 0x00, 0x00, 0xFF)).applyInPlace(
+            Pixel32 Black(0x00, 0x00, 0x00, 0xFF);
+            FilterFill<Pixel32>(Black).applyInPlace(
                 pBitmap);
         }
         for(EventMap::iterator it=m_Events.begin();it!=m_Events.end();++it){
