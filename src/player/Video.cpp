@@ -58,6 +58,10 @@ Video::Video (const xmlNodePtr xmlNode, Player * pPlayer)
 {
     m_href = getDefaultedStringAttr (xmlNode, "href", "");
     m_bLoop = getDefaultedBoolAttr (xmlNode, "loop", false);
+    m_Filename = m_href;
+    if (m_Filename != "") {
+        initFilename(getPlayer(), m_Filename);
+    }
 }
 
 Video::~Video ()
@@ -107,10 +111,6 @@ bool Video::getLoop() const
 void Video::setDisplayEngine(DisplayEngine * pEngine)
 {
     m_pDecoder = new FFMpegDecoder();
-    m_Filename = m_href;
-    if (m_Filename != "") {
-        initFilename(getPlayer(), m_Filename);
-    }
     VideoBase::setDisplayEngine(pEngine);
 }
 
