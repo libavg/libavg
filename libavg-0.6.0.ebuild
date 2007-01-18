@@ -39,4 +39,9 @@ src_compile() {
 src_install () {
 	python_version
 	einstall || die "install failed"
+# TODO: This shouldn't be necessary anymore if libavg.pth is installed
+# correctly.
+	dodir /etc/env.d
+	echo "PYTHONPATH=/usr/lib/python${PYVER}/site-packages/libavg/" \
+			> ${D}/etc/env.d/99libavg
 }
