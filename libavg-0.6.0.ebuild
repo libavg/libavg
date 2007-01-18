@@ -39,7 +39,4 @@ src_compile() {
 src_install () {
 	python_version
 	einstall || die "install failed"
-	dodir /etc/env.d
-	echo "PYTHONPATH=/usr/lib/python${PYVER}/site-packages/libavg/" \
-		> ${D}/etc/env.d/99libavg
 }
