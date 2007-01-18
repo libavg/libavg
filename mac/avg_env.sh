@@ -8,5 +8,5 @@ else
     export CFLAGS="-O2 -g -Wall "$CFLAGS
     export LDFLAGS="-L${AVG_PATH}/lib "$LDFLAGS
     export PKG_CONFIG_PATH=${AVG_PATH}/lib/pkgconfig
-    export PYTHONPATH=${AVG_PATH}/lib/python2.3/site-packages/libavg/:$PYTHONPATH
+    export PYTHONPATH=${AVG_PATH}/lib/python2.3/site-packages/:$PYTHONPATH
 fi
