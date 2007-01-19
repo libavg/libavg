@@ -72,18 +72,20 @@ void Image::setDisplayEngine(DisplayEngine * pEngine)
 
 void Image::disconnect()
 {
-    // Unload textures but keep bitmap in memory.
-    ISurface * pSurface = getSurface();
-    BitmapPtr pSurfaceBmp = pSurface->lockBmp();
-    m_pBmp = BitmapPtr(new Bitmap(pSurfaceBmp->getSize(), pSurfaceBmp->getPixelFormat()));
-    m_pBmp->copyPixels(*pSurfaceBmp);
-    getSurface()->unlockBmps();
+    if (m_pBmp != BitmapPtr()) {
+        // Unload textures but keep bitmap in memory.
+        ISurface * pSurface = getSurface();
+        BitmapPtr pSurfaceBmp = pSurface->lockBmp();
+        m_pBmp = BitmapPtr(new Bitmap(pSurfaceBmp->getSize(), pSurfaceBmp->getPixelFormat()));
+        m_pBmp->copyPixels(*pSurfaceBmp);
+        getSurface()->unlockBmps();
 #ifdef __i386__
-    // XXX Yuck
-    if (!(getPlayer()->getDisplayEngine()->hasRGBOrdering())) {
-        FilterFlipRGB().applyInPlace(m_pBmp);
-    }
+        // XXX Yuck
+        if (!(getPlayer()->getDisplayEngine()->hasRGBOrdering())) {
+            FilterFlipRGB().applyInPlace(m_pBmp);
+        }
 #endif
+    }
     RasterNode::disconnect();
 }
 

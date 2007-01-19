@@ -481,6 +481,7 @@ void OGLSurface::createBitmap(const IntPoint& Size, PixelFormat pf, int i)
 
 void OGLSurface::unlockBmp(int i) 
 {
+//    cerr << "unlockBmp" << endl;
     switch (m_MemoryMode) {
         case PBO:
             glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
