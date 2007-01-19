@@ -40,6 +40,6 @@ avg_la_LIBADD = ../conradrelais/libconradrelais.la \
 				../base/libbase.la \
                 ../imaging/libimaging.la \
 				../parport/libparport.la
-pkgpyexec_PYTHON = anim.py
+pkgpyexec_PYTHON = anim.py __init__.py
 python_PYTHON = libavg.pth
 
