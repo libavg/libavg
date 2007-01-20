@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import avg
+from libavg import avg
 
 import unittest
 import sys, syslog

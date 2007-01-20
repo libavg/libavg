@@ -21,7 +21,7 @@
 #ifndef _TrackerThread_H_
 #define _TrackerThread_H_
 #include "TrackerConfig.h"
-#include "Camera.h"
+#include "AsyncCamera.h"
 #include "ConnectedComps.h"
 #include "FilterDistortion.h"
 

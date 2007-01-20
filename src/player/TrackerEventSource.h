@@ -27,7 +27,6 @@
 #include "../graphics/Rect.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/Filter.h"
-#include "../imaging/Camera.h"
 #include "../imaging/TrackerThread.h"
 #include "../imaging/ConnectedComps.h"
 

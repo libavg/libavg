@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "Camera.h"
+#include "AsyncCamera.h"
 
 #include "../base/TimeSource.h"
 #include "../base/Logger.h"
@@ -36,7 +36,7 @@ using namespace std;
 
 namespace avg {
 
-Camera::Camera (std::string sDevice, double FrameRate, std::string sMode, bool bColor)
+AsyncCamera::AsyncCamera (std::string sDevice, double FrameRate, std::string sMode, bool bColor)
     : m_sDevice(sDevice),
       m_FrameRate(FrameRate),
       m_sMode(sMode),
@@ -45,12 +45,12 @@ Camera::Camera (std::string sDevice, double FrameRate, std::string sMode, bool b
     m_pThread = 0;
 }
 
-Camera::~Camera()
+AsyncCamera::~AsyncCamera()
 {
     close();
 }
 
-void Camera::open()
+void AsyncCamera::open()
 {
 #if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
     m_pThread = new boost::thread(CameraThread(m_BitmapQ, m_CmdQ, m_sDevice, 
@@ -62,7 +62,7 @@ void Camera::open()
 #endif
 }
 
-void Camera::close() 
+void AsyncCamera::close() 
 {
 #if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
     if (m_pThread) {
@@ -74,7 +74,7 @@ void Camera::close()
 #endif
 }
 
-IntPoint Camera::getImgSize() 
+IntPoint AsyncCamera::getImgSize() 
 {
 #if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
     return getCamImgSize(getCamMode(m_sMode));
@@ -83,7 +83,7 @@ IntPoint Camera::getImgSize()
 #endif
 }
 
-BitmapPtr Camera::getImage(bool bWait) 
+BitmapPtr AsyncCamera::getImage(bool bWait) 
 {
 #if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
     if (m_pThread) {
@@ -99,27 +99,27 @@ BitmapPtr Camera::getImage(bool bWait)
 }
 
 
-bool Camera::isCameraAvailable()
+bool AsyncCamera::isCameraAvailable()
 {
     return m_pThread;
 }
 
-const string& Camera::getDevice() const 
+const string& AsyncCamera::getDevice() const 
 {
     return m_sDevice;
 }
 
-double Camera::getFrameRate() const
+double AsyncCamera::getFrameRate() const
 {
     return m_FrameRate;
 }
 
-const string& Camera::getMode() const
+const string& AsyncCamera::getMode() const
 {
     return m_sMode;
 }
         
-unsigned int Camera::getFeature (const std::string& sFeature) const
+unsigned int AsyncCamera::getFeature (const std::string& sFeature) const
 {
 #if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
     dc1394feature_t FeatureID = getFeatureID(sFeature);
@@ -134,7 +134,7 @@ unsigned int Camera::getFeature (const std::string& sFeature) const
 #endif
 }
 
-void Camera::setFeature (const std::string& sFeature, int Value)
+void AsyncCamera::setFeature (const std::string& sFeature, int Value)
 {
 #if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
     dc1394feature_t FeatureID = getFeatureID(sFeature);

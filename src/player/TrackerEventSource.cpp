@@ -35,7 +35,6 @@
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
 #include "../imaging/CameraUtils.h"
 #endif
-#include "../imaging/Camera.h"
 
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>

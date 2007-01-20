@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Camera_H_
-#define _Camera_H_
+#ifndef _AsyncCamera_H_
+#define _AsyncCamera_H_
 
 #include "ICamera.h"
 
@@ -51,12 +51,12 @@ typedef unsigned int dc1394feature_t;
 
 namespace avg {
 
-class Camera: public ICamera
+class AsyncCamera: public ICamera
 {
     public:
-        Camera(std::string sDevice, double FrameRate, std::string sMode, 
+        AsyncCamera(std::string sDevice, double FrameRate, std::string sMode, 
                 bool bColor);
-        virtual ~Camera();
+        virtual ~AsyncCamera();
         void open();
         void close();
 
