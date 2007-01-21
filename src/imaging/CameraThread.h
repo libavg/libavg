@@ -29,6 +29,8 @@
 #undef PACKAGE_TARNAME
 #undef PACKAGE_VERSION
 
+#include "Camera.h"
+
 #include "../graphics/Rect.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel24.h"
@@ -43,9 +45,9 @@
 #ifdef AVG_ENABLE_1394_2
 #include <dc1394/control.h>
 #endif
-#ifndef AVG_ENABLE_1394_2
-typedef unsigned int dc1394feature_t;
-#endif
+//#ifndef AVG_ENABLE_1394_2
+//typedef unsigned int dc1394feature_t;
+//#endif
 
 #include <string>
 
@@ -55,13 +57,8 @@ typedef Queue<BitmapPtr> BitmapQueue;
 
 class CameraThread: public WorkerThread<CameraThread> {
 public:
-#ifdef AVG_ENABLE_1394
     CameraThread(BitmapQueue& BitmapQ, CmdQueue& CmdQ, 
-            std::string sDevice, int Mode, double FrameRate, bool bColor);
-#else
-    CameraThread(BitmapQueue& BitmapQ, CmdQueue& CmdQ, 
-            std::string sDevice, dc1394video_mode_t Mode, double FrameRate, bool bColor);
-#endif
+            std::string sDevice, double FrameRate, std::string sMode, bool bColor);
 
     bool init();
     bool work();
@@ -72,31 +69,8 @@ public:
 private:
     void captureImage();
 
+    Camera m_Camera;
     BitmapQueue& m_BitmapQ;
-
-    std::string m_sDevice;
-    double m_FrameRate;
-    bool m_bColor;
-
-#ifdef AVG_ENABLE_1394
-    bool findCameraOnPort(int port, raw1394handle_t& FWHandle);
-
-    dc1394_cameracapture m_Camera;
-    raw1394handle_t m_FWHandle;
-    dc1394_feature_set m_FeatureSet;
-    int m_FrameRateConstant;  // libdc1394 constant for framerate.
-    int m_Mode;               // libdc1394 constant for mode.
-#else
-    dc1394camera_t * m_pCamera;
-    dc1394featureset_t m_FeatureSet;
-    dc1394framerate_t m_FrameRateConstant; 
-    dc1394video_mode_t m_Mode;            
-#endif
-    void checkDC1394Error(int Code, const std::string & sMsg);
-    void fatalError(const std::string & sMsg);
-    void dumpCameraInfo();
-
-    bool m_bCameraAvailable;
 };
 
 }

@@ -61,7 +61,7 @@
 
 #include "../graphics/Rect.h"
 
-#include "../imaging/AsyncCamera.h"
+#include "../imaging/Camera.h"
 #include "../imaging/FakeCamera.h"
 
 #include <Magick++.h>
@@ -315,7 +315,7 @@ TrackerEventSource * Player::addTracker(std::string sDevice, double FrameRate,
 //    if (m_bUseFakeCamera) {
 //        pCamera = CameraPtr(new FakeCamera());
 //    } else {
-        pCamera = CameraPtr(new AsyncCamera(sDevice, FrameRate, sMode, false));
+        pCamera = CameraPtr(new Camera(sDevice, FrameRate, sMode, false));
 //    }
     m_pTracker = new TrackerEventSource(pCamera, true);
     m_EventDispatcher.addSource(m_pTracker);

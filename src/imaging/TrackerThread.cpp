@@ -38,6 +38,7 @@
 using namespace std;
 
 namespace avg {
+static ProfilingZone ProfilingZoneCapture ("Capture", "Tracker");
 static ProfilingZone ProfilingZoneTracker ("Tracker", "Tracker");
 static ProfilingZone ProfilingZoneHistory ("  History", "Tracker");
 static ProfilingZone ProfilingZoneDistort ("  Distort", "Tracker");
@@ -82,10 +83,14 @@ bool TrackerThread::init()
 
 bool TrackerThread::work()
 {
-    BitmapPtr pCamBmp = m_pCamera->getImage(true);
-    BitmapPtr pTempBmp1;
-    while (pTempBmp1 = m_pCamera->getImage(false)) {
-        pCamBmp = pTempBmp1;
+    BitmapPtr pCamBmp;
+    {
+        ScopeTimer Timer(ProfilingZoneCapture);
+        pCamBmp = m_pCamera->getImage(true);
+        BitmapPtr pTempBmp1;
+        while (pTempBmp1 = m_pCamera->getImage(false)) {
+            pCamBmp = pTempBmp1;
+        }
     }
     {
         ScopeTimer Timer(ProfilingZoneTracker);

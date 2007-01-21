@@ -54,7 +54,7 @@ void AsyncCamera::open()
 {
 #if defined (AVG_ENABLE_1394) || defined (AVG_ENABLE_1394_2)
     m_pThread = new boost::thread(CameraThread(m_BitmapQ, m_CmdQ, m_sDevice, 
-            getCamMode(m_sMode), m_FrameRate, m_bColor));
+            m_FrameRate, m_sMode, m_bColor));
     for (FeatureMap::iterator it=m_Features.begin(); it != m_Features.end(); it++) {
         m_CmdQ.push(Command<CameraThread>(boost::bind(&CameraThread::setFeature, _1,
             it->first, it->second)));
