@@ -24,7 +24,7 @@
 #ifndef _FilterDistortion_H_
 #define _FilterDistortion_H_
 
-#include "CoordTransformer.h"
+#include "TrapezoidAndBarrel.h"
 
 #include "../graphics/Filter.h"
 #include "../graphics/Point.h"
@@ -40,7 +40,7 @@ namespace avg {
             BitmapPtr apply (BitmapPtr pBmpSource);
         private:
             IntRect m_srcRect;
-            CoordTransformer m_trafo;
+            TrapezoidAndBarrel m_trafo;
             IntPoint *m_pMap;
     };
 

@@ -48,12 +48,12 @@ class DistortionTest: public Test {
         DistortionTest():Test("DistortionTest",2){}
         void runTests(){
             cerr << "    Identical Transformer" << endl;
-            CoordTransformer Transformer(IntRect(0,0,100,100), 0, 0, 1);
+            TrapezoidAndBarrel Transformer(IntRect(0,0,100,100), 0, 0, 1);
             TEST(Transformer.transform_point(DPoint(0,0)) == DPoint(0,0));
             TEST(Transformer.transform_point(DPoint(100,100)) == DPoint(100,100));
             
             cerr << "    Trapezoid Transformer 1" << endl;
-            CoordTransformer TrapT(IntRect(0,0,100,100), 0, 1, 1);
+            TrapezoidAndBarrel TrapT(IntRect(0,0,100,100), 0, 1, 1);
             DPoint TestPt(100,0);
             testNullTransform(TrapT, TestPt);
             TestPt = DPoint(0,0);
@@ -64,12 +64,12 @@ class DistortionTest: public Test {
             testNullTransform(TrapT, TestPt);
             
             cerr << "    Trapezoid Transformer 2" << endl;
-            CoordTransformer TrapT1(IntRect(0,0,100,100), 0, 0.1, 1);
+            TrapezoidAndBarrel TrapT1(IntRect(0,0,100,100), 0, 0.1, 1);
             TestPt = DPoint(100,10);
             testNullTransform(TrapT1, TestPt);
 
             cerr << "    Barrel Transformer" << endl;
-            CoordTransformer BarrelT(IntRect(0,0,100,100), 0.1, 0, 1.1);
+            TrapezoidAndBarrel BarrelT(IntRect(0,0,100,100), 0.1, 0, 1.1);
             TestPt = DPoint(100,0);
             testNullTransform(BarrelT, TestPt);
             TestPt = DPoint(0,0);
@@ -89,7 +89,7 @@ class DistortionTest: public Test {
             cerr << "Result: " << SamePt << endl;
             
             cerr << "    Combined Transformer" << endl;
-            CoordTransformer CombinedT(IntRect(0,0,100,100), 0.2, 0.1, 1.2);
+            TrapezoidAndBarrel CombinedT(IntRect(0,0,100,100), 0.2, 0.1, 1.2);
             TestPt = DPoint(100,0);
             testNullTransform(BarrelT, TestPt);
             TestPt = DPoint(0,100);
