@@ -251,6 +251,9 @@ void Camera::open()
     }
 #endif
     AVG_TRACE(Logger::CONFIG, "Camera successfully opened.");
+    for (FeatureMap::iterator it=m_Features.begin(); it != m_Features.end(); it++) {
+        setFeature(it->first, it->second);
+    }
 }
 
 void Camera::close()
@@ -431,7 +434,9 @@ void Camera::setFeature(const std::string& sFeature, int Value)
 {
     dc1394feature_t FeatureID = getFeatureID(sFeature);
     m_Features[FeatureID] = Value;
-    setFeature(FeatureID, Value);
+    if (m_bCameraAvailable) {
+        setFeature(FeatureID, Value);
+    }
 }
 
 void Camera::setFeature(dc1394feature_t Feature, int Value) {

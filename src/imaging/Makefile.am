@@ -2,12 +2,12 @@
 INCLUDES = -I.. @PTHREAD_CFLAGS@  @XML2_CFLAGS@
 
 if ENABLE_1394
-    DC1394_SOURCES = CameraThread.cpp CameraUtils.cpp
-    DC1394_INCLUDES = CameraThread.h CameraUtils.h
+    DC1394_SOURCES = CameraUtils.cpp
+    DC1394_INCLUDES = CameraUtils.h
 else
 if ENABLE_1394_2
-    DC1394_SOURCES = CameraThread.cpp CameraUtils.cpp
-    DC1394_INCLUDES = CameraThread.h CameraUtils.h
+    DC1394_SOURCES = CameraUtils.cpp
+    DC1394_INCLUDES = CameraUtils.h
 else
 
     DC1394_SOURCES =
@@ -15,9 +15,9 @@ else
 endif
 endif
 
-ALL_H = TrackerThread.h TrackerConfig.h ConnectedComps.h Camera.h AsyncCamera.h \
+ALL_H = TrackerThread.h TrackerConfig.h ConnectedComps.h Camera.h \
         FakeCamera.h CoordTransformer.h FilterDistortion.h $(DC1394_INCLUDES)
-ALL_CPP = TrackerThread.cpp TrackerConfig.cpp ConnectedComps.cpp Camera.cpp AsyncCamera.cpp \
+ALL_CPP = TrackerThread.cpp TrackerConfig.cpp ConnectedComps.cpp Camera.cpp \
         FakeCamera.cpp CoordTransformer.cpp FilterDistortion.cpp $(DC1394_SOURCES) 
 
 TESTS=testimaging

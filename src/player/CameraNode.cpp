@@ -42,7 +42,7 @@ CameraNode::CameraNode()
     : m_FrameNum(0)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-    m_pCamera = CameraPtr(new AsyncCamera("", 15, "640x480_RGB", true));
+    m_pCamera = CameraPtr(new Camera("", 15, "640x480_RGB", true));
 #else
     AVG_TRACE(Logger::ERROR,
             "Unable to set up camera. Camera support not compiled.");
@@ -58,8 +58,8 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
     double FrameRate = getDefaultedDoubleAttr (xmlNode, "framerate", 15);
     string sMode = getDefaultedStringAttr (xmlNode, "mode", "640x480_RGB");
 
-    m_pCamera = CameraPtr(new AsyncCamera(sDevice, FrameRate, sMode, true));
-    
+    m_pCamera = CameraPtr(new Camera(sDevice, FrameRate, sMode, true));
+
     m_pCamera->setFeature ("brightness", getDefaultedIntAttr(xmlNode, "brightness", -1));
     m_pCamera->setFeature ("exposure", getDefaultedIntAttr(xmlNode, "exposure", -1));
     m_pCamera->setFeature ("sharpness", getDefaultedIntAttr(xmlNode, "sharpness", -1));

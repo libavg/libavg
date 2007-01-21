@@ -31,7 +31,7 @@
 
 #include "VideoBase.h"
 
-#include "../imaging/AsyncCamera.h"
+#include "../imaging/Camera.h"
 
 #include <boost/thread/thread.hpp>
 
