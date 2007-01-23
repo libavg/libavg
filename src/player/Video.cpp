@@ -150,7 +150,7 @@ string Video::getTypeStr ()
 }
 
 void Video::seek(int DestFrame) {
-    m_pDecoder->seek(DestFrame, m_CurFrame);
+    m_pDecoder->seek(DestFrame);
     m_CurFrame = DestFrame;
     setFrameAvailable(false);
 }

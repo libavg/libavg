@@ -39,7 +39,7 @@ class FFMpegDecoder: public IVideoDecoder
         virtual void open(const std::string& sFilename, 
                 int* pWidth, int* pHeight);
         virtual void close();
-        virtual void seek(int DestFrame, int CurFrame);
+        virtual void seek(int DestFrame);
         virtual int getNumFrames();
         virtual double getFPS();
         virtual bool renderToBmp(BitmapPtr pBmp);

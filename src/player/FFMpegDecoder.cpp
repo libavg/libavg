@@ -192,7 +192,7 @@ void FFMpegDecoder::close()
     m_pFormatContext = 0;
 }
 
-void FFMpegDecoder::seek(int DestFrame, int CurFrame) 
+void FFMpegDecoder::seek(int DestFrame) 
 {
     if (m_bFirstPacket) {
         AVFrame Frame;
