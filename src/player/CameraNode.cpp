@@ -108,15 +108,13 @@ double CameraNode::getFPS()
 
 }
 
-void CameraNode::open(int* pWidth, int* pHeight)
+void CameraNode::open(IntPoint* pSize)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     m_pCamera->open();
-    *pWidth = m_pCamera->getImgSize().x;
-    *pHeight = m_pCamera->getImgSize().y;
+    *pSize = m_pCamera->getImgSize();
 #else
-    *pWidth = 640;
-    *pHeight = 480;
+    *pSize = IntPoint(640, 480);
 #endif    
 }
 

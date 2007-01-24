@@ -91,8 +91,7 @@ void dump_stream_info(AVFormatContext *s)
 }
 
 
-void FFMpegDecoder::open (const std::string& sFilename, 
-        int* pWidth, int* pHeight)
+void FFMpegDecoder::open (const std::string& sFilename, PixelFormat PFWanted)
 {
     AVFormatParameters params;
     int err;
@@ -161,13 +160,10 @@ void FFMpegDecoder::open (const std::string& sFilename,
     }                
     m_pVStream = m_pFormatContext->streams[m_VStreamIndex];
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    *pWidth =  m_pVStream->codec.width;
-    *pHeight = m_pVStream->codec.height;
+    m_Size = IntPoint(m_pVStream->codec.width, m_pVStream->codec.height);
 #else
-    *pWidth =  m_pVStream->codec->width;
-    *pHeight = m_pVStream->codec->height;
+    m_Size = IntPoint(m_pVStream->codec->width, m_pVStream->codec->height);
 #endif
-    m_Size = IntPoint(*pWidth, *pHeight);
     m_bFirstPacket = true;
     m_PacketLenLeft = 0;
     m_bEOF = false;

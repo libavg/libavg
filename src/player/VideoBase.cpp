@@ -52,8 +52,7 @@ namespace avg {
 
 VideoBase::VideoBase ()
     : m_VideoState(Unloaded),
-      m_Width(0),
-      m_Height(0),
+      m_Size(0,0),
       m_YCbCrMode(DisplayEngine::NONE),
       m_bFrameAvailable(false)
 {
@@ -62,8 +61,7 @@ VideoBase::VideoBase ()
 VideoBase::VideoBase (const xmlNodePtr xmlNode, Player * pPlayer)
     : RasterNode(xmlNode, pPlayer),
       m_VideoState(Unloaded),
-      m_Width(0),
-      m_Height(0),
+      m_Size(0,0),
       m_bFrameAvailable(false)
 {
 }
@@ -200,7 +198,7 @@ void VideoBase::renderToBackbuffer()
 
 void VideoBase::open() 
 {
-    open(&m_Width, &m_Height);
+    open(&m_Size);
     setViewport(-32767, -32767, -32767, -32767);
 
     DRect vpt = getRelViewport();
@@ -213,10 +211,10 @@ void VideoBase::open()
     switch (m_YCbCrMode) {
         case DisplayEngine::OGL_MESA:
         case DisplayEngine::OGL_APPLE:
-            getSurface()->create(IntPoint(m_Width, m_Height), YCbCr422, true);
+            getSurface()->create(m_Size, YCbCr422, true);
             break;
         case DisplayEngine::OGL_SHADER:
-            getSurface()->create(IntPoint(m_Width, m_Height), getDesiredPixelFormat(),
+            getSurface()->create(m_Size, getDesiredPixelFormat(),
                     true);
             break;
         case DisplayEngine::NONE:
@@ -228,7 +226,7 @@ void VideoBase::open()
                     } else {
                         pf = B8G8R8A8;
                     }
-                    getSurface()->create(IntPoint(m_Width, m_Height), pf, true);
+                    getSurface()->create(m_Size, pf, true);
                     FilterFill<Pixel32> Filter(Pixel32(0,0,0, 255));
                     Filter.applyInPlace(getSurface()->lockBmp());
                 } else {
@@ -237,7 +235,7 @@ void VideoBase::open()
                     } else {
                         pf = B8G8R8X8;
                     }
-                    getSurface()->create(IntPoint(m_Width, m_Height), pf, true);
+                    getSurface()->create(m_Size, pf, true);
                     FilterFill<Pixel32> Filter(Pixel32(0,0,0,255));
                     Filter.applyInPlace(getSurface()->lockBmp());
                 }
@@ -251,12 +249,12 @@ void VideoBase::open()
 
 int VideoBase::getMediaWidth()
 {
-    return m_Width;
+    return m_Size.x;
 }
 
 int VideoBase::getMediaHeight()
 {
-    return m_Height;
+    return m_Size.y;
 }
 
 DisplayEngine::YCbCrMode VideoBase::getYCbCrMode()
@@ -277,7 +275,7 @@ string VideoBase::dump (int indent)
 
 DPoint VideoBase::getPreferredMediaSize()
 {
-    return DPoint(m_Width, m_Height);
+    return DPoint(m_Size);
 }
 
 VideoBase::VideoState VideoBase::getVideoState() const

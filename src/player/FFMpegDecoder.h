@@ -36,8 +36,7 @@ class FFMpegDecoder: public IVideoDecoder
     public:
         FFMpegDecoder();
         virtual ~FFMpegDecoder();
-        virtual void open(const std::string& sFilename, 
-                int* pWidth, int* pHeight);
+        virtual void open(const std::string& sFilename, PixelFormat PFWanted);
         virtual void close();
         virtual void seek(int DestFrame);
         virtual IntPoint getSize();

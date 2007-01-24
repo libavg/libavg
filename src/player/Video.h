@@ -60,7 +60,7 @@ class Video : public VideoBase
         void seek(int DestFrame);
         void advancePlayback();
        
-        virtual void open(int* pWidth, int* pHeight);
+        virtual void open(IntPoint* pSize);
         virtual void close();
         virtual PixelFormat getDesiredPixelFormat();
         virtual double getFPS();

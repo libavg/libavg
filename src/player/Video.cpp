@@ -155,10 +155,12 @@ void Video::seek(int DestFrame) {
     setFrameAvailable(false);
 }
 
-void Video::open(int* pWidth, int* pHeight)
+void Video::open(IntPoint* pSize)
 {
     m_CurFrame = 0;
-    m_pDecoder->open(m_Filename, pWidth, pHeight);
+    // TODO: Replace this with a sensible pixelformat.
+    m_pDecoder->open(m_Filename, R8G8B8X8);
+    *pSize = m_pDecoder->getSize();
     m_bEOF = false;
 }
 

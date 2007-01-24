@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _IVideoDecoder_H_
-#define _IVideoDecoder_H_
+#ifndef _AsyncVideoDecoder_H_
+#define _AsyncVideoDecoder_H_
 
 #include "../graphics/Bitmap.h"
 
@@ -28,10 +28,11 @@
 
 namespace avg {
 
-class IVideoDecoder
+class AsyncVideoDecoder: public IVideoDecoder()
 {
     public:
-        virtual ~IVideoDecoder() {};
+        AsyncVideoDecoder(IVideoDecoderPtr pSyncDecoder);
+        virtual ~AsyncVideoDecoder() {};
         virtual void open(const std::string& sFilename, PixelFormat PFWanted) = 0;
         virtual void close() = 0;
         virtual void seek(int DestFrame) = 0;
@@ -45,8 +46,6 @@ class IVideoDecoder
         virtual bool canRenderToBuffer(int BPP) = 0;
         virtual PixelFormat getDesiredPixelFormat() = 0;
 };
-
-typedef boost::shared_ptr<IVideoDecoder> VideoDecoderPtr;
 
 }
 #endif 

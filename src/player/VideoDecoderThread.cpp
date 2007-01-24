@@ -49,10 +49,10 @@ bool VideoDecoderThread::init()
 {
     try {
         IntPoint Size;
-        m_pDecoder->open(m_sFilename, &Size.x, &Size.y);
+        m_pDecoder->open(m_sFilename, m_PF);
 //        figure out whether to use YUV
         VideoMsgPtr pInfoMsg(new InfoVideoMsg(Size, m_pDecoder->getNumFrames(),
-                m_pDecoder->getFPS(), R8G8B8X8));
+                m_pDecoder->getFPS(), m_PF));
         m_MsgQ.push(pInfoMsg);
         return true;
     } catch (Exception& ex) {
@@ -77,7 +77,7 @@ bool VideoDecoderThread::work()
         pBmps.push_back(pBmpU);
         pBmps.push_back(pBmpV);
     } else {
-        BitmapPtr pBmp = BitmapPtr(new Bitmap(Size, R8G8B8X8));
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(Size, m_PF));
         bEOF=m_pDecoder->renderToBmp(pBmp);
         pBmps.push_back(pBmp);
     }
