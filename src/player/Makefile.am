@@ -39,7 +39,8 @@ ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
         DebugEventSink.h EventDispatcher.h CursorEvent.h MouseEvent.h \
         Event.h KeyEvent.h \
         VideoBase.h \
-        Video.h FFMpegDecoder.h IVideoDecoder.h \
+        Video.h FFMpegDecoder.h IVideoDecoder.h VideoDecoderThread.h \
+        IVideoMsg.h FrameVideoMsg.h InfoVideoMsg.h EOFVideoMsg.h \
         PanoImage.h TestHelper.h \
         RasterNode.h CameraNode.h TrackerEventSource.h\
 	    TouchEvent.h \
@@ -54,6 +55,7 @@ testtracker_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_L
 libplayer_la_SOURCES = $(GL_SOURCES) $(DFB_SOURCES) \
 		Node.cpp RasterNode.cpp DivNode.cpp VideoBase.cpp Video.cpp \
         Player.cpp DisplayEngine.cpp Region.cpp FFMpegDecoder.cpp \
+        VideoDecoderThread.cpp FrameVideoMsg.cpp InfoVideoMsg.cpp \
         MathHelper.cpp PanoImage.cpp Words.cpp CameraNode.cpp \
         Timeout.cpp DebugEventSink.cpp Event.cpp DisplayParams.cpp \
         Image.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp MouseEvent.cpp\

@@ -40,6 +40,7 @@ class FFMpegDecoder: public IVideoDecoder
                 int* pWidth, int* pHeight);
         virtual void close();
         virtual void seek(int DestFrame);
+        virtual IntPoint getSize();
         virtual int getNumFrames();
         virtual double getFPS();
         virtual bool renderToBmp(BitmapPtr pBmp);
@@ -63,6 +64,7 @@ class FFMpegDecoder: public IVideoDecoder
         int m_PacketLenLeft;
         bool m_bFirstPacket;
         std::string m_sFilename;
+        IntPoint m_Size;
 
         static bool m_bInitialized;
 };

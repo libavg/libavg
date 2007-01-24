@@ -19,35 +19,31 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _IVideoDecoder_H_
-#define _IVideoDecoder_H_
+#ifndef _InfoVideoMsg_H_
+#define _InfoVideoMsg_H_
+
+#include "IVideoMsg.h"
 
 #include "../graphics/Bitmap.h"
 
-#include <string>
-
 namespace avg {
 
-class IVideoDecoder
-{
+class InfoVideoMsg: public IVideoMsg {
     public:
-        virtual ~IVideoDecoder() {};
-        virtual void open(const std::string& sFilename, 
-                int* pWidth, int* pHeight) = 0;
-        virtual void close() = 0;
-        virtual void seek(int DestFrame) = 0;
-        virtual IntPoint getSize() = 0;
-        virtual int getNumFrames() = 0;
-        virtual double getFPS() = 0;
+        InfoVideoMsg(IntPoint Size, int NumFrames, double FPS, PixelFormat PF);
+        virtual ~InfoVideoMsg();
 
-        virtual bool renderToBmp(BitmapPtr pBmp) = 0;
-        virtual bool renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
-                BitmapPtr pBmpCr) = 0;
-        virtual bool canRenderToBuffer(int BPP) = 0;
-        virtual PixelFormat getDesiredPixelFormat() = 0;
+        IntPoint getSize() const;
+        int getNumFrames() const;
+        double getFPS() const;
+        PixelFormat getPF() const;
+
+    private:
+        IntPoint m_Size;
+        int m_NumFrames;
+        double m_FPS;
+        PixelFormat m_PF;
 };
-
-typedef boost::shared_ptr<IVideoDecoder> VideoDecoderPtr;
 
 }
 #endif 

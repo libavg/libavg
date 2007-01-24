@@ -19,35 +19,22 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _IVideoDecoder_H_
-#define _IVideoDecoder_H_
+#ifndef _IVideoMsg_H_
+#define _IVideoMsg_H_
 
-#include "../graphics/Bitmap.h"
+#include "../base/Queue.h"
 
-#include <string>
+#include <boost/shared_ptr.hpp>
 
 namespace avg {
 
-class IVideoDecoder
-{
+class IVideoMsg {
     public:
-        virtual ~IVideoDecoder() {};
-        virtual void open(const std::string& sFilename, 
-                int* pWidth, int* pHeight) = 0;
-        virtual void close() = 0;
-        virtual void seek(int DestFrame) = 0;
-        virtual IntPoint getSize() = 0;
-        virtual int getNumFrames() = 0;
-        virtual double getFPS() = 0;
-
-        virtual bool renderToBmp(BitmapPtr pBmp) = 0;
-        virtual bool renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
-                BitmapPtr pBmpCr) = 0;
-        virtual bool canRenderToBuffer(int BPP) = 0;
-        virtual PixelFormat getDesiredPixelFormat() = 0;
+        virtual ~IVideoMsg() {};
 };
 
-typedef boost::shared_ptr<IVideoDecoder> VideoDecoderPtr;
+typedef boost::shared_ptr<IVideoMsg> VideoMsgPtr;
+typedef Queue<VideoMsgPtr> VideoMsgQueue;
 
 }
 #endif 

@@ -167,6 +167,7 @@ void FFMpegDecoder::open (const std::string& sFilename,
     *pWidth =  m_pVStream->codec->width;
     *pHeight = m_pVStream->codec->height;
 #endif
+    m_Size = IntPoint(*pWidth, *pHeight);
     m_bFirstPacket = true;
     m_PacketLenLeft = 0;
     m_bEOF = false;
@@ -211,6 +212,11 @@ void FFMpegDecoder::seek(int DestFrame)
             int((double(DestFrame)*AV_TIME_BASE)/framerate), AVSEEK_FLAG_BACKWARD);
 #endif
 #endif    
+}
+
+IntPoint FFMpegDecoder::getSize()
+{
+    return m_Size;
 }
 
 int FFMpegDecoder::getNumFrames()
