@@ -148,40 +148,26 @@ namespace avg {
         m_Stale = false;
     };
 
+    //REFACTORME: replace offset/scale with CoordTransformer
     Event* EventStream::pollevent(DPoint& Offset, DPoint& Scale)
     {
         assert(m_pBlob);
         switch(m_State){
             case FRESH:
                 m_State = TOUCH_DELIVERED;
-                //return fingerdown
                 return new TouchEvent(m_Id, Event::TOUCHDOWN,
                         (m_pBlob->getInfo()), m_pBlob, Offset, Scale);
 
-//                return new MouseEvent(MouseEvent::MOUSEBUTTONDOWN, true, false, false, 
-//                        (int)(XScale*m_Pos.x+XOffset), 
-//                        (int)(YScale*m_Pos.y+YOffset), 
-//                        MouseEvent::LEFT_BUTTON); 
                 break;
             case INMOTION:
                 m_State = RESTING;
-                //return motion
                 return new TouchEvent(m_Id, Event::TOUCHMOTION,
                         (m_pBlob->getInfo()), m_pBlob, Offset, Scale);
-//                return new MouseEvent(MouseEvent::MOUSEMOTION, true, false, false,
-//                        (int)(XScale*m_Pos.x+XOffset), 
-//                        (int)(YScale*m_Pos.y+YOffset), 
-//                        MouseEvent::LEFT_BUTTON); 
                 break;
             case FINGERUP:
                 m_State = DONE;
                 return new TouchEvent(m_Id, Event::TOUCHUP,
                         (m_pBlob->getInfo()), m_pBlob, Offset, Scale);
-//                return new MouseEvent(MouseEvent::MOUSEBUTTONUP, false, false, false,
-//                        (int)(XScale*m_Pos.x+XOffset), 
-//                        (int)(YScale*m_Pos.y+YOffset), 
-//                        MouseEvent::LEFT_BUTTON); 
-                //return fingerup
                 break;
             case TOUCH_DELIVERED:
             case RESTING:

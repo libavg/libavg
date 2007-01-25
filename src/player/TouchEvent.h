@@ -39,6 +39,7 @@ namespace avg {
 class TouchEvent: public CursorEvent 
 {
     public:
+        //REFACTORME: offset/scale -> CoordTransformer
         TouchEvent(int id, Type EventType, BlobInfoPtr info, BlobPtr blob, 
                 DPoint& Offset, DPoint& Scale);
         virtual Event* cloneAs(Type EventType);
