@@ -96,7 +96,8 @@ class TrackerThread: public WorkerThread<TrackerThread>
         HistoryPreProcessorPtr m_pHistoryPreProcessor;
         FilterDistortionPtr m_pDistorter;
         IntRect m_ROI;
-        bool m_bDebugEnabled;
+        bool m_bCreateDebugImages;
+        bool m_bCreateFingerImage;
 };
 
 }

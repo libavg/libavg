@@ -17,10 +17,10 @@ endif
 
 ALL_H = TrackerThread.h TrackerConfig.h ConnectedComps.h Camera.h \
         FakeCamera.h CoordTransformer.h FilterDistortion.h $(DC1394_INCLUDES) \
-	TrapezoidAndBarrel.h
+        TrapezoidAndBarrel.h BlobInfo.h
 ALL_CPP = TrackerThread.cpp TrackerConfig.cpp ConnectedComps.cpp Camera.cpp \
         FakeCamera.cpp CoordTransformer.cpp FilterDistortion.cpp $(DC1394_SOURCES) \
-	TrapezoidAndBarrel.cpp
+        TrapezoidAndBarrel.cpp
 TESTS=testimaging
 
 EXTRA_DIST = test_comp.png

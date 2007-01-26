@@ -59,7 +59,8 @@ TrackerThread::TrackerThread(CameraPtr pCamera,
       m_pMutex(pMutex),
       m_pCamera(pCamera),
       m_pTarget(target),
-      m_bDebugEnabled(false)
+      m_bCreateDebugImages(false),
+      m_bCreateFingerImage(false)
 {
     m_ROI = IntRect(IntPoint(0,0), ppBitmaps[1]->getSize());
     setBitmaps(m_ROI, ppBitmaps);
@@ -94,7 +95,7 @@ bool TrackerThread::work()
     }
     {
         ScopeTimer Timer(ProfilingZoneTracker);
-        if (m_bDebugEnabled) {
+        if (m_bCreateDebugImages) {
             boost::mutex::scoped_lock Lock(*m_pMutex);
             *(m_pBitmaps[TRACKER_IMG_CAMERA]) = *pCamBmp;
             ScopeTimer Timer(ProfilingZoneHistogram);
@@ -106,7 +107,7 @@ bool TrackerThread::work()
             pDistortedBmp = m_pDistorter->apply(pCamBmp);
         }
         BitmapPtr pCroppedBmp(new Bitmap(*pDistortedBmp, m_ROI));
-        if (m_bDebugEnabled) {
+        if (m_bCreateDebugImages) {
             boost::mutex::scoped_lock Lock(*m_pMutex);
             m_pBitmaps[TRACKER_IMG_DISTORTED]->copyPixels(*pCroppedBmp);
         }
@@ -114,7 +115,7 @@ bool TrackerThread::work()
             ScopeTimer Timer(ProfilingZoneHistory);
             m_pHistoryPreProcessor->applyInPlace(pCroppedBmp);
         }
-        if (m_bDebugEnabled) {
+        if (m_bCreateDebugImages) {
             boost::mutex::scoped_lock Lock(*m_pMutex);
             m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pCroppedBmp);
         }
@@ -128,7 +129,7 @@ bool TrackerThread::work()
             ScopeTimer Timer(ProfilingZoneHighpass);
             pBmpHighpass = FilterHighpass().apply(pBmpLowpass);
         }
-        if (m_bDebugEnabled) {
+        if (m_bCreateDebugImages) {
             boost::mutex::scoped_lock Lock(*m_pMutex);
             *(m_pBitmaps[TRACKER_IMG_HIGHPASS]) = *pBmpHighpass;
         }
@@ -144,7 +145,11 @@ bool TrackerThread::work()
         {
             boost::mutex::scoped_lock Lock(*m_pMutex);
             ScopeTimer Timer(ProfilingZoneUpdate);
-            m_pTarget->update(comps, m_pBitmaps[TRACKER_IMG_FINGERS]);
+            if (m_bCreateFingerImage) {
+                m_pTarget->update(comps, m_pBitmaps[TRACKER_IMG_FINGERS]);
+            } else {
+                m_pTarget->update(comps, BitmapPtr());
+            }
         }
     }
     Profiler::get().reset("Tracker");
@@ -170,7 +175,8 @@ void TrackerThread::setConfig(TrackerConfig Config)
     m_pCamera->setFeature("gain", Config.m_Gain);
     m_pCamera->setFeature("shutter", Config.m_Shutter);
 
-    m_bDebugEnabled = Config.m_bDebug;
+    m_bCreateDebugImages = Config.m_bCreateDebugImages;
+    m_bCreateFingerImage = Config.m_bCreateFingerImage;
 }
 
 void TrackerThread::setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES])

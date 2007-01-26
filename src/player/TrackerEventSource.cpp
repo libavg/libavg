@@ -360,15 +360,10 @@ namespace avg {
         return m_TrackerConfig.m_Shutter;
     }
        
-    void TrackerEventSource::setDebug(bool bDebug)
+    void TrackerEventSource::setDebugImages(bool bImg, bool bFinger)
     {
-        m_TrackerConfig.m_bDebug = bDebug;
-        setConfig();
-    }
-
-    bool TrackerEventSource::getDebug()
-    {
-        return m_TrackerConfig.m_bDebug;
+        m_TrackerConfig.m_bCreateDebugImages = bImg;
+        m_TrackerConfig.m_bCreateFingerImage = bFinger;
     }
 
     void TrackerEventSource::resetHistory()
@@ -466,7 +461,7 @@ namespace avg {
         BlobListPtr old_blobs = BlobListPtr(new BlobList());
         EventStreamPtr e;
         if (pBitmap) {
-            Pixel32 Black(0x00, 0x00, 0x00, 0xFF);
+            Pixel32 Black(0x00, 0x00, 0x00, 0x00);
             FilterFill<Pixel32>(Black).applyInPlace(
                 pBitmap);
         }

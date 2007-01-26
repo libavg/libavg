@@ -144,8 +144,6 @@ namespace avg {
             } else if (!strcmp(pNodeName, "eccentricitybounds")) {
                 m_EccentricityBounds[0] = getRequiredDoubleAttr(curXmlChild, "min");
                 m_EccentricityBounds[1] = getRequiredDoubleAttr(curXmlChild, "max");
-            } else if (!strcmp(pNodeName, "debug")) {
-                m_bDebug = getRequiredIntAttr(curXmlChild, "value");
             }
             curXmlChild = curXmlChild->next;
         }
@@ -174,7 +172,6 @@ namespace avg {
         writeSimpleXMLNode(writer, "similarity", m_Similarity);
         writeMinMaxXMLNode(writer, "areabounds", m_AreaBounds);
         writeMinMaxXMLNode(writer, "eccentricitybounds", m_EccentricityBounds);
-        writeSimpleXMLNode(writer, "debug", m_bDebug);
         rc = xmlTextWriterEndElement(writer);
         rc = xmlTextWriterEndDocument(writer);
         xmlFreeTextWriter(writer);

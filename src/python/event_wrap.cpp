@@ -93,7 +93,8 @@ void export_event()
         .add_property("node", &MouseEvent::getElement);
 
     class_<TouchEvent, bases<Event> >("TouchEvent", 
-            "Raised when a touch event occurs.\n"
+            "Raised when a touch event occurs. Touch events happen only when a multi-touch\n"
+            "sensitive surface is active.\n"
             "Properties:\n"
             "    area: size of the blob(ro)\n"
             "    orientation: (ro)\n"
@@ -102,7 +103,8 @@ void export_event()
             "    cursorid: (ro)\n"
             "    x: x position in the global coordinate system. (ro)\n"
             "    y: y position in the global coordinate system. (ro)\n"
-            "    node: The node that the event handler was declared in. (ro)\n",
+            "    node: The node that the event handler was declared in. (ro)\n"
+            "    center: position as double. Used for calibration (ro)\n",
             no_init)
         .add_property("area", &TouchEvent::getArea)
         .add_property("orientation", &TouchEvent::getOrientation)
@@ -111,8 +113,9 @@ void export_event()
         .add_property("x", &TouchEvent::getXPosition)
         .add_property("y", &TouchEvent::getYPosition)
         .add_property("cursorid", &TouchEvent::getCursorID)
-        .add_property("node", &TouchEvent::getElement);
-    
+        .add_property("node", &TouchEvent::getElement)
+        .add_property("center", &TouchEvent::getCenter);
+   
     enum_<TrackerImageID>("TrackerImageID")
         .value("IMG_CAMERA", TRACKER_IMG_CAMERA)
         .value("IMG_DISTORTED", TRACKER_IMG_DISTORTED)
@@ -131,7 +134,8 @@ void export_event()
         .def("getImage", &TrackerEventSource::getImage,
             return_value_policy<manage_new_object>(),
             "getImage(ImageID) -> Bitmap\n\n" 
-            "Returns one of the intermediate images necessary for tracking.\n")
+            "Returns one of the intermediate images necessary for tracking.\n"
+            "These images are only available if setDebugImages was called before.\n")
         .def("saveConfig", &TrackerEventSource::saveConfig,
             "saveConfig() -> None\n\n"
             "Saves the tracker configuration to TrackerConfig.xml in the current\n"
@@ -140,6 +144,10 @@ void export_event()
             "resetHistory() -> None\n\n"
             "Throws away the current history image and generates a new one from\n"
             "the current image.\n")
+        .def("setDebugImages", &TrackerEventSource::setDebugImages,
+            "setDebugImages(Img, Finger) -> None\n\n"
+            "Controls whether debug images of intermediate tracking results (Img)\n"
+            "and detected finger positions (Finger) are generated.\n")
         .add_property("barrel", &TrackerEventSource::getBarrel,
             &TrackerEventSource::setBarrel)
         .add_property("trapezoid", &TrackerEventSource::getTrapezoid,
@@ -168,7 +176,5 @@ void export_event()
             &TrackerEventSource::setGain)
         .add_property("shutter", &TrackerEventSource::getShutter,
             &TrackerEventSource::setShutter)
-        .add_property("debug", &TrackerEventSource::getDebug,
-            &TrackerEventSource::setDebug)
         ;
 }

@@ -24,6 +24,7 @@
 #ifndef _ConnectedComps_H_
 #define _ConnectedComps_H_
 
+#include "BlobInfo.h"
 
 #include "../graphics/Bitmap.h"
 #include "../graphics/Point.h"
@@ -55,25 +56,6 @@ struct Run
 
 typedef boost::shared_ptr<struct Run> RunPtr;
 typedef std::vector<struct Run> RunList;
-
-struct BlobInfo
-{
-    int m_ID;
-    DPoint m_Center;
-    double m_Area;
-    IntRect m_BoundingBox;
-    double m_Eccentricity;
-    double m_Inertia;
-    double m_Orientation;
-    DPoint m_ScaledBasis[2];
-    DPoint m_EigenVectors[2];
-    DPoint m_EigenValues;
-    // More to follow?
-};
-
-typedef boost::shared_ptr<BlobInfo> BlobInfoPtr;
-typedef std::vector<BlobInfoPtr> BlobInfoList;
-typedef boost::shared_ptr<BlobInfoList> BlobInfoListPtr;
 
 class Blob;
 typedef boost::shared_ptr<class Blob> BlobPtr;

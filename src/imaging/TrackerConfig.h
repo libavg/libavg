@@ -55,7 +55,8 @@ struct TrackerConfig
     double m_AreaBounds[2]; //min, max for area in percents of screen size
     double m_EccentricityBounds[2]; //min, max for Eccentricity
 
-    bool m_bDebug;
+    bool m_bCreateDebugImages;
+    bool m_bCreateFingerImage;
 };
 
 }
