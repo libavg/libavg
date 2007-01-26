@@ -364,6 +364,7 @@ namespace avg {
     {
         m_TrackerConfig.m_bCreateDebugImages = bImg;
         m_TrackerConfig.m_bCreateFingerImage = bFinger;
+        setConfig();
     }
 
     void TrackerEventSource::resetHistory()
