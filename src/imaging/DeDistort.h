@@ -1,0 +1,40 @@
+#ifndef _DeDistort_H_
+#define _DeDistort_H_
+
+#include "CoordTransformer.h"
+#include "../graphics/Point.h"
+#include "../graphics/Rect.h"
+
+#include <vector>
+#include <boost/shared_ptr.hpp>
+
+namespace avg {
+class DeDistort: public CoordTransformer
+{
+    public:
+        DeDistort(IntRect srcRect, double K1, double T, double RescaleFactor = 1);
+        virtual ~DeDistort();
+        virtual DPoint transform_point(const DPoint & pt); //(x,y) -> (x', y')
+        virtual DPoint inverse_transform_point(const DPoint & pt); //(x,y) -> (x', y')
+        double getPixelSize(const DPoint & pt); //A(x,y) -> A'(x',y')
+    private:
+        DPoint undistort(std::vector<double> &params, DPoint &pt) ;
+        DPoint translate(DPoint &displacement, DPoint &pt);
+        DPoint rotate(double angle, Dpoint &pt);
+        DPoint pinhole(double normal_vec_1, double normal_vec_2, double normal_vec_3, 
+        double pinhole_position_1, double pinhole_position_2, double pinhole_position_3,
+        DPoint &pt) ;
+
+
+        DPoint m_DisplayDisplacement;
+        DPoint m_DisplayScale;
+        double m_Angle;
+        double[3] m_P;
+        double[3] m_N;
+        std::vector<double> m_DistortionParams;
+        DPoint m_FilmScale;
+        DPoint m_FilmDisplacement;
+};
+
+}
+#endif
