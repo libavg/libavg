@@ -24,9 +24,12 @@
 
 #include "Event.h"
 #include "IEventSource.h"
+#include "TrackerCalibrator.h"
+
 #include "../graphics/Rect.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/Filter.h"
+
 #include "../imaging/TrackerThread.h"
 #include "../imaging/ConnectedComps.h"
 
@@ -35,6 +38,7 @@
 #include <list>
 #include <vector>
 #include <utility>
+
 namespace avg {
 
 class EventStream;
@@ -87,6 +91,10 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         /*implement IBlobTarget*/
         virtual void update(BlobListPtr new_blobs, BitmapPtr pBitmap);//tracker thread
 
+        TrackerCalibrator* startCalibration(int XDisplayExtents, int YDisplayExtents);
+        void calibrate(std::vector<IntPoint>& DisplayPoints,
+                std::vector<DPoint>& CamPoints);
+
     private:
         bool isfinger(BlobPtr blob);
         BlobPtr matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold);
@@ -106,7 +114,8 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         DPoint m_Offset;
         DPoint m_Scale;
         
-        CoordTransformerPtr m_Trafo; //
+        CoordTransformerPtr m_Trafo; 
+
 };
 
 typedef boost::shared_ptr<TrackerEventSource> TrackerEventSourcePtr;

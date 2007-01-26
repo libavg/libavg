@@ -148,6 +148,10 @@ void export_event()
             "setDebugImages(Img, Finger) -> None\n\n"
             "Controls whether debug images of intermediate tracking results (Img)\n"
             "and detected finger positions (Finger) are generated.\n")
+        .def("startCalibration", &TrackerEventSource::startCalibration,
+            return_value_policy<manage_new_object>(),
+            "startCalibration(DisplayExtents) -> TrackerCalibrator\n"
+            "Starts coordinate calibration session.\n")
         .add_property("barrel", &TrackerEventSource::getBarrel,
             &TrackerEventSource::setBarrel)
         .add_property("trapezoid", &TrackerEventSource::getTrapezoid,
@@ -176,5 +180,24 @@ void export_event()
             &TrackerEventSource::setGain)
         .add_property("shutter", &TrackerEventSource::getShutter,
             &TrackerEventSource::setShutter)
+        ;
+
+class_<TrackerCalibrator, boost::noncopyable>("TrackerCalibrator",
+            "Used to map display points to camera points by mapping a set of reference\n"
+            "points. Python code should display reference points that the user must\n"
+            "touch to establish a mapping. Created by Tracker::startCalibration.\n",
+            no_init)
+        .def("nextPoint", &TrackerCalibrator::nextPoint,
+            "nextPoint(None) -> Bool\n"
+            "Advances to the next point. Returns False and ends calibration if\n"
+            "all points have been set.\n")
+        .def("getDisplayPointX", &TrackerCalibrator::getDisplayPointX,
+            "getDisplayPointX(None) -> Pos\n")
+        .def("getDisplayPointY", &TrackerCalibrator::getDisplayPointY,
+            "getDisplayPointY(None) -> Pos\n")
+        .def("setCamPoint", &TrackerCalibrator::setCamPoint,
+            "setCamPoint(x, y) -> None\n")
+        .def("abort", &TrackerCalibrator::abort,
+            "abort() -> None\n")
         ;
 }

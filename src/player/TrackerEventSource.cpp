@@ -518,6 +518,19 @@ namespace avg {
 
         //       AVG_TRACE(Logger::EVENTS2, ""<<gone_counter<<" fingers disappeared.");
     };
+        
+        
+    TrackerCalibrator* TrackerEventSource::startCalibration(int XDisplayExtents, 
+            int YDisplayExtents)
+    {
+        return new TrackerCalibrator(this, IntPoint(XDisplayExtents, YDisplayExtents), m_Trafo);
+    }
+
+    void TrackerEventSource::calibrate(std::vector<IntPoint>& DisplayPoints,
+                std::vector<DPoint>& CamPoints)
+    {
+        // TODO
+    }
 
     std::vector<Event*> TrackerEventSource::pollEvents()
     {
