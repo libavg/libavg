@@ -33,15 +33,36 @@
 
 namespace avg{
 
-DeDistort::DeDistort(IntRect srcRect, double K1, double T, double RescaleFactor)
-    : m_TrapezoidFactor(T),
-      m_K1(K1),
-      m_RescaleFactor(RescaleFactor)
+// This transformation is based on the undistort code found at 
+// http://www.math.rutgers.edu/~ojanen/undistort/index.html. 
+//   a lot of parameters enter here, some of which can be calculated/set manually, 
+//   some of which need to be determined via an optimization procedure
+//
+//   * m_FilmDisplacement moves the optical axis back to the center of the image:
+//   * m_FilmScale scales the ROI to standard coords
+//   * m_pDistortionParams OPT see paper
+//   * m_P m_N OPT see paper
+//   * m_Angle corrects rotation of camera OPT
+//   * m_DisplayScale convert back from standard coords to display
+//   * m_DisplayDisplacement correct the offset of the display from the center of the table
+//     
+DPoint inv_distort_map(std::vector<double> &params, double r);
+double distort_map(std::vector<double> &params, double r);
+
+DeDistort::DeDistort(DPoint &FilmDisplacement, DPoint &FilmScale, 
+   std::vector<double> DistortionParams, 
+   double P[3], double N[3], double Angle, 
+   DPoint DisplayScale, DPoint DisplayDisplacement ):
+    m_FilmDisplacement(FilmDisplacement),
+    m_DisplayScale(FilmScale),
+    m_Angle(Angle),
+    m_P(P),
+    m_N(N),
+    m_DistortionParams(DistortionParams),
+    m_FilmDisplacement(FilmDisplacement)
+    m_FilmScale(FilmScale),
 {
-    m_Center = DPoint((srcRect.tl.x+srcRect.br.x-1)/2., (srcRect.tl.y+srcRect.br.y-1)/2.);
-    //normalize to center-edge distance
-    m_Scale = sqrt( pow(m_Center.x - srcRect.Width()+1,2) +  pow(m_Center.y - srcRect.Height()+1,2) );
-    m_TrapezoidScale = srcRect.Height()/2;
+
 
 }
 
@@ -51,25 +72,8 @@ DeDistort::~DeDistort()
 
 DPoint DeDistort::inverse_transform_point(const DPoint &pt)
 {
-    return inv_trapezoid(inv_distortion(pt));
+//FIXME
 }
-// This transformation is based on the undistort code found at 
-// http://www.math.rutgers.edu/~ojanen/undistort/index.html. 
-//   a lot of parameters enter here, some of which can be calculated/set manually, 
-//   some of which need to be determined via an optimization procedure
-//
-//   * m_FilmDisplacement moves the optical axis back to the center of the image:
-//     calculate from ROI
-//   * m_?FilmScale scales the ROI to standard coords
-//     calculate from size of ROI 
-//   ** m_pDistortionParams OPT see paper
-//   ** m_P m_N OPT see paper
-//   ** m_Angle corrects rotation of camera OPT
-//   * m_?DisplayScale convert back from standard coords to display
-//     calculate from useable area of display
-//   * m_DisplayDisplacement correct the offset of the display from the center of the table
-//     calculate from useable area of display
-//     
 
 
 DPoint DeDistort::transform_point(const DPoint &pt)
@@ -93,8 +97,9 @@ DPoint DeDistort::transform_point(const DPoint &pt)
 
 //scale a point around the origin
 DPoint DeDistort::scale(DPoint &scales, DPoint &pt){
-
+    return DPoint(pt.x*scales.x, pt.y*scales.y);
 }
+
 //translate a point pt by the distance displacement
 DPoint DeDistort::translate(DPoint &displacement, DPoint &pt){
     return pt + displacement;
@@ -108,20 +113,55 @@ DPoint DeDistort::rotate(double angle, Dpoint &pt){
 }
 
 //FIXME
+DPoint inv_distort_map(std::vector<double> &params, double r){
+  double r1,r2,r3,f1,f2;
+  r1 = r;
+  r2 = r+.001;
+  f1 = distort_map(params, pt)-r;
+  f2 = distort_map(params, pt)-r;
+  while (fabs(f2) > 0.0001) {
+    r3 = (r1*f2-r2*f1)/(f2-f1);
+    r1 = r2;
+    r2 = r3;
+    f1 = f2;
+    f2 = distort_map(r2, c, N)-r;
+  }
+  return r2;
+
+
+}
+
+double distort_map(std::vector<double> &params, double r) {
+    double S = 1;
+    for(int counter=2;v!=params.end();++v, ++counter){
+        S += (*v) * power(r, counter)
+    }
+    return S;
+}
+
 DPoint DeDistort::undistort(std::vector<double> &params, DPoint &pt) {
 
     std::vector<double>::iterator v = params.begin();
     if ( v == params.end() ) {
         return pt;
     }
-    double S = *(v++);
-    DPoint pt_norm = pt; //no need to scale anymore?
     double r_d = sqrt(pt_norm.x*pt_norm.x + pt_norm.y*pt_norm.y);
-    for(;v!=params.end();++v){
-        S = S*r_d + *v;
+    double S = inv_distort_map(params, r_d);
+    DPoint pt_norm = pt; //no need to scale anymore?
+    
+    return S*pt_norm;
+}
+DPoint DeDistort::undistort(std::vector<double> &params, DPoint &pt) {
+
+    std::vector<double>::iterator v = params.begin();
+    if ( v == params.end() ) {
+        return pt;
     }
-    S*=r_d*r_d;
-    return pt_norm*S;
+    double r_d = sqrt(pt_norm.x*pt_norm.x + pt_norm.y*pt_norm.y);
+    double S = distort_map(params, r_d);
+    DPoint pt_norm = pt; //no need to scale anymore?
+    
+    return S*pt_norm;
 }
 //apply a pinhole transformation to the point pt.
 

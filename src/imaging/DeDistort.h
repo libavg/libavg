@@ -40,8 +40,8 @@ class DeDistort: public CoordTransformer
         double m_P[3];
         double m_N[3];
         std::vector<double> m_DistortionParams;
-        DPoint m_FilmScale;
         DPoint m_FilmDisplacement;
+        DPoint m_FilmScale;
 };
 
 }
