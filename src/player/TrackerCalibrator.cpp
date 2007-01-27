@@ -34,7 +34,8 @@ namespace avg {
             CoordTransformerPtr pOrigTrafo)
         : m_pTracker(pTracker),
           m_CurPoint(0),
-          m_pOrigTrafo(pOrigTrafo)
+          m_pOrigTrafo(pOrigTrafo),
+          m_bCurPointSet(false)
     {
         IntPoint OffsetPerPoint((DisplayExtents.x-MIN_DIST_FROM_BORDER*2)/(NUM_POINTS-1),
                 (DisplayExtents.y-MIN_DIST_FROM_BORDER*2)/(NUM_POINTS-1));
@@ -53,12 +54,25 @@ namespace avg {
 
     TrackerCalibrator::~TrackerCalibrator()
     {
+/*
+        cerr << "Calibration done. Number of points: " << m_DisplayPoints.size() << endl;
+        for (unsigned int i=0; i<m_DisplayPoints.size(); ++i) {
+            cerr << "  " << m_DisplayPoints[i] << "-->" << m_CamPoints[i] << endl;
+        }
+*/
     }
 
 
     bool TrackerCalibrator::nextPoint()
     {
-        m_CurPoint++;
+        if (!m_bCurPointSet) {
+            // There is no data for the previous point, so delete it.
+            m_DisplayPoints.erase(m_DisplayPoints.begin()+m_CurPoint);
+            m_CamPoints.erase(m_CamPoints.begin()+m_CurPoint);
+        } else {
+            m_CurPoint++;
+        }
+        m_bCurPointSet = false;
         if (m_CurPoint < m_DisplayPoints.size()) {
             return true;
         } else {
@@ -80,6 +94,7 @@ namespace avg {
     void TrackerCalibrator::setCamPoint(double x, double y)
     {
         m_CamPoints[m_CurPoint] = DPoint(x, y);
+        m_bCurPointSet = true;
     }
 
     void TrackerCalibrator::abort()

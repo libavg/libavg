@@ -52,7 +52,8 @@ private:
     std::vector<IntPoint> m_DisplayPoints;
     std::vector<DPoint> m_CamPoints;
 
-    CoordTransformerPtr m_pOrigTrafo;    
+    CoordTransformerPtr m_pOrigTrafo;
+    bool m_bCurPointSet;
 };
 
 }
