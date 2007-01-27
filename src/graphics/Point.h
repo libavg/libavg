@@ -152,6 +152,18 @@ Point<NUM> Point<NUM>::operator * (double f) const
   return Point<NUM> (NUM(x*f), NUM(y*f));
 }
 
+inline
+double sqr(double x)
+{
+    return x*x;
+}
+
+template<class NUM>
+double calcDist(const Point<NUM>& pt1, const Point<NUM>& pt2)
+{
+    return sqrt(sqr(fabs(pt1.x-pt2.x))+sqr(fabs(pt1.y-pt2.y)));
+}
+
 }
 
 #endif
