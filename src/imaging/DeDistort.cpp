@@ -49,20 +49,19 @@ namespace avg{
 DPoint inv_distort_map(std::vector<double> &params, double r);
 double distort_map(std::vector<double> &params, double r);
 
-DeDistort::DeDistort(DPoint &FilmDisplacement, DPoint &FilmScale, 
-   std::vector<double> DistortionParams, 
-   double P[3], double N[3], double Angle, 
-   DPoint DisplayScale, DPoint DisplayDisplacement ):
-    m_FilmDisplacement(FilmDisplacement),
-    m_DisplayScale(FilmScale),
-    m_Angle(Angle),
-    m_P(P),
-    m_N(N),
-    m_DistortionParams(DistortionParams),
-    m_FilmDisplacement(FilmDisplacement)
-    m_FilmScale(FilmScale),
+DeDistort::DeDistort(const DPoint &FilmDisplacement, const DPoint &FilmScale, 
+        const std::vector<double>& DistortionParams, 
+        DPoint3& P, DPoint3& N, double Angle, 
+        const DPoint& DisplayDisplacement, const DPoint& DisplayScale )
+    : m_FilmDisplacement(FilmDisplacement),
+      m_FilmScale(FilmScale),
+      m_Angle(Angle),
+      m_P(P),
+      m_N(N),
+      m_DistortionParams(DistortionParams),
+      m_DisplayDisplacement(DisplayDisplacement),
+      m_DisplayScale(DisplayScale)
 {
-
 
 }
 
@@ -81,7 +80,7 @@ DPoint DeDistort::transform_point(const DPoint &pt)
     return translate(m_DisplayDisplacement, //translate 0,0 to center of display
         scale(m_DisplayScale,  //scale back to real display resolution
             rotate(m_Angle, //rotate
-                pinhole(m_P[0], m_P[1], m_P[2], m_N[0], m_N[1], m_N[2], //apply pinhole
+                pinhole(m_P, m_N, //apply pinhole
                     undistort(m_DistortionParams, //undistort;
                         scale(m_FilmScale,  //scale to -1,-1,1,1
                             translate(m_FilmDisplacement, //move optical axis to center of image
@@ -96,16 +95,16 @@ DPoint DeDistort::transform_point(const DPoint &pt)
 }
 
 //scale a point around the origin
-DPoint DeDistort::scale(DPoint &scales, DPoint &pt){
+DPoint DeDistort::scale(const DPoint &scales, const DPoint &pt){
     return DPoint(pt.x*scales.x, pt.y*scales.y);
 }
 
 //translate a point pt by the distance displacement
-DPoint DeDistort::translate(DPoint &displacement, DPoint &pt){
+DPoint DeDistort::translate(const DPoint &displacement, const DPoint &pt){
     return pt + displacement;
 }
 //rotate a point counter-clockwise around the origin
-DPoint DeDistort::rotate(double angle, Dpoint &pt){
+DPoint DeDistort::rotate(double angle, const DPoint &pt){
     return DPoint( 
             sin(angle) * pt.x + cos(angle) * pt.y, 
             cos(angle) * pt.x + sin(angle) * pt.y
@@ -113,18 +112,18 @@ DPoint DeDistort::rotate(double angle, Dpoint &pt){
 }
 
 //FIXME
-DPoint inv_distort_map(std::vector<double> &params, double r){
+double inv_distort_map(std::vector<double> &params, double r){
   double r1,r2,r3,f1,f2;
   r1 = r;
   r2 = r+.001;
-  f1 = distort_map(params, pt)-r;
-  f2 = distort_map(params, pt)-r;
+  f1 = distort_map(params, r1)-r;
+  f2 = distort_map(params, r2)-r;
   while (fabs(f2) > 0.0001) {
     r3 = (r1*f2-r2*f1)/(f2-f1);
     r1 = r2;
     r2 = r3;
     f1 = f2;
-    f2 = distort_map(r2, c, N)-r;
+    f2 = distort_map(params, r2)-r;
   }
   return r2;
 
@@ -165,16 +164,14 @@ DPoint DeDistort::undistort(std::vector<double> &params, DPoint &pt) {
 }
 //apply a pinhole transformation to the point pt.
 
-DPoint DeDistort::pinhole(double normal_vec_1, double normal_vec_2, double normal_vec_3, 
-        double pinhole_position_1, double pinhole_position_2, double pinhole_position_3,
-        DPoint &pt) {
-
-    double n1=normal_vec_1;
-    double n2=normal_vec_2;
-    double n3=normal_vec_3;
-    double P1=pinhole_position_1;
-    double P2=pinhole_position_2;
-    double P3=pinhole_position_3;
+DPoint DeDistort::pinhole(const DPoint3& P, const DPoint3& N, DPoint &pt)
+{
+    double n1=N.x;
+    double n2=N.y;
+    double n3=N.z;
+    double P1=P.x;
+    double P2=P.y;
+    double P3=P.z;
     double a=pt.x;
     double b=pt.y;
 
