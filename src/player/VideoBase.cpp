@@ -123,7 +123,7 @@ void VideoBase::render (const DRect& Rect)
                         relVpt.tl.x >= 0 && relVpt.tl.y >= 0 && 
                         absVpt.Width() >= relVpt.br.x && 
                         absVpt.Height() >= relVpt.br.y &&
-                        m_Width == relVpt.Width() && m_Height == relVpt.Height())
+                        m_Size.x == relVpt.Width() && m_Size.y == relVpt.Height())
                 {
                     // Render frame to backbuffer directly.
                     // (DirectFB only, no alpha, no scale, no crop, 
