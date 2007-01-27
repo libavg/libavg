@@ -49,7 +49,8 @@ ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
 noinst_LTLIBRARIES = libplayer.la
 noinst_PROGRAMS = testtracker
 testtracker_SOURCES=testtracker.cpp
-testtracker_LDADD = libplayer.la ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la
+testtracker_LDADD = libplayer.la ../imaging/libimaging.la ../graphics/libgraphics.la \
+        ../base/libbase.la ../lmfit/liblmfit.la
 testtracker_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ 
 
 libplayer_la_SOURCES = $(GL_SOURCES) $(DFB_SOURCES) \

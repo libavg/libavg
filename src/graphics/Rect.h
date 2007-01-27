@@ -45,6 +45,7 @@ public:
     bool operator != (const Rect<NUM> & rect) const;
     NUM Width () const;
     NUM Height () const;
+    Point<NUM> Center() const;
     void SetWidth (NUM width);
     void SetHeight (NUM height);
     bool Contains (const Point<NUM>& pt) const;
@@ -110,6 +111,12 @@ template<class NUM>
 NUM Rect<NUM>::Height () const
 {
   return br.y-tl.y;
+}
+
+template<class NUM>
+Point<NUM> Rect<NUM>::Center() const
+{
+    return Point<NUM>(tl+br)/2;
 }
 
 template<class NUM>

@@ -37,7 +37,8 @@ typedef class TrackerEventSource;
 class TrackerCalibrator {
 
 public:
-    TrackerCalibrator(TrackerEventSource* pTracker, IntPoint Extents,
+    TrackerCalibrator(TrackerEventSource* pTracker, const IntPoint& CamExtents, 
+            const IntRect& ROI, const IntPoint& DisplayExtents, 
             CoordTransformerPtr pOrigTrafo);
     virtual ~TrackerCalibrator();
 
@@ -48,13 +49,17 @@ public:
     void abort();
 
 private:
+    void calibrate();
     //double fit_function(double t, double* p );
     TrackerEventSource* m_pTracker;
 
     unsigned int m_CurPoint;
     std::vector<IntPoint> m_DisplayPoints;
     std::vector<DPoint> m_CamPoints;
-    void calibrate();
+
+    IntPoint m_CamExtents;
+    IntRect m_ROI;
+    IntPoint m_DisplayExtents;
 
     CoordTransformerPtr m_pOrigTrafo;
     bool m_bCurPointSet;

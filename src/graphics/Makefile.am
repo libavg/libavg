@@ -7,7 +7,7 @@ ALL_H = Bitmap.h Rect.h Point.h Filter.h\
 		Filterfliprgb.h Filterflipuv.h Filtergrayscale.h Filter3x3.h \
 		FilterId.h HistoryPreProcessor.h FilterConvol.h FilterHighpass.h \
         FilterGauss.h FilterBandpass.h FilterBlur.h
-ALL_CPP = Bitmap.cpp Filter.cpp Filtergrayscale.cpp \
+ALL_CPP = Bitmap.cpp Point.cpp Filter.cpp Filtergrayscale.cpp \
 		Filtercolorize.cpp Filterflip.cpp Filterfliprgb.cpp \
         Filterflipuv.cpp Filter3x3.cpp HistoryPreProcessor.cpp FilterHighpass.cpp \
         FilterGauss.cpp FilterBandpass.cpp FilterBlur.cpp  

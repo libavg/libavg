@@ -125,6 +125,6 @@ AM_CONDITIONAL(APPLE, test $target_vendor = apple)
 
 AM_CONFIG_HEADER(src/avgconfig.h)
 AC_OUTPUT(Makefile src/Makefile man/Makefile src/test/Makefile 
-    src/base/Makefile src/conradrelais/Makefile src/python/Makefile 
+    src/base/Makefile src/conradrelais/Makefile src/lmfit/Makefile src/python/Makefile 
     src/player/Makefile src/parport/Makefile src/graphics/Makefile
     src/imaging/Makefile)

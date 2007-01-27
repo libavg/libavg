@@ -88,6 +88,8 @@ public:
         DPoint pt1(0,0);
         DPoint pt2(3,4);
         TEST(calcDist(pt1, pt2)-5 < 0.0001);
+        TEST(!almostEqual(pt1, pt2));
+        TEST(almostEqual(pt1, pt1));
     }
 };
 

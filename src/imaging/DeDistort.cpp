@@ -77,8 +77,8 @@ DPoint DeDistort::transform_point(const DPoint &pt)
             rotate(m_Angle, //rotate
                 pinhole(m_P, m_N, //apply pinhole
                     undistort(m_DistortionParams, //undistort;
-                        scale(m_FilmScale,  //scale to -1,-1,1,1
-                            translate(m_FilmDisplacement, //move optical axis to center of image
+                        scale(m_FilmScale,  // scale to -1,-1,1,1
+                            translate(m_FilmDisplacement, // move optical axis to (0,0) 
                                 pt 
                             )
                         )
