@@ -41,7 +41,6 @@ class CoordTransformer
 
         virtual DPoint transform_point(const DPoint & pt) = 0; //(x,y) -> (x', y')
         virtual DPoint inverse_transform_point(const DPoint & pt) = 0; //(x,y) -> (x', y')
-        virtual double getPixelSize(const DPoint & pt) = 0; //A(x,y) -> A'(x',y')
 };
 typedef boost::shared_ptr<CoordTransformer> CoordTransformerPtr;
 }

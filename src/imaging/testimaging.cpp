@@ -23,6 +23,7 @@
 #include "TrackerThread.h"
 #include "TrackerConfig.h"
 #include "FilterDistortion.h"
+#include "DeDistort.h"
 #include "../graphics/Filtergrayscale.h"
 #include "../graphics/FilterId.h"
 
@@ -43,10 +44,43 @@
 using namespace avg;
 using namespace std;
 
+class DeDistortTest: public Test {
+    public:
+        DeDistortTest()
+          : Test("DeDistortTest", 2)
+        {}
+
+        void runTests()
+        {
+            vector<double> Params;
+            double Pos[3];
+            Pos[0] = 0;
+            Pos[1] = 0;
+            Pos[2] = 0;
+            double Normal[3];
+            Normal[0] = 0;
+            Normal[1] = 0;
+            Normal[2] = 1;
+
+            Params.push_back(0);
+            DeDistort IdentityDistort = DeDistort(DPoint(0, 0), DPoint(1,1),
+                Params, DPoint3(0,0,0), DPoint3(0,0,1), 0.0,
+                DPoint(0,0), DPoint(1,1));
+            TEST(almostEqual(IdentityDistort.transform_point(DPoint(0,0)), DPoint(0,0)));
+            TEST(almostEqual(IdentityDistort.transform_point(DPoint(1,2)), DPoint(1,2)));
+            TEST(almostEqual(IdentityDistort.inverse_transform_point(DPoint(0,0)), DPoint(0,0)));
+            TEST(almostEqual(IdentityDistort.inverse_transform_point(DPoint(1,2)), DPoint(1,2)));
+        }
+};
+
 class DistortionTest: public Test {
     public:
-        DistortionTest():Test("DistortionTest",2){}
-        void runTests(){
+        DistortionTest()
+          : Test("DistortionTest",2)
+        {}
+
+        void runTests()
+        {
             cerr << "    Identical Transformer" << endl;
             TrapezoidAndBarrel Transformer(IntRect(0,0,100,100), 0, 0, 1);
             TEST(Transformer.transform_point(DPoint(0,0)) == DPoint(0,0));
@@ -218,6 +252,7 @@ public:
         : TestSuite("ImagingTestSuite")
     {
         addTest(TestPtr(new TrackingTest));
+        addTest(TestPtr(new DeDistortTest));
         addTest(TestPtr(new DistortionTest));
     }
 };

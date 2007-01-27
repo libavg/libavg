@@ -22,9 +22,6 @@
 //
 
 #include "DeDistort.h"
-#include <vector>
-#include "../graphics/Rect.h"
-#include "../graphics/Point.h"
 
 #include <iostream>
 #include <math.h>
@@ -46,12 +43,10 @@ namespace avg{
 //   * m_DisplayScale convert back from standard coords to display
 //   * m_DisplayDisplacement correct the offset of the display from the center of the table
 //     
-DPoint inv_distort_map(std::vector<double> &params, double r);
-double distort_map(std::vector<double> &params, double r);
 
 DeDistort::DeDistort(const DPoint &FilmDisplacement, const DPoint &FilmScale, 
         const std::vector<double>& DistortionParams, 
-        DPoint3& P, DPoint3& N, double Angle, 
+        const DPoint3& P, const DPoint3& N, double Angle, 
         const DPoint& DisplayDisplacement, const DPoint& DisplayScale )
     : m_FilmDisplacement(FilmDisplacement),
       m_FilmScale(FilmScale),
@@ -106,13 +101,23 @@ DPoint DeDistort::translate(const DPoint &displacement, const DPoint &pt){
 //rotate a point counter-clockwise around the origin
 DPoint DeDistort::rotate(double angle, const DPoint &pt){
     return DPoint( 
-            sin(angle) * pt.x + cos(angle) * pt.y, 
-            cos(angle) * pt.x + sin(angle) * pt.y
+            cos(angle) * pt.x - sin(angle) * pt.y, 
+            sin(angle) * pt.x + cos(angle) * pt.y
             );
 }
 
-//FIXME
-double inv_distort_map(std::vector<double> &params, double r){
+double distort_map(const std::vector<double> &params, double r) {
+    double S = 1;
+    int counter = 2;
+    std::vector<double>::const_iterator v;
+    for(v=params.begin(); v!=params.end(); ++v){
+        S += (*v) * pow(r, counter);
+        ++counter;
+    }
+    return S;
+}
+
+double inv_distort_map(const std::vector<double> &params, double r){
   double r1,r2,r3,f1,f2;
   r1 = r;
   r2 = r+.001;
@@ -130,40 +135,31 @@ double inv_distort_map(std::vector<double> &params, double r){
 
 }
 
-double distort_map(std::vector<double> &params, double r) {
-    double S = 1;
-    for(std::vector<double>::iterator v=params.begin(), int counter=2;v!=params.end();++v, ++counter){
-        S += (*v) * power(r, counter)
-    }
-    return S;
-}
-
-DPoint DeDistort::undistort(std::vector<double> &params, DPoint &pt) {
-
+DPoint DeDistort::inverse_undistort(const std::vector<double> &params, const DPoint &pt) {
     if ( params.empty() ) {
         return pt;
     }
+    DPoint pt_norm = pt; //no need to scale anymore?
     double r_d = sqrt(pt_norm.x*pt_norm.x + pt_norm.y*pt_norm.y);
     double S = inv_distort_map(params, r_d);
-    DPoint pt_norm = pt; //no need to scale anymore?
     
-    return S*pt_norm;
+    return pt_norm*S;
 }
-DPoint DeDistort::undistort(std::vector<double> &params, DPoint &pt) {
 
-    std::vector<double>::iterator v = params.begin();
+DPoint DeDistort::undistort(const std::vector<double> &params, const DPoint &pt) {
+    std::vector<double>::const_iterator v = params.begin();
     if ( v == params.end() ) {
         return pt;
     }
+    DPoint pt_norm = pt; //no need to scale anymore?
     double r_d = sqrt(pt_norm.x*pt_norm.x + pt_norm.y*pt_norm.y);
     double S = distort_map(params, r_d);
-    DPoint pt_norm = pt; //no need to scale anymore?
     
-    return S*pt_norm;
+    return pt_norm*S;
 }
 //apply a pinhole transformation to the point pt.
 
-DPoint DeDistort::pinhole(const DPoint3& P, const DPoint3& N, DPoint &pt)
+DPoint DeDistort::pinhole(const DPoint3& P, const DPoint3& N, const DPoint &pt)
 {
     double n1=N.x;
     double n2=N.y;
@@ -183,7 +179,7 @@ DPoint DeDistort::pinhole(const DPoint3& P, const DPoint3& N, DPoint &pt)
          ) +
          n3*(-a + n1 + a*P1 + b*P1)*P3
          );
-    double y=1./(-a*n1 + -b*n2 + -1*n3*n3 + a*n1*P1 + b*n1*P1 + a*n2*P2 + b*n2.*P2) * 
+    double y=1./(-a*n1 + -b*n2 + -1*n3*n3 + a*n1*P1 + b*n1*P1 + a*n2*P2 + b*n2*P2) * 
          (
           n3*n3*(-b + ((-1)+a+b)*P2) + 
           (n2+P2)* (
@@ -194,43 +190,6 @@ DPoint DeDistort::pinhole(const DPoint3& P, const DPoint3& N, DPoint &pt)
           );
 
     return DPoint(x,y);
-}
-
-double DeDistort::getPixelSize(const DPoint &pt)
-{
-    //volume dxdy transforms as |D|dx'dy' where |D| is the functional determinant
-    //det { { dx'/dx, dx'/dy}, {dy'/dx,dy'/dy}}
-    //|D| = dx'/dx * dy'/dy - dx'/dy * dy'/dx
-    //
-    //with x'=x'(x,y) are the new coordinates in terms of the old ones
-    //in our case.
-    //trapezoid:
-    //x' = m0 + (x-m0)*(1+m_TrapezoidFactor*yn)
-    //y' = y
-    //|D| = (1+m_TrapezoidFactor*yn)|(x,y)
-    //
-    //distortion:
-    //x' = S*(x-x0) + x0
-    //y' = S*(y-y0) + y0
-    //oBdA x0=y0=0 (volume invariant under translation)
-    //S = (1+m_K1*|(x,y)|^2/m_Scale)
-    //dx'/dx = S+x*dS/dx
-    //dx'/dy = x*dS/dy
-    //dy'/dx = y*dS/dx
-    //dy'/dy = S+y*dS/dx
-    //maxima:
-    //S(x,y):= (1+K1 *(x**2+y**2));
-    //dS/dx = 2xK1
-    //dS/dy = 2yK1
-    //xd(x,y):=S(x,y)*x;
-    //yd(x,y):=S(x,y)*y;
-    //
-    //diff(xd(x,y),x)*diff(yd(x,y),y)-diff(xd(x,y),y)*diff(yd(x,y),x);
-    //|D| = S^2 + 2*x*y*dS/dx*dS/dy = S^2 + 16 x^2*y^2 K1^2
-    //|D| = (...)|(xt,yt) where xt,yt are the coords after trapezoid trafo 
-    double yn = (pt.y - m_Center.y)/m_Scale;
-    DPoint pt2 = trapezoid(pt);
-    return (1+m_TrapezoidFactor*yn); // FIXME
 }
     
 }

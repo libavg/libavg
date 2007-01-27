@@ -5,8 +5,9 @@
 #include "../graphics/Point.h"
 #include "../graphics/Rect.h"
 
-#include <vector>
 #include <boost/shared_ptr.hpp>
+
+#include <vector>
 
 namespace avg {
 
@@ -27,13 +28,14 @@ class DeDistort: public CoordTransformer {
     public:
         DeDistort::DeDistort(const DPoint& FilmDisplacement, const DPoint& FilmScale, 
                 const std::vector<double>& DistortionParams, 
-                DPoint3& P, DPoint3& N, double Angle, 
+                const DPoint3& P, const DPoint3& N, double Angle, 
                 const DPoint& DisplayDisplacement, const DPoint& DisplayScale);
         virtual ~DeDistort();
         virtual DPoint transform_point(const DPoint & pt); //(x,y) -> (x', y')
         virtual DPoint inverse_transform_point(const DPoint & pt); //(x,y) -> (x', y')
-        double getPixelSize(const DPoint & pt); //A(x,y) -> A'(x',y')
+    
     private:
+        DPoint inverse_undistort(const std::vector<double> &params, const DPoint &pt) ;
         DPoint undistort(const std::vector<double> &params, const DPoint &pt) ;
         DPoint scale(const DPoint &scales, const DPoint &pt);
         DPoint translate(const DPoint &displacement, const DPoint &pt);
