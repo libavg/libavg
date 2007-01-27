@@ -132,7 +132,7 @@ double inv_distort_map(std::vector<double> &params, double r){
 
 double distort_map(std::vector<double> &params, double r) {
     double S = 1;
-    for(int counter=2;v!=params.end();++v, ++counter){
+    for(std::vector<double>::iterator v=params.begin(), int counter=2;v!=params.end();++v, ++counter){
         S += (*v) * power(r, counter)
     }
     return S;
@@ -140,8 +140,7 @@ double distort_map(std::vector<double> &params, double r) {
 
 DPoint DeDistort::undistort(std::vector<double> &params, DPoint &pt) {
 
-    std::vector<double>::iterator v = params.begin();
-    if ( v == params.end() ) {
+    if ( params.empty() ) {
         return pt;
     }
     double r_d = sqrt(pt_norm.x*pt_norm.x + pt_norm.y*pt_norm.y);
