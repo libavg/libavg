@@ -72,6 +72,26 @@ BitmapPtr FilterHighpass::apply(BitmapPtr pBmpSrc)
             *pDstPixel -= int(*(pSrcPixel-3*SrcStride-3) + *(pSrcPixel-3*SrcStride+3) +
                 *(pSrcPixel+3*SrcStride-3) + *(pSrcPixel+3*SrcStride+3))/16; 
 /*
+            unsigned char *pSrc = pSrcPixel-3*SrcStride-3;
+            int Dest = *pSrc;
+            pSrc += 6;
+            Dest += *pSrc;
+            pSrc += SrcStride-5;
+            Dest += *pSrc;
+            pSrc += 4;
+            Dest += *pSrc;
+            pSrc += 4*SrcStride-4;
+            Dest += *pSrc;
+            pSrc += 4;
+            Dest += *pSrc;
+            pSrc += SrcStride-5;
+            Dest += *pSrc;
+            pSrc += 6;
+            Dest += *pSrc;
+            Dest /= 8;
+            *pDstPixel = 128+(*pSrcPixel)-Dest;
+*/
+/*
             unsigned char *pSrc = pSrcPixel-3*SrcStride;
             int Dest = *pSrc;
             pSrc += SrcStride;
@@ -94,6 +114,7 @@ BitmapPtr FilterHighpass::apply(BitmapPtr pBmpSrc)
             Dest += *pSrc;
             Dest /= 16;
             *pDstPixel = 128-Dest+*(pSrcPixel)*3/4;
+*/            
 /*            
             *pDstPixel = 
                 128 - int(*(pSrcPixel-3*SrcStride) + 
