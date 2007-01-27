@@ -24,12 +24,17 @@
 #include "TrackerEventSource.h"
 #include "TouchEvent.h"
 
+#include "CalibratorDataType.h"
+
 #include "../base/Logger.h"
 
 #include "../graphics/Rect.h"
 #include "../graphics/HistoryPreProcessor.h"
 #include "../graphics/Filterfill.h"
 #include "../graphics/Pixel8.h"
+
+#include "../lmfit/lmmin.h"
+#include "../lmfit/lm_eval.h"
 
 #include "../imaging/ConnectedComps.h"
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
@@ -526,11 +531,6 @@ namespace avg {
         return new TrackerCalibrator(this, IntPoint(XDisplayExtents, YDisplayExtents), m_Trafo);
     }
 
-    void TrackerEventSource::calibrate(std::vector<IntPoint>& DisplayPoints,
-                std::vector<DPoint>& CamPoints)
-    {
-        // TODO
-    }
 
     std::vector<Event*> TrackerEventSource::pollEvents()
     {

@@ -92,8 +92,6 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         virtual void update(BlobListPtr new_blobs, BitmapPtr pBitmap);//tracker thread
 
         TrackerCalibrator* startCalibration(int XDisplayExtents, int YDisplayExtents);
-        void calibrate(std::vector<IntPoint>& DisplayPoints,
-                std::vector<DPoint>& CamPoints);
 
     private:
         bool isfinger(BlobPtr blob);

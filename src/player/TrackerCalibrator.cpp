@@ -20,7 +20,7 @@
 //
 
 #include "TrackerCalibrator.h"
-
+#include "CalibratorDataType"
 #include "TrackerEventSource.h"
 
 using namespace std;
@@ -29,6 +29,31 @@ using namespace std;
 #define MIN_DIST_FROM_BORDER 10
 
 namespace avg {
+//void lm_print_tracker( int n_par, double* par, int m_dat, double* fvec,
+//                               void *data, int iflag, int iter, int nfev );
+  struct {
+              std::vector<IntPoint> DisplayPoints;
+              std::vector<DPoint> CamPoints;
+              CoordTransformerPtr CurrentTrafo;
+              //double (*user_func)( std::vector<IntPoint> &DisplayPoints, std::vector<DPoint> &CamPoints);
+  } CalibratorDataType;
+
+
+void lm_evaluate_tracker( double* par, int m_dat, double* fvec,
+                                  void *data, int *info ) {
+    int i;
+    CalibratorDataType *mydata;
+    mydata = static_cast<CalibratorDataType*> data;
+    
+    mydata->CurrentTransform = DeDistort();//FIXME
+    for (i=0; i<m_dat; i++){
+        fvec[i] = calcDist(mydata->DisplayPoint[i], mydata->CurrentCoord->transform_point(mydata->CamPoint)); 
+    }
+    *info = *info; /* to prevent a 'unused variable' warning */
+    /* if <parameters drifted away> { *info = -1; } */
+
+}
+
 
     TrackerCalibrator::TrackerCalibrator(TrackerEventSource* pTracker, IntPoint DisplayExtents,
             CoordTransformerPtr pOrigTrafo)
@@ -103,4 +128,64 @@ namespace avg {
         // m_pTracker->setCoordTransformer(pOrigTrafo);
     }
 
+    void TrackerEventSource::calibrate()
+    {
+        lm_control_type control;
+        CalibratorDataType data;
+        
+        data->DisplayPoints = m_DisplayPoints;
+        data->CamPoints = m_CamPoints;
+        data->CurrentTrafo = CoordTransformerPtr();
+        
+        lm_initialize_control( &control );
+        int m_dat = m_DisplayPoints.length();
+        assert(m_dat == m_CamPoints.length());
+        
+        DPoint center = m_pTracker->mTrackerConfig.m_ROI.center();
+        double w = m_pTracker->mTrackerConfig.m_ROI.width();
+        double h = m_pTracker->mTrackerConfig.m_ROI.height();
+        DPoint FilmDisplacement= -DPoint(320,240); 
+        DPoint FilmScale = DPoint(w/2.,h/2.);
+        std::vector<double> DistortionParams;
+        DistortionParams.push_back(0.4);
+        DistortionParams.push_back(0.0);
+        DPoint3& P = DPoint(0,0,0); 
+        DPoint3& N = DPoint(0,0,1); 
+        double Angle = 0;
+        const DPoint& DisplayDisplacement=DPoint(-640,-360);
+        const DPoint& DisplayScale = DPoint(640,360);
+
+        int n_p = 11;
+        double[] p = {
+            DisplayDisplacement.x, 
+            DisplayDisplacement.y, 
+            DisplayScale.x, 
+            DisplayScale.y,
+            DistortionParams[0],
+            DistortionParams[1],
+            N.z,
+            P.x,
+            P.y,
+            P.z,
+            Angle
+        };
+        lm_minimize( m_dat, n_p, p, lm_evaluate_tracker, lm_print_default,
+                     &data, &control );
+//        double[] p = {
+//            DisplayDisplacement.x, 
+//            DisplayDisplacement.y, 
+//            DisplayScale.x, 
+//            DisplayScale.y,
+//            DistortionParams[0],
+//            DistortionParams[1],
+//            N.z,
+//            P.x,
+//            P.y,
+//            P.z,
+//            Angle
+//        };
+        m_pTracker->m_TrackerConfig.m_Trafo = data->CurrentTrafo;
+        m_pTracker->setConfig();
+        // TODO
+    }
 }

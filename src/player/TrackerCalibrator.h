@@ -29,6 +29,8 @@
 #include <vector>
 
 namespace avg {
+    
+
 
 typedef class TrackerEventSource;
 
@@ -46,11 +48,13 @@ public:
     void abort();
 
 private:
+    //double fit_function(double t, double* p );
     TrackerEventSource* m_pTracker;
 
     unsigned int m_CurPoint;
     std::vector<IntPoint> m_DisplayPoints;
     std::vector<DPoint> m_CamPoints;
+    void calibrate();
 
     CoordTransformerPtr m_pOrigTrafo;
     bool m_bCurPointSet;
