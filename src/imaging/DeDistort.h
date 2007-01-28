@@ -26,7 +26,7 @@ public:
 
 class DeDistort: public CoordTransformer {
     public:
-        DeDistort::DeDistort(const DPoint& FilmDisplacement, const DPoint& FilmScale, 
+        DeDistort(const DPoint& FilmDisplacement, const DPoint& FilmScale, 
                 const std::vector<double>& DistortionParams, 
                 const DPoint3& P, const DPoint3& N, double Angle, 
                 const DPoint& DisplayDisplacement, const DPoint& DisplayScale);
@@ -35,11 +35,13 @@ class DeDistort: public CoordTransformer {
         virtual DPoint inverse_transform_point(const DPoint & pt); //(x,y) -> (x', y')
     
     private:
+        double calc_rescale();
         DPoint inverse_undistort(const std::vector<double> &params, const DPoint &pt) ;
         DPoint undistort(const std::vector<double> &params, const DPoint &pt) ;
         DPoint scale(const DPoint &scales, const DPoint &pt);
         DPoint translate(const DPoint &displacement, const DPoint &pt);
         DPoint rotate(double angle, const DPoint &pt);
+        DPoint inverse_pinhole(const DPoint3 &P, const DPoint3 &N, const DPoint &pt);
         DPoint pinhole(const DPoint3& P, const DPoint3& N, const DPoint &pt);
 
         DPoint m_FilmDisplacement;
@@ -50,6 +52,7 @@ class DeDistort: public CoordTransformer {
         std::vector<double> m_DistortionParams;
         DPoint m_DisplayDisplacement;
         DPoint m_DisplayScale;
+        double m_RescaleFactor;
 };
 
 }
