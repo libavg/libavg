@@ -39,6 +39,7 @@ class DeDistort: public CoordTransformer {
         DPoint inverse_undistort(const std::vector<double> &params, const DPoint &pt) ;
         DPoint undistort(const std::vector<double> &params, const DPoint &pt) ;
         DPoint scale(const DPoint &scales, const DPoint &pt);
+        DPoint scale(const double scale, const DPoint &pt);
         DPoint translate(const DPoint &displacement, const DPoint &pt);
         DPoint rotate(double angle, const DPoint &pt);
         DPoint inverse_pinhole(const DPoint3 &P, const DPoint3 &N, const DPoint &pt);

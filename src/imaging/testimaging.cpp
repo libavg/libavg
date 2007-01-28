@@ -62,7 +62,6 @@ class DeDistortTest: public Test {
             TEST(almostEqual(IdentityDistort.transform_point(DPoint(1,2)), DPoint(1,2)));
             cerr << IdentityDistort.inverse_transform_point(DPoint(0,0)) << endl;
             cerr << IdentityDistort.inverse_transform_point(DPoint(1,2)) << endl;
-            return;
             TEST(almostEqual(IdentityDistort.inverse_transform_point(DPoint(0,0)), DPoint(0,0)));
             TEST(almostEqual(IdentityDistort.inverse_transform_point(DPoint(1,2)), DPoint(1,2)));
 
@@ -83,32 +82,46 @@ class DeDistortTest: public Test {
             TEST(almostEqual(Shifter.inverse_transform_point(DPoint(1,2)), DPoint(0,1)));
 
             vector<double> Cubed;
-            Cubed.push_back(1);
+            Cubed.push_back(0);
             Cubed.push_back(1);
             DeDistort Barreler = DeDistort(DPoint(0,0), DPoint(1,1),
                 Cubed, DPoint3(0,0,0), DPoint3(0,0,1), 0.0,
                 DPoint(0,0), DPoint(1,1));
-            TEST(almostEqual(Barreler.transform_point(DPoint(0,0)), DPoint(0,0)));
-            TEST(almostEqual(Barreler.transform_point(DPoint(1,0)), DPoint(3,0)));
-            TEST(almostEqual(Barreler.transform_point(DPoint(0,1)), DPoint(0,3)));
-            TEST(almostEqual(Barreler.inverse_transform_point(DPoint(0,0)), DPoint(0,0)));
-            TEST(almostEqual(Barreler.inverse_transform_point(DPoint(0,3)), DPoint(0,1)));
+            for (double xp=0;xp<10;xp++){
+                for(double yp=0;yp<10;yp++){
+                    TEST(almostEqual(Barreler.inverse_transform_point(Barreler.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
+                }
+            }
+//            TEST(almostEqual(Barreler.transform_point(DPoint(1,0)), DPoint(3,0)));
+//            TEST(almostEqual(Barreler.transform_point(DPoint(0,1)), DPoint(0,3)));
+//            TEST(almostEqual(Barreler.inverse_transform_point(DPoint(0,0)), DPoint(0,0)));
+//            TEST(almostEqual(Barreler.inverse_transform_point(DPoint(0,3)), DPoint(0,1)));
 
             DeDistort Rotator = DeDistort(DPoint(0,0), DPoint(1,1),
                 Params, DPoint3(0,0,0), DPoint3(0,0,1), M_PI/2,
                 DPoint(0,0), DPoint(1,1));
-            TEST(almostEqual(Rotator.transform_point(DPoint(0,0)), DPoint(0,0)));
-            TEST(almostEqual(Rotator.transform_point(DPoint(1,2)), DPoint(-2,1)));
-            TEST(almostEqual(Rotator.inverse_transform_point(DPoint(0,0)), DPoint(0,0)));
-            TEST(almostEqual(Rotator.inverse_transform_point(DPoint(1,2)), DPoint(2,-1)));
+            for (double xp=0;xp<10;xp++){
+                for(double yp=0;yp<10;yp++){
+                    TEST(almostEqual(Rotator.inverse_transform_point(Rotator.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
+                }
+            }
+//           TEST(almostEqual(Rotator.transform_point(DPoint(0,0)), DPoint(0,0)));
+//          TEST(almostEqual(Rotator.transform_point(DPoint(1,2)), DPoint(-2,1)));
+//            TEST(almostEqual(Rotator.inverse_transform_point(DPoint(0,0)), DPoint(0,0)));
+//            TEST(almostEqual(Rotator.inverse_transform_point(DPoint(1,2)), DPoint(2,-1)));
 
             DeDistort ShifterScaler = DeDistort(DPoint(1,1), DPoint(2,2),
                 Params, DPoint3(0,0,0), DPoint3(0,0,1), 0.0,
                 DPoint(0,0), DPoint(1,1));
-            TEST(almostEqual(ShifterScaler.transform_point(DPoint(0,0)), DPoint(2,2)));
-            TEST(almostEqual(ShifterScaler.transform_point(DPoint(1,2)), DPoint(4,6)));
-            TEST(almostEqual(ShifterScaler.inverse_transform_point(DPoint(0,0)), DPoint(-0.5,-0.5)));
-            TEST(almostEqual(ShifterScaler.inverse_transform_point(DPoint(1,2)), DPoint(0,0.5)));
+            for (double xp=0;xp<10;xp++){
+                for(double yp=0;yp<10;yp++){
+                    TEST(almostEqual(ShifterScaler.inverse_transform_point(ShifterScaler.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
+                }
+            }
+//            TEST(almostEqual(ShifterScaler.transform_point(DPoint(0,0)), DPoint(2,2)));
+//            TEST(almostEqual(ShifterScaler.transform_point(DPoint(1,2)), DPoint(4,6)));
+//            TEST(almostEqual(ShifterScaler.inverse_transform_point(DPoint(0,0)), DPoint(-0.5,-0.5)));
+//            TEST(almostEqual(ShifterScaler.inverse_transform_point(DPoint(1,2)), DPoint(0,0.5)));
             
     }
 };

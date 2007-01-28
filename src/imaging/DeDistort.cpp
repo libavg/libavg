@@ -68,17 +68,18 @@ DeDistort::~DeDistort()
 
 DPoint DeDistort::inverse_transform_point(const DPoint &pt)
 {
-    return inverse_undistort(m_DistortionParams, pt);
+//    return inverse_undistort(m_DistortionParams, pt);
 //    return inverse_pinhole(m_P, m_N, pt);
-    /*
     return translate(-m_FilmDisplacement,
             scale(DPoint(1./m_FilmScale.x, 1./m_FilmScale.y),
-                    inverse_undistort(m_DistortionParams,
+                inverse_undistort(m_DistortionParams,
+                    scale(m_RescaleFactor,
                         inverse_pinhole(m_P, m_N,
                             rotate(-m_Angle,
                                 scale(DPoint(1./m_DisplayScale.x, 1./m_DisplayScale.y),
                                     translate(-m_DisplayDisplacement,
                                         pt
+                                        )
                                     )
                                 )
                             )
@@ -86,30 +87,35 @@ DPoint DeDistort::inverse_transform_point(const DPoint &pt)
                     )
                 )
             );
-    */
 }
 
 
 DPoint DeDistort::transform_point(const DPoint &pt)
 {
     return translate(m_DisplayDisplacement, //translate 0,0 to center of display
-        scale(m_DisplayScale,  //scale back to real display resolution
-            rotate(m_Angle, //rotate
-                pinhole(m_P, m_N, //apply pinhole
-                    undistort(m_DistortionParams, //undistort;
-                        scale(m_FilmScale,  // scale to -1,-1,1,1
-                            translate(m_FilmDisplacement, // move optical axis to (0,0) 
-                                pt 
+            scale(m_DisplayScale,  //scale back to real display resolution
+                rotate(m_Angle, //rotate
+                    pinhole(m_P, m_N, //apply pinhole
+                        scale(1./m_RescaleFactor,
+                            undistort(m_DistortionParams, //undistort;
+                                scale(m_FilmScale,  // scale to -1,-1,1,1
+                                    translate(m_FilmDisplacement, // move optical axis to (0,0) 
+                                        pt 
+                                        )
+                                    )
+                                )
                             )
                         )
                     )
                 )
-            )
-        )
-    );
+            );
 }
 
 //scale a point around the origin
+DPoint DeDistort::scale(const double scale, const DPoint &pt){
+    return DPoint(pt.x, pt.y)*scale;
+}
+
 DPoint DeDistort::scale(const DPoint &scales, const DPoint &pt){
     return DPoint(pt.x*scales.x, pt.y*scales.y);
 }
@@ -127,64 +133,64 @@ DPoint DeDistort::rotate(double angle, const DPoint &pt){
 }
 
 double distort_map(const std::vector<double> &params, double r) {
-    double S = 1;
-    int counter = 2;
+    double S = 0;
+    int counter = 3;
     std::vector<double>::const_iterator v;
     for(v=params.begin(); v!=params.end(); ++v){
         S += (*v) * pow(r, counter);
         ++counter;
     }
-    return S;
+    return r+S;
 }
 
 double DeDistort::calc_rescale(){
     //make sure that the undistort transformation stays within the normalized box
     double scale = distort_map(m_DistortionParams, sqrt(2));
-    return scale;
+    return scale/sqrt(2);
 }
 
-bool everythingZero(const std::vector<double> &params)
-{
-    for (int i=0; i<params.size(); ++i) {
-        if (fabs(params[i]) > 0.00001) {
-            return false;
-        }
-    }
-    return true;
-}
-
+//bool everythingZero(const std::vector<double> &params)
+//{
+//    for (int i=0; i<params.size(); ++i) {
+//        if (fabs(params[i]) > 0.00001) {
+//            return false;
+//        }
+//    }
+//    return true;
+//}
+//
 double inv_distort_map(const std::vector<double> &params, double r) {
-    if (everythingZero(params)) {
-        // No distortion
-        return r;
-    } else {
         double r1,r2,r3,f1,f2;
         r1 = r;
         r2 = r+.001;
         f1 = distort_map(params, r1)-r;
         f2 = distort_map(params, r2)-r;
         while (fabs(f2) > 0.0001) {
-            cerr << "f1: " << f1 << ", f2: " << f2 << endl;
             r3 = (r1*f2-r2*f1)/(f2-f1);
-            cerr << "r3: " << r3 << endl;
             r1 = r2;
             r2 = r3;
             f1 = f2;
             f2 = distort_map(params, r2)-r;
         }
         return r2;
-    }
 }
 
+#define EPSILON 0.00001
 DPoint DeDistort::inverse_undistort(const std::vector<double> &params, const DPoint &pt) {
     if ( params.empty() ) {
         return pt;
     }
     DPoint pt_norm = pt; //no need to scale anymore?
     double r_d = sqrt(pt_norm.x*pt_norm.x + pt_norm.y*pt_norm.y);
-    double S = inv_distort_map(params, r_d);
-    
-    return pt_norm*(S*m_RescaleFactor);
+    double S;
+    if (r_d < EPSILON){
+        S=0;
+    } else {
+        S = inv_distort_map(params, r_d)/r_d;
+    }
+    DPoint result = pt_norm*(S);
+    //cerr<<"inv distort: "<< result <<endl;
+    return result;
 }
 
 DPoint DeDistort::undistort(const std::vector<double> &params, const DPoint &pt) {
@@ -194,9 +200,16 @@ DPoint DeDistort::undistort(const std::vector<double> &params, const DPoint &pt)
     }
     DPoint pt_norm = pt; //no need to scale anymore?
     double r_d = sqrt(pt_norm.x*pt_norm.x + pt_norm.y*pt_norm.y);
-    double S = distort_map(params, r_d);
+    double S;
+    if (r_d < EPSILON){
+        S=0;
+    } else {
+        S = distort_map(params, r_d)/r_d;
+    }
     
-    return pt_norm*(S/m_RescaleFactor);
+    DPoint result = pt_norm*(S);
+    //cerr<<"distort: "<< result <<endl;
+    return result;
 }
 //apply a pinhole transformation to the point pt.
 
