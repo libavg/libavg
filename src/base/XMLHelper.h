@@ -23,7 +23,10 @@
 #define _XMLHelper_H_
 
 #include <libxml/parser.h>
+#include <libxml/xmlwriter.h>
+
 #include <string>
+#include <sstream>
 
 namespace avg {
 
@@ -63,6 +66,27 @@ std::string getDefaultedStringAttr (const xmlNodePtr& xmlNode,
 std::string getRequiredStringAttr (const xmlNodePtr& xmlNode,
        const char * attr);
 
+void writeMinMaxXMLNode(xmlTextWriterPtr writer, std::string sName, double Val[2]);
+
+template<class T>
+void writeAttribute(xmlTextWriterPtr writer, std::string sName, T Value)
+{
+    int rc;
+    std::stringstream strs;
+    strs << Value;
+    rc = xmlTextWriterWriteAttribute(writer, BAD_CAST sName.c_str(), 
+            BAD_CAST strs.str().c_str());
+}
+
+template<class T>
+void writeSimpleXMLNode(xmlTextWriterPtr writer, std::string sName, T Value)
+{
+    int rc;
+    rc = xmlTextWriterStartElement(writer, BAD_CAST sName.c_str());
+    writeAttribute(writer, "value", Value);
+    rc = xmlTextWriterEndElement(writer);
+}
+        
 void registerDTDEntityLoader(const char * sDTD);
 
 }

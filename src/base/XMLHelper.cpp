@@ -152,6 +152,15 @@ string getRequiredStringAttr (const xmlNodePtr& xmlNode,
     return s;
 }
 
+void writeMinMaxXMLNode(xmlTextWriterPtr writer, string sName, double Val[2])
+{
+    int rc;
+    rc = xmlTextWriterStartElement(writer, BAD_CAST sName.c_str());
+    writeAttribute(writer, "min", Val[0]);
+    writeAttribute(writer, "max", Val[1]);
+    rc = xmlTextWriterEndElement(writer);
+}
+
 static xmlExternalEntityLoader DefaultLoaderProc;
 static string g_sDTD;
 

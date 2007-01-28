@@ -34,34 +34,6 @@ using namespace std;
 
 namespace avg {
 
-    template<class T>
-    void writeAttribute(xmlTextWriterPtr writer, string sName, T Value)
-    {
-        int rc;
-        stringstream strs;
-        strs << Value;
-        rc = xmlTextWriterWriteAttribute(writer, BAD_CAST sName.c_str(), 
-                BAD_CAST strs.str().c_str());
-    }
-
-    template<class T>
-    void writeSimpleXMLNode(xmlTextWriterPtr writer, string sName, T Value)
-    {
-        int rc;
-        rc = xmlTextWriterStartElement(writer, BAD_CAST sName.c_str());
-        writeAttribute(writer, "value", Value);
-        rc = xmlTextWriterEndElement(writer);
-    }
-        
-    void writeMinMaxXMLNode(xmlTextWriterPtr writer, string sName, double Val[2])
-    {
-        int rc;
-        rc = xmlTextWriterStartElement(writer, BAD_CAST sName.c_str());
-        writeAttribute(writer, "min", Val[0]);
-        writeAttribute(writer, "max", Val[1]);
-        rc = xmlTextWriterEndElement(writer);
-    }
-
     void writeRect(xmlTextWriterPtr writer, string sName, IntRect& Val)
     {
         int rc;
@@ -96,6 +68,7 @@ namespace avg {
 
     void TrackerConfig::load(std::string sFilename)
     {
+        // TODO: Add dtd for this file!
         xmlDocPtr doc;
         doc = xmlParseFile(sFilename.c_str());
         if (!doc) {
@@ -170,6 +143,7 @@ namespace avg {
         writeSimpleXMLNode(writer, "similarity", m_Similarity);
         writeMinMaxXMLNode(writer, "areabounds", m_AreaBounds);
         writeMinMaxXMLNode(writer, "eccentricitybounds", m_EccentricityBounds);
+        m_DistortionParams.save(writer);
         rc = xmlTextWriterEndElement(writer);
         rc = xmlTextWriterEndDocument(writer);
         xmlFreeTextWriter(writer);

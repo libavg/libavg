@@ -189,12 +189,12 @@ namespace avg {
         IntPoint ImgDimensions = pCamera->getImgSize();
 
         m_pBitmaps[0] = BitmapPtr(new Bitmap(pCamera->getImgSize(), I8));
+        m_TrackerConfig.load("TrackerConfig.xml");
         // TODO: Clean this ROI handling mess up.
         handleROIChange();
         m_pUpdateMutex = MutexPtr(new boost::mutex);
         m_pTrackerMutex = MutexPtr(new boost::mutex);
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
-        m_TrackerConfig.load("TrackerConfig.xml");
         m_pTrackerThread = new boost::thread(
                 TrackerThread(pCamera,
                     m_pBitmaps, 

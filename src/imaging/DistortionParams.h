@@ -25,6 +25,7 @@
 #include "../graphics/Point.h"
 
 #include <libxml/parser.h>
+#include <libxml/xmlwriter.h>
 
 #include <vector>
 
@@ -45,7 +46,6 @@ struct DPoint3 {
     double z;
 };
 
-
 //    DPoint FilmDisplacement = -DPoint(320,240); 
 //    DPoint FilmScale = DPoint(w/2.,h/2.);
 //    std::vector<double> DistortionParams;
@@ -63,7 +63,7 @@ struct DistortionParams {
             const std::vector<double>& DistortionParams, const DPoint3& P, const DPoint3& N, 
             double Angle, const DPoint& DisplayDisplacement, const DPoint& DisplayScale);
     void load(xmlNodePtr pParentNode);
-    void save();
+    void save(xmlTextWriterPtr writer);
 
     DPoint m_FilmDisplacement;
     DPoint m_FilmScale;
