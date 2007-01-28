@@ -49,10 +49,13 @@ public:
                 IntPoint DisplayPoint(Calibrator.getDisplayPointX(), 
                         Calibrator.getDisplayPointY());
                 Calibrator.setCamPoint(DisplayPoint.x, DisplayPoint.y);
-                bDone = Calibrator.nextPoint();
+                bDone = !Calibrator.nextPoint();
             }
-//             CoordTransformerPtr Trafo = Calibrator.makeTransformer();
-
+        CoordTransformerPtr Trafo =CoordTransformerPtr();
+        DPoint offset;
+        DPoint scale;
+        Calibrator.makeTransformer(Trafo, offset, scale);
+        cerr<<"offset ="<< offset<<" and scale "<<scale<<endl;
             // TODO: test if Trafo is an identity transformer.
         }
 
@@ -64,9 +67,13 @@ public:
                 IntPoint DisplayPoint(Calibrator.getDisplayPointX(), 
                         Calibrator.getDisplayPointY());
                 Calibrator.setCamPoint(DisplayPoint.x+DisplayPoint.y, DisplayPoint.y);
-                bDone = Calibrator.nextPoint();
+                bDone = !Calibrator.nextPoint();
             }
-//             CoordTransformerPtr Trafo = Calibrator.makeTransformer();
+        CoordTransformerPtr Trafo =CoordTransformerPtr();
+        DPoint offset;
+        DPoint scale;
+        Calibrator.makeTransformer(Trafo, offset, scale);
+        cerr<<"offset ="<< offset<<" and scale "<<scale<<endl;
 
             // TODO: test if Trafo is a trapezoid transformer.
         }
