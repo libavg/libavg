@@ -44,7 +44,7 @@ namespace avg {
         rc = xmlTextWriterStartElement(writer, BAD_CAST sName.c_str());
         writeAttribute(writer, "x", Val.x);
         writeAttribute(writer, "y", Val.y);
-        writeAttribute(writer, "y", Val.z);
+        writeAttribute(writer, "z", Val.z);
         rc = xmlTextWriterEndElement(writer);
 
     }
@@ -113,18 +113,20 @@ namespace avg {
 
     void DistortionParams::save(xmlTextWriterPtr writer)
     {
+        int rc;
+        rc = xmlTextWriterStartElement(writer, BAD_CAST "transform");
         writePoint(writer, "cameradisplacement", m_FilmDisplacement);
         writePoint(writer, "camerascale", m_FilmScale);
-        int rc;
         rc = xmlTextWriterStartElement(writer, BAD_CAST "distortionparams");
         writeAttribute(writer, "p2", m_DistortionParams[0]);
         writeAttribute(writer, "p3", m_DistortionParams[1]);
         rc = xmlTextWriterEndElement(writer);
         writePoint3(writer, "p", m_P);
         writePoint3(writer, "n", m_N);
-        writeAttribute(writer, "angle", m_Angle);
+        writeSimpleXMLNode(writer, "angle", m_Angle);
         writePoint(writer, "displaydisplacement", m_DisplayDisplacement);
         writePoint(writer, "displayscale", m_DisplayScale);
+        rc = xmlTextWriterEndElement(writer);
     }
 
 }
