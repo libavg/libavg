@@ -160,10 +160,6 @@ void export_event()
             "abortCalibration() -> None\n"
             "Aborts coordinate calibration session and restores the previous\n"
             "coordinate transformer.\n")
-        .add_property("barrel", &TrackerEventSource::getBarrel,
-            &TrackerEventSource::setBarrel)
-        .add_property("trapezoid", &TrackerEventSource::getTrapezoid,
-            &TrackerEventSource::setTrapezoid)
 
         .add_property("roileft", &TrackerEventSource::getROILeft,
             &TrackerEventSource::setROILeft)

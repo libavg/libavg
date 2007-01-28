@@ -52,10 +52,6 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
                 bool bSubtractHistory = true);
         virtual ~TrackerEventSource();
 
-        void setBarrel(double Barrel);
-        double getBarrel();
-        void setTrapezoid(double Trapezoid);
-        double getTrapezoid();
         void setROILeft(int Left);
         int getROILeft();
         void setROITop(int Top);

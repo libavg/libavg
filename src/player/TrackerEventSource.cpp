@@ -194,6 +194,7 @@ namespace avg {
         m_pUpdateMutex = MutexPtr(new boost::mutex);
         m_pTrackerMutex = MutexPtr(new boost::mutex);
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
+        m_TrackerConfig.load("TrackerConfig.xml");
         m_pTrackerThread = new boost::thread(
                 TrackerThread(pCamera,
                     m_pBitmaps, 
@@ -215,17 +216,6 @@ namespace avg {
         delete m_pTrackerThread;
     }
         
-    void TrackerEventSource::setTrapezoid(double Trapezoid)
-    {
-        m_TrackerConfig.m_T = Trapezoid;
-        setConfig();
-    }
-    
-    double TrackerEventSource::getTrapezoid()
-    {
-        return m_TrackerConfig.m_T;
-    }
-
     void TrackerEventSource::setROILeft(int Left)
     {
         m_TrackerConfig.m_ROI.tl.x = Left;
@@ -272,17 +262,6 @@ namespace avg {
     int TrackerEventSource::getROIBottom()
     {
         return m_TrackerConfig.m_ROI.br.y;
-    }
-
-    void TrackerEventSource::setBarrel(double Barrel)
-    {
-        m_TrackerConfig.m_K1 = Barrel;
-        setConfig();
-    }
-    
-    double TrackerEventSource::getBarrel()
-    {
-        return m_TrackerConfig.m_K1;
     }
 
     void TrackerEventSource::setThreshold(int Threshold) 

@@ -46,18 +46,12 @@ namespace avg{
 //   * m_DisplayDisplacement correct the offset of the display from the center of the table
 //     
 
-DeDistort::DeDistort(const DPoint &FilmDisplacement, const DPoint &FilmScale, 
-        const std::vector<double>& DistortionParams, 
-        const DPoint3& P, const DPoint3& N, double Angle, 
-        const DPoint& DisplayDisplacement, const DPoint& DisplayScale )
-    : m_FilmDisplacement(FilmDisplacement),
-      m_FilmScale(FilmScale),
-      m_Angle(Angle),
-      m_P(P),
-      m_N(N),
-      m_DistortionParams(DistortionParams),
-      m_DisplayDisplacement(DisplayDisplacement),
-      m_DisplayScale(DisplayScale)
+DeDistort::DeDistort()
+{
+}
+
+DeDistort::DeDistort(DistortionParams& Params)
+    : m_Params(Params)
 {
     m_RescaleFactor = calc_rescale();
 }
@@ -70,14 +64,14 @@ DPoint DeDistort::inverse_transform_point(const DPoint &pt)
 {
 //    return inverse_undistort(m_DistortionParams, pt);
 //    return inverse_pinhole(m_P, m_N, pt);
-    return translate(-m_FilmDisplacement,
-            scale(DPoint(1./m_FilmScale.x, 1./m_FilmScale.y),
-                inverse_undistort(m_DistortionParams,
+    return translate(-m_Params.m_FilmDisplacement,
+            scale(DPoint(1./m_Params.m_FilmScale.x, 1./m_Params.m_FilmScale.y),
+                inverse_undistort(m_Params.m_DistortionParams,
                     scale(m_RescaleFactor,
-                        inverse_pinhole(m_P, m_N,
-                            rotate(-m_Angle,
-                                scale(DPoint(1./m_DisplayScale.x, 1./m_DisplayScale.y),
-                                    translate(-m_DisplayDisplacement,
+                        inverse_pinhole(m_Params.m_P, m_Params.m_N,
+                            rotate(-m_Params.m_Angle,
+                                scale(DPoint(1./m_Params.m_DisplayScale.x, 1./m_Params.m_DisplayScale.y),
+                                    translate(-m_Params.m_DisplayDisplacement,
                                         pt
                                         )
                                     )
@@ -92,14 +86,14 @@ DPoint DeDistort::inverse_transform_point(const DPoint &pt)
 
 DPoint DeDistort::transform_point(const DPoint &pt)
 {
-    return translate(m_DisplayDisplacement, //translate 0,0 to center of display
-            scale(m_DisplayScale,  //scale back to real display resolution
-                rotate(m_Angle, //rotate
-                    pinhole(m_P, m_N, //apply pinhole
+    return translate(m_Params.m_DisplayDisplacement, //translate 0,0 to center of display
+            scale(m_Params.m_DisplayScale,  //scale back to real display resolution
+                rotate(m_Params.m_Angle, //rotate
+                    pinhole(m_Params.m_P, m_Params.m_N, //apply pinhole
                         scale(1./m_RescaleFactor,
-                            undistort(m_DistortionParams, //undistort;
-                                scale(m_FilmScale,  // scale to -1,-1,1,1
-                                    translate(m_FilmDisplacement, // move optical axis to (0,0) 
+                            undistort(m_Params.m_DistortionParams, //undistort;
+                                scale(m_Params.m_FilmScale,  // scale to -1,-1,1,1
+                                    translate(m_Params.m_FilmDisplacement, // move optical axis to (0,0) 
                                         pt 
                                         )
                                     )
@@ -145,7 +139,7 @@ double distort_map(const std::vector<double> &params, double r) {
 
 double DeDistort::calc_rescale(){
     //make sure that the undistort transformation stays within the normalized box
-    double scale = distort_map(m_DistortionParams, sqrt(2));
+    double scale = distort_map(m_Params.m_DistortionParams, sqrt(2));
     return scale/sqrt(2);
 }
 

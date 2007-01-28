@@ -19,6 +19,7 @@
 //  Current versions can be found at www.libavg.de
 
 #include "TrackerConfig.h"
+#include "DeDistort.h"
 
 #include "../base/XMLHelper.h"
 #include "../base/Logger.h"
@@ -80,13 +81,13 @@ namespace avg {
           m_Shutter(128),
           m_Threshold(20),
           m_HistoryUpdateInterval(5),
-          m_Similarity(31)
+          m_Similarity(31),
+          m_pTrafo(new DeDistort())
     {
           m_AreaBounds[0] = 80;
           m_AreaBounds[1] = 450;
           m_EccentricityBounds[0] = 1; 
           m_EccentricityBounds[1] = 3;
-          load("TrackerConfig.xml");
     } 
     
     TrackerConfig::~TrackerConfig()
@@ -108,10 +109,6 @@ namespace avg {
             const char * pNodeName = (const char *)curXmlChild->name;
             if (!strcmp(pNodeName, "brightness")) {
                 m_Brightness = getRequiredIntAttr(curXmlChild, "value");
-            //} else if (!strcmp(pNodeName, "barrel")) {
-            //    m_K1 = getRequiredDoubleAttr(curXmlChild, "value");
-            //} else if (!strcmp(pNodeName, "trapezoid")) {
-            //    m_T = getRequiredDoubleAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "ROI")) {
                 m_ROI.tl.x = getRequiredIntAttr(curXmlChild, "tlx");
                 m_ROI.tl.y = getRequiredIntAttr(curXmlChild, "tly");
@@ -142,6 +139,9 @@ namespace avg {
             } else if (!strcmp(pNodeName, "eccentricitybounds")) {
                 m_EccentricityBounds[0] = getRequiredDoubleAttr(curXmlChild, "min");
                 m_EccentricityBounds[1] = getRequiredDoubleAttr(curXmlChild, "max");
+            } else if (!strcmp(pNodeName, "transform")) {
+                m_DistortionParams.load(curXmlChild);
+                m_pTrafo = CoordTransformerPtr(new DeDistort(m_DistortionParams));
             }
             curXmlChild = curXmlChild->next;
         }
