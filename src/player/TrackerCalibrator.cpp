@@ -59,15 +59,12 @@ namespace avg {
         /* if <parameters drifted away> { *info = -1; } */
     }
 
-    TrackerCalibrator::TrackerCalibrator(ITransformerTarget* pTarget, const IntPoint& CamExtents, 
-            const IntRect& ROI, const IntPoint& DisplayExtents, 
-            CoordTransformerPtr pOrigTrafo)
-        : m_pTarget(pTarget),
-          m_CurPoint(0),
+    TrackerCalibrator::TrackerCalibrator(const IntPoint& CamExtents, 
+            const IntRect& ROI, const IntPoint& DisplayExtents)
+        : m_CurPoint(0),
           m_CamExtents(CamExtents),
           m_ROI(ROI),
           m_DisplayExtents(DisplayExtents),
-          m_pOrigTrafo(pOrigTrafo),
           m_bCurPointSet(false)
     {
         IntPoint OffsetPerPoint((DisplayExtents.x-MIN_DIST_FROM_BORDER*2)/(NUM_POINTS-1),
@@ -80,9 +77,6 @@ namespace avg {
                 m_CamPoints.push_back(DPoint(0,0));
             }
         }
-        // TODO
-        // CoordTransformerPtr pIdentTrafo(new IdentityTransformer);
-        // m_pTarget->setTransformer(pIdentTrafo);
     }
 
     TrackerCalibrator::~TrackerCalibrator()
@@ -109,7 +103,6 @@ namespace avg {
         if (m_CurPoint < m_DisplayPoints.size()) {
             return true;
         } else {
-            calibrate();
             return false;
         }
     }
@@ -130,12 +123,7 @@ namespace avg {
         m_bCurPointSet = true;
     }
 
-    void TrackerCalibrator::abort()
-    {
-        m_pTarget->setTransformer(m_pOrigTrafo);
-    }
-
-    void TrackerCalibrator::calibrate()
+    CoordTransformerPtr TrackerCalibrator::makeTransformer()
     {
         lm_control_type control;
         CalibratorDataType data;
@@ -192,7 +180,6 @@ namespace avg {
 //            Angle
 //        };
 
-//        TODO
-//        m_pTarget->setTransformer(data->CurrentTrafo);
+        return data.CurrentTrafo;
     }
 }

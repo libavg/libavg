@@ -86,10 +86,10 @@ private:
     TrackerThread::CmdQueuePtr m_pCmdQ;
 };
 
-class ImagingTestSuite: public TestSuite {
+class TrackerTestSuite: public TestSuite {
 public:
-    ImagingTestSuite() 
-        : TestSuite("ImagingTestSuite")
+    TrackerTestSuite() 
+        : TestSuite("TrackerTestSuite")
     {
         addTest(TestPtr(new TrackingTest));
     }
@@ -98,7 +98,7 @@ public:
 
 int main(int nargs, char** args)
 {
-    ImagingTestSuite Suite;
+    TrackerTestSuite Suite;
     Suite.runTests();
     bool bOK = Suite.isOk();
 

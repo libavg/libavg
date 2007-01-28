@@ -24,7 +24,6 @@
 
 #include "Event.h"
 #include "IEventSource.h"
-#include "ITransformerTarget.h"
 #include "TrackerCalibrator.h"
 
 #include "../graphics/Rect.h"
@@ -46,7 +45,7 @@ class EventStream;
 typedef boost::shared_ptr<EventStream> EventStreamPtr;
 typedef std::map<BlobPtr, EventStreamPtr> EventMap;
 
-class TrackerEventSource: public IBlobTarget, public IEventSource, public ITransformerTarget
+class TrackerEventSource: public IBlobTarget, public IEventSource
 {
     public:
         TrackerEventSource(CameraPtr pCamera, 
@@ -92,10 +91,9 @@ class TrackerEventSource: public IBlobTarget, public IEventSource, public ITrans
         /* implement IBlobTarget */
         virtual void update(BlobListPtr new_blobs, BitmapPtr pBitmap);//tracker thread
 
-        /* implement ITransformerTarget */
-        virtual void setTransformer(CoordTransformerPtr pTrafo);
-
         TrackerCalibrator* startCalibration(int XDisplayExtents, int YDisplayExtents);
+        void endCalibration();
+        void abortCalibration();
 
     private:
         bool isfinger(BlobPtr blob);
@@ -116,7 +114,9 @@ class TrackerEventSource: public IBlobTarget, public IEventSource, public ITrans
         DPoint m_Offset;
         DPoint m_Scale;
         
-        CoordTransformerPtr m_Trafo; 
+        CoordTransformerPtr m_Trafo;
+
+        TrackerCalibrator * m_pCalibrator;
 
 };
 

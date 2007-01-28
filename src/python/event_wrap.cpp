@@ -149,9 +149,17 @@ void export_event()
             "Controls whether debug images of intermediate tracking results (Img)\n"
             "and detected finger positions (Finger) are generated.\n")
         .def("startCalibration", &TrackerEventSource::startCalibration,
-            return_value_policy<manage_new_object>(),
+            return_value_policy<reference_existing_object>(),
             "startCalibration(DisplayExtents) -> TrackerCalibrator\n"
-            "Starts coordinate calibration session.\n")
+            "Starts coordinate calibration session. The returned TrackerCalibrator\n"
+            "exists until endCalibration or abortCalibration is called.\n")
+        .def("endCalibration", &TrackerEventSource::endCalibration,
+            "endCalibration() -> None\n"
+            "Ends coordinate calibration session.\n")
+        .def("abortCalibration", &TrackerEventSource::abortCalibration,
+            "abortCalibration() -> None\n"
+            "Aborts coordinate calibration session and restores the previous\n"
+            "coordinate transformer.\n")
         .add_property("barrel", &TrackerEventSource::getBarrel,
             &TrackerEventSource::setBarrel)
         .add_property("trapezoid", &TrackerEventSource::getTrapezoid,
@@ -197,7 +205,5 @@ class_<TrackerCalibrator, boost::noncopyable>("TrackerCalibrator",
             "getDisplayPointY(None) -> Pos\n")
         .def("setCamPoint", &TrackerCalibrator::setCamPoint,
             "setCamPoint(x, y) -> None\n")
-        .def("abort", &TrackerCalibrator::abort,
-            "abort() -> None\n")
         ;
 }

@@ -19,47 +19,16 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _TrackerCalibrator_H_
-#define _TrackerCalibrator_H_
+#include "Point.h"
 
-#include "../graphics/Point.h"
-
-#include "../imaging/CoordTransformer.h"
-
-#include <vector>
+#include <math.h>
 
 namespace avg {
 
-typedef class ITransformerTarget;
-
-class TrackerCalibrator {
-
-public:
-    TrackerCalibrator(const IntPoint& CamExtents, 
-            const IntRect& ROI, const IntPoint& DisplayExtents);
-    virtual ~TrackerCalibrator();
-
-    bool nextPoint();
-    int getDisplayPointX();
-    int getDisplayPointY();
-    void setCamPoint(double x, double y);
-
-    CoordTransformerPtr makeTransformer(); 
-
-private:
-    //double fit_function(double t, double* p );
-
-    unsigned int m_CurPoint;
-    std::vector<IntPoint> m_DisplayPoints;
-    std::vector<DPoint> m_CamPoints;
-
-    IntPoint m_CamExtents;
-    IntRect m_ROI;
-    IntPoint m_DisplayExtents;
-
-    bool m_bCurPointSet;
-};
+bool almostEqual(const DPoint& pt1, const DPoint& pt2)
+{
+    return (fabs(pt1.x-pt2.x)+fabs(pt1.y-pt2.y)) < 0.0001;
+}
 
 }
 
-#endif

@@ -182,7 +182,8 @@ namespace avg {
 
     TrackerEventSource::TrackerEventSource(CameraPtr pCamera, 
             bool bSubtractHistory)
-        : m_TrackerConfig()
+        : m_TrackerConfig(),
+          m_pCalibrator(0)
     {
         AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
         IntPoint ImgDimensions = pCamera->getImgSize();
@@ -519,19 +520,38 @@ namespace avg {
         //       AVG_TRACE(Logger::EVENTS2, ""<<gone_counter<<" fingers disappeared.");
     };
         
-    void TrackerEventSource::setTransformer(CoordTransformerPtr pTrafo)
-    {
-        // TODO
-    }
-        
     TrackerCalibrator* TrackerEventSource::startCalibration(int XDisplayExtents, 
             int YDisplayExtents)
     {
-        return new TrackerCalibrator(this, m_pBitmaps[0]->getSize(),
+        assert(!m_pCalibrator);
+        // TODO
+        // m_pOldTransformer = current TransformPtr 
+        // CoordTransformerPtr pIdentTrafo(new IdentityTransformer);
+        // setTransformer(pIdentTrafo);
+        m_pCalibrator = new TrackerCalibrator(m_pBitmaps[0]->getSize(),
                 m_TrackerConfig.m_ROI,
-                IntPoint(XDisplayExtents, YDisplayExtents), m_Trafo);
+                IntPoint(XDisplayExtents, YDisplayExtents));
+        return m_pCalibrator;
     }
 
+    void TrackerEventSource::endCalibration()
+    {
+        assert(m_pCalibrator);
+        // TODO
+        // m_Transformer = m_pCalibrator->makeTransformer();
+        delete m_pCalibrator;
+        m_pCalibrator = 0;
+    }
+
+    void TrackerEventSource::abortCalibration()
+    {
+        assert(m_pCalibrator);
+        // TODO
+        // setTransformer(m_pOldTransformer);
+        // m_pOldTransformer = 0;
+        delete m_pCalibrator;
+        m_pCalibrator = 0;
+    }
 
     std::vector<Event*> TrackerEventSource::pollEvents()
     {
