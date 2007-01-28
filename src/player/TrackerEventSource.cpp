@@ -517,8 +517,7 @@ namespace avg {
     void TrackerEventSource::endCalibration()
     {
         assert(m_pCalibrator);
-        // TODO
-        // m_Transformer = m_pCalibrator->makeTransformer();
+        m_pCalibrator->makeTransformer(m_TrackerConfig.m_pTrafo, m_Offset, m_Scale); //OUT parameter!
         delete m_pCalibrator;
         m_pCalibrator = 0;
     }

@@ -44,7 +44,7 @@ public:
     int getDisplayPointY();
     void setCamPoint(double x, double y);
 
-    CoordTransformerPtr makeTransformer(); 
+    void makeTransformer(CoordTransformerPtr &new_trafo, DPoint &display_scale, DPoint &display_offset);
 
 private:
     //double fit_function(double t, double* p );

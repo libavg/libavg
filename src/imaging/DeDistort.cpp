@@ -50,7 +50,7 @@ DeDistort::DeDistort()
 {
 }
 
-DeDistort::DeDistort(DistortionParams& Params)
+DeDistort::DeDistort(const DistortionParams& Params)
     : m_Params(Params)
 {
     m_RescaleFactor = calc_rescale();

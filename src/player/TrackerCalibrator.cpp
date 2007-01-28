@@ -23,6 +23,7 @@
 #include "TrackerEventSource.h"
 
 #include "../imaging/DeDistort.h"
+#include "../imaging/DistortionParams.h"
 
 extern "C" {
 #include "../lmfit/lmmin.h"
@@ -45,19 +46,42 @@ namespace avg {
     } CalibratorDataType;
 
 
-    void lm_evaluate_tracker( double* par, int m_dat, double* fvec,
-            void *data, int *info ) {
-        int i;
-        CalibratorDataType *mydata;
-        mydata = static_cast<CalibratorDataType*>(data);
+void lm_evaluate_tracker( double* par, int m_dat, double* fvec,
+                                  void *data, int *info ) {
+    int i;
+    CalibratorDataType *mydata;
+    mydata = static_cast<CalibratorDataType*>(data);
+    DPoint FilmDisplacement = -DPoint(320,240); 
+    DPoint FilmScale = DPoint(320,240);
+    std::vector<double> distort_params;
+    distort_params.push_back(0.4);
+    distort_params.push_back(0.0);
+    DPoint3  P = DPoint3(0,0,0); 
+    DPoint3 N = DPoint3(0,0,1); 
+    double Angle = 0;
+    DPoint DisplayDisplacement=DPoint(-640,-360);
+    DPoint DisplayScale = DPoint(640,360);
 
-        //    mydata->CurrentTrafo = DeDistort();//FIXME
-        for (i=0; i<m_dat; i++){
-            fvec[i] = calcDist(DPoint(mydata->DisplayPoints[i]), mydata->CurrentTrafo->transform_point(mydata->CamPoints[i])); 
-        }
-        *info = *info; /* to prevent a 'unused variable' warning */
-        /* if <parameters drifted away> { *info = -1; } */
+//            DisplayDisplacement.x, 
+//            DisplayDisplacement.y, 
+//            DisplayScale.x, 
+//            DisplayScale.y,
+//            DistortionParams[0],
+//            DistortionParams[1],
+//            N.z,
+//            P.x,
+//            P.y,
+//            P.z,
+//            Angle
+//        };
+        
+//    mydata->CurrentTrafo = DeDistort();//FIXME
+    for (i=0; i<m_dat; i++){
+        fvec[i] = calcDist(mydata->CurrentTrafo->transform_point(mydata->CamPoints[i]), DPoint(mydata->DisplayPoints[i])); 
     }
+    *info = *info; /* to prevent a 'unused variable' warning */
+    /* if <parameters drifted away> { *info = -1; } */
+}
 
     TrackerCalibrator::TrackerCalibrator(const IntPoint& CamExtents, 
             const IntRect& ROI, const IntPoint& DisplayExtents)
@@ -123,7 +147,7 @@ namespace avg {
         m_bCurPointSet = true;
     }
 
-    CoordTransformerPtr TrackerCalibrator::makeTransformer()
+    void TrackerCalibrator::makeTransformer(CoordTransformerPtr &new_trafo, DPoint &display_scale, DPoint &display_offset)
     {
         lm_control_type control;
         CalibratorDataType data;
@@ -141,9 +165,9 @@ namespace avg {
         double h = m_ROI.Height();
         DPoint FilmDisplacement= -DPoint(m_CamExtents)/2+DPoint(m_ROI.tl); 
         DPoint FilmScale = DPoint(2./w,2./h);
-        std::vector<double> DistortionParams;
-        DistortionParams.push_back(0.4);
-        DistortionParams.push_back(0.0);
+        std::vector<double> unDistortionParams;
+        unDistortionParams.push_back(0.4);
+        unDistortionParams.push_back(0.0);
         DPoint3 P = DPoint3(0,0,0); 
         DPoint3 N = DPoint3(0,0,1); 
         double Angle = 0;
@@ -156,8 +180,8 @@ namespace avg {
             DisplayDisplacement.y, 
             DisplayScale.x, 
             DisplayScale.y,
-            DistortionParams[0],
-            DistortionParams[1],
+            unDistortionParams[0],
+            unDistortionParams[1],
             N.z,
             P.x,
             P.y,
@@ -166,20 +190,28 @@ namespace avg {
         };
         lm_minimize(dat, n_p, p, lm_evaluate_tracker, lm_print_default,
                      &data, &control );
-//        double[] p = {
-//            DisplayDisplacement.x, 
-//            DisplayDisplacement.y, 
-//            DisplayScale.x, 
-//            DisplayScale.y,
-//            DistortionParams[0],
-//            DistortionParams[1],
-//            N.z,
-//            P.x,
-//            P.y,
-//            P.z,
-//            Angle
-//        };
-
-        return data.CurrentTrafo;
+        DisplayDisplacement.x = p[0]; 
+        DisplayDisplacement.y = p[1];
+        DisplayScale.x = p[2];
+        DisplayScale.y = p[3];
+        unDistortionParams[0] = p[4];
+        unDistortionParams[1] = p[5];
+        N.z = p[6];
+        P.x = p[7];
+        P.y = p[8];
+        P.z = p[9];
+        Angle = p[10];
+        new_trafo = CoordTransformerPtr( 
+                new DeDistort(DistortionParams(FilmDisplacement,
+                    FilmScale,
+                    unDistortionParams,
+                    P, N,
+                    Angle,
+                    DPoint(m_CamExtents)/2-DPoint(m_ROI.tl),
+                    DPoint(w/2,h/2)
+                    ))
+                );
+        display_offset = DPoint(p[0], p[1]);
+        display_scale = DPoint(p[2], p[3]);
     }
 }

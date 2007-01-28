@@ -37,7 +37,7 @@ namespace avg {
 class DeDistort: public CoordTransformer {
     public:
         DeDistort();
-        DeDistort(DistortionParams& Params);
+        DeDistort(const DistortionParams& Params);
         virtual ~DeDistort();
 
         void load(xmlNodePtr pRootNode);
