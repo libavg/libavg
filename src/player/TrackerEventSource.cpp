@@ -200,7 +200,8 @@ namespace avg {
                     m_pTrackerMutex,
                     *m_pCmdQueue,
                     this,
-                    bSubtractHistory
+                    bSubtractHistory,
+                    m_TrackerConfig
                     )
                 );
         setConfig();
