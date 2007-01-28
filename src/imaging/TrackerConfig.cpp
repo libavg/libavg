@@ -74,9 +74,7 @@ namespace avg {
     }
 
     TrackerConfig::TrackerConfig()
-        : m_K1(0),
-          m_T(0),
-          m_Brightness(128),
+        : m_Brightness(128),
           m_Exposure(128),
           m_Gain(128),
           m_Shutter(128),
@@ -110,10 +108,10 @@ namespace avg {
             const char * pNodeName = (const char *)curXmlChild->name;
             if (!strcmp(pNodeName, "brightness")) {
                 m_Brightness = getRequiredIntAttr(curXmlChild, "value");
-            } else if (!strcmp(pNodeName, "barrel")) {
-                m_K1 = getRequiredDoubleAttr(curXmlChild, "value");
-            } else if (!strcmp(pNodeName, "trapezoid")) {
-                m_T = getRequiredDoubleAttr(curXmlChild, "value");
+            //} else if (!strcmp(pNodeName, "barrel")) {
+            //    m_K1 = getRequiredDoubleAttr(curXmlChild, "value");
+            //} else if (!strcmp(pNodeName, "trapezoid")) {
+            //    m_T = getRequiredDoubleAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "ROI")) {
                 m_ROI.tl.x = getRequiredIntAttr(curXmlChild, "tlx");
                 m_ROI.tl.y = getRequiredIntAttr(curXmlChild, "tly");
@@ -158,8 +156,8 @@ namespace avg {
         rc = xmlTextWriterSetIndent(writer, 4);
         rc = xmlTextWriterStartDocument(writer, NULL, "utf-8", NULL);
         rc = xmlTextWriterStartElement(writer, BAD_CAST "trackerconfig");
-        writeSimpleXMLNode(writer, "barrel", m_K1);
-        writeSimpleXMLNode(writer, "trapezoid", m_T);
+        //writeSimpleXMLNode(writer, "barrel", m_K1);
+        //writeSimpleXMLNode(writer, "trapezoid", m_T);
         writeRect(writer, "ROI", m_ROI);
         writeRect(writer, "destrect", m_DestRect);
         writeSimpleXMLNode(writer, "brightness", m_Brightness);

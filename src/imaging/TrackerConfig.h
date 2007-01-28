@@ -22,6 +22,7 @@
 #define _TrackerConfig_H_
 
 #include "../graphics/Rect.h"
+#include "CoordTransformer.h"
 
 #include <string>
 
@@ -37,16 +38,25 @@ struct TrackerConfig
 
     // Coordinate transforms.
     IntRect m_ROI;//after applying de-distortion, take this as the table surface
-    double m_K1; //amount of barrel/pincushion distortion to correct
-    double m_T; //amount of trapezoid distortion to correct
-    IntRect m_DestRect; // Transform all blobs to be in this rect at the end
-    
+    IntRect m_DestRect; // Transform all blobs to be in this rect at the end    
+
+    CoordTransformerPtr m_pTrafo; 
     // Camera params
     int m_Brightness;
     int m_Exposure;
     int m_Gamma;
     int m_Gain;
     int m_Shutter;
+//    DPoint FilmDisplacement = -DPoint(320,240); 
+//    DPoint FilmScale = DPoint(w/2.,h/2.);
+//    std::vector<double> DistortionParams;
+//    DistortionParams.push_back(0.4);
+//    DistortionParams.push_back(0.0);
+//    DPoint3& P = DPoint(0,0,0); 
+//    DPoint3& N = DPoint(0,0,1); 
+//    double Angle = 0;
+//    const DPoint& DisplayDisplacement=DPoint(-640,-360);
+//    const DPoint& DisplayScale = DPoint(640,360);
 
     // Imaging params
     int m_Threshold; //min pixel val for detection
