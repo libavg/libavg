@@ -26,7 +26,9 @@
 #include <iostream>
 #include <math.h>
 
-#define sqrt3 sqrt(3.)
+const double sqrt3 = sqrt(3.);
+
+using namespace std;
 
 namespace avg{
 
@@ -66,13 +68,16 @@ DeDistort::~DeDistort()
 
 DPoint DeDistort::inverse_transform_point(const DPoint &pt)
 {
+    return inverse_undistort(m_DistortionParams, pt);
+//    return inverse_pinhole(m_P, m_N, pt);
+    /*
     return translate(-m_FilmDisplacement,
             scale(DPoint(1./m_FilmScale.x, 1./m_FilmScale.y),
                     inverse_undistort(m_DistortionParams,
-                        inverse_pinhole(m_P, m_N, //FIXME
+                        inverse_pinhole(m_P, m_N,
                             rotate(-m_Angle,
                                 scale(DPoint(1./m_DisplayScale.x, 1./m_DisplayScale.y),
-                                    translate(-m_DisplayScale,
+                                    translate(-m_DisplayDisplacement,
                                         pt
                                     )
                                 )
@@ -81,6 +86,7 @@ DPoint DeDistort::inverse_transform_point(const DPoint &pt)
                     )
                 )
             );
+    */
 }
 
 
@@ -137,22 +143,37 @@ double DeDistort::calc_rescale(){
     return scale;
 }
 
-double inv_distort_map(const std::vector<double> &params, double r){
-  double r1,r2,r3,f1,f2;
-  r1 = r;
-  r2 = r+.001;
-  f1 = distort_map(params, r1)-r;
-  f2 = distort_map(params, r2)-r;
-  while (fabs(f2) > 0.0001) {
-    r3 = (r1*f2-r2*f1)/(f2-f1);
-    r1 = r2;
-    r2 = r3;
-    f1 = f2;
-    f2 = distort_map(params, r2)-r;
-  }
-  return r2;
+bool everythingZero(const std::vector<double> &params)
+{
+    for (int i=0; i<params.size(); ++i) {
+        if (fabs(params[i]) > 0.00001) {
+            return false;
+        }
+    }
+    return true;
+}
 
-
+double inv_distort_map(const std::vector<double> &params, double r) {
+    if (everythingZero(params)) {
+        // No distortion
+        return r;
+    } else {
+        double r1,r2,r3,f1,f2;
+        r1 = r;
+        r2 = r+.001;
+        f1 = distort_map(params, r1)-r;
+        f2 = distort_map(params, r2)-r;
+        while (fabs(f2) > 0.0001) {
+            cerr << "f1: " << f1 << ", f2: " << f2 << endl;
+            r3 = (r1*f2-r2*f1)/(f2-f1);
+            cerr << "r3: " << r3 << endl;
+            r1 = r2;
+            r2 = r3;
+            f1 = f2;
+            f2 = distort_map(params, r2)-r;
+        }
+        return r2;
+    }
 }
 
 DPoint DeDistort::inverse_undistort(const std::vector<double> &params, const DPoint &pt) {
