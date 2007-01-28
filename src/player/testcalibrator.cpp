@@ -55,6 +55,21 @@ public:
 
             // TODO: test if Trafo is an identity transformer.
         }
+
+        {
+            TrackerCalibrator Calibrator(IntPoint(640, 480), 
+                IntRect(0,0,640,480), IntPoint(640,480));
+            bool bDone = false;
+            while (!bDone) {
+                IntPoint DisplayPoint(Calibrator.getDisplayPointX(), 
+                        Calibrator.getDisplayPointY());
+                Calibrator.setCamPoint(DisplayPoint.x+DisplayPoint.y, DisplayPoint.y);
+                bDone = Calibrator.nextPoint();
+            }
+//             CoordTransformerPtr Trafo = Calibrator.makeTransformer();
+
+            // TODO: test if Trafo is a trapezoid transformer.
+        }
     }
    
 };
