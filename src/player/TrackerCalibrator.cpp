@@ -35,36 +35,34 @@ using namespace std;
 #define MIN_DIST_FROM_BORDER 10
 
 namespace avg {
-//void lm_print_tracker( int n_par, double* par, int m_dat, double* fvec,
-//                               void *data, int iflag, int iter, int nfev );
-  typedef struct {
-      std::vector<IntPoint> DisplayPoints;
-      std::vector<DPoint> CamPoints;
-      CoordTransformerPtr CurrentTrafo;
-      //double (*user_func)( std::vector<IntPoint> &DisplayPoints, std::vector<DPoint> &CamPoints);
-  } CalibratorDataType;
+    //void lm_print_tracker( int n_par, double* par, int m_dat, double* fvec,
+    //                               void *data, int iflag, int iter, int nfev );
+    typedef struct {
+        std::vector<IntPoint> DisplayPoints;
+        std::vector<DPoint> CamPoints;
+        CoordTransformerPtr CurrentTrafo;
+        //double (*user_func)( std::vector<IntPoint> &DisplayPoints, std::vector<DPoint> &CamPoints);
+    } CalibratorDataType;
 
 
-void lm_evaluate_tracker( double* par, int m_dat, double* fvec,
-                                  void *data, int *info ) {
-    int i;
-    CalibratorDataType *mydata;
-    mydata = static_cast<CalibratorDataType*>(data);
-    
-//    mydata->CurrentTrafo = DeDistort();//FIXME
-    for (i=0; i<m_dat; i++){
-        fvec[i] = calcDist(DPoint(mydata->DisplayPoints[i]), mydata->CurrentTrafo->transform_point(mydata->CamPoints[i])); 
+    void lm_evaluate_tracker( double* par, int m_dat, double* fvec,
+            void *data, int *info ) {
+        int i;
+        CalibratorDataType *mydata;
+        mydata = static_cast<CalibratorDataType*>(data);
+
+        //    mydata->CurrentTrafo = DeDistort();//FIXME
+        for (i=0; i<m_dat; i++){
+            fvec[i] = calcDist(DPoint(mydata->DisplayPoints[i]), mydata->CurrentTrafo->transform_point(mydata->CamPoints[i])); 
+        }
+        *info = *info; /* to prevent a 'unused variable' warning */
+        /* if <parameters drifted away> { *info = -1; } */
     }
-    *info = *info; /* to prevent a 'unused variable' warning */
-    /* if <parameters drifted away> { *info = -1; } */
 
-}
-
-
-    TrackerCalibrator::TrackerCalibrator(TrackerEventSource* pTracker, const IntPoint& CamExtents, 
+    TrackerCalibrator::TrackerCalibrator(ITransformerTarget* pTarget, const IntPoint& CamExtents, 
             const IntRect& ROI, const IntPoint& DisplayExtents, 
             CoordTransformerPtr pOrigTrafo)
-        : m_pTracker(pTracker),
+        : m_pTarget(pTarget),
           m_CurPoint(0),
           m_CamExtents(CamExtents),
           m_ROI(ROI),
@@ -84,7 +82,7 @@ void lm_evaluate_tracker( double* par, int m_dat, double* fvec,
         }
         // TODO
         // CoordTransformerPtr pIdentTrafo(new IdentityTransformer);
-        // m_pTracker->setCoordTransformer(pIdentTrafo);
+        // m_pTarget->setTransformer(pIdentTrafo);
     }
 
     TrackerCalibrator::~TrackerCalibrator()
@@ -134,8 +132,7 @@ void lm_evaluate_tracker( double* par, int m_dat, double* fvec,
 
     void TrackerCalibrator::abort()
     {
-        // TODO: Reset tracker calibration data.
-        // m_pTracker->setCoordTransformer(pOrigTrafo);
+        m_pTarget->setTransformer(m_pOrigTrafo);
     }
 
     void TrackerCalibrator::calibrate()
@@ -196,6 +193,6 @@ void lm_evaluate_tracker( double* par, int m_dat, double* fvec,
 //        };
 
 //        TODO
-//        m_pTracker->setTrafo(data->CurrentTrafo);
+//        m_pTarget->setTransformer(data->CurrentTrafo);
     }
 }

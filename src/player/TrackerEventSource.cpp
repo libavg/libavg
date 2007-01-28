@@ -519,6 +519,10 @@ namespace avg {
         //       AVG_TRACE(Logger::EVENTS2, ""<<gone_counter<<" fingers disappeared.");
     };
         
+    void TrackerEventSource::setTransformer(CoordTransformerPtr pTrafo)
+    {
+        // TODO
+    }
         
     TrackerCalibrator* TrackerEventSource::startCalibration(int XDisplayExtents, 
             int YDisplayExtents)

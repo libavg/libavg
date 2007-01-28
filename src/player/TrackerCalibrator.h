@@ -29,15 +29,13 @@
 #include <vector>
 
 namespace avg {
-    
 
-
-typedef class TrackerEventSource;
+typedef class ITransformerTarget;
 
 class TrackerCalibrator {
 
 public:
-    TrackerCalibrator(TrackerEventSource* pTracker, const IntPoint& CamExtents, 
+    TrackerCalibrator(ITransformerTarget* pTarget, const IntPoint& CamExtents, 
             const IntRect& ROI, const IntPoint& DisplayExtents, 
             CoordTransformerPtr pOrigTrafo);
     virtual ~TrackerCalibrator();
@@ -51,7 +49,7 @@ public:
 private:
     void calibrate();
     //double fit_function(double t, double* p );
-    TrackerEventSource* m_pTracker;
+    ITransformerTarget* m_pTarget;
 
     unsigned int m_CurPoint;
     std::vector<IntPoint> m_DisplayPoints;
