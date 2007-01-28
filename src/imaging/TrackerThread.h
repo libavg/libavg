@@ -65,7 +65,8 @@ class TrackerThread: public WorkerThread<TrackerThread>
                 MutexPtr pMutex,
                 CmdQueue& CmdQ,
                 IBlobTarget *target,
-                bool bSubtractHistory);
+                bool bSubtractHistory,
+                TrackerConfig &config);
         virtual ~TrackerThread();
 
         bool init();

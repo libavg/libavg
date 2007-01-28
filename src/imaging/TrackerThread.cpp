@@ -53,7 +53,8 @@ TrackerThread::TrackerThread(CameraPtr pCamera,
         MutexPtr pMutex,
         CmdQueue& CmdQ,
         IBlobTarget *target,
-        bool bSubtractHistory)
+        bool bSubtractHistory,
+        TrackerConfig &config)
     : WorkerThread<TrackerThread>(CmdQ),
       m_Threshold(128),
       m_pMutex(pMutex),
@@ -69,7 +70,7 @@ TrackerThread::TrackerThread(CameraPtr pCamera,
                 new HistoryPreProcessor(m_pBitmaps[1]->getSize(), 1));
     }
 
-    m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), 0.0, 0));
+    m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), config.m_pTrafo));
 }
 
 TrackerThread::~TrackerThread()
@@ -167,8 +168,7 @@ void TrackerThread::setConfig(TrackerConfig Config)
     if(m_pHistoryPreProcessor) {
         m_pHistoryPreProcessor->setInterval(Config.m_HistoryUpdateInterval);
     }
-    m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(),
-            Config.m_K1, Config.m_T));
+    m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), Config.m_pTrafo));
         
     m_pCamera->setFeature("brightness", Config.m_Brightness);
     m_pCamera->setFeature("gamma", Config.m_Gamma);

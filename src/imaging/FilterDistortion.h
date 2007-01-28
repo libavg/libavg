@@ -36,11 +36,11 @@ namespace avg {
     class FilterDistortion: public Filter 
     {
         public:
-            FilterDistortion(IntPoint srcSize,double K1, double T);
+            FilterDistortion(IntPoint srcSize, CoordTransformerPtr coordtrans);
             BitmapPtr apply (BitmapPtr pBmpSource);
         private:
             IntRect m_srcRect;
-            TrapezoidAndBarrel m_trafo;
+            CoordTransformerPtr m_pTrafo;
             IntPoint *m_pMap;
     };
 

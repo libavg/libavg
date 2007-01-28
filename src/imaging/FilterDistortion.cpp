@@ -33,9 +33,9 @@ using namespace std;
 
 namespace avg{
 
-    FilterDistortion::FilterDistortion(IntPoint srcSize, double K1, double T)
+    FilterDistortion::FilterDistortion(IntPoint srcSize, CoordTransformerPtr coordtrans)
       : m_srcRect(0,0,srcSize.x,srcSize.y),
-        m_trafo(m_srcRect, K1, T, (1+K1)) 
+        m_pTrafo(coordtrans) 
     {
         //we use the same dimensions for both of src and dest and just crop...
         //for each pixel at (x,y) in the dest
@@ -45,7 +45,7 @@ namespace avg{
 
         for(int y=0;y<srcSize.y;++y){
             for(int x=0;x<srcSize.x;++x){
-                DPoint tmp = m_trafo.inverse_transform_point(DPoint(int(x),int(y)));
+                DPoint tmp = m_pTrafo->inverse_transform_point(DPoint(int(x),int(y)));
                 IntPoint tmp2(int(tmp.x+0.5),int(tmp.y+0.5));
                 if(m_srcRect.Contains(tmp2)){
                     m_pMap[y*w+x] = tmp2;
