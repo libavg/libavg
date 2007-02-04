@@ -36,7 +36,7 @@ class FFMpegDecoder: public IVideoDecoder
     public:
         FFMpegDecoder();
         virtual ~FFMpegDecoder();
-        virtual void open(const std::string& sFilename, PixelFormat PFWanted);
+        virtual void open(const std::string& sFilename, DisplayEngine::YCbCrMode ycbcrMode);
         virtual void close();
         virtual void seek(int DestFrame);
         virtual IntPoint getSize();
@@ -46,17 +46,19 @@ class FFMpegDecoder: public IVideoDecoder
         virtual bool renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr);
         virtual bool canRenderToBuffer(int BPP);
-        virtual PixelFormat getDesiredPixelFormat();
+        virtual PixelFormat getPixelFormat();
 
     private:
         void initVideoSupport();
         void readFrame(AVFrame& Frame);
         bool getNextVideoPacket(AVPacket & Packet);
+        PixelFormat calcPixelFormat(DisplayEngine::YCbCrMode ycbcrMode);
 
         AVFormatContext * m_pFormatContext;
         int m_VStreamIndex;
         AVStream * m_pVStream;
         bool m_bEOF;
+        PixelFormat m_PF;
 
         unsigned char * m_pPacketData;
         AVPacket m_Packet;

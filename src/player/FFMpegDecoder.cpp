@@ -91,7 +91,7 @@ void dump_stream_info(AVFormatContext *s)
 }
 
 
-void FFMpegDecoder::open (const std::string& sFilename, PixelFormat PFWanted)
+void FFMpegDecoder::open (const std::string& sFilename, DisplayEngine::YCbCrMode ycbcrMode)
 {
     AVFormatParameters params;
     int err;
@@ -168,6 +168,8 @@ void FFMpegDecoder::open (const std::string& sFilename, PixelFormat PFWanted)
     m_PacketLenLeft = 0;
     m_bEOF = false;
     m_sFilename = sFilename;
+
+    m_PF = calcPixelFormat(ycbcrMode);
 } 
 
 void FFMpegDecoder::close() 
@@ -322,23 +324,32 @@ bool FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb,
     return m_bEOF;
 }
 
-PixelFormat FFMpegDecoder::getDesiredPixelFormat()
+PixelFormat FFMpegDecoder::calcPixelFormat(DisplayEngine::YCbCrMode ycbcrMode)
 {
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
         AVCodecContext *enc = &m_pVStream->codec;
 #else
         AVCodecContext *enc = m_pVStream->codec;
 #endif
-    switch(enc->pix_fmt) {
-        case PIX_FMT_YUV420P:
-            return YCbCr420p;
-        case PIX_FMT_YUVJ420P:
-            return YCbCrJ420p;
-        case PIX_FMT_RGBA32:
-            return R8G8B8A8;
-        default:
-            return R8G8B8;
+    if (ycbcrMode == DisplayEngine::OGL_SHADER) {
+        switch(enc->pix_fmt) {
+            case PIX_FMT_YUV420P:
+                return YCbCr420p;
+            case PIX_FMT_YUVJ420P:
+                return YCbCrJ420p;
+            default:
+                break;
+        }
     }
+    if ((ycbcrMode == DisplayEngine::OGL_MESA || ycbcrMode == DisplayEngine::OGL_APPLE) &&
+         enc->pix_fmt == PIX_FMT_YUV420P) 
+    {
+        return YCbCr422;
+    }
+    if (enc->pix_fmt == PIX_FMT_RGBA32) {
+        return B8G8R8A8;
+    }
+    return B8G8R8X8;
 }
 
 bool FFMpegDecoder::canRenderToBuffer(int BPP)
@@ -350,6 +361,11 @@ bool FFMpegDecoder::canRenderToBuffer(int BPP)
 #else
     return false;
 #endif
+}
+
+PixelFormat FFMpegDecoder::getPixelFormat()
+{
+    return m_PF;
 }
 
 void FFMpegDecoder::initVideoSupport()

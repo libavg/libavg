@@ -108,7 +108,7 @@ double CameraNode::getFPS()
 
 }
 
-void CameraNode::open(IntPoint* pSize)
+void CameraNode::open(IntPoint* pSize, DisplayEngine::YCbCrMode ycbcrMode)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     m_pCamera->open();
@@ -173,7 +173,7 @@ bool CameraNode::renderToSurface(ISurface * pSurface)
     return true;
 }
 
-PixelFormat CameraNode::getDesiredPixelFormat() 
+PixelFormat CameraNode::getPixelFormat() 
 {
     return B8G8R8X8;
 }

@@ -53,7 +53,6 @@ namespace avg {
 VideoBase::VideoBase ()
     : m_VideoState(Unloaded),
       m_Size(0,0),
-      m_YCbCrMode(DisplayEngine::NONE),
       m_bFrameAvailable(false)
 {
 }
@@ -198,52 +197,16 @@ void VideoBase::renderToBackbuffer()
 
 void VideoBase::open() 
 {
-    open(&m_Size);
+    open(&m_Size, getEngine()->getYCbCrMode());
     setViewport(-32767, -32767, -32767, -32767);
+    PixelFormat pf = getPixelFormat();
+    getSurface()->create(m_Size, pf, true);
+    if (pf == B8G8R8X8 || pf == B8G8R8A8) {
+        FilterFill<Pixel32> Filter(Pixel32(0,0,0,255));
+        Filter.applyInPlace(getSurface()->lockBmp());
+        getSurface()->unlockBmps();
+    }
 
-    DRect vpt = getRelViewport();
-    m_YCbCrMode = DisplayEngine::NONE;
-    if ((getDesiredPixelFormat() == YCbCr420p || getDesiredPixelFormat() == YCbCrJ420p) && 
-            getEngine()->getYCbCrMode() != DisplayEngine::NONE) 
-    {
-        m_YCbCrMode = getEngine()->getYCbCrMode();
-    }
-    switch (m_YCbCrMode) {
-        case DisplayEngine::OGL_MESA:
-        case DisplayEngine::OGL_APPLE:
-            getSurface()->create(m_Size, YCbCr422, true);
-            break;
-        case DisplayEngine::OGL_SHADER:
-            getSurface()->create(m_Size, getDesiredPixelFormat(),
-                    true);
-            break;
-        case DisplayEngine::NONE:
-            {
-                PixelFormat pf;
-                if (getDesiredPixelFormat() == R8G8B8A8) {
-                    if (getEngine()->hasRGBOrdering()) {
-                        pf = R8G8B8A8;
-                    } else {
-                        pf = B8G8R8A8;
-                    }
-                    getSurface()->create(m_Size, pf, true);
-                    FilterFill<Pixel32> Filter(Pixel32(0,0,0, 255));
-                    Filter.applyInPlace(getSurface()->lockBmp());
-                } else {
-                    if (getEngine()->hasRGBOrdering()) {
-                        pf = R8G8B8X8;
-                    } else {
-                        pf = B8G8R8X8;
-                    }
-                    getSurface()->create(m_Size, pf, true);
-                    FilterFill<Pixel32> Filter(Pixel32(0,0,0,255));
-                    Filter.applyInPlace(getSurface()->lockBmp());
-                }
-                getSurface()->unlockBmps();
-            }
-            break;
-    }
-    
     m_bFrameAvailable = false;
 }
 
@@ -255,11 +218,6 @@ int VideoBase::getMediaWidth()
 int VideoBase::getMediaHeight()
 {
     return m_Size.y;
-}
-
-DisplayEngine::YCbCrMode VideoBase::getYCbCrMode()
-{
-    return m_YCbCrMode;
 }
 
 bool VideoBase::obscures (const DRect& Rect, int Child)

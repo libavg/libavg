@@ -60,9 +60,9 @@ class Video : public VideoBase
         void seek(int DestFrame);
         void advancePlayback();
        
-        virtual void open(IntPoint* pSize);
+        virtual void open(IntPoint* pSize, DisplayEngine::YCbCrMode ycbcrMode);
         virtual void close();
-        virtual PixelFormat getDesiredPixelFormat();
+        virtual PixelFormat getPixelFormat();
         virtual double getFPS();
 
         std::string m_href;

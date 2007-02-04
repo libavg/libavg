@@ -23,6 +23,7 @@
 #define _IVideoDecoder_H_
 
 #include "../graphics/Bitmap.h"
+#include "DisplayEngine.h"
 
 #include <string>
 
@@ -32,7 +33,7 @@ class IVideoDecoder
 {
     public:
         virtual ~IVideoDecoder() {};
-        virtual void open(const std::string& sFilename, PixelFormat PFWanted) = 0;
+        virtual void open(const std::string& sFilename, DisplayEngine::YCbCrMode ycbcrMode) = 0;
         virtual void close() = 0;
         virtual void seek(int DestFrame) = 0;
         virtual IntPoint getSize() = 0;
@@ -43,7 +44,7 @@ class IVideoDecoder
         virtual bool renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr) = 0;
         virtual bool canRenderToBuffer(int BPP) = 0;
-        virtual PixelFormat getDesiredPixelFormat() = 0;
+        virtual PixelFormat getPixelFormat() = 0;
 };
 
 typedef boost::shared_ptr<IVideoDecoder> VideoDecoderPtr;

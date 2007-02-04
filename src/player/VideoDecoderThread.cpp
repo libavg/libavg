@@ -32,12 +32,12 @@ namespace avg {
 
 VideoDecoderThread::VideoDecoderThread(VideoMsgQueue& MsgQ, CmdQueue& CmdQ, 
         VideoDecoderPtr pDecoder, const std::string& sFilename, 
-        PixelFormat PFWanted)
+        DisplayEngine::YCbCrMode ycbcrMode)
     : WorkerThread<VideoDecoderThread>(CmdQ),
       m_MsgQ(MsgQ),
       m_pDecoder(pDecoder),
       m_sFilename(sFilename),
-      m_PF(PFWanted)
+      m_YCbCrMode(ycbcrMode)
 {
 }
 
@@ -49,10 +49,11 @@ bool VideoDecoderThread::init()
 {
     try {
         IntPoint Size;
-        m_pDecoder->open(m_sFilename, m_PF);
+        m_pDecoder->open(m_sFilename, m_YCbCrMode);
+        PixelFormat PF = m_pDecoder->getPixelFormat();
 //        figure out whether to use YUV
         VideoMsgPtr pInfoMsg(new InfoVideoMsg(Size, m_pDecoder->getNumFrames(),
-                m_pDecoder->getFPS(), m_PF));
+                m_pDecoder->getFPS(), PF));
         m_MsgQ.push(pInfoMsg);
         return true;
     } catch (Exception& ex) {
@@ -67,7 +68,8 @@ bool VideoDecoderThread::work()
     vector<BitmapPtr> pBmps;
     bool bEOF;
     IntPoint Size = m_pDecoder->getSize();
-    if (m_PF == YCbCr420p || m_PF ==YCbCrJ420p) {
+    PixelFormat PF = m_pDecoder->getPixelFormat();
+    if (PF == YCbCr420p || PF ==YCbCrJ420p) {
         BitmapPtr pBmpY = BitmapPtr(new Bitmap(Size, I8));
         IntPoint HalfSize(Size.x/2, Size.y/2);
         BitmapPtr pBmpU = BitmapPtr(new Bitmap(HalfSize, I8));
@@ -77,7 +79,7 @@ bool VideoDecoderThread::work()
         pBmps.push_back(pBmpU);
         pBmps.push_back(pBmpV);
     } else {
-        BitmapPtr pBmp = BitmapPtr(new Bitmap(Size, m_PF));
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(Size, PF));
         bEOF=m_pDecoder->renderToBmp(pBmp);
         pBmps.push_back(pBmp);
     }

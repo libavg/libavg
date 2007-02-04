@@ -24,6 +24,7 @@
 
 #include "IVideoDecoder.h"
 #include "IVideoMsg.h"
+#include "DisplayEngine.h"
 
 #include "../base/WorkerThread.h"
 #include "../base/Command.h"
@@ -38,7 +39,7 @@ class VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
     public:
         VideoDecoderThread(VideoMsgQueue& MsgQ, CmdQueue& CmdQ, 
                 VideoDecoderPtr pDecoder, const std::string& sFilename, 
-                PixelFormat PFWanted);
+                DisplayEngine::YCbCrMode ycbcrMode);
         virtual ~VideoDecoderThread();
         bool init();
         bool work();
@@ -50,7 +51,7 @@ class VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
         VideoMsgQueue& m_MsgQ;
         VideoDecoderPtr m_pDecoder;
         std::string m_sFilename;
-        PixelFormat m_PF;
+        DisplayEngine::YCbCrMode m_YCbCrMode;
 };
 
 }

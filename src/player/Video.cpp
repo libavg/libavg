@@ -149,17 +149,18 @@ string Video::getTypeStr ()
     return "Video";
 }
 
-void Video::seek(int DestFrame) {
+void Video::seek(int DestFrame) 
+{
     m_pDecoder->seek(DestFrame);
     m_CurFrame = DestFrame;
     setFrameAvailable(false);
 }
 
-void Video::open(IntPoint* pSize)
+        
+void Video::open(IntPoint* pSize, DisplayEngine::YCbCrMode ycbcrMode)
 {
     m_CurFrame = 0;
-    // TODO: Replace this with a sensible pixelformat.
-    m_pDecoder->open(m_Filename, R8G8B8X8);
+    m_pDecoder->open(m_Filename, ycbcrMode);
     *pSize = m_pDecoder->getSize();
     m_bEOF = false;
 }
@@ -169,9 +170,9 @@ void Video::close()
     m_pDecoder->close();
 }
 
-PixelFormat Video::getDesiredPixelFormat() 
+PixelFormat Video::getPixelFormat() 
 {
-    return m_pDecoder->getDesiredPixelFormat();
+    return m_pDecoder->getPixelFormat();
 }
 
 double Video::getFPS()
@@ -184,13 +185,15 @@ static ProfilingZone RenderProfilingZone("    Video::render");
 bool Video::renderToSurface(ISurface * pSurface)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    if (getYCbCrMode() == DisplayEngine::OGL_SHADER) {
+    DisplayEngine::YCbCrMode ycbcrMode = getEngine()->getYCbCrMode();
+    PixelFormat PF = m_pDecoder->getPixelFormat();
+    if (PF == YCbCr420p || PF == YCbCrJ420p) {
         m_bEOF = m_pDecoder->renderToYCbCr420p(pSurface->lockBmp(0),
                 pSurface->lockBmp(1), pSurface->lockBmp(2));
     } else {
         BitmapPtr pBmp = pSurface->lockBmp();
         m_bEOF = m_pDecoder->renderToBmp(pBmp);
-        if (getYCbCrMode() == DisplayEngine::OGL_MESA) {
+        if (ycbcrMode== DisplayEngine::OGL_MESA) {
             FilterFlipUV().applyInPlace(pBmp);
         }   
     }
