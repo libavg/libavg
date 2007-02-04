@@ -2,7 +2,7 @@
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 <avg width="640" height="480">
     <camera id="camera" x="0" y="0" width="640" height="480"
-            device="/dev/video1394/0" mode="640x480_MONO8" framerate="30"/>
+            device="/dev/video1394/0" mode="640x480_RBG" framerate="15"/>
 </avg>
 <!--<avg width="1280" height="960">
     <camera id="camera" x="0" y="0" width="1280" height="960"
