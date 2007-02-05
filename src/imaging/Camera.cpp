@@ -24,6 +24,7 @@
 
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
+#include "../base/TimeSource.h"
 
 namespace avg {
 
@@ -282,6 +283,14 @@ static ProfilingZone CameraConvertProfilingZone("      Camera format conversion"
 
 BitmapPtr Camera::getImage(bool bWait)
 {
+    if (!m_bCameraAvailable && bWait) {
+        TimeSource::get()->msleep(1000);
+        open();
+    }
+    if (!m_bCameraAvailable) {
+        // Open failed
+        return BitmapPtr();
+    }
     IntPoint ImgSize = getCamImgSize(m_Mode);
     BitmapPtr pCurBitmap;
     if (m_bColor) { 

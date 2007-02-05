@@ -94,7 +94,7 @@ bool TrackerThread::work()
             pCamBmp = pTempBmp1;
         }
     }
-    {
+    if (pCamBmp) {
         ScopeTimer Timer(ProfilingZoneTracker);
         if (m_bCreateDebugImages) {
             boost::mutex::scoped_lock Lock(*m_pMutex);
