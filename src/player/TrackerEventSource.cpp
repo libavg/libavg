@@ -58,13 +58,13 @@ namespace avg {
             void update(BlobPtr new_blob);
             Event* pollevent(DPoint& Offset, DPoint& Scale);
             enum StreamState {
-                FRESH, //fresh stream. not polled yet
-                TOUCH_DELIVERED, //initial finger down delivered
-                INMOTION, //recent position change
-                RESTING, //finger resting
+                DOWN_PENDING, //fresh stream. not polled yet
+                DOWN_DELIVERED, //initial finger down delivered
+                MOTION_PENDING, //recent position change
+                MOTION_DELIVERED, //finger resting
                 VANISHED, // oops, no followup found -- wait a little while
-                FINGERUP, //finger disappeared, but fingerup yet to be delivered
-                DONE // waiting to be cleared.
+                UP_PENDING, //finger disappeared, but fingerup yet to be delivered
+                UP_DELIVERED // waiting to be cleared.
             };
             int m_Id;
             int m_VanishCounter;
@@ -79,11 +79,10 @@ namespace avg {
 
     EventStream::EventStream(BlobPtr first_blob)
     {
-        //need to lock s_LastLabel???
-        m_Id = s_LastLabel++;
+        m_Id = ++s_LastLabel;
         m_pBlob = first_blob;
         m_Pos = m_pBlob->center();
-        m_State = FRESH;
+        m_State = DOWN_PENDING;
         m_Stale = false;
     };
 
@@ -91,18 +90,18 @@ namespace avg {
     {
         if (!new_blob){
             switch(m_State) {
-                case FRESH:
+                case DOWN_PENDING:
                     AVG_TRACE(Logger::EVENTS2, "Spurious blob suppressed.");
-                    m_State = DONE;
+                    m_State = UP_DELIVERED;
                     break;
-                case FINGERUP:
-                case DONE:
+                case UP_PENDING:
+                case UP_DELIVERED:
                     break;
                 default:
                     m_State = VANISHED;
                     m_VanishCounter++;
                     if(m_VanishCounter>=MAXMISSINGFRAMES){
-                        m_State = FINGERUP;
+                        m_State = UP_PENDING;
                     }
                     break;
             }
@@ -115,28 +114,24 @@ namespace avg {
         //Fixme replace m_Pos == c with something that takes resolution into account
         bool pos_unchanged = (c == m_Pos);
         switch(m_State) {
-            case FRESH:
+            case DOWN_PENDING:
                 //finger touch has not been polled yet. update position
                 break;
             case VANISHED:
-                m_State = INMOTION;
+                m_State = MOTION_PENDING;
                 break;
-            case TOUCH_DELIVERED:
+            case DOWN_DELIVERED:
                 //fingerdown delivered, change to motion states
                 if (pos_unchanged)
-                    m_State = RESTING;
+                    m_State = MOTION_DELIVERED;
                 else
-                    m_State = INMOTION;
+                    m_State = MOTION_PENDING;
                 break;
-            case INMOTION:
-                if (pos_unchanged) m_State = RESTING;
+            case MOTION_PENDING:
                 break;
-            case RESTING:
-                if (pos_unchanged)
-                    //pass
-                    {;}
-                else {
-                    m_State = INMOTION;
+            case MOTION_DELIVERED:
+                if (!pos_unchanged) {
+                    m_State = MOTION_PENDING;
                 }
                 break;
             default:
@@ -153,25 +148,25 @@ namespace avg {
     {
         assert(m_pBlob);
         switch(m_State){
-            case FRESH:
-                m_State = TOUCH_DELIVERED;
+            case DOWN_PENDING:
+                m_State = DOWN_DELIVERED;
                 return new TouchEvent(m_Id, Event::TOUCHDOWN,
                         (m_pBlob->getInfo()), m_pBlob, Offset, Scale);
 
                 break;
-            case INMOTION:
-                m_State = RESTING;
+            case MOTION_PENDING:
+                m_State = MOTION_DELIVERED;
                 return new TouchEvent(m_Id, Event::TOUCHMOTION,
                         (m_pBlob->getInfo()), m_pBlob, Offset, Scale);
                 break;
-            case FINGERUP:
-                m_State = DONE;
+            case UP_PENDING:
+                m_State = UP_DELIVERED;
                 return new TouchEvent(m_Id, Event::TOUCHUP,
                         (m_pBlob->getInfo()), m_pBlob, Offset, Scale);
                 break;
-            case TOUCH_DELIVERED:
-            case RESTING:
-            case DONE:
+            case DOWN_DELIVERED:
+            case MOTION_DELIVERED:
+            case UP_DELIVERED:
             default:
                 //return no event
                 return 0;
@@ -541,7 +536,7 @@ namespace avg {
         for (EventMap::iterator it = m_Events.begin(); it!= m_Events.end();){
             t = (*it).second->pollevent(m_Offset, m_Scale);
             if (t) res.push_back(t);
-            if ((*it).second->m_State == EventStream::DONE){
+            if ((*it).second->m_State == EventStream::UP_DELIVERED){
                 m_Events.erase(it++);
                 kill_counter++;
             }else{
