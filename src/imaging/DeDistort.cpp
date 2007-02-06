@@ -139,8 +139,8 @@ double distort_map(const std::vector<double> &params, double r) {
 
 double DeDistort::calc_rescale(){
     //make sure that the undistort transformation stays within the normalized box
-    double scale = distort_map(m_Params.m_DistortionParams, sqrt(2));
-    return scale/sqrt(2);
+    double scale = distort_map(m_Params.m_DistortionParams, sqrt(2.0));
+    return scale/sqrt(2.0);
 }
 
 //bool everythingZero(const std::vector<double> &params)
