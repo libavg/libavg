@@ -46,7 +46,7 @@ ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
 	    TouchEvent.h \
         $(GL_INCLUDES) $(DFB_INCLUDES) $(APPLE_INCLUDES)
 
-TESTS=testcalibrator
+#TESTS=testcalibrator
 
 noinst_LTLIBRARIES = libplayer.la
 noinst_PROGRAMS = testtracker testcalibrator
