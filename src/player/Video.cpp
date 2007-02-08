@@ -193,9 +193,9 @@ bool Video::renderToSurface(ISurface * pSurface)
     } else {
         BitmapPtr pBmp = pSurface->lockBmp();
         m_bEOF = m_pDecoder->renderToBmp(pBmp);
-        if (ycbcrMode == DisplayEngine::OGL_MESA && pBmp->getPixelFormat() == YCbCr422) {
-            FilterFlipUV().applyInPlace(pBmp);
-        }   
+//        if (ycbcrMode == DisplayEngine::OGL_MESA && pBmp->getPixelFormat() == YCbCr422) {
+//            FilterFlipUV().applyInPlace(pBmp);
+//        }   
     }
     pSurface->unlockBmps();
     if (!m_bEOF) {
