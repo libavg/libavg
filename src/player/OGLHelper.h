@@ -78,6 +78,7 @@ namespace glproc {
     extern PFNGLACTIVETEXTUREPROC ActiveTexture;
 
 #ifdef linux
+    extern PFNGLXSWAPINTERVALSGIPROC SwapIntervalSGI;
     extern PFNGLXWAITVIDEOSYNCSGIPROC WaitVideoSyncSGI;
 #endif
 
