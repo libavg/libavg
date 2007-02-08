@@ -176,7 +176,11 @@ PixelFormat Video::getPixelFormat()
 
 IntPoint Video::getSize()
 {
-    return m_pDecoder->getSize();
+    if (m_pDecoder)  {
+        return m_pDecoder->getSize();
+    } else {
+        return IntPoint(0,0);
+    }
 }
 
 double Video::getFPS()
@@ -189,7 +193,6 @@ static ProfilingZone RenderProfilingZone("    Video::render");
 bool Video::renderToSurface(ISurface * pSurface)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    DisplayEngine::YCbCrMode ycbcrMode = getEngine()->getYCbCrMode();
     PixelFormat PF = m_pDecoder->getPixelFormat();
     if (PF == YCbCr420p || PF == YCbCrJ420p) {
         m_bEOF = m_pDecoder->renderToYCbCr420p(pSurface->lockBmp(0),
@@ -197,6 +200,7 @@ bool Video::renderToSurface(ISurface * pSurface)
     } else {
         BitmapPtr pBmp = pSurface->lockBmp();
         m_bEOF = m_pDecoder->renderToBmp(pBmp);
+//        DisplayEngine::YCbCrMode ycbcrMode = getEngine()->getYCbCrMode();
 //        if (ycbcrMode == DisplayEngine::OGL_MESA && pBmp->getPixelFormat() == YCbCr422) {
 //            FilterFlipUV().applyInPlace(pBmp);
 //        }   
