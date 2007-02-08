@@ -52,7 +52,6 @@ namespace avg {
 
 VideoBase::VideoBase ()
     : m_VideoState(Unloaded),
-      m_Size(0,0),
       m_bFrameAvailable(false)
 {
 }
@@ -60,7 +59,6 @@ VideoBase::VideoBase ()
 VideoBase::VideoBase (const xmlNodePtr xmlNode, Player * pPlayer)
     : RasterNode(xmlNode, pPlayer),
       m_VideoState(Unloaded),
-      m_Size(0,0),
       m_bFrameAvailable(false)
 {
 }
@@ -122,7 +120,7 @@ void VideoBase::render (const DRect& Rect)
                         relVpt.tl.x >= 0 && relVpt.tl.y >= 0 && 
                         absVpt.Width() >= relVpt.br.x && 
                         absVpt.Height() >= relVpt.br.y &&
-                        m_Size.x == relVpt.Width() && m_Size.y == relVpt.Height())
+                        m_Size == relVpt)
                 {
                     // Render frame to backbuffer directly.
                     // (DirectFB only, no alpha, no scale, no crop, 
@@ -197,10 +195,10 @@ void VideoBase::renderToBackbuffer()
 
 void VideoBase::open() 
 {
-    open(&m_Size, getEngine()->getYCbCrMode());
+    open(getEngine()->getYCbCrMode());
     setViewport(-32767, -32767, -32767, -32767);
     PixelFormat pf = getPixelFormat();
-    getSurface()->create(m_Size, pf, true);
+    getSurface()->create(getSize(), pf, true);
     if (pf == B8G8R8X8 || pf == B8G8R8A8) {
         FilterFill<Pixel32> Filter(Pixel32(0,0,0,255));
         Filter.applyInPlace(getSurface()->lockBmp());
@@ -212,12 +210,12 @@ void VideoBase::open()
 
 int VideoBase::getMediaWidth()
 {
-    return m_Size.x;
+    return getSize().x;
 }
 
 int VideoBase::getMediaHeight()
 {
-    return m_Size.y;
+    return getSize().y;
 }
 
 bool VideoBase::obscures (const DRect& Rect, int Child)
@@ -233,7 +231,7 @@ string VideoBase::dump (int indent)
 
 DPoint VideoBase::getPreferredMediaSize()
 {
-    return DPoint(m_Size);
+    return DPoint(getSize());
 }
 
 VideoBase::VideoState VideoBase::getVideoState() const

@@ -89,7 +89,7 @@ string CameraNode::getTypeStr()
     return "Camera";
 }
 
-IntPoint CameraNode::getNativeSize() 
+IntPoint CameraNode::getSize() 
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     return m_pCamera->getImgSize();
@@ -108,13 +108,10 @@ double CameraNode::getFPS()
 
 }
 
-void CameraNode::open(IntPoint* pSize, DisplayEngine::YCbCrMode ycbcrMode)
+void CameraNode::open(DisplayEngine::YCbCrMode ycbcrMode)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     m_pCamera->open();
-    *pSize = m_pCamera->getImgSize();
-#else
-    *pSize = IntPoint(640, 480);
 #endif    
 }
 

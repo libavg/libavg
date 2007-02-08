@@ -64,14 +64,13 @@ class VideoBase : public RasterNode
 
         virtual bool renderToSurface(ISurface * pSurface) = 0;
         virtual bool canRenderToBackbuffer(int BitsPerPixel) = 0;
-        virtual void open(IntPoint* pSize, DisplayEngine::YCbCrMode ycbcrMode) = 0;
+        virtual void open(DisplayEngine::YCbCrMode ycbcrMode) = 0;
         virtual void close() = 0;
         virtual PixelFormat getPixelFormat() = 0;
+        virtual IntPoint getSize() = 0;
 
         VideoState m_VideoState;
        
-        IntPoint m_Size;
-
         bool m_bFrameAvailable;
 };
 

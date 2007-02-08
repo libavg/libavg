@@ -157,11 +157,10 @@ void Video::seek(int DestFrame)
 }
 
         
-void Video::open(IntPoint* pSize, DisplayEngine::YCbCrMode ycbcrMode)
+void Video::open(DisplayEngine::YCbCrMode ycbcrMode)
 {
     m_CurFrame = 0;
     m_pDecoder->open(m_Filename, ycbcrMode);
-    *pSize = m_pDecoder->getSize();
     m_bEOF = false;
 }
 
@@ -173,6 +172,11 @@ void Video::close()
 PixelFormat Video::getPixelFormat() 
 {
     return m_pDecoder->getPixelFormat();
+}
+
+IntPoint Video::getSize()
+{
+    return m_pDecoder->getSize();
 }
 
 double Video::getFPS()

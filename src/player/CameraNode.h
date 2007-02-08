@@ -155,11 +155,11 @@ class CameraNode : public VideoBase
         virtual bool renderToSurface(ISurface * pSurface);
         virtual bool canRenderToBackbuffer(int BitsPerPixel);
         virtual double getFPS();
-        virtual void open(IntPoint* pSize, DisplayEngine::YCbCrMode ycbcrMode);
+        virtual void open(DisplayEngine::YCbCrMode ycbcrMode);
         virtual void close();
         virtual PixelFormat getPixelFormat();
         void setFeature(int FeatureID);
-        IntPoint getNativeSize();
+        IntPoint getSize();
 
         CameraPtr m_pCamera;
         int m_FrameNum;
