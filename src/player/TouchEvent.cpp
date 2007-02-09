@@ -71,8 +71,9 @@ void TouchEvent::trace()
 IntPoint TouchEvent::transformPoint(DPoint& pt, DPoint& Offset, DPoint& Scale)
 {
     return IntPoint(
-            int(round(pt.x*Scale.x)+Offset.x), 
-            int(round(pt.y*Scale.y)+Offset.y));
+            int(round(pt.x*Scale.x+Offset.x)), 
+            int(round(pt.y*Scale.y+Offset.y))
+            );
 }
 
 }
