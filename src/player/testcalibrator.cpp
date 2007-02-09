@@ -58,7 +58,7 @@ public:
         cerr<<"offset ="<< offset<<" and scale "<<scale<<endl;
             // TODO: test if Trafo is an identity transformer.
         }
-
+        return;
         {
             TrackerCalibrator Calibrator(IntPoint(640, 480), 
                 IntRect(0,0,640,480), IntPoint(640,480));
