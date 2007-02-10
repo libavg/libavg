@@ -77,6 +77,7 @@ int OGLTile::getTexID(int i) const
 void OGLTile::blt(const DPoint& TLPoint, const DPoint& TRPoint,
         const DPoint& BLPoint, const DPoint& BRPoint) const
 {
+//    cerr << "OGLTile::blt" << endl;
     double TexWidth;
     double TexHeight;
     int TextureMode = m_pEngine->getTextureMode();

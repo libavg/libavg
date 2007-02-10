@@ -69,7 +69,7 @@ OGLSurface::~OGLSurface()
 
 void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload)
 {
-//    cerr << "create: " << Bitmap::getPixelFormatString(pf) << endl;
+//    cerr << "create: " << Size << ", " << Bitmap::getPixelFormatString(pf) << endl;
     
     if (m_bBound && m_Size == Size && m_pf == pf) {
         // If nothing's changed, we can ignore everything.

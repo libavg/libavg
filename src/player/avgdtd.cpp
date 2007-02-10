@@ -75,7 +75,8 @@ const char * g_pAVGDTD =
 "<!ATTLIST video\n"
 "   %rasterAttrs;\n"
 "   href CDATA #REQUIRED\n"
-"   loop CDATA #IMPLIED>\n"
+"   loop CDATA #IMPLIED\n"
+"   threaded CDATA #IMPLIED>\n"
 
 "<!ELEMENT camera EMPTY>\n"
 "<!ATTLIST camera\n"

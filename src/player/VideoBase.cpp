@@ -113,27 +113,10 @@ void VideoBase::render (const DRect& Rect)
                 }
                 DRect relVpt = getRelViewport();
                 DRect absVpt = getParent()->getAbsViewport();   
-#ifdef AVG_ENABLE_DFB
-                if (getEffectiveOpacity() > 0.999 && 
-                        dynamic_cast<DFBDisplayEngine*>(getEngine()) &&
-                        canRenderToBackbuffer(getEngine()->getBPP()) &&
-                        relVpt.tl.x >= 0 && relVpt.tl.y >= 0 && 
-                        absVpt.Width() >= relVpt.br.x && 
-                        absVpt.Height() >= relVpt.br.y &&
-                        m_Size == relVpt)
-                {
-                    // Render frame to backbuffer directly.
-                    // (DirectFB only, no alpha, no scale, no crop, 
-                    // bpp must be supported by decoder).
-                    renderToBackbuffer();
-                } else
-#endif                
-                {
-                    m_bFrameAvailable = renderToSurface(getSurface());
-                    getEngine()->blt32(getSurface(), &getAbsViewport(), 
-                            getEffectiveOpacity(), getAngle(), getPivot(),
-                            getBlendMode());
-                }
+                m_bFrameAvailable = renderToSurface(getSurface());
+                getEngine()->blt32(getSurface(), &getAbsViewport(), 
+                        getEffectiveOpacity(), getAngle(), getPivot(),
+                        getBlendMode());
             }
             break;
         case Paused:
@@ -164,33 +147,6 @@ void VideoBase::changeVideoState(VideoState NewVideoState)
         addDirtyRect(getVisibleRect());
     }
     m_VideoState = NewVideoState;
-}
-
-void VideoBase::renderToBackbuffer()
-{
-#ifdef AVG_ENABLE_DFB
-    DFBDisplayEngine* pEngine = 
-        dynamic_cast<DFBDisplayEngine*>(getEngine());
-    DRect vpt = getVisibleRect();
-    IDirectFBSurface * pSurface = pEngine->getPrimary();
-    unsigned char * pSurfBits;
-    int Pitch;
-    DFBResult err = pSurface->Lock(pSurface, 
-            DFBSurfaceLockFlags(DSLF_WRITE), (void **)&pSurfBits, &Pitch);
-    pEngine->DFBErrorCheck(AVG_ERR_DFB, 
-            "VideoBase::renderToBackbuffer", err);
-    DFBSurface SubSurface;
-    IntRect plvpt = IntRect(vpt);
-    SubSurface.createFromDFBSurface(pSurface, &plvpt);
-    renderToSurface(&SubSurface);
-    pSurface->Unlock(pSurface);
-
-    m_bFrameAvailable=false;
-#else
-    AVG_TRACE(Logger::ERROR, 
-            "renderToBackbuffer called unexpectedly. Aborting.");
-    exit(-1);
-#endif    
 }
 
 void VideoBase::open() 

@@ -45,6 +45,8 @@ class InfoVideoMsg: public IVideoMsg {
         PixelFormat m_PF;
 };
 
+typedef boost::shared_ptr<InfoVideoMsg> InfoVideoMsgPtr;
+
 }
 #endif 
 

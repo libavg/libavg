@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-sys.path.append('/usr/local/lib/python2.4/site-packages/libavg')
-import avg
+from libavg import avg
 import time
 
 def videoPlay(nodeName):

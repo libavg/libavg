@@ -21,6 +21,8 @@
 
 #include "FrameVideoMsg.h"
 
+#include <iostream>
+
 using namespace std;
 
 namespace avg {

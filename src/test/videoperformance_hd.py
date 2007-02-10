@@ -3,7 +3,7 @@
 
 import sys
 sys.path.append('/usr/local/lib/python2.4/site-packages/libavg')
-import avg
+from libavg import avg
 import time
 
 def videoPlay(nodeName):
@@ -20,12 +20,12 @@ Log = avg.Logger.get();
 Log.setCategories(Log.APP |
           Log.WARNING | 
           Log.PROFILE |
-          Log.PROFILE_LATEFRAMES |
+#          Log.PROFILE_LATEFRAMES |
           Log.CONFIG |
           Log.EVENTS)
 
 AVGPlayer = avg.Player()
-AVGPlayer.setResolution(1,0,0,0)
+AVGPlayer.setResolution(0,0,0,0)
 
 AVGPlayer.loadFile("videoperformance_hd.avg")
 

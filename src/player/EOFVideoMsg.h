@@ -36,6 +36,8 @@ class EOFVideoMsg: public IVideoMsg {
         virtual ~EOFVideoMsg() {};
 };
 
+typedef boost::shared_ptr<EOFVideoMsg> EOFVideoMsgPtr;
+
 }
 #endif 
 

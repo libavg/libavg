@@ -352,17 +352,6 @@ PixelFormat FFMpegDecoder::calcPixelFormat(DisplayEngine::YCbCrMode ycbcrMode)
     return B8G8R8X8;
 }
 
-bool FFMpegDecoder::canRenderToBuffer(int BPP)
-{
-//TODO: This is a bug: We should enable direct rendering if DFB is being 
-//      used and not just compiled in!
-#ifdef AVG_ENABLE_DFB
-    return (BPP == 24);
-#else
-    return false;
-#endif
-}
-
 PixelFormat FFMpegDecoder::getPixelFormat()
 {
     return m_PF;

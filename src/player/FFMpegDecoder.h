@@ -45,7 +45,6 @@ class FFMpegDecoder: public IVideoDecoder
         virtual bool renderToBmp(BitmapPtr pBmp);
         virtual bool renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr);
-        virtual bool canRenderToBuffer(int BPP);
         virtual PixelFormat getPixelFormat();
 
     private:

@@ -153,7 +153,6 @@ class CameraNode : public VideoBase
 
     private:
         virtual bool renderToSurface(ISurface * pSurface);
-        virtual bool canRenderToBackbuffer(int BitsPerPixel);
         virtual double getFPS();
         virtual void open(DisplayEngine::YCbCrMode ycbcrMode);
         virtual void close();

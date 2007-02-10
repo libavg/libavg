@@ -43,7 +43,6 @@ class IVideoDecoder
         virtual bool renderToBmp(BitmapPtr pBmp) = 0;
         virtual bool renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr) = 0;
-        virtual bool canRenderToBuffer(int BPP) = 0;
         virtual PixelFormat getPixelFormat() = 0;
 };
 

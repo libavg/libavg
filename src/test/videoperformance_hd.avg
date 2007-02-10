@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg width="1280" height="1024">
-  <video id="hd1" x="0" y="0" opacity="0.8"  blendmode="add"
-      href="hdvideo/Venetia_720p.wmv"/> 
+<avg width="1280" height="480">
+  <video id="hd1" x="0" y="0" opacity="0.8" threaded="false" blendmode="add"
+      href="/Users/uzadow/wos_videos/c-wars/cwars-scene0.avi"/> 
   <video id="hd2" x="0" y="256" opacity="0.8" blendmode="add"
       href="hdvideo/Odoru_720p.wmv"/> 
 </avg>

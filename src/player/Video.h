@@ -49,6 +49,7 @@ class Video : public VideoBase
         int getCurFrame() const;
         void seekToFrame(int num);
         bool getLoop() const;
+        bool isThreaded() const;
 
         virtual std::string getTypeStr ();
 
@@ -69,6 +70,7 @@ class Video : public VideoBase
         std::string m_href;
         std::string m_Filename;
         bool m_bLoop;
+        bool m_bThreaded;
 
         int m_CurFrame;
         bool m_bEOF;

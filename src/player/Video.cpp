@@ -22,6 +22,7 @@
 #include "Video.h"
 #include "DisplayEngine.h"
 #include "Player.h"
+#include "AsyncVideoDecoder.h"
 #include "FFMpegDecoder.h"
 #include "ISurface.h"
 
@@ -58,6 +59,7 @@ Video::Video (const xmlNodePtr xmlNode, Player * pPlayer)
 {
     m_href = getDefaultedStringAttr (xmlNode, "href", "");
     m_bLoop = getDefaultedBoolAttr (xmlNode, "loop", false);
+    m_bThreaded = getDefaultedBoolAttr (xmlNode, "threaded", false);
     m_Filename = m_href;
     if (m_Filename != "") {
         initFilename(getPlayer(), m_Filename);
@@ -108,9 +110,13 @@ bool Video::getLoop() const
     return m_bLoop;
 }
 
+bool Video::isThreaded() const
+{
+    return m_bThreaded;
+}
+
 void Video::setDisplayEngine(DisplayEngine * pEngine)
 {
-    m_pDecoder = new FFMpegDecoder();
     VideoBase::setDisplayEngine(pEngine);
 }
 
@@ -160,6 +166,12 @@ void Video::seek(int DestFrame)
 void Video::open(DisplayEngine::YCbCrMode ycbcrMode)
 {
     m_CurFrame = 0;
+    if (m_bThreaded) {
+        VideoDecoderPtr pSyncDecoder = VideoDecoderPtr(new FFMpegDecoder());
+        m_pDecoder = new AsyncVideoDecoder(pSyncDecoder);
+    } else {
+        m_pDecoder = new FFMpegDecoder();
+    }
     m_pDecoder->open(m_Filename, ycbcrMode);
     m_bEOF = false;
 }
@@ -195,7 +207,8 @@ bool Video::renderToSurface(ISurface * pSurface)
     ScopeTimer Timer(RenderProfilingZone);
     PixelFormat PF = m_pDecoder->getPixelFormat();
     if (PF == YCbCr420p || PF == YCbCrJ420p) {
-        m_bEOF = m_pDecoder->renderToYCbCr420p(pSurface->lockBmp(0),
+        BitmapPtr pBmp = pSurface->lockBmp(0);
+        m_bEOF = m_pDecoder->renderToYCbCr420p(pBmp,
                 pSurface->lockBmp(1), pSurface->lockBmp(2));
     } else {
         BitmapPtr pBmp = pSurface->lockBmp();
@@ -213,11 +226,6 @@ bool Video::renderToSurface(ISurface * pSurface)
         advancePlayback();
     }
     return !m_bEOF;
-}
-
-bool Video::canRenderToBackbuffer(int BPP) 
-{
-    return m_pDecoder->canRenderToBuffer(BPP);
 }
 
 void Video::advancePlayback()

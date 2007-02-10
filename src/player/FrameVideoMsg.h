@@ -41,6 +41,8 @@ class FrameVideoMsg: public IVideoMsg {
         std::vector<BitmapPtr> m_pBmps;
 };
 
+typedef boost::shared_ptr<FrameVideoMsg> FrameVideoMsgPtr;
+
 }
 #endif 
 

@@ -175,10 +175,5 @@ PixelFormat CameraNode::getPixelFormat()
     return B8G8R8X8;
 }
 
-bool CameraNode::canRenderToBackbuffer(int BitsPerPixel)
-{
-    return false;
-}
-
 
 }

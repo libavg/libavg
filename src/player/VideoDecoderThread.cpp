@@ -48,11 +48,9 @@ VideoDecoderThread::~VideoDecoderThread()
 bool VideoDecoderThread::init()
 {
     try {
-        IntPoint Size;
         m_pDecoder->open(m_sFilename, m_YCbCrMode);
         PixelFormat PF = m_pDecoder->getPixelFormat();
-//        figure out whether to use YUV
-        VideoMsgPtr pInfoMsg(new InfoVideoMsg(Size, m_pDecoder->getNumFrames(),
+        VideoMsgPtr pInfoMsg(new InfoVideoMsg(m_pDecoder->getSize(), m_pDecoder->getNumFrames(),
                 m_pDecoder->getFPS(), PF));
         m_MsgQ.push(pInfoMsg);
         return true;
@@ -97,5 +95,9 @@ void VideoDecoderThread::deinit()
     m_pDecoder->close();
 }
 
+void VideoDecoderThread::seek(int DestFrame)
+{
+    // TODO: Implement
+}
 
 }

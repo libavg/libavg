@@ -22,29 +22,49 @@
 #ifndef _AsyncVideoDecoder_H_
 #define _AsyncVideoDecoder_H_
 
+#include "IVideoDecoder.h"
+#include "VideoDecoderThread.h"
+#include "FrameVideoMsg.h"
+
 #include "../graphics/Bitmap.h"
 
 #include <string>
 
 namespace avg {
 
-class AsyncVideoDecoder: public IVideoDecoder()
+class AsyncVideoDecoder: public IVideoDecoder
 {
     public:
-        AsyncVideoDecoder(IVideoDecoderPtr pSyncDecoder);
-        virtual ~AsyncVideoDecoder() {};
-        virtual void open(const std::string& sFilename, PixelFormat PFWanted) = 0;
-        virtual void close() = 0;
-        virtual void seek(int DestFrame) = 0;
-        virtual IntPoint getSize() = 0;
-        virtual int getNumFrames() = 0;
-        virtual double getFPS() = 0;
+        AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder);
+        virtual ~AsyncVideoDecoder();
+        virtual void open(const std::string& sFilename, DisplayEngine::YCbCrMode ycbcrMode);
+        virtual void close();
+        virtual void seek(int DestFrame);
+        virtual IntPoint getSize();
+        virtual int getNumFrames();
+        virtual double getFPS();
+        virtual PixelFormat getPixelFormat();
 
-        virtual bool renderToBmp(BitmapPtr pBmp) = 0;
+        virtual bool renderToBmp(BitmapPtr pBmp);
         virtual bool renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
-                BitmapPtr pBmpCr) = 0;
-        virtual bool canRenderToBuffer(int BPP) = 0;
-        virtual PixelFormat getDesiredPixelFormat() = 0;
+                BitmapPtr pBmpCr);
+
+    private:
+        void getInfoMsg();
+        FrameVideoMsgPtr getNextBmps();
+
+        VideoDecoderPtr m_pSyncDecoder;
+        std::string m_sFilename;
+
+        boost::thread* m_pDecoderThread;
+
+        VideoDecoderThread::CmdQueuePtr m_pCmdQ;
+        VideoMsgQueuePtr m_pMsgQ;
+
+        IntPoint m_Size;
+        int m_NumFrames;
+        double m_FPS;
+        PixelFormat m_PF;
 };
 
 }

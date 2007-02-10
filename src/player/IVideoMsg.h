@@ -35,6 +35,7 @@ class IVideoMsg {
 
 typedef boost::shared_ptr<IVideoMsg> VideoMsgPtr;
 typedef Queue<VideoMsgPtr> VideoMsgQueue;
+typedef boost::shared_ptr<VideoMsgQueue> VideoMsgQueuePtr;
 
 }
 #endif 
