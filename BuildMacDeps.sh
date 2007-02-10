@@ -63,7 +63,7 @@ buildglib()
 
 buildpango()
 {
-    cd pango-1.13.3
+    cd pango-1.14.10
     LDFLAGS="-framework CoreFoundation -framework ApplicationServices $LDFLAGS" ./configure  --prefix=${AVG_PATH} --disable-shared --without-x --with-included-modules=yes
     make clean
     LDFLAGS="-framework CoreFoundation $LDFLAGS" make -j3
