@@ -29,6 +29,8 @@
 #endif
 #include <ffmpeg/avformat.h>
 
+#include <boost/thread/mutex.hpp>
+
 namespace avg {
 
 class FFMpegDecoder: public IVideoDecoder
@@ -67,6 +69,8 @@ class FFMpegDecoder: public IVideoDecoder
         IntPoint m_Size;
 
         static bool m_bInitialized;
+        // Prevents different decoder instances from executing open/close simultaneously
+        static boost::mutex s_OpenMutex;   
 };
 
 }

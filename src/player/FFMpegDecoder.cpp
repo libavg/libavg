@@ -33,10 +33,12 @@
 #include <sstream>
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
 bool FFMpegDecoder::m_bInitialized = false;
+mutex FFMpegDecoder::s_OpenMutex;   
 
 FFMpegDecoder::FFMpegDecoder ()
     : m_pFormatContext(0),
@@ -93,6 +95,7 @@ void dump_stream_info(AVFormatContext *s)
 
 void FFMpegDecoder::open (const std::string& sFilename, DisplayEngine::YCbCrMode ycbcrMode)
 {
+    mutex::scoped_lock Lock(s_OpenMutex);
     AVFormatParameters params;
     int err;
     m_sFilename = sFilename;
@@ -174,6 +177,7 @@ void FFMpegDecoder::open (const std::string& sFilename, DisplayEngine::YCbCrMode
 
 void FFMpegDecoder::close() 
 {
+    mutex::scoped_lock Lock(s_OpenMutex);
 //    AVG_TRACE(Logger::PROFILE, "Closing " << m_sFilename);
     AVCodecContext * enc;
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
