@@ -128,6 +128,7 @@ namespace avg {
         rc = xmlTextWriterEndElement(writer);
         writePoint3(writer, "p", m_P);
         writePoint3(writer, "n", m_N);
+        writeSimpleXMLNode(writer, "trapezoid", m_TrapezoidFactor);
         writeSimpleXMLNode(writer, "angle", m_Angle);
         writePoint(writer, "displaydisplacement", m_DisplayDisplacement);
         writePoint(writer, "displayscale", m_DisplayScale);

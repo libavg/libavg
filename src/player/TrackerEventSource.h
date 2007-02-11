@@ -111,6 +111,8 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         DPoint m_Scale;
         
         CoordTransformerPtr m_Trafo;
+        CoordTransformerPtr m_pOldTransformer;
+        IntRect m_OldROI;
 
         TrackerCalibrator * m_pCalibrator;
 

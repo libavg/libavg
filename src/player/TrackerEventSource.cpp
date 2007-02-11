@@ -31,7 +31,9 @@
 #include "../graphics/Filterfill.h"
 #include "../graphics/Pixel8.h"
 
+#include "../imaging/DeDistort.h"
 #include "../imaging/ConnectedComps.h"
+#include "../imaging/CoordTransformer.h"
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
 #include "../imaging/CameraUtils.h"
 #endif
@@ -46,7 +48,7 @@
 
 using namespace std;
 
-const int MAXMISSINGFRAMES=5;
+const int MAXMISSINGFRAMES=1;
 
 namespace avg {
 
@@ -67,12 +69,13 @@ namespace avg {
                 UP_DELIVERED // waiting to be cleared.
             };
             int m_Id;
-            int m_VanishCounter;
             StreamState m_State;
+            bool m_Stale;
+        private:
+            int m_VanishCounter;
             DPoint m_Pos;
             BlobPtr m_pBlob;
             static int s_LastLabel;
-            bool m_Stale;
     };
     
     int EventStream::s_LastLabel = 0;
@@ -394,9 +397,9 @@ namespace avg {
 
     BlobPtr TrackerEventSource::matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold)
     {
+        assert(new_blob);
         std::vector<BlobPtr> candidates;
         BlobPtr res;
-        if (!new_blob) return BlobPtr();
         for(BlobList::iterator it=old_blobs->begin();it!=old_blobs->end();++it)
         {
             if (distance( (*it), new_blob)<threshold) 
@@ -463,14 +466,14 @@ namespace avg {
                 }
             }
             BlobPtr old_match = matchblob((*it2), old_blobs, m_TrackerConfig.m_Similarity);
+            if (old_match && (m_Events.find(old_match) == m_Events.end())) {
+                //..but the blob already disappeared from the map
+                //=>EventStream already updated
+                old_match = BlobPtr();
+            }
             if(old_match){
                 //this blob has been identified with an old one
                 known_counter++;
-                if (m_Events.find(old_match) == m_Events.end()) {
-                    //..but the blob already disappeared from the map
-                    //=>EventStream already updated
-                    continue;
-                }
                 e = m_Events.find(old_match)->second;
                 e->update( (*it2) );
                 //update the mapping!
@@ -499,10 +502,17 @@ namespace avg {
             int YDisplayExtents)
     {
         assert(!m_pCalibrator);
-        // TODO
-        // m_pOldTransformer = current TransformPtr 
-        // CoordTransformerPtr pIdentTrafo(new IdentityTransformer);
-        // setTransformer(pIdentTrafo);
+        m_pOldTransformer = m_TrackerConfig.m_pTrafo; 
+        m_OldROI = m_TrackerConfig.m_ROI;
+        CoordTransformerPtr pIdentTrafo = CoordTransformerPtr(
+                new DeDistort(
+                    DistortionParams()
+                    )
+                );
+        m_TrackerConfig.m_ROI = IntRect(IntPoint(0,0), m_pBitmaps[0]->getSize());
+        m_TrackerConfig.m_pTrafo = pIdentTrafo;
+        setConfig();
+        handleROIChange();
         m_pCalibrator = new TrackerCalibrator(m_pBitmaps[0]->getSize(),
                 m_TrackerConfig.m_ROI,
                 IntPoint(XDisplayExtents, YDisplayExtents));
@@ -513,16 +523,22 @@ namespace avg {
     {
         assert(m_pCalibrator);
         m_pCalibrator->makeTransformer(m_TrackerConfig.m_pTrafo, m_Offset, m_Scale); //OUT parameter!
+        m_TrackerConfig.m_ROI = m_OldROI;
+        setConfig();
+        handleROIChange();
         delete m_pCalibrator;
         m_pCalibrator = 0;
+        m_pOldTransformer = CoordTransformerPtr();
     }
 
     void TrackerEventSource::abortCalibration()
     {
         assert(m_pCalibrator);
-        // TODO
-        // setTransformer(m_pOldTransformer);
-        // m_pOldTransformer = 0;
+        m_TrackerConfig.m_pTrafo = m_pOldTransformer;
+        m_TrackerConfig.m_ROI = m_OldROI;
+        setConfig();
+        handleROIChange();
+        m_pOldTransformer = CoordTransformerPtr();
         delete m_pCalibrator;
         m_pCalibrator = 0;
     }

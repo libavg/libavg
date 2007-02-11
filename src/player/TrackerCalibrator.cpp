@@ -32,8 +32,8 @@ extern "C" {
 
 using namespace std;
 
-#define NUM_POINTS 10
-#define MIN_DIST_FROM_BORDER 10
+#define NUM_POINTS 3 
+#define MIN_DIST_FROM_BORDER 30
 
 namespace avg {
     //void lm_print_tracker( int n_par, double* par, int m_dat, double* fvec,
@@ -312,8 +312,8 @@ void lm_evaluate_tracker( double* p, int m_dat, double* fvec,
                     P, N,
                     Angle,
                     TrapezoidFactor,
-                    DisplayDisplacement,
-                    DisplayScale
+                    -data.FilmDisplacement,
+                    DPoint(1./data.FilmScale.x,1./data.FilmScale.y)
                     ))
                 );
         display_offset = DisplayDisplacement;
