@@ -39,7 +39,6 @@ struct TrackerConfig
 
     // Coordinate transforms.
     IntRect m_ROI;//after applying de-distortion, take this as the table surface
-    IntRect m_DestRect; // Transform all blobs to be in this rect at the end    
 
     // Camera params
     int m_Brightness;

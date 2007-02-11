@@ -305,6 +305,8 @@ void lm_evaluate_tracker( double* p, int m_dat, double* fvec,
         Angle = p[6];
         TrapezoidFactor = p[7];
         //feed the out variables
+        //FIXME displacement and scaling splitting between the CoordTrafo (used in TrackerThread)
+        //and display_offset, display_scale (used in EventStream::pollevent)
         new_trafo = CoordTransformerPtr( 
                 new DeDistort(DistortionParams(data.FilmDisplacement,
                     data.FilmScale,
@@ -316,7 +318,7 @@ void lm_evaluate_tracker( double* p, int m_dat, double* fvec,
                     DPoint(1./data.FilmScale.x,1./data.FilmScale.y)
                     ))
                 );
-        display_offset = DisplayDisplacement;
-        display_scale = DisplayScale;
+        display_offset = DisplayDisplacement-data.FilmDisplacement;
+        display_scale = DPoint(DisplayScale.x*data.FilmScale.x, DisplayScale.x*data.FilmScale.y);
     }
 }

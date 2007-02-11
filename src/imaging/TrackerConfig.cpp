@@ -87,11 +87,6 @@ namespace avg {
                 m_ROI.tl.y = getRequiredIntAttr(curXmlChild, "tly");
                 m_ROI.br.x = getRequiredIntAttr(curXmlChild, "brx");
                 m_ROI.br.y = getRequiredIntAttr(curXmlChild, "bry");
-            } else if (!strcmp(pNodeName, "destrect")) {
-                m_DestRect.tl.x = getRequiredIntAttr(curXmlChild, "tlx");
-                m_DestRect.tl.y = getRequiredIntAttr(curXmlChild, "tly");
-                m_DestRect.br.x = getRequiredIntAttr(curXmlChild, "brx");
-                m_DestRect.br.y = getRequiredIntAttr(curXmlChild, "bry");
             } else if (!strcmp(pNodeName, "exposure")) {
                 m_Exposure = getRequiredIntAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "gamma")) {
@@ -132,7 +127,6 @@ namespace avg {
         //writeSimpleXMLNode(writer, "barrel", m_K1);
         //writeSimpleXMLNode(writer, "trapezoid", m_T);
         writeRect(writer, "ROI", m_ROI);
-        writeRect(writer, "destrect", m_DestRect);
         writeSimpleXMLNode(writer, "brightness", m_Brightness);
         writeSimpleXMLNode(writer, "exposure", m_Exposure);
         writeSimpleXMLNode(writer, "gamma", m_Gamma);

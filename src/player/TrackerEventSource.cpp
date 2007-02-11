@@ -374,10 +374,6 @@ namespace avg {
             m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
                     &TrackerThread::setBitmaps, _1, m_TrackerConfig.m_ROI, m_pBitmaps)));
         }
-        IntRect Dest = m_TrackerConfig.m_DestRect;
-        m_Offset = DPoint(Dest.tl.x, Dest.Height()-Dest.tl.y);
-        m_Scale.x = Dest.Width()/double(ImgDimensions.x);
-        m_Scale.y = -Dest.Height()/double(ImgDimensions.y);
     }
 
     Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const
