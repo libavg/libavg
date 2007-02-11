@@ -51,7 +51,7 @@ public:
                 Calibrator.setCamPoint(DisplayPoint.x, DisplayPoint.y);
                 bDone = !Calibrator.nextPoint();
             }
-        CoordTransformerPtr Trafo =CoordTransformerPtr();
+        DeDistortPtr Trafo =DeDistortPtr();
         DPoint offset;
         DPoint scale;
         Calibrator.makeTransformer(Trafo, offset, scale);
@@ -69,7 +69,7 @@ public:
                 Calibrator.setCamPoint(DisplayPoint.x+DisplayPoint.y, DisplayPoint.y);
                 bDone = !Calibrator.nextPoint();
             }
-        CoordTransformerPtr Trafo =CoordTransformerPtr();
+        DeDistortPtr Trafo =DeDistortPtr();
         DPoint offset;
         DPoint scale;
         Calibrator.makeTransformer(Trafo, offset, scale);

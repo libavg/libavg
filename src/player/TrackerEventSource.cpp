@@ -500,13 +500,8 @@ namespace avg {
         assert(!m_pCalibrator);
         m_pOldTransformer = m_TrackerConfig.m_pTrafo; 
         m_OldROI = m_TrackerConfig.m_ROI;
-        CoordTransformerPtr pIdentTrafo = CoordTransformerPtr(
-                new DeDistort(
-                    DistortionParams()
-                    )
-                );
         m_TrackerConfig.m_ROI = IntRect(IntPoint(0,0), m_pBitmaps[0]->getSize());
-        m_TrackerConfig.m_pTrafo = pIdentTrafo;
+        m_TrackerConfig.m_pTrafo = DeDistortPtr(new DeDistort());
         setConfig();
         handleROIChange();
         m_pCalibrator = new TrackerCalibrator(m_pBitmaps[0]->getSize(),
@@ -524,7 +519,7 @@ namespace avg {
         handleROIChange();
         delete m_pCalibrator;
         m_pCalibrator = 0;
-        m_pOldTransformer = CoordTransformerPtr();
+        m_pOldTransformer = DeDistortPtr();
     }
 
     void TrackerEventSource::abortCalibration()
@@ -534,7 +529,7 @@ namespace avg {
         m_TrackerConfig.m_ROI = m_OldROI;
         setConfig();
         handleROIChange();
-        m_pOldTransformer = CoordTransformerPtr();
+        m_pOldTransformer = DeDistortPtr();
         delete m_pCalibrator;
         m_pCalibrator = 0;
     }

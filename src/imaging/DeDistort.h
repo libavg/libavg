@@ -23,24 +23,45 @@
 #define _DeDistort_H_
 
 #include "CoordTransformer.h"
-#include "DistortionParams.h"
 
 #include "../graphics/Point.h"
 #include "../graphics/Rect.h"
 
 #include <boost/shared_ptr.hpp>
 
+#include <libxml/parser.h>
+#include <libxml/xmlwriter.h>
+
 #include <vector>
 
 namespace avg {
 
+struct DPoint3 {
+    DPoint3()
+    {}
+
+    DPoint3(double ix, double iy, double iz)
+        : x(ix),
+          y(iy),
+          z(iz)
+    {}
+
+    double x;
+    double y;
+    double z;
+};
+
 class DeDistort: public CoordTransformer {
     public:
         DeDistort();
-        DeDistort(const DistortionParams& Params);
+        DeDistort(const DPoint& FilmDisplacement, const DPoint& FilmScale, 
+            const std::vector<double>& DistortionParams, const DPoint3& P, 
+            const DPoint3& N, double Angle, double TrapezoidFactor,
+            const DPoint& DisplayDisplacement, const DPoint& DisplayScale);
         virtual ~DeDistort();
 
-        void load(xmlNodePtr pRootNode);
+        void load(xmlNodePtr pParentNode);
+        void save(xmlTextWriterPtr writer);
 
         virtual DPoint transform_point(const DPoint & pt); //(x,y) -> (x', y')
         virtual DPoint inverse_transform_point(const DPoint & pt); //(x,y) -> (x', y')
@@ -58,9 +79,20 @@ class DeDistort: public CoordTransformer {
         DPoint inverse_pinhole(const DPoint3 &P, const DPoint3 &N, const DPoint &pt);
         DPoint pinhole(const DPoint3& P, const DPoint3& N, const DPoint &pt);
 
-        DistortionParams m_Params;
+        DPoint m_FilmDisplacement;
+        DPoint m_FilmScale;
+        std::vector<double> m_DistortionParams;
+        DPoint3 m_P;
+        DPoint3 m_N;
+        double m_Angle;
+        double m_TrapezoidFactor;
+        DPoint m_DisplayDisplacement;
+        DPoint m_DisplayScale;
+        
         double m_RescaleFactor;
 };
+
+typedef boost::shared_ptr<DeDistort> DeDistortPtr;
 
 }
 #endif

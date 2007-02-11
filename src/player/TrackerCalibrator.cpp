@@ -23,7 +23,6 @@
 #include "TrackerEventSource.h"
 
 #include "../imaging/DeDistort.h"
-#include "../imaging/DistortionParams.h"
 
 extern "C" {
 #include "../lmfit/lmmin.h"
@@ -150,8 +149,8 @@ void lm_evaluate_tracker( double* p, int m_dat, double* fvec,
     distort_params[1] = fabs(p[5]);
     Angle = p[6];
     TrapezoidFactor = p[7];
-    mydata->CurrentTrafo = CoordTransformerPtr( 
-            new DeDistort(DistortionParams(mydata->FilmDisplacement,
+    mydata->CurrentTrafo = DeDistortPtr( 
+            new DeDistort(mydata->FilmDisplacement,
                 mydata->FilmScale,
                 distort_params,
                 P, N,
@@ -159,7 +158,7 @@ void lm_evaluate_tracker( double* p, int m_dat, double* fvec,
                 TrapezoidFactor,
                 DisplayDisplacement,
                 DisplayScale
-                ))
+                )
             );
 
 //            DisplayDisplacement.x, 
@@ -248,14 +247,14 @@ void lm_evaluate_tracker( double* p, int m_dat, double* fvec,
         m_bCurPointSet = true;
     }
 
-    void TrackerCalibrator::makeTransformer(CoordTransformerPtr &new_trafo, DPoint &display_scale, DPoint &display_offset)
+    void TrackerCalibrator::makeTransformer(DeDistortPtr &new_trafo, DPoint &display_scale, DPoint &display_offset)
     {
         lm_control_type control;
         CalibratorDataType data;
         
         data.DisplayPoints = m_DisplayPoints;
         data.CamPoints = m_CamPoints;
-        data.CurrentTrafo = CoordTransformerPtr();
+        data.CurrentTrafo = DeDistortPtr();
 
         lm_initialize_control( &control );
         control.maxcall=1000;
@@ -307,8 +306,8 @@ void lm_evaluate_tracker( double* p, int m_dat, double* fvec,
         //feed the out variables
         //FIXME displacement and scaling splitting between the CoordTrafo (used in TrackerThread)
         //and display_offset, display_scale (used in EventStream::pollevent)
-        new_trafo = CoordTransformerPtr( 
-                new DeDistort(DistortionParams(data.FilmDisplacement,
+        new_trafo = DeDistortPtr( 
+                new DeDistort(data.FilmDisplacement,
                     data.FilmScale,
                     unDistortionParams,
                     P, N,
@@ -316,7 +315,7 @@ void lm_evaluate_tracker( double* p, int m_dat, double* fvec,
                     TrapezoidFactor,
                     -data.FilmDisplacement,
                     DPoint(1./data.FilmScale.x,1./data.FilmScale.y)
-                    ))
+                    )
                 );
         display_offset = DisplayDisplacement-data.FilmDisplacement;
         display_scale = DPoint(DisplayScale.x*data.FilmScale.x, DisplayScale.x*data.FilmScale.y);

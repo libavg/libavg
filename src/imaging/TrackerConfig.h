@@ -22,8 +22,7 @@
 #define _TrackerConfig_H_
 
 #include "../graphics/Rect.h"
-#include "CoordTransformer.h"
-#include "DistortionParams.h"
+#include "DeDistort.h"
 
 #include <string>
 
@@ -57,8 +56,7 @@ struct TrackerConfig
     bool m_bCreateDebugImages;
     bool m_bCreateFingerImage;
 
-    DistortionParams m_DistortionParams;
-    CoordTransformerPtr m_pTrafo;
+    DeDistortPtr m_pTrafo;
 
 };
 
