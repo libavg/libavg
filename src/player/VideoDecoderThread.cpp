@@ -83,11 +83,10 @@ bool VideoDecoderThread::work()
     }
     if (bEOF) {
         m_MsgQ.push(VideoMsgPtr(new EOFVideoMsg()));
-        return false;
     } else {
         m_MsgQ.push(VideoMsgPtr(new FrameVideoMsg(pBmps)));
-        return true;
     }
+    return true;
 }
 
 void VideoDecoderThread::deinit()
@@ -98,7 +97,7 @@ void VideoDecoderThread::deinit()
 void VideoDecoderThread::seek(int DestFrame)
 {
     while (!m_MsgQ.empty()) {
-        m_MsgQ.pop(false);
+        m_MsgQ.pop(true);
     }
     m_pDecoder->seek(DestFrame);
 }

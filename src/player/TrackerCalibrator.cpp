@@ -64,8 +64,6 @@ void lm_print_tracker( int n_par, double* p, int m_dat, double* fvec,
  *       nfev  : number of calls to *evaluate
  */
 {
-    double f, y, t;
-    int i;
     CalibratorDataType *mydata;
     mydata = static_cast<CalibratorDataType*>(data);
 
@@ -112,6 +110,8 @@ void lm_print_tracker( int n_par, double* p, int m_dat, double* fvec,
     cerr<<" angle = "<<Angle;
     cerr<<" => norm: "<< lm_enorm( m_dat, fvec )<<endl;
 #if 0
+    double f, y, t;
+    int i;
     printf( "  par: " );
     for( i=0; i<n_par; ++i )
         printf( " %12g", par[i] );
