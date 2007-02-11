@@ -1,5 +1,6 @@
 
 INCLUDES = -I.
+CPPFLAGS=-DBUG
 ALL_H = lmmin.h lmeval.h 
 noinst_LTLIBRARIES = liblmfit.la
 liblmfit_la_SOURCES = lmmin.c lm_eval.c $(ALL_H)

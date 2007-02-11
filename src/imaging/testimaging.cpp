@@ -56,7 +56,7 @@ class DeDistortTest: public Test {
             Params.push_back(0);
             Params.push_back(0);
             DistortionParams Par(DPoint(0,0), DPoint(1,1),
-                Params, DPoint3(0,0,0), DPoint3(0,0,1), 0.0,
+                Params, DPoint3(0,0,0), DPoint3(0,0,1), 0.0, 0.0,
                 DPoint(0,0), DPoint(1,1));
             DeDistort IdentityDistort = DeDistort(Par);
             TEST(almostEqual(IdentityDistort.transform_point(DPoint(0,0)), DPoint(0,0)));
@@ -67,7 +67,7 @@ class DeDistortTest: public Test {
             TEST(almostEqual(IdentityDistort.inverse_transform_point(DPoint(1,2)), DPoint(1,2)));
 
             Par = DistortionParams(DPoint(0,0), DPoint(2,2),
-                Params, DPoint3(0,0,0), DPoint3(0,0,1), 0.0,
+                Params, DPoint3(0,0,0), DPoint3(0,0,1), 0, 0.0,
                 DPoint(0,0), DPoint(1,1));
             DeDistort Scaler = DeDistort(Par);
             TEST(almostEqual(Scaler.transform_point(DPoint(0,0)), DPoint(0,0)));
@@ -76,7 +76,7 @@ class DeDistortTest: public Test {
             TEST(almostEqual(Scaler.inverse_transform_point(DPoint(1,2)), DPoint(0.5,1)));
 
             Par = DistortionParams(DPoint(1,1), DPoint(1,1),
-                Params, DPoint3(0,0,0), DPoint3(0,0,1), 0.0,
+                Params, DPoint3(0,0,0), DPoint3(0,0,1), 0, 0.0,
                 DPoint(0,0), DPoint(1,1));
             DeDistort Shifter = DeDistort(Par);
             TEST(almostEqual(Shifter.transform_point(DPoint(0,0)), DPoint(1,1)));
@@ -88,7 +88,7 @@ class DeDistortTest: public Test {
             Cubed.push_back(0);
             Cubed.push_back(1);
             Par = DistortionParams(DPoint(0,0), DPoint(1,1),
-                Cubed, DPoint3(0,0,0), DPoint3(0,0,1), 0.0,
+                Cubed, DPoint3(0,0,0), DPoint3(0,0,1), 0, 0.0,
                 DPoint(0,0), DPoint(1,1));
             DeDistort Barreler = DeDistort(Par);
             for (double xp=0;xp<10;xp++){
@@ -103,7 +103,7 @@ class DeDistortTest: public Test {
 //            TEST(almostEqual(Barreler.inverse_transform_point(DPoint(0,3)), DPoint(0,1)));
 
             Par = DistortionParams(DPoint(0,0), DPoint(1,1),
-                Params, DPoint3(0,0,0), DPoint3(0,0,1), M_PI/2,
+                Params, DPoint3(0,0,0), DPoint3(0,0,1), 0, M_PI/2,
                 DPoint(0,0), DPoint(1,1));
             DeDistort Rotator = DeDistort(Par);
             for (double xp=0;xp<10;xp++){
@@ -117,7 +117,7 @@ class DeDistortTest: public Test {
 //            TEST(almostEqual(Rotator.inverse_transform_point(DPoint(1,2)), DPoint(2,-1)));
 
             Par = DistortionParams(DPoint(1,1), DPoint(2,2),
-                Params, DPoint3(0,0,0), DPoint3(0,0,1), 0.0,
+                Params, DPoint3(0,0,0), DPoint3(0,0,1), 0, 0.0,
                 DPoint(0,0), DPoint(1,1));
             DeDistort ShifterScaler = DeDistort(Par);
             for (double xp=0;xp<10;xp++){

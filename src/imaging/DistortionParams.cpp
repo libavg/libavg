@@ -55,6 +55,7 @@ namespace avg {
         m_P(0,0,0),
         m_N(0,0,1),
         m_Angle(0.0),
+        m_TrapezoidFactor(0),
         m_DisplayDisplacement(0,0),
         m_DisplayScale(1,1)
     {
@@ -64,13 +65,15 @@ namespace avg {
 
     DistortionParams::DistortionParams(const DPoint& FilmDisplacement, const DPoint& FilmScale, 
             const std::vector<double>& DistortionParams, const DPoint3& P, const DPoint3& N, 
-            double Angle, const DPoint& DisplayDisplacement, const DPoint& DisplayScale)
+            double Angle, 
+            double TrapezoidFactor, const DPoint& DisplayDisplacement, const DPoint& DisplayScale)
       : m_FilmDisplacement(FilmDisplacement),
         m_FilmScale(FilmScale),
         m_DistortionParams(DistortionParams),
         m_P(P),
         m_N(N),
         m_Angle(Angle),
+        m_TrapezoidFactor(TrapezoidFactor),
         m_DisplayDisplacement(DisplayDisplacement),
         m_DisplayScale(DisplayScale)
     {
@@ -98,6 +101,8 @@ namespace avg {
                 m_N.x = getRequiredDoubleAttr(curXmlChild, "x");
                 m_N.y = getRequiredDoubleAttr(curXmlChild, "y");
                 m_N.z = getRequiredDoubleAttr(curXmlChild, "z");
+            } else if (!strcmp(pNodeName, "trapezoid")) {
+                m_TrapezoidFactor = getRequiredDoubleAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "angle")) {
                 m_Angle = getRequiredDoubleAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "displaydisplacement")) {

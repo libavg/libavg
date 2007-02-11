@@ -68,8 +68,9 @@ DPoint DeDistort::inverse_transform_point(const DPoint &pt)
             scale(DPoint(1./m_Params.m_FilmScale.x, 1./m_Params.m_FilmScale.y),
                 inverse_undistort(m_Params.m_DistortionParams,
                     scale(m_RescaleFactor,
-                        inverse_pinhole(m_Params.m_P, m_Params.m_N,
-                            rotate(-m_Params.m_Angle,
+//                        inverse_pinhole(m_Params.m_P, m_Params.m_N,
+                        rotate(-m_Params.m_Angle,
+                            inv_trapezoid(m_Params.m_TrapezoidFactor,
                                 scale(DPoint(1./m_Params.m_DisplayScale.x, 1./m_Params.m_DisplayScale.y),
                                     translate(-m_Params.m_DisplayDisplacement,
                                         pt
@@ -88,8 +89,9 @@ DPoint DeDistort::transform_point(const DPoint &pt)
 {
     return translate(m_Params.m_DisplayDisplacement, //translate 0,0 to center of display
             scale(m_Params.m_DisplayScale,  //scale back to real display resolution
-                rotate(m_Params.m_Angle, //rotate
-                    pinhole(m_Params.m_P, m_Params.m_N, //apply pinhole
+                trapezoid(m_Params.m_TrapezoidFactor,
+                    rotate(m_Params.m_Angle, //rotate
+                    //pinhole(m_Params.m_P, m_Params.m_N, //apply pinhole
                         scale(1./m_RescaleFactor,
                             undistort(m_Params.m_DistortionParams, //undistort;
                                 scale(m_Params.m_FilmScale,  // scale to -1,-1,1,1
@@ -103,6 +105,24 @@ DPoint DeDistort::transform_point(const DPoint &pt)
                     )
                 )
             );
+}
+DPoint DeDistort::inv_trapezoid(const double trapezoid_factor, const DPoint &pt)
+{
+    //stretch x coord
+    double yn = pt.y;
+    return DPoint( 
+            pt.x/(1+yn*trapezoid_factor),
+            pt.y);
+}
+
+DPoint DeDistort::trapezoid(const double trapezoid_factor, const DPoint &pt)
+{
+    //stretch x coord
+    double yn = pt.y;
+    return DPoint( 
+            //m_Center.x + ( pt.x - m_Center.x) * (1 + m_TrapezoidFactor * yn), 
+            pt.x * (1 + yn*trapezoid_factor),
+            pt.y);
 }
 
 //scale a point around the origin

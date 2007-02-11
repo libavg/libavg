@@ -60,8 +60,8 @@ struct DPoint3 {
 struct DistortionParams {
     DistortionParams();
     DistortionParams(const DPoint& FilmDisplacement, const DPoint& FilmScale, 
-            const std::vector<double>& DistortionParams, const DPoint3& P, const DPoint3& N, 
-            double Angle, const DPoint& DisplayDisplacement, const DPoint& DisplayScale);
+            const std::vector<double>& DistortionParams, const DPoint3& P, const DPoint3& N, double Angle, double TrapezoidFactor,
+            const DPoint& DisplayDisplacement, const DPoint& DisplayScale);
     void load(xmlNodePtr pParentNode);
     void save(xmlTextWriterPtr writer);
 
@@ -70,6 +70,7 @@ struct DistortionParams {
     std::vector<double> m_DistortionParams;
     DPoint3 m_P;
     DPoint3 m_N;
+    double m_TrapezoidFactor;
     double m_Angle;
     DPoint m_DisplayDisplacement;
     DPoint m_DisplayScale;
