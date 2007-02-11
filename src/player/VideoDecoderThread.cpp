@@ -97,7 +97,10 @@ void VideoDecoderThread::deinit()
 
 void VideoDecoderThread::seek(int DestFrame)
 {
-    // TODO: Implement
+    while (!m_MsgQ.empty()) {
+        m_MsgQ.pop(false);
+    }
+    m_pDecoder->seek(DestFrame);
 }
 
 }

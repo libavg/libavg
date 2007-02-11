@@ -67,7 +67,6 @@ void AsyncVideoDecoder::seek(int DestFrame)
 {
     m_pCmdQ->push(Command<VideoDecoderThread>(boost::bind(
                 &VideoDecoderThread::seek, _1, DestFrame)));
-    // TODO: Clear image queue.
 }
 
 IntPoint AsyncVideoDecoder::getSize()
@@ -136,7 +135,6 @@ FrameVideoMsgPtr AsyncVideoDecoder::getNextBmps()
     VideoMsgPtr pMsg = m_pMsgQ->pop(true);
     FrameVideoMsgPtr pFrameMsg = dynamic_pointer_cast<FrameVideoMsg>(pMsg);
     while (!pFrameMsg) {
-        InfoVideoMsgPtr pInfoMsg;
         EOFVideoMsgPtr pEOFMsg;
         if (pEOFMsg = dynamic_pointer_cast<EOFVideoMsg>(pMsg)) {
             // TODO: Handle end of file.

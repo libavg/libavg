@@ -43,7 +43,7 @@ class Queue
         void push(const QElement& Elem);
         int size() const;
 
-	private:
+    private:
         std::deque<QElement> m_Elements;
         mutable boost::mutex m_Mutex;
         mutable boost::condition m_Cond;
