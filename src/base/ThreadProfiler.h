@@ -19,36 +19,48 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Profiler_H_ 
-#define _Profiler_H_
+#ifndef _ThreadProfiler_H_ 
+#define _ThreadProfiler_H_
 
-#include "ThreadProfiler.h"
+#include "ProfilingZone.h"
 
 #include <boost/thread.hpp>
-#include <boost/thread/mutex.hpp>
+#include <boost/shared_ptr.hpp>
 
-#include <vector>
+#include <list>
+#include <map>
 
 namespace avg {
 
-class Profiler {
+class ThreadProfiler;
+typedef boost::shared_ptr<ThreadProfiler> ThreadProfilerPtr;
+
+class ThreadProfiler {
 public:
-    static Profiler& get();
-    virtual ~Profiler();
+    ThreadProfiler(const std::string& sName);
+    virtual ~ThreadProfiler();
+    static ThreadProfilerPtr get();
  
+    void addZone(ProfilingZone& Zone);
+    void clear();
+    void start();
+    bool isRunning();
+    void setActiveZone(ProfilingZone * pZone);
     void dumpFrame();
     void dumpStatistics();
+    void reset();
 
-    // Interface to ThreadProfiler
-    void registerThreadProfiler(ThreadProfilerPtr pThreadProfiler);
-    ThreadProfilerPtr getThreadProfiler();
+    const boost::thread& getThread();
+    const std::string& getName();
 
 private:
-    Profiler();
+    std::string m_sName;
 
-    typedef std::vector<ThreadProfilerPtr> ThreadProfilerArray;
-    ThreadProfilerArray m_ThreadProfilers;
-    boost::mutex m_Mutex;
+    typedef std::list<ProfilingZone*> ZoneList;
+    ZoneList m_Zones;
+    ProfilingZone * m_pActiveZone;
+    bool m_bRunning;
+    boost::thread m_Thread;
 };
 
 }

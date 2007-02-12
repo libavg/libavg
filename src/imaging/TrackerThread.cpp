@@ -22,7 +22,6 @@
 #include "ConnectedComps.h"
 #include "FilterDistortion.h"
 
-#include "../base/Profiler.h"
 #include "../base/Logger.h"
 #include "../base/ProfilingZone.h"
 #include "../base/ScopeTimer.h"
@@ -38,15 +37,15 @@
 using namespace std;
 
 namespace avg {
-static ProfilingZone ProfilingZoneCapture ("Capture", "Tracker");
-static ProfilingZone ProfilingZoneTracker ("Tracker", "Tracker");
-static ProfilingZone ProfilingZoneHistory ("  History", "Tracker");
-static ProfilingZone ProfilingZoneDistort ("  Distort", "Tracker");
-static ProfilingZone ProfilingZoneHistogram ("  Histogram", "Tracker");
-static ProfilingZone ProfilingZoneBlur ("  Blur", "Tracker");
-static ProfilingZone ProfilingZoneHighpass ("  Highpass", "Tracker");
-static ProfilingZone ProfilingZoneComps("  ConnectedComps", "Tracker");
-static ProfilingZone ProfilingZoneUpdate("  Update", "Tracker");
+static ProfilingZone ProfilingZoneCapture ("Capture");
+static ProfilingZone ProfilingZoneTracker ("Tracker");
+static ProfilingZone ProfilingZoneHistory ("  History");
+static ProfilingZone ProfilingZoneDistort ("  Distort");
+static ProfilingZone ProfilingZoneHistogram ("  Histogram");
+static ProfilingZone ProfilingZoneBlur ("  Blur");
+static ProfilingZone ProfilingZoneHighpass ("  Highpass");
+static ProfilingZone ProfilingZoneComps("  ConnectedComps");
+static ProfilingZone ProfilingZoneUpdate("  Update");
 
 TrackerThread::TrackerThread(CameraPtr pCamera,
         BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
@@ -55,7 +54,7 @@ TrackerThread::TrackerThread(CameraPtr pCamera,
         IBlobTarget *target,
         bool bSubtractHistory,
         TrackerConfig &config)
-    : WorkerThread<TrackerThread>(CmdQ),
+    : WorkerThread<TrackerThread>("Tracker", CmdQ),
       m_Threshold(128),
       m_pMutex(pMutex),
       m_pCamera(pCamera),
@@ -153,7 +152,6 @@ bool TrackerThread::work()
             }
         }
     }
-    Profiler::get().reset("Tracker");
     return true;
 }
 

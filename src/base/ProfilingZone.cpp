@@ -20,21 +20,21 @@
 //
 
 #include "ProfilingZone.h"
-#include "Profiler.h"
+#include "ThreadProfiler.h"
 
 #include <iostream>
 
+using namespace boost;
 using namespace std;
 
 namespace avg {
 
-ProfilingZone::ProfilingZone(const string& sName, const string& ThreadID)
+ProfilingZone::ProfilingZone(const string& sName)
     : m_sName(sName),
       m_TimeSum(0),
       m_AvgTime(0),
       m_NumFrames(0),
-      m_bIsRegistered(false),
-      m_ThreadID(ThreadID)
+      m_bIsRegistered(false)
 {
 }
 
@@ -52,15 +52,22 @@ void ProfilingZone::clear()
 
 void ProfilingZone::start()
 {
+    ThreadProfilerPtr pProfiler = ThreadProfiler::get();
+    if (!pProfiler) {
+        cerr << "Can't find ThreadProfiler for " << m_sName << endl;
+    }
     // Start gets called when the zone is first entered. 
-    if (!m_bIsRegistered && Profiler::get().isRunning()) {
+    if (!m_bIsRegistered && pProfiler->isRunning()) {
         // This stuff makes sure that the zones are registered in the order 
         // they are entered.
-        Profiler::get().addZone(*this);
+        pProfiler->addZone(*this);
         clear();
         m_bIsRegistered = true;
     }
-    Profiler::get().setActiveZone(this);
+    if (pProfiler->getThread() == thread()) {
+        // TODO: 
+        pProfiler->setActiveZone(this);
+    }
 }
 
 void ProfilingZone::reset()
@@ -85,12 +92,6 @@ const std::string& ProfilingZone::getName() const
     return m_sName;
 }
     
-const std::string ProfilingZone::getThreadID() const
-{
-    return m_ThreadID;
-}
-
-
 void ProfilingZone::add(long long usecs)
 {
     m_TimeSum += usecs;

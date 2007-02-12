@@ -24,8 +24,11 @@
 
 #include "Command.h"
 #include "Queue.h"
+#include "Profiler.h"
+#include "ThreadProfiler.h"
 
 #include <boost/shared_ptr.hpp>
+
 #include <iostream>
 
 namespace avg {
@@ -37,7 +40,7 @@ public:
     typedef Queue<Command<DERIVED_THREAD> > CmdQueue;
     typedef boost::shared_ptr<CmdQueue> CmdQueuePtr;
 
-    WorkerThread(CmdQueue& CmdQ);
+    WorkerThread(const std::string& sName, CmdQueue& CmdQ);
     virtual ~WorkerThread() {};
     void operator()();
 
@@ -50,13 +53,17 @@ private:
 
     void processCommands();
 
+    std::string m_sName;
     bool m_bShouldStop;
     CmdQueue& m_CmdQ;
+
+    ThreadProfilerPtr m_pProfiler;
 };
 
 template<class DERIVED_THREAD>
-WorkerThread<DERIVED_THREAD>::WorkerThread(CmdQueue& CmdQ)
-    : m_bShouldStop(false),
+WorkerThread<DERIVED_THREAD>::WorkerThread(const std::string& sName, CmdQueue& CmdQ)
+    : m_sName(sName),
+      m_bShouldStop(false),
       m_CmdQ(CmdQ)
 {
 }
@@ -64,11 +71,14 @@ WorkerThread<DERIVED_THREAD>::WorkerThread(CmdQueue& CmdQ)
 template<class DERIVED_THREAD>
 void WorkerThread<DERIVED_THREAD>::operator()()
 {
+    m_pProfiler = ThreadProfilerPtr(new ThreadProfiler(m_sName));
+    Profiler::get().registerThreadProfiler(m_pProfiler);
     bool bOK;
     bOK = init();
     if (!bOK) {
         return;
     }
+    m_pProfiler->start();
     while (!m_bShouldStop) {
         bOK = work();
         if (!bOK) {
@@ -76,6 +86,7 @@ void WorkerThread<DERIVED_THREAD>::operator()()
         } else {
             processCommands();
         }
+        m_pProfiler->reset();
     }
     deinit();
 }

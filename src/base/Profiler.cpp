@@ -26,6 +26,7 @@
 #include <iomanip>
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
     
@@ -37,117 +38,44 @@ Profiler& Profiler::get()
 
 Profiler::Profiler() 
 {
-    m_pActiveZone = 0;
-    m_bRunning = false;
 }
 
 Profiler::~Profiler() 
 {
 }
 
-void Profiler::addZone(ProfilingZone& Zone)
-{
-    ZoneList& List = m_Zones[Zone.getThreadID()];
-    ZoneList::iterator it;
-    ZoneList::iterator itPrevZone = List.begin();
-    for (it=List.begin(); it != List.end(); ++it) {
-        if (Zone.getName() == (*it)->getName()) {
-            AVG_TRACE(Logger::WARNING,
-                    "Warning: Two profiling zones have name " <<
-                    Zone.getName());
-        }
-        if (m_pActiveZone == (*it)) {
-            itPrevZone = it;
-            itPrevZone++;
-        }
-    }
-    List.insert(itPrevZone, &Zone);
-}
-
-void Profiler::clear()
-{
-    ZoneMap::iterator it1;
-    for (it1=m_Zones.begin(); it1 != m_Zones.end(); ++it1) {
-        ZoneList& List = (*it1).second;
-        ZoneList::iterator it2;
-        for (it2=List.begin(); it2 != List.end(); ++it2) {
-            (*it2)->clear();
-        }
-        List.clear();
-    }
-    m_pActiveZone = 0;
-    m_bRunning = false;
-}
-
-void Profiler::start()
-{
-    clear();
-    m_bRunning = true;
-}
-
-bool Profiler::isRunning()
-{
-    return m_bRunning;
-}
-
-void Profiler::setActiveZone(ProfilingZone * pZone)
-{
-    m_pActiveZone = pZone;
-}
-
 void Profiler::dumpFrame()
 {
     AVG_TRACE(Logger::PROFILE_LATEFRAMES, "Frame Profile:");
-    ZoneMap::iterator it1;
-    for (it1=m_Zones.begin(); it1 != m_Zones.end(); ++it1) {
-        AVG_TRACE(Logger::PROFILE_LATEFRAMES,
-                "  " << "Thread " << (*it1).first << ":");
-        ZoneList& List = (*it1).second;
-        ZoneList::iterator it2;
-        for (it2=List.begin(); it2 != List.end(); ++it2) {
-            AVG_TRACE(Logger::PROFILE_LATEFRAMES,
-                    "    " << std::setw(30) << std::left << (*it2)->getName() << ": " 
-                    << std::setw(9) << std::right << (*it2)->getUSecs());
-        }
-    }
     AVG_TRACE(Logger::PROFILE_LATEFRAMES, "");
 }
 
 void Profiler::dumpStatistics()
 {
-    AVG_TRACE(Logger::PROFILE,
-            "Profile Statistics (in us):");
-    AVG_TRACE(Logger::PROFILE,
-            "  Zone name                          Avg. time");
-    AVG_TRACE(Logger::PROFILE,
-            "  ---------                          ---------");
-
-    ZoneMap::iterator it1;
-    for (it1=m_Zones.begin(); it1 != m_Zones.end(); ++it1) {
-        AVG_TRACE(Logger::PROFILE,
-                "  " << "Thread " << (*it1).first << ":");
-        ZoneList& List = (*it1).second;
-        ZoneList::iterator it2;
-        for (it2=List.begin(); it2 != List.end(); ++it2) {
-            AVG_TRACE(Logger::PROFILE,
-                    "    " << std::setw(33) << std::left << (*it2)->getName() << ": " 
-                    << std::setw(9) << std::right << (*it2)->getAvgUSecs());
-        }
+    AVG_TRACE(Logger::PROFILE, "Profile Statistics (in us):");
+    
+    ThreadProfilerArray::iterator it;
+    for (it= m_ThreadProfilers.begin(); it != m_ThreadProfilers.end(); ++it) {
+        (*it)->dumpStatistics();
     }
-    AVG_TRACE(Logger::PROFILE, "");
 }
 
-void Profiler::reset(const string& ThreadID)
+void Profiler::registerThreadProfiler(ThreadProfilerPtr pThreadProfiler)
 {
-    ZoneMap::iterator it1;
-    it1 = m_Zones.find(ThreadID);
-    if (it1 != m_Zones.end()) {
-        ZoneList& List = (*it1).second;
-        ZoneList::iterator it2;
-        for (it2=List.begin(); it2 != List.end(); ++it2) {
-            (*it2)->reset();
+    mutex::scoped_lock Lock(m_Mutex);
+    m_ThreadProfilers.push_back(pThreadProfiler);
+}
+
+ThreadProfilerPtr Profiler::getThreadProfiler()
+{
+    mutex::scoped_lock Lock(m_Mutex);
+    ThreadProfilerArray::iterator it;
+    for (it= m_ThreadProfilers.begin(); it != m_ThreadProfilers.end(); ++it) {
+        if ((*it)->getThread() == thread()) {
+            return *it;
         }
     }
+    return ThreadProfilerPtr();
 }
 
 }

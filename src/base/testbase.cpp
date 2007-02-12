@@ -109,7 +109,7 @@ class TestWorkerThread: public WorkerThread<TestWorkerThread> {
 public:
     TestWorkerThread(CmdQueue& CmdQ, int* pNumFuncCalls, int* pIntParam, 
             std::string* pStringParam)
-        : WorkerThread<TestWorkerThread>(CmdQ),
+        : WorkerThread<TestWorkerThread>("Thread1", CmdQ),
           m_pNumFuncCalls(pNumFuncCalls),
           m_pIntParam(pIntParam),
           m_pStringParam(pStringParam)

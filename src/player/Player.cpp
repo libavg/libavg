@@ -94,6 +94,8 @@ Player::Player()
       m_bUseFakeCamera(false),
       m_bIsPlaying(false)
 {
+    ThreadProfilerPtr pThreadProfiler = ThreadProfilerPtr(new ThreadProfiler("Main"));
+    Profiler::get().registerThreadProfiler(pThreadProfiler);
     initConfig();
     // Find and parse dtd.
     registerDTDEntityLoader(g_pAVGDTD);
@@ -244,10 +246,10 @@ void Player::play()
         m_pDisplayEngine->initRender();
         m_bStopping = false;
 
-        Profiler::get().start();
+        ThreadProfiler::get()->start();
         m_pDisplayEngine->render(m_pRootNode, true);
         if (m_pDisplayEngine->wasFrameLate()) {
-            Profiler::get().dumpFrame();
+            ThreadProfiler::get()->dumpFrame();
         }
         
         try {
@@ -500,7 +502,7 @@ void Player::doFrame ()
         }
     }
     if (m_pDisplayEngine->wasFrameLate()) {
-        Profiler::get().dumpFrame();
+        ThreadProfiler::get()->dumpFrame();
     }
     
 /*
@@ -512,7 +514,7 @@ void Player::doFrame ()
         Profiler::get().dumpFrame();
     }
 */    
-    Profiler::get().reset();
+    ThreadProfiler::get()->reset();
 }
 
 double Player::getFramerate ()
