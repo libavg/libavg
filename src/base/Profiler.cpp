@@ -71,7 +71,7 @@ ThreadProfilerPtr Profiler::getThreadProfiler()
     mutex::scoped_lock Lock(m_Mutex);
     ThreadProfilerArray::iterator it;
     for (it= m_ThreadProfilers.begin(); it != m_ThreadProfilers.end(); ++it) {
-        if ((*it)->getThread() == thread()) {
+        if ((*it)->isCurrent()) {
             return *it;
         }
     }

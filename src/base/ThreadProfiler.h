@@ -50,7 +50,7 @@ public:
     void dumpStatistics();
     void reset();
 
-    const boost::thread& getThread();
+    bool isCurrent();
     const std::string& getName();
 
 private:

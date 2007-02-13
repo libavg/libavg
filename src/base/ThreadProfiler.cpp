@@ -128,9 +128,9 @@ void ThreadProfiler::reset()
     }
 }
 
-const thread& ThreadProfiler::getThread()
+bool ThreadProfiler::isCurrent()
 {
-    return m_Thread;
+    return thread() == m_Thread;
 }
 
 const std::string& ThreadProfiler::getName()

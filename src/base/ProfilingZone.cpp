@@ -64,8 +64,7 @@ void ProfilingZone::start()
         clear();
         m_bIsRegistered = true;
     }
-    if (pProfiler->getThread() == thread()) {
-        // TODO: 
+    if (pProfiler->isCurrent()) {
         pProfiler->setActiveZone(this);
     }
 }
