@@ -48,6 +48,7 @@ class AsyncVideoDecoder: public IVideoDecoder
         virtual bool renderToBmp(BitmapPtr pBmp);
         virtual bool renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr);
+        virtual bool isEOF();
 
     private:
         void getInfoMsg();
@@ -65,6 +66,7 @@ class AsyncVideoDecoder: public IVideoDecoder
         int m_NumFrames;
         double m_FPS;
         PixelFormat m_PF;
+        bool m_bEOF;
 };
 
 }

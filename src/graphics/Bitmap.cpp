@@ -162,10 +162,11 @@ void Bitmap::copyPixels(const Bitmap & Orig)
         unsigned char * pDest = m_pBits;
         int Height = min(Orig.getSize().y, m_Size.y);
         int LineLen = min(Orig.getLineLen(), getLineLen());
+        int SrcStride = Orig.getStride();
         for (int y=0; y<Height; ++y) {
             memcpy(pDest, pSrc, LineLen);
             pDest += m_Stride;
-            pSrc += Orig.getStride();
+            pSrc += SrcStride;
         }
     } else {
         switch (Orig.getPixelFormat()) {

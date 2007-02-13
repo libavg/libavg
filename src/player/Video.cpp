@@ -48,7 +48,6 @@ Video::Video ()
     : m_href(""),
       m_Filename(""),
       m_bLoop(false),
-      m_bEOF(false),
       m_pDecoder(0)
 {
 }
@@ -56,7 +55,6 @@ Video::Video ()
 Video::Video (const xmlNodePtr xmlNode, Player * pPlayer)
     : VideoBase(xmlNode, pPlayer),
       m_Filename(""),
-      m_bEOF(false),
       m_pDecoder(0)
 {
     m_href = getDefaultedStringAttr (xmlNode, "href", "");
@@ -175,7 +173,6 @@ void Video::open(YCbCrMode ycbcrMode)
         m_pDecoder = new FFMpegDecoder();
     }
     m_pDecoder->open(m_Filename, ycbcrMode);
-    m_bEOF = false;
 }
 
 void Video::close()
@@ -208,32 +205,33 @@ bool Video::renderToSurface(ISurface * pSurface)
 {
     ScopeTimer Timer(RenderProfilingZone);
     PixelFormat PF = m_pDecoder->getPixelFormat();
+    bool bFrameAvailable;
     if (PF == YCbCr420p || PF == YCbCrJ420p) {
         BitmapPtr pBmp = pSurface->lockBmp(0);
-        m_bEOF = m_pDecoder->renderToYCbCr420p(pBmp,
+        bFrameAvailable = m_pDecoder->renderToYCbCr420p(pBmp,
                 pSurface->lockBmp(1), pSurface->lockBmp(2));
     } else {
         BitmapPtr pBmp = pSurface->lockBmp();
-        m_bEOF = m_pDecoder->renderToBmp(pBmp);
+        bFrameAvailable = m_pDecoder->renderToBmp(pBmp);
 //        DisplayEngine::YCbCrMode ycbcrMode = getEngine()->getYCbCrMode();
 //        if (ycbcrMode == DisplayEngine::OGL_MESA && pBmp->getPixelFormat() == YCbCr422) {
 //            FilterFlipUV().applyInPlace(pBmp);
 //        }   
     }
     pSurface->unlockBmps();
-    if (!m_bEOF) {
+    if (bFrameAvailable) {
         getEngine()->surfaceChanged(pSurface);
     }
     if (getVideoState() == Playing) {
         advancePlayback();
     }
-    return !m_bEOF;
+    return !m_pDecoder->isEOF();
 }
 
 void Video::advancePlayback()
 {
     m_CurFrame++;
-    if (m_bEOF) {
+    if (m_pDecoder->isEOF()) {
         if (m_bLoop) {
             seek(0);
         } else {

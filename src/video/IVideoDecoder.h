@@ -42,11 +42,12 @@ class IVideoDecoder
         virtual IntPoint getSize() = 0;
         virtual int getNumFrames() = 0;
         virtual double getFPS() = 0;
+        virtual PixelFormat getPixelFormat() = 0;
 
         virtual bool renderToBmp(BitmapPtr pBmp) = 0;
         virtual bool renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr) = 0;
-        virtual PixelFormat getPixelFormat() = 0;
+        virtual bool isEOF() = 0;
 };
 
 typedef boost::shared_ptr<IVideoDecoder> VideoDecoderPtr;

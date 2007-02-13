@@ -35,7 +35,8 @@ namespace avg {
 
 AsyncVideoDecoder::AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder)
     : m_pSyncDecoder(pSyncDecoder),
-      m_pDecoderThread(0)
+      m_pDecoderThread(0),
+      m_bEOF(false)
 {
 }
 
@@ -45,6 +46,7 @@ AsyncVideoDecoder::~AsyncVideoDecoder()
 
 void AsyncVideoDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode)
 {
+    m_bEOF = false;
     m_sFilename = sFilename;
     m_pCmdQ = VideoDecoderThread::CmdQueuePtr(new VideoDecoderThread::CmdQueue);
     m_pMsgQ = VideoMsgQueuePtr(new VideoMsgQueue(8));
@@ -65,6 +67,7 @@ void AsyncVideoDecoder::close()
 
 void AsyncVideoDecoder::seek(int DestFrame)
 {
+    m_bEOF = false;
     m_pCmdQ->push(Command<VideoDecoderThread>(boost::bind(
                 &VideoDecoderThread::seek, _1, DestFrame)));
 }
@@ -98,10 +101,9 @@ bool AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp)
     FrameVideoMsgPtr pFrameMsg = getNextBmps();
     if (pFrameMsg) {
         *pBmp = *(pFrameMsg->getBitmap(0));
-        return false;
-    } else {
-        // EOF
         return true;
+    } else {
+        return false;
     }
 }
 
@@ -113,10 +115,15 @@ bool AsyncVideoDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb,
         pBmpY->copyPixels(*(pFrameMsg->getBitmap(0)));
         pBmpCb->copyPixels(*(pFrameMsg->getBitmap(1)));
         pBmpCr->copyPixels(*(pFrameMsg->getBitmap(2)));
-        return false;
-    } else {
         return true;
+    } else {
+        return false;
     }
+}
+
+bool AsyncVideoDecoder::isEOF()
+{
+    return m_bEOF;
 }
 
 void AsyncVideoDecoder::getInfoMsg()
@@ -132,21 +139,25 @@ void AsyncVideoDecoder::getInfoMsg()
 
 FrameVideoMsgPtr AsyncVideoDecoder::getNextBmps()
 {
-    VideoMsgPtr pMsg = m_pMsgQ->pop(true);
-    FrameVideoMsgPtr pFrameMsg = dynamic_pointer_cast<FrameVideoMsg>(pMsg);
-    while (!pFrameMsg) {
-        EOFVideoMsgPtr pEOFMsg;
-        if (pEOFMsg = dynamic_pointer_cast<EOFVideoMsg>(pMsg)) {
-            // TODO: Handle end of file.
-            return FrameVideoMsgPtr();
-        } else {
-            // Only Frames or EOF should arrive here.
-            assert(false);
-        }
-        VideoMsgPtr pMsg = m_pMsgQ->pop(true);
+    try {
+        VideoMsgPtr pMsg = m_pMsgQ->pop(false);
         FrameVideoMsgPtr pFrameMsg = dynamic_pointer_cast<FrameVideoMsg>(pMsg);
+        while (!pFrameMsg) {
+            EOFVideoMsgPtr pEOFMsg;
+            if (pEOFMsg = dynamic_pointer_cast<EOFVideoMsg>(pMsg)) {
+                m_bEOF = true;
+                return FrameVideoMsgPtr();
+            } else {
+                // Only Frames or EOF should arrive here.
+                assert(false);
+            }
+            VideoMsgPtr pMsg = m_pMsgQ->pop(false);
+            FrameVideoMsgPtr pFrameMsg = dynamic_pointer_cast<FrameVideoMsg>(pMsg);
+        }
+        return pFrameMsg;
+    } catch (Exception& e) {
+        return FrameVideoMsgPtr();
     }
-    return pFrameMsg;
 }
 
 }

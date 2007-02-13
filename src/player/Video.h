@@ -73,7 +73,6 @@ class Video : public VideoBase
         bool m_bThreaded;
 
         int m_CurFrame;
-        bool m_bEOF;
 
         IVideoDecoder * m_pDecoder;
 

@@ -44,10 +44,12 @@ class FFMpegDecoder: public IVideoDecoder
         virtual IntPoint getSize();
         virtual int getNumFrames();
         virtual double getFPS();
+        virtual PixelFormat getPixelFormat();
+
         virtual bool renderToBmp(BitmapPtr pBmp);
         virtual bool renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr);
-        virtual PixelFormat getPixelFormat();
+        virtual bool isEOF();
 
     private:
         void initVideoSupport();

@@ -295,7 +295,7 @@ bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
             }
         }
     }
-    return m_bEOF;
+    return true;
 }
 
 void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int Stride)
@@ -324,6 +324,11 @@ bool FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb,
         copyPlaneToBmp(pBmpCb, Frame.data[1], Frame.linesize[1]);
         copyPlaneToBmp(pBmpCr, Frame.data[2], Frame.linesize[2]);
     }
+    return true;
+}
+
+bool FFMpegDecoder::isEOF()
+{
     return m_bEOF;
 }
 

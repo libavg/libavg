@@ -64,7 +64,6 @@ bool VideoDecoderThread::init()
 bool VideoDecoderThread::work() 
 {
     vector<BitmapPtr> pBmps;
-    bool bEOF;
     IntPoint Size = m_pDecoder->getSize();
     PixelFormat PF = m_pDecoder->getPixelFormat();
     if (PF == YCbCr420p || PF ==YCbCrJ420p) {
@@ -72,16 +71,20 @@ bool VideoDecoderThread::work()
         IntPoint HalfSize(Size.x/2, Size.y/2);
         BitmapPtr pBmpU = BitmapPtr(new Bitmap(HalfSize, I8));
         BitmapPtr pBmpV = BitmapPtr(new Bitmap(HalfSize, I8));
-        bEOF=m_pDecoder->renderToYCbCr420p(pBmpY, pBmpU, pBmpV);
-        pBmps.push_back(pBmpY);
-        pBmps.push_back(pBmpU);
-        pBmps.push_back(pBmpV);
+        bool bFrame=m_pDecoder->renderToYCbCr420p(pBmpY, pBmpU, pBmpV);
+        if (bFrame) {
+            pBmps.push_back(pBmpY);
+            pBmps.push_back(pBmpU);
+            pBmps.push_back(pBmpV);
+        }
     } else {
         BitmapPtr pBmp = BitmapPtr(new Bitmap(Size, PF));
-        bEOF=m_pDecoder->renderToBmp(pBmp);
-        pBmps.push_back(pBmp);
+        bool bFrame=m_pDecoder->renderToBmp(pBmp);
+        if (bFrame) {
+            pBmps.push_back(pBmp);
+        }
     }
-    if (bEOF) {
+    if (m_pDecoder->isEOF()) {
         m_MsgQ.push(VideoMsgPtr(new EOFVideoMsg()));
     } else {
         m_MsgQ.push(VideoMsgPtr(new FrameVideoMsg(pBmps)));
