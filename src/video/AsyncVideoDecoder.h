@@ -19,58 +19,52 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _FFMpegDecoder_H_
-#define _FFMpegDecoder_H_
+#ifndef _AsyncVideoDecoder_H_
+#define _AsyncVideoDecoder_H_
 
 #include "IVideoDecoder.h"
+#include "VideoDecoderThread.h"
+#include "FrameVideoMsg.h"
 
-#ifdef _WIN32
-#define EMULATE_INTTYPES
-#endif
-#include <ffmpeg/avformat.h>
+#include "../graphics/Bitmap.h"
 
-#include <boost/thread/mutex.hpp>
+#include <string>
 
 namespace avg {
 
-class FFMpegDecoder: public IVideoDecoder
+class AsyncVideoDecoder: public IVideoDecoder
 {
     public:
-        FFMpegDecoder();
-        virtual ~FFMpegDecoder();
-        virtual void open(const std::string& sFilename, DisplayEngine::YCbCrMode ycbcrMode);
+        AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder);
+        virtual ~AsyncVideoDecoder();
+        virtual void open(const std::string& sFilename, YCbCrMode ycbcrMode);
         virtual void close();
         virtual void seek(int DestFrame);
         virtual IntPoint getSize();
         virtual int getNumFrames();
         virtual double getFPS();
+        virtual PixelFormat getPixelFormat();
+
         virtual bool renderToBmp(BitmapPtr pBmp);
         virtual bool renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr);
-        virtual PixelFormat getPixelFormat();
 
     private:
-        void initVideoSupport();
-        void readFrame(AVFrame& Frame);
-        bool getNextVideoPacket(AVPacket & Packet);
-        PixelFormat calcPixelFormat(DisplayEngine::YCbCrMode ycbcrMode);
+        void getInfoMsg();
+        FrameVideoMsgPtr getNextBmps();
 
-        AVFormatContext * m_pFormatContext;
-        int m_VStreamIndex;
-        AVStream * m_pVStream;
-        bool m_bEOF;
-        PixelFormat m_PF;
-
-        unsigned char * m_pPacketData;
-        AVPacket m_Packet;
-        int m_PacketLenLeft;
-        bool m_bFirstPacket;
+        VideoDecoderPtr m_pSyncDecoder;
         std::string m_sFilename;
-        IntPoint m_Size;
 
-        static bool m_bInitialized;
-        // Prevents different decoder instances from executing open/close simultaneously
-        static boost::mutex s_OpenMutex;   
+        boost::thread* m_pDecoderThread;
+
+        VideoDecoderThread::CmdQueuePtr m_pCmdQ;
+        VideoMsgQueuePtr m_pMsgQ;
+
+        IntPoint m_Size;
+        int m_NumFrames;
+        double m_FPS;
+        PixelFormat m_PF;
 };
 
 }

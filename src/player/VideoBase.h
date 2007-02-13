@@ -63,7 +63,7 @@ class VideoBase : public RasterNode
         void open();
 
         virtual bool renderToSurface(ISurface * pSurface) = 0;
-        virtual void open(DisplayEngine::YCbCrMode ycbcrMode) = 0;
+        virtual void open(YCbCrMode ycbcrMode) = 0;
         virtual void close() = 0;
         virtual PixelFormat getPixelFormat() = 0;
         virtual IntPoint getSize() = 0;

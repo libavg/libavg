@@ -43,7 +43,7 @@ AsyncVideoDecoder::~AsyncVideoDecoder()
 {
 }
 
-void AsyncVideoDecoder::open(const std::string& sFilename, DisplayEngine::YCbCrMode ycbcrMode)
+void AsyncVideoDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode)
 {
     m_sFilename = sFilename;
     m_pCmdQ = VideoDecoderThread::CmdQueuePtr(new VideoDecoderThread::CmdQueue);

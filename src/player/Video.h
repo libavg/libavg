@@ -61,7 +61,7 @@ class Video : public VideoBase
         void seek(int DestFrame);
         void advancePlayback();
        
-        virtual void open(DisplayEngine::YCbCrMode ycbcrMode);
+        virtual void open(YCbCrMode ycbcrMode);
         virtual void close();
         virtual PixelFormat getPixelFormat();
         virtual IntPoint getSize();

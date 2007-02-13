@@ -309,7 +309,7 @@ void SDLDisplayEngine::logConfig()
     AVG_TRACE(Logger::CONFIG, "OpenGL vendor: " << glGetString(GL_VENDOR));
     AVG_TRACE(Logger::CONFIG, "OpenGL renderer: " << glGetString(GL_RENDERER));
     switch (m_YCbCrMode) {
-        case NONE:
+        case OGL_NONE:
             AVG_TRACE(Logger::CONFIG, "YCbCr texture support not enabled.");
             break;
         case OGL_MESA:
@@ -519,7 +519,7 @@ bool SDLDisplayEngine::hasRGBOrdering()
     return m_bShouldUseRGBOrder;
 }
 
-DisplayEngine::YCbCrMode SDLDisplayEngine::getYCbCrMode()
+YCbCrMode SDLDisplayEngine::getYCbCrMode()
 {
     return m_YCbCrMode;
 }
@@ -571,7 +571,7 @@ int SDLDisplayEngine::getBPP()
     
 void SDLDisplayEngine::checkYCbCrSupport()
 {
-    m_YCbCrMode = NONE;
+    m_YCbCrMode = OGL_NONE;
     if (queryOGLExtension("GL_ARB_fragment_shader") &&
         queryOGLExtension("GL_ARB_texture_rectangle") &&
         (queryOGLExtension("GL_ARB_pixel_buffer_object") || 
@@ -1288,9 +1288,9 @@ int SDLDisplayEngine::getOGLDestMode(PixelFormat pf)
             return GL_RGBA;    
         case YCbCr422:
             switch (getYCbCrMode()) {
-                case DisplayEngine::OGL_MESA:
+                case OGL_MESA:
                     return GL_YCBCR_MESA;    
-                case DisplayEngine::OGL_APPLE:
+                case OGL_APPLE:
                     return GL_RGBA;
                 default:
                     AVG_TRACE(Logger::ERROR, 
@@ -1321,9 +1321,9 @@ int SDLDisplayEngine::getOGLSrcMode(PixelFormat pf)
             return GL_RGBA;
         case YCbCr422:
             switch (getYCbCrMode()) {
-                case DisplayEngine::OGL_MESA:
+                case OGL_MESA:
                     return GL_YCBCR_MESA;    
-                case DisplayEngine::OGL_APPLE:
+                case OGL_APPLE:
                     return GL_YCBCR_422_APPLE;
                 default:
                     AVG_TRACE(Logger::ERROR, "SDLDisplayEngine: YCbCr422 not supported.");

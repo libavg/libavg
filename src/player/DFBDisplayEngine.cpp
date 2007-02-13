@@ -561,9 +561,9 @@ bool DFBDisplayEngine::hasRGBOrdering()
     return false;
 }
 
-DisplayEngine::YCbCrMode DFBDisplayEngine::getYCbCrMode()
+YCbCrMode DFBDisplayEngine::getYCbCrMode()
 {
-    return DisplayEngine::NONE;
+    return OGL_NONE;
 }
 
 void DFBDisplayEngine::showCursor (bool bShow)

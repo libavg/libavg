@@ -39,6 +39,7 @@ avg_la_LDFLAGS = $(APPLE_LDFLAGS) -module -XCClinker -lboost_python \
         @LIBFFMPEG@ $(MAGICK_LIBS) @PANGOFT2_LIBS@ @PTHREAD_LIBS@
 avg_la_LIBADD = ../conradrelais/libconradrelais.la \
                 ../player/libplayer.la \
+				../video/libvideo.la \
 				../graphics/libgraphics.la \
 				../base/libbase.la \
                 ../imaging/libimaging.la \

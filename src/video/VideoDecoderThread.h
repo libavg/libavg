@@ -19,34 +19,39 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _IVideoDecoder_H_
-#define _IVideoDecoder_H_
+#ifndef _VideoDecoderThread_H_
+#define _VideoDecoderThread_H_
 
-#include "../graphics/Bitmap.h"
-#include "DisplayEngine.h"
+#include "IVideoDecoder.h"
+#include "IVideoMsg.h"
+
+#include "../base/WorkerThread.h"
+#include "../base/Command.h"
+
+#include <boost/thread.hpp>
 
 #include <string>
 
 namespace avg {
 
-class IVideoDecoder
-{
+class VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
     public:
-        virtual ~IVideoDecoder() {};
-        virtual void open(const std::string& sFilename, DisplayEngine::YCbCrMode ycbcrMode) = 0;
-        virtual void close() = 0;
-        virtual void seek(int DestFrame) = 0;
-        virtual IntPoint getSize() = 0;
-        virtual int getNumFrames() = 0;
-        virtual double getFPS() = 0;
+        VideoDecoderThread(VideoMsgQueue& MsgQ, CmdQueue& CmdQ, 
+                VideoDecoderPtr pDecoder, const std::string& sFilename, 
+                YCbCrMode ycbcrMode);
+        virtual ~VideoDecoderThread();
+        bool init();
+        bool work();
+        void deinit();
 
-        virtual bool renderToBmp(BitmapPtr pBmp) = 0;
-        virtual bool renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
-                BitmapPtr pBmpCr) = 0;
-        virtual PixelFormat getPixelFormat() = 0;
+        void seek(int DestFrame);
+
+    private:
+        VideoMsgQueue& m_MsgQ;
+        VideoDecoderPtr m_pDecoder;
+        std::string m_sFilename;
+        YCbCrMode m_YCbCrMode;
 };
-
-typedef boost::shared_ptr<IVideoDecoder> VideoDecoderPtr;
 
 }
 #endif 

@@ -153,7 +153,7 @@ void Player::setResolution(bool bFullscreen,
     }
 }
         
-void Player::setOGLOptions(bool bUsePOW2Textures, DisplayEngine::YCbCrMode DesiredYCbCrMode, 
+void Player::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode, 
                 bool bUseRGBOrder, bool bUsePixelBuffers, int MultiSampleSamples)
 {
     m_bUsePOW2Textures = bUsePOW2Textures;
@@ -588,13 +588,13 @@ void Player::initConfig() {
         
         const string * psYCbCrMode =pMgr->getOption("scr", "ycbcrmode");
         if (psYCbCrMode == 0 || *psYCbCrMode == "shader") {
-            m_YCbCrMode = DisplayEngine::OGL_SHADER;
+            m_YCbCrMode = OGL_SHADER;
         } else if (*psYCbCrMode == "mesa") {
-            m_YCbCrMode = DisplayEngine::OGL_MESA;
+            m_YCbCrMode = OGL_MESA;
         } else if (*psYCbCrMode == "apple") {
-            m_YCbCrMode = DisplayEngine::OGL_APPLE;
+            m_YCbCrMode = OGL_APPLE;
         } else if (*psYCbCrMode == "none") {
-            m_YCbCrMode = DisplayEngine::NONE;
+            m_YCbCrMode = OGL_NONE;
         } else {
             AVG_TRACE(Logger::ERROR, 
                     "avgrc: ycbcrmode must be shader, mesa, apple or none. Current value is " 
@@ -637,16 +637,16 @@ void Player::initGraphics()
                     << (m_bUsePOW2Textures?"true":"false"));
             string sMode;
             switch (m_YCbCrMode) {
-                case DisplayEngine::NONE:
+                case OGL_NONE:
                     AVG_TRACE(Logger::CONFIG, "  No YCbCr texture support.");
                     break;
-                case DisplayEngine::OGL_MESA:
+                case OGL_MESA:
                     AVG_TRACE(Logger::CONFIG, "  Mesa YCbCr texture support.");
                     break;
-                case DisplayEngine::OGL_APPLE:
+                case OGL_APPLE:
                     AVG_TRACE(Logger::CONFIG, "  Apple YCbCr texture support.");
                     break;
-                case DisplayEngine::OGL_SHADER:
+                case OGL_SHADER:
                     AVG_TRACE(Logger::CONFIG, "  Fragment shader YCbCr texture support.");
                     break;
             }

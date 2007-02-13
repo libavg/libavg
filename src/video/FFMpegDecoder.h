@@ -19,52 +19,58 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _AsyncVideoDecoder_H_
-#define _AsyncVideoDecoder_H_
+#ifndef _FFMpegDecoder_H_
+#define _FFMpegDecoder_H_
 
 #include "IVideoDecoder.h"
-#include "VideoDecoderThread.h"
-#include "FrameVideoMsg.h"
 
-#include "../graphics/Bitmap.h"
+#ifdef _WIN32
+#define EMULATE_INTTYPES
+#endif
+#include <ffmpeg/avformat.h>
 
-#include <string>
+#include <boost/thread/mutex.hpp>
 
 namespace avg {
 
-class AsyncVideoDecoder: public IVideoDecoder
+class FFMpegDecoder: public IVideoDecoder
 {
     public:
-        AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder);
-        virtual ~AsyncVideoDecoder();
-        virtual void open(const std::string& sFilename, DisplayEngine::YCbCrMode ycbcrMode);
+        FFMpegDecoder();
+        virtual ~FFMpegDecoder();
+        virtual void open(const std::string& sFilename, YCbCrMode ycbcrMode);
         virtual void close();
         virtual void seek(int DestFrame);
         virtual IntPoint getSize();
         virtual int getNumFrames();
         virtual double getFPS();
-        virtual PixelFormat getPixelFormat();
-
         virtual bool renderToBmp(BitmapPtr pBmp);
         virtual bool renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr);
+        virtual PixelFormat getPixelFormat();
 
     private:
-        void getInfoMsg();
-        FrameVideoMsgPtr getNextBmps();
+        void initVideoSupport();
+        void readFrame(AVFrame& Frame);
+        bool getNextVideoPacket(AVPacket & Packet);
+        PixelFormat calcPixelFormat(YCbCrMode ycbcrMode);
 
-        VideoDecoderPtr m_pSyncDecoder;
-        std::string m_sFilename;
-
-        boost::thread* m_pDecoderThread;
-
-        VideoDecoderThread::CmdQueuePtr m_pCmdQ;
-        VideoMsgQueuePtr m_pMsgQ;
-
-        IntPoint m_Size;
-        int m_NumFrames;
-        double m_FPS;
+        AVFormatContext * m_pFormatContext;
+        int m_VStreamIndex;
+        AVStream * m_pVStream;
+        bool m_bEOF;
         PixelFormat m_PF;
+
+        unsigned char * m_pPacketData;
+        AVPacket m_Packet;
+        int m_PacketLenLeft;
+        bool m_bFirstPacket;
+        std::string m_sFilename;
+        IntPoint m_Size;
+
+        static bool m_bInitialized;
+        // Prevents different decoder instances from executing open/close simultaneously
+        static boost::mutex s_OpenMutex;   
 };
 
 }

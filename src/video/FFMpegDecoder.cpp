@@ -21,7 +21,6 @@
 
 #include "FFMpegDecoder.h"
 
-#include "Player.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
@@ -93,7 +92,7 @@ void dump_stream_info(AVFormatContext *s)
 }
 
 
-void FFMpegDecoder::open (const std::string& sFilename, DisplayEngine::YCbCrMode ycbcrMode)
+void FFMpegDecoder::open (const std::string& sFilename, YCbCrMode ycbcrMode)
 {
     mutex::scoped_lock Lock(s_OpenMutex);
     AVFormatParameters params;
@@ -328,14 +327,14 @@ bool FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb,
     return m_bEOF;
 }
 
-PixelFormat FFMpegDecoder::calcPixelFormat(DisplayEngine::YCbCrMode ycbcrMode)
+PixelFormat FFMpegDecoder::calcPixelFormat(YCbCrMode ycbcrMode)
 {
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
         AVCodecContext *enc = &m_pVStream->codec;
 #else
         AVCodecContext *enc = m_pVStream->codec;
 #endif
-    if (ycbcrMode == DisplayEngine::OGL_SHADER) {
+    if (ycbcrMode == OGL_SHADER) {
         switch(enc->pix_fmt) {
             case PIX_FMT_YUV420P:
                 return YCbCr420p;
@@ -345,7 +344,7 @@ PixelFormat FFMpegDecoder::calcPixelFormat(DisplayEngine::YCbCrMode ycbcrMode)
                 break;
         }
     }
-    if ((ycbcrMode == DisplayEngine::OGL_MESA || ycbcrMode == DisplayEngine::OGL_APPLE) &&
+    if ((ycbcrMode == OGL_MESA || ycbcrMode == OGL_APPLE) &&
          enc->pix_fmt == PIX_FMT_YUV420P) 
     {
         return YCbCr422;

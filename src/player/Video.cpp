@@ -22,15 +22,17 @@
 #include "Video.h"
 #include "DisplayEngine.h"
 #include "Player.h"
-#include "AsyncVideoDecoder.h"
-#include "FFMpegDecoder.h"
 #include "ISurface.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
+
 #include "../graphics/Filterflipuv.h"
+
+#include "../video/AsyncVideoDecoder.h"
+#include "../video/FFMpegDecoder.h"
 
 #include <iostream>
 #include <sstream>
@@ -163,7 +165,7 @@ void Video::seek(int DestFrame)
 }
 
         
-void Video::open(DisplayEngine::YCbCrMode ycbcrMode)
+void Video::open(YCbCrMode ycbcrMode)
 {
     m_CurFrame = 0;
     if (m_bThreaded) {

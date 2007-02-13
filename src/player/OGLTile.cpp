@@ -112,7 +112,7 @@ void OGLTile::blt(const DPoint& TLPoint, const DPoint& TRPoint,
     } else {
         glproc::ActiveTexture(GL_TEXTURE0);
         glBindTexture(TextureMode, m_TexID[0]);
-        if (m_pEngine->getYCbCrMode() == SDLDisplayEngine::OGL_SHADER) {
+        if (m_pEngine->getYCbCrMode() == OGL_SHADER) {
             glproc::UseProgramObject(0);
         }
     }

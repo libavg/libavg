@@ -67,7 +67,7 @@ class DFBDisplayEngine: public DisplayEngine, public IEventSource
 
         virtual bool supportsBpp(int bpp);
         virtual bool hasRGBOrdering();
-        virtual DisplayEngine::YCbCrMode getYCbCrMode(); 
+        virtual YCbCrMode getYCbCrMode(); 
 
         virtual void showCursor (bool bShow);
         virtual BitmapPtr screenshot ();

@@ -108,7 +108,7 @@ double CameraNode::getFPS()
 
 }
 
-void CameraNode::open(DisplayEngine::YCbCrMode ycbcrMode)
+void CameraNode::open(YCbCrMode ycbcrMode)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     m_pCamera->open();

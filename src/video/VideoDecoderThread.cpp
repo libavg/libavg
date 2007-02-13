@@ -32,7 +32,7 @@ namespace avg {
 
 VideoDecoderThread::VideoDecoderThread(VideoMsgQueue& MsgQ, CmdQueue& CmdQ, 
         VideoDecoderPtr pDecoder, const std::string& sFilename, 
-        DisplayEngine::YCbCrMode ycbcrMode)
+        YCbCrMode ycbcrMode)
     : WorkerThread<VideoDecoderThread>("VideoDecoder", CmdQ),
       m_MsgQ(MsgQ),
       m_pDecoder(pDecoder),

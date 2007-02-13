@@ -127,11 +127,11 @@ BOOST_PYTHON_MODULE(avg)
         .export_values()
     ;
 
-    enum_<DisplayEngine::YCbCrMode>("YCbCrMode")
-        .value("shader", DisplayEngine::OGL_SHADER)
-        .value("mesa", DisplayEngine::OGL_MESA)
-        .value("apple", DisplayEngine::OGL_APPLE)
-        .value("none", DisplayEngine::NONE)
+    enum_<YCbCrMode>("YCbCrMode")
+        .value("shader", OGL_SHADER)
+        .value("mesa", OGL_MESA)
+        .value("apple", OGL_APPLE)
+        .value("none", OGL_NONE)
         .export_values()
     ;
 

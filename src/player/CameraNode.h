@@ -154,7 +154,7 @@ class CameraNode : public VideoBase
     private:
         virtual bool renderToSurface(ISurface * pSurface);
         virtual double getFPS();
-        virtual void open(DisplayEngine::YCbCrMode ycbcrMode);
+        virtual void open(YCbCrMode ycbcrMode);
         virtual void close();
         virtual PixelFormat getPixelFormat();
         void setFeature(int FeatureID);
