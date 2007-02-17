@@ -41,9 +41,12 @@ public:
 
     void runTests() 
     {
+        DeDistortPtr pTrafo;
+        DPoint offset;
+        DPoint scale;
         {
             TrackerCalibrator Calibrator(IntPoint(640, 480), 
-                IntRect(0,0,640,480), IntPoint(640,480));
+                    IntRect(0,0,640,480), IntPoint(640,480));
             bool bDone = false;
             while (!bDone) {
                 IntPoint DisplayPoint(Calibrator.getDisplayPointX(), 
@@ -51,17 +54,37 @@ public:
                 Calibrator.setCamPoint(DisplayPoint.x, DisplayPoint.y);
                 bDone = !Calibrator.nextPoint();
             }
-        DeDistortPtr Trafo =DeDistortPtr();
-        DPoint offset;
-        DPoint scale;
-        Calibrator.makeTransformer(Trafo, offset, scale);
-        cerr<<"offset ="<< offset<<" and scale "<<scale<<endl;
-            // TODO: test if Trafo is an identity transformer.
+            Calibrator.makeTransformer(pTrafo, scale, offset);
+            TEST(fabs(scale.x - 1.0)  < 0.001 && fabs(scale.y - 1.0) < 0.001);
+            TEST(offset.x < 0.0001 && offset.y < 0.0001);
+//            cerr << "scale: " << scale << ", offset: " << offset << endl;
+            TEST(checkTransform(pTrafo, DPoint(0,0), DPoint(0,0)));
+            TEST(checkTransform(pTrafo, DPoint(640, 480), DPoint(640, 480)));
         }
-        return;
         {
             TrackerCalibrator Calibrator(IntPoint(640, 480), 
-                IntRect(0,0,640,480), IntPoint(640,480));
+                    IntRect(0,0,640,480), IntPoint(1280,720));
+            bool bDone = false;
+            while (!bDone) {
+                IntPoint DisplayPoint(Calibrator.getDisplayPointX(), 
+                        Calibrator.getDisplayPointY());
+                Calibrator.setCamPoint(DisplayPoint.x*2, DisplayPoint.y*1.5);
+                bDone = !Calibrator.nextPoint();
+            }
+            Calibrator.makeTransformer(pTrafo, scale, offset);
+            TEST(fabs(scale.x - 2.0)  < 0.001 && fabs(scale.y - 1.5) < 0.001);
+            TEST(offset.x < 0.0001 && offset.y < 0.0001);
+//            cerr << "scale: " << scale << ", offset: " << offset << endl;
+            TEST(checkTransform(pTrafo, DPoint(0,0), DPoint(0,0)));
+            TEST(checkTransform(pTrafo, DPoint(640, 480), DPoint(640, 480)));
+//            TEST(checkScaleOffset(pTrafo, scale, offset, DPoint(0,0), DPoint(0,0)));
+//            TEST(checkScaleOffset(pTrafo, scale, offset, DPoint(640, 480), DPoint(1280, 720)));
+        }
+
+/*
+        {
+            TrackerCalibrator Calibrator(IntPoint(640, 480), 
+                    IntRect(0,0,640,480), IntPoint(640,480));
             bool bDone = false;
             while (!bDone) {
                 IntPoint DisplayPoint(Calibrator.getDisplayPointX(), 
@@ -69,14 +92,33 @@ public:
                 Calibrator.setCamPoint(DisplayPoint.x+DisplayPoint.y, DisplayPoint.y);
                 bDone = !Calibrator.nextPoint();
             }
-        DeDistortPtr Trafo =DeDistortPtr();
-        DPoint offset;
-        DPoint scale;
-        Calibrator.makeTransformer(Trafo, offset, scale);
-        cerr<<"offset ="<< offset<<" and scale "<<scale<<endl;
-
-            // TODO: test if Trafo is a trapezoid transformer.
+            Calibrator.makeTransformer(pTrafo, scale, offset);
+            cerr << "scale: " << scale << ", offset: " << offset << endl;
+            DPoint ScreenPt = pTrafo->transform_point(DPoint(0,0));
+            cerr << "(0,0) -> " << ScreenPt << endl;
+            ScreenPt = pTrafo->transform_point(DPoint(640, 480));
+            cerr << "(640, 480) -> " << ScreenPt << endl;
         }
+*/        
+    }
+
+    bool checkTransform(CoordTransformerPtr pTrafo, const DPoint& SrcPt, 
+            const DPoint& DestPt) 
+    {
+        DPoint ResultPt = pTrafo->transform_point(SrcPt);
+//        cerr << SrcPt << " -> " << ResultPt << ", expected " << DestPt << endl;
+        return (fabs(ResultPt.x-DestPt.x) < 0.1 && fabs(ResultPt.y-DestPt.y) < 0.1);
+    }
+
+    bool checkScaleOffset(CoordTransformerPtr pTrafo, 
+            const DPoint& Scale, const DPoint& Offset, 
+            const DPoint& SrcPt, const DPoint& DestPt)
+    {
+        DPoint ResultPt = pTrafo->transform_point(SrcPt);
+        ResultPt = DPoint(ResultPt.x*Scale.x, ResultPt.y*Scale.y);
+        ResultPt += Offset;
+        cerr << SrcPt << " -> " << ResultPt << ", expected " << DestPt << endl;
+        return (fabs(ResultPt.x-DestPt.x) < 0.1 && fabs(ResultPt.y-DestPt.y) < 0.1);
     }
    
 };
