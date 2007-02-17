@@ -55,8 +55,8 @@ public:
                 bDone = !Calibrator.nextPoint();
             }
             Calibrator.makeTransformer(pTrafo, scale, offset);
-            TEST(fabs(scale.x - 1.0)  < 0.001 && fabs(scale.y - 1.0) < 0.001);
-            TEST(offset.x < 0.0001 && offset.y < 0.0001);
+            TEST(fabs(scale.x - 1.0)  < 0.01 && fabs(scale.y - 1.0) < 0.01);
+            TEST(offset.x < 0.1 && offset.y < 0.1);
 //            cerr << "scale: " << scale << ", offset: " << offset << endl;
             TEST(checkTransform(pTrafo, DPoint(0,0), DPoint(0,0)));
             TEST(checkTransform(pTrafo, DPoint(640, 480), DPoint(640, 480)));
@@ -72,8 +72,8 @@ public:
                 bDone = !Calibrator.nextPoint();
             }
             Calibrator.makeTransformer(pTrafo, scale, offset);
-            TEST(fabs(scale.x - 2.0)  < 0.001 && fabs(scale.y - 1.5) < 0.001);
-            TEST(offset.x < 0.0001 && offset.y < 0.0001);
+            TEST(fabs(scale.x - 2.0)  < 0.01 && fabs(scale.y - 1.5) < 0.01);
+            TEST(offset.x < 0.1 && offset.y < 0.1);
 //            cerr << "scale: " << scale << ", offset: " << offset << endl;
             TEST(checkTransform(pTrafo, DPoint(0,0), DPoint(0,0)));
             TEST(checkTransform(pTrafo, DPoint(640, 480), DPoint(640, 480)));
@@ -107,7 +107,7 @@ public:
     {
         DPoint ResultPt = pTrafo->transform_point(SrcPt);
 //        cerr << SrcPt << " -> " << ResultPt << ", expected " << DestPt << endl;
-        return (fabs(ResultPt.x-DestPt.x) < 0.1 && fabs(ResultPt.y-DestPt.y) < 0.1);
+        return ((fabs(ResultPt.x-DestPt.x) < 0.1) && (fabs(ResultPt.y-DestPt.y) < 0.1));
     }
 
     bool checkScaleOffset(CoordTransformerPtr pTrafo, 
@@ -118,7 +118,7 @@ public:
         ResultPt = DPoint(ResultPt.x*Scale.x, ResultPt.y*Scale.y);
         ResultPt += Offset;
         cerr << SrcPt << " -> " << ResultPt << ", expected " << DestPt << endl;
-        return (fabs(ResultPt.x-DestPt.x) < 0.1 && fabs(ResultPt.y-DestPt.y) < 0.1);
+        return ((fabs(ResultPt.x-DestPt.x) < 0.1) && (fabs(ResultPt.y-DestPt.y) < 0.1));
     }
    
 };
