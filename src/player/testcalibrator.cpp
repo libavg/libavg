@@ -28,7 +28,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <math.h>
 using namespace avg;
 using namespace std;
 
@@ -68,7 +68,7 @@ public:
             while (!bDone) {
                 IntPoint DisplayPoint(Calibrator.getDisplayPointX(), 
                         Calibrator.getDisplayPointY());
-                Calibrator.setCamPoint(DisplayPoint.x*2, DisplayPoint.y*1.5);
+                Calibrator.setCamPoint(DisplayPoint.x/2, DisplayPoint.y/1.5);
                 bDone = !Calibrator.nextPoint();
             }
             Calibrator.makeTransformer(pTrafo, scale, offset);
@@ -77,8 +77,8 @@ public:
 //            cerr << "scale: " << scale << ", offset: " << offset << endl;
             TEST(checkTransform(pTrafo, DPoint(0,0), DPoint(0,0)));
             TEST(checkTransform(pTrafo, DPoint(640, 480), DPoint(640, 480)));
-//            TEST(checkScaleOffset(pTrafo, scale, offset, DPoint(0,0), DPoint(0,0)));
-//            TEST(checkScaleOffset(pTrafo, scale, offset, DPoint(640, 480), DPoint(1280, 720)));
+            TEST(checkScaleOffset(pTrafo, scale, offset, DPoint(0,0), DPoint(0,0)));
+            TEST(checkScaleOffset(pTrafo, scale, offset, DPoint(640, 480), DPoint(1280, 720)));
         }
 
 /*

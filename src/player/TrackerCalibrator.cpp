@@ -321,10 +321,12 @@ void lm_evaluate_tracker( double* p, int m_dat, double* fvec,
                     DPoint(1./data.FilmScale.x,1./data.FilmScale.y)
                     )
                 );
-        display_offset = DisplayDisplacement+data.FilmDisplacement;
+        display_scale = DPoint((DisplayScale.x*data.FilmScale.x), 
+                (DisplayScale.y*data.FilmScale.y));
+        display_offset = DisplayDisplacement + DPoint( display_scale.x*data.FilmDisplacement.x, display_scale.y*data.FilmDisplacement.y);
+        cerr << "display_offset= " << display_offset << 
+                ", display_scale = " << display_scale << endl;
         cerr << "DisplayDisplacement = " << DisplayDisplacement << 
                 ", data.FilmDisplacement = " << data.FilmDisplacement << endl;
-        display_scale = DPoint(1.0/(DisplayScale.x*data.FilmScale.x), 
-                1.0/(DisplayScale.y*data.FilmScale.y));
     }
 }
