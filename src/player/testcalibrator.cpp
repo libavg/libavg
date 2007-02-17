@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+
 using namespace avg;
 using namespace std;
 
@@ -81,25 +82,25 @@ public:
             TEST(checkScaleOffset(pTrafo, scale, offset, DPoint(640, 480), DPoint(1280, 720)));
         }
 
-/*
         {
             TrackerCalibrator Calibrator(IntPoint(640, 480), 
-                    IntRect(0,0,640,480), IntPoint(640,480));
+                    IntRect(320,240,640,480), IntPoint(320,240));
             bool bDone = false;
             while (!bDone) {
                 IntPoint DisplayPoint(Calibrator.getDisplayPointX(), 
                         Calibrator.getDisplayPointY());
-                Calibrator.setCamPoint(DisplayPoint.x+DisplayPoint.y, DisplayPoint.y);
+                Calibrator.setCamPoint(DisplayPoint.x+320, DisplayPoint.y+240);
                 bDone = !Calibrator.nextPoint();
             }
             Calibrator.makeTransformer(pTrafo, scale, offset);
-            cerr << "scale: " << scale << ", offset: " << offset << endl;
+//            cerr << "scale: " << scale << ", offset: " << offset << endl;
             DPoint ScreenPt = pTrafo->transform_point(DPoint(0,0));
-            cerr << "(0,0) -> " << ScreenPt << endl;
+//            cerr << "(0,0) -> " << ScreenPt << endl;
             ScreenPt = pTrafo->transform_point(DPoint(640, 480));
-            cerr << "(640, 480) -> " << ScreenPt << endl;
+//            cerr << "(640, 480) -> " << ScreenPt << endl;
+            TEST(checkScaleOffset(pTrafo, scale, offset, DPoint(320,240), DPoint(0,0)));
+            TEST(checkScaleOffset(pTrafo, scale, offset, DPoint(640, 480), DPoint(320,240)));
         }
-*/        
     }
 
     bool checkTransform(CoordTransformerPtr pTrafo, const DPoint& SrcPt, 
@@ -117,7 +118,7 @@ public:
         DPoint ResultPt = pTrafo->transform_point(SrcPt);
         ResultPt = DPoint(ResultPt.x*Scale.x, ResultPt.y*Scale.y);
         ResultPt += Offset;
-        cerr << SrcPt << " -> " << ResultPt << ", expected " << DestPt << endl;
+//        cerr << SrcPt << " -> " << ResultPt << ", expected " << DestPt << endl;
         return ((fabs(ResultPt.x-DestPt.x) < 0.1) && (fabs(ResultPt.y-DestPt.y) < 0.1));
     }
    

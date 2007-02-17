@@ -251,7 +251,8 @@ void lm_evaluate_tracker( double* p, int m_dat, double* fvec,
         m_bCurPointSet = true;
     }
 
-    void TrackerCalibrator::makeTransformer(DeDistortPtr &new_trafo, DPoint &display_scale, DPoint &display_offset)
+    void TrackerCalibrator::makeTransformer(DeDistortPtr &new_trafo, 
+            DPoint &display_scale, DPoint &display_offset)
     {
         lm_control_type control;
         CalibratorDataType data;
