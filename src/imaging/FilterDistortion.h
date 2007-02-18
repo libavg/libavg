@@ -24,7 +24,7 @@
 #ifndef _FilterDistortion_H_
 #define _FilterDistortion_H_
 
-#include "TrapezoidAndBarrel.h"
+#include "CoordTransformer.h"
 
 #include "../graphics/Filter.h"
 #include "../graphics/Point.h"

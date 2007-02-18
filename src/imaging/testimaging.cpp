@@ -56,7 +56,7 @@ class DeDistortTest: public Test {
             Params.push_back(0);
             Params.push_back(0);
             DeDistort IdentityDistort = DeDistort(DPoint(0,0), DPoint(1,1),
-                Params, DPoint3(0,0,0), DPoint3(0,0,1), 0.0, 0.0,
+                Params, 0.0, 0.0,
                 DPoint(0,0), DPoint(1,1));
             TEST(almostEqual(IdentityDistort.transform_point(DPoint(0,0)), DPoint(0,0)));
             TEST(almostEqual(IdentityDistort.transform_point(DPoint(1,2)), DPoint(1,2)));
@@ -68,7 +68,7 @@ class DeDistortTest: public Test {
                     DPoint(1,2)));
 
             DeDistort Scaler = DeDistort(DPoint(0,0), DPoint(2,2),
-                Params, DPoint3(0,0,0), DPoint3(0,0,1), 0, 0.0,
+                Params, 0, 0.0,
                 DPoint(0,0), DPoint(1,1));
             TEST(almostEqual(Scaler.transform_point(DPoint(0,0)), DPoint(0,0)));
             TEST(almostEqual(Scaler.transform_point(DPoint(1,2)), DPoint(2,4)));
@@ -76,7 +76,7 @@ class DeDistortTest: public Test {
             TEST(almostEqual(Scaler.inverse_transform_point(DPoint(1,2)), DPoint(0.5,1)));
 
             DeDistort Shifter = DeDistort(DPoint(1,1), DPoint(1,1),
-                Params, DPoint3(0,0,0), DPoint3(0,0,1), 0, 0.0,
+                Params, 0, 0.0,
                 DPoint(0,0), DPoint(1,1));
             TEST(almostEqual(Shifter.transform_point(DPoint(0,0)), DPoint(1,1)));
             TEST(almostEqual(Shifter.transform_point(DPoint(1,2)), DPoint(2,3)));
@@ -87,7 +87,7 @@ class DeDistortTest: public Test {
             Cubed.push_back(0);
             Cubed.push_back(1);
             DeDistort Barreler = DeDistort(DPoint(0,0), DPoint(1,1),
-                Cubed, DPoint3(0,0,0), DPoint3(0,0,1), 0, 0.0,
+                Cubed, 0, 0.0,
                 DPoint(0,0), DPoint(1,1));
             for (double xp=0;xp<10;xp++){
                 for(double yp=0;yp<10;yp++){
@@ -102,7 +102,7 @@ class DeDistortTest: public Test {
 //            TEST(almostEqual(Barreler.inverse_transform_point(DPoint(0,3)), DPoint(0,1)));
 
             DeDistort Rotator = DeDistort(DPoint(0,0), DPoint(1,1),
-                Params, DPoint3(0,0,0), DPoint3(0,0,1), 0, M_PI/2,
+                Params, 0, M_PI/2,
                 DPoint(0,0), DPoint(1,1));
             for (double xp=0;xp<10;xp++){
                 for(double yp=0;yp<10;yp++){
@@ -116,7 +116,7 @@ class DeDistortTest: public Test {
 //            TEST(almostEqual(Rotator.inverse_transform_point(DPoint(1,2)), DPoint(2,-1)));
 
             DeDistort ShifterScaler = DeDistort(DPoint(1,1), DPoint(2,2),
-                Params, DPoint3(0,0,0), DPoint3(0,0,1), 0, 0.0,
+                Params, 0, 0.0,
                 DPoint(0,0), DPoint(1,1));
             for (double xp=0;xp<10;xp++){
                 for(double yp=0;yp<10;yp++){
@@ -130,105 +130,6 @@ class DeDistortTest: public Test {
 //            TEST(almostEqual(ShifterScaler.inverse_transform_point(DPoint(1,2)), DPoint(0,0.5)));
             
     }
-};
-
-class DistortionTest: public Test {
-    public:
-        DistortionTest()
-          : Test("DistortionTest",2)
-        {}
-
-        void runTests()
-        {
-            {
-                cerr << "    Save and load TrackerConfig" << endl;
-                TrackerConfig Config;
-                Config.save("TempConfig.xml");
-                Config.load("TempConfig.xml");
-            }
-            cerr << "    Identical Transformer" << endl;
-            TrapezoidAndBarrel Transformer(IntRect(0,0,100,100), 0, 0, 1);
-            TEST(Transformer.transform_point(DPoint(0,0)) == DPoint(0,0));
-            TEST(Transformer.transform_point(DPoint(100,100)) == DPoint(100,100));
-            
-            cerr << "    Trapezoid Transformer 1" << endl;
-            TrapezoidAndBarrel TrapT(IntRect(0,0,100,100), 0, 1, 1);
-            DPoint TestPt(100,0);
-            testNullTransform(TrapT, TestPt);
-            TestPt = DPoint(0,0);
-            testNullTransform(TrapT, TestPt);
-            TestPt = DPoint(100,100);
-            testNullTransform(TrapT, TestPt);
-            TestPt = DPoint(100,50);
-            testNullTransform(TrapT, TestPt);
-            
-            cerr << "    Trapezoid Transformer 2" << endl;
-            TrapezoidAndBarrel TrapT1(IntRect(0,0,100,100), 0, 0.1, 1);
-            TestPt = DPoint(100,10);
-            testNullTransform(TrapT1, TestPt);
-
-            cerr << "    Barrel Transformer" << endl;
-            TrapezoidAndBarrel BarrelT(IntRect(0,0,100,100), 0.1, 0, 1.1);
-            TestPt = DPoint(100,0);
-            testNullTransform(BarrelT, TestPt);
-            TestPt = DPoint(0,0);
-            testNullTransform(BarrelT, TestPt);
-            TestPt = DPoint(50,0);
-            testNullTransform(BarrelT, TestPt);
-            TestPt = DPoint(0,50);
-            testNullTransform(BarrelT, TestPt);
-            TestPt = DPoint(23,42);
-            testNullTransform(BarrelT, TestPt);
-            TestPt = DPoint(0,0);
-            DPoint SamePt = BarrelT.transform_point(TestPt);
-            TEST(SamePt.x - TestPt.x < 0.001 && SamePt.y - TestPt.y < 0.001);
-            SamePt = BarrelT.inverse_transform_point(TestPt);
-            TEST(SamePt.x - TestPt.x < 0.001 && SamePt.y - TestPt.y < 0.001);
-            
-            cerr << "    Combined Transformer" << endl;
-            TrapezoidAndBarrel CombinedT(IntRect(0,0,100,100), 0.2, 0.1, 1.2);
-            TestPt = DPoint(100,0);
-            testNullTransform(BarrelT, TestPt);
-            TestPt = DPoint(0,100);
-            testNullTransform(BarrelT, TestPt);
-            TestPt = DPoint(0,50);
-            testNullTransform(BarrelT, TestPt);
-            TestPt = DPoint(23,42);
-            testNullTransform(BarrelT, TestPt);
-#if 0
-            BitmapPtr in_bmp = FilterGrayscale().apply(BitmapPtr(new Bitmap("testimages/squares.png")));
-            FilterDistortion BarrelFilter = FilterDistortion(in_bmp->getSize(),CoordTransformerPtr();
-            BitmapPtr pBarrelBmp = BarrelFilter.apply(in_bmp);
-            FilterDistortion TrapezoidFilter = FilterDistortion(in_bmp->getSize(),0,0.3);
-            BitmapPtr pTrapezoidBmp = TrapezoidFilter.apply(in_bmp);
-            FilterDistortion CombinedFilter = FilterDistortion(in_bmp->getSize(),0.08,0.08);
-            BitmapPtr pCombinedBmp = CombinedFilter.apply(in_bmp);
-#ifdef GENERATE_BASELINE
-            cerr << "    ---- WARNING: Generating new testimages images, not executing tests." 
-                    << endl;
-            pBarrelBmp->save("testimages/barrel.png");
-            pTrapezoidBmp->save("testimages/trapezoid.png");
-            pCombinedBmp->save("testimages/combined.png");
-#else
-            BitmapPtr pBarrelBaselineBmp = FilterGrayscale().apply(BitmapPtr(
-                    new Bitmap("testimages/barrel.png")));
-            TEST(*pBarrelBmp == *pBarrelBaselineBmp);
-            BitmapPtr pTrapezoidBaselineBmp = FilterGrayscale().apply(BitmapPtr(
-                    new Bitmap("testimages/trapezoid.png")));
-            TEST(*pTrapezoidBmp == *pTrapezoidBaselineBmp);
-            BitmapPtr pCombinedBaselineBmp = FilterGrayscale().apply(BitmapPtr(
-                    new Bitmap("testimages/combined.png")));
-            TEST(*pCombinedBmp == *pCombinedBaselineBmp);
-#endif
-#endif
-        }
-
-        void testNullTransform(CoordTransformer& T, DPoint& Pt)
-        {
-            DPoint TempPt = T.transform_point(Pt);
-            DPoint SamePt = T.inverse_transform_point(TempPt);
-            TEST(SamePt.x - Pt.x < 1 && SamePt.y - Pt.y < 1);
-        }
 };
 
 class TrackingTest: public Test, public IBlobTarget {
@@ -318,7 +219,6 @@ public:
     {
         addTest(TestPtr(new TrackingTest));
         addTest(TestPtr(new DeDistortTest));
-        addTest(TestPtr(new DistortionTest));
     }
 };
 

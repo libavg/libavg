@@ -42,7 +42,6 @@ namespace avg{
 //   * m_FilmDisplacement moves the optical axis back to the center of the image:
 //   * m_FilmScale scales the ROI to standard coords
 //   * m_pDistortionParams OPT see paper
-//   * m_P m_N OPT see paper
 //   * m_Angle corrects rotation of camera OPT
 //   * m_DisplayScale convert back from standard coords to display
 //   * m_DisplayDisplacement correct the offset of the display from the center of the table
@@ -58,22 +57,9 @@ void writePoint(xmlTextWriterPtr writer, string sName, DPoint& Val)
 
 }
 
-void writePoint3(xmlTextWriterPtr writer, string sName, DPoint3& Val)
-{
-    int rc;
-    rc = xmlTextWriterStartElement(writer, BAD_CAST sName.c_str());
-    writeAttribute(writer, "x", Val.x);
-    writeAttribute(writer, "y", Val.y);
-    writeAttribute(writer, "z", Val.z);
-    rc = xmlTextWriterEndElement(writer);
-
-}
-
 DeDistort::DeDistort()
     : m_FilmDisplacement(0,0),
       m_FilmScale(1,1),
-      m_P(0,0,0),
-      m_N(0,0,1),
       m_Angle(0.0),
       m_TrapezoidFactor(0),
       m_DisplayDisplacement(0,0),
@@ -85,14 +71,12 @@ DeDistort::DeDistort()
 }
 
 DeDistort::DeDistort(const DPoint& FilmDisplacement, const DPoint& FilmScale, 
-            const std::vector<double>& DistortionParams, const DPoint3& P, 
-            const DPoint3& N, double Angle, double TrapezoidFactor,
+            const std::vector<double>& DistortionParams,
+            double Angle, double TrapezoidFactor,
             const DPoint& DisplayDisplacement, const DPoint& DisplayScale)
     : m_FilmDisplacement(FilmDisplacement),
       m_FilmScale(FilmScale),
       m_DistortionParams(DistortionParams),
-      m_P(P),
-      m_N(N),
       m_Angle(Angle),
       m_TrapezoidFactor(TrapezoidFactor),
       m_DisplayDisplacement(DisplayDisplacement),
@@ -119,14 +103,6 @@ void DeDistort::load(xmlNodePtr pParentNode)
         } else if (!strcmp(pNodeName, "distortionparams")) {
             m_DistortionParams.push_back(getRequiredDoubleAttr(curXmlChild, "p2"));
             m_DistortionParams.push_back(getRequiredDoubleAttr(curXmlChild, "p3"));
-        } else if (!strcmp(pNodeName, "p")) {
-            m_P.x = getRequiredDoubleAttr(curXmlChild, "x");
-            m_P.y = getRequiredDoubleAttr(curXmlChild, "y");
-            m_P.z = getRequiredDoubleAttr(curXmlChild, "z");
-        } else if (!strcmp(pNodeName, "n")) {
-            m_N.x = getRequiredDoubleAttr(curXmlChild, "x");
-            m_N.y = getRequiredDoubleAttr(curXmlChild, "y");
-            m_N.z = getRequiredDoubleAttr(curXmlChild, "z");
         } else if (!strcmp(pNodeName, "trapezoid")) {
             m_TrapezoidFactor = getRequiredDoubleAttr(curXmlChild, "value");
         } else if (!strcmp(pNodeName, "angle")) {
@@ -153,8 +129,6 @@ void DeDistort::save(xmlTextWriterPtr writer)
     writeAttribute(writer, "p2", m_DistortionParams[0]);
     writeAttribute(writer, "p3", m_DistortionParams[1]);
     rc = xmlTextWriterEndElement(writer);
-    writePoint3(writer, "p", m_P);
-    writePoint3(writer, "n", m_N);
     writeSimpleXMLNode(writer, "trapezoid", m_TrapezoidFactor);
     writeSimpleXMLNode(writer, "angle", m_Angle);
     writePoint(writer, "displaydisplacement", m_DisplayDisplacement);
@@ -165,12 +139,10 @@ void DeDistort::save(xmlTextWriterPtr writer)
 DPoint DeDistort::inverse_transform_point(const DPoint &pt)
 {
 //    return inverse_undistort(m_DistortionParams, pt);
-//    return inverse_pinhole(m_P, m_N, pt);
     return translate(-m_FilmDisplacement,
             scale(DPoint(1./m_FilmScale.x, 1./m_FilmScale.y),
                 inverse_undistort(m_DistortionParams,
                     scale(m_RescaleFactor,
-//                        inverse_pinhole(m_P, m_N,
                         rotate(-m_Angle,
                             inv_trapezoid(m_TrapezoidFactor,
                                 scale(DPoint(1./m_DisplayScale.x, 1./m_DisplayScale.y),
@@ -192,7 +164,6 @@ DPoint DeDistort::transform_point(const DPoint &pt)
             scale(m_DisplayScale,  //scale back to real display resolution
                 trapezoid(m_TrapezoidFactor,
                     rotate(m_Angle, //rotate
-                    //pinhole(m_P, m_N, //apply pinhole
                         scale(1./m_RescaleFactor,
                             undistort(m_DistortionParams, //undistort;
                                 scale(m_FilmScale,  // scale to -1,-1,1,1
@@ -328,72 +299,6 @@ DPoint DeDistort::undistort(const std::vector<double> &params, const DPoint &pt)
     DPoint result = pt_norm*(S);
     //cerr<<"distort: "<< result <<endl;
     return result;
-}
-//apply a pinhole transformation to the point pt.
-
-DPoint DeDistort::inverse_pinhole(const DPoint3 &P, const DPoint3 &N, const DPoint &pt){
-    double n1=N.x;
-    double n2=N.y;
-    double n3=N.z;
-    double P1=P.x;
-    double P2=P.y;
-    double P3=P.z;
-    double x=pt.x;
-    double y=pt.y;
-    double a = ((n1*n3*P2-n2*n3*P1-n1*n3)*P3+n1*n2*P2*P2
-            +((n1*n1-n2*n2)*P1+n1*n2*(-y-1)
-                +(n3*n3+n2*n2)*x)
-            *P2-n1*n2*P1*P1
-            +(-n1*n1*y+n3*n3*(1-y)+n1*n2*x+n2*n2)*P1
-            +n1*n2*y+(-n3*n3-n2*n2)*x)
-        /((n3*P2+n3*P1-n3)*P3+n2*P2*P2
-                +((n2+n1)*P1+n2*(-y-1)-n1*x+n3*n3+n2*n2+n1*n1)*P2
-                +n1*P1*P1+(-n2*y-n1*x+n3*n3+n2*n2+n1*n1-n1)*P1+n2*y
-                +n1*x-n3*n3-n2*n2-n1*n1);
-    double b = -((n1*n3*P2-n2*n3*P1+n2*n3)*P3+n1*n2*P2*P2
-            +((n1*n1-n2*n2)*P1-n1*n2*y
-                +(n3*n3+n2*n2)*x-n3*n3
-                -n1*n1)
-            *P2-n1*n2*P1*P1
-            +(-n3*n3*y-n1*n1*y+n1*n2*x+n1*n2)*P1
-            +n3*n3*y+n1*n1*y-n1*n2*x)
-        /((n3*P2+n3*P1-n3)*P3+n2*P2*P2
-                +((n2+n1)*P1+n2*(-y-1)-n1*x+n3*n3+n2*n2+n1*n1)*P2
-                +n1*P1*P1+(-n2*y-n1*x+n3*n3+n2*n2+n1*n1-n1)*P1+n2*y
-                +n1*x-n3*n3-n2*n2-n1*n1);
-    return DPoint(a,b);
-}
-DPoint DeDistort::pinhole(const DPoint3& P, const DPoint3& N, const DPoint &pt)
-{
-    double n1=N.x;
-    double n2=N.y;
-    double n3=N.z;
-    double P1=P.x;
-    double P2=P.y;
-    double P3=P.z;
-    double a=pt.x;
-    double b=pt.y;
-
-    double x=1./(-a*n1 + -b*n2 + -n3*n3 + a*n1*P1 + b*n1*P1 + a*n2*P2 + b*n2*P2) * 
-        (
-         n3*n3*(-a + ((-1) + a + b)*P1) + 
-         (n1+P1) * (
-             n1*(-a + a*P1 + b*P1) + 
-             n2*( -b + a*P2 + b*P2)
-         ) +
-         n3*(-a + n1 + a*P1 + b*P1)*P3
-         );
-    double y=1./(-a*n1 + -b*n2 + -1*n3*n3 + a*n1*P1 + b*n1*P1 + a*n2*P2 + b*n2*P2) * 
-         (
-          n3*n3*(-b + ((-1)+a+b)*P2) + 
-          (n2+P2)* (
-              n1*(-a+ a*P1 + b*P1) + 
-              n2*(-b + a*P2 + b*P2)
-          ) + 
-          n3*(-b + n2 + a*P2 + b*P2)*P3
-          );
-
-    return DPoint(x,y);
 }
     
 }

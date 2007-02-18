@@ -37,29 +37,14 @@
 
 namespace avg {
 
-struct DPoint3 {
-    DPoint3()
-    {}
-
-    DPoint3(double ix, double iy, double iz)
-        : x(ix),
-          y(iy),
-          z(iz)
-    {}
-
-    double x;
-    double y;
-    double z;
-};
-
 void writePoint(xmlTextWriterPtr writer, std::string sName, DPoint& Val);
 
 class DeDistort: public CoordTransformer {
     public:
         DeDistort();
         DeDistort(const DPoint& FilmDisplacement, const DPoint& FilmScale, 
-            const std::vector<double>& DistortionParams, const DPoint3& P, 
-            const DPoint3& N, double Angle, double TrapezoidFactor,
+            const std::vector<double>& DistortionParams, 
+            double Angle, double TrapezoidFactor,
             const DPoint& DisplayDisplacement, const DPoint& DisplayScale);
         virtual ~DeDistort();
 
@@ -79,14 +64,10 @@ class DeDistort: public CoordTransformer {
         DPoint inv_trapezoid(const double trapezoid_factor, const DPoint &pt);
         DPoint translate(const DPoint &displacement, const DPoint &pt);
         DPoint rotate(double angle, const DPoint &pt);
-        DPoint inverse_pinhole(const DPoint3 &P, const DPoint3 &N, const DPoint &pt);
-        DPoint pinhole(const DPoint3& P, const DPoint3& N, const DPoint &pt);
 
         DPoint m_FilmDisplacement;
         DPoint m_FilmScale;
         std::vector<double> m_DistortionParams;
-        DPoint3 m_P;
-        DPoint3 m_N;
         double m_Angle;
         double m_TrapezoidFactor;
         DPoint m_DisplayDisplacement;

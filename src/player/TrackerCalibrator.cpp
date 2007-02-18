@@ -37,11 +37,6 @@ using namespace std;
 namespace avg {
     //void lm_print_tracker( int n_par, double* par, int m_dat, double* fvec,
     //                               void *data, int iflag, int iter, int nfev );
-    std::ostream& operator<<( std::ostream& os, const DPoint3 &p)
-    {
-        os << "(" << p.x << "," << p.y << ","<<p.z<<")";
-        return os;
-    };
 
     typedef struct {
         std::vector<IntPoint> DisplayPoints;
@@ -79,8 +74,6 @@ void lm_print_tracker( int n_par, double* p, int m_dat, double* fvec,
 //    DPoint DisplayDisplacement;
 //    DPoint DisplayScale;
     vector<double> unDistortionParams;
-    DPoint3 N;
-    DPoint3 P;
     double Angle;
     double Trapezoid;
     assert(n_par == 8);
@@ -92,12 +85,6 @@ void lm_print_tracker( int n_par, double* p, int m_dat, double* fvec,
     DisplayScale.y = p[3];
     unDistortionParams.push_back(fabs(p[4]));
     unDistortionParams.push_back(fabs(p[5]));
-    N.x = 0;
-    N.y = 0;
-    N.z = 1;
-    P.x = 0;
-    P.y = 0;
-    P.z = 0;
     Angle = p[6];
     Trapezoid = p[7];
 /*    
@@ -137,8 +124,6 @@ void lm_evaluate_tracker( double* p, int m_dat, double* fvec,
     std::vector<double> distort_params;
     distort_params.push_back(0);
     distort_params.push_back(0.1);
-    DPoint3  P = DPoint3(0,0,0); 
-    DPoint3 N = DPoint3(0,0,1); 
     double Angle = 0;
     double TrapezoidFactor = 0;
     DPoint DisplayDisplacement;
@@ -155,7 +140,6 @@ void lm_evaluate_tracker( double* p, int m_dat, double* fvec,
             new DeDistort(mydata->FilmDisplacement,
                 mydata->FilmScale,
                 distort_params,
-                P, N,
                 Angle,
                 TrapezoidFactor,
                 DisplayDisplacement,
@@ -280,8 +264,6 @@ void lm_evaluate_tracker( double* p, int m_dat, double* fvec,
         std::vector<double> unDistortionParams;
         unDistortionParams.push_back(0);
         unDistortionParams.push_back(0);
-        DPoint3 P = DPoint3(0,0,0); 
-        DPoint3 N = DPoint3(0,0,1); 
         double Angle = 0;
         double TrapezoidFactor = 0.2;
         DPoint DisplayDisplacement= DPoint(m_DisplayExtents)/2; 
@@ -315,7 +297,6 @@ void lm_evaluate_tracker( double* p, int m_dat, double* fvec,
                 new DeDistort(data.FilmDisplacement,
                     data.FilmScale,
                     unDistortionParams,
-                    P, N,
                     Angle,
                     TrapezoidFactor,
                     -data.FilmDisplacement,
