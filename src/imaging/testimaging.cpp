@@ -62,8 +62,10 @@ class DeDistortTest: public Test {
             TEST(almostEqual(IdentityDistort.transform_point(DPoint(1,2)), DPoint(1,2)));
 //            cerr << IdentityDistort.inverse_transform_point(DPoint(0,0)) << endl;
 //            cerr << IdentityDistort.transform_point(DPoint(1,2)) << endl;
-            TEST(almostEqual(IdentityDistort.inverse_transform_point(DPoint(0,0)), DPoint(0,0)));
-            TEST(almostEqual(IdentityDistort.inverse_transform_point(DPoint(1,2)), DPoint(1,2)));
+            TEST(almostEqual(IdentityDistort.inverse_transform_point(DPoint(0,0)), 
+                    DPoint(0,0)));
+            TEST(almostEqual(IdentityDistort.inverse_transform_point(DPoint(1,2)), 
+                    DPoint(1,2)));
 
             DeDistort Scaler = DeDistort(DPoint(0,0), DPoint(2,2),
                 Params, DPoint3(0,0,0), DPoint3(0,0,1), 0, 0.0,
@@ -89,7 +91,8 @@ class DeDistortTest: public Test {
                 DPoint(0,0), DPoint(1,1));
             for (double xp=0;xp<10;xp++){
                 for(double yp=0;yp<10;yp++){
-                    TEST(almostEqual(Barreler.inverse_transform_point(Barreler.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
+                    TEST(almostEqual(Barreler.inverse_transform_point(
+                            Barreler.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
                 }
             TEST(almostEqual(Barreler.transform_point(DPoint(1,1)), DPoint(1,1)));
             }
@@ -103,7 +106,8 @@ class DeDistortTest: public Test {
                 DPoint(0,0), DPoint(1,1));
             for (double xp=0;xp<10;xp++){
                 for(double yp=0;yp<10;yp++){
-                    TEST(almostEqual(Rotator.inverse_transform_point(Rotator.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
+                    TEST(almostEqual(Rotator.inverse_transform_point(
+                            Rotator.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
                 }
             }
 //           TEST(almostEqual(Rotator.transform_point(DPoint(0,0)), DPoint(0,0)));
@@ -116,7 +120,8 @@ class DeDistortTest: public Test {
                 DPoint(0,0), DPoint(1,1));
             for (double xp=0;xp<10;xp++){
                 for(double yp=0;yp<10;yp++){
-                    TEST(almostEqual(ShifterScaler.inverse_transform_point(ShifterScaler.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
+                    TEST(almostEqual(ShifterScaler.inverse_transform_point(
+                            ShifterScaler.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
                 }
             }
 //            TEST(almostEqual(ShifterScaler.transform_point(DPoint(0,0)), DPoint(2,2)));
@@ -135,6 +140,12 @@ class DistortionTest: public Test {
 
         void runTests()
         {
+            {
+                cerr << "    Save and load TrackerConfig" << endl;
+                TrackerConfig Config;
+                Config.save("TempConfig.xml");
+                Config.load("TempConfig.xml");
+            }
             cerr << "    Identical Transformer" << endl;
             TrapezoidAndBarrel Transformer(IntRect(0,0,100,100), 0, 0, 1);
             TEST(Transformer.transform_point(DPoint(0,0)) == DPoint(0,0));

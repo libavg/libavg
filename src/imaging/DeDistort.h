@@ -33,6 +33,7 @@
 #include <libxml/xmlwriter.h>
 
 #include <vector>
+#include <string>
 
 namespace avg {
 
@@ -50,6 +51,8 @@ struct DPoint3 {
     double y;
     double z;
 };
+
+void writePoint(xmlTextWriterPtr writer, std::string sName, DPoint& Val);
 
 class DeDistort: public CoordTransformer {
     public:

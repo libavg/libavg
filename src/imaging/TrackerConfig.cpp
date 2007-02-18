@@ -47,8 +47,10 @@ namespace avg {
     }
 
     TrackerConfig::TrackerConfig()
-        : m_Brightness(128),
+        : m_ROI(0,0,1,1),
+          m_Brightness(128),
           m_Exposure(128),
+          m_Gamma(1),
           m_Gain(128),
           m_Shutter(128),
           m_Threshold(20),
@@ -111,9 +113,13 @@ namespace avg {
                 m_EccentricityBounds[1] = getRequiredDoubleAttr(curXmlChild, "max");
             } else if (!strcmp(pNodeName, "transform")) {
                 m_pTrafo->load(curXmlChild);
+            } else if (!strcmp(pNodeName, "displayoffset")) {
+                m_DisplayOffset.x = getRequiredIntAttr(curXmlChild, "x");
+                m_DisplayOffset.y = getRequiredIntAttr(curXmlChild, "y");
+            } else if (!strcmp(pNodeName, "displayscale")) {
+                m_DisplayScale.x = getRequiredIntAttr(curXmlChild, "x");
+                m_DisplayScale.y = getRequiredIntAttr(curXmlChild, "y");
             }
-            //FIXME
-            //load TrackerEventSource::m_Offset,m_Scale
             curXmlChild = curXmlChild->next;
         }
     }
@@ -140,8 +146,8 @@ namespace avg {
         writeSimpleXMLNode(writer, "similarity", m_Similarity);
         writeMinMaxXMLNode(writer, "areabounds", m_AreaBounds);
         writeMinMaxXMLNode(writer, "eccentricitybounds", m_EccentricityBounds);
-        //FIXME
-        //save TrackerEventSource::m_Offset,m_Scale
+        writePoint(writer, "displayoffset", m_DisplayOffset);
+        writePoint(writer, "displayscale", m_DisplayScale);
         m_pTrafo->save(writer);
         rc = xmlTextWriterEndElement(writer);
         rc = xmlTextWriterEndDocument(writer);
