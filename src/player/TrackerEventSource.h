@@ -93,7 +93,7 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
 
     private:
         bool isfinger(BlobPtr blob);
-        BlobPtr matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold);
+        BlobList::iterator matchblob(BlobPtr old_blob, BlobListPtr new_blobs, double threshold);
         void setConfig();
         void handleROIChange();
 
