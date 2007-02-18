@@ -81,6 +81,7 @@ DeDistort::DeDistort()
 {
     m_DistortionParams.push_back(0);
     m_DistortionParams.push_back(0);
+    m_RescaleFactor = calc_rescale();
 }
 
 DeDistort::DeDistort(const DPoint& FilmDisplacement, const DPoint& FilmScale, 
