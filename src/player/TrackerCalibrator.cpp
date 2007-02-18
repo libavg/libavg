@@ -264,9 +264,9 @@ void lm_evaluate_tracker( double* p, int m_dat, double* fvec,
         lm_initialize_control( &control );
         control.maxcall=1000;
         control.epsilon=1e-6;
-        control.ftol = 1e-3;
-        control.xtol = 1e-3;
-        control.gtol = 1e-2;
+        control.ftol = 1e-4;
+        control.xtol = 1e-4;
+        control.gtol = 1e-4;
         unsigned int dat = m_DisplayPoints.size();
         assert(dat == m_CamPoints.size());
        
