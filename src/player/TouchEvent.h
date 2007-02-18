@@ -39,9 +39,7 @@ namespace avg {
 class TouchEvent: public CursorEvent 
 {
     public:
-        //REFACTORME: offset/scale -> CoordTransformer
-        TouchEvent(int id, Type EventType, BlobInfoPtr info, BlobPtr blob, 
-                DPoint& Offset, DPoint& Scale);
+        TouchEvent(int id, Type EventType, BlobInfoPtr info, IntPoint& Pos);
         virtual Event* cloneAs(Type EventType);
 
         double getOrientation() const {return m_Info->m_Orientation;};
@@ -51,16 +49,11 @@ class TouchEvent: public CursorEvent
         DPoint getCenter() const {return m_Info->m_Center;};
         double getEccentricity() const {return m_Info->m_Eccentricity;};
         DPoint getEigenValues() const {return m_Info->m_EigenValues;};
-        //BitmapPtr getBitmap();
         //DPoint[2] getScaledBasis(){return m_Info.m_ScaledBasis;};
         virtual void trace();
     
-    protected:
-        BlobInfoPtr m_Info;
-        BlobPtr m_Blob;
-
     private:
-        IntPoint transformPoint(DPoint& pt, DPoint& Offset, DPoint& Scale);
+        BlobInfoPtr m_Info;
 };
 
 }

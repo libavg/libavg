@@ -150,22 +150,26 @@ namespace avg {
     Event* EventStream::pollevent(DPoint& Offset, DPoint& Scale)
     {
         assert(m_pBlob);
+        DPoint pt = m_pBlob->getInfo()->m_Center;
+        IntPoint Pos = IntPoint(
+                int(round(pt.x*Scale.x+Offset.x)), 
+                int(round(pt.y*Scale.y+Offset.y))); 
         switch(m_State){
             case DOWN_PENDING:
                 m_State = DOWN_DELIVERED;
                 return new TouchEvent(m_Id, Event::TOUCHDOWN,
-                        (m_pBlob->getInfo()), m_pBlob, Offset, Scale);
+                        (m_pBlob->getInfo()), Pos);
 
                 break;
             case MOTION_PENDING:
                 m_State = MOTION_DELIVERED;
                 return new TouchEvent(m_Id, Event::TOUCHMOTION,
-                        (m_pBlob->getInfo()), m_pBlob, Offset, Scale);
+                        (m_pBlob->getInfo()), Pos);
                 break;
             case UP_PENDING:
                 m_State = UP_DELIVERED;
                 return new TouchEvent(m_Id, Event::TOUCHUP,
-                        (m_pBlob->getInfo()), m_pBlob, Offset, Scale);
+                        (m_pBlob->getInfo()), Pos);
                 break;
             case DOWN_DELIVERED:
             case MOTION_DELIVERED:
