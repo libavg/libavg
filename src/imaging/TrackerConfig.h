@@ -57,7 +57,8 @@ struct TrackerConfig
     bool m_bCreateFingerImage;
 
     DeDistortPtr m_pTrafo;
-
+    DPoint m_DisplayOffset;
+    DPoint m_DisplayScale;
 };
 
 }

@@ -54,7 +54,9 @@ namespace avg {
           m_Threshold(20),
           m_HistoryUpdateInterval(5),
           m_Similarity(31),
-          m_pTrafo(new DeDistort())
+          m_pTrafo(new DeDistort()),
+          m_DisplayOffset(0,0),
+          m_DisplayScale(1,1)
     {
           m_AreaBounds[0] = 80;
           m_AreaBounds[1] = 450;
@@ -110,6 +112,8 @@ namespace avg {
             } else if (!strcmp(pNodeName, "transform")) {
                 m_pTrafo->load(curXmlChild);
             }
+            //FIXME
+            //load TrackerEventSource::m_Offset,m_Scale
             curXmlChild = curXmlChild->next;
         }
     }
@@ -136,6 +140,8 @@ namespace avg {
         writeSimpleXMLNode(writer, "similarity", m_Similarity);
         writeMinMaxXMLNode(writer, "areabounds", m_AreaBounds);
         writeMinMaxXMLNode(writer, "eccentricitybounds", m_EccentricityBounds);
+        //FIXME
+        //save TrackerEventSource::m_Offset,m_Scale
         m_pTrafo->save(writer);
         rc = xmlTextWriterEndElement(writer);
         rc = xmlTextWriterEndDocument(writer);

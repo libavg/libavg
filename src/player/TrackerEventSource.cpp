@@ -391,20 +391,19 @@ namespace avg {
         return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
     }
 
-    BlobList::iterator TrackerEventSource::matchblob(BlobPtr old_blob, BlobListPtr new_blobs, double threshold)
+    BlobPtr TrackerEventSource::matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold)
     {
-        //return an iterator object in new_blobs for the the matching new_blob or new_blobs->end()
-        assert(old_blob);
-        std::vector<BlobList::iterator> candidates;
-        BlobList::iterator res;
-        for(BlobList::iterator it=new_blobs->begin();it!=new_blobs->end();++it)
+        assert(new_blob);
+        std::vector<BlobPtr> candidates;
+        BlobPtr res;
+        for(BlobList::iterator it=old_blobs->begin();it!=old_blobs->end();++it)
         {
-            if (distance( (*it), old_blob)<threshold) 
-                candidates.push_back( it );
+            if (distance( (*it), new_blob)<threshold) 
+                candidates.push_back( (*it) );
         }
         switch (candidates.size()) {
             case 0:
-                res = new_blobs->end();
+                res = BlobPtr();
                 break;
             case 1:
                 res = candidates[0];
@@ -412,8 +411,8 @@ namespace avg {
             default:
                 //FIXME duplicate calculation of distance should be eliminated...
                 double act=1e10, tmp;
-                for(std::vector<BlobList::iterator>::iterator it=candidates.begin();it!=candidates.end();++it){
-                    if ((tmp = distance( *(*it), old_blob))<act){
+                for(std::vector<BlobPtr>::iterator it=candidates.begin();it!=candidates.end();++it){
+                    if ((tmp = distance( (*it), new_blob))<act){
                         res = (*it);
                         act = tmp;
                     }
@@ -447,11 +446,7 @@ namespace avg {
             old_blobs->push_back((*it).first);
         }
         int known_counter=0, new_counter=0, ignored_counter=0; 
-        // 2. For each old_blob choose the best match of an new blob and update its event stream accordingly
-        // 3. update map m_Events accordingly.
-        // 4. remove matched new_blob row from the array by zeroing.
-        // 3. Everything still left is a new event
-        for(BlobList::iterator it2 = old_blobs->begin();it2!=old_blobs->end();++it2){
+        for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2){
             if (!isfinger(*it2)){
                 if (pBitmap) {
                     (*it2)->render(&*pBitmap, 
@@ -466,19 +461,27 @@ namespace avg {
                             Pixel32(0x00, 0x00, 0xFF, 0xFF)); 
                 }
             }
-            BlobList::iterator new_match = matchblob((*it2), new_blobs, m_TrackerConfig.m_Similarity);
-            if(new_match!=new_blobs->end()){
-                //this blob has a valid successor
+            BlobPtr old_match = matchblob((*it2), old_blobs, m_TrackerConfig.m_Similarity);
+            if (old_match && (m_Events.find(old_match) == m_Events.end())) {
+                //..but the blob already disappeared from the map
+                //=>EventStream already updated
+                old_match = BlobPtr();
+            }
+            if(old_match){
+                //this blob has been identified with an old one
                 known_counter++;
-                e = m_Events.find(*it2)->second;
-                e->update( (*new_match) );
+                e = m_Events.find(old_match)->second;
+                e->update( (*it2) );
                 //update the mapping!
-                m_Events[(*new_match)] = e;
-                m_Events.erase(*it2);
-                *new_match = BlobPtr();//mark as removed
-            }  
+                m_Events[(*it2)] = e;
+                m_Events.erase(old_match);
+            } else {
+                new_counter++;
+                //this is a new one
+                m_Events[(*it2)] = EventStreamPtr( new EventStream((*it2)) ) ;
+            }
         }
-
+        //       AVG_TRACE(Logger::EVENTS2, "matched blobs: "<<known_counter<<"; new blobs: "<<new_counter<<"; ignored: "<<ignored_counter);
         int gone_counter = 0;
         for(EventMap::iterator it3=m_Events.begin();it3!=m_Events.end();++it3){
             //all event streams that are still stale haven't been updated: blob is gone, send the sentinel for this.
@@ -487,14 +490,7 @@ namespace avg {
                 gone_counter++;
             }
         }
-        for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2){
-            if(*it2) {
-                m_Events[*it2] = EventStreamPtr(new EventStream(*it2));
-                new_counter++;
-            }
-        }
 
-        //       AVG_TRACE(Logger::EVENTS2, "matched blobs: "<<known_counter<<"; new blobs: "<<new_counter<<"; ignored: "<<ignored_counter);
         //       AVG_TRACE(Logger::EVENTS2, ""<<gone_counter<<" fingers disappeared.");
     };
         
@@ -504,8 +500,12 @@ namespace avg {
         assert(!m_pCalibrator);
         m_pOldTransformer = m_TrackerConfig.m_pTrafo; 
         m_OldROI = m_TrackerConfig.m_ROI;
+        m_OldScale = m_TrackerConfig.m_DisplayScale;
+        m_OldOffset = m_TrackerConfig.m_DisplayOffset;
         m_TrackerConfig.m_ROI = IntRect(IntPoint(0,0), m_pBitmaps[0]->getSize());
         m_TrackerConfig.m_pTrafo = DeDistortPtr(new DeDistort());
+        m_TrackerConfig.m_DisplayScale = DPoint(1,1);
+        m_TrackerConfig.m_DisplayOffset = DPoint(0,0);
         setConfig();
         handleROIChange();
         m_pCalibrator = new TrackerCalibrator(m_pBitmaps[0]->getSize(),
@@ -517,7 +517,9 @@ namespace avg {
     void TrackerEventSource::endCalibration()
     {
         assert(m_pCalibrator);
-        m_pCalibrator->makeTransformer(m_TrackerConfig.m_pTrafo, m_Offset, m_Scale); //OUT parameter!
+        m_pCalibrator->makeTransformer(m_TrackerConfig.m_pTrafo, 
+                m_TrackerConfig.m_DisplayOffset, 
+                m_TrackerConfig.m_DisplayScale); //OUT parameter!
         m_TrackerConfig.m_ROI = m_OldROI;
         setConfig();
         handleROIChange();
@@ -531,6 +533,8 @@ namespace avg {
         assert(m_pCalibrator);
         m_TrackerConfig.m_pTrafo = m_pOldTransformer;
         m_TrackerConfig.m_ROI = m_OldROI;
+        m_TrackerConfig.m_DisplayScale = m_OldScale;
+        m_TrackerConfig.m_DisplayOffset = m_OldOffset;
         setConfig();
         handleROIChange();
         m_pOldTransformer = DeDistortPtr();
@@ -545,7 +549,9 @@ namespace avg {
         Event *t;
         int kill_counter = 0;
         for (EventMap::iterator it = m_Events.begin(); it!= m_Events.end();){
-            t = (*it).second->pollevent(m_Offset, m_Scale);
+            t = (*it).second->pollevent(
+                    m_TrackerConfig.m_DisplayOffset, 
+                    m_TrackerConfig.m_DisplayScale);
             if (t) res.push_back(t);
             if ((*it).second->m_State == EventStream::UP_DELIVERED){
                 m_Events.erase(it++);
