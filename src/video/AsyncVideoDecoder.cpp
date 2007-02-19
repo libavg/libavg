@@ -22,6 +22,7 @@
 #include "AsyncVideoDecoder.h"
 #include "EOFVideoMsg.h"
 #include "InfoVideoMsg.h"
+#include "ErrorVideoMsg.h"
 
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
@@ -58,7 +59,8 @@ void AsyncVideoDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode)
 void AsyncVideoDecoder::close()
 {
     if (m_pDecoderThread) {
-        m_pCmdQ->push(Command<VideoDecoderThread>(boost::bind(&VideoDecoderThread::stop, _1)));
+        m_pCmdQ->push(Command<VideoDecoderThread>(boost::bind(
+                &VideoDecoderThread::stop, _1)));
         m_pDecoderThread->join();
         delete m_pDecoderThread;
         m_pDecoderThread = 0;
@@ -130,11 +132,18 @@ void AsyncVideoDecoder::getInfoMsg()
 {
     VideoMsgPtr pMsg = m_pMsgQ->pop(true);
     InfoVideoMsgPtr pInfoMsg = dynamic_pointer_cast<InfoVideoMsg>(pMsg);
-    assert(pInfoMsg); // The first message in the queue should be an info message.
-    m_Size = pInfoMsg->getSize();
-    m_NumFrames = pInfoMsg->getNumFrames();
-    m_FPS = pInfoMsg->getFPS();
-    m_PF = pInfoMsg->getPF();
+    ErrorVideoMsgPtr pErrorMsg(dynamic_pointer_cast<ErrorVideoMsg>(pMsg));
+    if (pErrorMsg) {
+        close();
+        throw(pErrorMsg->getException());
+    } else {
+        assert(pInfoMsg); // The first message sent by the decoder thread after open
+        // should be an info or error message.
+        m_Size = pInfoMsg->getSize();
+        m_NumFrames = pInfoMsg->getNumFrames();
+        m_FPS = pInfoMsg->getFPS();
+        m_PF = pInfoMsg->getPF();
+    }
 }
 
 FrameVideoMsgPtr AsyncVideoDecoder::getNextBmps()
@@ -143,12 +152,17 @@ FrameVideoMsgPtr AsyncVideoDecoder::getNextBmps()
         VideoMsgPtr pMsg = m_pMsgQ->pop(false);
         FrameVideoMsgPtr pFrameMsg = dynamic_pointer_cast<FrameVideoMsg>(pMsg);
         while (!pFrameMsg) {
-            EOFVideoMsgPtr pEOFMsg;
-            if (pEOFMsg = dynamic_pointer_cast<EOFVideoMsg>(pMsg)) {
+            EOFVideoMsgPtr pEOFMsg(dynamic_pointer_cast<EOFVideoMsg>(pMsg));
+            ErrorVideoMsgPtr pErrorMsg(dynamic_pointer_cast<ErrorVideoMsg>(pMsg));
+            if (pEOFMsg) {
                 m_bEOF = true;
                 return FrameVideoMsgPtr();
+            } else if(pErrorMsg) {
+                m_bEOF = true;
+                close();
+                return FrameVideoMsgPtr();
             } else {
-                // Only Frames or EOF should arrive here.
+                // Unhandled message type.
                 assert(false);
             }
             VideoMsgPtr pMsg = m_pMsgQ->pop(false);

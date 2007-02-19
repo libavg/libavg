@@ -22,6 +22,7 @@
 #include "VideoDecoderThread.h"
 #include "FrameVideoMsg.h"
 #include "InfoVideoMsg.h"
+#include "ErrorVideoMsg.h"
 #include "EOFVideoMsg.h"
 
 #include "../base/Logger.h"
@@ -50,13 +51,14 @@ bool VideoDecoderThread::init()
     try {
         m_pDecoder->open(m_sFilename, m_YCbCrMode);
         PixelFormat PF = m_pDecoder->getPixelFormat();
-        VideoMsgPtr pInfoMsg(new InfoVideoMsg(m_pDecoder->getSize(), m_pDecoder->getNumFrames(),
-                m_pDecoder->getFPS(), PF));
+        VideoMsgPtr pInfoMsg(new InfoVideoMsg(m_pDecoder->getSize(), 
+                m_pDecoder->getNumFrames(), m_pDecoder->getFPS(), PF));
         m_MsgQ.push(pInfoMsg);
         return true;
     } catch (Exception& ex) {
-//        push exception on MsgQ.
         AVG_TRACE(Logger::ERROR, ex.GetStr());
+        ErrorVideoMsgPtr pErrorMsg(new ErrorVideoMsg(ex));
+        m_MsgQ.push(pErrorMsg);
         return false;
     }
 };
