@@ -46,9 +46,25 @@ public:
 
     void makeTransformer(DeDistortPtr &new_trafo, DPoint &display_scale, DPoint &display_offset);
 
-private:
-    //double fit_function(double t, double* p );
+    //actually these two should not really be public. They are not part of the public interface 
+    //of TrackerCalibrator.
+    //private:
+    //FIXME make lm_print_tracker and lm_evaluate_tracker friends of
+    //class TrackerCalibrator
+    void evaluate_tracker(double *p, int m_dat, double *fvec, int* info);
+    void print_tracker(int n_par, double *p, int m_dat, 
+            double *fvec, int iflag, int iter, int nfev);
 
+private:
+    void initThisFromDouble(double *p);
+    std::vector<double> m_DistortParams;
+    double m_Angle;
+    DPoint m_FilmScale;
+    DPoint m_FilmOffset;
+    DPoint m_DisplayScale;
+    DPoint m_DisplayOffset;
+    double m_TrapezoidFactor;
+    DeDistortPtr m_CurrentTrafo;
     unsigned int m_CurPoint;
     std::vector<IntPoint> m_DisplayPoints;
     std::vector<DPoint> m_CamPoints;

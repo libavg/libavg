@@ -35,17 +35,6 @@ using namespace std;
 #define MIN_DIST_FROM_BORDER 30
 
 namespace avg {
-    //void lm_print_tracker( int n_par, double* par, int m_dat, double* fvec,
-    //                               void *data, int iflag, int iter, int nfev );
-
-    typedef struct {
-        std::vector<IntPoint> DisplayPoints;
-        std::vector<DPoint> CamPoints;
-        DPoint FilmDisplacement;
-        DPoint FilmScale;
-        CoordTransformerPtr CurrentTrafo;
-        //double (*user_func)( std::vector<IntPoint> &DisplayPoints, std::vector<DPoint> &CamPoints);
-    } CalibratorDataType;
 
 
 void lm_print_tracker( int n_par, double* p, int m_dat, double* fvec, 
@@ -58,9 +47,21 @@ void lm_print_tracker( int n_par, double* p, int m_dat, double* fvec,
  *       nfev  : number of calls to *evaluate
  */
 {
-    CalibratorDataType *mydata;
-    mydata = static_cast<CalibratorDataType*>(data);
-/*
+    TrackerCalibrator *mydata;
+    mydata = static_cast<TrackerCalibrator*>(data);
+    mydata->print_tracker(n_par, p, m_dat, fvec, iflag, iter, nfev);
+
+}
+void lm_evaluate_tracker( double* p, int m_dat, double* fvec,
+                                  void *data, int *info ) {
+    TrackerCalibrator *mydata = static_cast<TrackerCalibrator*>(data);
+    mydata->evaluate_tracker(p, m_dat, fvec, info);
+
+}
+
+void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat, 
+        double *fvec, int iflag, int iter, int nfev){
+#ifdef DEBUG_FIT
     if (iflag==2) {
         printf ("trying step in gradient direction\n");
     } else if (iflag==1) {
@@ -70,107 +71,19 @@ void lm_print_tracker( int n_par, double* p, int m_dat, double* fvec,
     } else if (iflag==-1) {
         printf ("terminated after %d evaluations\n", nfev);
     }
-*/
-//    DPoint DisplayDisplacement;
-//    DPoint DisplayScale;
-    vector<double> unDistortionParams;
-    double Angle;
-    double Trapezoid;
+#endif
     assert(n_par == 8);
-    DPoint DisplayDisplacement;
-    DPoint DisplayScale;
-    DisplayDisplacement.x = p[0]; 
-    DisplayDisplacement.y = p[1];
-    DisplayScale.x = p[2];
-    DisplayScale.y = p[3];
-    unDistortionParams.push_back(fabs(p[4]));
-    unDistortionParams.push_back(fabs(p[5]));
-    Angle = p[6];
-    Trapezoid = p[7];
-/*    
-    cerr<<" DisplayDisplacement = "<<DisplayDisplacement;
-    cerr<<" DisplayScale = "<<DisplayScale;
-    cerr<<" FilmDisplacement = "<<mydata->FilmDisplacement;
-    cerr<<" FilmScale = "<<mydata->FilmScale;
-    cerr<<" unDistortionParams = "<<DPoint(unDistortionParams[0], unDistortionParams[1]);
-    cerr<<" Trapezoid = "<<Trapezoid;
-    cerr<<" angle = "<<Angle;
+#ifdef DEBUG_FIT
+    cerr<<" DisplayDisplacement = "<<m_DisplayDisplacement;
+    cerr<<" DisplayScale = "<<m_DisplayScale;
+    cerr<<" FilmDisplacement = "<<m_FilmDisplacement;
+    cerr<<" FilmScale = "<<m_FilmScale;
+    cerr<<" unDistortionParams = "<<DPoint(m_DistortionParams[0], m_DistortionParams[1]);
+    cerr<<" Trapezoid = "<<m_TrapezoidFactor;
+    cerr<<" angle = "<<m_Angle;
     cerr<<" => norm: "<< lm_enorm( m_dat, fvec )<<endl;
-*/
-#if 0
-    double f, y, t;
-    int i;
-    printf( "  par: " );
-    for( i=0; i<n_par; ++i )
-        printf( " %12g", par[i] );
-    printf ( " => norm: %12g\n", lm_enorm( m_dat, fvec ) );
-    if ( iflag == -1 ) {
-        printf( "  fitting data as follows:\n" );
-        for( i=0; i<m_dat; ++i ) {
-            t = (mydata->user_t)[i];
-            y = (mydata->user_y)[i];
-            f = mydata->user_func( t, par );
-            printf( "    t[%2d]=%12g y=%12g fit=%12g residue=%12g\n",
-                    i, t, y, f, y-f );
-        }
-    }
 #endif
 }
-void lm_evaluate_tracker( double* p, int m_dat, double* fvec,
-                                  void *data, int *info ) {
-    int i;
-    CalibratorDataType *mydata;
-    mydata = static_cast<CalibratorDataType*>(data);
-    std::vector<double> distort_params;
-    distort_params.push_back(0);
-    distort_params.push_back(0.1);
-    double Angle = 0;
-    double TrapezoidFactor = 0;
-    DPoint DisplayDisplacement;
-    DPoint DisplayScale;
-    DisplayDisplacement.x = p[0]; 
-    DisplayDisplacement.y = p[1];
-    DisplayScale.x = p[2];
-    DisplayScale.y = p[3];
-    distort_params[0] = fabs(p[4]);
-    distort_params[1] = fabs(p[5]);
-    Angle = p[6];
-    TrapezoidFactor = p[7];
-    mydata->CurrentTrafo = DeDistortPtr( 
-            new DeDistort(mydata->FilmDisplacement,
-                mydata->FilmScale,
-                distort_params,
-                Angle,
-                TrapezoidFactor,
-                DisplayDisplacement,
-                DisplayScale
-                )
-            );
-
-//            DisplayDisplacement.x, 
-//            DisplayDisplacement.y, 
-//            DisplayScale.x, 
-//            DisplayScale.y,
-//            DistortionParams[0],
-//            DistortionParams[1],
-//            Angle,
-//            Trapezoid
-//        };
-        
-//    mydata->CurrentTrafo = DeDistort();//FIXME
-/*
-    for(int i=0;i<=15;i+=5) {
-        cerr<<"sample value of trafo of "<<mydata->CamPoints[i]<<" : "<<mydata->CurrentTrafo->transform_point(mydata->CamPoints[i])<<" dist="<<calcDist(DPoint(mydata->DisplayPoints[i]), mydata->CurrentTrafo->transform_point(mydata->CamPoints[i]));
-        cerr<<"==?"<<DPoint(mydata->DisplayPoints[i])<<endl;
-    }
-*/    
-    for (i=0; i<m_dat; i++){
-        fvec[i] = calcDist(mydata->CurrentTrafo->transform_point(mydata->CamPoints[i]), DPoint(mydata->DisplayPoints[i])); 
-    }
-    *info = *info; /* to prevent a 'unused variable' warning */
-    /* if <parameters drifted away> { *info = -1; } */
-}
-
     TrackerCalibrator::TrackerCalibrator(const IntPoint& CamExtents, 
             const IntRect& ROI, const IntPoint& DisplayExtents)
         : m_CurPoint(0),
@@ -234,16 +147,56 @@ void lm_evaluate_tracker( double* p, int m_dat, double* fvec,
         m_CamPoints[m_CurPoint] = DPoint(x, y);
         m_bCurPointSet = true;
     }
+    void TrackerCalibrator::initThisFromDouble(double *p){
+        m_DisplayOffset.x = p[0]; 
+        m_DisplayOffset.y = p[1];
+        m_DisplayScale.x = p[2];
+        m_DisplayScale.y = p[3];
+        m_DistortParams.clear();
+        m_DistortParams.push_back( p[4] );
+        m_DistortParams.push_back( p[5]);
+        m_Angle = p[6];
+        m_TrapezoidFactor = p[7];
+    }
+
+    void TrackerCalibrator::evaluate_tracker(double *p, int m_dat, double* fvec, int* info){
+        initThisFromDouble(p);
+        m_CurrentTrafo = DeDistortPtr( 
+                new DeDistort(m_FilmOffset,
+                    m_FilmScale,
+                    m_DistortParams,
+                    m_Angle,
+                    m_TrapezoidFactor,
+                    m_DisplayOffset,
+                    m_DisplayScale
+                    )
+                );
+
+#ifdef DEBUG_FIT
+        for(int i=0;i<=15;i+=5) {
+            cerr<<"sample value of trafo of "
+                <<mydata->CamPoints[i]<<" : "
+                <<mydata->CurrentTrafo->transform_point(mydata->CamPoints[i])
+                <<" dist="
+                <<calcDist(DPoint(mydata->DisplayPoints[i]), mydata->CurrentTrafo->transform_point(mydata->CamPoints[i]))
+            <<"=="<<
+            <<DPoint(mydata->DisplayPoints[i])
+            <<endl;
+        }
+#endif 
+        for (int i=0; i<m_dat; i++){
+            fvec[i] = calcDist(m_CurrentTrafo->transform_point(m_CamPoints[i]), DPoint(m_DisplayPoints[i])); 
+        }
+        *info = *info; /* to prevent a 'unused variable' warning */
+        /* if <parameters drifted away> { *info = -1; } */
+    }
 
     void TrackerCalibrator::makeTransformer(DeDistortPtr &new_trafo, 
             DPoint &display_scale, DPoint &display_offset)
     {
         lm_control_type control;
-        CalibratorDataType data;
         
-        data.DisplayPoints = m_DisplayPoints;
-        data.CamPoints = m_CamPoints;
-        data.CurrentTrafo = DeDistortPtr();
+        m_CurrentTrafo = DeDistortPtr();
 
         lm_initialize_control( &control );
         control.maxcall=1000;
@@ -253,62 +206,54 @@ void lm_evaluate_tracker( double* p, int m_dat, double* fvec,
         control.gtol = 1e-4;
         unsigned int dat = m_DisplayPoints.size();
         assert(dat == m_CamPoints.size());
-       
+      
+        //fill in reasonable defaults
         DPoint center = DPoint(m_ROI.Center());
         double w = m_ROI.Width();
         double h = m_ROI.Height();
-        data.FilmDisplacement= -DPoint(m_CamExtents)/2+DPoint(m_ROI.tl); 
-        data.FilmScale = DPoint(2./w,2./h);
-//        cerr<<"film displacement "<<data.FilmDisplacement;
-//        cerr<<"film scale "<<data.FilmScale<<endl;
-        std::vector<double> unDistortionParams;
-        unDistortionParams.push_back(0);
-        unDistortionParams.push_back(0);
-        double Angle = 0;
-        double TrapezoidFactor = 0.2;
-        DPoint DisplayDisplacement= DPoint(m_DisplayExtents)/2; 
-        DPoint DisplayScale = DPoint(m_DisplayExtents)/2;
+        m_FilmOffset = -DPoint(m_CamExtents)/2+DPoint(m_ROI.tl); 
+        m_FilmScale = DPoint(2./w,2./h);
+        m_DistortParams.push_back(0);
+        m_DistortParams.push_back(0);
+        m_Angle = 0;
+        m_TrapezoidFactor = 0.2;
+        m_DisplayOffset= DPoint(m_DisplayExtents)/2; 
+        m_DisplayScale = DPoint(m_DisplayExtents)/2;
 
         int n_p = 8;
         double p[] = {
-            DisplayDisplacement.x, 
-            DisplayDisplacement.y, 
-            DisplayScale.x, 
-            DisplayScale.y,
-            unDistortionParams[0],
-            unDistortionParams[1],
-            Angle,
-            TrapezoidFactor
+            m_DisplayOffset.x, 
+            m_DisplayOffset.y, 
+            m_DisplayScale.x, 
+            m_DisplayScale.y,
+            m_DistortParams[0],
+            m_DistortParams[1],
+            m_Angle,
+            m_TrapezoidFactor
         };
+        initThisFromDouble(p);
         lm_minimize(dat, n_p, p, lm_evaluate_tracker, lm_print_tracker,
-                     &data, &control );
-        DisplayDisplacement.x = p[0];
-        DisplayDisplacement.y = p[1];
-        DisplayScale.x = p[2];
-        DisplayScale.y = p[3];
-        unDistortionParams[0] = p[4];
-        unDistortionParams[1] = p[5];
-        Angle = p[6];
-        TrapezoidFactor = p[7];
+                     this, &control );
         //feed the out variables
         //FIXME displacement and scaling splitting between the CoordTrafo (used in TrackerThread)
         //and display_offset, display_scale (used in EventStream::pollevent)
+        initThisFromDouble(p);
         new_trafo = DeDistortPtr( 
-                new DeDistort(data.FilmDisplacement,
-                    data.FilmScale,
-                    unDistortionParams,
-                    Angle,
-                    TrapezoidFactor,
-                    -data.FilmDisplacement,
-                    DPoint(1./data.FilmScale.x,1./data.FilmScale.y)
+                new DeDistort(m_FilmOffset,
+                    m_FilmScale,
+                    m_DistortParams,
+                    m_Angle,
+                    m_TrapezoidFactor,
+                    -m_FilmOffset,
+                    DPoint(1./m_FilmScale.x,1./m_FilmScale.y)
                     )
                 );
-        display_scale = DPoint((DisplayScale.x*data.FilmScale.x), 
-                (DisplayScale.y*data.FilmScale.y));
-        display_offset = DisplayDisplacement + DPoint( display_scale.x*data.FilmDisplacement.x, display_scale.y*data.FilmDisplacement.y);
+        display_scale = DPoint((m_DisplayScale.x*m_FilmScale.x), 
+                (m_DisplayScale.y*m_FilmScale.y));
+        display_offset = m_DisplayOffset+ DPoint( display_scale.x*m_FilmOffset.x, display_scale.y*m_FilmOffset.y);
         cerr << "display_offset= " << display_offset << 
                 ", display_scale = " << display_scale << endl;
-        cerr << "DisplayDisplacement = " << DisplayDisplacement << 
-                ", data.FilmDisplacement = " << data.FilmDisplacement << endl;
+        cerr << "DisplayOffset = " << m_DisplayOffset << 
+                ", data.FilmOffset = " << m_FilmOffset << endl;
     }
 }
