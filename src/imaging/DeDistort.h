@@ -42,17 +42,28 @@ void writePoint(xmlTextWriterPtr writer, std::string sName, DPoint& Val);
 class DeDistort: public CoordTransformer {
     public:
         DeDistort();
-        DeDistort(const DPoint& FilmDisplacement, const DPoint& FilmScale, 
+        DeDistort(const DRect &ROI, const DPoint &CameraExtents,
             const std::vector<double>& DistortionParams, 
             double Angle, double TrapezoidFactor,
-            const DPoint& DisplayDisplacement, const DPoint& DisplayScale);
+            const DPoint& DisplayOffset, const DPoint& DisplayScale);
+        
+
+        DeDistort(const DPoint& FilmOffset, const DPoint& FilmScale, 
+            const std::vector<double>& DistortionParams, 
+            double Angle, double TrapezoidFactor,
+            const DPoint& DisplayOffset, const DPoint& DisplayScale);
         virtual ~DeDistort();
+
+
+
+        DPoint transformBlobToScreen(const DPoint &pt);
+        DPoint transformScreenToBlob(const DPoint &pt);
+        virtual DPoint transform_point(const DPoint & pt); //(x,y) -> (x', y')
+        virtual DPoint inverse_transform_point(const DPoint & pt); //(x,y) -> (x', y')
 
         void load(xmlNodePtr pParentNode);
         void save(xmlTextWriterPtr writer);
 
-        virtual DPoint transform_point(const DPoint & pt); //(x,y) -> (x', y')
-        virtual DPoint inverse_transform_point(const DPoint & pt); //(x,y) -> (x', y')
     
     private:
         double calc_rescale();
@@ -65,12 +76,12 @@ class DeDistort: public CoordTransformer {
         DPoint translate(const DPoint &displacement, const DPoint &pt);
         DPoint rotate(double angle, const DPoint &pt);
 
-        DPoint m_FilmDisplacement;
+        DPoint m_FilmOffset;
         DPoint m_FilmScale;
         std::vector<double> m_DistortionParams;
         double m_Angle;
         double m_TrapezoidFactor;
-        DPoint m_DisplayDisplacement;
+        DPoint m_DisplayOffset;
         DPoint m_DisplayScale;
         
         double m_RescaleFactor;

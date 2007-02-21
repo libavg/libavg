@@ -39,12 +39,12 @@ namespace avg{
 //   a lot of parameters enter here, some of which can be calculated/set manually, 
 //   some of which need to be determined via an optimization procedure
 //
-//   * m_FilmDisplacement moves the optical axis back to the center of the image:
+//   * m_FilmOffset moves the optical axis back to the center of the image:
 //   * m_FilmScale scales the ROI to standard coords
 //   * m_pDistortionParams OPT see paper
 //   * m_Angle corrects rotation of camera OPT
 //   * m_DisplayScale convert back from standard coords to display
-//   * m_DisplayDisplacement correct the offset of the display from the center of the table
+//   * m_DisplayOffset correct the offset of the display from the center of the table
 //     
 
 void writePoint(xmlTextWriterPtr writer, string sName, DPoint& Val)
@@ -58,11 +58,11 @@ void writePoint(xmlTextWriterPtr writer, string sName, DPoint& Val)
 }
 
 DeDistort::DeDistort()
-    : m_FilmDisplacement(0,0),
+    : m_FilmOffset(0,0),
       m_FilmScale(1,1),
       m_Angle(0.0),
       m_TrapezoidFactor(0),
-      m_DisplayDisplacement(0,0),
+      m_DisplayOffset(0,0),
       m_DisplayScale(1,1)
 {
     m_DistortionParams.push_back(0);
@@ -70,16 +70,33 @@ DeDistort::DeDistort()
     m_RescaleFactor = calc_rescale();
 }
 
-DeDistort::DeDistort(const DPoint& FilmDisplacement, const DPoint& FilmScale, 
+DeDistort::DeDistort(const DRect &ROI, const DPoint &CamExtents,
             const std::vector<double>& DistortionParams,
             double Angle, double TrapezoidFactor,
-            const DPoint& DisplayDisplacement, const DPoint& DisplayScale)
-    : m_FilmDisplacement(FilmDisplacement),
+            const DPoint& DisplayOffset, const DPoint& DisplayScale)
+      : m_DistortionParams(DistortionParams),
+      m_Angle(Angle),
+      m_TrapezoidFactor(TrapezoidFactor),
+      m_DisplayOffset(DisplayOffset),
+      m_DisplayScale(DisplayScale)
+{
+    double w = ROI.Width();
+    double h = ROI.Height();
+    m_FilmOffset = -CamExtents/2+DPoint(ROI.tl); 
+    m_FilmScale = DPoint(2./w,2./h);
+    m_RescaleFactor = calc_rescale();
+}
+
+DeDistort::DeDistort(const DPoint& FilmOffset, const DPoint& FilmScale, 
+            const std::vector<double>& DistortionParams,
+            double Angle, double TrapezoidFactor,
+            const DPoint& DisplayOffset, const DPoint& DisplayScale)
+    : m_FilmOffset(FilmOffset),
       m_FilmScale(FilmScale),
       m_DistortionParams(DistortionParams),
       m_Angle(Angle),
       m_TrapezoidFactor(TrapezoidFactor),
-      m_DisplayDisplacement(DisplayDisplacement),
+      m_DisplayOffset(DisplayOffset),
       m_DisplayScale(DisplayScale)
 {
     m_RescaleFactor = calc_rescale();
@@ -95,8 +112,8 @@ void DeDistort::load(xmlNodePtr pParentNode)
     while (curXmlChild) {
         const char * pNodeName = (const char *)curXmlChild->name;
         if (!strcmp(pNodeName, "cameradisplacement")) {
-            m_FilmDisplacement.x = getRequiredDoubleAttr(curXmlChild, "x");
-            m_FilmDisplacement.y = getRequiredDoubleAttr(curXmlChild, "y");
+            m_FilmOffset.x = getRequiredDoubleAttr(curXmlChild, "x");
+            m_FilmOffset.y = getRequiredDoubleAttr(curXmlChild, "y");
         } else if (!strcmp(pNodeName, "camerascale")) {
             m_FilmScale.x = getRequiredDoubleAttr(curXmlChild, "x");
             m_FilmScale.y = getRequiredDoubleAttr(curXmlChild, "y");
@@ -108,8 +125,8 @@ void DeDistort::load(xmlNodePtr pParentNode)
         } else if (!strcmp(pNodeName, "angle")) {
             m_Angle = getRequiredDoubleAttr(curXmlChild, "value");
         } else if (!strcmp(pNodeName, "displaydisplacement")) {
-            m_DisplayDisplacement.x = getRequiredDoubleAttr(curXmlChild, "x");
-            m_DisplayDisplacement.y = getRequiredDoubleAttr(curXmlChild, "y");
+            m_DisplayOffset.x = getRequiredDoubleAttr(curXmlChild, "x");
+            m_DisplayOffset.y = getRequiredDoubleAttr(curXmlChild, "y");
         } else if (!strcmp(pNodeName, "displayscale")) {
             m_DisplayScale.x = getRequiredDoubleAttr(curXmlChild, "x");
             m_DisplayScale.y = getRequiredDoubleAttr(curXmlChild, "y");
@@ -123,7 +140,7 @@ void DeDistort::save(xmlTextWriterPtr writer)
 {
     int rc;
     rc = xmlTextWriterStartElement(writer, BAD_CAST "transform");
-    writePoint(writer, "cameradisplacement", m_FilmDisplacement);
+    writePoint(writer, "cameradisplacement", m_FilmOffset);
     writePoint(writer, "camerascale", m_FilmScale);
     rc = xmlTextWriterStartElement(writer, BAD_CAST "distortionparams");
     writeAttribute(writer, "p2", m_DistortionParams[0]);
@@ -131,22 +148,31 @@ void DeDistort::save(xmlTextWriterPtr writer)
     rc = xmlTextWriterEndElement(writer);
     writeSimpleXMLNode(writer, "trapezoid", m_TrapezoidFactor);
     writeSimpleXMLNode(writer, "angle", m_Angle);
-    writePoint(writer, "displaydisplacement", m_DisplayDisplacement);
+    writePoint(writer, "displaydisplacement", m_DisplayOffset);
     writePoint(writer, "displayscale", m_DisplayScale);
     rc = xmlTextWriterEndElement(writer);
+}
+
+DPoint DeDistort::transformScreenToBlob(const DPoint &pt){
+    return 
+        scale(DPoint(1/m_DisplayScale.x, 1/m_DisplayScale.y),  //scale back to real display resolution
+            translate(-m_DisplayOffset, //translate 0,0 to center of display
+                pt
+                )
+            );
 }
 
 DPoint DeDistort::inverse_transform_point(const DPoint &pt)
 {
 //    return inverse_undistort(m_DistortionParams, pt);
-    return translate(-m_FilmDisplacement,
+    return translate(-m_FilmOffset,
             scale(DPoint(1./m_FilmScale.x, 1./m_FilmScale.y),
                 inverse_undistort(m_DistortionParams,
                     scale(m_RescaleFactor,
                         rotate(-m_Angle,
                             inv_trapezoid(m_TrapezoidFactor,
-                                scale(DPoint(1./m_DisplayScale.x, 1./m_DisplayScale.y),
-                                    translate(-m_DisplayDisplacement,
+                                scale(m_FilmScale,
+                                    translate(m_FilmOffset,
                                         pt
                                         )
                                     )
@@ -158,25 +184,35 @@ DPoint DeDistort::inverse_transform_point(const DPoint &pt)
             );
 }
 
+DPoint DeDistort::transformBlobToScreen(const DPoint &pt){
+    return 
+        translate(m_DisplayOffset, //translate 0,0 to center of display
+                scale(m_DisplayScale,  //scale back to real display resolution
+                    pt
+                    )
+                );
+
+}      
 DPoint DeDistort::transform_point(const DPoint &pt)
 {
-    return translate(m_DisplayDisplacement, //translate 0,0 to center of display
-            scale(m_DisplayScale,  //scale back to real display resolution
-                trapezoid(m_TrapezoidFactor,
-                    rotate(m_Angle, //rotate
-                        scale(1./m_RescaleFactor,
-                            undistort(m_DistortionParams, //undistort;
-                                scale(m_FilmScale,  // scale to -1,-1,1,1
-                                    translate(m_FilmDisplacement, // move optical axis to (0,0) 
-                                        pt 
+    return
+        translate(-m_FilmOffset,
+                scale(DPoint(1./m_FilmScale.x, 1./m_FilmScale.y),
+                    trapezoid(m_TrapezoidFactor,
+                        rotate(m_Angle, //rotate
+                            scale(1./m_RescaleFactor,
+                                undistort(m_DistortionParams, //undistort;
+                                    scale(m_FilmScale,  // scale to -1,-1,1,1
+                                        translate(m_FilmOffset, // move optical axis to (0,0) 
+                                            pt 
+                                            )
                                         )
                                     )
                                 )
                             )
                         )
                     )
-                )
-            );
+                );
 }
 
 DPoint DeDistort::inv_trapezoid(const double trapezoid_factor, const DPoint &pt)
