@@ -44,7 +44,7 @@ public:
     int getDisplayPointY();
     void setCamPoint(double x, double y);
 
-    void makeTransformer(DeDistortPtr &new_trafo, DPoint &display_scale, DPoint &display_offset);
+    DeDistortPtr makeTransformer();
 
     //actually these two should not really be public. They are not part of the public interface 
     //of TrackerCalibrator.
@@ -59,8 +59,6 @@ private:
     void initThisFromDouble(double *p);
     std::vector<double> m_DistortParams;
     double m_Angle;
-    DPoint m_FilmScale;
-    DPoint m_FilmOffset;
     DPoint m_DisplayScale;
     DPoint m_DisplayOffset;
     double m_TrapezoidFactor;

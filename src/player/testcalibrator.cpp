@@ -20,6 +20,7 @@
 //
 
 #include "../graphics/Rect.h"
+#include "../graphics/Point.h"
 #include "TrackerCalibrator.h"
 
 #include "../base/TestSuite.h"
@@ -43,8 +44,6 @@ public:
     void runTests() 
     {
         DeDistortPtr pTrafo;
-        DPoint offset;
-        DPoint scale;
         {
             TrackerCalibrator Calibrator(IntPoint(640, 480), 
                     IntRect(0,0,640,480), IntPoint(640,480));
@@ -55,9 +54,8 @@ public:
                 Calibrator.setCamPoint(DisplayPoint.x, DisplayPoint.y);
                 bDone = !Calibrator.nextPoint();
             }
-            Calibrator.makeTransformer(pTrafo, scale, offset);
-            TEST(fabs(scale.x - 1.0)  < 0.01 && fabs(scale.y - 1.0) < 0.01);
-            TEST(offset.x < 0.1 && offset.y < 0.1);
+            pTrafo = Calibrator.makeTransformer();
+            TEST(  calcDist(pTrafo->transformBlobToScreen( DPoint(1.00,1.00) ) , DPoint(1.00,1.00)));
 //            cerr << "scale: " << scale << ", offset: " << offset << endl;
             TEST(checkTransform(pTrafo, DPoint(0,0), DPoint(0,0)));
             TEST(checkTransform(pTrafo, DPoint(640, 480), DPoint(640, 480)));
@@ -72,14 +70,13 @@ public:
                 Calibrator.setCamPoint(DisplayPoint.x/2, DisplayPoint.y/1.5);
                 bDone = !Calibrator.nextPoint();
             }
-            Calibrator.makeTransformer(pTrafo, scale, offset);
-            TEST(fabs(scale.x - 2.0)  < 0.01 && fabs(scale.y - 1.5) < 0.01);
-            TEST(offset.x < 0.1 && offset.y < 0.1);
+            pTrafo = Calibrator.makeTransformer();
+            TEST(  calcDist( pTrafo->transformBlobToScreen( DPoint(1.00,1.00) ), DPoint(2.00,1.50))  );
 //            cerr << "scale: " << scale << ", offset: " << offset << endl;
             TEST(checkTransform(pTrafo, DPoint(0,0), DPoint(0,0)));
             TEST(checkTransform(pTrafo, DPoint(640, 480), DPoint(640, 480)));
-            TEST(checkScaleOffset(pTrafo, scale, offset, DPoint(0,0), DPoint(0,0)));
-            TEST(checkScaleOffset(pTrafo, scale, offset, DPoint(640, 480), DPoint(1280, 720)));
+            TEST(checkBlobToScreen(pTrafo, DPoint(0,0), DPoint(0,0)));
+            TEST(checkBlobToScreen(pTrafo, DPoint(640, 480), DPoint(1280, 720)));
         }
 
         {
@@ -92,14 +89,11 @@ public:
                 Calibrator.setCamPoint(DisplayPoint.x+320, DisplayPoint.y+240);
                 bDone = !Calibrator.nextPoint();
             }
-            Calibrator.makeTransformer(pTrafo, scale, offset);
-//            cerr << "scale: " << scale << ", offset: " << offset << endl;
+            pTrafo = Calibrator.makeTransformer();
             DPoint ScreenPt = pTrafo->transform_point(DPoint(0,0));
-//            cerr << "(0,0) -> " << ScreenPt << endl;
             ScreenPt = pTrafo->transform_point(DPoint(640, 480));
-//            cerr << "(640, 480) -> " << ScreenPt << endl;
-            TEST(checkScaleOffset(pTrafo, scale, offset, DPoint(320,240), DPoint(0,0)));
-            TEST(checkScaleOffset(pTrafo, scale, offset, DPoint(640, 480), DPoint(320,240)));
+            TEST(checkBlobToScreen(pTrafo, DPoint(320,240), DPoint(0,0)));
+            TEST(checkBlobToScreen(pTrafo, DPoint(640, 480), DPoint(320,240)));
         }
     }
 
@@ -111,13 +105,10 @@ public:
         return ((fabs(ResultPt.x-DestPt.x) < 0.1) && (fabs(ResultPt.y-DestPt.y) < 0.1));
     }
 
-    bool checkScaleOffset(CoordTransformerPtr pTrafo, 
-            const DPoint& Scale, const DPoint& Offset, 
+    bool checkBlobToScreen(DeDistortPtr pTrafo, 
             const DPoint& SrcPt, const DPoint& DestPt)
     {
-        DPoint ResultPt = pTrafo->transform_point(SrcPt);
-        ResultPt = DPoint(ResultPt.x*Scale.x, ResultPt.y*Scale.y);
-        ResultPt += Offset;
+        DPoint ResultPt = pTrafo->transformBlobToScreen(pTrafo->transform_point(SrcPt));
 //        cerr << SrcPt << " -> " << ResultPt << ", expected " << DestPt << endl;
         return ((fabs(ResultPt.x-DestPt.x) < 0.1) && (fabs(ResultPt.y-DestPt.y) < 0.1));
     }

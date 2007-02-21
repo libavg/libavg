@@ -58,7 +58,7 @@ namespace avg {
         public:
             EventStream(BlobPtr first_blob);
             void update(BlobPtr new_blob);
-            Event* pollevent(DPoint& Offset, DPoint& Scale);
+            Event* pollevent(DeDistortPtr trafo);
             enum StreamState {
                 DOWN_PENDING, //fresh stream. not polled yet
                 DOWN_DELIVERED, //initial finger down delivered
@@ -147,13 +147,14 @@ namespace avg {
     };
 
     //REFACTORME: replace offset/scale with CoordTransformer
-    Event* EventStream::pollevent(DPoint& Offset, DPoint& Scale)
+    Event* EventStream::pollevent(DeDistortPtr trafo)
     {
         assert(m_pBlob);
         DPoint pt = m_pBlob->getInfo()->m_Center;
+        DPoint screenpos = trafo->transformBlobToScreen(pt);
         IntPoint Pos = IntPoint(
-                int(round(pt.x*Scale.x+Offset.x)), 
-                int(round(pt.y*Scale.y+Offset.y))); 
+                int(round(screenpos.x)), 
+                int(round(screenpos.y))); 
         switch(m_State){
             case DOWN_PENDING:
                 m_State = DOWN_DELIVERED;
@@ -508,8 +509,6 @@ namespace avg {
         m_OldOffset = m_TrackerConfig.m_DisplayOffset;
         m_TrackerConfig.m_ROI = IntRect(IntPoint(0,0), m_pBitmaps[0]->getSize());
         m_TrackerConfig.m_pTrafo = DeDistortPtr(new DeDistort());
-        m_TrackerConfig.m_DisplayScale = DPoint(1,1);
-        m_TrackerConfig.m_DisplayOffset = DPoint(0,0);
         setConfig();
         handleROIChange();
         m_pCalibrator = new TrackerCalibrator(m_pBitmaps[0]->getSize(),
@@ -521,9 +520,7 @@ namespace avg {
     void TrackerEventSource::endCalibration()
     {
         assert(m_pCalibrator);
-        m_pCalibrator->makeTransformer(m_TrackerConfig.m_pTrafo, 
-                m_TrackerConfig.m_DisplayOffset, 
-                m_TrackerConfig.m_DisplayScale); //OUT parameter!
+        m_TrackerConfig.m_pTrafo = m_pCalibrator->makeTransformer();
         m_TrackerConfig.m_ROI = m_OldROI;
         setConfig();
         handleROIChange();
@@ -537,8 +534,6 @@ namespace avg {
         assert(m_pCalibrator);
         m_TrackerConfig.m_pTrafo = m_pOldTransformer;
         m_TrackerConfig.m_ROI = m_OldROI;
-        m_TrackerConfig.m_DisplayScale = m_OldScale;
-        m_TrackerConfig.m_DisplayOffset = m_OldOffset;
         setConfig();
         handleROIChange();
         m_pOldTransformer = DeDistortPtr();
@@ -553,9 +548,7 @@ namespace avg {
         Event *t;
         int kill_counter = 0;
         for (EventMap::iterator it = m_Events.begin(); it!= m_Events.end();){
-            t = (*it).second->pollevent(
-                    m_TrackerConfig.m_DisplayOffset, 
-                    m_TrackerConfig.m_DisplayScale);
+            t = (*it).second->pollevent(m_TrackerConfig.m_pTrafo);
             if (t) res.push_back(t);
             if ((*it).second->m_State == EventStream::UP_DELIVERED){
                 m_Events.erase(it++);
