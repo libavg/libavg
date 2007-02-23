@@ -146,37 +146,46 @@ deactMouseOverCalled = False
 
 def mainMouseUp():
     global mainMouseUpCalled
+    assert (Player.getCurEvent().type == avg.MOUSEBUTTONUP)
     mainMouseUpCalled = True
 
 def mainMouseDown():
     global mainMouseDownCalled
+    assert (Player.getCurEvent().type == avg.MOUSEBUTTONDOWN)
     mainMouseDownCalled = True
 
 def onMouseMove1():
+    assert (Player.getCurEvent().type == avg.MOUSEMOTION)
     print "onMouseMove1"
 
 def onMouseUp1():
     global mouseUp1Called
+    assert (Player.getCurEvent().type == avg.MOUSEBUTTONUP)
     mouseUp1Called = True
 
 def onMouseDown1():
     global mouseDown1Called
+    assert (Player.getCurEvent().type == avg.MOUSEBUTTONDOWN)
     mouseDown1Called = True
 
 def onMouseOver1():
     global mouseOver1Called
+    assert (Player.getCurEvent().type == avg.MOUSEOVER)
     mouseOver1Called = True
 
 def onMouseOut1():
     global mouseOut1Called
+    assert (Player.getCurEvent().type == avg.MOUSEOUT)
     mouseOut1Called = True
 
 def onDivMouseDown():
     global divMouseDownCalled
+    assert (Player.getCurEvent().type == avg.MOUSEBUTTONDOWN)
     divMouseDownCalled = True
 
 def onMouseDown2():
     global mouseDown2Called
+    assert (Player.getCurEvent().type == avg.MOUSEBUTTONDOWN)
     mouseDown2Called = True
 
 def onObscuredMouseDown():

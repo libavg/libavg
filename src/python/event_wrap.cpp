@@ -88,7 +88,6 @@ void export_event()
         .add_property("rightbuttonstate", &MouseEvent::getRightButtonState)
         .add_property("x", &MouseEvent::getXPosition)
         .add_property("y", &MouseEvent::getYPosition)
-        .add_property("cursorid", &MouseEvent::getCursorID)
         .add_property("button", &MouseEvent::getButton)
         .add_property("node", &MouseEvent::getElement);
 

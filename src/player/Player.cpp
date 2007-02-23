@@ -843,6 +843,7 @@ bool Player::handleEvent(Event * pEvent)
             m_pLastMouseNode[cursorID] = pNode;
         }
         if (pNode && pNode->getSensitive()) {
+            m_pCurEvent = pEvent;
             pNode->handleEvent(pCursorEvent);
         }
         //touch ids are transient, need to keep map clean of expired events
@@ -852,6 +853,7 @@ bool Player::handleEvent(Event * pEvent)
         }
 
     } else if ( KeyEvent * pKeyEvent = dynamic_cast<KeyEvent*>(pEvent)){
+        m_pCurEvent = pEvent;
         m_pRootNode->handleEvent(pKeyEvent);
         if (pEvent->getType() == Event::KEYDOWN &&
             pKeyEvent->getKeyCode() == 27) 

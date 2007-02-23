@@ -471,9 +471,6 @@ void Node::handleEvent (Event* pEvent)
 {
     Event::Type EventType = pEvent->getType();
     map<Event::Type, string>::iterator it = m_EventHandlerMap.find(EventType);
-    //if (getID() != "" && EventType != Event::MOUSEMOTION) {
-    AVG_TRACE(Logger::EVENTS2, "Event handler: "+getID());
-    //}
     assert(it!=m_EventHandlerMap.end());
     if (!(it->second.empty())) {
         pEvent->setElement(m_This.lock());
