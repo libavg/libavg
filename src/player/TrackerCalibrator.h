@@ -35,8 +35,7 @@ typedef class ITransformerTarget;
 class TrackerCalibrator {
 
 public:
-    TrackerCalibrator(const IntPoint& CamExtents, 
-            const IntRect& ROI, const IntPoint& DisplayExtents);
+    TrackerCalibrator(const IntPoint& CamExtents, const IntPoint& DisplayExtents);
     virtual ~TrackerCalibrator();
 
     bool nextPoint();
@@ -68,7 +67,6 @@ private:
     std::vector<DPoint> m_CamPoints;
 
     IntPoint m_CamExtents;
-    IntRect m_ROI;
     IntPoint m_DisplayExtents;
 
     bool m_bCurPointSet;

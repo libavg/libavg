@@ -45,8 +45,7 @@ public:
     {
         DeDistortPtr pTrafo;
         {
-            TrackerCalibrator Calibrator(IntPoint(640, 480), 
-                    IntRect(0,0,640,480), IntPoint(640,480));
+            TrackerCalibrator Calibrator(IntPoint(640, 480), IntPoint(640,480));
             bool bDone = false;
             while (!bDone) {
                 IntPoint DisplayPoint(Calibrator.getDisplayPointX(), 
@@ -61,8 +60,7 @@ public:
             TEST(checkTransform(pTrafo, DPoint(640, 480), DPoint(640, 480)));
         }
         {
-            TrackerCalibrator Calibrator(IntPoint(640, 480), 
-                    IntRect(0,0,640,480), IntPoint(1280,720));
+            TrackerCalibrator Calibrator(IntPoint(640, 480), IntPoint(1280,720));
             bool bDone = false;
             while (!bDone) {
                 IntPoint DisplayPoint(Calibrator.getDisplayPointX(), 
@@ -77,23 +75,6 @@ public:
             TEST(checkTransform(pTrafo, DPoint(640, 480), DPoint(640, 480)));
             TEST(checkBlobToScreen(pTrafo, DPoint(0,0), DPoint(0,0)));
             TEST(checkBlobToScreen(pTrafo, DPoint(640, 480), DPoint(1280, 720)));
-        }
-
-        {
-            TrackerCalibrator Calibrator(IntPoint(640, 480), 
-                    IntRect(320,240,640,480), IntPoint(320,240));
-            bool bDone = false;
-            while (!bDone) {
-                IntPoint DisplayPoint(Calibrator.getDisplayPointX(), 
-                        Calibrator.getDisplayPointY());
-                Calibrator.setCamPoint(DisplayPoint.x+320, DisplayPoint.y+240);
-                bDone = !Calibrator.nextPoint();
-            }
-            pTrafo = Calibrator.makeTransformer();
-            DPoint ScreenPt = pTrafo->transform_point(DPoint(0,0));
-            ScreenPt = pTrafo->transform_point(DPoint(640, 480));
-            TEST(checkBlobToScreen(pTrafo, DPoint(320,240), DPoint(0,0)));
-            TEST(checkBlobToScreen(pTrafo, DPoint(640, 480), DPoint(320,240)));
         }
     }
 

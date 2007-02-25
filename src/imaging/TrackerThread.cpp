@@ -62,8 +62,7 @@ TrackerThread::TrackerThread(CameraPtr pCamera,
       m_bCreateDebugImages(false),
       m_bCreateFingerImage(false)
 {
-    m_ROI = IntRect(IntPoint(0,0), ppBitmaps[1]->getSize());
-    setBitmaps(m_ROI, ppBitmaps);
+    setBitmaps(ppBitmaps);
     if (bSubtractHistory) {
         m_pHistoryPreProcessor = HistoryPreProcessorPtr(
                 new HistoryPreProcessor(m_pBitmaps[1]->getSize(), 1));
@@ -106,23 +105,22 @@ bool TrackerThread::work()
             ScopeTimer Timer(ProfilingZoneDistort);
             pDistortedBmp = m_pDistorter->apply(pCamBmp);
         }
-        BitmapPtr pCroppedBmp(new Bitmap(*pDistortedBmp, m_ROI));
         if (m_bCreateDebugImages) {
             boost::mutex::scoped_lock Lock(*m_pMutex);
-            m_pBitmaps[TRACKER_IMG_DISTORTED]->copyPixels(*pCroppedBmp);
+            m_pBitmaps[TRACKER_IMG_DISTORTED]->copyPixels(*pDistortedBmp);
         }
         if (m_pHistoryPreProcessor) {
             ScopeTimer Timer(ProfilingZoneHistory);
-            m_pHistoryPreProcessor->applyInPlace(pCroppedBmp);
+            m_pHistoryPreProcessor->applyInPlace(pDistortedBmp);
         }
         if (m_bCreateDebugImages) {
             boost::mutex::scoped_lock Lock(*m_pMutex);
-            m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pCroppedBmp);
+            m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pDistortedBmp);
         }
         BitmapPtr pBmpLowpass;
         {
             ScopeTimer Timer(ProfilingZoneBlur);
-            pBmpLowpass = FilterBlur().apply(pCroppedBmp);
+            pBmpLowpass = FilterBlur().apply(pDistortedBmp);
         }
         BitmapPtr pBmpHighpass;
         {
@@ -177,15 +175,15 @@ void TrackerThread::setConfig(TrackerConfig Config)
     m_bCreateFingerImage = Config.m_bCreateFingerImage;
 }
 
-void TrackerThread::setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES])
+void TrackerThread::setBitmaps(BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES])
 {
     for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
         m_pBitmaps[i] = ppBitmaps[i];
     }
-    m_ROI = ROI;
     if (m_pHistoryPreProcessor) {
+        IntPoint ROI = m_pBitmaps[0]->getSize();
         m_pHistoryPreProcessor = HistoryPreProcessorPtr(
-                new HistoryPreProcessor(IntPoint(m_ROI.Width(), m_ROI.Height()), 
+                new HistoryPreProcessor(IntPoint(ROI.x, ROI.y), 
                         m_pHistoryPreProcessor->getInterval()));
     }
 }

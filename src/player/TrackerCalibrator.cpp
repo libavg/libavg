@@ -31,7 +31,7 @@ extern "C" {
 
 using namespace std;
 
-#define NUM_POINTS 3 
+#define NUM_POINTS 5 
 #define MIN_DIST_FROM_BORDER 30
 //#define DEBUG_FIT  1
 
@@ -76,8 +76,6 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
 #endif
     assert(n_par == 8);
 #ifdef DEBUG_FIT
-   
-    cerr<<" ROI = "<<m_ROI;
     cerr<<" DisplayScale = "<<m_DisplayScale;
     cerr<<" DisplayOffset= "<<m_DisplayOffset;
     cerr<<" unDistortionParams = "<<DPoint(m_DistortParams[0], m_DistortParams[1]);
@@ -86,11 +84,9 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
     cerr<<" => norm: "<< lm_enorm( m_dat, fvec )<<endl;
 #endif
 }
-    TrackerCalibrator::TrackerCalibrator(const IntPoint& CamExtents, 
-            const IntRect& ROI, const IntPoint& DisplayExtents)
+    TrackerCalibrator::TrackerCalibrator(const IntPoint& CamExtents, const IntPoint& DisplayExtents)
         : m_CurPoint(0),
           m_CamExtents(CamExtents),
-          m_ROI(ROI),
           m_DisplayExtents(DisplayExtents),
           m_bCurPointSet(false)
     {
@@ -160,8 +156,7 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
         m_Angle = p[6];
         m_TrapezoidFactor = p[7];
         m_CurrentTrafo = DeDistortPtr( 
-                new DeDistort(DRect(m_ROI),
-                    DPoint(m_CamExtents),
+                new DeDistort(DPoint(m_CamExtents),
                     m_DistortParams,
                     m_Angle,
                     m_TrapezoidFactor,

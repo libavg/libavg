@@ -47,8 +47,7 @@ namespace avg {
     }
 
     TrackerConfig::TrackerConfig()
-        : m_ROI(0,0,1,1),
-          m_Brightness(128),
+        : m_Brightness(128),
           m_Exposure(128),
           m_Gamma(1),
           m_Gain(128),
@@ -86,11 +85,6 @@ namespace avg {
             const char * pNodeName = (const char *)curXmlChild->name;
             if (!strcmp(pNodeName, "brightness")) {
                 m_Brightness = getRequiredIntAttr(curXmlChild, "value");
-            } else if (!strcmp(pNodeName, "ROI")) {
-                m_ROI.tl.x = getRequiredIntAttr(curXmlChild, "tlx");
-                m_ROI.tl.y = getRequiredIntAttr(curXmlChild, "tly");
-                m_ROI.br.x = getRequiredIntAttr(curXmlChild, "brx");
-                m_ROI.br.y = getRequiredIntAttr(curXmlChild, "bry");
             } else if (!strcmp(pNodeName, "exposure")) {
                 m_Exposure = getRequiredIntAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "gamma")) {
@@ -135,7 +129,6 @@ namespace avg {
         rc = xmlTextWriterStartElement(writer, BAD_CAST "trackerconfig");
         //writeSimpleXMLNode(writer, "barrel", m_K1);
         //writeSimpleXMLNode(writer, "trapezoid", m_T);
-        writeRect(writer, "ROI", m_ROI);
         writeSimpleXMLNode(writer, "brightness", m_Brightness);
         writeSimpleXMLNode(writer, "exposure", m_Exposure);
         writeSimpleXMLNode(writer, "gamma", m_Gamma);

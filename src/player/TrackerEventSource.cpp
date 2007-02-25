@@ -190,11 +190,12 @@ namespace avg {
     {
         AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
         IntPoint ImgDimensions = pCamera->getImgSize();
-
-        m_pBitmaps[0] = BitmapPtr(new Bitmap(pCamera->getImgSize(), I8));
+        IntPoint ImgSize = pCamera->getImgSize();
+        for (int i=0; i<NUM_TRACKER_IMAGES-1; i++) {
+            m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgSize, I8));
+        }
+        m_pBitmaps[TRACKER_IMG_FINGERS] = BitmapPtr(new Bitmap(ImgSize, R8G8B8X8));
         m_TrackerConfig.load("TrackerConfig.xml");
-        // TODO: Clean this ROI handling mess up.
-        handleROIChange();
         m_pUpdateMutex = MutexPtr(new boost::mutex);
         m_pTrackerMutex = MutexPtr(new boost::mutex);
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
@@ -209,7 +210,6 @@ namespace avg {
                     )
                 );
         setConfig();
-        handleROIChange();
     }
 
     TrackerEventSource::~TrackerEventSource()
@@ -219,54 +219,6 @@ namespace avg {
         delete m_pTrackerThread;
     }
         
-    void TrackerEventSource::setROILeft(int Left)
-    {
-        m_TrackerConfig.m_ROI.tl.x = Left;
-        setConfig();
-        handleROIChange();
-    }
-
-    int TrackerEventSource::getROILeft()
-    {
-        return m_TrackerConfig.m_ROI.tl.x;
-    }
-
-    void TrackerEventSource::setROITop(int Top)
-    {
-        m_TrackerConfig.m_ROI.tl.y = Top;
-        setConfig();
-        handleROIChange();
-    }
-
-    int TrackerEventSource::getROITop()
-    {
-        return m_TrackerConfig.m_ROI.tl.y;
-    }
-
-    void TrackerEventSource::setROIRight(int Right)
-    {
-        m_TrackerConfig.m_ROI.br.x = Right;
-        setConfig();
-        handleROIChange();
-    }
-
-    int TrackerEventSource::getROIRight()
-    {
-        return m_TrackerConfig.m_ROI.br.x;
-    }
-
-    void TrackerEventSource::setROIBottom(int Bottom)
-    {
-        m_TrackerConfig.m_ROI.br.y = Bottom;
-        setConfig();
-        handleROIChange();
-    }
-
-    int TrackerEventSource::getROIBottom()
-    {
-        return m_TrackerConfig.m_ROI.br.y;
-    }
-
     void TrackerEventSource::setThreshold(int Threshold) 
     {
         m_TrackerConfig.m_Threshold = Threshold;
@@ -366,19 +318,6 @@ namespace avg {
     {
         m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
                 &TrackerThread::setConfig, _1, m_TrackerConfig)));
-    }
-
-    void TrackerEventSource::handleROIChange()
-    {
-        IntPoint ImgDimensions(m_TrackerConfig.m_ROI.br - m_TrackerConfig.m_ROI.tl);
-        for (int i=1; i<NUM_TRACKER_IMAGES-1; i++) {
-            m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgDimensions, I8));
-        }
-        m_pBitmaps[TRACKER_IMG_FINGERS] = BitmapPtr(new Bitmap(ImgDimensions, R8G8B8X8));
-        if (m_pCmdQueue) {
-            m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
-                    &TrackerThread::setBitmaps, _1, m_TrackerConfig.m_ROI, m_pBitmaps)));
-        }
     }
 
     Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const
@@ -504,15 +443,11 @@ namespace avg {
     {
         assert(!m_pCalibrator);
         m_pOldTransformer = m_TrackerConfig.m_pTrafo; 
-        m_OldROI = m_TrackerConfig.m_ROI;
         m_OldScale = m_TrackerConfig.m_DisplayScale;
         m_OldOffset = m_TrackerConfig.m_DisplayOffset;
-        m_TrackerConfig.m_ROI = IntRect(IntPoint(0,0), m_pBitmaps[0]->getSize());
         m_TrackerConfig.m_pTrafo = DeDistortPtr(new DeDistort());
         setConfig();
-        handleROIChange();
         m_pCalibrator = new TrackerCalibrator(m_pBitmaps[0]->getSize(),
-                m_TrackerConfig.m_ROI,
                 IntPoint(XDisplayExtents, YDisplayExtents));
         return m_pCalibrator;
     }
@@ -521,9 +456,7 @@ namespace avg {
     {
         assert(m_pCalibrator);
         m_TrackerConfig.m_pTrafo = m_pCalibrator->makeTransformer();
-        m_TrackerConfig.m_ROI = m_OldROI;
         setConfig();
-        handleROIChange();
         delete m_pCalibrator;
         m_pCalibrator = 0;
         m_pOldTransformer = DeDistortPtr();
@@ -533,9 +466,7 @@ namespace avg {
     {
         assert(m_pCalibrator);
         m_TrackerConfig.m_pTrafo = m_pOldTransformer;
-        m_TrackerConfig.m_ROI = m_OldROI;
         setConfig();
-        handleROIChange();
         m_pOldTransformer = DeDistortPtr();
         delete m_pCalibrator;
         m_pCalibrator = 0;

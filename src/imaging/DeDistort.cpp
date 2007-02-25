@@ -70,7 +70,7 @@ DeDistort::DeDistort()
     m_RescaleFactor = calc_rescale();
 }
 
-DeDistort::DeDistort(const DRect &ROI, const DPoint &CamExtents,
+DeDistort::DeDistort(const DPoint &CamExtents,
             const std::vector<double>& DistortionParams,
             double Angle, double TrapezoidFactor,
             const DPoint& DisplayOffset, const DPoint& DisplayScale)
@@ -80,10 +80,8 @@ DeDistort::DeDistort(const DRect &ROI, const DPoint &CamExtents,
       m_DisplayOffset(DisplayOffset),
       m_DisplayScale(DisplayScale)
 {
-    double w = ROI.Width();
-    double h = ROI.Height();
-    m_FilmOffset = -CamExtents/2+DPoint(ROI.tl); 
-    m_FilmScale = DPoint(2./w,2./h);
+    m_FilmOffset = -CamExtents/2; 
+    m_FilmScale = DPoint(2./CamExtents.x,2./CamExtents.y);
     m_RescaleFactor = calc_rescale();
 }
 

@@ -78,6 +78,7 @@ void export_event()
             "    leftbuttonstate: (ro)\n"
             "    middlebuttonstate: (ro)\n"
             "    rightbuttonstate: (ro)\n"
+            "    cursorid: always 0 (ro)\n"
             "    x: x position in the global coordinate system. (ro)\n"
             "    y: y position in the global coordinate system. (ro)\n"
             "    button: The button that caused the event. (ro)\n"
@@ -88,6 +89,7 @@ void export_event()
         .add_property("rightbuttonstate", &MouseEvent::getRightButtonState)
         .add_property("x", &MouseEvent::getXPosition)
         .add_property("y", &MouseEvent::getYPosition)
+        .add_property("cursorid", &MouseEvent::getCursorID)
         .add_property("button", &MouseEvent::getButton)
         .add_property("node", &MouseEvent::getElement);
 
@@ -160,15 +162,6 @@ void export_event()
             "Aborts coordinate calibration session and restores the previous\n"
             "coordinate transformer.\n")
 
-        .add_property("roileft", &TrackerEventSource::getROILeft,
-            &TrackerEventSource::setROILeft)
-        .add_property("roitop", &TrackerEventSource::getROITop,
-            &TrackerEventSource::setROITop)
-        .add_property("roiright", &TrackerEventSource::getROIRight,
-            &TrackerEventSource::setROIRight)
-        .add_property("roibottom", &TrackerEventSource::getROIBottom,
-            &TrackerEventSource::setROIBottom)
-        
         .add_property("threshold", &TrackerEventSource::getThreshold,
             &TrackerEventSource::setThreshold)
         .add_property("historyspeed", &TrackerEventSource::getHistorySpeed,

@@ -52,15 +52,6 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
                 bool bSubtractHistory = true);
         virtual ~TrackerEventSource();
 
-        void setROILeft(int Left);
-        int getROILeft();
-        void setROITop(int Top);
-        int getROITop();
-        void setROIRight(int Right);
-        int getROIRight();
-        void setROIBottom(int Bottom);
-        int getROIBottom();
-
         void setThreshold(int Threshold);
         int getThreshold();
         void setHistorySpeed(int UpdateInterval);
@@ -95,7 +86,6 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         bool isfinger(BlobPtr blob);
         BlobPtr matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold);
         void setConfig();
-        void handleROIChange();
 
         TrackerConfig m_TrackerConfig;
         EventMap m_Events;
@@ -111,7 +101,6 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         DPoint m_OldScale;
         DPoint m_OldOffset;
         DeDistortPtr m_pOldTransformer;
-        IntRect m_OldROI;
 
         TrackerCalibrator * m_pCalibrator;
 

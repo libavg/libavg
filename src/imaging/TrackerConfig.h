@@ -36,9 +36,6 @@ struct TrackerConfig
     void load(std::string sFilename);
     void save(std::string sFilename);
 
-    // Coordinate transforms.
-    IntRect m_ROI;//after applying de-distortion, take this as the table surface
-
     // Camera params
     int m_Brightness;
     int m_Exposure;

@@ -42,7 +42,7 @@ void writePoint(xmlTextWriterPtr writer, std::string sName, DPoint& Val);
 class DeDistort: public CoordTransformer {
     public:
         DeDistort();
-        DeDistort(const DRect &ROI, const DPoint &CameraExtents,
+        DeDistort(const DPoint &CameraExtents,
             const std::vector<double>& DistortionParams, 
             double Angle, double TrapezoidFactor,
             const DPoint& DisplayOffset, const DPoint& DisplayScale);

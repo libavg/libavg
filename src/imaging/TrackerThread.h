@@ -74,7 +74,7 @@ class TrackerThread: public WorkerThread<TrackerThread>
         void deinit();
 
         void setConfig(TrackerConfig Config);
-        void setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES]);
+        void setBitmaps(BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES]);
         void resetHistory();
     
     private:
@@ -96,7 +96,6 @@ class TrackerThread: public WorkerThread<TrackerThread>
         IBlobTarget *m_pTarget;
         HistoryPreProcessorPtr m_pHistoryPreProcessor;
         FilterDistortionPtr m_pDistorter;
-        IntRect m_ROI;
         bool m_bCreateDebugImages;
         bool m_bCreateFingerImage;
 };
