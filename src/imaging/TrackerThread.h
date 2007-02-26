@@ -96,6 +96,7 @@ class TrackerThread: public WorkerThread<TrackerThread>
         IBlobTarget *m_pTarget;
         HistoryPreProcessorPtr m_pHistoryPreProcessor;
         FilterDistortionPtr m_pDistorter;
+        DeDistortPtr m_pTrafo;
         bool m_bCreateDebugImages;
         bool m_bCreateFingerImage;
 };

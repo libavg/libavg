@@ -164,7 +164,10 @@ void TrackerThread::setConfig(TrackerConfig Config)
     if(m_pHistoryPreProcessor) {
         m_pHistoryPreProcessor->setInterval(Config.m_HistoryUpdateInterval);
     }
-    m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), Config.m_pTrafo));
+    if (m_pTrafo != Config.m_pTrafo) {
+        m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), Config.m_pTrafo));
+        m_pTrafo = Config.m_pTrafo;
+    }
         
     m_pCamera->setFeature("brightness", Config.m_Brightness);
     m_pCamera->setFeature("gamma", Config.m_Gamma);
