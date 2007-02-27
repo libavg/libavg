@@ -63,14 +63,14 @@ BitmapPtr FilterHighpass::apply(BitmapPtr pBmpSrc)
             //  0 -1  0  -1   0
             // -1  0  0   0  -1
             // Actually, it's 7x7, but you get the idea.
-            *pDstPixel = 
-                128 - int(*(pSrcPixel-2*SrcStride-2) + *(pSrcPixel-2*SrcStride+2) + 
-                *(pSrcPixel-SrcStride-1) + *(pSrcPixel-1*SrcStride+1) +
-                *(pSrcPixel+SrcStride-1) + *(pSrcPixel+1*SrcStride+1) + 
-                *(pSrcPixel+2*SrcStride-2) + *(pSrcPixel+2*SrcStride+2))/16 +
-                *(pSrcPixel)*3/4;
-            *pDstPixel -= int(*(pSrcPixel-3*SrcStride-3) + *(pSrcPixel-3*SrcStride+3) +
+            *pDstPixel = 128 - int(*(pSrcPixel-3*SrcStride-3) + *(pSrcPixel-3*SrcStride+3) +
                 *(pSrcPixel+3*SrcStride-3) + *(pSrcPixel+3*SrcStride+3))/16; 
+            *pDstPixel += 
+                - int(*(pSrcPixel-2*SrcStride-2) + *(pSrcPixel-2*SrcStride+2) + 
+                      *(pSrcPixel-SrcStride-1) + *(pSrcPixel-1*SrcStride+1) +
+                      *(pSrcPixel+SrcStride-1) + *(pSrcPixel+1*SrcStride+1) + 
+                      *(pSrcPixel+2*SrcStride-2) + *(pSrcPixel+2*SrcStride+2))/16
+                + *(pSrcPixel)*3/4;
 /*
             unsigned char *pSrc = pSrcPixel-3*SrcStride-3;
             int Dest = *pSrc;
