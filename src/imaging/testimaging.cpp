@@ -39,8 +39,6 @@
 
 #include <sstream>
 
-// #define GENERATE_BASELINE
-
 using namespace avg;
 using namespace std;
 
@@ -60,12 +58,8 @@ class DeDistortTest: public Test {
                 DPoint(0,0), DPoint(1,1));
             TEST(almostEqual(IdentityDistort.transform_point(DPoint(0,0)), DPoint(0,0)));
             TEST(almostEqual(IdentityDistort.transform_point(DPoint(1,2)), DPoint(1,2)));
-//            cerr << IdentityDistort.inverse_transform_point(DPoint(0,0)) << endl;
-//            cerr << IdentityDistort.transform_point(DPoint(1,2)) << endl;
             TEST(almostEqual(IdentityDistort.transformBlobToScreen(DPoint(0,0)), DPoint(0,0)));
             TEST(almostEqual(IdentityDistort.transformBlobToScreen(DPoint(1,2)), DPoint(1,2)));
-//            cerr << IdentityDistort.inverse_transform_point(DPoint(0,0)) << endl;
-//            cerr << IdentityDistort.transform_point(DPoint(1,2)) << endl;
             TEST(almostEqual(IdentityDistort.inverse_transform_point(DPoint(0,0)), 
                     DPoint(0,0)));
             TEST(almostEqual(IdentityDistort.inverse_transform_point(DPoint(1,2)), 
@@ -97,44 +91,31 @@ class DeDistortTest: public Test {
                 DPoint(0,0), DPoint(1,1));
             for (double xp=0;xp<10;xp++){
                 for(double yp=0;yp<10;yp++){
-                    TEST(almostEqual(Barreler.inverse_transform_point(
+                    QUIET_TEST(almostEqual(Barreler.inverse_transform_point(
                             Barreler.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
                 }
-            TEST(almostEqual(Barreler.transform_point(DPoint(1,1)), DPoint(1,1)));
             }
-//            TEST(almostEqual(Barreler.transform_point(DPoint(1,0)), DPoint(3,0)));
-//            TEST(almostEqual(Barreler.transform_point(DPoint(0,1)), DPoint(0,3)));
-//            TEST(almostEqual(Barreler.inverse_transform_point(DPoint(0,0)), DPoint(0,0)));
-//            TEST(almostEqual(Barreler.inverse_transform_point(DPoint(0,3)), DPoint(0,1)));
+            TEST(almostEqual(Barreler.transform_point(DPoint(1,1)), DPoint(1,1)));
 
             DeDistort Rotator = DeDistort(DPoint(0,0), DPoint(1,1),
                 Params, 0, M_PI/2,
                 DPoint(0,0), DPoint(1,1));
             for (double xp=0;xp<10;xp++){
                 for(double yp=0;yp<10;yp++){
-                    TEST(almostEqual(Rotator.inverse_transform_point(
+                    QUIET_TEST(almostEqual(Rotator.inverse_transform_point(
                             Rotator.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
                 }
             }
-//           TEST(almostEqual(Rotator.transform_point(DPoint(0,0)), DPoint(0,0)));
-//          TEST(almostEqual(Rotator.transform_point(DPoint(1,2)), DPoint(-2,1)));
-//            TEST(almostEqual(Rotator.inverse_transform_point(DPoint(0,0)), DPoint(0,0)));
-//            TEST(almostEqual(Rotator.inverse_transform_point(DPoint(1,2)), DPoint(2,-1)));
 
             DeDistort ShifterScaler = DeDistort(DPoint(0,0), DPoint(1,1),
                 Params, 0, 0.0,
                 DPoint(1,1), DPoint(2,2));
             for (double xp=0;xp<10;xp++){
                 for(double yp=0;yp<10;yp++){
-                    TEST(almostEqual(ShifterScaler.inverse_transform_point(
+                    QUIET_TEST(almostEqual(ShifterScaler.inverse_transform_point(
                             ShifterScaler.transform_point(DPoint(xp,yp))), DPoint(xp,yp)));
                 }
             }
-//            TEST(almostEqual(ShifterScaler.transform_point(DPoint(0,0)), DPoint(2,2)));
-//            TEST(almostEqual(ShifterScaler.transform_point(DPoint(1,2)), DPoint(4,6)));
-//            TEST(almostEqual(ShifterScaler.inverse_transform_point(DPoint(0,0)), DPoint(-0.5,-0.5)));
-//            TEST(almostEqual(ShifterScaler.inverse_transform_point(DPoint(1,2)), DPoint(0,0.5)));
-            
     }
 };
 
@@ -154,16 +135,14 @@ public:
             p.push_back(s.str());
         }
         CameraPtr pCam = CameraPtr(new FakeCamera(p));
-        BitmapPtr pBitmaps[NUM_TRACKER_IMAGES];
         for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
-            pBitmaps[i] = BitmapPtr(new Bitmap(pCam->getImgSize(), I8));
+            m_pBitmaps[i] = BitmapPtr(new Bitmap(pCam->getImgSize(), I8));
         }
         MutexPtr pMutex(new boost::mutex);
-        //FilterIdPtr pp = FilterIdPtr(new FilterId());
         TrackerConfig config;
         m_pCmdQ = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
         boost::thread Thread(
-                TrackerThread(pCam, pBitmaps, pMutex,  *m_pCmdQ, this, true, config));
+                TrackerThread(pCam, m_pBitmaps, pMutex,  *m_pCmdQ, this, true, config));
         Thread.join();
     }
     
@@ -175,17 +154,9 @@ public:
                 break;
             case 1:
                 {
-/*
                     TEST(pBlobs->size() == 1);
                     BlobInfoPtr pBlobInfo = (*pBlobs->begin())->getInfo();
-                    cerr << pBlobInfo->m_Area << endl;
-                    TEST(fabs(pBlobInfo->m_Area-32)<0.001);
                     TEST(fabs(pBlobInfo->m_Orientation)<0.001);
-                    TEST(fabs(pBlobInfo->m_Center.x-11.5)<0.0001); 
-                    TEST(fabs(pBlobInfo->m_Center.y-7.5)<0.0001);
-                    cerr << pBlobInfo->m_BoundingBox << endl;
-                    TEST(pBlobInfo->m_BoundingBox == IntRect(9,5,15,11)); 
-*/
                 }
                 break;
             case 2:
@@ -194,15 +165,11 @@ public:
             case 3:
                 break;
             case 4:
-/*
                 {
-                    cerr << pBlobs->size() << endl;
                     TEST(pBlobs->size() == 1);
                     BlobInfoPtr pBlobInfo = (*pBlobs->begin())->getInfo();
                     TEST(fabs(pBlobInfo->m_Area-114)<0.001);
-                    TEST(pBlobInfo->m_BoundingBox == IntRect(4,15,31,21)); 
                 }
-*/
                 break;
             case 5:
                 TEST(pBlobs->size() == 0);
@@ -216,6 +183,7 @@ public:
 
 private:
     TrackerThread::CmdQueuePtr m_pCmdQ;
+    BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
 };
 
 class ImagingTestSuite: public TestSuite {

@@ -310,7 +310,7 @@ void Bitmap::save(const std::string& sFilename)
                     << endl;
             assert(false);
     }
-    Magick::Image Img(m_Size.x, m_Size.y, sPF, Magick::CharPixel, pBmp->getPixels());
+    Magick::Image Img(m_Size.x, m_Size.y, sPF, ChannelFormat, pBmp->getPixels());
     Img.write(sFilename);
 }
 
