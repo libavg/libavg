@@ -31,12 +31,13 @@ extern "C" {
 
 using namespace std;
 
-#define NUM_POINTS 5 
+#define NUM_POINTS 4 
 #define MIN_DIST_FROM_BORDER 30
-//#define DEBUG_FIT  1
+#define DEBUG_FIT  1
 
 namespace avg {
 
+    enum Params { DISPSCALE_X, DISPSCALE_Y, DISPOFFSET_X, DISPOFFSET_Y, DIST_2, DIST_3, ANGLE, TRAPEZ, NUM_PARAMS};
 
 void lm_print_tracker( int n_par, double* p, int m_dat, double* fvec, 
                        void *data, int iflag, int iter, int nfev )
@@ -74,7 +75,7 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
         printf ("terminated after %d evaluations\n", nfev);
     }
 #endif
-    assert(n_par == 8);
+    assert(n_par == NUM_PARAMS);
 #ifdef DEBUG_FIT
     cerr<<" DisplayScale = "<<m_DisplayScale;
     cerr<<" DisplayOffset= "<<m_DisplayOffset;
@@ -146,15 +147,15 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
         m_bCurPointSet = true;
     }
     void TrackerCalibrator::initThisFromDouble(double *p){
-        m_DisplayOffset.x = p[0]; 
-        m_DisplayOffset.y = p[1];
-        m_DisplayScale.x = p[2];
-        m_DisplayScale.y = p[3];
+        m_DisplayOffset.x = p[DISPOFFSET_X]; 
+        m_DisplayOffset.y = p[DISPOFFSET_Y];
+        m_DisplayScale.x = p[DISPSCALE_X];
+        m_DisplayScale.y = p[DISPSCALE_Y];
         m_DistortParams.clear();
-        m_DistortParams.push_back( p[4] );
-        m_DistortParams.push_back( p[5]);
-        m_Angle = p[6];
-        m_TrapezoidFactor = p[7];
+        m_DistortParams.push_back( p[DIST_2 ] );
+        m_DistortParams.push_back( p[DIST_3]);
+        m_Angle = p[ANGLE];
+        m_TrapezoidFactor = p[TRAPEZ];
         m_CurrentTrafo = DeDistortPtr( 
                 new DeDistort(DPoint(m_CamExtents),
                     m_DistortParams,
@@ -173,11 +174,11 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
         for(int i=0;i<=15;i+=5) {
             cerr<<"sample value of trafo of "
                 <<m_CamPoints[i]<<" : "
-                <<m_CurrentTrafo->transform_point(m_CamPoints[i])
+                <<m_CurrentTrafo->transformBlobToScreen(m_CurrentTrafo->transform_point(m_CamPoints[i]))
             <<"=="
             <<DPoint(m_DisplayPoints[i])
             <<" dist="
-            <<calcDist(DPoint(m_DisplayPoints[i]), m_CurrentTrafo->transform_point(m_CamPoints[i]))
+            <<calcDist(DPoint(m_DisplayPoints[i]), m_CurrentTrafo->transformBlobToScreen(m_CurrentTrafo->transform_point(m_CamPoints[i])))
             <<endl;
         }
 #endif 
@@ -210,16 +211,17 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
         m_DistortParams.push_back(0);
         m_DistortParams.push_back(0);
         m_Angle = 0;
-        m_TrapezoidFactor = 0.2;
-        m_DisplayOffset= DPoint(m_DisplayExtents)/2; 
-        m_DisplayScale = DPoint(m_DisplayExtents)/2;
+        m_TrapezoidFactor = 0.0;
+        m_DisplayOffset= DPoint(0,0);
+        m_DisplayScale = DPoint(1,1);
 
-        int n_p = 8;
+        int n_p = NUM_PARAMS;
+        //should really match the Params enum!!!!
         double p[] = {
-            m_DisplayOffset.x, 
-            m_DisplayOffset.y, 
             m_DisplayScale.x, 
             m_DisplayScale.y,
+            m_DisplayOffset.x, 
+            m_DisplayOffset.y, 
             m_DistortParams[0],
             m_DistortParams[1],
             m_Angle,

@@ -54,7 +54,7 @@ public:
                 bDone = !Calibrator.nextPoint();
             }
             pTrafo = Calibrator.makeTransformer();
-            TEST(  calcDist(pTrafo->transformBlobToScreen( DPoint(1.00,1.00) ) , DPoint(1.00,1.00)));
+            TEST(  calcDist(pTrafo->transformBlobToScreen( DPoint(1.00,1.00) ) , DPoint(1.00,1.00))<0.4);
 //            cerr << "scale: " << scale << ", offset: " << offset << endl;
             TEST(checkTransform(pTrafo, DPoint(0,0), DPoint(0,0)));
             TEST(checkTransform(pTrafo, DPoint(640, 480), DPoint(640, 480)));
@@ -69,7 +69,7 @@ public:
                 bDone = !Calibrator.nextPoint();
             }
             pTrafo = Calibrator.makeTransformer();
-            TEST(  calcDist( pTrafo->transformBlobToScreen( DPoint(1.00,1.00) ), DPoint(2.00,1.50))  );
+            TEST(  calcDist( pTrafo->transformBlobToScreen( DPoint(1.00,1.00) ), DPoint(2.00,1.50)) <0.4 );
 //            cerr << "scale: " << scale << ", offset: " << offset << endl;
             TEST(checkTransform(pTrafo, DPoint(0,0), DPoint(0,0)));
             TEST(checkTransform(pTrafo, DPoint(640, 480), DPoint(640, 480)));
