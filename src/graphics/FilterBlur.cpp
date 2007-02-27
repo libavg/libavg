@@ -54,7 +54,7 @@ BitmapPtr FilterBlur::apply(BitmapPtr pBmpSrc)
         unsigned char * pDestPixel = pDestLine;
         for (int x = 0; x < Size.x; ++x) {
             *pDestPixel = (*(pSrcPixel-1) + *(pSrcPixel)*4 + *(pSrcPixel+1)
-                    /**(pSrcPixel-SrcStride)+*(pSrcPixel+SrcStride)*/)/8;
+                    +*(pSrcPixel-SrcStride)+*(pSrcPixel+SrcStride))/8;
             ++pSrcPixel;
             ++pDestPixel;
         }

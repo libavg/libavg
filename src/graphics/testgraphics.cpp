@@ -35,6 +35,7 @@
 #include "HistoryPreProcessor.h"
 #include "FilterHighpass.h"
 #include "FilterGauss.h"
+#include "FilterBlur.h"
 #include "FilterBandpass.h"
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -621,6 +622,27 @@ public:
 };
 
 
+class FilterBlurTest: public Test {
+public:
+    FilterBlurTest()
+        : Test("FilterBlurTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(16,16), I8));
+        FilterFill<Pixel8>(0).applyInPlace(pBmp);
+        *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
+        BitmapPtr pDestBmp = FilterBlur().apply(pBmp);
+//        pDestBmp->save("testimages/BlurResult.png");
+        BitmapPtr pBaselineBmp = FilterGrayscale().apply(
+                BitmapPtr(new Bitmap("testimages/BlurResult.png")));
+        TEST(*pDestBmp == *pBaselineBmp);
+    }
+};
+
+
 class FilterBandpassTest: public Test {
 public:
     FilterBandpassTest()
@@ -662,6 +684,7 @@ public:
         addTest(TestPtr(new HistoryPreProcessorTest));
         addTest(TestPtr(new FilterHighpassTest));
         addTest(TestPtr(new FilterGaussTest));
+        addTest(TestPtr(new FilterBlurTest));
 //        addTest(TestPtr(new FilterBandpassTest));
     }
 };
