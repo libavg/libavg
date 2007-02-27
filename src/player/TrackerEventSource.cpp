@@ -447,6 +447,7 @@ namespace avg {
         m_OldOffset = m_TrackerConfig.m_DisplayOffset;
         m_TrackerConfig.m_pTrafo = DeDistortPtr(new DeDistort());
         setConfig();
+        resetHistory();
         m_pCalibrator = new TrackerCalibrator(m_pBitmaps[0]->getSize(),
                 IntPoint(XDisplayExtents, YDisplayExtents));
         return m_pCalibrator;
@@ -457,6 +458,7 @@ namespace avg {
         assert(m_pCalibrator);
         m_TrackerConfig.m_pTrafo = m_pCalibrator->makeTransformer();
         setConfig();
+        resetHistory();
         delete m_pCalibrator;
         m_pCalibrator = 0;
         m_pOldTransformer = DeDistortPtr();
