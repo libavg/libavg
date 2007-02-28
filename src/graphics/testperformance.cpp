@@ -37,9 +37,7 @@
 #include "FilterBlur.h"
 #include "FilterBandpass.h"
 
-#include "../base/Logger.h"
-#include "../base/Profiler.h"
-#include "../base/ScopeTimer.h"
+#include "../base/TimeSource.h"
 
 #include <Magick++.h>
 
@@ -50,26 +48,27 @@
 using namespace avg;
 using namespace std;
 
-static ProfilingZone FillI8ProfilingZone("FilterFillI8");
 
 void runFillI8PerformanceTest()
 {
     BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(1024,1024), I8));
-    ScopeTimer Timer(FillI8ProfilingZone);
+    long long StartTime = TimeSource::get()->getCurrentMicrosecs();
     for (int i=0; i<1000; ++i) {
         FilterFill<Pixel8>(Pixel8(0)).applyInPlace(pBmp);
     }
+    long long ActiveTime = TimeSource::get()->getCurrentMicrosecs()-StartTime; 
+    cerr << "FillI8: " << ActiveTime/1000 << " us" << endl;
 }
-
-static ProfilingZone FillRGBProfilingZone("FilterFillRGB");
 
 void runFillRGBPerformanceTest()
 {
     BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(1024,1024), R8G8B8));
-    ScopeTimer Timer(FillRGBProfilingZone);
+    long long StartTime = TimeSource::get()->getCurrentMicrosecs();
     for (int i=0; i<1000; ++i) {
         FilterFill<Pixel24>(Pixel24(0,0,0)).applyInPlace(pBmp);
     }
+    long long ActiveTime = TimeSource::get()->getCurrentMicrosecs()-StartTime; 
+    cerr << "FillR8G8B8: " << ActiveTime/1000 << " us" << endl;
 }
 
 void runPerformanceTests()
@@ -80,12 +79,6 @@ void runPerformanceTests()
 
 int main(int nargs, char** args)
 {
-    Logger::get()->setCategories(Logger::PROFILE);
-    ThreadProfilerPtr pThreadProfiler = ThreadProfilerPtr(new ThreadProfiler("Main"));
-    Profiler::get().registerThreadProfiler(pThreadProfiler);
-    ThreadProfiler::get()->start();
     runPerformanceTests();
-    ThreadProfiler::get()->reset();
-    Profiler::get().dumpStatistics();
 }
 
