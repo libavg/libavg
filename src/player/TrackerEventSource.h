@@ -98,8 +98,6 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         BlobListPtr m_pBlobList;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
         
-        DPoint m_OldScale;
-        DPoint m_OldOffset;
         DeDistortPtr m_pOldTransformer;
 
         TrackerCalibrator * m_pCalibrator;

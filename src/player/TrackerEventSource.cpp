@@ -442,9 +442,7 @@ namespace avg {
             int YDisplayExtents)
     {
         assert(!m_pCalibrator);
-        m_pOldTransformer = m_TrackerConfig.m_pTrafo; 
-        m_OldScale = m_TrackerConfig.m_DisplayScale;
-        m_OldOffset = m_TrackerConfig.m_DisplayOffset;
+        m_pOldTransformer = m_TrackerConfig.m_pTrafo;
         m_TrackerConfig.m_pTrafo = DeDistortPtr(new DeDistort());
         setConfig();
         resetHistory();

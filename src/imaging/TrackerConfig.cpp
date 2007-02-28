@@ -55,9 +55,7 @@ namespace avg {
           m_Threshold(20),
           m_HistoryUpdateInterval(5),
           m_Similarity(31),
-          m_pTrafo(new DeDistort()),
-          m_DisplayOffset(0,0),
-          m_DisplayScale(1,1)
+          m_pTrafo(new DeDistort())
     {
           m_AreaBounds[0] = 80;
           m_AreaBounds[1] = 450;
@@ -107,13 +105,7 @@ namespace avg {
                 m_EccentricityBounds[1] = getRequiredDoubleAttr(curXmlChild, "max");
             } else if (!strcmp(pNodeName, "transform")) {
                 m_pTrafo->load(curXmlChild);
-            } else if (!strcmp(pNodeName, "displayoffset")) {
-                m_DisplayOffset.x = getRequiredIntAttr(curXmlChild, "x");
-                m_DisplayOffset.y = getRequiredIntAttr(curXmlChild, "y");
-            } else if (!strcmp(pNodeName, "displayscale")) {
-                m_DisplayScale.x = getRequiredIntAttr(curXmlChild, "x");
-                m_DisplayScale.y = getRequiredIntAttr(curXmlChild, "y");
-            }
+            } 
             curXmlChild = curXmlChild->next;
         }
     }
@@ -139,8 +131,6 @@ namespace avg {
         writeSimpleXMLNode(writer, "similarity", m_Similarity);
         writeMinMaxXMLNode(writer, "areabounds", m_AreaBounds);
         writeMinMaxXMLNode(writer, "eccentricitybounds", m_EccentricityBounds);
-        writePoint(writer, "displayoffset", m_DisplayOffset);
-        writePoint(writer, "displayscale", m_DisplayScale);
         m_pTrafo->save(writer);
         rc = xmlTextWriterEndElement(writer);
         rc = xmlTextWriterEndDocument(writer);

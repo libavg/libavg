@@ -119,6 +119,34 @@ class DeDistortTest: public Test {
     }
 };
 
+class SerializeTest: public Test {
+public:
+    SerializeTest()
+        : Test("SerializeTest", 2)
+    {
+    }
+
+    void runTests() 
+    {
+        vector<double> Params;
+        Params.push_back(0);
+        Params.push_back(0);
+        DeDistortPtr pScaler = DeDistortPtr(new DeDistort(DPoint(0,0), DPoint(1,1),
+                Params, 0, 0.0,
+                DPoint(0,0), DPoint(2,2)));
+        TrackerConfig Config;
+        Config.m_pTrafo = pScaler;
+        Config.save("TempConfig.xml");
+        TrackerConfig LoadedConfig;
+        LoadedConfig.load("TempConfig.xml");
+        DeDistortPtr pTrafo = LoadedConfig.m_pTrafo;
+        TEST(almostEqual(pTrafo->transform_point(DPoint(0,0)), DPoint(0,0)));
+        TEST(almostEqual(pTrafo->transformBlobToScreen(DPoint(1,2)), DPoint(2,4)));
+    }
+};
+
+
+
 class TrackingTest: public Test, public IBlobTarget {
 public:
     TrackingTest()
@@ -193,6 +221,7 @@ public:
     {
         addTest(TestPtr(new TrackingTest));
         addTest(TestPtr(new DeDistortTest));
+        addTest(TestPtr(new SerializeTest));
     }
 };
 
