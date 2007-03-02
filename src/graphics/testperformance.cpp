@@ -54,7 +54,8 @@ void runFillI8PerformanceTest()
     BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(1024,1024), I8));
     long long StartTime = TimeSource::get()->getCurrentMicrosecs();
     for (int i=0; i<1000; ++i) {
-        FilterFill<Pixel8>(Pixel8(0)).applyInPlace(pBmp);
+        FilterFill<Pixel8> Filter = FilterFill<Pixel8>(Pixel8(0));
+        Filter.applyInPlace(pBmp);
     }
     long long ActiveTime = TimeSource::get()->getCurrentMicrosecs()-StartTime; 
     cerr << "FillI8: " << ActiveTime/1000 << " us" << endl;
@@ -65,7 +66,8 @@ void runFillRGBPerformanceTest()
     BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(1024,1024), R8G8B8));
     long long StartTime = TimeSource::get()->getCurrentMicrosecs();
     for (int i=0; i<1000; ++i) {
-        FilterFill<Pixel24>(Pixel24(0,0,0)).applyInPlace(pBmp);
+        FilterFill<Pixel24> Filter = FilterFill<Pixel24>(Pixel24(0,0,0));
+        Filter.applyInPlace(pBmp);
     }
     long long ActiveTime = TimeSource::get()->getCurrentMicrosecs()-StartTime; 
     cerr << "FillR8G8B8: " << ActiveTime/1000 << " us" << endl;
