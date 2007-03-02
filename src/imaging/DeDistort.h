@@ -47,11 +47,12 @@ class DeDistort: public CoordTransformer {
             double Angle, double TrapezoidFactor,
             const DPoint& DisplayOffset, const DPoint& DisplayScale);
         
-
+/*
         DeDistort(const DPoint& FilmOffset, const DPoint& FilmScale, 
             const std::vector<double>& DistortionParams, 
             double Angle, double TrapezoidFactor,
             const DPoint& DisplayOffset, const DPoint& DisplayScale);
+*/        
         virtual ~DeDistort();
 
 

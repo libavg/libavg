@@ -84,7 +84,7 @@ DeDistort::DeDistort(const DPoint &CamExtents,
     m_FilmScale = DPoint(2./CamExtents.x,2./CamExtents.y);
     m_RescaleFactor = calc_rescale();
 }
-
+/*
 DeDistort::DeDistort(const DPoint& FilmOffset, const DPoint& FilmScale, 
             const std::vector<double>& DistortionParams,
             double Angle, double TrapezoidFactor,
@@ -99,7 +99,7 @@ DeDistort::DeDistort(const DPoint& FilmOffset, const DPoint& FilmScale,
 {
     m_RescaleFactor = calc_rescale();
 }
-
+*/
 DeDistort::~DeDistort()
 {
 }

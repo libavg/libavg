@@ -53,7 +53,7 @@ class DeDistortTest: public Test {
             vector<double> Params;
             Params.push_back(0);
             Params.push_back(0);
-            DeDistort IdentityDistort = DeDistort(DPoint(0,0), DPoint(1,1),
+            DeDistort IdentityDistort = DeDistort(DPoint(1,1),
                 Params, 0.0, 0.0,
                 DPoint(0,0), DPoint(1,1));
             TEST(almostEqual(IdentityDistort.transform_point(DPoint(0,0)), DPoint(0,0)));
@@ -67,7 +67,7 @@ class DeDistortTest: public Test {
             TEST(almostEqual(IdentityDistort.transformScreenToBlob(DPoint(0,0)), DPoint(0,0)));
             TEST(almostEqual(IdentityDistort.transformScreenToBlob(DPoint(1,2)), DPoint(1,2)));
 
-            DeDistort Scaler = DeDistort(DPoint(0,0), DPoint(1,1),
+            DeDistort Scaler = DeDistort(DPoint(1,1),
                 Params, 0, 0.0,
                 DPoint(0,0), DPoint(2,2));
             TEST(almostEqual(Scaler.transform_point(DPoint(0,0)), DPoint(0,0)));
@@ -75,7 +75,7 @@ class DeDistortTest: public Test {
             TEST(almostEqual(Scaler.inverse_transform_point(DPoint(0,0)), DPoint(0,0)));
             TEST(almostEqual(Scaler.transformScreenToBlob(DPoint(1,2)), DPoint(0.5,1)));
 
-            DeDistort Shifter = DeDistort(DPoint(0,0), DPoint(1,1),
+            DeDistort Shifter = DeDistort(DPoint(1,1),
                 Params, 0, 0.0,
                 DPoint(1,1), DPoint(1,1));
             TEST(almostEqual(Shifter.transformBlobToScreen(DPoint(0,0)), DPoint(1,1)));
@@ -86,7 +86,7 @@ class DeDistortTest: public Test {
             vector<double> Cubed;
             Cubed.push_back(0);
             Cubed.push_back(1);
-            DeDistort Barreler = DeDistort(DPoint(0,0), DPoint(1,1),
+            DeDistort Barreler = DeDistort(DPoint(1,1),
                 Cubed, 0, 0.0,
                 DPoint(0,0), DPoint(1,1));
             for (double xp=0;xp<10;xp++){
@@ -97,7 +97,7 @@ class DeDistortTest: public Test {
             }
             TEST(almostEqual(Barreler.transform_point(DPoint(1,1)), DPoint(1,1)));
 
-            DeDistort Rotator = DeDistort(DPoint(0,0), DPoint(1,1),
+            DeDistort Rotator = DeDistort(DPoint(1,1),
                 Params, 0, M_PI/2,
                 DPoint(0,0), DPoint(1,1));
             for (double xp=0;xp<10;xp++){
@@ -107,7 +107,7 @@ class DeDistortTest: public Test {
                 }
             }
 
-            DeDistort ShifterScaler = DeDistort(DPoint(0,0), DPoint(1,1),
+            DeDistort ShifterScaler = DeDistort(DPoint(1,1),
                 Params, 0, 0.0,
                 DPoint(1,1), DPoint(2,2));
             for (double xp=0;xp<10;xp++){
@@ -131,7 +131,7 @@ public:
         vector<double> Params;
         Params.push_back(0);
         Params.push_back(0);
-        DeDistortPtr pScaler = DeDistortPtr(new DeDistort(DPoint(0,0), DPoint(1,1),
+        DeDistortPtr pScaler = DeDistortPtr(new DeDistort(DPoint(1,1),
                 Params, 0, 0.0,
                 DPoint(0,0), DPoint(2,2)));
         TrackerConfig Config;
