@@ -47,20 +47,13 @@ class DeDistort: public CoordTransformer {
             double Angle, double TrapezoidFactor,
             const DPoint& DisplayOffset, const DPoint& DisplayScale);
         
-/*
-        DeDistort(const DPoint& FilmOffset, const DPoint& FilmScale, 
-            const std::vector<double>& DistortionParams, 
-            double Angle, double TrapezoidFactor,
-            const DPoint& DisplayOffset, const DPoint& DisplayScale);
-*/        
         virtual ~DeDistort();
-
-
 
         DPoint transformBlobToScreen(const DPoint &pt);
         DPoint transformScreenToBlob(const DPoint &pt);
-        virtual DPoint transform_point(const DPoint & pt); //(x,y) -> (x', y')
-        virtual DPoint inverse_transform_point(const DPoint & pt); //(x,y) -> (x', y')
+        virtual DPoint transform_point(const DPoint & pt); 
+        virtual DPoint inverse_transform_point(const DPoint & pt);
+        DRect getActiveBlobArea(const DPoint& DisplayExtents);
 
         void load(xmlNodePtr pParentNode);
         void save(xmlTextWriterPtr writer);

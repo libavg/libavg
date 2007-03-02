@@ -183,9 +183,10 @@ namespace avg {
     };
 
 
-    TrackerEventSource::TrackerEventSource(CameraPtr pCamera, 
+    TrackerEventSource::TrackerEventSource(CameraPtr pCamera, const IntPoint& DisplayExtents,
             bool bSubtractHistory)
         : m_TrackerConfig(),
+          m_DisplayExtents(DisplayExtents),
           m_pCalibrator(0)
     {
         AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
@@ -323,6 +324,13 @@ namespace avg {
     Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const
     {
         boost::mutex::scoped_lock Lock(*m_pTrackerMutex);
+/*        
+        if (ImageID == TRACKER_IMG_FINGERS) {
+            IntRect BlobRect(m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents)));
+            BitmapPtr pTempBmp = BitmapPtr(new Bitmap(*m_pBitmaps[ImageID], BlobRect));
+            return new Bitmap(*pTempBmp);
+        }     
+*/        
         return new Bitmap(*m_pBitmaps[ImageID]);
     }
     
@@ -438,8 +446,7 @@ namespace avg {
         //       AVG_TRACE(Logger::EVENTS2, ""<<gone_counter<<" fingers disappeared.");
     };
         
-    TrackerCalibrator* TrackerEventSource::startCalibration(int XDisplayExtents, 
-            int YDisplayExtents)
+    TrackerCalibrator* TrackerEventSource::startCalibration()
     {
         assert(!m_pCalibrator);
         m_pOldTransformer = m_TrackerConfig.m_pTrafo;
@@ -447,7 +454,7 @@ namespace avg {
         setConfig();
         resetHistory();
         m_pCalibrator = new TrackerCalibrator(m_pBitmaps[0]->getSize(),
-                IntPoint(XDisplayExtents, YDisplayExtents));
+                m_DisplayExtents);
         return m_pCalibrator;
     }
 

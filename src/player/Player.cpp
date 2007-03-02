@@ -319,7 +319,7 @@ TrackerEventSource * Player::addTracker(std::string sDevice, double FrameRate,
 //    } else {
         pCamera = CameraPtr(new Camera(sDevice, FrameRate, sMode, false));
 //    }
-    m_pTracker = new TrackerEventSource(pCamera, true);
+    m_pTracker = new TrackerEventSource(pCamera, IntPoint(m_DP.m_Width, m_DP.m_Height), true);
     m_EventDispatcher.addSource(m_pTracker);
     return m_pTracker;
 }

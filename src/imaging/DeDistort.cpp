@@ -84,24 +84,18 @@ DeDistort::DeDistort(const DPoint &CamExtents,
     m_FilmScale = DPoint(2./CamExtents.x,2./CamExtents.y);
     m_RescaleFactor = calc_rescale();
 }
-/*
-DeDistort::DeDistort(const DPoint& FilmOffset, const DPoint& FilmScale, 
-            const std::vector<double>& DistortionParams,
-            double Angle, double TrapezoidFactor,
-            const DPoint& DisplayOffset, const DPoint& DisplayScale)
-    : m_FilmOffset(FilmOffset),
-      m_FilmScale(FilmScale),
-      m_DistortionParams(DistortionParams),
-      m_Angle(Angle),
-      m_TrapezoidFactor(TrapezoidFactor),
-      m_DisplayOffset(DisplayOffset),
-      m_DisplayScale(DisplayScale)
-{
-    m_RescaleFactor = calc_rescale();
-}
-*/
+
 DeDistort::~DeDistort()
 {
+}
+
+DRect DeDistort::getActiveBlobArea(const DPoint& DisplayExtents)
+{
+
+    DRect ActiveRect;
+    ActiveRect.tl = transformScreenToBlob(DPoint(0, 0));
+    ActiveRect.br = transformScreenToBlob(DPoint(DisplayExtents.x, DisplayExtents.y));
+    return ActiveRect;
 }
 
 void DeDistort::load(xmlNodePtr pParentNode)

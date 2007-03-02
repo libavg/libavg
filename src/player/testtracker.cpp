@@ -66,8 +66,8 @@ public:
         }
         MutexPtr pMutex(new boost::mutex);
 
-        TrackerEventSourcePtr pTracker = TrackerEventSourcePtr(new TrackerEventSource(pCam, false));
-        
+        TrackerEventSourcePtr pTracker = TrackerEventSourcePtr(
+                new TrackerEventSource(pCam, IntPoint(640, 480), false));
 
         while(1){
             TimeSource::get()->msleep(50);

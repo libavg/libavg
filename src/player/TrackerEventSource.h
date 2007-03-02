@@ -48,7 +48,7 @@ typedef std::map<BlobPtr, EventStreamPtr> EventMap;
 class TrackerEventSource: public IBlobTarget, public IEventSource
 {
     public:
-        TrackerEventSource(CameraPtr pCamera, 
+        TrackerEventSource(CameraPtr pCamera, const IntPoint& DisplayExtents,
                 bool bSubtractHistory = true);
         virtual ~TrackerEventSource();
 
@@ -78,7 +78,7 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         /* implement IBlobTarget */
         virtual void update(BlobListPtr new_blobs, BitmapPtr pBitmap);//tracker thread
 
-        TrackerCalibrator* startCalibration(int XDisplayExtents, int YDisplayExtents);
+        TrackerCalibrator* startCalibration();
         void endCalibration();
         void abortCalibration();
 
@@ -99,6 +99,7 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
         
         DeDistortPtr m_pOldTransformer;
+        IntPoint m_DisplayExtents;
 
         TrackerCalibrator * m_pCalibrator;
 
