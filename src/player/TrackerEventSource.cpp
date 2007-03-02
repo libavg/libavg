@@ -195,7 +195,7 @@ namespace avg {
             m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgSize, I8));
         }
         m_pBitmaps[TRACKER_IMG_FINGERS] = BitmapPtr(new Bitmap(ImgSize, R8G8B8X8));
-        m_TrackerConfig.load("TrackerConfig.xml");
+        m_TrackerConfig.load();
         m_pUpdateMutex = MutexPtr(new boost::mutex);
         m_pTrackerMutex = MutexPtr(new boost::mutex);
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
@@ -311,7 +311,7 @@ namespace avg {
     
     void TrackerEventSource::saveConfig()
     {
-        m_TrackerConfig.save("TrackerConfig.xml");
+        m_TrackerConfig.save();
     }
 
     void TrackerEventSource::setConfig()

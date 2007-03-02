@@ -33,8 +33,8 @@ struct TrackerConfig
     TrackerConfig();
     virtual ~TrackerConfig();
     
-    void load(std::string sFilename);
-    void save(std::string sFilename);
+    void load(const std::string& sCustomFilename = "");
+    void save(const std::string& sCustomFilename = "");
 
     // Camera params
     int m_Brightness;
@@ -54,6 +54,9 @@ struct TrackerConfig
     bool m_bCreateFingerImage;
 
     DeDistortPtr m_pTrafo;
+
+private:
+    std::string getConfigFilename();
 };
 
 }

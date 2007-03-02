@@ -23,6 +23,7 @@
 
 #include "../base/XMLHelper.h"
 #include "../base/Logger.h"
+#include "../base/FileHelper.h"
 
 #include <libxml/parser.h>
 #include <libxml/xmlwriter.h>
@@ -67,10 +68,18 @@ namespace avg {
     {
     }
 
-    void TrackerConfig::load(std::string sFilename)
+    void TrackerConfig::load(const string& sCustomFilename)
     {
-        // TODO: Add dtd for this file!
+        string sFilename(sCustomFilename);
+        if (sCustomFilename.empty()) {
+            sFilename = "/etc/avgtrackerrc";
+            if (!fileExists(sFilename)) {
+                sFilename = getConfigFilename();
+            }
+        } 
+
         xmlDocPtr doc;
+        // TODO: Add dtd for this file
         doc = xmlParseFile(sFilename.c_str());
         if (!doc) {
             AVG_TRACE(Logger::ERROR, "Could not open tracker config file " 
@@ -110,8 +119,12 @@ namespace avg {
         }
     }
 
-    void TrackerConfig::save(std::string sFilename)
+    void TrackerConfig::save(const string& sCustomFilename)
     {
+        string sFilename(sCustomFilename);
+        if (sFilename.empty()) {
+            sFilename = getConfigFilename();
+        }
         xmlDocPtr doc;
         int rc;
         stringstream ss;
@@ -135,8 +148,20 @@ namespace avg {
         rc = xmlTextWriterEndElement(writer);
         rc = xmlTextWriterEndDocument(writer);
         xmlFreeTextWriter(writer);
+        AVG_TRACE(Logger::CONFIG, "Saving tracker configuration to " 
+                << sFilename << ".");
+
         xmlSaveFileEnc(sFilename.c_str(), doc, "utf-8");
         xmlFreeDoc(doc);
     }
 
+    std::string TrackerConfig::getConfigFilename()
+    {
+        char * pHome = getenv("HOME");
+        if (pHome) {
+            return string(pHome)+"/.avgtrackerrc"; 
+        } else {
+            return "";
+        }
+    }
 }

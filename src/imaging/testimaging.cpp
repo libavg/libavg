@@ -136,9 +136,9 @@ public:
                 DPoint(0,0), DPoint(2,2)));
         TrackerConfig Config;
         Config.m_pTrafo = pScaler;
-        Config.save("TempConfig.xml");
+        Config.save("temptrackerrc");
         TrackerConfig LoadedConfig;
-        LoadedConfig.load("TempConfig.xml");
+        LoadedConfig.load("temptrackerrc");
         DeDistortPtr pTrafo = LoadedConfig.m_pTrafo;
         TEST(almostEqual(pTrafo->transform_point(DPoint(0,0)), DPoint(0,0)));
         TEST(almostEqual(pTrafo->transformBlobToScreen(DPoint(1,2)), DPoint(2,4)));
