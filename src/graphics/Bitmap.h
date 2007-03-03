@@ -65,6 +65,7 @@ public:
     Bitmap(IntPoint Size, PixelFormat PF, unsigned char * pBits, 
             int Stride, bool bCopyBits, const std::string& sName="");
     Bitmap(const Bitmap& Orig);
+    Bitmap(const Bitmap& Orig, bool bOwnsBits);
     Bitmap(Bitmap& Orig, const IntRect& Rect);
     Bitmap(const std::string& sURI);
     virtual ~Bitmap();

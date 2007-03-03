@@ -29,6 +29,7 @@
 #include "../graphics/Rect.h"
 #include "../graphics/HistoryPreProcessor.h"
 #include "../graphics/Filterfill.h"
+#include "../graphics/Filterflip.h"
 #include "../graphics/Pixel8.h"
 
 #include "../imaging/DeDistort.h"
@@ -324,14 +325,23 @@ namespace avg {
     Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const
     {
         boost::mutex::scoped_lock Lock(*m_pTrackerMutex);
-/*        
         if (ImageID == TRACKER_IMG_FINGERS) {
             IntRect BlobRect(m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents)));
+            bool bFlip = false;
+            if (BlobRect.Height() < 1) {
+                int temp = BlobRect.tl.y;
+                BlobRect.tl.y = BlobRect.br.y;
+                BlobRect.br.y = temp;
+                bFlip = true;
+            } 
             BitmapPtr pTempBmp = BitmapPtr(new Bitmap(*m_pBitmaps[ImageID], BlobRect));
-            return new Bitmap(*pTempBmp);
-        }     
-*/        
-        return new Bitmap(*m_pBitmaps[ImageID]);
+            if (!bFlip) {
+                FilterFlip().applyInPlace(pTempBmp);
+            }
+            return new Bitmap(*pTempBmp, true);
+        } else {
+            return new Bitmap(*m_pBitmaps[ImageID]);
+        }
     }
     
 

@@ -77,6 +77,17 @@ Bitmap::Bitmap(const Bitmap& Orig)
             m_bOwnsBits);
 }
 
+Bitmap::Bitmap(const Bitmap& Orig, bool bOwnsBits)
+    : m_Size(Orig.getSize()),
+      m_PF(Orig.getPixelFormat()),
+      m_bOwnsBits(bOwnsBits),
+      m_sName(Orig.getName()+" copy")
+{
+//    cerr << "Bitmap::Bitmap(Bitmap), Name: " << m_sName << endl;
+    initWithData(const_cast<unsigned char *>(Orig.getPixels()), Orig.getStride(), 
+            m_bOwnsBits);
+}
+
 // Creates a bitmap that is a rectangle in another bitmap. The pixels are
 // still owned by the original bitmap.
 Bitmap::Bitmap(Bitmap& Orig, const IntRect& Rect)

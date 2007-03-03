@@ -33,7 +33,7 @@ using namespace std;
 
 #define NUM_POINTS 4 
 #define MIN_DIST_FROM_BORDER 30
-#define DEBUG_FIT  1
+//#define DEBUG_FIT  1
 
 namespace avg {
 
