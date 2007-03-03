@@ -110,6 +110,7 @@ void DeDistort::load(xmlNodePtr pParentNode)
             m_FilmScale.x = getRequiredDoubleAttr(curXmlChild, "x");
             m_FilmScale.y = getRequiredDoubleAttr(curXmlChild, "y");
         } else if (!strcmp(pNodeName, "distortionparams")) {
+            m_DistortionParams.clear();
             m_DistortionParams.push_back(getRequiredDoubleAttr(curXmlChild, "p2"));
             m_DistortionParams.push_back(getRequiredDoubleAttr(curXmlChild, "p3"));
         } else if (!strcmp(pNodeName, "trapezoid")) {
