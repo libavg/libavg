@@ -208,6 +208,7 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
         assert(dat == m_CamPoints.size());
       
         //fill in reasonable defaults
+        m_DistortParams.clear();
         m_DistortParams.push_back(0);
         m_DistortParams.push_back(0);
         m_Angle = 0;
