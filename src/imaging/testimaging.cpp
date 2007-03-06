@@ -171,8 +171,9 @@ public:
         MutexPtr pMutex(new boost::mutex);
         TrackerConfig config;
         m_pCmdQ = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
+        IntRect ROI = IntRect(IntPoint(0,0), pCam->getImgSize());
         boost::thread Thread(
-                TrackerThread(pCam, m_pBitmaps, pMutex,  *m_pCmdQ, this, true, config));
+                TrackerThread(ROI, pCam, m_pBitmaps, pMutex,  *m_pCmdQ, this, true, config));
         Thread.join();
     }
     

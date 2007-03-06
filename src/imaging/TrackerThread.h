@@ -60,7 +60,8 @@ class IBlobTarget {
 class TrackerThread: public WorkerThread<TrackerThread>
 {
     public:
-        TrackerThread(CameraPtr pCamera, 
+        TrackerThread(IntRect ROI, 
+                CameraPtr pCamera, 
                 BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES],
                 MutexPtr pMutex,
                 CmdQueue& CmdQ,
@@ -74,7 +75,7 @@ class TrackerThread: public WorkerThread<TrackerThread>
         void deinit();
 
         void setConfig(TrackerConfig Config);
-        void setBitmaps(BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES]);
+        void setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES]);
         void resetHistory();
     
     private:
@@ -89,6 +90,7 @@ class TrackerThread: public WorkerThread<TrackerThread>
 
         int m_Threshold;
         BlobListPtr m_pBlobList;
+        IntRect m_ROI;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
         MutexPtr m_pMutex;
 

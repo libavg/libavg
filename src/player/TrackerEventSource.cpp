@@ -59,7 +59,7 @@ namespace avg {
         public:
             EventStream(BlobPtr first_blob);
             void update(BlobPtr new_blob);
-            Event* pollevent(DeDistortPtr trafo);
+            Event* pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents);
             enum StreamState {
                 DOWN_PENDING, //fresh stream. not polled yet
                 DOWN_DELIVERED, //initial finger down delivered
@@ -147,11 +147,11 @@ namespace avg {
         m_Stale = false;
     };
 
-    //REFACTORME: replace offset/scale with CoordTransformer
-    Event* EventStream::pollevent(DeDistortPtr trafo)
+    Event* EventStream::pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents)
     {
         assert(m_pBlob);
-        DPoint pt = m_pBlob->getInfo()->m_Center;
+        DPoint BlobOffset = trafo->getActiveBlobArea(DPoint(DisplayExtents)).tl;
+        DPoint pt = m_pBlob->getInfo()->m_Center+BlobOffset;
         DPoint screenpos = trafo->transformBlobToScreen(pt);
         IntPoint Pos = IntPoint(
                 int(round(screenpos.x)), 
@@ -191,18 +191,18 @@ namespace avg {
           m_pCalibrator(0)
     {
         AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
-        IntPoint ImgDimensions = pCamera->getImgSize();
+
         IntPoint ImgSize = pCamera->getImgSize();
-        for (int i=0; i<NUM_TRACKER_IMAGES-1; i++) {
-            m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgSize, I8));
-        }
-        m_pBitmaps[TRACKER_IMG_FINGERS] = BitmapPtr(new Bitmap(ImgSize, R8G8B8X8));
+        m_pBitmaps[0] = BitmapPtr(new Bitmap(ImgSize, I8));
         m_TrackerConfig.load();
+        handleROIChange();
         m_pUpdateMutex = MutexPtr(new boost::mutex);
         m_pTrackerMutex = MutexPtr(new boost::mutex);
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
         m_pTrackerThread = new boost::thread(
-                TrackerThread(pCamera,
+                TrackerThread(
+                    m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents)),
+                    pCamera,
                     m_pBitmaps, 
                     m_pTrackerMutex,
                     *m_pCmdQueue,
@@ -310,7 +310,7 @@ namespace avg {
         m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
                 &TrackerThread::resetHistory, _1)));
     }
-    
+
     void TrackerEventSource::saveConfig()
     {
         m_TrackerConfig.save();
@@ -322,26 +322,25 @@ namespace avg {
                 &TrackerThread::setConfig, _1, m_TrackerConfig)));
     }
 
+    void TrackerEventSource::handleROIChange()
+    {
+        DRect Area = m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents));
+        IntPoint ImgSize(int(Area.Width()), int(Area.Height()));
+        cerr << "Area: " << Area << endl;
+        for (int i=1; i<NUM_TRACKER_IMAGES-1; i++) {
+            m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgSize, I8));
+        }
+        m_pBitmaps[TRACKER_IMG_FINGERS] = BitmapPtr(new Bitmap(ImgSize, R8G8B8X8));
+        if (m_pCmdQueue) {
+            m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
+                    &TrackerThread::setBitmaps, _1, Area, m_pBitmaps)));
+        }
+    }
+
     Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const
     {
         boost::mutex::scoped_lock Lock(*m_pTrackerMutex);
-        if (ImageID == TRACKER_IMG_FINGERS) {
-            IntRect BlobRect(m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents)));
-            bool bFlip = false;
-            if (BlobRect.Height() < 1) {
-                int temp = BlobRect.tl.y;
-                BlobRect.tl.y = BlobRect.br.y;
-                BlobRect.br.y = temp;
-                bFlip = true;
-            } 
-            BitmapPtr pTempBmp = BitmapPtr(new Bitmap(*m_pBitmaps[ImageID], BlobRect));
-            if (!bFlip) {
-                FilterFlip().applyInPlace(pTempBmp);
-            }
-            return new Bitmap(*pTempBmp, true);
-        } else {
-            return new Bitmap(*m_pBitmaps[ImageID]);
-        }
+        return new Bitmap(*m_pBitmaps[ImageID]);
     }
     
 
@@ -386,6 +385,7 @@ namespace avg {
     bool TrackerEventSource::isfinger(BlobPtr blob)
     {
         BlobInfoPtr info = blob->getInfo();
+        // FIXME!
 #define IN(x, pair) (((x)>=pair[0])&&((x)<=pair[1]))
         bool res;
         res = IN(info->m_Area, m_TrackerConfig.m_AreaBounds) && IN(info->m_Eccentricity, m_TrackerConfig.m_EccentricityBounds);
@@ -460,9 +460,10 @@ namespace avg {
     {
         assert(!m_pCalibrator);
         m_pOldTransformer = m_TrackerConfig.m_pTrafo;
-        m_TrackerConfig.m_pTrafo = DeDistortPtr(new DeDistort());
+        m_TrackerConfig.m_pTrafo = DeDistortPtr(new DeDistort(
+                DPoint(m_pBitmaps[0]->getSize()), DPoint(m_DisplayExtents)));
         setConfig();
-        resetHistory();
+        handleROIChange();
         m_pCalibrator = new TrackerCalibrator(m_pBitmaps[0]->getSize(),
                 m_DisplayExtents);
         return m_pCalibrator;
@@ -473,7 +474,7 @@ namespace avg {
         assert(m_pCalibrator);
         m_TrackerConfig.m_pTrafo = m_pCalibrator->makeTransformer();
         setConfig();
-        resetHistory();
+        handleROIChange();
         delete m_pCalibrator;
         m_pCalibrator = 0;
         m_pOldTransformer = DeDistortPtr();
@@ -484,6 +485,7 @@ namespace avg {
         assert(m_pCalibrator);
         m_TrackerConfig.m_pTrafo = m_pOldTransformer;
         setConfig();
+        handleROIChange();
         m_pOldTransformer = DeDistortPtr();
         delete m_pCalibrator;
         m_pCalibrator = 0;
@@ -496,7 +498,7 @@ namespace avg {
         Event *t;
         int kill_counter = 0;
         for (EventMap::iterator it = m_Events.begin(); it!= m_Events.end();){
-            t = (*it).second->pollevent(m_TrackerConfig.m_pTrafo);
+            t = (*it).second->pollevent(m_TrackerConfig.m_pTrafo, m_DisplayExtents);
             if (t) res.push_back(t);
             if ((*it).second->m_State == EventStream::UP_DELIVERED){
                 m_Events.erase(it++);

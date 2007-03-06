@@ -96,6 +96,8 @@ Bitmap::Bitmap(Bitmap& Orig, const IntRect& Rect)
       m_bOwnsBits(false)
 {
 //    cerr << "Bitmap::Bitmap(Bitmap, " << Rect << "), Name: " << m_sName << endl;
+    assert(Rect.br.x <= Orig.getSize().x);
+    assert(Rect.br.y <= Orig.getSize().y);
     if (!Orig.getName().empty()) {
         m_sName = Orig.getName()+" part";
     } else {
