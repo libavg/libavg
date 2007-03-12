@@ -30,6 +30,7 @@
 #include "../graphics/Filterfill.h"
 #include "../graphics/FilterHighpass.h"
 #include "../graphics/FilterBlur.h"
+#include "../graphics/FilterGauss.h"
 
 #include <iostream>
 #include <stdlib.h>
@@ -59,16 +60,13 @@ TrackerThread::TrackerThread(IntRect ROI,
       m_Threshold(128),
       m_pMutex(pMutex),
       m_pCamera(pCamera),
-      m_pTarget(target),
-      m_bCreateDebugImages(false),
-      m_bCreateFingerImage(false)
+      m_pTarget(target)
 {
     if (bSubtractHistory) {
         m_pHistoryPreProcessor = HistoryPreProcessorPtr(
                 new HistoryPreProcessor(ppBitmaps[1]->getSize(), 1));
     }
     setBitmaps(ROI, ppBitmaps);
-
     m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), 
             config.m_pTrafo));
 }
@@ -168,10 +166,11 @@ void TrackerThread::setConfig(TrackerConfig Config)
         m_pHistoryPreProcessor->setInterval(Config.m_HistoryUpdateInterval);
     }
     if (m_pTrafo != Config.m_pTrafo) {
-        m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), Config.m_pTrafo));
+        m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), 
+                Config.m_pTrafo));
         m_pTrafo = Config.m_pTrafo;
     }
-        
+
     m_pCamera->setFeature("brightness", Config.m_Brightness);
     m_pCamera->setFeature("gamma", Config.m_Gamma);
     m_pCamera->setFeature("gain", Config.m_Gain);

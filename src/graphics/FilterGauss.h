@@ -43,7 +43,7 @@ class FilterGauss: public Filter{
 
         double m_Radius;
         int m_KernelWidth;
-        int m_Kernel[7];
+        int m_Kernel[15];
 };
 
 typedef boost::shared_ptr<FilterGauss> FilterGaussPtr;

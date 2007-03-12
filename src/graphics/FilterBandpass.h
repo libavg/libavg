@@ -33,7 +33,7 @@ namespace avg {
 // XXX: Warning, possibly buggy.
 class FilterBandpass: public Filter{
     public:
-        FilterBandpass();
+        FilterBandpass(double lowWidth, double highWidth);
         virtual ~FilterBandpass();
 
         virtual BitmapPtr apply(BitmapPtr pBmpSrc);
@@ -41,6 +41,7 @@ class FilterBandpass: public Filter{
     private:
         FilterGauss m_HighpassFilter;
         FilterGauss m_LowpassFilter;
+        int m_FilterWidthDiff;
 };
 
 typedef boost::shared_ptr<FilterBandpass> FilterBandpassPtr;

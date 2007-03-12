@@ -579,7 +579,7 @@ public:
         FilterFill<Pixel8>(0).applyInPlace(pBmp);
         *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
         BitmapPtr pDestBmp = FilterHighpass().apply(pBmp);
-//        pDestBmp->save("testimages/HighpassResult.png");
+        pDestBmp->save("testimages/HighpassResult.png");
         BitmapPtr pBaselineBmp = FilterGrayscale().apply(
                 BitmapPtr(new Bitmap("testimages/HighpassResult.png")));
         TEST(*pDestBmp == *pBaselineBmp);
@@ -603,6 +603,8 @@ public:
 //        FilterGauss(3).dumpKernel();
 //        FilterGauss(2.1).dumpKernel();
 //        FilterGauss(1.9).dumpKernel();
+//        FilterGauss(4).dumpKernel();
+//        FilterGauss(5).dumpKernel();
         BitmapPtr pDestBmp = FilterGauss(3).apply(pBmp);
 //        pDestBmp->save("testimages/Gauss3Result.png");
         BitmapPtr pBaselineBmp = FilterGrayscale().apply(
@@ -617,6 +619,11 @@ public:
 //        pDestBmp->save("testimages/Gauss15Result.png");
         pBaselineBmp = FilterGrayscale().apply(
                 BitmapPtr(new Bitmap("testimages/Gauss15Result.png")));
+        TEST(*pDestBmp == *pBaselineBmp);
+        pDestBmp = FilterGauss(5).apply(pBmp);
+//        pDestBmp->save("testimages/Gauss5Result.png");
+        pBaselineBmp = FilterGrayscale().apply(
+                BitmapPtr(new Bitmap("testimages/Gauss5Result.png")));
         TEST(*pDestBmp == *pBaselineBmp);
     }
 };
@@ -656,7 +663,7 @@ public:
         FilterFill<Pixel8>(0).applyInPlace(pBmp);
         *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
         
-        BitmapPtr pDestBmp = FilterBandpass().apply(pBmp);
+        BitmapPtr pDestBmp = FilterBandpass(1.9,3).apply(pBmp);
         pDestBmp->save("testimages/BandpassResult.png");
         BitmapPtr pBaselineBmp = FilterGrayscale().apply(
                 BitmapPtr(new Bitmap("testimages/BandpassResult.png")));

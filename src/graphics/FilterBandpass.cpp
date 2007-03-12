@@ -31,10 +31,11 @@ using namespace std;
 
 namespace avg {
     
-FilterBandpass::FilterBandpass()
-    : m_HighpassFilter(3),
-      m_LowpassFilter(1.9)
+FilterBandpass::FilterBandpass(double lowWidth, double highWidth)
+    : m_HighpassFilter(highWidth),
+      m_LowpassFilter(lowWidth)
 {
+    m_FilterWidthDiff = int(ceil(highWidth))-int(ceil(lowWidth));
 }
 
 FilterBandpass::~FilterBandpass()
@@ -52,15 +53,15 @@ BitmapPtr FilterBandpass::apply(BitmapPtr pBmpSrc)
     int LPStride = pLPBmp->getStride();
     int HPStride = pHPBmp->getStride();
     int DestStride = pDestBmp->getStride();
-    unsigned char * pLPLine = pLPBmp->getPixels()+LPStride;
+    unsigned char * pLPLine = pLPBmp->getPixels()+m_FilterWidthDiff*LPStride;
     unsigned char * pHPLine = pHPBmp->getPixels();
     unsigned char * pDestLine = pDestBmp->getPixels();
     for (int y = 0; y<Size.y; ++y) {
-        unsigned char * pLPPixel = pLPLine+1;
+        unsigned char * pLPPixel = pLPLine+m_FilterWidthDiff;
         unsigned char * pHPPixel = pHPLine;
         unsigned char * pDestPixel = pDestLine;
         for (int x = 0; x < Size.x; ++x) {
-            *pDestPixel = (int(*pLPPixel)-*pHPPixel)*4+128;
+            *pDestPixel = (int(*pLPPixel)-*pHPPixel*0.95)+128;
             ++pLPPixel;
             ++pHPPixel;
             ++pDestPixel;

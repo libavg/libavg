@@ -91,7 +91,17 @@ BitmapPtr FilterGauss::apply(BitmapPtr pBmpSrc)
                 }
                 break;
             default:
-                assert(false);
+                // This is _really_ slow!
+                for (int x = 0; x < TempSize.x; ++x) {
+                    *pTempPixel = 0;
+                    unsigned char * pKernelPixel = pSrcPixel-IntRadius;
+                    for (int w=0; w <= IntRadius*2; ++w) {
+                        *pTempPixel += ((*pKernelPixel)*m_Kernel[w])/256;
+                        pKernelPixel++;
+                    }
+                    ++pSrcPixel;
+                    ++pTempPixel;
+                }
         }
         pSrcLine += SrcStride;
         pTempLine += TempStride;
@@ -141,7 +151,17 @@ BitmapPtr FilterGauss::apply(BitmapPtr pBmpSrc)
                 }
                 break;
             default:
-                assert(false);
+                // This is _really_ slow!
+                for (int x = 0; x < TempSize.x; ++x) {
+                    *pDestPixel = 0;
+                    unsigned char * pKernelPixel = pTempPixel-IntRadius*TempStride;
+                    for (int w=0; w <= IntRadius*2; ++w) {
+                        *pDestPixel += (*pKernelPixel*m_Kernel[w])/256;
+                        pKernelPixel+=TempStride;
+                    }
+                    ++pTempPixel;
+                    ++pDestPixel;
+                }
         }
         pTempLine += TempStride;
         pDestLine += DestStride;
@@ -160,7 +180,7 @@ void FilterGauss::dumpKernel()
 
 void FilterGauss::calcKernel()
 {
-    double FloatKernel[7];
+    double FloatKernel[15];
     double Sum = 0;
     int IntRadius = int(ceil(m_Radius));
     m_KernelWidth = IntRadius*2+1;
@@ -175,7 +195,6 @@ void FilterGauss::calcKernel()
     for (int i=0; i<m_KernelWidth; ++i) {
         m_Kernel[i] = int(FloatKernel[i]*256/Sum+0.5);
     }
-
 }
 
 }

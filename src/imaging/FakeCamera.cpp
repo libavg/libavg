@@ -42,9 +42,6 @@ FakeCamera::FakeCamera(std::vector<std::string> &pictures)
     : m_pBmpQ(new std::queue<BitmapPtr>()),
       m_bIsOpen(false)
 {
-    //for (int i=0; i<6; ++i) {
-    //    stringstream s;
-    //    s << "../imaging/testimages/Blob" << i << ".png";
     for(std::vector<std::string>::iterator it=pictures.begin();it!=pictures.end();++it){
         try {
             BitmapPtr pBmp (new Bitmap(*it));

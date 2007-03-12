@@ -53,9 +53,11 @@ namespace avg {
           m_Gamma(1),
           m_Gain(128),
           m_Shutter(128),
-          m_Threshold(20),
+          m_Threshold(128),
           m_HistoryUpdateInterval(5),
           m_Similarity(31),
+          m_bCreateDebugImages(false),
+          m_bCreateFingerImage(false),
           m_pTrafo(new DeDistort())
     {
           m_AreaBounds[0] = 80;
