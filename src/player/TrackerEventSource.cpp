@@ -408,8 +408,10 @@ namespace avg {
                 pBitmap);
         }
         for(EventMap::iterator it=m_Events.begin();it!=m_Events.end();++it){
-            (*it).second->m_Stale = true;
-            old_fingers->push_back((*it).first);
+            if (it->second->m_State != EventStream::UP_DELIVERED ||it->second->m_State != EventStream::UP_PENDING) {
+                (*it).second->m_Stale = true;
+                old_fingers->push_back((*it).first);
+            }
         }
         int known_counter=0, new_counter=0, ignored_counter=0; 
         // 2. For each old_blob choose the best match of an new blob and update its event stream accordingly
