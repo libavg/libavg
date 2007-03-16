@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _FilterHighpass_H_
-#define _FilterHighpass_H_
+#ifndef _FilterFastBandpass_H_
+#define _FilterFastBandpass_H_
 
 #include "Filter.h"
 #include "Bitmap.h"
@@ -29,17 +29,17 @@
 
 namespace avg {
 
-// This is a highpass filter that uses a 7x7 kernel. 
-class FilterHighpass: public Filter{
+// This is a fast and sloppy bandpass filter that uses a 7x7 kernel. 
+class FilterFastBandpass: public Filter{
     public:
-        FilterHighpass();
-        virtual ~FilterHighpass();
+        FilterFastBandpass();
+        virtual ~FilterFastBandpass();
 
         virtual BitmapPtr apply(BitmapPtr pBmpSrc);
 
     private:
 };
 
-typedef boost::shared_ptr<FilterHighpass> FilterHighpassPtr;
+typedef boost::shared_ptr<FilterFastBandpass> FilterFastBandpassPtr;
 }
 #endif

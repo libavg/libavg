@@ -34,6 +34,7 @@
 #include "FilterConvol.h"
 #include "HistoryPreProcessor.h"
 #include "FilterHighpass.h"
+#include "FilterFastBandpass.h"
 #include "FilterGauss.h"
 #include "FilterBlur.h"
 #include "FilterBandpass.h"
@@ -566,6 +567,27 @@ public:
 
 };
     
+class FilterFastBandpassTest: public Test {
+public:
+    FilterFastBandpassTest()
+        : Test("FilterFastBandpassTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(16,16), I8));
+        FilterFill<Pixel8>(0).applyInPlace(pBmp);
+        *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
+        BitmapPtr pDestBmp = FilterFastBandpass().apply(pBmp);
+//        pDestBmp->save("testimages/FastBandpassResult.png");
+        BitmapPtr pBaselineBmp = FilterGrayscale().apply(
+                BitmapPtr(new Bitmap("testimages/FastBandpassResult.png")));
+        TEST(*pDestBmp == *pBaselineBmp);
+    }
+};
+
+
 class FilterHighpassTest: public Test {
 public:
     FilterHighpassTest()
@@ -579,7 +601,7 @@ public:
         FilterFill<Pixel8>(0).applyInPlace(pBmp);
         *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
         BitmapPtr pDestBmp = FilterHighpass().apply(pBmp);
-        pDestBmp->save("testimages/HighpassResult.png");
+//        pDestBmp->save("testimages/HighpassResult.png");
         BitmapPtr pBaselineBmp = FilterGrayscale().apply(
                 BitmapPtr(new Bitmap("testimages/HighpassResult.png")));
         TEST(*pDestBmp == *pBaselineBmp);
@@ -692,7 +714,8 @@ public:
         addTest(TestPtr(new FilterHighpassTest));
         addTest(TestPtr(new FilterGaussTest));
         addTest(TestPtr(new FilterBlurTest));
-//        addTest(TestPtr(new FilterBandpassTest));
+        addTest(TestPtr(new FilterBandpassTest));
+        addTest(TestPtr(new FilterFastBandpassTest));
     }
 };
 

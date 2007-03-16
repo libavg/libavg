@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "FilterHighpass.h"
+#include "FilterFastBandpass.h"
 #include "FilterBlur.h"
 #include "Filterfill.h"
 #include "Pixel8.h"
@@ -32,15 +32,15 @@ using namespace std;
 
 namespace avg {
     
-FilterHighpass::FilterHighpass()
+FilterFastBandpass::FilterFastBandpass()
 {
 }
 
-FilterHighpass::~FilterHighpass()
+FilterFastBandpass::~FilterFastBandpass()
 {
 }
 
-BitmapPtr FilterHighpass::apply(BitmapPtr pBmpSrc)
+BitmapPtr FilterFastBandpass::apply(BitmapPtr pBmpSrc)
 {
     assert(pBmpSrc->getPixelFormat() == I8);
     BitmapPtr pBmpBlur = FilterBlur().apply(pBmpSrc); 
@@ -62,19 +62,20 @@ BitmapPtr FilterHighpass::apply(BitmapPtr pBmpSrc)
         *pDstPixel++ = 128;
         for (int x = 3; x < size.x-3; ++x) {
             // Convolution Matrix is
-            // -1  0  0   0  -1
-            //  0 -1  0  -1   0
-            //  0  0  8   0   0
-            //  0 -1  0  -1   0
-            // -1  0  0   0  -1
-            // Actually, it's 7x7, but you get the idea.
+            // -1  0  0  0  0  0 -1 
+            //  0 -1  0  0  0 -1  0
+            //  0  0  1  0  1  0  0
+            //  0  0  0  4  0  0  0
+            //  0  0  1  0  1  0  0
+            //  0 -1  0  0  0 -1  0
+            // -1  0  0  0  0  0 -1 
             *pDstPixel = 128 - int(*(pSrcPixel-3*SrcStride-3) + *(pSrcPixel-3*SrcStride+3) +
-                *(pSrcPixel+3*SrcStride-3) + *(pSrcPixel+3*SrcStride+3)+4)/4; 
+                *(pSrcPixel+3*SrcStride-3) + *(pSrcPixel+3*SrcStride+3)+2)/4; 
             *pDstPixel += 
                 - int(*(pSrcPixel-2*SrcStride-2) + *(pSrcPixel-2*SrcStride+2) - 
                       *(pSrcPixel-SrcStride-1) - *(pSrcPixel-1*SrcStride+1) -
                       *(pSrcPixel+SrcStride-1) - *(pSrcPixel+1*SrcStride+1) + 
-                      *(pSrcPixel+2*SrcStride-2) + *(pSrcPixel+2*SrcStride+2)+4)/4
+                      *(pSrcPixel+2*SrcStride-2) + *(pSrcPixel+2*SrcStride+2)+2)/4
                 + *pSrcPixel;
 /*
             unsigned char *pSrc = pSrcPixel-3*SrcStride-3;
@@ -95,42 +96,6 @@ BitmapPtr FilterHighpass::apply(BitmapPtr pBmpSrc)
             Dest += *pSrc;
             Dest /= 8;
             *pDstPixel = 128+(*pSrcPixel)-Dest;
-*/
-/*
-            unsigned char *pSrc = pSrcPixel-3*SrcStride;
-            int Dest = *pSrc;
-            pSrc += SrcStride;
-            Dest += *pSrc;
-            pSrc += SrcStride;
-            Dest += *pSrc;
-            pSrc += SrcStride-3;
-            Dest += *pSrc++;
-            Dest += *pSrc++;
-            Dest += *pSrc++;
-            pSrc++;
-            Dest += *pSrc++;
-            Dest += *pSrc++;
-            Dest += *pSrc;
-            pSrc += SrcStride-3;
-            Dest += *pSrc;
-            pSrc += SrcStride;
-            Dest += *pSrc;
-            pSrc += SrcStride;
-            Dest += *pSrc;
-            Dest /= 16;
-            *pDstPixel = 128-Dest+*(pSrcPixel)*3/4;
-*/            
-/*            
-            *pDstPixel = 
-                128 - int(*(pSrcPixel-3*SrcStride) + 
-                        *(pSrcPixel-2*SrcStride) + 
-                        *(pSrcPixel-SrcStride) + 
-                        *(pSrcPixel-3) + *(pSrcPixel-2) + *(pSrcPixel-1) +
-                        *(pSrcPixel+3) + *(pSrcPixel+2) + *(pSrcPixel+1) +
-                        *(pSrcPixel+1*SrcStride) + 
-                        *(pSrcPixel+2*SrcStride) + 
-                        *(pSrcPixel+3*SrcStride))/16 +
-                *(pSrcPixel)*3/4;
 */
             ++pSrcPixel;
             ++pBlurPixel;
