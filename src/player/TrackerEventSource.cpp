@@ -109,7 +109,7 @@ namespace avg {
                     }
                     break;
             }
-            m_Stale = false;
+
             return;
         }
         assert(m_pBlob);
@@ -352,22 +352,19 @@ namespace avg {
         return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
     }
 
-    BlobList::iterator TrackerEventSource::matchblob(BlobPtr old_blob, BlobListPtr new_blobs, double threshold)
+    BlobPtr TrackerEventSource::matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold)
     {
-        //return an iterator object in new_blobs for the the matching new_blob or new_blobs->end()
-        assert(old_blob);
-        std::vector<BlobList::iterator> candidates;
-        BlobList::iterator res;
-        for(BlobList::iterator it=new_blobs->begin();it!=new_blobs->end();++it)
+        assert(new_blob);
+        std::vector<BlobPtr> candidates;
+        BlobPtr res;
+        for(BlobList::iterator it=old_blobs->begin();it!=old_blobs->end();++it)
         {
-            if ((*it) && (distance( (*it), old_blob)<threshold)){ //take care not to use a 'removed' blob (*it)==0
-                candidates.push_back( it );
-            }
-
+            if (distance( (*it), new_blob)<threshold) 
+                candidates.push_back( (*it) );
         }
         switch (candidates.size()) {
             case 0:
-                res = new_blobs->end();
+                res = BlobPtr();
                 break;
             case 1:
                 res = candidates[0];
@@ -375,8 +372,8 @@ namespace avg {
             default:
                 //FIXME duplicate calculation of distance should be eliminated...
                 double act=1e10, tmp;
-                for(std::vector<BlobList::iterator>::iterator it=candidates.begin();it!=candidates.end();++it){
-                    if ((tmp = distance( *(*it), old_blob))<act){
+                for(std::vector<BlobPtr>::iterator it=candidates.begin();it!=candidates.end();++it){
+                    if ((tmp = distance( (*it), new_blob))<act){
                         res = (*it);
                         act = tmp;
                     }
@@ -399,8 +396,7 @@ namespace avg {
     void TrackerEventSource::update(BlobListPtr new_blobs, BitmapPtr pBitmap)
     {
         boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
-        BlobListPtr old_fingers = BlobListPtr(new BlobList());
-        BlobListPtr new_fingers = BlobListPtr(new BlobList());
+        BlobListPtr old_blobs = BlobListPtr(new BlobList());
         EventStreamPtr e;
         if (pBitmap) {
             Pixel32 Black(0x00, 0x00, 0x00, 0x00);
@@ -408,17 +404,10 @@ namespace avg {
                 pBitmap);
         }
         for(EventMap::iterator it=m_Events.begin();it!=m_Events.end();++it){
-            if (it->second->m_State != EventStream::UP_DELIVERED ||it->second->m_State != EventStream::UP_PENDING) {
-                (*it).second->m_Stale = true;
-                old_fingers->push_back((*it).first);
-            }
+            (*it).second->m_Stale = true;
+            old_blobs->push_back((*it).first);
         }
         int known_counter=0, new_counter=0, ignored_counter=0; 
-        // 2. For each old_blob choose the best match of an new blob and update its event stream accordingly
-        // 3. update map m_Events accordingly.
-        // 4. remove matched new_blob from the array by zeroing.
-        // 3. Everything still left is a new event
-
         for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2){
             if (!isfinger(*it2)){
                 if (pBitmap) {
@@ -426,31 +415,35 @@ namespace avg {
                             Pixel32(0xFF, 0x00, 0x00, 0xFF), false);
                 }
                 ignored_counter++;
+                continue;
             }else {
                 if (pBitmap) {
                     (*it2)->render(&*pBitmap, 
                             Pixel32(0xFF, 0xFF, 0xFF, 0xFF), true, 
                             Pixel32(0x00, 0x00, 0xFF, 0xFF)); 
                 }
-                new_fingers->push_back(*it2);
+            }
+            BlobPtr old_match = matchblob((*it2), old_blobs, m_TrackerConfig.m_Similarity);
+            if (old_match && (m_Events.find(old_match) == m_Events.end())) {
+                //..but the blob already disappeared from the map
+                //=>EventStream already updated
+                old_match = BlobPtr();
+            }
+            if(old_match){
+                //this blob has been identified with an old one
+                known_counter++;
+                e = m_Events.find(old_match)->second;
+                e->update( (*it2) );
+                //update the mapping!
+                m_Events[(*it2)] = e;
+                m_Events.erase(old_match);
+            } else {
+                new_counter++;
+                //this is a new one
+                m_Events[(*it2)] = EventStreamPtr( new EventStream((*it2)) ) ;
             }
         }
-        for(BlobList::iterator it2 = old_fingers->begin();it2!=old_fingers->end();++it2){
-            BlobList::iterator new_match = matchblob((*it2), new_fingers, m_TrackerConfig.m_Similarity);
-            if(new_match!=new_fingers->end()){
-                //this blob has a valid successor
-                known_counter++;
-                EventMap::iterator old_pos = m_Events.find(*it2);
-                assert(old_pos!=m_Events.end());
-                e = old_pos->second;
-                e->update( (*new_match) );
-                //update the mapping!
-                m_Events[(*new_match)] = e;
-                m_Events.erase(old_pos);
-                *new_match = BlobPtr();//mark as removed
-            }  
-        }
-
+        //       AVG_TRACE(Logger::EVENTS2, "matched blobs: "<<known_counter<<"; new blobs: "<<new_counter<<"; ignored: "<<ignored_counter);
         int gone_counter = 0;
         for(EventMap::iterator it3=m_Events.begin();it3!=m_Events.end();++it3){
             //all event streams that are still stale haven't been updated: blob is gone, send the sentinel for this.
@@ -459,17 +452,7 @@ namespace avg {
                 gone_counter++;
             }
         }
-        for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2){
-            if(*it2) {
-                m_Events[*it2] = EventStreamPtr(new EventStream(*it2));
-                new_counter++;
-            }
-        }
-        for(EventMap::iterator it=m_Events.begin();it!=m_Events.end();++it){
-            assert(!it->second->m_Stale);
-        }
 
-        //       AVG_TRACE(Logger::EVENTS2, "matched blobs: "<<known_counter<<"; new blobs: "<<new_counter<<"; ignored: "<<ignored_counter);
         //       AVG_TRACE(Logger::EVENTS2, ""<<gone_counter<<" fingers disappeared.");
     };
         
@@ -525,7 +508,8 @@ namespace avg {
             }
         }
 
-        AVG_TRACE(Logger::EVENTS2, "=== "<<m_Events.size()<<" === active cursors, killed "<<kill_counter);
+//        if (kill_counter)
+//            AVG_TRACE(Logger::EVENTS2, ""<<kill_counter<<" EventStreams removed.");
         return res;
     }
     

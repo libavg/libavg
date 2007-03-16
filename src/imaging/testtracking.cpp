@@ -26,6 +26,7 @@
 #include "../graphics/FilterGauss.h"
 #include "../graphics/FilterHighpass.h"
 #include "../graphics/FilterBandpass.h"
+#include "../graphics/FilterBlur.h"
 
 #include <sstream>
 #include <iostream>
@@ -90,14 +91,14 @@ void testBlur()
 {
     BitmapPtr pBitmap(new Bitmap("camimages/img1_nohistory.png"));
     FilterGrayscale().applyInPlace(pBitmap);
+/*
     BitmapPtr pBmpBandpass = FilterBandpass(1, 2).apply(pBitmap);
     pBmpBandpass->save("camimages/img1_bandpass_test.png");
-/*    
-    BitmapPtr pBmpLowpass = FilterGauss(1.5).apply(pBitmap);
-    pBmpLowpass->save("camimages/img1_lowpass_test.png");
-    BitmapPtr pBmpHighpass = FilterHighpass().apply(pBmpLowpass);
+*/
+//    BitmapPtr pBmpLowpass = FilterBlur().apply(pBitmap);
+//    pBmpLowpass->save("camimages/img1_lowpass_test.png");
+    BitmapPtr pBmpHighpass = FilterHighpass().apply(pBitmap);
     pBmpHighpass->save("camimages/img1_highpass_test.png");
-*/    
 }
 
 int main(int argc, char **argv)
