@@ -60,6 +60,10 @@ namespace avg {
             EventStream(BlobPtr first_blob);
             void update(BlobPtr new_blob);
             Event* pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents);
+            bool isGone();
+            void setStale();
+            bool isStale();
+
             enum StreamState {
                 DOWN_PENDING, //fresh stream. not polled yet
                 DOWN_DELIVERED, //initial finger down delivered
@@ -69,10 +73,11 @@ namespace avg {
                 UP_PENDING, //finger disappeared, but fingerup yet to be delivered
                 UP_DELIVERED // waiting to be cleared.
             };
+
+        private:
+            bool m_Stale;
             int m_Id;
             StreamState m_State;
-            bool m_Stale;
-        private:
             int m_VanishCounter;
             DPoint m_Pos;
             BlobPtr m_pBlob;
@@ -183,6 +188,18 @@ namespace avg {
         }
     };
 
+    bool EventStream::isGone()
+    {
+        return (m_State == UP_DELIVERED);
+    }
+
+    void EventStream::setStale() {
+        m_Stale = true;
+    }
+
+    bool EventStream::isStale() {
+        return m_Stale;
+    }
 
     TrackerEventSource::TrackerEventSource(CameraPtr pCamera, const IntPoint& DisplayExtents,
             bool bSubtractHistory)
@@ -404,7 +421,7 @@ namespace avg {
                 pBitmap);
         }
         for(EventMap::iterator it=m_Events.begin();it!=m_Events.end();++it){
-            (*it).second->m_Stale = true;
+            (*it).second->setStale();
             old_blobs->push_back((*it).first);
         }
         int known_counter=0, new_counter=0, ignored_counter=0; 
@@ -447,7 +464,7 @@ namespace avg {
         int gone_counter = 0;
         for(EventMap::iterator it3=m_Events.begin();it3!=m_Events.end();++it3){
             //all event streams that are still stale haven't been updated: blob is gone, send the sentinel for this.
-            if ((*it3).second->m_Stale) {
+            if ((*it3).second->isStale()) {
                 (*it3).second->update( BlobPtr() );
                 gone_counter++;
             }
@@ -500,7 +517,7 @@ namespace avg {
         for (EventMap::iterator it = m_Events.begin(); it!= m_Events.end();){
             t = (*it).second->pollevent(m_TrackerConfig.m_pTrafo, m_DisplayExtents);
             if (t) res.push_back(t);
-            if ((*it).second->m_State == EventStream::UP_DELIVERED){
+            if ((*it).second->isGone()){
                 m_Events.erase(it++);
                 kill_counter++;
             }else{
