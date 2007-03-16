@@ -147,81 +147,11 @@ public:
     }
 };
 
-
-
-class TrackingTest: public Test, public IBlobTarget {
-public:
-    TrackingTest()
-        : Test("TrackingTest", 2)
-    {
-    }
-
-    void runTests() 
-    {
-        std::vector<std::string> p = std::vector<std::string>();
-        for (int i=0; i<6; ++i) {
-            stringstream s;
-            s << "../imaging/testimages/Blob" << i << ".png";
-            p.push_back(s.str());
-        }
-        CameraPtr pCam = CameraPtr(new FakeCamera(p));
-        for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
-            m_pBitmaps[i] = BitmapPtr(new Bitmap(pCam->getImgSize(), I8));
-        }
-        MutexPtr pMutex(new boost::mutex);
-        TrackerConfig config;
-        m_pCmdQ = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
-        IntRect ROI = IntRect(IntPoint(0,0), pCam->getImgSize());
-        boost::thread Thread(
-                TrackerThread(ROI, pCam, m_pBitmaps, pMutex,  *m_pCmdQ, this, false, config));
-        Thread.join();
-    }
-    
-    virtual void update(BlobListPtr pBlobs, BitmapPtr) {
-        static int BmpIndex = 0;
-        switch(BmpIndex) {
-            case 0:
-                TEST(pBlobs->size() == 0);
-                break;
-            case 1:
-                {
-                    TEST(pBlobs->size() == 1);
-                    BlobInfoPtr pBlobInfo = (*pBlobs->begin())->getInfo();
-                    TEST(fabs(pBlobInfo->m_Orientation)<0.001);
-                }
-                break;
-            case 2:
-//                TEST(pBlobs->size() == 2);
-                break;
-            case 3:
-                break;
-            case 4:
-                {
-                    TEST(pBlobs->size() == 1);
-                    BlobInfoPtr pBlobInfo = (*pBlobs->begin())->getInfo();
-                }
-                break;
-            case 5:
-                TEST(pBlobs->size() == 0);
-                m_pCmdQ->push(Command<TrackerThread>(boost::bind(&TrackerThread::stop, _1)));
-                break;
-            default:
-                break;
-        }
-        BmpIndex++;
-    }
-
-private:
-    TrackerThread::CmdQueuePtr m_pCmdQ;
-    BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
-};
-
 class ImagingTestSuite: public TestSuite {
 public:
     ImagingTestSuite() 
         : TestSuite("ImagingTestSuite")
     {
-        addTest(TestPtr(new TrackingTest));
         addTest(TestPtr(new DeDistortTest));
         addTest(TestPtr(new SerializeTest));
     }
