@@ -128,7 +128,7 @@ namespace avg {
             default:
                 //pass
                 break;
-            };
+        };
         m_Pos = c;
         m_pBlob = new_blob;
         m_Stale = false;
@@ -378,8 +378,11 @@ namespace avg {
         BlobPtr res;
         for(BlobList::iterator it=old_blobs->begin();it!=old_blobs->end();++it)
         {
-            if (distance( (*it), new_blob)<threshold) 
+            if (distance( (*it), new_blob)<threshold &&
+                m_Events.find(*it) != m_Events.end())
+            {
                 candidates.push_back( (*it) );
+            }
         }
         switch (candidates.size()) {
             case 0:
@@ -416,7 +419,6 @@ namespace avg {
     {
         boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
         BlobListPtr old_blobs = BlobListPtr(new BlobList());
-        EventStreamPtr e;
         if (pBitmap) {
             Pixel32 Black(0x00, 0x00, 0x00, 0x00);
             FilterFill<Pixel32>(Black).applyInPlace(
@@ -435,14 +437,11 @@ namespace avg {
                             Pixel32(0x00, 0x00, 0xFF, 0xFF)); 
                 }
                 BlobPtr old_match = matchblob((*it2), old_blobs, m_TrackerConfig.m_Similarity);
-                if (old_match && (m_Events.find(old_match) == m_Events.end())) {
-                    //..but the blob already disappeared from the map
-                    //=>EventStream already updated
-                    old_match = BlobPtr();
-                }
                 if(old_match){
+                    assert (m_Events.find(old_match) != m_Events.end());
                     //this blob has been identified with an old one
                     known_counter++;
+                    EventStreamPtr e;
                     e = m_Events.find(old_match)->second;
                     e->blobChanged( (*it2) );
                     //update the mapping!
