@@ -29,6 +29,7 @@
 #include "../graphics/Filter.h"
 #include "../graphics/Filterfill.h"
 #include "../graphics/FilterHighpass.h"
+#include "../graphics/FilterFastBandpass.h"
 #include "../graphics/FilterBlur.h"
 #include "../graphics/FilterGauss.h"
 
@@ -43,8 +44,7 @@ static ProfilingZone ProfilingZoneTracker ("Tracker");
 static ProfilingZone ProfilingZoneHistory ("  History");
 static ProfilingZone ProfilingZoneDistort ("  Distort");
 static ProfilingZone ProfilingZoneHistogram ("  Histogram");
-static ProfilingZone ProfilingZoneBlur ("  Blur");
-static ProfilingZone ProfilingZoneHighpass ("  Highpass");
+static ProfilingZone ProfilingZoneBandpass ("  Bandpass");
 static ProfilingZone ProfilingZoneComps("  ConnectedComps");
 static ProfilingZone ProfilingZoneUpdate("  Update");
 
@@ -118,26 +118,21 @@ bool TrackerThread::work()
             boost::mutex::scoped_lock Lock(*m_pMutex);
             m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pCroppedBmp);
         }
-        BitmapPtr pBmpLowpass;
+        BitmapPtr pBmpBandpass;
         {
-            ScopeTimer Timer(ProfilingZoneBlur);
-            pBmpLowpass = FilterBlur().apply(pCroppedBmp);
-        }
-        BitmapPtr pBmpHighpass;
-        {
-            ScopeTimer Timer(ProfilingZoneHighpass);
-            pBmpHighpass = FilterHighpass().apply(pBmpLowpass);
+            ScopeTimer Timer(ProfilingZoneBandpass);
+            pBmpBandpass = FilterFastBandpass().apply(pCroppedBmp);
         }
         if (m_bCreateDebugImages) {
             boost::mutex::scoped_lock Lock(*m_pMutex);
-            *(m_pBitmaps[TRACKER_IMG_HIGHPASS]) = *pBmpHighpass;
+            *(m_pBitmaps[TRACKER_IMG_HIGHPASS]) = *pBmpBandpass;
         }
         //get bloblist
         //
         BlobListPtr comps;
         {
             ScopeTimer Timer(ProfilingZoneComps);
-            comps = connected_components(pBmpHighpass, m_Threshold);
+            comps = connected_components(pBmpBandpass, m_Threshold);
         }
         //    AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
         //feed the IBlobTarget
