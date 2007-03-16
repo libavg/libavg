@@ -96,7 +96,6 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         boost::thread* m_pTrackerThread;
 
         TrackerThread::CmdQueuePtr m_pCmdQueue;
-        BlobListPtr m_pBlobList;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
         
         DeDistortPtr m_pOldTransformer;

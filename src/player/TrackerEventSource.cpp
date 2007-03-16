@@ -58,7 +58,8 @@ namespace avg {
     {
         public:
             EventStream(BlobPtr first_blob);
-            void update(BlobPtr new_blob);
+            void blobChanged(BlobPtr new_blob);
+            void blobGone();
             Event* pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents);
             bool isGone();
             void setStale();
@@ -95,29 +96,10 @@ namespace avg {
         m_Stale = false;
     };
 
-    void EventStream::update(BlobPtr new_blob)
+    void EventStream::blobChanged(BlobPtr new_blob)
     {
-        if (!new_blob){
-            switch(m_State) {
-                case DOWN_PENDING:
-                    AVG_TRACE(Logger::EVENTS2, "Spurious blob suppressed.");
-                    m_State = UP_DELIVERED;
-                    break;
-                case UP_PENDING:
-                case UP_DELIVERED:
-                    break;
-                default:
-                    m_State = VANISHED;
-                    m_VanishCounter++;
-                    if(m_VanishCounter>=MAXMISSINGFRAMES){
-                        m_State = UP_PENDING;
-                    }
-                    break;
-            }
-
-            return;
-        }
         assert(m_pBlob);
+        assert(new_blob);
         m_VanishCounter = 0;
         DPoint c = new_blob->center();
         //Fixme replace m_Pos == c with something that takes resolution into account
@@ -151,6 +133,26 @@ namespace avg {
         m_pBlob = new_blob;
         m_Stale = false;
     };
+        
+    void EventStream::blobGone()
+    {
+        switch(m_State) {
+            case DOWN_PENDING:
+                AVG_TRACE(Logger::EVENTS2, "Spurious blob suppressed.");
+                m_State = UP_DELIVERED;
+                break;
+            case UP_PENDING:
+            case UP_DELIVERED:
+                break;
+            default:
+                m_State = VANISHED;
+                m_VanishCounter++;
+                if(m_VanishCounter>=MAXMISSINGFRAMES){
+                    m_State = UP_PENDING;
+                }
+                break;
+        }
+    }
 
     Event* EventStream::pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents)
     {
@@ -426,38 +428,37 @@ namespace avg {
         }
         int known_counter=0, new_counter=0, ignored_counter=0; 
         for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2){
-            if (!isfinger(*it2)){
-                if (pBitmap) {
-                    (*it2)->render(&*pBitmap, 
-                            Pixel32(0xFF, 0x00, 0x00, 0xFF), false);
-                }
-                ignored_counter++;
-                continue;
-            }else {
+            if (isfinger(*it2)){
                 if (pBitmap) {
                     (*it2)->render(&*pBitmap, 
                             Pixel32(0xFF, 0xFF, 0xFF, 0xFF), true, 
                             Pixel32(0x00, 0x00, 0xFF, 0xFF)); 
                 }
-            }
-            BlobPtr old_match = matchblob((*it2), old_blobs, m_TrackerConfig.m_Similarity);
-            if (old_match && (m_Events.find(old_match) == m_Events.end())) {
-                //..but the blob already disappeared from the map
-                //=>EventStream already updated
-                old_match = BlobPtr();
-            }
-            if(old_match){
-                //this blob has been identified with an old one
-                known_counter++;
-                e = m_Events.find(old_match)->second;
-                e->update( (*it2) );
-                //update the mapping!
-                m_Events[(*it2)] = e;
-                m_Events.erase(old_match);
+                BlobPtr old_match = matchblob((*it2), old_blobs, m_TrackerConfig.m_Similarity);
+                if (old_match && (m_Events.find(old_match) == m_Events.end())) {
+                    //..but the blob already disappeared from the map
+                    //=>EventStream already updated
+                    old_match = BlobPtr();
+                }
+                if(old_match){
+                    //this blob has been identified with an old one
+                    known_counter++;
+                    e = m_Events.find(old_match)->second;
+                    e->blobChanged( (*it2) );
+                    //update the mapping!
+                    m_Events[(*it2)] = e;
+                    m_Events.erase(old_match);
+                } else {
+                    new_counter++;
+                    //this is a new one
+                    m_Events[(*it2)] = EventStreamPtr( new EventStream((*it2)) ) ;
+                }
             } else {
-                new_counter++;
-                //this is a new one
-                m_Events[(*it2)] = EventStreamPtr( new EventStream((*it2)) ) ;
+                if (pBitmap) {
+                    (*it2)->render(&*pBitmap, 
+                            Pixel32(0xFF, 0x00, 0x00, 0xFF), false);
+                }
+                ignored_counter++;
             }
         }
         //       AVG_TRACE(Logger::EVENTS2, "matched blobs: "<<known_counter<<"; new blobs: "<<new_counter<<"; ignored: "<<ignored_counter);
@@ -465,7 +466,7 @@ namespace avg {
         for(EventMap::iterator it3=m_Events.begin();it3!=m_Events.end();++it3){
             //all event streams that are still stale haven't been updated: blob is gone, send the sentinel for this.
             if ((*it3).second->isStale()) {
-                (*it3).second->update( BlobPtr() );
+                (*it3).second->blobGone();
                 gone_counter++;
             }
         }
