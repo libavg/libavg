@@ -328,7 +328,6 @@ void findRunsInLine(BitmapPtr pBmp, int y, CompsMap *comps, RunList * pRuns,
                 }
             } else {
                 run_stop = x - 1;
-/*
                 if (run_stop-run_start == 0 && !pRuns->empty()) {
                     // Single dark pixels are ignored.
                     Run * pLastRun = &(pRuns->back());
@@ -336,9 +335,8 @@ void findRunsInLine(BitmapPtr pBmp, int y, CompsMap *comps, RunList * pRuns,
                     comps->erase(pLastRun->m_Label);
                     pRuns->pop_back();
                 } else {
-*/                    
                     run_start = x;
-//                }
+                }
             }
             cur = p;
         }
