@@ -67,6 +67,15 @@ namespace avg {
                 UP_DELIVERED // waiting to be cleared.
             };
 
+            // State transitions:
+            // Current state       Destination state
+            // DOWN_PENDING     -> DOWN_DELIVERED (TOUCHDOWN event), UP_DELIVERED (spurious blob)
+            // DOWN_DELIVERED   -> VANISHED, MOTION_PENDING, MOTION_DELIVERED
+            // MOTION_PENDING   -> VANISHED, MOTION_DELIVERED (TOUCHMOTION event)
+            // MOTION_DELIVERED -> VANISHED, MOTION_PENDING
+            // VANISHED         -> MOTION_PENDING, UP_PENDING
+            // UP_PENDING       -> UP_DELIVERED (TOUCHUP event)
+
             EventStream(BlobPtr first_blob);
             void blobChanged(BlobPtr new_blob);
             void blobGone();
