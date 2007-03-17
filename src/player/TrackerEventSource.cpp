@@ -57,14 +57,6 @@ namespace avg {
     //internal class to keep track of blob/event states
     {
         public:
-            EventStream(BlobPtr first_blob);
-            void blobChanged(BlobPtr new_blob);
-            void blobGone();
-            Event* pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents);
-            bool isGone();
-            void setStale();
-            bool isStale();
-
             enum StreamState {
                 DOWN_PENDING, //fresh stream. not polled yet
                 DOWN_DELIVERED, //initial finger down delivered
@@ -74,6 +66,16 @@ namespace avg {
                 UP_PENDING, //finger disappeared, but fingerup yet to be delivered
                 UP_DELIVERED // waiting to be cleared.
             };
+
+            EventStream(BlobPtr first_blob);
+            void blobChanged(BlobPtr new_blob);
+            void blobGone();
+            Event* pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents);
+            bool isGone();
+            void setStale();
+            bool isStale();
+            void dump();
+            static string stateToString(StreamState State);
 
         private:
             bool m_Stale;
@@ -94,6 +96,7 @@ namespace avg {
         m_Pos = m_pBlob->center();
         m_State = DOWN_PENDING;
         m_Stale = false;
+        m_VanishCounter = 0;
     };
 
     void EventStream::blobChanged(BlobPtr new_blob)
@@ -201,6 +204,35 @@ namespace avg {
 
     bool EventStream::isStale() {
         return m_Stale;
+    }
+    
+    string EventStream::stateToString(StreamState State) 
+    {
+        switch(State) {
+            case DOWN_PENDING:
+                return "DOWN_PENDING";
+            case DOWN_DELIVERED:
+                return "DOWN_DELIVERED";
+            case MOTION_PENDING:
+                return "MOTION_PENDING";
+            case MOTION_DELIVERED:
+                return "MOTION_DELIVERED";
+            case VANISHED:
+                return "VANISHED";
+            case UP_PENDING:
+                return "UP_PENDING";
+            case UP_DELIVERED:
+                return "UP_DELIVERED";
+            default:
+                return "Broken state";
+        }
+    }
+
+    void EventStream::dump() {
+        cerr << "  " << m_Id << ": " << stateToString(m_State) << ", stale: " << m_Stale << endl;
+        if (m_State == VANISHED) {
+            cerr << "    VanishCounter: " << m_VanishCounter << endl;
+        }
     }
 
     TrackerEventSource::TrackerEventSource(CameraPtr pCamera, const IntPoint& DisplayExtents,
@@ -462,7 +494,13 @@ namespace avg {
         }
         //       AVG_TRACE(Logger::EVENTS2, "matched blobs: "<<known_counter<<"; new blobs: "<<new_counter<<"; ignored: "<<ignored_counter);
         int gone_counter = 0;
+/*
+        if (!m_Events.empty()) {
+            cerr << "update():" << endl;
+        }
+*/
         for(EventMap::iterator it3=m_Events.begin();it3!=m_Events.end();++it3){
+//            (*it3).second->dump();
             //all event streams that are still stale haven't been updated: blob is gone, send the sentinel for this.
             if ((*it3).second->isStale()) {
                 (*it3).second->blobGone();
@@ -514,7 +552,13 @@ namespace avg {
         std::vector<Event*> res = std::vector<Event *>();
         Event *t;
         int kill_counter = 0;
+/*
+        if (!m_Events.empty()) {
+            cerr << "pollEvents():" << endl;
+        }
+*/
         for (EventMap::iterator it = m_Events.begin(); it!= m_Events.end();){
+//            (*it).second->dump();
             t = (*it).second->pollevent(m_TrackerConfig.m_pTrafo, m_DisplayExtents);
             if (t) res.push_back(t);
             if ((*it).second->isGone()){
