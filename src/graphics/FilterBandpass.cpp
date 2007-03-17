@@ -61,7 +61,7 @@ BitmapPtr FilterBandpass::apply(BitmapPtr pBmpSrc)
         unsigned char * pHPPixel = pHPLine;
         unsigned char * pDestPixel = pDestLine;
         for (int x = 0; x < Size.x; ++x) {
-            *pDestPixel = (int(*pLPPixel)-*pHPPixel*0.95)+128;
+            *pDestPixel = (int(*pLPPixel)-*pHPPixel)+128;
             ++pLPPixel;
             ++pHPPixel;
             ++pDestPixel;

@@ -48,35 +48,126 @@
 using namespace avg;
 using namespace std;
 
+#define NUM_RUNS 200
 
-void runFillI8PerformanceTest()
+template<class TEST>
+void runPerformanceTest()
 {
-    BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(1024,1024), I8));
+    TEST PerfTest;
     long long StartTime = TimeSource::get()->getCurrentMicrosecs();
-    for (int i=0; i<1000; ++i) {
-        FilterFill<Pixel8> Filter = FilterFill<Pixel8>(Pixel8(0));
-        Filter.applyInPlace(pBmp);
+    for (int i=0; i<NUM_RUNS; ++i) {
+        PerfTest.run();
     }
     long long ActiveTime = TimeSource::get()->getCurrentMicrosecs()-StartTime; 
-    cerr << "FillI8: " << ActiveTime/1000 << " us" << endl;
+    cerr << PerfTest.getName() << "FillI8: " << ActiveTime/NUM_RUNS << " us" << endl;
+    
 }
 
-void runFillRGBPerformanceTest()
-{
-    BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(1024,1024), R8G8B8));
-    long long StartTime = TimeSource::get()->getCurrentMicrosecs();
-    for (int i=0; i<1000; ++i) {
-        FilterFill<Pixel24> Filter = FilterFill<Pixel24>(Pixel24(0,0,0));
-        Filter.applyInPlace(pBmp);
-    }
-    long long ActiveTime = TimeSource::get()->getCurrentMicrosecs()-StartTime; 
-    cerr << "FillR8G8B8: " << ActiveTime/1000 << " us" << endl;
-}
+class PerfTestBase {
+    public:
+        PerfTestBase(string sName) 
+            : m_sName(sName)
+        {
+        }
+
+        std::string getName()
+        {
+            return m_sName;
+        }
+
+    private:
+        std::string m_sName;
+};
+
+class FillI8PerfTest: public PerfTestBase {
+    public:
+        FillI8PerfTest() 
+            : PerfTestBase("FillI8PerfTest")
+        {
+            m_pBmp = BitmapPtr(new Bitmap(IntPoint(1024,1024), I8));
+        }
+
+        void run() {
+            FilterFill<Pixel8> Filter = FilterFill<Pixel8>(Pixel8(0));
+            Filter.applyInPlace(m_pBmp);
+        }
+
+    private:
+        BitmapPtr m_pBmp;
+};
+
+class FillRGBPerfTest: public PerfTestBase {
+    public:
+        FillRGBPerfTest() 
+            : PerfTestBase("FillRGBPerfTest")
+        {
+            m_pBmp = BitmapPtr(new Bitmap(IntPoint(1024,1024), R8G8B8));
+        }
+
+        void run() {
+            FilterFill<Pixel24> Filter = FilterFill<Pixel24>(Pixel24(0,0,0));
+            Filter.applyInPlace(m_pBmp);
+        }
+
+    private:
+        BitmapPtr m_pBmp;
+};
+
+class EqualityI8PerfTest: public PerfTestBase {
+    public:
+        EqualityI8PerfTest() 
+            : PerfTestBase("EqualityI8PerfTest")
+        {
+            m_pBmp = BitmapPtr(new Bitmap(IntPoint(1024,1024), I8));
+        }
+
+        void run() {
+            Bitmap CopyBmp = *m_pBmp;
+        }
+
+    private:
+        BitmapPtr m_pBmp;
+};
+
+class CopyI8PerfTest: public PerfTestBase {
+    public:
+        CopyI8PerfTest() 
+            : PerfTestBase("CopyI8PerfTest")
+        {
+            m_pBmp = BitmapPtr(new Bitmap(IntPoint(1024,1024), I8));
+        }
+
+        void run() {
+            Bitmap CopyBmp (*m_pBmp);
+        }
+
+    private:
+        BitmapPtr m_pBmp;
+};
+
+class CopyRGBPerfTest: public PerfTestBase {
+    public:
+        CopyRGBPerfTest() 
+            : PerfTestBase("CopyRGBPerfTest")
+        {
+            m_pBmp = BitmapPtr(new Bitmap(IntPoint(1024,1024), R8G8B8));
+        }
+
+        void run() {
+            Bitmap CopyBmp (*m_pBmp);
+        }
+
+    private:
+        BitmapPtr m_pBmp;
+};
 
 void runPerformanceTests()
 {
-    runFillI8PerformanceTest();
-    runFillRGBPerformanceTest();
+    runPerformanceTest<FillI8PerfTest>();
+    runPerformanceTest<FillRGBPerfTest>();
+    runPerformanceTest<EqualityI8PerfTest>();
+    runPerformanceTest<CopyI8PerfTest>();
+    runPerformanceTest<CopyRGBPerfTest>();
 }
 
 int main(int nargs, char** args)
