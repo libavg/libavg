@@ -90,8 +90,8 @@ DPoint Blob::center()
     DPoint d = DPoint(0,0);
     int c = 0;
     for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r){
-        d+=r->center();
-        c++;
+        d += r->center()*r->length();
+        c += r->length();
     }
 
     return d/double(c);
