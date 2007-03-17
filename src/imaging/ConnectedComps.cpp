@@ -147,9 +147,9 @@ void Blob::render(Bitmap *pTarget, Pixel32 Color, bool bMarkCenter,
         IntPoint Center = IntPoint(int(DCenter.x+0.5), int(DCenter.y+0.5));
         IntPoint size = pTarget->getSize();
         int xstart = std::max(0,Center.x-5);
-        int xstop = std::min(Center.x+5,size.x);
+        int xstop = std::min(Center.x+5,size.x-1);
         int ystart = std::max(0,Center.y-5);
-        int ystop = std::min(Center.y+5,size.y);
+        int ystop = std::min(Center.y+5,size.y-1);
 
         ptr = pTarget->getPixels()+Center.y*pTarget->getStride()+xstart*4;
         for(int x=xstart;x<=xstop;++x){
@@ -299,79 +299,76 @@ void store_runs(CompsMap  *comps, RunList *runs1, RunList *runs2)
    }
 }
 
-
 Run new_run(CompsMap *comps, int row, int col1, int col2, int color)
 {
     Run run = Run(row, col1, col2, color);
     BlobPtr b = BlobPtr(new Blob(run));
-    //std::cerr<<"creating new run"<<"row="<<row<<" c1="<<col1<<" c2="<<col2<<" color="<<color<<std::endl;;
     (*comps)[run.m_Label] = b;
     return run;
 }
 
-BlobListPtr connected_components(BitmapPtr image, unsigned char object_threshold)
+void findRunsInLine(BitmapPtr pBmp, int y, CompsMap *comps, RunList * pRuns, 
+        unsigned char threshold)
 {
-    return connected_components(image, (FilterFill<Pixel8>(object_threshold)).apply(image));
+    int run_start=0;
+    int run_stop=0;
+    const unsigned char * pPixel = pBmp->getPixels()+y*pBmp->getStride();
+    unsigned char cur=(*pPixel>threshold)?1:0;
+    unsigned char p;
+    int Width = pBmp->getSize().x;
+    for(int x=0; x<Width; x++) {
+        p = (*pPixel>threshold)?1:0;
+        if (cur!=p) {
+            if (cur) {
+                if (x-run_start > 1) {
+                    // Single light pixels are ignored.
+                    run_stop = x - 1;
+                    pRuns->push_back ( new_run(comps, y, run_start, run_stop, cur) );
+                    run_start = x;
+                }
+            } else {
+                run_stop = x - 1;
+/*
+                if (run_stop-run_start == 0 && !pRuns->empty()) {
+                    // Single dark pixels are ignored.
+                    Run * pLastRun = &(pRuns->back());
+                    run_start = pLastRun->m_StartCol;
+                    comps->erase(pLastRun->m_Label);
+                    pRuns->pop_back();
+                } else {
+*/                    
+                    run_start = x;
+//                }
+            }
+            cur = p;
+        }
+        pPixel++;
+    }
+    if (cur){
+        pRuns->push_back( new_run(comps, y, run_start, Width, cur) );
+    }
+
 }
 
-BlobListPtr connected_components(BitmapPtr image, BitmapPtr thresholds)
+BlobListPtr connected_components(BitmapPtr image, unsigned char threshold)
 {
     assert(image->getPixelFormat() == I8);
     CompsMap *comps = new CompsMap();
-    const unsigned char *pixels = image->getPixels();
-    const unsigned char *object_threshold = thresholds->getPixels();
-    int stride = image->getStride();
     IntPoint size = image->getSize();
     RunList *runs1=new RunList();
     RunList *runs2=new RunList();
     RunList *tmp;
 
-    int run_start=0, run_stop=0;
-    int x=0;
     int y=0;
-    unsigned char cur=(pixels[0]>*(object_threshold))?1:0, p=0;
-    //std::cerr<<"w="<<size.x<<" h="<<size.y<<std::endl;
-    //First line
-    for(x=0; x<size.x ;x++){
-        p = (pixels[x]>object_threshold[x])?1:0;
-        if (cur!=p) {
-            run_stop = x - 1;
-            if (cur && (run_stop-run_start > 0)){
-                runs1->push_back ( new_run(comps, 0, run_start, run_stop, cur) );
-            }
-            run_start = x;
-            cur = p;
-        }
-    }
-    if (cur){
-        runs1->push_back( new_run(comps, 0, run_start, size.x-1, cur) );
-    }
-    //All other lines
+    findRunsInLine(image, 0, comps, runs1, threshold);
+    
     for(y=1; y<size.y; y++){
-        run_start = 0;run_stop = 0;
-        cur = (pixels[stride*y+0]>object_threshold[stride*y+0])?1:0;
-        for(x=0; x<size.x ;x++){
-            p = (pixels[y*stride+x]>object_threshold[y*stride+x])?1:0;
-            //std::cerr<<"("<<x<<","<<y<<"):"<<(int)p<<std::endl;
-            if (cur!=p) {
-                run_stop = x - 1;
-                if (cur && (run_stop-run_start > 0)){
-                    runs2->push_back(  new_run(comps, y, run_start, run_stop, cur) );
-                }
-                run_start = x;
-                cur = p;
-            }
-        }
-        {
-            if (cur){
-                runs2->push_back( new_run(comps,y, run_start, size.x-1, cur) );
-            }
-            store_runs(comps, runs1, runs2);
-            tmp = runs1;
-            runs1 = runs2;
-            runs2 = tmp;
-            runs2->clear();
-        }
+        findRunsInLine(image, y, comps, runs2, threshold);
+        store_runs(comps, runs1, runs2);
+        tmp = runs1;
+        runs1 = runs2;
+        runs2 = tmp;
+        runs2->clear();
     }
     BlobList *result = new BlobList();
     for (CompsMap::iterator b=comps->begin();b!=comps->end();++b){
