@@ -114,8 +114,7 @@ namespace avg {
         assert(new_blob);
         m_VanishCounter = 0;
         DPoint c = new_blob->center();
-        //Fixme replace m_Pos == c with something that takes resolution into account
-        bool pos_unchanged = (c == m_Pos);
+        bool pos_changed = (calcDist(c, m_Pos) > 1.5);
         switch(m_State) {
             case DOWN_PENDING:
                 //finger touch has not been polled yet. update position
@@ -125,15 +124,15 @@ namespace avg {
                 break;
             case DOWN_DELIVERED:
                 //fingerdown delivered, change to motion states
-                if (pos_unchanged)
-                    m_State = MOTION_DELIVERED;
-                else
+                if (pos_changed)
                     m_State = MOTION_PENDING;
+                else
+                    m_State = MOTION_DELIVERED;
                 break;
             case MOTION_PENDING:
                 break;
             case MOTION_DELIVERED:
-                if (!pos_unchanged) {
+                if (pos_changed) {
                     m_State = MOTION_PENDING;
                 }
                 break;
@@ -141,7 +140,9 @@ namespace avg {
                 //pass
                 break;
         };
-        m_Pos = c;
+        if (pos_changed) {
+            m_Pos = c;
+        }
         m_pBlob = new_blob;
         m_Stale = false;
     };
