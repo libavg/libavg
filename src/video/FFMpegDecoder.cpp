@@ -206,19 +206,7 @@ void FFMpegDecoder::seek(int DestFrame)
         AVFrame Frame;
         readFrame(Frame);
     }
-#if LIBAVFORMAT_BUILD <= 4616
-    av_seek_frame(m_pFormatContext, m_VStreamIndex, 
-            int((double(DestFrame)*1000000*1000)/m_pVStream->r_frame_rate));
-#else
-#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    av_seek_frame(m_pFormatContext, m_VStreamIndex, 
-            int((double(DestFrame)*1000000*1000)/m_pVStream->r_frame_rate), 0);
-#else
-    double framerate = (m_pVStream->r_frame_rate.num)/m_pVStream->r_frame_rate.den;
-    av_seek_frame(m_pFormatContext, -1, 
-            int((double(DestFrame)*AV_TIME_BASE)/framerate), AVSEEK_FLAG_BACKWARD);
-#endif
-#endif    
+    m_pDemuxer->seek(DestFrame, m_VStreamIndex);
     m_bEOF = false;
 }
 
