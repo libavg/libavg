@@ -40,7 +40,8 @@ bool FFMpegDecoder::m_bInitialized = false;
 mutex FFMpegDecoder::s_OpenMutex;   
 
 FFMpegDecoder::FFMpegDecoder ()
-    : m_pFormatContext(0),
+    :   m_pDemuxer(0),
+        m_pFormatContext(0),
       m_pVStream(0),
       m_pPacketData(0)
 {
@@ -139,12 +140,15 @@ void FFMpegDecoder::open (const std::string& sFilename, YCbCrMode ycbcrMode)
                 break;
         }
     }
+    assert(!m_pDemuxer);
+    m_pDemuxer = new FFMpegDemuxer(m_pFormatContext);
 //    dump_format(m_pFormatContext, 0, m_sFilename.c_str(), 0);
 //    dump_stream_info(m_pFormatContext);
     if (m_VStreamIndex < 0) {
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                 sFilename + " does not contain any video streams.");
     }                
+    m_pDemuxer->enableStream(m_VStreamIndex);
     AVCodecContext *enc;
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     enc = &(m_pFormatContext->streams[m_VStreamIndex]->codec);
@@ -185,13 +189,15 @@ void FFMpegDecoder::close()
     enc = m_pFormatContext->streams[m_VStreamIndex]->codec;
 #endif
     if (!m_bFirstPacket) {
-        av_free_packet(&m_Packet);
+        av_free_packet(m_pPacket);
     }
     m_pPacketData = 0;
     avcodec_close(enc);
     m_pVStream = 0;
     av_close_input_file(m_pFormatContext);
     m_pFormatContext = 0;
+    delete m_pDemuxer;
+    m_pDemuxer = 0;
 }
 
 void FFMpegDecoder::seek(int DestFrame) 
@@ -213,6 +219,7 @@ void FFMpegDecoder::seek(int DestFrame)
             int((double(DestFrame)*AV_TIME_BASE)/framerate), AVSEEK_FLAG_BACKWARD);
 #endif
 #endif    
+    m_bEOF = false;
 }
 
 IntPoint FFMpegDecoder::getSize()
@@ -384,29 +391,31 @@ void FFMpegDecoder::readFrame(AVFrame& Frame)
     AVCodecContext *enc = m_pVStream->codec;
 #endif
     if (enc->codec_id == CODEC_ID_RAWVIDEO) {
-        AVPacket Packet;
-        m_bEOF = getNextVideoPacket(Packet);
-        if (m_bEOF) {
+        AVPacket * pPacket;
+        pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
+        if (!pPacket) {
+            m_bEOF = true;
             return ;
         }
-        avpicture_fill((AVPicture*)&Frame, Packet.data, 
+        avpicture_fill((AVPicture*)&Frame, pPacket->data, 
                 enc->pix_fmt, 
                 enc->width, enc->height);
-        av_free_packet(&Packet);
+        av_free_packet(pPacket);
     } else {
         int gotPicture = 0;
         while (!gotPicture) {
             if (m_PacketLenLeft <= 0) {
                 if (!m_bFirstPacket) {
-                    av_free_packet(&m_Packet);
+                    av_free_packet(m_pPacket);
                 }
                 m_bFirstPacket = false;
-                m_bEOF = getNextVideoPacket(m_Packet);
-                if (m_bEOF) {
-                    return ;
+                m_pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
+                if (!m_pPacket) {
+                    m_bEOF = true;
+                    return;
                 }
-                m_PacketLenLeft = m_Packet.size;
-                m_pPacketData = m_Packet.data;
+                m_PacketLenLeft = m_pPacket->size;
+                m_pPacketData = m_pPacket->data;
             }
             int Len1 = avcodec_decode_video(enc, &Frame,
                     &gotPicture, m_pPacketData, m_PacketLenLeft);
@@ -430,29 +439,6 @@ void FFMpegDecoder::readFrame(AVFrame& Frame)
         cerr << "Stream.pts: " << spts.val + double(spts.num)/spts.den << endl;
 */    
     }
-}
-
-static ProfilingZone VideoPacketProfilingZone("        FFMpeg: read packets");
-
-bool FFMpegDecoder::getNextVideoPacket(AVPacket & Packet) {
-    ScopeTimer Timer(VideoPacketProfilingZone);
-    int err = av_read_frame(m_pFormatContext, &Packet);
-    if (err < 0) {
-        return true;
-    }
-    while (Packet.stream_index != m_VStreamIndex) {
-        av_free_packet(&Packet);
-        int err = av_read_frame(m_pFormatContext, &Packet);
-        if (err < 0) {
-            return true;
-        }
-    }   
-/*    if (Packet.pts != AV_NOPTS_VALUE) {
-        cerr << "Packet.pts: " << 
-            double(Packet.pts)*m_pFormatContext->pts_num/m_pFormatContext->pts_den << endl;
-    }
-*/
-    return false;
 }
 
 }

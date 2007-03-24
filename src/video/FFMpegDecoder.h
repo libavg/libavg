@@ -23,6 +23,7 @@
 #define _FFMpegDecoder_H_
 
 #include "IVideoDecoder.h"
+#include "FFMpegDemuxer.h"
 
 #ifdef _WIN32
 #define EMULATE_INTTYPES
@@ -54,9 +55,9 @@ class FFMpegDecoder: public IVideoDecoder
     private:
         void initVideoSupport();
         void readFrame(AVFrame& Frame);
-        bool getNextVideoPacket(AVPacket & Packet);
         PixelFormat calcPixelFormat(YCbCrMode ycbcrMode);
 
+        FFMpegDemuxer * m_pDemuxer;
         AVFormatContext * m_pFormatContext;
         int m_VStreamIndex;
         AVStream * m_pVStream;
@@ -64,7 +65,7 @@ class FFMpegDecoder: public IVideoDecoder
         PixelFormat m_PF;
 
         unsigned char * m_pPacketData;
-        AVPacket m_Packet;
+        AVPacket * m_pPacket;
         int m_PacketLenLeft;
         bool m_bFirstPacket;
         std::string m_sFilename;
