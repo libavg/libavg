@@ -42,6 +42,7 @@ class Queue
         QElement pop(bool bBlock = true);
         void push(const QElement& Elem);
         int size() const;
+        int getMaxSize() const;
 
     private:
         std::deque<QElement> m_Elements;
@@ -107,6 +108,13 @@ int Queue<QElement>::size() const
 {
     scoped_lock Lock(m_Mutex);
     return m_Elements.size();
+}
+
+template<class QElement>
+int Queue<QElement>::getMaxSize() const
+{
+    scoped_lock Lock(m_Mutex);
+    return m_MaxSize;
 }
 
 }

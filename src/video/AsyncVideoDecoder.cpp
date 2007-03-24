@@ -61,6 +61,7 @@ void AsyncVideoDecoder::close()
     if (m_pDecoderThread) {
         m_pCmdQ->push(Command<VideoDecoderThread>(boost::bind(
                 &VideoDecoderThread::stop, _1)));
+        getNextBmps(); // If the Queue is full, this breaks the lock in the thread.
         m_pDecoderThread->join();
         delete m_pDecoderThread;
         m_pDecoderThread = 0;
