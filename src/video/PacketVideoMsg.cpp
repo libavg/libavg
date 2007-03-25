@@ -19,42 +19,27 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _FFMpegDemuxer_H_
-#define _FFMpegDemuxer_H_
+#include "PacketVideoMsg.h"
 
-#include "IDemuxer.h"
+#include <iostream>
 
-#ifdef _WIN32
-#define EMULATE_INTTYPES
-#endif
-#include <ffmpeg/avformat.h>
-
-#include <list>
-#include <map>
-
-#include <boost/shared_ptr.hpp>
+using namespace std;
 
 namespace avg {
 
-    class FFMpegDemuxer: public IDemuxer {
-        public:
-            FFMpegDemuxer(AVFormatContext * pFormatContext);
-            virtual ~FFMpegDemuxer();
-           
-            void enableStream(int StreamIndex);
-            AVPacket * getPacket(int StreamIndex);
-            void seek(int DestFrame, int StreamIndex);
-            void dump();
-            
-        private:
-            void clearPacketCache();
-
-            typedef std::list<AVPacket *> PacketList;
-            std::map<int, PacketList> m_PacketLists;
-           
-            AVFormatContext * m_pFormatContext;
-    };
-    typedef boost::shared_ptr<FFMpegDemuxer> FFMpegDemuxerPtr;
+PacketVideoMsg::PacketVideoMsg(AVPacket * pPacket)
+{
+    m_pPacket = pPacket;
 }
 
-#endif
+PacketVideoMsg::~PacketVideoMsg()
+{
+}
+
+AVPacket * PacketVideoMsg::getPacket()
+{
+    return m_pPacket;
+}
+
+}
+

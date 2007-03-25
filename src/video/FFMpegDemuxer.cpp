@@ -1,12 +1,23 @@
-//=============================================================================
-// Copyright (C) 2004-2006, ART+COM AG Berlin
 //
-// These coded instructions, statements, and computer programs contain
-// unpublished proprietary information of ART+COM AG Berlin, and
-// are copy protected by law. They may not be disclosed to third parties
-// or copied or duplicated in any form, in whole or in part, without the
-// specific, prior written permission of ART+COM AG Berlin.
-//=============================================================================
+//  libavg - Media Playback Engine. 
+//  Copyright (C) 2003-2006 Ulrich von Zadow
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2 of the License, or (at your option) any later version.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  Current versions can be found at www.libavg.de
+//
 
 #include "FFMpegDemuxer.h"
 #include "../base/ScopeTimer.h"
@@ -43,7 +54,6 @@ AVPacket * FFMpegDemuxer::getPacket(int StreamIndex)
     if (!CurPacketList.empty()) {
         pPacket = CurPacketList.front();
         CurPacketList.pop_front();
-        return pPacket;
     } else {
         do {
             pPacket = new AVPacket;
@@ -65,11 +75,13 @@ AVPacket * FFMpegDemuxer::getPacket(int StreamIndex)
                     av_free_packet(pPacket);
                     delete pPacket;
                     pPacket = 0;
-                }
+                } 
+            } else {
+                av_dup_packet(pPacket);
             }
         } while (!pPacket || pPacket->stream_index != StreamIndex);
-        return pPacket; 
     }
+    return pPacket;
 }
 
 void FFMpegDemuxer::seek(int DestFrame, int StreamIndex)
@@ -107,7 +119,6 @@ void FFMpegDemuxer::clearPacketCache()
 
 void FFMpegDemuxer::dump()
 {
-    cerr << "FFMpegDemuxer list sizes: " << endl;
     map<int, PacketList>::iterator it;
     for (it=m_PacketLists.begin(); it != m_PacketLists.end(); ++it) {
         cerr << "  " << it->second.size() << endl;

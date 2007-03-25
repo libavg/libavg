@@ -23,7 +23,7 @@
 #define _FFMpegDecoder_H_
 
 #include "IVideoDecoder.h"
-#include "FFMpegDemuxer.h"
+#include "IDemuxer.h"
 
 #ifdef _WIN32
 #define EMULATE_INTTYPES
@@ -57,7 +57,7 @@ class FFMpegDecoder: public IVideoDecoder
         void readFrame(AVFrame& Frame);
         PixelFormat calcPixelFormat(YCbCrMode ycbcrMode);
 
-        FFMpegDemuxer * m_pDemuxer;
+        IDemuxer * m_pDemuxer;
         AVFormatContext * m_pFormatContext;
         int m_VStreamIndex;
         AVStream * m_pVStream;

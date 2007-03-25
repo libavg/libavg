@@ -19,42 +19,39 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _FFMpegDemuxer_H_
-#define _FFMpegDemuxer_H_
+#ifndef _VideoDemuxerThread_H_
+#define _VideoDemuxerThread_H_
 
-#include "IDemuxer.h"
+#include "FFMpegDemuxer.h"
+#include "PacketVideoMsg.h"
 
-#ifdef _WIN32
-#define EMULATE_INTTYPES
-#endif
-#include <ffmpeg/avformat.h>
+#include "../base/WorkerThread.h"
+#include "../base/Command.h"
 
-#include <list>
-#include <map>
+#include <boost/thread.hpp>
 
-#include <boost/shared_ptr.hpp>
+#include <string>
+#include <vector>
 
 namespace avg {
 
-    class FFMpegDemuxer: public IDemuxer {
-        public:
-            FFMpegDemuxer(AVFormatContext * pFormatContext);
-            virtual ~FFMpegDemuxer();
-           
-            void enableStream(int StreamIndex);
-            AVPacket * getPacket(int StreamIndex);
-            void seek(int DestFrame, int StreamIndex);
-            void dump();
-            
-        private:
-            void clearPacketCache();
+class VideoDemuxerThread: public WorkerThread<VideoDemuxerThread> {
+    public:
+        VideoDemuxerThread(CmdQueue& CmdQ, AVFormatContext * pFormatContext);
+        virtual ~VideoDemuxerThread();
+        bool init();
+        bool work();
+        void deinit();
 
-            typedef std::list<AVPacket *> PacketList;
-            std::map<int, PacketList> m_PacketLists;
-           
-            AVFormatContext * m_pFormatContext;
-    };
-    typedef boost::shared_ptr<FFMpegDemuxer> FFMpegDemuxerPtr;
+        void enableStream(VideoPacketQueuePtr pPacketQ, int StreamIndex);
+        void seek(int DestFrame, int StreamIndex);
+
+    private:
+        std::map<int, VideoPacketQueuePtr> m_PacketQs;
+        bool m_bEOF;
+        FFMpegDemuxerPtr m_pDemuxer;
+};
+
 }
+#endif 
 
-#endif

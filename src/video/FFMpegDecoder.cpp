@@ -20,6 +20,8 @@
 //
 
 #include "FFMpegDecoder.h"
+#include "AsyncDemuxer.h"
+#include "FFMpegDemuxer.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -141,13 +143,14 @@ void FFMpegDecoder::open (const std::string& sFilename, YCbCrMode ycbcrMode)
         }
     }
     assert(!m_pDemuxer);
-    m_pDemuxer = new FFMpegDemuxer(m_pFormatContext);
 //    dump_format(m_pFormatContext, 0, m_sFilename.c_str(), 0);
 //    dump_stream_info(m_pFormatContext);
     if (m_VStreamIndex < 0) {
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                 sFilename + " does not contain any video streams.");
     }                
+    m_pDemuxer = new FFMpegDemuxer(m_pFormatContext);
+//    m_pDemuxer = new AsyncDemuxer(m_pFormatContext);
     m_pDemuxer->enableStream(m_VStreamIndex);
     AVCodecContext *enc;
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
@@ -383,7 +386,7 @@ void FFMpegDecoder::readFrame(AVFrame& Frame)
         pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
         if (!pPacket) {
             m_bEOF = true;
-            return ;
+            return;
         }
         avpicture_fill((AVPicture*)&Frame, pPacket->data, 
                 enc->pix_fmt, 
