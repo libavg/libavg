@@ -60,6 +60,10 @@ private:
 
 typedef boost::shared_ptr<Test> TestPtr;
 
+#define TEST_FAILED(s)                     \
+    cerr << string(m_IndentLevel+6, ' ') << s << endl;  \
+    test(false, __FILE__, __LINE__);
+
 #define TEST(b)                            \
     cerr << string(m_IndentLevel+4, ' ') << "  TEST(" << #b << ")" << endl;  \
     test(b, __FILE__, __LINE__);

@@ -20,6 +20,7 @@
 //
 
 #include "TestSuite.h"
+#include "Exception.h"
 
 using namespace std;
 
@@ -49,9 +50,12 @@ void TestSuite::runTests()
             m_Tests[i]->runTests();
             aggregateStatistics(*m_Tests[i]);
             m_Tests[i]->printResults();
+        } catch (Exception& ex) {
+            cerr << string(m_IndentLevel, ' ') << ex.GetStr() << endl;
+            setFailed();
         } catch (...) {
-            cerr << cerr << string(m_IndentLevel, ' ') <<
-                    "    ---->> failed, unknown exception caught" << endl;
+            cerr << string(m_IndentLevel, ' ') <<
+                "    ---->> failed, exception caught" << endl;
             setFailed();
         }
     }
