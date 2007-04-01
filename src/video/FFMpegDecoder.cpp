@@ -42,8 +42,8 @@ bool FFMpegDecoder::m_bInitialized = false;
 mutex FFMpegDecoder::s_OpenMutex;   
 
 FFMpegDecoder::FFMpegDecoder ()
-    :   m_pDemuxer(0),
-        m_pFormatContext(0),
+    : m_pDemuxer(0),
+      m_pFormatContext(0),
       m_pVStream(0),
       m_pPacketData(0)
 {
@@ -95,9 +95,11 @@ void dump_stream_info(AVFormatContext *s)
 }
 
 
-void FFMpegDecoder::open (const std::string& sFilename, YCbCrMode ycbcrMode)
+void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
+        bool bSyncDemuxer)
 {
     mutex::scoped_lock Lock(s_OpenMutex);
+    m_bEOF = false;
     AVFormatParameters params;
     int err;
     m_sFilename = sFilename;
@@ -149,8 +151,11 @@ void FFMpegDecoder::open (const std::string& sFilename, YCbCrMode ycbcrMode)
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                 sFilename + " does not contain any video streams.");
     }                
-    m_pDemuxer = new FFMpegDemuxer(m_pFormatContext);
-//    m_pDemuxer = new AsyncDemuxer(m_pFormatContext);
+    if (bSyncDemuxer) { 
+        m_pDemuxer = new FFMpegDemuxer(m_pFormatContext);
+    } else {
+        m_pDemuxer = new AsyncDemuxer(m_pFormatContext);
+    }
     m_pDemuxer->enableStream(m_VStreamIndex);
     AVCodecContext *enc;
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
@@ -175,7 +180,6 @@ void FFMpegDecoder::open (const std::string& sFilename, YCbCrMode ycbcrMode)
 #endif
     m_bFirstPacket = true;
     m_PacketLenLeft = 0;
-    m_bEOF = false;
     m_sFilename = sFilename;
 
     m_PF = calcPixelFormat(ycbcrMode);
@@ -376,6 +380,16 @@ void FFMpegDecoder::initVideoSupport()
 
 void FFMpegDecoder::readFrame(AVFrame& Frame)
 {
+    if (m_bEOF) {
+        return;
+    }
+/*
+    if (m_bEOFPending) {
+        m_bEOF = true;
+        m_bEOFPending = false;
+        return;
+    }
+*/    
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     AVCodecContext *enc = &m_pVStream->codec;
 #else
@@ -403,6 +417,8 @@ void FFMpegDecoder::readFrame(AVFrame& Frame)
                 m_pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
                 if (!m_pPacket) {
                     m_bEOF = true;
+//                    m_bEOFPending = true;
+//                    readLastFrame(enc, &Frame);
                     return;
                 }
                 m_PacketLenLeft = m_pPacket->size;
@@ -429,6 +445,15 @@ void FFMpegDecoder::readFrame(AVFrame& Frame)
         AVFrac spts = m_pVStream->pts;
         cerr << "Stream.pts: " << spts.val + double(spts.num)/spts.den << endl;
 */    
+    }
+}
+
+void FFMpegDecoder::readLastFrame(AVCodecContext *enc, AVFrame * pFrame)
+{
+    int gotPicture = 0;
+
+    while (!gotPicture) {
+        avcodec_decode_video(enc, pFrame, &gotPicture, NULL, 0);
     }
 }
 

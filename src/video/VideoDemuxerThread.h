@@ -49,6 +49,7 @@ class VideoDemuxerThread: public WorkerThread<VideoDemuxerThread> {
     private:
         std::map<int, VideoPacketQueuePtr> m_PacketQs;
         bool m_bEOF;
+        AVFormatContext * m_pFormatContext;
         FFMpegDemuxerPtr m_pDemuxer;
 };
 

@@ -39,6 +39,18 @@ AsyncDemuxer::AsyncDemuxer(AVFormatContext * pFormatContext)
 
 AsyncDemuxer::~AsyncDemuxer()
 {
+    if (m_pDemuxThread) {
+        m_pCmdQ->push(Command<VideoDemuxerThread>(boost::bind(
+                &VideoDemuxerThread::stop, _1)));
+        map<int, VideoPacketQueuePtr>::iterator it;
+        for (it=m_PacketQs.begin(); it != m_PacketQs.end(); ++it) {
+            // If the Queue is full, this breaks the lock in the thread.
+            it->second->pop(false);
+        }
+        m_pDemuxThread->join();
+        delete m_pDemuxThread;
+        m_pDemuxThread = 0;
+    }
 }
 
 void AsyncDemuxer::enableStream(int StreamIndex)
@@ -47,7 +59,6 @@ void AsyncDemuxer::enableStream(int StreamIndex)
     m_PacketQs[StreamIndex] = pPacketQ;
     m_pCmdQ->push(Command<VideoDemuxerThread>(boost::bind(
                 &VideoDemuxerThread::enableStream, _1, pPacketQ, StreamIndex)));
-
 }
 
 AVPacket * AsyncDemuxer::getPacket(int StreamIndex)

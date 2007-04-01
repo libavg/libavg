@@ -37,9 +37,11 @@ namespace avg {
 VideoDemuxerThread::VideoDemuxerThread(CmdQueue& CmdQ, 
                 AVFormatContext * pFormatContext)
     : WorkerThread<VideoDemuxerThread>("VideoDemuxer", CmdQ),
-      m_bEOF(false)
+      m_bEOF(false),
+      m_pFormatContext(pFormatContext),
+      m_pDemuxer()
+
 {
-    m_pDemuxer = FFMpegDemuxerPtr(new FFMpegDemuxer(pFormatContext));
 }
 
 VideoDemuxerThread::~VideoDemuxerThread()
@@ -48,6 +50,7 @@ VideoDemuxerThread::~VideoDemuxerThread()
 
 bool VideoDemuxerThread::init()
 {
+    m_pDemuxer = FFMpegDemuxerPtr(new FFMpegDemuxer(m_pFormatContext));
     return true;
 };
 

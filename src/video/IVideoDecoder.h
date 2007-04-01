@@ -36,7 +36,8 @@ class IVideoDecoder
 {
     public:
         virtual ~IVideoDecoder() {};
-        virtual void open(const std::string& sFilename, YCbCrMode ycbcrMode) = 0;
+        virtual void open(const std::string& sFilename, YCbCrMode ycbcrMode,
+                bool bSyncDemuxer) = 0;
         virtual void close() = 0;
         virtual void seek(int DestFrame) = 0;
         virtual IntPoint getSize() = 0;
