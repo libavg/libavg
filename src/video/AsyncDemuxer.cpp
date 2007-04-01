@@ -45,7 +45,11 @@ AsyncDemuxer::~AsyncDemuxer()
         map<int, VideoPacketQueuePtr>::iterator it;
         for (it=m_PacketQs.begin(); it != m_PacketQs.end(); ++it) {
             // If the Queue is full, this breaks the lock in the thread.
-            it->second->pop(false);
+            try {
+                it->second->pop(false);
+            } catch (Exception& ex) {
+                // This gets thrown if the queue is empty.
+            }
         }
         m_pDemuxThread->join();
         delete m_pDemuxThread;
