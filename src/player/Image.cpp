@@ -160,7 +160,7 @@ bool Image::obscures (const DRect& Rect, int Child)
     PixelFormat pf = getSurface()->getPixelFormat();
     bool bHasAlpha = (pf == R8G8B8A8 || pf == B8G8R8A8);
     return (isActive() && getEffectiveOpacity() > 0.999
-            && bHasAlpha && getVisibleRect().Contains(Rect));
+            && !bHasAlpha && getVisibleRect().Contains(Rect));
 }
 
 string Image::getTypeStr ()
