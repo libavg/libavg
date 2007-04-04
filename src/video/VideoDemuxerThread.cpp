@@ -75,7 +75,7 @@ bool VideoDemuxerThread::work()
         if (pPacket == 0) {
             m_bEOF = true;
         }
-        m_PacketQs[ShortestQ]->push(PacketVideoMsgPtr(new PacketVideoMsg(pPacket)));
+        m_PacketQs[ShortestQ]->push(PacketVideoMsgPtr(new PacketVideoMsg(pPacket, false)));
     }
     return true;
 }
@@ -93,13 +93,11 @@ void VideoDemuxerThread::enableStream(VideoPacketQueuePtr pPacketQ, int StreamIn
 void VideoDemuxerThread::seek(int DestFrame, int StreamIndex)
 {
     map<int, VideoPacketQueuePtr>::iterator it;
+    m_pDemuxer->seek(DestFrame, StreamIndex);
     for (it=m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
         VideoPacketQueuePtr pPacketQ = it->second;
-        while (!pPacketQ->empty()) {
-            pPacketQ->pop(true);
-        }
+        pPacketQ->push(PacketVideoMsgPtr(new PacketVideoMsg(0, true)));
     }
-    m_pDemuxer->seek(DestFrame, StreamIndex);
     m_bEOF = false;
 }
 

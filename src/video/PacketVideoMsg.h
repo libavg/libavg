@@ -36,13 +36,15 @@ namespace avg {
 
 class PacketVideoMsg {
     public:
-        PacketVideoMsg(AVPacket * pPacket);
+        PacketVideoMsg(AVPacket * pPacket, bool bSeekDone);
         virtual ~PacketVideoMsg();
 
         AVPacket * getPacket();
+        bool isSeekDone();
 
     private:
         AVPacket * m_pPacket;
+        bool m_bSeekDone;
 };
 
 typedef boost::shared_ptr<PacketVideoMsg> PacketVideoMsgPtr;

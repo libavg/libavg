@@ -69,6 +69,7 @@ AVPacket * AsyncDemuxer::getPacket(int StreamIndex)
 {
     // TODO: This blocks if there is no packet. Is that ok?
     PacketVideoMsgPtr pPacketMsg = m_PacketQs[StreamIndex]->pop(true);
+    assert (!pPacketMsg->isSeekDone());
 
     return pPacketMsg->getPacket();
 }
@@ -77,6 +78,14 @@ void AsyncDemuxer::seek(int DestFrame, int StreamIndex)
 {
     m_pCmdQ->push(Command<VideoDemuxerThread>(boost::bind(
                 &VideoDemuxerThread::seek, _1, DestFrame, StreamIndex)));
+    map<int, VideoPacketQueuePtr>::iterator it;
+    for (it=m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
+        VideoPacketQueuePtr pPacketQ = it->second;
+        PacketVideoMsgPtr pPacketMsg;
+        do {
+            pPacketMsg = pPacketQ->pop(true);
+        } while (!pPacketMsg->isSeekDone());
+    }
 }
 
 }

@@ -27,9 +27,10 @@ using namespace std;
 
 namespace avg {
 
-PacketVideoMsg::PacketVideoMsg(AVPacket * pPacket)
+PacketVideoMsg::PacketVideoMsg(AVPacket * pPacket, bool bSeekDone)
 {
     m_pPacket = pPacket;
+    m_bSeekDone = bSeekDone;
 }
 
 PacketVideoMsg::~PacketVideoMsg()
@@ -39,6 +40,11 @@ PacketVideoMsg::~PacketVideoMsg()
 AVPacket * PacketVideoMsg::getPacket()
 {
     return m_pPacket;
+}
+
+bool PacketVideoMsg::isSeekDone()
+{
+    return m_bSeekDone;
 }
 
 }

@@ -23,6 +23,7 @@
 
 #include "../graphics/Filterfliprgb.h"
 
+#include "../base/TimeSource.h"
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
 #include "../base/Profiler.h"
@@ -53,10 +54,20 @@ class DecoderTest: public Test {
 
         void runTests()
         {
+            basicFileTest("mpeg1-48x48.mpg", 30);
+            basicFileTest("mjpeg-48x48.avi", 202);
+            seekTest("mjpeg-48x48.avi");
+        }
+
+    private:
+
+        void basicFileTest(const string& sFilename, int ExpectedNumFrames) 
+        {
             try {
+                cerr << "    Testing " << sFilename << endl;
                 VideoDecoderPtr pDecoder(new FFMpegDecoder());
 
-                pDecoder->open("testfiles/mpeg1-48x48.mpg", OGL_NONE, m_bThreadedDemuxer);
+                pDecoder->open(string("testfiles/")+sFilename, OGL_NONE, m_bThreadedDemuxer);
                 IntPoint FrameSize = pDecoder->getSize();
                 TEST(FrameSize == IntPoint(48, 48));
                 TEST(pDecoder->getPixelFormat() == B8G8R8X8);
@@ -64,9 +75,9 @@ class DecoderTest: public Test {
 
                 // Test first two frames.
                 pDecoder->renderToBmp(pBmp);
-                compareImages(pBmp, "frame1");
+                compareImages(pBmp, sFilename+"_1");
                 pDecoder->renderToBmp(pBmp);
-                compareImages(pBmp, "frame2");
+                compareImages(pBmp, sFilename+"_2");
                 
                 // Read whole file, test last image.
                 int NumFrames = 1;
@@ -74,15 +85,13 @@ class DecoderTest: public Test {
                     pDecoder->renderToBmp(pBmp);
                     NumFrames++;
                 }
-                TEST(NumFrames == 30);
-                // FIXME: Last frame is never decoded (at least for mpegs)
-                compareImages(pBmp, "frame30");
+                TEST(NumFrames == ExpectedNumFrames);
+                compareImages(pBmp, sFilename+"_end");
 
                 // Test loop.
                 pDecoder->seek(0);
-                // FIXME: Seek occurs one frame to late.
                 pDecoder->renderToBmp(pBmp);
-                compareImages(pBmp, "frame1");
+                compareImages(pBmp, sFilename+"_loop");
 
                 pDecoder->close();
             } catch (Magick::Exception & ex) {
@@ -91,8 +100,29 @@ class DecoderTest: public Test {
             }
         }
 
-    private:
-        void compareImages(BitmapPtr pBmp, string sFilename) {
+        void seekTest(const string& sFilename)
+        {
+            cerr << "    Testing " << sFilename << " (seek)" << endl;
+            VideoDecoderPtr pDecoder(new FFMpegDecoder());
+
+            pDecoder->open(string("testfiles/")+sFilename, OGL_NONE, m_bThreadedDemuxer);
+
+            IntPoint FrameSize = pDecoder->getSize();
+            BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
+
+            pDecoder->seek(100);
+            pDecoder->renderToBmp(pBmp);
+            compareImages(pBmp, sFilename+"_100");
+
+            pDecoder->seek(53);
+            pDecoder->renderToBmp(pBmp);
+            compareImages(pBmp, sFilename+"_53");
+
+            pDecoder->close();
+        }
+
+        void compareImages(BitmapPtr pBmp, const string& sFilename)
+        {
             try {
                 BitmapPtr pBaselineBmp(new Bitmap("testfiles/baseline/"+sFilename+".png"));
                 FilterFlipRGB().applyInPlace(pBaselineBmp);

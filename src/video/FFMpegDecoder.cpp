@@ -184,6 +184,8 @@ void FFMpegDecoder::close()
 {
     mutex::scoped_lock Lock(s_OpenMutex);
 //    AVG_TRACE(Logger::PROFILE, "Closing " << m_sFilename);
+    delete m_pDemuxer;
+    m_pDemuxer = 0;
     AVCodecContext * enc;
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     enc = &(m_pFormatContext->streams[m_VStreamIndex]->codec);
@@ -198,8 +200,6 @@ void FFMpegDecoder::close()
     m_pVStream = 0;
     av_close_input_file(m_pFormatContext);
     m_pFormatContext = 0;
-    delete m_pDemuxer;
-    m_pDemuxer = 0;
 }
 
 void FFMpegDecoder::seek(int DestFrame) 
