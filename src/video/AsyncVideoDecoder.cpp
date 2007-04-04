@@ -49,7 +49,7 @@ AsyncVideoDecoder::~AsyncVideoDecoder()
 }
 
 void AsyncVideoDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
-        bool bSyncDemuxer)
+        bool bThreadedDemuxer)
 {
     m_bEOF = false;
     m_sFilename = sFilename;
@@ -57,7 +57,7 @@ void AsyncVideoDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
     m_pMsgQ = VideoMsgQueuePtr(new VideoMsgQueue(8));
     m_pDecoderThread = new boost::thread(
             VideoDecoderThread(*m_pMsgQ, *m_pCmdQ, m_pSyncDecoder, sFilename, 
-                    ycbcrMode, bSyncDemuxer));
+                    ycbcrMode, bThreadedDemuxer));
     getInfoMsg();
 }
 

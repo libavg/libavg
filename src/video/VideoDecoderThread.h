@@ -38,7 +38,7 @@ class VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
     public:
         VideoDecoderThread(VideoMsgQueue& MsgQ, CmdQueue& CmdQ, 
                 VideoDecoderPtr pDecoder, const std::string& sFilename, 
-                YCbCrMode ycbcrMode, bool bSyncDemuxer);
+                YCbCrMode ycbcrMode, bool bThreadedDemuxer);
         virtual ~VideoDecoderThread();
         bool init();
         bool work();
@@ -51,7 +51,7 @@ class VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
         VideoDecoderPtr m_pDecoder;
         std::string m_sFilename;
         YCbCrMode m_YCbCrMode;
-        bool m_bSyncDemuxer;
+        bool m_bThreadedDemuxer;
 };
 
 }

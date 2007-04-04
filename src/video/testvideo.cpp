@@ -46,9 +46,9 @@ using namespace std;
 
 class DecoderTest: public Test {
     public:
-        DecoderTest(bool bSyncDemuxer)
-          : Test(getDecoderName(bSyncDemuxer), 2),
-            m_bSyncDemuxer(bSyncDemuxer)
+        DecoderTest(bool bThreadedDemuxer)
+          : Test(getDecoderName(bThreadedDemuxer), 2),
+            m_bThreadedDemuxer(bThreadedDemuxer)
         {}
 
         void runTests()
@@ -56,7 +56,7 @@ class DecoderTest: public Test {
             try {
                 VideoDecoderPtr pDecoder(new FFMpegDecoder());
 
-                pDecoder->open("testfiles/mpeg1-48x48.mpg", OGL_NONE, m_bSyncDemuxer);
+                pDecoder->open("testfiles/mpeg1-48x48.mpg", OGL_NONE, m_bThreadedDemuxer);
                 IntPoint FrameSize = pDecoder->getSize();
                 TEST(FrameSize == IntPoint(48, 48));
                 TEST(pDecoder->getPixelFormat() == B8G8R8X8);
@@ -69,7 +69,7 @@ class DecoderTest: public Test {
                 compareImages(pBmp, "frame2");
                 
                 // Read whole file, test last image.
-                int NumFrames = 2;
+                int NumFrames = 1;
                 while(!pDecoder->isEOF()) {
                     pDecoder->renderToBmp(pBmp);
                     NumFrames++;
@@ -81,7 +81,6 @@ class DecoderTest: public Test {
                 // Test loop.
                 pDecoder->seek(0);
                 // FIXME: Seek occurs one frame to late.
-                pDecoder->renderToBmp(pBmp);
                 pDecoder->renderToBmp(pBmp);
                 compareImages(pBmp, "frame1");
 
@@ -111,15 +110,15 @@ class DecoderTest: public Test {
             }
         }
 
-        string getDecoderName(bool bSyncDemuxer) {
-            if (bSyncDemuxer) {
-                return string("DecoderTest(Sync demuxer)");
+        string getDecoderName(bool bThreadedDemuxer) {
+            if (bThreadedDemuxer) {
+                return string("DecoderTest(Threaded demuxer)");
             } else {
-                return string("DecoderTest(Async demuxer)");
+                return string("DecoderTest(Sync demuxer)");
             }
         }
 
-        bool m_bSyncDemuxer;
+        bool m_bThreadedDemuxer;
 };
 
 class VideoTestSuite: public TestSuite {
@@ -127,8 +126,8 @@ public:
     VideoTestSuite() 
         : TestSuite("VideoTestSuite")
     {
-        addTest(TestPtr(new DecoderTest(true)));
         addTest(TestPtr(new DecoderTest(false)));
+        addTest(TestPtr(new DecoderTest(true)));
     }
 };
 

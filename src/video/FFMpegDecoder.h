@@ -40,7 +40,7 @@ class FFMpegDecoder: public IVideoDecoder
         FFMpegDecoder();
         virtual ~FFMpegDecoder();
         virtual void open(const std::string& sFilename, YCbCrMode ycbcrMode,
-                bool bSyncDemuxer);
+                bool bThreadedDemuxer);
         virtual void close();
         virtual void seek(int DestFrame);
         virtual IntPoint getSize();
@@ -56,7 +56,6 @@ class FFMpegDecoder: public IVideoDecoder
     private:
         void initVideoSupport();
         void readFrame(AVFrame& Frame);
-        void readLastFrame(AVCodecContext *enc, AVFrame * pFrame);
         PixelFormat calcPixelFormat(YCbCrMode ycbcrMode);
 
         IDemuxer * m_pDemuxer;

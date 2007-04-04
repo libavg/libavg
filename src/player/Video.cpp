@@ -172,7 +172,7 @@ void Video::open(YCbCrMode ycbcrMode)
     } else {
         m_pDecoder = new FFMpegDecoder();
     }
-    m_pDecoder->open(m_Filename, ycbcrMode, true);
+    m_pDecoder->open(m_Filename, ycbcrMode, false);
 }
 
 void Video::close()

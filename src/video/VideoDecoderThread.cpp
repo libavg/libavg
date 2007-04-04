@@ -33,13 +33,13 @@ namespace avg {
 
 VideoDecoderThread::VideoDecoderThread(VideoMsgQueue& MsgQ, CmdQueue& CmdQ, 
         VideoDecoderPtr pDecoder, const std::string& sFilename, 
-        YCbCrMode ycbcrMode, bool bSyncDemuxer)
+        YCbCrMode ycbcrMode, bool bThreadedDemuxer)
     : WorkerThread<VideoDecoderThread>("VideoDecoder", CmdQ),
       m_MsgQ(MsgQ),
       m_pDecoder(pDecoder),
       m_sFilename(sFilename),
       m_YCbCrMode(ycbcrMode),
-      m_bSyncDemuxer(bSyncDemuxer)
+      m_bThreadedDemuxer(bThreadedDemuxer)
 {
 }
 
@@ -50,7 +50,7 @@ VideoDecoderThread::~VideoDecoderThread()
 bool VideoDecoderThread::init()
 {
     try {
-        m_pDecoder->open(m_sFilename, m_YCbCrMode, m_bSyncDemuxer);
+        m_pDecoder->open(m_sFilename, m_YCbCrMode, m_bThreadedDemuxer);
         PixelFormat PF = m_pDecoder->getPixelFormat();
         VideoMsgPtr pInfoMsg(new InfoVideoMsg(m_pDecoder->getSize(), 
                 m_pDecoder->getNumFrames(), m_pDecoder->getFPS(), PF));
