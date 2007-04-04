@@ -31,7 +31,8 @@ using namespace std;
 namespace avg {
 
 AsyncDemuxer::AsyncDemuxer(AVFormatContext * pFormatContext)
-    : m_pCmdQ(new VideoDemuxerThread::CmdQueue)
+    : m_pCmdQ(new VideoDemuxerThread::CmdQueue),
+      m_bSeekPending(false)
 {
     m_pSyncDemuxer = IDemuxerPtr(new FFMpegDemuxer(pFormatContext));
     m_pDemuxThread = new boost::thread(VideoDemuxerThread(*m_pCmdQ, pFormatContext));
@@ -67,6 +68,7 @@ void AsyncDemuxer::enableStream(int StreamIndex)
 
 AVPacket * AsyncDemuxer::getPacket(int StreamIndex)
 {
+    waitForSeekDone();
     // TODO: This blocks if there is no packet. Is that ok?
     PacketVideoMsgPtr pPacketMsg = m_PacketQs[StreamIndex]->pop(true);
     assert (!pPacketMsg->isSeekDone());
@@ -76,15 +78,24 @@ AVPacket * AsyncDemuxer::getPacket(int StreamIndex)
 
 void AsyncDemuxer::seek(int DestFrame, int StreamIndex)
 {
+    waitForSeekDone();
     m_pCmdQ->push(Command<VideoDemuxerThread>(boost::bind(
                 &VideoDemuxerThread::seek, _1, DestFrame, StreamIndex)));
-    map<int, VideoPacketQueuePtr>::iterator it;
-    for (it=m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
-        VideoPacketQueuePtr pPacketQ = it->second;
-        PacketVideoMsgPtr pPacketMsg;
-        do {
-            pPacketMsg = pPacketQ->pop(true);
-        } while (!pPacketMsg->isSeekDone());
+    m_bSeekPending = true;
+}
+
+void AsyncDemuxer::waitForSeekDone()
+{
+    if (m_bSeekPending) {
+        m_bSeekPending = false;
+        map<int, VideoPacketQueuePtr>::iterator it;
+        for (it=m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
+            VideoPacketQueuePtr pPacketQ = it->second;
+            PacketVideoMsgPtr pPacketMsg;
+            do {
+                pPacketMsg = pPacketQ->pop(true);
+            } while (!pPacketMsg->isSeekDone());
+        }
     }
 }
 
