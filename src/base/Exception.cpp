@@ -22,6 +22,8 @@
 #include "Exception.h"
 #include "Logger.h"
 
+#include <cstdlib>
+
 using namespace std;
 
 namespace avg {
