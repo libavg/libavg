@@ -101,6 +101,12 @@ void FFMpegDemuxer::seek(int DestFrame, int StreamIndex)
 #endif
 #endif
     clearPacketCache();
+    map<int, PacketList>::iterator it;
+    for (it=m_PacketLists.begin(); it != m_PacketLists.end(); ++it) {
+        int CurStreamIndex = it->first;
+        AVStream * pStream = m_pFormatContext->streams[CurStreamIndex];
+        avcodec_flush_buffers(pStream->codec);
+    }
 }
 
 void FFMpegDemuxer::clearPacketCache()
