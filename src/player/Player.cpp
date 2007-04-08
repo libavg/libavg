@@ -190,6 +190,10 @@ void Player::loadFile (const std::string& filename)
         xmlDoValidityCheckingDefaultValue =0;
 
         xmlDocPtr doc;
+        if (!fileExists(RealFilename)) {
+            throw (Exception(AVG_ERR_FILEIO, 
+                        string("File ")+RealFilename+" not found."));
+        }
         doc = xmlParseFile(RealFilename.c_str());
         if (!doc) {
             throw (Exception(AVG_ERR_XML_PARSE, 

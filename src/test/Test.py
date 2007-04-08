@@ -408,6 +408,7 @@ class PlayerTestCase(AVGTestCase):
             except RuntimeError:
                 exceptionRaised = True
             self.assert_(exceptionRaised)
+        testBrokenFile("filedoesntexist.avg")
         testBrokenFile("noxml.avg")
         testBrokenFile("noavg.avg")
         testBrokenFile("noavg2.avg")
