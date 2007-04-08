@@ -299,10 +299,13 @@ void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int Stride)
 {
     unsigned char * pSrc=pData;
     unsigned char * pDest= pBmp->getPixels();
-    for (int y=0; y<pBmp->getSize().y; y++) {
-        memcpy(pDest, pSrc, pBmp->getSize().x);
+    int DestStride = pBmp->getStride();
+    int Height = pBmp->getSize().y;
+    int Width = pBmp->getSize().x;
+    for (int y=0; y<Height; y++) {
+        memcpy(pDest, pSrc, Width);
         pSrc+=Stride;
-        pDest+=pBmp->getStride();
+        pDest+=DestStride;
     }
 
 }

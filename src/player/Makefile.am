@@ -44,11 +44,11 @@ ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
 TESTS=testcalibrator
 
 noinst_LTLIBRARIES = libplayer.la
-noinst_PROGRAMS = testtracker testcalibrator
-testtracker_SOURCES=testtracker.cpp
-testtracker_LDADD = libplayer.la ../video/libvideo.la ../imaging/libimaging.la \
+noinst_PROGRAMS = checktracker testcalibrator
+checktracker_SOURCES=checktracker.cpp
+checktracker_LDADD = libplayer.la ../video/libvideo.la ../imaging/libimaging.la \
 		../graphics/libgraphics.la ../base/libbase.la ../lmfit/liblmfit.la
-testtracker_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ 
+checktracker_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ 
 
 testcalibrator_SOURCES=testcalibrator.cpp
 testcalibrator_LDADD = libplayer.la ../video/libvideo.la ../imaging/libimaging.la \

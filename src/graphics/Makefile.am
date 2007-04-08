@@ -20,11 +20,11 @@ EXTRA_DIST = rgb24-64x64.png
 
 noinst_LTLIBRARIES = libgraphics.la
 libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
-noinst_PROGRAMS=testgraphics testperformance
+noinst_PROGRAMS=testgraphics benchmarkgraphics
 testgraphics_SOURCES=testgraphics.cpp $(ALL_H)
 testgraphics_LDADD = ./libgraphics.la ../base/libbase.la
 testgraphics_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@
 
-testperformance_SOURCES=testperformance.cpp $(ALL_H)
-testperformance_LDADD = ./libgraphics.la ../base/libbase.la
-testperformance_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@
+benchmarkgraphics_SOURCES=benchmarkgraphics.cpp $(ALL_H)
+benchmarkgraphics_LDADD = ./libgraphics.la ../base/libbase.la
+benchmarkgraphics_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@
