@@ -156,7 +156,7 @@ void TrackerThread::deinit()
 
 void TrackerThread::setConfig(TrackerConfig Config)
 {
-    m_Threshold = Config.m_Threshold;
+    m_Threshold = Config.m_Finger.m_Threshold;
     if(m_pHistoryPreProcessor) {
         m_pHistoryPreProcessor->setInterval(Config.m_HistoryUpdateInterval);
     }

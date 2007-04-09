@@ -26,6 +26,7 @@
 #include <libxml/xmlwriter.h>
 
 #include <string>
+#include <map>
 #include <sstream>
 
 namespace avg {
@@ -87,7 +88,7 @@ void writeSimpleXMLNode(xmlTextWriterPtr writer, std::string sName, T Value)
     rc = xmlTextWriterEndElement(writer);
 }
         
-void registerDTDEntityLoader(const char * sDTD);
+void registerDTDEntityLoader(const std::string& sID, const std::string& sDTD);
 
 }
 

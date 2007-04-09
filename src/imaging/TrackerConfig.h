@@ -28,6 +28,19 @@
 
 namespace avg {
 
+struct BlobConfig
+{
+    BlobConfig();
+    virtual ~BlobConfig();
+    void load(xmlNodePtr pParentNode, const std::string& sFilename);
+    void save(xmlTextWriterPtr writer);
+
+    int m_Threshold; //min pixel val for detection
+    double m_Similarity; //max distance for tracking blobs
+    double m_AreaBounds[2]; //min, max for area in percents of screen size
+    double m_EccentricityBounds[2]; //min, max for Eccentricity
+};
+
 struct TrackerConfig
 {
     TrackerConfig();
@@ -43,12 +56,8 @@ struct TrackerConfig
     int m_Gain;
     int m_Shutter;
 
-    // Imaging params
-    int m_Threshold; //min pixel val for detection
     int m_HistoryUpdateInterval;
-    double m_Similarity; //max distance for tracking blobs
-    double m_AreaBounds[2]; //min, max for area in percents of screen size
-    double m_EccentricityBounds[2]; //min, max for Eccentricity
+    BlobConfig m_Finger;
 
     bool m_bCreateDebugImages;
     bool m_bCreateFingerImage;
@@ -56,6 +65,10 @@ struct TrackerConfig
     DeDistortPtr m_pTrafo;
 
 private:
+    void loadCamera(xmlNodePtr pParentNode, const std::string& sFilename);
+    void saveCamera(xmlTextWriterPtr writer);
+    void loadTracker(xmlNodePtr pParentNode, const std::string& sFilename);
+    void saveTracker(xmlTextWriterPtr writer); 
     std::string getConfigFilename();
 };
 

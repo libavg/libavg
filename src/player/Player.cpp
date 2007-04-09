@@ -98,7 +98,7 @@ Player::Player()
     Profiler::get().registerThreadProfiler(pThreadProfiler);
     initConfig();
     // Find and parse dtd.
-    registerDTDEntityLoader(g_pAVGDTD);
+    registerDTDEntityLoader("avg.dtd", g_pAVGDTD);
     string sDTDFName = "avg.dtd";
     m_dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
     if (!m_dtd) {

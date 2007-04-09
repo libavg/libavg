@@ -28,10 +28,6 @@
 
 namespace avg {
 
-//REFACTORME: turn Event->{MouseEvent,KeyEvent} into Event->{CursorEvent->{MouseEvent, TouchEvent},KeyEvent}
-//
-//CursorEvents have a position and can be captured, 
-//i.e. they have a CursorID.  CursorID == MOUSECURSOR == const for plain mouse events and something unique for each touch
 class MouseEvent : public CursorEvent {
     public:
         MouseEvent(Event::Type eventType,

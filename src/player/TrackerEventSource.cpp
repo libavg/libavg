@@ -284,13 +284,13 @@ namespace avg {
         
     void TrackerEventSource::setThreshold(int Threshold) 
     {
-        m_TrackerConfig.m_Threshold = Threshold;
+        m_TrackerConfig.m_Finger.m_Threshold = Threshold;
         setConfig();
     }
 
     int TrackerEventSource::getThreshold()
     {
-        return m_TrackerConfig.m_Threshold;
+        return m_TrackerConfig.m_Finger.m_Threshold;
     }
     
     void TrackerEventSource::setHistorySpeed(int UpdateInterval)
@@ -452,7 +452,7 @@ namespace avg {
         // FIXME!
 #define IN(x, pair) (((x)>=pair[0])&&((x)<=pair[1]))
         bool res;
-        res = IN(info->m_Area, m_TrackerConfig.m_AreaBounds) && IN(info->m_Eccentricity, m_TrackerConfig.m_EccentricityBounds);
+        res = IN(info->m_Area, m_TrackerConfig.m_Finger.m_AreaBounds) && IN(info->m_Eccentricity, m_TrackerConfig.m_Finger.m_EccentricityBounds);
         return res;
 #undef IN
     }
@@ -478,7 +478,7 @@ namespace avg {
                             Pixel32(0xFF, 0xFF, 0xFF, 0xFF), true, 
                             Pixel32(0x00, 0x00, 0xFF, 0xFF)); 
                 }
-                BlobPtr old_match = matchblob((*it2), old_blobs, m_TrackerConfig.m_Similarity);
+                BlobPtr old_match = matchblob((*it2), old_blobs, m_TrackerConfig.m_Finger.m_Similarity);
                 if(old_match){
                     assert (m_Events.find(old_match) != m_Events.end());
                     //this blob has been identified with an old one

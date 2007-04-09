@@ -161,8 +161,8 @@ void writeMinMaxXMLNode(xmlTextWriterPtr writer, string sName, double Val[2])
     rc = xmlTextWriterEndElement(writer);
 }
 
-static xmlExternalEntityLoader DefaultLoaderProc;
-static string g_sDTD;
+static xmlExternalEntityLoader DefaultLoaderProc = 0;
+static std::map<string, string> g_DTDMap;
 
 xmlParserInputPtr
 DTDExternalEntityLoader(const char *URL, const char *ID,
@@ -170,18 +170,23 @@ DTDExternalEntityLoader(const char *URL, const char *ID,
 {
     xmlParserInputPtr ret;
     /* lookup for the fileID depending on ID */
-    if (!strcmp(URL, "avg.dtd")) {
-        ret = xmlNewStringInputStream(ctxt, (const xmlChar *)(g_sDTD.c_str()));
+    std::map<string, string>::iterator it = g_DTDMap.find(URL);
+
+    if (it != g_DTDMap.end()) {
+        ret = xmlNewStringInputStream(ctxt, (const xmlChar *)(it->second.c_str()));
+        return(ret);
+    } else {
+        ret = DefaultLoaderProc(URL, ID, ctxt);
         return(ret);
     }
-    ret = DefaultLoaderProc(URL, ID, ctxt);
-    return(ret);
 }
 
-void registerDTDEntityLoader(const char * pDTD)
+void registerDTDEntityLoader(const string& sID, const string& sDTD)
 {
-    g_sDTD = pDTD;
-    DefaultLoaderProc = xmlGetExternalEntityLoader();
+    g_DTDMap[sID] = sDTD;
+    if (!DefaultLoaderProc) {
+        DefaultLoaderProc = xmlGetExternalEntityLoader();
+    }
     xmlSetExternalEntityLoader(DTDExternalEntityLoader);
 }
 
