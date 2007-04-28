@@ -36,14 +36,11 @@ using namespace avg;
 using namespace std;
 
 // TODO: 
-//  - Seek forward & back (mjpeg & longer movies)
+//  - Seek forward & back (longer movies)
 //  - Test getNumFrames
 //  - Repeat for other File formats.
 //  - Remove testfiles from python tests.
-//  - Repeat for async decoder
 //  - Test YCbCr420p, YCbCr422
-//  - Standard way of saving test bmps
-//  - map Magick::Exception to avg::Exception
 
 class DecoderTest: public Test {
     public:
