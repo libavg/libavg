@@ -832,7 +832,7 @@ bool Player::handleEvent(Event * pEvent)
             }
         } else {
             pNode = m_pEventCaptureNode[cursorID].lock();
-        } 
+        }
         if (pNode != m_pLastMouseNode[cursorID] && 
                 pEvent->getType() != Event::CURSOROVER &&
                 pEvent->getType() != Event::CURSOROUT)
@@ -851,7 +851,7 @@ bool Player::handleEvent(Event * pEvent)
             pNode->handleEvent(pCursorEvent);
         }
         //touch ids are transient, need to keep map clean of expired events
-        if(pCursorEvent->getType() == Event::TOUCHUP) {
+        if(pCursorEvent->getSource() != CursorEvent::MOUSE) {
             m_pLastMouseNode.erase(pCursorEvent->getCursorID());
             m_pEventCaptureNode.erase(pCursorEvent->getCursorID());
         }

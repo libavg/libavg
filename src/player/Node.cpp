@@ -23,6 +23,7 @@
 #include "DivNode.h"
 
 #include "Event.h"
+#include "CursorEvent.h"
 #include "MouseEvent.h"
 #include "DivNode.h"
 #include "Player.h"
@@ -72,14 +73,11 @@ Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
       m_AbsViewport(0,0,0,0)
 {
     m_ID = getDefaultedStringAttr (xmlNode, "id", "");
-    m_EventHandlerMap[Event::TOUCHMOTION] = getDefaultedStringAttr (xmlNode, "ontouchmove", "");
-    m_EventHandlerMap[Event::TOUCHUP] = getDefaultedStringAttr (xmlNode, "ontouchup", "");
-    m_EventHandlerMap[Event::TOUCHDOWN] = getDefaultedStringAttr (xmlNode, "ontouchdown", "");
-    m_EventHandlerMap[Event::MOUSEMOTION] = getDefaultedStringAttr (xmlNode, "onmousemove", "");
-    m_EventHandlerMap[Event::MOUSEBUTTONUP] = getDefaultedStringAttr (xmlNode, "onmouseup", "");
-    m_EventHandlerMap[Event::MOUSEBUTTONDOWN] = getDefaultedStringAttr (xmlNode, "onmousedown", "");
-    m_EventHandlerMap[Event::CURSOROVER] = getDefaultedStringAttr (xmlNode, "onmouseover", "");
-    m_EventHandlerMap[Event::CURSOROUT] = getDefaultedStringAttr (xmlNode, "onmouseout", "");
+    m_EventHandlerMap[Event::CURSORMOTION] = getDefaultedStringAttr (xmlNode, "oncursormove", "");
+    m_EventHandlerMap[Event::CURSORUP] = getDefaultedStringAttr (xmlNode, "oncursorup", "");
+    m_EventHandlerMap[Event::CURSORDOWN] = getDefaultedStringAttr (xmlNode, "oncursordown", "");
+    m_EventHandlerMap[Event::CURSOROVER] = getDefaultedStringAttr (xmlNode, "oncursorover", "");
+    m_EventHandlerMap[Event::CURSOROUT] = getDefaultedStringAttr (xmlNode, "oncursorout", "");
     m_RelViewport.tl.x = getDefaultedDoubleAttr (xmlNode, "x", 0.0);
     m_RelViewport.tl.y = getDefaultedDoubleAttr (xmlNode, "y", 0.0);
     m_WantedSize.x = getDefaultedDoubleAttr (xmlNode, "width", 0.0);

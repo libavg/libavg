@@ -35,14 +35,11 @@ class Event {
         enum Type {
             KEYUP,
             KEYDOWN,
-            MOUSEMOTION,
-            MOUSEBUTTONUP,
-            MOUSEBUTTONDOWN,
+            CURSORMOTION,
+            CURSORUP,
+            CURSORDOWN,
             CURSOROVER,  
             CURSOROUT,
-            TOUCHDOWN,
-            TOUCHMOTION,
-            TOUCHUP,
             RESIZE,
             QUIT 
         };

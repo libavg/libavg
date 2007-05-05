@@ -691,13 +691,13 @@ Event * DFBDisplayEngine::createEvent(DFBWindowEvent* pdfbwEvent)
             Event::Type Type;
             switch (pdfbwEvent->type) {
                 case DWET_BUTTONDOWN:
-                    Type = Event::MOUSEBUTTONDOWN;
+                    Type = Event::CURSORDOWN;
                     break;
                 case DWET_BUTTONUP:
-                    Type = Event::MOUSEBUTTONUP;
+                    Type = Event::CURSORUP;
                     break;
                 case DWET_MOTION:
-                    Type = Event::MOUSEMOTION;
+                    Type = Event::CURSORMOTION;
                     break;
                 default:
                     fatalError("Unknown event type in DFBDisplayEngine::createEvent.");

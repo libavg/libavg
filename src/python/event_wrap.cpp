@@ -35,8 +35,8 @@ void export_event()
     class_<Event, boost::noncopyable>("Event", 
             "Base class for user input events.\n"
             "Properties:\n"
-            "    type: One of KEYUP, KEYDOWN, MOUSEMOTION, MOUSEBUTTONUP,\n"
-            "          MOUSEBUTTONDOWN, MOUSEOVER, MOUSEOUT, RESIZE or QUIT.\n"
+            "    type: One of KEYUP, KEYDOWN, CURSORMOTION, CURSORUP,\n"
+            "          CURSORDOWN, CURSOROVER, CURSOROUT, RESIZE or QUIT.\n"
             "    when: The timestamp of the event in milliseconds.\n",
             no_init)
         .add_property("type", &Event::getType)
@@ -46,16 +46,20 @@ void export_event()
     enum_<Event::Type>("Type")
         .value("KEYUP", Event::KEYUP)
         .value("KEYDOWN", Event::KEYDOWN)
-        .value("MOUSEMOTION", Event::MOUSEMOTION)
-        .value("MOUSEBUTTONUP", Event::MOUSEBUTTONUP)
-        .value("MOUSEBUTTONDOWN", Event::MOUSEBUTTONDOWN)
-        .value("MOUSEOVER", Event::CURSOROVER)
-        .value("MOUSEOUT", Event::CURSOROUT)
-        .value("TOUCHDOWN", Event::TOUCHDOWN)
-        .value("TOUCHMOTION", Event::TOUCHMOTION)
-        .value("TOUCHUP", Event::TOUCHUP)
+        .value("CURSORMOTION", Event::CURSORMOTION)
+        .value("CURSORUP", Event::CURSORUP)
+        .value("CURSORDOWN", Event::CURSORDOWN)
+        .value("CURSOROVER", Event::CURSOROVER)
+        .value("CURSOROUT", Event::CURSOROUT)
         .value("RESIZE", Event::RESIZE)
         .value("QUIT", Event::QUIT)
+        .export_values()
+    ;
+
+    enum_<CursorEvent::Source>("Source")
+        .value("MOUSE", CursorEvent::MOUSE)
+        .value("TOUCH", CursorEvent::TOUCH)
+        .value("TRACK", CursorEvent::TRACK)
         .export_values()
     ;
 
@@ -87,6 +91,7 @@ void export_event()
             "    button: The button that caused the event. (ro)\n"
             "    node: The node that the event handler was declared in. (ro)\n",
             no_init)
+        .add_property("source", &MouseEvent::getSource)
         .add_property("leftbuttonstate", &MouseEvent::getLeftButtonState)
         .add_property("middlebuttonstate", &MouseEvent::getMiddleButtonState)
         .add_property("rightbuttonstate", &MouseEvent::getRightButtonState)
@@ -110,6 +115,7 @@ void export_event()
             "    node: The node that the event handler was declared in. (ro)\n"
             "    center: position as double. Used for calibration (ro)\n",
             no_init)
+        .add_property("source", &TouchEvent::getSource)
         .add_property("area", &TouchEvent::getArea)
         .add_property("orientation", &TouchEvent::getOrientation)
         .add_property("inertia", &TouchEvent::getInertia)

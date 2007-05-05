@@ -24,7 +24,6 @@
 
 #include "Region.h"
 #include "Event.h"
-#include "CursorEvent.h"
 #include "ISurface.h"
 #include "../graphics/Point.h"
 #include "../graphics/Rect.h"

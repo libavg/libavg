@@ -1,20 +1,20 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 <avg width="160" height="120"  
-    onmousedown="mainMouseDown" onmouseup="mainMouseUp">
+    oncursordown="mainMouseDown" oncursorup="mainMouseUp">
   <image id="img1" x="0" y="0" href="rgb24-65x65.png" 
-      onmousemove="onMouseMove1" onmouseup="onMouseUp1" onmousedown="onMouseDown1"
-      onmouseover="onMouseOver1" onmouseout="onMouseOut1"/>
+      oncursormove="onMouseMove1" oncursorup="onMouseUp1" oncursordown="onMouseDown1"
+      oncursorover="onMouseOver1" oncursorout="onMouseOut1"/>
   <image id="hidden" x="65" y="65" height="10" width="10" href="rgb24-65x65.png"
-      onmouseup="neverCalled"/>
+      oncursorup="neverCalled"/>
   <image id="obscured" x="65" y="65" href="rgb24-65x65.png"
-      onmousedown="onObscuredMouseDown"/>
-  <div id="div1" x="65" y="0" onmousedown="onDivMouseDown">
-    <image id="img2" x="0" y="65" href="rgb24-65x65.png" onmousedown="onMouseDown2"/>
+      oncursordown="onObscuredMouseDown"/>
+  <div id="div1" x="65" y="0" oncursordown="onDivMouseDown">
+    <image id="img2" x="0" y="65" href="rgb24-65x65.png" oncursordown="onMouseDown2"/>
   </div>
   <image id="tilted" x="0" y="64" width="32" height="32" angle="0.785"
-      href="rgb24-64x64.png" onmouseover="onTiltedOver"/>
-  <image id="deact" x="65" y="0" href="rgb24-65x65.png" onmouseover="onDeactMouseOver"
-      onmousedown="onDeactMouseDown" onmouseout="onDeactMouseOut" 
-      onmousemove="onDeactMouseMove"/>
+      href="rgb24-64x64.png" oncursorover="onTiltedOver"/>
+  <image id="deact" x="65" y="0" href="rgb24-65x65.png" oncursorover="onDeactMouseOver"
+      oncursordown="onDeactMouseDown" oncursorout="onDeactMouseOut" 
+      oncursormove="onDeactMouseMove"/>
 </avg>

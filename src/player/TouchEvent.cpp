@@ -33,8 +33,8 @@
 
 
 namespace avg {
-TouchEvent::TouchEvent(int id, Type EventType, BlobInfoPtr info, IntPoint& Pos)
-    : CursorEvent(id, EventType, Pos),
+TouchEvent::TouchEvent(int id, Type EventType, BlobInfoPtr info, IntPoint& Pos, Source source)
+    : CursorEvent(id, EventType, Pos, source),
       m_Info(info)
 {
 }

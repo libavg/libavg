@@ -29,7 +29,7 @@ using namespace std;
 namespace avg {
 
     EventDispatcher::EventDispatcher()
-        : m_LastMouseEvent(MouseEvent(Event::MOUSEMOTION, false, false, false, 
+        : m_LastMouseEvent(MouseEvent(Event::CURSORMOTION, false, false, false, 
                 IntPoint(0, 0), MouseEvent::NO_BUTTON))
     {
     }

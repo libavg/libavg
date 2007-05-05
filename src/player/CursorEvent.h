@@ -28,22 +28,27 @@
 
 #include "../graphics/Point.h"
 
+namespace avg{
+
 const int MOUSECURSORID=-1;
 
-namespace avg{
 class CursorEvent: public Event 
 {
     public:
-        CursorEvent(int id, Type eventType, IntPoint Position);
+        enum Source {MOUSE, TOUCH, TRACK};
+
+        CursorEvent(int id, Type eventType, IntPoint Position, Source source);
         virtual ~CursorEvent();
         virtual Event* cloneAs(Type EventType);
         int getXPosition() const;
         int getYPosition() const;
         int getCursorID() const;
+        CursorEvent::Source getSource() const;
 
     protected:
         IntPoint m_Position;
         int m_ID;
+        Source m_Source;
 };
 
 }

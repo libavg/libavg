@@ -833,15 +833,15 @@ vector<Event *> SDLDisplayEngine::pollEvents()
         switch(sdlEvent.type){
             case SDL_MOUSEMOTION:
                 Events.push_back
-                        (createMouseMotionEvent(Event::MOUSEMOTION, sdlEvent));
+                        (createMouseMotionEvent(Event::CURSORMOTION, sdlEvent));
                 break;
             case SDL_MOUSEBUTTONDOWN:
                 Events.push_back
-                        (createMouseButtonEvent(Event::MOUSEBUTTONDOWN, sdlEvent));
+                        (createMouseButtonEvent(Event::CURSORDOWN, sdlEvent));
                 break;
             case SDL_MOUSEBUTTONUP:
                 Events.push_back
-                        (createMouseButtonEvent(Event::MOUSEBUTTONUP, sdlEvent));
+                        (createMouseButtonEvent(Event::CURSORUP, sdlEvent));
                 break;
             case SDL_JOYAXISMOTION:
 //                Events.push_back(createAxisEvent(sdlEvent));

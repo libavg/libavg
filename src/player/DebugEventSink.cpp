@@ -33,7 +33,7 @@ DebugEventSink::DebugEventSink()
 }
 
 bool DebugEventSink::handleEvent(Event * pEvent) {
-    if (pEvent->getType() != Event::MOUSEMOTION) {
+    if (pEvent->getType() != Event::CURSORMOTION) {
         pEvent->trace();
     }
     return false; // Allow other handlers to really process the event.

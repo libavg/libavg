@@ -69,12 +69,12 @@ namespace avg {
 
             // State transitions:
             // Current state       Destination state
-            // DOWN_PENDING     -> DOWN_DELIVERED (TOUCHDOWN event), UP_DELIVERED (spurious blob)
+            // DOWN_PENDING     -> DOWN_DELIVERED (CURSORDOWN event), UP_DELIVERED (spurious blob)
             // DOWN_DELIVERED   -> VANISHED, MOTION_PENDING, MOTION_DELIVERED
-            // MOTION_PENDING   -> VANISHED, MOTION_DELIVERED (TOUCHMOTION event)
+            // MOTION_PENDING   -> VANISHED, MOTION_DELIVERED (CURSORMOTION event)
             // MOTION_DELIVERED -> VANISHED, MOTION_PENDING
             // VANISHED         -> MOTION_PENDING, UP_PENDING
-            // UP_PENDING       -> UP_DELIVERED (TOUCHUP event)
+            // UP_PENDING       -> UP_DELIVERED (CURSORUP event)
 
             EventStream(BlobPtr first_blob);
             void blobChanged(BlobPtr new_blob);
@@ -179,19 +179,19 @@ namespace avg {
         switch(m_State){
             case DOWN_PENDING:
                 m_State = DOWN_DELIVERED;
-                return new TouchEvent(m_Id, Event::TOUCHDOWN,
-                        (m_pBlob->getInfo()), Pos);
+                return new TouchEvent(m_Id, Event::CURSORDOWN,
+                        (m_pBlob->getInfo()), Pos, CursorEvent::TOUCH);
 
                 break;
             case MOTION_PENDING:
                 m_State = MOTION_DELIVERED;
-                return new TouchEvent(m_Id, Event::TOUCHMOTION,
-                        (m_pBlob->getInfo()), Pos);
+                return new TouchEvent(m_Id, Event::CURSORMOTION,
+                        (m_pBlob->getInfo()), Pos, CursorEvent::TOUCH);
                 break;
             case UP_PENDING:
                 m_State = UP_DELIVERED;
-                return new TouchEvent(m_Id, Event::TOUCHUP,
-                        (m_pBlob->getInfo()), Pos);
+                return new TouchEvent(m_Id, Event::CURSORUP,
+                        (m_pBlob->getInfo()), Pos, CursorEvent::TOUCH);
                 break;
             case DOWN_DELIVERED:
             case MOTION_DELIVERED:

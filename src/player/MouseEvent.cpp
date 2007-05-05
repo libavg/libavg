@@ -34,12 +34,12 @@ namespace avg {
 MouseEvent::MouseEvent(Event::Type eventType,
         bool leftButtonState, bool middleButtonState, bool rightButtonState,
         IntPoint Position, int button)
-    : CursorEvent(MOUSECURSORID, eventType, Position)
+    : CursorEvent(MOUSECURSORID, eventType, Position, MOUSE)
 {
     m_LeftButtonState = leftButtonState;
     m_MiddleButtonState = middleButtonState;
     m_RightButtonState = rightButtonState;
-    if (eventType == MOUSEMOTION) {
+    if (eventType == CURSORMOTION) {
         m_Button = 0;
     } else {
         m_Button = button;
