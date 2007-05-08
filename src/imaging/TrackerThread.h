@@ -53,7 +53,7 @@ typedef boost::shared_ptr<boost::mutex> MutexPtr;
 class IBlobTarget {
     public:
         virtual ~IBlobTarget() {};
-        virtual void update(BlobListPtr blobs, BitmapPtr pBitmap) = 0;
+        virtual void update(BlobListPtr blobs, BitmapPtr pBitmap, bool bTouch) = 0;
 };
 
 
@@ -81,14 +81,15 @@ class TrackerThread: public WorkerThread<TrackerThread>
     private:
         void checkMessages();
         void calcHistory();
-        bool isfinger(BlobPtr blob);
         void drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp);
+        void calcBlobs(BitmapPtr pBmp, int m_Threshold, bool bIsTouch);
 
         std::string m_sDevice;
         double m_FrameRate;
         std::string m_sMode;
 
-        int m_Threshold;
+        int m_TouchThreshold; // 0 => no touch events.
+        int m_TrackThreshold; // 0 => no generic tracking events.
         BlobListPtr m_pBlobList;
         IntRect m_ROI;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];

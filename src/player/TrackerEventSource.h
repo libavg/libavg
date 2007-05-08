@@ -22,7 +22,7 @@
 #ifndef _TrackerEventSource_H_
 #define _TrackerEventSource_H_
 
-#include "Event.h"
+#include "CursorEvent.h"
 #include "IEventSource.h"
 #include "TrackerCalibrator.h"
 
@@ -76,20 +76,23 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         std::vector<Event *> pollEvents();//main thread
 
         /* implement IBlobTarget */
-        virtual void update(BlobListPtr new_blobs, BitmapPtr pBitmap);//tracker thread
+        virtual void update(BlobListPtr new_blobs, BitmapPtr pBitmap, bool bTouch);//tracker thread
 
         TrackerCalibrator* startCalibration();
         void endCalibration();
         void abortCalibration();
 
     private:
-        bool isfinger(BlobPtr blob);
-        BlobPtr matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold);
+        bool isRelevant(BlobPtr blob, BlobConfigPtr pConfig);
+        BlobPtr matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold, EventMap * pEvents);
         void setConfig();
         void handleROIChange();
+        void pollEventType(std::vector<Event*>& res, EventMap& Events,
+                CursorEvent::Source source);
 
         TrackerConfig m_TrackerConfig;
-        EventMap m_Events;
+        EventMap m_TouchEvents;
+        EventMap m_TrackEvents;
         MutexPtr m_pTrackerMutex;
         MutexPtr m_pUpdateMutex;
 

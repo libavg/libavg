@@ -79,7 +79,7 @@ namespace avg {
             EventStream(BlobPtr first_blob);
             void blobChanged(BlobPtr new_blob);
             void blobGone();
-            Event* pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents);
+            Event* pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, CursorEvent::Source Source);
             bool isGone();
             void setStale();
             bool isStale();
@@ -167,7 +167,7 @@ namespace avg {
         }
     }
 
-    Event* EventStream::pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents)
+    Event* EventStream::pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, CursorEvent::Source Source)
     {
         assert(m_pBlob);
         DPoint BlobOffset = trafo->getActiveBlobArea(DPoint(DisplayExtents)).tl;
@@ -180,18 +180,18 @@ namespace avg {
             case DOWN_PENDING:
                 m_State = DOWN_DELIVERED;
                 return new TouchEvent(m_Id, Event::CURSORDOWN,
-                        (m_pBlob->getInfo()), Pos, CursorEvent::TOUCH);
+                        (m_pBlob->getInfo()), Pos, Source);
 
                 break;
             case MOTION_PENDING:
                 m_State = MOTION_DELIVERED;
                 return new TouchEvent(m_Id, Event::CURSORMOTION,
-                        (m_pBlob->getInfo()), Pos, CursorEvent::TOUCH);
+                        (m_pBlob->getInfo()), Pos, Source);
                 break;
             case UP_PENDING:
                 m_State = UP_DELIVERED;
                 return new TouchEvent(m_Id, Event::CURSORUP,
-                        (m_pBlob->getInfo()), Pos, CursorEvent::TOUCH);
+                        (m_pBlob->getInfo()), Pos, Source);
                 break;
             case DOWN_DELIVERED:
             case MOTION_DELIVERED:
@@ -284,13 +284,13 @@ namespace avg {
         
     void TrackerEventSource::setThreshold(int Threshold) 
     {
-        m_TrackerConfig.m_Finger.m_Threshold = Threshold;
+        m_TrackerConfig.m_pTouch->m_Threshold = Threshold;
         setConfig();
     }
 
     int TrackerEventSource::getThreshold()
     {
-        return m_TrackerConfig.m_Finger.m_Threshold;
+        return m_TrackerConfig.m_pTouch->m_Threshold;
     }
     
     void TrackerEventSource::setHistorySpeed(int UpdateInterval)
@@ -413,7 +413,8 @@ namespace avg {
         return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
     }
 
-    BlobPtr TrackerEventSource::matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold)
+    BlobPtr TrackerEventSource::matchblob(BlobPtr new_blob, BlobListPtr old_blobs, 
+            double threshold, EventMap * pEvents)
     {
         assert(new_blob);
         std::vector<BlobPtr> candidates;
@@ -421,7 +422,7 @@ namespace avg {
         for(BlobList::iterator it=old_blobs->begin();it!=old_blobs->end();++it)
         {
             if (distance( (*it), new_blob)<threshold &&
-                m_Events.find(*it) != m_Events.end())
+                pEvents->find(*it) != pEvents->end())
             {
                 candidates.push_back( (*it) );
             }
@@ -446,53 +447,63 @@ namespace avg {
         return res;
     }
 
-    bool TrackerEventSource::isfinger(BlobPtr blob)
+    bool TrackerEventSource::isRelevant(BlobPtr blob, BlobConfigPtr pConfig)
     {
         BlobInfoPtr info = blob->getInfo();
         // FIXME!
 #define IN(x, pair) (((x)>=pair[0])&&((x)<=pair[1]))
         bool res;
-        res = IN(info->m_Area, m_TrackerConfig.m_Finger.m_AreaBounds) && IN(info->m_Eccentricity, m_TrackerConfig.m_Finger.m_EccentricityBounds);
+        res = IN(info->m_Area, pConfig->m_AreaBounds) && IN(info->m_Eccentricity, pConfig->m_EccentricityBounds);
         return res;
 #undef IN
     }
 
-    void TrackerEventSource::update(BlobListPtr new_blobs, BitmapPtr pBitmap)
+    void TrackerEventSource::update(BlobListPtr new_blobs, BitmapPtr pBitmap, bool bTouch)
     {
+        BlobConfigPtr pBlobConfig;
+        EventMap * pEvents;
+        if (bTouch) {
+            pBlobConfig = m_TrackerConfig.m_pTouch;
+            pEvents = &m_TouchEvents;
+        } else {
+            pBlobConfig = m_TrackerConfig.m_pTrack;
+            pEvents = &m_TrackEvents;
+        }
         boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
         BlobListPtr old_blobs = BlobListPtr(new BlobList());
-        if (pBitmap) {
-            Pixel32 Black(0x00, 0x00, 0x00, 0x00);
-            FilterFill<Pixel32>(Black).applyInPlace(
-                pBitmap);
-        }
-        for(EventMap::iterator it=m_Events.begin();it!=m_Events.end();++it){
+        for(EventMap::iterator it=pEvents->begin();it!=pEvents->end();++it){
             (*it).second->setStale();
             old_blobs->push_back((*it).first);
         }
         int known_counter=0, new_counter=0, ignored_counter=0; 
         for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2){
-            if (isfinger(*it2)){
+            if (isRelevant(*it2, pBlobConfig)) {
                 if (pBitmap) {
-                    (*it2)->render(&*pBitmap, 
-                            Pixel32(0xFF, 0xFF, 0xFF, 0xFF), true, 
-                            Pixel32(0x00, 0x00, 0xFF, 0xFF)); 
+                    if (bTouch) {
+                        (*it2)->render(&*pBitmap, 
+                                Pixel32(0xFF, 0xFF, 0xFF, 0xFF), true, 
+                                Pixel32(0x00, 0x00, 0xFF, 0xFF));
+                    } else {
+                        (*it2)->render(&*pBitmap, 
+                                Pixel32(0xFF, 0xFF, 0x00, 0xFF), true, 
+                                Pixel32(0x00, 0x00, 0xFF, 0xFF));
+                    }
                 }
-                BlobPtr old_match = matchblob((*it2), old_blobs, m_TrackerConfig.m_Finger.m_Similarity);
-                if(old_match){
-                    assert (m_Events.find(old_match) != m_Events.end());
+                BlobPtr old_match = matchblob((*it2), old_blobs, pBlobConfig->m_Similarity, pEvents);
+                if(old_match) {
+                    assert (pEvents->find(old_match) != pEvents->end());
                     //this blob has been identified with an old one
                     known_counter++;
                     EventStreamPtr e;
-                    e = m_Events.find(old_match)->second;
+                    e = pEvents->find(old_match)->second;
                     e->blobChanged( (*it2) );
                     //update the mapping!
-                    m_Events[(*it2)] = e;
-                    m_Events.erase(old_match);
+                    (*pEvents)[(*it2)] = e;
+                    pEvents->erase(old_match);
                 } else {
                     new_counter++;
                     //this is a new one
-                    m_Events[(*it2)] = EventStreamPtr( new EventStream((*it2)) ) ;
+                    (*pEvents)[(*it2)] = EventStreamPtr( new EventStream((*it2)) ) ;
                 }
             } else {
                 if (pBitmap) {
@@ -502,15 +513,8 @@ namespace avg {
                 ignored_counter++;
             }
         }
-        //       AVG_TRACE(Logger::EVENTS2, "matched blobs: "<<known_counter<<"; new blobs: "<<new_counter<<"; ignored: "<<ignored_counter);
         int gone_counter = 0;
-/*
-        if (!m_Events.empty()) {
-            cerr << "update():" << endl;
-        }
-*/
-        for(EventMap::iterator it3=m_Events.begin();it3!=m_Events.end();++it3){
-//            (*it3).second->dump();
+        for(EventMap::iterator it3=pEvents->begin();it3!=pEvents->end();++it3){
             //all event streams that are still stale haven't been updated: blob is gone, send the sentinel for this.
             if ((*it3).second->isStale()) {
                 (*it3).second->blobGone();
@@ -518,7 +522,6 @@ namespace avg {
             }
         }
 
-        //       AVG_TRACE(Logger::EVENTS2, ""<<gone_counter<<" fingers disappeared.");
     };
         
     TrackerCalibrator* TrackerEventSource::startCalibration()
@@ -560,30 +563,27 @@ namespace avg {
     {
         boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
         std::vector<Event*> res = std::vector<Event *>();
+        pollEventType(res, m_TouchEvents, CursorEvent::TOUCH);
+        return res;
+    }
+   
+    void TrackerEventSource::pollEventType(std::vector<Event*>& res, EventMap& Events,
+            CursorEvent::Source source) 
+    {
         Event *t;
         int kill_counter = 0;
-/*
-        if (!m_Events.empty()) {
-            cerr << "pollEvents():" << endl;
-        }
-*/
-        for (EventMap::iterator it = m_Events.begin(); it!= m_Events.end();){
-//            (*it).second->dump();
-            t = (*it).second->pollevent(m_TrackerConfig.m_pTrafo, m_DisplayExtents);
+        for (EventMap::iterator it = Events.begin(); it!= Events.end();){
+            t = (*it).second->pollevent(m_TrackerConfig.m_pTrafo, m_DisplayExtents, source);
             if (t) res.push_back(t);
             if ((*it).second->isGone()){
-                m_Events.erase(it++);
+                Events.erase(it++);
                 kill_counter++;
             }else{
                 ++it;
             }
         }
-
-//        if (kill_counter)
-//            AVG_TRACE(Logger::EVENTS2, ""<<kill_counter<<" EventStreams removed.");
-        return res;
     }
-    
+
 }
 
 

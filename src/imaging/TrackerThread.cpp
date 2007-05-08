@@ -57,7 +57,8 @@ TrackerThread::TrackerThread(IntRect ROI,
         bool bSubtractHistory,
         TrackerConfig &config)
     : WorkerThread<TrackerThread>("Tracker", CmdQ),
-      m_Threshold(128),
+      m_TouchThreshold(128),
+      m_TrackThreshold(0),
       m_pMutex(pMutex),
       m_pCamera(pCamera),
       m_pTarget(target)
@@ -118,32 +119,25 @@ bool TrackerThread::work()
             boost::mutex::scoped_lock Lock(*m_pMutex);
             m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pCroppedBmp);
         }
-        BitmapPtr pBmpBandpass;
-        {
-            ScopeTimer Timer(ProfilingZoneBandpass);
-            pBmpBandpass = FilterFastBandpass().apply(pCroppedBmp);
+        if (m_bCreateFingerImage) {
+            Pixel32 Black(0x00, 0x00, 0x00, 0x00);
+            FilterFill<Pixel32>(Black).applyInPlace(
+                m_pBitmaps[TRACKER_IMG_FINGERS]);
         }
-        if (m_bCreateDebugImages) {
-            boost::mutex::scoped_lock Lock(*m_pMutex);
-            *(m_pBitmaps[TRACKER_IMG_HIGHPASS]) = *pBmpBandpass;
+        if (m_TrackThreshold != 0) {
+            calcBlobs(pCroppedBmp, m_TrackThreshold, false);
         }
-        //get bloblist
-        //
-        BlobListPtr comps;
-        {
-            ScopeTimer Timer(ProfilingZoneComps);
-            comps = connected_components(pBmpBandpass, m_Threshold);
-        }
-        //    AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
-        //feed the IBlobTarget
-        {
-            boost::mutex::scoped_lock Lock(*m_pMutex);
-            ScopeTimer Timer(ProfilingZoneUpdate);
-            if (m_bCreateFingerImage) {
-                m_pTarget->update(comps, m_pBitmaps[TRACKER_IMG_FINGERS]);
-            } else {
-                m_pTarget->update(comps, BitmapPtr());
+        if (m_TouchThreshold != 0) {
+            BitmapPtr pBmpBandpass;
+            {
+                ScopeTimer Timer(ProfilingZoneBandpass);
+                pBmpBandpass = FilterFastBandpass().apply(pCroppedBmp);
             }
+            if (m_bCreateDebugImages) {
+                boost::mutex::scoped_lock Lock(*m_pMutex);
+                *(m_pBitmaps[TRACKER_IMG_HIGHPASS]) = *pBmpBandpass;
+            }
+            calcBlobs(pBmpBandpass, m_TouchThreshold, true);
         }
     }
     return true;
@@ -156,7 +150,16 @@ void TrackerThread::deinit()
 
 void TrackerThread::setConfig(TrackerConfig Config)
 {
-    m_Threshold = Config.m_Finger.m_Threshold;
+    if (Config.m_pTouch) {
+        m_TouchThreshold = Config.m_pTouch->m_Threshold;
+    } else {
+        m_TouchThreshold = 0;
+    }
+    if (Config.m_pTrack) {
+        m_TrackThreshold = Config.m_pTrack->m_Threshold;
+    } else {
+        m_TrackThreshold = 0;
+    }
     if(m_pHistoryPreProcessor) {
         m_pHistoryPreProcessor->setInterval(Config.m_HistoryUpdateInterval);
     }
@@ -230,6 +233,25 @@ void TrackerThread::drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp)
         }
         unsigned char * pDest = pDestBmp->getPixels()+Stride*i+StartCol;
         memset(pDest, 255, Width-StartCol);
+    }
+}
+
+void TrackerThread::calcBlobs(BitmapPtr pBmp, int m_Threshold, bool bIsTouch) {
+    BlobListPtr comps;
+    {
+        ScopeTimer Timer(ProfilingZoneComps);
+        comps = connected_components(pBmp, m_Threshold);
+    }
+    //    AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
+    //feed the IBlobTarget
+    {
+        boost::mutex::scoped_lock Lock(*m_pMutex);
+        ScopeTimer Timer(ProfilingZoneUpdate);
+        if (m_bCreateFingerImage) {
+            m_pTarget->update(comps, m_pBitmaps[TRACKER_IMG_FINGERS], bIsTouch);
+        } else {
+            m_pTarget->update(comps, BitmapPtr(), bIsTouch);
+        }
     }
 }
 

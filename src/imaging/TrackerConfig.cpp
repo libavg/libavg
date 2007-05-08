@@ -49,8 +49,9 @@ namespace avg {
 
     }
 
-    BlobConfig::BlobConfig()
-        : m_Threshold(128),
+    BlobConfig::BlobConfig(bool bIsTouch)
+        : m_bIsTouch(bIsTouch),
+          m_Threshold(128),
           m_Similarity(31)
     {
           m_AreaBounds[0] = 80;
@@ -90,7 +91,11 @@ namespace avg {
     void BlobConfig::save(xmlTextWriterPtr writer) 
     {
         int rc;
-        rc = xmlTextWriterStartElement(writer, BAD_CAST "finger");
+        if (m_bIsTouch) {
+            rc = xmlTextWriterStartElement(writer, BAD_CAST "touch");
+        } else {
+            rc = xmlTextWriterStartElement(writer, BAD_CAST "track");
+        }
         writeSimpleXMLNode(writer, "threshold", m_Threshold);
         writeSimpleXMLNode(writer, "similarity", m_Similarity);
         writeMinMaxXMLNode(writer, "areabounds", m_AreaBounds);
@@ -106,6 +111,7 @@ namespace avg {
           m_Gain(128),
           m_Shutter(128),
           m_HistoryUpdateInterval(5),
+          m_pTouch(new BlobConfig(true)),
           m_bCreateDebugImages(false),
           m_bCreateFingerImage(false),
           m_pTrafo(new DeDistort())
@@ -243,12 +249,12 @@ namespace avg {
             const char * pNodeName = (const char *)curXmlChild->name;
             if (!strcmp(pNodeName, "historyupdateinterval")) {
                 m_HistoryUpdateInterval = getRequiredIntAttr(curXmlChild, "value");
-            } else if (!strcmp(pNodeName, "finger")) {
-                m_Finger.load(curXmlChild, sFilename);
-            } else if (!strcmp(pNodeName, "generic")) {
-                // TODO
-                assert(false);
-//                loadBlobParams(curXmlChild);
+            } else if (!strcmp(pNodeName, "touch")) {
+                m_pTouch = BlobConfigPtr(new BlobConfig(true));
+                m_pTouch->load(curXmlChild, sFilename);
+            } else if (!strcmp(pNodeName, "track")) {
+                m_pTrack = BlobConfigPtr(new BlobConfig(false));
+                m_pTrack->load(curXmlChild, sFilename);
             } else {
                 if (strcmp(pNodeName, "text")) {
                     AVG_TRACE(Logger::WARNING, "Unexpected node " << pNodeName << " in " << sFilename);
@@ -263,7 +269,12 @@ namespace avg {
         int rc;
         rc = xmlTextWriterStartElement(writer, BAD_CAST "tracker");
         writeSimpleXMLNode(writer, "historyupdateinterval", m_HistoryUpdateInterval);
-        m_Finger.save(writer);
+        if (m_pTouch) {
+            m_pTouch->save(writer);
+        }
+        if (m_pTrack) {
+            m_pTrack->save(writer);
+        }
         rc = xmlTextWriterEndElement(writer);
     }
 

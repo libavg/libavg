@@ -57,7 +57,7 @@ TestTracker()
     TrackerConfig Config;
     Config.m_bCreateDebugImages = true;
     Config.m_bCreateFingerImage = true;
-    Config.m_Finger.m_Threshold = 131;
+    Config.m_pTouch->m_Threshold = 131;
     m_pCmdQ = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
     IntRect ROI(0,0,pCam->getImgSize().x, pCam->getImgSize().y);
     boost::thread Thread(

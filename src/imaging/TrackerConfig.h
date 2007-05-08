@@ -24,22 +24,26 @@
 #include "../graphics/Rect.h"
 #include "DeDistort.h"
 
+#include <boost/shared_ptr.hpp>
 #include <string>
 
 namespace avg {
 
 struct BlobConfig
 {
-    BlobConfig();
+    BlobConfig(bool bIsTouch);
     virtual ~BlobConfig();
     void load(xmlNodePtr pParentNode, const std::string& sFilename);
     void save(xmlTextWriterPtr writer);
 
+    bool m_bIsTouch;
     int m_Threshold; //min pixel val for detection
     double m_Similarity; //max distance for tracking blobs
     double m_AreaBounds[2]; //min, max for area in percents of screen size
     double m_EccentricityBounds[2]; //min, max for Eccentricity
 };
+
+typedef boost::shared_ptr<class BlobConfig> BlobConfigPtr;
 
 struct TrackerConfig
 {
@@ -57,7 +61,8 @@ struct TrackerConfig
     int m_Shutter;
 
     int m_HistoryUpdateInterval;
-    BlobConfig m_Finger;
+    BlobConfigPtr m_pTouch;
+    BlobConfigPtr m_pTrack;
 
     bool m_bCreateDebugImages;
     bool m_bCreateFingerImage;

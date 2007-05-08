@@ -30,9 +30,9 @@ const char * g_pTrackerConfigDTD =
  
 "<!ELEMENT trackerconfig (camera|tracker|transform)* >\n"
 "<!ELEMENT camera (brightness|exposure|gamma|gain|shutter)* >\n"
-"<!ELEMENT tracker (historyupdateinterval|generic|finger)* >\n"
-"<!ELEMENT generic (threshold|similarity|areabounds|eccentricitybounds)* >\n"
-"<!ELEMENT finger (threshold|similarity|areabounds|eccentricitybounds)* >\n"
+"<!ELEMENT tracker (historyupdateinterval|touch|track)* >\n"
+"<!ELEMENT touch (threshold|similarity|areabounds|eccentricitybounds)* >\n"
+"<!ELEMENT track (threshold|similarity|areabounds|eccentricitybounds)* >\n"
 "<!ELEMENT transform (cameradisplacement|camerascale|distortionparams|trapezoid|"
 "       angle|displaydisplacement|displayscale)* >\n"
 
