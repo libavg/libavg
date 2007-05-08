@@ -79,7 +79,8 @@ namespace avg {
             EventStream(BlobPtr first_blob);
             void blobChanged(BlobPtr new_blob);
             void blobGone();
-            Event* pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, CursorEvent::Source Source);
+            Event* pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, 
+                    CursorEvent::Source Source);
             bool isGone();
             void setStale();
             bool isStale();
@@ -167,7 +168,8 @@ namespace avg {
         }
     }
 
-    Event* EventStream::pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, CursorEvent::Source Source)
+    Event* EventStream::pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, 
+            CursorEvent::Source Source)
     {
         assert(m_pBlob);
         DPoint BlobOffset = trafo->getActiveBlobArea(DPoint(DisplayExtents)).tl;
@@ -458,7 +460,7 @@ namespace avg {
 #undef IN
     }
 
-    void TrackerEventSource::update(BlobListPtr new_blobs, BitmapPtr pBitmap, bool bTouch)
+    void TrackerEventSource::update(BlobListPtr new_blobs, bool bTouch)
     {
         BlobConfigPtr pBlobConfig;
         EventMap * pEvents;
@@ -476,19 +478,8 @@ namespace avg {
             old_blobs->push_back((*it).first);
         }
         int known_counter=0, new_counter=0, ignored_counter=0; 
-        for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2){
+        for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2) {
             if (isRelevant(*it2, pBlobConfig)) {
-                if (pBitmap) {
-                    if (bTouch) {
-                        (*it2)->render(&*pBitmap, 
-                                Pixel32(0xFF, 0xFF, 0xFF, 0xFF), true, 
-                                Pixel32(0x00, 0x00, 0xFF, 0xFF));
-                    } else {
-                        (*it2)->render(&*pBitmap, 
-                                Pixel32(0xFF, 0xFF, 0x00, 0xFF), true, 
-                                Pixel32(0x00, 0x00, 0xFF, 0xFF));
-                    }
-                }
                 BlobPtr old_match = matchblob((*it2), old_blobs, pBlobConfig->m_Similarity, pEvents);
                 if(old_match) {
                     assert (pEvents->find(old_match) != pEvents->end());
@@ -503,13 +494,9 @@ namespace avg {
                 } else {
                     new_counter++;
                     //this is a new one
-                    (*pEvents)[(*it2)] = EventStreamPtr( new EventStream((*it2)) ) ;
+                    (*pEvents)[(*it2)] = EventStreamPtr( new EventStream((*it2)) );
                 }
             } else {
-                if (pBitmap) {
-                    (*it2)->render(&*pBitmap, 
-                            Pixel32(0xFF, 0x00, 0x00, 0xFF), false);
-                }
                 ignored_counter++;
             }
         }
@@ -521,9 +508,40 @@ namespace avg {
                 gone_counter++;
             }
         }
-
     };
-        
+
+    void TrackerEventSource::drawBlobs(BlobListPtr pBlobs, BitmapPtr pBitmap, bool bTouch)
+    {
+        BlobConfigPtr pBlobConfig;
+        if (bTouch) {
+            pBlobConfig = m_TrackerConfig.m_pTouch;
+        } else {
+            pBlobConfig = m_TrackerConfig.m_pTrack;
+        }
+
+        for(BlobList::iterator it2 = pBlobs->begin();it2!=pBlobs->end();++it2) {
+            if (isRelevant(*it2, pBlobConfig)) {
+                if (bTouch) {
+                    (*it2)->render(&*pBitmap, 
+                            Pixel32(0xFF, 0xFF, 0xFF, 0xFF), true, 
+                            Pixel32(0x00, 0x00, 0xFF, 0xFF));
+                } else {
+                    (*it2)->render(&*pBitmap, 
+                            Pixel32(0xFF, 0xFF, 0x00, 0xFF), true, 
+                            Pixel32(0x00, 0x00, 0xFF, 0xFF));
+                }
+            } else {
+                if (bTouch) {
+                    (*it2)->render(&*pBitmap, 
+                            Pixel32(0xFF, 0x00, 0x00, 0xFF), false);
+                } else {
+                    (*it2)->render(&*pBitmap, 
+                            Pixel32(0x80, 0x00, 0x00, 0xFF), false);
+                }
+            }
+        }
+    }
+
     TrackerCalibrator* TrackerEventSource::startCalibration()
     {
         assert(!m_pCalibrator);

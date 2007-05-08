@@ -76,7 +76,8 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         std::vector<Event *> pollEvents();//main thread
 
         /* implement IBlobTarget */
-        virtual void update(BlobListPtr new_blobs, BitmapPtr pBitmap, bool bTouch);//tracker thread
+        virtual void update(BlobListPtr new_blobs, bool bTouch);//tracker thread
+        virtual void drawBlobs(BlobListPtr pBlobs, BitmapPtr pBitmap, bool bTouch);
 
         TrackerCalibrator* startCalibration();
         void endCalibration();

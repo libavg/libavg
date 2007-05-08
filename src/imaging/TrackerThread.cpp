@@ -119,25 +119,27 @@ bool TrackerThread::work()
             boost::mutex::scoped_lock Lock(*m_pMutex);
             m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pCroppedBmp);
         }
-        if (m_bCreateFingerImage) {
-            Pixel32 Black(0x00, 0x00, 0x00, 0x00);
-            FilterFill<Pixel32>(Black).applyInPlace(
-                m_pBitmaps[TRACKER_IMG_FINGERS]);
-        }
-        if (m_TrackThreshold != 0) {
-            calcBlobs(pCroppedBmp, m_TrackThreshold, false);
-        }
-        if (m_TouchThreshold != 0) {
-            BitmapPtr pBmpBandpass;
-            {
-                ScopeTimer Timer(ProfilingZoneBandpass);
-                pBmpBandpass = FilterFastBandpass().apply(pCroppedBmp);
+        {
+            boost::mutex::scoped_lock Lock(*m_pMutex);
+            if (m_bCreateFingerImage) {
+                Pixel32 Black(0x00, 0x00, 0x00, 0x00);
+                FilterFill<Pixel32>(Black).applyInPlace(
+                        m_pBitmaps[TRACKER_IMG_FINGERS]);
             }
-            if (m_bCreateDebugImages) {
-                boost::mutex::scoped_lock Lock(*m_pMutex);
-                *(m_pBitmaps[TRACKER_IMG_HIGHPASS]) = *pBmpBandpass;
+            if (m_TrackThreshold != 0) {
+                calcBlobs(pCroppedBmp, m_TrackThreshold, false);
             }
-            calcBlobs(pBmpBandpass, m_TouchThreshold, true);
+            if (m_TouchThreshold != 0) {
+                BitmapPtr pBmpBandpass;
+                {
+                    ScopeTimer Timer(ProfilingZoneBandpass);
+                    pBmpBandpass = FilterFastBandpass().apply(pCroppedBmp);
+                }
+                if (m_bCreateDebugImages) {
+                    *(m_pBitmaps[TRACKER_IMG_HIGHPASS]) = *pBmpBandpass;
+                }
+                calcBlobs(pBmpBandpass, m_TouchThreshold, true);
+            }
         }
     }
     return true;
@@ -245,12 +247,10 @@ void TrackerThread::calcBlobs(BitmapPtr pBmp, int m_Threshold, bool bIsTouch) {
     //    AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
     //feed the IBlobTarget
     {
-        boost::mutex::scoped_lock Lock(*m_pMutex);
         ScopeTimer Timer(ProfilingZoneUpdate);
+        m_pTarget->update(comps, bIsTouch);
         if (m_bCreateFingerImage) {
-            m_pTarget->update(comps, m_pBitmaps[TRACKER_IMG_FINGERS], bIsTouch);
-        } else {
-            m_pTarget->update(comps, BitmapPtr(), bIsTouch);
+            m_pTarget->drawBlobs(comps, m_pBitmaps[TRACKER_IMG_FINGERS], bIsTouch);
         }
     }
 }
