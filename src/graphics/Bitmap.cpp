@@ -240,8 +240,13 @@ void Bitmap::copyPixels(const Bitmap & Orig)
                     case R5G6B5:
                         createTrueColorCopy<Pixel16>(*this, Orig);
                         break;
+                    case I8:
+                        createTrueColorCopy<Pixel8>(*this, Orig);
+                        break;
                     default:
                         // Unimplemented conversion.
+                        cerr << "Can't convert " << Orig.getPixelFormatString() << " to " 
+                                << getPixelFormatString() << endl;
                         assert(false);
                 }
         }
@@ -347,7 +352,7 @@ void Bitmap::setPixelFormat(PixelFormat PF)
     m_PF = PF;
 }
 
-std::string Bitmap::getPixelFormatString()
+std::string Bitmap::getPixelFormatString() const
 {
     return getPixelFormatString(m_PF);
 }

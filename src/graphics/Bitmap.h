@@ -26,8 +26,10 @@
 #include "Rect.h"
 
 #include <boost/shared_ptr.hpp>
+#include <stdlib.h>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 namespace avg {
 
@@ -80,7 +82,7 @@ public:
     int getStride() const;
     PixelFormat getPixelFormat() const;
     void setPixelFormat(PixelFormat PF);
-    std::string getPixelFormatString();
+    std::string getPixelFormatString() const;
     static std::string getPixelFormatString(PixelFormat PF);
     unsigned char * getPixels();
     const unsigned char * getPixels() const;
@@ -95,6 +97,11 @@ public:
     int getMemNeeded() const;
     bool hasAlpha() const;
     HistogramPtr getHistogram(int Stride = 1) const;
+
+    template<class Pixel>
+    void setPixel(const IntPoint& p, Pixel Color);
+    template<class Pixel>
+    void drawLine(IntPoint p0, IntPoint p1, Pixel Color);
 
     void subtract(const Bitmap* pOtherBmp);
 
@@ -119,6 +126,47 @@ private:
 };
 
 typedef boost::shared_ptr<Bitmap> BitmapPtr;
+
+template<class Pixel>
+void Bitmap::setPixel(const IntPoint& p, Pixel Color)
+{
+    *(Pixel*)(&(m_pBits[p.y*m_Stride+p.x*getBytesPerPixel()])) = Color;
+}
+
+template<class Pixel>
+void Bitmap::drawLine(IntPoint p0, IntPoint p1, Pixel Color)
+{
+     bool bSteep = abs(p1.y - p0.y) > abs(p1.x - p0.x);
+     if (bSteep) {
+         std::swap(p0.x, p0.y);
+         std::swap(p1.x, p1.y);
+     }
+     if (p0.x > p1.x) {
+         std::swap(p0, p1); 
+     }
+     int deltax = p1.x - p0.x;
+     int deltay = abs(p1.y - p0.y);
+     int error = -deltax/2;
+     int ystep;
+     int y = p0.y;
+     if (p0.y < p1.y) {
+         ystep = 1;
+     } else {
+         ystep = -1;
+    }
+    for (int x = p0.x; x <= p1.x; x++) {
+        if (bSteep) {
+            setPixel(IntPoint(y, x), Color); 
+        } else {
+            setPixel(IntPoint(x, y), Color);
+        }
+        error += deltay;
+        if (error > 0) {
+            y += ystep;
+            error -= deltax;
+        }
+    }
+}
 
 }
 #endif

@@ -111,6 +111,9 @@ public:
         runPFTests(I8);
         runPFTests(I16);
         runPFTests(YCbCr422);
+        runLineTest(R8G8B8A8, Pixel32(255,0,0,255));
+        runLineTest(R8G8B8, Pixel24(255,0,0));
+        runLineTest(I8, Pixel8(255));
         
         cerr << "    Testing OwnsBits." << endl;
         unsigned char pData[4*7*3];
@@ -224,6 +227,27 @@ private:
         Bitmap LoadedBmp("test.tif");
         ::remove("test.tif");
         testEqual(*pBmp, LoadedBmp);
+    }
+
+    template<class Pixel>
+    void runLineTest(PixelFormat PF, Pixel Color) {
+        cerr << "    Testing line drawing for " << Bitmap::getPixelFormatString(PF) << endl;
+        Bitmap Bmp(IntPoint(15, 15), PF);
+        memset(Bmp.getPixels(), 0, Bmp.getStride()*15);
+        Bmp.drawLine(IntPoint(7,7), IntPoint( 0, 2), Color);
+        Bmp.drawLine(IntPoint(7,7), IntPoint( 0,12), Color);
+        Bmp.drawLine(IntPoint(7,7), IntPoint( 2, 0), Color);
+        Bmp.drawLine(IntPoint(7,7), IntPoint( 2,14), Color);
+        Bmp.drawLine(IntPoint(7,7), IntPoint(12, 0), Color);
+        Bmp.drawLine(IntPoint(7,7), IntPoint(12,14), Color);
+        Bmp.drawLine(IntPoint(7,7), IntPoint(14, 2), Color);
+        Bmp.drawLine(IntPoint(7,7), IntPoint(14,12), Color);
+        string sFName = string("testimages/LineResult")+Bitmap::getPixelFormatString(PF)+".png";
+//        Bmp.save(sFName);
+        Bitmap BaselineBmp(sFName);
+        Bitmap BaselineBmp2(IntPoint(15,15), PF);
+        BaselineBmp2.copyPixels(BaselineBmp);
+        testEqual(Bmp, BaselineBmp2);
     }
 
     void testEqual(Bitmap& Bmp1, Bitmap& Bmp2) 
