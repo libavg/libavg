@@ -30,7 +30,7 @@
 #include "../graphics/Point.h"
 #include "../graphics/Bitmap.h"
 
-#include "../imaging/ConnectedComps.h"
+#include "../imaging/Blob.h"
 
 #include <math.h>
 

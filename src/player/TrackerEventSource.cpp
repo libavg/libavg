@@ -33,7 +33,6 @@
 #include "../graphics/Pixel8.h"
 
 #include "../imaging/DeDistort.h"
-#include "../imaging/ConnectedComps.h"
 #include "../imaging/CoordTransformer.h"
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
 #include "../imaging/CameraUtils.h"

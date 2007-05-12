@@ -850,12 +850,6 @@ bool Player::handleEvent(Event * pEvent)
             m_pCurEvent = pEvent;
             pNode->handleEvent(pCursorEvent);
         }
-        //touch ids are transient, need to keep map clean of expired events
-        if(pCursorEvent->getSource() != CursorEvent::MOUSE) {
-            m_pLastMouseNode.erase(pCursorEvent->getCursorID());
-            m_pEventCaptureNode.erase(pCursorEvent->getCursorID());
-        }
-
     } else if ( KeyEvent * pKeyEvent = dynamic_cast<KeyEvent*>(pEvent)){
         m_pCurEvent = pEvent;
         m_pRootNode->handleEvent(pKeyEvent);

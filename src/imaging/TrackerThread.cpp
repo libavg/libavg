@@ -19,7 +19,6 @@
 //  Current versions can be found at www.libavg.de
 
 #include "TrackerThread.h"
-#include "ConnectedComps.h"
 #include "FilterDistortion.h"
 
 #include "../base/Logger.h"

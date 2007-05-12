@@ -21,7 +21,7 @@
 //  Original author of this file is igor@c-base.org.
 //
 
-#include "ConnectedComps.h"
+#include "Blob.h"
 
 #include "../graphics/Filtergrayscale.h"
 

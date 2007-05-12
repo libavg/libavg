@@ -79,6 +79,8 @@ class Blob
     private:
         Blob(const Blob &);
         RunList *m_pRuns;
+
+        BlobInfoPtr m_pBlobInfo;
 };
 
 typedef std::vector<BlobPtr> BlobList;

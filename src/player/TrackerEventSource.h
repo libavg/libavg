@@ -31,7 +31,7 @@
 #include "../graphics/Filter.h"
 
 #include "../imaging/TrackerThread.h"
-#include "../imaging/ConnectedComps.h"
+#include "../imaging/Blob.h"
 
 #include <string>
 #include <map>

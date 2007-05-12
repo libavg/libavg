@@ -23,8 +23,6 @@
 
 #include "TouchEvent.h"
 
-#include "../imaging/ConnectedComps.h"
-
 #include "../graphics/Bitmap.h"
 #include "../graphics/Filterfill.h"
 #include "../graphics/Pixel8.h"

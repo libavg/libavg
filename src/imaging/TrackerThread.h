@@ -22,7 +22,7 @@
 #define _TrackerThread_H_
 #include "TrackerConfig.h"
 #include "Camera.h"
-#include "ConnectedComps.h"
+#include "Blob.h"
 #include "FilterDistortion.h"
 
 #include "../base/WorkerThread.h"

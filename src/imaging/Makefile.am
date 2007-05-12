@@ -15,10 +15,10 @@ else
 endif
 endif
 
-ALL_H = TrackerThread.h TrackerConfig.h ConnectedComps.h Camera.h \
+ALL_H = TrackerThread.h TrackerConfig.h Blob.h Camera.h \
         FakeCamera.h CoordTransformer.h FilterDistortion.h $(DC1394_INCLUDES) \
         BlobInfo.h DeDistort.h trackerconfigdtd.h
-ALL_CPP = TrackerThread.cpp TrackerConfig.cpp ConnectedComps.cpp Camera.cpp \
+ALL_CPP = TrackerThread.cpp TrackerConfig.cpp Blob.cpp Camera.cpp \
         FakeCamera.cpp CoordTransformer.cpp FilterDistortion.cpp $(DC1394_SOURCES) \
         DeDistort.cpp trackerconfigdtd.cpp
 
