@@ -526,7 +526,7 @@ namespace avg {
                             Pixel32(0x00, 0x00, 0xFF, 0xFF));
                 } else {
                     (*it2)->render(&*pBitmap, 
-                            Pixel32(0xFF, 0xFF, 0x00, 0xFF), true, 
+                            Pixel32(0xFF, 0xFF, 0x00, 0x40), true, 
                             Pixel32(0x00, 0x00, 0xFF, 0xFF));
                 }
             } else {
@@ -535,7 +535,7 @@ namespace avg {
                             Pixel32(0xFF, 0x00, 0x00, 0xFF), false);
                 } else {
                     (*it2)->render(&*pBitmap, 
-                            Pixel32(0x80, 0x00, 0x00, 0xFF), false);
+                            Pixel32(0x80, 0x00, 0x00, 0x40), false);
                 }
             }
         }
