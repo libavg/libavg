@@ -133,26 +133,27 @@ void Bitmap::setPixel(const IntPoint& p, Pixel Color)
     *(Pixel*)(&(m_pBits[p.y*m_Stride+p.x*getBytesPerPixel()])) = Color;
 }
 
+// TODO: This is slow, and it doesn't clip. Replace with external lib?
 template<class Pixel>
 void Bitmap::drawLine(IntPoint p0, IntPoint p1, Pixel Color)
 {
-     bool bSteep = abs(p1.y - p0.y) > abs(p1.x - p0.x);
-     if (bSteep) {
-         std::swap(p0.x, p0.y);
-         std::swap(p1.x, p1.y);
-     }
-     if (p0.x > p1.x) {
-         std::swap(p0, p1); 
-     }
-     int deltax = p1.x - p0.x;
-     int deltay = abs(p1.y - p0.y);
-     int error = -deltax/2;
-     int ystep;
-     int y = p0.y;
-     if (p0.y < p1.y) {
-         ystep = 1;
-     } else {
-         ystep = -1;
+    bool bSteep = abs(p1.y - p0.y) > abs(p1.x - p0.x);
+    if (bSteep) {
+        std::swap(p0.x, p0.y);
+        std::swap(p1.x, p1.y);
+    }
+    if (p0.x > p1.x) {
+        std::swap(p0, p1); 
+    }
+    int deltax = p1.x - p0.x;
+    int deltay = abs(p1.y - p0.y);
+    int error = -deltax/2;
+    int ystep;
+    int y = p0.y;
+    if (p0.y < p1.y) {
+        ystep = 1;
+    } else {
+        ystep = -1;
     }
     for (int x = p0.x; x <= p1.x; x++) {
         if (bSteep) {

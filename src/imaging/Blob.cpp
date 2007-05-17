@@ -147,19 +147,15 @@ void Blob::render(Bitmap *pTarget, Pixel32 Color, bool bMarkCenter,
         IntPoint Center = IntPoint(int(DCenter.x+0.5), int(DCenter.y+0.5));
         IntPoint size = pTarget->getSize();
         BlobInfoPtr pInfo = getInfo();
-/*
-        TODO: Magnitude of EigenVectors is incorrect.
-        IntPoint End0 = IntPoint(pInfo->m_EigenVectors[0]*20)+Center;
+        
+        IntPoint End0 = IntPoint(pInfo->m_ScaledBasis[0])+Center;
         pTarget->drawLine(Center, End0, CenterColor);
-        IntPoint End1 = IntPoint(pInfo->m_EigenVectors[1]*20)+Center;
+        IntPoint End1 = IntPoint(pInfo->m_ScaledBasis[1])+Center;
         pTarget->drawLine(Center, End1, CenterColor);
-*/
-        int xstart = std::max(0,Center.x-5);
-        int xstop = std::min(Center.x+5,size.x-1);
-        int ystart = std::max(0,Center.y-5);
-        int ystop = std::min(Center.y+5,size.y-1);
+/*
         pTarget->drawLine(IntPoint(Center.x, ystart), IntPoint(Center.x, ystop), CenterColor);
         pTarget->drawLine(IntPoint(xstart, Center.y), IntPoint(xstop, Center.y), CenterColor);
+*/
     }
 }
 
