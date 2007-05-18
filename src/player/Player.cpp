@@ -117,6 +117,9 @@ Player::~Player()
     if (m_pTracker) {
         delete m_pTracker;
     }
+    if (m_dtd) {
+        xmlFreeDtd(m_dtd);
+    }
 }
 
 void Player::setDisplayEngine(DisplayEngineType engine)

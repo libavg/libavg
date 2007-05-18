@@ -64,12 +64,19 @@ Video::Video (const xmlNodePtr xmlNode, Player * pPlayer)
     if (m_Filename != "") {
         initFilename(getPlayer(), m_Filename);
     }
+    if (m_bThreaded) {
+        VideoDecoderPtr pSyncDecoder = VideoDecoderPtr(new FFMpegDecoder());
+        m_pDecoder = new AsyncVideoDecoder(pSyncDecoder);
+    } else {
+        m_pDecoder = new FFMpegDecoder();
+    }
 }
 
 Video::~Video ()
 {
     if (m_pDecoder) {
         delete m_pDecoder;
+        m_pDecoder = 0;
     }
 }
 
@@ -124,8 +131,6 @@ void Video::disconnect()
 {
     stop();
     VideoBase::disconnect();
-    delete m_pDecoder;
-    m_pDecoder = 0;
 }
 
 const string& Video::getHRef() const
@@ -166,12 +171,6 @@ void Video::seek(int DestFrame)
 void Video::open(YCbCrMode ycbcrMode)
 {
     m_CurFrame = 0;
-    if (m_bThreaded) {
-        VideoDecoderPtr pSyncDecoder = VideoDecoderPtr(new FFMpegDecoder());
-        m_pDecoder = new AsyncVideoDecoder(pSyncDecoder);
-    } else {
-        m_pDecoder = new FFMpegDecoder();
-    }
     m_pDecoder->open(m_Filename, ycbcrMode, false);
 }
 
