@@ -177,6 +177,8 @@ namespace avg {
             }
             curXmlChild = curXmlChild->next;
         }
+        xmlFreeDoc(doc);
+        xmlFreeDtd(dtd);
     }
 
 
