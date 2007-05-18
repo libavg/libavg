@@ -64,7 +64,8 @@ class DecoderTest: public Test {
                 cerr << "    Testing " << sFilename << endl;
                 VideoDecoderPtr pDecoder(new FFMpegDecoder());
 
-                pDecoder->open(string("testfiles/")+sFilename, OGL_NONE, m_bThreadedDemuxer);
+                pDecoder->open(string("testfiles/")+sFilename, OGL_NONE, 
+                        m_bThreadedDemuxer);
                 IntPoint FrameSize = pDecoder->getSize();
                 TEST(FrameSize == IntPoint(48, 48));
                 TEST(pDecoder->getPixelFormat() == B8G8R8X8);
@@ -102,7 +103,8 @@ class DecoderTest: public Test {
             cerr << "    Testing " << sFilename << " (seek)" << endl;
             VideoDecoderPtr pDecoder(new FFMpegDecoder());
 
-            pDecoder->open(string("testfiles/")+sFilename, OGL_NONE, m_bThreadedDemuxer);
+            pDecoder->open(string("testfiles/")+sFilename, OGL_NONE, 
+                    m_bThreadedDemuxer);
 
             IntPoint FrameSize = pDecoder->getSize();
             BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));

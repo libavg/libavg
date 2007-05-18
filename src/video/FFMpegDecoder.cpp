@@ -194,6 +194,7 @@ void FFMpegDecoder::close()
 #endif
     if (!m_bFirstPacket) {
         av_free_packet(m_pPacket);
+        delete m_pPacket;
     }
     m_pPacketData = 0;
     avcodec_close(enc);
@@ -402,12 +403,14 @@ void FFMpegDecoder::readFrame(AVFrame& Frame)
                 enc->pix_fmt, 
                 enc->width, enc->height);
         av_free_packet(pPacket);
+        delete pPacket;
     } else {
         int gotPicture = 0;
         while (!gotPicture) {
             if (m_PacketLenLeft <= 0) {
                 if (!m_bFirstPacket) {
                     av_free_packet(m_pPacket);
+                    delete m_pPacket;
                 }
                 m_bFirstPacket = false;
                 m_pPacket = m_pDemuxer->getPacket(m_VStreamIndex);

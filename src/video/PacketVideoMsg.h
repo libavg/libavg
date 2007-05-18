@@ -39,6 +39,7 @@ class PacketVideoMsg {
         PacketVideoMsg(AVPacket * pPacket, bool bSeekDone);
         virtual ~PacketVideoMsg();
 
+        void freePacket();
         AVPacket * getPacket();
         bool isSeekDone();
 

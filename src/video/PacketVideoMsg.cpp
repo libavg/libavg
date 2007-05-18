@@ -37,6 +37,12 @@ PacketVideoMsg::~PacketVideoMsg()
 {
 }
 
+void PacketVideoMsg::freePacket()
+{
+    av_free_packet(m_pPacket);
+    delete m_pPacket;
+}
+
 AVPacket * PacketVideoMsg::getPacket()
 {
     return m_pPacket;

@@ -47,7 +47,9 @@ AsyncDemuxer::~AsyncDemuxer()
         for (it=m_PacketQs.begin(); it != m_PacketQs.end(); ++it) {
             // If the Queue is full, this breaks the lock in the thread.
             try {
-                it->second->pop(false);
+                PacketVideoMsgPtr pPacketMsg;
+                pPacketMsg = it->second->pop(false);
+                pPacketMsg->freePacket();
             } catch (Exception& ex) {
                 // This gets thrown if the queue is empty.
             }
@@ -55,6 +57,18 @@ AsyncDemuxer::~AsyncDemuxer()
         m_pDemuxThread->join();
         delete m_pDemuxThread;
         m_pDemuxThread = 0;
+        for (it=m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
+            VideoPacketQueuePtr pPacketQ = it->second;
+            PacketVideoMsgPtr pPacketMsg;
+            try {
+                while(true) {
+                    pPacketMsg = pPacketQ->pop(false);
+                    pPacketMsg->freePacket();
+                }
+            } catch (Exception& ex) {
+                // This gets thrown if the queue is empty.
+            }
+        }
     }
 }
 
@@ -92,9 +106,12 @@ void AsyncDemuxer::waitForSeekDone()
         for (it=m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
             VideoPacketQueuePtr pPacketQ = it->second;
             PacketVideoMsgPtr pPacketMsg;
+            bool bDone;
             do {
                 pPacketMsg = pPacketQ->pop(true);
-            } while (!pPacketMsg->isSeekDone());
+                bDone = pPacketMsg->isSeekDone();
+                pPacketMsg->freePacket();
+            } while (!bDone);
         }
     }
 }
