@@ -25,11 +25,12 @@
 #include <string>
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
     EventDispatcher::EventDispatcher()
-        : m_LastMouseEvent(MouseEvent(Event::CURSORMOTION, false, false, false, 
+        : m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
                 IntPoint(0, 0), MouseEvent::NO_BUTTON))
     {
     }
@@ -41,22 +42,22 @@ namespace avg {
     void EventDispatcher::dispatch() 
     {
         for (unsigned int i = 0; i<m_EventSources.size(); ++i) {
-            vector<Event*> curEvents = m_EventSources[i]->pollEvents();
+            vector<EventPtr> curEvents = m_EventSources[i]->pollEvents();
             for (unsigned int i= 0; i<curEvents.size(); i++) {
                 m_Events.push(curEvents[i]);
             }
         }
 
         while (!m_Events.empty()) {
-            Event * pCurEvent = m_Events.top();
+            EventPtr pCurEvent = m_Events.top();
             m_Events.pop();
             sendEvent(pCurEvent);
         }
     }
 
-    const MouseEvent& EventDispatcher::getLastMouseEvent() const 
+    const MouseEventPtr EventDispatcher::getLastMouseEvent() const 
     {
-        return m_LastMouseEvent;
+        return m_pLastMouseEvent;
     }
         
     void EventDispatcher::addSource(IEventSource * pSource)
@@ -70,10 +71,10 @@ namespace avg {
         m_EventSinks.push_back(pSink);
     }
 
-    void EventDispatcher::sendEvent(Event* pEvent)
+    void EventDispatcher::sendEvent(EventPtr pEvent)
     {
-        if (dynamic_cast<MouseEvent*>(pEvent) != 0) {
-            m_LastMouseEvent = *(dynamic_cast<MouseEvent*>(pEvent));
+        if (dynamic_pointer_cast<MouseEvent>(pEvent) != 0) {
+            m_pLastMouseEvent = dynamic_pointer_cast<MouseEvent>(pEvent);
         }
         for (unsigned int i = 0; i < m_EventSinks.size(); ++i) {
             if (m_EventSinks[i]->handleEvent(pEvent)) {

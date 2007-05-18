@@ -40,21 +40,21 @@ class EventDispatcher {
         virtual ~EventDispatcher();
         void dispatch();
         //REFACTORME: this method should be in Player -- to say the least
-        const MouseEvent& getLastMouseEvent() const;
+        const MouseEventPtr getLastMouseEvent() const;
         
         void addSource(IEventSource * pSource);
         void addSink(IEventSink * pSink);
 
-        void sendEvent(Event* pEvent);
+        void sendEvent(EventPtr pEvent);
 
     private:
         std::vector<IEventSource*> m_EventSources;
         std::vector<IEventSink*> m_EventSinks;
 
-        std::priority_queue<Event *,std::vector<Event *>,isEventAfter> 
+        std::priority_queue<EventPtr,std::vector<EventPtr>,isEventAfter> 
             m_Events;
 
-        MouseEvent m_LastMouseEvent;
+        MouseEventPtr m_pLastMouseEvent;
 };
 
 }

@@ -65,8 +65,9 @@ class Event {
         static int s_CurCounter;
 };
 
+typedef boost::shared_ptr<class Event> EventPtr;
+
 // Functor to compare two EventPtrs chronologically
-typedef Event * EventPtr;
 struct isEventAfter:std::binary_function<EventPtr, EventPtr, bool> {
     bool operator()(const EventPtr & x, const EventPtr & y) const {
         if (x->getWhen() == y->getWhen()) {

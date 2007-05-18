@@ -30,7 +30,7 @@ namespace avg {
 class DebugEventSink: public IEventSink {
     public:
         DebugEventSink();
-        virtual bool handleEvent(Event * pEvent);
+        virtual bool handleEvent(EventPtr pEvent);
 };
 
 }

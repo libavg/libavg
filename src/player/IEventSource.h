@@ -23,6 +23,7 @@
 #define _EventSource_h_
 
 #include "Event.h"
+
 #include <vector>
 
 namespace avg {
@@ -31,7 +32,7 @@ class IEventSource {
     public:
         virtual ~IEventSource() {};
         virtual void initEventSource() {};
-        virtual std::vector<Event *> pollEvents()=0;
+        virtual std::vector<EventPtr> pollEvents()=0;
 };
 
 }

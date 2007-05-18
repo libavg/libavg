@@ -38,7 +38,7 @@ CursorEvent::~CursorEvent()
 {
 }
 
-Event *CursorEvent::cloneAs(Type EventType)
+EventPtr CursorEvent::cloneAs(Type EventType)
 {
     assert(false);
 }

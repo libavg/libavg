@@ -77,8 +77,8 @@ void MouseEvent::trace()
             << ", button: " << m_Button);
 }
 
-Event* MouseEvent::cloneAs(Type EventType){
-    MouseEvent *res = new MouseEvent(*this);
+EventPtr MouseEvent::cloneAs(Type EventType){
+    MouseEventPtr res(new MouseEvent(*this));
     res->m_Type = EventType;
     return res;
 }

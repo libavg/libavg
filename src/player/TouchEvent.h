@@ -40,7 +40,7 @@ class TouchEvent: public CursorEvent
 {
     public:
         TouchEvent(int id, Type EventType, BlobInfoPtr info, IntPoint& Pos, Source source);
-        virtual Event* cloneAs(Type EventType);
+        virtual EventPtr cloneAs(Type EventType);
 
         double getOrientation() const {return m_Info->m_Orientation;};
         double getArea() const {return m_Info->m_Area;};
@@ -55,6 +55,8 @@ class TouchEvent: public CursorEvent
     private:
         BlobInfoPtr m_Info;
 };
+
+typedef boost::shared_ptr<class TouchEvent> TouchEventPtr;
 
 }
 #endif

@@ -51,7 +51,7 @@ string AVGNode::getTypeStr ()
     return "AVGNode";
 }
 
-void AVGNode::handleEvent (KeyEvent* pEvent)
+void AVGNode::handleEvent (KeyEventPtr pEvent)
 {
     string Code;
     int EventType = pEvent->getType();
@@ -66,7 +66,7 @@ void AVGNode::handleEvent (KeyEvent* pEvent)
             break;
     }
     if (!Code.empty()) {
-        callPython(Code, *pEvent);
+        callPython(Code, pEvent);
     } 
 }
 

@@ -73,7 +73,7 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         void saveConfig();
 
         Bitmap * getImage(TrackerImageID ImageID) const;
-        std::vector<Event *> pollEvents();//main thread
+        std::vector<EventPtr> pollEvents();//main thread
 
         /* implement IBlobTarget */
         virtual void update(BlobListPtr new_blobs, bool bTouch);//tracker thread
@@ -88,7 +88,7 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         BlobPtr matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold, EventMap * pEvents);
         void setConfig();
         void handleROIChange();
-        void pollEventType(std::vector<Event*>& res, EventMap& Events,
+        void pollEventType(std::vector<EventPtr>& res, EventMap& Events,
                 CursorEvent::Source source);
 
         TrackerConfig m_TrackerConfig;

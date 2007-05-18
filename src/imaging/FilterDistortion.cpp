@@ -72,6 +72,11 @@ namespace avg{
             }
         }
     }
+    
+    FilterDistortion::~FilterDistortion()
+    {
+        delete m_pMap;
+    }
 
     BitmapPtr FilterDistortion::apply(BitmapPtr pBmpSource)
     {

@@ -117,7 +117,7 @@ class Node
         virtual std::string dump (int indent = 0);
         virtual std::string getTypeStr () const;
         
-        virtual void handleEvent (Event* pEvent); 
+        virtual void handleEvent (EventPtr pEvent); 
         virtual void invalidate();
         NodeState getState() const;
         bool isDisplayAvailable() const;
@@ -135,7 +135,7 @@ class Node
         DisplayEngine * getEngine() const;
         NodePtr getThis() const;
 
-        void callPython (const std::string& Code, const avg::Event& Event);
+        void callPython (const std::string& Code, const avg::EventPtr Event);
             
         void initFilename (Player * pPlayer, std::string& sFilename);
         void setState(NodeState State);

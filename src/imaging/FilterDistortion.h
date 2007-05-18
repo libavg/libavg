@@ -37,6 +37,7 @@ namespace avg {
     {
         public:
             FilterDistortion(IntPoint srcSize, CoordTransformerPtr coordtrans);
+            virtual ~FilterDistortion();
             BitmapPtr apply (BitmapPtr pBmpSource);
         private:
             IntRect m_srcRect;

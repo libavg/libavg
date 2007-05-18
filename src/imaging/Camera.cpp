@@ -260,10 +260,9 @@ void Camera::open()
 void Camera::close()
 {
     if (m_bCameraAvailable) {
-
 #ifdef AVG_ENABLE_1394
         dc1394_dma_unlisten(m_FWHandle, &m_Camera);
-        dc1394_dma_release_camera(m_FWHandle, &m_Camera);
+//        dc1394_dma_release_camera(m_FWHandle, &m_Camera);
         dc1394_destroy_handle(m_FWHandle);
 #else
         dc1394_capture_stop(m_pCamera);
