@@ -392,7 +392,7 @@ namespace avg {
         for (int i=1; i<NUM_TRACKER_IMAGES-1; i++) {
             m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgSize, I8));
         }
-        m_pBitmaps[TRACKER_IMG_FINGERS] = BitmapPtr(new Bitmap(ImgSize, R8G8B8X8));
+        m_pBitmaps[TRACKER_IMG_FINGERS] = BitmapPtr(new Bitmap(ImgSize, R8G8B8A8));
         if (m_pCmdQueue) {
             m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
                     &TrackerThread::setBitmaps, _1, Area, m_pBitmaps)));
