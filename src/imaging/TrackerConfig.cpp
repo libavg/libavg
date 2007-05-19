@@ -105,7 +105,7 @@ namespace avg {
 
 
     TrackerConfig::TrackerConfig()
-        : m_FPS(60),
+        : m_FPS(1),
           m_Brightness(128),
           m_Exposure(128),
           m_Gamma(1),

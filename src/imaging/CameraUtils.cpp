@@ -92,9 +92,9 @@ int getFrameRateConst(double FrameRate)
     } else if (FrameRate == 60) {
         return FRAMERATE_60;
     } else {
-        AVG_TRACE (Logger::WARNING,
+        AVG_TRACE (Logger::ERROR,
                 std::string("Unsupported or illegal value for camera framerate."));
-        return FRAMERATE_30;
+        return -1; 
     }
 }
 
@@ -215,7 +215,7 @@ dc1394framerate_t getFrameRateConst(double FrameRate)
     } else {
         AVG_TRACE (Logger::WARNING,
                 std::string("Unsupported or illegal value for camera framerate."));
-        return DC1394_FRAMERATE_30;
+        return -1;
     }
 }
 

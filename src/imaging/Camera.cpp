@@ -146,7 +146,7 @@ void Camera::open()
                 "video mode and framerate (" <<
                 m_FrameRate << ") are");
         AVG_TRACE(Logger::ERROR, "supported by your camera.");
-        dc1394_dma_release_camera(m_FWHandle,&m_Camera);
+//        dc1394_dma_release_camera(m_FWHandle,&m_Camera);
         dc1394_destroy_handle(m_FWHandle);
         exit(1);
     }
