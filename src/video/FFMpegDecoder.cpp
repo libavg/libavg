@@ -45,7 +45,8 @@ FFMpegDecoder::FFMpegDecoder ()
     : m_pDemuxer(0),
       m_pFormatContext(0),
       m_pVStream(0),
-      m_pPacketData(0)
+      m_pPacketData(0),
+      m_Size(0,0)
 {
     initVideoSupport();
 }

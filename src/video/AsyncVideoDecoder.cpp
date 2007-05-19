@@ -37,6 +37,7 @@ namespace avg {
 AsyncVideoDecoder::AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder)
     : m_pSyncDecoder(pSyncDecoder),
       m_pDecoderThread(0),
+      m_Size(0,0),
       m_bEOF(false)
 {
 }
@@ -82,7 +83,6 @@ void AsyncVideoDecoder::seek(int DestFrame)
 
 IntPoint AsyncVideoDecoder::getSize()
 {
-    assert(m_pDecoderThread);
     return m_Size;
 }
 
