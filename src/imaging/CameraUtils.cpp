@@ -215,7 +215,7 @@ dc1394framerate_t getFrameRateConst(double FrameRate)
     } else {
         AVG_TRACE (Logger::WARNING,
                 std::string("Unsupported or illegal value for camera framerate."));
-        return -1;
+        return (dc1394framerate_t)-1;
     }
 }
 
