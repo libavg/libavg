@@ -54,6 +54,7 @@ struct TrackerConfig
     void save(const std::string& sCustomFilename = "");
 
     // Camera params
+    int m_FPS;
     int m_Brightness;
     int m_Exposure;
     int m_Gamma;

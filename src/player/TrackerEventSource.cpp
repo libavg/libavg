@@ -246,9 +246,10 @@ namespace avg {
         }
     }
 
-    TrackerEventSource::TrackerEventSource(CameraPtr pCamera, const IntPoint& DisplayExtents,
+    TrackerEventSource::TrackerEventSource(CameraPtr pCamera, 
+            const TrackerConfig& Config, const IntPoint& DisplayExtents,
             bool bSubtractHistory)
-        : m_TrackerConfig(),
+        : m_TrackerConfig(Config),
           m_DisplayExtents(DisplayExtents),
           m_pCalibrator(0)
     {
@@ -256,7 +257,6 @@ namespace avg {
 
         IntPoint ImgSize = pCamera->getImgSize();
         m_pBitmaps[0] = BitmapPtr(new Bitmap(ImgSize, I8));
-        m_TrackerConfig.load();
         handleROIChange();
         m_pUpdateMutex = MutexPtr(new boost::mutex);
         m_pTrackerMutex = MutexPtr(new boost::mutex);

@@ -317,17 +317,16 @@ TestHelper * Player::getTestHelper()
     return &m_TestHelper;
 }
 
-TrackerEventSource * Player::addTracker(std::string sDevice, double FrameRate, 
+TrackerEventSource * Player::addTracker(std::string sDevice, 
         std::string sMode)
 {
-    AVG_TRACE(Logger::CONFIG, "Adding a Tracker for camera "<<sDevice<<" using "<<sMode<<" at "<<FrameRate<<" fps");
-    CameraPtr  pCamera;
-//    if (m_bUseFakeCamera) {
-//        pCamera = CameraPtr(new FakeCamera());
-//    } else {
-        pCamera = CameraPtr(new Camera(sDevice, FrameRate, sMode, false));
-//    }
-    m_pTracker = new TrackerEventSource(pCamera, IntPoint(m_DP.m_Width, m_DP.m_Height), true);
+    AVG_TRACE(Logger::CONFIG, "Adding a Tracker for camera " << sDevice << " using "
+            << sMode << ".");
+    TrackerConfig Config;
+    Config.load();
+    CameraPtr pCamera;
+    pCamera = CameraPtr(new Camera(sDevice, Config.m_FPS, sMode, false));
+    m_pTracker = new TrackerEventSource(pCamera, Config, IntPoint(m_DP.m_Width, m_DP.m_Height), true);
     m_EventDispatcher.addSource(m_pTracker);
     return m_pTracker;
 }

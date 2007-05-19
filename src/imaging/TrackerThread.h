@@ -86,7 +86,6 @@ class TrackerThread: public WorkerThread<TrackerThread>
         void calcBlobs(BitmapPtr pBmp, int m_Threshold, bool bIsTouch);
 
         std::string m_sDevice;
-        double m_FrameRate;
         std::string m_sMode;
 
         int m_TouchThreshold; // 0 => no touch events.

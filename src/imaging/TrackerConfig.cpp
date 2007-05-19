@@ -105,7 +105,8 @@ namespace avg {
 
 
     TrackerConfig::TrackerConfig()
-        : m_Brightness(128),
+        : m_FPS(60),
+          m_Brightness(128),
           m_Exposure(128),
           m_Gamma(1),
           m_Gain(128),
@@ -213,7 +214,9 @@ namespace avg {
         xmlNodePtr curXmlChild = pParentNode->xmlChildrenNode;
         while (curXmlChild) {
             const char * pNodeName = (const char *)curXmlChild->name;
-            if (!strcmp(pNodeName, "brightness")) {
+            if (!strcmp(pNodeName, "fps")) {
+                m_FPS = getRequiredIntAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "brightness")) {
                 m_Brightness = getRequiredIntAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "exposure")) {
                 m_Exposure = getRequiredIntAttr(curXmlChild, "value");
@@ -236,6 +239,7 @@ namespace avg {
     {
         int rc;
         rc = xmlTextWriterStartElement(writer, BAD_CAST "camera");
+        writeSimpleXMLNode(writer, "fps", m_FPS);
         writeSimpleXMLNode(writer, "brightness", m_Brightness);
         writeSimpleXMLNode(writer, "exposure", m_Exposure);
         writeSimpleXMLNode(writer, "gamma", m_Gamma);
