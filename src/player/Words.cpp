@@ -114,7 +114,6 @@ text_subst_func (FcPattern *pattern, gpointer data)
 void Words::setDisplayEngine (DisplayEngine * pEngine)
 {
     m_Color = colorStringToColor(m_ColorName);
-    m_pSurface = pEngine->createSurface();
 
     pango_ft2_get_context(72, 72);
     
@@ -381,6 +380,9 @@ void Words::drawString()
         }
         if (m_StringExtents.y == 0) {
             m_StringExtents.y = 1;
+        }
+        if (!m_pSurface) {
+            m_pSurface = getEngine()->createSurface();
         }
         m_pSurface->create(IntPoint(m_StringExtents), I8, false);
 
