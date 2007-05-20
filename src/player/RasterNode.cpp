@@ -65,6 +65,7 @@ RasterNode::~RasterNode()
 {
     if (m_pSurface) {
         delete m_pSurface;
+        m_pSurface = 0;
     }
 }
 

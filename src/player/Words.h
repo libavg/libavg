@@ -206,7 +206,6 @@ class Words : public RasterNode
         PangoStretch m_Stretch;
         bool m_bSmallCaps;
 
-        ISurface * m_pSurface;
         DPoint m_StringExtents;
         PangoContext * m_pContext;
         PangoFontDescription * m_pFontDescription;

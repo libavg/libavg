@@ -56,7 +56,6 @@ Words::Words ()
       m_bItalic(false),
       m_Stretch(PANGO_STRETCH_NORMAL),
       m_bSmallCaps(false),
-      m_pSurface(0),
       m_StringExtents(0,0),
       m_pContext(0),
       m_pFontDescription(0),
@@ -67,9 +66,11 @@ Words::Words ()
 
 Words::Words (const xmlNodePtr xmlNode, Player * pPlayer)
     : RasterNode(xmlNode, pPlayer), 
-      m_pSurface(0), 
+      m_StringExtents(0,0),
       m_pContext(0), 
-      m_pFontDescription(0)
+      m_pFontDescription(0),
+      m_bFontChanged(true),
+      m_bDrawNeeded(true)
 {
     m_FontName = getDefaultedStringAttr (xmlNode, "font", "arial");
     m_Text = getDefaultedStringAttr (xmlNode, "text", "");
@@ -87,10 +88,9 @@ Words::Words (const xmlNodePtr xmlNode, Player * pPlayer)
 
 Words::~Words ()
 {
-    if (m_pSurface) {
-        delete m_pSurface;
-        m_pSurface = 0;
+    if (m_pContext) {
         g_object_unref(m_pContext);
+        m_pContext = 0;
         pango_font_description_free(m_pFontDescription);
     }
 }
@@ -130,7 +130,7 @@ void Words::setDisplayEngine (DisplayEngine * pEngine)
             pango_language_from_string ("en_US"));
     pango_context_set_base_dir(m_pContext, PANGO_DIRECTION_LTR);
     m_pFontDescription = pango_font_description_new();
-    
+
     m_bFontChanged = true;
     m_bDrawNeeded = true;
     RasterNode::setDisplayEngine(pEngine);
@@ -138,9 +138,7 @@ void Words::setDisplayEngine (DisplayEngine * pEngine)
 
 void Words::disconnect()
 {
-    if (m_pSurface) {
-        delete m_pSurface;
-        m_pSurface = 0;
+    if (m_pContext) {
         g_object_unref(m_pContext);
         m_pContext = 0;
         pango_font_description_free(m_pFontDescription);
@@ -306,7 +304,7 @@ void Words::drawString()
         m_StringExtents = DPoint(0,0);
     } else {
         if (m_bFontChanged) {
-//            AVG_TRACE(Logger::PROFILE, "Opening font " << m_FontName);
+            AVG_TRACE(Logger::MEMORY, "Opening font " << m_FontName);
             pango_font_description_set_family(m_pFontDescription,
                     g_strdup(m_FontName.c_str()));
             pango_font_description_set_style(m_pFontDescription,
@@ -386,12 +384,9 @@ void Words::drawString()
         if (m_StringExtents.y == 0) {
             m_StringExtents.y = 1;
         }
-        if (!m_pSurface) {
-            m_pSurface = getEngine()->createSurface();
-        }
-        m_pSurface->create(IntPoint(m_StringExtents), I8, false);
+        getSurface()->create(IntPoint(m_StringExtents), I8, false);
 
-        BitmapPtr pBmp = m_pSurface->lockBmp();
+        BitmapPtr pBmp = getSurface()->lockBmp();
         FilterFill<unsigned char>(0).applyInPlace(pBmp);
         FT_Bitmap bitmap;
         bitmap.rows = (int)m_StringExtents.y;
@@ -405,13 +400,14 @@ void Words::drawString()
         // Use 1 as x-position here to make sure italic text is never cut off.
         pango_ft2_render_layout(&bitmap, layout, 1, 0);
 
-        getEngine()->surfaceChanged(m_pSurface);
+        getEngine()->surfaceChanged(getSurface());
         if (m_LineSpacing == -1) {
             m_LineSpacing = pango_layout_get_spacing(layout)/PANGO_SCALE;
         }
         g_object_unref(layout);
     }
     m_bDrawNeeded = false;
+
     setViewport(-32767, -32767, -32767, -32767);
 }
 
@@ -432,7 +428,7 @@ void Words::render(const DRect& Rect)
         DRect TextPos = getAbsViewport();
         TextPos.tl.x--;   // Compensate for italic hack in call to pango_ft2_render_layout
         TextPos.br.x--; 
-        getEngine()->blta8(m_pSurface, &TextPos,
+        getEngine()->blta8(getSurface(), &TextPos,
                 getEffectiveOpacity(), m_Color, getAngle(),
                 getPivot(), getBlendMode());
     }
