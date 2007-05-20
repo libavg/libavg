@@ -170,7 +170,7 @@ void Player::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode,
 void Player::loadFile (const std::string& filename)
 {
     try {
-        AVG_TRACE(Logger::PROFILE, 
+        AVG_TRACE(Logger::MEMORY, 
                 std::string("Player::LoadFile(") + filename + ")");
         if (m_pRootNode) {
             cleanup();

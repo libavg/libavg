@@ -388,7 +388,6 @@ namespace avg {
     {
         DRect Area = m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents));
         IntPoint ImgSize(int(Area.Width()), int(Area.Height()));
-        cerr << "Area: " << Area << endl;
         for (int i=1; i<NUM_TRACKER_IMAGES-1; i++) {
             m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgSize, I8));
         }

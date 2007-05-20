@@ -182,7 +182,7 @@ void Image::load()
     m_Filename = m_href;
     if (m_Filename != "") {
         initFilename(getPlayer(), m_Filename);
-        AVG_TRACE(Logger::PROFILE, "Loading " << m_Filename);
+        AVG_TRACE(Logger::MEMORY, "Loading " << m_Filename);
         try {
             m_pBmp = BitmapPtr(new Bitmap(m_Filename));
         } catch (Magick::Exception & ex) {

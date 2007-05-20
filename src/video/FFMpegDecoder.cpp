@@ -106,7 +106,7 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
     int err;
     m_sFilename = sFilename;
 
-    AVG_TRACE(Logger::PROFILE, "Opening " << sFilename);
+    AVG_TRACE(Logger::MEMORY, "Opening " << sFilename);
     memset(&params, 0, sizeof(params));
 
     err = av_open_input_file(&m_pFormatContext, sFilename.c_str(), 
@@ -184,7 +184,7 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
 void FFMpegDecoder::close() 
 {
     mutex::scoped_lock Lock(s_OpenMutex);
-//    AVG_TRACE(Logger::PROFILE, "Closing " << m_sFilename);
+    AVG_TRACE(Logger::MEMORY, "Closing " << m_sFilename);
     delete m_pDemuxer;
     m_pDemuxer = 0;
     AVCodecContext * enc;

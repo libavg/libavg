@@ -100,7 +100,7 @@ BOOST_PYTHON_MODULE(avg)
                 "    CONFIG: Outputs configuration data.\n"
                 "    WARNING: Outputs warning messages. Default is on.\n"
                 "    ERROR: Outputs error messages. Can't be shut off.\n"
-                "    MEMORY: Currently unused.\n"
+                "    MEMORY: Outputs open/close information whenever a media file is accessed.\n"
                 "    APP: Reserved for application-level messages issued by python\n"
                 "         code.\n"
                 "Categories can be or'ed together.")

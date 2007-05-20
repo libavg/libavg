@@ -157,6 +157,7 @@ void Logger::trace(int category, const std::string& msg)
                 case CONFIG:
                 case APP:
                 case LOGGER:
+                case MEMORY:
                     prio = LOG_NOTICE;
                     break;
                 case WARNING:
@@ -191,6 +192,8 @@ const char * Logger::categoryToString(int category)
             return "WARNING";
         case ERROR:
             return "ERROR";
+        case MEMORY:
+            return "MEMORY";
         case APP:
             return "APP";
         case LOGGER:
