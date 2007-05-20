@@ -41,6 +41,8 @@ using namespace std;
 
 namespace avg {
 
+std::set<std::string> Words::s_sFontsNotFound;
+
 Words::Words ()
     : m_FontName("arial"),
       m_Text(""),
@@ -328,8 +330,11 @@ void Words::drawString()
             PangoFontDescription * pUsedDescription = pango_font_describe(pUsedFont);
             string sUsedName = pango_font_description_get_family(pUsedDescription);
             if (!equalIgnoreCase(sUsedName, m_FontName)) {
-                AVG_TRACE(Logger::WARNING, "Could not find font face " << m_FontName <<
-                        ". Using " << sUsedName << " instead.");
+                if (s_sFontsNotFound.find(m_FontName) == s_sFontsNotFound.end()) {
+                    AVG_TRACE(Logger::WARNING, "Could not find font face " << m_FontName <<
+                            ". Using " << sUsedName << " instead.");
+                    s_sFontsNotFound.insert(m_FontName);
+                }
             } else {
                 if (m_Weight != pango_font_description_get_weight(m_pFontDescription)) {
                     AVG_TRACE(Logger::WARNING, "Font face " << m_FontName <<

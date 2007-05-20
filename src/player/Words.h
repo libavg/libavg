@@ -28,6 +28,7 @@
 #include <pango/pango.h>
 #include <fontconfig/fontconfig.h>
 
+#include <set>
 #include <string>
 #include <iostream>
 
@@ -181,7 +182,6 @@ class Words : public RasterNode
         std::string getStretch() const;
         void setStretch(const std::string& sStretch);
 
-
     protected:        
         virtual DPoint getPreferredMediaSize();
     
@@ -214,6 +214,7 @@ class Words : public RasterNode
         bool m_bFontChanged;
         bool m_bDrawNeeded;
 
+        static std::set<std::string> s_sFontsNotFound;
 };
 
 }
