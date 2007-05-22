@@ -46,10 +46,15 @@ if test -z "$PYTHON_INCLUDES" || test -z "$PYTHON_LIBS"; then
   AC_MSG_ERROR([could not find files required to build python plugin])
 fi
 
-AC_CHECK_LIB(boost_python, main, libboost_python_installed=yes, , $PYTHON_LIBS)
-if test -z "$libboost_python_installed"
+AC_ARG_VAR(BOOST_PYTHON_LIBS, [linker flags for BOOST, defaults to -lboost_python])
+if test -z "$BOOST_PYTHON_LIBS"
 then
+  AC_CHECK_LIB(boost_python, main, libboost_python_installed=yes, , $PYTHON_LIBS)
+  if test -z "$libboost_python_installed"
+  then
     AC_MSG_ERROR([boost.python not found. Aborting.])
+  fi
+  BOOST_PYTHON_LIBS="-lboost_python"
 fi
     
 AX_BOOST_THREAD
