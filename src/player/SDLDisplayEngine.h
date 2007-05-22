@@ -81,7 +81,7 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual BitmapPtr screenshot ();
 
         // From IEventSource
-        virtual std::vector<EventPtr> pollEvents();
+        virtual std::vector<Event *> pollEvents();
 
         // Texture config.
         int getTextureMode();
@@ -107,11 +107,11 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         void setClipPlane(double Eqn[4], int WhichPlane);
         void safeSetAttribute( SDL_GLattr attr, int value);
 
-        EventPtr createMouseMotionEvent 
+        Event * createMouseMotionEvent 
                 (Event::Type Type, const SDL_Event & SDLEvent);
-        EventPtr createMouseButtonEvent
+        Event * createMouseButtonEvent
                 (Event::Type Type, const SDL_Event & SDLEvent);
-        EventPtr createKeyEvent
+        Event * createKeyEvent
                 (Event::Type Type, const SDL_Event & SDLEvent);
         
         int m_Width;

@@ -39,7 +39,7 @@ class AVGNode : public DivNode
 
         virtual std::string getTypeStr ();
 
-        void handleEvent (KeyEventPtr pEvent);
+        void handleEvent (KeyEvent* pEvent);
         bool getCropSetting();
 
         const std::string& getOnKeyUp()

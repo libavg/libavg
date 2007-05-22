@@ -142,7 +142,6 @@ void dumpSDLGLParams() {
 SDLDisplayEngine::SDLDisplayEngine()
     : m_bEnableCrop(false),
       m_pScreen(0),
-      m_VBMethod(VB_NONE),
       m_VBMod(0),
       m_dri_fd(0),
       m_TextureMode(0),
@@ -825,10 +824,10 @@ void SDLDisplayEngine::initInput()
     initJoysticks();
 }
 
-vector<EventPtr> SDLDisplayEngine::pollEvents()
+vector<Event *> SDLDisplayEngine::pollEvents()
 {
     SDL_Event sdlEvent;
-    vector<EventPtr> Events;
+    vector<Event *> Events;
 
     while(SDL_PollEvent(&sdlEvent)){
         switch(sdlEvent.type){
@@ -861,7 +860,7 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
                 break;
             case SDL_QUIT:
                 {
-                    EventPtr pEvent(new Event(Event::QUIT));
+                    Event * pEvent = new Event(Event::QUIT);
                     Events.push_back(pEvent);
                 }
                 break;
@@ -875,21 +874,21 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
     return Events;
 }
 
-EventPtr SDLDisplayEngine::createMouseMotionEvent
+Event * SDLDisplayEngine::createMouseMotionEvent
         (Event::Type Type, const SDL_Event & SDLEvent)
 {
     int x = int((SDLEvent.motion.x*m_Width)/m_WindowWidth);
     int y = int((SDLEvent.motion.y*m_Height)/m_WindowHeight);
-    MouseEventPtr pEvent(new MouseEvent (Type, 
+    MouseEvent * pEvent = new MouseEvent (Type, 
             SDLEvent.motion.state & SDL_BUTTON(1),
             SDLEvent.motion.state & SDL_BUTTON(3), 
             SDLEvent.motion.state & SDL_BUTTON(2),
             IntPoint(x, y), 
-            MouseEvent::NO_BUTTON));
+            MouseEvent::NO_BUTTON);
     return pEvent;
 }
 
-EventPtr SDLDisplayEngine::createMouseButtonEvent
+Event * SDLDisplayEngine::createMouseButtonEvent
         (Event::Type Type, const SDL_Event & SDLEvent) 
 {
     long Button = 0;
@@ -908,11 +907,11 @@ EventPtr SDLDisplayEngine::createMouseButtonEvent
     SDL_GetMouseState(&x, &y);
     x = int((x*m_Width)/m_WindowWidth);
     y = int((y*m_Height)/m_WindowHeight);
-    MouseEventPtr pEvent(new MouseEvent(Type, 
+    MouseEvent * pEvent = new MouseEvent(Type, 
             SDLEvent.button.button == SDL_BUTTON_LEFT,
             SDLEvent.button.button == SDL_BUTTON_MIDDLE, 
             SDLEvent.button.button == SDL_BUTTON_RIGHT,
-            IntPoint(x, y), Button));
+            IntPoint(x, y), Button);
     return pEvent; 
 }
 
@@ -932,7 +931,7 @@ Event * SDLDisplayEngine::createButtonEvent
 }
 */
 
-EventPtr SDLDisplayEngine::createKeyEvent
+Event * SDLDisplayEngine::createKeyEvent
         (Event::Type Type, const SDL_Event & SDLEvent)
 {
     long KeyCode = KeyCodeTranslationTable[SDLEvent.key.keysym.sym];
@@ -963,9 +962,9 @@ EventPtr SDLDisplayEngine::createKeyEvent
     if (SDLEvent.key.keysym.mod & KMOD_RESERVED) 
         { Modifiers |= key::KEYMOD_RESERVED; }
 
-    KeyEventPtr pEvent(new KeyEvent(Type, 
+    KeyEvent * pEvent = new KeyEvent(Type, 
             SDLEvent.key.keysym.scancode, KeyCode,
-            SDL_GetKeyName(SDLEvent.key.keysym.sym), Modifiers));
+            SDL_GetKeyName(SDLEvent.key.keysym.sym), Modifiers);
     return pEvent;
 }
 

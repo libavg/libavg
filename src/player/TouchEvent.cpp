@@ -37,9 +37,9 @@ TouchEvent::TouchEvent(int id, Type EventType, BlobInfoPtr info, IntPoint& Pos, 
 {
 }
 
-EventPtr TouchEvent::cloneAs(Type EventType)
+Event* TouchEvent::cloneAs(Type EventType)
 {
-    TouchEventPtr res(new TouchEvent(*this));
+    TouchEvent *res = new TouchEvent(*this);
     res->m_Type = EventType;
     return res;
 }

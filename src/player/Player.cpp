@@ -79,7 +79,6 @@
 #include <assert.h>
 
 using namespace std;
-using namespace boost;
 
 namespace avg {
 
@@ -369,12 +368,12 @@ bool Player::clearInterval(int id)
     return false;
 }
 
-const EventPtr Player::getCurEvent() const
+const Event& Player::getCurEvent() const
 {
-    return m_pCurEvent;
+    return *m_pCurEvent;
 }
 
-const MouseEventPtr Player::getMouseState() const
+const MouseEvent& Player::getMouseState() const
 {
     return m_EventDispatcher.getLastMouseEvent();
 }
@@ -816,11 +815,11 @@ void Player::handleTimers()
 }
 
 
-bool Player::handleEvent(EventPtr pEvent)
+bool Player::handleEvent(Event * pEvent)
 {
     m_pCurEvent = pEvent;
     assert(pEvent); 
-    if(CursorEventPtr pCursorEvent = dynamic_pointer_cast<CursorEvent>(pEvent)) {
+    if(CursorEvent * pCursorEvent = dynamic_cast<CursorEvent*>(pEvent)) {
         DPoint pos(pCursorEvent->getXPosition(), 
                 pCursorEvent->getYPosition());
         int cursorID = pCursorEvent->getCursorID();
@@ -853,7 +852,7 @@ bool Player::handleEvent(EventPtr pEvent)
             m_pCurEvent = pEvent;
             pNode->handleEvent(pCursorEvent);
         }
-    } else if ( KeyEventPtr pKeyEvent = dynamic_pointer_cast<KeyEvent>(pEvent)){
+    } else if ( KeyEvent * pKeyEvent = dynamic_cast<KeyEvent*>(pEvent)){
         m_pCurEvent = pEvent;
         m_pRootNode->handleEvent(pKeyEvent);
         if (pEvent->getType() == Event::KEYDOWN &&
@@ -885,10 +884,10 @@ void Player::useFakeCamera(bool bFake)
     m_bUseFakeCamera = bFake;
 }
 
-void Player::sendOver(CursorEventPtr pOtherEvent, Event::Type Type, 
+void Player::sendOver(CursorEvent * pOtherEvent, Event::Type Type, 
                 NodePtr pNode)
 {
-    EventPtr pNewEvent(pOtherEvent->cloneAs(Type));
+    Event * pNewEvent = pOtherEvent->cloneAs(Type);
     pNewEvent->setElement(pNode);
     m_EventDispatcher.sendEvent(pNewEvent);
 }

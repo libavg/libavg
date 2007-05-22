@@ -51,16 +51,15 @@ void TestHelper::fakeMouseEvent(Event::Type eventType,
         bool rightButtonState,
         int xPosition, int yPosition, int button)
 {
-    MouseEventPtr pEvent(new MouseEvent(eventType, leftButtonState, 
-            middleButtonState, rightButtonState, IntPoint(xPosition, yPosition), 
-            button));
+    MouseEvent * pEvent = new MouseEvent(eventType, leftButtonState, 
+            middleButtonState, rightButtonState, IntPoint(xPosition, yPosition), button);
     m_Events.push_back(pEvent);
 }
 
 // From IEventSource
-std::vector<EventPtr> TestHelper::pollEvents()
+std::vector<Event *> TestHelper::pollEvents()
 {
-    vector<EventPtr> TempEvents = m_Events;
+    vector<Event *> TempEvents = m_Events;
     m_Events.clear();
     return TempEvents;
 }

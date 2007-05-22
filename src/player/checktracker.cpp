@@ -73,11 +73,12 @@ public:
 
         while(1){
             TimeSource::get()->msleep(50);
-            std::vector<EventPtr> e = pTracker->pollEvents();
+            std::vector<class Event *> e = pTracker->pollEvents();
             if(e.size()==0)
                 cerr<<"no new events"<<endl;
-            for(std::vector<EventPtr>::iterator it=e.begin();it!=e.end();++it){
+            for(std::vector<class Event*>::iterator it=e.begin();it!=e.end();++it){
                 (*it)->trace();
+                delete (*it);
             }
         }
     }

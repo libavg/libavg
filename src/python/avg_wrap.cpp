@@ -32,8 +32,6 @@ void export_devices();
 #include "../player/DivNode.h"
 #include "../player/PanoImage.h"
 #include "../player/TrackerEventSource.h"
-#include "../player/TrackerEventSource.h"
-#include "../player/TouchEvent.h"
 
 #include <boost/python.hpp>
 #include <boost/version.hpp>
@@ -54,10 +52,6 @@ BOOST_PYTHON_MODULE(avg)
 #endif
     register_ptr_to_python< DivNodePtr >();
     register_ptr_to_python< AVGNodePtr >();
-    register_ptr_to_python< EventPtr >();
-    register_ptr_to_python< KeyEventPtr >();
-    register_ptr_to_python< MouseEventPtr >();
-    register_ptr_to_python< TouchEventPtr >();
 
     class_<Logger>("Logger", 
             "Interface to the logger used by the avg player. Enables the setting\n"
@@ -224,10 +218,12 @@ BOOST_PYTHON_MODULE(avg)
                 "Stops a timeout or an interval from being called. Returns 1 if\n"
                 "there was an interval with the given id, 0 if not.\n")
         .def("getCurEvent", &Player::getCurEvent,
+                return_value_policy<reference_existing_object>(),
                 "getCurEvent() -> Event\n\n"
                 "Gets an interface to the current event. Only valid inside event\n"
                 "handlers (onmouseup, onmousedown, etc.)")
         .def("getMouseState", &Player::getMouseState,
+                return_value_policy<reference_existing_object>(),
                 "getMouseState() -> Event\n\n"
                 "Gets an interface to the last mouse event.")
         .def("screenshot", &Player::screenshot,

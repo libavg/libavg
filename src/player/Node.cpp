@@ -465,21 +465,21 @@ string Node::getTypeStr () const
     return "Node";
 }
 
-void Node::handleEvent (EventPtr pEvent)
+void Node::handleEvent (Event* pEvent)
 {
     Event::Type EventType = pEvent->getType();
     map<Event::Type, string>::iterator it = m_EventHandlerMap.find(EventType);
     assert(it!=m_EventHandlerMap.end());
     if (!(it->second.empty())) {
         pEvent->setElement(m_This.lock());
-        callPython(it->second, pEvent);
+        callPython(it->second, *pEvent);
     }
     if (getParent()) {
         getParent()->handleEvent (pEvent);
     }
 }
 
-void Node::callPython (const string& Code, EventPtr Event)
+void Node::callPython (const string& Code, const Event& Event)
 {
     // TODO:
     //   - Pass Event to python.

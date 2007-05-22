@@ -32,7 +32,7 @@ DebugEventSink::DebugEventSink()
 {
 }
 
-bool DebugEventSink::handleEvent(EventPtr pEvent) {
+bool DebugEventSink::handleEvent(Event * pEvent) {
     if (pEvent->getType() != Event::CURSORMOTION) {
         pEvent->trace();
     }

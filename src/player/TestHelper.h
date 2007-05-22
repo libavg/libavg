@@ -47,11 +47,11 @@ class TestHelper : public IEventSource
                 int xPosition, int yPosition, int button);
 
         // From IEventSource
-        virtual std::vector<EventPtr> pollEvents();
+        virtual std::vector<Event *> pollEvents();
 
     private:
         Player * m_pPlayer;
-        std::vector<EventPtr> m_Events;
+        std::vector<Event*> m_Events;
 };
 
 }

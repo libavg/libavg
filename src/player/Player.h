@@ -73,8 +73,8 @@ class Player : IEventSink
         int setInterval(int time, PyObject * pyfunc);
         int setTimeout(int time, PyObject * pyfunc);
         bool clearInterval(int id);
-        const EventPtr getCurEvent() const;
-        const MouseEventPtr getMouseState() const;
+        const Event& getCurEvent() const;
+        const MouseEvent& getMouseState() const;
         Bitmap * screenshot();
         void showCursor(bool bShow);
         void setEventCapture(NodeWeakPtr pNode, int cursorID=MOUSECURSORID);
@@ -88,7 +88,7 @@ class Player : IEventSink
         double getFramerate();
         double getVideoRefreshRate();
         void setGamma(double Red, double Green, double Blue);
-        virtual bool handleEvent(EventPtr pEvent);
+        virtual bool handleEvent(Event * pEvent);
         DisplayEngine * getDisplayEngine() const;
         void useFakeCamera(bool bFake);
 
@@ -105,7 +105,7 @@ class Player : IEventSink
                 const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);
 
         void render (bool bRenderEverything);
-        void sendOver(CursorEventPtr pOtherEvent, Event::Type Type, 
+        void sendOver(CursorEvent * pOtherEvent, Event::Type Type, 
                 NodePtr pNode);
         void cleanup();
 	
@@ -132,7 +132,7 @@ class Player : IEventSink
 
         EventDispatcher m_EventDispatcher;
         DebugEventSink  m_EventDumper;
-        EventPtr m_pCurEvent;
+        Event * m_pCurEvent;
         std::map<int, NodePtr> m_pLastMouseNode;
         //NodePtr m_pLastMouseNode;
         //REFACTORME: turn into a map: CURSOR -> NodeWeakPtr, where CURSOR==MOUSECURSOR

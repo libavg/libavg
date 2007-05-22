@@ -39,7 +39,7 @@ class CursorEvent: public Event
 
         CursorEvent(int id, Type eventType, IntPoint Position, Source source);
         virtual ~CursorEvent();
-        virtual EventPtr cloneAs(Type EventType);
+        virtual Event* cloneAs(Type EventType);
         int getXPosition() const;
         int getYPosition() const;
         int getCursorID() const;
@@ -50,8 +50,6 @@ class CursorEvent: public Event
         int m_ID;
         Source m_Source;
 };
-
-typedef boost::shared_ptr<class CursorEvent> CursorEventPtr;
 
 }
 

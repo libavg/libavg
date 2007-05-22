@@ -78,7 +78,7 @@ namespace avg {
             EventStream(BlobPtr first_blob);
             void blobChanged(BlobPtr new_blob);
             void blobGone();
-            EventPtr pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, 
+            Event* pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, 
                     CursorEvent::Source Source);
             bool isGone();
             void setStale();
@@ -167,7 +167,7 @@ namespace avg {
         }
     }
 
-    EventPtr EventStream::pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, 
+    Event* EventStream::pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, 
             CursorEvent::Source Source)
     {
         assert(m_pBlob);
@@ -180,26 +180,26 @@ namespace avg {
         switch(m_State){
             case DOWN_PENDING:
                 m_State = DOWN_DELIVERED;
-                return EventPtr(new TouchEvent(m_Id, Event::CURSORDOWN,
-                        (m_pBlob->getInfo()), Pos, Source));
+                return new TouchEvent(m_Id, Event::CURSORDOWN,
+                        (m_pBlob->getInfo()), Pos, Source);
 
                 break;
             case MOTION_PENDING:
                 m_State = MOTION_DELIVERED;
-                return EventPtr(new TouchEvent(m_Id, Event::CURSORMOTION,
-                        (m_pBlob->getInfo()), Pos, Source));
+                return new TouchEvent(m_Id, Event::CURSORMOTION,
+                        (m_pBlob->getInfo()), Pos, Source);
                 break;
             case UP_PENDING:
                 m_State = UP_DELIVERED;
-                return EventPtr(new TouchEvent(m_Id, Event::CURSORUP,
-                        (m_pBlob->getInfo()), Pos, Source));
+                return new TouchEvent(m_Id, Event::CURSORUP,
+                        (m_pBlob->getInfo()), Pos, Source);
                 break;
             case DOWN_DELIVERED:
             case MOTION_DELIVERED:
             case UP_DELIVERED:
             default:
                 //return no event
-                return EventPtr();
+                return 0;
                 break;
         }
     };
@@ -575,29 +575,26 @@ namespace avg {
         m_pCalibrator = 0;
     }
 
-    std::vector<EventPtr> TrackerEventSource::pollEvents()
+    std::vector<Event*> TrackerEventSource::pollEvents()
     {
         boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
-        std::vector<EventPtr> res = std::vector<EventPtr>();
+        std::vector<Event*> res = std::vector<Event *>();
         pollEventType(res, m_TouchEvents, CursorEvent::TOUCH);
         return res;
     }
    
-    void TrackerEventSource::pollEventType(std::vector<EventPtr>& res, EventMap& Events,
+    void TrackerEventSource::pollEventType(std::vector<Event*>& res, EventMap& Events,
             CursorEvent::Source source) 
     {
-        EventPtr t;
+        Event *t;
         int kill_counter = 0;
         for (EventMap::iterator it = Events.begin(); it!= Events.end();){
-            t = (*it).second->pollevent(m_TrackerConfig.m_pTrafo, m_DisplayExtents, 
-                    source);
-            if (t) {
-                res.push_back(t);
-            }
-            if ((*it).second->isGone()) {
+            t = (*it).second->pollevent(m_TrackerConfig.m_pTrafo, m_DisplayExtents, source);
+            if (t) res.push_back(t);
+            if ((*it).second->isGone()){
                 Events.erase(it++);
                 kill_counter++;
-            } else {
+            }else{
                 ++it;
             }
         }

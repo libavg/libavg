@@ -323,11 +323,7 @@ class KeyEvent : public Event {
         const long KEY_UNDO        = 322;      /* Atari keyboard has Undo */
         // Add any other keys here
     }
-
-typedef boost::shared_ptr<class KeyEvent> KeyEventPtr;
-
 }
-
 
 #endif
 
