@@ -182,25 +182,20 @@ namespace avg {
                 m_State = DOWN_DELIVERED;
                 return new TouchEvent(m_Id, Event::CURSORDOWN,
                         (m_pBlob->getInfo()), Pos, Source);
-
-                break;
             case MOTION_PENDING:
                 m_State = MOTION_DELIVERED;
                 return new TouchEvent(m_Id, Event::CURSORMOTION,
                         (m_pBlob->getInfo()), Pos, Source);
-                break;
             case UP_PENDING:
                 m_State = UP_DELIVERED;
                 return new TouchEvent(m_Id, Event::CURSORUP,
                         (m_pBlob->getInfo()), Pos, Source);
-                break;
             case DOWN_DELIVERED:
             case MOTION_DELIVERED:
             case UP_DELIVERED:
             default:
                 //return no event
                 return 0;
-                break;
         }
     };
 
@@ -588,13 +583,15 @@ namespace avg {
     {
         Event *t;
         int kill_counter = 0;
-        for (EventMap::iterator it = Events.begin(); it!= Events.end();){
+        for (EventMap::iterator it = Events.begin(); it!= Events.end();) {
             t = (*it).second->pollevent(m_TrackerConfig.m_pTrafo, m_DisplayExtents, source);
-            if (t) res.push_back(t);
-            if ((*it).second->isGone()){
+            if (t) {
+                res.push_back(t);
+            }
+            if ((*it).second->isGone()) {
                 Events.erase(it++);
                 kill_counter++;
-            }else{
+            } else {
                 ++it;
             }
         }

@@ -51,6 +51,7 @@ namespace avg {
             Event * pCurEvent = m_Events.top();
             m_Events.pop();
             sendEvent(pCurEvent);
+            delete pCurEvent;
         }
     }
 
