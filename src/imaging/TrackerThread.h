@@ -54,7 +54,7 @@ class IBlobTarget {
     public:
         virtual ~IBlobTarget() {};
         virtual void update(BlobListPtr blobs, bool bTouch) = 0;
-        virtual void drawBlobs(BlobListPtr pBlobs, BitmapPtr pBitmap, bool bTouch) = 0;
+        virtual void drawBlobs(BlobListPtr pBlobs, BitmapPtr pSrcBmp, BitmapPtr pDestBmp, bool bTouch) = 0;
 };
 
 

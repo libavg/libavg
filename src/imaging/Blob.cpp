@@ -127,35 +127,38 @@ int Blob::getLabel()
     }
 }
 
-void Blob::render(Bitmap *pTarget, Pixel32 Color, bool bMarkCenter, 
-        Pixel32 CenterColor)
+void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color, 
+        bool bMarkCenter, Pixel32 CenterColor)
 {
-    assert (pTarget->getBytesPerPixel() == 4);
-    unsigned char *ptr;
+    assert (pSrcBmp->getBytesPerPixel() == 1);
+    assert (pDestBmp->getBytesPerPixel() == 4);
+    unsigned char *pSrc;
+    unsigned char *pDest;
+    unsigned char *pColor = (unsigned char *)(&Color);
     for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r){
-        ptr = pTarget->getPixels()+r->m_Row*pTarget->getStride();
+        pSrc = pSrcBmp->getPixels()+r->m_Row*pSrcBmp->getStride();
+        pDest = pDestBmp->getPixels()+r->m_Row*pDestBmp->getStride();
         int x_pos = r->m_StartCol;
-        ptr+= x_pos*4;
+        pSrc += x_pos;
+        pDest+= x_pos*4;
         while(x_pos<r->m_EndCol){
-            *((unsigned int *)ptr)=(unsigned int)Color;
-            ptr += 4;
+            *(pDest++) = (int(*pColor)*(*pSrc)) >> 8;
+            *(pDest++) = (int(*(pColor+1))*(*pSrc)) >> 8;
+            *(pDest++) = (int(*(pColor+2))*(*pSrc++)) >> 8;
+            *(pDest++) = int(*(pColor+3));
             x_pos++;
         }
     }
     if(bMarkCenter) {
         DPoint DCenter = center();
         IntPoint Center = IntPoint(int(DCenter.x+0.5), int(DCenter.y+0.5));
-        IntPoint size = pTarget->getSize();
+        IntPoint size = pDestBmp->getSize();
         BlobInfoPtr pInfo = getInfo();
         
         IntPoint End0 = IntPoint(pInfo->m_ScaledBasis[0])+Center;
-        pTarget->drawLine(Center, End0, CenterColor);
+        pDestBmp->drawLine(Center, End0, CenterColor);
         IntPoint End1 = IntPoint(pInfo->m_ScaledBasis[1])+Center;
-        pTarget->drawLine(Center, End1, CenterColor);
-/*
-        pTarget->drawLine(IntPoint(Center.x, ystart), IntPoint(Center.x, ystop), CenterColor);
-        pTarget->drawLine(IntPoint(xstart, Center.y), IntPoint(xstop, Center.y), CenterColor);
-*/
+        pDestBmp->drawLine(Center, End1, CenterColor);
     }
 }
 

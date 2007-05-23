@@ -46,6 +46,7 @@ static ProfilingZone ProfilingZoneHistogram ("  Histogram");
 static ProfilingZone ProfilingZoneBandpass ("  Bandpass");
 static ProfilingZone ProfilingZoneComps("  ConnectedComps");
 static ProfilingZone ProfilingZoneUpdate("  Update");
+static ProfilingZone ProfilingZoneDraw("  Draw");
 
 TrackerThread::TrackerThread(IntRect ROI, 
         CameraPtr pCamera,
@@ -246,10 +247,13 @@ void TrackerThread::calcBlobs(BitmapPtr pBmp, int m_Threshold, bool bIsTouch) {
     //    AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
     //feed the IBlobTarget
     {
-        ScopeTimer Timer(ProfilingZoneUpdate);
-        m_pTarget->update(comps, bIsTouch);
+        {
+            ScopeTimer Timer(ProfilingZoneUpdate);
+            m_pTarget->update(comps, bIsTouch);
+        }
         if (m_bCreateFingerImage) {
-            m_pTarget->drawBlobs(comps, m_pBitmaps[TRACKER_IMG_FINGERS], bIsTouch);
+            ScopeTimer Timer(ProfilingZoneDraw);
+            m_pTarget->drawBlobs(comps, pBmp, m_pBitmaps[TRACKER_IMG_FINGERS], bIsTouch);
         }
     }
 }
