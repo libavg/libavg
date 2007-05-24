@@ -503,7 +503,8 @@ namespace avg {
         }
     };
 
-    void TrackerEventSource::drawBlobs(BlobListPtr pBlobs, BitmapPtr pSrcBmp, BitmapPtr pDestBmp, bool bTouch)
+    void TrackerEventSource::drawBlobs(BlobListPtr pBlobs, BitmapPtr pSrcBmp, 
+            BitmapPtr pDestBmp, int Offset, bool bTouch)
     {
         BlobConfigPtr pBlobConfig;
         if (bTouch) {
@@ -516,20 +517,20 @@ namespace avg {
             if (isRelevant(*it2, pBlobConfig)) {
                 if (bTouch) {
                     (*it2)->render(pSrcBmp, pDestBmp, 
-                            Pixel32(0xFF, 0xFF, 0xFF, 0xFF), true, 
+                            Pixel32(0xFF, 0xFF, 0xFF, 0xFF), Offset, bTouch, true,  
                             Pixel32(0x00, 0x00, 0xFF, 0xFF));
                 } else {
                     (*it2)->render(pSrcBmp, pDestBmp, 
-                            Pixel32(0xFF, 0xFF, 0x00, 0x40), true, 
+                            Pixel32(0xFF, 0xFF, 0x00, 0x40), Offset, bTouch, true, 
                             Pixel32(0x00, 0x00, 0xFF, 0xFF));
                 }
             } else {
                 if (bTouch) {
                     (*it2)->render(pSrcBmp, pDestBmp, 
-                            Pixel32(0xFF, 0x00, 0x00, 0xFF), false);
+                            Pixel32(0xFF, 0x00, 0x00, 0xFF), Offset, bTouch, false);
                 } else {
                     (*it2)->render(pSrcBmp, pDestBmp, 
-                            Pixel32(0x80, 0x00, 0x00, 0x40), false);
+                            Pixel32(0x80, 0x00, 0x00, 0x40), Offset, bTouch, false);
                 }
             }
         }

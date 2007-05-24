@@ -78,7 +78,7 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         /* implement IBlobTarget */
         virtual void update(BlobListPtr new_blobs, bool bTouch);//tracker thread
         virtual void drawBlobs(BlobListPtr pBlobs, BitmapPtr pSrcBmp, BitmapPtr pDestBmp, 
-                bool bTouch);
+                int Offset, bool bTouch);
 
         TrackerCalibrator* startCalibration();
         void endCalibration();

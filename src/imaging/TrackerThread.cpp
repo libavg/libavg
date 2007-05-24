@@ -253,7 +253,8 @@ void TrackerThread::calcBlobs(BitmapPtr pBmp, int m_Threshold, bool bIsTouch) {
         }
         if (m_bCreateFingerImage) {
             ScopeTimer Timer(ProfilingZoneDraw);
-            m_pTarget->drawBlobs(comps, pBmp, m_pBitmaps[TRACKER_IMG_FINGERS], bIsTouch);
+            m_pTarget->drawBlobs(comps, pBmp, m_pBitmaps[TRACKER_IMG_FINGERS], 
+                    m_Threshold, bIsTouch);
         }
     }
 }
