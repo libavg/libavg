@@ -128,45 +128,31 @@ int Blob::getLabel()
 }
 
 void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color, 
-        int Offset, bool bFinger, bool bMarkCenter, Pixel32 CenterColor)
+        int Min, int Max, bool bFinger, bool bMarkCenter, Pixel32 CenterColor)
 {
     assert (pSrcBmp->getBytesPerPixel() == 1);
     assert (pDestBmp->getBytesPerPixel() == 4);
     unsigned char *pSrc;
     unsigned char *pDest;
     unsigned char *pColor = (unsigned char *)(&Color);
+    int IntensityScale = 256/(Max-Min+5);
     for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r) {
         pSrc = pSrcBmp->getPixels()+r->m_Row*pSrcBmp->getStride();
         pDest = pDestBmp->getPixels()+r->m_Row*pDestBmp->getStride();
         int x_pos = r->m_StartCol;
         pSrc += x_pos;
         pDest+= x_pos*4;
-        if (bFinger) {
-            while(x_pos<r->m_EndCol) {
-                int Factor = (*pSrc-Offset)*4;
-                if (Factor < 0) {
-                    Factor = 0;
-                }
-                *(pDest++) = ((*pColor)*Factor) >> 8;
-                *(pDest++) = ((*(pColor+1))*Factor) >> 8;
-                *(pDest++) = ((*(pColor+2))*Factor) >> 8;
-                *(pDest++) = ((*(pColor+3))*Factor) >> 8;
-                pSrc++;
-                x_pos++;
+        while(x_pos<r->m_EndCol) {
+            int Factor = (*pSrc-Min)*IntensityScale;
+            if (Factor < 0) {
+                Factor = 0;
             }
-        } else {
-            while(x_pos<r->m_EndCol) {
-                int Factor = (*pSrc-Offset+1);
-                if (Factor < 0) {
-                    Factor = 0;
-                }
-                *(pDest++) = ((*pColor)*Factor) >> 8;
-                *(pDest++) = ((*(pColor+1))*Factor) >> 8;
-                *(pDest++) = ((*(pColor+2))*Factor) >> 8;
-                *(pDest++) = ((*(pColor+3))*Factor) >> 8;
-                pSrc++;
-                x_pos++;
-            }
+            *(pDest++) = ((*pColor)*Factor) >> 8;
+            *(pDest++) = ((*(pColor+1))*Factor) >> 8;
+            *(pDest++) = ((*(pColor+2))*Factor) >> 8;
+            *(pDest++) = ((*(pColor+3))*Factor) >> 8;
+            pSrc++;
+            x_pos++;
         }
     }
     if(bMarkCenter) {

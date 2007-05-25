@@ -512,25 +512,35 @@ namespace avg {
         } else {
             pBlobConfig = m_TrackerConfig.m_pTrack;
         }
-
+        // Get max. pixel value in Bitmap
+        int Max = 0;
+        HistogramPtr pHist = pSrcBmp->getHistogram(1);
+        int i;
+        for(i=255; i>=0; i--) {
+            if ((*pHist)[i] != 0) {
+                Max = i;
+                i = 0;
+            }
+        }
+        
         for(BlobList::iterator it2 = pBlobs->begin();it2!=pBlobs->end();++it2) {
             if (isRelevant(*it2, pBlobConfig)) {
                 if (bTouch) {
                     (*it2)->render(pSrcBmp, pDestBmp, 
-                            Pixel32(0xFF, 0xFF, 0xFF, 0xFF), Offset, bTouch, true,  
+                            Pixel32(0xFF, 0xFF, 0xFF, 0xFF), Offset, Max, bTouch, true,  
                             Pixel32(0x00, 0x00, 0xFF, 0xFF));
                 } else {
                     (*it2)->render(pSrcBmp, pDestBmp, 
-                            Pixel32(0xFF, 0xFF, 0x00, 0x40), Offset, bTouch, true, 
+                            Pixel32(0xFF, 0xFF, 0x00, 0x80), Offset, Max, bTouch, true, 
                             Pixel32(0x00, 0x00, 0xFF, 0xFF));
                 }
             } else {
                 if (bTouch) {
                     (*it2)->render(pSrcBmp, pDestBmp, 
-                            Pixel32(0xFF, 0x00, 0x00, 0xFF), Offset, bTouch, false);
+                            Pixel32(0xFF, 0x00, 0x00, 0xFF), Offset, Max, bTouch, false);
                 } else {
                     (*it2)->render(pSrcBmp, pDestBmp, 
-                            Pixel32(0x80, 0x00, 0x00, 0x40), Offset, bTouch, false);
+                            Pixel32(0x80, 0x80, 0x00, 0x80), Offset, Max, bTouch, false);
                 }
             }
         }

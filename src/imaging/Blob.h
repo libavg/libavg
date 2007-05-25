@@ -74,7 +74,7 @@ class Blob
         void merge( BlobPtr other);
         RunList* getList();
         void render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color, 
-                int Offset, bool bFinger, bool bMarkCenter, 
+                int Min, int Max, bool bFinger, bool bMarkCenter, 
                 Pixel32 CenterColor= Pixel32(0x00, 0x00, 0xFF, 0xFF));
         BlobPtr m_pParent;
     private:
