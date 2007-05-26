@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
 
@@ -137,7 +138,7 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
     unsigned char *pSrc;
     unsigned char *pDest;
     unsigned char *pColor = (unsigned char *)(&Color);
-    int IntensityScale = 2*256/(Max-Min+2);
+    int IntensityScale = 2*256/(min(Max-Min, 1));
     for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r) {
         pSrc = pSrcBmp->getPixels()+r->m_Row*pSrcBmp->getStride();
         pDest = pDestBmp->getPixels()+r->m_Row*pDestBmp->getStride();
