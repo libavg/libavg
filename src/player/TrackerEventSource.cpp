@@ -252,13 +252,10 @@ namespace avg {
 
         IntPoint ImgSize = pCamera->getImgSize();
         m_pBitmaps[0] = BitmapPtr(new Bitmap(ImgSize, I8));
-        cerr << "1" << endl;
         m_pUpdateMutex = MutexPtr(new boost::mutex);
         m_pTrackerMutex = MutexPtr(new boost::mutex);
-        cerr << "2" << endl;
         handleROIChange();
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
-        cerr << "3" << endl;
         m_pTrackerThread = new boost::thread(
                 TrackerThread(
                     m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents)),
@@ -271,9 +268,7 @@ namespace avg {
                     m_TrackerConfig
                     )
                 );
-        cerr << "4" << endl;
         setConfig();
-        cerr << "5" << endl;
     }
 
     TrackerEventSource::~TrackerEventSource()
