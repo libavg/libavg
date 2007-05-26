@@ -358,6 +358,9 @@ void findRunsInLine(BitmapPtr pBmp, int y, CompsMap *comps, RunList * pRuns,
 
 BlobListPtr connected_components(BitmapPtr image, unsigned char threshold)
 {
+    if (threshold == 0) {
+        return BlobListPtr();
+    }
     assert(image->getPixelFormat() == I8);
     CompsMap *comps = new CompsMap();
     IntPoint size = image->getSize();

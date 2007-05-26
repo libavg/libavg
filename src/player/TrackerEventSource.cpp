@@ -244,18 +244,21 @@ namespace avg {
     TrackerEventSource::TrackerEventSource(CameraPtr pCamera, 
             const TrackerConfig& Config, const IntPoint& DisplayExtents,
             bool bSubtractHistory)
-        : m_TrackerConfig(Config),
-          m_DisplayExtents(DisplayExtents),
-          m_pCalibrator(0)
+        : m_DisplayExtents(DisplayExtents),
+          m_pCalibrator(0),
+          m_TrackerConfig(Config)
     {
         AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
 
         IntPoint ImgSize = pCamera->getImgSize();
         m_pBitmaps[0] = BitmapPtr(new Bitmap(ImgSize, I8));
-        handleROIChange();
+        cerr << "1" << endl;
         m_pUpdateMutex = MutexPtr(new boost::mutex);
         m_pTrackerMutex = MutexPtr(new boost::mutex);
+        cerr << "2" << endl;
+        handleROIChange();
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
+        cerr << "3" << endl;
         m_pTrackerThread = new boost::thread(
                 TrackerThread(
                     m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents)),
@@ -268,7 +271,9 @@ namespace avg {
                     m_TrackerConfig
                     )
                 );
+        cerr << "4" << endl;
         setConfig();
+        cerr << "5" << endl;
     }
 
     TrackerEventSource::~TrackerEventSource()
@@ -381,6 +386,7 @@ namespace avg {
 
     void TrackerEventSource::handleROIChange()
     {
+        boost::mutex::scoped_lock Lock(*m_pTrackerMutex);
         DRect Area = m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents));
         IntPoint ImgSize(int(Area.Width()), int(Area.Height()));
         for (int i=1; i<NUM_TRACKER_IMAGES-1; i++) {
@@ -453,7 +459,25 @@ namespace avg {
 #undef IN
     }
 
-    void TrackerEventSource::update(BlobListPtr new_blobs, bool bTouch)
+    void TrackerEventSource::update(BlobListPtr pTrackBlobs, BitmapPtr pTrackBmp, 
+            int TrackThreshold, BlobListPtr pTouchBlobs, BitmapPtr pTouchBmp, 
+            int TouchThreshold, BitmapPtr pDestBmp)
+    {
+        boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
+        if (pTrackBlobs) {
+            calcBlobs(pTrackBlobs, false);
+        }
+        if (pTouchBlobs) {
+            calcBlobs(pTouchBlobs, true);
+        }
+        // TODO: correlateEvents();
+        if (pDestBmp) {
+            drawBlobs(pTrackBlobs, pTrackBmp, pDestBmp, TrackThreshold, false); 
+            drawBlobs(pTouchBlobs, pTouchBmp, pDestBmp, TouchThreshold, true); 
+        }
+    }
+
+    void TrackerEventSource::calcBlobs(BlobListPtr new_blobs, bool bTouch)
     {
         BlobConfigPtr pBlobConfig;
         EventMap * pEvents;
@@ -464,7 +488,6 @@ namespace avg {
             pBlobConfig = m_TrackerConfig.m_pTrack;
             pEvents = &m_TrackEvents;
         }
-        boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
         BlobListPtr old_blobs = BlobListPtr(new BlobList());
         for(EventMap::iterator it=pEvents->begin();it!=pEvents->end();++it){
             (*it).second->setStale();
@@ -506,6 +529,9 @@ namespace avg {
     void TrackerEventSource::drawBlobs(BlobListPtr pBlobs, BitmapPtr pSrcBmp, 
             BitmapPtr pDestBmp, int Offset, bool bTouch)
     {
+        if (!pBlobs) {
+            return;
+        }
         BlobConfigPtr pBlobConfig;
         if (bTouch) {
             pBlobConfig = m_TrackerConfig.m_pTouch;
@@ -550,6 +576,7 @@ namespace avg {
     {
         assert(!m_pCalibrator);
         m_pOldTransformer = m_TrackerConfig.m_pTrafo;
+        boost::mutex::scoped_lock Lock(*m_pTrackerMutex);
         m_TrackerConfig.m_pTrafo = DeDistortPtr(new DeDistort(
                 DPoint(m_pBitmaps[0]->getSize()), DPoint(m_DisplayExtents)));
         setConfig();

@@ -75,10 +75,11 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         Bitmap * getImage(TrackerImageID ImageID) const;
         std::vector<Event *> pollEvents();//main thread
 
-        /* implement IBlobTarget */
-        virtual void update(BlobListPtr new_blobs, bool bTouch);//tracker thread
-        virtual void drawBlobs(BlobListPtr pBlobs, BitmapPtr pSrcBmp, BitmapPtr pDestBmp, 
-                int Offset, bool bTouch);
+        // implement IBlobTarget
+        // Called from Tracker Thread!
+        virtual void update(BlobListPtr pTrackBlobs, BitmapPtr pTrackBmp, int TrackThreshold,
+                BlobListPtr pTouchBlobs, BitmapPtr pTouchBmp, int TouchThreshold,
+                BitmapPtr pDestBmp);
 
         TrackerCalibrator* startCalibration();
         void endCalibration();
@@ -86,28 +87,35 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
 
     private:
         bool isRelevant(BlobPtr blob, BlobConfigPtr pConfig);
-        BlobPtr matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold, EventMap * pEvents);
         void setConfig();
         void handleROIChange();
         void pollEventType(std::vector<Event*>& res, EventMap& Events,
                 CursorEvent::Source source);
 
-        TrackerConfig m_TrackerConfig;
-        EventMap m_TouchEvents;
-        EventMap m_TrackEvents;
-        MutexPtr m_pTrackerMutex;
-        MutexPtr m_pUpdateMutex;
-
         boost::thread* m_pTrackerThread;
 
-        TrackerThread::CmdQueuePtr m_pCmdQueue;
-        BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
-        
+        // Used by main thread
         DeDistortPtr m_pOldTransformer;
         IntPoint m_DisplayExtents;
-
         TrackerCalibrator * m_pCalibrator;
 
+        // Used by tracker thread
+        void calcBlobs(BlobListPtr new_blobs, bool bTouch);
+        void drawBlobs(BlobListPtr pBlobs, BitmapPtr pSrcBmp, BitmapPtr pDestBmp, 
+                int Offset, bool bTouch);
+        BlobPtr matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold, 
+                EventMap * pEvents);
+
+        // Used by both threads
+        MutexPtr m_pUpdateMutex;
+        EventMap m_TouchEvents;
+        EventMap m_TrackEvents;
+        TrackerConfig m_TrackerConfig;
+
+        MutexPtr m_pTrackerMutex;
+        BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
+
+        TrackerThread::CmdQueuePtr m_pCmdQueue;
 };
 
 typedef boost::shared_ptr<TrackerEventSource> TrackerEventSourcePtr;

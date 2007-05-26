@@ -126,11 +126,8 @@ bool TrackerThread::work()
                 FilterFill<Pixel32>(Black).applyInPlace(
                         m_pBitmaps[TRACKER_IMG_FINGERS]);
             }
-            if (m_TrackThreshold != 0) {
-                calcBlobs(pCroppedBmp, m_TrackThreshold, false);
-            }
+            BitmapPtr pBmpBandpass;
             if (m_TouchThreshold != 0) {
-                BitmapPtr pBmpBandpass;
                 {
                     ScopeTimer Timer(ProfilingZoneBandpass);
                     pBmpBandpass = FilterFastBandpass().apply(pCroppedBmp);
@@ -138,8 +135,8 @@ bool TrackerThread::work()
                 if (m_bCreateDebugImages) {
                     *(m_pBitmaps[TRACKER_IMG_HIGHPASS]) = *pBmpBandpass;
                 }
-                calcBlobs(pBmpBandpass, m_TouchThreshold, true);
             }
+            calcBlobs(pCroppedBmp, pBmpBandpass);
         }
     }
     return true;
@@ -238,24 +235,24 @@ void TrackerThread::drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp)
     }
 }
 
-void TrackerThread::calcBlobs(BitmapPtr pBmp, int m_Threshold, bool bIsTouch) {
-    BlobListPtr comps;
+void TrackerThread::calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp) {
+    BlobListPtr pTrackComps;
+    BlobListPtr pTouchComps;
     {
         ScopeTimer Timer(ProfilingZoneComps);
-        comps = connected_components(pBmp, m_Threshold);
+        pTrackComps = connected_components(pTrackBmp, m_TrackThreshold);
+        pTouchComps = connected_components(pTouchBmp, m_TouchThreshold);
     }
     //    AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
     //feed the IBlobTarget
+    BitmapPtr pDestBmp;
+    if (m_bCreateFingerImage) {
+        pDestBmp = m_pBitmaps[TRACKER_IMG_FINGERS];
+    }
     {
-        {
-            ScopeTimer Timer(ProfilingZoneUpdate);
-            m_pTarget->update(comps, bIsTouch);
-        }
-        if (m_bCreateFingerImage) {
-            ScopeTimer Timer(ProfilingZoneDraw);
-            m_pTarget->drawBlobs(comps, pBmp, m_pBitmaps[TRACKER_IMG_FINGERS], 
-                    m_Threshold, bIsTouch);
-        }
+        ScopeTimer Timer(ProfilingZoneUpdate);
+        m_pTarget->update(pTrackComps, pTrackBmp, m_TrackThreshold,
+                pTouchComps, pTouchBmp, m_TouchThreshold, pDestBmp);
     }
 }
 
