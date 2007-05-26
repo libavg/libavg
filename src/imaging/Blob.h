@@ -66,22 +66,27 @@ class Blob
         Blob(Run run);
         ~Blob();
         RunList& get_runs();
+
+        // TODO: Precalculate these values!
         DPoint center();
         int area();
         int getLabel();
         BlobInfoPtr getInfo();
         IntRect bbox();
-        void merge( BlobPtr other);
+        void merge(BlobPtr other);
         RunList* getList();
         void render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color, 
                 int Min, int Max, bool bFinger, bool bMarkCenter, 
                 Pixel32 CenterColor= Pixel32(0x00, 0x00, 0xFF, 0xFF));
+        bool contains(IntPoint pt);
+
         BlobPtr m_pParent;
     private:
         Blob(const Blob &);
         RunList *m_pRuns;
 
         BlobInfoPtr m_pBlobInfo;
+        boost::shared_ptr<DPoint> m_pCenter;
 };
 
 typedef std::vector<BlobPtr> BlobList;

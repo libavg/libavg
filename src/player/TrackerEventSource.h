@@ -101,6 +101,7 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
 
         // Used by tracker thread
         void calcBlobs(BlobListPtr new_blobs, bool bTouch);
+        void correlateBlobs();
         void drawBlobs(BlobListPtr pBlobs, BitmapPtr pSrcBmp, BitmapPtr pDestBmp, 
                 int Offset, bool bTouch);
         BlobPtr matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold, 

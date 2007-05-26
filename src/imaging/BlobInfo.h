@@ -28,10 +28,17 @@
 #include "../graphics/Rect.h"
 
 #include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
 #include <vector>
 
 namespace avg {
+
+struct BlobInfo;
+
+typedef boost::shared_ptr<BlobInfo> BlobInfoPtr;
+typedef boost::weak_ptr<BlobInfo> BlobInfoWeakPtr;
+typedef std::vector<BlobInfoWeakPtr> BlobInfoVector;
 
 struct BlobInfo
 {
@@ -45,12 +52,12 @@ struct BlobInfo
     DPoint m_ScaledBasis[2];
     DPoint m_EigenVectors[2];
     DPoint m_EigenValues;
-    // More to follow?
+
+    BlobInfoVector m_RelatedBlobs; // For fingers, this contains the hand.
+                                   // For hands, this contains the fingers.
+    DPoint m_Direction; // Fingers only: contains vector from hand center to finger.
 };
 
-typedef boost::shared_ptr<BlobInfo> BlobInfoPtr;
-typedef std::vector<BlobInfoPtr> BlobInfoList;
-typedef boost::shared_ptr<BlobInfoList> BlobInfoListPtr;
 
 }
 

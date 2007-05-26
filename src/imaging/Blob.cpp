@@ -49,12 +49,12 @@ Run::Run(int row, int start_col, int end_col, int color)
 
 int Run::length()
 {
-    return m_EndCol-m_StartCol+1;
+    return m_EndCol-m_StartCol;
 }
 
 DPoint Run::center()
 {
-    DPoint d = DPoint((m_StartCol + m_EndCol)/2., m_Row);
+    DPoint d = DPoint((m_StartCol + m_EndCol-1)/2., m_Row);
     return d;
 }
 
@@ -87,14 +87,16 @@ void Blob::merge(BlobPtr other)
 
 DPoint Blob::center()
 {
-    DPoint d = DPoint(0,0);
-    int c = 0;
-    for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r){
-        d += r->center()*r->length();
-        c += r->length();
+    if (!m_pCenter) {
+        m_pCenter = boost::shared_ptr<DPoint>(new DPoint());
+        int c = 0;
+        for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r){
+            *m_pCenter += r->center()*r->length();
+            c += r->length();
+        }
+        *m_pCenter = (*m_pCenter)/double(c);
     }
-
-    return d/double(c);
+    return *m_pCenter;
 }
 IntRect Blob::bbox()
 {
@@ -105,7 +107,7 @@ IntRect Blob::bbox()
         x2 = std::max(x2, r->m_EndCol);
         y2 = std::max(y2, r->m_Row);
     }
-    return IntRect(x1,y1,x2+1,y2+1);
+    return IntRect(x1,y1,x2,y2);
 
 }
 
@@ -135,7 +137,7 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
     unsigned char *pSrc;
     unsigned char *pDest;
     unsigned char *pColor = (unsigned char *)(&Color);
-    int IntensityScale = 256/(Max-Min+5);
+    int IntensityScale = 2*256/(Max-Min+2);
     for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r) {
         pSrc = pSrcBmp->getPixels()+r->m_Row*pSrcBmp->getStride();
         pDest = pDestBmp->getPixels()+r->m_Row*pDestBmp->getStride();
@@ -146,6 +148,9 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
             int Factor = (*pSrc-Min)*IntensityScale;
             if (Factor < 0) {
                 Factor = 0;
+            }
+            if (Factor > 255) {
+                Factor = 255;
             }
             *(pDest++) = ((*pColor)*Factor) >> 8;
             *(pDest++) = ((*(pColor+1))*Factor) >> 8;
@@ -158,14 +163,33 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
     if(bMarkCenter) {
         DPoint DCenter = center();
         IntPoint Center = IntPoint(int(DCenter.x+0.5), int(DCenter.y+0.5));
-        IntPoint size = pDestBmp->getSize();
         BlobInfoPtr pInfo = getInfo();
         
         IntPoint End0 = IntPoint(pInfo->m_ScaledBasis[0])+Center;
         pDestBmp->drawLine(Center, End0, CenterColor);
         IntPoint End1 = IntPoint(pInfo->m_ScaledBasis[1])+Center;
         pDestBmp->drawLine(Center, End1, CenterColor);
+
+        
+        if (bFinger && m_pBlobInfo->m_RelatedBlobs.size() > 0) {
+            // Draw finger direction
+            BlobInfoPtr pHandBlob = (m_pBlobInfo->m_RelatedBlobs)[0].lock();
+            if (pHandBlob) {
+                pDestBmp->drawLine(Center, IntPoint(pHandBlob->m_Center),
+                        Pixel32(0xD7, 0xC9, 0x56, 0xFF));
+            }
+        }
     }
+}
+        
+bool Blob::contains(IntPoint pt)
+{
+    for(RunList::iterator it=m_pRuns->begin(); it!=m_pRuns->end(); ++it) {
+        if (it->m_Row == pt.y && it->m_StartCol <= pt.x && it->m_EndCol > pt.x) {
+            return true;
+        } 
+    }
+    return false;
 }
 
 BlobInfoPtr Blob::getInfo()
@@ -191,11 +215,11 @@ BlobInfoPtr Blob::getInfo()
             //This is the evaluated expm_pBlobInfosion for the variance when using runs...
             ll = r->length();
             c_yy += ll* (r->m_Row- c.y)*(r->m_Row- c.y);
-            c_xx += ( r->m_EndCol * (r->m_EndCol+1) * (2*r->m_EndCol+1) 
+            c_xx += ( (r->m_EndCol-1) * r->m_EndCol * (2*r->m_EndCol-1) 
                 - (r->m_StartCol-1) * r->m_StartCol * (2*r->m_StartCol -1))/6. 
-                - c.x * ( r->m_EndCol*(r->m_EndCol+1) - (r->m_StartCol-1)*r->m_StartCol  )
+                - c.x * ( (r->m_EndCol-1)*r->m_EndCol - (r->m_StartCol-1)*r->m_StartCol  )
                 + ll* c.x*c.x;
-            c_xy += (r->m_Row-c.y)*0.5*( r->m_EndCol*(r->m_EndCol+1) 
+            c_xy += (r->m_Row-c.y)*0.5*( (r->m_EndCol-1)*r->m_EndCol
                 - (r->m_StartCol-1)*r->m_StartCol) + ll *(c.x*c.y - c.x*r->m_Row);
         }
 
@@ -271,10 +295,9 @@ int connected(Run &r1, Run &r2)
 //    if (abs(r2.m_Row - r1.m_Row) != 1)
 //        return 0;
     if (r1.m_StartCol > r2.m_StartCol){
-        //use > here to do 8-connectivity
-        res = r2.m_EndCol >= r1.m_StartCol;
+        res = r2.m_EndCol > r1.m_StartCol;
     }else{
-        res = r1.m_EndCol >= r2.m_StartCol;
+        res = r1.m_EndCol > r2.m_StartCol;
     }
     return res;
 }
@@ -330,7 +353,7 @@ void findRunsInLine(BitmapPtr pBmp, int y, CompsMap *comps, RunList * pRuns,
             if (cur) {
                 if (x-run_start > 1) {
                     // Single light pixels are ignored.
-                    run_stop = x - 1;
+                    run_stop = x;
                     pRuns->push_back ( new_run(comps, y, run_start, run_stop, cur) );
                     run_start = x;
                 }

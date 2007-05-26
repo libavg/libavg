@@ -45,6 +45,7 @@
 #include <list>
 #include <vector>
 #include <iostream>
+#include <assert.h>
 
 using namespace std;
 
@@ -465,7 +466,7 @@ namespace avg {
         if (pTouchBlobs) {
             calcBlobs(pTouchBlobs, true);
         }
-        // TODO: correlateEvents();
+        correlateBlobs();
         if (pDestBmp) {
             drawBlobs(pTrackBlobs, pTrackBmp, pDestBmp, TrackThreshold, false); 
             drawBlobs(pTouchBlobs, pTouchBmp, pDestBmp, TouchThreshold, true); 
@@ -484,7 +485,7 @@ namespace avg {
             pEvents = &m_TrackEvents;
         }
         BlobListPtr old_blobs = BlobListPtr(new BlobList());
-        for(EventMap::iterator it=pEvents->begin();it!=pEvents->end();++it){
+        for(EventMap::iterator it=pEvents->begin();it!=pEvents->end();++it) {
             (*it).second->setStale();
             old_blobs->push_back((*it).first);
         }
@@ -520,6 +521,30 @@ namespace avg {
             }
         }
     };
+        
+   void TrackerEventSource::correlateBlobs()
+   {
+        for(EventMap::iterator it2=m_TrackEvents.begin(); it2!=m_TrackEvents.end(); ++it2) {
+            BlobPtr pTrackBlob = it2->first;
+            pTrackBlob->getInfo()->m_RelatedBlobs.clear();
+        }
+        for(EventMap::iterator it1=m_TouchEvents.begin(); it1!=m_TouchEvents.end(); ++it1) {
+            BlobPtr pTouchBlob = it1->first;
+            pTouchBlob->getInfo()->m_RelatedBlobs.clear();
+            IntPoint TouchCenter = (IntPoint)(pTouchBlob->center());
+            for(EventMap::iterator it2=m_TrackEvents.begin(); it2!=m_TrackEvents.end(); ++it2) {
+                BlobPtr pTrackBlob = it2->first;
+                if (pTrackBlob->contains(TouchCenter)) {
+                    pTouchBlob->getInfo()->m_RelatedBlobs.push_back(
+                            pTrackBlob->getInfo());
+                    pTrackBlob->getInfo()->m_RelatedBlobs.push_back(
+                            pTouchBlob->getInfo());
+                    break;
+                }
+            }
+        }
+        
+   }
 
     void TrackerEventSource::drawBlobs(BlobListPtr pBlobs, BitmapPtr pSrcBmp, 
             BitmapPtr pDestBmp, int Offset, bool bTouch)
@@ -535,7 +560,7 @@ namespace avg {
         }
         // Get max. pixel value in Bitmap
         int Max = 0;
-        HistogramPtr pHist = pSrcBmp->getHistogram(1);
+        HistogramPtr pHist = pSrcBmp->getHistogram(2);
         int i;
         for(i=255; i>=0; i--) {
             if ((*pHist)[i] != 0) {
@@ -608,6 +633,7 @@ namespace avg {
         boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
         std::vector<Event*> res = std::vector<Event *>();
         pollEventType(res, m_TouchEvents, CursorEvent::TOUCH);
+        pollEventType(res, m_TrackEvents, CursorEvent::TRACK);
         return res;
     }
    
