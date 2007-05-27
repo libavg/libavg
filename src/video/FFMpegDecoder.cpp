@@ -121,6 +121,7 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
                 sFilename + ": Could not find codec parameters.");
     }
+//    dump_format(m_pFormatContext, 0, sFilename.c_str(), 0);
 
     av_read_play(m_pFormatContext);
     

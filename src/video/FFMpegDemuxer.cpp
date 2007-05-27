@@ -58,7 +58,8 @@ AVPacket * FFMpegDemuxer::getPacket(int StreamIndex)
         do {
             pPacket = new AVPacket;
             memset(pPacket, 0, sizeof(AVPacket));
-            int err = av_read_frame(m_pFormatContext, pPacket); 
+            int err = av_read_frame(m_pFormatContext, pPacket);
+            // TODO: Check url_ferror here too.
             if (err < 0) {
                 av_free_packet(pPacket);
                 delete pPacket;

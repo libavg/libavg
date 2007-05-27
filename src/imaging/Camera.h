@@ -89,7 +89,7 @@ private:
     dc1394_feature_set m_FeatureSet;
     int m_FrameRateConstant;  // libdc1394 constant for framerate.
     int m_Mode;               // libdc1394 constant for mode.
-#else
+#elif AVG_ENABLE_1394_2
     dc1394camera_t * m_pCamera;
     dc1394featureset_t m_FeatureSet;
     dc1394framerate_t m_FrameRateConstant; 

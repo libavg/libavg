@@ -20,7 +20,9 @@
 //
 
 #include "Camera.h"
+#ifdef AVG_ENABLE_1394 || AVG_ENABLE_1394_2
 #include "CameraUtils.h"
+#endif
 
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
@@ -44,8 +46,10 @@ Camera::Camera(string sDevice, double FrameRate, std::string sMode, bool bColor)
       m_bColor(bColor),
       m_bCameraAvailable(false)
 {
+#ifdef AVG_ENABLE_1394 || AVG_ENABLE_1394_2
     m_FrameRateConstant = getFrameRateConst(m_FrameRate);
     m_Mode = getCamMode(m_sMode);
+#endif
 }
 
 Camera::~Camera()
@@ -153,7 +157,7 @@ void Camera::open()
 
     err = dc1394_start_iso_transmission(m_FWHandle, m_Camera.node);
     checkDC1394Error(err, "Unable to start camera iso transmission");
-#else
+#elif AVG_ENABLE_1394_2
     dc1394camera_t **ppCameras=NULL;
     uint32_t numCameras;
     m_bCameraAvailable = true;
@@ -265,7 +269,7 @@ void Camera::close()
         dc1394_dma_unlisten(m_FWHandle, &m_Camera);
 //        dc1394_dma_release_camera(m_FWHandle, &m_Camera);
         dc1394_destroy_handle(m_FWHandle);
-#else
+#elif AVG_ENABLE_1394_2
         dc1394_capture_stop(m_pCamera);
         dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
         dc1394_free_camera(m_pCamera);
@@ -276,13 +280,17 @@ void Camera::close()
 
 IntPoint Camera::getImgSize()
 {
+#ifdef AVG_ENABLE_1394 || AVG_ENABLE_1394_2
     return getCamImgSize(m_Mode);
+#endif
+    return IntPoint(640, 480);
 }
 
 static ProfilingZone CameraConvertProfilingZone("      Camera format conversion");
 
 BitmapPtr Camera::getImage(bool bWait)
 {
+#ifdef AVG_ENABLE_1394 || AVG_ENABLE_1394_2
     if (!m_bCameraAvailable && bWait) {
         TimeSource::get()->msleep(1000);
         open();
@@ -406,6 +414,9 @@ BitmapPtr Camera::getImage(bool bWait)
     } else {
         return BitmapPtr();
     }
+#else
+    return BitmapPtr();
+#endif
 }
     
 bool Camera::isCameraAvailable()
@@ -430,6 +441,7 @@ const std::string& Camera::getMode() const
 
 unsigned int Camera::getFeature(const std::string& sFeature) const
 {
+#ifdef AVG_ENABLE_1394 || AVG_ENABLE_1394_2
     dc1394feature_t FeatureID = getFeatureID(sFeature);
     FeatureMap::const_iterator it = m_Features.find(FeatureID);
     if (it == m_Features.end()) {
@@ -437,15 +449,20 @@ unsigned int Camera::getFeature(const std::string& sFeature) const
     } else {
         return it->second;
     }
+#else
+    return 0;
+#endif
 }
 
 void Camera::setFeature(const std::string& sFeature, int Value)
 {
+#ifdef AVG_ENABLE_1394 || AVG_ENABLE_1394_2
     dc1394feature_t FeatureID = getFeatureID(sFeature);
     m_Features[FeatureID] = Value;
     if (m_bCameraAvailable) {
         setFeature(FeatureID, Value);
     }
+#endif
 }
 
 void Camera::setFeature(dc1394feature_t Feature, int Value) {
@@ -458,7 +475,11 @@ void Camera::setFeature(dc1394feature_t Feature, int Value) {
         err = dc1394_set_feature_value(m_FWHandle, m_Camera.node, Feature, 
                 (unsigned int)Value);
     } 
-#else
+    if (err != DC1394_SUCCESS) {
+        AVG_TRACE(Logger::WARNING, "Camera: Unable to set " << Feature << 
+                ". Error was " << err);
+    }
+#elif AVG_ENABLE_1394_2
     dc1394error_t err;
     if (Value == -1) {
         err = dc1394_feature_set_mode(m_pCamera, Feature, DC1394_FEATURE_MODE_AUTO);
@@ -466,11 +487,11 @@ void Camera::setFeature(dc1394feature_t Feature, int Value) {
         dc1394_feature_set_mode(m_pCamera, Feature, DC1394_FEATURE_MODE_MANUAL);
         err = dc1394_feature_set_value(m_pCamera, Feature, Value);
     }
-#endif
     if (err != DC1394_SUCCESS) {
         AVG_TRACE(Logger::WARNING, "Camera: Unable to set " << Feature << 
                 ". Error was " << err);
     }
+#endif
 }
 
 #ifdef AVG_ENABLE_1394
@@ -509,9 +530,11 @@ bool Camera::findCameraOnPort(int port, raw1394handle_t& FWHandle)
 
 void Camera::checkDC1394Error(int Code, const string & sMsg)
 {
+#ifdef AVG_ENABLE_1394 || AVG_ENABLE_1394_2
     if (Code != DC1394_SUCCESS) {
         fatalError(sMsg);
     }
+#endif
 }
 
 void Camera::fatalError(const string & sMsg)
@@ -548,12 +571,16 @@ void Camera::dumpCameraInfo()
     dc1394_print_feature_set(&m_FeatureSet);
 }
 
-#else
+#elif AVG_ENABLE_1394_2
 void Camera::dumpCameraInfo()
 {
     // TODO: do this using AVG_TRACE
     dc1394_print_camera_info(m_pCamera);
     dc1394_print_feature_set(&m_FeatureSet);
+}
+#else
+void Camera::dumpCameraInfo()
+{
 }
 #endif
 
