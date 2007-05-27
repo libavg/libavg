@@ -21,6 +21,7 @@
 
 #include "FFMpegDecoder.h"
 
+#include "../graphics/Filterfliprgba.h"
 #include "../graphics/Filterfliprgb.h"
 
 #include "../base/TimeSource.h"
@@ -124,15 +125,21 @@ class DecoderTest: public Test {
         {
             try {
                 BitmapPtr pBaselineBmp(new Bitmap("testfiles/baseline/"+sFilename+".png"));
+
                 FilterFlipRGB().applyInPlace(pBaselineBmp);
-                if (!(*pBaselineBmp == *pBmp)) {
+#ifdef __BIG_ENDIAN__
+                FilterFlipRGBA().applyInPlace(pBmp);
+#endif
+                int DiffPixels = pBaselineBmp->getNumDifferentPixels(*pBmp);
+                if (DiffPixels > 0) {
                     pBmp->save("testfiles/result/"+sFilename+".png");
-                    pBaselineBmp->save("testfiles/result/"+sFilename+"_baseline.png");
+                    BitmapPtr pOrigBmp(new Bitmap("testfiles/baseline/"+sFilename+".png"));
+                    pOrigBmp->save("testfiles/result/"+sFilename+"_baseline.png");
                     Bitmap DiffBmp(*pBmp);
                     DiffBmp.subtract(&*pBaselineBmp);
                     DiffBmp.save("testfiles/result/"+sFilename+"_diff.png");
                 }
-                TEST(*pBaselineBmp == *pBmp);
+                TEST(DiffPixels == 0);
             } catch (Magick::Exception & ex) {
                 pBmp->save("testfiles/result/"+sFilename+".png");
                 TEST_FAILED("Error loading baseline image: " << ex.what()); 
