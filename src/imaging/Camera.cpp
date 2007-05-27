@@ -20,7 +20,7 @@
 //
 
 #include "Camera.h"
-#ifdef AVG_ENABLE_1394 || AVG_ENABLE_1394_2
+#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
 #include "CameraUtils.h"
 #endif
 
@@ -46,7 +46,7 @@ Camera::Camera(string sDevice, double FrameRate, std::string sMode, bool bColor)
       m_bColor(bColor),
       m_bCameraAvailable(false)
 {
-#ifdef AVG_ENABLE_1394 || AVG_ENABLE_1394_2
+#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     m_FrameRateConstant = getFrameRateConst(m_FrameRate);
     m_Mode = getCamMode(m_sMode);
 #endif
@@ -290,7 +290,7 @@ static ProfilingZone CameraConvertProfilingZone("      Camera format conversion"
 
 BitmapPtr Camera::getImage(bool bWait)
 {
-#ifdef AVG_ENABLE_1394 || AVG_ENABLE_1394_2
+#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     if (!m_bCameraAvailable && bWait) {
         TimeSource::get()->msleep(1000);
         open();
@@ -441,7 +441,7 @@ const std::string& Camera::getMode() const
 
 unsigned int Camera::getFeature(const std::string& sFeature) const
 {
-#ifdef AVG_ENABLE_1394 || AVG_ENABLE_1394_2
+#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     dc1394feature_t FeatureID = getFeatureID(sFeature);
     FeatureMap::const_iterator it = m_Features.find(FeatureID);
     if (it == m_Features.end()) {
@@ -456,7 +456,7 @@ unsigned int Camera::getFeature(const std::string& sFeature) const
 
 void Camera::setFeature(const std::string& sFeature, int Value)
 {
-#ifdef AVG_ENABLE_1394 || AVG_ENABLE_1394_2
+#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     dc1394feature_t FeatureID = getFeatureID(sFeature);
     m_Features[FeatureID] = Value;
     if (m_bCameraAvailable) {
@@ -530,7 +530,7 @@ bool Camera::findCameraOnPort(int port, raw1394handle_t& FWHandle)
 
 void Camera::checkDC1394Error(int Code, const string & sMsg)
 {
-#ifdef AVG_ENABLE_1394 || AVG_ENABLE_1394_2
+#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     if (Code != DC1394_SUCCESS) {
         fatalError(sMsg);
     }
