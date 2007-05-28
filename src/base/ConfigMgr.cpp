@@ -259,6 +259,7 @@ bool ConfigMgr::loadFile(const std::string& sPath) {
             }
             pSubsysNode = pSubsysNode->next;
         }
+        xmlFreeDoc(doc);
     } catch (Exception& e) {
         switch (e.GetCode()) {
             case AVG_ERR_OPTION_SUBSYS_UNKNOWN:
