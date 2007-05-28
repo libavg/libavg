@@ -61,7 +61,9 @@ TrackerThread::TrackerThread(IntRect ROI,
       m_TrackThreshold(0),
       m_pMutex(pMutex),
       m_pCamera(pCamera),
-      m_pTarget(target)
+      m_pTarget(target),
+      m_bCreateDebugImages(false),
+      m_bCreateFingerImage(false)
 {
     if (bSubtractHistory) {
         m_pHistoryPreProcessor = HistoryPreProcessorPtr(
