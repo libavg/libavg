@@ -592,6 +592,17 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Player.getElementByID("clogo").stop(),
                  lambda: self.compareImage("testVideo9", False),
                  Player.stop))
+    def testVideoEOF(self):
+        def onEOF():
+            Player.stop()
+        def onNoEOF():
+            self.assert_(False)
+        Player.loadFile("video.avg")
+        video = Player.getElementByID("clogo2")
+        video.play()
+        video.setEOFCallback(onEOF)
+        Player.setTimeout(10000, onNoEOF)
+        Player.play()
     def testAnim(self):
         def onStart():
             Player.setTimeout(10, startAnim)
@@ -819,6 +830,7 @@ def playerTestSuite(engine, bpp):
     suite.addTest(PlayerTestCase("testWarp", engine, bpp))
     suite.addTest(PlayerTestCase("testWords", engine, bpp))
     suite.addTest(PlayerTestCase("testVideo", engine, bpp))
+    suite.addTest(PlayerTestCase("testVideoEOF", engine, bpp))
     suite.addTest(PlayerTestCase("testAnim", engine, bpp))
     suite.addTest(PlayerTestCase("testImgDynamics", engine, bpp))
     suite.addTest(PlayerTestCase("testVideoDynamics", engine, bpp))

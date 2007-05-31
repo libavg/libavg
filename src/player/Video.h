@@ -22,6 +22,9 @@
 #ifndef _Video_H_
 #define _Video_H_
 
+#include <Python.h> // Python doc sais this should be included before 
+                              // any standard headers (!)
+                              //
 #include "Node.h"
 #include "VideoBase.h"
 #include "../graphics/Rect.h"
@@ -50,6 +53,7 @@ class Video : public VideoBase
         void seekToFrame(int num);
         bool getLoop() const;
         bool isThreaded() const;
+        void setEOFCallback(PyObject * EOFCallback);
 
         virtual std::string getTypeStr ();
 
@@ -59,6 +63,7 @@ class Video : public VideoBase
         bool renderToSurface(ISurface * pSurface);
         bool canRenderToBackbuffer(int BitsPerPixel);
         void seek(int DestFrame);
+        void onEOF();
         void advancePlayback();
        
         virtual void open(YCbCrMode ycbcrMode);
@@ -71,6 +76,7 @@ class Video : public VideoBase
         std::string m_Filename;
         bool m_bLoop;
         bool m_bThreaded;
+        PyObject * m_pEOFCallback;
 
         int m_CurFrame;
 

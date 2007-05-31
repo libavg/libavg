@@ -154,6 +154,9 @@ void export_raster()
         .def("seekToFrame", &Video::seekToFrame,
                 "seekToFrame(num) -> None\n\n"
                 "Moves the playback cursor to the frame given.")
+        .def("setEOFCallback", &Video::setEOFCallback,
+                "setEOFCallback(pyfunc) -> None\n\n"
+                "Sets a python function to be called when the video reaches end of file.")
         .add_property("href", 
                 make_function(&Video::getHRef,
                         return_value_policy<copy_const_reference>()),

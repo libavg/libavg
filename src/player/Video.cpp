@@ -34,10 +34,13 @@
 #include "../video/AsyncVideoDecoder.h"
 #include "../video/FFMpegDecoder.h"
 
+#include <boost/python.hpp>
+
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
 
+using namespace boost::python;
 using namespace std;
 
 namespace avg {
@@ -48,6 +51,7 @@ Video::Video ()
     : m_href(""),
       m_Filename(""),
       m_bLoop(false),
+      m_pEOFCallback(0),
       m_pDecoder(0)
 {
 }
@@ -55,6 +59,7 @@ Video::Video ()
 Video::Video (const xmlNodePtr xmlNode, Player * pPlayer)
     : VideoBase(xmlNode, pPlayer),
       m_Filename(""),
+      m_pEOFCallback(0),
       m_pDecoder(0)
 {
     m_href = getDefaultedStringAttr (xmlNode, "href", "");
@@ -120,6 +125,11 @@ bool Video::getLoop() const
 bool Video::isThreaded() const
 {
     return m_bThreaded;
+}
+
+void Video::setEOFCallback(PyObject * pEOFCallback)
+{
+  m_pEOFCallback = pEOFCallback;
 }
 
 void Video::setDisplayEngine(DisplayEngine * pEngine)
@@ -227,10 +237,24 @@ bool Video::renderToSurface(ISurface * pSurface)
     return !m_pDecoder->isEOF();
 }
 
+void Video::onEOF()
+{
+    if (m_pEOFCallback) {
+        PyObject * arglist = Py_BuildValue("()");
+        PyObject * result = PyEval_CallObject(m_pEOFCallback, arglist);
+        Py_DECREF(arglist);    
+        if (!result) {
+            throw error_already_set();
+        }
+        Py_DECREF(result);
+    }
+}
+
 void Video::advancePlayback()
 {
     m_CurFrame++;
     if (m_pDecoder->isEOF()) {
+        onEOF();
         if (m_bLoop) {
             seek(0);
         } else {
