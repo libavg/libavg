@@ -83,6 +83,9 @@ Video::~Video ()
         delete m_pDecoder;
         m_pDecoder = 0;
     }
+    if (m_pEOFCallback) {
+        Py_DECREF(m_pEOFCallback);
+    }
 }
 
 int Video::getNumFrames() const
@@ -129,7 +132,11 @@ bool Video::isThreaded() const
 
 void Video::setEOFCallback(PyObject * pEOFCallback)
 {
-  m_pEOFCallback = pEOFCallback;
+    if (m_pEOFCallback) {
+        Py_DECREF(m_pEOFCallback);
+    }
+    Py_INCREF(pEOFCallback);
+    m_pEOFCallback = pEOFCallback;
 }
 
 void Video::setDisplayEngine(DisplayEngine * pEngine)

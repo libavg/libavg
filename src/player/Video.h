@@ -53,7 +53,7 @@ class Video : public VideoBase
         void seekToFrame(int num);
         bool getLoop() const;
         bool isThreaded() const;
-        void setEOFCallback(PyObject * EOFCallback);
+        void setEOFCallback(PyObject * pEOFCallback);
 
         virtual std::string getTypeStr ();
 
