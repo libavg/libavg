@@ -241,7 +241,7 @@ bool Video::renderToSurface(ISurface * pSurface)
     if (getVideoState() == Playing) {
         advancePlayback();
     }
-    return !m_pDecoder->isEOF();
+    return bFrameAvailable;
 }
 
 void Video::onEOF()

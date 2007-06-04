@@ -113,19 +113,24 @@ void VideoBase::render (const DRect& Rect)
                 }
                 DRect relVpt = getRelViewport();
                 DRect absVpt = getParent()->getAbsViewport();   
-                m_bFrameAvailable = renderToSurface(getSurface());
-                getEngine()->blt32(getSurface(), &getAbsViewport(), 
-                        getEffectiveOpacity(), getAngle(), getPivot(),
-                        getBlendMode());
+                bool bNewFrame = renderToSurface(getSurface());
+                m_bFrameAvailable = m_bFrameAvailable | bNewFrame;
+                if (m_bFrameAvailable) {
+                    getEngine()->blt32(getSurface(), &getAbsViewport(), 
+                            getEffectiveOpacity(), getAngle(), getPivot(),
+                            getBlendMode());
+                }
             }
             break;
         case Paused:
             if (!m_bFrameAvailable) {
                 m_bFrameAvailable = renderToSurface(getSurface());
             }
-            getEngine()->blt32(getSurface(), &getAbsViewport(), 
-                    getEffectiveOpacity(), getAngle(), getPivot(),
-                    getBlendMode());
+            if (m_bFrameAvailable) {
+                getEngine()->blt32(getSurface(), &getAbsViewport(), 
+                        getEffectiveOpacity(), getAngle(), getPivot(),
+                        getBlendMode());
+            }
             break;
         case Unloaded:
             break;
