@@ -596,7 +596,6 @@ namespace avg {
     {
         assert(!m_pCalibrator);
         m_pOldTransformer = m_TrackerConfig.m_pTrafo;
-        boost::mutex::scoped_lock Lock(*m_pTrackerMutex);
         m_TrackerConfig.m_pTrafo = DeDistortPtr(new DeDistort(
                 DPoint(m_pBitmaps[0]->getSize()), DPoint(m_DisplayExtents)));
         setConfig();
