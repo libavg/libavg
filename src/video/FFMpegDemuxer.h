@@ -26,6 +26,9 @@
 
 #ifdef _WIN32
 #define EMULATE_INTTYPES
+#else
+// This is probably GCC-specific.
+#define INT64_C(c)    c ## L
 #endif
 #include <ffmpeg/avformat.h>
 

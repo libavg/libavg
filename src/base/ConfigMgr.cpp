@@ -149,7 +149,7 @@ bool ConfigMgr::getBoolOption(const std::string& sSubsys,
         return false;
     } else {
         AVG_TRACE(Logger::ERROR, 
-                "Unrecognized value for option "<<sName<<": " 
+                m_sFName << ": Unrecognized value for option "<<sName<<": " 
                 << *psOption << ". Must be true or false. Aborting.");
         exit(-1);
     }
@@ -158,6 +158,7 @@ bool ConfigMgr::getBoolOption(const std::string& sSubsys,
 int ConfigMgr::getIntOption(const std::string& sSubsys, 
         const std::string& sName, int Default) const
 {
+    errno = 0;
     const string * psOption = getOption(sSubsys, sName);
     if (psOption == 0) {
         return Default;
@@ -166,7 +167,7 @@ int ConfigMgr::getIntOption(const std::string& sSubsys,
     int rc = errno;
     if (rc == EINVAL || rc == ERANGE) {
         AVG_TRACE(Logger::ERROR,
-                "Unrecognized value for option "<<sName<<": " 
+                m_sFName << ": Unrecognized value for option "<<sName<<": " 
                 << *psOption << ". Must be an integer. Aborting.");
         exit(-1);
     }
@@ -183,7 +184,7 @@ void ConfigMgr::getGammaOption(const std::string& sSubsys,
     int rc = sscanf(psOption->c_str(), "%lf,%lf,%lf", Val, Val+1, Val+2);
     if (rc < 3) {
         AVG_TRACE(Logger::ERROR,
-                "Unrecognized value for option "<<sName<<": " 
+                m_sFName << ": Unrecognized value for option "<<sName<<": " 
                 << *psOption << ". Must be three comma-separated numbers. Aborting.");
         exit(-1);
     }

@@ -31,7 +31,7 @@
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
-#include <sstream>
+#include <errno.h>
 
 using namespace std;
 using namespace boost;
@@ -126,7 +126,7 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
     av_read_play(m_pFormatContext);
     
     m_VStreamIndex = -1;
-    for(int i = 0; i < m_pFormatContext->nb_streams; i++) {
+    for(unsigned i = 0; i < m_pFormatContext->nb_streams; i++) {
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
         AVCodecContext *enc = &m_pFormatContext->streams[i]->codec;
 #else         
