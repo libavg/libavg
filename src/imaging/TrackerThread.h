@@ -20,8 +20,9 @@
 
 #ifndef _TrackerThread_H_
 #define _TrackerThread_H_
+
 #include "TrackerConfig.h"
-#include "Camera.h"
+#include "ICamera.h"
 #include "Blob.h"
 #include "FilterDistortion.h"
 
@@ -30,6 +31,7 @@
 
 #include "../graphics/HistoryPreProcessor.h"
 #include "../graphics/Bitmap.h"
+#include "../graphics/Pixel8.h"
 
 #include <boost/thread.hpp>
 
