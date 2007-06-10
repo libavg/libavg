@@ -30,6 +30,8 @@
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
 
+#include "../imaging/Camera.h"
+
 #include <iostream>
 #include <sstream>
 #include <unistd.h>
@@ -53,25 +55,27 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
     : VideoBase(xmlNode, pPlayer),
       m_FrameNum(0)
 {
-#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     string sDevice = getDefaultedStringAttr (xmlNode, "device", "");
     double FrameRate = getDefaultedDoubleAttr (xmlNode, "framerate", 15);
     string sMode = getDefaultedStringAttr (xmlNode, "mode", "640x480_RGB");
 
+#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     m_pCamera = CameraPtr(new Camera(sDevice, FrameRate, sMode, true));
-
-    m_pCamera->setFeature ("brightness", getDefaultedIntAttr(xmlNode, "brightness", -1));
-    m_pCamera->setFeature ("exposure", getDefaultedIntAttr(xmlNode, "exposure", -1));
-    m_pCamera->setFeature ("sharpness", getDefaultedIntAttr(xmlNode, "sharpness", -1));
-    m_pCamera->setFeature ("saturation", getDefaultedIntAttr(xmlNode, "saturation", -1));
-    m_pCamera->setFeature ("gamma", getDefaultedIntAttr(xmlNode, "gamma", -1));
-    m_pCamera->setFeature ("shutter", getDefaultedIntAttr(xmlNode, "shutter", -1));
-    m_pCamera->setFeature ("gain", getDefaultedIntAttr(xmlNode, "gain", -1));
-    m_pCamera->setFeature ("whitebalance", getDefaultedIntAttr(xmlNode, "whitebalance", -1));
 #else
     AVG_TRACE(Logger::ERROR,
             "Unable to set up camera. Camera support not compiled.");
 #endif
+
+    if (m_pCamera) {
+        m_pCamera->setFeature ("brightness", getDefaultedIntAttr(xmlNode, "brightness", -1));
+        m_pCamera->setFeature ("exposure", getDefaultedIntAttr(xmlNode, "exposure", -1));
+        m_pCamera->setFeature ("sharpness", getDefaultedIntAttr(xmlNode, "sharpness", -1));
+        m_pCamera->setFeature ("saturation", getDefaultedIntAttr(xmlNode, "saturation", -1));
+        m_pCamera->setFeature ("gamma", getDefaultedIntAttr(xmlNode, "gamma", -1));
+        m_pCamera->setFeature ("shutter", getDefaultedIntAttr(xmlNode, "shutter", -1));
+        m_pCamera->setFeature ("gain", getDefaultedIntAttr(xmlNode, "gain", -1));
+        m_pCamera->setFeature ("whitebalance", getDefaultedIntAttr(xmlNode, "whitebalance", -1));
+    }
 }
 
 CameraNode::~CameraNode()
@@ -91,51 +95,51 @@ string CameraNode::getTypeStr()
 
 IntPoint CameraNode::getSize() 
 {
-#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-    return m_pCamera->getImgSize();
-#else
-    return IntPoint(640,480);
-#endif
+    if (m_pCamera) {
+        return m_pCamera->getImgSize();
+    } else {
+        return IntPoint(640,480);
+    }
 }
 
 double CameraNode::getFPS()
 {
-#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-    return m_pCamera->getFrameRate();
-#else
-    return 0;
-#endif
-
+    if (m_pCamera) {
+        return m_pCamera->getFrameRate();
+    } else {
+        return 0;
+    }
 }
 
 void CameraNode::open(YCbCrMode ycbcrMode)
 {
-#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-    m_pCamera->open();
-#endif    
+    if (m_pCamera) {
+        m_pCamera->open();
+    }
 }
 
 void CameraNode::close()
 {
-#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-    m_pCamera->close();
-#endif
+    if (m_pCamera) {
+        m_pCamera->close();
+        m_pCamera = CameraPtr();
+    }
 }
 
 unsigned int CameraNode::getFeature (const std::string& sFeature) const
 {
-#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-    return m_pCamera->getFeature(sFeature);
-#else
-    return 0;
-#endif
+    if (m_pCamera) {
+        return m_pCamera->getFeature(sFeature);
+    } else {
+        return 0;
+    }
 }
 
 void CameraNode::setFeature (const std::string& sFeature, int Value)
 {
-#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-    m_pCamera->setFeature(sFeature, Value);
-#endif
+    if (m_pCamera) {
+        m_pCamera->setFeature(sFeature, Value);
+    }  
 }
 
 int CameraNode::getFrameNum() const
@@ -148,25 +152,25 @@ static ProfilingZone CameraUploadProfilingZone("      Camera tex download");
 
 bool CameraNode::renderToSurface(ISurface * pSurface)
 {
-#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-    ScopeTimer Timer(CameraProfilingZone);
-    BitmapPtr pCurBmp = m_pCamera->getImage(false);
-    if (pCurBmp) {
-        BitmapPtr pTempBmp;
-        while (pTempBmp = m_pCamera->getImage(false)) {
-            pCurBmp = pTempBmp;
-        }
-        m_FrameNum++;
-        BitmapPtr pBmp = pSurface->lockBmp();
-        assert(pBmp->getPixelFormat() == pCurBmp->getPixelFormat());
-        pBmp->copyPixels(*pCurBmp);
-        pSurface->unlockBmps();
-        {
-            ScopeTimer Timer(CameraUploadProfilingZone);
-            getEngine()->surfaceChanged(pSurface);
+    if (m_pCamera) {
+        ScopeTimer Timer(CameraProfilingZone);
+        BitmapPtr pCurBmp = m_pCamera->getImage(false);
+        if (pCurBmp) {
+            BitmapPtr pTempBmp;
+            while (pTempBmp = m_pCamera->getImage(false)) {
+                pCurBmp = pTempBmp;
+            }
+            m_FrameNum++;
+            BitmapPtr pBmp = pSurface->lockBmp();
+            assert(pBmp->getPixelFormat() == pCurBmp->getPixelFormat());
+            pBmp->copyPixels(*pCurBmp);
+            pSurface->unlockBmps();
+            {
+                ScopeTimer Timer(CameraUploadProfilingZone);
+                getEngine()->surfaceChanged(pSurface);
+            }
         }
     }
-#endif    
     return true;
 }
 
