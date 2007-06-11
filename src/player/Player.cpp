@@ -244,11 +244,12 @@ void Player::play()
         assert(m_pRootNode);
         initGraphics();
         m_pRootNode->setDisplayEngine(m_pDisplayEngine);
-        
-        m_EventDispatcher.addSource(m_pEventSource);
-        m_EventDispatcher.addSource(&m_TestHelper);
-        m_EventDispatcher.addSink(&m_EventDumper);
-        m_EventDispatcher.addSink(this);
+       
+        m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
+        m_pEventDispatcher->addSource(m_pEventSource);
+        m_pEventDispatcher->addSource(&m_TestHelper);
+        m_pEventDispatcher->addSink(&m_EventDumper);
+        m_pEventDispatcher->addSink(this);
         
         m_pDisplayEngine->initRender();
         m_bStopping = false;
@@ -326,7 +327,7 @@ TrackerEventSource * Player::addTracker(std::string sDevice,
     CameraPtr pCamera;
     pCamera = CameraPtr(new Camera(sDevice, Config.m_FPS, sMode, false));
     m_pTracker = new TrackerEventSource(pCamera, Config, IntPoint(m_DP.m_Width, m_DP.m_Height), true);
-    m_EventDispatcher.addSource(m_pTracker);
+    m_pEventDispatcher->addSource(m_pTracker);
     return m_pTracker;
 }
 
@@ -375,7 +376,7 @@ const Event& Player::getCurEvent() const
 
 const MouseEvent& Player::getMouseState() const
 {
-    return m_EventDispatcher.getLastMouseEvent();
+    return m_pEventDispatcher->getLastMouseEvent();
 }
 
 Bitmap * Player::screenshot()
@@ -494,7 +495,7 @@ void Player::doFrame ()
         }
         {
             ScopeTimer Timer(EventsProfilingZone);
-            m_EventDispatcher.dispatch();
+            m_pEventDispatcher->dispatch();
         }
         if (!m_bStopping) {
             ScopeTimer Timer(RenderProfilingZone);
@@ -889,7 +890,7 @@ void Player::sendOver(CursorEvent * pOtherEvent, Event::Type Type,
 {
     Event * pNewEvent = pOtherEvent->cloneAs(Type);
     pNewEvent->setElement(pNode);
-    m_EventDispatcher.sendEvent(pNewEvent);
+    m_pEventDispatcher->sendEvent(pNewEvent);
 }
 
 void Player::cleanup() 
@@ -908,6 +909,7 @@ void Player::cleanup()
     m_pRootNode = AVGNodePtr();
     m_pLastMouseNode.clear();
     m_IDMap.clear();
+    m_pEventDispatcher = EventDispatcherPtr();
     initConfig();
 }
 

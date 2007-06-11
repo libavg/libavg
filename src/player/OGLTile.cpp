@@ -50,13 +50,11 @@ OGLTile::OGLTile(IntRect Extent, IntPoint TexSize, int Stride, PixelFormat pf,
 OGLTile::~OGLTile()
 {
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-        glDeleteTextures(1, &m_TexID[0]);
-        glDeleteTextures(2, &m_TexID[0]);
-        glDeleteTextures(3, &m_TexID[0]);
+        glDeleteTextures(3, m_TexID);
     } else {
-        glDeleteTextures(1, &m_TexID[0]);
+        glDeleteTextures(1, m_TexID);
     }
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::~OGLTile: glDeleteTextures()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::~OGLTile: glDeleteTextures()");    
 }
 
 const IntRect& OGLTile::getExtent() const
@@ -77,7 +75,6 @@ int OGLTile::getTexID(int i) const
 void OGLTile::blt(const DPoint& TLPoint, const DPoint& TRPoint,
         const DPoint& BLPoint, const DPoint& BRPoint) const
 {
-//    cerr << "OGLTile::blt" << endl;
     double TexWidth;
     double TexHeight;
     int TextureMode = m_pEngine->getTextureMode();

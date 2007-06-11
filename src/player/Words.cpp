@@ -405,6 +405,7 @@ void Words::drawString()
             m_LineSpacing = pango_layout_get_spacing(layout)/PANGO_SCALE;
         }
         g_object_unref(layout);
+        
     }
     m_bDrawNeeded = false;
 
@@ -427,7 +428,7 @@ void Words::render(const DRect& Rect)
     if (m_Text.length() != 0 && getEffectiveOpacity() > 0.001) {
         DRect TextPos = getAbsViewport();
         TextPos.tl.x--;   // Compensate for italic hack in call to pango_ft2_render_layout
-        TextPos.br.x--; 
+        TextPos.br.x--;
         getEngine()->blta8(getSurface(), &TextPos,
                 getEffectiveOpacity(), m_Color, getAngle(),
                 getPivot(), getBlendMode());

@@ -130,13 +130,10 @@ class Player : IEventSink
         std::vector<Timeout *> m_PendingTimeouts;
         std::vector<Timeout *> m_NewTimeouts; // Timeouts to be added this frame.
 
-        EventDispatcher m_EventDispatcher;
+        EventDispatcherPtr m_pEventDispatcher;
         DebugEventSink  m_EventDumper;
         Event * m_pCurEvent;
         std::map<int, NodePtr> m_pLastMouseNode;
-        //NodePtr m_pLastMouseNode;
-        //REFACTORME: turn into a map: CURSOR -> NodeWeakPtr, where CURSOR==MOUSECURSOR
-        //for mouse
         std::map<int, NodeWeakPtr> m_pEventCaptureNode;
 
         // Configuration variables.

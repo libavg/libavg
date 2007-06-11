@@ -694,11 +694,11 @@ void Bitmap::allocBits()
     m_Stride = getLineLen();
     if (m_PF == YCbCr422) {
         if (m_Size.x%2 == 1) {
-            AVG_TRACE(Logger::WARNING, "Odd size for YCbCr bitmap.");
+            AVG_TRACE(Logger::WARNING, "Odd width for YCbCr bitmap.");
             m_Size.x++;
         }
         if (m_Size.y%2 == 1) {
-            AVG_TRACE(Logger::WARNING, "Odd size for YCbCr bitmap.");
+            AVG_TRACE(Logger::WARNING, "Odd height for YCbCr bitmap.");
             m_Size.y++;
         }
         //XXX: We allocate more than nessesary here because ffmpeg seems to

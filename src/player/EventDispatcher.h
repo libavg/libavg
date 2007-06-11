@@ -56,6 +56,7 @@ class EventDispatcher {
 
         MouseEvent m_LastMouseEvent;
 };
+typedef boost::shared_ptr<EventDispatcher> EventDispatcherPtr;
 
 }
 

@@ -251,7 +251,6 @@ string getGlModeString(int Mode)
 
 void OGLSurface::bind() 
 {
-//    cerr << "OGLSurface::bind()" << endl;
     if (m_bBound) {
         rebind();
     } else {
