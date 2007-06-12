@@ -188,7 +188,7 @@ void Video::seek(int DestFrame)
 void Video::open(YCbCrMode ycbcrMode)
 {
     m_CurFrame = 0;
-    m_pDecoder->open(m_Filename, ycbcrMode, false);
+    m_pDecoder->open(m_Filename, ycbcrMode, m_bThreaded);
 }
 
 void Video::close()

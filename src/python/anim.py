@@ -2,7 +2,6 @@
 # - loops
 # - Folgen, Gruppen
 # - Abort animation
-# - onEnd callback
 
 import time
 
