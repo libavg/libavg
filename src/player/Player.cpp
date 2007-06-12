@@ -169,6 +169,7 @@ void Player::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode,
 void Player::loadFile (const std::string& filename)
 {
     try {
+        m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
         AVG_TRACE(Logger::MEMORY, 
                 std::string("Player::LoadFile(") + filename + ")");
         if (m_pRootNode) {
@@ -245,7 +246,6 @@ void Player::play()
         initGraphics();
         m_pRootNode->setDisplayEngine(m_pDisplayEngine);
        
-        m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
         m_pEventDispatcher->addSource(m_pEventSource);
         m_pEventDispatcher->addSource(&m_TestHelper);
         m_pEventDispatcher->addSink(&m_EventDumper);
