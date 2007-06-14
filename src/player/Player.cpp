@@ -366,6 +366,13 @@ bool Player::clearInterval(int id)
             return true;
         }
     }
+    for (it=m_NewTimeouts.begin(); it!=m_NewTimeouts.end(); it++) {
+        if (id == (*it)->GetID()) {
+            delete *it;
+            m_NewTimeouts.erase(it);
+            return true;
+        }
+    }
     return false;
 }
 
