@@ -31,6 +31,7 @@
 #include "../base/XMLHelper.h"
 
 #include "../imaging/Camera.h"
+#include "../imaging/V4LCamera.h"
 
 #include <iostream>
 #include <sstream>
@@ -43,12 +44,16 @@ namespace avg {
 CameraNode::CameraNode()
     : m_FrameNum(0)
 {
-#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
+// X: when is it called? should the video device string be taken from avgrc?
+#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2) 
     m_pCamera = CameraPtr(new Camera("", 15, "640x480_RGB", true));
+#elif defined(AVG_ENABLE_V4L2)
+    m_pCamera = CameraPtr(new V4LCamera("/dev/video0", 1, "640x480_RGB", true));
 #else
     AVG_TRACE(Logger::ERROR,
             "Unable to set up camera. Camera support not compiled.");
 #endif
+    AVG_TRACE(Logger::APP, "CameraNode() called");
 }
 
 CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
@@ -58,9 +63,23 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
     string sDevice = getDefaultedStringAttr (xmlNode, "device", "");
     double FrameRate = getDefaultedDoubleAttr (xmlNode, "framerate", 15);
     string sMode = getDefaultedStringAttr (xmlNode, "mode", "640x480_RGB");
+    string sSource = getDefaultedStringAttr (xmlNode, "source", "firewire");
+	int Channel = getDefaultedIntAttr (xmlNode, "channel", 1);
+		
+	AVG_TRACE(Logger::APP, "CameraNode() constructor. Source=" << sSource);
 
-#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-    m_pCamera = CameraPtr(new Camera(sDevice, FrameRate, sMode, true));
+#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2) || defined(AVG_ENABLE_V4L2)
+	if (sSource == "firewire")
+	{
+		m_pCamera = CameraPtr(new Camera(sDevice, FrameRate, sMode, true));
+		AVG_TRACE(Logger::APP, "FWCamera created");
+	}
+	else if (sSource == "v4l")
+	{
+		m_pCamera = CameraPtr(new V4LCamera(sDevice, Channel, sMode, true));
+		AVG_TRACE(Logger::APP, "V4LCamera created");
+	}
+
 #else
     AVG_TRACE(Logger::ERROR,
             "Unable to set up camera. Camera support not compiled.");
@@ -156,6 +175,7 @@ bool CameraNode::renderToSurface(ISurface * pSurface)
         ScopeTimer Timer(CameraProfilingZone);
         BitmapPtr pCurBmp = m_pCamera->getImage(false);
         if (pCurBmp) {
+		AVG_TRACE(Logger::APP, "Got pointer");
             BitmapPtr pTempBmp;
             while (pTempBmp = m_pCamera->getImage(false)) {
                 pCurBmp = pTempBmp;
@@ -170,7 +190,11 @@ bool CameraNode::renderToSurface(ISurface * pSurface)
                 getEngine()->surfaceChanged(pSurface);
             }
         }
+	else {
+		AVG_TRACE(Logger::WARNING, "Null pointer");
+	}
     }
+    else AVG_TRACE(Logger::WARNING, "No camera ptr available");
     return true;
 }
 
