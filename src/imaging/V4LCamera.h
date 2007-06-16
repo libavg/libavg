@@ -49,7 +49,7 @@ class V4LCamera: public ICamera {
 	};
 	
     public:
-        V4LCamera(std::string sDevice, double FrameRate, std::string sMode, bool bColor);
+        V4LCamera(std::string sDevice, int Channel, std::string sMode, bool bColor);
         virtual ~V4LCamera();
         virtual void open();
         virtual void close();
@@ -67,6 +67,7 @@ class V4LCamera: public ICamera {
         
     private:
     	int fd_;
+	int Channel_;
     	std::string m_sDevice;
     	io_method ioMethod_;
     	std::vector<Buffer> buffers_;
