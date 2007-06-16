@@ -31,11 +31,23 @@
 
 #include "ICamera.h"
 #include <string>
+#include <vector>
 
 namespace avg {
 
 class V4LCamera: public ICamera {
 
+	enum io_method {
+		IO_METHOD_READ,
+		IO_METHOD_MMAP,
+		IO_METHOD_USERPTR,
+	};
+	
+	struct Buffer {
+        void * start;
+        size_t length;
+	};
+	
     public:
         V4LCamera(std::string sDevice, double FrameRate, std::string sMode, bool bColor);
         virtual ~V4LCamera();
@@ -52,6 +64,17 @@ class V4LCamera: public ICamera {
         
         virtual unsigned int getFeature(const std::string& sFeature) const;
         virtual void setFeature(const std::string& sFeature, int Value);
+        
+    private:
+    	int fd_;
+    	std::string m_sDevice;
+    	io_method ioMethod_;
+    	std::vector<Buffer> buffers_;
+    	
+    	void initDevice();
+    	void init_read(unsigned int buffer_size);
+    	void init_mmap();
+    	void init_userp(unsigned int buffer_size);
 };
 
 }
