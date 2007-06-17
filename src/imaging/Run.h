@@ -26,14 +26,14 @@
 
 #include "../graphics/Point.h"
 
-#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
 #include <vector>
 
 namespace avg {
 
 class Blob;
-typedef boost::shared_ptr<class Blob> BlobPtr;
+typedef boost::weak_ptr<class Blob> BlobWeakPtr;
 
 struct Run
 {
@@ -43,7 +43,7 @@ struct Run
         int m_EndCol;
         int length();
         DPoint center();
-        BlobPtr m_pBlob;
+        BlobWeakPtr m_pBlob;
 };
 
 typedef boost::shared_ptr<Run> RunPtr;

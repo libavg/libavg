@@ -154,12 +154,12 @@ void store_runs(BlobArrayPtr pComps, RunArray *runs1, RunArray *runs2)
                 break;
             }
             if (connected(*run1_it, *run2_it)) {
-                BlobPtr p_blob = (*run1_it)->m_pBlob;
+                BlobPtr p_blob = (*run1_it)->m_pBlob.lock();
                 while (p_blob->m_pParent) {
                     p_blob = p_blob->m_pParent;
                 }
-                if ((*run2_it)->m_pBlob) {
-                    BlobPtr c_blob = (*run2_it)->m_pBlob;
+                if (!((*run2_it)->m_pBlob.expired())) {
+                    BlobPtr c_blob = (*run2_it)->m_pBlob.lock();
                     while (c_blob->m_pParent) {
                         c_blob = c_blob->m_pParent;
                     }
@@ -175,7 +175,7 @@ void store_runs(BlobArrayPtr pComps, RunArray *runs1, RunArray *runs2)
         }
     }
     for (RunArray::iterator run2_it = runs2->begin(); run2_it!=runs2->end(); ++run2_it) {
-        if (!((*run2_it)->m_pBlob)) {
+        if ((*run2_it)->m_pBlob.expired()) {
             BlobPtr pBlob = BlobPtr(new Blob(*run2_it));
             pComps->push_back(pBlob);
             (*run2_it)->m_pBlob = pBlob;
@@ -251,9 +251,15 @@ BlobArrayPtr connected_components(BitmapPtr image, unsigned char threshold)
         runs2 = tmp;
         runs2->clear();
     }
+    BlobArrayPtr pResultBlobs = BlobArrayPtr(new BlobArray);
+    for (BlobArray::iterator it = pBlobs->begin(); it != pBlobs->end(); ++it) {
+        if (!(*it)->m_pParent) {
+            pResultBlobs->push_back(*it);
+        }
+    }
     delete runs1;
     delete runs2;
-    return pBlobs;
+    return pResultBlobs;
 }
 
 }
