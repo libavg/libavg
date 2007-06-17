@@ -60,9 +60,6 @@ class Blob
         BlobPtr m_pParent;
     private:
         Blob(const Blob &);
-        DPoint center();
-        int area();
-        IntRect bbox();
 
         RunList *m_pRuns;
 

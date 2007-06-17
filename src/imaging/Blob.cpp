@@ -60,41 +60,6 @@ void Blob::merge(BlobPtr other)
     other_runs->clear();
 }
 
-DPoint Blob::center()
-{
-    if (!m_pCenter) {
-        m_pCenter = boost::shared_ptr<DPoint>(new DPoint());
-        int c = 0;
-        for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r){
-            *m_pCenter += r->center()*r->length();
-            c += r->length();
-        }
-        *m_pCenter = (*m_pCenter)/double(c);
-    }
-    return *m_pCenter;
-}
-IntRect Blob::bbox()
-{
-    int x1=__INT_MAX__,y1=__INT_MAX__,x2=0,y2=0;
-    for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r){
-        x1 = std::min(x1, r->m_StartCol);
-        y1 = std::min(y1, r->m_Row);
-        x2 = std::max(x2, r->m_EndCol);
-        y2 = std::max(y2, r->m_Row);
-    }
-    return IntRect(x1,y1,x2,y2);
-
-}
-
-int Blob::area()
-{
-    int res = 0;
-    for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r){
-        res+= r->length();
-    }
-    return res;
-}
-
 void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color, 
         int Min, int Max, bool bFinger, bool bMarkCenter, Pixel32 CenterColor)
 {
@@ -127,9 +92,9 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
         }
     }
     if(bMarkCenter) {
-        DPoint DCenter = center();
-        IntPoint Center = IntPoint(int(DCenter.x+0.5), int(DCenter.y+0.5));
         BlobInfoPtr pInfo = getInfo();
+        DPoint DCenter = pInfo->getCenter();
+        IntPoint Center = IntPoint(int(DCenter.x+0.5), int(DCenter.y+0.5));
         
         IntPoint End0 = IntPoint(pInfo->getScaledBasis(0))+Center;
         pDestBmp->drawLine(Center, End0, CenterColor);
@@ -161,27 +126,10 @@ bool Blob::contains(IntPoint pt)
 BlobInfoPtr Blob::getInfo()
 {
     if (!m_pBlobInfo) {
-        m_pBlobInfo = BlobInfoPtr(new BlobInfo(center(), area(), bbox(), m_pRuns));
+        m_pBlobInfo = BlobInfoPtr(new BlobInfo(m_pRuns));
     }
     return m_pBlobInfo;
 }
-/*
-double Blob::stddev(){
-    DPoint c = center();
-
-double res = 0;
-    for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();r++){
-        //This is the evaluated expression for the variance when using runs...
-        res +=
-                (*r)->length()*( ((*r)->m_Row - c.y) *((*r)->m_Row - c.y)) +
-                ( (*r)->m_EndCol*((*r)->m_EndCol+1)*(2*(*r)->m_EndCol+1)-((*r)->m_StartCol-1)*((*r)->m_StartCol)*(2*(*r)->m_StartCol-1))/6. + 
-                (*r)->length() * c.x*c.x - 
-                c.x *((*r)->m_EndCol*((*r)->m_EndCol+1) - ((*r)->m_StartCol-1)* ((*r)->m_StartCol));
-
-    }
-    return sqrt(res/area());
-}
-*/
 
 int connected(Run &r1, Run &r2)
 {
