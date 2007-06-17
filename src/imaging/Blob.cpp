@@ -56,11 +56,8 @@ void Blob::merge(BlobPtr other)
 {
     assert(other);
     RunList *other_runs=other->getList();
-    for(RunList::iterator it=other_runs->begin();it!=other_runs->end();++it){
-        m_pRuns->push_back(*it);
-    }
+    m_pRuns->insert(m_pRuns->end(), other_runs->begin(), other_runs->end());
     other_runs->clear();
-    //m_pRuns->splice(m_pRuns->end(), *(other->getList()));
 }
 
 DPoint Blob::center()
@@ -96,15 +93,6 @@ int Blob::area()
         res+= r->length();
     }
     return res;
-}
-
-int Blob::getLabel()
-{
-    if(!m_pRuns->empty()){
-        return (m_pRuns->begin())->m_Label;
-    }else{
-        return 0;//actually invalid
-    }
 }
 
 void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color, 
@@ -143,9 +131,9 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
         IntPoint Center = IntPoint(int(DCenter.x+0.5), int(DCenter.y+0.5));
         BlobInfoPtr pInfo = getInfo();
         
-        IntPoint End0 = IntPoint(pInfo->m_ScaledBasis[0])+Center;
+        IntPoint End0 = IntPoint(pInfo->getScaledBasis(0))+Center;
         pDestBmp->drawLine(Center, End0, CenterColor);
-        IntPoint End1 = IntPoint(pInfo->m_ScaledBasis[1])+Center;
+        IntPoint End1 = IntPoint(pInfo->getScaledBasis(1))+Center;
         pDestBmp->drawLine(Center, End1, CenterColor);
 
         
@@ -153,7 +141,7 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
             // Draw finger direction
             BlobInfoPtr pHandBlob = (m_pBlobInfo->m_RelatedBlobs)[0].lock();
             if (pHandBlob) {
-                pDestBmp->drawLine(Center, IntPoint(pHandBlob->m_Center),
+                pDestBmp->drawLine(Center, IntPoint(pHandBlob->getCenter()),
                         Pixel32(0xD7, 0xC9, 0x56, 0xFF));
             }
         }
@@ -173,79 +161,7 @@ bool Blob::contains(IntPoint pt)
 BlobInfoPtr Blob::getInfo()
 {
     if (!m_pBlobInfo) {
-        /*
-           more useful numbers that can be calculated from c
-           see e.g. 
-           <http://www.cs.cf.ac.uk/Dave/Vision_lecture/node36.html#SECTION00173000000000000000>
-
-           Orientation = tan−1(2(c_xy)/(c_xx − c_yy)) /2
-           Inertia = c_xx + c_yy
-           Eccentricity = ...
-         */
-        double c_xx = 0, c_yy =0, c_xy = 0, ll=0;
-        m_pBlobInfo = BlobInfoPtr(new BlobInfo());
-        DPoint c = m_pBlobInfo->m_Center = center();
-        m_pBlobInfo->m_BoundingBox = bbox();
-        double A = m_pBlobInfo->m_Area = area();
-        double l1, l2;
-        double tmp_x, tmp_y, mag;
-        for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r){
-            //This is the evaluated expm_pBlobInfosion for the variance when using runs...
-            ll = r->length();
-            c_yy += ll* (r->m_Row- c.y)*(r->m_Row- c.y);
-            c_xx += ( (r->m_EndCol-1) * r->m_EndCol * (2*r->m_EndCol-1) 
-                - (r->m_StartCol-1) * r->m_StartCol * (2*r->m_StartCol -1))/6. 
-                - c.x * ( (r->m_EndCol-1)*r->m_EndCol - (r->m_StartCol-1)*r->m_StartCol  )
-                + ll* c.x*c.x;
-            c_xy += (r->m_Row-c.y)*0.5*( (r->m_EndCol-1)*r->m_EndCol
-                - (r->m_StartCol-1)*r->m_StartCol) + ll *(c.x*c.y - c.x*r->m_Row);
-        }
-
-        c_xx/=A;c_yy/=A;c_xy/=A;
-        m_pBlobInfo->m_Inertia = c_xx + c_yy;
-        double T = sqrt( (c_xx - c_yy) * (c_xx - c_yy) + 4*c_xy*c_xy);
-        m_pBlobInfo->m_Eccentricity = ((c_xx + c_yy) + T)/((c_xx+c_yy) - T);
-        m_pBlobInfo->m_Orientation = 0.5*atan2(2*c_xy,c_xx-c_yy);
-        //the l_i are variances (unit L^2) so to arrive at numbers that 
-        //corm_pBlobInfopond to lengths in the picture we use sqrt
-        if (fabs(c_xy) > 1e-30) {
-            //FIXME. check l1!=0 l2!=0. li=0 happens for line-like components
-            l1 = 0.5 * ( (c_xx+c_yy) + sqrt( (c_xx+c_yy)*(c_xx+c_yy) - 4 * (c_xx*c_yy-c_xy*c_xy) ) );
-            l2 = 0.5 * ( (c_xx+c_yy) - sqrt( (c_xx+c_yy)*(c_xx+c_yy) - 4 * (c_xx*c_yy-c_xy*c_xy) ) );
-            tmp_x = c_xy/l1 - c_xx*c_yy/(c_xy*l1)+ (c_xx/c_xy);
-            tmp_y = 1.;
-            mag = sqrt(tmp_x*tmp_x + tmp_y*tmp_y);
-            m_pBlobInfo->m_EigenVectors[0].x = tmp_x/mag;
-            m_pBlobInfo->m_EigenVectors[0].y = tmp_y/mag;
-            m_pBlobInfo->m_EigenValues.x = l1;
-            tmp_x = c_xy/l2 - c_xx*c_yy/(c_xy*l2)+ (c_xx/c_xy);
-            tmp_y = 1.;
-            mag = sqrt(tmp_x*tmp_x + tmp_y*tmp_y);
-            m_pBlobInfo->m_EigenVectors[1].x = tmp_x/mag;
-            m_pBlobInfo->m_EigenVectors[1].y = tmp_y/mag;
-            m_pBlobInfo->m_EigenValues.y = l2;
-        }else{
-            //matrix already diagonal
-            if (c_xx > c_yy) {
-                m_pBlobInfo->m_EigenVectors[0].x = 1;
-                m_pBlobInfo->m_EigenVectors[0].y = 0;
-                m_pBlobInfo->m_EigenVectors[1].x = 0;
-                m_pBlobInfo->m_EigenVectors[1].y = 1;
-                m_pBlobInfo->m_EigenValues.x = c_xx;
-                m_pBlobInfo->m_EigenValues.y = c_yy;
-            } else {
-                m_pBlobInfo->m_EigenVectors[0].x = 0;
-                m_pBlobInfo->m_EigenVectors[0].y = 1;
-                m_pBlobInfo->m_EigenVectors[1].x = 1;
-                m_pBlobInfo->m_EigenVectors[1].y = 0;
-                m_pBlobInfo->m_EigenValues.x = c_yy;
-                m_pBlobInfo->m_EigenValues.y = c_xx;
-            }
-        }
-        m_pBlobInfo->m_ScaledBasis[0].x = m_pBlobInfo->m_EigenVectors[0].x*sqrt(m_pBlobInfo->m_EigenValues.x);
-        m_pBlobInfo->m_ScaledBasis[0].y = m_pBlobInfo->m_EigenVectors[0].y*sqrt(m_pBlobInfo->m_EigenValues.x);
-        m_pBlobInfo->m_ScaledBasis[1].x = m_pBlobInfo->m_EigenVectors[1].x*sqrt(m_pBlobInfo->m_EigenValues.y);
-        m_pBlobInfo->m_ScaledBasis[1].y = m_pBlobInfo->m_EigenVectors[1].y*sqrt(m_pBlobInfo->m_EigenValues.y);
+        m_pBlobInfo = BlobInfoPtr(new BlobInfo(center(), area(), bbox(), m_pRuns));
     }
     return m_pBlobInfo;
 }

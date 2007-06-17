@@ -43,12 +43,14 @@ int main(int argc, char **argv)
         avg::BlobListPtr bloblist = avg::connected_components(im,100);
         for(avg::BlobList::iterator b=bloblist->begin();b!=bloblist->end();b++){
             info = (*b)->getInfo();
-            std::cout<<"center = ("<<info->m_Center.x<<","<<info->m_Center.y<<")"<<std::endl;
-            std::cout<<"area = "<<info->m_Area<<std::endl;
-            std::cout<<"orientation = "<<360*(info->m_Orientation/(2*M_PI))<<std::endl;
-            std::cout<<"eccentricity = "<<info->m_Eccentricity<<std::endl;
-            std::cout<<"["<<(info->m_ScaledBasis[0]).x<<","<<(info->m_ScaledBasis[0]).y<<"]"<<std::endl;
-            std::cout<<"["<<(info->m_ScaledBasis[1]).x<<","<<(info->m_ScaledBasis[1]).y<<"]"<<std::endl;
+            std::cout<<"center = ("<<info->getCenter().x<<","<<info->getCenter().y<<")"<<std::endl;
+            std::cout<<"area = "<<info->getArea()<<std::endl;
+            std::cout<<"orientation = "<<360*(info->getOrientation()/(2*M_PI))<<std::endl;
+            std::cout<<"eccentricity = "<<info->getEccentricity()<<std::endl;
+            std::cout<<"["<<(info->getScaledBasis(0)).x<<","
+                    <<(info->getScaledBasis(0)).y<<"]"<<std::endl;
+            std::cout<<"["<<(info->getScaledBasis(1)).x<<","
+                    <<(info->getScaledBasis(1)).y<<"]"<<std::endl;
             //std::cout<<"stddev = "<<stddev<<std::endl;
             std::cout<<"==============================="<<std::endl;
         }

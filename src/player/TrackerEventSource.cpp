@@ -76,8 +76,8 @@ namespace avg {
             // VANISHED         -> MOTION_PENDING, UP_PENDING
             // UP_PENDING       -> UP_DELIVERED (CURSORUP event)
 
-            EventStream(BlobPtr first_blob);
-            void blobChanged(BlobPtr new_blob);
+            EventStream(BlobInfoPtr first_blob);
+            void blobChanged(BlobInfoPtr new_blob);
             void blobGone();
             Event* pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, 
                     CursorEvent::Source Source);
@@ -93,28 +93,28 @@ namespace avg {
             StreamState m_State;
             int m_VanishCounter;
             DPoint m_Pos;
-            BlobPtr m_pBlob;
+            BlobInfoPtr m_pBlob;
             static int s_LastLabel;
     };
     
     int EventStream::s_LastLabel = 0;
 
-    EventStream::EventStream(BlobPtr first_blob)
+    EventStream::EventStream(BlobInfoPtr first_blob)
     {
         m_Id = ++s_LastLabel;
         m_pBlob = first_blob;
-        m_Pos = m_pBlob->center();
+        m_Pos = m_pBlob->getCenter();
         m_State = DOWN_PENDING;
         m_Stale = false;
         m_VanishCounter = 0;
     };
 
-    void EventStream::blobChanged(BlobPtr new_blob)
+    void EventStream::blobChanged(BlobInfoPtr new_blob)
     {
         assert(m_pBlob);
         assert(new_blob);
         m_VanishCounter = 0;
-        DPoint c = new_blob->center();
+        DPoint c = new_blob->getCenter();
         bool pos_changed = (calcDist(c, m_Pos) > 1.5);
         switch(m_State) {
             case DOWN_PENDING:
@@ -173,7 +173,7 @@ namespace avg {
     {
         assert(m_pBlob);
         DPoint BlobOffset = trafo->getActiveBlobArea(DPoint(DisplayExtents)).tl;
-        DPoint pt = m_pBlob->getInfo()->m_Center+BlobOffset;
+        DPoint pt = m_pBlob->getCenter()+BlobOffset;
         DPoint screenpos = trafo->transformBlobToScreen(pt);
         IntPoint Pos = IntPoint(
                 int(round(screenpos.x)), 
@@ -182,15 +182,15 @@ namespace avg {
             case DOWN_PENDING:
                 m_State = DOWN_DELIVERED;
                 return new TouchEvent(m_Id, Event::CURSORDOWN,
-                        (m_pBlob->getInfo()), Pos, Source);
+                        m_pBlob, Pos, Source);
             case MOTION_PENDING:
                 m_State = MOTION_DELIVERED;
                 return new TouchEvent(m_Id, Event::CURSORMOTION,
-                        (m_pBlob->getInfo()), Pos, Source);
+                        m_pBlob, Pos, Source);
             case UP_PENDING:
                 m_State = UP_DELIVERED;
                 return new TouchEvent(m_Id, Event::CURSORUP,
-                        (m_pBlob->getInfo()), Pos, Source);
+                        m_pBlob, Pos, Source);
             case DOWN_DELIVERED:
             case MOTION_DELIVERED:
             case UP_DELIVERED:
@@ -404,8 +404,8 @@ namespace avg {
 
     double distance(BlobPtr p1, BlobPtr p2) 
     {
-        DPoint c1 = p1->center();
-        DPoint c2 = p2->center();
+        DPoint c1 = p1->getInfo()->getCenter();
+        DPoint c2 = p2->getInfo()->getCenter();
 
         return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
     }
@@ -433,7 +433,9 @@ namespace avg {
                 break;
             default:
                 double act=1e10, tmp;
-                for(std::vector<BlobPtr>::iterator it=candidates.begin();it!=candidates.end();++it){
+                for(std::vector<BlobPtr>::iterator it=candidates.begin();
+                        it!=candidates.end();++it)
+                {
                     if ((tmp = distance( (*it), new_blob))<act){
                         res = (*it);
                         act = tmp;
@@ -449,7 +451,8 @@ namespace avg {
         // FIXME!
 #define IN(x, pair) (((x)>=pair[0])&&((x)<=pair[1]))
         bool res;
-        res = IN(info->m_Area, pConfig->m_AreaBounds) && IN(info->m_Eccentricity, pConfig->m_EccentricityBounds);
+        res = IN(info->getArea(), pConfig->m_AreaBounds) && 
+                IN(info->getEccentricity(), pConfig->m_EccentricityBounds);
         return res;
 #undef IN
     }
@@ -499,14 +502,15 @@ namespace avg {
                     known_counter++;
                     EventStreamPtr e;
                     e = pEvents->find(old_match)->second;
-                    e->blobChanged( (*it2) );
+                    e->blobChanged((*it2)->getInfo());
                     //update the mapping!
                     (*pEvents)[(*it2)] = e;
                     pEvents->erase(old_match);
                 } else {
                     new_counter++;
                     //this is a new one
-                    (*pEvents)[(*it2)] = EventStreamPtr( new EventStream((*it2)) );
+                    (*pEvents)[(*it2)] = EventStreamPtr( 
+                            new EventStream(((*it2)->getInfo())));
                 }
             } else {
                 ignored_counter++;
@@ -530,15 +534,14 @@ namespace avg {
         }
         for(EventMap::iterator it1=m_TouchEvents.begin(); it1!=m_TouchEvents.end(); ++it1) {
             BlobPtr pTouchBlob = it1->first;
-            pTouchBlob->getInfo()->m_RelatedBlobs.clear();
-            IntPoint TouchCenter = (IntPoint)(pTouchBlob->center());
+            BlobInfoPtr pTouchInfo = pTouchBlob->getInfo();
+            pTouchInfo->m_RelatedBlobs.clear();
+            IntPoint TouchCenter = (IntPoint)(pTouchInfo->getCenter());
             for(EventMap::iterator it2=m_TrackEvents.begin(); it2!=m_TrackEvents.end(); ++it2) {
                 BlobPtr pTrackBlob = it2->first;
                 if (pTrackBlob->contains(TouchCenter)) {
-                    pTouchBlob->getInfo()->m_RelatedBlobs.push_back(
-                            pTrackBlob->getInfo());
-                    pTrackBlob->getInfo()->m_RelatedBlobs.push_back(
-                            pTouchBlob->getInfo());
+                    pTouchInfo->m_RelatedBlobs.push_back( pTrackBlob->getInfo());
+                    pTrackBlob->getInfo()->m_RelatedBlobs.push_back(pTouchInfo);
                     break;
                 }
             }

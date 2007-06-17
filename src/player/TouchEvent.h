@@ -43,14 +43,12 @@ class TouchEvent: public CursorEvent
         virtual ~TouchEvent();
         virtual Event* cloneAs(Type EventType);
 
-        double getOrientation() const {return m_Info->m_Orientation;};
-        double getArea() const {return m_Info->m_Area;};
-        IntRect getBoundingBox() const {return m_Info->m_BoundingBox;};
-        double getInertia() const {return m_Info->m_Inertia;};
-        DPoint getCenter() const {return m_Info->m_Center;};
-        double getEccentricity() const {return m_Info->m_Eccentricity;};
-        DPoint getEigenValues() const {return m_Info->m_EigenValues;};
-        //DPoint[2] getScaledBasis(){return m_Info.m_ScaledBasis;};
+        double getOrientation() const {return m_Info->getOrientation();};
+        double getArea() const {return m_Info->getArea();};
+        double getInertia() const {return m_Info->getInertia();};
+        const DPoint & getCenter() const {return m_Info->getCenter();};
+        double getEccentricity() const {return m_Info->getEccentricity();};
+        const DPoint & getEigenValues() const {return m_Info->getEigenValues();};
         virtual void trace();
     
     private:

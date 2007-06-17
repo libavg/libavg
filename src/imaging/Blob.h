@@ -49,12 +49,7 @@ class Blob
         ~Blob();
         RunList& get_runs();
 
-        // TODO: Precalculate these values!
-        DPoint center();
-        int area();
-        int getLabel();
         BlobInfoPtr getInfo();
-        IntRect bbox();
         void merge(BlobPtr other);
         RunList* getList();
         void render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color, 
@@ -65,6 +60,10 @@ class Blob
         BlobPtr m_pParent;
     private:
         Blob(const Blob &);
+        DPoint center();
+        int area();
+        IntRect bbox();
+
         RunList *m_pRuns;
 
         BlobInfoPtr m_pBlobInfo;

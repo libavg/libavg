@@ -24,6 +24,8 @@
 #ifndef _BlobInfo_H_
 #define _BlobInfo_H_
 
+#include "Run.h"
+
 #include "../graphics/Point.h"
 #include "../graphics/Rect.h"
 
@@ -40,9 +42,26 @@ typedef boost::shared_ptr<BlobInfo> BlobInfoPtr;
 typedef boost::weak_ptr<BlobInfo> BlobInfoWeakPtr;
 typedef std::vector<BlobInfoWeakPtr> BlobInfoVector;
 
-struct BlobInfo
+class BlobInfo
 {
-    int m_ID;
+public:
+    BlobInfo(DPoint Center, double Area, IntRect BoundingBox, RunList *pRuns);
+
+    const DPoint& getCenter() const;
+    double getArea() const;
+    const IntRect & getBoundingBox() const;
+    double getEccentricity() const;
+    double getInertia() const;
+    double getOrientation() const;
+    const DPoint& getScaledBasis(int i) const;
+    const DPoint& getEigenVector(int i) const;
+    const DPoint& getEigenValues() const;
+    
+    BlobInfoVector m_RelatedBlobs; // For fingers, this contains the hand.
+                                   // For hands, this contains the fingers.
+    DPoint m_Direction; // Fingers only: contains vector from hand center to finger.
+
+private:
     DPoint m_Center;
     double m_Area;
     IntRect m_BoundingBox;
@@ -50,12 +69,9 @@ struct BlobInfo
     double m_Inertia;
     double m_Orientation;
     DPoint m_ScaledBasis[2];
-    DPoint m_EigenVectors[2];
+    DPoint m_EigenVector[2];
     DPoint m_EigenValues;
 
-    BlobInfoVector m_RelatedBlobs; // For fingers, this contains the hand.
-                                   // For hands, this contains the fingers.
-    DPoint m_Direction; // Fingers only: contains vector from hand center to finger.
 };
 
 
