@@ -35,30 +35,6 @@ using namespace std;
 
 namespace avg {
 
-int Run::s_LastLabel= 0;
-
-Run::Run(int row, int start_col, int end_col, int color)
-{
-    m_Row = row;
-    assert(end_col>=start_col);
-    m_StartCol = start_col;
-    m_EndCol = end_col;
-    m_Color = color;
-    s_LastLabel++;
-    m_Label = s_LastLabel;
-}
- 
-int Run::length()
-{
-    return m_EndCol-m_StartCol;
-}
-
-DPoint Run::center()
-{
-    DPoint d = DPoint((m_StartCol + m_EndCol-1)/2., m_Row);
-    return d;
-}
-
 Blob::Blob(Run run) 
 {
     m_pRuns = new RunList();

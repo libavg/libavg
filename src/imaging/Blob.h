@@ -25,13 +25,12 @@
 #define _ConnectedComps_H_
 
 #include "BlobInfo.h"
+#include "Run.h"
 
 #include "../graphics/Bitmap.h"
 #include "../graphics/Point.h"
 #include "../graphics/Rect.h"
 #include "../graphics/Pixel32.h"
-
-#include <boost/shared_ptr.hpp>
 
 #include <assert.h>
 #include <list>
@@ -39,23 +38,6 @@
 #include <map>
 
 namespace avg {
-
-struct Run
-{
-        Run(int row, int start_col, int end_col, int color);
-        int m_Row;
-        int m_StartCol;
-        int m_EndCol;
-        int m_Color;
-        int length();
-        DPoint center();
-        int m_Label;
-    private:
-        static int s_LastLabel;
-};
-
-typedef boost::shared_ptr<struct Run> RunPtr;
-typedef std::vector<struct Run> RunList;
 
 class Blob;
 typedef boost::shared_ptr<class Blob> BlobPtr;
