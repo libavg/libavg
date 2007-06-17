@@ -148,9 +148,9 @@ void store_runs(CompsMap  *comps, RunList *runs1, RunList *runs2)
 {
    BlobPtr p_blob;
    BlobPtr c_blob;
-   for (RunList::iterator run1_it = runs1->begin(); run1_it!=runs1->end(); ++run1_it){
-       for (RunList::iterator run2_it = runs2->begin(); run2_it!=runs2->end(); ++run2_it){
-           if ( (run1_it->m_Color == run2_it->m_Color) && connected(*run1_it, *run2_it)){
+   for (RunList::iterator run1_it = runs1->begin(); run1_it!=runs1->end(); ++run1_it) {
+       for (RunList::iterator run2_it = runs2->begin(); run2_it!=runs2->end(); ++run2_it) {
+           if (connected(*run1_it, *run2_it)) {
                p_blob = comps->find(run1_it->m_Label)->second;
                c_blob = comps->find(run2_it->m_Label)->second;
                 while (p_blob->m_pParent){
@@ -172,9 +172,9 @@ void store_runs(CompsMap  *comps, RunList *runs1, RunList *runs2)
    }
 }
 
-Run new_run(CompsMap *comps, int row, int col1, int col2, int color)
+Run new_run(CompsMap *comps, int row, int col1, int col2)
 {
-    Run run = Run(row, col1, col2, color);
+    Run run = Run(row, col1, col2);
     BlobPtr b = BlobPtr(new Blob(run));
     (*comps)[run.m_Label] = b;
     return run;
@@ -193,16 +193,16 @@ void findRunsInLine(BitmapPtr pBmp, int y, CompsMap *comps, RunList * pRuns,
         p = (*pPixel>threshold)?1:0;
         if (cur!=p) {
             if (cur) {
+                // Only if the run is longer than one pixel.
                 if (x-run_start > 1) {
-                    // Single light pixels are ignored.
                     run_stop = x;
-                    pRuns->push_back ( new_run(comps, y, run_start, run_stop, cur) );
+                    pRuns->push_back(new_run(comps, y, run_start, run_stop) );
                     run_start = x;
                 }
             } else {
                 run_stop = x - 1;
                 if (run_stop-run_start == 0 && !pRuns->empty()) {
-                    // Single dark pixels are ignored.
+                    // Single dark pixel: ignore the pixel, revive the last run.
                     Run * pLastRun = &(pRuns->back());
                     run_start = pLastRun->m_StartCol;
                     comps->erase(pLastRun->m_Label);
@@ -216,7 +216,7 @@ void findRunsInLine(BitmapPtr pBmp, int y, CompsMap *comps, RunList * pRuns,
         pPixel++;
     }
     if (cur){
-        pRuns->push_back( new_run(comps, y, run_start, Width, cur) );
+        pRuns->push_back( new_run(comps, y, run_start, Width) );
     }
 
 }

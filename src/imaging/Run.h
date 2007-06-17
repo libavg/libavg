@@ -34,11 +34,10 @@ namespace avg {
 
 struct Run
 {
-        Run(int row, int start_col, int end_col, int color);
+        Run(int row, int start_col, int end_col);
         int m_Row;
         int m_StartCol;
         int m_EndCol;
-        int m_Color;
         int length();
         DPoint center();
         int m_Label;
