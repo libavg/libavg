@@ -832,16 +832,22 @@ bool Player::handleEvent(Event * pEvent)
                 pCursorEvent->getYPosition());
         int cursorID = pCursorEvent->getCursorID();
         NodePtr pNode;
-        if (m_pEventCaptureNode[cursorID].expired()) {
-            if (pEvent->getType() != Event::CURSOROVER &&
-                    pEvent->getType() != Event::CURSOROUT)
-            {
-                pNode = m_pRootNode->getElementByPos(pos);
+        if (m_pEventCaptureNode.find(cursorID) != m_pEventCaptureNode.end()) {
+            NodeWeakPtr pEventCaptureNode = m_pEventCaptureNode[cursorID];
+            if (pEventCaptureNode.expired()) {
+                m_pEventCaptureNode.erase(cursorID);
             } else {
-                pNode = pCursorEvent->getElement();
+                pNode = m_pEventCaptureNode[cursorID].lock();
             }
-        } else {
-            pNode = m_pEventCaptureNode[cursorID].lock();
+        } 
+        if (!pNode) {
+            if (pEvent->getType() == Event::CURSOROVER ||
+                    pEvent->getType() == Event::CURSOROUT)
+            {
+                pNode = pCursorEvent->getElement();
+            } else {
+                pNode = m_pRootNode->getElementByPos(pos);
+            }
         }
         if (pNode != m_pLastMouseNode[cursorID] && 
                 pEvent->getType() != Event::CURSOROVER &&
