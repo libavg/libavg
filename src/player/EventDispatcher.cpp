@@ -40,16 +40,18 @@ namespace avg {
 
     void EventDispatcher::dispatch() 
     {
+        priority_queue<Event *,vector<Event *>,isEventAfter> Events;
+
         for (unsigned int i = 0; i<m_EventSources.size(); ++i) {
             vector<Event*> curEvents = m_EventSources[i]->pollEvents();
             for (unsigned int i= 0; i<curEvents.size(); i++) {
-                m_Events.push(curEvents[i]);
+                Events.push(curEvents[i]);
             }
         }
 
-        while (!m_Events.empty()) {
-            Event * pCurEvent = m_Events.top();
-            m_Events.pop();
+        while (!Events.empty()) {
+            Event * pCurEvent = Events.top();
+            Events.pop();
             sendEvent(pCurEvent);
         }
     }

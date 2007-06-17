@@ -432,7 +432,6 @@ namespace avg {
                 res = candidates[0];
                 break;
             default:
-                //FIXME duplicate calculation of distance should be eliminated...
                 double act=1e10, tmp;
                 for(std::vector<BlobPtr>::iterator it=candidates.begin();it!=candidates.end();++it){
                     if ((tmp = distance( (*it), new_blob))<act){
@@ -492,7 +491,8 @@ namespace avg {
         int known_counter=0, new_counter=0, ignored_counter=0; 
         for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2) {
             if (isRelevant(*it2, pBlobConfig)) {
-                BlobPtr old_match = matchblob((*it2), old_blobs, pBlobConfig->m_Similarity, pEvents);
+                BlobPtr old_match = matchblob((*it2), old_blobs, 
+                        pBlobConfig->m_Similarity, pEvents);
                 if(old_match) {
                     assert (pEvents->find(old_match) != pEvents->end());
                     //this blob has been identified with an old one
@@ -543,7 +543,6 @@ namespace avg {
                 }
             }
         }
-        
    }
 
     void TrackerEventSource::drawBlobs(BlobListPtr pBlobs, BitmapPtr pSrcBmp, 

@@ -51,9 +51,6 @@ class EventDispatcher {
         std::vector<IEventSource*> m_EventSources;
         std::vector<IEventSink*> m_EventSinks;
 
-        std::priority_queue<Event *,std::vector<Event *>,isEventAfter> 
-            m_Events;
-
         MouseEvent m_LastMouseEvent;
 };
 typedef boost::shared_ptr<EventDispatcher> EventDispatcherPtr;

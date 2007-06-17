@@ -856,6 +856,11 @@ bool Player::handleEvent(Event * pEvent)
             }
             m_pLastMouseNode[cursorID] = pNode;
         }
+        if (pCursorEvent->getType() == Event::CURSORUP && 
+            pCursorEvent->getSource() != CursorEvent::MOUSE) 
+        {
+            m_pLastMouseNode.erase(cursorID);
+        }
         if (pNode && pNode->getSensitive()) {
             m_pCurEvent = pEvent;
             pNode->handleEvent(pCursorEvent);

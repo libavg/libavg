@@ -47,7 +47,7 @@ Run::Run(int row, int start_col, int end_col, int color)
     s_LastLabel++;
     m_Label = s_LastLabel;
 }
-
+ 
 int Run::length()
 {
     return m_EndCol-m_StartCol;
@@ -83,6 +83,7 @@ void Blob::merge(BlobPtr other)
     for(RunList::iterator it=other_runs->begin();it!=other_runs->end();++it){
         m_pRuns->push_back(*it);
     }
+    other_runs->clear();
     //m_pRuns->splice(m_pRuns->end(), *(other->getList()));
 }
 
