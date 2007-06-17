@@ -38,6 +38,7 @@ namespace avg {
 Blob::Blob(const RunPtr& pRun)
 {
     m_pRuns = new RunArray();
+    m_pRuns->reserve(50);
     m_pRuns->push_back(pRun);
     m_pParent = BlobPtr();
 }
@@ -136,23 +137,22 @@ BlobInfoPtr Blob::getInfo()
     return m_pBlobInfo;
 }
 
-int connected(RunPtr r1, RunPtr r2)
+bool connected(RunPtr r1, RunPtr r2)
 {
-    int res=0;
-//    if (abs(r2.m_Row - r1.m_Row) != 1)
-//        return 0;
-    if (r1->m_StartCol > r2->m_StartCol){
-        res = r2->m_EndCol > r1->m_StartCol;
-    }else{
-        res = r1->m_EndCol > r2->m_StartCol;
+    if (r1->m_StartCol > r2->m_StartCol) {
+        return r2->m_EndCol > r1->m_StartCol;
+    } else {
+        return r1->m_EndCol > r2->m_StartCol;
     }
-    return res;
 }
 
 void store_runs(BlobArrayPtr pComps, RunArray *runs1, RunArray *runs2)
 {
     for (RunArray::iterator run1_it = runs1->begin(); run1_it!=runs1->end(); ++run1_it) {
         for (RunArray::iterator run2_it = runs2->begin(); run2_it!=runs2->end(); ++run2_it) {
+            if ((*run2_it)->m_StartCol > (*run1_it)->m_EndCol) {
+                break;
+            }
             if (connected(*run1_it, *run2_it)) {
                 BlobPtr p_blob = (*run1_it)->m_pBlob;
                 while (p_blob->m_pParent) {
@@ -160,10 +160,10 @@ void store_runs(BlobArrayPtr pComps, RunArray *runs1, RunArray *runs2)
                 }
                 if ((*run2_it)->m_pBlob) {
                     BlobPtr c_blob = (*run2_it)->m_pBlob;
-                    while (c_blob->m_pParent){
+                    while (c_blob->m_pParent) {
                         c_blob = c_blob->m_pParent;
                     }
-                    if (c_blob!=p_blob){
+                    if (c_blob!=p_blob) {
                         p_blob->merge(c_blob); //destroys c_blobs runs_list
                         c_blob->m_pParent = p_blob;
                     }
