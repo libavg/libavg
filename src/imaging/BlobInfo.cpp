@@ -27,7 +27,7 @@
 
 namespace avg {
 
-BlobInfo::BlobInfo(RunList *pRuns)
+BlobInfo::BlobInfo(RunArray *pRuns)
 {
     m_Center = calcCenter(pRuns);
     m_Area = calcArea(pRuns);
@@ -50,16 +50,17 @@ BlobInfo::BlobInfo(RunList *pRuns)
     double tmp_x;
     double tmp_y;
     double mag;
-    for(RunList::iterator r=pRuns->begin();r!=pRuns->end();++r) {
+    for(RunArray::iterator r=pRuns->begin();r!=pRuns->end();++r) {
         //This is the evaluated expression for the variance when using runs...
-        ll = r->length();
-        c_yy += ll* (r->m_Row- m_Center.y)*(r->m_Row- m_Center.y);
-        c_xx += ( (r->m_EndCol-1) * r->m_EndCol * (2*r->m_EndCol-1) 
-                - (r->m_StartCol-1) * r->m_StartCol * (2*r->m_StartCol -1))/6. 
-            - m_Center.x * ( (r->m_EndCol-1)*r->m_EndCol - (r->m_StartCol-1)*r->m_StartCol  )
+        ll = (*r)->length();
+        c_yy += ll* ((*r)->m_Row- m_Center.y)*((*r)->m_Row- m_Center.y);
+        c_xx += ( ((*r)->m_EndCol-1) * (*r)->m_EndCol * (2*(*r)->m_EndCol-1) 
+                - ((*r)->m_StartCol-1) * (*r)->m_StartCol * (2*(*r)->m_StartCol -1))/6. 
+            - m_Center.x * ( ((*r)->m_EndCol-1)*(*r)->m_EndCol - ((*r)->m_StartCol-1)*(*r)->m_StartCol  )
             + ll* m_Center.x*m_Center.x;
-        c_xy += (r->m_Row-m_Center.y)*0.5*( (r->m_EndCol-1)*r->m_EndCol
-                - (r->m_StartCol-1)*r->m_StartCol) + ll *(m_Center.x*m_Center.y - m_Center.x*r->m_Row);
+        c_xy += ((*r)->m_Row-m_Center.y)*0.5*( ((*r)->m_EndCol-1)*(*r)->m_EndCol
+                - ((*r)->m_StartCol-1)*(*r)->m_StartCol) 
+                + ll *(m_Center.x*m_Center.y - m_Center.x*(*r)->m_Row);
     }
 
     c_xx/=m_Area;
@@ -158,38 +159,38 @@ const DPoint & BlobInfo::getEigenValues() const
     return m_EigenValues;
 }
 
-DPoint BlobInfo::calcCenter(RunList *pRuns)
+DPoint BlobInfo::calcCenter(RunArray *pRuns)
 {
     DPoint Center;
     double c = 0;
-    for(RunList::iterator r=pRuns->begin();r!=pRuns->end();++r){
-        Center += r->center()*r->length();
-        c += r->length();
+    for(RunArray::iterator r=pRuns->begin();r!=pRuns->end();++r){
+        Center += (*r)->center()*(*r)->length();
+        c += (*r)->length();
     }
     Center = Center/c;
     return Center;
 }
 
-IntRect BlobInfo::calcBBox(RunList *pRuns)
+IntRect BlobInfo::calcBBox(RunArray *pRuns)
 {
     int x1=__INT_MAX__;
     int y1=__INT_MAX__;
     int x2=0;
     int y2=0;
-    for(RunList::iterator r=pRuns->begin();r!=pRuns->end();++r){
-        x1 = std::min(x1, r->m_StartCol);
-        y1 = std::min(y1, r->m_Row);
-        x2 = std::max(x2, r->m_EndCol);
-        y2 = std::max(y2, r->m_Row);
+    for(RunArray::iterator r=pRuns->begin();r!=pRuns->end();++r) {
+        x1 = std::min(x1, (*r)->m_StartCol);
+        y1 = std::min(y1, (*r)->m_Row);
+        x2 = std::max(x2, (*r)->m_EndCol);
+        y2 = std::max(y2, (*r)->m_Row);
     }
     return IntRect(x1,y1,x2,y2);
 }
 
-int BlobInfo::calcArea(RunList *pRuns)
+int BlobInfo::calcArea(RunArray *pRuns)
 {
     int res = 0;
-    for(RunList::iterator r=pRuns->begin();r!=pRuns->end();++r){
-        res+= r->length();
+    for(RunArray::iterator r=pRuns->begin();r!=pRuns->end();++r) {
+        res+= (*r)->length();
     }
     return res;
 }

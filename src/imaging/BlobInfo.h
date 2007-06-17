@@ -45,7 +45,7 @@ typedef std::vector<BlobInfoWeakPtr> BlobInfoVector;
 class BlobInfo
 {
 public:
-    BlobInfo(RunList *pRuns);
+    BlobInfo(RunArray *pRuns);
 
     const DPoint& getCenter() const;
     double getArea() const;
@@ -62,9 +62,9 @@ public:
     DPoint m_Direction; // Fingers only: contains vector from hand center to finger.
 
 private:
-    DPoint calcCenter(RunList *pRuns);
-    IntRect calcBBox(RunList *pRuns);
-    int calcArea(RunList *pRuns);
+    DPoint calcCenter(RunArray *pRuns);
+    IntRect calcBBox(RunArray *pRuns);
+    int calcArea(RunArray *pRuns);
 
     DPoint m_Center;
     double m_Area;

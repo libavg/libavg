@@ -410,13 +410,13 @@ namespace avg {
         return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
     }
 
-    BlobPtr TrackerEventSource::matchblob(BlobPtr new_blob, BlobListPtr old_blobs, 
+    BlobPtr TrackerEventSource::matchblob(BlobPtr new_blob, BlobArrayPtr old_blobs, 
             double threshold, EventMap * pEvents)
     {
         assert(new_blob);
         std::vector<BlobPtr> candidates;
         BlobPtr res;
-        for(BlobList::iterator it=old_blobs->begin();it!=old_blobs->end();++it)
+        for(BlobArray::iterator it=old_blobs->begin();it!=old_blobs->end();++it)
         {
             if (distance( (*it), new_blob)<threshold &&
                 pEvents->find(*it) != pEvents->end())
@@ -457,8 +457,8 @@ namespace avg {
 #undef IN
     }
 
-    void TrackerEventSource::update(BlobListPtr pTrackBlobs, BitmapPtr pTrackBmp, 
-            int TrackThreshold, BlobListPtr pTouchBlobs, BitmapPtr pTouchBmp, 
+    void TrackerEventSource::update(BlobArrayPtr pTrackBlobs, BitmapPtr pTrackBmp, 
+            int TrackThreshold, BlobArrayPtr pTouchBlobs, BitmapPtr pTouchBmp, 
             int TouchThreshold, BitmapPtr pDestBmp)
     {
         boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
@@ -475,7 +475,7 @@ namespace avg {
         }
     }
 
-    void TrackerEventSource::calcBlobs(BlobListPtr new_blobs, bool bTouch)
+    void TrackerEventSource::calcBlobs(BlobArrayPtr new_blobs, bool bTouch)
     {
         BlobConfigPtr pBlobConfig;
         EventMap * pEvents;
@@ -486,13 +486,13 @@ namespace avg {
             pBlobConfig = m_TrackerConfig.m_pTrack;
             pEvents = &m_TrackEvents;
         }
-        BlobListPtr old_blobs = BlobListPtr(new BlobList());
+        BlobArrayPtr old_blobs = BlobArrayPtr(new BlobArray());
         for(EventMap::iterator it=pEvents->begin();it!=pEvents->end();++it) {
             (*it).second->setStale();
             old_blobs->push_back((*it).first);
         }
         int known_counter=0, new_counter=0, ignored_counter=0; 
-        for(BlobList::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2) {
+        for(BlobArray::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2) {
             if (isRelevant(*it2, pBlobConfig)) {
                 BlobPtr old_match = matchblob((*it2), old_blobs, 
                         pBlobConfig->m_Similarity, pEvents);
@@ -548,7 +548,7 @@ namespace avg {
         }
    }
 
-    void TrackerEventSource::drawBlobs(BlobListPtr pBlobs, BitmapPtr pSrcBmp, 
+    void TrackerEventSource::drawBlobs(BlobArrayPtr pBlobs, BitmapPtr pSrcBmp, 
             BitmapPtr pDestBmp, int Offset, bool bTouch)
     {
         if (!pBlobs) {
@@ -571,7 +571,7 @@ namespace avg {
             }
         }
         
-        for(BlobList::iterator it2 = pBlobs->begin();it2!=pBlobs->end();++it2) {
+        for(BlobArray::iterator it2 = pBlobs->begin();it2!=pBlobs->end();++it2) {
             if (isRelevant(*it2, pBlobConfig)) {
                 if (bTouch) {
                     (*it2)->render(pSrcBmp, pDestBmp, 

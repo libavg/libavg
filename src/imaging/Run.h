@@ -32,6 +32,9 @@
 
 namespace avg {
 
+class Blob;
+typedef boost::shared_ptr<class Blob> BlobPtr;
+
 struct Run
 {
         Run(int row, int start_col, int end_col);
@@ -40,13 +43,11 @@ struct Run
         int m_EndCol;
         int length();
         DPoint center();
-        int m_Label;
-    private:
-        static int s_LastLabel;
+        BlobPtr m_pBlob;
 };
 
-typedef boost::shared_ptr<struct Run> RunPtr;
-typedef std::vector<struct Run> RunList;
+typedef boost::shared_ptr<Run> RunPtr;
+typedef std::vector<RunPtr> RunArray;
 
 }
 

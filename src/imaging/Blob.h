@@ -45,13 +45,13 @@ typedef boost::shared_ptr<class Blob> BlobPtr;
 class Blob
 {
     public:
-        Blob(Run run);
+        Blob(const RunPtr& pRun);
         ~Blob();
-        RunList& get_runs();
 
+        void addRun(const RunPtr& pRun);
         BlobInfoPtr getInfo();
-        void merge(BlobPtr other);
-        RunList* getList();
+        void merge(const BlobPtr& other);
+        RunArray* getRuns();
         void render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color, 
                 int Min, int Max, bool bFinger, bool bMarkCenter, 
                 Pixel32 CenterColor= Pixel32(0x00, 0x00, 0xFF, 0xFF));
@@ -61,17 +61,16 @@ class Blob
     private:
         Blob(const Blob &);
 
-        RunList *m_pRuns;
+        RunArray *m_pRuns;
 
         BlobInfoPtr m_pBlobInfo;
         boost::shared_ptr<DPoint> m_pCenter;
 };
 
-typedef std::vector<BlobPtr> BlobList;
-typedef boost::shared_ptr<BlobList> BlobListPtr;
-typedef std::map<int, BlobPtr> CompsMap;
+typedef std::vector<BlobPtr> BlobArray;
+typedef boost::shared_ptr<BlobArray> BlobArrayPtr;
 
-BlobListPtr connected_components(BitmapPtr image, unsigned char object_threshold);
+BlobArrayPtr connected_components(BitmapPtr image, unsigned char object_threshold);
 
 }
 

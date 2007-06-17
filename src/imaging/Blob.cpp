@@ -35,10 +35,10 @@ using namespace std;
 
 namespace avg {
 
-Blob::Blob(Run run) 
+Blob::Blob(const RunPtr& pRun)
 {
-    m_pRuns = new RunList();
-    m_pRuns->push_back(run);
+    m_pRuns = new RunArray();
+    m_pRuns->push_back(pRun);
     m_pParent = BlobPtr();
 }
 
@@ -47,15 +47,20 @@ Blob::~Blob()
     delete m_pRuns;
 }
 
-RunList *Blob::getList()
+RunArray *Blob::getRuns()
 {
     return m_pRuns;
 }
 
-void Blob::merge(BlobPtr other)
+void Blob::addRun(const RunPtr& pRun)
+{
+    m_pRuns->push_back(pRun);
+}
+
+void Blob::merge(const BlobPtr& other)
 {
     assert(other);
-    RunList *other_runs=other->getList();
+    RunArray * other_runs=other->getRuns();
     m_pRuns->insert(m_pRuns->end(), other_runs->begin(), other_runs->end());
     other_runs->clear();
 }
@@ -69,13 +74,13 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
     unsigned char *pDest;
     unsigned char *pColor = (unsigned char *)(&Color);
     int IntensityScale = 2*256/(max(Max-Min, 1));
-    for(RunList::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r) {
-        pSrc = pSrcBmp->getPixels()+r->m_Row*pSrcBmp->getStride();
-        pDest = pDestBmp->getPixels()+r->m_Row*pDestBmp->getStride();
-        int x_pos = r->m_StartCol;
+    for(RunArray::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r) {
+        pSrc = pSrcBmp->getPixels()+(*r)->m_Row*pSrcBmp->getStride();
+        pDest = pDestBmp->getPixels()+(*r)->m_Row*pDestBmp->getStride();
+        int x_pos = (*r)->m_StartCol;
         pSrc += x_pos;
         pDest+= x_pos*4;
-        while(x_pos<r->m_EndCol) {
+        while(x_pos<(*r)->m_EndCol) {
             int Factor = (*pSrc-Min)*IntensityScale;
             if (Factor < 0) {
                 Factor = 0;
@@ -115,8 +120,8 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
         
 bool Blob::contains(IntPoint pt)
 {
-    for(RunList::iterator it=m_pRuns->begin(); it!=m_pRuns->end(); ++it) {
-        if (it->m_Row == pt.y && it->m_StartCol <= pt.x && it->m_EndCol > pt.x) {
+    for(RunArray::iterator it=m_pRuns->begin(); it!=m_pRuns->end(); ++it) {
+        if ((*it)->m_Row == pt.y && (*it)->m_StartCol <= pt.x && (*it)->m_EndCol > pt.x) {
             return true;
         } 
     }
@@ -131,56 +136,54 @@ BlobInfoPtr Blob::getInfo()
     return m_pBlobInfo;
 }
 
-int connected(Run &r1, Run &r2)
+int connected(RunPtr r1, RunPtr r2)
 {
     int res=0;
 //    if (abs(r2.m_Row - r1.m_Row) != 1)
 //        return 0;
-    if (r1.m_StartCol > r2.m_StartCol){
-        res = r2.m_EndCol > r1.m_StartCol;
+    if (r1->m_StartCol > r2->m_StartCol){
+        res = r2->m_EndCol > r1->m_StartCol;
     }else{
-        res = r1.m_EndCol > r2.m_StartCol;
+        res = r1->m_EndCol > r2->m_StartCol;
     }
     return res;
 }
 
-void store_runs(CompsMap  *comps, RunList *runs1, RunList *runs2)
+void store_runs(BlobArrayPtr pComps, RunArray *runs1, RunArray *runs2)
 {
-   BlobPtr p_blob;
-   BlobPtr c_blob;
-   for (RunList::iterator run1_it = runs1->begin(); run1_it!=runs1->end(); ++run1_it) {
-       for (RunList::iterator run2_it = runs2->begin(); run2_it!=runs2->end(); ++run2_it) {
-           if (connected(*run1_it, *run2_it)) {
-               p_blob = comps->find(run1_it->m_Label)->second;
-               c_blob = comps->find(run2_it->m_Label)->second;
-                while (p_blob->m_pParent){
+    for (RunArray::iterator run1_it = runs1->begin(); run1_it!=runs1->end(); ++run1_it) {
+        for (RunArray::iterator run2_it = runs2->begin(); run2_it!=runs2->end(); ++run2_it) {
+            if (connected(*run1_it, *run2_it)) {
+                BlobPtr p_blob = (*run1_it)->m_pBlob;
+                while (p_blob->m_pParent) {
                     p_blob = p_blob->m_pParent;
                 }
-                while (c_blob->m_pParent){
-                    c_blob = c_blob->m_pParent;
+                if ((*run2_it)->m_pBlob) {
+                    BlobPtr c_blob = (*run2_it)->m_pBlob;
+                    while (c_blob->m_pParent){
+                        c_blob = c_blob->m_pParent;
+                    }
+                    if (c_blob!=p_blob){
+                        p_blob->merge(c_blob); //destroys c_blobs runs_list
+                        c_blob->m_pParent = p_blob;
+                    }
+                } else {
+                    (*run2_it)->m_pBlob = p_blob;
+                    p_blob->addRun(*run2_it);
                 }
-                if (c_blob==p_blob){
-                    //pass
-                    ;
-                }else{
-                    p_blob->merge(c_blob); //destroys c_blobs runs_list
-                    c_blob->m_pParent = p_blob;
-                }
-           }
-
-       }
-   }
+            }
+        }
+    }
+    for (RunArray::iterator run2_it = runs2->begin(); run2_it!=runs2->end(); ++run2_it) {
+        if (!((*run2_it)->m_pBlob)) {
+            BlobPtr pBlob = BlobPtr(new Blob(*run2_it));
+            pComps->push_back(pBlob);
+            (*run2_it)->m_pBlob = pBlob;
+        }
+    }
 }
 
-Run new_run(CompsMap *comps, int row, int col1, int col2)
-{
-    Run run = Run(row, col1, col2);
-    BlobPtr b = BlobPtr(new Blob(run));
-    (*comps)[run.m_Label] = b;
-    return run;
-}
-
-void findRunsInLine(BitmapPtr pBmp, int y, CompsMap *comps, RunList * pRuns, 
+void findRunsInLine(BitmapPtr pBmp, int y, RunArray * pRuns, 
         unsigned char threshold)
 {
     int run_start=0;
@@ -196,16 +199,15 @@ void findRunsInLine(BitmapPtr pBmp, int y, CompsMap *comps, RunList * pRuns,
                 // Only if the run is longer than one pixel.
                 if (x-run_start > 1) {
                     run_stop = x;
-                    pRuns->push_back(new_run(comps, y, run_start, run_stop) );
+                    pRuns->push_back(RunPtr(new Run(y, run_start, run_stop)));
                     run_start = x;
                 }
             } else {
                 run_stop = x - 1;
                 if (run_stop-run_start == 0 && !pRuns->empty()) {
                     // Single dark pixel: ignore the pixel, revive the last run.
-                    Run * pLastRun = &(pRuns->back());
+                    RunPtr pLastRun = pRuns->back();
                     run_start = pLastRun->m_StartCol;
-                    comps->erase(pLastRun->m_Label);
                     pRuns->pop_back();
                 } else {
                     run_start = x;
@@ -216,46 +218,42 @@ void findRunsInLine(BitmapPtr pBmp, int y, CompsMap *comps, RunList * pRuns,
         pPixel++;
     }
     if (cur){
-        pRuns->push_back( new_run(comps, y, run_start, Width) );
+        pRuns->push_back(RunPtr(new Run(y, run_start, Width)));
     }
 
 }
 
-BlobListPtr connected_components(BitmapPtr image, unsigned char threshold)
+BlobArrayPtr connected_components(BitmapPtr image, unsigned char threshold)
 {
     if (threshold == 0) {
-        return BlobListPtr();
+        return BlobArrayPtr();
     }
     assert(image->getPixelFormat() == I8);
-    CompsMap *comps = new CompsMap();
+    BlobArrayPtr pBlobs = BlobArrayPtr(new BlobArray);
     IntPoint size = image->getSize();
-    RunList *runs1=new RunList();
-    RunList *runs2=new RunList();
-    RunList *tmp;
+    RunArray *runs1=new RunArray();
+    RunArray *runs2=new RunArray();
+    RunArray *tmp;
 
     int y=0;
-    findRunsInLine(image, 0, comps, runs1, threshold);
+    findRunsInLine(image, 0, runs1, threshold);
+    for (RunArray::iterator run1_it = runs1->begin(); run1_it!=runs1->end(); ++run1_it) {
+        BlobPtr pBlob = BlobPtr(new Blob(*run1_it));
+        pBlobs->push_back(pBlob);
+        (*run1_it)->m_pBlob = pBlob;
+    }
     
     for(y=1; y<size.y; y++){
-        findRunsInLine(image, y, comps, runs2, threshold);
-        store_runs(comps, runs1, runs2);
+        findRunsInLine(image, y, runs2, threshold);
+        store_runs(pBlobs, runs1, runs2);
         tmp = runs1;
         runs1 = runs2;
         runs2 = tmp;
         runs2->clear();
     }
-    BlobList *result = new BlobList();
-    for (CompsMap::iterator b=comps->begin();b!=comps->end();++b){
-        if (! b->second->m_pParent){
-            result->push_back(b->second);
-        }
-    }
-    //delete comps!
-    comps->clear();
-    delete comps;
     delete runs1;
     delete runs2;
-    return BlobListPtr(result);
+    return pBlobs;
 }
 
 }
