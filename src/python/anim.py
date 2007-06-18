@@ -17,11 +17,11 @@ class SimpleAnim:
 class LinearAnim(SimpleAnim):
     def __init__(self, node, attrName, duration, startValue, endValue, useInt, onStop):
         SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop)
-        g_Player.setTimeout(duration, self.__stop)
-        self.interval = g_Player.setInterval(1, self.__step)
+        self.__stopTimeout = g_Player.setTimeout(duration, self.__stop)
+        self.__interval = g_Player.setInterval(1, self.__step)
         self.__startValue = startValue
         self.__endValue = endValue
-        self.__done = 0
+        self.__done = False
         self.__step()
     def __step(self):
         if not(self.__done):
@@ -34,10 +34,17 @@ class LinearAnim(SimpleAnim):
             setattr(self.node, self.attrName, curValue)
     def __stop(self):
         setattr(self.node, self.attrName, self.__endValue)
-        self.__done = 1
-        g_Player.clearInterval(self.interval)
+        self.__done = True
+        g_Player.clearInterval(self.__interval)
         if self.onStop != None:
             self.onStop()
+    def abort(self):
+        if not(self.__done):
+            self.__done = True 
+            g_Player.clearInterval(self.__interval)
+            g_Player.clearInterval(self.__stopTimeout)
+    def isDone(self):
+        return self.__done
 
 class SplineAnim(SimpleAnim):
     def __init__(self, node, attrName, duration, 

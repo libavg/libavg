@@ -375,7 +375,7 @@ void FFMpegDecoder::initVideoSupport()
         m_bInitialized = true;
         // Tune libavcodec console spam.
 //        av_log_set_level(AV_LOG_DEBUG);
-//        av_log_set_level(AV_LOG_QUIET);
+        av_log_set_level(AV_LOG_QUIET);
     }
 }
 
@@ -431,8 +431,8 @@ void FFMpegDecoder::readFrame(AVFrame& Frame)
             int Len1 = avcodec_decode_video(enc, &Frame,
                     &gotPicture, m_pPacketData, m_PacketLenLeft);
             if (Len1 < 0) {
-                AVG_TRACE(Logger::WARNING, "Error decoding " <<
-                        m_sFilename);
+//                AVG_TRACE(Logger::WARNING, "Error decoding " <<
+//                        m_sFilename);
                 m_PacketLenLeft = 0;
             } else {
                 m_pPacketData += Len1;
