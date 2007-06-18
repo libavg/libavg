@@ -94,6 +94,8 @@ class DisplayEngine
     private:
         virtual bool initVBlank(int rate) = 0;
         virtual bool vbWait(int rate) = 0;
+
+        void calcEffFramerate();
         
         int m_NumFrames;
         int m_FramesTooLate;
@@ -106,6 +108,10 @@ class DisplayEngine
         double m_Framerate;
         bool m_bInitialized;
         bool m_bFrameLate;
+
+        long long m_StartFramerateCalcTime;
+        int m_NumFramerateCalcFrames;
+        double m_EffFramerate;
 };
 
 }

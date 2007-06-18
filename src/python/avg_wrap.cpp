@@ -193,8 +193,8 @@ BOOST_PYTHON_MODULE(avg)
                 "monitor refresh rate divided by the rate parameter.")
         .def("getEffectiveFramerate", &Player::getEffectiveFramerate,
                 "getEffectiveFramerate() -> double\n\n"
-                "Returns the framerate that the player is actually achieving. This is an\n"
-                "average since playback has started.")
+                "Returns the framerate that the player is actually achieving. The value\n"
+                "is averaged over one second.")
         .def("getTestHelper", &Player::getTestHelper,
                 return_value_policy<reference_existing_object>(),
                 "")
