@@ -311,6 +311,14 @@ bool Player::setVBlankFramerate(int rate) {
         return true;
     }
 }
+        
+double Player::getEffectiveFramerate() {
+    if (m_bIsPlaying) {
+        return m_pDisplayEngine->getEffectiveFramerate();
+    } else {
+        return 0;
+    }
+}
 
 TestHelper * Player::getTestHelper()
 {

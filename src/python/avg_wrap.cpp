@@ -191,6 +191,10 @@ BOOST_PYTHON_MODULE(avg)
                 "Sets the desired number of vertical blanking intervals before the next\n"
                 "frame is displayed. The resulting framerate is determined by the\n"
                 "monitor refresh rate divided by the rate parameter.")
+        .def("getEffectiveFramerate", &Player::getEffectiveFramerate,
+                "getEffectiveFramerate() -> double\n\n"
+                "Returns the framerate that the player is actually achieving. This is an\n"
+                "average since playback has started.")
         .def("getTestHelper", &Player::getTestHelper,
                 return_value_policy<reference_existing_object>(),
                 "")

@@ -98,6 +98,13 @@ double DisplayEngine::getFramerate()
     return m_Framerate;
 }
 
+double DisplayEngine::getEffectiveFramerate()
+{
+    double TotalTime = double(TimeSource::get()->getCurrentMillisecs()
+            -m_StartTime)/1000;
+    return (m_NumFrames+1)/TotalTime;
+}
+
 bool DisplayEngine::setVBlankRate(int rate) {
     m_VBRate = rate;
     if (m_bInitialized) {

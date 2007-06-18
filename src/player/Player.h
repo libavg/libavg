@@ -65,6 +65,7 @@ class Player : IEventSink
         bool isPlaying();
         void setFramerate(double rate);
         bool setVBlankFramerate(int rate);
+        double getEffectiveFramerate();
         TestHelper * getTestHelper();
 
         NodePtr createNodeFromXmlString (const std::string& sXML);

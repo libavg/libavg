@@ -235,11 +235,15 @@ class PlayerTestCase(AVGTestCase):
             Bmp = node.getBitmap()
             self.assert_(Bmp.getSize() == (65,65))
             self.assert_(Bmp.getFormat() == avg.R8G8B8X8 or Bmp.getFormat() == avg.B8G8R8X8)
+        def getFramerate():
+            framerate = Player.getEffectiveFramerate()
+            self.assert_(framerate > 0)
         Player.showCursor(0)
         Player.showCursor(1)
         self.start("image.avg",
                 (lambda: self.compareImage("testimg", False), 
                  getBitmap,
+                 getFramerate,
                  loadNewFile, 
                  lambda: self.compareImage("testimgload", False),
                  lambda: Player.setGamma(0.7, 0.7, 0.7),

@@ -52,6 +52,7 @@ class DisplayEngine
         void deinitRender();
         void setFramerate(double rate);
         double getFramerate();
+        double getEffectiveFramerate();
         bool setVBlankRate(int rate);
         bool wasFrameLate();
         virtual double getRefreshRate() = 0;
