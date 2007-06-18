@@ -36,7 +36,6 @@ DisplayEngine::DisplayEngine()
       m_Framerate(30),
       m_bInitialized(false),
       m_StartFramerateCalcTime(0),
-      m_NumFramerateCalcFrames(0),
       m_EffFramerate(0)
 {
 }
@@ -173,14 +172,10 @@ void DisplayEngine::checkJitter()
    
 void DisplayEngine::calcEffFramerate()
 {
-    m_NumFramerateCalcFrames++;
     long long CurIntervalTime = TimeSource::get()->getCurrentMillisecs()
             -m_StartFramerateCalcTime;
-    if (CurIntervalTime > 1000) {
-        m_EffFramerate = (m_NumFramerateCalcFrames*1000.0)/CurIntervalTime;
-        m_StartFramerateCalcTime = TimeSource::get()->getCurrentMillisecs();
-        m_NumFramerateCalcFrames = 0;
-    }
+    m_EffFramerate = 1000.0/CurIntervalTime;
+    m_StartFramerateCalcTime = TimeSource::get()->getCurrentMillisecs();
 }
 
 }

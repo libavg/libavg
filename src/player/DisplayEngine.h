@@ -110,7 +110,6 @@ class DisplayEngine
         bool m_bFrameLate;
 
         long long m_StartFramerateCalcTime;
-        int m_NumFramerateCalcFrames;
         double m_EffFramerate;
 };
 
