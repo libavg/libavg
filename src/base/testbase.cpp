@@ -175,12 +175,12 @@ public:
 
 class DummyClass {
 public:
-    DummyClass::DummyClass()
+    DummyClass()
     {
         ObjectCounter::get()->incRef(&typeid(*this));
     }
 
-    DummyClass::~DummyClass()
+    virtual ~DummyClass()
     {
         ObjectCounter::get()->decRef(&typeid(*this));
     }

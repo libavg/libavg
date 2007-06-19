@@ -23,6 +23,7 @@
 
 #include <boost/thread/mutex.hpp>
 
+#include <assert.h>
 #include <iostream>
 #include <sstream>
 

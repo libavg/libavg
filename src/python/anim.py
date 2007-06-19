@@ -1,7 +1,6 @@
 # TODO:
 # - loops
 # - Folgen, Gruppen
-# - Abort animation
 
 import time
 
