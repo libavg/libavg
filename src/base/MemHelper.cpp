@@ -20,9 +20,11 @@
 //
 
 #include "MemHelper.h"
+#include "FileHelper.h"
 
 #include <assert.h>
 #include <iostream>
+#include <string>
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -32,11 +34,27 @@
 #include <mach/mach.h>
 #include <mach/task.h>
 #include <mach/mach_init.h>
+#else
+#include <sstream>
 #endif
 
 namespace avg {
 
 using namespace std;
+
+string getNextLine(string& sBuf) 
+{
+    string::size_type pos = sBuf.find('\n');
+    string sRet;
+    if (pos == sBuf.npos) {
+        sRet = sBuf;
+        sBuf = "";
+    } else {
+        sRet = sBuf.substr(0, pos);
+        sBuf = sBuf.erase(0, pos+1);
+    }
+    return sRet;
+}
 
 unsigned getMemUsed() 
 {
@@ -53,7 +71,29 @@ unsigned getMemUsed()
     rc = task_info(task, TASK_BASIC_INFO, (task_info_t)&taskInfo, &Count);
     assert(rc == KERN_SUCCESS);
 
-    return taskInfo.resident_size; 
+    return taskInfo.resident_size;
+#else
+    stringstream ss;
+    ss << "/proc/" << PID << "/status";
+    string sFName = ss.str();
+    string sBuf;
+    readWholeFile(sFName, sBuf);
+
+    string sLine = getNextLine(sBuf);
+    unsigned rss;
+    while (sLine != "") {
+        if (sLine.find("VmRSS") != sLine.npos) {
+            rss = atoi(sLine.substr(6, 9).c_str());
+            if (sLine.find("kB") != sLine.npos) {
+                rss *= 1024;
+            } else if (sLine.find("mB") != sLine.npos) { 
+                rss *= 1024*1024;
+            }
+            return rss;
+        }
+        sLine = getNextLine(sBuf);
+    }
+    return 0;
 #endif
 
 }

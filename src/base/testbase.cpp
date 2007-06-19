@@ -23,9 +23,10 @@
 #include "Command.h"
 #include "WorkerThread.h"
 #include "ObjectCounter.h"
+#include "MemHelper.h"
 
-#include "../base/TestSuite.h"
-#include "../base/TimeSource.h"
+#include "TestSuite.h"
+#include "TimeSource.h"
 
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
@@ -204,6 +205,7 @@ public:
             assert(ObjectCounter::get()->getCount(&typeid(dummy1)) == 2);
         }
         assert(ObjectCounter::get()->getCount(&typeid(DummyClass)) == 0);
+        assert(getMemUsed() > 100000);
     }
 };
 
