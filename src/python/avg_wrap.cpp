@@ -196,6 +196,9 @@ BOOST_PYTHON_MODULE(avg)
                 "getEffectiveFramerate() -> double\n\n"
                 "Returns the framerate that the player is actually achieving. The value\n"
                 "is averaged over one second.")
+        .def("getMemUsed", &Player::getMemUsed,
+                "getMemUsed() -> int\n\n"
+                "Returns the memory used by the process in bytes.")
         .def("getTestHelper", &Player::getTestHelper,
                 return_value_policy<reference_existing_object>(),
                 "")

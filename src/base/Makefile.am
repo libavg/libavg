@@ -2,14 +2,14 @@
 INCLUDES = -I.. @XML2_CFLAGS@ @PTHREAD_CFLAGS@
 ALL_H = FileHelper.h CmdLine.h Exception.h Logger.h ConfigMgr.h \
         XMLHelper.h TimeSource.h ProfilingZone.h Profiler.h ThreadProfiler.h \
-        ScopeTimer.h IFrameListener.h Test.h TestSuite.h  \
+        ScopeTimer.h IFrameListener.h Test.h TestSuite.h MemHelper.h \
         Queue.h WorkerThread.h Command.h ObjectCounter.h
 		
 TESTS=testbase
 
 noinst_LTLIBRARIES = libbase.la
 libbase_la_SOURCES = FileHelper.cpp CmdLine.cpp Exception.cpp Logger.cpp \
-    ConfigMgr.cpp XMLHelper.cpp TimeSource.cpp \
+    ConfigMgr.cpp XMLHelper.cpp TimeSource.cpp MemHelper.cpp \
     ProfilingZone.cpp Profiler.cpp ThreadProfiler.cpp ScopeTimer.cpp Test.cpp \
 	TestSuite.cpp ObjectCounter.cpp\
 	$(ALL_H)
