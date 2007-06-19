@@ -19,37 +19,25 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "Filter.h"
-#include "Bitmap.h"
+#ifndef _VideoMsg_H_
+#define _VideoMsg_H_
 
-#include "../base/ObjectCounter.h"
+#include "../base/Queue.h"
 
-#include <iostream>
-
-using namespace std;
+#include <boost/shared_ptr.hpp>
 
 namespace avg {
 
-Filter::Filter()
-{
-    ObjectCounter::get()->incRef(&typeid(*this));
-}
+class VideoMsg {
+    public:
+        VideoMsg();
+        virtual ~VideoMsg();
+};
 
-Filter::~Filter()
-{
-    ObjectCounter::get()->decRef(&typeid(*this));
-}
+typedef boost::shared_ptr<VideoMsg> VideoMsgPtr;
+typedef Queue<VideoMsgPtr> VideoMsgQueue;
+typedef boost::shared_ptr<VideoMsgQueue> VideoMsgQueuePtr;
 
-void Filter::applyInPlace(BitmapPtr pBmp)
-{
-    *pBmp = *(apply(pBmp));
 }
+#endif 
 
-BitmapPtr Filter::apply(BitmapPtr pBmpSource)
-{
-    BitmapPtr pBmpDest = BitmapPtr(new Bitmap(*pBmpSource));
-    applyInPlace (pBmpDest);
-    return pBmpDest;
-}
-
-} // namespace

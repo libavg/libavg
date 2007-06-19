@@ -26,9 +26,7 @@ namespace avg {
 
 struct DisplayParams {
     DisplayParams();
-
-//    DisplayParams(int Width, int Height, bool bFullscreen, int BPP, 
-//            int WindowWidth, int WindowHeight);
+    virtual ~DisplayParams();
 
     int m_Width;
     int m_Height;

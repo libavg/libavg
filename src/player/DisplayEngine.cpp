@@ -25,6 +25,7 @@
 #include "../base/ScopeTimer.h"
 #include "../base/Profiler.h"
 #include "../base/Exception.h"
+#include "../base/ObjectCounter.h"
 
 using namespace std;
 
@@ -38,10 +39,12 @@ DisplayEngine::DisplayEngine()
       m_StartFramerateCalcTime(0),
       m_EffFramerate(0)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 DisplayEngine::~DisplayEngine()
 {
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 

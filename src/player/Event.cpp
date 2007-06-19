@@ -36,6 +36,7 @@ Event::Event(Type type, int when)
     : m_Type(type),
       m_pNode()
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     if (when == -1) {
         m_When = TimeSource::get()->getCurrentMillisecs();
     } else {
@@ -46,8 +47,15 @@ Event::Event(Type type, int when)
     m_Counter = s_CurCounter;    
 }
 
+Event::Event(const Event& e)
+{
+    ObjectCounter::get()->incRef(&typeid(*this));
+    *this = e;
+}
+
 Event::~Event()
 {
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 int Event::getWhen() const

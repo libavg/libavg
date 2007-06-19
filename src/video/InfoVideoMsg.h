@@ -22,13 +22,13 @@
 #ifndef _InfoVideoMsg_H_
 #define _InfoVideoMsg_H_
 
-#include "IVideoMsg.h"
+#include "VideoMsg.h"
 
 #include "../graphics/Bitmap.h"
 
 namespace avg {
 
-class InfoVideoMsg: public IVideoMsg {
+class InfoVideoMsg: public VideoMsg {
     public:
         InfoVideoMsg(IntPoint Size, int NumFrames, double FPS, PixelFormat PF);
         virtual ~InfoVideoMsg();

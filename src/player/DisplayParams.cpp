@@ -20,6 +20,8 @@
 
 #include "DisplayParams.h"
 
+#include "base/ObjectCounter.h"
+
 namespace avg {
 
 DisplayParams::DisplayParams()
@@ -33,27 +35,16 @@ DisplayParams::DisplayParams()
       m_VBRate(1),
       m_Framerate(0)
 { 
+    ObjectCounter::get()->incRef(&typeid(*this));
     m_Gamma[0] = -1.0;
     m_Gamma[1] = -1.0;
     m_Gamma[2] = -1.0;
 }
-/*
-DisplayParams::DisplayParams(int Width, int Height, bool bFullscreen, int bpp, 
-            int WindowWidth, int WindowHeight)
-    : m_bShowCursor(true),
-      m_VBlankRate(1),
-      m_Framerate(0)
+
+DisplayParams::~DisplayParams()
 {
-    m_Width = Width;
-    m_Height = Height;
-    m_bFullscreen = bFullscreen;
-    m_BPP = BPP;
-    m_WindowWidth = WindowWidth;
-    m_WindowHeight = WindowHeight;
-    m_Gamma[0] = -1.0;
-    m_Gamma[1] = -1.0;
-    m_Gamma[2] = -1.0;
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
-*/
+
 }
 

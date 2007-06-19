@@ -32,6 +32,7 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/XMLHelper.h"
+#include "../base/ObjectCounter.h"
 
 #include <Python.h>
 #include <object.h>
@@ -61,6 +62,7 @@ Node::Node ()
       m_bSensitive(true),
       m_WantedSize(0, 0)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     setState(NS_UNCONNECTED);
 }
 
@@ -72,6 +74,7 @@ Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
       m_RelViewport(0,0,0,0),
       m_AbsViewport(0,0,0,0)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     m_ID = getDefaultedStringAttr (xmlNode, "id", "");
     m_EventHandlerMap[Event::CURSORMOTION] = getDefaultedStringAttr (xmlNode, "oncursormove", "");
     m_EventHandlerMap[Event::CURSORUP] = getDefaultedStringAttr (xmlNode, "oncursorup", "");
@@ -90,6 +93,7 @@ Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
 
 Node::~Node()
 {
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void Node::setThis(NodeWeakPtr This)

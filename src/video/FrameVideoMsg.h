@@ -22,7 +22,7 @@
 #ifndef _FrameVideoMsg_H_
 #define _FrameVideoMsg_H_
 
-#include "IVideoMsg.h"
+#include "VideoMsg.h"
 
 #include "../graphics/Bitmap.h"
 
@@ -30,7 +30,7 @@
 
 namespace avg {
 
-class FrameVideoMsg: public IVideoMsg {
+class FrameVideoMsg: public VideoMsg {
     public:
         FrameVideoMsg(std::vector<BitmapPtr> pBmps);
         virtual ~FrameVideoMsg();

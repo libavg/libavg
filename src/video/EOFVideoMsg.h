@@ -22,7 +22,7 @@
 #ifndef _EOFVideoMsg_H_
 #define _EOFVideoMsg_H_
 
-#include "IVideoMsg.h"
+#include "VideoMsg.h"
 
 #include "../graphics/Bitmap.h"
 
@@ -30,7 +30,7 @@
 
 namespace avg {
 
-class EOFVideoMsg: public IVideoMsg {
+class EOFVideoMsg: public VideoMsg {
     public:
         EOFVideoMsg() {};
         virtual ~EOFVideoMsg() {};

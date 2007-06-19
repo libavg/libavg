@@ -24,6 +24,8 @@
 #include "InfoVideoMsg.h"
 #include "ErrorVideoMsg.h"
 
+#include "../base/ObjectCounter.h"
+
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
 
@@ -40,6 +42,7 @@ AsyncVideoDecoder::AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder)
       m_Size(0,0),
       m_bEOF(false)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 AsyncVideoDecoder::~AsyncVideoDecoder()
@@ -47,6 +50,7 @@ AsyncVideoDecoder::~AsyncVideoDecoder()
     if (m_pDecoderThread) {
         close();
     }
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void AsyncVideoDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,

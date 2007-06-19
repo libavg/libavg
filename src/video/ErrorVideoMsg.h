@@ -22,13 +22,13 @@
 #ifndef _ErrorVideoMsg_H_
 #define _ErrorVideoMsg_H_
 
-#include "IVideoMsg.h"
+#include "VideoMsg.h"
 
 #include "../base/Exception.h"
 
 namespace avg {
 
-class ErrorVideoMsg: public IVideoMsg {
+class ErrorVideoMsg: public VideoMsg {
     public:
         ErrorVideoMsg(const Exception& ex);
         virtual ~ErrorVideoMsg();

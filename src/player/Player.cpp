@@ -535,7 +535,7 @@ void Player::doFrame ()
                 FrameTime-TargetTime << " ms.");
         Profiler::get().dumpFrame();
     }
-*/    
+*/
     ThreadProfiler::get()->reset();
 }
 

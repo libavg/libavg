@@ -53,6 +53,7 @@ class NodeTestCase(unittest.TestCase):
         self.Image.x = 10
         self.Image.x += 1
         assert self.Image.x == 11
+        self.Image = None
 
 class AVGTestCase(unittest.TestCase):
     def __init__(self, testFuncName, engine, bpp):
@@ -241,7 +242,8 @@ class PlayerTestCase(AVGTestCase):
         Player.showCursor(0)
         Player.showCursor(1)
         self.start("image.avg",
-                (lambda: self.compareImage("testimg", False), 
+                (
+                lambda: self.compareImage("testimg", False), 
                  getBitmap,
                  getFramerate,
                  loadNewFile, 
@@ -251,6 +253,8 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Player.showCursor(0),
                  lambda: Player.showCursor(1),
                  Player.stop))
+        Player.getTestHelper().dumpObjects()
+
     def testError(self):
         Player.loadFile("image.avg")
         Player.setTimeout(1, lambda: undefinedFunction)
@@ -646,22 +650,24 @@ class PlayerTestCase(AVGTestCase):
             node.angle = 0.1
             node.blendmode = "add"
 #            print node.toXML()
-            self.rootNode = Player.getRootNode()
-            self.rootNode.addChild(node)
+            rootNode = Player.getRootNode()
+            rootNode.addChild(node)
             exceptionRaised=False
             try:
                 node.id = "bork"
             except RuntimeError:
                 exceptionRaised=True
             self.assert_(exceptionRaised)
-            self.assert_(self.rootNode.indexOf(Player.getElementByID("newImage")) == 0)
+            self.assert_(rootNode.indexOf(Player.getElementByID("newImage")) == 0)
         def removeImg():
             self.imgNode = Player.getElementByID("newImage")
-            self.rootNode.removeChild(
-                    self.rootNode.indexOf(self.imgNode))
+            rootNode = Player.getRootNode()
+            rootNode.removeChild( rootNode.indexOf(self.imgNode))
             self.assert_(Player.getElementByID("newImage") == None)
         def reAddImg():
-            self.rootNode.addChild(self.imgNode)
+            rootNode = Player.getRootNode()
+            rootNode.addChild(self.imgNode)
+            self.imgNode = None
         Player.loadFile("empty.avg")
         createImg()
         Player.stop()
@@ -678,21 +684,23 @@ class PlayerTestCase(AVGTestCase):
     def testVideoDynamics(self):
         def createVideo():
             node = Player.createNode("<video id='newVideo' href='mpeg1-48x48.mpg'/>")
-            self.rootNode = Player.getRootNode()
-            self.rootNode.addChild(node)
+            Player.getRootNode().addChild(node)
             node.play()
         def removeVideo():
             self.videoNode = Player.getElementByID("newVideo")
-            self.rootNode.removeChild(self.rootNode.indexOf(self.videoNode))
+            rootNode = Player.getRootNode()
+            rootNode.removeChild(rootNode.indexOf(self.videoNode))
         def reAddVideo():
-            self.rootNode.addChild(self.videoNode)
+            rootNode = Player.getRootNode()
+            rootNode.addChild(self.videoNode)
             exceptionRaised = False
             try:
-                self.rootNode.addChild(self.videoNode)
+                rootNode.addChild(self.videoNode)
             except RuntimeError:
                 exceptionRaised = True
             self.assert_(exceptionRaised)
             self.videoNode.play()
+            self.videoNode = None
         def foo():
             pass
         Player.loadFile("empty.avg")
@@ -707,6 +715,8 @@ class PlayerTestCase(AVGTestCase):
                  reAddVideo,
                  lambda: self.compareImage("testVideoDynamics3", False),
                  Player.stop))
+
+
     def testWordsDynamics(self):
         def createWords():
             node = Player.createNode("<words id='newWords' text='test'/>")
@@ -714,14 +724,16 @@ class PlayerTestCase(AVGTestCase):
             node.size=12
             node.parawidth=200
             node.x=10
-            self.rootNode = Player.getRootNode()
-            self.rootNode.addChild(node)
+            Player.getRootNode().addChild(node)
         def removeWords():
             self.wordsNode = Player.getElementByID("newWords")
-            self.rootNode.removeChild(self.rootNode.indexOf(self.wordsNode))
+            rootNode = Player.getRootNode()
+            rootNode.removeChild(rootNode.indexOf(self.wordsNode))
         def reAddWords():
-            self.rootNode.addChild(self.wordsNode)
+            rootNode = Player.getRootNode()
+            rootNode.addChild(self.wordsNode)
             self.wordsNode.text='test2'
+            self.wordsNode = None
         Player.loadFile("empty.avg")
         createWords()
         Player.stop()
@@ -734,16 +746,18 @@ class PlayerTestCase(AVGTestCase):
                  reAddWords,
                  lambda: self.compareImage("testWordsDynamics3", True),
                  Player.stop))
+
     def testCameraDynamics(self):
         def createCamera():
             node = Player.createNode("<camera id='newCamera' device='/dev/video1394/0' mode='640x480_RGB' framerate='15'/>")
-            self.rootNode = Player.getRootNode()
-            self.rootNode.addChild(node)
+            Player.getRootNode().addChild(node)
         def removeCamera():
             self.cameraNode = Player.getElementByID("newCamera")
-            self.rootNode.removeChild(self.rootNode.indexOf(self.cameraNode))
+            rootNode = Player.getRootNode()
+            rootNode.removeChild(rootNode.indexOf(self.cameraNode))
         def reAddCamera():
-            self.rootNode.addChild(self.cameraNode)
+            Player.getRootNode().addChild(self.cameraNode)
+            self.cameraNode = None
         Player.loadFile("empty.avg")
         createCamera()
         Player.stop()
@@ -753,16 +767,18 @@ class PlayerTestCase(AVGTestCase):
                  removeCamera,
                  reAddCamera,
                  Player.stop))
+
     def testPanoDynamics(self):
         def createPano():
             node = Player.createNode("<panoimage id='newPano' href='panoimage.png' sensorwidth='4.60' sensorheight='3.97' focallength='12' width='160' height='120'/>")
-            self.rootNode = Player.getRootNode()
-            self.rootNode.addChild(node)
+            Player.getRootNode().addChild(node)
         def removePano():
             self.panoNode = Player.getElementByID("newPano")
-            self.rootNode.removeChild(self.rootNode.indexOf(self.panoNode))
+            rootNode = Player.getRootNode()
+            rootNode.removeChild(rootNode.indexOf(self.panoNode))
         def reAddPano():
-            self.rootNode.addChild(self.panoNode)
+            Player.getRootNode().addChild(self.panoNode)
+            self.panoNode = None
         Player.loadFile("empty.avg")
         createPano()
         Player.stop()
@@ -778,15 +794,16 @@ class PlayerTestCase(AVGTestCase):
     def testDivDynamics(self):
         def createDiv():
             node = Player.createNode("<div id='newDiv'><image id='nestedImg' href='rgb24-64x64.png'/></div>")
-            self.rootNode = Player.getRootNode()
-            self.rootNode.addChild(node)
+            Player.getRootNode().addChild(node)
         def removeDiv():
             self.divNode = Player.getElementByID("newDiv")
-            self.rootNode.removeChild(self.rootNode.indexOf(self.divNode))
+            rootNode = Player.getRootNode()
+            rootNode.removeChild(rootNode.indexOf(self.divNode))
         def reAddDiv():
             node = Player.createNode("<image id='img2' href='rgb24-64x64.png' x='64'/>")
             self.divNode.addChild(node)
-            self.rootNode.addChild(self.divNode)
+            Player.getRootNode().addChild(self.divNode)
+            self.divNode = None
         Player.loadFile("empty.avg")
         createDiv()
         Player.stop()

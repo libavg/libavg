@@ -19,23 +19,36 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _IVideoMsg_H_
-#define _IVideoMsg_H_
+#ifndef _ObjectCounter_H_
+#define _ObjectCounter_H_
 
-#include "../base/Queue.h"
-
-#include <boost/shared_ptr.hpp>
+#include <string>
+#include <map>
+#include <typeinfo>
 
 namespace avg {
 
-class IVideoMsg {
-    public:
-        virtual ~IVideoMsg() {};
-};
+class ObjectCounter {
+public:
+    static ObjectCounter* get();
+    virtual ~ObjectCounter();
 
-typedef boost::shared_ptr<IVideoMsg> VideoMsgPtr;
-typedef Queue<VideoMsgPtr> VideoMsgQueue;
-typedef boost::shared_ptr<VideoMsgQueue> VideoMsgQueuePtr;
+    void incRef(const std::type_info* pType);
+    void decRef(const std::type_info* pType);
+
+    int getCount(const std::type_info* pType);
+    std::string dump();
+
+private:
+    ObjectCounter();
+    std::string demangle(std::string s);
+
+
+    typedef std::map<const std::type_info *, int> TypeMap;
+    TypeMap m_TypeMap;
+
+    static ObjectCounter* m_pObjectCounter; 
+};
 
 }
 #endif 

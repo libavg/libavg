@@ -28,6 +28,7 @@
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
+#include "../base/ObjectCounter.h"
 
 #include <Magick++.h>
 #include <assert.h>
@@ -51,6 +52,7 @@ Bitmap::Bitmap(IntPoint Size, PixelFormat PF, const std::string& sName)
 {
 //    cerr << "Bitmap::Bitmap(" << Size << ", " << getPixelFormatString(m_PF) << ", " 
 //        << sName << ")" << endl;
+    ObjectCounter::get()->incRef(&typeid(*this));
     allocBits();
 }
 
@@ -60,6 +62,7 @@ Bitmap::Bitmap(IntPoint Size, PixelFormat PF, unsigned char * pBits,
       m_PF(PF),
       m_sName(sName)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
 //    cerr << "Bitmap::Bitmap(" << Size << ", " << getPixelFormatString(m_PF) << ", " 
 //        << (void *)pBits << ", " << Stride << ", " << bCopyBits << ", "
 //        << sName << ")" << endl;
@@ -73,6 +76,7 @@ Bitmap::Bitmap(const Bitmap& Orig)
       m_sName(Orig.getName()+" copy")
 {
 //    cerr << "Bitmap::Bitmap(Bitmap), Name: " << m_sName << endl;
+    ObjectCounter::get()->incRef(&typeid(*this));
     initWithData(const_cast<unsigned char *>(Orig.getPixels()), Orig.getStride(), 
             m_bOwnsBits);
 }
@@ -84,6 +88,7 @@ Bitmap::Bitmap(const Bitmap& Orig, bool bOwnsBits)
       m_sName(Orig.getName()+" copy")
 {
 //    cerr << "Bitmap::Bitmap(Bitmap), Name: " << m_sName << endl;
+    ObjectCounter::get()->incRef(&typeid(*this));
     initWithData(const_cast<unsigned char *>(Orig.getPixels()), Orig.getStride(), 
             m_bOwnsBits);
 }
@@ -96,6 +101,7 @@ Bitmap::Bitmap(Bitmap& Orig, const IntRect& Rect)
       m_bOwnsBits(false)
 {
 //    cerr << "Bitmap::Bitmap(Bitmap, " << Rect << "), Name: " << m_sName << endl;
+    ObjectCounter::get()->incRef(&typeid(*this));
     assert(Rect.br.x <= Orig.getSize().x);
     assert(Rect.br.y <= Orig.getSize().y);
     if (!Orig.getName().empty()) {
@@ -136,11 +142,13 @@ Bitmap::Bitmap(const std::string& sURI)
         }
     }
     m_bOwnsBits = true;
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 Bitmap::~Bitmap()
 {
 //    cerr << "Bitmap::~Bitmap(), Name: " << m_sName << endl;
+    ObjectCounter::get()->decRef(&typeid(*this));
     if (m_bOwnsBits) {
         delete[] m_pBits;
     }

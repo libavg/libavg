@@ -23,9 +23,12 @@
 #include "OGLHelper.h"
 #include "Player.h"
 #include "MathHelper.h"
+
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
+#include "../base/ObjectCounter.h"
+
 #include "../graphics/Point.h"
 
 #include <iostream>
@@ -43,6 +46,7 @@ OGLSurface::OGLSurface(SDLDisplayEngine * pEngine)
       m_NumHorizTextures(-1),
       m_NumVertTextures(-1)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     // Do an NVIDIA texture support query if it hasn't happened already.
 //    getTextureMode();
 }
@@ -65,6 +69,7 @@ OGLSurface::~OGLSurface()
         default:
             break;
     }
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload)

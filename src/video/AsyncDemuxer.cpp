@@ -21,6 +21,7 @@
 
 #include "AsyncDemuxer.h"
 #include "../base/ScopeTimer.h"
+#include "../base/ObjectCounter.h"
 
 #include <boost/bind.hpp>
 
@@ -34,6 +35,7 @@ AsyncDemuxer::AsyncDemuxer(AVFormatContext * pFormatContext)
     : m_pCmdQ(new VideoDemuxerThread::CmdQueue),
       m_bSeekPending(false)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     m_pSyncDemuxer = IDemuxerPtr(new FFMpegDemuxer(pFormatContext));
     m_pDemuxThread = new boost::thread(VideoDemuxerThread(*m_pCmdQ, pFormatContext));
 }
@@ -70,6 +72,7 @@ AsyncDemuxer::~AsyncDemuxer()
             }
         }
     }
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void AsyncDemuxer::enableStream(int StreamIndex)

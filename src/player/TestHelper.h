@@ -45,6 +45,7 @@ class TestHelper : public IEventSource
                 bool leftButtonState, bool middleButtonState, 
                 bool rightButtonState,
                 int xPosition, int yPosition, int button);
+        void dumpObjects();
 
         // From IEventSource
         virtual std::vector<Event *> pollEvents();

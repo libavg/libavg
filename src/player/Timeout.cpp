@@ -23,6 +23,7 @@
 
 #include "../base/TimeSource.h"
 #include "../base/Exception.h"
+#include "../base/ObjectCounter.h"
 
 #include <boost/python.hpp>
 
@@ -40,6 +41,7 @@ Timeout::Timeout(int time, PyObject * pyfunc, bool isInterval)
       m_PyFunc(pyfunc),
       m_IsInterval(isInterval)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     m_NextTimeout = m_Interval+TimeSource::get()->getCurrentMillisecs();
     s_LastID++;
     m_ID = s_LastID;
@@ -50,6 +52,7 @@ Timeout::Timeout(int time, PyObject * pyfunc, bool isInterval)
 Timeout::~Timeout()
 {
     Py_DECREF(m_PyFunc);
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 bool Timeout::IsReady() const

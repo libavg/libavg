@@ -23,6 +23,7 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
+#include "../base/ObjectCounter.h"
 
 #include <iostream>
 #include <string>
@@ -38,6 +39,7 @@ OGLTile::OGLTile(IntRect Extent, IntPoint TexSize, int Stride, PixelFormat pf,
       m_pf(pf),
       m_pEngine(pEngine)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
         createTexture(0, m_TexSize, Stride, I8);
         createTexture(1, m_TexSize/2, Stride/2, I8);
@@ -55,6 +57,7 @@ OGLTile::~OGLTile()
         glDeleteTextures(1, m_TexID);
     }
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::~OGLTile: glDeleteTextures()");    
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 const IntRect& OGLTile::getExtent() const

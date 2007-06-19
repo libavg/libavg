@@ -26,6 +26,8 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
+#include "../base/ObjectCounter.h"
+
 #include "../graphics/Filterflipuv.h"
 
 #include <iostream>
@@ -48,6 +50,7 @@ FFMpegDecoder::FFMpegDecoder ()
       m_pPacketData(0),
       m_Size(0,0)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     initVideoSupport();
 }
 
@@ -56,6 +59,7 @@ FFMpegDecoder::~FFMpegDecoder ()
     if (m_pFormatContext) {
         close();
     }
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 

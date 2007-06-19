@@ -22,6 +22,8 @@
 #include "TrackerCalibrator.h"
 #include "TrackerEventSource.h"
 
+#include "../base/ObjectCounter.h"
+
 #include "../imaging/DeDistort.h"
 
 extern "C" {
@@ -91,6 +93,7 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
           m_DisplayExtents(DisplayExtents),
           m_bCurPointSet(false)
     {
+        ObjectCounter::get()->incRef(&typeid(*this));
         IntPoint OffsetPerPoint((DisplayExtents.x-MIN_DIST_FROM_BORDER*2)/(NUM_POINTS-1),
                 (DisplayExtents.y-MIN_DIST_FROM_BORDER*2)/(NUM_POINTS-1));
         for (int y=0; y<NUM_POINTS; y++) {
@@ -111,6 +114,7 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
             cerr << "  " << m_DisplayPoints[i] << "-->" << m_CamPoints[i] << endl;
         }
 */
+        ObjectCounter::get()->decRef(&typeid(*this));
     }
 
 

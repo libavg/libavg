@@ -22,6 +22,7 @@
 #include "Queue.h"
 #include "Command.h"
 #include "WorkerThread.h"
+#include "ObjectCounter.h"
 
 #include "../base/TestSuite.h"
 #include "../base/TimeSource.h"
@@ -172,6 +173,39 @@ public:
     }
 };
 
+class DummyClass {
+public:
+    DummyClass::DummyClass()
+    {
+        ObjectCounter::get()->incRef(&typeid(*this));
+    }
+
+    DummyClass::~DummyClass()
+    {
+        ObjectCounter::get()->decRef(&typeid(*this));
+    }
+
+    int i;
+};
+
+class ObjectCounterTest: public Test {
+public:
+    ObjectCounterTest()
+        : Test("ObjectCounterTest", 2)
+    {
+    }
+
+    void runTests() 
+    {
+        assert(ObjectCounter::get()->getCount(&typeid(DummyClass)) == 0);
+        {
+            DummyClass dummy1;
+            DummyClass dummy2;
+            assert(ObjectCounter::get()->getCount(&typeid(dummy1)) == 2);
+        }
+        assert(ObjectCounter::get()->getCount(&typeid(DummyClass)) == 0);
+    }
+};
 
 class BaseTestSuite: public TestSuite {
 public:
@@ -180,6 +214,7 @@ public:
     {
         addTest(TestPtr(new QueueTest));
         addTest(TestPtr(new WorkerThreadTest));
+        addTest(TestPtr(new ObjectCounterTest));
     }
 };
 

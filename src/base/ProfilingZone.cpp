@@ -21,6 +21,7 @@
 
 #include "ProfilingZone.h"
 #include "ThreadProfiler.h"
+#include "ObjectCounter.h"
 
 #include <iostream>
 
@@ -36,10 +37,12 @@ ProfilingZone::ProfilingZone(const string& sName)
       m_NumFrames(0),
       m_bIsRegistered(false)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 ProfilingZone::~ProfilingZone() 
 {
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void ProfilingZone::clear()

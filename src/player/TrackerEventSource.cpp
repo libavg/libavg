@@ -25,6 +25,7 @@
 #include "TouchEvent.h"
 
 #include "../base/Logger.h"
+#include "../base/ObjectCounter.h"
 
 #include "../graphics/Rect.h"
 #include "../graphics/HistoryPreProcessor.h"
@@ -77,6 +78,7 @@ namespace avg {
             // UP_PENDING       -> UP_DELIVERED (CURSORUP event)
 
             EventStream(BlobInfoPtr first_blob);
+            ~EventStream();
             void blobChanged(BlobInfoPtr new_blob);
             void blobGone();
             Event* pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, 
@@ -101,6 +103,7 @@ namespace avg {
 
     EventStream::EventStream(BlobInfoPtr first_blob)
     {
+        ObjectCounter::get()->incRef(&typeid(*this));
         m_Id = ++s_LastLabel;
         m_pBlob = first_blob;
         m_Pos = m_pBlob->getCenter();
@@ -108,6 +111,11 @@ namespace avg {
         m_Stale = false;
         m_VanishCounter = 0;
     };
+
+    EventStream::~EventStream()
+    {
+        ObjectCounter::get()->decRef(&typeid(*this));
+    }
 
     void EventStream::blobChanged(BlobInfoPtr new_blob)
     {
@@ -249,6 +257,7 @@ namespace avg {
           m_pCalibrator(0),
           m_TrackerConfig(Config)
     {
+        ObjectCounter::get()->incRef(&typeid(*this));
         AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
 
         IntPoint ImgSize = pCamera->getImgSize();
@@ -277,6 +286,7 @@ namespace avg {
         m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::stop, _1)));
         m_pTrackerThread->join();
         delete m_pTrackerThread;
+        ObjectCounter::get()->decRef(&typeid(*this));
     }
         
     void TrackerEventSource::setThreshold(int Threshold) 
