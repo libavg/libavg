@@ -50,7 +50,7 @@ FFMpegDecoder::FFMpegDecoder ()
       m_pPacketData(0),
       m_Size(0,0),
       m_StartTimestamp(-1),
-      m_LastFrameTime(-1)
+      m_LastFrameTime(-1000)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     initVideoSupport();
@@ -177,7 +177,7 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
     }                
     m_pVStream = m_pFormatContext->streams[m_VStreamIndex];
     m_TimeUnitsPerSecond = (int64_t)(1/av_q2d(m_pVStream->time_base));
-    m_TimePerFrame = 1/getFPS();
+    m_TimePerFrame = (long long)(1000.0/getFPS());
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     m_Size = IntPoint(m_pVStream->codec.width, m_pVStream->codec.height);
 #else
@@ -186,7 +186,7 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
     m_bFirstPacket = true;
     m_PacketLenLeft = 0;
     m_sFilename = sFilename;
-    m_LastFrameTime = -1;
+    m_LastFrameTime = -1000;
     m_PF = calcPixelFormat(ycbcrMode);
 } 
 
@@ -217,11 +217,11 @@ void FFMpegDecoder::seek(int DestFrame)
 {
     if (m_bFirstPacket) {
         AVFrame Frame;
-        double FrameTime;
+        long long FrameTime;
         readFrame(Frame, FrameTime);
     }
     m_pDemuxer->seek(DestFrame, m_VStreamIndex);
-    m_LastFrameTime = -1;
+    m_LastFrameTime = -1000;
     m_bEOF = false;
 }
 
@@ -254,7 +254,7 @@ double FFMpegDecoder::getFPS()
 
 static ProfilingZone RenderToBmpProfilingZone("      FFMpeg: renderToBmp");
 
-bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp, double TimeWanted)
+bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp, long long TimeWanted)
 {
     ScopeTimer Timer(RenderToBmpProfilingZone);
     AVFrame Frame;
@@ -283,11 +283,11 @@ void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int Stride)
 static ProfilingZone ConvertImageProfilingZone("        FFMpeg: convert image");
 
 bool FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
-        BitmapPtr pBmpCr, double TimeWanted)
+        BitmapPtr pBmpCr, long long TimeWanted)
 {
     ScopeTimer Timer(RenderToBmpProfilingZone);
     AVFrame Frame;
-    double FrameTime;
+    long long FrameTime;
     readFrame(Frame, FrameTime);
     if (!m_bEOF) {
         ScopeTimer Timer(ConvertImageProfilingZone);
@@ -396,9 +396,9 @@ void FFMpegDecoder::initVideoSupport()
     }
 }
 
-bool FFMpegDecoder::readFrameForTime(AVFrame& Frame, double TimeWanted)
+bool FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long TimeWanted)
 {
-    double FrameTime = -1;
+    long long FrameTime = -1000;
 //    cerr << "readFrameForTime " << TimeWanted << ", LastFrameTime= " << m_LastFrameTime << endl;
     if (TimeWanted == -1) {
         readFrame(Frame, FrameTime);
@@ -409,7 +409,6 @@ bool FFMpegDecoder::readFrameForTime(AVFrame& Frame, double TimeWanted)
             return false;
         } else {
             while (FrameTime-TimeWanted < -0.5*m_TimePerFrame && !m_bEOF) {
-                // TODO: Discard frame here?
                 readFrame(Frame, FrameTime);
 //                cerr << "   readFrame returned time " << FrameTime << "." <<  endl;
             }
@@ -420,7 +419,7 @@ bool FFMpegDecoder::readFrameForTime(AVFrame& Frame, double TimeWanted)
     return true;
 }
 
-void FFMpegDecoder::readFrame(AVFrame& Frame, double& FrameTime)
+void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
 {
     if (m_bEOF) {
         return;
@@ -497,13 +496,13 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, double& FrameTime)
     }
 }
 
-double FFMpegDecoder::getFrameTime(AVPacket* pPacket)
+long long FFMpegDecoder::getFrameTime(AVPacket* pPacket)
 {
     if (m_StartTimestamp == -1) {
         m_StartTimestamp = pPacket->dts;
     }
     int64_t PacketTimestamp = (pPacket->dts-m_StartTimestamp);
-    return (double)PacketTimestamp/m_TimeUnitsPerSecond;
+    return (long long)((1000*PacketTimestamp)/m_TimeUnitsPerSecond);
 }
 
 

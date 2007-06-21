@@ -51,18 +51,18 @@ class FFMpegDecoder: public IVideoDecoder
         virtual double getFPS();
         virtual PixelFormat getPixelFormat();
 
-        virtual bool renderToBmp(BitmapPtr pBmp, double TimeWanted);
+        virtual bool renderToBmp(BitmapPtr pBmp, long long TimeWanted);
         virtual bool renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
-                BitmapPtr pBmpCr, double TimeWanted);
+                BitmapPtr pBmpCr, long long TimeWanted);
         virtual bool isEOF();
 
     private:
         void initVideoSupport();
-        bool readFrameForTime(AVFrame& Frame, double TimeWanted);
-        void readFrame(AVFrame& Frame, double& FrameTime);
+        bool readFrameForTime(AVFrame& Frame, long long TimeWanted);
+        void readFrame(AVFrame& Frame, long long& FrameTime);
         PixelFormat calcPixelFormat(YCbCrMode ycbcrMode);
         void convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp);
-        double getFrameTime(AVPacket* pPacket);
+        long long getFrameTime(AVPacket* pPacket);
 
         IDemuxer * m_pDemuxer;
         AVFormatContext * m_pFormatContext;
@@ -81,8 +81,8 @@ class FFMpegDecoder: public IVideoDecoder
 
         int64_t m_TimeUnitsPerSecond;
         int64_t m_StartTimestamp;
-        double m_LastFrameTime;
-        double m_TimePerFrame;
+        long long m_LastFrameTime;
+        long long m_TimePerFrame;
 
         static bool m_bInitialized;
         // Prevents different decoder instances from executing open/close simultaneously

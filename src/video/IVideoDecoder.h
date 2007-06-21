@@ -45,9 +45,9 @@ class IVideoDecoder
         virtual double getFPS() = 0;
         virtual PixelFormat getPixelFormat() = 0;
 
-        virtual bool renderToBmp(BitmapPtr pBmp, double TimeWanted) = 0;
+        virtual bool renderToBmp(BitmapPtr pBmp, long long TimeWanted) = 0;
         virtual bool renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
-                BitmapPtr pBmpCr, double TimeWanted) = 0;
+                BitmapPtr pBmpCr, long long TimeWanted) = 0;
         virtual bool isEOF() = 0;
 };
 

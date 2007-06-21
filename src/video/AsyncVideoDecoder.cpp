@@ -112,7 +112,7 @@ PixelFormat AsyncVideoDecoder::getPixelFormat()
     return m_PF;
 }
 
-bool AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp, double TimeWanted)
+bool AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp, long long TimeWanted)
 {
     FrameVideoMsgPtr pFrameMsg = getNextBmps(TimeWanted == -1);
     if (pFrameMsg) {
@@ -124,7 +124,7 @@ bool AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp, double TimeWanted)
 }
 
 bool AsyncVideoDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
-       BitmapPtr pBmpCr, double TimeWanted)
+       BitmapPtr pBmpCr, long long TimeWanted)
 {
     FrameVideoMsgPtr pFrameMsg = getNextBmps(TimeWanted == -1);
     if (pFrameMsg) {
