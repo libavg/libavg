@@ -630,6 +630,22 @@ void Player::initConfig() {
             exit(-1);
         }
 
+        const string * psVSyncMode =pMgr->getOption("scr", "vsyncmode");
+        if (psVSyncMode == 0 || *psVSyncMode == "auto") {
+            m_VSyncMode = VSYNC_AUTO;
+        } else if (*psVSyncMode == "ogl") {
+            m_VSyncMode = VSYNC_OGL;
+        } else if (*psVSyncMode == "dri") {
+            m_VSyncMode = VSYNC_DRI;
+        } else if (*psVSyncMode == "none") {
+            m_VSyncMode = VSYNC_NONE;
+        } else {
+            AVG_TRACE(Logger::ERROR, 
+                    "avgrc: vsyncmode must be auto, ogl, dri or none. Current value is " 
+                    << *psVSyncMode << ". Aborting." );
+            exit(-1);
+        }
+
         m_bUseRGBOrder = pMgr->getBoolOption("scr", "usergborder", false);
         m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
         m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 1);
@@ -684,6 +700,20 @@ void Player::initGraphics()
                     << (m_bUsePixelBuffers?"true":"false"));
             AVG_TRACE(Logger::CONFIG, "  Multisample samples: " 
                     << m_MultiSampleSamples);
+            switch (m_VSyncMode) {
+                case VSYNC_AUTO:
+                    AVG_TRACE(Logger::CONFIG, "  Auto vsync");
+                    break;
+                case VSYNC_OGL:
+                    AVG_TRACE(Logger::CONFIG, "  OpenGL vsync");
+                    break;
+                case VSYNC_DRI:
+                    AVG_TRACE(Logger::CONFIG, "  DRI vsync");
+                    break;
+                case VSYNC_NONE:
+                    AVG_TRACE(Logger::CONFIG, "  No vsync");
+                    break;
+            }
 
             m_pDisplayEngine = new SDLDisplayEngine ();
             m_pEventSource = 
@@ -705,7 +735,8 @@ void Player::initGraphics()
             dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine);
     if (pSDLDisplayEngine) {
         pSDLDisplayEngine->setOGLOptions(m_bUsePOW2Textures, m_YCbCrMode, 
-                m_bUseRGBOrder, m_bUsePixelBuffers, m_MultiSampleSamples);
+                m_bUseRGBOrder, m_bUsePixelBuffers, m_MultiSampleSamples,
+                m_VSyncMode);
     }
     m_pDisplayEngine->init(m_DP);
 }

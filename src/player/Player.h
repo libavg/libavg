@@ -148,6 +148,7 @@ class Player : IEventSink
         bool m_bUsePixelBuffers;
         int m_MultiSampleSamples;
         bool m_bUseFakeCamera;
+        VSyncMode m_VSyncMode;
 
         bool m_bIsPlaying;
 

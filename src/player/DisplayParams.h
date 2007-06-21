@@ -24,6 +24,10 @@
 
 namespace avg {
 
+enum VSyncMode {
+    VSYNC_AUTO, VSYNC_OGL, VSYNC_DRI, VSYNC_NONE
+};
+
 struct DisplayParams {
     DisplayParams();
     virtual ~DisplayParams();
