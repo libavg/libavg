@@ -46,14 +46,15 @@ class AsyncVideoDecoder: public IVideoDecoder
         virtual double getFPS();
         virtual PixelFormat getPixelFormat();
 
-        virtual bool renderToBmp(BitmapPtr pBmp);
+        virtual bool renderToBmp(BitmapPtr pBmp, double TimeWanted);
         virtual bool renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
-                BitmapPtr pBmpCr);
+                BitmapPtr pBmpCr, double TimeWanted);
         virtual bool isEOF();
 
     private:
         void getInfoMsg();
-        FrameVideoMsgPtr getNextBmps();
+        FrameVideoMsgPtr getNextBmps(bool bWait);
+        void waitForSeekDone();
 
         VideoDecoderPtr m_pSyncDecoder;
         std::string m_sFilename;
@@ -68,6 +69,7 @@ class AsyncVideoDecoder: public IVideoDecoder
         double m_FPS;
         PixelFormat m_PF;
         bool m_bEOF;
+        bool m_bSeekPending;
 };
 
 }
