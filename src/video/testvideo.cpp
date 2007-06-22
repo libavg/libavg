@@ -137,7 +137,6 @@ class DecoderTest: public Test {
                 NumFrames++;
                 CurTime += TimePerFrame;
             }
-            cerr << NumFrames << ", " << ExpectedNumFrames << endl;
             TEST(NumFrames == ExpectedNumFrames);
             if (SpeedFactor == 1) {
                 compareImages(pBmp, sFilename+"_end");
