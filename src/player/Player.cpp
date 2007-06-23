@@ -63,6 +63,7 @@
 #include "../graphics/Rect.h"
 
 #include "../imaging/Camera.h"
+#include "../imaging/V4LCamera.h"
 #include "../imaging/FakeCamera.h"
 
 #include <Magick++.h>
@@ -331,15 +332,29 @@ TestHelper * Player::getTestHelper()
     return &m_TestHelper;
 }
 
-TrackerEventSource * Player::addTracker(std::string sDevice, 
+TrackerEventSource * Player::addFWTracker(std::string sDevice, 
         std::string sMode)
 {
-    AVG_TRACE(Logger::CONFIG, "Adding a Tracker for camera " << sDevice << " using "
+    AVG_TRACE(Logger::CONFIG, "Adding a Tracker for FW camera " << sDevice << " using "
             << sMode << ".");
     TrackerConfig Config;
     Config.load();
     CameraPtr pCamera;
     pCamera = CameraPtr(new Camera(sDevice, Config.m_FPS, sMode, false));
+    m_pTracker = new TrackerEventSource(pCamera, Config, IntPoint(m_DP.m_Width, m_DP.m_Height), true);
+    m_pEventDispatcher->addSource(m_pTracker);
+    return m_pTracker;
+}
+
+TrackerEventSource * Player::addV4LTracker(std::string sDevice, 
+        std::string sMode, int channel)
+{
+    AVG_TRACE(Logger::CONFIG, "Adding a Tracker for V4L camera " << sDevice << " using "
+            << sMode << ".");
+    TrackerConfig Config;
+    Config.load();
+    CameraPtr pCamera;
+    pCamera = CameraPtr(new V4LCamera(sDevice, channel, sMode, false));
     m_pTracker = new TrackerEventSource(pCamera, Config, IntPoint(m_DP.m_Width, m_DP.m_Height), true);
     m_pEventDispatcher->addSource(m_pTracker);
     return m_pTracker;
