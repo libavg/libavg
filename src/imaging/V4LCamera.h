@@ -73,6 +73,11 @@ class V4LCamera: public ICamera {
     	io_method ioMethod_;
     	std::vector<Buffer> buffers_;
     	bool m_bCameraAvailable;
+    	int m_CamPF;
+    	bool bWait;
+    	bool m_bColor;
+    	
+    	int getCamPF(const std::string& sPF);
     	
     	void initDevice();
     	void startCapture();
