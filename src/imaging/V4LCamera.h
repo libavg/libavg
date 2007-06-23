@@ -67,12 +67,15 @@ class V4LCamera: public ICamera {
         
     private:
     	int fd_;
-	int Channel_;
+		int Channel_;
     	std::string m_sDevice;
+    	std::string m_sMode;
     	io_method ioMethod_;
     	std::vector<Buffer> buffers_;
+    	bool m_bCameraAvailable;
     	
     	void initDevice();
+    	void startCapture();
     	void init_read(unsigned int buffer_size);
     	void init_mmap();
     	void init_userp(unsigned int buffer_size);

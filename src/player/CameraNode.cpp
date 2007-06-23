@@ -175,7 +175,6 @@ bool CameraNode::renderToSurface(ISurface * pSurface)
         ScopeTimer Timer(CameraProfilingZone);
         BitmapPtr pCurBmp = m_pCamera->getImage(false);
         if (pCurBmp) {
-		AVG_TRACE(Logger::APP, "Got pointer");
             BitmapPtr pTempBmp;
             while (pTempBmp = m_pCamera->getImage(false)) {
                 pCurBmp = pTempBmp;
@@ -190,11 +189,7 @@ bool CameraNode::renderToSurface(ISurface * pSurface)
                 getEngine()->surfaceChanged(pSurface);
             }
         }
-	else {
-		AVG_TRACE(Logger::WARNING, "Null pointer");
-	}
     }
-    else AVG_TRACE(Logger::WARNING, "No camera ptr available");
     return true;
 }
 
