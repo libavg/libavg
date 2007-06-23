@@ -24,6 +24,8 @@
 #include "InfoVideoMsg.h"
 #include "ErrorVideoMsg.h"
 
+#include "../base/ObjectCounter.h"
+
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
 
@@ -38,8 +40,10 @@ AsyncVideoDecoder::AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder)
     : m_pSyncDecoder(pSyncDecoder),
       m_pDecoderThread(0),
       m_Size(0,0),
-      m_bEOF(false)
+      m_bEOF(false),
+      m_bSeekPending(false)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 AsyncVideoDecoder::~AsyncVideoDecoder()
@@ -47,12 +51,14 @@ AsyncVideoDecoder::~AsyncVideoDecoder()
     if (m_pDecoderThread) {
         close();
     }
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void AsyncVideoDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
         bool bThreadedDemuxer)
 {
     m_bEOF = false;
+    m_bSeekPending = false;
     m_sFilename = sFilename;
     m_pCmdQ = VideoDecoderThread::CmdQueuePtr(new VideoDecoderThread::CmdQueue);
     m_pMsgQ = VideoMsgQueuePtr(new VideoMsgQueue(8));
@@ -67,7 +73,7 @@ void AsyncVideoDecoder::close()
     if (m_pDecoderThread) {
         m_pCmdQ->push(Command<VideoDecoderThread>(boost::bind(
                 &VideoDecoderThread::stop, _1)));
-        getNextBmps(); // If the Queue is full, this breaks the lock in the thread.
+        getNextBmps(false); // If the Queue is full, this breaks the lock in the thread.
         m_pDecoderThread->join();
         delete m_pDecoderThread;
         m_pDecoderThread = 0;
@@ -76,9 +82,11 @@ void AsyncVideoDecoder::close()
 
 void AsyncVideoDecoder::seek(int DestFrame)
 {
+    waitForSeekDone();
     m_bEOF = false;
     m_pCmdQ->push(Command<VideoDecoderThread>(boost::bind(
                 &VideoDecoderThread::seek, _1, DestFrame)));
+    m_bSeekPending = true;
 }
 
 IntPoint AsyncVideoDecoder::getSize()
@@ -104,9 +112,9 @@ PixelFormat AsyncVideoDecoder::getPixelFormat()
     return m_PF;
 }
 
-bool AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp)
+bool AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp, long long TimeWanted)
 {
-    FrameVideoMsgPtr pFrameMsg = getNextBmps();
+    FrameVideoMsgPtr pFrameMsg = getNextBmps(TimeWanted == -1);
     if (pFrameMsg) {
         *pBmp = *(pFrameMsg->getBitmap(0));
         return true;
@@ -116,9 +124,9 @@ bool AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp)
 }
 
 bool AsyncVideoDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
-       BitmapPtr pBmpCr)
+       BitmapPtr pBmpCr, long long TimeWanted)
 {
-    FrameVideoMsgPtr pFrameMsg = getNextBmps();
+    FrameVideoMsgPtr pFrameMsg = getNextBmps(TimeWanted == -1);
     if (pFrameMsg) {
         pBmpY->copyPixels(*(pFrameMsg->getBitmap(0)));
         pBmpCb->copyPixels(*(pFrameMsg->getBitmap(1)));
@@ -152,10 +160,11 @@ void AsyncVideoDecoder::getInfoMsg()
     }
 }
 
-FrameVideoMsgPtr AsyncVideoDecoder::getNextBmps()
+FrameVideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
 {
     try {
-        VideoMsgPtr pMsg = m_pMsgQ->pop(false);
+        waitForSeekDone();
+        VideoMsgPtr pMsg = m_pMsgQ->pop(bWait);
         FrameVideoMsgPtr pFrameMsg = dynamic_pointer_cast<FrameVideoMsg>(pMsg);
         while (!pFrameMsg) {
             EOFVideoMsgPtr pEOFMsg(dynamic_pointer_cast<EOFVideoMsg>(pMsg));
@@ -171,12 +180,28 @@ FrameVideoMsgPtr AsyncVideoDecoder::getNextBmps()
                 // Unhandled message type.
                 assert(false);
             }
-            VideoMsgPtr pMsg = m_pMsgQ->pop(false);
+            VideoMsgPtr pMsg = m_pMsgQ->pop(bWait);
             FrameVideoMsgPtr pFrameMsg = dynamic_pointer_cast<FrameVideoMsg>(pMsg);
         }
         return pFrameMsg;
     } catch (Exception& e) {
         return FrameVideoMsgPtr();
+    }
+}
+
+void AsyncVideoDecoder::waitForSeekDone()
+{
+    if (m_bSeekPending) {
+        m_bSeekPending = false;
+        VideoMsgPtr pMsg;
+        bool bDone = false;
+        do {
+            VideoMsgPtr pMsg = m_pMsgQ->pop(true);
+            FrameVideoMsgPtr pFrameMsg = dynamic_pointer_cast<FrameVideoMsg>(pMsg);
+            if (pFrameMsg) {
+                bDone = pFrameMsg->isSeekDone();
+            }
+        } while (!bDone);
     }
 }
 

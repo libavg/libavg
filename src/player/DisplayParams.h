@@ -24,11 +24,13 @@
 
 namespace avg {
 
+enum VSyncMode {
+    VSYNC_AUTO, VSYNC_OGL, VSYNC_DRI, VSYNC_NONE
+};
+
 struct DisplayParams {
     DisplayParams();
-
-//    DisplayParams(int Width, int Height, bool bFullscreen, int BPP, 
-//            int WindowWidth, int WindowHeight);
+    virtual ~DisplayParams();
 
     int m_Width;
     int m_Height;

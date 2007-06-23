@@ -58,6 +58,7 @@
 #include "../base/Profiler.h"
 #include "../base/ScopeTimer.h"
 #include "../base/TimeSource.h"
+#include "../base/MemHelper.h"
 
 #include "../graphics/Rect.h"
 
@@ -169,6 +170,7 @@ void Player::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode,
 void Player::loadFile (const std::string& filename)
 {
     try {
+        m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
         AVG_TRACE(Logger::MEMORY, 
                 std::string("Player::LoadFile(") + filename + ")");
         if (m_pRootNode) {
@@ -244,11 +246,11 @@ void Player::play()
         assert(m_pRootNode);
         initGraphics();
         m_pRootNode->setDisplayEngine(m_pDisplayEngine);
-        
-        m_EventDispatcher.addSource(m_pEventSource);
-        m_EventDispatcher.addSource(&m_TestHelper);
-        m_EventDispatcher.addSink(&m_EventDumper);
-        m_EventDispatcher.addSink(this);
+       
+        m_pEventDispatcher->addSource(m_pEventSource);
+        m_pEventDispatcher->addSource(&m_TestHelper);
+        m_pEventDispatcher->addSink(&m_EventDumper);
+        m_pEventDispatcher->addSink(this);
         
         m_pDisplayEngine->initRender();
         m_bStopping = false;
@@ -310,6 +312,19 @@ bool Player::setVBlankFramerate(int rate) {
         return true;
     }
 }
+        
+double Player::getEffectiveFramerate() {
+    if (m_bIsPlaying) {
+        return m_pDisplayEngine->getEffectiveFramerate();
+    } else {
+        return 0;
+    }
+}
+
+unsigned Player::getMemUsed()
+{
+    return avg::getMemUsed();
+}
 
 TestHelper * Player::getTestHelper()
 {
@@ -326,7 +341,7 @@ TrackerEventSource * Player::addTracker(std::string sDevice,
     CameraPtr pCamera;
     pCamera = CameraPtr(new Camera(sDevice, Config.m_FPS, sMode, false));
     m_pTracker = new TrackerEventSource(pCamera, Config, IntPoint(m_DP.m_Width, m_DP.m_Height), true);
-    m_EventDispatcher.addSource(m_pTracker);
+    m_pEventDispatcher->addSource(m_pTracker);
     return m_pTracker;
 }
 
@@ -365,6 +380,13 @@ bool Player::clearInterval(int id)
             return true;
         }
     }
+    for (it=m_NewTimeouts.begin(); it!=m_NewTimeouts.end(); it++) {
+        if (id == (*it)->GetID()) {
+            delete *it;
+            m_NewTimeouts.erase(it);
+            return true;
+        }
+    }
     return false;
 }
 
@@ -375,7 +397,7 @@ const Event& Player::getCurEvent() const
 
 const MouseEvent& Player::getMouseState() const
 {
-    return m_EventDispatcher.getLastMouseEvent();
+    return m_pEventDispatcher->getLastMouseEvent();
 }
 
 Bitmap * Player::screenshot()
@@ -494,7 +516,7 @@ void Player::doFrame ()
         }
         {
             ScopeTimer Timer(EventsProfilingZone);
-            m_EventDispatcher.dispatch();
+            m_pEventDispatcher->dispatch();
         }
         if (!m_bStopping) {
             ScopeTimer Timer(RenderProfilingZone);
@@ -519,7 +541,7 @@ void Player::doFrame ()
                 FrameTime-TargetTime << " ms.");
         Profiler::get().dumpFrame();
     }
-*/    
+*/
     ThreadProfiler::get()->reset();
 }
 
@@ -608,6 +630,22 @@ void Player::initConfig() {
             exit(-1);
         }
 
+        const string * psVSyncMode =pMgr->getOption("scr", "vsyncmode");
+        if (psVSyncMode == 0 || *psVSyncMode == "auto") {
+            m_VSyncMode = VSYNC_AUTO;
+        } else if (*psVSyncMode == "ogl") {
+            m_VSyncMode = VSYNC_OGL;
+        } else if (*psVSyncMode == "dri") {
+            m_VSyncMode = VSYNC_DRI;
+        } else if (*psVSyncMode == "none") {
+            m_VSyncMode = VSYNC_NONE;
+        } else {
+            AVG_TRACE(Logger::ERROR, 
+                    "avgrc: vsyncmode must be auto, ogl, dri or none. Current value is " 
+                    << *psVSyncMode << ". Aborting." );
+            exit(-1);
+        }
+
         m_bUseRGBOrder = pMgr->getBoolOption("scr", "usergborder", false);
         m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
         m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 1);
@@ -662,6 +700,20 @@ void Player::initGraphics()
                     << (m_bUsePixelBuffers?"true":"false"));
             AVG_TRACE(Logger::CONFIG, "  Multisample samples: " 
                     << m_MultiSampleSamples);
+            switch (m_VSyncMode) {
+                case VSYNC_AUTO:
+                    AVG_TRACE(Logger::CONFIG, "  Auto vsync");
+                    break;
+                case VSYNC_OGL:
+                    AVG_TRACE(Logger::CONFIG, "  OpenGL vsync");
+                    break;
+                case VSYNC_DRI:
+                    AVG_TRACE(Logger::CONFIG, "  DRI vsync");
+                    break;
+                case VSYNC_NONE:
+                    AVG_TRACE(Logger::CONFIG, "  No vsync");
+                    break;
+            }
 
             m_pDisplayEngine = new SDLDisplayEngine ();
             m_pEventSource = 
@@ -683,7 +735,8 @@ void Player::initGraphics()
             dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine);
     if (pSDLDisplayEngine) {
         pSDLDisplayEngine->setOGLOptions(m_bUsePOW2Textures, m_YCbCrMode, 
-                m_bUseRGBOrder, m_bUsePixelBuffers, m_MultiSampleSamples);
+                m_bUseRGBOrder, m_bUsePixelBuffers, m_MultiSampleSamples,
+                m_VSyncMode);
     }
     m_pDisplayEngine->init(m_DP);
 }
@@ -824,16 +877,22 @@ bool Player::handleEvent(Event * pEvent)
                 pCursorEvent->getYPosition());
         int cursorID = pCursorEvent->getCursorID();
         NodePtr pNode;
-        if (m_pEventCaptureNode[cursorID].expired()) {
-            if (pEvent->getType() != Event::CURSOROVER &&
-                    pEvent->getType() != Event::CURSOROUT)
-            {
-                pNode = m_pRootNode->getElementByPos(pos);
+        if (m_pEventCaptureNode.find(cursorID) != m_pEventCaptureNode.end()) {
+            NodeWeakPtr pEventCaptureNode = m_pEventCaptureNode[cursorID];
+            if (pEventCaptureNode.expired()) {
+                m_pEventCaptureNode.erase(cursorID);
             } else {
-                pNode = pCursorEvent->getElement();
+                pNode = m_pEventCaptureNode[cursorID].lock();
             }
-        } else {
-            pNode = m_pEventCaptureNode[cursorID].lock();
+        } 
+        if (!pNode) {
+            if (pEvent->getType() == Event::CURSOROVER ||
+                    pEvent->getType() == Event::CURSOROUT)
+            {
+                pNode = pCursorEvent->getElement();
+            } else {
+                pNode = m_pRootNode->getElementByPos(pos);
+            }
         }
         if (pNode != m_pLastMouseNode[cursorID] && 
                 pEvent->getType() != Event::CURSOROVER &&
@@ -847,6 +906,11 @@ bool Player::handleEvent(Event * pEvent)
                 sendOver(pCursorEvent, Event::CURSOROVER, pNode);
             }
             m_pLastMouseNode[cursorID] = pNode;
+        }
+        if (pCursorEvent->getType() == Event::CURSORUP && 
+            pCursorEvent->getSource() != CursorEvent::MOUSE) 
+        {
+            m_pLastMouseNode.erase(cursorID);
         }
         if (pNode && pNode->getSensitive()) {
             m_pCurEvent = pEvent;
@@ -889,7 +953,7 @@ void Player::sendOver(CursorEvent * pOtherEvent, Event::Type Type,
 {
     Event * pNewEvent = pOtherEvent->cloneAs(Type);
     pNewEvent->setElement(pNode);
-    m_EventDispatcher.sendEvent(pNewEvent);
+    m_pEventDispatcher->sendEvent(pNewEvent);
 }
 
 void Player::cleanup() 
@@ -908,6 +972,7 @@ void Player::cleanup()
     m_pRootNode = AVGNodePtr();
     m_pLastMouseNode.clear();
     m_IDMap.clear();
+    m_pEventDispatcher = EventDispatcherPtr();
     initConfig();
 }
 

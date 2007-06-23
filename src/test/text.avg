@@ -22,7 +22,6 @@
         <span size='16000' rise='5000' foreground='red'><b>markup</b></span> 
         <i>all</i> over.
      </words>
-        
     <words id="cbasetext" x="128" y="80"
         opacity="1" size="18" font="arial" text="orange" color="FF8000"/>
     <words x="1" y="160" size="18" font="arial" 

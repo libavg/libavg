@@ -18,38 +18,30 @@
 //
 //  Current versions can be found at www.libavg.de
 //
+//  Original author of this file is igor@c-base.org 
+//
 
-#include "Filter.h"
-#include "Bitmap.h"
-
-#include "../base/ObjectCounter.h"
-
-#include <iostream>
-
-using namespace std;
+#include "Run.h"
 
 namespace avg {
 
-Filter::Filter()
+Run::Run(int row, int start_col, int end_col)
 {
-    ObjectCounter::get()->incRef(&typeid(*this));
+    m_Row = row;
+    assert(end_col>=start_col);
+    m_StartCol = start_col;
+    m_EndCol = end_col;
+}
+ 
+int Run::length()
+{
+    return m_EndCol-m_StartCol;
 }
 
-Filter::~Filter()
+DPoint Run::center()
 {
-    ObjectCounter::get()->decRef(&typeid(*this));
+    DPoint d = DPoint((m_StartCol + m_EndCol-1)/2., m_Row);
+    return d;
 }
 
-void Filter::applyInPlace(BitmapPtr pBmp)
-{
-    *pBmp = *(apply(pBmp));
 }
-
-BitmapPtr Filter::apply(BitmapPtr pBmpSource)
-{
-    BitmapPtr pBmpDest = BitmapPtr(new Bitmap(*pBmpSource));
-    applyInPlace (pBmpDest);
-    return pBmpDest;
-}
-
-} // namespace

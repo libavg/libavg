@@ -124,7 +124,8 @@ void export_event()
         .add_property("y", &TouchEvent::getYPosition)
         .add_property("cursorid", &TouchEvent::getCursorID)
         .add_property("node", &TouchEvent::getElement)
-        .add_property("center", &TouchEvent::getCenter);
+        .add_property("center", make_function(&TouchEvent::getCenter,
+                return_value_policy<copy_const_reference>()));
    
     enum_<TrackerImageID>("TrackerImageID")
         .value("IMG_CAMERA", TRACKER_IMG_CAMERA)

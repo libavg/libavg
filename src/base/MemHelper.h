@@ -19,37 +19,14 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "Filter.h"
-#include "Bitmap.h"
-
-#include "../base/ObjectCounter.h"
-
-#include <iostream>
-
-using namespace std;
+#ifndef _MemHelper_H_
+#define _MemHelper_H_
 
 namespace avg {
+    
+unsigned getMemUsed();
 
-Filter::Filter()
-{
-    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
-Filter::~Filter()
-{
-    ObjectCounter::get()->decRef(&typeid(*this));
-}
+#endif 
 
-void Filter::applyInPlace(BitmapPtr pBmp)
-{
-    *pBmp = *(apply(pBmp));
-}
-
-BitmapPtr Filter::apply(BitmapPtr pBmpSource)
-{
-    BitmapPtr pBmpDest = BitmapPtr(new Bitmap(*pBmpSource));
-    applyInPlace (pBmpDest);
-    return pBmpDest;
-}
-
-} // namespace

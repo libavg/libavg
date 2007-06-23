@@ -53,8 +53,8 @@ void TouchEvent::trace()
     Event::trace();
     AVG_TRACE(Logger::EVENTS2, "pos: " << m_Position 
             << ", ID: " << getCursorID()
-            << ", Area: " << m_Info->m_Area
-            << ", Eccentricity: " << m_Info->m_Eccentricity);
+            << ", Area: " << m_Info->getArea()
+            << ", Eccentricity: " << m_Info->getEccentricity());
 }
       
 }

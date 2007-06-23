@@ -78,7 +78,7 @@ bool VideoDecoderThread::work()
             IntPoint HalfSize(Size.x/2, Size.y/2);
             BitmapPtr pBmpU = BitmapPtr(new Bitmap(HalfSize, I8));
             BitmapPtr pBmpV = BitmapPtr(new Bitmap(HalfSize, I8));
-            bool bFrame=m_pDecoder->renderToYCbCr420p(pBmpY, pBmpU, pBmpV);
+            bool bFrame=m_pDecoder->renderToYCbCr420p(pBmpY, pBmpU, pBmpV, -1);
             if (bFrame) {
                 pBmps.push_back(pBmpY);
                 pBmps.push_back(pBmpU);
@@ -86,7 +86,7 @@ bool VideoDecoderThread::work()
             }
         } else {
             BitmapPtr pBmp = BitmapPtr(new Bitmap(Size, PF));
-            bool bFrame=m_pDecoder->renderToBmp(pBmp);
+            bool bFrame=m_pDecoder->renderToBmp(pBmp, -1);
             if (bFrame) {
                 pBmps.push_back(pBmp);
             }
@@ -94,7 +94,7 @@ bool VideoDecoderThread::work()
         if (m_pDecoder->isEOF()) {
             m_MsgQ.push(VideoMsgPtr(new EOFVideoMsg()));
         } else {
-            m_MsgQ.push(VideoMsgPtr(new FrameVideoMsg(pBmps)));
+            m_MsgQ.push(VideoMsgPtr(new FrameVideoMsg(pBmps, false)));
         }
     }
     return true;
@@ -107,9 +107,15 @@ void VideoDecoderThread::deinit()
 
 void VideoDecoderThread::seek(int DestFrame)
 {
-    while (!m_MsgQ.empty()) {
-        m_MsgQ.pop(true);
+    try {
+        while (!m_MsgQ.empty()) {
+            m_MsgQ.pop(false);
+        }
+    } catch (Exception& e) {
     }
+
+    vector<BitmapPtr> pBmps;  // Empty.
+    m_MsgQ.push(VideoMsgPtr(new FrameVideoMsg(pBmps, true))); // Actually a 'seek done' message.
     m_pDecoder->seek(DestFrame);
 }
 

@@ -188,7 +188,7 @@ void Video::seek(int DestFrame)
 void Video::open(YCbCrMode ycbcrMode)
 {
     m_CurFrame = 0;
-    m_pDecoder->open(m_Filename, ycbcrMode, false);
+    m_pDecoder->open(m_Filename, ycbcrMode, m_bThreaded);
 }
 
 void Video::close()
@@ -225,10 +225,10 @@ bool Video::renderToSurface(ISurface * pSurface)
     if (PF == YCbCr420p || PF == YCbCrJ420p) {
         BitmapPtr pBmp = pSurface->lockBmp(0);
         bFrameAvailable = m_pDecoder->renderToYCbCr420p(pBmp,
-                pSurface->lockBmp(1), pSurface->lockBmp(2));
+                pSurface->lockBmp(1), pSurface->lockBmp(2), -1);
     } else {
         BitmapPtr pBmp = pSurface->lockBmp();
-        bFrameAvailable = m_pDecoder->renderToBmp(pBmp);
+        bFrameAvailable = m_pDecoder->renderToBmp(pBmp, -1);
 //        DisplayEngine::YCbCrMode ycbcrMode = getEngine()->getYCbCrMode();
 //        if (ycbcrMode == DisplayEngine::OGL_MESA && pBmp->getPixelFormat() == YCbCr422) {
 //            FilterFlipUV().applyInPlace(pBmp);

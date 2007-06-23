@@ -22,6 +22,7 @@
 #include "ThreadProfiler.h"
 #include "Profiler.h"
 #include "Logger.h"
+#include "ObjectCounter.h"
 
 #include <sstream>
 #include <iomanip>
@@ -36,10 +37,12 @@ ThreadProfiler::ThreadProfiler(const string& sName)
 {
     m_pActiveZone = 0;
     m_bRunning = false;
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 ThreadProfiler::~ThreadProfiler() 
 {
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 ThreadProfilerPtr ThreadProfiler::get()

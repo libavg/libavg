@@ -21,6 +21,8 @@
 
 #include "Region.h"
 
+#include "../base/ObjectCounter.h"
+
 #include <iostream>
 
 using namespace std;
@@ -29,10 +31,12 @@ namespace avg {
 
 Region::Region ()
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 Region::~Region ()
 {
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void Region::addRect(const DRect& NewRect) {

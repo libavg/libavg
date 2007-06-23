@@ -22,7 +22,7 @@
 #ifndef _FrameVideoMsg_H_
 #define _FrameVideoMsg_H_
 
-#include "IVideoMsg.h"
+#include "VideoMsg.h"
 
 #include "../graphics/Bitmap.h"
 
@@ -30,15 +30,17 @@
 
 namespace avg {
 
-class FrameVideoMsg: public IVideoMsg {
+class FrameVideoMsg: public VideoMsg {
     public:
-        FrameVideoMsg(std::vector<BitmapPtr> pBmps);
+        FrameVideoMsg(std::vector<BitmapPtr> pBmps, bool bSeekDone);
         virtual ~FrameVideoMsg();
 
         BitmapPtr getBitmap(int i);
+        bool isSeekDone();
 
     private:
         std::vector<BitmapPtr> m_pBmps;
+        bool m_bSeekDone;
 };
 
 typedef boost::shared_ptr<FrameVideoMsg> FrameVideoMsgPtr;

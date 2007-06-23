@@ -25,6 +25,7 @@
 #include "../base/ScopeTimer.h"
 #include "../base/Profiler.h"
 #include "../base/Exception.h"
+#include "../base/ObjectCounter.h"
 
 using namespace std;
 
@@ -34,12 +35,16 @@ DisplayEngine::DisplayEngine()
     : m_NumFrames(0),
       m_VBRate(0),
       m_Framerate(30),
-      m_bInitialized(false)
+      m_bInitialized(false),
+      m_StartFramerateCalcTime(0),
+      m_EffFramerate(0)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 DisplayEngine::~DisplayEngine()
 {
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 
@@ -98,6 +103,11 @@ double DisplayEngine::getFramerate()
     return m_Framerate;
 }
 
+double DisplayEngine::getEffectiveFramerate()
+{
+    return m_EffFramerate;
+}
+
 bool DisplayEngine::setVBlankRate(int rate) {
     m_VBRate = rate;
     if (m_bInitialized) {
@@ -125,6 +135,8 @@ void DisplayEngine::frameWait()
     ScopeTimer Timer(WaitProfilingZone);
 
     m_NumFrames++;
+    calcEffFramerate();
+
     m_FrameWaitStartTime = TimeSource::get()->getCurrentMillisecs();
     m_TargetTime = m_LastFrameTime+(long long)(1000/m_Framerate);
     if (m_VBRate != 0) {
@@ -160,6 +172,14 @@ void DisplayEngine::checkJitter()
     }
     m_TimeSpentWaiting += m_LastFrameTime-m_FrameWaitStartTime;
 }
-    
+   
+void DisplayEngine::calcEffFramerate()
+{
+    long long CurIntervalTime = TimeSource::get()->getCurrentMillisecs()
+            -m_StartFramerateCalcTime;
+    m_EffFramerate = 1000.0/CurIntervalTime;
+    m_StartFramerateCalcTime = TimeSource::get()->getCurrentMillisecs();
+}
+
 }
 

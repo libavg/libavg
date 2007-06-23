@@ -19,37 +19,37 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "Filter.h"
-#include "Bitmap.h"
+#ifndef _ObjectCounter_H_
+#define _ObjectCounter_H_
 
-#include "../base/ObjectCounter.h"
-
-#include <iostream>
-
-using namespace std;
+#include <string>
+#include <map>
+#include <typeinfo>
 
 namespace avg {
 
-Filter::Filter()
-{
-    ObjectCounter::get()->incRef(&typeid(*this));
-}
+class ObjectCounter {
+public:
+    static ObjectCounter* get();
+    virtual ~ObjectCounter();
 
-Filter::~Filter()
-{
-    ObjectCounter::get()->decRef(&typeid(*this));
-}
+    void incRef(const std::type_info* pType);
+    void decRef(const std::type_info* pType);
 
-void Filter::applyInPlace(BitmapPtr pBmp)
-{
-    *pBmp = *(apply(pBmp));
-}
+    int getCount(const std::type_info* pType);
+    std::string dump();
 
-BitmapPtr Filter::apply(BitmapPtr pBmpSource)
-{
-    BitmapPtr pBmpDest = BitmapPtr(new Bitmap(*pBmpSource));
-    applyInPlace (pBmpDest);
-    return pBmpDest;
-}
+private:
+    ObjectCounter();
+    std::string demangle(std::string s);
 
-} // namespace
+
+    typedef std::map<const std::type_info *, int> TypeMap;
+    TypeMap m_TypeMap;
+
+    static ObjectCounter* m_pObjectCounter; 
+};
+
+}
+#endif 
+

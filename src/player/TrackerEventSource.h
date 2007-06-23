@@ -77,8 +77,8 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
 
         // implement IBlobTarget
         // Called from Tracker Thread!
-        virtual void update(BlobListPtr pTrackBlobs, BitmapPtr pTrackBmp, int TrackThreshold,
-                BlobListPtr pTouchBlobs, BitmapPtr pTouchBmp, int TouchThreshold,
+        virtual void update(BlobArrayPtr pTrackBlobs, BitmapPtr pTrackBmp, int TrackThreshold,
+                BlobArrayPtr pTouchBlobs, BitmapPtr pTouchBmp, int TouchThreshold,
                 BitmapPtr pDestBmp);
 
         TrackerCalibrator* startCalibration();
@@ -100,11 +100,11 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         TrackerCalibrator * m_pCalibrator;
 
         // Used by tracker thread
-        void calcBlobs(BlobListPtr new_blobs, bool bTouch);
+        void calcBlobs(BlobArrayPtr new_blobs, bool bTouch);
         void correlateBlobs();
-        void drawBlobs(BlobListPtr pBlobs, BitmapPtr pSrcBmp, BitmapPtr pDestBmp, 
+        void drawBlobs(BlobArrayPtr pBlobs, BitmapPtr pSrcBmp, BitmapPtr pDestBmp, 
                 int Offset, bool bTouch);
-        BlobPtr matchblob(BlobPtr new_blob, BlobListPtr old_blobs, double threshold, 
+        BlobPtr matchblob(BlobPtr new_blob, BlobArrayPtr old_blobs, double threshold, 
                 EventMap * pEvents);
 
         // Used by both threads

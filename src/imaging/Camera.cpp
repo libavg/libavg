@@ -280,7 +280,7 @@ void Camera::close()
 
 IntPoint Camera::getImgSize()
 {
-#ifdef AVG_ENABLE_1394 || AVG_ENABLE_1394_2
+#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     return getCamImgSize(m_Mode);
 #endif
     return IntPoint(640, 480);

@@ -26,6 +26,8 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
+#include "../base/ObjectCounter.h"
+
 #include "../graphics/Filterflipuv.h"
 
 #include <iostream>
@@ -46,8 +48,11 @@ FFMpegDecoder::FFMpegDecoder ()
       m_pFormatContext(0),
       m_pVStream(0),
       m_pPacketData(0),
-      m_Size(0,0)
+      m_Size(0,0),
+      m_StartTimestamp(-1),
+      m_LastFrameTime(-1000)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     initVideoSupport();
 }
 
@@ -56,6 +61,7 @@ FFMpegDecoder::~FFMpegDecoder ()
     if (m_pFormatContext) {
         close();
     }
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 
@@ -170,6 +176,8 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
                 sFilename + ": could not open codec (?!).");
     }                
     m_pVStream = m_pFormatContext->streams[m_VStreamIndex];
+    m_TimeUnitsPerSecond = (int64_t)(1/av_q2d(m_pVStream->time_base));
+    m_TimePerFrame = (long long)(1000.0/getFPS());
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     m_Size = IntPoint(m_pVStream->codec.width, m_pVStream->codec.height);
 #else
@@ -178,7 +186,7 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
     m_bFirstPacket = true;
     m_PacketLenLeft = 0;
     m_sFilename = sFilename;
-
+    m_LastFrameTime = -1000;
     m_PF = calcPixelFormat(ycbcrMode);
 } 
 
@@ -209,9 +217,11 @@ void FFMpegDecoder::seek(int DestFrame)
 {
     if (m_bFirstPacket) {
         AVFrame Frame;
-        readFrame(Frame);
+        long long FrameTime;
+        readFrame(Frame, FrameTime);
     }
     m_pDemuxer->seek(DestFrame, m_VStreamIndex);
+    m_LastFrameTime = -1000;
     m_bEOF = false;
 }
 
@@ -243,57 +253,14 @@ double FFMpegDecoder::getFPS()
 }
 
 static ProfilingZone RenderToBmpProfilingZone("      FFMpeg: renderToBmp");
-static ProfilingZone ImgConvertProfilingZone("        FFMpeg: img_convert");
 
-bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp)
+bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp, long long TimeWanted)
 {
     ScopeTimer Timer(RenderToBmpProfilingZone);
     AVFrame Frame;
-    readFrame(Frame);
+    readFrameForTime(Frame, TimeWanted);
     if (!m_bEOF) {
-        AVPicture DestPict;
-        unsigned char * pDestBits = pBmp->getPixels();
-        DestPict.data[0] = pDestBits;
-        DestPict.linesize[0] = pBmp->getStride();
-        int DestFmt;
-        switch(pBmp->getPixelFormat()) {
-            case R8G8B8X8:
-            case R8G8B8A8:
-                // XXX: Unused and broken.
-                DestFmt = PIX_FMT_RGBA32;
-                break;
-            case B8G8R8X8:
-            case B8G8R8A8:
-                DestFmt = PIX_FMT_RGBA32;
-                break;
-            case R8G8B8:
-                DestFmt = PIX_FMT_RGB24;
-                break;
-            case B8G8R8:
-                DestFmt = PIX_FMT_BGR24;
-                break;
-            case YCbCr422:
-                DestFmt = PIX_FMT_YUV422;
-                break;
-            default:
-                AVG_TRACE(Logger::ERROR, "FFMpegDecoder: Dest format " 
-                        << pBmp->getPixelFormatString() << " not supported.");
-                assert(false);
-        }
-#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-        AVCodecContext *enc = &m_pVStream->codec;
-#else
-        AVCodecContext *enc = m_pVStream->codec;
-#endif
-        {
-            ScopeTimer Timer(ImgConvertProfilingZone);
-            int rc = img_convert(&DestPict, DestFmt,
-                    (AVPicture*)&Frame, enc->pix_fmt,
-                    enc->width, enc->height);
-            if (rc != 0) {
-                AVG_TRACE(Logger::ERROR, "FFFMpegDecoder: img_convert failed.");
-            }
-        }
+        convertFrameToBmp(Frame, pBmp);
     }
     return true;
 }
@@ -316,11 +283,12 @@ void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int Stride)
 static ProfilingZone ConvertImageProfilingZone("        FFMpeg: convert image");
 
 bool FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
-        BitmapPtr pBmpCr)
+        BitmapPtr pBmpCr, long long TimeWanted)
 {
     ScopeTimer Timer(RenderToBmpProfilingZone);
     AVFrame Frame;
-    readFrame(Frame);
+    long long FrameTime;
+    readFrame(Frame, FrameTime);
     if (!m_bEOF) {
         ScopeTimer Timer(ConvertImageProfilingZone);
         copyPlaneToBmp(pBmpY, Frame.data[0], Frame.linesize[0]);
@@ -363,6 +331,55 @@ PixelFormat FFMpegDecoder::calcPixelFormat(YCbCrMode ycbcrMode)
     return B8G8R8X8;
 }
 
+static ProfilingZone ImgConvertProfilingZone("        FFMpeg: img_convert");
+        
+void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
+{
+    AVPicture DestPict;
+    unsigned char * pDestBits = pBmp->getPixels();
+    DestPict.data[0] = pDestBits;
+    DestPict.linesize[0] = pBmp->getStride();
+    int DestFmt;
+    switch(pBmp->getPixelFormat()) {
+        case R8G8B8X8:
+        case R8G8B8A8:
+            // XXX: Unused and broken.
+            DestFmt = PIX_FMT_RGBA32;
+            break;
+        case B8G8R8X8:
+        case B8G8R8A8:
+            DestFmt = PIX_FMT_RGBA32;
+            break;
+        case R8G8B8:
+            DestFmt = PIX_FMT_RGB24;
+            break;
+        case B8G8R8:
+            DestFmt = PIX_FMT_BGR24;
+            break;
+        case YCbCr422:
+            DestFmt = PIX_FMT_YUV422;
+            break;
+        default:
+            AVG_TRACE(Logger::ERROR, "FFMpegDecoder: Dest format " 
+                    << pBmp->getPixelFormatString() << " not supported.");
+            assert(false);
+    }
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
+    AVCodecContext *enc = &m_pVStream->codec;
+#else
+    AVCodecContext *enc = m_pVStream->codec;
+#endif
+    {
+        ScopeTimer Timer(ImgConvertProfilingZone);
+        int rc = img_convert(&DestPict, DestFmt,
+                (AVPicture*)&Frame, enc->pix_fmt,
+                enc->width, enc->height);
+        if (rc != 0) {
+            AVG_TRACE(Logger::ERROR, "FFFMpegDecoder: img_convert failed.");
+        }
+    }
+}
+       
 PixelFormat FFMpegDecoder::getPixelFormat()
 {
     return m_PF;
@@ -375,11 +392,34 @@ void FFMpegDecoder::initVideoSupport()
         m_bInitialized = true;
         // Tune libavcodec console spam.
 //        av_log_set_level(AV_LOG_DEBUG);
-//        av_log_set_level(AV_LOG_QUIET);
+        av_log_set_level(AV_LOG_QUIET);
     }
 }
 
-void FFMpegDecoder::readFrame(AVFrame& Frame)
+bool FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long TimeWanted)
+{
+    long long FrameTime = -1000;
+//    cerr << "readFrameForTime " << TimeWanted << ", LastFrameTime= " << m_LastFrameTime << endl;
+    if (TimeWanted == -1) {
+        readFrame(Frame, FrameTime);
+    } else {
+        if (TimeWanted-m_LastFrameTime < 0.5*m_TimePerFrame) {
+//            cerr << "   LastFrameTime = " << m_LastFrameTime << ", display again." <<  endl;
+            // The last frame is still current. Display it again.
+            return false;
+        } else {
+            while (FrameTime-TimeWanted < -0.5*m_TimePerFrame && !m_bEOF) {
+                readFrame(Frame, FrameTime);
+//                cerr << "   readFrame returned time " << FrameTime << "." <<  endl;
+            }
+//            cerr << "  frame ok." << endl;
+        }
+    }
+    m_LastFrameTime = FrameTime;
+    return true;
+}
+
+void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
 {
     if (m_bEOF) {
         return;
@@ -423,6 +463,9 @@ void FFMpegDecoder::readFrame(AVFrame& Frame)
                     } else {
                         m_bEOF = true;
                     }
+                    // We don't have a timestamp for the last frame, so we'll
+                    // calculate it based on the frame before.
+                    FrameTime = m_LastFrameTime+m_TimePerFrame;
                     return;
                 }
                 m_PacketLenLeft = m_pPacket->size;
@@ -431,14 +474,15 @@ void FFMpegDecoder::readFrame(AVFrame& Frame)
             int Len1 = avcodec_decode_video(enc, &Frame,
                     &gotPicture, m_pPacketData, m_PacketLenLeft);
             if (Len1 < 0) {
-                AVG_TRACE(Logger::WARNING, "Error decoding " <<
-                        m_sFilename);
+//                AVG_TRACE(Logger::WARNING, "Error decoding " <<
+//                        m_sFilename);
                 m_PacketLenLeft = 0;
             } else {
                 m_pPacketData += Len1;
                 m_PacketLenLeft -= Len1;
             }
         }
+        FrameTime = getFrameTime(m_pPacket);
 /*
         cerr << "coded_picture_number: " << Frame.coded_picture_number <<
                 ", display_picture_number: " << Frame.display_picture_number <<
@@ -451,6 +495,16 @@ void FFMpegDecoder::readFrame(AVFrame& Frame)
 */    
     }
 }
+
+long long FFMpegDecoder::getFrameTime(AVPacket* pPacket)
+{
+    if (m_StartTimestamp == -1) {
+        m_StartTimestamp = pPacket->dts;
+    }
+    int64_t PacketTimestamp = (pPacket->dts-m_StartTimestamp);
+    return (long long)((1000*PacketTimestamp)/m_TimeUnitsPerSecond);
+}
+
 
 }
 

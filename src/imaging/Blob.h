@@ -25,13 +25,12 @@
 #define _ConnectedComps_H_
 
 #include "BlobInfo.h"
+#include "Run.h"
 
 #include "../graphics/Bitmap.h"
 #include "../graphics/Point.h"
 #include "../graphics/Rect.h"
 #include "../graphics/Pixel32.h"
-
-#include <boost/shared_ptr.hpp>
 
 #include <assert.h>
 #include <list>
@@ -40,41 +39,19 @@
 
 namespace avg {
 
-struct Run
-{
-        Run(int row, int start_col, int end_col, int color);
-        int m_Row;
-        int m_StartCol;
-        int m_EndCol;
-        int m_Color;
-        int length();
-        DPoint center();
-        int m_Label;
-    private:
-        static int s_LastLabel;
-};
-
-typedef boost::shared_ptr<struct Run> RunPtr;
-typedef std::vector<struct Run> RunList;
-
 class Blob;
 typedef boost::shared_ptr<class Blob> BlobPtr;
 
 class Blob
 {
     public:
-        Blob(Run run);
+        Blob(const RunPtr& pRun);
         ~Blob();
-        RunList& get_runs();
 
-        // TODO: Precalculate these values!
-        DPoint center();
-        int area();
-        int getLabel();
+        void addRun(const RunPtr& pRun);
         BlobInfoPtr getInfo();
-        IntRect bbox();
-        void merge(BlobPtr other);
-        RunList* getList();
+        void merge(const BlobPtr& other);
+        RunArray* getRuns();
         void render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color, 
                 int Min, int Max, bool bFinger, bool bMarkCenter, 
                 Pixel32 CenterColor= Pixel32(0x00, 0x00, 0xFF, 0xFF));
@@ -83,17 +60,17 @@ class Blob
         BlobPtr m_pParent;
     private:
         Blob(const Blob &);
-        RunList *m_pRuns;
+
+        RunArray *m_pRuns;
 
         BlobInfoPtr m_pBlobInfo;
         boost::shared_ptr<DPoint> m_pCenter;
 };
 
-typedef std::vector<BlobPtr> BlobList;
-typedef boost::shared_ptr<BlobList> BlobListPtr;
-typedef std::map<int, BlobPtr> CompsMap;
+typedef std::vector<BlobPtr> BlobArray;
+typedef boost::shared_ptr<BlobArray> BlobArrayPtr;
 
-BlobListPtr connected_components(BitmapPtr image, unsigned char object_threshold);
+BlobArrayPtr connected_components(BitmapPtr image, unsigned char object_threshold);
 
 }
 

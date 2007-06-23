@@ -43,19 +43,15 @@ FilterFastBandpass::~FilterFastBandpass()
 BitmapPtr FilterFastBandpass::apply(BitmapPtr pBmpSrc)
 {
     assert(pBmpSrc->getPixelFormat() == I8);
-    BitmapPtr pBmpBlur = FilterBlur().apply(pBmpSrc); 
     BitmapPtr pBmpDest = BitmapPtr(new Bitmap(pBmpSrc->getSize(), I8,
             pBmpSrc->getName()));
     int SrcStride = pBmpSrc->getStride();
-    int BlurStride = pBmpBlur->getStride();
     int DestStride = pBmpDest->getStride();
     unsigned char * pSrcLine = pBmpSrc->getPixels()+3*SrcStride;
-    unsigned char * pBlurLine = pBmpBlur->getPixels()+2*SrcStride;
     unsigned char * pDestLine = pBmpDest->getPixels()+3*DestStride;
     IntPoint size = pBmpDest->getSize();
     for (int y = 3; y<size.y-3; ++y) {
         unsigned char * pSrcPixel = pSrcLine+3;
-        unsigned char * pBlurPixel = pBlurLine-2;
         unsigned char * pDstPixel = pDestLine;
         *pDstPixel++ = 128;
         *pDstPixel++ = 128;
@@ -98,14 +94,12 @@ BitmapPtr FilterFastBandpass::apply(BitmapPtr pBmpSrc)
             *pDstPixel = 128+(*pSrcPixel)-Dest;
 */
             ++pSrcPixel;
-            ++pBlurPixel;
             ++pDstPixel;
         }
         *pDstPixel++ = 128;
         *pDstPixel++ = 128;
         *pDstPixel++ = 128;
         pSrcLine += SrcStride;
-        pBlurLine += BlurStride;
         pDestLine += DestStride;
     }
     // Set top and bottom borders.

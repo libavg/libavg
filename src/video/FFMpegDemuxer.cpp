@@ -21,6 +21,7 @@
 
 #include "FFMpegDemuxer.h"
 #include "../base/ScopeTimer.h"
+#include "../base/ObjectCounter.h"
 
 #include <iostream>
 
@@ -31,11 +32,13 @@ namespace avg {
 FFMpegDemuxer::FFMpegDemuxer(AVFormatContext * pFormatContext)
     : m_pFormatContext(pFormatContext)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 FFMpegDemuxer::~FFMpegDemuxer()
 {
     clearPacketCache();
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void FFMpegDemuxer::enableStream(int StreamIndex)

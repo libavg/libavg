@@ -52,6 +52,7 @@ class DisplayEngine
         void deinitRender();
         void setFramerate(double rate);
         double getFramerate();
+        double getEffectiveFramerate();
         bool setVBlankRate(int rate);
         bool wasFrameLate();
         virtual double getRefreshRate() = 0;
@@ -93,6 +94,8 @@ class DisplayEngine
     private:
         virtual bool initVBlank(int rate) = 0;
         virtual bool vbWait(int rate) = 0;
+
+        void calcEffFramerate();
         
         int m_NumFrames;
         int m_FramesTooLate;
@@ -105,6 +108,9 @@ class DisplayEngine
         double m_Framerate;
         bool m_bInitialized;
         bool m_bFrameLate;
+
+        long long m_StartFramerateCalcTime;
+        double m_EffFramerate;
 };
 
 }

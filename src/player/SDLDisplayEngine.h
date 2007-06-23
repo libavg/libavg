@@ -92,8 +92,9 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         int getOGLPixelType(PixelFormat pf);
         OGLMemoryMode getMemoryModeSupported();
 
-        void setOGLOptions(bool bUsePOW2Textures, YCbCrMode ycbcrMode, bool bUseRGBOrder,
-                bool bUsePixelBuffers, int MultiSampleSamples);
+        void setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYcbcrMode, 
+                bool bUseRGBOrder, bool bUsePixelBuffers, int MultiSampleSamples, 
+                VSyncMode DesiredVSyncMode);
 
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);
@@ -155,6 +156,7 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         bool m_bShouldUseRGBOrder;
         bool m_bShouldUsePixelBuffers;
         int m_MultiSampleSamples;
+        VSyncMode m_DesiredVSyncMode;
 
         bool m_bCheckedMemoryMode;
         OGLMemoryMode m_MemoryMode;

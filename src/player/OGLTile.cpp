@@ -23,6 +23,7 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
+#include "../base/ObjectCounter.h"
 
 #include <iostream>
 #include <string>
@@ -38,6 +39,7 @@ OGLTile::OGLTile(IntRect Extent, IntPoint TexSize, int Stride, PixelFormat pf,
       m_pf(pf),
       m_pEngine(pEngine)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
         createTexture(0, m_TexSize, Stride, I8);
         createTexture(1, m_TexSize/2, Stride/2, I8);
@@ -50,13 +52,12 @@ OGLTile::OGLTile(IntRect Extent, IntPoint TexSize, int Stride, PixelFormat pf,
 OGLTile::~OGLTile()
 {
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-        glDeleteTextures(1, &m_TexID[0]);
-        glDeleteTextures(2, &m_TexID[0]);
-        glDeleteTextures(3, &m_TexID[0]);
+        glDeleteTextures(3, m_TexID);
     } else {
-        glDeleteTextures(1, &m_TexID[0]);
+        glDeleteTextures(1, m_TexID);
     }
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::~OGLTile: glDeleteTextures()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::~OGLTile: glDeleteTextures()");    
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 const IntRect& OGLTile::getExtent() const
@@ -77,7 +78,6 @@ int OGLTile::getTexID(int i) const
 void OGLTile::blt(const DPoint& TLPoint, const DPoint& TRPoint,
         const DPoint& BLPoint, const DPoint& BRPoint) const
 {
-//    cerr << "OGLTile::blt" << endl;
     double TexWidth;
     double TexHeight;
     int TextureMode = m_pEngine->getTextureMode();

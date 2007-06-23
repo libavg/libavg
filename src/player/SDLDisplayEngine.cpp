@@ -640,7 +640,7 @@ void SDLDisplayEngine::checkYCbCrSupport()
 
 bool SDLDisplayEngine::initVBlank(int rate) {
     
-    if (rate > 0) {
+    if (rate > 0 && m_DesiredVSyncMode != VSYNC_NONE) {
 #ifdef __APPLE__
         CGLContextObj Context = CGLGetCurrentContext();
         if (Context == 0) {
@@ -669,7 +669,8 @@ bool SDLDisplayEngine::initVBlank(int rate) {
         } else {
             string sVendor = (const char *)(glGetString(GL_VENDOR));
             if (sVendor.find("VIA Technology") != string::npos || 
-                    !queryGLXExtension("GLX_SGI_video_sync"))
+                    !queryGLXExtension("GLX_SGI_video_sync") ||
+                    m_DesiredVSyncMode == VSYNC_DRI)
             {
                 m_dri_fd = open("/dev/dri/card0", O_RDWR);
                 if (m_dri_fd < 0)
@@ -1375,7 +1376,8 @@ OGLMemoryMode SDLDisplayEngine::getMemoryModeSupported()
 
 
 void SDLDisplayEngine::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode, 
-        bool bUseRGBOrder, bool bUsePixelBuffers, int MultiSampleSamples)
+        bool bUseRGBOrder, bool bUsePixelBuffers, int MultiSampleSamples, 
+        VSyncMode DesiredVSyncMode)
 {
     if (m_pScreen) {
         AVG_TRACE(Logger::ERROR, 
@@ -1387,6 +1389,7 @@ void SDLDisplayEngine::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCb
     m_bShouldUseRGBOrder = bUseRGBOrder;
     m_bShouldUsePixelBuffers = bUsePixelBuffers;
     m_MultiSampleSamples = MultiSampleSamples;
+    m_DesiredVSyncMode = DesiredVSyncMode;
 }
 
 }

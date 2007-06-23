@@ -81,6 +81,9 @@ ConfigMgr::ConfigMgr()
     addOption("scr", "gamma", "-1,-1,-1",
             "OpenGL backend only: Display gamma correction values for red,"
             "green and blue.");
+    addOption("scr", "vsyncmode", "auto",
+            "OpenGL backend only: How to synchronize the display refresh."
+            "Valid values are auto, ogl, dri and none.");
 
     m_sFName = "avgrc";
     loadFile("/etc/"+m_sFName);

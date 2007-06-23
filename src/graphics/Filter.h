@@ -34,7 +34,7 @@ class Filter
 {
 public:
   Filter();
-  virtual ~Filter() {};
+  virtual ~Filter();
 
   // In-Place Apply. Applies the filter to pBmp. The base-class
   // version copies the bitmap after calling Apply (pBmp, pTempBmp).

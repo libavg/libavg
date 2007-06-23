@@ -22,6 +22,8 @@
 #ifndef _Point_H_
 #define _Point_H_
 
+#include "../base/ObjectCounter.h"
+
 #include <ostream>
 
 namespace avg {
@@ -37,6 +39,7 @@ public:
   template<class ORIGNUM> explicit Point(const Point<ORIGNUM>& p);
   Point (NUM X, NUM Y);
   Point(const Point<NUM>& p);
+  ~Point();
 
   Point<NUM> & operator = (const Point<NUM>& p);
 
@@ -64,7 +67,9 @@ typedef Point<int> IntPoint;
 
 template<class NUM>
 Point<NUM>::Point ()
-{}
+{
+    ObjectCounter::get()->incRef(&typeid(*this));
+}
 
 template<class NUM>
 template<class ORIGNUM>
@@ -72,20 +77,29 @@ Point<NUM>::Point(const Point<ORIGNUM>& p)
     : x(NUM(p.x)),
       y(NUM(p.y))
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 template<class NUM>
 Point<NUM>::Point (NUM X, NUM Y)
 {
-  x = X;
-  y = Y;
+    ObjectCounter::get()->incRef(&typeid(*this));
+    x = X;
+    y = Y;
 }
 
 template<class NUM>
 Point<NUM>::Point(const Point<NUM>& p)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     x = p.x;
     y = p.y;
+}
+
+template<class NUM>
+Point<NUM>::~Point()
+{
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 template<class NUM>

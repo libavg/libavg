@@ -45,6 +45,7 @@ class Event {
         };
     
         Event(Type type, int when=-1);
+        Event(const Event& e);
         virtual ~Event();
         
         virtual void trace();

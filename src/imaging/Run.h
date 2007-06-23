@@ -18,25 +18,37 @@
 //
 //  Current versions can be found at www.libavg.de
 //
+//  Original author of this file is igor@c-base.org 
+//
 
-#ifndef _IVideoMsg_H_
-#define _IVideoMsg_H_
+#ifndef _Run_H_
+#define _Run_H_
 
-#include "../base/Queue.h"
+#include "../graphics/Point.h"
 
-#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
+
+#include <vector>
 
 namespace avg {
 
-class IVideoMsg {
-    public:
-        virtual ~IVideoMsg() {};
+class Blob;
+typedef boost::weak_ptr<class Blob> BlobWeakPtr;
+
+struct Run
+{
+        Run(int row, int start_col, int end_col);
+        int m_Row;
+        int m_StartCol;
+        int m_EndCol;
+        int length();
+        DPoint center();
+        BlobWeakPtr m_pBlob;
 };
 
-typedef boost::shared_ptr<IVideoMsg> VideoMsgPtr;
-typedef Queue<VideoMsgPtr> VideoMsgQueue;
-typedef boost::shared_ptr<VideoMsgQueue> VideoMsgQueuePtr;
+typedef boost::shared_ptr<Run> RunPtr;
+typedef std::vector<RunPtr> RunArray;
 
 }
-#endif 
 
+#endif

@@ -139,6 +139,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("getNumDifferentPixels", &TestHelper::getNumDifferentPixels, "")
         .def("useFakeCamera", &TestHelper::useFakeCamera, "")
         .def("fakeMouseEvent", &TestHelper::fakeMouseEvent, "")
+        .def("dumpObjects", &TestHelper::dumpObjects, "")
     ;
 
     class_<Player>("Player", 
@@ -191,6 +192,13 @@ BOOST_PYTHON_MODULE(avg)
                 "Sets the desired number of vertical blanking intervals before the next\n"
                 "frame is displayed. The resulting framerate is determined by the\n"
                 "monitor refresh rate divided by the rate parameter.")
+        .def("getEffectiveFramerate", &Player::getEffectiveFramerate,
+                "getEffectiveFramerate() -> double\n\n"
+                "Returns the framerate that the player is actually achieving. The value\n"
+                "is averaged over one second.")
+        .def("getMemUsed", &Player::getMemUsed,
+                "getMemUsed() -> int\n\n"
+                "Returns the memory used by the process in bytes.")
         .def("getTestHelper", &Player::getTestHelper,
                 return_value_policy<reference_existing_object>(),
                 "")

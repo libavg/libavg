@@ -22,9 +22,11 @@
 #include "Queue.h"
 #include "Command.h"
 #include "WorkerThread.h"
+#include "ObjectCounter.h"
+#include "MemHelper.h"
 
-#include "../base/TestSuite.h"
-#include "../base/TimeSource.h"
+#include "TestSuite.h"
+#include "TimeSource.h"
 
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
@@ -172,6 +174,40 @@ public:
     }
 };
 
+class DummyClass {
+public:
+    DummyClass()
+    {
+        ObjectCounter::get()->incRef(&typeid(*this));
+    }
+
+    virtual ~DummyClass()
+    {
+        ObjectCounter::get()->decRef(&typeid(*this));
+    }
+
+    int i;
+};
+
+class ObjectCounterTest: public Test {
+public:
+    ObjectCounterTest()
+        : Test("ObjectCounterTest", 2)
+    {
+    }
+
+    void runTests() 
+    {
+        assert(ObjectCounter::get()->getCount(&typeid(DummyClass)) == 0);
+        {
+            DummyClass dummy1;
+            DummyClass dummy2;
+            assert(ObjectCounter::get()->getCount(&typeid(dummy1)) == 2);
+        }
+        assert(ObjectCounter::get()->getCount(&typeid(DummyClass)) == 0);
+        assert(getMemUsed() > 100000);
+    }
+};
 
 class BaseTestSuite: public TestSuite {
 public:
@@ -180,6 +216,7 @@ public:
     {
         addTest(TestPtr(new QueueTest));
         addTest(TestPtr(new WorkerThreadTest));
+        addTest(TestPtr(new ObjectCounterTest));
     }
 };
 

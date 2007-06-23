@@ -23,6 +23,10 @@
 #include "Player.h"
 #include "MouseEvent.h"
 
+#include "../base/ObjectCounter.h"
+
+#include <iostream>
+
 using namespace std;
 
 namespace avg {
@@ -54,6 +58,11 @@ void TestHelper::fakeMouseEvent(Event::Type eventType,
     MouseEvent * pEvent = new MouseEvent(eventType, leftButtonState, 
             middleButtonState, rightButtonState, IntPoint(xPosition, yPosition), button);
     m_Events.push_back(pEvent);
+}
+
+void TestHelper::dumpObjects()
+{
+    cerr << ObjectCounter::get()->dump();
 }
 
 // From IEventSource

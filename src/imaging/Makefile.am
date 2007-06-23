@@ -23,12 +23,12 @@ else
 endif
 endif
 
-ALL_H = TrackerThread.h TrackerConfig.h Blob.h Camera.h \
+ALL_H = TrackerThread.h TrackerConfig.h Blob.h Camera.h Run.h \
         FakeCamera.h CoordTransformer.h FilterDistortion.h $(DC1394_INCLUDES) \
         BlobInfo.h DeDistort.h trackerconfigdtd.h $(V4L2_INCLUDES)
-ALL_CPP = TrackerThread.cpp TrackerConfig.cpp Blob.cpp Camera.cpp \
+ALL_CPP = TrackerThread.cpp TrackerConfig.cpp Blob.cpp Camera.cpp Run.cpp \
         FakeCamera.cpp CoordTransformer.cpp FilterDistortion.cpp $(DC1394_SOURCES) \
-        DeDistort.cpp trackerconfigdtd.cpp $(V4L2_SOURCES)
+        BlobInfo.cpp DeDistort.cpp trackerconfigdtd.cpp $(V4L2_SOURCES)
 
 TESTS=testimaging
 
