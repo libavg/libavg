@@ -333,16 +333,92 @@ const std::string& V4LCamera::getMode() const
     return m_sMode;
 }
 
+int V4LCamera::featureToCID(const std::string& sFeature) const
+{
+	int v4lfeature;
+	if (sFeature == "brightness") v4lfeature = V4L2_CID_BRIGHTNESS;
+	else if (sFeature == "contrast") v4lfeature = V4L2_CID_CONTRAST;
+	else if (sFeature == "gain") v4lfeature = V4L2_CID_GAIN;
+	else if (sFeature == "exposure") v4lfeature = V4L2_CID_EXPOSURE;
+	else if (sFeature == "whiteness") v4lfeature = V4L2_CID_WHITENESS;
+	else if (sFeature == "gamma") v4lfeature = V4L2_CID_GAMMA;
+	else if (sFeature == "saturation") v4lfeature = V4L2_CID_SATURATION;
+	else
+	{
+		AVG_TRACE(Logger::APP, "Unsupported feature " << sFeature);
+		return -1;
+	}
+	
+	return v4lfeature;
+}
+
+bool V4LCamera::isCIDSupported(int v4lfeature) const
+{
+	struct v4l2_queryctrl queryctrl;
+	
+	CLEAR(queryctrl);
+	queryctrl.id = v4lfeature;
+	
+	if (ioctl (fd_, VIDIOC_QUERYCTRL, &queryctrl) == -1)
+	{
+	        if (errno != EINVAL)
+	        {
+	                AVG_TRACE(Logger::ERROR,"VIDIOC_QUERYCTRL");
+	                exit (-1);
+	        } 
+	        else return false;
+	}
+	else if (queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) return false;
+	else return true;
+}
 
 unsigned int V4LCamera::getFeature(const std::string& sFeature) const
 {
-    return 0;
+	int v4lfeature = featureToCID(sFeature);
+	
+	isCIDSupported(v4lfeature);
+	
+	if (v4lfeature == -1 || isCIDSupported(v4lfeature) == false)
+	{
+		AVG_TRACE(Logger::ERROR,"Feature " << sFeature << " is not supported");
+		return 0;
+	}
+	
+	struct v4l2_control control;
+
+	CLEAR(control);
+	control.id = v4lfeature;
+
+	if (ioctl (fd_, VIDIOC_G_CTRL, &control) == 0) return (unsigned int)control.value;
+	else
+	{
+        AVG_TRACE(Logger::ERROR,"VIDIOC_G_CTRL");
+        exit (-1);
+	}
 }
 
 void V4LCamera::setFeature(const std::string& sFeature, int Value)
 {
-	// TODO: features
-	AVG_TRACE(Logger::APP, "Ignoring feature " << sFeature << " value " << Value);
+	int v4lfeature = featureToCID(sFeature);
+	
+	if (v4lfeature == -1 || !isCIDSupported(v4lfeature))
+	{
+		AVG_TRACE(Logger::ERROR,"Feature " << sFeature << " is not supported");
+		return;
+	}
+	
+	struct v4l2_control control;
+	
+    CLEAR(control);
+    control.id = v4lfeature;
+    control.value = Value;
+
+    if (ioctl (fd_, VIDIOC_S_CTRL, &control) == -1)
+    {
+            AVG_TRACE(Logger::ERROR,"VIDIOC_S_CTRL");
+            exit (-1);
+    }
+    else AVG_TRACE(Logger::APP, "Camera feature " << sFeature << " set to value " << Value);
 }
 
 void V4LCamera::startCapture()

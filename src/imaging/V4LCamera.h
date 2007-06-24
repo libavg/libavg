@@ -84,6 +84,9 @@ class V4LCamera: public ICamera {
     	void init_read(unsigned int buffer_size);
     	void init_mmap();
     	void init_userp(unsigned int buffer_size);
+    	
+    	int featureToCID(const std::string& sFeature) const;
+    	bool isCIDSupported(int v4lfeature) const;
 };
 
 }
