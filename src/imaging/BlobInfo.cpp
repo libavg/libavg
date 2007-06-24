@@ -24,8 +24,11 @@
 #include "BlobInfo.h"
 
 #include <math.h>
+#include <iostream>
 
 namespace avg {
+
+using namespace std;
 
 BlobInfo::BlobInfo(RunArray *pRuns)
 {
@@ -161,9 +164,9 @@ const DPoint & BlobInfo::getEigenValues() const
 
 DPoint BlobInfo::calcCenter(RunArray *pRuns)
 {
-    DPoint Center;
+    DPoint Center(0,0);
     double c = 0;
-    for(RunArray::iterator r=pRuns->begin();r!=pRuns->end();++r){
+    for(RunArray::iterator r=pRuns->begin();r!=pRuns->end();++r) {
         Center += (*r)->center()*(*r)->length();
         c += (*r)->length();
     }
