@@ -374,6 +374,12 @@ bool V4LCamera::isCIDSupported(int v4lfeature) const
 
 unsigned int V4LCamera::getFeature(const std::string& sFeature) const
 {
+	if (!m_bCameraAvailable)
+	{
+		AVG_TRACE(Logger::WARNING,"setFeature() called before opening device: ignored");
+		return 0;
+	}
+
 	int v4lfeature = featureToCID(sFeature);
 	
 	isCIDSupported(v4lfeature);
@@ -399,6 +405,12 @@ unsigned int V4LCamera::getFeature(const std::string& sFeature) const
 
 void V4LCamera::setFeature(const std::string& sFeature, int Value)
 {
+	if (!m_bCameraAvailable)
+	{
+		AVG_TRACE(Logger::WARNING,"setFeature() called before opening device: ignored");
+		return;
+	}
+
 	int v4lfeature = featureToCID(sFeature);
 	
 	if (v4lfeature == -1 || !isCIDSupported(v4lfeature))
