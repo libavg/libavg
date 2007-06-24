@@ -33,7 +33,7 @@ extern "C" {
 
 using namespace std;
 
-#define NUM_POINTS 4 
+#define NUM_POINTS 5 
 #define MIN_DIST_FROM_BORDER 30
 //#define DEBUG_FIT  1
 
