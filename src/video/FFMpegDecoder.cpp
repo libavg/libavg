@@ -261,8 +261,9 @@ bool FFMpegDecoder::renderToBmp(BitmapPtr pBmp, long long TimeWanted)
     readFrameForTime(Frame, TimeWanted);
     if (!m_bEOF) {
         convertFrameToBmp(Frame, pBmp);
+        return true;
     }
-    return true;
+    return false;
 }
 
 void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int Stride)
@@ -287,15 +288,20 @@ bool FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb,
 {
     ScopeTimer Timer(RenderToBmpProfilingZone);
     AVFrame Frame;
-    long long FrameTime;
-    readFrame(Frame, FrameTime);
+    readFrameForTime(Frame, TimeWanted);
     if (!m_bEOF) {
         ScopeTimer Timer(ConvertImageProfilingZone);
         copyPlaneToBmp(pBmpY, Frame.data[0], Frame.linesize[0]);
         copyPlaneToBmp(pBmpCb, Frame.data[1], Frame.linesize[1]);
         copyPlaneToBmp(pBmpCr, Frame.data[2], Frame.linesize[2]);
+        return true;
     }
-    return true;
+    return false;
+}
+        
+long long FFMpegDecoder::getCurFrameTime()
+{
+    return m_LastFrameTime;
 }
 
 bool FFMpegDecoder::isEOF()
@@ -398,6 +404,7 @@ void FFMpegDecoder::initVideoSupport()
 
 bool FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long TimeWanted)
 {
+    // XXX: This code is sort-of duplicated in AsyncVideoDecoder::getBmpsForTime()
     long long FrameTime = -1000;
 //    cerr << "readFrameForTime " << TimeWanted << ", LastFrameTime= " << m_LastFrameTime << endl;
     if (TimeWanted == -1) {

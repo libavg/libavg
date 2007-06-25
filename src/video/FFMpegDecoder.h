@@ -54,6 +54,7 @@ class FFMpegDecoder: public IVideoDecoder
         virtual bool renderToBmp(BitmapPtr pBmp, long long TimeWanted);
         virtual bool renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr, long long TimeWanted);
+        virtual long long getCurFrameTime();
         virtual bool isEOF();
 
     private:

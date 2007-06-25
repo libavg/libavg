@@ -33,6 +33,7 @@
 #include <Magick++.h>
 #include <stdio.h>
 #include <string>
+#include <sstream>
 
 using namespace avg;
 using namespace std;
@@ -55,7 +56,7 @@ class DecoderTest: public Test {
         void runTests()
         {
             basicFileTest("mpeg1-48x48.mpg", 30);
-            basicFileTest("mjpeg-48x48.avi", 202);
+//            basicFileTest("mjpeg-48x48.avi", 202);
             seekTest("mjpeg-48x48.avi");
         }
 
@@ -129,14 +130,22 @@ class DecoderTest: public Test {
             IntPoint FrameSize = pDecoder->getSize();
             BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
             long long TimePerFrame = (long long)((1000.0/pDecoder->getFPS())*SpeedFactor);
-            int NumFrames = -1;
+            int NumFrames = 0;
             long long CurTime = 0;
 
             while(!pDecoder->isEOF()) {
-                pDecoder->renderToBmp(pBmp, CurTime);
-                NumFrames++;
-                CurTime += TimePerFrame;
+                bool bNewFrame = pDecoder->renderToBmp(pBmp, CurTime);
+                if (bNewFrame) {
+/*                    
+                    stringstream ss;
+                    ss << "testfiles/result/" << sFilename << NumFrames << ".png";
+                    pBmp->save(ss.str());
+*/                    
+                    NumFrames++;
+                    CurTime += TimePerFrame;
+                }
             }
+            cerr << "NumFrames: " << NumFrames << ", ExpectedNumFrames: " << ExpectedNumFrames << endl;
             TEST(NumFrames == ExpectedNumFrames);
             if (SpeedFactor == 1) {
                 compareImages(pBmp, sFilename+"_end");
@@ -203,8 +212,8 @@ public:
     {
         addTest(TestPtr(new DecoderTest(false, false)));
         addTest(TestPtr(new DecoderTest(false, true)));
-//        addTest(TestPtr(new DecoderTest(true, false)));
-//        addTest(TestPtr(new DecoderTest(true, true)));
+        addTest(TestPtr(new DecoderTest(true, false)));
+        addTest(TestPtr(new DecoderTest(true, true)));
     }
 };
 

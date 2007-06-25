@@ -32,15 +32,18 @@ namespace avg {
 
 class FrameVideoMsg: public VideoMsg {
     public:
-        FrameVideoMsg(std::vector<BitmapPtr> pBmps, bool bSeekDone);
+        FrameVideoMsg(std::vector<BitmapPtr> pBmps, long long FrameTime, 
+                bool bSeekDone);
         virtual ~FrameVideoMsg();
 
         BitmapPtr getBitmap(int i);
+        long long getFrameTime();
         bool isSeekDone();
 
     private:
         std::vector<BitmapPtr> m_pBmps;
         bool m_bSeekDone;
+        long long m_FrameTime; // In Milliseconds since video start.
 };
 
 typedef boost::shared_ptr<FrameVideoMsg> FrameVideoMsgPtr;

@@ -94,7 +94,8 @@ bool VideoDecoderThread::work()
         if (m_pDecoder->isEOF()) {
             m_MsgQ.push(VideoMsgPtr(new EOFVideoMsg()));
         } else {
-            m_MsgQ.push(VideoMsgPtr(new FrameVideoMsg(pBmps, false)));
+            m_MsgQ.push(VideoMsgPtr(new FrameVideoMsg(pBmps, 
+                    m_pDecoder->getCurFrameTime(), false)));
         }
     }
     return true;
@@ -115,7 +116,7 @@ void VideoDecoderThread::seek(int DestFrame)
     }
 
     vector<BitmapPtr> pBmps;  // Empty.
-    m_MsgQ.push(VideoMsgPtr(new FrameVideoMsg(pBmps, true))); // Actually a 'seek done' message.
+    m_MsgQ.push(VideoMsgPtr(new FrameVideoMsg(pBmps, -1, true))); // Actually a 'seek done' message.
     m_pDecoder->seek(DestFrame);
 }
 
