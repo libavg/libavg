@@ -56,7 +56,7 @@ class DecoderTest: public Test {
         void runTests()
         {
             basicFileTest("mpeg1-48x48.mpg", 30);
-//            basicFileTest("mjpeg-48x48.avi", 202);
+            basicFileTest("mjpeg-48x48.avi", 202);
             seekTest("mjpeg-48x48.avi");
         }
 
@@ -82,6 +82,7 @@ class DecoderTest: public Test {
                 pDecoder->close();
                 
                 readWholeFile(sFilename, 1, ExpectedNumFrames); 
+                readWholeFile(sFilename, 0.5, ExpectedNumFrames); 
                 readWholeFile(sFilename, 2, ExpectedNumFrames/2); 
 
                 // Test loop.
@@ -134,18 +135,19 @@ class DecoderTest: public Test {
             long long CurTime = 0;
 
             while(!pDecoder->isEOF()) {
-                bool bNewFrame = pDecoder->renderToBmp(pBmp, CurTime);
-                if (bNewFrame) {
-/*                    
-                    stringstream ss;
-                    ss << "testfiles/result/" << sFilename << NumFrames << ".png";
-                    pBmp->save(ss.str());
-*/                    
+                FrameAvailableCode FrameAvailable = pDecoder->renderToBmp(pBmp, CurTime);
+                if (FrameAvailable == FA_NEW_FRAME) {
+//                    stringstream ss;
+//                    ss << "testfiles/result/" << sFilename << NumFrames << ".png";
+//                    pBmp->save(ss.str());
                     NumFrames++;
+
+                }
+                if (FrameAvailable == FA_NEW_FRAME || FrameAvailable == FA_USE_LAST_FRAME) { 
                     CurTime += TimePerFrame;
                 }
             }
-            cerr << "NumFrames: " << NumFrames << ", ExpectedNumFrames: " << ExpectedNumFrames << endl;
+//            cerr << "NumFrames: " << NumFrames << ", ExpectedNumFrames: " << ExpectedNumFrames << endl;
             TEST(NumFrames == ExpectedNumFrames);
             if (SpeedFactor == 1) {
                 compareImages(pBmp, sFilename+"_end");

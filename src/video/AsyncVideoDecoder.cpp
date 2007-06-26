@@ -29,6 +29,7 @@
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
 
+#include <math.h>
 #include <iostream>
 
 using namespace boost;
@@ -115,29 +116,27 @@ PixelFormat AsyncVideoDecoder::getPixelFormat()
     return m_PF;
 }
 
-bool AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp, long long TimeWanted)
+FrameAvailableCode AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp, long long TimeWanted)
 {
-    FrameVideoMsgPtr pFrameMsg = getBmpsForTime(TimeWanted);
-    if (pFrameMsg) {
+    FrameAvailableCode FrameAvailable;
+    FrameVideoMsgPtr pFrameMsg = getBmpsForTime(TimeWanted, FrameAvailable);
+    if (FrameAvailable == FA_NEW_FRAME) {
         *pBmp = *(pFrameMsg->getBitmap(0));
-        return true;
-    } else {
-        return false;
     }
+    return FrameAvailable;
 }
 
-bool AsyncVideoDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
+FrameAvailableCode AsyncVideoDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
        BitmapPtr pBmpCr, long long TimeWanted)
 {
-    FrameVideoMsgPtr pFrameMsg = getBmpsForTime(TimeWanted);
-    if (pFrameMsg) {
+    FrameAvailableCode FrameAvailable;
+    FrameVideoMsgPtr pFrameMsg = getBmpsForTime(TimeWanted, FrameAvailable);
+    if (FrameAvailable == FA_NEW_FRAME) {
         pBmpY->copyPixels(*(pFrameMsg->getBitmap(0)));
         pBmpCb->copyPixels(*(pFrameMsg->getBitmap(1)));
         pBmpCr->copyPixels(*(pFrameMsg->getBitmap(2)));
-        return true;
-    } else {
-        return false;
     }
+    return FrameAvailable;
 }
 
 long long AsyncVideoDecoder::getCurFrameTime()
@@ -168,7 +167,8 @@ void AsyncVideoDecoder::getInfoMsg()
     }
 }
         
-FrameVideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long TimeWanted)
+FrameVideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long TimeWanted, 
+        FrameAvailableCode& FrameAvailable)
 {
     // XXX: This code is sort-of duplicated in FFMpegDecoder::readFrameForTime()
     long long FrameTime = -1000;
@@ -176,10 +176,12 @@ FrameVideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long TimeWanted)
 //    cerr << "getBmpsForTime " << TimeWanted << ", LastFrameTime= " << m_LastFrameTime << endl;
     if (TimeWanted == -1) {
         pFrameMsg = getNextBmps(true);
+        FrameAvailable = FA_NEW_FRAME;
     } else {
-        if (TimeWanted-m_LastFrameTime < 0.5*m_TimePerFrame) {
+        if (fabs(TimeWanted-m_LastFrameTime) < 0.5*m_TimePerFrame) {
 //            cerr << "   LastFrameTime = " << m_LastFrameTime << ", display again." <<  endl;
             // The last frame is still current. Display it again.
+            FrameAvailable = FA_USE_LAST_FRAME;
             return FrameVideoMsgPtr();
         } else {
             while (FrameTime-TimeWanted < -0.5*m_TimePerFrame && !m_bEOF) {
@@ -189,9 +191,11 @@ FrameVideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long TimeWanted)
 //                    cerr << "   readFrame returned time " << FrameTime << "." <<  endl;
                 } else {
 //                    cerr << "   no frame available." <<  endl;
+                    FrameAvailable = FA_STILL_DECODING;
                     return FrameVideoMsgPtr();
                 }
             }
+            FrameAvailable = FA_NEW_FRAME;
 //            cerr << "  frame ok." << endl;
         }
     }

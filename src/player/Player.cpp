@@ -78,6 +78,7 @@
 #include <iostream>
 #include <sstream>
 #include <assert.h>
+#include <math.h>
 
 using namespace std;
 
@@ -93,7 +94,11 @@ Player::Player()
       m_pLastMouseNode(),
       m_pEventCaptureNode(),
       m_bUseFakeCamera(false),
-      m_bIsPlaying(false)
+      m_bIsPlaying(false),
+      m_bFakeFPS(false),
+      m_FakeFPS(0),
+      m_FrameTime(0),
+      m_PlayStartTime(0)
 {
     ThreadProfilerPtr pThreadProfiler = ThreadProfilerPtr(new ThreadProfiler("Main"));
     Profiler::get().registerThreadProfiler(pThreadProfiler);
@@ -255,6 +260,9 @@ void Player::play()
         m_pDisplayEngine->initRender();
         m_bStopping = false;
 
+        m_PlayStartTime = TimeSource::get()->getCurrentMillisecs();
+        m_FrameTime = 0;
+        m_NumFrames = 0;
         ThreadProfiler::get()->start();
         m_pDisplayEngine->render(m_pRootNode, true);
         if (m_pDisplayEngine->wasFrameLate()) {
@@ -329,6 +337,22 @@ unsigned Player::getMemUsed()
 TestHelper * Player::getTestHelper()
 {
     return &m_TestHelper;
+}
+
+void Player::setFakeFPS(double fps)
+{
+    if (fabs(fps + 1.0) < 0.0001) {
+        // fps = -1
+        m_bFakeFPS = false;
+    } else {
+        m_bFakeFPS = true;
+        m_FakeFPS = fps;
+    }
+}
+
+long long Player::getFrameTime()
+{
+    return m_FrameTime;
 }
 
 TrackerEventSource * Player::addTracker(std::string sDevice, 
@@ -510,6 +534,12 @@ void Player::doFrame ()
 {
     {
         ScopeTimer Timer(MainProfilingZone);
+        if (m_bFakeFPS) {
+            m_NumFrames++;
+            m_FrameTime = (long long)((m_NumFrames*1000.0)/m_FakeFPS);
+        } else {
+            m_FrameTime = TimeSource::get()->getCurrentMillisecs()-m_PlayStartTime;
+        }
         {
             ScopeTimer Timer(TimersProfilingZone);
             handleTimers();

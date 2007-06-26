@@ -46,15 +46,16 @@ class AsyncVideoDecoder: public IVideoDecoder
         virtual double getFPS();
         virtual PixelFormat getPixelFormat();
 
-        virtual bool renderToBmp(BitmapPtr pBmp, long long TimeWanted);
-        virtual bool renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
+        virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted);
+        virtual FrameAvailableCode renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr, long long TimeWanted);
         virtual long long getCurFrameTime();
         virtual bool isEOF();
 
     private:
         void getInfoMsg();
-        FrameVideoMsgPtr getBmpsForTime(long long TimeWanted);
+        FrameVideoMsgPtr getBmpsForTime(long long TimeWanted, 
+                FrameAvailableCode& FrameAvailable);
         FrameVideoMsgPtr getNextBmps(bool bWait);
         void waitForSeekDone();
 

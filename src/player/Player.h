@@ -68,6 +68,8 @@ class Player : IEventSink
         double getEffectiveFramerate();
         unsigned getMemUsed();
         TestHelper * getTestHelper();
+        void setFakeFPS(double fps);
+        long long getFrameTime();
 
         NodePtr createNodeFromXmlString (const std::string& sXML);
         TrackerEventSource * addTracker(std::string sDevice,
@@ -151,6 +153,13 @@ class Player : IEventSink
         VSyncMode m_VSyncMode;
 
         bool m_bIsPlaying;
+
+        // Time calculation
+        bool m_bFakeFPS;
+        double m_FakeFPS;
+        long long m_FrameTime;
+        long long m_PlayStartTime;
+        long long m_NumFrames;
 
         std::vector<IFrameListener*> m_Listeners;
         xmlDtdPtr m_dtd;

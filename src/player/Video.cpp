@@ -177,9 +177,31 @@ string Video::getTypeStr ()
     return "Video";
 }
 
+void Video::changeVideoState(VideoState NewVideoState)
+{
+    long long CurTime = getPlayer()->getFrameTime(); 
+    if (NewVideoState != getVideoState()) {
+        if (getVideoState() == Unloaded) {
+            m_StartTime = CurTime;
+            m_PauseTime = 0;
+        }
+        if (NewVideoState == Paused) {
+            m_PauseStartTime = CurTime;
+        } else if (NewVideoState == Playing && getVideoState() == Paused) {
+            m_PauseTime += (CurTime-m_PauseStartTime);
+        }
+    }
+    VideoBase::changeVideoState(NewVideoState);
+}
+
 void Video::seek(int DestFrame) 
 {
+
     m_pDecoder->seek(DestFrame);
+    m_StartTime = getPlayer()->getFrameTime()
+            -(long long)((DestFrame*1000.0)/m_pDecoder->getFPS());
+    m_PauseTime = 0;
+    m_PauseStartTime = getPlayer()->getFrameTime();
     m_CurFrame = DestFrame;
     setFrameAvailable(false);
 }
@@ -215,33 +237,48 @@ double Video::getFPS()
     return m_pDecoder->getFPS();
 }
 
+long long Video::getCurTime()
+{
+    switch (getVideoState()) {
+        case Unloaded:
+            return 0;
+        case Paused:
+            return m_PauseStartTime-m_StartTime;
+        case Playing:
+            return getPlayer()->getFrameTime()-m_StartTime-m_PauseTime;
+        default:
+            assert(false);
+            return 0;
+    }
+}
+
 static ProfilingZone RenderProfilingZone("    Video::render");
 
 bool Video::renderToSurface(ISurface * pSurface)
 {
     ScopeTimer Timer(RenderProfilingZone);
     PixelFormat PF = m_pDecoder->getPixelFormat();
-    bool bFrameAvailable;
+    FrameAvailableCode FrameAvailable;
     if (PF == YCbCr420p || PF == YCbCrJ420p) {
         BitmapPtr pBmp = pSurface->lockBmp(0);
-        bFrameAvailable = m_pDecoder->renderToYCbCr420p(pBmp,
-                pSurface->lockBmp(1), pSurface->lockBmp(2), -1);
+        FrameAvailable = m_pDecoder->renderToYCbCr420p(pBmp,
+                pSurface->lockBmp(1), pSurface->lockBmp(2), getCurTime());
     } else {
         BitmapPtr pBmp = pSurface->lockBmp();
-        bFrameAvailable = m_pDecoder->renderToBmp(pBmp, -1);
+        FrameAvailable = m_pDecoder->renderToBmp(pBmp, getCurTime());
 //        DisplayEngine::YCbCrMode ycbcrMode = getEngine()->getYCbCrMode();
 //        if (ycbcrMode == DisplayEngine::OGL_MESA && pBmp->getPixelFormat() == YCbCr422) {
 //            FilterFlipUV().applyInPlace(pBmp);
 //        }   
     }
     pSurface->unlockBmps();
-    if (bFrameAvailable) {
+    if (FrameAvailable == FA_NEW_FRAME) {
         getEngine()->surfaceChanged(pSurface);
     }
     if (getVideoState() == Playing) {
         advancePlayback();
     }
-    return bFrameAvailable;
+    return (FrameAvailable == FA_NEW_FRAME);
 }
 
 void Video::onEOF()

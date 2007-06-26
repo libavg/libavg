@@ -581,6 +581,7 @@ class PlayerTestCase(AVGTestCase):
             Player.getElementByID('clogo').active=1
         def deactivateclogo():
             Player.getElementByID('clogo').active=0
+        Player.setFakeFPS(25)
         self.start("video.avg",
                 (lambda: self.compareImage("testVideo1", False),
                  lambda: Player.getElementByID("clogo2").play(),
@@ -609,6 +610,7 @@ class PlayerTestCase(AVGTestCase):
         def onNoEOF():
             self.assert_(False)
         Player.loadFile("video.avg")
+        Player.setFakeFPS(25)
         video = Player.getElementByID("clogo2")
         video.play()
         video.setEOFCallback(onEOF)

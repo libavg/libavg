@@ -32,6 +32,10 @@ enum YCbCrMode {
     OGL_NONE, OGL_MESA, OGL_APPLE, OGL_SHADER
 };
 
+enum FrameAvailableCode {
+    FA_NEW_FRAME, FA_USE_LAST_FRAME, FA_STILL_DECODING
+};
+
 class IVideoDecoder
 {
     public:
@@ -45,8 +49,8 @@ class IVideoDecoder
         virtual double getFPS() = 0;
         virtual PixelFormat getPixelFormat() = 0;
 
-        virtual bool renderToBmp(BitmapPtr pBmp, long long TimeWanted) = 0;
-        virtual bool renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
+        virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted) = 0;
+        virtual FrameAvailableCode renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr, long long TimeWanted) = 0;
         virtual long long getCurFrameTime() = 0;
         virtual bool isEOF() = 0;

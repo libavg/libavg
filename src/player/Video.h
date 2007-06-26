@@ -22,9 +22,9 @@
 #ifndef _Video_H_
 #define _Video_H_
 
-#include <Python.h> // Python doc sais this should be included before 
-                              // any standard headers (!)
-                              //
+#include <Python.h> // Python docs say this should be included before 
+                    // any standard headers (!)
+
 #include "Node.h"
 #include "VideoBase.h"
 #include "../graphics/Rect.h"
@@ -57,6 +57,9 @@ class Video : public VideoBase
 
         virtual std::string getTypeStr ();
 
+    protected:
+        virtual void changeVideoState(VideoState NewVideoState);
+
     private:
         void initVideoSupport();
 
@@ -71,6 +74,7 @@ class Video : public VideoBase
         virtual PixelFormat getPixelFormat();
         virtual IntPoint getSize();
         virtual double getFPS();
+        virtual long long getCurTime();
 
         std::string m_href;
         std::string m_Filename;
@@ -79,6 +83,9 @@ class Video : public VideoBase
         PyObject * m_pEOFCallback;
 
         int m_CurFrame;
+        long long m_StartTime;
+        long long m_PauseTime;
+        long long m_PauseStartTime;
 
         IVideoDecoder * m_pDecoder;
 
