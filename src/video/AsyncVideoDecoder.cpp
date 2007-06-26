@@ -195,7 +195,9 @@ FrameVideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long TimeWanted)
 //            cerr << "  frame ok." << endl;
         }
     }
-    m_LastFrameTime = pFrameMsg->getFrameTime();
+    if (pFrameMsg) {
+        m_LastFrameTime = pFrameMsg->getFrameTime();
+    }
     return pFrameMsg;
 }
 
