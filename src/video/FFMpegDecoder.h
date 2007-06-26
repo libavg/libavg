@@ -84,6 +84,7 @@ class FFMpegDecoder: public IVideoDecoder
         int64_t m_StartTimestamp;
         long long m_LastFrameTime;
         long long m_TimePerFrame;
+        long long m_StreamTimeOffset;
 
         static bool m_bInitialized;
         // Prevents different decoder instances from executing open/close simultaneously

@@ -220,7 +220,7 @@ void FFMpegDecoder::seek(int DestFrame)
         long long FrameTime;
         readFrame(Frame, FrameTime);
     }
-    m_pDemuxer->seek(DestFrame, m_VStreamIndex);
+    m_pDemuxer->seek(DestFrame, m_StartTimestamp, m_VStreamIndex);
     m_LastFrameTime = -1000;
     m_bEOF = false;
 }
@@ -506,10 +506,10 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
 long long FFMpegDecoder::getFrameTime(AVPacket* pPacket)
 {
     if (m_StartTimestamp == -1) {
-        m_StartTimestamp = pPacket->dts;
+        m_StartTimestamp = (1000*pPacket->dts)/m_TimeUnitsPerSecond;
     }
-    int64_t PacketTimestamp = (pPacket->dts-m_StartTimestamp);
-    return (long long)((1000*PacketTimestamp)/m_TimeUnitsPerSecond);
+    int64_t PacketTimestamp = (pPacket->dts);
+    return (long long)((1000*PacketTimestamp)/m_TimeUnitsPerSecond)-m_StartTimestamp;
 }
 
 
