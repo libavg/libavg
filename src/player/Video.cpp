@@ -113,7 +113,9 @@ int Video::getCurFrame() const
 void Video::seekToFrame(int num)
 {
     if (getVideoState() != Unloaded) {
-        seek(num);
+        if (num != m_CurFrame) {
+            seek(num);
+        }
     } else {
         AVG_TRACE(Logger::WARNING, 
                 "Error in Video::SeekToFrame: Video "+getID()+" not loaded.");
