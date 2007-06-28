@@ -101,13 +101,20 @@ class DecoderTest: public Test {
             IntPoint FrameSize = pDecoder->getSize();
             BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
 
+            // Seek forward
             pDecoder->seek(100);
             pDecoder->renderToBmp(pBmp, -1);
             compareImages(pBmp, sFilename+"_100");
 
+            // Seek backward
             pDecoder->seek(53);
             pDecoder->renderToBmp(pBmp, -1);
             compareImages(pBmp, sFilename+"_53");
+
+            // Seek to last frame
+            pDecoder->seek(201);
+            pDecoder->renderToBmp(pBmp, -1);
+            compareImages(pBmp, sFilename+"_201");
 
             pDecoder->close();
         }
