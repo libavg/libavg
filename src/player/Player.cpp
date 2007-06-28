@@ -371,7 +371,7 @@ TrackerEventSource * Player::addTracker(std::string sDevice,
 
 int Player::setInterval(int time, PyObject * pyfunc)
 {
-    Timeout *t = new Timeout(time, pyfunc, true);
+    Timeout *t = new Timeout(time, pyfunc, true, getFrameTime());
     if (m_bInHandleTimers) {
         m_NewTimeouts.push_back(t);
     } else {
@@ -382,7 +382,7 @@ int Player::setInterval(int time, PyObject * pyfunc)
 
 int Player::setTimeout(int time, PyObject * pyfunc)
 {
-    Timeout *t = new Timeout(time, pyfunc, false);
+    Timeout *t = new Timeout(time, pyfunc, false, getFrameTime());
     if (m_bInHandleTimers) {
         m_NewTimeouts.push_back(t);
     } else {
@@ -874,9 +874,9 @@ void Player::handleTimers()
     vector<Timeout *> IntervalsFired;
     
     it = m_PendingTimeouts.begin();
-    while (it != m_PendingTimeouts.end() && (*it)->IsReady() && !m_bStopping)
+    while (it != m_PendingTimeouts.end() && (*it)->IsReady(getFrameTime()) && !m_bStopping)
     {
-        (*it)->Fire();
+        (*it)->Fire(getFrameTime());
         if (!m_bCurrentTimeoutDeleted) {
             if ((*it)->IsInterval()) {
                 Timeout* pTempTimeout = *it;
@@ -1004,6 +1004,7 @@ void Player::cleanup()
     m_IDMap.clear();
     m_pEventDispatcher = EventDispatcherPtr();
     initConfig();
+    m_FrameTime = 0;
 }
 
 int Player::addTimeout(Timeout* pTimeout)

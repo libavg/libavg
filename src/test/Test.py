@@ -639,6 +639,7 @@ class PlayerTestCase(AVGTestCase):
             anim.SplineAnim(Player.getElementByID("mainimg"), "y", 
                     200, 100, 0, 10, -400, 1, None)
         self.__animStopped = False
+        Player.setFakeFPS(-1)
         anim.init(Player)
         Player.loadFile("avg.avg")
         Player.setTimeout(1, onStart)
