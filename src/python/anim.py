@@ -2,14 +2,12 @@
 # - loops
 # - Folgen, Gruppen
 
-import time
-
 class SimpleAnim:
     def __init__(self, node, attrName, duration, useInt, onStop):
         self.node = node
         self.attrName = attrName
         self.duration = duration
-        self.startTime = time.time()
+        self.startTime = g_Player.getFrameTime()
         self.onStop = onStop
         self.useInt = useInt
 
@@ -24,7 +22,7 @@ class LinearAnim(SimpleAnim):
         self.__step()
     def __step(self):
         if not(self.__done):
-            part = ((time.time()-self.startTime)/self.duration)*1000
+            part = ((g_Player.getFrameTime()-self.startTime)/self.duration)
             if part > 1.0:
                 part = 1.0
             curValue = self.__startValue+(self.__endValue-self.__startValue)*part
@@ -63,7 +61,7 @@ class SplineAnim(SimpleAnim):
         self.__step()
     def __step(self):
         if not(self.__done):
-            part = ((time.time()-self.startTime)/self.duration)*1000
+            part = ((g_Player.getFrameTime()-self.startTime)/self.duration)
             curValue = ((self.__a*part+self.__b)*part+self.__c)*part+self.__d
             if self.useInt:
                 curValue = int(curValue+0.5)
