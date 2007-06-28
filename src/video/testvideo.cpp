@@ -84,15 +84,6 @@ class DecoderTest: public Test {
                 readWholeFile(sFilename, 1, ExpectedNumFrames); 
                 readWholeFile(sFilename, 0.5, ExpectedNumFrames); 
                 readWholeFile(sFilename, 2, ExpectedNumFrames/2); 
-
-                // Test loop.
-                pDecoder->open(string("testfiles/")+sFilename, OGL_NONE, 
-                        m_bThreadedDemuxer);
-                pDecoder->seek(0);
-                pDecoder->renderToBmp(pBmp, -1);
-                compareImages(pBmp, sFilename+"_loop");
-
-                pDecoder->close();
             } catch (Magick::Exception & ex) {
                 cerr << string(m_IndentLevel+6, ' ') << ex.what() << endl;
                 throw;
@@ -152,6 +143,12 @@ class DecoderTest: public Test {
             if (SpeedFactor == 1) {
                 compareImages(pBmp, sFilename+"_end");
             }
+            
+            // Test loop.
+            pDecoder->seek(0);
+            pDecoder->renderToBmp(pBmp, -1);
+            compareImages(pBmp, sFilename+"_loop");
+
             pDecoder->close();
         }
 
