@@ -285,6 +285,19 @@ class PlayerTestCase(AVGTestCase):
         self.start("invalidfilename.avg",
                 (activateNode,
                  Player.stop))
+    def testInvalidVideoFilename(self):
+        def tryplay():
+            exceptionRaised = False
+            try:
+                Player.getElementByID("brokenvideo").play()
+            except e:
+                self.assert_(1)
+            else:
+                self.assert_(0)
+        self.start("invalidvideofilename.avg",
+                (lambda: tryplay,
+                 lambda: Player.getElementByID("brokenvideo").stop(),
+                 Player.stop))
     def testEvents(self):
         def getMouseState():
             print "getMouseState"
@@ -604,6 +617,7 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Player.getElementByID("clogo").stop(),
                  lambda: self.compareImage("testVideo9", False),
                  Player.stop))
+
     def testVideoEOF(self):
         def onEOF():
             Player.stop()
@@ -843,6 +857,7 @@ def playerTestSuite(engine, bpp):
     suite.addTest(PlayerTestCase("testError", engine, bpp))
     suite.addTest(PlayerTestCase("testExceptionInTimeout", engine, bpp))
     suite.addTest(PlayerTestCase("testInvalidImageFilename", engine, bpp))
+    suite.addTest(PlayerTestCase("testInvalidVideoFilename", engine, bpp))
     suite.addTest(PlayerTestCase("testEvents", engine, bpp))
     suite.addTest(PlayerTestCase("testEventCapture", engine, bpp))
     suite.addTest(PlayerTestCase("testTimeouts", engine, bpp))
