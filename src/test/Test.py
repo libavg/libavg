@@ -285,6 +285,19 @@ class PlayerTestCase(AVGTestCase):
         self.start("invalidfilename.avg",
                 (activateNode,
                  Player.stop))
+    def testInvalidVideoFilename(self):
+        def tryplay():
+            exceptionRaised = False
+            try:
+                Player.getElementByID("brokenvideo").play()
+            except e:
+                self.assert_(1)
+            else:
+                self.assert_(0)
+        self.start("invalidvideofilename.avg",
+                (lambda: tryplay,
+                 lambda: Player.getElementByID("brokenvideo").stop(),
+                 Player.stop))
     def testEvents(self):
         def getMouseState():
             print "getMouseState"
@@ -581,6 +594,7 @@ class PlayerTestCase(AVGTestCase):
             Player.getElementByID('clogo').active=1
         def deactivateclogo():
             Player.getElementByID('clogo').active=0
+        Player.setFakeFPS(25)
         self.start("video.avg",
                 (lambda: self.compareImage("testVideo1", False),
                  lambda: Player.getElementByID("clogo2").play(),
@@ -603,12 +617,14 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Player.getElementByID("clogo").stop(),
                  lambda: self.compareImage("testVideo9", False),
                  Player.stop))
+
     def testVideoEOF(self):
         def onEOF():
             Player.stop()
         def onNoEOF():
             self.assert_(False)
         Player.loadFile("video.avg")
+        Player.setFakeFPS(25)
         video = Player.getElementByID("clogo2")
         video.play()
         video.setEOFCallback(onEOF)
@@ -637,6 +653,7 @@ class PlayerTestCase(AVGTestCase):
             anim.SplineAnim(Player.getElementByID("mainimg"), "y", 
                     200, 100, 0, 10, -400, 1, None)
         self.__animStopped = False
+        Player.setFakeFPS(-1)
         anim.init(Player)
         Player.loadFile("avg.avg")
         Player.setTimeout(1, onStart)
@@ -840,6 +857,7 @@ def playerTestSuite(engine, bpp):
     suite.addTest(PlayerTestCase("testError", engine, bpp))
     suite.addTest(PlayerTestCase("testExceptionInTimeout", engine, bpp))
     suite.addTest(PlayerTestCase("testInvalidImageFilename", engine, bpp))
+    suite.addTest(PlayerTestCase("testInvalidVideoFilename", engine, bpp))
     suite.addTest(PlayerTestCase("testEvents", engine, bpp))
     suite.addTest(PlayerTestCase("testEventCapture", engine, bpp))
     suite.addTest(PlayerTestCase("testTimeouts", engine, bpp))

@@ -54,7 +54,7 @@ class VideoBase : public RasterNode
         typedef enum VideoState {Unloaded, Paused, Playing};
         virtual VideoState getVideoState() const;
         void setFrameAvailable(bool bAvailable);
-        void changeVideoState(VideoState NewVideoState);
+        virtual void changeVideoState(VideoState NewVideoState);
         int getMediaWidth();
         int getMediaHeight();
    

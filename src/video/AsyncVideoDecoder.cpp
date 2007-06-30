@@ -29,6 +29,7 @@
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
 
+#include <math.h>
 #include <iostream>
 
 using namespace boost;
@@ -41,7 +42,8 @@ AsyncVideoDecoder::AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder)
       m_pDecoderThread(0),
       m_Size(0,0),
       m_bEOF(false),
-      m_bSeekPending(false)
+      m_bSeekPending(false),
+      m_LastFrameTime(-1000)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -66,6 +68,8 @@ void AsyncVideoDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
             VideoDecoderThread(*m_pMsgQ, *m_pCmdQ, m_pSyncDecoder, sFilename, 
                     ycbcrMode, bThreadedDemuxer));
     getInfoMsg();
+    m_TimePerFrame = (long long)(1000.0/getFPS());
+    m_LastFrameTime = -1000;
 }
 
 void AsyncVideoDecoder::close()
@@ -112,29 +116,32 @@ PixelFormat AsyncVideoDecoder::getPixelFormat()
     return m_PF;
 }
 
-bool AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp, long long TimeWanted)
+FrameAvailableCode AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp, long long TimeWanted)
 {
-    FrameVideoMsgPtr pFrameMsg = getNextBmps(TimeWanted == -1);
-    if (pFrameMsg) {
+    FrameAvailableCode FrameAvailable;
+    FrameVideoMsgPtr pFrameMsg = getBmpsForTime(TimeWanted, FrameAvailable);
+    if (FrameAvailable == FA_NEW_FRAME) {
         *pBmp = *(pFrameMsg->getBitmap(0));
-        return true;
-    } else {
-        return false;
     }
+    return FrameAvailable;
 }
 
-bool AsyncVideoDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
+FrameAvailableCode AsyncVideoDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
        BitmapPtr pBmpCr, long long TimeWanted)
 {
-    FrameVideoMsgPtr pFrameMsg = getNextBmps(TimeWanted == -1);
-    if (pFrameMsg) {
+    FrameAvailableCode FrameAvailable;
+    FrameVideoMsgPtr pFrameMsg = getBmpsForTime(TimeWanted, FrameAvailable);
+    if (FrameAvailable == FA_NEW_FRAME) {
         pBmpY->copyPixels(*(pFrameMsg->getBitmap(0)));
         pBmpCb->copyPixels(*(pFrameMsg->getBitmap(1)));
         pBmpCr->copyPixels(*(pFrameMsg->getBitmap(2)));
-        return true;
-    } else {
-        return false;
     }
+    return FrameAvailable;
+}
+
+long long AsyncVideoDecoder::getCurFrameTime()
+{
+    return m_LastFrameTime;
 }
 
 bool AsyncVideoDecoder::isEOF()
@@ -158,6 +165,44 @@ void AsyncVideoDecoder::getInfoMsg()
         m_FPS = pInfoMsg->getFPS();
         m_PF = pInfoMsg->getPF();
     }
+}
+        
+FrameVideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long TimeWanted, 
+        FrameAvailableCode& FrameAvailable)
+{
+    // XXX: This code is sort-of duplicated in FFMpegDecoder::readFrameForTime()
+    long long FrameTime = -1000;
+    FrameVideoMsgPtr pFrameMsg;
+//    cerr << "getBmpsForTime " << TimeWanted << ", LastFrameTime= " << m_LastFrameTime << endl;
+    if (TimeWanted == -1) {
+        pFrameMsg = getNextBmps(true);
+        FrameAvailable = FA_NEW_FRAME;
+    } else {
+        if (fabs(TimeWanted-m_LastFrameTime) < 0.5*m_TimePerFrame) {
+//            cerr << "   LastFrameTime = " << m_LastFrameTime << ", display again." <<  endl;
+            // The last frame is still current. Display it again.
+            FrameAvailable = FA_USE_LAST_FRAME;
+            return FrameVideoMsgPtr();
+        } else {
+            while (FrameTime-TimeWanted < -0.5*m_TimePerFrame && !m_bEOF) {
+                pFrameMsg = getNextBmps(false);
+                if (pFrameMsg) {
+                    FrameTime = pFrameMsg->getFrameTime();
+//                    cerr << "   readFrame returned time " << FrameTime << "." <<  endl;
+                } else {
+//                    cerr << "   no frame available." <<  endl;
+                    FrameAvailable = FA_STILL_DECODING;
+                    return FrameVideoMsgPtr();
+                }
+            }
+            FrameAvailable = FA_NEW_FRAME;
+//            cerr << "  frame ok." << endl;
+        }
+    }
+    if (pFrameMsg) {
+        m_LastFrameTime = pFrameMsg->getFrameTime();
+    }
+    return pFrameMsg;
 }
 
 FrameVideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)

@@ -193,6 +193,7 @@ void Bitmap::copyPixels(const Bitmap & Orig)
         switch (Orig.getPixelFormat()) {
             case YCbCr422:
             case YCbCr411:
+	    case YCbCr420p:
                 if (m_PF == B8G8R8X8) {
                     YCbCrtoBGR(Orig);
                 } else {
@@ -670,7 +671,7 @@ void Bitmap::dump(bool bDumpPixels) const
 void Bitmap::initWithData(unsigned char * pBits, int Stride, bool bCopyBits)
 {
 //    cerr << "Bitmap::initWithData()" << endl;
-    if (m_PF == YCbCr422) {
+    if (m_PF == YCbCr422 || m_PF == YCbCr420p) {
         if (m_Size.x%2 == 1) {
             AVG_TRACE(Logger::WARNING, "Odd size for YCbCr bitmap.");
             m_Size.x++;
@@ -700,7 +701,7 @@ void Bitmap::allocBits()
 {
 //    cerr << "Bitmap::allocBits():" << m_Size <<  endl;
     m_Stride = getLineLen();
-    if (m_PF == YCbCr422) {
+    if (m_PF == YCbCr422 || m_PF == YCbCr420p) {
         if (m_Size.x%2 == 1) {
             AVG_TRACE(Logger::WARNING, "Odd width for YCbCr bitmap.");
             m_Size.x++;
@@ -817,6 +818,7 @@ void Bitmap::YCbCrtoBGR(const Bitmap& Orig)
     int Height = min(Orig.getSize().y, m_Size.y);
     int Width = min(Orig.getSize().x, m_Size.x);
     int StrideInPixels = m_Stride/getBytesPerPixel();
+    int TotalPixels = Width * Height;
     switch(Orig.m_PF) {
         case YCbCr422:
             for (int y=0; y<Height; ++y) {
@@ -832,6 +834,18 @@ void Bitmap::YCbCrtoBGR(const Bitmap& Orig)
                 pSrc += Orig.getStride();
             }
             break;
+	case YCbCr420p: // this is a planar format
+		for (int y=0; y<Height; ++y) {
+			for (int x=0; x<Width; ++x) {
+				// planes order: Y(1:1), Cb(1:4), Cr(1:4).
+				// Offsets: Cb @ imgSize, Cr @ 5/4 * imgSize
+				YUVtoBGR32Pixel(pDest + y*Width + x,
+				pSrc[y*Width + x],						// Y
+				pSrc[(y/2) * (Width/2) + x/2 + TotalPixels],			// U
+				pSrc[(y/2) * (Width/2) + x/2 + TotalPixels + TotalPixels/4]);	// V
+			}
+	    }
+	    break;
         default:
             // This routine shouldn't be called with other pixel formats.
             assert(false);

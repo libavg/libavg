@@ -40,7 +40,7 @@ namespace avg {
            
             virtual void enableStream(int StreamIndex) = 0;
             virtual AVPacket * getPacket(int StreamIndex) = 0;
-            virtual void seek(int DestFrame, int StreamIndex) = 0;
+            virtual void seek(int DestFrame, int StartTimestamp, int StreamIndex) = 0;
             
     };
     typedef boost::shared_ptr<IDemuxer> IDemuxerPtr;

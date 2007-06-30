@@ -33,6 +33,7 @@
 #include <Magick++.h>
 #include <stdio.h>
 #include <string>
+#include <sstream>
 
 using namespace avg;
 using namespace std;
@@ -81,16 +82,8 @@ class DecoderTest: public Test {
                 pDecoder->close();
                 
                 readWholeFile(sFilename, 1, ExpectedNumFrames); 
+                readWholeFile(sFilename, 0.5, ExpectedNumFrames); 
                 readWholeFile(sFilename, 2, ExpectedNumFrames/2); 
-
-                // Test loop.
-                pDecoder->open(string("testfiles/")+sFilename, OGL_NONE, 
-                        m_bThreadedDemuxer);
-                pDecoder->seek(0);
-                pDecoder->renderToBmp(pBmp, -1);
-                compareImages(pBmp, sFilename+"_loop");
-
-                pDecoder->close();
             } catch (Magick::Exception & ex) {
                 cerr << string(m_IndentLevel+6, ' ') << ex.what() << endl;
                 throw;
@@ -108,13 +101,20 @@ class DecoderTest: public Test {
             IntPoint FrameSize = pDecoder->getSize();
             BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
 
+            // Seek forward
             pDecoder->seek(100);
             pDecoder->renderToBmp(pBmp, -1);
             compareImages(pBmp, sFilename+"_100");
 
+            // Seek backward
             pDecoder->seek(53);
             pDecoder->renderToBmp(pBmp, -1);
             compareImages(pBmp, sFilename+"_53");
+
+            // Seek to last frame
+            pDecoder->seek(201);
+            pDecoder->renderToBmp(pBmp, -1);
+            compareImages(pBmp, sFilename+"_201");
 
             pDecoder->close();
         }
@@ -129,18 +129,33 @@ class DecoderTest: public Test {
             IntPoint FrameSize = pDecoder->getSize();
             BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
             long long TimePerFrame = (long long)((1000.0/pDecoder->getFPS())*SpeedFactor);
-            int NumFrames = -1;
+            int NumFrames = 0;
             long long CurTime = 0;
 
             while(!pDecoder->isEOF()) {
-                pDecoder->renderToBmp(pBmp, CurTime);
-                NumFrames++;
-                CurTime += TimePerFrame;
+                FrameAvailableCode FrameAvailable = pDecoder->renderToBmp(pBmp, CurTime);
+                if (FrameAvailable == FA_NEW_FRAME) {
+//                    stringstream ss;
+//                    ss << "testfiles/result/" << sFilename << NumFrames << ".png";
+//                    pBmp->save(ss.str());
+                    NumFrames++;
+
+                }
+                if (FrameAvailable == FA_NEW_FRAME || FrameAvailable == FA_USE_LAST_FRAME) { 
+                    CurTime += TimePerFrame;
+                }
             }
+//            cerr << "NumFrames: " << NumFrames << ", ExpectedNumFrames: " << ExpectedNumFrames << endl;
             TEST(NumFrames == ExpectedNumFrames);
             if (SpeedFactor == 1) {
                 compareImages(pBmp, sFilename+"_end");
             }
+            
+            // Test loop.
+            pDecoder->seek(0);
+            pDecoder->renderToBmp(pBmp, -1);
+            compareImages(pBmp, sFilename+"_loop");
+
             pDecoder->close();
         }
 
@@ -203,8 +218,8 @@ public:
     {
         addTest(TestPtr(new DecoderTest(false, false)));
         addTest(TestPtr(new DecoderTest(false, true)));
-//        addTest(TestPtr(new DecoderTest(true, false)));
-//        addTest(TestPtr(new DecoderTest(true, true)));
+        addTest(TestPtr(new DecoderTest(true, false)));
+        addTest(TestPtr(new DecoderTest(true, true)));
     }
 };
 

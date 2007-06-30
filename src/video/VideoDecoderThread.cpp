@@ -78,23 +78,26 @@ bool VideoDecoderThread::work()
             IntPoint HalfSize(Size.x/2, Size.y/2);
             BitmapPtr pBmpU = BitmapPtr(new Bitmap(HalfSize, I8));
             BitmapPtr pBmpV = BitmapPtr(new Bitmap(HalfSize, I8));
-            bool bFrame=m_pDecoder->renderToYCbCr420p(pBmpY, pBmpU, pBmpV, -1);
-            if (bFrame) {
+            FrameAvailableCode FrameAvailable = 
+                    m_pDecoder->renderToYCbCr420p(pBmpY, pBmpU, pBmpV, -1);
+            if (FrameAvailable == FA_NEW_FRAME) {
                 pBmps.push_back(pBmpY);
                 pBmps.push_back(pBmpU);
                 pBmps.push_back(pBmpV);
             }
         } else {
             BitmapPtr pBmp = BitmapPtr(new Bitmap(Size, PF));
-            bool bFrame=m_pDecoder->renderToBmp(pBmp, -1);
-            if (bFrame) {
+            FrameAvailableCode FrameAvailable = 
+                    m_pDecoder->renderToBmp(pBmp, -1);
+            if (FrameAvailable == FA_NEW_FRAME) {
                 pBmps.push_back(pBmp);
             }
         }
         if (m_pDecoder->isEOF()) {
             m_MsgQ.push(VideoMsgPtr(new EOFVideoMsg()));
         } else {
-            m_MsgQ.push(VideoMsgPtr(new FrameVideoMsg(pBmps, false)));
+            m_MsgQ.push(VideoMsgPtr(new FrameVideoMsg(pBmps, 
+                    m_pDecoder->getCurFrameTime(), false)));
         }
     }
     return true;
@@ -115,7 +118,7 @@ void VideoDecoderThread::seek(int DestFrame)
     }
 
     vector<BitmapPtr> pBmps;  // Empty.
-    m_MsgQ.push(VideoMsgPtr(new FrameVideoMsg(pBmps, true))); // Actually a 'seek done' message.
+    m_MsgQ.push(VideoMsgPtr(new FrameVideoMsg(pBmps, -1, true))); // Actually a 'seek done' message.
     m_pDecoder->seek(DestFrame);
 }
 

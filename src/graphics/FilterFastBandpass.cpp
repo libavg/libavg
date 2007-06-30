@@ -65,13 +65,13 @@ BitmapPtr FilterFastBandpass::apply(BitmapPtr pBmpSrc)
             //  0  0  1  0  1  0  0
             //  0 -1  0  0  0 -1  0
             // -1  0  0  0  0  0 -1 
-            *pDstPixel = 128 - int(*(pSrcPixel-3*SrcStride-3) + *(pSrcPixel-3*SrcStride+3) +
-                *(pSrcPixel+3*SrcStride-3) + *(pSrcPixel+3*SrcStride+3)+2)/4; 
-            *pDstPixel += 
-                - int(*(pSrcPixel-2*SrcStride-2) + *(pSrcPixel-2*SrcStride+2) - 
+//            *pDstPixel = 128 - int(*(pSrcPixel-3*SrcStride-3) + *(pSrcPixel-3*SrcStride+3) +
+//                *(pSrcPixel+3*SrcStride-3) + *(pSrcPixel+3*SrcStride+3)+2)/4; 
+            *pDstPixel = 128
+                - int(*(pSrcPixel-2*SrcStride-2)*2 + *(pSrcPixel-2*SrcStride+2)*2 - 
                       *(pSrcPixel-SrcStride-1) - *(pSrcPixel-1*SrcStride+1) -
                       *(pSrcPixel+SrcStride-1) - *(pSrcPixel+1*SrcStride+1) + 
-                      *(pSrcPixel+2*SrcStride-2) + *(pSrcPixel+2*SrcStride+2)+2)/4
+                      *(pSrcPixel+2*SrcStride-2)*2 + *(pSrcPixel+2*SrcStride+2)*2+2)/4
                 + *pSrcPixel;
 /*
             unsigned char *pSrc = pSrcPixel-3*SrcStride-3;

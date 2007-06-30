@@ -202,6 +202,15 @@ BOOST_PYTHON_MODULE(avg)
         .def("getTestHelper", &Player::getTestHelper,
                 return_value_policy<reference_existing_object>(),
                 "")
+        .def("setFakeFPS", &Player::setFakeFPS,
+                "setFakeFPS(float) -> None\n\n"
+                "Sets a fixed number of virtual frames per second that are used as clock\n"
+                "source for video playback and other time-based actions. If a value of -1\n"
+                "is given as parameter, the real clock is used.\n")
+        .def("getFrameTime", &Player::getFrameTime,
+                "Returns the number of milliseconds that have elapsed since playback has\n"
+                "started. Honors FakeFPS. The time returned stays constant for an entire\n"
+                "frame; it is the time of the last display update.\n")
         .def("createNode", &Player::createNodeFromXmlString,
                 "createNode(xml) -> Node\n\n"
                 "Creates a new Node from an xml string. This node can be used as\n"
