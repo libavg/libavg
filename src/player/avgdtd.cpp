@@ -89,6 +89,7 @@ const char * g_pAVGDTD =
 "   shutter CDATA #IMPLIED\n"
 "   whitebalance CDATA #IMPLIED\n"
 "   source CDATA #IMPLIED\n"
+"   pixelformat CDATA #IMPLIED\n"
 "   channel CDATA #IMPLIED>\n"
 
 "<!ELEMENT words (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"

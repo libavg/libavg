@@ -50,7 +50,7 @@ CameraNode::CameraNode()
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2) 
     m_pCamera = CameraPtr(new Camera("", 15, "640x480_RGB", true));
 #elif defined(AVG_ENABLE_V4L2)
-    m_pCamera = CameraPtr(new V4LCamera("/dev/video0", 1, "640x480_RGB", true));
+    m_pCamera = CameraPtr(new V4LCamera("/dev/video0", 1, IntPoint(640,480), "RGB", true));
 #else
     AVG_TRACE(Logger::ERROR,
             "Unable to set up camera. Camera support not compiled.");
@@ -82,7 +82,11 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
 	{
 #if defined(AVG_ENABLE_V4L2)
 	    int Channel = getDefaultedIntAttr (xmlNode, "channel", 1);
-		m_pCamera = CameraPtr(new V4LCamera(sDevice, Channel, sMode, true));
+        int iWidth = getDefaultedIntAttr (xmlNode, "width", 640);
+        int iHeight = getDefaultedIntAttr (xmlNode, "height", 480);
+        string sPF = getDefaultedStringAttr (xmlNode, "pixelformat", "RGB");
+        
+		m_pCamera = CameraPtr(new V4LCamera(sDevice, Channel, IntPoint(iWidth, iHeight), sPF, true));
 		AVG_TRACE(Logger::APP, "V4LCamera created");
 #else
         AVG_TRACE(Logger::ERROR, "Video4Linux camera specified, but Video4Linux support not compiled in.");

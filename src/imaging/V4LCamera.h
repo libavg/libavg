@@ -37,19 +37,20 @@ namespace avg {
 
 class V4LCamera: public ICamera {
 
-	enum io_method {
-		IO_METHOD_READ,
-		IO_METHOD_MMAP,
-		IO_METHOD_USERPTR,
-	};
-	
-	struct Buffer {
+    enum io_method {
+        IO_METHOD_READ,
+        IO_METHOD_MMAP,
+        IO_METHOD_USERPTR,
+    };
+    
+    struct Buffer {
         void * start;
         size_t length;
-	};
-	
+    };
+    
     public:
-        V4LCamera(std::string sDevice, int Channel, std::string sMode, bool bColor);
+        V4LCamera(std::string sDevice, int Channel, IntPoint Size,
+            const std::string &PixelFormat, bool bColor);
         virtual ~V4LCamera();
         virtual void open();
         virtual void close();
@@ -66,27 +67,28 @@ class V4LCamera: public ICamera {
         virtual void setFeature(const std::string& sFeature, int Value);
         
     private:
-    	int fd_;
-		int Channel_;
-    	std::string m_sDevice;
-    	std::string m_sMode;
-    	io_method ioMethod_;
-    	std::vector<Buffer> buffers_;
-    	bool m_bCameraAvailable;
-    	int m_CamPF;
-    	bool bWait;
-    	bool m_bColor;
-    	
-    	int getCamPF(const std::string& sPF);
-    	
-    	void initDevice();
-    	void startCapture();
-    	void init_read(unsigned int buffer_size);
-    	void init_mmap();
-    	void init_userp(unsigned int buffer_size);
-    	
-    	int featureToCID(const std::string& sFeature) const;
-    	bool isCIDSupported(int v4lfeature) const;
+        int fd_;
+        int Channel_;
+        std::string m_sDevice;
+        std::string m_sMode;
+        io_method ioMethod_;
+        std::vector<Buffer> buffers_;
+        bool m_bCameraAvailable;
+        int m_CamPF;
+        bool bWait;
+        bool m_bColor;
+        IntPoint m_ipSize;
+        
+        int getCamPF(const std::string& sPF);
+        
+        void initDevice();
+        void startCapture();
+        void init_read(unsigned int buffer_size);
+        void init_mmap();
+        void init_userp(unsigned int buffer_size);
+        
+        int featureToCID(const std::string& sFeature) const;
+        bool isCIDSupported(int v4lfeature) const;
 };
 
 }

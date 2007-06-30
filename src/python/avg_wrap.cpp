@@ -215,15 +215,10 @@ BOOST_PYTHON_MODULE(avg)
                 "createNode(xml) -> Node\n\n"
                 "Creates a new Node from an xml string. This node can be used as\n"
                 "parameter to DivNode::addChild().")
-        .def("addFWTracker", &Player::addFWTracker,
+        .def("addTracker", &Player::addTracker,
                 return_value_policy<reference_existing_object>(),
-                "addFWTracker(device, mode) -> tracker\n\n"
-                "Adds a FW tracker to the avg player. The tracker immediately starts\n"
-                "reporting events.")
-        .def("addV4LTracker", &Player::addV4LTracker,
-                return_value_policy<reference_existing_object>(),
-                "addV4LTracker(device, mode) -> tracker\n\n"
-                "Adds a V4L tracker to the avg player. The tracker immediately starts\n"
+                "addTracker(device, mode) -> tracker\n\n"
+                "Adds a tracker to the avg player. The tracker immediately starts\n"
                 "reporting events.")
         .def("setInterval", &Player::setInterval,
                 "setInterval(time, pyfunc) -> id\n\n"
