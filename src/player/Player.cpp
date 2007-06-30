@@ -63,7 +63,9 @@
 #include "../graphics/Rect.h"
 
 #include "../imaging/Camera.h"
+#ifdef AVG_ENABLE_V4L2
 #include "../imaging/V4LCamera.h"
+#endif
 #include "../imaging/FakeCamera.h"
 
 #include <Magick++.h>
@@ -378,7 +380,9 @@ TrackerEventSource * Player::addV4LTracker(std::string sDevice,
     TrackerConfig Config;
     Config.load();
     CameraPtr pCamera;
+#ifdef AVG_ENABLE_V4L2
     pCamera = CameraPtr(new V4LCamera(sDevice, channel, sMode, false));
+#endif
     m_pTracker = new TrackerEventSource(pCamera, Config, IntPoint(m_DP.m_Width, m_DP.m_Height), true);
     m_pEventDispatcher->addSource(m_pTracker);
     return m_pTracker;
