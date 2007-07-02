@@ -173,7 +173,8 @@ FrameVideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long TimeWanted,
     // XXX: This code is sort-of duplicated in FFMpegDecoder::readFrameForTime()
     long long FrameTime = -1000;
     FrameVideoMsgPtr pFrameMsg;
-//    cerr << "getBmpsForTime " << TimeWanted << ", LastFrameTime= " << m_LastFrameTime << endl;
+//    cerr << "getBmpsForTime " << TimeWanted << ", LastFrameTime= " << m_LastFrameTime 
+//            << ", diff= " << TimeWanted-m_LastFrameTime <<  endl;
     if (TimeWanted == -1) {
         pFrameMsg = getNextBmps(true);
         FrameAvailable = FA_NEW_FRAME;

@@ -61,6 +61,7 @@ class DisplayEngine
 
         virtual void render(AVGNodePtr pRootNode, bool bRenderEverything) = 0;
         void frameWait();
+        long long getDisplayTime();
         
         virtual void setClipRect() = 0;
         virtual bool pushClipRect(const DRect& rc, bool bClip) = 0;
@@ -102,8 +103,9 @@ class DisplayEngine
         long long m_FrameWaitStartTime;
         long long m_TimeSpentWaiting;
         long long m_StartTime;
-        long long m_TargetTime;     // in microseconds!!
-        long long m_LastFrameTime;  // in microseconds!!  
+        long long m_TargetTime;     // in microseconds.
+        long long m_LastFrameTime;  // in microseconds.
+        long long m_LastVideoFrameTime;  // measured by counting refreshes, in microseconds.
         int m_VBRate;
         double m_Framerate;
         bool m_bInitialized;

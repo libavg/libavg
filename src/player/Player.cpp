@@ -538,7 +538,8 @@ void Player::doFrame ()
             m_NumFrames++;
             m_FrameTime = (long long)((m_NumFrames*1000.0)/m_FakeFPS);
         } else {
-            m_FrameTime = TimeSource::get()->getCurrentMillisecs()-m_PlayStartTime;
+            m_FrameTime = m_pDisplayEngine->getDisplayTime();
+//            m_FrameTime = TimeSource::get()->getCurrentMillisecs()-m_PlayStartTime;
         }
         {
             ScopeTimer Timer(TimersProfilingZone);

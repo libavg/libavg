@@ -276,10 +276,10 @@ bool Video::renderToSurface(ISurface * pSurface)
     pSurface->unlockBmps();
     if (FrameAvailable == FA_NEW_FRAME) {
         getEngine()->surfaceChanged(pSurface);
-    } else if (FrameAvailable == FA_STILL_DECODING) {
-        AVG_TRACE(Logger::PROFILE, "Missed video frame.");
-    } else if (FrameAvailable == FA_USE_LAST_FRAME) {
-        AVG_TRACE(Logger::PROFILE, "Video frame reused.");
+//    } else if (FrameAvailable == FA_STILL_DECODING) {
+//        AVG_TRACE(Logger::PROFILE, "Missed video frame.");
+//    } else if (FrameAvailable == FA_USE_LAST_FRAME) {
+//        AVG_TRACE(Logger::PROFILE, "Video frame reused.");
     }
     if (getVideoState() == Playing) {
         advancePlayback();

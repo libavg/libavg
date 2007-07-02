@@ -63,7 +63,8 @@ void DisplayEngine::initRender()
     m_FramesTooLate = 0;
     m_TimeSpentWaiting = 0;
     m_StartTime = TimeSource::get()->getCurrentMillisecs();
-    m_LastFrameTime = m_StartTime;
+    m_LastFrameTime = m_StartTime*1000;
+    m_LastVideoFrameTime = 0;
     m_bInitialized = true;
     if (!bUseVBlank) {
         m_VBRate = 0;
@@ -141,6 +142,7 @@ void DisplayEngine::frameWait()
     m_TargetTime = m_LastFrameTime+(long long)(1000000/m_Framerate);
     if (m_VBRate != 0) {
         m_bFrameLate = !vbWait(m_VBRate);
+        m_LastVideoFrameTime += (long long)(1000000/m_Framerate);
     } else {
         m_bFrameLate = false;
         if (m_FrameWaitStartTime <= m_TargetTime/1000) {
@@ -151,6 +153,15 @@ void DisplayEngine::frameWait()
             }
             TimeSource::get()->sleepUntil(m_TargetTime/1000);
         }
+    }
+}
+
+long long DisplayEngine::getDisplayTime() 
+{
+    if (m_VBRate == 0) {
+        return m_LastFrameTime/1000-m_StartTime;
+    } else {
+        return m_LastVideoFrameTime/1000;
     }
 }
 
