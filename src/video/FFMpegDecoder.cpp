@@ -176,7 +176,7 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
                 sFilename + ": could not open codec (?!).");
     }                
     m_pVStream = m_pFormatContext->streams[m_VStreamIndex];
-    m_TimeUnitsPerSecond = (int64_t)(1/av_q2d(m_pVStream->time_base));
+    m_TimeUnitsPerSecond = 1.0/av_q2d(m_pVStream->time_base);
     m_TimePerFrame = (long long)(1000.0/getFPS());
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     m_Size = IntPoint(m_pVStream->codec.width, m_pVStream->codec.height);
@@ -406,12 +406,12 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long Tim
 {
     // XXX: This code is sort-of duplicated in AsyncVideoDecoder::getBmpsForTime()
     long long FrameTime = -1000;
-//    cerr << "readFrameForTime " << TimeWanted << ", LastFrameTime= " << m_LastFrameTime << endl;
+    cerr << "readFrameForTime " << TimeWanted << ", LastFrameTime= " << m_LastFrameTime << ", diff= " << TimeWanted-m_LastFrameTime << endl;
     if (TimeWanted == -1) {
         readFrame(Frame, FrameTime);
     } else {
         if (TimeWanted-m_LastFrameTime < 0.5*m_TimePerFrame) {
-//            cerr << "   LastFrameTime = " << m_LastFrameTime << ", display again." <<  endl;
+            cerr << "   LastFrameTime = " << m_LastFrameTime << ", display again." <<  endl;
             // The last frame is still current. Display it again.
             return FA_USE_LAST_FRAME;
         } else {
@@ -506,7 +506,7 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
 long long FFMpegDecoder::getFrameTime(AVPacket* pPacket)
 {
     if (m_StartTimestamp == -1) {
-        m_StartTimestamp = (1000*pPacket->dts)/m_TimeUnitsPerSecond;
+        m_StartTimestamp = (long long)((1000*pPacket->dts)/m_TimeUnitsPerSecond);
     }
     int64_t PacketTimestamp = (pPacket->dts);
     return (long long)((1000*PacketTimestamp)/m_TimeUnitsPerSecond)-m_StartTimestamp;

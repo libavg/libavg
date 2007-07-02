@@ -102,8 +102,8 @@ class DisplayEngine
         long long m_FrameWaitStartTime;
         long long m_TimeSpentWaiting;
         long long m_StartTime;
-        long long m_TargetTime;
-        long long m_LastFrameTime;
+        long long m_TargetTime;     // in microseconds!!
+        long long m_LastFrameTime;  // in microseconds!!  
         int m_VBRate;
         double m_Framerate;
         bool m_bInitialized;
