@@ -69,8 +69,9 @@ class VideoBase : public RasterNode
         virtual IntPoint getSize() = 0;
 
         VideoState m_VideoState;
-       
+
         bool m_bFrameAvailable;
+        bool m_bFirstFrameDecoded;
 };
 
 }
