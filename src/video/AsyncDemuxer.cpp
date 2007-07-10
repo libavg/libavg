@@ -100,6 +100,27 @@ void AsyncDemuxer::seek(int DestFrame, int StartTimestamp, int StreamIndex)
     m_pCmdQ->push(Command<VideoDemuxerThread>(boost::bind(
                 &VideoDemuxerThread::seek, _1, DestFrame, StartTimestamp, StreamIndex)));
     m_bSeekPending = true;
+    map<int, VideoPacketQueuePtr>::iterator it;
+    for (it=m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
+        VideoPacketQueuePtr pPacketQ = it->second;
+        PacketVideoMsgPtr pPacketMsg;
+        // TODO: Actually, we need a SeekDone flag per Queue. This isn't relevant now,
+        // but it will be for audio support.
+        bool bSeekDone = false;
+        try {
+            while(!bSeekDone) {
+                pPacketMsg = pPacketQ->pop(false);
+                bSeekDone = pPacketMsg->isSeekDone();
+                pPacketMsg->freePacket();
+            }
+        } catch (Exception& ex) {
+            // This gets thrown if the queue is empty.
+        }
+        if (bSeekDone) {
+            m_bSeekPending = false;
+        }
+    }
+
 }
 
 void AsyncDemuxer::waitForSeekDone()

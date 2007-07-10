@@ -91,6 +91,19 @@ void AsyncVideoDecoder::seek(int DestFrame)
     m_pCmdQ->push(Command<VideoDecoderThread>(boost::bind(
                 &VideoDecoderThread::seek, _1, DestFrame)));
     m_bSeekPending = true;
+    try {
+        bool bDone = false;
+        do {
+            VideoMsgPtr pMsg = m_pMsgQ->pop(false);
+            FrameVideoMsgPtr pFrameMsg = dynamic_pointer_cast<FrameVideoMsg>(pMsg);
+            if (pFrameMsg) {
+                bDone = pFrameMsg->isSeekDone();
+            }
+        } while (!bDone);
+        m_bSeekPending = false;
+    } catch (Exception& ex) {
+        // The queue is empty.
+    }
 }
 
 IntPoint AsyncVideoDecoder::getSize()
