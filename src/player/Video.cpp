@@ -225,7 +225,8 @@ void Video::close()
 {
     m_pDecoder->close();
     if (m_FramesTooLate > 0) {
-        AVG_TRACE(Logger::PROFILE, "Missed video frames for " << getID() << ": " << m_FramesTooLate << " of " << m_FramesPlayed);
+        AVG_TRACE(Logger::PROFILE, "Missed video frames for " << getID() << ": " 
+                << m_FramesTooLate << " of " << m_FramesPlayed);
     }
 }
 

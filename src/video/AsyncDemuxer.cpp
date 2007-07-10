@@ -43,6 +43,7 @@ AsyncDemuxer::AsyncDemuxer(AVFormatContext * pFormatContext)
 AsyncDemuxer::~AsyncDemuxer()
 {
     if (m_pDemuxThread) {
+        waitForSeekDone();
         m_pCmdQ->push(Command<VideoDemuxerThread>(boost::bind(
                 &VideoDemuxerThread::stop, _1)));
         map<int, VideoPacketQueuePtr>::iterator it;
