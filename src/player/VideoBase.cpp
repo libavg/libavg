@@ -81,6 +81,12 @@ void VideoBase::setDisplayEngine(DisplayEngine * pEngine)
     }
 }
 
+void VideoBase::disconnect()
+{
+    changeVideoState(Unloaded);
+    Node::disconnect();
+}
+
 void VideoBase::play()
 {
     changeVideoState(Playing);

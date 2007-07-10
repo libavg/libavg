@@ -52,6 +52,8 @@ Video::Video ()
       m_Filename(""),
       m_bLoop(false),
       m_pEOFCallback(0),
+      m_FramesTooLate(0),
+      m_FramesPlayed(0),
       m_pDecoder(0)
 {
 }
@@ -60,6 +62,8 @@ Video::Video (const xmlNodePtr xmlNode, Player * pPlayer)
     : VideoBase(xmlNode, pPlayer),
       m_Filename(""),
       m_pEOFCallback(0),
+      m_FramesTooLate(0),
+      m_FramesPlayed(0),
       m_pDecoder(0)
 {
     m_href = getDefaultedStringAttr (xmlNode, "href", "");
@@ -212,12 +216,17 @@ void Video::seek(int DestFrame)
 void Video::open(YCbCrMode ycbcrMode)
 {
     m_CurFrame = 0;
+    m_FramesTooLate = 0;
+    m_FramesPlayed = 0;
     m_pDecoder->open(m_Filename, ycbcrMode, m_bThreaded);
 }
 
 void Video::close()
 {
     m_pDecoder->close();
+    if (m_FramesTooLate > 0) {
+        AVG_TRACE(Logger::PROFILE, "Missed video frames for " << getID() << ": " << m_FramesTooLate << " of " << m_FramesPlayed);
+    }
 }
 
 PixelFormat Video::getPixelFormat() 
@@ -275,8 +284,11 @@ bool Video::renderToSurface(ISurface * pSurface)
     }
     pSurface->unlockBmps();
     if (FrameAvailable == FA_NEW_FRAME) {
+        m_FramesPlayed++;
         getEngine()->surfaceChanged(pSurface);
-//    } else if (FrameAvailable == FA_STILL_DECODING) {
+    } else if (FrameAvailable == FA_STILL_DECODING) {
+        m_FramesPlayed++;
+        m_FramesTooLate++;
 //        AVG_TRACE(Logger::PROFILE, "Missed video frame.");
 //    } else if (FrameAvailable == FA_USE_LAST_FRAME) {
 //        AVG_TRACE(Logger::PROFILE, "Video frame reused.");

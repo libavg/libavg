@@ -55,7 +55,7 @@ class Video : public VideoBase
         bool isThreaded() const;
         void setEOFCallback(PyObject * pEOFCallback);
 
-        virtual std::string getTypeStr ();
+        virtual std::string getTypeStr();
 
     protected:
         virtual void changeVideoState(VideoState NewVideoState);
@@ -81,6 +81,8 @@ class Video : public VideoBase
         bool m_bLoop;
         bool m_bThreaded;
         PyObject * m_pEOFCallback;
+        int m_FramesTooLate;
+        int m_FramesPlayed;
 
         int m_CurFrame;
         long long m_StartTime;
