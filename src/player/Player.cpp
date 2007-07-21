@@ -510,9 +510,9 @@ void Player::removeNodeID(const std::string& id)
         it = m_IDMap.find(id);
         if (it != m_IDMap.end()) {
             m_IDMap.erase(it);
-        } else {
-            AVG_TRACE(Logger::ERROR, "removeNodeID("+id+") failed.");
-            exit(1);
+//        } else {
+//            AVG_TRACE(Logger::ERROR, "removeNodeID(\""+id+"\") failed.");
+//            exit(1);
         }
     }
 }
@@ -557,7 +557,8 @@ void Player::doFrame ()
             m_NumFrames++;
             m_FrameTime = (long long)((m_NumFrames*1000.0)/m_FakeFPS);
         } else {
-            m_FrameTime = TimeSource::get()->getCurrentMillisecs()-m_PlayStartTime;
+            m_FrameTime = m_pDisplayEngine->getDisplayTime();
+//            m_FrameTime = TimeSource::get()->getCurrentMillisecs()-m_PlayStartTime;
         }
         {
             ScopeTimer Timer(TimersProfilingZone);
@@ -1014,11 +1015,12 @@ void Player::cleanup()
     }
     m_PendingTimeouts.clear();
     Profiler::get().dumpStatistics();
+    m_pRootNode->disconnect();
+    m_pRootNode = AVGNodePtr();
     if (m_pDisplayEngine) {
         m_pDisplayEngine->deinitRender();
         m_pDisplayEngine->teardown();
     }
-    m_pRootNode = AVGNodePtr();
     m_pLastMouseNode.clear();
     m_IDMap.clear();
     m_pEventDispatcher = EventDispatcherPtr();

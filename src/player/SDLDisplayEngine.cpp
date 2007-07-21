@@ -76,7 +76,14 @@ using namespace std;
 namespace avg {
 
 #ifdef linux
-#define DRM_VBLANK_RELATIVE 0x1;
+
+typedef enum {
+    DRM_VBLANK_ABSOLUTE = 0x0,  /**< Wait for specific vblank sequence number */
+    DRM_VBLANK_RELATIVE = 0x1,  /**< Wait for given number of vblanks */
+    DRM_VBLANK_NEXTONMISS = 0x10000000, /**< If missed, wait for next vblank */
+    DRM_VBLANK_SECONDARY = 0x20000000,  /**< Secondary display controller */
+    DRM_VBLANK_SIGNAL   = 0x40000000    /* Send signal instead of blocking */
+} drmVBlankSeqType;
 
 struct drm_wait_vblank_request {
     int type;
@@ -103,14 +110,25 @@ typedef union drm_wait_vblank {
 
 static int drmWaitVBlank(int fd, drm_wait_vblank_t *vbl)
 {
+    static bool bUseSecondaryPipe = false;
     int ret;
     int rc;
 
     do {
        ret = ioctl(fd, DRM_IOCTL_WAIT_VBLANK, vbl);
+       if (bUseSecondaryPipe) {
+           vbl->request.type |= DRM_VBLANK_SECONDARY;
+       }
        vbl->request.type &= ~DRM_VBLANK_RELATIVE;
        rc = errno;
     } while (ret && rc == EINTR);
+    if (!bUseSecondaryPipe && rc == EBUSY) {
+        // rc 16 == device or resource busy
+        AVG_TRACE(Logger::CONFIG, 
+                "Using secondary pipe for vblank.");
+        bUseSecondaryPipe = true;
+        rc = 0;
+    }
 
     return rc;
 }

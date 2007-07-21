@@ -63,7 +63,8 @@ void DisplayEngine::initRender()
     m_FramesTooLate = 0;
     m_TimeSpentWaiting = 0;
     m_StartTime = TimeSource::get()->getCurrentMillisecs();
-    m_LastFrameTime = m_StartTime;
+    m_LastFrameTime = m_StartTime*1000;
+    m_LastVideoFrameTime = 0;
     m_bInitialized = true;
     if (!bUseVBlank) {
         m_VBRate = 0;
@@ -138,39 +139,49 @@ void DisplayEngine::frameWait()
     calcEffFramerate();
 
     m_FrameWaitStartTime = TimeSource::get()->getCurrentMillisecs();
-    m_TargetTime = m_LastFrameTime+(long long)(1000/m_Framerate);
+    m_TargetTime = m_LastFrameTime+(long long)(1000000/m_Framerate);
     if (m_VBRate != 0) {
         m_bFrameLate = !vbWait(m_VBRate);
+        m_LastVideoFrameTime += (long long)(1000000/m_Framerate);
     } else {
         m_bFrameLate = false;
-        if (m_FrameWaitStartTime <= m_TargetTime) {
-            long long WaitTime = m_TargetTime-m_FrameWaitStartTime;
+        if (m_FrameWaitStartTime <= m_TargetTime/1000) {
+            long long WaitTime = m_TargetTime/1000-m_FrameWaitStartTime;
             if (WaitTime > 5000) {
                 AVG_TRACE (Logger::WARNING, 
                         "DisplayEngine: waiting " << WaitTime << " ms.");
             }
-            TimeSource::get()->sleepUntil(m_TargetTime);
+            TimeSource::get()->sleepUntil(m_TargetTime/1000);
         }
+    }
+}
+
+long long DisplayEngine::getDisplayTime() 
+{
+    if (m_VBRate == 0) {
+        return m_LastFrameTime/1000-m_StartTime;
+    } else {
+        return m_LastVideoFrameTime/1000;
     }
 }
 
 void DisplayEngine::checkJitter()
 {
-    m_LastFrameTime = TimeSource::get()->getCurrentMillisecs();
+    m_LastFrameTime = TimeSource::get()->getCurrentMillisecs()*1000;
     int maxDelay;
     if (m_VBRate == 0) {
         maxDelay = 2;
     } else {
         maxDelay = 6;
     }
-    if (m_LastFrameTime - m_TargetTime > maxDelay || m_bFrameLate) {
+    if ((m_LastFrameTime - m_TargetTime)/1000 > maxDelay || m_bFrameLate) {
         AVG_TRACE (Logger::PROFILE_LATEFRAMES, 
                 "DisplayEngine: frame too late by " 
-                << m_LastFrameTime - m_TargetTime << " ms.");
+                << (m_LastFrameTime - m_TargetTime)/1000 << " ms.");
         m_bFrameLate = true;
         m_FramesTooLate++;
     }
-    m_TimeSpentWaiting += m_LastFrameTime-m_FrameWaitStartTime;
+    m_TimeSpentWaiting += m_LastFrameTime/1000-m_FrameWaitStartTime;
 }
    
 void DisplayEngine::calcEffFramerate()

@@ -52,14 +52,16 @@ namespace avg {
 
 VideoBase::VideoBase ()
     : m_VideoState(Unloaded),
-      m_bFrameAvailable(false)
+      m_bFrameAvailable(false),
+      m_bFirstFrameDecoded(false)
 {
 }
 
 VideoBase::VideoBase (const xmlNodePtr xmlNode, Player * pPlayer)
     : RasterNode(xmlNode, pPlayer),
       m_VideoState(Unloaded),
-      m_bFrameAvailable(false)
+      m_bFrameAvailable(false),
+      m_bFirstFrameDecoded(false)
 {
 }
 
@@ -77,6 +79,12 @@ void VideoBase::setDisplayEngine(DisplayEngine * pEngine)
     } catch (Exception& ex) {
         AVG_TRACE(Logger::WARNING, ex.GetStr());
     }
+}
+
+void VideoBase::disconnect()
+{
+    changeVideoState(Unloaded);
+    Node::disconnect();
 }
 
 void VideoBase::play()
@@ -116,6 +124,9 @@ void VideoBase::render (const DRect& Rect)
                 bool bNewFrame = renderToSurface(getSurface());
                 m_bFrameAvailable = m_bFrameAvailable | bNewFrame;
                 if (m_bFrameAvailable) {
+                    m_bFirstFrameDecoded = true;
+                }
+                if (m_bFirstFrameDecoded) {
                     getEngine()->blt32(getSurface(), &getAbsViewport(), 
                             getEffectiveOpacity(), getAngle(), getPivot(),
                             getBlendMode());
@@ -127,6 +138,9 @@ void VideoBase::render (const DRect& Rect)
                 m_bFrameAvailable = renderToSurface(getSurface());
             }
             if (m_bFrameAvailable) {
+                m_bFirstFrameDecoded = true;
+            }
+            if (m_bFirstFrameDecoded) {
                 getEngine()->blt32(getSurface(), &getAbsViewport(), 
                         getEffectiveOpacity(), getAngle(), getPivot(),
                         getBlendMode());
@@ -166,6 +180,7 @@ void VideoBase::open()
         getSurface()->unlockBmps();
     }
 
+    m_bFirstFrameDecoded = false;
     m_bFrameAvailable = false;
 }
 
@@ -181,7 +196,7 @@ int VideoBase::getMediaHeight()
 
 bool VideoBase::obscures (const DRect& Rect, int Child)
 {
-    return (isActive() && getEffectiveOpacity() > 0.999 &&
+    return (m_bFirstFrameDecoded && isActive() && getEffectiveOpacity() > 0.999 &&
             getVisibleRect().Contains(Rect) && m_VideoState != Unloaded);
 }
 

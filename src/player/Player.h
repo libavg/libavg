@@ -44,7 +44,6 @@
 namespace avg {
 
 class Event;
-class DisplayEngine;
 class TrackerEventSource;
 
 class Player : IEventSink

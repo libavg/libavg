@@ -36,6 +36,7 @@ class VideoBase : public RasterNode
     public:
         virtual ~VideoBase ();
         void setDisplayEngine(DisplayEngine * pEngine);
+        void disconnect();
         
         void play();
         void stop();
@@ -69,8 +70,9 @@ class VideoBase : public RasterNode
         virtual IntPoint getSize() = 0;
 
         VideoState m_VideoState;
-       
+
         bool m_bFrameAvailable;
+        bool m_bFirstFrameDecoded;
 };
 
 }

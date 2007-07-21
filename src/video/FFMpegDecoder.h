@@ -80,7 +80,7 @@ class FFMpegDecoder: public IVideoDecoder
         std::string m_sFilename;
         IntPoint m_Size;
 
-        int64_t m_TimeUnitsPerSecond;
+        double m_TimeUnitsPerSecond;
         int64_t m_StartTimestamp;
         long long m_LastFrameTime;
         long long m_TimePerFrame;
