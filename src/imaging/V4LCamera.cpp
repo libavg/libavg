@@ -40,9 +40,6 @@
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
 
-// TODO:
-// . setFeature() should map requests on a feature list and apply
-//      them all only when camera becomes available
 
 using namespace avg;
 
@@ -70,6 +67,14 @@ V4LCamera::V4LCamera(std::string sDevice, int Channel, IntPoint Size,
     AVG_TRACE(Logger::APP, "V4LCamera() device=" << sDevice << " ch=" << Channel << " w=" << Size.x << " h=" << Size.y << " pf=" << PixelFormat);
     
     m_CamPF = getCamPF(PixelFormat);
+
+    m_FeaturesNames[V4L2_CID_BRIGHTNESS] = "brightness";
+    m_FeaturesNames[V4L2_CID_CONTRAST] = "contrast";
+    m_FeaturesNames[V4L2_CID_GAIN] = "gain";
+    m_FeaturesNames[V4L2_CID_EXPOSURE] = "exposure";
+    m_FeaturesNames[V4L2_CID_WHITENESS] = "whiteness";
+    m_FeaturesNames[V4L2_CID_GAMMA] = "gamma";
+    m_FeaturesNames[V4L2_CID_SATURATION] = "saturation";
 }
 
 V4LCamera::~V4LCamera() 
@@ -83,15 +88,15 @@ void V4LCamera::open()
     if ( stat(m_sDevice.c_str(), &st) == -1)
     {
         AVG_TRACE(Logger::ERROR, "Unable to open v4l device " << m_sDevice);
-        // TODO: Disable camera instead of exit(-1).
-        exit(-1);
+        // TODO: Disable camera instead of exit(1).
+        exit(1);
     }
 
     if (!S_ISCHR (st.st_mode))
     {
         AVG_TRACE(Logger::ERROR, m_sDevice + " is not a v4l device");
-        // TODO: Disable camera instead of exit(-1).
-        exit(-1);
+        // TODO: Disable camera instead of exit(1).
+        exit(1);
     }
 
     fd_ = ::open(m_sDevice.c_str(), O_RDWR /* required */ | O_NONBLOCK, 0);
@@ -99,11 +104,9 @@ void V4LCamera::open()
     if (fd_ == -1)
     {
         AVG_TRACE(Logger::ERROR, "Unable to open v4l device " << m_sDevice);
-        // TODO: Disable camera instead of exit(-1).
-        exit(-1);
+        // TODO: Disable camera instead of exit(1).
+        exit(1);
     }
-    
-//    AVG_TRACE(Logger::APP, "Device opened, calling initDevice()...");
     
     initDevice();
     startCapture();
@@ -230,17 +233,17 @@ BitmapPtr V4LCamera::getImage(bool bWait)
     
                 case EIO:
                         AVG_TRACE(Logger::ERROR, "EIO");
-                        exit(-1);
+                        exit(1);
                         break;
 
                 case EINVAL:
                         AVG_TRACE(Logger::ERROR, "EINVAL");
-                        exit(-1);
+                        exit(1);
                         break;
 
                 default:
                         AVG_TRACE(Logger::ERROR, "VIDIOC_DQBUF");
-                        exit(-1);
+                        exit(1);
             }
         }
         
@@ -312,7 +315,7 @@ BitmapPtr V4LCamera::getImage(bool bWait)
         if (-1 == xioctl (fd_, VIDIOC_QBUF, &buf))
         {
             AVG_TRACE(Logger::ERROR, "VIDIOC_DQBUF");
-            exit(-1);
+            exit(1);
         }
     }
     
@@ -339,9 +342,21 @@ const std::string& V4LCamera::getMode() const
     return m_sMode;
 }
 
-int V4LCamera::featureToCID(const std::string& sFeature) const
+std::string V4LCamera::getFeatureName(V4LCID_t v4lfeature) {
+    std::string sName;
+
+    sName = m_FeaturesNames[v4lfeature];
+    
+    if (sName == "") {
+        sName = "UNKNOWN";
+    }
+    
+    return sName;
+}
+
+V4LCID_t V4LCamera::getFeatureID(const std::string& sFeature) const
 {
-    int v4lfeature;
+    V4LCID_t v4lfeature;
     if (sFeature == "brightness") v4lfeature = V4L2_CID_BRIGHTNESS;
     else if (sFeature == "contrast") v4lfeature = V4L2_CID_CONTRAST;
     else if (sFeature == "gain") v4lfeature = V4L2_CID_GAIN;
@@ -349,16 +364,15 @@ int V4LCamera::featureToCID(const std::string& sFeature) const
     else if (sFeature == "whiteness") v4lfeature = V4L2_CID_WHITENESS;
     else if (sFeature == "gamma") v4lfeature = V4L2_CID_GAMMA;
     else if (sFeature == "saturation") v4lfeature = V4L2_CID_SATURATION;
-    else
-    {
-        AVG_TRACE(Logger::APP, "Unsupported feature " << sFeature);
+    else {
+        AVG_TRACE(Logger::WARNING, "Unknown feature " << sFeature);
         return -1;
     }
     
     return v4lfeature;
 }
 
-bool V4LCamera::isCIDSupported(int v4lfeature) const
+bool V4LCamera::isFeatureSupported(V4LCID_t v4lfeature) const
 {
     struct v4l2_queryctrl queryctrl;
     
@@ -370,7 +384,7 @@ bool V4LCamera::isCIDSupported(int v4lfeature) const
             if (errno != EINVAL)
             {
                     AVG_TRACE(Logger::ERROR,"VIDIOC_QUERYCTRL");
-                    exit (-1);
+                    exit(1);
             } 
             else return false;
     }
@@ -380,48 +394,26 @@ bool V4LCamera::isCIDSupported(int v4lfeature) const
 
 unsigned int V4LCamera::getFeature(const std::string& sFeature) const
 {
-    if (!m_bCameraAvailable)
-    {
-        AVG_TRACE(Logger::WARNING,"setFeature() called before opening device: ignored");
+    V4LCID_t v4lfeature = getFeatureID(sFeature);
+    
+    FeatureMap::const_iterator it = m_Features.find(v4lfeature);
+    
+    if (it == m_Features.end()) {
         return 0;
-    }
-
-    int v4lfeature = featureToCID(sFeature);
-    
-    isCIDSupported(v4lfeature);
-    
-    if (v4lfeature == -1 || isCIDSupported(v4lfeature) == false)
-    {
-        AVG_TRACE(Logger::ERROR,"Feature " << sFeature << " is not supported");
-        return 0;
-    }
-    
-    struct v4l2_control control;
-
-    CLEAR(control);
-    control.id = v4lfeature;
-
-    if (ioctl (fd_, VIDIOC_G_CTRL, &control) == 0) return (unsigned int)control.value;
-    else
-    {
-        AVG_TRACE(Logger::ERROR,"VIDIOC_G_CTRL");
-        exit (-1);
+    } else {
+        return it->second;
     }
 }
 
-void V4LCamera::setFeature(const std::string& sFeature, int Value)
+void V4LCamera::setFeature(V4LCID_t v4lfeature, int Value)
 {
-    if (!m_bCameraAvailable)
-    {
-        AVG_TRACE(Logger::WARNING,"setFeature() called before opening device: ignored");
+    if (!m_bCameraAvailable) {
+        AVG_TRACE(Logger::WARNING, "setFeature() called before opening device: ignored");
         return;
     }
 
-    int v4lfeature = featureToCID(sFeature);
-    
-    if (v4lfeature == -1 || !isCIDSupported(v4lfeature))
-    {
-        AVG_TRACE(Logger::ERROR,"Feature " << sFeature << " is not supported");
+    if (!isFeatureSupported(v4lfeature)) {
+        AVG_TRACE(Logger::WARNING, "Feature " << getFeatureName(v4lfeature) << " is not supported by hardware");
         return;
     }
     
@@ -431,12 +423,26 @@ void V4LCamera::setFeature(const std::string& sFeature, int Value)
     control.id = v4lfeature;
     control.value = Value;
 
-    if (ioctl (fd_, VIDIOC_S_CTRL, &control) == -1)
-    {
-            AVG_TRACE(Logger::ERROR,"VIDIOC_S_CTRL");
-            exit (-1);
+//    AVG_TRACE(Logger::APP, "Setting Feature " << getFeatureName(v4lfeature) << " to "<< Value);
+
+    if (ioctl (fd_, VIDIOC_S_CTRL, &control) == -1) {
+        AVG_TRACE(Logger::ERROR, "Cannot set feature " << m_FeaturesNames[v4lfeature]);
     }
-    else AVG_TRACE(Logger::APP, "Camera feature " << sFeature << " set to value " << Value);
+}
+
+void V4LCamera::setFeature(const std::string& sFeature, int Value)
+{
+    // ignore -1 coming from default unbiased cameranode parameters
+    if (Value < 0) return;
+    
+    V4LCID_t v4lfeature = getFeatureID(sFeature);
+
+    m_Features[v4lfeature] = Value;
+
+//    AVG_TRACE(Logger::WARNING,"Setting feature " << sFeature << " to " << Value);
+    if (m_bCameraAvailable) {
+        setFeature(v4lfeature, Value);
+    }
 }
 
 void V4LCamera::startCapture()
@@ -466,7 +472,7 @@ void V4LCamera::startCapture()
             if (-1 == xioctl (fd_, VIDIOC_QBUF, &buf))
             {
                 AVG_TRACE(Logger::ERROR, "VIDIOC_QBUF");
-                exit (-1);
+                exit(1);
             }
         }
         
@@ -475,7 +481,7 @@ void V4LCamera::startCapture()
         if (-1 == xioctl (fd_, VIDIOC_STREAMON, &type))
         {
             AVG_TRACE(Logger::ERROR, "VIDIOC_STREAMON");
-            exit (-1);
+            exit(1);
         }
 
         break;
@@ -496,7 +502,7 @@ void V4LCamera::startCapture()
             if (-1 == xioctl (fd_, VIDIOC_QBUF, &buf))
             {
                 AVG_TRACE(Logger::ERROR, "VIDIOC_QBUF");
-                exit (-1);
+                exit(1);
             }
         }
 
@@ -505,7 +511,7 @@ void V4LCamera::startCapture()
         if (-1 == xioctl (fd_, VIDIOC_STREAMON, &type))
         {
             AVG_TRACE(Logger::ERROR, "VIDIOC_STREAMON");
-            exit (-1);
+            exit(1);
         }
 
         break;
@@ -530,19 +536,19 @@ void V4LCamera::initDevice()
         if (EINVAL == errno)
         {
             AVG_TRACE(Logger::ERROR, m_sDevice << " is not a valid V4L2 device");
-            exit (-1);
+            exit(1);
         }
         else
         {
             AVG_TRACE(Logger::ERROR, "VIDIOC_QUERYCAP error");
-            exit(-1);
+            exit(1);
         }
     }
 
     if (!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE))
     {
         AVG_TRACE(Logger::ERROR, m_sDevice << " does not support capturing");
-        exit(-1);
+        exit(1);
     }
 
     switch (ioMethod_)
@@ -551,7 +557,7 @@ void V4LCamera::initDevice()
         if (!(cap.capabilities & V4L2_CAP_READWRITE))
         {
             AVG_TRACE(Logger::ERROR, m_sDevice << " does not support read i/o");
-            exit (-1);
+            exit(1);
         }
 
         break;
@@ -561,7 +567,7 @@ void V4LCamera::initDevice()
         if (!(cap.capabilities & V4L2_CAP_STREAMING))
         {
             AVG_TRACE(Logger::ERROR, m_sDevice << " does not support streaming i/os");
-            exit (-1);
+            exit(1);
         }
 
         break;
@@ -607,7 +613,7 @@ void V4LCamera::initDevice()
     if (xioctl(fd_, VIDIOC_S_FMT, &fmt) == -1)
     {
         AVG_TRACE(Logger::ERROR, m_sDevice << " could not set image format");
-        exit (-1);
+        exit(1);
     }
 
     AVG_TRACE(Logger::APP, "Format set to " << fmt.fmt.pix.width << "x" << fmt.fmt.pix.height << " interlaced");
@@ -642,12 +648,17 @@ void V4LCamera::initDevice()
     if (xioctl(fd_, VIDIOC_S_INPUT, &Channel_) == -1)
     {
         AVG_TRACE(Logger::ERROR, "Cannot set MUX channel " << Channel_);
-        exit(-1);
+        exit(1);
     }
     
+    m_bCameraAvailable = true;
+
+    for (FeatureMap::iterator it=m_Features.begin(); it != m_Features.end(); it++) {
+        setFeature(it->first, it->second);
+    }
+
     AVG_TRACE(Logger::APP, "V4L2 device initialized successfully");
     
-    m_bCameraAvailable = true;
 }
 
 void V4LCamera::init_read (unsigned int buffer_size)
@@ -662,7 +673,7 @@ void V4LCamera::init_read (unsigned int buffer_size)
     if (!tmp.start)
     {
         AVG_TRACE(Logger::ERROR, "Out of memory");
-        exit (-1);
+        exit(1);
     }
     
     buffers_.push_back(tmp);
@@ -683,18 +694,16 @@ void V4LCamera::init_mmap()
         if (EINVAL == errno)
         {
             AVG_TRACE(Logger::APP, m_sDevice << " does not support memory mapping");
-            exit(-1);
+            exit(1);
         } else {
             //errno_exit ("VIDIOC_REQBUFS");
         }
     }
     
-    AVG_TRACE(Logger::APP, "init_mmap(): " << req.count << " buffers requested");
-
     if (req.count < 2)
     {
         AVG_TRACE(Logger::APP, "Insufficient buffer memory on " << m_sDevice);
-        exit(-1);
+        exit(1);
     }
 
     buffers_.clear();
@@ -713,7 +722,7 @@ void V4LCamera::init_mmap()
         if (xioctl (fd_, VIDIOC_QUERYBUF, &buf) == -1)
         {
             AVG_TRACE(Logger::ERROR, "VIDIOC_QUERYBUF index=" << i);
-            exit (-1);
+            exit(1);
         }
 
         tmp.length = buf.length;
@@ -727,7 +736,7 @@ void V4LCamera::init_mmap()
         if (MAP_FAILED == tmp.start)
         {
             AVG_TRACE(Logger::ERROR, "mmap() failed on buffer index=" << i);
-            exit (-1);
+            exit(1);
         }
                 
         buffers_.push_back(tmp);
@@ -748,7 +757,7 @@ void V4LCamera::init_userp(unsigned int buffer_size)
         if (EINVAL == errno)
         {
             AVG_TRACE(Logger::ERROR, m_sDevice << "does not support user pointer i/o");
-            exit (-1);
+            exit(1);
         }
         else
         {
@@ -767,7 +776,7 @@ void V4LCamera::init_userp(unsigned int buffer_size)
         if (!tmp.start)
         {
             AVG_TRACE(Logger::ERROR, "Out of memory");
-            exit(-1);
+            exit(1);
         }
         
         buffers_.push_back(tmp);

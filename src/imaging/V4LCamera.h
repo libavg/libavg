@@ -35,6 +35,8 @@
 
 namespace avg {
 
+typedef int V4LCID_t;
+
 class V4LCamera: public ICamera {
 
     enum io_method {
@@ -87,8 +89,14 @@ class V4LCamera: public ICamera {
         void init_mmap();
         void init_userp(unsigned int buffer_size);
         
-        int featureToCID(const std::string& sFeature) const;
-        bool isCIDSupported(int v4lfeature) const;
+        void setFeature(V4LCID_t v4lfeature, int Value);
+        V4LCID_t getFeatureID(const std::string& sFeature) const;
+        std::string getFeatureName(V4LCID_t v4lfeature);
+        bool isFeatureSupported(V4LCID_t v4lfeature) const;
+        typedef std::map<V4LCID_t, unsigned int> FeatureMap;
+        typedef std::map<int, std::string> FeatureNamesMap;
+        FeatureMap m_Features;
+        FeatureNamesMap m_FeaturesNames;
 };
 
 }
