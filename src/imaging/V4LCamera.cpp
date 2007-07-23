@@ -45,26 +45,30 @@ using namespace avg;
 
 // anonymous namespace holding private (C-static-like) functions
 namespace {
-    int xioctl (int fd, int request, void * arg)
+    int xioctl (int Fd, int Request, void * Arg)
     {
-        int r;
+        int Rc;
 
-        do r = ioctl (fd, request, arg);
-        while (r == -1 && EINTR == errno);
+        do {
+            Rc = ioctl(Fd, Request, Arg);
+        } while (Rc == -1 && EINTR == errno);
 
-        return r;
+        return Rc;
     }
 }
 
 V4LCamera::V4LCamera(std::string sDevice, int Channel, IntPoint Size,
         const std::string &PixelFormat, bool bColor)
-    : fd_(-1), Channel_(Channel), m_sDevice(sDevice), 
-      ioMethod_(V4LCamera::IO_METHOD_MMAP),
-      m_ipSize(Size),
-      m_bCameraAvailable(false),
-      m_bColor(bColor)
+           : m_Fd(-1),
+           m_Channel(Channel),
+           m_sDevice(sDevice), 
+           m_ImgSize(Size),
+           m_bCameraAvailable(false),
+           m_bColor(bColor)
 {
-    AVG_TRACE(Logger::APP, "V4LCamera() device=" << sDevice << " ch=" << Channel << " w=" << Size.x << " h=" << Size.y << " pf=" << PixelFormat);
+    AVG_TRACE(Logger::APP, "V4LCamera() device=" << sDevice << 
+        " ch=" << Channel << " w=" << Size.x << " h=" << Size.y <<
+        " pf=" << PixelFormat);
     
     m_CamPF = getCamPF(PixelFormat);
 
@@ -83,26 +87,24 @@ V4LCamera::~V4LCamera()
 
 void V4LCamera::open()
 {
-    struct stat st; 
+    struct stat St; 
 
-    if ( stat(m_sDevice.c_str(), &st) == -1)
-    {
-        AVG_TRACE(Logger::ERROR, "Unable to open v4l device " << m_sDevice);
+    if ( stat(m_sDevice.c_str(), &St) == -1) {
+        AVG_TRACE(Logger::ERROR, "Unable to open v4l device " << 
+          m_sDevice);
         // TODO: Disable camera instead of exit(1).
         exit(1);
     }
 
-    if (!S_ISCHR (st.st_mode))
-    {
+    if (!S_ISCHR (St.st_mode)) {
         AVG_TRACE(Logger::ERROR, m_sDevice + " is not a v4l device");
         // TODO: Disable camera instead of exit(1).
         exit(1);
     }
 
-    fd_ = ::open(m_sDevice.c_str(), O_RDWR /* required */ | O_NONBLOCK, 0);
+    m_Fd = ::open(m_sDevice.c_str(), O_RDWR /* required */ | O_NONBLOCK, 0);
 
-    if (fd_ == -1)
-    {
+    if (m_Fd == -1) {
         AVG_TRACE(Logger::ERROR, "Unable to open v4l device " << m_sDevice);
         // TODO: Disable camera instead of exit(1).
         exit(1);
@@ -115,53 +117,49 @@ void V4LCamera::open()
 void V4LCamera::close()
 {
     AVG_TRACE(Logger::APP, "Closing Camera...");
-    if ( ::close(fd_) == -1)
+    if ( ::close(m_Fd) == -1) {
         AVG_TRACE(Logger::ERROR, "Error on closing v4l device");
+    }
 
-    fd_ = -1;
+    m_Fd = -1;
     m_bCameraAvailable = false;
 }
 
 IntPoint V4LCamera::getImgSize()
 {
-    return m_ipSize;
+    return m_ImgSize;
 }
 
 int V4LCamera::getCamPF(const std::string& sPF)
 {
     int pfDef = V4L2_PIX_FMT_BGR24;
 
-    if (sPF == "MONO8")
-    {
+    if (sPF == "MONO8") {
         AVG_TRACE(Logger::APP, "Selecting grayscale I8 pixel format");
         pfDef = V4L2_PIX_FMT_GREY;
     }
     /*
     // NOT SUPPORTED YET
-    else if (sPF == "YUV411")
-    {
+    else if (sPF == "YUV411") {
         AVG_TRACE(Logger::APP, "Selecting YUV4:1:1 pixel format");
         pfDef = V4L2_PIX_FMT_Y41P;
     }*/
-    else if (sPF == "YUV422")
-    {
+    else if (sPF == "YUV422") {
         AVG_TRACE(Logger::APP, "Selecting YUV4:2:2 pixel format");
         pfDef = V4L2_PIX_FMT_UYVY;
     }
-    else if (sPF == "YUV420")
-    {
+    else if (sPF == "YUV420") {
         AVG_TRACE(Logger::APP, "Selecting YUV4:2:0 pixel format");
         pfDef = V4L2_PIX_FMT_YUV420;
     }
-    else if (sPF == "RGB")
-    {
+    else if (sPF == "RGB") {
         AVG_TRACE(Logger::APP, "Selecting RGB (BGR24) pixel format");
         pfDef = V4L2_PIX_FMT_BGR24;
     }
-    else
-    {
+    else {
         AVG_TRACE (Logger::WARNING,
-                std::string("Unsupported or illegal value for camera pixel format \"") 
+                std::string("Unsupported or illegal value for camera \
+                pixel format \"") 
                 + sPF + std::string("\"."));
     }
     
@@ -176,101 +174,84 @@ BitmapPtr V4LCamera::getImage(bool bWait)
 //  AVG_TRACE(Logger::APP, "getImage()");
     unsigned char *pSrc = 0;
     
-    struct v4l2_buffer buf;
-    CLEAR(buf);
+    struct v4l2_buffer Buf;
+    CLEAR(Buf);
     
     // wait for incoming data blocking, timeout 2s
-    if (bWait)
-    {
-        fd_set fds;
-        struct timeval tv;
-        int r;
+    if (bWait) {
+        fd_set Fds;
+        struct timeval Tv;
+        int Rc;
     
-        FD_ZERO (&fds);
-        FD_SET (fd_, &fds);
+        FD_ZERO (&Fds);
+        FD_SET (m_Fd, &Fds);
     
         /* Timeout. */
-        tv.tv_sec = 2;
-        tv.tv_usec = 0;
+        Tv.tv_sec = 2;
+        Tv.tv_usec = 0;
     
-        r = select (fd_ + 1, &fds, NULL, NULL, &tv);
+        Rc = select (m_Fd + 1, &Fds, NULL, NULL, &Tv);
 
         // caught signal or something else  
-        if (r == -1) return BitmapPtr();
+        if (Rc == -1) {
+            return BitmapPtr();
+        }
         // timeout
-        if (0 == r) {
-            AVG_TRACE(Logger::WARNING, "V4L: Timeout while waiting for image data");
+        if (Rc == 0) {
+            AVG_TRACE(Logger::WARNING, "V4L: Timeout while waiting \
+               for image data");
             return BitmapPtr();
         }
     }
     
-    switch (ioMethod_)
-    {
-    case IO_METHOD_READ:
-        if (read (fd_, buffers_[0].start, buffers_[0].length) == -1)
-        {
-//          AVG_TRACE(Logger::WARNING, "Frame not ready");
-            return BitmapPtr();
-        }
-//      else AVG_TRACE(Logger::WARNING, "Frame read");
-
-        pSrc = (unsigned char *)(buffers_[0].start);
-
-        break;
-
-    case IO_METHOD_MMAP:
-        
-        buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        buf.memory = V4L2_MEMORY_MMAP;
-        
-        // dequeue filled buffer
-        if (-1 == xioctl (fd_, VIDIOC_DQBUF, &buf))
-        {
-            switch (errno)
-            {
-                case EAGAIN:
-                        return BitmapPtr();
+    Buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    Buf.memory = V4L2_MEMORY_MMAP;
     
-                case EIO:
-                        AVG_TRACE(Logger::ERROR, "EIO");
-                        exit(1);
-                        break;
+    // dequeue filled buffer
+    if (xioctl (m_Fd, VIDIOC_DQBUF, &Buf) == -1) {
+        switch (errno) {
+            case EAGAIN:
+                    return BitmapPtr();
 
-                case EINVAL:
-                        AVG_TRACE(Logger::ERROR, "EINVAL");
-                        exit(1);
-                        break;
+            case EIO:
+                    AVG_TRACE(Logger::ERROR, "EIO");
+                    exit(1);
+                    break;
 
-                default:
-                        AVG_TRACE(Logger::ERROR, "VIDIOC_DQBUF");
-                        exit(1);
-            }
+            case EINVAL:
+                    AVG_TRACE(Logger::ERROR, "EINVAL");
+                    exit(1);
+                    break;
+
+            default:
+                    AVG_TRACE(Logger::ERROR, "VIDIOC_DQBUF");
+                    exit(1);
         }
-        
-        pSrc = (unsigned char*)buffers_[buf.index].start;
-        
-//      AVG_TRACE(Logger::APP,"mmap() dequeueing buffer index=" << buf.index);
-        break;
     }
+    
+    pSrc = (unsigned char*)m_vBuffers[Buf.index].start;
+        
+//  AVG_TRACE(Logger::APP,"mmap() dequeueing buffer index=" << Buf.index);
 
-    IntPoint size = getImgSize();
+    IntPoint Size = getImgSize();
 
     // target bitmap and uchar* to
     BitmapPtr pCurBitmap;
-    if (m_bColor) pCurBitmap = BitmapPtr(new Bitmap(size, B8G8R8X8));
-    else pCurBitmap = BitmapPtr(new Bitmap(size, I8));
+    if (m_bColor) {
+        pCurBitmap = BitmapPtr(new Bitmap(Size, B8G8R8X8));
+    }
+    else {
+        pCurBitmap = BitmapPtr(new Bitmap(Size, I8));
+    }
     
     unsigned char *pDest = pCurBitmap->getPixels();
 
- 
     ScopeTimer Timer(CameraConvertProfilingZone);
 
-    switch (m_CamPF)
-    {
+    switch (m_CamPF) {
     // fast BGR24 -> B8G8R8X8 conversion
     case V4L2_PIX_FMT_BGR24:
-        for (int imgp = 0 ; imgp < size.x * size.y ; ++imgp)
-        {
+        for (int imgp = 0 ; imgp < Size.x * Size.y ; ++imgp) {
             *pDest++ = *pSrc++; // Blue
             *pDest++ = *pSrc++; // Green
             *pDest++ = *pSrc++; // Red
@@ -280,21 +261,24 @@ BitmapPtr V4LCamera::getImage(bool bWait)
     
     case V4L2_PIX_FMT_GREY:
     {
-        Bitmap TempBmp(size, I8, pSrc, size.x, false, "TempCameraBmp");
+        Bitmap TempBmp(Size, I8, pSrc, Size.x, false, 
+            "TempCameraBmp");
         pCurBitmap->copyPixels(TempBmp);
     }
         break;
         
     case V4L2_PIX_FMT_UYVY:
     {
-        Bitmap TempBmp(size, YCbCr422, pSrc, size.x*2, false, "TempCameraBmp");
+        Bitmap TempBmp(Size, YCbCr422, pSrc, Size.x*2, false, 
+           "TempCameraBmp");
         pCurBitmap->copyPixels(TempBmp);
     }
         break;
 
     case V4L2_PIX_FMT_YUV420:
     {
-        Bitmap TempBmp(size, YCbCr420p, pSrc, size.x, false, "TempCameraBmp");
+        Bitmap TempBmp(Size, YCbCr420p, pSrc, Size.x, false, 
+            "TempCameraBmp");
         pCurBitmap->copyPixels(TempBmp);
     }
         break;
@@ -303,20 +287,16 @@ BitmapPtr V4LCamera::getImage(bool bWait)
     // NOT SUPPORTED YET
     case V4L2_PIX_FMT_Y41P:
     {
-        Bitmap TempBmp(size, YCbCr411, pSrc, (int)(size.x*1.5), false, "TempCameraBmp");
+        Bitmap TempBmp(Size, YCbCr411, pSrc, (int)(Size.x*1.5), false, "TempCameraBmp");
         pCurBitmap->copyPixels(TempBmp);
     }
     break; */
     }
 
     // enqueues free buffer for mmap
-    if (ioMethod_ == IO_METHOD_MMAP)
-    {
-        if (-1 == xioctl (fd_, VIDIOC_QBUF, &buf))
-        {
-            AVG_TRACE(Logger::ERROR, "VIDIOC_DQBUF");
-            exit(1);
-        }
+    if (-1 == xioctl (m_Fd, VIDIOC_QBUF, &Buf)) {
+        AVG_TRACE(Logger::ERROR, "VIDIOC_DQBUF");
+        exit(1);
     }
     
     return pCurBitmap;
@@ -334,6 +314,7 @@ const std::string& V4LCamera::getDevice() const
 
 double V4LCamera::getFrameRate() const
 {
+    // TODO: PAL or NTSC have different frame rates
     return 25;
 }
 
@@ -342,10 +323,11 @@ const std::string& V4LCamera::getMode() const
     return m_sMode;
 }
 
-std::string V4LCamera::getFeatureName(V4LCID_t v4lfeature) {
+std::string V4LCamera::getFeatureName(V4LCID_t V4LFeature)
+{
     std::string sName;
 
-    sName = m_FeaturesNames[v4lfeature];
+    sName = m_FeaturesNames[V4LFeature];
     
     if (sName == "") {
         sName = "UNKNOWN";
@@ -356,47 +338,56 @@ std::string V4LCamera::getFeatureName(V4LCID_t v4lfeature) {
 
 V4LCID_t V4LCamera::getFeatureID(const std::string& sFeature) const
 {
-    V4LCID_t v4lfeature;
-    if (sFeature == "brightness") v4lfeature = V4L2_CID_BRIGHTNESS;
-    else if (sFeature == "contrast") v4lfeature = V4L2_CID_CONTRAST;
-    else if (sFeature == "gain") v4lfeature = V4L2_CID_GAIN;
-    else if (sFeature == "exposure") v4lfeature = V4L2_CID_EXPOSURE;
-    else if (sFeature == "whiteness") v4lfeature = V4L2_CID_WHITENESS;
-    else if (sFeature == "gamma") v4lfeature = V4L2_CID_GAMMA;
-    else if (sFeature == "saturation") v4lfeature = V4L2_CID_SATURATION;
-    else {
+    V4LCID_t V4LFeature;
+    if (sFeature == "brightness") {
+        V4LFeature = V4L2_CID_BRIGHTNESS;
+    } else if (sFeature == "contrast") {
+        V4LFeature = V4L2_CID_CONTRAST;
+    }  else if (sFeature == "gain") {
+        V4LFeature = V4L2_CID_GAIN;
+    } else if (sFeature == "exposure") {
+        V4LFeature = V4L2_CID_EXPOSURE;
+    } else if (sFeature == "whiteness") {
+        V4LFeature = V4L2_CID_WHITENESS;
+    } else if (sFeature == "gamma") {
+        V4LFeature = V4L2_CID_GAMMA;
+    } else if (sFeature == "saturation") {
+        V4LFeature = V4L2_CID_SATURATION;
+    } else {
         AVG_TRACE(Logger::WARNING, "Unknown feature " << sFeature);
         return -1;
     }
     
-    return v4lfeature;
+    return V4LFeature;
 }
 
-bool V4LCamera::isFeatureSupported(V4LCID_t v4lfeature) const
+bool V4LCamera::isFeatureSupported(V4LCID_t V4LFeature) const
 {
-    struct v4l2_queryctrl queryctrl;
+    struct v4l2_queryctrl QueryCtrl;
     
-    CLEAR(queryctrl);
-    queryctrl.id = v4lfeature;
+    CLEAR(QueryCtrl);
+    QueryCtrl.id = V4LFeature;
     
-    if (ioctl (fd_, VIDIOC_QUERYCTRL, &queryctrl) == -1)
-    {
-            if (errno != EINVAL)
-            {
+    if (ioctl (m_Fd, VIDIOC_QUERYCTRL, &QueryCtrl) == -1) {
+            if (errno != EINVAL) {
                     AVG_TRACE(Logger::ERROR,"VIDIOC_QUERYCTRL");
                     exit(1);
             } 
-            else return false;
+            else {
+                return false;
+            }
+    } else if (QueryCtrl.flags & V4L2_CTRL_FLAG_DISABLED) {
+        return false;
+    } else {
+        return true;
     }
-    else if (queryctrl.flags & V4L2_CTRL_FLAG_DISABLED) return false;
-    else return true;
 }
 
 unsigned int V4LCamera::getFeature(const std::string& sFeature) const
 {
-    V4LCID_t v4lfeature = getFeatureID(sFeature);
+    V4LCID_t V4LFeature = getFeatureID(sFeature);
     
-    FeatureMap::const_iterator it = m_Features.find(v4lfeature);
+    FeatureMap::const_iterator it = m_Features.find(V4LFeature);
     
     if (it == m_Features.end()) {
         return 0;
@@ -405,28 +396,32 @@ unsigned int V4LCamera::getFeature(const std::string& sFeature) const
     }
 }
 
-void V4LCamera::setFeature(V4LCID_t v4lfeature, int Value)
+void V4LCamera::setFeature(V4LCID_t V4LFeature, int Value)
 {
     if (!m_bCameraAvailable) {
-        AVG_TRACE(Logger::WARNING, "setFeature() called before opening device: ignored");
+        AVG_TRACE(Logger::WARNING, "setFeature() called before opening \
+            device: ignored");
         return;
     }
 
-    if (!isFeatureSupported(v4lfeature)) {
-        AVG_TRACE(Logger::WARNING, "Feature " << getFeatureName(v4lfeature) << " is not supported by hardware");
+    if (!isFeatureSupported(V4LFeature)) {
+        AVG_TRACE(Logger::WARNING, "Feature " << getFeatureName(V4LFeature) <<
+            " is not supported by hardware");
         return;
     }
     
     struct v4l2_control control;
     
     CLEAR(control);
-    control.id = v4lfeature;
+    control.id = V4LFeature;
     control.value = Value;
 
-//    AVG_TRACE(Logger::APP, "Setting Feature " << getFeatureName(v4lfeature) << " to "<< Value);
+//    AVG_TRACE(Logger::APP, "Setting Feature " << getFeatureName(V4LFeature) << 
+//      " to "<< Value);
 
-    if (ioctl (fd_, VIDIOC_S_CTRL, &control) == -1) {
-        AVG_TRACE(Logger::ERROR, "Cannot set feature " << m_FeaturesNames[v4lfeature]);
+    if (ioctl (m_Fd, VIDIOC_S_CTRL, &control) == -1) {
+        AVG_TRACE(Logger::ERROR, "Cannot set feature " <<
+            m_FeaturesNames[V4LFeature]);
     }
 }
 
@@ -435,13 +430,14 @@ void V4LCamera::setFeature(const std::string& sFeature, int Value)
     // ignore -1 coming from default unbiased cameranode parameters
     if (Value < 0) return;
     
-    V4LCID_t v4lfeature = getFeatureID(sFeature);
+    V4LCID_t V4LFeature = getFeatureID(sFeature);
 
-    m_Features[v4lfeature] = Value;
+    m_Features[V4LFeature] = Value;
 
-//    AVG_TRACE(Logger::WARNING,"Setting feature " << sFeature << " to " << Value);
+//    AVG_TRACE(Logger::WARNING,"Setting feature " << sFeature <<
+//        " to " << Value);
     if (m_bCameraAvailable) {
-        setFeature(v4lfeature, Value);
+        setFeature(V4LFeature, Value);
     }
 }
 
@@ -450,204 +446,112 @@ void V4LCamera::startCapture()
 //  AVG_TRACE(Logger::APP, "Entering startCapture()...");
 
     unsigned int i;
-    enum v4l2_buf_type type;
+    enum v4l2_buf_type Type;
 
-    switch (ioMethod_)
-    {
-    case IO_METHOD_READ:
-        /* Nothing to do. */
-        break;
+    for (i = 0; i < m_vBuffers.size(); ++i) {
+        struct v4l2_buffer Buf;
 
-    case IO_METHOD_MMAP:
-        for (i = 0; i < buffers_.size(); ++i)
-        {
-            struct v4l2_buffer buf;
+        CLEAR (Buf);
 
-            CLEAR (buf);
+        Buf.type        = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        Buf.memory      = V4L2_MEMORY_MMAP;
+        Buf.index       = i;
 
-            buf.type        = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-            buf.memory      = V4L2_MEMORY_MMAP;
-            buf.index       = i;
-
-            if (-1 == xioctl (fd_, VIDIOC_QBUF, &buf))
-            {
-                AVG_TRACE(Logger::ERROR, "VIDIOC_QBUF");
-                exit(1);
-            }
-        }
-        
-        type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-
-        if (-1 == xioctl (fd_, VIDIOC_STREAMON, &type))
-        {
-            AVG_TRACE(Logger::ERROR, "VIDIOC_STREAMON");
+        if (-1 == xioctl (m_Fd, VIDIOC_QBUF, &Buf)) {
+            AVG_TRACE(Logger::ERROR, "VIDIOC_QBUF");
             exit(1);
         }
+    }
+    
+    Type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-        break;
-
-    case IO_METHOD_USERPTR:
-        for (i = 0; i < buffers_.size(); ++i)
-        {
-            struct v4l2_buffer buf;
-
-            CLEAR (buf);
-
-            buf.type        = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-            buf.memory      = V4L2_MEMORY_USERPTR;
-            buf.index       = i;
-            buf.m.userptr   = (unsigned long) buffers_[i].start;
-            buf.length      = buffers_[i].length;
-
-            if (-1 == xioctl (fd_, VIDIOC_QBUF, &buf))
-            {
-                AVG_TRACE(Logger::ERROR, "VIDIOC_QBUF");
-                exit(1);
-            }
-        }
-
-        type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-
-        if (-1 == xioctl (fd_, VIDIOC_STREAMON, &type))
-        {
-            AVG_TRACE(Logger::ERROR, "VIDIOC_STREAMON");
-            exit(1);
-        }
-
-        break;
+    if (-1 == xioctl (m_Fd, VIDIOC_STREAMON, &Type)) {
+        AVG_TRACE(Logger::ERROR, "VIDIOC_STREAMON");
+        exit(1);
     }
 
     AVG_TRACE(Logger::APP, "Capture started");
-
 }
 
 void V4LCamera::initDevice()
 {
 //  AVG_TRACE(Logger::APP, "Entering initDevice()...");
     
-    struct v4l2_capability cap;
-    struct v4l2_cropcap cropcap;
-    struct v4l2_crop crop;
-    struct v4l2_format fmt;
-    unsigned int min;
+    struct v4l2_capability Cap;
+    struct v4l2_cropcap CropCap;
+    struct v4l2_crop Crop;
+    struct v4l2_format Fmt;
+    unsigned int Min;
 
-    if (-1 == xioctl (fd_, VIDIOC_QUERYCAP, &cap))
-    {
-        if (EINVAL == errno)
-        {
-            AVG_TRACE(Logger::ERROR, m_sDevice << " is not a valid V4L2 device");
+    if (-1 == xioctl (m_Fd, VIDIOC_QUERYCAP, &Cap)) {
+        if (EINVAL == errno) {
+            AVG_TRACE(Logger::ERROR, m_sDevice << " is not a valid \
+                V4L2 device");
             exit(1);
-        }
-        else
-        {
+        } else {
             AVG_TRACE(Logger::ERROR, "VIDIOC_QUERYCAP error");
             exit(1);
         }
     }
 
-    if (!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE))
-    {
-        AVG_TRACE(Logger::ERROR, m_sDevice << " does not support capturing");
+    if (!(Cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)) {
+        AVG_TRACE(Logger::ERROR, m_sDevice << " does not support \
+            capturing");
         exit(1);
     }
 
-    switch (ioMethod_)
-    {
-    case IO_METHOD_READ:
-        if (!(cap.capabilities & V4L2_CAP_READWRITE))
-        {
-            AVG_TRACE(Logger::ERROR, m_sDevice << " does not support read i/o");
-            exit(1);
-        }
-
-        break;
-
-    case IO_METHOD_MMAP:
-    case IO_METHOD_USERPTR:
-        if (!(cap.capabilities & V4L2_CAP_STREAMING))
-        {
-            AVG_TRACE(Logger::ERROR, m_sDevice << " does not support streaming i/os");
-            exit(1);
-        }
-
-        break;
+    if (!(Cap.capabilities & V4L2_CAP_STREAMING)) {
+        AVG_TRACE(Logger::ERROR, m_sDevice << " does not support \
+            streaming i/os");
+        exit(1);
     }
-    
 
     /* Select video input, video standard and tune here. */
-    CLEAR (cropcap);
-    cropcap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    CLEAR (CropCap);
+    CropCap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 
-    if (xioctl(fd_, VIDIOC_CROPCAP, &cropcap) == 0)
-    {
-        crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        crop.c = cropcap.defrect; /* reset to default */
+    if (xioctl(m_Fd, VIDIOC_CROPCAP, &CropCap) == 0) {
+        Crop.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        Crop.c = CropCap.defrect; /* reset to default */
 
-        if (-1 == xioctl (fd_, VIDIOC_S_CROP, &crop))
-        {
-            switch (errno)
-            {
-            case EINVAL:
-                /* Cropping not supported. */
-                break;
-            default:
-                /* Errors ignored. */
-                break;
+        if (-1 == xioctl (m_Fd, VIDIOC_S_CROP, &Crop)) {
+            switch (errno) {
+                case EINVAL:
+                    /* Cropping not supported. */
+                    break;
+                default:
+                    /* Errors ignored. */
+                    break;
             }
         }
-    }
-    else
-    {   
+    } else {   
             /* Errors ignored. */
     }
 
-    CLEAR (fmt);
+    CLEAR (Fmt);
 
-    fmt.type                = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    fmt.fmt.pix.width       = getImgSize().x; 
-    fmt.fmt.pix.height      = getImgSize().y;
-    fmt.fmt.pix.pixelformat = m_CamPF;
+    Fmt.type                = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    Fmt.fmt.pix.width       = getImgSize().x; 
+    Fmt.fmt.pix.height      = getImgSize().y;
+    Fmt.fmt.pix.pixelformat = m_CamPF;
     // TODO: deinterlace pipeline or one-field method
-    fmt.fmt.pix.field       = V4L2_FIELD_INTERLACED;
+    Fmt.fmt.pix.field       = V4L2_FIELD_INTERLACED;
 
-    if (xioctl(fd_, VIDIOC_S_FMT, &fmt) == -1)
-    {
+    if (xioctl(m_Fd, VIDIOC_S_FMT, &Fmt) == -1) {
         AVG_TRACE(Logger::ERROR, m_sDevice << " could not set image format");
         exit(1);
     }
 
-    AVG_TRACE(Logger::APP, "Format set to " << fmt.fmt.pix.width << "x" << fmt.fmt.pix.height << " interlaced");
+    AVG_TRACE(Logger::APP, "Format set to " << Fmt.fmt.pix.width << "x"
+        << Fmt.fmt.pix.height << " interlaced");
 
-    /* Note VIDIOC_S_FMT may change width and height. */
-
-    /* Buggy driver paranoia. */
-    min = fmt.fmt.pix.width * 2;
-    if (fmt.fmt.pix.bytesperline < min)
-        fmt.fmt.pix.bytesperline = min;
-    min = fmt.fmt.pix.bytesperline * fmt.fmt.pix.height;
-    if (fmt.fmt.pix.sizeimage < min)
-        fmt.fmt.pix.sizeimage = min;
-
-    switch (ioMethod_) {
-    case IO_METHOD_READ:
-        init_read (fmt.fmt.pix.sizeimage);
-        break;
-
-    case IO_METHOD_MMAP:
-        init_mmap ();
-        break;
-
-    case IO_METHOD_USERPTR:
-        init_userp (fmt.fmt.pix.sizeimage);
-        break;
-    }
+    initMMap ();
     
     // TODO: string channel instead of numeric
     // select channel
-    AVG_TRACE(Logger::APP, "Setting channel " << Channel_);
-    if (xioctl(fd_, VIDIOC_S_INPUT, &Channel_) == -1)
-    {
-        AVG_TRACE(Logger::ERROR, "Cannot set MUX channel " << Channel_);
+    AVG_TRACE(Logger::APP, "Setting channel " << m_Channel);
+    if (xioctl(m_Fd, VIDIOC_S_INPUT, &m_Channel) == -1) {
+        AVG_TRACE(Logger::ERROR, "Cannot set MUX channel " << m_Channel);
         exit(1);
     }
     
@@ -661,126 +565,63 @@ void V4LCamera::initDevice()
     
 }
 
-void V4LCamera::init_read (unsigned int buffer_size)
+void V4LCamera::initMMap()
 {
-//  AVG_TRACE(Logger::APP, "entering init_read()...");
-    buffers_.clear();
-    Buffer tmp;
+    struct v4l2_requestbuffers Req;
+    CLEAR (Req);
 
-    tmp.length = buffer_size;
-    tmp.start = malloc(buffer_size);
+    Req.count = 4;
+    Req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    Req.memory = V4L2_MEMORY_MMAP;
 
-    if (!tmp.start)
-    {
-        AVG_TRACE(Logger::ERROR, "Out of memory");
-        exit(1);
-    }
-    
-    buffers_.push_back(tmp);
-//  AVG_TRACE(Logger::APP, "init_read() completed");
-}
-
-void V4LCamera::init_mmap()
-{
-    struct v4l2_requestbuffers req;
-    CLEAR (req);
-
-    req.count = 4;
-    req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    req.memory = V4L2_MEMORY_MMAP;
-
-    if (xioctl (fd_, VIDIOC_REQBUFS, &req) == -1)
-    {
-        if (EINVAL == errno)
-        {
-            AVG_TRACE(Logger::APP, m_sDevice << " does not support memory mapping");
+    if (xioctl (m_Fd, VIDIOC_REQBUFS, &Req) == -1) {
+        if (EINVAL == errno) {
+            AVG_TRACE(Logger::APP, m_sDevice << " does not support \
+                memory mapping");
             exit(1);
         } else {
             //errno_exit ("VIDIOC_REQBUFS");
         }
     }
     
-    if (req.count < 2)
-    {
+    if (Req.count < 2) {
         AVG_TRACE(Logger::APP, "Insufficient buffer memory on " << m_sDevice);
         exit(1);
     }
 
-    buffers_.clear();
+    m_vBuffers.clear();
 
-    for (int i=0; i < req.count; ++i)
-    {
-        Buffer tmp;
-        struct v4l2_buffer buf;
+    for (int i=0; i < Req.count; ++i) {
+        Buffer Tmp;
+        struct v4l2_buffer Buf;
 
-        CLEAR (buf);
+        CLEAR (Buf);
 
-        buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        buf.memory = V4L2_MEMORY_MMAP;
-        buf.index = i;
+        Buf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        Buf.memory = V4L2_MEMORY_MMAP;
+        Buf.index = i;
 
-        if (xioctl (fd_, VIDIOC_QUERYBUF, &buf) == -1)
-        {
+        if (xioctl (m_Fd, VIDIOC_QUERYBUF, &Buf) == -1) {
             AVG_TRACE(Logger::ERROR, "VIDIOC_QUERYBUF index=" << i);
             exit(1);
         }
 
-        tmp.length = buf.length;
+        Tmp.length = Buf.length;
         
-        tmp.start = mmap (NULL /* start anywhere */,
-            buf.length,
+        Tmp.start = mmap (NULL /* start anywhere */,
+            Buf.length,
             PROT_READ | PROT_WRITE /* required */,
             MAP_SHARED /* recommended */,
-            fd_, buf.m.offset);
+            m_Fd, Buf.m.offset);
 
-        if (MAP_FAILED == tmp.start)
-        {
+        if (MAP_FAILED == Tmp.start) {
             AVG_TRACE(Logger::ERROR, "mmap() failed on buffer index=" << i);
             exit(1);
         }
                 
-        buffers_.push_back(tmp);
+        m_vBuffers.push_back(Tmp);
     }
 }
 
-void V4LCamera::init_userp(unsigned int buffer_size)
-{
-    struct v4l2_requestbuffers req;
-    CLEAR (req);
-
-    req.count = 4;
-    req.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-    req.memory = V4L2_MEMORY_USERPTR;
-
-    if (xioctl(fd_, VIDIOC_REQBUFS, &req) == -1)
-    {
-        if (EINVAL == errno)
-        {
-            AVG_TRACE(Logger::ERROR, m_sDevice << "does not support user pointer i/o");
-            exit(1);
-        }
-        else
-        {
-            //errno_exit ("VIDIOC_REQBUFS");
-        }
-    }
-
-    buffers_.clear();
-
-    for (int i=0; i<4; ++i)
-    {
-        Buffer tmp;
-        tmp.length = buffer_size;
-        tmp.start = malloc (buffer_size);
-
-        if (!tmp.start)
-        {
-            AVG_TRACE(Logger::ERROR, "Out of memory");
-            exit(1);
-        }
-        
-        buffers_.push_back(tmp);
-    }
-}
 
 

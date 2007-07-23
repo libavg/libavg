@@ -39,12 +39,6 @@ typedef int V4LCID_t;
 
 class V4LCamera: public ICamera {
 
-    enum io_method {
-        IO_METHOD_READ,
-        IO_METHOD_MMAP,
-        IO_METHOD_USERPTR,
-    };
-    
     struct Buffer {
         void * start;
         size_t length;
@@ -69,30 +63,26 @@ class V4LCamera: public ICamera {
         virtual void setFeature(const std::string& sFeature, int Value);
         
     private:
-        int fd_;
-        int Channel_;
+        int m_Fd;
+        int m_Channel;
         std::string m_sDevice;
         std::string m_sMode;
-        io_method ioMethod_;
-        std::vector<Buffer> buffers_;
+        std::vector<Buffer> m_vBuffers;
         bool m_bCameraAvailable;
         int m_CamPF;
-        bool bWait;
         bool m_bColor;
-        IntPoint m_ipSize;
+        IntPoint m_ImgSize;
         
         int getCamPF(const std::string& sPF);
         
         void initDevice();
         void startCapture();
-        void init_read(unsigned int buffer_size);
-        void init_mmap();
-        void init_userp(unsigned int buffer_size);
+        void initMMap();
         
-        void setFeature(V4LCID_t v4lfeature, int Value);
+        void setFeature(V4LCID_t V4LFeature, int Value);
         V4LCID_t getFeatureID(const std::string& sFeature) const;
-        std::string getFeatureName(V4LCID_t v4lfeature);
-        bool isFeatureSupported(V4LCID_t v4lfeature) const;
+        std::string getFeatureName(V4LCID_t V4LFeature);
+        bool isFeatureSupported(V4LCID_t V4LFeature) const;
         typedef std::map<V4LCID_t, unsigned int> FeatureMap;
         typedef std::map<int, std::string> FeatureNamesMap;
         FeatureMap m_Features;
