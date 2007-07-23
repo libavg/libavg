@@ -50,7 +50,8 @@ CameraNode::CameraNode()
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2) 
     m_pCamera = CameraPtr(new Camera("", 15, "640x480_RGB", true));
 #elif defined(AVG_ENABLE_V4L2)
-    m_pCamera = CameraPtr(new V4LCamera("/dev/video0", 1, IntPoint(640,480), "RGB", true));
+    m_pCamera = CameraPtr(new V4LCamera("/dev/video0", 1,
+        IntPoint(640,480), "RGB", true));
 #else
     AVG_TRACE(Logger::ERROR,
             "Unable to set up camera. Camera support not compiled.");
@@ -66,45 +67,55 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
     double FrameRate = getDefaultedDoubleAttr (xmlNode, "framerate", 15);
     string sMode = getDefaultedStringAttr (xmlNode, "mode", "640x480_RGB");
     string sSource = getDefaultedStringAttr (xmlNode, "source", "firewire");
-		
-	AVG_TRACE(Logger::APP, "CameraNode() constructor. Source=" << sSource);
 
-	if (sSource == "firewire")
-	{
-#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2) || defined(AVG_ENABLE_V4L2)
-		m_pCamera = CameraPtr(new Camera(sDevice, FrameRate, sMode, true));
-		AVG_TRACE(Logger::APP, "FWCamera created");
+    AVG_TRACE(Logger::APP, "CameraNode() constructor. Source=" << sSource);
+
+    if (sSource == "firewire") {
+#if defined(AVG_ENABLE_1394)\
+    || defined(AVG_ENABLE_1394_2)\
+    || defined(AVG_ENABLE_V4L2)
+        m_pCamera = CameraPtr(new Camera(sDevice, FrameRate, sMode, true));
+        AVG_TRACE(Logger::APP, "FWCamera created");
 #else
-        AVG_TRACE(Logger::ERROR, "Firewire camera specified, but firewire support not compiled in.");
+        AVG_TRACE(Logger::ERROR, "Firewire camera specified, but firewire \
+            support not compiled in.");
 #endif
-	}
-	else if (sSource == "v4l")
-	{
+    } else if (sSource == "v4l") {
 #if defined(AVG_ENABLE_V4L2)
-	    int Channel = getDefaultedIntAttr (xmlNode, "channel", 1);
-        int iWidth = getDefaultedIntAttr (xmlNode, "width", 640);
-        int iHeight = getDefaultedIntAttr (xmlNode, "height", 480);
+        int Channel = getDefaultedIntAttr (xmlNode, "channel", 1);
+        int Width = getDefaultedIntAttr (xmlNode, "width", 640);
+        int Height = getDefaultedIntAttr (xmlNode, "height", 480);
         string sPF = getDefaultedStringAttr (xmlNode, "pixelformat", "RGB");
         
-		m_pCamera = CameraPtr(new V4LCamera(sDevice, Channel, IntPoint(iWidth, iHeight), sPF, true));
-		AVG_TRACE(Logger::APP, "V4LCamera created");
+        m_pCamera = CameraPtr(new V4LCamera(sDevice, Channel,
+            IntPoint(Width, Height), sPF, true));
+        AVG_TRACE(Logger::APP, "V4LCamera created");
 #else
-        AVG_TRACE(Logger::ERROR, "Video4Linux camera specified, but Video4Linux support not compiled in.");
+        AVG_TRACE(Logger::ERROR, "Video4Linux camera specified, but \
+            Video4Linux support not compiled in.");
 #endif
-	} else {
+    } else {
         AVG_TRACE(Logger::ERROR,
             "Unable to set up camera. Camera source '"+sSource+"' unknown.");
     }
 
     if (m_pCamera) {
-        m_pCamera->setFeature ("brightness", getDefaultedIntAttr(xmlNode, "brightness", -1));
-        m_pCamera->setFeature ("exposure", getDefaultedIntAttr(xmlNode, "exposure", -1));
-        m_pCamera->setFeature ("sharpness", getDefaultedIntAttr(xmlNode, "sharpness", -1));
-        m_pCamera->setFeature ("saturation", getDefaultedIntAttr(xmlNode, "saturation", -1));
-        m_pCamera->setFeature ("gamma", getDefaultedIntAttr(xmlNode, "gamma", -1));
-        m_pCamera->setFeature ("shutter", getDefaultedIntAttr(xmlNode, "shutter", -1));
-        m_pCamera->setFeature ("gain", getDefaultedIntAttr(xmlNode, "gain", -1));
-        m_pCamera->setFeature ("whitebalance", getDefaultedIntAttr(xmlNode, "whitebalance", -1));
+        m_pCamera->setFeature ("brightness",
+            getDefaultedIntAttr(xmlNode, "brightness", -1));
+        m_pCamera->setFeature ("exposure",
+            getDefaultedIntAttr(xmlNode, "exposure", -1));
+        m_pCamera->setFeature ("sharpness",
+            getDefaultedIntAttr(xmlNode, "sharpness", -1));
+        m_pCamera->setFeature ("saturation",
+            getDefaultedIntAttr(xmlNode, "saturation", -1));
+        m_pCamera->setFeature ("gamma",
+            getDefaultedIntAttr(xmlNode, "gamma", -1));
+        m_pCamera->setFeature ("shutter",
+            getDefaultedIntAttr(xmlNode, "shutter", -1));
+        m_pCamera->setFeature ("gain",
+            getDefaultedIntAttr(xmlNode, "gain", -1));
+        m_pCamera->setFeature ("whitebalance",
+            getDefaultedIntAttr(xmlNode, "whitebalance", -1));
     }
 }
 

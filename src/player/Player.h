@@ -111,7 +111,7 @@ class Player : IEventSink
         void sendOver(CursorEvent * pOtherEvent, Event::Type Type, 
                 NodePtr pNode);
         void cleanup();
-	
+
         AVGNodePtr m_pRootNode;
         DisplayEngine * m_pDisplayEngine;
         IEventSource * m_pEventSource;

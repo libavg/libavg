@@ -367,23 +367,27 @@ TrackerEventSource * Player::addTracker(std::string sDevice,
     
     if (Config.m_Source == "v4l") {
 #ifdef AVG_ENABLE_V4L2
-        AVG_TRACE(Logger::CONFIG, "Adding a Tracker for V4L camera " << sDevice << " width=" << Config.m_Width << " height=" << Config.m_Height << " channel=" << Config.m_Channel);
+        AVG_TRACE(Logger::CONFIG, "Adding a Tracker for V4L camera " <<
+            sDevice << " width=" << Config.m_Width << " height=" <<
+            Config.m_Height << " channel=" << Config.m_Channel);
         
         IntPoint ipSize = IntPoint(Config.m_Width, Config.m_Height);
         // is there a need to get a configurable pixel format for tracker?
-        pCamera = CameraPtr(new V4LCamera(sDevice, Config.m_Channel, ipSize, "MONO8", false));
+        pCamera = CameraPtr(new V4LCamera(sDevice, Config.m_Channel, ipSize,
+            "MONO8", false));
 #else
-        AVG_TRACE(Logger::ERROR, "Video4Linux camera tracker requested, but Video4Linux support not compiled in.");
-        exit(-1);
+        AVG_TRACE(Logger::ERROR, "Video4Linux camera tracker requested, but \
+            Video4Linux support not compiled in.");
+        exit(1);
 #endif
-    }
-    else {
-        AVG_TRACE(Logger::CONFIG, "Adding a Tracker for FW camera " << sDevice << " using "
-                << sMode << ".");
+    } else {
+        AVG_TRACE(Logger::CONFIG, "Adding a Tracker for FW camera " << sDevice <<
+            " using " << sMode << ".");
         pCamera = CameraPtr(new Camera(sDevice, Config.m_FPS, sMode, false));
     }
     
-    m_pTracker = new TrackerEventSource(pCamera, Config, IntPoint(m_DP.m_Width, m_DP.m_Height), true);
+    m_pTracker = new TrackerEventSource(pCamera, Config, IntPoint(m_DP.m_Width, 
+        m_DP.m_Height), true);
     m_pEventDispatcher->addSource(m_pTracker);
     return m_pTracker;
 }

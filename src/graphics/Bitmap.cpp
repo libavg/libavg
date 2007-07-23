@@ -193,7 +193,7 @@ void Bitmap::copyPixels(const Bitmap & Orig)
         switch (Orig.getPixelFormat()) {
             case YCbCr422:
             case YCbCr411:
-        case YCbCr420p:
+            case YCbCr420p:
                 if (m_PF == B8G8R8X8) {
                     YCbCrtoBGR(Orig);
                 } else {
@@ -834,18 +834,22 @@ void Bitmap::YCbCrtoBGR(const Bitmap& Orig)
                 pSrc += Orig.getStride();
             }
             break;
-    case YCbCr420p: // this is a planar format
-        for (int y=0; y<Height; ++y) {
-            for (int x=0; x<Width; ++x) {
-                // planes order: Y(1:1), Cb(1:4), Cr(1:4).
-                // Offsets: Cb @ imgSize, Cr @ 5/4 * imgSize
-                YUVtoBGR32Pixel(pDest + y*Width + x,
-                pSrc[y*Width + x],                      // Y
-                pSrc[(y/2) * (Width/2) + x/2 + TotalPixels],            // U
-                pSrc[(y/2) * (Width/2) + x/2 + TotalPixels + TotalPixels/4]);   // V
+        case YCbCr420p: // this is a planar format
+            for (int y=0; y<Height; ++y) {
+                // Fast conversion algo with no interpolation
+                // TODO: interlacing aware interpolation
+                int lineoffs = Width * y;
+                int emioffs = (y/2) * (Width/2);
+                for (int x=0; x<Width; ++x) {
+                    // planes order: Y(1:1), Cb(1:4), Cr(1:4).
+                    // Offsets: Cb @ imgSize, Cr @ 5/4 * imgSize
+                    YUVtoBGR32Pixel(pDest + lineoffs + x,
+                        pSrc[lineoffs + x],
+                        pSrc[emioffs + x/2 + TotalPixels],
+                        pSrc[emioffs + x/2 + TotalPixels + TotalPixels/4]);
+                }
             }
-        }
-        break;
+            break;
         default:
             // This routine shouldn't be called with other pixel formats.
             assert(false);
