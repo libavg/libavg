@@ -32,6 +32,9 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <errno.h>
+
+#include <linux/types.h>
+#include <linux/time.h>
 #include <linux/videodev2.h>
 
 #include <stdio.h>
@@ -62,9 +65,9 @@ V4LCamera::V4LCamera(std::string sDevice, int Channel, IntPoint Size,
            : m_Fd(-1),
            m_Channel(Channel),
            m_sDevice(sDevice), 
-           m_ImgSize(Size),
            m_bCameraAvailable(false),
-           m_bColor(bColor)
+           m_bColor(bColor),
+           m_ImgSize(Size)
 {
     AVG_TRACE(Logger::APP, "V4LCamera() device=" << sDevice << 
         " ch=" << Channel << " w=" << Size.x << " h=" << Size.y <<
@@ -481,7 +484,6 @@ void V4LCamera::initDevice()
     struct v4l2_cropcap CropCap;
     struct v4l2_crop Crop;
     struct v4l2_format Fmt;
-    unsigned int Min;
 
     if (-1 == xioctl (m_Fd, VIDIOC_QUERYCAP, &Cap)) {
         if (EINVAL == errno) {
@@ -591,7 +593,7 @@ void V4LCamera::initMMap()
 
     m_vBuffers.clear();
 
-    for (int i=0; i < Req.count; ++i) {
+    for (int i=0; i < int(Req.count); ++i) {
         Buffer Tmp;
         struct v4l2_buffer Buf;
 
