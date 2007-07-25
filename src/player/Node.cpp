@@ -105,7 +105,7 @@ void Node::setParent(DivNodeWeakPtr pParent)
 {
     if (getParent() && !!(pParent.lock())) {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "Can't change parent of node."));
+                string("Can't change parent of node (") + m_ID + ")."));
     }
     m_pParent = pParent;
     setState(NS_CONNECTED);
@@ -130,7 +130,6 @@ void Node::setDisplayEngine(DisplayEngine * pEngine)
         pos = getParent()->getAbsViewport().tl;
     }
     m_AbsViewport = DRect (pos+getRelViewport().tl, pos+getRelViewport().br);
-    getPlayer()->addNodeID(getThis());
 }
 
 void Node::disconnect()

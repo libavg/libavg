@@ -491,10 +491,10 @@ void Player::removeNodeID(const std::string& id)
         it = m_IDMap.find(id);
         if (it != m_IDMap.end()) {
             m_IDMap.erase(it);
-//        } else {
-//            AVG_TRACE(Logger::ERROR, "removeNodeID(\""+id+"\") failed.");
-//            exit(1);
-        }
+        } else {
+            AVG_TRACE(Logger::ERROR, "removeNodeID(\""+id+"\") failed.");
+            exit(1);
+      }
     }
 }
 

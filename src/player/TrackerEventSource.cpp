@@ -304,7 +304,6 @@ namespace avg {
             (*it).second->setStale();
             old_blobs->push_back((*it).first);
         }
-        int known_counter=0, new_counter=0, ignored_counter=0; 
         for(BlobArray::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2) {
             if (isRelevant(*it2, pBlobConfig)) {
                 BlobPtr old_match = matchblob((*it2), old_blobs, 
@@ -312,7 +311,6 @@ namespace avg {
                 if(old_match) {
                     assert (pEvents->find(old_match) != pEvents->end());
                     //this blob has been identified with an old one
-                    known_counter++;
                     EventStreamPtr e;
                     e = pEvents->find(old_match)->second;
                     e->blobChanged((*it2)->getInfo());
@@ -320,13 +318,10 @@ namespace avg {
                     (*pEvents)[(*it2)] = e;
                     pEvents->erase(old_match);
                 } else {
-                    new_counter++;
                     //this is a new one
                     (*pEvents)[(*it2)] = EventStreamPtr( 
                             new EventStream(((*it2)->getInfo())));
                 }
-            } else {
-                ignored_counter++;
             }
         }
         int gone_counter = 0;
