@@ -46,6 +46,8 @@
 #include <map>
 #include <list>
 #include <vector>
+#include <queue>
+#include <set>
 #include <iostream>
 #include <assert.h>
 
@@ -214,6 +216,13 @@ namespace avg {
         return new Bitmap(*m_pBitmaps[ImageID]);
     }
     
+    double distSquared(BlobPtr p1, BlobPtr p2) 
+    {
+        DPoint c1 = p1->getInfo()->getCenter();
+        DPoint c2 = p2->getInfo()->getCenter();
+
+        return (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y);
+    }
 
     double distance(BlobPtr p1, BlobPtr p2) 
     {
@@ -221,41 +230,6 @@ namespace avg {
         DPoint c2 = p2->getInfo()->getCenter();
 
         return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
-    }
-
-    BlobPtr TrackerEventSource::matchblob(BlobPtr new_blob, BlobArrayPtr old_blobs, 
-            double threshold, EventMap * pEvents)
-    {
-        assert(new_blob);
-        std::vector<BlobPtr> candidates;
-        BlobPtr res;
-        for(BlobArray::iterator it=old_blobs->begin();it!=old_blobs->end();++it)
-        {
-            if (distance( (*it), new_blob)<threshold &&
-                pEvents->find(*it) != pEvents->end())
-            {
-                candidates.push_back( (*it) );
-            }
-        }
-        switch (candidates.size()) {
-            case 0:
-                res = BlobPtr();
-                break;
-            case 1:
-                res = candidates[0];
-                break;
-            default:
-                double act=1e10, tmp;
-                for(std::vector<BlobPtr>::iterator it=candidates.begin();
-                        it!=candidates.end();++it)
-                {
-                    if ((tmp = distance( (*it), new_blob))<act){
-                        res = (*it);
-                        act = tmp;
-                    }
-                }
-        }
-        return res;
     }
 
     bool TrackerEventSource::isRelevant(BlobPtr blob, BlobConfigPtr pConfig)
@@ -288,7 +262,28 @@ namespace avg {
         }
     }
 
-    void TrackerEventSource::calcBlobs(BlobArrayPtr new_blobs, bool bTouch)
+    // Temporary structure to be put into heap of blob distances. Used only in 
+    // calcBlobs.
+    struct BlobDistEntry {
+        BlobDistEntry(double Dist, BlobPtr pNewBlob, BlobPtr pOldBlob) 
+            : m_Dist(Dist),
+              m_pNewBlob(pNewBlob),
+              m_pOldBlob(pOldBlob)
+        {
+        }
+
+        double m_Dist;
+        BlobPtr m_pNewBlob;
+        BlobPtr m_pOldBlob;
+    };
+    typedef boost::shared_ptr<class BlobDistEntry> BlobDistEntryPtr;
+
+    bool operator < (const BlobDistEntryPtr& e1, const BlobDistEntryPtr& e2) 
+    {
+        return e1->m_Dist < e2->m_Dist;
+    }
+
+    void TrackerEventSource::calcBlobs(BlobArrayPtr pNewBlobs, bool bTouch)
     {
         BlobConfigPtr pBlobConfig;
         EventMap * pEvents;
@@ -299,39 +294,82 @@ namespace avg {
             pBlobConfig = m_TrackerConfig.m_pTrack;
             pEvents = &m_TrackEvents;
         }
-        BlobArrayPtr old_blobs = BlobArrayPtr(new BlobArray());
-        for(EventMap::iterator it=pEvents->begin();it!=pEvents->end();++it) {
+        BlobArray OldBlobs;
+        for(EventMap::iterator it=pEvents->begin(); it!=pEvents->end(); ++it) {
             (*it).second->setStale();
-            old_blobs->push_back((*it).first);
+            OldBlobs.push_back((*it).first);
         }
-        for(BlobArray::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2) {
-            if (isRelevant(*it2, pBlobConfig)) {
-                BlobPtr old_match = matchblob((*it2), old_blobs, 
-                        pBlobConfig->m_Similarity, pEvents);
-                if(old_match) {
-                    assert (pEvents->find(old_match) != pEvents->end());
-                    //this blob has been identified with an old one
-                    EventStreamPtr e;
-                    e = pEvents->find(old_match)->second;
-                    e->blobChanged((*it2)->getInfo());
-                    //update the mapping!
-                    (*pEvents)[(*it2)] = e;
-                    pEvents->erase(old_match);
-                } else {
-                    //this is a new one
-                    (*pEvents)[(*it2)] = EventStreamPtr( 
-                            new EventStream(((*it2)->getInfo())));
+        BlobArray NewRelevantBlobs;
+        for(BlobArray::iterator it = pNewBlobs->begin(); it!=pNewBlobs->end(); ++it) {
+            if (isRelevant(*it, pBlobConfig)) {
+                NewRelevantBlobs.push_back(*it);
+            }
+            if (NewRelevantBlobs.size() > 50) {
+                break;
+            }
+        }
+        // Create a heap that contains all distances of old to new blobs < MaxDist
+        double MaxDistSquared = pBlobConfig->m_Similarity*pBlobConfig->m_Similarity;
+        priority_queue<BlobDistEntryPtr> DistHeap;
+        for(BlobArray::iterator it = NewRelevantBlobs.begin(); 
+                it!=NewRelevantBlobs.end(); ++it) 
+        {
+            BlobPtr pNewBlob = *it;
+            for(BlobArray::iterator it2 = OldBlobs.begin(); it2!=OldBlobs.end(); ++it2) { 
+                BlobPtr pOldBlob = *it2;
+                if (distSquared(pNewBlob, pOldBlob) <= MaxDistSquared) {
+                    BlobDistEntryPtr pEntry = BlobDistEntryPtr(
+                            new BlobDistEntry(distance(pNewBlob, pOldBlob), 
+                                    pNewBlob, pOldBlob));
+                    DistHeap.push(pEntry);
                 }
             }
         }
-        int gone_counter = 0;
-        for(EventMap::iterator it3=pEvents->begin();it3!=pEvents->end();++it3){
-            //all event streams that are still stale haven't been updated: blob is gone, send the sentinel for this.
-            if ((*it3).second->isStale()) {
-                (*it3).second->blobGone();
-                gone_counter++;
+        cerr << "DistHeap: " << DistHeap.size() << endl;
+        // Match up the closest blobs.
+        set<BlobPtr> MatchedNewBlobs;
+        set<BlobPtr> MatchedOldBlobs;
+        int NumMatchedBlobs = 0;
+        while(!DistHeap.empty()) {
+            BlobDistEntryPtr pEntry = DistHeap.top();
+            DistHeap.pop();
+            if (MatchedNewBlobs.find(pEntry->m_pNewBlob) == MatchedNewBlobs.end() &&
+                MatchedOldBlobs.find(pEntry->m_pOldBlob) == MatchedOldBlobs.end())
+            {
+                // Found a pair of matched blobs.
+                NumMatchedBlobs++;
+                BlobPtr pNewBlob = pEntry->m_pNewBlob; 
+                BlobPtr pOldBlob = pEntry->m_pOldBlob; 
+                MatchedNewBlobs.insert(pNewBlob);
+                MatchedOldBlobs.insert(pOldBlob);
+                assert (pEvents->find(pOldBlob) != pEvents->end());
+                EventStreamPtr pStream;
+                pStream = pEvents->find(pOldBlob)->second;
+                pStream->blobChanged(pNewBlob->getInfo());
+                // Update the mapping.
+                (*pEvents)[pNewBlob] = pStream;
+                pEvents->erase(pOldBlob);
             }
         }
+        cerr << "Matched: " << NumMatchedBlobs << endl;
+        // Blobs have been matched. Left-overs are new blobs.
+        for(BlobArray::iterator it = NewRelevantBlobs.begin(); 
+                it!=NewRelevantBlobs.end(); ++it) 
+        {
+            if (MatchedNewBlobs.find(*it) == MatchedNewBlobs.end()) {
+                (*pEvents)[(*it)] = EventStreamPtr( 
+                        new EventStream(((*it)->getInfo())));
+            }
+        }
+
+        // All event streams that are still stale haven't been updated: blob is gone, 
+        // set the sentinel for this.
+        for(EventMap::iterator it=pEvents->begin(); it!=pEvents->end(); ++it) {
+            if ((*it).second->isStale()) {
+                (*it).second->blobGone();
+            }
+        }
+        cerr << pEvents->size() << endl;
     };
         
    void TrackerEventSource::correlateBlobs()

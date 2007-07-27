@@ -58,6 +58,7 @@ class Blob
         bool contains(IntPoint pt);
 
         BlobPtr m_pParent;
+
     private:
         Blob(const Blob &);
 
