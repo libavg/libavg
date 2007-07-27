@@ -120,7 +120,8 @@ void export_node()
             "size used (i.e. by default, the coordinate system is pixel-based.)\n"
             "Properties:\n"
             "    onkeydown: The python code to execute when a key is pressed (ro).\n"
-            "    onkeyup: The python code to execute when a key is released (ro).\n")
+            "    onkeyup: The python code to execute when a key is released (ro).\n",
+            no_init)
         .def("getCropSetting", &AVGNode::getCropSetting,
                 "getCropSetting() -> isCropActive\n\n"
                 "Returns true if cropping is active. Cropping can be turned off globally\n"
@@ -144,7 +145,8 @@ void export_node()
             "    hue: A hue to color the image in. (ro, deprecated)\n"
             "    saturation: The saturation the image should have. (ro, deprecated)\n"
             "    rotation: The current angle the viewer is looking at in radians.\n"
-            "    maxrotation: The maximum angle the viewer can look at.\n")
+            "    maxrotation: The maximum angle the viewer can look at.\n",
+            no_init)
         .def("getScreenPosFromPanoPos", &PanoImage::getScreenPosFromPanoPos,
                 "getScreenPosFromPanoPos(panoPos) -> pos\n\n"
                 "Converts a position in panorama image pixels to pixels in coordinates\n"

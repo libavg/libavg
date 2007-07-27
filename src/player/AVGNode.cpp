@@ -29,11 +29,6 @@ using namespace std;
 
 namespace avg {
 
-AVGNode::AVGNode()
-    : m_bEnableCrop(true)
-{
-}
-
 AVGNode::AVGNode (const xmlNodePtr xmlNode, Player * pPlayer)
     : DivNode(xmlNode, pPlayer)
 {

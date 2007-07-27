@@ -40,17 +40,6 @@ using namespace std;
 
 namespace avg {
 
-CameraNode::CameraNode()
-    : m_FrameNum(0)
-{
-#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-    m_pCamera = CameraPtr(new Camera("", 15, "640x480_RGB", true));
-#else
-    AVG_TRACE(Logger::ERROR,
-            "Unable to set up camera. Camera support not compiled.");
-#endif
-}
-
 CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
     : VideoBase(xmlNode, pPlayer),
       m_FrameNum(0)

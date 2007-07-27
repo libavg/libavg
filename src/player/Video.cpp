@@ -47,17 +47,6 @@ namespace avg {
 
 bool Video::m_bInitialized = false;
 
-Video::Video ()
-    : m_href(""),
-      m_Filename(""),
-      m_bLoop(false),
-      m_pEOFCallback(0),
-      m_FramesTooLate(0),
-      m_FramesPlayed(0),
-      m_pDecoder(0)
-{
-}
-
 Video::Video (const xmlNodePtr xmlNode, Player * pPlayer)
     : VideoBase(xmlNode, pPlayer),
       m_Filename(""),

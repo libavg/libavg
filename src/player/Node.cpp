@@ -48,24 +48,6 @@ using namespace std;
 
 namespace avg {
 
-Node::Node ()
-    : m_pParent(),
-      m_This(),
-      m_pEngine(0),
-      m_pPlayer(0),
-      m_ID(""),
-      m_EventHandlerMap(),
-      m_RelViewport(0,0,0,0),
-      m_AbsViewport(0,0,0,0),
-      m_Opacity(1.0),
-      m_bActive(true),
-      m_bSensitive(true),
-      m_WantedSize(0, 0)
-{
-    ObjectCounter::get()->incRef(&typeid(*this));
-    setState(NS_UNCONNECTED);
-}
-
 Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
     : m_pParent(),
       m_This(),

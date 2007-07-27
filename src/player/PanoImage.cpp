@@ -49,18 +49,6 @@ const int TEX_WIDTH = 64;
 
 namespace avg {
 
-PanoImage::PanoImage ()
-    : m_Filename(""),
-      m_SensorWidth(0),
-      m_SensorHeight(0),
-      m_FocalLength(0),
-      m_Rotation(-1),
-      m_Hue(-1),
-      m_Saturation(-1)
-{
-    m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8));
-}
-
 PanoImage::PanoImage (const xmlNodePtr xmlNode, Player * pPlayer)
     : Node (xmlNode, pPlayer)
 {

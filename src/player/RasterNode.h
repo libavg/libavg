@@ -75,7 +75,6 @@ class RasterNode: public Node
         Bitmap* getBitmap();
         
     protected:
-        RasterNode ();
         RasterNode (const xmlNodePtr xmlNode, Player * pPlayer);
         DPoint getPivot();
         ISurface * getSurface();

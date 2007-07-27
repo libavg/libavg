@@ -127,7 +127,6 @@ class Node
                 NT_CAMERA, NT_DIV, NT_PANOIMAGE};
 
     protected:
-        Node ();
         Node (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual DPoint getPreferredMediaSize() 
             { return DPoint(0,0); };

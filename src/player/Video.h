@@ -38,7 +38,6 @@ class IVideoDecoder;
 class Video : public VideoBase
 {
     public:
-        Video ();
         Video (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual ~Video ();
         

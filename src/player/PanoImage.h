@@ -46,7 +46,6 @@ class SDLDisplayEngine;
 class PanoImage : public Node
 {
 	public:
-        PanoImage();
         PanoImage(const xmlNodePtr xmlNode, Player * pPlayer);
         virtual ~PanoImage();
         

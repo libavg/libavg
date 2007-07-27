@@ -43,27 +43,6 @@ namespace avg {
 
 std::set<std::string> Words::s_sFontsNotFound;
 
-Words::Words ()
-    : m_FontName("arial"),
-      m_Text(""),
-      m_ColorName("FFFFFF"),
-      m_Size(15),
-      m_ParaWidth(-1),
-      m_Indent(0),
-      m_LineSpacing(-1),
-      m_Alignment(PANGO_ALIGN_LEFT),
-      m_Weight(PANGO_WEIGHT_NORMAL),
-      m_bItalic(false),
-      m_Stretch(PANGO_STRETCH_NORMAL),
-      m_bSmallCaps(false),
-      m_StringExtents(0,0),
-      m_pContext(0),
-      m_pFontDescription(0),
-      m_bFontChanged(true),
-      m_bDrawNeeded(true)
-{
-}
-
 Words::Words (const xmlNodePtr xmlNode, Player * pPlayer)
     : RasterNode(xmlNode, pPlayer), 
       m_StringExtents(0,0),

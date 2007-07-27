@@ -46,15 +46,6 @@ class LoggerTestCase(unittest.TestCase):
         self.Log.trace(self.Log.APP, "Test syslog entry.")
         self.Log.setConsoleDest()
 
-class NodeTestCase(unittest.TestCase):
-    def testAttributes(self):
-        self.Image = avg.Image()
-        assert self.Image.id == ""
-        self.Image.x = 10
-        self.Image.x += 1
-        assert self.Image.x == 11
-        self.Image = None
-
 class AVGTestCase(unittest.TestCase):
     def __init__(self, testFuncName, engine, bpp):
         self.__engine = engine
@@ -852,7 +843,6 @@ def playerTestSuite(engine, bpp):
                 ourSaveDifferences = False
     rmBrokenDir()
     suite = unittest.TestSuite()
-    suite.addTest(NodeTestCase("testAttributes"))
     suite.addTest(PlayerTestCase("testImage", engine, bpp))
     suite.addTest(PlayerTestCase("testError", engine, bpp))
     suite.addTest(PlayerTestCase("testExceptionInTimeout", engine, bpp))

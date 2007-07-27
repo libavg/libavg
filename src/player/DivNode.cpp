@@ -33,10 +33,6 @@ using namespace std;
 
 namespace avg {
 
-DivNode::DivNode()
-{
-}
-
 DivNode::DivNode (const xmlNodePtr xmlNode, Player * pPlayer)
     : Node(xmlNode, pPlayer)
 {
