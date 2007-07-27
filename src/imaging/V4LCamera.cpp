@@ -149,7 +149,8 @@ int V4LCamera::getCamPF(const std::string& sPF)
     }*/
     else if (sPF == "YUV422") {
         AVG_TRACE(Logger::APP, "Selecting YUV4:2:2 pixel format");
-        pfDef = V4L2_PIX_FMT_UYVY;
+//        pfDef = V4L2_PIX_FMT_UYVY;
+        pfDef = V4L2_PIX_FMT_YUYV;
     }
     else if (sPF == "YUV420") {
         AVG_TRACE(Logger::APP, "Selecting YUV4:2:0 pixel format");
@@ -261,31 +262,34 @@ BitmapPtr V4LCamera::getImage(bool bWait)
             *pDest++ = 0xFF;    // Alpha
         }
         break;
-    
     case V4L2_PIX_FMT_GREY:
-    {
-        Bitmap TempBmp(Size, I8, pSrc, Size.x, false, 
-            "TempCameraBmp");
-        pCurBitmap->copyPixels(TempBmp);
-    }
+        {
+            Bitmap TempBmp(Size, I8, pSrc, Size.x, false, 
+                    "TempCameraBmp");
+            pCurBitmap->copyPixels(TempBmp);
+        }
         break;
-        
     case V4L2_PIX_FMT_UYVY:
-    {
-        Bitmap TempBmp(Size, YCbCr422, pSrc, Size.x*2, false, 
-           "TempCameraBmp");
-        pCurBitmap->copyPixels(TempBmp);
-    }
+        {
+            Bitmap TempBmp(Size, YCbCr422, pSrc, Size.x*2, false, 
+                    "TempCameraBmp");
+            pCurBitmap->copyPixels(TempBmp);
+        }
         break;
-
+    case V4L2_PIX_FMT_YUYV:
+        {
+            Bitmap TempBmp(Size, YUYV422, pSrc, Size.x*2, false, 
+                    "TempCameraBmp");
+            pCurBitmap->copyPixels(TempBmp);
+        }
+        break;
     case V4L2_PIX_FMT_YUV420:
-    {
-        Bitmap TempBmp(Size, YCbCr420p, pSrc, Size.x, false, 
-            "TempCameraBmp");
-        pCurBitmap->copyPixels(TempBmp);
-    }
+        {
+            Bitmap TempBmp(Size, YCbCr420p, pSrc, Size.x, false, 
+                    "TempCameraBmp");
+            pCurBitmap->copyPixels(TempBmp);
+        }
         break;
-    
     /*
     // NOT SUPPORTED YET
     case V4L2_PIX_FMT_Y41P:

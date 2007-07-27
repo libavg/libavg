@@ -48,7 +48,8 @@ typedef enum {
     R5G6B5, R8G8B8, R8G8B8A8, R8G8B8X8, A8R8G8B8, X8R8G8B8,
     I8, I16, 
     YCbCr411,  // Interleaved YCbCr: Y,Y,Cb,Y,Y,Cr,... Effectively 12 bits per pixel.
-    YCbCr422,  // Interleaved YCbCr: Y,Cb,Y,Cr,...
+    YCbCr422,  // Interleaved YCbCr: Cb,Y,Cr,Y,...
+    YUYV422,   // Interleaved YCbCr, grey values first: Y,Cb,Y,Cr,...
     YCbCr420p, // Not really a valid pixel format. Signifies separate bitmaps
                // for Y, Cb and Cr components, with Cb and Cr half as big in 
                // both x and y dimensions. This is mpeg YCbCr, where the 

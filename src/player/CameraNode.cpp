@@ -82,7 +82,7 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
 #endif
     } else if (sSource == "v4l") {
 #if defined(AVG_ENABLE_V4L2)
-        int Channel = getDefaultedIntAttr (xmlNode, "channel", 1);
+        int Channel = getDefaultedIntAttr (xmlNode, "channel", 0);
         int Width = getDefaultedIntAttr (xmlNode, "width", 640);
         int Height = getDefaultedIntAttr (xmlNode, "height", 480);
         string sPF = getDefaultedStringAttr (xmlNode, "pixelformat", "RGB");
