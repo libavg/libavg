@@ -278,9 +278,11 @@ namespace avg {
     };
     typedef boost::shared_ptr<class BlobDistEntry> BlobDistEntryPtr;
 
+    // The heap is sorted by least distance, so this operator does the
+    // _opposite_ of what is expected!
     bool operator < (const BlobDistEntryPtr& e1, const BlobDistEntryPtr& e2) 
     {
-        return e1->m_Dist < e2->m_Dist;
+        return e1->m_Dist > e2->m_Dist;
     }
 
     void TrackerEventSource::calcBlobs(BlobArrayPtr pNewBlobs, bool bTouch)
@@ -325,7 +327,7 @@ namespace avg {
                 }
             }
         }
-        cerr << "DistHeap: " << DistHeap.size() << endl;
+//        cerr << "DistHeap: " << DistHeap.size() << endl;
         // Match up the closest blobs.
         set<BlobPtr> MatchedNewBlobs;
         set<BlobPtr> MatchedOldBlobs;
@@ -351,7 +353,7 @@ namespace avg {
                 pEvents->erase(pOldBlob);
             }
         }
-        cerr << "Matched: " << NumMatchedBlobs << endl;
+//        cerr << "Matched: " << NumMatchedBlobs << endl;
         // Blobs have been matched. Left-overs are new blobs.
         for(BlobArray::iterator it = NewRelevantBlobs.begin(); 
                 it!=NewRelevantBlobs.end(); ++it) 
@@ -369,7 +371,7 @@ namespace avg {
                 (*it).second->blobGone();
             }
         }
-        cerr << pEvents->size() << endl;
+//        cerr << pEvents->size() << endl;
     };
         
    void TrackerEventSource::correlateBlobs()
