@@ -253,7 +253,7 @@ long long Video::getCurTime()
     }
 }
 
-static ProfilingZone RenderProfilingZone("    Video::render");
+static ProfilingZone RenderProfilingZone("Video::render");
 
 bool Video::renderToSurface(ISurface * pSurface)
 {

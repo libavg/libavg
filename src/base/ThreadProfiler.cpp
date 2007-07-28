@@ -35,13 +35,17 @@ namespace avg {
 ThreadProfiler::ThreadProfiler(const string& sName)
     : m_sName(sName)
 {
-    m_pActiveZone = 0;
     m_bRunning = false;
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 ThreadProfiler::~ThreadProfiler() 
 {
+    for (ZoneList::iterator it=m_Zones.begin(); it != m_Zones.end(); ++it) {
+        if (!((*it)->isStatic())) {
+            delete *it;
+        }
+    }
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
@@ -59,12 +63,8 @@ void ThreadProfiler::addZone(ProfilingZone& Zone)
                     "Warning: Two profiling zones have name " <<
                     Zone.getName());
         }
-        if (m_pActiveZone == (*it)) {
-            itPrevZone = it;
-            itPrevZone++;
-        }
     }
-    m_Zones.insert(itPrevZone, &Zone);
+    m_Zones.push_back(&Zone);
 }
 
 void ThreadProfiler::clear()
@@ -74,7 +74,7 @@ void ThreadProfiler::clear()
         (*it)->clear();
     }
     m_Zones.clear();
-    m_pActiveZone = 0;
+    m_ActiveZones.clear();
     m_bRunning = false;
 }
 
@@ -89,9 +89,15 @@ bool ThreadProfiler::isRunning()
     return m_bRunning;
 }
 
-void ThreadProfiler::setActiveZone(ProfilingZone * pZone)
+void ThreadProfiler::pushActiveZone(ProfilingZone * pZone)
 {
-    m_pActiveZone = pZone;
+    m_ActiveZones.push_back(pZone);
+}
+
+void ThreadProfiler::popActiveZone(ProfilingZone * pZone)
+{
+    assert(m_ActiveZones.back() == pZone);
+    m_ActiveZones.pop_back();
 }
 
 void ThreadProfiler::dumpFrame()
@@ -100,7 +106,8 @@ void ThreadProfiler::dumpFrame()
     ZoneList::iterator it;
     for (it=m_Zones.begin(); it != m_Zones.end(); ++it) {
         AVG_TRACE(Logger::PROFILE_LATEFRAMES,
-                "    " << std::setw(30) << std::left << (*it)->getName() << ": " 
+                std::setw(35) << std::left 
+                << ((*it)->getIndentString() + (*it)->getName()) 
                 << std::setw(9) << std::right << (*it)->getUSecs());
     }
     AVG_TRACE(Logger::PROFILE_LATEFRAMES, "");
@@ -116,8 +123,9 @@ void ThreadProfiler::dumpStatistics()
         ZoneList::iterator it;
         for (it=m_Zones.begin(); it != m_Zones.end(); ++it) {
             AVG_TRACE(Logger::PROFILE,
-                    "  " << std::setw(33) << std::left << (*it)->getName() << ": " 
-                    << std::setw(7) << std::right << (*it)->getAvgUSecs());
+                    std::setw(35) << std::left 
+                    << ((*it)->getIndentString()+(*it)->getName())
+                    << std::setw(9) << std::right << (*it)->getAvgUSecs());
         }
         AVG_TRACE(Logger::PROFILE, "");
     }
@@ -129,6 +137,11 @@ void ThreadProfiler::reset()
     for (it=m_Zones.begin(); it != m_Zones.end(); ++it) {
         (*it)->reset();
     }
+}
+
+int ThreadProfiler::getIndent()
+{
+    return 2*m_ActiveZones.size();
 }
 
 bool ThreadProfiler::isCurrent()

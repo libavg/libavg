@@ -54,6 +54,9 @@ FFMpegDecoder::FFMpegDecoder ()
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     initVideoSupport();
+
+//    m_pRenderToBmpProfilingZone = new ProfilingZone("FFMpeg: renderToBmp");
+//    m_pConvertImageProfilingZone = new ProfilingZone("FFMpeg: convert image");
 }
 
 FFMpegDecoder::~FFMpegDecoder ()
@@ -253,11 +256,9 @@ double FFMpegDecoder::getFPS()
 #endif 
 }
 
-static ProfilingZone RenderToBmpProfilingZone("      FFMpeg: renderToBmp");
-
 FrameAvailableCode FFMpegDecoder::renderToBmp(BitmapPtr pBmp, long long TimeWanted)
 {
-    ScopeTimer Timer(RenderToBmpProfilingZone);
+//    ScopeTimer Timer(*m_pRenderToBmpProfilingZone);
     AVFrame Frame;
     FrameAvailableCode FrameAvailable = readFrameForTime(Frame, TimeWanted);
     if (!m_bEOF && FrameAvailable == FA_NEW_FRAME) {
@@ -282,16 +283,15 @@ void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int Stride)
 
 }
 
-static ProfilingZone ConvertImageProfilingZone("        FFMpeg: convert image");
 
 FrameAvailableCode FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
         BitmapPtr pBmpCr, long long TimeWanted)
 {
-    ScopeTimer Timer(RenderToBmpProfilingZone);
+//    ScopeTimer Timer(*m_pRenderToBmpProfilingZone);
     AVFrame Frame;
     FrameAvailableCode FrameAvailable = readFrameForTime(Frame, TimeWanted);
     if (!m_bEOF && FrameAvailable == FA_NEW_FRAME) {
-        ScopeTimer Timer(ConvertImageProfilingZone);
+//        ScopeTimer Timer(*m_pConvertImageProfilingZone);
         copyPlaneToBmp(pBmpY, Frame.data[0], Frame.linesize[0]);
         copyPlaneToBmp(pBmpCb, Frame.data[1], Frame.linesize[1]);
         copyPlaneToBmp(pBmpCr, Frame.data[2], Frame.linesize[2]);
@@ -338,8 +338,6 @@ PixelFormat FFMpegDecoder::calcPixelFormat(YCbCrMode ycbcrMode)
     return B8G8R8X8;
 }
 
-static ProfilingZone ImgConvertProfilingZone("        FFMpeg: img_convert");
-        
 void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
 {
     AVPicture DestPict;
@@ -377,7 +375,7 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
     AVCodecContext *enc = m_pVStream->codec;
 #endif
     {
-        ScopeTimer Timer(ImgConvertProfilingZone);
+//        ScopeTimer Timer(*m_pConvertImageProfilingZone);
         int rc = img_convert(&DestPict, DestFmt,
                 (AVPicture*)&Frame, enc->pix_fmt,
                 enc->width, enc->height);

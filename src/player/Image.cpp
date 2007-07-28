@@ -137,7 +137,7 @@ void Image::setBitmap(const Bitmap * pBmp)
     setViewport(-32767, -32767, Size.x, Size.y);
 }
 
-static ProfilingZone RenderProfilingZone("    Image::render");
+static ProfilingZone RenderProfilingZone("Image::render");
 
 void Image::render (const DRect& Rect)
 {

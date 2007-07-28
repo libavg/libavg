@@ -349,8 +349,8 @@ void SDLDisplayEngine::logConfig()
     }
 }
 
-static ProfilingZone PrepareRenderProfilingZone("  Root node: prepareRender");
-static ProfilingZone RootRenderProfilingZone("  Root node: render");
+static ProfilingZone PrepareRenderProfilingZone("Root node: prepareRender");
+static ProfilingZone RootRenderProfilingZone("Root node: render");
 
 void SDLDisplayEngine::render(AVGNodePtr pRootNode, bool bRenderEverything)
 {
@@ -408,7 +408,7 @@ void SDLDisplayEngine::setClipRect()
     m_ClipRects.push_back(DRect(0, 0, m_Width, m_Height));
 }
 
-static ProfilingZone PushClipRectProfilingZone("      pushClipRect");
+static ProfilingZone PushClipRectProfilingZone("pushClipRect");
 
 bool SDLDisplayEngine::pushClipRect(const DRect& rc, bool bClip)
 {
@@ -427,7 +427,7 @@ bool SDLDisplayEngine::pushClipRect(const DRect& rc, bool bClip)
     return true;
 }
 
-static ProfilingZone PopClipRectProfilingZone("      popClipRect");
+static ProfilingZone PopClipRectProfilingZone("popClipRect");
 
 void SDLDisplayEngine::popClipRect()
 {
@@ -505,7 +505,7 @@ void SDLDisplayEngine::setDirtyRect(const DRect& rc)
             ", height: " << m_DirtyRect.Height());
 }
 
-static ProfilingZone SwapBufferProfilingZone("  Render - swap buffers");
+static ProfilingZone SwapBufferProfilingZone("Render - swap buffers");
 
 void SDLDisplayEngine::swapBuffers()
 {

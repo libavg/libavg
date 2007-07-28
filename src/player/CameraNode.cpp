@@ -136,8 +136,8 @@ int CameraNode::getFrameNum() const
     return m_FrameNum;
 }
 
-static ProfilingZone CameraProfilingZone("    Camera::render");
-static ProfilingZone CameraUploadProfilingZone("      Camera tex download");
+static ProfilingZone CameraProfilingZone("Camera::render");
+static ProfilingZone CameraUploadProfilingZone("Camera tex download");
 
 bool CameraNode::renderToSurface(ISurface * pSurface)
 {

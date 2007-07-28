@@ -129,7 +129,7 @@ bool DisplayEngine::wasFrameLate()
     return m_bFrameLate;
 }
 
-static ProfilingZone WaitProfilingZone("  Render - wait");
+static ProfilingZone WaitProfilingZone("Render - wait");
 
 void DisplayEngine::frameWait()
 {

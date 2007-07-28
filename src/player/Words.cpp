@@ -271,7 +271,7 @@ bool equalIgnoreCase(const string& s1, const string& s2) {
     return sUpper1 == sUpper2;
 }
 
-static ProfilingZone DrawStringProfilingZone("  Words::drawString");
+static ProfilingZone DrawStringProfilingZone("Words::drawString");
 
 void Words::drawString()
 {
@@ -399,7 +399,7 @@ void Words::prepareRender(int time, const DRect& parent)
     Node::prepareRender(time, parent);
 }
 
-static ProfilingZone RenderProfilingZone("    Words::render");
+static ProfilingZone RenderProfilingZone("Words::render");
 
 void Words::render(const DRect& Rect)
 {

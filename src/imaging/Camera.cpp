@@ -286,7 +286,7 @@ IntPoint Camera::getImgSize()
     return IntPoint(640, 480);
 }
 
-static ProfilingZone CameraConvertProfilingZone("      Camera format conversion");
+static ProfilingZone CameraConvertProfilingZone("Camera format conversion");
 
 BitmapPtr Camera::getImage(bool bWait)
 {
