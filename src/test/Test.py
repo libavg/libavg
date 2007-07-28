@@ -18,13 +18,13 @@ class LoggerTestCase(unittest.TestCase):
     def test(self):
         self.Log = avg.Logger.get()
         self.Log.setCategories(self.Log.APP |
-                  self.Log.WARNING
+                  self.Log.WARNING |
 #                  self.Log.PROFILE |
 #                  self.Log.PROFILE_LATEFRAMES |
 #                  self.Log.CONFIG |
 #                  self.Log.MEMORY | 
 #                  self.Log.BLTS    |
-                  |self.Log.EVENTS|
+                  self.Log.EVENTS |
                   self.Log.EVENTS2
                   )
         myTempFile = os.path.join(tempfile.gettempdir(), "testavg.log")

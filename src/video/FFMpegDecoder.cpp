@@ -108,6 +108,7 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
     mutex::scoped_lock Lock(s_OpenMutex);
     m_bEOF = false;
     m_bEOFPending = false;
+    m_StartTimestamp = -1;
     AVFormatParameters params;
     int err;
     m_sFilename = sFilename;
@@ -406,7 +407,7 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long Tim
 {
     // XXX: This code is sort-of duplicated in AsyncVideoDecoder::getBmpsForTime()
     long long FrameTime = -1000;
-//    cerr << "readFrameForTime " << TimeWanted << ", LastFrameTime= " << m_LastFrameTime << ", diff= " << TimeWanted-m_LastFrameTime << endl;
+//    cerr << m_sFilename << " readFrameForTime " << TimeWanted << ", LastFrameTime= " << m_LastFrameTime << ", diff= " << TimeWanted-m_LastFrameTime << endl;
     if (TimeWanted == -1) {
         readFrame(Frame, FrameTime);
     } else {
@@ -499,7 +500,7 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
                ", pict_type: " << Frame.pict_type << endl;
         AVFrac spts = m_pVStream->pts;
         cerr << "Stream.pts: " << spts.val + double(spts.num)/spts.den << endl;
-*/    
+*/
     }
 }
 
@@ -508,8 +509,7 @@ long long FFMpegDecoder::getFrameTime(AVPacket* pPacket)
     if (m_StartTimestamp == -1) {
         m_StartTimestamp = (long long)((1000*pPacket->dts)/m_TimeUnitsPerSecond);
     }
-    int64_t PacketTimestamp = (pPacket->dts);
-    return (long long)((1000*PacketTimestamp)/m_TimeUnitsPerSecond)-m_StartTimestamp;
+    return (long long)((1000*pPacket->dts)/m_TimeUnitsPerSecond)-m_StartTimestamp;
 }
 
 
