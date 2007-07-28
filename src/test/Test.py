@@ -616,7 +616,7 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(False)
         Player.loadFile("video.avg")
         Player.setFakeFPS(25)
-        video = Player.getElementByID("clogo2")
+        video = Player.getElementByID("clogo1")
         video.play()
         video.setEOFCallback(onEOF)
         Player.setTimeout(10000, onNoEOF)
