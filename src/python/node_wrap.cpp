@@ -119,18 +119,13 @@ void export_node()
             "coordinate system for the display and are the default for the window\n"
             "size used (i.e. by default, the coordinate system is pixel-based.)\n"
             "Properties:\n"
-            "    onkeydown: The python code to execute when a key is pressed (ro).\n"
-            "    onkeyup: The python code to execute when a key is released (ro).\n",
+            "    none\n",
             no_init)
         .def("getCropSetting", &AVGNode::getCropSetting,
                 "getCropSetting() -> isCropActive\n\n"
                 "Returns true if cropping is active. Cropping can be turned off globally\n"
                 "in the avg file. (Deprecated. This attribute is only nessesary because\n"
                 "of certain buggy display drivers that don't work with cropping.)")
-        .add_property("onkeydown", make_function(&AVGNode::getOnKeyDown,
-                return_value_policy<copy_const_reference>()))
-        .add_property("onkeyup", make_function(&AVGNode::getOnKeyUp,
-                return_value_policy<copy_const_reference>()))
     ;
 
     class_<PanoImage, bases<Node> >("PanoImage",

@@ -880,7 +880,7 @@ vector<Event *> SDLDisplayEngine::pollEvents()
                 break;
             case SDL_QUIT:
                 {
-                    Event * pEvent = new Event(Event::QUIT);
+                    Event * pEvent = new Event(Event::QUIT, Event::NONE);
                     Events.push_back(pEvent);
                 }
                 break;

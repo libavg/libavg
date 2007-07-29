@@ -35,20 +35,16 @@ const int MOUSECURSORID=-1;
 class CursorEvent: public Event 
 {
     public:
-        enum Source {MOUSE, TOUCH, TRACK};
-
         CursorEvent(int id, Type eventType, IntPoint Position, Source source);
         virtual ~CursorEvent();
         virtual Event* cloneAs(Type EventType);
         int getXPosition() const;
         int getYPosition() const;
         int getCursorID() const;
-        CursorEvent::Source getSource() const;
 
     protected:
         IntPoint m_Position;
         int m_ID;
-        Source m_Source;
 };
 
 }

@@ -33,8 +33,10 @@ AVGNode::AVGNode (const xmlNodePtr xmlNode, Player * pPlayer)
     : DivNode(xmlNode, pPlayer)
 {
     m_bEnableCrop = getDefaultedBoolAttr (xmlNode, "enablecrop", true);
-    m_sKeyUpHandler = getDefaultedStringAttr (xmlNode, "onkeyup", "");
-    m_sKeyDownHandler = getDefaultedStringAttr (xmlNode, "onkeydown", "");
+    addEventHandler(Event::KEYUP, Event::NONE, 
+            getDefaultedStringAttr (xmlNode, "onkeyup", ""));
+    addEventHandler(Event::KEYDOWN, Event::NONE, 
+            getDefaultedStringAttr (xmlNode, "onkeydown", ""));
 }
 
 AVGNode::~AVGNode()
@@ -44,25 +46,6 @@ AVGNode::~AVGNode()
 string AVGNode::getTypeStr ()
 {
     return "AVGNode";
-}
-
-void AVGNode::handleEvent (KeyEvent* pEvent)
-{
-    string Code;
-    int EventType = pEvent->getType();
-    switch (EventType) {
-        case Event::KEYDOWN:
-            Code = m_sKeyDownHandler;
-            break;
-        case Event::KEYUP:
-            Code = m_sKeyUpHandler;
-            break;
-         default:
-            break;
-    }
-    if (!Code.empty()) {
-        callPython(Code, *pEvent);
-    } 
 }
 
 bool AVGNode::getCropSetting() {

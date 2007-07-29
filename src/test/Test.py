@@ -214,6 +214,12 @@ def onMainCaptureMouseDown():
 def onCaptureMouseDown():
     global captureMouseDownCalled
     captureMouseDownCalled = True
+    
+neverCalledCalled = False
+
+def neverCalled():
+    global neverCalledCalled
+    neverCalledCalled = True
 
 class PlayerTestCase(AVGTestCase):
     def __init__(self, testFuncName, engine, bpp):
@@ -310,7 +316,7 @@ class PlayerTestCase(AVGTestCase):
         global deactMouseOverCalled
         global deactMouseOverLate
         global deactMouseDownCalled
-
+        global neverCalledCalled
 
         self.start("events.avg", 
                 (lambda: self.compareImage("testEvents", False),
@@ -331,7 +337,8 @@ class PlayerTestCase(AVGTestCase):
                  # Test if deactivation between mouse click and mouse out works.
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         70, 10, 1),
-                 lambda: self.assert_(deactMouseOverCalled and not(deactMouseOverLate)),
+                 lambda: self.assert_(deactMouseOverCalled and not(deactMouseOverLate)
+                        and not(neverCalledCalled)),
                  # XXX
                  # - errMouseOver
                  Player.stop))
