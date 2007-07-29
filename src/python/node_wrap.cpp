@@ -83,6 +83,14 @@ void export_node()
                 "similar to the event handler node attributes (e.g. oncursordown).\n"
                 "It is more specific since it takes the event source as a parameter\n"
                 "and allows the use of any python callable as callback function.\n")
+        .def("getRelXPos", &Node::getRelXPos,
+                "getRelXPos(absx) -> relx\n\n"
+                "Transforms an x-coordinate in screen coordinates to an x-coordinate\n"
+                "in coordinates relative to the node.\n")
+        .def("getRelYPos", &Node::getRelYPos,
+                "getRelYPos(absy) -> rely\n\n"
+                "Transforms an y-coordinate in screen coordinates to an y-coordinate\n"
+                "in coordinates relative to the node.\n")
         .add_property("id", make_function(&Node::getID,
                 return_value_policy<copy_const_reference>()), &Node::setID)
         .add_property("x", &Node::getX, &Node::setX)
