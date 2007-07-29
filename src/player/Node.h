@@ -100,6 +100,7 @@ class Node
         void releaseMouseEventCapture();
         void setEventCapture(int cursorID);
         void releaseEventCapture(int cursorID);
+        void setEventHandler(Event::Type Type, Event::Source Source, PyObject * pFunc);
 
         bool isActive();
         bool reactsToMouseEvents();

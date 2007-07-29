@@ -62,7 +62,8 @@ class AVGTestCase(unittest.TestCase):
         print "-------- ", self.__testFuncName, " --------"
     def start(self, filename, actions):
         self.assert_(Player.isPlaying() == 0)
-        Player.loadFile(filename)
+        if filename != None:
+            Player.loadFile(filename)
         self.actions = actions
         self.curFrame = 0
         Player.setInterval(0, self.nextAction)
@@ -123,18 +124,8 @@ def dumpMouseEvent():
     print "  position: "+str(Event.x)+","+str(Event.y)
     print "  node: "+Event.node.id
 
+mainMouseUpCalled = False
 mainMouseDownCalled = False
-mouseMove1Called = False
-mouseUp1Called = False
-mouseDown1Called = False
-mouseOver1Called = False
-mouseOut1Called = False
-divMouseDownCalled = False
-mouseDown2Called = False
-obscuredMouseDownCalled = False
-deactMouseDownCalled = False
-deactMouseOverLate = False
-deactMouseOverCalled = False
 
 def mainMouseUp():
     global mainMouseUpCalled
@@ -146,63 +137,8 @@ def mainMouseDown():
     assert (Player.getCurEvent().type == avg.CURSORDOWN)
     mainMouseDownCalled = True
 
-def onMouseMove1():
-    assert (Player.getCurEvent().type == avg.CURSORMOTION)
-    print "onMouseMove1"
-
-def onMouseUp1():
-    global mouseUp1Called
-    assert (Player.getCurEvent().type == avg.CURSORUP)
-    mouseUp1Called = True
-
-def onMouseDown1():
-    global mouseDown1Called
-    assert (Player.getCurEvent().type == avg.CURSORDOWN)
-    mouseDown1Called = True
-
-def onMouseOver1():
-    global mouseOver1Called
-    assert (Player.getCurEvent().type == avg.CURSOROVER)
-    mouseOver1Called = True
-
-def onMouseOut1():
-    global mouseOut1Called
-    assert (Player.getCurEvent().type == avg.CURSOROUT)
-    mouseOut1Called = True
-
-def onDivMouseDown():
-    global divMouseDownCalled
-    assert (Player.getCurEvent().type == avg.CURSORDOWN)
-    divMouseDownCalled = True
-
-def onMouseDown2():
-    global mouseDown2Called
-    assert (Player.getCurEvent().type == avg.CURSORDOWN)
-    mouseDown2Called = True
-
-def onObscuredMouseDown():
-    global obscuredMouseDownCalled
-    obscuredMouseDownCalled = True
-
 def onErrMouseOver():
     undefinedFunction()
-
-def onDeactMouseDown():
-    global deactMouseDownCalled
-    deactMouseDownCalled = True
-
-def onDeactMouseOver():
-    global deactMouseDownCalled
-    global deactMouseOverLate
-    global deactMouseOverCalled
-    deactMouseOverLate = deactMouseDownCalled
-    deactMouseOverCalled = True
-
-def onDeactMouseMove():
-    print("move")
-
-def onDeactMouseOut():
-    print("out")
 
 mainCaptureMouseDownCalled = False
 captureMouseDownCalled = False
@@ -215,12 +151,6 @@ def onCaptureMouseDown():
     global captureMouseDownCalled
     captureMouseDownCalled = True
     
-neverCalledCalled = False
-
-def neverCalled():
-    global neverCalledCalled
-    neverCalledCalled = True
-
 class PlayerTestCase(AVGTestCase):
     def __init__(self, testFuncName, engine, bpp):
         AVGTestCase.__init__(self, testFuncName, engine, bpp)
@@ -303,42 +233,115 @@ class PlayerTestCase(AVGTestCase):
             Player.getElementByID("div1").active = False
             Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                 70, 70, 1)
-        Helper = Player.getTestHelper()
-        global mainMouseDownCalled
-        global mouseMove1Called
-        global mouseUp1Called
-        global mouseDown1Called
-        global mouseOver1Called
-        global mouseOut1Called
-        global divMouseDownCalled
-        global mouseDown2Called
-        global obscuredMouseDownCalled
-        global deactMouseOverCalled
-        global deactMouseOverLate
-        global deactMouseDownCalled
-        global neverCalledCalled
+        def disableHandler():
+            self.mouseDown1Called = False
+            Player.getElementByID("img1").setEventHandler(avg.CURSORDOWN, avg.MOUSE, None)
+        def onMouseMove1():
+            self.assert_ (Player.getCurEvent().type == avg.CURSORMOTION)
+            print "onMouseMove1"
+        def onMouseUp1():
+            self.assert_ (Player.getCurEvent().type == avg.CURSORUP)
+            self.mouseUp1Called = True
+        def onMouseDown1():
+            self.assert_ (Player.getCurEvent().type == avg.CURSORDOWN)
+            self.mouseDown1Called = True
+        def onMouseOver1():
+            self.assert_ (Player.getCurEvent().type == avg.CURSOROVER)
+            self.mouseOver1Called = True
+        def onMouseOut1():
+            self.assert_ (Player.getCurEvent().type == avg.CURSOROUT)
+            self.mouseOut1Called = True
+        def onTouchDown():
+            self.touchDownCalled = True
+        def onDivMouseDown():
+            self.assert_ (Player.getCurEvent().type == avg.CURSORDOWN)
+            self.divMouseDownCalled = True
+        def onMouseDown2():
+            self.assert_ (Player.getCurEvent().type == avg.CURSORDOWN)
+            self.mouseDown2Called = True
+        def onObscuredMouseDown():
+            self.obscuredMouseDownCalled = True
+        def onDeactMouseDown():
+            self.deactMouseDownCalled = True
+        def onDeactMouseOver():
+            self.deactMouseOverLate = self.deactMouseDownCalled
+            self.deactMouseOverCalled = True
+        def onDeactMouseMove():
+            print("move")
+        def onDeactMouseOut():
+            print("out")
+        def neverCalled():
+            self.neverCalledCalled = True
 
-        self.start("events.avg", 
+        Helper = Player.getTestHelper()
+        global mainMouseUpCalled
+        global mainMouseDownCalled
+        Player.loadFile("events.avg")
+        
+        self.mouseMove1Called=False
+        self.mouseUp1Called=False
+        self.mouseDown1Called=False
+        self.mouseOver1Called=False
+        self.mouseOut1Called=False
+        self.touchDownCalled = False
+        img1 = Player.getElementByID("img1")
+        img1.setEventHandler(avg.CURSORMOTION, avg.MOUSE, onMouseMove1) 
+        img1.setEventHandler(avg.CURSORUP, avg.MOUSE, onMouseUp1) 
+        img1.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onMouseDown1) 
+        img1.setEventHandler(avg.CURSOROVER, avg.MOUSE, onMouseOver1) 
+        img1.setEventHandler(avg.CURSOROUT, avg.MOUSE, onMouseOut1) 
+        img1.setEventHandler(avg.CURSORDOWN, avg.TOUCH, onTouchDown) 
+
+        self.neverCalledCalled=False
+        hidden = Player.getElementByID("hidden")
+        hidden.setEventHandler(avg.CURSORUP, avg.MOUSE, neverCalled)
+
+        self.obscuredMouseDownCalled=False
+        obscured = Player.getElementByID("obscured")
+        obscured.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onObscuredMouseDown)
+
+        self.divMouseDownCalled=False
+        div1 = Player.getElementByID("div1")
+        div1.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onDivMouseDown)
+
+        self.mouseDown2Called=False
+        img2 = Player.getElementByID("img2")
+        img2.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onMouseDown2)
+
+        self.deactMouseOverCalled=False
+        self.deactMouseOverLate=False
+        self.deactMouseDownCalled=False
+        deact = Player.getElementByID("deact")
+        deact.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onDeactMouseDown)
+        deact.setEventHandler(avg.CURSOROVER, avg.MOUSE, onDeactMouseOver)
+        deact.setEventHandler(avg.CURSOROUT, avg.MOUSE, onDeactMouseOut)
+        deact.setEventHandler(avg.CURSORMOTION, avg.MOUSE, onDeactMouseMove)
+
+        self.start(None, 
                 (lambda: self.compareImage("testEvents", False),
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         10, 10, 1),
-                 lambda: self.assert_(mouseDown1Called and mouseOver1Called 
-                        and mainMouseDownCalled),
+                 lambda: self.assert_(self.mouseDown1Called and self.mouseOver1Called 
+                        and mainMouseDownCalled and not(self.touchDownCalled)),
                  getMouseState,
                  lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
                         12, 12, 1),
-                 lambda: self.assert_(mouseUp1Called and mainMouseUpCalled),
+                 lambda: self.assert_(self.mouseUp1Called and mainMouseUpCalled),
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         70, 70, 1),
-                 lambda: self.assert_(mouseDown2Called and divMouseDownCalled and 
-                        mouseOut1Called and not(obscuredMouseDownCalled)),
+                 lambda: self.assert_(self.mouseDown2Called and self.divMouseDownCalled and 
+                        self.mouseOut1Called and not(self.obscuredMouseDownCalled)),
                  testInactiveDiv,
-                 lambda: self.assert_(obscuredMouseDownCalled),
+                 lambda: self.assert_(self.obscuredMouseDownCalled),
                  # Test if deactivation between mouse click and mouse out works.
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         70, 10, 1),
-                 lambda: self.assert_(deactMouseOverCalled and not(deactMouseOverLate)
-                        and not(neverCalledCalled)),
+                 lambda: self.assert_(self.deactMouseOverCalled and not(self.deactMouseOverLate)
+                        and not(self.neverCalledCalled)),
+                 disableHandler,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        10, 10, 1),
+                 lambda: self.assert_(not(self.mouseDown1Called)),
                  # XXX
                  # - errMouseOver
                  Player.stop))

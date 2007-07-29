@@ -76,6 +76,13 @@ void export_node()
         .def("releaseEventCapture", &Node::releaseEventCapture,
                 "releaseEventCapture() -> None\n\n"
                 "Restores normal nouse operation after a call to setEventCapture()\n")
+        .def("setEventHandler", &Node::setEventHandler,
+                "setEventHandler(Type, Source, pyfunc) -> None\n\n"
+                "Sets a callback function that is invoked whenever an event of the\n"
+                "specified Type from the specified Source occurs. This function is\n"
+                "similar to the event handler node attributes (e.g. oncursordown).\n"
+                "It is more specific since it takes the event source as a parameter\n"
+                "and allows the use of any python callable as callback function.\n")
         .add_property("id", make_function(&Node::getID,
                 return_value_policy<copy_const_reference>()), &Node::setID)
         .add_property("x", &Node::getX, &Node::setX)

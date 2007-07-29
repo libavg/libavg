@@ -248,6 +248,20 @@ void Node::releaseEventCapture(int cursorID) {
     m_pPlayer->releaseEventCapture(m_This, cursorID);
 }
 
+void Node::setEventHandler(Event::Type Type, Event::Source Source, PyObject * pFunc)
+{
+    EventHandlerID ID(Type, Source);
+    EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
+    if (it != m_EventHandlerMap.end()) {
+        Py_DECREF(it->second);
+        m_EventHandlerMap.erase(it);
+    }
+    if (pFunc != Py_None) {
+        Py_INCREF(pFunc);
+        m_EventHandlerMap[ID] = pFunc;
+    }
+}
+
 bool Node::isActive()
 {
     return m_bActive;

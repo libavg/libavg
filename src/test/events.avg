@@ -2,19 +2,13 @@
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 <avg width="160" height="120"  
     oncursordown="mainMouseDown" oncursorup="mainMouseUp">
-  <image id="img1" x="0" y="0" href="rgb24-65x65.png" 
-      oncursormove="onMouseMove1" oncursorup="onMouseUp1" oncursordown="onMouseDown1"
-      oncursorover="onMouseOver1" oncursorout="onMouseOut1"/>
-  <image id="hidden" x="65" y="65" height="10" width="10" href="rgb24-65x65.png"
-      oncursorup="neverCalled"/>
-  <image id="obscured" x="65" y="65" href="rgb24-65x65.png"
-      oncursordown="onObscuredMouseDown"/>
-  <div id="div1" x="65" y="0" oncursordown="onDivMouseDown">
-    <image id="img2" x="0" y="65" href="rgb24-65x65.png" oncursordown="onMouseDown2"/>
+  <image id="img1" x="0" y="0" href="rgb24-65x65.png"/>
+  <image id="hidden" x="65" y="65" height="10" width="10" href="rgb24-65x65.png"/>
+  <image id="obscured" x="65" y="65" href="rgb24-65x65.png"/>
+  <div id="div1" x="65" y="0">
+    <image id="img2" x="0" y="65" href="rgb24-65x65.png"/>
   </div>
   <image id="tilted" x="0" y="64" width="32" height="32" angle="0.785"
       href="rgb24-64x64.png"/>
-  <image id="deact" x="65" y="0" href="rgb24-65x65.png" oncursorover="onDeactMouseOver"
-      oncursordown="onDeactMouseDown" oncursorout="onDeactMouseOut" 
-      oncursormove="onDeactMouseMove"/>
+  <image id="deact" x="65" y="0" href="rgb24-65x65.png"/>
 </avg>
