@@ -33,8 +33,8 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include <linux/types.h>
-#include <linux/time.h>
+//#include <linux/types.h>
+//#include <linux/time.h>
 #include <linux/videodev2.h>
 
 #include <stdio.h>
@@ -541,7 +541,7 @@ void V4LCamera::initDevice()
     Fmt.fmt.pix.height      = getImgSize().y;
     Fmt.fmt.pix.pixelformat = m_CamPF;
     // TODO: deinterlace pipeline or one-field method
-    Fmt.fmt.pix.field       = V4L2_FIELD_INTERLACED;
+    Fmt.fmt.pix.field       = V4L2_FIELD_ANY;
 
     if (xioctl(m_Fd, VIDIOC_S_FMT, &Fmt) == -1) {
         AVG_TRACE(Logger::ERROR, m_sDevice << " could not set image format");

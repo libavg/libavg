@@ -83,8 +83,8 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
     } else if (sSource == "v4l") {
 #if defined(AVG_ENABLE_V4L2)
         int Channel = getDefaultedIntAttr (xmlNode, "channel", 0);
-        int Width = getDefaultedIntAttr (xmlNode, "width", 640);
-        int Height = getDefaultedIntAttr (xmlNode, "height", 480);
+        int Width = getDefaultedIntAttr (xmlNode, "capturewidth", 640);
+        int Height = getDefaultedIntAttr (xmlNode, "captureheight", 480);
         string sPF = getDefaultedStringAttr (xmlNode, "pixelformat", "RGB");
         
         m_pCamera = CameraPtr(new V4LCamera(sDevice, Channel,
