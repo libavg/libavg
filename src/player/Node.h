@@ -33,6 +33,9 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
+#include <Python.h>
+#undef HAVE_STAT
+
 #include <vector>
 #include <string>
 #include <map>
@@ -97,6 +100,7 @@ class Node
         void releaseMouseEventCapture();
         void setEventCapture(int cursorID);
         void releaseEventCapture(int cursorID);
+        void setEventHandler(Event::Type Type, Event::Source Source, PyObject * pFunc);
 
         bool isActive();
         bool reactsToMouseEvents();
@@ -127,7 +131,6 @@ class Node
                 NT_CAMERA, NT_DIV, NT_PANOIMAGE};
 
     protected:
-        Node ();
         Node (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual DPoint getPreferredMediaSize() 
             { return DPoint(0,0); };
@@ -135,13 +138,17 @@ class Node
         DisplayEngine * getEngine() const;
         NodePtr getThis() const;
 
-        void callPython (const std::string& Code, const avg::Event& Event);
+        void callPython (PyObject * pFunc, const avg::Event& Event);
+        void addEventHandlers(Event::Type EventType, const std::string& Code);
+        void addEventHandler(Event::Type EventType, Event::Source Source, 
+                const std::string& Code);
             
         void initFilename (Player * pPlayer, std::string& sFilename);
         void setState(NodeState State);
  
     private:
         void calcAbsViewport();
+        PyObject * findPythonFunc(const std::string& Code);
 
         DivNodeWeakPtr m_pParent;
         NodeWeakPtr m_This;
@@ -149,7 +156,17 @@ class Node
         Player * m_pPlayer;
 
         std::string m_ID;
-        std::map<Event::Type, std::string> m_EventHandlerMap;
+
+        struct EventHandlerID {
+            EventHandlerID(Event::Type EventType, Event::Source Source);
+
+            bool operator < (const EventHandlerID& other) const;
+
+            Event::Type m_Type;
+            Event::Source m_Source;
+        };
+        typedef std::map<EventHandlerID, PyObject *> EventHandlerMap;
+        EventHandlerMap m_EventHandlerMap;
 
         DRect m_RelViewport;      // In coordinates relative to the parent.
         DRect m_AbsViewport;      // In window coordinates.

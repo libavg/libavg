@@ -43,8 +43,9 @@ class Event {
             RESIZE,
             QUIT 
         };
+        enum Source {MOUSE, TOUCH, TRACK, NONE};
     
-        Event(Type type, int when=-1);
+        Event(Type type, Source source=NONE, int when=-1);
         Event(const Event& e);
         virtual ~Event();
         
@@ -52,16 +53,20 @@ class Event {
 
         int getWhen() const;
         Type getType() const;
+        Event::Source getSource() const;
         NodePtr getElement() const;
         void setElement(NodePtr pNode);
         
         friend struct isEventAfter;
+        
     protected:
         Type m_Type;
         NodePtr m_pNode;
         int m_When;
+
     private:
         int m_Counter;
+        Source m_Source;
 
         static int s_CurCounter;
 };

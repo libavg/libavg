@@ -84,6 +84,7 @@ class Player : IEventSink
         void releaseEventCapture(NodeWeakPtr pNode, int cursorID=MOUSECURSORID);
 
         NodePtr getElementByID(const std::string& id);
+        void registerNode(NodePtr pNode);
         void addNodeID(NodePtr pNode);
         void removeNodeID(const std::string& id);
         AVGNodePtr getRootNode();
@@ -102,7 +103,6 @@ class Player : IEventSink
     private:
         void initConfig();
         void initGraphics();
-        void registerNode(NodePtr pNode);
 
         NodePtr createNodeFromXml(const xmlDocPtr xmlDoc, 
                 const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);

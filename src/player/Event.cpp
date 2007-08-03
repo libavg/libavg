@@ -32,9 +32,10 @@ namespace avg {
 
 int Event::s_CurCounter = 0;
 
-Event::Event(Type type, int when)
+Event::Event(Type type, Source source, int when)
     : m_Type(type),
-      m_pNode()
+      m_pNode(),
+      m_Source(source)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     if (when == -1) {
@@ -66,6 +67,11 @@ int Event::getWhen() const
 Event::Type Event::getType() const
 {
     return m_Type;
+}
+
+Event::Source Event::getSource() const
+{
+    return m_Source;
 }
 
 void Event::setElement(NodePtr pNode)

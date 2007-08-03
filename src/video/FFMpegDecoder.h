@@ -25,6 +25,8 @@
 #include "IVideoDecoder.h"
 #include "IDemuxer.h"
 
+#include "../base/ProfilingZone.h"
+
 #ifdef _WIN32
 #define EMULATE_INTTYPES
 #else
@@ -85,6 +87,9 @@ class FFMpegDecoder: public IVideoDecoder
         long long m_LastFrameTime;
         long long m_TimePerFrame;
         long long m_StreamTimeOffset;
+
+        ProfilingZone * m_pRenderToBmpProfilingZone;
+        ProfilingZone * m_pConvertImageProfilingZone;
 
         static bool m_bInitialized;
         // Prevents different decoder instances from executing open/close simultaneously

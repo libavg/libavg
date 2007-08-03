@@ -33,10 +33,6 @@ using namespace std;
 
 namespace avg {
 
-DivNode::DivNode()
-{
-}
-
 DivNode::DivNode (const xmlNodePtr xmlNode, Player * pPlayer)
     : Node(xmlNode, pPlayer)
 {
@@ -53,7 +49,6 @@ void DivNode::setDisplayEngine(DisplayEngine * pEngine)
     for  (int i = 0; i< (int)m_Children.size(); ++i) {
         m_Children[i]->setDisplayEngine(pEngine);
     }
-    
 }
 
 void DivNode::disconnect()
@@ -90,7 +85,7 @@ void DivNode::addChild (NodePtr pNewNode)
     DivNodePtr Ptr = boost::dynamic_pointer_cast<DivNode>(getThis());
     pNewNode->setParent(Ptr);
     if (getState() == NS_CONNECTED) {
-        getPlayer()->addNodeID(pNewNode);
+        getPlayer()->registerNode(pNewNode);
     }
     if (isDisplayAvailable()) {
         pNewNode->setDisplayEngine(getEngine());

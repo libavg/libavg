@@ -36,15 +36,6 @@ using namespace std;
 
 namespace avg {
 
-RasterNode::RasterNode ()
-    : m_pSurface(0),
-      m_Angle(0),
-      m_Pivot(-32767, -32767),
-      m_MaxTileSize(IntPoint(-1,-1)),
-      m_sBlendMode("blend")
-{
-}
-
 RasterNode::RasterNode (const xmlNodePtr xmlNode, Player * pPlayer)
     : Node(xmlNode, pPlayer),
       m_pSurface(0),

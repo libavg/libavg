@@ -76,6 +76,21 @@ void export_node()
         .def("releaseEventCapture", &Node::releaseEventCapture,
                 "releaseEventCapture() -> None\n\n"
                 "Restores normal nouse operation after a call to setEventCapture()\n")
+        .def("setEventHandler", &Node::setEventHandler,
+                "setEventHandler(Type, Source, pyfunc) -> None\n\n"
+                "Sets a callback function that is invoked whenever an event of the\n"
+                "specified Type from the specified Source occurs. This function is\n"
+                "similar to the event handler node attributes (e.g. oncursordown).\n"
+                "It is more specific since it takes the event source as a parameter\n"
+                "and allows the use of any python callable as callback function.\n")
+        .def("getRelXPos", &Node::getRelXPos,
+                "getRelXPos(absx) -> relx\n\n"
+                "Transforms an x-coordinate in screen coordinates to an x-coordinate\n"
+                "in coordinates relative to the node.\n")
+        .def("getRelYPos", &Node::getRelYPos,
+                "getRelYPos(absy) -> rely\n\n"
+                "Transforms an y-coordinate in screen coordinates to an y-coordinate\n"
+                "in coordinates relative to the node.\n")
         .add_property("id", make_function(&Node::getID,
                 return_value_policy<copy_const_reference>()), &Node::setID)
         .add_property("x", &Node::getX, &Node::setX)
@@ -119,17 +134,13 @@ void export_node()
             "coordinate system for the display and are the default for the window\n"
             "size used (i.e. by default, the coordinate system is pixel-based.)\n"
             "Properties:\n"
-            "    onkeydown: The python code to execute when a key is pressed (ro).\n"
-            "    onkeyup: The python code to execute when a key is released (ro).\n")
+            "    none\n",
+            no_init)
         .def("getCropSetting", &AVGNode::getCropSetting,
                 "getCropSetting() -> isCropActive\n\n"
                 "Returns true if cropping is active. Cropping can be turned off globally\n"
                 "in the avg file. (Deprecated. This attribute is only nessesary because\n"
                 "of certain buggy display drivers that don't work with cropping.)")
-        .add_property("onkeydown", make_function(&AVGNode::getOnKeyDown,
-                return_value_policy<copy_const_reference>()))
-        .add_property("onkeyup", make_function(&AVGNode::getOnKeyUp,
-                return_value_policy<copy_const_reference>()))
     ;
 
     class_<PanoImage, bases<Node> >("PanoImage",
@@ -144,7 +155,8 @@ void export_node()
             "    hue: A hue to color the image in. (ro, deprecated)\n"
             "    saturation: The saturation the image should have. (ro, deprecated)\n"
             "    rotation: The current angle the viewer is looking at in radians.\n"
-            "    maxrotation: The maximum angle the viewer can look at.\n")
+            "    maxrotation: The maximum angle the viewer can look at.\n",
+            no_init)
         .def("getScreenPosFromPanoPos", &PanoImage::getScreenPosFromPanoPos,
                 "getScreenPosFromPanoPos(panoPos) -> pos\n\n"
                 "Converts a position in panorama image pixels to pixels in coordinates\n"

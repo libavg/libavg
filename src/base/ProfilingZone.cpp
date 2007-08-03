@@ -30,12 +30,14 @@ using namespace std;
 
 namespace avg {
 
-ProfilingZone::ProfilingZone(const string& sName)
+ProfilingZone::ProfilingZone(const string& sName, bool bIsStatic)
     : m_sName(sName),
       m_TimeSum(0),
       m_AvgTime(0),
       m_NumFrames(0),
-      m_bIsRegistered(false)
+      m_Indent(0),
+      m_bIsRegistered(false),
+      m_bIsStatic(bIsStatic)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -53,6 +55,11 @@ void ProfilingZone::clear()
     m_bIsRegistered = false;
 }
 
+bool ProfilingZone::isStatic()
+{
+    return m_bIsStatic;
+}
+
 void ProfilingZone::start()
 {
     ThreadProfilerPtr pProfiler = ThreadProfiler::get();
@@ -64,12 +71,11 @@ void ProfilingZone::start()
         // This stuff makes sure that the zones are registered in the order 
         // they are entered.
         pProfiler->addZone(*this);
+        m_Indent = pProfiler->getIndent();
         clear();
         m_bIsRegistered = true;
     }
-    if (pProfiler->isCurrent()) {
-        pProfiler->setActiveZone(this);
-    }
+    pProfiler->pushActiveZone(this);
 }
 
 void ProfilingZone::reset()
@@ -89,13 +95,19 @@ long long ProfilingZone::getAvgUSecs() const
     return m_AvgTime;
 }
 
-const std::string& ProfilingZone::getName() const
+string ProfilingZone::getIndentString() const 
+{
+    return string(m_Indent, ' ');
+}
+
+const string& ProfilingZone::getName() const
 {
     return m_sName;
 }
     
 void ProfilingZone::add(long long usecs)
 {
+    ThreadProfiler::get()->popActiveZone(this);
     m_TimeSum += usecs;
 }
 

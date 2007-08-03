@@ -183,7 +183,7 @@ void OGLTile::createTexture(int i, IntPoint Size, int Stride, PixelFormat pf)
     }
 }
 
-static ProfilingZone TexSubImageProfilingZone("    OGLTile::texture download");
+static ProfilingZone TexSubImageProfilingZone("OGLTile::texture download");
 
 void OGLTile::downloadTexture(int i, BitmapPtr pBmp, int stride, 
                 OGLMemoryMode MemoryMode) const

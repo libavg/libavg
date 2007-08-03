@@ -46,8 +46,6 @@ void FFMpegDemuxer::enableStream(int StreamIndex)
     m_PacketLists[StreamIndex] = PacketList();
 }
 
-static ProfilingZone VideoPacketProfilingZone("        FFMpegDemuxer: getPacket");
-
 AVPacket * FFMpegDemuxer::getPacket(int StreamIndex)
 {
     // Make sure enableStream was called on StreamIndex.

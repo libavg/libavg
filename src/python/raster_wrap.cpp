@@ -86,7 +86,8 @@ void export_raster()
             "Properties:\n"
             "    href: The source filename of the image.\n"
             "    hue: A hue to color the image in. (ro, deprecated)\n"
-            "    saturation: The saturation the image should have. (ro, deprecated)\n")
+            "    saturation: The saturation the image should have. (ro, deprecated)\n",
+            no_init)
         .def("setBitmap", &Image::setBitmap, 
                 "setBitmap(Bitmap)-> None\n"
                 "Sets the bitmap pixels of the image.")
@@ -122,7 +123,8 @@ void export_raster()
             "    device (ro)\n"
             "    framerate (ro)\n"
             "    mode (ro)\n"
-            "    brightness, exposure, sharpness, saturation, gamma, shutter, gain, whitebalance")
+            "    brightness, exposure, sharpness, saturation, gamma, shutter, gain, whitebalance",
+            no_init)
         .add_property("device", make_function(&CameraNode::getDevice,
                 return_value_policy<copy_const_reference>()))
         .add_property("framerate", &CameraNode::getFrameRate)
@@ -145,7 +147,8 @@ void export_raster()
             "are all formats that ffmpeg/libavcodec supports.\n"
             "Properties:\n"
             "    href: The source filename of the video. (ro)\n"
-            "    loop: Whether to start the video again when it has ended. (ro)\n")
+            "    loop: Whether to start the video again when it has ended. (ro)\n", 
+            no_init)
         .def("getNumFrames", &Video::getNumFrames,
                 "getNumFrames() -> num\n\n")
         .def("getCurFrame", &Video::getCurFrame,
@@ -200,8 +203,8 @@ void export_raster()
             "        'semicondensed', 'normal', 'semiexpanded', 'expanded',\n"
             "        'extraexpanded' and 'ultraexpanded'. Not implemented in most\n"
             "        fonts.\n"
-            "    smallcaps\n"
-            )
+            "    smallcaps\n",
+            no_init)
         .add_property("font", 
                 make_function(&Words::getFont,
                         return_value_policy<copy_const_reference>()),

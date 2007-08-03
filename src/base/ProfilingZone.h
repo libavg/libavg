@@ -30,14 +30,16 @@ namespace avg {
 
 class ProfilingZone {
 public:
-    ProfilingZone(const std::string& sName);
+    ProfilingZone(const std::string& sName, bool bIsStatic = true);
     virtual ~ProfilingZone();
     void clear();
+    bool isStatic();
     
     void start();
     void reset();
     long long getUSecs() const;
     long long getAvgUSecs() const;
+    std::string getIndentString() const;
     const std::string& getName() const;
 
     // Interface to AVGScopeTimer.
@@ -48,7 +50,9 @@ private:
     long long m_TimeSum;
     long long m_AvgTime;
     int m_NumFrames;
+    int m_Indent;
     bool m_bIsRegistered;
+    bool m_bIsStatic;
 };
 
 }

@@ -50,13 +50,6 @@ using namespace std;
 
 namespace avg {
 
-VideoBase::VideoBase ()
-    : m_VideoState(Unloaded),
-      m_bFrameAvailable(false),
-      m_bFirstFrameDecoded(false)
-{
-}
-
 VideoBase::VideoBase (const xmlNodePtr xmlNode, Player * pPlayer)
     : RasterNode(xmlNode, pPlayer),
       m_VideoState(Unloaded),

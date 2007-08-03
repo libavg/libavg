@@ -27,10 +27,9 @@
 namespace avg{
 
 CursorEvent::CursorEvent(int id, Type eventType, IntPoint Position, Source source)
-            :Event(eventType),
+            :Event(eventType, source),
             m_Position(Position),
-            m_ID(id),
-            m_Source(source)
+            m_ID(id)
 {
 }
 
@@ -56,11 +55,6 @@ int CursorEvent::getYPosition() const
 int CursorEvent::getCursorID() const
 {
     return m_ID;
-}
-
-CursorEvent::Source CursorEvent::getSource() const
-{
-    return m_Source;
 }
 
 }

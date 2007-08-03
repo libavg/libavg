@@ -23,6 +23,7 @@
 
 #include "TrackerEventSource.h"
 #include "TouchEvent.h"
+#include "EventStream.h"
 
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
@@ -45,210 +46,14 @@
 #include <map>
 #include <list>
 #include <vector>
+#include <queue>
+#include <set>
 #include <iostream>
 #include <assert.h>
 
 using namespace std;
 
-const int MAXMISSINGFRAMES=1;
-
 namespace avg {
-
-    class  EventStream
-    //internal class to keep track of blob/event states
-    {
-        public:
-            enum StreamState {
-                DOWN_PENDING, //fresh stream. not polled yet
-                DOWN_DELIVERED, //initial finger down delivered
-                MOTION_PENDING, //recent position change
-                MOTION_DELIVERED, //finger resting
-                VANISHED, // oops, no followup found -- wait a little while
-                UP_PENDING, //finger disappeared, but fingerup yet to be delivered
-                UP_DELIVERED // waiting to be cleared.
-            };
-
-            // State transitions:
-            // Current state       Destination state
-            // DOWN_PENDING     -> DOWN_DELIVERED (CURSORDOWN event), UP_DELIVERED (spurious blob)
-            // DOWN_DELIVERED   -> VANISHED, MOTION_PENDING, MOTION_DELIVERED
-            // MOTION_PENDING   -> VANISHED, MOTION_DELIVERED (CURSORMOTION event)
-            // MOTION_DELIVERED -> VANISHED, MOTION_PENDING
-            // VANISHED         -> MOTION_PENDING, UP_PENDING
-            // UP_PENDING       -> UP_DELIVERED (CURSORUP event)
-
-            EventStream(BlobInfoPtr first_blob);
-            ~EventStream();
-            void blobChanged(BlobInfoPtr new_blob);
-            void blobGone();
-            Event* pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, 
-                    CursorEvent::Source Source);
-            bool isGone();
-            void setStale();
-            bool isStale();
-            void dump();
-            static string stateToString(StreamState State);
-
-        private:
-            bool m_Stale;
-            int m_Id;
-            StreamState m_State;
-            int m_VanishCounter;
-            DPoint m_Pos;
-            BlobInfoPtr m_pBlob;
-            static int s_LastLabel;
-    };
-    
-    int EventStream::s_LastLabel = 0;
-
-    EventStream::EventStream(BlobInfoPtr first_blob)
-    {
-        ObjectCounter::get()->incRef(&typeid(*this));
-        m_Id = ++s_LastLabel;
-        m_pBlob = first_blob;
-        m_Pos = m_pBlob->getCenter();
-        m_State = DOWN_PENDING;
-        m_Stale = false;
-        m_VanishCounter = 0;
-    };
-
-    EventStream::~EventStream()
-    {
-        ObjectCounter::get()->decRef(&typeid(*this));
-    }
-
-    void EventStream::blobChanged(BlobInfoPtr new_blob)
-    {
-        assert(m_pBlob);
-        assert(new_blob);
-        m_VanishCounter = 0;
-        DPoint c = new_blob->getCenter();
-        bool pos_changed = (calcDist(c, m_Pos) > 1.5);
-        switch(m_State) {
-            case DOWN_PENDING:
-                //finger touch has not been polled yet. update position
-                break;
-            case VANISHED:
-                m_State = MOTION_PENDING;
-                break;
-            case DOWN_DELIVERED:
-                //fingerdown delivered, change to motion states
-                if (pos_changed)
-                    m_State = MOTION_PENDING;
-                else
-                    m_State = MOTION_DELIVERED;
-                break;
-            case MOTION_PENDING:
-                break;
-            case MOTION_DELIVERED:
-                if (pos_changed) {
-                    m_State = MOTION_PENDING;
-                }
-                break;
-            default:
-                //pass
-                break;
-        };
-        if (pos_changed) {
-            m_Pos = c;
-        }
-        m_pBlob = new_blob;
-        m_Stale = false;
-    };
-        
-    void EventStream::blobGone()
-    {
-        switch(m_State) {
-            case DOWN_PENDING:
-                AVG_TRACE(Logger::EVENTS2, "Spurious blob suppressed.");
-                m_State = UP_DELIVERED;
-                break;
-            case UP_PENDING:
-            case UP_DELIVERED:
-                break;
-            default:
-                m_State = VANISHED;
-                m_VanishCounter++;
-                if(m_VanishCounter>=MAXMISSINGFRAMES){
-                    m_State = UP_PENDING;
-                }
-                break;
-        }
-    }
-
-    Event* EventStream::pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, 
-            CursorEvent::Source Source)
-    {
-        assert(m_pBlob);
-        DPoint BlobOffset = trafo->getActiveBlobArea(DPoint(DisplayExtents)).tl;
-        DPoint pt = m_pBlob->getCenter()+BlobOffset;
-        DPoint screenpos = trafo->transformBlobToScreen(pt);
-        IntPoint Pos = IntPoint(
-                int(round(screenpos.x)), 
-                int(round(screenpos.y))); 
-        switch(m_State){
-            case DOWN_PENDING:
-                m_State = DOWN_DELIVERED;
-                return new TouchEvent(m_Id, Event::CURSORDOWN,
-                        m_pBlob, Pos, Source);
-            case MOTION_PENDING:
-                m_State = MOTION_DELIVERED;
-                return new TouchEvent(m_Id, Event::CURSORMOTION,
-                        m_pBlob, Pos, Source);
-            case UP_PENDING:
-                m_State = UP_DELIVERED;
-                return new TouchEvent(m_Id, Event::CURSORUP,
-                        m_pBlob, Pos, Source);
-            case DOWN_DELIVERED:
-            case MOTION_DELIVERED:
-            case UP_DELIVERED:
-            default:
-                //return no event
-                return 0;
-        }
-    };
-
-    bool EventStream::isGone()
-    {
-        return (m_State == UP_DELIVERED);
-    }
-
-    void EventStream::setStale() {
-        m_Stale = true;
-    }
-
-    bool EventStream::isStale() {
-        return m_Stale;
-    }
-    
-    string EventStream::stateToString(StreamState State) 
-    {
-        switch(State) {
-            case DOWN_PENDING:
-                return "DOWN_PENDING";
-            case DOWN_DELIVERED:
-                return "DOWN_DELIVERED";
-            case MOTION_PENDING:
-                return "MOTION_PENDING";
-            case MOTION_DELIVERED:
-                return "MOTION_DELIVERED";
-            case VANISHED:
-                return "VANISHED";
-            case UP_PENDING:
-                return "UP_PENDING";
-            case UP_DELIVERED:
-                return "UP_DELIVERED";
-            default:
-                return "Broken state";
-        }
-    }
-
-    void EventStream::dump() {
-        cerr << "  " << m_Id << ": " << stateToString(m_State) << ", stale: " << m_Stale << endl;
-        if (m_State == VANISHED) {
-            cerr << "    VanishCounter: " << m_VanishCounter << endl;
-        }
-    }
 
     TrackerEventSource::TrackerEventSource(CameraPtr pCamera, 
             const TrackerConfig& Config, const IntPoint& DisplayExtents,
@@ -411,6 +216,13 @@ namespace avg {
         return new Bitmap(*m_pBitmaps[ImageID]);
     }
     
+    double distSquared(BlobPtr p1, BlobPtr p2) 
+    {
+        DPoint c1 = p1->getInfo()->getCenter();
+        DPoint c2 = p2->getInfo()->getCenter();
+
+        return (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y);
+    }
 
     double distance(BlobPtr p1, BlobPtr p2) 
     {
@@ -418,41 +230,6 @@ namespace avg {
         DPoint c2 = p2->getInfo()->getCenter();
 
         return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
-    }
-
-    BlobPtr TrackerEventSource::matchblob(BlobPtr new_blob, BlobArrayPtr old_blobs, 
-            double threshold, EventMap * pEvents)
-    {
-        assert(new_blob);
-        std::vector<BlobPtr> candidates;
-        BlobPtr res;
-        for(BlobArray::iterator it=old_blobs->begin();it!=old_blobs->end();++it)
-        {
-            if (distance( (*it), new_blob)<threshold &&
-                pEvents->find(*it) != pEvents->end())
-            {
-                candidates.push_back( (*it) );
-            }
-        }
-        switch (candidates.size()) {
-            case 0:
-                res = BlobPtr();
-                break;
-            case 1:
-                res = candidates[0];
-                break;
-            default:
-                double act=1e10, tmp;
-                for(std::vector<BlobPtr>::iterator it=candidates.begin();
-                        it!=candidates.end();++it)
-                {
-                    if ((tmp = distance( (*it), new_blob))<act){
-                        res = (*it);
-                        act = tmp;
-                    }
-                }
-        }
-        return res;
     }
 
     bool TrackerEventSource::isRelevant(BlobPtr blob, BlobConfigPtr pConfig)
@@ -485,7 +262,30 @@ namespace avg {
         }
     }
 
-    void TrackerEventSource::calcBlobs(BlobArrayPtr new_blobs, bool bTouch)
+    // Temporary structure to be put into heap of blob distances. Used only in 
+    // calcBlobs.
+    struct BlobDistEntry {
+        BlobDistEntry(double Dist, BlobPtr pNewBlob, BlobPtr pOldBlob) 
+            : m_Dist(Dist),
+              m_pNewBlob(pNewBlob),
+              m_pOldBlob(pOldBlob)
+        {
+        }
+
+        double m_Dist;
+        BlobPtr m_pNewBlob;
+        BlobPtr m_pOldBlob;
+    };
+    typedef boost::shared_ptr<class BlobDistEntry> BlobDistEntryPtr;
+
+    // The heap is sorted by least distance, so this operator does the
+    // _opposite_ of what is expected!
+    bool operator < (const BlobDistEntryPtr& e1, const BlobDistEntryPtr& e2) 
+    {
+        return e1->m_Dist > e2->m_Dist;
+    }
+
+    void TrackerEventSource::calcBlobs(BlobArrayPtr pNewBlobs, bool bTouch)
     {
         BlobConfigPtr pBlobConfig;
         EventMap * pEvents;
@@ -496,44 +296,82 @@ namespace avg {
             pBlobConfig = m_TrackerConfig.m_pTrack;
             pEvents = &m_TrackEvents;
         }
-        BlobArrayPtr old_blobs = BlobArrayPtr(new BlobArray());
-        for(EventMap::iterator it=pEvents->begin();it!=pEvents->end();++it) {
+        BlobArray OldBlobs;
+        for(EventMap::iterator it=pEvents->begin(); it!=pEvents->end(); ++it) {
             (*it).second->setStale();
-            old_blobs->push_back((*it).first);
+            OldBlobs.push_back((*it).first);
         }
-        int known_counter=0, new_counter=0, ignored_counter=0; 
-        for(BlobArray::iterator it2 = new_blobs->begin();it2!=new_blobs->end();++it2) {
-            if (isRelevant(*it2, pBlobConfig)) {
-                BlobPtr old_match = matchblob((*it2), old_blobs, 
-                        pBlobConfig->m_Similarity, pEvents);
-                if(old_match) {
-                    assert (pEvents->find(old_match) != pEvents->end());
-                    //this blob has been identified with an old one
-                    known_counter++;
-                    EventStreamPtr e;
-                    e = pEvents->find(old_match)->second;
-                    e->blobChanged((*it2)->getInfo());
-                    //update the mapping!
-                    (*pEvents)[(*it2)] = e;
-                    pEvents->erase(old_match);
-                } else {
-                    new_counter++;
-                    //this is a new one
-                    (*pEvents)[(*it2)] = EventStreamPtr( 
-                            new EventStream(((*it2)->getInfo())));
+        BlobArray NewRelevantBlobs;
+        for(BlobArray::iterator it = pNewBlobs->begin(); it!=pNewBlobs->end(); ++it) {
+            if (isRelevant(*it, pBlobConfig)) {
+                NewRelevantBlobs.push_back(*it);
+            }
+            if (NewRelevantBlobs.size() > 50) {
+                break;
+            }
+        }
+        // Create a heap that contains all distances of old to new blobs < MaxDist
+        double MaxDistSquared = pBlobConfig->m_Similarity*pBlobConfig->m_Similarity;
+        priority_queue<BlobDistEntryPtr> DistHeap;
+        for(BlobArray::iterator it = NewRelevantBlobs.begin(); 
+                it!=NewRelevantBlobs.end(); ++it) 
+        {
+            BlobPtr pNewBlob = *it;
+            for(BlobArray::iterator it2 = OldBlobs.begin(); it2!=OldBlobs.end(); ++it2) { 
+                BlobPtr pOldBlob = *it2;
+                if (distSquared(pNewBlob, pOldBlob) <= MaxDistSquared) {
+                    BlobDistEntryPtr pEntry = BlobDistEntryPtr(
+                            new BlobDistEntry(distance(pNewBlob, pOldBlob), 
+                                    pNewBlob, pOldBlob));
+                    DistHeap.push(pEntry);
                 }
-            } else {
-                ignored_counter++;
             }
         }
-        int gone_counter = 0;
-        for(EventMap::iterator it3=pEvents->begin();it3!=pEvents->end();++it3){
-            //all event streams that are still stale haven't been updated: blob is gone, send the sentinel for this.
-            if ((*it3).second->isStale()) {
-                (*it3).second->blobGone();
-                gone_counter++;
+//        cerr << "DistHeap: " << DistHeap.size() << endl;
+        // Match up the closest blobs.
+        set<BlobPtr> MatchedNewBlobs;
+        set<BlobPtr> MatchedOldBlobs;
+        int NumMatchedBlobs = 0;
+        while(!DistHeap.empty()) {
+            BlobDistEntryPtr pEntry = DistHeap.top();
+            DistHeap.pop();
+            if (MatchedNewBlobs.find(pEntry->m_pNewBlob) == MatchedNewBlobs.end() &&
+                MatchedOldBlobs.find(pEntry->m_pOldBlob) == MatchedOldBlobs.end())
+            {
+                // Found a pair of matched blobs.
+                NumMatchedBlobs++;
+                BlobPtr pNewBlob = pEntry->m_pNewBlob; 
+                BlobPtr pOldBlob = pEntry->m_pOldBlob; 
+                MatchedNewBlobs.insert(pNewBlob);
+                MatchedOldBlobs.insert(pOldBlob);
+                assert (pEvents->find(pOldBlob) != pEvents->end());
+                EventStreamPtr pStream;
+                pStream = pEvents->find(pOldBlob)->second;
+                pStream->blobChanged(pNewBlob->getInfo());
+                // Update the mapping.
+                (*pEvents)[pNewBlob] = pStream;
+                pEvents->erase(pOldBlob);
             }
         }
+//        cerr << "Matched: " << NumMatchedBlobs << endl;
+        // Blobs have been matched. Left-overs are new blobs.
+        for(BlobArray::iterator it = NewRelevantBlobs.begin(); 
+                it!=NewRelevantBlobs.end(); ++it) 
+        {
+            if (MatchedNewBlobs.find(*it) == MatchedNewBlobs.end()) {
+                (*pEvents)[(*it)] = EventStreamPtr( 
+                        new EventStream(((*it)->getInfo())));
+            }
+        }
+
+        // All event streams that are still stale haven't been updated: blob is gone, 
+        // set the sentinel for this.
+        for(EventMap::iterator it=pEvents->begin(); it!=pEvents->end(); ++it) {
+            if ((*it).second->isStale()) {
+                (*it).second->blobGone();
+            }
+        }
+//        cerr << pEvents->size() << endl;
     };
         
    void TrackerEventSource::correlateBlobs()

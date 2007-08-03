@@ -58,7 +58,8 @@ Log.setCategories(Log.APP |
 runner = unittest.TextTestRunner()
 
 if len(sys.argv) != 3:
-    print "Usage: TestCamera.py <display engine> <bpp>"
+    engine = avg.OGL
+    bpp = 24
 else:
     if sys.argv[1] == "OGL":
         engine = avg.OGL
@@ -67,5 +68,5 @@ else:
     else:
         print "First parameter must be OGL or DFB"
     bpp = int(sys.argv[2])
-    runner.run(playerTestSuite(engine, bpp))
+runner.run(playerTestSuite(engine, bpp))
 

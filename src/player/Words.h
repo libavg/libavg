@@ -39,7 +39,6 @@ class ISurface;
 class Words : public RasterNode
 {
 	public:
-        Words();
         Words(const xmlNodePtr xmlNode, Player * pPlayer);
         virtual ~Words();
         

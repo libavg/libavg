@@ -266,12 +266,12 @@ void Player::play()
         m_PlayStartTime = TimeSource::get()->getCurrentMillisecs();
         m_FrameTime = 0;
         m_NumFrames = 0;
-        ThreadProfiler::get()->start();
         m_pDisplayEngine->render(m_pRootNode, true);
         if (m_pDisplayEngine->wasFrameLate()) {
             ThreadProfiler::get()->dumpFrame();
         }
         
+        ThreadProfiler::get()->start();
         try {
             while (!m_bStopping) {
                 doFrame();
@@ -514,10 +514,10 @@ void Player::removeNodeID(const std::string& id)
         it = m_IDMap.find(id);
         if (it != m_IDMap.end()) {
             m_IDMap.erase(it);
-//        } else {
-//            AVG_TRACE(Logger::ERROR, "removeNodeID(\""+id+"\") failed.");
-//            exit(1);
-        }
+        } else {
+            AVG_TRACE(Logger::ERROR, "removeNodeID(\""+id+"\") failed.");
+            exit(1);
+      }
     }
 }
 

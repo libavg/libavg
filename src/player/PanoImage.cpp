@@ -49,18 +49,6 @@ const int TEX_WIDTH = 64;
 
 namespace avg {
 
-PanoImage::PanoImage ()
-    : m_Filename(""),
-      m_SensorWidth(0),
-      m_SensorHeight(0),
-      m_FocalLength(0),
-      m_Rotation(-1),
-      m_Hue(-1),
-      m_Saturation(-1)
-{
-    m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8));
-}
-
 PanoImage::PanoImage (const xmlNodePtr xmlNode, Player * pPlayer)
     : Node (xmlNode, pPlayer)
 {
@@ -108,8 +96,7 @@ void PanoImage::disconnect()
     Node::disconnect();
 }
 
-static ProfilingZone PanoRenderProfilingZone("    PanoImage::render");
-//static ProfilingZone PanoRenderQuadsProfilingZone("PanoImage::render quads");
+static ProfilingZone PanoRenderProfilingZone("PanoImage::render");
 
 void PanoImage::render(const DRect& Rect)
 {
@@ -171,7 +158,6 @@ void PanoImage::render(const DRect& Rect)
     double HorizOffset = m_Rotation+m_fovy*m_aspect/2;
 //    glutWireSphere(1, 20, 16);
     for (unsigned int i=0; i<m_TileTextureIDs.size(); ++i) {
-//        ScopeTimer ScopeTimer(PanoRenderQuadsProfilingZone);
         unsigned int TexID = m_TileTextureIDs[i];
         glBindTexture(GL_TEXTURE_2D, TexID);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,

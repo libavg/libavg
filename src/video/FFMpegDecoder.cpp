@@ -54,6 +54,9 @@ FFMpegDecoder::FFMpegDecoder ()
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     initVideoSupport();
+
+//    m_pRenderToBmpProfilingZone = new ProfilingZone("FFMpeg: renderToBmp");
+//    m_pConvertImageProfilingZone = new ProfilingZone("FFMpeg: convert image");
 }
 
 FFMpegDecoder::~FFMpegDecoder ()
@@ -108,6 +111,7 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
     mutex::scoped_lock Lock(s_OpenMutex);
     m_bEOF = false;
     m_bEOFPending = false;
+    m_StartTimestamp = -1;
     AVFormatParameters params;
     int err;
     m_sFilename = sFilename;
@@ -252,11 +256,9 @@ double FFMpegDecoder::getFPS()
 #endif 
 }
 
-static ProfilingZone RenderToBmpProfilingZone("      FFMpeg: renderToBmp");
-
 FrameAvailableCode FFMpegDecoder::renderToBmp(BitmapPtr pBmp, long long TimeWanted)
 {
-    ScopeTimer Timer(RenderToBmpProfilingZone);
+//    ScopeTimer Timer(*m_pRenderToBmpProfilingZone);
     AVFrame Frame;
     FrameAvailableCode FrameAvailable = readFrameForTime(Frame, TimeWanted);
     if (!m_bEOF && FrameAvailable == FA_NEW_FRAME) {
@@ -281,16 +283,15 @@ void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int Stride)
 
 }
 
-static ProfilingZone ConvertImageProfilingZone("        FFMpeg: convert image");
 
 FrameAvailableCode FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
         BitmapPtr pBmpCr, long long TimeWanted)
 {
-    ScopeTimer Timer(RenderToBmpProfilingZone);
+//    ScopeTimer Timer(*m_pRenderToBmpProfilingZone);
     AVFrame Frame;
     FrameAvailableCode FrameAvailable = readFrameForTime(Frame, TimeWanted);
     if (!m_bEOF && FrameAvailable == FA_NEW_FRAME) {
-        ScopeTimer Timer(ConvertImageProfilingZone);
+//        ScopeTimer Timer(*m_pConvertImageProfilingZone);
         copyPlaneToBmp(pBmpY, Frame.data[0], Frame.linesize[0]);
         copyPlaneToBmp(pBmpCb, Frame.data[1], Frame.linesize[1]);
         copyPlaneToBmp(pBmpCr, Frame.data[2], Frame.linesize[2]);
@@ -337,8 +338,6 @@ PixelFormat FFMpegDecoder::calcPixelFormat(YCbCrMode ycbcrMode)
     return B8G8R8X8;
 }
 
-static ProfilingZone ImgConvertProfilingZone("        FFMpeg: img_convert");
-        
 void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
 {
     AVPicture DestPict;
@@ -376,7 +375,7 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
     AVCodecContext *enc = m_pVStream->codec;
 #endif
     {
-        ScopeTimer Timer(ImgConvertProfilingZone);
+//        ScopeTimer Timer(*m_pConvertImageProfilingZone);
         int rc = img_convert(&DestPict, DestFmt,
                 (AVPicture*)&Frame, enc->pix_fmt,
                 enc->width, enc->height);
@@ -406,7 +405,7 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long Tim
 {
     // XXX: This code is sort-of duplicated in AsyncVideoDecoder::getBmpsForTime()
     long long FrameTime = -1000;
-//    cerr << "readFrameForTime " << TimeWanted << ", LastFrameTime= " << m_LastFrameTime << ", diff= " << TimeWanted-m_LastFrameTime << endl;
+//    cerr << m_sFilename << " readFrameForTime " << TimeWanted << ", LastFrameTime= " << m_LastFrameTime << ", diff= " << TimeWanted-m_LastFrameTime << endl;
     if (TimeWanted == -1) {
         readFrame(Frame, FrameTime);
     } else {
@@ -499,7 +498,7 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
                ", pict_type: " << Frame.pict_type << endl;
         AVFrac spts = m_pVStream->pts;
         cerr << "Stream.pts: " << spts.val + double(spts.num)/spts.den << endl;
-*/    
+*/
     }
 }
 
@@ -508,8 +507,7 @@ long long FFMpegDecoder::getFrameTime(AVPacket* pPacket)
     if (m_StartTimestamp == -1) {
         m_StartTimestamp = (long long)((1000*pPacket->dts)/m_TimeUnitsPerSecond);
     }
-    int64_t PacketTimestamp = (pPacket->dts);
-    return (long long)((1000*PacketTimestamp)/m_TimeUnitsPerSecond)-m_StartTimestamp;
+    return (long long)((1000*pPacket->dts)/m_TimeUnitsPerSecond)-m_StartTimestamp;
 }
 
 

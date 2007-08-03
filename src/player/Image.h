@@ -33,7 +33,6 @@ namespace avg {
 class Image : public RasterNode
 {
 	public:
-        Image ();
         Image (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual ~Image ();
         virtual void setDisplayEngine(DisplayEngine * pEngine);

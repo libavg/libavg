@@ -43,22 +43,6 @@ using namespace std;
 
 namespace avg {
 
-CameraNode::CameraNode()
-    : m_FrameNum(0)
-{
-// X: when is it called? should the video device string be taken from avgrc?
-#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2) 
-    m_pCamera = CameraPtr(new Camera("", 15, "640x480_RGB", true));
-#elif defined(AVG_ENABLE_V4L2)
-    m_pCamera = CameraPtr(new V4LCamera("/dev/video0", 1,
-        IntPoint(640,480), "RGB", true));
-#else
-    AVG_TRACE(Logger::ERROR,
-            "Unable to set up camera. Camera support not compiled.");
-#endif
-    AVG_TRACE(Logger::APP, "CameraNode() called");
-}
-
 CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
     : VideoBase(xmlNode, pPlayer),
       m_FrameNum(0)
@@ -72,9 +56,8 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
 
     if (sSource == "firewire") {
 #if defined(AVG_ENABLE_1394)\
-    || defined(AVG_ENABLE_1394_2)\
-    || defined(AVG_ENABLE_V4L2)
-        m_pCamera = CameraPtr(new Camera(sDevice, FrameRate, sMode, true));
+    || defined(AVG_ENABLE_1394_2)
+    m_pCamera = CameraPtr(new Camera(sDevice, FrameRate, sMode, true));
         AVG_TRACE(Logger::APP, "FWCamera created");
 #else
         AVG_TRACE(Logger::ERROR, "Firewire camera specified, but firewire \
@@ -188,8 +171,8 @@ int CameraNode::getFrameNum() const
     return m_FrameNum;
 }
 
-static ProfilingZone CameraProfilingZone("    Camera::render");
-static ProfilingZone CameraUploadProfilingZone("      Camera tex download");
+static ProfilingZone CameraProfilingZone("Camera::render");
+static ProfilingZone CameraUploadProfilingZone("Camera tex download");
 
 bool CameraNode::renderToSurface(ISurface * pSurface)
 {

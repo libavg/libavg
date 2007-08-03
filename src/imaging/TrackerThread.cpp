@@ -40,13 +40,13 @@ using namespace std;
 namespace avg {
 static ProfilingZone ProfilingZoneCapture ("Capture");
 static ProfilingZone ProfilingZoneTracker ("Tracker");
-static ProfilingZone ProfilingZoneHistory ("  History");
-static ProfilingZone ProfilingZoneDistort ("  Distort");
-static ProfilingZone ProfilingZoneHistogram ("  Histogram");
-static ProfilingZone ProfilingZoneBandpass ("  Bandpass");
-static ProfilingZone ProfilingZoneComps("  ConnectedComps");
-static ProfilingZone ProfilingZoneUpdate("  Update");
-static ProfilingZone ProfilingZoneDraw("  Draw");
+static ProfilingZone ProfilingZoneHistory ("History");
+static ProfilingZone ProfilingZoneDistort ("Distort");
+static ProfilingZone ProfilingZoneHistogram ("Histogram");
+static ProfilingZone ProfilingZoneBandpass ("Bandpass");
+static ProfilingZone ProfilingZoneComps("ConnectedComps");
+static ProfilingZone ProfilingZoneUpdate("Update");
+static ProfilingZone ProfilingZoneDraw("Draw");
 
 TrackerThread::TrackerThread(IntRect ROI, 
         CameraPtr pCamera,

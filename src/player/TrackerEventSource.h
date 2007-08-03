@@ -73,7 +73,7 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         void saveConfig();
 
         Bitmap * getImage(TrackerImageID ImageID) const;
-        std::vector<Event *> pollEvents();//main thread
+        std::vector<Event *> pollEvents(); //main thread
 
         // implement IBlobTarget
         // Called from Tracker Thread!

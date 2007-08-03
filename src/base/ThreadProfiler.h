@@ -45,10 +45,12 @@ public:
     void clear();
     void start();
     bool isRunning();
-    void setActiveZone(ProfilingZone * pZone);
+    void pushActiveZone(ProfilingZone * pZone);
+    void popActiveZone(ProfilingZone * pZone);
     void dumpFrame();
     void dumpStatistics();
     void reset();
+    int getIndent();
 
     bool isCurrent();
     const std::string& getName();
@@ -58,7 +60,7 @@ private:
 
     typedef std::list<ProfilingZone*> ZoneList;
     ZoneList m_Zones;
-    ProfilingZone * m_pActiveZone;
+    ZoneList m_ActiveZones;
     bool m_bRunning;
     boost::thread m_Thread;
 };

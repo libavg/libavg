@@ -34,7 +34,6 @@
 #include "../base/XMLHelper.h"
 #include "../base/ObjectCounter.h"
 
-#include <Python.h>
 #include <object.h>
 #include <compile.h>
 #include <eval.h>
@@ -48,24 +47,6 @@ using namespace std;
 
 namespace avg {
 
-Node::Node ()
-    : m_pParent(),
-      m_This(),
-      m_pEngine(0),
-      m_pPlayer(0),
-      m_ID(""),
-      m_EventHandlerMap(),
-      m_RelViewport(0,0,0,0),
-      m_AbsViewport(0,0,0,0),
-      m_Opacity(1.0),
-      m_bActive(true),
-      m_bSensitive(true),
-      m_WantedSize(0, 0)
-{
-    ObjectCounter::get()->incRef(&typeid(*this));
-    setState(NS_UNCONNECTED);
-}
-
 Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
     : m_pParent(),
       m_This(),
@@ -76,11 +57,11 @@ Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     m_ID = getDefaultedStringAttr (xmlNode, "id", "");
-    m_EventHandlerMap[Event::CURSORMOTION] = getDefaultedStringAttr (xmlNode, "oncursormove", "");
-    m_EventHandlerMap[Event::CURSORUP] = getDefaultedStringAttr (xmlNode, "oncursorup", "");
-    m_EventHandlerMap[Event::CURSORDOWN] = getDefaultedStringAttr (xmlNode, "oncursordown", "");
-    m_EventHandlerMap[Event::CURSOROVER] = getDefaultedStringAttr (xmlNode, "oncursorover", "");
-    m_EventHandlerMap[Event::CURSOROUT] = getDefaultedStringAttr (xmlNode, "oncursorout", "");
+    addEventHandlers(Event::CURSORMOTION, getDefaultedStringAttr (xmlNode, "oncursormove", ""));
+    addEventHandlers(Event::CURSORUP, getDefaultedStringAttr (xmlNode, "oncursorup", ""));
+    addEventHandlers(Event::CURSORDOWN, getDefaultedStringAttr (xmlNode, "oncursordown", ""));
+    addEventHandlers(Event::CURSOROVER, getDefaultedStringAttr (xmlNode, "oncursorover", ""));
+    addEventHandlers(Event::CURSOROUT, getDefaultedStringAttr (xmlNode, "oncursorout", ""));
     m_RelViewport.tl.x = getDefaultedDoubleAttr (xmlNode, "x", 0.0);
     m_RelViewport.tl.y = getDefaultedDoubleAttr (xmlNode, "y", 0.0);
     m_WantedSize.x = getDefaultedDoubleAttr (xmlNode, "width", 0.0);
@@ -93,6 +74,10 @@ Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
 
 Node::~Node()
 {
+    EventHandlerMap::iterator it;
+    for (it=m_EventHandlerMap.begin(); it != m_EventHandlerMap.end(); ++it) {
+        Py_DECREF(it->second);
+    }
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
@@ -105,7 +90,7 @@ void Node::setParent(DivNodeWeakPtr pParent)
 {
     if (getParent() && !!(pParent.lock())) {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "Can't change parent of node."));
+                string("Can't change parent of node (") + m_ID + ")."));
     }
     m_pParent = pParent;
     setState(NS_CONNECTED);
@@ -130,7 +115,6 @@ void Node::setDisplayEngine(DisplayEngine * pEngine)
         pos = getParent()->getAbsViewport().tl;
     }
     m_AbsViewport = DRect (pos+getRelViewport().tl, pos+getRelViewport().br);
-    getPlayer()->addNodeID(getThis());
 }
 
 void Node::disconnect()
@@ -262,6 +246,20 @@ void Node::setEventCapture(int cursorID) {
 
 void Node::releaseEventCapture(int cursorID) {
     m_pPlayer->releaseEventCapture(m_This, cursorID);
+}
+
+void Node::setEventHandler(Event::Type Type, Event::Source Source, PyObject * pFunc)
+{
+    EventHandlerID ID(Type, Source);
+    EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
+    if (it != m_EventHandlerMap.end()) {
+        Py_DECREF(it->second);
+        m_EventHandlerMap.erase(it);
+    }
+    if (pFunc != Py_None) {
+        Py_INCREF(pFunc);
+        m_EventHandlerMap[ID] = pFunc;
+    }
 }
 
 bool Node::isActive()
@@ -469,12 +467,25 @@ string Node::getTypeStr () const
     return "Node";
 }
 
+Node::EventHandlerID::EventHandlerID(Event::Type EventType, Event::Source Source)
+    : m_Type(EventType),
+      m_Source(Source)
+{
+}
+
+bool Node::EventHandlerID::operator < (const EventHandlerID& other) const {
+    if (m_Type == other.m_Type) {
+        return m_Source < other.m_Source;
+    } else {
+        return m_Type < other.m_Type;
+    }
+}
+
 void Node::handleEvent (Event* pEvent)
 {
-    Event::Type EventType = pEvent->getType();
-    map<Event::Type, string>::iterator it = m_EventHandlerMap.find(EventType);
-    assert(it!=m_EventHandlerMap.end());
-    if (!(it->second.empty())) {
+    EventHandlerID ID(pEvent->getType(), pEvent->getSource());
+    EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
+    if (it!=m_EventHandlerMap.end()) {
         pEvent->setElement(m_This.lock());
         callPython(it->second, *pEvent);
     }
@@ -483,29 +494,56 @@ void Node::handleEvent (Event* pEvent)
     }
 }
 
-void Node::callPython (const string& Code, const Event& Event)
+void Node::callPython (PyObject * pFunc, const Event& Event)
 {
     // TODO:
     //   - Pass Event to python.
     //   - Handle python return code/exception and pass to caller.
-    PyObject * pModule = PyImport_AddModule("__main__");
-    if (!pModule) {
-        cerr << "Could not find module __main__." << endl;
-        exit(-1);
-    }
-    PyObject * pDict = PyModule_GetDict(pModule);
-    PyObject * pFunc = PyDict_GetItemString(pDict, Code.c_str());
-    if (!pFunc) {
-        AVG_TRACE(Logger::ERROR, "Function \"" << Code << 
-                "\" not defined for node with id '"+m_ID+"'. Aborting.");
-        exit(-1);
-    }
     PyObject * pArgList = Py_BuildValue("()");
-    PyObject * pResult = PyObject_CallObject(pFunc, pArgList);
+    PyObject * pResult = PyEval_CallObject(pFunc, pArgList);
     if (!pResult) {
         throw error_already_set();
     }
     Py_DECREF(pArgList);
+}
+
+PyObject * Node::findPythonFunc(const string& Code)
+{
+    if (Code.empty()) {
+        return 0;
+    } else {
+        PyObject * pModule = PyImport_AddModule("__main__");
+        if (!pModule) {
+            cerr << "Could not find module __main__." << endl;
+            exit(-1);
+        }
+        PyObject * pDict = PyModule_GetDict(pModule);
+        PyObject * pFunc = PyDict_GetItemString(pDict, Code.c_str());
+        if (!pFunc) {
+            AVG_TRACE(Logger::ERROR, "Function \"" << Code << 
+                    "\" not defined for node with id '"+m_ID+"'. Aborting.");
+            exit(-1);
+        }
+        return pFunc;
+    }
+}
+
+void Node::addEventHandlers(Event::Type EventType, const string& Code)
+{
+    addEventHandler(EventType, Event::MOUSE, Code);
+    addEventHandler(EventType, Event::TOUCH, Code);
+    addEventHandler(EventType, Event::TRACK, Code);
+}
+
+void Node::addEventHandler(Event::Type EventType, Event::Source Source, 
+        const string& Code)
+{
+    PyObject * pFunc = findPythonFunc(Code);
+    if (pFunc) {
+        Py_INCREF(pFunc);
+        EventHandlerID ID(EventType, Source);
+        m_EventHandlerMap[ID] = pFunc;
+    }
 }
 
 void Node::initFilename(Player * pPlayer, string& sFilename)

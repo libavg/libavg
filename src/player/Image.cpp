@@ -41,13 +41,6 @@ using namespace std;
 
 namespace avg {
 
-Image::Image ()
-    : m_Hue(-1),
-      m_Saturation(-1)
-{
-    m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
-}
-
 Image::Image (const xmlNodePtr xmlNode, Player * pPlayer)
     : RasterNode(xmlNode, pPlayer)
 {
@@ -144,7 +137,7 @@ void Image::setBitmap(const Bitmap * pBmp)
     setViewport(-32767, -32767, Size.x, Size.y);
 }
 
-static ProfilingZone RenderProfilingZone("    Image::render");
+static ProfilingZone RenderProfilingZone("Image::render");
 
 void Image::render (const DRect& Rect)
 {

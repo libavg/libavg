@@ -33,28 +33,13 @@ namespace avg {
 class AVGNode : public DivNode
 {
 	public:
-        AVGNode ();
         AVGNode (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual ~AVGNode ();
 
         virtual std::string getTypeStr ();
-
-        void handleEvent (KeyEvent* pEvent);
         bool getCropSetting();
-
-        const std::string& getOnKeyUp()
-        {
-            return m_sKeyUpHandler;
-        }
-        
-        const std::string& getOnKeyDown()
-        {
-            return m_sKeyDownHandler;
-        }
         
     private:
-        std::string m_sKeyUpHandler;
-        std::string m_sKeyDownHandler;
         bool m_bEnableCrop;
 
 };

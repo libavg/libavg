@@ -49,7 +49,6 @@ class VideoBase : public RasterNode
         virtual std::string dump (int indent = 0);
         
     protected:        
-        VideoBase ();
         VideoBase (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual DPoint getPreferredMediaSize();
         typedef enum VideoState {Unloaded, Paused, Playing};
