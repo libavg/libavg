@@ -87,7 +87,12 @@ const char * g_pAVGDTD =
 "   saturation CDATA #IMPLIED\n"
 "   gamma CDATA #IMPLIED\n"
 "   shutter CDATA #IMPLIED\n"
-"   whitebalance CDATA #IMPLIED>\n"
+"   whitebalance CDATA #IMPLIED\n"
+"   source CDATA #IMPLIED\n"
+"   pixelformat CDATA #IMPLIED\n"
+"   capturewidth CDATA #IMPLIED\n"
+"   captureheight CDATA #IMPLIED\n"
+"   channel CDATA #IMPLIED>\n"
 
 "<!ELEMENT words (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
 "<!ATTLIST words\n"

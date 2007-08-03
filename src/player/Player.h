@@ -72,7 +72,7 @@ class Player : IEventSink
 
         NodePtr createNodeFromXmlString (const std::string& sXML);
         TrackerEventSource * addTracker(std::string sDevice,
-                std::string sMode);
+                std::string sMode="");
         int setInterval(int time, PyObject * pyfunc);
         int setTimeout(int time, PyObject * pyfunc);
         bool clearInterval(int id);
@@ -111,7 +111,7 @@ class Player : IEventSink
         void sendOver(CursorEvent * pOtherEvent, Event::Type Type, 
                 NodePtr pNode);
         void cleanup();
-	
+
         AVGNodePtr m_pRootNode;
         DisplayEngine * m_pDisplayEngine;
         IEventSource * m_pEventSource;

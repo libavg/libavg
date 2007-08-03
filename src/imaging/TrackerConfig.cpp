@@ -214,7 +214,15 @@ namespace avg {
         xmlNodePtr curXmlChild = pParentNode->xmlChildrenNode;
         while (curXmlChild) {
             const char * pNodeName = (const char *)curXmlChild->name;
-            if (!strcmp(pNodeName, "fps")) {
+            if (!strcmp(pNodeName, "source")) {
+                m_Source = getRequiredStringAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "width")) {
+                m_Width = getRequiredIntAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "height")) {
+                m_Height = getRequiredIntAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "channel")) {
+                m_Channel = getRequiredIntAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "fps")) {
                 m_FPS = getRequiredIntAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "brightness")) {
                 m_Brightness = getRequiredIntAttr(curXmlChild, "value");

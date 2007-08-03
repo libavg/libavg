@@ -1,6 +1,14 @@
 
 INCLUDES = -I.. @PTHREAD_CFLAGS@  @XML2_CFLAGS@
 
+if ENABLE_V4L2
+   V4L2_SOURCES = V4LCamera.cpp
+   V4L2_INCLUDES = V4LCamera.h
+else
+   V4L2_SOURCES =
+   V4L2_INCLUDES =
+endif
+
 if ENABLE_1394
     DC1394_SOURCES = CameraUtils.cpp
     DC1394_INCLUDES = CameraUtils.h
@@ -17,10 +25,10 @@ endif
 
 ALL_H = TrackerThread.h TrackerConfig.h Blob.h Camera.h Run.h \
         FakeCamera.h CoordTransformer.h FilterDistortion.h $(DC1394_INCLUDES) \
-        BlobInfo.h DeDistort.h trackerconfigdtd.h
+        BlobInfo.h DeDistort.h trackerconfigdtd.h $(V4L2_INCLUDES)
 ALL_CPP = TrackerThread.cpp TrackerConfig.cpp Blob.cpp Camera.cpp Run.cpp \
         FakeCamera.cpp CoordTransformer.cpp FilterDistortion.cpp $(DC1394_SOURCES) \
-        BlobInfo.cpp DeDistort.cpp trackerconfigdtd.cpp
+        BlobInfo.cpp DeDistort.cpp trackerconfigdtd.cpp $(V4L2_SOURCES)
 
 TESTS=testimaging
 

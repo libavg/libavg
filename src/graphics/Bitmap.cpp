@@ -192,7 +192,9 @@ void Bitmap::copyPixels(const Bitmap & Orig)
     } else {
         switch (Orig.getPixelFormat()) {
             case YCbCr422:
+            case YUYV422:
             case YCbCr411:
+            case YCbCr420p:
                 if (m_PF == B8G8R8X8) {
                     YCbCrtoBGR(Orig);
                 } else {
@@ -400,6 +402,8 @@ std::string Bitmap::getPixelFormatString(PixelFormat PF)
             return "YCbCr411";
         case YCbCr422:
             return "YCbCr422";
+        case YUYV422:
+            return "YUYV422";
         case YCbCr420p:
             return "YCbCr420p";
         case YCbCrJ420p:
@@ -670,7 +674,7 @@ void Bitmap::dump(bool bDumpPixels) const
 void Bitmap::initWithData(unsigned char * pBits, int Stride, bool bCopyBits)
 {
 //    cerr << "Bitmap::initWithData()" << endl;
-    if (m_PF == YCbCr422) {
+    if (m_PF == YCbCr422 || m_PF == YCbCr420p) {
         if (m_Size.x%2 == 1) {
             AVG_TRACE(Logger::WARNING, "Odd size for YCbCr bitmap.");
             m_Size.x++;
@@ -700,7 +704,7 @@ void Bitmap::allocBits()
 {
 //    cerr << "Bitmap::allocBits():" << m_Size <<  endl;
     m_Stride = getLineLen();
-    if (m_PF == YCbCr422) {
+    if (m_PF == YCbCr422 || m_PF == YCbCr420p) {
         if (m_Size.x%2 == 1) {
             AVG_TRACE(Logger::WARNING, "Odd width for YCbCr bitmap.");
             m_Size.x++;
@@ -737,7 +741,41 @@ inline void YUVtoBGR32Pixel(Pixel32* pDest, int y, int u, int v)
     pDest->set(b,g,r,255);
 }
 
-void YUV422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int Width)
+void YUYV422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int Width)
+{
+    Pixel32 * pDestPixel = pDestLine;
+    
+    // We need the previous and next values to interpolate between the
+    // sampled u and v values.
+    int v = *(pSrcLine+3);
+    int v0; // Previous v
+    int u;
+    int u1; // Next u;
+    const unsigned char * pSrcPixels = pSrcLine;
+
+    for (int x = 0; x < Width/2-1; x++) {
+        // Two pixels at a time.
+        // Source format is YUYV.
+        u = pSrcPixels[1];
+        v0 = v;
+        v = pSrcPixels[3];
+        u1 = pSrcPixels[5];
+
+        YUVtoBGR32Pixel(pDestPixel, pSrcPixels[0], u, (v0+v)/2);
+        YUVtoBGR32Pixel(pDestPixel+1, pSrcPixels[2], (u+u1)/2, v);
+
+        pSrcPixels+=4;
+        pDestPixel+=2;
+    }
+    // Last pixels.
+    u = pSrcPixels[1];
+    v0 = v;
+    v = pSrcPixels[3];
+    YUVtoBGR32Pixel(pDestPixel, pSrcPixels[0], u, v0/2+v/2);
+    YUVtoBGR32Pixel(pDestPixel+1, pSrcPixels[2], u, v);
+}
+ 
+void UYVY422toBGR32Line(const unsigned char* pSrcLine, Pixel32 * pDestLine, int Width)
 {
     Pixel32 * pDestPixel = pDestLine;
     
@@ -817,10 +855,18 @@ void Bitmap::YCbCrtoBGR(const Bitmap& Orig)
     int Height = min(Orig.getSize().y, m_Size.y);
     int Width = min(Orig.getSize().x, m_Size.x);
     int StrideInPixels = m_Stride/getBytesPerPixel();
+    int TotalPixels = Width * Height;
     switch(Orig.m_PF) {
         case YCbCr422:
             for (int y=0; y<Height; ++y) {
-                YUV422toBGR32Line(pSrc, pDest, Width);
+                UYVY422toBGR32Line(pSrc, pDest, Width);
+                pDest += StrideInPixels;
+                pSrc += Orig.getStride();
+            }
+            break;
+        case YUYV422:
+            for (int y=0; y<Height; ++y) {
+                YUYV422toBGR32Line(pSrc, pDest, Width);
                 pDest += StrideInPixels;
                 pSrc += Orig.getStride();
             }
@@ -830,6 +876,22 @@ void Bitmap::YCbCrtoBGR(const Bitmap& Orig)
                 YUV411toBGR32Line(pSrc, pDest, Width);
                 pDest += StrideInPixels;
                 pSrc += Orig.getStride();
+            }
+            break;
+        case YCbCr420p: // this is a planar format
+            for (int y=0; y<Height; ++y) {
+                // Fast conversion algo with no interpolation
+                // TODO: interlacing aware interpolation
+                int lineoffs = Width * y;
+                int emioffs = (y/2) * (Width/2);
+                for (int x=0; x<Width; ++x) {
+                    // planes order: Y(1:1), Cb(1:4), Cr(1:4).
+                    // Offsets: Cb @ imgSize, Cr @ 5/4 * imgSize
+                    YUVtoBGR32Pixel(pDest + lineoffs + x,
+                        pSrc[lineoffs + x],
+                        pSrc[emioffs + x/2 + TotalPixels],
+                        pSrc[emioffs + x/2 + TotalPixels + TotalPixels/4]);
+                }
             }
             break;
         default:
