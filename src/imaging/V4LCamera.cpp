@@ -33,8 +33,6 @@
 #include <fcntl.h>
 #include <errno.h>
 
-//#include <linux/types.h>
-//#include <linux/time.h>
 #include <linux/videodev2.h>
 
 #include <stdio.h>
@@ -149,7 +147,10 @@ int V4LCamera::getCamPF(const std::string& sPF)
     }*/
     else if (sPF == "YUV422") {
         AVG_TRACE(Logger::APP, "Selecting YUV4:2:2 pixel format");
-//        pfDef = V4L2_PIX_FMT_UYVY;
+        pfDef = V4L2_PIX_FMT_UYVY;
+    }
+    else if (sPF == "YUYV422") {
+        AVG_TRACE(Logger::APP, "Selecting YUYV4:2:2 pixel format");
         pfDef = V4L2_PIX_FMT_YUYV;
     }
     else if (sPF == "YUV420") {
@@ -540,7 +541,6 @@ void V4LCamera::initDevice()
     Fmt.fmt.pix.width       = getImgSize().x; 
     Fmt.fmt.pix.height      = getImgSize().y;
     Fmt.fmt.pix.pixelformat = m_CamPF;
-    // TODO: deinterlace pipeline or one-field method
     Fmt.fmt.pix.field       = V4L2_FIELD_ANY;
 
     if (xioctl(m_Fd, VIDIOC_S_FMT, &Fmt) == -1) {
@@ -549,7 +549,7 @@ void V4LCamera::initDevice()
     }
 
     AVG_TRACE(Logger::APP, "Format set to " << Fmt.fmt.pix.width << "x"
-        << Fmt.fmt.pix.height << " interlaced");
+        << Fmt.fmt.pix.height << ".");
 
     initMMap ();
     
