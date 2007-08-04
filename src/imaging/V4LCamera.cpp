@@ -67,7 +67,7 @@ V4LCamera::V4LCamera(std::string sDevice, int Channel, IntPoint Size,
            m_bColor(bColor),
            m_ImgSize(Size)
 {
-    AVG_TRACE(Logger::APP, "V4LCamera() device=" << sDevice << 
+    AVG_TRACE(Logger::CONFIG, "V4LCamera() device=" << sDevice << 
         " ch=" << Channel << " w=" << Size.x << " h=" << Size.y <<
         " pf=" << PixelFormat);
     

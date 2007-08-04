@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Camera_H_
-#define _Camera_H_
+#ifndef _FWCamera_H_
+#define _FWCamera_H_
 
 #include "../avgconfig.h"
 #undef PACKAGE_BUGREPORT
@@ -56,10 +56,10 @@ namespace avg {
 
 typedef Queue<BitmapPtr> BitmapQueue;
 
-class Camera: public ICamera {
+class FWCamera: public ICamera {
 public:
-    Camera(std::string sDevice, double FrameRate, std::string sMode, bool bColor);
-    virtual ~Camera();
+    FWCamera(std::string sDevice, double FrameRate, std::string sMode, bool bColor);
+    virtual ~FWCamera();
     virtual void open();
     virtual void close();
 

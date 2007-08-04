@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 
 #include "TrackerThread.h"
-#include "Camera.h"
+#include "FWCamera.h"
 #include "FakeCamera.h"
 
 #include "../graphics/Filtergrayscale.h"

@@ -62,7 +62,7 @@
 
 #include "../graphics/Rect.h"
 
-#include "../imaging/Camera.h"
+#include "../imaging/FWCamera.h"
 #ifdef AVG_ENABLE_V4L2
 #include "../imaging/V4LCamera.h"
 #endif
@@ -383,7 +383,7 @@ TrackerEventSource * Player::addTracker(std::string sDevice,
     } else {
         AVG_TRACE(Logger::CONFIG, "Adding a Tracker for FW camera " << sDevice <<
             " using " << sMode << ".");
-        pCamera = CameraPtr(new Camera(sDevice, Config.m_FPS, sMode, false));
+        pCamera = CameraPtr(new FWCamera(sDevice, Config.m_FPS, sMode, false));
     }
     
     m_pTracker = new TrackerEventSource(pCamera, Config, IntPoint(m_DP.m_Width, 

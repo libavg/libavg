@@ -10,12 +10,12 @@ else
 endif
 
 if ENABLE_1394
-    DC1394_SOURCES = CameraUtils.cpp
-    DC1394_INCLUDES = CameraUtils.h
+    DC1394_SOURCES = FWCameraUtils.cpp
+    DC1394_INCLUDES = FWCameraUtils.h
 else
 if ENABLE_1394_2
-    DC1394_SOURCES = CameraUtils.cpp
-    DC1394_INCLUDES = CameraUtils.h
+    DC1394_SOURCES = FWCameraUtils.cpp
+    DC1394_INCLUDES = FWCameraUtils.h
 else
 
     DC1394_SOURCES =
@@ -23,10 +23,10 @@ else
 endif
 endif
 
-ALL_H = TrackerThread.h TrackerConfig.h Blob.h Camera.h Run.h \
+ALL_H = TrackerThread.h TrackerConfig.h Blob.h FWCamera.h Run.h \
         FakeCamera.h CoordTransformer.h FilterDistortion.h $(DC1394_INCLUDES) \
         BlobInfo.h DeDistort.h trackerconfigdtd.h $(V4L2_INCLUDES)
-ALL_CPP = TrackerThread.cpp TrackerConfig.cpp Blob.cpp Camera.cpp Run.cpp \
+ALL_CPP = TrackerThread.cpp TrackerConfig.cpp Blob.cpp FWCamera.cpp Run.cpp \
         FakeCamera.cpp CoordTransformer.cpp FilterDistortion.cpp $(DC1394_SOURCES) \
         BlobInfo.cpp DeDistort.cpp trackerconfigdtd.cpp $(V4L2_SOURCES)
 

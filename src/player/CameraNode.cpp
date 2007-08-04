@@ -30,7 +30,7 @@
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
 
-#include "../imaging/Camera.h"
+#include "../imaging/FWCamera.h"
 #ifdef AVG_ENABLE_V4L2
 #include "../imaging/V4LCamera.h"
 #endif
@@ -57,7 +57,7 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
     if (sSource == "firewire") {
 #if defined(AVG_ENABLE_1394)\
     || defined(AVG_ENABLE_1394_2)
-    m_pCamera = CameraPtr(new Camera(sDevice, FrameRate, sMode, true));
+    m_pCamera = CameraPtr(new FWCamera(sDevice, FrameRate, sMode, true));
         AVG_TRACE(Logger::APP, "FWCamera created");
 #else
         AVG_TRACE(Logger::ERROR, "Firewire camera specified, but firewire \

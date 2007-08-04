@@ -19,9 +19,9 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "Camera.h"
+#include "FWCamera.h"
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-#include "CameraUtils.h"
+#include "FWCameraUtils.h"
 #endif
 
 #include "../base/Logger.h"
@@ -39,7 +39,7 @@ namespace avg {
 
 using namespace std;
 
-Camera::Camera(string sDevice, double FrameRate, std::string sMode, bool bColor)
+FWCamera::FWCamera(string sDevice, double FrameRate, std::string sMode, bool bColor)
     : m_sDevice(sDevice),
       m_FrameRate(FrameRate),
       m_sMode(sMode),
@@ -52,12 +52,12 @@ Camera::Camera(string sDevice, double FrameRate, std::string sMode, bool bColor)
 #endif
 }
 
-Camera::~Camera()
+FWCamera::~FWCamera()
 {
     close();
 }
 
-void Camera::open()
+void FWCamera::open()
 {
 #ifdef AVG_ENABLE_1394
     int CaptureFormat = 0;
@@ -74,7 +74,7 @@ void Camera::open()
             CaptureFormat=FORMAT_SVGA_NONCOMPRESSED_1;
             break;
         default:
-            fatalError ("Camera::open: Unsupported or illegal value for camera resolution:");
+            fatalError ("FWCamera::open: Unsupported or illegal value for camera resolution:");
     }
             
     m_FWHandle = raw1394_new_handle();
@@ -261,7 +261,7 @@ void Camera::open()
     }
 }
 
-void Camera::close()
+void FWCamera::close()
 {
     if (m_bCameraAvailable) {
 
@@ -278,7 +278,7 @@ void Camera::close()
     }
 }
 
-IntPoint Camera::getImgSize()
+IntPoint FWCamera::getImgSize()
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     return getCamImgSize(m_Mode);
@@ -288,7 +288,7 @@ IntPoint Camera::getImgSize()
 
 static ProfilingZone CameraConvertProfilingZone("Camera format conversion");
 
-BitmapPtr Camera::getImage(bool bWait)
+BitmapPtr FWCamera::getImage(bool bWait)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     if (!m_bCameraAvailable && bWait) {
@@ -419,27 +419,27 @@ BitmapPtr Camera::getImage(bool bWait)
 #endif
 }
     
-bool Camera::isCameraAvailable()
+bool FWCamera::isCameraAvailable()
 {
     return m_bCameraAvailable;
 }
 
-const std::string& Camera::getDevice() const
+const std::string& FWCamera::getDevice() const
 {
     return m_sDevice;
 }
 
-double Camera::getFrameRate() const
+double FWCamera::getFrameRate() const
 {
     return m_FrameRate;
 }
 
-const std::string& Camera::getMode() const
+const std::string& FWCamera::getMode() const
 {
     return m_sMode;
 }
 
-unsigned int Camera::getFeature(const std::string& sFeature) const
+unsigned int FWCamera::getFeature(const std::string& sFeature) const
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     dc1394feature_t FeatureID = getFeatureID(sFeature);
@@ -454,7 +454,7 @@ unsigned int Camera::getFeature(const std::string& sFeature) const
 #endif
 }
 
-void Camera::setFeature(const std::string& sFeature, int Value)
+void FWCamera::setFeature(const std::string& sFeature, int Value)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     dc1394feature_t FeatureID = getFeatureID(sFeature);
@@ -465,7 +465,7 @@ void Camera::setFeature(const std::string& sFeature, int Value)
 #endif
 }
 
-void Camera::setFeature(dc1394feature_t Feature, int Value) {
+void FWCamera::setFeature(dc1394feature_t Feature, int Value) {
 #ifdef AVG_ENABLE_1394
     int err;
     if (Value == -1) {
@@ -488,14 +488,14 @@ void Camera::setFeature(dc1394feature_t Feature, int Value) {
         err = dc1394_feature_set_value(m_pCamera, Feature, Value);
     }
     if (err != DC1394_SUCCESS) {
-        AVG_TRACE(Logger::WARNING, "Camera: Unable to set " << Feature << 
+        AVG_TRACE(Logger::WARNING, "FWCamera: Unable to set " << Feature << 
                 ". Error was " << err);
     }
 #endif
 }
 
 #ifdef AVG_ENABLE_1394
-bool Camera::findCameraOnPort(int port, raw1394handle_t& FWHandle)
+bool FWCamera::findCameraOnPort(int port, raw1394handle_t& FWHandle)
 {
     bool bFound = false;
     FWHandle = dc1394_create_handle(port);
@@ -528,7 +528,7 @@ bool Camera::findCameraOnPort(int port, raw1394handle_t& FWHandle)
 }
 #endif
 
-void Camera::checkDC1394Error(int Code, const string & sMsg)
+void FWCamera::checkDC1394Error(int Code, const string & sMsg)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     if (Code != DC1394_SUCCESS) {
@@ -537,7 +537,7 @@ void Camera::checkDC1394Error(int Code, const string & sMsg)
 #endif
 }
 
-void Camera::fatalError(const string & sMsg)
+void FWCamera::fatalError(const string & sMsg)
 {
     AVG_TRACE(Logger::ERROR, sMsg);
     close();
@@ -545,7 +545,7 @@ void Camera::fatalError(const string & sMsg)
 }
 
 #ifdef AVG_ENABLE_1394
-void Camera::dumpCameraInfo()
+void FWCamera::dumpCameraInfo()
 {
     dc1394_camerainfo info;
     int rc = dc1394_get_camera_info(m_FWHandle, m_Camera.node, &info);
@@ -572,14 +572,14 @@ void Camera::dumpCameraInfo()
 }
 
 #elif AVG_ENABLE_1394_2
-void Camera::dumpCameraInfo()
+void FWCamera::dumpCameraInfo()
 {
     // TODO: do this using AVG_TRACE
     dc1394_print_camera_info(m_pCamera);
     dc1394_print_feature_set(&m_FeatureSet);
 }
 #else
-void Camera::dumpCameraInfo()
+void FWCamera::dumpCameraInfo()
 {
 }
 #endif

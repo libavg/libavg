@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _CameraUtils_H_
-#define _CameraUtils_H_
+#ifndef _FWCameraUtils_H_
+#define _FWCameraUtils_H_
 
 #include "../avgconfig.h"
 #undef PACKAGE_BUGREPORT

@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "CameraUtils.h"
+#include "FWCameraUtils.h"
 
 #include "../base/Logger.h"
 
