@@ -142,7 +142,6 @@ void CameraNode::close()
 {
     if (m_pCamera) {
         m_pCamera->close();
-        m_pCamera = CameraPtr();
     }
 }
 

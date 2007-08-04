@@ -255,7 +255,7 @@ void FWCamera::open()
         fatalError("Camera doesn't seem to want to turn on!\n");
     }
 #endif
-    AVG_TRACE(Logger::CONFIG, "Camera successfully opened.");
+    AVG_TRACE(Logger::CONFIG, "Firewire camera opened.");
     for (FeatureMap::iterator it=m_Features.begin(); it != m_Features.end(); it++) {
         setFeature(it->first, it->second);
     }
@@ -275,6 +275,7 @@ void FWCamera::close()
         dc1394_free_camera(m_pCamera);
 #endif
         m_bCameraAvailable = false;
+        AVG_TRACE(Logger::CONFIG, "Firewire camera closed.");
     }
 }
 

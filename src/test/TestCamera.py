@@ -26,17 +26,18 @@ class CameraTestCase(unittest.TestCase):
             self.__camera.brightness = self.brightness
         def stopPlayback():
             self.__camera.stop()
-            Player.setTimeout(200, self.__camera.play)
+            Player.setTimeout(500, self.__camera.play)
         self.curFrame = 200
         Player.loadFile("camera.avg")
         Player.setFramerate(60)
         self.__camera = Player.getElementByID("camera")
         self.__camera.play()
+        Player.getElementByID("camera1").play()
 #        self.brightness = 0
 #        Player.setInterval(200, changeBrightness)
 #        Player.setTimeout(200, setWhitebalance)
 #        Player.setTimeout(300, resetWhitebalance)
-#        Player.setInterval(500, stopPlayback)
+        Player.setInterval(3000, stopPlayback)
         Player.play()
 
 def playerTestSuite(engine, bpp):

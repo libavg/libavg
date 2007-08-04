@@ -113,6 +113,7 @@ void V4LCamera::open()
     
     initDevice();
     startCapture();
+    AVG_TRACE(Logger::CONFIG, "V4L Camera opened");
 }
 
 void V4LCamera::close()
@@ -120,6 +121,7 @@ void V4LCamera::close()
     if ( ::close(m_Fd) == -1) {
         AVG_TRACE(Logger::ERROR, "Error on closing v4l device");
     }
+    AVG_TRACE(Logger::CONFIG, "V4L Camera closed");
 
     m_Fd = -1;
     m_bCameraAvailable = false;
