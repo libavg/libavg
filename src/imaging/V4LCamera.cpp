@@ -117,7 +117,6 @@ void V4LCamera::open()
 
 void V4LCamera::close()
 {
-    AVG_TRACE(Logger::APP, "Closing Camera...");
     if ( ::close(m_Fd) == -1) {
         AVG_TRACE(Logger::ERROR, "Error on closing v4l device");
     }
@@ -136,29 +135,23 @@ int V4LCamera::getCamPF(const std::string& sPF)
     int pfDef = V4L2_PIX_FMT_BGR24;
 
     if (sPF == "MONO8") {
-        AVG_TRACE(Logger::APP, "Selecting grayscale I8 pixel format");
         pfDef = V4L2_PIX_FMT_GREY;
     }
     /*
     // NOT SUPPORTED YET
     else if (sPF == "YUV411") {
-        AVG_TRACE(Logger::APP, "Selecting YUV4:1:1 pixel format");
         pfDef = V4L2_PIX_FMT_Y41P;
     }*/
     else if (sPF == "YUV422") {
-        AVG_TRACE(Logger::APP, "Selecting YUV4:2:2 pixel format");
         pfDef = V4L2_PIX_FMT_UYVY;
     }
     else if (sPF == "YUYV422") {
-        AVG_TRACE(Logger::APP, "Selecting YUYV4:2:2 pixel format");
         pfDef = V4L2_PIX_FMT_YUYV;
     }
     else if (sPF == "YUV420") {
-        AVG_TRACE(Logger::APP, "Selecting YUV4:2:0 pixel format");
         pfDef = V4L2_PIX_FMT_YUV420;
     }
     else if (sPF == "RGB") {
-        AVG_TRACE(Logger::APP, "Selecting RGB (BGR24) pixel format");
         pfDef = V4L2_PIX_FMT_BGR24;
     }
     else {
@@ -176,7 +169,6 @@ static ProfilingZone CameraConvertProfilingZone("      Camera format conversion"
 
 BitmapPtr V4LCamera::getImage(bool bWait)
 {
-//  AVG_TRACE(Logger::APP, "getImage()");
     unsigned char *pSrc = 0;
     
     struct v4l2_buffer Buf;
@@ -236,8 +228,6 @@ BitmapPtr V4LCamera::getImage(bool bWait)
     
     pSrc = (unsigned char*)m_vBuffers[Buf.index].start;
         
-//  AVG_TRACE(Logger::APP,"mmap() dequeueing buffer index=" << Buf.index);
-
     IntPoint Size = getImgSize();
 
     // target bitmap and uchar* to
@@ -478,7 +468,6 @@ void V4LCamera::startCapture()
         exit(1);
     }
 
-    AVG_TRACE(Logger::APP, "Capture started");
 }
 
 void V4LCamera::initDevice()
@@ -548,14 +537,10 @@ void V4LCamera::initDevice()
         exit(1);
     }
 
-    AVG_TRACE(Logger::APP, "Format set to " << Fmt.fmt.pix.width << "x"
-        << Fmt.fmt.pix.height << ".");
-
     initMMap ();
     
     // TODO: string channel instead of numeric
     // select channel
-    AVG_TRACE(Logger::APP, "Setting channel " << m_Channel);
     if (xioctl(m_Fd, VIDIOC_S_INPUT, &m_Channel) == -1) {
         AVG_TRACE(Logger::ERROR, "Cannot set MUX channel " << m_Channel);
         exit(1);
@@ -567,7 +552,6 @@ void V4LCamera::initDevice()
         setFeature(it->first, it->second);
     }
 
-    AVG_TRACE(Logger::APP, "V4L2 device initialized successfully");
     
 }
 
@@ -582,7 +566,7 @@ void V4LCamera::initMMap()
 
     if (xioctl (m_Fd, VIDIOC_REQBUFS, &Req) == -1) {
         if (EINVAL == errno) {
-            AVG_TRACE(Logger::APP, m_sDevice << " does not support \
+            AVG_TRACE(Logger::ERROR, m_sDevice << " does not support \
                 memory mapping");
             exit(1);
         } else {
@@ -591,7 +575,7 @@ void V4LCamera::initMMap()
     }
     
     if (Req.count < 2) {
-        AVG_TRACE(Logger::APP, "Insufficient buffer memory on " << m_sDevice);
+        AVG_TRACE(Logger::ERROR, "Insufficient buffer memory on " << m_sDevice);
         exit(1);
     }
 

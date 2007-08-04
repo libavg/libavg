@@ -52,13 +52,10 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
     string sMode = getDefaultedStringAttr (xmlNode, "mode", "640x480_RGB");
     string sSource = getDefaultedStringAttr (xmlNode, "source", "firewire");
 
-    AVG_TRACE(Logger::APP, "CameraNode() constructor. Source=" << sSource);
-
     if (sSource == "firewire") {
 #if defined(AVG_ENABLE_1394)\
     || defined(AVG_ENABLE_1394_2)
     m_pCamera = CameraPtr(new FWCamera(sDevice, FrameRate, sMode, true));
-        AVG_TRACE(Logger::APP, "FWCamera created");
 #else
         AVG_TRACE(Logger::ERROR, "Firewire camera specified, but firewire \
             support not compiled in.");
@@ -72,7 +69,6 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
         
         m_pCamera = CameraPtr(new V4LCamera(sDevice, Channel,
             IntPoint(Width, Height), sPF, true));
-        AVG_TRACE(Logger::APP, "V4LCamera created");
 #else
         AVG_TRACE(Logger::ERROR, "Video4Linux camera specified, but \
             Video4Linux support not compiled in.");
