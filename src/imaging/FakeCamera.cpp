@@ -102,6 +102,12 @@ const string& FakeCamera::getDevice() const
     return sDeviceName;
 }
 
+const std::string& FakeCamera::getDriverName() const
+{
+    static string sDriverName = "FakeCameraDriver";
+    return sDriverName;
+}
+
 double FakeCamera::getFrameRate() const
 {
     return 60;

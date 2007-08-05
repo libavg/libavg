@@ -631,6 +631,29 @@ class PlayerTestCase(AVGTestCase):
         video.setEOFCallback(onEOF)
         Player.setTimeout(10000, onNoEOF)
         Player.play()
+
+#    def testCamera(self):
+#        def createCameraNode(deviceFile):
+#            return Player.createNode("<camera id='camera1' width='640' height='480' "
+#                    "source='v4l' pixelformat='YUYV422' "
+#                    "capturewidth='640' captureheight='480' device="+deviceFile+
+#                    " framerate='30'/>")
+#        def findCamera():
+#            node = createCameraNode("/dev/video0")
+#            if node.getDriverName() != "vivi":
+#                node = createCameraNode("/dev/video1")
+#            if node.getDriverName() != "vivi":
+#                print("Kernel camera test driver not found - skipping camera test.")
+#                Player.stop()
+#            else:
+#                Player.getRootNode().addChild(node)
+#                node.play()
+#
+#        self.start("empty.avg",
+#                (lambda: findCamera,
+#                 lambda: self.compareImage("testCamera", False),
+#                 Player.stop))
+
     def testAnim(self):
         def onStart():
             Player.setTimeout(10, startAnim)
@@ -873,6 +896,7 @@ def playerTestSuite(engine, bpp):
     suite.addTest(PlayerTestCase("testWords", engine, bpp))
     suite.addTest(PlayerTestCase("testVideo", engine, bpp))
     suite.addTest(PlayerTestCase("testVideoEOF", engine, bpp))
+#    suite.addTest(PlayerTestCase("testCamera", engine, bpp))
     suite.addTest(PlayerTestCase("testAnim", engine, bpp))
     suite.addTest(PlayerTestCase("testImgDynamics", engine, bpp))
     suite.addTest(PlayerTestCase("testVideoDynamics", engine, bpp))

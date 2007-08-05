@@ -56,6 +56,7 @@ class V4LCamera: public ICamera {
         virtual bool isCameraAvailable();
 
         virtual const std::string& getDevice() const; 
+        virtual const std::string& getDriverName() const; 
         virtual double getFrameRate() const;
         virtual const std::string& getMode() const;
         
@@ -66,6 +67,7 @@ class V4LCamera: public ICamera {
         int m_Fd;
         int m_Channel;
         std::string m_sDevice;
+        std::string m_sDriverName;
         std::string m_sMode;
         std::vector<Buffer> m_vBuffers;
         bool m_bCameraAvailable;

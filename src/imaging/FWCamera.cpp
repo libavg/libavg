@@ -425,9 +425,15 @@ bool FWCamera::isCameraAvailable()
     return m_bCameraAvailable;
 }
 
-const std::string& FWCamera::getDevice() const
+const string& FWCamera::getDevice() const
 {
     return m_sDevice;
+}
+
+const std::string& FWCamera::getDriverName() const
+{
+    static string sDriverName = "libdc1394";
+    return sDriverName;
 }
 
 double FWCamera::getFrameRate() const

@@ -38,11 +38,12 @@
 #include <stdio.h>
 #include <sys/time.h>
 #include <unistd.h>
+#include <iostream>
 
 #define CLEAR(x) memset (&(x), 0, sizeof (x))
 
-
 using namespace avg;
+using namespace std;
 
 // anonymous namespace holding private (C-static-like) functions
 namespace {
@@ -84,6 +85,7 @@ V4LCamera::V4LCamera(std::string sDevice, int Channel, IntPoint Size,
 
 V4LCamera::~V4LCamera() 
 {
+    close();
 }
 
 void V4LCamera::open()
@@ -118,13 +120,19 @@ void V4LCamera::open()
 
 void V4LCamera::close()
 {
-    if ( ::close(m_Fd) == -1) {
-        AVG_TRACE(Logger::ERROR, "Error on closing v4l device");
-    }
-    AVG_TRACE(Logger::CONFIG, "V4L Camera closed");
+    if (m_bCameraAvailable) {
+        enum v4l2_buf_type Type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        if (-1 == xioctl (m_Fd, VIDIOC_STREAMOFF, &Type)) {
+            AVG_TRACE(Logger::ERROR, "VIDIOC_STREAMOFF");
+        }
+        if ( ::close(m_Fd) == -1) {
+            AVG_TRACE(Logger::ERROR, "Error on closing v4l device");
+        }
+        AVG_TRACE(Logger::CONFIG, "V4L Camera closed");
 
-    m_Fd = -1;
-    m_bCameraAvailable = false;
+        m_Fd = -1;
+        m_bCameraAvailable = false;
+    }
 }
 
 IntPoint V4LCamera::getImgSize()
@@ -178,6 +186,7 @@ BitmapPtr V4LCamera::getImage(bool bWait)
     
     // wait for incoming data blocking, timeout 2s
     if (bWait) {
+        cerr << "bWait" << endl;
         fd_set Fds;
         struct timeval Tv;
         int Rc;
@@ -193,6 +202,7 @@ BitmapPtr V4LCamera::getImage(bool bWait)
 
         // caught signal or something else  
         if (Rc == -1) {
+            AVG_TRACE(Logger::WARNING, "V4L: select failed.");
             return BitmapPtr();
         }
         // timeout
@@ -210,6 +220,7 @@ BitmapPtr V4LCamera::getImage(bool bWait)
     if (xioctl (m_Fd, VIDIOC_DQBUF, &Buf) == -1) {
         switch (errno) {
             case EAGAIN:
+                    cerr << "EAGAIN" << endl;
                     return BitmapPtr();
 
             case EIO:
@@ -298,6 +309,7 @@ BitmapPtr V4LCamera::getImage(bool bWait)
         AVG_TRACE(Logger::ERROR, "VIDIOC_DQBUF");
         exit(1);
     }
+    cerr << "got image" << endl;
     
     return pCurBitmap;
 }
@@ -310,6 +322,11 @@ bool V4LCamera::isCameraAvailable()
 const std::string& V4LCamera::getDevice() const
 {
     return m_sDevice;
+}
+
+const std::string& V4LCamera::getDriverName() const
+{
+    return m_sDriverName;
 }
 
 double V4LCamera::getFrameRate() const
@@ -503,6 +520,7 @@ void V4LCamera::initDevice()
             streaming i/os");
         exit(1);
     }
+    m_sDriverName = (const char *)Cap.driver;
 
     /* Select video input, video standard and tune here. */
     CLEAR (CropCap);
@@ -536,6 +554,7 @@ void V4LCamera::initDevice()
 
     if (xioctl(m_Fd, VIDIOC_S_FMT, &Fmt) == -1) {
         AVG_TRACE(Logger::ERROR, m_sDevice << " could not set image format");
+        close();
         exit(1);
     }
 
@@ -545,6 +564,7 @@ void V4LCamera::initDevice()
     // select channel
     if (xioctl(m_Fd, VIDIOC_S_INPUT, &m_Channel) == -1) {
         AVG_TRACE(Logger::ERROR, "Cannot set MUX channel " << m_Channel);
+        close();
         exit(1);
     }
     
@@ -572,7 +592,8 @@ void V4LCamera::initMMap()
                 memory mapping");
             exit(1);
         } else {
-            //errno_exit ("VIDIOC_REQBUFS");
+            AVG_TRACE(Logger::ERROR, "V4LCamera::initMMap: " << strerror(errno));
+            exit(1);
         }
     }
     

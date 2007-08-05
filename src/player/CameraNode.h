@@ -54,6 +54,11 @@ class CameraNode : public VideoBase
             return m_pCamera->getDevice();
         }
 
+        const std::string& getDriverName() const
+        {
+            return m_pCamera->getDriverName();
+        }
+
         double getFrameRate() const
         {
             return m_pCamera->getFrameRate();

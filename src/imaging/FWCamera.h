@@ -68,6 +68,7 @@ public:
     virtual bool isCameraAvailable();
 
     virtual const std::string& getDevice() const; 
+    virtual const std::string& getDriverName() const; 
     virtual double getFrameRate() const;
     virtual const std::string& getMode() const;
 

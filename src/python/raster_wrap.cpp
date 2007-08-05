@@ -121,11 +121,15 @@ void export_raster()
             "A node that displays the image of a firewire camera.\n"
             "Properties:\n"
             "    device (ro)\n"
+            "    drivername (ro)\n"
             "    framerate (ro)\n"
+            "    framenum (ro)\n"
             "    mode (ro)\n"
             "    brightness, exposure, sharpness, saturation, gamma, shutter, gain, whitebalance",
             no_init)
         .add_property("device", make_function(&CameraNode::getDevice,
+                return_value_policy<copy_const_reference>()))
+        .add_property("drivername", make_function(&CameraNode::getDevice,
                 return_value_policy<copy_const_reference>()))
         .add_property("framerate", &CameraNode::getFrameRate)
         .add_property("framenum", &CameraNode::getFrameNum)
