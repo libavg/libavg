@@ -93,7 +93,7 @@ void V4LCamera::open()
     struct stat St; 
 
     if ( stat(m_sDevice.c_str(), &St) == -1) {
-        AVG_TRACE(Logger::ERROR, "Unable to open v4l device " << 
+        AVG_TRACE(Logger::ERROR, "Unable to access v4l device " << 
           m_sDevice);
         // TODO: Disable camera instead of exit(1).
         exit(1);
@@ -125,6 +125,14 @@ void V4LCamera::close()
         if (-1 == xioctl (m_Fd, VIDIOC_STREAMOFF, &Type)) {
             AVG_TRACE(Logger::ERROR, "VIDIOC_STREAMOFF");
         }
+        vector<Buffer>::iterator it;
+        for (it=m_vBuffers.begin(); it != m_vBuffers.end(); ++it) {
+            if (-1 == munmap (it->start, it->length)) {
+                AVG_TRACE(Logger::WARNING, "V4lCamera::close(): munmap failed.");
+            }
+        }
+        m_vBuffers.clear();
+
         if ( ::close(m_Fd) == -1) {
             AVG_TRACE(Logger::ERROR, "Error on closing v4l device");
         }
@@ -175,7 +183,7 @@ int V4LCamera::getCamPF(const std::string& sPF)
 }
 
 
-static ProfilingZone CameraConvertProfilingZone("      Camera format conversion");
+static ProfilingZone CameraConvertProfilingZone("V4L Camera format conversion");
 
 BitmapPtr V4LCamera::getImage(bool bWait)
 {
@@ -220,7 +228,6 @@ BitmapPtr V4LCamera::getImage(bool bWait)
     if (xioctl (m_Fd, VIDIOC_DQBUF, &Buf) == -1) {
         switch (errno) {
             case EAGAIN:
-                    cerr << "EAGAIN" << endl;
                     return BitmapPtr();
 
             case EIO:
@@ -309,7 +316,6 @@ BitmapPtr V4LCamera::getImage(bool bWait)
         AVG_TRACE(Logger::ERROR, "VIDIOC_DQBUF");
         exit(1);
     }
-    cerr << "got image" << endl;
     
     return pCurBitmap;
 }
@@ -333,11 +339,6 @@ double V4LCamera::getFrameRate() const
 {
     // TODO: PAL or NTSC have different frame rates
     return 25;
-}
-
-const std::string& V4LCamera::getMode() const
-{
-    return m_sMode;
 }
 
 std::string V4LCamera::getFeatureName(V4LCID_t V4LFeature)
@@ -553,7 +554,8 @@ void V4LCamera::initDevice()
     Fmt.fmt.pix.field       = V4L2_FIELD_ANY;
 
     if (xioctl(m_Fd, VIDIOC_S_FMT, &Fmt) == -1) {
-        AVG_TRACE(Logger::ERROR, m_sDevice << " could not set image format");
+        AVG_TRACE(Logger::ERROR, m_sDevice << " could not set image format (" 
+                << strerror(errno) << ")");
         close();
         exit(1);
     }

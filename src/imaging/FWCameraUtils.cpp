@@ -28,53 +28,47 @@ namespace avg {
 using namespace std;
 
 #ifdef AVG_ENABLE_1394
-int getCamMode(string sMode) 
+int getCamMode(IntPoint Size, std::string sPF) 
 {
-/*    if (sMode == "160x120_YUV444") {
-         return MODE_160x120_YUV444;
-    } else if (sMode == "320x240_YUV422") {
-         return MODE_320x240_YUV422;
-    } else
-*/
-    if (sMode == "640x480_MONO8") {
-         return MODE_640x480_MONO;
-    } else if (sMode == "640x480_YUV411") {
-         return MODE_640x480_YUV411;
-    } else if (sMode == "640x480_YUV422") {
-         return MODE_640x480_YUV422;
-    } else if (sMode == "640x480_RGB") {
-         return MODE_640x480_RGB;
-/*    } else if (sMode == "640x480_MONO16") {
-         return MODE_640x480_MONO16;
-*/        
-    } else if (sMode == "1024x768_RGB") {
-         return MODE_1024x768_RGB;
-    } else if (sMode == "1024x768_YUV422") {
-         return MODE_1024x768_YUV422;
-    } else {
-        AVG_TRACE (Logger::WARNING,
-                std::string("Unsupported or illegal value for camera mode \"") 
-                + sMode + std::string("\"."));
-         return MODE_640x480_RGB;
+    if (Size.x == 320 && Size.y == 240 && sPF == "YUV422") {
+        return MODE_320x240_YUV422;
+    } else if (Size.x == 640 && Size.y == 480) {
+        if (sPF == "MONO8") {
+            return MODE_640x480_MONO;
+        } else if (sPF == "MONO16") {
+            return MODE_640x480_MONO16;
+        } else if (sPF == "YUV411") {
+            return MODE_640x480_YUV411;
+        } else if (sPF == "YUV422") {
+            return MODE_640x480_YUV422;
+        } else if (sPF == "RGB") {
+            return MODE_640x480_RGB;
+        }
+    } else if (Size.x == 800 && Size.y == 600) {
+        if (sPF == "MONO8") {
+            return MODE_800x600_MONO;
+        } else if (sPF == "MONO16") {
+            return MODE_800x600_MONO16;
+        } else if (sPF == "YUV422") {
+            return MODE_800x600_YUV422;
+        } else if (sPF == "RGB") {
+            return MODE_800x600_RGB;
+        }
+    } else if (Size.x == 1024 && Size.y == 768) {
+        if (sPF == "MONO8") {
+            return MODE_1024x768_MONO;
+        } else if (sPF == "MONO16") {
+            return MODE_1024x768_MONO16;
+        } else if (sPF == "YUV422") {
+            return MODE_1024x768_YUV422;
+        } else if (sPF == "RGB") {
+            return MODE_1024x768_RGB;
+        }
     }
-}
-
-IntPoint getCamImgSize(int Mode)
-{
-    switch(Mode) {
-        case MODE_640x480_MONO:
-        case MODE_640x480_YUV411:
-        case MODE_640x480_YUV422:
-        case MODE_640x480_RGB:
-            return IntPoint(640, 480);
-        case MODE_1024x768_RGB:
-        case MODE_1024x768_YUV422:
-            return IntPoint(1024, 768);
-        default:
-            AVG_TRACE (Logger::WARNING,
-                    std::string("getImgSize: Unsupported or illegal value for camera mode "));
-            return IntPoint(0,0);
-    }
+    AVG_TRACE (Logger::WARNING,
+            std::string("getCamMode: Unsupported or illegal value for camera mode: (")
+            << Size.x << ", " << Size.y << "), " << sPF << ".");
+    return MODE_640x480_RGB;
 }
 
 int getFrameRateConst(double FrameRate)
@@ -147,51 +141,45 @@ int getFeatureID(const std::string& sFeature)
 
 dc1394video_mode_t getCamMode(string sMode) 
 {
-/*    if (sMode == "160x120_YUV444") {
-         return DC1394_VIDEO_MODE_160x120_YUV444;
-    } else if (sMode == "320x240_YUV422") {
-         return DC1394_VIDEO_MODE_320x240_YUV422;
-    } else
-*/
-    if (sMode == "640x480_MONO8") {
-         return DC1394_VIDEO_MODE_640x480_MONO8;
-    } else if (sMode == "640x480_YUV411") {
-         return DC1394_VIDEO_MODE_640x480_YUV411;
-    } else if (sMode == "640x480_YUV422") {
-         return DC1394_VIDEO_MODE_640x480_YUV422;
-    } else if (sMode == "640x480_RGB") {
-         return DC1394_VIDEO_MODE_640x480_RGB8;
-/*  } else if (sMode == "640x480_MONO16") {
-         return DC1394_VIDEO_MODE_640x480_MONO16;
-*/        
-    } else if (sMode == "1024x768_RGB") {
-         return DC1394_VIDEO_MODE_1024x768_RGB8;
-    } else if (sMode == "1024x768_YUV422") {
-         return DC1394_VIDEO_MODE_1024x768_YUV422;
-    } else {
-        AVG_TRACE (Logger::WARNING,
-                std::string("getMode: Unsupported or illegal value for camera mode \"") 
-                + sMode + std::string("\"."));
-        return DC1394_VIDEO_MODE_640x480_RGB8;
+    if (Size.x == 320 && Size.y == 240 && sPF == "YUV422") {
+        return DC1394_VIDEO_MODE_320x240_YUV422;
+    } else if (Size.x == 640 && Size.y == 480) {
+        if (sPF == "MONO8") {
+            return DC1394_VIDEO_MODE_640x480_MONO8;
+        } else if (sPF == "MONO16") {
+            return DC1394_VIDEO_MODE_640x480_MONO16;
+        } else if (sPF == "YUV411") {
+            return DC1394_VIDEO_MODE_640x480_YUV411;
+        } else if (sPF == "YUV422") {
+            return DC1394_VIDEO_MODE_640x480_YUV422;
+        } else if (sPF == "RGB") {
+            return DC1394_VIDEO_MODE_640x480_RGB;
+        }
+    } else if (Size.x == 800 && Size.y == 600) {
+        if (sPF == "MONO8") {
+            return DC1394_VIDEO_MODE_800x600_MONO8;
+        } else if (sPF == "MONO16") {
+            return DC1394_VIDEO_MODE_800x600_MONO16;
+        } else if (sPF == "YUV422") {
+            return DC1394_VIDEO_MODE_800x600_YUV422;
+        } else if (sPF == "RGB") {
+            return DC1394_VIDEO_MODE_800x600_RGB;
+        }
+    } else if (Size.x == 1024 && Size.y == 768) {
+        if (sPF == "MONO8") {
+            return DC1394_VIDEO_MODE_1024x768_MONO8;
+        } else if (sPF == "MONO16") {
+            return DC1394_VIDEO_MODE_1024x768_MONO16;
+        } else if (sPF == "YUV422") {
+            return DC1394_VIDEO_MODE_1024x768_YUV422;
+        } else if (sPF == "RGB") {
+            return DC1394_VIDEO_MODE_1024x768_RGB;
+        }
     }
-}
-
-IntPoint getCamImgSize(dc1394video_mode_t Mode)
-{
-    switch(Mode) {
-        case DC1394_VIDEO_MODE_640x480_MONO8:
-        case DC1394_VIDEO_MODE_640x480_YUV411:
-        case DC1394_VIDEO_MODE_640x480_YUV422:
-        case DC1394_VIDEO_MODE_640x480_RGB8:
-            return IntPoint(640, 480);
-        case DC1394_VIDEO_MODE_1024x768_RGB8:
-        case DC1394_VIDEO_MODE_1024x768_YUV422:
-            return IntPoint(1024, 768);
-        default:
-            AVG_TRACE (Logger::WARNING,
-                    std::string("getImgSize: Unsupported or illegal value for camera mode "));
-            return IntPoint(0,0);
-    }
+    AVG_TRACE (Logger::WARNING,
+            std::string("getCamMode: Unsupported or illegal value for camera mode (") 
+            << Size.x << ", " << Size.y << "), " << sPF << ".");
+    return DC1394_VIDEO_MODE_640x480_RGB8;
 }
 
 dc1394framerate_t getFrameRateConst(double FrameRate)

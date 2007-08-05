@@ -124,7 +124,6 @@ void export_raster()
             "    drivername (ro)\n"
             "    framerate (ro)\n"
             "    framenum (ro)\n"
-            "    mode (ro)\n"
             "    brightness, exposure, sharpness, saturation, gamma, shutter, gain, whitebalance",
             no_init)
         .add_property("device", make_function(&CameraNode::getDevice,
@@ -133,8 +132,6 @@ void export_raster()
                 return_value_policy<copy_const_reference>()))
         .add_property("framerate", &CameraNode::getFrameRate)
         .add_property("framenum", &CameraNode::getFrameNum)
-        .add_property("mode", make_function(&CameraNode::getMode,
-                return_value_policy<copy_const_reference>()))
         .add_property("brightness", &CameraNode::getBrightness, &CameraNode::setBrightness)
         .add_property("exposure", &CameraNode::getExposure, &CameraNode::setExposure)
         .add_property("sharpness", &CameraNode::getSharpness, &CameraNode::setSharpness)

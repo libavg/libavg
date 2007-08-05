@@ -30,9 +30,9 @@ class CameraTestCase(unittest.TestCase):
         self.curFrame = 200
         Player.loadFile("camera.avg")
         Player.setFramerate(60)
-        self.__camera = Player.getElementByID("camera")
+        self.__camera = Player.getElementByID("camera1")
         self.__camera.play()
-        Player.getElementByID("camera1").play()
+        Player.getElementByID("camera").play()
 #        self.brightness = 0
 #        Player.setInterval(200, changeBrightness)
 #        Player.setTimeout(200, setWhitebalance)

@@ -44,13 +44,11 @@
 namespace avg {
 
 #ifdef AVG_ENABLE_1394
-int getCamMode(std::string sMode);
-IntPoint getCamImgSize(int Mode);
+int getCamMode(IntPoint Size, std::string sPF);
 int getFrameRateConst(double FrameRate);
 int getFeatureID(const std::string& sFeature);
 #else
-dc1394video_mode_t getCamMode(std::string sMode);
-IntPoint getCamImgSize(dc1394video_mode_t Mode);
+dc1394video_mode_t getCamMode(IntPoint Size, std::string sPF);
 dc1394framerate_t getFrameRateConst(double FrameRate);
 dc1394feature_t getFeatureID(const std::string& sFeature);
 #endif

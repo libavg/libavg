@@ -64,11 +64,6 @@ class CameraNode : public VideoBase
             return m_pCamera->getFrameRate();
         }
 
-        const std::string& getMode() const
-        {
-            return m_pCamera->getMode();
-        }
-
         int getBrightness() const
         {
             return getFeature ("brightness");

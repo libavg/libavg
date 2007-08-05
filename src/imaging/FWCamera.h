@@ -58,7 +58,8 @@ typedef Queue<BitmapPtr> BitmapQueue;
 
 class FWCamera: public ICamera {
 public:
-    FWCamera(std::string sDevice, double FrameRate, std::string sMode, bool bColor);
+    FWCamera(std::string sDevice, IntPoint Size, std::string sPF,
+            double FrameRate, bool bColor);
     virtual ~FWCamera();
     virtual void open();
     virtual void close();
@@ -70,7 +71,6 @@ public:
     virtual const std::string& getDevice() const; 
     virtual const std::string& getDriverName() const; 
     virtual double getFrameRate() const;
-    virtual const std::string& getMode() const;
 
     virtual unsigned int getFeature(const std::string& sFeature) const;
     virtual void setFeature(const std::string& sFeature, int Value);
@@ -78,8 +78,8 @@ public:
 
 private:
     std::string m_sDevice;
+    IntPoint m_Size;
     double m_FrameRate;
-    std::string m_sMode;
     bool m_bColor;
 
 #ifdef AVG_ENABLE_1394

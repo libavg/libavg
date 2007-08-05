@@ -44,7 +44,6 @@ class ICamera
         virtual const std::string& getDevice() const = 0; 
         virtual const std::string& getDriverName() const = 0; 
         virtual double getFrameRate() const = 0;
-        virtual const std::string& getMode() const = 0;
         
         virtual unsigned int getFeature(const std::string& sFeature) const = 0;
         virtual void setFeature(const std::string& sFeature, int Value) = 0;

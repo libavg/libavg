@@ -79,7 +79,6 @@ const char * g_pAVGDTD =
 "<!ATTLIST camera\n"
 "   %rasterAttrs;\n"
 "   device CDATA #REQUIRED\n"
-"   mode CDATA #IMPLIED\n"
 "   framerate CDATA #IMPLIED\n"
 "   brightness CDATA #IMPLIED\n"
 "   exposure CDATA #IMPLIED\n"

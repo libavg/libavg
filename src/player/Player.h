@@ -71,8 +71,7 @@ class Player : IEventSink
         long long getFrameTime();
 
         NodePtr createNodeFromXmlString (const std::string& sXML);
-        TrackerEventSource * addTracker(std::string sDevice,
-                std::string sMode="");
+        TrackerEventSource * addTracker(std::string sDevice);
         int setInterval(int time, PyObject * pyfunc);
         int setTimeout(int time, PyObject * pyfunc);
         bool clearInterval(int id);

@@ -49,29 +49,29 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
 {
     string sDevice = getDefaultedStringAttr (xmlNode, "device", "");
     double FrameRate = getDefaultedDoubleAttr (xmlNode, "framerate", 15);
-    string sMode = getDefaultedStringAttr (xmlNode, "mode", "640x480_RGB");
     string sSource = getDefaultedStringAttr (xmlNode, "source", "firewire");
+    int Width = getDefaultedIntAttr (xmlNode, "capturewidth", 640);
+    int Height = getDefaultedIntAttr (xmlNode, "captureheight", 480);
+    string sPF = getDefaultedStringAttr (xmlNode, "pixelformat", "RGB");
 
     if (sSource == "firewire") {
 #if defined(AVG_ENABLE_1394)\
     || defined(AVG_ENABLE_1394_2)
-    m_pCamera = CameraPtr(new FWCamera(sDevice, FrameRate, sMode, true));
+    m_pCamera = CameraPtr(new FWCamera(sDevice, IntPoint(Width, Height), sPF, 
+            FrameRate, true));
 #else
-        AVG_TRACE(Logger::ERROR, "Firewire camera specified, but firewire \
-            support not compiled in.");
+        AVG_TRACE(Logger::ERROR, "Firewire camera specified, but firewire "
+                "support not compiled in.");
 #endif
     } else if (sSource == "v4l") {
 #if defined(AVG_ENABLE_V4L2)
         int Channel = getDefaultedIntAttr (xmlNode, "channel", 0);
-        int Width = getDefaultedIntAttr (xmlNode, "capturewidth", 640);
-        int Height = getDefaultedIntAttr (xmlNode, "captureheight", 480);
-        string sPF = getDefaultedStringAttr (xmlNode, "pixelformat", "RGB");
         
         m_pCamera = CameraPtr(new V4LCamera(sDevice, Channel,
             IntPoint(Width, Height), sPF, true));
 #else
-        AVG_TRACE(Logger::ERROR, "Video4Linux camera specified, but \
-            Video4Linux support not compiled in.");
+        AVG_TRACE(Logger::ERROR, "Video4Linux camera specified, but "
+                "Video4Linux support not compiled in.");
 #endif
     } else {
         AVG_TRACE(Logger::ERROR,

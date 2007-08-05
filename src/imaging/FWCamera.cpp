@@ -39,16 +39,17 @@ namespace avg {
 
 using namespace std;
 
-FWCamera::FWCamera(string sDevice, double FrameRate, std::string sMode, bool bColor)
+FWCamera::FWCamera(std::string sDevice, IntPoint Size, std::string sPF,
+            double FrameRate, bool bColor)
     : m_sDevice(sDevice),
+      m_Size(Size),
       m_FrameRate(FrameRate),
-      m_sMode(sMode),
       m_bColor(bColor),
       m_bCameraAvailable(false)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     m_FrameRateConstant = getFrameRateConst(m_FrameRate);
-    m_Mode = getCamMode(m_sMode);
+    m_Mode = getCamMode(Size, sPF);
 #endif
 }
 
@@ -63,14 +64,16 @@ void FWCamera::open()
     int CaptureFormat = 0;
     // TODO: Support other resolutions.
     switch(m_Mode) {
+        case MODE_320x240_YUV422:
         case MODE_640x480_MONO:
         case MODE_640x480_YUV422:
         case MODE_640x480_YUV411:
         case MODE_640x480_RGB:
             CaptureFormat=FORMAT_VGA_NONCOMPRESSED;
             break;
-        case MODE_1024x768_RGB:
+        case MODE_1024x768_MONO:
         case MODE_1024x768_YUV422:
+        case MODE_1024x768_RGB:
             CaptureFormat=FORMAT_SVGA_NONCOMPRESSED_1;
             break;
         default:
@@ -282,12 +285,13 @@ void FWCamera::close()
 IntPoint FWCamera::getImgSize()
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-    return getCamImgSize(m_Mode);
-#endif
+    return m_Size;
+#else
     return IntPoint(640, 480);
+#endif
 }
 
-static ProfilingZone CameraConvertProfilingZone("Camera format conversion");
+static ProfilingZone CameraConvertProfilingZone("FW Camera format conversion");
 
 BitmapPtr FWCamera::getImage(bool bWait)
 {
@@ -300,12 +304,11 @@ BitmapPtr FWCamera::getImage(bool bWait)
         // Open failed
         return BitmapPtr();
     }
-    IntPoint ImgSize = getCamImgSize(m_Mode);
     BitmapPtr pCurBitmap;
     if (m_bColor) { 
-        pCurBitmap = BitmapPtr(new Bitmap(ImgSize, B8G8R8X8));
+        pCurBitmap = BitmapPtr(new Bitmap(m_Size, B8G8R8X8));
     } else {
-        pCurBitmap = BitmapPtr(new Bitmap(ImgSize, I8));
+        pCurBitmap = BitmapPtr(new Bitmap(m_Size, I8));
     }
     bool bGotFrame = false;
     unsigned char * pCaptureBuffer = 0;
@@ -340,23 +343,25 @@ BitmapPtr FWCamera::getImage(bool bWait)
                 case DC1394_VIDEO_MODE_640x480_MONO8:
 #endif                    
                     {
-                        Bitmap TempBmp(ImgSize, I8, 
+                        Bitmap TempBmp(m_Size, I8, 
                                 pCaptureBuffer,
-                                ImgSize.x, false, "TempCameraBmp");
+                                m_Size.x, false, "TempCameraBmp");
                         pCurBitmap->copyPixels(TempBmp);
                     }
                     break;
 #ifdef AVG_ENABLE_1394
+                case MODE_320x240_YUV422:
                 case MODE_640x480_YUV422:
                 case MODE_1024x768_YUV422:
 #else
+                case DC1394_VIDEO_MODE_320x240_YUV422:
                 case DC1394_VIDEO_MODE_640x480_YUV422:
                 case DC1394_VIDEO_MODE_1024x768_YUV422:
 #endif                    
                     {
-                        Bitmap TempBmp(ImgSize, YCbCr422, 
+                        Bitmap TempBmp(m_Size, YCbCr422, 
                                 pCaptureBuffer,
-                                ImgSize.x*2, false, "TempCameraBmp");
+                                m_Size.x*2, false, "TempCameraBmp");
                         pCurBitmap->copyPixels(TempBmp);
                     }
                     break;
@@ -366,9 +371,9 @@ BitmapPtr FWCamera::getImage(bool bWait)
                 case DC1394_VIDEO_MODE_640x480_YUV411:
 #endif                    
                     {
-                        Bitmap TempBmp(ImgSize, YCbCr411, 
+                        Bitmap TempBmp(m_Size, YCbCr411, 
                                 pCaptureBuffer,
-                                (int)(ImgSize.x*1.5), false, "TempCameraBmp");
+                                (int)(m_Size.x*1.5), false, "TempCameraBmp");
                         pCurBitmap->copyPixels(TempBmp);
                     }
                     break;
@@ -382,13 +387,13 @@ BitmapPtr FWCamera::getImage(bool bWait)
                     {
                         unsigned char * pSrcLine = (unsigned char*)
                             pCaptureBuffer;
-                        int SrcStride = 3*ImgSize.x;
+                        int SrcStride = 3*m_Size.x;
                         unsigned char * pDestLine = pCurBitmap->getPixels();
                         int DestStride = pCurBitmap->getStride();
-                        for (int y = 0; y < ImgSize.y; y++) {
+                        for (int y = 0; y < m_Size.y; y++) {
                             unsigned char * pDest = pDestLine;
                             unsigned char * pSrc = pSrcLine;
-                            for (int x = 0; x<ImgSize.x; x++) {
+                            for (int x = 0; x<m_Size.x; x++) {
                                 *pDest++ = *(pSrc+2);
                                 *pDest++ = *(pSrc+1);
                                 *pDest++ = *pSrc;
@@ -439,11 +444,6 @@ const std::string& FWCamera::getDriverName() const
 double FWCamera::getFrameRate() const
 {
     return m_FrameRate;
-}
-
-const std::string& FWCamera::getMode() const
-{
-    return m_sMode;
 }
 
 unsigned int FWCamera::getFeature(const std::string& sFeature) const

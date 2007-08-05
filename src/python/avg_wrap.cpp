@@ -217,8 +217,8 @@ BOOST_PYTHON_MODULE(avg)
                 "parameter to DivNode::addChild().")
         .def("addTracker", &Player::addTracker,
                 return_value_policy<reference_existing_object>(),
-                "addTracker(device, mode) -> tracker\n\n"
-                "Adds a tracker to the avg player. The tracker immediately starts\n"
+                "addTracker(device) -> tracker\n\n"
+                "Adds a tracker to the avg player. The tracker immediately starts.\n"
                 "reporting events.")
         .def("setInterval", &Player::setInterval,
                 "setInterval(time, pyfunc) -> id\n\n"
