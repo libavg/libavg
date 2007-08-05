@@ -793,7 +793,7 @@ class PlayerTestCase(AVGTestCase):
 
     def testCameraDynamics(self):
         def createCamera():
-            node = Player.createNode("<camera id='newCamera' device='/dev/video1394/0' mode='640x480_RGB' framerate='15'/>")
+            node = Player.createNode("<camera id='newCamera' source='firewire' device='/dev/video1394/0' capturewidth='640' captureheight='480' pixelformat='MONO8' framerate='15'/>")
             Player.getRootNode().addChild(node)
         def removeCamera():
             self.cameraNode = Player.getElementByID("newCamera")

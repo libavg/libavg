@@ -139,7 +139,7 @@ int getFeatureID(const std::string& sFeature)
 
 #else
 
-dc1394video_mode_t getCamMode(string sMode) 
+dc1394video_mode_t getCamMode(IntPoint Size, std::string sPF) 
 {
     if (Size.x == 320 && Size.y == 240 && sPF == "YUV422") {
         return DC1394_VIDEO_MODE_320x240_YUV422;
@@ -153,7 +153,7 @@ dc1394video_mode_t getCamMode(string sMode)
         } else if (sPF == "YUV422") {
             return DC1394_VIDEO_MODE_640x480_YUV422;
         } else if (sPF == "RGB") {
-            return DC1394_VIDEO_MODE_640x480_RGB;
+            return DC1394_VIDEO_MODE_640x480_RGB8;
         }
     } else if (Size.x == 800 && Size.y == 600) {
         if (sPF == "MONO8") {
@@ -163,7 +163,7 @@ dc1394video_mode_t getCamMode(string sMode)
         } else if (sPF == "YUV422") {
             return DC1394_VIDEO_MODE_800x600_YUV422;
         } else if (sPF == "RGB") {
-            return DC1394_VIDEO_MODE_800x600_RGB;
+            return DC1394_VIDEO_MODE_800x600_RGB8;
         }
     } else if (Size.x == 1024 && Size.y == 768) {
         if (sPF == "MONO8") {
@@ -173,7 +173,7 @@ dc1394video_mode_t getCamMode(string sMode)
         } else if (sPF == "YUV422") {
             return DC1394_VIDEO_MODE_1024x768_YUV422;
         } else if (sPF == "RGB") {
-            return DC1394_VIDEO_MODE_1024x768_RGB;
+            return DC1394_VIDEO_MODE_1024x768_RGB8;
         }
     }
     AVG_TRACE (Logger::WARNING,
