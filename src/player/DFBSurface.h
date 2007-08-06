@@ -24,7 +24,8 @@
 
 #include "ISurface.h"
 #include "../graphics/Bitmap.h"
-#include "../graphics/Rect.h"
+
+#include "../base/Rect.h"
 
 #include <directfb.h>
 

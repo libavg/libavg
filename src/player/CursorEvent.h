@@ -26,9 +26,9 @@
 
 #include "Event.h"
 
-#include "../graphics/Point.h"
+#include "../base/Point.h"
 
-namespace avg{
+namespace avg {
 
 const int MOUSECURSORID=-1;
 

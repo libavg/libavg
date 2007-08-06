@@ -26,8 +26,8 @@
 
 #include "Run.h"
 
-#include "../graphics/Point.h"
-#include "../graphics/Rect.h"
+#include "../base/Point.h"
+#include "../base/Rect.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>

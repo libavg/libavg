@@ -26,9 +26,10 @@
 #include "OGLTile.h"
 #include "OGLHelper.h"
 #include "OGLShader.h"
-
 #include "SDLDisplayEngine.h"
-#include "../graphics/Rect.h"
+
+#include "../base/Point.h"
+#include "../base/Rect.h"
 
 #include <vector>
 #include <string>

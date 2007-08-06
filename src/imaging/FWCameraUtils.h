@@ -29,7 +29,7 @@
 #undef PACKAGE_TARNAME
 #undef PACKAGE_VERSION
 
-#include "../graphics/Point.h"
+#include "../base/Point.h"
 
 #ifdef AVG_ENABLE_1394
 #include <libraw1394/raw1394.h>

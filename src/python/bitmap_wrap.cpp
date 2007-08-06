@@ -19,8 +19,9 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "../graphics/Point.h"
 #include "../graphics/Bitmap.h"
+
+#include "../base/Point.h"
 
 #include <boost/python.hpp>
 

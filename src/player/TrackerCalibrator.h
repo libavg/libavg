@@ -22,9 +22,8 @@
 #ifndef _TrackerCalibrator_H_
 #define _TrackerCalibrator_H_
 
-#include "../graphics/Point.h"
-
 #include "../imaging/DeDistort.h"
+#include "../base/Point.h"
 
 #include <vector>
 

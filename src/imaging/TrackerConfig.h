@@ -21,8 +21,9 @@
 #ifndef _TrackerConfig_H_
 #define _TrackerConfig_H_
 
-#include "../graphics/Rect.h"
 #include "DeDistort.h"
+
+#include "../base/Rect.h"
 
 #include <boost/shared_ptr.hpp>
 #include <string>
@@ -55,8 +56,7 @@ struct TrackerConfig
 
     // Camera params
     std::string m_Source;
-    int m_Width;
-    int m_Height;
+    IntPoint m_Size;
     int m_Channel;
     int m_FPS;
     int m_Brightness;

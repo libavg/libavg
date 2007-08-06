@@ -24,7 +24,7 @@
 
 #include "OGLHelper.h"
 #include "SDLDisplayEngine.h"
-#include "../graphics/Rect.h"
+#include "../base/Rect.h"
 #include "../graphics/Bitmap.h"
 
 #include <boost/shared_ptr.hpp>

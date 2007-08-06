@@ -19,7 +19,6 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "../graphics/Point.h"
 #include "../player/CameraNode.h"
 #include "../player/Image.h"
 #include "../player/Video.h"

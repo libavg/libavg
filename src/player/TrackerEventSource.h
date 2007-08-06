@@ -26,12 +26,13 @@
 #include "IEventSource.h"
 #include "TrackerCalibrator.h"
 
-#include "../graphics/Rect.h"
+#include "../imaging/TrackerThread.h"
+#include "../imaging/Blob.h"
+
 #include "../graphics/Bitmap.h"
 #include "../graphics/Filter.h"
 
-#include "../imaging/TrackerThread.h"
-#include "../imaging/Blob.h"
+#include "../base/Rect.h"
 
 #include <string>
 #include <map>

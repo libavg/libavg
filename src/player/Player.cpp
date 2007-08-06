@@ -59,8 +59,7 @@
 #include "../base/ScopeTimer.h"
 #include "../base/TimeSource.h"
 #include "../base/MemHelper.h"
-
-#include "../graphics/Rect.h"
+#include "../base/Rect.h"
 
 #include "../imaging/FWCamera.h"
 #ifdef AVG_ENABLE_V4L2
@@ -363,16 +362,15 @@ TrackerEventSource * Player::addTracker(std::string sDevice)
     TrackerConfig Config;
     Config.load();
     CameraPtr pCamera;
-    IntPoint ipSize = IntPoint(Config.m_Width, Config.m_Height);
     
     if (Config.m_Source == "v4l") {
 #ifdef AVG_ENABLE_V4L2
         AVG_TRACE(Logger::CONFIG, "Adding a Tracker for V4L camera " <<
-            sDevice << " width=" << Config.m_Width << " height=" <<
-            Config.m_Height << " channel=" << Config.m_Channel);
+            sDevice << " width=" << Config.m_Size.x << " height=" <<
+            Config.Size.y << " channel=" << Config.m_Channel);
         
         // is there a need to get a configurable pixel format for tracker?
-        pCamera = CameraPtr(new V4LCamera(sDevice, Config.m_Channel, ipSize,
+        pCamera = CameraPtr(new V4LCamera(sDevice, Config.m_Channel, Config.m_Size,
                 "MONO8", false));
 #else
         AVG_TRACE(Logger::ERROR, "Video4Linux camera tracker requested, but " 
@@ -381,9 +379,9 @@ TrackerEventSource * Player::addTracker(std::string sDevice)
 #endif
     } else {
         AVG_TRACE(Logger::CONFIG, "Adding a Tracker for FW camera " << sDevice <<
-                " width=" << Config.m_Width << " height=" <<
-                Config.m_Height);
-        pCamera = CameraPtr(new FWCamera(sDevice, ipSize, "MONO8", Config.m_FPS, 
+                " width=" << Config.m_Size.x << " height=" <<
+                Config.m_Size.y);
+        pCamera = CameraPtr(new FWCamera(sDevice, Config.m_Size, "MONO8", Config.m_FPS, 
                 false));
     }
     

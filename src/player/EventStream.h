@@ -24,7 +24,7 @@
 
 #include "CursorEvent.h"
 
-#include "../graphics/Point.h"
+#include "../base/Point.h"
 
 #include "../imaging/BlobInfo.h"
 #include "../imaging/DeDistort.h"

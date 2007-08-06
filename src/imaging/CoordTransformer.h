@@ -22,8 +22,7 @@
 #ifndef _CoordTransformer_H_
 #define _CoordTransformer_H_
 
-#include "../graphics/Point.h"
-#include "../graphics/Rect.h"
+#include "../base/Point.h"
 
 #include <boost/shared_ptr.hpp>
 

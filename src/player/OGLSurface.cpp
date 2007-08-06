@@ -28,8 +28,7 @@
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 #include "../base/ObjectCounter.h"
-
-#include "../graphics/Point.h"
+#include "../base/Point.h"
 
 #include <iostream>
 #include <sstream>

@@ -77,24 +77,6 @@ BitmapPtr initBmp(PixelFormat PF)
     return pBmp;
 }
 
-class PointTest: public Test {
-public:
-    PointTest()
-        : Test("PointTest", 2)
-    {
-    }
-
-    void runTests() 
-    {
-        // TODO: This really isn't complete!
-        DPoint pt1(0,0);
-        DPoint pt2(3,4);
-        TEST(calcDist(pt1, pt2)-5 < 0.0001);
-        TEST(!almostEqual(pt1, pt2));
-        TEST(almostEqual(pt1, pt1));
-    }
-};
-
 class BitmapTest: public Test {
 public:
     BitmapTest()
@@ -723,7 +705,6 @@ public:
     GraphicsTestSuite() 
         : TestSuite("GraphicsTestSuite")
     {
-        addTest(TestPtr(new PointTest));
         addTest(TestPtr(new BitmapTest));
         addTest(TestPtr(new Filter3x3Test));
         addTest(TestPtr(new FilterConvolTest));

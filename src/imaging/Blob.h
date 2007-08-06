@@ -28,9 +28,9 @@
 #include "Run.h"
 
 #include "../graphics/Bitmap.h"
-#include "../graphics/Point.h"
-#include "../graphics/Rect.h"
 #include "../graphics/Pixel32.h"
+
+#include "../base/Point.h"
 
 #include <assert.h>
 #include <list>

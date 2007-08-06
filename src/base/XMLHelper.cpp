@@ -161,6 +161,16 @@ void writeMinMaxXMLNode(xmlTextWriterPtr writer, string sName, double Val[2])
     rc = xmlTextWriterEndElement(writer);
 }
 
+void writePoint(xmlTextWriterPtr writer, string sName, const DPoint& Val)
+{
+    int rc;
+    rc = xmlTextWriterStartElement(writer, BAD_CAST sName.c_str());
+    writeAttribute(writer, "x", Val.x);
+    writeAttribute(writer, "y", Val.y);
+    rc = xmlTextWriterEndElement(writer);
+
+}
+
 static xmlExternalEntityLoader DefaultLoaderProc = 0;
 static std::map<string, string> g_DTDMap;
 

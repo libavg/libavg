@@ -19,9 +19,9 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "../graphics/Rect.h"
-#include "../graphics/Point.h"
 #include "TrackerCalibrator.h"
+
+#include "../base/Point.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"

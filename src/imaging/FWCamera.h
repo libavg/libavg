@@ -31,10 +31,10 @@
 
 #include "ICamera.h"
 
-#include "../graphics/Rect.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel24.h"
 
+#include "../base/Point.h"
 #include "../base/Queue.h"
 #include "../base/WorkerThread.h"
 

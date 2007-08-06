@@ -24,7 +24,8 @@
 
 #include "Node.h"
 #include "DisplayEngine.h"
-#include "../graphics/Point.h"
+
+#include "../base/Point.h"
 
 #include <string>
 

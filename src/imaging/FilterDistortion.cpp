@@ -23,9 +23,6 @@
 
 #include "FilterDistortion.h"
 
-#include "../graphics/Rect.h"
-#include "../graphics/Point.h"
-
 #include <iostream>
 #include <math.h>
 

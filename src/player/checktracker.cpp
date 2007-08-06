@@ -19,11 +19,12 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include "TrackerEventSource.h"
+
 #include "../imaging/FakeCamera.h"
 #include "../imaging/TrackerThread.h"
 #include "../imaging/TrackerConfig.h"
-#include "../graphics/Rect.h"
-#include "TrackerEventSource.h"
+#include "../base/Rect.h"
 
 #include "../base/TimeSource.h"
 #include "../base/TestSuite.h"

@@ -22,6 +22,8 @@
 #ifndef _XMLHelper_H_
 #define _XMLHelper_H_
 
+#include "Point.h"
+
 #include <libxml/parser.h>
 #include <libxml/xmlwriter.h>
 
@@ -69,6 +71,8 @@ std::string getRequiredStringAttr (const xmlNodePtr& xmlNode,
 
 void writeMinMaxXMLNode(xmlTextWriterPtr writer, std::string sName, double Val[2]);
 
+void writePoint(xmlTextWriterPtr writer, std::string sName, const DPoint& Val);
+
 template<class T>
 void writeAttribute(xmlTextWriterPtr writer, std::string sName, T Value)
 {
@@ -87,7 +91,9 @@ void writeSimpleXMLNode(xmlTextWriterPtr writer, std::string sName, T Value)
     writeAttribute(writer, "value", Value);
     rc = xmlTextWriterEndElement(writer);
 }
-        
+
+
+
 void registerDTDEntityLoader(const std::string& sID, const std::string& sDTD);
 
 }

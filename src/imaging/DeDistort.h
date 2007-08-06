@@ -24,8 +24,8 @@
 
 #include "CoordTransformer.h"
 
-#include "../graphics/Point.h"
-#include "../graphics/Rect.h"
+#include "../base/Point.h"
+#include "../base/Rect.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -36,8 +36,6 @@
 #include <string>
 
 namespace avg {
-
-void writePoint(xmlTextWriterPtr writer, std::string sName, DPoint& Val);
 
 class DeDistort: public CoordTransformer {
     public:

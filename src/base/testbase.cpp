@@ -24,6 +24,7 @@
 #include "WorkerThread.h"
 #include "ObjectCounter.h"
 #include "MemHelper.h"
+#include "Point.h"
 
 #include "TestSuite.h"
 #include "TimeSource.h"
@@ -209,6 +210,24 @@ public:
     }
 };
 
+class PointTest: public Test {
+public:
+    PointTest()
+        : Test("PointTest", 2)
+    {
+    }
+
+    void runTests() 
+    {
+        // TODO: This really isn't complete!
+        DPoint pt1(0,0);
+        DPoint pt2(3,4);
+        TEST(calcDist(pt1, pt2)-5 < 0.0001);
+        TEST(!almostEqual(pt1, pt2));
+        TEST(almostEqual(pt1, pt1));
+    }
+};
+
 class BaseTestSuite: public TestSuite {
 public:
     BaseTestSuite() 
@@ -217,6 +236,7 @@ public:
         addTest(TestPtr(new QueueTest));
         addTest(TestPtr(new WorkerThreadTest));
         addTest(TestPtr(new ObjectCounterTest));
+        addTest(TestPtr(new PointTest));
     }
 };
 

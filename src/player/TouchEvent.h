@@ -27,10 +27,9 @@
 #include "CursorEvent.h"
 #include "Node.h"
 
-#include "../graphics/Point.h"
-#include "../graphics/Bitmap.h"
-
 #include "../imaging/Blob.h"
+#include "../graphics/Bitmap.h"
+#include "../base/Point.h"
 
 #include <math.h>
 

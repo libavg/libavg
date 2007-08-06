@@ -25,11 +25,12 @@
 #include "Node.h"
 #include "DisplayParams.h"
 
-#include "../graphics/Rect.h"
+#include "../video/IVideoDecoder.h"
+
 #include "../graphics/Pixel32.h"
 #include "../graphics/Bitmap.h"
 
-#include "../video/IVideoDecoder.h"
+#include "../base/Rect.h"
 
 #include <string>
 

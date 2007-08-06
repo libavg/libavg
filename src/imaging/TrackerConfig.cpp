@@ -37,18 +37,6 @@ using namespace std;
 
 namespace avg {
 
-    void writeRect(xmlTextWriterPtr writer, string sName, IntRect& Val)
-    {
-        int rc;
-        rc = xmlTextWriterStartElement(writer, BAD_CAST sName.c_str());
-        writeAttribute(writer, "tlx", Val.tl.x);
-        writeAttribute(writer, "tly", Val.tl.y);
-        writeAttribute(writer, "brx", Val.br.x);
-        writeAttribute(writer, "bry", Val.br.y);
-        rc = xmlTextWriterEndElement(writer);
-
-    }
-
     BlobConfig::BlobConfig(bool bIsTouch)
         : m_bIsTouch(bIsTouch),
           m_Threshold(128),
@@ -105,7 +93,9 @@ namespace avg {
 
 
     TrackerConfig::TrackerConfig()
-        : m_FPS(1),
+        : m_Size(640, 480),
+          m_Channel(0),
+          m_FPS(30),
           m_Brightness(128),
           m_Exposure(128),
           m_Gamma(1),
@@ -216,10 +206,9 @@ namespace avg {
             const char * pNodeName = (const char *)curXmlChild->name;
             if (!strcmp(pNodeName, "source")) {
                 m_Source = getRequiredStringAttr(curXmlChild, "value");
-            } else if (!strcmp(pNodeName, "width")) {
-                m_Width = getRequiredIntAttr(curXmlChild, "value");
-            } else if (!strcmp(pNodeName, "height")) {
-                m_Height = getRequiredIntAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "size")) {
+                m_Size.x = getRequiredIntAttr(curXmlChild, "x");
+                m_Size.y = getRequiredIntAttr(curXmlChild, "y");
             } else if (!strcmp(pNodeName, "channel")) {
                 m_Channel = getRequiredIntAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "fps")) {
@@ -247,6 +236,7 @@ namespace avg {
     {
         int rc;
         rc = xmlTextWriterStartElement(writer, BAD_CAST "camera");
+        writePoint(writer, "size", DPoint(m_Size));
         writeSimpleXMLNode(writer, "fps", m_FPS);
         writeSimpleXMLNode(writer, "brightness", m_Brightness);
         writeSimpleXMLNode(writer, "exposure", m_Exposure);

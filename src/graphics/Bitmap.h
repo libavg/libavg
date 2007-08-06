@@ -22,8 +22,8 @@
 #ifndef _Bitmap_H_
 #define _Bitmap_H_
 
-#include "Point.h"
-#include "Rect.h"
+#include "../base/Point.h"
+#include "../base/Rect.h"
 
 #include <boost/shared_ptr.hpp>
 #include <stdlib.h>

@@ -22,7 +22,7 @@
 #ifndef _Region_H_
 #define _Region_H_
 
-#include "../graphics/Rect.h"
+#include "../base/Rect.h"
 
 #include <vector>
 

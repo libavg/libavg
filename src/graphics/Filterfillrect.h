@@ -24,7 +24,7 @@
 #define _Filterfillrect_H_
 
 #include "Filter.h"
-#include "Rect.h"
+#include "../base/Rect.h"
 
 namespace avg {
 

@@ -47,16 +47,6 @@ namespace avg{
 //   * m_DisplayOffset correct the offset of the display from the center of the table
 //     
 
-void writePoint(xmlTextWriterPtr writer, string sName, DPoint& Val)
-{
-    int rc;
-    rc = xmlTextWriterStartElement(writer, BAD_CAST sName.c_str());
-    writeAttribute(writer, "x", Val.x);
-    writeAttribute(writer, "y", Val.y);
-    rc = xmlTextWriterEndElement(writer);
-
-}
-
 DeDistort::DeDistort()
     : m_FilmOffset(0,0),
       m_FilmScale(1,1),

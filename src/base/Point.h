@@ -22,9 +22,10 @@
 #ifndef _Point_H_
 #define _Point_H_
 
-#include "../base/ObjectCounter.h"
+#include "ObjectCounter.h"
 
 #include <ostream>
+#include <math.h>
 
 namespace avg {
 

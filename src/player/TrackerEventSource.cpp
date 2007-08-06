@@ -28,7 +28,6 @@
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
 
-#include "../graphics/Rect.h"
 #include "../graphics/HistoryPreProcessor.h"
 #include "../graphics/Filterfill.h"
 #include "../graphics/Filterflip.h"

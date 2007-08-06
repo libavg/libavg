@@ -23,7 +23,8 @@
 #define _VideoBase_H_
 
 #include "RasterNode.h"
-#include "../graphics/Rect.h"
+
+#include "../base/Rect.h"
 
 #include <string>
 

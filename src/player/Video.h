@@ -27,7 +27,8 @@
 
 #include "Node.h"
 #include "VideoBase.h"
-#include "../graphics/Rect.h"
+
+#include "../base/Point.h"
 
 #include <string>
 

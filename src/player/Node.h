@@ -25,8 +25,9 @@
 #include "Region.h"
 #include "Event.h"
 #include "ISurface.h"
-#include "../graphics/Point.h"
-#include "../graphics/Rect.h"
+
+#include "../base/Point.h"
+#include "../base/Rect.h"
 
 #include <libxml/parser.h>
 

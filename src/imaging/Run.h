@@ -24,7 +24,7 @@
 #ifndef _Run_H_
 #define _Run_H_
 
-#include "../graphics/Point.h"
+#include "../base/Point.h"
 
 #include <boost/weak_ptr.hpp>
 
