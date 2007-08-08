@@ -189,11 +189,11 @@ void findRunsInLine(BitmapPtr pBmp, int y, RunArray * pRuns,
     int run_start=0;
     int run_stop=0;
     const unsigned char * pPixel = pBmp->getPixels()+y*pBmp->getStride();
-    unsigned char cur=(*pPixel>threshold)?1:0;
-    unsigned char p;
+    bool cur=*pPixel>threshold;
+    bool p;
     int Width = pBmp->getSize().x;
     for(int x=0; x<Width; x++) {
-        p = (*pPixel>threshold)?1:0;
+        p = *pPixel>threshold;
         if (cur!=p) {
             if (cur) {
                 // Only if the run is longer than one pixel.
