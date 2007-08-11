@@ -90,7 +90,11 @@ string getXmlChildrenAsString(const xmlDocPtr xmlDoc,
     s = (const char *)xmlBufferContent(pBuffer);
     int StartPos = s.find('>')+1;
     int EndPos = s.rfind('<')-1;
-    s = s.substr(StartPos, EndPos-StartPos+1);
+    if (StartPos > EndPos) {
+        s = "";
+    } else {
+        s = s.substr(StartPos, EndPos-StartPos+1);
+    }
     xmlBufferFree(pBuffer);
     return s;
 }
