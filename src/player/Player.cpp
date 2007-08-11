@@ -367,7 +367,7 @@ TrackerEventSource * Player::addTracker(std::string sDevice)
 #ifdef AVG_ENABLE_V4L2
         AVG_TRACE(Logger::CONFIG, "Adding a Tracker for V4L camera " <<
             sDevice << " width=" << Config.m_Size.x << " height=" <<
-            Config.Size.y << " channel=" << Config.m_Channel);
+            Config.m_Size.y << " channel=" << Config.m_Channel);
         
         // is there a need to get a configurable pixel format for tracker?
         pCamera = CameraPtr(new V4LCamera(sDevice, Config.m_Channel, Config.m_Size,
