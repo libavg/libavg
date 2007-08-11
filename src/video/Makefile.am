@@ -3,7 +3,7 @@ INCLUDES = -I.. @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@
         
 ALL_H = FFMpegDemuxer.h VideoDemuxerThread.h FFMpegDecoder.h IVideoDecoder.h \
         VideoDecoderThread.h VideoMsg.h FrameVideoMsg.h InfoVideoMsg.h \
-        EOFVideoMsg.h ErrorVideoMsg.h PacketVideoMsg.h \
+        EOFVideoMsg.h SeekDoneVideoMsg.h ErrorVideoMsg.h PacketVideoMsg.h \
 	    AsyncVideoDecoder.h VideoDecoderThread.h IDemuxer.h AsyncDemuxer.h
 
 TESTS=testvideo

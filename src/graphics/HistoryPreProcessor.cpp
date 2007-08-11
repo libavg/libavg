@@ -26,6 +26,7 @@
 #include "Bitmap.h"
 #include "Filterfill.h"
 
+#include <assert.h>
 #include <iostream>
 #include <sstream>
 

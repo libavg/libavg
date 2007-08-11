@@ -62,7 +62,7 @@ bool VideoDemuxerThread::work()
     } else {
 
         map<int, VideoPacketQueuePtr>::iterator it;
-        int ShortestQ;
+        int ShortestQ=0;
         int ShortestLength = INT_MAX;
         for (it=m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
             if (it->second->size() < ShortestLength) {

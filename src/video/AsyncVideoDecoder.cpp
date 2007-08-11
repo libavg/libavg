@@ -23,6 +23,7 @@
 #include "EOFVideoMsg.h"
 #include "InfoVideoMsg.h"
 #include "ErrorVideoMsg.h"
+#include "SeekDoneVideoMsg.h"
 
 #include "../base/ObjectCounter.h"
 
@@ -95,9 +96,9 @@ void AsyncVideoDecoder::seek(int DestFrame)
         bool bDone = false;
         do {
             VideoMsgPtr pMsg = m_pMsgQ->pop(false);
-            FrameVideoMsgPtr pFrameMsg = dynamic_pointer_cast<FrameVideoMsg>(pMsg);
-            if (pFrameMsg) {
-                bDone = pFrameMsg->isSeekDone();
+            SeekDoneVideoMsgPtr pSeekDoneMsg = dynamic_pointer_cast<SeekDoneVideoMsg>(pMsg);
+            if (pSeekDoneMsg) {
+                bDone = true;
             }
         } while (!bDone);
         m_bSeekPending = false;
@@ -198,6 +199,11 @@ FrameVideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long TimeWanted,
             FrameAvailable = FA_USE_LAST_FRAME;
             return FrameVideoMsgPtr();
         } else {
+            if (m_bEOF) {
+//                cerr << "  EOF." << endl;
+                FrameAvailable = FA_USE_LAST_FRAME;
+                return FrameVideoMsgPtr();
+            }
             while (FrameTime-TimeWanted < -0.5*m_TimePerFrame && !m_bEOF) {
                 pFrameMsg = getNextBmps(false);
                 if (pFrameMsg) {
@@ -256,9 +262,9 @@ void AsyncVideoDecoder::waitForSeekDone()
         bool bDone = false;
         do {
             VideoMsgPtr pMsg = m_pMsgQ->pop(true);
-            FrameVideoMsgPtr pFrameMsg = dynamic_pointer_cast<FrameVideoMsg>(pMsg);
-            if (pFrameMsg) {
-                bDone = pFrameMsg->isSeekDone();
+            SeekDoneVideoMsgPtr pSeekDoneMsg = dynamic_pointer_cast<SeekDoneVideoMsg>(pMsg);
+            if (pSeekDoneMsg) {
+                bDone = true;
             }
         } while (!bDone);
     }

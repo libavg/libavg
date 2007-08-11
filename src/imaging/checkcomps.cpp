@@ -40,8 +40,8 @@ int main(int argc, char **argv)
     avg::DPoint center;
     avg::BlobInfoPtr info;
     for(int i=0;i<20;i++){
-        avg::BlobArrayPtr bloblist = avg::connected_components(im,100);
-        for(avg::BlobArray::iterator b=bloblist->begin();b!=bloblist->end();b++){
+        avg::BlobVectorPtr bloblist = avg::connected_components(im,100);
+        for(avg::BlobVector::iterator b=bloblist->begin();b!=bloblist->end();b++){
             info = (*b)->getInfo();
             std::cout<<"center = ("<<info->getCenter().x<<","<<info->getCenter().y<<")"<<std::endl;
             std::cout<<"area = "<<info->getArea()<<std::endl;

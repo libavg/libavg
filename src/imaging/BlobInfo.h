@@ -57,8 +57,6 @@ public:
     const DPoint& getEigenVector(int i) const;
     const DPoint& getEigenValues() const;
     
-    BlobInfoVector m_RelatedBlobs; // For fingers, this contains the hand.
-                                   // For hands, this contains the fingers.
     DPoint m_Direction; // Fingers only: contains vector from hand center to finger.
 
 private:

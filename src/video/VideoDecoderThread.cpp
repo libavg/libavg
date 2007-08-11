@@ -24,6 +24,7 @@
 #include "InfoVideoMsg.h"
 #include "ErrorVideoMsg.h"
 #include "EOFVideoMsg.h"
+#include "SeekDoneVideoMsg.h"
 
 #include "../base/Logger.h"
 
@@ -73,12 +74,13 @@ bool VideoDecoderThread::work()
         vector<BitmapPtr> pBmps;
         IntPoint Size = m_pDecoder->getSize();
         PixelFormat PF = m_pDecoder->getPixelFormat();
+        FrameAvailableCode FrameAvailable;
         if (PF == YCbCr420p || PF ==YCbCrJ420p) {
             BitmapPtr pBmpY = BitmapPtr(new Bitmap(Size, I8));
             IntPoint HalfSize(Size.x/2, Size.y/2);
             BitmapPtr pBmpU = BitmapPtr(new Bitmap(HalfSize, I8));
             BitmapPtr pBmpV = BitmapPtr(new Bitmap(HalfSize, I8));
-            FrameAvailableCode FrameAvailable = 
+            FrameAvailable = 
                     m_pDecoder->renderToYCbCr420p(pBmpY, pBmpU, pBmpV, -1);
             if (FrameAvailable == FA_NEW_FRAME) {
                 pBmps.push_back(pBmpY);
@@ -87,8 +89,7 @@ bool VideoDecoderThread::work()
             }
         } else {
             BitmapPtr pBmp = BitmapPtr(new Bitmap(Size, PF));
-            FrameAvailableCode FrameAvailable = 
-                    m_pDecoder->renderToBmp(pBmp, -1);
+            FrameAvailable = m_pDecoder->renderToBmp(pBmp, -1);
             if (FrameAvailable == FA_NEW_FRAME) {
                 pBmps.push_back(pBmp);
             }
@@ -96,8 +97,9 @@ bool VideoDecoderThread::work()
         if (m_pDecoder->isEOF()) {
             m_MsgQ.push(VideoMsgPtr(new EOFVideoMsg()));
         } else {
+            assert(FrameAvailable == FA_NEW_FRAME);
             m_MsgQ.push(VideoMsgPtr(new FrameVideoMsg(pBmps, 
-                    m_pDecoder->getCurFrameTime(), false)));
+                    m_pDecoder->getCurFrameTime())));
         }
     }
     return true;
@@ -118,7 +120,7 @@ void VideoDecoderThread::seek(int DestFrame)
     }
 
     vector<BitmapPtr> pBmps;  // Empty.
-    m_MsgQ.push(VideoMsgPtr(new FrameVideoMsg(pBmps, -1, true))); // Actually a 'seek done' message.
+    m_MsgQ.push(VideoMsgPtr(new SeekDoneVideoMsg()));
     m_pDecoder->seek(DestFrame);
 }
 

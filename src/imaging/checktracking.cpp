@@ -70,7 +70,7 @@ virtual ~TestTracker()
 {
 }
 
-virtual void update(BlobArrayPtr pBlobs, BitmapPtr) 
+virtual void update(BlobVectorPtr pBlobs, BitmapPtr) 
 {
     m_FrameNum++;
     cerr << "Frame " << m_FrameNum << endl;

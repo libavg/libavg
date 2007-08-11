@@ -27,12 +27,10 @@ using namespace std;
 
 namespace avg {
 
-FrameVideoMsg::FrameVideoMsg(std::vector<BitmapPtr> pBmps, long long FrameTime, 
-        bool bSeekDone)
+FrameVideoMsg::FrameVideoMsg(std::vector<BitmapPtr> pBmps, long long FrameTime)
 {
     m_pBmps = pBmps;
     m_FrameTime = FrameTime;
-    m_bSeekDone = bSeekDone;
 }
 
 FrameVideoMsg::~FrameVideoMsg()
@@ -47,11 +45,6 @@ BitmapPtr FrameVideoMsg::getBitmap(int i)
 long long FrameVideoMsg::getFrameTime()
 {
     return m_FrameTime;
-}
-
-bool FrameVideoMsg::isSeekDone()
-{
-    return m_bSeekDone;
 }
 
 }

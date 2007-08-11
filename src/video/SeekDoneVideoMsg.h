@@ -18,32 +18,26 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-//  Original author of this file is igor@c-base.org 
-//
 
-#include "Run.h"
+#ifndef _SeekDoneVideoMsg_H_
+#define _SeekDoneVideoMsg_H_
 
-#include <assert.h>
+#include "VideoMsg.h"
+
+#include "../graphics/Bitmap.h"
+
+#include <vector>
 
 namespace avg {
 
-Run::Run(int row, int start_col, int end_col)
-{
-    m_Row = row;
-    assert(end_col>=start_col);
-    m_StartCol = start_col;
-    m_EndCol = end_col;
-}
- 
-int Run::length()
-{
-    return m_EndCol-m_StartCol;
-}
+class SeekDoneVideoMsg: public VideoMsg {
+    public:
+        SeekDoneVideoMsg() {};
+        virtual ~SeekDoneVideoMsg() {};
+};
 
-DPoint Run::center()
-{
-    DPoint d = DPoint((m_StartCol + m_EndCol-1)/2., m_Row);
-    return d;
-}
+typedef boost::shared_ptr<SeekDoneVideoMsg> SeekDoneVideoMsgPtr;
 
 }
+#endif 
+
