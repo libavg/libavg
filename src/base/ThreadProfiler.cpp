@@ -56,15 +56,29 @@ ThreadProfilerPtr ThreadProfiler::get()
 
 void ThreadProfiler::addZone(ProfilingZone& Zone)
 {
-    ZoneList::iterator itPrevZone = m_Zones.begin();
-    for (ZoneList::iterator it=m_Zones.begin(); it != m_Zones.end(); ++it) {
-        if (Zone.getName() == (*it)->getName()) {
-            AVG_TRACE(Logger::WARNING,
-                    "Warning: Two profiling zones have name " <<
-                    Zone.getName());
+    ZoneList::iterator it;
+    if (m_ActiveZones.empty()) {
+        it = m_Zones.end();
+    } else {
+        ProfilingZone* pActiveZone = m_ActiveZones.back();
+        ZoneList::iterator itPrevZone = m_Zones.begin();
+        bool bParentFound = false;
+        for (it=m_Zones.begin(); it != m_Zones.end() && !bParentFound; ++it) 
+        {
+            if (Zone.getName() == (*it)->getName()) {
+                AVG_TRACE(Logger::WARNING,
+                        "Warning: Two profiling zones have name " <<
+                        Zone.getName());
+            }
+            if (pActiveZone == *it) {
+                bParentFound = true;
+            }
         }
+        assert(bParentFound);
+        int ParentIndent = pActiveZone->getIndentLevel();
+        for (; it != m_Zones.end() && (*it)->getIndentLevel() > ParentIndent; ++it);
     }
-    m_Zones.push_back(&Zone);
+    m_Zones.insert(it, &Zone);
 }
 
 void ThreadProfiler::clear()

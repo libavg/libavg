@@ -95,6 +95,11 @@ long long ProfilingZone::getAvgUSecs() const
     return m_AvgTime;
 }
 
+int ProfilingZone::getIndentLevel() const
+{
+    return m_Indent;
+}
+
 string ProfilingZone::getIndentString() const 
 {
     return string(m_Indent, ' ');

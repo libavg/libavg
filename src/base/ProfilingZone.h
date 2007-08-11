@@ -39,6 +39,7 @@ public:
     void reset();
     long long getUSecs() const;
     long long getAvgUSecs() const;
+    int getIndentLevel() const;
     std::string getIndentString() const;
     const std::string& getName() const;
 
