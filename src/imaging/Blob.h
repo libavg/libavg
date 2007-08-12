@@ -68,10 +68,10 @@ class Blob
         boost::shared_ptr<DPoint> m_pCenter;
 };
 
-typedef std::vector<BlobPtr> BlobArray;
-typedef boost::shared_ptr<BlobArray> BlobArrayPtr;
+typedef std::vector<BlobPtr> BlobVector;
+typedef boost::shared_ptr<BlobVector> BlobVectorPtr;
 
-BlobArrayPtr connected_components(BitmapPtr image, unsigned char object_threshold);
+BlobVectorPtr connected_components(BitmapPtr image, unsigned char object_threshold);
 
 }
 

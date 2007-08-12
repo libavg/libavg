@@ -33,15 +33,15 @@ using namespace avg;
 int main(int argc, char **argv)
 {
     char *fname = argv[1];
-    avg::BitmapPtr tmp_im = avg::BitmapPtr(new avg::Bitmap(fname));
-    avg::FilterGrayscale grayscale = avg::FilterGrayscale(); 
-    avg::BitmapPtr im = grayscale.apply(tmp_im);
+    BitmapPtr tmp_im = BitmapPtr(new Bitmap(fname));
+    FilterGrayscale grayscale = FilterGrayscale(); 
+    BitmapPtr im = grayscale.apply(tmp_im);
 
-    avg::DPoint center;
-    avg::BlobInfoPtr info;
+    DPoint center;
+    BlobInfoPtr info;
     for(int i=0;i<20;i++){
-        avg::BlobArrayPtr bloblist = avg::connected_components(im,100);
-        for(avg::BlobArray::iterator b=bloblist->begin();b!=bloblist->end();b++){
+        BlobVectorPtr bloblist = connected_components(im,100);
+        for(BlobVector::iterator b=bloblist->begin();b!=bloblist->end();b++){
             info = (*b)->getInfo();
             std::cout<<"center = ("<<info->getCenter().x<<","<<info->getCenter().y<<")"<<std::endl;
             std::cout<<"area = "<<info->getArea()<<std::endl;

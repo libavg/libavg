@@ -146,7 +146,7 @@ bool connected(RunPtr r1, RunPtr r2)
     }
 }
 
-void store_runs(BlobArrayPtr pComps, RunArray *runs1, RunArray *runs2)
+void store_runs(BlobVectorPtr pComps, RunArray *runs1, RunArray *runs2)
 {
     for (RunArray::iterator run1_it = runs1->begin(); run1_it!=runs1->end(); ++run1_it) {
         for (RunArray::iterator run2_it = runs2->begin(); run2_it!=runs2->end(); ++run2_it) {
@@ -223,13 +223,13 @@ void findRunsInLine(BitmapPtr pBmp, int y, RunArray * pRuns,
 
 }
 
-BlobArrayPtr connected_components(BitmapPtr image, unsigned char threshold)
+BlobVectorPtr connected_components(BitmapPtr image, unsigned char threshold)
 {
     if (threshold == 0) {
-        return BlobArrayPtr();
+        return BlobVectorPtr();
     }
     assert(image->getPixelFormat() == I8);
-    BlobArrayPtr pBlobs = BlobArrayPtr(new BlobArray);
+    BlobVectorPtr pBlobs = BlobVectorPtr(new BlobVector);
     IntPoint size = image->getSize();
     RunArray *runs1=new RunArray();
     RunArray *runs2=new RunArray();
@@ -251,8 +251,8 @@ BlobArrayPtr connected_components(BitmapPtr image, unsigned char threshold)
         runs2 = tmp;
         runs2->clear();
     }
-    BlobArrayPtr pResultBlobs = BlobArrayPtr(new BlobArray);
-    for (BlobArray::iterator it = pBlobs->begin(); it != pBlobs->end(); ++it) {
+    BlobVectorPtr pResultBlobs = BlobVectorPtr(new BlobVector);
+    for (BlobVector::iterator it = pBlobs->begin(); it != pBlobs->end(); ++it) {
         if (!(*it)->m_pParent) {
             pResultBlobs->push_back(*it);
         }

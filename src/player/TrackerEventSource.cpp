@@ -243,8 +243,8 @@ namespace avg {
 #undef IN
     }
 
-    void TrackerEventSource::update(BlobArrayPtr pTrackBlobs, BitmapPtr pTrackBmp, 
-            int TrackThreshold, BlobArrayPtr pTouchBlobs, BitmapPtr pTouchBmp, 
+    void TrackerEventSource::update(BlobVectorPtr pTrackBlobs, BitmapPtr pTrackBmp, 
+            int TrackThreshold, BlobVectorPtr pTouchBlobs, BitmapPtr pTouchBmp, 
             int TouchThreshold, BitmapPtr pDestBmp)
     {
         boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
@@ -284,7 +284,7 @@ namespace avg {
         return e1->m_Dist > e2->m_Dist;
     }
 
-    void TrackerEventSource::calcBlobs(BlobArrayPtr pNewBlobs, bool bTouch)
+    void TrackerEventSource::calcBlobs(BlobVectorPtr pNewBlobs, bool bTouch)
     {
         BlobConfigPtr pBlobConfig;
         EventMap * pEvents;
@@ -295,13 +295,13 @@ namespace avg {
             pBlobConfig = m_TrackerConfig.m_pTrack;
             pEvents = &m_TrackEvents;
         }
-        BlobArray OldBlobs;
+        BlobVector OldBlobs;
         for(EventMap::iterator it=pEvents->begin(); it!=pEvents->end(); ++it) {
             (*it).second->setStale();
             OldBlobs.push_back((*it).first);
         }
-        BlobArray NewRelevantBlobs;
-        for(BlobArray::iterator it = pNewBlobs->begin(); it!=pNewBlobs->end(); ++it) {
+        BlobVector NewRelevantBlobs;
+        for(BlobVector::iterator it = pNewBlobs->begin(); it!=pNewBlobs->end(); ++it) {
             if (isRelevant(*it, pBlobConfig)) {
                 NewRelevantBlobs.push_back(*it);
             }
@@ -312,11 +312,11 @@ namespace avg {
         // Create a heap that contains all distances of old to new blobs < MaxDist
         double MaxDistSquared = pBlobConfig->m_Similarity*pBlobConfig->m_Similarity;
         priority_queue<BlobDistEntryPtr> DistHeap;
-        for(BlobArray::iterator it = NewRelevantBlobs.begin(); 
+        for(BlobVector::iterator it = NewRelevantBlobs.begin(); 
                 it!=NewRelevantBlobs.end(); ++it) 
         {
             BlobPtr pNewBlob = *it;
-            for(BlobArray::iterator it2 = OldBlobs.begin(); it2!=OldBlobs.end(); ++it2) { 
+            for(BlobVector::iterator it2 = OldBlobs.begin(); it2!=OldBlobs.end(); ++it2) { 
                 BlobPtr pOldBlob = *it2;
                 if (distSquared(pNewBlob, pOldBlob) <= MaxDistSquared) {
                     BlobDistEntryPtr pEntry = BlobDistEntryPtr(
@@ -354,7 +354,7 @@ namespace avg {
         }
 //        cerr << "Matched: " << NumMatchedBlobs << endl;
         // Blobs have been matched. Left-overs are new blobs.
-        for(BlobArray::iterator it = NewRelevantBlobs.begin(); 
+        for(BlobVector::iterator it = NewRelevantBlobs.begin(); 
                 it!=NewRelevantBlobs.end(); ++it) 
         {
             if (MatchedNewBlobs.find(*it) == MatchedNewBlobs.end()) {
@@ -395,7 +395,7 @@ namespace avg {
         }
    }
 
-    void TrackerEventSource::drawBlobs(BlobArrayPtr pBlobs, BitmapPtr pSrcBmp, 
+    void TrackerEventSource::drawBlobs(BlobVectorPtr pBlobs, BitmapPtr pSrcBmp, 
             BitmapPtr pDestBmp, int Offset, bool bTouch)
     {
         if (!pBlobs) {
@@ -418,7 +418,7 @@ namespace avg {
             }
         }
         
-        for(BlobArray::iterator it2 = pBlobs->begin();it2!=pBlobs->end();++it2) {
+        for(BlobVector::iterator it2 = pBlobs->begin();it2!=pBlobs->end();++it2) {
             if (isRelevant(*it2, pBlobConfig)) {
                 if (bTouch) {
                     (*it2)->render(pSrcBmp, pDestBmp, 
