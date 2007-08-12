@@ -31,9 +31,9 @@
 
 
 namespace avg {
-TouchEvent::TouchEvent(int id, Type EventType, BlobInfoPtr pInfo, IntPoint& Pos, Source source)
+TouchEvent::TouchEvent(int id, Type EventType, BlobPtr pBlob, IntPoint& Pos, Source source)
     : CursorEvent(id, EventType, Pos, source),
-      m_pInfo(pInfo)
+      m_pBlob(pBlob)
 {
 }
 
@@ -48,9 +48,9 @@ Event* TouchEvent::cloneAs(Type EventType)
     return res;
 }
 
-const BlobInfoPtr TouchEvent::getBlobInfo() const
+const BlobPtr TouchEvent::getBlob() const
 {
-    return m_pInfo;
+    return m_pBlob;
 }
         
 void TouchEvent::addRelatedEvent(TouchEvent * pEvent)
@@ -68,8 +68,8 @@ void TouchEvent::trace()
     Event::trace();
     AVG_TRACE(Logger::EVENTS2, "pos: " << m_Position 
             << ", ID: " << getCursorID()
-            << ", Area: " << m_pInfo->getArea()
-            << ", Eccentricity: " << m_pInfo->getEccentricity());
+            << ", Area: " << m_pBlob->getArea()
+            << ", Eccentricity: " << m_pBlob->getEccentricity());
 }
       
 }

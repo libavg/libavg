@@ -49,7 +49,7 @@ namespace avg {
 
         vector<Event *>::iterator it;
         for (it=Events.begin(); it != Events.end(); ++it) {
-            sendEvent(*it);
+            handleEvent(*it);
         }
         for (it=Events.begin(); it != Events.end(); ++it) {
             delete *it;
@@ -73,6 +73,12 @@ namespace avg {
     }
 
     void EventDispatcher::sendEvent(Event* pEvent)
+    {
+        handleEvent(pEvent);
+        delete pEvent;
+    }
+
+    void EventDispatcher::handleEvent(Event* pEvent)
     {
         if (dynamic_cast<MouseEvent*>(pEvent) != 0) {
             m_LastMouseEvent = *(dynamic_cast<MouseEvent*>(pEvent));

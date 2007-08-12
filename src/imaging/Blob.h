@@ -24,7 +24,6 @@
 #ifndef _ConnectedComps_H_
 #define _ConnectedComps_H_
 
-#include "BlobInfo.h"
 #include "Run.h"
 
 #include "../graphics/Bitmap.h"
@@ -37,10 +36,18 @@
 #include <vector>
 #include <map>
 
+#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
+
 namespace avg {
 
 class Blob;
 typedef boost::shared_ptr<class Blob> BlobPtr;
+typedef boost::weak_ptr<class Blob> BlobWeakPtr;
+typedef std::vector<BlobPtr> BlobVector;
+typedef std::vector<BlobWeakPtr> BlobWeakPtrVector;
+typedef boost::shared_ptr<BlobVector> BlobVectorPtr;
+
 
 class Blob
 {
@@ -49,7 +56,6 @@ class Blob
         ~Blob();
 
         void addRun(const RunPtr& pRun);
-        BlobInfoPtr getInfo();
         void merge(const BlobPtr& other);
         RunArray* getRuns();
         void render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color, 
@@ -57,19 +63,43 @@ class Blob
                 Pixel32 CenterColor= Pixel32(0x00, 0x00, 0xFF, 0xFF));
         bool contains(IntPoint pt);
 
+        void calcStats();
+
+        const DPoint& getCenter() const;
+        double getArea() const;
+        const IntRect & getBoundingBox() const;
+        double getEccentricity() const;
+        double getInertia() const;
+        double getOrientation() const;
+        const DPoint& getScaledBasis(int i) const;
+        const DPoint& getEigenVector(int i) const;
+        const DPoint& getEigenValues() const;
+
+        BlobWeakPtrVector m_RelatedBlobs; // For fingers, this contains the hand.
+                                       // For hands, this contains the fingers.
+        DPoint m_Direction; // Fingers only: contains vector from hand center to finger.
+
         BlobPtr m_pParent;
 
     private:
         Blob(const Blob &);
+        DPoint calcCenter();
+        IntRect calcBBox();
+        int calcArea();
 
         RunArray *m_pRuns;
 
-        BlobInfoPtr m_pBlobInfo;
-        boost::shared_ptr<DPoint> m_pCenter;
+        bool m_bStatsAvailable;
+        DPoint m_Center;
+        double m_Area;
+        IntRect m_BoundingBox;
+        double m_Eccentricity;
+        double m_Inertia;
+        double m_Orientation;
+        DPoint m_ScaledBasis[2];
+        DPoint m_EigenVector[2];
+        DPoint m_EigenValues;
 };
-
-typedef std::vector<BlobPtr> BlobVector;
-typedef boost::shared_ptr<BlobVector> BlobVectorPtr;
 
 BlobVectorPtr connected_components(BitmapPtr image, unsigned char object_threshold);
 

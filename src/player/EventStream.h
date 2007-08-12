@@ -26,7 +26,7 @@
 
 #include "../base/Point.h"
 
-#include "../imaging/BlobInfo.h"
+#include "../imaging/Blob.h"
 #include "../imaging/DeDistort.h"
 
 #include <string>
@@ -56,9 +56,9 @@ namespace avg {
             // VANISHED         -> MOTION_PENDING, UP_PENDING
             // UP_PENDING       -> UP_DELIVERED (CURSORUP event)
 
-            EventStream(BlobInfoPtr first_blob);
+            EventStream(BlobPtr first_blob);
             ~EventStream();
-            void blobChanged(BlobInfoPtr new_blob);
+            void blobChanged(BlobPtr new_blob);
             void blobGone();
             Event* pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, 
                     CursorEvent::Source Source);
@@ -74,7 +74,7 @@ namespace avg {
             StreamState m_State;
             int m_VanishCounter;
             DPoint m_Pos;
-            BlobInfoPtr m_pBlob;
+            BlobPtr m_pBlob;
             static int s_LastLabel;
     };
 

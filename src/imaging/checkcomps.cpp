@@ -29,6 +29,7 @@
 #include <math.h>
 
 using namespace avg;
+using namespace std;
 
 int main(int argc, char **argv)
 {
@@ -38,23 +39,21 @@ int main(int argc, char **argv)
     BitmapPtr im = grayscale.apply(tmp_im);
 
     DPoint center;
-    BlobInfoPtr info;
     for(int i=0;i<20;i++){
         BlobVectorPtr bloblist = connected_components(im,100);
         for(BlobVector::iterator b=bloblist->begin();b!=bloblist->end();b++){
-            info = (*b)->getInfo();
-            std::cout<<"center = ("<<info->getCenter().x<<","<<info->getCenter().y<<")"<<std::endl;
-            std::cout<<"area = "<<info->getArea()<<std::endl;
-            std::cout<<"orientation = "<<360*(info->getOrientation()/(2*M_PI))<<std::endl;
-            std::cout<<"eccentricity = "<<info->getEccentricity()<<std::endl;
-            std::cout<<"["<<(info->getScaledBasis(0)).x<<","
-                    <<(info->getScaledBasis(0)).y<<"]"<<std::endl;
-            std::cout<<"["<<(info->getScaledBasis(1)).x<<","
-                    <<(info->getScaledBasis(1)).y<<"]"<<std::endl;
-            //std::cout<<"stddev = "<<stddev<<std::endl;
-            std::cout<<"==============================="<<std::endl;
+            cout<<"center = ("<<(*b)->getCenter().x<<","<<(*b)->getCenter().y<<")"<<endl;
+            cout<<"area = "<<(*b)->getArea()<<endl;
+            cout<<"orientation = "<<360*((*b)->getOrientation()/(2*M_PI))<<endl;
+            cout<<"eccentricity = "<<(*b)->getEccentricity()<<endl;
+            cout<<"["<<((*b)->getScaledBasis(0)).x<<","
+                    <<((*b)->getScaledBasis(0)).y<<"]"<<endl;
+            cout<<"["<<((*b)->getScaledBasis(1)).x<<","
+                    <<((*b)->getScaledBasis(1)).y<<"]"<<endl;
+            //cout<<"stddev = "<<stddev<<endl;
+            cout<<"==============================="<<endl;
         }
-//        std::cout<<i<<std::endl;
+//        cout<<i<<endl;
         bloblist->clear();
     }
 }

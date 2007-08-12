@@ -38,17 +38,17 @@ namespace avg {
 class TouchEvent: public CursorEvent 
 {
     public:
-        TouchEvent(int id, Type EventType, BlobInfoPtr info, IntPoint& Pos, Source source);
+        TouchEvent(int id, Type EventType, BlobPtr pBlob, IntPoint& Pos, Source source);
         virtual ~TouchEvent();
         virtual Event* cloneAs(Type EventType);
 
-        double getOrientation() const {return m_pInfo->getOrientation();};
-        double getArea() const {return m_pInfo->getArea();};
-        double getInertia() const {return m_pInfo->getInertia();};
-        const DPoint & getCenter() const {return m_pInfo->getCenter();};
-        double getEccentricity() const {return m_pInfo->getEccentricity();};
-        const DPoint & getEigenValues() const {return m_pInfo->getEigenValues();};
-        const BlobInfoPtr getBlobInfo() const;
+        double getOrientation() const {return m_pBlob->getOrientation();};
+        double getArea() const {return m_pBlob->getArea();};
+        double getInertia() const {return m_pBlob->getInertia();};
+        const DPoint & getCenter() const {return m_pBlob->getCenter();};
+        double getEccentricity() const {return m_pBlob->getEccentricity();};
+        const DPoint & getEigenValues() const {return m_pBlob->getEigenValues();};
+        const BlobPtr getBlob() const;
 
         void addRelatedEvent(TouchEvent * pEvent);
         std::vector<TouchEvent *> getRelatedEvents() const;
@@ -56,7 +56,7 @@ class TouchEvent: public CursorEvent
         virtual void trace();
     
     private:
-        BlobInfoPtr m_pInfo;
+        BlobPtr m_pBlob;
         std::vector<TouchEvent *> m_RelatedEvents; 
 };
 

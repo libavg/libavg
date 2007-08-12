@@ -28,6 +28,8 @@
 #include <iostream>
 #include <sstream>
 
+using namespace std;
+
 namespace avg {
 
 int Event::s_CurCounter = 0;

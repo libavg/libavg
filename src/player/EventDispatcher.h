@@ -48,6 +48,8 @@ class EventDispatcher {
         void sendEvent(Event* pEvent);
 
     private:
+        void handleEvent(Event* pEvent);
+
         std::vector<IEventSource*> m_EventSources;
         std::vector<IEventSink*> m_EventSinks;
 

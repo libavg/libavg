@@ -217,28 +217,27 @@ namespace avg {
     
     double distSquared(BlobPtr p1, BlobPtr p2) 
     {
-        DPoint c1 = p1->getInfo()->getCenter();
-        DPoint c2 = p2->getInfo()->getCenter();
+        DPoint c1 = p1->getCenter();
+        DPoint c2 = p2->getCenter();
 
         return (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y);
     }
 
     double distance(BlobPtr p1, BlobPtr p2) 
     {
-        DPoint c1 = p1->getInfo()->getCenter();
-        DPoint c2 = p2->getInfo()->getCenter();
+        DPoint c1 = p1->getCenter();
+        DPoint c2 = p2->getCenter();
 
         return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
     }
 
-    bool TrackerEventSource::isRelevant(BlobPtr blob, BlobConfigPtr pConfig)
+    bool TrackerEventSource::isRelevant(BlobPtr pBlob, BlobConfigPtr pConfig)
     {
-        BlobInfoPtr info = blob->getInfo();
         // FIXME!
 #define IN(x, pair) (((x)>=pair[0])&&((x)<=pair[1]))
         bool res;
-        res = IN(info->getArea(), pConfig->m_AreaBounds) && 
-                IN(info->getEccentricity(), pConfig->m_EccentricityBounds);
+        res = IN(pBlob->getArea(), pConfig->m_AreaBounds) && 
+                IN(pBlob->getEccentricity(), pConfig->m_EccentricityBounds);
         return res;
 #undef IN
     }
@@ -346,7 +345,7 @@ namespace avg {
                 assert (pEvents->find(pOldBlob) != pEvents->end());
                 EventStreamPtr pStream;
                 pStream = pEvents->find(pOldBlob)->second;
-                pStream->blobChanged(pNewBlob->getInfo());
+                pStream->blobChanged(pNewBlob);
                 // Update the mapping.
                 (*pEvents)[pNewBlob] = pStream;
                 pEvents->erase(pOldBlob);
@@ -359,7 +358,7 @@ namespace avg {
         {
             if (MatchedNewBlobs.find(*it) == MatchedNewBlobs.end()) {
                 (*pEvents)[(*it)] = EventStreamPtr( 
-                        new EventStream(((*it)->getInfo())));
+                        new EventStream(*it));
             }
         }
 
@@ -377,18 +376,17 @@ namespace avg {
    {
         for(EventMap::iterator it2=m_TrackEvents.begin(); it2!=m_TrackEvents.end(); ++it2) {
             BlobPtr pTrackBlob = it2->first;
-            pTrackBlob->getInfo()->m_RelatedBlobs.clear();
+            pTrackBlob->m_RelatedBlobs.clear();
         }
         for(EventMap::iterator it1=m_TouchEvents.begin(); it1!=m_TouchEvents.end(); ++it1) {
             BlobPtr pTouchBlob = it1->first;
-            BlobInfoPtr pTouchInfo = pTouchBlob->getInfo();
-            pTouchInfo->m_RelatedBlobs.clear();
-            IntPoint TouchCenter = (IntPoint)(pTouchInfo->getCenter());
+            pTouchBlob->m_RelatedBlobs.clear();
+            IntPoint TouchCenter = (IntPoint)(pTouchBlob->getCenter());
             for(EventMap::iterator it2=m_TrackEvents.begin(); it2!=m_TrackEvents.end(); ++it2) {
                 BlobPtr pTrackBlob = it2->first;
                 if (pTrackBlob->contains(TouchCenter)) {
-                    pTouchInfo->m_RelatedBlobs.push_back( pTrackBlob->getInfo());
-                    pTrackBlob->getInfo()->m_RelatedBlobs.push_back(pTouchInfo);
+                    pTouchBlob->m_RelatedBlobs.push_back(pTrackBlob);
+                    pTrackBlob->m_RelatedBlobs.push_back(pTouchBlob);
                     break;
                 }
             }
@@ -518,19 +516,19 @@ namespace avg {
         vector<Event *>::iterator it;
         for (it=pTouchEvents.begin(); it != pTouchEvents.end(); ++it) {
             TouchEvent * pTouchEvent = dynamic_cast<TouchEvent *>(*it);
-            BlobInfoPtr pTouchBlob = pTouchEvent->getBlobInfo();
+            BlobPtr pTouchBlob = pTouchEvent->getBlob();
             if (!(pTouchBlob->m_RelatedBlobs.empty())) {
-                BlobInfoPtr pRelatedBlob = pTouchBlob->m_RelatedBlobs[0].lock();
+                BlobPtr pRelatedBlob = pTouchBlob->m_RelatedBlobs[0].lock();
                 if (pRelatedBlob) {
                     vector<Event *>::iterator it2;
                     TouchEvent * pTrackEvent = 0;
-                    BlobInfoPtr pTrackBlob;
+                    BlobPtr pTrackBlob;
                     for (it2=pTrackEvents.begin(); 
                             pTrackBlob != pRelatedBlob && it2 != pTrackEvents.end(); 
                             ++it2) 
                     {
                         pTrackEvent = dynamic_cast<TouchEvent *>(*it2);
-                        pTrackBlob = pTrackEvent->getBlobInfo();
+                        pTrackBlob = pTrackEvent->getBlob();
                     }
                     if (it2 != pTrackEvents.end()) {
                         pTouchEvent->addRelatedEvent(pTrackEvent);

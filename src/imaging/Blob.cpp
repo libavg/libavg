@@ -37,14 +37,18 @@ namespace avg {
 
 Blob::Blob(const RunPtr& pRun)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     m_pRuns = new RunArray();
     m_pRuns->reserve(50);
     m_pRuns->push_back(pRun);
     m_pParent = BlobPtr();
+
+    m_bStatsAvailable = false;
 }
 
 Blob::~Blob() 
 {
+    ObjectCounter::get()->decRef(&typeid(*this));
     delete m_pRuns;
 }
 
@@ -97,20 +101,20 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
             x_pos++;
         }
     }
+
+    assert(m_bStatsAvailable);
     if(bMarkCenter) {
-        BlobInfoPtr pInfo = getInfo();
-        DPoint DCenter = pInfo->getCenter();
-        IntPoint Center = IntPoint(int(DCenter.x+0.5), int(DCenter.y+0.5));
+        IntPoint Center = IntPoint(int(m_Center.x+0.5), int(m_Center.y+0.5));
         
-        IntPoint End0 = IntPoint(pInfo->getScaledBasis(0))+Center;
+        IntPoint End0 = IntPoint(m_ScaledBasis[0])+Center;
         pDestBmp->drawLine(Center, End0, CenterColor);
-        IntPoint End1 = IntPoint(pInfo->getScaledBasis(1))+Center;
+        IntPoint End1 = IntPoint(m_ScaledBasis[1])+Center;
         pDestBmp->drawLine(Center, End1, CenterColor);
 
         
-        if (bFinger && m_pBlobInfo->m_RelatedBlobs.size() > 0) {
+        if (bFinger && m_RelatedBlobs.size() > 0) {
             // Draw finger direction
-            BlobInfoPtr pHandBlob = (m_pBlobInfo->m_RelatedBlobs)[0].lock();
+            BlobPtr pHandBlob = (m_RelatedBlobs)[0].lock();
             if (pHandBlob) {
                 pDestBmp->drawLine(Center, IntPoint(pHandBlob->getCenter()),
                         Pixel32(0xD7, 0xC9, 0x56, 0xFF));
@@ -129,12 +133,174 @@ bool Blob::contains(IntPoint pt)
     return false;
 }
 
-BlobInfoPtr Blob::getInfo()
+void Blob::calcStats()
 {
-    if (!m_pBlobInfo) {
-        m_pBlobInfo = BlobInfoPtr(new BlobInfo(m_pRuns));
+    m_Center = calcCenter();
+    m_Area = calcArea();
+    m_BoundingBox = calcBBox();
+    /*
+       more useful numbers that can be calculated from c
+       see e.g. 
+       <http://www.cs.cf.ac.uk/Dave/Vision_lecture/node36.html#SECTION00173000000000000000>
+
+       Orientation = tan−1(2(c_xy)/(c_xx − c_yy)) /2
+       Inertia = c_xx + c_yy
+       Eccentricity = ...
+       */
+    double c_xx = 0;
+    double c_yy =0;
+    double c_xy = 0;
+    double ll=0;
+    double l1;
+    double l2;
+    double tmp_x;
+    double tmp_y;
+    double mag;
+    for(RunArray::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r) {
+        //This is the evaluated expression for the variance when using runs...
+        ll = (*r)->length();
+        c_yy += ll* ((*r)->m_Row- m_Center.y)*((*r)->m_Row- m_Center.y);
+        c_xx += ( ((*r)->m_EndCol-1) * (*r)->m_EndCol * (2*(*r)->m_EndCol-1) 
+                - ((*r)->m_StartCol-1) * (*r)->m_StartCol * (2*(*r)->m_StartCol -1))/6. 
+            - m_Center.x * ( ((*r)->m_EndCol-1)*(*r)->m_EndCol - ((*r)->m_StartCol-1)*(*r)->m_StartCol  )
+            + ll* m_Center.x*m_Center.x;
+        c_xy += ((*r)->m_Row-m_Center.y)*0.5*( ((*r)->m_EndCol-1)*(*r)->m_EndCol
+                - ((*r)->m_StartCol-1)*(*r)->m_StartCol) 
+                + ll *(m_Center.x*m_Center.y - m_Center.x*(*r)->m_Row);
     }
-    return m_pBlobInfo;
+
+    c_xx/=m_Area;
+    c_yy/=m_Area;
+    c_xy/=m_Area;
+
+    m_Inertia = c_xx + c_yy;
+
+    double T = sqrt( (c_xx - c_yy) * (c_xx - c_yy) + 4*c_xy*c_xy);
+    m_Eccentricity = ((c_xx + c_yy) + T)/((c_xx+c_yy) - T);
+    m_Orientation = 0.5*atan2(2*c_xy,c_xx-c_yy);
+    //the l_i are variances (unit L^2) so to arrive at numbers that 
+    //correspond to lengths in the picture we use sqrt
+    if (fabs(c_xy) > 1e-30) {
+        //FIXME. check l1!=0 l2!=0. li=0 happens for line-like components
+        l1 = 0.5 * ( (c_xx+c_yy) + sqrt( (c_xx+c_yy)*(c_xx+c_yy) - 4 * (c_xx*c_yy-c_xy*c_xy) ) );
+        l2 = 0.5 * ( (c_xx+c_yy) - sqrt( (c_xx+c_yy)*(c_xx+c_yy) - 4 * (c_xx*c_yy-c_xy*c_xy) ) );
+        tmp_x = c_xy/l1 - c_xx*c_yy/(c_xy*l1)+ (c_xx/c_xy);
+        tmp_y = 1.;
+        mag = sqrt(tmp_x*tmp_x + tmp_y*tmp_y);
+        m_EigenVector[0].x = tmp_x/mag;
+        m_EigenVector[0].y = tmp_y/mag;
+        m_EigenValues.x = l1;
+        tmp_x = c_xy/l2 - c_xx*c_yy/(c_xy*l2)+ (c_xx/c_xy);
+        tmp_y = 1.;
+        mag = sqrt(tmp_x*tmp_x + tmp_y*tmp_y);
+        m_EigenVector[1].x = tmp_x/mag;
+        m_EigenVector[1].y = tmp_y/mag;
+        m_EigenValues.y = l2;
+    } else {
+        //matrix already diagonal
+        if (c_xx > c_yy) {
+            m_EigenVector[0].x = 1;
+            m_EigenVector[0].y = 0;
+            m_EigenVector[1].x = 0;
+            m_EigenVector[1].y = 1;
+            m_EigenValues.x = c_xx;
+            m_EigenValues.y = c_yy;
+        } else {
+            m_EigenVector[0].x = 0;
+            m_EigenVector[0].y = 1;
+            m_EigenVector[1].x = 1;
+            m_EigenVector[1].y = 0;
+            m_EigenValues.x = c_yy;
+            m_EigenValues.y = c_xx;
+        }
+    }
+    m_ScaledBasis[0].x = m_EigenVector[0].x*sqrt(m_EigenValues.x);
+    m_ScaledBasis[0].y = m_EigenVector[0].y*sqrt(m_EigenValues.x);
+    m_ScaledBasis[1].x = m_EigenVector[1].x*sqrt(m_EigenValues.y);
+    m_ScaledBasis[1].y = m_EigenVector[1].y*sqrt(m_EigenValues.y);
+
+    m_bStatsAvailable = true;
+}
+
+const DPoint & Blob::getCenter() const
+{
+    return m_Center;
+}
+
+double Blob::getArea() const
+{
+    return m_Area;
+}
+
+const IntRect & Blob::getBoundingBox() const
+{
+    return m_BoundingBox;
+}
+
+double Blob::getEccentricity() const
+{
+    return m_Eccentricity;
+}
+
+double Blob::getInertia() const
+{
+    return m_Inertia;
+}
+
+double Blob::getOrientation() const
+{
+    return m_Orientation;
+}
+
+const DPoint & Blob::getScaledBasis(int i) const
+{
+    return m_ScaledBasis[i];
+}
+
+const DPoint & Blob::getEigenVector(int i) const
+{
+    return m_EigenVector[i];
+}
+
+const DPoint & Blob::getEigenValues() const
+{
+    return m_EigenValues;
+}
+
+DPoint Blob::calcCenter()
+{
+    DPoint Center(0,0);
+    double c = 0;
+    for(RunArray::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r) {
+        Center += (*r)->center()*(*r)->length();
+        c += (*r)->length();
+    }
+    Center = Center/c;
+    return Center;
+}
+
+IntRect Blob::calcBBox()
+{
+    int x1=__INT_MAX__;
+    int y1=__INT_MAX__;
+    int x2=0;
+    int y2=0;
+    for(RunArray::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r) {
+        x1 = std::min(x1, (*r)->m_StartCol);
+        y1 = std::min(y1, (*r)->m_Row);
+        x2 = std::max(x2, (*r)->m_EndCol);
+        y2 = std::max(y2, (*r)->m_Row);
+    }
+    return IntRect(x1,y1,x2,y2);
+}
+
+int Blob::calcArea()
+{
+    int res = 0;
+    for(RunArray::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r) {
+        res+= (*r)->length();
+    }
+    return res;
 }
 
 bool connected(RunPtr r1, RunPtr r2)
@@ -255,6 +421,7 @@ BlobVectorPtr connected_components(BitmapPtr image, unsigned char threshold)
     for (BlobVector::iterator it = pBlobs->begin(); it != pBlobs->end(); ++it) {
         if (!(*it)->m_pParent) {
             pResultBlobs->push_back(*it);
+            (*it)->calcStats();
         }
     }
     delete runs1;

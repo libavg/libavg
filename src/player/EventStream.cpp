@@ -35,7 +35,7 @@ namespace avg {
     
     int EventStream::s_LastLabel = 0;
 
-    EventStream::EventStream(BlobInfoPtr first_blob)
+    EventStream::EventStream(BlobPtr first_blob)
     {
         ObjectCounter::get()->incRef(&typeid(*this));
         m_Id = ++s_LastLabel;
@@ -51,7 +51,7 @@ namespace avg {
         ObjectCounter::get()->decRef(&typeid(*this));
     }
 
-    void EventStream::blobChanged(BlobInfoPtr new_blob)
+    void EventStream::blobChanged(BlobPtr new_blob)
     {
         assert(m_pBlob);
         assert(new_blob);
