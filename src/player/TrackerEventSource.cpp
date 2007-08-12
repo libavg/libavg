@@ -510,12 +510,35 @@ namespace avg {
         }
     }
 
-    void TrackerEventSource::copyRelatedInfo(std::vector<Event*> pTouchEvents,
-            std::vector<Event*> pTrackEvents)
+    void TrackerEventSource::copyRelatedInfo(vector<Event*> pTouchEvents,
+            vector<Event*> pTrackEvents)
     {
         // Copy related blobs to related events.
         // Yuck.
-        
+        vector<Event *>::iterator it;
+        for (it=pTouchEvents.begin(); it != pTouchEvents.end(); ++it) {
+            TouchEvent * pTouchEvent = dynamic_cast<TouchEvent *>(*it);
+            BlobInfoPtr pTouchBlob = pTouchEvent->getBlobInfo();
+            if (!(pTouchBlob->m_RelatedBlobs.empty())) {
+                BlobInfoPtr pRelatedBlob = pTouchBlob->m_RelatedBlobs[0].lock();
+                if (pRelatedBlob) {
+                    vector<Event *>::iterator it2;
+                    TouchEvent * pTrackEvent = 0;
+                    BlobInfoPtr pTrackBlob;
+                    for (it2=pTrackEvents.begin(); 
+                            pTrackBlob != pRelatedBlob && it2 != pTrackEvents.end(); 
+                            ++it2) 
+                    {
+                        pTrackEvent = dynamic_cast<TouchEvent *>(*it2);
+                        pTrackBlob = pTrackEvent->getBlobInfo();
+                    }
+                    if (it2 != pTrackEvents.end()) {
+                        pTouchEvent->addRelatedEvent(pTrackEvent);
+                        pTrackEvent->addRelatedEvent(pTouchEvent);
+                    }
+                }
+            }
+        }
     }
 
 }

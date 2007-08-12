@@ -29,10 +29,30 @@
 
 using namespace boost::python;
 using namespace avg;
+using namespace std;
+
+template <typename ContainerType>
+struct to_tuple
+{
+    static PyObject* convert(ContainerType const& a)
+    {
+        boost::python::list result;
+        typedef typename ContainerType::const_iterator const_iter;
+        for(const_iter p=a.begin();p!=a.end();p++) {
+            result.append(boost::python::object(*p));
+        }
+        return boost::python::incref(boost::python::tuple(result).ptr());
+    }
+
+    static const PyTypeObject* get_pytype() { return &PyTuple_Type; }
+};
 
 void export_event()
 {
-    class_<Event, boost::noncopyable>("Event", 
+   boost::python::to_python_converter<vector<TouchEvent*>, 
+        to_tuple<vector<TouchEvent *> > >();    
+   
+   class_<Event, boost::noncopyable>("Event", 
             "Base class for user input events.\n"
             "Properties:\n"
             "    type: One of KEYUP, KEYDOWN, CURSORMOTION, CURSORUP,\n"
@@ -125,7 +145,8 @@ void export_event()
         .add_property("cursorid", &TouchEvent::getCursorID)
         .add_property("node", &TouchEvent::getElement)
         .add_property("center", make_function(&TouchEvent::getCenter,
-                return_value_policy<copy_const_reference>()));
+                return_value_policy<copy_const_reference>()))
+        .def("getRelatedEvents", &TouchEvent::getRelatedEvents);
    
     enum_<TrackerImageID>("TrackerImageID")
         .value("IMG_CAMERA", TRACKER_IMG_CAMERA)

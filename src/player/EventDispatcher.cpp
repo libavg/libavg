@@ -40,19 +40,19 @@ namespace avg {
 
     void EventDispatcher::dispatch() 
     {
-        priority_queue<Event *,vector<Event *>,isEventAfter> Events;
+        vector<Event *> Events;
 
         for (unsigned int i = 0; i<m_EventSources.size(); ++i) {
             vector<Event*> curEvents = m_EventSources[i]->pollEvents();
-            for (unsigned int i= 0; i<curEvents.size(); i++) {
-                Events.push(curEvents[i]);
-            }
+            Events.insert(Events.end(), curEvents.begin(), curEvents.end());
         }
 
-        while (!Events.empty()) {
-            Event * pCurEvent = Events.top();
-            Events.pop();
-            sendEvent(pCurEvent);
+        vector<Event *>::iterator it;
+        for (it=Events.begin(); it != Events.end(); ++it) {
+            sendEvent(*it);
+        }
+        for (it=Events.begin(); it != Events.end(); ++it) {
+            delete *it;
         }
     }
 
@@ -82,7 +82,6 @@ namespace avg {
                 break;
             }
         }
-        delete pEvent;
     }
 
 }

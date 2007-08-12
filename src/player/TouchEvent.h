@@ -42,12 +42,13 @@ class TouchEvent: public CursorEvent
         virtual ~TouchEvent();
         virtual Event* cloneAs(Type EventType);
 
-        double getOrientation() const {return m_Info->getOrientation();};
-        double getArea() const {return m_Info->getArea();};
-        double getInertia() const {return m_Info->getInertia();};
-        const DPoint & getCenter() const {return m_Info->getCenter();};
-        double getEccentricity() const {return m_Info->getEccentricity();};
-        const DPoint & getEigenValues() const {return m_Info->getEigenValues();};
+        double getOrientation() const {return m_pInfo->getOrientation();};
+        double getArea() const {return m_pInfo->getArea();};
+        double getInertia() const {return m_pInfo->getInertia();};
+        const DPoint & getCenter() const {return m_pInfo->getCenter();};
+        double getEccentricity() const {return m_pInfo->getEccentricity();};
+        const DPoint & getEigenValues() const {return m_pInfo->getEigenValues();};
+        const BlobInfoPtr getBlobInfo() const;
 
         void addRelatedEvent(TouchEvent * pEvent);
         std::vector<TouchEvent *> getRelatedEvents() const;
@@ -55,7 +56,7 @@ class TouchEvent: public CursorEvent
         virtual void trace();
     
     private:
-        BlobInfoPtr m_Info;
+        BlobInfoPtr m_pInfo;
         std::vector<TouchEvent *> m_RelatedEvents; 
 };
 
