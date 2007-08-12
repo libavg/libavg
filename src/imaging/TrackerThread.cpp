@@ -238,8 +238,8 @@ void TrackerThread::drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp)
 }
 
 void TrackerThread::calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp) {
-    BlobVectorPtr pTrackComps;
-    BlobVectorPtr pTouchComps;
+    BlobArrayPtr pTrackComps;
+    BlobArrayPtr pTouchComps;
     {
         ScopeTimer Timer(ProfilingZoneComps);
         pTrackComps = connected_components(pTrackBmp, m_TrackThreshold);

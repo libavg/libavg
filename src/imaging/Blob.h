@@ -41,9 +41,6 @@ namespace avg {
 
 class Blob;
 typedef boost::shared_ptr<class Blob> BlobPtr;
-typedef boost::weak_ptr<class Blob> BlobWeakPtr;
-typedef std::vector<BlobPtr> BlobVector;
-typedef boost::shared_ptr<BlobVector> BlobVectorPtr;
 
 class Blob
 {
@@ -59,9 +56,6 @@ class Blob
                 int Min, int Max, bool bFinger, bool bMarkCenter, 
                 Pixel32 CenterColor= Pixel32(0x00, 0x00, 0xFF, 0xFF));
         bool contains(IntPoint pt);
-        void clearRelatedBlobs();
-        void addRelatedBlob(BlobPtr pBlob);
-        std::vector<BlobWeakPtr> getRelatedBlobs();
 
         BlobPtr m_pParent;
 
@@ -72,11 +66,12 @@ class Blob
 
         BlobInfoPtr m_pBlobInfo;
         boost::shared_ptr<DPoint> m_pCenter;
-        std::vector<BlobWeakPtr> m_RelatedBlobs; // For fingers, this contains the hand.
-                                   // For hands, this contains the fingers.
 };
 
-BlobVectorPtr connected_components(BitmapPtr image, unsigned char object_threshold);
+typedef std::vector<BlobPtr> BlobArray;
+typedef boost::shared_ptr<BlobArray> BlobArrayPtr;
+
+BlobArrayPtr connected_components(BitmapPtr image, unsigned char object_threshold);
 
 }
 

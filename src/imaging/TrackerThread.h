@@ -56,8 +56,8 @@ class IBlobTarget {
     public:
         virtual ~IBlobTarget() {};
         // Note that this function is called by TrackerThread in it's own thread!
-        virtual void update(BlobVectorPtr pTrackBlobs, BitmapPtr pTrackBmp, int TrackThreshold,
-                BlobVectorPtr pTouchBlobs, BitmapPtr pTouchBmp, int TouchThreshold,
+        virtual void update(BlobArrayPtr pTrackBlobs, BitmapPtr pTrackBmp, int TrackThreshold,
+                BlobArrayPtr pTouchBlobs, BitmapPtr pTouchBmp, int TouchThreshold,
                 BitmapPtr pDestBmp) = 0;
 };
 
@@ -94,7 +94,7 @@ class TrackerThread: public WorkerThread<TrackerThread>
 
         int m_TouchThreshold; // 0 => no touch events.
         int m_TrackThreshold; // 0 => no generic tracking events.
-        BlobVectorPtr m_pBlobVector;
+        BlobArrayPtr m_pBlobArray;
         IntRect m_ROI;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
         MutexPtr m_pMutex;

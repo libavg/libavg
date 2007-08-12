@@ -108,9 +108,9 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
         pDestBmp->drawLine(Center, End1, CenterColor);
 
         
-        if (bFinger && m_RelatedBlobs.size() > 0) {
+        if (bFinger && m_pBlobInfo->m_RelatedBlobs.size() > 0) {
             // Draw finger direction
-            BlobInfoPtr pHandBlob = (m_RelatedBlobs)[0].lock()->getInfo();
+            BlobInfoPtr pHandBlob = (m_pBlobInfo->m_RelatedBlobs)[0].lock();
             if (pHandBlob) {
                 pDestBmp->drawLine(Center, IntPoint(pHandBlob->getCenter()),
                         Pixel32(0xD7, 0xC9, 0x56, 0xFF));
@@ -127,21 +127,6 @@ bool Blob::contains(IntPoint pt)
         } 
     }
     return false;
-}
-
-void Blob::clearRelatedBlobs()
-{
-    m_RelatedBlobs.clear();
-}
-
-void Blob::addRelatedBlob(BlobPtr pBlob)
-{
-    m_RelatedBlobs.push_back(pBlob);
-}
-
-std::vector<BlobWeakPtr> Blob::getRelatedBlobs()
-{
-    return m_RelatedBlobs;
 }
 
 BlobInfoPtr Blob::getInfo()
@@ -161,7 +146,7 @@ bool connected(RunPtr r1, RunPtr r2)
     }
 }
 
-void store_runs(BlobVectorPtr pComps, RunArray *runs1, RunArray *runs2)
+void store_runs(BlobArrayPtr pComps, RunArray *runs1, RunArray *runs2)
 {
     for (RunArray::iterator run1_it = runs1->begin(); run1_it!=runs1->end(); ++run1_it) {
         for (RunArray::iterator run2_it = runs2->begin(); run2_it!=runs2->end(); ++run2_it) {
@@ -238,13 +223,13 @@ void findRunsInLine(BitmapPtr pBmp, int y, RunArray * pRuns,
 
 }
 
-BlobVectorPtr connected_components(BitmapPtr image, unsigned char threshold)
+BlobArrayPtr connected_components(BitmapPtr image, unsigned char threshold)
 {
     if (threshold == 0) {
-        return BlobVectorPtr();
+        return BlobArrayPtr();
     }
     assert(image->getPixelFormat() == I8);
-    BlobVectorPtr pBlobs = BlobVectorPtr(new BlobVector);
+    BlobArrayPtr pBlobs = BlobArrayPtr(new BlobArray);
     IntPoint size = image->getSize();
     RunArray *runs1=new RunArray();
     RunArray *runs2=new RunArray();
@@ -266,8 +251,8 @@ BlobVectorPtr connected_components(BitmapPtr image, unsigned char threshold)
         runs2 = tmp;
         runs2->clear();
     }
-    BlobVectorPtr pResultBlobs = BlobVectorPtr(new BlobVector);
-    for (BlobVector::iterator it = pBlobs->begin(); it != pBlobs->end(); ++it) {
+    BlobArrayPtr pResultBlobs = BlobArrayPtr(new BlobArray);
+    for (BlobArray::iterator it = pBlobs->begin(); it != pBlobs->end(); ++it) {
         if (!(*it)->m_pParent) {
             pResultBlobs->push_back(*it);
         }

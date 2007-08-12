@@ -47,6 +47,16 @@ Event* TouchEvent::cloneAs(Type EventType)
     res->m_Type = EventType;
     return res;
 }
+        
+void TouchEvent::addRelatedEvent(TouchEvent * pEvent)
+{
+    m_RelatedEvents.push_back(pEvent);
+}
+
+std::vector<TouchEvent *> TouchEvent::getRelatedEvents() const
+{
+    return m_RelatedEvents;
+}
 
 void TouchEvent::trace()
 {

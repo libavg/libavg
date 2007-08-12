@@ -48,10 +48,15 @@ class TouchEvent: public CursorEvent
         const DPoint & getCenter() const {return m_Info->getCenter();};
         double getEccentricity() const {return m_Info->getEccentricity();};
         const DPoint & getEigenValues() const {return m_Info->getEigenValues();};
+
+        void addRelatedEvent(TouchEvent * pEvent);
+        std::vector<TouchEvent *> getRelatedEvents() const;
+
         virtual void trace();
     
     private:
         BlobInfoPtr m_Info;
+        std::vector<TouchEvent *> m_RelatedEvents; 
 };
 
 }
