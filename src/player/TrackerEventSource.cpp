@@ -371,22 +371,22 @@ namespace avg {
         }
 //        cerr << pEvents->size() << endl;
     };
-        
+
    void TrackerEventSource::correlateBlobs()
    {
         for(EventMap::iterator it2=m_TrackEvents.begin(); it2!=m_TrackEvents.end(); ++it2) {
             BlobPtr pTrackBlob = it2->first;
-            pTrackBlob->m_RelatedBlobs.clear();
+            pTrackBlob->clearRelated();
         }
         for(EventMap::iterator it1=m_TouchEvents.begin(); it1!=m_TouchEvents.end(); ++it1) {
             BlobPtr pTouchBlob = it1->first;
-            pTouchBlob->m_RelatedBlobs.clear();
+            pTouchBlob->clearRelated();
             IntPoint TouchCenter = (IntPoint)(pTouchBlob->getCenter());
             for(EventMap::iterator it2=m_TrackEvents.begin(); it2!=m_TrackEvents.end(); ++it2) {
                 BlobPtr pTrackBlob = it2->first;
                 if (pTrackBlob->contains(TouchCenter)) {
-                    pTouchBlob->m_RelatedBlobs.push_back(pTrackBlob);
-                    pTrackBlob->m_RelatedBlobs.push_back(pTouchBlob);
+                    pTouchBlob->addRelated(pTrackBlob);
+                    pTrackBlob->addRelated(pTouchBlob);
                     break;
                 }
             }
@@ -517,23 +517,21 @@ namespace avg {
         for (it=pTouchEvents.begin(); it != pTouchEvents.end(); ++it) {
             TouchEvent * pTouchEvent = dynamic_cast<TouchEvent *>(*it);
             BlobPtr pTouchBlob = pTouchEvent->getBlob();
-            if (!(pTouchBlob->m_RelatedBlobs.empty())) {
-                BlobPtr pRelatedBlob = pTouchBlob->m_RelatedBlobs[0].lock();
-                if (pRelatedBlob) {
-                    vector<Event *>::iterator it2;
-                    TouchEvent * pTrackEvent = 0;
-                    BlobPtr pTrackBlob;
-                    for (it2=pTrackEvents.begin(); 
-                            pTrackBlob != pRelatedBlob && it2 != pTrackEvents.end(); 
-                            ++it2) 
-                    {
-                        pTrackEvent = dynamic_cast<TouchEvent *>(*it2);
-                        pTrackBlob = pTrackEvent->getBlob();
-                    }
-                    if (it2 != pTrackEvents.end()) {
-                        pTouchEvent->addRelatedEvent(pTrackEvent);
-                        pTrackEvent->addRelatedEvent(pTouchEvent);
-                    }
+            BlobPtr pRelatedBlob = pTouchBlob->getFirstRelated();
+            if (pRelatedBlob) {
+                vector<Event *>::iterator it2;
+                TouchEvent * pTrackEvent = 0;
+                BlobPtr pTrackBlob;
+                for (it2=pTrackEvents.begin(); 
+                        pTrackBlob != pRelatedBlob && it2 != pTrackEvents.end(); 
+                        ++it2) 
+                {
+                    pTrackEvent = dynamic_cast<TouchEvent *>(*it2);
+                    pTrackBlob = pTrackEvent->getBlob();
+                }
+                if (it2 != pTrackEvents.end()) {
+                    pTouchEvent->addRelatedEvent(pTrackEvent);
+                    pTrackEvent->addRelatedEvent(pTouchEvent);
                 }
             }
         }

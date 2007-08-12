@@ -267,6 +267,25 @@ const DPoint & Blob::getEigenValues() const
     return m_EigenValues;
 }
 
+void Blob::clearRelated()
+{
+    m_RelatedBlobs.clear();
+}
+
+void Blob::addRelated(BlobPtr pBlob)
+{
+    m_RelatedBlobs.push_back(pBlob);
+}
+
+const BlobPtr Blob::getFirstRelated()
+{
+    if (m_RelatedBlobs.empty()) {
+        return BlobPtr();
+    } else {
+        return m_RelatedBlobs[0].lock();
+    }
+}
+
 DPoint Blob::calcCenter()
 {
     DPoint Center(0,0);

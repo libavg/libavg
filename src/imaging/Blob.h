@@ -75,9 +75,9 @@ class Blob
         const DPoint& getEigenVector(int i) const;
         const DPoint& getEigenValues() const;
 
-        BlobWeakPtrVector m_RelatedBlobs; // For fingers, this contains the hand.
-                                       // For hands, this contains the fingers.
-        DPoint m_Direction; // Fingers only: contains vector from hand center to finger.
+        void clearRelated();
+        void addRelated(BlobPtr pBlob);
+        const BlobPtr getFirstRelated(); 
 
         BlobPtr m_pParent;
 
@@ -88,6 +88,8 @@ class Blob
         int calcArea();
 
         RunArray *m_pRuns;
+        BlobWeakPtrVector m_RelatedBlobs; // For fingers, this contains the hand.
+                                       // For hands, this contains the fingers.
 
         bool m_bStatsAvailable;
         DPoint m_Center;
