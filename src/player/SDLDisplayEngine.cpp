@@ -602,23 +602,20 @@ void SDLDisplayEngine::checkYCbCrSupport()
     {
         m_YCbCrMode = OGL_SHADER;
         string sProgramInit =
-            "#ifdef GL_ARB_texture_rectangle\n"
-            "  #extension GL_ARB_texture_rectangle : enable\n"
-            "  #define textureRect texture2DRect\n"
-            "  #define samplerRect sampler2DRect\n"
-            "#endif\n"
-            "uniform samplerRect YTexture;\n"
-            "uniform samplerRect CbTexture;\n"
-            "uniform samplerRect CrTexture;\n"
+            "#extension GL_ARB_texture_rectangle : enable\n"
+            
+            "uniform sampler2DRect YTexture;\n"
+            "uniform sampler2DRect CbTexture;\n"
+            "uniform sampler2DRect CrTexture;\n"
             "\n";
         string sProgram =
             sProgramInit + 
             "void main(void)\n"
             "{\n"
             "  vec3 YCbCr;\n"
-            "  YCbCr.r = textureRect(YTexture, gl_TexCoord[0].st).a-0.0625;\n"
-            "  YCbCr.g = textureRect(CbTexture, (gl_TexCoord[0].st)/2.0).a-0.5;\n"
-            "  YCbCr.b = textureRect(CrTexture, (gl_TexCoord[0].st)/2.0).a-0.5;\n"
+            "  YCbCr.r = texture2DRect(YTexture, gl_TexCoord[0].st).a-0.0625;\n"
+            "  YCbCr.g = texture2DRect(CbTexture, (gl_TexCoord[0].st)/2.0).a-0.5;\n"
+            "  YCbCr.b = texture2DRect(CrTexture, (gl_TexCoord[0].st)/2.0).a-0.5;\n"
             "  vec3 RGB;"
             "  RGB = YCbCr*mat3(1.16,  0.0,   1.60,\n"
             "                   1.16, -0.39, -0.81,\n"
@@ -633,9 +630,9 @@ void SDLDisplayEngine::checkYCbCrSupport()
             "void main(void)\n"
             "{\n"
             "  vec3 YCbCr;\n"
-            "  YCbCr.r = textureRect(YTexture, gl_TexCoord[0].st).a;\n"
-            "  YCbCr.g = textureRect(CbTexture, (gl_TexCoord[0].st)/2.0).a-0.5;\n"
-            "  YCbCr.b = textureRect(CrTexture, (gl_TexCoord[0].st)/2.0).a-0.5;\n"
+            "  YCbCr.r = texture2DRect(YTexture, gl_TexCoord[0].st).a;\n"
+            "  YCbCr.g = texture2DRect(CbTexture, (gl_TexCoord[0].st)/2.0).a-0.5;\n"
+            "  YCbCr.b = texture2DRect(CrTexture, (gl_TexCoord[0].st)/2.0).a-0.5;\n"
             "  vec3 RGB;"
             "  RGB = YCbCr*mat3(1,  0.0  , 1.40,\n"
             "                   1, -0.34, -0.71,\n"
