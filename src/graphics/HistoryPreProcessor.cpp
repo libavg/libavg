@@ -60,54 +60,33 @@ unsigned int HistoryPreProcessor::getInterval()
 
 void HistoryPreProcessor::reset()
 {
-    m_HistoryInitialized = 256/FAST_HISTORY_SPEED;
+    m_State = NO_IMAGE;
 }
 
-void HistoryPreProcessor::updateHistory(BitmapPtr new_img)
+void HistoryPreProcessor::updateHistory(BitmapPtr pNewBmp)
 {
-    assert(new_img->getSize() == m_pHistoryBmp->getSize());
-    if (m_HistoryInitialized > 0) {
-        m_pHistoryBmp->copyPixels(*new_img);
-        m_HistoryInitialized *= -1;
-    } else { 
-        if (m_HistoryInitialized == 0 && (m_FrameCounter < m_UpdateInterval-1)){
-            m_FrameCounter++;
-            return;
-        }
-        m_FrameCounter = 0;
-        const unsigned char * pSrc = new_img->getPixels();
-        unsigned short * pDest = (unsigned short*)(m_pHistoryBmp->getPixels());
-        int DestStride = m_pHistoryBmp->getStride()/m_pHistoryBmp->getBytesPerPixel();
-        IntPoint Size = m_pHistoryBmp->getSize();
-        if (m_HistoryInitialized == 0) {
-            for (int y=0; y<Size.y; y++) {
-                const unsigned char * pSrcPixel = pSrc;
-                unsigned short * pDestPixel = pDest;
-                for (int x=0; x<Size.x; x++) {
-                    int t = 255*int(*pDestPixel);
-                    *pDestPixel = (t)/256 + *pSrcPixel;
-                    pDestPixel++;
-                    pSrcPixel++;
-                }
-                pDest += DestStride;
-                pSrc += new_img->getStride();
+    assert(pNewBmp->getSize() == m_pHistoryBmp->getSize());
+    switch (m_State) {
+        case NO_IMAGE:
+            m_pHistoryBmp->copyPixels(*pNewBmp);
+            m_State = INITIALIZING;
+            m_NumInitImages = 0;
+            break;
+        case INITIALIZING:
+            calcAvg<FAST_HISTORY_SPEED>(pNewBmp);
+            m_NumInitImages++;
+            if (m_NumInitImages == FAST_HISTORY_SPEED) {
+                m_State = NORMAL;
             }
-        } else {
-            for (int y=0; y<Size.y; y++) {
-                const unsigned char * pSrcPixel = pSrc;
-                unsigned short * pDestPixel = pDest;
-                for (int x=0; x<Size.x; x++) {
-                    int t = (FAST_HISTORY_SPEED-1)*int(*pDestPixel);
-                    *pDestPixel = (t)/FAST_HISTORY_SPEED + int(*pSrcPixel)*
-                            (256/FAST_HISTORY_SPEED);
-                    pDestPixel++;
-                    pSrcPixel++;
-                }
-                pDest += DestStride;
-                pSrc += new_img->getStride();
+            break;
+        case NORMAL:
+            if (m_FrameCounter < m_UpdateInterval-1) {
+                m_FrameCounter++;
+            } else {
+                m_FrameCounter = 0;
+                calcAvg<256>(pNewBmp);
             }
-            m_HistoryInitialized++;
-        }
+            break;
     }
 }
 

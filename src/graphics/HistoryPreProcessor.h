@@ -44,16 +44,39 @@ class HistoryPreProcessor: public Filter
     private:
         void updateHistory(BitmapPtr new_img);
         void normalizeHistogram(BitmapPtr pBmp, unsigned char Max);
+        template<int SPEED> void calcAvg(BitmapPtr pNewBmp); 
+
         BitmapPtr m_pHistoryBmp;
         unsigned int m_FrameCounter;
         unsigned int m_UpdateInterval;
-        //interpretation of m_HistoryInitialized
-        //==0 normal operation
-        //<0 add continue resetting the history while ignoring UpdateInterval, then m_HistoryInitialized++;
-        //>0 copy a fresh frame into m_pHistoryBmp and reverse sign of m_HistoryInitialized
-        // TODO: Clean this up.
-        int m_HistoryInitialized;
+        typedef enum {NO_IMAGE, INITIALIZING, NORMAL} State;
+        State m_State;
+        int m_NumInitImages;
 };
+
+template<int SPEED>
+void HistoryPreProcessor::calcAvg(BitmapPtr pNewBmp) {
+    const int SRC_NUMERATOR = SPEED-1;
+    const int SRC_DENOMINATOR = SPEED;
+    const int DEST_FACTOR = 256/SPEED;
+    const unsigned char * pSrc = pNewBmp->getPixels();
+    unsigned short * pDest = (unsigned short*)(m_pHistoryBmp->getPixels());
+    int DestStride = m_pHistoryBmp->getStride()/m_pHistoryBmp->getBytesPerPixel();
+    IntPoint Size = m_pHistoryBmp->getSize();
+    for (int y=0; y<Size.y; y++) {
+        const unsigned char * pSrcPixel = pSrc;
+        unsigned short * pDestPixel = pDest;
+        for (int x=0; x<Size.x; x++) {
+            int t = SRC_NUMERATOR*int(*pDestPixel)/SRC_DENOMINATOR;
+            *pDestPixel = (t) + int(*pSrcPixel)*DEST_FACTOR;
+            pDestPixel++;
+            pSrcPixel++;
+        }
+        pDest += DestStride;
+        pSrc += pNewBmp->getStride();
+    }
+
+}
 
 typedef boost::shared_ptr<HistoryPreProcessor> HistoryPreProcessorPtr;
 
