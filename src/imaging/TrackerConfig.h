@@ -55,7 +55,8 @@ struct TrackerConfig
     void save(const std::string& sCustomFilename = "");
 
     // Camera params
-    std::string m_Source;
+    std::string m_sSource;
+    std::string m_sDevice;
     IntPoint m_Size;
     int m_Channel;
     int m_FPS;

@@ -205,7 +205,9 @@ namespace avg {
         while (curXmlChild) {
             const char * pNodeName = (const char *)curXmlChild->name;
             if (!strcmp(pNodeName, "source")) {
-                m_Source = getRequiredStringAttr(curXmlChild, "value");
+                m_sSource = getRequiredStringAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "device")) {
+                m_sDevice = getRequiredStringAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "size")) {
                 m_Size.x = getRequiredIntAttr(curXmlChild, "x");
                 m_Size.y = getRequiredIntAttr(curXmlChild, "y");
@@ -236,6 +238,8 @@ namespace avg {
     {
         int rc;
         rc = xmlTextWriterStartElement(writer, BAD_CAST "camera");
+        writeSimpleXMLNode(writer, "source", m_sSource);
+        writeSimpleXMLNode(writer, "device", m_sDevice);
         writePoint(writer, "size", DPoint(m_Size));
         writeSimpleXMLNode(writer, "fps", m_FPS);
         writeSimpleXMLNode(writer, "brightness", m_Brightness);
