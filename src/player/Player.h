@@ -74,7 +74,9 @@ class Player : IEventSink
         TrackerEventSource * addTracker();
         int setInterval(int time, PyObject * pyfunc);
         int setTimeout(int time, PyObject * pyfunc);
+        int setOnFrameHandler(PyObject * pyfunc);
         bool clearInterval(int id);
+
         const Event& getCurEvent() const;
         const MouseEvent& getMouseState() const;
         Bitmap * screenshot();

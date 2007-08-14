@@ -224,12 +224,18 @@ BOOST_PYTHON_MODULE(avg)
                 "setInterval(time, pyfunc) -> id\n\n"
                 "Sets a python callable object that should be executed every time\n"
                 "milliseconds. setInterval returns an id that can be used to\n"
-                "call clearInterval() to stop the code from being called.")
+                "call clearInterval() to stop the function from being called. The\n"
+                "callback is called at most once per frame.")
         .def("setTimeout", &Player::setTimeout, 
                 "setTimeout(time, pyfunc) -> id\n\n"
                 "Sets a python callable object that should be executed after time\n"
                 "milliseconds. setTimeout returns an id that can be used to\n"
-                "call clearInterval() to stop the code from being called.")
+                "call clearInterval() to stop the function from being called.")
+        .def("setOnFrameHandler", &Player::setOnFrameHandler,
+                "setOnFrameHandler(pyfunc) -> id\n\n"
+                "Sets a python callable object that should be executed once per frame.\n"
+                "Returns an id that can be used to call clearInterval() to stop the\n"
+                "function from being called.")
         .def("clearInterval", &Player::clearInterval,
                 "clearInterval(id) -> ok\n\n"
                 "Stops a timeout or an interval from being called. Returns 1 if\n"

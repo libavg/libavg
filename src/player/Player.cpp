@@ -413,6 +413,11 @@ int Player::setTimeout(int time, PyObject * pyfunc)
     return t->GetID();
 }
 
+int Player::setOnFrameHandler(PyObject * pyfunc) 
+{
+    return setInterval(0, pyfunc);
+}
+
 bool Player::clearInterval(int id)
 {
     vector<Timeout*>::iterator it;

@@ -66,7 +66,7 @@ class AVGTestCase(unittest.TestCase):
             Player.loadFile(filename)
         self.actions = actions
         self.curFrame = 0
-        Player.setInterval(0, self.nextAction)
+        Player.setOnFrameHandler(self.nextAction)
         Player.setFramerate(100)
         Player.play()
         self.assert_(Player.isPlaying() == 0)
