@@ -80,12 +80,18 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
     unsigned char *pColor = (unsigned char *)(&Color);
     int IntensityScale = 2*256/(max(Max-Min, 1));
     for(RunArray::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r) {
-        pSrc = pSrcBmp->getPixels()+(*r)->m_Row*pSrcBmp->getStride();
-        pDest = pDestBmp->getPixels()+(*r)->m_Row*pDestBmp->getStride();
-        int x_pos = (*r)->m_StartCol;
+        // TODO: Change pRun to RunPtr. This is just so gdb knows how to 
+        // dereference it.
+        Run * pRun = &(*(*r));
+        assert (pRun->m_Row < pSrcBmp->getSize().y);
+        assert (pRun->m_StartCol >= 0);
+        assert (pRun->m_EndCol <= pSrcBmp->getSize().x);
+        pSrc = pSrcBmp->getPixels()+pRun->m_Row*pSrcBmp->getStride();
+        pDest = pDestBmp->getPixels()+pRun->m_Row*pDestBmp->getStride();
+        int x_pos = pRun->m_StartCol;
         pSrc += x_pos;
         pDest+= x_pos*4;
-        while(x_pos<(*r)->m_EndCol) {
+        while(x_pos<pRun->m_EndCol) {
             int Factor = (*pSrc-Min)*IntensityScale;
             if (Factor < 0) {
                 Factor = 0;
