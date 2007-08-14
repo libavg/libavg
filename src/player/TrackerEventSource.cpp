@@ -203,6 +203,7 @@ namespace avg {
             m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgSize, I8));
         }
         m_pBitmaps[TRACKER_IMG_FINGERS] = BitmapPtr(new Bitmap(ImgSize, R8G8B8A8));
+        FilterFill<Pixel32>(Pixel32(0,0,0,0)).applyInPlace(m_pBitmaps[TRACKER_IMG_FINGERS]);
         if (m_pCmdQueue) {
             m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
                     &TrackerThread::setBitmaps, _1, Area, m_pBitmaps)));
