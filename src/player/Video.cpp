@@ -276,6 +276,7 @@ bool Video::renderToSurface(ISurface * pSurface)
     if (FrameAvailable == FA_NEW_FRAME) {
         m_FramesPlayed++;
         getEngine()->surfaceChanged(pSurface);
+        m_CurFrame++;
     } else if (FrameAvailable == FA_STILL_DECODING) {
         m_FramesPlayed++;
         m_FramesTooLate++;
@@ -283,8 +284,13 @@ bool Video::renderToSurface(ISurface * pSurface)
 //    } else if (FrameAvailable == FA_USE_LAST_FRAME) {
 //        AVG_TRACE(Logger::PROFILE, "Video frame reused.");
     }
-    if (getVideoState() == Playing) {
-        advancePlayback();
+    if (m_pDecoder->isEOF()) {
+        onEOF();
+        if (m_bLoop) {
+            seek(0);
+        } else {
+            changeVideoState(Paused);
+        }
     }
     return (FrameAvailable == FA_NEW_FRAME);
 }
@@ -299,19 +305,6 @@ void Video::onEOF()
             throw error_already_set();
         }
         Py_DECREF(result);
-    }
-}
-
-void Video::advancePlayback()
-{
-    m_CurFrame++;
-    if (m_pDecoder->isEOF()) {
-        onEOF();
-        if (m_bLoop) {
-            seek(0);
-        } else {
-            changeVideoState(Paused);
-        }
     }
 }
 

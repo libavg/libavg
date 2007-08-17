@@ -67,7 +67,6 @@ class Video : public VideoBase
         bool canRenderToBackbuffer(int BitsPerPixel);
         void seek(int DestFrame);
         void onEOF();
-        void advancePlayback();
        
         virtual void open(YCbCrMode ycbcrMode);
         virtual void close();
