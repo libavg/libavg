@@ -82,7 +82,8 @@ class AVGTestCase(unittest.TestCase):
         else:
             try:
                 BaselineBmp = avg.Bitmap(BASELINE_DIR+"/"+fileName+".png")
-                NumPixels = Player.getTestHelper().getNumDifferentPixels(Bmp, BaselineBmp)
+                NumPixels = Player.getTestHelper().getNumDifferentPixels(Bmp, 
+                        BaselineBmp)
                 if (NumPixels > 20):
                     if ourSaveDifferences:
                         Bmp.save(RESULT_DIR+"/"+fileName+".png")
@@ -580,10 +581,6 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testWords4", True),
                  Player.stop))
     def testVideo(self):
-        def seek():
-            Player.getElementByID("clogo2").seekToFrame(100)
-        def foo():
-            pass
         def newHRef():
             node = Player.getElementByID("clogo2")
             node.href = "h264-48x48.h264"
@@ -599,7 +596,6 @@ class PlayerTestCase(AVGTestCase):
         self.start("video.avg",
                 (lambda: self.compareImage("testVideo1", False),
                  lambda: Player.getElementByID("clogo2").play(),
-                 seek,
                  lambda: self.compareImage("testVideo2", False),
                  lambda: Player.getElementByID("clogo2").pause(),
                  lambda: self.compareImage("testVideo3", False),
@@ -618,6 +614,25 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Player.getElementByID("clogo").stop(),
                  lambda: self.compareImage("testVideo9", False),
                  Player.stop))
+
+    def testVideoSeek(self):
+        def seek(frame):
+            Player.getElementByID("clogo2").seekToFrame(frame)
+        def delay():
+            pass
+        Player.setFakeFPS(25)
+        self.start("video.avg",
+               (lambda: Player.getElementByID("clogo2").play(),
+                lambda: seek(100),
+                lambda: self.compareImage("testVideoSeek1", False),
+                lambda: Player.getElementByID("clogo2").pause(),
+                lambda: seek(26),
+                delay,
+                lambda: self.compareImage("testVideoSeek2", False),
+                lambda: Player.getElementByID("clogo2").play(),
+                delay,
+                lambda: self.compareImage("testVideoSeek3", False),
+                Player.stop))
 
     def testVideoEOF(self):
         def onEOF():
@@ -895,6 +910,7 @@ def playerTestSuite(engine, bpp):
     suite.addTest(PlayerTestCase("testWarp", engine, bpp))
     suite.addTest(PlayerTestCase("testWords", engine, bpp))
     suite.addTest(PlayerTestCase("testVideo", engine, bpp))
+    suite.addTest(PlayerTestCase("testVideoSeek", engine, bpp))
     suite.addTest(PlayerTestCase("testVideoEOF", engine, bpp))
 #    suite.addTest(PlayerTestCase("testCamera", engine, bpp))
     suite.addTest(PlayerTestCase("testAnim", engine, bpp))

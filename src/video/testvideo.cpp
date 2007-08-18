@@ -128,18 +128,21 @@ class DecoderTest: public Test {
                     m_bThreadedDemuxer);
             IntPoint FrameSize = pDecoder->getSize();
             BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
-            long long TimePerFrame = (long long)((1000.0/pDecoder->getFPS())*SpeedFactor);
+            double TimePerFrame = (1000.0/pDecoder->getFPS())*SpeedFactor;
             int NumFrames = 0;
-            long long CurTime = 0;
+            double CurTime = 0;
 
             while(!pDecoder->isEOF()) {
-                FrameAvailableCode FrameAvailable = pDecoder->renderToBmp(pBmp, CurTime);
+                FrameAvailableCode FrameAvailable = 
+                        pDecoder->renderToBmp(pBmp, (long long)CurTime);
                 if (FrameAvailable == FA_NEW_FRAME) {
 //                    stringstream ss;
 //                    ss << "testfiles/result/" << sFilename << NumFrames << ".png";
 //                    pBmp->save(ss.str());
                     NumFrames++;
 
+                } else {
+                    sleep(0);
                 }
                 if (FrameAvailable == FA_NEW_FRAME || FrameAvailable == FA_USE_LAST_FRAME) { 
                     CurTime += TimePerFrame;

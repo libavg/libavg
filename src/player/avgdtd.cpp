@@ -73,6 +73,7 @@ const char * g_pAVGDTD =
 "   %rasterAttrs;\n"
 "   href CDATA #REQUIRED\n"
 "   loop CDATA #IMPLIED\n"
+"   fps CDATA #IMPLIED\n"
 "   threaded CDATA #IMPLIED>\n"
 
 "<!ELEMENT camera EMPTY>\n"

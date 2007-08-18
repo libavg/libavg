@@ -79,6 +79,7 @@ class Video : public VideoBase
         std::string m_Filename;
         bool m_bLoop;
         bool m_bThreaded;
+        double m_FPS;
         PyObject * m_pEOFCallback;
         int m_FramesTooLate;
         int m_FramesPlayed;

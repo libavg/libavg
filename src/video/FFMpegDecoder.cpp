@@ -50,7 +50,9 @@ FFMpegDecoder::FFMpegDecoder ()
       m_pPacketData(0),
       m_Size(0,0),
       m_StartTimestamp(-1),
-      m_LastFrameTime(-1000)
+      m_LastFrameTime(-1000),
+      m_bUseStreamFPS(true),
+      m_FPS(0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     initVideoSupport();
@@ -181,7 +183,9 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
     }                
     m_pVStream = m_pFormatContext->streams[m_VStreamIndex];
     m_TimeUnitsPerSecond = 1.0/av_q2d(m_pVStream->time_base);
-    m_TimePerFrame = (long long)(1000.0/getFPS());
+    if (m_bUseStreamFPS) {
+        m_FPS = calcStreamFPS();
+    }
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     m_Size = IntPoint(m_pVStream->codec.width, m_pVStream->codec.height);
 #else
@@ -219,13 +223,18 @@ void FFMpegDecoder::close()
 
 void FFMpegDecoder::seek(int DestFrame) 
 {
+//    cerr << "seek to " << DestFrame << endl;
     if (m_bFirstPacket) {
         AVFrame Frame;
         long long FrameTime;
         readFrame(Frame, FrameTime);
     }
     m_pDemuxer->seek(DestFrame, m_StartTimestamp, m_VStreamIndex);
-    m_LastFrameTime = -1000;
+    if (m_bUseStreamFPS) {
+        m_LastFrameTime = -1000;
+    } else {
+        m_LastFrameTime = (long long)((DestFrame-1)*(1000/m_FPS));
+    }
     m_bEOF = false;
 }
 
@@ -249,11 +258,17 @@ int FFMpegDecoder::getNumFrames()
 
 double FFMpegDecoder::getFPS()
 {
-#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    return m_pVStream->r_frame_rate;
-#else
-    return (m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den);
-#endif 
+    return m_FPS;
+}
+
+void FFMpegDecoder::setFPS(double FPS)
+{
+    m_bUseStreamFPS = (FPS == 0);
+    if (FPS == 0) {
+        m_FPS = calcStreamFPS();
+    } else {
+        m_FPS = FPS;
+    }
 }
 
 FrameAvailableCode FFMpegDecoder::renderToBmp(BitmapPtr pBmp, long long TimeWanted)
@@ -405,23 +420,43 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long Tim
 {
     // XXX: This code is sort-of duplicated in AsyncVideoDecoder::getBmpsForTime()
     long long FrameTime = -1000;
-//    cerr << m_sFilename << " readFrameForTime " << TimeWanted << ", LastFrameTime= " << m_LastFrameTime << ", diff= " << TimeWanted-m_LastFrameTime << endl;
+/*
+    bool bDebug = (m_sFilename == "/home/uzadow/wos_videos/c-wars/thumbs/cwars-scene3.avi");
+    if (bDebug) {
+        cerr << m_sFilename << " readFrameForTime " << TimeWanted 
+                << ", LastFrameTime= " << m_LastFrameTime << ", diff= " 
+                << TimeWanted-m_LastFrameTime << endl;
+    }
+*/    
     if (TimeWanted == -1) {
         readFrame(Frame, FrameTime);
     } else {
-        if (TimeWanted-m_LastFrameTime < 0.5*m_TimePerFrame) {
-//            cerr << "   LastFrameTime = " << m_LastFrameTime << ", display again." <<  endl;
+        double TimePerFrame = 1000/m_FPS;
+        if (TimeWanted-m_LastFrameTime < 0.5*TimePerFrame) {
+/*            
+            if (bDebug) {
+                cerr << "   LastFrameTime = " << m_LastFrameTime << ", display again."
+                        <<  endl;
+            }
+*/            
             // The last frame is still current. Display it again.
             return FA_USE_LAST_FRAME;
         } else {
-            while (FrameTime-TimeWanted < -0.5*m_TimePerFrame && !m_bEOF) {
+            while (FrameTime-TimeWanted < -0.5*TimePerFrame && !m_bEOF) {
                 readFrame(Frame, FrameTime);
-//                cerr << "   readFrame returned time " << FrameTime << "." <<  endl;
+/*                
+                if (bDebug) {
+                    cerr << "   readFrame returned time " << FrameTime << "." <<  endl;
+                }
+*/                
             }
-//            cerr << "  frame ok." << endl;
+/*
+            if (bDebug) {
+                cerr << "  frame ok." << endl;
+            }
+*/            
         }
     }
-    m_LastFrameTime = FrameTime;
     return FA_NEW_FRAME;
 }
 
@@ -471,7 +506,8 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
                     }
                     // We don't have a timestamp for the last frame, so we'll
                     // calculate it based on the frame before.
-                    FrameTime = m_LastFrameTime+m_TimePerFrame;
+                    FrameTime = m_LastFrameTime+(long long)(1000.0/m_FPS);
+                    m_LastFrameTime = FrameTime;
                     return;
                 }
                 m_PacketLenLeft = m_pPacket->size;
@@ -507,9 +543,28 @@ long long FFMpegDecoder::getFrameTime(AVPacket* pPacket)
     if (m_StartTimestamp == -1) {
         m_StartTimestamp = (long long)((1000*pPacket->dts)/m_TimeUnitsPerSecond);
     }
-    return (long long)((1000*pPacket->dts)/m_TimeUnitsPerSecond)-m_StartTimestamp;
+    long long FrameTime;
+    if (m_bUseStreamFPS) {
+        FrameTime = (long long)((1000*pPacket->dts)/m_TimeUnitsPerSecond)-m_StartTimestamp;
+    } else {
+        if (m_LastFrameTime == -1000) {
+            FrameTime = 0;
+        } else {
+            FrameTime = m_LastFrameTime + (long long)(1000.0/m_FPS);
+        }
+    }
+    m_LastFrameTime = FrameTime;
+    return FrameTime;
 }
 
+double FFMpegDecoder::calcStreamFPS()
+{
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
+    return m_pVStream->r_frame_rate;
+#else
+    return (m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den);
+#endif 
+}
 
 }
 

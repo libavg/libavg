@@ -51,6 +51,7 @@ class FFMpegDecoder: public IVideoDecoder
         virtual IntPoint getSize();
         virtual int getNumFrames();
         virtual double getFPS();
+        virtual void setFPS(double FPS);
         virtual PixelFormat getPixelFormat();
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted);
@@ -66,6 +67,7 @@ class FFMpegDecoder: public IVideoDecoder
         PixelFormat calcPixelFormat(YCbCrMode ycbcrMode);
         void convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp);
         long long getFrameTime(AVPacket* pPacket);
+        double calcStreamFPS();
 
         IDemuxer * m_pDemuxer;
         AVFormatContext * m_pFormatContext;
@@ -85,7 +87,8 @@ class FFMpegDecoder: public IVideoDecoder
         double m_TimeUnitsPerSecond;
         int64_t m_StartTimestamp;
         long long m_LastFrameTime;
-        long long m_TimePerFrame;
+        bool m_bUseStreamFPS;
+        double m_FPS;
         long long m_StreamTimeOffset;
 
         ProfilingZone * m_pRenderToBmpProfilingZone;

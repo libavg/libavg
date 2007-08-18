@@ -47,6 +47,7 @@ class IVideoDecoder
         virtual IntPoint getSize() = 0;
         virtual int getNumFrames() = 0;
         virtual double getFPS() = 0;
+        virtual void setFPS(double FPS) = 0;
         virtual PixelFormat getPixelFormat() = 0;
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted) = 0;

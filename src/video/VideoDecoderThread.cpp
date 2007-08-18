@@ -124,4 +124,9 @@ void VideoDecoderThread::seek(int DestFrame)
     m_pDecoder->seek(DestFrame);
 }
 
+void VideoDecoderThread::setFPS(double FPS)
+{
+    m_pDecoder->setFPS(FPS);
+}
+
 }

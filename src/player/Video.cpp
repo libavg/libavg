@@ -58,6 +58,7 @@ Video::Video (const xmlNodePtr xmlNode, Player * pPlayer)
     m_href = getDefaultedStringAttr (xmlNode, "href", "");
     m_bLoop = getDefaultedBoolAttr (xmlNode, "loop", false);
     m_bThreaded = getDefaultedBoolAttr (xmlNode, "threaded", false);
+    m_FPS = getDefaultedDoubleAttr (xmlNode, "fps", false);
     m_Filename = m_href;
     if (m_Filename != "") {
         initFilename(getPlayer(), m_Filename);
@@ -183,7 +184,8 @@ void Video::changeVideoState(VideoState NewVideoState)
         if (NewVideoState == Paused) {
             m_PauseStartTime = CurTime;
         } else if (NewVideoState == Playing && getVideoState() == Paused) {
-            m_PauseTime += (CurTime-m_PauseStartTime);
+            m_PauseTime += (CurTime-m_PauseStartTime
+                    -(1000.0/m_pDecoder->getFPS()));
         }
     }
     VideoBase::changeVideoState(NewVideoState);
@@ -208,6 +210,7 @@ void Video::open(YCbCrMode ycbcrMode)
     m_FramesTooLate = 0;
     m_FramesPlayed = 0;
     m_pDecoder->open(m_Filename, ycbcrMode, m_bThreaded);
+    m_pDecoder->setFPS(m_FPS);
 }
 
 void Video::close()

@@ -42,6 +42,8 @@ AsyncVideoDecoder::AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder)
     : m_pSyncDecoder(pSyncDecoder),
       m_pDecoderThread(0),
       m_Size(0,0),
+      m_bUseStreamFPS(true),
+      m_FPS(0),
       m_bEOF(false),
       m_bSeekPending(false),
       m_LastFrameTime(-1000)
@@ -68,8 +70,8 @@ void AsyncVideoDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
     m_pDecoderThread = new boost::thread(
             VideoDecoderThread(*m_pMsgQ, *m_pCmdQ, m_pSyncDecoder, sFilename, 
                     ycbcrMode, bThreadedDemuxer));
-    getInfoMsg();
-    m_TimePerFrame = (long long)(1000.0/getFPS());
+    VideoMsgPtr pMsg = m_pMsgQ->pop(true);
+    getInfoMsg(pMsg);
     m_LastFrameTime = -1000;
 }
 
@@ -124,6 +126,16 @@ double AsyncVideoDecoder::getFPS()
     return m_FPS;
 }
 
+void AsyncVideoDecoder::setFPS(double FPS)
+{
+    m_pCmdQ->push(Command<VideoDecoderThread>(boost::bind(
+                &VideoDecoderThread::setFPS, _1, FPS)));
+    m_bUseStreamFPS = (FPS == 0);
+    if (FPS != 0) {
+        m_FPS = FPS;
+    }
+}
+
 PixelFormat AsyncVideoDecoder::getPixelFormat()
 {
     assert(m_pDecoderThread);
@@ -163,20 +175,21 @@ bool AsyncVideoDecoder::isEOF()
     return m_bEOF;
 }
 
-void AsyncVideoDecoder::getInfoMsg()
+void AsyncVideoDecoder::getInfoMsg(VideoMsgPtr pMsg)
 {
-    VideoMsgPtr pMsg = m_pMsgQ->pop(true);
     InfoVideoMsgPtr pInfoMsg = dynamic_pointer_cast<InfoVideoMsg>(pMsg);
     ErrorVideoMsgPtr pErrorMsg(dynamic_pointer_cast<ErrorVideoMsg>(pMsg));
     if (pErrorMsg) {
         close();
         throw(pErrorMsg->getException());
     } else {
-        assert(pInfoMsg); // The first message sent by the decoder thread after open
-        // should be an info or error message.
+        assert(pInfoMsg); // If this isn't true, the function shouldn't have 
+                          // been called.
         m_Size = pInfoMsg->getSize();
         m_NumFrames = pInfoMsg->getNumFrames();
-        m_FPS = pInfoMsg->getFPS();
+        if (m_bUseStreamFPS) {
+            m_FPS = pInfoMsg->getFPS();
+        }
         m_PF = pInfoMsg->getPF();
     }
 }
@@ -193,7 +206,8 @@ FrameVideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long TimeWanted,
         pFrameMsg = getNextBmps(true);
         FrameAvailable = FA_NEW_FRAME;
     } else {
-        if (fabs(TimeWanted-m_LastFrameTime) < 0.5*m_TimePerFrame) {
+        double TimePerFrame = 1000.0/m_FPS;
+        if (fabs(TimeWanted-m_LastFrameTime) < 0.5*TimePerFrame) {
 //            cerr << "   LastFrameTime = " << m_LastFrameTime << ", display again." <<  endl;
             // The last frame is still current. Display it again.
             FrameAvailable = FA_USE_LAST_FRAME;
@@ -204,7 +218,7 @@ FrameVideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long TimeWanted,
                 FrameAvailable = FA_USE_LAST_FRAME;
                 return FrameVideoMsgPtr();
             }
-            while (FrameTime-TimeWanted < -0.5*m_TimePerFrame && !m_bEOF) {
+            while (FrameTime-TimeWanted < -0.5*TimePerFrame && !m_bEOF) {
                 pFrameMsg = getNextBmps(false);
                 if (pFrameMsg) {
                     FrameTime = pFrameMsg->getFrameTime();
@@ -234,6 +248,7 @@ FrameVideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
         while (!pFrameMsg) {
             EOFVideoMsgPtr pEOFMsg(dynamic_pointer_cast<EOFVideoMsg>(pMsg));
             ErrorVideoMsgPtr pErrorMsg(dynamic_pointer_cast<ErrorVideoMsg>(pMsg));
+            InfoVideoMsgPtr pInfoMsg(dynamic_pointer_cast<InfoVideoMsg>(pMsg));
             if (pEOFMsg) {
                 m_bEOF = true;
                 return FrameVideoMsgPtr();
@@ -241,6 +256,8 @@ FrameVideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
                 m_bEOF = true;
                 close();
                 return FrameVideoMsgPtr();
+            } else if (pInfoMsg) {
+                getInfoMsg(pInfoMsg);
             } else {
                 // Unhandled message type.
                 assert(false);

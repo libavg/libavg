@@ -45,6 +45,7 @@ class VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
         void deinit();
 
         void seek(int DestFrame);
+        void setFPS(double FPS);
 
     private:
         VideoMsgQueue& m_MsgQ;
