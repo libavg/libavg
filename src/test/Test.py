@@ -185,6 +185,8 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Player.showCursor(1),
                  Player.stop))
         Player.getTestHelper().dumpObjects()
+    def delay():
+        pass
 
     def testError(self):
         Player.loadFile("image.avg")
@@ -618,21 +620,27 @@ class PlayerTestCase(AVGTestCase):
     def testVideoSeek(self):
         def seek(frame):
             Player.getElementByID("clogo2").seekToFrame(frame)
-        def delay():
-            pass
         Player.setFakeFPS(25)
         self.start("video.avg",
-               (lambda: Player.getElementByID("clogo2").play(),
-                lambda: seek(100),
-                lambda: self.compareImage("testVideoSeek1", False),
-                lambda: Player.getElementByID("clogo2").pause(),
-                lambda: seek(26),
-                delay,
-                lambda: self.compareImage("testVideoSeek2", False),
-                lambda: Player.getElementByID("clogo2").play(),
-                delay,
-                lambda: self.compareImage("testVideoSeek3", False),
-                Player.stop))
+                (lambda: Player.getElementByID("clogo2").play(),
+                 lambda: seek(100),
+                 lambda: self.compareImage("testVideoSeek1", False),
+                 lambda: Player.getElementByID("clogo2").pause(),
+                 lambda: seek(26),
+                 lambda: self.delay,
+                 lambda: self.compareImage("testVideoSeek2", False),
+                 lambda: Player.getElementByID("clogo2").play(),
+                 lambda: self.delay,
+                 lambda: self.compareImage("testVideoSeek3", False),
+                 Player.stop))
+    
+    def testVideoFPS(self):
+        Player.setFakeFPS(25)
+        self.start("videofps.avg",
+                (lambda: Player.getElementByID("video").play(),
+                 lambda: self.delay,
+                 lambda: self.compareImage("testVideoFPS", False),
+                 Player.stop))
 
     def testVideoEOF(self):
         def onEOF():
@@ -912,6 +920,7 @@ def playerTestSuite(engine, bpp):
     suite.addTest(PlayerTestCase("testVideo", engine, bpp))
     suite.addTest(PlayerTestCase("testVideoSeek", engine, bpp))
     suite.addTest(PlayerTestCase("testVideoEOF", engine, bpp))
+    suite.addTest(PlayerTestCase("testVideoFPS", engine, bpp))
 #    suite.addTest(PlayerTestCase("testCamera", engine, bpp))
     suite.addTest(PlayerTestCase("testAnim", engine, bpp))
     suite.addTest(PlayerTestCase("testImgDynamics", engine, bpp))
