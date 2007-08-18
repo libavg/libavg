@@ -18,14 +18,14 @@ class LoggerTestCase(unittest.TestCase):
     def test(self):
         self.Log = avg.Logger.get()
         self.Log.setCategories(self.Log.APP |
-                  self.Log.WARNING |
+                  self.Log.WARNING 
 #                  self.Log.PROFILE |
 #                  self.Log.PROFILE_LATEFRAMES |
 #                  self.Log.CONFIG |
 #                  self.Log.MEMORY | 
 #                  self.Log.BLTS    |
-                  self.Log.EVENTS |
-                  self.Log.EVENTS2
+#                  self.Log.EVENTS |
+#                  self.Log.EVENTS2
                   )
         myTempFile = os.path.join(tempfile.gettempdir(), "testavg.log")
         try:
@@ -155,6 +155,10 @@ def onCaptureMouseDown():
 class PlayerTestCase(AVGTestCase):
     def __init__(self, testFuncName, engine, bpp):
         AVGTestCase.__init__(self, testFuncName, engine, bpp)
+    
+    def delay():
+        pass
+    
     def testImage(self):    
         def loadNewFile():
             Player.getElementByID("test").href = "rgb24alpha-64x64.png"
@@ -173,8 +177,7 @@ class PlayerTestCase(AVGTestCase):
         self.assert_(mem > 1000000)
         self.assert_(mem < 100000000)
         self.start("image.avg",
-                (
-                lambda: self.compareImage("testimg", False), 
+                (lambda: self.compareImage("testimg", False), 
                  getBitmap,
                  getFramerate,
                  loadNewFile, 
@@ -184,9 +187,6 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Player.showCursor(0),
                  lambda: Player.showCursor(1),
                  Player.stop))
-        Player.getTestHelper().dumpObjects()
-    def delay():
-        pass
 
     def testError(self):
         Player.loadFile("image.avg")
@@ -198,6 +198,7 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(1)
         else:
             self.assert_(0)
+
     def testExceptionInTimeout(self):
         def throwException():
             raise ZeroDivisionError
@@ -209,12 +210,14 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(1)
         else:
             self.assert_(0)
+
     def testInvalidImageFilename(self):
         def activateNode():
             Player.getElementByID("enclosingdiv").active = 1
         self.start("invalidfilename.avg",
                 (activateNode,
                  Player.stop))
+
     def testInvalidVideoFilename(self):
         def tryplay():
             exceptionRaised = False
@@ -228,9 +231,9 @@ class PlayerTestCase(AVGTestCase):
                 (lambda: tryplay,
                  lambda: Player.getElementByID("brokenvideo").stop(),
                  Player.stop))
+
     def testEvents(self):
         def getMouseState():
-            print "getMouseState"
             Event = Player.getMouseState()
         def testInactiveDiv():
             Player.getElementByID("div1").active = False
@@ -272,7 +275,7 @@ class PlayerTestCase(AVGTestCase):
         def onDeactMouseMove():
             print("move")
         def onDeactMouseOut():
-            print("out")
+            pass
         def neverCalled():
             self.neverCalledCalled = True
 
@@ -348,6 +351,7 @@ class PlayerTestCase(AVGTestCase):
                  # XXX
                  # - errMouseOver
                  Player.stop))
+
     def testEventCapture(self):
         def captureEvent():
             global captureMouseDownCalled
@@ -379,6 +383,7 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.assert_(not(captureMouseDownCalled) and 
                         mainCaptureMouseDownCalled),
                  Player.stop))
+
     def testTimeouts(self):
         self.timeout1called = False
         self.timeout2called = False
@@ -399,6 +404,7 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.assert_(self.timeout1called),
                  lambda: self.assert_(not(self.timeout2called)),
                  Player.stop))
+
     def testEventErr(self):
         Player.loadFile("errevent.avg")
         Player.setTimeout(10, Player.stop)
@@ -407,6 +413,7 @@ class PlayerTestCase(AVGTestCase):
         except NameError:
             print("(Intentional) NameError caught")
             self.assert_(1)
+
     def testHugeImage(self):
         def moveImage():
             Player.getElementByID("mainimg").x -= 2500
@@ -415,6 +422,7 @@ class PlayerTestCase(AVGTestCase):
                  moveImage,
                  lambda: self.compareImage("testHugeImage1", False),
                  Player.stop))
+
     def testPanoImage(self):
         def changeProperties():
             node = Player.getElementByID("pano")
@@ -430,6 +438,7 @@ class PlayerTestCase(AVGTestCase):
                  changeProperties,
                  loadImage,
                  Player.stop))
+
     def testBroken(self):
         def testBrokenFile(filename):
             exceptionRaised = False
@@ -442,6 +451,7 @@ class PlayerTestCase(AVGTestCase):
         testBrokenFile("noxml.avg")
         testBrokenFile("noavg.avg")
         testBrokenFile("noavg2.avg")
+
     def testMove(self):
         def moveit():
             node = Player.getElementByID("nestedimg1")
@@ -454,10 +464,12 @@ class PlayerTestCase(AVGTestCase):
                  moveit,
                  lambda: self.compareImage("testMove2", False),
                  Player.stop))
+
     def testBlend(self):
         self.start("blend.avg",
                 (lambda: self.compareImage("testBlend", False),
                  Player.stop))
+
     def testCropImage(self):
         def moveTLCrop():
             node = Player.getElementByID("img")
@@ -486,6 +498,7 @@ class PlayerTestCase(AVGTestCase):
                  moveBRGone,
                  lambda: self.compareImage("testCropImage5", False),
                  Player.stop))
+
     def testCropMovie(self):
         def playMovie():
             node = Player.getElementByID("movie")
@@ -518,6 +531,7 @@ class PlayerTestCase(AVGTestCase):
                  moveBRGone,
                  lambda: self.compareImage("testCropMovie5", False),
                  Player.stop))
+
     def testWarp(self):
         def moveVertex():
             node = Player.getElementByID("testtiles")
@@ -545,6 +559,7 @@ class PlayerTestCase(AVGTestCase):
                  flip,
                  lambda: self.compareImage("testWarp3", False),
                  Player.stop))
+
     def testWords(self):
         def changeText():
             node = Player.getElementByID("cbasetext")
@@ -582,6 +597,7 @@ class PlayerTestCase(AVGTestCase):
                  changeUnicodeText,
                  lambda: self.compareImage("testWords4", True),
                  Player.stop))
+
     def testVideo(self):
         def newHRef():
             node = Player.getElementByID("clogo2")
