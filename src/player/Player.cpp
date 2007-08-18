@@ -165,11 +165,10 @@ void Player::setResolution(bool bFullscreen,
 }
         
 void Player::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode, 
-                bool bUseRGBOrder, bool bUsePixelBuffers, int MultiSampleSamples)
+                bool bUsePixelBuffers, int MultiSampleSamples)
 {
     m_bUsePOW2Textures = bUsePOW2Textures;
     m_YCbCrMode = DesiredYCbCrMode;
-    m_bUseRGBOrder = bUseRGBOrder;
     m_bUsePixelBuffers = bUsePixelBuffers;
     m_MultiSampleSamples = MultiSampleSamples;
 }
@@ -663,11 +662,10 @@ void Player::initConfig() {
     if (m_sDisplaySubsystem == "DFB") {
         if  (pMgr->getOption("scr", "usepow2textures") != 0 || 
              pMgr->getOption("scr", "ycbcrmode") != 0 ||
-             pMgr->getOption("scr", "usergborder") != 0 ||
              pMgr->getOption("scr", "usepixelbuffers") != 0) 
         {
             AVG_TRACE(Logger::WARNING, 
-                    "avgrc: usepow2textures, ycbcrmode, usergborder and usepixelbuffers are unsupported in the DirectFB backend. Ignoring.");
+                    "avgrc: usepow2textures, ycbcrmode and usepixelbuffers are unsupported in the DirectFB backend. Ignoring.");
         }
     } else {
         m_bUsePOW2Textures = pMgr->getBoolOption("scr", "usepow2textures", false);
@@ -704,7 +702,6 @@ void Player::initConfig() {
             exit(-1);
         }
 
-        m_bUseRGBOrder = pMgr->getBoolOption("scr", "usergborder", false);
         m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
         m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 1);
         pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
@@ -752,8 +749,6 @@ void Player::initGraphics()
                     AVG_TRACE(Logger::CONFIG, "  Fragment shader YCbCr texture support.");
                     break;
             }
-            AVG_TRACE(Logger::CONFIG, "  RGB order: " 
-                    << (m_bUseRGBOrder?"true":"false"));
             AVG_TRACE(Logger::CONFIG, "  Use pixel buffers: " 
                     << (m_bUsePixelBuffers?"true":"false"));
             AVG_TRACE(Logger::CONFIG, "  Multisample samples: " 
@@ -793,8 +788,7 @@ void Player::initGraphics()
             dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine);
     if (pSDLDisplayEngine) {
         pSDLDisplayEngine->setOGLOptions(m_bUsePOW2Textures, m_YCbCrMode, 
-                m_bUseRGBOrder, m_bUsePixelBuffers, m_MultiSampleSamples,
-                m_VSyncMode);
+                m_bUsePixelBuffers, m_MultiSampleSamples, m_VSyncMode);
     }
     m_pDisplayEngine->init(m_DP);
 }

@@ -70,9 +70,6 @@ ConfigMgr::ConfigMgr()
     addOption("scr", "ycbcrmode", "shader",
             "OpenGL backend only: How to render YCbCr surfaces. Valid values are"
             " shader, mesa, apple and none.");
-    addOption("scr", "usergborder", "false",
-            "OpenGL backend only: Whether to use RGB (false) or BGR (true)"
-            " ordering internally for pixels.");
     addOption("scr", "usepixelbuffers", "true",
             "OpenGL backend only: Whether to use pixel buffer objects.");
     addOption("scr", "multisamplesamples", "1",

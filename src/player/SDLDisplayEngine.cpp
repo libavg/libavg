@@ -533,9 +533,7 @@ bool SDLDisplayEngine::supportsBpp(int bpp)
 
 bool SDLDisplayEngine::hasRGBOrdering()
 {
-    // So far, false is alot faster on linux NVIDIA proprietary drivers.
-    // Not sure for other drivers.
-    return m_bShouldUseRGBOrder;
+    return false;
 }
 
 YCbCrMode SDLDisplayEngine::getYCbCrMode()
@@ -1391,7 +1389,7 @@ OGLMemoryMode SDLDisplayEngine::getMemoryModeSupported()
 
 
 void SDLDisplayEngine::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode, 
-        bool bUseRGBOrder, bool bUsePixelBuffers, int MultiSampleSamples, 
+        bool bUsePixelBuffers, int MultiSampleSamples, 
         VSyncMode DesiredVSyncMode)
 {
     if (m_pScreen) {
@@ -1401,7 +1399,6 @@ void SDLDisplayEngine::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCb
     }
     m_bShouldUsePOW2Textures = bUsePOW2Textures;
     m_DesiredYCbCrMode = DesiredYCbCrMode;
-    m_bShouldUseRGBOrder = bUseRGBOrder;
     m_bShouldUsePixelBuffers = bUsePixelBuffers;
     m_MultiSampleSamples = MultiSampleSamples;
     m_DesiredVSyncMode = DesiredVSyncMode;

@@ -93,7 +93,7 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         OGLMemoryMode getMemoryModeSupported();
 
         void setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYcbcrMode, 
-                bool bUseRGBOrder, bool bUsePixelBuffers, int MultiSampleSamples, 
+                bool bUsePixelBuffers, int MultiSampleSamples, 
                 VSyncMode DesiredVSyncMode);
 
     private:
@@ -153,7 +153,6 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
 
         bool m_bShouldUsePOW2Textures;
         YCbCrMode m_DesiredYCbCrMode;
-        bool m_bShouldUseRGBOrder;
         bool m_bShouldUsePixelBuffers;
         int m_MultiSampleSamples;
         VSyncMode m_DesiredVSyncMode;

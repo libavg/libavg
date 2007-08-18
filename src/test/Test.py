@@ -56,7 +56,7 @@ class AVGTestCase(unittest.TestCase):
     def setUpVideo(self):
         Player.setDisplayEngine(self.__engine)
         Player.setResolution(0, 0, 0, self.__bpp)
-        Player.setOGLOptions(UsePOW2Textures, YCbCrMode, UseRGBOrder, UsePixelBuffers, 1)
+        Player.setOGLOptions(UsePOW2Textures, YCbCrMode, UsePixelBuffers, 1)
     def setUp(self):
         self.setUpVideo()
         print "-------- ", self.__testFuncName, " --------"
@@ -966,7 +966,7 @@ if len(sys.argv) == 1:
     engine = avg.OGL
     bpp = 24
     customOGLOptions = False
-elif len(sys.argv) == 3 or len(sys.argv) == 7:
+elif len(sys.argv) == 3 or len(sys.argv) == 6:
     if sys.argv[1] == "OGL":
         engine = avg.OGL
     elif sys.argv[1] == "DFB":
@@ -988,19 +988,17 @@ elif len(sys.argv) == 3 or len(sys.argv) == 7:
             YCbCrMode = avg.none
         else:
             print "Fourth parameter must be shader, apple, mesa or none"
-        UseRGBOrder = getBoolParam(5)
-        UsePixelBuffers = getBoolParam(6)
+        UsePixelBuffers = getBoolParam(5)
     else:
         customOGLOptions = False
 else:
     print "Usage: Test.py [<display engine> <bpp>"
-    print "               [<UsePOW2Textures> <YCbCrMode> <UseRGBOrder> <UsePixelBuffers>]]"
+    print "               [<UsePOW2Textures> <YCbCrMode> <UsePixelBuffers>]]"
     sys.exit(1)
 
 if not(customOGLOptions): 
     UsePOW2Textures = False 
     YCbCrMode = avg.shader
-    UseRGBOrder = False 
     UsePixelBuffers = True
 
 SrcDir = os.getenv("srcdir",".")

@@ -185,7 +185,7 @@ void Video::changeVideoState(VideoState NewVideoState)
             m_PauseStartTime = CurTime;
         } else if (NewVideoState == Playing && getVideoState() == Paused) {
             m_PauseTime += (CurTime-m_PauseStartTime
-                    -(1000.0/m_pDecoder->getFPS()));
+                    - (long long)(1000.0/m_pDecoder->getFPS()));
         }
     }
     VideoBase::changeVideoState(NewVideoState);
