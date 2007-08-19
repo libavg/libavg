@@ -440,11 +440,6 @@ bool Player::clearInterval(int id)
     return false;
 }
 
-const Event& Player::getCurEvent() const
-{
-    return *m_pCurEvent;
-}
-
 const MouseEvent& Player::getMouseState() const
 {
     return m_pEventDispatcher->getLastMouseEvent();
@@ -922,7 +917,6 @@ void Player::handleTimers()
 
 bool Player::handleEvent(Event * pEvent)
 {
-    m_pCurEvent = pEvent;
     assert(pEvent); 
     if(CursorEvent * pCursorEvent = dynamic_cast<CursorEvent*>(pEvent)) {
         DPoint pos(pCursorEvent->getXPosition(), 
@@ -965,11 +959,9 @@ bool Player::handleEvent(Event * pEvent)
             m_pLastMouseNode.erase(cursorID);
         }
         if (pNode && pNode->getSensitive()) {
-            m_pCurEvent = pEvent;
             pNode->handleEvent(pCursorEvent);
         }
     } else if ( KeyEvent * pKeyEvent = dynamic_cast<KeyEvent*>(pEvent)){
-        m_pCurEvent = pEvent;
         m_pRootNode->handleEvent(pKeyEvent);
         if (pEvent->getType() == Event::KEYDOWN &&
             pKeyEvent->getKeyCode() == 27) 

@@ -116,7 +116,7 @@ BOOST_PYTHON_MODULE(avg)
     ;
 
 #ifndef WIN32
-     export_devices();
+    export_devices();
 #endif
     export_event();
     export_node();
@@ -240,11 +240,6 @@ BOOST_PYTHON_MODULE(avg)
                 "clearInterval(id) -> ok\n\n"
                 "Stops a timeout or an interval from being called. Returns 1 if\n"
                 "there was an interval with the given id, 0 if not.\n")
-        .def("getCurEvent", &Player::getCurEvent,
-                return_value_policy<reference_existing_object>(),
-                "getCurEvent() -> Event\n\n"
-                "Gets an interface to the current event. Only valid inside event\n"
-                "handlers (onmouseup, onmousedown, etc.)")
         .def("getMouseState", &Player::getMouseState,
                 return_value_policy<reference_existing_object>(),
                 "getMouseState() -> Event\n\n"

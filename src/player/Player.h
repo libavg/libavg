@@ -136,7 +136,6 @@ class Player : IEventSink
 
         EventDispatcherPtr m_pEventDispatcher;
         DebugEventSink  m_EventDumper;
-        Event * m_pCurEvent;
         std::map<int, NodePtr> m_pLastMouseNode;
         std::map<int, NodeWeakPtr> m_pEventCaptureNode;
 

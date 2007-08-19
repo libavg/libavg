@@ -487,24 +487,16 @@ void Node::handleEvent (Event* pEvent)
     EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
     if (it!=m_EventHandlerMap.end()) {
         pEvent->setElement(m_This.lock());
-        callPython(it->second, *pEvent);
+        callPython(it->second, pEvent);
     }
     if (getParent()) {
         getParent()->handleEvent (pEvent);
     }
 }
 
-void Node::callPython (PyObject * pFunc, const Event& Event)
+void Node::callPython (PyObject * pFunc, Event *pEvent)
 {
-    // TODO:
-    //   - Pass Event to python.
-    //   - Handle python return code/exception and pass to caller.
-    PyObject * pArgList = Py_BuildValue("()");
-    PyObject * pResult = PyEval_CallObject(pFunc, pArgList);
-    if (!pResult) {
-        throw error_already_set();
-    }
-    Py_DECREF(pArgList);
+    boost::python::call<void>(pFunc, boost::python::ptr(pEvent));
 }
 
 PyObject * Node::findPythonFunc(const string& Code)

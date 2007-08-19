@@ -102,12 +102,11 @@ class AVGTestCase(unittest.TestCase):
                 self.Log.trace(self.Log.WARNING, "Could not load image "+fileName+".png")
                 self.assert_(False)
 
-def keyUp():
+def keyUp(Event):
     print "keyUp"
 
-def keyDown():
+def keyDown(Event):
     print "keyDown"
-    Event = Player.getCurEvent()
     print Event
     print "  Type: "+str(Event.type)
     print "  keystring: "+Event.keystring
@@ -115,8 +114,7 @@ def keyDown():
     print "  keycode: "+str(Event.keycode)
     print "  modifiers: "+str(Event.modifiers)
 
-def dumpMouseEvent():
-    Event = Player.getCurEvent()
+def dumpMouseEvent(Event):
     print Event
     print "  type: "+str(Event.type)
     print "  leftbuttonstate: "+str(Event.leftbuttonstate)
@@ -128,27 +126,27 @@ def dumpMouseEvent():
 mainMouseUpCalled = False
 mainMouseDownCalled = False
 
-def mainMouseUp():
+def mainMouseUp(Event):
     global mainMouseUpCalled
-    assert (Player.getCurEvent().type == avg.CURSORUP)
+    assert (Event.type == avg.CURSORUP)
     mainMouseUpCalled = True
 
-def mainMouseDown():
+def mainMouseDown(Event):
     global mainMouseDownCalled
-    assert (Player.getCurEvent().type == avg.CURSORDOWN)
+    assert (Event.type == avg.CURSORDOWN)
     mainMouseDownCalled = True
 
-def onErrMouseOver():
+def onErrMouseOver(Event):
     undefinedFunction()
 
 mainCaptureMouseDownCalled = False
 captureMouseDownCalled = False
 
-def onMainCaptureMouseDown():
+def onMainCaptureMouseDown(Event):
     global mainCaptureMouseDownCalled
     mainCaptureMouseDownCalled = True
 
-def onCaptureMouseDown():
+def onCaptureMouseDown(Event):
     global captureMouseDownCalled
     captureMouseDownCalled = True
     
@@ -242,41 +240,41 @@ class PlayerTestCase(AVGTestCase):
         def disableHandler():
             self.mouseDown1Called = False
             Player.getElementByID("img1").setEventHandler(avg.CURSORDOWN, avg.MOUSE, None)
-        def onMouseMove1():
-            self.assert_ (Player.getCurEvent().type == avg.CURSORMOTION)
+        def onMouseMove1(Event):
+            self.assert_ (Event.type == avg.CURSORMOTION)
             print "onMouseMove1"
-        def onMouseUp1():
-            self.assert_ (Player.getCurEvent().type == avg.CURSORUP)
+        def onMouseUp1(Event):
+            self.assert_ (Event.type == avg.CURSORUP)
             self.mouseUp1Called = True
-        def onMouseDown1():
-            self.assert_ (Player.getCurEvent().type == avg.CURSORDOWN)
+        def onMouseDown1(Event):
+            self.assert_ (Event.type == avg.CURSORDOWN)
             self.mouseDown1Called = True
-        def onMouseOver1():
-            self.assert_ (Player.getCurEvent().type == avg.CURSOROVER)
+        def onMouseOver1(Event):
+            self.assert_ (Event.type == avg.CURSOROVER)
             self.mouseOver1Called = True
-        def onMouseOut1():
-            self.assert_ (Player.getCurEvent().type == avg.CURSOROUT)
+        def onMouseOut1(Event):
+            self.assert_ (Event.type == avg.CURSOROUT)
             self.mouseOut1Called = True
-        def onTouchDown():
+        def onTouchDown(Event):
             self.touchDownCalled = True
-        def onDivMouseDown():
-            self.assert_ (Player.getCurEvent().type == avg.CURSORDOWN)
+        def onDivMouseDown(Event):
+            self.assert_ (Event.type == avg.CURSORDOWN)
             self.divMouseDownCalled = True
-        def onMouseDown2():
-            self.assert_ (Player.getCurEvent().type == avg.CURSORDOWN)
+        def onMouseDown2(Event):
+            self.assert_ (Event.type == avg.CURSORDOWN)
             self.mouseDown2Called = True
-        def onObscuredMouseDown():
+        def onObscuredMouseDown(Event):
             self.obscuredMouseDownCalled = True
-        def onDeactMouseDown():
+        def onDeactMouseDown(Event):
             self.deactMouseDownCalled = True
-        def onDeactMouseOver():
+        def onDeactMouseOver(Event):
             self.deactMouseOverLate = self.deactMouseDownCalled
             self.deactMouseOverCalled = True
-        def onDeactMouseMove():
+        def onDeactMouseMove(Event):
             print("move")
-        def onDeactMouseOut():
+        def onDeactMouseOut(Event):
             pass
-        def neverCalled():
+        def neverCalled(Event):
             self.neverCalledCalled = True
 
         Helper = Player.getTestHelper()

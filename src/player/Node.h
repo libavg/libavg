@@ -139,7 +139,7 @@ class Node
         DisplayEngine * getEngine() const;
         NodePtr getThis() const;
 
-        void callPython (PyObject * pFunc, const avg::Event& Event);
+        void callPython (PyObject * pFunc, avg::Event* pEvent);
         void addEventHandlers(Event::Type EventType, const std::string& Code);
         void addEventHandler(Event::Type EventType, Event::Source Source, 
                 const std::string& Code);
