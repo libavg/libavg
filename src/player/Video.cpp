@@ -104,11 +104,11 @@ int Video::getCurFrame() const
     }
 }
 
-void Video::seekToFrame(int num)
+void Video::seekToFrame(int FrameNum)
 {
     if (getVideoState() != Unloaded) {
-        if (num != m_CurFrame) {
-            seek(num);
+        if (FrameNum != m_CurFrame) {
+            seek(FrameNum);
         }
     } else {
         AVG_TRACE(Logger::WARNING, 

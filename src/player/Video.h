@@ -50,7 +50,7 @@ class Video : public VideoBase
         
         int getNumFrames() const;
         int getCurFrame() const;
-        void seekToFrame(int num);
+        void seekToFrame(int FrameNum);
         bool getLoop() const;
         bool isThreaded() const;
         void setEOFCallback(PyObject * pEOFCallback);
