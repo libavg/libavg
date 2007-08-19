@@ -156,7 +156,7 @@ BOOST_PYTHON_MODULE(avg)
                 "bpp is the number of bits per pixel to use. Must be called before\n"
                 "loadFile.")
         .def("setOGLOptions", &Player::setOGLOptions,
-                "setOGLOptions(UsePOW2Textures, YCbCrMode, UseRGBOrder, UsePixelBuffers, MultiSampleSamples)\n"
+                "setOGLOptions(UsePOW2Textures, YCbCrMode, UsePixelBuffers, MultiSampleSamples)\n"
                 "       -> None\n\n"
                 "Determines which OpenGL extensions to check for and use if possible.\n"
                 "Mainly used for debugging purposes while developing libavg, but can\n"
@@ -164,7 +164,6 @@ BOOST_PYTHON_MODULE(avg)
                 "UsePOW2Textures=true restricts textures to power-of-two dimensions.\n"
                 "YCbCrMode can be shader, mesa, apple or none and selects the preferred\n"
                 "method of copying video textures to the screen.\n"
-                "UseRGBOrder=true swaps the order of red and blue components in textures.\n"
                 "UsePixelBuffers=false disables the use of OpenGL pixel buffer objects.\n"
                 "MultiSampleSamples is the number of samples per pixel to compute. This\n"
                 "costs performance and smoothes the edges of polygons. A value of 1 turns\n"
