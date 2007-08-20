@@ -23,9 +23,6 @@
 
 #include "RasterNode.h"
 
-#ifdef AVG_ENABLE_GL
-#include "OGLSurface.h"
-#endif
 #include "MathHelper.h"
 #include "DisplayEngine.h"
 
@@ -117,31 +114,31 @@ int RasterNode::getNumVerticesY()
 #endif
 }
 
-DPoint RasterNode::getOrigVertexCoord(int x, int y)
+VertexGrid RasterNode::getOrigVertexCoords()
 {
 #ifdef AVG_ENABLE_GL
     OGLSurface * pOGLSurface = getOGLSurface();
-    return pOGLSurface->getOrigVertexCoord(x, y);
+    return pOGLSurface->getOrigVertexCoords();
 #else
-    return DPoint(0,0);
+    return VertexGrid();
 #endif
 }
 
-DPoint RasterNode::getWarpedVertexCoord(int x, int y) 
+VertexGrid RasterNode::getWarpedVertexCoords() 
 {
 #ifdef AVG_ENABLE_GL
     OGLSurface * pOGLSurface = getOGLSurface();
-    return pOGLSurface->getWarpedVertexCoord(x, y);
+    return pOGLSurface->getWarpedVertexCoords();
 #else
-    return DPoint(0,0);
+    return VertexGrid();
 #endif
 }
 
-void RasterNode::setWarpedVertexCoord(int x, int y, const DPoint& Vertex)
+void RasterNode::setWarpedVertexCoords(const VertexGrid& Grid)
 {
 #ifdef AVG_ENABLE_GL
     OGLSurface * pOGLSurface = getOGLSurface();
-    pOGLSurface->setWarpedVertexCoord(x, y, Vertex);
+    pOGLSurface->setWarpedVertexCoords(Grid);
 #endif
 }
 

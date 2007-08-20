@@ -36,6 +36,8 @@
 
 namespace avg {
 
+typedef std::vector<std::vector<DPoint> > VertexGrid;
+
 class OGLSurface: public ISurface {
     public:
         OGLSurface(SDLDisplayEngine * pEngine);
@@ -65,15 +67,15 @@ class OGLSurface: public ISurface {
         void setMaxTileSize(const Point<int>& MaxTileSize);
         int getNumVerticesX();
         int getNumVerticesY();
-        DPoint getOrigVertexCoord(int x, int y);
-        DPoint getWarpedVertexCoord(int x, int y);
-        void setWarpedVertexCoord(int x, int y, const DPoint& Vertex);
+        VertexGrid getOrigVertexCoords();
+        VertexGrid getWarpedVertexCoords();
+        void setWarpedVertexCoords(const VertexGrid& Grid);
  
         bool wouldTile(IntPoint Size);
 
     private:
         void setupTiles();
-        void initTileVertices();
+        void initTileVertices(VertexGrid& Grid);
         void initTileVertex (int x, int y, DPoint& Vertex);
 
         void createBitmap(const IntPoint& Size, PixelFormat pf, int index);
@@ -98,7 +100,7 @@ class OGLSurface: public ISurface {
         int m_NumHorizTextures;
         int m_NumVertTextures;
         std::vector<std::vector<OGLTilePtr> > m_pTiles;
-        std::vector<std::vector<DPoint> > m_TileVertices;
+        VertexGrid m_TileVertices;
 
         OGLMemoryMode m_MemoryMode;
 

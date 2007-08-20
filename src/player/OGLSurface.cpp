@@ -96,7 +96,7 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
         
     unbind();
     setupTiles();
-    initTileVertices();
+    initTileVertices(m_TileVertices);
 }
 
 void OGLSurface::createFromBits(IntPoint Size, PixelFormat pf,
@@ -176,7 +176,7 @@ void OGLSurface::setMaxTileSize(const IntPoint& MaxTileSize)
     }
     if (m_pBmps[0]) {
         setupTiles();
-        initTileVertices();
+        initTileVertices(m_TileVertices);
     }
 }
 
@@ -190,45 +190,43 @@ int OGLSurface::getNumVerticesY()
     return m_NumVertTextures+1;
 }
 
-DPoint OGLSurface::getOrigVertexCoord(int x, int y)
+VertexGrid OGLSurface::getOrigVertexCoords()
 {
     if (!m_bBound) {
         bind();
     }
-    if (x < 0 || x > m_NumHorizTextures || y < 0 || y > m_NumVertTextures) {
-        AVG_TRACE(Logger::WARNING, 
-                "getOrigVertexCoord called, but coordinate out of bounds.");
-        return DPoint(0,0);
-    }
-    DPoint Vertex;
-    initTileVertex(x, y, Vertex);
-    return Vertex;
+    VertexGrid Grid;
+    initTileVertices(Grid);
+    return Grid;
 }
 
-DPoint OGLSurface::getWarpedVertexCoord(int x, int y)
+VertexGrid OGLSurface::getWarpedVertexCoords()
 {
     if (!m_bBound) {
         bind();
     }
-    if (x < 0 || x > m_NumHorizTextures || y < 0 || y > m_NumVertTextures) {
-        AVG_TRACE(Logger::WARNING, 
-                "getWarpedVertexCoord called, but coordinate out of bounds.");
-        return DPoint(0,0);
-    }
-    return m_TileVertices[y][x];
+    return m_TileVertices;
 }
 
-void OGLSurface::setWarpedVertexCoord(int x, int y, const DPoint& Vertex)
+void OGLSurface::setWarpedVertexCoords(const VertexGrid& Grid)
 {
     if (!m_bBound) {
         bind();
     }
-    if (x < 0 || x > m_NumHorizTextures || y < 0 || y > m_NumVertTextures) {
-        AVG_TRACE(Logger::WARNING, 
-                "setWarpedVertexCoord called, but coordinate out of bounds.");
-        return;
+    bool bGridOK = true;
+    if (Grid.size() != (unsigned)(m_NumVertTextures+1)) {
+        bGridOK = false;
     }
-    m_TileVertices[y][x] = Vertex;
+    for (unsigned i = 0; i< Grid.size(); ++i) {
+        if (Grid[i].size() != (unsigned)(m_NumHorizTextures+1)) {
+            bGridOK = false;
+        }
+    }
+    if (!bGridOK) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE, 
+                "setWarpedVertexCoords() called with incorrect grid size.");
+    }
+    m_TileVertices = Grid;
 }
 
 string getGlModeString(int Mode) 
@@ -425,14 +423,14 @@ void OGLSurface::setupTiles()
 
 }
 
-void OGLSurface::initTileVertices()
+void OGLSurface::initTileVertices(VertexGrid& Grid)
 {
     std::vector<DPoint> TileVerticesLine(m_NumHorizTextures+1);
-    m_TileVertices = std::vector<std::vector<DPoint> >
+    Grid = std::vector<std::vector<DPoint> >
                 (m_NumVertTextures+1, TileVerticesLine);
-    for (unsigned int y=0; y<m_TileVertices.size(); y++) {
-        for (unsigned int x=0; x<m_TileVertices[y].size(); x++) {
-            initTileVertex(x, y, m_TileVertices[y][x]);
+    for (unsigned int y=0; y<Grid.size(); y++) {
+        for (unsigned int x=0; x<Grid[y].size(); x++) {
+            initTileVertex(x, y, Grid[y][x]);
         }
     }
 }

@@ -19,6 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include "WrapHelper.h"
+
 #include "../player/CameraNode.h"
 #include "../player/Image.h"
 #include "../player/Video.h"
@@ -28,9 +30,18 @@
 
 using namespace boost::python;
 using namespace avg;
+using namespace std;
 
 void export_raster()
 {
+    boost::python::to_python_converter<vector<DPoint>, 
+        to_list<vector<DPoint> > >();    
+    boost::python::to_python_converter<VertexGrid, 
+        to_list<VertexGrid> >();    
+   
+    from_python_sequence<vector<DPoint>, variable_capacity_policy>();
+    from_python_sequence<VertexGrid, variable_capacity_policy>();
+
  
     class_<RasterNode, bases<Node>, boost::noncopyable>("RasterNode",
             "Base class for all nodes that have a direct 2d raster representation.\n"
@@ -48,21 +59,15 @@ void export_raster()
             "    blendmode: The method of compositing the node with the nodes under\n"
             "        it. Valid values are 'blend', 'add', 'min' and 'max'.",
             no_init) 
-        .def("getNumVerticesX", &RasterNode::getNumVerticesX,
-                "getNumVerticesX() -> x\n\n"
-                "Returns the number of horizontal grid points.")
-        .def("getNumVerticesY", &RasterNode::getNumVerticesY,
-                "getNumVerticesY() -> y\n\n"
-                "Returns the number of vertical grid points.")
-        .def("getOrigVertexCoord", &RasterNode::getOrigVertexCoord,
-                "getOrigVertexCoord(x,y) -> Point\n\n"
-                "Returns the unwarped coordinate of a vertex.")
-        .def("getWarpedVertexCoord", &RasterNode::getWarpedVertexCoord,
-                "getWarpedVertexCoord(x,y) -> Point\n\n"
-                "Returnes the current coordinate of a vertex.")
-        .def("setWarpedVertexCoord", &RasterNode::setWarpedVertexCoord,
-                "setWarpedVertexCoord(x,y, Point) -> None\n\n"
-                "Changes the current coordinate of a vertex.")
+        .def("getOrigVertexCoords", &RasterNode::getOrigVertexCoords,
+                "getOrigVertexCoords() -> GridPoints\n\n"
+                "Returns the unwarped coordinate of all vertices.")
+        .def("getWarpedVertexCoords", &RasterNode::getWarpedVertexCoords,
+                "getWarpedVertexCoords() -> GridPoints\n\n"
+                "Returnes the current coordinate of all vertices.")
+        .def("setWarpedVertexCoords", &RasterNode::setWarpedVertexCoords,
+                "setWarpedVertexCoords(Grid) -> None\n\n"
+                "Changes the current coordinates of all vertices.")
         .def("getBitmap", &RasterNode::getBitmap,
                 return_value_policy<manage_new_object>(),
                 "getBitmap() -> Bitmap\n\n"

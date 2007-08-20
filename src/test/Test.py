@@ -533,22 +533,20 @@ class PlayerTestCase(AVGTestCase):
     def testWarp(self):
         def moveVertex():
             node = Player.getElementByID("testtiles")
-            pos = node.getWarpedVertexCoord(1,1)
-            pos.x += 0.06
-            pos.y += 0.06
-            node.setWarpedVertexCoord(1,1,pos)
+            grid = node.getWarpedVertexCoords()
+            grid[1][1] = (grid[1][1].x+0.06, grid[1][1].y+0.06)
+            node.setWarpedVertexCoords(grid)
             node = Player.getElementByID("clogo1")
-            pos = node.getWarpedVertexCoord(0,0)
-            pos.x += 0.06
-            pos.y += 0.06
-            node.setWarpedVertexCoord(0,0,pos)
+            grid = node.getWarpedVertexCoords()
+            grid[0][0] = (grid[0][0].x+0.06, grid[0][0].y+0.06)
+            node.setWarpedVertexCoords(grid)
         def flip():
             node = Player.getElementByID("testtiles")
-            for y in range(node.getNumVerticesY()):
-                for x in range(node.getNumVerticesX()):
-                    pos = node.getOrigVertexCoord(x,y)
+            grid = node.getOrigVertexCoords()
+            for line in grid:
+                for pos in line:
                     pos.x = 1-pos.x
-                    node.setWarpedVertexCoord(x,y,pos)
+            node.setWarpedVertexCoords(grid)
         self.start("video.avg",
                 (lambda: Player.getElementByID("clogo1").play(),
                  lambda: self.compareImage("testWarp1", False),

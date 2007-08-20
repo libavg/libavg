@@ -24,6 +24,7 @@
 
 #include "Node.h"
 #include "DisplayEngine.h"
+#include "OGLSurface.h"
 
 #include "../base/Point.h"
 
@@ -43,9 +44,9 @@ class RasterNode: public Node
         // Warping support.
         int getNumVerticesX();
         int getNumVerticesY();
-        DPoint getOrigVertexCoord(int x, int y);
-        DPoint getWarpedVertexCoord(int x, int y);
-        void setWarpedVertexCoord(int x, int y, const DPoint& Vertex);
+        VertexGrid getOrigVertexCoords();
+        VertexGrid getWarpedVertexCoords();
+        void setWarpedVertexCoords(const VertexGrid& Grid);
 
         double getAngle() const;
         void setAngle(double Angle);

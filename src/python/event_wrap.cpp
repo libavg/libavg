@@ -19,6 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include "WrapHelper.h"
+
 #include "../player/KeyEvent.h"
 #include "../player/MouseEvent.h"
 #include "../player/TouchEvent.h"
@@ -31,27 +33,11 @@ using namespace boost::python;
 using namespace avg;
 using namespace std;
 
-template <typename ContainerType>
-struct to_tuple
-{
-    static PyObject* convert(ContainerType const& a)
-    {
-        boost::python::list result;
-        typedef typename ContainerType::const_iterator const_iter;
-        for(const_iter p=a.begin();p!=a.end();p++) {
-            result.append(boost::python::object(*p));
-        }
-        return boost::python::incref(boost::python::tuple(result).ptr());
-    }
-
-    static const PyTypeObject* get_pytype() { return &PyTuple_Type; }
-};
-
 void export_event()
 {
    boost::python::to_python_converter<vector<TouchEvent*>, 
         to_tuple<vector<TouchEvent *> > >();    
-   
+
    class_<Event, boost::noncopyable>("Event", 
             "Base class for user input events.\n"
             "Properties:\n"
