@@ -48,9 +48,8 @@ public:
             TrackerCalibrator Calibrator(IntPoint(640, 480), IntPoint(640,480));
             bool bDone = false;
             while (!bDone) {
-                IntPoint DisplayPoint(Calibrator.getDisplayPointX(), 
-                        Calibrator.getDisplayPointY());
-                Calibrator.setCamPoint(DisplayPoint.x, DisplayPoint.y);
+                IntPoint DisplayPoint(Calibrator.getDisplayPoint());
+                Calibrator.setCamPoint(DPoint(DisplayPoint));
                 bDone = !Calibrator.nextPoint();
             }
             pTrafo = Calibrator.makeTransformer();
@@ -63,9 +62,8 @@ public:
             TrackerCalibrator Calibrator(IntPoint(640, 480), IntPoint(1280,720));
             bool bDone = false;
             while (!bDone) {
-                IntPoint DisplayPoint(Calibrator.getDisplayPointX(), 
-                        Calibrator.getDisplayPointY());
-                Calibrator.setCamPoint(DisplayPoint.x/2, DisplayPoint.y/1.5);
+                IntPoint DisplayPoint(Calibrator.getDisplayPoint());
+                Calibrator.setCamPoint(DPoint(DisplayPoint.x/2, DisplayPoint.y/1.5));
                 bDone = !Calibrator.nextPoint();
             }
             pTrafo = Calibrator.makeTransformer();

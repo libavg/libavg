@@ -218,11 +218,9 @@ class_<TrackerCalibrator, boost::noncopyable>("TrackerCalibrator",
             "nextPoint(None) -> Bool\n"
             "Advances to the next point. Returns False and ends calibration if\n"
             "all points have been set.\n")
-        .def("getDisplayPointX", &TrackerCalibrator::getDisplayPointX,
-            "getDisplayPointX(None) -> Pos\n")
-        .def("getDisplayPointY", &TrackerCalibrator::getDisplayPointY,
-            "getDisplayPointY(None) -> Pos\n")
+        .def("getDisplayPoint", &TrackerCalibrator::getDisplayPoint,
+            "getDisplayPoint(None) -> Pos\n")
         .def("setCamPoint", &TrackerCalibrator::setCamPoint,
-            "setCamPoint(x, y) -> None\n")
+            "setCamPoint(pt) -> None\n")
         ;
 }

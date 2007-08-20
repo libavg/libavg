@@ -135,22 +135,19 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
         }
     }
 
-    int TrackerCalibrator::getDisplayPointX()
+    IntPoint TrackerCalibrator::getDisplayPoint()
     {
-        return m_DisplayPoints[m_CurPoint].x;
+        return m_DisplayPoints[m_CurPoint];
     }
 
-    int TrackerCalibrator::getDisplayPointY()
+    void TrackerCalibrator::setCamPoint(const DPoint& pt)
     {
-        return m_DisplayPoints[m_CurPoint].y;
-    }
-
-    void TrackerCalibrator::setCamPoint(double x, double y)
-    {
-        m_CamPoints[m_CurPoint] = DPoint(x, y);
+        m_CamPoints[m_CurPoint] = pt;
         m_bCurPointSet = true;
     }
-    void TrackerCalibrator::initThisFromDouble(double *p){
+
+    void TrackerCalibrator::initThisFromDouble(double *p)
+    {
         m_DisplayOffset.x = p[DISPOFFSET_X]; 
         m_DisplayOffset.y = p[DISPOFFSET_Y];
         m_DisplayScale.x = p[DISPSCALE_X];

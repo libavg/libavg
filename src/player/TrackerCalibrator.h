@@ -38,9 +38,8 @@ public:
     virtual ~TrackerCalibrator();
 
     bool nextPoint();
-    int getDisplayPointX();
-    int getDisplayPointY();
-    void setCamPoint(double x, double y);
+    IntPoint getDisplayPoint();
+    void setCamPoint(const DPoint& pt);
 
     DeDistortPtr makeTransformer();
 
