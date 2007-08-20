@@ -709,8 +709,6 @@ void Player::initGraphics()
     AVG_TRACE(Logger::CONFIG, "Display subsystem: " << 
             m_sDisplaySubsystem);
     AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_DP.m_BPP);
-    AVG_TRACE(Logger::CONFIG, "Display fullscreen: "
-            << (m_DP.m_bFullscreen?"true":"false"));
 
     if (!m_pDisplayEngine) {
         if (m_sDisplaySubsystem == "DFB") {
@@ -726,7 +724,7 @@ void Player::initGraphics()
 #endif
         } else if (m_sDisplaySubsystem == "OGL") {
 #ifdef AVG_ENABLE_GL
-            AVG_TRACE(Logger::CONFIG, "Requested OGL configuration: ");
+            AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
             AVG_TRACE(Logger::CONFIG, "  POW2 textures: " 
                     << (m_bUsePOW2Textures?"true":"false"));
             string sMode;

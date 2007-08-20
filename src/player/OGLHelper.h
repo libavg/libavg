@@ -48,7 +48,6 @@ bool queryGLXExtension(char *extName);
 
 enum OGLMemoryMode { 
     OGL,  // Standard OpenGL
-    MESA,
     PBO   // pixel buffer objects
 };
 

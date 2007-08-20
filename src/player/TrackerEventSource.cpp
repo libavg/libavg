@@ -62,7 +62,6 @@ namespace avg {
           m_TrackerConfig(Config)
     {
         ObjectCounter::get()->incRef(&typeid(*this));
-        AVG_TRACE(Logger::CONFIG,"TrackerEventSource created");
 
         IntPoint ImgSize = pCamera->getImgSize();
         m_pBitmaps[0] = BitmapPtr(new Bitmap(ImgSize, I8));

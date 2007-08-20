@@ -287,7 +287,6 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
     initInput();
     // SDL sets up a signal handler we really don't want.
     signal(SIGSEGV, SIG_DFL);
-    
     logConfig();
     
 //    dumpSDLGLParams();
@@ -324,29 +323,49 @@ void SDLDisplayEngine::setGamma(double Red, double Green, double Blue)
 
 void SDLDisplayEngine::logConfig() 
 {
-    AVG_TRACE(Logger::CONFIG, "OpenGL version: " << glGetString(GL_VERSION));
-    AVG_TRACE(Logger::CONFIG, "OpenGL vendor: " << glGetString(GL_VENDOR));
-    AVG_TRACE(Logger::CONFIG, "OpenGL renderer: " << glGetString(GL_RENDERER));
+    AVG_TRACE(Logger::CONFIG, "OpenGL configuration: ");
+    AVG_TRACE(Logger::CONFIG, "  OpenGL version: " << glGetString(GL_VERSION));
+    AVG_TRACE(Logger::CONFIG, "  OpenGL vendor: " << glGetString(GL_VENDOR));
+    AVG_TRACE(Logger::CONFIG, "  OpenGL renderer: " << glGetString(GL_RENDERER));
     switch (m_YCbCrMode) {
         case OGL_NONE:
-            AVG_TRACE(Logger::CONFIG, "YCbCr texture support not enabled.");
+            AVG_TRACE(Logger::CONFIG, "  YCbCr texture support not enabled.");
             break;
         case OGL_MESA:
-            AVG_TRACE(Logger::CONFIG, "Using Mesa YCbCr texture support.");
+            AVG_TRACE(Logger::CONFIG, "  Using Mesa YCbCr texture support.");
             break;
         case OGL_APPLE:
-            AVG_TRACE(Logger::CONFIG, "Using Apple YCbCr texture support.");
+            AVG_TRACE(Logger::CONFIG, "  Using Apple YCbCr texture support.");
             break;
         case OGL_SHADER:
-            AVG_TRACE(Logger::CONFIG, "Using fragment shader YCbCr texture support.");
+            AVG_TRACE(Logger::CONFIG, "  Using fragment shader YCbCr texture support.");
+            break;
+    }
+    switch(m_TextureMode) {
+        case GL_TEXTURE_2D:
+            AVG_TRACE(Logger::CONFIG, "  Using power of 2 textures.");
+            break;
+        case GL_TEXTURE_RECTANGLE_NV:
+            AVG_TRACE(Logger::CONFIG, 
+                    "  Using NVidia texture rectangle extension.");
             break;
     }
     if (m_MultiSampleSamples == 1) {
-        AVG_TRACE(Logger::CONFIG, "Not using multisampling.");
+        AVG_TRACE(Logger::CONFIG, "  Not using multisampling.");
     } else {
-        AVG_TRACE(Logger::CONFIG, "Using multisampling with " << m_MultiSampleSamples 
+        AVG_TRACE(Logger::CONFIG, "  Using multisampling with " << m_MultiSampleSamples 
                 << " samples");
     }
+    switch (getMemoryModeSupported()) {
+        case PBO:
+            AVG_TRACE(Logger::CONFIG, "  Using pixel buffer objects.");
+            break;
+        case OGL:
+            AVG_TRACE(Logger::CONFIG, "  Not using GL memory extensions.");
+            break;
+    }
+        AVG_TRACE(Logger::CONFIG,
+                "  Max. texture size is " << getMaxTexSize());
 }
 
 static ProfilingZone PrepareRenderProfilingZone("Root node: prepareRender");
@@ -707,16 +726,16 @@ bool SDLDisplayEngine::initVBlank(int rate) {
     switch(m_VBMethod) {
         case VB_SGI:
             AVG_TRACE(Logger::CONFIG, 
-                    "Using SGI OpenGL extension for vertical blank support.");
+                    "  Using SGI OpenGL extension for vertical blank support.");
             break;
         case VB_DRI:
-            AVG_TRACE(Logger::CONFIG, "Using DRI vertical blank support.");
+            AVG_TRACE(Logger::CONFIG, "  Using DRI vertical blank support.");
             break;
         case VB_APPLE:
-            AVG_TRACE(Logger::CONFIG, "Using Apple GL vertical blank support.");
+            AVG_TRACE(Logger::CONFIG, "  Using Apple GL vertical blank support.");
             break;
         case VB_NONE:
-            AVG_TRACE(Logger::CONFIG, "Vertical blank support disabled.");
+            AVG_TRACE(Logger::CONFIG, "  Vertical blank support disabled.");
             break;
     }
     return m_VBMethod != VB_NONE;
@@ -1255,21 +1274,15 @@ int SDLDisplayEngine::getTextureMode()
     if (m_TextureMode == 0) {
         if (m_bShouldUsePOW2Textures) {
             m_TextureMode = GL_TEXTURE_2D;
-            AVG_TRACE(Logger::CONFIG, "Using power of 2 textures.");
         } else {
             if (queryOGLExtension("GL_NV_texture_rectangle")) {
                 m_TextureMode = GL_TEXTURE_RECTANGLE_NV;
-                AVG_TRACE(Logger::CONFIG, 
-                        "Using NVidia texture rectangle extension.");
             } else if (queryOGLExtension("GL_EXT_texture_rectangle") ||
                     queryOGLExtension("GL_ARB_texture_rectangle")) 
             {
                 m_TextureMode = GL_TEXTURE_RECTANGLE_ARB;
-                AVG_TRACE(Logger::CONFIG, 
-                        "Using portable texture rectangle extension.");
             } else {
                 m_TextureMode = GL_TEXTURE_2D;
-                AVG_TRACE(Logger::CONFIG, "Using power of 2 textures.");
             }
         }
     }
@@ -1280,8 +1293,6 @@ int SDLDisplayEngine::getMaxTexSize()
 {
     if (m_MaxTexSize == 0) {
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &m_MaxTexSize);
-        AVG_TRACE(Logger::CONFIG,
-                "Max. texture size is " << m_MaxTexSize);
     }
     return m_MaxTexSize;
 }
@@ -1376,10 +1387,8 @@ OGLMemoryMode SDLDisplayEngine::getMemoryModeSupported()
             m_bShouldUsePixelBuffers)
         {
             m_MemoryMode = PBO;
-            AVG_TRACE(Logger::CONFIG, "Using pixel buffer objects.");
         } else {
             m_MemoryMode = OGL;
-            AVG_TRACE(Logger::CONFIG, "Not using GL memory extensions.");
         }
         m_bCheckedMemoryMode = true;
     }
