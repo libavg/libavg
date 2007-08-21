@@ -163,6 +163,7 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_VBMethod(VB_NONE),
       m_VBMod(0),
       m_dri_fd(0),
+      m_bMouseOverApp(true),
       m_TextureMode(0),
       m_MaxTexSize(0),
       m_bCheckedMemoryMode(false)
@@ -858,16 +859,65 @@ void SDLDisplayEngine::initInput()
     initJoysticks();
 }
 
+const char * getEventTypeName(unsigned char Type) 
+{
+    switch(Type) {
+            case SDL_ACTIVEEVENT:
+                return "SDL_ACTIVEEVENT";
+            case SDL_KEYDOWN:
+                return "SDL_KEYDOWN";
+            case SDL_KEYUP:
+                return "SDL_KEYUP";
+            case SDL_MOUSEMOTION:
+                return "SDL_MOUSEMOTION";
+            case SDL_MOUSEBUTTONDOWN:
+                return "SDL_MOUSEBUTTONDOWN";
+            case SDL_MOUSEBUTTONUP:
+                return "SDL_MOUSEBUTTONUP";
+            case SDL_JOYAXISMOTION:
+                return "SDL_JOYAXISMOTION";
+            case SDL_JOYBUTTONDOWN:
+                return "SDL_JOYBUTTONDOWN";
+            case SDL_JOYBUTTONUP:
+                return "SDL_JOYBUTTONUP";
+            case SDL_VIDEORESIZE:
+                return "SDL_VIDEORESIZE";
+            case SDL_VIDEOEXPOSE:
+                return "SDL_VIDEOEXPOSE";
+            case SDL_QUIT:
+                return "SDL_QUIT";
+            case SDL_USEREVENT:
+                return "SDL_USEREVENT";
+            case SDL_SYSWMEVENT:
+                return "SDL_SYSWMEVENT";
+            default:
+                return "Unknown SDL event type";
+    }
+}
+
 vector<Event *> SDLDisplayEngine::pollEvents()
 {
     SDL_Event sdlEvent;
     vector<Event *> Events;
 
     while(SDL_PollEvent(&sdlEvent)){
-        switch(sdlEvent.type){
+//        cerr << "Event type: " << getEventTypeName(sdlEvent.type) << endl;
+        switch(sdlEvent.type) {
+            case SDL_ACTIVEEVENT:
+                if (sdlEvent.active.state & SDL_APPMOUSEFOCUS) {
+                    m_bMouseOverApp = sdlEvent.active.gain;
+                    if (!sdlEvent.active.gain) {
+                        Events.push_back(
+                                new MouseEvent (Event::CURSORMOTION, false,
+                                        false, false, IntPoint(-1, -1), 
+                                        MouseEvent::NO_BUTTON));
+                    }
+                }
             case SDL_MOUSEMOTION:
-                Events.push_back
-                        (createMouseMotionEvent(Event::CURSORMOTION, sdlEvent));
+                if (m_bMouseOverApp) {
+                    Events.push_back
+                            (createMouseMotionEvent(Event::CURSORMOTION, sdlEvent));
+                }
                 break;
             case SDL_MOUSEBUTTONDOWN:
                 Events.push_back

@@ -145,6 +145,7 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         static void calcRefreshRate();
         static double s_RefreshRate;
 
+        bool m_bMouseOverApp;
         static std::vector<long> KeyCodeTranslationTable;
 
         // Texture config.
