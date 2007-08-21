@@ -516,15 +516,6 @@ void SDLDisplayEngine::clip()
     }
 }
 
-void SDLDisplayEngine::setDirtyRect(const DRect& rc) 
-{
-    m_DirtyRect = rc;
-    
-    AVG_TRACE(Logger::BLTS, "Dirty rect: " << m_DirtyRect.tl.x << "x" << 
-            m_DirtyRect.tl.y << ", width: " << m_DirtyRect.Width() << 
-            ", height: " << m_DirtyRect.Height());
-}
-
 static ProfilingZone SwapBufferProfilingZone("Render - swap buffers");
 
 void SDLDisplayEngine::swapBuffers()

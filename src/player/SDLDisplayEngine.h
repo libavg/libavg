@@ -102,7 +102,6 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         void initTranslationTable();
         void initJoysticks();
         void logConfig(); 
-        void setDirtyRect(const DRect& rc);
         virtual void swapBuffers();
         void clip();
         void setClipPlane(double Eqn[4], int WhichPlane);
@@ -122,7 +121,6 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         int m_WindowWidth;
         int m_WindowHeight;
         std::vector<DRect> m_ClipRects;
-        DRect m_DirtyRect;
         bool m_bEnableCrop;
 
         SDL_Surface * m_pScreen;
