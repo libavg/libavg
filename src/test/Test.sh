@@ -4,9 +4,9 @@ set -e
 runTest()
 {
     echo
-    echo "---------- OGL, BPP=$1 POW2=$2, YCbCr=$3 PBO=$5 -----------"
+    echo "---------- BPP=$1 POW2=$2, YCbCr=$3 PBO=$4 -----------"
     echo
-    ./Test.py OGL $1 $2 $3 $4 $5
+    ./Test.py $1 $2 $3 $4
 }
 
 testOGL()
@@ -34,9 +34,4 @@ runTest $1  true none    false
 cd ${0%/*}
 testOGL 24
 testOGL 16
-#if [[ `uname` = Linux ]]
-#then
-#    ./Test.py DFB 24
-#    ./Test.py DFB 16
-#fi
 cd -

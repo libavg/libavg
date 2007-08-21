@@ -102,20 +102,6 @@ if test "$enable_v4l2" = yes; then
 	AC_DEFINE(AVG_ENABLE_V4L2, 1, [Enable Video4Linux2 camera support])
 fi
 
-
-AC_ARG_ENABLE(DFB,
-              AC_HELP_STRING([--enable-DFB], 
-                    [compile support for DirectFB rendering backend]),
-                    enable_DFB=$enableval, enable_DFB=maybe, )
-if test "$enable_DFB" = maybe; then
-    AC_PATH_GENERIC(directfb,, [enable_DFB=yes], [enable_DFB=false])
-fi
-AM_CONDITIONAL(ENABLE_DFB, test x$enable_DFB = xyes)
-if test "$enable_DFB" = yes; then
-    AC_PATH_GENERIC(directfb,, [enable_DFB=yes], AC_MSG_ERROR([directfb not found. Aborting.]))
-    AC_DEFINE(AVG_ENABLE_DFB, 1, [Enable DirectFB rendering backend])
-fi
-
 AC_CHECK_HEADER([linux/ppdev.h], enable_ParPort=yes, enable_ParPort=no)
 AM_CONDITIONAL(ENABLE_PARPORT, test x$enable_ParPort = xyes)
 if test "$enable_ParPort" = yes; then

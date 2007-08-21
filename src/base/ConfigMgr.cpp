@@ -55,8 +55,6 @@ ConfigMgr* ConfigMgr::get()
 ConfigMgr::ConfigMgr()
 {
     addSubsys("scr");
-    addOption("scr", "subsys", "OGL",
-            "Whether to use OpenGL (OGL) or DirectFB (DFB) for video output");
     addOption("scr", "bpp", "24",
             "Screen bits per pixel. Valid values are 15, 16, 24 and 32.");
     addOption("scr", "fullscreen", "false",
@@ -66,20 +64,20 @@ ConfigMgr::ConfigMgr()
     addOption("scr", "windowheight", "0",
             "The height of the window to use. Contents are scaled.");
     addOption("scr", "usepow2textures", "false",
-            "OpenGL backend only: If set to true, use only power of 2 textures.");
+            "If set to true, use only power of 2 textures.");
     addOption("scr", "ycbcrmode", "shader",
-            "OpenGL backend only: How to render YCbCr surfaces. Valid values are"
+            "How to render YCbCr surfaces. Valid values are"
             " shader, mesa, apple and none.");
     addOption("scr", "usepixelbuffers", "true",
-            "OpenGL backend only: Whether to use pixel buffer objects.");
+            "Whether to use pixel buffer objects.");
     addOption("scr", "multisamplesamples", "1",
-            "OpenGL backend only: Whether to use multisampling and how many"
+            "Whether to use multisampling and how many"
             "samples per pixel to use.");
     addOption("scr", "gamma", "-1,-1,-1",
-            "OpenGL backend only: Display gamma correction values for red,"
+            "Display gamma correction values for red,"
             "green and blue.");
     addOption("scr", "vsyncmode", "auto",
-            "OpenGL backend only: How to synchronize the display refresh."
+            "How to synchronize the display refresh."
             "Valid values are auto, ogl, dri and none.");
 
     m_sFName = "avgrc";

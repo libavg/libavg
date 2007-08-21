@@ -24,18 +24,12 @@ else
     ALL_GL_LIBS =
 endif
 
-if ENABLE_DFB
-    DFB_LIBS = @DIRECTFB_LIBS@
-else
-    DFB_LIBS =
-endif
-
 pkgpyexec_LTLIBRARIES = avg.la
 avg_la_SOURCES = avg_wrap.cpp node_wrap.cpp raster_wrap.cpp event_wrap.cpp \
         device_wrap.cpp bitmap_wrap.cpp 
 avg_la_LDFLAGS = $(APPLE_LDFLAGS) -module -XCClinker $(BOOST_PYTHON_LIBS) \
         -l@BOOST_THREAD_LIB@ @XML2_LIBS@ \
-        $(DC1394_LIBS) @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) $(DFB_LIBS) \
+        $(DC1394_LIBS) @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) \
         @LIBFFMPEG@ $(MAGICK_LIBS) @PANGOFT2_LIBS@ @PTHREAD_LIBS@
 avg_la_LIBADD = ../conradrelais/libconradrelais.la \
                 ../player/libplayer.la \

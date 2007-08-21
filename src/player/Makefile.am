@@ -1,5 +1,5 @@
 
-INCLUDES = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ @DIRECTFB_CFLAGS@ \
+INCLUDES = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ \
 		@PANGOFT2_CFLAGS@ @PYTHON_INCLUDES@ @GL_CFLAGS@ @FFMPEG_CFLAGS@ \
         @DC1394_2_CFLAGS@ \
 		$(MAGICK_CFLAGS)
@@ -22,14 +22,6 @@ else
     GL_INCLUDES =
 endif
 
-if ENABLE_DFB
-    DFB_SOURCES = DFBDisplayEngine.cpp DFBSurface.cpp 
-    DFB_INCLUDES = DFBDisplayEngine.h DFBSurface.h 
-else
-    DFB_SOURCES =
-    DFB_INCLUDES =
-endif
-
 ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
         DisplayEngine.h Region.h Node.h \
         ISurface.h avgdtd.h DisplayParams.h \
@@ -39,7 +31,7 @@ ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
         Event.h KeyEvent.h PanoImage.h TestHelper.h \
         RasterNode.h CameraNode.h TrackerEventSource.h TrackerCalibrator.h\
 	    TouchEvent.h EventStream.h\
-        $(GL_INCLUDES) $(DFB_INCLUDES) $(APPLE_INCLUDES)
+        $(GL_INCLUDES) $(APPLE_INCLUDES)
 
 TESTS=testcalibrator
 
@@ -55,7 +47,7 @@ testcalibrator_LDADD = libplayer.la ../video/libvideo.la ../imaging/libimaging.l
 		../graphics/libgraphics.la ../base/libbase.la ../lmfit/liblmfit.la
 testcalibrator_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ 
 
-libplayer_la_SOURCES = $(GL_SOURCES) $(DFB_SOURCES) \
+libplayer_la_SOURCES = $(GL_SOURCES) \
 		Node.cpp RasterNode.cpp DivNode.cpp VideoBase.cpp Video.cpp \
         Player.cpp DisplayEngine.cpp Region.cpp \
         MathHelper.cpp PanoImage.cpp Words.cpp CameraNode.cpp \

@@ -47,14 +47,12 @@ class LoggerTestCase(unittest.TestCase):
         self.Log.setConsoleDest()
 
 class AVGTestCase(unittest.TestCase):
-    def __init__(self, testFuncName, engine, bpp):
-        self.__engine = engine
+    def __init__(self, testFuncName, bpp):
         self.__bpp = bpp
         self.__testFuncName = testFuncName
         self.Log = avg.Logger.get()
         unittest.TestCase.__init__(self, testFuncName)
     def setUpVideo(self):
-        Player.setDisplayEngine(self.__engine)
         Player.setResolution(0, 0, 0, self.__bpp)
         Player.setOGLOptions(UsePOW2Textures, YCbCrMode, UsePixelBuffers, 1)
     def setUp(self):
@@ -151,8 +149,8 @@ def onCaptureMouseDown(Event):
     captureMouseDownCalled = True
     
 class PlayerTestCase(AVGTestCase):
-    def __init__(self, testFuncName, engine, bpp):
-        AVGTestCase.__init__(self, testFuncName, engine, bpp)
+    def __init__(self, testFuncName, bpp):
+        AVGTestCase.__init__(self, testFuncName, bpp)
     
     def delay():
         pass
@@ -896,7 +894,7 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testDivDynamics3", False),
                  Player.stop))
             
-def playerTestSuite(engine, bpp):
+def playerTestSuite(bpp):
     def rmBrokenDir():
         try:
             files = os.listdir(RESULT_DIR)
@@ -911,42 +909,42 @@ def playerTestSuite(engine, bpp):
                 ourSaveDifferences = False
     rmBrokenDir()
     suite = unittest.TestSuite()
-    suite.addTest(PlayerTestCase("testImage", engine, bpp))
-    suite.addTest(PlayerTestCase("testError", engine, bpp))
-    suite.addTest(PlayerTestCase("testExceptionInTimeout", engine, bpp))
-    suite.addTest(PlayerTestCase("testInvalidImageFilename", engine, bpp))
-    suite.addTest(PlayerTestCase("testInvalidVideoFilename", engine, bpp))
-    suite.addTest(PlayerTestCase("testEvents", engine, bpp))
-    suite.addTest(PlayerTestCase("testEventCapture", engine, bpp))
-    suite.addTest(PlayerTestCase("testTimeouts", engine, bpp))
-    suite.addTest(PlayerTestCase("testEventErr", engine, bpp))
-    suite.addTest(PlayerTestCase("testHugeImage", engine, bpp))
-    suite.addTest(PlayerTestCase("testPanoImage", engine, bpp))
-    suite.addTest(PlayerTestCase("testBroken", engine, bpp))
-    suite.addTest(PlayerTestCase("testMove", engine, bpp))
-    suite.addTest(PlayerTestCase("testBlend", engine, bpp))
-    suite.addTest(PlayerTestCase("testCropImage", engine, bpp))
-    suite.addTest(PlayerTestCase("testCropMovie", engine, bpp))
-    suite.addTest(PlayerTestCase("testWarp", engine, bpp))
-    suite.addTest(PlayerTestCase("testWords", engine, bpp))
-    suite.addTest(PlayerTestCase("testVideo", engine, bpp))
-    suite.addTest(PlayerTestCase("testVideoSeek", engine, bpp))
-    suite.addTest(PlayerTestCase("testVideoEOF", engine, bpp))
-    suite.addTest(PlayerTestCase("testVideoFPS", engine, bpp))
-#    suite.addTest(PlayerTestCase("testCamera", engine, bpp))
-    suite.addTest(PlayerTestCase("testAnim", engine, bpp))
-    suite.addTest(PlayerTestCase("testImgDynamics", engine, bpp))
-    suite.addTest(PlayerTestCase("testVideoDynamics", engine, bpp))
-    suite.addTest(PlayerTestCase("testWordsDynamics", engine, bpp))
-    suite.addTest(PlayerTestCase("testPanoDynamics", engine, bpp))
-    suite.addTest(PlayerTestCase("testCameraDynamics", engine, bpp))
-    suite.addTest(PlayerTestCase("testDivDynamics", engine, bpp))
+    suite.addTest(PlayerTestCase("testImage", bpp))
+    suite.addTest(PlayerTestCase("testError", bpp))
+    suite.addTest(PlayerTestCase("testExceptionInTimeout", bpp))
+    suite.addTest(PlayerTestCase("testInvalidImageFilename", bpp))
+    suite.addTest(PlayerTestCase("testInvalidVideoFilename", bpp))
+    suite.addTest(PlayerTestCase("testEvents", bpp))
+    suite.addTest(PlayerTestCase("testEventCapture", bpp))
+    suite.addTest(PlayerTestCase("testTimeouts", bpp))
+    suite.addTest(PlayerTestCase("testEventErr", bpp))
+    suite.addTest(PlayerTestCase("testHugeImage", bpp))
+    suite.addTest(PlayerTestCase("testPanoImage", bpp))
+    suite.addTest(PlayerTestCase("testBroken", bpp))
+    suite.addTest(PlayerTestCase("testMove", bpp))
+    suite.addTest(PlayerTestCase("testBlend", bpp))
+    suite.addTest(PlayerTestCase("testCropImage", bpp))
+    suite.addTest(PlayerTestCase("testCropMovie", bpp))
+    suite.addTest(PlayerTestCase("testWarp", bpp))
+    suite.addTest(PlayerTestCase("testWords", bpp))
+    suite.addTest(PlayerTestCase("testVideo", bpp))
+    suite.addTest(PlayerTestCase("testVideoSeek", bpp))
+    suite.addTest(PlayerTestCase("testVideoEOF", bpp))
+    suite.addTest(PlayerTestCase("testVideoFPS", bpp))
+#    suite.addTest(PlayerTestCase("testCamera", bpp))
+    suite.addTest(PlayerTestCase("testAnim", bpp))
+    suite.addTest(PlayerTestCase("testImgDynamics", bpp))
+    suite.addTest(PlayerTestCase("testVideoDynamics", bpp))
+    suite.addTest(PlayerTestCase("testWordsDynamics", bpp))
+    suite.addTest(PlayerTestCase("testPanoDynamics", bpp))
+    suite.addTest(PlayerTestCase("testCameraDynamics", bpp))
+    suite.addTest(PlayerTestCase("testDivDynamics", bpp))
     return suite
 
-def completeTestSuite(engine, bpp):
+def completeTestSuite(bpp):
     suite = unittest.TestSuite()
     suite.addTest(LoggerTestCase("test"))
-    suite.addTest(playerTestSuite(engine, bpp))
+    suite.addTest(playerTestSuite(bpp))
     return suite
 
 def getBoolParam(paramIndex):
@@ -959,21 +957,14 @@ def getBoolParam(paramIndex):
         print "Parameter "+paramIndex+" must be 'True' or 'False'"
 
 if len(sys.argv) == 1:
-    engine = avg.OGL
     bpp = 24
     customOGLOptions = False
-elif len(sys.argv) == 3 or len(sys.argv) == 6:
-    if sys.argv[1] == "OGL":
-        engine = avg.OGL
-    elif sys.argv[1] == "DFB":
-        engine = avg.DFB
-    else:
-        print "First parameter must be OGL or DFB"
-    bpp = int(sys.argv[2])
-    if (len(sys.argv) == 7):
+elif len(sys.argv) == 2 or len(sys.argv) == 5:
+    bpp = int(sys.argv[1])
+    if (len(sys.argv) == 5):
         customOGLOptions = True
-        UsePOW2Textures = getBoolParam(3)
-        s = sys.argv[4]
+        UsePOW2Textures = getBoolParam(2)
+        s = sys.argv[3]
         if s == "shader":
             YCbCrMode = avg.shader
         elif s == "apple":
@@ -983,12 +974,12 @@ elif len(sys.argv) == 3 or len(sys.argv) == 6:
         elif s == "none":
             YCbCrMode = avg.none
         else:
-            print "Fourth parameter must be shader, apple, mesa or none"
-        UsePixelBuffers = getBoolParam(5)
+            print "Third parameter must be shader, apple, mesa or none"
+        UsePixelBuffers = getBoolParam(4)
     else:
         customOGLOptions = False
 else:
-    print "Usage: Test.py [<display engine> <bpp>"
+    print "Usage: Test.py [<bpp>"
     print "               [<UsePOW2Textures> <YCbCrMode> <UsePixelBuffers>]]"
     sys.exit(1)
 
@@ -1001,7 +992,7 @@ SrcDir = os.getenv("srcdir",".")
 os.chdir(SrcDir)
 Player = avg.Player()
 runner = unittest.TextTestRunner()
-rc = runner.run(completeTestSuite(engine, bpp))
+rc = runner.run(completeTestSuite(bpp))
 if rc.wasSuccessful():
     sys.exit(0)
 else:

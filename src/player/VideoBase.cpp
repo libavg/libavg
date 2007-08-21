@@ -29,10 +29,6 @@
 #include "VideoBase.h"
 #include "DivNode.h"
 #include "DisplayEngine.h"
-#ifdef AVG_ENABLE_DFB
-#include "DFBDisplayEngine.h"
-#include "DFBSurface.h"
-#endif
 #include "Player.h"
 #include "ISurface.h"
 

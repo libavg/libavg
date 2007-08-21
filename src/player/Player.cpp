@@ -43,12 +43,7 @@
 #include "MouseEvent.h"
 #include "KeyEvent.h"
 
-#ifdef AVG_ENABLE_DFB
-#include "DFBDisplayEngine.h"
-#endif
-#ifdef AVG_ENABLE_GL
 #include "SDLDisplayEngine.h"
-#endif
 
 #include "../base/FileHelper.h"
 #include "../base/Exception.h"
@@ -126,26 +121,6 @@ Player::~Player()
     }
     if (m_dtd) {
         xmlFreeDtd(m_dtd);
-    }
-}
-
-void Player::setDisplayEngine(DisplayEngineType engine)
-{
-    if (m_pRootNode) {
-        throw Exception(AVG_ERR_VIDEO_INIT_FAILED,
-                "Player::setDisplayEngine called after loadFile.");
-    }
-    switch (engine) {
-        case DFB:
-            m_sDisplaySubsystem="DFB";
-            break;
-        case OGL:
-            m_sDisplaySubsystem="OGL";
-            break;
-        default:
-            AVG_TRACE(Logger::ERROR,
-                    "Unknown display engine type in setDisplayEngine. Aborting.");
-            exit(-1);
     }
 }
 
@@ -628,8 +603,6 @@ void Player::initConfig() {
     // Get data from config files.
     ConfigMgr* pMgr = ConfigMgr::get();
     
-    m_sDisplaySubsystem = *pMgr->getOption("scr", "subsys");
-   
     m_DP.m_BPP = atoi(pMgr->getOption("scr", "bpp")->c_str());
     if (m_DP.m_BPP != 15 && m_DP.m_BPP != 16 && m_DP.m_BPP != 24 && m_DP.m_BPP != 32) {
         AVG_TRACE(Logger::ERROR, 
@@ -654,128 +627,91 @@ void Player::initConfig() {
         exit(-1);
     }
 
-    if (m_sDisplaySubsystem == "DFB") {
-        if  (pMgr->getOption("scr", "usepow2textures") != 0 || 
-             pMgr->getOption("scr", "ycbcrmode") != 0 ||
-             pMgr->getOption("scr", "usepixelbuffers") != 0) 
-        {
-            AVG_TRACE(Logger::WARNING, 
-                    "avgrc: usepow2textures, ycbcrmode and usepixelbuffers are unsupported in the DirectFB backend. Ignoring.");
-        }
+    m_bUsePOW2Textures = pMgr->getBoolOption("scr", "usepow2textures", false);
+
+    const string * psYCbCrMode =pMgr->getOption("scr", "ycbcrmode");
+    if (psYCbCrMode == 0 || *psYCbCrMode == "shader") {
+        m_YCbCrMode = OGL_SHADER;
+    } else if (*psYCbCrMode == "mesa") {
+        m_YCbCrMode = OGL_MESA;
+    } else if (*psYCbCrMode == "apple") {
+        m_YCbCrMode = OGL_APPLE;
+    } else if (*psYCbCrMode == "none") {
+        m_YCbCrMode = OGL_NONE;
     } else {
-        m_bUsePOW2Textures = pMgr->getBoolOption("scr", "usepow2textures", false);
-        
-        const string * psYCbCrMode =pMgr->getOption("scr", "ycbcrmode");
-        if (psYCbCrMode == 0 || *psYCbCrMode == "shader") {
-            m_YCbCrMode = OGL_SHADER;
-        } else if (*psYCbCrMode == "mesa") {
-            m_YCbCrMode = OGL_MESA;
-        } else if (*psYCbCrMode == "apple") {
-            m_YCbCrMode = OGL_APPLE;
-        } else if (*psYCbCrMode == "none") {
-            m_YCbCrMode = OGL_NONE;
-        } else {
-            AVG_TRACE(Logger::ERROR, 
-                    "avgrc: ycbcrmode must be shader, mesa, apple or none. Current value is " 
-                    << *psYCbCrMode << ". Aborting." );
-            exit(-1);
-        }
-
-        const string * psVSyncMode =pMgr->getOption("scr", "vsyncmode");
-        if (psVSyncMode == 0 || *psVSyncMode == "auto") {
-            m_VSyncMode = VSYNC_AUTO;
-        } else if (*psVSyncMode == "ogl") {
-            m_VSyncMode = VSYNC_OGL;
-        } else if (*psVSyncMode == "dri") {
-            m_VSyncMode = VSYNC_DRI;
-        } else if (*psVSyncMode == "none") {
-            m_VSyncMode = VSYNC_NONE;
-        } else {
-            AVG_TRACE(Logger::ERROR, 
-                    "avgrc: vsyncmode must be auto, ogl, dri or none. Current value is " 
-                    << *psVSyncMode << ". Aborting." );
-            exit(-1);
-        }
-
-        m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
-        m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 1);
-        pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
+        AVG_TRACE(Logger::ERROR, 
+                "avgrc: ycbcrmode must be shader, mesa, apple or none. Current value is " 
+                << *psYCbCrMode << ". Aborting." );
+        exit(-1);
     }
+
+    const string * psVSyncMode =pMgr->getOption("scr", "vsyncmode");
+    if (psVSyncMode == 0 || *psVSyncMode == "auto") {
+        m_VSyncMode = VSYNC_AUTO;
+    } else if (*psVSyncMode == "ogl") {
+        m_VSyncMode = VSYNC_OGL;
+    } else if (*psVSyncMode == "dri") {
+        m_VSyncMode = VSYNC_DRI;
+    } else if (*psVSyncMode == "none") {
+        m_VSyncMode = VSYNC_NONE;
+    } else {
+        AVG_TRACE(Logger::ERROR, 
+                "avgrc: vsyncmode must be auto, ogl, dri or none. Current value is " 
+                << *psVSyncMode << ". Aborting." );
+        exit(-1);
+    }
+
+    m_bUsePixelBuffers = pMgr->getBoolOption("scr", "usepixelbuffers", true);
+    m_MultiSampleSamples = pMgr->getIntOption("scr", "multisamplesamples", 1);
+    pMgr->getGammaOption("scr", "gamma", m_DP.m_Gamma);
 }
 
 void Player::initGraphics()
 {
     // Init display configuration.
-    AVG_TRACE(Logger::CONFIG, "Display subsystem: " << 
-            m_sDisplaySubsystem);
     AVG_TRACE(Logger::CONFIG, "Display bpp: " << m_DP.m_BPP);
 
     if (!m_pDisplayEngine) {
-        if (m_sDisplaySubsystem == "DFB") {
-#ifdef AVG_ENABLE_DFB
-            m_pDisplayEngine = new DFBDisplayEngine ();
-            m_pEventSource =
-                dynamic_cast<DFBDisplayEngine *>(m_pDisplayEngine);
-#else
-            AVG_TRACE(Logger::ERROR,
-                    "Display subsystem set to DFB but no DFB support compiled."
-                    << " Aborting.");
-            exit(-1);
-#endif
-        } else if (m_sDisplaySubsystem == "OGL") {
-#ifdef AVG_ENABLE_GL
-            AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
-            AVG_TRACE(Logger::CONFIG, "  POW2 textures: " 
-                    << (m_bUsePOW2Textures?"true":"false"));
-            string sMode;
-            switch (m_YCbCrMode) {
-                case OGL_NONE:
-                    AVG_TRACE(Logger::CONFIG, "  No YCbCr texture support.");
-                    break;
-                case OGL_MESA:
-                    AVG_TRACE(Logger::CONFIG, "  Mesa YCbCr texture support.");
-                    break;
-                case OGL_APPLE:
-                    AVG_TRACE(Logger::CONFIG, "  Apple YCbCr texture support.");
-                    break;
-                case OGL_SHADER:
-                    AVG_TRACE(Logger::CONFIG, "  Fragment shader YCbCr texture support.");
-                    break;
-            }
-            AVG_TRACE(Logger::CONFIG, "  Use pixel buffers: " 
-                    << (m_bUsePixelBuffers?"true":"false"));
-            AVG_TRACE(Logger::CONFIG, "  Multisample samples: " 
-                    << m_MultiSampleSamples);
-            switch (m_VSyncMode) {
-                case VSYNC_AUTO:
-                    AVG_TRACE(Logger::CONFIG, "  Auto vsync");
-                    break;
-                case VSYNC_OGL:
-                    AVG_TRACE(Logger::CONFIG, "  OpenGL vsync");
-                    break;
-                case VSYNC_DRI:
-                    AVG_TRACE(Logger::CONFIG, "  DRI vsync");
-                    break;
-                case VSYNC_NONE:
-                    AVG_TRACE(Logger::CONFIG, "  No vsync");
-                    break;
-            }
-
-            m_pDisplayEngine = new SDLDisplayEngine ();
-            m_pEventSource = 
-                dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine);
-#else
-            AVG_TRACE(Logger::ERROR,
-                    "Display subsystem set to GL but no GL support compiled."
-                    << " Aborting.");
-            exit(-1);
-#endif
-        } else {
-            AVG_TRACE(Logger::ERROR, 
-                    "Display subsystem set to unknown value " << 
-                    m_sDisplaySubsystem << ". Aborting.");
-            exit(-1);
+        AVG_TRACE(Logger::CONFIG, "Requested OpenGL configuration: ");
+        AVG_TRACE(Logger::CONFIG, "  POW2 textures: " 
+                << (m_bUsePOW2Textures?"true":"false"));
+        string sMode;
+        switch (m_YCbCrMode) {
+            case OGL_NONE:
+                AVG_TRACE(Logger::CONFIG, "  No YCbCr texture support.");
+                break;
+            case OGL_MESA:
+                AVG_TRACE(Logger::CONFIG, "  Mesa YCbCr texture support.");
+                break;
+            case OGL_APPLE:
+                AVG_TRACE(Logger::CONFIG, "  Apple YCbCr texture support.");
+                break;
+            case OGL_SHADER:
+                AVG_TRACE(Logger::CONFIG, "  Fragment shader YCbCr texture support.");
+                break;
         }
+        AVG_TRACE(Logger::CONFIG, "  Use pixel buffers: " 
+                << (m_bUsePixelBuffers?"true":"false"));
+        AVG_TRACE(Logger::CONFIG, "  Multisample samples: " 
+                << m_MultiSampleSamples);
+        switch (m_VSyncMode) {
+            case VSYNC_AUTO:
+                AVG_TRACE(Logger::CONFIG, "  Auto vsync");
+                break;
+            case VSYNC_OGL:
+                AVG_TRACE(Logger::CONFIG, "  OpenGL vsync");
+                break;
+            case VSYNC_DRI:
+                AVG_TRACE(Logger::CONFIG, "  DRI vsync");
+                break;
+            case VSYNC_NONE:
+                AVG_TRACE(Logger::CONFIG, "  No vsync");
+                break;
+        }
+
+        m_pDisplayEngine = new SDLDisplayEngine ();
+        m_pEventSource = 
+            dynamic_cast<SDLDisplayEngine *>(m_pDisplayEngine);
     }
     SDLDisplayEngine * pSDLDisplayEngine = 
             dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine);

@@ -121,12 +121,6 @@ BOOST_PYTHON_MODULE(avg)
     export_event();
     export_node();
 
-    enum_<Player::DisplayEngineType>("DisplayEngineType")
-        .value("DFB", Player::DFB)
-        .value("OGL", Player::OGL)
-        .export_values()
-    ;
-
     enum_<YCbCrMode>("YCbCrMode")
         .value("shader", OGL_SHADER)
         .value("mesa", OGL_MESA)
@@ -144,11 +138,6 @@ BOOST_PYTHON_MODULE(avg)
 
     class_<Player>("Player", 
                 "The class used to load and play avg files.")
-        .def("setDisplayEngine", &Player::setDisplayEngine,
-                "setDisplayEngine(engine) -> None\n\n"
-                "Determines which display backend to use. Parameter can be either\n"
-                "avg.DFB (for DirectFB rendering) or avg.OGL (for OpenGL rendering).\n"
-                "Must be called before loadFile.")
         .def("setResolution", &Player::setResolution,
                 "setResolution(fullscreen, width, height, bpp) -> None\n\n"
                 "Sets display engine parameters. width and height set the window size\n"

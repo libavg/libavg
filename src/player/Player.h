@@ -52,8 +52,6 @@ class Player : IEventSink
         Player();
         virtual ~Player();
 
-        enum DisplayEngineType{DFB, OGL};
-        void setDisplayEngine(DisplayEngineType engine);
         void setResolution(bool bFullscreen, 
                 int width=0, int height=0, int bpp=0);
         void setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode, 
@@ -140,9 +138,7 @@ class Player : IEventSink
         std::map<int, NodeWeakPtr> m_pEventCaptureNode;
 
         // Configuration variables.
-        std::string m_sDisplaySubsystem;
         DisplayParams m_DP;
-        
         bool m_bUsePOW2Textures;
         YCbCrMode m_YCbCrMode;
         bool m_bUsePixelBuffers;

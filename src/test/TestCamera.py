@@ -7,14 +7,12 @@ import unittest
 import sys, syslog
 
 class CameraTestCase(unittest.TestCase):
-    def __init__(self, testFuncName, engine, bpp):
-        self.__engine = engine
+    def __init__(self, testFuncName, bpp):
         self.__bpp = bpp;
         self.__testFuncName = testFuncName
         unittest.TestCase.__init__(self, testFuncName)
         print "-------- ", self.__testFuncName, " --------"
     def setUp(self):
-        Player.setDisplayEngine(self.__engine)
         Player.setResolution(0, 0, 0, self.__bpp)
     def test(self):
         def setWhitebalance():
@@ -40,9 +38,9 @@ class CameraTestCase(unittest.TestCase):
         Player.setInterval(3000, stopPlayback)
         Player.play()
 
-def playerTestSuite(engine, bpp):
+def playerTestSuite(bpp):
     suite = unittest.TestSuite()
-    suite.addTest(CameraTestCase("test", engine, bpp))
+    suite.addTest(CameraTestCase("test", bpp))
     return suite
 
 Player = avg.Player()
@@ -59,15 +57,8 @@ Log.setCategories(Log.APP |
 runner = unittest.TextTestRunner()
 
 if len(sys.argv) != 3:
-    engine = avg.OGL
     bpp = 24
 else:
-    if sys.argv[1] == "OGL":
-        engine = avg.OGL
-    elif sys.argv[1] == "DFB":
-        engine = avg.DFB
-    else:
-        print "First parameter must be OGL or DFB"
-    bpp = int(sys.argv[2])
-runner.run(playerTestSuite(engine, bpp))
+    bpp = int(sys.argv[1])
+runner.run(playerTestSuite(bpp))
 
