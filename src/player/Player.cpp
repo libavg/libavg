@@ -546,8 +546,10 @@ void Player::doFrame ()
             m_pEventDispatcher->dispatch();
         }
         if (!m_bStopping) {
+            Py_BEGIN_ALLOW_THREADS;
             ScopeTimer Timer(RenderProfilingZone);
             m_pDisplayEngine->render(m_pRootNode, false);
+            Py_END_ALLOW_THREADS;
         }
         {
             ScopeTimer Timer(ListenerProfilingZone);
