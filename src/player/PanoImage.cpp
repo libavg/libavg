@@ -70,7 +70,6 @@ PanoImage::~PanoImage ()
 
 void PanoImage::setDisplayEngine (DisplayEngine * pEngine)
 {
-    SDLDisplayEngine * pSDLEngine;
     Node::setDisplayEngine(pEngine);
     
     setupTextures();
