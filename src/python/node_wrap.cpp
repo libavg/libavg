@@ -43,19 +43,7 @@ using namespace avg;
 void export_node()
 {
     class_<Node, boost::shared_ptr<Node>, boost::noncopyable>("Node",
-            "Base class for all elements in the avg tree.\n"
-            "Properties:\n"
-            "    id: A unique identifier that can be used to reference the node (ro).\n"
-            "    x: The position of the node's left edge relative to it's parent node.\n"
-            "    y: The position of the node's top edge relative to it's parent node.\n"
-            "    width\n"
-            "    height\n"
-            "    opacity: A measure of the node's transparency. 0.0 is completely\n"
-            "             transparent, 1.0 is completely opaque. Opacity is relative to\n"
-            "             the parent node's opacity.\n"
-            "    active: If this attribute is true, the node behaves as usual. If not, it\n"
-            "            is neither drawn nor does it react to events. Videos are paused.\n"
-            "    sensitive: A node only reacts to events if sensitive is true.",
+            "Base class for all elements in the avg tree.\n",
             no_init)
         .def("getParent", &Node::getParent,
                 "getParent() -> Node\n\n"
@@ -75,7 +63,7 @@ void export_node()
                 "releaseEventCapture() -> None\n\n")
         .def("releaseEventCapture", &Node::releaseEventCapture,
                 "releaseEventCapture() -> None\n\n"
-                "Restores normal nouse operation after a call to setEventCapture()\n")
+                "Restores normal nouse operation after a call to setEventCapture().\n")
         .def("setEventHandler", &Node::setEventHandler,
                 "setEventHandler(Type, Source, pyfunc) -> None\n\n"
                 "Sets a callback function that is invoked whenever an event of the\n"
@@ -92,14 +80,23 @@ void export_node()
                 "Transforms an y-coordinate in screen coordinates to an y-coordinate\n"
                 "in coordinates relative to the node.\n")
         .add_property("id", make_function(&Node::getID,
-                return_value_policy<copy_const_reference>()), &Node::setID)
-        .add_property("x", &Node::getX, &Node::setX)
-        .add_property("y", &Node::getY, &Node::setY)
+                return_value_policy<copy_const_reference>()), &Node::setID,
+                "A unique identifier that can be used to reference the node.\n")
+        .add_property("x", &Node::getX, &Node::setX,
+                "The position of the node's left edge relative to it's parent node.\n")
+        .add_property("y", &Node::getY, &Node::setY,
+                "The position of the node's top edge relative to it's parent node.\n")
         .add_property("width", &Node::getWidth, &Node::setWidth)
         .add_property("height", &Node::getHeight, &Node::setHeight)
-        .add_property("opacity", &Node::getOpacity, &Node::setOpacity)
-        .add_property("active", &Node::getActive, &Node::setActive)
-        .add_property("sensitive", &Node::getSensitive, &Node::setSensitive)
+        .add_property("opacity", &Node::getOpacity, &Node::setOpacity,
+                      "A measure of the node's transparency. 0.0 is completely\n"
+                      "transparent, 1.0 is completely opaque. Opacity is relative to\n"
+                      "the parent node's opacity.\n")
+        .add_property("active", &Node::getActive, &Node::setActive,
+                      "If this attribute is true, the node behaves as usual. If not, it\n"
+                      "is neither drawn nor does it react to events. Videos are paused.\n")
+        .add_property("sensitive", &Node::getSensitive, &Node::setSensitive,
+                      "sensitive: A node only reacts to events if sensitive is true.")
     ;
 
     export_bitmap();
@@ -132,9 +129,7 @@ void export_node()
             "Root node of any avg tree. Defines the properties of the display and\n"
             "handles key press events. The AVGNode's width and height define the\n"
             "coordinate system for the display and are the default for the window\n"
-            "size used (i.e. by default, the coordinate system is pixel-based.)\n"
-            "Properties:\n"
-            "    none\n",
+            "size used (i.e. by default, the coordinate system is pixel-based.)\n",
             no_init)
         .def("getCropSetting", &AVGNode::getCropSetting,
                 "getCropSetting() -> isCropActive\n\n"
@@ -144,18 +139,7 @@ void export_node()
     ;
 
     class_<PanoImage, bases<Node> >("PanoImage",
-            "A panorama image.\n"
-            "Properties:\n"
-            "    href: The source filename of the image.\n"
-            "    sensorwidth: The width of the sensor used to make the image. This value\n"
-            "                 is used together with sensorheight and focallength to\n"
-            "                 determine the projection to use. (ro)\n"
-            "    sensorheight: The height of the sensor used to make the image. (ro)\n"
-            "    focallength: The focal length of the lens in millimeters. (ro)\n"
-            "    hue: A hue to color the image in. (ro, deprecated)\n"
-            "    saturation: The saturation the image should have. (ro, deprecated)\n"
-            "    rotation: The current angle the viewer is looking at in radians.\n"
-            "    maxrotation: The maximum angle the viewer can look at.\n",
+            "A panorama image.\n",
             no_init)
         .def("getScreenPosFromPanoPos", &PanoImage::getScreenPosFromPanoPos,
                 "getScreenPosFromPanoPos(panoPos) -> pos\n\n"
@@ -166,17 +150,27 @@ void export_node()
                 "Converts panorama angle to pixels in coordinates\n"
                 "relative to the node, taking into account the current rotation angle.\n")
         .add_property("href", make_function(&PanoImage::getHRef, 
-                return_value_policy<copy_const_reference>()), &PanoImage::setHRef)
+                return_value_policy<copy_const_reference>()), &PanoImage::setHRef,
+                "The source filename of the image.\n")
         .add_property("sensorwidth", &PanoImage::getSensorWidth, 
-                &PanoImage::setSensorWidth)
+                &PanoImage::setSensorWidth,
+                "The width of the sensor used to make the image. This value\n"
+                "is used together with sensorheight and focallength to\n"
+                "determine the projection to use.\n")
         .add_property("sensorheight", &PanoImage::getSensorHeight, 
-                &PanoImage::setSensorHeight)
+                &PanoImage::setSensorHeight,
+                "The height of the sensor used to make the image.\n")
         .add_property("focallength", &PanoImage::getFocalLength, 
-                &PanoImage::setFocalLength)
-        .add_property("hue", &PanoImage::getHue)
-        .add_property("saturation", &PanoImage::getSaturation)
-        .add_property("rotation", &PanoImage::getRotation, &PanoImage::setRotation)
-        .add_property("maxrotation", &PanoImage::getMaxRotation)
+                &PanoImage::setFocalLength,
+                "The focal length of the lens in millimeters.\n")
+        .add_property("hue", &PanoImage::getHue,
+                "A hue to color the image in. (ro, deprecated)\n")
+        .add_property("saturation", &PanoImage::getSaturation,
+                "The saturation the image should have. (ro, deprecated)\n")
+        .add_property("rotation", &PanoImage::getRotation, &PanoImage::setRotation,
+                "The current angle the viewer is looking at in radians.\n")
+        .add_property("maxrotation", &PanoImage::getMaxRotation,
+                "The maximum angle the viewer can look at.\n")
     ;
 
 }

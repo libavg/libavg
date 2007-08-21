@@ -39,14 +39,13 @@ void export_event()
         to_tuple<vector<TouchEvent *> > >();    
 
    class_<Event, boost::noncopyable>("Event", 
-            "Base class for user input events.\n"
-            "Properties:\n"
-            "    type: One of KEYUP, KEYDOWN, CURSORMOTION, CURSORUP,\n"
-            "          CURSORDOWN, CURSOROVER, CURSOROUT, RESIZE or QUIT.\n"
-            "    when: The timestamp of the event in milliseconds.\n",
+            "Base class for user input events.\n",
             no_init)
-        .add_property("type", &Event::getType)
-        .add_property("when", &Event::getWhen)
+        .add_property("type", &Event::getType,
+                "One of KEYUP, KEYDOWN, CURSORMOTION, CURSORUP,\n"
+                "CURSORDOWN, CURSOROVER, CURSOROUT, RESIZE or QUIT.\n")
+        .add_property("when", &Event::getWhen,
+                "The timestamp of the event in milliseconds.\n")
     ;
 
     enum_<Event::Type>("Type")
@@ -70,68 +69,61 @@ void export_event()
     ;
 
     class_<KeyEvent, bases<Event> >("KeyEvent", 
-            "Raised when a key is pressed or released.\n"
-            "Properties:\n"
-            "    scancode: The untranslated scancode of the key pressed. (ro)\n"
-            "    keycode: The keycode of the key according to the current layout. (ro)\n"
-            "    keystring: A character or word describing the key pressed. (ro)\n"
-            "    modifiers: Any modifiers (shift, ctrl,...) pressed as well. (ro)\n",
+            "Raised when a key is pressed or released.\n",
             no_init)
-        .add_property("scancode", &KeyEvent::getScanCode)
-        .add_property("keycode", &KeyEvent::getKeyCode)
+        .add_property("scancode", &KeyEvent::getScanCode,
+            "The untranslated scancode of the key pressed. (ro)\n")
+        .add_property("keycode", &KeyEvent::getKeyCode,
+            "The keycode of the key according to the current layout. (ro)\n")
         .add_property("keystring", make_function(&KeyEvent::getKeyString, 
-                return_value_policy<copy_const_reference>()))
+                return_value_policy<copy_const_reference>()),
+            "A character or word describing the key pressed. (ro)\n")
         // TODO: Export possible modifiers as enum.
-        .add_property("modifiers", &KeyEvent::getModifiers)
+        .add_property("modifiers", &KeyEvent::getModifiers,
+            "Any modifiers (shift, ctrl,...) pressed as well. (ro)\n")
     ;    
     
     class_<MouseEvent, bases<Event> >("MouseEvent", 
-            "Raised when a mouse-related event occurs.\n"
-            "Properties:\n"
-            "    leftbuttonstate: (ro)\n"
-            "    middlebuttonstate: (ro)\n"
-            "    rightbuttonstate: (ro)\n"
-            "    cursorid: always 0 (ro)\n"
-            "    x: x position in the global coordinate system. (ro)\n"
-            "    y: y position in the global coordinate system. (ro)\n"
-            "    button: The button that caused the event. (ro)\n"
-            "    node: The node that the event handler was declared in. (ro)\n",
+            "Raised when a mouse-related event occurs.\n",
             no_init)
-        .add_property("source", &MouseEvent::getSource)
+        .add_property("source", &MouseEvent::getSource,
+                "Always MOUSE")
         .add_property("leftbuttonstate", &MouseEvent::getLeftButtonState)
         .add_property("middlebuttonstate", &MouseEvent::getMiddleButtonState)
         .add_property("rightbuttonstate", &MouseEvent::getRightButtonState)
-        .add_property("x", &MouseEvent::getXPosition)
-        .add_property("y", &MouseEvent::getYPosition)
-        .add_property("cursorid", &MouseEvent::getCursorID)
-        .add_property("button", &MouseEvent::getButton)
-        .add_property("node", &MouseEvent::getElement);
+        .add_property("x", &MouseEvent::getXPosition,
+                "x position in the global coordinate system. (ro)\n")
+        .add_property("y", &MouseEvent::getYPosition,
+                "y position in the global coordinate system. (ro)\n")
+        .add_property("cursorid", &MouseEvent::getCursorID,
+                "always 0 (ro)\n")
+        .add_property("button", &MouseEvent::getButton,
+                "The button that caused the event. (ro)\n")
+        .add_property("node", &MouseEvent::getElement,
+                "The node that the event handler was declared in. (ro)\n")
+        ;
 
     class_<TouchEvent, bases<Event> >("TouchEvent", 
             "Raised when a touch event occurs. Touch events happen only when a multi-touch\n"
-            "sensitive surface is active.\n"
-            "Properties:\n"
-            "    area: size of the blob(ro)\n"
-            "    orientation: (ro)\n"
-            "    inertia: (ro)\n"
-            "    eccentricity: (ro)\n"
-            "    cursorid: (ro)\n"
-            "    x: x position in the global coordinate system. (ro)\n"
-            "    y: y position in the global coordinate system. (ro)\n"
-            "    node: The node that the event handler was declared in. (ro)\n"
-            "    center: position as double. Used for calibration (ro)\n",
+            "sensitive surface is active.\n",
             no_init)
-        .add_property("source", &TouchEvent::getSource)
-        .add_property("area", &TouchEvent::getArea)
+        .add_property("source", &TouchEvent::getSource,
+                "TOUCH for actual touches, TRACK for hands above the surface.")
+        .add_property("area", &TouchEvent::getArea,
+                "size of the blob(ro)\n")
         .add_property("orientation", &TouchEvent::getOrientation)
         .add_property("inertia", &TouchEvent::getInertia)
         .add_property("eccentricity", &TouchEvent::getInertia)
-        .add_property("x", &TouchEvent::getXPosition)
-        .add_property("y", &TouchEvent::getYPosition)
+        .add_property("x", &TouchEvent::getXPosition,
+                "x position in the global coordinate system. (ro)\n")
+        .add_property("y", &TouchEvent::getYPosition,
+                "y position in the global coordinate system. (ro)\n")
         .add_property("cursorid", &TouchEvent::getCursorID)
-        .add_property("node", &TouchEvent::getElement)
+        .add_property("node", &TouchEvent::getElement,
+                "The node that the event handler was declared in. (ro)\n")
         .add_property("center", make_function(&TouchEvent::getCenter,
-                return_value_policy<copy_const_reference>()))
+                return_value_policy<copy_const_reference>()),
+                "Position as double. Used for calibration (ro)\n")
         .def("getRelatedEvents", &TouchEvent::getRelatedEvents);
    
     enum_<TrackerImageID>("TrackerImageID")
@@ -147,7 +139,8 @@ void export_event()
     class_<TrackerEventSource, boost::noncopyable>("Tracker",
             "A tracker that uses a firewire camera to track moving objects\n"
             "(e.g. fingers) and delivers them to the player as avg events.\n"
-            "Create using Player::addTracker().\n",
+            "Create using Player::addTracker(). The properties are explained\n"
+            "in the libavg doc wiki.",
             no_init)
         .def("getImage", &TrackerEventSource::getImage,
             return_value_policy<manage_new_object>(),
