@@ -29,6 +29,7 @@
 #include "VideoBase.h"
 
 #include "../base/Point.h"
+#include "../base/IFrameListener.h"
 
 #include <string>
 
@@ -36,7 +37,7 @@ namespace avg {
 
 class IVideoDecoder;
 
-class Video : public VideoBase
+class Video : public VideoBase, IFrameListener
 {
     public:
         Video (const xmlNodePtr xmlNode, Player * pPlayer);
@@ -56,6 +57,8 @@ class Video : public VideoBase
         void setEOFCallback(PyObject * pEOFCallback);
 
         virtual std::string getTypeStr();
+
+        virtual void onFrameEnd();
 
     protected:
         virtual void changeVideoState(VideoState NewVideoState);
@@ -80,6 +83,7 @@ class Video : public VideoBase
         bool m_bLoop;
         bool m_bThreaded;
         double m_FPS;
+        bool m_bEOFPending;
         PyObject * m_pEOFCallback;
         int m_FramesTooLate;
         int m_FramesPlayed;

@@ -50,6 +50,7 @@ bool Video::m_bInitialized = false;
 Video::Video (const xmlNodePtr xmlNode, Player * pPlayer)
     : VideoBase(xmlNode, pPlayer),
       m_Filename(""),
+      m_bEOFPending(false),
       m_pEOFCallback(0),
       m_FramesTooLate(0),
       m_FramesPlayed(0),
@@ -69,10 +70,12 @@ Video::Video (const xmlNodePtr xmlNode, Player * pPlayer)
     } else {
         m_pDecoder = new FFMpegDecoder();
     }
+    getPlayer()->registerFrameListener(this);
 }
 
 Video::~Video ()
 {
+    getPlayer()->unregisterFrameListener(this);
     if (m_pDecoder) {
         delete m_pDecoder;
         m_pDecoder = 0;
@@ -171,6 +174,14 @@ void Video::setHRef(const string& href)
 string Video::getTypeStr ()
 {
     return "Video";
+}
+
+void Video::onFrameEnd()
+{
+    if (m_bEOFPending) {
+        onEOF();
+        m_bEOFPending = false;
+    }
 }
 
 void Video::changeVideoState(VideoState NewVideoState)
@@ -288,7 +299,7 @@ bool Video::renderToSurface(ISurface * pSurface)
 //        AVG_TRACE(Logger::PROFILE, "Video frame reused.");
     }
     if (m_pDecoder->isEOF()) {
-        onEOF();
+        m_bEOFPending = true;
         if (m_bLoop) {
             seek(0);
         } else {
