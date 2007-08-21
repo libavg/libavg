@@ -183,9 +183,6 @@ void Node::setOpacity(double opacity) {
     } else if (m_Opacity > 1.0) {
         m_Opacity = 1.0;
     }
-    if (m_bActive) {
-        invalidate();
-    }
 }
 
 bool Node::getActive() const {
@@ -196,7 +193,6 @@ void Node::setActive(bool bActive)
 {
     if (bActive != m_bActive) {
         m_bActive = bActive;
-        invalidate();
     }
 }
 
@@ -322,24 +318,6 @@ bool Node::obscures (const DRect& Rect, int Child)
     return false;
 }
 
-void Node::addDirtyRect(const DRect& Rect)
-{
-    m_DirtyRegion.addRect(Rect);
-}
-
-void Node::getDirtyRegion (Region& Region)
-{
-    Region.addRegion(m_DirtyRegion);
-    m_DirtyRegion.clear();
-}
-
-void Node::invalidate()
-{
-    if (isDisplayAvailable()) {
-        addDirtyRect(getVisibleRect());
-    }
-}
-
 Node::NodeState Node::getState() const
 {
     return m_State;
@@ -358,9 +336,6 @@ Player * Node::getPlayer() const
 
 void Node::setViewport (double x, double y, double width, double height)
 {
-    if (m_bActive) {
-        invalidate();
-    }
     if (x == -32767) {
         x = getRelViewport().tl.x;
     }
@@ -384,9 +359,6 @@ void Node::setViewport (double x, double y, double width, double height)
     }
     m_RelViewport = DRect (x, y, x+width, y+height);
     calcAbsViewport();
-    if (m_bActive) {
-        invalidate();
-    }
 }
 
 const DRect& Node::getRelViewport () const

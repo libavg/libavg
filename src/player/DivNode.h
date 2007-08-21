@@ -48,7 +48,6 @@ class DivNode : public Node
         virtual void prepareRender (int time, const DRect& parent);
         virtual void render (const DRect& rect);
         virtual bool obscures (const DRect& rect, int Child);
-        virtual void getDirtyRegion (Region& Dirtyregion);
         virtual std::string getTypeStr ();
 
         virtual std::string dump (int indent = 0);

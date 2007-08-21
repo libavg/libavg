@@ -110,8 +110,6 @@ class Node
         virtual void maybeRender (const DRect& Rect);
         virtual void render (const DRect& Rect);
         virtual bool obscures (const DRect& Rect, int Child);
-        virtual void addDirtyRect(const DRect& Rect);
-        virtual void getDirtyRegion (Region& Region);
         virtual void setViewport (double x, double y, double width, 
                 double height);
         virtual const DRect& getRelViewport () const;
@@ -123,7 +121,6 @@ class Node
         virtual std::string getTypeStr () const;
         
         virtual void handleEvent (Event* pEvent); 
-        virtual void invalidate();
         NodeState getState() const;
         bool isDisplayAvailable() const;
         
@@ -178,7 +175,6 @@ class Node
         // Size specified by user.
         DPoint m_WantedSize;
 
-        Region m_DirtyRegion;
         NodeState m_State;
 };
 

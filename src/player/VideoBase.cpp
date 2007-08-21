@@ -94,9 +94,6 @@ void VideoBase::pause()
 void VideoBase::prepareRender (int time, const DRect& parent)
 {
     Node::prepareRender(time, parent);
-    if (m_VideoState == Playing) {
-        invalidate();
-    }
 }
 
 void VideoBase::render (const DRect& Rect)
@@ -152,7 +149,6 @@ void VideoBase::changeVideoState(VideoState NewVideoState)
         if (NewVideoState == Unloaded) {
             close();
         }
-        addDirtyRect(getVisibleRect());
     }
     m_VideoState = NewVideoState;
 }

@@ -56,11 +56,9 @@ class Words : public RasterNode
         
         void setFont(const std::string& sName)
         {
-            invalidate();
             m_FontName = sName;
             m_bFontChanged = true;
             m_bDrawNeeded = true;
-            invalidate();
         }
             
         const std::string& getText() const 
@@ -71,10 +69,8 @@ class Words : public RasterNode
         void setText(const std::string& sText)
         {
             if (m_Text != sText) {
-                invalidate();
                 m_Text = sText;
                 m_bDrawNeeded = true;
-                invalidate();
             }
         }
 
@@ -85,11 +81,9 @@ class Words : public RasterNode
 
         void setColor(const std::string& sColor)
         {
-            invalidate();
             m_ColorName = sColor;
             m_Color = colorStringToColor(m_ColorName);
             m_bDrawNeeded = true;
-            invalidate();
         }
 
         double getSize() const
@@ -99,11 +93,9 @@ class Words : public RasterNode
         
         void setSize(double Size)
         {
-            invalidate();
             m_Size = Size;
             m_bFontChanged = true;
             m_bDrawNeeded = true;
-            invalidate();
         }
 
         int getParaWidth() const
@@ -113,10 +105,8 @@ class Words : public RasterNode
         
         void setParaWidth(int ParaWidth)
         {
-            invalidate();
             m_ParaWidth = ParaWidth;
             m_bDrawNeeded = true;
-            invalidate();
         }
         
         int getIndent() const
@@ -126,10 +116,8 @@ class Words : public RasterNode
         
         void setIndent(int Indent)
         {
-            invalidate();
             m_Indent = Indent;
             m_bDrawNeeded = true;
-            invalidate();
         }
 
         double getLineSpacing() const
@@ -139,10 +127,8 @@ class Words : public RasterNode
         
         void setLineSpacing(double LineSpacing)
         {
-            invalidate();
             m_LineSpacing = LineSpacing;
             m_bDrawNeeded = true;
-            invalidate();
         }
 
         std::string getAlignment() const;
@@ -154,11 +140,9 @@ class Words : public RasterNode
         
         void setItalic(bool bItalic)
         {
-            invalidate();
             m_bItalic = bItalic;
             m_bFontChanged = true;
             m_bDrawNeeded = true;
-            invalidate();
         }
         
         std::string getWeight() const;
@@ -171,11 +155,9 @@ class Words : public RasterNode
         
         void setSmallCaps(bool bSmallCaps)
         {
-            invalidate();
             m_bSmallCaps = bSmallCaps;
             m_bFontChanged = true;
             m_bDrawNeeded = true;
-            invalidate();
         }
         
         std::string getStretch() const;

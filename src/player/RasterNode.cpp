@@ -106,7 +106,6 @@ double RasterNode::getAngle() const
 void RasterNode::setAngle(double Angle)
 {
     m_Angle = fmod(Angle, 2*PI);
-    invalidate();
 }
 
 double RasterNode::getPivotX() const

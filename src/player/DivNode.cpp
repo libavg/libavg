@@ -95,7 +95,6 @@ void DivNode::addChild (NodePtr pNewNode)
 void DivNode::removeChild (int i)
 {
     NodePtr pNode = getChild(i);
-    pNode->invalidate();
     pNode->setParent(DivNodePtr());
     pNode->disconnect();
     m_Children.erase(m_Children.begin()+i);
@@ -151,18 +150,6 @@ bool DivNode::obscures (const DRect& rect, int Child)
     }
     return false;
  
-}
-
-void DivNode::getDirtyRegion (Region& DirtyRegion)
-{
-    for (int i=0; i<getNumChildren(); i++){
-        Region ChildRegion;
-        getChild(i)->getDirtyRegion(ChildRegion);
-        DirtyRegion.addRegion(ChildRegion);
-    }
-    Region myRegion;
-    Node::getDirtyRegion(myRegion);
-    DirtyRegion.addRegion(myRegion);
 }
 
 string DivNode::getTypeStr ()
