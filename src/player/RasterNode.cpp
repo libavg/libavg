@@ -64,23 +64,9 @@ void RasterNode::setDisplayEngine(DisplayEngine * pEngine)
     m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
 
     if (m_MaxTileSize != IntPoint(-1, -1)) {
-#ifdef AVG_ENABLE_GL        
         OGLSurface * pOGLSurface = 
             dynamic_cast<OGLSurface*>(getSurface());
-        if (!pOGLSurface) {
-            AVG_TRACE(Logger::WARNING, 
-                    "Node "+getID()+": "
-                    "Custom tile sizes are only allowed when "
-                    "the display engine is OpenGL. Ignoring.");
-        } else {
-            pOGLSurface->setMaxTileSize(m_MaxTileSize);
-        }
-#else
-            AVG_TRACE(Logger::WARNING, 
-                    "Node "+getID()+": "
-                    "Custom tile sizes are only allowed when "
-                    "the display engine is OpenGL. Ignoring.");
-#endif        
+        pOGLSurface->setMaxTileSize(m_MaxTileSize);
     }
     setBlendModeStr(m_sBlendMode);
 }
@@ -94,52 +80,22 @@ void RasterNode::disconnect()
     Node::disconnect();
 }
 
-int RasterNode::getNumVerticesX()
-{
-#ifdef AVG_ENABLE_GL
-    OGLSurface * pOGLSurface = getOGLSurface();
-    return pOGLSurface->getNumVerticesX(); 
-#else
-    return 1;
-#endif
-}
-
-int RasterNode::getNumVerticesY()
-{
-#ifdef AVG_ENABLE_GL
-    OGLSurface * pOGLSurface = getOGLSurface();
-    return pOGLSurface->getNumVerticesY(); 
-#else
-    return 1;
-#endif
-}
-
 VertexGrid RasterNode::getOrigVertexCoords()
 {
-#ifdef AVG_ENABLE_GL
     OGLSurface * pOGLSurface = getOGLSurface();
     return pOGLSurface->getOrigVertexCoords();
-#else
-    return VertexGrid();
-#endif
 }
 
 VertexGrid RasterNode::getWarpedVertexCoords() 
 {
-#ifdef AVG_ENABLE_GL
     OGLSurface * pOGLSurface = getOGLSurface();
     return pOGLSurface->getWarpedVertexCoords();
-#else
-    return VertexGrid();
-#endif
 }
 
 void RasterNode::setWarpedVertexCoords(const VertexGrid& Grid)
 {
-#ifdef AVG_ENABLE_GL
     OGLSurface * pOGLSurface = getOGLSurface();
     pOGLSurface->setWarpedVertexCoords(Grid);
-#endif
 }
 
 double RasterNode::getAngle() const
@@ -261,20 +217,11 @@ DPoint RasterNode::getPivot()
     }
 }
 
-#ifdef AVG_ENABLE_GL
 OGLSurface * RasterNode::getOGLSurface()
 {
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface *>(getSurface());
-    if (pOGLSurface) {
-        return pOGLSurface; 
-    } else {
-        AVG_TRACE(Logger::ERROR, 
-                "OpenGL display engine needed for node " << getID() <<
-                ". Aborting.");
-        exit(-1);
-    }
+    return pOGLSurface; 
 }
-#endif
 
 DisplayEngine::BlendMode RasterNode::getBlendMode() const
 {

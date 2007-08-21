@@ -180,16 +180,6 @@ void OGLSurface::setMaxTileSize(const IntPoint& MaxTileSize)
     }
 }
 
-int OGLSurface::getNumVerticesX()
-{
-    return m_NumHorizTextures+1;
-}
-
-int OGLSurface::getNumVerticesY() 
-{
-    return m_NumVertTextures+1;
-}
-
 VertexGrid OGLSurface::getOrigVertexCoords()
 {
     if (!m_bBound) {

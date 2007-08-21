@@ -42,8 +42,6 @@ class RasterNode: public Node
         virtual void disconnect();
         
         // Warping support.
-        int getNumVerticesX();
-        int getNumVerticesY();
         VertexGrid getOrigVertexCoords();
         VertexGrid getWarpedVertexCoords();
         void setWarpedVertexCoords(const VertexGrid& Grid);
@@ -67,9 +65,7 @@ class RasterNode: public Node
         
         const std::string& getBlendModeStr() const;
         void setBlendModeStr(const std::string& sBlendMode);
-#ifdef AVG_ENABLE_GL
         OGLSurface * getOGLSurface();
-#endif
         DisplayEngine::BlendMode getBlendMode() const;
         virtual std::string getTypeStr ();
         NodePtr getElementByPos (const DPoint & pos);

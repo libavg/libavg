@@ -24,9 +24,7 @@
 #include "PanoImage.h"
 #include "SDLDisplayEngine.h"
 #include "MathHelper.h"
-#ifdef AVG_ENABLE_GL
 #include "OGLHelper.h"
-#endif
 
 #include "../base/Logger.h"
 #include "../base/ProfilingZone.h"
@@ -73,18 +71,6 @@ PanoImage::~PanoImage ()
 void PanoImage::setDisplayEngine (DisplayEngine * pEngine)
 {
     SDLDisplayEngine * pSDLEngine;
-#ifdef AVG_ENABLE_GL    
-    pSDLEngine = dynamic_cast<SDLDisplayEngine*>(pEngine);
-#else
-    pSDLEngine = 0;
-#endif
-    if (!pSDLEngine) {
-        AVG_TRACE(Logger::ERROR,
-                "Panorama images are only allowed when "
-                "the display engine is OpenGL. Aborting.");
-        // TODO: Disable image.
-        exit(-1);
-    }
     Node::setDisplayEngine(pEngine);
     
     setupTextures();
@@ -100,7 +86,6 @@ static ProfilingZone PanoRenderProfilingZone("PanoImage::render");
 
 void PanoImage::render(const DRect& Rect)
 {
-#ifdef AVG_ENABLE_GL
     ScopeTimer Timer(PanoRenderProfilingZone);
     glPushMatrix();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
@@ -204,7 +189,6 @@ void PanoImage::render(const DRect& Rect)
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
-#endif    
 }
 
 bool PanoImage::obscures (const DRect& Rect, int Child)
@@ -349,7 +333,6 @@ void PanoImage::setupTextures()
     if (getEngine()->hasRGBOrdering()) {
         FilterFlipRGB().applyInPlace(m_pBmp);
     }
-#ifdef AVG_ENABLE_GL
     if (!m_TileTextureIDs.empty()) {
         clearTextures();
     }
@@ -415,7 +398,6 @@ void PanoImage::setupTextures()
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
                 "PanoImage::setupTextures: glTexSubImage2D()");
    }
-#endif
 }
 
 void PanoImage::clearTextures()

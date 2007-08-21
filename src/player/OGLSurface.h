@@ -65,8 +65,6 @@ class OGLSurface: public ISurface {
                 DisplayEngine::BlendMode Mode);
 
         void setMaxTileSize(const Point<int>& MaxTileSize);
-        int getNumVerticesX();
-        int getNumVerticesY();
         VertexGrid getOrigVertexCoords();
         VertexGrid getWarpedVertexCoords();
         void setWarpedVertexCoords(const VertexGrid& Grid);

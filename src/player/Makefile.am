@@ -12,15 +12,10 @@ else
     APPLE_INCLUDES = 
 endif
 
-if ENABLE_GL
-    GL_SOURCES = OGLHelper.cpp OGLSurface.cpp SDLDisplayEngine.cpp OGLTile.cpp \
-				 OGLShader.cpp
-    GL_INCLUDES = SDLDisplayEngine.h OGLHelper.h OGLSurface.h OGLTile.h \
-	              OGLShader.h GL/gl.h GL/glext.h GL/glu.h GL/glx.h
-else
-    GL_SOURCES =
-    GL_INCLUDES =
-endif
+GL_SOURCES = OGLHelper.cpp OGLSurface.cpp SDLDisplayEngine.cpp OGLTile.cpp \
+        	 OGLShader.cpp
+GL_INCLUDES = SDLDisplayEngine.h OGLHelper.h OGLSurface.h OGLTile.h \
+              OGLShader.h GL/gl.h GL/glext.h GL/glu.h GL/glx.h
 
 ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
         DisplayEngine.h Region.h Node.h \

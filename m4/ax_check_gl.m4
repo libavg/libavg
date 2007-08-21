@@ -209,13 +209,13 @@ AC_REQUIRE([ACX_PTHREAD])dnl
 # There isn't a reliable way to know we should use the Apple OpenGL framework
 # without a configure option.  A Mac OS X user may have installed an
 # alternative GL implementation (e.g., Mesa), which may or may not depend on X.
+# libavg change: We just assume that libavg should always run using the mac 
+# OpenGL framework on OS X.
 #
-AC_ARG_WITH([apple-opengl-framework],
-            [AC_HELP_STRING([--with-apple-opengl-framework],
-                            [use Apple OpenGL framework (Mac OS X only)])])
-if test "X$with_apple_opengl_framework" = "Xyes"; then
+if test $target_vendor = apple; then
   AC_DEFINE([HAVE_APPLE_OPENGL_FRAMEWORK], [1],
             [Use the Apple OpenGL framework.])
+  AC_MSG_NOTICE([Using Apple OpenGL framework])
   GL_CFLAGS=""
   GL_LIBS="-framework OpenGL -framework AGL"
 else
@@ -283,7 +283,7 @@ AC_SUBST([GL_LIBS])
 AC_DEFUN([AX_CHECK_GLU],
 [AC_REQUIRE([AX_CHECK_GL])dnl
 GLU_CFLAGS="${GL_CFLAGS}"
-if test "X${with_apple_opengl_framework}" != "Xyes"; then
+if test $target_vendor != apple; then
   AC_CACHE_CHECK([for OpenGL Utility library], [ax_cv_check_glu_libglu],
   [ax_cv_check_glu_libglu="no"
   ax_save_CPPFLAGS="${CPPFLAGS}"

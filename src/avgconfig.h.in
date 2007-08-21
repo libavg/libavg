@@ -6,9 +6,6 @@
 /* Enable firewire camera support v.2 */
 #undef AVG_ENABLE_1394_2
 
-/* Enable OpenGL rendering backend */
-#undef AVG_ENABLE_GL
-
 /* Enable parallel port support */
 #undef AVG_ENABLE_PARPORT
 
