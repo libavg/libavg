@@ -901,7 +901,6 @@ vector<Event *> SDLDisplayEngine::pollEvents()
     vector<Event *> Events;
 
     while(SDL_PollEvent(&sdlEvent)){
-//        cerr << "Event type: " << getEventTypeName(sdlEvent.type) << endl;
         switch(sdlEvent.type) {
             case SDL_ACTIVEEVENT:
                 if (sdlEvent.active.state & SDL_APPMOUSEFOCUS) {
