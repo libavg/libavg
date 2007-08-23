@@ -22,6 +22,8 @@
 #ifndef _IDemuxer_H_
 #define _IDemuxer_H_
 
+#include <math.h>
+
 #ifdef _WIN32
 #define EMULATE_INTTYPES
 #else
