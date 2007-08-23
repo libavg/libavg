@@ -65,15 +65,15 @@ class DisplayEngine
         long long getDisplayTime();
         
         virtual void setClipRect() = 0;
-        virtual bool pushClipRect(const DRect& rc, bool bClip) = 0;
+        virtual bool pushClipRect(const DRect& rc) = 0;
         virtual void popClipRect() = 0;
         virtual const DRect& getClipRect() = 0;
+        virtual void pushRotation(double angle, const DPoint& pivot) = 0;
+        virtual void popRotation() = 0;
         virtual void blt32(ISurface * pSurface, const DRect* pDestRect, 
-                double opacity, double angle, const DPoint& pivot,
-                BlendMode Mode) = 0;
+                double opacity, BlendMode Mode) = 0;
         virtual void blta8(ISurface * pSurface, const DRect* pDestRect, 
-                double opacity, const Pixel32& color, double angle,
-                const DPoint& pivot, BlendMode Mode) = 0;
+                double opacity, const Pixel32& color, BlendMode Mode) = 0;
         virtual ISurface * createSurface() = 0;
         virtual void surfaceChanged(ISurface * pSurface) {};
 
@@ -119,4 +119,3 @@ class DisplayEngine
 }
 
 #endif //_DisplayEngine_H_
-

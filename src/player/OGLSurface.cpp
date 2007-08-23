@@ -360,14 +360,13 @@ IntPoint OGLSurface::getSize()
 }
 
 void OGLSurface::blt(const DRect* pDestRect, 
-        double angle, const DPoint& pivot, 
         DisplayEngine::BlendMode Mode)
 {
 //    cerr << "OGLSurface::blt()" << endl;
     if (!m_bBound) {
         bind();
     }
-    bltTexture(pDestRect, angle, pivot, Mode);
+    bltTexture(pDestRect, Mode);
 }
 
 bool OGLSurface::wouldTile(IntPoint Size)
@@ -491,23 +490,9 @@ void OGLSurface::unlockBmp(int i)
     }
 }
 
-void OGLSurface::bltTexture(const DRect* pDestRect, 
-                double angle, const DPoint& pivot, 
+void OGLSurface::bltTexture(const DRect* pDestRect,
                 DisplayEngine::BlendMode Mode)
 {
-    if (fabs(angle) > 0.001) {
-        DPoint center(pDestRect->tl.x+pivot.x,
-                pDestRect->tl.y+pivot.y);
-
-        glPushMatrix();
-        glTranslated(center.x, center.y, 0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "bltTexture: glTranslated");
-        glRotated(angle*180.0/PI, 0, 0, 1);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "bltTexture: glRotated");
-        glTranslated(-center.x, -center.y, 0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "bltTexture: glTranslated");
-    }
-
     switch(Mode) {
         case DisplayEngine::BLEND_BLEND:
             glproc::BlendEquation(GL_FUNC_ADD);
@@ -552,9 +537,6 @@ void OGLSurface::bltTexture(const DRect* pDestRect,
             << Bitmap::getPixelFormatString(m_pf) << ", " 
             << getGlModeString(m_pEngine->getOGLSrcMode(m_pf)) << "-->" 
             << getGlModeString(m_pEngine->getOGLDestMode(m_pf)) << endl);
-    if (fabs(angle) > 0.001) {
-        glPopMatrix();
-    }
 }
 
 DPoint OGLSurface::calcFinalVertex(const DRect* pDestRect,

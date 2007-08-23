@@ -180,8 +180,8 @@ double calcDist(const Point<NUM>& pt1, const Point<NUM>& pt2)
 }
 
 bool almostEqual(const DPoint& pt1, const DPoint& pt2);
+DPoint rotatePoint(const DPoint& point, double angle, const DPoint& pivot);
 
 }
 
 #endif
-

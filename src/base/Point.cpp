@@ -30,5 +30,22 @@ bool almostEqual(const DPoint& pt1, const DPoint& pt2)
     return (fabs(pt1.x-pt2.x)+fabs(pt1.y-pt2.y)) < 0.0001;
 }
 
+DPoint rotatePoint(const DPoint& point, double angle, const DPoint& pivot)
+{
+    double cosVal = cos(angle);
+    double sinVal = sin(angle);
+
+    // translate pivot to origin
+    DPoint translated = point - pivot;
+    
+    // calculate rotated coordinates about the origin
+    DPoint rotated(translated.x * cosVal - translated.y * sinVal,
+        translated.x * sinVal + translated.y * cosVal);
+
+    // re-translate pivot to original position
+    rotated += pivot;
+
+    return rotated;
 }
 
+}

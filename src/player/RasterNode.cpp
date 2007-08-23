@@ -36,14 +36,9 @@ namespace avg {
 RasterNode::RasterNode (const xmlNodePtr xmlNode, Player * pPlayer)
     : Node(xmlNode, pPlayer),
       m_pSurface(0),
-      m_Angle(0),
-      m_Pivot(-32767, -32767),
       m_MaxTileSize(IntPoint(-1,-1)),
       m_sBlendMode("blend")
 {
-    m_Angle = getDefaultedDoubleAttr (xmlNode, "angle", 0);
-    m_Pivot.x = getDefaultedDoubleAttr (xmlNode, "pivotx", -32767);
-    m_Pivot.y = getDefaultedDoubleAttr (xmlNode, "pivoty", -32767);
     m_MaxTileSize.x = getDefaultedIntAttr (xmlNode, "maxtilewidth", -1);
     m_MaxTileSize.y = getDefaultedIntAttr (xmlNode, "maxtileheight", -1);
     setBlendModeStr(getDefaultedStringAttr (xmlNode, "blendmode", "blend"));
@@ -60,8 +55,6 @@ RasterNode::~RasterNode()
 void RasterNode::setDisplayEngine(DisplayEngine * pEngine)
 {
     Node::setDisplayEngine(pEngine);
-
-    m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
 
     if (m_MaxTileSize != IntPoint(-1, -1)) {
         OGLSurface * pOGLSurface = 
@@ -98,40 +91,6 @@ void RasterNode::setWarpedVertexCoords(const VertexGrid& Grid)
     pOGLSurface->setWarpedVertexCoords(Grid);
 }
 
-double RasterNode::getAngle() const
-{
-    return m_Angle;
-}
-
-void RasterNode::setAngle(double Angle)
-{
-    m_Angle = fmod(Angle, 2*PI);
-}
-
-double RasterNode::getPivotX() const
-{
-    return m_Pivot.x;
-}
-
-void RasterNode::setPivotX(double Pivotx)
-{
-    m_Pivot = getPivot();
-    m_Pivot.x = Pivotx;
-    m_bHasCustomPivot = true;
-}
-
-double RasterNode::getPivotY() const
-{
-    return m_Pivot.y;
-}
-
-void RasterNode::setPivotY(double Pivoty)
-{
-    m_Pivot = getPivot();
-    m_Pivot.y = Pivoty;
-    m_bHasCustomPivot = true;
-}
-
 const std::string& RasterNode::getBlendModeStr() const
 {
     return m_sBlendMode;
@@ -156,7 +115,7 @@ void RasterNode::setBlendModeStr(const std::string& sBlendMode)
 NodePtr RasterNode::getElementByPos (const DPoint & pos)
 {
     // Node isn't pickable if it's tilted or warped.
-    if (fabs(m_Angle)<0.0001 && m_MaxTileSize == IntPoint(-1, -1)) {
+    if (fabs(getAngle()) < 0.0001 && m_MaxTileSize == IntPoint(-1, -1)) {
         return Node::getElementByPos(pos);
     } else {
         return NodePtr();
@@ -206,16 +165,6 @@ string RasterNode::getImageFormat()
 }
 */
 
-DPoint RasterNode::getPivot()
-{
-    if (m_bHasCustomPivot) {
-        return m_Pivot;
-    } else {
-        const DRect& vpt = getRelViewport();
-        return DPoint (vpt.Width()/2, vpt.Height()/2);
-    }
-}
-
 OGLSurface * RasterNode::getOGLSurface()
 {
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface *>(getSurface());
@@ -241,4 +190,3 @@ string RasterNode::getTypeStr ()
 }
 
 }
-

@@ -403,8 +403,7 @@ void Words::render(const DRect& Rect)
         TextPos.tl.x--;   // Compensate for italic hack in call to pango_ft2_render_layout
         TextPos.br.x--;
         getEngine()->blta8(getSurface(), &TextPos,
-                getEffectiveOpacity(), m_Color, getAngle(),
-                getPivot(), getBlendMode());
+                getEffectiveOpacity(), m_Color, getBlendMode());
     }
 }
 

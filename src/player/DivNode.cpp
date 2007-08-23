@@ -36,7 +36,6 @@ namespace avg {
 DivNode::DivNode (const xmlNodePtr xmlNode, Player * pPlayer)
     : Node(xmlNode, pPlayer)
 {
-    
 }
 
 DivNode::~DivNode()
@@ -82,7 +81,7 @@ void DivNode::addChild (NodePtr pNewNode)
                 ": already connected."));
     }
     m_Children.push_back(pNewNode);
-    DivNodePtr Ptr = boost::dynamic_pointer_cast<DivNode>(getThis());
+    DivNodePtr Ptr = boost::dynamic_pointer_cast<DivNode>(getThis());           
     pNewNode->setParent(Ptr);
     if (getState() == NS_CONNECTED) {
         getPlayer()->registerNode(pNewNode);
@@ -112,11 +111,14 @@ int DivNode::indexOf(NodePtr pChild)
 
 NodePtr DivNode::getElementByPos (const DPoint & pos)
 {
-    if (!getVisibleRect().Contains(pos) || !reactsToMouseEvents()) {
+    DPoint relPos = (getAngle() > 0.0001) ?
+        rotatePoint(pos, -getAngle(), getAbsViewport().tl + getPivot()) : pos;
+    
+    if (!getVisibleRect().Contains(relPos) || !reactsToMouseEvents()) {
         return NodePtr();
     }
     for (int i=getNumChildren()-1; i>=0; i--) {
-        NodePtr pFoundNode = getChild(i)->getElementByPos(pos);
+        NodePtr pFoundNode = getChild(i)->getElementByPos(relPos);
         if (pFoundNode) {
             return pFoundNode;
         }
@@ -134,9 +136,11 @@ void DivNode::prepareRender (int time, const DRect& parent)
 
 void DivNode::render(const DRect& rect)
 {
+    getEngine()->pushClipRect(getVisibleRect());
     for (int i=0; i<getNumChildren(); i++) {
         getChild(i)->maybeRender(rect);
     }
+    getEngine()->popClipRect();
 }
 
 bool DivNode::obscures (const DRect& rect, int Child)

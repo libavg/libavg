@@ -37,6 +37,7 @@ AVGNode::AVGNode (const xmlNodePtr xmlNode, Player * pPlayer)
             getDefaultedStringAttr (xmlNode, "onkeyup", ""));
     addEventHandler(Event::KEYDOWN, Event::NONE, 
             getDefaultedStringAttr (xmlNode, "onkeydown", ""));
+    Node::setAngle(0.0);
 }
 
 AVGNode::~AVGNode()
@@ -50,6 +51,11 @@ string AVGNode::getTypeStr ()
 
 bool AVGNode::getCropSetting() {
     return m_bEnableCrop;
+}
+
+void AVGNode::setAngle(double angle)
+{
+    
 }
 
 }

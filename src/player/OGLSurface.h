@@ -61,7 +61,6 @@ class OGLSurface: public ISurface {
         IntPoint getSize();
 
         void blt(const DRect* pDestRect,
-                double angle, const DPoint& pivot, 
                 DisplayEngine::BlendMode Mode);
 
         void setMaxTileSize(const Point<int>& MaxTileSize);
@@ -79,7 +78,7 @@ class OGLSurface: public ISurface {
         void createBitmap(const IntPoint& Size, PixelFormat pf, int index);
         void unlockBmp(int i);
         void bindOneTexture(OGLTile& Tile);
-        void bltTexture(const DRect* pDestRect, double angle, const DPoint& pivot, 
+        void bltTexture(const DRect* pDestRect, 
                 DisplayEngine::BlendMode Mode);
         DPoint calcFinalVertex(const DRect* pDestRect,
                 const DPoint & NormalizedVertex);

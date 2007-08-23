@@ -62,4 +62,3 @@ class DivNode : public Node
 }
 
 #endif //_DivNode_H_
-

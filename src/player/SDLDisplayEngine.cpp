@@ -36,6 +36,8 @@
 #include "OGLSurface.h"
 #include "OGLHelper.h"
 
+#include "MathHelper.h"
+
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
@@ -232,6 +234,7 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
             exit(-1);
     }
     safeSetAttribute(SDL_GL_DEPTH_SIZE, 0);
+    safeSetAttribute(SDL_GL_STENCIL_SIZE, 8);
     safeSetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     if (m_MultiSampleSamples > 1) {
         safeSetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
@@ -260,9 +263,12 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
     glEnable(GL_BLEND);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(GL_BLEND)");
     glShadeModel(GL_FLAT);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glShadeModel()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glShadeModel(GL_FLAT)");
     glDisable(GL_DEPTH_TEST);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glDisable(GL_DEPTH_TEST)");
+    glEnable(GL_STENCIL_TEST);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(GL_STENCIL_TEST)");
+    safeSetAttribute(SDL_GL_STENCIL_SIZE, 8);
     int TexMode = getTextureMode();
     glEnable(TexMode);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(TexMode);");
@@ -390,8 +396,11 @@ void SDLDisplayEngine::render(AVGNodePtr pRootNode, bool bRenderEverything)
     glClearColor(0.0, 0.0, 0.0, 0.0); 
     glClear(GL_COLOR_BUFFER_BIT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "SDLDisplayEngine::render::glClear()");
-
+            "SDLDisplayEngine::render::glClear(GL_COLOR_BUFFER_BIT)");
+    glClearStencil(0);
+    glClear(GL_STENCIL_BUFFER_BIT);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "SDLDisplayEngine::render::glClear(GL_STENCIL_BUFFER_BIT)");
     glViewport(0, 0, m_WindowWidth, m_WindowHeight);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "SDLDisplayEngine::render: glViewport()");
@@ -424,26 +433,21 @@ void SDLDisplayEngine::render(AVGNodePtr pRootNode, bool bRenderEverything)
  
 void SDLDisplayEngine::setClipRect()
 {
-    m_ClipRects.clear();
-    m_ClipRects.push_back(DRect(0, 0, m_Width, m_Height));
+    //m_ClipRects.clear();
+    //m_ClipRects.push_back(DRect(0, 0, m_Width, m_Height));
+    pushClipRect(DRect(0, 0, m_Width, m_Height));
 }
 
 static ProfilingZone PushClipRectProfilingZone("pushClipRect");
 
-bool SDLDisplayEngine::pushClipRect(const DRect& rc, bool bClip)
+bool SDLDisplayEngine::pushClipRect(const DRect& rc)
 {
     ScopeTimer Timer(PushClipRectProfilingZone);
 
+    cerr << "push rect " << rc << endl;
     m_ClipRects.push_back(rc);
+    clip(true);
 
-    glPushMatrix();
-    AVG_TRACE(Logger::BLTS, "Clip set to " << 
-            rc.tl.x << "x" << rc.tl.y << 
-            ", width: " << rc.Width() << ", height: " << 
-            rc.Height());
-    if (bClip) {
-        clip();
-    }
     return true;
 }
 
@@ -452,9 +456,10 @@ static ProfilingZone PopClipRectProfilingZone("popClipRect");
 void SDLDisplayEngine::popClipRect()
 {
     ScopeTimer Timer(PopClipRectProfilingZone);
-    glPopMatrix();
+    
+    cerr << "pop rect " << m_ClipRects.back() << endl;
+    clip(false);
     m_ClipRects.pop_back();
-    clip();
 }
 
 const DRect& SDLDisplayEngine::getClipRect() 
@@ -462,57 +467,89 @@ const DRect& SDLDisplayEngine::getClipRect()
     return m_ClipRects.back();
 }
 
+void SDLDisplayEngine::pushRotation(double angle, const DPoint& pivot)
+{
+    m_Angles.push_back(angle);
+
+    if (fabs(angle) > 0.0001) {
+        glPushMatrix();
+        glTranslated(pivot.x, pivot.y, 0);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushRotation: glTranslated");
+        glRotated(angle*180.0/PI, 0, 0, 1);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushRotation: glRotated");
+        glTranslated(-pivot.x, -pivot.y, 0);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushRotation: glTranslated");
+    }
+}
+
+void SDLDisplayEngine::popRotation()
+{
+    if(fabs(m_Angles.back()) > 0.0001) {
+        glPopMatrix();
+    }
+
+    m_Angles.pop_back();
+}
+
 void SDLDisplayEngine::blt32(ISurface * pSurface, const DRect* pDestRect, 
-        double opacity, double angle, const DPoint& pivot, BlendMode Mode)
+        double opacity, BlendMode Mode)
 {
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface*>(pSurface);
     glColor4f(1.0f, 1.0f, 1.0f, opacity);
-    pOGLSurface->blt(pDestRect, angle, pivot, Mode);
+    pOGLSurface->blt(pDestRect, Mode);
 }
 
 void SDLDisplayEngine::blta8(ISurface * pSurface, 
         const DRect* pDestRect, double opacity, 
-        const Pixel32& color, double angle, 
-        const DPoint& pivot, BlendMode Mode)
+        const Pixel32& color, BlendMode Mode)
 {
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface*>(pSurface);
     glColor4f(float(color.getR())/256, float(color.getG())/256, 
             float(color.getB())/256, opacity);
-    pOGLSurface->blt(pDestRect, angle, pivot, Mode);
+    pOGLSurface->blt(pDestRect, Mode);
 }
 
-
-void SDLDisplayEngine::setClipPlane(double Eqn[4], int WhichPlane)
-{
-    glClipPlane(WhichPlane, Eqn);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "setClipPlane: glClipPlane()");
-}
-
-void SDLDisplayEngine::clip()
-{
-    
-    if (m_bEnableCrop && !m_ClipRects.empty()) {       
+void SDLDisplayEngine::clip(bool forward)
+{    
+    if (m_bEnableCrop && !m_ClipRects.empty()) {
+        GLenum stencilOp;
+        int level;
+        if(forward) {
+            stencilOp = GL_INCR;
+            level = m_ClipRects.size();
+        } else {
+            stencilOp = GL_DECR;
+            level = m_ClipRects.size() - 1;
+        }
+        
         DRect rc = m_ClipRects.back();
-        double yEqn[4] = {0.0, 1.0, 0.0, -rc.tl.y};
-        //    yEqn[3] = -rc.tl.y;
-        setClipPlane(yEqn, GL_CLIP_PLANE0);
+        
+        // Disable drawing to color buffer
+        glColorMask(0, 0, 0, 0);
+        
+        // Enable drawing to stencil buffer
+        glStencilMask(~0);
 
-        yEqn[0] = 0;
-        yEqn[1] = -1.0;
-        yEqn[2] = 0;
-        yEqn[3] = rc.br.y;
-        setClipPlane(yEqn, GL_CLIP_PLANE1);
+        // Draw clip rectangle into stencil buffer
+        glStencilFunc(GL_ALWAYS, 0, 0);
+        glStencilOp(stencilOp, stencilOp, stencilOp);
 
-        double xEqn[4] = {1.0, 0.0, 0.0, 0.0};
-        xEqn[3] = -rc.tl.x;
-        setClipPlane(xEqn, GL_CLIP_PLANE2);
+        glBegin(GL_QUADS);
+            glVertex2f(rc.tl.x, rc.tl.y);
+            glVertex2f(rc.tl.x+rc.Width(), rc.tl.y);
+            glVertex2f(rc.br.x, rc.br.y);
+            glVertex2f(rc.br.x-rc.Width(), rc.br.y);
+        glEnd();
 
-        xEqn[0] = -1;
-        xEqn[1] = 0.0;
-        xEqn[2] = 0.0;
-        xEqn[3] = rc.br.x;
-        setClipPlane(xEqn, GL_CLIP_PLANE3);
+        // Set stencil test to only let
+        glStencilFunc(GL_LEQUAL, level, ~0);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        
+        // Disable drawing to stencil buffer
+        glStencilMask(0);
+        
+        // Enable drawing to color buffer
+        glColorMask(~0, ~0, ~0, ~0);
     }
 }
 
@@ -1454,4 +1491,3 @@ void SDLDisplayEngine::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCb
 }
 
 }
-

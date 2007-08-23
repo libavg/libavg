@@ -143,8 +143,8 @@ void Image::render (const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_href != "") {
-        getEngine()->blt32(getSurface(), &getAbsViewport(), getEffectiveOpacity(), 
-                getAngle(), getPivot(), getBlendMode());
+        getEngine()->blt32(getSurface(), &getAbsViewport(), 
+                getEffectiveOpacity(), getBlendMode());
     }
 }
 

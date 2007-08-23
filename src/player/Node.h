@@ -84,6 +84,15 @@ class Node
         double getHeight() const;
         void setHeight(double height);
         
+        double getAngle() const;
+        void setAngle(double Angle);
+        
+        double getPivotX() const;
+        void setPivotX(double Pivotx);
+        
+        double getPivotY() const;
+        void setPivotY(double Pivoty);
+        
         double getOpacity() const;
         void setOpacity(double opacity);
         
@@ -132,6 +141,7 @@ class Node
         Node (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual DPoint getPreferredMediaSize() 
             { return DPoint(0,0); };
+        DPoint getPivot();
         Player * getPlayer() const;
         DisplayEngine * getEngine() const;
         NodePtr getThis() const;
@@ -171,6 +181,9 @@ class Node
         double m_Opacity;
         bool m_bActive;
         bool m_bSensitive;
+        double m_Angle;
+        DPoint m_Pivot;
+        bool m_bHasCustomPivot;
         
         // Size specified by user.
         DPoint m_WantedSize;
@@ -181,4 +194,3 @@ class Node
 }
 
 #endif //_Node_H_
-

@@ -114,8 +114,7 @@ void VideoBase::render (const DRect& Rect)
                 }
                 if (m_bFirstFrameDecoded) {
                     getEngine()->blt32(getSurface(), &getAbsViewport(), 
-                            getEffectiveOpacity(), getAngle(), getPivot(),
-                            getBlendMode());
+                            getEffectiveOpacity(), getBlendMode());
                 }
             }
             break;
@@ -128,8 +127,7 @@ void VideoBase::render (const DRect& Rect)
             }
             if (m_bFirstFrameDecoded) {
                 getEngine()->blt32(getSurface(), &getAbsViewport(), 
-                        getEffectiveOpacity(), getAngle(), getPivot(),
-                        getBlendMode());
+                        getEffectiveOpacity(), getBlendMode());
             }
             break;
         case Unloaded:

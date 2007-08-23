@@ -29,6 +29,8 @@
 #include "Player.h"
 #include "DisplayEngine.h"
 
+#include "MathHelper.h"
+
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/XMLHelper.h"
@@ -66,6 +68,9 @@ Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
     m_RelViewport.tl.y = getDefaultedDoubleAttr (xmlNode, "y", 0.0);
     m_WantedSize.x = getDefaultedDoubleAttr (xmlNode, "width", 0.0);
     m_WantedSize.y = getDefaultedDoubleAttr (xmlNode, "height", 0.0);
+    m_Angle = getDefaultedDoubleAttr (xmlNode, "angle", 0);
+    m_Pivot.x = getDefaultedDoubleAttr (xmlNode, "pivotx", -32767);
+    m_Pivot.y = getDefaultedDoubleAttr (xmlNode, "pivoty", -32767);
     m_Opacity = getDefaultedDoubleAttr (xmlNode, "opacity", 1.0);
     m_bActive = getDefaultedBoolAttr (xmlNode, "active", true);
     m_bSensitive = getDefaultedBoolAttr (xmlNode, "sensitive", true);
@@ -98,6 +103,7 @@ void Node::setParent(DivNodeWeakPtr pParent)
 
 void Node::setDisplayEngine(DisplayEngine * pEngine)
 {
+    m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
     DPoint PreferredSize = getPreferredMediaSize();
     if (m_WantedSize.x == 0.0) {
         m_RelViewport.SetWidth(PreferredSize.x);
@@ -170,6 +176,40 @@ double Node::getHeight() const {
 void Node::setHeight(double height) {
     m_WantedSize.y = height;
     setViewport(-32767, -32767, -32767, height);
+}
+
+double Node::getAngle() const
+{
+    return m_Angle;
+}
+
+void Node::setAngle(double Angle)
+{
+    m_Angle = fmod(Angle, 2*PI);
+}
+
+double Node::getPivotX() const
+{
+    return m_Pivot.x;
+}
+
+void Node::setPivotX(double Pivotx)
+{
+    m_Pivot = getPivot();
+    m_Pivot.x = Pivotx;
+    m_bHasCustomPivot = true;
+}
+
+double Node::getPivotY() const
+{
+    return m_Pivot.y;
+}
+
+void Node::setPivotY(double Pivoty)
+{
+    m_Pivot = getPivot();
+    m_Pivot.y = Pivoty;
+    m_bHasCustomPivot = true;
 }
 
 double Node::getOpacity() const {
@@ -285,14 +325,8 @@ void Node::prepareRender (int time, const DRect& parent)
 void Node::maybeRender (const DRect& Rect)
 {
     if (m_bActive) {
-        bool bVisible;
-        // FIXME
-        if (dynamic_cast<DivNode*>(this) != 0) {
-            bVisible = getEngine()->pushClipRect(getVisibleRect(), true);
-        } else {
-            bVisible = getEngine()->pushClipRect(getVisibleRect(), false);
-        }
-        if (bVisible && getEffectiveOpacity() > 0.01) {
+        getEngine()->pushRotation(getAngle(), getAbsViewport().tl + getPivot());
+        if (getEffectiveOpacity() > 0.01) {
             if (!getParent() || !getParent()->obscures(getEngine()->getClipRect(), 
                     getParent()->indexOf(m_This.lock())))
             {
@@ -305,7 +339,7 @@ void Node::maybeRender (const DRect& Rect)
                 render(Rect);
             }
         }
-        getEngine()->popClipRect();
+        getEngine()->popRotation();
     }
 }
 
@@ -328,6 +362,15 @@ bool Node::isDisplayAvailable() const
     return (getState() == NS_CONNECTED) && m_pEngine;
 }
 
+DPoint Node::getPivot()
+{
+    if (m_bHasCustomPivot) {
+        return m_Pivot;
+    } else {
+        const DRect& vpt = getRelViewport();
+        return DPoint (vpt.Width()/2, vpt.Height()/2);
+    }
+}
 
 Player * Node::getPlayer() const
 {
@@ -537,4 +580,3 @@ void Node::setState(Node::NodeState State)
 }
 
 }
-

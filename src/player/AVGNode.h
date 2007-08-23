@@ -37,6 +37,7 @@ class AVGNode : public DivNode
 
         virtual std::string getTypeStr ();
         bool getCropSetting();
+        void setAngle(double angle);
         
     private:
         bool m_bEnableCrop;
@@ -46,4 +47,3 @@ class AVGNode : public DivNode
 }
 
 #endif //_AVGNode_H_
-
