@@ -27,6 +27,11 @@
 
 #include "../base/ProfilingZone.h"
 #include "../avgconfig.h"
+#undef PACKAGE_BUGREPORT
+#undef PACKAGE_NAME
+#undef PACKAGE_STRING
+#undef PACKAGE_TARNAME
+#undef PACKAGE_VERSION
 
 #ifdef _WIN32
 #define EMULATE_INTTYPES

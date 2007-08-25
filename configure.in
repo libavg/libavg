@@ -32,7 +32,9 @@ AC_PATH_GENERIC(freetype,,,AC_MSG_ERROR([libfreetype not found. Aborting.]))
 PKG_CHECK_MODULES([MAGICK], [ImageMagick++])
 
 AM_LIB_FFMPEG
-PKG_CHECK_MODULES([SWSCALE], [libswscale],AC_DEFINE([AVG_ENABLE_SWSCALE],1,[Enable ffmpeg swscale support.]),)
+PKG_CHECK_MODULES([SWSCALE], [libswscale],
+        AC_DEFINE([AVG_ENABLE_SWSCALE],1,[Enable ffmpeg swscale support.]),
+        foo="")
 
 AM_PATH_PYTHON
 
