@@ -22,12 +22,7 @@
 #ifndef _FWCamera_H_
 #define _FWCamera_H_
 
-#include "../avgconfig.h"
-#undef PACKAGE_BUGREPORT
-#undef PACKAGE_NAME
-#undef PACKAGE_STRING
-#undef PACKAGE_TARNAME
-#undef PACKAGE_VERSION
+#include "../avgconfigwrapper.h"
 
 #include "ICamera.h"
 

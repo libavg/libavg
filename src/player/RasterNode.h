@@ -26,11 +26,10 @@
 #include "DisplayEngine.h"
 #include "OGLSurface.h"
 
+#include "../avgconfigwrapper.h"
 #include "../base/Point.h"
 
 #include <string>
-
-#include "../avgconfig.h"
 
 namespace avg {
 

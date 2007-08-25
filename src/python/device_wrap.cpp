@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "../avgconfig.h"
+#include "../avgconfigwrapper.h"
 #include "../parport/ParPort.h"
 #include "../conradrelais/ConradRelais.h"
 #include <boost/python.hpp>

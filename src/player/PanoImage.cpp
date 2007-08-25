@@ -19,8 +19,6 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "../avgconfig.h"
-
 #include "PanoImage.h"
 #include "SDLDisplayEngine.h"
 #include "MathHelper.h"

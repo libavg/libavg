@@ -22,13 +22,7 @@
 #ifndef _PanoImage_H_
 #define _PanoImage_H_
 
-#include "../avgconfig.h"
-#undef PACKAGE
-#undef PACKAGE_BUGREPORT
-#undef PACKAGE_NAME
-#undef PACKAGE_STRING
-#undef PACKAGE_TARNAME
-#undef PACKAGE_VERSION
+#include "../avgconfigwrapper.h"
 
 #include "Node.h"
 #ifdef AVG_ENABLE_GL
