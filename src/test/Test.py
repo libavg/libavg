@@ -723,9 +723,7 @@ class PlayerTestCase(AVGTestCase):
             node.id = "newImage"
             node.x = 10
             node.y = 20
-            node.opacity = 0.666
             node.angle = 0.1
-            node.blendmode = "add"
 #            print node.toXML()
             rootNode = Player.getRootNode()
             rootNode.appendChild(node)
@@ -736,10 +734,14 @@ class PlayerTestCase(AVGTestCase):
                 exceptionRaised=True
             self.assert_(exceptionRaised)
             self.assert_(rootNode.indexOf(Player.getElementByID("newImage")) == 0)
-        def removeImg():
+        def createImg2():
+            node = Player.createNode("<image href='rgb24-64x64.png' id='newImage2'/>")
+            Player.getRootNode().insertChildBefore(node, 0)
+        def removeImgs():
             self.imgNode = Player.getElementByID("newImage")
             rootNode = Player.getRootNode()
             rootNode.removeChild( rootNode.indexOf(self.imgNode))
+            rootNode.removeChild(0)
             self.assert_(Player.getElementByID("newImage") == None)
         def reAddImg():
             rootNode = Player.getRootNode()
@@ -752,10 +754,12 @@ class PlayerTestCase(AVGTestCase):
         self.start("empty.avg",
                 (createImg,
                  lambda: self.compareImage("testImgDynamics1", False),
-                 removeImg,
+                 createImg2,
                  lambda: self.compareImage("testImgDynamics2", False),
-                 reAddImg,
+                 removeImgs,
                  lambda: self.compareImage("testImgDynamics3", False),
+                 reAddImg,
+                 lambda: self.compareImage("testImgDynamics4", False),
                  Player.stop))
 
     def testVideoDynamics(self):

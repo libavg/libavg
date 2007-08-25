@@ -116,6 +116,9 @@ void export_node()
         .def("appendChild", &DivNode::appendChild,
                 "appendChild(Node) -> None\n\n"
                 "Adds a new child to the container behind the last existing child.")
+        .def("insertChildBefore", &DivNode::insertChildBefore,
+                "insertChildBefore(Node, pos) -> None\n\n"
+                "Adds a new child to the container at position pos.")
         .def("removeChild", &DivNode::removeChild,
                 "removeChild(i) -> None\n\n"
                 "Removes the child at index i.")

@@ -38,10 +38,11 @@ class DivNode : public Node
         virtual void setDisplayEngine(DisplayEngine * pEngine);
         virtual void disconnect();
 
-        int getNumChildren ();
-        NodePtr getChild (int i);
-        void appendChild (NodePtr newNode);
-        void removeChild (int i);
+        int getNumChildren();
+        NodePtr getChild(int i);
+        void appendChild(NodePtr pNewNode);
+        void insertChildBefore(NodePtr pNewNode, int i);
+        void removeChild(int i);
         int indexOf(NodePtr pChild);
 
         virtual NodePtr getElementByPos (const DPoint & pos);
@@ -56,7 +57,7 @@ class DivNode : public Node
         virtual Point<double> getPreferredMediaSize();	
     
     private:
-        std::vector <NodePtr> m_Children;
+        std::vector<NodePtr> m_Children;
 };
 
 }
