@@ -26,6 +26,7 @@
 #include "IDemuxer.h"
 
 #include "../base/ProfilingZone.h"
+#include "../avgconfig.h"
 
 #ifdef _WIN32
 #define EMULATE_INTTYPES
@@ -33,8 +34,12 @@
 // This is probably GCC-specific.
 #define INT64_C(c)    c ## L
 #endif
+extern "C" {
 #include <ffmpeg/avformat.h>
-
+#ifdef AVG_ENABLE_SWSCALE
+#include <ffmpeg/swscale.h>
+#endif
+}
 #include <boost/thread/mutex.hpp>
 
 namespace avg {
@@ -76,6 +81,9 @@ class FFMpegDecoder: public IVideoDecoder
         bool m_bEOFPending;
         bool m_bEOF;
         PixelFormat m_PF;
+#ifdef AVG_ENABLE_SWSCALE
+        SwsContext * m_pSwsContext;
+#endif
 
         unsigned char * m_pPacketData;
         AVPacket * m_pPacket;
