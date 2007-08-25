@@ -805,7 +805,7 @@ NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc,
             NodePtr curChild = createNodeFromXml (xmlDoc, curXmlChild, 
                     curDivNode);
             if (curChild) {
-                curDivNode->addChild(curChild);
+                curDivNode->appendChild(curChild);
             }
             curXmlChild = curXmlChild->next;
         }

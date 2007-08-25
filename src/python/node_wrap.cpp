@@ -113,9 +113,9 @@ void export_node()
         .def("getChild", &DivNode::getChild, 
                 "getChild(i) -> Node\n\n"
                 "Returns the ith child in z-order.")
-        .def("addChild", &DivNode::addChild,
-                "addChild(Node) -> None\n\n"
-                "Adds a new child to the container.")
+        .def("appendChild", &DivNode::appendChild,
+                "appendChild(Node) -> None\n\n"
+                "Adds a new child to the container behind the last existing child.")
         .def("removeChild", &DivNode::removeChild,
                 "removeChild(i) -> None\n\n"
                 "Removes the child at index i.")

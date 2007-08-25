@@ -74,7 +74,7 @@ NodePtr DivNode::getChild (int i)
     return m_Children[i];
 }
 
-void DivNode::addChild (NodePtr pNewNode)
+void DivNode::appendChild (NodePtr pNewNode)
 {
     if (pNewNode->getState() == NS_CONNECTED) {
         throw(Exception(AVG_ERR_ALREADY_CONNECTED,
