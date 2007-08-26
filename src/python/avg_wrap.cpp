@@ -47,6 +47,14 @@ void exception_translator(Exception const & e)
 
 BOOST_PYTHON_MODULE(avg)
 {
+    scope().attr("__doc__") = 
+        "G{classtree Node}\n"
+        "G{classtree Event}\n"
+        "G{classtree Bitmap Point}\n"
+        "G{classtree Tracker TrackerCalibrator}\n"
+        "G{classtree Logger}\n"
+        "G{classtree ConradRelais ParPort}";
+
 #if (BOOST_VERSION / 100000) > 1 || ((BOOST_VERSION / 100) % 1000) >= 33
     register_exception_translator<Exception>(exception_translator);
 #endif
