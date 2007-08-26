@@ -736,7 +736,7 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(rootNode.indexOf(Player.getElementByID("newImage")) == 0)
         def createImg2():
             node = Player.createNode("<image href='rgb24-64x64.png' id='newImage2'/>")
-            Player.getRootNode().insertChildBefore(node, 0)
+            Player.getRootNode().insertChild(node, 0)
         def removeImgs():
             self.imgNode = Player.getElementByID("newImage")
             rootNode = Player.getRootNode()
