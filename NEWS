@@ -1,3 +1,37 @@
+libavg 0.7.0 - August 27, 2007
+
+  svn Revision xxxx
+
+  Major new features:
+    
+    * Support for camera tracking and multitouch surfaces. (Lots of support by
+      igor@c-base.org.)
+    * Multi-threaded video decoding, video playback at speeds other than the 
+      player redraw speed.
+    * API cleanups (not really a major feature, but a heads up that things will 
+      break :-)).
+
+
+  Other improvements:
+  
+    * Improved dynamic node API (DivNode::insertChild()).
+    * Video4Linux support curtesy of Xullo (www.02l.net).
+    * Update to new ffmpeg version.
+    * Callback support on video end of file.
+    * Support for python threads.
+    * Improved warp interface.
+    * Events callbacks now pass the event as a parameter.
+    * Added Player::setOnFrameHandler().
+    * Added Node::getRelPos().
+    * Any pythoon callable can be used as event handler now using 
+      Node::setEventHandler().
+    * Added Anim.abort() and .isDone().
+    * Lots of new automatic low-level tests.
+    * libavg now uses correct python package semantics. Use 
+      'from libavg import avg' to import it now. It shouldn't be necessary PYTHONPATH
+    * Much faster Image::setBitmap().
+
+
 libavg 0.6.0 - October 7, 2006 
 
   svn Revision 1664
