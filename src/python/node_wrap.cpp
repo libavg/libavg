@@ -43,42 +43,51 @@ using namespace avg;
 void export_node()
 {
     class_<Node, boost::shared_ptr<Node>, boost::noncopyable>("Node",
-            "Base class for all elements in the avg tree.\n",
+            "Base class for all elements in the avg tree.",
             no_init)
         .def("getParent", &Node::getParent,
-                "getParent() -> Node\n\n"
+                "getParent() -> node\n"
                 "Returns the container (AVGNode or DivNode) the node is in. For\n"
                 "the root node, returns None.\n")
         .def("setEventCapture", &Node::setMouseEventCapture,
-                "setEventCapture() -> None\n\n")
-        .def("setEventCapture", &Node::setEventCapture,
-                "setEventCapture(CursorID) -> None\n\n"
-                "Sets up event capturing so that all mouse events are sent to this node\n"
-                "regardless of the mouse cursor position. If the node doesn't handle the\n"
-                "event, it propagates to its parent normally. Useful for the\n"
+                "setEventCapture(cursorid)\n"
+                "Sets up event capturing so that cursor events are sent to this node\n"
+                "regardless of the cursor position. cursorid is optional; if left out,\n"
+                "the mouse cursor is captured. If not, events from a specific tracker\n"
+                "cursor are captured. If the node doesn't handle the event, it\n"
+                "propagates to its parent normally. This function is useful for the\n"
                 "implementation of user interface elements such as scroll bars. Only one\n"
-                "node can capture the mouse at any one time. Normal mouse operation can\n"
-                "be restored by calling releaseEventCapture().\n")
+                "node can capture a cursor at any one time. Normal operation can\n"
+                "be restored by calling releaseEventCapture().\n"
+                "@param cursorid: The id of the tracker cursor to capture (optional).\n")
+        .def("setEventCapture", &Node::setEventCapture)
         .def("releaseEventCapture", &Node::releaseMouseEventCapture,
-                "releaseEventCapture() -> None\n\n")
-        .def("releaseEventCapture", &Node::releaseEventCapture,
-                "releaseEventCapture() -> None\n\n"
-                "Restores normal nouse operation after a call to setEventCapture().\n")
+                "releaseEventCapture(cursorid)\n"
+                "Restores normal mouse operation after a call to setEventCapture().\n"
+                "@param cursorid: The id of the tracker cursor to release (optional).\n")
+        .def("releaseEventCapture", &Node::releaseEventCapture)
         .def("setEventHandler", &Node::setEventHandler,
-                "setEventHandler(Type, Source, pyfunc) -> None\n\n"
+                "setEventHandler(type, source, pyfunc)\n"
                 "Sets a callback function that is invoked whenever an event of the\n"
-                "specified Type from the specified Source occurs. This function is\n"
+                "specified type from the specified source occurs. This function is\n"
                 "similar to the event handler node attributes (e.g. oncursordown).\n"
                 "It is more specific since it takes the event source as a parameter\n"
-                "and allows the use of any python callable as callback function.\n")
+                "and allows the use of any python callable as callback function.\n"
+                "@param type: One of the event types KEYUP, KEYDOWN, CURSORMOTION,\n"
+                "CURSORUP, CURSORDOWN, CURSOROVER, CURSOROUT, RESIZE or QUIT.\n"
+                "@param source: MOUSE for mouse events, TOUCH for multitouch touch\n"
+                "events, TRACK for multitouch track events or other tracking.\n"
+                "@param pyfunc: The python callable to invoke.\n")
         .def("getRelXPos", &Node::getRelXPos,
-                "getRelXPos(absx) -> relx\n\n"
-                "Transforms an x-coordinate in screen coordinates to an x-coordinate\n"
-                "in coordinates relative to the node.\n")
+                "getRelXPos(absx) -> relx\n"
+                "Transforms an x-coordinate in window coordinates to an x-coordinate\n"
+                "in coordinates relative to the node.\n"
+                "@param absx: Absolute coordinate to transform.")
         .def("getRelYPos", &Node::getRelYPos,
                 "getRelYPos(absy) -> rely\n\n"
-                "Transforms an y-coordinate in screen coordinates to an y-coordinate\n"
-                "in coordinates relative to the node.\n")
+                "Transforms a y-coordinate in window coordinates to a y-coordinate\n"
+                "in coordinates relative to the node.\n"
+                "@param absy: Absolute coordinate to transform.")
         .add_property("id", make_function(&Node::getID,
                 return_value_policy<copy_const_reference>()), &Node::setID,
                 "A unique identifier that can be used to reference the node.\n")
@@ -96,7 +105,7 @@ void export_node()
                       "If this attribute is true, the node behaves as usual. If not, it\n"
                       "is neither drawn nor does it react to events. Videos are paused.\n")
         .add_property("sensitive", &Node::getSensitive, &Node::setSensitive,
-                      "sensitive: A node only reacts to events if sensitive is true.")
+                      "A node only reacts to events if sensitive is true.")
     ;
 
     export_bitmap();
@@ -109,22 +118,23 @@ void export_node()
             "opacity is used as base opacity for the child nodes' opacities.\n",
             no_init)
         .def("getNumChildren", &DivNode::getNumChildren,
-                "getNumChildren() -> numChildren\n\n")
+                "getNumChildren() -> numchildren\n"
+                "Returns the number of immediate children that this div contains.")
         .def("getChild", &DivNode::getChild, 
-                "getChild(i) -> Node\n\n"
-                "Returns the ith child in z-order.")
+                "getChild(pos) -> node\n"
+                "Returns the child at position pos.")
         .def("appendChild", &DivNode::appendChild,
-                "appendChild(Node) -> None\n\n"
+                "appendChild(node)\n"
                 "Adds a new child to the container behind the last existing child.")
         .def("insertChild", &DivNode::insertChild,
-                "insertChild(Node, pos) -> None\n\n"
+                "insertChild(node, pos)\n"
                 "Adds a new child to the container at position pos.")
         .def("removeChild", &DivNode::removeChild,
-                "removeChild(i) -> None\n\n"
-                "Removes the child at index i.")
+                "removeChild(pos)\n"
+                "Removes the child at index pos.")
         .def("indexOf", &DivNode::indexOf,
-                "indexOf(childNode) -> i\n\n"
-                "Returns the index of the child given or -1 if childNode isn't a\n"
+                "indexOf(childnode)\n"
+                "Returns the index of the child given or -1 if childnode isn't a\n"
                 "child of the container.")
     ;
     
@@ -142,14 +152,14 @@ void export_node()
     ;
 
     class_<PanoImage, bases<Node> >("PanoImage",
-            "A panorama image.\n",
+            "A panorama image displayed in cylindrical projection.\n",
             no_init)
         .def("getScreenPosFromPanoPos", &PanoImage::getScreenPosFromPanoPos,
-                "getScreenPosFromPanoPos(panoPos) -> pos\n\n"
+                "getScreenPosFromPanoPos(panoPos) -> pos\n"
                 "Converts a position in panorama image pixels to pixels in coordinates\n"
                 "relative to the node, taking into account the current rotation angle.\n")
         .def("getScreenPosFromAngle", &PanoImage::getScreenPosFromAngle,
-                "getScreenPosFromAngle(angle) -> pos\n\n"
+                "getScreenPosFromAngle(angle) -> pos\n"
                 "Converts panorama angle to pixels in coordinates\n"
                 "relative to the node, taking into account the current rotation angle.\n")
         .add_property("href", make_function(&PanoImage::getHRef, 

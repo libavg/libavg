@@ -55,53 +55,48 @@ BOOST_PYTHON_MODULE(avg)
 
     class_<Logger>("Logger", 
             "Interface to the logger used by the avg player. Enables the setting\n"
-            "of different logging categories and a destination file. Can be used\n"
-            "to log application-specific messages as well.\n"
+            "of different logging categories. Log output can be sent to the console, a\n"
+            "file or unix syslog.\n"
             "Each log entry contains the time the message was written, the category\n"
-            "of the entry and the message itself.",
+            "of the entry and the message itself.\n",
             no_init)
         .def("get", &Logger::get, 
                 return_value_policy<reference_existing_object>(),
-                "get() -> Logger\n\n"
-                "There is only one logger. This method gives access to it.")
+                "This method gives access to the logger. There is only one instance.\n")
         .staticmethod("get")
         .def("setConsoleDest", &Logger::setConsoleDest,
-                "setConsoleDest() -> None\n\n"
-                "Sets the log to be output to the console (stderr, to be precise).\n"
+                "Sets the log to be output to the console (stderr, to be precise)."
                 "This is the default.")
         .def("setFileDest", &Logger::setFileDest,
-                "setFileDest(filename) -> None\n\n"
                 "Sets a file that the log should be written to. If opening the file\n"
-                "fails, the console is used instead.")
+                "fails, the console is used instead.\n"
+                "@param filename: \n")
         .def("setSyslogDest", &Logger::setSyslogDest,
-                "setSyslogDest(facility, logopt) -> None\n\n"
                 "Causes log output to be written to the unix system log facility.\n"
-                "facility and logopt are passed to the system log verbatim. See\n"
-                "man 3 syslog for details of these parameters. Ident is set to\n"
-                "'libavg'")
+                "syslog ident is set to 'libavg'.\n"
+                "@param facility: Passed to the system log verbatim. See man 3 syslog.\n"
+                "@param logopt: Passed to the system log verbatim. See man 3 syslog.")
         .def("setCategories", &Logger::setCategories,
-                "setCategories(categories) -> None\n\n"
-                "Sets the types of messages that should be logged. Possible \n"
-                "categories are:\n"
-                "    NONE: No logging except for errors.\n"
-                "    BLTS: Display subsystem logging. Useful for timing/performance\n"
-                "          measurements.\n"
-                "    PROFILE: Outputs performance statistics on player termination.\n"
-                "    PROFILE_LATEFRAMES: Outputs performance statistics whenever a\n"
-                "                        frame is displayed late.\n"
-                "    EVENTS: Outputs basic event data.\n"
-                "    EVENTS2: Outputs all event data available.\n"
-                "    CONFIG: Outputs configuration data.\n"
-                "    WARNING: Outputs warning messages. Default is on.\n"
-                "    ERROR: Outputs error messages. Can't be shut off.\n"
-                "    MEMORY: Outputs open/close information whenever a media file is accessed.\n"
-                "    APP: Reserved for application-level messages issued by python\n"
-                "         code.\n"
-                "Categories can be or'ed together.")
+                "Sets the types of messages that should be logged.\n" 
+                "@param categories: Or'ed list of categories. Possible categories are:\n"
+                "    - NONE: No logging except for errors.\n"
+                "    - BLTS: Display subsystem logging. Useful for timing/performance"
+                "            measurements.\n"
+                "    - PROFILE: Outputs performance statistics on player termination.\n"
+                "    - PROFILE_LATEFRAMES: Outputs performance statistics whenever a"
+                "                          frame is displayed late.\n"
+                "    - EVENTS: Outputs basic event data.\n"
+                "    - EVENTS2: Outputs all event data available.\n"
+                "    - CONFIG: Outputs configuration data.\n"
+                "    - WARNING: Outputs warning messages. Default is on.\n"
+                "    - ERROR: Outputs error messages. Can't be shut off.\n"
+                "    - MEMORY: Outputs open/close information whenever a media file is accessed.\n"
+                "    - APP: Reserved for application-level messages issued by python code.\n")
         .def("trace", &Logger::trace,
-                "trace(category, message) -> None\n\n"
-                "Logs message to the log if category is active. The category should\n"
-                "in most cases be APP.")
+                "Logs message to the log if category is active.\n"
+                "@param category: One of the categories listed for setCategories(). Should\n"
+                "in most cases be APP.\n"
+                "@param message: The log message.\n")
         .def_readonly("NONE", &Logger::NONE)
         .def_readonly("BLTS", &Logger::BLTS)
         .def_readonly("PROFILE", &Logger::PROFILE)
@@ -139,128 +134,148 @@ BOOST_PYTHON_MODULE(avg)
     class_<Player>("Player", 
                 "The class used to load and play avg files.")
         .def("setResolution", &Player::setResolution,
-                "setResolution(fullscreen, width, height, bpp) -> None\n\n"
-                "Sets display engine parameters. width and height set the window size\n"
+                "setResolution(fullscreen, width, height, bpp)\n"
+                "Sets display engine parameters. Must be called before loadFile.\n"
+                "@param fullscreen: True if the avg file should be rendered fullscreen.\n"
+                "@param width, height: Set the window size\n"
                 "(if fullscreen is false) or screen resolution (if fullscreen is true).\n"
-                "bpp is the number of bits per pixel to use. Must be called before\n"
-                "loadFile.")
+                "@param bpp: Number of bits per pixel to use.\n")
         .def("setOGLOptions", &Player::setOGLOptions,
                 "setOGLOptions(UsePOW2Textures, YCbCrMode, UsePixelBuffers, MultiSampleSamples)\n"
-                "       -> None\n\n"
                 "Determines which OpenGL extensions to check for and use if possible.\n"
                 "Mainly used for debugging purposes while developing libavg, but can\n"
-                "also be used to work around buggy drivers.\n"
-                "UsePOW2Textures=true restricts textures to power-of-two dimensions.\n"
-                "YCbCrMode can be shader, mesa, apple or none and selects the preferred\n"
-                "method of copying video textures to the screen.\n"
-                "UsePixelBuffers=false disables the use of OpenGL pixel buffer objects.\n"
-                "MultiSampleSamples is the number of samples per pixel to compute. This\n"
+                "also be used to work around buggy drivers. The values set here override\n"
+                "those in avgrc. Note that with the exception of MultiSampleSamples,\n"
+                "fallbacks are always used - if a feature is\n"
+                "specified that the system doesn't support, a less demanding one will\n"
+                "be used.\n"
+                "@param UsePOW2Textures: If True, restricts textures to power-of-two dimensions.\n"
+                "@param YCbCrMode: Selects the preferred method of copying video textures\n"
+                "to the screen. Can be shader, mesa, apple or none.\n"
+                "@param UsePixelBuffers: If False, disables the use of OpenGL pixel buffer\n"
+                "objects.\n"
+                "@param MultiSampleSamples: The number of samples per pixel to compute. This\n"
                 "costs performance and smoothes the edges of polygons. A value of 1 turns\n"
-                "multisampling off. Good values are dependent on the graphics driver.")
+                "multisampling (also knowna as FSAA - Full-Screen Antialiasing) off. Good\n"
+                "values are dependent on the graphics driver.\n")
         .def("loadFile", &Player::loadFile,
-                "loadFile(fileName) -> None\n\n"
-                "Loads the avg file specified in fileName.")
+                "loadFile(filename)\n"
+                "Loads the avg file specified in filename.\n"
+                "@param filename: ")
         .def("play", &Player::play,
-                "play() -> None\n\n"
-                "Opens a playback window or screen and starts playback. framerate is\n"
-                "the number of frames per second that should be displayed. play returns\n"
-                "when playback has ended.")
+                "play()\n"
+                "Opens a playback window or screen and starts playback. play returns\n"
+                "when playback has ended.\n")
         .def("stop", &Player::stop,
-                "stop() -> None\n\n"
-                "Stops playback and resets the video mode if nessesary.")
+                "stop()\n"
+                "Stops playback and resets the video mode if necessary.\n")
         .def("isPlaying", &Player::isPlaying,
-                "isPlaying() -> bool\n\n"
-                "Returns true if play() is currently executing, false if not.")
+                "isPlaying() -> bool\n"
+                "Returns True if play() is currently executing, False if not.\n")
         .def("setFramerate", &Player::setFramerate,
-                "setFramerate(rate) -> None\n\n"
-                "Sets the desired framerate for playback and turns off syncronization\n"
-                "to the vertical blanking interval.")
+                "setFramerate(framerate)\n"
+                "Sets the desired framerate for playback. Turns off syncronization\n"
+                "to the vertical blanking interval.\n"
+                "@param framerate: ")
         .def("setVBlankFramerate", &Player::setVBlankFramerate,
-                "setVBlankFramerate(rate) -> bool\n\n"
-                "Sets the desired number of vertical blanking intervals before the next\n"
+                "setVBlankFramerate(rate)\n"
+                "Sets the desired number of monitor refreshes before the next\n"
                 "frame is displayed. The resulting framerate is determined by the\n"
-                "monitor refresh rate divided by the rate parameter.")
+                "monitor refresh rate divided by the rate parameter.\n"
+                "@param rate: Number of vertical blanking intervals to wait.\n")
         .def("getEffectiveFramerate", &Player::getEffectiveFramerate,
-                "getEffectiveFramerate() -> double\n\n"
-                "Returns the framerate that the player is actually achieving. The value\n"
-                "is averaged over one second.")
+                "getEffectiveFramerate() -> framerate\n"
+                "Returns the framerate that the player is actually achieving. The\n"
+                "value returned is not averaged and reflects only the current frame.\n")
         .def("getMemUsed", &Player::getMemUsed,
-                "getMemUsed() -> int\n\n"
-                "Returns the memory used by the process in bytes.")
+                "getMemUsed()\n"
+                "Returns the memory used by the process in bytes.\n")
         .def("getTestHelper", &Player::getTestHelper,
                 return_value_policy<reference_existing_object>(),
                 "")
         .def("setFakeFPS", &Player::setFakeFPS,
-                "setFakeFPS(float) -> None\n\n"
+                "setFakeFPS(fps)\n"
                 "Sets a fixed number of virtual frames per second that are used as clock\n"
-                "source for video playback and other time-based actions. If a value of -1\n"
-                "is given as parameter, the real clock is used.\n")
+                "source for video playback, animations and other time-based actions.\n"
+                "If a value of -1 is given as parameter, the real clock is used.\n"
+                "@param fps: \n")
         .def("getFrameTime", &Player::getFrameTime,
+                "getFrameTime() -> time\n"
                 "Returns the number of milliseconds that have elapsed since playback has\n"
                 "started. Honors FakeFPS. The time returned stays constant for an entire\n"
                 "frame; it is the time of the last display update.\n")
         .def("createNode", &Player::createNodeFromXmlString,
-                "createNode(xml) -> Node\n\n"
-                "Creates a new Node from an xml string. This node can be used as\n"
-                "parameter to DivNode::addChild().")
+                "createNode(xml) -> node\n"
+                "Creates a new Node. This node can be used as\n"
+                "parameter to DivNode::appendChild() and insertChild().\n"
+                "This method will create any type of node, including <div> nodes\n"
+                "with children.\n"
+                "@param xml: xml string in avg syntax that specifies the node to create.")
         .def("addTracker", &Player::addTracker,
                 return_value_policy<reference_existing_object>(),
-                "addTracker(device) -> tracker\n\n"
-                "Adds a tracker to the avg player. The tracker immediately starts.\n"
+                "addTracker()\n"
+                "Adds a camera-based tracker to the avg player. The tracker can be\n"
+                "configured using the .avgtrackerrc file and tracker immediately starts\n"
                 "reporting events.")
         .def("setInterval", &Player::setInterval,
-                "setInterval(time, pyfunc) -> id\n\n"
-                "Sets a python callable object that should be executed every time\n"
-                "milliseconds. setInterval returns an id that can be used to\n"
+                "setInterval(time, pyfunc) -> id\n"
+                "Sets a python callable object that should be executed regularly.\n"
+                "setInterval returns an id that can be used to\n"
                 "call clearInterval() to stop the function from being called. The\n"
-                "callback is called at most once per frame.")
+                "callback is called at most once per frame.\n"
+                "@param time: Number of milliseconds between two calls.\n"
+                "@param pyfunc: Python callable to execute.\n")
         .def("setTimeout", &Player::setTimeout, 
-                "setTimeout(time, pyfunc) -> id\n\n"
-                "Sets a python callable object that should be executed after time\n"
-                "milliseconds. setTimeout returns an id that can be used to\n"
-                "call clearInterval() to stop the function from being called.")
+                "setTimeout(time, pyfunc) -> id\n"
+                "Sets a python callable object that should be executed after a set\n"
+                "amount of time. setTimeout returns an id that can be used to\n"
+                "call clearInterval() to stop the function from being called.\n"
+                "@param time: Number of milliseconds before the call.\n"
+                "@param pyfunc: Python callable to execute.\n")
         .def("setOnFrameHandler", &Player::setOnFrameHandler,
-                "setOnFrameHandler(pyfunc) -> id\n\n"
+                "setOnFrameHandler(pyfunc) -> id\n"
                 "Sets a python callable object that should be executed once per frame.\n"
                 "Returns an id that can be used to call clearInterval() to stop the\n"
-                "function from being called.")
+                "function from being called.\n"
+                "@param pyfunc: Python callable to execute.\n")
         .def("clearInterval", &Player::clearInterval,
-                "clearInterval(id) -> ok\n\n"
-                "Stops a timeout or an interval from being called. Returns 1 if\n"
-                "there was an interval with the given id, 0 if not.\n")
+                "clearInterval(id) -> ok\n"
+                "Stops a timeout, an interval or an onFrameHandler from being called.\n"
+                "Returns True if there was an interval with the given id, False if not.\n"
+                "@param id: An id returned by setInterval, setTimeout or setOnFrameHandler.\n")
         .def("getMouseState", &Player::getMouseState,
                 return_value_policy<reference_existing_object>(),
-                "getMouseState() -> Event\n\n"
-                "Gets an interface to the last mouse event.")
+                "getMouseState() -> event\n"
+                "Returns an interface to the last mouse event.\n")
         .def("screenshot", &Player::screenshot,
                 return_value_policy<manage_new_object>(),
-                "screenshot() -> Bitmap\n\n"
+                "screenshot() -> bitmap\n"
                 "Returns the contents of the current screen as a bitmap.\n")
         .def("showCursor", &Player::showCursor,
-                "showCursor(show) -> None\n\n"
-                "Shows or hides the mouse cursor. (Currently, this only works for\n"
-                "OpenGL. Showing the DirectFB mouse cursor seems to expose some\n"
-                "issue with DirectFB.)")
+                "showCursor(show)\n"
+                "Shows or hides the mouse cursor.\n"
+                "@param show: True if the mouse cursor should be visible.\n")
         .def("getElementByID", &Player::getElementByID,
-                "getElementByID(id) -> Node\n\n"
-                "Returns an element in the avg tree. The id corresponds to the id\n"
-                "attribute of the node.")
+                "getElementByID(id) -> node\n"
+                "Returns an element in the avg tree.\n"
+                "@param id: id attribute of the node to return.\n")
         .def("getRootNode", &Player::getRootNode,
-                "getRootNode() -> AVGNode\n\n"
-                "Returns the outermost element in the avg tree.")
+                "getRootNode() -> node\n"
+                "Returns the outermost element in the avg tree.\n")
         .def("getFramerate", &Player::getFramerate,
-                "getFramerate() -> framerate\n\n"
-                "Returns the current framerate in frames per second.")
+                "getFramerate() -> rate\n"
+                "Returns the current target framerate in frames per second.\n")
         .def("getVideoRefreshRate", &Player::getVideoRefreshRate,
-                "getVideoRefreshRate() -> refreshrate\n\n"
+                "getVideoRefreshRate() -> rate\n"
                 "Returns the current hardware video refresh rate in number of\n"
-                "refreshes per second.")
+                "refreshes per second.\n")
         .def("setGamma", &Player::setGamma,
-                "setGamma(red, green, blue) -> None\n\n"
+                "setGamma(red, green, blue)\n"
                 "Sets display gamma. This is a control for overall brightness and\n"
                 "contrast that leaves black and white unchanged but adjusts greyscale\n"
                 "values. 1.0 is identity, higher values give a brighter image, lower\n"
-                "values a darker one.\n")
+                "values a darker one.\n"
+                "@param red, green, blue: \n")
     ;
 
 }

@@ -109,26 +109,32 @@ void export_bitmap()
         .def(init<Bitmap>())
         .def(init<std::string>())
         .def("save", &Bitmap::save,
-                "save(filename) -> None\n\n"
-                "Writes the contents to a file. File format is determined using the\n"
-                "extension.")
+                "save(filename)\n"
+                "Writes the image to a file. File format is determined using the\n"
+                "extension. Any file format specified by ImageMagick \n"
+                "(U{http://www.imagemagick.org}) can be used.")
         .def("getSize", &Bitmap::getSize,
-                "getSize() -> Point\n\n"
-                "Returns the size in pixels.")
+                "getSize()\n\n"
+                "Returns the size of the image in pixels.")
         .def("getFormat", &Bitmap::getPixelFormat, 
-                "getFormat() -> PixelFormat\n\n"
-                "Possible pixel formats are B5G6R5, B8G8R8, B8G8R8A8, B8G8R8X8,\n"
+                "getFormat()\n"
+                "Returns the layout of the pixels in the bitmap.\n"
+                "Possible return values are B5G6R5, B8G8R8, B8G8R8A8, B8G8R8X8,\n"
                 "A8B8G8R8, X8B8G8R8, R5G6B5, R8G8B8, R8G8B8A8, R8G8B8X8, A8R8G8B8,\n"
-                "X8R8G8B8, I8 and YCbCr422")
+                "X8R8G8B8, I8 and YCbCr422.")
         .def("getPixels", &Bitmap::getPixelsAsString, 
-                "getPixels() -> string\n\n"
-                "Returns the raw pixel data in the bitmap.")
+                "getPixels()\n"
+                "Returns the raw pixel data in the bitmap as a python string. This\n"
+                "method can be used to interface to the python imaging library PIL\n"
+                "(U{http://www.pythonware.com/products/pil/}).")
         .def("setPixels", &Bitmap::setPixelsFromString,
-                "setPixels(string) -> None\n\n"
+                "setPixels(pixels)\n\n"
                 "Changes the raw pixel data in the bitmap. Doesn't change dimensions \n"
-                "or pixel format.")
+                "or pixel format. Can be used to interface to the python imaging\n"
+                "library PIL (U{http://www.pythonware.com/products/pil/}).\n"
+                "@param pixels: Image data as a python string.")
         .def("subtract", &Bitmap::subtract, 
-                "getName() -> None\n\n")
+                "subtract(otherbitmap)\n")
         .def("getName", &Bitmap::getName, 
                 return_value_policy<copy_const_reference>(),
                 "getName() -> string\n\n")

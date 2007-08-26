@@ -50,14 +50,17 @@ void export_raster()
             "reference points. The position of each of these points can be changed.\n",
             no_init) 
         .def("getOrigVertexCoords", &RasterNode::getOrigVertexCoords,
-                "getOrigVertexCoords() -> GridPoints\n\n"
-                "Returns the unwarped coordinate of all vertices.")
+                "getOrigVertexCoords()\n"
+                "Returns the unwarped coordinate of all vertices as a list\n"
+                "of lists.")
         .def("getWarpedVertexCoords", &RasterNode::getWarpedVertexCoords,
-                "getWarpedVertexCoords() -> GridPoints\n\n"
-                "Returnes the current coordinate of all vertices.")
+                "getWarpedVertexCoords()\n"
+                "Returnes the current coordinate of all vertices as a list\n"
+                "of lists.")
         .def("setWarpedVertexCoords", &RasterNode::setWarpedVertexCoords,
-                "setWarpedVertexCoords(Grid) -> None\n\n"
-                "Changes the current coordinates of all vertices.")
+                "setWarpedVertexCoords(grid)\n"
+                "Changes the current coordinates of all vertices.\n"
+                "@param grid: list of lists of coordinate tuples.")
         .def("getBitmap", &RasterNode::getBitmap,
                 return_value_policy<manage_new_object>(),
                 "getBitmap() -> Bitmap\n\n"
@@ -93,8 +96,9 @@ void export_raster()
             "transparency information.\n",
             no_init)
         .def("setBitmap", &Image::setBitmap, 
-                "setBitmap(Bitmap)-> None\n"
-                "Sets the bitmap pixels of the image.")
+                "setBitmap(bitmap)\n"
+                "Sets the bitmap pixels of the image.\n"
+                "@param bitmap: A libavg bitmap object to use.")
         .add_property("href", 
                 make_function(&Image::getHRef,
                         return_value_policy<copy_const_reference>()),
@@ -102,31 +106,34 @@ void export_raster()
                         return_value_policy<copy_const_reference>()),
                 "The source filename of the image.\n")
         .add_property("hue", &Image::getHue,
-                "A hue to color the image in. (ro, deprecated)\n")
+                "A hue to color the image in (ro, deprecated).\n")
         .add_property("saturation", &Image::getSaturation,
-                "The saturation the image should have. (ro, deprecated)\n")
+                "The saturation the image should have (ro, deprecated).\n")
     ;
 
     class_<VideoBase, bases<RasterNode>, boost::noncopyable>("VideoBase", 
             "Base class for video and camera image nodes.",
             no_init)
         .def("play", &VideoBase::play,
-                "play() -> None\n\n"
+                "play()\n"
                 "Starts video playback.")
         .def("stop", &VideoBase::stop,
-                "stop() -> None\n\n"
-                "Stops video playback. Closes the file and 'rewinds' the playback\n"
+                "stop()\n"
+                "Stops video playback. Closes the object and 'rewinds' the playback\n"
                 "cursor.")
         .def("pause", &VideoBase::pause,
-                "pause() -> None\n\n"
-                "Stops video playback but doesn't close the file. The playback\n"
+                "pause()\n"
+                "Stops video playback but doesn't close the object. The playback\n"
                 "cursor stays at the same position.")
-        .def("getFPS", &VideoBase::getFPS)
+        .def("getFPS", &VideoBase::getFPS,
+                "getFPS()\n"
+                "Returns the nominal frames per second the object should display at.\n")
     ;  
 
     class_<CameraNode, bases<VideoBase> >("Camera",
-            "A node that displays the image of a firewire camera.\n"
-            "    brightness, exposure, sharpness, saturation, gamma, shutter, gain, whitebalance",
+            "A node that displays the image of a camera. The properties are the same\n"
+            "as the camera properties in .avgtrackerrc and are explained under\n"
+            "U{https://www.libavg.de/wiki/index.php/Tracker_Setup}.",
             no_init)
         .add_property("device", make_function(&CameraNode::getDevice,
                 return_value_policy<copy_const_reference>()))
@@ -150,24 +157,24 @@ void export_raster()
             "are all formats that ffmpeg/libavcodec supports.\n",
             no_init)
         .def("getNumFrames", &Video::getNumFrames,
-                "getNumFrames() -> num\n\n")
+                "getNumFrames()")
         .def("getCurFrame", &Video::getCurFrame,
-                "getCurFrame() -> num\n\n"
+                "getCurFrame()\n"
                 "Returns the video frame currently playing.")
         .def("seekToFrame", &Video::seekToFrame,
-                "seekToFrame(num) -> None\n\n"
+                "seekToFrame(num)\n"
                 "Moves the playback cursor to the frame given.")
         .def("setEOFCallback", &Video::setEOFCallback,
-                "setEOFCallback(pyfunc) -> None\n\n"
-                "Sets a python function to be called when the video reaches end of file.")
+                "setEOFCallback(pyfunc)\n"
+                "Sets a python callable to be invoked when the video reaches end of file.")
         .add_property("href", 
                 make_function(&Video::getHRef,
                         return_value_policy<copy_const_reference>()),
                 make_function(&Video::setHRef,
                         return_value_policy<copy_const_reference>()),
-                "The source filename of the video. (ro)\n")
+                "The source filename of the video (ro).\n")
         .add_property("loop", &Video::getLoop,
-                "Whether to start the video again when it has ended. (ro)\n")
+                "Whether to start the video again when it has ended (ro).\n")
     ;
 
     class_<Words, bases<RasterNode> >("Words",
@@ -193,7 +200,7 @@ void export_raster()
                 "text attribute of the words node or the content of the words\n"
                 "node itself. In the second case, the string can be formatted\n"
                 "using the pango text attribute markup language described at\n"
-                "http://developer.gnome.org/doc/API/2.0/pango/PangoMarkupFormat.html.\n"
+                "U{http://developer.gnome.org/doc/API/2.0/pango/PangoMarkupFormat.html}.\n"
                 "Markup can also be used if the text is set using python.\n")
         .add_property("color", 
                 make_function(&Words::getColor,
@@ -221,7 +228,7 @@ void export_raster()
                 "in the font chosen. In most cases, working weights are limited\n"
                 "to 'normal' and 'bold'.\n")
         .add_property("italic", &Words::getItalic, &Words::setItalic,
-                "Boolean value that determines if the text is displayed in italic\n")
+                "Boolean value that determines if the text is displayed in italic.\n")
         .add_property("stretch", &Words::getStretch,&Words::setStretch,
                 "One of 'ultracondensed', 'extracondensed', 'condensed',\n"
                 "'semicondensed', 'normal', 'semiexpanded', 'expanded',\n"
