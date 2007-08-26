@@ -76,10 +76,10 @@ NodePtr DivNode::getChild (int i)
 
 void DivNode::appendChild (NodePtr pNewNode)
 {
-    insertChildBefore(pNewNode, m_Children.size());
+    insertChild(pNewNode, m_Children.size());
 }
 
-void DivNode::insertChildBefore(NodePtr pNewNode, int i)
+void DivNode::insertChild(NodePtr pNewNode, int i)
 {
     if (pNewNode->getState() == NS_CONNECTED) {
         throw(Exception(AVG_ERR_ALREADY_CONNECTED,
@@ -88,7 +88,7 @@ void DivNode::insertChildBefore(NodePtr pNewNode, int i)
     }
     if (i>m_Children.size()) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE,
-                pNewNode->getID()+"::insertChildBefore: index out of bounds."));
+                pNewNode->getID()+"::insertChild: index out of bounds."));
     }
     std::vector<NodePtr>::iterator Pos = m_Children.begin()+i;
     m_Children.insert(Pos, pNewNode);

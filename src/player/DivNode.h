@@ -41,7 +41,7 @@ class DivNode : public Node
         int getNumChildren();
         NodePtr getChild(int i);
         void appendChild(NodePtr pNewNode);
-        void insertChildBefore(NodePtr pNewNode, int i);
+        void insertChild(NodePtr pNewNode, int i);
         void removeChild(int i);
         int indexOf(NodePtr pChild);
 
