@@ -74,8 +74,6 @@ buildpango()
 buildfontconfig()
 {
     cd fontconfig-2.3.2
-    patch fontconfig.pc.in ../../libavg/mac/fontconfig.pc.in.diff
-    patch -p1 <../../libavg/mac/fontconfig-2.3.2-noftinternals.patch
     LDFLAGS="-framework ApplicationServices ${LDFLAGS}" ./configure --prefix=${AVG_PATH} --disable-shared --with-add-fonts=/Library/Fonts,/System/Library/Fonts,~/fonts --with-confdir=/etc/fonts
     make clean
     make -j3
@@ -119,9 +117,6 @@ buildLib boost_1_33_1 --with-libraries=python,thread
 rm -f ../include/boost
 ln -fs ../include/boost-1_33_1/boost/ ../include/boost
 
-cd libdc1394-2.0.0-rc4/dc1394/macosx/
-patch -p0 <../../../../libavg/mac/libdc1394.patch
-cd -
 buildLib libdc1394-2.0.0-rc4 --disable-shared
 
 

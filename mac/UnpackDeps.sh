@@ -1,5 +1,5 @@
 #!/bin/bash
-cd $AVG_PATH/deps
+pushd $AVG_PATH/deps
 tar xjf ImageMagick-6.2.8-4.tar.bz2
 tar xzf SDL-1.2.11.tar.gz
 tar xzf automake-1.9.6.tar.gz
@@ -20,4 +20,14 @@ tar xjf pango-1.14.10.tar.bz2
 tar xzf pkg-config-0.20.tar.gz
 tar xzf tiff-3.8.2.tar.gz
 tar xjf zlib-1.2.3.tar.bz2
-cd -
+
+cd fontconfig-2.3.2
+patch fontconfig.pc.in ../../libavg/mac/fontconfig.pc.in.diff
+patch -p1 <../../libavg/mac/fontconfig-2.3.2-noftinternals.patch
+cd ..
+
+cd libdc1394-2.0.0-rc4/dc1394/macosx/
+patch -p0 <../../../../libavg/mac/libdc1394.patch
+cd ..
+
+popd
