@@ -49,10 +49,11 @@ void exception_translator(Exception const & e)
 
 BOOST_PYTHON_MODULE(avg)
 {
-    scope().attr("__doc__") = 
+    scope().attr("__doc__") =
+        "The main libavg module.\n"
         "G{classtree Node}\n"
         "G{classtree Event}\n"
-        "G{classtree Bitmap Point}\n"
+        "G{classtree Bitmap}\n"
         "G{classtree Tracker TrackerCalibrator}\n"
         "G{classtree Logger}\n"
         "G{classtree ConradRelais ParPort}";
