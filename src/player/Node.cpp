@@ -214,16 +214,10 @@ DivNodePtr Node::getParent() const
     }
 }
 
-double Node::getRelXPos(double x) 
+DPoint Node::getRelPos(const DPoint& AbsPos) const 
 {
     DRect VP = getAbsViewport();
-    return x-VP.tl.x;
-}
-
-double Node::getRelYPos(double y)
-{
-    DRect VP = getAbsViewport();
-    return y-VP.tl.y;
+    return AbsPos-VP.tl;
 }
 
 void Node::setMouseEventCapture()

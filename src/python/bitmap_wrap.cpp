@@ -28,50 +28,8 @@
 using namespace boost::python;
 using namespace avg;
 
-struct IntPoint_to_python_tuple
-{
-    static PyObject* convert (IntPoint pt)
-    {
-        return boost::python::incref(make_tuple(pt.x, pt.y).ptr());
-    }
-};
-
-struct DPoint_from_python_tuple
-{
-    DPoint_from_python_tuple()
-    {
-        boost::python::converter::registry::push_back(
-                &convertible,
-                &construct,
-                boost::python::type_id<DPoint>());
-    }
-
-    static void* convertible(PyObject* obj_ptr)
-    {
-        if (!PyTuple_Check(obj_ptr)) return 0;
-        return obj_ptr;
-    }
-
-    static void construct(PyObject* obj_ptr,
-            boost::python::converter::rvalue_from_python_stage1_data* data)
-    {
-        DPoint pt;
-        PyObject * pEntry = PyTuple_GetItem(obj_ptr, 0);
-        pt.x = PyFloat_AsDouble(pEntry);
-        pEntry = PyTuple_GetItem(obj_ptr, 1);
-        pt.y = PyFloat_AsDouble(pEntry);
-        void* storage = (
-                (converter::rvalue_from_python_storage<DPoint>*)data)->storage.bytes;
-        new (storage) DPoint(pt);
-        data->convertible = storage;
-    }
-};
-
 void export_bitmap()
 {
-    to_python_converter<IntPoint, IntPoint_to_python_tuple>();
-    DPoint_from_python_tuple();
-    
     enum_<PixelFormat>("pixelformat")
         .value("B5G6R5", B5G6R5)
         .value("B8G8R8", B8G8R8)
@@ -89,17 +47,6 @@ void export_bitmap()
         .value("YCbCr422", YCbCr422)
         .export_values();
     
-    // TODO: Change this so it uses custom conversion operators like IntPoint.
-    // See http://www.boost.org/libs/python/doc/v2/faq.html#custom_string
-    class_<DPoint>("Point",
-            "A point is the basic coordinate in avg. Points are usually expressed\n"
-            "in floating-point coordinates.")
-        .def(init<double, double>())
-        .def(init<DPoint>())
-        .def_readwrite("x", &DPoint::x)
-        .def_readwrite("y", &DPoint::y)
-    ;
-
     class_<Bitmap>("Bitmap",
             "Class representing a rectangular set of pixels. Bitmaps can be obtained\n"
             "from any RasterNode. For nodes of type Image, the current bitmap can be\n"

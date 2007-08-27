@@ -26,6 +26,8 @@ void export_event();
 void export_devices();
 #endif
 
+#include "WrapHelper.h"
+
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../player/Player.h"
@@ -78,16 +80,11 @@ void export_node()
                 "@param source: MOUSE for mouse events, TOUCH for multitouch touch\n"
                 "events, TRACK for multitouch track events or other tracking.\n"
                 "@param pyfunc: The python callable to invoke.\n")
-        .def("getRelXPos", &Node::getRelXPos,
-                "getRelXPos(absx) -> relx\n"
-                "Transforms an x-coordinate in window coordinates to an x-coordinate\n"
+        .def("getRelPos", &Node::getRelPos,
+                "getRelPos(abspos) -> relpos\n"
+                "Transforms a position in window coordinates to an position\n"
                 "in coordinates relative to the node.\n"
-                "@param absx: Absolute coordinate to transform.")
-        .def("getRelYPos", &Node::getRelYPos,
-                "getRelYPos(absy) -> rely\n\n"
-                "Transforms a y-coordinate in window coordinates to a y-coordinate\n"
-                "in coordinates relative to the node.\n"
-                "@param absy: Absolute coordinate to transform.")
+                "@param abspos: Absolute coordinate to transform.")
         .add_property("id", make_function(&Node::getID,
                 return_value_policy<copy_const_reference>()), &Node::setID,
                 "A unique identifier that can be used to reference the node.\n")

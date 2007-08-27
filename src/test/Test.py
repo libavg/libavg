@@ -455,9 +455,13 @@ class PlayerTestCase(AVGTestCase):
             node.opacity -= 0.7
             node = Player.getElementByID("nestedavg")
             node.x += 50
+        def checkRelPos():
+            RelPos = Player.getElementByID("obscured").getRelPos((50,52))
+            self.assert_(RelPos == (0, 0))
         self.start("avg.avg",
                 (lambda: self.compareImage("testMove1", False),
                  moveit,
+                 checkRelPos,
                  lambda: self.compareImage("testMove2", False),
                  Player.stop))
 
@@ -532,18 +536,16 @@ class PlayerTestCase(AVGTestCase):
         def moveVertex():
             node = Player.getElementByID("testtiles")
             grid = node.getWarpedVertexCoords()
-            grid[1][1] = (grid[1][1].x+0.06, grid[1][1].y+0.06)
+            grid[1][1] = (grid[1][1][0]+0.06, grid[1][1][1]+0.06)
             node.setWarpedVertexCoords(grid)
             node = Player.getElementByID("clogo1")
             grid = node.getWarpedVertexCoords()
-            grid[0][0] = (grid[0][0].x+0.06, grid[0][0].y+0.06)
+            grid[0][0] = (grid[0][0][0]+0.06, grid[0][0][1]+0.06)
             node.setWarpedVertexCoords(grid)
         def flip():
             node = Player.getElementByID("testtiles")
             grid = node.getOrigVertexCoords()
-            for line in grid:
-                for pos in line:
-                    pos.x = 1-pos.x
+            grid = [ [ (1-pos[0], pos[1]) for pos in line ] for line in grid]
             node.setWarpedVertexCoords(grid)
         self.start("video.avg",
                 (lambda: Player.getElementByID("clogo1").play(),

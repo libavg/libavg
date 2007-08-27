@@ -25,6 +25,8 @@ void export_event();
 void export_devices();
 #endif
 
+#include "WrapHelper.h"
+
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../player/Player.h"
@@ -60,6 +62,10 @@ BOOST_PYTHON_MODULE(avg)
 #endif
     register_ptr_to_python< DivNodePtr >();
     register_ptr_to_python< AVGNodePtr >();
+    
+    to_python_converter<IntPoint, Point_to_python_tuple<int> >();
+    to_python_converter<DPoint, Point_to_python_tuple<double> >();
+    DPoint_from_python_tuple();
 
     class_<Logger>("Logger", 
             "Interface to the logger used by the avg player. Enables the setting\n"
