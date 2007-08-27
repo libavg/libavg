@@ -87,7 +87,7 @@ th.group-header             { background: #cccccc; color: #000000;
  *     defined above, under 'Table Headers'
  */
 table.summary               { border-collapse: collapse;
-                              background: #e8e8f8; color: #000000;
+                              background: #f0f0f0; color: #000000;
                               border: 1px solid #608090;
                               margin-bottom: 0.5em; }
 td.summary                  { border: 1px solid #608090; }
