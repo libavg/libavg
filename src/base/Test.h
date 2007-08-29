@@ -58,6 +58,8 @@ private:
     std::string m_sName;
 };
 
+std::string getSrcDir();
+
 typedef boost::shared_ptr<Test> TestPtr;
 
 #define TEST_FAILED(s)                     \

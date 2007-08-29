@@ -67,7 +67,7 @@ class DecoderTest: public Test {
                 cerr << "    Testing " << sFilename << endl;
 
                 VideoDecoderPtr pDecoder = createDecoder();
-                pDecoder->open(string("testfiles/")+sFilename, OGL_NONE, 
+                pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
                         m_bThreadedDemuxer);
                 IntPoint FrameSize = pDecoder->getSize();
                 TEST(FrameSize == IntPoint(48, 48));
@@ -95,7 +95,7 @@ class DecoderTest: public Test {
             cerr << "    Testing " << sFilename << " (seek)" << endl;
 
             VideoDecoderPtr pDecoder = createDecoder();
-            pDecoder->open(string("testfiles/")+sFilename, OGL_NONE, 
+            pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
                     m_bThreadedDemuxer);
 
             IntPoint FrameSize = pDecoder->getSize();
@@ -124,7 +124,7 @@ class DecoderTest: public Test {
         {
             // Read whole file, test last image.
             VideoDecoderPtr pDecoder = createDecoder();
-            pDecoder->open(string("testfiles/")+sFilename, OGL_NONE, 
+            pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
                     m_bThreadedDemuxer);
             IntPoint FrameSize = pDecoder->getSize();
             BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
@@ -174,7 +174,8 @@ class DecoderTest: public Test {
         void compareImages(BitmapPtr pBmp, const string& sFilename)
         {
             try {
-                BitmapPtr pBaselineBmp(new Bitmap("testfiles/baseline/"+sFilename+".png"));
+                BitmapPtr pBaselineBmp(new Bitmap(
+                        getSrcDir()+"testfiles/baseline/"+sFilename+".png"));
 
                 FilterFlipRGB().applyInPlace(pBaselineBmp);
 #ifdef __BIG_ENDIAN__
@@ -182,17 +183,17 @@ class DecoderTest: public Test {
 #endif
                 int DiffPixels = pBaselineBmp->getNumDifferentPixels(*pBmp);
                 if (DiffPixels > 0) {
-                    pBmp->save("testfiles/result/"+sFilename+".png");
-                    BitmapPtr pOrigBmp(new Bitmap("testfiles/baseline/"+sFilename+".png"));
-                    pOrigBmp->save("testfiles/result/"+sFilename+"_baseline.png");
+                    pBmp->save(getSrcDir()+"testfiles/result/"+sFilename+".png");
+                    BitmapPtr pOrigBmp(new Bitmap(getSrcDir()+"testfiles/baseline/"+sFilename+".png"));
+                    pOrigBmp->save(getSrcDir()+"testfiles/result/"+sFilename+"_baseline.png");
                     Bitmap DiffBmp(*pBmp);
                     DiffBmp.subtract(&*pBaselineBmp);
-                    DiffBmp.save("testfiles/result/"+sFilename+"_diff.png");
+                    DiffBmp.save(getSrcDir()+"testfiles/result/"+sFilename+"_diff.png");
                 }
                 TEST(DiffPixels == 0);
             } catch (Magick::Exception & ex) {
-                pBmp->save("testfiles/result/"+sFilename+".png");
                 TEST_FAILED("Error loading baseline image: " << ex.what()); 
+                pBmp->save(getSrcDir()+"testfiles/result/"+sFilename+".png");
             }
         }
 

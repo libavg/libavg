@@ -8,6 +8,9 @@ ALL_H = FFMpegDemuxer.h VideoDemuxerThread.h FFMpegDecoder.h IVideoDecoder.h \
 
 TESTS=testvideo
 
+EXTRA_DIST = testfiles/mjpeg-48x48.avi testfiles/mpeg1-48x48.mpg \
+		$(wildcard testfiles/baseline/*.png)
+
 noinst_LTLIBRARIES = libvideo.la
 noinst_PROGRAMS=testvideo
 

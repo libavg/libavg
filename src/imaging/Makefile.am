@@ -23,7 +23,7 @@ else
 endif
 endif
 
-ALL_H = TrackerThread.h TrackerConfig.h Blob.h FWCamera.h Run.h \
+ALL_H = ICamera.h TrackerThread.h TrackerConfig.h Blob.h FWCamera.h Run.h \
         FakeCamera.h CoordTransformer.h FilterDistortion.h $(DC1394_INCLUDES) \
         DeDistort.h trackerconfigdtd.h $(V4L2_INCLUDES)
 ALL_CPP = TrackerThread.cpp TrackerConfig.cpp Blob.cpp FWCamera.cpp Run.cpp \
@@ -32,7 +32,7 @@ ALL_CPP = TrackerThread.cpp TrackerConfig.cpp Blob.cpp FWCamera.cpp Run.cpp \
 
 TESTS=testimaging
 
-EXTRA_DIST = test_comp.png
+EXTRA_DIST = test_comp.png $(wildcard testimages/*.png)
 
 noinst_LTLIBRARIES = libimaging.la
 libimaging_la_SOURCES = $(ALL_CPP) $(ALL_H)

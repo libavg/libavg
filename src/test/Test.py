@@ -6,6 +6,9 @@ import sys, syslog, time, os
 import tempfile
 sys.path += ['../python/.libs', '../python']
 import avg
+
+SrcDir = os.getenv("srcdir",".")
+os.chdir(SrcDir)
 import anim
 
 CREATE_BASELINE_IMAGES = False
@@ -994,8 +997,6 @@ if not(customOGLOptions):
     YCbCrMode = avg.shader
     UsePixelBuffers = True
 
-SrcDir = os.getenv("srcdir",".")
-os.chdir(SrcDir)
 Player = avg.Player()
 runner = unittest.TextTestRunner()
 rc = runner.run(completeTestSuite(bpp))

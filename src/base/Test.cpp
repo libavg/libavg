@@ -22,6 +22,7 @@
 #include "Test.h"
 
 #include <iostream>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -91,6 +92,17 @@ void Test::printResults()
             " failed. ########" << endl;
     }
         
+}
+
+std::string getSrcDir()
+{
+    char * pSrcDir = getenv("srcdir");
+    if (!pSrcDir) {
+        return "";
+    } else {
+        return string(pSrcDir)+"/";
+    }
+
 }
 
 }

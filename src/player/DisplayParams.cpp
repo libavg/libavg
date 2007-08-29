@@ -20,7 +20,7 @@
 
 #include "DisplayParams.h"
 
-#include "base/ObjectCounter.h"
+#include "../base/ObjectCounter.h"
 
 namespace avg {
 

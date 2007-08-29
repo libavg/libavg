@@ -1,6 +1,6 @@
 
 INCLUDES = -I.. @XML2_CFLAGS@ @PTHREAD_CFLAGS@
-ALL_H = FileHelper.h CmdLine.h Exception.h Logger.h ConfigMgr.h \
+ALL_H = FileHelper.h CmdLine.h Exception.h Logger.h ConfigMgr.h ObjectCounter.h \
         XMLHelper.h TimeSource.h ProfilingZone.h Profiler.h ThreadProfiler.h \
         ScopeTimer.h IFrameListener.h Test.h TestSuite.h MemHelper.h \
         Queue.h WorkerThread.h Command.h ObjectCounter.h Point.h Rect.h
