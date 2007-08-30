@@ -543,7 +543,13 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testCropImage6", False),
                  moveTLCrop,
                  lambda: self.compareImage("testCropImage7", False),
-                 Player.stop))
+                 moveBRCrop,
+                 lambda: self.compareImage("testCropImage8", False),
+                 moveTLNegative,
+                 lambda: self.compareImage("testCropImage9", False),
+                 moveBRGone,
+                 lambda: self.compareImage("testCropImage10", False),
+                Player.stop))
 
     def testCropMovie(self):
         def playMovie():
@@ -587,6 +593,12 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testCropMovie6", False),
                  moveTLCrop,
                  lambda: self.compareImage("testCropMovie7", False),
+                 moveBRCrop,
+                 lambda: self.compareImage("testCropMovie8", False),
+                 moveTLNegative,
+                 lambda: self.compareImage("testCropMovie9", False),
+                 moveBRGone,
+                 lambda: self.compareImage("testCropMovie10", False),
                  Player.stop))
 
     def testWarp(self):
