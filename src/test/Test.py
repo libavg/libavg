@@ -215,6 +215,10 @@ class PlayerTestCase(AVGTestCase):
         self.start("rotate2.avg",
                 (lambda: self.compareImage("testRotate2", False),
                  Player.stop))
+    def testRotate3(self):
+        self.start("rotate3.avg",
+                (lambda: self.compareImage("testRotate3", False),
+                 Player.stop))
     def testError(self):
         Player.loadFile("image.avg")
         Player.setTimeout(1, lambda: undefinedFunction)
@@ -971,6 +975,7 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testImage", bpp))
     suite.addTest(PlayerTestCase("testRotate", bpp))
     suite.addTest(PlayerTestCase("testRotate2", bpp))
+    suite.addTest(PlayerTestCase("testRotate3", bpp))
     suite.addTest(PlayerTestCase("testError", bpp))
     suite.addTest(PlayerTestCase("testExceptionInTimeout", bpp))
     suite.addTest(PlayerTestCase("testInvalidImageFilename", bpp))
