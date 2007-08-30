@@ -52,7 +52,6 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
 
         virtual void render(AVGNodePtr pRootNode, bool bRenderEverything);
         
-        virtual void setClipRect();
         virtual bool pushClipRect(const DRect& rc);
         virtual void popClipRect();
         virtual const DRect& getClipRect();

@@ -188,12 +188,6 @@ void PanoImage::render(const DRect& Rect)
     glPopMatrix();
 }
 
-bool PanoImage::obscures (const DRect& Rect, int Child)
-{
-    return (isActive() && getEffectiveOpacity() > 0.999 && !m_pBmp->hasAlpha()
-            && getVisibleRect().Contains(Rect));
-}
-
 string PanoImage::getTypeStr ()
 {
     return "PanoImage";

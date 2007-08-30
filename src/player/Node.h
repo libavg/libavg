@@ -117,12 +117,10 @@ class Node
         virtual void prepareRender (int time, const DRect& parent);
         virtual void maybeRender (const DRect& Rect);
         virtual void render (const DRect& Rect);
-        virtual bool obscures (const DRect& Rect, int Child);
         virtual void setViewport (double x, double y, double width, 
                 double height);
         virtual const DRect& getRelViewport () const;
         virtual const DRect& getAbsViewport () const;
-        DRect getVisibleRect() const;
         virtual double getEffectiveOpacity();
 
         virtual std::string dump (int indent = 0);

@@ -943,6 +943,8 @@ void Player::cleanup()
     if (m_pDisplayEngine) {
         m_pDisplayEngine->deinitRender();
         m_pDisplayEngine->teardown();
+        delete m_pDisplayEngine;
+        m_pDisplayEngine = 0;
     }
     m_pLastMouseNode.clear();
     m_IDMap.clear();

@@ -64,7 +64,6 @@ class DisplayEngine
         void frameWait();
         long long getDisplayTime();
         
-        virtual void setClipRect() = 0;
         virtual bool pushClipRect(const DRect& rc) = 0;
         virtual void popClipRect() = 0;
         virtual const DRect& getClipRect() = 0;

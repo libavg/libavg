@@ -172,12 +172,6 @@ int VideoBase::getMediaHeight()
     return getSize().y;
 }
 
-bool VideoBase::obscures (const DRect& Rect, int Child)
-{
-    return (m_bFirstFrameDecoded && isActive() && getEffectiveOpacity() > 0.999 &&
-            getVisibleRect().Contains(Rect) && m_VideoState != Unloaded);
-}
-
 string VideoBase::dump (int indent)
 {
     return "";

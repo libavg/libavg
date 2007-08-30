@@ -518,6 +518,12 @@ class PlayerTestCase(AVGTestCase):
             node = Player.getElementByID("img")
             node.x = 140
             node.y = 100
+        def rotate():
+            node = Player.getElementByID("img")
+            node.x = 10
+            node.y = 10
+            Player.getElementByID("nestedavg").angle = 1.0
+            Player.getElementByID("bkgd").angle = 1.0
         self.start("crop2.avg",
                 (lambda: self.compareImage("testCropImage1", False),
                  moveTLCrop,
@@ -528,6 +534,11 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testCropImage4", False),
                  moveBRGone,
                  lambda: self.compareImage("testCropImage5", False),
+
+                 rotate,
+                 lambda: self.compareImage("testCropImage6", False),
+                 moveTLCrop,
+                 lambda: self.compareImage("testCropImage7", False),
                  Player.stop))
 
     def testCropMovie(self):
@@ -550,6 +561,12 @@ class PlayerTestCase(AVGTestCase):
             node = Player.getElementByID("movie")
             node.x = 140
             node.y = 100
+        def rotate():
+            node = Player.getElementByID("movie")
+            node.x = 10
+            node.y = 10
+            Player.getElementByID("nestedavg").angle = 1.0
+            Player.getElementByID("bkgd").angle = 1.0
         self.start("crop.avg",
                 (playMovie,
                  lambda: self.compareImage("testCropMovie1", False),
@@ -561,6 +578,11 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testCropMovie4", False),
                  moveBRGone,
                  lambda: self.compareImage("testCropMovie5", False),
+
+                 rotate,
+                 lambda: self.compareImage("testCropMovie6", False),
+                 moveTLCrop,
+                 lambda: self.compareImage("testCropMovie7", False),
                  Player.stop))
 
     def testWarp(self):

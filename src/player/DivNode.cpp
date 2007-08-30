@@ -124,7 +124,7 @@ NodePtr DivNode::getElementByPos (const DPoint & pos)
     DPoint relPos = (getAngle() > 0.0001) ?
         rotatePoint(pos, -getAngle(), getAbsViewport().tl + getPivot()) : pos;
     
-    if (!getVisibleRect().Contains(relPos) || !reactsToMouseEvents()) {
+    if (!getAbsViewport().Contains(relPos) || !reactsToMouseEvents()) {
         return NodePtr();
     }
     for (int i=getNumChildren()-1; i>=0; i--) {
@@ -146,24 +146,11 @@ void DivNode::prepareRender (int time, const DRect& parent)
 
 void DivNode::render(const DRect& rect)
 {
-    getEngine()->pushClipRect(getVisibleRect());
+    getEngine()->pushClipRect(getAbsViewport());
     for (int i=0; i<getNumChildren(); i++) {
         getChild(i)->maybeRender(rect);
     }
     getEngine()->popClipRect();
-}
-
-bool DivNode::obscures (const DRect& rect, int Child)
-{
-    if (!isActive()) {
-        return false;
-    }
-    for (int i=Child+1; i<getNumChildren(); i++) {
-        if (getChild(i)->obscures(rect, -1))
-            return true;
-    }
-    return false;
- 
 }
 
 string DivNode::getTypeStr ()

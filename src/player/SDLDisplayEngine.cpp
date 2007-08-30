@@ -268,7 +268,6 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glDisable(GL_DEPTH_TEST)");
     glEnable(GL_STENCIL_TEST);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(GL_STENCIL_TEST)");
-    safeSetAttribute(SDL_GL_STENCIL_SIZE, 8);
     int TexMode = getTextureMode();
     glEnable(TexMode);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(TexMode);");
@@ -380,15 +379,8 @@ static ProfilingZone RootRenderProfilingZone("Root node: render");
 
 void SDLDisplayEngine::render(AVGNodePtr pRootNode, bool bRenderEverything)
 {
-    if (!m_bEnableCrop && pRootNode->getCropSetting()) {
-        m_bEnableCrop = true;
-        glEnable (GL_CLIP_PLANE0);
-        glEnable (GL_CLIP_PLANE1);
-        glEnable (GL_CLIP_PLANE2);
-        glEnable (GL_CLIP_PLANE3);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "setClipPlane: glEnable()");
-    }
+    m_bEnableCrop = pRootNode->getCropSetting();
+    
     {
         ScopeTimer Timer(PrepareRenderProfilingZone);
         pRootNode->prepareRender(0, pRootNode->getAbsViewport());
@@ -430,13 +422,6 @@ void SDLDisplayEngine::render(AVGNodePtr pRootNode, bool bRenderEverything)
     swapBuffers();
     checkJitter();
 }
- 
-void SDLDisplayEngine::setClipRect()
-{
-    //m_ClipRects.clear();
-    //m_ClipRects.push_back(DRect(0, 0, m_Width, m_Height));
-    pushClipRect(DRect(0, 0, m_Width, m_Height));
-}
 
 static ProfilingZone PushClipRectProfilingZone("pushClipRect");
 
@@ -444,7 +429,6 @@ bool SDLDisplayEngine::pushClipRect(const DRect& rc)
 {
     ScopeTimer Timer(PushClipRectProfilingZone);
 
-    cerr << "push rect " << rc << endl;
     m_ClipRects.push_back(rc);
     clip(true);
 
@@ -457,7 +441,6 @@ void SDLDisplayEngine::popClipRect()
 {
     ScopeTimer Timer(PopClipRectProfilingZone);
     
-    cerr << "pop rect " << m_ClipRects.back() << endl;
     clip(false);
     m_ClipRects.pop_back();
 }
@@ -510,7 +493,7 @@ void SDLDisplayEngine::blta8(ISurface * pSurface,
 }
 
 void SDLDisplayEngine::clip(bool forward)
-{    
+{
     if (m_bEnableCrop && !m_ClipRects.empty()) {
         GLenum stencilOp;
         int level;

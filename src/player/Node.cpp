@@ -304,7 +304,7 @@ bool Node::reactsToMouseEvents()
 
 NodePtr Node::getElementByPos (const DPoint & pos)
 {
-    if (getVisibleRect().Contains(pos) && reactsToMouseEvents()) {
+    if (getAbsViewport().Contains(pos) && reactsToMouseEvents()) {
         return m_This.lock();
     } else {
         return NodePtr();
@@ -321,17 +321,13 @@ void Node::maybeRender (const DRect& Rect)
     if (m_bActive) {
         getEngine()->pushRotation(getAngle(), getAbsViewport().tl + getPivot());
         if (getEffectiveOpacity() > 0.01) {
-            if (!getParent() || !getParent()->obscures(getEngine()->getClipRect(), 
-                    getParent()->indexOf(m_This.lock())))
-            {
-                if (m_ID != "") {
-                    AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
-                            " with ID " << m_ID);
-                } else {
-                    AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
-                }
-                render(Rect);
+            if (m_ID != "") {
+                AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
+                        " with ID " << m_ID);
+            } else {
+                AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
             }
+            render(Rect);
         }
         getEngine()->popRotation();
     }
@@ -339,11 +335,6 @@ void Node::maybeRender (const DRect& Rect)
 
 void Node::render (const DRect& Rect)
 {
-}
-
-bool Node::obscures (const DRect& Rect, int Child)  
-{
-    return false;
 }
 
 Node::NodeState Node::getState() const
@@ -408,17 +399,6 @@ const DRect& Node::getRelViewport () const
 const DRect& Node::getAbsViewport () const
 {
     return m_AbsViewport;
-}
-
-DRect Node::getVisibleRect() const
-{
-    DRect visRect = getAbsViewport();
-    NodePtr pParent = getParent();
-    if (pParent) {
-        DRect parent = pParent->getVisibleRect();
-        visRect.Intersect(parent);
-    }
-    return visRect;
 }
 
 void Node::calcAbsViewport()
