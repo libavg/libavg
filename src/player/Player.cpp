@@ -19,16 +19,9 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "../avgconfig.h"
-#undef PACKAGE
-#undef PACKAGE_BUGREPORT
-#undef PACKAGE_NAME
-#undef PACKAGE_STRING
-#undef PACKAGE_TARNAME
-#undef PACKAGE_VERSION
-
 #include "Player.h"
 
+#include "../avgconfig.h"
 #include "avgdtd.h"
 #include "AVGNode.h"
 #include "DivNode.h"
@@ -812,7 +805,7 @@ NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc,
             NodePtr curChild = createNodeFromXml (xmlDoc, curXmlChild, 
                     curDivNode);
             if (curChild) {
-                curDivNode->addChild(curChild);
+                curDivNode->appendChild(curChild);
             }
             curXmlChild = curXmlChild->next;
         }

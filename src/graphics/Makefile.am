@@ -1,8 +1,7 @@
-
 INCLUDES = -I.. $(MAGICK_CFLAGS)
 		
 ALL_H = Bitmap.h Filter.h\
-		Pixel32.h Pixel24.h Pixel16.h Pixeldefs.h \
+		Pixel32.h Pixel24.h Pixel16.h Pixel8.h Pixeldefs.h \
 		Filtercolorize.h Filterfill.h Filterfillrect.h Filterflip.h \
 		Filterfliprgb.h Filterflipuv.h Filtergrayscale.h Filter3x3.h \
 		FilterId.h HistoryPreProcessor.h FilterConvol.h FilterHighpass.h \
@@ -16,7 +15,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Filtergrayscale.cpp \
 
 TESTS=testgraphics
 
-EXTRA_DIST = rgb24-64x64.png
+EXTRA_DIST = rgb24-64x64.png $(wildcard testimages/*.png)
 
 noinst_LTLIBRARIES = libgraphics.la
 libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)

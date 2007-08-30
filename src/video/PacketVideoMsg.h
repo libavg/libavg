@@ -31,7 +31,9 @@
 // This is probably GCC-specific.
 #define INT64_C(c)    c ## L
 #endif
+extern "C" {
 #include <ffmpeg/avformat.h>
+}
 
 #include <vector>
 

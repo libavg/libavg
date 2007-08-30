@@ -35,10 +35,10 @@ using namespace std;
 
 void export_event()
 {
-   boost::python::to_python_converter<vector<TouchEvent*>, 
+    boost::python::to_python_converter<vector<TouchEvent*>, 
         to_tuple<vector<TouchEvent *> > >();    
 
-   class_<Event, boost::noncopyable>("Event", 
+    class_<Event, boost::noncopyable>("Event", 
             "Base class for user input events.\n",
             no_init)
         .add_property("type", &Event::getType,
@@ -72,15 +72,15 @@ void export_event()
             "Raised when a key is pressed or released.\n",
             no_init)
         .add_property("scancode", &KeyEvent::getScanCode,
-            "The untranslated scancode of the key pressed. (ro)\n")
+            "The untranslated scancode of the key pressed (ro).\n")
         .add_property("keycode", &KeyEvent::getKeyCode,
-            "The keycode of the key according to the current layout. (ro)\n")
+            "The keycode of the key according to the current layout (ro).\n")
         .add_property("keystring", make_function(&KeyEvent::getKeyString, 
                 return_value_policy<copy_const_reference>()),
-            "A character or word describing the key pressed. (ro)\n")
+            "A character or word describing the key pressed (ro).\n")
         // TODO: Export possible modifiers as enum.
         .add_property("modifiers", &KeyEvent::getModifiers,
-            "Any modifiers (shift, ctrl,...) pressed as well. (ro)\n")
+            "Any modifiers (shift, ctrl,...) pressed as well (ro).\n")
     ;    
     
     class_<MouseEvent, bases<Event> >("MouseEvent", 
@@ -92,39 +92,46 @@ void export_event()
         .add_property("middlebuttonstate", &MouseEvent::getMiddleButtonState)
         .add_property("rightbuttonstate", &MouseEvent::getRightButtonState)
         .add_property("x", &MouseEvent::getXPosition,
-                "x position in the global coordinate system. (ro)\n")
+                "x position in the global coordinate system (ro).\n")
         .add_property("y", &MouseEvent::getYPosition,
-                "y position in the global coordinate system. (ro)\n")
+                "y position in the global coordinate system (ro).\n")
         .add_property("cursorid", &MouseEvent::getCursorID,
-                "always 0 (ro)\n")
+                "Always 0 for mouse events, but can be used to handle mouse and \n"
+                "tracking events at once (ro).\n")
         .add_property("button", &MouseEvent::getButton,
-                "The button that caused the event. (ro)\n")
+                "The button that caused the event (ro).\n")
         .add_property("node", &MouseEvent::getElement,
-                "The node that the event handler was declared in. (ro)\n")
+                "The node that the event handler was declared in (ro).\n")
         ;
 
     class_<TouchEvent, bases<Event> >("TouchEvent", 
             "Raised when a touch event occurs. Touch events happen only when a multi-touch\n"
-            "sensitive surface is active.\n",
+            "sensitive surface or other camera tracker is active.\n",
             no_init)
         .add_property("source", &TouchEvent::getSource,
-                "TOUCH for actual touches, TRACK for hands above the surface.")
+                "TOUCH for actual touches, TRACK for hands above the surface or\n"
+                "generic tracking.")
         .add_property("area", &TouchEvent::getArea,
-                "size of the blob(ro)\n")
+                "size of the blob (ro).\n")
         .add_property("orientation", &TouchEvent::getOrientation)
         .add_property("inertia", &TouchEvent::getInertia)
         .add_property("eccentricity", &TouchEvent::getInertia)
         .add_property("x", &TouchEvent::getXPosition,
-                "x position in the global coordinate system. (ro)\n")
+                "x position in the global coordinate system (ro).\n")
         .add_property("y", &TouchEvent::getYPosition,
-                "y position in the global coordinate system. (ro)\n")
+                "y position in the global coordinate system (ro).\n")
         .add_property("cursorid", &TouchEvent::getCursorID)
         .add_property("node", &TouchEvent::getElement,
-                "The node that the event handler was declared in. (ro)\n")
+                "The node that the event handler was declared in (ro).\n")
         .add_property("center", make_function(&TouchEvent::getCenter,
                 return_value_policy<copy_const_reference>()),
-                "Position as double. Used for calibration (ro)\n")
-        .def("getRelatedEvents", &TouchEvent::getRelatedEvents);
+                "Position as double. Used for calibration (ro).\n")
+        .def("getRelatedEvents", &TouchEvent::getRelatedEvents,
+                "getRelatedEvents() -> events\n"
+                "Returns a python tuple containing the events 'related' to this one.\n"
+                "For TOUCH events (fingers), the tuple contains one element: the\n"
+                "corresponding TRACK event (hand). For TRACK events, the tuple contains\n"
+                "all TOUCH events that belong to the same hand.\n");
    
     enum_<TrackerImageID>("TrackerImageID")
         .value("IMG_CAMERA", TRACKER_IMG_CAMERA)
@@ -137,38 +144,45 @@ void export_event()
     ;
 
     class_<TrackerEventSource, boost::noncopyable>("Tracker",
-            "A tracker that uses a firewire camera to track moving objects\n"
+            "A tracker that uses a camera to track moving objects\n"
             "(e.g. fingers) and delivers them to the player as avg events.\n"
-            "Create using Player::addTracker(). The properties are explained\n"
-            "in the libavg doc wiki.",
+            "Create a tracker by using Player::addTracker(). The properties\n"
+            "of this class are explained under U{https://www.libavg.de/wiki/index.php/Tracker_Setup}.",
             no_init)
         .def("getImage", &TrackerEventSource::getImage,
             return_value_policy<manage_new_object>(),
-            "getImage(ImageID) -> Bitmap\n\n" 
+            "getImage(imageid) -> bitmap\n" 
             "Returns one of the intermediate images necessary for tracking.\n"
-            "These images are only available if setDebugImages was called before.\n")
+            "These images are only available if setDebugImages was called before\n"
+            "with appropriate parameters.\n"
+            "@param imageid: One of IMG_CAMERA, IMG_DISTORTED, IMG_NOHISTORY,\n"
+            "IMG_HISTOGRAM, IMG_FINGERS or IMG_HIGHPASS.\n")
         .def("saveConfig", &TrackerEventSource::saveConfig,
-            "saveConfig() -> None\n\n"
-            "Saves the tracker configuration to TrackerConfig.xml in the current\n"
-            "directory.\n")
+            "saveConfig()\n"
+            "Saves the current tracker configuration to ~/.avgtrackerrc.\n")
         .def("resetHistory", &TrackerEventSource::resetHistory,
-            "resetHistory() -> None\n\n"
+            "resetHistory()\n"
             "Throws away the current history image and generates a new one from\n"
-            "the current image.\n")
+            "the next second of images.\n")
         .def("setDebugImages", &TrackerEventSource::setDebugImages,
-            "setDebugImages(Img, Finger) -> None\n\n"
-            "Controls whether debug images of intermediate tracking results (Img)\n"
-            "and detected finger positions (Finger) are generated.\n")
+            "setDebugImages(img, finger)\n"
+            "Controls whether debug images of intermediate tracking results\n"
+            "and detected finger positions are generated and exported to\n"
+            "python. Generating the debug images takes a moderate amount of\n"
+            "time, so it is turned off by default.\n"
+            "@param img: Whether to generate intermediate result images.\n")
         .def("startCalibration", &TrackerEventSource::startCalibration,
             return_value_policy<reference_existing_object>(),
-            "startCalibration(DisplayExtents) -> TrackerCalibrator\n"
+            "startCalibration(displayextents) -> trackercalibrator\n"
             "Starts coordinate calibration session. The returned TrackerCalibrator\n"
-            "exists until endCalibration or abortCalibration is called.\n")
+            "exists until endCalibration or abortCalibration is called.\n"
+            "@param displayextents: The width and height of the display area.\n")
         .def("endCalibration", &TrackerEventSource::endCalibration,
-            "endCalibration() -> None\n"
-            "Ends coordinate calibration session.\n")
+            "endCalibration()\n"
+            "Ends coordinate calibration session and activates the coordinate\n"
+            "transformer generated.\n")
         .def("abortCalibration", &TrackerEventSource::abortCalibration,
-            "abortCalibration() -> None\n"
+            "abortCalibration()\n"
             "Aborts coordinate calibration session and restores the previous\n"
             "coordinate transformer.\n")
 
@@ -194,12 +208,12 @@ class_<TrackerCalibrator, boost::noncopyable>("TrackerCalibrator",
             "touch to establish a mapping. Created by Tracker::startCalibration.\n",
             no_init)
         .def("nextPoint", &TrackerCalibrator::nextPoint,
-            "nextPoint(None) -> Bool\n"
+            "nextPoint() -> done\n"
             "Advances to the next point. Returns False and ends calibration if\n"
             "all points have been set.\n")
         .def("getDisplayPoint", &TrackerCalibrator::getDisplayPoint,
-            "getDisplayPoint(None) -> Pos\n")
+            "getDisplayPoint() -> pos\n")
         .def("setCamPoint", &TrackerCalibrator::setCamPoint,
-            "setCamPoint(pt) -> None\n")
+            "setCamPoint(pt)\n")
         ;
 }

@@ -169,6 +169,13 @@ void TrackerThread::setConfig(TrackerConfig Config)
                 Config.m_pTrafo));
         m_pTrafo = Config.m_pTrafo;
     }
+    if (int(m_pCamera->getFeature("brightness")) != Config.m_Brightness ||
+             int(m_pCamera->getFeature("gamma")) != Config.m_Gamma ||
+             int(m_pCamera->getFeature("gain")) != Config.m_Gain ||
+             int(m_pCamera->getFeature("shutter")) != Config.m_Shutter)
+    {
+        m_pHistoryPreProcessor->reset();
+    }
 
     m_pCamera->setFeature("brightness", Config.m_Brightness);
     m_pCamera->setFeature("gamma", Config.m_Gamma);

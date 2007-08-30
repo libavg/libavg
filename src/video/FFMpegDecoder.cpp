@@ -47,6 +47,9 @@ FFMpegDecoder::FFMpegDecoder ()
     : m_pDemuxer(0),
       m_pFormatContext(0),
       m_pVStream(0),
+#ifdef AVG_ENABLE_SWSCALE
+      m_pSwsContext(0),
+#endif
       m_pPacketData(0),
       m_Size(0,0),
       m_StartTimestamp(-1),
@@ -219,6 +222,11 @@ void FFMpegDecoder::close()
     m_pVStream = 0;
     av_close_input_file(m_pFormatContext);
     m_pFormatContext = 0;
+#ifdef AVG_ENABLE_SWSCALE
+    if(m_pSwsContext) {
+        sws_freeContext(m_pSwsContext);
+    }
+#endif
 }
 
 void FFMpegDecoder::seek(int DestFrame) 
@@ -391,12 +399,25 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
 #endif
     {
 //        ScopeTimer Timer(*m_pConvertImageProfilingZone);
+#ifdef AVG_ENABLE_SWSCALE
+        if (!m_pSwsContext) {
+            m_pSwsContext = sws_getContext(enc->width, enc->height, enc->pix_fmt,
+                        enc->width, enc->height, DestFmt, SWS_BICUBIC, 
+                        NULL, NULL, NULL);
+            if(!m_pSwsContext) {
+                AVG_TRACE(Logger::ERROR, "FFMpegDecoder: sws initialization failed.");
+            }
+        }
+        sws_scale(m_pSwsContext, Frame.data, Frame.linesize, 0, 
+            enc->height, DestPict.data, DestPict.linesize);
+#else
         int rc = img_convert(&DestPict, DestFmt,
                 (AVPicture*)&Frame, enc->pix_fmt,
                 enc->width, enc->height);
         if (rc != 0) {
             AVG_TRACE(Logger::ERROR, "FFFMpegDecoder: img_convert failed.");
         }
+#endif
     }
 }
        

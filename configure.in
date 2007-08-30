@@ -1,12 +1,12 @@
 AC_PREREQ(2.53)
-AC_INIT(libavg, 0.6.0, coder@c-base.org)
+AC_INIT(libavg, 0.7.0-rc1, coder@c-base.org)
 AC_CANONICAL_TARGET
 
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
 MAJOR_VERSION=0
-MINOR_VERSION=6
+MINOR_VERSION=7
 MICRO_VERSION=0
 VERSION=$MAJOR_VERSION.$MINOR_VERSION.$MICRO_VERSION dnl
 
@@ -30,13 +30,11 @@ PKG_CHECK_MODULES([PANGOFT2], [pangoft2])
 AC_PATH_GENERIC(freetype,,,AC_MSG_ERROR([libfreetype not found. Aborting.]))
 
 PKG_CHECK_MODULES([MAGICK], [ImageMagick++])
-#AC_CHECK_PROG(magick_installed, [Magick++-config], "yes")
-#if test -z "$magick_installed"
-#then
-#    AC_MSG_ERROR([ImageMagick not found. Aborting.])
-#fi
 
 AM_LIB_FFMPEG
+PKG_CHECK_MODULES([SWSCALE], [libswscale],
+        AC_DEFINE([AVG_ENABLE_SWSCALE],1,[Enable ffmpeg swscale support.]),
+        foo="")
 
 AM_PATH_PYTHON
 
@@ -120,7 +118,7 @@ fi
 AM_CONDITIONAL(APPLE, test $target_vendor = apple)
 
 AM_CONFIG_HEADER(src/avgconfig.h)
-AC_OUTPUT(Makefile src/Makefile man/Makefile src/test/Makefile 
+AC_OUTPUT(Makefile src/Makefile src/test/Makefile 
     src/base/Makefile src/conradrelais/Makefile src/lmfit/Makefile src/python/Makefile 
     src/player/Makefile src/parport/Makefile src/graphics/Makefile
     src/imaging/Makefile src/video/Makefile)

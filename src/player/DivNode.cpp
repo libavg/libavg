@@ -73,14 +73,24 @@ NodePtr DivNode::getChild (int i)
     return m_Children[i];
 }
 
-void DivNode::addChild (NodePtr pNewNode)
+void DivNode::appendChild (NodePtr pNewNode)
+{
+    insertChild(pNewNode, m_Children.size());
+}
+
+void DivNode::insertChild(NodePtr pNewNode, int i)
 {
     if (pNewNode->getState() == NS_CONNECTED) {
         throw(Exception(AVG_ERR_ALREADY_CONNECTED,
                 "Can't connect node with id "+pNewNode->getID()+
                 ": already connected."));
     }
-    m_Children.push_back(pNewNode);
+    if (i>m_Children.size()) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                pNewNode->getID()+"::insertChild: index out of bounds."));
+    }
+    std::vector<NodePtr>::iterator Pos = m_Children.begin()+i;
+    m_Children.insert(Pos, pNewNode);
     DivNodePtr Ptr = boost::dynamic_pointer_cast<DivNode>(getThis());           
     pNewNode->setParent(Ptr);
     if (getState() == NS_CONNECTED) {

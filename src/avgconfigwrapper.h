@@ -1,3 +1,4 @@
+//
 //  libavg - Media Playback Engine. 
 //  Copyright (C) 2003-2006 Ulrich von Zadow
 //
@@ -18,33 +19,14 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "DisplayParams.h"
+#include "../avgconfig.h"
 
-#include "../base/ObjectCounter.h"
-
-namespace avg {
-
-DisplayParams::DisplayParams()
-    : m_Width(0),
-      m_Height(0),
-      m_bFullscreen(false),
-      m_BPP(24),
-      m_WindowWidth(0),
-      m_WindowHeight(0),
-      m_bShowCursor(true),
-      m_VBRate(1),
-      m_Framerate(0)
-{ 
-    ObjectCounter::get()->incRef(&typeid(*this));
-    m_Gamma[0] = -1.0;
-    m_Gamma[1] = -1.0;
-    m_Gamma[2] = -1.0;
-}
-
-DisplayParams::~DisplayParams()
-{
-    ObjectCounter::get()->decRef(&typeid(*this));
-}
-
-}
+// These defines regularly cause multiple definition warnings and are usually
+// completely unneeded.
+#undef PACKAGE
+#undef PACKAGE_BUGREPORT
+#undef PACKAGE_NAME
+#undef PACKAGE_STRING
+#undef PACKAGE_TARNAME
+#undef PACKAGE_VERSION
 

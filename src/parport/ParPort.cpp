@@ -19,12 +19,12 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "../avgconfig.h"
 #include "ParPort.h"
 
+#include "../avgconfigwrapper.h"
 #include "../base/Logger.h"
-#include "../player/MathHelper.h"
 #include "../base/Exception.h"
+#include "../player/MathHelper.h"
 
 #ifdef AVG_ENABLE_PARPORT 
 #include <linux/ppdev.h>

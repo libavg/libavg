@@ -22,6 +22,8 @@
 #ifndef _WrapHelper_H_
 #define _WrapHelper_H_
 
+#include "../base/Point.h"
+
 #include <boost/python.hpp>
 
 template <typename ContainerType>
@@ -263,5 +265,46 @@ struct from_python_sequence
     ConversionPolicy::assert_size(boost::type<ContainerType>(), i);
   }
 };
+
+template<class NUM>
+struct Point_to_python_tuple
+{
+    static PyObject* convert (avg::Point<NUM> pt)
+    {
+        return boost::python::incref(boost::python::make_tuple(pt.x, pt.y).ptr());
+    }
+};
+
+struct DPoint_from_python_tuple
+{
+    DPoint_from_python_tuple()
+    {
+        boost::python::converter::registry::push_back(
+                &convertible,
+                &construct,
+                boost::python::type_id<avg::DPoint>());
+    }
+
+    static void* convertible(PyObject* obj_ptr)
+    {
+        if (!PyTuple_Check(obj_ptr)) return 0;
+        return obj_ptr;
+    }
+
+    static void construct(PyObject* obj_ptr,
+            boost::python::converter::rvalue_from_python_stage1_data* data)
+    {
+        avg::DPoint pt;
+        PyObject * pEntry = PyTuple_GetItem(obj_ptr, 0);
+        pt.x = PyFloat_AsDouble(pEntry);
+        pEntry = PyTuple_GetItem(obj_ptr, 1);
+        pt.y = PyFloat_AsDouble(pEntry);
+        void* storage = (
+                (boost::python::converter::rvalue_from_python_storage<avg::DPoint>*)data)->storage.bytes;
+        new (storage) avg::DPoint(pt);
+        data->convertible = storage;
+    }
+};
+
 
 #endif

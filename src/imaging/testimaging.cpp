@@ -36,6 +36,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <sstream>
 
@@ -144,6 +145,7 @@ public:
         DeDistortPtr pTrafo = LoadedConfig.m_pTrafo;
         TEST(almostEqual(pTrafo->transform_point(DPoint(0,0)), DPoint(0,0)));
         TEST(almostEqual(pTrafo->transformBlobToScreen(DPoint(1,2)), DPoint(2,4)));
+        unlink("temptrackerrc");
     }
 };
 
