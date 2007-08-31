@@ -1,6 +1,6 @@
-libavg 0.7.0 - August 27, 2007
+libavg 0.7.0 - August 31, 2007
 
-  svn Revision xxxx
+  svn Revision 2309
 
   Major new features:
     
@@ -29,8 +29,8 @@ libavg 0.7.0 - August 27, 2007
     * Added Anim.abort() and .isDone().
     * Lots of new automatic low-level tests.
     * libavg now uses correct python package semantics. Use 
-      'from libavg import avg' to import it now. It shouldn't be necessary to use
-      PYTHONPATH anymore.
+      'from libavg import avg' to import it now. It shouldn't be necessary to 
+      use PYTHONPATH anymore (igor@c-base.org).
     * Much faster Image::setBitmap().
 
 
