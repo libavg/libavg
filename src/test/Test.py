@@ -4,7 +4,13 @@ import unittest
 
 import sys, syslog, time, os
 import tempfile
+
+# Import the correct version of libavg. Since it should be possible to
+# run the tests without installing libavg, we add the location of the 
+# uninstalled liba to the path.
 sys.path += ['../python/.libs', '../python']
+if os.uname()[0] == 'Darwin':
+    sys.path += ['../..']     # Location of libavg in a mac installation.
 import avg
 
 SrcDir = os.getenv("srcdir",".")

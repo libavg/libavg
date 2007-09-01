@@ -4,7 +4,7 @@ set -e
 set -x
 
 export VERSION=0.7.0
-export INSTALL_PATH="/Library/Python/2.3/site-packages"
+export INSTALL_PATH="/Library/Python/2.3/site-packages/libavg"
 
 fixLib()
 {
@@ -14,7 +14,7 @@ fixLib()
 
 distLib()
 {
-    cp -v ../lib/$1.dylib ./avg
+    cp -v ../../lib/$1.dylib ./avg
     install_name_tool -change $AVG_PATH//lib/$1.dylib $INSTALL_PATH/avg/$1.dylib avg.0.so
     fixLib ../avg.0.so $1
 }
@@ -36,10 +36,12 @@ PLATFORM=$1
 cd ../dist
 
 rm -rf *
+mkdir libavg
+cd libavg
 mkdir avg
 mkdir avg/test
 
-cp -Rv ../lib/python2.3/site-packages/libavg/ .
+cp -Rv ../../lib/python2.3/site-packages/libavg/ .
 
 distLib libMagick++.10
 distLib libWand.10
@@ -48,15 +50,15 @@ distLib libMagick.10
 fixLib libMagick++.10.dylib libMagick.10
 fixLib libWand.10.dylib libMagick.10
 
-cd ../libavg
+cd ../../libavg
 
-cp src/avgrc ${AVG_PATH}/dist/avg/
-cp ../bin/fc-cache ${AVG_PATH}/dist/avg/
+cp src/avgrc ${AVG_PATH}/dist/libavg/avg/
+cp ../bin/fc-cache ${AVG_PATH}/dist/libavg/avg/
 
 cd src/test
-cp -Rv Test.py *.avg *.png *.jpg *.tif *.py *.mov *.mpg *.avi *.h264 ${AVG_PATH}/dist/avg/test
-mkdir ${AVG_PATH}/dist/avg/test/baseline
-cp baseline/* ${AVG_PATH}/dist/avg/test/baseline
+cp -Rv Test.py *.avg *.png *.jpg *.tif *.py *.mov *.mpg *.avi *.h264 ${AVG_PATH}/dist/libavg/avg/test
+mkdir ${AVG_PATH}/dist/libavg/avg/test/baseline
+cp baseline/* ${AVG_PATH}/dist/libavg/avg/test/baseline
 cd ../..
 
 /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -proj mac/libavg.pmproj -v -p libavg.pkg
