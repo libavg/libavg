@@ -65,6 +65,7 @@ void export_event()
         .value("MOUSE", CursorEvent::MOUSE)
         .value("TOUCH", CursorEvent::TOUCH)
         .value("TRACK", CursorEvent::TRACK)
+        .value("NONE", Event::NONE)
         .export_values()
     ;
 
