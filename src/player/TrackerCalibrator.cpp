@@ -33,8 +33,7 @@ extern "C" {
 
 using namespace std;
 
-#define NUM_POINTS 4 
-#define MIN_DIST_FROM_BORDER 30
+#define NUM_POINTS 3 
 //#define DEBUG_FIT  1
 
 namespace avg {
@@ -94,13 +93,21 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
           m_bCurPointSet(false)
     {
         ObjectCounter::get()->incRef(&typeid(*this));
-        IntPoint OffsetPerPoint((DisplayExtents.x-MIN_DIST_FROM_BORDER*2)/(NUM_POINTS-1),
-                (DisplayExtents.y-MIN_DIST_FROM_BORDER*2)/(NUM_POINTS-1));
-        for (int y=0; y<NUM_POINTS; y++) {
-            for (int x=0; x<NUM_POINTS; x++) {
+        double r0 = sqrt(DisplayExtents.x*DisplayExtents.x + DisplayExtents.y*DisplayExtents.y)/(NUM_POINTS*NUM_POINTS);
+        double x0 = DisplayExtents.x/2.;
+        double y0 = DisplayExtents.y/2.;
+        double aspect = DisplayExtents.x/double(DisplayExtents.y);
+        int count,c,i;
+        double d, R;
+        for(i=0;i<NUM_POINTS;i++) {
+            count = pow(2,2*i);
+            d = 2*M_PI/count;
+            R = r0 * i;
+            for(c=0;c<count;c++){
                 m_DisplayPoints.push_back(
-                    IntPoint(OffsetPerPoint.x*x+MIN_DIST_FROM_BORDER, 
-                            OffsetPerPoint.y*y+MIN_DIST_FROM_BORDER));
+                    IntPoint(aspect*R*cos(c*d)+x0), 
+                    IntPoint(R*sin(c*d+y0))
+                );
                 m_CamPoints.push_back(DPoint(0,0));
             }
         }
