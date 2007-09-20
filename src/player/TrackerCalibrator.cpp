@@ -100,14 +100,14 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
         int count,c,i;
         double d, R;
         for(i=0;i<NUM_POINTS;i++) {
-            count = pow(2,2*i);
+            count = pow(2.,2*i);
             d = 2*M_PI/count;
             R = r0 * i;
             for(c=0;c<count;c++){
                 m_DisplayPoints.push_back(
                     IntPoint(
-                        aspect*R*cos(c*d)+x0), 
-                        R*sin(c*d+y0
+                        aspect*R*cos(c*d)+x0, 
+                        R*sin(c*d)+y0
                         )
                 );
                 m_CamPoints.push_back(DPoint(0,0));
