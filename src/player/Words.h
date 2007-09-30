@@ -49,116 +49,41 @@ class Words : public RasterNode
         virtual void render(const DRect& Rect);
         virtual std::string getTypeStr();
 
-        const std::string& getFont() const
-        {
-            return m_FontName;
-        }
-        
-        void setFont(const std::string& sName)
-        {
-            m_FontName = sName;
-            m_bFontChanged = true;
-            m_bDrawNeeded = true;
-        }
+        virtual double getWidth();
+        virtual double getHeight();
+
+        const std::string& getFont() const;
+        void setFont(const std::string& sName);
             
-        const std::string& getText() const 
-        {
-            return m_Text;
-        }
+        const std::string& getText() const; 
+        void setText(const std::string& sText);
         
-        void setText(const std::string& sText)
-        {
-            if (m_Text != sText) {
-                m_Text = sText;
-                m_bDrawNeeded = true;
-            }
-        }
-
-        const std::string& getColor() const
-        {
-            return m_ColorName;
-        }
-
-        void setColor(const std::string& sColor)
-        {
-            m_ColorName = sColor;
-            m_Color = colorStringToColor(m_ColorName);
-            m_bDrawNeeded = true;
-        }
-
-        double getSize() const
-        {
-            return m_Size;
-        }
+        const std::string& getColor() const;
+        void setColor(const std::string& sColor);
         
-        void setSize(double Size)
-        {
-            m_Size = Size;
-            m_bFontChanged = true;
-            m_bDrawNeeded = true;
-        }
-
-        int getParaWidth() const
-        {
-            return m_ParaWidth;
-        }
+        double getSize() const;
+        void setSize(double Size);
         
-        void setParaWidth(int ParaWidth)
-        {
-            m_ParaWidth = ParaWidth;
-            m_bDrawNeeded = true;
-        }
+        int getParaWidth() const;
+        void setParaWidth(int ParaWidth);
         
-        int getIndent() const
-        {
-            return m_Indent;
-        }
+        int getIndent() const;
+        void setIndent(int Indent);
         
-        void setIndent(int Indent)
-        {
-            m_Indent = Indent;
-            m_bDrawNeeded = true;
-        }
-
-        double getLineSpacing() const
-        {
-            return m_LineSpacing;
-        }
+        double getLineSpacing() const;
+        void setLineSpacing(double LineSpacing);
         
-        void setLineSpacing(double LineSpacing)
-        {
-            m_LineSpacing = LineSpacing;
-            m_bDrawNeeded = true;
-        }
-
         std::string getAlignment() const;
         void setAlignment(const std::string& sAlignment);
-        bool getItalic() const
-        {
-            return m_bItalic;
-        }
         
-        void setItalic(bool bItalic)
-        {
-            m_bItalic = bItalic;
-            m_bFontChanged = true;
-            m_bDrawNeeded = true;
-        }
+        bool getItalic() const;
+        void setItalic(bool bItalic);
         
         std::string getWeight() const;
         void setWeight(const std::string& sWeight);
         
-        bool getSmallCaps() const
-        {
-            return m_bSmallCaps;
-        }
-        
-        void setSmallCaps(bool bSmallCaps)
-        {
-            m_bSmallCaps = bSmallCaps;
-            m_bFontChanged = true;
-            m_bDrawNeeded = true;
-        }
+        bool getSmallCaps() const;
+        void setSmallCaps(bool bSmallCaps);
         
         std::string getStretch() const;
         void setStretch(const std::string& sStretch);

@@ -197,6 +197,100 @@ void Words::setStretch(const string& sStretch)
     m_bFontChanged = true;
     m_bDrawNeeded = true;
 }
+        
+double Words::getWidth() 
+{
+    drawString();
+    return Node::getWidth();
+}
+
+double Words::getHeight()
+{
+    drawString();
+    return Node::getHeight();
+}
+
+const std::string& Words::getFont() const
+{
+    return m_FontName;
+}
+
+void Words::setFont(const std::string& sName)
+{
+    m_FontName = sName;
+    m_bFontChanged = true;
+    m_bDrawNeeded = true;
+}
+
+const std::string& Words::getText() const 
+{
+    return m_Text;
+}
+
+void Words::setText(const std::string& sText)
+{
+    if (m_Text != sText) {
+        m_Text = sText;
+        m_bDrawNeeded = true;
+    }
+}
+
+const std::string& Words::getColor() const
+{
+    return m_ColorName;
+}
+
+void Words::setColor(const std::string& sColor)
+{
+    m_ColorName = sColor;
+    m_Color = colorStringToColor(m_ColorName);
+    m_bDrawNeeded = true;
+}
+
+double Words::getSize() const
+{
+    return m_Size;
+}
+
+void Words::setSize(double Size)
+{
+    m_Size = Size;
+    m_bFontChanged = true;
+    m_bDrawNeeded = true;
+}
+
+int Words::getParaWidth() const
+{
+    return m_ParaWidth;
+}
+
+void Words::setParaWidth(int ParaWidth)
+{
+    m_ParaWidth = ParaWidth;
+    m_bDrawNeeded = true;
+}
+
+int Words::getIndent() const
+{
+    return m_Indent;
+}
+
+void Words::setIndent(int Indent)
+{
+    m_Indent = Indent;
+    m_bDrawNeeded = true;
+}
+
+double Words::getLineSpacing() const
+{
+    return m_LineSpacing;
+}
+
+void Words::setLineSpacing(double LineSpacing)
+{
+    m_LineSpacing = LineSpacing;
+    m_bDrawNeeded = true;
+}
 
 string Words::getAlignment() const
 {
@@ -211,6 +305,18 @@ string Words::getAlignment() const
     return "";
 }
 
+bool Words::getItalic() const
+{
+    return m_bItalic;
+}
+
+void Words::setItalic(bool bItalic)
+{
+    m_bItalic = bItalic;
+    m_bFontChanged = true;
+    m_bDrawNeeded = true;
+}
+        
 string Words::getWeight() const
 {
     switch (m_Weight) {
@@ -230,6 +336,18 @@ string Words::getWeight() const
             return "heavy";
     }
     return "";
+}
+        
+bool Words::getSmallCaps() const
+{
+    return m_bSmallCaps;
+}
+
+void Words::setSmallCaps(bool bSmallCaps)
+{
+    m_bSmallCaps = bSmallCaps;
+    m_bFontChanged = true;
+    m_bDrawNeeded = true;
 }
 
 string Words::getStretch() const
@@ -269,7 +387,7 @@ static ProfilingZone DrawStringProfilingZone("Words::drawString");
 
 void Words::drawString()
 {
-    if (!isDisplayAvailable()) {
+    if (!m_bDrawNeeded || !isDisplayAvailable()) {
         return;
     }
     ScopeTimer Timer(DrawStringProfilingZone);
@@ -387,9 +505,7 @@ void Words::drawString()
 
 void Words::prepareRender(int time, const DRect& parent)
 {
-    if (m_bDrawNeeded) {
-        drawString();
-    }
+    drawString();
     Node::prepareRender(time, parent);
 }
 
@@ -417,9 +533,7 @@ Pixel32 Words::colorStringToColor(const string & colorString)
 
 DPoint Words::getPreferredMediaSize()
 {
-    if (m_bDrawNeeded) {
-        drawString();
-    }
+    drawString();
     return m_StringExtents;
 }
 

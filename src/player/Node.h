@@ -78,10 +78,10 @@ class Node
         double getY() const;
         void setY(double Y);
         
-        double getWidth() const;
+        virtual double getWidth();
         void setWidth(double width);
         
-        double getHeight() const;
+        virtual double getHeight();
         void setHeight(double height);
         
         double getOpacity() const;

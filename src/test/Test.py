@@ -568,8 +568,9 @@ class PlayerTestCase(AVGTestCase):
     def testWords(self):
         def changeText():
             node = Player.getElementByID("cbasetext")
-            str = "blue"
-            node.text = str
+            oldwidth = node.width
+            node.text = "blue" 
+            self.assert_(node.width != oldwidth)
             node.color = "404080"
             node.x += 10
         def changeHeight():
