@@ -35,7 +35,7 @@
 namespace avg {
 
 class ISurface;
-
+ 
 class Words : public RasterNode
 {
 	public:
