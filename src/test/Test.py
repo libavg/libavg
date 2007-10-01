@@ -728,7 +728,37 @@ class PlayerTestCase(AVGTestCase):
         Player.setTimeout(1, onStart)
         Player.setVBlankFramerate(1)
         Player.play()
-        
+    def testContinuousAnim(self):
+        def onStart():
+            Player.setTimeout(10,startAnim)
+            Player.setTimeout(100,lambda:self.compareImage("testContAnim1", False))
+            Player.setTimeout(200,startAnim2)
+            Player.setTimeout(400,lambda:self.compareImage("testContAnim2", False))
+            Player.setTimeout(450,startAnim3)
+            Player.setTimeout(700,lambda:self.compareImage("testContAnim3", False))
+            Player.setTimeout(800,stopAnim)
+            Player.setTimeout(900,lambda:self.compareImage("testContAnim4", False))
+            Player.setTimeout(1000,Player.stop)
+        def startAnim():
+            node=Player.getElementByID("mainimg")
+            self.anim=anim.ContinuousAnim(node,"angle",0,1,0)
+        def startAnim2():
+            node=Player.getElementByID("nestedimg1")
+            self.anim2=anim.ContinuousAnim(node,"width",0,50,0)
+        def startAnim3():
+            node=Player.getElementByID("nestedimg2")
+            self.anim3=anim.ContinuousAnim(node,"x",0,50,0)
+        def stopAnim():
+            self.anim.abort()
+            self.anim2.abort()
+            self.anim3.abort()
+
+        Player.setFakeFPS(25)
+        anim.init(Player)
+        Player.loadFile("avg.avg")
+        Player.setTimeout(1, onStart)
+        Player.play()
+
     def testImgDynamics(self):
         def createImg():
             node = Player.createNode("<image href='rgb24-64x64.png'/>")
@@ -949,6 +979,7 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testVideoFPS", bpp))
 #    suite.addTest(PlayerTestCase("testCamera", bpp))
     suite.addTest(PlayerTestCase("testAnim", bpp))
+    suite.addTest(PlayerTestCase("testContinuousAnim", bpp))
     suite.addTest(PlayerTestCase("testImgDynamics", bpp))
     suite.addTest(PlayerTestCase("testVideoDynamics", bpp))
     suite.addTest(PlayerTestCase("testWordsDynamics", bpp))
