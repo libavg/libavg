@@ -78,7 +78,8 @@ void export_node()
                 "@param type: One of the event types KEYUP, KEYDOWN, CURSORMOTION,\n"
                 "CURSORUP, CURSORDOWN, CURSOROVER, CURSOROUT, RESIZE or QUIT.\n"
                 "@param source: MOUSE for mouse events, TOUCH for multitouch touch\n"
-                "events, TRACK for multitouch track events or other tracking.\n"
+                "events, TRACK for multitouch track events or other tracking, \n"
+                "NONE for keyboard events.\n"
                 "@param pyfunc: The python callable to invoke.\n")
         .def("getRelPos", &Node::getRelPos,
                 "getRelPos(abspos) -> relpos\n"

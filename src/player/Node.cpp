@@ -160,7 +160,7 @@ void Node::setY(double y) {
     setViewport(-32767, y, -32767, -32767);
 }
 
-double Node::getWidth() const {
+double Node::getWidth() {
     return getRelViewport().Width();
 }
 
@@ -169,7 +169,7 @@ void Node::setWidth(double width) {
     setViewport(-32767, -32767, width, -32767);
 }
 
-double Node::getHeight() const {
+double Node::getHeight() {
     return getRelViewport().Height();
 }
 

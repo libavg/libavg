@@ -140,6 +140,40 @@ def fadeIn(node, duration, max):
     curValue = getattr(node, "opacity")
     LinearAnim(node, "opacity", duration, curValue, max, 0, None)
 
+
+class ContinuousAnim(SimpleAnim):
+    """
+    Class that animates an attribute of a libavg node continuously and
+    linearly. The animation will not stop until the abort() method is called.
+    A possible use case is the continuous rotation of an object.
+
+    """
+    def __init__(self, node, attrName, startValue, speed, useInt):
+        """
+        @param node: The libavg node object to animate.
+        @param attrName: The name of the attribute to change. Must be a numeric
+        attribute.
+        @param startValue: Initial value of the attribute.
+        @param speed: Animation speed, value to be added per second.
+        @param useInt: If True, the attribute is always set to an integer value.
+        """
+        SimpleAnim.__init__(self, node, attrName, 0, useInt, None)
+        self.__interval = g_Player.setOnFrameHandler(self.__step)
+        self.__startValue = startValue
+        self.__speed = speed
+        self.__step()
+    def __step(self):
+        time = (float(g_Player.getFrameTime())-self.startTime)/1000
+        curValue = self.__startValue+time*self.__speed
+        if self.useInt:
+            curValue = int(curValue+0.5)
+        setattr(self.node, self.attrName, curValue)
+    def abort(self):
+        """
+        Stops the animation.
+        """
+        g_Player.clearInterval(self.__interval)
+
 def init(Player):
     global g_Player
     g_Player = Player

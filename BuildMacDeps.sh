@@ -77,7 +77,7 @@ buildfontconfig()
     LDFLAGS="-framework ApplicationServices ${LDFLAGS}" ./configure --prefix=${AVG_PATH} --disable-shared --with-add-fonts=/Library/Fonts,/System/Library/Fonts,~/fonts --with-confdir=/etc/fonts
     make clean
     make -j3
-    make install
+    sudo make install
     cd ..    
 }
 

@@ -1,5 +1,5 @@
 AC_PREREQ(2.53)
-AC_INIT(libavg, 0.7.0-rc1, coder@c-base.org)
+AC_INIT(libavg, 0.7.0, coder@c-base.org)
 AC_CANONICAL_TARGET
 
 AC_DISABLE_STATIC
