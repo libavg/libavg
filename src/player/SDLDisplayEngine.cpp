@@ -191,6 +191,10 @@ SDLDisplayEngine::~SDLDisplayEngine()
 
 void SDLDisplayEngine::init(const DisplayParams& DP) 
 {
+#ifdef linux    
+    int oldWindowWidth = m_WindowWidth;
+    int oldWindowHeight = m_WindowHeight;
+#endif    
     double AspectRatio = double(DP.m_Width)/double(DP.m_Height);
     if (DP.m_WindowWidth == 0 && DP.m_WindowHeight == 0) {
         m_WindowWidth = DP.m_Width;
@@ -202,7 +206,19 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
         m_WindowWidth = DP.m_WindowWidth;
         m_WindowHeight = int(DP.m_WindowWidth/AspectRatio);
     }
-    
+#ifdef linux
+    // Workaround for what appears to be an SDL or X11 bug:
+    // Stencil buffers stop working after a window resize, so we reinit 
+    // everything.
+    if (oldWindowWidth != m_WindowWidth || oldWindowHeight != m_WindowHeight) {
+        SDL_QuitSubSystem(SDL_INIT_VIDEO);
+        if (SDL_InitSubSystem(SDL_INIT_VIDEO)==-1) {
+            AVG_TRACE(Logger::ERROR, "Can't init SDL display subsystem.");
+            exit(-1);
+        }
+    }
+#endif
+
     switch (DP.m_BPP) {
         case 32:
             safeSetAttribute( SDL_GL_RED_SIZE, 8 );
