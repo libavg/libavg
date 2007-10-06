@@ -33,7 +33,7 @@ extern "C" {
 
 using namespace std;
 
-#define NUM_POINTS 3 
+#define NUM_POINTS 4 
 //#define DEBUG_FIT  1
 
 namespace avg {
@@ -99,19 +99,21 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
         double aspect = DisplayExtents.x/double(DisplayExtents.y);
         int count,c,i;
         double d, R;
+        IntRect myPlane = IntRect(0,0,DisplayExtents.x-1,DisplayExtents.y-1);
         for(i=0;i<NUM_POINTS;i++) {
         //    count = pow(2.,(i<=1)?2*i:i+1);
             count = pow(2.,2*i);
             d = 2*M_PI/count;
             R = r0 * i;
             for(c=0;c<count;c++){
-                m_DisplayPoints.push_back(
-                    IntPoint(
+                IntPoint cp = IntPoint(
                         (int)round(aspect*R*cos(c*d)+x0), 
                         (int)round(R*sin(c*d)+y0)
-                        )
-                );
-                m_CamPoints.push_back(DPoint(0,0));
+                        );
+                if (myPlane.Contains(cp)) {
+                    m_DisplayPoints.push_back(cp);
+                    m_CamPoints.push_back(DPoint(0,0));
+                }
             }
         }
     }
@@ -210,7 +212,7 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
         lm_control_type control;
         lm_initialize_control( &control );
         control.maxcall=1000;
-//        control.epsilon=1e-6;
+//        control.epsilon=1e-8;
 //        control.ftol = 1e-4;
 //        control.xtol = 1e-4;
 //        control.gtol = 1e-4;
@@ -225,7 +227,7 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
         m_Angle = 0;
         m_TrapezoidFactor = 0.0;
         m_DisplayOffset= DPoint(0,0);
-        m_DisplayScale = DPoint(1,1);
+        m_DisplayScale = DPoint(2,2);
 
         int n_p = NUM_PARAMS;
         //should really match the Params enum!!!!
