@@ -102,7 +102,7 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
         IntRect myPlane = IntRect(0,0,DisplayExtents.x-1,DisplayExtents.y-1);
         for(i=0;i<NUM_POINTS;i++) {
         //    count = pow(2.,(i<=1)?2*i:i+1);
-            count = pow(2.,2*i);
+            count = int(pow(2.,2*i));
             d = 2*M_PI/count;
             R = r0 * i;
             for(c=0;c<count;c++){
