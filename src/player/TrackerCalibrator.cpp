@@ -100,14 +100,15 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
         int count,c,i;
         double d, R;
         for(i=0;i<NUM_POINTS;i++) {
+        //    count = pow(2.,(i<=1)?2*i:i+1);
             count = pow(2.,2*i);
             d = 2*M_PI/count;
             R = r0 * i;
             for(c=0;c<count;c++){
                 m_DisplayPoints.push_back(
                     IntPoint(
-                        aspect*R*cos(c*d)+x0, 
-                        R*sin(c*d)+y0
+                        (int)round(aspect*R*cos(c*d)+x0), 
+                        (int)round(R*sin(c*d)+y0)
                         )
                 );
                 m_CamPoints.push_back(DPoint(0,0));
@@ -181,11 +182,11 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
         initThisFromDouble(p);
 
 #ifdef DEBUG_FIT
-        for(int i=0;i<=15;i+=5) {
-            cerr<<"sample value of trafo of "
-                <<m_CamPoints[i]<<" : "
+        for(int i=0;i<=12;i+=3) {
+            cerr<<"sample value of trafo of (cam) "
+                <<m_CamPoints[i]<<" : (transformed) "
                 <<m_CurrentTrafo->transformBlobToScreen(m_CurrentTrafo->transform_point(m_CamPoints[i]))
-            <<"=="
+            <<"== (display)"
             <<DPoint(m_DisplayPoints[i])
             <<" dist="
             <<calcDist(DPoint(m_DisplayPoints[i]), m_CurrentTrafo->transformBlobToScreen(m_CurrentTrafo->transform_point(m_CamPoints[i])))
@@ -239,6 +240,11 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
             m_TrapezoidFactor
         };
         initThisFromDouble(p);
+#ifdef DEBUG_FIT
+        for(int j=0;j<m_DisplayPoints.size();j++){
+            cerr<<"(cam) "<<m_CamPoints[j]<<" -> (display) "<<m_DisplayPoints[j]<<"\n";
+        }
+#endif
         lm_minimize(dat, n_p, p, lm_evaluate_tracker, lm_print_tracker,
                      this, &control );
         initThisFromDouble(p);
