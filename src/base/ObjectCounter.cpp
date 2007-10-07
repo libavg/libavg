@@ -78,6 +78,7 @@ void ObjectCounter::incRef(const std::type_info* pType)
 
 void ObjectCounter::decRef(const std::type_info* pType)
 {
+#ifdef DEBUG_ALLOC
     boost::mutex::scoped_lock Lock(CounterMutex);
     TypeMap::iterator MapEntry = m_TypeMap.find(pType);
     if (MapEntry == m_TypeMap.end()) {
@@ -92,6 +93,7 @@ void ObjectCounter::decRef(const std::type_info* pType)
             assert (false);
         }
     }
+#endif
 }
     
 int ObjectCounter::getCount(const std::type_info* pType)

@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="base"
-	ProjectGUID="{A5E5EE79-6886-4218-BD5B-975789EA3C83}"
+	Name="graphics"
+	ProjectGUID="{17E1B304-D55E-40BC-9F36-8D227C8CF7F3}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\boost\boost_1_33_1&quot;;C:\devel\include"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\ImageMagick-6.3.6-Q8\include&quot;;&quot;C:\Program Files\boost\boost_1_33_1&quot;;C:\devel\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -34,9 +34,8 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="Winmm.lib Dbghelp.lib"
-				OutputFile="$(OutDir)/base.lib"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\boost\boost_1_33_1\lib&quot;"/>
+				OutputFile="$(OutDir)/graphics.lib"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\ImageMagick-6.3.6-Q8\lib&quot;"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -77,8 +76,8 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="Winmm.lib"
-				OutputFile="$(OutDir)/base.lib"/>
+				OutputFile="$(OutDir)/graphics.lib"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\ImageMagick-6.3.6-Q8\lib&quot;"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -107,52 +106,49 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\..\src\base\CmdLine.cpp">
+				RelativePath="..\..\src\graphics\Bitmap.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\base\ConfigMgr.cpp">
+				RelativePath="..\..\src\graphics\Filter.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\base\Exception.cpp">
+				RelativePath="..\..\src\graphics\Filter3x3.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\base\FileHelper.cpp">
+				RelativePath="..\..\src\graphics\FilterBandpass.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\base\Logger.cpp">
+				RelativePath="..\..\src\graphics\FilterBlur.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\base\MemHelper.cpp">
+				RelativePath="..\..\src\graphics\Filtercolorize.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\base\ObjectCounter.cpp">
+				RelativePath="..\..\src\graphics\FilterFastBandpass.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\base\Point.cpp">
+				RelativePath="..\..\src\graphics\Filterflip.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\base\Profiler.cpp">
+				RelativePath="..\..\src\graphics\Filterfliprgb.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\base\ProfilingZone.cpp">
+				RelativePath="..\..\src\graphics\Filterfliprgba.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\base\ScopeTimer.cpp">
+				RelativePath="..\..\src\graphics\Filterflipuv.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\base\Test.cpp">
+				RelativePath="..\..\src\graphics\FilterGauss.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\base\TestSuite.cpp">
+				RelativePath="..\..\src\graphics\Filtergrayscale.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\base\ThreadProfiler.cpp">
+				RelativePath="..\..\src\graphics\FilterHighpass.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\base\TimeSource.cpp">
-			</File>
-			<File
-				RelativePath="..\..\src\base\XMLHelper.cpp">
+				RelativePath="..\..\src\graphics\HistoryPreProcessor.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -160,67 +156,76 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath="..\..\src\base\CmdLine.h">
+				RelativePath="..\..\src\graphics\Bitmap.h">
 			</File>
 			<File
-				RelativePath="..\..\src\base\Command.h">
+				RelativePath="..\..\src\graphics\Filter.h">
 			</File>
 			<File
-				RelativePath="..\..\src\base\ConfigMgr.h">
+				RelativePath="..\..\src\graphics\Filter3x3.h">
 			</File>
 			<File
-				RelativePath="..\..\src\base\Exception.h">
+				RelativePath="..\..\src\graphics\FilterBandpass.h">
 			</File>
 			<File
-				RelativePath="..\..\src\base\FileHelper.h">
+				RelativePath="..\..\src\graphics\FilterBlur.h">
 			</File>
 			<File
-				RelativePath="..\..\src\base\IFrameListener.h">
+				RelativePath="..\..\src\graphics\Filtercolorize.h">
 			</File>
 			<File
-				RelativePath="..\..\src\base\Logger.h">
+				RelativePath="..\..\src\graphics\FilterConvol.h">
 			</File>
 			<File
-				RelativePath="..\..\src\base\MemHelper.h">
+				RelativePath="..\..\src\graphics\FilterFastBandpass.h">
 			</File>
 			<File
-				RelativePath="..\..\src\base\ObjectCounter.h">
+				RelativePath="..\..\src\graphics\Filterfill.h">
 			</File>
 			<File
-				RelativePath="..\..\src\base\Point.h">
+				RelativePath="..\..\src\graphics\Filterfillrect.h">
 			</File>
 			<File
-				RelativePath="..\..\src\base\Profiler.h">
+				RelativePath="..\..\src\graphics\Filterflip.h">
 			</File>
 			<File
-				RelativePath="..\..\src\base\ProfilingZone.h">
+				RelativePath="..\..\src\graphics\Filterfliprgb.h">
 			</File>
 			<File
-				RelativePath="..\..\src\base\Queue.h">
+				RelativePath="..\..\src\graphics\Filterfliprgba.h">
 			</File>
 			<File
-				RelativePath="..\..\src\base\Rect.h">
+				RelativePath="..\..\src\graphics\Filterflipuv.h">
 			</File>
 			<File
-				RelativePath="..\..\src\base\ScopeTimer.h">
+				RelativePath="..\..\src\graphics\FilterGauss.h">
 			</File>
 			<File
-				RelativePath="..\..\src\base\Test.h">
+				RelativePath="..\..\src\graphics\Filtergrayscale.h">
 			</File>
 			<File
-				RelativePath="..\..\src\base\TestSuite.h">
+				RelativePath="..\..\src\graphics\FilterHighpass.h">
 			</File>
 			<File
-				RelativePath="..\..\src\base\ThreadProfiler.h">
+				RelativePath="..\..\src\graphics\FilterId.h">
 			</File>
 			<File
-				RelativePath="..\..\src\base\TimeSource.h">
+				RelativePath="..\..\src\graphics\HistoryPreProcessor.h">
 			</File>
 			<File
-				RelativePath="..\..\src\base\WorkerThread.h">
+				RelativePath="..\..\src\graphics\Pixel16.h">
 			</File>
 			<File
-				RelativePath="..\..\src\base\XMLHelper.h">
+				RelativePath="..\..\src\graphics\Pixel24.h">
+			</File>
+			<File
+				RelativePath="..\..\src\graphics\Pixel32.h">
+			</File>
+			<File
+				RelativePath="..\..\src\graphics\Pixel8.h">
+			</File>
+			<File
+				RelativePath="..\..\src\graphics\Pixeldefs.h">
 			</File>
 		</Filter>
 		<Filter

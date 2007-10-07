@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="testbase"
-	ProjectGUID="{28FA31D3-7179-4719-B706-E9A2AB2A4868}"
+	Name="testgraphics"
+	ProjectGUID="{B9E97051-412B-4147-83A1-093138F00AE7}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -19,12 +19,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\boost\boost_1_33_1&quot;;C:\devel\include"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\ImageMagick-6.3.6-Q8\include&quot;;&quot;C:\Program Files\boost\boost_1_33_1&quot;;C:\devel\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				BufferSecurityCheck="FALSE"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -34,11 +33,12 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/testbase.exe"
+				AdditionalDependencies="CORE_RL_Magick++_.lib"
+				OutputFile="$(OutDir)/testgraphics.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\boost\boost_1_33_1\lib&quot;"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\boost\boost_1_33_1\lib&quot;;&quot;C:\Program Files\ImageMagick-6.3.6-Q8\lib&quot;"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/testbase.pdb"
+				ProgramDatabaseFile="$(OutDir)/testgraphics.pdb"
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
@@ -70,10 +70,9 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\boost\boost_1_33_1&quot;;C:\devel\include"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\ImageMagick-6.3.6-Q8\include&quot;;&quot;C:\Program Files\boost\boost_1_33_1&quot;;C:\devel\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
-				BufferSecurityCheck="FALSE"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -83,7 +82,8 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="$(OutDir)/testbase.exe"
+				AdditionalDependencies="CORE_RL_Magick++_.lib"
+				OutputFile="$(OutDir)/testgraphics.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;C:\Program Files\boost\boost_1_33_1\lib&quot;"
 				GenerateDebugInformation="TRUE"
@@ -121,7 +121,7 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\..\src\base\testbase.cpp">
+				RelativePath="..\..\src\graphics\testgraphics.cpp">
 			</File>
 		</Filter>
 		<Filter
