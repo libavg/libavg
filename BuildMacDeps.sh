@@ -53,7 +53,7 @@ buildlibpng()
 
 buildglib()
 {
-    cd glib-2.10.0 
+    cd glib-2.14.1 
     LDFLAGS="-framework CoreFoundation $LDFLAGS" ./configure  --prefix=${AVG_PATH} --disable-shared
     make clean
     LDFLAGS="-framework CoreFoundation $LDFLAGS" make -j3
@@ -63,7 +63,7 @@ buildglib()
 
 buildpango()
 {
-    cd pango-1.14.10
+    cd pango-1.18.2
     LDFLAGS="-framework CoreFoundation -framework ApplicationServices $LDFLAGS" ./configure  --prefix=${AVG_PATH} --disable-shared --without-x --with-included-modules=yes
     make clean
     LDFLAGS="-framework CoreFoundation $LDFLAGS" make -j3
