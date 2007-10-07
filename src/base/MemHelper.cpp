@@ -26,9 +26,11 @@
 #include <iostream>
 #include <string>
 
+#ifndef _WIN32
 #include <unistd.h>
-#include <sys/types.h>
 #include <sys/sysctl.h>
+#endif
+#include <sys/types.h>
 
 #ifdef __APPLE__ 
 #include <mach/mach.h>
@@ -58,8 +60,8 @@ string getNextLine(string& sBuf)
 
 unsigned getMemUsed() 
 {
-    pid_t PID = getpid();
 #ifdef __APPLE__ 
+    pid_t PID = getpid();
     kern_return_t rc;
 
     mach_port_t task;
@@ -73,6 +75,10 @@ unsigned getMemUsed()
 
     return taskInfo.resident_size;
 #else
+#ifdef _WIN32
+    return 0;
+#else
+    pid_t PID = getpid();
     stringstream ss;
     ss << "/proc/" << PID << "/status";
     string sFName = ss.str();
@@ -94,6 +100,7 @@ unsigned getMemUsed()
         sLine = getNextLine(sBuf);
     }
     return 0;
+#endif
 #endif
 
 }

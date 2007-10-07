@@ -21,18 +21,18 @@
 
 #include "Logger.h"
 
-#ifndef _WIN32
-#include <sys/time.h>
-#else
+#ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN  /* somewhat limit Win32 pollution */
 #include <Winsock2.h>
 #undef ERROR
 #undef WARNING
 #include <time.h>
+#else
+#include <sys/time.h>
+#include <syslog.h>
 #endif
 #include <fstream>
 #include <iomanip>
-#include <syslog.h>
 #include <boost/thread.hpp>
 using namespace std;
 
@@ -106,10 +106,15 @@ void Logger::setFileDest(const std::string& sFName)
 
 void Logger::setSyslogDest(int facility, int logopt)
 {
+#ifdef _WIN32
+    AVG_TRACE(ERROR, 
+            "Logging to syslog is not supported under windows. Ignoring request.");
+#else
     boost::mutex::scoped_lock Lock(log_Mutex);
     closeDest();
     m_DestType = SYSLOG;
     openlog("libavg", logopt, facility);
+#endif
 }
     
 void Logger::setCategories(int flags)
@@ -126,11 +131,9 @@ void Logger::trace(int category, const std::string& msg)
             struct tm* pTime;
 #ifdef _WIN32
             __int64 now;
-            struct tm newTime;
             _time64(&now);
-            _localtime64_s(&newTime, &now);
+            pTime = _localtime64(&now);
             unsigned millis = unsigned((now / 1000) % 1000);
-            pTime = &newTime;
 #else
             struct timeval time;
             gettimeofday(&time, NULL);
@@ -145,6 +148,7 @@ void Logger::trace(int category, const std::string& msg)
             (*m_pDest) << msg << endl;
             m_pDest->flush();
         } else {
+#ifndef _WIN32
             int prio;
             switch(category) {
                 case EVENTS:
@@ -171,6 +175,7 @@ void Logger::trace(int category, const std::string& msg)
             }
             syslog(prio, "%s: %s", categoryToString(category),
                     msg.c_str());
+#endif 
         }
     }
 }
@@ -213,8 +218,10 @@ void Logger::closeDest()
             m_pDest = 0;
             break;
         case SYSLOG:
+#ifndef _WIN32
             closelog();
-            
+#endif
+            break;
     }
 }
 

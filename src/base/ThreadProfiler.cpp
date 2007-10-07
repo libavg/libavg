@@ -155,7 +155,7 @@ void ThreadProfiler::reset()
 
 int ThreadProfiler::getIndent()
 {
-    return 2*m_ActiveZones.size();
+    return int(2*m_ActiveZones.size());
 }
 
 bool ThreadProfiler::isCurrent()

@@ -88,8 +88,8 @@ string getXmlChildrenAsString(const xmlDocPtr xmlDoc,
     xmlNodeDump(pBuffer, xmlDoc, xmlNode, 0, 0);
 
     s = (const char *)xmlBufferContent(pBuffer);
-    int StartPos = s.find('>')+1;
-    int EndPos = s.rfind('<')-1;
+    size_t StartPos = s.find('>')+1;
+    size_t EndPos = s.rfind('<')-1;
     if (StartPos > EndPos) {
         s = "";
     } else {

@@ -107,7 +107,7 @@ template<class QElement>
 int Queue<QElement>::size() const
 {
     scoped_lock Lock(m_Mutex);
-    return m_Elements.size();
+    return int(m_Elements.size());
 }
 
 template<class QElement>
