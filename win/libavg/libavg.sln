@@ -7,6 +7,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "base", "..\base\base.vcproj
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testbase", "..\testbase\testbase.vcproj", "{28FA31D3-7179-4719-B706-E9A2AB2A4868}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A5E5EE79-6886-4218-BD5B-975789EA3C83} = {A5E5EE79-6886-4218-BD5B-975789EA3C83}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -23,6 +28,10 @@ Global
 		{A5E5EE79-6886-4218-BD5B-975789EA3C83}.Debug.Build.0 = Debug|Win32
 		{A5E5EE79-6886-4218-BD5B-975789EA3C83}.Release.ActiveCfg = Release|Win32
 		{A5E5EE79-6886-4218-BD5B-975789EA3C83}.Release.Build.0 = Release|Win32
+		{28FA31D3-7179-4719-B706-E9A2AB2A4868}.Debug.ActiveCfg = Debug|Win32
+		{28FA31D3-7179-4719-B706-E9A2AB2A4868}.Debug.Build.0 = Debug|Win32
+		{28FA31D3-7179-4719-B706-E9A2AB2A4868}.Release.ActiveCfg = Release|Win32
+		{28FA31D3-7179-4719-B706-E9A2AB2A4868}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

@@ -43,7 +43,7 @@ string getPath(const string& Filename)
         return Filename;
     }
 #ifdef _WIN32
-    int pos = Filename.find_last_of("\\");
+    int pos = int(Filename.find_last_of("\\"));
     string DirName;
     if (pos >= 0) {
         DirName = Filename.substr(0, pos);
@@ -76,7 +76,7 @@ void readWholeFile(const string& sFilename, string& sContent)
     vector<char> Buffer(65536);
     sContent.resize(0);
     while (File) {
-        File.read(&(*Buffer.begin()), Buffer.size());
+        File.read(&(*Buffer.begin()), (streamsize)(Buffer.size()));
         sContent.append(&(*Buffer.begin()),File.gcount());
     }
     if (!File.eof() || File.bad()) {
