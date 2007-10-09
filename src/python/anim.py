@@ -128,7 +128,7 @@ def fadeOut(node, duration):
     @param duration: Length of the fade in milliseconds.
     """
     curValue = getattr(node, "opacity")
-    LinearAnim(node, "opacity", duration, curValue, 0, 0, None)
+    return LinearAnim(node, "opacity", duration, curValue, 0, 0, None)
 
 def fadeIn(node, duration, max):
     """
@@ -138,7 +138,7 @@ def fadeIn(node, duration, max):
     @param max: The opacity of the node at the end of the fade.
     """
     curValue = getattr(node, "opacity")
-    LinearAnim(node, "opacity", duration, curValue, max, 0, None)
+    return LinearAnim(node, "opacity", duration, curValue, max, 0, None)
 
 
 class ContinuousAnim(SimpleAnim):
