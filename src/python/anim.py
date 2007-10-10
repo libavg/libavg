@@ -2,6 +2,8 @@
 # - loops
 # - Folgen, Gruppen
 
+import math
+
 class SimpleAnim:
     """
     Base class for animations that change libavg node attributes by interpolating
@@ -70,6 +72,67 @@ class LinearAnim(SimpleAnim):
         Returns True if the animation has run its course.
         """
         return self.__done
+
+class EaseInOutAnim(SimpleAnim):
+    def __init__(self, node, attrName, duration, startValue, endValue, 
+            easeInDuration, easeOutDuration, useInt, onStop):
+        SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop)
+        self.__stopTimeout = g_Player.setTimeout(duration, self.__stop)
+        self.__interval = g_Player.setOnFrameHandler(self.__step)
+        self.__startValue = startValue
+        self.__endValue = endValue
+        self.__easeInDuration = easeInDuration
+        self.__easeOutDuration = easeOutDuration
+        self.__done = False
+        self.__step()
+    def __step(self):
+        def ease(t, easeInDuration, easeOutDuration):
+            # All times here are normalized to be between 0 and 1
+            if t > 1:
+                t=1
+            accelDist = easeInDuration*2/math.pi
+            decelDist = easeOutDuration*2/math.pi
+            if t<easeInDuration:
+                # Acceleration stage 
+                nt=t/easeInDuration
+                s=math.sin(-math.pi/2+nt*math.pi/2)+1;
+                dist=s*accelDist;
+            elif t > 1-easeOutDuration:
+                # Deceleration stage
+                nt = (t-(1-easeOutDuration))/easeOutDuration
+                s = math.sin(nt*math.pi/2)
+                dist = accelDist+(1-easeInDuration-easeOutDuration)+s*decelDist
+            else:
+                # Linear stage
+                dist = accelDist+t-easeInDuration
+            return dist/(accelDist+(1-easeInDuration-easeOutDuration)+decelDist)
+        if not(self.__done):
+            part = ease((float(g_Player.getFrameTime())-self.startTime)/self.duration,
+                    self.__easeInDuration, self.__easeOutDuration)
+            curValue = self.__startValue+(self.__endValue-self.__startValue)*part
+            if self.useInt:
+                curValue = int(curValue+0.5)
+            setattr(self.node, self.attrName, curValue)
+    def __stop(self):
+        setattr(self.node, self.attrName, self.__endValue)
+        self.__done = True
+        g_Player.clearInterval(self.__interval)
+        if self.onStop != None:
+            self.onStop()
+    def abort(self):
+        """
+        Stops the animation.
+        """
+        if not(self.__done):
+            self.__done = True 
+            g_Player.clearInterval(self.__interval)
+            g_Player.clearInterval(self.__stopTimeout)
+    def isDone(self):
+        """
+        Returns True if the animation has run its course.
+        """
+        return self.__done
+ 
 
 class SplineAnim(SimpleAnim):
     """
