@@ -460,7 +460,12 @@ void Words::drawString()
             pango_layout_set_spacing(layout, (int)(m_LineSpacing*PANGO_SCALE));
         }
         PangoRectangle logical_rect;
-        pango_layout_get_pixel_extents (layout, 0, &logical_rect);
+        PangoRectangle ink_rect;
+        pango_layout_get_pixel_extents (layout, &ink_rect, &logical_rect);
+//        cerr << "Ink: " << ink_rect.x << ", " << ink_rect.y << ", " 
+//                << ink_rect.width << ", " << ink_rect.height << endl;
+//        cerr << "Logical: " << logical_rect.x << ", " << logical_rect.y << ", " 
+//                << logical_rect.width << ", " << logical_rect.height << endl;
         m_StringExtents.y = logical_rect.height;
         m_StringExtents.x = m_ParaWidth;
         if (m_ParaWidth == -1) {
@@ -488,8 +493,13 @@ void Words::drawString()
         bitmap.num_grays = 256;
         bitmap.pixel_mode = ft_pixel_mode_grays;
 
+        int yoffset = 0;
+        if (ink_rect.y < 0) {
+            yoffset = -ink_rect.y;
+        }
+
         // Use 1 as x-position here to make sure italic text is never cut off.
-        pango_ft2_render_layout(&bitmap, layout, 1, 0);
+        pango_ft2_render_layout(&bitmap, layout, 1, yoffset);
 
         getEngine()->surfaceChanged(getSurface());
         if (m_LineSpacing == -1) {
