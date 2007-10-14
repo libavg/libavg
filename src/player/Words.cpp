@@ -433,7 +433,7 @@ void Words::drawString()
             pango_font_description_free(pUsedDescription);
         }
 
-        PangoLayout *layout = pango_layout_new (m_pContext);
+        PangoLayout *pLayout = pango_layout_new (m_pContext);
        
         {
             bool bOk;
@@ -447,21 +447,22 @@ void Words::drawString()
                         string("Can't parse string '")+m_Text+"' in node with id '"+
                             getID()+"' ("+pError->message+")");
             }
-            pango_layout_set_text (layout, pText, -1);
-            pango_layout_set_attributes (layout, pAttrList);
+            pango_layout_set_text (pLayout, pText, -1);
+            pango_layout_set_attributes (pLayout, pAttrList);
             pango_attr_list_unref (pAttrList);
             g_free (pText);
 
-//        pango_layout_set_markup(layout, m_Text.c_str(), m_Text.length());
+//        pango_layout_set_markup(pLayout, m_Text.c_str(), m_Text.length());
         }
-        pango_layout_set_alignment (layout, m_Alignment);
-        pango_layout_set_width (layout, m_ParaWidth * PANGO_SCALE);
+        pango_layout_set_alignment (pLayout, m_Alignment);
+        pango_layout_set_width (pLayout, m_ParaWidth * PANGO_SCALE);
+        pango_layout_set_indent (pLayout, m_Indent * PANGO_SCALE);
         if (m_LineSpacing != -1) {
-            pango_layout_set_spacing(layout, (int)(m_LineSpacing*PANGO_SCALE));
+            pango_layout_set_spacing(pLayout, (int)(m_LineSpacing*PANGO_SCALE));
         }
         PangoRectangle logical_rect;
         PangoRectangle ink_rect;
-        pango_layout_get_pixel_extents (layout, &ink_rect, &logical_rect);
+        pango_layout_get_pixel_extents (pLayout, &ink_rect, &logical_rect);
 //        cerr << "Ink: " << ink_rect.x << ", " << ink_rect.y << ", " 
 //                << ink_rect.width << ", " << ink_rect.height << endl;
 //        cerr << "Logical: " << logical_rect.x << ", " << logical_rect.y << ", " 
@@ -498,14 +499,14 @@ void Words::drawString()
             yoffset = -ink_rect.y;
         }
 
-        // Use 1 as x-position here to make sure italic text is never cut off.
-        pango_ft2_render_layout(&bitmap, layout, 1, yoffset);
+        // Use 1 as x position here to make sure italic text is never cut off.
+        pango_ft2_render_layout(&bitmap, pLayout, 1, yoffset);
 
         getEngine()->surfaceChanged(getSurface());
         if (m_LineSpacing == -1) {
-            m_LineSpacing = pango_layout_get_spacing(layout)/PANGO_SCALE;
+            m_LineSpacing = pango_layout_get_spacing(pLayout)/PANGO_SCALE;
         }
-        g_object_unref(layout);
+        g_object_unref(pLayout);
         
     }
     m_bDrawNeeded = false;
