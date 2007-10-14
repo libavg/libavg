@@ -454,9 +454,16 @@ void Words::drawString()
 
 //        pango_layout_set_markup(pLayout, m_Text.c_str(), m_Text.length());
         }
-        pango_layout_set_alignment (pLayout, m_Alignment);
-        pango_layout_set_width (pLayout, m_ParaWidth * PANGO_SCALE);
-        pango_layout_set_indent (pLayout, m_Indent * PANGO_SCALE);
+        pango_layout_set_alignment(pLayout, m_Alignment);
+        pango_layout_set_width(pLayout, m_ParaWidth * PANGO_SCALE);
+        pango_layout_set_indent(pLayout, m_Indent * PANGO_SCALE);
+        if (m_Indent < 0) {
+            // For hanging indentation, we add a tabstop to support lists
+            PangoTabArray* pTabs = pango_tab_array_new_with_positions(1, false,
+                    PANGO_TAB_LEFT, -m_Indent * PANGO_SCALE);
+            pango_layout_set_tabs(pLayout, pTabs);
+            pango_tab_array_free(pTabs);
+        }
         if (m_LineSpacing != -1) {
             pango_layout_set_spacing(pLayout, (int)(m_LineSpacing*PANGO_SCALE));
         }
