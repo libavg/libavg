@@ -81,6 +81,10 @@ void DivNode::appendChild (NodePtr pNewNode)
 
 void DivNode::insertChild(NodePtr pNewNode, int i)
 {
+    if (!pNewNode) {
+        throw Exception(AVG_ERR_NO_NODE,
+                "insertChild called without a node.");
+    }
     if (pNewNode->getState() == NS_CONNECTED) {
         throw(Exception(AVG_ERR_ALREADY_CONNECTED,
                 "Can't connect node with id "+pNewNode->getID()+
