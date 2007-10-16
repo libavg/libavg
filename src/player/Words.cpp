@@ -444,7 +444,7 @@ void Words::drawString()
                     &pAttrList, &pText, 0, &pError);
             if (!bOk) {
                 throw Exception(AVG_ERR_CANT_PARSE_STRING,
-                        string("Can't parse string '")+m_Text+"' in node with id '"+
+                        string("Can't parse string in node with id '")+
                             getID()+"' ("+pError->message+")");
             }
             pango_layout_set_text (pLayout, pText, -1);

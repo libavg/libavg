@@ -243,7 +243,7 @@ void Player::play()
                 doFrame();
             }
         } catch (...) {
-            cleanup();
+//            cleanup();
             m_bIsPlaying = false;
             throw;
         }
