@@ -34,6 +34,8 @@
 #include <stdio.h>
 #include <string>
 #include <sstream>
+#include <sys/stat.h>
+#include <dirent.h>
 
 using namespace avg;
 using namespace std;
@@ -173,27 +175,34 @@ class DecoderTest: public Test {
 
         void compareImages(BitmapPtr pBmp, const string& sFilename)
         {
+            BitmapPtr pBaselineBmp;
             try {
-                BitmapPtr pBaselineBmp(new Bitmap(
+                pBaselineBmp = BitmapPtr(new Bitmap(
                         getSrcDir()+"testfiles/baseline/"+sFilename+".png"));
-
-                FilterFlipRGB().applyInPlace(pBaselineBmp);
+            } catch (Magick::Exception & ex) {
+                TEST_FAILED("Error loading baseline image: " << ex.what()); 
+                pBmp->save(getSrcDir()+"testfiles/result/"+sFilename+".png");
+                return;
+            }
+            FilterFlipRGB().applyInPlace(pBaselineBmp);
 #ifdef __BIG_ENDIAN__
-                FilterFlipRGBA().applyInPlace(pBmp);
+            FilterFlipRGBA().applyInPlace(pBmp);
 #endif
-                int DiffPixels = pBaselineBmp->getNumDifferentPixels(*pBmp);
-                if (DiffPixels > 0) {
+            int DiffPixels = pBaselineBmp->getNumDifferentPixels(*pBmp);
+            if (DiffPixels > 0) {
+                TEST_FAILED("Error: Decoded image differs from baseline '" << 
+                        sFilename << "'. " << DiffPixels << " different pixels.");
+                try {
                     pBmp->save(getSrcDir()+"testfiles/result/"+sFilename+".png");
                     BitmapPtr pOrigBmp(new Bitmap(getSrcDir()+"testfiles/baseline/"+sFilename+".png"));
                     pOrigBmp->save(getSrcDir()+"testfiles/result/"+sFilename+"_baseline.png");
                     Bitmap DiffBmp(*pBmp);
                     DiffBmp.subtract(&*pBaselineBmp);
                     DiffBmp.save(getSrcDir()+"testfiles/result/"+sFilename+"_diff.png");
+                } catch (Magick::Exception & ex) {
+                    TEST_FAILED("Error saving result image: " << ex.what()); 
+                    return;
                 }
-                TEST(DiffPixels == 0);
-            } catch (Magick::Exception & ex) {
-                TEST_FAILED("Error loading baseline image: " << ex.what()); 
-                pBmp->save(getSrcDir()+"testfiles/result/"+sFilename+".png");
             }
         }
 
@@ -230,7 +239,26 @@ public:
 
 void deleteOldResultImages() 
 {
-    // TODO
+    DIR * pDir;
+    dirent * pEntry;
+    string sDirName("testfiles/result/");
+    pDir = opendir(sDirName.c_str());
+    if (pDir == 0) {
+        int err = mkdir(sDirName.c_str(), 0);
+        if (err) {
+            cerr << "Creating directory " << sDirName << " failed." << strerror(err) << endl;
+        } else {
+            cerr << "Created result image directory " << sDirName << endl; 
+        }
+    } else {
+        cerr << "Deleting files in " << sDirName << endl;
+        while ((pEntry = readdir(pDir))) {
+            if (pEntry->d_name[0] != '.') {
+                remove((sDirName+pEntry->d_name).c_str());
+            }
+        }
+        closedir(pDir);
+    }
 }
 
 int main(int nargs, char** args)
