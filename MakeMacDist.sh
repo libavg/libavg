@@ -32,7 +32,7 @@ then
 fi
 
 PLATFORM=$1
-
+LIBAVGDIR=`pwd`
 cd ../dist
 
 rm -rf *
@@ -50,7 +50,7 @@ distLib libMagick.10
 fixLib libMagick++.10.dylib libMagick.10
 fixLib libWand.10.dylib libMagick.10
 
-cd ../../libavg
+cd $LIBAVGDIR
 
 cp src/avgrc ${AVG_PATH}/dist/libavg/avg/
 cp ../bin/fc-cache ${AVG_PATH}/dist/libavg/avg/
