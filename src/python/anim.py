@@ -24,7 +24,7 @@ class LinearAnim(SimpleAnim):
     Class that animates an attribute of a libavg node by interpolating linearly
     between start and end values. 
     """
-    def __init__(self, node, attrName, duration, startValue, endValue, useInt, onStop):
+    def __init__(self, node, attrName, duration, startValue, endValue, useInt=False, onStop=None):
         """
         @param node: The libavg node object to animate.
         @param attrName: The name of the attribute to change. Must be a numeric
@@ -75,7 +75,7 @@ class LinearAnim(SimpleAnim):
 
 class EaseInOutAnim(SimpleAnim):
     def __init__(self, node, attrName, duration, startValue, endValue, 
-            easeInDuration, easeOutDuration, useInt, onStop):
+            easeInDuration, easeOutDuration, useInt=False, onStop=None):
         SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop)
         self.__stopTimeout = g_Player.setTimeout(duration, self.__stop)
         self.__interval = g_Player.setOnFrameHandler(self.__step)
@@ -140,7 +140,7 @@ class SplineAnim(SimpleAnim):
     between start and end values using a cubic spline.
     """
     def __init__(self, node, attrName, duration, 
-            startValue, startSpeed, endValue, endSpeed, useInt, onStop):
+            startValue, startSpeed, endValue, endSpeed, useInt=False, onStop=None):
         """
         @param node: The libavg node object to animate.
         @param attrName: The name of the attribute to change. Must be a numeric
@@ -191,9 +191,9 @@ def fadeOut(node, duration):
     @param duration: Length of the fade in milliseconds.
     """
     curValue = getattr(node, "opacity")
-    return LinearAnim(node, "opacity", duration, curValue, 0, 0, None)
+    return LinearAnim(node, "opacity", duration, curValue, 0)
 
-def fadeIn(node, duration, max):
+def fadeIn(node, duration, max=1.0):
     """
     Fades the opacity of a node.
     @param node: The node to fade.
@@ -201,7 +201,7 @@ def fadeIn(node, duration, max):
     @param max: The opacity of the node at the end of the fade.
     """
     curValue = getattr(node, "opacity")
-    return LinearAnim(node, "opacity", duration, curValue, max, 0, None)
+    return LinearAnim(node, "opacity", duration, curValue, max)
 
 
 class ContinuousAnim(SimpleAnim):
@@ -211,7 +211,7 @@ class ContinuousAnim(SimpleAnim):
     A possible use case is the continuous rotation of an object.
 
     """
-    def __init__(self, node, attrName, startValue, speed, useInt):
+    def __init__(self, node, attrName, startValue, speed, useInt=False):
         """
         @param node: The libavg node object to animate.
         @param attrName: The name of the attribute to change. Must be a numeric
