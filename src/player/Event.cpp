@@ -87,38 +87,43 @@ NodePtr Event::getElement() const
 }
 void Event::trace()
 {
+    string sType;
     switch(m_Type) {
         case KEYUP:
-            AVG_TRACE(Logger::EVENTS, "KEYUP");
+            sType = "KEYUP";
             break;
         case KEYDOWN:
-            AVG_TRACE(Logger::EVENTS, "KEYDOWN");
+            sType = "KEYDOWN";
             break;
         case CURSORMOTION:
-            AVG_TRACE(Logger::EVENTS, "CURSORMOTION");
+            sType = "CURSORMOTION";
             break;
         case CURSORUP:
-            AVG_TRACE(Logger::EVENTS, "CURSORUP");
+            sType = "CURSORUP";
             break;
         case CURSORDOWN:
-            AVG_TRACE(Logger::EVENTS, "CURSORDOWN");
+            sType = "CURSORDOWN";
             break;
         case CURSOROVER:
-            AVG_TRACE(Logger::EVENTS, "CURSOROVER");
+            sType = "CURSOROVER";
             break;
         case CURSOROUT:
-            AVG_TRACE(Logger::EVENTS, "CURSOROUT");
+            sType = "CURSOROUT";
             break;
         case RESIZE:
-            AVG_TRACE(Logger::EVENTS, "RESIZE");
+            sType = "RESIZE";
             break;
         case QUIT:
-            AVG_TRACE(Logger::EVENTS, "QUIT");
+            sType = "QUIT";
             break;
         default:
-            AVG_TRACE(Logger::EVENTS, "UNKNOWN EVENT "<<m_Type);
+            sType = "UNKNOWN EVENT ";
             break;
-
+    }
+    if (!m_pNode) {
+        AVG_TRACE(Logger::EVENTS, sType); 
+    } else {
+        AVG_TRACE(Logger::EVENTS, m_pNode->getID()+", "+sType); 
     }
 }
 

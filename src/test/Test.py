@@ -15,7 +15,7 @@ import avg
 
 SrcDir = os.getenv("srcdir",".")
 os.chdir(SrcDir)
-import anim
+import anim, draggable
 
 CREATE_BASELINE_IMAGES = False
 BASELINE_DIR = "baseline"
@@ -27,14 +27,14 @@ class LoggerTestCase(unittest.TestCase):
     def test(self):
         self.Log = avg.Logger.get()
         self.Log.setCategories(self.Log.APP |
-                  self.Log.WARNING 
+                  self.Log.WARNING | 
 #                  self.Log.PROFILE |
 #                  self.Log.PROFILE_LATEFRAMES |
 #                  self.Log.CONFIG |
 #                  self.Log.MEMORY | 
 #                  self.Log.BLTS    |
-#                  self.Log.EVENTS |
-#                  self.Log.EVENTS2
+                  self.Log.EVENTS |
+                  self.Log.EVENTS2
                   )
         myTempFile = os.path.join(tempfile.gettempdir(), "testavg.log")
         try:
@@ -728,6 +728,7 @@ class PlayerTestCase(AVGTestCase):
         Player.setTimeout(1, onStart)
         Player.setVBlankFramerate(1)
         Player.play()
+
     def testContinuousAnim(self):
         def onStart():
             Player.setTimeout(10,startAnim)
@@ -758,6 +759,29 @@ class PlayerTestCase(AVGTestCase):
         Player.loadFile("avg.avg")
         Player.setTimeout(1, onStart)
         Player.play()
+
+    def testDraggable(self):
+        def startDrag():
+            dragger.enable()
+            Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                140, 40, 1)
+        def move():
+            Helper.fakeMouseEvent(avg.CURSORMOTION, True, False, False,
+                150, 50, 1)
+        def stop():
+            Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                160, 60, 1)
+        Helper = Player.getTestHelper()    
+        Player.loadFile("image.avg")
+        draggable.init(avg, Player)
+        dragger = draggable.Draggable(Player.getElementByID("testhue"))
+        self.start(None,
+                (startDrag,
+                 move,
+                 lambda: self.compareImage("testDraggable1", False),
+                 stop,
+                 lambda: self.compareImage("testDraggable2", False),
+                 Player.stop))
 
     def testImgDynamics(self):
         def createImg():
@@ -955,37 +979,38 @@ def playerTestSuite(bpp):
                 ourSaveDifferences = False
     rmBrokenDir()
     suite = unittest.TestSuite()
-    suite.addTest(PlayerTestCase("testImage", bpp))
-    suite.addTest(PlayerTestCase("testError", bpp))
-    suite.addTest(PlayerTestCase("testExceptionInTimeout", bpp))
-    suite.addTest(PlayerTestCase("testInvalidImageFilename", bpp))
-    suite.addTest(PlayerTestCase("testInvalidVideoFilename", bpp))
-    suite.addTest(PlayerTestCase("testEvents", bpp))
-    suite.addTest(PlayerTestCase("testEventCapture", bpp))
-    suite.addTest(PlayerTestCase("testTimeouts", bpp))
-    suite.addTest(PlayerTestCase("testEventErr", bpp))
-    suite.addTest(PlayerTestCase("testHugeImage", bpp))
-    suite.addTest(PlayerTestCase("testPanoImage", bpp))
-    suite.addTest(PlayerTestCase("testBroken", bpp))
-    suite.addTest(PlayerTestCase("testMove", bpp))
-    suite.addTest(PlayerTestCase("testBlend", bpp))
-    suite.addTest(PlayerTestCase("testCropImage", bpp))
-    suite.addTest(PlayerTestCase("testCropMovie", bpp))
-    suite.addTest(PlayerTestCase("testWarp", bpp))
-    suite.addTest(PlayerTestCase("testWords", bpp))
-    suite.addTest(PlayerTestCase("testVideo", bpp))
-    suite.addTest(PlayerTestCase("testVideoSeek", bpp))
-    suite.addTest(PlayerTestCase("testVideoEOF", bpp))
-    suite.addTest(PlayerTestCase("testVideoFPS", bpp))
-#    suite.addTest(PlayerTestCase("testCamera", bpp))
-    suite.addTest(PlayerTestCase("testAnim", bpp))
-    suite.addTest(PlayerTestCase("testContinuousAnim", bpp))
-    suite.addTest(PlayerTestCase("testImgDynamics", bpp))
-    suite.addTest(PlayerTestCase("testVideoDynamics", bpp))
-    suite.addTest(PlayerTestCase("testWordsDynamics", bpp))
-    suite.addTest(PlayerTestCase("testPanoDynamics", bpp))
-    suite.addTest(PlayerTestCase("testCameraDynamics", bpp))
-    suite.addTest(PlayerTestCase("testDivDynamics", bpp))
+#    suite.addTest(PlayerTestCase("testImage", bpp))
+#    suite.addTest(PlayerTestCase("testError", bpp))
+#    suite.addTest(PlayerTestCase("testExceptionInTimeout", bpp))
+#    suite.addTest(PlayerTestCase("testInvalidImageFilename", bpp))
+#    suite.addTest(PlayerTestCase("testInvalidVideoFilename", bpp))
+#    suite.addTest(PlayerTestCase("testEvents", bpp))
+#    suite.addTest(PlayerTestCase("testEventCapture", bpp))
+#    suite.addTest(PlayerTestCase("testTimeouts", bpp))
+#    suite.addTest(PlayerTestCase("testEventErr", bpp))
+#    suite.addTest(PlayerTestCase("testHugeImage", bpp))
+#    suite.addTest(PlayerTestCase("testPanoImage", bpp))
+#    suite.addTest(PlayerTestCase("testBroken", bpp))
+#    suite.addTest(PlayerTestCase("testMove", bpp))
+#    suite.addTest(PlayerTestCase("testBlend", bpp))
+#    suite.addTest(PlayerTestCase("testCropImage", bpp))
+#    suite.addTest(PlayerTestCase("testCropMovie", bpp))
+#    suite.addTest(PlayerTestCase("testWarp", bpp))
+#    suite.addTest(PlayerTestCase("testWords", bpp))
+#    suite.addTest(PlayerTestCase("testVideo", bpp))
+#    suite.addTest(PlayerTestCase("testVideoSeek", bpp))
+#    suite.addTest(PlayerTestCase("testVideoEOF", bpp))
+#    suite.addTest(PlayerTestCase("testVideoFPS", bpp))
+##    suite.addTest(PlayerTestCase("testCamera", bpp))
+#    suite.addTest(PlayerTestCase("testAnim", bpp))
+#    suite.addTest(PlayerTestCase("testContinuousAnim", bpp))
+    suite.addTest(PlayerTestCase("testDraggable", bpp))
+#    suite.addTest(PlayerTestCase("testImgDynamics", bpp))
+#    suite.addTest(PlayerTestCase("testVideoDynamics", bpp))
+#    suite.addTest(PlayerTestCase("testWordsDynamics", bpp))
+#    suite.addTest(PlayerTestCase("testPanoDynamics", bpp))
+#    suite.addTest(PlayerTestCase("testCameraDynamics", bpp))
+#    suite.addTest(PlayerTestCase("testDivDynamics", bpp))
     return suite
 
 def completeTestSuite(bpp):

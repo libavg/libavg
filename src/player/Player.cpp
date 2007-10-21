@@ -223,7 +223,6 @@ void Player::play()
        
         m_pEventDispatcher->addSource(m_pEventSource);
         m_pEventDispatcher->addSource(&m_TestHelper);
-        m_pEventDispatcher->addSink(&m_EventDumper);
         m_pEventDispatcher->addSink(this);
         
         m_pDisplayEngine->initRender();
@@ -888,6 +887,10 @@ bool Player::handleEvent(Event * pEvent)
             m_pLastMouseNode.erase(cursorID);
         }
         if (pNode && pNode->getSensitive()) {
+            pEvent->setElement(pNode);
+            if (pEvent->getType() != Event::CURSORMOTION) {
+                pEvent->trace();
+            }
             pNode->handleEvent(pCursorEvent);
         }
     } else if ( KeyEvent * pKeyEvent = dynamic_cast<KeyEvent*>(pEvent)){

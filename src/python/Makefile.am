@@ -35,5 +35,5 @@ avg_la_LIBADD = ../conradrelais/libconradrelais.la \
                 ../imaging/libimaging.la \
 				../parport/libparport.la \
                 ../lmfit/liblmfit.la
-pkgpyexec_PYTHON = anim.py __init__.py
+pkgpyexec_PYTHON = anim.py draggable.py __init__.py
 
