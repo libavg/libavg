@@ -24,7 +24,6 @@
 
 #include "IEventSink.h"
 #include "EventDispatcher.h"
-#include "DebugEventSink.h"
 #include "Timeout.h"
 #include "KeyEvent.h"
 #include "MouseEvent.h"
