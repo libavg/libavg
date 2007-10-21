@@ -113,7 +113,9 @@ void export_node()
             "A div node is a node that groups other nodes logically and visually.\n"
             "Its upper left corner is used as point of origin for the coordinates\n"
             "of its child nodes. Its extents are used to clip the children. Its\n"
-            "opacity is used as base opacity for the child nodes' opacities.\n",
+            "opacity is used as base opacity for the child nodes' opacities.\n"
+            "The children of a div node are drawn in the order they are found\n"
+            "in the avg file.",
             no_init)
         .def("getNumChildren", &DivNode::getNumChildren,
                 "getNumChildren() -> numchildren\n"
@@ -130,10 +132,15 @@ void export_node()
         .def("removeChild", &DivNode::removeChild,
                 "removeChild(pos)\n"
                 "Removes the child at index pos.")
+        .def("reorderChild", &DivNode::reorderChild,
+                "reorderChild(oldPos, newPos)\n"
+                "Moves the child at index pos so it's at index newPos. This function\n"
+                "can be used to change the order in which the children are drawn.")
         .def("indexOf", &DivNode::indexOf,
                 "indexOf(childnode)\n"
                 "Returns the index of the child given or -1 if childnode isn't a\n"
-                "child of the container.")
+                "child of the container. This function does a linear search through\n"
+                "the list of children until the child is found.")
     ;
     
     class_<AVGNode, bases<DivNode> >("AVGNode",

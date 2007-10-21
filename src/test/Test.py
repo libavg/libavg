@@ -809,6 +809,8 @@ class PlayerTestCase(AVGTestCase):
         def createImg2():
             node = Player.createNode("<image href='rgb24-64x64.png' id='newImage2'/>")
             Player.getRootNode().insertChild(node, 0)
+        def reorderImg():
+            Player.getRootNode().reorderChild(0, 1)
         def removeImgs():
             self.imgNode = Player.getElementByID("newImage")
             rootNode = Player.getRootNode()
@@ -828,10 +830,12 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testImgDynamics1", False),
                  createImg2,
                  lambda: self.compareImage("testImgDynamics2", False),
-                 removeImgs,
+                 reorderImg,
                  lambda: self.compareImage("testImgDynamics3", False),
-                 reAddImg,
+                 removeImgs,
                  lambda: self.compareImage("testImgDynamics4", False),
+                 reAddImg,
+                 lambda: self.compareImage("testImgDynamics5", False),
                  Player.stop))
 
     def testVideoDynamics(self):

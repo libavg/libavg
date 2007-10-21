@@ -39,10 +39,11 @@ class DivNode : public Node
         virtual void disconnect();
 
         int getNumChildren();
-        NodePtr getChild(int i);
+        NodePtr getChild(unsigned i);
         void appendChild(NodePtr pNewNode);
-        void insertChild(NodePtr pNewNode, int i);
-        void removeChild(int i);
+        void insertChild(NodePtr pNewNode, unsigned i);
+        void removeChild(unsigned i);
+        void reorderChild(unsigned i, unsigned j);
         int indexOf(NodePtr pChild);
 
         virtual NodePtr getElementByPos (const DPoint & pos);

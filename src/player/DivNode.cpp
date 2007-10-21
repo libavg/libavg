@@ -64,9 +64,9 @@ int DivNode::getNumChildren ()
     return m_Children.size();
 }
 
-NodePtr DivNode::getChild (int i)
+NodePtr DivNode::getChild (unsigned i)
 {
-    if (i >= (int)m_Children.size() || i < 0) {
+    if (i >= m_Children.size()) {
         stringstream s;
         s << "Index " << i << " is out of range in DivNode::getChild()";
         throw(Exception(AVG_ERR_OUT_OF_RANGE, s.str()));
@@ -79,7 +79,7 @@ void DivNode::appendChild (NodePtr pNewNode)
     insertChild(pNewNode, m_Children.size());
 }
 
-void DivNode::insertChild(NodePtr pNewNode, int i)
+void DivNode::insertChild(NodePtr pNewNode, unsigned i)
 {
     if (!pNewNode) {
         throw Exception(AVG_ERR_NO_NODE,
@@ -106,12 +106,24 @@ void DivNode::insertChild(NodePtr pNewNode, int i)
     }
 }
 
-void DivNode::removeChild (int i)
+void DivNode::removeChild (unsigned i)
 {
     NodePtr pNode = getChild(i);
     pNode->setParent(DivNodePtr());
     pNode->disconnect();
     m_Children.erase(m_Children.begin()+i);
+}
+
+void DivNode::reorderChild(unsigned i, unsigned j)
+{
+    NodePtr pNode = getChild(i);
+    m_Children.erase(m_Children.begin()+i);
+    if (i>m_Children.size()) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                pNode->getID()+"::reorderChild: index out of bounds."));
+    }
+    std::vector<NodePtr>::iterator Pos = m_Children.begin()+j;
+    m_Children.insert(Pos, pNode);
 }
 
 int DivNode::indexOf(NodePtr pChild)
