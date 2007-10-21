@@ -10,9 +10,7 @@ class Draggable:
         self.__node.setEventHandler(g_avg.CURSORUP, g_avg.MOUSE, None)
     def __start(self, event):
         groupsNode = self.__node.getParent()
-        # TODO: Replace this with reorderChild()
-        groupsNode.removeChild(groupsNode.indexOf(self.__node))
-        groupsNode.appendChild(self.__node)
+        groupsNode.reorderChild(groupsNode.indexOf(self.__node), groupsNode.getNumChildren()-1)
         self.__node.setEventCapture()
         self.__node.setEventHandler(g_avg.CURSORMOTION, g_avg.MOUSE, self.__move)
         self.__node.setEventHandler(g_avg.CURSORUP, g_avg.MOUSE, self.__stop)
