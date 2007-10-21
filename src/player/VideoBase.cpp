@@ -176,8 +176,10 @@ int VideoBase::getMediaHeight()
 
 bool VideoBase::obscures (const DRect& Rect, int Child)
 {
+    PixelFormat pf = getSurface()->getPixelFormat();
+    bool bHasAlpha = (pf == R8G8B8A8 || pf == B8G8R8A8);
     return (m_bFirstFrameDecoded && isActive() && getEffectiveOpacity() > 0.999 &&
-            getVisibleRect().Contains(Rect) && m_VideoState != Unloaded);
+            !bHasAlpha && getVisibleRect().Contains(Rect) && m_VideoState != Unloaded);
 }
 
 string VideoBase::dump (int indent)

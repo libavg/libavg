@@ -27,14 +27,14 @@ class LoggerTestCase(unittest.TestCase):
     def test(self):
         self.Log = avg.Logger.get()
         self.Log.setCategories(self.Log.APP |
-                  self.Log.WARNING | 
+                  self.Log.WARNING 
 #                  self.Log.PROFILE |
 #                  self.Log.PROFILE_LATEFRAMES |
 #                  self.Log.CONFIG |
 #                  self.Log.MEMORY | 
 #                  self.Log.BLTS    |
-                  self.Log.EVENTS |
-                  self.Log.EVENTS2
+#                  self.Log.EVENTS |
+#                  self.Log.EVENTS2
                   )
         myTempFile = os.path.join(tempfile.gettempdir(), "testavg.log")
         try:
@@ -761,8 +761,9 @@ class PlayerTestCase(AVGTestCase):
         Player.play()
 
     def testDraggable(self):
-        def onDragEnd(callbackDragger):
-            self.assert_(callbackDragger==dragger)
+        def onDragStart(event):
+            self.__dragStartCalled = True
+        def onDragEnd(event):
             self.__dragEndCalled = True
         def startDrag():
             Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 140, 40, 1)
@@ -771,13 +772,16 @@ class PlayerTestCase(AVGTestCase):
         def stop():
             Helper.fakeMouseEvent(avg.CURSORUP, True, False, False, 140, 40, 1)
         self.__dragEndCalled = False
+        self.__dragStartCalled = False
         Helper = Player.getTestHelper()    
         Player.loadFile("image.avg")
         draggable.init(avg, Player)
-        dragger = draggable.Draggable(Player.getElementByID("testhue"), onDragEnd)
+        dragger = draggable.Draggable(Player.getElementByID("testhue"),
+                onDragStart, onDragEnd)
         dragger.enable()
         self.start(None,
                 (startDrag,
+                 lambda: self.assert_(self.__dragStartCalled),
                  move,
                  lambda: self.compareImage("testDraggable1", False),
                  stop,
