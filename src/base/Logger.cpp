@@ -58,10 +58,10 @@ Logger * Logger::get()
 {
 
     if (!m_pLogger) {
-        {
+    {
         boost::mutex::scoped_lock Lock(log_Mutex);
         m_pLogger = new Logger;
-        }
+    }
         m_pLogger->trace(LOGGER, "Logging started ");
     }
     return m_pLogger;
@@ -90,10 +90,12 @@ void Logger::setConsoleDest()
 
 void Logger::setFileDest(const std::string& sFName)
 {
-    boost::mutex::scoped_lock Lock(log_Mutex);
-    closeDest();
-    m_DestType = FILE;
-    m_pDest = new ofstream(sFName.c_str(), ios::out | ios::app);
+    {
+        boost::mutex::scoped_lock Lock(log_Mutex);
+        closeDest();
+        m_DestType = FILE;
+        m_pDest = new ofstream(sFName.c_str(), ios::out | ios::app);
+    }
     if (!*m_pDest) {
         m_pDest = &cerr;
         m_DestType = CONSOLE;
