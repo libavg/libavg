@@ -390,17 +390,12 @@ void SDLDisplayEngine::logConfig()
                 "  Max. texture size is " << getMaxTexSize());
 }
 
-static ProfilingZone PrepareRenderProfilingZone("Root node: prepareRender");
 static ProfilingZone RootRenderProfilingZone("Root node: render");
 
 void SDLDisplayEngine::render(AVGNodePtr pRootNode, bool bRenderEverything)
 {
     m_bEnableCrop = pRootNode->getCropSetting();
     
-    {
-        ScopeTimer Timer(PrepareRenderProfilingZone);
-        pRootNode->prepareRender(0);
-    }
     glClearColor(0.0, 0.0, 0.0, 0.0); 
     glClear(GL_COLOR_BUFFER_BIT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 

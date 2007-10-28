@@ -327,10 +327,6 @@ NodePtr Node::getElementByPos (const DPoint & pos)
     }
 }
 
-void Node::prepareRender (int time)
-{
-}
-
 void Node::maybeRender (const DRect& Rect)
 {
     if (m_bActive) {

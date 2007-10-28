@@ -116,7 +116,6 @@ class Node
         bool isActive();
         bool reactsToMouseEvents();
         virtual NodePtr getElementByPos (const DPoint & pos);
-        virtual void prepareRender (int time); 
         virtual void maybeRender (const DRect& Rect);
         virtual void render (const DRect& Rect);
         virtual void setViewport (double x, double y, double width, 
