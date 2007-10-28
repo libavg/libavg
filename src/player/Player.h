@@ -24,7 +24,6 @@
 
 #include "IEventSink.h"
 #include "EventDispatcher.h"
-#include "DebugEventSink.h"
 #include "Timeout.h"
 #include "KeyEvent.h"
 #include "MouseEvent.h"
@@ -133,7 +132,6 @@ class Player : IEventSink
         std::vector<Timeout *> m_NewTimeouts; // Timeouts to be added this frame.
 
         EventDispatcherPtr m_pEventDispatcher;
-        DebugEventSink  m_EventDumper;
         std::map<int, NodePtr> m_pLastMouseNode;
         std::map<int, NodeWeakPtr> m_pEventCaptureNode;
 

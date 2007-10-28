@@ -53,7 +53,7 @@ buildlibpng()
 
 buildglib()
 {
-    cd glib-2.10.0 
+    cd glib-2.14.1 
     LDFLAGS="-framework CoreFoundation $LDFLAGS" ./configure  --prefix=${AVG_PATH} --disable-shared
     make clean
     LDFLAGS="-framework CoreFoundation $LDFLAGS" make -j3
@@ -63,7 +63,7 @@ buildglib()
 
 buildpango()
 {
-    cd pango-1.14.10
+    cd pango-1.18.2
     LDFLAGS="-framework CoreFoundation -framework ApplicationServices $LDFLAGS" ./configure  --prefix=${AVG_PATH} --disable-shared --without-x --with-included-modules=yes
     make clean
     LDFLAGS="-framework CoreFoundation $LDFLAGS" make -j3
@@ -106,8 +106,7 @@ buildLib SDL-1.2.11 "--disable-shared --disable-audio --disable-cdrom --disable-
 buildLib gettext-0.14.6 "--disable-shared --with-included-gettext --disable-csharp  --disable-libasprintf"
 buildglib
 
-buildLib freetype-2.1.10 --disable-shared
-#buildLib freetype-2.2.1 "--disable-shared --with-old-mac-fonts"
+buildLib freetype-2.3.5 "--disable-shared --with-old-mac-fonts"
 buildLib expat-2.0.0 --disable-shared
 
 buildfontconfig

@@ -44,6 +44,7 @@
 #define AVG_ERR_CANT_PARSE_STRING 20
 #define AVG_ERR_INVALID_CAPTURE 21
 #define AVG_ERR_QUEUE_EMPTY 22
+#define AVG_ERR_NO_NODE 23
 
 namespace avg {
  

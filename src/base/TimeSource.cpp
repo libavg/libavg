@@ -104,7 +104,7 @@ void TimeSource::sleepUntil(long long TargetTime)
         if (TargetTime-now<=2) {
             msleep(0);
          } else {
-            msleep(TargetTime-now-2);
+            msleep(int(TargetTime-now-2));
         }
         now = getCurrentMillisecs();
     }

@@ -66,6 +66,7 @@ public:
 
     const ConfigOptionVector* getGlobalOptions() const;
     const std::string* getGlobalOption(const std::string& sName) const;
+    void dump() const;
 
 private:
     ConfigMgr();
@@ -76,7 +77,6 @@ private:
             xmlDocPtr doc, xmlNodePtr pNode);
     void setOption(ConfigOptionVector& OptionVector, const std::string& sName,
             const std::string& sValue);
-    void dump() const;
 
     typedef std::map<std::string, ConfigOptionVector> SubsysOptionMap;
     SubsysOptionMap m_SubsysOptionMap;

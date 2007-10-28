@@ -42,6 +42,7 @@ class HistoryPreProcessor: public Filter
         void reset();
 
     private:
+        HistoryPreProcessor(const HistoryPreProcessor&) {};
         void updateHistory(BitmapPtr new_img);
         void normalizeHistogram(BitmapPtr pBmp, unsigned char Max);
         template<int SPEED> void calcAvg(BitmapPtr pNewBmp); 

@@ -50,7 +50,9 @@ void FFMpegDemuxer::enableStream(int StreamIndex)
 AVPacket * FFMpegDemuxer::getPacket(int StreamIndex)
 {
     // Make sure enableStream was called on StreamIndex.
-    assert (m_PacketLists.find(StreamIndex) != m_PacketLists.end());
+    assert(m_PacketLists.size() > 0);
+    assert(StreamIndex > -1 && StreamIndex < 10);
+    assert(m_PacketLists.find(StreamIndex) != m_PacketLists.end());
     PacketList & CurPacketList = m_PacketLists.find(StreamIndex)->second;
     AVPacket * pPacket;
     if (!CurPacketList.empty()) {

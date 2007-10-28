@@ -27,8 +27,11 @@
 
 #include <iostream>
 #include <stdlib.h>
-#include <unistd.h>
 #include <errno.h>
+
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
 using namespace std;
  
@@ -207,6 +210,8 @@ const string* ConfigMgr::getGlobalOption(const string& sName) const
 bool ConfigMgr::loadFile(const std::string& sPath) {
     string sSubsys;
     try {
+#ifndef _WIN32
+        // I don't think read permissions on config files are an issue under windows.
         int err = access(sPath.c_str(), R_OK);
         if (err == -1) {
             if (errno == EACCES) {
@@ -215,6 +220,7 @@ bool ConfigMgr::loadFile(const std::string& sPath) {
             }
             return false;
         }
+#endif
         xmlDocPtr doc;
         doc = xmlParseFile(sPath.c_str());
         if (!doc) {

@@ -483,6 +483,8 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long Tim
 
 void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
 {
+    assert(m_pDemuxer);
+
     if (m_bEOF) {
         return;
     }

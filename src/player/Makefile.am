@@ -22,7 +22,7 @@ ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
         ISurface.h avgdtd.h DisplayParams.h \
         MathHelper.h AVGNode.h DivNode.h \
         Image.h Timeout.h Words.h \
-        DebugEventSink.h EventDispatcher.h CursorEvent.h MouseEvent.h \
+        EventDispatcher.h CursorEvent.h MouseEvent.h \
         Event.h KeyEvent.h PanoImage.h TestHelper.h \
         RasterNode.h CameraNode.h TrackerEventSource.h TrackerCalibrator.h\
 	    TouchEvent.h EventStream.h\
@@ -46,7 +46,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
 		Node.cpp RasterNode.cpp DivNode.cpp VideoBase.cpp Video.cpp \
         Player.cpp DisplayEngine.cpp Region.cpp \
         MathHelper.cpp PanoImage.cpp Words.cpp CameraNode.cpp \
-        Timeout.cpp DebugEventSink.cpp Event.cpp DisplayParams.cpp \
+        Timeout.cpp Event.cpp DisplayParams.cpp \
         Image.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp MouseEvent.cpp\
         TouchEvent.cpp AVGNode.cpp avgdtd.cpp TestHelper.cpp \
 		TrackerEventSource.cpp EventStream.cpp TrackerCalibrator.cpp \

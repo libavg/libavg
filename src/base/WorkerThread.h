@@ -106,7 +106,8 @@ void WorkerThread<DERIVED_THREAD>::processCommands()
             Command<DERIVED_THREAD> Cmd = m_CmdQ.pop(false);
             Cmd.execute(dynamic_cast<DERIVED_THREAD*>(this));
         }
-    } catch (Exception& ex) {
+    } catch (Exception& /*ex*/) {
+        // TODO: Make sure the exception is a queue empty exception.
     }
    
 }

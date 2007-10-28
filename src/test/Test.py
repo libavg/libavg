@@ -7,7 +7,7 @@ import tempfile
 
 # Import the correct version of libavg. Since it should be possible to
 # run the tests without installing libavg, we add the location of the 
-# uninstalled liba to the path.
+# uninstalled libavg to the path.
 sys.path += ['../python/.libs', '../python']
 if os.uname()[0] == 'Darwin':
     sys.path += ['../..']     # Location of libavg in a mac installation.
@@ -15,7 +15,7 @@ import avg
 
 SrcDir = os.getenv("srcdir",".")
 os.chdir(SrcDir)
-import anim
+import anim, draggable
 
 CREATE_BASELINE_IMAGES = False
 BASELINE_DIR = "baseline"
@@ -794,6 +794,7 @@ class PlayerTestCase(AVGTestCase):
         Player.setTimeout(1, onStart)
         Player.setVBlankFramerate(1)
         Player.play()
+
     def testContinuousAnim(self):
         def onStart():
             Player.setTimeout(10,startAnim)
@@ -825,6 +826,39 @@ class PlayerTestCase(AVGTestCase):
         Player.setTimeout(1, onStart)
         Player.play()
 
+    def testDraggable(self):
+        def onDragStart(event):
+            self.__dragStartCalled = True
+        def onDragEnd(event):
+            self.__dragEndCalled = True
+        def startDrag():
+            Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 140, 40, 1)
+        def move():
+            Helper.fakeMouseEvent(avg.CURSORMOTION, True, False, False, 150, 50, 1)
+        def stop():
+            Helper.fakeMouseEvent(avg.CURSORUP, True, False, False, 140, 40, 1)
+        self.__dragEndCalled = False
+        self.__dragStartCalled = False
+        Helper = Player.getTestHelper()    
+        Player.loadFile("image.avg")
+        draggable.init(avg, Player)
+        dragger = draggable.Draggable(Player.getElementByID("testhue"),
+                onDragStart, onDragEnd)
+        dragger.enable()
+        self.start(None,
+                (startDrag,
+                 lambda: self.assert_(self.__dragStartCalled),
+                 move,
+                 lambda: self.compareImage("testDraggable1", False),
+                 stop,
+                 lambda: self.assert_(self.__dragEndCalled),
+                 lambda: self.compareImage("testDraggable2", False),
+                 dragger.disable,
+                 startDrag,
+                 move,
+                 lambda: self.compareImage("testDraggable2", False),
+                 Player.stop))
+
     def testImgDynamics(self):
         def createImg():
             node = Player.createNode("<image href='rgb24-64x64.png'/>")
@@ -845,6 +879,8 @@ class PlayerTestCase(AVGTestCase):
         def createImg2():
             node = Player.createNode("<image href='rgb24-64x64.png' id='newImage2'/>")
             Player.getRootNode().insertChild(node, 0)
+        def reorderImg():
+            Player.getRootNode().reorderChild(0, 1)
         def removeImgs():
             self.imgNode = Player.getElementByID("newImage")
             rootNode = Player.getRootNode()
@@ -864,10 +900,12 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testImgDynamics1", False),
                  createImg2,
                  lambda: self.compareImage("testImgDynamics2", False),
-                 removeImgs,
+                 reorderImg,
                  lambda: self.compareImage("testImgDynamics3", False),
-                 reAddImg,
+                 removeImgs,
                  lambda: self.compareImage("testImgDynamics4", False),
+                 reAddImg,
+                 lambda: self.compareImage("testImgDynamics5", False),
                  Player.stop))
 
     def testVideoDynamics(self):
@@ -1048,6 +1086,7 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testVideoFPS", bpp))
     suite.addTest(PlayerTestCase("testAnim", bpp))
     suite.addTest(PlayerTestCase("testContinuousAnim", bpp))
+    suite.addTest(PlayerTestCase("testDraggable", bpp))
     suite.addTest(PlayerTestCase("testImgDynamics", bpp))
     suite.addTest(PlayerTestCase("testVideoDynamics", bpp))
     suite.addTest(PlayerTestCase("testWordsDynamics", bpp))

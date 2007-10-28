@@ -53,7 +53,7 @@ public:
                 bDone = !Calibrator.nextPoint();
             }
             pTrafo = Calibrator.makeTransformer();
-            TEST(  calcDist(pTrafo->transformBlobToScreen( DPoint(1.00,1.00) ) , DPoint(1.00,1.00))<0.4);
+            TEST(  calcDist(pTrafo->transformBlobToScreen( DPoint(1.00,1.00) ) , DPoint(1.00,1.00))<1);
 //            cerr << "scale: " << scale << ", offset: " << offset << endl;
             TEST(checkTransform(pTrafo, DPoint(0,0), DPoint(0,0)));
             TEST(checkTransform(pTrafo, DPoint(640, 480), DPoint(640, 480)));
@@ -67,7 +67,7 @@ public:
                 bDone = !Calibrator.nextPoint();
             }
             pTrafo = Calibrator.makeTransformer();
-            TEST(  calcDist( pTrafo->transformBlobToScreen( DPoint(1.00,1.00) ), DPoint(2.00,1.50)) <0.4 );
+            TEST(  calcDist( pTrafo->transformBlobToScreen( DPoint(1.00,1.00) ), DPoint(2.00,1.50)) <1 );
 //            cerr << "scale: " << scale << ", offset: " << offset << endl;
             TEST(checkTransform(pTrafo, DPoint(0,0), DPoint(0,0)));
             TEST(checkTransform(pTrafo, DPoint(640, 480), DPoint(640, 480)));
@@ -89,7 +89,7 @@ public:
     {
         DPoint ResultPt = pTrafo->transformBlobToScreen(pTrafo->transform_point(SrcPt));
 //        cerr << SrcPt << " -> " << ResultPt << ", expected " << DestPt << endl;
-        return ((fabs(ResultPt.x-DestPt.x) < 0.1) && (fabs(ResultPt.y-DestPt.y) < 0.1));
+        return ((fabs(ResultPt.x-DestPt.x) < 1) && (fabs(ResultPt.y-DestPt.y) < 1));
     }
    
 };

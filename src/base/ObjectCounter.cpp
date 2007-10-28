@@ -27,7 +27,11 @@
 #include <iostream>
 #include <sstream>
 
-#ifndef WIN32
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <Dbghelp.h>
+#else
 #include <cxxabi.h>
 #endif
 
@@ -74,6 +78,7 @@ void ObjectCounter::incRef(const std::type_info* pType)
 
 void ObjectCounter::decRef(const std::type_info* pType)
 {
+#ifdef DEBUG_ALLOC
     boost::mutex::scoped_lock Lock(CounterMutex);
     TypeMap::iterator MapEntry = m_TypeMap.find(pType);
     if (MapEntry == m_TypeMap.end()) {
@@ -88,6 +93,7 @@ void ObjectCounter::decRef(const std::type_info* pType)
             assert (false);
         }
     }
+#endif
 }
     
 int ObjectCounter::getCount(const std::type_info* pType)
@@ -117,9 +123,21 @@ std::string ObjectCounter::dump()
 string ObjectCounter::demangle(string s)
 {
     int rc;
-    char * pszDemangled = abi::__cxa_demangle(s.c_str(), 0, 0, &rc);
     string sResult;
-    if (rc != 0) {
+#ifdef _WIN32
+    char szDemangledName[2048];
+    rc = int(UnDecorateSymbolName(s.c_str(), szDemangledName, sizeof(szDemangledName), 
+            UNDNAME_COMPLETE));
+    if (rc) {
+        sResult = szDemangledName;
+    } else {
+        int error = GetLastError();
+        printf("UnDecorateSymbolName returned error %d\n", error);
+        sResult = s;
+    }
+#else
+    char * pszDemangled = abi::__cxa_demangle(s.c_str(), 0, 0, &rc);
+    if (rc) {
         sResult = s;
     } else {
         sResult = pszDemangled;
@@ -127,6 +145,7 @@ string ObjectCounter::demangle(string s)
     if (pszDemangled) {
         free(pszDemangled);
     }
+#endif
     return sResult;
 }
 

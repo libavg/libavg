@@ -32,7 +32,7 @@ CmdLine::CmdLine(int argc, char **argv)
     for (int i = 1; i < argc; ++i) {
         string sArg(argv[i]);
         if (sArg.substr(0, 2) == "--") {
-            unsigned int DelimPos = sArg.find('=');
+            size_t DelimPos = sArg.find('=');
             string sOptName;
             string sOptVal;
             if (DelimPos == sArg.npos) {
@@ -66,7 +66,7 @@ const string* CmdLine::getOption(const string& sName) const
 
 int CmdLine::getNumArgs() const
 {
-    return m_Args.size();
+    return int(m_Args.size());
 }
  
 const string* CmdLine::getArg(unsigned int i) const

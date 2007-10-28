@@ -63,9 +63,9 @@ int DivNode::getNumChildren ()
     return m_Children.size();
 }
 
-NodePtr DivNode::getChild (int i)
+NodePtr DivNode::getChild (unsigned i)
 {
-    if (i >= (int)m_Children.size() || i < 0) {
+    if (i >= m_Children.size()) {
         stringstream s;
         s << "Index " << i << " is out of range in DivNode::getChild()";
         throw(Exception(AVG_ERR_OUT_OF_RANGE, s.str()));
@@ -78,8 +78,12 @@ void DivNode::appendChild (NodePtr pNewNode)
     insertChild(pNewNode, m_Children.size());
 }
 
-void DivNode::insertChild(NodePtr pNewNode, int i)
+void DivNode::insertChild(NodePtr pNewNode, unsigned i)
 {
+    if (!pNewNode) {
+        throw Exception(AVG_ERR_NO_NODE,
+                "insertChild called without a node.");
+    }
     if (pNewNode->getState() == NS_CONNECTED) {
         throw(Exception(AVG_ERR_ALREADY_CONNECTED,
                 "Can't connect node with id "+pNewNode->getID()+
@@ -101,12 +105,24 @@ void DivNode::insertChild(NodePtr pNewNode, int i)
     }
 }
 
-void DivNode::removeChild (int i)
+void DivNode::removeChild (unsigned i)
 {
     NodePtr pNode = getChild(i);
     pNode->setParent(DivNodePtr());
     pNode->disconnect();
     m_Children.erase(m_Children.begin()+i);
+}
+
+void DivNode::reorderChild(unsigned i, unsigned j)
+{
+    if (i>m_Children.size()-1 || j > m_Children.size()-1) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                getID()+"::reorderChild: index out of bounds."));
+    }
+    NodePtr pNode = getChild(i);
+    m_Children.erase(m_Children.begin()+i);
+    std::vector<NodePtr>::iterator Pos = m_Children.begin()+j;
+    m_Children.insert(Pos, pNode);
 }
 
 int DivNode::indexOf(NodePtr pChild)
