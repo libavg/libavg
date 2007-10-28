@@ -358,7 +358,7 @@ bool Node::isDisplayAvailable() const
     return (getState() == NS_CONNECTED) && m_pEngine;
 }
 
-DPoint Node::getPivot()
+DPoint Node::getPivot() const
 {
     if (m_bHasCustomPivot) {
         return m_Pivot;
@@ -542,12 +542,12 @@ void Node::setState(Node::NodeState State)
 DPoint Node::toLocal(const DPoint& globalPos) const
 {
     DPoint localPos = globalPos-m_RelViewport.tl;
-    return rotatePoint(localPos, -m_Angle, m_Pivot);
+    return rotatePoint(localPos, -m_Angle, getPivot());
 }
 
 DPoint Node::toGlobal(const DPoint& localPos) const
 {
-    DPoint globalPos = rotatePoint(localPos, m_Angle, m_Pivot);
+    DPoint globalPos = rotatePoint(localPos, m_Angle, getPivot());
     return globalPos+m_RelViewport.tl;
 }
 

@@ -313,6 +313,8 @@ class PlayerTestCase(AVGTestCase):
             print("move")
         def onDeactMouseOut(Event):
             pass
+        def onTiltedMouseDown(Event):
+            self.tiltedMouseDownCalled = True
         def neverCalled(Event):
             self.neverCalledCalled = True
 
@@ -360,6 +362,10 @@ class PlayerTestCase(AVGTestCase):
         deact.setEventHandler(avg.CURSOROUT, avg.MOUSE, onDeactMouseOut)
         deact.setEventHandler(avg.CURSORMOTION, avg.MOUSE, onDeactMouseMove)
 
+        self.tiltedMouseDownCalled=False
+        Player.getElementByID("tilted").setEventHandler(
+                avg.CURSORDOWN, avg.MOUSE, onTiltedMouseDown)
+
         self.start(None, 
                 (lambda: self.compareImage("testEvents", False),
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
@@ -385,6 +391,12 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         10, 10, 1),
                  lambda: self.assert_(not(self.mouseDown1Called)),
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        0, 64, 1),
+                 lambda: self.assert_(not(self.tiltedMouseDownCalled)),
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        0, 80, 1),
+                 lambda: self.assert_(self.tiltedMouseDownCalled),
                  # XXX
                  # - errMouseOver
                  Player.stop))

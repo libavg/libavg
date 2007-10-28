@@ -138,7 +138,7 @@ class Node
         Node (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual DPoint getPreferredMediaSize() 
             { return DPoint(0,0); };
-        DPoint getPivot();
+        DPoint getPivot() const;
         Player * getPlayer() const;
         DisplayEngine * getEngine() const;
         NodePtr getThis() const;

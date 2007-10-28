@@ -112,8 +112,8 @@ void RasterNode::setBlendModeStr(const std::string& sBlendMode)
 
 NodePtr RasterNode::getElementByPos (const DPoint & pos)
 {
-    // Node isn't pickable if it's tilted or warped.
-    if (fabs(getAngle()) < 0.0001 && m_MaxTileSize == IntPoint(-1, -1)) {
+    // Node isn't pickable if it's warped.
+    if (m_MaxTileSize == IntPoint(-1, -1)) {
         return Node::getElementByPos(pos);
     } else {
         return NodePtr();
