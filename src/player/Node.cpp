@@ -29,6 +29,8 @@
 #include "Player.h"
 #include "DisplayEngine.h"
 
+#include "MathHelper.h"
+
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/XMLHelper.h"
@@ -52,8 +54,7 @@ Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
       m_This(),
       m_pEngine(0),
       m_pPlayer(pPlayer),
-      m_RelViewport(0,0,0,0),
-      m_AbsViewport(0,0,0,0)
+      m_RelViewport(0,0,0,0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     m_ID = getDefaultedStringAttr (xmlNode, "id", "");
@@ -66,6 +67,9 @@ Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
     m_RelViewport.tl.y = getDefaultedDoubleAttr (xmlNode, "y", 0.0);
     m_WantedSize.x = getDefaultedDoubleAttr (xmlNode, "width", 0.0);
     m_WantedSize.y = getDefaultedDoubleAttr (xmlNode, "height", 0.0);
+    m_Angle = getDefaultedDoubleAttr (xmlNode, "angle", 0);
+    m_Pivot.x = getDefaultedDoubleAttr (xmlNode, "pivotx", -32767);
+    m_Pivot.y = getDefaultedDoubleAttr (xmlNode, "pivoty", -32767);
     m_Opacity = getDefaultedDoubleAttr (xmlNode, "opacity", 1.0);
     m_bActive = getDefaultedBoolAttr (xmlNode, "active", true);
     m_bSensitive = getDefaultedBoolAttr (xmlNode, "sensitive", true);
@@ -98,6 +102,7 @@ void Node::setParent(DivNodeWeakPtr pParent)
 
 void Node::setDisplayEngine(DisplayEngine * pEngine)
 {
+    m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
     DPoint PreferredSize = getPreferredMediaSize();
     if (m_WantedSize.x == 0.0) {
         m_RelViewport.SetWidth(PreferredSize.x);
@@ -110,11 +115,6 @@ void Node::setDisplayEngine(DisplayEngine * pEngine)
         m_RelViewport.SetHeight(m_WantedSize.y);
     } 
     m_pEngine = pEngine;
-    DPoint pos(0,0);
-    if (getParent()) {
-        pos = getParent()->getAbsViewport().tl;
-    }
-    m_AbsViewport = DRect (pos+getRelViewport().tl, pos+getRelViewport().br);
 }
 
 void Node::disconnect()
@@ -138,38 +138,85 @@ void Node::setID(const std::string& ID)
     m_ID = ID;
 }
 
-double Node::getX() const {
+double Node::getX() const 
+{
     return m_RelViewport.tl.x;
 }
 
-void Node::setX(double x) {
+void Node::setX(double x) 
+{
     setViewport(x, -32767, -32767, -32767);
 }
 
-double Node::getY() const {
+double Node::getY() const 
+{
     return m_RelViewport.tl.y;
 }
 
-void Node::setY(double y) {
+void Node::setY(double y) 
+{
     setViewport(-32767, y, -32767, -32767);
 }
 
-double Node::getWidth() {
+double Node::getWidth() 
+{
     return getRelViewport().Width();
 }
 
-void Node::setWidth(double width) {
+void Node::setWidth(double width) 
+{
     m_WantedSize.x = width;
     setViewport(-32767, -32767, width, -32767);
 }
 
-double Node::getHeight() {
+double Node::getHeight()
+{
     return getRelViewport().Height();
 }
 
-void Node::setHeight(double height) {
+void Node::setHeight(double height) 
+{
     m_WantedSize.y = height;
     setViewport(-32767, -32767, -32767, height);
+}
+
+DPoint Node::getRelSize() const
+{
+    return DPoint(getRelViewport().Width(), getRelViewport().Height());
+}
+
+double Node::getAngle() const
+{
+    return m_Angle;
+}
+
+void Node::setAngle(double Angle)
+{
+    m_Angle = fmod(Angle, 2*PI);
+}
+
+double Node::getPivotX() const
+{
+    return m_Pivot.x;
+}
+
+void Node::setPivotX(double Pivotx)
+{
+    m_Pivot = getPivot();
+    m_Pivot.x = Pivotx;
+    m_bHasCustomPivot = true;
+}
+
+double Node::getPivotY() const
+{
+    return m_Pivot.y;
+}
+
+void Node::setPivotY(double Pivoty)
+{
+    m_Pivot = getPivot();
+    m_Pivot.y = Pivoty;
+    m_bHasCustomPivot = true;
 }
 
 double Node::getOpacity() const {
@@ -216,8 +263,13 @@ DivNodePtr Node::getParent() const
 
 DPoint Node::getRelPos(const DPoint& AbsPos) const 
 {
-    DRect VP = getAbsViewport();
-    return AbsPos-VP.tl;
+    DPoint parentPos;
+    if (m_pParent.expired()) {
+        parentPos = AbsPos;
+    } else {
+        parentPos = m_pParent.lock()->getRelPos(AbsPos);
+    }
+    return toLocal(parentPos);
 }
 
 void Node::setMouseEventCapture()
@@ -264,52 +316,36 @@ bool Node::reactsToMouseEvents()
 
 NodePtr Node::getElementByPos (const DPoint & pos)
 {
-    if (getVisibleRect().Contains(pos) && reactsToMouseEvents()) {
+    DPoint relPos = toLocal(pos);
+    if (relPos.x >= 0 && relPos.y >= 0 && 
+            relPos.x < getRelSize().x && relPos.y < getRelSize().y &&
+            reactsToMouseEvents())
+    {
         return m_This.lock();
     } else {
         return NodePtr();
     }
 }
 
-void Node::prepareRender (int time, const DRect& parent)
-{
-    calcAbsViewport();
-}
-
 void Node::maybeRender (const DRect& Rect)
 {
     if (m_bActive) {
-        bool bVisible;
-        // FIXME
-        if (dynamic_cast<DivNode*>(this) != 0) {
-            bVisible = getEngine()->pushClipRect(getVisibleRect(), true);
-        } else {
-            bVisible = getEngine()->pushClipRect(getVisibleRect(), false);
-        }
-        if (bVisible && getEffectiveOpacity() > 0.01) {
-            if (!getParent() || !getParent()->obscures(getEngine()->getClipRect(), 
-                    getParent()->indexOf(m_This.lock())))
-            {
-                if (m_ID != "") {
-                    AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
-                            " with ID " << m_ID);
-                } else {
-                    AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
-                }
-                render(Rect);
+        getEngine()->pushTransform(getRelViewport().tl, getAngle(), getPivot());
+        if (getEffectiveOpacity() > 0.01) {
+            if (m_ID != "") {
+                AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
+                        " with ID " << m_ID);
+            } else {
+                AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
             }
+            render(Rect);
         }
-        getEngine()->popClipRect();
+        getEngine()->popTransform();
     }
 }
 
 void Node::render (const DRect& Rect)
 {
-}
-
-bool Node::obscures (const DRect& Rect, int Child)  
-{
-    return false;
 }
 
 Node::NodeState Node::getState() const
@@ -322,6 +358,15 @@ bool Node::isDisplayAvailable() const
     return (getState() == NS_CONNECTED) && m_pEngine;
 }
 
+DPoint Node::getPivot() const
+{
+    if (m_bHasCustomPivot) {
+        return m_Pivot;
+    } else {
+        const DPoint& pt = getRelSize();
+        return DPoint (pt.x/2, pt.y/2);
+    }
+}
 
 Player * Node::getPlayer() const
 {
@@ -352,7 +397,6 @@ void Node::setViewport (double x, double y, double width, double height)
         } 
     }
     m_RelViewport = DRect (x, y, x+width, y+height);
-    calcAbsViewport();
 }
 
 const DRect& Node::getRelViewport () const
@@ -360,37 +404,6 @@ const DRect& Node::getRelViewport () const
 //    cerr << "Node " << m_ID << ": (" << m_RelViewport.tl.x << ", " 
 //            << m_RelViewport.tl.y << ")" << endl;
     return m_RelViewport;
-}
-
-const DRect& Node::getAbsViewport () const
-{
-    return m_AbsViewport;
-}
-
-DRect Node::getVisibleRect() const
-{
-    DRect visRect = getAbsViewport();
-    NodePtr pParent = getParent();
-    if (pParent) {
-        DRect parent = pParent->getVisibleRect();
-        visRect.Intersect(parent);
-    }
-    return visRect;
-}
-
-void Node::calcAbsViewport()
-{
-    NodePtr pParent = getParent();
-    if (pParent) {
-        DRect parent = pParent->getAbsViewport();
-        m_AbsViewport = DRect(parent.tl+getRelViewport().tl, 
-                parent.tl+getRelViewport().br);
-    } else {
-        m_AbsViewport = getRelViewport();
-    }
-    if (m_AbsViewport.Width() < 0 || m_AbsViewport.Height() < 0) {
-        m_AbsViewport.br=m_AbsViewport.tl;
-    }
 }
 
 double Node::getEffectiveOpacity()
@@ -419,10 +432,6 @@ string Node::dump (int indent)
     sprintf (sz, ", x=%.1f, y=%.1f, width=%.1f, height=%.1f, opacity=%.2f\n",
             m_RelViewport.tl.x, m_RelViewport.tl.y,
             m_RelViewport.Width(), m_RelViewport.Height(), m_Opacity);
-    dumpStr += sz;
-    sprintf (sz, "        Abs: (x=%.1f, y=%.1f, width=%.1f, height=%.1f)\n",
-            m_AbsViewport.tl.x, m_AbsViewport.tl.y,  
-            m_AbsViewport.Width(), m_AbsViewport.Height());
     dumpStr += sz;
 
     return dumpStr; 
@@ -530,5 +539,16 @@ void Node::setState(Node::NodeState State)
     m_State = State;
 }
 
+DPoint Node::toLocal(const DPoint& globalPos) const
+{
+    DPoint localPos = globalPos-m_RelViewport.tl;
+    return rotatePoint(localPos, -m_Angle, getPivot());
 }
 
+DPoint Node::toGlobal(const DPoint& localPos) const
+{
+    DPoint globalPos = rotatePoint(localPos, m_Angle, getPivot());
+    return globalPos+m_RelViewport.tl;
+}
+
+}

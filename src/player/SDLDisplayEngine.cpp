@@ -36,6 +36,8 @@
 #include "OGLSurface.h"
 #include "OGLHelper.h"
 
+#include "MathHelper.h"
+
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
@@ -189,6 +191,10 @@ SDLDisplayEngine::~SDLDisplayEngine()
 
 void SDLDisplayEngine::init(const DisplayParams& DP) 
 {
+#ifdef linux    
+    int oldWindowWidth = m_WindowWidth;
+    int oldWindowHeight = m_WindowHeight;
+#endif    
     double AspectRatio = double(DP.m_Width)/double(DP.m_Height);
     if (DP.m_WindowWidth == 0 && DP.m_WindowHeight == 0) {
         m_WindowWidth = DP.m_Width;
@@ -200,7 +206,19 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
         m_WindowWidth = DP.m_WindowWidth;
         m_WindowHeight = int(DP.m_WindowWidth/AspectRatio);
     }
-    
+#ifdef linux
+    // Workaround for what appears to be an SDL or X11 bug:
+    // Stencil buffers stop working after a window resize, so we reinit 
+    // everything.
+    if (oldWindowWidth != m_WindowWidth || oldWindowHeight != m_WindowHeight) {
+        SDL_QuitSubSystem(SDL_INIT_VIDEO);
+        if (SDL_InitSubSystem(SDL_INIT_VIDEO)==-1) {
+            AVG_TRACE(Logger::ERROR, "Can't init SDL display subsystem.");
+            exit(-1);
+        }
+    }
+#endif
+
     switch (DP.m_BPP) {
         case 32:
             safeSetAttribute( SDL_GL_RED_SIZE, 8 );
@@ -232,6 +250,7 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
             exit(-1);
     }
     safeSetAttribute(SDL_GL_DEPTH_SIZE, 0);
+    safeSetAttribute(SDL_GL_STENCIL_SIZE, 8);
     safeSetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     if (m_MultiSampleSamples > 1) {
         safeSetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
@@ -260,9 +279,11 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
     glEnable(GL_BLEND);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(GL_BLEND)");
     glShadeModel(GL_FLAT);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glShadeModel()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glShadeModel(GL_FLAT)");
     glDisable(GL_DEPTH_TEST);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glDisable(GL_DEPTH_TEST)");
+    glEnable(GL_STENCIL_TEST);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(GL_STENCIL_TEST)");
     int TexMode = getTextureMode();
     glEnable(TexMode);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(TexMode);");
@@ -369,29 +390,20 @@ void SDLDisplayEngine::logConfig()
                 "  Max. texture size is " << getMaxTexSize());
 }
 
-static ProfilingZone PrepareRenderProfilingZone("Root node: prepareRender");
 static ProfilingZone RootRenderProfilingZone("Root node: render");
 
 void SDLDisplayEngine::render(AVGNodePtr pRootNode, bool bRenderEverything)
 {
-    if (!m_bEnableCrop && pRootNode->getCropSetting()) {
-        m_bEnableCrop = true;
-        glEnable (GL_CLIP_PLANE0);
-        glEnable (GL_CLIP_PLANE1);
-        glEnable (GL_CLIP_PLANE2);
-        glEnable (GL_CLIP_PLANE3);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "setClipPlane: glEnable()");
-    }
-    {
-        ScopeTimer Timer(PrepareRenderProfilingZone);
-        pRootNode->prepareRender(0, pRootNode->getAbsViewport());
-    }
+    m_bEnableCrop = pRootNode->getCropSetting();
+    
     glClearColor(0.0, 0.0, 0.0, 0.0); 
     glClear(GL_COLOR_BUFFER_BIT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "SDLDisplayEngine::render::glClear()");
-
+            "SDLDisplayEngine::render::glClear(GL_COLOR_BUFFER_BIT)");
+    glClearStencil(0);
+    glClear(GL_STENCIL_BUFFER_BIT);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "SDLDisplayEngine::render::glClear(GL_STENCIL_BUFFER_BIT)");
     glViewport(0, 0, m_WindowWidth, m_WindowHeight);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "SDLDisplayEngine::render: glViewport()");
@@ -421,29 +433,16 @@ void SDLDisplayEngine::render(AVGNodePtr pRootNode, bool bRenderEverything)
     swapBuffers();
     checkJitter();
 }
- 
-void SDLDisplayEngine::setClipRect()
-{
-    m_ClipRects.clear();
-    m_ClipRects.push_back(DRect(0, 0, m_Width, m_Height));
-}
 
 static ProfilingZone PushClipRectProfilingZone("pushClipRect");
 
-bool SDLDisplayEngine::pushClipRect(const DRect& rc, bool bClip)
+bool SDLDisplayEngine::pushClipRect(const DRect& rc)
 {
     ScopeTimer Timer(PushClipRectProfilingZone);
 
     m_ClipRects.push_back(rc);
+    clip(true);
 
-    glPushMatrix();
-    AVG_TRACE(Logger::BLTS, "Clip set to " << 
-            rc.tl.x << "x" << rc.tl.y << 
-            ", width: " << rc.Width() << ", height: " << 
-            rc.Height());
-    if (bClip) {
-        clip();
-    }
     return true;
 }
 
@@ -452,9 +451,9 @@ static ProfilingZone PopClipRectProfilingZone("popClipRect");
 void SDLDisplayEngine::popClipRect()
 {
     ScopeTimer Timer(PopClipRectProfilingZone);
-    glPopMatrix();
+    
+    clip(false);
     m_ClipRects.pop_back();
-    clip();
 }
 
 const DRect& SDLDisplayEngine::getClipRect() 
@@ -462,57 +461,83 @@ const DRect& SDLDisplayEngine::getClipRect()
     return m_ClipRects.back();
 }
 
-void SDLDisplayEngine::blt32(ISurface * pSurface, const DRect* pDestRect, 
-        double opacity, double angle, const DPoint& pivot, BlendMode Mode)
+void SDLDisplayEngine::pushTransform(const DPoint& translate, double angle, const DPoint& pivot)
+{
+    glPushMatrix();
+    glTranslated(translate.x, translate.y, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
+    glTranslated(pivot.x, pivot.y, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
+    glRotated(angle*180.0/PI, 0, 0, 1);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glRotated");
+    glTranslated(-pivot.x, -pivot.y, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
+}
+
+void SDLDisplayEngine::popTransform()
+{
+    glPopMatrix();
+}
+
+void SDLDisplayEngine::blt32(ISurface * pSurface, const DPoint& DestSize, 
+        double opacity, BlendMode Mode)
 {
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface*>(pSurface);
     glColor4f(1.0f, 1.0f, 1.0f, opacity);
-    pOGLSurface->blt(pDestRect, angle, pivot, Mode);
+    pOGLSurface->blt(DestSize, Mode);
 }
 
 void SDLDisplayEngine::blta8(ISurface * pSurface, 
-        const DRect* pDestRect, double opacity, 
-        const Pixel32& color, double angle, 
-        const DPoint& pivot, BlendMode Mode)
+        const DPoint& DestSize, double opacity, 
+        const Pixel32& color, BlendMode Mode)
 {
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface*>(pSurface);
     glColor4f(float(color.getR())/256, float(color.getG())/256, 
             float(color.getB())/256, opacity);
-    pOGLSurface->blt(pDestRect, angle, pivot, Mode);
+    pOGLSurface->blt(DestSize, Mode);
 }
 
-
-void SDLDisplayEngine::setClipPlane(double Eqn[4], int WhichPlane)
+void SDLDisplayEngine::clip(bool forward)
 {
-    glClipPlane(WhichPlane, Eqn);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "setClipPlane: glClipPlane()");
-}
-
-void SDLDisplayEngine::clip()
-{
-    
-    if (m_bEnableCrop && !m_ClipRects.empty()) {       
+    if (m_bEnableCrop && !m_ClipRects.empty()) {
+        GLenum stencilOp;
+        int level;
+        if(forward) {
+            stencilOp = GL_INCR;
+            level = m_ClipRects.size();
+        } else {
+            stencilOp = GL_DECR;
+            level = m_ClipRects.size() - 1;
+        }
+        
         DRect rc = m_ClipRects.back();
-        double yEqn[4] = {0.0, 1.0, 0.0, -rc.tl.y};
-        //    yEqn[3] = -rc.tl.y;
-        setClipPlane(yEqn, GL_CLIP_PLANE0);
+        
+        // Disable drawing to color buffer
+        glColorMask(0, 0, 0, 0);
+        
+        // Enable drawing to stencil buffer
+        glStencilMask(~0);
 
-        yEqn[0] = 0;
-        yEqn[1] = -1.0;
-        yEqn[2] = 0;
-        yEqn[3] = rc.br.y;
-        setClipPlane(yEqn, GL_CLIP_PLANE1);
+        // Draw clip rectangle into stencil buffer
+        glStencilFunc(GL_ALWAYS, 0, 0);
+        glStencilOp(stencilOp, stencilOp, stencilOp);
 
-        double xEqn[4] = {1.0, 0.0, 0.0, 0.0};
-        xEqn[3] = -rc.tl.x;
-        setClipPlane(xEqn, GL_CLIP_PLANE2);
+        glBegin(GL_QUADS);
+            glVertex2f(rc.tl.x, rc.tl.y);
+            glVertex2f(rc.tl.x+rc.Width(), rc.tl.y);
+            glVertex2f(rc.br.x, rc.br.y);
+            glVertex2f(rc.br.x-rc.Width(), rc.br.y);
+        glEnd();
 
-        xEqn[0] = -1;
-        xEqn[1] = 0.0;
-        xEqn[2] = 0.0;
-        xEqn[3] = rc.br.x;
-        setClipPlane(xEqn, GL_CLIP_PLANE3);
+        // Set stencil test to only let
+        glStencilFunc(GL_LEQUAL, level, ~0);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        
+        // Disable drawing to stencil buffer
+        glStencilMask(0);
+        
+        // Enable drawing to color buffer
+        glColorMask(~0, ~0, ~0, ~0);
     }
 }
 
@@ -1454,4 +1479,3 @@ void SDLDisplayEngine::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCb
 }
 
 }
-

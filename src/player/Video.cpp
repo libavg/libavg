@@ -238,7 +238,7 @@ PixelFormat Video::getPixelFormat()
     return m_pDecoder->getPixelFormat();
 }
 
-IntPoint Video::getSize()
+IntPoint Video::getMediaSize()
 {
     if (m_pDecoder)  {
         return m_pDecoder->getSize();

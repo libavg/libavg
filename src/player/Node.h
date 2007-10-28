@@ -83,6 +83,17 @@ class Node
         
         virtual double getHeight();
         void setHeight(double height);
+       
+        DPoint getRelSize() const;
+
+        double getAngle() const;
+        void setAngle(double Angle);
+        
+        double getPivotX() const;
+        void setPivotX(double Pivotx);
+        
+        double getPivotY() const;
+        void setPivotY(double Pivoty);
         
         double getOpacity() const;
         void setOpacity(double opacity);
@@ -105,15 +116,11 @@ class Node
         bool isActive();
         bool reactsToMouseEvents();
         virtual NodePtr getElementByPos (const DPoint & pos);
-        virtual void prepareRender (int time, const DRect& parent);
         virtual void maybeRender (const DRect& Rect);
         virtual void render (const DRect& Rect);
-        virtual bool obscures (const DRect& Rect, int Child);
         virtual void setViewport (double x, double y, double width, 
                 double height);
         virtual const DRect& getRelViewport () const;
-        virtual const DRect& getAbsViewport () const;
-        DRect getVisibleRect() const;
         virtual double getEffectiveOpacity();
 
         virtual std::string dump (int indent = 0);
@@ -131,6 +138,7 @@ class Node
         Node (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual DPoint getPreferredMediaSize() 
             { return DPoint(0,0); };
+        DPoint getPivot() const;
         Player * getPlayer() const;
         DisplayEngine * getEngine() const;
         NodePtr getThis() const;
@@ -142,9 +150,10 @@ class Node
             
         void initFilename (Player * pPlayer, std::string& sFilename);
         void setState(NodeState State);
+        DPoint toLocal(const DPoint& pos) const;
+        DPoint toGlobal(const DPoint& pos) const;
  
     private:
-        void calcAbsViewport();
         PyObject * findPythonFunc(const std::string& Code);
 
         DivNodeWeakPtr m_pParent;
@@ -166,10 +175,12 @@ class Node
         EventHandlerMap m_EventHandlerMap;
 
         DRect m_RelViewport;      // In coordinates relative to the parent.
-        DRect m_AbsViewport;      // In window coordinates.
         double m_Opacity;
         bool m_bActive;
         bool m_bSensitive;
+        double m_Angle;
+        DPoint m_Pivot;
+        bool m_bHasCustomPivot;
         
         // Size specified by user.
         DPoint m_WantedSize;
@@ -180,4 +191,3 @@ class Node
 }
 
 #endif //_Node_H_
-

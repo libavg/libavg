@@ -113,7 +113,7 @@ string CameraNode::getTypeStr()
     return "Camera";
 }
 
-IntPoint CameraNode::getSize() 
+IntPoint CameraNode::getMediaSize() 
 {
     if (m_pCamera) {
         return m_pCamera->getImgSize();

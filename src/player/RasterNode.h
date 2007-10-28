@@ -45,13 +45,6 @@ class RasterNode: public Node
         VertexGrid getWarpedVertexCoords();
         void setWarpedVertexCoords(const VertexGrid& Grid);
 
-        double getAngle() const;
-        void setAngle(double Angle);
-        double getPivotX() const;
-        void setPivotX(double Pivotx);
-        double getPivotY() const;
-        void setPivotY(double Pivoty);
-
         int getMaxTileWidth() const
         {
             return m_MaxTileSize.x;
@@ -73,15 +66,10 @@ class RasterNode: public Node
         
     protected:
         RasterNode (const xmlNodePtr xmlNode, Player * pPlayer);
-        DPoint getPivot();
         ISurface * getSurface();
  
     private:
         ISurface * m_pSurface;
-
-        double m_Angle;
-        bool m_bHasCustomPivot;
-        DPoint m_Pivot;
         
         IntPoint m_MaxTileSize;
         std::string m_sBlendMode;
@@ -90,5 +78,4 @@ class RasterNode: public Node
 
 }
 
-#endif 
-
+#endif

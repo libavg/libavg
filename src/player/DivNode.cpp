@@ -36,7 +36,6 @@ namespace avg {
 DivNode::DivNode (const xmlNodePtr xmlNode, Player * pPlayer)
     : Node(xmlNode, pPlayer)
 {
-    
 }
 
 DivNode::~DivNode()
@@ -96,7 +95,7 @@ void DivNode::insertChild(NodePtr pNewNode, unsigned i)
     }
     std::vector<NodePtr>::iterator Pos = m_Children.begin()+i;
     m_Children.insert(Pos, pNewNode);
-    DivNodePtr Ptr = boost::dynamic_pointer_cast<DivNode>(getThis());
+    DivNodePtr Ptr = boost::dynamic_pointer_cast<DivNode>(getThis());           
     pNewNode->setParent(Ptr);
     if (getState() == NS_CONNECTED) {
         getPlayer()->registerNode(pNewNode);
@@ -138,50 +137,39 @@ int DivNode::indexOf(NodePtr pChild)
 
 NodePtr DivNode::getElementByPos (const DPoint & pos)
 {
-    if (!getVisibleRect().Contains(pos) || !reactsToMouseEvents()) {
-        return NodePtr();
-    }
-    for (int i=getNumChildren()-1; i>=0; i--) {
-        NodePtr pFoundNode = getChild(i)->getElementByPos(pos);
-        if (pFoundNode) {
-            return pFoundNode;
+    DPoint relPos = toLocal(pos);
+    if (relPos.x >= 0 && relPos.y >= 0 && 
+            relPos.x < getRelSize().x && relPos.y < getRelSize().y &&
+            reactsToMouseEvents())
+    {
+        for (int i=getNumChildren()-1; i>=0; i--) {
+            NodePtr pFoundNode = getChild(i)->getElementByPos(relPos);
+            if (pFoundNode) {
+                return pFoundNode;
+            }
         }
-    }
-    return getThis(); // pos is in current node, but not in any child.
-}
-
-void DivNode::prepareRender (int time, const DRect& parent)
-{
-    Node::prepareRender(time, parent);
-    for (int i=0; i<getNumChildren(); i++){
-        getChild(i)->prepareRender(time, getAbsViewport());
+        return getThis(); // pos is in current node, but not in any child.
+    } else { 
+        return NodePtr();
     }
 }
 
 void DivNode::render(const DRect& rect)
 {
+    DPoint Viewport = getRelSize();
+    DRect ClipRect(0, 0, Viewport.x, Viewport.y);
+    getEngine()->pushClipRect(ClipRect);
     for (int i=0; i<getNumChildren(); i++) {
         getChild(i)->maybeRender(rect);
     }
-}
-
-bool DivNode::obscures (const DRect& rect, int Child)
-{
-    if (!isActive()) {
-        return false;
-    }
-    for (int i=Child+1; i<getNumChildren(); i++) {
-        if (getChild(i)->obscures(rect, -1))
-            return true;
-    }
-    return false;
- 
+    getEngine()->popClipRect();
 }
 
 string DivNode::getTypeStr ()
 {
     return "DivNode";
 }
+
 string DivNode::dump (int indent)
 {
     string dumpStr = Node::dump () + "\n";

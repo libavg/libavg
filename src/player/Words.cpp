@@ -383,7 +383,7 @@ bool equalIgnoreCase(const string& s1, const string& s2) {
     return sUpper1 == sUpper2;
 }
 
-static ProfilingZone DrawStringProfilingZone("Words::drawString");
+static ProfilingZone DrawStringProfilingZone("  Words::drawString");
 
 void Words::drawString()
 {
@@ -521,24 +521,15 @@ void Words::drawString()
     setViewport(-32767, -32767, -32767, -32767);
 }
 
-void Words::prepareRender(int time, const DRect& parent)
-{
-    drawString();
-    Node::prepareRender(time, parent);
-}
-
 static ProfilingZone RenderProfilingZone("Words::render");
 
 void Words::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
+    drawString();
     if (m_Text.length() != 0 && getEffectiveOpacity() > 0.001) {
-        DRect TextPos = getAbsViewport();
-        TextPos.tl.x--;   // Compensate for italic hack in call to pango_ft2_render_layout
-        TextPos.br.x--;
-        getEngine()->blta8(getSurface(), &TextPos,
-                getEffectiveOpacity(), m_Color, getAngle(),
-                getPivot(), getBlendMode());
+        getEngine()->blta8(getSurface(), getRelSize(),
+                getEffectiveOpacity(), m_Color, getBlendMode());
     }
 }
 

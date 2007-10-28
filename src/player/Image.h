@@ -51,7 +51,6 @@ class Image : public RasterNode
         void setBitmap(const Bitmap * pBmp);
         
         virtual void render (const DRect& Rect);
-        virtual bool obscures (const DRect& Rect, int Child);
         virtual std::string getTypeStr ();
 
     protected:        

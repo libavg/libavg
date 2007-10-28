@@ -152,7 +152,7 @@ class CameraNode : public VideoBase
         virtual void close();
         virtual PixelFormat getPixelFormat();
         void setFeature(int FeatureID);
-        IntPoint getSize();
+        IntPoint getMediaSize();
 
         CameraPtr m_pCamera;
         int m_FrameNum;

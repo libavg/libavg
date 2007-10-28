@@ -127,9 +127,8 @@ void PanoImage::render(const DRect& Rect)
     glDisable (GL_CLIP_PLANE3);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImage::render: glDisable(GL_CLIP_PLANEx)");
-    DRect Vpt = getAbsViewport();
-    glViewport(int(Vpt.tl.x), int(Vpt.tl.y),
-            int(Vpt.Width()), int(Vpt.Height()));
+    DPoint Vpt = getRelSize();
+    glViewport(0, 0, int(Vpt.x), int(Vpt.y));
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImage::render: glViewport()");
     glColor4f(1.0f, 1.0f, 1.0f, getEffectiveOpacity());
@@ -188,12 +187,6 @@ void PanoImage::render(const DRect& Rect)
     glPopMatrix();
 }
 
-bool PanoImage::obscures (const DRect& Rect, int Child)
-{
-    return (isActive() && getEffectiveOpacity() > 0.999 && !m_pBmp->hasAlpha()
-            && getVisibleRect().Contains(Rect));
-}
-
 string PanoImage::getTypeStr ()
 {
     return "PanoImage";
@@ -203,8 +196,8 @@ double PanoImage::getScreenPosFromAngle(double Angle) const
 {
     double HorizOffsetAngle = Angle-m_Rotation-m_fovy*m_aspect/2;
     double PixelDistFromCenter = m_FocalLength*tan(HorizOffsetAngle)/m_SensorWidth
-            *getRelViewport().Width();
-    return PixelDistFromCenter+getRelViewport().Width()/2;
+            *getRelSize().x;
+    return PixelDistFromCenter+getRelSize().x/2;
 }
 
 double PanoImage::getScreenPosFromPanoPos(int PanoPos) const

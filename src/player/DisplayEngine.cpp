@@ -193,4 +193,3 @@ void DisplayEngine::calcEffFramerate()
 }
 
 }
-

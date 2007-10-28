@@ -74,7 +74,7 @@ class Video : public VideoBase, IFrameListener
         virtual void open(YCbCrMode ycbcrMode);
         virtual void close();
         virtual PixelFormat getPixelFormat();
-        virtual IntPoint getSize();
+        virtual IntPoint getMediaSize();
         virtual double getFPS();
         virtual long long getCurTime();
 

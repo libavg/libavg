@@ -193,6 +193,38 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Player.showCursor(1),
                  Player.stop))
 
+    def testRotate(self):
+        def onOuterDown(Event):
+            self.onOuterDownCalled = True
+        def fakeRotate():
+            Player.getElementByID("outer").angle += 0.1
+            Player.getElementByID("inner").angle -= 0.1
+        def sendEvent(x, y):
+            Helper = Player.getTestHelper()
+            Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        x, y, 1)
+            
+        Player.loadFile("rotate.avg")
+        Player.getElementByID("outer").setEventHandler(
+                avg.CURSORDOWN, avg.MOUSE, onOuterDown) 
+        self.onOuterDownCalled = False
+        self.start(None,
+                (lambda: self.compareImage("testRotate1", False),
+                 fakeRotate,
+                 lambda: self.compareImage("testRotate1", False),
+                 lambda: sendEvent(85, 70),
+                 lambda: self.assert_(not(self.onOuterDownCalled)),
+                 lambda: sendEvent(85, 75),
+                 lambda: self.assert_(self.onOuterDownCalled),
+                 Player.stop))
+    def testRotate2(self):
+        self.start("rotate2.avg",
+                (lambda: self.compareImage("testRotate2", False),
+                 Player.stop))
+    def testRotate3(self):
+        self.start("rotate3.avg",
+                (lambda: self.compareImage("testRotate3", False),
+                 Player.stop))
     def testError(self):
         Player.loadFile("image.avg")
         Player.setTimeout(1, lambda: undefinedFunction)
@@ -281,6 +313,8 @@ class PlayerTestCase(AVGTestCase):
             print("move")
         def onDeactMouseOut(Event):
             pass
+        def onTiltedMouseDown(Event):
+            self.tiltedMouseDownCalled = True
         def neverCalled(Event):
             self.neverCalledCalled = True
 
@@ -328,6 +362,10 @@ class PlayerTestCase(AVGTestCase):
         deact.setEventHandler(avg.CURSOROUT, avg.MOUSE, onDeactMouseOut)
         deact.setEventHandler(avg.CURSORMOTION, avg.MOUSE, onDeactMouseMove)
 
+        self.tiltedMouseDownCalled=False
+        Player.getElementByID("tilted").setEventHandler(
+                avg.CURSORDOWN, avg.MOUSE, onTiltedMouseDown)
+
         self.start(None, 
                 (lambda: self.compareImage("testEvents", False),
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
@@ -353,6 +391,12 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         10, 10, 1),
                  lambda: self.assert_(not(self.mouseDown1Called)),
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        0, 64, 1),
+                 lambda: self.assert_(not(self.tiltedMouseDownCalled)),
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        0, 80, 1),
+                 lambda: self.assert_(self.tiltedMouseDownCalled),
                  # XXX
                  # - errMouseOver
                  Player.stop))
@@ -496,6 +540,12 @@ class PlayerTestCase(AVGTestCase):
             node = Player.getElementByID("img")
             node.x = 140
             node.y = 100
+        def rotate():
+            node = Player.getElementByID("img")
+            node.x = 10
+            node.y = 10
+            Player.getElementByID("nestedavg").angle = 1.0
+            Player.getElementByID("bkgd").angle = 1.0
         self.start("crop2.avg",
                 (lambda: self.compareImage("testCropImage1", False),
                  moveTLCrop,
@@ -506,7 +556,18 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testCropImage4", False),
                  moveBRGone,
                  lambda: self.compareImage("testCropImage5", False),
-                 Player.stop))
+
+                 rotate,
+                 lambda: self.compareImage("testCropImage6", False),
+                 moveTLCrop,
+                 lambda: self.compareImage("testCropImage7", False),
+                 moveBRCrop,
+                 lambda: self.compareImage("testCropImage8", False),
+                 moveTLNegative,
+                 lambda: self.compareImage("testCropImage9", False),
+                 moveBRGone,
+                 lambda: self.compareImage("testCropImage10", False),
+                Player.stop))
 
     def testCropMovie(self):
         def playMovie():
@@ -528,6 +589,12 @@ class PlayerTestCase(AVGTestCase):
             node = Player.getElementByID("movie")
             node.x = 140
             node.y = 100
+        def rotate():
+            node = Player.getElementByID("movie")
+            node.x = 10
+            node.y = 10
+            Player.getElementByID("nestedavg").angle = 1.0
+            Player.getElementByID("bkgd").angle = 1.0
         self.start("crop.avg",
                 (playMovie,
                  lambda: self.compareImage("testCropMovie1", False),
@@ -539,6 +606,17 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testCropMovie4", False),
                  moveBRGone,
                  lambda: self.compareImage("testCropMovie5", False),
+
+                 rotate,
+                 lambda: self.compareImage("testCropMovie6", False),
+                 moveTLCrop,
+                 lambda: self.compareImage("testCropMovie7", False),
+                 moveBRCrop,
+                 lambda: self.compareImage("testCropMovie8", False),
+                 moveTLNegative,
+                 lambda: self.compareImage("testCropMovie9", False),
+                 moveBRGone,
+                 lambda: self.compareImage("testCropMovie10", False),
                  Player.stop))
 
     def testWarp(self):
@@ -592,16 +670,16 @@ class PlayerTestCase(AVGTestCase):
             Player.getElementByID("dynamictext").text = "Arabic nonsense: ﯿﭗ"
         self.start("text.avg",
                 (lambda: self.compareImage("testWords1", True),
-                 changeText,
-                 changeHeight,
-                 deactivateText,
-                 lambda: self.compareImage("testWords2", True),
-                 activateText,
-                 changeFont,
-                 lambda: self.compareImage("testWords3", True),
-                 changeFont2,
-                 changeUnicodeText,
-                 lambda: self.compareImage("testWords4", True),
+#                 changeText,
+#                 changeHeight,
+#                 deactivateText,
+#                 lambda: self.compareImage("testWords2", True),
+#                 activateText,
+#                 changeFont,
+#                 lambda: self.compareImage("testWords3", True),
+#                 changeFont2,
+#                 changeUnicodeText,
+#                 lambda: self.compareImage("testWords4", True),
                  Player.stop))
 
     def testVideo(self):
@@ -994,6 +1072,9 @@ def playerTestSuite(bpp):
     rmBrokenDir()
     suite = unittest.TestSuite()
     suite.addTest(PlayerTestCase("testImage", bpp))
+    suite.addTest(PlayerTestCase("testRotate", bpp))
+    suite.addTest(PlayerTestCase("testRotate2", bpp))
+    suite.addTest(PlayerTestCase("testRotate3", bpp))
     suite.addTest(PlayerTestCase("testError", bpp))
     suite.addTest(PlayerTestCase("testExceptionInTimeout", bpp))
     suite.addTest(PlayerTestCase("testInvalidImageFilename", bpp))
@@ -1015,7 +1096,6 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testVideoSeek", bpp))
     suite.addTest(PlayerTestCase("testVideoEOF", bpp))
     suite.addTest(PlayerTestCase("testVideoFPS", bpp))
-#    suite.addTest(PlayerTestCase("testCamera", bpp))
     suite.addTest(PlayerTestCase("testAnim", bpp))
     suite.addTest(PlayerTestCase("testContinuousAnim", bpp))
     suite.addTest(PlayerTestCase("testDraggable", bpp))

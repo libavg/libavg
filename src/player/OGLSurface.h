@@ -60,9 +60,7 @@ class OGLSurface: public ISurface {
         PixelFormat getPixelFormat();
         IntPoint getSize();
 
-        void blt(const DRect* pDestRect,
-                double angle, const DPoint& pivot, 
-                DisplayEngine::BlendMode Mode);
+        void blt(const DPoint& DestSize, DisplayEngine::BlendMode Mode);
 
         void setMaxTileSize(const Point<int>& MaxTileSize);
         VertexGrid getOrigVertexCoords();
@@ -79,9 +77,8 @@ class OGLSurface: public ISurface {
         void createBitmap(const IntPoint& Size, PixelFormat pf, int index);
         void unlockBmp(int i);
         void bindOneTexture(OGLTile& Tile);
-        void bltTexture(const DRect* pDestRect, double angle, const DPoint& pivot, 
-                DisplayEngine::BlendMode Mode);
-        DPoint calcFinalVertex(const DRect* pDestRect,
+        void bltTexture(const DPoint& DestSize, DisplayEngine::BlendMode Mode);
+        DPoint calcFinalVertex(const DPoint& Size,
                 const DPoint & NormalizedVertex);
         void checkBlendModeError(std::string sMode);
 

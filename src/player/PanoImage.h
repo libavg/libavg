@@ -46,7 +46,6 @@ class PanoImage : public Node
         virtual void setDisplayEngine(DisplayEngine * pEngine);
         virtual void disconnect();
         virtual void render(const DRect& Rect);
-        virtual bool obscures(const DRect& Rect, int Child);
         virtual std::string getTypeStr();
 
         double getScreenPosFromPanoPos(int PanoPos) const;

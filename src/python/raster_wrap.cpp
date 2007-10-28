@@ -65,15 +65,6 @@ void export_raster()
                 return_value_policy<manage_new_object>(),
                 "getBitmap() -> Bitmap\n\n"
                 "Returns a copy of the bitmap that the node contains.")
-        .add_property("angle", &RasterNode::getAngle, &RasterNode::setAngle,
-                "The angle that the node is rotated to in radians. 0 is\n"
-                "unchanged, 3.14 is upside-down.\n")
-        .add_property("pivotx", &RasterNode::getPivotX, &RasterNode::setPivotX,
-                "x coordinate of the point that the node is rotated around.\n"
-                "Default is the center of the node.\n")
-        .add_property("pivoty", &RasterNode::getPivotY, &RasterNode::setPivotY,
-                "y coordinate of the point that the node is rotated around.\n"
-                "Default is the center of the node.\n")
         .add_property("maxtilewidth", &RasterNode::getMaxTileWidth,
                 "The maximum width and height of the\n"
                 "tiles used for warping. The effective tile size is also\n"

@@ -33,6 +33,9 @@ const char * g_pAVGDTD =
 "    y CDATA #IMPLIED\n"
 "    width CDATA #IMPLIED\n"
 "    height CDATA #IMPLIED\n"
+"    angle CDATA #IMPLIED\n"
+"    pivotx CDATA #IMPLIED\n"
+"    pivoty CDATA #IMPLIED\n"
 "    opacity CDATA #IMPLIED\n"
 "    active CDATA #IMPLIED\n"
 "    sensitive CDATA #IMPLIED\n"
@@ -41,9 +44,6 @@ const char * g_pAVGDTD =
 "<!ENTITY % rasterAttrs\n"
 "   \"maxtilewidth CDATA #IMPLIED\n"
 "    maxtileheight CDATA #IMPLIED\n"
-"    angle CDATA #IMPLIED\n"
-"    pivotx CDATA #IMPLIED\n"
-"    pivoty CDATA #IMPLIED\n"
 "    blendmode CDATA #IMPLIED\n"
 "    %nodeAttrs;\" >\n"
 
@@ -147,5 +147,3 @@ const char * g_pAVGDTD =
 "<!ELEMENT small (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
 "<!ELEMENT tt (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
 "<!ELEMENT u (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n";
-
-

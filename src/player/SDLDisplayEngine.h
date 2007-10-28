@@ -52,16 +52,15 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
 
         virtual void render(AVGNodePtr pRootNode, bool bRenderEverything);
         
-        virtual void setClipRect();
-        virtual bool pushClipRect(const DRect& rc, bool bClip);
+        virtual bool pushClipRect(const DRect& rc);
         virtual void popClipRect();
         virtual const DRect& getClipRect();
-        virtual void blt32(ISurface * pSurface, const DRect* pDestRect, 
-                double opacity, double angle, const DPoint& pivot,
-                BlendMode Mode);
-        virtual void blta8(ISurface * pSurface, const DRect* pDestRect,
-                double opacity, const Pixel32& color, double angle, 
-                const DPoint& pivot, BlendMode Mode);
+        virtual void pushTransform(const DPoint& translate, double angle, const DPoint& pivot);
+        virtual void popTransform();
+        virtual void blt32(ISurface * pSurface, const DPoint& DestSize, 
+                double opacity, BlendMode Mode);
+        virtual void blta8(ISurface * pSurface, const DPoint& DestSize,
+                double opacity, const Pixel32& color, BlendMode Mode);
 
         virtual ISurface * createSurface();
         virtual void surfaceChanged(ISurface * pSurface);
@@ -103,7 +102,7 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         void initJoysticks();
         void logConfig(); 
         virtual void swapBuffers();
-        void clip();
+        void clip(bool forward);
         void setClipPlane(double Eqn[4], int WhichPlane);
         void safeSetAttribute( SDL_GLattr attr, int value);
 
@@ -162,4 +161,4 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
 
 }
 
-#endif 
+#endif

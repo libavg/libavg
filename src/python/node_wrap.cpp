@@ -95,6 +95,15 @@ void export_node()
                 "The position of the node's top edge relative to it's parent node.\n")
         .add_property("width", &Node::getWidth, &Node::setWidth)
         .add_property("height", &Node::getHeight, &Node::setHeight)
+        .add_property("angle", &Node::getAngle, &Node::setAngle,
+                "The angle that the node is rotated to in radians. 0 is\n"
+                "unchanged, 3.14 is upside-down.\n")
+        .add_property("pivotx", &Node::getPivotX, &Node::setPivotX,
+                "x coordinate of the point that the node is rotated around.\n"
+                "Default is the center of the node.\n")
+        .add_property("pivoty", &Node::getPivotY, &Node::setPivotY,
+                "y coordinate of the point that the node is rotated around.\n"
+                "Default is the center of the node.\n")
         .add_property("opacity", &Node::getOpacity, &Node::setOpacity,
                       "A measure of the node's transparency. 0.0 is completely\n"
                       "transparent, 1.0 is completely opaque. Opacity is relative to\n"

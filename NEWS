@@ -33,7 +33,6 @@ libavg 0.7.0 - August 31, 2007
       use PYTHONPATH anymore (igor@c-base.org).
     * Much faster Image::setBitmap().
 
-
 libavg 0.6.0 - October 7, 2006 
 
   svn Revision 1664

@@ -47,9 +47,7 @@ class DivNode : public Node
         int indexOf(NodePtr pChild);
 
         virtual NodePtr getElementByPos (const DPoint & pos);
-        virtual void prepareRender (int time, const DRect& parent);
         virtual void render (const DRect& rect);
-        virtual bool obscures (const DRect& rect, int Child);
         virtual std::string getTypeStr ();
 
         virtual std::string dump (int indent = 0);
@@ -64,4 +62,3 @@ class DivNode : public Node
 }
 
 #endif //_DivNode_H_
-
