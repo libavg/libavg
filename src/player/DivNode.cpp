@@ -137,13 +137,13 @@ int DivNode::indexOf(NodePtr pChild)
 
 NodePtr DivNode::getElementByPos (const DPoint & pos)
 {
-    DPoint relPos = getRelPos(pos);
+    DPoint relPos = toLocal(pos);
     if (relPos.x >= 0 && relPos.y >= 0 && 
             relPos.x < getRelSize().x && relPos.y < getRelSize().y &&
             reactsToMouseEvents())
     {
         for (int i=getNumChildren()-1; i>=0; i--) {
-            NodePtr pFoundNode = getChild(i)->getElementByPos(pos);
+            NodePtr pFoundNode = getChild(i)->getElementByPos(relPos);
             if (pFoundNode) {
                 return pFoundNode;
             }

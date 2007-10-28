@@ -316,7 +316,7 @@ bool Node::reactsToMouseEvents()
 
 NodePtr Node::getElementByPos (const DPoint & pos)
 {
-    DPoint relPos = getRelPos(pos);
+    DPoint relPos = toLocal(pos);
     if (relPos.x >= 0 && relPos.y >= 0 && 
             relPos.x < getRelSize().x && relPos.y < getRelSize().y &&
             reactsToMouseEvents())

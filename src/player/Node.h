@@ -150,11 +150,11 @@ class Node
             
         void initFilename (Player * pPlayer, std::string& sFilename);
         void setState(NodeState State);
+        DPoint toLocal(const DPoint& pos) const;
+        DPoint toGlobal(const DPoint& pos) const;
  
     private:
         PyObject * findPythonFunc(const std::string& Code);
-        DPoint toLocal(const DPoint& pos) const;
-        DPoint toGlobal(const DPoint& pos) const;
 
         DivNodeWeakPtr m_pParent;
         NodeWeakPtr m_This;
