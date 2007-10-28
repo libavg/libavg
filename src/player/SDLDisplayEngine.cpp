@@ -399,7 +399,7 @@ void SDLDisplayEngine::render(AVGNodePtr pRootNode, bool bRenderEverything)
     
     {
         ScopeTimer Timer(PrepareRenderProfilingZone);
-        pRootNode->prepareRender(0, pRootNode->getAbsViewport());
+        pRootNode->prepareRender(0);
     }
     glClearColor(0.0, 0.0, 0.0, 0.0); 
     glClear(GL_COLOR_BUFFER_BIT);
@@ -466,46 +466,40 @@ const DRect& SDLDisplayEngine::getClipRect()
     return m_ClipRects.back();
 }
 
-void SDLDisplayEngine::pushRotation(double angle, const DPoint& pivot)
+void SDLDisplayEngine::pushTransform(const DPoint& translate, double angle, const DPoint& pivot)
 {
-    m_Angles.push_back(angle);
-
-    if (fabs(angle) > 0.0001) {
-        glPushMatrix();
-        glTranslated(pivot.x, pivot.y, 0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushRotation: glTranslated");
-        glRotated(angle*180.0/PI, 0, 0, 1);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushRotation: glRotated");
-        glTranslated(-pivot.x, -pivot.y, 0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushRotation: glTranslated");
-    }
+    glPushMatrix();
+    glTranslated(translate.x, translate.y, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
+    glTranslated(pivot.x, pivot.y, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
+    glRotated(angle*180.0/PI, 0, 0, 1);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glRotated");
+    glTranslated(-pivot.x, -pivot.y, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "pushTransform: glTranslated");
 }
 
-void SDLDisplayEngine::popRotation()
+void SDLDisplayEngine::popTransform()
 {
-    if(fabs(m_Angles.back()) > 0.0001) {
-        glPopMatrix();
-    }
-
-    m_Angles.pop_back();
+    glPopMatrix();
 }
 
-void SDLDisplayEngine::blt32(ISurface * pSurface, const DRect* pDestRect, 
+void SDLDisplayEngine::blt32(ISurface * pSurface, const DPoint& DestSize, 
         double opacity, BlendMode Mode)
 {
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface*>(pSurface);
     glColor4f(1.0f, 1.0f, 1.0f, opacity);
-    pOGLSurface->blt(pDestRect, Mode);
+    pOGLSurface->blt(DestSize, Mode);
 }
 
 void SDLDisplayEngine::blta8(ISurface * pSurface, 
-        const DRect* pDestRect, double opacity, 
+        const DPoint& DestSize, double opacity, 
         const Pixel32& color, BlendMode Mode)
 {
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface*>(pSurface);
     glColor4f(float(color.getR())/256, float(color.getG())/256, 
             float(color.getB())/256, opacity);
-    pOGLSurface->blt(pDestRect, Mode);
+    pOGLSurface->blt(DestSize, Mode);
 }
 
 void SDLDisplayEngine::clip(bool forward)

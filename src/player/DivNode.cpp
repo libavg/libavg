@@ -137,32 +137,36 @@ int DivNode::indexOf(NodePtr pChild)
 
 NodePtr DivNode::getElementByPos (const DPoint & pos)
 {
-    DPoint relPos = (getAngle() > 0.0001) ?
-        rotatePoint(pos, -getAngle(), getAbsViewport().tl + getPivot()) : pos;
-    
-    if (!getAbsViewport().Contains(relPos) || !reactsToMouseEvents()) {
+    DPoint relPos = getRelPos(pos);
+    if (relPos.x >= 0 && relPos.y >= 0 && 
+            relPos.x < getRelSize().x && relPos.y < getRelSize().y &&
+            reactsToMouseEvents())
+    {
+        for (int i=getNumChildren()-1; i>=0; i--) {
+            NodePtr pFoundNode = getChild(i)->getElementByPos(pos);
+            if (pFoundNode) {
+                return pFoundNode;
+            }
+        }
+        return getThis(); // pos is in current node, but not in any child.
+    } else { 
         return NodePtr();
     }
-    for (int i=getNumChildren()-1; i>=0; i--) {
-        NodePtr pFoundNode = getChild(i)->getElementByPos(relPos);
-        if (pFoundNode) {
-            return pFoundNode;
-        }
-    }
-    return getThis(); // pos is in current node, but not in any child.
 }
 
-void DivNode::prepareRender (int time, const DRect& parent)
+void DivNode::prepareRender (int time)
 {
-    Node::prepareRender(time, parent);
-    for (int i=0; i<getNumChildren(); i++){
-        getChild(i)->prepareRender(time, getAbsViewport());
+    Node::prepareRender(time);
+    for (int i=0; i<getNumChildren(); i++) {
+        getChild(i)->prepareRender(time);
     }
 }
 
 void DivNode::render(const DRect& rect)
 {
-    getEngine()->pushClipRect(getAbsViewport());
+    DPoint Viewport = getRelSize();
+    DRect ClipRect(0, 0, Viewport.x, Viewport.y);
+    getEngine()->pushClipRect(ClipRect);
     for (int i=0; i<getNumChildren(); i++) {
         getChild(i)->maybeRender(rect);
     }
@@ -173,6 +177,7 @@ string DivNode::getTypeStr ()
 {
     return "DivNode";
 }
+
 string DivNode::dump (int indent)
 {
     string dumpStr = Node::dump () + "\n";

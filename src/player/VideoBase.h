@@ -44,7 +44,6 @@ class VideoBase : public RasterNode
         void pause();
         virtual double getFPS() = 0;
         
-        virtual void prepareRender (int time, const DRect& parent);
         virtual void render (const DRect& Rect);
         virtual std::string dump (int indent = 0);
         
@@ -66,7 +65,7 @@ class VideoBase : public RasterNode
         virtual void open(YCbCrMode ycbcrMode) = 0;
         virtual void close() = 0;
         virtual PixelFormat getPixelFormat() = 0;
-        virtual IntPoint getSize() = 0;
+        virtual IntPoint getMediaSize() = 0;
 
         VideoState m_VideoState;
 

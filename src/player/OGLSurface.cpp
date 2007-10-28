@@ -359,14 +359,14 @@ IntPoint OGLSurface::getSize()
     return m_Size;
 }
 
-void OGLSurface::blt(const DRect* pDestRect, 
+void OGLSurface::blt(const DPoint& DestSize, 
         DisplayEngine::BlendMode Mode)
 {
 //    cerr << "OGLSurface::blt()" << endl;
     if (!m_bBound) {
         bind();
     }
-    bltTexture(pDestRect, Mode);
+    bltTexture(DestSize, Mode);
 }
 
 bool OGLSurface::wouldTile(IntPoint Size)
@@ -490,8 +490,8 @@ void OGLSurface::unlockBmp(int i)
     }
 }
 
-void OGLSurface::bltTexture(const DRect* pDestRect,
-                DisplayEngine::BlendMode Mode)
+void OGLSurface::bltTexture(const DPoint& DestSize, 
+        DisplayEngine::BlendMode Mode)
 {
     switch(Mode) {
         case DisplayEngine::BLEND_BLEND:
@@ -518,35 +518,28 @@ void OGLSurface::bltTexture(const DRect* pDestRect,
 
     for (unsigned int y=0; y<m_pTiles.size(); y++) {
         for (unsigned int x=0; x<m_pTiles[y].size(); x++) {
-            DPoint TLPoint = 
-                    calcFinalVertex(pDestRect, m_TileVertices[y][x]);
-            DPoint TRPoint = 
-                    calcFinalVertex(pDestRect, m_TileVertices[y][x+1]);
-            DPoint BLPoint = 
-                    calcFinalVertex(pDestRect, m_TileVertices[y+1][x]);
-            DPoint BRPoint = 
-                    calcFinalVertex(pDestRect, m_TileVertices[y+1][x+1]);
+            DPoint TLPoint = calcFinalVertex(DestSize, m_TileVertices[y][x]);
+            DPoint TRPoint = calcFinalVertex(DestSize, m_TileVertices[y][x+1]);
+            DPoint BLPoint = calcFinalVertex(DestSize, m_TileVertices[y+1][x]);
+            DPoint BRPoint = calcFinalVertex(DestSize, m_TileVertices[y+1][x+1]);
             OGLTilePtr pCurTile = m_pTiles[y][x];
             pCurTile->blt(TLPoint, TRPoint, BLPoint, BRPoint); 
         }
     }
 
-    AVG_TRACE(Logger::BLTS, "(" << pDestRect->tl.x << ", " 
-            << pDestRect->tl.y << ")" << ", width:" << pDestRect->Width() 
-            << ", height: " << pDestRect->Height() << ", m_pf: " 
+    AVG_TRACE(Logger::BLTS, "(" << DestSize.x << ", " 
+            << DestSize.y << ")" << ", m_pf: " 
             << Bitmap::getPixelFormatString(m_pf) << ", " 
             << getGlModeString(m_pEngine->getOGLSrcMode(m_pf)) << "-->" 
             << getGlModeString(m_pEngine->getOGLDestMode(m_pf)) << endl);
 }
 
-DPoint OGLSurface::calcFinalVertex(const DRect* pDestRect,
+DPoint OGLSurface::calcFinalVertex(const DPoint& Size,
         const DPoint & NormalizedVertex)
 {
     DPoint Point;
-    Point.x = pDestRect->tl.x+
-        (pDestRect->Width()*NormalizedVertex.x);
-    Point.y = pDestRect->tl.y+
-        (pDestRect->Height()*NormalizedVertex.y);
+    Point.x = Size.x*NormalizedVertex.x;
+    Point.y = Size.y*NormalizedVertex.y;
     return Point;
 }
 

@@ -86,11 +86,6 @@ void VideoBase::pause()
     changeVideoState(Paused);
 }
 
-void VideoBase::prepareRender (int time, const DRect& parent)
-{
-    Node::prepareRender(time, parent);
-}
-
 void VideoBase::render (const DRect& Rect)
 {
     switch(m_VideoState) 
@@ -100,15 +95,13 @@ void VideoBase::render (const DRect& Rect)
                 if (getEffectiveOpacity() < 0.001) {
                     return;
                 }
-                DRect relVpt = getRelViewport();
-                DRect absVpt = getParent()->getAbsViewport();   
                 bool bNewFrame = renderToSurface(getSurface());
                 m_bFrameAvailable = m_bFrameAvailable | bNewFrame;
                 if (m_bFrameAvailable) {
                     m_bFirstFrameDecoded = true;
                 }
                 if (m_bFirstFrameDecoded) {
-                    getEngine()->blt32(getSurface(), &getAbsViewport(), 
+                    getEngine()->blt32(getSurface(), getRelSize(),
                             getEffectiveOpacity(), getBlendMode());
                 }
             }
@@ -121,7 +114,7 @@ void VideoBase::render (const DRect& Rect)
                 m_bFirstFrameDecoded = true;
             }
             if (m_bFirstFrameDecoded) {
-                getEngine()->blt32(getSurface(), &getAbsViewport(), 
+                getEngine()->blt32(getSurface(), getRelSize(),
                         getEffectiveOpacity(), getBlendMode());
             }
             break;
@@ -151,7 +144,7 @@ void VideoBase::open()
     open(getEngine()->getYCbCrMode());
     setViewport(-32767, -32767, -32767, -32767);
     PixelFormat pf = getPixelFormat();
-    getSurface()->create(getSize(), pf, true);
+    getSurface()->create(getMediaSize(), pf, true);
     if (pf == B8G8R8X8 || pf == B8G8R8A8) {
         FilterFill<Pixel32> Filter(Pixel32(0,0,0,255));
         Filter.applyInPlace(getSurface()->lockBmp());
@@ -164,12 +157,12 @@ void VideoBase::open()
 
 int VideoBase::getMediaWidth()
 {
-    return getSize().x;
+    return getMediaSize().x;
 }
 
 int VideoBase::getMediaHeight()
 {
-    return getSize().y;
+    return getMediaSize().y;
 }
 
 string VideoBase::dump (int indent)
@@ -179,7 +172,7 @@ string VideoBase::dump (int indent)
 
 DPoint VideoBase::getPreferredMediaSize()
 {
-    return DPoint(getSize());
+    return DPoint(getMediaSize());
 }
 
 VideoBase::VideoState VideoBase::getVideoState() const

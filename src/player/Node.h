@@ -83,7 +83,9 @@ class Node
         
         virtual double getHeight();
         void setHeight(double height);
-        
+       
+        DPoint getRelSize() const;
+
         double getAngle() const;
         void setAngle(double Angle);
         
@@ -114,13 +116,12 @@ class Node
         bool isActive();
         bool reactsToMouseEvents();
         virtual NodePtr getElementByPos (const DPoint & pos);
-        virtual void prepareRender (int time, const DRect& parent);
+        virtual void prepareRender (int time); 
         virtual void maybeRender (const DRect& Rect);
         virtual void render (const DRect& Rect);
         virtual void setViewport (double x, double y, double width, 
                 double height);
         virtual const DRect& getRelViewport () const;
-        virtual const DRect& getAbsViewport () const;
         virtual double getEffectiveOpacity();
 
         virtual std::string dump (int indent = 0);
@@ -152,8 +153,9 @@ class Node
         void setState(NodeState State);
  
     private:
-        void calcAbsViewport();
         PyObject * findPythonFunc(const std::string& Code);
+        DPoint toLocal(const DPoint& pos) const;
+        DPoint toGlobal(const DPoint& pos) const;
 
         DivNodeWeakPtr m_pParent;
         NodeWeakPtr m_This;
@@ -174,7 +176,6 @@ class Node
         EventHandlerMap m_EventHandlerMap;
 
         DRect m_RelViewport;      // In coordinates relative to the parent.
-        DRect m_AbsViewport;      // In window coordinates.
         double m_Opacity;
         bool m_bActive;
         bool m_bSensitive;

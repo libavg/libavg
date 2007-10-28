@@ -521,10 +521,9 @@ void Words::drawString()
     setViewport(-32767, -32767, -32767, -32767);
 }
 
-void Words::prepareRender(int time, const DRect& parent)
+void Words::prepareRender(int time)
 {
     drawString();
-    Node::prepareRender(time, parent);
 }
 
 static ProfilingZone RenderProfilingZone("Words::render");
@@ -533,10 +532,7 @@ void Words::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_Text.length() != 0 && getEffectiveOpacity() > 0.001) {
-        DRect TextPos = getAbsViewport();
-        TextPos.tl.x--;   // Compensate for italic hack in call to pango_ft2_render_layout
-        TextPos.br.x--;
-        getEngine()->blta8(getSurface(), &TextPos,
+        getEngine()->blta8(getSurface(), getRelSize(),
                 getEffectiveOpacity(), m_Color, getBlendMode());
     }
 }
