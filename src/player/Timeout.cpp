@@ -66,16 +66,18 @@ bool Timeout::IsInterval() const
 
 void Timeout::Fire(long long CurTime)
 {
+    if (m_IsInterval) {
+        m_NextTimeout = m_Interval + CurTime;
+    }
     PyObject * arglist = Py_BuildValue("()");
     PyObject * result = PyEval_CallObject(m_PyFunc, arglist);
+    // XXX: After the call to python, this might have been deleted 
+    // by a call to clearTimeout()!
     Py_DECREF(arglist);    
     if (!result) {
         throw error_already_set();
     }
     Py_DECREF(result);
-    if (m_IsInterval) {
-        m_NextTimeout = m_Interval + CurTime;
-    }
 }
 
 int Timeout::GetID() const
