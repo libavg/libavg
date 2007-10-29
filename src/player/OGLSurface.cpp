@@ -39,6 +39,7 @@ namespace avg {
 
 OGLSurface::OGLSurface(SDLDisplayEngine * pEngine)
     : m_pEngine(pEngine),
+      m_bCreated(false),
       m_bBound(false),
       m_Size(-1,-1),
       m_MaxTileSize(-1,-1),
@@ -52,21 +53,23 @@ OGLSurface::OGLSurface(SDLDisplayEngine * pEngine)
 
 OGLSurface::~OGLSurface()
 {
-    unbind();
-    switch(m_MemoryMode) {
-        case PBO:
-            if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-                for (int i=0; i<3; i++) {
-                    glproc::DeleteBuffers(1, &m_hPixelBuffers[i]);
+    if (m_bCreated) {
+        unbind();
+        switch(m_MemoryMode) {
+            case PBO:
+                if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+                    for (int i=0; i<3; i++) {
+                        glproc::DeleteBuffers(1, &m_hPixelBuffers[i]);
+                    }
+                } else {
+                    glproc::DeleteBuffers(1, &m_hPixelBuffers[0]);
                 }
-            } else {
-                glproc::DeleteBuffers(1, &m_hPixelBuffers[0]);
-            }
-            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                    "OGLSurface::~OGLSurface: glDeleteBuffers()");
-            break;
-        default:
-            break;
+                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                        "OGLSurface::~OGLSurface: glDeleteBuffers()");
+                break;
+            default:
+                break;
+        }
     }
     ObjectCounter::get()->decRef(&typeid(*this));
 }
@@ -97,6 +100,7 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
     unbind();
     setupTiles();
     initTileVertices(m_TileVertices);
+    m_bCreated = true;
 }
 
 void OGLSurface::createFromBits(IntPoint Size, PixelFormat pf,

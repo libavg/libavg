@@ -83,7 +83,8 @@ class OGLSurface: public ISurface {
         void checkBlendModeError(std::string sMode);
 
         SDLDisplayEngine * m_pEngine;
-        
+       
+        bool m_bCreated;
         bool m_bBound;
 
         BitmapPtr m_pBmps[3];

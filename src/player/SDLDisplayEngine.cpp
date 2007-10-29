@@ -160,7 +160,9 @@ void dumpSDLGLParams() {
 }
 
 SDLDisplayEngine::SDLDisplayEngine()
-    : m_bEnableCrop(false),
+    : m_WindowWidth(0),
+      m_WindowHeight(0),
+      m_bEnableCrop(false),
       m_pScreen(0),
       m_VBMethod(VB_NONE),
       m_VBMod(0),
