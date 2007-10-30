@@ -19,7 +19,6 @@
 //  Current versions can be found at www.libavg.de
 //
 
-
 #include "Bitmap.h"
 #include "Pixel32.h"
 #include "Pixel24.h"
@@ -41,7 +40,14 @@
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
 
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable: 4251)
+#endif
 #include <Magick++.h>
+#ifdef _WIN32
+#pragma warning(pop)
+#endif
 
 #include <iostream>
 #include <stdio.h>
