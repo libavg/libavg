@@ -35,7 +35,6 @@
 
 extern "C" {
 #include <ffmpeg/avformat.h>
-#pragma warning(pop)
 }
 
 #ifdef _WIN32
