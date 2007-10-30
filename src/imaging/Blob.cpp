@@ -306,8 +306,8 @@ DPoint Blob::calcCenter()
 
 IntRect Blob::calcBBox()
 {
-    int x1=__INT_MAX__;
-    int y1=__INT_MAX__;
+    int x1=INT_MAX;
+    int y1=INT_MAX;
     int x2=0;
     int y2=0;
     for(RunArray::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r) {

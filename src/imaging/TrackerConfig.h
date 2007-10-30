@@ -44,7 +44,7 @@ struct BlobConfig
     double m_EccentricityBounds[2]; //min, max for Eccentricity
 };
 
-typedef boost::shared_ptr<class BlobConfig> BlobConfigPtr;
+typedef boost::shared_ptr<struct BlobConfig> BlobConfigPtr;
 
 struct TrackerConfig
 {

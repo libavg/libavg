@@ -19,7 +19,11 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#ifdef _WIN32
+#include "../avgconfig_win.h"
+#else
 #include "../avgconfig.h"
+#endif
 
 // These defines regularly cause multiple definition warnings and are usually
 // completely unneeded.
