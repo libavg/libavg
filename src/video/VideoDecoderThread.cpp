@@ -116,7 +116,7 @@ void VideoDecoderThread::seek(int DestFrame)
         while (!m_MsgQ.empty()) {
             m_MsgQ.pop(false);
         }
-    } catch (Exception& e) {
+    } catch (Exception&) {
     }
 
     vector<BitmapPtr> pBmps;  // Empty.

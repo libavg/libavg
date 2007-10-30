@@ -31,7 +31,10 @@
 #define INT64_C(c)    c ## L
 #endif
 extern "C" {
+#pragma warning(push)
+#pragma warning(disable:4244)
 #include <ffmpeg/avformat.h>
+#pragma warning(pop)
 }
 #include <list>
 #include <map>
@@ -47,7 +50,7 @@ namespace avg {
            
             void enableStream(int StreamIndex);
             AVPacket * getPacket(int StreamIndex);
-            void seek(int DestFrame, int StartTimestamp, int StreamIndex);
+            void seek(int DestFrame, long long StartTimestamp, int StreamIndex);
             void dump();
             
         private:

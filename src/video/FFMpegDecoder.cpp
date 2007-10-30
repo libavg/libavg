@@ -32,7 +32,9 @@
 
 #include <iostream>
 #include <sstream>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 #include <errno.h>
 
 using namespace std;

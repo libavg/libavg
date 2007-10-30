@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="testimaging"
-	ProjectGUID="{B9E97051-412B-4147-83A1-093138F00AE7}"
+	ProjectGUID="{F572EE66-6840-43FB-96F8-2BD6AF8CC76B}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

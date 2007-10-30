@@ -93,7 +93,7 @@ AVPacket * FFMpegDemuxer::getPacket(int StreamIndex)
     return pPacket;
 }
 
-void FFMpegDemuxer::seek(int DestFrame, int StartTimestamp, int StreamIndex)
+void FFMpegDemuxer::seek(int DestFrame, long long StartTimestamp, int StreamIndex)
 {
     AVStream * pVStream = m_pFormatContext->streams[StreamIndex];
 #if LIBAVFORMAT_BUILD <= 4616
@@ -138,9 +138,9 @@ void FFMpegDemuxer::dump()
 {
     map<int, PacketList>::iterator it;
     cerr << "FFMpegDemuxer " << this << endl;
-    cerr << "packetlists.size(): " << m_PacketLists.size() << endl;
+    cerr << "packetlists.size(): " << int(m_PacketLists.size()) << endl;
     for (it=m_PacketLists.begin(); it != m_PacketLists.end(); ++it) {
-        cerr << "  " << it->first << ":  " << it->second.size() << endl;
+        cerr << "  " << it->first << ":  " << int(it->second.size()) << endl;
     }
 }
 

@@ -31,7 +31,10 @@
 #define INT64_C(c)    c ## L
 #endif
 extern "C" {
+#pragma warning(push)
+#pragma warning(disable:4244)
 #include <ffmpeg/avformat.h>
+#pragma warning(pop)
 }
 
 #include <boost/shared_ptr.hpp>
@@ -44,7 +47,7 @@ namespace avg {
            
             virtual void enableStream(int StreamIndex) = 0;
             virtual AVPacket * getPacket(int StreamIndex) = 0;
-            virtual void seek(int DestFrame, int StartTimestamp, int StreamIndex) = 0;
+            virtual void seek(int DestFrame, long long StartTimestamp, int StreamIndex) = 0;
             virtual void dump() {};
             
     };

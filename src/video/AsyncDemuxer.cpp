@@ -53,7 +53,7 @@ AsyncDemuxer::~AsyncDemuxer()
                 PacketVideoMsgPtr pPacketMsg;
                 pPacketMsg = it->second->pop(false);
                 pPacketMsg->freePacket();
-            } catch (Exception& ex) {
+            } catch (Exception&) {
                 // This gets thrown if the queue is empty.
             }
         }
@@ -68,7 +68,7 @@ AsyncDemuxer::~AsyncDemuxer()
                     pPacketMsg = pPacketQ->pop(false);
                     pPacketMsg->freePacket();
                 }
-            } catch (Exception& ex) {
+            } catch (Exception&) {
                 // This gets thrown if the queue is empty.
             }
         }
@@ -94,7 +94,7 @@ AVPacket * AsyncDemuxer::getPacket(int StreamIndex)
     return pPacketMsg->getPacket();
 }
 
-void AsyncDemuxer::seek(int DestFrame, int StartTimestamp, int StreamIndex)
+void AsyncDemuxer::seek(int DestFrame, long long StartTimestamp, int StreamIndex)
 {
     waitForSeekDone();
     m_pCmdQ->push(Command<VideoDemuxerThread>(boost::bind(
@@ -113,7 +113,7 @@ void AsyncDemuxer::seek(int DestFrame, int StartTimestamp, int StreamIndex)
                 bSeekDone = pPacketMsg->isSeekDone();
                 pPacketMsg->freePacket();
             }
-        } catch (Exception& ex) {
+        } catch (Exception&) {
             // This gets thrown if the queue is empty.
         }
         if (bSeekDone) {

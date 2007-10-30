@@ -93,7 +93,7 @@ class FFMpegDecoder: public IVideoDecoder
         IntPoint m_Size;
 
         double m_TimeUnitsPerSecond;
-        int64_t m_StartTimestamp;
+        long long m_StartTimestamp;
         long long m_LastFrameTime;
         bool m_bUseStreamFPS;
         double m_FPS;

@@ -104,7 +104,7 @@ void AsyncVideoDecoder::seek(int DestFrame)
             }
         } while (!bDone);
         m_bSeekPending = false;
-    } catch (Exception& ex) {
+    } catch (Exception&) {
         // The queue is empty.
     }
 }
@@ -207,7 +207,7 @@ FrameVideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long TimeWanted,
         FrameAvailable = FA_NEW_FRAME;
     } else {
         double TimePerFrame = 1000.0/m_FPS;
-        if (fabs(TimeWanted-m_LastFrameTime) < 0.5*TimePerFrame) {
+        if (fabs(double(TimeWanted-m_LastFrameTime)) < 0.5*TimePerFrame) {
 //            cerr << "   LastFrameTime = " << m_LastFrameTime << ", display again." <<  endl;
             // The last frame is still current. Display it again.
             FrameAvailable = FA_USE_LAST_FRAME;
@@ -266,7 +266,7 @@ FrameVideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
             FrameVideoMsgPtr pFrameMsg = dynamic_pointer_cast<FrameVideoMsg>(pMsg);
         }
         return pFrameMsg;
-    } catch (Exception& e) {
+    } catch (Exception&) {
         return FrameVideoMsgPtr();
     }
 }

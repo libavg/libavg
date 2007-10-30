@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="imaging"
-	ProjectGUID="{9351D7AC-4FAF-4851-9F60-722B03786B71}"
+	Name="video"
+	ProjectGUID="{FF7070AA-ED39-48A2-BE3B-CFB73B7A578F}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\ImageMagick-6.3.6-Q8\include&quot;;&quot;C:\Program Files\boost\boost_1_33_1&quot;;..\..\src\imaging;C:\devel\include"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\ImageMagick-6.3.6-Q8\include&quot;;&quot;C:\Program Files\boost\boost_1_33_1&quot;;C:\devel\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -34,8 +34,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="Winmm.lib Dbghelp.lib Ws2_32.lib"
-				OutputFile="$(OutDir)/imaging.lib"
+				OutputFile="$(OutDir)/video.lib"
 				AdditionalLibraryDirectories="&quot;C:\Program Files\boost\boost_1_33_1\lib&quot;"
 				IgnoreDefaultLibraryNames="msvcrt"/>
 			<Tool
@@ -65,7 +64,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\ImageMagick-6.3.6-Q8\include&quot;;&quot;C:\Program Files\boost\boost_1_33_1&quot;;..\..\src\imaging;C:\devel\include"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\ImageMagick-6.3.6-Q8\include&quot;;&quot;C:\Program Files\boost\boost_1_33_1&quot;;C:\devel\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="FALSE"
@@ -78,8 +77,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="Winmm.lib"
-				OutputFile="$(OutDir)/imaging.lib"/>
+				OutputFile="$(OutDir)/video.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -108,31 +106,37 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\..\src\imaging\Blob.cpp">
+				RelativePath="..\..\src\video\AsyncDemuxer.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\imaging\CoordTransformer.cpp">
+				RelativePath="..\..\src\video\AsyncVideoDecoder.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\imaging\DeDistort.cpp">
+				RelativePath="..\..\src\video\ErrorVideoMsg.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\imaging\FakeCamera.cpp">
+				RelativePath="..\..\src\video\FFMpegDecoder.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\imaging\FilterDistortion.cpp">
+				RelativePath="..\..\src\video\FFMpegDemuxer.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\imaging\Run.cpp">
+				RelativePath="..\..\src\video\FrameVideoMsg.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\imaging\TrackerConfig.cpp">
+				RelativePath="..\..\src\video\InfoVideoMsg.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\imaging\trackerconfigdtd.cpp">
+				RelativePath="..\..\src\video\PacketVideoMsg.cpp">
 			</File>
 			<File
-				RelativePath="..\..\src\imaging\TrackerThread.cpp">
+				RelativePath="..\..\src\video\VideoDecoderThread.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\video\VideoDemuxerThread.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\video\VideoMsg.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -140,43 +144,49 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath="..\..\src\imaging\Blob.h">
+				RelativePath="..\..\src\video\AsyncDemuxer.h">
 			</File>
 			<File
-				RelativePath="..\..\src\imaging\CoordTransformer.h">
+				RelativePath="..\..\src\video\AsyncVideoDecoder.h">
 			</File>
 			<File
-				RelativePath="..\..\src\imaging\DeDistort.h">
+				RelativePath="..\..\src\video\EOFVideoMsg.h">
 			</File>
 			<File
-				RelativePath="..\..\src\imaging\FakeCamera.h">
+				RelativePath="..\..\src\video\ErrorVideoMsg.h">
 			</File>
 			<File
-				RelativePath="..\..\src\imaging\FilterDistortion.h">
+				RelativePath="..\..\src\video\FFMpegDecoder.h">
 			</File>
 			<File
-				RelativePath="..\..\src\imaging\FWCamera.h">
+				RelativePath="..\..\src\video\FFMpegDemuxer.h">
 			</File>
 			<File
-				RelativePath="..\..\src\imaging\FWCameraUtils.h">
+				RelativePath="..\..\src\video\FrameVideoMsg.h">
 			</File>
 			<File
-				RelativePath="..\..\src\imaging\ICamera.h">
+				RelativePath="..\..\src\video\IDemuxer.h">
 			</File>
 			<File
-				RelativePath="..\..\src\imaging\Run.h">
+				RelativePath="..\..\src\video\InfoVideoMsg.h">
 			</File>
 			<File
-				RelativePath="..\..\src\imaging\TrackerConfig.h">
+				RelativePath="..\..\src\video\IVideoDecoder.h">
 			</File>
 			<File
-				RelativePath="..\..\src\imaging\trackerconfigdtd.h">
+				RelativePath="..\..\src\video\PacketVideoMsg.h">
 			</File>
 			<File
-				RelativePath="..\..\src\imaging\TrackerThread.h">
+				RelativePath="..\..\src\video\SeekDoneVideoMsg.h">
 			</File>
 			<File
-				RelativePath="..\..\src\imaging\V4LCamera.h">
+				RelativePath="..\..\src\video\VideoDecoderThread.h">
+			</File>
+			<File
+				RelativePath="..\..\src\video\VideoDemuxerThread.h">
+			</File>
+			<File
+				RelativePath="..\..\src\video\VideoMsg.h">
 			</File>
 		</Filter>
 		<Filter
