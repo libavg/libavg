@@ -29,13 +29,13 @@
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
 #include "../base/Profiler.h"
+#include "../base/Directory.h"
+#include "../base/DirEntry.h"
 
 #include <Magick++.h>
 #include <stdio.h>
 #include <string>
 #include <sstream>
-#include <sys/stat.h>
-#include <dirent.h>
 
 using namespace avg;
 using namespace std;
@@ -239,25 +239,20 @@ public:
 
 void deleteOldResultImages() 
 {
-    DIR * pDir;
-    dirent * pEntry;
     string sDirName("testfiles/result/");
-    pDir = opendir(sDirName.c_str());
-    if (pDir == 0) {
-        int err = mkdir(sDirName.c_str(), 0);
-        if (err) {
-            cerr << "Creating directory " << sDirName << " failed." << strerror(err) << endl;
-        } else {
-            cerr << "Created result image directory " << sDirName << endl; 
-        }
+    Directory Dir(sDirName);
+    int err = Dir.open(true);
+    if (err) {
+        cerr << "Creating directory " << sDirName << " failed." << strerror(err) << endl;
     } else {
         cerr << "Deleting files in " << sDirName << endl;
-        while ((pEntry = readdir(pDir))) {
-            if (pEntry->d_name[0] != '.') {
-                remove((sDirName+pEntry->d_name).c_str());
+        DirEntryPtr pEntry = Dir.getNextEntry();
+        while (pEntry) {
+            if (pEntry->getName()[0] != '.') {
+                pEntry->remove();
             }
+            pEntry = Dir.getNextEntry();
         }
-        closedir(pDir);
     }
 }
 
