@@ -199,7 +199,7 @@ void FWCamera::open()
     err = dc1394_get_camera_feature_set(m_pCamera, &m_FeatureSet);
     checkDC1394Error(err,
             "Unable to get firewire camera feature set.");
-    dumpCameraInfo();
+//    dumpCameraInfo();
 
     err = dc1394_video_set_iso_speed(m_pCamera, DC1394_ISO_SPEED_400);
     checkDC1394Error(err, "Unable to set camera iso speed.");

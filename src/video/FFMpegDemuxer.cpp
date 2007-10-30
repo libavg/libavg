@@ -33,26 +33,35 @@ namespace avg {
 FFMpegDemuxer::FFMpegDemuxer(AVFormatContext * pFormatContext)
     : m_pFormatContext(pFormatContext)
 {
+    cerr << "Muxer:: ctor()" << endl;
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 FFMpegDemuxer::~FFMpegDemuxer()
 {
+    cerr << "Muxer:: dtor()" << endl;
     clearPacketCache();
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void FFMpegDemuxer::enableStream(int StreamIndex)
 {
+    cerr << this << ": enableStream(" << StreamIndex << ")" << endl;
     m_PacketLists[StreamIndex] = PacketList();
+    dump();
 }
 
 AVPacket * FFMpegDemuxer::getPacket(int StreamIndex)
 {
+    cerr << "Muxer:: getPacket()" << endl;
     // Make sure enableStream was called on StreamIndex.
     assert(m_PacketLists.size() > 0);
     assert(StreamIndex > -1 && StreamIndex < 10);
-    assert(m_PacketLists.find(StreamIndex) != m_PacketLists.end());
+    if (m_PacketLists.find(StreamIndex) == m_PacketLists.end()) {
+        cerr << this << ": getPacket: Stream " << StreamIndex << " not found." << endl;
+        dump();
+        assert(false);
+    }
     PacketList & CurPacketList = m_PacketLists.find(StreamIndex)->second;
     AVPacket * pPacket;
     if (!CurPacketList.empty()) {
@@ -91,6 +100,7 @@ AVPacket * FFMpegDemuxer::getPacket(int StreamIndex)
 
 void FFMpegDemuxer::seek(int DestFrame, int StartTimestamp, int StreamIndex)
 {
+    cerr << "Muxer:: seek()" << endl;
     AVStream * pVStream = m_pFormatContext->streams[StreamIndex];
 #if LIBAVFORMAT_BUILD <= 4616
     av_seek_frame(m_pFormatContext, StreamIndex, 
@@ -118,6 +128,7 @@ void FFMpegDemuxer::seek(int DestFrame, int StartTimestamp, int StreamIndex)
 
 void FFMpegDemuxer::clearPacketCache()
 {
+    cerr << "Muxer:: clearPacketCache()" << endl;
     map<int, PacketList>::iterator it;
     for (it=m_PacketLists.begin(); it != m_PacketLists.end(); ++it) {
         PacketList::iterator it2;
@@ -133,8 +144,10 @@ void FFMpegDemuxer::clearPacketCache()
 void FFMpegDemuxer::dump()
 {
     map<int, PacketList>::iterator it;
+    cerr << "FFMpegDemuxer " << this << endl;
+    cerr << "packetlists.size(): " << m_PacketLists.size() << endl;
     for (it=m_PacketLists.begin(); it != m_PacketLists.end(); ++it) {
-        cerr << "  " << it->second.size() << endl;
+        cerr << "  " << it->first << ":  " << it->second.size() << endl;
     }
 }
 
