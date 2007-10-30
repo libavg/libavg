@@ -113,7 +113,6 @@ void dump_stream_info(AVFormatContext *s)
 void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
         bool bThreadedDemuxer)
 {
-    cerr << "open " << m_sFilename << endl; 
     mutex::scoped_lock Lock(s_OpenMutex);
     m_bEOF = false;
     m_bEOFPending = false;
@@ -200,12 +199,10 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
     m_sFilename = sFilename;
     m_LastFrameTime = -1000;
     m_PF = calcPixelFormat(ycbcrMode);
-    m_pDemuxer->dump();
 } 
 
 void FFMpegDecoder::close() 
 {
-    cerr << "close " << m_sFilename << endl; 
     mutex::scoped_lock Lock(s_OpenMutex);
     AVG_TRACE(Logger::MEMORY, "Closing " << m_sFilename);
     delete m_pDemuxer;
@@ -404,7 +401,6 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
     {
 //        ScopeTimer Timer(*m_pConvertImageProfilingZone);
 #ifdef AVG_ENABLE_SWSCALE
-        cerr << "Using swscale." << endl;
         if (!m_pSwsContext) {
             m_pSwsContext = sws_getContext(enc->width, enc->height, enc->pix_fmt,
                         enc->width, enc->height, DestFmt, SWS_BICUBIC, 
@@ -444,8 +440,6 @@ void FFMpegDecoder::initVideoSupport()
 
 FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long TimeWanted)
 {
-    cerr << "readFrameForTime" << endl;
-    m_pDemuxer->dump();
     // XXX: This code is sort-of duplicated in AsyncVideoDecoder::getBmpsForTime()
     long long FrameTime = -1000;
 /*
@@ -491,9 +485,6 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long Tim
 void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
 {
     assert(m_pDemuxer);
-    cerr << "readFrame " << m_sFilename << endl;
-    m_pDemuxer->dump();
-    cerr << "foo" << endl;
     if (m_bEOF) {
         return;
     }
@@ -523,7 +514,6 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
         int gotPicture = 0;
         while (!gotPicture) {
             if (m_PacketLenLeft <= 0) {
-                m_pDemuxer->dump();
                 if (!m_bFirstPacket) {
                     av_free_packet(m_pPacket);
                     delete m_pPacket;
