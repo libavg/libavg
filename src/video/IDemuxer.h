@@ -26,16 +26,20 @@
 
 #ifdef _WIN32
 #define EMULATE_INTTYPES
+#pragma warning(push)
+#pragma warning(disable:4244)
 #else
 // This is probably GCC-specific.
 #define INT64_C(c)    c ## L
 #endif
+
 extern "C" {
-#pragma warning(push)
-#pragma warning(disable:4244)
 #include <ffmpeg/avformat.h>
-#pragma warning(pop)
 }
+
+#ifdef _WIN32
+#pragma warning(pop)
+#endif
 
 #include <boost/shared_ptr.hpp>
 
