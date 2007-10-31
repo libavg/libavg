@@ -29,7 +29,7 @@
 
 namespace avg {
 
-typedef class ITransformerTarget;
+class ITransformerTarget;
 
 class TrackerCalibrator {
 

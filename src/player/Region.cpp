@@ -73,7 +73,7 @@ void Region::clear()
 }
 
 int Region::getNumRects() const {
-    return m_Rects.size();
+    return int(m_Rects.size());
 
 }
 

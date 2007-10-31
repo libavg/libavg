@@ -28,12 +28,6 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#undef ERROR
-#undef WARNING
-#endif
 #include <SDL/SDL.h>
 #include <iostream>
 #include <sstream>
@@ -92,7 +86,7 @@ bool queryOGLExtension(char *extName)
     ** string returned by glGetString might be in read-only memory.
     */
     char *p;
-    int extNameLen = strlen(extName);
+    size_t extNameLen = strlen(extName);
 
     p = (char *)glGetString(GL_EXTENSIONS);
 //    cout << "OpenGL extensions string: " << p << endl;
@@ -103,7 +97,7 @@ bool queryOGLExtension(char *extName)
     char * end = p + strlen(p);
 
     while (p < end) {
-        int n = strcspn(p, " ");
+        size_t n = strcspn(p, " ");
         if ((extNameLen == n) && (strncmp(extName, p, n) == 0)) {
             return true;
         }

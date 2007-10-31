@@ -23,6 +23,7 @@
 #include "OGLHelper.h"
 #include "Player.h"
 #include "MathHelper.h"
+#include "SDLDisplayEngine.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"

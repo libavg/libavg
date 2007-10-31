@@ -118,8 +118,8 @@ namespace avg {
         DPoint pt = m_pBlob->getCenter()+BlobOffset;
         DPoint screenpos = trafo->transformBlobToScreen(pt);
         IntPoint Pos = IntPoint(
-                int(round(screenpos.x)), 
-                int(round(screenpos.y))); 
+                int(screenpos.x+0.5), 
+                int(screenpos.y+0.5)); 
         switch(m_State){
             case DOWN_PENDING:
                 m_State = DOWN_DELIVERED;

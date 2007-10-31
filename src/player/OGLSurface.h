@@ -23,10 +23,10 @@
 #define _OGLSurface_H_
 
 #include "ISurface.h"
+#include "DisplayEngine.h"
 #include "OGLTile.h"
 #include "OGLHelper.h"
 #include "OGLShader.h"
-#include "SDLDisplayEngine.h"
 
 #include "../base/Point.h"
 #include "../base/Rect.h"
@@ -35,6 +35,8 @@
 #include <string>
 
 namespace avg {
+
+class SDLDisplayEngine;
 
 typedef std::vector<std::vector<DPoint> > VertexGrid;
 

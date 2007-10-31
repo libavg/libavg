@@ -21,7 +21,7 @@
 
 #include "Player.h"
 
-#include "../avgconfig.h"
+#include "../avgconfigwrapper.h"
 #include "avgdtd.h"
 #include "AVGNode.h"
 #include "DivNode.h"
@@ -55,6 +55,7 @@
 #endif
 #include "../imaging/FakeCamera.h"
 
+#undef HAVE_TEMPNAM
 #include <Magick++.h>
 
 #include <libxml/xmlmemory.h>
@@ -734,7 +735,7 @@ NodePtr Player::createNodeFromXmlString (const string& sXML)
         xmlDoValidityCheckingDefaultValue =0;
         
         xmlDocPtr doc;
-        doc = xmlParseMemory(sXML.c_str(), sXML.length());
+        doc = xmlParseMemory(sXML.c_str(), int(sXML.length()));
         if (!doc) {
             throw (Exception(AVG_ERR_XML_PARSE, 
                         string("Error parsing xml:\n  ")+sXML));

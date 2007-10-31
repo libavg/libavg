@@ -231,15 +231,18 @@ namespace avg {
         return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
     }
 
+    inline bool isInbetween(double x, double pair[2])
+    {
+        return x>=pair[0] && x<=pair[1];
+    }
+
     bool TrackerEventSource::isRelevant(BlobPtr pBlob, BlobConfigPtr pConfig)
     {
         // FIXME!
-#define IN(x, pair) (((x)>=pair[0])&&((x)<=pair[1]))
         bool res;
-        res = IN(pBlob->getArea(), pConfig->m_AreaBounds) && 
-                IN(pBlob->getEccentricity(), pConfig->m_EccentricityBounds);
+        res = isInbetween(pBlob->getArea(), pConfig->m_AreaBounds) && 
+                isInbetween(pBlob->getEccentricity(), pConfig->m_EccentricityBounds);
         return res;
-#undef IN
     }
 
     void TrackerEventSource::update(BlobVectorPtr pTrackBlobs, BitmapPtr pTrackBmp, 
@@ -274,7 +277,7 @@ namespace avg {
         BlobPtr m_pNewBlob;
         BlobPtr m_pOldBlob;
     };
-    typedef boost::shared_ptr<class BlobDistEntry> BlobDistEntryPtr;
+    typedef boost::shared_ptr<struct BlobDistEntry> BlobDistEntryPtr;
 
     // The heap is sorted by least distance, so this operator does the
     // _opposite_ of what is expected!

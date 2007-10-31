@@ -40,6 +40,7 @@ CursorEvent::~CursorEvent()
 Event *CursorEvent::cloneAs(Type EventType)
 {
     assert(false);
+    return 0;
 }
 
 int CursorEvent::getXPosition() const

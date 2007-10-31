@@ -31,6 +31,10 @@ extern "C" {
 #include "../lmfit/lm_eval.h"
 }
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 using namespace std;
 
 #define NUM_POINTS 4 
@@ -93,7 +97,7 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
           m_bCurPointSet(false)
     {
         ObjectCounter::get()->incRef(&typeid(*this));
-        double r0 = sqrt(DisplayExtents.x*DisplayExtents.x + DisplayExtents.y*DisplayExtents.y)/(NUM_POINTS*NUM_POINTS);
+        double r0 = sqrt(double(DisplayExtents.x*DisplayExtents.x + DisplayExtents.y*DisplayExtents.y))/(NUM_POINTS*NUM_POINTS);
         double x0 = DisplayExtents.x/2.;
         double y0 = DisplayExtents.y/2.;
         double aspect = DisplayExtents.x/double(DisplayExtents.y);
@@ -107,8 +111,8 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
             R = r0 * i;
             for(c=0;c<count;c++){
                 IntPoint cp = IntPoint(
-                        (int)round(aspect*R*cos(c*d)+x0), 
-                        (int)round(R*sin(c*d)+y0)
+                        (int)floor(aspect*R*cos(c*d)+x0+0.5), 
+                        (int)floor(R*sin(c*d)+y0+0.5)
                         );
                 if (myPlane.Contains(cp)) {
                     m_DisplayPoints.push_back(cp);
@@ -217,7 +221,7 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
 //        control.xtol = 1e-4;
 //        control.gtol = 1e-4;
 
-        unsigned int dat = m_DisplayPoints.size();
+        size_t dat = m_DisplayPoints.size();
         assert(dat == m_CamPoints.size());
       
         //fill in reasonable defaults

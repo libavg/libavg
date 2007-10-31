@@ -20,7 +20,7 @@
 //
 
 #include "VideoBase.h"
-#include "../avgconfig.h"
+#include "../avgconfigwrapper.h"
 
 #include "DivNode.h"
 #include "DisplayEngine.h"
@@ -35,7 +35,10 @@
 
 #include <iostream>
 #include <sstream>
+
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 using namespace std;
 

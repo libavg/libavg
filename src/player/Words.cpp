@@ -440,8 +440,8 @@ void Words::drawString()
             PangoAttrList * pAttrList = 0;
             char * pText = 0;
             GError * pError = 0;
-            bOk = pango_parse_markup(m_Text.c_str(), m_Text.length(), 0,
-                    &pAttrList, &pText, 0, &pError);
+            bOk = bool(pango_parse_markup(m_Text.c_str(), int(m_Text.length()), 0,
+                    &pAttrList, &pText, 0, &pError));
             if (!bOk) {
                 throw Exception(AVG_ERR_CANT_PARSE_STRING,
                         string("Can't parse string in node with id '")+
@@ -549,8 +549,8 @@ DPoint Words::getPreferredMediaSize()
 string Words::removeExcessSpaces(const string & sText)
 {
     string s = sText;
-    unsigned lastPos = s.npos;
-    unsigned pos = s.find_first_of(" \n\r");
+    size_t lastPos = s.npos;
+    size_t pos = s.find_first_of(" \n\r");
     while (pos != s.npos) {
         s[pos] = ' ';
         if (pos == lastPos+1) {

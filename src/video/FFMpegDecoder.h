@@ -28,9 +28,7 @@
 #include "../base/ProfilingZone.h"
 #include "../avgconfigwrapper.h"
 
-#ifdef _WIN32
-#define EMULATE_INTTYPES
-#else
+#ifndef _WIN32
 // This is probably GCC-specific.
 #define INT64_C(c)    c ## L
 #endif

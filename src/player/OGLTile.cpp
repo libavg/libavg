@@ -20,6 +20,7 @@
 //
 
 #include "OGLTile.h"
+#include "SDLDisplayEngine.h"
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
@@ -211,9 +212,9 @@ void OGLTile::downloadTexture(int i, BitmapPtr pBmp, int stride,
 //        << ", Extent= " << m_Extent << ", pf= " << Bitmap::getPixelFormatString(m_pf)
 //        << ", bpp= " << bpp << endl;
     unsigned char * pStartPos = (unsigned char *)
-            (Extent.tl.y*stride*bpp + Extent.tl.x*bpp);
+            (ptrdiff_t)(Extent.tl.y*stride*bpp + Extent.tl.x*bpp);
     if (MemoryMode == OGL) {
-        pStartPos += (unsigned long)(pBmp->getPixels());
+        pStartPos += (ptrdiff_t)(pBmp->getPixels());
     }
     {
         ScopeTimer Timer(TexSubImageProfilingZone);

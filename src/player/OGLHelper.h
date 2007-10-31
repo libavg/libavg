@@ -23,9 +23,10 @@
 #define _OGLHelper_H_
 
 #ifdef _WIN32
-#define APIENTRY __stdcall
-#define CALLBACK __stdcall
-#define WINGDIAPI __declspec(dllimport)
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#undef ERROR
+#undef WARNING
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include "GL/glext.h"

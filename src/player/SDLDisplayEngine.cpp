@@ -70,7 +70,11 @@
 #include <signal.h>
 #include <iostream>
 #include <sstream>
+
+#ifndef _WIN32
 #include <unistd.h>
+#endif
+
 #include <assert.h>
 
 using namespace std;
@@ -337,7 +341,7 @@ void SDLDisplayEngine::setGamma(double Red, double Green, double Blue)
 {
     if (Red > 0) {
         AVG_TRACE(Logger::CONFIG, "Setting gamma to " << Red << ", " << Green << ", " << Blue);
-        int err = SDL_SetGamma(Red, Green, Blue);
+        int err = SDL_SetGamma(float(Red), float(Green), float(Blue));
         if (err == -1) {
             AVG_TRACE(Logger::WARNING, "Unable to set display gamma.");
         }
@@ -485,7 +489,7 @@ void SDLDisplayEngine::blt32(ISurface * pSurface, const DPoint& DestSize,
         double opacity, BlendMode Mode)
 {
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface*>(pSurface);
-    glColor4f(1.0f, 1.0f, 1.0f, opacity);
+    glColor4d(1.0, 1.0, 1.0, opacity);
     pOGLSurface->blt(DestSize, Mode);
 }
 
@@ -494,8 +498,8 @@ void SDLDisplayEngine::blta8(ISurface * pSurface,
         const Pixel32& color, BlendMode Mode)
 {
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface*>(pSurface);
-    glColor4f(float(color.getR())/256, float(color.getG())/256, 
-            float(color.getB())/256, opacity);
+    glColor4d(double(color.getR())/256, double(color.getG())/256, 
+            double(color.getB())/256, opacity);
     pOGLSurface->blt(DestSize, Mode);
 }
 
@@ -506,10 +510,10 @@ void SDLDisplayEngine::clip(bool forward)
         int level;
         if(forward) {
             stencilOp = GL_INCR;
-            level = m_ClipRects.size();
+            level = int(m_ClipRects.size());
         } else {
             stencilOp = GL_DECR;
-            level = m_ClipRects.size() - 1;
+            level = int(m_ClipRects.size()) - 1;
         }
         
         DRect rc = m_ClipRects.back();
@@ -525,10 +529,10 @@ void SDLDisplayEngine::clip(bool forward)
         glStencilOp(stencilOp, stencilOp, stencilOp);
 
         glBegin(GL_QUADS);
-            glVertex2f(rc.tl.x, rc.tl.y);
-            glVertex2f(rc.tl.x+rc.Width(), rc.tl.y);
-            glVertex2f(rc.br.x, rc.br.y);
-            glVertex2f(rc.br.x-rc.Width(), rc.br.y);
+            glVertex2d(rc.tl.x, rc.tl.y);
+            glVertex2d(rc.tl.x+rc.Width(), rc.tl.y);
+            glVertex2d(rc.br.x, rc.br.y);
+            glVertex2d(rc.br.x-rc.Width(), rc.br.y);
         glEnd();
 
         // Set stencil test to only let
@@ -922,7 +926,7 @@ vector<Event *> SDLDisplayEngine::pollEvents()
         switch(sdlEvent.type) {
             case SDL_ACTIVEEVENT:
                 if (sdlEvent.active.state & SDL_APPMOUSEFOCUS) {
-                    m_bMouseOverApp = sdlEvent.active.gain;
+                    m_bMouseOverApp = sdlEvent.active.gain != 0;
                     if (!sdlEvent.active.gain) {
                         Events.push_back(
                                 new MouseEvent (Event::CURSORMOTION, false,
@@ -981,9 +985,9 @@ Event * SDLDisplayEngine::createMouseMotionEvent
     int x = int((SDLEvent.motion.x*m_Width)/m_WindowWidth);
     int y = int((SDLEvent.motion.y*m_Height)/m_WindowHeight);
     MouseEvent * pEvent = new MouseEvent (Type, 
-            SDLEvent.motion.state & SDL_BUTTON(1),
-            SDLEvent.motion.state & SDL_BUTTON(3), 
-            SDLEvent.motion.state & SDL_BUTTON(2),
+            (SDLEvent.motion.state & SDL_BUTTON(1)) == SDL_BUTTON(1),
+            (SDLEvent.motion.state & SDL_BUTTON(3)) == SDL_BUTTON(3), 
+            (SDLEvent.motion.state & SDL_BUTTON(2)) == SDL_BUTTON(2),
             IntPoint(x, y), 
             MouseEvent::NO_BUTTON);
     return pEvent;

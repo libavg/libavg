@@ -23,13 +23,14 @@
 #define _OGLTile_H_
 
 #include "OGLHelper.h"
-#include "SDLDisplayEngine.h"
 #include "../base/Rect.h"
 #include "../graphics/Bitmap.h"
 
 #include <boost/shared_ptr.hpp>
 
 namespace avg {
+
+class SDLDisplayEngine;
 
 class OGLTile {
     public:

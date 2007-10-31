@@ -18,7 +18,6 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-
 #include "Video.h"
 #include "DisplayEngine.h"
 #include "Player.h"
@@ -38,7 +37,10 @@
 
 #include <iostream>
 #include <sstream>
+
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 using namespace boost::python;
 using namespace std;
