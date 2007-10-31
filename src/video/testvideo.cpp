@@ -32,7 +32,14 @@
 #include "../base/Directory.h"
 #include "../base/DirEntry.h"
 
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable:4251)
+#endif
 #include <Magick++.h>
+#ifdef _WIN32
+#pragma warning(pop)
+#endif
 #include <stdio.h>
 #include <string>
 #include <sstream>
@@ -63,6 +70,7 @@ class DecoderTest: public Test {
         }
 
     private:
+
         void basicFileTest(const string& sFilename, int ExpectedNumFrames) 
         {
             try {
@@ -144,7 +152,7 @@ class DecoderTest: public Test {
                     NumFrames++;
 
                 } else {
-                    sleep(0);
+                    TimeSource::get()->msleep(0);
                 }
                 if (FrameAvailable == FA_NEW_FRAME || FrameAvailable == FA_USE_LAST_FRAME) { 
                     CurTime += TimePerFrame;
@@ -264,6 +272,7 @@ int main(int nargs, char** args)
     deleteOldResultImages();
 
     VideoTestSuite Suite;
+
     Suite.runTests();
     bool bOK = Suite.isOk();
 

@@ -24,14 +24,22 @@
 
 #include <boost/shared_ptr.hpp>
 
+#ifdef _WIN32
+#include <io.h>
+#else
 #include <dirent.h>
+#endif
 #include <string>
 
 namespace avg {
     
 class DirEntry {
 public:
+#ifdef _WIN32
+    DirEntry(std::string sDirName, const _finddata_t& FindData);
+#else
     DirEntry(std::string sDirName, dirent * pEntry);
+#endif
     virtual ~DirEntry();
 
     std::string getName();
@@ -40,7 +48,11 @@ public:
 private:
     std::string m_sDirName;
 
+#ifdef _WIN32
+    _finddata_t m_FindData;
+#else
     dirent * m_pEntry;
+#endif
 
 };
 

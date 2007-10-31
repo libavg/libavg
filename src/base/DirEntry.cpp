@@ -25,11 +25,20 @@ using namespace std;
 
 namespace avg {
 
+#ifdef _WIN32
+DirEntry::DirEntry(std::string sDirName, const _finddata_t& FindData)
+    : m_sDirName(sDirName),
+      m_FindData(FindData)
+{
+}
+
+#else
 DirEntry::DirEntry(string sDirName, dirent * pEntry)
     : m_sDirName(sDirName),
       m_pEntry(pEntry)  
 {
 }
+#endif
 
 DirEntry::~DirEntry()
 {
@@ -37,12 +46,20 @@ DirEntry::~DirEntry()
 
 std::string DirEntry::getName()
 {
+#ifdef _WIN32
+    return m_FindData.name;
+#else
     return m_pEntry->d_name;
+#endif
 }
 
 void DirEntry::remove()
 {
-    ::remove((m_sDirName+m_pEntry->d_name).c_str());
+#ifdef _WIN32
+    ::_unlink((m_sDirName+m_FindData.name).c_str());
+#else
+    ::unlink((m_sDirName+m_pEntry->d_name).c_str());
+#endif
 }
 
 }

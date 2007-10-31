@@ -36,10 +36,12 @@
 				AdditionalDependencies="CORE_RL_Magick++_.lib"
 				OutputFile="$(OutDir)/testvideo.exe"
 				LinkIncremental="2"
+				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="&quot;C:\Program Files\boost\boost_1_33_1\lib&quot;;&quot;C:\Program Files\ImageMagick-6.3.6-Q8\lib&quot;"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/testvideo.pdb"
 				SubSystem="1"
+				EnableCOMDATFolding="0"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"/>

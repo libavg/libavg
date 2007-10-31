@@ -21,6 +21,10 @@
 
 #include "Directory.h"
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif
 #include <sys/stat.h>
 
 using namespace std;
@@ -30,17 +34,46 @@ namespace avg {
 Directory::Directory(std::string sName)
     : m_sName(sName)
 {
+#ifdef _WIN32
+    m_hFile = -1;
+#else
+    m_pDir = 0;
+#endif
 }
 
 Directory::~Directory()
 {
+#ifdef _WIN32
+    _findclose(m_hFile);
+#else
     if (m_pDir) {
         closedir(m_pDir);
     }
+#endif
 }
 
 int Directory::open(bool bCreateIfMissing)
 {
+#ifdef _WIN32
+    m_hFile = _findfirst((m_sName+"/*").c_str(), &m_FindData);
+    if(m_hFile == -1L) {
+        if (bCreateIfMissing) {
+            int err = CreateDirectory(m_sName.c_str(), 0);
+            if (err == 0) {
+                return -1;
+            } else {
+                m_hFile = _findfirst(m_sName.c_str(), &m_FindData);
+                m_bFirstFile = true;
+                return 0;
+            }
+        } else {
+            return -1;
+        }
+    } else {
+        m_bFirstFile = true;
+        return 0;
+    }
+#else
     m_pDir = opendir(m_sName.c_str());
     if (!m_pDir) {
         if (bCreateIfMissing) {
@@ -58,11 +91,21 @@ int Directory::open(bool bCreateIfMissing)
     } else {
         return 0;
     }
-    
+#endif    
 }
 
 DirEntryPtr Directory::getNextEntry()
 {
+#ifdef _WIN32
+    if (!m_bFirstFile) {
+        int rc = _findnext(m_hFile, &m_FindData);
+        if (rc == -1) {
+            return DirEntryPtr();
+        } 
+    }
+    m_bFirstFile = false;
+    return DirEntryPtr(new DirEntry(m_sName, m_FindData));
+#else
     dirent * pDirent;
     pDirent = readdir(m_pDir);
     if (pDirent) {
@@ -70,6 +113,7 @@ DirEntryPtr Directory::getNextEntry()
     } else {
         return DirEntryPtr();
     }
+#endif
 }
 
 }

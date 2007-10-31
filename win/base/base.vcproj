@@ -114,6 +114,12 @@
 				RelativePath="..\..\src\base\ConfigMgr.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\base\Directory.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\base\DirEntry.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\base\Exception.cpp">
 			</File>
 			<File
@@ -168,6 +174,12 @@
 			</File>
 			<File
 				RelativePath="..\..\src\base\ConfigMgr.h">
+			</File>
+			<File
+				RelativePath="..\..\src\base\Directory.h">
+			</File>
+			<File
+				RelativePath="..\..\src\base\DirEntry.h">
 			</File>
 			<File
 				RelativePath="..\..\src\base\Exception.h">

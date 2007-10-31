@@ -24,7 +24,12 @@
 
 #include "DirEntry.h"
 
+#ifdef _WIN32
+#include <io.h>
+#else
 #include <dirent.h>
+#endif
+
 #include <string>
 
 namespace avg {
@@ -41,6 +46,9 @@ private:
     std::string m_sName;
 
 #ifdef _WIN32
+    _finddata_t m_FindData;
+    intptr_t m_hFile;
+    bool m_bFirstFile;
 #else
     DIR * m_pDir;
 #endif
