@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="testvideo"
-	ProjectGUID="{6BF43933-52F5-4E30-92D3-BFBC9C1A086F}"
+	Name="testcalibrator"
+	ProjectGUID="{DD2AB629-CE3E-4374-8751-3A01C53F9377}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -34,7 +34,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="CORE_RL_Magick++_.lib avcodec-51.lib avformat-51.lib avutil-49.lib"
-				OutputFile="$(OutDir)/testvideo.exe"
+				OutputFile="$(OutDir)/testplayer.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="&quot;C:\Program Files\boost\boost_1_33_1\lib&quot;;&quot;C:\Program Files\ImageMagick-6.3.6-Q8\lib&quot;;..\..\..\..\lib"
@@ -84,10 +84,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="CORE_RL_Magick++_.lib libxml2.lib avcodec-51.lib avformat-51.lib avutil-49.lib"
-				OutputFile="$(OutDir)/testvideo.exe"
+				AdditionalDependencies="CORE_RL_Magick++_.lib libxml2.lib"
+				OutputFile="$(OutDir)/testplayer.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\boost\boost_1_33_1\lib&quot;;&quot;C:\Program Files\ImageMagick-6.3.6-Q8\lib&quot;;..\..\..\..\lib"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\boost\boost_1_33_1\lib&quot;"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -123,7 +123,7 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\..\src\video\testvideo.cpp">
+				RelativePath="..\..\src\player\testcalibrator.cpp">
 			</File>
 		</Filter>
 		<Filter

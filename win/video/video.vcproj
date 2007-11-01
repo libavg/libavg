@@ -35,7 +35,6 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="avutil-49.lib avformat-51.lib avcodec-51.lib"
 				OutputFile="$(OutDir)/video.lib"
 				AdditionalLibraryDirectories="..\..\..\..\lib;&quot;C:\Program Files\boost\boost_1_33_1\lib&quot;"
 				IgnoreDefaultLibraryNames="msvcrt"/>
@@ -79,7 +78,6 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="libgcc.a libamrnb.a libfaac.a libmingwex.a libogg.a libvfw32.a libvorbisenc.a libwsock32.a pthreadGC2.lib libamrwb.a libfaad.a libgsm.a libmp3lame.a libtheora.a libvorbis.a libvorbisfile.a libz.a libavcodec.a libavformat.a libavutil.a"
 				OutputFile="$(OutDir)/video.lib"
 				AdditionalLibraryDirectories="..\..\..\..\lib;&quot;C:\Program Files\boost\boost_1_33_1\lib&quot;"/>
 			<Tool

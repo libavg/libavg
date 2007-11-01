@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="testvideo"
-	ProjectGUID="{6BF43933-52F5-4E30-92D3-BFBC9C1A086F}"
+	Name="lmfit"
+	ProjectGUID="{5893DEC4-25AD-4FBA-95A9-ABF5E3707C8E}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -14,17 +14,15 @@
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
-			ConfigurationType="1"
+			ConfigurationType="4"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\ImageMagick-6.3.6-Q8\include&quot;;&quot;C:\Program Files\boost\boost_1_33_1&quot;;..\..\..\..\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				RuntimeTypeInfo="TRUE"
+				RuntimeLibrary="5"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
@@ -32,17 +30,8 @@
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="CORE_RL_Magick++_.lib avcodec-51.lib avformat-51.lib avutil-49.lib"
-				OutputFile="$(OutDir)/testvideo.exe"
-				LinkIncremental="2"
-				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\boost\boost_1_33_1\lib&quot;;&quot;C:\Program Files\ImageMagick-6.3.6-Q8\lib&quot;;..\..\..\..\lib"
-				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/testvideo.pdb"
-				SubSystem="1"
-				EnableCOMDATFolding="0"
-				TargetMachine="1"/>
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/lmfit.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -57,8 +46,6 @@
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
 			<Tool
 				Name="VCManagedWrapperGeneratorTool"/>
 			<Tool
@@ -68,14 +55,12 @@
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
-			ConfigurationType="1"
+			ConfigurationType="4"
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\ImageMagick-6.3.6-Q8\include&quot;;&quot;C:\Program Files\boost\boost_1_33_1&quot;;..\..\..\..\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
-				RuntimeLibrary="2"
-				RuntimeTypeInfo="TRUE"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
+				RuntimeLibrary="4"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="TRUE"
@@ -83,16 +68,8 @@
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="CORE_RL_Magick++_.lib libxml2.lib avcodec-51.lib avformat-51.lib avutil-49.lib"
-				OutputFile="$(OutDir)/testvideo.exe"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\boost\boost_1_33_1\lib&quot;;&quot;C:\Program Files\ImageMagick-6.3.6-Q8\lib&quot;;..\..\..\..\lib"
-				GenerateDebugInformation="TRUE"
-				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				TargetMachine="1"/>
+				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)/lmfit.lib"/>
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
@@ -107,8 +84,6 @@
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
 			<Tool
 				Name="VCManagedWrapperGeneratorTool"/>
 			<Tool
@@ -123,19 +98,31 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\..\src\video\testvideo.cpp">
+				RelativePath="..\..\src\lmfit\lm_eval.c">
+			</File>
+			<File
+				RelativePath="..\..\src\lmfit\lmmin.c">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath="..\..\src\lmfit\lm_eval.h">
+			</File>
+			<File
+				RelativePath="..\..\src\lmfit\lmmin.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
 		</Filter>
+		<File
+			RelativePath=".\ReadMe.txt">
+		</File>
 	</Files>
 	<Globals>
 	</Globals>
