@@ -33,7 +33,7 @@
 #include "../video/AsyncVideoDecoder.h"
 #include "../video/FFMpegDecoder.h"
 
-#include <boost/python.hpp>
+#include "BoostPython.h"
 
 #include <iostream>
 #include <sstream>

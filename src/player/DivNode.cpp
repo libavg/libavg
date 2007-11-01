@@ -60,7 +60,7 @@ void DivNode::disconnect()
 
 int DivNode::getNumChildren ()
 {
-    return m_Children.size();
+    return int(m_Children.size());
 }
 
 NodePtr DivNode::getChild (unsigned i)
@@ -75,7 +75,7 @@ NodePtr DivNode::getChild (unsigned i)
 
 void DivNode::appendChild (NodePtr pNewNode)
 {
-    insertChild(pNewNode, m_Children.size());
+    insertChild(pNewNode, unsigned(m_Children.size()));
 }
 
 void DivNode::insertChild(NodePtr pNewNode, unsigned i)

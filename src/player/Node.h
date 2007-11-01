@@ -36,6 +36,7 @@
 
 #include <Python.h>
 #undef HAVE_STAT
+#undef HAVE_TEMPNAM
 
 #include <vector>
 #include <string>

@@ -61,7 +61,7 @@ Event::~Event()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-int Event::getWhen() const
+long long Event::getWhen() const
 {
     return m_When;
 }

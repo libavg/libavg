@@ -24,7 +24,7 @@
 #include "../base/Exception.h"
 #include "../base/ObjectCounter.h"
 
-#include <boost/python.hpp>
+#include "BoostPython.h"
 
 #include <iostream>
 

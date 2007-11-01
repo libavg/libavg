@@ -39,7 +39,7 @@
 #include <object.h>
 #include <compile.h>
 #include <eval.h>
-#include <boost/python.hpp>
+#include "BoostPython.h"
 
 #include <iostream>
 

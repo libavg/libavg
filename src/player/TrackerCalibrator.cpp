@@ -221,7 +221,7 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
 //        control.xtol = 1e-4;
 //        control.gtol = 1e-4;
 
-        size_t dat = m_DisplayPoints.size();
+        int dat = int(m_DisplayPoints.size());
         assert(dat == m_CamPoints.size());
       
         //fill in reasonable defaults

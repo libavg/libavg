@@ -131,9 +131,9 @@ void PanoImage::render(const DRect& Rect)
     glViewport(0, 0, int(Vpt.x), int(Vpt.y));
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImage::render: glViewport()");
-    glColor4f(1.0f, 1.0f, 1.0f, getEffectiveOpacity());
+    glColor4d(1.0, 1.0, 1.0, getEffectiveOpacity());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
-            "PanoImage::render: glColor4f()");
+            "PanoImage::render: glColor4d()");
 //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     double HorizOffset = m_Rotation+m_fovy*m_aspect/2;

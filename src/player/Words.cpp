@@ -440,8 +440,8 @@ void Words::drawString()
             PangoAttrList * pAttrList = 0;
             char * pText = 0;
             GError * pError = 0;
-            bOk = bool(pango_parse_markup(m_Text.c_str(), int(m_Text.length()), 0,
-                    &pAttrList, &pText, 0, &pError));
+            bOk = (pango_parse_markup(m_Text.c_str(), int(m_Text.length()), 0,
+                    &pAttrList, &pText, 0, &pError) != 0);
             if (!bOk) {
                 throw Exception(AVG_ERR_CANT_PARSE_STRING,
                         string("Can't parse string in node with id '")+

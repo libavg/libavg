@@ -51,7 +51,7 @@ class Event {
         
         virtual void trace();
 
-        int getWhen() const;
+        long long getWhen() const;
         Type getType() const;
         Event::Source getSource() const;
         NodePtr getElement() const;
@@ -62,7 +62,7 @@ class Event {
     protected:
         Type m_Type;
         NodePtr m_pNode;
-        int m_When;
+        long long m_When;
 
     private:
         int m_Counter;
