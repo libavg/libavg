@@ -27,8 +27,6 @@
 #include "../player/Node.h"
 #include "../player/TrackerEventSource.h"
 
-#include <boost/python.hpp>
-
 using namespace boost::python;
 using namespace avg;
 using namespace std;

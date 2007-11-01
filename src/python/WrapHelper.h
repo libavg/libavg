@@ -24,7 +24,7 @@
 
 #include "../base/Point.h"
 
-#include <boost/python.hpp>
+#include "../player/BoostPython.h"
 
 template <typename ContainerType>
 struct to_tuple
@@ -201,7 +201,7 @@ struct from_python_sequence
       return 0;
     }
     if (ConversionPolicy::check_convertibility_per_element()) {
-      unsigned int obj_size = PyObject_Length(obj_ptr);
+      Py_ssize_t obj_size = PyObject_Length(obj_ptr);
       if (obj_size < 0) { // must be a measurable sequence
         PyErr_Clear();
         return 0;

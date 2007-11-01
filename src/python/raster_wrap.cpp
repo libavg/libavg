@@ -26,8 +26,6 @@
 #include "../player/Video.h"
 #include "../player/Words.h"
 
-#include <boost/python.hpp>
-
 using namespace boost::python;
 using namespace avg;
 using namespace std;

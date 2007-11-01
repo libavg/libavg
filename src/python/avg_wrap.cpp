@@ -35,7 +35,6 @@ void export_devices();
 #include "../player/PanoImage.h"
 #include "../player/TrackerEventSource.h"
 
-#include <boost/python.hpp>
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
 

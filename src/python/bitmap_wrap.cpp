@@ -19,11 +19,11 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include "../player/BoostPython.h"
+
 #include "../graphics/Bitmap.h"
 
 #include "../base/Point.h"
-
-#include <boost/python.hpp>
 
 using namespace boost::python;
 using namespace avg;

@@ -19,10 +19,11 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include "WrapHelper.h"
+
 #include "../avgconfigwrapper.h"
 #include "../parport/ParPort.h"
 #include "../conradrelais/ConradRelais.h"
-#include <boost/python.hpp>
 #ifdef AVG_ENABLE_PARPORT
 #include <linux/parport.h>
 #endif
