@@ -25,7 +25,7 @@ ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
         EventDispatcher.h CursorEvent.h MouseEvent.h \
         Event.h KeyEvent.h PanoImage.h TestHelper.h \
         RasterNode.h CameraNode.h TrackerEventSource.h TrackerCalibrator.h\
-	    TouchEvent.h EventStream.h\
+	    TouchEvent.h EventStream.h BoostPython.h \
         $(GL_INCLUDES) $(APPLE_INCLUDES)
 
 TESTS=testcalibrator
