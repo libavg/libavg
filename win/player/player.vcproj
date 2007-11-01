@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\ImageMagick-6.3.6-Q8\include&quot;;&quot;C:\Program Files\boost\boost_1_33_1&quot;;&quot;C:\Program Files\python25\include&quot;;..\..\..\..\include"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\ImageMagick-6.3.6-Q8\include&quot;;&quot;C:\Program Files\boost_1_34_1&quot;;&quot;C:\Program Files\python25\include&quot;;..\..\..\..\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -63,7 +63,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\ImageMagick-6.3.6-Q8\include&quot;;&quot;C:\Program Files\boost\boost_1_33_1&quot;;&quot;C:\Program Files\python25\include&quot;;..\..\..\..\include"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\ImageMagick-6.3.6-Q8\include&quot;;&quot;C:\Program Files\boost_1_34_1&quot;;&quot;C:\Program Files\python25\include&quot;;..\..\..\..\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="FALSE"
@@ -327,6 +327,9 @@
 			</File>
 			<File
 				RelativePath="..\..\src\player\Words.h">
+			</File>
+			<File
+				RelativePath="..\..\src\player\WrapPython.h">
 			</File>
 		</Filter>
 		<Filter

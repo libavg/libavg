@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\boost\boost_1_33_1&quot;;C:\devel\include"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\boost_1_34_1&quot;;C:\devel\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -64,7 +64,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\boost\boost_1_33_1&quot;;C:\devel\include"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\boost_1_34_1&quot;;C:\devel\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
 				BufferSecurityCheck="FALSE"

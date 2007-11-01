@@ -22,8 +22,8 @@
 #ifndef _Video_H_
 #define _Video_H_
 
-#include <Python.h> // Python docs say this should be included before 
-                    // any standard headers (!)
+// Python docs say python.h should be included before any standard headers (!)
+#include "WrapPython.h" 
 
 #include "Node.h"
 #include "VideoBase.h"

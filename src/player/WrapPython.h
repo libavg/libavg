@@ -19,37 +19,25 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Timeout_H_
-#define _Timeout_H_
+#ifdef _DEBUG
+#  undef _DEBUG // Don't let Python force the debug library just because we're debugging.
+#  define DEBUG_UNDEFINED_FROM_WRAPPYTHON_H
+#endif
 
-// Python docs say python.h should be included before any standard headers (!)
-#include "WrapPython.h" 
+#include <python.h>
 
-#include <string>
+#undef HAVE_STAT
+#undef HAVE_TEMPNAM
+#undef PACKAGE
+#undef PACKAGE_BUGREPORT
+#undef PACKAGE_NAME
+#undef PACKAGE_STRING
+#undef PACKAGE_TARNAME
+#undef PACKAGE_VERSION
 
-namespace avg {
+#ifdef DEBUG_UNDEFINED_FROM_WRAPPYTHON_H
+# undef DEBUG_UNDEFINED_FROM_WRAPPYTHON_H
+# define _DEBUG
+#endif
 
-class Timeout
-{
-    public:
-        Timeout (int time, PyObject * pyfunc, bool isInterval, long long StartTime);
-        virtual ~Timeout ();
 
-        bool IsReady(long long Time) const;
-        bool IsInterval() const;
-        void Fire(long long CurTime);
-        int GetID() const;
-        bool operator <(const Timeout& other) const;
-
-    private:
-        long long m_Interval;
-        long long m_NextTimeout;
-        PyObject * m_PyFunc;
-        bool m_IsInterval;
-        int m_ID;
-        static int s_LastID;
-};
-
-}
-
-#endif //_Timeout_H_

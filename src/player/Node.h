@@ -34,9 +34,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
-#include <Python.h>
-#undef HAVE_STAT
-#undef HAVE_TEMPNAM
+// Python docs say python.h should be included before any standard headers (!)
+#include "WrapPython.h" 
 
 #include <vector>
 #include <string>

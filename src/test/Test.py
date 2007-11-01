@@ -2,15 +2,23 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-import sys, syslog, time, os
+import sys, time, os, platform
 import tempfile
+
+try:
+    import syslog
+    SYSLOG_AVAILABLE = True
+except ImportError:
+    SYSLOG_AVAILABLE = False
 
 # Import the correct version of libavg. Since it should be possible to
 # run the tests without installing libavg, we add the location of the 
 # uninstalled libavg to the path.
 sys.path += ['../python/.libs', '../python']
-if os.uname()[0] == 'Darwin':
+if platform.system() == 'Darwin':
     sys.path += ['../..']     # Location of libavg in a mac installation.
+elif platform.system() == 'Windows':
+    sys.path += ['../../win/python/Debug']
 import avg
 
 SrcDir = os.getenv("srcdir",".")
@@ -51,9 +59,10 @@ class LoggerTestCase(unittest.TestCase):
         # Windows text files have two chars for linefeed
         self.assert_(stats.st_size in [50, 51])
         
-        self.Log.setSyslogDest(syslog.LOG_USER, syslog.LOG_CONS)
-        self.Log.trace(self.Log.APP, "Test syslog entry.")
-        self.Log.setConsoleDest()
+        if SYSLOG_AVAILABLE:
+            self.Log.setSyslogDest(syslog.LOG_USER, syslog.LOG_CONS)
+            self.Log.trace(self.Log.APP, "Test syslog entry.")
+            self.Log.setConsoleDest()
 
 class AVGTestCase(unittest.TestCase):
     def __init__(self, testFuncName, bpp):
