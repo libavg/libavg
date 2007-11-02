@@ -201,7 +201,7 @@ struct from_python_sequence
       return 0;
     }
     if (ConversionPolicy::check_convertibility_per_element()) {
-      Py_ssize_t obj_size = PyObject_Length(obj_ptr);
+      int obj_size = PyObject_Length(obj_ptr);
       if (obj_size < 0) { // must be a measurable sequence
         PyErr_Clear();
         return 0;
@@ -211,7 +211,7 @@ struct from_python_sequence
       bool is_range = PyRange_Check(obj_ptr);
       std::size_t i=0;
       if (!all_elements_convertible(obj_iter, is_range, i)) return 0;
-      if (!is_range) assert(i == obj_size);
+      if (!is_range) assert(i == (std::size_t)obj_size);
     }
     return obj_ptr;
   }
