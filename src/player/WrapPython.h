@@ -24,7 +24,7 @@
 #  define DEBUG_UNDEFINED_FROM_WRAPPYTHON_H
 #endif
 
-#include <python.h>
+#include <Python.h>
 
 #undef HAVE_STAT
 #undef HAVE_TEMPNAM
