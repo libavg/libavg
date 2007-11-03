@@ -4,18 +4,30 @@ INCLUDES = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ \
         @DC1394_2_CFLAGS@ \
 		$(MAGICK_CFLAGS)
         
+if ENABLE_1394
+    DC1394_LIBS = -ldc1394_control -lraw1394
+else
+    DC1394_LIBS =
+endif
+
 if APPLE
     APPLE_SOURCES = SDLMain.m AppleGLHelper.cpp
     APPLE_INCLUDES = AppleGLHelper.h
+    XGL_LIBS =
+    APPLE_LINKFLAGS=-read_only_relocs suppress
 else
     APPLE_SOURCES =
     APPLE_INCLUDES = 
+    XGL_LIBS = -lXxf86vm
+    APPLE_LINKFLAGS=
 endif
 
 GL_SOURCES = OGLHelper.cpp OGLSurface.cpp SDLDisplayEngine.cpp OGLTile.cpp \
         	 OGLShader.cpp
 GL_INCLUDES = SDLDisplayEngine.h OGLHelper.h OGLSurface.h OGLTile.h \
               OGLShader.h GL/gl.h GL/glext.h GL/glu.h GL/glx.h
+
+ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
 ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
         DisplayEngine.h Region.h Node.h \
@@ -28,14 +40,22 @@ ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
 	    TouchEvent.h EventStream.h BoostPython.h \
         $(GL_INCLUDES) $(APPLE_INCLUDES)
 
-TESTS=testcalibrator
+TESTS=testcalibrator testplayer
 
 noinst_LTLIBRARIES = libplayer.la
-noinst_PROGRAMS = checktracker testcalibrator
+noinst_PROGRAMS = checktracker testcalibrator testplayer
 checktracker_SOURCES=checktracker.cpp
 checktracker_LDADD = libplayer.la ../video/libvideo.la ../imaging/libimaging.la \
 		../graphics/libgraphics.la ../base/libbase.la ../lmfit/liblmfit.la
 checktracker_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ 
+
+testplayer_SOURCES=testplayer.cpp
+testplayer_LDADD = libplayer.la ../video/libvideo.la ../imaging/libimaging.la \
+		../graphics/libgraphics.la ../base/libbase.la ../lmfit/liblmfit.la
+testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker  \
+        $(MAGICK_LIBS) @XML2_LIBS@ \
+        -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(DC1394_LIBS) @DC1394_2_LIBS@ @GLU_LIBS@ \
+        $(ALL_GL_LIBS) @LIBFFMPEG@ @SWSCALE_LIBS@ @PANGOFT2_LIBS@ $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS)
 
 testcalibrator_SOURCES=testcalibrator.cpp
 testcalibrator_LDADD = libplayer.la ../video/libvideo.la ../imaging/libimaging.la \
