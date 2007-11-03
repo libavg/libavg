@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="testcalibrator"
-	ProjectGUID="{DD2AB629-CE3E-4374-8751-3A01C53F9377}"
+	Name="testplayer"
+	ProjectGUID="{1AE49235-5FA8-415E-8A53-4768A22AB1D5}"
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform
@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\ImageMagick-6.3.6-Q8\include&quot;;&quot;C:\Program Files\boost_1_34_1&quot;;..\..\..\..\include"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\ImageMagick-6.3.6-Q8\include&quot;;&quot;C:\Program Files\python25\include&quot;;&quot;C:\Program Files\boost_1_34_1&quot;;..\..\..\..\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -33,11 +33,12 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="CORE_RL_Magick++_.lib avcodec-51.lib avformat-51.lib avutil-49.lib"
-				OutputFile="$(OutDir)/testcalibrator.exe"
+				AdditionalDependencies="OpenGL32.Lib CORE_RL_Magick++_.lib avcodec-51.lib avformat-51.lib avutil-49.lib fontconfig.lib glib-2.0.lib libpango-1.0.dll.a libpangoft2-1.0.dll.a glu32.lib SDL.lib gobject-2.0.lib"
+				OutputFile="$(OutDir)/testplayer.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\boost_1_34_1\lib&quot;;&quot;C:\Program Files\ImageMagick-6.3.6-Q8\lib&quot;;..\..\..\..\lib"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\boost_1_34_1\lib&quot;;&quot;C:\Program Files\python25\libs&quot;;&quot;C:\Program Files\ImageMagick-6.3.6-Q8\lib&quot;;..\..\..\..\lib"
+				IgnoreDefaultLibraryNames="msvcrt.lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/testvideo.pdb"
 				SubSystem="1"
@@ -72,7 +73,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\ImageMagick-6.3.6-Q8\include&quot;;&quot;C:\Program Files\boost_1_34_1&quot;;..\..\..\..\include"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\ImageMagick-6.3.6-Q8\include&quot;;&quot;C:\Program Files\python25\include&quot;;&quot;C:\Program Files\boost_1_34_1&quot;;..\..\..\..\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
@@ -84,10 +85,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="CORE_RL_Magick++_.lib libxml2.lib"
-				OutputFile="$(OutDir)/testcalibrator.exe"
+				AdditionalDependencies="OpenGL32.Lib CORE_RL_Magick++_.lib avcodec-51.lib avformat-51.lib avutil-49.lib fontconfig.lib glib-2.0.lib libpango-1.0.dll.a libpangoft2-1.0.dll.a glu32.lib SDL.lib gobject-2.0.lib"
+				OutputFile="$(OutDir)/testplayer.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\boost_1_34_1\lib&quot;"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\boost_1_34_1\lib&quot;;&quot;C:\Program Files\python25\libs&quot;;&quot;C:\Program Files\ImageMagick-6.3.6-Q8\lib&quot;;..\..\..\..\lib"
 				GenerateDebugInformation="TRUE"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -123,7 +124,7 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath="..\..\src\player\testcalibrator.cpp">
+				RelativePath="..\..\src\player\testplayer.cpp">
 			</File>
 		</Filter>
 		<Filter
