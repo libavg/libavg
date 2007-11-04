@@ -43,7 +43,6 @@ private:
     ObjectCounter();
     std::string demangle(std::string s);
 
-
     typedef std::map<const std::type_info *, int> TypeMap;
     TypeMap m_TypeMap;
 

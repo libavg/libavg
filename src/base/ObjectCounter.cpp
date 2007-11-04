@@ -42,7 +42,7 @@ namespace avg {
 using namespace std;
 
 ObjectCounter* ObjectCounter::m_pObjectCounter = 0;
-boost::mutex CounterMutex;
+boost::mutex * pCounterMutex;
 
 ObjectCounter::ObjectCounter()
 {
@@ -54,19 +54,17 @@ ObjectCounter::~ObjectCounter()
 
 ObjectCounter * ObjectCounter::get()
 {
-#ifdef DEBUG_ALLOC
     if (!m_pObjectCounter) {
-        boost::mutex::scoped_lock Lock(CounterMutex);
         m_pObjectCounter = new ObjectCounter;
+        pCounterMutex = new boost::mutex;
     }
     return m_pObjectCounter;
-#endif
 }
 
 void ObjectCounter::incRef(const std::type_info* pType)
 {
 #ifdef DEBUG_ALLOC
-    boost::mutex::scoped_lock Lock(CounterMutex);
+    boost::mutex::scoped_lock Lock(*pCounterMutex);
     TypeMap::iterator MapEntry = m_TypeMap.find(pType);
     if (MapEntry == m_TypeMap.end()) {
         m_TypeMap[pType] = 1;
@@ -79,7 +77,7 @@ void ObjectCounter::incRef(const std::type_info* pType)
 void ObjectCounter::decRef(const std::type_info* pType)
 {
 #ifdef DEBUG_ALLOC
-    boost::mutex::scoped_lock Lock(CounterMutex);
+    boost::mutex::scoped_lock Lock(*pCounterMutex);
     TypeMap::iterator MapEntry = m_TypeMap.find(pType);
     if (MapEntry == m_TypeMap.end()) {
         // Can't decref a type that hasn't been incref'd.
