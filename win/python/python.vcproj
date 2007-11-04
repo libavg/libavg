@@ -34,7 +34,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="OpenGL32.Lib CORE_RL_Magick++_.lib avcodec-51.lib avformat-51.lib avutil-49.lib fontconfig.lib glib-2.0.lib pango-1.0.lib pangoft2-1.0.lib glu32.lib SDL.lib gobject-2.0.lib"
+				AdditionalDependencies="OpenGL32.Lib CORE_RL_Magick++_.lib avcodec-51.lib avformat-51.lib avutil-49.lib fontconfig.lib glib-2.0.lib pango-1.0.lib pangoft2-1.0.lib glu32.lib SDL.lib gobject-2.0.lib psapi.lib"
 				OutputFile="$(OutDir)/avg.pyd"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;C:\Program Files\boost_1_34_1\lib&quot;;&quot;C:\Program Files\python25\libs&quot;;&quot;C:\Program Files\ImageMagick-6.3.6-Q8\lib&quot;;..\..\..\..\lib"
@@ -156,6 +156,9 @@
 		</Filter>
 		<File
 			RelativePath="..\..\src\python\Makefile.am">
+		</File>
+		<File
+			RelativePath="..\..\src\test\Test.py">
 		</File>
 	</Files>
 	<Globals>

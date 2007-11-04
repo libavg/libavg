@@ -29,6 +29,9 @@
 #ifndef _WIN32
 #include <unistd.h>
 #include <sys/sysctl.h>
+#else
+#include <windows.h>
+#include <psapi.h>
 #endif
 #include <sys/types.h>
 
@@ -76,7 +79,14 @@ unsigned getMemUsed()
     return taskInfo.resident_size;
 #else
 #ifdef _WIN32
-    return 0;
+    HANDLE hProcess = GetCurrentProcess();
+    PROCESS_MEMORY_COUNTERS pmc;
+    BOOL bOk = GetProcessMemoryInfo(hProcess, &pmc, sizeof(pmc));
+    if (bOk) {
+        return unsigned(pmc.WorkingSetSize);
+    } else {
+        return 0;
+    }
 #else
     pid_t PID = getpid();
     stringstream ss;
