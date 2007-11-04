@@ -95,7 +95,7 @@ void export_event()
         .add_property("y", &MouseEvent::getYPosition,
                 "y position in the global coordinate system (ro).\n")
         .add_property("cursorid", &MouseEvent::getCursorID,
-                "Always 0 for mouse events, but can be used to handle mouse and \n"
+                "Always -1 for mouse events, but can be used to handle mouse and \n"
                 "tracking events at once (ro).\n")
         .add_property("button", &MouseEvent::getButton,
                 "The button that caused the event (ro).\n")

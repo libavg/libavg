@@ -42,6 +42,31 @@ using namespace std;
 namespace avg {
 
 std::set<std::string> Words::s_sFontsNotFound;
+bool Words::s_bInitialized = false;
+
+void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level, 
+        const gchar *message, gpointer unused_data)
+{
+// TODO: Reenable this
+/*
+    string s = "Pango ";
+    if (log_level & G_LOG_LEVEL_ERROR) {
+        s += "error: ";
+    } else if (log_level & G_LOG_LEVEL_CRITICAL) {
+        s += "critical: ";
+    } else if (log_level & G_LOG_LEVEL_WARNING) {
+        s += "warning: ";
+    } else if (log_level & G_LOG_LEVEL_MESSAGE) {
+        s += "message: ";
+    } else if (log_level & G_LOG_LEVEL_INFO) {
+        s += "info: ";
+    } else if (log_level & G_LOG_LEVEL_DEBUG) {
+        s += "debug: ";
+    }
+    s += message;
+    AVG_TRACE(Logger::WARNING, s);
+*/
+}
 
 Words::Words (const xmlNodePtr xmlNode, Player * pPlayer)
     : RasterNode(xmlNode, pPlayer), 
@@ -63,6 +88,10 @@ Words::Words (const xmlNodePtr xmlNode, Player * pPlayer)
     m_bItalic = getDefaultedBoolAttr (xmlNode, "italic", false);
     setStretch(getDefaultedStringAttr (xmlNode, "stretch", "normal"));
     m_bSmallCaps = getDefaultedBoolAttr (xmlNode, "smallcaps", false);
+
+    if (!s_bInitialized) {
+        g_log_set_default_handler(GLibLogFunc, 0);
+    }
 }
 
 Words::~Words ()

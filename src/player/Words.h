@@ -119,6 +119,7 @@ class Words : public RasterNode
         bool m_bDrawNeeded;
 
         static std::set<std::string> s_sFontsNotFound;
+        static bool s_bInitialized;
 };
 
 }
