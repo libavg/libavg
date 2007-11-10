@@ -706,7 +706,11 @@ bool SDLDisplayEngine::initVBlank(int rate) {
             AVG_TRACE(Logger::WARNING,
                     "VBlank rate set to " << rate << " but Mac OS X only supports 1. Assuming 1.");
         }
+#if __APPLE_CC__ > 5367
         const GLint l = 1;
+#else
+        const long l = 1;
+#endif
         CGLError err = CGLSetParameter(Context, kCGLCPSwapInterval, &l);
         m_VBMethod = VB_APPLE;
         if (err) {
