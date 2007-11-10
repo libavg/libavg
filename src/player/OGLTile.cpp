@@ -162,7 +162,7 @@ void OGLTile::createTexture(int i, IntPoint Size, int Stride, PixelFormat pf)
     // XXX: Hack to work around broken Mac OS X GL_ALPHA/GL_UNPACK_ROW_LENGTH.
     // If this is gone, the Stride parameter can be removed too :-).
     if (Stride != Size.x && DestMode == GL_ALPHA && 
-            (m_pf == YCbCr420p || m_pf == YCbCrJ420p)) 
+           (m_pf == YCbCr420p || m_pf == YCbCrJ420p)) 
     {
         DestMode = GL_RGBA;
     }

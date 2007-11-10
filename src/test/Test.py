@@ -187,9 +187,6 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(framerate > 0)
         Player.showCursor(0)
         Player.showCursor(1)
-        mem = Player.getMemUsed()
-        self.assert_(mem > 1000000)
-        self.assert_(mem < 100000000)
         self.start("image.avg",
                 (lambda: self.compareImage("testimg", False), 
                  getBitmap,
