@@ -115,6 +115,7 @@ buildpango
 buildLib boost_1_34_1 "--with-libraries=python,thread"
 rm -f ../include/boost
 ln -fs ../include/boost-1_34_1/boost/ ../include/boost
+ln -fs ../lib/libboost_thread-mt.a ../lib/libboost_thread.a
 
 buildLib libdc1394-2.0.0-rc4 --disable-shared
 
