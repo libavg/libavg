@@ -47,7 +47,7 @@ OSStatus aglInitEntryPoints (void)
 
     // Frameworks directory/folder
     err = FindFolder (kSystemDomain, kFrameworksFolderType, false,
-                      &fileRefParam.ioVRefNum, &fileRefParam.ioDirID);
+                      &fileRefParam.ioVRefNum, (SInt32*)&fileRefParam.ioDirID);
     if (noErr != err) {
         AVG_TRACE(Logger::WARNING, "Could not find frameworks folder");
         return err;

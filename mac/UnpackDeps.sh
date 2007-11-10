@@ -3,7 +3,7 @@ pushd $AVG_PATH/deps
 tar xjf ImageMagick-6.2.8-4.tar.bz2
 tar xzf SDL-1.2.11.tar.gz
 tar xzf automake-1.9.6.tar.gz
-tar xjf boost_1_33_1.tar.bz2
+tar xjf boost_1_34_1.tar.bz2
 tar xzf bzip2-1.0.3.tar.gz
 tar xzf expat-2.0.0.tar.gz
 tar xzf fontconfig-2.3.2.tar.gz
@@ -30,4 +30,6 @@ cd libdc1394-2.0.0-rc4/dc1394/macosx/
 patch -p0 <../../../../libavg/mac/libdc1394.patch
 cd ..
 
+cd ffmpeg
+patch -p0 <../../../../libavg/mac/ffmpeg.patch
 popd

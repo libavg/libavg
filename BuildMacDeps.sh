@@ -112,9 +112,9 @@ buildLib expat-2.0.0 --disable-shared
 buildfontconfig
 
 buildpango
-buildLib boost_1_33_1 --with-libraries=python,thread 
+buildLib boost_1_34_1 "--with-libraries=python,thread"
 rm -f ../include/boost
-ln -fs ../include/boost-1_33_1/boost/ ../include/boost
+ln -fs ../include/boost-1_34_1/boost/ ../include/boost
 
 buildLib libdc1394-2.0.0-rc4 --disable-shared
 
