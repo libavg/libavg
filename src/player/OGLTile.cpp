@@ -161,7 +161,8 @@ void OGLTile::createTexture(int i, IntPoint Size, int Stride, PixelFormat pf)
 #ifdef __APPLE__    
     // XXX: Hack to work around broken Mac OS X GL_ALPHA/GL_UNPACK_ROW_LENGTH.
     // If this is gone, the Stride parameter can be removed too :-).
-    if (DestMode == GL_ALPHA && (m_pf == YCbCr420p || m_pf == YCbCrJ420p)) 
+    if (Stride != Size.x && DestMode == GL_ALPHA &&
+            (m_pf == YCbCr420p || m_pf == YCbCrJ420p)) 
     {
         DestMode = GL_RGBA;
     }
@@ -215,6 +216,14 @@ void OGLTile::downloadTexture(int i, BitmapPtr pBmp, int stride,
     if (MemoryMode == OGL) {
         pStartPos += (ptrdiff_t)(pBmp->getPixels());
     }
+#ifdef __APPLE__
+    // Under Mac OS X 10.5.0, the combination of glTexSubImage2D, GL_ALPHA and PBO
+    // is broken if pStartPos is 0. So we use an offset. There's corresponding code in
+    // OGLSurface that undoes this... bleagh.
+    if (MemoryMode == PBO && (m_pf == YCbCr420p || m_pf == YCbCrJ420p)) {
+        pStartPos += 1;
+    }
+#endif
     {
         ScopeTimer Timer(TexSubImageProfilingZone);
         glTexSubImage2D(TextureMode, 0, 0, 0, Extent.Width(), Extent.Height(),
