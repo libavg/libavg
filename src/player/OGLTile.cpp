@@ -158,9 +158,9 @@ void OGLTile::createTexture(int i, IntPoint Size, int Stride, PixelFormat pf)
             "OGLTile::createTexture: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
     
     GLenum DestMode = m_pEngine->getOGLDestMode(pf);
-#ifdef __APPLE__    
-    // XXX: Hack to work around broken Mac OS X GL_ALPHA/GL_UNPACK_ROW_LENGTH.
-    // If this is gone, the Stride parameter can be removed too :-).
+#if defined(__APPLE__) && !defined(__i386__)
+    // XXX: Hack to work around broken Mac OS X GL_ALPHA/GL_UNPACK_ROW_LENGTH on 
+    // PPC macs. If this is gone, the Stride parameter can be removed too :-).
     if (Stride != Size.x && DestMode == GL_ALPHA &&
             (m_pf == YCbCr420p || m_pf == YCbCrJ420p)) 
     {
