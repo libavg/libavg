@@ -23,7 +23,6 @@
 #include "Command.h"
 #include "WorkerThread.h"
 #include "ObjectCounter.h"
-#include "MemHelper.h"
 #include "Point.h"
 
 #include "TestSuite.h"

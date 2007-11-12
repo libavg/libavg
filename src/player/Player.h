@@ -62,7 +62,6 @@ class Player : IEventSink
         void setFramerate(double rate);
         bool setVBlankFramerate(int rate);
         double getEffectiveFramerate();
-        unsigned getMemUsed();
         TestHelper * getTestHelper();
         void setFakeFPS(double fps);
         long long getFrameTime();

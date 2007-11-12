@@ -46,7 +46,6 @@
 #include "../base/Profiler.h"
 #include "../base/ScopeTimer.h"
 #include "../base/TimeSource.h"
-#include "../base/MemHelper.h"
 #include "../base/Rect.h"
 
 #include "../imaging/FWCamera.h"
@@ -296,11 +295,6 @@ double Player::getEffectiveFramerate() {
     } else {
         return 0;
     }
-}
-
-unsigned Player::getMemUsed()
-{
-    return avg::getMemUsed();
 }
 
 TestHelper * Player::getTestHelper()
