@@ -1119,6 +1119,10 @@ def completeTestSuite(bpp):
     suite.addTest(playerTestSuite(bpp))
     return suite
 
+def runConsoleTest():
+    Player = avg.Player()
+    Player.loadFile("video.avg")
+
 def getBoolParam(paramIndex):
     param = sys.argv[paramIndex].upper()
     if param == "TRUE":
@@ -1128,43 +1132,46 @@ def getBoolParam(paramIndex):
     else:
         print "Parameter "+paramIndex+" must be 'True' or 'False'"
 
-if len(sys.argv) == 1:
-    bpp = 24
-    customOGLOptions = False
-elif len(sys.argv) == 2 or len(sys.argv) == 5:
-    bpp = int(sys.argv[1])
-    if (len(sys.argv) == 5):
-        customOGLOptions = True
-        UsePOW2Textures = getBoolParam(2)
-        s = sys.argv[3]
-        if s == "shader":
-            YCbCrMode = avg.shader
-        elif s == "apple":
-            YCbCrMode = avg.apple
-        elif s == "mesa":
-            YCbCrMode = avg.mesa
-        elif s == "none":
-            YCbCrMode = avg.none
-        else:
-            print "Third parameter must be shader, apple, mesa or none"
-        UsePixelBuffers = getBoolParam(4)
-    else:
+if os.getenv("AVG_CONSOLE_TEST"):
+    runConsoleTest()
+else:
+    if len(sys.argv) == 1:
+        bpp = 24
         customOGLOptions = False
-else:
-    print "Usage: Test.py [<bpp>"
-    print "               [<UsePOW2Textures> <YCbCrMode> <UsePixelBuffers>]]"
-    sys.exit(1)
+    elif len(sys.argv) == 2 or len(sys.argv) == 5:
+        bpp = int(sys.argv[1])
+        if (len(sys.argv) == 5):
+            customOGLOptions = True
+            UsePOW2Textures = getBoolParam(2)
+            s = sys.argv[3]
+            if s == "shader":
+                YCbCrMode = avg.shader
+            elif s == "apple":
+                YCbCrMode = avg.apple
+            elif s == "mesa":
+                YCbCrMode = avg.mesa
+            elif s == "none":
+                YCbCrMode = avg.none
+            else:
+                print "Third parameter must be shader, apple, mesa or none"
+            UsePixelBuffers = getBoolParam(4)
+        else:
+            customOGLOptions = False
+    else:
+        print "Usage: Test.py [<bpp>"
+        print "               [<UsePOW2Textures> <YCbCrMode> <UsePixelBuffers>]]"
+        sys.exit(1)
 
-if not(customOGLOptions): 
-    UsePOW2Textures = False 
-    YCbCrMode = avg.shader
-    UsePixelBuffers = True
+    if not(customOGLOptions): 
+        UsePOW2Textures = False 
+        YCbCrMode = avg.shader
+        UsePixelBuffers = True
 
-Player = avg.Player()
-runner = unittest.TextTestRunner()
-rc = runner.run(completeTestSuite(bpp))
-if rc.wasSuccessful():
-    sys.exit(0)
-else:
-    sys.exit(1)
+    Player = avg.Player()
+    runner = unittest.TextTestRunner()
+    rc = runner.run(completeTestSuite(bpp))
+    if rc.wasSuccessful():
+        sys.exit(0)
+    else:
+        sys.exit(1)
 
