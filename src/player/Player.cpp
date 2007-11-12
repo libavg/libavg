@@ -231,7 +231,7 @@ void Player::play()
         m_PlayStartTime = TimeSource::get()->getCurrentMillisecs();
         m_FrameTime = 0;
         m_NumFrames = 0;
-        m_pDisplayEngine->render(m_pRootNode, true);
+        m_pDisplayEngine->render(m_pRootNode);
         if (m_pDisplayEngine->wasFrameLate()) {
             ThreadProfiler::get()->dumpFrame();
         }
@@ -432,7 +432,7 @@ void Player::setEventCapture(NodeWeakPtr pNode, int cursorID) {
     }
 }
 
-void Player::releaseEventCapture(NodeWeakPtr pNode, int cursorID) {
+void Player::releaseEventCapture(int cursorID) {
     std::map<int, NodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
     if(it==m_pEventCaptureNode.end()||(it->second.expired()) ) {
         throw Exception(AVG_ERR_INVALID_CAPTURE,
@@ -535,7 +535,7 @@ void Player::doFrame ()
         if (!m_bStopping) {
             Py_BEGIN_ALLOW_THREADS;
             ScopeTimer Timer(RenderProfilingZone);
-            m_pDisplayEngine->render(m_pRootNode, false);
+            m_pDisplayEngine->render(m_pRootNode);
             Py_END_ALLOW_THREADS;
         }
         {

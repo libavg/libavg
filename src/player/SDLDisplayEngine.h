@@ -50,7 +50,7 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual double getRefreshRate();
         virtual void setGamma(double Red, double Green, double Blue);
 
-        virtual void render(AVGNodePtr pRootNode, bool bRenderEverything);
+        virtual void render(AVGNodePtr pRootNode);
         
         virtual bool pushClipRect(const DRect& rc);
         virtual void popClipRect();

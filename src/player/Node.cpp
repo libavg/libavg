@@ -287,7 +287,7 @@ void Node::setEventCapture(int cursorID) {
 }
 
 void Node::releaseEventCapture(int cursorID) {
-    m_pPlayer->releaseEventCapture(m_This, cursorID);
+    m_pPlayer->releaseEventCapture(cursorID);
 }
 
 void Node::setEventHandler(Event::Type Type, Event::Source Source, PyObject * pFunc)

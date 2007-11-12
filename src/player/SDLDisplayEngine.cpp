@@ -398,7 +398,7 @@ void SDLDisplayEngine::logConfig()
 
 static ProfilingZone RootRenderProfilingZone("Root node: render");
 
-void SDLDisplayEngine::render(AVGNodePtr pRootNode, bool bRenderEverything)
+void SDLDisplayEngine::render(AVGNodePtr pRootNode)
 {
     m_bEnableCrop = pRootNode->getCropSetting();
     

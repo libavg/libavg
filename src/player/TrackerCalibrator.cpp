@@ -222,7 +222,7 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
 //        control.gtol = 1e-4;
 
         int dat = int(m_DisplayPoints.size());
-        assert(dat == m_CamPoints.size());
+        assert(dat == int(m_CamPoints.size()));
       
         //fill in reasonable defaults
         m_DistortParams.clear();

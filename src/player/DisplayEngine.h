@@ -60,7 +60,7 @@ class DisplayEngine
         virtual void setGamma(double Red, double Green, double Blue) = 0;
 
 
-        virtual void render(AVGNodePtr pRootNode, bool bRenderEverything) = 0;
+        virtual void render(AVGNodePtr pRootNode) = 0;
         void frameWait();
         long long getDisplayTime();
         

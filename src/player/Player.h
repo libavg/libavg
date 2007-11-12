@@ -78,7 +78,7 @@ class Player : IEventSink
         Bitmap * screenshot();
         void showCursor(bool bShow);
         void setEventCapture(NodeWeakPtr pNode, int cursorID=MOUSECURSORID);
-        void releaseEventCapture(NodeWeakPtr pNode, int cursorID=MOUSECURSORID);
+        void releaseEventCapture(int cursorID=MOUSECURSORID);
 
         NodePtr getElementByID(const std::string& id);
         void registerNode(NodePtr pNode);
