@@ -90,7 +90,7 @@ void VideoDemuxerThread::enableStream(VideoPacketQueuePtr pPacketQ, int StreamIn
     m_pDemuxer->enableStream(StreamIndex);
 }
 
-void VideoDemuxerThread::seek(int DestFrame, int StartTimestamp, int StreamIndex)
+void VideoDemuxerThread::seek(int DestFrame, long long StartTimestamp, int StreamIndex)
 {
     map<int, VideoPacketQueuePtr>::iterator it;
     m_pDemuxer->seek(DestFrame, StartTimestamp, StreamIndex);

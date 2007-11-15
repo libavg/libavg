@@ -44,7 +44,7 @@ class VideoDemuxerThread: public WorkerThread<VideoDemuxerThread> {
         void deinit();
 
         void enableStream(VideoPacketQueuePtr pPacketQ, int StreamIndex);
-        void seek(int DestFrame, int StartTimestamp, int StreamIndex);
+        void seek(int DestFrame, long long StartTimestamp, int StreamIndex);
 
     private:
         std::map<int, VideoPacketQueuePtr> m_PacketQs;
