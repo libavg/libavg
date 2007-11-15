@@ -35,7 +35,7 @@ class LoggerTestCase(unittest.TestCase):
     def test(self):
         self.Log = avg.Logger.get()
         self.Log.setCategories(self.Log.APP |
-                  self.Log.WARNING 
+                  self.Log.WARNING
 #                  self.Log.PROFILE |
 #                  self.Log.PROFILE_LATEFRAMES |
 #                  self.Log.CONFIG |
@@ -62,7 +62,7 @@ class LoggerTestCase(unittest.TestCase):
         if SYSLOG_AVAILABLE:
             self.Log.setSyslogDest(syslog.LOG_USER, syslog.LOG_CONS)
             self.Log.trace(self.Log.APP, "Test syslog entry.")
-            self.Log.setConsoleDest()
+        self.Log.setConsoleDest()
 
 class AVGTestCase(unittest.TestCase):
     def __init__(self, testFuncName, bpp):
