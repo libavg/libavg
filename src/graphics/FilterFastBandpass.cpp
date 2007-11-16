@@ -58,13 +58,13 @@ BitmapPtr FilterFastBandpass::apply(BitmapPtr pBmpSrc)
         *pDstPixel++ = 128;
         for (int x = 3; x < size.x-3; ++x) {
             // Convolution Matrix is
-            // -1  0  0  0  0  0 -1 
-            //  0 -1  0  0  0 -1  0
+            //  0  0  0  0  0  0  0 
+            //  0 -2  0  0  0 -2  0
             //  0  0  1  0  1  0  0
             //  0  0  0  4  0  0  0
             //  0  0  1  0  1  0  0
-            //  0 -1  0  0  0 -1  0
-            // -1  0  0  0  0  0 -1 
+            //  0 -2  0  0  0 -2  0
+            //  0  0  0  0  0  0  0 
 //            *pDstPixel = 128 - int(*(pSrcPixel-3*SrcStride-3) + *(pSrcPixel-3*SrcStride+3) +
 //                *(pSrcPixel+3*SrcStride-3) + *(pSrcPixel+3*SrcStride+3)+2)/4; 
             *pDstPixel = 128
