@@ -3,7 +3,7 @@
 set -e
 set -x
 
-export VERSION=0.7.1
+export VERSION=0.7.1.pre1
 export INSTALL_PATH_10_4="/Library/Python/2.3/site-packages/libavg"
 export INSTALL_PATH_10_5="/Library/Python/2.5/site-packages/libavg"
 
@@ -57,22 +57,26 @@ then
     exit -1 
 fi
 
-if [[ x$1 == x ]]
+if [[ x$2 == x ]]
 then
-    echo Usage: MakeMacDist "<intel|ppc>"
+    echo Usage: MakeMacDist "<intel|ppc> <10.4|10.5>"
     exit 1
 fi
 
 PLATFORM=$1
 LIBAVGDIR=`pwd`
 
-makeOneDist $INSTALL_PATH_10_4
-cd $LIBAVGDIR
-/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -proj mac/libavg.10.4.pmproj -v -p libavg.pkg
-zip -ry libavg-mac-tiger-${PLATFORM}.${VERSION}.zip libavg.pkg
-
-makeOneDist $INSTALL_PATH_10_5
-cd $LIBAVGDIR
-/Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker --doc mac/libavg.10.5.pmdoc -v -o libavg.pkg
-zip -ry libavg-mac-leopard-${PLATFORM}.${VERSION}.zip libavg.pkg
-
+if [[ $2 == 10.4 ]]
+then
+    makeOneDist $INSTALL_PATH_10_4
+    cd $LIBAVGDIR
+    /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -proj mac/libavg.10.4.pmproj -v -p libavg.pkg
+    hdiutil create libavg-mac-tiger-${PLATFORM}.${VERSION}.dmg -srcfolder libavg.pkg -ov 
+    hdiutil internet-enable -yes libavg-mac-tiger-${PLATFORM}.${VERSION}.dmg
+else
+    makeOneDist $INSTALL_PATH_10_5
+    cd $LIBAVGDIR
+    /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker --doc mac/libavg.10.5.pmdoc -v -o libavg.pkg
+    hdiutil create libavg-mac-leopard-${PLATFORM}.${VERSION}.dmg -srcfolder libavg.pkg -ov 
+    hdiutil internet-enable -yes libavg-mac-leopard-${PLATFORM}.${VERSION}.dmg
+fi
