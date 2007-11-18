@@ -9,5 +9,5 @@ else
     export LDFLAGS="-L${AVG_PATH}/lib "$LDFLAGS
     export PKG_CONFIG_PATH=${AVG_PATH}/lib/pkgconfig
     export PYTHONPATH=${AVG_PATH}/lib/python2.3/site-packages/:$PYTHONPATH
-    export PYTHONPATH=${AVG_PATH}/lib/python2.5/site-packages/:$PYTHONPATH
+    export PYTHONPATH=${AVG_PATH}/lib/python/2.5/site-packages/:$PYTHONPATH
 fi
