@@ -25,6 +25,7 @@ distLib()
 makeOneDist()
 {
     INSTALL_PATH=$1
+    PYTHON_VER=$2
 
     # Copy distribution files into staging area.
     cd $LIBAVGDIR/../dist
@@ -33,7 +34,7 @@ makeOneDist()
     cd libavg
     mkdir avg
     mkdir avg/test
-    cp -Rv ../../lib/python/2.5/site-packages/libavg/ .
+    cp -Rv ../../lib/python/$PYTHON_VER/site-packages/libavg/ .
     cp ../../libavg/src/avgrc avg
     cp ../../bin/fc-cache avg
     cd $LIBAVGDIR/src/test
@@ -68,13 +69,13 @@ LIBAVGDIR=`pwd`
 
 if [[ $2 == 10.4 ]]
 then
-    makeOneDist $INSTALL_PATH_10_4
+    makeOneDist $INSTALL_PATH_10_4 2.3
     cd $LIBAVGDIR
     /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -proj mac/libavg.10.4.pmproj -v -p libavg.pkg
     hdiutil create libavg-mac-tiger-${PLATFORM}.${VERSION}.dmg -srcfolder libavg.pkg -ov 
     hdiutil internet-enable -yes libavg-mac-tiger-${PLATFORM}.${VERSION}.dmg
 else
-    makeOneDist $INSTALL_PATH_10_5
+    makeOneDist $INSTALL_PATH_10_5 2.5
     cd $LIBAVGDIR
     /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker --doc mac/libavg.10.5.pmdoc -v -o libavg.pkg
     hdiutil create libavg-mac-leopard-${PLATFORM}.${VERSION}.dmg -srcfolder libavg.pkg -ov 
