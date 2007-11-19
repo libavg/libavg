@@ -24,6 +24,7 @@
 #include "WorkerThread.h"
 #include "ObjectCounter.h"
 #include "Point.h"
+#include "OSHelper.h"
 
 #include "TestSuite.h"
 #include "TimeSource.h"
@@ -226,6 +227,19 @@ public:
     }
 };
 
+class OSTest: public Test {
+public:
+    OSTest()
+        : Test("OSTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        TEST(getAvgLibPath() != "");
+    }
+};
+
 class BaseTestSuite: public TestSuite {
 public:
     BaseTestSuite() 
@@ -235,6 +249,7 @@ public:
         addTest(TestPtr(new WorkerThreadTest));
         addTest(TestPtr(new ObjectCounterTest));
         addTest(TestPtr(new PointTest));
+        addTest(TestPtr(new OSTest));
     }
 };
 

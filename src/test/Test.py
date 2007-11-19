@@ -14,12 +14,15 @@ except ImportError:
 # Import the correct version of libavg. Since it should be possible to
 # run the tests without installing libavg, we add the location of the 
 # uninstalled libavg to the path.
+# TODO: This is a mess. 
 sys.path += ['../python/.libs', '../python']
 if platform.system() == 'Darwin':
     sys.path += ['../..']     # Location of libavg in a mac installation.
-elif platform.system() == 'Windows':
-    sys.path += ['../../win/python/Debug']
-import avg
+    
+if platform.system() == 'Windows':
+    from libavg import avg
+else:    
+    import avg
 
 SrcDir = os.getenv("srcdir",".")
 os.chdir(SrcDir)
@@ -39,7 +42,7 @@ class LoggerTestCase(unittest.TestCase):
 #                  self.Log.PROFILE |
 #                  self.Log.PROFILE_LATEFRAMES |
 #                  self.Log.CONFIG |
-#                  self.Log.MEMORY | 
+#                  self.Log.MEMORY |
 #                  self.Log.BLTS    |
 #                  self.Log.EVENTS |
 #                  self.Log.EVENTS2

@@ -27,6 +27,7 @@
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
+#include "../base/OSHelper.h"
 
 #include "../graphics/Filterfill.h"
 
@@ -90,7 +91,15 @@ Words::Words (const xmlNodePtr xmlNode, Player * pPlayer)
     m_bSmallCaps = getDefaultedBoolAttr (xmlNode, "smallcaps", false);
 
     if (!s_bInitialized) {
+#ifdef _WIN32
+        std::string sFontConfPath = getAvgLibPath()+"etc/fonts/fonts.conf";
+        FcConfig * pConfig = FcConfigCreate();
+        FcBool bOk = FcConfigParseAndLoad(pConfig, (const FcChar8 *)(sFontConfPath.c_str()), true);
+        bOk = FcConfigBuildFonts(pConfig);
+        bOk = FcConfigSetCurrent(pConfig);
+#endif
         g_log_set_default_handler(GLibLogFunc, 0);
+        s_bInitialized = true;
     }
 }
 
