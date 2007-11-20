@@ -22,6 +22,7 @@
 #include "ConfigMgr.h"
 #include "Logger.h"
 #include "Exception.h"
+#include "OSHelper.h"
 
 #include <libxml/xmlmemory.h>
 
@@ -84,7 +85,7 @@ ConfigMgr::ConfigMgr()
             "Valid values are auto, ogl, dri and none.");
 
     m_sFName = "avgrc";
-    loadFile("/etc/"+m_sFName);
+    loadFile(getGlobalConfigDir()+m_sFName);
     char * pHome = getenv("HOME");
     if (!pHome) {
         AVG_TRACE(Logger::WARNING, "No home directory set.");
@@ -331,6 +332,15 @@ void ConfigMgr::dump() const
                 << SubsysOptions[j].m_sValue << endl;
         }
     }
+}
+
+string getGlobalConfigDir()
+{
+#ifdef _WIN32
+    return getAvgLibPath()+"/etc/";
+#else
+    return "/etc/";
+#endif
 }
 
 }

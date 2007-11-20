@@ -88,6 +88,8 @@ private:
     static ConfigMgr* m_pGlobalConfigMgr;
 };
 
+std::string getGlobalConfigDir();
+
 }
 #endif 
 
