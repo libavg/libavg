@@ -34,6 +34,7 @@ using namespace std;
 
 namespace avg {
 
+#ifdef _WIN32
 string getWinErrMsg(unsigned err) 
 {
     LPVOID lpMsgBuf;
@@ -46,6 +47,7 @@ string getWinErrMsg(unsigned err)
     LocalFree(lpMsgBuf);
     return sMsg;
 }
+#endif
 
 string getAvgLibPath()
 {
@@ -63,6 +65,8 @@ string getAvgLibPath()
     } 
     string sPath=getPath(szFilename);
     return sPath;
+#else
+    return "foo";
 #endif
 }
 
