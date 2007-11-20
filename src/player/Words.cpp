@@ -97,6 +97,16 @@ Words::Words (const xmlNodePtr xmlNode, Player * pPlayer)
         FcBool bOk = FcConfigParseAndLoad(pConfig, (const FcChar8 *)(sFontConfPath.c_str()), true);
         bOk = FcConfigBuildFonts(pConfig);
         bOk = FcConfigSetCurrent(pConfig);
+/*
+        FcStrList * pCacheDirs = FcConfigGetCacheDirs(pConfig);
+        FcChar8 * pDir;
+        do {
+            pDir = FcStrListNext(pCacheDirs);
+            if (pDir) {
+                cerr << pDir << endl;
+            }
+        } while (pDir);
+*/
 #endif
         g_log_set_default_handler(GLibLogFunc, 0);
         s_bInitialized = true;
