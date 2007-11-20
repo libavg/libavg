@@ -719,7 +719,9 @@ bool SDLDisplayEngine::initVBlank(int rate) {
                     CGLErrorString(err) << "(" << err << ").");
             m_VBMethod = VB_NONE;
         }
-#elif defined linux
+#elif defined _WIN32
+
+#else
         if (getenv("__GL_SYNC_TO_VBLANK") != 0) 
         {
             AVG_TRACE(Logger::WARNING, 
@@ -764,6 +766,8 @@ bool SDLDisplayEngine::initVBlank(int rate) {
         case VB_NONE:
             AVG_TRACE(Logger::CONFIG, "  Vertical blank support disabled.");
             break;
+        default:
+            AVG_TRACE(Logger::WARNING, "  Illegal vblank enum value.");
     }
     return m_VBMethod != VB_NONE;
 }
@@ -852,7 +856,15 @@ void SDLDisplayEngine::calcRefreshRate() {
         AVG_TRACE(Logger::WARNING, 
                 "Apple refresh rate calculation (CGDisplayCurrentMode) failed");
     }
-#elif defined linux 
+#elif defined _WIN32
+     // This isn't correct for multi-monitor systems.
+    HDC hDC = CreateDC("DISPLAY", NULL,NULL,NULL);
+    s_RefreshRate = GetDeviceCaps(hDC, VREFRESH);
+    if (s_RefreshRate < 2) {
+        s_RefreshRate = 60;
+    }
+    DeleteDC(hDC);
+#else 
     Display * display = XOpenDisplay(0);
     int PixelClock;
     XF86VidModeModeLine mode_line;

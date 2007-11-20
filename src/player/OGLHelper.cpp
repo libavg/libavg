@@ -61,6 +61,9 @@ namespace glproc {
     PFNGLXSWAPINTERVALSGIPROC SwapIntervalSGI;
     PFNGLXWAITVIDEOSYNCSGIPROC WaitVideoSyncSGI;
 #endif
+#ifdef _WIN32
+    PFNWGLEXTSWAPCONTROLPROC SwapIntervalEXT;
+#endif
 }    
 
 void OGLErrorCheck(int avgcode, const string & where) {
@@ -166,6 +169,18 @@ GLfunction getglXProcAddress(const char * psz)
     return pProc;
 }
 #endif
+
+#ifdef _WIN32
+GLfunction getwglProcAddress(const char * psz)
+{
+    GLfunction pProc = (GLfunction)wglGetProcAddress((LPCSTR)psz);
+    if (!pProc) {
+        pProc = invalidGLCall;
+    }
+    return pProc;
+}
+#endif
+
 namespace glproc {
 
     void init() {
@@ -207,6 +222,10 @@ namespace glproc {
 #ifdef linux
         SwapIntervalSGI = (PFNGLXSWAPINTERVALSGIPROC)getglXProcAddress("glXSwapIntervalSGI");
         WaitVideoSyncSGI = (PFNGLXWAITVIDEOSYNCSGIPROC)getglXProcAddress("glXWaitVideoSyncSGI");
+#endif
+
+#ifdef _WIN32
+        SwapIntervalEXT = (PFNWGLEXTSWAPCONTROLPROC) getwglProcAddress("wglSwapIntervalEXT");
 #endif
     }
 }

@@ -38,6 +38,11 @@
 #define GLX_GLXEXT_PROTOTYPES
 #include "GL/glx.h"
 #endif
+#ifdef _WIN32
+//TODO: Does anyone know where these are declared?
+typedef void (APIENTRY *PFNWGLEXTSWAPCONTROLPROC) (int);
+typedef int (*PFNWGLEXTGETSWAPINTERVALPROC) (void);
+#endif
 
 #include <string>
 
@@ -81,7 +86,9 @@ namespace glproc {
     extern PFNGLXSWAPINTERVALSGIPROC SwapIntervalSGI;
     extern PFNGLXWAITVIDEOSYNCSGIPROC WaitVideoSyncSGI;
 #endif
-
+#ifdef _WIN32
+    extern PFNWGLEXTSWAPCONTROLPROC SwapIntervalEXT;
+#endif
     void init();
 }
 
