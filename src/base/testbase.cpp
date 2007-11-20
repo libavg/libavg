@@ -25,6 +25,7 @@
 #include "ObjectCounter.h"
 #include "Point.h"
 #include "OSHelper.h"
+#include "FileHelper.h"
 
 #include "TestSuite.h"
 #include "TimeSource.h"
@@ -227,6 +228,20 @@ public:
     }
 };
 
+class FileTest: public Test {
+public:
+    FileTest()
+        : Test("FileTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        TEST(getPath("/foo/bar.txt") == "/foo/");
+        TEST(getFilenamePart("/foo/bar.txt") == "bar.txt");
+    }
+};
+
 class OSTest: public Test {
 public:
     OSTest()
@@ -236,7 +251,9 @@ public:
 
     void runTests()
     {
+#if defined(__APPLE__) || defined (_WIN32)
         TEST(getAvgLibPath() != "");
+#endif
     }
 };
 
@@ -249,6 +266,7 @@ public:
         addTest(TestPtr(new WorkerThreadTest));
         addTest(TestPtr(new ObjectCounterTest));
         addTest(TestPtr(new PointTest));
+        addTest(TestPtr(new FileTest));
         addTest(TestPtr(new OSTest));
     }
 };

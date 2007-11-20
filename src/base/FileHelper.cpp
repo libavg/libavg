@@ -61,6 +61,29 @@ string getPath(const string& Filename)
     return DirName;
 }
 
+string getFilenamePart(const string& Filename)
+{
+    if (Filename.find_last_of("\\/") == 0) {
+        return Filename;
+    }
+#ifdef _WIN32
+    int pos = int(Filename.find_last_of("\\"));
+    string DirName;
+    if (pos >= 0) {
+        DirName = Filename.substr(0, pos);
+    } else {
+        DirName = Filename;
+    }
+#else
+    char * pszBuffer = strdup(Filename.c_str());
+
+    string BaseName(basename(pszBuffer));
+    free(pszBuffer);
+#endif
+
+    return BaseName;
+}
+
 bool fileExists(const std::string& FileName) {
     struct stat myStat;
     return stat(FileName.c_str(), &myStat) != -1;

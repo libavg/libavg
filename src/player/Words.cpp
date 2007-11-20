@@ -28,6 +28,7 @@
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
 #include "../base/OSHelper.h"
+#include "../base/FileHelper.h"
 
 #include "../graphics/Filterfill.h"
 
@@ -91,8 +92,11 @@ Words::Words (const xmlNodePtr xmlNode, Player * pPlayer)
     m_bSmallCaps = getDefaultedBoolAttr (xmlNode, "smallcaps", false);
 
     if (!s_bInitialized) {
-#ifdef _WIN32
-        std::string sFontConfPath = getAvgLibPath()+"etc/fonts/fonts.conf";
+#if defined(_WIN32) || defined(__APPLE__)
+        std::string sFontConfPath = "/etc/fonts/fonts.conf"; 
+        if (!fileExists(sFontConfPath)) {
+            sFontConfPath = getAvgLibPath()+"etc/fonts/fonts.conf";
+        }
         FcConfig * pConfig = FcConfigCreate();
         FcBool bOk = FcConfigParseAndLoad(pConfig, (const FcChar8 *)(sFontConfPath.c_str()), true);
         bOk = FcConfigBuildFonts(pConfig);

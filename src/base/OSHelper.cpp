@@ -20,14 +20,17 @@
 //
 
 #include "OSHelper.h"
+#include "FileHelper.h"
 #include "Logger.h"
 #include "FileHelper.h"
 
-#ifdef _WIN32
+#if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #undef ERROR
 #undef WARNING
+#elif defined(__APPLE__)
+#include <mach-o/dyld.h>
 #endif
 
 using namespace std;
@@ -51,7 +54,7 @@ string getWinErrMsg(unsigned err)
 
 string getAvgLibPath()
 {
-#ifdef _WIN32
+#if defined(_WIN32)
     HMODULE hModule = GetModuleHandle("avg.pyd");
     if (hModule == 0) {
         AVG_TRACE(Logger::ERROR, "getAvgLibPath(): " << getWinErrMsg(GetLastError()));
@@ -65,8 +68,24 @@ string getAvgLibPath()
     } 
     string sPath=getPath(szFilename);
     return sPath;
+#elif defined(__APPLE__)
+    // We need to iterate through all images attached to the current executable
+    // and figure out which one is the one we are interested in.
+    uint32_t numImages = _dyld_image_count();
+    for (uint32_t i=0; i<numImages; i++) {
+         const char * pszImageName = _dyld_get_image_name(i);
+         string sFilePart=getFilenamePart(pszImageName);
+         if (sFilePart == "avg.so") {
+             return getPath(pszImageName);
+         }
+    }
+    char Path[1024];
+    uint32_t PathLen = sizeof(Path);
+    _NSGetExecutablePath(Path, &PathLen);
+    return getPath(Path);
 #else
-    return "foo";
+    // For a linux solution, see http://www.autopackage.org/docs/binreloc/
+    return "";
 #endif
 }
 
