@@ -43,7 +43,7 @@ string getPath(const string& Filename)
         return Filename;
     }
 #ifdef _WIN32
-    int pos = int(Filename.find_last_of("\\"));
+    int pos = int(Filename.find_last_of("\\/"));
     string DirName;
     if (pos >= 0) {
         DirName = Filename.substr(0, pos);
@@ -67,13 +67,8 @@ string getFilenamePart(const string& Filename)
         return Filename;
     }
 #ifdef _WIN32
-    int pos = int(Filename.find_last_of("\\"));
-    string DirName;
-    if (pos >= 0) {
-        DirName = Filename.substr(0, pos);
-    } else {
-        DirName = Filename;
-    }
+    int pos = int(Filename.find_last_of("\\/"));
+    string BaseName(Filename.substr(pos+1));
 #else
     char * pszBuffer = strdup(Filename.c_str());
 

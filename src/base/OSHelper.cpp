@@ -56,10 +56,12 @@ string getAvgLibPath()
 {
 #if defined(_WIN32)
     HMODULE hModule = GetModuleHandle("avg.pyd");
+/*
     if (hModule == 0) {
         AVG_TRACE(Logger::ERROR, "getAvgLibPath(): " << getWinErrMsg(GetLastError()));
         exit(5);
     }
+*/
     char szFilename[1024];
     DWORD ok = GetModuleFileName(hModule, szFilename, sizeof(szFilename));
     if (ok == 0) {
