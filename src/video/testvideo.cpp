@@ -20,6 +20,16 @@
 //
 
 #include "FFMpegDecoder.h"
+
+#ifdef _WIN32
+#pragma warning(push)
+#pragma warning(disable:4251)
+#endif
+#include <Magick++.h>
+#ifdef _WIN32
+#pragma warning(pop)
+#endif
+
 #include "AsyncVideoDecoder.h"
 
 #include "../graphics/Filterfliprgba.h"
@@ -32,14 +42,6 @@
 #include "../base/Directory.h"
 #include "../base/DirEntry.h"
 
-#ifdef _WIN32
-#pragma warning(push)
-#pragma warning(disable:4251)
-#endif
-#include <Magick++.h>
-#ifdef _WIN32
-#pragma warning(pop)
-#endif
 #include <stdio.h>
 #include <string>
 #include <sstream>

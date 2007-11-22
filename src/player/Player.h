@@ -112,7 +112,7 @@ class Player : IEventSink
         AVGNodePtr m_pRootNode;
         DisplayEngine * m_pDisplayEngine;
         IEventSource * m_pEventSource;
-        TestHelper m_TestHelper;
+        TestHelper * m_pTestHelper;
         
         std::string m_CurDirName;
         bool m_bStopping;

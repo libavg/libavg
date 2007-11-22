@@ -77,7 +77,6 @@ namespace avg {
 Player::Player()
     : m_pRootNode(),
       m_pDisplayEngine(0),
-      m_TestHelper(this),
       m_pTracker(0),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false), 
@@ -102,6 +101,7 @@ Player::Player()
                 "DTD not found at " << sDTDFName << ". Not validating xml files.");
     }
     m_pLastMouseNode[MOUSECURSORID]=NodePtr();
+    m_pTestHelper = new TestHelper(this);
 }
 
 Player::~Player()
@@ -115,6 +115,7 @@ Player::~Player()
     if (m_dtd) {
         xmlFreeDtd(m_dtd);
     }
+    delete m_pTestHelper;
 }
 
 void Player::setResolution(bool bFullscreen, 
@@ -222,7 +223,7 @@ void Player::play()
         m_pRootNode->setDisplayEngine(m_pDisplayEngine);
        
         m_pEventDispatcher->addSource(m_pEventSource);
-        m_pEventDispatcher->addSource(&m_TestHelper);
+        m_pEventDispatcher->addSource(m_pTestHelper);
         m_pEventDispatcher->addSink(this);
         
         m_pDisplayEngine->initRender();
@@ -299,7 +300,7 @@ double Player::getEffectiveFramerate() {
 
 TestHelper * Player::getTestHelper()
 {
-    return &m_TestHelper;
+    return m_pTestHelper;
 }
 
 void Player::setFakeFPS(double fps)
