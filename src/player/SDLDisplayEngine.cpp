@@ -720,7 +720,14 @@ bool SDLDisplayEngine::initVBlank(int rate) {
             m_VBMethod = VB_NONE;
         }
 #elif defined _WIN32
-
+        if (queryOGLExtension("WGL_EXT_swap_control")) {
+            glproc::SwapIntervalEXT(rate);
+            m_VBMethod = VB_WIN;
+        } else {
+            AVG_TRACE(Logger::WARNING,
+                    "Windows VBlank setup failed: OpenGL Extension not supported.");
+            m_VBMethod = VB_NONE;
+        }
 #else
         if (getenv("__GL_SYNC_TO_VBLANK") != 0) 
         {
@@ -762,6 +769,9 @@ bool SDLDisplayEngine::initVBlank(int rate) {
             break;
         case VB_APPLE:
             AVG_TRACE(Logger::CONFIG, "  Using Apple GL vertical blank support.");
+            break;
+        case VB_WIN:
+            AVG_TRACE(Logger::CONFIG, "  Using Windows GL vertical blank support.");
             break;
         case VB_NONE:
             AVG_TRACE(Logger::CONFIG, "  Vertical blank support disabled.");
@@ -825,6 +835,7 @@ bool SDLDisplayEngine::vbWait(int rate) {
             }
 #endif
         case VB_APPLE:
+        case VB_WIN:
             return true;
         case VB_NONE:
         default:

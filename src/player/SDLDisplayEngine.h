@@ -132,7 +132,7 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         // Vertical blank stuff.
         virtual bool initVBlank(int rate);
         bool vbWait(int rate);
-        typedef enum VBMethod {VB_SGI, VB_APPLE, VB_DRI, VB_NONE};
+        typedef enum VBMethod {VB_SGI, VB_APPLE, VB_DRI, VB_WIN, VB_NONE};
         VBMethod m_VBMethod;
         int m_VBMod;
         int m_LastVBCount;
