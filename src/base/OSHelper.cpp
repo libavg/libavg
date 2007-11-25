@@ -76,8 +76,9 @@ string getAvgLibPath()
     uint32_t numImages = _dyld_image_count();
     for (uint32_t i=0; i<numImages; i++) {
          const char * pszImageName = _dyld_get_image_name(i);
+         cerr << pszImageName << endl;
          string sFilePart=getFilenamePart(pszImageName);
-         if (sFilePart == "avg.so") {
+         if (sFilePart == "avg.so" || sFilePart == "avg.0.0.0.so") {
              return getPath(pszImageName);
          }
     }
