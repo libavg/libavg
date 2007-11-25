@@ -83,6 +83,12 @@ buildfontconfig()
 
 if [[ x"${AVG_PATH}" == "x" ]]
 then
+    echo Please set AVG_PATH and call 'source mac/avg_env.sh' before calling this script.
+    exit -1 
+fi
+
+if [[ x"${PKG_CONFIG_PATH}" == "x" ]]
+then
     echo Please call 'source mac/avg_env.sh' before calling this script.
     exit -1 
 fi
