@@ -36,7 +36,8 @@ makeOneDist()
     mkdir avg/test
     cp -Rv ../../lib/python/$PYTHON_VER/site-packages/libavg/ .
     cp ../../libavg/src/avgrc avg
-    cp ../../bin/fc-cache avg
+    mkdir etc
+    cp -R /etc/fonts etc/
     cd $LIBAVGDIR/src/test
     cp -Rv Test.py *.avg *.png *.jpg *.tif *.py *.mov *.mpg *.avi *.h264 ${AVG_PATH}/dist/libavg/avg/test
     mkdir ${AVG_PATH}/dist/libavg/avg/test/baseline
