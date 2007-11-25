@@ -6,7 +6,7 @@ tar xzf automake-1.9.6.tar.gz
 tar xjf boost_1_34_1.tar.bz2
 tar xzf bzip2-1.0.3.tar.gz
 tar xzf expat-2.0.0.tar.gz
-tar xzf fontconfig-2.3.2.tar.gz
+tar xzf fontconfig-2.5.0.tar.gz
 tar xjf freetype-2.3.5.tar.bz2
 tar xzf gettext-0.14.6.tar.gz
 tar xzf glib-2.14.1.tar.gz
@@ -21,10 +21,10 @@ tar xzf pkg-config-0.20.tar.gz
 tar xzf tiff-3.8.2.tar.gz
 tar xjf zlib-1.2.3.tar.bz2
 
-cd fontconfig-2.3.2
-patch fontconfig.pc.in ../../libavg/mac/fontconfig.pc.in.diff
-patch -p1 <../../libavg/mac/fontconfig-2.3.2-noftinternals.patch
-cd ..
+#cd fontconfig-2.3.2
+#patch fontconfig.pc.in ../../libavg/mac/fontconfig.pc.in.diff
+#patch -p1 <../../libavg/mac/fontconfig-2.3.2-noftinternals.patch
+#cd ..
 
 cd libdc1394-2.0.0-rc4/dc1394/macosx/
 patch -p0 <../../../../libavg/mac/libdc1394.patch
