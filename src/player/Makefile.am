@@ -33,7 +33,7 @@ ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
         DisplayEngine.h Region.h Node.h \
         ISurface.h avgdtd.h DisplayParams.h \
         MathHelper.h AVGNode.h DivNode.h \
-        Image.h Timeout.h Words.h \
+        Image.h Timeout.h Words.h WrapPython.h\
         EventDispatcher.h CursorEvent.h MouseEvent.h \
         Event.h KeyEvent.h PanoImage.h TestHelper.h \
         RasterNode.h CameraNode.h TrackerEventSource.h TrackerCalibrator.h\

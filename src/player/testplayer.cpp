@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string>
 
 using namespace avg;
 using namespace std;
@@ -42,7 +43,9 @@ public:
     void runTests() 
     {
         Player player;
-        player.loadFile("../test/empty.avg");
+        char * pszDir = getenv("srcdir");
+        string sFName = string(pszDir)+ "/../test/empty.avg";
+        player.loadFile(sFName);
     }
 };
 
