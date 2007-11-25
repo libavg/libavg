@@ -1,3 +1,24 @@
+libavg 0.7.1.pre1 - November 25, 2007
+
+  svn revision 2439
+
+  Major new features:
+
+    * Rotating div nodes is now possible curtesy of Nick Hebner (hebnern@gmail.com)
+    * Works with Mac OS X 10.5 (Leopard)
+
+  Other improvements:
+  
+    * Improved font rendering on Mac (pango-1.18.2, freetype-2.3.5)
+    * If AVG_CONSOLE_TEST is defined during make check, all tests that involve
+      opening windows are skipped.
+    * Fixed a memory corruption bug involving timeouts.
+    * Added draggable class.
+    * Added continuousAnimation class by Martin Heistermann
+    * Added DivNode::reorderChild()
+    * Fixes for new MacBook Pros with NVidia 8600 cards.
+    
+
 libavg 0.7.0 - August 31, 2007
 
   svn Revision 2309
