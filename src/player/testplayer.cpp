@@ -44,7 +44,12 @@ public:
     {
         Player player;
         char * pszDir = getenv("srcdir");
-        string sFName = string(pszDir)+ "/../test/empty.avg";
+        string sFName;
+        if (pszDir) {
+            sFName = string(pszDir)+ "/../test/empty.avg";
+        } else {
+            sFName = "../test/empty.avg";
+        }
         player.loadFile(sFName);
     }
 };
