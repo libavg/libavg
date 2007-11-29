@@ -75,7 +75,8 @@ class AVGTestCase(unittest.TestCase):
         unittest.TestCase.__init__(self, testFuncName)
     def setUpVideo(self):
         Player.setResolution(0, 0, 0, self.__bpp)
-        Player.setOGLOptions(UsePOW2Textures, YCbCrMode, UsePixelBuffers, 1)
+        if customOGLOptions:
+            Player.setOGLOptions(UsePOW2Textures, YCbCrMode, UsePixelBuffers, 1)
     def setUp(self):
         self.setUpVideo()
         print "-------- ", self.__testFuncName, " --------"
@@ -1099,12 +1100,12 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testBlend", bpp))
     suite.addTest(PlayerTestCase("testCropImage", bpp))
     suite.addTest(PlayerTestCase("testCropMovie", bpp))
-    suite.addTest(PlayerTestCase("testWarp", bpp))
     suite.addTest(PlayerTestCase("testWords", bpp))
     suite.addTest(PlayerTestCase("testVideo", bpp))
     suite.addTest(PlayerTestCase("testVideoSeek", bpp))
     suite.addTest(PlayerTestCase("testVideoEOF", bpp))
     suite.addTest(PlayerTestCase("testVideoFPS", bpp))
+    suite.addTest(PlayerTestCase("testWarp", bpp))
     suite.addTest(PlayerTestCase("testAnim", bpp))
     suite.addTest(PlayerTestCase("testContinuousAnim", bpp))
     suite.addTest(PlayerTestCase("testDraggable", bpp))
@@ -1157,6 +1158,7 @@ else:
                 YCbCrMode = avg.none
             else:
                 print "Third parameter must be shader, apple, mesa or none"
+                sys.exit(1)
             UsePixelBuffers = getBoolParam(4)
         else:
             customOGLOptions = False
@@ -1164,11 +1166,6 @@ else:
         print "Usage: Test.py [<bpp>"
         print "               [<UsePOW2Textures> <YCbCrMode> <UsePixelBuffers>]]"
         sys.exit(1)
-
-    if not(customOGLOptions): 
-        UsePOW2Textures = False 
-        YCbCrMode = avg.shader
-        UsePixelBuffers = True
 
     Player = avg.Player()
     runner = unittest.TextTestRunner()
