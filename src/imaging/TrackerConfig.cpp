@@ -102,7 +102,6 @@ namespace avg {
           m_Gain(128),
           m_Shutter(128),
           m_HistoryUpdateInterval(5),
-          m_pTouch(new BlobConfig(true)),
           m_bCreateDebugImages(false),
           m_bCreateFingerImage(false),
           m_pTrafo(new DeDistort())

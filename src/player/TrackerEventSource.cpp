@@ -94,13 +94,18 @@ namespace avg {
         
     void TrackerEventSource::setThreshold(int Threshold) 
     {
+        // TODO: throw exception if m_pTouch doesn't exist.
         m_TrackerConfig.m_pTouch->m_Threshold = Threshold;
         setConfig();
     }
 
     int TrackerEventSource::getThreshold()
     {
-        return m_TrackerConfig.m_pTouch->m_Threshold;
+        if (m_TrackerConfig.m_pTouch) {
+            return m_TrackerConfig.m_pTouch->m_Threshold;
+        } else {
+            return 0;
+        }
     }
     
     void TrackerEventSource::setHistorySpeed(int UpdateInterval)

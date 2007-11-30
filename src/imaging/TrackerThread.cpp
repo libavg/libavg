@@ -57,7 +57,7 @@ TrackerThread::TrackerThread(IntRect ROI,
         bool bSubtractHistory,
         TrackerConfig &config)
     : WorkerThread<TrackerThread>("Tracker", CmdQ),
-      m_TouchThreshold(128),
+      m_TouchThreshold(0),
       m_TrackThreshold(0),
       m_pMutex(pMutex),
       m_pCamera(pCamera),
