@@ -243,7 +243,6 @@ namespace avg {
 
     bool TrackerEventSource::isRelevant(BlobPtr pBlob, BlobConfigPtr pConfig)
     {
-        // FIXME!
         bool res;
         res = isInbetween(pBlob->getArea(), pConfig->m_AreaBounds) && 
                 isInbetween(pBlob->getEccentricity(), pConfig->m_EccentricityBounds);
