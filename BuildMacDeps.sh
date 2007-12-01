@@ -74,6 +74,7 @@ buildpango()
 buildfontconfig()
 {
     cd fontconfig-2.5.0
+    automake
     LDFLAGS="-framework ApplicationServices ${LDFLAGS}" ./configure --prefix=${AVG_PATH} --disable-shared --with-add-fonts=/Library/Fonts,/System/Library/Fonts,~/Library/Fonts --with-confdir=/etc/fonts --with-cache-dir=~/.fontconfig --with-cachedir=~/.fontconfig/
     make clean
     make -j3

@@ -27,6 +27,11 @@ cd libdc1394-2.0.0-rc4/dc1394/macosx/
 patch -p0 <../../../../libavg/mac/libdc1394.patch
 cd ../../..
 
+cd fontconfig-2.5.0
+patch -R Makefile.am <../../libavg/mac/fontconfig-disablecache.patch
+patch fontconfig.pc.in < ../../libavg/mac/fontconfig.pc.in.patch
+cd ..
+
 cd ffmpeg
 patch -p0 <../../libavg/mac/ffmpeg.patch
 
