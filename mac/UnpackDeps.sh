@@ -1,30 +1,33 @@
 #!/bin/bash
-pushd $AVG_PATH/deps
-tar xjf ImageMagick-6.2.8-4.tar.bz2
-tar xzf SDL-1.2.11.tar.gz
-tar xzf automake-1.9.6.tar.gz
-tar xjf boost_1_34_1.tar.bz2
-tar xzf bzip2-1.0.3.tar.gz
-tar xzf expat-2.0.0.tar.gz
-tar xzf fontconfig-2.5.0.tar.gz
-tar xjf freetype-2.3.5.tar.bz2
-tar xzf gettext-0.14.6.tar.gz
-tar xzf glib-2.14.1.tar.gz
-tar xzf jpegsrc.v6b.tar.gz
-tar xzf libdc1394-2.0.0-rc4.tar.gz
-tar xzf libiconv-1.11.tar.gz
-tar xjf libpng-1.2.12.tar.bz2
-tar xzf libtool-1.5.22.tar.gz
-tar xzf libxml2-2.6.26.tar.gz
-tar xjf pango-1.18.2.tar.bz2
-tar xzf pkg-config-0.20.tar.gz
-tar xzf tiff-3.8.2.tar.gz
-tar xjf zlib-1.2.3.tar.bz2
+if [[ x"${AVG_PATH}" == "x" ]]
+then
+    echo Please set AVG_PATH before calling this script.
+    exit -1 
+fi
 
+cd $AVG_PATH/deps
+
+echo "Unpacking libavg dependencies."
+for file in $(ls tarballs/*.bz2); do
+    echo "  Unpacking $file."
+    tar xjf $file
+done
+
+for file in $(ls tarballs/*.gz); do
+    echo "  Unpacking $file."
+    tar xzf $file
+done
+
+echo "  Copying ffmpeg."
+rm -rf ffmpeg
+cp -pR tarballs/ffmpeg ffmpeg
+
+echo "  Applying patches."
 cd libdc1394-2.0.0-rc4/dc1394/macosx/
 patch -p0 <../../../../libavg/mac/libdc1394.patch
-cd ..
+cd ../../..
 
-#cd ffmpeg
-#patch -p0 <../../../../libavg/mac/ffmpeg.patch
-#popd
+cd ffmpeg
+patch -p0 <../../libavg/mac/ffmpeg.patch
+
+echo "Done"
