@@ -32,6 +32,10 @@ patch -R Makefile.am <../../libavg/mac/fontconfig-disablecache.patch
 patch fontconfig.pc.in < ../../libavg/mac/fontconfig.pc.in.patch
 cd ..
 
+cd ImageMagick-6.2.8
+patch -R magick/ImageMagick.pc.in <../../libavg/mac/ImageMagick.pc.in.patch
+cd ..
+
 cd ffmpeg
 patch -p0 <../../libavg/mac/ffmpeg.patch
 

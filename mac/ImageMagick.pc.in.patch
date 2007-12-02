@@ -1,0 +1,4 @@
+9c9
+< Libs: -L${libdir} -lWand -lMagick -ljpeg -lpng -ltiff -lz
+---
+> Libs: -L${libdir} -lWand -lMagick
