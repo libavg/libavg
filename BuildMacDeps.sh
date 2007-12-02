@@ -82,6 +82,18 @@ buildfontconfig()
     cd ..    
 }
 
+buildlibdc1394()
+{
+    cd libdc1394
+    autoreconf -i -s
+    ./configure --prefix=${AVG_PATH} --disable-shared --disable-doxygen-doc --without-x
+    make clean
+    make -j3
+    make install
+    cd ..
+
+}
+
 if [[ x"${AVG_PATH}" == "x" ]]
 then
     echo Please set AVG_PATH and call 'source mac/avg_env.sh' before calling this script.
@@ -122,7 +134,7 @@ rm -f ../include/boost
 ln -fs ../include/boost-1_34_1/boost/ ../include/boost
 ln -fs ../lib/libboost_thread-mt.a ../lib/libboost_thread.a
 
-buildLib libdc1394-2.0.0-rc4 --disable-shared
+buildlibdc1394
 
 
 cd ../libavg

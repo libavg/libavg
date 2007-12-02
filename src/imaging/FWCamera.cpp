@@ -62,7 +62,6 @@ void FWCamera::open()
 {
 #ifdef AVG_ENABLE_1394
     int CaptureFormat = 0;
-    // TODO: Support other resolutions.
     switch(m_Mode) {
         case MODE_320x240_YUV422:
         case MODE_640x480_MONO:
@@ -161,13 +160,13 @@ void FWCamera::open()
     err = dc1394_start_iso_transmission(m_FWHandle, m_Camera.node);
     checkDC1394Error(err, "Unable to start camera iso transmission");
 #elif AVG_ENABLE_1394_2
-    dc1394camera_t **ppCameras=NULL;
-    uint32_t numCameras;
     m_bCameraAvailable = true;
+    dc1394camera_list_t * pCameraList;
 
-    int err=dc1394_find_cameras(&ppCameras, &numCameras);
+    m_pDC1394 = dc1394_new();
+    int err=dc1394_enumerate_cameras(m_pDC1394, &pCameraList);
 
-    if (err!=DC1394_SUCCESS && err != DC1394_NO_CAMERA) {
+    if (err!=DC1394_SUCCESS) {
         AVG_TRACE(Logger::ERROR, "Unable to look for cameras");
 #ifdef linux
         AVG_TRACE(Logger::ERROR, "Please check");
@@ -179,7 +178,7 @@ void FWCamera::open()
         exit(1);
     }
     
-    if (numCameras<1) {
+    if (pCameraList->num == 0) {
         static bool bFirstWarning = true;
         if (bFirstWarning) {
             AVG_TRACE(Logger::WARNING, "No firewire cameras found.");
@@ -189,12 +188,14 @@ void FWCamera::open()
         return;
     }
     // This always uses the first camera on the bus.
-    m_pCamera=ppCameras[0];
+    m_pCamera=dc1394_camera_new(m_pDC1394, pCameraList->ids[0].guid);
+    if (!m_pCamera) {
+        AVG_TRACE(Logger::WARNING, "Could not initialize firewire camera.");
+        m_bCameraAvailable = false;
+        return;
+    }
 
-    // Free the other cameras
-    for (unsigned int i=1;i<numCameras;i++)
-        dc1394_free_camera(ppCameras[i]);
-    free(ppCameras);
+    dc1394_free_camera_list(pCameraList);
 
     err = dc1394_get_camera_feature_set(m_pCamera, &m_FeatureSet);
     checkDC1394Error(err,
@@ -221,23 +222,21 @@ void FWCamera::open()
                 << " in the current video mode.");
         dc1394_capture_stop(m_pCamera);
         dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
-        dc1394_free_camera(m_pCamera);
+        dc1394_camera_free(m_pCamera);
         exit(1);
     }
 
     err = dc1394_video_set_framerate(m_pCamera, m_FrameRateConstant);
     checkDC1394Error(err, "Unable to set camera framerate.");
 
-    if (dc1394_capture_setup_dma(m_pCamera,8)!=DC1394_SUCCESS) {
-        AVG_TRACE(Logger::ERROR,
-                "Unable to setup camera. Make sure that");
-        AVG_TRACE(Logger::ERROR,
-                "video mode and framerate (" <<
+    if (dc1394_capture_setup(m_pCamera,8, DC1394_CAPTURE_FLAGS_DEFAULT)!=DC1394_SUCCESS) {
+        AVG_TRACE(Logger::ERROR, "Unable to setup camera. Make sure that");
+        AVG_TRACE(Logger::ERROR, "video mode and framerate (" <<
                 m_FrameRate << ") are");
         AVG_TRACE(Logger::ERROR, "supported by your camera.");
         dc1394_capture_stop(m_pCamera);
         dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
-        dc1394_free_camera(m_pCamera);
+        dc1394_camera_free(m_pCamera);
         exit(1);
     }
     if (dc1394_video_set_transmission(m_pCamera, DC1394_ON) !=DC1394_SUCCESS) {
@@ -273,9 +272,10 @@ void FWCamera::close()
 //        dc1394_dma_release_camera(m_FWHandle, &m_Camera);
         dc1394_destroy_handle(m_FWHandle);
 #elif AVG_ENABLE_1394_2
-        dc1394_capture_stop(m_pCamera);
         dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
-        dc1394_free_camera(m_pCamera);
+        dc1394_capture_stop(m_pCamera);
+        dc1394_camera_free(m_pCamera);
+        dc1394_free(m_pDC1394);
 #endif
         m_bCameraAvailable = false;
         AVG_TRACE(Logger::CONFIG, "Firewire camera closed.");
@@ -323,12 +323,13 @@ BitmapPtr FWCamera::getImage(bool bWait)
     bGotFrame = (rc == DC1394_SUCCESS);
 #else
     dc1394video_frame_t * pFrame;
+    dc1394error_t err;
     if (bWait) {
-        pFrame = dc1394_capture_dequeue_dma(m_pCamera, DC1394_VIDEO1394_WAIT);
+        err = dc1394_capture_dequeue(m_pCamera, DC1394_CAPTURE_POLICY_WAIT, &pFrame);
     } else {
-        pFrame = dc1394_capture_dequeue_dma(m_pCamera, DC1394_VIDEO1394_POLL);
+        err = dc1394_capture_dequeue(m_pCamera, DC1394_CAPTURE_POLICY_POLL, &pFrame);
     }
-    if (pFrame) {
+    if (err == DC1394_SUCCESS) {
         bGotFrame = true;
         pCaptureBuffer = pFrame->image;
     }
@@ -414,7 +415,7 @@ BitmapPtr FWCamera::getImage(bool bWait)
 #ifdef AVG_ENABLE_1394
         dc1394_dma_done_with_buffer(&m_Camera);
 #else
-        dc1394_capture_enqueue_dma (m_pCamera, pFrame);
+        dc1394_capture_enqueue(m_pCamera, pFrame);
 #endif
         return pCurBitmap;
     } else {
