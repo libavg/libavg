@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<avg id="main" mediadir="testmediadir" width="160" height="120">
+    <image x="0" y="30" href="rgb24-64x64.png"/>
+</avg>
