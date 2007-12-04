@@ -142,6 +142,7 @@ void Video::setEOFCallback(PyObject * pEOFCallback)
 
 void Video::setDisplayEngine(DisplayEngine * pEngine)
 {
+    checkReload();
     VideoBase::setDisplayEngine(pEngine);
 }
 
@@ -158,8 +159,13 @@ const string& Video::getHRef() const
 
 void Video::setHRef(const string& href)
 {
-    string fileName (href);
     m_href = href;
+    checkReload();
+}
+
+void Video::checkReload()
+{
+    string fileName (m_href);
     if (m_href != "") {
         initFilename(getPlayer(), fileName);
         if (fileName != m_Filename) {

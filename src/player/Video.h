@@ -48,7 +48,8 @@ class Video : public VideoBase, IFrameListener
 
         const std::string& getHRef() const;
         void setHRef(const std::string& href);
-        
+        void checkReload();
+
         int getNumFrames() const;
         int getCurFrame() const;
         void seekToFrame(int FrameNum);

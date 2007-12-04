@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
 <avg id="main" mediadir="testmediadir" width="160" height="120">
     <image x="0" y="30" href="rgb24-64x64.png"/>
+    <video id="video" x="0" y="0" href="mjpeg-48x48.avi"/>
 </avg>

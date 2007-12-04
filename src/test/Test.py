@@ -204,15 +204,6 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Player.showCursor(1),
                  Player.stop))
 
-    def testMediaDir(self):
-        def setDir():
-            Player.getElementByID("main").mediadir="."
-        self.start("mediadir.avg",
-                (lambda: self.compareImage("mediadir1", False),
-                 setDir,
-                 lambda: self.compareImage("mediadir2", False),
-                 Player.stop))
-
     def testRotate(self):
         def onOuterDown(Event):
             self.onOuterDownCalled = True
@@ -775,6 +766,17 @@ class PlayerTestCase(AVGTestCase):
         Player.setTimeout(10000, onNoEOF)
         Player.play()
 
+    def testMediaDir(self):
+        def setDir():
+            Player.getElementByID("main").mediadir="."
+        self.start("mediadir.avg",
+                (lambda: Player.getElementByID("video").play(),
+                 lambda: self.compareImage("mediadir1", False),
+                 setDir,
+                 lambda: Player.getElementByID("video").play(), 
+                 lambda: self.compareImage("mediadir2", False),
+                 Player.stop))
+
 #    def testCamera(self):
 #        def createCameraNode(deviceFile):
 #            return Player.createNode("<camera id='camera1' width='640' height='480' "
@@ -1092,7 +1094,6 @@ def playerTestSuite(bpp):
     rmBrokenDir()
     suite = unittest.TestSuite()
     suite.addTest(PlayerTestCase("testImage", bpp))
-    suite.addTest(PlayerTestCase("testMediaDir", bpp))
     suite.addTest(PlayerTestCase("testRotate", bpp))
     suite.addTest(PlayerTestCase("testRotate2", bpp))
     suite.addTest(PlayerTestCase("testRotate3", bpp))
@@ -1114,8 +1115,9 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testWords", bpp))
     suite.addTest(PlayerTestCase("testVideo", bpp))
     suite.addTest(PlayerTestCase("testVideoSeek", bpp))
-    suite.addTest(PlayerTestCase("testVideoEOF", bpp))
     suite.addTest(PlayerTestCase("testVideoFPS", bpp))
+    suite.addTest(PlayerTestCase("testVideoEOF", bpp))
+    suite.addTest(PlayerTestCase("testMediaDir", bpp))
     suite.addTest(PlayerTestCase("testWarp", bpp))
     suite.addTest(PlayerTestCase("testAnim", bpp))
     suite.addTest(PlayerTestCase("testContinuousAnim", bpp))
