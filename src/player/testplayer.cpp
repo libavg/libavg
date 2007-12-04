@@ -46,11 +46,22 @@ public:
         char * pszDir = getenv("srcdir");
         string sFName;
         if (pszDir) {
-            sFName = string(pszDir)+ "/../test/empty.avg";
+            sFName = string(pszDir)+ "/../test/image.avg";
         } else {
             sFName = "../test/empty.avg";
         }
         player.loadFile(sFName);
+        player.disablePython();
+        if (!getenv("AVG_CONSOLE_TEST")) {
+            player.initPlayback();
+            player.doFrame();
+            player.cleanup();
+        }
+        try {
+            throw bad_cast();
+        } catch (bad_cast& e) {
+
+        }
     }
 };
 

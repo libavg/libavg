@@ -87,7 +87,8 @@ Player::Player()
       m_bFakeFPS(false),
       m_FakeFPS(0),
       m_FrameTime(0),
-      m_PlayStartTime(0)
+      m_PlayStartTime(0),
+      m_bPythonAvailable(true)
 {
     ThreadProfilerPtr pThreadProfiler = ThreadProfilerPtr(new ThreadProfiler("Main"));
     Profiler::get().registerThreadProfiler(pThreadProfiler);
@@ -213,31 +214,8 @@ void Player::loadFile (const std::string& filename)
 
 void Player::play()
 {
-    m_bIsPlaying = true;
     try {
-        if (!m_pRootNode) {
-            AVG_TRACE(Logger::ERROR, "play called, but no xml file loaded.");
-        }
-        assert(m_pRootNode);
-        initGraphics();
-        m_pRootNode->setDisplayEngine(m_pDisplayEngine);
-       
-        m_pEventDispatcher->addSource(m_pEventSource);
-        m_pEventDispatcher->addSource(m_pTestHelper);
-        m_pEventDispatcher->addSink(this);
-        
-        m_pDisplayEngine->initRender();
-        m_bStopping = false;
-
-        m_PlayStartTime = TimeSource::get()->getCurrentMillisecs();
-        m_FrameTime = 0;
-        m_NumFrames = 0;
-        m_pDisplayEngine->render(m_pRootNode);
-        if (m_pDisplayEngine->wasFrameLate()) {
-            ThreadProfiler::get()->dumpFrame();
-        }
-        
-        ThreadProfiler::get()->start();
+        initPlayback();
         try {
             while (!m_bStopping) {
                 doFrame();
@@ -253,7 +231,6 @@ void Player::play()
         AVG_TRACE(Logger::ERROR, ex.GetStr());
         throw;
     }
-    m_bIsPlaying = false;
 }
 
 void Player::stop ()
@@ -263,6 +240,34 @@ void Player::stop ()
     } else {
         cleanup();
     }
+}
+        
+void Player::initPlayback()
+{
+    m_bIsPlaying = true;
+    if (!m_pRootNode) {
+        AVG_TRACE(Logger::ERROR, "play called, but no xml file loaded.");
+    }
+    assert(m_pRootNode);
+    initGraphics();
+    m_pRootNode->setDisplayEngine(m_pDisplayEngine);
+
+    m_pEventDispatcher->addSource(m_pEventSource);
+    m_pEventDispatcher->addSource(m_pTestHelper);
+    m_pEventDispatcher->addSink(this);
+
+    m_pDisplayEngine->initRender();
+    m_bStopping = false;
+
+    m_PlayStartTime = TimeSource::get()->getCurrentMillisecs();
+    m_FrameTime = 0;
+    m_NumFrames = 0;
+    m_pDisplayEngine->render(m_pRootNode);
+    if (m_pDisplayEngine->wasFrameLate()) {
+        ThreadProfiler::get()->dumpFrame();
+    }
+
+    ThreadProfiler::get()->start();
 }
 
 bool Player::isPlaying()
@@ -508,6 +513,11 @@ string Player::getCurDirName()
     return m_CurDirName;
 }
 
+void Player::disablePython()
+{
+    m_bPythonAvailable = false;
+}
+
 static ProfilingZone MainProfilingZone("Player - Total frame time");
 static ProfilingZone TimersProfilingZone("Player - handleTimers");
 static ProfilingZone EventsProfilingZone("Player - dispatch events");
@@ -534,10 +544,14 @@ void Player::doFrame ()
             m_pEventDispatcher->dispatch();
         }
         if (!m_bStopping) {
-            Py_BEGIN_ALLOW_THREADS;
             ScopeTimer Timer(RenderProfilingZone);
-            m_pDisplayEngine->render(m_pRootNode);
-            Py_END_ALLOW_THREADS;
+            if (m_bPythonAvailable) {
+                Py_BEGIN_ALLOW_THREADS;
+                m_pDisplayEngine->render(m_pRootNode);
+                Py_END_ALLOW_THREADS;
+            } else {
+                m_pDisplayEngine->render(m_pRootNode);
+            }
         }
         {
             ScopeTimer Timer(ListenerProfilingZone);
@@ -948,6 +962,7 @@ void Player::cleanup()
     m_pEventDispatcher = EventDispatcherPtr();
     initConfig();
     m_FrameTime = 0;
+    m_bIsPlaying = false;
 }
 
 int Player::addTimeout(Timeout* pTimeout)

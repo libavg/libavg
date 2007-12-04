@@ -58,6 +58,8 @@ class Player : IEventSink
         void loadFile (const std::string& fileName);
         void play();
         void stop();
+        void initPlayback();
+        void cleanup();
         bool isPlaying();
         void setFramerate(double rate);
         bool setVBlankFramerate(int rate);
@@ -97,6 +99,8 @@ class Player : IEventSink
         void unregisterFrameListener(IFrameListener* pListener);
         std::string getCurDirName();
 
+        void disablePython();
+
     private:
         void initConfig();
         void initGraphics();
@@ -107,7 +111,6 @@ class Player : IEventSink
         void render (bool bRenderEverything);
         void sendOver(CursorEvent * pOtherEvent, Event::Type Type, 
                 NodePtr pNode);
-        void cleanup();
 
         AVGNodePtr m_pRootNode;
         DisplayEngine * m_pDisplayEngine;
@@ -154,6 +157,8 @@ class Player : IEventSink
 
         std::vector<IFrameListener*> m_Listeners;
         xmlDtdPtr m_dtd;
+
+        bool m_bPythonAvailable;
 };
 
 }
