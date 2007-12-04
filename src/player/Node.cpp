@@ -516,7 +516,11 @@ void Node::addEventHandler(Event::Type EventType, Event::Source Source,
 void Node::initFilename(Player * pPlayer, string& sFilename)
 {
     if (sFilename[0] != '/') {
-        sFilename = pPlayer->getCurDirName() + sFilename;
+        if (m_pParent.expired()) {
+            sFilename = pPlayer->getCurDirName()+sFilename;
+        } else {
+            sFilename = m_pParent.lock()->getEffectiveMediaDir()+sFilename;
+        }
     }
 }
 

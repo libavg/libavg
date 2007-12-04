@@ -185,7 +185,8 @@ class PlayerTestCase(AVGTestCase):
             node = Player.getElementByID("test")
             Bmp = node.getBitmap()
             self.assert_(Bmp.getSize() == (65,65))
-            self.assert_(Bmp.getFormat() == avg.R8G8B8X8 or Bmp.getFormat() == avg.B8G8R8X8)
+            self.assert_(Bmp.getFormat() == avg.R8G8B8X8 or 
+                    Bmp.getFormat() == avg.B8G8R8X8)
         def getFramerate():
             framerate = Player.getEffectiveFramerate()
             self.assert_(framerate > 0)
@@ -201,6 +202,15 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Player.setGamma(1.0, 1.0, 1.0),
                  lambda: Player.showCursor(0),
                  lambda: Player.showCursor(1),
+                 Player.stop))
+
+    def testMediaDir(self):
+        def setDir():
+            Player.getElementByID("main").mediadir="."
+        self.start("mediadir.avg",
+                (lambda: self.compareImage("mediadir1", False),
+                 setDir,
+                 lambda: self.compareImage("mediadir2", False),
                  Player.stop))
 
     def testRotate(self):
@@ -1082,6 +1092,7 @@ def playerTestSuite(bpp):
     rmBrokenDir()
     suite = unittest.TestSuite()
     suite.addTest(PlayerTestCase("testImage", bpp))
+    suite.addTest(PlayerTestCase("testMediaDir", bpp))
     suite.addTest(PlayerTestCase("testRotate", bpp))
     suite.addTest(PlayerTestCase("testRotate2", bpp))
     suite.addTest(PlayerTestCase("testRotate3", bpp))

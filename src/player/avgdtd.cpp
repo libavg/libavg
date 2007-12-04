@@ -50,6 +50,7 @@ const char * g_pAVGDTD =
 "<!ELEMENT avg (div|excl|image|video|camera|audio|words|panoimage)* >\n"
 "<!ATTLIST avg\n"
 "   id ID #IMPLIED\n"
+"   mediadir CDATA #IMPLIED\n"
 "   width CDATA #IMPLIED\n"
 "   height CDATA #IMPLIED\n"
 "   onkeydown CDATA #IMPLIED\n"
@@ -59,6 +60,7 @@ const char * g_pAVGDTD =
 
 "<!ELEMENT div (div|excl|image|video|camera|audio|words|panoimage)* >\n"
 "<!ATTLIST div\n"
+"   mediadir CDATA #IMPLIED\n"
 "   %nodeAttrs; >\n"
 
 "<!ELEMENT image EMPTY>\n"

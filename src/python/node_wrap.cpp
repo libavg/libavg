@@ -125,6 +125,9 @@ void export_node()
             "The children of a div node are drawn in the order they are found\n"
             "in the avg file.",
             no_init)
+        .add_property("mediadir", make_function(&DivNode::getMediaDir,
+                return_value_policy<copy_const_reference>()), &DivNode::setMediaDir,
+                "The directory that the media files for the children of this node are in.\n")
         .def("getNumChildren", &DivNode::getNumChildren,
                 "getNumChildren() -> numchildren\n"
                 "Returns the number of immediate children that this div contains.")

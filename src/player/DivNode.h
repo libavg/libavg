@@ -38,6 +38,9 @@ class DivNode : public Node
         virtual void setDisplayEngine(DisplayEngine * pEngine);
         virtual void disconnect();
 
+        const std::string& getMediaDir() const;
+        void setMediaDir(const std::string& mediaDir);
+
         int getNumChildren();
         NodePtr getChild(unsigned i);
         void appendChild(NodePtr pNewNode);
@@ -49,13 +52,16 @@ class DivNode : public Node
         virtual NodePtr getElementByPos (const DPoint & pos);
         virtual void render (const DRect& rect);
         virtual std::string getTypeStr ();
+        std::string getEffectiveMediaDir();
+        virtual void checkReload();
 
         virtual std::string dump (int indent = 0);
 
     protected:
-        virtual Point<double> getPreferredMediaSize();	
+        virtual Point<double> getPreferredMediaSize();
     
     private:
+        std::string m_sMediaDir;
         std::vector<NodePtr> m_Children;
 };
 

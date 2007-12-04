@@ -48,7 +48,6 @@ Image::Image (const xmlNodePtr xmlNode, Player * pPlayer)
     m_Hue = getDefaultedIntAttr (xmlNode, "hue", -1);
     m_Saturation = getDefaultedIntAttr (xmlNode, "saturation", -1);
     m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
-    load();
 }
 
 Image::~Image ()
@@ -57,8 +56,8 @@ Image::~Image ()
 
 void Image::setDisplayEngine(DisplayEngine * pEngine)
 {
+    checkReload();
     RasterNode::setDisplayEngine(pEngine);
-
     setupSurface(&*m_pBmp);
 }
 
@@ -162,6 +161,21 @@ DPoint Image::getPreferredMediaSize()
     }
 }
 
+void Image::checkReload()
+{
+    string sLastFilename = m_Filename;
+    m_Filename = m_href;
+    if (m_Filename != "") {
+        initFilename(getPlayer(), m_Filename);
+    }
+    if (sLastFilename != m_Filename || !m_pBmp) {
+        load();
+    }
+    if (isDisplayAvailable()) {
+        setupSurface(&*m_pBmp);
+    }
+}
+
 void Image::load()
 {
     m_Filename = m_href;
@@ -173,8 +187,6 @@ void Image::load()
         } catch (Magick::Exception & ex) {
             AVG_TRACE(Logger::ERROR, ex.what());
         }
-    } else {
-        m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
     }
     if (m_Saturation != -1) {
         FilterColorize(m_Hue, m_Saturation).applyInPlace(

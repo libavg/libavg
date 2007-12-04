@@ -25,6 +25,7 @@
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
+#include "../base/XMLHelper.h"
 
 #include <iostream>
 #include <sstream>
@@ -36,6 +37,7 @@ namespace avg {
 DivNode::DivNode (const xmlNodePtr xmlNode, Player * pPlayer)
     : Node(xmlNode, pPlayer)
 {
+    m_sMediaDir = getDefaultedStringAttr (xmlNode, "mediadir", "");
 }
 
 DivNode::~DivNode()
@@ -56,6 +58,17 @@ void DivNode::disconnect()
         m_Children[i]->disconnect();
     }
     Node::disconnect();
+}
+
+const string& DivNode::getMediaDir() const
+{
+    return m_sMediaDir;
+}
+
+void DivNode::setMediaDir(const string& sMediaDir)
+{
+    m_sMediaDir = sMediaDir;
+    checkReload();
 }
 
 int DivNode::getNumChildren ()
@@ -183,6 +196,28 @@ string DivNode::dump (int indent)
 DPoint DivNode::getPreferredMediaSize()
 {
     return DPoint(10000,10000);
+}
+
+string DivNode::getEffectiveMediaDir()
+{
+    string sMediaDir;
+    if (getParent()) {
+        sMediaDir = getParent()->getEffectiveMediaDir()+m_sMediaDir;
+    } else {
+        sMediaDir = getPlayer()->getCurDirName()+m_sMediaDir;
+    }
+    if (sMediaDir[sMediaDir.length()-1] != '/') {
+        sMediaDir += '/';
+    }
+    return sMediaDir;
+}
+
+void DivNode::checkReload()
+{
+    vector<NodePtr>::iterator it;
+    for (it=m_Children.begin(); it<m_Children.end(); it++) {
+        (*it)->checkReload();
+    }
 }
 
 }
