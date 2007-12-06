@@ -194,17 +194,19 @@ void Video::onFrameEnd()
 
 void Video::changeVideoState(VideoState NewVideoState)
 {
-    long long CurTime = getPlayer()->getFrameTime(); 
-    if (NewVideoState != getVideoState()) {
-        if (getVideoState() == Unloaded) {
-            m_StartTime = CurTime;
-            m_PauseTime = 0;
-        }
-        if (NewVideoState == Paused) {
-            m_PauseStartTime = CurTime;
-        } else if (NewVideoState == Playing && getVideoState() == Paused) {
-            m_PauseTime += (CurTime-m_PauseStartTime
-                    - (long long)(1000.0/m_pDecoder->getFPS()));
+    if (isDisplayAvailable()) {
+        long long CurTime = getPlayer()->getFrameTime(); 
+        if (NewVideoState != getVideoState()) {
+            if (getVideoState() == Unloaded) {
+                m_StartTime = CurTime;
+                m_PauseTime = 0;
+            }
+            if (NewVideoState == Paused) {
+                m_PauseStartTime = CurTime;
+            } else if (NewVideoState == Playing && getVideoState() == Paused) {
+                m_PauseTime += (CurTime-m_PauseStartTime
+                        - (long long)(1000.0/m_pDecoder->getFPS()));
+            }
         }
     }
     VideoBase::changeVideoState(NewVideoState);
