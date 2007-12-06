@@ -633,12 +633,10 @@ void SDLDisplayEngine::checkYCbCrSupport()
     m_YCbCrMode = OGL_NONE;
     if (queryOGLExtension("GL_ARB_fragment_shader") &&
         queryOGLExtension("GL_ARB_texture_rectangle") &&
-        (queryOGLExtension("GL_ARB_pixel_buffer_object") || 
-         queryOGLExtension("GL_EXT_pixel_buffer_object")) &&
+        getMemoryModeSupported() == PBO &&
         m_DesiredYCbCrMode == OGL_SHADER && 
-        m_bShouldUsePixelBuffers &&
         getTextureMode() != GL_TEXTURE_2D
-        )
+       )
     {
         m_YCbCrMode = OGL_SHADER;
         string sProgramInit =
@@ -1479,10 +1477,13 @@ int SDLDisplayEngine::getOGLPixelType(PixelFormat pf)
 
 OGLMemoryMode SDLDisplayEngine::getMemoryModeSupported()
 {
+    bool bIsParallels = 
+            (string((char*)glGetString(GL_VENDOR)).find("Parallels") != string::npos);
     if (!m_bCheckedMemoryMode) {
         if ((queryOGLExtension("GL_ARB_pixel_buffer_object") || 
              queryOGLExtension("GL_EXT_pixel_buffer_object")) &&
-            m_bShouldUsePixelBuffers)
+            m_bShouldUsePixelBuffers &&
+            !bIsParallels)
         {
             m_MemoryMode = PBO;
         } else {
