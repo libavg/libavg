@@ -202,7 +202,7 @@ void Image::setupSurface(const Bitmap * pBmp)
         pf = R8G8B8A8;
     }
     bool bUsePBO = true;
-#ifdef __APPLE__
+#if defined __APPLE__ || defined _WIN32
     if (getSurface()->wouldTile(pBmp->getSize())) {
         bUsePBO = false;
     }
