@@ -26,7 +26,10 @@ else:
 
 SrcDir = os.getenv("srcdir",".")
 os.chdir(SrcDir)
-import anim, draggable
+if platform.system() == 'Windows':
+    from libavg import anim, draggable
+else:    
+    import anim, draggable
 
 CREATE_BASELINE_IMAGES = False
 BASELINE_DIR = "baseline"
