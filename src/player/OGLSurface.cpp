@@ -141,15 +141,19 @@ BitmapPtr OGLSurface::lockBmp(int i)
                 PixelFormat pf;
                 if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
                     pf = I8;
-#ifdef __APPLE__
-                    // Under Mac OS X 10.5.0, the combination of glTexSubImage2D, GL_ALPHA and PBO
-                    // is broken if pStartPos is 0. So we use an offset. There's corresponding code in
-                    // OGLTile that undoes this... bleagh.
-                    pBuffer += 1;
-#endif
                 } else {
                     pf = m_pf;
                 }
+#ifdef __APPLE__
+                if (m_pf == YCbCr420p || m_pf == YCbCrJ420p || m_pf == YCbCr422) {
+                    // Under Mac OS X 10.5.0 and 10.5.1, the combination of 
+                    // glTexSubImage2D, GL_ALPHA and PBO is broken if pStartPos is
+                    // 0. So we use an offset. There's corresponding code in
+                    // OGLTile that undoes this... bleagh.
+                    pBuffer += 4;
+                }
+#endif
+
                 m_pBmps[i] = BitmapPtr(new Bitmap(Size, pf, pBuffer, 
                         Size.x*Bitmap::getBytesPerPixel(pf), false));
             }
