@@ -28,6 +28,7 @@
 #endif
 #include <stdio.h>
 #include <sys/stat.h>
+#include <string.h>
 
 #include <map>
 #include <iostream>
