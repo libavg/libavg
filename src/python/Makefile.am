@@ -20,8 +20,6 @@ endif
 
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
-pkgpyexecdir = $(prefix)/lib/python/$(PYTHON_VERSION)/site-packages/libavg
-
 pkgpyexec_LTLIBRARIES = avg.la
 avg_la_SOURCES = avg_wrap.cpp node_wrap.cpp raster_wrap.cpp event_wrap.cpp \
         device_wrap.cpp bitmap_wrap.cpp $(ALL_H) 
