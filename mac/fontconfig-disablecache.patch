@@ -1,0 +1,12 @@
+57c57
+< #if CROSS_COMPILING
+---
+> if CROSS_COMPILING
+59,61c59,61
+< #else
+< #  RUN_FC_CACHE_TEST=test -z "$(DESTDIR)"
+< #endif
+---
+> else
+>   RUN_FC_CACHE_TEST=test -z "$(DESTDIR)"
+> endif
