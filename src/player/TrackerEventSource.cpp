@@ -69,9 +69,15 @@ namespace avg {
         m_pTrackerMutex = MutexPtr(new boost::mutex);
         handleROIChange();
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
+        IntRect ROI = m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents));
+        if (ROI.tl.x < 0 || ROI.tl.y < 0 || ROI.br.x > ImgSize.x || ROI.br.y > ImgSize.y) {
+            AVG_TRACE(Logger::ERROR, "Impossible tracker configuration: Region of interest is " 
+                    << ROI << ", camera image size is " << ImgSize << ". Aborting.");
+            exit(5);
+        }
         m_pTrackerThread = new boost::thread(
                 TrackerThread(
-                    m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents)),
+                    ROI,
                     pCamera,
                     m_pBitmaps, 
                     m_pTrackerMutex,
