@@ -75,6 +75,7 @@ namespace avg {
                     << ROI << ", camera image size is " << ImgSize << ". Aborting.");
             exit(5);
         }
+        pCamera->open();
         m_pTrackerThread = new boost::thread(
                 TrackerThread(
                     ROI,

@@ -80,7 +80,8 @@ TrackerThread::~TrackerThread()
 
 bool TrackerThread::init()
 {
-    m_pCamera->open();
+// Done in TrackerEventSource::ctor to work around Leopard/libdc1394 threading issue.
+//    m_pCamera->open();
     return true;
 }
 
