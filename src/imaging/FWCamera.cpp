@@ -164,7 +164,7 @@ void FWCamera::open()
     dc1394camera_list_t * pCameraList;
 
     m_pDC1394 = dc1394_new();
-    int err=dc1394_enumerate_cameras(m_pDC1394, &pCameraList);
+    int err=dc1394_camera_enumerate(m_pDC1394, &pCameraList);
 
     if (err!=DC1394_SUCCESS) {
         AVG_TRACE(Logger::ERROR, "Unable to look for cameras");
@@ -195,11 +195,11 @@ void FWCamera::open()
         return;
     }
 
-    dc1394_free_camera_list(pCameraList);
+    dc1394_camera_free_list(pCameraList);
 
-    err = dc1394_get_camera_feature_set(m_pCamera, &m_FeatureSet);
-    checkDC1394Error(err,
-            "Unable to get firewire camera feature set.");
+//    err = dc1394_feature_get_all(m_pCamera, &m_FeatureSet);
+//    checkDC1394Error(err,
+//            "Unable to get firewire camera feature set.");
 //    dumpCameraInfo();
 
     err = dc1394_video_set_iso_speed(m_pCamera, DC1394_ISO_SPEED_400);
@@ -329,7 +329,7 @@ BitmapPtr FWCamera::getImage(bool bWait)
     } else {
         err = dc1394_capture_dequeue(m_pCamera, DC1394_CAPTURE_POLICY_POLL, &pFrame);
     }
-    if (err == DC1394_SUCCESS) {
+    if (err == DC1394_SUCCESS && pFrame) {
         bGotFrame = true;
         pCaptureBuffer = pFrame->image;
     }
@@ -583,8 +583,7 @@ void FWCamera::dumpCameraInfo()
 void FWCamera::dumpCameraInfo()
 {
     // TODO: do this using AVG_TRACE
-    dc1394_print_camera_info(m_pCamera);
-    dc1394_print_feature_set(&m_FeatureSet);
+    dc1394_feature_print_all(&m_FeatureSet, stderr);
 }
 #else
 void FWCamera::dumpCameraInfo()
