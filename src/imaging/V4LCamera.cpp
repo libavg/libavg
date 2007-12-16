@@ -194,7 +194,6 @@ BitmapPtr V4LCamera::getImage(bool bWait)
     
     // wait for incoming data blocking, timeout 2s
     if (bWait) {
-        cerr << "bWait" << endl;
         fd_set Fds;
         struct timeval Tv;
         int Rc;
