@@ -334,12 +334,11 @@ TrackerEventSource * Player::addTracker()
 #ifdef AVG_ENABLE_V4L2
         AVG_TRACE(Logger::CONFIG, "Adding a Tracker for V4L camera " <<
                 Config.m_sDevice << " width=" << Config.m_Size.x << " height=" <<
-                Config.m_Size.y << " channel=" << Config.m_Channel);
+                Config.m_Size.y << " channel=" << Config.m_Channel << " format=" <<
+                Config.m_sPixFmt);
         
-        // TODO: Make pixel format configurable, since there are cameras that don't
-        // support MONO8.
         pCamera = CameraPtr(new V4LCamera(Config.m_sDevice, Config.m_Channel, 
-                Config.m_Size, "MONO8", false));
+                Config.m_Size, Config.m_sPixFmt, false));
 #else
         AVG_TRACE(Logger::ERROR, "Video4Linux camera tracker requested, but " 
                 "Video4Linux support not compiled in.");
@@ -348,9 +347,10 @@ TrackerEventSource * Player::addTracker()
     } else {
         AVG_TRACE(Logger::CONFIG, "Adding a Tracker for FW camera " << 
                 Config.m_sDevice << " width=" << Config.m_Size.x << 
-                " height=" << Config.m_Size.y);
+                " height=" << Config.m_Size.y  << " format=" <<
+                Config.m_sPixFmt);
         pCamera = CameraPtr(new FWCamera(Config.m_sDevice, Config.m_Size, 
-                "MONO8", Config.m_FPS, false));
+                Config.m_sPixFmt, Config.m_FPS, false));
     }
     
     m_pTracker = new TrackerEventSource(pCamera, Config, 

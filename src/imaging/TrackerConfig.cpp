@@ -93,7 +93,8 @@ namespace avg {
 
 
     TrackerConfig::TrackerConfig()
-        : m_Size(640, 480),
+        : m_sPixFmt("MONO8"),
+          m_Size(640, 480),
           m_Channel(0),
           m_FPS(30),
           m_Brightness(128),
@@ -207,6 +208,8 @@ namespace avg {
                 m_sSource = getRequiredStringAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "device")) {
                 m_sDevice = getRequiredStringAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "format")) {
+                m_sPixFmt = getRequiredStringAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "size")) {
                 m_Size.x = getRequiredIntAttr(curXmlChild, "x");
                 m_Size.y = getRequiredIntAttr(curXmlChild, "y");
@@ -239,6 +242,7 @@ namespace avg {
         rc = xmlTextWriterStartElement(writer, BAD_CAST "camera");
         writeSimpleXMLNode(writer, "source", m_sSource);
         writeSimpleXMLNode(writer, "device", m_sDevice);
+        writeSimpleXMLNode(writer, "format", m_sPixFmt);
         writePoint(writer, "size", DPoint(m_Size));
         writeSimpleXMLNode(writer, "fps", m_FPS);
         writeSimpleXMLNode(writer, "brightness", m_Brightness);

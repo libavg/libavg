@@ -57,6 +57,7 @@ struct TrackerConfig
     // Camera params
     std::string m_sSource;
     std::string m_sDevice;
+    std::string m_sPixFmt;
     IntPoint m_Size;
     int m_Channel;
     int m_FPS;
