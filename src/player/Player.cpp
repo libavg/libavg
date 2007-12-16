@@ -336,7 +336,8 @@ TrackerEventSource * Player::addTracker()
                 Config.m_sDevice << " width=" << Config.m_Size.x << " height=" <<
                 Config.m_Size.y << " channel=" << Config.m_Channel);
         
-        // is there a need to get a configurable pixel format for tracker?
+        // TODO: Make pixel format configurable, since there are cameras that don't
+        // support MONO8.
         pCamera = CameraPtr(new V4LCamera(Config.m_sDevice, Config.m_Channel, 
                 Config.m_Size, "MONO8", false));
 #else
