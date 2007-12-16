@@ -30,8 +30,8 @@ buildLib()
 buildlibjpeg()
 {
     cd jpeg-6b
-    cp /usr/share/libtool/config.sub .
-    cp /usr/share/libtool/config.guess .
+    cp ${AVG_PATH}/share/libtool/config.sub .
+    cp ${AVG_PATH}/share/libtool/config.guess .
     ./configure --prefix=${AVG_PATH}
     make clean
     make -j3
@@ -116,7 +116,7 @@ buildlibjpeg
 buildLib tiff-3.8.2 --disable-shared 
 buildLib zlib-1.2.3
 buildlibpng
-buildLib ImageMagick-6.2.8 "--without-x --without-fontconfig --without-freetype --without-perl --disable-delegate-build --without-modules --without-bzlib --enable-static --disable-shared --with-quantum-depth=8 --without-xml --without-ttf"
+buildLib ImageMagick-6.2.8 "--without-x --without-fontconfig --without-freetype --without-perl --disable-delegate-build --without-modules --without-bzlib --with-quantum-depth=8 --without-xml --without-ttf"
 buildLib pkg-config-0.20
 buildLib ffmpeg "--disable-shared --disable-debug --disable-vhook"
 buildLib SDL-1.2.11 "--disable-shared --disable-audio --disable-cdrom --disable-threads --disable-file --disable-video-x11 --without-x"
