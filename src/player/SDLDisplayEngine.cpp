@@ -704,7 +704,7 @@ bool SDLDisplayEngine::initVBlank(int rate) {
             AVG_TRACE(Logger::WARNING,
                     "VBlank rate set to " << rate << " but Mac OS X only supports 1. Assuming 1.");
         }
-#if MAC_OS_X_VERSION_10_5 > 5367
+#if MAC_OS_X_VERSION_10_5
         const GLint l = 1;
 #else
         const long l = 1;
