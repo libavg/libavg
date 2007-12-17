@@ -515,7 +515,13 @@ void Node::addEventHandler(Event::Type EventType, Event::Source Source,
 
 void Node::initFilename(Player * pPlayer, string& sFilename)
 {
-    if (sFilename[0] != '/') {
+    bool bAbsDir = sFilename[0] == '/';
+#ifdef _WIN32
+    if (!bAbsDir) {
+        bAbsDir = (sFilename[0] == '\\' || sFilename[1] == ':');
+    }
+#endif
+    if (!bAbsDir) {
         if (m_pParent.expired()) {
             sFilename = pPlayer->getCurDirName()+sFilename;
         } else {
