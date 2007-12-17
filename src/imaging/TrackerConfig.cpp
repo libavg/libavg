@@ -137,8 +137,8 @@ namespace avg {
         doc = xmlParseFile(sFilename.c_str());
         if (!doc) {
             AVG_TRACE(Logger::ERROR, "Could not open tracker config file " 
-                    << sFilename << ".");
-            exit(5);
+                    << sFilename << ". Using defaults which will probably not work.");
+            return;
         }
 
         xmlValidCtxtPtr cvp = xmlNewValidCtxt();
