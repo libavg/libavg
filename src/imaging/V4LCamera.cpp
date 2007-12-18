@@ -336,7 +336,7 @@ const std::string& V4LCamera::getDriverName() const
 
 double V4LCamera::getFrameRate() const
 {
-    // TODO: PAL or NTSC have different frame rates
+    // TODO: PAL or NTSC have different frame rates. So do USB cameras!
     return 25;
 }
 
