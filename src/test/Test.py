@@ -18,7 +18,8 @@ except ImportError:
 sys.path += ['../python/.libs', '../python']
 if platform.system() == 'Darwin':
     sys.path += ['../..']     # Location of libavg in a mac installation. 
-elif platform.system() == 'Windows':
+
+if platform.system() == 'Windows':
     from libavg import avg    # Under windows, there is no uninstalled version.
 else:    
     import avg
