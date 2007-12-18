@@ -34,6 +34,9 @@
 #ifdef AVG_ENABLE_V4L2
 #include "../imaging/V4LCamera.h"
 #endif
+#ifdef _WIN32
+#include "../imaging/DSCamera.h"
+#endif
 
 #include <iostream>
 #include <sstream>
@@ -72,6 +75,14 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
 #else
         AVG_TRACE(Logger::ERROR, "Video4Linux camera specified, but "
                 "Video4Linux support not compiled in.");
+#endif
+    } else if (sSource == "directshow") {
+#if defined(_WIN32)
+        m_pCamera = CameraPtr(new DSCamera(sDevice, IntPoint(Width, Height), sPF, 
+            FrameRate, true));
+#else
+        AVG_TRACE(Logger::ERROR, "DirectShow camera specified, but "
+                "DirectShow is only available under windows.");
 #endif
     } else {
         AVG_TRACE(Logger::ERROR,
