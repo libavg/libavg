@@ -17,10 +17,9 @@ except ImportError:
 # TODO: This is a mess. 
 sys.path += ['../python/.libs', '../python']
 if platform.system() == 'Darwin':
-    sys.path += ['../..']     # Location of libavg in a mac installation.
-    
-if platform.system() == 'Windows':
-    from libavg import avg
+    sys.path += ['../..']     # Location of libavg in a mac installation. 
+elif platform.system() == 'Windows':
+    from libavg import avg    # Under windows, there is no uninstalled version.
 else:    
     import avg
 
@@ -1186,6 +1185,11 @@ else:
     Player = avg.Player()
     runner = unittest.TextTestRunner()
     rc = runner.run(completeTestSuite(bpp))
+    
+    term = os.getenv("TERM")
+    if term == None:
+        raw_input ("Press enter to end the test.")
+
     if rc.wasSuccessful():
         sys.exit(0)
     else:
