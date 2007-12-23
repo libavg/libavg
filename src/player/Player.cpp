@@ -37,6 +37,7 @@
 #include "KeyEvent.h"
 
 #include "SDLDisplayEngine.h"
+#include "SDLAudioEngine.h"
 
 #include "../base/FileHelper.h"
 #include "../base/Exception.h"
@@ -141,6 +142,12 @@ void Player::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode,
     m_YCbCrMode = DesiredYCbCrMode;
     m_bUsePixelBuffers = bUsePixelBuffers;
     m_MultiSampleSamples = MultiSampleSamples;
+}
+
+void Player::setAudioOptions(int samplerate, int channels)
+{
+    m_AP.m_SampleRate = samplerate;
+    m_AP.m_Channels = channels;
 }
 
 void Player::loadFile (const std::string& filename)
@@ -249,8 +256,11 @@ void Player::initPlayback()
         AVG_TRACE(Logger::ERROR, "play called, but no xml file loaded.");
     }
     assert(m_pRootNode);
+    
     initGraphics();
-    m_pRootNode->setDisplayEngine(m_pDisplayEngine);
+    initAudio();
+    
+    m_pRootNode->setRenderingEngines(m_pDisplayEngine, m_pAudioEngine);
 
     m_pEventDispatcher->addSource(m_pEventSource);
     m_pEventDispatcher->addSource(m_pTestHelper);
@@ -484,7 +494,7 @@ void Player::removeNodeID(const std::string& id)
         } else {
             AVG_TRACE(Logger::ERROR, "removeNodeID(\""+id+"\") failed.");
             exit(1);
-      }
+        }
     }
 }
 
@@ -632,6 +642,9 @@ void Player::initConfig() {
         exit(-1);
     }
 
+    m_AP.m_Channels = atoi(pMgr->getOption("aud", "channels")->c_str());
+    m_AP.m_SampleRate = atoi(pMgr->getOption("aud", "samplerate")->c_str());
+
     m_bUsePOW2Textures = pMgr->getBoolOption("scr", "usepow2textures", false);
 
     const string * psYCbCrMode =pMgr->getOption("scr", "ycbcrmode");
@@ -727,9 +740,16 @@ void Player::initGraphics()
     m_pDisplayEngine->init(m_DP);
 }
 
+void Player::initAudio()
+{
+    m_pAudioEngine = new SDLAudioEngine();
+    m_pAudioEngine->init(m_AP);
+    m_pAudioEngine->play();
+}
+
 void Player::registerNode(NodePtr pNode)
 {
-    addNodeID(pNode);
+    addNodeID(pNode);    
     DivNodePtr pDivNode = boost::dynamic_pointer_cast<DivNode>(pNode);
     if (pDivNode) {
         for (int i=0; i<pDivNode->getNumChildren(); i++) {
@@ -957,6 +977,9 @@ void Player::cleanup()
     if (m_pDisplayEngine) {
         m_pDisplayEngine->deinitRender();
         m_pDisplayEngine->teardown();
+    }
+    if (m_pAudioEngine) {
+        m_pAudioEngine->teardown();
     }
     m_pLastMouseNode.clear();
     m_IDMap.clear();

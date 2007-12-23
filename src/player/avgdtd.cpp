@@ -76,6 +76,7 @@ const char * g_pAVGDTD =
 "   href CDATA #REQUIRED\n"
 "   loop CDATA #IMPLIED\n"
 "   fps CDATA #IMPLIED\n"
+"   volume CDATA #IMPLIED\n"
 "   threaded CDATA #IMPLIED>\n"
 
 "<!ELEMENT camera EMPTY>\n"

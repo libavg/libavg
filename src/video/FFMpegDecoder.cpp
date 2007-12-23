@@ -40,18 +40,24 @@
 using namespace std;
 using namespace boost;
 
+#define SAMPLE_BUFFER_SIZE ((AVCODEC_MAX_AUDIO_FRAME_SIZE*3))
+
 namespace avg {
 
 bool FFMpegDecoder::m_bInitialized = false;
-mutex FFMpegDecoder::s_OpenMutex;   
+mutex FFMpegDecoder::s_OpenMutex;
 
 FFMpegDecoder::FFMpegDecoder ()
     : m_pDemuxer(0),
       m_pFormatContext(0),
       m_pVStream(0),
+      m_pAStream(0),
+      m_VStreamIndex(-1),
+      m_AStreamIndex(-1),
 #ifdef AVG_ENABLE_SWSCALE
       m_pSwsContext(0),
 #endif
+      m_pAudioResampleContext(0),
       m_pPacketData(0),
       m_Size(0,0),
       m_StartTimestamp(-1),
@@ -111,6 +117,25 @@ void dump_stream_info(AVFormatContext *s)
         fprintf(stderr, "  Genre: %s\n", s->genre);
 }
 
+int openCodec(AVFormatContext *formatContext, int streamIndex)
+{
+    AVCodecContext *enc;
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
+    enc = &(formatContext->streams[streamIndex]->codec);
+#else
+    enc = formatContext->streams[streamIndex]->codec;
+#endif
+//    enc->debug = 0x0001; // see avcodec.h
+
+    AVCodec * codec = avcodec_find_decoder(enc->codec_id);
+    if (!codec ||
+        avcodec_open(enc, codec) < 0)
+    {
+        return -1;
+    }
+    return 0;
+}
+
 
 void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
         bool bThreadedDemuxer)
@@ -142,7 +167,9 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
 
     av_read_play(m_pFormatContext);
     
+    // Find audio and video streams in the file
     m_VStreamIndex = -1;
+    m_AStreamIndex = -1;
     for(unsigned i = 0; i < m_pFormatContext->nb_streams; i++) {
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
         AVCodecContext *enc = &m_pFormatContext->streams[i]->codec;
@@ -154,6 +181,10 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
                 if (m_VStreamIndex < 0)
                     m_VStreamIndex = i;
                 break;
+            case CODEC_TYPE_AUDIO:
+                if (m_AStreamIndex < 0)
+                    m_AStreamIndex = i;
+                break;
             default:
                 break;
         }
@@ -161,69 +192,132 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
     assert(!m_pDemuxer);
 //    dump_format(m_pFormatContext, 0, m_sFilename.c_str(), 0);
 //    dump_stream_info(m_pFormatContext);
-    if (m_VStreamIndex < 0) {
+    if (m_VStreamIndex < 0 && m_AStreamIndex < 0) {
         throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                sFilename + " does not contain any video streams.");
-    }                
+                sFilename + " does not contain any audio or video streams.");
+    }
+    
+    // Create demuxer to handle streams
     if (bThreadedDemuxer) { 
         m_pDemuxer = new AsyncDemuxer(m_pFormatContext);
     } else {
         m_pDemuxer = new FFMpegDemuxer(m_pFormatContext);
     }
-    m_pDemuxer->enableStream(m_VStreamIndex);
-    AVCodecContext *enc;
-#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    enc = &(m_pFormatContext->streams[m_VStreamIndex]->codec);
-#else
-    enc = m_pFormatContext->streams[m_VStreamIndex]->codec;
-#endif
-//    enc->debug = 0x0001; // see avcodec.h
-
-    AVCodec * codec = avcodec_find_decoder(enc->codec_id);
-    if (!codec ||
-        avcodec_open(enc, codec) < 0)
+    
+    // Enable video stream demuxing
+    if(m_VStreamIndex >= 0)
     {
-        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                sFilename + ": could not open codec (?!).");
-    }                
-    m_pVStream = m_pFormatContext->streams[m_VStreamIndex];
-    m_TimeUnitsPerSecond = 1.0/av_q2d(m_pVStream->time_base);
-    if (m_bUseStreamFPS) {
-        m_FPS = calcStreamFPS();
+        m_pVStream = m_pFormatContext->streams[m_VStreamIndex];
+        m_pDemuxer->enableStream(m_VStreamIndex);
+        
+        // Set video parameters
+        m_TimeUnitsPerSecond = 1.0/av_q2d(m_pVStream->time_base);
+        if (m_bUseStreamFPS) {
+            m_FPS = calcStreamFPS();
+        }
+    #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
+        m_Size = IntPoint(m_pVStream->codec.width, m_pVStream->codec.height);
+    #else
+        m_Size = IntPoint(m_pVStream->codec->width, m_pVStream->codec->height);
+    #endif
+        m_bFirstPacket = true;
+        m_PacketLenLeft = 0;
+        m_sFilename = sFilename;
+        m_LastFrameTime = -1000;
+        m_PF = calcPixelFormat(ycbcrMode);
     }
-#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    m_Size = IntPoint(m_pVStream->codec.width, m_pVStream->codec.height);
-#else
-    m_Size = IntPoint(m_pVStream->codec->width, m_pVStream->codec->height);
-#endif
-    m_bFirstPacket = true;
-    m_PacketLenLeft = 0;
-    m_sFilename = sFilename;
-    m_LastFrameTime = -1000;
-    m_PF = calcPixelFormat(ycbcrMode);
+    
+    // Enable audio stream demuxing
+    if(m_AStreamIndex >= 0)
+    {
+        m_pAStream = m_pFormatContext->streams[m_AStreamIndex];
+        m_pDemuxer->enableStream(m_AStreamIndex);
+        
+        m_AudioPacket = 0;
+        m_AudioPacketData = 0;
+        m_AudioPacketSize = 0;
+        
+        m_SampleBufferSize = SAMPLE_BUFFER_SIZE;
+        m_pSampleBuffer = new char[SAMPLE_BUFFER_SIZE];
+        m_SampleBufferStart = 0;
+        m_SampleBufferEnd = 0;
+
+        m_ResampleBufferSize = 0;
+        m_pResampleBuffer = 0;
+        m_ResampleBufferStart = 0;
+        m_ResampleBufferEnd = 0;
+    }
+    
+    // Open codecs for audio and video
+    if ((m_VStreamIndex != -1 && openCodec(m_pFormatContext, m_VStreamIndex) == -1) ||
+        (m_AStreamIndex != -1 && openCodec(m_pFormatContext, m_AStreamIndex) == -1))
+    {
+    	throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+    	                sFilename + ": could not open codec (?!).");
+    }
 } 
 
 void FFMpegDecoder::close() 
 {
     mutex::scoped_lock Lock(s_OpenMutex);
+    mutex::scoped_lock Lock2(m_AudioMutex);
     AVG_TRACE(Logger::MEMORY, "Closing " << m_sFilename);
+    
     delete m_pDemuxer;
     m_pDemuxer = 0;
-    AVCodecContext * enc;
-#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    enc = &(m_pFormatContext->streams[m_VStreamIndex]->codec);
-#else
-    enc = m_pFormatContext->streams[m_VStreamIndex]->codec;
-#endif
-    if (!m_bFirstPacket) {
-        av_free_packet(m_pPacket);
-        delete m_pPacket;
+    
+    // Close audio and video codecs
+    if(m_pVStream)
+    {
+        avcodec_close(m_pVStream->codec);
+        if (!m_bFirstPacket) {
+            av_free_packet(m_pPacket);
+            delete m_pPacket;
+        }
+        m_pPacketData = 0;
+        m_pVStream = 0;
+        m_VStreamIndex = -1;
     }
-    m_pPacketData = 0;
-    avcodec_close(enc);
-    m_pVStream = 0;
+
+    if(m_pAStream)
+    {
+        avcodec_close(m_pAStream->codec);
+        if (m_AudioPacket) {
+            av_free_packet(m_AudioPacket);
+            delete m_AudioPacket;
+            m_AudioPacket = 0;
+        }
+        if (m_pSampleBuffer) {
+            delete m_pSampleBuffer;
+            m_pSampleBuffer = 0;
+        }
+        if(m_pResampleBuffer) {
+            delete m_pResampleBuffer;
+            m_pResampleBuffer = 0;
+        }
+        if(m_pAudioResampleContext) {
+            audio_resample_close(m_pAudioResampleContext);
+            m_pAudioResampleContext = 0;
+        }
+        
+        m_AudioPacketData = 0;
+        m_AudioPacketSize = 0;
+        
+        m_SampleBufferStart = 0;
+        m_SampleBufferEnd = 0;
+        m_SampleBufferSize = 0;
+
+        m_ResampleBufferStart = 0;
+        m_ResampleBufferEnd = 0;
+        m_ResampleBufferSize = 0;
+        
+        m_pAStream = 0;
+        m_AStreamIndex = -1;
+    }
+    
     av_close_input_file(m_pFormatContext);
     m_pFormatContext = 0;
+    
 #ifdef AVG_ENABLE_SWSCALE
     if(m_pSwsContext) {
         sws_freeContext(m_pSwsContext);
@@ -334,6 +428,186 @@ long long FFMpegDecoder::getCurFrameTime()
 bool FFMpegDecoder::isEOF()
 {
     return m_bEOF;
+}
+
+int FFMpegDecoder::copyRawAudio(unsigned char* buf, int size)
+{
+    int bytesWritten = min(m_SampleBufferEnd - m_SampleBufferStart, size);
+    memcpy(buf, m_pSampleBuffer + m_SampleBufferStart, bytesWritten);
+    
+    m_SampleBufferStart += bytesWritten;
+    
+    if(m_SampleBufferStart == m_SampleBufferEnd)
+    {
+        m_SampleBufferStart = 0;
+        m_SampleBufferEnd = 0;
+        m_SampleBufferSize = SAMPLE_BUFFER_SIZE;
+    }
+    
+    return bytesWritten;
+}
+
+int FFMpegDecoder::copyResampledAudio(unsigned char* buf, int size)
+{
+    int bytesWritten = min(m_ResampleBufferEnd - m_ResampleBufferStart, size);
+    memcpy(buf, m_pResampleBuffer + m_ResampleBufferStart, bytesWritten);
+    
+    m_ResampleBufferStart += bytesWritten;
+    if(m_ResampleBufferStart >= m_ResampleBufferEnd)
+    {
+        m_ResampleBufferStart = 0;
+        m_ResampleBufferEnd = 0;
+    }
+    
+    if(m_SampleBufferStart == m_SampleBufferEnd)
+    {
+        m_SampleBufferStart = 0;
+        m_SampleBufferEnd = 0;
+        m_SampleBufferSize = SAMPLE_BUFFER_SIZE;
+    }
+    
+    return bytesWritten;
+}
+
+void FFMpegDecoder::resampleAudio(int channels, int rate)
+{
+    if (!m_pAudioResampleContext)
+        m_pAudioResampleContext = audio_resample_init(
+                channels, m_pAStream->codec->channels, 
+                rate, m_pAStream->codec->sample_rate);
+    
+    int inputSamples = 
+        (m_SampleBufferEnd - m_SampleBufferStart) / 
+        (2 * m_pAStream->codec->channels);
+    
+    if(!m_pResampleBuffer)
+    {
+        m_ResampleBufferSize = (int)(4*inputSamples * 
+            ((float)rate / (float)m_pAStream->codec->sample_rate) + 16);
+        m_pResampleBuffer = new char[m_ResampleBufferSize];
+    }
+    
+    int outputSamples = audio_resample(m_pAudioResampleContext,
+            (int16_t*)m_pResampleBuffer,
+            (int16_t*)(m_pSampleBuffer + m_SampleBufferStart), 
+            inputSamples);
+    
+    // Adjust buffer pointers
+    m_ResampleBufferEnd += outputSamples * 2 * channels;
+    m_SampleBufferStart += inputSamples * 2 * m_pAStream->codec->channels;
+    
+//    cerr << "\n\tSource Frequency: " << m_pAStream->codec->sample_rate << "\n" <<
+//        "\tDest Frequency: " << rate << "\n" <<
+//        "\tSource Channels: " << m_pAStream->codec->channels << "\n" <<
+//        "\tDest Channels: " << channels << "\n";
+}
+
+int FFMpegDecoder::decodeAudio()
+{
+    // Save current size of the audio buffer
+    int lastSampleBufferSize = m_SampleBufferSize;
+    
+    // Decode some data from packet into the audio buffer
+    int packetBytesDecoded = avcodec_decode_audio2(
+            m_pAStream->codec, 
+            (int16_t*)(m_pSampleBuffer + m_SampleBufferEnd),
+            &m_SampleBufferSize, 
+            m_AudioPacketData,
+            m_AudioPacketSize);
+    
+    // Skip frame on error
+    if (packetBytesDecoded < 0)
+        return -1;
+    
+    // Did not get any data, try again
+    if (packetBytesDecoded == 0)
+        return 0;
+    
+    // Adjust audio buffer pointers
+    m_SampleBufferEnd += m_SampleBufferSize;
+    m_SampleBufferSize = lastSampleBufferSize - m_SampleBufferSize;
+                
+    // Adjust packet data pointers
+    m_AudioPacketData += packetBytesDecoded;
+    m_AudioPacketSize -= packetBytesDecoded;
+}
+
+void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer,
+        int outputAudioBufferSize, int outputChannels, int outputRate)
+{
+    mutex::scoped_lock Lock(m_AudioMutex);
+ 
+    if(!m_pAStream)
+        return;
+    
+    int packetBytesDecoded;
+    int bytesProduced;
+
+    while(1)
+    {
+        // While there is data left in the encoded packet, decode it
+        while(m_AudioPacketSize > 0)
+        {
+            // While there is data left in the sample buffer, consume it
+            while(m_SampleBufferStart < m_SampleBufferEnd)
+            {
+                // If the output format is different from the decoded format,
+                // then convert it, else copy it over
+                if (m_pAStream->codec->sample_rate != outputRate ||
+                    m_pAStream->codec->channels != outputChannels)
+                {
+                    bytesProduced = 0;
+                    
+                    // If there is no buffered resampled data, resample some more
+                    if(m_ResampleBufferStart >= m_ResampleBufferEnd)
+                        resampleAudio(outputChannels, outputRate);
+                    
+                    // If we have some data in the resample buffer, copy it over
+                    if(m_ResampleBufferStart < m_ResampleBufferEnd)
+                        bytesProduced = copyResampledAudio(outputAudioBuffer,
+                                outputAudioBufferSize);
+                }
+                else
+                {
+                    bytesProduced = copyRawAudio(outputAudioBuffer,
+                            outputAudioBufferSize);
+                }
+                
+                outputAudioBuffer += bytesProduced;
+                outputAudioBufferSize -= bytesProduced;
+                            
+                if(outputAudioBufferSize == 0)
+                    return;
+            }
+            
+            packetBytesDecoded = decodeAudio();
+            
+            // Skip frame on error
+            if (packetBytesDecoded < 0)
+                break;
+            
+            // Did not get any data, try again
+            if (packetBytesDecoded == 0)
+                continue;
+        }
+        
+        // We have decoded all data in the packet, free it
+        if(m_AudioPacket)
+        {
+            av_free_packet(m_AudioPacket);
+            delete m_AudioPacket;
+        }
+        
+        // Get a new packet from the audio stream
+        m_AudioPacket = m_pDemuxer->getPacket(m_AStreamIndex);
+        
+        if(!m_AudioPacket)
+            return;
+        
+        // Initialize packet data pointers
+        m_AudioPacketData = m_AudioPacket->data;
+        m_AudioPacketSize = m_AudioPacket->size;
+    }
 }
 
 PixelFormat FFMpegDecoder::calcPixelFormat(YCbCrMode ycbcrMode)

@@ -33,6 +33,7 @@
 #define INT64_C(c)    c ## L
 #endif
 extern "C" {
+#include <ffmpeg/avcodec.h>
 #include <ffmpeg/avformat.h>
 #ifdef AVG_ENABLE_SWSCALE
 #include <ffmpeg/swscale.h>
@@ -62,6 +63,8 @@ class FFMpegDecoder: public IVideoDecoder
                 BitmapPtr pBmpCr, long long TimeWanted);
         virtual long long getCurFrameTime();
         virtual bool isEOF();
+        
+        virtual void fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize, int channels, int rate);
 
     private:
         void initVideoSupport();
@@ -71,11 +74,17 @@ class FFMpegDecoder: public IVideoDecoder
         void convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp);
         long long getFrameTime(AVPacket* pPacket);
         double calcStreamFPS();
+        int copyRawAudio(unsigned char* buf, int size);
+        int copyResampledAudio(unsigned char* buf, int size);
+        void resampleAudio(int channels, int rate);
+        int decodeAudio();
 
         IDemuxer * m_pDemuxer;
         AVFormatContext * m_pFormatContext;
         int m_VStreamIndex;
         AVStream * m_pVStream;
+        int m_AStreamIndex;
+        AVStream * m_pAStream;
         bool m_bEOFPending;
         bool m_bEOF;
         PixelFormat m_PF;
@@ -83,6 +92,20 @@ class FFMpegDecoder: public IVideoDecoder
         SwsContext * m_pSwsContext;
 #endif
 
+        unsigned char * m_AudioPacketData;
+        AVPacket * m_AudioPacket;
+        int m_AudioPacketSize;
+        char * m_pSampleBuffer;
+        int m_SampleBufferStart;
+        int m_SampleBufferEnd;
+        int m_SampleBufferSize;
+        char * m_pResampleBuffer;
+        int m_ResampleBufferEnd;
+        int m_ResampleBufferStart;
+        int m_ResampleBufferSize;
+        ReSampleContext * m_pAudioResampleContext;
+        boost::mutex m_AudioMutex;
+        
         unsigned char * m_pPacketData;
         AVPacket * m_pPacket;
         int m_PacketLenLeft;

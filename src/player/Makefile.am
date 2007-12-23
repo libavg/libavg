@@ -30,6 +30,8 @@ GL_INCLUDES = SDLDisplayEngine.h OGLHelper.h OGLSurface.h OGLTile.h \
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
 ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
+        AudioEngine.h SDLAudioEngine.h \
+        AudioParams.h AudioFrame.h AudioSource.h \
         DisplayEngine.h Region.h Node.h \
         ISurface.h avgdtd.h DisplayParams.h \
         MathHelper.h AVGNode.h DivNode.h \
@@ -64,6 +66,8 @@ testcalibrator_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREA
 
 libplayer_la_SOURCES = $(GL_SOURCES) \
 		Node.cpp RasterNode.cpp DivNode.cpp VideoBase.cpp Video.cpp \
+		AudioEngine.cpp SDLAudioEngine.cpp \
+        AudioParams.cpp AudioFrame.cpp AudioSource.cpp \
         Player.cpp DisplayEngine.cpp Region.cpp \
         MathHelper.cpp PanoImage.cpp Words.cpp CameraNode.cpp \
         Timeout.cpp Event.cpp DisplayParams.cpp \

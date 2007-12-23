@@ -35,7 +35,7 @@ class DivNode : public Node
 	public:
         DivNode (const xmlNodePtr xmlNode, Player * pPlayer);
         virtual ~DivNode ();
-        virtual void setDisplayEngine(DisplayEngine * pEngine);
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
         virtual void disconnect();
 
         const std::string& getMediaDir() const;

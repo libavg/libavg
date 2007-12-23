@@ -44,11 +44,11 @@ DivNode::~DivNode()
 {
 }
 
-void DivNode::setDisplayEngine(DisplayEngine * pEngine)
+void DivNode::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
-    Node::setDisplayEngine(pEngine);
+    Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
     for  (int i = 0; i< (int)m_Children.size(); ++i) {
-        m_Children[i]->setDisplayEngine(pEngine);
+        m_Children[i]->setRenderingEngines(pDisplayEngine, pAudioEngine);
     }
 }
 
@@ -114,7 +114,7 @@ void DivNode::insertChild(NodePtr pNewNode, unsigned i)
         getPlayer()->registerNode(pNewNode);
     }
     if (isDisplayAvailable()) {
-        pNewNode->setDisplayEngine(getEngine());
+        pNewNode->setRenderingEngines(getDisplayEngine(), getAudioEngine());
     }
 }
 
@@ -171,11 +171,11 @@ void DivNode::render(const DRect& rect)
 {
     DPoint Viewport = getRelSize();
     DRect ClipRect(0, 0, Viewport.x, Viewport.y);
-    getEngine()->pushClipRect(ClipRect);
+    getDisplayEngine()->pushClipRect(ClipRect);
     for (int i=0; i<getNumChildren(); i++) {
         getChild(i)->maybeRender(rect);
     }
-    getEngine()->popClipRect();
+    getDisplayEngine()->popClipRect();
 }
 
 string DivNode::getTypeStr ()

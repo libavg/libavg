@@ -175,6 +175,12 @@ bool AsyncVideoDecoder::isEOF()
     return m_bEOF;
 }
 
+// TODO: Implement safe async audio filling
+void AsyncVideoDecoder::fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize, int channels, int rate)
+{
+    //m_pSyncDecoder->fillAudioFrame(audioBuffer, audioBufferSize, channels, rate);
+}
+
 void AsyncVideoDecoder::getInfoMsg(VideoMsgPtr pMsg)
 {
     InfoVideoMsgPtr pInfoMsg = dynamic_pointer_cast<InfoVideoMsg>(pMsg);

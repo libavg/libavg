@@ -140,15 +140,17 @@ void Video::setEOFCallback(PyObject * pEOFCallback)
     m_pEOFCallback = pEOFCallback;
 }
 
-void Video::setDisplayEngine(DisplayEngine * pEngine)
+void Video::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
     checkReload();
-    VideoBase::setDisplayEngine(pEngine);
+    VideoBase::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    getAudioEngine()->addSource(AudioSourcePtr(this));
 }
 
 void Video::disconnect()
 {
     stop();
+    getAudioEngine()->removeSource(AudioSourcePtr(this));
     VideoBase::disconnect();
 }
 
@@ -190,6 +192,12 @@ void Video::onFrameEnd()
         onEOF();
         m_bEOFPending = false;
     }
+}
+
+void Video::fillAudioFrame(AudioFrame* frame)
+{
+    m_pDecoder->fillAudioFrame(frame->getBuffer(), frame->getSize(),
+            frame->getChannels(), frame->getRate());
 }
 
 void Video::changeVideoState(VideoState NewVideoState)
@@ -299,7 +307,7 @@ bool Video::renderToSurface(ISurface * pSurface)
     pSurface->unlockBmps();
     if (FrameAvailable == FA_NEW_FRAME) {
         m_FramesPlayed++;
-        getEngine()->surfaceChanged(pSurface);
+        getDisplayEngine()->surfaceChanged(pSurface);
         m_CurFrame++;
     } else if (FrameAvailable == FA_STILL_DECODING) {
         m_FramesPlayed++;

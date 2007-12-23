@@ -25,6 +25,7 @@
 #include "Region.h"
 #include "Event.h"
 #include "ISurface.h"
+#include "AudioEngine.h"
 
 #include "../base/Point.h"
 #include "../base/Rect.h"
@@ -66,7 +67,7 @@ class Node
         virtual ~Node () = 0;
         virtual void setThis(NodeWeakPtr This);
         void setParent(DivNodeWeakPtr pParent);
-        virtual void setDisplayEngine(DisplayEngine * pEngine);
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
         virtual void disconnect();
         
         virtual const std::string& getID () const;
@@ -141,7 +142,8 @@ class Node
             { return DPoint(0,0); };
         DPoint getPivot() const;
         Player * getPlayer() const;
-        DisplayEngine * getEngine() const;
+        DisplayEngine * getDisplayEngine() const;
+        AudioEngine * getAudioEngine() const;
         NodePtr getThis() const;
 
         void callPython (PyObject * pFunc, avg::Event* pEvent);
@@ -159,7 +161,8 @@ class Node
 
         DivNodeWeakPtr m_pParent;
         NodeWeakPtr m_This;
-        DisplayEngine * m_pEngine;
+        DisplayEngine * m_pDisplayEngine;
+        AudioEngine * m_pAudioEngine;
         Player * m_pPlayer;
 
         std::string m_ID;

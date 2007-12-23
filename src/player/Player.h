@@ -28,9 +28,11 @@
 #include "KeyEvent.h"
 #include "MouseEvent.h"
 #include "DisplayEngine.h"
+#include "AudioEngine.h"
 #include "TestHelper.h"
 #include "Node.h"
 #include "DisplayParams.h"
+#include "AudioParams.h"
 
 #include "../base/IFrameListener.h"
 
@@ -55,6 +57,7 @@ class Player : IEventSink
                 int width=0, int height=0, int bpp=0);
         void setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode, 
                 bool bUsePixelBuffers, int MultiSampleSamples);
+        void setAudioOptions(int samplerate, int channels);
         void loadFile (const std::string& fileName);
         void play();
         void stop();
@@ -104,6 +107,7 @@ class Player : IEventSink
     private:
         void initConfig();
         void initGraphics();
+        void initAudio();
 
         NodePtr createNodeFromXml(const xmlDocPtr xmlDoc, 
                 const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);
@@ -114,6 +118,7 @@ class Player : IEventSink
 
         AVGNodePtr m_pRootNode;
         DisplayEngine * m_pDisplayEngine;
+        AudioEngine * m_pAudioEngine;
         IEventSource * m_pEventSource;
         TestHelper * m_pTestHelper;
         
@@ -139,6 +144,7 @@ class Player : IEventSink
 
         // Configuration variables.
         DisplayParams m_DP;
+        AudioParams m_AP;
         bool m_bUsePOW2Textures;
         YCbCrMode m_YCbCrMode;
         bool m_bUsePixelBuffers;

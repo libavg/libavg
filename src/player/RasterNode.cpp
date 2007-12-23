@@ -50,9 +50,9 @@ RasterNode::~RasterNode()
     }
 }
 
-void RasterNode::setDisplayEngine(DisplayEngine * pEngine)
+void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
-    Node::setDisplayEngine(pEngine);
+    Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
 
     if (m_MaxTileSize != IntPoint(-1, -1)) {
         OGLSurface * pOGLSurface = 
@@ -177,7 +177,7 @@ DisplayEngine::BlendMode RasterNode::getBlendMode() const
 ISurface * RasterNode::getSurface()
 {
     if (!m_pSurface) {
-        m_pSurface = getEngine()->createSurface();
+        m_pSurface = getDisplayEngine()->createSurface();
     }
     return m_pSurface;
 }

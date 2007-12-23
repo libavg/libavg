@@ -56,9 +56,9 @@ VideoBase::~VideoBase ()
 {
 }
 
-void VideoBase::setDisplayEngine(DisplayEngine * pEngine)
+void VideoBase::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
-    RasterNode::setDisplayEngine(pEngine);
+    RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
     VideoState TempVideoState = m_VideoState;
     m_VideoState = Unloaded;
     try {
@@ -104,7 +104,7 @@ void VideoBase::render (const DRect& Rect)
                     m_bFirstFrameDecoded = true;
                 }
                 if (m_bFirstFrameDecoded) {
-                    getEngine()->blt32(getSurface(), getRelSize(),
+                    getDisplayEngine()->blt32(getSurface(), getRelSize(),
                             getEffectiveOpacity(), getBlendMode());
                 }
             }
@@ -117,7 +117,7 @@ void VideoBase::render (const DRect& Rect)
                 m_bFirstFrameDecoded = true;
             }
             if (m_bFirstFrameDecoded) {
-                getEngine()->blt32(getSurface(), getRelSize(),
+                getDisplayEngine()->blt32(getSurface(), getRelSize(),
                         getEffectiveOpacity(), getBlendMode());
             }
             break;
@@ -144,7 +144,7 @@ void VideoBase::changeVideoState(VideoState NewVideoState)
 
 void VideoBase::open() 
 {
-    open(getEngine()->getYCbCrMode());
+    open(getDisplayEngine()->getYCbCrMode());
     setViewport(-32767, -32767, -32767, -32767);
     PixelFormat pf = getPixelFormat();
     getSurface()->create(getMediaSize(), pf, true);

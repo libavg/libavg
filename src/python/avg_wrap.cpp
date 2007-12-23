@@ -168,10 +168,22 @@ BOOST_PYTHON_MODULE(avg)
                 "to the screen. Can be shader, mesa, apple or none.\n"
                 "@param UsePixelBuffers: If False, disables the use of OpenGL pixel buffer\n"
                 "objects.\n"
+                "@param UsePixelBuffers: If False, disables the use of OpenGL pixel buffer\n"
+                "objects.\n"
+                "@param MultiSampleSamples: The number of samples per pixel to compute. This\n"
+                "costs performance and smoothes the edges of polygons. A value of 1 turns\n"
+                "multisampling (also knowna as FSAA - Full-Screen Antialiasing) off. Good\n"
+                "values are dependent on the graphics driver.\n"
                 "@param MultiSampleSamples: The number of samples per pixel to compute. This\n"
                 "costs performance and smoothes the edges of polygons. A value of 1 turns\n"
                 "multisampling (also knowna as FSAA - Full-Screen Antialiasing) off. Good\n"
                 "values are dependent on the graphics driver.\n")
+        .def("setAudioOptions", &Player::setAudioOptions,
+                "setAudioOptions(SampleRate, Channels)\n"
+                "Determines output format used to render audio. All audio will be resampled\n"
+                "to match this format before being passed to the audio device.\n"
+                "@param SampleRate: The sampling rate (Hz) of the output audio.\n"
+                "@param Channels: The number of channels to output audio on.\n")
         .def("loadFile", &Player::loadFile,
                 "loadFile(filename)\n"
                 "Loads the avg file specified in filename.\n"

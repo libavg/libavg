@@ -43,7 +43,7 @@ class PanoImage : public Node
         PanoImage(const xmlNodePtr xmlNode, Player * pPlayer);
         virtual ~PanoImage();
         
-        virtual void setDisplayEngine(DisplayEngine * pEngine);
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
         virtual void disconnect();
         virtual void render(const DRect& Rect);
         virtual std::string getTypeStr();

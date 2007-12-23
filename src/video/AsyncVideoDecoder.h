@@ -52,6 +52,9 @@ class AsyncVideoDecoder: public IVideoDecoder
                 BitmapPtr pBmpCr, long long TimeWanted);
         virtual long long getCurFrameTime();
         virtual bool isEOF();
+        
+        virtual void fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize, 
+                int channels, int rate);
 
     private:
         void getInfoMsg(VideoMsgPtr pMsg);

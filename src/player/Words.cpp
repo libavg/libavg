@@ -144,7 +144,7 @@ text_subst_func (FcPattern *pattern, gpointer data)
   FcPatternAddBool (pattern, FC_ANTIALIAS, true);
 }
 
-void Words::setDisplayEngine (DisplayEngine * pEngine)
+void Words::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
     m_Color = colorStringToColor(m_ColorName);
 
@@ -164,7 +164,7 @@ void Words::setDisplayEngine (DisplayEngine * pEngine)
 
     m_bFontChanged = true;
     m_bDrawNeeded = true;
-    RasterNode::setDisplayEngine(pEngine);
+    RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 }
 
 void Words::disconnect()
@@ -561,7 +561,7 @@ void Words::drawString()
         // Use 1 as x position here to make sure italic text is never cut off.
         pango_ft2_render_layout(&bitmap, pLayout, 1, yoffset);
 
-        getEngine()->surfaceChanged(getSurface());
+        getDisplayEngine()->surfaceChanged(getSurface());
         if (m_LineSpacing == -1) {
             m_LineSpacing = pango_layout_get_spacing(pLayout)/PANGO_SCALE;
         }
@@ -580,7 +580,7 @@ void Words::render(const DRect& Rect)
     ScopeTimer Timer(RenderProfilingZone);
     drawString();
     if (m_Text.length() != 0 && getEffectiveOpacity() > 0.001) {
-        getEngine()->blta8(getSurface(), getRelSize(),
+        getDisplayEngine()->blta8(getSurface(), getRelSize(),
                 getEffectiveOpacity(), m_Color, getBlendMode());
     }
 }

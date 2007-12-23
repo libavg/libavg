@@ -66,9 +66,9 @@ PanoImage::~PanoImage ()
     clearTextures();
 }
 
-void PanoImage::setDisplayEngine (DisplayEngine * pEngine)
+void PanoImage::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
-    Node::setDisplayEngine(pEngine);
+    Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
     
     setupTextures();
 }
@@ -170,7 +170,7 @@ void PanoImage::render(const DRect& Rect)
     }
 
     // Restore previous GL state.
-    glViewport(0, 0, getEngine()->getWidth(), getEngine()->getHeight());
+    glViewport(0, 0, getDisplayEngine()->getWidth(), getDisplayEngine()->getHeight());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImage::render: glViewport() restore");
     if (getSDLEngine()->getTextureMode() != GL_TEXTURE_2D) {
@@ -320,7 +320,7 @@ void PanoImage::load()
 
 void PanoImage::setupTextures()
 {
-    if (getEngine()->hasRGBOrdering()) {
+    if (getDisplayEngine()->hasRGBOrdering()) {
         FilterFlipRGB().applyInPlace(m_pBmp);
     }
     if (!m_TileTextureIDs.empty()) {
@@ -401,7 +401,7 @@ void PanoImage::clearTextures()
 
 SDLDisplayEngine * PanoImage::getSDLEngine()
 {
-    return dynamic_cast<SDLDisplayEngine*>(getEngine());
+    return dynamic_cast<SDLDisplayEngine*>(getDisplayEngine());
 }
 
 }

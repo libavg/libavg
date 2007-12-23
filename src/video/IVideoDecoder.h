@@ -23,6 +23,7 @@
 #define _IVideoDecoder_H_
 
 #include "../graphics/Bitmap.h"
+#include "../player/AudioFrame.h"
 
 #include <string>
 
@@ -55,6 +56,9 @@ class IVideoDecoder
                 BitmapPtr pBmpCr, long long TimeWanted) = 0;
         virtual long long getCurFrameTime() = 0;
         virtual bool isEOF() = 0;
+        
+        virtual void fillAudioFrame(unsigned char* audioBuffer, 
+                int audioBufferSize, int channels, int rate) = 0;
 };
 
 typedef boost::shared_ptr<IVideoDecoder> VideoDecoderPtr;
