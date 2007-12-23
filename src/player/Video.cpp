@@ -144,13 +144,13 @@ void Video::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pA
 {
     checkReload();
     VideoBase::setRenderingEngines(pDisplayEngine, pAudioEngine);
-    getAudioEngine()->addSource(AudioSourcePtr(this));
+    getAudioEngine()->addSource(this);
 }
 
 void Video::disconnect()
 {
     stop();
-    getAudioEngine()->removeSource(AudioSourcePtr(this));
+    getAudioEngine()->removeSource(this);
     VideoBase::disconnect();
 }
 

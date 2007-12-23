@@ -45,7 +45,7 @@ class AudioSource
         double m_Volume;
 };
 
-typedef boost::shared_ptr<AudioSource> AudioSourcePtr;
+typedef boost::weak_ptr<AudioSource> AudioSourceWeakPtr;
 
 }
 

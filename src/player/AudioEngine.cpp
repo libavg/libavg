@@ -40,14 +40,14 @@ AudioEngine::~AudioEngine()
     m_AudioSources.clear();
 }
 
-void AudioEngine::addSource(AudioSourcePtr source)
+void AudioEngine::addSource(AudioSource* source)
 {
     m_AudioSources.push_back(source);
 }
 
-void AudioEngine::removeSource(AudioSourcePtr pSource)
+void AudioEngine::removeSource(AudioSource* pSource)
 {
-    std::vector<AudioSourcePtr>::iterator it;
+    std::vector<AudioSource*>::iterator it;
     for(it = m_AudioSources.begin(); it != m_AudioSources.end(); it++)
     {
         if(*it == pSource)

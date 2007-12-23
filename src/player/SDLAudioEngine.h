@@ -47,7 +47,8 @@ class SDLAudioEngine : public AudioEngine
         virtual void play();
         virtual void pause();
         
-        virtual void addSource(AudioSourcePtr pSource);
+        virtual void addSource(AudioSource* pSource);
+        virtual void removeSource(AudioSource* pSource);
         
     private:
         void mixAudio(Uint8 *audioBuffer, int audioBufferLen);

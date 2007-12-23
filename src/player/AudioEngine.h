@@ -42,11 +42,11 @@ class AudioEngine
         virtual void play() = 0;
         virtual void pause() = 0;
         
-        virtual void addSource(AudioSourcePtr pSource);
-        virtual void removeSource(AudioSourcePtr pSource);
+        virtual void addSource(AudioSource* pSource);
+        virtual void removeSource(AudioSource* pSource);
         
     protected:
-        std::vector<AudioSourcePtr> m_AudioSources;
+        std::vector<AudioSource*> m_AudioSources;
 };
 
 }
