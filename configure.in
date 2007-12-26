@@ -108,8 +108,8 @@ fi
 
 AX_CHECK_GL
 AX_CHECK_GLU
-AC_PATH_GENERIC(sdl,,,AC_MSG_ERROR([libSDL not found. Aborting.]))
-AC_CHECK_PROG(sdl_installed, [sdl-config], "yes")
+
+AM_PATH_SDL(1.2.10,:,AC_MSG_ERROR([libSDL not found. Aborting.]))
 
 if test x"$GL_LIBS" = x; then
     AC_MSG_ERROR([OpenGL not found. Aborting])
