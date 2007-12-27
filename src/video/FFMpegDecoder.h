@@ -64,7 +64,8 @@ class FFMpegDecoder: public IVideoDecoder
         virtual long long getCurFrameTime();
         virtual bool isEOF();
         
-        virtual void fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize, int channels, int rate);
+        virtual void fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize, 
+                int channels, int rate);
 
     private:
         void initVideoSupport();
@@ -75,7 +76,7 @@ class FFMpegDecoder: public IVideoDecoder
         long long getFrameTime(AVPacket* pPacket);
         double calcStreamFPS();
         int copyRawAudio(unsigned char* buf, int size);
-        int copyResampledAudio(unsigned char* buf, int size);
+        int copyResampledAudio(unsigned char* buf, int size, int outputChannels, int outputRate);
         void resampleAudio(int channels, int rate);
         int decodeAudio();
 
@@ -92,8 +93,8 @@ class FFMpegDecoder: public IVideoDecoder
         SwsContext * m_pSwsContext;
 #endif
 
-        unsigned char * m_AudioPacketData;
         AVPacket * m_AudioPacket;
+        unsigned char * m_AudioPacketData;
         int m_AudioPacketSize;
         char * m_pSampleBuffer;
         int m_SampleBufferStart;
@@ -105,6 +106,9 @@ class FFMpegDecoder: public IVideoDecoder
         int m_ResampleBufferSize;
         ReSampleContext * m_pAudioResampleContext;
         boost::mutex m_AudioMutex;
+        
+        long long m_AudioClock;
+        long long m_AudioClockStart;
         
         unsigned char * m_pPacketData;
         AVPacket * m_pPacket;

@@ -29,12 +29,9 @@
 
 #include <SDL/SDL.h>
 
-#define SDL_AUDIO_BUFFER_SIZE 4096
+#define SDL_AUDIO_BUFFER_SIZE 1024
 
 namespace avg {
-
-typedef std::vector<AudioSource*> AudioSourceList;
-typedef std::vector<AudioSource*>::iterator AudioSourceListIterator;
 
 class SDLAudioEngine : public AudioEngine
 {   

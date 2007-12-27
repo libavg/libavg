@@ -246,6 +246,12 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
         m_pResampleBuffer = 0;
         m_ResampleBufferStart = 0;
         m_ResampleBufferEnd = 0;
+        
+        m_AudioClock = 0;
+        m_AudioClockStart = 0;
+        //if(m_pAStream->start_time != AV_NOPTS_VALUE)
+        //    m_AudioClockStart = 
+        //            (long long)(1000.0 * av_q2d(m_pAStream->time_base) * m_pAStream->start_time);
     }
     
     // Open codecs for audio and video
@@ -310,6 +316,9 @@ void FFMpegDecoder::close()
         m_ResampleBufferStart = 0;
         m_ResampleBufferEnd = 0;
         m_ResampleBufferSize = 0;
+        
+        m_AudioClock = 0;
+        m_AudioClockStart = 0;
         
         m_pAStream = 0;
         m_AStreamIndex = -1;
@@ -447,23 +456,33 @@ int FFMpegDecoder::copyRawAudio(unsigned char* buf, int size)
     return bytesWritten;
 }
 
-int FFMpegDecoder::copyResampledAudio(unsigned char* buf, int size)
+int FFMpegDecoder::copyResampledAudio(unsigned char* buf, int size, int outputChannels, int outputRate)
 {
-    int bytesWritten = min(m_ResampleBufferEnd - m_ResampleBufferStart, size);
-    memcpy(buf, m_pResampleBuffer + m_ResampleBufferStart, bytesWritten);
-    
-    m_ResampleBufferStart += bytesWritten;
+    int bytesWritten = 0;
+                        
+    // If there is no buffered resampled data, resample some more
     if(m_ResampleBufferStart >= m_ResampleBufferEnd)
-    {
-        m_ResampleBufferStart = 0;
-        m_ResampleBufferEnd = 0;
-    }
+        resampleAudio(outputChannels, outputRate);
     
-    if(m_SampleBufferStart == m_SampleBufferEnd)
+    // If we have some data in the resample buffer, copy it over
+    if(m_ResampleBufferStart < m_ResampleBufferEnd)
     {
-        m_SampleBufferStart = 0;
-        m_SampleBufferEnd = 0;
-        m_SampleBufferSize = SAMPLE_BUFFER_SIZE;
+        bytesWritten = min(m_ResampleBufferEnd - m_ResampleBufferStart, size);
+        memcpy(buf, m_pResampleBuffer + m_ResampleBufferStart, bytesWritten);
+        
+        m_ResampleBufferStart += bytesWritten;
+        if(m_ResampleBufferStart >= m_ResampleBufferEnd)
+        {
+            m_ResampleBufferStart = 0;
+            m_ResampleBufferEnd = 0;
+        }
+        
+        if(m_SampleBufferStart == m_SampleBufferEnd)
+        {
+            m_SampleBufferStart = 0;
+            m_SampleBufferEnd = 0;
+            m_SampleBufferSize = SAMPLE_BUFFER_SIZE;
+        }
     }
     
     return bytesWritten;
@@ -482,7 +501,7 @@ void FFMpegDecoder::resampleAudio(int channels, int rate)
     
     if(!m_pResampleBuffer)
     {
-        m_ResampleBufferSize = (int)(4*inputSamples * 
+        m_ResampleBufferSize = (int)(4 * inputSamples * 
             ((float)rate / (float)m_pAStream->codec->sample_rate) + 16);
         m_pResampleBuffer = new char[m_ResampleBufferSize];
     }
@@ -495,11 +514,6 @@ void FFMpegDecoder::resampleAudio(int channels, int rate)
     // Adjust buffer pointers
     m_ResampleBufferEnd += outputSamples * 2 * channels;
     m_SampleBufferStart += inputSamples * 2 * m_pAStream->codec->channels;
-    
-//    cerr << "\n\tSource Frequency: " << m_pAStream->codec->sample_rate << "\n" <<
-//        "\tDest Frequency: " << rate << "\n" <<
-//        "\tSource Channels: " << m_pAStream->codec->channels << "\n" <<
-//        "\tDest Channels: " << channels << "\n";
 }
 
 int FFMpegDecoder::decodeAudio()
@@ -536,7 +550,7 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer,
         int outputAudioBufferSize, int outputChannels, int outputRate)
 {
     mutex::scoped_lock Lock(m_AudioMutex);
- 
+    
     if(!m_pAStream)
         return;
     
@@ -556,16 +570,8 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer,
                 if (m_pAStream->codec->sample_rate != outputRate ||
                     m_pAStream->codec->channels != outputChannels)
                 {
-                    bytesProduced = 0;
-                    
-                    // If there is no buffered resampled data, resample some more
-                    if(m_ResampleBufferStart >= m_ResampleBufferEnd)
-                        resampleAudio(outputChannels, outputRate);
-                    
-                    // If we have some data in the resample buffer, copy it over
-                    if(m_ResampleBufferStart < m_ResampleBufferEnd)
-                        bytesProduced = copyResampledAudio(outputAudioBuffer,
-                                outputAudioBufferSize);
+                    bytesProduced = copyResampledAudio(outputAudioBuffer,
+                            outputAudioBufferSize, outputChannels, outputRate);
                 }
                 else
                 {
@@ -575,7 +581,10 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer,
                 
                 outputAudioBuffer += bytesProduced;
                 outputAudioBufferSize -= bytesProduced;
-                            
+
+                m_AudioClock += (long long)(1000.0 * bytesProduced / 
+                        (2 * outputChannels * outputRate));
+                
                 if(outputAudioBufferSize == 0)
                     return;
             }
@@ -603,6 +612,10 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer,
         
         if(!m_AudioPacket)
             return;
+        
+        //if(m_AudioPacket->dts != AV_NOPTS_VALUE)
+            m_AudioClock = (long long)(1000.0 * av_q2d(m_pAStream->time_base) * 
+                    m_AudioPacket->dts - m_AudioClockStart);
         
         // Initialize packet data pointers
         m_AudioPacketData = m_AudioPacket->data;
@@ -718,6 +731,10 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long Tim
 {
     // XXX: This code is sort-of duplicated in AsyncVideoDecoder::getBmpsForTime()
     long long FrameTime = -1000;
+
+    // If this video has audio, sync to that instead of the requested time
+    if(m_pAStream)
+        TimeWanted = m_AudioClock;
 /*
     bool bDebug = (m_sFilename == "/home/uzadow/wos_videos/c-wars/thumbs/cwars-scene3.avi");
     if (bDebug) {

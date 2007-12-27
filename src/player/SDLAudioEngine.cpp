@@ -32,7 +32,7 @@
 namespace avg {
 
 SDLAudioEngine::SDLAudioEngine()
-    : m_MixFrame(NULL)
+    : m_MixFrame(0)
 {
     if (SDL_InitSubSystem(SDL_INIT_AUDIO)==-1) {
         AVG_TRACE(Logger::ERROR, "Can't init SDL audio subsystem.");
