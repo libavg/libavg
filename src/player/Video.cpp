@@ -196,8 +196,10 @@ void Video::onFrameEnd()
 
 void Video::fillAudioFrame(AudioFrame* frame)
 {
-    m_pDecoder->fillAudioFrame(frame->getBuffer(), frame->getSize(),
-            frame->getChannels(), frame->getRate());
+    if(getVideoState() == Playing) {
+        m_pDecoder->fillAudioFrame(frame->getBuffer(), frame->getSize(),
+                frame->getChannels(), frame->getRate());
+    }
 }
 
 void Video::changeVideoState(VideoState NewVideoState)
