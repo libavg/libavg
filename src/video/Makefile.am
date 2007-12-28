@@ -1,5 +1,5 @@
 
-INCLUDES = -I.. @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@  @SWSCALE_CFLAGS@
+INCLUDES = -I.. $(MAGICK_CFLAGS) @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@  @SWSCALE_CFLAGS@
         
 ALL_H = FFMpegDemuxer.h VideoDemuxerThread.h FFMpegDecoder.h IVideoDecoder.h \
         VideoDecoderThread.h VideoMsg.h FrameVideoMsg.h InfoVideoMsg.h \

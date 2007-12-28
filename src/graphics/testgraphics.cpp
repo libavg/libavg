@@ -243,9 +243,9 @@ private:
         TEST(Bmp1 == Bmp2);
         if (!(Bmp1 == Bmp2)) {
             cerr << "Bmp1: " << endl;
-            Bmp1.dump();
+            Bmp1.dump(true);
             cerr << "Bmp2: " << endl;
-            Bmp2.dump();
+            Bmp2.dump(true);
         }
     }
 

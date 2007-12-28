@@ -269,60 +269,43 @@ void Bitmap::save(const std::string& sFilename)
     string sPF;
     BitmapPtr pBmp;
     Magick::StorageType ChannelFormat = Magick::CharPixel;
+    int AlphaOffset = -1;
     switch(m_PF) {
         case B5G6R5:
-            pBmp = BitmapPtr(new Bitmap(m_Size, B8G8R8));
-            pBmp->copyPixels(*this);
-            sPF = "BGR";
-            break;
         case B8G8R8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            sPF = "BGR";
-            break;
-        case B8G8R8A8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            sPF = "BGRA";
-            break;
         case B8G8R8X8:
-            pBmp = BitmapPtr(new Bitmap(m_Size, B8G8R8));
-            pBmp->copyPixels(*this);
-            sPF = "BGR";
-            break;
-        case A8B8G8R8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            sPF = "ABGR";
-            break;
         case X8B8G8R8:
             pBmp = BitmapPtr(new Bitmap(m_Size, B8G8R8));
             pBmp->copyPixels(*this);
             sPF = "BGR";
             break;
         case R5G6B5:
-            pBmp = BitmapPtr(new Bitmap(m_Size, R8G8B8));
-            pBmp->copyPixels(*this);
-            sPF = "RGB";
-            break;
         case R8G8B8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            sPF = "RGB";
-            break;
-        case R8G8B8A8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            sPF = "RGBA";
-            break;
         case R8G8B8X8:
-            pBmp = BitmapPtr(new Bitmap(m_Size, R8G8B8, "temp copy"));
-            pBmp->copyPixels(*this);
-            sPF = "RGB";
-            break;
-        case A8R8G8B8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            sPF = "ARGB";
-            break;
         case X8R8G8B8:
             pBmp = BitmapPtr(new Bitmap(m_Size, R8G8B8));
             pBmp->copyPixels(*this);
             sPF = "RGB";
+            break;
+        case B8G8R8A8:
+            pBmp = BitmapPtr(new Bitmap(*this));
+            AlphaOffset = 3;
+            sPF = "BGRA";
+            break;
+        case A8B8G8R8:
+            pBmp = BitmapPtr(new Bitmap(*this));
+            AlphaOffset = 0;
+            sPF = "ABGR";
+            break;
+        case R8G8B8A8:
+            pBmp = BitmapPtr(new Bitmap(*this));
+            AlphaOffset = 3;
+            sPF = "RGBA";
+            break;
+        case A8R8G8B8:
+            pBmp = BitmapPtr(new Bitmap(*this));
+            AlphaOffset = 0;
+            sPF = "ARGB";
             break;
         case I16:   
             pBmp = BitmapPtr(new Bitmap(*this));
@@ -337,6 +320,18 @@ void Bitmap::save(const std::string& sFilename)
             cerr << "Unsupported pixel format " << getPixelFormatString(m_PF) 
                     << endl;
             assert(false);
+    }
+    if (AlphaOffset != -1) {
+        int Stride = pBmp->getStride();
+        unsigned char * pLine = pBmp->getPixels();
+        for (int y=0; y<m_Size.y; ++y) {
+            unsigned char * pPixel = pLine;
+            for (int x=0; x<m_Size.x; ++x) {
+                *(pPixel+AlphaOffset) = 255-*(pPixel+AlphaOffset);
+                pPixel+=4;
+            }
+            pLine += Stride;
+        }
     }
     Magick::Image Img(m_Size.x, m_Size.y, sPF, ChannelFormat, pBmp->getPixels());
     Img.write(sFilename);
