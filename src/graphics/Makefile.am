@@ -22,8 +22,8 @@ libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
 noinst_PROGRAMS=testgraphics benchmarkgraphics
 testgraphics_SOURCES=testgraphics.cpp $(ALL_H)
 testgraphics_LDADD = ./libgraphics.la ../base/libbase.la
-testgraphics_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@
+testgraphics_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS)  
 
 benchmarkgraphics_SOURCES=benchmarkgraphics.cpp $(ALL_H)
 benchmarkgraphics_LDADD = ./libgraphics.la ../base/libbase.la
-benchmarkgraphics_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@
+benchmarkgraphics_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS) 

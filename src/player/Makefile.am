@@ -47,20 +47,20 @@ noinst_PROGRAMS = checktracker testcalibrator testplayer
 checktracker_SOURCES=checktracker.cpp
 checktracker_LDADD = libplayer.la ../video/libvideo.la ../imaging/libimaging.la \
 		../graphics/libgraphics.la ../base/libbase.la ../lmfit/liblmfit.la
-checktracker_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ 
+checktracker_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS)
 
 testplayer_SOURCES=testplayer.cpp
 testplayer_LDADD = libplayer.la ../video/libvideo.la ../imaging/libimaging.la \
 		../graphics/libgraphics.la ../base/libbase.la ../lmfit/liblmfit.la
 testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker  \
-        $(MAGICK_LIBS) @XML2_LIBS@ \
-        -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(DC1394_LIBS) @DC1394_2_LIBS@ @GLU_LIBS@ \
-        $(ALL_GL_LIBS) @LIBFFMPEG@ @SWSCALE_LIBS@ @PANGOFT2_LIBS@ $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS)
+        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(DC1394_LIBS) \
+        @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) @LIBFFMPEG@ @SWSCALE_LIBS@ \
+        @PANGOFT2_LIBS@ $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) $(MAGICK_LIBS) 
 
 testcalibrator_SOURCES=testcalibrator.cpp
 testcalibrator_LDADD = libplayer.la ../video/libvideo.la ../imaging/libimaging.la \
 		../graphics/libgraphics.la ../base/libbase.la ../lmfit/liblmfit.la
-testcalibrator_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ 
+testcalibrator_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS)
 
 libplayer_la_SOURCES = $(GL_SOURCES) \
 		Node.cpp RasterNode.cpp DivNode.cpp VideoBase.cpp Video.cpp \

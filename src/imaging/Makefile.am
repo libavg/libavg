@@ -40,12 +40,12 @@ noinst_PROGRAMS=testimaging checkcomps checktracking
 
 testimaging_SOURCES=testimaging.cpp $(ALL_H)
 testimaging_LDADD = ./libimaging.la ../graphics/libgraphics.la ../base/libbase.la
-testimaging_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@
+testimaging_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS)
 
 checkcomps_SOURCES=checkcomps.cpp $(ALL_H)
 checkcomps_LDADD = ./libimaging.la ../graphics/libgraphics.la ../base/libbase.la
-checkcomps_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@
+checkcomps_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS)
 
 checktracking_SOURCES=checktracking.cpp $(ALL_H)
 checktracking_LDADD = ./libimaging.la ../graphics/libgraphics.la ../base/libbase.la
-checktracking_LDFLAGS = $(MAGICK_LIBS) @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@
+checktracking_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS)
