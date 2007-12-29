@@ -52,7 +52,29 @@ const BlobPtr TouchEvent::getBlob() const
 {
     return m_pBlob;
 }
-        
+
+const DPoint & TouchEvent::getMajorAxis() const
+{
+    const DPoint & Axis0 = m_pBlob->getScaledBasis(0);
+    const DPoint & Axis1 = m_pBlob->getScaledBasis(1);
+    if (calcDist(Axis0, DPoint(0,0)) > calcDist(Axis1, DPoint(0,0))) {
+        return Axis0;
+    } else {
+        return Axis1;
+    }
+}
+
+const DPoint & TouchEvent::getMinorAxis() const
+{
+    const DPoint & Axis0 = m_pBlob->getScaledBasis(0);
+    const DPoint & Axis1 = m_pBlob->getScaledBasis(1);
+    if (calcDist(Axis0, DPoint(0,0)) > calcDist(Axis1, DPoint(0,0))) {
+        return Axis1;
+    } else {
+        return Axis0;
+    }
+}
+
 void TouchEvent::addRelatedEvent(TouchEvent * pEvent)
 {
     m_RelatedEvents.push_back(pEvent);

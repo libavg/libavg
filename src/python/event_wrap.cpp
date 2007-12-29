@@ -104,15 +104,19 @@ void export_event()
         ;
 
     class_<TouchEvent, bases<Event> >("TouchEvent", 
-            "Raised when a touch event occurs. Touch events happen only when a multi-touch\n"
-            "sensitive surface or other camera tracker is active.\n",
+            "Raised when a touch or other tracking event occurs. Touch events happen \n"
+            "only when a multi-touch sensitive surface or other camera tracker is \n"
+            "active. For each touch event, statistical data based on moments are \n"
+            "calculated.",
             no_init)
         .add_property("source", &TouchEvent::getSource,
                 "TOUCH for actual touches, TRACK for hands above the surface or\n"
-                "generic tracking.")
+                "generic tracking.\n")
         .add_property("area", &TouchEvent::getArea,
-                "size of the blob (ro).\n")
-        .add_property("orientation", &TouchEvent::getOrientation)
+                "Size of the blob found in pixels (ro).\n")
+        .add_property("orientation", &TouchEvent::getOrientation,
+                "Angle of the blob. For hovering hands, this is roughly the direction \n"
+                "of the hand (ro).\n")
         .add_property("inertia", &TouchEvent::getInertia)
         .add_property("eccentricity", &TouchEvent::getInertia)
         .add_property("x", &TouchEvent::getXPosition,
@@ -125,6 +129,12 @@ void export_event()
         .add_property("center", make_function(&TouchEvent::getCenter,
                 return_value_policy<copy_const_reference>()),
                 "Position as double. Used for calibration (ro).\n")
+        .add_property("majoraxis", make_function(&TouchEvent::getMajorAxis,
+                return_value_policy<copy_const_reference>()),
+                "Major axis of an ellipse that is similar to the blob (ro).\n")
+        .add_property("minoraxis", make_function(&TouchEvent::getMinorAxis,
+                return_value_policy<copy_const_reference>()),
+                "Minor axis of an ellipse that is similar to the blob (ro).\n")
         .def("getRelatedEvents", &TouchEvent::getRelatedEvents,
                 "getRelatedEvents() -> events\n"
                 "Returns a python tuple containing the events 'related' to this one.\n"
