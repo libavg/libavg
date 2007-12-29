@@ -134,11 +134,20 @@ Bitmap::Bitmap(const std::string& sURI)
     for (int y=0; y<m_Size.y; ++y) {
         Pixel32 * pDestLine = (Pixel32 *)(m_pBits+m_Stride*y);
         PixelPacket * pSrcLine = pSrcPixels+y*Img.columns();
-        for (int x=0; x<m_Size.x; ++x) {
-            *pDestLine = Pixel32(pSrcLine->red, pSrcLine->green, 
-                    pSrcLine->blue, 255-pSrcLine->opacity);
-            pSrcLine++;
-            pDestLine++;
+        if (m_PF == R8G8B8A8) {
+            for (int x=0; x<m_Size.x; ++x) {
+                *pDestLine = Pixel32(pSrcLine->red, pSrcLine->green, 
+                        pSrcLine->blue, 255-pSrcLine->opacity);
+                pSrcLine++;
+                pDestLine++;
+            }
+        } else {
+            for (int x=0; x<m_Size.x; ++x) {
+                *pDestLine = Pixel32(pSrcLine->red, pSrcLine->green, 
+                        pSrcLine->blue, 255);
+                pSrcLine++;
+                pDestLine++;
+            }
         }
     }
     m_bOwnsBits = true;
