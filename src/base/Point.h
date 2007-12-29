@@ -33,27 +33,26 @@ template<class NUM>
 class Point
 {
 public:
-  NUM x;
-  NUM y;
+    NUM x;
+    NUM y;
 
-  Point ();
-  template<class ORIGNUM> explicit Point(const Point<ORIGNUM>& p);
-  Point (NUM X, NUM Y);
-  Point(const Point<NUM>& p);
-  ~Point();
+    Point ();
+    template<class ORIGNUM> explicit Point(const Point<ORIGNUM>& p);
+    Point (NUM X, NUM Y);
+    Point(const Point<NUM>& p);
+    ~Point();
 
-  Point<NUM> & operator = (const Point<NUM>& p);
+    Point<NUM> & operator = (const Point<NUM>& p);
 
-  bool operator == (const Point<NUM> & pt) const;
-  bool operator != (const Point<NUM> & pt) const;
-  void operator += (const Point<NUM> & pt);
-  void operator -= (const Point<NUM> & pt);
-  Point<NUM> operator - () const;
-  Point<NUM> operator + (const Point<NUM> & pt) const;
-  Point<NUM> operator - (const Point<NUM> & pt) const;
-  Point<NUM> operator / (double f) const;
-  Point<NUM> operator * (double f) const;
-
+    bool operator == (const Point<NUM> & pt) const;
+    bool operator != (const Point<NUM> & pt) const;
+    void operator += (const Point<NUM> & pt);
+    void operator -= (const Point<NUM> & pt);
+    Point<NUM> operator - () const;
+    Point<NUM> operator + (const Point<NUM> & pt) const;
+    Point<NUM> operator - (const Point<NUM> & pt) const;
+    Point<NUM> operator / (double f) const;
+    Point<NUM> operator * (double f) const;
 };
 
 template<class NUM>
