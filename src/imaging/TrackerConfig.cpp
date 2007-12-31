@@ -31,6 +31,7 @@
 #include <libxml/xmlwriter.h>
 #include <libxml/xmlstring.h>
 
+#include <cstring>
 #include <sstream>
 
 using namespace std;

@@ -22,6 +22,7 @@
 #include "XMLHelper.h"
 
 #include <libxml/parserInternals.h>
+#include <cstring>
 #include <iostream>
 
 using namespace std;

@@ -21,6 +21,8 @@
 
 #include "Filterflip.h"
 
+#include <cstring>
+
 namespace avg {
 
 FilterFlip::FilterFlip() : Filter()

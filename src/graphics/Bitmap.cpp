@@ -32,6 +32,7 @@
 
 #include <Magick++.h>
 #include <assert.h>
+#include <cstring>
 #include <iostream>
 #include <iomanip>
 #include <stdlib.h>

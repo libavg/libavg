@@ -36,6 +36,7 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 
+#include <cstring>
 #include <iostream>
 #include <sstream>
 #include <cerrno>
