@@ -39,6 +39,7 @@
 #include "SDLDisplayEngine.h"
 
 #include "../base/FileHelper.h"
+#include "../base/OSHelper.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ConfigMgr.h"
@@ -103,6 +104,11 @@ Player::Player()
     }
     m_pLastMouseNode[MOUSECURSORID]=NodePtr();
     m_pTestHelper = new TestHelper(this);
+
+#ifdef _WIN32
+    cerr << getAvgLibPath()+"magick\\" << endl;
+    Magick::InitializeMagick((getAvgLibPath()+"magick\\").c_str());
+#endif
 }
 
 Player::~Player()
