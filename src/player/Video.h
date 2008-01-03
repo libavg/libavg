@@ -62,6 +62,7 @@ class Video : public VideoBase, IFrameListener, public AudioSource
 
         virtual void onFrameEnd();
         
+        virtual void setAudioEnabled(bool bEnabled);
         virtual void fillAudioFrame(AudioFrame* frame);
 
     protected:
@@ -91,6 +92,7 @@ class Video : public VideoBase, IFrameListener, public AudioSource
         PyObject * m_pEOFCallback;
         int m_FramesTooLate;
         int m_FramesPlayed;
+        bool m_bAudioEnabled;
 
         int m_CurFrame;
         long long m_StartTime;

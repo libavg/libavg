@@ -64,6 +64,7 @@ class FFMpegDecoder: public IVideoDecoder
         virtual long long getCurFrameTime();
         virtual bool isEOF();
         
+        virtual void setAudioEnabled(bool bEnabled);
         virtual void fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize, 
                 int channels, int rate);
 
@@ -88,6 +89,7 @@ class FFMpegDecoder: public IVideoDecoder
         AVStream * m_pAStream;
         bool m_bEOFPending;
         bool m_bEOF;
+        bool m_bAudioEnabled;
         PixelFormat m_PF;
 #ifdef AVG_ENABLE_SWSCALE
         SwsContext * m_pSwsContext;

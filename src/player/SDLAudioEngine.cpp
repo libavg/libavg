@@ -73,7 +73,14 @@ void SDLAudioEngine::teardown()
     SDL_CloseAudio();
     
     SDL_LockAudio();
-    m_AudioSources.clear();
+    getSources().clear();
+    SDL_UnlockAudio();
+}
+
+void SDLAudioEngine::setAudioEnabled(bool bEnabled)
+{
+    SDL_LockAudio();
+    AudioEngine::setAudioEnabled(bEnabled);
     SDL_UnlockAudio();
 }
 
@@ -112,8 +119,8 @@ void SDLAudioEngine::mixAudio(Uint8 *audioBuffer, int audioBufferLen)
     
     m_MixFrame->clear();
     
-    std::vector<AudioSource*>::iterator it;
-    for(it = m_AudioSources.begin(); it != m_AudioSources.end(); it++)
+    AudioSourceList::iterator it;
+    for(it = getSources().begin(); it != getSources().end(); it++)
     {
         AudioSource* src = *it;
         src->fillAudioFrame(m_MixFrame);

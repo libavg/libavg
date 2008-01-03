@@ -175,6 +175,12 @@ bool AsyncVideoDecoder::isEOF()
     return m_bEOF;
 }
 
+// TODO: Implement AsyncVideoDecoder::setAudioEnabled()
+void AsyncVideoDecoder::setAudioEnabled(bool bEnabled)
+{
+    
+}
+
 // TODO: Implement safe async audio filling
 void AsyncVideoDecoder::fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize, int channels, int rate)
 {

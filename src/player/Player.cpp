@@ -327,6 +327,10 @@ void Player::setFakeFPS(double fps)
         m_bFakeFPS = true;
         m_FakeFPS = fps;
     }
+
+    if (m_pAudioEngine) {
+        m_pAudioEngine->setAudioEnabled(!m_bFakeFPS);
+    }
 }
 
 long long Player::getFrameTime()
@@ -744,6 +748,7 @@ void Player::initAudio()
 {
     m_pAudioEngine = new SDLAudioEngine();
     m_pAudioEngine->init(m_AP);
+    m_pAudioEngine->setAudioEnabled(!m_bFakeFPS);
     m_pAudioEngine->play();
 }
 

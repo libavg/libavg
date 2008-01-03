@@ -36,11 +36,12 @@ class AudioSource
     public:
         AudioSource();
         virtual ~AudioSource();
-	
+
+        virtual void setAudioEnabled(bool bEnabled) = 0;
         virtual void fillAudioFrame(AudioFrame* frame) = 0;
         virtual double getVolume();
         virtual void setVolume(double volume);
-   
+
     protected:
         double m_Volume;
 };

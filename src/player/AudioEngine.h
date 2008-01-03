@@ -31,22 +31,29 @@
 
 namespace avg {
 
+typedef std::vector<AudioSource*> AudioSourceList;
+
 class AudioEngine
 {	
     public:
         AudioEngine();
         virtual ~AudioEngine();
+        
+        virtual void setAudioEnabled(bool bEnabled);
+        
         virtual void init(const AudioParams& DP) = 0;
         virtual void teardown() = 0;
         
         virtual void play() = 0;
         virtual void pause() = 0;
         
+        AudioSourceList& getSources();
         virtual void addSource(AudioSource* pSource);
         virtual void removeSource(AudioSource* pSource);
         
-    protected:
-        std::vector<AudioSource*> m_AudioSources;
+    private:
+        bool m_bEnabled;
+        AudioSourceList m_AudioSources;
 };
 
 }

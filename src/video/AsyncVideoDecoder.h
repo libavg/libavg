@@ -53,6 +53,7 @@ class AsyncVideoDecoder: public IVideoDecoder
         virtual long long getCurFrameTime();
         virtual bool isEOF();
         
+        virtual void setAudioEnabled(bool bEnabled);
         virtual void fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize, 
                 int channels, int rate);
 

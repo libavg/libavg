@@ -41,6 +41,8 @@ class SDLAudioEngine : public AudioEngine
         virtual void init(const AudioParams& AP);
         virtual void teardown();
         
+        virtual void setAudioEnabled(bool bEnabled);
+        
         virtual void play();
         virtual void pause();
         

@@ -56,7 +56,8 @@ Video::Video (const xmlNodePtr xmlNode, Player * pPlayer)
       m_pEOFCallback(0),
       m_FramesTooLate(0),
       m_FramesPlayed(0),
-      m_pDecoder(0)
+      m_pDecoder(0),
+      m_bAudioEnabled(true)
 {
     m_href = getDefaultedStringAttr (xmlNode, "href", "");
     m_bLoop = getDefaultedBoolAttr (xmlNode, "loop", false);
@@ -194,9 +195,17 @@ void Video::onFrameEnd()
     }
 }
 
+void Video::setAudioEnabled(bool bEnabled)
+{
+    m_bAudioEnabled = bEnabled;
+    if (m_pDecoder) {
+        m_pDecoder->setAudioEnabled(m_bAudioEnabled);
+    }
+}
+
 void Video::fillAudioFrame(AudioFrame* frame)
 {
-    if(getVideoState() == Playing) {
+    if(m_bAudioEnabled && getVideoState() == Playing) {
         m_pDecoder->fillAudioFrame(frame->getBuffer(), frame->getSize(),
                 frame->getChannels(), frame->getRate());
     }
@@ -241,6 +250,7 @@ void Video::open(YCbCrMode ycbcrMode)
     m_FramesTooLate = 0;
     m_FramesPlayed = 0;
     m_pDecoder->open(m_Filename, ycbcrMode, m_bThreaded);
+    m_pDecoder->setAudioEnabled(m_bAudioEnabled);
     m_pDecoder->setFPS(m_FPS);
 }
 

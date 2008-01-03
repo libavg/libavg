@@ -30,6 +30,7 @@ using namespace std;
 namespace avg {
 
 AudioEngine::AudioEngine()
+    : m_bEnabled(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -40,18 +41,39 @@ AudioEngine::~AudioEngine()
     m_AudioSources.clear();
 }
 
-void AudioEngine::addSource(AudioSource* source)
+void AudioEngine::setAudioEnabled(bool bEnabled)
 {
-    m_AudioSources.push_back(source);
+    m_bEnabled = bEnabled;
+    if (m_bEnabled) {
+        play();
+    } else {
+        pause();
+    }
+    
+    AudioSourceList::iterator it;
+    for(it = m_AudioSources.begin(); it != m_AudioSources.end(); it++)
+    {
+        (*it)->setAudioEnabled(m_bEnabled);
+    }
+}
+
+AudioSourceList& AudioEngine::getSources()
+{
+    return m_AudioSources;
+}
+
+void AudioEngine::addSource(AudioSource* pSource)
+{
+    pSource->setAudioEnabled(m_bEnabled);
+    m_AudioSources.push_back(pSource);
 }
 
 void AudioEngine::removeSource(AudioSource* pSource)
 {
-    std::vector<AudioSource*>::iterator it;
+    AudioSourceList::iterator it;
     for(it = m_AudioSources.begin(); it != m_AudioSources.end(); it++)
     {
-        if(*it == pSource)
-        {
+        if (*it == pSource) {
             m_AudioSources.erase(it);
             break;
         }

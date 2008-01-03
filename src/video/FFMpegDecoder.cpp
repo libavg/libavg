@@ -63,7 +63,8 @@ FFMpegDecoder::FFMpegDecoder ()
       m_StartTimestamp(-1),
       m_LastFrameTime(-1000),
       m_bUseStreamFPS(true),
-      m_FPS(0)
+      m_FPS(0),
+      m_bAudioEnabled(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     initVideoSupport();
@@ -439,6 +440,11 @@ bool FFMpegDecoder::isEOF()
     return m_bEOF;
 }
 
+void FFMpegDecoder::setAudioEnabled(bool bEnabled)
+{
+    m_bAudioEnabled = bEnabled;
+}
+
 int FFMpegDecoder::copyRawAudio(unsigned char* buf, int size)
 {
     int bytesWritten = min(m_SampleBufferEnd - m_SampleBufferStart, size);
@@ -551,7 +557,7 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer,
 {
     mutex::scoped_lock Lock(m_AudioMutex);
     
-    if(!m_pAStream)
+    if(!m_pAStream || !m_bAudioEnabled)
         return;
     
     int packetBytesDecoded;
@@ -733,7 +739,7 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long Tim
     long long FrameTime = -1000;
 
     // If this video has audio, sync to that instead of the requested time
-    if(m_pAStream)
+    if(m_bAudioEnabled && m_pAStream)
         TimeWanted = m_AudioClock;
 /*
     bool bDebug = (m_sFilename == "/home/uzadow/wos_videos/c-wars/thumbs/cwars-scene3.avi");

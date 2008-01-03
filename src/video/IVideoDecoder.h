@@ -57,6 +57,7 @@ class IVideoDecoder
         virtual long long getCurFrameTime() = 0;
         virtual bool isEOF() = 0;
         
+        virtual void setAudioEnabled(bool bEnabled) = 0;
         virtual void fillAudioFrame(unsigned char* audioBuffer, 
                 int audioBufferSize, int channels, int rate) = 0;
 };
