@@ -56,6 +56,8 @@ class FFMpegDecoder: public IVideoDecoder
         virtual int getNumFrames();
         virtual double getFPS();
         virtual void setFPS(double FPS);
+        virtual double getSpeedFactor();
+        virtual void setSpeedFactor(double Speed);
         virtual PixelFormat getPixelFormat();
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted);
@@ -101,11 +103,13 @@ class FFMpegDecoder: public IVideoDecoder
         char * m_pSampleBuffer;
         int m_SampleBufferStart;
         int m_SampleBufferEnd;
+        int m_SampleBufferLeft;
         int m_SampleBufferSize;
         char * m_pResampleBuffer;
         int m_ResampleBufferEnd;
         int m_ResampleBufferStart;
         int m_ResampleBufferSize;
+        int m_EffectiveSampleRate;
         ReSampleContext * m_pAudioResampleContext;
         boost::mutex m_AudioMutex;
         
@@ -125,6 +129,7 @@ class FFMpegDecoder: public IVideoDecoder
         bool m_bUseStreamFPS;
         double m_FPS;
         long long m_StreamTimeOffset;
+        double m_SpeedFactor;
 
         ProfilingZone * m_pRenderToBmpProfilingZone;
         ProfilingZone * m_pConvertImageProfilingZone;

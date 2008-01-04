@@ -49,6 +49,8 @@ class Video : public VideoBase, IFrameListener, public AudioSource
 
         const std::string& getHRef() const;
         void setHRef(const std::string& href);
+        double getSpeedFactor() const;
+        void setSpeedFactor(double SpeedFactor);
         void checkReload();
 
         int getNumFrames() const;
@@ -88,6 +90,7 @@ class Video : public VideoBase, IFrameListener, public AudioSource
         bool m_bLoop;
         bool m_bThreaded;
         double m_FPS;
+        double m_SpeedFactor;
         bool m_bEOFPending;
         PyObject * m_pEOFCallback;
         int m_FramesTooLate;

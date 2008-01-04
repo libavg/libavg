@@ -164,6 +164,8 @@ void export_raster()
                 "The source filename of the video (ro).\n")
         .add_property("loop", &Video::getLoop,
                 "Whether to start the video again when it has ended (ro).\n")
+        .add_property("speedfactor", &Video::getSpeedFactor, &Video::setSpeedFactor,
+                "The rate at which to play the video (1.0 is nominal).\n")
         .add_property("volume", &Video::getVolume, &Video::setVolume,
                 "The volume of the audio for the video.\n") 
     ;

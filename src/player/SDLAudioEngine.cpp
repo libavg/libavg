@@ -117,15 +117,13 @@ void SDLAudioEngine::mixAudio(Uint8 *audioBuffer, int audioBufferLen)
         m_MixFrame = new AudioFrame(audioBufferLen, m_AP);
     }
     
-    m_MixFrame->clear();
-    
     AudioSourceList::iterator it;
     for(it = getSources().begin(); it != getSources().end(); it++)
     {
-        AudioSource* src = *it;
-        src->fillAudioFrame(m_MixFrame);
+        m_MixFrame->clear();
+        (*it)->fillAudioFrame(m_MixFrame);
         SDL_MixAudio(audioBuffer, m_MixFrame->getBuffer(), audioBufferLen, 
-            (int)(src->getVolume()*SDL_MIX_MAXVOLUME));
+            (int)((*it)->getVolume()*SDL_MIX_MAXVOLUME));
     }
 }
 

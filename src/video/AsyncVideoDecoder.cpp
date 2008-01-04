@@ -136,6 +136,17 @@ void AsyncVideoDecoder::setFPS(double FPS)
     }
 }
 
+// TODO: Implement AsyncVideoDecoder::*SpeedFactor()
+double AsyncVideoDecoder::getSpeedFactor()
+{
+    return 1.0;
+}
+
+void AsyncVideoDecoder::setSpeedFactor(double SpeedFactor)
+{
+    
+}
+
 PixelFormat AsyncVideoDecoder::getPixelFormat()
 {
     assert(m_pDecoderThread);

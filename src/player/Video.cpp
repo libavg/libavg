@@ -62,7 +62,8 @@ Video::Video (const xmlNodePtr xmlNode, Player * pPlayer)
     m_href = getDefaultedStringAttr (xmlNode, "href", "");
     m_bLoop = getDefaultedBoolAttr (xmlNode, "loop", false);
     m_bThreaded = getDefaultedBoolAttr (xmlNode, "threaded", false);
-    m_FPS = getDefaultedDoubleAttr (xmlNode, "fps", false);
+    m_FPS = getDefaultedDoubleAttr (xmlNode, "fps", 0.0);
+    m_SpeedFactor = getDefaultedDoubleAttr (xmlNode, "speedfactor", 1.0);
     m_Filename = m_href;
     if (m_Filename != "") {
         initFilename(getPlayer(), m_Filename);
@@ -145,13 +146,17 @@ void Video::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pA
 {
     checkReload();
     VideoBase::setRenderingEngines(pDisplayEngine, pAudioEngine);
-    getAudioEngine()->addSource(this);
+    if(getAudioEngine()) {
+        getAudioEngine()->addSource(this);
+    }
 }
 
 void Video::disconnect()
 {
+    if(getAudioEngine()) {
+        getAudioEngine()->removeSource(this);
+    }
     stop();
-    getAudioEngine()->removeSource(this);
     VideoBase::disconnect();
 }
 
@@ -164,6 +169,17 @@ void Video::setHRef(const string& href)
 {
     m_href = href;
     checkReload();
+}
+
+double Video::getSpeedFactor() const
+{
+    return m_pDecoder->getSpeedFactor();
+}
+
+void Video::setSpeedFactor(double SpeedFactor)
+{
+    m_SpeedFactor = SpeedFactor;
+    m_pDecoder->setSpeedFactor(SpeedFactor);
 }
 
 void Video::checkReload()
@@ -251,7 +267,11 @@ void Video::open(YCbCrMode ycbcrMode)
     m_FramesPlayed = 0;
     m_pDecoder->open(m_Filename, ycbcrMode, m_bThreaded);
     m_pDecoder->setAudioEnabled(m_bAudioEnabled);
-    m_pDecoder->setFPS(m_FPS);
+    if(m_SpeedFactor != 1.0) {
+        m_pDecoder->setSpeedFactor(m_SpeedFactor);
+    } else if(m_FPS != 0.0) {
+        m_pDecoder->setFPS(m_FPS);
+    }
 }
 
 void Video::close()

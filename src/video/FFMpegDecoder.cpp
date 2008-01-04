@@ -64,6 +64,7 @@ FFMpegDecoder::FFMpegDecoder ()
       m_LastFrameTime(-1000),
       m_bUseStreamFPS(true),
       m_FPS(0),
+      m_SpeedFactor(1.0),
       m_bAudioEnabled(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -239,9 +240,10 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
         m_AudioPacketSize = 0;
         
         m_SampleBufferSize = SAMPLE_BUFFER_SIZE;
-        m_pSampleBuffer = new char[SAMPLE_BUFFER_SIZE];
+        m_pSampleBuffer = (char*)av_mallocz(m_SampleBufferSize);
         m_SampleBufferStart = 0;
         m_SampleBufferEnd = 0;
+        m_SampleBufferLeft = m_SampleBufferSize;
 
         m_ResampleBufferSize = 0;
         m_pResampleBuffer = 0;
@@ -251,8 +253,10 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
         m_AudioClock = 0;
         m_AudioClockStart = 0;
         //if(m_pAStream->start_time != AV_NOPTS_VALUE)
-        //    m_AudioClockStart = 
-        //            (long long)(1000.0 * av_q2d(m_pAStream->time_base) * m_pAStream->start_time);
+            m_AudioClockStart = 
+                (long long)(1000.0 * av_q2d(m_pAStream->time_base) * m_pAStream->start_time);
+        
+        m_EffectiveSampleRate = (int)(m_SpeedFactor*m_pAStream->codec->sample_rate);
     }
     
     // Open codecs for audio and video
@@ -295,11 +299,11 @@ void FFMpegDecoder::close()
             m_AudioPacket = 0;
         }
         if (m_pSampleBuffer) {
-            delete m_pSampleBuffer;
+            av_free(m_pSampleBuffer);
             m_pSampleBuffer = 0;
         }
         if(m_pResampleBuffer) {
-            delete m_pResampleBuffer;
+            av_free(m_pResampleBuffer);
             m_pResampleBuffer = 0;
         }
         if(m_pAudioResampleContext) {
@@ -312,6 +316,7 @@ void FFMpegDecoder::close()
         
         m_SampleBufferStart = 0;
         m_SampleBufferEnd = 0;
+        m_SampleBufferLeft = 0;
         m_SampleBufferSize = 0;
 
         m_ResampleBufferStart = 0;
@@ -378,11 +383,48 @@ double FFMpegDecoder::getFPS()
 
 void FFMpegDecoder::setFPS(double FPS)
 {
-    m_bUseStreamFPS = (FPS == 0);
-    if (FPS == 0) {
-        m_FPS = calcStreamFPS();
+    if(FPS == 0) {
+        setSpeedFactor(1.0);
     } else {
-        m_FPS = FPS;
+        setSpeedFactor(FPS / calcStreamFPS());
+    }
+}
+
+double FFMpegDecoder::getSpeedFactor()
+{
+    return m_SpeedFactor;
+}
+
+void FFMpegDecoder::setSpeedFactor(double SpeedFactor)
+{
+    if(SpeedFactor < 0.001)
+        SpeedFactor = 0;
+    
+    if(m_SpeedFactor != SpeedFactor) {
+        m_SpeedFactor = SpeedFactor;
+        if(m_pAStream) {
+            mutex::scoped_lock Lock(m_AudioMutex);
+            m_EffectiveSampleRate = 
+                (int)(m_SpeedFactor*m_pAStream->codec->sample_rate);
+            
+            if(m_pAudioResampleContext) {
+                audio_resample_close(m_pAudioResampleContext);
+                m_pAudioResampleContext = 0;
+            }
+            
+            if (m_pResampleBuffer) {
+                av_free(m_pResampleBuffer);
+                m_pResampleBuffer = 0;
+                m_ResampleBufferSize = 0;
+                m_ResampleBufferStart = 0;
+                m_ResampleBufferEnd = 0;
+            }
+        }
+        
+        if(m_pVStream) {
+            m_bUseStreamFPS = (m_pAStream || m_SpeedFactor == 1.0);
+            m_FPS = m_SpeedFactor * calcStreamFPS();
+        }
     }
 }
 
@@ -456,7 +498,7 @@ int FFMpegDecoder::copyRawAudio(unsigned char* buf, int size)
     {
         m_SampleBufferStart = 0;
         m_SampleBufferEnd = 0;
-        m_SampleBufferSize = SAMPLE_BUFFER_SIZE;
+        m_SampleBufferLeft = m_SampleBufferSize;
     }
     
     return bytesWritten;
@@ -487,7 +529,7 @@ int FFMpegDecoder::copyResampledAudio(unsigned char* buf, int size, int outputCh
         {
             m_SampleBufferStart = 0;
             m_SampleBufferEnd = 0;
-            m_SampleBufferSize = SAMPLE_BUFFER_SIZE;
+            m_SampleBufferLeft = m_SampleBufferSize;
         }
     }
     
@@ -496,21 +538,21 @@ int FFMpegDecoder::copyResampledAudio(unsigned char* buf, int size, int outputCh
 
 void FFMpegDecoder::resampleAudio(int channels, int rate)
 {
-    if (!m_pAudioResampleContext)
+    if (!m_pAudioResampleContext) {
         m_pAudioResampleContext = audio_resample_init(
                 channels, m_pAStream->codec->channels, 
-                rate, m_pAStream->codec->sample_rate);
+                rate, m_EffectiveSampleRate);
+    }
+    
+    if (!m_pResampleBuffer) {
+        m_ResampleBufferSize = (int)(m_SampleBufferSize * 
+                ((double)rate / (double)m_EffectiveSampleRate));
+        m_pResampleBuffer = (char*)av_mallocz(m_ResampleBufferSize);
+    }
     
     int inputSamples = 
         (m_SampleBufferEnd - m_SampleBufferStart) / 
         (2 * m_pAStream->codec->channels);
-    
-    if(!m_pResampleBuffer)
-    {
-        m_ResampleBufferSize = (int)(4 * inputSamples * 
-            ((float)rate / (float)m_pAStream->codec->sample_rate) + 16);
-        m_pResampleBuffer = new char[m_ResampleBufferSize];
-    }
     
     int outputSamples = audio_resample(m_pAudioResampleContext,
             (int16_t*)m_pResampleBuffer,
@@ -525,13 +567,13 @@ void FFMpegDecoder::resampleAudio(int channels, int rate)
 int FFMpegDecoder::decodeAudio()
 {
     // Save current size of the audio buffer
-    int lastSampleBufferSize = m_SampleBufferSize;
+    int lastSampleBufferSize = m_SampleBufferLeft;
     
     // Decode some data from packet into the audio buffer
     int packetBytesDecoded = avcodec_decode_audio2(
             m_pAStream->codec, 
             (int16_t*)(m_pSampleBuffer + m_SampleBufferEnd),
-            &m_SampleBufferSize, 
+            &m_SampleBufferLeft, 
             m_AudioPacketData,
             m_AudioPacketSize);
     
@@ -544,8 +586,8 @@ int FFMpegDecoder::decodeAudio()
         return 0;
     
     // Adjust audio buffer pointers
-    m_SampleBufferEnd += m_SampleBufferSize;
-    m_SampleBufferSize = lastSampleBufferSize - m_SampleBufferSize;
+    m_SampleBufferEnd += m_SampleBufferLeft;
+    m_SampleBufferLeft = lastSampleBufferSize - m_SampleBufferLeft;
                 
     // Adjust packet data pointers
     m_AudioPacketData += packetBytesDecoded;
@@ -573,7 +615,7 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer,
             {
                 // If the output format is different from the decoded format,
                 // then convert it, else copy it over
-                if (m_pAStream->codec->sample_rate != outputRate ||
+                if (m_EffectiveSampleRate != outputRate ||
                     m_pAStream->codec->channels != outputChannels)
                 {
                     bytesProduced = copyResampledAudio(outputAudioBuffer,
@@ -588,7 +630,7 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer,
                 outputAudioBuffer += bytesProduced;
                 outputAudioBufferSize -= bytesProduced;
 
-                m_AudioClock += (long long)(1000.0 * bytesProduced / 
+                m_AudioClock += (long long)(m_SpeedFactor * 1000.0 * bytesProduced /
                         (2 * outputChannels * outputRate));
                 
                 if(outputAudioBufferSize == 0)
