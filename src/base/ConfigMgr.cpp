@@ -88,7 +88,9 @@ ConfigMgr::ConfigMgr()
     addOption("aud", "channels", "2",
             "Number of output audio channels.");
     addOption("aud", "samplerate", "44100",
-                "Sampling rate (Hz) of output audio.");
+            "Sampling rate (Hz) of output audio.");
+    addOption("aud", "outputbuffersamples", "1024",
+            "Size of the SDL audio buffer in samples.");
 
     m_sFName = "avgrc";
     loadFile(getGlobalConfigDir()+m_sFName);

@@ -648,6 +648,7 @@ void Player::initConfig() {
 
     m_AP.m_Channels = atoi(pMgr->getOption("aud", "channels")->c_str());
     m_AP.m_SampleRate = atoi(pMgr->getOption("aud", "samplerate")->c_str());
+    m_AP.m_OutputBufferSamples = atoi(pMgr->getOption("aud", "outputbuffersamples")->c_str());
 
     m_bUsePOW2Textures = pMgr->getBoolOption("scr", "usepow2textures", false);
 

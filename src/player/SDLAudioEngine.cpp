@@ -55,7 +55,7 @@ void SDLAudioEngine::init(const AudioParams& AP)
     desired.format = AUDIO_S16SYS;
     desired.channels = AP.m_Channels;
     desired.silence = 0;
-    desired.samples = SDL_AUDIO_BUFFER_SIZE;
+    desired.samples = AP.m_OutputBufferSamples;
     desired.callback = audioCallback;
     desired.userdata = this;
 
@@ -65,6 +65,7 @@ void SDLAudioEngine::init(const AudioParams& AP)
     
     m_AP.m_Channels = acquired.channels;
     m_AP.m_SampleRate = acquired.freq;
+    m_AP.m_OutputBufferSamples = acquired.samples;
 }
 
 void SDLAudioEngine::teardown()

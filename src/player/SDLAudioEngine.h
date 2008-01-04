@@ -29,8 +29,6 @@
 
 #include <SDL/SDL.h>
 
-#define SDL_AUDIO_BUFFER_SIZE 1024
-
 namespace avg {
 
 class SDLAudioEngine : public AudioEngine

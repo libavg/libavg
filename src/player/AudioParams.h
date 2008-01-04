@@ -32,6 +32,7 @@ struct AudioParams {
 
     int m_SampleRate;
     int m_Channels;
+    int m_OutputBufferSamples;
 };
 
 }
