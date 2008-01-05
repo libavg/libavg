@@ -52,10 +52,10 @@ typedef boost::shared_ptr<BlobVector> BlobVectorPtr;
 class Blob
 {
     public:
-        Blob(const RunPtr& pRun);
+        Blob(Run * pRun);
         ~Blob();
 
-        void addRun(const RunPtr& pRun);
+        void addRun(Run * pRun);
         void merge(const BlobPtr& other);
         RunArray* getRuns();
         void render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color, 

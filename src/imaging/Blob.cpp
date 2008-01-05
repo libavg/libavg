@@ -35,7 +35,7 @@ using namespace std;
 
 namespace avg {
 
-Blob::Blob(const RunPtr& pRun)
+Blob::Blob(Run * pRun)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     m_pRuns = new RunArray();
@@ -49,6 +49,9 @@ Blob::Blob(const RunPtr& pRun)
 Blob::~Blob() 
 {
     ObjectCounter::get()->decRef(&typeid(*this));
+    for (RunArray::iterator it=m_pRuns->begin();it!=m_pRuns->end();++it) {
+        delete *it;
+    }
     delete m_pRuns;
 }
 
@@ -57,7 +60,7 @@ RunArray *Blob::getRuns()
     return m_pRuns;
 }
 
-void Blob::addRun(const RunPtr& pRun)
+void Blob::addRun(Run * pRun)
 {
     m_pRuns->push_back(pRun);
 }
@@ -79,10 +82,8 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
     unsigned char *pDest;
     unsigned char *pColor = (unsigned char *)(&Color);
     int IntensityScale = 2*256/(max(Max-Min, 1));
-    for(RunArray::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r) {
-        // TODO: Change pRun to RunPtr. This is just so gdb knows how to 
-        // dereference it.
-        Run * pRun = &(*(*r));
+    for(RunArray::iterator it=m_pRuns->begin();it!=m_pRuns->end();++it) {
+        Run * pRun = *it;
         assert (pRun->m_Row < pSrcBmp->getSize().y);
         assert (pRun->m_StartCol >= 0);
         assert (pRun->m_EndCol <= pSrcBmp->getSize().x);
@@ -328,12 +329,12 @@ int Blob::calcArea()
     return res;
 }
 
-bool connected(RunPtr r1, RunPtr r2)
+bool connected(Run *pRun1, Run * pRun2)
 {
-    if (r1->m_StartCol > r2->m_StartCol) {
-        return r2->m_EndCol > r1->m_StartCol;
+    if (pRun1->m_StartCol > pRun2->m_StartCol) {
+        return pRun2->m_EndCol > pRun1->m_StartCol;
     } else {
-        return r1->m_EndCol > r2->m_StartCol;
+        return pRun1->m_EndCol > pRun2->m_StartCol;
     }
 }
 
@@ -390,15 +391,16 @@ void findRunsInLine(BitmapPtr pBmp, int y, RunArray * pRuns,
                 // Only if the run is longer than one pixel.
                 if (x-run_start > 1) {
                     run_stop = x;
-                    pRuns->push_back(RunPtr(new Run(y, run_start, run_stop)));
+                    pRuns->push_back(new Run(y, run_start, run_stop));
                     run_start = x;
                 }
             } else {
                 run_stop = x - 1;
                 if (run_stop-run_start == 0 && !pRuns->empty()) {
                     // Single dark pixel: ignore the pixel, revive the last run.
-                    RunPtr pLastRun = pRuns->back();
+                    Run * pLastRun = pRuns->back();
                     run_start = pLastRun->m_StartCol;
+                    delete pLastRun;
                     pRuns->pop_back();
                 } else {
                     run_start = x;
@@ -409,7 +411,7 @@ void findRunsInLine(BitmapPtr pBmp, int y, RunArray * pRuns,
         pPixel++;
     }
     if (cur){
-        pRuns->push_back(RunPtr(new Run(y, run_start, Width)));
+        pRuns->push_back(new Run(y, run_start, Width));
     }
 
 }

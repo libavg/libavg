@@ -46,8 +46,7 @@ struct Run
         BlobWeakPtr m_pBlob;
 };
 
-typedef boost::shared_ptr<Run> RunPtr;
-typedef std::vector<RunPtr> RunArray;
+typedef std::vector<Run *> RunArray;
 
 }
 
