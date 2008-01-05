@@ -30,7 +30,7 @@ namespace avg {
 Run::Run(int row, int start_col, int end_col)
 {
     m_Row = row;
-    assert(end_col>=start_col);
+//    assert(end_col>=start_col);
     m_StartCol = start_col;
     m_EndCol = end_col;
 }

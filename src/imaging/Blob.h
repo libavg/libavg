@@ -52,10 +52,10 @@ typedef boost::shared_ptr<BlobVector> BlobVectorPtr;
 class Blob
 {
     public:
-        Blob(Run * pRun);
+        Blob(const Run & run);
         ~Blob();
 
-        void addRun(Run * pRun);
+        void addRun(const Run & run);
         void merge(const BlobPtr& other);
         RunArray* getRuns();
         void render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color, 
@@ -87,7 +87,7 @@ class Blob
         IntRect calcBBox();
         int calcArea();
 
-        RunArray *m_pRuns;
+        RunArray m_Runs;
         BlobWeakPtrVector m_RelatedBlobs; // For fingers, this contains the hand.
                                        // For hands, this contains the fingers.
 

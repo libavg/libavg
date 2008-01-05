@@ -46,7 +46,7 @@ struct Run
         BlobWeakPtr m_pBlob;
 };
 
-typedef std::vector<Run *> RunArray;
+typedef std::vector<Run> RunArray;
 
 }
 
