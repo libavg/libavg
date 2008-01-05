@@ -292,7 +292,7 @@ DPoint Blob::calcCenter()
     DPoint Center(0,0);
     double c = 0;
     for(RunArray::iterator r=m_Runs.begin();r!=m_Runs.end();++r) {
-        Center += r->center()*r->length();
+        Center += r->m_Center*r->length();
         c += r->length();
     }
     Center = Center/c;

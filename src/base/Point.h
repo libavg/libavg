@@ -68,7 +68,7 @@ typedef Point<int> IntPoint;
 template<class NUM>
 Point<NUM>::Point ()
 {
-    ObjectCounter::get()->incRef(&typeid(*this));
+//    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 template<class NUM>
@@ -77,13 +77,13 @@ Point<NUM>::Point(const Point<ORIGNUM>& p)
     : x(NUM(p.x)),
       y(NUM(p.y))
 {
-    ObjectCounter::get()->incRef(&typeid(*this));
+//    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 template<class NUM>
 Point<NUM>::Point (NUM X, NUM Y)
 {
-    ObjectCounter::get()->incRef(&typeid(*this));
+//    ObjectCounter::get()->incRef(&typeid(*this));
     x = X;
     y = Y;
 }
@@ -91,7 +91,7 @@ Point<NUM>::Point (NUM X, NUM Y)
 template<class NUM>
 Point<NUM>::Point(const Point<NUM>& p)
 {
-    ObjectCounter::get()->incRef(&typeid(*this));
+//    ObjectCounter::get()->incRef(&typeid(*this));
     x = p.x;
     y = p.y;
 }
@@ -99,7 +99,7 @@ Point<NUM>::Point(const Point<NUM>& p)
 template<class NUM>
 Point<NUM>::~Point()
 {
-    ObjectCounter::get()->decRef(&typeid(*this));
+//    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 template<class NUM>

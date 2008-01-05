@@ -41,8 +41,10 @@ struct Run
         int m_Row;
         int m_StartCol;
         int m_EndCol;
-        int length();
-        DPoint center();
+        DPoint m_Center;
+        int length() {
+            return m_EndCol-m_StartCol;
+        };
         BlobWeakPtr m_pBlob;
 };
 
