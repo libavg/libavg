@@ -50,6 +50,7 @@ class SDLAudioEngine : public AudioEngine
     private:
         void mixAudio(Uint8 *audioBuffer, int audioBufferLen);
         static void audioCallback(void *userData, Uint8 *audioBuffer, int audioBufferLen);
+        void addBuffers(short *out, short *in, int size, double volume);
         
         AudioParams m_AP;
         AudioFrame* m_MixFrame;
