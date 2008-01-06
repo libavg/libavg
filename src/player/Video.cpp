@@ -148,6 +148,8 @@ void Video::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pA
     VideoBase::setRenderingEngines(pDisplayEngine, pAudioEngine);
     if(getAudioEngine()) {
         getAudioEngine()->addSource(this);
+        m_pDecoder->setAudioFormat(getAudioEngine()->getChannels(),
+                getAudioEngine()->getSampleRate());
     }
 }
 
@@ -232,8 +234,7 @@ void Video::setAudioEnabled(bool bEnabled)
 void Video::fillAudioFrame(AudioFrame* frame)
 {
     if(m_bAudioEnabled && getVideoState() == Playing) {
-        m_pDecoder->fillAudioFrame(frame->getBuffer(), frame->getSize(),
-                frame->getChannels(), frame->getRate());
+        m_pDecoder->fillAudioFrame(frame->getBuffer(), frame->getSize());
     }
 }
 

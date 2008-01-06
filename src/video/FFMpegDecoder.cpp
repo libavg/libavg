@@ -66,6 +66,8 @@ FFMpegDecoder::FFMpegDecoder ()
       m_bUseStreamFPS(true),
       m_FPS(0),
       m_SpeedFactor(1.0),
+      m_Channels(0),
+      m_SampleRate(0),
       m_Volume(1.0),
       m_LastVolume(1.0),
       m_bAudioEnabled(true)
@@ -446,6 +448,17 @@ void FFMpegDecoder::setVolume(double Volume)
     }
 }
 
+void FFMpegDecoder::setAudioEnabled(bool bEnabled)
+{
+    m_bAudioEnabled = bEnabled;
+}
+
+void FFMpegDecoder::setAudioFormat(int Channels, int SampleRate)
+{
+    m_Channels = Channels;
+    m_SampleRate = SampleRate;
+}
+
 FrameAvailableCode FFMpegDecoder::renderToBmp(BitmapPtr pBmp, long long TimeWanted)
 {
 //    ScopeTimer Timer(*m_pRenderToBmpProfilingZone);
@@ -473,7 +486,6 @@ void copyPlaneToBmp(BitmapPtr pBmp, unsigned char * pData, int Stride)
 
 }
 
-
 FrameAvailableCode FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
         BitmapPtr pBmpCr, long long TimeWanted)
 {
@@ -500,11 +512,6 @@ bool FFMpegDecoder::isEOF()
     return m_bEOF;
 }
 
-void FFMpegDecoder::setAudioEnabled(bool bEnabled)
-{
-    m_bAudioEnabled = bEnabled;
-}
-
 int FFMpegDecoder::copyRawAudio(unsigned char* buf, int size)
 {
     int bytesWritten = min(m_SampleBufferEnd - m_SampleBufferStart, size);
@@ -522,13 +529,13 @@ int FFMpegDecoder::copyRawAudio(unsigned char* buf, int size)
     return bytesWritten;
 }
 
-int FFMpegDecoder::copyResampledAudio(unsigned char* buf, int size, int outputChannels, int outputRate)
+int FFMpegDecoder::copyResampledAudio(unsigned char* buf, int size)
 {
     int bytesWritten = 0;
                         
     // If there is no buffered resampled data, resample some more
     if(m_ResampleBufferStart >= m_ResampleBufferEnd)
-        resampleAudio(outputChannels, outputRate);
+        resampleAudio();
     
     // If we have some data in the resample buffer, copy it over
     if(m_ResampleBufferStart < m_ResampleBufferEnd)
@@ -554,17 +561,17 @@ int FFMpegDecoder::copyResampledAudio(unsigned char* buf, int size, int outputCh
     return bytesWritten;
 }
 
-void FFMpegDecoder::resampleAudio(int channels, int rate)
+void FFMpegDecoder::resampleAudio()
 {
     if (!m_pAudioResampleContext) {
         m_pAudioResampleContext = audio_resample_init(
-                channels, m_pAStream->codec->channels, 
-                rate, m_EffectiveSampleRate);
+                m_Channels, m_pAStream->codec->channels, 
+                m_SampleRate, m_EffectiveSampleRate);
     }
     
     if (!m_pResampleBuffer) {
         m_ResampleBufferSize = (int)(m_SampleBufferSize * 
-                ((double)rate / (double)m_EffectiveSampleRate));
+                ((double)m_SampleRate / (double)m_EffectiveSampleRate));
         m_pResampleBuffer = (char*)av_mallocz(m_ResampleBufferSize);
     }
     
@@ -578,7 +585,7 @@ void FFMpegDecoder::resampleAudio(int channels, int rate)
             inputSamples);
     
     // Adjust buffer pointers
-    m_ResampleBufferEnd += outputSamples * 2 * channels;
+    m_ResampleBufferEnd += outputSamples * 2 * m_Channels;
     m_SampleBufferStart += inputSamples * 2 * m_pAStream->codec->channels;
 }
 
@@ -612,10 +619,12 @@ int FFMpegDecoder::decodeAudio()
     m_AudioPacketSize -= packetBytesDecoded;
 }
 
-void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer,
-        int outputAudioBufferSize, int outputChannels, int outputRate)
+void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer, int outputAudioBufferSize)
 {
     mutex::scoped_lock Lock(m_AudioMutex);
+    
+    assert(m_Channels);
+    assert(m_SampleRate);
     
     if(!m_pAStream || !m_bAudioEnabled)
         return;
@@ -624,8 +633,8 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer,
     int bytesProduced;
     unsigned char* pBuffer = outputAudioBuffer;
     int bufferLeft = outputAudioBufferSize;
-    bool bFormatMatch = (m_EffectiveSampleRate == outputRate &&
-                         m_pAStream->codec->channels == outputChannels);
+    bool bFormatMatch = (m_EffectiveSampleRate == m_SampleRate &&
+                         m_pAStream->codec->channels == m_Channels);
 
     while(true)
     {
@@ -642,15 +651,14 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer,
                         copyRawAudio(pBuffer, bufferLeft);
                 } else {
                     bytesProduced = 
-                        copyResampledAudio(pBuffer, bufferLeft, 
-                                outputChannels, outputRate);
+                        copyResampledAudio(pBuffer, bufferLeft);
                 }
                 
                 pBuffer += bytesProduced;
                 bufferLeft -= bytesProduced;
 
                 m_AudioClock += (long long)(m_SpeedFactor * 1000.0 * bytesProduced /
-                        (2 * outputChannels * outputRate));
+                        (2 * m_Channels * m_SampleRate));
                 
                 if (bufferLeft == 0) {
                     volumize((short*)outputAudioBuffer, outputAudioBufferSize/2);

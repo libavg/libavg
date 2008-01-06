@@ -53,6 +53,8 @@ class IVideoDecoder
         virtual void setSpeedFactor(double Speed) = 0;
         virtual double getVolume() = 0;
         virtual void setVolume(double Volume) = 0;
+        virtual void setAudioEnabled(bool bEnabled) = 0;
+        virtual void setAudioFormat(int Channels, int SampleRate) = 0;
         virtual PixelFormat getPixelFormat() = 0;
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted) = 0;
@@ -61,9 +63,7 @@ class IVideoDecoder
         virtual long long getCurFrameTime() = 0;
         virtual bool isEOF() = 0;
         
-        virtual void setAudioEnabled(bool bEnabled) = 0;
-        virtual void fillAudioFrame(unsigned char* audioBuffer, 
-                int audioBufferSize, int channels, int rate) = 0;
+        virtual void fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize) = 0;
 };
 
 typedef boost::shared_ptr<IVideoDecoder> VideoDecoderPtr;

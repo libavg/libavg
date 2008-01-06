@@ -60,6 +60,8 @@ class FFMpegDecoder: public IVideoDecoder
         virtual void setSpeedFactor(double Speed);
         virtual double getVolume();
         virtual void setVolume(double Volume);
+        virtual void setAudioEnabled(bool bEnabled);
+        virtual void setAudioFormat(int Channels, int SampleRate);
         virtual PixelFormat getPixelFormat();
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted);
@@ -68,9 +70,7 @@ class FFMpegDecoder: public IVideoDecoder
         virtual long long getCurFrameTime();
         virtual bool isEOF();
         
-        virtual void setAudioEnabled(bool bEnabled);
-        virtual void fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize, 
-                int channels, int rate);
+        virtual void fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize);
 
     private:
         void initVideoSupport();
@@ -81,8 +81,8 @@ class FFMpegDecoder: public IVideoDecoder
         long long getFrameTime(AVPacket* pPacket);
         double calcStreamFPS();
         int copyRawAudio(unsigned char* buf, int size);
-        int copyResampledAudio(unsigned char* buf, int size, int outputChannels, int outputRate);
-        void resampleAudio(int channels, int rate);
+        int copyResampledAudio(unsigned char* buf, int size);
+        void resampleAudio();
         int decodeAudio();
         void volumize(short* buffer, int size);
 
@@ -100,6 +100,8 @@ class FFMpegDecoder: public IVideoDecoder
         SwsContext * m_pSwsContext;
 #endif
 
+        int m_Channels;
+        int m_SampleRate;
         AVPacket * m_AudioPacket;
         unsigned char * m_AudioPacketData;
         int m_AudioPacketSize;

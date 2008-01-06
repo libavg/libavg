@@ -165,6 +165,17 @@ void AsyncVideoDecoder::setVolume(double Volume)
     }
 }
 
+// TODO: Implement AsyncVideoDecoder::setAudioEnabled()
+void AsyncVideoDecoder::setAudioEnabled(bool bEnabled)
+{
+    
+}
+
+void AsyncVideoDecoder::setAudioFormat(int Channels, int SampleRate)
+{
+	
+}
+
 PixelFormat AsyncVideoDecoder::getPixelFormat()
 {
     assert(m_pDecoderThread);
@@ -204,14 +215,8 @@ bool AsyncVideoDecoder::isEOF()
     return m_bEOF;
 }
 
-// TODO: Implement AsyncVideoDecoder::setAudioEnabled()
-void AsyncVideoDecoder::setAudioEnabled(bool bEnabled)
-{
-    
-}
-
 // TODO: Implement safe async audio filling
-void AsyncVideoDecoder::fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize, int channels, int rate)
+void AsyncVideoDecoder::fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize)
 {
     //m_pSyncDecoder->fillAudioFrame(audioBuffer, audioBufferSize, channels, rate);
 }

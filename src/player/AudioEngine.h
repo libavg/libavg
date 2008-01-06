@@ -38,10 +38,12 @@ class AudioEngine
     public:
         AudioEngine();
         virtual ~AudioEngine();
-        
+
+        virtual int getChannels() = 0;
+        virtual int getSampleRate() = 0;
         virtual void setAudioEnabled(bool bEnabled);
         
-        virtual void init(const AudioParams& DP) = 0;
+        virtual void init(const AudioParams& AP) = 0;
         virtual void teardown() = 0;
         
         virtual void play() = 0;
@@ -50,6 +52,7 @@ class AudioEngine
         AudioSourceList& getSources();
         virtual void addSource(AudioSource* pSource);
         virtual void removeSource(AudioSource* pSource);
+        
         
     private:
         bool m_bEnabled;

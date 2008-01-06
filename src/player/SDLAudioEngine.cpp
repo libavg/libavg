@@ -47,6 +47,16 @@ SDLAudioEngine::~SDLAudioEngine()
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
+int SDLAudioEngine::getChannels()
+{
+    return m_AP.m_Channels;
+}
+
+int SDLAudioEngine::getSampleRate()
+{
+    return m_AP.m_SampleRate;
+}
+
 void SDLAudioEngine::init(const AudioParams& AP) 
 {
     m_AP = AP;
