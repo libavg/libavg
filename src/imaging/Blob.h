@@ -64,6 +64,7 @@ class Blob
         bool contains(IntPoint pt);
 
         void calcStats();
+        void calcContour(int NumPoints);
 
         const DPoint& getCenter() const;
         double getArea() const;
@@ -86,6 +87,7 @@ class Blob
         DPoint calcCenter();
         IntRect calcBBox();
         int calcArea();
+        bool ptInBlob(const IntPoint& Pt);
 
         RunArray m_Runs;
         BlobWeakPtrVector m_RelatedBlobs; // For fingers, this contains the hand.
@@ -101,6 +103,8 @@ class Blob
         DPoint m_ScaledBasis[2];
         DPoint m_EigenVector[2];
         DPoint m_EigenValues;
+
+        std::vector<IntPoint> m_Contour;
 };
 
 BlobVectorPtr connected_components(BitmapPtr image, unsigned char object_threshold);

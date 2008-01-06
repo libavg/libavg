@@ -121,6 +121,14 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
                         Pixel32(0xD7, 0xC9, 0x56, 0xFF));
             }
         }
+        if (!m_Contour.empty()) {
+            for (vector<IntPoint>::iterator it=m_Contour.begin()+1; it!=m_Contour.end(); ++it) {
+                IntPoint Pt1 = *(it-1);
+                IntPoint Pt2 = *it;
+                pDestBmp->drawLine(Pt1, Pt2, CenterColor);
+            }
+            pDestBmp->drawLine(*(m_Contour.end()-1), *m_Contour.begin(), CenterColor);
+        }
     }
 }
         
@@ -321,6 +329,39 @@ int Blob::calcArea()
         res+= r->length();
     }
     return res;
+}
+
+void Blob::calcContour(int NumPoints)
+{
+    int w = m_BoundingBox.Width();
+    int h = m_BoundingBox.Height();
+    double StartDist = sqrt(w*w+h*h);
+    for (double i=0; i<NumPoints; i++) {
+        IntPoint OuterPt(StartDist*sin(i*2*M_PI/NumPoints)+m_Center.x, 
+                StartDist*cos(i*2*M_PI/NumPoints)+m_Center.y);
+        IntPoint InnerPt(m_Center);
+        while (calcDist(OuterPt, InnerPt) > 2) {
+            IntPoint MiddlePt = (OuterPt+InnerPt)/2;
+            if (ptInBlob(MiddlePt)) {
+                InnerPt = MiddlePt;
+            } else {
+                OuterPt = MiddlePt;
+            }
+        }
+        m_Contour.push_back(InnerPt);
+    }
+}
+
+bool Blob::ptInBlob(const IntPoint& Pt)
+{
+    if (m_BoundingBox.Contains(Pt)) {
+        for (RunArray::iterator it = m_Runs.begin(); it!=m_Runs.end(); ++it) {
+            if (Pt.y == it->m_Row && Pt.x >= it->m_StartCol && Pt.x < it->m_EndCol) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 bool connected(const Run & run1, const Run & run2)

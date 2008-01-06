@@ -317,6 +317,7 @@ namespace avg {
         for(BlobVector::iterator it = pNewBlobs->begin(); it!=pNewBlobs->end(); ++it) {
             if (isRelevant(*it, pBlobConfig)) {
                 NewRelevantBlobs.push_back(*it);
+                (*it)->calcContour(20);
             }
             if (NewRelevantBlobs.size() > 50) {
                 break;
