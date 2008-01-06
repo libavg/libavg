@@ -632,8 +632,8 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer,
         while(true)
         {
             // Consume any data left in the sample buffers
-            while((bFormatMatch && m_SampleBufferStart < m_SampleBufferEnd) ||
-                  (!bFormatMatch && m_ResampleBufferStart < m_ResampleBufferEnd))
+            while(m_SampleBufferStart < m_SampleBufferEnd ||
+                  m_ResampleBufferStart < m_ResampleBufferEnd)
             {
                 // If the output format is different from the decoded format,
                 // then convert it, else copy it over
