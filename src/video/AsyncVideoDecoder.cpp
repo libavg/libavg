@@ -46,7 +46,8 @@ AsyncVideoDecoder::AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder)
       m_FPS(0),
       m_bEOF(false),
       m_bSeekPending(false),
-      m_LastFrameTime(-1000)
+      m_LastFrameTime(-1000),
+      m_Volume(1.0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -145,6 +146,23 @@ double AsyncVideoDecoder::getSpeedFactor()
 void AsyncVideoDecoder::setSpeedFactor(double SpeedFactor)
 {
     
+}
+
+double AsyncVideoDecoder::getVolume()
+{
+    return m_Volume;
+}
+
+void AsyncVideoDecoder::setVolume(double Volume)
+{
+//    m_pCmdQ->push(Command<VideoDecoderThread>(boost::bind(
+//                    &VideoDecoderThread::setVolume, _1, Volume)));
+    m_Volume = Volume;
+    if (m_Volume > 1.0) {
+        m_Volume = 1.0;
+    } else if (m_Volume < 0.0) {
+        m_Volume = 0.0;
+    }
 }
 
 PixelFormat AsyncVideoDecoder::getPixelFormat()

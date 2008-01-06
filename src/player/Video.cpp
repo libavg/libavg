@@ -173,13 +173,23 @@ void Video::setHRef(const string& href)
 
 double Video::getSpeedFactor() const
 {
-    return m_pDecoder->getSpeedFactor();
+    return m_SpeedFactor;
 }
 
 void Video::setSpeedFactor(double SpeedFactor)
 {
     m_SpeedFactor = SpeedFactor;
-    m_pDecoder->setSpeedFactor(SpeedFactor);
+    if (m_pDecoder) {
+        m_pDecoder->setSpeedFactor(SpeedFactor);
+    }
+}
+
+void Video::setVolume(double Volume)
+{
+    AudioSource::setVolume(Volume);
+    if (m_pDecoder) {
+        m_pDecoder->setVolume(Volume);
+    }
 }
 
 void Video::checkReload()
@@ -267,6 +277,7 @@ void Video::open(YCbCrMode ycbcrMode)
     m_FramesPlayed = 0;
     m_pDecoder->open(m_Filename, ycbcrMode, m_bThreaded);
     m_pDecoder->setAudioEnabled(m_bAudioEnabled);
+    m_pDecoder->setVolume(getVolume());
     if(m_SpeedFactor != 1.0) {
         m_pDecoder->setSpeedFactor(m_SpeedFactor);
     } else if(m_FPS != 0.0) {

@@ -47,6 +47,8 @@ class AsyncVideoDecoder: public IVideoDecoder
         virtual void setFPS(double FPS);
         virtual double getSpeedFactor();
         virtual void setSpeedFactor(double SpeedFactor);
+        virtual double getVolume();
+        virtual void setVolume(double Volume);
         virtual PixelFormat getPixelFormat();
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted);
@@ -81,6 +83,7 @@ class AsyncVideoDecoder: public IVideoDecoder
         PixelFormat m_PF;
         bool m_bEOF;
         bool m_bSeekPending;
+        double m_Volume;
 
         long long m_LastFrameTime;
 };

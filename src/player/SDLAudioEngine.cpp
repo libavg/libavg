@@ -123,8 +123,8 @@ void SDLAudioEngine::mixAudio(Uint8 *audioBuffer, int audioBufferLen)
     {
         m_MixFrame->clear();
         (*it)->fillAudioFrame(m_MixFrame);
-        SDL_MixAudio(audioBuffer, m_MixFrame->getBuffer(), audioBufferLen, 
-            (int)((*it)->getVolume()*SDL_MIX_MAXVOLUME));
+        SDL_MixAudio(audioBuffer, m_MixFrame->getBuffer(),
+                audioBufferLen, SDL_MIX_MAXVOLUME);
     }
 }
 

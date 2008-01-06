@@ -42,7 +42,7 @@ class AudioSource
         virtual double getVolume();
         virtual void setVolume(double volume);
 
-    protected:
+    private:
         double m_Volume;
 };
 

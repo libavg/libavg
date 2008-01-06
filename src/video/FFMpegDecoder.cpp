@@ -41,6 +41,7 @@ using namespace std;
 using namespace boost;
 
 #define SAMPLE_BUFFER_SIZE ((AVCODEC_MAX_AUDIO_FRAME_SIZE*3))
+#define VOLUME_FADE_SAMPLES 100
 
 namespace avg {
 
@@ -65,6 +66,8 @@ FFMpegDecoder::FFMpegDecoder ()
       m_bUseStreamFPS(true),
       m_FPS(0),
       m_SpeedFactor(1.0),
+      m_Volume(1.0),
+      m_LastVolume(1.0),
       m_bAudioEnabled(true)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -428,6 +431,21 @@ void FFMpegDecoder::setSpeedFactor(double SpeedFactor)
     }
 }
 
+double FFMpegDecoder::getVolume()
+{
+    return m_Volume;
+}
+
+void FFMpegDecoder::setVolume(double Volume)
+{
+    m_Volume = Volume;
+    if (m_Volume > 1.0) {
+        m_Volume = 1.0;
+    } else if (m_Volume < 0.0) {
+        m_Volume = 0.0;
+    }
+}
+
 FrameAvailableCode FFMpegDecoder::renderToBmp(BitmapPtr pBmp, long long TimeWanted)
 {
 //    ScopeTimer Timer(*m_pRenderToBmpProfilingZone);
@@ -604,38 +622,44 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer,
     
     int packetBytesDecoded;
     int bytesProduced;
+    unsigned char* pBuffer = outputAudioBuffer;
+    int bufferLeft = outputAudioBufferSize;
+    bool bFormatMatch = (m_EffectiveSampleRate == outputRate &&
+                         m_pAStream->codec->channels == outputChannels);
 
-    while(1)
+    while(true)
     {
-        // While there is data left in the encoded packet, decode it
-        while(m_AudioPacketSize > 0)
+        while(true)
         {
-            // While there is data left in the sample buffer, consume it
-            while(m_SampleBufferStart < m_SampleBufferEnd)
+            // Consume any data left in the sample buffers
+            while((bFormatMatch && m_SampleBufferStart < m_SampleBufferEnd) ||
+                  (!bFormatMatch && m_ResampleBufferStart < m_ResampleBufferEnd))
             {
                 // If the output format is different from the decoded format,
                 // then convert it, else copy it over
-                if (m_EffectiveSampleRate != outputRate ||
-                    m_pAStream->codec->channels != outputChannels)
-                {
-                    bytesProduced = copyResampledAudio(outputAudioBuffer,
-                            outputAudioBufferSize, outputChannels, outputRate);
-                }
-                else
-                {
-                    bytesProduced = copyRawAudio(outputAudioBuffer,
-                            outputAudioBufferSize);
+                if (bFormatMatch) {
+                    bytesProduced = 
+                        copyRawAudio(pBuffer, bufferLeft);
+                } else {
+                    bytesProduced = 
+                        copyResampledAudio(pBuffer, bufferLeft, 
+                                outputChannels, outputRate);
                 }
                 
-                outputAudioBuffer += bytesProduced;
-                outputAudioBufferSize -= bytesProduced;
+                pBuffer += bytesProduced;
+                bufferLeft -= bytesProduced;
 
                 m_AudioClock += (long long)(m_SpeedFactor * 1000.0 * bytesProduced /
                         (2 * outputChannels * outputRate));
                 
-                if(outputAudioBufferSize == 0)
+                if (bufferLeft == 0) {
+                    volumize((short*)outputAudioBuffer, outputAudioBufferSize/2);
                     return;
+                }
             }
+            
+            if (m_AudioPacketSize <= 0)
+                break;
             
             packetBytesDecoded = decodeAudio();
             
@@ -649,8 +673,7 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer,
         }
         
         // We have decoded all data in the packet, free it
-        if(m_AudioPacket)
-        {
+        if (m_AudioPacket) {
             av_free_packet(m_AudioPacket);
             delete m_AudioPacket;
         }
@@ -928,6 +951,33 @@ double FFMpegDecoder::calcStreamFPS()
 #else
     return (m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den);
 #endif 
+}
+
+// TODO: this should be logarithmic...
+void FFMpegDecoder::volumize(short* buffer, int size)
+{
+    double curVol = m_Volume;
+    double volDiff = m_LastVolume - curVol;
+    
+    if(curVol == 1.0 && volDiff == 0.0)
+        return;
+    
+    for(int i = 0; i < size; i++)
+    {
+        double volIncr = 0;
+        if(volDiff != 0 && i < VOLUME_FADE_SAMPLES)
+            volIncr = volDiff * (VOLUME_FADE_SAMPLES - i) / VOLUME_FADE_SAMPLES;
+        
+        int s = int(buffer[i] * (curVol + volIncr));
+        
+        if (s < -32768)
+            s = -32768;
+        if (s >  32767)
+            s = 32767;
+        
+        buffer[i] = s;
+    }
+    m_LastVolume = curVol;
 }
 
 }

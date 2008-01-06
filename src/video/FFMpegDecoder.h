@@ -58,6 +58,8 @@ class FFMpegDecoder: public IVideoDecoder
         virtual void setFPS(double FPS);
         virtual double getSpeedFactor();
         virtual void setSpeedFactor(double Speed);
+        virtual double getVolume();
+        virtual void setVolume(double Volume);
         virtual PixelFormat getPixelFormat();
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted);
@@ -82,6 +84,7 @@ class FFMpegDecoder: public IVideoDecoder
         int copyResampledAudio(unsigned char* buf, int size, int outputChannels, int outputRate);
         void resampleAudio(int channels, int rate);
         int decodeAudio();
+        void volumize(short* buffer, int size);
 
         IDemuxer * m_pDemuxer;
         AVFormatContext * m_pFormatContext;
@@ -112,7 +115,9 @@ class FFMpegDecoder: public IVideoDecoder
         int m_EffectiveSampleRate;
         ReSampleContext * m_pAudioResampleContext;
         boost::mutex m_AudioMutex;
-        
+
+        double m_Volume;
+        double m_LastVolume;
         long long m_AudioClock;
         long long m_AudioClockStart;
         

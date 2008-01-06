@@ -51,6 +51,7 @@ class Video : public VideoBase, IFrameListener, public AudioSource
         void setHRef(const std::string& href);
         double getSpeedFactor() const;
         void setSpeedFactor(double SpeedFactor);
+        void setVolume(double Volume);
         void checkReload();
 
         int getNumFrames() const;
