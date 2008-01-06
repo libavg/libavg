@@ -4,7 +4,8 @@
     <image x="0" y="0" width="16" height="16" href="rgb24-65x65.png"/>
     <div x="40" y="0" width="160" height="120" pivotx="0" pivoty="0" angle="1.57">
         <image x="0" y="0" width="16" height="16" href="rgb24-65x65.png"/>
-        <words x="30" y="-6" size="12" text="rotated text"/>
+        <image x="30" y="-6" width="16" height="16" href="rgb24-65x65.png"/>
+
     </div>
   </div>
 </avg>
