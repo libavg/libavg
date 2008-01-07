@@ -257,7 +257,8 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
         
         m_AudioClock = 0;
         m_AudioStartTimestamp = 0;
-        //if(m_pAStream->start_time != AV_NOPTS_VALUE)
+        
+        if(m_pAStream->start_time != AV_NOPTS_VALUE)
             m_AudioStartTimestamp = 
                 (long long)(1000.0 * av_q2d(m_pAStream->time_base) * m_pAStream->start_time);
         
@@ -708,7 +709,7 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer, int outputA
         if(!m_AudioPacket)
             return;
         
-        //if(m_AudioPacket->dts != AV_NOPTS_VALUE)
+        if(m_AudioPacket->dts != AV_NOPTS_VALUE)
             m_AudioClock = (long long)(1000.0 * av_q2d(m_pAStream->time_base) * 
                     m_AudioPacket->dts - m_AudioStartTimestamp);
         
