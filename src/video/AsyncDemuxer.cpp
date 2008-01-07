@@ -94,11 +94,11 @@ AVPacket * AsyncDemuxer::getPacket(int StreamIndex)
     return pPacketMsg->getPacket();
 }
 
-void AsyncDemuxer::seek(int DestFrame, long long StartTimestamp, int StreamIndex)
+void AsyncDemuxer::seek(long long DestTime)
 {
     waitForSeekDone();
     m_pCmdQ->push(Command<VideoDemuxerThread>(boost::bind(
-                &VideoDemuxerThread::seek, _1, DestFrame, StartTimestamp, StreamIndex)));
+                &VideoDemuxerThread::seek, _1, DestTime)));
     m_bSeekPending = true;
     map<int, VideoPacketQueuePtr>::iterator it;
     for (it=m_PacketQs.begin(); it != m_PacketQs.end(); it++) {

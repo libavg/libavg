@@ -40,9 +40,10 @@ class AsyncVideoDecoder: public IVideoDecoder
         virtual void open(const std::string& sFilename, YCbCrMode ycbcrMode,
                 bool bSyncDemuxer);
         virtual void close();
-        virtual void seek(int DestFrame);
+        virtual void seek(long long DestTime);
         virtual IntPoint getSize();
         virtual int getNumFrames();
+        virtual double getNominalFPS();
         virtual double getFPS();
         virtual void setFPS(double FPS);
         virtual double getSpeedFactor();

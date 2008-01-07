@@ -55,7 +55,7 @@ namespace avg {
            
             void enableStream(int StreamIndex);
             AVPacket * getPacket(int StreamIndex);
-            void seek(int DestFrame, long long StartTimestamp, int StreamIndex);
+            void seek(long long DestTime);
             void dump();
             
         private:

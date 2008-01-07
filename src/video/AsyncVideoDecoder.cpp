@@ -88,12 +88,12 @@ void AsyncVideoDecoder::close()
     }
 }
 
-void AsyncVideoDecoder::seek(int DestFrame)
+void AsyncVideoDecoder::seek(long long DestTime)
 {
     waitForSeekDone();
     m_bEOF = false;
     m_pCmdQ->push(Command<VideoDecoderThread>(boost::bind(
-                &VideoDecoderThread::seek, _1, DestFrame)));
+                &VideoDecoderThread::seek, _1, DestTime)));
     m_bSeekPending = true;
     try {
         bool bDone = false;
@@ -119,6 +119,11 @@ int AsyncVideoDecoder::getNumFrames()
 {
     assert(m_pDecoderThread);
     return m_NumFrames;
+}
+
+double AsyncVideoDecoder::getNominalFPS()
+{
+    return m_pSyncDecoder->getNominalFPS();
 }
 
 double AsyncVideoDecoder::getFPS()

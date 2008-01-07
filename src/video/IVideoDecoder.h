@@ -44,9 +44,10 @@ class IVideoDecoder
         virtual void open(const std::string& sFilename, YCbCrMode ycbcrMode,
                 bool bSyncDemuxer) = 0;
         virtual void close() = 0;
-        virtual void seek(int DestFrame) = 0;
+        virtual void seek(long long DestTime) = 0;
         virtual IntPoint getSize() = 0;
         virtual int getNumFrames() = 0;
+        virtual double getNominalFPS() = 0;
         virtual double getFPS() = 0;
         virtual void setFPS(double FPS) = 0;
         virtual double getSpeedFactor() = 0;

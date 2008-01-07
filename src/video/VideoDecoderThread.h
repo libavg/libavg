@@ -44,7 +44,7 @@ class VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
         bool work();
         void deinit();
 
-        void seek(int DestFrame);
+        void seek(long long DestTime);
         void setFPS(double FPS);
 
     private:

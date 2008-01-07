@@ -110,7 +110,7 @@ void VideoDecoderThread::deinit()
     m_pDecoder->close();
 }
 
-void VideoDecoderThread::seek(int DestFrame)
+void VideoDecoderThread::seek(long long DestTime)
 {
     try {
         while (!m_MsgQ.empty()) {
@@ -121,7 +121,7 @@ void VideoDecoderThread::seek(int DestFrame)
 
     vector<BitmapPtr> pBmps;  // Empty.
     m_MsgQ.push(VideoMsgPtr(new SeekDoneVideoMsg()));
-    m_pDecoder->seek(DestFrame);
+    m_pDecoder->seek(DestTime);
 }
 
 void VideoDecoderThread::setFPS(double FPS)

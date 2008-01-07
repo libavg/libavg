@@ -114,17 +114,17 @@ class DecoderTest: public Test {
             BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
 
             // Seek forward
-            pDecoder->seek(100);
+            pDecoder->seek((long long)(100*1000/pDecoder->getNominalFPS()));
             pDecoder->renderToBmp(pBmp, -1);
             compareImages(pBmp, sFilename+"_100");
 
             // Seek backward
-            pDecoder->seek(53);
+            pDecoder->seek((long long)(53*1000/pDecoder->getNominalFPS()));
             pDecoder->renderToBmp(pBmp, -1);
             compareImages(pBmp, sFilename+"_53");
 
             // Seek to last frame
-            pDecoder->seek(201);
+            pDecoder->seek((long long)(201*1000/pDecoder->getNominalFPS()));
             pDecoder->renderToBmp(pBmp, -1);
             compareImages(pBmp, sFilename+"_201");
 

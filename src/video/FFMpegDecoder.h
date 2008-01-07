@@ -51,9 +51,10 @@ class FFMpegDecoder: public IVideoDecoder
         virtual void open(const std::string& sFilename, YCbCrMode ycbcrMode,
                 bool bThreadedDemuxer);
         virtual void close();
-        virtual void seek(int DestFrame);
+        virtual void seek(long long DestTime);
         virtual IntPoint getSize();
         virtual int getNumFrames();
+        virtual double getNominalFPS();
         virtual double getFPS();
         virtual void setFPS(double FPS);
         virtual double getSpeedFactor();
@@ -79,7 +80,7 @@ class FFMpegDecoder: public IVideoDecoder
         PixelFormat calcPixelFormat(YCbCrMode ycbcrMode);
         void convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp);
         long long getFrameTime(AVPacket* pPacket);
-        double calcStreamFPS();
+        long long getStartTime();
         int copyRawAudio(unsigned char* buf, int size);
         int copyResampledAudio(unsigned char* buf, int size);
         void resampleAudio();
@@ -121,7 +122,7 @@ class FFMpegDecoder: public IVideoDecoder
         double m_Volume;
         double m_LastVolume;
         long long m_AudioClock;
-        long long m_AudioClockStart;
+        long long m_AudioStartTimestamp;
         
         unsigned char * m_pPacketData;
         AVPacket * m_pPacket;
@@ -131,7 +132,7 @@ class FFMpegDecoder: public IVideoDecoder
         IntPoint m_Size;
 
         double m_TimeUnitsPerSecond;
-        long long m_StartTimestamp;
+        long long m_VideoStartTimestamp;
         long long m_LastFrameTime;
         bool m_bUseStreamFPS;
         double m_FPS;

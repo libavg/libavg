@@ -51,7 +51,7 @@ namespace avg {
            
             virtual void enableStream(int StreamIndex) = 0;
             virtual AVPacket * getPacket(int StreamIndex) = 0;
-            virtual void seek(int DestFrame, long long StartTimestamp, int StreamIndex) = 0;
+            virtual void seek(long long DestTime) = 0;
             virtual void dump() {};
             
     };

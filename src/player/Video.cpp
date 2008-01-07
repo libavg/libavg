@@ -260,10 +260,9 @@ void Video::changeVideoState(VideoState NewVideoState)
 
 void Video::seek(int DestFrame) 
 {
-
-    m_pDecoder->seek(DestFrame);
-    m_StartTime = getPlayer()->getFrameTime()
-            -(long long)((DestFrame*1000.0)/m_pDecoder->getFPS());
+    long long DestTime = (long long)((DestFrame*1000.0)/m_pDecoder->getNominalFPS());
+    m_pDecoder->seek(DestTime);
+    m_StartTime = getPlayer()->getFrameTime() - DestTime;
     m_PauseTime = 0;
     m_PauseStartTime = getPlayer()->getFrameTime();
     m_CurFrame = DestFrame;

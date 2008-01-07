@@ -61,7 +61,7 @@ FFMpegDecoder::FFMpegDecoder ()
       m_pAudioResampleContext(0),
       m_pPacketData(0),
       m_Size(0,0),
-      m_StartTimestamp(-1),
+      m_VideoStartTimestamp(-1),
       m_LastFrameTime(-1000),
       m_bUseStreamFPS(true),
       m_FPS(0),
@@ -150,7 +150,7 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
     mutex::scoped_lock Lock(s_OpenMutex);
     m_bEOF = false;
     m_bEOFPending = false;
-    m_StartTimestamp = -1;
+    m_VideoStartTimestamp = -1;
     AVFormatParameters params;
     int err;
     m_sFilename = sFilename;
@@ -220,7 +220,7 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
         // Set video parameters
         m_TimeUnitsPerSecond = 1.0/av_q2d(m_pVStream->time_base);
         if (m_bUseStreamFPS) {
-            m_FPS = calcStreamFPS();
+            m_FPS = getNominalFPS();
         }
     #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
         m_Size = IntPoint(m_pVStream->codec.width, m_pVStream->codec.height);
@@ -256,9 +256,9 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
         m_ResampleBufferEnd = 0;
         
         m_AudioClock = 0;
-        m_AudioClockStart = 0;
+        m_AudioStartTimestamp = 0;
         //if(m_pAStream->start_time != AV_NOPTS_VALUE)
-            m_AudioClockStart = 
+            m_AudioStartTimestamp = 
                 (long long)(1000.0 * av_q2d(m_pAStream->time_base) * m_pAStream->start_time);
         
         m_EffectiveSampleRate = (int)(m_SpeedFactor*m_pAStream->codec->sample_rate);
@@ -329,7 +329,7 @@ void FFMpegDecoder::close()
         m_ResampleBufferSize = 0;
         
         m_AudioClock = 0;
-        m_AudioClockStart = 0;
+        m_AudioStartTimestamp = 0;
         
         m_pAStream = 0;
         m_AStreamIndex = -1;
@@ -346,19 +346,26 @@ void FFMpegDecoder::close()
 #endif
 }
 
-void FFMpegDecoder::seek(int DestFrame) 
+void FFMpegDecoder::seek(long long DestTime) 
 {
-//    cerr << "seek to " << DestFrame << endl;
     if (m_bFirstPacket) {
         AVFrame Frame;
         long long FrameTime;
         readFrame(Frame, FrameTime);
     }
-    m_pDemuxer->seek(DestFrame, m_StartTimestamp, m_VStreamIndex);
+    m_pDemuxer->seek(DestTime + getStartTime());
     if (m_bUseStreamFPS) {
         m_LastFrameTime = -1000;
     } else {
-        m_LastFrameTime = (long long)((DestFrame-1)*(1000/m_FPS));
+        m_LastFrameTime = DestTime;
+    }
+    if (m_pAStream) {
+        mutex::scoped_lock Lock(m_AudioMutex);
+        m_AudioClock = DestTime;
+        m_SampleBufferStart = m_SampleBufferEnd = 0;
+        m_SampleBufferLeft = m_SampleBufferSize;
+        m_ResampleBufferStart = m_ResampleBufferEnd = 0;
+        m_AudioPacketSize = 0;
     }
     m_bEOF = false;
 }
@@ -381,6 +388,15 @@ int FFMpegDecoder::getNumFrames()
 #endif 
 }
 
+double FFMpegDecoder::getNominalFPS()
+{
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
+    return m_pVStream->r_frame_rate;
+#else
+    return (m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den);
+#endif 
+}
+
 double FFMpegDecoder::getFPS()
 {
     return m_FPS;
@@ -391,7 +407,7 @@ void FFMpegDecoder::setFPS(double FPS)
     if(FPS == 0) {
         setSpeedFactor(1.0);
     } else {
-        setSpeedFactor(FPS / calcStreamFPS());
+        setSpeedFactor(FPS / getNominalFPS());
     }
 }
 
@@ -428,7 +444,7 @@ void FFMpegDecoder::setSpeedFactor(double SpeedFactor)
         
         if(m_pVStream) {
             m_bUseStreamFPS = (m_pAStream || m_SpeedFactor == 1.0);
-            m_FPS = m_SpeedFactor * calcStreamFPS();
+            m_FPS = m_SpeedFactor * getNominalFPS();
         }
     }
 }
@@ -694,7 +710,7 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer, int outputA
         
         //if(m_AudioPacket->dts != AV_NOPTS_VALUE)
             m_AudioClock = (long long)(1000.0 * av_q2d(m_pAStream->time_base) * 
-                    m_AudioPacket->dts - m_AudioClockStart);
+                    m_AudioPacket->dts - m_AudioStartTimestamp);
         
         // Initialize packet data pointers
         m_AudioPacketData = m_AudioPacket->data;
@@ -935,12 +951,12 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
 
 long long FFMpegDecoder::getFrameTime(AVPacket* pPacket)
 {
-    if (m_StartTimestamp == -1) {
-        m_StartTimestamp = (long long)((1000*pPacket->dts)/m_TimeUnitsPerSecond);
+    if (m_VideoStartTimestamp == -1) {
+        m_VideoStartTimestamp = (long long)((1000*pPacket->dts)/m_TimeUnitsPerSecond);
     }
     long long FrameTime;
     if (m_bUseStreamFPS) {
-        FrameTime = (long long)((1000*pPacket->dts)/m_TimeUnitsPerSecond)-m_StartTimestamp;
+        FrameTime = (long long)((1000*pPacket->dts)/m_TimeUnitsPerSecond)-m_VideoStartTimestamp;
     } else {
         if (m_LastFrameTime == -1000) {
             FrameTime = 0;
@@ -952,13 +968,13 @@ long long FFMpegDecoder::getFrameTime(AVPacket* pPacket)
     return FrameTime;
 }
 
-double FFMpegDecoder::calcStreamFPS()
+long long FFMpegDecoder::getStartTime()
 {
-#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
-    return m_pVStream->r_frame_rate;
-#else
-    return (m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den);
-#endif 
+    if (m_pAStream && m_bAudioEnabled) {
+        return m_AudioStartTimestamp;
+    } else {
+        return m_VideoStartTimestamp;
+    }
 }
 
 // TODO: this should be logarithmic...
