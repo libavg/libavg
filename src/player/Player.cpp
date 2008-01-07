@@ -53,6 +53,9 @@
 #ifdef AVG_ENABLE_V4L2
 #include "../imaging/V4LCamera.h"
 #endif
+#ifdef _WIN32
+#include "../imaging/DSCamera.h"
+#endif
 #include "../imaging/FakeCamera.h"
 
 #undef HAVE_TEMPNAM
@@ -335,7 +338,7 @@ TrackerEventSource * Player::addTracker()
     TrackerConfig Config;
     Config.load();
     CameraPtr pCamera;
-    
+
     if (Config.m_sSource == "v4l") {
 #ifdef AVG_ENABLE_V4L2
         AVG_TRACE(Logger::CONFIG, "Adding a Tracker for V4L camera " <<
@@ -350,12 +353,19 @@ TrackerEventSource * Player::addTracker()
                 "Video4Linux support not compiled in.");
         exit(1);
 #endif
-    } else {
+    } else if (Config.m_sSource == "fw") {
         AVG_TRACE(Logger::CONFIG, "Adding a Tracker for FW camera " << 
                 Config.m_sDevice << " width=" << Config.m_Size.x << 
                 " height=" << Config.m_Size.y  << " format=" <<
                 Config.m_sPixFmt);
         pCamera = CameraPtr(new FWCamera(Config.m_sDevice, Config.m_Size, 
+                Config.m_sPixFmt, Config.m_FPS, false));
+    } else if (Config.m_sSource == "ds") {
+        AVG_TRACE(Logger::CONFIG, "Adding a Tracker for DS camera " << 
+                Config.m_sDevice << " width=" << Config.m_Size.x << 
+                " height=" << Config.m_Size.y  << " format=" <<
+                Config.m_sPixFmt);
+        pCamera = CameraPtr(new DSCamera(Config.m_sDevice, Config.m_Size, 
                 Config.m_sPixFmt, Config.m_FPS, false));
     }
     
