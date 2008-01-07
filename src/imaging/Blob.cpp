@@ -28,6 +28,10 @@
 
 #include <stdlib.h>
 #include <math.h>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #include <iostream>
 #include <algorithm>
 
@@ -335,10 +339,10 @@ void Blob::calcContour(int NumPoints)
 {
     int w = m_BoundingBox.Width();
     int h = m_BoundingBox.Height();
-    double StartDist = sqrt(w*w+h*h);
+    double StartDist = sqrt(double(w*w+h*h));
     for (double i=0; i<NumPoints; i++) {
-        IntPoint OuterPt(StartDist*sin(i*2*M_PI/NumPoints)+m_Center.x, 
-                StartDist*cos(i*2*M_PI/NumPoints)+m_Center.y);
+        IntPoint OuterPt(int(StartDist*sin(i*2*M_PI/NumPoints)+m_Center.x), 
+                int(StartDist*cos(i*2*M_PI/NumPoints)+m_Center.y));
         IntPoint InnerPt(m_Center);
         while (calcDist(OuterPt, InnerPt) > 2) {
             IntPoint MiddlePt = (OuterPt+InnerPt)/2;

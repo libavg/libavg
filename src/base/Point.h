@@ -175,7 +175,7 @@ double sqr(double x)
 template<class NUM>
 double calcDist(const Point<NUM>& pt1, const Point<NUM>& pt2)
 {
-    return sqrt(sqr(fabs(pt1.x-pt2.x))+sqr(fabs(pt1.y-pt2.y)));
+    return sqrt(sqr(pt1.x-pt2.x)+sqr(pt1.y-pt2.y));
 }
 
 bool almostEqual(const DPoint& pt1, const DPoint& pt2);

@@ -59,7 +59,7 @@ public:
         }
         try {
             throw bad_cast();
-        } catch (bad_cast& e) {
+        } catch (bad_cast&) {
 
         }
     }
