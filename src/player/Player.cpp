@@ -360,6 +360,7 @@ TrackerEventSource * Player::addTracker()
                 Config.m_sPixFmt);
         pCamera = CameraPtr(new FWCamera(Config.m_sDevice, Config.m_Size, 
                 Config.m_sPixFmt, Config.m_FPS, false));
+#ifdef _WIN32        
     } else if (Config.m_sSource == "ds") {
         AVG_TRACE(Logger::CONFIG, "Adding a Tracker for DS camera " << 
                 Config.m_sDevice << " width=" << Config.m_Size.x << 
@@ -367,6 +368,7 @@ TrackerEventSource * Player::addTracker()
                 Config.m_sPixFmt);
         pCamera = CameraPtr(new DSCamera(Config.m_sDevice, Config.m_Size, 
                 Config.m_sPixFmt, Config.m_FPS, false));
+#endif        
     }
     
     m_pTracker = new TrackerEventSource(pCamera, Config, 
