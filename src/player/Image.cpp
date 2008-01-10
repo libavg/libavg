@@ -112,7 +112,7 @@ void Image::setBitmap(const Bitmap * pBmp)
     if (pBmp->getPixelFormat() == I8) {
         pf = I8;
     }
-#ifdef __i386__
+#if defined(__i386__) || defined(_WIN32)
     if (!(getPlayer()->getDisplayEngine()->hasRGBOrdering())) {
         switch (pf) {
             case R8G8B8X8:
