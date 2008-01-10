@@ -360,15 +360,23 @@ TrackerEventSource * Player::addTracker()
                 Config.m_sPixFmt);
         pCamera = CameraPtr(new FWCamera(Config.m_sDevice, Config.m_Size, 
                 Config.m_sPixFmt, Config.m_FPS, false));
-#ifdef _WIN32        
     } else if (Config.m_sSource == "ds") {
+#ifdef _WIN32        
         AVG_TRACE(Logger::CONFIG, "Adding a Tracker for DS camera " << 
                 Config.m_sDevice << " width=" << Config.m_Size.x << 
                 " height=" << Config.m_Size.y  << " format=" <<
                 Config.m_sPixFmt);
         pCamera = CameraPtr(new DSCamera(Config.m_sDevice, Config.m_Size, 
                 Config.m_sPixFmt, Config.m_FPS, false));
+#else
+        AVG_TRACE(Logger::ERROR, "DS camera tracker requested, but " 
+                "DS support not compiled in.");
+        exit(1);
 #endif        
+    } else {
+        throw Exception(AVG_ERR_INVALID_CAPTURE,
+                string("Invalid camera source value '")+Config.m_sSource+
+                        "'. Can't initialize tracker.");
     }
     
     m_pTracker = new TrackerEventSource(pCamera, Config, 
