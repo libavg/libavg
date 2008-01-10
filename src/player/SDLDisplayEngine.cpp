@@ -606,8 +606,10 @@ BitmapPtr SDLDisplayEngine::screenshot ()
 {
     BitmapPtr pBmp (new Bitmap(IntPoint(m_Width, m_Height), R8G8B8X8, "screenshot"));
     glReadBuffer(GL_BACK);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::screenshot:glReadBuffer()");
     glReadPixels(0, 0, m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE, 
             pBmp->getPixels());
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::screenshot:glReadPixels()");
 //    FilterFlipRGB().applyInPlace(pBmp);
     FilterFlip().applyInPlace(pBmp);
     return pBmp;
