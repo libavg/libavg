@@ -605,7 +605,7 @@ void SDLDisplayEngine::showCursor (bool bShow)
 BitmapPtr SDLDisplayEngine::screenshot ()
 {
     BitmapPtr pBmp (new Bitmap(IntPoint(m_Width, m_Height), R8G8B8X8, "screenshot"));
-    glReadBuffer(GL_FRONT);
+    glReadBuffer(GL_BACK);
     glReadPixels(0, 0, m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE, 
             pBmp->getPixels());
 //    FilterFlipRGB().applyInPlace(pBmp);
