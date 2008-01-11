@@ -106,7 +106,8 @@ namespace avg {
           m_HistoryUpdateInterval(5),
           m_bCreateDebugImages(false),
           m_bCreateFingerImage(false),
-          m_pTrafo(new DeDistort())
+          m_pTrafo(new DeDistort()),
+          m_Doc(0)
     {
     } 
     
@@ -134,9 +135,8 @@ namespace avg {
                     "DTD not found at " << sDTDFName << ". Not validating trackerconfig files.");
         }
 
-        xmlDocPtr doc;
-        doc = xmlParseFile(sFilename.c_str());
-        if (!doc) {
+        m_Doc = xmlParseFile(sFilename.c_str());
+        if (!m_Doc) {
             AVG_TRACE(Logger::ERROR, "Could not open tracker config file " 
                     << sFilename << ". Using defaults which will probably not work.");
             return;
@@ -145,76 +145,148 @@ namespace avg {
         xmlValidCtxtPtr cvp = xmlNewValidCtxt();
         cvp->error = xmlParserValidityError;
         cvp->warning = xmlParserValidityWarning;
-        int valid=xmlValidateDtd(cvp, doc, dtd);  
+        int valid=xmlValidateDtd(cvp, m_Doc, dtd);  
         xmlFreeValidCtxt(cvp);
         if (!valid) {
             throw (Exception(AVG_ERR_XML_PARSE, 
                     sFilename + " does not validate."));
         }
 
-        xmlNodePtr pRoot = xmlDocGetRootElement(doc);
-        xmlNodePtr curXmlChild = pRoot->xmlChildrenNode;
+        m_pRoot = xmlDocGetRootElement(m_Doc);
+        
+        xmlFreeDtd(dtd);
+
+        parse(false);
+    }
+
+    void TrackerConfig::parse(bool bOnlyDyn)
+    {
+        xmlNodePtr curXmlChild = m_pRoot->xmlChildrenNode;
         while (curXmlChild) {
             const char * pNodeName = (const char *)curXmlChild->name;
             if (!strcmp(pNodeName, "camera")) {
-                loadCamera(curXmlChild, sFilename);
+                loadCamera(curXmlChild, getConfigFilename(), bOnlyDyn);
             } else if (!strcmp(pNodeName, "tracker")) {
-                loadTracker(curXmlChild, sFilename);
+                loadTracker(curXmlChild, getConfigFilename());
             } else if (!strcmp(pNodeName, "transform")) {
                 m_pTrafo->load(curXmlChild);
             } else {
                 if (strcmp(pNodeName, "text")) {
-                    AVG_TRACE(Logger::WARNING, "Unexpected node " << pNodeName << " in " << sFilename);
+                    AVG_TRACE(Logger::WARNING, "Unexpected node " << pNodeName << " in "
+                        << getConfigFilename());
                 }
             }
             curXmlChild = curXmlChild->next;
         }
-        xmlFreeDoc(doc);
-        xmlFreeDtd(dtd);
     }
+    
+    xmlXPathObjectPtr TrackerConfig::findConfigNodes(const xmlChar* xpExpr)
+    {
+        xmlXPathContextPtr xpCtx;
+        xmlXPathObjectPtr xpElement;
 
+        xpCtx = xmlXPathNewContext(m_Doc);
+        if(!xpCtx) {
+            AVG_TRACE(Logger::ERROR, "Unable to create new XPath context");
+            return NULL;
+        }
 
+        xpElement = xmlXPathEvalExpression(xpExpr, xpCtx);
+        if(!xpElement) {
+            AVG_TRACE(Logger::ERROR, "Unable to evaluate XPath expression '"
+                << xpExpr << "'");
+            xmlXPathFreeContext(xpCtx);
+            return NULL;
+        }
+        
+        xmlXPathFreeContext(xpCtx);
+
+        return xpElement;
+    }
+    
+    void TrackerConfig::setParam(const xmlChar* xpExpr, const xmlChar* Value)
+    {
+        xmlXPathObjectPtr xpElement = findConfigNodes(xpExpr);
+        xmlNodeSetPtr nodes = xpElement->nodesetval;
+        
+        if (!nodes || nodes->nodeNr == 0)
+            throw (Exception(AVG_ERR_OPTION_UNKNOWN, 
+                        string("setParam(): cannot find requested element ")+string((char *)xpExpr)));
+        
+        for(int i = nodes->nodeNr - 1; i >= 0; i--) {
+            assert(nodes->nodeTab[i]);
+
+            xmlNodeSetContent(nodes->nodeTab[i], Value);
+            if (nodes->nodeTab[i]->type != XML_NAMESPACE_DECL)
+                nodes->nodeTab[i] = NULL;
+        }
+        
+        xmlXPathFreeObject(xpElement);
+
+        parse(true);        
+    }
+    
+    string TrackerConfig::getParam(const xmlChar* xpExpr)
+    {
+        xmlXPathObjectPtr xpElement = findConfigNodes(xpExpr);
+        xmlNodeSetPtr nodes = xpElement->nodesetval;
+        
+        if (!nodes || nodes->nodeNr == 0)
+            throw (Exception(AVG_ERR_OPTION_UNKNOWN, 
+                        string("getParam(): cannot find requested element ")+string((char *)xpExpr)));
+        else if (nodes->nodeNr > 1)
+            AVG_TRACE(Logger::WARNING,
+                "getParam(): expression selects more than one node. Returning the first.");
+        
+        xmlChar *xsRc = xmlNodeGetContent(nodes->nodeTab[0]);
+        string sValue((char *)xsRc);
+        
+        xmlFree(xsRc);
+        xmlXPathFreeObject(xpElement);
+
+        return sValue;
+    }
+    
     void TrackerConfig::save(const string& sCustomFilename)
     {
         string sFilename(sCustomFilename);
         if (sFilename.empty()) {
             sFilename = getConfigFilename();
         }
-        xmlDocPtr doc;
-        int rc;
-        stringstream ss;
-        xmlTextWriterPtr writer = xmlNewTextWriterDoc(&doc, 0);
-        rc = xmlTextWriterSetIndent(writer, 4);
-        rc = xmlTextWriterStartDocument(writer, NULL, "utf-8", NULL);
-        rc = xmlTextWriterStartElement(writer, BAD_CAST "trackerconfig");
-        saveCamera(writer);
-        saveTracker(writer);
-        m_pTrafo->save(writer);
-        rc = xmlTextWriterEndElement(writer);
-        rc = xmlTextWriterEndDocument(writer);
-        xmlFreeTextWriter(writer);
+
         AVG_TRACE(Logger::CONFIG, "Saving tracker configuration to " 
                 << sFilename << ".");
 
-        xmlSaveFileEnc(sFilename.c_str(), doc, "utf-8");
-        xmlFreeDoc(doc);
+        if (m_Doc)
+            xmlSaveFileEnc(sFilename.c_str(), m_Doc, "utf-8");
+        else
+            throw (Exception(AVG_ERR_FILEIO, 
+                        "save(): tracker configuration not initialized"));
     }
 
-    void TrackerConfig::loadCamera(xmlNodePtr pParentNode, const string& sFilename)
+    void TrackerConfig::loadCamera(xmlNodePtr pParentNode, const string& sFilename, bool bOnlyDyn)
     {
         xmlNodePtr curXmlChild = pParentNode->xmlChildrenNode;
         while (curXmlChild) {
+            bool bManaged = true;
             const char * pNodeName = (const char *)curXmlChild->name;
-            if (!strcmp(pNodeName, "source")) {
-                m_sSource = getRequiredStringAttr(curXmlChild, "value");
-            } else if (!strcmp(pNodeName, "device")) {
-                m_sDevice = getRequiredStringAttr(curXmlChild, "value");
-            } else if (!strcmp(pNodeName, "format")) {
-                m_sPixFmt = getRequiredStringAttr(curXmlChild, "value");
-            } else if (!strcmp(pNodeName, "size")) {
-                m_Size.x = getRequiredIntAttr(curXmlChild, "x");
-                m_Size.y = getRequiredIntAttr(curXmlChild, "y");
-            } else if (!strcmp(pNodeName, "channel")) {
+            if (!bOnlyDyn)
+            {
+                if (!strcmp(pNodeName, "source")) {
+                    m_sSource = getRequiredStringAttr(curXmlChild, "value");
+                } else if (!strcmp(pNodeName, "device")) {
+                    m_sDevice = getRequiredStringAttr(curXmlChild, "value");
+                } else if (!strcmp(pNodeName, "format")) {
+                    m_sPixFmt = getRequiredStringAttr(curXmlChild, "value");
+                } else if (!strcmp(pNodeName, "size")) {
+                    m_Size.x = getRequiredIntAttr(curXmlChild, "x");
+                    m_Size.y = getRequiredIntAttr(curXmlChild, "y");
+                }
+                else bManaged = false;
+            }
+            
+            if (!strcmp(pNodeName, "channel")) {
+                // TODO: V4L2 channel is not updated on-the-fly
                 m_Channel = getRequiredIntAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "fps")) {
                 m_FPS = getRequiredIntAttr(curXmlChild, "value");
@@ -229,29 +301,12 @@ namespace avg {
             } else if (!strcmp(pNodeName, "shutter")) {
                 m_Shutter = getRequiredIntAttr(curXmlChild, "value");
             } else {
-                if (strcmp(pNodeName, "text")) {
+                if (!bOnlyDyn && !bManaged && strcmp(pNodeName, "text")) {
                     AVG_TRACE(Logger::WARNING, "Unexpected node " << pNodeName << " in " << sFilename);
                 }
             }
             curXmlChild = curXmlChild->next;
         }
-    }
-
-    void TrackerConfig::saveCamera(xmlTextWriterPtr writer) 
-    {
-        int rc;
-        rc = xmlTextWriterStartElement(writer, BAD_CAST "camera");
-        writeSimpleXMLNode(writer, "source", m_sSource);
-        writeSimpleXMLNode(writer, "device", m_sDevice);
-        writeSimpleXMLNode(writer, "format", m_sPixFmt);
-        writePoint(writer, "size", DPoint(m_Size));
-        writeSimpleXMLNode(writer, "fps", m_FPS);
-        writeSimpleXMLNode(writer, "brightness", m_Brightness);
-        writeSimpleXMLNode(writer, "exposure", m_Exposure);
-        writeSimpleXMLNode(writer, "gamma", m_Gamma);
-        writeSimpleXMLNode(writer, "gain", m_Gain);
-        writeSimpleXMLNode(writer, "shutter", m_Shutter);
-        rc = xmlTextWriterEndElement(writer);
     }
 
     void TrackerConfig::loadTracker(xmlNodePtr pParentNode, const string& sFilename)
@@ -274,20 +329,6 @@ namespace avg {
             }
             curXmlChild = curXmlChild->next;
         }
-    }
-
-    void TrackerConfig::saveTracker(xmlTextWriterPtr writer) 
-    {
-        int rc;
-        rc = xmlTextWriterStartElement(writer, BAD_CAST "tracker");
-        writeSimpleXMLNode(writer, "historyupdateinterval", m_HistoryUpdateInterval);
-        if (m_pTouch) {
-            m_pTouch->save(writer);
-        }
-        if (m_pTrack) {
-            m_pTrack->save(writer);
-        }
-        rc = xmlTextWriterEndElement(writer);
     }
 
     std::string TrackerConfig::getConfigFilename()

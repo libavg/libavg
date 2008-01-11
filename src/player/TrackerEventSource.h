@@ -53,20 +53,9 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
                 const IntPoint& DisplayExtents, bool bSubtractHistory = true);
         virtual ~TrackerEventSource();
 
-        void setThreshold(int Threshold);
-        int getThreshold();
-        void setHistorySpeed(int UpdateInterval);
-        int getHistorySpeed();
-        void setBrightness(int Brightness);
-        int getBrightness();
-        void setExposure(int Exposure);
-        int getExposure();
-        void setGamma(int Gamma);
-        int getGamma();
-        void setGain(int Gain);
-        int getGain();
-        void setShutter(int Shutter);
-        int getShutter();
+        void setParam(const std::string& sElement, const std::string& Value);
+        std::string getParam(const std::string& sElement);
+                
         void resetHistory();
 
         void setDebugImages(bool bImg, bool bFinger);

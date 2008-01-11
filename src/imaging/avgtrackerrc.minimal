@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<trackerconfig>
+ <camera>
+  <source value="fw"/>
+  <device value="/dev/video1394/0"/>
+  <format value="MONO8"/>
+  <size x="640" y="480"/>
+  <fps value="30"/>
+  <brightness value="128"/>
+  <exposure value="128"/>
+  <gamma value="1"/>
+  <gain value="128"/>
+  <shutter value="128"/>
+ </camera>
+ <tracker>
+  <historyupdateinterval value="5"/>
+ </tracker>
+ <transform>
+  <cameradisplacement x="0" y="0"/>
+  <camerascale x="1" y="1"/>
+  <distortionparams p2="0" p3="0"/>
+  <trapezoid value="0"/>
+  <angle value="0"/>
+  <displaydisplacement x="0" y="0"/>
+  <displayscale x="1" y="1"/>
+ </transform>
+</trackerconfig>

@@ -28,6 +28,8 @@
 #include <boost/shared_ptr.hpp>
 #include <string>
 
+#include <libxml/xpath.h>
+
 namespace avg {
 
 struct BlobConfig
@@ -53,6 +55,10 @@ struct TrackerConfig
     
     void load(const std::string& sCustomFilename = "");
     void save(const std::string& sCustomFilename = "");
+    void parse(bool bOnlyDyn);
+    xmlXPathObjectPtr findConfigNodes(const xmlChar* xpExpr);
+    void setParam(const xmlChar* xpElement, const xmlChar* Value);
+    std::string getParam(const xmlChar* xpExpr);
 
     // Camera params
     std::string m_sSource;
@@ -77,11 +83,11 @@ struct TrackerConfig
     DeDistortPtr m_pTrafo;
 
 private:
-    void loadCamera(xmlNodePtr pParentNode, const std::string& sFilename);
-    void saveCamera(xmlTextWriterPtr writer);
+    void loadCamera(xmlNodePtr pParentNode, const std::string& sFilename, bool bOnlyDyn);
     void loadTracker(xmlNodePtr pParentNode, const std::string& sFilename);
-    void saveTracker(xmlTextWriterPtr writer); 
     std::string getConfigFilename();
+    xmlDocPtr m_Doc;
+    xmlNodePtr m_pRoot;
 };
 
 }

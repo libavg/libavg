@@ -133,21 +133,30 @@ public:
 
     void runTests() 
     {
-        vector<double> Params;
-        Params.push_back(0);
-        Params.push_back(0);
-        DeDistortPtr pScaler = DeDistortPtr(new DeDistort(DPoint(1,1),
-                Params, 0, 0.0,
-                DPoint(0,0), DPoint(2,2)));
         TrackerConfig Config;
-        Config.m_pTrafo = pScaler;
-        Config.save("temptrackerrc");
+        Config.load("avgtrackerrc.minimal");
+        
+        Config.setParam(BAD_CAST "/trackerconfig/transform/cameradisplacement/@x", BAD_CAST "-0.5");
+        Config.setParam(BAD_CAST "/trackerconfig/transform/cameradisplacement/@y", BAD_CAST "-0.5");
+        Config.setParam(BAD_CAST "/trackerconfig/transform/camerascale/@x", BAD_CAST "2");
+        Config.setParam(BAD_CAST "/trackerconfig/transform/camerascale/@y", BAD_CAST "2");
+        Config.setParam(BAD_CAST "/trackerconfig/transform/distortionparams/@p2", BAD_CAST "0");
+        Config.setParam(BAD_CAST "/trackerconfig/transform/distortionparams/@p3", BAD_CAST "0");
+        Config.setParam(BAD_CAST "/trackerconfig/transform/trapezoid/@value", BAD_CAST "0");
+        Config.setParam(BAD_CAST "/trackerconfig/transform/angle/@value", BAD_CAST "0");
+        Config.setParam(BAD_CAST "/trackerconfig/transform/displaydisplacement/@x", BAD_CAST "0");
+        Config.setParam(BAD_CAST "/trackerconfig/transform/displaydisplacement/@y", BAD_CAST "0");
+        Config.setParam(BAD_CAST "/trackerconfig/transform/displayscale/@x", BAD_CAST "2");
+        Config.setParam(BAD_CAST "/trackerconfig/transform/displayscale/@y", BAD_CAST "2");
+
+        Config.save("avgtrackerrc.minimal.mod");
+
         TrackerConfig LoadedConfig;
-        LoadedConfig.load("temptrackerrc");
+        LoadedConfig.load("avgtrackerrc.minimal.mod");
         DeDistortPtr pTrafo = LoadedConfig.m_pTrafo;
         TEST(almostEqual(pTrafo->transform_point(DPoint(0,0)), DPoint(0,0)));
         TEST(almostEqual(pTrafo->transformBlobToScreen(DPoint(1,2)), DPoint(2,4)));
-        unlink("temptrackerrc");
+        unlink("avgtrackerrc.minimal.mod");
     }
 };
 

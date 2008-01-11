@@ -195,20 +195,13 @@ void export_event()
             "Aborts coordinate calibration session and restores the previous\n"
             "coordinate transformer.\n")
 
-        .add_property("threshold", &TrackerEventSource::getThreshold,
-            &TrackerEventSource::setThreshold)
-        .add_property("historyspeed", &TrackerEventSource::getHistorySpeed,
-            &TrackerEventSource::setHistorySpeed)
-        .add_property("brightness", &TrackerEventSource::getBrightness,
-            &TrackerEventSource::setBrightness)
-        .add_property("exposure", &TrackerEventSource::getExposure,
-            &TrackerEventSource::setExposure)
-        .add_property("gamma", &TrackerEventSource::getGamma,
-            &TrackerEventSource::setGamma)
-        .add_property("gain", &TrackerEventSource::getGain,
-            &TrackerEventSource::setGain)
-        .add_property("shutter", &TrackerEventSource::getShutter,
-            &TrackerEventSource::setShutter)
+        .def("setParam", &TrackerEventSource::setParam,
+            "setParam()\n"
+            "Updates an arbitrary parameter of tracker configuration.\n")
+        .def("getParam", &TrackerEventSource::getParam,
+            "getParam()\n"
+            "Retrieves an arbitrary parameter of tracker configuration.\n")
+
         ;
 
 class_<TrackerCalibrator, boost::noncopyable>("TrackerCalibrator",

@@ -98,87 +98,16 @@ namespace avg {
         delete m_pTrackerThread;
         ObjectCounter::get()->decRef(&typeid(*this));
     }
-        
-    void TrackerEventSource::setThreshold(int Threshold) 
-    {
-        // TODO: throw exception if m_pTouch doesn't exist.
-        m_TrackerConfig.m_pTouch->m_Threshold = Threshold;
-        setConfig();
-    }
-
-    int TrackerEventSource::getThreshold()
-    {
-        if (m_TrackerConfig.m_pTouch) {
-            return m_TrackerConfig.m_pTouch->m_Threshold;
-        } else {
-            return 0;
-        }
-    }
     
-    void TrackerEventSource::setHistorySpeed(int UpdateInterval)
+    void TrackerEventSource::setParam(const std::string& sElement, const std::string& Value)
     {
-        m_TrackerConfig.m_HistoryUpdateInterval = UpdateInterval;
+        m_TrackerConfig.setParam(BAD_CAST sElement.c_str(), BAD_CAST Value.c_str());
         setConfig();
     }
     
-    int TrackerEventSource::getHistorySpeed()
+    string TrackerEventSource::getParam(const std::string& sElement)
     {
-        return m_TrackerConfig.m_HistoryUpdateInterval;
-    }
-
-    void TrackerEventSource::setBrightness(int Brightness) 
-    {
-        m_TrackerConfig.m_Brightness = Brightness;
-        setConfig();
-    }
-
-    int TrackerEventSource::getBrightness()
-    {
-        return m_TrackerConfig.m_Brightness;
-    }
-
-    void TrackerEventSource::setExposure(int Exposure) 
-    {
-        m_TrackerConfig.m_Exposure = Exposure;
-        setConfig();
-    }
-
-    int TrackerEventSource::getExposure()
-    {
-        return m_TrackerConfig.m_Exposure;
-    }
-
-    void TrackerEventSource::setGamma(int Gamma) 
-    {
-        m_TrackerConfig.m_Gamma = Gamma;
-        setConfig();
-    }
-
-    int TrackerEventSource::getGamma()
-    {
-        return m_TrackerConfig.m_Gamma;
-    }
-
-    void TrackerEventSource::setGain(int Gain) 
-    {
-        m_TrackerConfig.m_Gain = Gain;
-        setConfig();
-    }
-
-    int TrackerEventSource::getGain()
-    {
-        return m_TrackerConfig.m_Gain;
-    }
-
-    void TrackerEventSource::setShutter(int Shutter) 
-    {
-        m_TrackerConfig.m_Shutter = Shutter;
-        setConfig();
-    }
-
-    int TrackerEventSource::getShutter()
-    {
-        return m_TrackerConfig.m_Shutter;
+        return m_TrackerConfig.getParam(BAD_CAST sElement.c_str());
     }
        
     void TrackerEventSource::setDebugImages(bool bImg, bool bFinger)
