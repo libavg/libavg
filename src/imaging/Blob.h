@@ -47,7 +47,7 @@ typedef boost::weak_ptr<class Blob> BlobWeakPtr;
 typedef std::vector<BlobPtr> BlobVector;
 typedef std::vector<BlobWeakPtr> BlobWeakPtrVector;
 typedef boost::shared_ptr<BlobVector> BlobVectorPtr;
-
+typedef std::vector<IntPoint> ContourSeq;
 
 class Blob
 {
@@ -65,6 +65,7 @@ class Blob
 
         void calcStats();
         void calcContour(int NumPoints);
+        ContourSeq getContour();
 
         const DPoint& getCenter() const;
         double getArea() const;
@@ -104,7 +105,7 @@ class Blob
         DPoint m_EigenVector[2];
         DPoint m_EigenValues;
 
-        std::vector<IntPoint> m_Contour;
+        ContourSeq m_Contour;
 };
 
 BlobVectorPtr connected_components(BitmapPtr image, unsigned char object_threshold);

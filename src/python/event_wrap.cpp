@@ -34,7 +34,12 @@ using namespace std;
 void export_event()
 {
     boost::python::to_python_converter<vector<TouchEvent*>, 
-        to_tuple<vector<TouchEvent *> > >();    
+        to_tuple<vector<TouchEvent *> > >();
+          
+    boost::python::to_python_converter<ContourSeq, 
+        to_list<ContourSeq> >();    
+   
+    from_python_sequence<ContourSeq, variable_capacity_policy>();
 
     class_<Event, boost::noncopyable>("Event", 
             "Base class for user input events.\n",
@@ -140,7 +145,11 @@ void export_event()
                 "Returns a python tuple containing the events 'related' to this one.\n"
                 "For TOUCH events (fingers), the tuple contains one element: the\n"
                 "corresponding TRACK event (hand). For TRACK events, the tuple contains\n"
-                "all TOUCH events that belong to the same hand.\n");
+                "all TOUCH events that belong to the same hand.\n")
+        .def("getContour", &TouchEvent::getContour,
+                "getContour()\n"
+                "Extracts contour envelope sequence for the event\n")
+        ;
    
     enum_<TrackerImageID>("TrackerImageID")
         .value("IMG_CAMERA", TRACKER_IMG_CAMERA)

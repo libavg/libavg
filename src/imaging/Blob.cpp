@@ -356,6 +356,11 @@ void Blob::calcContour(int NumPoints)
     }
 }
 
+ContourSeq Blob::getContour()
+{
+    return m_Contour;
+}
+
 bool Blob::ptInBlob(const IntPoint& Pt)
 {
     if (m_BoundingBox.Contains(Pt)) {

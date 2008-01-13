@@ -74,6 +74,7 @@ struct TrackerConfig
     int m_Shutter;
 
     int m_HistoryUpdateInterval;
+    int m_ContourVertexes;
     BlobConfigPtr m_pTouch;
     BlobConfigPtr m_pTrack;
 

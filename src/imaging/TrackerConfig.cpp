@@ -104,6 +104,7 @@ namespace avg {
           m_Gain(128),
           m_Shutter(128),
           m_HistoryUpdateInterval(5),
+          m_ContourVertexes(20),
           m_bCreateDebugImages(false),
           m_bCreateFingerImage(false),
           m_pTrafo(new DeDistort()),
@@ -316,6 +317,8 @@ namespace avg {
             const char * pNodeName = (const char *)curXmlChild->name;
             if (!strcmp(pNodeName, "historyupdateinterval")) {
                 m_HistoryUpdateInterval = getRequiredIntAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "contourvertexes")) {
+                m_ContourVertexes = getRequiredIntAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "touch")) {
                 m_pTouch = BlobConfigPtr(new BlobConfig(true));
                 m_pTouch->load(curXmlChild, sFilename);

@@ -51,6 +51,7 @@ class TouchEvent: public CursorEvent
         const BlobPtr getBlob() const;
         const DPoint & getMajorAxis() const;
         const DPoint & getMinorAxis() const;
+        ContourSeq getContour();
 
         void addRelatedEvent(TouchEvent * pEvent);
         std::vector<TouchEvent *> getRelatedEvents() const;

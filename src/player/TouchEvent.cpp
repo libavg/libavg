@@ -75,6 +75,11 @@ const DPoint & TouchEvent::getMinorAxis() const
     }
 }
 
+ContourSeq TouchEvent::getContour()
+{
+    return m_pBlob->getContour();
+}
+
 void TouchEvent::addRelatedEvent(TouchEvent * pEvent)
 {
     m_RelatedEvents.push_back(pEvent);
