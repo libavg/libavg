@@ -29,8 +29,7 @@ using namespace std;
 
 namespace avg {
 
-void xmlAttrToBool(const xmlNodePtr& xmlNode, const char * attr,
-        bool * pBool)
+void xmlAttrToBool(const xmlNodePtr& xmlNode, const char * attr, bool * pBool)
 {
     char * retStr = (char *)xmlGetProp(xmlNode, (const xmlChar *)attr);
     if (retStr) {
@@ -43,8 +42,7 @@ void xmlAttrToBool(const xmlNodePtr& xmlNode, const char * attr,
     }    
 }
 
-void xmlAttrToInt(const xmlNodePtr& xmlNode, const char * attr,
-        int * pInt)
+void xmlAttrToInt(const xmlNodePtr& xmlNode, const char * attr, int * pInt)
 {
     char * retStr = (char *)xmlGetProp(xmlNode, (const xmlChar *)attr);
     if (retStr) {
@@ -57,8 +55,7 @@ void xmlAttrToInt(const xmlNodePtr& xmlNode, const char * attr,
     }
 }
 
-void xmlAttrToDouble(const xmlNodePtr& xmlNode, const char * attr,
-        double * pDouble)
+void xmlAttrToDouble(const xmlNodePtr& xmlNode, const char * attr, double * pDouble)
 {
     char * retStr = (char *)xmlGetProp(xmlNode, (const xmlChar *)attr);
     if (retStr) {
@@ -71,8 +68,7 @@ void xmlAttrToDouble(const xmlNodePtr& xmlNode, const char * attr,
     }
 }
 
-void xmlAttrToString(const xmlNodePtr& xmlNode, const char * attr,
-        string * pString)
+void xmlAttrToString(const xmlNodePtr& xmlNode, const char * attr, string * pString)
 {
     char * retStr = (char *)xmlGetProp(xmlNode, (const xmlChar *)attr);
     if (retStr) {
@@ -81,8 +77,7 @@ void xmlAttrToString(const xmlNodePtr& xmlNode, const char * attr,
     }
 }
 
-string getXmlChildrenAsString(const xmlDocPtr xmlDoc, 
-        const xmlNodePtr& xmlNode)
+string getXmlChildrenAsString(const xmlDocPtr xmlDoc, const xmlNodePtr& xmlNode)
 {
     string s;
     xmlBufferPtr pBuffer = xmlBufferCreate();
@@ -100,56 +95,57 @@ string getXmlChildrenAsString(const xmlDocPtr xmlDoc,
     return s;
 }
 
-bool getDefaultedBoolAttr (const xmlNodePtr& xmlNode, 
-        const char * attr, bool def)
+bool getDefaultedBoolAttr (const xmlNodePtr& xmlNode, const char * attr, bool def)
 {
     bool RVal = def;
     xmlAttrToBool(xmlNode, attr, &RVal);
     return RVal;
 }
 
-int getDefaultedIntAttr (const xmlNodePtr& xmlNode, 
-        const char * attr, int def)
+bool getRequiredBoolAttr (const xmlNodePtr& xmlNode, const char * attr)
+{
+    bool RVal;
+    xmlAttrToBool(xmlNode, attr, &RVal);
+    return RVal;
+}
+
+int getDefaultedIntAttr (const xmlNodePtr& xmlNode, const char * attr, int def)
 {
     int RVal = def;
     xmlAttrToInt(xmlNode, attr, &RVal);
     return RVal;
 }
 
-int getRequiredIntAttr (const xmlNodePtr& xmlNode, 
-       const char * attr)
+int getRequiredIntAttr (const xmlNodePtr& xmlNode, const char * attr)
 {
     int RVal;
     xmlAttrToInt(xmlNode, attr, &RVal);
     return RVal;
 }
 
-double getDefaultedDoubleAttr (const xmlNodePtr& xmlNode, 
-       const char * attr, double def)
+double getDefaultedDoubleAttr (const xmlNodePtr& xmlNode, const char * attr, double def)
 {
     double RVal = def;
     xmlAttrToDouble(xmlNode, attr, &RVal);
     return RVal;
 }
 
-double getRequiredDoubleAttr (const xmlNodePtr& xmlNode, 
-       const char * attr)
+double getRequiredDoubleAttr (const xmlNodePtr& xmlNode, const char * attr)
 {
     double RVal;
     xmlAttrToDouble(xmlNode, attr, &RVal);
     return RVal;
 }
 
-string getDefaultedStringAttr (const xmlNodePtr& xmlNode, 
-       const char * attr, const string & def)
+string getDefaultedStringAttr (const xmlNodePtr& xmlNode, const char * attr,
+        const string & def)
 {
     string RVal = def;
     xmlAttrToString(xmlNode, attr, &RVal);
     return RVal;
 }
 
-string getRequiredStringAttr (const xmlNodePtr& xmlNode, 
-       const char * attr)
+string getRequiredStringAttr (const xmlNodePtr& xmlNode, const char * attr)
 {
     char * retStr = (char *)xmlGetProp (xmlNode, (const xmlChar *)attr);
     string s(retStr);
@@ -180,8 +176,7 @@ static xmlExternalEntityLoader DefaultLoaderProc = 0;
 static std::map<string, string> g_DTDMap;
 
 xmlParserInputPtr
-DTDExternalEntityLoader(const char *URL, const char *ID,
-                               xmlParserCtxtPtr ctxt) 
+DTDExternalEntityLoader(const char *URL, const char *ID, xmlParserCtxtPtr ctxt) 
 {
     xmlParserInputPtr ret;
     /* lookup for the fileID depending on ID */

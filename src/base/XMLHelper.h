@@ -33,41 +33,34 @@
 
 namespace avg {
 
-void xmlAttrToBool(const xmlNodePtr& xmlNode, const char * attr,
-        bool * pBool);
+void xmlAttrToBool(const xmlNodePtr& xmlNode, const char * attr, bool * pBool);
 
-void xmlAttrToInt(const xmlNodePtr& xmlNode, const char * attr,
-        int * pInt);
+void xmlAttrToInt(const xmlNodePtr& xmlNode, const char * attr, int * pInt);
 
-void xmlAttrToDouble(const xmlNodePtr& xmlNode, const char * attr,
-        double * pDouble);
+void xmlAttrToDouble(const xmlNodePtr& xmlNode, const char * attr, double * pDouble);
 
 void xmlAttrToString(const xmlNodePtr& xmlNode, const char * attr,
         std::string * pString);
 
-std::string getXmlChildrenAsString(const xmlDocPtr xmlDoc,
-        const xmlNodePtr& xmlNode);
+std::string getXmlChildrenAsString(const xmlDocPtr xmlDoc, const xmlNodePtr& xmlNode);
 
-bool getDefaultedBoolAttr (const xmlNodePtr& xmlNode,
-        const char * attr, bool def);
+bool getDefaultedBoolAttr (const xmlNodePtr& xmlNode, const char * attr, bool def);
 
-int getDefaultedIntAttr (const xmlNodePtr& xmlNode,
-        const char * attr, int def);
+bool getRequiredBoolAttr (const xmlNodePtr& xmlNode, const char * attr);
 
-int getRequiredIntAttr (const xmlNodePtr& xmlNode,
-       const char * attr);
+int getDefaultedIntAttr (const xmlNodePtr& xmlNode, const char * attr, int def);
 
-double getDefaultedDoubleAttr (const xmlNodePtr& xmlNode,
-       const char * attr, double def);
+int getRequiredIntAttr (const xmlNodePtr& xmlNode, const char * attr);
 
-double getRequiredDoubleAttr (const xmlNodePtr& xmlNode,
-       const char * attr);
+double getDefaultedDoubleAttr (const xmlNodePtr& xmlNode, const char * attr, 
+        double def);
+
+double getRequiredDoubleAttr (const xmlNodePtr& xmlNode, const char * attr);
 
 std::string getDefaultedStringAttr (const xmlNodePtr& xmlNode,
        const char * attr, const std::string & def);
 
-std::string getRequiredStringAttr (const xmlNodePtr& xmlNode,
-       const char * attr);
+std::string getRequiredStringAttr (const xmlNodePtr& xmlNode, const char * attr);
 
 void writeMinMaxXMLNode(xmlTextWriterPtr writer, std::string sName, double Val[2]);
 
@@ -91,8 +84,6 @@ void writeSimpleXMLNode(xmlTextWriterPtr writer, std::string sName, T Value)
     writeAttribute(writer, "value", Value);
     rc = xmlTextWriterEndElement(writer);
 }
-
-
 
 void registerDTDEntityLoader(const std::string& sID, const std::string& sDTD);
 
