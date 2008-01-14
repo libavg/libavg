@@ -943,7 +943,6 @@ void Bitmap::YCbCrtoI8(const Bitmap& Orig)
     unsigned char * pDest = m_pBits;
     int Height = min(Orig.getSize().y, m_Size.y);
     int Width = min(Orig.getSize().x, m_Size.x);
-    int TotalPixels = Width * Height;
     switch(Orig.m_PF) {
         case YCbCr422:
             for (int y=0; y<Height; ++y) {
