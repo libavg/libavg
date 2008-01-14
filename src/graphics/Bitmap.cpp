@@ -205,12 +205,18 @@ void Bitmap::copyPixels(const Bitmap & Orig)
             case YUYV422:
             case YCbCr411:
             case YCbCr420p:
-                if (m_PF == B8G8R8X8) {
-                    YCbCrtoBGR(Orig);
-                } else {
-                    Bitmap TempBmp(getSize(), B8G8R8X8, "TempColorConversion");
-                    TempBmp.YCbCrtoBGR(Orig);
-                    copyPixels(TempBmp);
+                switch(m_PF) {
+                    case B8G8R8X8:
+                        YCbCrtoBGR(Orig);
+                        break;
+                    case I8:
+                        YCbCrtoI8(Orig);
+                    default: {
+                            Bitmap TempBmp(getSize(), B8G8R8X8, "TempColorConversion");
+                            TempBmp.YCbCrtoBGR(Orig);
+                            copyPixels(TempBmp);
+                        }
+                        break;
                 }
                 break;
             case I16:
@@ -480,6 +486,7 @@ int Bitmap::getBytesPerPixel(PixelFormat PF)
             return 2;
         case I8:
             return 1;
+        case YUYV422:
         case YCbCr422:
             return 2;
         default:
@@ -905,6 +912,76 @@ void Bitmap::YCbCrtoBGR(const Bitmap& Orig)
     }
 }
     
+void YUYV422toI8Line(const unsigned char* pSrcLine, unsigned char * pDestLine, int Width)
+{
+    const unsigned char * pSrc = pSrcLine;
+    unsigned char * pDest = pDestLine;
+    
+    for (int x = 0; x < Width; x++) {
+        *pDest = *pSrc;
+        pDest++;
+        pSrc+=2;
+    }
+}
+ 
+void YUV411toI8Line(const unsigned char* pSrcLine, unsigned char * pDestLine, int Width)
+{
+    const unsigned char * pSrc = pSrcLine;
+    unsigned char * pDest = pDestLine;
+    
+    for (int x = 0; x < Width/2; x++) {
+        *pDest++ = *pSrc++;
+        *pDest++ = *pSrc++;
+        pSrc++;
+    }
+}
+ 
+void Bitmap::YCbCrtoI8(const Bitmap& Orig)
+{
+    assert(m_PF==I8);
+    const unsigned char * pSrc = Orig.getPixels();
+    unsigned char * pDest = m_pBits;
+    int Height = min(Orig.getSize().y, m_Size.y);
+    int Width = min(Orig.getSize().x, m_Size.x);
+    int TotalPixels = Width * Height;
+    switch(Orig.m_PF) {
+        case YCbCr422:
+            for (int y=0; y<Height; ++y) {
+                // src shifted by one byte to account for UYVY to YUYV 
+                // difference in pixel order.
+                YUYV422toI8Line(pSrc+1, pDest, Width);
+                pDest += m_Stride;
+                pSrc += Orig.getStride();
+            }
+            break;
+        case YUYV422:
+            for (int y=0; y<Height; ++y) {
+                YUYV422toI8Line(pSrc, pDest, Width);
+                pDest += m_Stride;
+                pSrc += Orig.getStride();
+            }
+            break;
+        case YCbCr411:
+            for (int y=0; y<Height; ++y) {
+                YUV411toI8Line(pSrc, pDest, Width);
+                pDest += m_Stride;
+                pSrc += Orig.getStride();
+            }
+            break;
+        case YCbCr420p: 
+            // Just take the first plane.
+            for (int y=0; y<Height; ++y) {
+                memcpy(pDest, pSrc, m_Stride);
+                pDest += m_Stride;
+                pSrc += Orig.getStride();
+            }
+            break;
+        default:
+            // This routine shouldn't be called with other pixel formats.
+            assert(false);
+    }
+}
+
 void Bitmap::I16toI8(const Bitmap& Orig)
 {
     assert(m_PF == I8);
