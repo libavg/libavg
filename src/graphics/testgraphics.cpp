@@ -569,7 +569,7 @@ public:
         BitmapPtr pBmp = BitmapPtr(new Bitmap(*pBaseBmp));
         BitmapPtr nullBmp = FilterFill<Pixel8>(0).apply(pBmp);
         pBmp->copyPixels(*pBaseBmp);
-        HistoryPreProcessor filt(pBaseBmp->getSize());
+        HistoryPreProcessor filt(pBaseBmp->getSize(), 1, true);
         pBmp = filt.apply(pBaseBmp);
         testEqual(*pBmp, *nullBmp);
         for(int i=0;i<1;i++){

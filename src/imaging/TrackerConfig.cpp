@@ -92,7 +92,6 @@ namespace avg {
         rc = xmlTextWriterEndElement(writer);
     }
 
-
     TrackerConfig::TrackerConfig()
         : m_sPixFmt("MONO8"),
           m_Size(640, 480),
@@ -104,6 +103,7 @@ namespace avg {
           m_Gain(128),
           m_Shutter(128),
           m_HistoryUpdateInterval(5),
+          m_bBrighterRegions(true),
           m_ContourVertexes(20),
           m_bCreateDebugImages(false),
           m_bCreateFingerImage(false),
@@ -317,6 +317,8 @@ namespace avg {
             const char * pNodeName = (const char *)curXmlChild->name;
             if (!strcmp(pNodeName, "historyupdateinterval")) {
                 m_HistoryUpdateInterval = getRequiredIntAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "brighterregions")) {
+                m_bBrighterRegions = getRequiredBoolAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "contourvertexes")) {
                 m_ContourVertexes = getRequiredIntAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "touch")) {

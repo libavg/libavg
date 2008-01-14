@@ -94,7 +94,6 @@ namespace avg {
     {
         switch(m_State) {
             case DOWN_PENDING:
-                AVG_TRACE(Logger::EVENTS2, "Spurious blob suppressed.");
                 m_State = UP_DELIVERED;
                 break;
             case UP_PENDING:

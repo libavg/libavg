@@ -94,6 +94,7 @@ class TrackerThread: public WorkerThread<TrackerThread>
 
         int m_TouchThreshold; // 0 => no touch events.
         int m_TrackThreshold; // 0 => no generic tracking events.
+        bool m_bTrackBrighter;
         BlobVectorPtr m_pBlobVector;
         IntRect m_ROI;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];

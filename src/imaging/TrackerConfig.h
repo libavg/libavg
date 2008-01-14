@@ -74,6 +74,7 @@ struct TrackerConfig
     int m_Shutter;
 
     int m_HistoryUpdateInterval;
+    bool m_bBrighterRegions; // detect brighter or darker pixels rel. to the background.
     int m_ContourVertexes;
     BlobConfigPtr m_pTouch;
     BlobConfigPtr m_pTrack;

@@ -67,7 +67,8 @@ TrackerThread::TrackerThread(IntRect ROI,
 {
     if (bSubtractHistory) {
         m_pHistoryPreProcessor = HistoryPreProcessorPtr(
-                new HistoryPreProcessor(ppBitmaps[1]->getSize(), 1));
+                new HistoryPreProcessor(ppBitmaps[1]->getSize(), 1, 
+                config.m_bBrighterRegions));
     }
     setBitmaps(ROI, ppBitmaps);
     m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), 
@@ -159,6 +160,7 @@ void TrackerThread::setConfig(TrackerConfig Config)
     }
     if (Config.m_pTrack) {
         m_TrackThreshold = Config.m_pTrack->m_Threshold;
+        m_bTrackBrighter = Config.m_bBrighterRegions;
     } else {
         m_TrackThreshold = 0;
     }
@@ -196,7 +198,7 @@ void TrackerThread::setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAG
     if (m_pHistoryPreProcessor) {
         m_pHistoryPreProcessor = HistoryPreProcessorPtr(
                 new HistoryPreProcessor(IntPoint(ROI.Width(), ROI.Height()), 
-                        m_pHistoryPreProcessor->getInterval()));
+                        m_pHistoryPreProcessor->getInterval(), m_bTrackBrighter));
     }
 }
 
@@ -250,8 +252,8 @@ void TrackerThread::calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp) {
     BlobVectorPtr pTouchComps;
     {
         ScopeTimer Timer(ProfilingZoneComps);
-        pTrackComps = connected_components(pTrackBmp, m_TrackThreshold);
-        pTouchComps = connected_components(pTouchBmp, m_TouchThreshold);
+        pTrackComps = connected_components(pTrackBmp, m_TrackThreshold, m_bTrackBrighter);
+        pTouchComps = connected_components(pTouchBmp, m_TouchThreshold, true);
     }
     //    AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
     //feed the IBlobTarget
