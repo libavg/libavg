@@ -53,6 +53,7 @@ public:
     bool Intersects (const Rect<NUM>& rect) const;
     void Expand (const Rect<NUM>& rect);
     void Intersect (const Rect<NUM>& rect);
+    Point<NUM> cropPoint(const Point<NUM>& pt) const;
 };
 
 template<class NUM>
@@ -181,8 +182,18 @@ void Rect<NUM>::Intersect (const Rect<NUM>& rect)
     br.y = min(br.y, rect.br.y);
 }
 
+template<class NUM>
+Point<NUM> Rect<NUM>::cropPoint(const Point<NUM>& pt) const
+{
+    Point<NUM> Result;
+    Result.x = min(max(pt.x, tl.x), br.x-1);
+    Result.y = min(max(pt.y, tl.y), br.y-1);
+    return Result;
+}
+
 #undef min
 #undef max
+
 }
 
 #endif
