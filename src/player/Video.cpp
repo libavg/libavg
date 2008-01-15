@@ -103,7 +103,7 @@ int Video::getNumFrames() const
 int Video::getCurFrame() const
 {
     if (getVideoState() != Unloaded) {
-        return m_CurFrame;
+    	return m_pDecoder->getCurFrame();
     } else {
         AVG_TRACE(Logger::WARNING, 
                 "Error in Video::GetCurFrame: Video not loaded.");
@@ -114,12 +114,43 @@ int Video::getCurFrame() const
 void Video::seekToFrame(int FrameNum)
 {
     if (getVideoState() != Unloaded) {
-        if (FrameNum != m_CurFrame) {
-            seek(FrameNum);
-        }
+        long long DestTime = (long long)(FrameNum*1000.0/m_pDecoder->getNominalFPS());
+        seek(DestTime);
     } else {
         AVG_TRACE(Logger::WARNING, 
-                "Error in Video::SeekToFrame: Video "+getID()+" not loaded.");
+                "Error in Video::SeekToTime: Video "+getID()+" not loaded.");
+    }
+}
+
+long long Video::getDuration() const
+{
+    if (getVideoState() != Unloaded) {
+        return m_pDecoder->getDuration();
+    } else {
+        AVG_TRACE(Logger::WARNING,
+               "Error in Video::getDuration: Video not loaded.");
+        return -1;
+    }
+}
+
+long long Video::getCurTime() const
+{
+    if (getVideoState() != Unloaded) {
+        return m_pDecoder->getCurTime();
+    } else {
+        AVG_TRACE(Logger::WARNING, 
+                "Error in Video::GetCurTime: Video not loaded.");
+        return -1;
+    }
+}
+
+void Video::seekToTime(long long Time)
+{
+    if (getVideoState() != Unloaded) {
+        seek(Time);
+    } else {
+        AVG_TRACE(Logger::WARNING, 
+                "Error in Video::SeekToTime: Video "+getID()+" not loaded.");
     }
 }
 
@@ -258,21 +289,18 @@ void Video::changeVideoState(VideoState NewVideoState)
     VideoBase::changeVideoState(NewVideoState);
 }
 
-void Video::seek(int DestFrame) 
+void Video::seek(long long DestTime) 
 {
-    long long DestTime = (long long)((DestFrame*1000.0)/m_pDecoder->getNominalFPS());
     m_pDecoder->seek(DestTime);
     m_StartTime = getPlayer()->getFrameTime() - DestTime;
     m_PauseTime = 0;
     m_PauseStartTime = getPlayer()->getFrameTime();
-    m_CurFrame = DestFrame;
     setFrameAvailable(false);
 }
 
         
 void Video::open(YCbCrMode ycbcrMode)
 {
-    m_CurFrame = 0;
     m_FramesTooLate = 0;
     m_FramesPlayed = 0;
     m_pDecoder->open(m_Filename, ycbcrMode, m_bThreaded);
@@ -313,7 +341,7 @@ double Video::getFPS()
     return m_pDecoder->getFPS();
 }
 
-long long Video::getCurTime()
+long long Video::getNextFrameTime()
 {
     switch (getVideoState()) {
         case Unloaded:
@@ -338,10 +366,10 @@ bool Video::renderToSurface(ISurface * pSurface)
     if (PF == YCbCr420p || PF == YCbCrJ420p) {
         BitmapPtr pBmp = pSurface->lockBmp(0);
         FrameAvailable = m_pDecoder->renderToYCbCr420p(pBmp,
-                pSurface->lockBmp(1), pSurface->lockBmp(2), getCurTime());
+                pSurface->lockBmp(1), pSurface->lockBmp(2), getNextFrameTime());
     } else {
         BitmapPtr pBmp = pSurface->lockBmp();
-        FrameAvailable = m_pDecoder->renderToBmp(pBmp, getCurTime());
+        FrameAvailable = m_pDecoder->renderToBmp(pBmp, getNextFrameTime());
 //        DisplayEngine::YCbCrMode ycbcrMode = getEngine()->getYCbCrMode();
 //        if (ycbcrMode == DisplayEngine::OGL_MESA && pBmp->getPixelFormat() == YCbCr422) {
 //            FilterFlipUV().applyInPlace(pBmp);
@@ -351,7 +379,6 @@ bool Video::renderToSurface(ISurface * pSurface)
     if (FrameAvailable == FA_NEW_FRAME) {
         m_FramesPlayed++;
         getDisplayEngine()->surfaceChanged(pSurface);
-        m_CurFrame++;
     } else if (FrameAvailable == FA_STILL_DECODING) {
         m_FramesPlayed++;
         m_FramesTooLate++;

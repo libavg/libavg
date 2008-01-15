@@ -37,6 +37,10 @@ enum FrameAvailableCode {
     FA_NEW_FRAME, FA_USE_LAST_FRAME, FA_STILL_DECODING
 };
 
+enum StreamSelect {
+    SS_AUDIO, SS_VIDEO, SS_DEFAULT
+};
+
 class IVideoDecoder
 {
     public:
@@ -46,7 +50,10 @@ class IVideoDecoder
         virtual void close() = 0;
         virtual void seek(long long DestTime) = 0;
         virtual IntPoint getSize() = 0;
+        virtual int getCurFrame() = 0;
         virtual int getNumFrames() = 0;
+        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT) = 0;
+        virtual long long getDuration() = 0;
         virtual double getNominalFPS() = 0;
         virtual double getFPS() = 0;
         virtual void setFPS(double FPS) = 0;
@@ -61,7 +68,6 @@ class IVideoDecoder
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted) = 0;
         virtual FrameAvailableCode renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr, long long TimeWanted) = 0;
-        virtual long long getCurFrameTime() = 0;
         virtual bool isEOF() = 0;
         
         virtual void fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize) = 0;

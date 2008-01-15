@@ -42,7 +42,10 @@ class AsyncVideoDecoder: public IVideoDecoder
         virtual void close();
         virtual void seek(long long DestTime);
         virtual IntPoint getSize();
+        virtual int getCurFrame();
         virtual int getNumFrames();
+        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT);
+        virtual long long getDuration();
         virtual double getNominalFPS();
         virtual double getFPS();
         virtual void setFPS(double FPS);
@@ -57,7 +60,6 @@ class AsyncVideoDecoder: public IVideoDecoder
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted);
         virtual FrameAvailableCode renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr, long long TimeWanted);
-        virtual long long getCurFrameTime();
         virtual bool isEOF();
         
         virtual void fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize);

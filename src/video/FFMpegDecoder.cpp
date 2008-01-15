@@ -62,7 +62,7 @@ FFMpegDecoder::FFMpegDecoder ()
       m_pPacketData(0),
       m_Size(0,0),
       m_VideoStartTimestamp(-1),
-      m_LastFrameTime(-1000),
+      m_LastVideoFrameTime(-1000),
       m_bUseStreamFPS(true),
       m_FPS(0),
       m_SpeedFactor(1.0),
@@ -230,7 +230,7 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
         m_bFirstPacket = true;
         m_PacketLenLeft = 0;
         m_sFilename = sFilename;
-        m_LastFrameTime = -1000;
+        m_LastVideoFrameTime = -1000;
         m_PF = calcPixelFormat(ycbcrMode);
     }
     
@@ -255,7 +255,7 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
         m_ResampleBufferStart = 0;
         m_ResampleBufferEnd = 0;
         
-        m_AudioClock = 0;
+        m_LastAudioFrameTime = 0;
         m_AudioStartTimestamp = 0;
         
         if(m_pAStream->start_time != AV_NOPTS_VALUE)
@@ -329,7 +329,7 @@ void FFMpegDecoder::close()
         m_ResampleBufferEnd = 0;
         m_ResampleBufferSize = 0;
         
-        m_AudioClock = 0;
+        m_LastAudioFrameTime = 0;
         m_AudioStartTimestamp = 0;
         
         m_pAStream = 0;
@@ -356,13 +356,13 @@ void FFMpegDecoder::seek(long long DestTime)
     }
     m_pDemuxer->seek(DestTime + getStartTime());
     if (m_bUseStreamFPS) {
-        m_LastFrameTime = -1000;
+    	m_LastVideoFrameTime = -1000;
     } else {
-        m_LastFrameTime = DestTime;
+    	m_LastVideoFrameTime = DestTime;
     }
     if (m_pAStream) {
         mutex::scoped_lock Lock(m_AudioMutex);
-        m_AudioClock = DestTime;
+        m_LastAudioFrameTime = DestTime;
         m_SampleBufferStart = m_SampleBufferEnd = 0;
         m_SampleBufferLeft = m_SampleBufferSize;
         m_ResampleBufferStart = m_ResampleBufferEnd = 0;
@@ -374,6 +374,11 @@ void FFMpegDecoder::seek(long long DestTime)
 IntPoint FFMpegDecoder::getSize()
 {
     return m_Size;
+}
+
+int FFMpegDecoder::getCurFrame()
+{
+    return int(getCurTime(SS_VIDEO)*getNominalFPS()/1000.0);
 }
 
 int FFMpegDecoder::getNumFrames()
@@ -389,12 +394,46 @@ int FFMpegDecoder::getNumFrames()
 #endif 
 }
 
+long long FFMpegDecoder::getCurTime(StreamSelect Stream)
+{
+	long long curTime = -1;
+    switch(Stream) {
+    case SS_VIDEO:
+        assert(m_pVStream);
+        return m_LastVideoFrameTime;
+        break;
+    case SS_AUDIO:
+        assert(m_pAStream);
+        return m_LastAudioFrameTime;
+        break;
+    case SS_DEFAULT:
+        return getCurTime(getMasterStream());
+        break;
+    }
+    return -1;
+}
+
+long long FFMpegDecoder::getDuration()
+{
+    long long duration;
+    if (getMasterStream() == SS_AUDIO) {
+        duration = m_pAStream->duration;
+    } else {
+        duration = m_pVStream->duration;
+    }
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
+    return (long long)(1000*duration/AV_TIME_BASE);
+#else
+    return (long long)(1000*duration*av_q2d(m_pVStream->time_base));
+#endif 
+}
+
 double FFMpegDecoder::getNominalFPS()
 {
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     return m_pVStream->r_frame_rate;
 #else
-    return (m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den);
+    return av_q2d(m_pVStream->r_frame_rate);
 #endif 
 }
 
@@ -444,7 +483,7 @@ void FFMpegDecoder::setSpeedFactor(double SpeedFactor)
         }
         
         if(m_pVStream) {
-            m_bUseStreamFPS = (m_pAStream || m_SpeedFactor == 1.0);
+            m_bUseStreamFPS = (getMasterStream() == SS_AUDIO || m_SpeedFactor == 1.0);
             m_FPS = m_SpeedFactor * getNominalFPS();
         }
     }
@@ -517,11 +556,6 @@ FrameAvailableCode FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr p
         return FA_NEW_FRAME;
     }
     return FA_USE_LAST_FRAME;
-}
-        
-long long FFMpegDecoder::getCurFrameTime()
-{
-    return m_LastFrameTime;
 }
 
 bool FFMpegDecoder::isEOF()
@@ -674,7 +708,7 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer, int outputA
                 pBuffer += bytesProduced;
                 bufferLeft -= bytesProduced;
 
-                m_AudioClock += (long long)(m_SpeedFactor * 1000.0 * bytesProduced /
+                m_LastAudioFrameTime += (long long)(m_SpeedFactor * 1000.0 * bytesProduced /
                         (2 * m_Channels * m_SampleRate));
                 
                 if (bufferLeft == 0) {
@@ -710,7 +744,7 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer, int outputA
             return;
         
         if(m_AudioPacket->dts != AV_NOPTS_VALUE)
-            m_AudioClock = (long long)(1000.0 * av_q2d(m_pAStream->time_base) * 
+            m_LastAudioFrameTime = (long long)(1000.0 * av_q2d(m_pAStream->time_base) * 
                     m_AudioPacket->dts - m_AudioStartTimestamp);
         
         // Initialize packet data pointers
@@ -829,8 +863,8 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long Tim
     long long FrameTime = -1000;
 
     // If this video has audio, sync to that instead of the requested time
-    if(m_bAudioEnabled && m_pAStream)
-        TimeWanted = m_AudioClock;
+    if(getMasterStream() == SS_AUDIO)
+        TimeWanted = m_LastAudioFrameTime;
 /*
     bool bDebug = (m_sFilename == "/home/uzadow/wos_videos/c-wars/thumbs/cwars-scene3.avi");
     if (bDebug) {
@@ -843,7 +877,7 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long Tim
         readFrame(Frame, FrameTime);
     } else {
         double TimePerFrame = 1000/m_FPS;
-        if (TimeWanted-m_LastFrameTime < 0.5*TimePerFrame) {
+        if (TimeWanted-m_LastVideoFrameTime < 0.5*TimePerFrame) {
 /*            
             if (bDebug) {
                 cerr << "   LastFrameTime = " << m_LastFrameTime << ", display again."
@@ -918,8 +952,8 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
                     }
                     // We don't have a timestamp for the last frame, so we'll
                     // calculate it based on the frame before.
-                    FrameTime = m_LastFrameTime+(long long)(1000.0/m_FPS);
-                    m_LastFrameTime = FrameTime;
+                    FrameTime = m_LastVideoFrameTime+(long long)(1000.0/m_FPS);
+                    m_LastVideoFrameTime = FrameTime;
                     return;
                 }
                 m_PacketLenLeft = m_pPacket->size;
@@ -959,23 +993,41 @@ long long FFMpegDecoder::getFrameTime(AVPacket* pPacket)
     if (m_bUseStreamFPS) {
         FrameTime = (long long)((1000*pPacket->dts)/m_TimeUnitsPerSecond)-m_VideoStartTimestamp;
     } else {
-        if (m_LastFrameTime == -1000) {
+        if (m_LastVideoFrameTime == -1000) {
             FrameTime = 0;
         } else {
-            FrameTime = m_LastFrameTime + (long long)(1000.0/m_FPS);
+            FrameTime = m_LastVideoFrameTime + (long long)(1000.0/m_FPS);
         }
     }
-    m_LastFrameTime = FrameTime;
+    m_LastVideoFrameTime = FrameTime;
     return FrameTime;
 }
 
-long long FFMpegDecoder::getStartTime()
+StreamSelect FFMpegDecoder::getMasterStream()
 {
-    if (m_pAStream && m_bAudioEnabled) {
-        return m_AudioStartTimestamp;
-    } else {
+	if (m_pAStream && m_bAudioEnabled) {
+		return SS_AUDIO;
+	} else {
+		return SS_VIDEO;
+	}
+}
+
+long long FFMpegDecoder::getStartTime(StreamSelect Stream)
+{
+    switch(Stream) {
+    case SS_VIDEO:
+        assert(m_pVStream);
         return m_VideoStartTimestamp;
+        break;
+    case SS_AUDIO:
+        assert(m_pAStream);
+        return m_AudioStartTimestamp;
+        break;
+    case SS_DEFAULT:
+    	return getStartTime(getMasterStream());
+        break;
     }
+    return -1;
 }
 
 // TODO: this should be logarithmic...

@@ -62,7 +62,10 @@ class FFMpegDecoder: public IVideoDecoder
         virtual void close();
         virtual void seek(long long DestTime);
         virtual IntPoint getSize();
+        virtual int getCurFrame();
         virtual int getNumFrames();
+        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT);
+        virtual long long getDuration();
         virtual double getNominalFPS();
         virtual double getFPS();
         virtual void setFPS(double FPS);
@@ -77,7 +80,6 @@ class FFMpegDecoder: public IVideoDecoder
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted);
         virtual FrameAvailableCode renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr, long long TimeWanted);
-        virtual long long getCurFrameTime();
         virtual bool isEOF();
         
         virtual void fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize);
@@ -89,7 +91,8 @@ class FFMpegDecoder: public IVideoDecoder
         PixelFormat calcPixelFormat(YCbCrMode ycbcrMode);
         void convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp);
         long long getFrameTime(AVPacket* pPacket);
-        long long getStartTime();
+        StreamSelect getMasterStream();
+        long long getStartTime(StreamSelect Stream = SS_DEFAULT);
         int copyRawAudio(unsigned char* buf, int size);
         int copyResampledAudio(unsigned char* buf, int size);
         void resampleAudio();
@@ -130,7 +133,7 @@ class FFMpegDecoder: public IVideoDecoder
 
         double m_Volume;
         double m_LastVolume;
-        long long m_AudioClock;
+        long long m_LastAudioFrameTime;
         long long m_AudioStartTimestamp;
         
         unsigned char * m_pPacketData;
@@ -142,7 +145,7 @@ class FFMpegDecoder: public IVideoDecoder
 
         double m_TimeUnitsPerSecond;
         long long m_VideoStartTimestamp;
-        long long m_LastFrameTime;
+        long long m_LastVideoFrameTime;
         bool m_bUseStreamFPS;
         double m_FPS;
         long long m_StreamTimeOffset;

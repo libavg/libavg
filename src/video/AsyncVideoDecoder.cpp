@@ -115,10 +115,25 @@ IntPoint AsyncVideoDecoder::getSize()
     return m_Size;
 }
 
+int AsyncVideoDecoder::getCurFrame()
+{
+    return 0;
+}
+
 int AsyncVideoDecoder::getNumFrames()
 {
     assert(m_pDecoderThread);
     return m_NumFrames;
+}
+
+long long AsyncVideoDecoder::getCurTime(StreamSelect Stream)
+{
+    return 0;
+}
+
+long long AsyncVideoDecoder::getDuration()
+{
+    return 0;
 }
 
 double AsyncVideoDecoder::getNominalFPS()
@@ -208,11 +223,6 @@ FrameAvailableCode AsyncVideoDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapP
         pBmpCr->copyPixels(*(pFrameMsg->getBitmap(2)));
     }
     return FrameAvailable;
-}
-
-long long AsyncVideoDecoder::getCurFrameTime()
-{
-    return m_LastFrameTime;
 }
 
 bool AsyncVideoDecoder::isEOF()

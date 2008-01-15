@@ -57,6 +57,9 @@ class Video : public VideoBase, IFrameListener, public AudioSource
         int getNumFrames() const;
         int getCurFrame() const;
         void seekToFrame(int FrameNum);
+        long long getDuration() const;
+        long long getCurTime() const;
+        void seekToTime(long long Time);
         bool getLoop() const;
         bool isThreaded() const;
         void setEOFCallback(PyObject * pEOFCallback);
@@ -76,7 +79,7 @@ class Video : public VideoBase, IFrameListener, public AudioSource
 
         bool renderToSurface(ISurface * pSurface);
         bool canRenderToBackbuffer(int BitsPerPixel);
-        void seek(int DestFrame);
+        void seek(long long DestTime);
         void onEOF();
        
         virtual void open(YCbCrMode ycbcrMode);
@@ -84,7 +87,7 @@ class Video : public VideoBase, IFrameListener, public AudioSource
         virtual PixelFormat getPixelFormat();
         virtual IntPoint getMediaSize();
         virtual double getFPS();
-        virtual long long getCurTime();
+        virtual long long getNextFrameTime();
 
         std::string m_href;
         std::string m_Filename;
@@ -98,7 +101,6 @@ class Video : public VideoBase, IFrameListener, public AudioSource
         int m_FramesPlayed;
         bool m_bAudioEnabled;
 
-        int m_CurFrame;
         long long m_StartTime;
         long long m_PauseTime;
         long long m_PauseStartTime;
