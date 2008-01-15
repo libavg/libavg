@@ -108,7 +108,7 @@ class Blob
         ContourSeq m_Contour;
 };
 
-BlobVectorPtr connected_components(BitmapPtr image, unsigned char object_threshold, bool bBrighter);
+BlobVectorPtr connected_components(BitmapPtr image, unsigned char object_threshold);
 
 }
 

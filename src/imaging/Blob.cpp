@@ -420,7 +420,7 @@ void store_runs(BlobVectorPtr pComps, RunArray *runs1, RunArray *runs2)
 }
 
 void findRunsInLine(BitmapPtr pBmp, int y, RunArray * pRuns, 
-        unsigned char threshold, bool bBrighter)
+        unsigned char threshold)
 {
     int run_start=0;
     int run_stop=0;
@@ -428,13 +428,11 @@ void findRunsInLine(BitmapPtr pBmp, int y, RunArray * pRuns,
     bool cur;
     bool p;
 
-    if (bBrighter) cur = *pPixel > threshold;
-    else cur = *pPixel < threshold;
+    cur = *pPixel > threshold;
 
     int Width = pBmp->getSize().x;
     for(int x=0; x<Width; x++) {
-        if (bBrighter) p = *pPixel > threshold;
-        else p = *pPixel < threshold;
+        p = *pPixel > threshold;
         if (cur!=p) {
             if (cur) {
                 // Only if the run is longer than one pixel.
@@ -463,7 +461,7 @@ void findRunsInLine(BitmapPtr pBmp, int y, RunArray * pRuns,
 
 }
 
-BlobVectorPtr connected_components(BitmapPtr image, unsigned char threshold, bool bBrighter)
+BlobVectorPtr connected_components(BitmapPtr image, unsigned char threshold)
 {
     if (threshold == 0) {
         return BlobVectorPtr();
@@ -476,7 +474,7 @@ BlobVectorPtr connected_components(BitmapPtr image, unsigned char threshold, boo
     RunArray *tmp;
 
     int y=0;
-    findRunsInLine(image, 0, runs1, threshold, bBrighter);
+    findRunsInLine(image, 0, runs1, threshold);
     for (RunArray::iterator run1_it = runs1->begin(); run1_it!=runs1->end(); ++run1_it) {
         BlobPtr pBlob = BlobPtr(new Blob(*run1_it));
         pBlobs->push_back(pBlob);
@@ -484,7 +482,7 @@ BlobVectorPtr connected_components(BitmapPtr image, unsigned char threshold, boo
     }
     
     for(y=1; y<size.y; y++){
-        findRunsInLine(image, y, runs2, threshold, bBrighter);
+        findRunsInLine(image, y, runs2, threshold);
         store_runs(pBlobs, runs1, runs2);
         tmp = runs1;
         runs1 = runs2;
