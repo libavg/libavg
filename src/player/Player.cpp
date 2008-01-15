@@ -47,7 +47,6 @@
 #include "../base/Profiler.h"
 #include "../base/ScopeTimer.h"
 #include "../base/TimeSource.h"
-#include "../base/Rect.h"
 
 #include "../imaging/FWCamera.h"
 #ifdef AVG_ENABLE_V4L2

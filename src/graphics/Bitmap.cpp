@@ -97,7 +97,7 @@ Bitmap::Bitmap(const Bitmap& Orig, bool bOwnsBits)
 // Creates a bitmap that is a rectangle in another bitmap. The pixels are
 // still owned by the original bitmap.
 Bitmap::Bitmap(Bitmap& Orig, const IntRect& Rect)
-    : m_Size(Rect.Width(), Rect.Height()),
+    : m_Size(Rect.size()),
       m_PF(Orig.getPixelFormat()),
       m_bOwnsBits(false)
 {

@@ -84,8 +84,8 @@ void OGLTile::blt(const DPoint& TLPoint, const DPoint& TRPoint,
     int TextureMode = m_pEngine->getTextureMode();
     
     if (TextureMode == GL_TEXTURE_2D) {
-        TexWidth = double(m_Extent.Width())/m_TexSize.x;
-        TexHeight = double(m_Extent.Height())/m_TexSize.y;
+        TexWidth = double(m_Extent.width())/m_TexSize.x;
+        TexHeight = double(m_Extent.height())/m_TexSize.y;
     } else {
         TexWidth = m_TexSize.x;
         TexHeight = m_TexSize.y;
@@ -228,7 +228,7 @@ void OGLTile::downloadTexture(int i, BitmapPtr pBmp, int stride,
 #endif
     {
         ScopeTimer Timer(TexSubImageProfilingZone);
-        glTexSubImage2D(TextureMode, 0, 0, 0, Extent.Width(), Extent.Height(),
+        glTexSubImage2D(TextureMode, 0, 0, 0, Extent.width(), Extent.height(),
                 m_pEngine->getOGLSrcMode(pf), m_pEngine->getOGLPixelType(pf), 
                 pStartPos);
     }

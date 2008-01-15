@@ -99,7 +99,7 @@ DRect DeDistort::getActiveBlobArea(const DPoint& DisplayExtents)
     DRect ActiveRect;
     ActiveRect.tl = transformScreenToBlob(DPoint(0, 0));
     ActiveRect.br = transformScreenToBlob(DPoint(DisplayExtents.x, DisplayExtents.y));
-    if (ActiveRect.Height() < 1) {
+    if (ActiveRect.height() < 1) {
         double temp = ActiveRect.tl.y;
         ActiveRect.tl.y = ActiveRect.br.y;
         ActiveRect.br.y = temp;

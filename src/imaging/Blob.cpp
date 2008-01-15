@@ -337,8 +337,8 @@ int Blob::calcArea()
 
 void Blob::calcContour(int NumPoints)
 {
-    int w = m_BoundingBox.Width();
-    int h = m_BoundingBox.Height();
+    int w = m_BoundingBox.width();
+    int h = m_BoundingBox.height();
     double StartDist = sqrt(double(w*w+h*h));
     for (double i=0; i<NumPoints; i++) {
         IntPoint OuterPt(int(StartDist*sin(i*2*M_PI/NumPoints)+m_Center.x), 
@@ -363,7 +363,7 @@ ContourSeq Blob::getContour()
 
 bool Blob::ptInBlob(const IntPoint& Pt)
 {
-    if (m_BoundingBox.Contains(Pt)) {
+    if (m_BoundingBox.contains(Pt)) {
         for (RunArray::iterator it = m_Runs.begin(); it!=m_Runs.end(); ++it) {
             if (Pt.y == it->m_Row && Pt.x >= it->m_StartCol && Pt.x < it->m_EndCol) {
                 return true;

@@ -37,14 +37,14 @@ namespace avg{
         //we use the same dimensions for both of src and dest and just crop...
         //for each pixel at (x,y) in the dest
         //m_pMap[x][y] contains a IntPoint that gives the coords in the src Bitmap 
-        m_pMap = new IntPoint[m_srcRect.Height()*m_srcRect.Width()];
-        int w = m_srcRect.Width();
+        m_pMap = new IntPoint[m_srcRect.height()*m_srcRect.width()];
+        int w = m_srcRect.width();
 
         for(int y=0;y<srcSize.y;++y){
             for(int x=0;x<srcSize.x;++x){
                 DPoint tmp = m_pTrafo->inverse_transform_point(DPoint(int(x),int(y)));
                 IntPoint tmp2(int(tmp.x+0.5),int(tmp.y+0.5));
-                if(m_srcRect.Contains(tmp2)){
+                if(m_srcRect.contains(tmp2)){
                     m_pMap[y*w+x] = tmp2;
                 } else {
                     m_pMap[y*w+x] = IntPoint(0,0);
@@ -83,8 +83,8 @@ namespace avg{
         unsigned char *pLine = p;
         int destStride = res->getStride();
         int srcStride = pBmpSource->getStride();
-        int w=m_srcRect.Width();
-        int h=m_srcRect.Height();
+        int w=m_srcRect.width();
+        int h=m_srcRect.height();
         IntPoint *pMapPos = m_pMap;
         for(int y=m_srcRect.tl.y;y<h;++y){
             for(int x=m_srcRect.tl.x;x<w;++x){

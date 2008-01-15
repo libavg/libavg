@@ -530,9 +530,9 @@ void SDLDisplayEngine::clip(bool forward)
 
         glBegin(GL_QUADS);
             glVertex2d(rc.tl.x, rc.tl.y);
-            glVertex2d(rc.tl.x+rc.Width(), rc.tl.y);
+            glVertex2d(rc.tl.x+rc.width(), rc.tl.y);
             glVertex2d(rc.br.x, rc.br.y);
-            glVertex2d(rc.br.x-rc.Width(), rc.br.y);
+            glVertex2d(rc.br.x-rc.width(), rc.br.y);
         glEnd();
 
         // Set stencil test to only let

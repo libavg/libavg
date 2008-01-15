@@ -105,14 +105,14 @@ void Node::setDisplayEngine(DisplayEngine * pEngine)
     m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
     DPoint PreferredSize = getPreferredMediaSize();
     if (m_WantedSize.x == 0.0) {
-        m_RelViewport.SetWidth(PreferredSize.x);
+        m_RelViewport.setWidth(PreferredSize.x);
     } else {
-        m_RelViewport.SetWidth(m_WantedSize.x);
+        m_RelViewport.setWidth(m_WantedSize.x);
     }
     if (m_WantedSize.y == 0.0) {
-        m_RelViewport.SetHeight(PreferredSize.y);
+        m_RelViewport.setHeight(PreferredSize.y);
     } else {
-        m_RelViewport.SetHeight(m_WantedSize.y);
+        m_RelViewport.setHeight(m_WantedSize.y);
     } 
     m_pEngine = pEngine;
 }
@@ -160,7 +160,7 @@ void Node::setY(double y)
 
 double Node::getWidth() 
 {
-    return getRelViewport().Width();
+    return getRelViewport().width();
 }
 
 void Node::setWidth(double width) 
@@ -171,7 +171,7 @@ void Node::setWidth(double width)
 
 double Node::getHeight()
 {
-    return getRelViewport().Height();
+    return getRelViewport().height();
 }
 
 void Node::setHeight(double height) 
@@ -182,7 +182,7 @@ void Node::setHeight(double height)
 
 DPoint Node::getRelSize() const
 {
-    return DPoint(getRelViewport().Width(), getRelViewport().Height());
+    return getRelViewport().size();
 }
 
 double Node::getAngle() const
@@ -431,7 +431,7 @@ string Node::dump (int indent)
     char sz[256];
     sprintf (sz, ", x=%.1f, y=%.1f, width=%.1f, height=%.1f, opacity=%.2f\n",
             m_RelViewport.tl.x, m_RelViewport.tl.y,
-            m_RelViewport.Width(), m_RelViewport.Height(), m_Opacity);
+            m_RelViewport.width(), m_RelViewport.height(), m_Opacity);
     dumpStr += sz;
 
     return dumpStr; 

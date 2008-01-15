@@ -197,7 +197,7 @@ void TrackerThread::setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAG
     }
     if (m_pHistoryPreProcessor) {
         m_pHistoryPreProcessor = HistoryPreProcessorPtr(
-                new HistoryPreProcessor(IntPoint(ROI.Width(), ROI.Height()), 
+                new HistoryPreProcessor(ROI.size(), 
                         m_pHistoryPreProcessor->getInterval(), m_bTrackBrighter));
     }
 }

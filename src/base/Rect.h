@@ -36,23 +36,24 @@ public:
     Point<NUM> tl;
     Point<NUM> br;
 
-    Rect ();
-    Rect (NUM left, NUM top, NUM right, NUM bottom);
-    Rect (const Point<NUM>& TL, const Point<NUM>& BR);
-    template<class ORIGNUM> Rect (const Rect<ORIGNUM>& rc);
+    Rect();
+    Rect(NUM left, NUM top, NUM right, NUM bottom);
+    Rect(const Point<NUM>& TL, const Point<NUM>& BR);
+    template<class ORIGNUM> Rect(const Rect<ORIGNUM>& rc);
 
-    bool operator == (const Rect<NUM>& rect) const;
-    bool operator != (const Rect<NUM> & rect) const;
-    NUM Width () const;
-    NUM Height () const;
-    Point<NUM> Center() const;
-    void SetWidth (NUM width);
-    void SetHeight (NUM height);
-    bool Contains (const Point<NUM>& pt) const;
-    bool Contains (const Rect<NUM>& rect) const;
-    bool Intersects (const Rect<NUM>& rect) const;
-    void Expand (const Rect<NUM>& rect);
-    void Intersect (const Rect<NUM>& rect);
+    bool operator ==(const Rect<NUM>& rect) const;
+    bool operator !=(const Rect<NUM> & rect) const;
+    NUM width() const;
+    NUM height() const;
+    Point<NUM> center() const;
+    void setWidth(NUM width);
+    void setHeight(NUM height);
+    bool contains(const Point<NUM>& pt) const;
+    bool contains(const Rect<NUM>& rect) const;
+    bool intersects(const Rect<NUM>& rect) const;
+    void expand(const Rect<NUM>& rect);
+    void intersect(const Rect<NUM>& rect);
+    Point<NUM> size() const;
     Point<NUM> cropPoint(const Point<NUM>& pt) const;
 };
 
@@ -68,86 +69,86 @@ typedef Rect<double> DRect;
 typedef Rect<int> IntRect;
 
 template<class NUM>
-Rect<NUM>::Rect ()
+Rect<NUM>::Rect()
 {}
 
 template<class NUM>
-Rect<NUM>::Rect (const Point<NUM>& TL, const Point<NUM>& BR)
+Rect<NUM>::Rect(const Point<NUM>& TL, const Point<NUM>& BR)
     : tl(TL), br(BR)
 {}
 
 template<class NUM>
-Rect<NUM>::Rect (NUM left, NUM top, NUM right, NUM bottom) 
+Rect<NUM>::Rect(NUM left, NUM top, NUM right, NUM bottom) 
     : tl(left, top), 
       br(right, bottom)
 {}
 
 template<class NUM>
 template<class ORIGNUM>
-Rect<NUM>::Rect (const Rect<ORIGNUM>& rc)
+Rect<NUM>::Rect(const Rect<ORIGNUM>& rc)
     : tl (NUM(rc.tl.x), NUM(rc.tl.y)),
       br (NUM(rc.br.x), NUM(rc.br.y))
 {
 }
 
 template<class NUM>
-bool Rect<NUM>::operator == (const Rect<NUM> & rect) const
+bool Rect<NUM>::operator ==(const Rect<NUM> & rect) const
 {
   return (tl == rect.tl && br == rect.br);
 }
 
 template<class NUM>
-bool Rect<NUM>::operator != (const Rect<NUM> & rect) const
+bool Rect<NUM>::operator !=(const Rect<NUM> & rect) const
 {
   return !(rect==*this);
 }
 
 template<class NUM>
-NUM Rect<NUM>::Width () const
+NUM Rect<NUM>::width() const
 {
   return br.x-tl.x;
 }
 
 template<class NUM>
-NUM Rect<NUM>::Height () const
+NUM Rect<NUM>::height() const
 {
   return br.y-tl.y;
 }
 
 template<class NUM>
-Point<NUM> Rect<NUM>::Center() const
+Point<NUM> Rect<NUM>::center() const
 {
     return Point<NUM>(tl+br)/2;
 }
 
 template<class NUM>
-void Rect<NUM>::SetWidth (NUM width)
+void Rect<NUM>::setWidth(NUM width)
 {
     br.x = tl.x+width;
 }
  
 template<class NUM>
-void Rect<NUM>::SetHeight (NUM height)
+void Rect<NUM>::setHeight(NUM height)
 {
     br.y = tl.y+height;
 }
 
 template<class NUM>
-bool Rect<NUM>::Contains (const Point<NUM>& pt) const
+bool Rect<NUM>::contains(const Point<NUM>& pt) const
 {
     return (pt.x >= tl.x && pt.x < br.x &&
         pt.y >= tl.y && pt.y < br.y);
 }
 
 template<class NUM>
-bool Rect<NUM>::Contains (const Rect<NUM>& rect) const
+bool Rect<NUM>::contains(const Rect<NUM>& rect) const
 {
     Point<NUM> brpt (rect.br.x-1, rect.br.y-1);
     return Contains(rect.tl) && Contains(brpt);
 }
 
 template<class NUM>
-bool Rect<NUM>::Intersects (const Rect<NUM>& rect) const
+bool Rect<NUM>::intersects(const Rect<NUM>& rect) const
 {   
     if (rect.br.x <= tl.x || rect.tl.x >= br.x ||
         rect.br.y <= tl.y || rect.tl.y >= br.y)
@@ -165,7 +166,7 @@ bool Rect<NUM>::Intersects (const Rect<NUM>& rect) const
 #endif
 
 template<class NUM>
-void Rect<NUM>::Expand (const Rect<NUM>& rect)
+void Rect<NUM>::expand(const Rect<NUM>& rect)
 {
     tl.x = min(tl.x, rect.tl.x);
     tl.y = min(tl.y, rect.tl.y);
@@ -174,12 +175,18 @@ void Rect<NUM>::Expand (const Rect<NUM>& rect)
 }
 
 template<class NUM>
-void Rect<NUM>::Intersect (const Rect<NUM>& rect)
+void Rect<NUM>::intersect(const Rect<NUM>& rect)
 {
     tl.x = max(tl.x, rect.tl.x);
     tl.y = max(tl.y, rect.tl.y);
     br.x = min(br.x, rect.br.x);
     br.y = min(br.y, rect.br.y);
+}
+
+template<class NUM>
+Point<NUM> Rect<NUM>::size() const
+{
+    return Point<NUM>(width(), height());
 }
 
 template<class NUM>
