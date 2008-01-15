@@ -70,6 +70,7 @@ TrackerThread::TrackerThread(IntRect ROI,
                 new HistoryPreProcessor(ppBitmaps[1]->getSize(), 1, 
                 config.m_bBrighterRegions));
     }
+    m_bTrackBrighter = config.m_bBrighterRegions; 
     setBitmaps(ROI, ppBitmaps);
     m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), 
             config.m_pTrafo));
