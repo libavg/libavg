@@ -27,6 +27,10 @@
 
 namespace avg {
 
+#ifdef ERROR
+#undef ERROR
+#endif
+
 class Logger {
 public:
     static Logger* get();
