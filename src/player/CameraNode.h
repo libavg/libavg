@@ -59,89 +59,25 @@ class CameraNode : public VideoBase
             return m_pCamera->getFrameRate();
         }
 
-        int getBrightness() const
-        {
-            return getFeature ("brightness");
-        }
+        int getBrightness() const;
+        void setBrightness(int Value);
+        int getExposure() const;
+        void setExposure(int Value);
+        int getSharpness() const;
+        void setSharpness(int Value);
+        int getSaturation() const;
+        void setSaturation(int Value);
+        int getGamma() const;
+        void setGamma(int Value);
+        int getShutter() const;
+        void setShutter(int Value);
+        int getGain() const;
+        void setGain(int Value);
+        unsigned int getWhiteBalance() const;
+        void setWhiteBalance(int Value);
 
-        void setBrightness(int Value)
-        {
-            setFeature ("brightness", Value);
-        }
-        
-        int getExposure() const
-        {
-            return getFeature ("exposure");
-        }
-
-        void setExposure(int Value)
-        {
-            setFeature ("exposure", Value);
-        }
-        
-        int getSharpness() const
-        {
-            return getFeature ("sharpness");
-        }
-        
-        unsigned int getWhiteBalance() const
-        {
-            return getFeature ("whitebalance");
-        }
-
-        void setSharpness(int Value)
-        {
-            setFeature ("sharpness", Value);
-        }
-        
-        int getSaturation() const
-        {
-            return getFeature ("saturation");
-        }
-
-        void setSaturation(int Value)
-        {
-            setFeature ("saturation", Value);
-        }
-        
-        int getGamma() const
-        {
-            return getFeature ("gamma");
-        }
-
-        void setGamma(int Value)
-        {
-            setFeature ("gamma", Value);
-        }
-        
-        int getShutter() const
-        {
-            return getFeature ("shutter");
-        }
-
-        void setShutter(int Value)
-        {
-            setFeature ("shutter", Value);
-        }
-        
-        int getGain() const
-        {
-            return getFeature ("gain");
-        }
-
-        void setGain(int Value)
-        {
-            setFeature ("gain", Value);
-        }
-        
-        void setWhiteBalance(int Value)
-        {
-            setFeature ("whitebalance", Value);
-        }
-            
-
-        unsigned int getFeature (const std::string& sFeature) const;
-        void setFeature (const std::string& sFeature, int Value);
+        unsigned int getFeature (CameraFeature Feature) const;
+        void setFeature (CameraFeature Feature, int Value);
 
         int getFrameNum() const;
 

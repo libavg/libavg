@@ -353,25 +353,26 @@ std::string V4LCamera::getFeatureName(V4LCID_t V4LFeature)
     return sName;
 }
 
-V4LCID_t V4LCamera::getFeatureID(const std::string& sFeature) const
+V4LCID_t V4LCamera::getFeatureID(CameraFeature Feature) const
 {
     V4LCID_t V4LFeature;
-    if (sFeature == "brightness") {
+    if (sFeature == CAM_FEATURE_BRIGHTNESS) {
         V4LFeature = V4L2_CID_BRIGHTNESS;
     } else if (sFeature == "contrast") {
         V4LFeature = V4L2_CID_CONTRAST;
-    }  else if (sFeature == "gain") {
+    }  else if (sFeature == CAM_FEATURE_GAIN) {
         V4LFeature = V4L2_CID_GAIN;
-    } else if (sFeature == "exposure") {
+    } else if (sFeature == CAM_FEATURE_EXPOSURE) {
         V4LFeature = V4L2_CID_EXPOSURE;
-    } else if (sFeature == "whiteness") {
+    } else if (sFeature == CAM_FEATURE_WHITE_BALANCE) {
         V4LFeature = V4L2_CID_WHITENESS;
-    } else if (sFeature == "gamma") {
+    } else if (sFeature == CAM_FEATURE_GAMMA) {
         V4LFeature = V4L2_CID_GAMMA;
-    } else if (sFeature == "saturation") {
+    } else if (sFeature == CAM_FEATURE_SATURATION) {
         V4LFeature = V4L2_CID_SATURATION;
     } else {
-        AVG_TRACE(Logger::WARNING, "Unknown feature " << sFeature);
+        AVG_TRACE(Logger::WARNING, "Feature " << cameraFeatureToString(Feature))
+                << " not supported for V4L.";
         return -1;
     }
     
@@ -400,9 +401,9 @@ bool V4LCamera::isFeatureSupported(V4LCID_t V4LFeature) const
     }
 }
 
-unsigned int V4LCamera::getFeature(const std::string& sFeature) const
+unsigned int V4LCamera::getFeature(CameraFeature Feature) const
 {
-    V4LCID_t V4LFeature = getFeatureID(sFeature);
+    V4LCID_t V4LFeature = getV4LFeatureID(Feature);
     
     FeatureMap::const_iterator it = m_Features.find(V4LFeature);
     
@@ -442,12 +443,12 @@ void V4LCamera::setFeature(V4LCID_t V4LFeature, int Value)
     }
 }
 
-void V4LCamera::setFeature(const std::string& sFeature, int Value)
+void V4LCamera::setFeature(CameraFeature Feature, int Value)
 {
     // ignore -1 coming from default unbiased cameranode parameters
     if (Value < 0) return;
     
-    V4LCID_t V4LFeature = getFeatureID(sFeature);
+    V4LCID_t V4LFeature = getV4LFeatureID(sFeature);
 
     m_Features[V4LFeature] = Value;
 

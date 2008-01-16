@@ -50,8 +50,8 @@ class FakeCamera: public ICamera
         virtual double getFrameRate() const;
         virtual const std::string& getMode() const;
         
-        virtual unsigned int getFeature(const std::string& sFeature) const;
-        virtual void setFeature(const std::string& sFeature, int Value);
+        virtual unsigned int getFeature(CameraFeature Feature) const;
+        virtual void setFeature(CameraFeature Feature, int Value);
 
     private:
         IntPoint m_ImgSize;

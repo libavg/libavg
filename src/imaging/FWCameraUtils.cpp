@@ -92,49 +92,52 @@ int getFrameRateConst(double FrameRate)
     }
 }
 
-int getFeatureID(const std::string& sFeature)
+int getFeatureID(CameraFeature Feature)
 {
-    if (sFeature == "brightness") {
-        return FEATURE_BRIGHTNESS;
-    } else if (sFeature == "exposure") {
-        return FEATURE_EXPOSURE;
-    } else if (sFeature == "sharpness") {
-        return FEATURE_SHARPNESS;
-    } else if (sFeature == "whitebalance") {
-        return FEATURE_WHITE_BALANCE;
-    } else if (sFeature == "hue") {
-        return FEATURE_HUE;
-    } else if (sFeature == "saturation") {
-        return FEATURE_SATURATION;
-    } else if (sFeature == "gamma") {
-        return FEATURE_GAMMA;
-    } else if (sFeature == "shutter") {
-        return FEATURE_SHUTTER;
-    } else if (sFeature == "gain") {
-        return FEATURE_GAIN;
-    } else if (sFeature == "iris") {
-        return FEATURE_IRIS;
-    } else if (sFeature == "focus") {
-        return FEATURE_FOCUS;
-    } else if (sFeature == "temperature") {
-        return FEATURE_TEMPERATURE;
-    } else if (sFeature == "trigger") {
-        return FEATURE_TRIGGER;
-    } else if (sFeature == "zoom") {
-        return FEATURE_ZOOM;
-    } else if (sFeature == "pan") {
-        return FEATURE_PAN;
-    } else if (sFeature == "tilt") {
-        return FEATURE_TILT;
-    } else if (sFeature == "optical_filter") {
-        return FEATURE_OPTICAL_FILTER;
-    } else if (sFeature == "capture_size") {
-        return FEATURE_CAPTURE_SIZE;
-    } else if (sFeature == "capture_quality") {
-        return FEATURE_CAPTURE_QUALITY;
+    switch(Feature) {
+        case CAM_FEATURE_BRIGHTNESS:
+            return FEATURE_BRIGHTNESS;
+        case CAM_FEATURE_EXPOSURE:
+            return FEATURE_EXPOSURE;
+        case CAM_FEATURE_SHARPNESS:
+            return FEATURE_SHARPNESS;
+        case CAM_FEATURE_WHITE_BALANCE:
+            return FEATURE_WHITE_BALANCE;
+        case CAM_FEATURE_HUE:
+            return FEATURE_HUE;
+        case CAM_FEATURE_SATURATION:
+            return FEATURE_SATURATION;
+        case CAM_FEATURE_GAMMA:
+            return FEATURE_GAMMA;
+        case CAM_FEATURE_SHUTTER:
+            return FEATURE_SHUTTER;
+        case CAM_FEATURE_GAIN:
+            return FEATURE_GAIN;
+        case CAM_FEATURE_IRIS:
+            return FEATURE_IRIS;
+        case CAM_FEATURE_FOCUS:
+            return FEATURE_FOCUS;
+        case CAM_FEATURE_TEMPERATURE:
+            return FEATURE_TEMPERATURE;
+        case CAM_FEATURE_TRIGGER:
+            return FEATURE_TRIGGER;
+        case CAM_FEATURE_ZOOM:
+            return FEATURE_ZOOM;
+        case CAM_FEATURE_PAN:
+            return FEATURE_PAN;
+        case CAM_FEATURE_TILT:
+            return FEATURE_TILT;
+        case CAM_FEATURE_OPTICAL_FILTER:
+            return FEATURE_OPTICAL_FILTER;
+        case CAM_FEATURE_CAPTURE_SIZE:
+            return FEATURE_CAPTURE_SIZE;
+        case CAM_FEATURE_CAPTURE_QUALITY:
+            return FEATURE_CAPTURE_QUALITY;
+        default:
+            AVG_TRACE(Logger::WARNING, "getFeatureID: " 
+                    << cameraFeatureToString(Feature) << " unknown.");
+            return 0;
     }
-    AVG_TRACE(Logger::WARNING, "getFeatureID: "+sFeature+" unknown.");
-    return 0;
 }
 
 #else
@@ -207,49 +210,52 @@ dc1394framerate_t getFrameRateConst(double FrameRate)
     }
 }
 
-dc1394feature_t getFeatureID(const std::string& sFeature)
+dc1394feature_t getFeatureID(CameraFeature Feature)
 {
-    if (sFeature == "brightness") {
-        return DC1394_FEATURE_BRIGHTNESS;
-    } else if (sFeature == "exposure") {
-        return DC1394_FEATURE_EXPOSURE;
-    } else if (sFeature == "sharpness") {
-        return DC1394_FEATURE_SHARPNESS;
-    } else if (sFeature == "whitebalance") {
-        return DC1394_FEATURE_WHITE_BALANCE;
-    } else if (sFeature == "hue") {
-        return DC1394_FEATURE_HUE;
-    } else if (sFeature == "saturation") {
-        return DC1394_FEATURE_SATURATION;
-    } else if (sFeature == "gamma") {
-        return DC1394_FEATURE_GAMMA;
-    } else if (sFeature == "shutter") {
-        return DC1394_FEATURE_SHUTTER;
-    } else if (sFeature == "gain") {
-        return DC1394_FEATURE_GAIN;
-    } else if (sFeature == "iris") {
-        return DC1394_FEATURE_IRIS;
-    } else if (sFeature == "focus") {
-        return DC1394_FEATURE_FOCUS;
-    } else if (sFeature == "temperature") {
-        return DC1394_FEATURE_TEMPERATURE;
-    } else if (sFeature == "trigger") {
-        return DC1394_FEATURE_TRIGGER;
-    } else if (sFeature == "zoom") {
-        return DC1394_FEATURE_ZOOM;
-    } else if (sFeature == "pan") {
-        return DC1394_FEATURE_PAN;
-    } else if (sFeature == "tilt") {
-        return DC1394_FEATURE_TILT;
-    } else if (sFeature == "optical_filter") {
-        return DC1394_FEATURE_OPTICAL_FILTER;
-    } else if (sFeature == "capture_size") {
-        return DC1394_FEATURE_CAPTURE_SIZE;
-    } else if (sFeature == "capture_quality") {
-        return DC1394_FEATURE_CAPTURE_QUALITY;
+    switch(Feature) {
+        case CAM_FEATURE_BRIGHTNESS:
+            return DC1394_FEATURE_BRIGHTNESS;
+        case CAM_FEATURE_EXPOSURE:
+            return DC1394_FEATURE_EXPOSURE;
+        case CAM_FEATURE_SHARPNESS:
+            return DC1394_FEATURE_SHARPNESS;
+        case CAM_FEATURE_WHITE_BALANCE:
+            return DC1394_FEATURE_WHITE_BALANCE;
+        case CAM_FEATURE_HUE:
+            return DC1394_FEATURE_HUE;
+        case CAM_FEATURE_SATURATION:
+            return DC1394_FEATURE_SATURATION;
+        case CAM_FEATURE_GAMMA:
+            return DC1394_FEATURE_GAMMA;
+        case CAM_FEATURE_SHUTTER:
+            return DC1394_FEATURE_SHUTTER;
+        case CAM_FEATURE_GAIN:
+            return DC1394_FEATURE_GAIN;
+        case CAM_FEATURE_IRIS:
+            return DC1394_FEATURE_IRIS;
+        case CAM_FEATURE_FOCUS:
+            return DC1394_FEATURE_FOCUS;
+        case CAM_FEATURE_TEMPERATURE:
+            return DC1394_FEATURE_TEMPERATURE;
+        case CAM_FEATURE_TRIGGER:
+            return DC1394_FEATURE_TRIGGER;
+        case CAM_FEATURE_ZOOM:
+            return DC1394_FEATURE_ZOOM;
+        case CAM_FEATURE_PAN:
+            return DC1394_FEATURE_PAN;
+        case CAM_FEATURE_TILT:
+            return DC1394_FEATURE_TILT;
+        case CAM_FEATURE_OPTICAL_FILTER:
+            return DC1394_FEATURE_OPTICAL_FILTER;
+        case CAM_FEATURE_CAPTURE_SIZE:
+            return DC1394_FEATURE_CAPTURE_SIZE;
+        case CAM_FEATURE_CAPTURE_QUALITY:
+            return DC1394_FEATURE_CAPTURE_QUALITY;
+        default:
+            AVG_TRACE(Logger::WARNING, "getFeatureID: " << 
+                    cameraFeatureToString(Feature) << " unknown.");
+            return DC1394_FEATURE_MIN;
     }
-    AVG_TRACE(Logger::WARNING, "getFeatureID: "+sFeature+" unknown.");
-    return DC1394_FEATURE_MIN;
 }
 
 #endif

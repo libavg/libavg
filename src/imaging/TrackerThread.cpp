@@ -173,18 +173,18 @@ void TrackerThread::setConfig(TrackerConfig Config)
                 Config.m_pTrafo));
         m_pTrafo = Config.m_pTrafo;
     }
-    if (int(m_pCamera->getFeature("brightness")) != Config.m_Brightness ||
-             int(m_pCamera->getFeature("gamma")) != Config.m_Gamma ||
-             int(m_pCamera->getFeature("gain")) != Config.m_Gain ||
-             int(m_pCamera->getFeature("shutter")) != Config.m_Shutter)
+    if (int(m_pCamera->getFeature(CAM_FEATURE_BRIGHTNESS)) != Config.m_Brightness ||
+             int(m_pCamera->getFeature(CAM_FEATURE_GAMMA)) != Config.m_Gamma ||
+             int(m_pCamera->getFeature(CAM_FEATURE_GAIN)) != Config.m_Gain ||
+             int(m_pCamera->getFeature(CAM_FEATURE_SHUTTER)) != Config.m_Shutter)
     {
         m_pHistoryPreProcessor->reset();
     }
 
-    m_pCamera->setFeature("brightness", Config.m_Brightness);
-    m_pCamera->setFeature("gamma", Config.m_Gamma);
-    m_pCamera->setFeature("gain", Config.m_Gain);
-    m_pCamera->setFeature("shutter", Config.m_Shutter);
+    m_pCamera->setFeature(CAM_FEATURE_BRIGHTNESS, Config.m_Brightness);
+    m_pCamera->setFeature(CAM_FEATURE_GAMMA, Config.m_Gamma);
+    m_pCamera->setFeature(CAM_FEATURE_GAIN, Config.m_Gain);
+    m_pCamera->setFeature(CAM_FEATURE_SHUTTER, Config.m_Shutter);
 
     m_bCreateDebugImages = Config.m_bCreateDebugImages;
     m_bCreateFingerImage = Config.m_bCreateFingerImage;

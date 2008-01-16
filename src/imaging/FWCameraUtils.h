@@ -22,6 +22,8 @@
 #ifndef _FWCameraUtils_H_
 #define _FWCameraUtils_H_
 
+#include "ICamera.h"
+
 #include "../avgconfigwrapper.h"
 
 #include "../base/Point.h"
@@ -41,11 +43,11 @@ namespace avg {
 #ifdef AVG_ENABLE_1394
 int getCamMode(IntPoint Size, std::string sPF);
 int getFrameRateConst(double FrameRate);
-int getFeatureID(const std::string& sFeature);
+int getFeatureID(CameraFeature Feature);
 #else
 dc1394video_mode_t getCamMode(IntPoint Size, std::string sPF);
 dc1394framerate_t getFrameRateConst(double FrameRate);
-dc1394feature_t getFeatureID(const std::string& sFeature);
+dc1394feature_t getFeatureID(CameraFeature Feature);
 #endif
 
 

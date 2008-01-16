@@ -90,21 +90,21 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
     }
 
     if (m_pCamera) {
-        m_pCamera->setFeature ("brightness",
+        m_pCamera->setFeature (CAM_FEATURE_BRIGHTNESS,
             getDefaultedIntAttr(xmlNode, "brightness", -1));
-        m_pCamera->setFeature ("exposure",
+        m_pCamera->setFeature (CAM_FEATURE_EXPOSURE,
             getDefaultedIntAttr(xmlNode, "exposure", -1));
-        m_pCamera->setFeature ("sharpness",
+        m_pCamera->setFeature (CAM_FEATURE_SHARPNESS,
             getDefaultedIntAttr(xmlNode, "sharpness", -1));
-        m_pCamera->setFeature ("saturation",
+        m_pCamera->setFeature (CAM_FEATURE_SATURATION,
             getDefaultedIntAttr(xmlNode, "saturation", -1));
-        m_pCamera->setFeature ("gamma",
+        m_pCamera->setFeature (CAM_FEATURE_GAMMA,
             getDefaultedIntAttr(xmlNode, "gamma", -1));
-        m_pCamera->setFeature ("shutter",
+        m_pCamera->setFeature (CAM_FEATURE_SHUTTER,
             getDefaultedIntAttr(xmlNode, "shutter", -1));
-        m_pCamera->setFeature ("gain",
+        m_pCamera->setFeature (CAM_FEATURE_GAIN,
             getDefaultedIntAttr(xmlNode, "gain", -1));
-        m_pCamera->setFeature ("whitebalance",
+        m_pCamera->setFeature (CAM_FEATURE_WHITE_BALANCE,
             getDefaultedIntAttr(xmlNode, "whitebalance", -1));
     }
 }
@@ -123,6 +123,87 @@ string CameraNode::getTypeStr()
 {
     return "Camera";
 }
+
+int CameraNode::getBrightness() const
+{
+    return getFeature (CAM_FEATURE_BRIGHTNESS);
+}
+
+void CameraNode::setBrightness(int Value)
+{
+    setFeature (CAM_FEATURE_BRIGHTNESS, Value);
+}
+
+int CameraNode::getExposure() const
+{
+    return getFeature (CAM_FEATURE_EXPOSURE);
+}
+
+void CameraNode::setExposure(int Value)
+{
+    setFeature (CAM_FEATURE_EXPOSURE, Value);
+}
+
+int CameraNode::getSharpness() const
+{
+    return getFeature (CAM_FEATURE_SHARPNESS);
+}
+
+void CameraNode::setSharpness(int Value)
+{
+    setFeature (CAM_FEATURE_SHARPNESS, Value);
+}
+
+int CameraNode::getSaturation() const
+{
+    return getFeature (CAM_FEATURE_SATURATION);
+}
+
+void CameraNode::setSaturation(int Value)
+{
+    setFeature (CAM_FEATURE_SATURATION, Value);
+}
+
+int CameraNode::getGamma() const
+{
+    return getFeature (CAM_FEATURE_GAMMA);
+}
+
+void CameraNode::setGamma(int Value)
+{
+    setFeature (CAM_FEATURE_GAMMA, Value);
+}
+
+int CameraNode::getShutter() const
+{
+    return getFeature (CAM_FEATURE_SHUTTER);
+}
+
+void CameraNode::setShutter(int Value)
+{
+    setFeature (CAM_FEATURE_SHUTTER, Value);
+}
+
+int CameraNode::getGain() const
+{
+    return getFeature (CAM_FEATURE_GAIN);
+}
+
+void CameraNode::setGain(int Value)
+{
+    setFeature (CAM_FEATURE_GAIN, Value);
+}
+
+unsigned int CameraNode::getWhiteBalance() const
+{
+    return getFeature (CAM_FEATURE_WHITE_BALANCE);
+}
+
+void CameraNode::setWhiteBalance(int Value)
+{
+    setFeature (CAM_FEATURE_WHITE_BALANCE, Value);
+}
+            
 
 IntPoint CameraNode::getMediaSize() 
 {
@@ -156,19 +237,19 @@ void CameraNode::close()
     }
 }
 
-unsigned int CameraNode::getFeature (const std::string& sFeature) const
+unsigned int CameraNode::getFeature(CameraFeature Feature) const
 {
     if (m_pCamera) {
-        return m_pCamera->getFeature(sFeature);
+        return m_pCamera->getFeature(Feature);
     } else {
         return 0;
     }
 }
 
-void CameraNode::setFeature (const std::string& sFeature, int Value)
+void CameraNode::setFeature(CameraFeature Feature, int Value)
 {
     if (m_pCamera) {
-        m_pCamera->setFeature(sFeature, Value);
+        m_pCamera->setFeature(Feature, Value);
     }  
 }
 

@@ -54,8 +54,8 @@ class V4LCamera: public ICamera {
         virtual const std::string& getDriverName() const; 
         virtual double getFrameRate() const;
         
-        virtual unsigned int getFeature(const std::string& sFeature) const;
-        virtual void setFeature(const std::string& sFeature, int Value);
+        virtual unsigned int getFeature(CameraFeature Feature) const;
+        virtual void setFeature(CameraFeature Feature, int Value);
         
     private:
         int m_Fd;
@@ -81,7 +81,9 @@ class V4LCamera: public ICamera {
         typedef std::map<V4LCID_t, unsigned int> FeatureMap;
         typedef std::map<int, std::string> FeatureNamesMap;
         FeatureMap m_Features;
-        FeatureNamesMap m_FeaturesNames;
+        // TODO: Feature strings should really be handled by 
+        //       ICamera::cameraFeatureToString
+        FeatureNamesMap m_FeaturesNames; 
 };
 
 }

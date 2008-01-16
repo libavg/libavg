@@ -447,10 +447,10 @@ double FWCamera::getFrameRate() const
     return m_FrameRate;
 }
 
-unsigned int FWCamera::getFeature(const std::string& sFeature) const
+unsigned int FWCamera::getFeature(CameraFeature Feature) const
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-    dc1394feature_t FeatureID = getFeatureID(sFeature);
+    dc1394feature_t FeatureID = getFeatureID(Feature);
     FeatureMap::const_iterator it = m_Features.find(FeatureID);
     if (it == m_Features.end()) {
         return 0;
@@ -462,10 +462,10 @@ unsigned int FWCamera::getFeature(const std::string& sFeature) const
 #endif
 }
 
-void FWCamera::setFeature(const std::string& sFeature, int Value)
+void FWCamera::setFeature(CameraFeature Feature, int Value)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-    dc1394feature_t FeatureID = getFeatureID(sFeature);
+    dc1394feature_t FeatureID = getFeatureID(Feature);
     m_Features[FeatureID] = Value;
     if (m_bCameraAvailable) {
         setFeature(FeatureID, Value);

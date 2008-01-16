@@ -30,6 +30,30 @@
 
 namespace avg {
 
+enum CameraFeature {
+    CAM_FEATURE_BRIGHTNESS,
+    CAM_FEATURE_EXPOSURE,
+    CAM_FEATURE_SHARPNESS,
+    CAM_FEATURE_WHITE_BALANCE,
+    CAM_FEATURE_HUE,
+    CAM_FEATURE_SATURATION,
+    CAM_FEATURE_GAMMA,
+    CAM_FEATURE_SHUTTER,
+    CAM_FEATURE_GAIN,
+    CAM_FEATURE_IRIS,
+    CAM_FEATURE_FOCUS,
+    CAM_FEATURE_TEMPERATURE,
+    CAM_FEATURE_TRIGGER,
+    CAM_FEATURE_ZOOM,
+    CAM_FEATURE_PAN,
+    CAM_FEATURE_TILT,
+    CAM_FEATURE_OPTICAL_FILTER,
+    CAM_FEATURE_CAPTURE_SIZE,
+    CAM_FEATURE_CAPTURE_QUALITY
+};
+
+std::string cameraFeatureToString(CameraFeature Feature);
+
 class ICamera
 {
     public:
@@ -45,8 +69,8 @@ class ICamera
         virtual const std::string& getDriverName() const = 0; 
         virtual double getFrameRate() const = 0;
         
-        virtual unsigned int getFeature(const std::string& sFeature) const = 0;
-        virtual void setFeature(const std::string& sFeature, int Value) = 0;
+        virtual unsigned int getFeature(CameraFeature Feature) const = 0;
+        virtual void setFeature(CameraFeature Feature, int Value) = 0;
 };
 
 typedef boost::shared_ptr<ICamera> CameraPtr;

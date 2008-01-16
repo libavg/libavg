@@ -120,12 +120,12 @@ const string& FakeCamera::getMode() const
 }
 
 
-unsigned int FakeCamera::getFeature(const std::string& sFeature) const
+unsigned int FakeCamera::getFeature(CameraFeature Feature) const
 {
     return 0;
 }
 
-void FakeCamera::setFeature(const std::string& sFeature, int Value)
+void FakeCamera::setFeature(CameraFeature Feature, int Value)
 {
 }
 

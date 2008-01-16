@@ -67,8 +67,8 @@ public:
     virtual const std::string& getDriverName() const; 
     virtual double getFrameRate() const;
 
-    virtual unsigned int getFeature(const std::string& sFeature) const;
-    virtual void setFeature(const std::string& sFeature, int Value);
+    virtual unsigned int getFeature(CameraFeature Feature) const;
+    virtual void setFeature(CameraFeature Feature, int Value);
     void setFeature(dc1394feature_t Feature, int Value);
 
 private:
