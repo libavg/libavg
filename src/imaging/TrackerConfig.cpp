@@ -38,6 +38,13 @@ using namespace std;
 
 namespace avg {
 
+    void assureEmptyNode(const char * pNodeName)
+    {
+        if (strcmp(pNodeName, "text") && strcmp(pNodeName, "comment")) {
+            AVG_TRACE(Logger::WARNING, "TrackerConfig: Unexpected node " << pNodeName);
+        }
+    }
+
     BlobConfig::BlobConfig(bool bIsTouch)
         : m_bIsTouch(bIsTouch),
           m_Threshold(128),
@@ -69,9 +76,7 @@ namespace avg {
                 m_EccentricityBounds[0] = getRequiredDoubleAttr(curXmlChild, "min");
                 m_EccentricityBounds[1] = getRequiredDoubleAttr(curXmlChild, "max");
             } else {
-                if (strcmp(pNodeName, "text")) {
-                    AVG_TRACE(Logger::WARNING, "Unexpected node " << pNodeName << " in " << sFilename);
-                }
+                assureEmptyNode(pNodeName);
             }
             curXmlChild = curXmlChild->next;
         }
@@ -172,10 +177,7 @@ namespace avg {
             } else if (!strcmp(pNodeName, "transform")) {
                 m_pTrafo->load(curXmlChild);
             } else {
-                if (strcmp(pNodeName, "text")) {
-                    AVG_TRACE(Logger::WARNING, "Unexpected node " << pNodeName << " in "
-                        << getConfigFilename());
-                }
+                assureEmptyNode(pNodeName);
             }
             curXmlChild = curXmlChild->next;
         }
@@ -302,8 +304,8 @@ namespace avg {
             } else if (!strcmp(pNodeName, "shutter")) {
                 m_Shutter = getRequiredIntAttr(curXmlChild, "value");
             } else {
-                if (!bOnlyDyn && !bManaged && strcmp(pNodeName, "text")) {
-                    AVG_TRACE(Logger::WARNING, "Unexpected node " << pNodeName << " in " << sFilename);
+                if (!bOnlyDyn && !bManaged) {
+                    assureEmptyNode(pNodeName);
                 }
             }
             curXmlChild = curXmlChild->next;
@@ -328,9 +330,7 @@ namespace avg {
                 m_pTrack = BlobConfigPtr(new BlobConfig(false));
                 m_pTrack->load(curXmlChild, sFilename);
             } else {
-                if (strcmp(pNodeName, "text")) {
-                    AVG_TRACE(Logger::WARNING, "Unexpected node " << pNodeName << " in " << sFilename);
-                }
+                assureEmptyNode(pNodeName);
             }
             curXmlChild = curXmlChild->next;
         }
