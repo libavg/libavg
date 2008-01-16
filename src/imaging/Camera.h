@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _ICamera_H_
-#define _ICamera_H_
+#ifndef _Camera_H_
+#define _Camera_H_
 
 #include "../graphics/Bitmap.h"
 
@@ -55,26 +55,27 @@ enum CameraFeature {
 
 std::string cameraFeatureToString(CameraFeature Feature);
 
-class ICamera
+class Camera
 {
-    public:
-        virtual ~ICamera() {};
-        virtual void open() = 0;
-        virtual void close() = 0;
+public:
+    virtual ~Camera() {};
+    virtual void open() = 0;
+    virtual void close() = 0;
 
-        virtual IntPoint getImgSize() = 0;
-        virtual BitmapPtr getImage(bool bWait) = 0;
-        virtual bool isCameraAvailable() = 0;
+    virtual IntPoint getImgSize() = 0;
+    virtual BitmapPtr getImage(bool bWait) = 0;
+    virtual bool isCameraAvailable() = 0;
 
-        virtual const std::string& getDevice() const = 0; 
-        virtual const std::string& getDriverName() const = 0; 
-        virtual double getFrameRate() const = 0;
-        
-        virtual unsigned int getFeature(CameraFeature Feature) const = 0;
-        virtual void setFeature(CameraFeature Feature, int Value) = 0;
+    virtual const std::string& getDevice() const = 0; 
+    virtual const std::string& getDriverName() const = 0; 
+    virtual double getFrameRate() const = 0;
+    
+    virtual unsigned int getFeature(CameraFeature Feature) const = 0;
+    virtual void setFeature(CameraFeature Feature, int Value) = 0;
+
 };
 
-typedef boost::shared_ptr<ICamera> CameraPtr;
+typedef boost::shared_ptr<Camera> CameraPtr;
 
 }
 

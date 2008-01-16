@@ -24,7 +24,7 @@
 
 #include "../avgconfigwrapper.h"
 
-#include "ICamera.h"
+#include "Camera.h"
 #include <string>
 #include <vector>
 
@@ -32,7 +32,7 @@ namespace avg {
 
 typedef unsigned int V4LCID_t;
 
-class V4LCamera: public ICamera {
+class V4LCamera: public Camera {
 
     struct Buffer {
         void * start;
@@ -82,7 +82,7 @@ class V4LCamera: public ICamera {
         typedef std::map<int, std::string> FeatureNamesMap;
         FeatureMap m_Features;
         // TODO: Feature strings should really be handled by 
-        //       ICamera::cameraFeatureToString
+        //       Camera::cameraFeatureToString
         FeatureNamesMap m_FeaturesNames; 
 };
 

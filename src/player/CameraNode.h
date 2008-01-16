@@ -26,7 +26,7 @@
 
 #include "VideoBase.h"
 
-#include "../imaging/ICamera.h"
+#include "../imaging/Camera.h"
 
 #include <boost/thread/thread.hpp>
 

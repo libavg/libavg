@@ -24,7 +24,7 @@
 
 #include "../avgconfigwrapper.h"
 
-#include "ICamera.h"
+#include "Camera.h"
 
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel24.h"
@@ -51,7 +51,7 @@ namespace avg {
 
 typedef Queue<BitmapPtr> BitmapQueue;
 
-class FWCamera: public ICamera {
+class FWCamera: public Camera {
 public:
     FWCamera(std::string sDevice, IntPoint Size, std::string sPF,
             double FrameRate, bool bColor);

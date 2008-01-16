@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "ICamera.h"
+#include "Camera.h"
 
 namespace avg {
 

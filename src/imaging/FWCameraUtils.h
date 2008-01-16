@@ -22,7 +22,7 @@
 #ifndef _FWCameraUtils_H_
 #define _FWCameraUtils_H_
 
-#include "ICamera.h"
+#include "Camera.h"
 
 #include "../avgconfigwrapper.h"
 

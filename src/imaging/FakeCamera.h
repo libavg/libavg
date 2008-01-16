@@ -22,7 +22,7 @@
 #ifndef _FakeCamera_H_
 #define _FakeCamera_H_
 
-#include "ICamera.h"
+#include "Camera.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -33,7 +33,7 @@ namespace avg {
 
 typedef boost::shared_ptr<std::queue<BitmapPtr> > BitmapQueuePtr;
 
-class FakeCamera: public ICamera
+class FakeCamera: public Camera
 {
     public:
         FakeCamera(std::vector<std::string> &pictures);

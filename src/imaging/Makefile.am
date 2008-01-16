@@ -23,10 +23,10 @@ else
 endif
 endif
 
-ALL_H = ICamera.h TrackerThread.h TrackerConfig.h Blob.h FWCamera.h Run.h \
+ALL_H = Camera.h TrackerThread.h TrackerConfig.h Blob.h FWCamera.h Run.h \
         FakeCamera.h CoordTransformer.h FilterDistortion.h $(DC1394_INCLUDES) \
         DeDistort.h trackerconfigdtd.h $(V4L2_INCLUDES)
-ALL_CPP = ICamera.cpp TrackerThread.cpp TrackerConfig.cpp Blob.cpp FWCamera.cpp Run.cpp \
+ALL_CPP = Camera.cpp TrackerThread.cpp TrackerConfig.cpp Blob.cpp FWCamera.cpp Run.cpp \
         FakeCamera.cpp CoordTransformer.cpp FilterDistortion.cpp $(DC1394_SOURCES) \
         DeDistort.cpp trackerconfigdtd.cpp $(V4L2_SOURCES)
 
