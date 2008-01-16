@@ -30,7 +30,7 @@
 
 namespace avg {
 
-typedef int V4LCID_t;
+typedef unsigned int V4LCID_t;
 
 class V4LCamera: public ICamera {
 
@@ -75,7 +75,7 @@ class V4LCamera: public ICamera {
         void initMMap();
         
         void setFeature(V4LCID_t V4LFeature, int Value);
-        V4LCID_t getFeatureID(const std::string& sFeature) const;
+        V4LCID_t getFeatureID(CameraFeature Feature) const;
         std::string getFeatureName(V4LCID_t V4LFeature);
         bool isFeatureSupported(V4LCID_t V4LFeature) const;
         typedef std::map<V4LCID_t, unsigned int> FeatureMap;

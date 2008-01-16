@@ -49,7 +49,8 @@ enum CameraFeature {
     CAM_FEATURE_TILT,
     CAM_FEATURE_OPTICAL_FILTER,
     CAM_FEATURE_CAPTURE_SIZE,
-    CAM_FEATURE_CAPTURE_QUALITY
+    CAM_FEATURE_CAPTURE_QUALITY,
+    CAM_FEATURE_CONTRAST
 };
 
 std::string cameraFeatureToString(CameraFeature Feature);

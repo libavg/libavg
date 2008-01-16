@@ -64,6 +64,8 @@ std::string cameraFeatureToString(CameraFeature Feature)
             return "capture size";
         case CAM_FEATURE_CAPTURE_QUALITY:
             return "capture quality";
+        case CAM_FEATURE_CONTRAST:
+            return "contrast";
         default:
             return "unknown";
     }

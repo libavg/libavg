@@ -356,23 +356,23 @@ std::string V4LCamera::getFeatureName(V4LCID_t V4LFeature)
 V4LCID_t V4LCamera::getFeatureID(CameraFeature Feature) const
 {
     V4LCID_t V4LFeature;
-    if (sFeature == CAM_FEATURE_BRIGHTNESS) {
+    if (Feature == CAM_FEATURE_BRIGHTNESS) {
         V4LFeature = V4L2_CID_BRIGHTNESS;
-    } else if (sFeature == "contrast") {
+    } else if (Feature == CAM_FEATURE_CONTRAST) {
         V4LFeature = V4L2_CID_CONTRAST;
-    }  else if (sFeature == CAM_FEATURE_GAIN) {
+    }  else if (Feature == CAM_FEATURE_GAIN) {
         V4LFeature = V4L2_CID_GAIN;
-    } else if (sFeature == CAM_FEATURE_EXPOSURE) {
+    } else if (Feature == CAM_FEATURE_EXPOSURE) {
         V4LFeature = V4L2_CID_EXPOSURE;
-    } else if (sFeature == CAM_FEATURE_WHITE_BALANCE) {
+    } else if (Feature == CAM_FEATURE_WHITE_BALANCE) {
         V4LFeature = V4L2_CID_WHITENESS;
-    } else if (sFeature == CAM_FEATURE_GAMMA) {
+    } else if (Feature == CAM_FEATURE_GAMMA) {
         V4LFeature = V4L2_CID_GAMMA;
-    } else if (sFeature == CAM_FEATURE_SATURATION) {
+    } else if (Feature == CAM_FEATURE_SATURATION) {
         V4LFeature = V4L2_CID_SATURATION;
     } else {
-        AVG_TRACE(Logger::WARNING, "Feature " << cameraFeatureToString(Feature))
-                << " not supported for V4L.";
+        AVG_TRACE(Logger::WARNING, "Feature " << cameraFeatureToString(Feature)
+                << " not supported for V4L.");
         return -1;
     }
     
@@ -403,7 +403,7 @@ bool V4LCamera::isFeatureSupported(V4LCID_t V4LFeature) const
 
 unsigned int V4LCamera::getFeature(CameraFeature Feature) const
 {
-    V4LCID_t V4LFeature = getV4LFeatureID(Feature);
+    V4LCID_t V4LFeature = getFeatureID(Feature);
     
     FeatureMap::const_iterator it = m_Features.find(V4LFeature);
     
@@ -448,7 +448,7 @@ void V4LCamera::setFeature(CameraFeature Feature, int Value)
     // ignore -1 coming from default unbiased cameranode parameters
     if (Value < 0) return;
     
-    V4LCID_t V4LFeature = getV4LFeatureID(sFeature);
+    V4LCID_t V4LFeature = getFeatureID(Feature);
 
     m_Features[V4LFeature] = Value;
 
