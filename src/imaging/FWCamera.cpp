@@ -131,10 +131,6 @@ void FWCamera::open()
         exit(1);
     }
     int err;
-    err = dc1394_get_camera_feature_set(m_FWHandle,
-                m_Camera.node, &m_FeatureSet);
-    checkDC1394Error(err,
-            "Unable to get firewire camera feature set.");
 //    dumpCameraInfo();
 
     const char * pDeviceFileName = 0;
@@ -197,9 +193,6 @@ void FWCamera::open()
 
     dc1394_camera_free_list(pCameraList);
 
-//    err = dc1394_feature_get_all(m_pCamera, &m_FeatureSet);
-//    checkDC1394Error(err,
-//            "Unable to get firewire camera feature set.");
 //    dumpCameraInfo();
 
     err = dc1394_video_set_iso_speed(m_pCamera, DC1394_ISO_SPEED_400);
@@ -469,6 +462,7 @@ void FWCamera::setFeature(CameraFeature Feature, int Value)
     m_Features[FeatureID] = Value;
     if (m_bCameraAvailable) {
         setFeature(FeatureID, Value);
+//        dumpCameraInfo();
     }
 #endif
 }
@@ -576,14 +570,21 @@ void FWCamera::dumpCameraInfo()
                 "Unable to get firewire camera info.");
     }
     // TODO: do this using AVG_TRACE
-    dc1394_print_feature_set(&m_FeatureSet);
+    dc1394_feature_set FeatureSet;
+    rc = dc1394_get_camera_feature_set(m_FWHandle, m_Camera.node, &FeatureSet);
+    checkDC1394Error(rc, "Unable to get firewire camera feature set.");
+    dc1394_print_feature_set(&FeatureSet);
 }
 
 #elif AVG_ENABLE_1394_2
 void FWCamera::dumpCameraInfo()
 {
+    dc1394error_t err;
+    dc1394featureset_t FeatureSet;
+    err = dc1394_feature_get_all(m_pCamera, &FeatureSet);
+    checkDC1394Error(err, "Unable to get firewire camera feature set.");
     // TODO: do this using AVG_TRACE
-    dc1394_feature_print_all(&m_FeatureSet, stderr);
+    dc1394_feature_print_all(&FeatureSet, stderr);
 }
 #else
 void FWCamera::dumpCameraInfo()
