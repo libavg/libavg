@@ -59,6 +59,7 @@ struct TrackerConfig
     xmlXPathObjectPtr findConfigNodes(const xmlChar* xpExpr);
     void setParam(const xmlChar* xpElement, const xmlChar* Value);
     std::string getParam(const xmlChar* xpExpr);
+    void dump() const;
 
     // Camera params
     std::string m_sSource;

@@ -57,7 +57,10 @@ class DeDistort: public CoordTransformer {
         void load(xmlNodePtr pParentNode);
         void save(xmlTextWriterPtr writer);
 
-    
+        bool operator ==(const DeDistort& other) const;
+
+        void dump() const;
+
     private:
         double calc_rescale();
         DPoint inverse_undistort(const std::vector<double> &params, const DPoint &pt) ;

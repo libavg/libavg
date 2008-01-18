@@ -102,7 +102,9 @@ namespace avg {
     void TrackerEventSource::setParam(const std::string& sElement, const std::string& Value)
     {
         m_TrackerConfig.setParam(BAD_CAST sElement.c_str(), BAD_CAST Value.c_str());
+//        m_TrackerConfig.dump();
         setConfig();
+        handleROIChange();
     }
     
     string TrackerEventSource::getParam(const std::string& sElement)

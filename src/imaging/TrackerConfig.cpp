@@ -249,7 +249,30 @@ namespace avg {
 
         return sValue;
     }
-    
+   
+    void TrackerConfig::dump() const
+    {
+        cerr << "Tracker config: " << endl;
+        cerr << "  Camera: " << endl;
+        cerr << "    Source: " << m_sSource << endl;
+        cerr << "    Device: " << m_sDevice << endl;
+        cerr << "    PixFmt: " << m_sPixFmt << endl;
+        cerr << "    Size: " << m_Size << endl;
+        cerr << "    Channel: " << m_Channel << endl;
+        cerr << "    FPS: " << m_FPS << endl;
+        cerr << "    Brightness: " << m_Brightness << endl;
+        cerr << "    Exposure: " << m_Exposure << endl;
+        cerr << "    Gamma: " << m_Gamma << endl;
+        cerr << "    Gain: " << m_Gain << endl;
+        cerr << "    Shutter: " << m_Shutter << endl;
+        cerr << "  Tracker:" << endl;
+        cerr << "    HistoryUpdateInterval: " << m_HistoryUpdateInterval << endl;
+        cerr << "    BrighterRegions: " << m_bBrighterRegions << endl;
+        cerr << "    ContourVertexes: " << m_ContourVertexes << endl;
+        // TODO: Dump Touch/Track
+        m_pTrafo->dump();
+    }
+
     void TrackerConfig::save(const string& sCustomFilename)
     {
         string sFilename(sCustomFilename);

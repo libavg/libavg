@@ -193,7 +193,7 @@ void FWCamera::open()
 
     dc1394_camera_free_list(pCameraList);
 
-//    dumpCameraInfo();
+    dumpCameraInfo();
 
     err = dc1394_video_set_iso_speed(m_pCamera, DC1394_ISO_SPEED_400);
     checkDC1394Error(err, "Unable to set camera iso speed.");

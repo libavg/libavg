@@ -155,7 +155,29 @@ void DeDistort::save(xmlTextWriterPtr writer)
     rc = xmlTextWriterEndElement(writer);
 }
 
-DPoint DeDistort::transformScreenToBlob(const DPoint &pt){
+bool DeDistort::operator ==(const DeDistort& other) const
+{
+    return (m_FilmOffset == other.m_FilmOffset &&
+        m_FilmScale == other.m_FilmScale &&
+        m_DistortionParams == other.m_DistortionParams &&
+        m_Angle == other.m_Angle &&
+        m_TrapezoidFactor == other.m_TrapezoidFactor &&
+        m_DisplayOffset == other.m_DisplayOffset &&
+        m_DisplayScale == other.m_DisplayScale &&
+        m_RescaleFactor == other.m_RescaleFactor);
+}
+        
+void DeDistort::dump() const
+{
+    cerr << "  Transform:" << endl;
+    cerr << "    FilmOffset: " << m_FilmOffset << endl;
+    cerr << "    FilmScale: " << m_FilmScale << endl;
+    cerr << "    m_DistortionParams: " << m_DistortionParams[0] << ", " 
+            << m_DistortionParams[1] << endl;
+}
+
+DPoint DeDistort::transformScreenToBlob(const DPoint &pt)
+{
     return 
         scale(DPoint(1/m_DisplayScale.x, 1/m_DisplayScale.y),  //scale back to real display resolution
             translate(-m_DisplayOffset, //translate 0,0 to center of display
