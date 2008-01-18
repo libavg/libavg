@@ -343,7 +343,7 @@ void Blob::calcContour(int NumPoints)
     for (double i=0; i<NumPoints; i++) {
         DPoint Pt(StartDist*sin(i*2*M_PI/NumPoints)+m_Center.x, 
                 StartDist*cos(i*2*M_PI/NumPoints)+m_Center.y);
-        DPoint Diff(sin(i*2*M_PI/NumPoints)*2, cos(i*2*M_PI/NumPoints)*2);
+        DPoint Diff(sin(i*2*M_PI/NumPoints)*4, cos(i*2*M_PI/NumPoints)*4);
         while (!ptInBlob(IntPoint(Pt)) && 
                 (fabs(Pt.x-m_Center.x) > 4 || fabs(Pt.y-m_Center.y) > 4))
         {
