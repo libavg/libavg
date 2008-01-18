@@ -172,8 +172,12 @@ void DeDistort::dump() const
     cerr << "  Transform:" << endl;
     cerr << "    FilmOffset: " << m_FilmOffset << endl;
     cerr << "    FilmScale: " << m_FilmScale << endl;
-    cerr << "    m_DistortionParams: " << m_DistortionParams[0] << ", " 
+    cerr << "    DistortionParams: " << m_DistortionParams[0] << ", " 
             << m_DistortionParams[1] << endl;
+    cerr << "    Trapezoid: " << m_TrapezoidFactor << endl;
+    cerr << "    Angle: " << m_Angle << endl;
+    cerr << "    DisplayOffset: " << m_DisplayOffset << endl;
+    cerr << "    DisplayScale: " << m_DisplayScale << endl;
 }
 
 DPoint DeDistort::transformScreenToBlob(const DPoint &pt)

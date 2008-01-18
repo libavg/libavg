@@ -119,6 +119,7 @@ namespace avg {
     
     TrackerConfig::~TrackerConfig()
     {
+        // TODO: free complete m_Doc.
     }
 
     void TrackerConfig::load(const string& sCustomFilename)

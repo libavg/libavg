@@ -101,10 +101,21 @@ namespace avg {
     
     void TrackerEventSource::setParam(const std::string& sElement, const std::string& Value)
     {
+        string sOldParamVal = m_TrackerConfig.getParam(BAD_CAST sElement.c_str());
         m_TrackerConfig.setParam(BAD_CAST sElement.c_str(), BAD_CAST Value.c_str());
+
+        // Test if active area is outside camera.
+        DRect Area = m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents));
+        if (Area.br.x > m_TrackerConfig.m_Size.x || 
+            Area.br.y > m_TrackerConfig.m_Size.y ||
+            Area.tl.x < 0 || Area.tl.y < 0)
+        {
+            m_TrackerConfig.setParam(BAD_CAST sElement.c_str(), BAD_CAST sOldParamVal.c_str());
+        } else {
+            setConfig();
+            handleROIChange();
+        }
 //        m_TrackerConfig.dump();
-        setConfig();
-        handleROIChange();
     }
     
     string TrackerEventSource::getParam(const std::string& sElement)
