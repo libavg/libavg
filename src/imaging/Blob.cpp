@@ -341,18 +341,15 @@ void Blob::calcContour(int NumPoints)
     int h = m_BoundingBox.height();
     double StartDist = sqrt(double(w*w+h*h));
     for (double i=0; i<NumPoints; i++) {
-        IntPoint OuterPt(int(StartDist*sin(i*2*M_PI/NumPoints)+m_Center.x), 
-                int(StartDist*cos(i*2*M_PI/NumPoints)+m_Center.y));
-        IntPoint InnerPt(m_Center);
-        while (calcDist(OuterPt, InnerPt) > 2) {
-            IntPoint MiddlePt = (OuterPt+InnerPt)/2;
-            if (ptInBlob(MiddlePt)) {
-                InnerPt = MiddlePt;
-            } else {
-                OuterPt = MiddlePt;
-            }
+        DPoint Pt(StartDist*sin(i*2*M_PI/NumPoints)+m_Center.x, 
+                StartDist*cos(i*2*M_PI/NumPoints)+m_Center.y);
+        DPoint Diff(sin(i*2*M_PI/NumPoints)*2, cos(i*2*M_PI/NumPoints)*2);
+        while (!ptInBlob(IntPoint(Pt)) && 
+                (fabs(Pt.x-m_Center.x) > 4 || fabs(Pt.y-m_Center.y) > 4))
+        {
+            Pt -= Diff;
         }
-        m_Contour.push_back(InnerPt);
+        m_Contour.push_back(IntPoint(Pt));
     }
 }
 
@@ -364,7 +361,9 @@ ContourSeq Blob::getContour()
 bool Blob::ptInBlob(const IntPoint& Pt)
 {
     if (m_BoundingBox.contains(Pt)) {
+        int lastRow = 0;
         for (RunArray::iterator it = m_Runs.begin(); it!=m_Runs.end(); ++it) {
+            lastRow = it->m_Row;
             if (Pt.y == it->m_Row && Pt.x >= it->m_StartCol && Pt.x < it->m_EndCol) {
                 return true;
             }
