@@ -361,9 +361,7 @@ ContourSeq Blob::getContour()
 bool Blob::ptInBlob(const IntPoint& Pt)
 {
     if (m_BoundingBox.contains(Pt)) {
-        int lastRow = 0;
         for (RunArray::iterator it = m_Runs.begin(); it!=m_Runs.end(); ++it) {
-            lastRow = it->m_Row;
             if (Pt.y == it->m_Row && Pt.x >= it->m_StartCol && Pt.x < it->m_EndCol) {
                 return true;
             }
