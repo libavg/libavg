@@ -62,6 +62,7 @@ TrackerThread::TrackerThread(IntRect ROI,
       m_pMutex(pMutex),
       m_pCamera(pCamera),
       m_pTarget(target),
+      m_pTrafo(new DeDistort()),
       m_bCreateDebugImages(false),
       m_bCreateFingerImage(false)
 {
@@ -168,10 +169,10 @@ void TrackerThread::setConfig(TrackerConfig Config)
     if(m_pHistoryPreProcessor) {
         m_pHistoryPreProcessor->setInterval(Config.m_HistoryUpdateInterval);
     }
-    if (m_pTrafo && !(*m_pTrafo == *Config.m_pTrafo)) {
+    if (!(*m_pTrafo == *Config.m_pTrafo)) {
         m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), 
                 Config.m_pTrafo));
-        m_pTrafo = Config.m_pTrafo;
+        *m_pTrafo = *Config.m_pTrafo;
     }
     if (int(m_pCamera->getFeature(CAM_FEATURE_BRIGHTNESS)) != Config.m_Brightness ||
             int(m_pCamera->getFeature(CAM_FEATURE_EXPOSURE)) != Config.m_Exposure ||
