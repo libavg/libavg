@@ -32,9 +32,7 @@
 #include "../base/Point.h"
 
 #include <assert.h>
-#include <list>
 #include <vector>
-#include <map>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
@@ -92,7 +90,7 @@ class Blob
 
         RunArray m_Runs;
         BlobWeakPtrVector m_RelatedBlobs; // For fingers, this contains the hand.
-                                       // For hands, this contains the fingers.
+                                          // For hands, this contains the fingers.
 
         bool m_bStatsAvailable;
         DPoint m_Center;

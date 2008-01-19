@@ -61,15 +61,29 @@ RunArray *Blob::getRuns()
 
 void Blob::addRun(const Run & run)
 {
+    assert((m_Runs.end()-1)->m_Row <= run.m_Row);
     m_Runs.push_back(run);
+}
+
+
+bool runIsLess(const Run& r1, const Run& r2)
+{
+    return r1.m_Row < r2.m_Row;
 }
 
 void Blob::merge(const BlobPtr& other)
 {
     assert(other);
-    RunArray * other_runs=other->getRuns();
-    m_Runs.insert(m_Runs.end(), other_runs->begin(), other_runs->end());
-    other_runs->clear();
+    RunArray * pOtherRuns=other->getRuns();
+    RunArray::iterator insertIt = m_Runs.begin();
+    RunArray::iterator sourceIt = pOtherRuns->begin();
+    while  (sourceIt != pOtherRuns->end()) {
+        insertIt = upper_bound(insertIt, m_Runs.end(), *sourceIt, runIsLess);
+        insertIt = m_Runs.insert(insertIt, *sourceIt);
+        sourceIt++;
+    }
+
+    pOtherRuns->clear();
 }
 
 void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color, 
@@ -361,8 +375,11 @@ ContourSeq Blob::getContour()
 bool Blob::ptInBlob(const IntPoint& Pt)
 {
     if (m_BoundingBox.contains(Pt)) {
-        for (RunArray::iterator it = m_Runs.begin(); it!=m_Runs.end(); ++it) {
-            if (Pt.y == it->m_Row && Pt.x >= it->m_StartCol && Pt.x < it->m_EndCol) {
+        pair<RunArray::iterator, RunArray::iterator> range;
+        Run r(Pt.y, 0, 0);
+        range = equal_range(m_Runs.begin(), m_Runs.end(), r, runIsLess);
+        for (RunArray::iterator it = range.first; it!=range.second; ++it) {
+            if (Pt.x >= it->m_StartCol && Pt.x < it->m_EndCol) {
                 return true;
             }
         }
