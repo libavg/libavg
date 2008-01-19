@@ -77,14 +77,6 @@ void Blob::merge(const BlobPtr& other)
     RunArray * pOtherRuns=other->getRuns();
     RunArray::iterator insertIt = m_Runs.begin();
     RunArray::iterator sourceIt = pOtherRuns->begin();
-    int FirstRow = insertIt->m_Row;
-    if (FirstRow >= sourceIt->m_Row) {
-        while (FirstRow >= sourceIt->m_Row) {
-            sourceIt++;
-        }
-        m_Runs.insert(insertIt, pOtherRuns->begin(), sourceIt-1);
-
-    }
     while  (sourceIt != pOtherRuns->end()) {
         insertIt = upper_bound(insertIt, m_Runs.end(), *sourceIt, runIsLess);
         insertIt = m_Runs.insert(insertIt, *sourceIt);
@@ -486,8 +478,15 @@ void store_runs(BlobVectorPtr pComps, RunArray *runs1, RunArray *runs2)
                         c_blob = c_blob->m_pParent;
                     }
                     if (c_blob!=p_blob) {
-                        p_blob->merge(c_blob); //destroys c_blobs runs_list
-                        c_blob->m_pParent = p_blob;
+                        // When we merge, make sure the smaller blob is merged
+                        // into the bigger one to avoid a speed hit.
+                        if (p_blob->getRuns()->size() > c_blob->getRuns()->size()) {
+                            p_blob->merge(c_blob); //destroys c_blobs runs_list
+                            c_blob->m_pParent = p_blob;
+                        } else {
+                            c_blob->merge(p_blob); 
+                            p_blob->m_pParent = c_blob;
+                        }
                     }
                 } else {
                     run2_it->m_pBlob = p_blob;
