@@ -86,6 +86,7 @@ class Blob
         DPoint calcCenter();
         IntRect calcBBox();
         int calcArea();
+        IntPoint findNeighborInside(const IntPoint& Pt, int& Dir);
         bool ptInBlob(const IntPoint& Pt);
 
         RunArray m_Runs;

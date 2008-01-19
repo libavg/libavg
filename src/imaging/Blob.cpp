@@ -349,22 +349,86 @@ int Blob::calcArea()
     return res;
 }
 
+IntPoint getNeighbor(const IntPoint& Pt, int Dir)
+{
+    IntPoint NeighborPt(Pt);
+    // Dir encoding:
+    //  3  2  1
+    //  4 Pt  0
+    //  5  6  7
+    switch(Dir) {
+        case 0:
+        case 1:
+        case 7:
+            NeighborPt.x++;
+            break;
+        case 3:
+        case 4:
+        case 5:
+            NeighborPt.x--;
+            break;
+        default:
+            break;
+    };
+    switch(Dir) {
+        case 1:
+        case 2:
+        case 3:
+            NeighborPt.y--;
+            break;
+        case 5:
+        case 6:
+        case 7:
+            NeighborPt.y++;
+            break;
+        default:
+            break;
+    };
+    return NeighborPt;
+}
+
+IntPoint Blob::findNeighborInside(const IntPoint& Pt, int& Dir)
+{
+    if (Dir & 1) {
+        Dir += 2;
+    } else {
+        Dir++;
+    }
+    if (Dir > 7) {
+        Dir -= 8;
+    }
+
+    for (int i = 0; i < 8; i++)	{
+        IntPoint CurPt = getNeighbor(Pt, Dir);
+        if (ptInBlob(CurPt)) {
+            return CurPt;
+        } else {
+            Dir--;
+            if (Dir < 0) {
+                Dir += 8;
+            }
+        }
+	}
+    assert(false);
+    return Pt;
+}
+
 void Blob::calcContour(int NumPoints)
 {
-    int w = m_BoundingBox.width();
-    int h = m_BoundingBox.height();
-    double StartDist = sqrt(double(w*w+h*h));
-    for (double i=0; i<NumPoints; i++) {
-        DPoint Pt(StartDist*sin(i*2*M_PI/NumPoints)+m_Center.x, 
-                StartDist*cos(i*2*M_PI/NumPoints)+m_Center.y);
-        DPoint Diff(sin(i*2*M_PI/NumPoints)*4, cos(i*2*M_PI/NumPoints)*4);
-        while (!ptInBlob(IntPoint(Pt)) && 
-                (fabs(Pt.x-m_Center.x) > 4 || fabs(Pt.y-m_Center.y) > 4))
-        {
-            Pt -= Diff;
-        }
-        m_Contour.push_back(IntPoint(Pt));
-    }
+    // Moore Neighbor Tracing.
+    IntPoint BoundaryPt(m_Runs[0].m_StartCol, m_Runs[0].m_Row);
+    IntPoint FirstPt(BoundaryPt);
+    int i = 8;
+    int Dir = 1;
+    do {
+        if (i==16) {
+            m_Contour.push_back(BoundaryPt);
+            i = 0;
+        } else {
+            i++;
+       } 
+        BoundaryPt = findNeighborInside(BoundaryPt, Dir);
+    } while(FirstPt != BoundaryPt);
 }
 
 ContourSeq Blob::getContour()
