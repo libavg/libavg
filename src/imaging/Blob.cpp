@@ -77,6 +77,14 @@ void Blob::merge(const BlobPtr& other)
     RunArray * pOtherRuns=other->getRuns();
     RunArray::iterator insertIt = m_Runs.begin();
     RunArray::iterator sourceIt = pOtherRuns->begin();
+    int FirstRow = insertIt->m_Row;
+    if (FirstRow >= sourceIt->m_Row) {
+        while (FirstRow >= sourceIt->m_Row) {
+            sourceIt++;
+        }
+        m_Runs.insert(insertIt, pOtherRuns->begin(), sourceIt-1);
+
+    }
     while  (sourceIt != pOtherRuns->end()) {
         insertIt = upper_bound(insertIt, m_Runs.end(), *sourceIt, runIsLess);
         insertIt = m_Runs.insert(insertIt, *sourceIt);
