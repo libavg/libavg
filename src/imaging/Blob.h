@@ -86,10 +86,12 @@ class Blob
         DPoint calcCenter();
         IntRect calcBBox();
         int calcArea();
+        void initRowPositions();
         IntPoint findNeighborInside(const IntPoint& Pt, int& Dir);
         bool ptInBlob(const IntPoint& Pt);
 
         RunArray m_Runs;
+        std::vector<RunArray::iterator> m_RowPositions;
         BlobWeakPtrVector m_RelatedBlobs; // For fingers, this contains the hand.
                                           // For hands, this contains the fingers.
 

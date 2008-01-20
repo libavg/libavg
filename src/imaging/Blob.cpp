@@ -349,6 +349,18 @@ int Blob::calcArea()
     return res;
 }
 
+void Blob::initRowPositions()
+{
+    int Offset = m_BoundingBox.tl.y;
+    RunArray::iterator it = m_Runs.begin();
+    for (int i=0; i<m_BoundingBox.height(); i++) {
+        while (it->m_Row-Offset < i) {
+            it++;
+        }
+        m_RowPositions.push_back(it);
+    }
+}
+
 IntPoint getNeighbor(const IntPoint& Pt, int Dir)
 {
     IntPoint NeighborPt(Pt);
@@ -415,6 +427,8 @@ IntPoint Blob::findNeighborInside(const IntPoint& Pt, int& Dir)
 
 void Blob::calcContour(int NumPoints)
 {
+    initRowPositions();
+    
     // Moore Neighbor Tracing.
     IntPoint BoundaryPt(m_Runs[0].m_StartCol, m_Runs[0].m_Row);
     IntPoint FirstPt(BoundaryPt);
@@ -440,8 +454,7 @@ bool Blob::ptInBlob(const IntPoint& Pt)
 {
     if (m_BoundingBox.contains(Pt)) {
         pair<RunArray::iterator, RunArray::iterator> range;
-        Run r(Pt.y, 0, 0);
-        RunArray::iterator it = lower_bound(m_Runs.begin(), m_Runs.end(), r, runIsLess);
+        RunArray::iterator it = m_RowPositions[Pt.y-m_BoundingBox.tl.y];
         while (it->m_Row == Pt.y) {
             if (Pt.x >= it->m_StartCol && Pt.x < it->m_EndCol) {
                 return true;
