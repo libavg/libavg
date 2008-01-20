@@ -51,6 +51,7 @@ typedef boost::shared_ptr<struct BlobConfig> BlobConfigPtr;
 struct TrackerConfig
 {
     TrackerConfig();
+    TrackerConfig(const TrackerConfig& other);
     virtual ~TrackerConfig();
     
     void load(const std::string& sCustomFilename = "");

@@ -117,6 +117,18 @@ namespace avg {
     {
     } 
     
+    TrackerConfig::TrackerConfig(const TrackerConfig& other)
+    {
+        *this = other;
+        if (m_pTouch) {
+            *m_pTouch = *(other.m_pTouch);
+        }
+        if (m_pTrack) {
+            *m_pTrack = *(other.m_pTrack);
+        }
+        *m_pTrafo = *(other.m_pTrafo);
+    }
+    
     TrackerConfig::~TrackerConfig()
     {
         // TODO: free complete m_Doc.
