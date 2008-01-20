@@ -127,7 +127,10 @@ void Image::setBitmap(const Bitmap * pBmp)
     }
 #endif
 //    cerr << "pf: " << Bitmap::getPixelFormatString(pf) << endl;
-    getSurface()->create(pBmp->getSize(), pf, true);
+    ISurface * pSurface = getSurface();
+    if (pSurface->getSize() != pBmp->getSize() || pSurface->getPixelFormat() != pf) {
+        pSurface->create(pBmp->getSize(), pf, true);
+    }
     BitmapPtr pSurfaceBmp = getSurface()->lockBmp();
     pSurfaceBmp->copyPixels(*pBmp);
     getSurface()->unlockBmps();

@@ -126,8 +126,8 @@ bool TrackerThread::work()
             m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pCroppedBmp);
         }
         {
-            boost::mutex::scoped_lock Lock(*m_pMutex);
             if (m_bCreateFingerImage) {
+                boost::mutex::scoped_lock Lock(*m_pMutex);
                 Pixel32 Black(0x00, 0x00, 0x00, 0x00);
                 FilterFill<Pixel32>(Black).applyInPlace(
                         m_pBitmaps[TRACKER_IMG_FINGERS]);
@@ -139,6 +139,7 @@ bool TrackerThread::work()
                     pBmpBandpass = FilterFastBandpass().apply(pCroppedBmp);
                 }
                 if (m_bCreateDebugImages) {
+                    boost::mutex::scoped_lock Lock(*m_pMutex);
                     *(m_pBitmaps[TRACKER_IMG_HIGHPASS]) = *pBmpBandpass;
                 }
             }
@@ -266,6 +267,7 @@ void TrackerThread::calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp) {
         pDestBmp = m_pBitmaps[TRACKER_IMG_FINGERS];
     }
     {
+        boost::mutex::scoped_lock Lock(*m_pMutex);
         ScopeTimer Timer(ProfilingZoneUpdate);
         m_pTarget->update(pTrackComps, pTrackBmp, m_TrackThreshold,
                 pTouchComps, pTouchBmp, m_TouchThreshold, pDestBmp);

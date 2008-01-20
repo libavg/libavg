@@ -701,8 +701,12 @@ void Bitmap::initWithData(unsigned char * pBits, int Stride, bool bCopyBits)
     }
     if (bCopyBits) {
         allocBits();
-        for (int y=0; y<m_Size.y; ++y) {
-            memcpy(m_pBits+m_Stride*y, pBits+Stride*y, Stride);
+        if (m_Stride == Stride && Stride == (m_Size.x*getBytesPerPixel())) {
+            memcpy(m_pBits, pBits, Stride*m_Size.y);
+        } else {
+            for (int y=0; y<m_Size.y; ++y) {
+                memcpy(m_pBits+m_Stride*y, pBits+Stride*y, Stride);
+            }
         }
         m_bOwnsBits = true;
     } else {
