@@ -426,7 +426,7 @@ void Blob::calcContour(int NumPoints)
             i = 0;
         } else {
             i++;
-       } 
+        } 
         BoundaryPt = findNeighborInside(BoundaryPt, Dir);
     } while(FirstPt != BoundaryPt);
 }
@@ -441,11 +441,12 @@ bool Blob::ptInBlob(const IntPoint& Pt)
     if (m_BoundingBox.contains(Pt)) {
         pair<RunArray::iterator, RunArray::iterator> range;
         Run r(Pt.y, 0, 0);
-        range = equal_range(m_Runs.begin(), m_Runs.end(), r, runIsLess);
-        for (RunArray::iterator it = range.first; it!=range.second; ++it) {
+        RunArray::iterator it = lower_bound(m_Runs.begin(), m_Runs.end(), r, runIsLess);
+        while (it->m_Row == Pt.y) {
             if (Pt.x >= it->m_StartCol && Pt.x < it->m_EndCol) {
                 return true;
             }
+            it++;
         }
     }
     return false;
