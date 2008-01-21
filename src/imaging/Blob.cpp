@@ -75,14 +75,7 @@ void Blob::merge(const BlobPtr& other)
 {
     assert(other);
     RunArray * pOtherRuns=other->getRuns();
-    RunArray::iterator insertIt = m_Runs.begin();
-    RunArray::iterator sourceIt = pOtherRuns->begin();
-    while  (sourceIt != pOtherRuns->end()) {
-        insertIt = upper_bound(insertIt, m_Runs.end(), *sourceIt, runIsLess);
-        insertIt = m_Runs.insert(insertIt, *sourceIt);
-        sourceIt++;
-    }
-
+    m_Runs.insert(m_Runs.end(), pOtherRuns->begin(), pOtherRuns->end());
     pOtherRuns->clear();
 }
 
@@ -425,8 +418,14 @@ IntPoint Blob::findNeighborInside(const IntPoint& Pt, int& Dir)
     return Pt;
 }
 
+bool run_is_less(const Run& r1, const Run& r2)
+{
+    return r1.m_Row < r2.m_Row;
+}
+
 void Blob::calcContour(int NumPoints)
 {
+    sort(m_Runs.begin(), m_Runs.end(), run_is_less);
     initRowPositions();
     
     // Moore Neighbor Tracing.

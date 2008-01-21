@@ -90,7 +90,7 @@ class Blob
         IntPoint findNeighborInside(const IntPoint& Pt, int& Dir);
         bool ptInBlob(const IntPoint& Pt);
 
-        RunArray m_Runs;
+        RunArray m_Runs; // This array is unsorted until contours are calculated.
         std::vector<RunArray::iterator> m_RowPositions;
         BlobWeakPtrVector m_RelatedBlobs; // For fingers, this contains the hand.
                                           // For hands, this contains the fingers.
