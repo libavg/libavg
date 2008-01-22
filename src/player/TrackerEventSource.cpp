@@ -260,8 +260,9 @@ namespace avg {
             if (isRelevant(*it, pBlobConfig)) {
                 NewRelevantBlobs.push_back(*it);
 
-                if (m_TrackerConfig.m_ContourVertexes)
-                    (*it)->calcContour(m_TrackerConfig.m_ContourVertexes);
+                if (m_TrackerConfig.m_ContourPrecision) {
+                    (*it)->calcContour(m_TrackerConfig.m_ContourPrecision);
+                }
             }
             if (NewRelevantBlobs.size() > 50) {
                 break;

@@ -62,7 +62,7 @@ class Blob
         bool contains(IntPoint pt);
 
         void calcStats();
-        void calcContour(int NumPoints);
+        void calcContour(int Precision);
         ContourSeq getContour();
 
         const DPoint& getCenter() const;

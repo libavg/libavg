@@ -423,23 +423,44 @@ bool run_is_less(const Run& r1, const Run& r2)
     return r1.m_Row < r2.m_Row;
 }
 
-void Blob::calcContour(int NumPoints)
+void Blob::calcContour(int Precision)
 {
+//    cerr << "Contour" << endl;
     sort(m_Runs.begin(), m_Runs.end(), run_is_less);
     initRowPositions();
     
     // Moore Neighbor Tracing.
     IntPoint BoundaryPt(m_Runs[0].m_StartCol, m_Runs[0].m_Row);
     IntPoint FirstPt(BoundaryPt);
-    int i = 8;
+    int i = Precision;
     int Dir = 1;
+    int OldDir = 0;
     do {
-        if (i==16) {
+        switch (Dir-OldDir) {
+            case 0:
+                i++;
+                break;
+            case 1:
+            case -1:
+            case 7:
+            case -7:
+                i+=12;
+                break;
+            case 2:
+            case -2:
+            case 6:
+            case -6:
+                i+=25;
+                break;
+            default:
+                i += 50;
+                break;
+        } 
+        if (i>=Precision) {
             m_Contour.push_back(BoundaryPt);
             i = 0;
-        } else {
-            i++;
-        } 
+        }
+        OldDir = Dir;
         BoundaryPt = findNeighborInside(BoundaryPt, Dir);
     } while(FirstPt != BoundaryPt);
 }

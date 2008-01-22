@@ -109,7 +109,7 @@ namespace avg {
           m_Shutter(128),
           m_HistoryUpdateInterval(5),
           m_bBrighterRegions(true),
-          m_ContourVertexes(20),
+          m_ContourPrecision(50),
           m_bCreateDebugImages(false),
           m_bCreateFingerImage(false),
           m_pTrafo(new DeDistort()),
@@ -281,7 +281,7 @@ namespace avg {
         cerr << "  Tracker:" << endl;
         cerr << "    HistoryUpdateInterval: " << m_HistoryUpdateInterval << endl;
         cerr << "    BrighterRegions: " << m_bBrighterRegions << endl;
-        cerr << "    ContourVertexes: " << m_ContourVertexes << endl;
+        cerr << "    ContourPrecision: " << m_ContourPrecision << endl;
         // TODO: Dump Touch/Track
         m_pTrafo->dump();
     }
@@ -357,8 +357,8 @@ namespace avg {
                 m_HistoryUpdateInterval = getRequiredIntAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "brighterregions")) {
                 m_bBrighterRegions = getRequiredBoolAttr(curXmlChild, "value");
-            } else if (!strcmp(pNodeName, "contourvertexes")) {
-                m_ContourVertexes = getRequiredIntAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "contourprecision")) {
+                m_ContourPrecision = getRequiredIntAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "touch")) {
                 m_pTouch = BlobConfigPtr(new BlobConfig(true));
                 m_pTouch->load(curXmlChild, sFilename);
