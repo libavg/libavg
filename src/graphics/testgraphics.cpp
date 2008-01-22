@@ -37,6 +37,8 @@
 #include "FilterGauss.h"
 #include "FilterBlur.h"
 #include "FilterBandpass.h"
+#include "FilterFastDownscale.h"
+
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
 
@@ -713,6 +715,28 @@ public:
     }
 };
 
+class FilterFastDownscaleTest: public Test {
+public:
+    FilterFastDownscaleTest()
+        : Test("FilterFastDownscaleTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(4,4), I8));
+        FilterFill<Pixel8>(0).applyInPlace(pBmp);
+        *(pBmp->getPixels()+pBmp->getStride()*3+3) = 252;
+
+        BitmapPtr pDestBmp = FilterFastDownscale(2).apply(pBmp);
+//        pDestBmp->save("testimages/FastDownscaleResult.png");
+        string sFName = getSrcDir()+"testimages/FastDownscaleResult.png";
+        BitmapPtr pBaselineBmp = FilterGrayscale().apply(
+                BitmapPtr(new Bitmap(sFName)));
+        TEST(*pDestBmp == *pBaselineBmp);
+    }
+};
+
 
 class GraphicsTestSuite: public TestSuite {
 public:
@@ -735,6 +759,7 @@ public:
         addTest(TestPtr(new FilterBlurTest));
         addTest(TestPtr(new FilterBandpassTest));
         addTest(TestPtr(new FilterFastBandpassTest));
+        addTest(TestPtr(new FilterFastDownscaleTest));
     }
 };
 

@@ -5,12 +5,12 @@ ALL_H = Bitmap.h Filter.h\
 		Filtercolorize.h Filterfill.h Filterfillrect.h Filterflip.h \
 		Filterfliprgb.h Filterflipuv.h Filtergrayscale.h Filter3x3.h \
 		FilterId.h HistoryPreProcessor.h FilterConvol.h FilterHighpass.h \
-        FilterFastBandpass.h Filterfliprgba.h \
+        FilterFastBandpass.h Filterfliprgba.h FilterFastDownscale.h \
         FilterGauss.h FilterBandpass.h FilterBlur.h
 ALL_CPP = Bitmap.cpp Filter.cpp Filtergrayscale.cpp \
 		Filtercolorize.cpp Filterflip.cpp Filterfliprgb.cpp \
         Filterflipuv.cpp Filter3x3.cpp HistoryPreProcessor.cpp FilterHighpass.cpp \
-        FilterFastBandpass.cpp Filterfliprgba.cpp \
+        FilterFastBandpass.cpp Filterfliprgba.cpp FilterFastDownscale.cpp \
         FilterGauss.cpp FilterBandpass.cpp FilterBlur.cpp  
 
 TESTS=testgraphics
