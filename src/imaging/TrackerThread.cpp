@@ -76,7 +76,7 @@ TrackerThread::TrackerThread(IntRect ROI,
     m_Prescale = config.m_Prescale; 
     m_bTrackBrighter = config.m_bBrighterRegions; 
     setBitmaps(ROI, ppBitmaps);
-    m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), 
+    m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[1]->getSize(), 
             config.m_pTrafo));
 }
 
@@ -179,7 +179,7 @@ void TrackerThread::setConfig(TrackerConfig Config)
         m_pHistoryPreProcessor->setInterval(Config.m_HistoryUpdateInterval);
     }
     if (!(*m_pTrafo == *Config.m_pTrafo)) {
-        m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), 
+        m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[1]->getSize(), 
                 Config.m_pTrafo));
         *m_pTrafo = *Config.m_pTrafo;
     }

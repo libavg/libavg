@@ -63,7 +63,7 @@ namespace avg {
     {
         ObjectCounter::get()->incRef(&typeid(*this));
 
-        IntPoint ImgSize = pCamera->getImgSize()/Config.m_Prescale;
+        IntPoint ImgSize = pCamera->getImgSize();
         m_pBitmaps[0] = BitmapPtr(new Bitmap(ImgSize, I8));
         m_pUpdateMutex = MutexPtr(new boost::mutex);
         m_pTrackerMutex = MutexPtr(new boost::mutex);
@@ -106,8 +106,8 @@ namespace avg {
 
         // Test if active area is outside camera.
         DRect Area = m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents));
-        if (Area.br.x > m_TrackerConfig.m_Size.x || 
-            Area.br.y > m_TrackerConfig.m_Size.y ||
+        if (Area.br.x > m_TrackerConfig.m_Size.x/m_TrackerConfig.m_Prescale || 
+            Area.br.y > m_TrackerConfig.m_Size.y/m_TrackerConfig.m_Prescale ||
             Area.tl.x < 0 || Area.tl.y < 0)
         {
             m_TrackerConfig.setParam(BAD_CAST sElement.c_str(), BAD_CAST sOldParamVal.c_str());
