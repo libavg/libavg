@@ -42,7 +42,7 @@ struct BlobConfig
     bool m_bIsTouch;
     int m_Threshold; //min pixel val for detection
     double m_Similarity; //max distance for tracking blobs
-    double m_AreaBounds[2]; //min, max for area in percents of screen size
+    double m_AreaBounds[2]; //min, max for area in percent of screen size
     double m_EccentricityBounds[2]; //min, max for Eccentricity
 };
 
@@ -75,6 +75,7 @@ struct TrackerConfig
     int m_Gain;
     int m_Shutter;
 
+    int m_Prescale;
     int m_HistoryUpdateInterval;
     bool m_bBrighterRegions; // detect brighter or darker pixels rel. to the background.
     bool m_bEventOnMove;

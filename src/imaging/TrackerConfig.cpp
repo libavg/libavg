@@ -107,6 +107,7 @@ namespace avg {
           m_Gamma(1),
           m_Gain(128),
           m_Shutter(128),
+          m_Prescale(5),
           m_HistoryUpdateInterval(5),
           m_bBrighterRegions(true),
           m_bEventOnMove(true),
@@ -280,6 +281,7 @@ namespace avg {
         cerr << "    Gain: " << m_Gain << endl;
         cerr << "    Shutter: " << m_Shutter << endl;
         cerr << "  Tracker:" << endl;
+        cerr << "    Prescale: " << m_Prescale << endl;
         cerr << "    HistoryUpdateInterval: " << m_HistoryUpdateInterval << endl;
         cerr << "    BrighterRegions: " << m_bBrighterRegions << endl;
         cerr << "    EventOnMove: " << m_bEventOnMove << endl;
@@ -355,7 +357,9 @@ namespace avg {
         xmlNodePtr curXmlChild = pParentNode->xmlChildrenNode;
         while (curXmlChild) {
             const char * pNodeName = (const char *)curXmlChild->name;
-            if (!strcmp(pNodeName, "historyupdateinterval")) {
+            if (!strcmp(pNodeName, "prescale")) {
+                m_Prescale = getRequiredIntAttr(curXmlChild, "value");
+            } else if (!strcmp(pNodeName, "historyupdateinterval")) {
                 m_HistoryUpdateInterval = getRequiredIntAttr(curXmlChild, "value");
             } else if (!strcmp(pNodeName, "brighterregions")) {
                 m_bBrighterRegions = getRequiredBoolAttr(curXmlChild, "value");

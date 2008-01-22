@@ -63,7 +63,7 @@ namespace avg {
     {
         ObjectCounter::get()->incRef(&typeid(*this));
 
-        IntPoint ImgSize = pCamera->getImgSize();
+        IntPoint ImgSize = pCamera->getImgSize()/Config.m_Prescale;
         m_pBitmaps[0] = BitmapPtr(new Bitmap(ImgSize, I8));
         m_pUpdateMutex = MutexPtr(new boost::mutex);
         m_pTrackerMutex = MutexPtr(new boost::mutex);

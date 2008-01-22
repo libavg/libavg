@@ -29,6 +29,7 @@
 #include "../graphics/Filterfill.h"
 #include "../graphics/FilterHighpass.h"
 #include "../graphics/FilterFastBandpass.h"
+#include "../graphics/FilterFastDownscale.h"
 #include "../graphics/FilterBlur.h"
 #include "../graphics/FilterGauss.h"
 
@@ -43,6 +44,7 @@ static ProfilingZone ProfilingZoneTracker ("Tracker");
 static ProfilingZone ProfilingZoneHistory ("History");
 static ProfilingZone ProfilingZoneDistort ("Distort");
 static ProfilingZone ProfilingZoneHistogram ("Histogram");
+static ProfilingZone ProfilingZoneDownscale ("Downscale");
 static ProfilingZone ProfilingZoneBandpass ("Bandpass");
 static ProfilingZone ProfilingZoneComps("ConnectedComps");
 static ProfilingZone ProfilingZoneUpdate("Update");
@@ -71,6 +73,7 @@ TrackerThread::TrackerThread(IntRect ROI,
                 new HistoryPreProcessor(ppBitmaps[1]->getSize(), 1, 
                 config.m_bBrighterRegions));
     }
+    m_Prescale = config.m_Prescale; 
     m_bTrackBrighter = config.m_bBrighterRegions; 
     setBitmaps(ROI, ppBitmaps);
     m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), 
@@ -106,6 +109,10 @@ bool TrackerThread::work()
             *(m_pBitmaps[TRACKER_IMG_CAMERA]) = *pCamBmp;
             ScopeTimer Timer(ProfilingZoneHistogram);
             drawHistogram(m_pBitmaps[TRACKER_IMG_HISTOGRAM], pCamBmp);
+        }
+        {
+            ScopeTimer Timer(ProfilingZoneDownscale);
+            FilterFastDownscale(m_Prescale).applyInPlace(pCamBmp);
         }
         BitmapPtr pDistortedBmp;
         {
@@ -167,6 +174,7 @@ void TrackerThread::setConfig(TrackerConfig Config)
     } else {
         m_TrackThreshold = 0;
     }
+    m_Prescale = Config.m_Prescale;
     if(m_pHistoryPreProcessor) {
         m_pHistoryPreProcessor->setInterval(Config.m_HistoryUpdateInterval);
     }
