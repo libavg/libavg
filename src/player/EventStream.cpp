@@ -51,13 +51,18 @@ namespace avg {
         ObjectCounter::get()->decRef(&typeid(*this));
     }
 
-    void EventStream::blobChanged(BlobPtr new_blob)
+    void EventStream::blobChanged(BlobPtr new_blob, bool bEventOnMove)
     {
         assert(m_pBlob);
         assert(new_blob);
         m_VanishCounter = 0;
         DPoint c = new_blob->getCenter();
-        bool pos_changed = (calcDist(c, m_Pos) > 1.5);
+        bool pos_changed;
+        if (bEventOnMove) {
+            pos_changed = (calcDist(c, m_Pos) > 1.5);
+        } else {
+            pos_changed = true;
+        }
         switch(m_State) {
             case DOWN_PENDING:
                 //finger touch has not been polled yet. update position

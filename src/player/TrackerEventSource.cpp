@@ -305,7 +305,7 @@ namespace avg {
                 assert (pEvents->find(pOldBlob) != pEvents->end());
                 EventStreamPtr pStream;
                 pStream = pEvents->find(pOldBlob)->second;
-                pStream->blobChanged(pNewBlob);
+                pStream->blobChanged(pNewBlob, m_TrackerConfig.m_bEventOnMove);
                 // Update the mapping.
                 (*pEvents)[pNewBlob] = pStream;
                 pEvents->erase(pOldBlob);
