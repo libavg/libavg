@@ -453,7 +453,7 @@ void Blob::calcContour(int Precision)
                 i+=25;
                 break;
             default:
-                i += 50;
+                i += Precision;
                 break;
         } 
         if (i>=Precision) {
