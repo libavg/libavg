@@ -245,19 +245,18 @@ void TrackerThread::drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp)
     }
     
     FilterFill<Pixel8>(0).applyInPlace(pDestBmp);
-    int Width = pDestBmp->getSize().x;
     int Stride = pDestBmp->getStride();
     int EndRow = 256;
     if (pDestBmp->getSize().y < 256) {
         EndRow = pDestBmp->getSize().y;
     }
     for (int i=0; i<EndRow; ++i) {
-        int StartCol =Width-(*pHist)[i];
-        if (StartCol < 0) { 
-            StartCol = 0;
+        int EndCol =(*pHist)[i];
+        if (EndCol < 0) { 
+            EndCol = 0;
         }
-        unsigned char * pDest = pDestBmp->getPixels()+Stride*i+StartCol;
-        memset(pDest, 255, Width-StartCol);
+        unsigned char * pDest = pDestBmp->getPixels()+Stride*i;
+        memset(pDest, 255, EndCol);
     }
 }
 
