@@ -204,6 +204,7 @@ void TrackerThread::setConfig(TrackerConfig Config)
 
 void TrackerThread::setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES])
 {
+    boost::mutex::scoped_lock Lock(*m_pMutex);
     m_ROI = ROI;
     for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
         m_pBitmaps[i] = ppBitmaps[i];
