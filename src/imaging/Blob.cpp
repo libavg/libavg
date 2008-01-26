@@ -434,8 +434,10 @@ void Blob::calcContour(int Precision)
     IntPoint FirstPt(BoundaryPt);
     int i = Precision;
     int Dir = 1;
-    int OldDir = 0;
+//    int OldDir = 0;
     do {
+        i++;
+/*
         switch (Dir-OldDir) {
             case 0:
                 i++;
@@ -455,12 +457,13 @@ void Blob::calcContour(int Precision)
             default:
                 i += Precision;
                 break;
-        } 
+        }
+*/
         if (i>=Precision) {
             m_Contour.push_back(BoundaryPt);
             i = 0;
         }
-        OldDir = Dir;
+//        OldDir = Dir;
         BoundaryPt = findNeighborInside(BoundaryPt, Dir);
     } while(FirstPt != BoundaryPt);
 }
