@@ -250,10 +250,11 @@ void TrackerThread::drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp)
     if (pDestBmp->getSize().y < 256) {
         EndRow = pDestBmp->getSize().y;
     }
+    int Width = pDestBmp->getSize().x;
     for (int i=0; i<EndRow; ++i) {
         int EndCol =(*pHist)[i];
-        if (EndCol < 0) { 
-            EndCol = 0;
+        if (EndCol > Width) { 
+            EndCol = Width;
         }
         unsigned char * pDest = pDestBmp->getPixels()+Stride*i;
         memset(pDest, 255, EndCol);
