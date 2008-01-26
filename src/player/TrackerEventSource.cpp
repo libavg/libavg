@@ -154,6 +154,7 @@ namespace avg {
         IntPoint ImgSize(Area.size());
         for (int i=1; i<NUM_TRACKER_IMAGES-1; i++) {
             m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgSize, I8));
+            FilterFill<Pixel8>(Pixel8(0)).applyInPlace(m_pBitmaps[i]);
         }
         m_pBitmaps[TRACKER_IMG_FINGERS] = BitmapPtr(new Bitmap(ImgSize, B8G8R8A8));
         FilterFill<Pixel32>(Pixel32(0,0,0,0)).applyInPlace(m_pBitmaps[TRACKER_IMG_FINGERS]);
