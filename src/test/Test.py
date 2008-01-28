@@ -657,43 +657,59 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testWarp3", False),
                  Player.stop))
 
-    def testWords(self):
+    def testSimpleWords(self):
+        self.start("simpletext.avg",
+                (lambda: self.compareImage("testSimpleWords", True),
+                 Player.stop))
+
+    def testParaWords(self):
+        self.start("paratext.avg",
+                (lambda: self.compareImage("testParaWords", True),
+                 Player.stop))
+    
+    def testDynamicWords(self):
         def changeText():
-            node = Player.getElementByID("cbasetext")
+            node = Player.getElementByID("dynamictext")
             oldwidth = node.width
             node.text = "blue" 
             self.assert_(node.width != oldwidth)
             node.color = "404080"
             node.x += 10
         def changeHeight():
-            node = Player.getElementByID("cbasetext")
+            node = Player.getElementByID("dynamictext")
             node.height = 28
         def activateText():
-            Player.getElementByID('cbasetext').active = 1
+            Player.getElementByID('dynamictext').active = 1
         def deactivateText():
-            Player.getElementByID('cbasetext').active = 0
+            Player.getElementByID('dynamictext').active = 0
         def changeFont():
-            node = Player.getElementByID("cbasetext")
+            node = Player.getElementByID("dynamictext")
             node.font = "Times New Roman"
             node.height = 0
             node.size = 30
         def changeFont2():
-            node = Player.getElementByID("cbasetext")
+            node = Player.getElementByID("dynamictext")
             node.size = 18
+        self.start("dynamictext.avg",
+                (lambda: self.compareImage("testDynamicWords1", True),
+                 changeText,
+                 changeHeight,
+                 changeFont,
+                 lambda: self.compareImage("testDynamicWords2", True),
+                 deactivateText,
+                 lambda: self.compareImage("testDynamicWords3", True),
+                 activateText,
+                 changeFont2,
+                 lambda: self.compareImage("testDynamicWords4", True),
+                 Player.stop))
+
+    def testI18NWords(self):
         def changeUnicodeText():
             Player.getElementByID("dynamictext").text = "Arabic nonsense: ﯿﭗ"
-        self.start("text.avg",
-                (lambda: self.compareImage("testWords1", True),
-#                 changeText,
-#                 changeHeight,
-#                 deactivateText,
-#                 lambda: self.compareImage("testWords2", True),
-#                 activateText,
-#                 changeFont,
-#                 lambda: self.compareImage("testWords3", True),
-#                 changeFont2,
-#                 changeUnicodeText,
-#                 lambda: self.compareImage("testWords4", True),
+        self.start("i18ntext.avg",
+                (lambda: self.compareImage("testI18NWords1", True),
+                 changeUnicodeText,
+                 lambda: self.compareImage("testI18NWords2", True),
                  Player.stop))
 
     def testVideo(self):
@@ -1115,7 +1131,10 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testBlend", bpp))
     suite.addTest(PlayerTestCase("testCropImage", bpp))
     suite.addTest(PlayerTestCase("testCropMovie", bpp))
-    suite.addTest(PlayerTestCase("testWords", bpp))
+    suite.addTest(PlayerTestCase("testSimpleWords", bpp))
+    suite.addTest(PlayerTestCase("testParaWords", bpp))
+    suite.addTest(PlayerTestCase("testDynamicWords", bpp))
+    suite.addTest(PlayerTestCase("testI18NWords", bpp))
     suite.addTest(PlayerTestCase("testVideo", bpp))
     suite.addTest(PlayerTestCase("testVideoSeek", bpp))
     suite.addTest(PlayerTestCase("testVideoFPS", bpp))

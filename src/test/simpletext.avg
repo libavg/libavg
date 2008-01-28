@@ -1,0 +1,11 @@
+<avg width="160" height="120">
+    <words x="1" y="1" size="12" font="arial" text="Arial"/>
+    <words x="32" y="1" size="12" font="arial" weight="bold" text="bold"/>
+    <words x="1" y="15" size="12" font="times new roman" text="Times New Roman"/>
+     <words x="1" y="30" size="12.5" parawidth="120" font="arial">
+        Custom 
+        <span size='16000' rise='5000' foreground='red'><b>markup</b></span>, 
+        <i>italics</i>, etc.
+     </words>
+</avg>
+
