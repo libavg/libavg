@@ -330,7 +330,6 @@ namespace avg {
                 (*it).second->blobGone();
             }
         }
-//        cerr << pEvents->size() << endl;
     };
 
    void TrackerEventSource::correlateBlobs()
@@ -456,7 +455,7 @@ namespace avg {
         for (EventMap::iterator it = Events.begin(); it!= Events.end();) {
             EventStreamPtr pStream = (*it).second;
             pEvent = pStream->pollevent(m_TrackerConfig.m_pTrafo, m_DisplayExtents, 
-                    source);
+                    source, m_TrackerConfig.m_bEventOnMove);
             if (pEvent) {
                 res.push_back(pEvent);
             }

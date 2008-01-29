@@ -127,8 +127,7 @@ Player::~Player()
     delete m_pTestHelper;
 }
 
-void Player::setResolution(bool bFullscreen, 
-                int width, int height, int bpp)
+void Player::setResolution(bool bFullscreen, int width, int height, int bpp)
 {
     m_DP.m_bFullscreen = bFullscreen;
     if (bpp) {

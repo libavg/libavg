@@ -115,7 +115,7 @@ namespace avg {
     }
 
     Event* EventStream::pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, 
-            CursorEvent::Source Source)
+            CursorEvent::Source Source, bool bEventOnMove)
     {
         assert(m_pBlob);
         DPoint BlobOffset = trafo->getActiveBlobArea(DPoint(DisplayExtents)).tl;
@@ -139,6 +139,12 @@ namespace avg {
                         m_pBlob, Pos, Source);
             case DOWN_DELIVERED:
             case MOTION_DELIVERED:
+                if (!bEventOnMove) {
+                    return new TouchEvent(m_Id, Event::CURSORMOTION,
+                            m_pBlob, Pos, Source);
+                } else {
+                    return 0;
+                }
             case UP_DELIVERED:
             default:
                 //return no event
