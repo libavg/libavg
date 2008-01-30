@@ -65,8 +65,7 @@ namespace avg {
 
         IntPoint ImgSize = pCamera->getImgSize();
         m_pBitmaps[0] = BitmapPtr(new Bitmap(ImgSize, I8));
-        m_pUpdateMutex = MutexPtr(new boost::mutex);
-        m_pTrackerMutex = MutexPtr(new boost::mutex);
+        m_pMutex = MutexPtr(new boost::mutex);
         handleROIChange();
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
         IntRect ROI = m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents));
@@ -81,7 +80,7 @@ namespace avg {
                     ROI,
                     pCamera,
                     m_pBitmaps, 
-                    m_pTrackerMutex,
+                    m_pMutex,
                     *m_pCmdQueue,
                     this,
                     bSubtractHistory,
@@ -149,7 +148,7 @@ namespace avg {
 
     void TrackerEventSource::handleROIChange()
     {
-        boost::mutex::scoped_lock Lock(*m_pTrackerMutex);
+        boost::mutex::scoped_lock Lock(*m_pMutex);
         DRect Area = m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents));
         IntPoint ImgSize(Area.size());
         for (int i=1; i<NUM_TRACKER_IMAGES-1; i++) {
@@ -166,7 +165,7 @@ namespace avg {
 
     Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const
     {
-        boost::mutex::scoped_lock Lock(*m_pTrackerMutex);
+        boost::mutex::scoped_lock Lock(*m_pMutex);
         return new Bitmap(*m_pBitmaps[ImageID]);
     }
     
@@ -203,7 +202,6 @@ namespace avg {
             int TrackThreshold, BlobVectorPtr pTouchBlobs, BitmapPtr pTouchBmp, 
             int TouchThreshold, BitmapPtr pDestBmp)
     {
-        boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
         if (pTrackBlobs) {
             calcBlobs(pTrackBlobs, false);
         }
@@ -436,7 +434,7 @@ namespace avg {
 
     vector<Event*> TrackerEventSource::pollEvents()
     {
-        boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
+        boost::mutex::scoped_lock Lock(*m_pMutex);
         vector<Event*> pTouchEvents = std::vector<Event *>();
         vector<Event*> pTrackEvents = std::vector<Event *>();
         pollEventType(pTouchEvents, m_TouchEvents, CursorEvent::TOUCH);

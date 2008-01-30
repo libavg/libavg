@@ -67,6 +67,8 @@ Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
     m_RelViewport.tl.y = getDefaultedDoubleAttr (xmlNode, "y", 0.0);
     m_WantedSize.x = getDefaultedDoubleAttr (xmlNode, "width", 0.0);
     m_WantedSize.y = getDefaultedDoubleAttr (xmlNode, "height", 0.0);
+    m_RelViewport.setWidth(m_WantedSize.x);
+    m_RelViewport.setHeight(m_WantedSize.y);
     m_Angle = getDefaultedDoubleAttr (xmlNode, "angle", 0);
     m_Pivot.x = getDefaultedDoubleAttr (xmlNode, "pivotx", -32767);
     m_Pivot.y = getDefaultedDoubleAttr (xmlNode, "pivoty", -32767);

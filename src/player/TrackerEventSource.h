@@ -101,12 +101,11 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
                 EventMap * pEvents);
 
         // Used by both threads
-        MutexPtr m_pUpdateMutex;
         EventMap m_TouchEvents;
         EventMap m_TrackEvents;
         TrackerConfig m_TrackerConfig;
 
-        MutexPtr m_pTrackerMutex;
+        MutexPtr m_pMutex;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
 
         TrackerThread::CmdQueuePtr m_pCmdQueue;
