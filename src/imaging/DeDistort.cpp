@@ -40,8 +40,8 @@ namespace avg{
 //   a lot of parameters enter here, some of which can be calculated/set manually, 
 //   some of which need to be determined via an optimization procedure
 //
-//   * m_FilmOffset moves the optical axis back to the center of the image:
-//   * m_FilmScale scales the ROI to standard coords
+//   * m_CameraDisplacement moves the optical axis back to the center of the image:
+//   * m_CameraScale scales the ROI to standard coords
 //   * m_pDistortionParams OPT see paper
 //   * m_Angle corrects rotation of camera OPT
 //   * m_DisplayScale convert back from standard coords to display
@@ -49,8 +49,8 @@ namespace avg{
 //     
 
 DeDistort::DeDistort()
-    : m_FilmOffset(0,0),
-      m_FilmScale(1,1),
+    : m_CameraDisplacement(0,0),
+      m_CameraScale(1,1),
       m_Angle(0.0),
       m_TrapezoidFactor(0),
       m_DisplayOffset(0,0),
@@ -66,8 +66,8 @@ DeDistort::DeDistort(const DPoint& CamExtents, const DPoint& DisplayExtents)
       m_TrapezoidFactor(0),
       m_DisplayOffset(0,0)
 {
-    m_FilmOffset = -CamExtents/2; 
-    m_FilmScale = DPoint(2./CamExtents.x,2./CamExtents.y);
+    m_CameraDisplacement = -CamExtents/2; 
+    m_CameraScale = DPoint(2./CamExtents.x,2./CamExtents.y);
     m_DistortionParams.push_back(0);
     m_DistortionParams.push_back(0);
     m_DisplayScale.x = DisplayExtents.x/CamExtents.x;
@@ -85,8 +85,8 @@ DeDistort::DeDistort(const DPoint &CamExtents,
       m_DisplayOffset(DisplayOffset),
       m_DisplayScale(DisplayScale)
 {
-    m_FilmOffset = -CamExtents/2; 
-    m_FilmScale = DPoint(2./CamExtents.x,2./CamExtents.y);
+    m_CameraDisplacement = -CamExtents/2; 
+    m_CameraScale = DPoint(2./CamExtents.x,2./CamExtents.y);
     m_RescaleFactor = calc_rescale();
 }
 
@@ -113,11 +113,11 @@ void DeDistort::load(xmlNodePtr pParentNode)
     while (curXmlChild) {
         const char * pNodeName = (const char *)curXmlChild->name;
         if (!strcmp(pNodeName, "cameradisplacement")) {
-            m_FilmOffset.x = getRequiredDoubleAttr(curXmlChild, "x");
-            m_FilmOffset.y = getRequiredDoubleAttr(curXmlChild, "y");
+            m_CameraDisplacement.x = getRequiredDoubleAttr(curXmlChild, "x");
+            m_CameraDisplacement.y = getRequiredDoubleAttr(curXmlChild, "y");
         } else if (!strcmp(pNodeName, "camerascale")) {
-            m_FilmScale.x = getRequiredDoubleAttr(curXmlChild, "x");
-            m_FilmScale.y = getRequiredDoubleAttr(curXmlChild, "y");
+            m_CameraScale.x = getRequiredDoubleAttr(curXmlChild, "x");
+            m_CameraScale.y = getRequiredDoubleAttr(curXmlChild, "y");
         } else if (!strcmp(pNodeName, "distortionparams")) {
             m_DistortionParams.clear();
             m_DistortionParams.push_back(getRequiredDoubleAttr(curXmlChild, "p2"));
@@ -142,8 +142,8 @@ void DeDistort::save(xmlTextWriterPtr writer)
 {
     int rc;
     rc = xmlTextWriterStartElement(writer, BAD_CAST "transform");
-    writePoint(writer, "cameradisplacement", m_FilmOffset);
-    writePoint(writer, "camerascale", m_FilmScale);
+    writePoint(writer, "cameradisplacement", m_CameraDisplacement);
+    writePoint(writer, "camerascale", m_CameraScale);
     rc = xmlTextWriterStartElement(writer, BAD_CAST "distortionparams");
     writeAttribute(writer, "p2", m_DistortionParams[0]);
     writeAttribute(writer, "p3", m_DistortionParams[1]);
@@ -157,8 +157,8 @@ void DeDistort::save(xmlTextWriterPtr writer)
 
 bool DeDistort::operator ==(const DeDistort& other) const
 {
-    return (m_FilmOffset == other.m_FilmOffset &&
-        m_FilmScale == other.m_FilmScale &&
+    return (m_CameraDisplacement == other.m_CameraDisplacement &&
+        m_CameraScale == other.m_CameraScale &&
         m_DistortionParams == other.m_DistortionParams &&
         m_Angle == other.m_Angle &&
         m_TrapezoidFactor == other.m_TrapezoidFactor &&
@@ -170,8 +170,8 @@ bool DeDistort::operator ==(const DeDistort& other) const
 void DeDistort::dump() const
 {
     cerr << "  Transform:" << endl;
-    cerr << "    FilmOffset: " << m_FilmOffset << endl;
-    cerr << "    FilmScale: " << m_FilmScale << endl;
+    cerr << "    CameraDisplacement: " << m_CameraDisplacement << endl;
+    cerr << "    CameraScale: " << m_CameraScale << endl;
     cerr << "    DistortionParams: " << m_DistortionParams[0] << ", " 
             << m_DistortionParams[1] << endl;
     cerr << "    Trapezoid: " << m_TrapezoidFactor << endl;
@@ -193,14 +193,14 @@ DPoint DeDistort::transformScreenToBlob(const DPoint &pt)
 DPoint DeDistort::inverse_transform_point(const DPoint &pt)
 {
 //    return inverse_undistort(m_DistortionParams, pt);
-    return translate(-m_FilmOffset,
-            scale(DPoint(1./m_FilmScale.x, 1./m_FilmScale.y),
+    return translate(-m_CameraDisplacement,
+            scale(DPoint(1./m_CameraScale.x, 1./m_CameraScale.y),
                 inverse_undistort(m_DistortionParams,
                     scale(m_RescaleFactor,
                         rotate(-m_Angle,
                             inv_trapezoid(m_TrapezoidFactor,
-                                scale(m_FilmScale,
-                                    translate(m_FilmOffset,
+                                scale(m_CameraScale,
+                                    translate(m_CameraDisplacement,
                                         pt
                                         )
                                     )
@@ -224,14 +224,15 @@ DPoint DeDistort::transformBlobToScreen(const DPoint &pt){
 DPoint DeDistort::transform_point(const DPoint &pt)
 {
     return
-        translate(-m_FilmOffset,
-                scale(DPoint(1./m_FilmScale.x, 1./m_FilmScale.y),
+        translate(-m_CameraDisplacement,
+                scale(DPoint(1./m_CameraScale.x, 1./m_CameraScale.y),
                     trapezoid(m_TrapezoidFactor,
                         rotate(m_Angle, //rotate
                             scale(1./m_RescaleFactor,
                                 undistort(m_DistortionParams, //undistort;
-                                    scale(m_FilmScale,  // scale to -1,-1,1,1
-                                        translate(m_FilmOffset, // move optical axis to (0,0) 
+                                    scale(m_CameraScale,  // scale to -1,-1,1,1
+                                        translate(m_CameraDisplacement, 
+                                                    // move optical axis to (0,0) 
                                             pt 
                                             )
                                         )

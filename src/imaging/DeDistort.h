@@ -72,8 +72,8 @@ class DeDistort: public CoordTransformer {
         DPoint translate(const DPoint &displacement, const DPoint &pt);
         DPoint rotate(double angle, const DPoint &pt);
 
-        DPoint m_FilmOffset;
-        DPoint m_FilmScale;
+        DPoint m_CameraDisplacement;
+        DPoint m_CameraScale;
         std::vector<double> m_DistortionParams;
         double m_Angle;
         double m_TrapezoidFactor;
