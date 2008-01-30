@@ -112,7 +112,9 @@ bool TrackerThread::work()
         }
         {
             ScopeTimer Timer(ProfilingZoneDownscale);
-            FilterFastDownscale(m_Prescale).applyInPlace(pCamBmp);
+            if (m_Prescale != 1) {
+                FilterFastDownscale(m_Prescale).applyInPlace(pCamBmp);
+            }
         }
         BitmapPtr pDistortedBmp;
         {

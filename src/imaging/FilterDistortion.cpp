@@ -75,7 +75,7 @@ namespace avg{
 
     BitmapPtr FilterDistortion::apply(BitmapPtr pBmpSource)
     {
-        BitmapPtr res = BitmapPtr(new Bitmap(*pBmpSource));
+        BitmapPtr res = BitmapPtr(new Bitmap(m_srcRect.size(), I8));
         unsigned char *p = res->getPixels();
         unsigned char *src = pBmpSource->getPixels();
         unsigned char *pLine = p;
