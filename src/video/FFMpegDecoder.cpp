@@ -264,7 +264,7 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
         
         m_EffectiveSampleRate = (int)(m_SpeedFactor*m_pAStream->codec->sample_rate);
     }
-    
+    setMasterStream(SS_DEFAULT);
     // Open codecs for audio and video
     if ((m_VStreamIndex != -1 && openCodec(m_pFormatContext, m_VStreamIndex) == -1) ||
         (m_AStreamIndex != -1 && openCodec(m_pFormatContext, m_AStreamIndex) == -1))
@@ -369,6 +369,16 @@ void FFMpegDecoder::seek(long long DestTime)
         m_AudioPacketSize = 0;
     }
     m_bEOF = false;
+}
+
+bool FFMpegDecoder::hasVideo()
+{
+    return (m_pVStream != 0);
+}
+
+bool FFMpegDecoder::hasAudio()
+{
+    return (m_pAStream != 0);
 }
 
 IntPoint FFMpegDecoder::getSize()
@@ -483,7 +493,7 @@ void FFMpegDecoder::setSpeedFactor(double SpeedFactor)
         }
         
         if(m_pVStream) {
-            m_bUseStreamFPS = (getMasterStream() == SS_AUDIO || m_SpeedFactor == 1.0);
+            m_bUseStreamFPS = (getMasterStream() != SS_VIDEO || m_SpeedFactor == 1.0);
             m_FPS = m_SpeedFactor * getNominalFPS();
         }
     }
@@ -1003,9 +1013,17 @@ long long FFMpegDecoder::getFrameTime(AVPacket* pPacket)
     return FrameTime;
 }
 
+void FFMpegDecoder::setMasterStream(StreamSelect Stream)
+{
+    m_MasterStream = Stream;
+    m_bForceMasterStream = (Stream != SS_DEFAULT);
+}
+
 StreamSelect FFMpegDecoder::getMasterStream()
 {
-	if (m_pAStream && m_bAudioEnabled) {
+    if (m_bForceMasterStream) {
+        return m_MasterStream;
+    } else if (m_pAStream && m_bAudioEnabled) {
 		return SS_AUDIO;
 	} else {
 		return SS_VIDEO;
@@ -1041,11 +1059,11 @@ void FFMpegDecoder::volumize(short* buffer, int size)
     
     for(int i = 0; i < size; i++)
     {
-        double volIncr = 0;
+        double fadeVol = 0;
         if(volDiff != 0 && i < VOLUME_FADE_SAMPLES)
-            volIncr = volDiff * (VOLUME_FADE_SAMPLES - i) / VOLUME_FADE_SAMPLES;
+            fadeVol = volDiff * (VOLUME_FADE_SAMPLES - i) / VOLUME_FADE_SAMPLES;
         
-        int s = int(buffer[i] * (curVol + volIncr));
+        int s = int(buffer[i] * (curVol + fadeVol));
         
         if (s < -32768)
             s = -32768;

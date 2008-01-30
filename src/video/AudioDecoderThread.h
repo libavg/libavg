@@ -18,42 +18,39 @@
 //
 //  Current versions can be found at www.libavg.de
 //
+//  Original author of this file is Nick Hebner (hebnern@gmail.com).
+//
 
-#include "InfoVideoMsg.h"
+#ifndef _AudioDecoderThread_H_
+#define _AudioDecoderThread_H_
+
+#include "IVideoDecoder.h"
+#include "VideoMsg.h"
+
+#include "../base/WorkerThread.h"
+#include "../base/Command.h"
+
+#include <boost/thread.hpp>
+
+#include <string>
 
 namespace avg {
+
+class AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
+    public:
+        AudioDecoderThread(CmdQueue& CmdQ, VideoMsgQueue& MsgQ, 
+                VideoDecoderPtr pDecoder);
+        virtual ~AudioDecoderThread();
         
-InfoVideoMsg::InfoVideoMsg(IntPoint Size, int NumFrames, double FPS, PixelFormat PF)
-    : m_Size(Size),
-      m_NumFrames(NumFrames),
-      m_FPS(FPS),
-      m_PF(PF)
-{
-}
+        bool work();
+        void seek(long long DestTime);
 
-InfoVideoMsg::~InfoVideoMsg()
-{
-}
-
-IntPoint InfoVideoMsg::getSize() const
-{
-    return m_Size;
-}
-
-int InfoVideoMsg::getNumFrames() const
-{
-    return m_NumFrames;
-}
-
-double InfoVideoMsg::getFPS() const
-{
-    return m_FPS;
-}
-
-PixelFormat InfoVideoMsg::getPF() const
-{
-    return m_PF;
-}
+    private:
+        int m_BufferSize;
+        VideoMsgQueue& m_MsgQ;
+        VideoDecoderPtr m_pDecoder;
+};
 
 }
+#endif 
 

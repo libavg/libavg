@@ -29,6 +29,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 
 namespace avg {
 
@@ -49,8 +50,10 @@ namespace avg {
 
             VideoDemuxerThread::CmdQueuePtr m_pCmdQ;
             std::map<int, VideoPacketQueuePtr> m_PacketQs;
+            std::map<int, bool> m_bSeekDone;
 
             bool m_bSeekPending;
+            boost::recursive_mutex m_SeekMutex;
 
     };
     typedef boost::shared_ptr<AsyncDemuxer> AsyncDemuxerPtr;

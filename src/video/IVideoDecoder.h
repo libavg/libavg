@@ -38,7 +38,7 @@ enum FrameAvailableCode {
 };
 
 enum StreamSelect {
-    SS_AUDIO, SS_VIDEO, SS_DEFAULT
+    SS_AUDIO, SS_VIDEO, SS_DEFAULT, SS_NONE
 };
 
 class IVideoDecoder
@@ -49,6 +49,10 @@ class IVideoDecoder
                 bool bSyncDemuxer) = 0;
         virtual void close() = 0;
         virtual void seek(long long DestTime) = 0;
+        virtual StreamSelect getMasterStream() = 0;
+        virtual void setMasterStream(StreamSelect Stream) = 0;
+        virtual bool hasVideo() = 0;
+        virtual bool hasAudio() = 0;
         virtual IntPoint getSize() = 0;
         virtual int getCurFrame() = 0;
         virtual int getNumFrames() = 0;

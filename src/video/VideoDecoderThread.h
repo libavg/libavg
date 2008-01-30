@@ -36,23 +36,16 @@ namespace avg {
 
 class VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
     public:
-        VideoDecoderThread(VideoMsgQueue& MsgQ, CmdQueue& CmdQ, 
-                VideoDecoderPtr pDecoder, const std::string& sFilename, 
-                YCbCrMode ycbcrMode, bool bThreadedDemuxer);
+        VideoDecoderThread(CmdQueue& CmdQ, VideoMsgQueue& MsgQ, 
+                VideoDecoderPtr pDecoder);
         virtual ~VideoDecoderThread();
-        bool init();
+        
         bool work();
-        void deinit();
-
         void seek(long long DestTime);
-        void setFPS(double FPS);
 
     private:
         VideoMsgQueue& m_MsgQ;
         VideoDecoderPtr m_pDecoder;
-        std::string m_sFilename;
-        YCbCrMode m_YCbCrMode;
-        bool m_bThreadedDemuxer;
 };
 
 }

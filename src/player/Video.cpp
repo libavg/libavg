@@ -179,8 +179,6 @@ void Video::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pA
     VideoBase::setRenderingEngines(pDisplayEngine, pAudioEngine);
     if(getAudioEngine()) {
         getAudioEngine()->addSource(this);
-        m_pDecoder->setAudioFormat(getAudioEngine()->getChannels(),
-                getAudioEngine()->getSampleRate());
     }
 }
 
@@ -303,6 +301,8 @@ void Video::open(YCbCrMode ycbcrMode)
 {
     m_FramesTooLate = 0;
     m_FramesPlayed = 0;
+    m_pDecoder->setAudioFormat(getAudioEngine()->getChannels(),
+            getAudioEngine()->getSampleRate());
     m_pDecoder->open(m_Filename, ycbcrMode, m_bThreaded);
     m_pDecoder->setAudioEnabled(m_bAudioEnabled);
     m_pDecoder->setVolume(getVolume());

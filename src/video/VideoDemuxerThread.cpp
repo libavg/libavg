@@ -21,7 +21,6 @@
 
 #include "VideoDemuxerThread.h"
 #include "FrameVideoMsg.h"
-#include "InfoVideoMsg.h"
 #include "ErrorVideoMsg.h"
 #include "EOFVideoMsg.h"
 
@@ -62,19 +61,28 @@ bool VideoDemuxerThread::work()
     } else {
 
         map<int, VideoPacketQueuePtr>::iterator it;
-        int ShortestQ=0;
+        int ShortestQ = -1;
         int ShortestLength = INT_MAX;
         for (it=m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
-            if (it->second->size() < ShortestLength) {
+            if (it->second->size() < ShortestLength && 
+                it->second->size() < it->second->getMaxSize() &&
+                !m_PacketQbEOF[it->first]) {
                 ShortestLength = it->second->size();
                 ShortestQ = it->first;
             }
         }
-        // TODO: This might lose some packets on eof if there is more than one stream.
+        
+        if (ShortestQ < 0) {
+            // All queues are at their max capacity. Take a nap and try again later.
+            TimeSource::get()->msleep(10);
+            return true;
+        }
+        
         AVPacket * pPacket = m_pDemuxer->getPacket(ShortestQ);
         if (pPacket == 0) {
-            m_bEOF = true;
+            onStreamEOF(ShortestQ);
         }
+        
         m_PacketQs[ShortestQ]->push(PacketVideoMsgPtr(new PacketVideoMsg(pPacket, false)));
     }
     return true;
@@ -87,6 +95,7 @@ void VideoDemuxerThread::deinit()
 void VideoDemuxerThread::enableStream(VideoPacketQueuePtr pPacketQ, int StreamIndex)
 {
     m_PacketQs[StreamIndex] = pPacketQ;
+    m_PacketQbEOF[StreamIndex] = false;
     m_pDemuxer->enableStream(StreamIndex);
 }
 
@@ -97,8 +106,23 @@ void VideoDemuxerThread::seek(long long DestTime)
     for (it=m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
         VideoPacketQueuePtr pPacketQ = it->second;
         pPacketQ->push(PacketVideoMsgPtr(new PacketVideoMsg(0, true)));
+        m_PacketQbEOF[it->first] = false;
     }
     m_bEOF = false;
+}
+
+void VideoDemuxerThread::onStreamEOF(int StreamIndex)
+{
+    m_PacketQbEOF[StreamIndex] = true;
+                
+    m_bEOF = true;
+    map<int, bool>::iterator it;
+    for (it=m_PacketQbEOF.begin(); it != m_PacketQbEOF.end(); it++) {
+        if (!it->second) {
+            m_bEOF = false;
+            break;
+        }
+    }
 }
 
 }

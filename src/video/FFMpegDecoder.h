@@ -61,6 +61,10 @@ class FFMpegDecoder: public IVideoDecoder
                 bool bThreadedDemuxer);
         virtual void close();
         virtual void seek(long long DestTime);
+        virtual StreamSelect getMasterStream();
+        virtual void setMasterStream(StreamSelect Stream);
+        virtual bool hasVideo();
+        virtual bool hasAudio();
         virtual IntPoint getSize();
         virtual int getCurFrame();
         virtual int getNumFrames();
@@ -91,7 +95,6 @@ class FFMpegDecoder: public IVideoDecoder
         PixelFormat calcPixelFormat(YCbCrMode ycbcrMode);
         void convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp);
         long long getFrameTime(AVPacket* pPacket);
-        StreamSelect getMasterStream();
         long long getStartTime(StreamSelect Stream = SS_DEFAULT);
         int copyRawAudio(unsigned char* buf, int size);
         int copyResampledAudio(unsigned char* buf, int size);
@@ -113,6 +116,9 @@ class FFMpegDecoder: public IVideoDecoder
         SwsContext * m_pSwsContext;
 #endif
 
+        bool m_bForceMasterStream;
+        StreamSelect m_MasterStream;
+                
         int m_Channels;
         int m_SampleRate;
         AVPacket * m_AudioPacket;

@@ -18,37 +18,38 @@
 //
 //  Current versions can be found at www.libavg.de
 //
+//  Original author of this file is Nick Hebner (hebnern@gmail.com).
+//
 
-#ifndef _SeekDoneVideoMsg_H_
-#define _SeekDoneVideoMsg_H_
-
-#include "VideoMsg.h"
-
-#include "../graphics/Bitmap.h"
-
-#include <vector>
+#include "AudioVideoMsg.h"
 
 namespace avg {
 
-class SeekDoneVideoMsg: public VideoMsg {
-    public:
-        SeekDoneVideoMsg(bool PerformedSeek, 
-                long long VideoFrameTime, 
-                long long AudioFrameTime);
-        virtual ~SeekDoneVideoMsg();
-        
-        bool performedSeek();
-        long long getVideoFrameTime();
-        long long getAudioFrameTime();
-        
-    private:
-        bool m_bPerformedSeek;
-        long long m_VideoFrameTime;
-        long long m_AudioFrameTime;
-};
+AudioVideoMsg::AudioVideoMsg(int Size, long long Time) :
+    m_Size(Size),
+    m_FrameTime(Time)
+{
+    m_pBuffer = (unsigned char*)av_malloc(m_Size);
+}
 
-typedef boost::shared_ptr<SeekDoneVideoMsg> SeekDoneVideoMsgPtr;
+AudioVideoMsg::~AudioVideoMsg()
+{
+    av_free(m_pBuffer);
+}
+
+unsigned char* AudioVideoMsg::getBuffer()
+{
+    return m_pBuffer;
+}
+
+int AudioVideoMsg::getSize()
+{
+    return m_Size;
+}
+
+long long AudioVideoMsg::getFrameTime()
+{
+    return m_FrameTime;
+}
 
 }
-#endif 
-

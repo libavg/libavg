@@ -19,36 +19,38 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _SeekDoneVideoMsg_H_
-#define _SeekDoneVideoMsg_H_
+#include "SeekDoneVideoMsg.h"
 
-#include "VideoMsg.h"
-
-#include "../graphics/Bitmap.h"
-
-#include <vector>
+using namespace std;
 
 namespace avg {
 
-class SeekDoneVideoMsg: public VideoMsg {
-    public:
-        SeekDoneVideoMsg(bool PerformedSeek, 
-                long long VideoFrameTime, 
-                long long AudioFrameTime);
-        virtual ~SeekDoneVideoMsg();
-        
-        bool performedSeek();
-        long long getVideoFrameTime();
-        long long getAudioFrameTime();
-        
-    private:
-        bool m_bPerformedSeek;
-        long long m_VideoFrameTime;
-        long long m_AudioFrameTime;
-};
+SeekDoneVideoMsg::SeekDoneVideoMsg(bool PerformedSeek, 
+        long long VideoFrameTime, long long AudioFrameTime)
+{
+    m_bPerformedSeek = PerformedSeek;
+    m_VideoFrameTime = VideoFrameTime;
+    m_AudioFrameTime = AudioFrameTime;
+}
 
-typedef boost::shared_ptr<SeekDoneVideoMsg> SeekDoneVideoMsgPtr;
+SeekDoneVideoMsg::~SeekDoneVideoMsg()
+{
+}
+
+bool SeekDoneVideoMsg::performedSeek()
+{
+    return m_bPerformedSeek;
+}
+
+long long SeekDoneVideoMsg::getVideoFrameTime()
+{
+    return m_VideoFrameTime;
+}
+
+long long SeekDoneVideoMsg::getAudioFrameTime()
+{
+    return m_AudioFrameTime;
+}
 
 }
-#endif 
 
