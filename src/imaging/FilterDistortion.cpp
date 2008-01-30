@@ -39,7 +39,6 @@ namespace avg{
         //m_pMap[x][y] contains a IntPoint that gives the coords in the src Bitmap 
         m_pMap = new IntPoint[m_srcRect.height()*m_srcRect.width()];
         int w = m_srcRect.width();
-        cerr << "FilterDistortion: " << m_srcRect << endl;
         for(int y=0;y<srcSize.y;++y){
             for(int x=0;x<srcSize.x;++x){
                 DPoint tmp = m_pTrafo->inverse_transform_point(DPoint(int(x),int(y)));
@@ -76,7 +75,6 @@ namespace avg{
 
     BitmapPtr FilterDistortion::apply(BitmapPtr pBmpSource)
     {
-        cerr << "pBmpSource: " << pBmpSource->getSize() << ", m_srcRect: " << m_srcRect << endl;
         BitmapPtr res = BitmapPtr(new Bitmap(*pBmpSource));
         unsigned char *p = res->getPixels();
         unsigned char *src = pBmpSource->getPixels();

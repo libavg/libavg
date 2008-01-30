@@ -66,7 +66,6 @@ namespace avg {
         IntPoint ImgSize = pCamera->getImgSize();
         m_pBitmaps[0] = BitmapPtr(new Bitmap(ImgSize, I8));
         m_pMutex = MutexPtr(new boost::mutex);
-        handleROIChange();
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
         IntRect ROI = m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents));
         if (ROI.tl.x < 0 || ROI.tl.y < 0 || ROI.br.x > ImgSize.x || ROI.br.y > ImgSize.y) {
@@ -74,6 +73,7 @@ namespace avg {
                     << ROI << ", camera image size is " << ImgSize << ". Aborting.");
             exit(5);
         }
+        createBitmaps(ROI);
         pCamera->open();
         m_pTrackerThread = new boost::thread(
                 TrackerThread(
@@ -112,7 +112,6 @@ namespace avg {
             m_TrackerConfig.setParam(BAD_CAST sElement.c_str(), BAD_CAST sOldParamVal.c_str());
         } else {
             setConfig();
-            handleROIChange();
         }
 //        m_TrackerConfig.dump();
     }
@@ -142,25 +141,22 @@ namespace avg {
 
     void TrackerEventSource::setConfig()
     {
+        DRect Area = m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents));
+        createBitmaps(Area);
         m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
-                &TrackerThread::setConfig, _1, m_TrackerConfig)));
+                &TrackerThread::setConfig, _1, m_TrackerConfig, Area, m_pBitmaps)));
     }
 
-    void TrackerEventSource::handleROIChange()
+    void TrackerEventSource::createBitmaps(const DRect & Area)
     {
         boost::mutex::scoped_lock Lock(*m_pMutex);
-        DRect Area = m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents));
-        IntPoint ImgSize(Area.size().x+1, Area.size().y+1);
+        IntPoint ImgSize(int(Area.size().x+1), int(Area.size().y+1));
         for (int i=1; i<NUM_TRACKER_IMAGES-1; i++) {
             m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgSize, I8));
             FilterFill<Pixel8>(Pixel8(0)).applyInPlace(m_pBitmaps[i]);
         }
         m_pBitmaps[TRACKER_IMG_FINGERS] = BitmapPtr(new Bitmap(ImgSize, B8G8R8A8));
         FilterFill<Pixel32>(Pixel32(0,0,0,0)).applyInPlace(m_pBitmaps[TRACKER_IMG_FINGERS]);
-        if (m_pCmdQueue) {
-            m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
-                    &TrackerThread::setBitmaps, _1, Area, m_pBitmaps)));
-        }
     }
 
     Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const
@@ -404,7 +400,6 @@ namespace avg {
         m_TrackerConfig.m_pTrafo = DeDistortPtr(new DeDistort(
                 DPoint(m_pBitmaps[0]->getSize()), DPoint(m_DisplayExtents)));
         setConfig();
-        handleROIChange();
         m_pCalibrator = new TrackerCalibrator(m_pBitmaps[0]->getSize(),
                 m_DisplayExtents);
         return m_pCalibrator;
@@ -415,7 +410,6 @@ namespace avg {
         assert(m_pCalibrator);
         m_TrackerConfig.m_pTrafo = m_pCalibrator->makeTransformer();
         setConfig();
-        handleROIChange();
         delete m_pCalibrator;
         m_pCalibrator = 0;
         m_pOldTransformer = DeDistortPtr();
@@ -426,7 +420,6 @@ namespace avg {
         assert(m_pCalibrator);
         m_TrackerConfig.m_pTrafo = m_pOldTransformer;
         setConfig();
-        handleROIChange();
         m_pOldTransformer = DeDistortPtr();
         delete m_pCalibrator;
         m_pCalibrator = 0;

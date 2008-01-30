@@ -79,11 +79,12 @@ class TrackerThread: public WorkerThread<TrackerThread>
         bool work();
         void deinit();
 
-        void setConfig(TrackerConfig Config);
-        void setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES]);
+        void setConfig(TrackerConfig Config, IntRect ROI, 
+                BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES]);
         void resetHistory();
     
     private:
+        void setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES]);
         void checkMessages();
         void calcHistory();
         void drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp);

@@ -155,7 +155,8 @@ void TrackerThread::deinit()
     m_pCamera->close();
 }
 
-void TrackerThread::setConfig(TrackerConfig Config)
+void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI, 
+        BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES])
 {
     boost::mutex::scoped_lock Lock(*m_pMutex);
     if (Config.m_pTouch) {
@@ -174,8 +175,8 @@ void TrackerThread::setConfig(TrackerConfig Config)
         m_pHistoryPreProcessor->setInterval(Config.m_HistoryUpdateInterval);
     }
     if (!(*m_pTrafo == *Config.m_pTrafo)) {
-        m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[1]->getSize(), 
-                Config.m_pTrafo));
+        m_pDistorter = FilterDistortionPtr(new FilterDistortion(
+                m_pBitmaps[TRACKER_IMG_CAMERA]->getSize(), Config.m_pTrafo));
         *m_pTrafo = *Config.m_pTrafo;
     }
     if (int(m_pCamera->getFeature(CAM_FEATURE_BRIGHTNESS)) != Config.m_Brightness ||
@@ -195,11 +196,11 @@ void TrackerThread::setConfig(TrackerConfig Config)
 
     m_bCreateDebugImages = Config.m_bCreateDebugImages;
     m_bCreateFingerImage = Config.m_bCreateFingerImage;
+    setBitmaps(ROI, ppBitmaps);
 }
 
 void TrackerThread::setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES])
 {
-    boost::mutex::scoped_lock Lock(*m_pMutex);
     m_ROI = ROI;
     for (int i=0; i<NUM_TRACKER_IMAGES; i++) {
         m_pBitmaps[i] = ppBitmaps[i];

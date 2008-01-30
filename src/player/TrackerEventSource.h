@@ -78,7 +78,7 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
     private:
         bool isRelevant(BlobPtr blob, BlobConfigPtr pConfig);
         void setConfig();
-        void handleROIChange();
+        void createBitmaps(const DRect & Area);
 
         boost::thread* m_pTrackerThread;
 
