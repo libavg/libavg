@@ -151,12 +151,25 @@ namespace avg {
     {
         boost::mutex::scoped_lock Lock(*m_pMutex);
         IntPoint ImgSize(int(Area.size().x+1), int(Area.size().y+1));
-        for (int i=1; i<NUM_TRACKER_IMAGES-1; i++) {
-            m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgSize, I8));
-            FilterFill<Pixel8>(Pixel8(0)).applyInPlace(m_pBitmaps[i]);
+        for (int i=1; i<NUM_TRACKER_IMAGES; i++) {
+            switch (i) {
+                case TRACKER_IMG_HISTOGRAM:
+                    m_pBitmaps[TRACKER_IMG_HISTOGRAM] = 
+                            BitmapPtr(new Bitmap(IntPoint(256, 256), I8));
+                    FilterFill<Pixel8>(Pixel8(0)).
+                            applyInPlace(m_pBitmaps[TRACKER_IMG_HISTOGRAM]);
+                    break;
+                case TRACKER_IMG_FINGERS:
+                    m_pBitmaps[TRACKER_IMG_FINGERS] = 
+                            BitmapPtr(new Bitmap(ImgSize, B8G8R8A8));
+                    FilterFill<Pixel32>(Pixel32(0,0,0,0)).
+                            applyInPlace(m_pBitmaps[TRACKER_IMG_FINGERS]);
+                    break;
+                default:
+                    m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgSize, I8));
+                    FilterFill<Pixel8>(Pixel8(0)).applyInPlace(m_pBitmaps[i]);
+            }
         }
-        m_pBitmaps[TRACKER_IMG_FINGERS] = BitmapPtr(new Bitmap(ImgSize, B8G8R8A8));
-        FilterFill<Pixel32>(Pixel32(0,0,0,0)).applyInPlace(m_pBitmaps[TRACKER_IMG_FINGERS]);
     }
 
     Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const
