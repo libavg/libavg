@@ -133,12 +133,6 @@ bool TrackerThread::work()
             m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pCroppedBmp);
         }
         {
-            if (m_bCreateFingerImage) {
-                boost::mutex::scoped_lock Lock(*m_pMutex);
-                Pixel32 Black(0x00, 0x00, 0x00, 0x00);
-                FilterFill<Pixel32>(Black).applyInPlace(
-                        m_pBitmaps[TRACKER_IMG_FINGERS]);
-            }
             BitmapPtr pBmpBandpass;
             if (m_TouchThreshold != 0) {
                 {
@@ -272,11 +266,14 @@ void TrackerThread::calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp) {
     //    AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
     //feed the IBlobTarget
     BitmapPtr pDestBmp;
-    if (m_bCreateFingerImage) {
-        pDestBmp = m_pBitmaps[TRACKER_IMG_FINGERS];
-    }
     {
         boost::mutex::scoped_lock Lock(*m_pMutex);
+        if (m_bCreateFingerImage) {
+            Pixel32 Black(0x00, 0x00, 0x00, 0x00);
+            FilterFill<Pixel32>(Black).applyInPlace(
+                    m_pBitmaps[TRACKER_IMG_FINGERS]);
+            pDestBmp = m_pBitmaps[TRACKER_IMG_FINGERS];
+        }
         ScopeTimer Timer(ProfilingZoneUpdate);
         m_pTarget->update(pTrackComps, pTrackBmp, m_TrackThreshold,
                 pTouchComps, pTouchBmp, m_TouchThreshold, pDestBmp);
