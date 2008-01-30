@@ -157,6 +157,7 @@ void TrackerThread::deinit()
 
 void TrackerThread::setConfig(TrackerConfig Config)
 {
+    boost::mutex::scoped_lock Lock(*m_pMutex);
     if (Config.m_pTouch) {
         m_TouchThreshold = Config.m_pTouch->m_Threshold;
     } else {
