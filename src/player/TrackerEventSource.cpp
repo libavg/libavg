@@ -150,7 +150,7 @@ namespace avg {
     {
         boost::mutex::scoped_lock Lock(*m_pMutex);
         DRect Area = m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents));
-        IntPoint ImgSize(Area.size());
+        IntPoint ImgSize(Area.size().x+1, Area.size().y+1);
         for (int i=1; i<NUM_TRACKER_IMAGES-1; i++) {
             m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgSize, I8));
             FilterFill<Pixel8>(Pixel8(0)).applyInPlace(m_pBitmaps[i]);
