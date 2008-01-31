@@ -43,7 +43,9 @@ namespace avg{
             for(int x=0; x<m_SrcSize.x; ++x) {
                 DPoint tmp = m_pTrafo->inverse_transform_point(DPoint(int(x),int(y)));
                 IntPoint tmp2(int(tmp.x+0.5),int(tmp.y+0.5));
-                if(tmp2.x < m_SrcSize.x && tmp2.y < m_SrcSize.y){
+                if(tmp2.x < m_SrcSize.x && tmp2.y < m_SrcSize.y &&
+                        tmp2.x >= 0 && tmp2.y >= 0)
+                {
                     m_pMap[y*m_SrcSize.x+x] = tmp2;
                 } else {
                     m_pMap[y*m_SrcSize.x+x] = IntPoint(0,0);
