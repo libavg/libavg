@@ -76,8 +76,8 @@ TrackerThread::TrackerThread(IntRect ROI,
     m_Prescale = config.m_Prescale; 
     m_bTrackBrighter = config.m_bBrighterRegions; 
     setBitmaps(ROI, ppBitmaps);
-    m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[1]->getSize(), 
-            config.m_pTrafo));
+    m_pDistorter = FilterDistortionPtr(new FilterDistortion(
+                m_pBitmaps[TRACKER_IMG_CAMERA]->getSize()/m_Prescale, config.m_pTrafo));
 }
 
 TrackerThread::~TrackerThread()
@@ -178,7 +178,7 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
     }
     if (!(*m_pTrafo == *Config.m_pTrafo)) {
         m_pDistorter = FilterDistortionPtr(new FilterDistortion(
-                m_pBitmaps[TRACKER_IMG_CAMERA]->getSize(), Config.m_pTrafo));
+                m_pBitmaps[TRACKER_IMG_CAMERA]->getSize()/m_Prescale, Config.m_pTrafo));
         *m_pTrafo = *Config.m_pTrafo;
     }
     if (int(m_pCamera->getFeature(CAM_FEATURE_BRIGHTNESS)) != Config.m_Brightness ||

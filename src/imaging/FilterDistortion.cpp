@@ -46,7 +46,7 @@ namespace avg{
                 if(tmp2.x < m_SrcSize.x && tmp2.y < m_SrcSize.y){
                     m_pMap[y*m_SrcSize.x+x] = tmp2;
                 } else {
-                    m_pMap[y*m_SrcSize.y+x] = IntPoint(0,0);
+                    m_pMap[y*m_SrcSize.x+x] = IntPoint(0,0);
                 }
             }
         }
