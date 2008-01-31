@@ -1034,6 +1034,12 @@ Event * SDLDisplayEngine::createMouseButtonEvent
         case SDL_BUTTON_RIGHT:
             Button = MouseEvent::RIGHT_BUTTON;
             break;
+        case SDL_BUTTON_WHEELUP:
+            Button = MouseEvent::WHEELUP_BUTTON;
+            break;
+        case SDL_BUTTON_WHEELDOWN:
+            Button = MouseEvent::WHEELDOWN_BUTTON;
+            break;
     }
     int x,y;
     SDL_GetMouseState(&x, &y);

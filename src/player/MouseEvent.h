@@ -47,6 +47,8 @@ class MouseEvent : public CursorEvent {
         static const long LEFT_BUTTON=1;
         static const long RIGHT_BUTTON=2;
         static const long MIDDLE_BUTTON=3;
+        static const long WHEELUP_BUTTON=4;
+        static const long WHEELDOWN_BUTTON=5;
 
     private:
         bool m_LeftButtonState;
