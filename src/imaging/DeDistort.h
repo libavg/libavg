@@ -54,7 +54,7 @@ class DeDistort: public CoordTransformer {
         virtual DPoint inverse_transform_point(const DPoint & pt);
         DRect getActiveBlobArea(const DPoint& DisplayExtents);
 
-        void load(xmlNodePtr pParentNode);
+        void load(const DPoint &CameraExtents, xmlNodePtr pParentNode);
         void save(xmlTextWriterPtr writer);
 
         bool operator ==(const DeDistort& other) const;
@@ -72,8 +72,7 @@ class DeDistort: public CoordTransformer {
         DPoint translate(const DPoint &displacement, const DPoint &pt);
         DPoint rotate(double angle, const DPoint &pt);
 
-        DPoint m_CameraDisplacement;
-        DPoint m_CameraScale;
+        DPoint m_CamExtents;
         std::vector<double> m_DistortionParams;
         double m_Angle;
         double m_TrapezoidFactor;

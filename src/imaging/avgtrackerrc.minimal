@@ -23,18 +23,14 @@
    <areabounds min="200" max="1000000"/>
    <eccentricitybounds min="1" max="80"/>
   </track>
-<!--
   <touch>
    <threshold value="200"/>
    <similarity value="10"/>
    <areabounds min="10" max="60"/>
    <eccentricitybounds min="1" max="8"/>
   </touch>
--->
  </tracker>
  <transform>
-  <cameradisplacement x="-320" y="-240"/>
-  <camerascale x="1" y="1"/>
   <distortionparams p2="4.3e-06" p3="0.0000000"/>
   <trapezoid value="0.000"/>
   <angle value="0"/>

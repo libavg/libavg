@@ -116,14 +116,6 @@ const char * g_pTrackerConfigDTD =
 "<!ATTLIST eccentricitybounds\n"
 "   %minmaxAttrs; >\n"
 
-"<!ELEMENT cameradisplacement EMPTY>\n"
-"<!ATTLIST cameradisplacement\n"
-"   %posAttrs; >\n"
-
-"<!ELEMENT camerascale EMPTY>\n"
-"<!ATTLIST camerascale\n"
-"   %posAttrs; >\n"
-
 "<!ELEMENT distortionparams EMPTY>\n"
 "<!ATTLIST distortionparams\n"
 "   p2 CDATA #REQUIRED\n"

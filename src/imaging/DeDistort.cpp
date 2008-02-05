@@ -40,8 +40,8 @@ namespace avg{
 //   a lot of parameters enter here, some of which can be calculated/set manually, 
 //   some of which need to be determined via an optimization procedure
 //
-//   * m_CameraDisplacement moves the optical axis back to the center of the image:
-//   * m_CameraScale scales the ROI to standard coords
+//   * m_CamExtents is the size of the camera image. This is used to transform the 
+//     coordinates of the image so they fall in the range (-1,-1)-(1,1)
 //   * m_pDistortionParams OPT see paper
 //   * m_Angle corrects rotation of camera OPT
 //   * m_DisplayScale convert back from standard coords to display
@@ -49,8 +49,7 @@ namespace avg{
 //     
 
 DeDistort::DeDistort()
-    : m_CameraDisplacement(0,0),
-      m_CameraScale(1,1),
+    : m_CamExtents(1,1),
       m_Angle(0.0),
       m_TrapezoidFactor(0),
       m_DisplayOffset(0,0),
@@ -66,8 +65,7 @@ DeDistort::DeDistort(const DPoint& CamExtents, const DPoint& DisplayExtents)
       m_TrapezoidFactor(0),
       m_DisplayOffset(0,0)
 {
-    m_CameraDisplacement = -CamExtents/2; 
-    m_CameraScale = DPoint(2./CamExtents.x,2./CamExtents.y);
+    m_CamExtents = CamExtents; 
     m_DistortionParams.push_back(0);
     m_DistortionParams.push_back(0);
     m_DisplayScale.x = DisplayExtents.x/CamExtents.x;
@@ -79,14 +77,13 @@ DeDistort::DeDistort(const DPoint &CamExtents,
             const std::vector<double>& DistortionParams,
             double Angle, double TrapezoidFactor,
             const DPoint& DisplayOffset, const DPoint& DisplayScale)
-      : m_DistortionParams(DistortionParams),
-      m_Angle(Angle),
-      m_TrapezoidFactor(TrapezoidFactor),
-      m_DisplayOffset(DisplayOffset),
-      m_DisplayScale(DisplayScale)
+      : m_CamExtents(CamExtents),
+        m_DistortionParams(DistortionParams),
+        m_Angle(Angle),
+        m_TrapezoidFactor(TrapezoidFactor),
+        m_DisplayOffset(DisplayOffset),
+        m_DisplayScale(DisplayScale)
 {
-    m_CameraDisplacement = -CamExtents/2; 
-    m_CameraScale = DPoint(2./CamExtents.x,2./CamExtents.y);
     m_RescaleFactor = calc_rescale();
 }
 
@@ -107,18 +104,13 @@ DRect DeDistort::getActiveBlobArea(const DPoint& DisplayExtents)
     return ActiveRect;
 }
 
-void DeDistort::load(xmlNodePtr pParentNode)
+void DeDistort::load(const DPoint& CamExtents, xmlNodePtr pParentNode)
 {
+    m_CamExtents = CamExtents;
     xmlNodePtr curXmlChild = pParentNode->xmlChildrenNode;
     while (curXmlChild) {
         const char * pNodeName = (const char *)curXmlChild->name;
-        if (!strcmp(pNodeName, "cameradisplacement")) {
-            m_CameraDisplacement.x = getRequiredDoubleAttr(curXmlChild, "x");
-            m_CameraDisplacement.y = getRequiredDoubleAttr(curXmlChild, "y");
-        } else if (!strcmp(pNodeName, "camerascale")) {
-            m_CameraScale.x = getRequiredDoubleAttr(curXmlChild, "x");
-            m_CameraScale.y = getRequiredDoubleAttr(curXmlChild, "y");
-        } else if (!strcmp(pNodeName, "distortionparams")) {
+        if (!strcmp(pNodeName, "distortionparams")) {
             m_DistortionParams.clear();
             m_DistortionParams.push_back(getRequiredDoubleAttr(curXmlChild, "p2"));
             m_DistortionParams.push_back(getRequiredDoubleAttr(curXmlChild, "p3"));
@@ -142,8 +134,6 @@ void DeDistort::save(xmlTextWriterPtr writer)
 {
     int rc;
     rc = xmlTextWriterStartElement(writer, BAD_CAST "transform");
-    writePoint(writer, "cameradisplacement", m_CameraDisplacement);
-    writePoint(writer, "camerascale", m_CameraScale);
     rc = xmlTextWriterStartElement(writer, BAD_CAST "distortionparams");
     writeAttribute(writer, "p2", m_DistortionParams[0]);
     writeAttribute(writer, "p3", m_DistortionParams[1]);
@@ -157,8 +147,7 @@ void DeDistort::save(xmlTextWriterPtr writer)
 
 bool DeDistort::operator ==(const DeDistort& other) const
 {
-    return (m_CameraDisplacement == other.m_CameraDisplacement &&
-        m_CameraScale == other.m_CameraScale &&
+    return (m_CamExtents == other.m_CamExtents &&
         m_DistortionParams == other.m_DistortionParams &&
         m_Angle == other.m_Angle &&
         m_TrapezoidFactor == other.m_TrapezoidFactor &&
@@ -170,8 +159,7 @@ bool DeDistort::operator ==(const DeDistort& other) const
 void DeDistort::dump() const
 {
     cerr << "  Transform:" << endl;
-    cerr << "    CameraDisplacement: " << m_CameraDisplacement << endl;
-    cerr << "    CameraScale: " << m_CameraScale << endl;
+    cerr << "    CamExtents: " << m_CamExtents << endl;
     cerr << "    DistortionParams: " << m_DistortionParams[0] << ", " 
             << m_DistortionParams[1] << endl;
     cerr << "    Trapezoid: " << m_TrapezoidFactor << endl;
@@ -192,15 +180,16 @@ DPoint DeDistort::transformScreenToBlob(const DPoint &pt)
 
 DPoint DeDistort::inverse_transform_point(const DPoint &pt)
 {
-//    return inverse_undistort(m_DistortionParams, pt);
-    return translate(-m_CameraDisplacement,
-            scale(DPoint(1./m_CameraScale.x, 1./m_CameraScale.y),
+    DPoint CameraDisplacement = -m_CamExtents/2;
+    DPoint CameraScale = DPoint(2./m_CamExtents.x,2./m_CamExtents.y);
+    return translate(-CameraDisplacement,
+            scale(DPoint(1./CameraScale.x, 1./CameraScale.y),
                 inverse_undistort(m_DistortionParams,
                     scale(m_RescaleFactor,
                         rotate(-m_Angle,
                             inv_trapezoid(m_TrapezoidFactor,
-                                scale(m_CameraScale,
-                                    translate(m_CameraDisplacement,
+                                scale(CameraScale,
+                                    translate(CameraDisplacement,
                                         pt
                                         )
                                     )
@@ -223,15 +212,17 @@ DPoint DeDistort::transformBlobToScreen(const DPoint &pt){
 }      
 DPoint DeDistort::transform_point(const DPoint &pt)
 {
+    DPoint CameraDisplacement = -m_CamExtents/2;
+    DPoint CameraScale = DPoint(2./m_CamExtents.x,2./m_CamExtents.y);
     return
-        translate(-m_CameraDisplacement,
-                scale(DPoint(1./m_CameraScale.x, 1./m_CameraScale.y),
+        translate(-CameraDisplacement,
+                scale(DPoint(1./CameraScale.x, 1./CameraScale.y),
                     trapezoid(m_TrapezoidFactor,
                         rotate(m_Angle, //rotate
                             scale(1./m_RescaleFactor,
                                 undistort(m_DistortionParams, //undistort;
-                                    scale(m_CameraScale,  // scale to -1,-1,1,1
-                                        translate(m_CameraDisplacement, 
+                                    scale(CameraScale,  // scale to -1,-1,1,1
+                                        translate(CameraDisplacement, 
                                                     // move optical axis to (0,0) 
                                             pt 
                                             )
@@ -296,22 +287,12 @@ double distort_map(const std::vector<double> &params, double r) {
     return r+S;
 }
 
-double DeDistort::calc_rescale(){
+double DeDistort::calc_rescale()
+{
     //make sure that the undistort transformation stays within the normalized box
     double scale = distort_map(m_DistortionParams, sqrt(2.0));
     return scale/sqrt(2.0);
 }
-
-//bool everythingZero(const std::vector<double> &params)
-//{
-//    for (int i=0; i<params.size(); ++i) {
-//        if (fabs(params[i]) > 0.00001) {
-//            return false;
-//        }
-//    }
-//    return true;
-//}
-//
 
 double inv_distort_map(const std::vector<double> &params, double r) {
         double r1,r2,r3,f1,f2;

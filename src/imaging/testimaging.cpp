@@ -136,10 +136,6 @@ public:
         TrackerConfig Config;
         Config.load("avgtrackerrc.minimal");
         
-        Config.setParam(BAD_CAST "/trackerconfig/transform/cameradisplacement/@x", BAD_CAST "-0.5");
-        Config.setParam(BAD_CAST "/trackerconfig/transform/cameradisplacement/@y", BAD_CAST "-0.5");
-        Config.setParam(BAD_CAST "/trackerconfig/transform/camerascale/@x", BAD_CAST "2");
-        Config.setParam(BAD_CAST "/trackerconfig/transform/camerascale/@y", BAD_CAST "2");
         Config.setParam(BAD_CAST "/trackerconfig/transform/distortionparams/@p2", BAD_CAST "0");
         Config.setParam(BAD_CAST "/trackerconfig/transform/distortionparams/@p3", BAD_CAST "0");
         Config.setParam(BAD_CAST "/trackerconfig/transform/trapezoid/@value", BAD_CAST "0");

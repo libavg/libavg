@@ -190,7 +190,7 @@ namespace avg {
             } else if (!strcmp(pNodeName, "tracker")) {
                 loadTracker(curXmlChild, getConfigFilename());
             } else if (!strcmp(pNodeName, "transform")) {
-                m_pTrafo->load(curXmlChild);
+                m_pTrafo->load(DPoint(m_Size), curXmlChild);
             } else {
                 assureEmptyNode(pNodeName);
             }
