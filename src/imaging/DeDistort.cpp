@@ -33,7 +33,7 @@ const double sqrt3 = sqrt(3.);
 
 using namespace std;
 
-namespace avg{
+namespace avg {
 
 // This transformation is based on the undistort code found at 
 // http://www.math.rutgers.edu/~ojanen/undistort/index.html. 
@@ -170,12 +170,9 @@ void DeDistort::dump() const
 
 DPoint DeDistort::transformScreenToBlob(const DPoint &pt)
 {
-    return 
-        scale(DPoint(1/m_DisplayScale.x, 1/m_DisplayScale.y),  //scale back to real display resolution
-            translate(-m_DisplayOffset, //translate 0,0 to center of display
-                pt
-                )
-            );
+    // scale to blob image resolution and translate 0,0 to upper left corner.
+    return scale(DPoint(1/m_DisplayScale.x, 1/m_DisplayScale.y),  
+            translate(-m_DisplayOffset, pt));
 }
 
 DPoint DeDistort::inverse_transform_point(const DPoint &pt)
@@ -201,15 +198,12 @@ DPoint DeDistort::inverse_transform_point(const DPoint &pt)
             );
 }
 
-DPoint DeDistort::transformBlobToScreen(const DPoint &pt){
-    return 
-        translate(m_DisplayOffset, //translate 0,0 to center of display
-                scale(m_DisplayScale,  //scale back to real display resolution
-                    pt
-                    )
-                );
+DPoint DeDistort::transformBlobToScreen(const DPoint &pt)
+{
+    return translate(m_DisplayOffset, //translate 0,0 to center of display
+                scale(m_DisplayScale, pt)); //scale back to real display resolution
+}
 
-}      
 DPoint DeDistort::transform_point(const DPoint &pt)
 {
     DPoint CameraDisplacement = -m_CamExtents/2;
@@ -239,44 +233,44 @@ DPoint DeDistort::inv_trapezoid(const double trapezoid_factor, const DPoint &pt)
 {
     //stretch x coord
     double yn = pt.y;
-    return DPoint( 
-            pt.x/(1+yn*trapezoid_factor),
-            pt.y);
+    return DPoint(pt.x/(1+yn*trapezoid_factor), pt.y);
 }
 
 DPoint DeDistort::trapezoid(const double trapezoid_factor, const DPoint &pt)
 {
     //stretch x coord
     double yn = pt.y;
-    return DPoint( 
-            //m_Center.x + ( pt.x - m_Center.x) * (1 + m_TrapezoidFactor * yn), 
-            pt.x * (1 + yn*trapezoid_factor),
-            pt.y);
+    return DPoint(pt.x * (1 + yn*trapezoid_factor), pt.y);
 }
 
 //scale a point around the origin
-DPoint DeDistort::scale(const double scale, const DPoint &pt){
+DPoint DeDistort::scale(const double scale, const DPoint &pt)
+{
     return DPoint(pt.x, pt.y)*scale;
 }
 
-DPoint DeDistort::scale(const DPoint &scales, const DPoint &pt){
+DPoint DeDistort::scale(const DPoint &scales, const DPoint &pt)
+{
     return DPoint(pt.x*scales.x, pt.y*scales.y);
 }
 
 //translate a point pt by the distance displacement
-DPoint DeDistort::translate(const DPoint &displacement, const DPoint &pt){
+DPoint DeDistort::translate(const DPoint &displacement, const DPoint &pt)
+{
     return pt + displacement;
 }
 
 //rotate a point counter-clockwise around the origin
-DPoint DeDistort::rotate(double angle, const DPoint &pt){
+DPoint DeDistort::rotate(double angle, const DPoint &pt)
+{
     return DPoint( 
             cos(angle) * pt.x - sin(angle) * pt.y, 
             sin(angle) * pt.x + cos(angle) * pt.y
             );
 }
 
-double distort_map(const std::vector<double> &params, double r) {
+double distort_map(const std::vector<double> &params, double r) 
+{
     double S = 0;
     int counter = 3;
     std::vector<double>::const_iterator v;
@@ -294,7 +288,8 @@ double DeDistort::calc_rescale()
     return scale/sqrt(2.0);
 }
 
-double inv_distort_map(const std::vector<double> &params, double r) {
+double inv_distort_map(const std::vector<double> &params, double r) 
+{
         double r1,r2,r3,f1,f2;
         r1 = r;
         r2 = r+.001;
@@ -311,39 +306,39 @@ double inv_distort_map(const std::vector<double> &params, double r) {
 }
 
 #define EPSILON 0.00001
-DPoint DeDistort::inverse_undistort(const std::vector<double> &params, const DPoint &pt) {
+DPoint DeDistort::inverse_undistort(const std::vector<double> &params, const DPoint &pt)
+{
     if ( params.empty() ) {
         return pt;
     }
-    DPoint pt_norm = pt; //no need to scale anymore?
+    DPoint pt_norm = pt;
     double r_d = sqrt(pt_norm.x*pt_norm.x + pt_norm.y*pt_norm.y);
     double S;
-    if (r_d < EPSILON){
+    if (r_d < EPSILON) {
         S=0;
     } else {
         S = inv_distort_map(params, r_d)/r_d;
     }
     DPoint result = pt_norm*(S);
-    //cerr<<"inv distort: "<< result <<endl;
     return result;
 }
 
-DPoint DeDistort::undistort(const std::vector<double> &params, const DPoint &pt) {
+DPoint DeDistort::undistort(const std::vector<double> &params, const DPoint &pt) 
+{
     std::vector<double>::const_iterator v = params.begin();
     if ( v == params.end() ) {
         return pt;
     }
-    DPoint pt_norm = pt; //no need to scale anymore?
+    DPoint pt_norm = pt;
     double r_d = sqrt(pt_norm.x*pt_norm.x + pt_norm.y*pt_norm.y);
     double S;
-    if (r_d < EPSILON){
+    if (r_d < EPSILON) {
         S=0;
     } else {
         S = distort_map(params, r_d)/r_d;
     }
     
     DPoint result = pt_norm*(S);
-    //cerr<<"distort: "<< result <<endl;
     return result;
 }
     

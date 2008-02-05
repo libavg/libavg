@@ -63,8 +63,8 @@ class DeDistort: public CoordTransformer {
 
     private:
         double calc_rescale();
-        DPoint inverse_undistort(const std::vector<double> &params, const DPoint &pt) ;
-        DPoint undistort(const std::vector<double> &params, const DPoint &pt) ;
+        DPoint inverse_undistort(const std::vector<double> &params, const DPoint &pt);
+        DPoint undistort(const std::vector<double> &params, const DPoint &pt);
         DPoint scale(const DPoint &scales, const DPoint &pt);
         DPoint scale(const double scale, const DPoint &pt);
         DPoint trapezoid(const double trapezoid_factor, const DPoint &pt);
