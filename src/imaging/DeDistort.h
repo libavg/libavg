@@ -65,12 +65,8 @@ class DeDistort: public CoordTransformer {
         double calc_rescale();
         DPoint inverse_undistort(const std::vector<double> &params, const DPoint &pt);
         DPoint undistort(const std::vector<double> &params, const DPoint &pt);
-        DPoint scale(const DPoint &scales, const DPoint &pt);
-        DPoint scale(const double scale, const DPoint &pt);
         DPoint trapezoid(const double trapezoid_factor, const DPoint &pt);
         DPoint inv_trapezoid(const double trapezoid_factor, const DPoint &pt);
-        DPoint translate(const DPoint &displacement, const DPoint &pt);
-        DPoint rotate(double angle, const DPoint &pt);
 
         DPoint m_CamExtents;
         std::vector<double> m_DistortionParams;

@@ -171,62 +171,42 @@ void DeDistort::dump() const
 DPoint DeDistort::transformScreenToBlob(const DPoint &pt)
 {
     // scale to blob image resolution and translate 0,0 to upper left corner.
-    return scale(DPoint(1/m_DisplayScale.x, 1/m_DisplayScale.y),  
-            translate(-m_DisplayOffset, pt));
+    DPoint DestPt = pt-m_DisplayOffset;
+    DestPt = DPoint(DestPt.x/m_DisplayScale.x, DestPt.y/m_DisplayScale.y);
+    return DestPt;
 }
 
 DPoint DeDistort::inverse_transform_point(const DPoint &pt)
 {
-    DPoint CameraDisplacement = -m_CamExtents/2;
-    DPoint CameraScale = DPoint(2./m_CamExtents.x,2./m_CamExtents.y);
-    return translate(-CameraDisplacement,
-            scale(DPoint(1./CameraScale.x, 1./CameraScale.y),
-                inverse_undistort(m_DistortionParams,
-                    scale(m_RescaleFactor,
-                        rotate(-m_Angle,
-                            inv_trapezoid(m_TrapezoidFactor,
-                                scale(CameraScale,
-                                    translate(CameraDisplacement,
-                                        pt
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
-            );
+    DPoint DestPt = pt-m_CamExtents/2;
+    DestPt = DPoint(2*DestPt.x/m_CamExtents.x, 2*DestPt.y/m_CamExtents.y);
+    DestPt = inv_trapezoid(m_TrapezoidFactor, DestPt);
+    DestPt = rotate(DestPt, -m_Angle);
+    DestPt *= m_RescaleFactor;
+    DestPt = inverse_undistort(m_DistortionParams, DestPt);
+    DestPt = DPoint(DestPt.x*m_CamExtents.x/2, DestPt.y*m_CamExtents.y/2);
+    DestPt += m_CamExtents/2;
+    return DestPt;
 }
 
 DPoint DeDistort::transformBlobToScreen(const DPoint &pt)
 {
-    return translate(m_DisplayOffset, //translate 0,0 to center of display
-                scale(m_DisplayScale, pt)); //scale back to real display resolution
+    DPoint DestPt = DPoint(m_DisplayScale.x*pt.x, m_DisplayScale.y*pt.y);
+    DestPt += m_DisplayOffset;
+    return DestPt;
 }
 
 DPoint DeDistort::transform_point(const DPoint &pt)
 {
-    DPoint CameraDisplacement = -m_CamExtents/2;
-    DPoint CameraScale = DPoint(2./m_CamExtents.x,2./m_CamExtents.y);
-    return
-        translate(-CameraDisplacement,
-                scale(DPoint(1./CameraScale.x, 1./CameraScale.y),
-                    trapezoid(m_TrapezoidFactor,
-                        rotate(m_Angle, //rotate
-                            scale(1./m_RescaleFactor,
-                                undistort(m_DistortionParams, //undistort;
-                                    scale(CameraScale,  // scale to -1,-1,1,1
-                                        translate(CameraDisplacement, 
-                                                    // move optical axis to (0,0) 
-                                            pt 
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
-                );
+    DPoint DestPt = pt-m_CamExtents/2;
+    DestPt = DPoint(2*DestPt.x/m_CamExtents.x, 2*DestPt.y/m_CamExtents.y);
+    DestPt = undistort(m_DistortionParams, DestPt);
+    DestPt /= m_RescaleFactor;
+    DestPt = rotate(DestPt, m_Angle);
+    DestPt = trapezoid(m_TrapezoidFactor, DestPt);
+    DestPt = DPoint(DestPt.x*m_CamExtents.x/2, DestPt.y*m_CamExtents.y/2);
+    DestPt += m_CamExtents/2;
+    return DestPt;
 }
 
 DPoint DeDistort::inv_trapezoid(const double trapezoid_factor, const DPoint &pt)
@@ -241,32 +221,6 @@ DPoint DeDistort::trapezoid(const double trapezoid_factor, const DPoint &pt)
     //stretch x coord
     double yn = pt.y;
     return DPoint(pt.x * (1 + yn*trapezoid_factor), pt.y);
-}
-
-//scale a point around the origin
-DPoint DeDistort::scale(const double scale, const DPoint &pt)
-{
-    return DPoint(pt.x, pt.y)*scale;
-}
-
-DPoint DeDistort::scale(const DPoint &scales, const DPoint &pt)
-{
-    return DPoint(pt.x*scales.x, pt.y*scales.y);
-}
-
-//translate a point pt by the distance displacement
-DPoint DeDistort::translate(const DPoint &displacement, const DPoint &pt)
-{
-    return pt + displacement;
-}
-
-//rotate a point counter-clockwise around the origin
-DPoint DeDistort::rotate(double angle, const DPoint &pt)
-{
-    return DPoint( 
-            cos(angle) * pt.x - sin(angle) * pt.y, 
-            sin(angle) * pt.x + cos(angle) * pt.y
-            );
 }
 
 double distort_map(const std::vector<double> &params, double r) 

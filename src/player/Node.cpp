@@ -554,12 +554,12 @@ void Node::setState(Node::NodeState State)
 DPoint Node::toLocal(const DPoint& globalPos) const
 {
     DPoint localPos = globalPos-m_RelViewport.tl;
-    return rotatePoint(localPos, -m_Angle, getPivot());
+    return rotate(localPos, -m_Angle, getPivot());
 }
 
 DPoint Node::toGlobal(const DPoint& localPos) const
 {
-    DPoint globalPos = rotatePoint(localPos, m_Angle, getPivot());
+    DPoint globalPos = rotate(localPos, m_Angle, getPivot());
     return globalPos+m_RelViewport.tl;
 }
 

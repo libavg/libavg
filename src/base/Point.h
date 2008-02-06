@@ -48,11 +48,14 @@ public:
     bool operator !=(const Point<NUM> & pt) const;
     void operator +=(const Point<NUM> & pt);
     void operator -=(const Point<NUM> & pt);
+    void operator *=(double f);
+    void operator /=(double f);
     Point<NUM> operator -() const;
     Point<NUM> operator +(const Point<NUM> & pt) const;
     Point<NUM> operator -(const Point<NUM> & pt) const;
     Point<NUM> operator /(double f) const;
     Point<NUM> operator *(double f) const;
+    Point<NUM> operator *(const Point<NUM> & pt) const;
 };
 
 template<class NUM>
@@ -137,6 +140,20 @@ void Point<NUM>::operator -=(const Point<NUM> & pt)
 }
 
 template<class NUM>
+void Point<NUM>::operator *=(double f)
+{
+  x *= f;
+  y *= f;
+}
+
+template<class NUM>
+void Point<NUM>::operator /=(double f)
+{
+  x /= f;
+  y /= f;
+}
+
+template<class NUM>
 Point<NUM> Point<NUM>::operator -() const
 {
   return Point<NUM>(-x, -y);
@@ -179,7 +196,10 @@ double calcDist(const Point<NUM>& pt1, const Point<NUM>& pt2)
 }
 
 bool almostEqual(const DPoint& pt1, const DPoint& pt2);
-DPoint rotatePoint(const DPoint& point, double angle, const DPoint& pivot);
+DPoint rotate(const DPoint& pt, double angle, const DPoint& pivot=DPoint(0,0));
+DPoint scale(double factor, const DPoint& pt);
+DPoint scale(const DPoint& pt, const DPoint& factors);
+DPoint translate(const DPoint& pt, const DPoint& displacement);
 
 }
 

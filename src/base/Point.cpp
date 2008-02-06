@@ -30,7 +30,7 @@ bool almostEqual(const DPoint& pt1, const DPoint& pt2)
     return (fabs(pt1.x-pt2.x)+fabs(pt1.y-pt2.y)) < 0.0001;
 }
 
-DPoint rotatePoint(const DPoint& point, double angle, const DPoint& pivot)
+DPoint rotate(const DPoint& point, double angle, const DPoint& pivot)
 {
     double cosVal = cos(angle);
     double sinVal = sin(angle);
@@ -47,5 +47,21 @@ DPoint rotatePoint(const DPoint& point, double angle, const DPoint& pivot)
 
     return rotated;
 }
+
+DPoint scale(double factor, const DPoint& pt)
+{
+    return pt*factor;
+}
+
+DPoint scale(const DPoint& factors, const DPoint& pt)
+{
+    return DPoint(pt.x*factors.x, pt.y*factors.y);
+}
+
+DPoint translate(const DPoint& pt, const DPoint& displacement)
+{
+    return pt+displacement;
+}
+
 
 }
