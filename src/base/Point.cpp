@@ -48,20 +48,4 @@ DPoint rotate(const DPoint& point, double angle, const DPoint& pivot)
     return rotated;
 }
 
-DPoint scale(double factor, const DPoint& pt)
-{
-    return pt*factor;
-}
-
-DPoint scale(const DPoint& factors, const DPoint& pt)
-{
-    return DPoint(pt.x*factors.x, pt.y*factors.y);
-}
-
-DPoint translate(const DPoint& pt, const DPoint& displacement)
-{
-    return pt+displacement;
-}
-
-
 }

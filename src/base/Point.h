@@ -197,9 +197,6 @@ double calcDist(const Point<NUM>& pt1, const Point<NUM>& pt2)
 
 bool almostEqual(const DPoint& pt1, const DPoint& pt2);
 DPoint rotate(const DPoint& pt, double angle, const DPoint& pivot=DPoint(0,0));
-DPoint scale(double factor, const DPoint& pt);
-DPoint scale(const DPoint& pt, const DPoint& factors);
-DPoint translate(const DPoint& pt, const DPoint& displacement);
 
 }
 
