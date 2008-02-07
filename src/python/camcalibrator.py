@@ -15,7 +15,7 @@ class CamCalibrator:
         self.__onFrameID = Player.setOnFrameHandler(self.onFrame)
         self.__makeParamList(CameraType)
         self.__parentNode = ParentNode
-        node = Player.createNode('<image href="black.png" opacity="0.4"/>')
+        node = Player.createNode('<image href="black.png" opacity="1"/>')
         node.width = ParentNode.width
         node.height = ParentNode.height
         ParentNode.appendChild(node)
@@ -149,10 +149,10 @@ class CamCalibrator:
              'min':-3, 'max':8, 'increment':0.01, 'precision':2},
             {'Name':"Distortion p2", 
              'path':"/trackerconfig/transform/distortionparams/@p2", 
-             'min':-3, 'max':3, 'increment':0.0000001, 'precision':7},
+             'min':-3, 'max':3, 'increment':0.001, 'precision':3},
             {'Name':"p3", 
              'path':"/trackerconfig/transform/distortionparams/@p3", 
-             'min':-3, 'max':3, 'increment':0.0000001, 'precision':7},
+             'min':-3, 'max':3, 'increment':0.001, 'precision':3},
             {'Name':"Trapezoid", 
              'path':"/trackerconfig/transform/trapezoid/@value", 
              'min':-3, 'max':3, 'increment':0.00001, 'precision':5},
@@ -231,7 +231,7 @@ class CamCalibrator:
                     self.__Tracker.resetHistory()
                     print "History reset"
                 elif Event.keystring == "s":
-                    Tracker.saveConfig()
+                    self.__Tracker.saveConfig("")
                     print ("Tracker configuration saved.")
                 elif Event.keystring == "w":
                     self.__saveIndex += 1
