@@ -134,9 +134,9 @@ namespace avg {
                 &TrackerThread::resetHistory, _1)));
     }
 
-    void TrackerEventSource::saveConfig()
+    void TrackerEventSource::saveConfig(const string& sFilename)
     {
-        m_TrackerConfig.save();
+        m_TrackerConfig.save(sFilename);
     }
 
     void TrackerEventSource::setConfig()
@@ -150,7 +150,7 @@ namespace avg {
     void TrackerEventSource::createBitmaps(const DRect & Area)
     {
         boost::mutex::scoped_lock Lock(*m_pMutex);
-        IntPoint ImgSize(int(Area.size().x+1), int(Area.size().y+1));
+        IntPoint ImgSize(int(Area.size().x), int(Area.size().y));
         for (int i=1; i<NUM_TRACKER_IMAGES; i++) {
             switch (i) {
                 case TRACKER_IMG_HISTOGRAM:
@@ -293,7 +293,6 @@ namespace avg {
                 }
             }
         }
-//        cerr << "DistHeap: " << DistHeap.size() << endl;
         // Match up the closest blobs.
         set<BlobPtr> MatchedNewBlobs;
         set<BlobPtr> MatchedOldBlobs;
@@ -319,7 +318,6 @@ namespace avg {
                 pEvents->erase(pOldBlob);
             }
         }
-//        cerr << "Matched: " << NumMatchedBlobs << endl;
         // Blobs have been matched. Left-overs are new blobs.
         for(BlobVector::iterator it = NewRelevantBlobs.begin(); 
                 it!=NewRelevantBlobs.end(); ++it) 

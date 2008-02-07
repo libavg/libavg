@@ -60,7 +60,7 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
 
         void setDebugImages(bool bImg, bool bFinger);
 
-        void saveConfig();
+        void saveConfig(const std::string& sFilename);
 
         Bitmap * getImage(TrackerImageID ImageID) const;
         std::vector<Event *> pollEvents(); //main thread

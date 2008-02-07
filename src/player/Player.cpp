@@ -331,10 +331,10 @@ long long Player::getFrameTime()
     return m_FrameTime;
 }
 
-TrackerEventSource * Player::addTracker()
+TrackerEventSource * Player::addTracker(const string& sConfigFilename)
 {
     TrackerConfig Config;
-    Config.load();
+    Config.load(sConfigFilename);
     CameraPtr pCamera;
 
     if (Config.m_sSource == "v4l") {

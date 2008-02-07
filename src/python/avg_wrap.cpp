@@ -224,9 +224,9 @@ BOOST_PYTHON_MODULE(avg)
                 "@param xml: xml string in avg syntax that specifies the node to create.")
         .def("addTracker", &Player::addTracker,
                 return_value_policy<reference_existing_object>(),
-                "addTracker()\n"
+                "addTracker(configFilename)\n"
                 "Adds a camera-based tracker to the avg player. The tracker can be\n"
-                "configured using the .avgtrackerrc file and tracker immediately starts\n"
+                "configured using the config file given and immediately starts\n"
                 "reporting events.")
         .def("setInterval", &Player::setInterval,
                 "setInterval(time, pyfunc) -> id\n"

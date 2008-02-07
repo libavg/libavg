@@ -68,7 +68,7 @@ public:
         MutexPtr pMutex(new boost::mutex);
 
         TrackerConfig Config;
-        Config.load();
+        Config.load("../imaging/avgtrackerrc.minimal");
         TrackerEventSourcePtr pTracker = TrackerEventSourcePtr(
                 new TrackerEventSource(pCam, Config, IntPoint(640, 480), false));
 

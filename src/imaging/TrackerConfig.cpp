@@ -60,7 +60,7 @@ BlobConfig::~BlobConfig()
 {
 }
 
-void BlobConfig::load(xmlNodePtr pParentNode, const string& sFilename)
+void BlobConfig::load(xmlNodePtr pParentNode)
 {
     xmlNodePtr curXmlChild = pParentNode->xmlChildrenNode;
     while (curXmlChild) {
@@ -107,7 +107,7 @@ TrackerConfig::TrackerConfig()
       m_Gamma(1),
       m_Gain(128),
       m_Shutter(128),
-      m_Prescale(5),
+      m_Prescale(1),
       m_HistoryUpdateInterval(5),
       m_bBrighterRegions(true),
       m_bEventOnMove(true),
@@ -136,18 +136,11 @@ TrackerConfig::~TrackerConfig()
     // TODO: free complete m_Doc.
 }
 
-void TrackerConfig::load(const string& sCustomFilename)
+void TrackerConfig::load(const string& sFilename)
 {
     // TODO: There is duplicated code here and in Player::loadFile which belongs
     // in a lower-level xml handling class.
     registerDTDEntityLoader("trackerconfig.dtd", g_pTrackerConfigDTD);
-    string sFilename(sCustomFilename);
-    if (sCustomFilename.empty()) {
-        sFilename = "/etc/avgtrackerrc";
-        if (!fileExists(sFilename)) {
-            sFilename = getConfigFilename();
-        }
-    } 
     xmlDtdPtr dtd;
     string sDTDFName = "trackerconfig.dtd";
     dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
@@ -174,10 +167,10 @@ void TrackerConfig::load(const string& sCustomFilename)
     }
 
     m_pRoot = xmlDocGetRootElement(m_Doc);
-    
     xmlFreeDtd(dtd);
-
     parse(false);
+    m_sFilename = sFilename;
+
 }
 
 void TrackerConfig::parse(bool bOnlyDyn)
@@ -186,9 +179,9 @@ void TrackerConfig::parse(bool bOnlyDyn)
     while (curXmlChild) {
         const char * pNodeName = (const char *)curXmlChild->name;
         if (!strcmp(pNodeName, "camera")) {
-            loadCamera(curXmlChild, getConfigFilename(), bOnlyDyn);
+            loadCamera(curXmlChild, bOnlyDyn);
         } else if (!strcmp(pNodeName, "tracker")) {
-            loadTracker(curXmlChild, getConfigFilename());
+            loadTracker(curXmlChild);
         } else if (!strcmp(pNodeName, "transform")) {
             m_pTrafo->load(DPoint(m_Size), curXmlChild);
         } else {
@@ -290,24 +283,22 @@ void TrackerConfig::dump() const
     m_pTrafo->dump();
 }
 
-void TrackerConfig::save(const string& sCustomFilename)
+void TrackerConfig::save(const string& sFilename)
 {
-    string sFilename(sCustomFilename);
-    if (sFilename.empty()) {
-        sFilename = getConfigFilename();
+    if (sFilename != "") {
+        m_sFilename = sFilename;
     }
-
     AVG_TRACE(Logger::CONFIG, "Saving tracker configuration to " 
-            << sFilename << ".");
+            << m_sFilename << ".");
 
     if (m_Doc)
-        xmlSaveFileEnc(sFilename.c_str(), m_Doc, "utf-8");
+        xmlSaveFileEnc(m_sFilename.c_str(), m_Doc, "utf-8");
     else
         throw (Exception(AVG_ERR_FILEIO, 
                     "save(): tracker configuration not initialized"));
 }
 
-void TrackerConfig::loadCamera(xmlNodePtr pParentNode, const string& sFilename, bool bOnlyDyn)
+void TrackerConfig::loadCamera(xmlNodePtr pParentNode, bool bOnlyDyn)
 {
     xmlNodePtr curXmlChild = pParentNode->xmlChildrenNode;
     while (curXmlChild) {
@@ -352,7 +343,7 @@ void TrackerConfig::loadCamera(xmlNodePtr pParentNode, const string& sFilename, 
     }
 }
 
-void TrackerConfig::loadTracker(xmlNodePtr pParentNode, const string& sFilename)
+void TrackerConfig::loadTracker(xmlNodePtr pParentNode)
 {
     xmlNodePtr curXmlChild = pParentNode->xmlChildrenNode;
     while (curXmlChild) {
@@ -369,24 +360,14 @@ void TrackerConfig::loadTracker(xmlNodePtr pParentNode, const string& sFilename)
             m_ContourPrecision = getRequiredIntAttr(curXmlChild, "value");
         } else if (!strcmp(pNodeName, "touch")) {
             m_pTouch = BlobConfigPtr(new BlobConfig(true));
-            m_pTouch->load(curXmlChild, sFilename);
+            m_pTouch->load(curXmlChild);
         } else if (!strcmp(pNodeName, "track")) {
             m_pTrack = BlobConfigPtr(new BlobConfig(false));
-            m_pTrack->load(curXmlChild, sFilename);
+            m_pTrack->load(curXmlChild);
         } else {
             assureEmptyNode(pNodeName);
         }
         curXmlChild = curXmlChild->next;
-    }
-}
-
-std::string TrackerConfig::getConfigFilename()
-{
-    char * pHome = getenv("HOME");
-    if (pHome) {
-        return string(pHome)+"/.avgtrackerrc"; 
-    } else {
-        return "";
     }
 }
 

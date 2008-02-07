@@ -36,7 +36,7 @@ struct BlobConfig
 {
     BlobConfig(bool bIsTouch);
     virtual ~BlobConfig();
-    void load(xmlNodePtr pParentNode, const std::string& sFilename);
+    void load(xmlNodePtr pParentNode);
     void save(xmlTextWriterPtr writer);
 
     bool m_bIsTouch;
@@ -54,8 +54,8 @@ struct TrackerConfig
     TrackerConfig(const TrackerConfig& other);
     virtual ~TrackerConfig();
     
-    void load(const std::string& sCustomFilename = "");
-    void save(const std::string& sCustomFilename = "");
+    void load(const std::string& sFilename);
+    void save(const std::string& sFilename);
     void parse(bool bOnlyDyn);
     xmlXPathObjectPtr findConfigNodes(const xmlChar* xpExpr);
     void setParam(const xmlChar* xpElement, const xmlChar* Value);
@@ -89,11 +89,12 @@ struct TrackerConfig
     DeDistortPtr m_pTrafo;
 
 private:
-    void loadCamera(xmlNodePtr pParentNode, const std::string& sFilename, bool bOnlyDyn);
-    void loadTracker(xmlNodePtr pParentNode, const std::string& sFilename);
-    std::string getConfigFilename();
+    void loadCamera(xmlNodePtr pParentNode, bool bOnlyDyn);
+    void loadTracker(xmlNodePtr pParentNode);
     xmlDocPtr m_Doc;
     xmlNodePtr m_pRoot;
+
+    std::string m_sFilename;
 };
 
 }
