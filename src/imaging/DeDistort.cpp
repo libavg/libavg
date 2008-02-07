@@ -74,15 +74,15 @@ DeDistort::DeDistort(const DPoint& CamExtents, const DPoint& DisplayExtents)
 }
 
 DeDistort::DeDistort(const DPoint &CamExtents,
-            const std::vector<double>& DistortionParams,
-            double Angle, double TrapezoidFactor,
-            const DPoint& DisplayOffset, const DPoint& DisplayScale)
-      : m_CamExtents(CamExtents),
-        m_DistortionParams(DistortionParams),
-        m_Angle(Angle),
-        m_TrapezoidFactor(TrapezoidFactor),
-        m_DisplayOffset(DisplayOffset),
-        m_DisplayScale(DisplayScale)
+        const std::vector<double>& DistortionParams,
+        double Angle, double TrapezoidFactor,
+        const DPoint& DisplayOffset, const DPoint& DisplayScale)
+    : m_CamExtents(CamExtents),
+      m_DistortionParams(DistortionParams),
+      m_Angle(Angle),
+      m_TrapezoidFactor(TrapezoidFactor),
+      m_DisplayOffset(DisplayOffset),
+      m_DisplayScale(DisplayScale)
 {
     m_RescaleFactor = calc_rescale();
 }
