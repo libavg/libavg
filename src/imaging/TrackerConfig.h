@@ -75,6 +75,7 @@ struct TrackerConfig
     int m_Gain;
     int m_Shutter;
 
+    std::string m_sCameraMaskFName;
     int m_Prescale;
     int m_HistoryUpdateInterval;
     bool m_bBrighterRegions; // detect brighter or darker pixels rel. to the background.

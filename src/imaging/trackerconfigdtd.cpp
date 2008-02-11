@@ -30,7 +30,7 @@ const char * g_pTrackerConfigDTD =
  
 "<!ELEMENT trackerconfig (camera|tracker|transform)* >\n"
 "<!ELEMENT camera (source|device|format|size|channel|fps|brightness|exposure|gamma|gain|shutter)* >\n"
-"<!ELEMENT tracker (prescale|historyupdateinterval|brighterregions|eventonmove|contourprecision|touch|track)* >\n"
+"<!ELEMENT tracker (mask|prescale|historyupdateinterval|brighterregions|eventonmove|contourprecision|touch|track)* >\n"
 "<!ELEMENT touch (threshold|similarity|areabounds|eccentricitybounds)* >\n"
 "<!ELEMENT track (threshold|similarity|areabounds|eccentricitybounds)* >\n"
 "<!ELEMENT transform (cameradisplacement|camerascale|distortionparams|trapezoid|"
@@ -90,6 +90,10 @@ const char * g_pTrackerConfigDTD =
 
 "<!ELEMENT threshold EMPTY>\n"
 "<!ATTLIST threshold\n"
+"   value CDATA #REQUIRED >\n"
+
+"<!ELEMENT mask EMPTY>\n"
+"<!ATTLIST mask\n"
 "   value CDATA #REQUIRED >\n"
 
 "<!ELEMENT prescale EMPTY>\n"

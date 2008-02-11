@@ -107,6 +107,7 @@ TrackerConfig::TrackerConfig()
       m_Gamma(1),
       m_Gain(128),
       m_Shutter(128),
+      m_sCameraMaskFName(""),
       m_Prescale(1),
       m_HistoryUpdateInterval(5),
       m_bBrighterRegions(true),
@@ -348,7 +349,9 @@ void TrackerConfig::loadTracker(xmlNodePtr pParentNode)
     xmlNodePtr curXmlChild = pParentNode->xmlChildrenNode;
     while (curXmlChild) {
         const char * pNodeName = (const char *)curXmlChild->name;
-        if (!strcmp(pNodeName, "prescale")) {
+        if (!strcmp(pNodeName, "mask")) {
+            m_sCameraMaskFName = getRequiredStringAttr(curXmlChild, "value");
+        } else if (!strcmp(pNodeName, "prescale")) {
             m_Prescale = getRequiredIntAttr(curXmlChild, "value");
         } else if (!strcmp(pNodeName, "historyupdateinterval")) {
             m_HistoryUpdateInterval = getRequiredIntAttr(curXmlChild, "value");

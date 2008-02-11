@@ -32,6 +32,7 @@
 #include "../graphics/FilterFastDownscale.h"
 #include "../graphics/FilterBlur.h"
 #include "../graphics/FilterGauss.h"
+#include "../graphics/FilterMask.h"
 
 #include <iostream>
 #include <stdlib.h>
@@ -40,6 +41,7 @@ using namespace std;
 
 namespace avg {
 static ProfilingZone ProfilingZoneCapture ("Capture");
+static ProfilingZone ProfilingZoneMask ("Mask");
 static ProfilingZone ProfilingZoneTracker ("Tracker");
 static ProfilingZone ProfilingZoneHistory ("History");
 static ProfilingZone ProfilingZoneDistort ("Distort");
@@ -104,6 +106,10 @@ bool TrackerThread::work()
     }
     if (pCamBmp) {
         ScopeTimer Timer(ProfilingZoneTracker);
+        if (m_pCameraMaskBmp) {
+            ScopeTimer Timer(ProfilingZoneMask);
+            FilterMask(m_pCameraMaskBmp).applyInPlace(pCamBmp);
+        }
         if (m_bCreateDebugImages) {
             boost::mutex::scoped_lock Lock(*m_pMutex);
             *(m_pBitmaps[TRACKER_IMG_CAMERA]) = *pCamBmp;
@@ -185,7 +191,8 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
             int(m_pCamera->getFeature(CAM_FEATURE_EXPOSURE)) != Config.m_Exposure ||
              int(m_pCamera->getFeature(CAM_FEATURE_GAMMA)) != Config.m_Gamma ||
              int(m_pCamera->getFeature(CAM_FEATURE_GAIN)) != Config.m_Gain ||
-             int(m_pCamera->getFeature(CAM_FEATURE_SHUTTER)) != Config.m_Shutter)
+             int(m_pCamera->getFeature(CAM_FEATURE_SHUTTER)) != Config.m_Shutter ||
+             m_sCameraMaskFName != Config.m_sCameraMaskFName)
     {
         m_pHistoryPreProcessor->reset();
     }
@@ -195,6 +202,18 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
     m_pCamera->setFeature(CAM_FEATURE_GAMMA, Config.m_Gamma);
     m_pCamera->setFeature(CAM_FEATURE_GAIN, Config.m_Gain);
     m_pCamera->setFeature(CAM_FEATURE_SHUTTER, Config.m_Shutter);
+
+    if (m_sCameraMaskFName != Config.m_sCameraMaskFName) {
+        m_sCameraMaskFName = Config.m_sCameraMaskFName;
+        if (m_sCameraMaskFName == "") {
+            m_pCameraMaskBmp = BitmapPtr();
+        } else {
+            BitmapPtr pRGBXCameraMaskBmp = BitmapPtr(new Bitmap(m_sCameraMaskFName));
+            m_pCameraMaskBmp = BitmapPtr(
+                new Bitmap(pRGBXCameraMaskBmp->getSize(), I8));
+            m_pCameraMaskBmp->copyPixels(*pRGBXCameraMaskBmp);        
+        }
+    }
 
     m_bCreateDebugImages = Config.m_bCreateDebugImages;
     m_bCreateFingerImage = Config.m_bCreateFingerImage;

@@ -95,6 +95,8 @@ class TrackerThread: public WorkerThread<TrackerThread>
 
         int m_TouchThreshold; // 0 => no touch events.
         int m_TrackThreshold; // 0 => no generic tracking events.
+        std::string m_sCameraMaskFName;
+        BitmapPtr m_pCameraMaskBmp;
         int m_Prescale;
         bool m_bTrackBrighter;
         BlobVectorPtr m_pBlobVector;
