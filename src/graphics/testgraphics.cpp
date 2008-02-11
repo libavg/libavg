@@ -38,6 +38,7 @@
 #include "FilterBlur.h"
 #include "FilterBandpass.h"
 #include "FilterFastDownscale.h"
+#include "FilterMask.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -737,6 +738,43 @@ public:
     }
 };
 
+class FilterMaskTest: public Test {
+public:
+    FilterMaskTest()
+        : Test("FilterMaskTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        runTestsWithBmp(initBmp(I8), "I8");
+        runTestsWithBmp(initBmp(R8G8B8), "R8G8B8");
+        runTestsWithBmp(initBmp(R8G8B8X8), "R8G8B8X8");
+    }
+
+private:
+    void runTestsWithBmp(BitmapPtr pBmp, const string& sName)
+    {
+        BitmapPtr pMaskBmp = BitmapPtr(new Bitmap(pBmp->getSize(), I8));
+        FilterFill<Pixel8>(0).applyInPlace(pMaskBmp);
+        for (int y=0; y<pBmp->getSize().y; y++) {
+            pMaskBmp->setPixel(IntPoint(1, y), Pixel8(128));
+            pMaskBmp->setPixel(IntPoint(2, y), Pixel8(255));
+            pMaskBmp->setPixel(IntPoint(3, y), Pixel8(255));
+        }
+
+        BitmapPtr pDestBmp = FilterMask(pMaskBmp).apply(pBmp);
+        string sFName = string("testimages/MaskResult")+sName+".png";
+//        pDestBmp->save(sFName);
+        sFName = getSrcDir()+sFName;
+        BitmapPtr pRGBXBaselineBmp = BitmapPtr(new Bitmap(sFName));
+        BitmapPtr pBaselineBmp = BitmapPtr(
+                new Bitmap(pRGBXBaselineBmp->getSize(), pBmp->getPixelFormat()));
+        pBaselineBmp->copyPixels(*pRGBXBaselineBmp);
+        TEST(*pDestBmp == *pBaselineBmp);
+    }
+};
+
 
 class GraphicsTestSuite: public TestSuite {
 public:
@@ -760,6 +798,7 @@ public:
         addTest(TestPtr(new FilterBandpassTest));
         addTest(TestPtr(new FilterFastBandpassTest));
         addTest(TestPtr(new FilterFastDownscaleTest));
+        addTest(TestPtr(new FilterMaskTest));
     }
 };
 
