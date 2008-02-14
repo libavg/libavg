@@ -29,6 +29,7 @@
 #include "MouseEvent.h"
 #include "DisplayEngine.h"
 #include "TestHelper.h"
+#include "NodeFactory.h"
 #include "Node.h"
 #include "DisplayParams.h"
 
@@ -68,6 +69,8 @@ class Player : IEventSink
         void setFakeFPS(double fps);
         long long getFrameTime();
 
+        void registerNodeType(NodeDefinition Def);
+        NodePtr createNode (const std::string& sType, const boost::python::dict& PyDict);
         NodePtr createNodeFromXmlString (const std::string& sXML);
         TrackerEventSource * addTracker(const std::string& sConfigFilename);
         int setInterval(int time, PyObject * pyfunc);
@@ -121,6 +124,7 @@ class Player : IEventSink
         bool m_bStopping;
         typedef std::map<std::string, NodePtr> NodeIDMap;
         NodeIDMap m_IDMap;
+        NodeFactory m_NodeFactory;
 
         TrackerEventSource * m_pTracker;
 

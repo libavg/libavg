@@ -21,6 +21,8 @@
 
 #include "AVGNode.h"
 
+#include "NodeDefinition.h"
+
 #include "../base/XMLHelper.h"
 
 #include <iostream>
@@ -29,14 +31,24 @@ using namespace std;
 
 namespace avg {
 
-AVGNode::AVGNode (const xmlNodePtr xmlNode, Player * pPlayer)
-    : DivNode(xmlNode, pPlayer)
+NodeDefinition AVGNode::getNodeDefinition()
 {
-    m_bEnableCrop = getDefaultedBoolAttr (xmlNode, "enablecrop", true);
+    return NodeDefinition("avg", Node::buildNode<AVGNode>)
+        .extendDefinition(DivNode::getNodeDefinition())
+        .addChild(NodeDefinition("%anyNode;"))
+        .addArg("enablecrop", "true")
+        .addArg("onkeyup", "")
+        .addArg("onkeydown", "");
+}
+
+AVGNode::AVGNode (const ArgList& Args, Player * pPlayer)
+    : DivNode(Args, pPlayer)
+{
+    m_bEnableCrop = Args.getBoolArg ("enablecrop");
     addEventHandler(Event::KEYUP, Event::NONE, 
-            getDefaultedStringAttr (xmlNode, "onkeyup", ""));
+            Args.getStringArg ("onkeyup"));
     addEventHandler(Event::KEYDOWN, Event::NONE, 
-            getDefaultedStringAttr (xmlNode, "onkeydown", ""));
+            Args.getStringArg ("onkeydown"));
     Node::setAngle(0.0);
 }
 

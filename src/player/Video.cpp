@@ -22,6 +22,7 @@
 #include "DisplayEngine.h"
 #include "Player.h"
 #include "ISurface.h"
+#include "NodeDefinition.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -49,8 +50,18 @@ namespace avg {
 
 bool Video::m_bInitialized = false;
 
-Video::Video (const xmlNodePtr xmlNode, Player * pPlayer)
-    : VideoBase(xmlNode, pPlayer),
+NodeDefinition Video::getNodeDefinition()
+{
+    return NodeDefinition("video", Node::buildNode<Video>)
+        .extendDefinition(VideoBase::getNodeDefinition())
+        .addArg("href", "", true)
+        .addArg("loop", "false")
+        .addArg("threaded", "false")
+        .addArg("fps", "0.0");
+}
+
+Video::Video (const ArgList& Args, Player * pPlayer)
+    : VideoBase(Args, pPlayer),
       m_Filename(""),
       m_bEOFPending(false),
       m_pEOFCallback(0),
@@ -58,10 +69,10 @@ Video::Video (const xmlNodePtr xmlNode, Player * pPlayer)
       m_FramesPlayed(0),
       m_pDecoder(0)
 {
-    m_href = getDefaultedStringAttr (xmlNode, "href", "");
-    m_bLoop = getDefaultedBoolAttr (xmlNode, "loop", false);
-    m_bThreaded = getDefaultedBoolAttr (xmlNode, "threaded", false);
-    m_FPS = getDefaultedDoubleAttr (xmlNode, "fps", false);
+    m_href = Args.getStringArg ("href");
+    m_bLoop = Args.getBoolArg ("loop");
+    m_bThreaded = Args.getBoolArg ("threaded");
+    m_FPS =  Args.getDoubleArg ("fps");
     m_Filename = m_href;
     if (m_Filename != "") {
         initFilename(getPlayer(), m_Filename);

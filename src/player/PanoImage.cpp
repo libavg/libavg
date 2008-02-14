@@ -23,6 +23,7 @@
 #include "SDLDisplayEngine.h"
 #include "MathHelper.h"
 #include "OGLHelper.h"
+#include "NodeDefinition.h"
 
 #include "../base/Logger.h"
 #include "../base/ProfilingZone.h"
@@ -45,18 +46,31 @@ const int TEX_WIDTH = 64;
 
 namespace avg {
 
-PanoImage::PanoImage (const xmlNodePtr xmlNode, Player * pPlayer)
-    : Node (xmlNode, pPlayer)
+NodeDefinition PanoImage::getNodeDefinition()
 {
-    m_href = getDefaultedStringAttr (xmlNode, "href", "");
-    m_SensorWidth = getDefaultedDoubleAttr (xmlNode, "sensorwidth", 1.0);
-    m_SensorHeight = getDefaultedDoubleAttr (xmlNode, "sensorheight", 1.0);
-    m_FocalLength = getDefaultedDoubleAttr (xmlNode, "focallength", 10.0);
+    return NodeDefinition("panoimage", Node::buildNode<PanoImage>)
+        .extendDefinition(Node::getNodeDefinition())
+        .addArg("href", "")
+        .addArg("sensorwidth", "1.0")
+        .addArg("sensorheight", "1.0")
+        .addArg("focallength", "10.0")
+        .addArg("rotation", "-1")
+        .addArg("hue", "-1")
+        .addArg("saturation", "-1");
+}
 
-    m_Rotation = getDefaultedDoubleAttr (xmlNode, "rotation", -1);
+PanoImage::PanoImage (const ArgList& Args, Player * pPlayer)
+    : Node (Args, pPlayer)
+{
+    m_href = Args.getStringArg ("href");
+    m_SensorWidth = Args.getDoubleArg ("sensorwidth");
+    m_SensorHeight = Args.getDoubleArg ("sensorheight");
+    m_FocalLength = Args.getDoubleArg ("focallength");
 
-    m_Hue = getDefaultedIntAttr (xmlNode, "hue", -1);
-    m_Saturation = getDefaultedIntAttr (xmlNode, "saturation", -1);
+    m_Rotation = Args.getDoubleArg ("rotation");
+
+    m_Hue = Args.getIntArg ("hue");
+    m_Saturation = Args.getIntArg ("saturation");
     m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8));
     load();
 }

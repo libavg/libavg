@@ -18,34 +18,36 @@
 //
 //  Current versions can be found at www.libavg.de
 //
+//  Original author of this file is Nick Hebner (hebnern@gmail.com).
+//
 
-#ifndef _AVGNode_H_
-#define _AVGNode_H_
-
-#include "DivNode.h"
-#include "KeyEvent.h"
+#ifndef _Arg_H_
+#define _Arg_H_
 
 #include <string>
 
 namespace avg {
 
-class AVGNode : public DivNode
+class Arg
 {
-	public:
-        static NodeDefinition getNodeDefinition();
-        
-        AVGNode (const ArgList& Args, Player * pPlayer);
-        virtual ~AVGNode ();
-
-        virtual std::string getTypeStr ();
-        bool getCropSetting();
-        void setAngle(double angle);
-        
-    private:
-        bool m_bEnableCrop;
-
+public:
+	Arg(std::string Name, std::string Value, bool bRequired = false);
+	virtual ~Arg();
+	
+	std::string getName() const;
+	bool isRequired() const;
+	
+	int toInt() const;
+	double toDouble() const;
+	bool toBool() const;
+	std::string toString() const;
+	
+private:
+    std::string m_Name;
+    std::string m_Value;
+    bool m_bRequired;
 };
 
 }
 
-#endif //_AVGNode_H_
+#endif

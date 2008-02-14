@@ -40,7 +40,9 @@ class SDLDisplayEngine;
 class PanoImage : public Node
 {
 	public:
-        PanoImage(const xmlNodePtr xmlNode, Player * pPlayer);
+        static NodeDefinition getNodeDefinition();
+        
+        PanoImage(const ArgList& Args, Player * pPlayer);
         virtual ~PanoImage();
         
         virtual void setDisplayEngine(DisplayEngine * pEngine);

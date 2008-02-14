@@ -22,6 +22,7 @@
 #include "Node.h"
 #include "DivNode.h"
 
+#include "NodeDefinition.h"
 #include "Event.h"
 #include "CursorEvent.h"
 #include "MouseEvent.h"
@@ -49,7 +50,29 @@ using namespace std;
 
 namespace avg {
 
-Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
+
+NodeDefinition Node::getNodeDefinition()
+{
+    return NodeDefinition("node")
+        .addArg("id", "")
+        .addArg("oncursormove", "")
+        .addArg("oncursorup", "")
+        .addArg("oncursordown", "")
+        .addArg("oncursorover", "")
+        .addArg("oncursorout", "")
+        .addArg("x", "0.0")
+        .addArg("y", "0.0")
+        .addArg("width", "0.0")
+        .addArg("height", "0.0")
+        .addArg("angle", "0.0")
+        .addArg("pivotx", "-32767")
+        .addArg("pivoty", "-32767")
+        .addArg("opacity", "1.0")
+        .addArg("active", "true")
+        .addArg("sensitive", "true");
+}
+
+Node::Node (const ArgList& Args, Player * pPlayer)
     : m_pParent(),
       m_This(),
       m_pEngine(0),
@@ -57,24 +80,24 @@ Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
       m_RelViewport(0,0,0,0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    m_ID = getDefaultedStringAttr (xmlNode, "id", "");
-    addEventHandlers(Event::CURSORMOTION, getDefaultedStringAttr (xmlNode, "oncursormove", ""));
-    addEventHandlers(Event::CURSORUP, getDefaultedStringAttr (xmlNode, "oncursorup", ""));
-    addEventHandlers(Event::CURSORDOWN, getDefaultedStringAttr (xmlNode, "oncursordown", ""));
-    addEventHandlers(Event::CURSOROVER, getDefaultedStringAttr (xmlNode, "oncursorover", ""));
-    addEventHandlers(Event::CURSOROUT, getDefaultedStringAttr (xmlNode, "oncursorout", ""));
-    m_RelViewport.tl.x = getDefaultedDoubleAttr (xmlNode, "x", 0.0);
-    m_RelViewport.tl.y = getDefaultedDoubleAttr (xmlNode, "y", 0.0);
-    m_WantedSize.x = getDefaultedDoubleAttr (xmlNode, "width", 0.0);
-    m_WantedSize.y = getDefaultedDoubleAttr (xmlNode, "height", 0.0);
+    m_ID = Args.getStringArg ("id");
+    addEventHandlers(Event::CURSORMOTION, Args.getStringArg ("oncursormove"));
+    addEventHandlers(Event::CURSORUP, Args.getStringArg ("oncursorup"));
+    addEventHandlers(Event::CURSORDOWN, Args.getStringArg ("oncursordown"));
+    addEventHandlers(Event::CURSOROVER, Args.getStringArg ("oncursorover"));
+    addEventHandlers(Event::CURSOROUT, Args.getStringArg ("oncursorout"));
+    m_RelViewport.tl.x = Args.getDoubleArg ("x");
+    m_RelViewport.tl.y = Args.getDoubleArg ("y");
+    m_WantedSize.x = Args.getDoubleArg ("width");
+    m_WantedSize.y = Args.getDoubleArg ("height");
     m_RelViewport.setWidth(m_WantedSize.x);
     m_RelViewport.setHeight(m_WantedSize.y);
-    m_Angle = getDefaultedDoubleAttr (xmlNode, "angle", 0);
-    m_Pivot.x = getDefaultedDoubleAttr (xmlNode, "pivotx", -32767);
-    m_Pivot.y = getDefaultedDoubleAttr (xmlNode, "pivoty", -32767);
-    m_Opacity = getDefaultedDoubleAttr (xmlNode, "opacity", 1.0);
-    m_bActive = getDefaultedBoolAttr (xmlNode, "active", true);
-    m_bSensitive = getDefaultedBoolAttr (xmlNode, "sensitive", true);
+    m_Angle = Args.getDoubleArg ("angle");
+    m_Pivot.x = Args.getDoubleArg ("pivotx");
+    m_Pivot.y = Args.getDoubleArg ("pivoty");
+    m_Opacity = Args.getDoubleArg ("opacity");
+    m_bActive = Args.getBoolArg ("active");
+    m_bSensitive = Args.getBoolArg ("sensitive");
     setState(NS_UNCONNECTED);
 }
 

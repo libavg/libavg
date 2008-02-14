@@ -40,7 +40,9 @@ class IVideoDecoder;
 class Video : public VideoBase, IFrameListener
 {
     public:
-        Video (const xmlNodePtr xmlNode, Player * pPlayer);
+        static NodeDefinition getNodeDefinition();
+        
+        Video (const ArgList& Args, Player * pPlayer);
         virtual ~Video ();
         
         virtual void setDisplayEngine(DisplayEngine * pEngine);

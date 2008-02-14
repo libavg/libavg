@@ -36,6 +36,8 @@ namespace avg {
 class RasterNode: public Node
 {
     public:
+        static NodeDefinition getNodeDefinition();
+        
         virtual ~RasterNode ();
         virtual void setDisplayEngine(DisplayEngine * pEngine);
         virtual void disconnect();
@@ -65,7 +67,7 @@ class RasterNode: public Node
         Bitmap* getBitmap();
         
     protected:
-        RasterNode (const xmlNodePtr xmlNode, Player * pPlayer);
+        RasterNode (const ArgList& Args, Player * pPlayer);
         ISurface * getSurface();
  
     private:

@@ -21,6 +21,7 @@
 
 #include "RasterNode.h"
 
+#include "NodeDefinition.h"
 #include "MathHelper.h"
 #include "DisplayEngine.h"
 
@@ -31,15 +32,24 @@ using namespace std;
 
 namespace avg {
 
-RasterNode::RasterNode (const xmlNodePtr xmlNode, Player * pPlayer)
-    : Node(xmlNode, pPlayer),
+NodeDefinition RasterNode::getNodeDefinition()
+{
+    return NodeDefinition("rasternode")
+        .extendDefinition(Node::getNodeDefinition())
+        .addArg("maxtilewidth", "-1")
+        .addArg("maxtileheight", "-1")
+        .addArg("blendmode", "blend");
+}
+
+RasterNode::RasterNode (const ArgList& Args, Player * pPlayer)
+    : Node(Args, pPlayer),
       m_pSurface(0),
       m_MaxTileSize(IntPoint(-1,-1)),
       m_sBlendMode("blend")
 {
-    m_MaxTileSize.x = getDefaultedIntAttr (xmlNode, "maxtilewidth", -1);
-    m_MaxTileSize.y = getDefaultedIntAttr (xmlNode, "maxtileheight", -1);
-    setBlendModeStr(getDefaultedStringAttr (xmlNode, "blendmode", "blend"));
+    m_MaxTileSize.x = Args.getIntArg ("maxtilewidth");
+    m_MaxTileSize.y = Args.getIntArg ("maxtileheight");
+    setBlendModeStr(Args.getStringArg ("blendmode"));
 }
 
 RasterNode::~RasterNode()

@@ -18,10 +18,40 @@
 //
 //  Current versions can be found at www.libavg.de
 //
+//  Original author of this file is Nick Hebner (hebnern@gmail.com).
+//
 
-#ifndef _avgdtd_H_
+#ifndef _NodeFactory_H_
+#define _NodeFactory_H_
 
-extern const char * g_pAVGDTD;
+#include "Node.h"
+#include "ArgList.h"
+#include "NodeDefinition.h"
+
+#include <map>
+#include <string>
+#include <sstream>
+
+namespace avg {
+
+class NodeFactory
+{
+public:
+	NodeFactory();
+	virtual ~NodeFactory();
+	
+	void registerNodeType(NodeDefinition& Def);
+	NodePtr createNode(const std::string& Type, const ArgList& Args, Player* pPlayer);
+	
+	std::string getDTD() const;
+	
+private:
+    void writeNodeDTD(const NodeDefinition& Def, std::stringstream& ss) const;
+    
+    typedef std::map<std::string, NodeDefinition> NodeDefMap;
+    NodeDefMap m_NodeDefs;
+};
+
+}
 
 #endif
-

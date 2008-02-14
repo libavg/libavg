@@ -45,6 +45,9 @@
 #define AVG_ERR_INVALID_CAPTURE 21
 #define AVG_ERR_QUEUE_EMPTY 22
 #define AVG_ERR_NO_NODE 23
+#define AVG_ERR_NO_ARG 24
+#define AVG_ERR_INVALID_ARGS 25
+#define AVG_ERR_NO_BUILDER 26
 
 namespace avg {
  

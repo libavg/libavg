@@ -222,6 +222,13 @@ BOOST_PYTHON_MODULE(avg)
                 "This method will create any type of node, including <div> nodes\n"
                 "with children.\n"
                 "@param xml: xml string in avg syntax that specifies the node to create.")
+        .def("createNode", &Player::createNode,
+                "createNode(type, args) -> node\n"
+                "Creates a new Node. This node can be used as\n"
+                "parameter to DivNode::appendChild() and insertChild().\n"
+                "This method will only create one node at a time.\n"
+                "@param type: type string of the node to create.\n"
+                "@param args: a dictionary specifying args to pass to the node.")
         .def("addTracker", &Player::addTracker,
                 return_value_policy<reference_existing_object>(),
                 "addTracker(configFilename)\n"

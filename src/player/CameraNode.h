@@ -38,7 +38,9 @@ namespace avg {
 class CameraNode : public VideoBase
 {
     public:
-        CameraNode(const xmlNodePtr xmlNode, Player * pPlayer);
+        static NodeDefinition getNodeDefinition();
+        
+        CameraNode(const ArgList& Args, Player * pPlayer);
         virtual ~CameraNode();
 
         virtual void setDisplayEngine(DisplayEngine * pEngine);

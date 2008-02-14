@@ -22,7 +22,6 @@
 #include "Player.h"
 
 #include "../avgconfigwrapper.h"
-#include "avgdtd.h"
 #include "AVGNode.h"
 #include "DivNode.h"
 #include "Words.h"
@@ -30,6 +29,7 @@
 #include "CameraNode.h"
 #include "Image.h"
 #include "PanoImage.h"
+#include "NodeDefinition.h"
 
 #include "TrackerEventSource.h"
 #include "Event.h"
@@ -96,8 +96,18 @@ Player::Player()
     ThreadProfilerPtr pThreadProfiler = ThreadProfilerPtr(new ThreadProfiler("Main"));
     Profiler::get().registerThreadProfiler(pThreadProfiler);
     initConfig();
+
+    // Register all node types
+    registerNodeType(AVGNode::getNodeDefinition());
+    registerNodeType(DivNode::getNodeDefinition());
+    registerNodeType(Image::getNodeDefinition());
+    registerNodeType(Words::getNodeDefinition());
+    registerNodeType(Video::getNodeDefinition());
+    registerNodeType(CameraNode::getNodeDefinition());
+    registerNodeType(PanoImage::getNodeDefinition());
+    
     // Find and parse dtd.
-    registerDTDEntityLoader("avg.dtd", g_pAVGDTD);
+    registerDTDEntityLoader("avg.dtd", m_NodeFactory.getDTD().c_str());
     string sDTDFName = "avg.dtd";
     m_dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
     if (!m_dtd) {
@@ -762,6 +772,18 @@ void Player::registerNode(NodePtr pNode)
     }
 }
 
+void Player::registerNodeType(NodeDefinition Def)
+{
+    m_NodeFactory.registerNodeType(Def);
+}
+
+NodePtr Player::createNode(const string& sType, const boost::python::dict& PyDict)
+{
+    NodePtr pNode = m_NodeFactory.createNode(sType, ArgList(PyDict), this);
+    pNode->setThis(pNode);
+    return pNode;
+}
+
 NodePtr Player::createNodeFromXmlString (const string& sXML)
 {
     try {
@@ -800,36 +822,16 @@ NodePtr Player::createNodeFromXmlString (const string& sXML)
 NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc, 
         const xmlNodePtr xmlNode, DivNodeWeakPtr pParent)
 {
-    const char * nodeType = (const char *)xmlNode->name;
     NodePtr curNode;
+    const char * nodeType = (const char *)xmlNode->name;
     
-    string id = getDefaultedStringAttr (xmlNode, "id", "");
-    if (!strcmp (nodeType, "avg")) {
-        curNode = NodePtr(new AVGNode(xmlNode, this));
-    } else if (!strcmp (nodeType, "div")) {
-        curNode = NodePtr(new DivNode(xmlNode, this));
-    } else if (!strcmp (nodeType, "image")) {
-        curNode = NodePtr(new Image(xmlNode, this));
-    } else if (!strcmp (nodeType, "words")) {
-        curNode = NodePtr(new Words(xmlNode, this));
-        string s = getXmlChildrenAsString(xmlDoc, xmlNode);
-        boost::dynamic_pointer_cast<Words>(curNode)->initText(s);
-    } else if (!strcmp (nodeType, "video")) {
-        curNode = NodePtr(new Video(xmlNode, this));
-    } else if (!strcmp (nodeType, "camera")) {
-        curNode = NodePtr(new CameraNode(xmlNode, this));
-    }
-    else if (!strcmp (nodeType, "panoimage")) {
-        curNode = NodePtr(new PanoImage(xmlNode, this));
-    } 
-    else if (!strcmp (nodeType, "text") || 
-               !strcmp (nodeType, "comment")) {
+    if (!strcmp (nodeType, "text") || 
+        !strcmp (nodeType, "comment")) {
         // Ignore whitespace & comments
         return NodePtr();
-    } else {
-        throw (Exception (AVG_ERR_XML_NODE_UNKNOWN, 
-            string("Unknown node type ")+(const char *)nodeType+" encountered."));
     }
+    
+    curNode = m_NodeFactory.createNode(nodeType, ArgList(xmlNode), this);
     curNode->setThis(curNode);
     // If this is a container, recurse into children
     DivNodePtr curDivNode = boost::dynamic_pointer_cast<DivNode>(curNode);

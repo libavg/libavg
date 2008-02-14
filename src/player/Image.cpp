@@ -24,6 +24,7 @@
 #include "DisplayEngine.h"
 #include "Player.h"
 #include "ISurface.h"
+#include "NodeDefinition.h"
 
 #include "../graphics/Filtercolorize.h"
 #include "../graphics/Filterfliprgb.h"
@@ -41,12 +42,21 @@ using namespace std;
 
 namespace avg {
 
-Image::Image (const xmlNodePtr xmlNode, Player * pPlayer)
-    : RasterNode(xmlNode, pPlayer)
+NodeDefinition Image::getNodeDefinition()
 {
-    m_href = getDefaultedStringAttr (xmlNode, "href", "");
-    m_Hue = getDefaultedIntAttr (xmlNode, "hue", -1);
-    m_Saturation = getDefaultedIntAttr (xmlNode, "saturation", -1);
+    return NodeDefinition("image", Node::buildNode<Image>)
+        .extendDefinition(RasterNode::getNodeDefinition())
+        .addArg("href", "")
+        .addArg("hue", "-1")
+        .addArg("saturation", "-1");
+}
+
+Image::Image (const ArgList& Args, Player * pPlayer)
+    : RasterNode(Args, pPlayer)
+{
+    m_href = Args.getStringArg ("href");
+    m_Hue = Args.getIntArg ("hue");
+    m_Saturation = Args.getIntArg ("saturation");
     m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
 }
 

@@ -22,6 +22,7 @@
 #include "Words.h"
 #include "DisplayEngine.h"
 #include "ISurface.h"
+#include "NodeDefinition.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -70,26 +71,84 @@ void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level,
 */
 }
 
-Words::Words (const xmlNodePtr xmlNode, Player * pPlayer)
-    : RasterNode(xmlNode, pPlayer), 
+NodeDefinition Words::getNodeDefinition()
+{
+    ChildMap childMap;
+    childMap.insert(ChildMap::value_type("#PCDATA", NodeDefinition("#PCDATA")));
+    childMap.insert(ChildMap::value_type("span", NodeDefinition("span")));
+    childMap.insert(ChildMap::value_type("b", NodeDefinition("b")));
+    childMap.insert(ChildMap::value_type("big", NodeDefinition("big")));
+    childMap.insert(ChildMap::value_type("i", NodeDefinition("i")));
+    childMap.insert(ChildMap::value_type("s", NodeDefinition("s")));
+    childMap.insert(ChildMap::value_type("sub", NodeDefinition("sub")));
+    childMap.insert(ChildMap::value_type("sup", NodeDefinition("sup")));
+    childMap.insert(ChildMap::value_type("small", NodeDefinition("small")));
+    childMap.insert(ChildMap::value_type("tt", NodeDefinition("tt")));
+    childMap.insert(ChildMap::value_type("u", NodeDefinition("u")));
+    
+    childMap.at("span").addChildren(childMap)
+        .addArg("font_desc", "")
+        .addArg("font_family", "")
+        .addArg("face", "")
+        .addArg("size", "")
+        .addArg("style", "")
+        .addArg("weight", "")
+        .addArg("variant", "")
+        .addArg("stretch", "")
+        .addArg("foreground", "")
+        .addArg("background", "")
+        .addArg("underline", "")
+        .addArg("rise", "")
+        .addArg("strikethrough", "")
+        .addArg("fallback", "")
+        .addArg("lang", "");
+    childMap.at("b").addChildren(childMap);
+    childMap.at("big").addChildren(childMap);
+    childMap.at("i").addChildren(childMap);
+    childMap.at("s").addChildren(childMap);
+    childMap.at("sub").addChildren(childMap);
+    childMap.at("sup").addChildren(childMap);
+    childMap.at("small").addChildren(childMap);
+    childMap.at("tt").addChildren(childMap);
+    childMap.at("u").addChildren(childMap);
+    
+    return NodeDefinition("words", Node::buildNode<Words>)
+        .extendDefinition(RasterNode::getNodeDefinition())
+        .addChildren(childMap)
+        .addArg("font", "arial")
+        .addArg("text", "")
+        .addArg("color", "FFFFFF")
+        .addArg("size", "15")
+        .addArg("parawidth", "-1")
+        .addArg("indent", "0")
+        .addArg("linespacing", "-1")
+        .addArg("alignment", "left")
+        .addArg("weight", "normal")
+        .addArg("italic", "false")
+        .addArg("stretch", "normal")
+        .addArg("smallcaps", "false");
+}
+
+Words::Words (const ArgList& Args, Player * pPlayer)
+    : RasterNode(Args, pPlayer), 
       m_StringExtents(0,0),
       m_pContext(0), 
       m_pFontDescription(0),
       m_bFontChanged(true),
       m_bDrawNeeded(true)
 {
-    m_FontName = getDefaultedStringAttr (xmlNode, "font", "arial");
-    m_Text = getDefaultedStringAttr (xmlNode, "text", "");
-    m_ColorName = getDefaultedStringAttr (xmlNode, "color", "FFFFFF");
-    m_Size = getDefaultedIntAttr (xmlNode, "size", 15);
-    m_ParaWidth = getDefaultedIntAttr (xmlNode, "parawidth", -1);
-    m_Indent = getDefaultedIntAttr (xmlNode, "indent", 0);
-    m_LineSpacing = getDefaultedDoubleAttr (xmlNode, "linespacing", -1);
-    setAlignment(getDefaultedStringAttr (xmlNode, "alignment", "left"));
-    setWeight(getDefaultedStringAttr (xmlNode, "weight", "normal"));
-    m_bItalic = getDefaultedBoolAttr (xmlNode, "italic", false);
-    setStretch(getDefaultedStringAttr (xmlNode, "stretch", "normal"));
-    m_bSmallCaps = getDefaultedBoolAttr (xmlNode, "smallcaps", false);
+    m_FontName = Args.getStringArg ("font");
+    m_Text = Args.getStringArg ("text");
+    m_ColorName = Args.getStringArg ("color");
+    m_Size = Args.getIntArg ("size");
+    m_ParaWidth = Args.getIntArg ("parawidth");
+    m_Indent = Args.getIntArg ("indent");
+    m_LineSpacing = Args.getDoubleArg ("linespacing");
+    setAlignment(Args.getStringArg ("alignment"));
+    setWeight(Args.getStringArg ("weight"));
+    m_bItalic = Args.getBoolArg ("italic");
+    setStretch(Args.getStringArg ("stretch"));
+    m_bSmallCaps = Args.getBoolArg ("smallcaps");
 
     if (!s_bInitialized) {
 #if defined(_WIN32) || defined(__APPLE__)

@@ -23,6 +23,7 @@
 #include "DisplayEngine.h"
 #include "Player.h"
 #include "ISurface.h"
+#include "NodeDefinition.h"
 
 #include "../base/TimeSource.h"
 #include "../base/Logger.h"
@@ -46,16 +47,37 @@ using namespace std;
 
 namespace avg {
 
-CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
-    : VideoBase(xmlNode, pPlayer),
+NodeDefinition CameraNode::getNodeDefinition()
+{
+    return NodeDefinition("camera", Node::buildNode<CameraNode>)
+        .extendDefinition(VideoBase::getNodeDefinition())
+        .addArg("device", "", true)
+        .addArg("framerate", "15")
+        .addArg("source", "firewire")
+        .addArg("capturewidth", "640")
+        .addArg("captureheight", "480")
+        .addArg("pixelformat", "RGB")
+        .addArg("channel", "0")
+        .addArg("brightness", "-1")
+        .addArg("exposure", "-1")
+        .addArg("sharpness", "-1")
+        .addArg("saturation", "-1")
+        .addArg("gamma", "-1")
+        .addArg("shutter", "-1")
+        .addArg("gain", "-1")
+        .addArg("whitebalance", "-1");
+}
+
+CameraNode::CameraNode(const ArgList& Args, Player * pPlayer)
+    : VideoBase(Args, pPlayer),
       m_FrameNum(0)
 {
-    string sDevice = getDefaultedStringAttr (xmlNode, "device", "");
-    double FrameRate = getDefaultedDoubleAttr (xmlNode, "framerate", 15);
-    string sSource = getDefaultedStringAttr (xmlNode, "source", "firewire");
-    int Width = getDefaultedIntAttr (xmlNode, "capturewidth", 640);
-    int Height = getDefaultedIntAttr (xmlNode, "captureheight", 480);
-    string sPF = getDefaultedStringAttr (xmlNode, "pixelformat", "RGB");
+    string sDevice = Args.getStringArg ("device");
+    double FrameRate = Args.getDoubleArg ("framerate");
+    string sSource = Args.getStringArg ("source");
+    int Width = Args.getIntArg ("capturewidth");
+    int Height = Args.getIntArg ("captureheight");
+    string sPF = Args.getStringArg ("pixelformat");
 
     if (sSource == "firewire") {
 #if defined(AVG_ENABLE_1394)\
@@ -68,7 +90,7 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
 #endif
     } else if (sSource == "v4l") {
 #if defined(AVG_ENABLE_V4L2)
-        int Channel = getDefaultedIntAttr (xmlNode, "channel", 0);
+        int Channel = Args.getIntArg ("channel");
         
         m_pCamera = CameraPtr(new V4LCamera(sDevice, Channel,
             IntPoint(Width, Height), sPF, true));
@@ -91,21 +113,21 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
 
     if (m_pCamera) {
         m_pCamera->setFeature (CAM_FEATURE_BRIGHTNESS,
-            getDefaultedIntAttr(xmlNode, "brightness", -1));
+            Args.getIntArg("brightness"));
         m_pCamera->setFeature (CAM_FEATURE_EXPOSURE,
-            getDefaultedIntAttr(xmlNode, "exposure", -1));
+            Args.getIntArg("exposure"));
         m_pCamera->setFeature (CAM_FEATURE_SHARPNESS,
-            getDefaultedIntAttr(xmlNode, "sharpness", -1));
+            Args.getIntArg("sharpness"));
         m_pCamera->setFeature (CAM_FEATURE_SATURATION,
-            getDefaultedIntAttr(xmlNode, "saturation", -1));
+            Args.getIntArg("saturation"));
         m_pCamera->setFeature (CAM_FEATURE_GAMMA,
-            getDefaultedIntAttr(xmlNode, "gamma", -1));
+            Args.getIntArg("gamma"));
         m_pCamera->setFeature (CAM_FEATURE_SHUTTER,
-            getDefaultedIntAttr(xmlNode, "shutter", -1));
+            Args.getIntArg("shutter"));
         m_pCamera->setFeature (CAM_FEATURE_GAIN,
-            getDefaultedIntAttr(xmlNode, "gain", -1));
+            Args.getIntArg("gain"));
         m_pCamera->setFeature (CAM_FEATURE_WHITE_BALANCE,
-            getDefaultedIntAttr(xmlNode, "whitebalance", -1));
+            Args.getIntArg("whitebalance"));
     }
 }
 

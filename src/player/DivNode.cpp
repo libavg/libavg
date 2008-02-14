@@ -22,6 +22,7 @@
 #include "DivNode.h"
 #include "DisplayEngine.h"
 #include "Player.h"
+#include "NodeDefinition.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -34,10 +35,18 @@ using namespace std;
 
 namespace avg {
 
-DivNode::DivNode (const xmlNodePtr xmlNode, Player * pPlayer)
-    : Node(xmlNode, pPlayer)
+NodeDefinition DivNode::getNodeDefinition()
 {
-    m_sMediaDir = getDefaultedStringAttr (xmlNode, "mediadir", "");
+    return NodeDefinition("div", Node::buildNode<DivNode>)
+        .extendDefinition(Node::getNodeDefinition())
+        .addChild(NodeDefinition("%anyNode;"))
+        .addArg("mediadir", "");
+}
+
+DivNode::DivNode (const ArgList& Args, Player * pPlayer)
+    : Node(Args, pPlayer)
+{
+    m_sMediaDir = Args.getStringArg("mediadir");
 }
 
 DivNode::~DivNode()
