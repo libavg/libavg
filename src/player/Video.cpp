@@ -54,7 +54,7 @@ NodeDefinition Video::getNodeDefinition()
 {
     return NodeDefinition("video", Node::buildNode<Video>)
         .extendDefinition(VideoBase::getNodeDefinition())
-        .addArg("href", "", true)
+        .addArg("href", "", false)
         .addArg("loop", "false")
         .addArg("threaded", "false")
         .addArg("fps", "0.0");
