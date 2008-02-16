@@ -71,6 +71,11 @@ void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level,
 */
 }
 
+NodeDefinition& addChildrenToMap(ChildMap& childMap, const string& sName)
+{
+    return childMap.find(sName)->second.addChildren(childMap);
+}
+
 NodeDefinition Words::getNodeDefinition()
 {
     ChildMap childMap;
@@ -86,7 +91,7 @@ NodeDefinition Words::getNodeDefinition()
     childMap.insert(ChildMap::value_type("tt", NodeDefinition("tt")));
     childMap.insert(ChildMap::value_type("u", NodeDefinition("u")));
     
-    childMap.at("span").addChildren(childMap)
+    addChildrenToMap(childMap,"span")
         .addArg("font_desc", "")
         .addArg("font_family", "")
         .addArg("face", "")
@@ -102,15 +107,15 @@ NodeDefinition Words::getNodeDefinition()
         .addArg("strikethrough", "")
         .addArg("fallback", "")
         .addArg("lang", "");
-    childMap.at("b").addChildren(childMap);
-    childMap.at("big").addChildren(childMap);
-    childMap.at("i").addChildren(childMap);
-    childMap.at("s").addChildren(childMap);
-    childMap.at("sub").addChildren(childMap);
-    childMap.at("sup").addChildren(childMap);
-    childMap.at("small").addChildren(childMap);
-    childMap.at("tt").addChildren(childMap);
-    childMap.at("u").addChildren(childMap);
+    addChildrenToMap(childMap, "b");
+    addChildrenToMap(childMap, "big");
+    addChildrenToMap(childMap, "i");
+    addChildrenToMap(childMap, "s");
+    addChildrenToMap(childMap, "sub");
+    addChildrenToMap(childMap, "sup");
+    addChildrenToMap(childMap, "small");
+    addChildrenToMap(childMap, "tt");
+    addChildrenToMap(childMap, "u");
     
     return NodeDefinition("words", Node::buildNode<Words>)
         .extendDefinition(RasterNode::getNodeDefinition())
