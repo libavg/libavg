@@ -114,8 +114,7 @@ void export_raster()
                 "pause()\n"
                 "Stops video playback but doesn't close the object. The playback\n"
                 "cursor stays at the same position.")
-        .def("getFPS", &VideoBase::getFPS,
-                "getFPS()\n"
+        .add_property("fps", &VideoBase::getFPS,
                 "Returns the nominal frames per second the object should display at.\n")
     ;  
 
