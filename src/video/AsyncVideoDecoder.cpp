@@ -147,7 +147,7 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp, long long Time
     FrameAvailableCode FrameAvailable;
     FrameVideoMsgPtr pFrameMsg = getBmpsForTime(TimeWanted, FrameAvailable);
     if (FrameAvailable == FA_NEW_FRAME) {
-        *pBmp = *(pFrameMsg->getBitmap(0));
+        pBmp->copyPixels(*(pFrameMsg->getBitmap(0)));
     }
     return FrameAvailable;
 }
