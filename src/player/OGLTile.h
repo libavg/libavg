@@ -23,6 +23,7 @@
 #define _OGLTile_H_
 
 #include "OGLHelper.h"
+#include "VertexArray.h"
 #include "../base/Rect.h"
 #include "../graphics/Bitmap.h"
 
@@ -57,6 +58,7 @@ class OGLTile {
         SDLDisplayEngine * m_pEngine;
         int m_TextureMode;
         unsigned int m_TexID[3];
+        VertexArray * m_pVertexes;
 };
 
 typedef boost::shared_ptr<OGLTile> OGLTilePtr;

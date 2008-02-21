@@ -23,9 +23,9 @@ else
 endif
 
 GL_SOURCES = OGLHelper.cpp OGLSurface.cpp SDLDisplayEngine.cpp OGLTile.cpp \
-        	 OGLShader.cpp
+        	 OGLShader.cpp VertexArray.cpp
 GL_INCLUDES = SDLDisplayEngine.h OGLHelper.h OGLSurface.h OGLTile.h \
-              OGLShader.h GL/gl.h GL/glext.h GL/glu.h GL/glx.h
+              OGLShader.h VertexArray.h GL/gl.h GL/glext.h GL/glu.h GL/glx.h
 
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 

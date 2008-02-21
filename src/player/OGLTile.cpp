@@ -48,10 +48,12 @@ OGLTile::OGLTile(IntRect Extent, IntPoint TexSize, int Stride, PixelFormat pf,
     } else {
         createTexture(0, m_TexSize, Stride, m_pf);
     }
+    m_pVertexes = new VertexArray(1);
 }
 
 OGLTile::~OGLTile()
 {
+    delete m_pVertexes;
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
         glDeleteTextures(3, m_TexID);
     } else {
@@ -117,17 +119,13 @@ void OGLTile::blt(const DPoint& TLPoint, const DPoint& TRPoint,
             glproc::UseProgramObject(0);
         }
     }
-    glBegin(GL_QUADS);
-    glTexCoord2d(0.0, 0.0);
-    glVertex3d (TLPoint.x, TLPoint.y, 0.0);
-    glTexCoord2d(TexWidth, 0.0);
-    glVertex3d (TRPoint.x, TRPoint.y, 0.0);
-    glTexCoord2d(TexWidth, TexHeight);
-    glVertex3d (BRPoint.x, BRPoint.y, 0.0);
-    glTexCoord2d(0.0, TexHeight);
-    glVertex3d (BLPoint.x, BLPoint.y, 0.0);
-    glEnd();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTile::blt: glEnd()");
+    m_pVertexes->setPos(0, 0, TLPoint, IntPoint(0, 0));
+    m_pVertexes->setPos(0, 1, TRPoint, IntPoint(TexWidth, 0));
+    m_pVertexes->setPos(0, 2, BRPoint, IntPoint(TexWidth, TexHeight));
+    m_pVertexes->setPos(0, 3, BLPoint, IntPoint(0, TexHeight));
+
+    m_pVertexes->draw();
+    
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
         glproc::ActiveTexture(GL_TEXTURE1);
         glDisable(TextureMode);

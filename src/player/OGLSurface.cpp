@@ -533,6 +533,9 @@ void OGLSurface::bltTexture(const DPoint& DestSize,
             break;
     }
 
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
     for (unsigned int y=0; y<m_pTiles.size(); y++) {
         for (unsigned int x=0; x<m_pTiles[y].size(); x++) {
             DPoint TLPoint = calcFinalVertex(DestSize, m_TileVertices[y][x]);
@@ -543,6 +546,9 @@ void OGLSurface::bltTexture(const DPoint& DestSize,
             pCurTile->blt(TLPoint, TRPoint, BLPoint, BRPoint); 
         }
     }
+
+    glDisableClientState(GL_VERTEX_ARRAY); 
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
     AVG_TRACE(Logger::BLTS, "(" << DestSize.x << ", " 
             << DestSize.y << ")" << ", m_pf: " 
