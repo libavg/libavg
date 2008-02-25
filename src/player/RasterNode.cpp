@@ -27,6 +27,7 @@
 
 #include "../base/Logger.h"
 #include "../base/XMLHelper.h"
+#include "../base/Exception.h"
 
 using namespace std;
 
@@ -49,6 +50,12 @@ RasterNode::RasterNode (const ArgList& Args, Player * pPlayer)
 {
     m_MaxTileSize.x = Args.getIntArg ("maxtilewidth");
     m_MaxTileSize.y = Args.getIntArg ("maxtileheight");
+    if ((!ispow2(m_MaxTileSize.x) && m_MaxTileSize.x != -1)
+            || (!ispow2(m_MaxTileSize.y) && m_MaxTileSize.y != -1)) 
+    {
+        throw Exception(AVG_ERR_OUT_OF_RANGE, 
+                "maxtilewidth and maxtilehight must be powers of two.");
+    }
     setBlendModeStr(Args.getStringArg ("blendmode"));
 }
 

@@ -43,13 +43,10 @@ OGLSurface::OGLSurface(SDLDisplayEngine * pEngine)
       m_bCreated(false),
       m_bBound(false),
       m_Size(-1,-1),
-      m_MaxTileSize(-1,-1),
-      m_NumHorizTextures(-1),
-      m_NumVertTextures(-1)
+      m_NumTextures(-1, -1),
+      m_MaxTileSize(-1,-1)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    // Do an NVIDIA texture support query if it hasn't happened already.
-//    getTextureMode();
 }
 
 OGLSurface::~OGLSurface()
@@ -99,7 +96,7 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
     }
         
     unbind();
-    setupTiles();
+    calcTileSizes();
     initTileVertices(m_TileVertices);
     m_bCreated = true;
 }
@@ -113,7 +110,7 @@ void OGLSurface::createFromBits(IntPoint Size, PixelFormat pf,
     m_pf = pf;
     m_pBmps[0] = BitmapPtr(new Bitmap(Size, pf, pBits, Stride, false, ""));
     
-    setupTiles();
+    calcTileSizes();
 }
 
 BitmapPtr OGLSurface::lockBmp(int i)
@@ -192,7 +189,7 @@ void OGLSurface::setMaxTileSize(const IntPoint& MaxTileSize)
         m_MaxTileSize.y = nextpow2(m_MaxTileSize.y/2+1);
     }
     if (m_pBmps[0]) {
-        setupTiles();
+        calcTileSizes();
         initTileVertices(m_TileVertices);
     }
 }
@@ -221,11 +218,11 @@ void OGLSurface::setWarpedVertexCoords(const VertexGrid& Grid)
         bind();
     }
     bool bGridOK = true;
-    if (Grid.size() != (unsigned)(m_NumVertTextures+1)) {
+    if (Grid.size() != (unsigned)(m_NumTiles.y+1)) {
         bGridOK = false;
     }
     for (unsigned i = 0; i< Grid.size(); ++i) {
-        if (Grid[i].size() != (unsigned)(m_NumHorizTextures+1)) {
+        if (Grid[i].size() != (unsigned)(m_NumTiles.x+1)) {
             bGridOK = false;
         }
     }
@@ -249,8 +246,6 @@ string getGlModeString(int Mode)
             return "GL_BGR";
         case GL_BGRA:
             return "GL_BGRA";
-        case GL_YCBCR_MESA:
-            return "GL_YCBCR_MESA";
         case GL_YCBCR_422_APPLE:
             return "GL_YCBCR_422_APPLE";
         default:
@@ -265,32 +260,43 @@ void OGLSurface::bind()
     } else {
         int Width = m_Size.x;
         int Height = m_Size.y;
-        m_pTiles.clear();
-        vector<OGLTilePtr> v;
+        m_pTextures.clear();
+        vector<OGLTexturePtr> v;
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "OGLSurface::bind: glPixelStorei(GL_UNPACK_ALIGNMENT)");
         
-        for (int y=0; y<m_NumVertTextures; y++) {
-            m_pTiles.push_back(v);
-            for (int x=0; x<m_NumHorizTextures; x++) {
-                IntPoint CurSize = m_TileSize;
-                if (y == m_NumVertTextures-1) {
-                    CurSize.y = Height-y*m_TileSize.y;
+        for (int y=0; y<m_NumTextures.y; y++) {
+            m_pTextures.push_back(v);
+            for (int x=0; x<m_NumTextures.x; x++) {
+                IntPoint CurSize = m_TextureSize;
+                if (y == m_NumTextures.y-1) {
+                    CurSize.y = Height-y*m_TextureSize.y;
                 }
-                if (x == m_NumHorizTextures-1) {
-                    CurSize.x = Width-x*m_TileSize.x;
+                if (x == m_NumTextures.x-1) {
+                    CurSize.x = Width-x*m_TextureSize.x;
                 }
-                Rect<int> CurExtent(x*m_TileSize.x, y*m_TileSize.y,
-                        x*m_TileSize.x+CurSize.x, y*m_TileSize.y+CurSize.y);
+                Rect<int> CurExtent(x*m_TextureSize.x, y*m_TextureSize.y,
+                        x*m_TextureSize.x+CurSize.x, y*m_TextureSize.y+CurSize.y);
+                IntRect TileIndexExtents(
+                        safeCeil(double(CurExtent.tl.x)/m_TileSize.x), 
+                        safeCeil(double(CurExtent.tl.y)/m_TileSize.y),
+                        safeCeil(double(CurExtent.br.x)/m_TileSize.x), 
+                        safeCeil(double(CurExtent.br.y)/m_TileSize.y));
                 if (m_pEngine->getTextureMode() == GL_TEXTURE_2D) {
                     CurSize.x = nextpow2(CurSize.x);
                     CurSize.y = nextpow2(CurSize.y);
                 }
-                
-                OGLTilePtr pTile = OGLTilePtr(new OGLTile(CurExtent, CurSize,
-                        m_Size.x, m_pf, m_pEngine));
-                m_pTiles[y].push_back(pTile);
+/*
+                cerr << "Texture: " << x << ", " << y << endl;
+                cerr << "CurExtent: " << CurExtent << endl;
+                cerr << "m_TileSize: " << m_TileSize << endl;
+                cerr << "TileIndexExtents: " << TileIndexExtents << endl;
+*/                
+                OGLTexturePtr pTexture = OGLTexturePtr(new OGLTexture(CurExtent, 
+                        CurSize, m_TileSize, TileIndexExtents, m_Size.x, m_pf,
+                        m_pEngine));
+                m_pTextures[y].push_back(pTexture);
                 if (m_MemoryMode == PBO) {
                     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
                         for (int i=0; i<3; i++) {
@@ -298,17 +304,17 @@ void OGLSurface::bind()
                                     m_hPixelBuffers[i]);
                             OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                                     "OGLSurface::bind: glBindBuffer()");
-                            pTile->downloadTexture(i, m_pBmps[i], m_Size.x, m_MemoryMode);
+                            pTexture->downloadTexture(i, m_pBmps[i], m_Size.x, m_MemoryMode);
                         }
                     } else {
                         glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[0]);
                         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                                 "OGLSurface::bind: glBindBuffer()");
-                        pTile->downloadTexture(0, m_pBmps[0], m_Size.x, m_MemoryMode);
+                        pTexture->downloadTexture(0, m_pBmps[0], m_Size.x, m_MemoryMode);
                     }
                     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
                 } else {
-                    pTile->downloadTexture(0, m_pBmps[0], m_Size.x, m_MemoryMode);
+                    pTexture->downloadTexture(0, m_pBmps[0], m_Size.x, m_MemoryMode);
                 }
             }
         }
@@ -325,7 +331,7 @@ void OGLSurface::unbind()
 {
 //    cerr << "OGLSurface::unbind()" << endl;
     if (m_bBound) {
-        m_pTiles.clear();
+        m_pTextures.clear();
     }
     m_bBound = false;
 }
@@ -336,26 +342,26 @@ void OGLSurface::rebind()
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "AVGOGLSurface::rebind: glPixelStorei(GL_UNPACK_ALIGNMENT)");
-    for (unsigned int y=0; y<m_pTiles.size(); y++) {
-        for (unsigned int x=0; x<m_pTiles[y].size(); x++) {
-            OGLTilePtr pTile = m_pTiles[y][x];
+    for (unsigned int y=0; y<m_pTextures.size(); y++) {
+        for (unsigned int x=0; x<m_pTextures[y].size(); x++) {
+            OGLTexturePtr pTexture = m_pTextures[y][x];
             if (m_MemoryMode == PBO) {
                 if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
                     for (int i=0; i<3; i++) {
                         glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
                         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                                 "OGLSurface::rebind: glBindBuffer()");
-                        pTile->downloadTexture(i, m_pBmps[i], m_Size.x, m_MemoryMode);
+                        pTexture->downloadTexture(i, m_pBmps[i], m_Size.x, m_MemoryMode);
                     }
                 } else {
                     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[0]);
                     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                             "OGLSurface::rebind: glBindBuffer()");
-                    pTile->downloadTexture(0, m_pBmps[0], m_Size.x, m_MemoryMode);
+                    pTexture->downloadTexture(0, m_pBmps[0], m_Size.x, m_MemoryMode);
                 }
                 glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
             } else {
-                pTile->downloadTexture(0, m_pBmps[0], m_Size.x, m_MemoryMode);
+                pTexture->downloadTexture(0, m_pBmps[0], m_Size.x, m_MemoryMode);
             }
         }
     }
@@ -386,54 +392,61 @@ void OGLSurface::blt(const DPoint& DestSize,
     bltTexture(DestSize, Mode);
 }
 
-bool OGLSurface::wouldTile(IntPoint Size)
+bool OGLSurface::isOneTexture(IntPoint Size)
 {
-    if (m_MaxTileSize.x != -1 || m_MaxTileSize.y != -1 ||
-        Size.x > m_pEngine->getMaxTexSize() || 
+    if (Size.x > m_pEngine->getMaxTexSize() || 
         Size.y > m_pEngine->getMaxTexSize() ||
         m_pEngine->getTextureMode() == GL_TEXTURE_2D)
     {
-        return true;
-    } else {
         return false;
+    } else {
+        return true;
     }
 }
 
-void OGLSurface::setupTiles()
+void OGLSurface::calcTileSizes()
 {
-    if (m_Size.x > m_pEngine->getMaxTexSize() || 
-        m_Size.y > m_pEngine->getMaxTexSize()) 
-    {
-        m_TileSize = IntPoint(m_pEngine->getMaxTexSize(), m_pEngine->getMaxTexSize());
-    } else {
-        if (m_pEngine->getTextureMode() == GL_TEXTURE_2D) {
-            if ((m_Size.x > 256 && nextpow2(m_Size.x) > m_Size.x*1.3) ||
-                    (m_Size.y > 256 && nextpow2(m_Size.y) > m_Size.y*1.3)) 
-            {
-                m_TileSize = IntPoint(nextpow2(m_Size.x)/2, nextpow2(m_Size.y)/2);
-            } else {
-                m_TileSize = IntPoint(nextpow2(m_Size.x), nextpow2(m_Size.y));
-            }
+    if (m_pEngine->getTextureMode() == GL_TEXTURE_2D) {
+        if ((m_Size.x > 256 && nextpow2(m_Size.x) > m_Size.x*1.3) ||
+                (m_Size.y > 256 && nextpow2(m_Size.y) > m_Size.y*1.3)) 
+        {
+            m_TextureSize = IntPoint(nextpow2(m_Size.x)/2, nextpow2(m_Size.y)/2);
         } else {
-            m_TileSize = m_Size;
+            m_TextureSize = IntPoint(nextpow2(m_Size.x), nextpow2(m_Size.y));
         }
+    } else {
+        m_TextureSize = m_Size;
     }
-    if (m_MaxTileSize.x != -1 && m_MaxTileSize.x < m_TileSize.x) {
+    if (m_Size.x > m_pEngine->getMaxTexSize()) {
+        m_TextureSize.x = m_pEngine->getMaxTexSize();
+    }
+    if (m_Size.y > m_pEngine->getMaxTexSize()) {
+        m_TextureSize.y = m_pEngine->getMaxTexSize();
+    }
+    m_NumTextures.x = safeCeil(double(m_Size.x)/m_TextureSize.x);
+    m_NumTextures.y = safeCeil(double(m_Size.y)/m_TextureSize.y);
+
+    m_TileSize = m_TextureSize;
+    if (m_MaxTileSize.x != -1 && m_MaxTileSize.x < m_TextureSize.x) {
         m_TileSize.x = m_MaxTileSize.x;
     }
-    if (m_MaxTileSize.y != -1 && m_MaxTileSize.y < m_TileSize.y) {
+    if (m_MaxTileSize.y != -1 && m_MaxTileSize.y < m_TextureSize.y) {
         m_TileSize.y = m_MaxTileSize.y;
     }
-    m_NumHorizTextures = int(ceil(float(m_Size.x)/m_TileSize.x));
-    m_NumVertTextures = int(ceil(float(m_Size.y)/m_TileSize.y));
-
+    m_NumTiles.x = safeCeil(double(m_Size.x)/m_TileSize.x);
+    m_NumTiles.y = safeCeil(double(m_Size.y)/m_TileSize.y);
+/*    
+    cerr << "----calcTileSizes: " << endl;
+    cerr << "TextureSize: " << m_TextureSize << ", NumTextures: " << m_NumTextures << endl;
+    cerr << "TileSize: " << m_TileSize << ", NumTiles: " << m_NumTiles << endl;
+*/    
 }
 
 void OGLSurface::initTileVertices(VertexGrid& Grid)
 {
-    std::vector<DPoint> TileVerticesLine(m_NumHorizTextures+1);
+    std::vector<DPoint> TileVerticesLine(m_NumTiles.x+1);
     Grid = std::vector<std::vector<DPoint> >
-                (m_NumVertTextures+1, TileVerticesLine);
+                (m_NumTiles.y+1, TileVerticesLine);
     for (unsigned int y=0; y<Grid.size(); y++) {
         for (unsigned int x=0; x<Grid[y].size(); x++) {
             initTileVertex(x, y, Grid[y][x]);
@@ -443,12 +456,12 @@ void OGLSurface::initTileVertices(VertexGrid& Grid)
 
 void OGLSurface::initTileVertex (int x, int y, DPoint& Vertex) 
 {
-    if (x < m_NumHorizTextures) {
+    if (x < m_NumTiles.x) {
         Vertex.x = double(m_TileSize.x*x) / m_Size.x;
     } else {
         Vertex.x = 1;
     }
-    if (y < m_NumVertTextures) {
+    if (y < m_NumTiles.y) {
         Vertex.y = double(m_TileSize.y*y) / m_Size.y;
     } else {
         Vertex.y = 1;
@@ -536,14 +549,18 @@ void OGLSurface::bltTexture(const DPoint& DestSize,
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-    for (unsigned int y=0; y<m_pTiles.size(); y++) {
-        for (unsigned int x=0; x<m_pTiles[y].size(); x++) {
-            DPoint TLPoint = calcFinalVertex(DestSize, m_TileVertices[y][x]);
-            DPoint TRPoint = calcFinalVertex(DestSize, m_TileVertices[y][x+1]);
-            DPoint BLPoint = calcFinalVertex(DestSize, m_TileVertices[y+1][x]);
-            DPoint BRPoint = calcFinalVertex(DestSize, m_TileVertices[y+1][x+1]);
-            OGLTilePtr pCurTile = m_pTiles[y][x];
-            pCurTile->blt(TLPoint, TRPoint, BLPoint, BRPoint); 
+    std::vector<DPoint> VertexesLine(m_NumTiles.x+1);
+    VertexGrid FinalVertexes = std::vector<std::vector<DPoint> >
+                (m_NumTiles.y+1, VertexesLine);
+    for (unsigned int y=0; y<FinalVertexes.size(); y++) {
+        for (unsigned int x=0; x<FinalVertexes[y].size(); x++) {
+            FinalVertexes[y][x] = calcFinalVertex(DestSize, m_TileVertices[y][x]);
+        }
+    }
+
+    for (unsigned int y=0; y<m_pTextures.size(); y++) {
+        for (unsigned int x=0; x<m_pTextures[y].size(); x++) {
+            m_pTextures[y][x]->blt(&FinalVertexes); 
         }
     }
 
@@ -565,8 +582,6 @@ DPoint OGLSurface::calcFinalVertex(const DPoint& Size,
     Point.y = Size.y*NormalizedVertex.y;
     return Point;
 }
-
-
 
 void OGLSurface::checkBlendModeError(string sMode) 
 {    

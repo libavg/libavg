@@ -24,7 +24,7 @@
 
 #include "ISurface.h"
 #include "DisplayEngine.h"
-#include "OGLTile.h"
+#include "OGLTexture.h"
 #include "OGLHelper.h"
 #include "OGLShader.h"
 
@@ -37,8 +37,6 @@
 namespace avg {
 
 class SDLDisplayEngine;
-
-typedef std::vector<std::vector<DPoint> > VertexGrid;
 
 class OGLSurface: public ISurface {
     public:
@@ -64,21 +62,21 @@ class OGLSurface: public ISurface {
 
         void blt(const DPoint& DestSize, DisplayEngine::BlendMode Mode);
 
-        void setMaxTileSize(const Point<int>& MaxTileSize);
+        void setMaxTileSize(const IntPoint& MaxTileSize);
         VertexGrid getOrigVertexCoords();
         VertexGrid getWarpedVertexCoords();
         void setWarpedVertexCoords(const VertexGrid& Grid);
  
-        bool wouldTile(IntPoint Size);
+        bool isOneTexture(IntPoint Size);
 
     private:
-        void setupTiles();
+        void calcTileSizes();
         void initTileVertices(VertexGrid& Grid);
         void initTileVertex (int x, int y, DPoint& Vertex);
 
         void createBitmap(const IntPoint& Size, PixelFormat pf, int index);
         void unlockBmp(int i);
-        void bindOneTexture(OGLTile& Tile);
+        void bindOneTexture(OGLTexture& Texture);
         void bltTexture(const DPoint& DestSize, DisplayEngine::BlendMode Mode);
         DPoint calcFinalVertex(const DPoint& Size,
                 const DPoint & NormalizedVertex);
@@ -93,24 +91,18 @@ class OGLSurface: public ISurface {
         IntPoint m_Size;
         PixelFormat m_pf;
 
-        Point<int> m_MaxTileSize;
-        Point<int> m_TileSize;
-        int m_NumHorizTextures;
-        int m_NumVertTextures;
-        std::vector<std::vector<OGLTilePtr> > m_pTiles;
+        IntPoint m_TextureSize;
+        IntPoint m_NumTextures;
+        IntPoint m_MaxTileSize;
+        IntPoint m_TileSize;
+        IntPoint m_NumTiles;
+        std::vector<std::vector<OGLTexturePtr> > m_pTextures;
         VertexGrid m_TileVertices;
 
         OGLMemoryMode m_MemoryMode;
 
         // PBO memory mode
         GLuint m_hPixelBuffers[3];
-/*
-#ifndef __APPLE__
-        void * m_pMESABuffer;
-        static PFNGLXALLOCATEMEMORYMESAPROC s_AllocMemMESAProc;
-        static PFNGLXFREEMEMORYMESAPROC s_FreeMemMESAProc;
-#endif
-*/
 };
 
 }

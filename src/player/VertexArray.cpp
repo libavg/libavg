@@ -22,6 +22,10 @@
 #include "VertexArray.h"
 #include "../base/Exception.h"
 
+#include <iostream>
+
+using namespace std;
+
 namespace avg {
 
     VertexArray::VertexArray(int NumQuads)
@@ -39,7 +43,7 @@ namespace avg {
     }
 
     void VertexArray::setPos(int QuadIndex, int VertexIndex, const DPoint& Pos, 
-            const IntPoint TexPos)
+            const DPoint& TexPos)
     {
         assert(QuadIndex < m_NumQuads);
         T2V3Vertex* pVertex = &(m_pVertexData[QuadIndex*4+VertexIndex]);
@@ -58,9 +62,12 @@ namespace avg {
             glproc::BufferData(GL_ARRAY_BUFFER, m_NumQuads*4*sizeof(T2V3Vertex),
                     m_pVertexData, GL_STREAM_DRAW);
         }
-        glInterleavedArrays(GL_T2F_V3F, sizeof(T2V3Vertex), 0);
+        glVertexPointer(3, GL_FLOAT, sizeof(T2V3Vertex), (void*)8); 
+//                (void *)(offsetof(T2V3Vertex::m_Pos)));
+        glTexCoordPointer(2, GL_FLOAT, sizeof(T2V3Vertex),
+                0);
         
-        glDrawArrays(GL_QUADS, 0, 4);
+        glDrawArrays(GL_QUADS, 0, 4*m_NumQuads);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VertexArray::draw()");
 
         m_bDataChanged = false;

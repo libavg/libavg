@@ -23,12 +23,15 @@
 #define _MathHelper_H_
 
 #define PI 3.14159
+#define EPSILON 0.00001
 
 namespace avg {
 
 bool ispow2(int n);
 
 int nextpow2(int n);
+
+int safeCeil(double d);
 
 }
 #endif

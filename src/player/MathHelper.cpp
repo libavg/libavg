@@ -21,6 +21,8 @@
 
 #include "MathHelper.h"
 
+#include <Math.h>
+
 namespace avg {
 
 bool ispow2(int n) {
@@ -46,6 +48,15 @@ int nextpow2(int n) {
         );
     return RetVal;
 */    
+}
+
+int safeCeil(double d) 
+{
+    if (fabs(d-int(d)) < EPSILON) {
+        return d;
+    } else {
+        return int(d)+1;
+    }
 }
 
 }

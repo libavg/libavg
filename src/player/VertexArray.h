@@ -27,7 +27,7 @@ namespace avg {
 struct T2V3Vertex {
     GLfloat m_Tex[2];
     GLfloat m_Pos[3];
-//    GLfloat m_Dummy[3];
+    GLfloat m_Dummy[3];
 };
 
 class VertexArray {
@@ -36,7 +36,7 @@ public:
     virtual ~VertexArray();
 
     void setPos(int QuadIndex, int VertexIndex, const DPoint& Pos, 
-            const IntPoint TexPos);
+            const DPoint& TexPos);
     void draw();
 
 private:

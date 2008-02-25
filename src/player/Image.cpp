@@ -216,7 +216,7 @@ void Image::setupSurface(const Bitmap * pBmp)
     }
     bool bUsePBO = true;
 #if defined __APPLE__ || defined _WIN32
-    if (getSurface()->wouldTile(pBmp->getSize())) {
+    if (!getSurface()->isOneTexture(pBmp->getSize())) {
         bUsePBO = false;
     }
 #endif
