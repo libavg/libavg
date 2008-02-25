@@ -832,6 +832,12 @@ NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc,
     }
     
     curNode = m_NodeFactory.createNode(nodeType, ArgList(xmlNode), this);
+    if (!strcmp (nodeType, "words")) {
+        // TODO: This is an end-run around the generic serialization mechanism
+        // that will probably break at some point.
+        string s = getXmlChildrenAsString(xmlDoc, xmlNode);
+        boost::dynamic_pointer_cast<Words>(curNode)->initText(s);
+    }
     curNode->setThis(curNode);
     // If this is a container, recurse into children
     DivNodePtr curDivNode = boost::dynamic_pointer_cast<DivNode>(curNode);
