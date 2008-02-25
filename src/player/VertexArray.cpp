@@ -23,6 +23,7 @@
 #include "../base/Exception.h"
 
 #include <iostream>
+#include <stddef.h>
 
 using namespace std;
 
@@ -62,8 +63,8 @@ namespace avg {
             glproc::BufferData(GL_ARRAY_BUFFER, m_NumQuads*4*sizeof(T2V3Vertex),
                     m_pVertexData, GL_STREAM_DRAW);
         }
-        glVertexPointer(3, GL_FLOAT, sizeof(T2V3Vertex), (void*)8); 
-//                (void *)(offsetof(T2V3Vertex::m_Pos)));
+        glVertexPointer(3, GL_FLOAT, sizeof(T2V3Vertex),
+                (void *)(offsetof(T2V3Vertex, m_Pos)));
         glTexCoordPointer(2, GL_FLOAT, sizeof(T2V3Vertex),
                 0);
         
