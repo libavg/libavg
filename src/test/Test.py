@@ -652,7 +652,7 @@ class PlayerTestCase(AVGTestCase):
                 (lambda: Player.getElementByID("clogo1").play(),
                  lambda: self.compareImage("testWarp1", False),
                  moveVertex,
-                 lambda: self.compareImage("testWarp2", True),
+                 lambda: self.compareImage("testWarp2", False),
                  flip,
                  lambda: self.compareImage("testWarp3", False),
                  Player.stop))
