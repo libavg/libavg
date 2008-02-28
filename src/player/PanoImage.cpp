@@ -50,27 +50,19 @@ NodeDefinition PanoImage::getNodeDefinition()
 {
     return NodeDefinition("panoimage", Node::buildNode<PanoImage>)
         .extendDefinition(Node::getNodeDefinition())
-        .addArg("href", "")
-        .addArg("sensorwidth", "1.0")
-        .addArg("sensorheight", "1.0")
-        .addArg("focallength", "10.0")
-        .addArg("rotation", "-1")
-        .addArg("hue", "-1")
-        .addArg("saturation", "-1");
+        .addArg(Arg<string>("href", "", false, offsetof(PanoImage, m_href)))
+        .addArg(Arg<double>("sensorwidth", 1.0, false, offsetof(PanoImage, m_SensorWidth)))
+        .addArg(Arg<double>("sensorheight", 1.0, false, offsetof(PanoImage, m_SensorHeight)))
+        .addArg(Arg<double>("focallength", 10.0, false, offsetof(PanoImage, m_FocalLength)))
+        .addArg(Arg<double>("rotation", -1.0, false, offsetof(PanoImage, m_Rotation)))
+        .addArg(Arg<int>("hue", -1, false, offsetof(PanoImage, m_Hue)))
+        .addArg(Arg<int>("saturation", -1, false, offsetof(PanoImage, m_Saturation)));
 }
 
 PanoImage::PanoImage (const ArgList& Args, Player * pPlayer)
-    : Node (Args, pPlayer)
+    : Node (pPlayer)
 {
-    m_href = Args.getStringArg ("href");
-    m_SensorWidth = Args.getDoubleArg ("sensorwidth");
-    m_SensorHeight = Args.getDoubleArg ("sensorheight");
-    m_FocalLength = Args.getDoubleArg ("focallength");
-
-    m_Rotation = Args.getDoubleArg ("rotation");
-
-    m_Hue = Args.getIntArg ("hue");
-    m_Saturation = Args.getIntArg ("saturation");
+    Args.setMembers(this);
     m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8));
     load();
 }

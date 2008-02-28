@@ -74,6 +74,7 @@ class Node
         
         virtual ~Node () = 0;
         virtual void setThis(NodeWeakPtr This);
+        virtual void setArgs(const ArgList& Args);
         void setParent(DivNodeWeakPtr pParent);
         virtual void setDisplayEngine(DisplayEngine * pEngine);
         virtual void disconnect();
@@ -145,7 +146,7 @@ class Node
                 NT_CAMERA, NT_DIV, NT_PANOIMAGE};
 
     protected:
-        Node (const ArgList& Args, Player * pPlayer);
+        Node (Player * pPlayer);
         virtual DPoint getPreferredMediaSize() 
             { return DPoint(0,0); };
         DPoint getPivot() const;

@@ -23,6 +23,8 @@
 
 #include "ArgList.h"
 
+#include "Node.h"
+
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 
@@ -36,18 +38,22 @@ ArgList::ArgList()
 {
 }
 
-ArgList::ArgList(const xmlNodePtr xmlNode)
+ArgList::ArgList(const ArgList& ArgTemplates, const xmlNodePtr xmlNode)
 {
+    copyArgsFrom(ArgTemplates);
+
     for(xmlAttrPtr prop = xmlNode->properties; prop; prop = prop->next)
     {
         string name = (char*)prop->name;
         string value = (char*)prop->children->content;
-        m_Args.insert(ArgMap::value_type(name, Arg(name, value)));
+        setArgValue(name, value);
     }
 }
 
-ArgList::ArgList(const boost::python::dict& PyDict)
+ArgList::ArgList(const ArgList& ArgTemplates, const boost::python::dict& PyDict)
 {
+    // TODO: Check if all required args are being set.
+    copyArgsFrom(ArgTemplates);
     boost::python::list keys = PyDict.keys();
     int nKeys = boost::python::len(keys);
     for(int i = 0; i < nKeys; i++)
@@ -69,8 +75,8 @@ ArgList::ArgList(const boost::python::dict& PyDict)
         
         string keyStr = keyStrProxy();
         string valStr = valStrProxy();
-        
-        m_Args.insert(ArgMap::value_type(keyStr, Arg(keyStr, valStr)));
+       
+        setArgValue(keyStr, valStr);
     }
 }
 
@@ -78,7 +84,7 @@ ArgList::~ArgList()
 {
 }
 
-const Arg& ArgList::getArg(const string& Name) const
+const ArgBasePtr ArgList::getArg(const string& Name) const
 {
     ArgMap::const_iterator valIt = m_Args.find(Name);
     if (valIt == m_Args.end()) {
@@ -87,74 +93,81 @@ const Arg& ArgList::getArg(const string& Name) const
     return valIt->second;
 }
 
-int ArgList::getIntArg(const string& Name) const
-{
-    return getArg(Name).toInt();
-}
-
-double ArgList::getDoubleArg(const string& Name) const
-{
-    return getArg(Name).toDouble();
-}
-
-bool ArgList::getBoolArg(const string& Name) const
-{
-    return getArg(Name).toBool();
-}
-
-string ArgList::getStringArg(const string& Name) const
-{
-    return getArg(Name).toString();
-}
-
 const ArgMap& ArgList::getArgMap() const
 {
     return m_Args;
 }
 
-void ArgList::setArg(const string& Name, int Value, bool bRequired)
+void ArgList::setArg(const ArgBase& newArg)
 {
-    stringstream ss;
-    ss << Value;
-    setArg(Name, ss, bRequired);
-}
-
-void ArgList::setArg(const string& Name, double Value, bool bRequired)
-{
-    stringstream ss;
-    ss << Value;
-    setArg(Name, ss, bRequired);
-}
-
-void ArgList::setArg(const string& Name, bool Value, bool bRequired)
-{
-    setArg(Name, (Value ? "true" : "false"), bRequired);
-}
-
-void ArgList::setArg(const string& Name, const string& Value, bool bRequired)
-{
-    m_Args.insert(ArgMap::value_type(Name, Arg(Name, Value, bRequired)));
+    m_Args.insert(ArgMap::value_type(newArg.getName(), ArgBasePtr(newArg.createCopy())));
 }
 
 void ArgList::setArgs(const ArgList& Args)
 {
-    for(ArgMap::const_iterator it = Args.m_Args.begin(); it != Args.m_Args.end(); it++)
+    for(ArgMap::const_iterator it = Args.m_Args.begin(); 
+            it != Args.m_Args.end(); it++)
     {
         m_Args.insert(*it);
     }
 }
-
-ArgList ArgList::operator+(const ArgList& OtherArgs) const
+    
+void ArgList::setMembers(Node * pNode) const
 {
-    ArgList newArgs(*this);
-    for(ArgMap::const_iterator it = OtherArgs.m_Args.begin(); it != OtherArgs.m_Args.end(); it++)
+    for(ArgMap::const_iterator it = m_Args.begin(); it != m_Args.end(); it++)
     {
-        ArgMap::const_iterator it2 = newArgs.m_Args.find(it->first);
-        if (it2 == newArgs.m_Args.end()) {
-            newArgs.m_Args.insert(*it);
-        }
+        const ArgBasePtr pCurArg = it->second;
+        pCurArg->setMember(pNode);
     }
-    return newArgs;
+    pNode->setArgs(*this);
+}
+
+void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
+{
+    ArgMap::iterator pos = m_Args.find(sName);
+    if (pos == m_Args.end()) {
+        // TODO: The error message should mention line number and node type.
+        throw Exception(AVG_ERR_INVALID_ARGS, string("Argument ")+sName+" is not valid.");
+    }
+    ArgBasePtr pArg = pos->second;
+    Arg<string>* pStringArg = dynamic_cast<Arg<string>* >(&*pArg);
+    Arg<int>* pIntArg = dynamic_cast<Arg<int>* >(&*pArg);
+    Arg<double>* pDoubleArg = dynamic_cast<Arg<double>* >(&*pArg);
+    Arg<bool>* pBoolArg = dynamic_cast<Arg<bool>* >(&*pArg);
+    if (pStringArg) {
+        pStringArg->setValue(sValue);
+    } else if (pIntArg) {
+        char * errStr;
+        const char * valStr = sValue.c_str();
+        int ret = strtol(valStr, &errStr, 10);
+        if (ret == 0 && errStr == valStr) {
+            throw Exception(AVG_ERR_NO_ARG, 
+                    string("Error in conversion of '")+sValue+"' to int");
+        }
+        pIntArg->setValue(ret);
+    } else if (pDoubleArg) {
+        char * errStr;
+        const char * valStr = sValue.c_str();
+        double ret = strtod(valStr, &errStr);
+        if (ret == 0 && errStr == valStr) {
+            throw Exception(AVG_ERR_NO_ARG, 
+                    string("Error in conversion of '")+sValue+"' to double");
+        }
+        pDoubleArg->setValue(ret); 
+    } else if (pBoolArg) {
+        pBoolArg->setValue(sValue == "True" || sValue == "true" || sValue == "1");
+    }
+}
+
+void ArgList::copyArgsFrom(const ArgList& ArgTemplates)
+{
+    for(ArgMap::const_iterator it = ArgTemplates.m_Args.begin();
+            it != ArgTemplates.m_Args.end(); it++)
+    {
+        string sKey = it->first;
+        ArgBasePtr pArg = ArgBasePtr(it->second->createCopy());
+        m_Args[sKey] = pArg;
+    }
 }
 
 }

@@ -25,7 +25,6 @@
 #define _ArgList_H_
 
 #include "BoostPython.h"
-
 #include "Arg.h"
 
 #include <libxml/parser.h>
@@ -35,36 +34,42 @@
 
 namespace avg {
 
-typedef std::map<std::string, Arg> ArgMap;
+typedef std::map<std::string, ArgBasePtr> ArgMap;
+
+class Node;
 
 class ArgList
 {
 public:
     ArgList();
-    ArgList(const xmlNodePtr xmlNode);
-    ArgList(const boost::python::dict& PyDict);
+    ArgList(const ArgList& ArgTemplates, const xmlNodePtr xmlNode);
+    ArgList(const ArgList& ArgTemplates, const boost::python::dict& PyDict);
     virtual ~ArgList();
 
-    const Arg& getArg(const std::string& Name) const;
-    int getIntArg(const std::string& Name) const;
-    double getDoubleArg(const std::string& Name) const;
-    bool getBoolArg(const std::string& Name) const;
-    std::string getStringArg(const std::string& Name) const;
+    const ArgBasePtr getArg(const std::string& Name) const;
+   
+    template<class T>
+    const T& getArgVal(const std::string& Name) const;
     
     const ArgMap& getArgMap() const;
     
-    void setArg(const std::string& Name, int Value, bool bRequired);
-    void setArg(const std::string& Name, double Value, bool bRequired);
-    void setArg(const std::string& Name, bool Value, bool bRequired);
-    void setArg(const std::string& Name, const std::string& Value, bool bRequired);
-    
+    void setArg(const ArgBase& Arg);
     void setArgs(const ArgList& Args);
+    void setMembers(Node * pNode) const;
     
-    ArgList operator+(const ArgList& OtherArgs) const;
+    void copyArgsFrom(const ArgList& ArgTemplates);
 
 private:
+    void setArgValue(const std::string & sName, const std::string & sValue);
     ArgMap m_Args;
 };
+    
+template<class T>
+const T& ArgList::getArgVal(const std::string& sName) const
+{
+    return (dynamic_cast<Arg<T>* >(&*getArg(sName)))->getValue();
+}
+    
 
 }
 

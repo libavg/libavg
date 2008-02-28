@@ -21,7 +21,7 @@
 //  Original author of this file is Nick Hebner (hebnern@gmail.com).
 //
 
-#include "Arg.h"
+#include "ArgBase.h"
 
 #include "../base/Exception.h"
 
@@ -31,59 +31,35 @@ using namespace std;
 
 namespace avg {
 
-Arg::Arg(string Name, string Value, bool bRequired)
+ArgBase::ArgBase(string Name, bool bRequired, ptrdiff_t MemberOffset)
     : m_Name(Name),
-      m_Value(Value),
-      m_bRequired(bRequired)
+      m_bRequired(bRequired),
+      m_MemberOffset(MemberOffset)
 {
 }
 
-Arg::~Arg()
+ArgBase::~ArgBase()
 {
 }
     
-string Arg::getName() const
+string ArgBase::getName() const
 {
     return m_Name;
 }
 
-bool Arg::isRequired() const
+bool ArgBase::isRequired() const
 {
     return m_bRequired;
 }
 
-int Arg::toInt() const
+void ArgBase::setMemberOffset(ptrdiff_t Offset)
 {
-    char * errStr;
-    const char * valStr = m_Value.c_str();
-    int ret = strtol(valStr, &errStr, 10);
-    if (ret == 0 && errStr == valStr) {
-        throw Exception(AVG_ERR_NO_ARG, 
-                string("Error in conversion of '")+m_Value+"' to int");
-    }
-    return ret;
+    m_MemberOffset = Offset;
 }
 
-double Arg::toDouble() const
+ptrdiff_t ArgBase::getMemberOffset() const
 {
-    char * errStr;
-    const char * valStr = m_Value.c_str();
-    double ret = strtod(valStr, &errStr);
-    if (ret == 0 && errStr == valStr) {
-        throw Exception(AVG_ERR_NO_ARG, 
-                string("Error in conversion of '")+m_Value+"' to double");
-    }
-    return ret;
-}
-
-bool Arg::toBool() const
-{
-    return (m_Value == "True" || m_Value == "true" || m_Value == "1");
-}
-
-string Arg::toString() const
-{
-    return m_Value;
+    return m_MemberOffset;
 }
 
 }

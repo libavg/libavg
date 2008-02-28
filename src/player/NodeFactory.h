@@ -41,11 +41,15 @@ public:
 	virtual ~NodeFactory();
 	
 	void registerNodeType(NodeDefinition& Def);
-	NodePtr createNode(const std::string& Type, const ArgList& Args, Player* pPlayer);
+	NodePtr createNode(const std::string& Type, const xmlNodePtr xmlNode, 
+            Player* pPlayer);
+	NodePtr createNode(const std::string& Type, const boost::python::dict& PyDict,
+            Player* pPlayer);
 	
 	std::string getDTD() const;
 	
 private:
+    const NodeDefinition& getNodeDef(const std::string& Type);
     void writeNodeDTD(const NodeDefinition& Def, std::stringstream& ss) const;
     
     typedef std::map<std::string, NodeDefinition> NodeDefMap;

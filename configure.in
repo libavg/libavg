@@ -17,6 +17,7 @@ AM_INIT_AUTOMAKE(check-news dist-zip)
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_CPP
+CXXFLAGS="-Wno-invalid-offsetof"
 OBJC="gcc"
 OBJCFLAGS=""
 OBJCLDFLAGS="-lobjc"

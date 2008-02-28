@@ -45,23 +45,22 @@ void NodeFactory::registerNodeType(NodeDefinition& Def)
     m_NodeDefs.insert(NodeDefMap::value_type(Def.getName(), Def));
 }
 
-NodePtr NodeFactory::createNode(const string& Type, const ArgList& Args, Player* pPlayer)
+NodePtr NodeFactory::createNode(const string& Type, const xmlNodePtr xmlNode,
+        Player* pPlayer)
 {
-    NodeDefMap::const_iterator it = m_NodeDefs.find(Type);
-    if (it == m_NodeDefs.end()) {
-        throw (Exception (AVG_ERR_XML_NODE_UNKNOWN, 
-            string("Unknown node type ") + Type + " encountered."));
-    }
-    const NodeDefinition& Def = it->second;
-    if (!Def.validateArgs(Args)) {
-        throw (Exception (AVG_ERR_INVALID_ARGS, "Invalid arguments encountered"));
-    }
-    ArgList fullArgs = Args + Def.getDefaultArgs();
+    const NodeDefinition& Def = getNodeDef(Type);
+    ArgList Args(Def.getDefaultArgs(), xmlNode);
     NodeBuilder builder = Def.getBuilder();
-    if (!builder) {
-        throw (Exception (AVG_ERR_NO_BUILDER, string("No node builder defined for ")+Type));
-    }
-    return builder(fullArgs, pPlayer);
+    return builder(Args, pPlayer);
+}
+
+NodePtr NodeFactory::createNode(const string& Type, const boost::python::dict& PyDict,
+        Player* pPlayer)
+{
+    const NodeDefinition& Def = getNodeDef(Type);
+    ArgList Args(Def.getDefaultArgs(), PyDict);
+    NodeBuilder builder = Def.getBuilder();
+    return builder(Args, pPlayer);
 }
 
 string NodeFactory::getDTD() const
@@ -103,6 +102,16 @@ string NodeFactory::getDTD() const
     return ss.str();
 }
 
+const NodeDefinition& NodeFactory::getNodeDef(const string& Type)
+{
+    NodeDefMap::const_iterator it = m_NodeDefs.find(Type);
+    if (it == m_NodeDefs.end()) {
+        throw (Exception (AVG_ERR_XML_NODE_UNKNOWN, 
+            string("Unknown node type ") + Type + " encountered."));
+    }
+    return it->second;
+}
+
 void NodeFactory::writeNodeDTD(const NodeDefinition& Def, stringstream& ss) const
 {
     stringstream cs;
@@ -126,7 +135,7 @@ void NodeFactory::writeNodeDTD(const NodeDefinition& Def, stringstream& ss) cons
         {
             string argName = argIt->first;
             string argType = (argName == "id") ? "ID" : "CDATA";
-            string argRequired = Def.getDefaultArgs().getArg(argName).isRequired() ?
+            string argRequired = Def.getDefaultArgs().getArg(argName)->isRequired() ?
                     "#REQUIRED" : "#IMPLIED";
             ss << "\n    " << argName << " " << argType << " " << argRequired;
         }

@@ -29,6 +29,7 @@
 #include "DivNode.h"
 #include "Player.h"
 #include "DisplayEngine.h"
+#include "Arg.h"
 
 #include "MathHelper.h"
 
@@ -54,25 +55,25 @@ namespace avg {
 NodeDefinition Node::getNodeDefinition()
 {
     return NodeDefinition("node")
-        .addArg("id", "")
-        .addArg("oncursormove", "")
-        .addArg("oncursorup", "")
-        .addArg("oncursordown", "")
-        .addArg("oncursorover", "")
-        .addArg("oncursorout", "")
-        .addArg("x", "0.0")
-        .addArg("y", "0.0")
-        .addArg("width", "0.0")
-        .addArg("height", "0.0")
-        .addArg("angle", "0.0")
-        .addArg("pivotx", "-32767")
-        .addArg("pivoty", "-32767")
-        .addArg("opacity", "1.0")
-        .addArg("active", "true")
-        .addArg("sensitive", "true");
+        .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)))
+        .addArg(Arg<string>("oncursormove", ""))
+        .addArg(Arg<string>("oncursorup", ""))
+        .addArg(Arg<string>("oncursordown", ""))
+        .addArg(Arg<string>("oncursorover", ""))
+        .addArg(Arg<string>("oncursorout", ""))
+        .addArg(Arg<double>("x", 0.0, false, offsetof(Node, m_RelViewport.tl.x)))
+        .addArg(Arg<double>("y", 0.0, false, offsetof(Node, m_RelViewport.tl.y)))
+        .addArg(Arg<double>("width", 0.0, false, offsetof(Node, m_WantedSize.x)))
+        .addArg(Arg<double>("height", 0.0, false, offsetof(Node, m_WantedSize.y)))
+        .addArg(Arg<double>("angle", 0.0, false, offsetof(Node, m_Angle)))
+        .addArg(Arg<double>("pivotx", -32767, false, offsetof(Node, m_Pivot.x)))
+        .addArg(Arg<double>("pivoty", -32767, false, offsetof(Node, m_Pivot.y)))
+        .addArg(Arg<double>("opacity", 1.0, false, offsetof(Node, m_Opacity)))
+        .addArg(Arg<bool>("active", true, false, offsetof(Node, m_bActive)))
+        .addArg(Arg<bool>("sensitive", true, false, offsetof(Node, m_bSensitive)));
 }
 
-Node::Node (const ArgList& Args, Player * pPlayer)
+Node::Node (Player * pPlayer)
     : m_pParent(),
       m_This(),
       m_pEngine(0),
@@ -80,24 +81,6 @@ Node::Node (const ArgList& Args, Player * pPlayer)
       m_RelViewport(0,0,0,0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    m_ID = Args.getStringArg ("id");
-    addEventHandlers(Event::CURSORMOTION, Args.getStringArg ("oncursormove"));
-    addEventHandlers(Event::CURSORUP, Args.getStringArg ("oncursorup"));
-    addEventHandlers(Event::CURSORDOWN, Args.getStringArg ("oncursordown"));
-    addEventHandlers(Event::CURSOROVER, Args.getStringArg ("oncursorover"));
-    addEventHandlers(Event::CURSOROUT, Args.getStringArg ("oncursorout"));
-    m_RelViewport.tl.x = Args.getDoubleArg ("x");
-    m_RelViewport.tl.y = Args.getDoubleArg ("y");
-    m_WantedSize.x = Args.getDoubleArg ("width");
-    m_WantedSize.y = Args.getDoubleArg ("height");
-    m_RelViewport.setWidth(m_WantedSize.x);
-    m_RelViewport.setHeight(m_WantedSize.y);
-    m_Angle = Args.getDoubleArg ("angle");
-    m_Pivot.x = Args.getDoubleArg ("pivotx");
-    m_Pivot.y = Args.getDoubleArg ("pivoty");
-    m_Opacity = Args.getDoubleArg ("opacity");
-    m_bActive = Args.getBoolArg ("active");
-    m_bSensitive = Args.getBoolArg ("sensitive");
     setState(NS_UNCONNECTED);
 }
 
@@ -113,6 +96,17 @@ Node::~Node()
 void Node::setThis(NodeWeakPtr This)
 {
     m_This = This;
+}
+
+void Node::setArgs(const ArgList& Args)
+{
+    addEventHandlers(Event::CURSORMOTION, Args.getArgVal<string> ("oncursormove"));
+    addEventHandlers(Event::CURSORUP, Args.getArgVal<string> ("oncursorup"));
+    addEventHandlers(Event::CURSORDOWN, Args.getArgVal<string> ("oncursordown"));
+    addEventHandlers(Event::CURSOROVER, Args.getArgVal<string> ("oncursorover"));
+    addEventHandlers(Event::CURSOROUT, Args.getArgVal<string> ("oncursorout"));
+    m_RelViewport.setWidth(m_WantedSize.x);
+    m_RelViewport.setHeight(m_WantedSize.y);
 }
 
 void Node::setParent(DivNodeWeakPtr pParent)

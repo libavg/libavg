@@ -61,14 +61,14 @@ const ChildMap& NodeDefinition::getChildren() const
 
 NodeDefinition& NodeDefinition::extendDefinition(const NodeDefinition& Def)
 {
-    m_Args.setArgs(Def.m_Args);
+    m_Args.copyArgsFrom(Def.m_Args);
     m_Children.insert(Def.m_Children.begin(), Def.m_Children.end());
     return *this;
 }
 
-NodeDefinition& NodeDefinition::addArg(const string& Name, const string& Default, bool Required)
+NodeDefinition& NodeDefinition::addArg(const ArgBase& newArg)
 {
-    m_Args.setArg(Name, Default, Required);
+    m_Args.setArg(newArg);
     return *this;
 }
 
@@ -89,33 +89,6 @@ NodeDefinition& NodeDefinition::addChildren(const ChildMap& Children)
         // TODO: if duplicate node defs differ in structure, throw exception
     }
     return *this;
-}
-
-bool NodeDefinition::validateArgs(const ArgList& Args) const
-{
-    const ArgMap& otherArgMap = Args.getArgMap();
-    const ArgMap& thisArgMap = m_Args.getArgMap();
-    // Ensure all required args are present
-    for(ArgMap::const_iterator thisIt = thisArgMap.begin(); thisIt != thisArgMap.end(); thisIt++)
-    {
-        if (thisIt->second.isRequired() &&
-            otherArgMap.find(thisIt->first) == otherArgMap.end()) {
-            AVG_TRACE(Logger::ERROR, 
-                    string("Missing required argument '")+thisIt->first+"' for type '"+m_sName+"'");
-            return false;
-        }
-    }
-    // Ensure all args present are valid for this node type
-    for(ArgMap::const_iterator otherIt = otherArgMap.begin(); otherIt != otherArgMap.end(); otherIt++)
-    {
-        if (thisArgMap.find(otherIt->first) == thisArgMap.end()) {
-            AVG_TRACE(Logger::WARNING, 
-                    string("Invalid argument '")+otherIt->first+"' for type '"+m_sName+"'");
-            // This isn't a show stopper right?
-            //return false;
-        }
-    }
-    return true;
 }
 
 }

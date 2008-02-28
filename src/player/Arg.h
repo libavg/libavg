@@ -24,30 +24,72 @@
 #ifndef _Arg_H_
 #define _Arg_H_
 
+#include "ArgBase.h"
+
 #include <string>
 
 namespace avg {
 
-class Arg
+class Node;
+
+template<class T>
+class Arg: public ArgBase
 {
 public:
-	Arg(std::string Name, std::string Value, bool bRequired = false);
+	Arg(std::string sName, const T& Value, bool bRequired = false, 
+            ptrdiff_t MemberOffset = -1);
 	virtual ~Arg();
-	
-	std::string getName() const;
-	bool isRequired() const;
-	
-	int toInt() const;
-	double toDouble() const;
-	bool toBool() const;
-	std::string toString() const;
-	
+
+    void setValue(const T& Value);
+    const T& getValue() const;
+    virtual void setMember(Node * pNode) const;
+    virtual ArgBase* createCopy() const;
+
 private:
-    std::string m_Name;
-    std::string m_Value;
-    bool m_bRequired;
+    T m_Value;
 };
+
+template<class T>
+Arg<T>::Arg(std::string sName, const T& Value, bool bRequired, 
+        ptrdiff_t MemberOffset)
+    : ArgBase(sName, bRequired, MemberOffset),
+      m_Value(Value)
+{
+}
+
+template<class T>
+Arg<T>::~Arg<T>()
+{
+}
+
+template<class T>
+const T& Arg<T>::getValue() const
+{
+    return m_Value;
+}
+    
+template<class T>
+void Arg<T>::setValue(const T& Value)
+{
+    m_Value = Value;
+}
+
+template<class T>
+void Arg<T>::setMember(Node * pNode) const
+{
+    if (getMemberOffset() != -1) {
+        T* pMember = (T*)((char*)pNode+getMemberOffset());
+        *pMember = m_Value;
+    }
+}
+
+template<class T>
+ArgBase* Arg<T>::createCopy() const
+{
+    return new Arg<T>(*this);
+}
 
 }
 
 #endif
+

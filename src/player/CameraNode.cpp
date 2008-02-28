@@ -51,33 +51,34 @@ NodeDefinition CameraNode::getNodeDefinition()
 {
     return NodeDefinition("camera", Node::buildNode<CameraNode>)
         .extendDefinition(VideoBase::getNodeDefinition())
-        .addArg("device", "", true)
-        .addArg("framerate", "15")
-        .addArg("source", "firewire")
-        .addArg("capturewidth", "640")
-        .addArg("captureheight", "480")
-        .addArg("pixelformat", "RGB")
-        .addArg("channel", "0")
-        .addArg("brightness", "-1")
-        .addArg("exposure", "-1")
-        .addArg("sharpness", "-1")
-        .addArg("saturation", "-1")
-        .addArg("gamma", "-1")
-        .addArg("shutter", "-1")
-        .addArg("gain", "-1")
-        .addArg("whitebalance", "-1");
+        .addArg(Arg<string>("device", ""))
+        .addArg(Arg<double>("framerate", 15))
+        .addArg(Arg<string>("source", "firewire"))
+        .addArg(Arg<int>("capturewidth", 640))
+        .addArg(Arg<int>("captureheight", 480))
+        .addArg(Arg<string>("pixelformat", "RGB"))
+        .addArg(Arg<int>("channel", 0))
+        .addArg(Arg<int>("brightness", -1))
+        .addArg(Arg<int>("exposure", -1))
+        .addArg(Arg<int>("sharpness", -1))
+        .addArg(Arg<int>("saturation", -1))
+        .addArg(Arg<int>("gamma", -1))
+        .addArg(Arg<int>("shutter", -1))
+        .addArg(Arg<int>("gain", -1))
+        .addArg(Arg<int>("whitebalance", -1));
 }
 
 CameraNode::CameraNode(const ArgList& Args, Player * pPlayer)
-    : VideoBase(Args, pPlayer),
+    : VideoBase(pPlayer),
       m_FrameNum(0)
 {
-    string sDevice = Args.getStringArg ("device");
-    double FrameRate = Args.getDoubleArg ("framerate");
-    string sSource = Args.getStringArg ("source");
-    int Width = Args.getIntArg ("capturewidth");
-    int Height = Args.getIntArg ("captureheight");
-    string sPF = Args.getStringArg ("pixelformat");
+    Args.setMembers(this);
+    string sDevice = Args.getArgVal<string>("device");
+    double FrameRate = Args.getArgVal<double>("framerate");
+    string sSource = Args.getArgVal<string>("source");
+    int Width = Args.getArgVal<int>("capturewidth");
+    int Height = Args.getArgVal<int>("captureheight");
+    string sPF = Args.getArgVal<string>("pixelformat");
 
     if (sSource == "firewire") {
 #if defined(AVG_ENABLE_1394)\
@@ -90,7 +91,7 @@ CameraNode::CameraNode(const ArgList& Args, Player * pPlayer)
 #endif
     } else if (sSource == "v4l") {
 #if defined(AVG_ENABLE_V4L2)
-        int Channel = Args.getIntArg ("channel");
+        int Channel = Args.getArgVal<int>("channel");
         
         m_pCamera = CameraPtr(new V4LCamera(sDevice, Channel,
             IntPoint(Width, Height), sPF, true));
@@ -113,21 +114,21 @@ CameraNode::CameraNode(const ArgList& Args, Player * pPlayer)
 
     if (m_pCamera) {
         m_pCamera->setFeature (CAM_FEATURE_BRIGHTNESS,
-            Args.getIntArg("brightness"));
+            Args.getArgVal<int>("brightness"));
         m_pCamera->setFeature (CAM_FEATURE_EXPOSURE,
-            Args.getIntArg("exposure"));
+            Args.getArgVal<int>("exposure"));
         m_pCamera->setFeature (CAM_FEATURE_SHARPNESS,
-            Args.getIntArg("sharpness"));
+            Args.getArgVal<int>("sharpness"));
         m_pCamera->setFeature (CAM_FEATURE_SATURATION,
-            Args.getIntArg("saturation"));
+            Args.getArgVal<int>("saturation"));
         m_pCamera->setFeature (CAM_FEATURE_GAMMA,
-            Args.getIntArg("gamma"));
+            Args.getArgVal<int>("gamma"));
         m_pCamera->setFeature (CAM_FEATURE_SHUTTER,
-            Args.getIntArg("shutter"));
+            Args.getArgVal<int>("shutter"));
         m_pCamera->setFeature (CAM_FEATURE_GAIN,
-            Args.getIntArg("gain"));
+            Args.getArgVal<int>("gain"));
         m_pCamera->setFeature (CAM_FEATURE_WHITE_BALANCE,
-            Args.getIntArg("whitebalance"));
+            Args.getArgVal<int>("whitebalance"));
     }
 }
 

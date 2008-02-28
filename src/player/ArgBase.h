@@ -21,44 +21,41 @@
 //  Original author of this file is Nick Hebner (hebnern@gmail.com).
 //
 
-#ifndef _NodeDefinition_H_
-#define _NodeDefinition_H_
+#ifndef _ArgBase_H_
+#define _ArgBase_H_
 
-#include "Node.h"
-
-#include <map>
 #include <string>
+
+#include <boost/shared_ptr.hpp>
 
 namespace avg {
 
-class ArgList;
-class Player;
+class Node;
 
-typedef NodePtr (*NodeBuilder)(const ArgList& Args, Player* pPlayer);
-typedef std::map<std::string, NodeDefinition> ChildMap;
-
-class NodeDefinition
+class ArgBase
 {
 public:
-	NodeDefinition(const std::string& Name, NodeBuilder pBuilder = 0);
-	virtual ~NodeDefinition();
+	ArgBase(std::string Name, bool bRequired = false, ptrdiff_t MemberOffset = -1);
+	virtual ~ArgBase();
 	
-	const std::string& getName() const;
-	NodeBuilder getBuilder() const;
-    const ArgList& getDefaultArgs() const;
-    const ChildMap& getChildren() const;
+	std::string getName() const;
+	bool isRequired() const;
 	
-	NodeDefinition& extendDefinition(const NodeDefinition& Def);
-	NodeDefinition& addArg(const ArgBase& newArg);
-	NodeDefinition& addChild(const NodeDefinition& Def);
-	NodeDefinition& addChildren(const ChildMap& Children);
+    void setMemberOffset(ptrdiff_t Offset);
+    virtual void setMember(Node * pNode) const = 0;
+   
+    virtual ArgBase* createCopy() const = 0;
+
+protected:
+    ptrdiff_t getMemberOffset() const;
 
 private:
-    std::string m_sName;
-    NodeBuilder m_pBuilder;
-    ArgList m_Args;
-    ChildMap m_Children;
+    std::string m_Name;
+    bool m_bRequired;
+    ptrdiff_t m_MemberOffset;
 };
+
+typedef boost::shared_ptr<ArgBase> ArgBasePtr;
 
 }
 

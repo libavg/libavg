@@ -40,13 +40,13 @@ NodeDefinition DivNode::getNodeDefinition()
     return NodeDefinition("div", Node::buildNode<DivNode>)
         .extendDefinition(Node::getNodeDefinition())
         .addChild(NodeDefinition("%anyNode;"))
-        .addArg("mediadir", "");
+        .addArg(Arg<string>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)));
 }
 
 DivNode::DivNode (const ArgList& Args, Player * pPlayer)
-    : Node(Args, pPlayer)
+    : Node(pPlayer)
 {
-    m_sMediaDir = Args.getStringArg("mediadir");
+    Args.setMembers(this);
 }
 
 DivNode::~DivNode()

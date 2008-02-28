@@ -779,7 +779,7 @@ void Player::registerNodeType(NodeDefinition Def)
 
 NodePtr Player::createNode(const string& sType, const boost::python::dict& PyDict)
 {
-    NodePtr pNode = m_NodeFactory.createNode(sType, ArgList(PyDict), this);
+    NodePtr pNode = m_NodeFactory.createNode(sType, PyDict, this);
     pNode->setThis(pNode);
     return pNode;
 }
@@ -830,8 +830,7 @@ NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc,
         // Ignore whitespace & comments
         return NodePtr();
     }
-    
-    curNode = m_NodeFactory.createNode(nodeType, ArgList(xmlNode), this);
+    curNode = m_NodeFactory.createNode(nodeType, xmlNode, this);
     if (!strcmp (nodeType, "words")) {
         // TODO: This is an end-run around the generic serialization mechanism
         // that will probably break at some point.

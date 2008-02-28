@@ -92,21 +92,21 @@ NodeDefinition Words::getNodeDefinition()
     childMap.insert(ChildMap::value_type("u", NodeDefinition("u")));
     
     addChildrenToMap(childMap,"span")
-        .addArg("font_desc", "")
-        .addArg("font_family", "")
-        .addArg("face", "")
-        .addArg("size", "")
-        .addArg("style", "")
-        .addArg("weight", "")
-        .addArg("variant", "")
-        .addArg("stretch", "")
-        .addArg("foreground", "")
-        .addArg("background", "")
-        .addArg("underline", "")
-        .addArg("rise", "")
-        .addArg("strikethrough", "")
-        .addArg("fallback", "")
-        .addArg("lang", "");
+        .addArg(Arg<string>("font_desc", ""))
+        .addArg(Arg<string>("font_family", ""))
+        .addArg(Arg<string>("face", ""))
+        .addArg(Arg<string>("size", ""))
+        .addArg(Arg<string>("style", ""))
+        .addArg(Arg<string>("weight", ""))
+        .addArg(Arg<string>("variant", ""))
+        .addArg(Arg<string>("stretch", ""))
+        .addArg(Arg<string>("foreground", ""))
+        .addArg(Arg<string>("background", ""))
+        .addArg(Arg<string>("underline", ""))
+        .addArg(Arg<string>("rise", ""))
+        .addArg(Arg<string>("strikethrough", ""))
+        .addArg(Arg<string>("fallback", ""))
+        .addArg(Arg<string>("lang", ""));
     addChildrenToMap(childMap, "b");
     addChildrenToMap(childMap, "big");
     addChildrenToMap(childMap, "i");
@@ -116,44 +116,35 @@ NodeDefinition Words::getNodeDefinition()
     addChildrenToMap(childMap, "small");
     addChildrenToMap(childMap, "tt");
     addChildrenToMap(childMap, "u");
-    
+   
     return NodeDefinition("words", Node::buildNode<Words>)
         .extendDefinition(RasterNode::getNodeDefinition())
         .addChildren(childMap)
-        .addArg("font", "arial")
-        .addArg("text", "")
-        .addArg("color", "FFFFFF")
-        .addArg("size", "15")
-        .addArg("parawidth", "-1")
-        .addArg("indent", "0")
-        .addArg("linespacing", "-1")
-        .addArg("alignment", "left")
-        .addArg("weight", "normal")
-        .addArg("italic", "false")
-        .addArg("stretch", "normal")
-        .addArg("smallcaps", "false");
+        .addArg(Arg<string>("font", "arial", false, offsetof(Words, m_FontName)))
+        .addArg(Arg<string>("text", "", false, offsetof(Words, m_Text)))
+        .addArg(Arg<string>("color", "FFFFFF", false, offsetof(Words, m_ColorName)))
+        .addArg(Arg<double>("size", 15, false, offsetof(Words, m_Size)))
+        .addArg(Arg<int>("parawidth", -1, false, offsetof(Words, m_ParaWidth)))
+        .addArg(Arg<int>("indent", 0, false, offsetof(Words, m_Indent)))
+        .addArg(Arg<double>("linespacing", -1, false, offsetof(Words, m_LineSpacing)))
+        .addArg(Arg<string>("alignment", "left"))
+        .addArg(Arg<string>("weight", "normal"))
+        .addArg(Arg<bool>("italic", false, false, offsetof(Words, m_bItalic)))
+        .addArg(Arg<string>("stretch", "normal"))
+        .addArg(Arg<bool>("smallcaps", false, false, offsetof(Words, m_bSmallCaps)));
 }
 
 Words::Words (const ArgList& Args, Player * pPlayer)
-    : RasterNode(Args, pPlayer), 
+    : RasterNode(pPlayer), 
       m_StringExtents(0,0),
       m_pContext(0), 
       m_pFontDescription(0),
       m_bFontChanged(true),
       m_bDrawNeeded(true)
 {
-    m_FontName = Args.getStringArg ("font");
-    m_Text = Args.getStringArg ("text");
-    m_ColorName = Args.getStringArg ("color");
-    m_Size = Args.getIntArg ("size");
-    m_ParaWidth = Args.getIntArg ("parawidth");
-    m_Indent = Args.getIntArg ("indent");
-    m_LineSpacing = Args.getDoubleArg ("linespacing");
-    setAlignment(Args.getStringArg ("alignment"));
-    setWeight(Args.getStringArg ("weight"));
-    m_bItalic = Args.getBoolArg ("italic");
-    setStretch(Args.getStringArg ("stretch"));
-    m_bSmallCaps = Args.getBoolArg ("smallcaps");
+    Args.setMembers(this);
+    setAlignment(Args.getArgVal<string>("alignment"));
+    setWeight(Args.getArgVal<string>("weight"));
 
     if (!s_bInitialized) {
 #if defined(_WIN32) || defined(__APPLE__)

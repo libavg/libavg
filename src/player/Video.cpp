@@ -54,14 +54,14 @@ NodeDefinition Video::getNodeDefinition()
 {
     return NodeDefinition("video", Node::buildNode<Video>)
         .extendDefinition(VideoBase::getNodeDefinition())
-        .addArg("href", "", false)
-        .addArg("loop", "false")
-        .addArg("threaded", "false")
-        .addArg("fps", "0.0");
+        .addArg(Arg<string>("href", "", false, offsetof(Video, m_href)))
+        .addArg(Arg<bool>("loop", false, false, offsetof(Video, m_bLoop)))
+        .addArg(Arg<bool>("threaded", false, false, offsetof(Video, m_bThreaded)))
+        .addArg(Arg<double>("fps", 0.0, false, offsetof(Video, m_FPS)));
 }
 
 Video::Video (const ArgList& Args, Player * pPlayer)
-    : VideoBase(Args, pPlayer),
+    : VideoBase(pPlayer),
       m_Filename(""),
       m_bEOFPending(false),
       m_pEOFCallback(0),
@@ -69,10 +69,7 @@ Video::Video (const ArgList& Args, Player * pPlayer)
       m_FramesPlayed(0),
       m_pDecoder(0)
 {
-    m_href = Args.getStringArg ("href");
-    m_bLoop = Args.getBoolArg ("loop");
-    m_bThreaded = Args.getBoolArg ("threaded");
-    m_FPS =  Args.getDoubleArg ("fps");
+    Args.setMembers(this);
     m_Filename = m_href;
     if (m_Filename != "") {
         initFilename(getPlayer(), m_Filename);

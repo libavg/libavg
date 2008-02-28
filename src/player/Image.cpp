@@ -46,17 +46,15 @@ NodeDefinition Image::getNodeDefinition()
 {
     return NodeDefinition("image", Node::buildNode<Image>)
         .extendDefinition(RasterNode::getNodeDefinition())
-        .addArg("href", "")
-        .addArg("hue", "-1")
-        .addArg("saturation", "-1");
+        .addArg(Arg<string>("href", "", false, offsetof(Image, m_href)))
+        .addArg(Arg<int>("hue", -1, false, offsetof(Image, m_Hue)))
+        .addArg(Arg<int>("saturation", -1, false, offsetof(Image, m_Saturation)));
 }
 
 Image::Image (const ArgList& Args, Player * pPlayer)
-    : RasterNode(Args, pPlayer)
+    : RasterNode(pPlayer)
 {
-    m_href = Args.getStringArg ("href");
-    m_Hue = Args.getIntArg ("hue");
-    m_Saturation = Args.getIntArg ("saturation");
+    Args.setMembers(this);
     m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
 }
 
