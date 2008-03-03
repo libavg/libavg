@@ -22,6 +22,8 @@
 #include "VertexArray.h"
 #include "../base/Exception.h"
 
+#include <assert.h>
+
 #include <iostream>
 #include <stddef.h>
 
