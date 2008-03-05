@@ -41,7 +41,6 @@ public:
     std::string getName() const;
     bool isRequired() const;
     
-    void setMemberOffset(ptrdiff_t Offset);
     virtual void setMember(Node * pNode) const = 0;
    
     virtual ArgBase* createCopy() const = 0;

@@ -52,11 +52,6 @@ bool ArgBase::isRequired() const
     return m_bRequired;
 }
 
-void ArgBase::setMemberOffset(ptrdiff_t Offset)
-{
-    m_MemberOffset = Offset;
-}
-
 ptrdiff_t ArgBase::getMemberOffset() const
 {
     return m_MemberOffset;
