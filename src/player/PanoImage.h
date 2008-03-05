@@ -39,7 +39,7 @@ class SDLDisplayEngine;
 
 class PanoImage : public Node
 {
-	public:
+    public:
         static NodeDefinition getNodeDefinition();
         
         PanoImage(const ArgList& Args, Player * pPlayer);

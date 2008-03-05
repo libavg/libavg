@@ -32,7 +32,7 @@ namespace avg {
 
 class Image : public RasterNode
 {
-	public:
+    public:
         static NodeDefinition getNodeDefinition();
         
         Image (const ArgList& Args, Player * pPlayer);

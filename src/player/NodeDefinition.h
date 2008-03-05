@@ -40,18 +40,18 @@ typedef std::map<std::string, NodeDefinition> ChildMap;
 class NodeDefinition
 {
 public:
-	NodeDefinition(const std::string& Name, NodeBuilder pBuilder = 0);
-	virtual ~NodeDefinition();
-	
-	const std::string& getName() const;
-	NodeBuilder getBuilder() const;
+    NodeDefinition(const std::string& Name, NodeBuilder pBuilder = 0);
+    virtual ~NodeDefinition();
+    
+    const std::string& getName() const;
+    NodeBuilder getBuilder() const;
     const ArgList& getDefaultArgs() const;
     const ChildMap& getChildren() const;
-	
-	NodeDefinition& extendDefinition(const NodeDefinition& Def);
-	NodeDefinition& addArg(const ArgBase& newArg);
-	NodeDefinition& addChild(const NodeDefinition& Def);
-	NodeDefinition& addChildren(const ChildMap& Children);
+    
+    NodeDefinition& extendDefinition(const NodeDefinition& Def);
+    NodeDefinition& addArg(const ArgBase& newArg);
+    NodeDefinition& addChild(const NodeDefinition& Def);
+    NodeDefinition& addChildren(const ChildMap& Children);
 
 private:
     std::string m_sName;

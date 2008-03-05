@@ -35,12 +35,12 @@ class Node;
 class ArgBase
 {
 public:
-	ArgBase(std::string Name, bool bRequired = false, ptrdiff_t MemberOffset = -1);
-	virtual ~ArgBase();
-	
-	std::string getName() const;
-	bool isRequired() const;
-	
+    ArgBase(std::string Name, bool bRequired = false, ptrdiff_t MemberOffset = -1);
+    virtual ~ArgBase();
+    
+    std::string getName() const;
+    bool isRequired() const;
+    
     void setMemberOffset(ptrdiff_t Offset);
     virtual void setMember(Node * pNode) const = 0;
    

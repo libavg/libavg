@@ -38,7 +38,7 @@ class ISurface;
  
 class Words : public RasterNode
 {
-	public:
+    public:
         static NodeDefinition getNodeDefinition();
         
         Words(const ArgList& Args, Player * pPlayer);

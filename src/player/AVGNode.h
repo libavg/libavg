@@ -31,7 +31,7 @@ namespace avg {
 
 class AVGNode : public DivNode
 {
-	public:
+    public:
         static NodeDefinition getNodeDefinition();
         
         AVGNode (const ArgList& Args, Player * pPlayer);

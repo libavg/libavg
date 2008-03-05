@@ -485,8 +485,8 @@ string Words::getStretch() const
 bool equalIgnoreCase(const string& s1, const string& s2) {
     string sUpper1;
     string sUpper2;
-	transform(s1.begin(), s1.end(), std::back_inserter(sUpper1), (int(*)(int)) toupper);
-	transform(s2.begin(), s2.end(), std::back_inserter(sUpper2), (int(*)(int)) toupper);
+    transform(s1.begin(), s1.end(), std::back_inserter(sUpper1), (int(*)(int)) toupper);
+    transform(s2.begin(), s2.end(), std::back_inserter(sUpper2), (int(*)(int)) toupper);
     return sUpper1 == sUpper2;
 }
 

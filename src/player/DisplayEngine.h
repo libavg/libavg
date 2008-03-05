@@ -41,7 +41,7 @@ class ISurface;
 class Region;
 
 class DisplayEngine
-{	
+{   
     public:
         typedef enum BlendMode {BLEND_BLEND, BLEND_ADD, BLEND_MIN, BLEND_MAX};
 

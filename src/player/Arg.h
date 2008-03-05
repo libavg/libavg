@@ -36,9 +36,9 @@ template<class T>
 class Arg: public ArgBase
 {
 public:
-	Arg(std::string sName, const T& Value, bool bRequired = false, 
+    Arg(std::string sName, const T& Value, bool bRequired = false, 
             ptrdiff_t MemberOffset = -1);
-	virtual ~Arg();
+    virtual ~Arg();
 
     void setValue(const T& Value);
     const T& getValue() const;
