@@ -192,7 +192,7 @@ void TrackerConfig::parse(bool bOnlyDyn)
     }
 }
 
-xmlXPathObjectPtr TrackerConfig::findConfigNodes(const xmlChar* xpExpr)
+xmlXPathObjectPtr TrackerConfig::findConfigNodes(const string& sXPathExpr)
 {
     xmlXPathContextPtr xpCtx;
     xmlXPathObjectPtr xpElement;
@@ -203,10 +203,10 @@ xmlXPathObjectPtr TrackerConfig::findConfigNodes(const xmlChar* xpExpr)
         return NULL;
     }
 
-    xpElement = xmlXPathEvalExpression(xpExpr, xpCtx);
+    xpElement = xmlXPathEvalExpression(BAD_CAST sXPathExpr.c_str(), xpCtx);
     if(!xpElement) {
         AVG_TRACE(Logger::ERROR, "Unable to evaluate XPath expression '"
-            << xpExpr << "'");
+            << sXPathExpr << "'");
         xmlXPathFreeContext(xpCtx);
         return NULL;
     }
@@ -216,19 +216,19 @@ xmlXPathObjectPtr TrackerConfig::findConfigNodes(const xmlChar* xpExpr)
     return xpElement;
 }
 
-void TrackerConfig::setParam(const xmlChar* xpExpr, const xmlChar* Value)
+void TrackerConfig::setParam(const string& sXPathExpr, const string& sValue)
 {
-    xmlXPathObjectPtr xpElement = findConfigNodes(xpExpr);
+    xmlXPathObjectPtr xpElement = findConfigNodes(sXPathExpr);
     xmlNodeSetPtr nodes = xpElement->nodesetval;
     
     if (!nodes || nodes->nodeNr == 0)
         throw (Exception(AVG_ERR_OPTION_UNKNOWN, 
-                    string("setParam(): cannot find requested element ")+string((char *)xpExpr)));
+                    string("setParam(): cannot find requested element ")+sXPathExpr));
     
     for(int i = nodes->nodeNr - 1; i >= 0; i--) {
         assert(nodes->nodeTab[i]);
 
-        xmlNodeSetContent(nodes->nodeTab[i], Value);
+        xmlNodeSetContent(nodes->nodeTab[i], BAD_CAST sValue.c_str());
         if (nodes->nodeTab[i]->type != XML_NAMESPACE_DECL)
             nodes->nodeTab[i] = NULL;
     }
@@ -238,14 +238,14 @@ void TrackerConfig::setParam(const xmlChar* xpExpr, const xmlChar* Value)
     parse(true);        
 }
 
-string TrackerConfig::getParam(const xmlChar* xpExpr)
+string TrackerConfig::getParam(const string& sXPathExpr)
 {
-    xmlXPathObjectPtr xpElement = findConfigNodes(xpExpr);
+    xmlXPathObjectPtr xpElement = findConfigNodes(sXPathExpr);
     xmlNodeSetPtr nodes = xpElement->nodesetval;
     
     if (!nodes || nodes->nodeNr == 0)
         throw (Exception(AVG_ERR_OPTION_UNKNOWN, 
-                    string("getParam(): cannot find requested element ")+string((char *)xpExpr)));
+                    string("getParam(): cannot find requested element ")+sXPathExpr));
     else if (nodes->nodeNr > 1)
         AVG_TRACE(Logger::WARNING,
             "getParam(): expression selects more than one node. Returning the first.");

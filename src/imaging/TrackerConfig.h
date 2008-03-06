@@ -56,8 +56,8 @@ struct TrackerConfig
     
     void load(const std::string& sFilename);
     void save(const std::string& sFilename);
-    void setParam(const xmlChar* xpElement, const xmlChar* Value);
-    std::string getParam(const xmlChar* xpExpr);
+    void setParam(const std::string& sXPathExpr, const std::string& sValue);
+    std::string getParam(const std::string& sXPathExpr);
     void dump() const;
 
     // Camera params
@@ -89,7 +89,7 @@ struct TrackerConfig
 
 private:
     void parse(bool bOnlyDyn);
-    xmlXPathObjectPtr findConfigNodes(const xmlChar* xpExpr);
+    xmlXPathObjectPtr findConfigNodes(const std::string& sXPathExpr);
     void loadCamera(xmlNodePtr pParentNode, bool bOnlyDyn);
     void loadTracker(xmlNodePtr pParentNode);
     xmlDocPtr m_Doc;

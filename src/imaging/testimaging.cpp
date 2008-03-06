@@ -136,14 +136,14 @@ public:
         TrackerConfig Config;
         Config.load("avgtrackerrc.minimal");
         
-        Config.setParam(BAD_CAST "/trackerconfig/transform/distortionparams/@p2", BAD_CAST "0");
-        Config.setParam(BAD_CAST "/trackerconfig/transform/distortionparams/@p3", BAD_CAST "0");
-        Config.setParam(BAD_CAST "/trackerconfig/transform/trapezoid/@value", BAD_CAST "0");
-        Config.setParam(BAD_CAST "/trackerconfig/transform/angle/@value", BAD_CAST "0");
-        Config.setParam(BAD_CAST "/trackerconfig/transform/displaydisplacement/@x", BAD_CAST "0");
-        Config.setParam(BAD_CAST "/trackerconfig/transform/displaydisplacement/@y", BAD_CAST "0");
-        Config.setParam(BAD_CAST "/trackerconfig/transform/displayscale/@x", BAD_CAST "2");
-        Config.setParam(BAD_CAST "/trackerconfig/transform/displayscale/@y", BAD_CAST "2");
+        Config.setParam("/trackerconfig/transform/distortionparams/@p2", "0");
+        Config.setParam("/trackerconfig/transform/distortionparams/@p3", "0");
+        Config.setParam("/trackerconfig/transform/trapezoid/@value", "0");
+        Config.setParam("/trackerconfig/transform/angle/@value", "0");
+        Config.setParam("/trackerconfig/transform/displaydisplacement/@x", "0");
+        Config.setParam("/trackerconfig/transform/displaydisplacement/@y", "0");
+        Config.setParam("/trackerconfig/transform/displayscale/@x", "2");
+        Config.setParam("/trackerconfig/transform/displayscale/@y", "2");
 
         Config.save("avgtrackerrc.minimal.mod");
 

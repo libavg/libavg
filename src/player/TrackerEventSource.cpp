@@ -98,10 +98,10 @@ namespace avg {
         ObjectCounter::get()->decRef(&typeid(*this));
     }
     
-    void TrackerEventSource::setParam(const std::string& sElement, const std::string& Value)
+    void TrackerEventSource::setParam(const string& sElement, const string& sValue)
     {
-        string sOldParamVal = m_TrackerConfig.getParam(BAD_CAST sElement.c_str());
-        m_TrackerConfig.setParam(BAD_CAST sElement.c_str(), BAD_CAST Value.c_str());
+        string sOldParamVal = m_TrackerConfig.getParam(sElement);
+        m_TrackerConfig.setParam(sElement, sValue);
 
         // Test if active area is outside camera.
         DRect Area = m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents));
@@ -109,16 +109,16 @@ namespace avg {
             Area.br.y > m_TrackerConfig.m_Size.y/m_TrackerConfig.m_Prescale ||
             Area.tl.x < 0 || Area.tl.y < 0)
         {
-            m_TrackerConfig.setParam(BAD_CAST sElement.c_str(), BAD_CAST sOldParamVal.c_str());
+            m_TrackerConfig.setParam(sElement, sOldParamVal);
         } else {
             setConfig();
         }
 //        m_TrackerConfig.dump();
     }
     
-    string TrackerEventSource::getParam(const std::string& sElement)
+    string TrackerEventSource::getParam(const string& sElement)
     {
-        return m_TrackerConfig.getParam(BAD_CAST sElement.c_str());
+        return m_TrackerConfig.getParam(sElement);
     }
        
     void TrackerEventSource::setDebugImages(bool bImg, bool bFinger)
