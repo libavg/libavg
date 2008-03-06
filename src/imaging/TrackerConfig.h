@@ -56,8 +56,6 @@ struct TrackerConfig
     
     void load(const std::string& sFilename);
     void save(const std::string& sFilename);
-    void parse(bool bOnlyDyn);
-    xmlXPathObjectPtr findConfigNodes(const xmlChar* xpExpr);
     void setParam(const xmlChar* xpElement, const xmlChar* Value);
     std::string getParam(const xmlChar* xpExpr);
     void dump() const;
@@ -90,6 +88,8 @@ struct TrackerConfig
     DeDistortPtr m_pTrafo;
 
 private:
+    void parse(bool bOnlyDyn);
+    xmlXPathObjectPtr findConfigNodes(const xmlChar* xpExpr);
     void loadCamera(xmlNodePtr pParentNode, bool bOnlyDyn);
     void loadTracker(xmlNodePtr pParentNode);
     xmlDocPtr m_Doc;
