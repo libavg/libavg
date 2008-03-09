@@ -36,8 +36,7 @@
 #include "OGLSurface.h"
 #include "OGLHelper.h"
 
-#include "MathHelper.h"
-
+#include "../base/MathHelper.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"

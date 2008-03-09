@@ -22,9 +22,9 @@
 #include "OGLSurface.h"
 #include "OGLHelper.h"
 #include "Player.h"
-#include "MathHelper.h"
 #include "SDLDisplayEngine.h"
 
+#include "../base/MathHelper.h"
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"

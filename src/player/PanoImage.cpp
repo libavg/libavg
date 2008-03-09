@@ -21,10 +21,10 @@
 
 #include "PanoImage.h"
 #include "SDLDisplayEngine.h"
-#include "MathHelper.h"
 #include "OGLHelper.h"
 #include "NodeDefinition.h"
 
+#include "../base/MathHelper.h"
 #include "../base/Logger.h"
 #include "../base/ProfilingZone.h"
 #include "../base/ScopeTimer.h"

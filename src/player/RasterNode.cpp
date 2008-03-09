@@ -22,9 +22,9 @@
 #include "RasterNode.h"
 
 #include "NodeDefinition.h"
-#include "MathHelper.h"
 #include "DisplayEngine.h"
 
+#include "../base/MathHelper.h"
 #include "../base/Logger.h"
 #include "../base/XMLHelper.h"
 #include "../base/Exception.h"

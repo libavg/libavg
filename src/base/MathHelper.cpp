@@ -59,4 +59,9 @@ int safeCeil(double d)
     }
 }
 
+bool almostEqual(double d1, double d2)
+{
+    return (fabs(d1-d2)<EPSILON);
+}
+
 }

@@ -33,6 +33,8 @@ int nextpow2(int n);
 
 int safeCeil(double d);
 
+bool almostEqual(double d1, double d2);
+
 }
 #endif
  
