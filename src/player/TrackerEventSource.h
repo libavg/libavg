@@ -76,7 +76,7 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         void abortCalibration();
 
     private:
-        bool isRelevant(BlobPtr blob, BlobConfigPtr pConfig);
+        bool isRelevant(BlobPtr blob, const std::string& sConfigPath);
         void setConfig();
         void createBitmaps(const DRect & Area);
 

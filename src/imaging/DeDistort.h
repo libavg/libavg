@@ -37,6 +37,8 @@
 
 namespace avg {
 
+class TrackerConfig;
+
 class DeDistort: public CoordTransformer {
     public:
         DeDistort();
@@ -54,8 +56,8 @@ class DeDistort: public CoordTransformer {
         virtual DPoint inverse_transform_point(const DPoint & pt);
         DRect getActiveBlobArea(const DPoint& DisplayExtents);
 
-        void load(const DPoint &CameraExtents, xmlNodePtr pParentNode);
-        void save(xmlTextWriterPtr writer);
+        void load(const DPoint &CameraExtents, const TrackerConfig& Config);
+        void save(TrackerConfig& Config);
 
         bool operator ==(const DeDistort& other) const;
 

@@ -26,6 +26,7 @@
 #include "../base/Logger.h"
 #include "../base/FileHelper.h"
 #include "../base/Exception.h"
+#include "../base/StringHelper.h"
 
 #include <libxml/parser.h>
 #include <libxml/xmlwriter.h>
@@ -33,108 +34,21 @@
 
 #include <cstring>
 #include <sstream>
+#include <iostream>
 
 using namespace std;
 
 namespace avg {
 
-void assureEmptyNode(const char * pNodeName)
-{
-    if (strcmp(pNodeName, "text") && strcmp(pNodeName, "comment")) {
-        AVG_TRACE(Logger::WARNING, "TrackerConfig: Unexpected node " << pNodeName);
-    }
-}
-
-BlobConfig::BlobConfig(bool bIsTouch)
-    : m_bIsTouch(bIsTouch),
-      m_Threshold(128),
-      m_Similarity(31)
-{
-      m_AreaBounds[0] = 80;
-      m_AreaBounds[1] = 450;
-      m_EccentricityBounds[0] = 1; 
-      m_EccentricityBounds[1] = 3;
-} 
-
-BlobConfig::~BlobConfig()
-{
-}
-
-void BlobConfig::load(xmlNodePtr pParentNode)
-{
-    xmlNodePtr curXmlChild = pParentNode->xmlChildrenNode;
-    while (curXmlChild) {
-        const char * pNodeName = (const char *)curXmlChild->name;
-        if (!strcmp(pNodeName, "threshold")) {
-            m_Threshold = getRequiredIntAttr(curXmlChild, "value");
-        } else if (!strcmp(pNodeName, "similarity")) {
-            m_Similarity = getRequiredDoubleAttr(curXmlChild, "value");
-        } else if (!strcmp(pNodeName, "areabounds")) {
-            m_AreaBounds[0] = getRequiredIntAttr(curXmlChild, "min");
-            m_AreaBounds[1] = getRequiredIntAttr(curXmlChild, "max");
-        } else if (!strcmp(pNodeName, "eccentricitybounds")) {
-            m_EccentricityBounds[0] = getRequiredDoubleAttr(curXmlChild, "min");
-            m_EccentricityBounds[1] = getRequiredDoubleAttr(curXmlChild, "max");
-        } else {
-            assureEmptyNode(pNodeName);
-        }
-        curXmlChild = curXmlChild->next;
-    }
-}
-
-void BlobConfig::save(xmlTextWriterPtr writer) 
-{
-    int rc;
-    if (m_bIsTouch) {
-        rc = xmlTextWriterStartElement(writer, BAD_CAST "touch");
-    } else {
-        rc = xmlTextWriterStartElement(writer, BAD_CAST "track");
-    }
-    writeSimpleXMLNode(writer, "threshold", m_Threshold);
-    writeSimpleXMLNode(writer, "similarity", m_Similarity);
-    writeMinMaxXMLNode(writer, "areabounds", m_AreaBounds);
-    writeMinMaxXMLNode(writer, "eccentricitybounds", m_EccentricityBounds);
-    rc = xmlTextWriterEndElement(writer);
-}
-
 TrackerConfig::TrackerConfig()
-    : m_sPixFmt("MONO8"),
-      m_Size(640, 480),
-      m_Channel(0),
-      m_FPS(30),
-      m_Brightness(128),
-      m_Exposure(128),
-      m_Gamma(1),
-      m_Gain(128),
-      m_Shutter(128),
-      m_sCameraMaskFName(""),
-      m_Prescale(1),
-      m_HistoryUpdateInterval(5),
-      m_bBrighterRegions(true),
-      m_bEventOnMove(true),
-      m_ContourPrecision(50),
-      m_bCreateDebugImages(false),
-      m_bCreateFingerImage(false),
-      m_pTrafo(new DeDistort()),
-      m_Doc(0)
+    : m_Doc(0)
 {
 } 
-
-TrackerConfig::TrackerConfig(const TrackerConfig& other)
-{
-    *this = other;
-    if (m_pTouch) {
-        *m_pTouch = *(other.m_pTouch);
-    }
-    if (m_pTrack) {
-        *m_pTrack = *(other.m_pTrack);
-    }
-    *m_pTrafo = *(other.m_pTrafo);
-}
 
 TrackerConfig::~TrackerConfig()
 {
     // TODO: free complete m_Doc.
+    // That will break the copy constructor, though.
 }
 
 void TrackerConfig::load(const string& sFilename)
@@ -169,31 +83,12 @@ void TrackerConfig::load(const string& sFilename)
 
     m_pRoot = xmlDocGetRootElement(m_Doc);
     xmlFreeDtd(dtd);
-    parse(false);
     m_sFilename = sFilename;
-
 }
 
-void TrackerConfig::parse(bool bOnlyDyn)
+xmlXPathObjectPtr TrackerConfig::findConfigNodes(const string& sXPathExpr) const
 {
-    xmlNodePtr curXmlChild = m_pRoot->xmlChildrenNode;
-    while (curXmlChild) {
-        const char * pNodeName = (const char *)curXmlChild->name;
-        if (!strcmp(pNodeName, "camera")) {
-            loadCamera(curXmlChild, bOnlyDyn);
-        } else if (!strcmp(pNodeName, "tracker")) {
-            loadTracker(curXmlChild);
-        } else if (!strcmp(pNodeName, "transform")) {
-            m_pTrafo->load(DPoint(m_Size), curXmlChild);
-        } else {
-            assureEmptyNode(pNodeName);
-        }
-        curXmlChild = curXmlChild->next;
-    }
-}
-
-xmlXPathObjectPtr TrackerConfig::findConfigNodes(const string& sXPathExpr)
-{
+    string sFullPath = string("/trackerconfig"+sXPathExpr);
     xmlXPathContextPtr xpCtx;
     xmlXPathObjectPtr xpElement;
 
@@ -203,10 +98,10 @@ xmlXPathObjectPtr TrackerConfig::findConfigNodes(const string& sXPathExpr)
         return NULL;
     }
 
-    xpElement = xmlXPathEvalExpression(BAD_CAST sXPathExpr.c_str(), xpCtx);
+    xpElement = xmlXPathEvalExpression(BAD_CAST sFullPath.c_str(), xpCtx);
     if(!xpElement) {
         AVG_TRACE(Logger::ERROR, "Unable to evaluate XPath expression '"
-            << sXPathExpr << "'");
+            << sFullPath << "'");
         xmlXPathFreeContext(xpCtx);
         return NULL;
     }
@@ -234,22 +129,21 @@ void TrackerConfig::setParam(const string& sXPathExpr, const string& sValue)
     }
     
     xmlXPathFreeObject(xpElement);
-
-    parse(true);        
 }
 
-string TrackerConfig::getParam(const string& sXPathExpr)
+string TrackerConfig::getParam(const string& sXPathExpr) const
 {
     xmlXPathObjectPtr xpElement = findConfigNodes(sXPathExpr);
     xmlNodeSetPtr nodes = xpElement->nodesetval;
     
-    if (!nodes || nodes->nodeNr == 0)
+    if (!nodes || nodes->nodeNr == 0) {
         throw (Exception(AVG_ERR_OPTION_UNKNOWN, 
                     string("getParam(): cannot find requested element ")+sXPathExpr));
-    else if (nodes->nodeNr > 1)
+    } else if (nodes->nodeNr > 1) {
         AVG_TRACE(Logger::WARNING,
             "getParam(): expression selects more than one node. Returning the first.");
-    
+    }
+
     xmlChar *xsRc = xmlNodeGetContent(nodes->nodeTab[0]);
     string sValue((char *)xsRc);
     
@@ -259,29 +153,60 @@ string TrackerConfig::getParam(const string& sXPathExpr)
     return sValue;
 }
 
+bool TrackerConfig::getBoolParam(const std::string& sXPathExpr) const
+{
+    return stringToBool(getParam(sXPathExpr));
+}
+
+int TrackerConfig::getIntParam(const std::string& sXPathExpr) const
+{
+    return stringToInt(getParam(sXPathExpr));
+}
+
+double TrackerConfig::getDoubleParam(const std::string& sXPathExpr) const
+{
+    return stringToDouble(getParam(sXPathExpr));
+}
+
+DPoint TrackerConfig::getPointParam(const std::string& sXPathExpr) const
+{
+    return DPoint(getDoubleParam(sXPathExpr+"@x"), getDoubleParam(sXPathExpr+"@y"));
+}
+
+xmlNodePtr TrackerConfig::getXmlNode(const std::string& sXPathExpr) const
+{
+    xmlXPathObjectPtr xpElement = findConfigNodes(sXPathExpr);
+    xmlNodeSetPtr nodes = xpElement->nodesetval;
+    
+    if (!nodes || nodes->nodeNr == 0) {
+        throw (Exception(AVG_ERR_OPTION_UNKNOWN, 
+                string("getParam(): cannot find requested element ")+sXPathExpr));
+    } else if (nodes->nodeNr > 1) {
+        AVG_TRACE(Logger::WARNING,
+            "getXmlNode(): expression selects more than one node. Returning the first.");
+    }
+    return nodes->nodeTab[0];
+}
+
+DeDistortPtr TrackerConfig::getTransform() const
+{
+    DPoint CameraExtents = getPointParam("/camera/size/");
+    DeDistortPtr pDD(new DeDistort);
+    pDD->load(CameraExtents, *this);
+    return pDD;
+}
+
+void TrackerConfig::setTransform(DeDistortPtr pDeDistort)
+{
+    pDeDistort->save(*this);
+}
+
 void TrackerConfig::dump() const
 {
-    cerr << "Tracker config: " << endl;
-    cerr << "  Camera: " << endl;
-    cerr << "    Source: " << m_sSource << endl;
-    cerr << "    Device: " << m_sDevice << endl;
-    cerr << "    PixFmt: " << m_sPixFmt << endl;
-    cerr << "    Size: " << m_Size << endl;
-    cerr << "    Channel: " << m_Channel << endl;
-    cerr << "    FPS: " << m_FPS << endl;
-    cerr << "    Brightness: " << m_Brightness << endl;
-    cerr << "    Exposure: " << m_Exposure << endl;
-    cerr << "    Gamma: " << m_Gamma << endl;
-    cerr << "    Gain: " << m_Gain << endl;
-    cerr << "    Shutter: " << m_Shutter << endl;
-    cerr << "  Tracker:" << endl;
-    cerr << "    Prescale: " << m_Prescale << endl;
-    cerr << "    HistoryUpdateInterval: " << m_HistoryUpdateInterval << endl;
-    cerr << "    BrighterRegions: " << m_bBrighterRegions << endl;
-    cerr << "    EventOnMove: " << m_bEventOnMove << endl;
-    cerr << "    ContourPrecision: " << m_ContourPrecision << endl;
-    // TODO: Dump Touch/Track
-    m_pTrafo->dump();
+    string s;
+    xmlBufferPtr pBuffer = xmlBufferCreate();
+    xmlNodeDump(pBuffer, m_Doc, m_pRoot, 0, 0);
+    cerr << xmlBufferContent(pBuffer) << endl;
 }
 
 void TrackerConfig::save(const string& sFilename)
@@ -297,81 +222,6 @@ void TrackerConfig::save(const string& sFilename)
     else
         throw (Exception(AVG_ERR_FILEIO, 
                     "save(): tracker configuration not initialized"));
-}
-
-void TrackerConfig::loadCamera(xmlNodePtr pParentNode, bool bOnlyDyn)
-{
-    xmlNodePtr curXmlChild = pParentNode->xmlChildrenNode;
-    while (curXmlChild) {
-        bool bManaged = true;
-        const char * pNodeName = (const char *)curXmlChild->name;
-        if (!bOnlyDyn)
-        {
-            if (!strcmp(pNodeName, "source")) {
-                m_sSource = getRequiredStringAttr(curXmlChild, "value");
-            } else if (!strcmp(pNodeName, "device")) {
-                m_sDevice = getRequiredStringAttr(curXmlChild, "value");
-            } else if (!strcmp(pNodeName, "format")) {
-                m_sPixFmt = getRequiredStringAttr(curXmlChild, "value");
-            } else if (!strcmp(pNodeName, "size")) {
-                m_Size.x = getRequiredIntAttr(curXmlChild, "x");
-                m_Size.y = getRequiredIntAttr(curXmlChild, "y");
-            }
-            else bManaged = false;
-        }
-        
-        if (!strcmp(pNodeName, "channel")) {
-            // TODO: V4L2 channel is not updated on-the-fly
-            m_Channel = getRequiredIntAttr(curXmlChild, "value");
-        } else if (!strcmp(pNodeName, "fps")) {
-            m_FPS = getRequiredIntAttr(curXmlChild, "value");
-        } else if (!strcmp(pNodeName, "brightness")) {
-            m_Brightness = getRequiredIntAttr(curXmlChild, "value");
-        } else if (!strcmp(pNodeName, "exposure")) {
-            m_Exposure = getRequiredIntAttr(curXmlChild, "value");
-        } else if (!strcmp(pNodeName, "gamma")) {
-            m_Gamma = getRequiredIntAttr(curXmlChild, "value");
-        } else if (!strcmp(pNodeName, "gain")) {
-            m_Gain = getRequiredIntAttr(curXmlChild, "value");
-        } else if (!strcmp(pNodeName, "shutter")) {
-            m_Shutter = getRequiredIntAttr(curXmlChild, "value");
-        } else {
-            if (!bOnlyDyn && !bManaged) {
-                assureEmptyNode(pNodeName);
-            }
-        }
-        curXmlChild = curXmlChild->next;
-    }
-}
-
-void TrackerConfig::loadTracker(xmlNodePtr pParentNode)
-{
-    xmlNodePtr curXmlChild = pParentNode->xmlChildrenNode;
-    while (curXmlChild) {
-        const char * pNodeName = (const char *)curXmlChild->name;
-        if (!strcmp(pNodeName, "mask")) {
-            m_sCameraMaskFName = getRequiredStringAttr(curXmlChild, "value");
-        } else if (!strcmp(pNodeName, "prescale")) {
-            m_Prescale = getRequiredIntAttr(curXmlChild, "value");
-        } else if (!strcmp(pNodeName, "historyupdateinterval")) {
-            m_HistoryUpdateInterval = getRequiredIntAttr(curXmlChild, "value");
-        } else if (!strcmp(pNodeName, "brighterregions")) {
-            m_bBrighterRegions = getRequiredBoolAttr(curXmlChild, "value");
-        } else if (!strcmp(pNodeName, "eventonmove")) {
-            m_bEventOnMove = getRequiredBoolAttr(curXmlChild, "value");
-        } else if (!strcmp(pNodeName, "contourprecision")) {
-            m_ContourPrecision = getRequiredIntAttr(curXmlChild, "value");
-        } else if (!strcmp(pNodeName, "touch")) {
-            m_pTouch = BlobConfigPtr(new BlobConfig(true));
-            m_pTouch->load(curXmlChild);
-        } else if (!strcmp(pNodeName, "track")) {
-            m_pTrack = BlobConfigPtr(new BlobConfig(false));
-            m_pTrack->load(curXmlChild);
-        } else {
-            assureEmptyNode(pNodeName);
-        }
-        curXmlChild = curXmlChild->next;
-    }
 }
 
 }

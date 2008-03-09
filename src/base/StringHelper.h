@@ -19,25 +19,30 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _XMLHelper_H_
-#define _XMLHelper_H_
+#ifndef _StringHelper_H_
+#define _StringHelper_H_
 
-#include "Point.h"
-
-#include <libxml/parser.h>
-#include <libxml/xmlwriter.h>
+#include "Exception.h"
 
 #include <string>
-#include <map>
 #include <sstream>
 
 namespace avg {
 
-std::string getXmlChildrenAsString(const xmlDocPtr xmlDoc, const xmlNodePtr& xmlNode);
+int stringToInt(const std::string& s);
+double stringToDouble(const std::string& s);
+bool stringToBool(const std::string& s);
 
-void registerDTDEntityLoader(const std::string& sID, const std::string& sDTD);
+template<class T>
+std::string toString(const T& i)
+{
+    std::stringstream ss;
+    ss << i;
+    return ss.str();
+}
 
 }
 
-#endif //_XMLHelper_H_
 
+
+#endif

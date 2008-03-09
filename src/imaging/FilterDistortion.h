@@ -37,8 +37,7 @@ namespace avg {
     class FilterDistortion: public Filter 
     {
         public:
-            FilterDistortion(const IntPoint& SrcSize, 
-                    CoordTransformerPtr coordtrans);
+            FilterDistortion(const IntPoint& SrcSize, CoordTransformerPtr coordtrans);
             virtual ~FilterDistortion();
             BitmapPtr apply (BitmapPtr pBmpSource);
         private:

@@ -21,8 +21,6 @@
 #ifndef _TrackerConfig_H_
 #define _TrackerConfig_H_
 
-#include "DeDistort.h"
-
 #include "../base/Rect.h"
 
 #include <boost/shared_ptr.hpp>
@@ -32,66 +30,32 @@
 
 namespace avg {
 
-struct BlobConfig
-{
-    BlobConfig(bool bIsTouch);
-    virtual ~BlobConfig();
-    void load(xmlNodePtr pParentNode);
-    void save(xmlTextWriterPtr writer);
-
-    bool m_bIsTouch;
-    int m_Threshold; //min pixel val for detection
-    double m_Similarity; //max distance for tracking blobs
-    double m_AreaBounds[2]; //min, max for area in percent of screen size
-    double m_EccentricityBounds[2]; //min, max for Eccentricity
-};
-
-typedef boost::shared_ptr<struct BlobConfig> BlobConfigPtr;
+class DeDistort;
+typedef boost::shared_ptr<DeDistort> DeDistortPtr;
 
 struct TrackerConfig
 {
     TrackerConfig();
-    TrackerConfig(const TrackerConfig& other);
     virtual ~TrackerConfig();
     
     void load(const std::string& sFilename);
     void save(const std::string& sFilename);
     void setParam(const std::string& sXPathExpr, const std::string& sValue);
-    std::string getParam(const std::string& sXPathExpr);
+    std::string getParam(const std::string& sXPathExpr) const;
+    bool getBoolParam(const std::string& sXPathExpr) const;
+    int getIntParam(const std::string& sXPathExpr) const;
+    double getDoubleParam(const std::string& sXPathExpr) const;
+    DPoint getPointParam(const std::string& sXPathExpr) const;
+    xmlNodePtr getXmlNode(const std::string& sXPathExpr) const;
+
+    DeDistortPtr getTransform() const;
+    void setTransform(DeDistortPtr pDeDistort);
+    
     void dump() const;
 
-    // Camera params
-    std::string m_sSource;
-    std::string m_sDevice;
-    std::string m_sPixFmt;
-    IntPoint m_Size;
-    int m_Channel;
-    int m_FPS;
-    int m_Brightness;
-    int m_Exposure;
-    int m_Gamma;
-    int m_Gain;
-    int m_Shutter;
-
-    std::string m_sCameraMaskFName;
-    int m_Prescale;
-    int m_HistoryUpdateInterval;
-    bool m_bBrighterRegions; // detect brighter or darker pixels rel. to the background.
-    bool m_bEventOnMove;
-    int m_ContourPrecision;
-    BlobConfigPtr m_pTouch;
-    BlobConfigPtr m_pTrack;
-
-    bool m_bCreateDebugImages;
-    bool m_bCreateFingerImage;
-
-    DeDistortPtr m_pTrafo;
-
 private:
-    void parse(bool bOnlyDyn);
-    xmlXPathObjectPtr findConfigNodes(const std::string& sXPathExpr);
-    void loadCamera(xmlNodePtr pParentNode, bool bOnlyDyn);
-    void loadTracker(xmlNodePtr pParentNode);
+    xmlXPathObjectPtr findConfigNodes(const std::string& sXPathExpr) const;
+    
     xmlDocPtr m_Doc;
     xmlNodePtr m_pRoot;
 

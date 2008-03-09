@@ -211,9 +211,9 @@ void Player::loadFile (const std::string& filename)
         m_pRootNode = boost::dynamic_pointer_cast<AVGNode>
             (createNodeFromXml(doc, xmlNode, DivNodePtr()));
         m_pRootNode->setParent(DivNodeWeakPtr());
-        m_DP.m_Height = getDefaultedIntAttr (xmlNode, "height", 0);
-        m_DP.m_Width = getDefaultedIntAttr (xmlNode, "width", 0);
         registerNode(m_pRootNode);
+        m_DP.m_Height = m_pRootNode->getHeight();
+        m_DP.m_Width = m_pRootNode->getWidth();
 
         // Reset the directory to load assets from to the current dir.
         getcwd(szBuf, 1024);
@@ -347,35 +347,34 @@ TrackerEventSource * Player::addTracker(const string& sConfigFilename)
     Config.load(sConfigFilename);
     CameraPtr pCamera;
 
-    if (Config.m_sSource == "v4l") {
+    string sSource = Config.getParam("/camera/source/@value");
+    string sDevice = Config.getParam("/camera/device/@value");
+    IntPoint Size(Config.getPointParam("/camera/size/"));
+    string sPixFmt = Config.getParam("/camera/format/@value");
+    double FPS = Config.getDoubleParam("/camera/fps/@value");
+
+    if (sSource == "v4l") {
 #ifdef AVG_ENABLE_V4L2
-        AVG_TRACE(Logger::CONFIG, "Adding a Tracker for V4L camera " <<
-                Config.m_sDevice << " width=" << Config.m_Size.x << " height=" <<
-                Config.m_Size.y << " channel=" << Config.m_Channel << " format=" <<
-                Config.m_sPixFmt);
+        int Channel = Config.getIntParam("/camera/channel/@value");
+        AVG_TRACE(Logger::CONFIG, "Adding a Tracker for V4L camera " << sDevice
+                << " size=" << Size << " channel=" << Channel << " format=" 
+                << sPixFmt);
         
-        pCamera = CameraPtr(new V4LCamera(Config.m_sDevice, Config.m_Channel, 
-                Config.m_Size, Config.m_sPixFmt, false));
+        pCamera = CameraPtr(new V4LCamera(sDevice, Channel, Size, sPixFmt, false));
 #else
         AVG_TRACE(Logger::ERROR, "Video4Linux camera tracker requested, but " 
                 "Video4Linux support not compiled in.");
         exit(1);
 #endif
-    } else if (Config.m_sSource == "fw") {
+    } else if (sSource == "fw") {
         AVG_TRACE(Logger::CONFIG, "Adding a Tracker for FW camera " << 
-                Config.m_sDevice << " width=" << Config.m_Size.x << 
-                " height=" << Config.m_Size.y  << " format=" <<
-                Config.m_sPixFmt);
-        pCamera = CameraPtr(new FWCamera(Config.m_sDevice, Config.m_Size, 
-                Config.m_sPixFmt, Config.m_FPS, false));
-    } else if (Config.m_sSource == "ds") {
+                sDevice << " size=" << Size << " format=" << sPixFmt);
+        pCamera = CameraPtr(new FWCamera(sDevice, Size, sPixFmt, FPS, false));
+    } else if (sSource == "ds") {
 #ifdef _WIN32        
         AVG_TRACE(Logger::CONFIG, "Adding a Tracker for DS camera " << 
-                Config.m_sDevice << " width=" << Config.m_Size.x << 
-                " height=" << Config.m_Size.y  << " format=" <<
-                Config.m_sPixFmt);
-        pCamera = CameraPtr(new DSCamera(Config.m_sDevice, Config.m_Size, 
-                Config.m_sPixFmt, Config.m_FPS, false));
+                sDevice << " size=" << Size << " format=" << sPixFmt);
+        pCamera = CameraPtr(new DSCamera(sDevice, Size, sPixFmt, FPS, false));
 #else
         AVG_TRACE(Logger::ERROR, "DS camera tracker requested, but " 
                 "DS support not compiled in.");
@@ -383,7 +382,7 @@ TrackerEventSource * Player::addTracker(const string& sConfigFilename)
 #endif        
     } else {
         throw Exception(AVG_ERR_INVALID_CAPTURE,
-                string("Invalid camera source value '")+Config.m_sSource+
+                string("Invalid camera source value '")+sSource+
                         "'. Can't initialize tracker.");
     }
     

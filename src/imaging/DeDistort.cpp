@@ -22,8 +22,9 @@
 //
 
 #include "DeDistort.h"
+#include "TrackerConfig.h"
 
-#include "../base/XMLHelper.h"
+#include "../base/StringHelper.h"
 
 #include <cstring>
 #include <iostream>
@@ -104,45 +105,40 @@ DRect DeDistort::getActiveBlobArea(const DPoint& DisplayExtents)
     return ActiveRect;
 }
 
-void DeDistort::load(const DPoint& CamExtents, xmlNodePtr pParentNode)
+void DeDistort::load(const DPoint &CameraExtents, const TrackerConfig& Config)
 {
-    m_CamExtents = CamExtents;
-    xmlNodePtr curXmlChild = pParentNode->xmlChildrenNode;
-    while (curXmlChild) {
-        const char * pNodeName = (const char *)curXmlChild->name;
-        if (!strcmp(pNodeName, "distortionparams")) {
-            m_DistortionParams.clear();
-            m_DistortionParams.push_back(getRequiredDoubleAttr(curXmlChild, "p2"));
-            m_DistortionParams.push_back(getRequiredDoubleAttr(curXmlChild, "p3"));
-        } else if (!strcmp(pNodeName, "trapezoid")) {
-            m_TrapezoidFactor = getRequiredDoubleAttr(curXmlChild, "value");
-        } else if (!strcmp(pNodeName, "angle")) {
-            m_Angle = getRequiredDoubleAttr(curXmlChild, "value");
-        } else if (!strcmp(pNodeName, "displaydisplacement")) {
-            m_DisplayOffset.x = getRequiredDoubleAttr(curXmlChild, "x");
-            m_DisplayOffset.y = getRequiredDoubleAttr(curXmlChild, "y");
-        } else if (!strcmp(pNodeName, "displayscale")) {
-            m_DisplayScale.x = getRequiredDoubleAttr(curXmlChild, "x");
-            m_DisplayScale.y = getRequiredDoubleAttr(curXmlChild, "y");
-        }
-        curXmlChild = curXmlChild->next;
-    }
+    m_CamExtents = CameraExtents;
+    m_DistortionParams.clear();
+    m_DistortionParams.push_back(Config.getDoubleParam
+            ("/transform/distortionparams/@p2"));
+    m_DistortionParams.push_back(Config.getDoubleParam
+            ("/transform/distortionparams/@p3"));
+    m_TrapezoidFactor = Config.getDoubleParam("/transform/trapezoid/@value");
+    m_Angle = Config.getDoubleParam("/transform/angle/@value");
+    m_DisplayOffset = Config.getPointParam("/transform/displaydisplacement/");
+    m_DisplayScale = Config.getPointParam("/transform/displayscale/");
+
     m_RescaleFactor = calc_rescale();
 }
 
-void DeDistort::save(xmlTextWriterPtr writer)
+void DeDistort::save(TrackerConfig& Config)
 {
-    int rc;
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "transform");
-    rc = xmlTextWriterStartElement(writer, BAD_CAST "distortionparams");
-    writeAttribute(writer, "p2", m_DistortionParams[0]);
-    writeAttribute(writer, "p3", m_DistortionParams[1]);
-    rc = xmlTextWriterEndElement(writer);
-    writeSimpleXMLNode(writer, "trapezoid", m_TrapezoidFactor);
-    writeSimpleXMLNode(writer, "angle", m_Angle);
-    writePoint(writer, "displaydisplacement", m_DisplayOffset);
-    writePoint(writer, "displayscale", m_DisplayScale);
-    rc = xmlTextWriterEndElement(writer);
+    Config.setParam("/transform/distortionparams/@p2", 
+            toString(m_DistortionParams[0]));
+    Config.setParam("/transform/distortionparams/@p3", 
+            toString(m_DistortionParams[1]));
+    Config.setParam("/transform/trapezoid/@value", 
+            toString(m_TrapezoidFactor));
+    Config.setParam("/transform/angle/@value", 
+            toString(m_Angle));
+    Config.setParam("/transform/displaydisplacement/@x", 
+            toString(m_DisplayOffset.x));
+    Config.setParam("/transform/displaydisplacement/@y", 
+            toString(m_DisplayOffset.y));
+    Config.setParam("/transform/displayscale/@x", 
+            toString(m_DisplayScale.x));
+    Config.setParam("/transform/displayscale/@y", 
+            toString(m_DisplayScale.y));
 }
 
 bool DeDistort::operator ==(const DeDistort& other) const

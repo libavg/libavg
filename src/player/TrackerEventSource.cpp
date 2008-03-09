@@ -67,7 +67,7 @@ namespace avg {
         m_pBitmaps[0] = BitmapPtr(new Bitmap(ImgSize, I8));
         m_pMutex = MutexPtr(new boost::mutex);
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
-        IntRect ROI = m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents));
+        IntRect ROI = m_TrackerConfig.getTransform()->getActiveBlobArea(DPoint(m_DisplayExtents));
         if (ROI.tl.x < 0 || ROI.tl.y < 0 || ROI.br.x > ImgSize.x || ROI.br.y > ImgSize.y) {
             AVG_TRACE(Logger::ERROR, "Impossible tracker configuration: Region of interest is " 
                     << ROI << ", camera image size is " << ImgSize << ". Aborting.");
@@ -88,6 +88,7 @@ namespace avg {
                     )
                 );
         setConfig();
+        setDebugImages(false, false);
     }
 
     TrackerEventSource::~TrackerEventSource()
@@ -104,9 +105,11 @@ namespace avg {
         m_TrackerConfig.setParam(sElement, sValue);
 
         // Test if active area is outside camera.
-        DRect Area = m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents));
-        if (Area.br.x > m_TrackerConfig.m_Size.x/m_TrackerConfig.m_Prescale || 
-            Area.br.y > m_TrackerConfig.m_Size.y/m_TrackerConfig.m_Prescale ||
+        DRect Area = m_TrackerConfig.getTransform()
+                ->getActiveBlobArea(DPoint(m_DisplayExtents));
+        DPoint Size = m_TrackerConfig.getPointParam("/camera/size/");
+        int Prescale = m_TrackerConfig.getIntParam("/tracker/prescale/@value");
+        if (Area.br.x > Size.x/Prescale || Area.br.y > Size.y/Prescale ||
             Area.tl.x < 0 || Area.tl.y < 0)
         {
             m_TrackerConfig.setParam(sElement, sOldParamVal);
@@ -123,9 +126,8 @@ namespace avg {
        
     void TrackerEventSource::setDebugImages(bool bImg, bool bFinger)
     {
-        m_TrackerConfig.m_bCreateDebugImages = bImg;
-        m_TrackerConfig.m_bCreateFingerImage = bFinger;
-        setConfig();
+        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
+                &TrackerThread::setDebugImages, _1, bImg, bFinger)));
     }
 
     void TrackerEventSource::resetHistory()
@@ -141,7 +143,8 @@ namespace avg {
 
     void TrackerEventSource::setConfig()
     {
-        DRect Area = m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents));
+        DRect Area = m_TrackerConfig.getTransform()
+                ->getActiveBlobArea(DPoint(m_DisplayExtents));
         createBitmaps(Area);
         m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
                 &TrackerThread::setConfig, _1, m_TrackerConfig, Area, m_pBitmaps)));
@@ -194,16 +197,22 @@ namespace avg {
         return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
     }
 
-    inline bool isInbetween(double x, double pair[2])
+    inline bool isInbetween(double x, double min, double max)
     {
-        return x>=pair[0] && x<=pair[1];
+        return x>=min && x<=max;
     }
 
-    bool TrackerEventSource::isRelevant(BlobPtr pBlob, BlobConfigPtr pConfig)
+    bool TrackerEventSource::isRelevant(BlobPtr pBlob, const string& sConfigPath)
     {
         bool res;
-        res = isInbetween(pBlob->getArea(), pConfig->m_AreaBounds) && 
-                isInbetween(pBlob->getEccentricity(), pConfig->m_EccentricityBounds);
+        double minArea = m_TrackerConfig.getDoubleParam(sConfigPath+"areabounds/@min");
+        double maxArea = m_TrackerConfig.getDoubleParam(sConfigPath+"areabounds/@max");
+        double minEccentricity = m_TrackerConfig.getDoubleParam
+                (sConfigPath+"eccentricitybounds/@min");
+        double maxEccentricity = m_TrackerConfig.getDoubleParam
+                (sConfigPath+"eccentricitybounds/@max");
+        res = isInbetween(pBlob->getArea(), minArea, maxArea) && 
+                isInbetween(pBlob->getEccentricity(), minEccentricity, maxEccentricity);
         return res;
     }
 
@@ -249,13 +258,13 @@ namespace avg {
 
     void TrackerEventSource::calcBlobs(BlobVectorPtr pNewBlobs, bool bTouch)
     {
-        BlobConfigPtr pBlobConfig;
         EventMap * pEvents;
+        string sConfigPath;
         if (bTouch) {
-            pBlobConfig = m_TrackerConfig.m_pTouch;
+            sConfigPath = "/tracker/touch/";
             pEvents = &m_TouchEvents;
         } else {
-            pBlobConfig = m_TrackerConfig.m_pTrack;
+            sConfigPath = "/tracker/track/";
             pEvents = &m_TrackEvents;
         }
         BlobVector OldBlobs;
@@ -264,12 +273,13 @@ namespace avg {
             OldBlobs.push_back((*it).first);
         }
         BlobVector NewRelevantBlobs;
+        int ContourPrecision = m_TrackerConfig.getIntParam(
+                "/tracker/contourprecision/@value");
         for(BlobVector::iterator it = pNewBlobs->begin(); it!=pNewBlobs->end(); ++it) {
-            if (isRelevant(*it, pBlobConfig)) {
+            if (isRelevant(*it, sConfigPath)) {
                 NewRelevantBlobs.push_back(*it);
-
-                if (m_TrackerConfig.m_ContourPrecision) {
-                    (*it)->calcContour(m_TrackerConfig.m_ContourPrecision);
+                if (ContourPrecision != 0) {
+                    (*it)->calcContour(ContourPrecision);
                 }
             }
             if (NewRelevantBlobs.size() > 50) {
@@ -277,7 +287,8 @@ namespace avg {
             }
         }
         // Create a heap that contains all distances of old to new blobs < MaxDist
-        double MaxDistSquared = pBlobConfig->m_Similarity*pBlobConfig->m_Similarity;
+        double MaxDist = m_TrackerConfig.getDoubleParam(sConfigPath+"similarity/@value");
+        double MaxDistSquared = MaxDist*MaxDist;
         priority_queue<BlobDistEntryPtr> DistHeap;
         for(BlobVector::iterator it = NewRelevantBlobs.begin(); 
                 it!=NewRelevantBlobs.end(); ++it) 
@@ -297,6 +308,7 @@ namespace avg {
         set<BlobPtr> MatchedNewBlobs;
         set<BlobPtr> MatchedOldBlobs;
         int NumMatchedBlobs = 0;
+        bool bEventOnMove = m_TrackerConfig.getBoolParam("/tracker/eventonmove/@value");
         while(!DistHeap.empty()) {
             BlobDistEntryPtr pEntry = DistHeap.top();
             DistHeap.pop();
@@ -312,7 +324,7 @@ namespace avg {
                 assert (pEvents->find(pOldBlob) != pEvents->end());
                 EventStreamPtr pStream;
                 pStream = pEvents->find(pOldBlob)->second;
-                pStream->blobChanged(pNewBlob, m_TrackerConfig.m_bEventOnMove);
+                pStream->blobChanged(pNewBlob, bEventOnMove);
                 // Update the mapping.
                 (*pEvents)[pNewBlob] = pStream;
                 pEvents->erase(pOldBlob);
@@ -364,11 +376,11 @@ namespace avg {
         if (!pBlobs) {
             return;
         }
-        BlobConfigPtr pBlobConfig;
+        string sConfigPath;
         if (bTouch) {
-            pBlobConfig = m_TrackerConfig.m_pTouch;
+            sConfigPath = "/tracker/touch/";
         } else {
-            pBlobConfig = m_TrackerConfig.m_pTrack;
+            sConfigPath = "/tracker/track/";
         }
         // Get max. pixel value in Bitmap
         int Max = 0;
@@ -382,7 +394,7 @@ namespace avg {
         }
         
         for(BlobVector::iterator it2 = pBlobs->begin();it2!=pBlobs->end();++it2) {
-            if (isRelevant(*it2, pBlobConfig)) {
+            if (isRelevant(*it2, sConfigPath)) {
                 if (bTouch) {
                     (*it2)->render(pSrcBmp, pDestBmp, 
                             Pixel32(0xFF, 0xFF, 0xFF, 0xFF), Offset, Max, bTouch, true,  
@@ -407,9 +419,9 @@ namespace avg {
     TrackerCalibrator* TrackerEventSource::startCalibration()
     {
         assert(!m_pCalibrator);
-        m_pOldTransformer = m_TrackerConfig.m_pTrafo;
-        m_TrackerConfig.m_pTrafo = DeDistortPtr(new DeDistort(
-                DPoint(m_pBitmaps[0]->getSize()), DPoint(m_DisplayExtents)));
+        m_pOldTransformer = m_TrackerConfig.getTransform();
+        m_TrackerConfig.setTransform(DeDistortPtr(new DeDistort(
+                DPoint(m_pBitmaps[0]->getSize()), DPoint(m_DisplayExtents))));
         setConfig();
         m_pCalibrator = new TrackerCalibrator(m_pBitmaps[0]->getSize(),
                 m_DisplayExtents);
@@ -419,7 +431,7 @@ namespace avg {
     void TrackerEventSource::endCalibration()
     {
         assert(m_pCalibrator);
-        m_TrackerConfig.m_pTrafo = m_pCalibrator->makeTransformer();
+        m_TrackerConfig.setTransform(m_pCalibrator->makeTransformer());
         setConfig();
         delete m_pCalibrator;
         m_pCalibrator = 0;
@@ -429,7 +441,7 @@ namespace avg {
     void TrackerEventSource::abortCalibration()
     {
         assert(m_pCalibrator);
-        m_TrackerConfig.m_pTrafo = m_pOldTransformer;
+        m_TrackerConfig.setTransform(m_pOldTransformer);
         setConfig();
         m_pOldTransformer = DeDistortPtr();
         delete m_pCalibrator;
@@ -454,10 +466,12 @@ namespace avg {
     {
         Event *pEvent;
         int kill_counter = 0;
+        DeDistortPtr pDeDistort = m_TrackerConfig.getTransform();
+        bool bEventOnMove = m_TrackerConfig.getBoolParam("/tracker/eventonmove/@value");
         for (EventMap::iterator it = Events.begin(); it!= Events.end();) {
             EventStreamPtr pStream = (*it).second;
-            pEvent = pStream->pollevent(m_TrackerConfig.m_pTrafo, m_DisplayExtents, 
-                    source, m_TrackerConfig.m_bEventOnMove);
+            pEvent = pStream->pollevent(pDeDistort, m_DisplayExtents, 
+                    source, bEventOnMove);
             if (pEvent) {
                 res.push_back(pEvent);
             }

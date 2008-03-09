@@ -59,7 +59,7 @@ TrackerThread::TrackerThread(IntRect ROI,
         CmdQueue& CmdQ,
         IBlobTarget *target,
         bool bSubtractHistory,
-        TrackerConfig &config)
+        TrackerConfig &Config)
     : WorkerThread<TrackerThread>("Tracker", CmdQ),
       m_TouchThreshold(0),
       m_TrackThreshold(0),
@@ -70,16 +70,19 @@ TrackerThread::TrackerThread(IntRect ROI,
       m_bCreateDebugImages(false),
       m_bCreateFingerImage(false)
 {
+    m_bTrackBrighter = Config.getBoolParam("/tracker/brighterregions/@value");
     if (bSubtractHistory) {
         m_pHistoryPreProcessor = HistoryPreProcessorPtr(
                 new HistoryPreProcessor(ppBitmaps[1]->getSize(), 1, 
-                config.m_bBrighterRegions));
+                m_bTrackBrighter));
     }
-    m_Prescale = config.m_Prescale; 
-    m_bTrackBrighter = config.m_bBrighterRegions; 
+    m_Prescale = Config.getIntParam("/tracker/prescale/@value");
     setBitmaps(ROI, ppBitmaps);
+
+    DeDistortPtr pDeDistort = Config.getTransform();
+
     m_pDistorter = FilterDistortionPtr(new FilterDistortion(
-                m_pBitmaps[TRACKER_IMG_CAMERA]->getSize()/m_Prescale, config.m_pTrafo));
+                m_pBitmaps[TRACKER_IMG_CAMERA]->getSize()/m_Prescale, pDeDistort));
 }
 
 TrackerThread::~TrackerThread()
@@ -166,45 +169,54 @@ void TrackerThread::deinit()
 void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI, 
         BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES])
 {
+    cerr << "setConfig" << endl;
     boost::mutex::scoped_lock Lock(*m_pMutex);
-    if (Config.m_pTouch) {
-        m_TouchThreshold = Config.m_pTouch->m_Threshold;
-    } else {
+    try {
+        m_TouchThreshold = Config.getIntParam("/tracker/touch/threshold/@value");
+    } catch (Exception& e) {
         m_TouchThreshold = 0;
     }
-    if (Config.m_pTrack) {
-        m_TrackThreshold = Config.m_pTrack->m_Threshold;
-        m_bTrackBrighter = Config.m_bBrighterRegions;
-    } else {
+    m_bTrackBrighter = Config.getBoolParam("/tracker/brighterregions/@value");
+    try {
+        m_TrackThreshold = Config.getIntParam("/tracker/track/threshold/@value");
+    } catch (Exception& e) {
         m_TrackThreshold = 0;
     }
-    m_Prescale = Config.m_Prescale;
+    m_Prescale = Config.getIntParam("/tracker/prescale/@value");
     if(m_pHistoryPreProcessor) {
-        m_pHistoryPreProcessor->setInterval(Config.m_HistoryUpdateInterval);
+        m_pHistoryPreProcessor->setInterval(Config.getIntParam
+                ("/tracker/historyupdateinterval/@value"));
     }
-    if (!(*m_pTrafo == *Config.m_pTrafo)) {
+    DeDistortPtr pDeDistort = Config.getTransform();
+    if (!(*m_pTrafo == *pDeDistort)) {
         m_pDistorter = FilterDistortionPtr(new FilterDistortion(
-                m_pBitmaps[TRACKER_IMG_CAMERA]->getSize()/m_Prescale, Config.m_pTrafo));
-        *m_pTrafo = *Config.m_pTrafo;
+                m_pBitmaps[TRACKER_IMG_CAMERA]->getSize()/m_Prescale, pDeDistort));
+        *m_pTrafo = *pDeDistort;
     }
-    if (int(m_pCamera->getFeature(CAM_FEATURE_BRIGHTNESS)) != Config.m_Brightness ||
-            int(m_pCamera->getFeature(CAM_FEATURE_EXPOSURE)) != Config.m_Exposure ||
-             int(m_pCamera->getFeature(CAM_FEATURE_GAMMA)) != Config.m_Gamma ||
-             int(m_pCamera->getFeature(CAM_FEATURE_GAIN)) != Config.m_Gain ||
-             int(m_pCamera->getFeature(CAM_FEATURE_SHUTTER)) != Config.m_Shutter ||
-             m_sCameraMaskFName != Config.m_sCameraMaskFName)
+    int Brightness = Config.getIntParam("/camera/brightness/@value");
+    int Exposure = Config.getIntParam("/camera/exposure/@value");
+    int Gamma = Config.getIntParam("/camera/gamma/@value");
+    int Gain = Config.getIntParam("/camera/gain/@value");
+    int Shutter = Config.getIntParam("/camera/shutter/@value");
+    string sCameraMaskFName = Config.getParam("/tracker/mask/@value");
+    if (int(m_pCamera->getFeature(CAM_FEATURE_BRIGHTNESS)) != Brightness ||
+            int(m_pCamera->getFeature(CAM_FEATURE_EXPOSURE)) != Exposure ||
+             int(m_pCamera->getFeature(CAM_FEATURE_GAMMA)) != Gamma ||
+             int(m_pCamera->getFeature(CAM_FEATURE_GAIN)) != Gain ||
+             int(m_pCamera->getFeature(CAM_FEATURE_SHUTTER)) != Shutter ||
+             m_sCameraMaskFName != sCameraMaskFName)
     {
         m_pHistoryPreProcessor->reset();
     }
 
-    m_pCamera->setFeature(CAM_FEATURE_BRIGHTNESS, Config.m_Brightness);
-    m_pCamera->setFeature(CAM_FEATURE_EXPOSURE, Config.m_Exposure);
-    m_pCamera->setFeature(CAM_FEATURE_GAMMA, Config.m_Gamma);
-    m_pCamera->setFeature(CAM_FEATURE_GAIN, Config.m_Gain);
-    m_pCamera->setFeature(CAM_FEATURE_SHUTTER, Config.m_Shutter);
+    m_pCamera->setFeature(CAM_FEATURE_BRIGHTNESS, Brightness);
+    m_pCamera->setFeature(CAM_FEATURE_EXPOSURE, Exposure);
+    m_pCamera->setFeature(CAM_FEATURE_GAMMA, Gamma);
+    m_pCamera->setFeature(CAM_FEATURE_GAIN, Gain);
+    m_pCamera->setFeature(CAM_FEATURE_SHUTTER, Shutter);
 
-    if (m_sCameraMaskFName != Config.m_sCameraMaskFName) {
-        m_sCameraMaskFName = Config.m_sCameraMaskFName;
+    if (m_sCameraMaskFName != sCameraMaskFName) {
+        m_sCameraMaskFName = sCameraMaskFName;
         if (m_sCameraMaskFName == "") {
             m_pCameraMaskBmp = BitmapPtr();
         } else {
@@ -215,9 +227,14 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
         }
     }
 
-    m_bCreateDebugImages = Config.m_bCreateDebugImages;
-    m_bCreateFingerImage = Config.m_bCreateFingerImage;
     setBitmaps(ROI, ppBitmaps);
+    cerr << "~setConfig" << endl;
+}
+
+void TrackerThread::setDebugImages(bool bImg, bool bFinger)
+{
+    m_bCreateDebugImages = bImg;
+    m_bCreateFingerImage = bFinger;
 }
 
 void TrackerThread::setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES])
@@ -302,5 +319,5 @@ void TrackerThread::calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp) {
                 pTouchComps, pTouchBmp, m_TouchThreshold, pDestBmp);
     }
 }
-
+        
 }

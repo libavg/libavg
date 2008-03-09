@@ -48,6 +48,7 @@
 #define AVG_ERR_NO_ARG 24
 #define AVG_ERR_INVALID_ARGS 25
 #define AVG_ERR_NO_BUILDER 26
+#define AVG_ERR_TYPE 27
 
 namespace avg {
  

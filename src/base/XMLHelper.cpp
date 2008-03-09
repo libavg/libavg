@@ -29,54 +29,6 @@ using namespace std;
 
 namespace avg {
 
-void xmlAttrToBool(const xmlNodePtr& xmlNode, const char * attr, bool * pBool)
-{
-    char * retStr = (char *)xmlGetProp(xmlNode, (const xmlChar *)attr);
-    if (retStr) {
-        // avg usually wants xml attributes in lowercase, but python only
-        // sees 'True' as true, so we'll accept that too. Also, python 2.3
-        // has 1 as true, so that has to be ok too.
-        *pBool = !strcmp(retStr, "True") || !strcmp(retStr, "true") 
-                || !strcmp(retStr, "1");
-        xmlFree(retStr);
-    }    
-}
-
-void xmlAttrToInt(const xmlNodePtr& xmlNode, const char * attr, int * pInt)
-{
-    char * retStr = (char *)xmlGetProp(xmlNode, (const xmlChar *)attr);
-    if (retStr) {
-        char * errStr;
-        int ret = strtol(retStr, &errStr, 10);
-        if (*errStr == 0) {
-            *pInt = ret;
-        }
-        xmlFree(retStr);
-    }
-}
-
-void xmlAttrToDouble(const xmlNodePtr& xmlNode, const char * attr, double * pDouble)
-{
-    char * retStr = (char *)xmlGetProp(xmlNode, (const xmlChar *)attr);
-    if (retStr) {
-        float ret;
-        int ok = sscanf (retStr, "%f", &ret);
-        if (ok == 1) {
-            *pDouble = ret;
-        } 
-        xmlFree(retStr);
-    }
-}
-
-void xmlAttrToString(const xmlNodePtr& xmlNode, const char * attr, string * pString)
-{
-    char * retStr = (char *)xmlGetProp(xmlNode, (const xmlChar *)attr);
-    if (retStr) {
-        *pString = retStr;
-        xmlFree(retStr);
-    }
-}
-
 string getXmlChildrenAsString(const xmlDocPtr xmlDoc, const xmlNodePtr& xmlNode)
 {
     string s;
@@ -93,83 +45,6 @@ string getXmlChildrenAsString(const xmlDocPtr xmlDoc, const xmlNodePtr& xmlNode)
     }
     xmlBufferFree(pBuffer);
     return s;
-}
-
-bool getDefaultedBoolAttr (const xmlNodePtr& xmlNode, const char * attr, bool def)
-{
-    bool RVal = def;
-    xmlAttrToBool(xmlNode, attr, &RVal);
-    return RVal;
-}
-
-bool getRequiredBoolAttr (const xmlNodePtr& xmlNode, const char * attr)
-{
-    bool RVal;
-    xmlAttrToBool(xmlNode, attr, &RVal);
-    return RVal;
-}
-
-int getDefaultedIntAttr (const xmlNodePtr& xmlNode, const char * attr, int def)
-{
-    int RVal = def;
-    xmlAttrToInt(xmlNode, attr, &RVal);
-    return RVal;
-}
-
-int getRequiredIntAttr (const xmlNodePtr& xmlNode, const char * attr)
-{
-    int RVal;
-    xmlAttrToInt(xmlNode, attr, &RVal);
-    return RVal;
-}
-
-double getDefaultedDoubleAttr (const xmlNodePtr& xmlNode, const char * attr, double def)
-{
-    double RVal = def;
-    xmlAttrToDouble(xmlNode, attr, &RVal);
-    return RVal;
-}
-
-double getRequiredDoubleAttr (const xmlNodePtr& xmlNode, const char * attr)
-{
-    double RVal;
-    xmlAttrToDouble(xmlNode, attr, &RVal);
-    return RVal;
-}
-
-string getDefaultedStringAttr (const xmlNodePtr& xmlNode, const char * attr,
-        const string & def)
-{
-    string RVal = def;
-    xmlAttrToString(xmlNode, attr, &RVal);
-    return RVal;
-}
-
-string getRequiredStringAttr (const xmlNodePtr& xmlNode, const char * attr)
-{
-    char * retStr = (char *)xmlGetProp (xmlNode, (const xmlChar *)attr);
-    string s(retStr);
-    xmlFree(retStr);
-    return s;
-}
-
-void writeMinMaxXMLNode(xmlTextWriterPtr writer, string sName, double Val[2])
-{
-    int rc;
-    rc = xmlTextWriterStartElement(writer, BAD_CAST sName.c_str());
-    writeAttribute(writer, "min", Val[0]);
-    writeAttribute(writer, "max", Val[1]);
-    rc = xmlTextWriterEndElement(writer);
-}
-
-void writePoint(xmlTextWriterPtr writer, string sName, const DPoint& Val)
-{
-    int rc;
-    rc = xmlTextWriterStartElement(writer, BAD_CAST sName.c_str());
-    writeAttribute(writer, "x", Val.x);
-    writeAttribute(writer, "y", Val.y);
-    rc = xmlTextWriterEndElement(writer);
-
 }
 
 static xmlExternalEntityLoader DefaultLoaderProc = 0;

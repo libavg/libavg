@@ -25,6 +25,7 @@
 #include "Camera.h"
 #include "Blob.h"
 #include "FilterDistortion.h"
+#include "DeDistort.h"
 
 #include "../base/WorkerThread.h"
 #include "../base/Command.h"
@@ -81,6 +82,7 @@ class TrackerThread: public WorkerThread<TrackerThread>
 
         void setConfig(TrackerConfig Config, IntRect ROI, 
                 BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES]);
+        void setDebugImages(bool bImg, bool bFinger);
         void resetHistory();
     
     private:
