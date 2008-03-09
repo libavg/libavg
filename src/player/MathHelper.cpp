@@ -21,7 +21,7 @@
 
 #include "MathHelper.h"
 
-#include <Math.h>
+#include <math.h>
 
 namespace avg {
 
