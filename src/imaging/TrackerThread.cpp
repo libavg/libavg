@@ -169,7 +169,6 @@ void TrackerThread::deinit()
 void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI, 
         BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES])
 {
-    cerr << "setConfig" << endl;
     boost::mutex::scoped_lock Lock(*m_pMutex);
     try {
         m_TouchThreshold = Config.getIntParam("/tracker/touch/threshold/@value");
@@ -228,7 +227,6 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
     }
 
     setBitmaps(ROI, ppBitmaps);
-    cerr << "~setConfig" << endl;
 }
 
 void TrackerThread::setDebugImages(bool bImg, bool bFinger)
