@@ -113,7 +113,6 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
             x_pos++;
         }
     }
-
     assert(m_bStatsAvailable);
     if(bMarkCenter) {
         IntPoint Center = IntPoint(int(m_Center.x+0.5), int(m_Center.y+0.5));

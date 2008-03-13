@@ -212,9 +212,9 @@ namespace avg {
         return res;
     }
 
-    static ProfilingZone ProfilingZoneCalcTrack("  CalcBlobs(track)");
-    static ProfilingZone ProfilingZoneCalcTouch("  CalcBlobs(touch)");
-    static ProfilingZone ProfilingZoneDraw("  DrawBlobs");
+    static ProfilingZone ProfilingZoneCalcTrack("CalcBlobs(track)");
+    static ProfilingZone ProfilingZoneCalcTouch("CalcBlobs(touch)");
+    static ProfilingZone ProfilingZoneDraw("DrawBlobs");
 
     void TrackerEventSource::update(BlobVectorPtr pTrackBlobs, BitmapPtr pTrackBmp, 
             int TrackThreshold, BlobVectorPtr pTouchBlobs, BitmapPtr pTouchBmp, 
@@ -222,7 +222,6 @@ namespace avg {
     {
         if (pTrackBlobs) {
             ScopeTimer Timer(ProfilingZoneCalcTrack);
-            cerr << "# blobs: " << pTrackBlobs->size() << endl;
             calcBlobs(pTrackBlobs, false);
         }
         if (pTouchBlobs) {
@@ -394,7 +393,7 @@ namespace avg {
         }
         // Get max. pixel value in Bitmap
         int Max = 0;
-        HistogramPtr pHist = pSrcBmp->getHistogram(2);
+        HistogramPtr pHist = pSrcBmp->getHistogram(4);
         int i;
         for(i=255; i>=0; i--) {
             if ((*pHist)[i] != 0) {
