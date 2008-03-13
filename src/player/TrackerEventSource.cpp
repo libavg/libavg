@@ -27,6 +27,7 @@
 
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
+#include "../base/ScopeTimer.h"
 
 #include "../graphics/HistoryPreProcessor.h"
 #include "../graphics/Filterfill.h"
@@ -202,32 +203,35 @@ namespace avg {
         return x>=min && x<=max;
     }
 
-    bool TrackerEventSource::isRelevant(BlobPtr pBlob, const string& sConfigPath)
+    bool TrackerEventSource::isRelevant(BlobPtr pBlob, double minArea, double maxArea,
+            double minEccentricity, double maxEccentricity)
     {
         bool res;
-        double minArea = m_TrackerConfig.getDoubleParam(sConfigPath+"areabounds/@min");
-        double maxArea = m_TrackerConfig.getDoubleParam(sConfigPath+"areabounds/@max");
-        double minEccentricity = m_TrackerConfig.getDoubleParam
-                (sConfigPath+"eccentricitybounds/@min");
-        double maxEccentricity = m_TrackerConfig.getDoubleParam
-                (sConfigPath+"eccentricitybounds/@max");
         res = isInbetween(pBlob->getArea(), minArea, maxArea) && 
                 isInbetween(pBlob->getEccentricity(), minEccentricity, maxEccentricity);
         return res;
     }
+
+    static ProfilingZone ProfilingZoneCalcTrack("  CalcBlobs(track)");
+    static ProfilingZone ProfilingZoneCalcTouch("  CalcBlobs(touch)");
+    static ProfilingZone ProfilingZoneDraw("  DrawBlobs");
 
     void TrackerEventSource::update(BlobVectorPtr pTrackBlobs, BitmapPtr pTrackBmp, 
             int TrackThreshold, BlobVectorPtr pTouchBlobs, BitmapPtr pTouchBmp, 
             int TouchThreshold, BitmapPtr pDestBmp)
     {
         if (pTrackBlobs) {
+            ScopeTimer Timer(ProfilingZoneCalcTrack);
+            cerr << "# blobs: " << pTrackBlobs->size() << endl;
             calcBlobs(pTrackBlobs, false);
         }
         if (pTouchBlobs) {
+            ScopeTimer Timer(ProfilingZoneCalcTouch);
             calcBlobs(pTouchBlobs, true);
         }
         correlateBlobs();
         if (pDestBmp) {
+            ScopeTimer Timer(ProfilingZoneDraw);
             drawBlobs(pTrackBlobs, pTrackBmp, pDestBmp, TrackThreshold, false); 
             drawBlobs(pTouchBlobs, pTouchBmp, pDestBmp, TouchThreshold, true); 
         }
@@ -275,8 +279,14 @@ namespace avg {
         BlobVector NewRelevantBlobs;
         int ContourPrecision = m_TrackerConfig.getIntParam(
                 "/tracker/contourprecision/@value");
+        double minArea = m_TrackerConfig.getDoubleParam(sConfigPath+"areabounds/@min");
+        double maxArea = m_TrackerConfig.getDoubleParam(sConfigPath+"areabounds/@max");
+        double minEccentricity = m_TrackerConfig.getDoubleParam
+                (sConfigPath+"eccentricitybounds/@min");
+        double maxEccentricity = m_TrackerConfig.getDoubleParam
+                (sConfigPath+"eccentricitybounds/@max");
         for(BlobVector::iterator it = pNewBlobs->begin(); it!=pNewBlobs->end(); ++it) {
-            if (isRelevant(*it, sConfigPath)) {
+            if (isRelevant(*it, minArea, maxArea, minEccentricity, maxEccentricity)) {
                 NewRelevantBlobs.push_back(*it);
                 if (ContourPrecision != 0) {
                     (*it)->calcContour(ContourPrecision);
@@ -393,8 +403,14 @@ namespace avg {
             }
         }
         
+        double minArea = m_TrackerConfig.getDoubleParam(sConfigPath+"areabounds/@min");
+        double maxArea = m_TrackerConfig.getDoubleParam(sConfigPath+"areabounds/@max");
+        double minEccentricity = m_TrackerConfig.getDoubleParam
+                (sConfigPath+"eccentricitybounds/@min");
+        double maxEccentricity = m_TrackerConfig.getDoubleParam
+                (sConfigPath+"eccentricitybounds/@max");
         for(BlobVector::iterator it2 = pBlobs->begin();it2!=pBlobs->end();++it2) {
-            if (isRelevant(*it2, sConfigPath)) {
+            if (isRelevant(*it2, minArea, maxArea, minEccentricity, maxEccentricity)) {
                 if (bTouch) {
                     (*it2)->render(pSrcBmp, pDestBmp, 
                             Pixel32(0xFF, 0xFF, 0xFF, 0xFF), Offset, Max, bTouch, true,  

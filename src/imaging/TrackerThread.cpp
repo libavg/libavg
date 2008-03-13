@@ -301,7 +301,6 @@ void TrackerThread::calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp) {
         pTrackComps = connected_components(pTrackBmp, m_TrackThreshold);
         pTouchComps = connected_components(pTouchBmp, m_TouchThreshold);
     }
-    //    AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
     //feed the IBlobTarget
     BitmapPtr pDestBmp;
     {
