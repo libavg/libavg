@@ -67,17 +67,13 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
 
         // implement IBlobTarget
         // Called from Tracker Thread!
-        virtual void update(BlobVectorPtr pTrackBlobs, BitmapPtr pTrackBmp, int TrackThreshold,
-                BlobVectorPtr pTouchBlobs, BitmapPtr pTouchBmp, int TouchThreshold,
-                BitmapPtr pDestBmp);
+        virtual void update(BlobVectorPtr pTrackBlobs, BlobVectorPtr pTouchBlobs);
 
         TrackerCalibrator* startCalibration();
         void endCalibration();
         void abortCalibration();
 
     private:
-        bool isRelevant(BlobPtr blob, double minArea, double maxArea,
-                double minEccentricity, double maxEccentricity);
         void setConfig();
         void createBitmaps(const DRect & Area);
 
@@ -96,8 +92,6 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         // Used by tracker thread
         void calcBlobs(BlobVectorPtr new_blobs, bool bTouch);
         void correlateBlobs();
-        void drawBlobs(BlobVectorPtr pBlobs, BitmapPtr pSrcBmp, BitmapPtr pDestBmp, 
-                int Offset, bool bTouch);
         BlobPtr matchblob(BlobPtr new_blob, BlobVectorPtr old_blobs, double threshold, 
                 EventMap * pEvents);
 

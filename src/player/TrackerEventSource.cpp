@@ -198,27 +198,11 @@ namespace avg {
         return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
     }
 
-    inline bool isInbetween(double x, double min, double max)
-    {
-        return x>=min && x<=max;
-    }
-
-    bool TrackerEventSource::isRelevant(BlobPtr pBlob, double minArea, double maxArea,
-            double minEccentricity, double maxEccentricity)
-    {
-        bool res;
-        res = isInbetween(pBlob->getArea(), minArea, maxArea) && 
-                isInbetween(pBlob->getEccentricity(), minEccentricity, maxEccentricity);
-        return res;
-    }
-
     static ProfilingZone ProfilingZoneCalcTrack("CalcBlobs(track)");
     static ProfilingZone ProfilingZoneCalcTouch("CalcBlobs(touch)");
-    static ProfilingZone ProfilingZoneDraw("DrawBlobs");
 
-    void TrackerEventSource::update(BlobVectorPtr pTrackBlobs, BitmapPtr pTrackBmp, 
-            int TrackThreshold, BlobVectorPtr pTouchBlobs, BitmapPtr pTouchBmp, 
-            int TouchThreshold, BitmapPtr pDestBmp)
+    void TrackerEventSource::update(BlobVectorPtr pTrackBlobs, 
+            BlobVectorPtr pTouchBlobs)
     {
         if (pTrackBlobs) {
             ScopeTimer Timer(ProfilingZoneCalcTrack);
@@ -229,11 +213,6 @@ namespace avg {
             calcBlobs(pTouchBlobs, true);
         }
         correlateBlobs();
-        if (pDestBmp) {
-            ScopeTimer Timer(ProfilingZoneDraw);
-            drawBlobs(pTrackBlobs, pTrackBmp, pDestBmp, TrackThreshold, false); 
-            drawBlobs(pTouchBlobs, pTouchBmp, pDestBmp, TouchThreshold, true); 
-        }
     }
 
     // Temporary structure to be put into heap of blob distances. Used only in 
@@ -275,32 +254,19 @@ namespace avg {
             (*it).second->setStale();
             OldBlobs.push_back((*it).first);
         }
-        BlobVector NewRelevantBlobs;
         int ContourPrecision = m_TrackerConfig.getIntParam(
                 "/tracker/contourprecision/@value");
-        double minArea = m_TrackerConfig.getDoubleParam(sConfigPath+"areabounds/@min");
-        double maxArea = m_TrackerConfig.getDoubleParam(sConfigPath+"areabounds/@max");
-        double minEccentricity = m_TrackerConfig.getDoubleParam
-                (sConfigPath+"eccentricitybounds/@min");
-        double maxEccentricity = m_TrackerConfig.getDoubleParam
-                (sConfigPath+"eccentricitybounds/@max");
-        for(BlobVector::iterator it = pNewBlobs->begin(); it!=pNewBlobs->end(); ++it) {
-            if (isRelevant(*it, minArea, maxArea, minEccentricity, maxEccentricity)) {
-                NewRelevantBlobs.push_back(*it);
-                if (ContourPrecision != 0) {
-                    (*it)->calcContour(ContourPrecision);
-                }
-            }
-            if (NewRelevantBlobs.size() > 50) {
-                break;
+        if (ContourPrecision != 0) {
+            for(BlobVector::iterator it = pNewBlobs->begin(); it!=pNewBlobs->end(); ++it) {
+                (*it)->calcContour(ContourPrecision);
             }
         }
         // Create a heap that contains all distances of old to new blobs < MaxDist
         double MaxDist = m_TrackerConfig.getDoubleParam(sConfigPath+"similarity/@value");
         double MaxDistSquared = MaxDist*MaxDist;
         priority_queue<BlobDistEntryPtr> DistHeap;
-        for(BlobVector::iterator it = NewRelevantBlobs.begin(); 
-                it!=NewRelevantBlobs.end(); ++it) 
+        for(BlobVector::iterator it = pNewBlobs->begin(); 
+                it!=pNewBlobs->end(); ++it) 
         {
             BlobPtr pNewBlob = *it;
             for(BlobVector::iterator it2 = OldBlobs.begin(); it2!=OldBlobs.end(); ++it2) { 
@@ -340,8 +306,8 @@ namespace avg {
             }
         }
         // Blobs have been matched. Left-overs are new blobs.
-        for(BlobVector::iterator it = NewRelevantBlobs.begin(); 
-                it!=NewRelevantBlobs.end(); ++it) 
+        for(BlobVector::iterator it = pNewBlobs->begin(); 
+                it!=pNewBlobs->end(); ++it) 
         {
             if (MatchedNewBlobs.find(*it) == MatchedNewBlobs.end()) {
                 (*pEvents)[(*it)] = EventStreamPtr( 
@@ -374,58 +340,6 @@ namespace avg {
                     pTouchBlob->addRelated(pTrackBlob);
                     pTrackBlob->addRelated(pTouchBlob);
                     break;
-                }
-            }
-        }
-   }
-
-    void TrackerEventSource::drawBlobs(BlobVectorPtr pBlobs, BitmapPtr pSrcBmp, 
-            BitmapPtr pDestBmp, int Offset, bool bTouch)
-    {
-        if (!pBlobs) {
-            return;
-        }
-        string sConfigPath;
-        if (bTouch) {
-            sConfigPath = "/tracker/touch/";
-        } else {
-            sConfigPath = "/tracker/track/";
-        }
-        // Get max. pixel value in Bitmap
-        int Max = 0;
-        HistogramPtr pHist = pSrcBmp->getHistogram(4);
-        int i;
-        for(i=255; i>=0; i--) {
-            if ((*pHist)[i] != 0) {
-                Max = i;
-                i = 0;
-            }
-        }
-        
-        double minArea = m_TrackerConfig.getDoubleParam(sConfigPath+"areabounds/@min");
-        double maxArea = m_TrackerConfig.getDoubleParam(sConfigPath+"areabounds/@max");
-        double minEccentricity = m_TrackerConfig.getDoubleParam
-                (sConfigPath+"eccentricitybounds/@min");
-        double maxEccentricity = m_TrackerConfig.getDoubleParam
-                (sConfigPath+"eccentricitybounds/@max");
-        for(BlobVector::iterator it2 = pBlobs->begin();it2!=pBlobs->end();++it2) {
-            if (isRelevant(*it2, minArea, maxArea, minEccentricity, maxEccentricity)) {
-                if (bTouch) {
-                    (*it2)->render(pSrcBmp, pDestBmp, 
-                            Pixel32(0xFF, 0xFF, 0xFF, 0xFF), Offset, Max, bTouch, true,  
-                            Pixel32(0x00, 0x00, 0xFF, 0xFF));
-                } else {
-                    (*it2)->render(pSrcBmp, pDestBmp, 
-                            Pixel32(0xFF, 0xFF, 0x00, 0x80), Offset, Max, bTouch, true, 
-                            Pixel32(0x00, 0x00, 0xFF, 0xFF));
-                }
-            } else {
-                if (bTouch) {
-                    (*it2)->render(pSrcBmp, pDestBmp, 
-                            Pixel32(0xFF, 0x00, 0x00, 0xFF), Offset, Max, bTouch, false);
-                } else {
-                    (*it2)->render(pSrcBmp, pDestBmp, 
-                            Pixel32(0x80, 0x80, 0x00, 0x80), Offset, Max, bTouch, false);
                 }
             }
         }

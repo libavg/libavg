@@ -57,9 +57,7 @@ class IBlobTarget {
     public:
         virtual ~IBlobTarget() {};
         // Note that this function is called by TrackerThread in it's own thread!
-        virtual void update(BlobVectorPtr pTrackBlobs, BitmapPtr pTrackBmp, int TrackThreshold,
-                BlobVectorPtr pTouchBlobs, BitmapPtr pTouchBmp, int TouchThreshold,
-                BitmapPtr pDestBmp) = 0;
+        virtual void update(BlobVectorPtr pTrackBlobs, BlobVectorPtr pTouchBlobs) = 0;
 };
 
 
@@ -91,6 +89,11 @@ class TrackerThread: public WorkerThread<TrackerThread>
         void calcHistory();
         void drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp);
         void calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp);
+        bool isRelevant(BlobPtr pBlob, int MinArea, int MaxArea,
+                double MinEccentricity, double MaxEccentricity);
+        BlobVectorPtr findRelevantBlobs(BlobVectorPtr pBlobs, bool bTouch);
+        void drawBlobs(BlobVectorPtr pBlobs, BitmapPtr pSrcBmp, BitmapPtr pDestBmp,
+                int Offset, bool bTouch);
 
         std::string m_sDevice;
         std::string m_sMode;
@@ -101,6 +104,14 @@ class TrackerThread: public WorkerThread<TrackerThread>
         BitmapPtr m_pCameraMaskBmp;
         int m_Prescale;
         bool m_bTrackBrighter;
+        int m_MinTouchArea;
+        int m_MaxTouchArea;
+        double m_MinTouchEccentricity;
+        double m_MaxTouchEccentricity;
+        int m_MinTrackArea;
+        int m_MaxTrackArea;
+        double m_MinTrackEccentricity;
+        double m_MaxTrackEccentricity;
         BlobVectorPtr m_pBlobVector;
         IntRect m_ROI;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];

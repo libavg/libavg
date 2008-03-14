@@ -172,8 +172,16 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
     boost::mutex::scoped_lock Lock(*m_pMutex);
     try {
         m_TouchThreshold = Config.getIntParam("/tracker/touch/threshold/@value");
+        m_MinTouchArea = Config.getIntParam("/tracker/touch/areabounds/@min");
+        m_MaxTouchArea = Config.getIntParam("/tracker/touch/areabounds/@max");
+        m_MinTouchEccentricity = Config.getDoubleParam("/tracker/touch/eccentricitybounds/@min");
+        m_MaxTouchEccentricity = Config.getDoubleParam("/tracker/touch/eccentricitybounds/@max");
     } catch (Exception& e) {
         m_TouchThreshold = 0;
+        m_MinTrackArea = Config.getIntParam("/tracker/track/areabounds/@min");
+        m_MaxTrackArea = Config.getIntParam("/tracker/track/areabounds/@max");
+        m_MinTrackEccentricity = Config.getDoubleParam("/tracker/track/eccentricitybounds/@min");
+        m_MaxTrackEccentricity = Config.getDoubleParam("/tracker/track/eccentricitybounds/@max");
     }
     m_bTrackBrighter = Config.getBoolParam("/tracker/brighterregions/@value");
     try {
@@ -293,27 +301,139 @@ void TrackerThread::drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp)
     }
 }
 
-void TrackerThread::calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp) {
+inline bool isInbetween(double x, double min, double max)
+{
+    return x>=min && x<=max;
+}
+
+bool TrackerThread::isRelevant(BlobPtr pBlob, int MinArea, int MaxArea,
+        double MinEccentricity, double MaxEccentricity)
+{
+    bool res;
+    res = isInbetween(pBlob->getArea(), MinArea, MaxArea) && 
+            isInbetween(pBlob->getEccentricity(), MinEccentricity, MaxEccentricity);
+    return res;
+}
+
+BlobVectorPtr TrackerThread::findRelevantBlobs(BlobVectorPtr pBlobs, bool bTouch) 
+{
+    if (!pBlobs) {
+        return BlobVectorPtr();
+    }
+    int MinArea;
+    int MaxArea;
+    double MinEccentricity;
+    double MaxEccentricity;
+
+    if (bTouch) {
+        MinArea = m_MinTouchArea;
+        MaxArea = m_MaxTouchArea;
+        MinEccentricity = m_MinTouchEccentricity;
+        MaxEccentricity = m_MaxTouchEccentricity;
+    } else {
+        MinArea = m_MinTrackArea;
+        MaxArea = m_MaxTrackArea;
+        MinEccentricity = m_MinTrackEccentricity;
+        MaxEccentricity = m_MaxTrackEccentricity;
+    }
+    BlobVectorPtr pRelevantBlobs(new BlobVector());
+    for(BlobVector::iterator it = pBlobs->begin(); it!=pBlobs->end(); ++it) {
+        if (isRelevant(*it, MinArea, MaxArea, MinEccentricity, MaxEccentricity)) {
+            pRelevantBlobs->push_back(*it);
+        }
+        if (pRelevantBlobs->size() > 50) {
+            break;
+        }
+    }
+    return pRelevantBlobs;
+}
+
+void TrackerThread::drawBlobs(BlobVectorPtr pBlobs, BitmapPtr pSrcBmp, 
+        BitmapPtr pDestBmp, int Offset, bool bTouch)
+{
+    if (!pBlobs) {
+        return;
+    }
+    ScopeTimer Timer(ProfilingZoneDraw);
+    int MinArea;
+    int MaxArea;
+    double MinEccentricity;
+    double MaxEccentricity;
+
+    if (bTouch) {
+        MinArea = m_MinTouchArea;
+        MaxArea = m_MaxTouchArea;
+        MinEccentricity = m_MinTouchEccentricity;
+        MaxEccentricity = m_MaxTouchEccentricity;
+    } else {
+        MinArea = m_MinTrackArea;
+        MaxArea = m_MaxTrackArea;
+        MinEccentricity = m_MinTrackEccentricity;
+        MaxEccentricity = m_MaxTrackEccentricity;
+    }
+    
+    // Get max. pixel value in Bitmap
+    int Max = 0;
+    HistogramPtr pHist = pSrcBmp->getHistogram(4);
+    int i;
+    for(i=255; i>=0; i--) {
+        if ((*pHist)[i] != 0) {
+            Max = i;
+            i = 0;
+        }
+    }
+    
+    for(BlobVector::iterator it2 = pBlobs->begin();it2!=pBlobs->end();++it2) {
+        if (isRelevant(*it2, MinArea, MaxArea, MinEccentricity, MaxEccentricity)) {
+            if (bTouch) {
+                (*it2)->render(pSrcBmp, pDestBmp, 
+                        Pixel32(0xFF, 0xFF, 0xFF, 0xFF), Offset, Max, bTouch, true,  
+                        Pixel32(0x00, 0x00, 0xFF, 0xFF));
+            } else {
+                (*it2)->render(pSrcBmp, pDestBmp, 
+                        Pixel32(0xFF, 0xFF, 0x00, 0x80), Offset, Max, bTouch, true, 
+                        Pixel32(0x00, 0x00, 0xFF, 0xFF));
+            }
+        } else {
+            if (bTouch) {
+                (*it2)->render(pSrcBmp, pDestBmp, 
+                        Pixel32(0xFF, 0x00, 0x00, 0xFF), Offset, Max, bTouch, false);
+            } else {
+                (*it2)->render(pSrcBmp, pDestBmp, 
+                        Pixel32(0x80, 0x80, 0x00, 0x80), Offset, Max, bTouch, false);
+            }
+        }
+    }
+}
+
+void TrackerThread::calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp) 
+{
     BlobVectorPtr pTrackComps;
     BlobVectorPtr pTouchComps;
     {
         ScopeTimer Timer(ProfilingZoneComps);
-        pTrackComps = connected_components(pTrackBmp, m_TrackThreshold);
-        pTouchComps = connected_components(pTouchBmp, m_TouchThreshold);
-    }
-    //feed the IBlobTarget
-    BitmapPtr pDestBmp;
-    {
         boost::mutex::scoped_lock Lock(*m_pMutex);
+        BitmapPtr pDestBmp;
         if (m_bCreateFingerImage) {
             Pixel32 Black(0x00, 0x00, 0x00, 0x00);
             FilterFill<Pixel32>(Black).applyInPlace(
                     m_pBitmaps[TRACKER_IMG_FINGERS]);
             pDestBmp = m_pBitmaps[TRACKER_IMG_FINGERS];
         }
+        {
+            pTrackComps = connected_components(pTrackBmp, m_TrackThreshold);
+            drawBlobs(pTrackComps, pTrackBmp, pDestBmp, m_TrackThreshold, false);
+            pTrackComps = findRelevantBlobs(pTrackComps, false); 
+            pTouchComps = connected_components(pTouchBmp, m_TouchThreshold);
+            drawBlobs(pTouchComps, pTouchBmp, pDestBmp, m_TouchThreshold, true);
+            pTrackComps = findRelevantBlobs(pTrackComps, true); 
+        }
+    }
+    
+    // Send the blobs to the BlobTarget.
+    {
         ScopeTimer Timer(ProfilingZoneUpdate);
-        m_pTarget->update(pTrackComps, pTrackBmp, m_TrackThreshold,
-                pTouchComps, pTouchBmp, m_TouchThreshold, pDestBmp);
+        m_pTarget->update(pTrackComps, pTouchComps);
     }
 }
         
