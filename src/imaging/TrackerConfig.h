@@ -36,6 +36,7 @@ typedef boost::shared_ptr<DeDistort> DeDistortPtr;
 struct TrackerConfig
 {
     TrackerConfig();
+    TrackerConfig(const TrackerConfig& Other);
     virtual ~TrackerConfig();
     
     void load(const std::string& sFilename);
@@ -61,6 +62,7 @@ private:
 
     std::string m_sFilename;
 };
+typedef boost::shared_ptr<TrackerConfig> TrackerConfigPtr;
 
 }
 #endif

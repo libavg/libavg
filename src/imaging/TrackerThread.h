@@ -94,24 +94,18 @@ class TrackerThread: public WorkerThread<TrackerThread>
         BlobVectorPtr findRelevantBlobs(BlobVectorPtr pBlobs, bool bTouch);
         void drawBlobs(BlobVectorPtr pBlobs, BitmapPtr pSrcBmp, BitmapPtr pDestBmp,
                 int Offset, bool bTouch);
+        void calcContours(BlobVectorPtr pBlobs);
 
         std::string m_sDevice;
         std::string m_sMode;
 
+        TrackerConfigPtr m_pConfig;
+        BitmapPtr m_pCameraMaskBmp;
+
         int m_TouchThreshold; // 0 => no touch events.
         int m_TrackThreshold; // 0 => no generic tracking events.
-        std::string m_sCameraMaskFName;
-        BitmapPtr m_pCameraMaskBmp;
         int m_Prescale;
         bool m_bTrackBrighter;
-        int m_MinTouchArea;
-        int m_MaxTouchArea;
-        double m_MinTouchEccentricity;
-        double m_MaxTouchEccentricity;
-        int m_MinTrackArea;
-        int m_MaxTrackArea;
-        double m_MinTrackEccentricity;
-        double m_MaxTrackEccentricity;
         BlobVectorPtr m_pBlobVector;
         IntRect m_ROI;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];

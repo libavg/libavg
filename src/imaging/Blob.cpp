@@ -66,11 +66,6 @@ void Blob::addRun(const Run & run)
 }
 
 
-bool runIsLess(const Run& r1, const Run& r2)
-{
-    return r1.m_Row < r2.m_Row;
-}
-
 void Blob::merge(const BlobPtr& other)
 {
     assert(other);
@@ -404,7 +399,7 @@ IntPoint Blob::findNeighborInside(const IntPoint& Pt, int& Dir)
 
     for (int i = 0; i < 8; i++)	{
         IntPoint CurPt = getNeighbor(Pt, Dir);
-        if (ptInBlob(CurPt)) {
+        if (ptIsInBlob(CurPt)) {
             return CurPt;
         } else {
             Dir--;
@@ -417,15 +412,14 @@ IntPoint Blob::findNeighborInside(const IntPoint& Pt, int& Dir)
     return Pt;
 }
 
-bool run_is_less(const Run& r1, const Run& r2)
+bool runIsLess(const Run& r1, const Run& r2)
 {
     return r1.m_Row < r2.m_Row;
 }
 
 void Blob::calcContour(int Precision)
 {
-//    cerr << "Contour" << endl;
-    sort(m_Runs.begin(), m_Runs.end(), run_is_less);
+    sort(m_Runs.begin(), m_Runs.end(), runIsLess);
     initRowPositions();
     
     // Moore Neighbor Tracing.
@@ -433,36 +427,12 @@ void Blob::calcContour(int Precision)
     IntPoint FirstPt(BoundaryPt);
     int i = Precision;
     int Dir = 1;
-//    int OldDir = 0;
     do {
         i++;
-/*
-        switch (Dir-OldDir) {
-            case 0:
-                i++;
-                break;
-            case 1:
-            case -1:
-            case 7:
-            case -7:
-                i+=12;
-                break;
-            case 2:
-            case -2:
-            case 6:
-            case -6:
-                i+=25;
-                break;
-            default:
-                i += Precision;
-                break;
-        }
-*/
         if (i>=Precision) {
             m_Contour.push_back(BoundaryPt);
             i = 0;
         }
-//        OldDir = Dir;
         BoundaryPt = findNeighborInside(BoundaryPt, Dir);
     } while(FirstPt != BoundaryPt);
 }
@@ -472,7 +442,7 @@ ContourSeq Blob::getContour()
     return m_Contour;
 }
 
-bool Blob::ptInBlob(const IntPoint& Pt)
+bool Blob::ptIsInBlob(const IntPoint& Pt)
 {
     if (m_BoundingBox.contains(Pt)) {
         pair<RunArray::iterator, RunArray::iterator> range;
@@ -487,7 +457,7 @@ bool Blob::ptInBlob(const IntPoint& Pt)
     return false;
 }
 
-bool connected(const Run & run1, const Run & run2)
+bool areConnected(const Run & run1, const Run & run2)
 {
     if (run1.m_StartCol > run2.m_StartCol) {
         return run2.m_EndCol > run1.m_StartCol;
@@ -496,14 +466,14 @@ bool connected(const Run & run1, const Run & run2)
     }
 }
 
-void store_runs(BlobVectorPtr pComps, RunArray *runs1, RunArray *runs2)
+void storeRuns(BlobVectorPtr pComps, RunArray *runs1, RunArray *runs2)
 {
     for (RunArray::iterator run1_it = runs1->begin(); run1_it!=runs1->end(); ++run1_it) {
         for (RunArray::iterator run2_it = runs2->begin(); run2_it!=runs2->end(); ++run2_it) {
             if (run2_it->m_StartCol > run1_it->m_EndCol) {
                 break;
             }
-            if (connected(*run1_it, *run2_it)) {
+            if (areConnected(*run1_it, *run2_it)) {
                 BlobPtr p_blob = run1_it->m_pBlob.lock();
                 while (p_blob->m_pParent) {
                     p_blob = p_blob->m_pParent;
@@ -582,11 +552,8 @@ void findRunsInLine(BitmapPtr pBmp, int y, RunArray * pRuns,
 
 }
 
-BlobVectorPtr connected_components(BitmapPtr image, unsigned char threshold)
+BlobVectorPtr findConnectedComponents(BitmapPtr image, unsigned char threshold)
 {
-    if (threshold == 0) {
-        return BlobVectorPtr();
-    }
     assert(image->getPixelFormat() == I8);
     BlobVectorPtr pBlobs = BlobVectorPtr(new BlobVector);
     IntPoint size = image->getSize();
@@ -604,7 +571,7 @@ BlobVectorPtr connected_components(BitmapPtr image, unsigned char threshold)
     
     for(y=1; y<size.y; y++){
         findRunsInLine(image, y, runs2, threshold);
-        store_runs(pBlobs, runs1, runs2);
+        storeRuns(pBlobs, runs1, runs2);
         tmp = runs1;
         runs1 = runs2;
         runs2 = tmp;

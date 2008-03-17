@@ -45,10 +45,19 @@ TrackerConfig::TrackerConfig()
 {
 } 
 
+TrackerConfig::TrackerConfig(const TrackerConfig& Other)
+{
+    m_Doc = 0;
+    if (Other.m_Doc) {
+        m_Doc = xmlCopyDoc(Other.m_Doc, true);
+        m_sFilename = Other.m_sFilename;
+        m_pRoot = xmlDocGetRootElement(m_Doc);
+    }
+}
+
 TrackerConfig::~TrackerConfig()
 {
-    // TODO: free complete m_Doc.
-    // That will break the copy constructor, though.
+    xmlFreeDoc(m_Doc);
 }
 
 void TrackerConfig::load(const string& sFilename)

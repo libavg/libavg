@@ -90,8 +90,8 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         TrackerCalibrator * m_pCalibrator;
 
         // Used by tracker thread
-        void calcBlobs(BlobVectorPtr new_blobs, bool bTouch);
-        void correlateBlobs();
+        void trackBlobIDs(BlobVectorPtr new_blobs, bool bTouch);
+        void correlateHands();
         BlobPtr matchblob(BlobPtr new_blob, BlobVectorPtr old_blobs, double threshold, 
                 EventMap * pEvents);
 

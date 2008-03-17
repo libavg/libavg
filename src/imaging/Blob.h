@@ -88,7 +88,7 @@ class Blob
         int calcArea();
         void initRowPositions();
         IntPoint findNeighborInside(const IntPoint& Pt, int& Dir);
-        bool ptInBlob(const IntPoint& Pt);
+        bool ptIsInBlob(const IntPoint& Pt);
 
         RunArray m_Runs; // This array is unsorted until contours are calculated.
         std::vector<RunArray::iterator> m_RowPositions;
@@ -109,7 +109,7 @@ class Blob
         ContourSeq m_Contour;
 };
 
-BlobVectorPtr connected_components(BitmapPtr image, unsigned char object_threshold);
+BlobVectorPtr findConnectedComponents(BitmapPtr image, unsigned char object_threshold);
 
 }
 

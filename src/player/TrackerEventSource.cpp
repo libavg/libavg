@@ -206,17 +206,17 @@ namespace avg {
     {
         if (pTrackBlobs) {
             ScopeTimer Timer(ProfilingZoneCalcTrack);
-            calcBlobs(pTrackBlobs, false);
+            trackBlobIDs(pTrackBlobs, false);
         }
         if (pTouchBlobs) {
             ScopeTimer Timer(ProfilingZoneCalcTouch);
-            calcBlobs(pTouchBlobs, true);
+            trackBlobIDs(pTouchBlobs, true);
         }
-        correlateBlobs();
+        correlateHands();
     }
 
     // Temporary structure to be put into heap of blob distances. Used only in 
-    // calcBlobs.
+    // trackBlobIDs.
     struct BlobDistEntry {
         BlobDistEntry(double Dist, BlobPtr pNewBlob, BlobPtr pOldBlob) 
             : m_Dist(Dist),
@@ -238,7 +238,7 @@ namespace avg {
         return e1->m_Dist > e2->m_Dist;
     }
 
-    void TrackerEventSource::calcBlobs(BlobVectorPtr pNewBlobs, bool bTouch)
+    void TrackerEventSource::trackBlobIDs(BlobVectorPtr pNewBlobs, bool bTouch)
     {
         EventMap * pEvents;
         string sConfigPath;
@@ -253,13 +253,6 @@ namespace avg {
         for(EventMap::iterator it=pEvents->begin(); it!=pEvents->end(); ++it) {
             (*it).second->setStale();
             OldBlobs.push_back((*it).first);
-        }
-        int ContourPrecision = m_TrackerConfig.getIntParam(
-                "/tracker/contourprecision/@value");
-        if (ContourPrecision != 0) {
-            for(BlobVector::iterator it = pNewBlobs->begin(); it!=pNewBlobs->end(); ++it) {
-                (*it)->calcContour(ContourPrecision);
-            }
         }
         // Create a heap that contains all distances of old to new blobs < MaxDist
         double MaxDist = m_TrackerConfig.getDoubleParam(sConfigPath+"similarity/@value");
@@ -324,7 +317,7 @@ namespace avg {
         }
     };
 
-   void TrackerEventSource::correlateBlobs()
+   void TrackerEventSource::correlateHands()
    {
         for(EventMap::iterator it2=m_TrackEvents.begin(); it2!=m_TrackEvents.end(); ++it2) {
             BlobPtr pTrackBlob = it2->first;

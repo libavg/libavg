@@ -43,7 +43,7 @@ int main(int argc, char **argv)
 
     DPoint center;
     for(int i=0;i<20;i++){
-        BlobVectorPtr bloblist = connected_components(im, 100);
+        BlobVectorPtr bloblist = findConnectedComponents(im, 100);
         for(BlobVector::iterator b=bloblist->begin();b!=bloblist->end();b++){
             cout<<"center = ("<<(*b)->getCenter().x<<","<<(*b)->getCenter().y<<")"<<endl;
             cout<<"area = "<<(*b)->getArea()<<endl;
