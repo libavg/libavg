@@ -430,7 +430,7 @@ void TrackerThread::calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp)
             }
             if (m_TouchThreshold != 0) {
                 pTouchComps = findConnectedComponents(pTouchBmp, m_TouchThreshold);
-                pTrackComps = findRelevantBlobs(pTouchComps, true); 
+                pTouchComps = findRelevantBlobs(pTouchComps, true); 
                 drawBlobs(pTouchComps, pTouchBmp, pDestBmp, m_TouchThreshold, true);
             }
         }

@@ -198,8 +198,8 @@ namespace avg {
         return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
     }
 
-    static ProfilingZone ProfilingZoneCalcTrack("CalcBlobs(track)");
-    static ProfilingZone ProfilingZoneCalcTouch("CalcBlobs(touch)");
+    static ProfilingZone ProfilingZoneCalcTrack("trackBlobIDs(track)");
+    static ProfilingZone ProfilingZoneCalcTouch("trackBlobIDs(touch)");
 
     void TrackerEventSource::update(BlobVectorPtr pTrackBlobs, 
             BlobVectorPtr pTouchBlobs)
