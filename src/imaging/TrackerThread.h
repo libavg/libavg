@@ -95,6 +95,7 @@ class TrackerThread: public WorkerThread<TrackerThread>
         void drawBlobs(BlobVectorPtr pBlobs, BitmapPtr pSrcBmp, BitmapPtr pDestBmp,
                 int Offset, bool bTouch);
         void calcContours(BlobVectorPtr pBlobs);
+        void correlateHands(BlobVectorPtr pTrackBlobs, BlobVectorPtr pTouchBlobs);
 
         std::string m_sDevice;
         std::string m_sMode;

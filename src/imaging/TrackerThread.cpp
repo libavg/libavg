@@ -407,6 +407,30 @@ void TrackerThread::calcContours(BlobVectorPtr pBlobs)
     }
 }
 
+void TrackerThread::correlateHands(BlobVectorPtr pTrackBlobs, 
+        BlobVectorPtr pTouchBlobs)
+{
+   if (!pTrackBlobs || !pTouchBlobs) {
+       return;
+   }
+    for(BlobVector::iterator it1=pTouchBlobs->begin(); 
+            it1 != pTouchBlobs->end(); ++it1) 
+    {
+        BlobPtr pTouchBlob = *it1;
+        IntPoint TouchCenter = (IntPoint)(pTouchBlob->getCenter());
+        for(BlobVector::iterator it2=pTrackBlobs->begin(); 
+                it2!=pTrackBlobs->end(); ++it2) 
+        {
+            BlobPtr pTrackBlob = *it2;
+            if (pTrackBlob->contains(TouchCenter)) {
+                pTouchBlob->addRelated(pTrackBlob);
+                pTrackBlob->addRelated(pTouchBlob);
+                break;
+            }
+        }
+    }
+}
+
 void TrackerThread::calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp) 
 {
     BlobVectorPtr pTrackComps;
@@ -430,7 +454,8 @@ void TrackerThread::calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp)
             }
             if (m_TouchThreshold != 0) {
                 pTouchComps = findConnectedComponents(pTouchBmp, m_TouchThreshold);
-                pTouchComps = findRelevantBlobs(pTouchComps, true); 
+                pTouchComps = findRelevantBlobs(pTouchComps, true);
+                correlateHands(pTrackComps, pTouchComps);
                 drawBlobs(pTouchComps, pTouchBmp, pDestBmp, m_TouchThreshold, true);
             }
         }

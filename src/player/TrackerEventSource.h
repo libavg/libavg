@@ -91,7 +91,6 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
 
         // Used by tracker thread
         void trackBlobIDs(BlobVectorPtr new_blobs, bool bTouch);
-        void correlateHands();
         BlobPtr matchblob(BlobPtr new_blob, BlobVectorPtr old_blobs, double threshold, 
                 EventMap * pEvents);
 

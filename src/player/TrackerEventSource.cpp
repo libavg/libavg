@@ -212,7 +212,6 @@ namespace avg {
             ScopeTimer Timer(ProfilingZoneCalcTouch);
             trackBlobIDs(pTouchBlobs, true);
         }
-        correlateHands();
     }
 
     // Temporary structure to be put into heap of blob distances. Used only in 
@@ -316,27 +315,6 @@ namespace avg {
             }
         }
     };
-
-   void TrackerEventSource::correlateHands()
-   {
-        for(EventMap::iterator it2=m_TrackEvents.begin(); it2!=m_TrackEvents.end(); ++it2) {
-            BlobPtr pTrackBlob = it2->first;
-            pTrackBlob->clearRelated();
-        }
-        for(EventMap::iterator it1=m_TouchEvents.begin(); it1!=m_TouchEvents.end(); ++it1) {
-            BlobPtr pTouchBlob = it1->first;
-            pTouchBlob->clearRelated();
-            IntPoint TouchCenter = (IntPoint)(pTouchBlob->getCenter());
-            for(EventMap::iterator it2=m_TrackEvents.begin(); it2!=m_TrackEvents.end(); ++it2) {
-                BlobPtr pTrackBlob = it2->first;
-                if (pTrackBlob->contains(TouchCenter)) {
-                    pTouchBlob->addRelated(pTrackBlob);
-                    pTrackBlob->addRelated(pTouchBlob);
-                    break;
-                }
-            }
-        }
-    }
 
     TrackerCalibrator* TrackerEventSource::startCalibration()
     {
