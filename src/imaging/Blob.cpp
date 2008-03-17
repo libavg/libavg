@@ -77,6 +77,8 @@ void Blob::merge(const BlobPtr& other)
 void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color, 
         int Min, int Max, bool bFinger, bool bMarkCenter, Pixel32 CenterColor)
 {
+    assert (pSrcBmp);
+    assert (pDestBmp);
     assert (pSrcBmp->getBytesPerPixel() == 1);
     assert (pDestBmp->getBytesPerPixel() == 4);
     unsigned char *pSrc;
@@ -109,7 +111,7 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
         }
     }
     assert(m_bStatsAvailable);
-    if(bMarkCenter) {
+    if (bMarkCenter) {
         IntPoint Center = IntPoint(int(m_Center.x+0.5), int(m_Center.y+0.5));
         
         IntPoint End0 = IntPoint(m_ScaledBasis[0])+Center;
@@ -117,7 +119,6 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
         IntPoint End1 = IntPoint(m_ScaledBasis[1])+Center;
         pDestBmp->drawLine(Center, End1, CenterColor);
 
-        
         if (bFinger && m_RelatedBlobs.size() > 0) {
             // Draw finger direction
             BlobPtr pHandBlob = (m_RelatedBlobs)[0].lock();

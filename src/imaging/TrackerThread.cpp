@@ -338,6 +338,9 @@ BlobVectorPtr TrackerThread::findRelevantBlobs(BlobVectorPtr pBlobs, bool bTouch
 void TrackerThread::drawBlobs(BlobVectorPtr pBlobs, BitmapPtr pSrcBmp, 
         BitmapPtr pDestBmp, int Offset, bool bTouch)
 {
+    if (!pDestBmp) {
+        return;
+    }
     ScopeTimer Timer(ProfilingZoneDraw);
     string sConfigPrefix;
     if (bTouch) {
@@ -431,13 +434,13 @@ void TrackerThread::calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp)
                 drawBlobs(pTouchComps, pTouchBmp, pDestBmp, m_TouchThreshold, true);
             }
         }
+        // Send the blobs to the BlobTarget.
+        {
+            ScopeTimer Timer(ProfilingZoneUpdate);
+            m_pTarget->update(pTrackComps, pTouchComps);
+        }
     }
     
-    // Send the blobs to the BlobTarget.
-    {
-        ScopeTimer Timer(ProfilingZoneUpdate);
-        m_pTarget->update(pTrackComps, pTouchComps);
-    }
 }
         
 }
