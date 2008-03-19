@@ -479,7 +479,6 @@ void Node::handleEvent (Event* pEvent)
     EventHandlerID ID(pEvent->getType(), pEvent->getSource());
     EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
     if (it!=m_EventHandlerMap.end()) {
-        pEvent->setElement(m_This.lock());
         callPython(it->second, pEvent);
     }
     if (getParent()) {
