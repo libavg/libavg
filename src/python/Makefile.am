@@ -1,0 +1,1 @@
+pkgpyexec_PYTHON = anim.py draggable.py camcalibrator.py

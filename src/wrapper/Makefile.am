@@ -35,5 +35,4 @@ avg_la_LIBADD = ../conradrelais/libconradrelais.la \
                 ../imaging/libimaging.la \
 				../parport/libparport.la \
                 ../lmfit/liblmfit.la
-pkgpyexec_PYTHON = anim.py draggable.py camcalibrator.py __init__.py
-
+pkgpyexec_PYTHON = __init__.py
