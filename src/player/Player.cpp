@@ -916,13 +916,8 @@ bool Player::handleEvent(Event * pEvent)
                 pEvent->getType() != Event::CURSOROUT)
         {
             if (m_pLastMouseNode[cursorID] && m_pLastMouseNode[cursorID]->getSensitive()) {
-                NodePtr pOutDestNode;
-                if (m_pEventCaptureNode.find(cursorID) == m_pEventCaptureNode.end()) {
-                    pOutDestNode = m_pLastMouseNode[cursorID];
-                } else {
-                    pOutDestNode = pDestNode;
-                }
-                sendOver(pCursorEvent, Event::CURSOROUT, pOutDestNode);
+                sendOver(pCursorEvent, Event::CURSOROUT, 
+                        m_pLastMouseNode[cursorID]);
             }
             if (pDestNode && pDestNode->getSensitive()) {
                 sendOver(pCursorEvent, Event::CURSOROVER, pDestNode);
