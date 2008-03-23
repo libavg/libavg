@@ -114,6 +114,8 @@ class Player : IEventSink
         void render (bool bRenderEverything);
         void sendOver(CursorEvent * pOtherEvent, Event::Type Type, 
                 NodePtr pNode);
+        void handleCursorEvent(CursorEvent * pEvent);
+        std::vector<NodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
 
         AVGNodePtr m_pRootNode;
         DisplayEngine * m_pDisplayEngine;
@@ -138,7 +140,9 @@ class Player : IEventSink
         std::vector<Timeout *> m_NewTimeouts; // Timeouts to be added this frame.
 
         EventDispatcherPtr m_pEventDispatcher;
-        std::map<int, NodePtr> m_pLastMouseNode;
+
+        // These are maps for each cursor id.
+        std::map<int, std::vector<NodeWeakPtr> > m_pLastCursorNodes;
         std::map<int, NodeWeakPtr> m_pEventCaptureNode;
 
         // Configuration variables.

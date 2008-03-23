@@ -83,7 +83,6 @@ Player::Player()
       m_pTracker(0),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false), 
-      m_pLastMouseNode(),
       m_pEventCaptureNode(),
       m_bUseFakeCamera(false),
       m_bIsPlaying(false),
@@ -114,7 +113,6 @@ Player::Player()
         AVG_TRACE(Logger::WARNING, 
                 "DTD not found at " << sDTDFName << ". Not validating xml files.");
     }
-    m_pLastMouseNode[MOUSECURSORID]=NodePtr();
     m_pTestHelper = new TestHelper(this);
 
 #ifdef _WIN32
@@ -887,58 +885,18 @@ void Player::handleTimers()
 bool Player::handleEvent(Event * pEvent)
 {
     assert(pEvent); 
-    if(CursorEvent * pCursorEvent = dynamic_cast<CursorEvent*>(pEvent)) {
-        DPoint pos(pCursorEvent->getXPosition(), 
-                pCursorEvent->getYPosition());
-        int cursorID = pCursorEvent->getCursorID();
-        NodePtr pNode;
-        if (m_pEventCaptureNode.find(cursorID) != m_pEventCaptureNode.end()) {
-            NodeWeakPtr pEventCaptureNode = m_pEventCaptureNode[cursorID];
-            if (pEventCaptureNode.expired()) {
-                m_pEventCaptureNode.erase(cursorID);
-            } else {
-                pNode = m_pEventCaptureNode[cursorID].lock();
-            }
-        } 
-        if (!pNode) {
-            if (pEvent->getType() == Event::CURSOROVER ||
-                    pEvent->getType() == Event::CURSOROUT)
-            {
-                pNode = pCursorEvent->getElement();
-            } else {
-                pNode = m_pRootNode->getElementByPos(pos);
-            }
-        }
-        if (pNode != m_pLastMouseNode[cursorID] && 
-                pEvent->getType() != Event::CURSOROVER &&
-                pEvent->getType() != Event::CURSOROUT)
+    if (CursorEvent * pCursorEvent = dynamic_cast<CursorEvent*>(pEvent)) {
+        if (pEvent->getType() == Event::CURSOROUT || 
+                pEvent->getType() == Event::CURSOROVER)
         {
-            if (m_pLastMouseNode[cursorID] && m_pLastMouseNode[cursorID]->getSensitive()) {
-                sendOver(pCursorEvent, Event::CURSOROUT, 
-                        m_pLastMouseNode[cursorID]);
-            }
-            if (pNode && pNode->getSensitive()) {
-                sendOver(pCursorEvent, Event::CURSOROVER, pNode);
-            }
-            m_pLastMouseNode[cursorID] = pNode;
+            pEvent->trace();
+            pEvent->getElement()->handleEvent(pEvent);
+        } else {
+            handleCursorEvent(pCursorEvent);
         }
-        if (pCursorEvent->getType() == Event::CURSORUP && 
-            pCursorEvent->getSource() != CursorEvent::MOUSE) 
-        {
-            m_pLastMouseNode.erase(cursorID);
-        }
-        if (pNode && pNode->getSensitive()) {
-            pEvent->setElement(pNode);
-            if (pEvent->getType() != Event::CURSORMOTION) {
-                pEvent->trace();
-            }
-            pNode->handleEvent(pCursorEvent);
-        }
-    } else if ( KeyEvent * pKeyEvent = dynamic_cast<KeyEvent*>(pEvent)){
+    } else if (KeyEvent * pKeyEvent = dynamic_cast<KeyEvent*>(pEvent)) {
         m_pRootNode->handleEvent(pKeyEvent);
-        if (pEvent->getType() == Event::KEYDOWN &&
-            pKeyEvent->getKeyCode() == 27) 
-        {
+        if (pEvent->getType() == Event::KEYDOWN && pKeyEvent->getKeyCode() == 27) {
             m_bStopping = true;
         }
     } else {
@@ -955,6 +913,93 @@ bool Player::handleEvent(Event * pEvent)
     return true; 
 }
 
+void Player::handleCursorEvent(CursorEvent * pEvent)
+{
+    DPoint pos(pEvent->getXPosition(), pEvent->getYPosition());
+    int cursorID = pEvent->getCursorID();
+    // Find all nodes under the cursor.
+    vector<NodeWeakPtr> pCursorNodes = getElementsByPos(pos);
+
+    // Determine the nodes the event should be sent to.
+    vector<NodeWeakPtr> pDestNodes = pCursorNodes;
+    bool bIsCapturing = false;
+    if (m_pEventCaptureNode.find(cursorID) != m_pEventCaptureNode.end()) {
+        NodeWeakPtr pEventCaptureNode = m_pEventCaptureNode[cursorID];
+        if (pEventCaptureNode.expired()) {
+            m_pEventCaptureNode.erase(cursorID);
+        } else {
+            pDestNodes = vector<NodeWeakPtr>();
+            pDestNodes.push_back(pEventCaptureNode);
+            bIsCapturing = true;
+        }
+    } 
+
+    vector<NodeWeakPtr> pLastCursorNodes = m_pLastCursorNodes[cursorID];
+
+    // Send out events.
+    vector<NodeWeakPtr>::iterator itLast;
+    vector<NodeWeakPtr>::iterator itCur;
+    for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); ++itLast) {
+        NodePtr pLastNode = itLast->lock();
+        for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
+            if (itCur->lock() == pLastNode) {
+                break;
+            }
+        }
+        if (itCur == pCursorNodes.end()) {
+            if (!bIsCapturing || itLast == pDestNodes.begin()) {
+                sendOver(pEvent, Event::CURSOROUT, pLastNode);
+            }
+        }
+    } 
+
+    // Send over events.
+    for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
+        NodePtr pCurNode = itCur->lock();
+        for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); 
+                ++itLast) 
+        {
+            if (itLast->lock() == pCurNode) {
+                break;
+            }
+        }
+        if (itLast == pLastCursorNodes.end()) {
+            if (!bIsCapturing || itCur == pDestNodes.begin()) {
+                sendOver(pEvent, Event::CURSOROVER, pCurNode);
+            }
+        }
+    } 
+
+    // Iterate through the nodes and send the event to all of them.
+    vector<NodeWeakPtr>::iterator it;
+    for (it = pDestNodes.begin(); it != pDestNodes.end(); ++it) {
+        NodePtr pNode = (*it).lock();
+        if (pNode) {
+            CursorEvent * pNodeEvent = 
+                    dynamic_cast<CursorEvent *>(pEvent->cloneAs(pEvent->getType()));
+            pNodeEvent->setElement(pNode);
+            if (pNodeEvent->getType() != Event::CURSORMOTION) {
+                pNodeEvent->trace();
+            }
+            pNode->handleEvent(pNodeEvent);
+            delete pNodeEvent;
+        }
+    }
+    // Update list of nodes under cursor.
+    m_pLastCursorNodes[cursorID] = pCursorNodes;
+}
+
+vector<NodeWeakPtr> Player::getElementsByPos(const DPoint& pos) const
+{
+    vector<NodeWeakPtr> Elements;
+    NodePtr pNode = m_pRootNode->getElementByPos(pos);
+    while (pNode) {
+        Elements.push_back(pNode);
+        pNode = pNode->getParent();
+    }
+    return Elements;
+}
+
 DisplayEngine * Player::getDisplayEngine() const 
 {
     return m_pDisplayEngine;
@@ -968,9 +1013,11 @@ void Player::useFakeCamera(bool bFake)
 void Player::sendOver(CursorEvent * pOtherEvent, Event::Type Type, 
                 NodePtr pNode)
 {
-    Event * pNewEvent = pOtherEvent->cloneAs(Type);
-    pNewEvent->setElement(pNode);
-    m_pEventDispatcher->sendEvent(pNewEvent);
+    if (pNode) {
+        Event * pNewEvent = pOtherEvent->cloneAs(Type);
+        pNewEvent->setElement(pNode);
+        m_pEventDispatcher->sendEvent(pNewEvent);
+    }
 }
 
 void Player::cleanup() 
@@ -988,7 +1035,6 @@ void Player::cleanup()
         m_pDisplayEngine->deinitRender();
         m_pDisplayEngine->teardown();
     }
-    m_pLastMouseNode.clear();
     m_IDMap.clear();
     m_pEventDispatcher = EventDispatcherPtr();
     initConfig();

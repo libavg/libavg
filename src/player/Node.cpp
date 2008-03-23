@@ -481,9 +481,6 @@ void Node::handleEvent (Event* pEvent)
     if (it!=m_EventHandlerMap.end()) {
         callPython(it->second, pEvent);
     }
-    if (getParent()) {
-        getParent()->handleEvent (pEvent);
-    }
 }
 
 void Node::callPython (PyObject * pFunc, Event *pEvent)

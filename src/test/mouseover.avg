@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
+<avg width="160" height="120"  
+    oncursordown="mainMouseDown" oncursorup="mainMouseUp">
+  <image id="img1" x="0" y="0" href="rgb24-65x65.png"/>
+  <div id="div1" x="65" y="0">
+    <image id="img2" x="0" y="65" href="rgb24-65x65.png"/>
+  </div>
+</avg>
