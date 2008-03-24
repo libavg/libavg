@@ -19,9 +19,30 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _avgdtd_H_
+#ifndef _StringHelper_H_
+#define _StringHelper_H_
 
-extern const char * g_pAVGDTD;
+#include "Exception.h"
+
+#include <string>
+#include <sstream>
+
+namespace avg {
+
+int stringToInt(const std::string& s);
+double stringToDouble(const std::string& s);
+bool stringToBool(const std::string& s);
+
+template<class T>
+std::string toString(const T& i)
+{
+    std::stringstream ss;
+    ss << i;
+    return ss.str();
+}
+
+}
+
+
 
 #endif
-

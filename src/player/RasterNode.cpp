@@ -21,25 +21,33 @@
 
 #include "RasterNode.h"
 
-#include "MathHelper.h"
+#include "NodeDefinition.h"
 #include "DisplayEngine.h"
 
+#include "../base/MathHelper.h"
 #include "../base/Logger.h"
 #include "../base/XMLHelper.h"
+#include "../base/Exception.h"
 
 using namespace std;
 
 namespace avg {
 
-RasterNode::RasterNode (const xmlNodePtr xmlNode, Player * pPlayer)
-    : Node(xmlNode, pPlayer),
+NodeDefinition RasterNode::getNodeDefinition()
+{
+    return NodeDefinition("rasternode")
+        .extendDefinition(Node::getNodeDefinition())
+        .addArg(Arg<int>("maxtilewidth", -1, false, offsetof(RasterNode, m_MaxTileSize.x)))
+        .addArg(Arg<int>("maxtileheight", -1, false, offsetof(RasterNode, m_MaxTileSize.y)))
+        .addArg(Arg<string>("blendmode", "blend", false, offsetof(RasterNode, m_sBlendMode)));
+}
+
+RasterNode::RasterNode (Player * pPlayer)
+    : Node(pPlayer),
       m_pSurface(0),
       m_MaxTileSize(IntPoint(-1,-1)),
       m_sBlendMode("blend")
 {
-    m_MaxTileSize.x = getDefaultedIntAttr (xmlNode, "maxtilewidth", -1);
-    m_MaxTileSize.y = getDefaultedIntAttr (xmlNode, "maxtileheight", -1);
-    setBlendModeStr(getDefaultedStringAttr (xmlNode, "blendmode", "blend"));
 }
 
 RasterNode::~RasterNode()
@@ -48,6 +56,18 @@ RasterNode::~RasterNode()
         delete m_pSurface;
         m_pSurface = 0;
     }
+}
+
+void RasterNode::setArgs(const ArgList& Args)
+{
+    Node::setArgs(Args);
+    if ((!ispow2(m_MaxTileSize.x) && m_MaxTileSize.x != -1)
+            || (!ispow2(m_MaxTileSize.y) && m_MaxTileSize.y != -1)) 
+    {
+        throw Exception(AVG_ERR_OUT_OF_RANGE, 
+                "maxtilewidth and maxtilehight must be powers of two.");
+    }
+    setBlendModeStr(m_sBlendMode);
 }
 
 void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)

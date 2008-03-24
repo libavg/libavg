@@ -27,6 +27,7 @@
 
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
+#include "../base/ScopeTimer.h"
 
 #include "../graphics/HistoryPreProcessor.h"
 #include "../graphics/Filterfill.h"
@@ -65,23 +66,22 @@ namespace avg {
 
         IntPoint ImgSize = pCamera->getImgSize();
         m_pBitmaps[0] = BitmapPtr(new Bitmap(ImgSize, I8));
-        m_pUpdateMutex = MutexPtr(new boost::mutex);
-        m_pTrackerMutex = MutexPtr(new boost::mutex);
-        handleROIChange();
+        m_pMutex = MutexPtr(new boost::mutex);
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
-        IntRect ROI = m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents));
+        IntRect ROI = m_TrackerConfig.getTransform()->getActiveBlobArea(DPoint(m_DisplayExtents));
         if (ROI.tl.x < 0 || ROI.tl.y < 0 || ROI.br.x > ImgSize.x || ROI.br.y > ImgSize.y) {
             AVG_TRACE(Logger::ERROR, "Impossible tracker configuration: Region of interest is " 
                     << ROI << ", camera image size is " << ImgSize << ". Aborting.");
             exit(5);
         }
+        createBitmaps(ROI);
         pCamera->open();
         m_pTrackerThread = new boost::thread(
                 TrackerThread(
                     ROI,
                     pCamera,
                     m_pBitmaps, 
-                    m_pTrackerMutex,
+                    m_pMutex,
                     *m_pCmdQueue,
                     this,
                     bSubtractHistory,
@@ -89,6 +89,7 @@ namespace avg {
                     )
                 );
         setConfig();
+        setDebugImages(false, false);
     }
 
     TrackerEventSource::~TrackerEventSource()
@@ -98,94 +99,36 @@ namespace avg {
         delete m_pTrackerThread;
         ObjectCounter::get()->decRef(&typeid(*this));
     }
-        
-    void TrackerEventSource::setThreshold(int Threshold) 
+    
+    void TrackerEventSource::setParam(const string& sElement, const string& sValue)
     {
-        // TODO: throw exception if m_pTouch doesn't exist.
-        m_TrackerConfig.m_pTouch->m_Threshold = Threshold;
-        setConfig();
-    }
+        string sOldParamVal = m_TrackerConfig.getParam(sElement);
+        m_TrackerConfig.setParam(sElement, sValue);
 
-    int TrackerEventSource::getThreshold()
-    {
-        if (m_TrackerConfig.m_pTouch) {
-            return m_TrackerConfig.m_pTouch->m_Threshold;
+        // Test if active area is outside camera.
+        DRect Area = m_TrackerConfig.getTransform()
+                ->getActiveBlobArea(DPoint(m_DisplayExtents));
+        DPoint Size = m_TrackerConfig.getPointParam("/camera/size/");
+        int Prescale = m_TrackerConfig.getIntParam("/tracker/prescale/@value");
+        if (Area.br.x > Size.x/Prescale || Area.br.y > Size.y/Prescale ||
+            Area.tl.x < 0 || Area.tl.y < 0)
+        {
+            m_TrackerConfig.setParam(sElement, sOldParamVal);
         } else {
-            return 0;
+            setConfig();
         }
+//        m_TrackerConfig.dump();
     }
     
-    void TrackerEventSource::setHistorySpeed(int UpdateInterval)
+    string TrackerEventSource::getParam(const string& sElement)
     {
-        m_TrackerConfig.m_HistoryUpdateInterval = UpdateInterval;
-        setConfig();
-    }
-    
-    int TrackerEventSource::getHistorySpeed()
-    {
-        return m_TrackerConfig.m_HistoryUpdateInterval;
-    }
-
-    void TrackerEventSource::setBrightness(int Brightness) 
-    {
-        m_TrackerConfig.m_Brightness = Brightness;
-        setConfig();
-    }
-
-    int TrackerEventSource::getBrightness()
-    {
-        return m_TrackerConfig.m_Brightness;
-    }
-
-    void TrackerEventSource::setExposure(int Exposure) 
-    {
-        m_TrackerConfig.m_Exposure = Exposure;
-        setConfig();
-    }
-
-    int TrackerEventSource::getExposure()
-    {
-        return m_TrackerConfig.m_Exposure;
-    }
-
-    void TrackerEventSource::setGamma(int Gamma) 
-    {
-        m_TrackerConfig.m_Gamma = Gamma;
-        setConfig();
-    }
-
-    int TrackerEventSource::getGamma()
-    {
-        return m_TrackerConfig.m_Gamma;
-    }
-
-    void TrackerEventSource::setGain(int Gain) 
-    {
-        m_TrackerConfig.m_Gain = Gain;
-        setConfig();
-    }
-
-    int TrackerEventSource::getGain()
-    {
-        return m_TrackerConfig.m_Gain;
-    }
-
-    void TrackerEventSource::setShutter(int Shutter) 
-    {
-        m_TrackerConfig.m_Shutter = Shutter;
-        setConfig();
-    }
-
-    int TrackerEventSource::getShutter()
-    {
-        return m_TrackerConfig.m_Shutter;
+        return m_TrackerConfig.getParam(sElement);
     }
        
     void TrackerEventSource::setDebugImages(bool bImg, bool bFinger)
     {
-        m_TrackerConfig.m_bCreateDebugImages = bImg;
-        m_TrackerConfig.m_bCreateFingerImage = bFinger;
-        setConfig();
+        m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
+                &TrackerThread::setDebugImages, _1, bImg, bFinger)));
     }
 
     void TrackerEventSource::resetHistory()
@@ -194,36 +137,48 @@ namespace avg {
                 &TrackerThread::resetHistory, _1)));
     }
 
-    void TrackerEventSource::saveConfig()
+    void TrackerEventSource::saveConfig(const string& sFilename)
     {
-        m_TrackerConfig.save();
+        m_TrackerConfig.save(sFilename);
     }
 
     void TrackerEventSource::setConfig()
     {
+        DRect Area = m_TrackerConfig.getTransform()
+                ->getActiveBlobArea(DPoint(m_DisplayExtents));
+        createBitmaps(Area);
         m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
-                &TrackerThread::setConfig, _1, m_TrackerConfig)));
+                &TrackerThread::setConfig, _1, m_TrackerConfig, Area, m_pBitmaps)));
     }
 
-    void TrackerEventSource::handleROIChange()
+    void TrackerEventSource::createBitmaps(const DRect & Area)
     {
-        boost::mutex::scoped_lock Lock(*m_pTrackerMutex);
-        DRect Area = m_TrackerConfig.m_pTrafo->getActiveBlobArea(DPoint(m_DisplayExtents));
-        IntPoint ImgSize(int(Area.Width()), int(Area.Height()));
-        for (int i=1; i<NUM_TRACKER_IMAGES-1; i++) {
-            m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgSize, I8));
-        }
-        m_pBitmaps[TRACKER_IMG_FINGERS] = BitmapPtr(new Bitmap(ImgSize, R8G8B8A8));
-        FilterFill<Pixel32>(Pixel32(0,0,0,0)).applyInPlace(m_pBitmaps[TRACKER_IMG_FINGERS]);
-        if (m_pCmdQueue) {
-            m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
-                    &TrackerThread::setBitmaps, _1, Area, m_pBitmaps)));
+        boost::mutex::scoped_lock Lock(*m_pMutex);
+        IntPoint ImgSize(int(Area.size().x), int(Area.size().y));
+        for (int i=1; i<NUM_TRACKER_IMAGES; i++) {
+            switch (i) {
+                case TRACKER_IMG_HISTOGRAM:
+                    m_pBitmaps[TRACKER_IMG_HISTOGRAM] = 
+                            BitmapPtr(new Bitmap(IntPoint(256, 256), I8));
+                    FilterFill<Pixel8>(Pixel8(0)).
+                            applyInPlace(m_pBitmaps[TRACKER_IMG_HISTOGRAM]);
+                    break;
+                case TRACKER_IMG_FINGERS:
+                    m_pBitmaps[TRACKER_IMG_FINGERS] = 
+                            BitmapPtr(new Bitmap(ImgSize, B8G8R8A8));
+                    FilterFill<Pixel32>(Pixel32(0,0,0,0)).
+                            applyInPlace(m_pBitmaps[TRACKER_IMG_FINGERS]);
+                    break;
+                default:
+                    m_pBitmaps[i] = BitmapPtr(new Bitmap(ImgSize, I8));
+                    FilterFill<Pixel8>(Pixel8(0)).applyInPlace(m_pBitmaps[i]);
+            }
         }
     }
 
     Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const
     {
-        boost::mutex::scoped_lock Lock(*m_pTrackerMutex);
+        boost::mutex::scoped_lock Lock(*m_pMutex);
         return new Bitmap(*m_pBitmaps[ImageID]);
     }
     
@@ -243,39 +198,24 @@ namespace avg {
         return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
     }
 
-    inline bool isInbetween(double x, double pair[2])
-    {
-        return x>=pair[0] && x<=pair[1];
-    }
+    static ProfilingZone ProfilingZoneCalcTrack("trackBlobIDs(track)");
+    static ProfilingZone ProfilingZoneCalcTouch("trackBlobIDs(touch)");
 
-    bool TrackerEventSource::isRelevant(BlobPtr pBlob, BlobConfigPtr pConfig)
+    void TrackerEventSource::update(BlobVectorPtr pTrackBlobs, 
+            BlobVectorPtr pTouchBlobs)
     {
-        bool res;
-        res = isInbetween(pBlob->getArea(), pConfig->m_AreaBounds) && 
-                isInbetween(pBlob->getEccentricity(), pConfig->m_EccentricityBounds);
-        return res;
-    }
-
-    void TrackerEventSource::update(BlobVectorPtr pTrackBlobs, BitmapPtr pTrackBmp, 
-            int TrackThreshold, BlobVectorPtr pTouchBlobs, BitmapPtr pTouchBmp, 
-            int TouchThreshold, BitmapPtr pDestBmp)
-    {
-        boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
         if (pTrackBlobs) {
-            calcBlobs(pTrackBlobs, false);
+            ScopeTimer Timer(ProfilingZoneCalcTrack);
+            trackBlobIDs(pTrackBlobs, false);
         }
         if (pTouchBlobs) {
-            calcBlobs(pTouchBlobs, true);
-        }
-        correlateBlobs();
-        if (pDestBmp) {
-            drawBlobs(pTrackBlobs, pTrackBmp, pDestBmp, TrackThreshold, false); 
-            drawBlobs(pTouchBlobs, pTouchBmp, pDestBmp, TouchThreshold, true); 
+            ScopeTimer Timer(ProfilingZoneCalcTouch);
+            trackBlobIDs(pTouchBlobs, true);
         }
     }
 
     // Temporary structure to be put into heap of blob distances. Used only in 
-    // calcBlobs.
+    // trackBlobIDs.
     struct BlobDistEntry {
         BlobDistEntry(double Dist, BlobPtr pNewBlob, BlobPtr pOldBlob) 
             : m_Dist(Dist),
@@ -297,15 +237,15 @@ namespace avg {
         return e1->m_Dist > e2->m_Dist;
     }
 
-    void TrackerEventSource::calcBlobs(BlobVectorPtr pNewBlobs, bool bTouch)
+    void TrackerEventSource::trackBlobIDs(BlobVectorPtr pNewBlobs, bool bTouch)
     {
-        BlobConfigPtr pBlobConfig;
         EventMap * pEvents;
+        string sConfigPath;
         if (bTouch) {
-            pBlobConfig = m_TrackerConfig.m_pTouch;
+            sConfigPath = "/tracker/touch/";
             pEvents = &m_TouchEvents;
         } else {
-            pBlobConfig = m_TrackerConfig.m_pTrack;
+            sConfigPath = "/tracker/track/";
             pEvents = &m_TrackEvents;
         }
         BlobVector OldBlobs;
@@ -313,20 +253,12 @@ namespace avg {
             (*it).second->setStale();
             OldBlobs.push_back((*it).first);
         }
-        BlobVector NewRelevantBlobs;
-        for(BlobVector::iterator it = pNewBlobs->begin(); it!=pNewBlobs->end(); ++it) {
-            if (isRelevant(*it, pBlobConfig)) {
-                NewRelevantBlobs.push_back(*it);
-            }
-            if (NewRelevantBlobs.size() > 50) {
-                break;
-            }
-        }
         // Create a heap that contains all distances of old to new blobs < MaxDist
-        double MaxDistSquared = pBlobConfig->m_Similarity*pBlobConfig->m_Similarity;
+        double MaxDist = m_TrackerConfig.getDoubleParam(sConfigPath+"similarity/@value");
+        double MaxDistSquared = MaxDist*MaxDist;
         priority_queue<BlobDistEntryPtr> DistHeap;
-        for(BlobVector::iterator it = NewRelevantBlobs.begin(); 
-                it!=NewRelevantBlobs.end(); ++it) 
+        for(BlobVector::iterator it = pNewBlobs->begin(); 
+                it!=pNewBlobs->end(); ++it) 
         {
             BlobPtr pNewBlob = *it;
             for(BlobVector::iterator it2 = OldBlobs.begin(); it2!=OldBlobs.end(); ++it2) { 
@@ -339,11 +271,11 @@ namespace avg {
                 }
             }
         }
-//        cerr << "DistHeap: " << DistHeap.size() << endl;
         // Match up the closest blobs.
         set<BlobPtr> MatchedNewBlobs;
         set<BlobPtr> MatchedOldBlobs;
         int NumMatchedBlobs = 0;
+        bool bEventOnMove = m_TrackerConfig.getBoolParam("/tracker/eventonmove/@value");
         while(!DistHeap.empty()) {
             BlobDistEntryPtr pEntry = DistHeap.top();
             DistHeap.pop();
@@ -359,16 +291,15 @@ namespace avg {
                 assert (pEvents->find(pOldBlob) != pEvents->end());
                 EventStreamPtr pStream;
                 pStream = pEvents->find(pOldBlob)->second;
-                pStream->blobChanged(pNewBlob);
+                pStream->blobChanged(pNewBlob, bEventOnMove);
                 // Update the mapping.
                 (*pEvents)[pNewBlob] = pStream;
                 pEvents->erase(pOldBlob);
             }
         }
-//        cerr << "Matched: " << NumMatchedBlobs << endl;
         // Blobs have been matched. Left-overs are new blobs.
-        for(BlobVector::iterator it = NewRelevantBlobs.begin(); 
-                it!=NewRelevantBlobs.end(); ++it) 
+        for(BlobVector::iterator it = pNewBlobs->begin(); 
+                it!=pNewBlobs->end(); ++it) 
         {
             if (MatchedNewBlobs.find(*it) == MatchedNewBlobs.end()) {
                 (*pEvents)[(*it)] = EventStreamPtr( 
@@ -383,84 +314,15 @@ namespace avg {
                 (*it).second->blobGone();
             }
         }
-//        cerr << pEvents->size() << endl;
     };
-
-   void TrackerEventSource::correlateBlobs()
-   {
-        for(EventMap::iterator it2=m_TrackEvents.begin(); it2!=m_TrackEvents.end(); ++it2) {
-            BlobPtr pTrackBlob = it2->first;
-            pTrackBlob->clearRelated();
-        }
-        for(EventMap::iterator it1=m_TouchEvents.begin(); it1!=m_TouchEvents.end(); ++it1) {
-            BlobPtr pTouchBlob = it1->first;
-            pTouchBlob->clearRelated();
-            IntPoint TouchCenter = (IntPoint)(pTouchBlob->getCenter());
-            for(EventMap::iterator it2=m_TrackEvents.begin(); it2!=m_TrackEvents.end(); ++it2) {
-                BlobPtr pTrackBlob = it2->first;
-                if (pTrackBlob->contains(TouchCenter)) {
-                    pTouchBlob->addRelated(pTrackBlob);
-                    pTrackBlob->addRelated(pTouchBlob);
-                    break;
-                }
-            }
-        }
-   }
-
-    void TrackerEventSource::drawBlobs(BlobVectorPtr pBlobs, BitmapPtr pSrcBmp, 
-            BitmapPtr pDestBmp, int Offset, bool bTouch)
-    {
-        if (!pBlobs) {
-            return;
-        }
-        BlobConfigPtr pBlobConfig;
-        if (bTouch) {
-            pBlobConfig = m_TrackerConfig.m_pTouch;
-        } else {
-            pBlobConfig = m_TrackerConfig.m_pTrack;
-        }
-        // Get max. pixel value in Bitmap
-        int Max = 0;
-        HistogramPtr pHist = pSrcBmp->getHistogram(2);
-        int i;
-        for(i=255; i>=0; i--) {
-            if ((*pHist)[i] != 0) {
-                Max = i;
-                i = 0;
-            }
-        }
-        
-        for(BlobVector::iterator it2 = pBlobs->begin();it2!=pBlobs->end();++it2) {
-            if (isRelevant(*it2, pBlobConfig)) {
-                if (bTouch) {
-                    (*it2)->render(pSrcBmp, pDestBmp, 
-                            Pixel32(0xFF, 0xFF, 0xFF, 0xFF), Offset, Max, bTouch, true,  
-                            Pixel32(0x00, 0x00, 0xFF, 0xFF));
-                } else {
-                    (*it2)->render(pSrcBmp, pDestBmp, 
-                            Pixel32(0xFF, 0xFF, 0x00, 0x80), Offset, Max, bTouch, true, 
-                            Pixel32(0x00, 0x00, 0xFF, 0xFF));
-                }
-            } else {
-                if (bTouch) {
-                    (*it2)->render(pSrcBmp, pDestBmp, 
-                            Pixel32(0xFF, 0x00, 0x00, 0xFF), Offset, Max, bTouch, false);
-                } else {
-                    (*it2)->render(pSrcBmp, pDestBmp, 
-                            Pixel32(0x80, 0x80, 0x00, 0x80), Offset, Max, bTouch, false);
-                }
-            }
-        }
-    }
 
     TrackerCalibrator* TrackerEventSource::startCalibration()
     {
         assert(!m_pCalibrator);
-        m_pOldTransformer = m_TrackerConfig.m_pTrafo;
-        m_TrackerConfig.m_pTrafo = DeDistortPtr(new DeDistort(
-                DPoint(m_pBitmaps[0]->getSize()), DPoint(m_DisplayExtents)));
+        m_pOldTransformer = m_TrackerConfig.getTransform();
+        m_TrackerConfig.setTransform(DeDistortPtr(new DeDistort(
+                DPoint(m_pBitmaps[0]->getSize()), DPoint(m_DisplayExtents))));
         setConfig();
-        handleROIChange();
         m_pCalibrator = new TrackerCalibrator(m_pBitmaps[0]->getSize(),
                 m_DisplayExtents);
         return m_pCalibrator;
@@ -469,9 +331,8 @@ namespace avg {
     void TrackerEventSource::endCalibration()
     {
         assert(m_pCalibrator);
-        m_TrackerConfig.m_pTrafo = m_pCalibrator->makeTransformer();
+        m_TrackerConfig.setTransform(m_pCalibrator->makeTransformer());
         setConfig();
-        handleROIChange();
         delete m_pCalibrator;
         m_pCalibrator = 0;
         m_pOldTransformer = DeDistortPtr();
@@ -480,9 +341,8 @@ namespace avg {
     void TrackerEventSource::abortCalibration()
     {
         assert(m_pCalibrator);
-        m_TrackerConfig.m_pTrafo = m_pOldTransformer;
+        m_TrackerConfig.setTransform(m_pOldTransformer);
         setConfig();
-        handleROIChange();
         m_pOldTransformer = DeDistortPtr();
         delete m_pCalibrator;
         m_pCalibrator = 0;
@@ -490,7 +350,7 @@ namespace avg {
 
     vector<Event*> TrackerEventSource::pollEvents()
     {
-        boost::mutex::scoped_lock Lock(*m_pUpdateMutex);
+        boost::mutex::scoped_lock Lock(*m_pMutex);
         vector<Event*> pTouchEvents = std::vector<Event *>();
         vector<Event*> pTrackEvents = std::vector<Event *>();
         pollEventType(pTouchEvents, m_TouchEvents, CursorEvent::TOUCH);
@@ -506,10 +366,12 @@ namespace avg {
     {
         Event *pEvent;
         int kill_counter = 0;
+        DeDistortPtr pDeDistort = m_TrackerConfig.getTransform();
+        bool bEventOnMove = m_TrackerConfig.getBoolParam("/tracker/eventonmove/@value");
         for (EventMap::iterator it = Events.begin(); it!= Events.end();) {
             EventStreamPtr pStream = (*it).second;
-            pEvent = pStream->pollevent(m_TrackerConfig.m_pTrafo, m_DisplayExtents, 
-                    source);
+            pEvent = pStream->pollevent(pDeDistort, m_DisplayExtents, 
+                    source, bEventOnMove);
             if (pEvent) {
                 res.push_back(pEvent);
             }

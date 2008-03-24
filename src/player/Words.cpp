@@ -22,6 +22,7 @@
 #include "Words.h"
 #include "DisplayEngine.h"
 #include "ISurface.h"
+#include "NodeDefinition.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -70,26 +71,80 @@ void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level,
 */
 }
 
-Words::Words (const xmlNodePtr xmlNode, Player * pPlayer)
-    : RasterNode(xmlNode, pPlayer), 
+NodeDefinition& addChildrenToMap(ChildMap& childMap, const string& sName)
+{
+    return childMap.find(sName)->second.addChildren(childMap);
+}
+
+NodeDefinition Words::getNodeDefinition()
+{
+    ChildMap childMap;
+    childMap.insert(ChildMap::value_type("#PCDATA", NodeDefinition("#PCDATA")));
+    childMap.insert(ChildMap::value_type("span", NodeDefinition("span")));
+    childMap.insert(ChildMap::value_type("b", NodeDefinition("b")));
+    childMap.insert(ChildMap::value_type("big", NodeDefinition("big")));
+    childMap.insert(ChildMap::value_type("i", NodeDefinition("i")));
+    childMap.insert(ChildMap::value_type("s", NodeDefinition("s")));
+    childMap.insert(ChildMap::value_type("sub", NodeDefinition("sub")));
+    childMap.insert(ChildMap::value_type("sup", NodeDefinition("sup")));
+    childMap.insert(ChildMap::value_type("small", NodeDefinition("small")));
+    childMap.insert(ChildMap::value_type("tt", NodeDefinition("tt")));
+    childMap.insert(ChildMap::value_type("u", NodeDefinition("u")));
+    
+    addChildrenToMap(childMap,"span")
+        .addArg(Arg<string>("font_desc", ""))
+        .addArg(Arg<string>("font_family", ""))
+        .addArg(Arg<string>("face", ""))
+        .addArg(Arg<string>("size", ""))
+        .addArg(Arg<string>("style", ""))
+        .addArg(Arg<string>("weight", ""))
+        .addArg(Arg<string>("variant", ""))
+        .addArg(Arg<string>("stretch", ""))
+        .addArg(Arg<string>("foreground", ""))
+        .addArg(Arg<string>("background", ""))
+        .addArg(Arg<string>("underline", ""))
+        .addArg(Arg<string>("rise", ""))
+        .addArg(Arg<string>("strikethrough", ""))
+        .addArg(Arg<string>("fallback", ""))
+        .addArg(Arg<string>("lang", ""));
+    addChildrenToMap(childMap, "b");
+    addChildrenToMap(childMap, "big");
+    addChildrenToMap(childMap, "i");
+    addChildrenToMap(childMap, "s");
+    addChildrenToMap(childMap, "sub");
+    addChildrenToMap(childMap, "sup");
+    addChildrenToMap(childMap, "small");
+    addChildrenToMap(childMap, "tt");
+    addChildrenToMap(childMap, "u");
+   
+    return NodeDefinition("words", Node::buildNode<Words>)
+        .extendDefinition(RasterNode::getNodeDefinition())
+        .addChildren(childMap)
+        .addArg(Arg<string>("font", "arial", false, offsetof(Words, m_FontName)))
+        .addArg(Arg<string>("text", "", false, offsetof(Words, m_Text)))
+        .addArg(Arg<string>("color", "FFFFFF", false, offsetof(Words, m_ColorName)))
+        .addArg(Arg<double>("size", 15, false, offsetof(Words, m_Size)))
+        .addArg(Arg<int>("parawidth", -1, false, offsetof(Words, m_ParaWidth)))
+        .addArg(Arg<int>("indent", 0, false, offsetof(Words, m_Indent)))
+        .addArg(Arg<double>("linespacing", -1, false, offsetof(Words, m_LineSpacing)))
+        .addArg(Arg<string>("alignment", "left"))
+        .addArg(Arg<string>("weight", "normal"))
+        .addArg(Arg<bool>("italic", false, false, offsetof(Words, m_bItalic)))
+        .addArg(Arg<string>("stretch", "normal"))
+        .addArg(Arg<bool>("smallcaps", false, false, offsetof(Words, m_bSmallCaps)));
+}
+
+Words::Words (const ArgList& Args, Player * pPlayer)
+    : RasterNode(pPlayer), 
       m_StringExtents(0,0),
       m_pContext(0), 
       m_pFontDescription(0),
       m_bFontChanged(true),
       m_bDrawNeeded(true)
 {
-    m_FontName = getDefaultedStringAttr (xmlNode, "font", "arial");
-    m_Text = getDefaultedStringAttr (xmlNode, "text", "");
-    m_ColorName = getDefaultedStringAttr (xmlNode, "color", "FFFFFF");
-    m_Size = getDefaultedIntAttr (xmlNode, "size", 15);
-    m_ParaWidth = getDefaultedIntAttr (xmlNode, "parawidth", -1);
-    m_Indent = getDefaultedIntAttr (xmlNode, "indent", 0);
-    m_LineSpacing = getDefaultedDoubleAttr (xmlNode, "linespacing", -1);
-    setAlignment(getDefaultedStringAttr (xmlNode, "alignment", "left"));
-    setWeight(getDefaultedStringAttr (xmlNode, "weight", "normal"));
-    m_bItalic = getDefaultedBoolAttr (xmlNode, "italic", false);
-    setStretch(getDefaultedStringAttr (xmlNode, "stretch", "normal"));
-    m_bSmallCaps = getDefaultedBoolAttr (xmlNode, "smallcaps", false);
+    Args.setMembers(this);
+    setAlignment(Args.getArgVal<string>("alignment"));
+    setWeight(Args.getArgVal<string>("weight"));
 
     if (!s_bInitialized) {
 #if defined(_WIN32) || defined(__APPLE__)
@@ -430,8 +485,8 @@ string Words::getStretch() const
 bool equalIgnoreCase(const string& s1, const string& s2) {
     string sUpper1;
     string sUpper2;
-	transform(s1.begin(), s1.end(), std::back_inserter(sUpper1), (int(*)(int)) toupper);
-	transform(s2.begin(), s2.end(), std::back_inserter(sUpper2), (int(*)(int)) toupper);
+    transform(s1.begin(), s1.end(), std::back_inserter(sUpper1), (int(*)(int)) toupper);
+    transform(s2.begin(), s2.end(), std::back_inserter(sUpper2), (int(*)(int)) toupper);
     return sUpper1 == sUpper2;
 }
 

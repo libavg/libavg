@@ -49,6 +49,9 @@ class TouchEvent: public CursorEvent
         double getEccentricity() const {return m_pBlob->getEccentricity();};
         const DPoint & getEigenValues() const {return m_pBlob->getEigenValues();};
         const BlobPtr getBlob() const;
+        const DPoint & getMajorAxis() const;
+        const DPoint & getMinorAxis() const;
+        ContourSeq getContour();
 
         void addRelatedEvent(TouchEvent * pEvent);
         std::vector<TouchEvent *> getRelatedEvents() const;

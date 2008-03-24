@@ -26,6 +26,7 @@
 #include "Event.h"
 #include "ISurface.h"
 #include "AudioEngine.h"
+#include "ArgList.h"
 
 #include "../base/Point.h"
 #include "../base/Rect.h"
@@ -51,6 +52,7 @@ class Region;
 class DisplayEngine;
 class Player;
 class OGLSurface;
+class NodeDefinition;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
@@ -64,8 +66,16 @@ class Node
     public:
         enum NodeState {NS_UNCONNECTED, NS_CONNECTED};
         
+        template<class NodeType>
+        static NodePtr buildNode(const ArgList& Args, Player* pPlayer)
+        {
+            return NodePtr(new NodeType(Args, pPlayer));
+        }
+        static NodeDefinition getNodeDefinition();
+        
         virtual ~Node () = 0;
         virtual void setThis(NodeWeakPtr This);
+        virtual void setArgs(const ArgList& Args);
         void setParent(DivNodeWeakPtr pParent);
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
         virtual void disconnect();
@@ -137,7 +147,7 @@ class Node
                 NT_CAMERA, NT_DIV, NT_PANOIMAGE};
 
     protected:
-        Node (const xmlNodePtr xmlNode, Player * pPlayer);
+        Node (Player * pPlayer);
         virtual DPoint getPreferredMediaSize() 
             { return DPoint(0,0); };
         DPoint getPivot() const;

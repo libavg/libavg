@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 class Draggable:
     def __init__(self, node, onDragStart=None, onDragEnd=None):
         self.__node = node

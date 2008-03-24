@@ -30,7 +30,7 @@ const char * g_pTrackerConfigDTD =
  
 "<!ELEMENT trackerconfig (camera|tracker|transform)* >\n"
 "<!ELEMENT camera (source|device|format|size|channel|fps|brightness|exposure|gamma|gain|shutter)* >\n"
-"<!ELEMENT tracker (historyupdateinterval|touch|track)* >\n"
+"<!ELEMENT tracker (mask|prescale|historyupdateinterval|brighterregions|eventonmove|contourprecision|touch|track)* >\n"
 "<!ELEMENT touch (threshold|similarity|areabounds|eccentricitybounds)* >\n"
 "<!ELEMENT track (threshold|similarity|areabounds|eccentricitybounds)* >\n"
 "<!ELEMENT transform (cameradisplacement|camerascale|distortionparams|trapezoid|"
@@ -80,12 +80,32 @@ const char * g_pTrackerConfigDTD =
 "<!ATTLIST shutter\n"
 "   value CDATA #REQUIRED >\n"
 
+"<!ELEMENT brighterregions EMPTY>\n"
+"<!ATTLIST brighterregions\n"
+"   value CDATA #REQUIRED >\n"
+
+"<!ELEMENT eventonmove EMPTY>\n"
+"<!ATTLIST eventonmove\n"
+"   value CDATA #REQUIRED >\n"
+
 "<!ELEMENT threshold EMPTY>\n"
 "<!ATTLIST threshold\n"
 "   value CDATA #REQUIRED >\n"
 
+"<!ELEMENT mask EMPTY>\n"
+"<!ATTLIST mask\n"
+"   value CDATA #REQUIRED >\n"
+
+"<!ELEMENT prescale EMPTY>\n"
+"<!ATTLIST prescale\n"
+"   value CDATA #REQUIRED >\n"
+
 "<!ELEMENT historyupdateinterval EMPTY>\n"
 "<!ATTLIST historyupdateinterval\n"
+"   value CDATA #REQUIRED >\n"
+
+"<!ELEMENT contourprecision EMPTY>\n"
+"<!ATTLIST contourprecision\n"
 "   value CDATA #REQUIRED >\n"
 
 "<!ELEMENT similarity EMPTY>\n"
@@ -99,14 +119,6 @@ const char * g_pTrackerConfigDTD =
 "<!ELEMENT eccentricitybounds EMPTY>\n"
 "<!ATTLIST eccentricitybounds\n"
 "   %minmaxAttrs; >\n"
-
-"<!ELEMENT cameradisplacement EMPTY>\n"
-"<!ATTLIST cameradisplacement\n"
-"   %posAttrs; >\n"
-
-"<!ELEMENT camerascale EMPTY>\n"
-"<!ATTLIST camerascale\n"
-"   %posAttrs; >\n"
 
 "<!ELEMENT distortionparams EMPTY>\n"
 "<!ATTLIST distortionparams\n"

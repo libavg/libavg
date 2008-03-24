@@ -37,6 +37,9 @@
 #include "FilterGauss.h"
 #include "FilterBlur.h"
 #include "FilterBandpass.h"
+#include "FilterFastDownscale.h"
+#include "FilterMask.h"
+
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
 
@@ -49,6 +52,7 @@
 #pragma warning(pop)
 #endif
 
+#include <cstring>
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -243,9 +247,9 @@ private:
         TEST(Bmp1 == Bmp2);
         if (!(Bmp1 == Bmp2)) {
             cerr << "Bmp1: " << endl;
-            Bmp1.dump();
+            Bmp1.dump(true);
             cerr << "Bmp2: " << endl;
-            Bmp2.dump();
+            Bmp2.dump(true);
         }
     }
 
@@ -568,7 +572,7 @@ public:
         BitmapPtr pBmp = BitmapPtr(new Bitmap(*pBaseBmp));
         BitmapPtr nullBmp = FilterFill<Pixel8>(0).apply(pBmp);
         pBmp->copyPixels(*pBaseBmp);
-        HistoryPreProcessor filt(pBaseBmp->getSize());
+        HistoryPreProcessor filt(pBaseBmp->getSize(), 1, true);
         pBmp = filt.apply(pBaseBmp);
         testEqual(*pBmp, *nullBmp);
         for(int i=0;i<1;i++){
@@ -712,6 +716,65 @@ public:
     }
 };
 
+class FilterFastDownscaleTest: public Test {
+public:
+    FilterFastDownscaleTest()
+        : Test("FilterFastDownscaleTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(4,4), I8));
+        FilterFill<Pixel8>(0).applyInPlace(pBmp);
+        *(pBmp->getPixels()+pBmp->getStride()*3+3) = 252;
+
+        BitmapPtr pDestBmp = FilterFastDownscale(2).apply(pBmp);
+//        pDestBmp->save("testimages/FastDownscaleResult.png");
+        string sFName = getSrcDir()+"testimages/FastDownscaleResult.png";
+        BitmapPtr pBaselineBmp = FilterGrayscale().apply(
+                BitmapPtr(new Bitmap(sFName)));
+        TEST(*pDestBmp == *pBaselineBmp);
+    }
+};
+
+class FilterMaskTest: public Test {
+public:
+    FilterMaskTest()
+        : Test("FilterMaskTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        runTestsWithBmp(initBmp(I8), "I8");
+        runTestsWithBmp(initBmp(R8G8B8), "R8G8B8");
+        runTestsWithBmp(initBmp(R8G8B8X8), "R8G8B8X8");
+    }
+
+private:
+    void runTestsWithBmp(BitmapPtr pBmp, const string& sName)
+    {
+        BitmapPtr pMaskBmp = BitmapPtr(new Bitmap(pBmp->getSize(), I8));
+        FilterFill<Pixel8>(0).applyInPlace(pMaskBmp);
+        for (int y=0; y<pBmp->getSize().y; y++) {
+            pMaskBmp->setPixel(IntPoint(1, y), Pixel8(128));
+            pMaskBmp->setPixel(IntPoint(2, y), Pixel8(255));
+            pMaskBmp->setPixel(IntPoint(3, y), Pixel8(255));
+        }
+
+        BitmapPtr pDestBmp = FilterMask(pMaskBmp).apply(pBmp);
+        string sFName = string("testimages/MaskResult")+sName+".png";
+//        pDestBmp->save(sFName);
+        sFName = getSrcDir()+sFName;
+        BitmapPtr pRGBXBaselineBmp = BitmapPtr(new Bitmap(sFName));
+        BitmapPtr pBaselineBmp = BitmapPtr(
+                new Bitmap(pRGBXBaselineBmp->getSize(), pBmp->getPixelFormat()));
+        pBaselineBmp->copyPixels(*pRGBXBaselineBmp);
+        TEST(*pDestBmp == *pBaselineBmp);
+    }
+};
+
 
 class GraphicsTestSuite: public TestSuite {
 public:
@@ -734,6 +797,8 @@ public:
         addTest(TestPtr(new FilterBlurTest));
         addTest(TestPtr(new FilterBandpassTest));
         addTest(TestPtr(new FilterFastBandpassTest));
+        addTest(TestPtr(new FilterFastDownscaleTest));
+        addTest(TestPtr(new FilterMaskTest));
     }
 };
 

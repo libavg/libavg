@@ -40,7 +40,7 @@ Region::~Region ()
 }
 
 void Region::addRect(const DRect& NewRect) {
-    if (NewRect.Width() <= 0 || NewRect.Height() <= 0) {
+    if (NewRect.width() <= 0 || NewRect.height() <= 0) {
         // Ignore empty rectangles.
         return;
     }
@@ -50,8 +50,8 @@ void Region::addRect(const DRect& NewRect) {
         bFound = false;
         std::vector<DRect>::iterator it;
         for (it = m_Rects.begin(); it != m_Rects.end(); it++) {
-            if ((*it).Intersects(CurRect)) {
-                CurRect.Expand(*it); 
+            if ((*it).intersects(CurRect)) {
+                CurRect.expand(*it); 
                 m_Rects.erase(it);
                 bFound = true;
                 break;

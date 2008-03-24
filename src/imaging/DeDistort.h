@@ -37,6 +37,8 @@
 
 namespace avg {
 
+class TrackerConfig;
+
 class DeDistort: public CoordTransformer {
     public:
         DeDistort();
@@ -54,23 +56,21 @@ class DeDistort: public CoordTransformer {
         virtual DPoint inverse_transform_point(const DPoint & pt);
         DRect getActiveBlobArea(const DPoint& DisplayExtents);
 
-        void load(xmlNodePtr pParentNode);
-        void save(xmlTextWriterPtr writer);
+        void load(const DPoint &CameraExtents, const TrackerConfig& Config);
+        void save(TrackerConfig& Config);
 
-    
+        bool operator ==(const DeDistort& other) const;
+
+        void dump() const;
+
     private:
         double calc_rescale();
-        DPoint inverse_undistort(const std::vector<double> &params, const DPoint &pt) ;
-        DPoint undistort(const std::vector<double> &params, const DPoint &pt) ;
-        DPoint scale(const DPoint &scales, const DPoint &pt);
-        DPoint scale(const double scale, const DPoint &pt);
+        DPoint inverse_undistort(const std::vector<double> &params, const DPoint &pt);
+        DPoint undistort(const std::vector<double> &params, const DPoint &pt);
         DPoint trapezoid(const double trapezoid_factor, const DPoint &pt);
         DPoint inv_trapezoid(const double trapezoid_factor, const DPoint &pt);
-        DPoint translate(const DPoint &displacement, const DPoint &pt);
-        DPoint rotate(double angle, const DPoint &pt);
 
-        DPoint m_FilmOffset;
-        DPoint m_FilmScale;
+        DPoint m_CamExtents;
         std::vector<double> m_DistortionParams;
         double m_Angle;
         double m_TrapezoidFactor;

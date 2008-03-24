@@ -17,6 +17,7 @@ AM_INIT_AUTOMAKE(check-news dist-zip)
 AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_CPP
+CXXFLAGS="-Wno-invalid-offsetof $CXXFLAGS"
 OBJC="gcc"
 OBJCFLAGS=""
 OBJCLDFLAGS="-lobjc"
@@ -29,7 +30,7 @@ AC_PATH_GENERIC(xml2,,,AC_MSG_ERROR([libxml2 not found. Aborting.]))
 PKG_CHECK_MODULES([PANGOFT2], [pangoft2])
 AC_PATH_GENERIC(freetype,,,AC_MSG_ERROR([libfreetype not found. Aborting.]))
 
-PKG_CHECK_MODULES([MAGICK], [ImageMagick++])
+PKG_CHECK_MODULES([MAGICK], [GraphicsMagick++])
 
 AM_LIB_FFMPEG
 PKG_CHECK_MODULES([SWSCALE], [libswscale],
@@ -108,8 +109,8 @@ fi
 
 AX_CHECK_GL
 AX_CHECK_GLU
-AC_PATH_GENERIC(sdl,,,AC_MSG_ERROR([libSDL not found. Aborting.]))
-AC_CHECK_PROG(sdl_installed, [sdl-config], "yes")
+
+AM_PATH_SDL(1.2.10,:,AC_MSG_ERROR([libSDL not found. Aborting.]))
 
 if test x"$GL_LIBS" = x; then
     AC_MSG_ERROR([OpenGL not found. Aborting])
@@ -121,6 +122,6 @@ PREFIX=$prefix
 AC_SUBST(PREFIX)
 AM_CONFIG_HEADER(src/avgconfig.h)
 AC_OUTPUT(Makefile src/Makefile src/test/Makefile 
-    src/base/Makefile src/conradrelais/Makefile src/lmfit/Makefile src/python/Makefile 
-    src/player/Makefile src/parport/Makefile src/graphics/Makefile
+    src/base/Makefile src/conradrelais/Makefile src/lmfit/Makefile src/wrapper/Makefile 
+    src/player/Makefile src/parport/Makefile src/graphics/Makefile src/python/Makefile
     src/imaging/Makefile src/video/Makefile)

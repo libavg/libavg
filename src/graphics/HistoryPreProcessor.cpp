@@ -36,9 +36,11 @@ using namespace std;
 
 namespace avg {
     
-HistoryPreProcessor::HistoryPreProcessor(IntPoint dimensions, unsigned int UpdateInterval)
+HistoryPreProcessor::HistoryPreProcessor(IntPoint dimensions, 
+        unsigned int UpdateInterval, bool bBrighter)
     : m_FrameCounter(0),
-      m_UpdateInterval(UpdateInterval)
+      m_UpdateInterval(UpdateInterval),
+      m_bBrighter(bBrighter)
 {
     m_pHistoryBmp = BitmapPtr(new Bitmap(dimensions, I16));
     reset();
@@ -102,23 +104,32 @@ void HistoryPreProcessor::applyInPlace(BitmapPtr img)
     for (int y=0; y<Size.y; y++) {
         const unsigned short * pSrcPixel = pSrc;
         unsigned char * pDestPixel = pDest;
-        for (int x=0; x<Size.x; x++) {
-            unsigned char Src = *pSrcPixel/256;
-            if ((*pDestPixel)>Src) {
-                *pDestPixel = *pDestPixel-Src;
-//                if (Max < *pDestPixel) {
-//                    Max = *pDestPixel;
-//                }
-            } else {
-                *pDestPixel = 0;
+        if (m_bBrighter) {
+            for (int x=0; x<Size.x; x++) {
+                unsigned char Src = *pSrcPixel/256;
+                if ((*pDestPixel)>Src) {
+                    *pDestPixel = *pDestPixel-Src;
+                } else {
+                    *pDestPixel = 0;
+                }
+                pDestPixel++;
+                pSrcPixel++;
             }
-            pDestPixel++;
-            pSrcPixel++;
+        } else {
+            for (int x=0; x<Size.x; x++) {
+                unsigned char Src = *pSrcPixel/256;
+                if ((*pDestPixel)<Src) {
+                    *pDestPixel = Src-*pDestPixel;
+                } else {
+                    *pDestPixel = 0;
+                }
+                pDestPixel++;
+                pSrcPixel++;
+            }
         }
         pDest += DestStride;
         pSrc += SrcStride;
     }
-//    normalizeHistogram(img, Max);
 }
 
 // Fast pseudo-normalization with an integer factor.

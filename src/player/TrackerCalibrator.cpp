@@ -114,7 +114,7 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
                         (int)floor(aspect*R*cos(c*d)+x0+0.5), 
                         (int)floor(R*sin(c*d)+y0+0.5)
                         );
-                if (myPlane.Contains(cp)) {
+                if (myPlane.contains(cp)) {
                     m_DisplayPoints.push_back(cp);
                     m_CamPoints.push_back(DPoint(0,0));
                 }

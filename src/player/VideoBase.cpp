@@ -26,6 +26,7 @@
 #include "DisplayEngine.h"
 #include "Player.h"
 #include "ISurface.h"
+#include "NodeDefinition.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -44,8 +45,14 @@ using namespace std;
 
 namespace avg {
 
-VideoBase::VideoBase (const xmlNodePtr xmlNode, Player * pPlayer)
-    : RasterNode(xmlNode, pPlayer),
+NodeDefinition VideoBase::getNodeDefinition()
+{
+    return NodeDefinition("videobase")
+        .extendDefinition(RasterNode::getNodeDefinition());
+}
+
+VideoBase::VideoBase (Player * pPlayer)
+    : RasterNode(pPlayer),
       m_VideoState(Unloaded),
       m_bFrameAvailable(false),
       m_bFirstFrameDecoded(false)

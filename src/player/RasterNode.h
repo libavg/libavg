@@ -36,8 +36,11 @@ namespace avg {
 class RasterNode: public Node
 {
     public:
+        static NodeDefinition getNodeDefinition();
+        
         virtual ~RasterNode ();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
+        virtual void setArgs(const ArgList& Args);
         virtual void disconnect();
         
         // Warping support.
@@ -65,7 +68,7 @@ class RasterNode: public Node
         Bitmap* getBitmap();
         
     protected:
-        RasterNode (const xmlNodePtr xmlNode, Player * pPlayer);
+        RasterNode (Player * pPlayer);
         ISurface * getSurface();
  
     private:

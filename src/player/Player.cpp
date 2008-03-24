@@ -22,7 +22,6 @@
 #include "Player.h"
 
 #include "../avgconfigwrapper.h"
-#include "avgdtd.h"
 #include "AVGNode.h"
 #include "DivNode.h"
 #include "Words.h"
@@ -30,6 +29,7 @@
 #include "CameraNode.h"
 #include "Image.h"
 #include "PanoImage.h"
+#include "NodeDefinition.h"
 
 #include "TrackerEventSource.h"
 #include "Event.h"
@@ -40,6 +40,7 @@
 #include "SDLAudioEngine.h"
 
 #include "../base/FileHelper.h"
+#include "../base/OSHelper.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ConfigMgr.h"
@@ -47,11 +48,13 @@
 #include "../base/Profiler.h"
 #include "../base/ScopeTimer.h"
 #include "../base/TimeSource.h"
-#include "../base/Rect.h"
 
 #include "../imaging/FWCamera.h"
 #ifdef AVG_ENABLE_V4L2
 #include "../imaging/V4LCamera.h"
+#endif
+#ifdef _WIN32
+#include "../imaging/DSCamera.h"
 #endif
 #include "../imaging/FakeCamera.h"
 
@@ -81,7 +84,6 @@ Player::Player()
       m_pTracker(0),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false), 
-      m_pLastMouseNode(),
       m_pEventCaptureNode(),
       m_bUseFakeCamera(false),
       m_bIsPlaying(false),
@@ -94,16 +96,30 @@ Player::Player()
     ThreadProfilerPtr pThreadProfiler = ThreadProfilerPtr(new ThreadProfiler("Main"));
     Profiler::get().registerThreadProfiler(pThreadProfiler);
     initConfig();
+
+    // Register all node types
+    registerNodeType(AVGNode::getNodeDefinition());
+    registerNodeType(DivNode::getNodeDefinition());
+    registerNodeType(Image::getNodeDefinition());
+    registerNodeType(Words::getNodeDefinition());
+    registerNodeType(Video::getNodeDefinition());
+    registerNodeType(CameraNode::getNodeDefinition());
+    registerNodeType(PanoImage::getNodeDefinition());
+    
     // Find and parse dtd.
-    registerDTDEntityLoader("avg.dtd", g_pAVGDTD);
+    registerDTDEntityLoader("avg.dtd", m_NodeFactory.getDTD().c_str());
     string sDTDFName = "avg.dtd";
     m_dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
     if (!m_dtd) {
         AVG_TRACE(Logger::WARNING, 
                 "DTD not found at " << sDTDFName << ". Not validating xml files.");
     }
-    m_pLastMouseNode[MOUSECURSORID]=NodePtr();
     m_pTestHelper = new TestHelper(this);
+
+#ifdef _WIN32
+    cerr << getAvgLibPath()+"magick\\" << endl;
+    Magick::InitializeMagick((getAvgLibPath()+"magick\\").c_str());
+#endif
 }
 
 Player::~Player()
@@ -120,8 +136,7 @@ Player::~Player()
     delete m_pTestHelper;
 }
 
-void Player::setResolution(bool bFullscreen, 
-                int width, int height, int bpp)
+void Player::setResolution(bool bFullscreen, int width, int height, int bpp)
 {
     m_DP.m_bFullscreen = bFullscreen;
     if (bpp) {
@@ -201,9 +216,9 @@ void Player::loadFile (const std::string& filename)
         m_pRootNode = boost::dynamic_pointer_cast<AVGNode>
             (createNodeFromXml(doc, xmlNode, DivNodePtr()));
         m_pRootNode->setParent(DivNodeWeakPtr());
-        m_DP.m_Height = getDefaultedIntAttr (xmlNode, "height", 0);
-        m_DP.m_Width = getDefaultedIntAttr (xmlNode, "width", 0);
         registerNode(m_pRootNode);
+        m_DP.m_Height = m_pRootNode->getHeight();
+        m_DP.m_Width = m_pRootNode->getWidth();
 
         // Reset the directory to load assets from to the current dir.
         getcwd(szBuf, 1024);
@@ -338,33 +353,49 @@ long long Player::getFrameTime()
     return m_FrameTime;
 }
 
-TrackerEventSource * Player::addTracker()
+TrackerEventSource * Player::addTracker(const string& sConfigFilename)
 {
     TrackerConfig Config;
-    Config.load();
+    Config.load(sConfigFilename);
     CameraPtr pCamera;
-    
-    if (Config.m_sSource == "v4l") {
+
+    string sSource = Config.getParam("/camera/source/@value");
+    string sDevice = Config.getParam("/camera/device/@value");
+    IntPoint Size(Config.getPointParam("/camera/size/"));
+    string sPixFmt = Config.getParam("/camera/format/@value");
+    double FPS = Config.getDoubleParam("/camera/fps/@value");
+
+    if (sSource == "v4l") {
 #ifdef AVG_ENABLE_V4L2
-        AVG_TRACE(Logger::CONFIG, "Adding a Tracker for V4L camera " <<
-                Config.m_sDevice << " width=" << Config.m_Size.x << " height=" <<
-                Config.m_Size.y << " channel=" << Config.m_Channel << " format=" <<
-                Config.m_sPixFmt);
+        int Channel = Config.getIntParam("/camera/channel/@value");
+        AVG_TRACE(Logger::CONFIG, "Adding a Tracker for V4L camera " << sDevice
+                << " size=" << Size << " channel=" << Channel << " format=" 
+                << sPixFmt);
         
-        pCamera = CameraPtr(new V4LCamera(Config.m_sDevice, Config.m_Channel, 
-                Config.m_Size, Config.m_sPixFmt, false));
+        pCamera = CameraPtr(new V4LCamera(sDevice, Channel, Size, sPixFmt, false));
 #else
         AVG_TRACE(Logger::ERROR, "Video4Linux camera tracker requested, but " 
                 "Video4Linux support not compiled in.");
         exit(1);
 #endif
-    } else {
+    } else if (sSource == "fw") {
         AVG_TRACE(Logger::CONFIG, "Adding a Tracker for FW camera " << 
-                Config.m_sDevice << " width=" << Config.m_Size.x << 
-                " height=" << Config.m_Size.y  << " format=" <<
-                Config.m_sPixFmt);
-        pCamera = CameraPtr(new FWCamera(Config.m_sDevice, Config.m_Size, 
-                Config.m_sPixFmt, Config.m_FPS, false));
+                sDevice << " size=" << Size << " format=" << sPixFmt);
+        pCamera = CameraPtr(new FWCamera(sDevice, Size, sPixFmt, FPS, false));
+    } else if (sSource == "ds") {
+#ifdef _WIN32        
+        AVG_TRACE(Logger::CONFIG, "Adding a Tracker for DS camera " << 
+                sDevice << " size=" << Size << " format=" << sPixFmt);
+        pCamera = CameraPtr(new DSCamera(sDevice, Size, sPixFmt, FPS, false));
+#else
+        AVG_TRACE(Logger::ERROR, "DS camera tracker requested, but " 
+                "DS support not compiled in.");
+        exit(1);
+#endif        
+    } else {
+        throw Exception(AVG_ERR_INVALID_CAPTURE,
+                string("Invalid camera source value '")+sSource+
+                        "'. Can't initialize tracker.");
     }
     
     m_pTracker = new TrackerEventSource(pCamera, Config, 
@@ -764,6 +795,18 @@ void Player::registerNode(NodePtr pNode)
     }
 }
 
+void Player::registerNodeType(NodeDefinition Def)
+{
+    m_NodeFactory.registerNodeType(Def);
+}
+
+NodePtr Player::createNode(const string& sType, const boost::python::dict& PyDict)
+{
+    NodePtr pNode = m_NodeFactory.createNode(sType, PyDict, this);
+    pNode->setThis(pNode);
+    return pNode;
+}
+
 NodePtr Player::createNodeFromXmlString (const string& sXML)
 {
     try {
@@ -802,35 +845,20 @@ NodePtr Player::createNodeFromXmlString (const string& sXML)
 NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc, 
         const xmlNodePtr xmlNode, DivNodeWeakPtr pParent)
 {
-    const char * nodeType = (const char *)xmlNode->name;
     NodePtr curNode;
+    const char * nodeType = (const char *)xmlNode->name;
     
-    string id = getDefaultedStringAttr (xmlNode, "id", "");
-    if (!strcmp (nodeType, "avg")) {
-        curNode = NodePtr(new AVGNode(xmlNode, this));
-    } else if (!strcmp (nodeType, "div")) {
-        curNode = NodePtr(new DivNode(xmlNode, this));
-    } else if (!strcmp (nodeType, "image")) {
-        curNode = NodePtr(new Image(xmlNode, this));
-    } else if (!strcmp (nodeType, "words")) {
-        curNode = NodePtr(new Words(xmlNode, this));
-        string s = getXmlChildrenAsString(xmlDoc, xmlNode);
-        boost::dynamic_pointer_cast<Words>(curNode)->initText(s);
-    } else if (!strcmp (nodeType, "video")) {
-        curNode = NodePtr(new Video(xmlNode, this));
-    } else if (!strcmp (nodeType, "camera")) {
-        curNode = NodePtr(new CameraNode(xmlNode, this));
-    }
-    else if (!strcmp (nodeType, "panoimage")) {
-        curNode = NodePtr(new PanoImage(xmlNode, this));
-    } 
-    else if (!strcmp (nodeType, "text") || 
-               !strcmp (nodeType, "comment")) {
+    if (!strcmp (nodeType, "text") || 
+        !strcmp (nodeType, "comment")) {
         // Ignore whitespace & comments
         return NodePtr();
-    } else {
-        throw (Exception (AVG_ERR_XML_NODE_UNKNOWN, 
-            string("Unknown node type ")+(const char *)nodeType+" encountered."));
+    }
+    curNode = m_NodeFactory.createNode(nodeType, xmlNode, this);
+    if (!strcmp (nodeType, "words")) {
+        // TODO: This is an end-run around the generic serialization mechanism
+        // that will probably break at some point.
+        string s = getXmlChildrenAsString(xmlDoc, xmlNode);
+        boost::dynamic_pointer_cast<Words>(curNode)->initText(s);
     }
     curNode->setThis(curNode);
     // If this is a container, recurse into children
@@ -883,61 +911,21 @@ void Player::handleTimers()
 bool Player::handleEvent(Event * pEvent)
 {
     assert(pEvent); 
-    if(CursorEvent * pCursorEvent = dynamic_cast<CursorEvent*>(pEvent)) {
-        DPoint pos(pCursorEvent->getXPosition(), 
-                pCursorEvent->getYPosition());
-        int cursorID = pCursorEvent->getCursorID();
-        NodePtr pNode;
-        if (m_pEventCaptureNode.find(cursorID) != m_pEventCaptureNode.end()) {
-            NodeWeakPtr pEventCaptureNode = m_pEventCaptureNode[cursorID];
-            if (pEventCaptureNode.expired()) {
-                m_pEventCaptureNode.erase(cursorID);
-            } else {
-                pNode = m_pEventCaptureNode[cursorID].lock();
-            }
-        } 
-        if (!pNode) {
-            if (pEvent->getType() == Event::CURSOROVER ||
-                    pEvent->getType() == Event::CURSOROUT)
-            {
-                pNode = pCursorEvent->getElement();
-            } else {
-                pNode = m_pRootNode->getElementByPos(pos);
-            }
-        }
-        if (pNode != m_pLastMouseNode[cursorID] && 
-                pEvent->getType() != Event::CURSOROVER &&
-                pEvent->getType() != Event::CURSOROUT)
+    if (CursorEvent * pCursorEvent = dynamic_cast<CursorEvent*>(pEvent)) {
+        if (pEvent->getType() == Event::CURSOROUT || 
+                pEvent->getType() == Event::CURSOROVER)
         {
-            if (m_pLastMouseNode[cursorID] && m_pLastMouseNode[cursorID]->getSensitive()) {
-                sendOver(pCursorEvent, Event::CURSOROUT, 
-                        m_pLastMouseNode[cursorID]);
-            }
-            if (pNode && pNode->getSensitive()) {
-                sendOver(pCursorEvent, Event::CURSOROVER, pNode);
-            }
-            m_pLastMouseNode[cursorID] = pNode;
+            pEvent->trace();
+            pEvent->getElement()->handleEvent(pEvent);
+        } else {
+            handleCursorEvent(pCursorEvent);
         }
-        if (pCursorEvent->getType() == Event::CURSORUP && 
-            pCursorEvent->getSource() != CursorEvent::MOUSE) 
-        {
-            m_pLastMouseNode.erase(cursorID);
-        }
-        if (pNode && pNode->getSensitive()) {
-            pEvent->setElement(pNode);
-            if (pEvent->getType() != Event::CURSORMOTION) {
-                pEvent->trace();
-            }
-            pNode->handleEvent(pCursorEvent);
-        }
-    } else if ( KeyEvent * pKeyEvent = dynamic_cast<KeyEvent*>(pEvent)){
+    } else if (KeyEvent * pKeyEvent = dynamic_cast<KeyEvent*>(pEvent)) {
         m_pRootNode->handleEvent(pKeyEvent);
-        if (pEvent->getType() == Event::KEYDOWN &&
-            pKeyEvent->getKeyCode() == 27) 
-        {
+        if (pEvent->getType() == Event::KEYDOWN && pKeyEvent->getKeyCode() == 27) {
             m_bStopping = true;
         }
-    }else {
+    } else {
         switch(pEvent->getType()){
             case Event::QUIT:
                 m_bStopping = true;
@@ -949,6 +937,93 @@ bool Player::handleEvent(Event * pEvent)
     // Don't pass on any events.
     }
     return true; 
+}
+
+void Player::handleCursorEvent(CursorEvent * pEvent)
+{
+    DPoint pos(pEvent->getXPosition(), pEvent->getYPosition());
+    int cursorID = pEvent->getCursorID();
+    // Find all nodes under the cursor.
+    vector<NodeWeakPtr> pCursorNodes = getElementsByPos(pos);
+
+    // Determine the nodes the event should be sent to.
+    vector<NodeWeakPtr> pDestNodes = pCursorNodes;
+    bool bIsCapturing = false;
+    if (m_pEventCaptureNode.find(cursorID) != m_pEventCaptureNode.end()) {
+        NodeWeakPtr pEventCaptureNode = m_pEventCaptureNode[cursorID];
+        if (pEventCaptureNode.expired()) {
+            m_pEventCaptureNode.erase(cursorID);
+        } else {
+            pDestNodes = vector<NodeWeakPtr>();
+            pDestNodes.push_back(pEventCaptureNode);
+            bIsCapturing = true;
+        }
+    } 
+
+    vector<NodeWeakPtr> pLastCursorNodes = m_pLastCursorNodes[cursorID];
+
+    // Send out events.
+    vector<NodeWeakPtr>::iterator itLast;
+    vector<NodeWeakPtr>::iterator itCur;
+    for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); ++itLast) {
+        NodePtr pLastNode = itLast->lock();
+        for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
+            if (itCur->lock() == pLastNode) {
+                break;
+            }
+        }
+        if (itCur == pCursorNodes.end()) {
+            if (!bIsCapturing || itLast == pDestNodes.begin()) {
+                sendOver(pEvent, Event::CURSOROUT, pLastNode);
+            }
+        }
+    } 
+
+    // Send over events.
+    for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
+        NodePtr pCurNode = itCur->lock();
+        for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); 
+                ++itLast) 
+        {
+            if (itLast->lock() == pCurNode) {
+                break;
+            }
+        }
+        if (itLast == pLastCursorNodes.end()) {
+            if (!bIsCapturing || itCur == pDestNodes.begin()) {
+                sendOver(pEvent, Event::CURSOROVER, pCurNode);
+            }
+        }
+    } 
+
+    // Iterate through the nodes and send the event to all of them.
+    vector<NodeWeakPtr>::iterator it;
+    for (it = pDestNodes.begin(); it != pDestNodes.end(); ++it) {
+        NodePtr pNode = (*it).lock();
+        if (pNode) {
+            CursorEvent * pNodeEvent = 
+                    dynamic_cast<CursorEvent *>(pEvent->cloneAs(pEvent->getType()));
+            pNodeEvent->setElement(pNode);
+            if (pNodeEvent->getType() != Event::CURSORMOTION) {
+                pNodeEvent->trace();
+            }
+            pNode->handleEvent(pNodeEvent);
+            delete pNodeEvent;
+        }
+    }
+    // Update list of nodes under cursor.
+    m_pLastCursorNodes[cursorID] = pCursorNodes;
+}
+
+vector<NodeWeakPtr> Player::getElementsByPos(const DPoint& pos) const
+{
+    vector<NodeWeakPtr> Elements;
+    NodePtr pNode = m_pRootNode->getElementByPos(pos);
+    while (pNode) {
+        Elements.push_back(pNode);
+        pNode = pNode->getParent();
+    }
+    return Elements;
 }
 
 DisplayEngine * Player::getDisplayEngine() const 
@@ -964,9 +1039,11 @@ void Player::useFakeCamera(bool bFake)
 void Player::sendOver(CursorEvent * pOtherEvent, Event::Type Type, 
                 NodePtr pNode)
 {
-    Event * pNewEvent = pOtherEvent->cloneAs(Type);
-    pNewEvent->setElement(pNode);
-    m_pEventDispatcher->sendEvent(pNewEvent);
+    if (pNode) {
+        Event * pNewEvent = pOtherEvent->cloneAs(Type);
+        pNewEvent->setElement(pNode);
+        m_pEventDispatcher->sendEvent(pNewEvent);
+    }
 }
 
 void Player::cleanup() 
@@ -987,7 +1064,6 @@ void Player::cleanup()
     if (m_pAudioEngine) {
         m_pAudioEngine->teardown();
     }
-    m_pLastMouseNode.clear();
     m_IDMap.clear();
     m_pEventDispatcher = EventDispatcherPtr();
     initConfig();

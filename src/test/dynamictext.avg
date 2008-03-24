@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<avg id="textavg" width="160" height="120">
+    <words id="dynamictext" x="1" y="1" size="12" font="arial"
+            text="foo"/>
+</avg>
+

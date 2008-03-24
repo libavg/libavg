@@ -21,6 +21,8 @@
 
 #include "AVGNode.h"
 
+#include "NodeDefinition.h"
+
 #include "../base/XMLHelper.h"
 
 #include <iostream>
@@ -29,14 +31,22 @@ using namespace std;
 
 namespace avg {
 
-AVGNode::AVGNode (const xmlNodePtr xmlNode, Player * pPlayer)
-    : DivNode(xmlNode, pPlayer)
+NodeDefinition AVGNode::getNodeDefinition()
 {
-    m_bEnableCrop = getDefaultedBoolAttr (xmlNode, "enablecrop", true);
-    addEventHandler(Event::KEYUP, Event::NONE, 
-            getDefaultedStringAttr (xmlNode, "onkeyup", ""));
-    addEventHandler(Event::KEYDOWN, Event::NONE, 
-            getDefaultedStringAttr (xmlNode, "onkeydown", ""));
+    return NodeDefinition("avg", Node::buildNode<AVGNode>)
+        .extendDefinition(DivNode::getNodeDefinition())
+        .addChild(NodeDefinition("%anyNode;"))
+        .addArg(Arg<bool>("enablecrop", true, false, offsetof(AVGNode, m_bEnableCrop)))
+        .addArg(Arg<string>("onkeyup", ""))
+        .addArg(Arg<string>("onkeydown", ""));
+}
+
+AVGNode::AVGNode (const ArgList& Args, Player * pPlayer)
+    : DivNode(Args, pPlayer)
+{
+    Args.setMembers(this);
+    addEventHandler(Event::KEYUP, Event::NONE, Args.getArgVal<string>("onkeyup"));
+    addEventHandler(Event::KEYDOWN, Event::NONE, Args.getArgVal<string>("onkeydown"));
     Node::setAngle(0.0);
 }
 

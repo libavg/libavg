@@ -22,7 +22,7 @@
 #ifndef _FakeCamera_H_
 #define _FakeCamera_H_
 
-#include "ICamera.h"
+#include "Camera.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -33,7 +33,7 @@ namespace avg {
 
 typedef boost::shared_ptr<std::queue<BitmapPtr> > BitmapQueuePtr;
 
-class FakeCamera: public ICamera
+class FakeCamera: public Camera
 {
     public:
         FakeCamera(std::vector<std::string> &pictures);
@@ -50,8 +50,8 @@ class FakeCamera: public ICamera
         virtual double getFrameRate() const;
         virtual const std::string& getMode() const;
         
-        virtual unsigned int getFeature(const std::string& sFeature) const;
-        virtual void setFeature(const std::string& sFeature, int Value);
+        virtual unsigned int getFeature(CameraFeature Feature) const;
+        virtual void setFeature(CameraFeature Feature, int Value);
 
     private:
         IntPoint m_ImgSize;

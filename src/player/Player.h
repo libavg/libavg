@@ -30,6 +30,7 @@
 #include "DisplayEngine.h"
 #include "AudioEngine.h"
 #include "TestHelper.h"
+#include "NodeFactory.h"
 #include "Node.h"
 #include "DisplayParams.h"
 #include "AudioParams.h"
@@ -71,8 +72,10 @@ class Player : IEventSink
         void setFakeFPS(double fps);
         long long getFrameTime();
 
+        void registerNodeType(NodeDefinition Def);
+        NodePtr createNode (const std::string& sType, const boost::python::dict& PyDict);
         NodePtr createNodeFromXmlString (const std::string& sXML);
-        TrackerEventSource * addTracker();
+        TrackerEventSource * addTracker(const std::string& sConfigFilename);
         int setInterval(int time, PyObject * pyfunc);
         int setTimeout(int time, PyObject * pyfunc);
         int setOnFrameHandler(PyObject * pyfunc);
@@ -115,6 +118,8 @@ class Player : IEventSink
         void render (bool bRenderEverything);
         void sendOver(CursorEvent * pOtherEvent, Event::Type Type, 
                 NodePtr pNode);
+        void handleCursorEvent(CursorEvent * pEvent);
+        std::vector<NodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
 
         AVGNodePtr m_pRootNode;
         DisplayEngine * m_pDisplayEngine;
@@ -126,6 +131,7 @@ class Player : IEventSink
         bool m_bStopping;
         typedef std::map<std::string, NodePtr> NodeIDMap;
         NodeIDMap m_IDMap;
+        NodeFactory m_NodeFactory;
 
         TrackerEventSource * m_pTracker;
 
@@ -139,7 +145,9 @@ class Player : IEventSink
         std::vector<Timeout *> m_NewTimeouts; // Timeouts to be added this frame.
 
         EventDispatcherPtr m_pEventDispatcher;
-        std::map<int, NodePtr> m_pLastMouseNode;
+
+        // These are maps for each cursor id.
+        std::map<int, std::vector<NodeWeakPtr> > m_pLastCursorNodes;
         std::map<int, NodeWeakPtr> m_pEventCaptureNode;
 
         // Configuration variables.

@@ -24,6 +24,7 @@
 #include "DisplayEngine.h"
 #include "Player.h"
 #include "ISurface.h"
+#include "NodeDefinition.h"
 
 #include "../graphics/Filtercolorize.h"
 #include "../graphics/Filterfliprgb.h"
@@ -41,12 +42,19 @@ using namespace std;
 
 namespace avg {
 
-Image::Image (const xmlNodePtr xmlNode, Player * pPlayer)
-    : RasterNode(xmlNode, pPlayer)
+NodeDefinition Image::getNodeDefinition()
 {
-    m_href = getDefaultedStringAttr (xmlNode, "href", "");
-    m_Hue = getDefaultedIntAttr (xmlNode, "hue", -1);
-    m_Saturation = getDefaultedIntAttr (xmlNode, "saturation", -1);
+    return NodeDefinition("image", Node::buildNode<Image>)
+        .extendDefinition(RasterNode::getNodeDefinition())
+        .addArg(Arg<string>("href", "", false, offsetof(Image, m_href)))
+        .addArg(Arg<int>("hue", -1, false, offsetof(Image, m_Hue)))
+        .addArg(Arg<int>("saturation", -1, false, offsetof(Image, m_Saturation)));
+}
+
+Image::Image (const ArgList& Args, Player * pPlayer)
+    : RasterNode(pPlayer)
+{
+    Args.setMembers(this);
     m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
 }
 
@@ -112,7 +120,7 @@ void Image::setBitmap(const Bitmap * pBmp)
     if (pBmp->getPixelFormat() == I8) {
         pf = I8;
     }
-#ifdef __i386__
+#if defined(__i386__) || defined(_WIN32)
     if (!(getPlayer()->getDisplayEngine()->hasRGBOrdering())) {
         switch (pf) {
             case R8G8B8X8:
@@ -127,7 +135,10 @@ void Image::setBitmap(const Bitmap * pBmp)
     }
 #endif
 //    cerr << "pf: " << Bitmap::getPixelFormatString(pf) << endl;
-    getSurface()->create(pBmp->getSize(), pf, true);
+    ISurface * pSurface = getSurface();
+    if (pSurface->getSize() != pBmp->getSize() || pSurface->getPixelFormat() != pf) {
+        pSurface->create(pBmp->getSize(), pf, true);
+    }
     BitmapPtr pSurfaceBmp = getSurface()->lockBmp();
     pSurfaceBmp->copyPixels(*pBmp);
     getSurface()->unlockBmps();
@@ -203,7 +214,7 @@ void Image::setupSurface(const Bitmap * pBmp)
     }
     bool bUsePBO = true;
 #if defined __APPLE__ || defined _WIN32
-    if (getSurface()->wouldTile(pBmp->getSize())) {
+    if (!getSurface()->isOneTexture(pBmp->getSize())) {
         bUsePBO = false;
     }
 #endif

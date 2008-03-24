@@ -21,15 +21,16 @@
 
 #include "Node.h"
 
+#include "NodeDefinition.h"
 #include "Event.h"
 #include "CursorEvent.h"
 #include "MouseEvent.h"
 #include "DivNode.h"
 #include "Player.h"
 #include "DisplayEngine.h"
+#include "Arg.h"
 
-#include "MathHelper.h"
-
+#include "../base/MathHelper.h"
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/XMLHelper.h"
@@ -48,7 +49,29 @@ using namespace std;
 
 namespace avg {
 
-Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
+
+NodeDefinition Node::getNodeDefinition()
+{
+    return NodeDefinition("node")
+        .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)))
+        .addArg(Arg<string>("oncursormove", ""))
+        .addArg(Arg<string>("oncursorup", ""))
+        .addArg(Arg<string>("oncursordown", ""))
+        .addArg(Arg<string>("oncursorover", ""))
+        .addArg(Arg<string>("oncursorout", ""))
+        .addArg(Arg<double>("x", 0.0, false, offsetof(Node, m_RelViewport.tl.x)))
+        .addArg(Arg<double>("y", 0.0, false, offsetof(Node, m_RelViewport.tl.y)))
+        .addArg(Arg<double>("width", 0.0, false, offsetof(Node, m_WantedSize.x)))
+        .addArg(Arg<double>("height", 0.0, false, offsetof(Node, m_WantedSize.y)))
+        .addArg(Arg<double>("angle", 0.0, false, offsetof(Node, m_Angle)))
+        .addArg(Arg<double>("pivotx", -32767, false, offsetof(Node, m_Pivot.x)))
+        .addArg(Arg<double>("pivoty", -32767, false, offsetof(Node, m_Pivot.y)))
+        .addArg(Arg<double>("opacity", 1.0, false, offsetof(Node, m_Opacity)))
+        .addArg(Arg<bool>("active", true, false, offsetof(Node, m_bActive)))
+        .addArg(Arg<bool>("sensitive", true, false, offsetof(Node, m_bSensitive)));
+}
+
+Node::Node (Player * pPlayer)
     : m_pParent(),
       m_This(),
       m_pDisplayEngine(0),
@@ -57,22 +80,6 @@ Node::Node (const xmlNodePtr xmlNode, Player * pPlayer)
       m_RelViewport(0,0,0,0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    m_ID = getDefaultedStringAttr (xmlNode, "id", "");
-    addEventHandlers(Event::CURSORMOTION, getDefaultedStringAttr (xmlNode, "oncursormove", ""));
-    addEventHandlers(Event::CURSORUP, getDefaultedStringAttr (xmlNode, "oncursorup", ""));
-    addEventHandlers(Event::CURSORDOWN, getDefaultedStringAttr (xmlNode, "oncursordown", ""));
-    addEventHandlers(Event::CURSOROVER, getDefaultedStringAttr (xmlNode, "oncursorover", ""));
-    addEventHandlers(Event::CURSOROUT, getDefaultedStringAttr (xmlNode, "oncursorout", ""));
-    m_RelViewport.tl.x = getDefaultedDoubleAttr (xmlNode, "x", 0.0);
-    m_RelViewport.tl.y = getDefaultedDoubleAttr (xmlNode, "y", 0.0);
-    m_WantedSize.x = getDefaultedDoubleAttr (xmlNode, "width", 0.0);
-    m_WantedSize.y = getDefaultedDoubleAttr (xmlNode, "height", 0.0);
-    m_Angle = getDefaultedDoubleAttr (xmlNode, "angle", 0);
-    m_Pivot.x = getDefaultedDoubleAttr (xmlNode, "pivotx", -32767);
-    m_Pivot.y = getDefaultedDoubleAttr (xmlNode, "pivoty", -32767);
-    m_Opacity = getDefaultedDoubleAttr (xmlNode, "opacity", 1.0);
-    m_bActive = getDefaultedBoolAttr (xmlNode, "active", true);
-    m_bSensitive = getDefaultedBoolAttr (xmlNode, "sensitive", true);
     setState(NS_UNCONNECTED);
 }
 
@@ -90,6 +97,17 @@ void Node::setThis(NodeWeakPtr This)
     m_This = This;
 }
 
+void Node::setArgs(const ArgList& Args)
+{
+    addEventHandlers(Event::CURSORMOTION, Args.getArgVal<string> ("oncursormove"));
+    addEventHandlers(Event::CURSORUP, Args.getArgVal<string> ("oncursorup"));
+    addEventHandlers(Event::CURSORDOWN, Args.getArgVal<string> ("oncursordown"));
+    addEventHandlers(Event::CURSOROVER, Args.getArgVal<string> ("oncursorover"));
+    addEventHandlers(Event::CURSOROUT, Args.getArgVal<string> ("oncursorout"));
+    m_RelViewport.setWidth(m_WantedSize.x);
+    m_RelViewport.setHeight(m_WantedSize.y);
+}
+
 void Node::setParent(DivNodeWeakPtr pParent)
 {
     if (getParent() && !!(pParent.lock())) {
@@ -105,14 +123,14 @@ void Node::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAu
     m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
     DPoint PreferredSize = getPreferredMediaSize();
     if (m_WantedSize.x == 0.0) {
-        m_RelViewport.SetWidth(PreferredSize.x);
+        m_RelViewport.setWidth(PreferredSize.x);
     } else {
-        m_RelViewport.SetWidth(m_WantedSize.x);
+        m_RelViewport.setWidth(m_WantedSize.x);
     }
     if (m_WantedSize.y == 0.0) {
-        m_RelViewport.SetHeight(PreferredSize.y);
+        m_RelViewport.setHeight(PreferredSize.y);
     } else {
-        m_RelViewport.SetHeight(m_WantedSize.y);
+        m_RelViewport.setHeight(m_WantedSize.y);
     } 
     m_pDisplayEngine = pDisplayEngine;
     m_pAudioEngine = pAudioEngine;
@@ -162,7 +180,7 @@ void Node::setY(double y)
 
 double Node::getWidth() 
 {
-    return getRelViewport().Width();
+    return getRelViewport().width();
 }
 
 void Node::setWidth(double width) 
@@ -173,7 +191,7 @@ void Node::setWidth(double width)
 
 double Node::getHeight()
 {
-    return getRelViewport().Height();
+    return getRelViewport().height();
 }
 
 void Node::setHeight(double height) 
@@ -184,7 +202,7 @@ void Node::setHeight(double height)
 
 DPoint Node::getRelSize() const
 {
-    return DPoint(getRelViewport().Width(), getRelViewport().Height());
+    return getRelViewport().size();
 }
 
 double Node::getAngle() const
@@ -438,7 +456,7 @@ string Node::dump (int indent)
     char sz[256];
     sprintf (sz, ", x=%.1f, y=%.1f, width=%.1f, height=%.1f, opacity=%.2f\n",
             m_RelViewport.tl.x, m_RelViewport.tl.y,
-            m_RelViewport.Width(), m_RelViewport.Height(), m_Opacity);
+            m_RelViewport.width(), m_RelViewport.height(), m_Opacity);
     dumpStr += sz;
 
     return dumpStr; 
@@ -468,11 +486,7 @@ void Node::handleEvent (Event* pEvent)
     EventHandlerID ID(pEvent->getType(), pEvent->getSource());
     EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
     if (it!=m_EventHandlerMap.end()) {
-        pEvent->setElement(m_This.lock());
         callPython(it->second, pEvent);
-    }
-    if (getParent()) {
-        getParent()->handleEvent (pEvent);
     }
 }
 
@@ -559,12 +573,12 @@ void Node::setState(Node::NodeState State)
 DPoint Node::toLocal(const DPoint& globalPos) const
 {
     DPoint localPos = globalPos-m_RelViewport.tl;
-    return rotatePoint(localPos, -m_Angle, getPivot());
+    return rotate(localPos, -m_Angle, getPivot());
 }
 
 DPoint Node::toGlobal(const DPoint& localPos) const
 {
-    DPoint globalPos = rotatePoint(localPos, m_Angle, getPivot());
+    DPoint globalPos = rotate(localPos, m_Angle, getPivot());
     return globalPos+m_RelViewport.tl;
 }
 

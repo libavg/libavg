@@ -34,7 +34,7 @@ namespace avg {
 class HistoryPreProcessor: public Filter
 {
     public:
-        HistoryPreProcessor(IntPoint dimensions, unsigned int UpdateInterval = 1);
+        HistoryPreProcessor(IntPoint dimensions, unsigned int UpdateInterval, bool bBrighter);
         virtual ~HistoryPreProcessor();
         virtual void applyInPlace(BitmapPtr pBmp);
         void setInterval(unsigned int UpdateInterval);
@@ -53,6 +53,7 @@ class HistoryPreProcessor: public Filter
         typedef enum {NO_IMAGE, INITIALIZING, NORMAL} State;
         State m_State;
         int m_NumInitImages;
+        bool m_bBrighter;
 };
 
 template<int SPEED>

@@ -38,8 +38,10 @@ class ISurface;
  
 class Words : public RasterNode
 {
-	public:
-        Words(const xmlNodePtr xmlNode, Player * pPlayer);
+    public:
+        static NodeDefinition getNodeDefinition();
+        
+        Words(const ArgList& Args, Player * pPlayer);
         virtual ~Words();
         
         virtual void initText(const std::string& sText);

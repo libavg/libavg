@@ -21,68 +21,48 @@
 #ifndef _TrackerConfig_H_
 #define _TrackerConfig_H_
 
-#include "DeDistort.h"
-
 #include "../base/Rect.h"
 
 #include <boost/shared_ptr.hpp>
 #include <string>
 
+#include <libxml/xpath.h>
+
 namespace avg {
 
-struct BlobConfig
-{
-    BlobConfig(bool bIsTouch);
-    virtual ~BlobConfig();
-    void load(xmlNodePtr pParentNode, const std::string& sFilename);
-    void save(xmlTextWriterPtr writer);
-
-    bool m_bIsTouch;
-    int m_Threshold; //min pixel val for detection
-    double m_Similarity; //max distance for tracking blobs
-    double m_AreaBounds[2]; //min, max for area in percents of screen size
-    double m_EccentricityBounds[2]; //min, max for Eccentricity
-};
-
-typedef boost::shared_ptr<struct BlobConfig> BlobConfigPtr;
+class DeDistort;
+typedef boost::shared_ptr<DeDistort> DeDistortPtr;
 
 struct TrackerConfig
 {
     TrackerConfig();
+    TrackerConfig(const TrackerConfig& Other);
     virtual ~TrackerConfig();
     
-    void load(const std::string& sCustomFilename = "");
-    void save(const std::string& sCustomFilename = "");
+    void load(const std::string& sFilename);
+    void save(const std::string& sFilename);
+    void setParam(const std::string& sXPathExpr, const std::string& sValue);
+    std::string getParam(const std::string& sXPathExpr) const;
+    bool getBoolParam(const std::string& sXPathExpr) const;
+    int getIntParam(const std::string& sXPathExpr) const;
+    double getDoubleParam(const std::string& sXPathExpr) const;
+    DPoint getPointParam(const std::string& sXPathExpr) const;
+    xmlNodePtr getXmlNode(const std::string& sXPathExpr) const;
 
-    // Camera params
-    std::string m_sSource;
-    std::string m_sDevice;
-    std::string m_sPixFmt;
-    IntPoint m_Size;
-    int m_Channel;
-    int m_FPS;
-    int m_Brightness;
-    int m_Exposure;
-    int m_Gamma;
-    int m_Gain;
-    int m_Shutter;
-
-    int m_HistoryUpdateInterval;
-    BlobConfigPtr m_pTouch;
-    BlobConfigPtr m_pTrack;
-
-    bool m_bCreateDebugImages;
-    bool m_bCreateFingerImage;
-
-    DeDistortPtr m_pTrafo;
+    DeDistortPtr getTransform() const;
+    void setTransform(DeDistortPtr pDeDistort);
+    
+    void dump() const;
 
 private:
-    void loadCamera(xmlNodePtr pParentNode, const std::string& sFilename);
-    void saveCamera(xmlTextWriterPtr writer);
-    void loadTracker(xmlNodePtr pParentNode, const std::string& sFilename);
-    void saveTracker(xmlTextWriterPtr writer); 
-    std::string getConfigFilename();
+    xmlXPathObjectPtr findConfigNodes(const std::string& sXPathExpr) const;
+    
+    xmlDocPtr m_Doc;
+    xmlNodePtr m_pRoot;
+
+    std::string m_sFilename;
 };
+typedef boost::shared_ptr<TrackerConfig> TrackerConfigPtr;
 
 }
 #endif

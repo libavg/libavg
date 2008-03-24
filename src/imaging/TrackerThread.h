@@ -22,9 +22,10 @@
 #define _TrackerThread_H_
 
 #include "TrackerConfig.h"
-#include "ICamera.h"
+#include "Camera.h"
 #include "Blob.h"
 #include "FilterDistortion.h"
+#include "DeDistort.h"
 
 #include "../base/WorkerThread.h"
 #include "../base/Command.h"
@@ -56,9 +57,7 @@ class IBlobTarget {
     public:
         virtual ~IBlobTarget() {};
         // Note that this function is called by TrackerThread in it's own thread!
-        virtual void update(BlobVectorPtr pTrackBlobs, BitmapPtr pTrackBmp, int TrackThreshold,
-                BlobVectorPtr pTouchBlobs, BitmapPtr pTouchBmp, int TouchThreshold,
-                BitmapPtr pDestBmp) = 0;
+        virtual void update(BlobVectorPtr pTrackBlobs, BlobVectorPtr pTouchBlobs) = 0;
 };
 
 
@@ -79,21 +78,35 @@ class TrackerThread: public WorkerThread<TrackerThread>
         bool work();
         void deinit();
 
-        void setConfig(TrackerConfig Config);
-        void setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES]);
+        void setConfig(TrackerConfig Config, IntRect ROI, 
+                BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES]);
+        void setDebugImages(bool bImg, bool bFinger);
         void resetHistory();
     
     private:
+        void setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES]);
         void checkMessages();
         void calcHistory();
         void drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp);
         void calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp);
+        bool isRelevant(BlobPtr pBlob, int MinArea, int MaxArea,
+                double MinEccentricity, double MaxEccentricity);
+        BlobVectorPtr findRelevantBlobs(BlobVectorPtr pBlobs, bool bTouch);
+        void drawBlobs(BlobVectorPtr pBlobs, BitmapPtr pSrcBmp, BitmapPtr pDestBmp,
+                int Offset, bool bTouch);
+        void calcContours(BlobVectorPtr pBlobs);
+        void correlateHands(BlobVectorPtr pTrackBlobs, BlobVectorPtr pTouchBlobs);
 
         std::string m_sDevice;
         std::string m_sMode;
 
+        TrackerConfigPtr m_pConfig;
+        BitmapPtr m_pCameraMaskBmp;
+
         int m_TouchThreshold; // 0 => no touch events.
         int m_TrackThreshold; // 0 => no generic tracking events.
+        int m_Prescale;
+        bool m_bTrackBrighter;
         BlobVectorPtr m_pBlobVector;
         IntRect m_ROI;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];

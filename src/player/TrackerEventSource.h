@@ -53,43 +53,29 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
                 const IntPoint& DisplayExtents, bool bSubtractHistory = true);
         virtual ~TrackerEventSource();
 
-        void setThreshold(int Threshold);
-        int getThreshold();
-        void setHistorySpeed(int UpdateInterval);
-        int getHistorySpeed();
-        void setBrightness(int Brightness);
-        int getBrightness();
-        void setExposure(int Exposure);
-        int getExposure();
-        void setGamma(int Gamma);
-        int getGamma();
-        void setGain(int Gain);
-        int getGain();
-        void setShutter(int Shutter);
-        int getShutter();
+        void setParam(const std::string& sElement, const std::string& Value);
+        std::string getParam(const std::string& sElement);
+                
         void resetHistory();
 
         void setDebugImages(bool bImg, bool bFinger);
 
-        void saveConfig();
+        void saveConfig(const std::string& sFilename);
 
         Bitmap * getImage(TrackerImageID ImageID) const;
         std::vector<Event *> pollEvents(); //main thread
 
         // implement IBlobTarget
         // Called from Tracker Thread!
-        virtual void update(BlobVectorPtr pTrackBlobs, BitmapPtr pTrackBmp, int TrackThreshold,
-                BlobVectorPtr pTouchBlobs, BitmapPtr pTouchBmp, int TouchThreshold,
-                BitmapPtr pDestBmp);
+        virtual void update(BlobVectorPtr pTrackBlobs, BlobVectorPtr pTouchBlobs);
 
         TrackerCalibrator* startCalibration();
         void endCalibration();
         void abortCalibration();
 
     private:
-        bool isRelevant(BlobPtr blob, BlobConfigPtr pConfig);
         void setConfig();
-        void handleROIChange();
+        void createBitmaps(const DRect & Area);
 
         boost::thread* m_pTrackerThread;
 
@@ -104,20 +90,16 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         TrackerCalibrator * m_pCalibrator;
 
         // Used by tracker thread
-        void calcBlobs(BlobVectorPtr new_blobs, bool bTouch);
-        void correlateBlobs();
-        void drawBlobs(BlobVectorPtr pBlobs, BitmapPtr pSrcBmp, BitmapPtr pDestBmp, 
-                int Offset, bool bTouch);
+        void trackBlobIDs(BlobVectorPtr new_blobs, bool bTouch);
         BlobPtr matchblob(BlobPtr new_blob, BlobVectorPtr old_blobs, double threshold, 
                 EventMap * pEvents);
 
         // Used by both threads
-        MutexPtr m_pUpdateMutex;
         EventMap m_TouchEvents;
         EventMap m_TrackEvents;
         TrackerConfig m_TrackerConfig;
 
-        MutexPtr m_pTrackerMutex;
+        MutexPtr m_pMutex;
         BitmapPtr m_pBitmaps[NUM_TRACKER_IMAGES];
 
         TrackerThread::CmdQueuePtr m_pCmdQueue;

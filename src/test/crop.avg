@@ -2,7 +2,7 @@
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 <avg id="mainavgnode" width="160" height="120">
   <image id="bkgd" x="0" y="0" href="crop_bkgd.png"
-       maxtilewidth="50" maxtileheight="65"/>
+       maxtilewidth="32" maxtileheight="32"/>
   <div id="nestedavg" x="40" y="30"
        width="80" height="60">
     <video id="movie" x="10" y="10" width="40" height="40" 

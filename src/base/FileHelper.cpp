@@ -31,6 +31,7 @@
 #include <string.h>
 
 #include <map>
+#include <cstring>
 #include <iostream>
 #include <fstream>
 
@@ -51,14 +52,15 @@ string getPath(const string& Filename)
     } else {
         DirName = Filename;
     }
+    DirName += "\\";
 #else
     char * pszBuffer = strdup(Filename.c_str());
 
     string DirName(dirname(pszBuffer));
     free(pszBuffer);
+    DirName += "/";
 #endif
 
-    DirName += "/";
     return DirName;
 }
 

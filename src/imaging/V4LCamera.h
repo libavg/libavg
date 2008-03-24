@@ -24,15 +24,15 @@
 
 #include "../avgconfigwrapper.h"
 
-#include "ICamera.h"
+#include "Camera.h"
 #include <string>
 #include <vector>
 
 namespace avg {
 
-typedef int V4LCID_t;
+typedef unsigned int V4LCID_t;
 
-class V4LCamera: public ICamera {
+class V4LCamera: public Camera {
 
     struct Buffer {
         void * start;
@@ -54,8 +54,8 @@ class V4LCamera: public ICamera {
         virtual const std::string& getDriverName() const; 
         virtual double getFrameRate() const;
         
-        virtual unsigned int getFeature(const std::string& sFeature) const;
-        virtual void setFeature(const std::string& sFeature, int Value);
+        virtual unsigned int getFeature(CameraFeature Feature) const;
+        virtual void setFeature(CameraFeature Feature, int Value);
         
     private:
         int m_Fd;
@@ -75,13 +75,15 @@ class V4LCamera: public ICamera {
         void initMMap();
         
         void setFeature(V4LCID_t V4LFeature, int Value);
-        V4LCID_t getFeatureID(const std::string& sFeature) const;
+        V4LCID_t getFeatureID(CameraFeature Feature) const;
         std::string getFeatureName(V4LCID_t V4LFeature);
         bool isFeatureSupported(V4LCID_t V4LFeature) const;
         typedef std::map<V4LCID_t, unsigned int> FeatureMap;
         typedef std::map<int, std::string> FeatureNamesMap;
         FeatureMap m_Features;
-        FeatureNamesMap m_FeaturesNames;
+        // TODO: Feature strings should really be handled by 
+        //       Camera::cameraFeatureToString
+        FeatureNamesMap m_FeaturesNames; 
 };
 
 }

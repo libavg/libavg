@@ -33,27 +33,29 @@ template<class NUM>
 class Point
 {
 public:
-  NUM x;
-  NUM y;
+    NUM x;
+    NUM y;
 
-  Point ();
-  template<class ORIGNUM> explicit Point(const Point<ORIGNUM>& p);
-  Point (NUM X, NUM Y);
-  Point(const Point<NUM>& p);
-  ~Point();
+    Point ();
+    template<class ORIGNUM> explicit Point(const Point<ORIGNUM>& p);
+    Point(NUM X, NUM Y);
+    Point(const Point<NUM>& p);
+    ~Point();
 
-  Point<NUM> & operator = (const Point<NUM>& p);
+    Point<NUM> & operator =(const Point<NUM>& p);
 
-  bool operator == (const Point<NUM> & pt) const;
-  bool operator != (const Point<NUM> & pt) const;
-  void operator += (const Point<NUM> & pt);
-  void operator -= (const Point<NUM> & pt);
-  Point<NUM> operator - () const;
-  Point<NUM> operator + (const Point<NUM> & pt) const;
-  Point<NUM> operator - (const Point<NUM> & pt) const;
-  Point<NUM> operator / (double f) const;
-  Point<NUM> operator * (double f) const;
-
+    bool operator ==(const Point<NUM> & pt) const;
+    bool operator !=(const Point<NUM> & pt) const;
+    void operator +=(const Point<NUM> & pt);
+    void operator -=(const Point<NUM> & pt);
+    void operator *=(double f);
+    void operator /=(double f);
+    Point<NUM> operator -() const;
+    Point<NUM> operator +(const Point<NUM> & pt) const;
+    Point<NUM> operator -(const Point<NUM> & pt) const;
+    Point<NUM> operator /(double f) const;
+    Point<NUM> operator *(double f) const;
+    Point<NUM> operator *(const Point<NUM> & pt) const;
 };
 
 template<class NUM>
@@ -67,9 +69,9 @@ typedef Point<double> DPoint;
 typedef Point<int> IntPoint;
 
 template<class NUM>
-Point<NUM>::Point ()
+Point<NUM>::Point()
 {
-    ObjectCounter::get()->incRef(&typeid(*this));
+//    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 template<class NUM>
@@ -78,13 +80,13 @@ Point<NUM>::Point(const Point<ORIGNUM>& p)
     : x(NUM(p.x)),
       y(NUM(p.y))
 {
-    ObjectCounter::get()->incRef(&typeid(*this));
+//    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 template<class NUM>
-Point<NUM>::Point (NUM X, NUM Y)
+Point<NUM>::Point(NUM X, NUM Y)
 {
-    ObjectCounter::get()->incRef(&typeid(*this));
+//    ObjectCounter::get()->incRef(&typeid(*this));
     x = X;
     y = Y;
 }
@@ -92,7 +94,7 @@ Point<NUM>::Point (NUM X, NUM Y)
 template<class NUM>
 Point<NUM>::Point(const Point<NUM>& p)
 {
-    ObjectCounter::get()->incRef(&typeid(*this));
+//    ObjectCounter::get()->incRef(&typeid(*this));
     x = p.x;
     y = p.y;
 }
@@ -100,11 +102,11 @@ Point<NUM>::Point(const Point<NUM>& p)
 template<class NUM>
 Point<NUM>::~Point()
 {
-    ObjectCounter::get()->decRef(&typeid(*this));
+//    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 template<class NUM>
-Point<NUM>& Point<NUM>::operator = (const Point<NUM>& p)
+Point<NUM>& Point<NUM>::operator =(const Point<NUM>& p)
 {
     x = p.x;
     y = p.y;
@@ -112,57 +114,71 @@ Point<NUM>& Point<NUM>::operator = (const Point<NUM>& p)
 }
 
 template<class NUM>
-bool Point<NUM>::operator == (const Point<NUM> & pt) const
+bool Point<NUM>::operator ==(const Point<NUM> & pt) const
 {
   return (x == pt.x && y == pt.y);
 }
 
 template<class NUM>
-bool Point<NUM>::operator != (const Point<NUM> & pt) const
+bool Point<NUM>::operator !=(const Point<NUM> & pt) const
 {
   return (x != pt.x || y != pt.y);
 }
 
 template<class NUM>
-void Point<NUM>::operator += (const Point<NUM>& pt)
+void Point<NUM>::operator +=(const Point<NUM>& pt)
 {
   x += pt.x;
   y += pt.y;
 }
 
 template<class NUM>
-void Point<NUM>::operator -= (const Point<NUM> & pt)
+void Point<NUM>::operator -=(const Point<NUM> & pt)
 {
   x -= pt.x;
   y -= pt.y;
 }
 
 template<class NUM>
-Point<NUM> Point<NUM>::operator - () const
+void Point<NUM>::operator *=(double f)
+{
+  x *= f;
+  y *= f;
+}
+
+template<class NUM>
+void Point<NUM>::operator /=(double f)
+{
+  x /= f;
+  y /= f;
+}
+
+template<class NUM>
+Point<NUM> Point<NUM>::operator -() const
 {
   return Point<NUM>(-x, -y);
 }
 
 template<class NUM>
-Point<NUM> Point<NUM>::operator + (const Point<NUM> & pt) const
+Point<NUM> Point<NUM>::operator +(const Point<NUM> & pt) const
 {
   return Point<NUM>(x + pt.x, y + pt.y);
 }
 
 template<class NUM>
-Point<NUM> Point<NUM>::operator - (const Point<NUM> & pt) const
+Point<NUM> Point<NUM>::operator -(const Point<NUM> & pt) const
 {
   return Point<NUM>(x - pt.x, y - pt.y);
 }
 
 template<class NUM>
-Point<NUM> Point<NUM>::operator / (double f) const
+Point<NUM> Point<NUM>::operator /(double f) const
 {
   return Point<NUM> (NUM(x/f), NUM(y/f));
 }
 
 template<class NUM>
-Point<NUM> Point<NUM>::operator * (double f) const
+Point<NUM> Point<NUM>::operator *(double f) const
 {
   return Point<NUM> (NUM(x*f), NUM(y*f));
 }
@@ -176,11 +192,11 @@ double sqr(double x)
 template<class NUM>
 double calcDist(const Point<NUM>& pt1, const Point<NUM>& pt2)
 {
-    return sqrt(sqr(fabs(pt1.x-pt2.x))+sqr(fabs(pt1.y-pt2.y)));
+    return sqrt(sqr(pt1.x-pt2.x)+sqr(pt1.y-pt2.y));
 }
 
 bool almostEqual(const DPoint& pt1, const DPoint& pt2);
-DPoint rotatePoint(const DPoint& point, double angle, const DPoint& pivot);
+DPoint rotate(const DPoint& pt, double angle, const DPoint& pivot=DPoint(0,0));
 
 }
 

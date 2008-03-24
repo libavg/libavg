@@ -2,11 +2,11 @@
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 <avg width="160" height="120">
   <image id="testtiles" x="0" y="0" opacity="1" href="rgb24-64x64.png"
-      maxtilewidth="40" maxtileheight="40"/>
+      maxtilewidth="32" maxtileheight="16"/> 
   <video id="clogo" x="0" y="0" opacity="1" loop="true"
       href="rgba-48x48.mov"/>
   <video id="clogo1" x="40" y="0"  width="80" height="80" opacity="0.5" loop="true"
       href="mpeg1-48x48.mpg"/>
   <video id="clogo2" x="80" y="0" width="80" height="80" loop="true"
-      href="mjpeg-48x48.avi" maxtilewidth="40" maxtileheight="40"/>
+      href="mjpeg-48x48.avi" maxtilewidth="16" maxtileheight="32"/>
 </avg>

@@ -133,21 +133,25 @@ public:
 
     void runTests() 
     {
-        vector<double> Params;
-        Params.push_back(0);
-        Params.push_back(0);
-        DeDistortPtr pScaler = DeDistortPtr(new DeDistort(DPoint(1,1),
-                Params, 0, 0.0,
-                DPoint(0,0), DPoint(2,2)));
         TrackerConfig Config;
-        Config.m_pTrafo = pScaler;
-        Config.save("temptrackerrc");
+        Config.load("avgtrackerrc.minimal");
+        
+        Config.setParam("/transform/distortionparams/@p2", "0");
+        Config.setParam("/transform/distortionparams/@p3", "0");
+        Config.setParam("/transform/trapezoid/@value", "0");
+        Config.setParam("/transform/angle/@value", "0");
+        Config.setParam("/transform/displaydisplacement/@x", "0");
+        Config.setParam("/transform/displaydisplacement/@y", "0");
+        Config.setParam("/transform/displayscale/@x", "2");
+        Config.setParam("/transform/displayscale/@y", "2");
+
+        Config.save("avgtrackerrc.minimal.mod");
+
         TrackerConfig LoadedConfig;
-        LoadedConfig.load("temptrackerrc");
-        DeDistortPtr pTrafo = LoadedConfig.m_pTrafo;
-        TEST(almostEqual(pTrafo->transform_point(DPoint(0,0)), DPoint(0,0)));
-        TEST(almostEqual(pTrafo->transformBlobToScreen(DPoint(1,2)), DPoint(2,4)));
-        unlink("temptrackerrc");
+        LoadedConfig.load("avgtrackerrc.minimal.mod");
+        DPoint Scale = LoadedConfig.getPointParam("/transform/displayscale/");
+        TEST(almostEqual(Scale, DPoint(2,2)));
+        unlink("avgtrackerrc.minimal.mod");
     }
 };
 

@@ -28,6 +28,10 @@
 
 #include <stdlib.h>
 #include <math.h>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #include <iostream>
 #include <algorithm>
 
@@ -35,12 +39,11 @@ using namespace std;
 
 namespace avg {
 
-Blob::Blob(const RunPtr& pRun)
+Blob::Blob(const Run & run)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    m_pRuns = new RunArray();
-    m_pRuns->reserve(50);
-    m_pRuns->push_back(pRun);
+    m_Runs.reserve(50);
+    m_Runs.push_back(run);
     m_pParent = BlobPtr();
 
     m_bStatsAvailable = false;
@@ -49,49 +52,49 @@ Blob::Blob(const RunPtr& pRun)
 Blob::~Blob() 
 {
     ObjectCounter::get()->decRef(&typeid(*this));
-    delete m_pRuns;
 }
 
 RunArray *Blob::getRuns()
 {
-    return m_pRuns;
+    return &m_Runs;
 }
 
-void Blob::addRun(const RunPtr& pRun)
+void Blob::addRun(const Run & run)
 {
-    m_pRuns->push_back(pRun);
+    assert((m_Runs.end()-1)->m_Row <= run.m_Row);
+    m_Runs.push_back(run);
 }
+
 
 void Blob::merge(const BlobPtr& other)
 {
     assert(other);
-    RunArray * other_runs=other->getRuns();
-    m_pRuns->insert(m_pRuns->end(), other_runs->begin(), other_runs->end());
-    other_runs->clear();
+    RunArray * pOtherRuns=other->getRuns();
+    m_Runs.insert(m_Runs.end(), pOtherRuns->begin(), pOtherRuns->end());
+    pOtherRuns->clear();
 }
 
 void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color, 
         int Min, int Max, bool bFinger, bool bMarkCenter, Pixel32 CenterColor)
 {
+    assert (pSrcBmp);
+    assert (pDestBmp);
     assert (pSrcBmp->getBytesPerPixel() == 1);
     assert (pDestBmp->getBytesPerPixel() == 4);
     unsigned char *pSrc;
     unsigned char *pDest;
     unsigned char *pColor = (unsigned char *)(&Color);
     int IntensityScale = 2*256/(max(Max-Min, 1));
-    for(RunArray::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r) {
-        // TODO: Change pRun to RunPtr. This is just so gdb knows how to 
-        // dereference it.
-        Run * pRun = &(*(*r));
-        assert (pRun->m_Row < pSrcBmp->getSize().y);
-        assert (pRun->m_StartCol >= 0);
-        assert (pRun->m_EndCol <= pSrcBmp->getSize().x);
-        pSrc = pSrcBmp->getPixels()+pRun->m_Row*pSrcBmp->getStride();
-        pDest = pDestBmp->getPixels()+pRun->m_Row*pDestBmp->getStride();
-        int x_pos = pRun->m_StartCol;
+    for(RunArray::iterator it=m_Runs.begin();it!=m_Runs.end();++it) {
+        assert (it->m_Row < pSrcBmp->getSize().y);
+        assert (it->m_StartCol >= 0);
+        assert (it->m_EndCol <= pSrcBmp->getSize().x);
+        pSrc = pSrcBmp->getPixels()+it->m_Row*pSrcBmp->getStride();
+        pDest = pDestBmp->getPixels()+it->m_Row*pDestBmp->getStride();
+        int x_pos = it->m_StartCol;
         pSrc += x_pos;
         pDest+= x_pos*4;
-        while(x_pos<pRun->m_EndCol) {
+        while(x_pos<it->m_EndCol) {
             int Factor = (*pSrc-Min)*IntensityScale;
             if (Factor < 0) {
                 Factor = 0;
@@ -107,9 +110,8 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
             x_pos++;
         }
     }
-
     assert(m_bStatsAvailable);
-    if(bMarkCenter) {
+    if (bMarkCenter) {
         IntPoint Center = IntPoint(int(m_Center.x+0.5), int(m_Center.y+0.5));
         
         IntPoint End0 = IntPoint(m_ScaledBasis[0])+Center;
@@ -117,7 +119,6 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
         IntPoint End1 = IntPoint(m_ScaledBasis[1])+Center;
         pDestBmp->drawLine(Center, End1, CenterColor);
 
-        
         if (bFinger && m_RelatedBlobs.size() > 0) {
             // Draw finger direction
             BlobPtr pHandBlob = (m_RelatedBlobs)[0].lock();
@@ -126,13 +127,21 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
                         Pixel32(0xD7, 0xC9, 0x56, 0xFF));
             }
         }
+        if (!m_Contour.empty()) {
+            for (vector<IntPoint>::iterator it=m_Contour.begin()+1; it!=m_Contour.end(); ++it) {
+                IntPoint Pt1 = *(it-1);
+                IntPoint Pt2 = *it;
+                pDestBmp->drawLine(Pt1, Pt2, CenterColor);
+            }
+            pDestBmp->drawLine(*(m_Contour.end()-1), *m_Contour.begin(), CenterColor);
+        }
     }
 }
         
 bool Blob::contains(IntPoint pt)
 {
-    for(RunArray::iterator it=m_pRuns->begin(); it!=m_pRuns->end(); ++it) {
-        if ((*it)->m_Row == pt.y && (*it)->m_StartCol <= pt.x && (*it)->m_EndCol > pt.x) {
+    for(RunArray::iterator it=m_Runs.begin(); it!=m_Runs.end(); ++it) {
+        if (it->m_Row == pt.y && it->m_StartCol <= pt.x && it->m_EndCol > pt.x) {
             return true;
         } 
     }
@@ -162,17 +171,17 @@ void Blob::calcStats()
     double tmp_x;
     double tmp_y;
     double mag;
-    for(RunArray::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r) {
+    for(RunArray::iterator r=m_Runs.begin();r!=m_Runs.end();++r) {
         //This is the evaluated expression for the variance when using runs...
-        ll = (*r)->length();
-        c_yy += ll* ((*r)->m_Row- m_Center.y)*((*r)->m_Row- m_Center.y);
-        c_xx += ( ((*r)->m_EndCol-1) * (*r)->m_EndCol * (2*(*r)->m_EndCol-1) 
-                - ((*r)->m_StartCol-1) * (*r)->m_StartCol * (2*(*r)->m_StartCol -1))/6. 
-            - m_Center.x * ( ((*r)->m_EndCol-1)*(*r)->m_EndCol - ((*r)->m_StartCol-1)*(*r)->m_StartCol  )
+        ll = r->length();
+        c_yy += ll* (r->m_Row- m_Center.y)*(r->m_Row- m_Center.y);
+        c_xx += ( (r->m_EndCol-1) * r->m_EndCol * (2*r->m_EndCol-1) 
+                - (r->m_StartCol-1) * r->m_StartCol * (2*r->m_StartCol -1))/6. 
+            - m_Center.x * ( (r->m_EndCol-1)*r->m_EndCol - (r->m_StartCol-1)*r->m_StartCol  )
             + ll* m_Center.x*m_Center.x;
-        c_xy += ((*r)->m_Row-m_Center.y)*0.5*( ((*r)->m_EndCol-1)*(*r)->m_EndCol
-                - ((*r)->m_StartCol-1)*(*r)->m_StartCol) 
-                + ll *(m_Center.x*m_Center.y - m_Center.x*(*r)->m_Row);
+        c_xy += (r->m_Row-m_Center.y)*0.5*( (r->m_EndCol-1)*r->m_EndCol
+                - (r->m_StartCol-1)*r->m_StartCol) 
+                + ll *(m_Center.x*m_Center.y - m_Center.x*r->m_Row);
     }
 
     c_xx/=m_Area;
@@ -296,9 +305,9 @@ DPoint Blob::calcCenter()
 {
     DPoint Center(0,0);
     double c = 0;
-    for(RunArray::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r) {
-        Center += (*r)->center()*(*r)->length();
-        c += (*r)->length();
+    for(RunArray::iterator r=m_Runs.begin();r!=m_Runs.end();++r) {
+        Center += r->m_Center*r->length();
+        c += r->length();
     }
     Center = Center/c;
     return Center;
@@ -310,11 +319,11 @@ IntRect Blob::calcBBox()
     int y1=INT_MAX;
     int x2=0;
     int y2=0;
-    for(RunArray::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r) {
-        x1 = std::min(x1, (*r)->m_StartCol);
-        y1 = std::min(y1, (*r)->m_Row);
-        x2 = std::max(x2, (*r)->m_EndCol);
-        y2 = std::max(y2, (*r)->m_Row);
+    for(RunArray::iterator r=m_Runs.begin();r!=m_Runs.end();++r) {
+        x1 = std::min(x1, r->m_StartCol);
+        y1 = std::min(y1, r->m_Row);
+        x2 = std::max(x2, r->m_EndCol);
+        y2 = std::max(y2, r->m_Row);
     }
     return IntRect(x1,y1,x2,y2);
 }
@@ -322,54 +331,182 @@ IntRect Blob::calcBBox()
 int Blob::calcArea()
 {
     int res = 0;
-    for(RunArray::iterator r=m_pRuns->begin();r!=m_pRuns->end();++r) {
-        res+= (*r)->length();
+    for(RunArray::iterator r=m_Runs.begin();r!=m_Runs.end();++r) {
+        res+= r->length();
     }
     return res;
 }
 
-bool connected(RunPtr r1, RunPtr r2)
+void Blob::initRowPositions()
 {
-    if (r1->m_StartCol > r2->m_StartCol) {
-        return r2->m_EndCol > r1->m_StartCol;
-    } else {
-        return r1->m_EndCol > r2->m_StartCol;
+    int Offset = m_BoundingBox.tl.y;
+    RunArray::iterator it = m_Runs.begin();
+    for (int i=0; i<m_BoundingBox.height(); i++) {
+        while (it->m_Row-Offset < i) {
+            it++;
+        }
+        m_RowPositions.push_back(it);
     }
 }
 
-void store_runs(BlobVectorPtr pComps, RunArray *runs1, RunArray *runs2)
+IntPoint getNeighbor(const IntPoint& Pt, int Dir)
+{
+    IntPoint NeighborPt(Pt);
+    // Dir encoding:
+    //  3  2  1
+    //  4 Pt  0
+    //  5  6  7
+    switch(Dir) {
+        case 0:
+        case 1:
+        case 7:
+            NeighborPt.x++;
+            break;
+        case 3:
+        case 4:
+        case 5:
+            NeighborPt.x--;
+            break;
+        default:
+            break;
+    };
+    switch(Dir) {
+        case 1:
+        case 2:
+        case 3:
+            NeighborPt.y--;
+            break;
+        case 5:
+        case 6:
+        case 7:
+            NeighborPt.y++;
+            break;
+        default:
+            break;
+    };
+    return NeighborPt;
+}
+
+IntPoint Blob::findNeighborInside(const IntPoint& Pt, int& Dir)
+{
+    if (Dir & 1) {
+        Dir += 2;
+    } else {
+        Dir++;
+    }
+    if (Dir > 7) {
+        Dir -= 8;
+    }
+
+    for (int i = 0; i < 8; i++)	{
+        IntPoint CurPt = getNeighbor(Pt, Dir);
+        if (ptIsInBlob(CurPt)) {
+            return CurPt;
+        } else {
+            Dir--;
+            if (Dir < 0) {
+                Dir += 8;
+            }
+        }
+	}
+    assert(false);
+    return Pt;
+}
+
+bool runIsLess(const Run& r1, const Run& r2)
+{
+    return r1.m_Row < r2.m_Row;
+}
+
+void Blob::calcContour(int Precision)
+{
+    sort(m_Runs.begin(), m_Runs.end(), runIsLess);
+    initRowPositions();
+    
+    // Moore Neighbor Tracing.
+    IntPoint BoundaryPt(m_Runs[0].m_StartCol, m_Runs[0].m_Row);
+    IntPoint FirstPt(BoundaryPt);
+    int i = Precision;
+    int Dir = 1;
+    do {
+        i++;
+        if (i>=Precision) {
+            m_Contour.push_back(BoundaryPt);
+            i = 0;
+        }
+        BoundaryPt = findNeighborInside(BoundaryPt, Dir);
+    } while(FirstPt != BoundaryPt);
+}
+
+ContourSeq Blob::getContour()
+{
+    return m_Contour;
+}
+
+bool Blob::ptIsInBlob(const IntPoint& Pt)
+{
+    if (m_BoundingBox.contains(Pt)) {
+        pair<RunArray::iterator, RunArray::iterator> range;
+        RunArray::iterator it = m_RowPositions[Pt.y-m_BoundingBox.tl.y];
+        while (it->m_Row == Pt.y) {
+            if (Pt.x >= it->m_StartCol && Pt.x < it->m_EndCol) {
+                return true;
+            }
+            it++;
+        }
+    }
+    return false;
+}
+
+bool areConnected(const Run & run1, const Run & run2)
+{
+    if (run1.m_StartCol > run2.m_StartCol) {
+        return run2.m_EndCol > run1.m_StartCol;
+    } else {
+        return run1.m_EndCol > run2.m_StartCol;
+    }
+}
+
+void storeRuns(BlobVectorPtr pComps, RunArray *runs1, RunArray *runs2)
 {
     for (RunArray::iterator run1_it = runs1->begin(); run1_it!=runs1->end(); ++run1_it) {
         for (RunArray::iterator run2_it = runs2->begin(); run2_it!=runs2->end(); ++run2_it) {
-            if ((*run2_it)->m_StartCol > (*run1_it)->m_EndCol) {
+            if (run2_it->m_StartCol > run1_it->m_EndCol) {
                 break;
             }
-            if (connected(*run1_it, *run2_it)) {
-                BlobPtr p_blob = (*run1_it)->m_pBlob.lock();
+            if (areConnected(*run1_it, *run2_it)) {
+                BlobPtr p_blob = run1_it->m_pBlob.lock();
                 while (p_blob->m_pParent) {
                     p_blob = p_blob->m_pParent;
                 }
-                if (!((*run2_it)->m_pBlob.expired())) {
-                    BlobPtr c_blob = (*run2_it)->m_pBlob.lock();
+                if (!(run2_it->m_pBlob.expired())) {
+                    BlobPtr c_blob = run2_it->m_pBlob.lock();
                     while (c_blob->m_pParent) {
                         c_blob = c_blob->m_pParent;
                     }
                     if (c_blob!=p_blob) {
-                        p_blob->merge(c_blob); //destroys c_blobs runs_list
-                        c_blob->m_pParent = p_blob;
+                        // When we merge, make sure the smaller blob is merged
+                        // into the bigger one to avoid a speed hit.
+                        if (p_blob->getRuns()->size() > c_blob->getRuns()->size()) {
+                            p_blob->merge(c_blob); //destroys c_blobs runs_list
+                            c_blob->m_pParent = p_blob;
+                        } else {
+                            c_blob->merge(p_blob); 
+                            p_blob->m_pParent = c_blob;
+                        }
                     }
                 } else {
-                    (*run2_it)->m_pBlob = p_blob;
+                    run2_it->m_pBlob = p_blob;
                     p_blob->addRun(*run2_it);
                 }
             }
         }
     }
     for (RunArray::iterator run2_it = runs2->begin(); run2_it!=runs2->end(); ++run2_it) {
-        if ((*run2_it)->m_pBlob.expired()) {
+        if (run2_it->m_pBlob.expired()) {
             BlobPtr pBlob = BlobPtr(new Blob(*run2_it));
             pComps->push_back(pBlob);
-            (*run2_it)->m_pBlob = pBlob;
+            run2_it->m_pBlob = pBlob;
         }
     }
 }
@@ -380,25 +517,27 @@ void findRunsInLine(BitmapPtr pBmp, int y, RunArray * pRuns,
     int run_start=0;
     int run_stop=0;
     const unsigned char * pPixel = pBmp->getPixels()+y*pBmp->getStride();
-    bool cur=*pPixel>threshold;
+    bool cur;
     bool p;
+
+    cur = *pPixel > threshold;
+
     int Width = pBmp->getSize().x;
     for(int x=0; x<Width; x++) {
-        p = *pPixel>threshold;
+        p = *pPixel > threshold;
         if (cur!=p) {
             if (cur) {
                 // Only if the run is longer than one pixel.
                 if (x-run_start > 1) {
                     run_stop = x;
-                    pRuns->push_back(RunPtr(new Run(y, run_start, run_stop)));
+                    pRuns->push_back(Run(y, run_start, run_stop));
                     run_start = x;
                 }
             } else {
                 run_stop = x - 1;
                 if (run_stop-run_start == 0 && !pRuns->empty()) {
                     // Single dark pixel: ignore the pixel, revive the last run.
-                    RunPtr pLastRun = pRuns->back();
-                    run_start = pLastRun->m_StartCol;
+                    run_start = pRuns->back().m_StartCol;
                     pRuns->pop_back();
                 } else {
                     run_start = x;
@@ -409,16 +548,13 @@ void findRunsInLine(BitmapPtr pBmp, int y, RunArray * pRuns,
         pPixel++;
     }
     if (cur){
-        pRuns->push_back(RunPtr(new Run(y, run_start, Width)));
+        pRuns->push_back(Run(y, run_start, Width));
     }
 
 }
 
-BlobVectorPtr connected_components(BitmapPtr image, unsigned char threshold)
+BlobVectorPtr findConnectedComponents(BitmapPtr image, unsigned char threshold)
 {
-    if (threshold == 0) {
-        return BlobVectorPtr();
-    }
     assert(image->getPixelFormat() == I8);
     BlobVectorPtr pBlobs = BlobVectorPtr(new BlobVector);
     IntPoint size = image->getSize();
@@ -431,12 +567,12 @@ BlobVectorPtr connected_components(BitmapPtr image, unsigned char threshold)
     for (RunArray::iterator run1_it = runs1->begin(); run1_it!=runs1->end(); ++run1_it) {
         BlobPtr pBlob = BlobPtr(new Blob(*run1_it));
         pBlobs->push_back(pBlob);
-        (*run1_it)->m_pBlob = pBlob;
+        run1_it->m_pBlob = pBlob;
     }
     
     for(y=1; y<size.y; y++){
         findRunsInLine(image, y, runs2, threshold);
-        store_runs(pBlobs, runs1, runs2);
+        storeRuns(pBlobs, runs1, runs2);
         tmp = runs1;
         runs1 = runs2;
         runs2 = tmp;

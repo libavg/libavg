@@ -24,7 +24,7 @@
 
 #include "../avgconfigwrapper.h"
 
-#include "ICamera.h"
+#include "Camera.h"
 
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel24.h"
@@ -51,7 +51,7 @@ namespace avg {
 
 typedef Queue<BitmapPtr> BitmapQueue;
 
-class FWCamera: public ICamera {
+class FWCamera: public Camera {
 public:
     FWCamera(std::string sDevice, IntPoint Size, std::string sPF,
             double FrameRate, bool bColor);
@@ -67,8 +67,8 @@ public:
     virtual const std::string& getDriverName() const; 
     virtual double getFrameRate() const;
 
-    virtual unsigned int getFeature(const std::string& sFeature) const;
-    virtual void setFeature(const std::string& sFeature, int Value);
+    virtual unsigned int getFeature(CameraFeature Feature) const;
+    virtual void setFeature(CameraFeature Feature, int Value);
     void setFeature(dc1394feature_t Feature, int Value);
 
 private:
@@ -82,13 +82,11 @@ private:
 
     dc1394_cameracapture m_Camera;
     raw1394handle_t m_FWHandle;
-    dc1394_feature_set m_FeatureSet;
     int m_FrameRateConstant;  // libdc1394 constant for framerate.
     int m_Mode;               // libdc1394 constant for mode.
 #elif AVG_ENABLE_1394_2
     dc1394_t * m_pDC1394;
     dc1394camera_t * m_pCamera;
-    dc1394featureset_t m_FeatureSet;
     dc1394framerate_t m_FrameRateConstant; 
     dc1394video_mode_t m_Mode;            
 #endif

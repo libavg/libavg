@@ -32,6 +32,7 @@
 
 #include <Magick++.h>
 #include <assert.h>
+#include <cstring>
 #include <iostream>
 #include <iomanip>
 #include <stdlib.h>
@@ -96,7 +97,7 @@ Bitmap::Bitmap(const Bitmap& Orig, bool bOwnsBits)
 // Creates a bitmap that is a rectangle in another bitmap. The pixels are
 // still owned by the original bitmap.
 Bitmap::Bitmap(Bitmap& Orig, const IntRect& Rect)
-    : m_Size(Rect.Width(), Rect.Height()),
+    : m_Size(Rect.size()),
       m_PF(Orig.getPixelFormat()),
       m_bOwnsBits(false)
 {
@@ -134,11 +135,20 @@ Bitmap::Bitmap(const std::string& sURI)
     for (int y=0; y<m_Size.y; ++y) {
         Pixel32 * pDestLine = (Pixel32 *)(m_pBits+m_Stride*y);
         PixelPacket * pSrcLine = pSrcPixels+y*Img.columns();
-        for (int x=0; x<m_Size.x; ++x) {
-            *pDestLine = Pixel32(pSrcLine->red, pSrcLine->green, 
-                    pSrcLine->blue, 255-pSrcLine->opacity);
-            pSrcLine++;
-            pDestLine++;
+        if (m_PF == R8G8B8A8) {
+            for (int x=0; x<m_Size.x; ++x) {
+                *pDestLine = Pixel32(pSrcLine->red, pSrcLine->green, 
+                        pSrcLine->blue, 255-pSrcLine->opacity);
+                pSrcLine++;
+                pDestLine++;
+            }
+        } else {
+            for (int x=0; x<m_Size.x; ++x) {
+                *pDestLine = Pixel32(pSrcLine->red, pSrcLine->green, 
+                        pSrcLine->blue, 255);
+                pSrcLine++;
+                pDestLine++;
+            }
         }
     }
     m_bOwnsBits = true;
@@ -195,12 +205,18 @@ void Bitmap::copyPixels(const Bitmap & Orig)
             case YUYV422:
             case YCbCr411:
             case YCbCr420p:
-                if (m_PF == B8G8R8X8) {
-                    YCbCrtoBGR(Orig);
-                } else {
-                    Bitmap TempBmp(getSize(), B8G8R8X8, "TempColorConversion");
-                    TempBmp.YCbCrtoBGR(Orig);
-                    copyPixels(TempBmp);
+                switch(m_PF) {
+                    case B8G8R8X8:
+                        YCbCrtoBGR(Orig);
+                        break;
+                    case I8:
+                        YCbCrtoI8(Orig);
+                    default: {
+                            Bitmap TempBmp(getSize(), B8G8R8X8, "TempColorConversion");
+                            TempBmp.YCbCrtoBGR(Orig);
+                            copyPixels(TempBmp);
+                        }
+                        break;
                 }
                 break;
             case I16:
@@ -269,60 +285,43 @@ void Bitmap::save(const std::string& sFilename)
     string sPF;
     BitmapPtr pBmp;
     Magick::StorageType ChannelFormat = Magick::CharPixel;
+    int AlphaOffset = -1;
     switch(m_PF) {
         case B5G6R5:
-            pBmp = BitmapPtr(new Bitmap(m_Size, B8G8R8));
-            pBmp->copyPixels(*this);
-            sPF = "BGR";
-            break;
         case B8G8R8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            sPF = "BGR";
-            break;
-        case B8G8R8A8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            sPF = "BGRA";
-            break;
         case B8G8R8X8:
-            pBmp = BitmapPtr(new Bitmap(m_Size, B8G8R8));
-            pBmp->copyPixels(*this);
-            sPF = "BGR";
-            break;
-        case A8B8G8R8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            sPF = "ABGR";
-            break;
         case X8B8G8R8:
             pBmp = BitmapPtr(new Bitmap(m_Size, B8G8R8));
             pBmp->copyPixels(*this);
             sPF = "BGR";
             break;
         case R5G6B5:
-            pBmp = BitmapPtr(new Bitmap(m_Size, R8G8B8));
-            pBmp->copyPixels(*this);
-            sPF = "RGB";
-            break;
         case R8G8B8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            sPF = "RGB";
-            break;
-        case R8G8B8A8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            sPF = "RGBA";
-            break;
         case R8G8B8X8:
-            pBmp = BitmapPtr(new Bitmap(m_Size, R8G8B8, "temp copy"));
-            pBmp->copyPixels(*this);
-            sPF = "RGB";
-            break;
-        case A8R8G8B8:
-            pBmp = BitmapPtr(new Bitmap(*this));
-            sPF = "ARGB";
-            break;
         case X8R8G8B8:
             pBmp = BitmapPtr(new Bitmap(m_Size, R8G8B8));
             pBmp->copyPixels(*this);
             sPF = "RGB";
+            break;
+        case B8G8R8A8:
+            pBmp = BitmapPtr(new Bitmap(*this));
+            AlphaOffset = 3;
+            sPF = "BGRA";
+            break;
+        case A8B8G8R8:
+            pBmp = BitmapPtr(new Bitmap(*this));
+            AlphaOffset = 0;
+            sPF = "ABGR";
+            break;
+        case R8G8B8A8:
+            pBmp = BitmapPtr(new Bitmap(*this));
+            AlphaOffset = 3;
+            sPF = "RGBA";
+            break;
+        case A8R8G8B8:
+            pBmp = BitmapPtr(new Bitmap(*this));
+            AlphaOffset = 0;
+            sPF = "ARGB";
             break;
         case I16:   
             pBmp = BitmapPtr(new Bitmap(*this));
@@ -337,6 +336,18 @@ void Bitmap::save(const std::string& sFilename)
             cerr << "Unsupported pixel format " << getPixelFormatString(m_PF) 
                     << endl;
             assert(false);
+    }
+    if (AlphaOffset != -1) {
+        int Stride = pBmp->getStride();
+        unsigned char * pLine = pBmp->getPixels();
+        for (int y=0; y<m_Size.y; ++y) {
+            unsigned char * pPixel = pLine;
+            for (int x=0; x<m_Size.x; ++x) {
+                *(pPixel+AlphaOffset) = 255-*(pPixel+AlphaOffset);
+                pPixel+=4;
+            }
+            pLine += Stride;
+        }
     }
     Magick::Image Img(m_Size.x, m_Size.y, sPF, ChannelFormat, pBmp->getPixels());
     Img.write(sFilename);
@@ -475,6 +486,7 @@ int Bitmap::getBytesPerPixel(PixelFormat PF)
             return 2;
         case I8:
             return 1;
+        case YUYV422:
         case YCbCr422:
             return 2;
         default:
@@ -689,8 +701,12 @@ void Bitmap::initWithData(unsigned char * pBits, int Stride, bool bCopyBits)
     }
     if (bCopyBits) {
         allocBits();
-        for (int y=0; y<m_Size.y; ++y) {
-            memcpy(m_pBits+m_Stride*y, pBits+Stride*y, Stride);
+        if (m_Stride == Stride && Stride == (m_Size.x*getBytesPerPixel())) {
+            memcpy(m_pBits, pBits, Stride*m_Size.y);
+        } else {
+            for (int y=0; y<m_Size.y; ++y) {
+                memcpy(m_pBits+m_Stride*y, pBits+Stride*y, Stride);
+            }
         }
         m_bOwnsBits = true;
     } else {
@@ -900,6 +916,75 @@ void Bitmap::YCbCrtoBGR(const Bitmap& Orig)
     }
 }
     
+void YUYV422toI8Line(const unsigned char* pSrcLine, unsigned char * pDestLine, int Width)
+{
+    const unsigned char * pSrc = pSrcLine;
+    unsigned char * pDest = pDestLine;
+    
+    for (int x = 0; x < Width; x++) {
+        *pDest = *pSrc;
+        pDest++;
+        pSrc+=2;
+    }
+}
+ 
+void YUV411toI8Line(const unsigned char* pSrcLine, unsigned char * pDestLine, int Width)
+{
+    const unsigned char * pSrc = pSrcLine;
+    unsigned char * pDest = pDestLine;
+    
+    for (int x = 0; x < Width/2; x++) {
+        *pDest++ = *pSrc++;
+        *pDest++ = *pSrc++;
+        pSrc++;
+    }
+}
+ 
+void Bitmap::YCbCrtoI8(const Bitmap& Orig)
+{
+    assert(m_PF==I8);
+    const unsigned char * pSrc = Orig.getPixels();
+    unsigned char * pDest = m_pBits;
+    int Height = min(Orig.getSize().y, m_Size.y);
+    int Width = min(Orig.getSize().x, m_Size.x);
+    switch(Orig.m_PF) {
+        case YCbCr422:
+            for (int y=0; y<Height; ++y) {
+                // src shifted by one byte to account for UYVY to YUYV 
+                // difference in pixel order.
+                YUYV422toI8Line(pSrc+1, pDest, Width);
+                pDest += m_Stride;
+                pSrc += Orig.getStride();
+            }
+            break;
+        case YUYV422:
+            for (int y=0; y<Height; ++y) {
+                YUYV422toI8Line(pSrc, pDest, Width);
+                pDest += m_Stride;
+                pSrc += Orig.getStride();
+            }
+            break;
+        case YCbCr411:
+            for (int y=0; y<Height; ++y) {
+                YUV411toI8Line(pSrc, pDest, Width);
+                pDest += m_Stride;
+                pSrc += Orig.getStride();
+            }
+            break;
+        case YCbCr420p: 
+            // Just take the first plane.
+            for (int y=0; y<Height; ++y) {
+                memcpy(pDest, pSrc, m_Stride);
+                pDest += m_Stride;
+                pSrc += Orig.getStride();
+            }
+            break;
+        default:
+            // This routine shouldn't be called with other pixel formats.
+            assert(false);
+    }
+}
+
 void Bitmap::I16toI8(const Bitmap& Orig)
 {
     assert(m_PF == I8);

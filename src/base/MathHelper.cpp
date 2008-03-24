@@ -19,17 +19,49 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _MathHelper_H_
-#define _MathHelper_H_
+#include "MathHelper.h"
 
-#define PI 3.14159
+#include <math.h>
 
 namespace avg {
 
-bool ispow2(int n);
+bool ispow2(int n) {
+    return ((n & (n-1)) == 0);
+}
 
-int nextpow2(int n);
+int nextpow2(int n) {
+    int ret=1;
+    while (ret<n) {
+        ret *= 2;
+    }
+    return ret;
+/* TODO: Fix this fast version :-).
+    int RetVal = 1;
+    __asm__ __volatile__(
+        "xorl %%ecx, %%ecx\n\t"
+        "bsrl %1, %%ecx\n\t"
+        "incl %%ecx\n\t"
+        "shlb %%cl, %0\n\t"
+        : "=m" (RetVal)
+        : "m" (n)
+        : "cc", "ecx"
+        );
+    return RetVal;
+*/    
+}
+
+int safeCeil(double d) 
+{
+    if (fabs(d-int(d)) < EPSILON) {
+        return d;
+    } else {
+        return int(d)+1;
+    }
+}
+
+bool almostEqual(double d1, double d2)
+{
+    return (fabs(d1-d2)<EPSILON);
+}
 
 }
-#endif
- 

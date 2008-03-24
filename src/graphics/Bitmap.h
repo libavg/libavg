@@ -30,6 +30,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <iostream>
 
 namespace avg {
 
@@ -114,6 +115,7 @@ private:
     void initWithData(unsigned char * pBits, int Stride, bool bCopyBits);
     void allocBits();
     void YCbCrtoBGR(const Bitmap& Orig);
+    void YCbCrtoI8(const Bitmap& Orig);
     void I8toI16(const Bitmap& Orig);
     void I8toRGB(const Bitmap& Orig);
     void I16toI8(const Bitmap& Orig);
@@ -134,10 +136,14 @@ void Bitmap::setPixel(const IntPoint& p, Pixel Color)
     *(Pixel*)(&(m_pBits[p.y*m_Stride+p.x*getBytesPerPixel()])) = Color;
 }
 
-// TODO: This is slow, and it doesn't clip. Replace with external lib?
+// TODO: This is slow, and it clips incorrectly. Replace with external lib?
 template<class Pixel>
 void Bitmap::drawLine(IntPoint p0, IntPoint p1, Pixel Color)
 {
+    IntRect BmpRect(IntPoint(0,0), m_Size);
+    p0 = BmpRect.cropPoint(p0);
+    p1 = BmpRect.cropPoint(p1);
+
     bool bSteep = abs(p1.y - p0.y) > abs(p1.x - p0.x);
     if (bSteep) {
         std::swap(p0.x, p0.y);

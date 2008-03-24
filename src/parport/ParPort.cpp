@@ -24,7 +24,7 @@
 #include "../avgconfigwrapper.h"
 #include "../base/Logger.h"
 #include "../base/Exception.h"
-#include "../player/MathHelper.h"
+#include "../base/MathHelper.h"
 
 #ifdef AVG_ENABLE_PARPORT 
 #include <linux/ppdev.h>
@@ -36,6 +36,7 @@
 #include <fcntl.h>
 #include <sys/ioctl.h>
 
+#include <cstring>
 #include <iostream>
 #include <sstream>
 #include <cerrno>

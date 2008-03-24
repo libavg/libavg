@@ -18,34 +18,44 @@
 //
 //  Current versions can be found at www.libavg.de
 //
+//  Original author of this file is Nick Hebner (hebnern@gmail.com).
+//
 
-#include "MathHelper.h"
+#ifndef _NodeFactory_H_
+#define _NodeFactory_H_
+
+#include "Node.h"
+#include "ArgList.h"
+#include "NodeDefinition.h"
+
+#include <map>
+#include <string>
+#include <sstream>
 
 namespace avg {
 
-bool ispow2(int n) {
-    return ((n & (n-1)) == 0);
-}
-
-int nextpow2(int n) {
-    int ret=1;
-    while (ret<n) {
-        ret *= 2;
-    }
-    return ret;
-/* TODO: Fix this fast version :-).
-    int RetVal = 1;
-    __asm__ __volatile__(
-        "xorl %%ecx, %%ecx\n\t"
-        "bsrl %1, %%ecx\n\t"
-        "incl %%ecx\n\t"
-        "shlb %%cl, %0\n\t"
-        : "=m" (RetVal)
-        : "m" (n)
-        : "cc", "ecx"
-        );
-    return RetVal;
-*/    
-}
+class NodeFactory
+{
+public:
+    NodeFactory();
+    virtual ~NodeFactory();
+    
+    void registerNodeType(NodeDefinition& Def);
+    NodePtr createNode(const std::string& Type, const xmlNodePtr xmlNode, 
+            Player* pPlayer);
+    NodePtr createNode(const std::string& Type, const boost::python::dict& PyDict,
+            Player* pPlayer);
+    
+    std::string getDTD() const;
+    
+private:
+    const NodeDefinition& getNodeDef(const std::string& Type);
+    void writeNodeDTD(const NodeDefinition& Def, std::stringstream& ss) const;
+    
+    typedef std::map<std::string, NodeDefinition> NodeDefMap;
+    NodeDefMap m_NodeDefs;
+};
 
 }
+
+#endif

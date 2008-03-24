@@ -36,8 +36,7 @@
 #include "OGLSurface.h"
 #include "OGLHelper.h"
 
-#include "MathHelper.h"
-
+#include "../base/MathHelper.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
@@ -530,9 +529,9 @@ void SDLDisplayEngine::clip(bool forward)
 
         glBegin(GL_QUADS);
             glVertex2d(rc.tl.x, rc.tl.y);
-            glVertex2d(rc.tl.x+rc.Width(), rc.tl.y);
+            glVertex2d(rc.tl.x+rc.width(), rc.tl.y);
             glVertex2d(rc.br.x, rc.br.y);
-            glVertex2d(rc.br.x-rc.Width(), rc.br.y);
+            glVertex2d(rc.br.x-rc.width(), rc.br.y);
         glEnd();
 
         // Set stencil test to only let
@@ -605,9 +604,11 @@ void SDLDisplayEngine::showCursor (bool bShow)
 BitmapPtr SDLDisplayEngine::screenshot ()
 {
     BitmapPtr pBmp (new Bitmap(IntPoint(m_Width, m_Height), R8G8B8X8, "screenshot"));
-    glReadBuffer(GL_FRONT);
+    glReadBuffer(GL_BACK);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::screenshot:glReadBuffer()");
     glReadPixels(0, 0, m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE, 
             pBmp->getPixels());
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::screenshot:glReadPixels()");
 //    FilterFlipRGB().applyInPlace(pBmp);
     FilterFlip().applyInPlace(pBmp);
     return pBmp;
@@ -1031,6 +1032,12 @@ Event * SDLDisplayEngine::createMouseButtonEvent
             break;
         case SDL_BUTTON_RIGHT:
             Button = MouseEvent::RIGHT_BUTTON;
+            break;
+        case SDL_BUTTON_WHEELUP:
+            Button = MouseEvent::WHEELUP_BUTTON;
+            break;
+        case SDL_BUTTON_WHEELDOWN:
+            Button = MouseEvent::WHEELDOWN_BUTTON;
             break;
     }
     int x,y;

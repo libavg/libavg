@@ -23,6 +23,7 @@
 #include "DisplayEngine.h"
 #include "Player.h"
 #include "ISurface.h"
+#include "NodeDefinition.h"
 
 #include "../base/TimeSource.h"
 #include "../base/Logger.h"
@@ -46,16 +47,38 @@ using namespace std;
 
 namespace avg {
 
-CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
-    : VideoBase(xmlNode, pPlayer),
+NodeDefinition CameraNode::getNodeDefinition()
+{
+    return NodeDefinition("camera", Node::buildNode<CameraNode>)
+        .extendDefinition(VideoBase::getNodeDefinition())
+        .addArg(Arg<string>("device", ""))
+        .addArg(Arg<double>("framerate", 15))
+        .addArg(Arg<string>("source", "firewire"))
+        .addArg(Arg<int>("capturewidth", 640))
+        .addArg(Arg<int>("captureheight", 480))
+        .addArg(Arg<string>("pixelformat", "RGB"))
+        .addArg(Arg<int>("channel", 0))
+        .addArg(Arg<int>("brightness", -1))
+        .addArg(Arg<int>("exposure", -1))
+        .addArg(Arg<int>("sharpness", -1))
+        .addArg(Arg<int>("saturation", -1))
+        .addArg(Arg<int>("gamma", -1))
+        .addArg(Arg<int>("shutter", -1))
+        .addArg(Arg<int>("gain", -1))
+        .addArg(Arg<int>("whitebalance", -1));
+}
+
+CameraNode::CameraNode(const ArgList& Args, Player * pPlayer)
+    : VideoBase(pPlayer),
       m_FrameNum(0)
 {
-    string sDevice = getDefaultedStringAttr (xmlNode, "device", "");
-    double FrameRate = getDefaultedDoubleAttr (xmlNode, "framerate", 15);
-    string sSource = getDefaultedStringAttr (xmlNode, "source", "firewire");
-    int Width = getDefaultedIntAttr (xmlNode, "capturewidth", 640);
-    int Height = getDefaultedIntAttr (xmlNode, "captureheight", 480);
-    string sPF = getDefaultedStringAttr (xmlNode, "pixelformat", "RGB");
+    Args.setMembers(this);
+    string sDevice = Args.getArgVal<string>("device");
+    double FrameRate = Args.getArgVal<double>("framerate");
+    string sSource = Args.getArgVal<string>("source");
+    int Width = Args.getArgVal<int>("capturewidth");
+    int Height = Args.getArgVal<int>("captureheight");
+    string sPF = Args.getArgVal<string>("pixelformat");
 
     if (sSource == "firewire") {
 #if defined(AVG_ENABLE_1394)\
@@ -68,7 +91,7 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
 #endif
     } else if (sSource == "v4l") {
 #if defined(AVG_ENABLE_V4L2)
-        int Channel = getDefaultedIntAttr (xmlNode, "channel", 0);
+        int Channel = Args.getArgVal<int>("channel");
         
         m_pCamera = CameraPtr(new V4LCamera(sDevice, Channel,
             IntPoint(Width, Height), sPF, true));
@@ -90,22 +113,22 @@ CameraNode::CameraNode(const xmlNodePtr xmlNode, Player * pPlayer)
     }
 
     if (m_pCamera) {
-        m_pCamera->setFeature ("brightness",
-            getDefaultedIntAttr(xmlNode, "brightness", -1));
-        m_pCamera->setFeature ("exposure",
-            getDefaultedIntAttr(xmlNode, "exposure", -1));
-        m_pCamera->setFeature ("sharpness",
-            getDefaultedIntAttr(xmlNode, "sharpness", -1));
-        m_pCamera->setFeature ("saturation",
-            getDefaultedIntAttr(xmlNode, "saturation", -1));
-        m_pCamera->setFeature ("gamma",
-            getDefaultedIntAttr(xmlNode, "gamma", -1));
-        m_pCamera->setFeature ("shutter",
-            getDefaultedIntAttr(xmlNode, "shutter", -1));
-        m_pCamera->setFeature ("gain",
-            getDefaultedIntAttr(xmlNode, "gain", -1));
-        m_pCamera->setFeature ("whitebalance",
-            getDefaultedIntAttr(xmlNode, "whitebalance", -1));
+        m_pCamera->setFeature (CAM_FEATURE_BRIGHTNESS,
+            Args.getArgVal<int>("brightness"));
+        m_pCamera->setFeature (CAM_FEATURE_EXPOSURE,
+            Args.getArgVal<int>("exposure"));
+        m_pCamera->setFeature (CAM_FEATURE_SHARPNESS,
+            Args.getArgVal<int>("sharpness"));
+        m_pCamera->setFeature (CAM_FEATURE_SATURATION,
+            Args.getArgVal<int>("saturation"));
+        m_pCamera->setFeature (CAM_FEATURE_GAMMA,
+            Args.getArgVal<int>("gamma"));
+        m_pCamera->setFeature (CAM_FEATURE_SHUTTER,
+            Args.getArgVal<int>("shutter"));
+        m_pCamera->setFeature (CAM_FEATURE_GAIN,
+            Args.getArgVal<int>("gain"));
+        m_pCamera->setFeature (CAM_FEATURE_WHITE_BALANCE,
+            Args.getArgVal<int>("whitebalance"));
     }
 }
 
@@ -123,6 +146,87 @@ string CameraNode::getTypeStr()
 {
     return "Camera";
 }
+
+int CameraNode::getBrightness() const
+{
+    return getFeature (CAM_FEATURE_BRIGHTNESS);
+}
+
+void CameraNode::setBrightness(int Value)
+{
+    setFeature (CAM_FEATURE_BRIGHTNESS, Value);
+}
+
+int CameraNode::getExposure() const
+{
+    return getFeature (CAM_FEATURE_EXPOSURE);
+}
+
+void CameraNode::setExposure(int Value)
+{
+    setFeature (CAM_FEATURE_EXPOSURE, Value);
+}
+
+int CameraNode::getSharpness() const
+{
+    return getFeature (CAM_FEATURE_SHARPNESS);
+}
+
+void CameraNode::setSharpness(int Value)
+{
+    setFeature (CAM_FEATURE_SHARPNESS, Value);
+}
+
+int CameraNode::getSaturation() const
+{
+    return getFeature (CAM_FEATURE_SATURATION);
+}
+
+void CameraNode::setSaturation(int Value)
+{
+    setFeature (CAM_FEATURE_SATURATION, Value);
+}
+
+int CameraNode::getGamma() const
+{
+    return getFeature (CAM_FEATURE_GAMMA);
+}
+
+void CameraNode::setGamma(int Value)
+{
+    setFeature (CAM_FEATURE_GAMMA, Value);
+}
+
+int CameraNode::getShutter() const
+{
+    return getFeature (CAM_FEATURE_SHUTTER);
+}
+
+void CameraNode::setShutter(int Value)
+{
+    setFeature (CAM_FEATURE_SHUTTER, Value);
+}
+
+int CameraNode::getGain() const
+{
+    return getFeature (CAM_FEATURE_GAIN);
+}
+
+void CameraNode::setGain(int Value)
+{
+    setFeature (CAM_FEATURE_GAIN, Value);
+}
+
+unsigned int CameraNode::getWhiteBalance() const
+{
+    return getFeature (CAM_FEATURE_WHITE_BALANCE);
+}
+
+void CameraNode::setWhiteBalance(int Value)
+{
+    setFeature (CAM_FEATURE_WHITE_BALANCE, Value);
+}
+            
 
 IntPoint CameraNode::getMediaSize() 
 {
@@ -156,19 +260,19 @@ void CameraNode::close()
     }
 }
 
-unsigned int CameraNode::getFeature (const std::string& sFeature) const
+unsigned int CameraNode::getFeature(CameraFeature Feature) const
 {
     if (m_pCamera) {
-        return m_pCamera->getFeature(sFeature);
+        return m_pCamera->getFeature(Feature);
     } else {
         return 0;
     }
 }
 
-void CameraNode::setFeature (const std::string& sFeature, int Value)
+void CameraNode::setFeature(CameraFeature Feature, int Value)
 {
     if (m_pCamera) {
-        m_pCamera->setFeature(sFeature, Value);
+        m_pCamera->setFeature(Feature, Value);
     }  
 }
 

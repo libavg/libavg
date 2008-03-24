@@ -55,9 +55,7 @@ TestTracker()
     }
     MutexPtr pMutex(new boost::mutex);
     TrackerConfig Config;
-    Config.m_bCreateDebugImages = true;
-    Config.m_bCreateFingerImage = true;
-    Config.m_pTouch->m_Threshold = 131;
+    Config.setParam("/tracker/touch/threshold/@value", "131");
     m_pCmdQ = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
     IntRect ROI(0,0,pCam->getImgSize().x, pCam->getImgSize().y);
     boost::thread Thread(

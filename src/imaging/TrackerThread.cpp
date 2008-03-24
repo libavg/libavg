@@ -29,8 +29,10 @@
 #include "../graphics/Filterfill.h"
 #include "../graphics/FilterHighpass.h"
 #include "../graphics/FilterFastBandpass.h"
+#include "../graphics/FilterFastDownscale.h"
 #include "../graphics/FilterBlur.h"
 #include "../graphics/FilterGauss.h"
+#include "../graphics/FilterMask.h"
 
 #include <iostream>
 #include <stdlib.h>
@@ -39,10 +41,12 @@ using namespace std;
 
 namespace avg {
 static ProfilingZone ProfilingZoneCapture ("Capture");
+static ProfilingZone ProfilingZoneMask ("Mask");
 static ProfilingZone ProfilingZoneTracker ("Tracker");
 static ProfilingZone ProfilingZoneHistory ("History");
 static ProfilingZone ProfilingZoneDistort ("Distort");
 static ProfilingZone ProfilingZoneHistogram ("Histogram");
+static ProfilingZone ProfilingZoneDownscale ("Downscale");
 static ProfilingZone ProfilingZoneBandpass ("Bandpass");
 static ProfilingZone ProfilingZoneComps("ConnectedComps");
 static ProfilingZone ProfilingZoneUpdate("Update");
@@ -55,23 +59,31 @@ TrackerThread::TrackerThread(IntRect ROI,
         CmdQueue& CmdQ,
         IBlobTarget *target,
         bool bSubtractHistory,
-        TrackerConfig &config)
+        TrackerConfig &Config)
     : WorkerThread<TrackerThread>("Tracker", CmdQ),
       m_TouchThreshold(0),
       m_TrackThreshold(0),
       m_pMutex(pMutex),
       m_pCamera(pCamera),
       m_pTarget(target),
+      m_pTrafo(new DeDistort()),
       m_bCreateDebugImages(false),
       m_bCreateFingerImage(false)
 {
+    m_bTrackBrighter = Config.getBoolParam("/tracker/brighterregions/@value");
     if (bSubtractHistory) {
         m_pHistoryPreProcessor = HistoryPreProcessorPtr(
-                new HistoryPreProcessor(ppBitmaps[1]->getSize(), 1));
+                new HistoryPreProcessor(ppBitmaps[1]->getSize(), 1, 
+                m_bTrackBrighter));
     }
+    m_Prescale = Config.getIntParam("/tracker/prescale/@value");
     setBitmaps(ROI, ppBitmaps);
-    m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), 
-            config.m_pTrafo));
+
+    DeDistortPtr pDeDistort = Config.getTransform();
+
+    m_pDistorter = FilterDistortionPtr(new FilterDistortion(
+                m_pBitmaps[TRACKER_IMG_CAMERA]->getSize()/m_Prescale, pDeDistort));
+    m_pConfig = TrackerConfigPtr(new TrackerConfig(Config));
 }
 
 TrackerThread::~TrackerThread()
@@ -98,11 +110,21 @@ bool TrackerThread::work()
     }
     if (pCamBmp) {
         ScopeTimer Timer(ProfilingZoneTracker);
+        if (m_pCameraMaskBmp) {
+            ScopeTimer Timer(ProfilingZoneMask);
+            FilterMask(m_pCameraMaskBmp).applyInPlace(pCamBmp);
+        }
         if (m_bCreateDebugImages) {
             boost::mutex::scoped_lock Lock(*m_pMutex);
             *(m_pBitmaps[TRACKER_IMG_CAMERA]) = *pCamBmp;
             ScopeTimer Timer(ProfilingZoneHistogram);
             drawHistogram(m_pBitmaps[TRACKER_IMG_HISTOGRAM], pCamBmp);
+        }
+        {
+            if (m_Prescale != 1) {
+                ScopeTimer Timer(ProfilingZoneDownscale);
+                FilterFastDownscale(m_Prescale).applyInPlace(pCamBmp);
+            }
         }
         BitmapPtr pDistortedBmp;
         {
@@ -123,12 +145,6 @@ bool TrackerThread::work()
             m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pCroppedBmp);
         }
         {
-            boost::mutex::scoped_lock Lock(*m_pMutex);
-            if (m_bCreateFingerImage) {
-                Pixel32 Black(0x00, 0x00, 0x00, 0x00);
-                FilterFill<Pixel32>(Black).applyInPlace(
-                        m_pBitmaps[TRACKER_IMG_FINGERS]);
-            }
             BitmapPtr pBmpBandpass;
             if (m_TouchThreshold != 0) {
                 {
@@ -136,6 +152,7 @@ bool TrackerThread::work()
                     pBmpBandpass = FilterFastBandpass().apply(pCroppedBmp);
                 }
                 if (m_bCreateDebugImages) {
+                    boost::mutex::scoped_lock Lock(*m_pMutex);
                     *(m_pBitmaps[TRACKER_IMG_HIGHPASS]) = *pBmpBandpass;
                 }
             }
@@ -150,41 +167,75 @@ void TrackerThread::deinit()
     m_pCamera->close();
 }
 
-void TrackerThread::setConfig(TrackerConfig Config)
+void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI, 
+        BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES])
 {
-    if (Config.m_pTouch) {
-        m_TouchThreshold = Config.m_pTouch->m_Threshold;
-    } else {
+    boost::mutex::scoped_lock Lock(*m_pMutex);
+    try {
+        m_TouchThreshold = Config.getIntParam("/tracker/touch/threshold/@value");
+    } catch (Exception& e) {
         m_TouchThreshold = 0;
     }
-    if (Config.m_pTrack) {
-        m_TrackThreshold = Config.m_pTrack->m_Threshold;
-    } else {
+    m_bTrackBrighter = Config.getBoolParam("/tracker/brighterregions/@value");
+    try {
+        m_TrackThreshold = Config.getIntParam("/tracker/track/threshold/@value");
+    } catch (Exception& e) {
         m_TrackThreshold = 0;
     }
+    m_Prescale = Config.getIntParam("/tracker/prescale/@value");
     if(m_pHistoryPreProcessor) {
-        m_pHistoryPreProcessor->setInterval(Config.m_HistoryUpdateInterval);
+        m_pHistoryPreProcessor->setInterval(Config.getIntParam
+                ("/tracker/historyupdateinterval/@value"));
     }
-    if (m_pTrafo != Config.m_pTrafo) {
-        m_pDistorter = FilterDistortionPtr(new FilterDistortion(m_pBitmaps[0]->getSize(), 
-                Config.m_pTrafo));
-        m_pTrafo = Config.m_pTrafo;
+    DeDistortPtr pDeDistort = Config.getTransform();
+    if (!(*m_pTrafo == *pDeDistort)) {
+        m_pDistorter = FilterDistortionPtr(new FilterDistortion(
+                m_pBitmaps[TRACKER_IMG_CAMERA]->getSize()/m_Prescale, pDeDistort));
+        *m_pTrafo = *pDeDistort;
     }
-    if (int(m_pCamera->getFeature("brightness")) != Config.m_Brightness ||
-             int(m_pCamera->getFeature("gamma")) != Config.m_Gamma ||
-             int(m_pCamera->getFeature("gain")) != Config.m_Gain ||
-             int(m_pCamera->getFeature("shutter")) != Config.m_Shutter)
+    int Brightness = Config.getIntParam("/camera/brightness/@value");
+    int Exposure = Config.getIntParam("/camera/exposure/@value");
+    int Gamma = Config.getIntParam("/camera/gamma/@value");
+    int Gain = Config.getIntParam("/camera/gain/@value");
+    int Shutter = Config.getIntParam("/camera/shutter/@value");
+    string sCameraMaskFName = Config.getParam("/tracker/mask/@value");
+    bool bNewCameraMask = (!m_pConfig || 
+            m_pConfig->getParam("/tracker/mask/@value") != sCameraMaskFName);
+    if (int(m_pCamera->getFeature(CAM_FEATURE_BRIGHTNESS)) != Brightness ||
+            int(m_pCamera->getFeature(CAM_FEATURE_EXPOSURE)) != Exposure ||
+             int(m_pCamera->getFeature(CAM_FEATURE_GAMMA)) != Gamma ||
+             int(m_pCamera->getFeature(CAM_FEATURE_GAIN)) != Gain ||
+             int(m_pCamera->getFeature(CAM_FEATURE_SHUTTER)) != Shutter ||
+             bNewCameraMask)
     {
         m_pHistoryPreProcessor->reset();
     }
 
-    m_pCamera->setFeature("brightness", Config.m_Brightness);
-    m_pCamera->setFeature("gamma", Config.m_Gamma);
-    m_pCamera->setFeature("gain", Config.m_Gain);
-    m_pCamera->setFeature("shutter", Config.m_Shutter);
+    m_pCamera->setFeature(CAM_FEATURE_BRIGHTNESS, Brightness);
+    m_pCamera->setFeature(CAM_FEATURE_EXPOSURE, Exposure);
+    m_pCamera->setFeature(CAM_FEATURE_GAMMA, Gamma);
+    m_pCamera->setFeature(CAM_FEATURE_GAIN, Gain);
+    m_pCamera->setFeature(CAM_FEATURE_SHUTTER, Shutter);
 
-    m_bCreateDebugImages = Config.m_bCreateDebugImages;
-    m_bCreateFingerImage = Config.m_bCreateFingerImage;
+    if (bNewCameraMask) {
+        if (sCameraMaskFName == "") {
+            m_pCameraMaskBmp = BitmapPtr();
+        } else {
+            BitmapPtr pRGBXCameraMaskBmp = BitmapPtr(new Bitmap(sCameraMaskFName));
+            m_pCameraMaskBmp = BitmapPtr(
+                    new Bitmap(pRGBXCameraMaskBmp->getSize(), I8));
+            m_pCameraMaskBmp->copyPixels(*pRGBXCameraMaskBmp);        
+        }
+    }
+    m_pConfig = TrackerConfigPtr(new TrackerConfig(Config));
+
+    setBitmaps(ROI, ppBitmaps);
+}
+
+void TrackerThread::setDebugImages(bool bImg, bool bFinger)
+{
+    m_bCreateDebugImages = bImg;
+    m_bCreateFingerImage = bFinger;
 }
 
 void TrackerThread::setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES])
@@ -195,8 +246,8 @@ void TrackerThread::setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAG
     }
     if (m_pHistoryPreProcessor) {
         m_pHistoryPreProcessor = HistoryPreProcessorPtr(
-                new HistoryPreProcessor(IntPoint(ROI.Width(), ROI.Height()), 
-                        m_pHistoryPreProcessor->getInterval()));
+                new HistoryPreProcessor(ROI.size(), 
+                        m_pHistoryPreProcessor->getInterval(), m_bTrackBrighter));
     }
 }
 
@@ -208,7 +259,7 @@ void TrackerThread::resetHistory()
         
 void TrackerThread::drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp)
 {
-    HistogramPtr pHist = pSrcBmp->getHistogram(3);
+    HistogramPtr pHist = pSrcBmp->getHistogram(4);
     assert(pDestBmp->getPixelFormat() == I8);
     // Normalize Histogram to 0..255
     int Max1 = 0;
@@ -229,41 +280,192 @@ void TrackerThread::drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp)
     }
     
     FilterFill<Pixel8>(0).applyInPlace(pDestBmp);
-    int Width = pDestBmp->getSize().x;
     int Stride = pDestBmp->getStride();
     int EndRow = 256;
     if (pDestBmp->getSize().y < 256) {
         EndRow = pDestBmp->getSize().y;
     }
+    int Width = pDestBmp->getSize().x;
     for (int i=0; i<EndRow; ++i) {
-        int StartCol =Width-(*pHist)[i];
-        if (StartCol < 0) { 
-            StartCol = 0;
+        int EndCol =(*pHist)[i];
+        if (EndCol > Width) { 
+            EndCol = Width;
         }
-        unsigned char * pDest = pDestBmp->getPixels()+Stride*i+StartCol;
-        memset(pDest, 255, Width-StartCol);
+        unsigned char * pDest = pDestBmp->getPixels()+Stride*i;
+        memset(pDest, 255, EndCol);
     }
 }
 
-void TrackerThread::calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp) {
+inline bool isInbetween(double x, double min, double max)
+{
+    return x>=min && x<=max;
+}
+
+bool TrackerThread::isRelevant(BlobPtr pBlob, int MinArea, int MaxArea,
+        double MinEccentricity, double MaxEccentricity)
+{
+    bool res;
+    res = isInbetween(pBlob->getArea(), MinArea, MaxArea) && 
+            isInbetween(pBlob->getEccentricity(), MinEccentricity, MaxEccentricity);
+    return res;
+}
+
+BlobVectorPtr TrackerThread::findRelevantBlobs(BlobVectorPtr pBlobs, bool bTouch) 
+{
+    string sConfigPrefix;
+    if (bTouch) {
+        sConfigPrefix = "/tracker/touch/";
+    } else {
+        sConfigPrefix = "/tracker/track/";
+    }
+    int MinArea = m_pConfig->getIntParam(sConfigPrefix+"areabounds/@min");
+    int MaxArea = m_pConfig->getIntParam(sConfigPrefix+"areabounds/@max");
+    double MinEccentricity = m_pConfig->getDoubleParam(sConfigPrefix+"eccentricitybounds/@min");
+    double MaxEccentricity = m_pConfig->getDoubleParam(sConfigPrefix+"eccentricitybounds/@max");
+    
+    BlobVectorPtr pRelevantBlobs(new BlobVector());
+    for(BlobVector::iterator it = pBlobs->begin(); it!=pBlobs->end(); ++it) {
+        if (isRelevant(*it, MinArea, MaxArea, MinEccentricity, MaxEccentricity)) {
+            pRelevantBlobs->push_back(*it);
+        }
+        if (pRelevantBlobs->size() > 50) {
+            break;
+        }
+    }
+    return pRelevantBlobs;
+}
+
+void TrackerThread::drawBlobs(BlobVectorPtr pBlobs, BitmapPtr pSrcBmp, 
+        BitmapPtr pDestBmp, int Offset, bool bTouch)
+{
+    if (!pDestBmp) {
+        return;
+    }
+    ScopeTimer Timer(ProfilingZoneDraw);
+    string sConfigPrefix;
+    if (bTouch) {
+        sConfigPrefix = "/tracker/touch/";
+    } else {
+        sConfigPrefix = "/tracker/track/";
+    }
+    int MinArea = m_pConfig->getIntParam(sConfigPrefix+"areabounds/@min");
+    int MaxArea = m_pConfig->getIntParam(sConfigPrefix+"areabounds/@max");
+    double MinEccentricity = m_pConfig->getDoubleParam(sConfigPrefix+"eccentricitybounds/@min");
+    double MaxEccentricity = m_pConfig->getDoubleParam(sConfigPrefix+"eccentricitybounds/@max");
+    
+    // Get max. pixel value in Bitmap
+    int Max = 0;
+    HistogramPtr pHist = pSrcBmp->getHistogram(4);
+    int i;
+    for(i=255; i>=0; i--) {
+        if ((*pHist)[i] != 0) {
+            Max = i;
+            i = 0;
+        }
+    }
+    
+    for(BlobVector::iterator it2 = pBlobs->begin();it2!=pBlobs->end();++it2) {
+        if (isRelevant(*it2, MinArea, MaxArea, MinEccentricity, MaxEccentricity)) {
+            if (bTouch) {
+                (*it2)->render(pSrcBmp, pDestBmp, 
+                        Pixel32(0xFF, 0xFF, 0xFF, 0xFF), Offset, Max, bTouch, true,  
+                        Pixel32(0x00, 0x00, 0xFF, 0xFF));
+            } else {
+                (*it2)->render(pSrcBmp, pDestBmp, 
+                        Pixel32(0xFF, 0xFF, 0x00, 0x80), Offset, Max, bTouch, true, 
+                        Pixel32(0x00, 0x00, 0xFF, 0xFF));
+            }
+        } else {
+            if (bTouch) {
+                (*it2)->render(pSrcBmp, pDestBmp, 
+                        Pixel32(0xFF, 0x00, 0x00, 0xFF), Offset, Max, bTouch, false);
+            } else {
+                (*it2)->render(pSrcBmp, pDestBmp, 
+                        Pixel32(0x80, 0x80, 0x00, 0x80), Offset, Max, bTouch, false);
+            }
+        }
+    }
+}
+
+void TrackerThread::calcContours(BlobVectorPtr pBlobs)
+{
+    ScopeTimer Timer(ProfilingZoneDraw);
+    string sConfigPrefix;
+    sConfigPrefix = "/tracker/track/";
+    int MinArea = m_pConfig->getIntParam(sConfigPrefix+"areabounds/@min");
+    int MaxArea = m_pConfig->getIntParam(sConfigPrefix+"areabounds/@max");
+    double MinEccentricity = m_pConfig->getDoubleParam(sConfigPrefix+"eccentricitybounds/@min");
+    double MaxEccentricity = m_pConfig->getDoubleParam(sConfigPrefix+"eccentricitybounds/@max");
+    
+    int ContourPrecision = m_pConfig->getIntParam("/tracker/contourprecision/@value");
+    if (ContourPrecision != 0) {
+        for(BlobVector::iterator it = pBlobs->begin(); it!=pBlobs->end(); ++it) {
+            if (isRelevant(*it, MinArea, MaxArea, MinEccentricity, MaxEccentricity)) {
+                (*it)->calcContour(ContourPrecision);
+            }
+        }
+    }
+}
+
+void TrackerThread::correlateHands(BlobVectorPtr pTrackBlobs, 
+        BlobVectorPtr pTouchBlobs)
+{
+   if (!pTrackBlobs || !pTouchBlobs) {
+       return;
+   }
+    for(BlobVector::iterator it1=pTouchBlobs->begin(); 
+            it1 != pTouchBlobs->end(); ++it1) 
+    {
+        BlobPtr pTouchBlob = *it1;
+        IntPoint TouchCenter = (IntPoint)(pTouchBlob->getCenter());
+        for(BlobVector::iterator it2=pTrackBlobs->begin(); 
+                it2!=pTrackBlobs->end(); ++it2) 
+        {
+            BlobPtr pTrackBlob = *it2;
+            if (pTrackBlob->contains(TouchCenter)) {
+                pTouchBlob->addRelated(pTrackBlob);
+                pTrackBlob->addRelated(pTouchBlob);
+                break;
+            }
+        }
+    }
+}
+
+void TrackerThread::calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp) 
+{
     BlobVectorPtr pTrackComps;
     BlobVectorPtr pTouchComps;
     {
         ScopeTimer Timer(ProfilingZoneComps);
-        pTrackComps = connected_components(pTrackBmp, m_TrackThreshold);
-        pTouchComps = connected_components(pTouchBmp, m_TouchThreshold);
+        boost::mutex::scoped_lock Lock(*m_pMutex);
+        BitmapPtr pDestBmp;
+        if (m_bCreateFingerImage) {
+            Pixel32 Black(0x00, 0x00, 0x00, 0x00);
+            FilterFill<Pixel32>(Black).applyInPlace(
+                    m_pBitmaps[TRACKER_IMG_FINGERS]);
+            pDestBmp = m_pBitmaps[TRACKER_IMG_FINGERS];
+        }
+        {
+            if (m_TrackThreshold != 0) {
+                pTrackComps = findConnectedComponents(pTrackBmp, m_TrackThreshold);
+                calcContours(pTrackComps);
+                drawBlobs(pTrackComps, pTrackBmp, pDestBmp, m_TrackThreshold, false);
+                pTrackComps = findRelevantBlobs(pTrackComps, false);
+            }
+            if (m_TouchThreshold != 0) {
+                pTouchComps = findConnectedComponents(pTouchBmp, m_TouchThreshold);
+                pTouchComps = findRelevantBlobs(pTouchComps, true);
+                correlateHands(pTrackComps, pTouchComps);
+                drawBlobs(pTouchComps, pTouchBmp, pDestBmp, m_TouchThreshold, true);
+            }
+        }
+        // Send the blobs to the BlobTarget.
+        {
+            ScopeTimer Timer(ProfilingZoneUpdate);
+            m_pTarget->update(pTrackComps, pTouchComps);
+        }
     }
-    //    AVG_TRACE(Logger::EVENTS2, "connected components found "<<comps->size()<<" blobs.");
-    //feed the IBlobTarget
-    BitmapPtr pDestBmp;
-    if (m_bCreateFingerImage) {
-        pDestBmp = m_pBitmaps[TRACKER_IMG_FINGERS];
-    }
-    {
-        ScopeTimer Timer(ProfilingZoneUpdate);
-        m_pTarget->update(pTrackComps, pTrackBmp, m_TrackThreshold,
-                pTouchComps, pTouchBmp, m_TouchThreshold, pDestBmp);
-    }
+    
 }
-
+        
 }

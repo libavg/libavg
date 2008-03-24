@@ -24,6 +24,7 @@
 #include "Pixel8.h"
 #include "Bitmap.h"
 
+#include <cstring>
 #include <iostream>
 #include <sstream>
 

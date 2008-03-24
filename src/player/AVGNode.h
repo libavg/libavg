@@ -31,8 +31,10 @@ namespace avg {
 
 class AVGNode : public DivNode
 {
-	public:
-        AVGNode (const xmlNodePtr xmlNode, Player * pPlayer);
+    public:
+        static NodeDefinition getNodeDefinition();
+        
+        AVGNode (const ArgList& Args, Player * pPlayer);
         virtual ~AVGNode ();
 
         virtual std::string getTypeStr ();

@@ -23,6 +23,8 @@
 #define _WorkerThread_H_
 
 #include "Command.h"
+#include "Exception.h"
+#include "Logger.h"
 #include "Queue.h"
 #include "Profiler.h"
 #include "ThreadProfiler.h"
@@ -71,24 +73,29 @@ WorkerThread<DERIVED_THREAD>::WorkerThread(const std::string& sName, CmdQueue& C
 template<class DERIVED_THREAD>
 void WorkerThread<DERIVED_THREAD>::operator()()
 {
-    m_pProfiler = ThreadProfilerPtr(new ThreadProfiler(m_sName));
-    Profiler::get().registerThreadProfiler(m_pProfiler);
-    bool bOK;
-    bOK = init();
-    if (!bOK) {
-        return;
-    }
-    m_pProfiler->start();
-    while (!m_bShouldStop) {
-        bOK = work();
+    try {
+        m_pProfiler = ThreadProfilerPtr(new ThreadProfiler(m_sName));
+        Profiler::get().registerThreadProfiler(m_pProfiler);
+        bool bOK;
+        bOK = init();
         if (!bOK) {
-            m_bShouldStop = true;
-        } else {
-            processCommands();
+            return;
         }
-        m_pProfiler->reset();
+        m_pProfiler->start();
+        while (!m_bShouldStop) {
+            bOK = work();
+            if (!bOK) {
+                m_bShouldStop = true;
+            } else {
+                processCommands();
+            }
+            m_pProfiler->reset();
+        }
+        deinit();
+    } catch (const Exception& e) {
+         AVG_TRACE(Logger::ERROR, "Uncaught exception in thread " << m_sName << ": "
+                  << e.GetStr());
     }
-    deinit();
 }
     
 template<class DERIVED_THREAD>
@@ -106,8 +113,11 @@ void WorkerThread<DERIVED_THREAD>::processCommands()
             Command<DERIVED_THREAD> Cmd = m_CmdQ.pop(false);
             Cmd.execute(dynamic_cast<DERIVED_THREAD*>(this));
         }
-    } catch (Exception& /*ex*/) {
-        // TODO: Make sure the exception is a queue empty exception.
+    } catch (const Exception& e) {
+        if (e.GetCode() != AVG_ERR_QUEUE_EMPTY) {
+                AVG_TRACE(Logger::ERROR, "Uncaught exception in thread " 
+                        << m_sName << ": " << e.GetStr());
+        }
     }
    
 }

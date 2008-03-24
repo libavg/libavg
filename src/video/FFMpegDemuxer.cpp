@@ -23,6 +23,7 @@
 #include "../base/ScopeTimer.h"
 #include "../base/ObjectCounter.h"
 
+#include <cstring>
 #include <iostream>
 #include <assert.h>
 

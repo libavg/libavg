@@ -21,9 +21,10 @@
 
 #include "PanoImage.h"
 #include "SDLDisplayEngine.h"
-#include "MathHelper.h"
 #include "OGLHelper.h"
+#include "NodeDefinition.h"
 
+#include "../base/MathHelper.h"
 #include "../base/Logger.h"
 #include "../base/ProfilingZone.h"
 #include "../base/ScopeTimer.h"
@@ -45,18 +46,23 @@ const int TEX_WIDTH = 64;
 
 namespace avg {
 
-PanoImage::PanoImage (const xmlNodePtr xmlNode, Player * pPlayer)
-    : Node (xmlNode, pPlayer)
+NodeDefinition PanoImage::getNodeDefinition()
 {
-    m_href = getDefaultedStringAttr (xmlNode, "href", "");
-    m_SensorWidth = getDefaultedDoubleAttr (xmlNode, "sensorwidth", 1.0);
-    m_SensorHeight = getDefaultedDoubleAttr (xmlNode, "sensorheight", 1.0);
-    m_FocalLength = getDefaultedDoubleAttr (xmlNode, "focallength", 10.0);
+    return NodeDefinition("panoimage", Node::buildNode<PanoImage>)
+        .extendDefinition(Node::getNodeDefinition())
+        .addArg(Arg<string>("href", "", false, offsetof(PanoImage, m_href)))
+        .addArg(Arg<double>("sensorwidth", 1.0, false, offsetof(PanoImage, m_SensorWidth)))
+        .addArg(Arg<double>("sensorheight", 1.0, false, offsetof(PanoImage, m_SensorHeight)))
+        .addArg(Arg<double>("focallength", 10.0, false, offsetof(PanoImage, m_FocalLength)))
+        .addArg(Arg<double>("rotation", -1.0, false, offsetof(PanoImage, m_Rotation)))
+        .addArg(Arg<int>("hue", -1, false, offsetof(PanoImage, m_Hue)))
+        .addArg(Arg<int>("saturation", -1, false, offsetof(PanoImage, m_Saturation)));
+}
 
-    m_Rotation = getDefaultedDoubleAttr (xmlNode, "rotation", -1);
-
-    m_Hue = getDefaultedIntAttr (xmlNode, "hue", -1);
-    m_Saturation = getDefaultedIntAttr (xmlNode, "saturation", -1);
+PanoImage::PanoImage (const ArgList& Args, Player * pPlayer)
+    : Node (pPlayer)
+{
+    Args.setMembers(this);
     m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8));
     load();
 }

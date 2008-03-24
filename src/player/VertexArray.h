@@ -19,39 +19,32 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _ICamera_H_
-#define _ICamera_H_
-
-#include "../graphics/Bitmap.h"
-
-#include <boost/shared_ptr.hpp>
-
-#include <string>
+#include "OGLHelper.h"
+#include "../base/Point.h"
 
 namespace avg {
 
-class ICamera
-{
-    public:
-        virtual ~ICamera() {};
-        virtual void open() = 0;
-        virtual void close() = 0;
-
-        virtual IntPoint getImgSize() = 0;
-        virtual BitmapPtr getImage(bool bWait) = 0;
-        virtual bool isCameraAvailable() = 0;
-
-        virtual const std::string& getDevice() const = 0; 
-        virtual const std::string& getDriverName() const = 0; 
-        virtual double getFrameRate() const = 0;
-        
-        virtual unsigned int getFeature(const std::string& sFeature) const = 0;
-        virtual void setFeature(const std::string& sFeature, int Value) = 0;
+struct T2V3Vertex {
+    GLfloat m_Tex[2];
+    GLfloat m_Pos[3];
+    GLfloat m_Dummy[3];
 };
 
-typedef boost::shared_ptr<ICamera> CameraPtr;
+class VertexArray {
+public:
+    VertexArray(int NumQuads);
+    virtual ~VertexArray();
+
+    void setPos(int QuadIndex, int VertexIndex, const DPoint& Pos, 
+            const DPoint& TexPos);
+    void draw();
+
+private:
+    int m_NumQuads;
+    T2V3Vertex * m_pVertexData;
+    bool m_bDataChanged;
+
+    unsigned int m_VBOArrayID;
+};
 
 }
-
-#endif
-

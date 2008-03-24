@@ -26,6 +26,8 @@
 #include "Point.h"
 #include "OSHelper.h"
 #include "FileHelper.h"
+#include "StringHelper.h"
+#include "MathHelper.h"
 
 #include "TestSuite.h"
 #include "TimeSource.h"
@@ -257,6 +259,30 @@ public:
     }
 };
 
+class StringTest: public Test {
+public:
+    StringTest()
+        : Test("StringTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        TEST(stringToInt("5") == 5);
+        TEST(almostEqual(stringToDouble("5.5"), 5.5));
+        TEST(stringToBool("False") == false);
+        bool bExceptionThrown = false;
+        try {
+            stringToInt("5a");
+        } catch (const Exception& e) {
+            if (e.GetCode() == AVG_ERR_TYPE ) {
+                bExceptionThrown = true;
+            }
+        }
+        TEST(bExceptionThrown);
+    }
+};
+
 class BaseTestSuite: public TestSuite {
 public:
     BaseTestSuite() 
@@ -268,6 +294,7 @@ public:
         addTest(TestPtr(new PointTest));
         addTest(TestPtr(new FileTest));
         addTest(TestPtr(new OSTest));
+        addTest(TestPtr(new StringTest));
     }
 };
 

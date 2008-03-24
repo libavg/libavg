@@ -32,8 +32,10 @@ namespace avg {
     
 class DivNode : public Node
 {
-	public:
-        DivNode (const xmlNodePtr xmlNode, Player * pPlayer);
+    public:
+        static NodeDefinition getNodeDefinition();
+        
+        DivNode (const ArgList& Args, Player * pPlayer);
         virtual ~DivNode ();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
         virtual void disconnect();

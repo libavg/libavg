@@ -15,7 +15,7 @@ except ImportError:
 # run the tests without installing libavg, we add the location of the 
 # uninstalled libavg to the path.
 # TODO: This is a mess. 
-sys.path += ['../python/.libs', '../python']
+sys.path += ['../wrapper/.libs', '../python']
 if platform.system() == 'Darwin':
     sys.path += ['../..']     # Location of libavg in a mac installation. 
 
@@ -415,6 +415,97 @@ class PlayerTestCase(AVGTestCase):
                  # - errMouseOver
                  Player.stop))
 
+    def testMouseOver(self):
+        def onImg2MouseOver(Event):
+            self.img2MouseOverCalled = True
+        def onImg2MouseOut(Event):
+            self.img2MouseOutCalled = True
+        def onDivMouseOver(Event):
+            self.divMouseOverCalled = True
+        def onDivMouseOut(Event):
+            self.divMouseOutCalled = True
+        def onAVGMouseOver(Event):
+            self.avgMouseOverCalled = True
+        def onImg1MouseOver(Event):
+            self.img1MouseOverCalled = True
+        def printState():
+            print "----"
+            print "img2MouseOverCalled=", self.img2MouseOverCalled
+            print "img2MouseOutCalled=", self.img2MouseOutCalled
+            print "divMouseOverCalled=", self.divMouseOverCalled
+            print "divMouseOutCalled=", self.divMouseOutCalled
+            print "avgMouseOverCalled=", self.avgMouseOverCalled
+            print "img1MouseOverCalled=", self.img1MouseOverCalled
+        def resetState():
+            self.img2MouseOverCalled = False
+            self.img2MouseOutCalled = False
+            self.divMouseOverCalled = False
+            self.divMouseOutCalled = False
+            self.avgMouseOverCalled = False
+            self.img1MouseOverCalled = False
+        def killNodeUnderCursor():
+            Parent = img1.getParent()
+            Parent.removeChild(Parent.indexOf(img1))
+        Helper = Player.getTestHelper()
+        Player.loadFile("mouseover.avg")
+        img2 = Player.getElementByID("img2")
+        img2.setEventHandler(avg.CURSOROVER, avg.MOUSE, onImg2MouseOver)
+        img2.setEventHandler(avg.CURSOROUT, avg.MOUSE, onImg2MouseOut)
+        div = Player.getElementByID("div1")
+        div.setEventHandler(avg.CURSOROVER, avg.MOUSE, onDivMouseOver)
+        div.setEventHandler(avg.CURSOROUT, avg.MOUSE, onDivMouseOut)
+        avgNode = Player.getRootNode()
+        avgNode.setEventHandler(avg.CURSOROVER, avg.MOUSE, onAVGMouseOver)
+        img1 = Player.getElementByID("img1")
+        img1.setEventHandler(avg.CURSOROVER, avg.MOUSE, onImg1MouseOver)
+        self.start(None, 
+                (resetState,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        70, 70, 1),
+                 lambda: self.assert_(
+                        self.img2MouseOverCalled and 
+                        self.divMouseOverCalled and
+                        self.avgMouseOverCalled and 
+                        not(self.img2MouseOutCalled) and 
+                        not(self.divMouseOutCalled) and 
+                        not(self.img1MouseOverCalled)),
+
+                 resetState,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        70, 10, 1),
+                 lambda: self.assert_(
+                        not(self.img2MouseOverCalled) and 
+                        not(self.divMouseOverCalled) and 
+                        not(self.avgMouseOverCalled) and 
+                        self.img2MouseOutCalled and 
+                        not(self.divMouseOutCalled) and 
+                        not(self.img1MouseOverCalled)),
+                 
+                 resetState,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        10, 10, 1),
+                 lambda: self.assert_(
+                        not(self.img2MouseOverCalled) and 
+                        not(self.divMouseOverCalled) and 
+                        not(self.avgMouseOverCalled) and 
+                        not(self.img2MouseOutCalled) and 
+                        self.divMouseOutCalled and 
+                        self.img1MouseOverCalled),
+
+                 resetState,
+                 killNodeUnderCursor,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                        10, 10, 1),
+                 lambda: self.assert_(
+                        not(self.img2MouseOverCalled) and 
+                        not(self.divMouseOverCalled) and 
+                        not(self.avgMouseOverCalled) and 
+                        not(self.img2MouseOutCalled) and 
+                        not(self.divMouseOutCalled) and 
+                        not(self.img1MouseOverCalled)),
+
+                 Player.stop))
+
     def testEventCapture(self):
         def captureEvent():
             global captureMouseDownCalled
@@ -652,48 +743,64 @@ class PlayerTestCase(AVGTestCase):
                 (lambda: Player.getElementByID("clogo1").play(),
                  lambda: self.compareImage("testWarp1", False),
                  moveVertex,
-                 lambda: self.compareImage("testWarp2", True),
+                 lambda: self.compareImage("testWarp2", False),
                  flip,
                  lambda: self.compareImage("testWarp3", False),
                  Player.stop))
 
-    def testWords(self):
+    def testSimpleWords(self):
+        self.start("simpletext.avg",
+                (lambda: self.compareImage("testSimpleWords", True),
+                 Player.stop))
+
+    def testParaWords(self):
+        self.start("paratext.avg",
+                (lambda: self.compareImage("testParaWords", True),
+                 Player.stop))
+    
+    def testDynamicWords(self):
         def changeText():
-            node = Player.getElementByID("cbasetext")
+            node = Player.getElementByID("dynamictext")
             oldwidth = node.width
             node.text = "blue" 
             self.assert_(node.width != oldwidth)
             node.color = "404080"
             node.x += 10
         def changeHeight():
-            node = Player.getElementByID("cbasetext")
+            node = Player.getElementByID("dynamictext")
             node.height = 28
         def activateText():
-            Player.getElementByID('cbasetext').active = 1
+            Player.getElementByID('dynamictext').active = 1
         def deactivateText():
-            Player.getElementByID('cbasetext').active = 0
+            Player.getElementByID('dynamictext').active = 0
         def changeFont():
-            node = Player.getElementByID("cbasetext")
+            node = Player.getElementByID("dynamictext")
             node.font = "Times New Roman"
             node.height = 0
             node.size = 30
         def changeFont2():
-            node = Player.getElementByID("cbasetext")
+            node = Player.getElementByID("dynamictext")
             node.size = 18
+        self.start("dynamictext.avg",
+                (lambda: self.compareImage("testDynamicWords1", True),
+                 changeText,
+                 changeHeight,
+                 changeFont,
+                 lambda: self.compareImage("testDynamicWords2", True),
+                 deactivateText,
+                 lambda: self.compareImage("testDynamicWords3", True),
+                 activateText,
+                 changeFont2,
+                 lambda: self.compareImage("testDynamicWords4", True),
+                 Player.stop))
+
+    def testI18NWords(self):
         def changeUnicodeText():
             Player.getElementByID("dynamictext").text = "Arabic nonsense: ﯿﭗ"
-        self.start("text.avg",
-                (lambda: self.compareImage("testWords1", True),
-#                 changeText,
-#                 changeHeight,
-#                 deactivateText,
-#                 lambda: self.compareImage("testWords2", True),
-#                 activateText,
-#                 changeFont,
-#                 lambda: self.compareImage("testWords3", True),
-#                 changeFont2,
-#                 changeUnicodeText,
-#                 lambda: self.compareImage("testWords4", True),
+        self.start("i18ntext.avg",
+                (lambda: self.compareImage("testI18NWords1", True),
+                 changeUnicodeText,
+                 lambda: self.compareImage("testI18NWords2", True),
                  Player.stop))
 
     def testVideo(self):
@@ -897,8 +1004,11 @@ class PlayerTestCase(AVGTestCase):
                  Player.stop))
 
     def testImgDynamics(self):
-        def createImg():
-            node = Player.createNode("<image href='rgb24-64x64.png'/>")
+        def createImg(useXml):
+            if useXml:
+                node = Player.createNode("<image href='rgb24-64x64.png'/>")
+            else:
+                node = Player.createNode("image", {"href":"rgb24-64x64.png"})
             node.id = "newImage"
             node.x = 10
             node.y = 20
@@ -913,8 +1023,11 @@ class PlayerTestCase(AVGTestCase):
                 exceptionRaised=True
             self.assert_(exceptionRaised)
             self.assert_(rootNode.indexOf(Player.getElementByID("newImage")) == 0)
-        def createImg2():
-            node = Player.createNode("<image href='rgb24-64x64.png' id='newImage2'/>")
+        def createImg2(fromXml):
+            if fromXml:
+                node = Player.createNode("<image href='rgb24-64x64.png' id='newImage2'/>")
+            else:
+                node = Player.createNode("image", {"href":"rgb24-64x64.png", "id":"newImage2"})
             Player.getRootNode().insertChild(node, 0)
         def reorderImg():
             Player.getRootNode().reorderChild(0, 1)
@@ -928,26 +1041,32 @@ class PlayerTestCase(AVGTestCase):
             rootNode = Player.getRootNode()
             rootNode.appendChild(self.imgNode)
             self.imgNode = None
-        Player.loadFile("empty.avg")
-        createImg()
-        Player.stop()
-        self.setUpVideo()
-        self.start("empty.avg",
-                (createImg,
-                 lambda: self.compareImage("testImgDynamics1", False),
-                 createImg2,
-                 lambda: self.compareImage("testImgDynamics2", False),
-                 reorderImg,
-                 lambda: self.compareImage("testImgDynamics3", False),
-                 removeImgs,
-                 lambda: self.compareImage("testImgDynamics4", False),
-                 reAddImg,
-                 lambda: self.compareImage("testImgDynamics5", False),
-                 Player.stop))
+        def runTest(useXml):
+            Player.loadFile("empty.avg")
+            createImg(useXml)
+            Player.stop()
+            self.setUpVideo()
+            self.start("empty.avg",
+                    (lambda: createImg(useXml),
+                     lambda: self.compareImage("testImgDynamics1", False),
+                     lambda: createImg2(useXml),
+                     lambda: self.compareImage("testImgDynamics2", False),
+                     reorderImg,
+                     lambda: self.compareImage("testImgDynamics3", False),
+                     removeImgs,
+                     lambda: self.compareImage("testImgDynamics4", False),
+                     reAddImg,
+                     lambda: self.compareImage("testImgDynamics5", False),
+                     Player.stop))
+        runTest(True)
+        runTest(False) 
 
     def testVideoDynamics(self):
-        def createVideo():
-            node = Player.createNode("<video id='newVideo' href='mpeg1-48x48.mpg'/>")
+        def createVideo(useXml):
+            if useXml:
+                node = Player.createNode("<video id='newVideo' href='mpeg1-48x48.mpg'/>")
+            else:
+                node = Player.createNode("video", {"id":"newVideo", "href":"mpeg1-48x48.mpg"})
             Player.getRootNode().appendChild(node)
             node.play()
         def removeVideo():
@@ -967,23 +1086,29 @@ class PlayerTestCase(AVGTestCase):
             self.videoNode = None
         def foo():
             pass
-        Player.loadFile("empty.avg")
-        createVideo()
-        Player.stop()
-        self.setUpVideo()
-        self.start("empty.avg",
-                (createVideo,
-                 lambda: self.compareImage("testVideoDynamics1", False),
-                 removeVideo,
-                 lambda: self.compareImage("testVideoDynamics2", False),
-                 reAddVideo,
-                 lambda: self.compareImage("testVideoDynamics3", False),
-                 Player.stop))
+        def runTest(useXml):
+            Player.loadFile("empty.avg")
+            createVideo(useXml)
+            Player.stop()
+            self.setUpVideo()
+            self.start("empty.avg",
+                    (lambda: createVideo(useXml),
+                     lambda: self.compareImage("testVideoDynamics1", False),
+                     removeVideo,
+                     lambda: self.compareImage("testVideoDynamics2", False),
+                     reAddVideo,
+                     lambda: self.compareImage("testVideoDynamics3", False),
+                     Player.stop))
+        runTest(True)
+        runTest(False)
 
 
     def testWordsDynamics(self):
-        def createWords():
-            node = Player.createNode("<words id='newWords' text='test'/>")
+        def createWords(useXml):
+            if useXml:
+                node = Player.createNode("<words id='newWords' text='test'/>")
+            else:
+                node = Player.createNode("words", {"id":"newWords", "text":"test"})
             node.font="times new roman"
             node.size=12
             node.parawidth=200
@@ -998,22 +1123,28 @@ class PlayerTestCase(AVGTestCase):
             rootNode.appendChild(self.wordsNode)
             self.wordsNode.text='test2'
             self.wordsNode = None
-        Player.loadFile("empty.avg")
-        createWords()
-        Player.stop()
-        self.setUpVideo()
-        self.start("empty.avg",
-                (createWords,
-                 lambda: self.compareImage("testWordsDynamics1", True),
-                 removeWords,
-                 lambda: self.compareImage("testWordsDynamics2", True),
-                 reAddWords,
-                 lambda: self.compareImage("testWordsDynamics3", True),
-                 Player.stop))
+        def runTest(useXml):
+            Player.loadFile("empty.avg")
+            createWords(useXml)
+            Player.stop()
+            self.setUpVideo()
+            self.start("empty.avg",
+                    (lambda: createWords(useXml),
+                     lambda: self.compareImage("testWordsDynamics1", True),
+                     removeWords,
+                     lambda: self.compareImage("testWordsDynamics2", True),
+                     reAddWords,
+                     lambda: self.compareImage("testWordsDynamics3", True),
+                     Player.stop))
+        runTest(True)
+        runTest(False)
 
     def testCameraDynamics(self):
-        def createCamera():
-            node = Player.createNode("<camera id='newCamera' source='firewire' device='/dev/video1394/0' capturewidth='640' captureheight='480' pixelformat='MONO8' framerate='15'/>")
+        def createCamera(useXml):
+            if useXml:
+                node = Player.createNode("<camera id='newCamera' source='firewire' device='/dev/video1394/0' capturewidth='640' captureheight='480' pixelformat='MONO8' framerate='15'/>")
+            else:
+                node = Player.createNode("camera", {"id":"newCamera", "source":"firewire", "device":"/dev/video1394/0", "capturewidth":"640", "captureheight":"480", "pixelformat":"MONO8", "framerate":"15"})
             Player.getRootNode().appendChild(node)
         def removeCamera():
             self.cameraNode = Player.getElementByID("newCamera")
@@ -1022,19 +1153,25 @@ class PlayerTestCase(AVGTestCase):
         def reAddCamera():
             Player.getRootNode().appendChild(self.cameraNode)
             self.cameraNode = None
-        Player.loadFile("empty.avg")
-        createCamera()
-        Player.stop()
-        self.setUpVideo()
-        self.start("empty.avg",
-                (createCamera,
-                 removeCamera,
-                 reAddCamera,
-                 Player.stop))
+        def runTest(useXml):
+            Player.loadFile("empty.avg")
+            createCamera(True)
+            Player.stop()
+            self.setUpVideo()
+            self.start("empty.avg",
+                    (lambda: createCamera(useXml),
+                     removeCamera,
+                     reAddCamera,
+                     Player.stop))
+	    runTest(True)
+	    runTest(False)
 
     def testPanoDynamics(self):
-        def createPano():
-            node = Player.createNode("<panoimage id='newPano' href='panoimage.png' sensorwidth='4.60' sensorheight='3.97' focallength='12' width='160' height='120'/>")
+        def createPano(useXml):
+            if useXml:
+                node = Player.createNode("<panoimage id='newPano' href='panoimage.png' sensorwidth='4.60' sensorheight='3.97' focallength='12' width='160' height='120'/>")
+            else:
+                node = Player.createNode("panoimage", {"id":"newPano", "href":"panoimage.png", "sensorwidth":"4.60", "sensorheight":"3.97", "focallength":"12", "width":"160", "height":"120"})
             Player.getRootNode().appendChild(node)
         def removePano():
             self.panoNode = Player.getElementByID("newPano")
@@ -1043,43 +1180,58 @@ class PlayerTestCase(AVGTestCase):
         def reAddPano():
             Player.getRootNode().appendChild(self.panoNode)
             self.panoNode = None
-        Player.loadFile("empty.avg")
-        createPano()
-        Player.stop()
-        self.setUpVideo()
-        self.start("empty.avg",
-                (createPano,
-                 lambda: self.compareImage("testPanoDynamics1", False),
-                 removePano,
-                 lambda: self.compareImage("testPanoDynamics2", False),
-                 reAddPano,
-                 lambda: self.compareImage("testPanoDynamics3", False),
-                 Player.stop))
+        def runTest(useXml):
+            Player.loadFile("empty.avg")
+            createPano(useXml)
+            Player.stop()
+            self.setUpVideo()
+            self.start("empty.avg",
+                    (lambda: createPano(useXml),
+                     lambda: self.compareImage("testPanoDynamics1", False),
+                     removePano,
+                     lambda: self.compareImage("testPanoDynamics2", False),
+                     reAddPano,
+                     lambda: self.compareImage("testPanoDynamics3", False),
+                     Player.stop))
+        runTest(True)
+        runTest(False)
+
     def testDivDynamics(self):
-        def createDiv():
-            node = Player.createNode("<div id='newDiv'><image id='nestedImg' href='rgb24-64x64.png'/></div>")
+        def createDiv(useXml):
+            if useXml:
+                node = Player.createNode("<div id='newDiv'><image id='nestedImg' href='rgb24-64x64.png'/></div>")
+            else:
+                imgNode = Player.createNode("image", {"id":"nestedImg", "href":"rgb24-64x64.png"})
+                node = Player.createNode("div", {"id":"newDiv"})
+                node.appendChild(imgNode)
             Player.getRootNode().appendChild(node)
         def removeDiv():
             self.divNode = Player.getElementByID("newDiv")
             rootNode = Player.getRootNode()
             rootNode.removeChild(rootNode.indexOf(self.divNode))
-        def reAddDiv():
-            node = Player.createNode("<image id='img2' href='rgb24-64x64.png' x='64'/>")
+        def reAddDiv(useXml):
+            if useXml:
+                node = Player.createNode("<image id='img2' href='rgb24-64x64.png' x='64'/>")
+            else:
+                node = Player.createNode("image", {"id":"img2", "href":"rgb24-64x64.png", "x":"64"})
             self.divNode.appendChild(node)
             Player.getRootNode().appendChild(self.divNode)
             self.divNode = None
-        Player.loadFile("empty.avg")
-        createDiv()
-        Player.stop()
-        self.setUpVideo()
-        self.start("empty.avg",
-                (createDiv,
-                 lambda: self.compareImage("testDivDynamics1", False),
-                 removeDiv,
-                 lambda: self.compareImage("testDivDynamics2", False),
-                 reAddDiv,
-                 lambda: self.compareImage("testDivDynamics3", False),
-                 Player.stop))
+        def runTest(useXml):
+            Player.loadFile("empty.avg")
+            createDiv(useXml)
+            Player.stop()
+            self.setUpVideo()
+            self.start("empty.avg",
+                    (lambda: createDiv(useXml),
+                     lambda: self.compareImage("testDivDynamics1", False),
+                     removeDiv,
+                     lambda: self.compareImage("testDivDynamics2", False),
+                     lambda: reAddDiv(useXml),
+                     lambda: self.compareImage("testDivDynamics3", False),
+                     Player.stop))
+        runTest(True)
+        runTest(False)
             
 def playerTestSuite(bpp):
     def rmBrokenDir():
@@ -1105,6 +1257,7 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testInvalidImageFilename", bpp))
     suite.addTest(PlayerTestCase("testInvalidVideoFilename", bpp))
     suite.addTest(PlayerTestCase("testEvents", bpp))
+    suite.addTest(PlayerTestCase("testMouseOver", bpp))
     suite.addTest(PlayerTestCase("testEventCapture", bpp))
     suite.addTest(PlayerTestCase("testTimeouts", bpp))
     suite.addTest(PlayerTestCase("testEventErr", bpp))
@@ -1115,7 +1268,10 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testBlend", bpp))
     suite.addTest(PlayerTestCase("testCropImage", bpp))
     suite.addTest(PlayerTestCase("testCropMovie", bpp))
-    suite.addTest(PlayerTestCase("testWords", bpp))
+    suite.addTest(PlayerTestCase("testSimpleWords", bpp))
+    suite.addTest(PlayerTestCase("testParaWords", bpp))
+    suite.addTest(PlayerTestCase("testDynamicWords", bpp))
+    suite.addTest(PlayerTestCase("testI18NWords", bpp))
     suite.addTest(PlayerTestCase("testVideo", bpp))
     suite.addTest(PlayerTestCase("testVideoSeek", bpp))
     suite.addTest(PlayerTestCase("testVideoFPS", bpp))

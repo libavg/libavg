@@ -51,13 +51,18 @@ namespace avg {
         ObjectCounter::get()->decRef(&typeid(*this));
     }
 
-    void EventStream::blobChanged(BlobPtr new_blob)
+    void EventStream::blobChanged(BlobPtr new_blob, bool bEventOnMove)
     {
         assert(m_pBlob);
         assert(new_blob);
         m_VanishCounter = 0;
         DPoint c = new_blob->getCenter();
-        bool pos_changed = (calcDist(c, m_Pos) > 1.5);
+        bool pos_changed;
+        if (bEventOnMove) {
+            pos_changed = (calcDist(c, m_Pos) > 1.5);
+        } else {
+            pos_changed = true;
+        }
         switch(m_State) {
             case DOWN_PENDING:
                 //finger touch has not been polled yet. update position
@@ -94,7 +99,6 @@ namespace avg {
     {
         switch(m_State) {
             case DOWN_PENDING:
-                AVG_TRACE(Logger::EVENTS2, "Spurious blob suppressed.");
                 m_State = UP_DELIVERED;
                 break;
             case UP_PENDING:
@@ -111,7 +115,7 @@ namespace avg {
     }
 
     Event* EventStream::pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, 
-            CursorEvent::Source Source)
+            CursorEvent::Source Source, bool bEventOnMove)
     {
         assert(m_pBlob);
         DPoint BlobOffset = trafo->getActiveBlobArea(DPoint(DisplayExtents)).tl;
@@ -135,6 +139,12 @@ namespace avg {
                         m_pBlob, Pos, Source);
             case DOWN_DELIVERED:
             case MOTION_DELIVERED:
+                if (!bEventOnMove) {
+                    return new TouchEvent(m_Id, Event::CURSORMOTION,
+                            m_pBlob, Pos, Source);
+                } else {
+                    return 0;
+                }
             case UP_DELIVERED:
             default:
                 //return no event

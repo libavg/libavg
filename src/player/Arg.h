@@ -1,0 +1,95 @@
+//
+//  libavg - Media Playback Engine. 
+//  Copyright (C) 2003-2006 Ulrich von Zadow
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2 of the License, or (at your option) any later version.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  Current versions can be found at www.libavg.de
+//
+//  Original author of this file is Nick Hebner (hebnern@gmail.com).
+//
+
+#ifndef _Arg_H_
+#define _Arg_H_
+
+#include "ArgBase.h"
+
+#include <string>
+
+namespace avg {
+
+class Node;
+
+template<class T>
+class Arg: public ArgBase
+{
+public:
+    Arg(std::string sName, const T& Value, bool bRequired = false, 
+            ptrdiff_t MemberOffset = -1);
+    virtual ~Arg();
+
+    void setValue(const T& Value);
+    const T& getValue() const;
+    virtual void setMember(Node * pNode) const;
+    virtual ArgBase* createCopy() const;
+
+private:
+    T m_Value;
+};
+
+template<class T>
+Arg<T>::Arg(std::string sName, const T& Value, bool bRequired, 
+        ptrdiff_t MemberOffset)
+    : ArgBase(sName, bRequired, MemberOffset),
+      m_Value(Value)
+{
+}
+
+template<class T>
+Arg<T>::~Arg<T>()
+{
+}
+
+template<class T>
+const T& Arg<T>::getValue() const
+{
+    return m_Value;
+}
+    
+template<class T>
+void Arg<T>::setValue(const T& Value)
+{
+    m_Value = Value;
+}
+
+template<class T>
+void Arg<T>::setMember(Node * pNode) const
+{
+    if (getMemberOffset() != -1) {
+        T* pMember = (T*)((char*)pNode+getMemberOffset());
+        *pMember = m_Value;
+    }
+}
+
+template<class T>
+ArgBase* Arg<T>::createCopy() const
+{
+    return new Arg<T>(*this);
+}
+
+}
+
+#endif
+

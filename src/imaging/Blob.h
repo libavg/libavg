@@ -32,9 +32,7 @@
 #include "../base/Point.h"
 
 #include <assert.h>
-#include <list>
 #include <vector>
-#include <map>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
@@ -47,15 +45,15 @@ typedef boost::weak_ptr<class Blob> BlobWeakPtr;
 typedef std::vector<BlobPtr> BlobVector;
 typedef std::vector<BlobWeakPtr> BlobWeakPtrVector;
 typedef boost::shared_ptr<BlobVector> BlobVectorPtr;
-
+typedef std::vector<IntPoint> ContourSeq;
 
 class Blob
 {
     public:
-        Blob(const RunPtr& pRun);
+        Blob(const Run & run);
         ~Blob();
 
-        void addRun(const RunPtr& pRun);
+        void addRun(const Run & run);
         void merge(const BlobPtr& other);
         RunArray* getRuns();
         void render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color, 
@@ -64,6 +62,8 @@ class Blob
         bool contains(IntPoint pt);
 
         void calcStats();
+        void calcContour(int Precision);
+        ContourSeq getContour();
 
         const DPoint& getCenter() const;
         double getArea() const;
@@ -86,10 +86,14 @@ class Blob
         DPoint calcCenter();
         IntRect calcBBox();
         int calcArea();
+        void initRowPositions();
+        IntPoint findNeighborInside(const IntPoint& Pt, int& Dir);
+        bool ptIsInBlob(const IntPoint& Pt);
 
-        RunArray *m_pRuns;
+        RunArray m_Runs; // This array is unsorted until contours are calculated.
+        std::vector<RunArray::iterator> m_RowPositions;
         BlobWeakPtrVector m_RelatedBlobs; // For fingers, this contains the hand.
-                                       // For hands, this contains the fingers.
+                                          // For hands, this contains the fingers.
 
         bool m_bStatsAvailable;
         DPoint m_Center;
@@ -101,9 +105,11 @@ class Blob
         DPoint m_ScaledBasis[2];
         DPoint m_EigenVector[2];
         DPoint m_EigenValues;
+
+        ContourSeq m_Contour;
 };
 
-BlobVectorPtr connected_components(BitmapPtr image, unsigned char object_threshold);
+BlobVectorPtr findConnectedComponents(BitmapPtr image, unsigned char object_threshold);
 
 }
 

@@ -34,7 +34,12 @@ using namespace std;
 void export_event()
 {
     boost::python::to_python_converter<vector<TouchEvent*>, 
-        to_tuple<vector<TouchEvent *> > >();    
+        to_tuple<vector<TouchEvent *> > >();
+          
+    boost::python::to_python_converter<ContourSeq, 
+        to_list<ContourSeq> >();    
+   
+    from_python_sequence<ContourSeq, variable_capacity_policy>();
 
     class_<Event, boost::noncopyable>("Event", 
             "Base class for user input events.\n",
@@ -104,15 +109,19 @@ void export_event()
         ;
 
     class_<TouchEvent, bases<Event> >("TouchEvent", 
-            "Raised when a touch event occurs. Touch events happen only when a multi-touch\n"
-            "sensitive surface or other camera tracker is active.\n",
+            "Raised when a touch or other tracking event occurs. Touch events happen \n"
+            "only when a multi-touch sensitive surface or other camera tracker is \n"
+            "active. For each touch event, statistical data based on moments are \n"
+            "calculated.",
             no_init)
         .add_property("source", &TouchEvent::getSource,
                 "TOUCH for actual touches, TRACK for hands above the surface or\n"
-                "generic tracking.")
+                "generic tracking.\n")
         .add_property("area", &TouchEvent::getArea,
-                "size of the blob (ro).\n")
-        .add_property("orientation", &TouchEvent::getOrientation)
+                "Size of the blob found in pixels (ro).\n")
+        .add_property("orientation", &TouchEvent::getOrientation,
+                "Angle of the blob. For hovering hands, this is roughly the direction \n"
+                "of the hand (ro).\n")
         .add_property("inertia", &TouchEvent::getInertia)
         .add_property("eccentricity", &TouchEvent::getInertia)
         .add_property("x", &TouchEvent::getXPosition,
@@ -125,12 +134,22 @@ void export_event()
         .add_property("center", make_function(&TouchEvent::getCenter,
                 return_value_policy<copy_const_reference>()),
                 "Position as double. Used for calibration (ro).\n")
+        .add_property("majoraxis", make_function(&TouchEvent::getMajorAxis,
+                return_value_policy<copy_const_reference>()),
+                "Major axis of an ellipse that is similar to the blob (ro).\n")
+        .add_property("minoraxis", make_function(&TouchEvent::getMinorAxis,
+                return_value_policy<copy_const_reference>()),
+                "Minor axis of an ellipse that is similar to the blob (ro).\n")
         .def("getRelatedEvents", &TouchEvent::getRelatedEvents,
                 "getRelatedEvents() -> events\n"
                 "Returns a python tuple containing the events 'related' to this one.\n"
                 "For TOUCH events (fingers), the tuple contains one element: the\n"
                 "corresponding TRACK event (hand). For TRACK events, the tuple contains\n"
-                "all TOUCH events that belong to the same hand.\n");
+                "all TOUCH events that belong to the same hand.\n")
+        .def("getContour", &TouchEvent::getContour,
+                "getContour()\n"
+                "Extracts contour envelope sequence for the event\n")
+        ;
    
     enum_<TrackerImageID>("TrackerImageID")
         .value("IMG_CAMERA", TRACKER_IMG_CAMERA)
@@ -185,20 +204,13 @@ void export_event()
             "Aborts coordinate calibration session and restores the previous\n"
             "coordinate transformer.\n")
 
-        .add_property("threshold", &TrackerEventSource::getThreshold,
-            &TrackerEventSource::setThreshold)
-        .add_property("historyspeed", &TrackerEventSource::getHistorySpeed,
-            &TrackerEventSource::setHistorySpeed)
-        .add_property("brightness", &TrackerEventSource::getBrightness,
-            &TrackerEventSource::setBrightness)
-        .add_property("exposure", &TrackerEventSource::getExposure,
-            &TrackerEventSource::setExposure)
-        .add_property("gamma", &TrackerEventSource::getGamma,
-            &TrackerEventSource::setGamma)
-        .add_property("gain", &TrackerEventSource::getGain,
-            &TrackerEventSource::setGain)
-        .add_property("shutter", &TrackerEventSource::getShutter,
-            &TrackerEventSource::setShutter)
+        .def("setParam", &TrackerEventSource::setParam,
+            "setParam()\n"
+            "Updates an arbitrary parameter of tracker configuration.\n")
+        .def("getParam", &TrackerEventSource::getParam,
+            "getParam()\n"
+            "Retrieves an arbitrary parameter of tracker configuration.\n")
+
         ;
 
 class_<TrackerCalibrator, boost::noncopyable>("TrackerCalibrator",
