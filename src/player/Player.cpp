@@ -856,12 +856,14 @@ void Player::handleTimers()
     vector<Timeout *>::iterator it;
     m_bInHandleTimers = true;
     vector<Timeout *> IntervalsFired;
-    
+   
     it = m_PendingTimeouts.begin();
     while (it != m_PendingTimeouts.end() && (*it)->IsReady(getFrameTime()) && !m_bStopping)
     {
         (*it)->Fire(getFrameTime());
-        if (!m_bCurrentTimeoutDeleted) {
+        if (m_bCurrentTimeoutDeleted) {
+            it = m_PendingTimeouts.begin();
+        } else {
             if ((*it)->IsInterval()) {
                 Timeout* pTempTimeout = *it;
                 it = m_PendingTimeouts.erase(it);
@@ -947,7 +949,7 @@ void Player::handleCursorEvent(CursorEvent * pEvent)
             }
         }
         if (itCur == pCursorNodes.end()) {
-            if (!bIsCapturing || itLast == pDestNodes.begin()) {
+            if (!bIsCapturing || pLastNode == pDestNodes.begin()->lock()) {
                 sendOver(pEvent, Event::CURSOROUT, pLastNode);
             }
         }
@@ -964,7 +966,7 @@ void Player::handleCursorEvent(CursorEvent * pEvent)
             }
         }
         if (itLast == pLastCursorNodes.end()) {
-            if (!bIsCapturing || itCur == pDestNodes.begin()) {
+            if (!bIsCapturing || pCurNode == pDestNodes.begin()->lock()) {
                 sendOver(pEvent, Event::CURSOROVER, pCurNode);
             }
         }
