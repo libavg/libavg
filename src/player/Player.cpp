@@ -161,13 +161,13 @@ void Player::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode,
 void Player::loadFile (const std::string& filename)
 {
     try {
-        m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
         AVG_TRACE(Logger::MEMORY, 
                 std::string("Player::LoadFile(") + filename + ")");
         if (m_pRootNode) {
             cleanup();
         }
         assert (!m_pRootNode);
+        m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
 
         // When loading an avg file, assets are loaded from a directory relative
         // to the file.
