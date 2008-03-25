@@ -51,6 +51,7 @@ class Player : IEventSink
     public:
         Player();
         virtual ~Player();
+        static Player* get();
 
         void setResolution(bool bFullscreen, 
                 int width=0, int height=0, int bpp=0);
@@ -167,6 +168,8 @@ class Player : IEventSink
         xmlDtdPtr m_dtd;
 
         bool m_bPythonAvailable;
+
+        static Player * s_pPlayer;
 };
 
 }

@@ -77,6 +77,8 @@ using namespace std;
 
 namespace avg {
 
+Player * Player::s_pPlayer=0;
+
 Player::Player()
     : m_pRootNode(),
       m_pDisplayEngine(0),
@@ -116,9 +118,10 @@ Player::Player()
     m_pTestHelper = new TestHelper(this);
 
 #ifdef _WIN32
-    cerr << getAvgLibPath()+"magick\\" << endl;
     Magick::InitializeMagick((getAvgLibPath()+"magick\\").c_str());
 #endif
+
+    s_pPlayer = this;
 }
 
 Player::~Player()
@@ -133,6 +136,11 @@ Player::~Player()
         xmlFreeDtd(m_dtd);
     }
     delete m_pTestHelper;
+}
+
+Player* Player::get()
+{
+    return s_pPlayer;
 }
 
 void Player::setResolution(bool bFullscreen, int width, int height, int bpp)

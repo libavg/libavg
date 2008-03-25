@@ -147,6 +147,11 @@ BOOST_PYTHON_MODULE(avg)
 
     class_<Player>("Player", 
                 "The class used to load and play avg files.")
+        .def("get", &Player::get, 
+                return_value_policy<reference_existing_object>(),
+                "This method gives access to the player, which must have been created.\n"
+                "before by calling the constructor.\n")
+        .staticmethod("get")
         .def("setResolution", &Player::setResolution,
                 "setResolution(fullscreen, width, height, bpp)\n"
                 "Sets display engine parameters. Must be called before loadFile.\n"

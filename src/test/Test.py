@@ -956,7 +956,7 @@ class PlayerTestCase(AVGTestCase):
                     200, 100, 0, 10, -400, 1, None)
         self.__animStopped = False
         Player.setFakeFPS(60)
-        anim.init(Player)
+        anim.init(avg)
         Player.loadFile("avg.avg")
         Player.setTimeout(1, onStart)
         Player.setFramerate(60)
@@ -988,7 +988,7 @@ class PlayerTestCase(AVGTestCase):
             self.anim3.abort()
 
         Player.setFakeFPS(25)
-        anim.init(Player)
+        anim.init(avg)
         Player.loadFile("avg.avg")
         Player.setTimeout(1, onStart)
         Player.play()
@@ -1008,7 +1008,7 @@ class PlayerTestCase(AVGTestCase):
         self.__dragStartCalled = False
         Helper = Player.getTestHelper()    
         Player.loadFile("image.avg")
-        draggable.init(avg, Player)
+        draggable.init(avg)
         dragger = draggable.Draggable(Player.getElementByID("testhue"),
                 onDragStart, onDragEnd)
         dragger.enable()
