@@ -32,6 +32,8 @@ struct DisplayParams {
     DisplayParams();
     virtual ~DisplayParams();
 
+    int m_x;
+    int m_y;
     int m_Width;
     int m_Height;
     bool m_bFullscreen;

@@ -159,6 +159,9 @@ BOOST_PYTHON_MODULE(avg)
                 "@param width, height: Set the window size\n"
                 "(if fullscreen is false) or screen resolution (if fullscreen is true).\n"
                 "@param bpp: Number of bits per pixel to use.\n")
+        .def("setWindowPos", &Player::setWindowPos,
+                "setWindowPos(x, y)\n"
+                "Sets the location of the player window. Must be called before loadFile.\n")
         .def("setOGLOptions", &Player::setOGLOptions,
                 "setOGLOptions(UsePOW2Textures, YCbCrMode, UsePixelBuffers, MultiSampleSamples)\n"
                 "Determines which OpenGL extensions to check for and use if possible.\n"

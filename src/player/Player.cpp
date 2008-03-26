@@ -156,7 +156,13 @@ void Player::setResolution(bool bFullscreen, int width, int height, int bpp)
         m_DP.m_WindowHeight = height;
     }
 }
-        
+
+void Player::setWindowPos(int x, int y)
+{
+    m_DP.m_x = x;
+    m_DP.m_y = y;
+}
+
 void Player::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode, 
                 bool bUsePixelBuffers, int MultiSampleSamples)
 {
