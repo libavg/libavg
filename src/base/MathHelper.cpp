@@ -53,7 +53,7 @@ int nextpow2(int n) {
 int safeCeil(double d) 
 {
     if (fabs(d-int(d)) < EPSILON) {
-        return d;
+        return int(d);
     } else {
         return int(d)+1;
     }

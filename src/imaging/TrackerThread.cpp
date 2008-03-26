@@ -173,13 +173,13 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
     boost::mutex::scoped_lock Lock(*m_pMutex);
     try {
         m_TouchThreshold = Config.getIntParam("/tracker/touch/threshold/@value");
-    } catch (Exception& e) {
+    } catch (Exception&) {
         m_TouchThreshold = 0;
     }
     m_bTrackBrighter = Config.getBoolParam("/tracker/brighterregions/@value");
     try {
         m_TrackThreshold = Config.getIntParam("/tracker/track/threshold/@value");
-    } catch (Exception& e) {
+    } catch (Exception&) {
         m_TrackThreshold = 0;
     }
     m_Prescale = Config.getIntParam("/tracker/prescale/@value");

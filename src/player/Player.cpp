@@ -218,8 +218,8 @@ void Player::loadFile (const std::string& filename)
             (createNodeFromXml(doc, xmlNode, DivNodePtr()));
         m_pRootNode->setParent(DivNodeWeakPtr());
         registerNode(m_pRootNode);
-        m_DP.m_Height = m_pRootNode->getHeight();
-        m_DP.m_Width = m_pRootNode->getWidth();
+        m_DP.m_Height = int(m_pRootNode->getHeight());
+        m_DP.m_Width = int(m_pRootNode->getWidth());
 
         // Reset the directory to load assets from to the current dir.
         getcwd(szBuf, 1024);
