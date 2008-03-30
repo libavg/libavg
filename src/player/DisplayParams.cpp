@@ -25,7 +25,9 @@
 namespace avg {
 
 DisplayParams::DisplayParams()
-    : m_Width(0),
+    : m_x(-1),
+      m_y(-1),
+      m_Width(0),
       m_Height(0),
       m_bFullscreen(false),
       m_BPP(24),

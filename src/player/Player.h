@@ -54,9 +54,11 @@ class Player : IEventSink
     public:
         Player();
         virtual ~Player();
+        static Player* get();
 
         void setResolution(bool bFullscreen, 
                 int width=0, int height=0, int bpp=0);
+        void setWindowPos(int x=0, int y=0);
         void setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode, 
                 bool bUsePixelBuffers, int MultiSampleSamples);
         void setAudioOptions(int samplerate, int channels);
@@ -174,6 +176,8 @@ class Player : IEventSink
         xmlDtdPtr m_dtd;
 
         bool m_bPythonAvailable;
+
+        static Player * s_pPlayer;
 };
 
 }

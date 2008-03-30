@@ -33,8 +33,9 @@ namespace avg {
 class DeDistort;
 typedef boost::shared_ptr<DeDistort> DeDistortPtr;
 
-struct TrackerConfig
+class TrackerConfig
 {
+public:
     TrackerConfig();
     TrackerConfig(const TrackerConfig& Other);
     virtual ~TrackerConfig();

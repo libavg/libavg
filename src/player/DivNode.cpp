@@ -39,7 +39,7 @@ NodeDefinition DivNode::getNodeDefinition()
 {
     return NodeDefinition("div", Node::buildNode<DivNode>)
         .extendDefinition(Node::getNodeDefinition())
-        .addChild(NodeDefinition("%anyNode;"))
+        .setGroupNode()
         .addArg(Arg<string>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)));
 }
 

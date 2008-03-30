@@ -41,6 +41,7 @@
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 #include "../base/Profiler.h"
+#include "../base/OSHelper.h"
 
 #include "../graphics/Filterflip.h"
 #include "../graphics/Filterfliprgb.h"
@@ -196,6 +197,11 @@ SDLDisplayEngine::~SDLDisplayEngine()
 
 void SDLDisplayEngine::init(const DisplayParams& DP) 
 {
+    stringstream ss;
+    if (DP.m_x != -1) {
+        ss << DP.m_x << "," << DP.m_y;
+        setEnv("SDL_VIDEO_WINDOW_POS", ss.str().c_str());
+    }
 #ifdef linux    
     int oldWindowWidth = m_WindowWidth;
     int oldWindowHeight = m_WindowHeight;

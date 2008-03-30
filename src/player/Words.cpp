@@ -70,56 +70,42 @@ void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level,
     AVG_TRACE(Logger::WARNING, s);
 */
 }
-
-NodeDefinition& addChildrenToMap(ChildMap& childMap, const string& sName)
-{
-    return childMap.find(sName)->second.addChildren(childMap);
-}
-
 NodeDefinition Words::getNodeDefinition()
 {
-    ChildMap childMap;
-    childMap.insert(ChildMap::value_type("#PCDATA", NodeDefinition("#PCDATA")));
-    childMap.insert(ChildMap::value_type("span", NodeDefinition("span")));
-    childMap.insert(ChildMap::value_type("b", NodeDefinition("b")));
-    childMap.insert(ChildMap::value_type("big", NodeDefinition("big")));
-    childMap.insert(ChildMap::value_type("i", NodeDefinition("i")));
-    childMap.insert(ChildMap::value_type("s", NodeDefinition("s")));
-    childMap.insert(ChildMap::value_type("sub", NodeDefinition("sub")));
-    childMap.insert(ChildMap::value_type("sup", NodeDefinition("sup")));
-    childMap.insert(ChildMap::value_type("small", NodeDefinition("small")));
-    childMap.insert(ChildMap::value_type("tt", NodeDefinition("tt")));
-    childMap.insert(ChildMap::value_type("u", NodeDefinition("u")));
-    
-    addChildrenToMap(childMap,"span")
-        .addArg(Arg<string>("font_desc", ""))
-        .addArg(Arg<string>("font_family", ""))
-        .addArg(Arg<string>("face", ""))
-        .addArg(Arg<string>("size", ""))
-        .addArg(Arg<string>("style", ""))
-        .addArg(Arg<string>("weight", ""))
-        .addArg(Arg<string>("variant", ""))
-        .addArg(Arg<string>("stretch", ""))
-        .addArg(Arg<string>("foreground", ""))
-        .addArg(Arg<string>("background", ""))
-        .addArg(Arg<string>("underline", ""))
-        .addArg(Arg<string>("rise", ""))
-        .addArg(Arg<string>("strikethrough", ""))
-        .addArg(Arg<string>("fallback", ""))
-        .addArg(Arg<string>("lang", ""));
-    addChildrenToMap(childMap, "b");
-    addChildrenToMap(childMap, "big");
-    addChildrenToMap(childMap, "i");
-    addChildrenToMap(childMap, "s");
-    addChildrenToMap(childMap, "sub");
-    addChildrenToMap(childMap, "sup");
-    addChildrenToMap(childMap, "small");
-    addChildrenToMap(childMap, "tt");
-    addChildrenToMap(childMap, "u");
-   
+    static const string sChildren = "(#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*";
+    static const string sDTDElements = 
+        "<!ELEMENT span (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
+        "<!ATTLIST span\n"
+        "  font_desc CDATA #IMPLIED\n"
+        "  font_family CDATA #IMPLIED\n"
+        "  face CDATA #IMPLIED\n"
+        "  size CDATA #IMPLIED\n"
+        "  style CDATA #IMPLIED\n"
+        "  weight CDATA #IMPLIED\n"
+        "  variant CDATA #IMPLIED\n"
+        "  stretch CDATA #IMPLIED\n"
+        "  foreground CDATA #IMPLIED\n"
+        "  background CDATA #IMPLIED\n"
+        "  underline CDATA #IMPLIED\n"
+        "  rise CDATA #IMPLIED\n"
+        "  strikethrough CDATA #IMPLIED\n"
+        "  fallback CDATA #IMPLIED\n"
+        "  lang CDATA #IMPLIED >\n"
+
+        "<!ELEMENT b (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
+        "<!ELEMENT big (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
+        "<!ELEMENT i (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
+        "<!ELEMENT s (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
+        "<!ELEMENT sub (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
+        "<!ELEMENT sup (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
+        "<!ELEMENT small (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
+        "<!ELEMENT tt (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
+        "<!ELEMENT u (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n";
+
     return NodeDefinition("words", Node::buildNode<Words>)
         .extendDefinition(RasterNode::getNodeDefinition())
-        .addChildren(childMap)
+        .addChildren(sChildren)
+        .addDTDElements(sDTDElements)
         .addArg(Arg<string>("font", "arial", false, offsetof(Words, m_FontName)))
         .addArg(Arg<string>("text", "", false, offsetof(Words, m_Text)))
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(Words, m_ColorName)))

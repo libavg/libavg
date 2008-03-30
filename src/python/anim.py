@@ -4,6 +4,15 @@
 
 import math
 
+avg = None
+g_Player = None
+
+try:
+    from . import avg
+except ValueError:
+    pass
+
+
 class SimpleAnim:
     """
     Base class for animations that change libavg node attributes by interpolating
@@ -12,6 +21,8 @@ class SimpleAnim:
     it will exist exactly as long as the animation lasts and then disappear.
     """
     def __init__(self, node, attrName, duration, useInt, onStop):
+        global g_Player
+        g_Player = avg.Player.get()
         self.node = node
         self.attrName = attrName
         self.duration = duration
@@ -237,6 +248,6 @@ class ContinuousAnim(SimpleAnim):
         """
         g_Player.clearInterval(self.__interval)
 
-def init(Player):
-    global g_Player
-    g_Player = Player
+def init(g_avg):
+    global avg
+    avg = g_avg

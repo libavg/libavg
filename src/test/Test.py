@@ -415,6 +415,38 @@ class PlayerTestCase(AVGTestCase):
                  # - errMouseOver
                  Player.stop))
 
+    def testEventCapture(self):
+        def captureEvent():
+            global captureMouseDownCalled
+            Helper = Player.getTestHelper()
+            captureMouseDownCalled = False
+            mainCaptureMouseDownCalled = False
+            Player.getElementByID("img1").setEventCapture()
+            Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                    100, 10, 1)
+        def noCaptureEvent():
+            global captureMouseDownCalled
+            Helper = Player.getTestHelper()
+            captureMouseDownCalled = False
+            mainCaptureMouseDownCalled = False
+            Player.getElementByID("img1").releaseEventCapture()
+            Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                    100, 10, 1)
+        global captureMouseDownCalled
+        global mainCaptureMouseDownCalled
+        Helper = Player.getTestHelper()
+        self.start("eventcapture.avg",
+                (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                        10, 10, 1),
+                 lambda: self.assert_(captureMouseDownCalled),
+                 captureEvent,
+                 lambda: self.assert_(captureMouseDownCalled and 
+                        mainCaptureMouseDownCalled),
+                 noCaptureEvent,
+                 lambda: self.assert_(not(captureMouseDownCalled) and 
+                        mainCaptureMouseDownCalled),
+                 Player.stop))
+
     def testMouseOver(self):
         def onImg2MouseOver(Event):
             self.img2MouseOverCalled = True
@@ -504,38 +536,29 @@ class PlayerTestCase(AVGTestCase):
                         not(self.divMouseOutCalled) and 
                         not(self.img1MouseOverCalled)),
 
-                 Player.stop))
+                 resetState,
+                 lambda: Player.getElementByID("img2").setEventCapture(),
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                        70, 70, 1),
+                 lambda: self.assert_(
+                        self.img2MouseOverCalled and 
+                        not(self.divMouseOverCalled) and 
+                        not(self.avgMouseOverCalled) and 
+                        not(self.img2MouseOutCalled) and 
+                        not(self.divMouseOutCalled) and 
+                        not(self.img1MouseOverCalled)),
 
-    def testEventCapture(self):
-        def captureEvent():
-            global captureMouseDownCalled
-            Helper = Player.getTestHelper()
-            captureMouseDownCalled = False
-            mainCaptureMouseDownCalled = False
-            Player.getElementByID("img1").setEventCapture()
-            Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                    100, 10, 1)
-        def noCaptureEvent():
-            global captureMouseDownCalled
-            Helper = Player.getTestHelper()
-            captureMouseDownCalled = False
-            mainCaptureMouseDownCalled = False
-            Player.getElementByID("img1").releaseEventCapture()
-            Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                    100, 10, 1)
-        global captureMouseDownCalled
-        global mainCaptureMouseDownCalled
-        Helper = Player.getTestHelper()
-        self.start("eventcapture.avg",
-                (lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                 resetState,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
                         10, 10, 1),
-                 lambda: self.assert_(captureMouseDownCalled),
-                 captureEvent,
-                 lambda: self.assert_(captureMouseDownCalled and 
-                        mainCaptureMouseDownCalled),
-                 noCaptureEvent,
-                 lambda: self.assert_(not(captureMouseDownCalled) and 
-                        mainCaptureMouseDownCalled),
+                 lambda: self.assert_(
+                        not(self.img2MouseOverCalled) and 
+                        not(self.divMouseOverCalled) and 
+                        not(self.avgMouseOverCalled) and 
+                        self.img2MouseOutCalled and 
+                        not(self.divMouseOutCalled) and 
+                        not(self.img1MouseOverCalled)),
+
                  Player.stop))
 
     def testTimeouts(self):
@@ -933,7 +956,7 @@ class PlayerTestCase(AVGTestCase):
                     200, 100, 0, 10, -400, 1, None)
         self.__animStopped = False
         Player.setFakeFPS(60)
-        anim.init(Player)
+        anim.init(avg)
         Player.loadFile("avg.avg")
         Player.setTimeout(1, onStart)
         Player.setFramerate(60)
@@ -965,7 +988,7 @@ class PlayerTestCase(AVGTestCase):
             self.anim3.abort()
 
         Player.setFakeFPS(25)
-        anim.init(Player)
+        anim.init(avg)
         Player.loadFile("avg.avg")
         Player.setTimeout(1, onStart)
         Player.play()
@@ -985,7 +1008,7 @@ class PlayerTestCase(AVGTestCase):
         self.__dragStartCalled = False
         Helper = Player.getTestHelper()    
         Player.loadFile("image.avg")
-        draggable.init(avg, Player)
+        draggable.init(avg)
         dragger = draggable.Draggable(Player.getElementByID("testhue"),
                 onDragStart, onDragEnd)
         dragger.enable()
@@ -1257,8 +1280,8 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testInvalidImageFilename", bpp))
     suite.addTest(PlayerTestCase("testInvalidVideoFilename", bpp))
     suite.addTest(PlayerTestCase("testEvents", bpp))
-    suite.addTest(PlayerTestCase("testMouseOver", bpp))
     suite.addTest(PlayerTestCase("testEventCapture", bpp))
+    suite.addTest(PlayerTestCase("testMouseOver", bpp))
     suite.addTest(PlayerTestCase("testTimeouts", bpp))
     suite.addTest(PlayerTestCase("testEventErr", bpp))
     suite.addTest(PlayerTestCase("testHugeImage", bpp))

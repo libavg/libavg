@@ -79,6 +79,8 @@ using namespace std;
 
 namespace avg {
 
+Player * Player::s_pPlayer=0;
+
 Player::Player()
     : m_pRootNode(),
       m_pDisplayEngine(0),
@@ -118,9 +120,10 @@ Player::Player()
     m_pTestHelper = new TestHelper(this);
 
 #ifdef _WIN32
-    cerr << getAvgLibPath()+"magick\\" << endl;
     Magick::InitializeMagick((getAvgLibPath()+"magick\\").c_str());
 #endif
+
+    s_pPlayer = this;
 }
 
 Player::~Player()
@@ -137,6 +140,11 @@ Player::~Player()
     delete m_pTestHelper;
 }
 
+Player* Player::get()
+{
+    return s_pPlayer;
+}
+
 void Player::setResolution(bool bFullscreen, int width, int height, int bpp)
 {
     m_DP.m_bFullscreen = bFullscreen;
@@ -150,7 +158,13 @@ void Player::setResolution(bool bFullscreen, int width, int height, int bpp)
         m_DP.m_WindowHeight = height;
     }
 }
-        
+
+void Player::setWindowPos(int x, int y)
+{
+    m_DP.m_x = x;
+    m_DP.m_y = y;
+}
+
 void Player::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode, 
                 bool bUsePixelBuffers, int MultiSampleSamples)
 {
@@ -169,13 +183,13 @@ void Player::setAudioOptions(int samplerate, int channels)
 void Player::loadFile (const std::string& filename)
 {
     try {
-        m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
         AVG_TRACE(Logger::MEMORY, 
                 std::string("Player::LoadFile(") + filename + ")");
         if (m_pRootNode) {
             cleanup();
         }
         assert (!m_pRootNode);
+        m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
 
         // When loading an avg file, assets are loaded from a directory relative
         // to the file.
@@ -218,8 +232,8 @@ void Player::loadFile (const std::string& filename)
             (createNodeFromXml(doc, xmlNode, DivNodePtr()));
         m_pRootNode->setParent(DivNodeWeakPtr());
         registerNode(m_pRootNode);
-        m_DP.m_Height = m_pRootNode->getHeight();
-        m_DP.m_Width = m_pRootNode->getWidth();
+        m_DP.m_Height = int(m_pRootNode->getHeight());
+        m_DP.m_Width = int(m_pRootNode->getWidth());
         // Reset the directory to load assets from to the current dir.
         getcwd(szBuf, 1024);
         m_CurDirName = string(szBuf)+"/";
@@ -882,12 +896,14 @@ void Player::handleTimers()
     vector<Timeout *>::iterator it;
     m_bInHandleTimers = true;
     vector<Timeout *> IntervalsFired;
-    
+   
     it = m_PendingTimeouts.begin();
     while (it != m_PendingTimeouts.end() && (*it)->IsReady(getFrameTime()) && !m_bStopping)
     {
         (*it)->Fire(getFrameTime());
-        if (!m_bCurrentTimeoutDeleted) {
+        if (m_bCurrentTimeoutDeleted) {
+            it = m_PendingTimeouts.begin();
+        } else {
             if ((*it)->IsInterval()) {
                 Timeout* pTempTimeout = *it;
                 it = m_PendingTimeouts.erase(it);
@@ -973,7 +989,7 @@ void Player::handleCursorEvent(CursorEvent * pEvent)
             }
         }
         if (itCur == pCursorNodes.end()) {
-            if (!bIsCapturing || itLast == pDestNodes.begin()) {
+            if (!bIsCapturing || pLastNode == pDestNodes.begin()->lock()) {
                 sendOver(pEvent, Event::CURSOROUT, pLastNode);
             }
         }
@@ -990,7 +1006,7 @@ void Player::handleCursorEvent(CursorEvent * pEvent)
             }
         }
         if (itLast == pLastCursorNodes.end()) {
-            if (!bIsCapturing || itCur == pDestNodes.begin()) {
+            if (!bIsCapturing || pCurNode == pDestNodes.begin()->lock()) {
                 sendOver(pEvent, Event::CURSOROVER, pCurNode);
             }
         }
