@@ -104,10 +104,10 @@ class FFMpegDecoder: public IVideoDecoder
 
         IDemuxer * m_pDemuxer;
         AVFormatContext * m_pFormatContext;
-        int m_VStreamIndex;
         AVStream * m_pVStream;
-        int m_AStreamIndex;
         AVStream * m_pAStream;
+        int m_VStreamIndex;
+        int m_AStreamIndex;
         bool m_bEOFPending;
         bool m_bEOF;
         bool m_bAudioEnabled;

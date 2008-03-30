@@ -55,22 +55,22 @@ FFMpegDecoder::FFMpegDecoder ()
       m_pAStream(0),
       m_VStreamIndex(-1),
       m_AStreamIndex(-1),
+      m_bAudioEnabled(true),
 #ifdef AVG_ENABLE_SWSCALE
       m_pSwsContext(0),
 #endif
+      m_Channels(0),
+      m_SampleRate(0),
       m_pAudioResampleContext(0),
+      m_Volume(1.0),
+      m_LastVolume(1.0),
       m_pPacketData(0),
       m_Size(0,0),
       m_VideoStartTimestamp(-1),
       m_LastVideoFrameTime(-1000),
       m_bUseStreamFPS(true),
       m_FPS(0),
-      m_SpeedFactor(1.0),
-      m_Channels(0),
-      m_SampleRate(0),
-      m_Volume(1.0),
-      m_LastVolume(1.0),
-      m_bAudioEnabled(true)
+      m_SpeedFactor(1.0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     initVideoSupport();
@@ -406,21 +406,18 @@ int FFMpegDecoder::getNumFrames()
 
 long long FFMpegDecoder::getCurTime(StreamSelect Stream)
 {
-	long long curTime = -1;
     switch(Stream) {
-    case SS_VIDEO:
-        assert(m_pVStream);
-        return m_LastVideoFrameTime;
-        break;
-    case SS_AUDIO:
-        assert(m_pAStream);
-        return m_LastAudioFrameTime;
-        break;
-    case SS_DEFAULT:
-        return getCurTime(getMasterStream());
-        break;
+        case SS_VIDEO:
+            assert(m_pVStream);
+            return m_LastVideoFrameTime;
+        case SS_AUDIO:
+            assert(m_pAStream);
+            return m_LastAudioFrameTime;
+        case SS_DEFAULT:
+            return getCurTime(getMasterStream());
+        default:
+            return -1;
     }
-    return -1;
 }
 
 long long FFMpegDecoder::getDuration()
@@ -678,6 +675,7 @@ int FFMpegDecoder::decodeAudio()
     // Adjust packet data pointers
     m_AudioPacketData += packetBytesDecoded;
     m_AudioPacketSize -= packetBytesDecoded;
+    // TODO: return something!!
 }
 
 void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer, int outputAudioBufferSize)
@@ -1033,19 +1031,17 @@ StreamSelect FFMpegDecoder::getMasterStream()
 long long FFMpegDecoder::getStartTime(StreamSelect Stream)
 {
     switch(Stream) {
-    case SS_VIDEO:
-        assert(m_pVStream);
-        return m_VideoStartTimestamp;
-        break;
-    case SS_AUDIO:
-        assert(m_pAStream);
-        return m_AudioStartTimestamp;
-        break;
-    case SS_DEFAULT:
-    	return getStartTime(getMasterStream());
-        break;
+        case SS_VIDEO:
+            assert(m_pVStream);
+            return m_VideoStartTimestamp;
+        case SS_AUDIO:
+            assert(m_pAStream);
+            return m_AudioStartTimestamp;
+        case SS_DEFAULT:
+            return getStartTime(getMasterStream());
+        default:
+            return -1;
     }
-    return -1;
 }
 
 // TODO: this should be logarithmic...
