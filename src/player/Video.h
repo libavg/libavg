@@ -27,10 +27,11 @@
 
 #include "Node.h"
 #include "VideoBase.h"
-#include "AudioSource.h"
 
 #include "../base/Point.h"
 #include "../base/IFrameListener.h"
+
+#include "../audio/AudioSource.h"
 
 #include <string>
 
@@ -38,7 +39,7 @@ namespace avg {
 
 class IVideoDecoder;
 
-class Video : public VideoBase, IFrameListener, public AudioSource
+class Video : public VideoBase, IFrameListener, AudioSource
 {
     public:
         static NodeDefinition getNodeDefinition();
@@ -46,7 +47,8 @@ class Video : public VideoBase, IFrameListener, public AudioSource
         Video (const ArgList& Args, Player * pPlayer);
         virtual ~Video ();
         
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
+                AudioEngine * pAudioEngine);
         virtual void disconnect();
 
         const std::string& getHRef() const;
@@ -108,6 +110,7 @@ class Video : public VideoBase, IFrameListener, public AudioSource
         long long m_PauseStartTime;
 
         IVideoDecoder * m_pDecoder;
+        double m_Volume;
 
         static bool m_bInitialized;
 };

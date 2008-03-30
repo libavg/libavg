@@ -31,6 +31,8 @@
 
 #include "../graphics/Filterflipuv.h"
 
+#include "../audio/AudioEngine.h"
+
 #include "../video/AsyncVideoDecoder.h"
 #include "../video/FFMpegDecoder.h"
 
@@ -226,7 +228,7 @@ void Video::setSpeedFactor(double SpeedFactor)
 
 void Video::setVolume(double Volume)
 {
-    AudioSource::setVolume(Volume);
+    m_Volume = Volume;
     if (m_pDecoder) {
         m_pDecoder->setVolume(Volume);
     }
@@ -314,7 +316,7 @@ void Video::open(YCbCrMode ycbcrMode)
             getAudioEngine()->getSampleRate());
     m_pDecoder->open(m_Filename, ycbcrMode, m_bThreaded);
     m_pDecoder->setAudioEnabled(m_bAudioEnabled);
-    m_pDecoder->setVolume(getVolume());
+    m_pDecoder->setVolume(m_Volume);
     if(m_SpeedFactor != 1.0) {
         m_pDecoder->setSpeedFactor(m_SpeedFactor);
     } else if(m_FPS != 0.0) {

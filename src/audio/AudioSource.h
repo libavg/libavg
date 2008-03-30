@@ -21,32 +21,26 @@
 //  Original author of this file is Nick Hebner (hebnern@gmail.com).
 //
 
-#include "AudioSource.h"
+#ifndef _AudioSource_H_
+#define _AudioSource_H_
 
-namespace avg
-{
+#include "AudioFrame.h"
 
-AudioSource::AudioSource()
-    : m_Volume(1.0)
+#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
+
+namespace avg {
+
+class AudioSource
 {
+    public:
+        virtual ~AudioSource() {};
+        virtual void setAudioEnabled(bool bEnabled) = 0;
+        virtual void fillAudioFrame(AudioFrame* frame) = 0;
+};
+
+typedef boost::weak_ptr<AudioSource> AudioSourceWeakPtr;
+
 }
 
-AudioSource::~AudioSource()
-{
-}
-
-double AudioSource::getVolume()
-{
-    return m_Volume;
-}
-
-void AudioSource::setVolume(double volume)
-{
-    m_Volume = volume;
-    if(m_Volume > 1.0)
-        m_Volume = 1.0;
-    else if(m_Volume < 0.0)
-        m_Volume = 0.0;
-}
-
-}
+#endif /*AUDIOSOURCE_H_*/

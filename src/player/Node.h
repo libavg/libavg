@@ -25,7 +25,6 @@
 #include "Region.h"
 #include "Event.h"
 #include "ISurface.h"
-#include "AudioEngine.h"
 #include "ArgList.h"
 
 #include "../base/Point.h"
@@ -53,6 +52,7 @@ class DisplayEngine;
 class Player;
 class OGLSurface;
 class NodeDefinition;
+class AudioEngine;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;

@@ -37,7 +37,6 @@
 #include "KeyEvent.h"
 
 #include "SDLDisplayEngine.h"
-#include "SDLAudioEngine.h"
 
 #include "../base/FileHelper.h"
 #include "../base/OSHelper.h"
@@ -57,6 +56,8 @@
 #include "../imaging/DSCamera.h"
 #endif
 #include "../imaging/FakeCamera.h"
+
+#include "../audio/SDLAudioEngine.h"
 
 #undef HAVE_TEMPNAM
 #include <Magick++.h>
@@ -219,7 +220,6 @@ void Player::loadFile (const std::string& filename)
         registerNode(m_pRootNode);
         m_DP.m_Height = m_pRootNode->getHeight();
         m_DP.m_Width = m_pRootNode->getWidth();
-
         // Reset the directory to load assets from to the current dir.
         getcwd(szBuf, 1024);
         m_CurDirName = string(szBuf)+"/";

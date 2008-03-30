@@ -23,7 +23,6 @@
 #define _IVideoDecoder_H_
 
 #include "../graphics/Bitmap.h"
-#include "../player/AudioFrame.h"
 
 #include <string>
 

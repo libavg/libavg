@@ -30,8 +30,6 @@ GL_INCLUDES = SDLDisplayEngine.h OGLHelper.h OGLSurface.h OGLTexture.h \
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
 ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
-        AudioEngine.h SDLAudioEngine.h \
-        AudioParams.h AudioFrame.h AudioSource.h \
         DisplayEngine.h NodeFactory.h Arg.h ArgList.h Region.h Node.h \
         ISurface.h DisplayParams.h NodeDefinition.h \
         AVGNode.h DivNode.h \
@@ -47,29 +45,30 @@ TESTS=testcalibrator testplayer
 noinst_LTLIBRARIES = libplayer.la
 noinst_PROGRAMS = checktracker testcalibrator testplayer
 checktracker_SOURCES=checktracker.cpp
-checktracker_LDADD = libplayer.la ../video/libvideo.la ../imaging/libimaging.la \
-		../graphics/libgraphics.la ../base/libbase.la ../lmfit/liblmfit.la
+checktracker_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
+        ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
+        ../lmfit/liblmfit.la
 checktracker_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS) \
 		$(BOOST_PYTHON_LIBS) $(PYTHON_LIBS)
 
 testplayer_SOURCES=testplayer.cpp
-testplayer_LDADD = libplayer.la ../video/libvideo.la ../imaging/libimaging.la \
-		../graphics/libgraphics.la ../base/libbase.la ../lmfit/liblmfit.la
+testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
+        ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
+        ../lmfit/liblmfit.la
 testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker  \
         @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(DC1394_LIBS) \
         @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) @LIBFFMPEG@ @SWSCALE_LIBS@ \
         @PANGOFT2_LIBS@ $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) $(MAGICK_LIBS) 
 
 testcalibrator_SOURCES=testcalibrator.cpp
-testcalibrator_LDADD = libplayer.la ../video/libvideo.la ../imaging/libimaging.la \
-		../graphics/libgraphics.la ../base/libbase.la ../lmfit/liblmfit.la
+testcalibrator_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
+        ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
+        ../lmfit/liblmfit.la
 testcalibrator_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS)
 
 libplayer_la_LDFLAGS = $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS)
 libplayer_la_SOURCES = $(GL_SOURCES) \
 		Node.cpp RasterNode.cpp DivNode.cpp VideoBase.cpp Video.cpp \
-		AudioEngine.cpp SDLAudioEngine.cpp \
-        AudioParams.cpp AudioFrame.cpp AudioSource.cpp \
         Player.cpp NodeFactory.cpp ArgBase.cpp ArgList.cpp DisplayEngine.cpp Region.cpp \
         PanoImage.cpp Words.cpp CameraNode.cpp NodeDefinition.cpp \
         Timeout.cpp Event.cpp DisplayParams.cpp \

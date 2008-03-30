@@ -28,14 +28,14 @@
 #include "KeyEvent.h"
 #include "MouseEvent.h"
 #include "DisplayEngine.h"
-#include "AudioEngine.h"
 #include "TestHelper.h"
 #include "NodeFactory.h"
 #include "Node.h"
 #include "DisplayParams.h"
-#include "AudioParams.h"
 
 #include "../base/IFrameListener.h"
+
+#include "../audio/AudioParams.h"
 
 #include <libxml/parser.h>
 
@@ -47,6 +47,7 @@ namespace avg {
 
 class Event;
 class TrackerEventSource;
+class AudioEngine;
 
 class Player : IEventSink
 {
