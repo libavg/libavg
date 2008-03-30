@@ -31,7 +31,8 @@ namespace avg {
 
 NodeDefinition::NodeDefinition(const string& Name, NodeBuilder pBuilder)
     : m_sName(Name),
-      m_pBuilder(pBuilder)
+      m_pBuilder(pBuilder),
+      m_bIsGroupNode(false)
 {
 }
 
@@ -54,15 +55,25 @@ const ArgList& NodeDefinition::getDefaultArgs() const
     return m_Args;
 }
 
-const ChildMap& NodeDefinition::getChildren() const
+bool NodeDefinition::isGroupNode() const
 {
-    return m_Children;
+    return m_bIsGroupNode;
 }
+
+const string& NodeDefinition::getDTDElements() const
+{
+    return m_sDTDElements;
+}
+
+const string& NodeDefinition::getChildren() const
+{
+    return m_sChildren;
+}
+
 
 NodeDefinition& NodeDefinition::extendDefinition(const NodeDefinition& Def)
 {
     m_Args.copyArgsFrom(Def.m_Args);
-    m_Children.insert(Def.m_Children.begin(), Def.m_Children.end());
     return *this;
 }
 
@@ -72,22 +83,21 @@ NodeDefinition& NodeDefinition::addArg(const ArgBase& newArg)
     return *this;
 }
 
-NodeDefinition& NodeDefinition::addChild(const NodeDefinition& Def)
+NodeDefinition& NodeDefinition::setGroupNode()
 {
-    m_Children.insert(ChildMap::value_type(Def.getName(), Def));
+    m_bIsGroupNode = true;
+    return *this;
+}
+    
+NodeDefinition& NodeDefinition::addDTDElements(const string& s)
+{
+    m_sDTDElements = s;
     return *this;
 }
 
-NodeDefinition& NodeDefinition::addChildren(const ChildMap& Children)
+NodeDefinition& NodeDefinition::addChildren(const string& s)
 {
-    for(ChildMap::const_iterator otherIt = Children.begin(); otherIt != Children.end(); otherIt++)
-    {
-        ChildMap::const_iterator thisIt = m_Children.find(otherIt->first);
-        if (thisIt == m_Children.end()) {
-            m_Children.insert(*otherIt);
-        }
-        // TODO: if duplicate node defs differ in structure, throw exception
-    }
+    m_sChildren = s;
     return *this;
 }
 

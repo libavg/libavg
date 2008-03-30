@@ -82,23 +82,15 @@ string NodeFactory::getDTD() const
     
     for(NodeDefMap::const_iterator defIt = m_NodeDefs.begin(); defIt != m_NodeDefs.end(); defIt++) {
         const NodeDefinition& Def = defIt->second;
-        
         writeNodeDTD(Def, ss);
         nodesWritten.insert(Def.getName());
-        
-        for(ChildMap::const_iterator childIt = Def.getChildren().begin(); 
-            childIt != Def.getChildren().end(); childIt++) {
-            const NodeDefinition& childDef = childIt->second;
-            if (childDef.getName()[0] != '#' && childDef.getName()[0] != '%') {
-                set<string>::iterator nit = nodesWritten.find(childDef.getName());
-                if (nit == nodesWritten.end()) {
-                    writeNodeDTD(childDef, ss);
-                    nodesWritten.insert(childDef.getName());
-                }
-            }
-        }
     }
-    
+   
+    for(NodeDefMap::const_iterator defIt = m_NodeDefs.begin(); defIt != m_NodeDefs.end(); defIt++) {
+        const NodeDefinition& Def = defIt->second;
+        ss << Def.getDTDElements();
+    }
+   
     return ss.str();
 }
 
@@ -114,20 +106,14 @@ const NodeDefinition& NodeFactory::getNodeDef(const string& Type)
 
 void NodeFactory::writeNodeDTD(const NodeDefinition& Def, stringstream& ss) const
 {
-    stringstream cs;
-    if (!Def.getChildren().empty()) {
-        ChildMap::const_iterator childIt = Def.getChildren().begin();
-        cs << "(" << childIt->first;
-        for(childIt++; childIt != Def.getChildren().end(); childIt++) {
-            const NodeDefinition& Child = childIt->second;
-            cs << "|" << Child.getName();
-        }
-        cs << ")*";
-    } else {
-        cs << "EMPTY";
+    string sChildren = Def.getChildren();
+    if (Def.isGroupNode()) {
+        sChildren = "(%anyNode;)*";
+    } else if (sChildren == "") {
+        sChildren = "EMPTY";
     }
     
-    ss << "<!ELEMENT " << Def.getName() << " " << cs.str() << " >\n";
+    ss << "<!ELEMENT " << Def.getName() << " " << sChildren << " >\n";
     if (!Def.getDefaultArgs().getArgMap().empty()) {
         ss << "<!ATTLIST " << Def.getName();
         for(ArgMap::const_iterator argIt = Def.getDefaultArgs().getArgMap().begin(); 

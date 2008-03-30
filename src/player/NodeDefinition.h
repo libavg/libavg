@@ -46,18 +46,24 @@ public:
     const std::string& getName() const;
     NodeBuilder getBuilder() const;
     const ArgList& getDefaultArgs() const;
-    const ChildMap& getChildren() const;
+    bool isGroupNode() const;
+    const std::string& getDTDElements() const;
+    const std::string& getChildren() const;
     
     NodeDefinition& extendDefinition(const NodeDefinition& Def);
     NodeDefinition& addArg(const ArgBase& newArg);
-    NodeDefinition& addChild(const NodeDefinition& Def);
-    NodeDefinition& addChildren(const ChildMap& Children);
+    NodeDefinition& setGroupNode();
+    NodeDefinition& addDTDElements(const std::string& s);
+    NodeDefinition& addChildren(const std::string& s);
 
 private:
     std::string m_sName;
     NodeBuilder m_pBuilder;
     ArgList m_Args;
-    ChildMap m_Children;
+    bool m_bIsGroupNode;
+    std::string m_sDTDElements;
+    std::string m_sChildren;
+
 };
 
 }
