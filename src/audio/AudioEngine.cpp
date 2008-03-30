@@ -62,13 +62,13 @@ AudioSourceList& AudioEngine::getSources()
     return m_AudioSources;
 }
 
-void AudioEngine::addSource(AudioSource* pSource)
+void AudioEngine::addSource(IAudioSource* pSource)
 {
     pSource->setAudioEnabled(m_bEnabled);
     m_AudioSources.push_back(pSource);
 }
 
-void AudioEngine::removeSource(AudioSource* pSource)
+void AudioEngine::removeSource(IAudioSource* pSource)
 {
     AudioSourceList::iterator it;
     for(it = m_AudioSources.begin(); it != m_AudioSources.end(); it++)

@@ -31,7 +31,7 @@
 #include "../base/Point.h"
 #include "../base/IFrameListener.h"
 
-#include "../audio/AudioSource.h"
+#include "../audio/IAudioSource.h"
 
 #include <string>
 
@@ -39,7 +39,7 @@ namespace avg {
 
 class IVideoDecoder;
 
-class Video : public VideoBase, IFrameListener, AudioSource
+class Video : public VideoBase, IFrameListener, IAudioSource
 {
     public:
         static NodeDefinition getNodeDefinition();

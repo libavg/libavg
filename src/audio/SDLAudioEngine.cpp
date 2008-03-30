@@ -102,14 +102,14 @@ void SDLAudioEngine::pause()
     SDL_PauseAudio(1);
 }
 
-void SDLAudioEngine::addSource(AudioSource* pSource)
+void SDLAudioEngine::addSource(IAudioSource* pSource)
 {
     SDL_LockAudio();
     AudioEngine::addSource(pSource);
     SDL_UnlockAudio();
 }
 
-void SDLAudioEngine::removeSource(AudioSource* pSource)
+void SDLAudioEngine::removeSource(IAudioSource* pSource)
 {
     SDL_LockAudio();
     AudioEngine::removeSource(pSource);

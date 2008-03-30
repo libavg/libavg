@@ -24,14 +24,14 @@
 #ifndef _AudioEngine_H_
 #define _AudioEngine_H_
 
-#include "AudioSource.h"
+#include "IAudioSource.h"
 #include "AudioParams.h"
 
 #include <vector>
 
 namespace avg {
 
-typedef std::vector<AudioSource*> AudioSourceList;
+typedef std::vector<IAudioSource*> AudioSourceList;
 
 class AudioEngine
 {	
@@ -50,8 +50,8 @@ class AudioEngine
         virtual void pause() = 0;
         
         AudioSourceList& getSources();
-        virtual void addSource(AudioSource* pSource);
-        virtual void removeSource(AudioSource* pSource);
+        virtual void addSource(IAudioSource* pSource);
+        virtual void removeSource(IAudioSource* pSource);
         
         
     private:

@@ -21,8 +21,8 @@
 //  Original author of this file is Nick Hebner (hebnern@gmail.com).
 //
 
-#ifndef _AudioSource_H_
-#define _AudioSource_H_
+#ifndef _IAudioSource_H_
+#define _IAudioSource_H_
 
 #include "AudioFrame.h"
 
@@ -31,15 +31,15 @@
 
 namespace avg {
 
-class AudioSource
+class IAudioSource
 {
     public:
-        virtual ~AudioSource() {};
+        virtual ~IAudioSource() {};
         virtual void setAudioEnabled(bool bEnabled) = 0;
         virtual void fillAudioFrame(AudioFrame* frame) = 0;
 };
 
-typedef boost::weak_ptr<AudioSource> AudioSourceWeakPtr;
+typedef boost::weak_ptr<IAudioSource> IAudioSourceWeakPtr;
 
 }
 

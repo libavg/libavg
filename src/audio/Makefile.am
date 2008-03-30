@@ -1,7 +1,7 @@
 
 INCLUDES = -I.. @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@ @SWSCALE_CFLAGS@
         
-ALL_H = AudioEngine.h AudioFrame.h AudioParams.h AudioSource.h SDLAudioEngine.h 
+ALL_H = AudioEngine.h AudioFrame.h AudioParams.h IAudioSource.h SDLAudioEngine.h 
 
 #TESTS=testaudio
 
