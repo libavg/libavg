@@ -69,10 +69,26 @@ class DecoderTest: public Test {
             basicFileTest("mpeg1-48x48.mpg", 30);
             basicFileTest("mjpeg-48x48.avi", 202);
             seekTest("mjpeg-48x48.avi");
+            if (!m_bThreadedDecoder) { 
+                audioTest("22.050Hz_16bit_mono.wav");
+               
+                audioTest("44.1kHz_16bit_mono.wav");
+                audioTest("44.1kHz_16bit_stereo.wav");
+                audioTest("44.1kHz_24bit_mono.wav");
+                audioTest("44.1kHz_24bit_stereo.wav");
+
+                audioTest("48kHz_16bit_mono.wav");
+                audioTest("48kHz_16bit_stereo.wav");
+                audioTest("48kHz_24bit_mono.wav");
+                audioTest("48kHz_24bit_stereo.wav");
+
+                audioTest("44.1kHz_16bit_stereo.aif");
+                audioTest("44.1kHz_stereo.ogg");
+                audioTest("44.1kHz_stereo.mp3");
+            }
         }
 
     private:
-
         void basicFileTest(const string& sFilename, int ExpectedNumFrames) 
         {
             try {
@@ -129,6 +145,26 @@ class DecoderTest: public Test {
             compareImages(pBmp, sFilename+"_201");
 
             pDecoder->close();
+        }
+
+        void audioTest(const string& sFilename)
+        {
+            try {
+                cerr << "    Testing " << sFilename << endl;
+
+                VideoDecoderPtr pDecoder = createDecoder();
+                pDecoder->setAudioFormat(2, 44100);
+                pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
+                        m_bThreadedDemuxer);
+                cerr << "Duration: " << pDecoder->getDuration() << endl;
+                while(!pDecoder->isEOF()) {
+                    unsigned char AudioBuffer[1024];
+                    pDecoder->fillAudioFrame(AudioBuffer, 1024);
+                }
+            } catch (Magick::Exception & ex) {
+                cerr << string(m_IndentLevel+6, ' ') << ex.what() << endl;
+                throw;
+            }
         }
 
         void readWholeFile(const string& sFilename, 

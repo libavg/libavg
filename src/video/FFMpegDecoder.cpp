@@ -423,15 +423,18 @@ long long FFMpegDecoder::getCurTime(StreamSelect Stream)
 long long FFMpegDecoder::getDuration()
 {
     long long duration;
+    AVRational time_base;
     if (getMasterStream() == SS_AUDIO) {
         duration = m_pAStream->duration;
+        time_base=m_pAStream->time_base;
     } else {
         duration = m_pVStream->duration;
+        time_base=m_pVStream->time_base;
     }
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
     return (long long)(1000*duration/AV_TIME_BASE);
 #else
-    return (long long)(1000*duration*av_q2d(m_pVStream->time_base));
+    return (long long)(1000*duration*av_q2d(time_base));
 #endif 
 }
 
@@ -675,7 +678,7 @@ int FFMpegDecoder::decodeAudio()
     // Adjust packet data pointers
     m_AudioPacketData += packetBytesDecoded;
     m_AudioPacketSize -= packetBytesDecoded;
-    // TODO: return something!!
+    return packetBytesDecoded;
 }
 
 void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer, int outputAudioBufferSize)
@@ -748,8 +751,13 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer, int outputA
         // Get a new packet from the audio stream
         m_AudioPacket = m_pDemuxer->getPacket(m_AStreamIndex);
         
-        if(!m_AudioPacket)
+        if(!m_AudioPacket) {
+            // TODO: Hack. EOF should be set when all active streams have reached EOF.
+            if (!m_pVStream) {
+                m_bEOF = true;
+            }
             return;
+        }
         
         if(m_AudioPacket->dts != AV_NOPTS_VALUE)
             m_LastAudioFrameTime = (long long)(1000.0 * av_q2d(m_pAStream->time_base) * 

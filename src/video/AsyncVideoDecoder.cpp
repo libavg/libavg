@@ -72,7 +72,7 @@ void AsyncVideoDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
 
     m_pSyncDecoder->setAudioFormat(m_Channels, m_SampleRate);
     m_pSyncDecoder->open(m_sFilename, ycbcrMode, bThreadedDemuxer);
-    m_pSyncDecoder->setMasterStream(SS_NONE);
+    m_pSyncDecoder->setMasterStream(SS_DEFAULT);
     
     if (m_pSyncDecoder->hasVideo()) {
         m_pVCmdQ = VideoDecoderThread::CmdQueuePtr(new VideoDecoderThread::CmdQueue);
