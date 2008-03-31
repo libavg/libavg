@@ -148,7 +148,8 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
         bool bThreadedDemuxer)
 {
     mutex::scoped_lock Lock(s_OpenMutex);
-    m_bEOF = false;
+    m_bAudioEOF = false;
+    m_bVideoEOF = false;
     m_bEOFPending = false;
     m_VideoStartTimestamp = -1;
     AVFormatParameters params;
@@ -368,7 +369,8 @@ void FFMpegDecoder::seek(long long DestTime)
         m_ResampleBufferStart = m_ResampleBufferEnd = 0;
         m_AudioPacketSize = 0;
     }
-    m_bEOF = false;
+    m_bVideoEOF = false;
+    m_bAudioEOF = false;
 }
 
 bool FFMpegDecoder::hasVideo()
@@ -530,7 +532,7 @@ FrameAvailableCode FFMpegDecoder::renderToBmp(BitmapPtr pBmp, long long TimeWant
 //    ScopeTimer Timer(*m_pRenderToBmpProfilingZone);
     AVFrame Frame;
     FrameAvailableCode FrameAvailable = readFrameForTime(Frame, TimeWanted);
-    if (!m_bEOF && FrameAvailable == FA_NEW_FRAME) {
+    if (!m_bVideoEOF && FrameAvailable == FA_NEW_FRAME) {
         convertFrameToBmp(Frame, pBmp);
         return FA_NEW_FRAME;
     }
@@ -558,7 +560,7 @@ FrameAvailableCode FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr p
 //    ScopeTimer Timer(*m_pRenderToBmpProfilingZone);
     AVFrame Frame;
     FrameAvailableCode FrameAvailable = readFrameForTime(Frame, TimeWanted);
-    if (!m_bEOF && FrameAvailable == FA_NEW_FRAME) {
+    if (!m_bVideoEOF && FrameAvailable == FA_NEW_FRAME) {
 //        ScopeTimer Timer(*m_pConvertImageProfilingZone);
         copyPlaneToBmp(pBmpY, Frame.data[0], Frame.linesize[0]);
         copyPlaneToBmp(pBmpCb, Frame.data[1], Frame.linesize[1]);
@@ -568,9 +570,18 @@ FrameAvailableCode FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr p
     return FA_USE_LAST_FRAME;
 }
 
-bool FFMpegDecoder::isEOF()
+bool FFMpegDecoder::isEOF(StreamSelect Stream)
 {
-    return m_bEOF;
+    switch(Stream) {
+    case SS_AUDIO:
+        return (!m_pAStream || m_bAudioEOF);
+    case SS_VIDEO:
+        return (!m_pVStream || m_bVideoEOF);
+    case SS_ALL:
+        return isEOF(SS_VIDEO) && isEOF(SS_AUDIO);
+    default:
+        return false;
+    }
 }
 
 int FFMpegDecoder::copyRawAudio(unsigned char* buf, int size)
@@ -688,7 +699,7 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer, int outputA
     assert(m_Channels);
     assert(m_SampleRate);
     
-    if(!m_pAStream || !m_bAudioEnabled)
+    if(m_bAudioEOF || !m_pAStream || !m_bAudioEnabled)
         return;
     
     int packetBytesDecoded;
@@ -752,10 +763,7 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer, int outputA
         m_AudioPacket = m_pDemuxer->getPacket(m_AStreamIndex);
         
         if(!m_AudioPacket) {
-            // TODO: Hack. EOF should be set when all active streams have reached EOF.
-            if (!m_pVStream) {
-                m_bEOF = true;
-            }
+            m_bAudioEOF = true;
             return;
         }
         
@@ -903,7 +911,7 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long Tim
             // The last frame is still current. Display it again.
             return FA_USE_LAST_FRAME;
         } else {
-            while (FrameTime-TimeWanted < -0.5*TimePerFrame && !m_bEOF) {
+            while (FrameTime-TimeWanted < -0.5*TimePerFrame && !m_bVideoEOF) {
                 readFrame(Frame, FrameTime);
 /*                
                 if (bDebug) {
@@ -924,11 +932,11 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long Tim
 void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
 {
     assert(m_pDemuxer);
-    if (m_bEOF) {
+    if (m_bVideoEOF) {
         return;
     }
     if (m_bEOFPending) {
-        m_bEOF = true;
+        m_bVideoEOF = true;
         m_bEOFPending = false;
         return;
     }
@@ -941,7 +949,7 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
         AVPacket * pPacket;
         pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
         if (!pPacket) {
-            m_bEOF = true;
+            m_bVideoEOF = true;
             return;
         }
         avpicture_fill((AVPicture*)&Frame, pPacket->data, 
@@ -964,7 +972,7 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
                     if (gotPicture) {
                         m_bEOFPending = true;
                     } else {
-                        m_bEOF = true;
+                        m_bVideoEOF = true;
                     }
                     // We don't have a timestamp for the last frame, so we'll
                     // calculate it based on the frame before.

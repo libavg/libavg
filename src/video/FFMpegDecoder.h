@@ -84,7 +84,7 @@ class FFMpegDecoder: public IVideoDecoder
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted);
         virtual FrameAvailableCode renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr, long long TimeWanted);
-        virtual bool isEOF();
+        virtual bool isEOF(StreamSelect Stream = SS_ALL);
         
         virtual void fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize);
 
@@ -109,7 +109,8 @@ class FFMpegDecoder: public IVideoDecoder
         int m_VStreamIndex;
         int m_AStreamIndex;
         bool m_bEOFPending;
-        bool m_bEOF;
+        bool m_bVideoEOF;
+        bool m_bAudioEOF;
         bool m_bAudioEnabled;
         PixelFormat m_PF;
 #ifdef AVG_ENABLE_SWSCALE

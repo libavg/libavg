@@ -69,7 +69,7 @@ class AsyncVideoDecoder: public IVideoDecoder
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted);
         virtual FrameAvailableCode renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr, long long TimeWanted);
-        virtual bool isEOF();
+        virtual bool isEOF(StreamSelect Stream = SS_ALL);
         
         virtual void fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize);
         
@@ -96,7 +96,8 @@ class AsyncVideoDecoder: public IVideoDecoder
         int m_Channels;
         int m_SampleRate;
 
-        bool m_bEOF;
+        bool m_bAudioEOF;
+        bool m_bVideoEOF;
         bool m_bAudioEnabled;
         bool m_bVideoSeekPending;
         bool m_bAudioSeekPending;

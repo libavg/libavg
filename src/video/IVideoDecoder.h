@@ -37,7 +37,7 @@ enum FrameAvailableCode {
 };
 
 enum StreamSelect {
-    SS_AUDIO, SS_VIDEO, SS_DEFAULT, SS_NONE
+    SS_AUDIO, SS_VIDEO, SS_DEFAULT, SS_NONE, SS_ALL
 };
 
 class IVideoDecoder
@@ -71,7 +71,7 @@ class IVideoDecoder
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted) = 0;
         virtual FrameAvailableCode renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr, long long TimeWanted) = 0;
-        virtual bool isEOF() = 0;
+        virtual bool isEOF(StreamSelect Stream = SS_ALL) = 0;
         
         virtual void fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize) = 0;
 };

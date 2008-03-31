@@ -43,7 +43,8 @@ AsyncVideoDecoder::AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder)
     : m_pSyncDecoder(pSyncDecoder),
       m_pVDecoderThread(0),
       m_pADecoderThread(0),
-      m_bEOF(false),
+      m_bAudioEOF(false),
+      m_bVideoEOF(false),
       m_bVideoSeekPending(false),
       m_bAudioSeekPending(false),
       m_LastVideoFrameTime(-1000),
@@ -65,7 +66,8 @@ AsyncVideoDecoder::~AsyncVideoDecoder()
 void AsyncVideoDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
         bool bThreadedDemuxer)
 {
-    m_bEOF = false;
+    m_bAudioEOF = false;
+    m_bVideoEOF = false;
     m_bVideoSeekPending = false;
     m_bAudioSeekPending = false;
     m_sFilename = sFilename;
@@ -121,7 +123,8 @@ void AsyncVideoDecoder::seek(long long DestTime)
     scoped_lock Lock1(m_AudioMutex);
     rscoped_lock Lock2(m_SeekMutex);
     waitForSeekDone();
-    m_bEOF = false;
+    m_bAudioEOF = false;
+    m_bVideoEOF = false;
     m_bVideoSeekPending = false;
     m_bAudioSeekPending = false;
     if (m_pSyncDecoder->hasVideo()) {
@@ -290,14 +293,23 @@ FrameAvailableCode AsyncVideoDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapP
     return FrameAvailable;
 }
 
-bool AsyncVideoDecoder::isEOF()
+bool AsyncVideoDecoder::isEOF(StreamSelect Stream)
 {
-    return m_bEOF;
+    switch(Stream) {
+    case SS_AUDIO:
+        return (!m_pSyncDecoder->hasAudio() || m_bAudioEOF);
+    case SS_VIDEO:
+        return (!m_pSyncDecoder->hasVideo() || m_bVideoEOF);
+    case SS_ALL:
+        return isEOF(SS_VIDEO) && isEOF(SS_AUDIO);
+    default:
+        return false;
+    }
 }
 
 void AsyncVideoDecoder::fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize)
 {
-    if (!m_bAudioEnabled) {
+    if (m_bAudioEOF || !m_bAudioEnabled) {
         return;
     }
     scoped_lock Lock(m_AudioMutex);
@@ -321,6 +333,13 @@ void AsyncVideoDecoder::fillAudioFrame(unsigned char* audioBuffer, int audioBuff
         
         try {
             VideoMsgPtr pMsg = m_pAMsgQ->pop(false);
+            
+            EOFVideoMsgPtr pEOFMsg(dynamic_pointer_cast<EOFVideoMsg>(pMsg));
+            if (pEOFMsg) {
+                m_bAudioEOF = true;
+                return;
+            }
+            
             m_pAudioMsg = dynamic_pointer_cast<AudioVideoMsg>(pMsg);
             assert(m_pAudioMsg);
             
@@ -357,12 +376,12 @@ FrameVideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long TimeWanted,
             FrameAvailable = FA_USE_LAST_FRAME;
             return FrameVideoMsgPtr();
         } else {
-            if (m_bEOF) {
+            if (m_bVideoEOF) {
 //                cerr << "  EOF." << endl;
                 FrameAvailable = FA_USE_LAST_FRAME;
                 return FrameVideoMsgPtr();
             }
-            while (FrameTime-TimeWanted < -0.5*TimePerFrame && !m_bEOF) {
+            while (FrameTime-TimeWanted < -0.5*TimePerFrame && !m_bVideoEOF) {
                 pFrameMsg = getNextBmps(false);
                 if (pFrameMsg) {
                     FrameTime = pFrameMsg->getFrameTime();
@@ -393,10 +412,10 @@ FrameVideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
             EOFVideoMsgPtr pEOFMsg(dynamic_pointer_cast<EOFVideoMsg>(pMsg));
             ErrorVideoMsgPtr pErrorMsg(dynamic_pointer_cast<ErrorVideoMsg>(pMsg));
             if (pEOFMsg) {
-                m_bEOF = true;
+                m_bVideoEOF = true;
                 return FrameVideoMsgPtr();
             } else if(pErrorMsg) {
-                m_bEOF = true;
+                m_bVideoEOF = true;
                 close();
                 return FrameVideoMsgPtr();
             } else {

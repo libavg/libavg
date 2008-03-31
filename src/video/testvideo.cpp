@@ -69,23 +69,22 @@ class DecoderTest: public Test {
             basicFileTest("mpeg1-48x48.mpg", 30);
             basicFileTest("mjpeg-48x48.avi", 202);
             seekTest("mjpeg-48x48.avi");
-            if (!m_bThreadedDecoder) { 
-                audioTest("22.050Hz_16bit_mono.wav");
-               
-                audioTest("44.1kHz_16bit_mono.wav");
-                audioTest("44.1kHz_16bit_stereo.wav");
-                audioTest("44.1kHz_24bit_mono.wav");
-                audioTest("44.1kHz_24bit_stereo.wav");
 
-                audioTest("48kHz_16bit_mono.wav");
-                audioTest("48kHz_16bit_stereo.wav");
-                audioTest("48kHz_24bit_mono.wav");
-                audioTest("48kHz_24bit_stereo.wav");
+            audioTest("22.050Hz_16bit_mono.wav");
+           
+            audioTest("44.1kHz_16bit_mono.wav");
+            audioTest("44.1kHz_16bit_stereo.wav");
+            audioTest("44.1kHz_24bit_mono.wav");
+            audioTest("44.1kHz_24bit_stereo.wav");
 
-                audioTest("44.1kHz_16bit_stereo.aif");
-                audioTest("44.1kHz_stereo.ogg");
-                audioTest("44.1kHz_stereo.mp3");
-            }
+            audioTest("48kHz_16bit_mono.wav");
+            audioTest("48kHz_16bit_stereo.wav");
+            audioTest("48kHz_24bit_mono.wav");
+            audioTest("48kHz_24bit_stereo.wav");
+
+            audioTest("44.1kHz_16bit_stereo.aif");
+            audioTest("44.1kHz_stereo.ogg");
+            audioTest("44.1kHz_stereo.mp3");
         }
 
     private:

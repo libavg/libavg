@@ -24,6 +24,7 @@
 #include "AudioDecoderThread.h"
 #include "AudioVideoMsg.h"
 #include "SeekDoneVideoMsg.h"
+#include "EOFVideoMsg.h"
 
 #include "../base/Logger.h"
 
@@ -48,9 +49,18 @@ AudioDecoderThread::~AudioDecoderThread()
 
 bool AudioDecoderThread::work() 
 {
-    AudioVideoMsg* pMsg = new AudioVideoMsg(m_BufferSize, m_pDecoder->getCurTime(SS_AUDIO));
-    m_pDecoder->fillAudioFrame(pMsg->getBuffer(), pMsg->getSize());
-    m_MsgQ.push(VideoMsgPtr(pMsg));
+    if (m_pDecoder->isEOF(SS_AUDIO)) {
+        // replace this with waitForMessage()
+        TimeSource::get()->msleep(10);
+    } else {
+        AudioVideoMsg* pMsg = new AudioVideoMsg(m_BufferSize, m_pDecoder->getCurTime(SS_AUDIO));
+        m_pDecoder->fillAudioFrame(pMsg->getBuffer(), pMsg->getSize());
+        m_MsgQ.push(VideoMsgPtr(pMsg));
+        
+        if (m_pDecoder->isEOF(SS_AUDIO)) {
+            m_MsgQ.push(VideoMsgPtr(new EOFVideoMsg()));
+        }
+    }
     return true;
 }
 

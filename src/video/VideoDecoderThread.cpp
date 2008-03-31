@@ -45,7 +45,7 @@ VideoDecoderThread::~VideoDecoderThread()
 
 bool VideoDecoderThread::work() 
 {
-    if (m_pDecoder->isEOF()) {
+    if (m_pDecoder->isEOF(SS_VIDEO)) {
         // replace this with waitForMessage()
         TimeSource::get()->msleep(10);
     } else {
@@ -72,7 +72,7 @@ bool VideoDecoderThread::work()
                 pBmps.push_back(pBmp);
             }
         }
-        if (m_pDecoder->isEOF()) {
+        if (m_pDecoder->isEOF(SS_VIDEO)) {
             m_MsgQ.push(VideoMsgPtr(new EOFVideoMsg()));
         } else {
             assert(FrameAvailable == FA_NEW_FRAME);
