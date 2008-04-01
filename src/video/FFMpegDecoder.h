@@ -86,7 +86,7 @@ class FFMpegDecoder: public IVideoDecoder
                 BitmapPtr pBmpCr, long long TimeWanted);
         virtual bool isEOF(StreamSelect Stream = SS_ALL);
         
-        virtual void fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize);
+        virtual int fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize);
 
     private:
         void initVideoSupport();

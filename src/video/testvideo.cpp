@@ -155,11 +155,15 @@ class DecoderTest: public Test {
                 pDecoder->setAudioFormat(2, 44100);
                 pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
                         m_bThreadedDemuxer);
-                cerr << "Duration: " << pDecoder->getDuration() << endl;
+//                cerr << "Duration: " << pDecoder->getDuration() << endl;
+                int TotalBytesDecoded = 0;
                 while(!pDecoder->isEOF()) {
                     unsigned char AudioBuffer[1024];
-                    pDecoder->fillAudioFrame(AudioBuffer, 1024);
+                    int BytesDecoded = pDecoder->fillAudioFrame(AudioBuffer, 1024);
+                    TotalBytesDecoded += BytesDecoded;
                 }
+//                cerr << "Frames decoded: " << TotalBytesDecoded/4 << endl;
+//                cerr << "Frames in duration: " << pDecoder->getDuration()*44100/1000 << endl;
             } catch (Magick::Exception & ex) {
                 cerr << string(m_IndentLevel+6, ' ') << ex.what() << endl;
                 throw;

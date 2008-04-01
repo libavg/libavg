@@ -37,9 +37,9 @@ namespace avg {
 AudioDecoderThread::AudioDecoderThread(CmdQueue& CmdQ, VideoMsgQueue& MsgQ, 
         VideoDecoderPtr pDecoder)
     : WorkerThread<AudioDecoderThread>(string("AudioDecoderThread"), CmdQ),
+      m_BufferSize(AUDIO_BUFFER_SIZE),
       m_MsgQ(MsgQ),
-      m_pDecoder(pDecoder),
-      m_BufferSize(AUDIO_BUFFER_SIZE)
+      m_pDecoder(pDecoder)
 {
 }
 
@@ -53,12 +53,20 @@ bool AudioDecoderThread::work()
         // replace this with waitForMessage()
         TimeSource::get()->msleep(10);
     } else {
-        AudioVideoMsg* pMsg = new AudioVideoMsg(m_BufferSize, m_pDecoder->getCurTime(SS_AUDIO));
-        m_pDecoder->fillAudioFrame(pMsg->getBuffer(), pMsg->getSize());
-        m_MsgQ.push(VideoMsgPtr(pMsg));
-        
+        AudioVideoMsgPtr pVMsg = AudioVideoMsgPtr(new AudioVideoMsg(m_BufferSize, 
+                    m_pDecoder->getCurTime(SS_AUDIO)));
+        int BytesWritten = m_pDecoder->fillAudioFrame(pVMsg->getBuffer(), pVMsg->getSize());
+        if (BytesWritten != pVMsg->getSize()) {
+            AudioVideoMsgPtr pOldMsg = pVMsg;
+            pVMsg = AudioVideoMsgPtr(new AudioVideoMsg(BytesWritten, 
+                        m_pDecoder->getCurTime(SS_AUDIO)));
+            memcpy(pVMsg->getBuffer(), pOldMsg->getBuffer(), BytesWritten);
+            m_MsgQ.push(pVMsg);
+        } else {
+            m_MsgQ.push(pVMsg);
+        }
         if (m_pDecoder->isEOF(SS_AUDIO)) {
-            m_MsgQ.push(VideoMsgPtr(new EOFVideoMsg()));
+            m_MsgQ.push(VideoMsgPtr(new EOFVideoMsg())); 
         }
     }
     return true;

@@ -692,15 +692,18 @@ int FFMpegDecoder::decodeAudio()
     return packetBytesDecoded;
 }
 
-void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer, int outputAudioBufferSize)
+int FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer, int outputAudioBufferSize)
 {
+    // TODO: Why is this lock necessary?
     mutex::scoped_lock Lock(m_AudioMutex);
     
     assert(m_Channels);
     assert(m_SampleRate);
     
-    if(m_bAudioEOF || !m_pAStream || !m_bAudioEnabled)
-        return;
+    if(m_bAudioEOF || !m_pAStream || !m_bAudioEnabled) {
+        // TODO: Shouldn't this assert?
+        return 0;
+    }
     
     int packetBytesDecoded;
     int bytesProduced;
@@ -735,7 +738,7 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer, int outputA
                 
                 if (bufferLeft == 0) {
                     volumize((short*)outputAudioBuffer, outputAudioBufferSize/2);
-                    return;
+                    return outputAudioBufferSize;
                 }
             }
             
@@ -764,7 +767,7 @@ void FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer, int outputA
         
         if(!m_AudioPacket) {
             m_bAudioEOF = true;
-            return;
+            return outputAudioBufferSize-bufferLeft;
         }
         
         if(m_AudioPacket->dts != AV_NOPTS_VALUE)
@@ -968,6 +971,7 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
                 m_bFirstPacket = false;
                 m_pPacket = m_pDemuxer->getPacket(m_VStreamIndex);
                 if (!m_pPacket) {
+                    // No more packets -> EOF. Decode the last data we got.
                     avcodec_decode_video(enc, &Frame, &gotPicture, NULL, 0);
                     if (gotPicture) {
                         m_bEOFPending = true;

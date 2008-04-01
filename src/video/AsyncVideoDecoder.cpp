@@ -296,38 +296,40 @@ FrameAvailableCode AsyncVideoDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapP
 bool AsyncVideoDecoder::isEOF(StreamSelect Stream)
 {
     switch(Stream) {
-    case SS_AUDIO:
-        return (!m_pSyncDecoder->hasAudio() || m_bAudioEOF);
-    case SS_VIDEO:
-        return (!m_pSyncDecoder->hasVideo() || m_bVideoEOF);
-    case SS_ALL:
-        return isEOF(SS_VIDEO) && isEOF(SS_AUDIO);
-    default:
-        return false;
+        case SS_AUDIO:
+            return (!m_pSyncDecoder->hasAudio() || m_bAudioEOF);
+        case SS_VIDEO:
+            return (!m_pSyncDecoder->hasVideo() || m_bVideoEOF);
+        case SS_ALL:
+            return isEOF(SS_VIDEO) && isEOF(SS_AUDIO);
+        default:
+            return false;
     }
 }
 
-void AsyncVideoDecoder::fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize)
+int AsyncVideoDecoder::fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize)
 {
     if (m_bAudioEOF || !m_bAudioEnabled) {
-        return;
+        // TODO: Why not assert here?
+        return 0;
     }
     scoped_lock Lock(m_AudioMutex);
     waitForSeekDone();
-    while (audioBufferSize > 0) {
+    int bufferLeftToFill = audioBufferSize;
+    while (bufferLeftToFill > 0) {
         while (m_AudioMsgSize > 0) {
-            int copyBytes = min(audioBufferSize, m_AudioMsgSize);
+            int copyBytes = min(bufferLeftToFill, m_AudioMsgSize);
             memcpy(audioBuffer, m_AudioMsgData, copyBytes);
             m_AudioMsgSize -= copyBytes;
             m_AudioMsgData += copyBytes;
-            audioBufferSize -= copyBytes;
+            bufferLeftToFill -= copyBytes;
             audioBuffer += copyBytes;
 
             m_LastAudioFrameTime += (long long)(m_pSyncDecoder->getSpeedFactor() * 
                     1000.0 * copyBytes / (2 * m_Channels * m_SampleRate));
             
-            if (audioBufferSize == 0) {
-                return;
+            if (bufferLeftToFill == 0) {
+                return audioBufferSize;
             }
         }
         
@@ -337,7 +339,7 @@ void AsyncVideoDecoder::fillAudioFrame(unsigned char* audioBuffer, int audioBuff
             EOFVideoMsgPtr pEOFMsg(dynamic_pointer_cast<EOFVideoMsg>(pMsg));
             if (pEOFMsg) {
                 m_bAudioEOF = true;
-                return;
+                return audioBufferSize-bufferLeftToFill;
             }
             
             m_pAudioMsg = dynamic_pointer_cast<AudioVideoMsg>(pMsg);
@@ -347,7 +349,7 @@ void AsyncVideoDecoder::fillAudioFrame(unsigned char* audioBuffer, int audioBuff
             m_AudioMsgData = m_pAudioMsg->getBuffer();
             m_LastAudioFrameTime = m_pAudioMsg->getFrameTime();
         } catch (Exception&) {
-            return;
+            return audioBufferSize-bufferLeftToFill;
         }
     }
 }

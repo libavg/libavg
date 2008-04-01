@@ -73,7 +73,7 @@ class IVideoDecoder
                 BitmapPtr pBmpCr, long long TimeWanted) = 0;
         virtual bool isEOF(StreamSelect Stream = SS_ALL) = 0;
         
-        virtual void fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize) = 0;
+        virtual int fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize) = 0;
 };
 
 typedef boost::shared_ptr<IVideoDecoder> VideoDecoderPtr;
