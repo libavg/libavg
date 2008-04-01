@@ -83,6 +83,7 @@ class DecoderTest: public Test {
             audioTest("48kHz_24bit_stereo.wav");
 
             audioTest("44.1kHz_16bit_stereo.aif");
+            audioTest("44.1kHz_mono.ogg");
             audioTest("44.1kHz_stereo.ogg");
             audioTest("44.1kHz_stereo.mp3");
         }
@@ -155,15 +156,19 @@ class DecoderTest: public Test {
                 pDecoder->setAudioFormat(2, 44100);
                 pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
                         m_bThreadedDemuxer);
-//                cerr << "Duration: " << pDecoder->getDuration() << endl;
                 int TotalBytesDecoded = 0;
                 while(!pDecoder->isEOF()) {
                     unsigned char AudioBuffer[1024];
                     int BytesDecoded = pDecoder->fillAudioFrame(AudioBuffer, 1024);
                     TotalBytesDecoded += BytesDecoded;
                 }
-//                cerr << "Frames decoded: " << TotalBytesDecoded/4 << endl;
-//                cerr << "Frames in duration: " << pDecoder->getDuration()*44100/1000 << endl;
+                if (sFilename.find(".ogg") == string::npos) {
+                    // Check if we've decoded the whole file.
+                    // TODO: Find out what is broken with ogg files here.
+                    int FramesDecoded = TotalBytesDecoded/4;
+                    int FramesInDuration = pDecoder->getDuration()*44100/1000; 
+                    TEST (abs(FramesDecoded-FramesInDuration) < 45);
+                }
             } catch (Magick::Exception & ex) {
                 cerr << string(m_IndentLevel+6, ' ') << ex.what() << endl;
                 throw;
