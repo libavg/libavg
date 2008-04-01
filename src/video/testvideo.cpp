@@ -149,26 +149,55 @@ class DecoderTest: public Test {
 
         void audioTest(const string& sFilename)
         {
+            // TODO:
+            // - getCurTime()
+            // - get/setSpeedFactor()
+            // - get/setVolume()
+            // - seek()
             try {
                 cerr << "    Testing " << sFilename << endl;
+                
+                {
+                    cerr << "      Reading complete file." << endl;
+                    VideoDecoderPtr pDecoder = createDecoder();
+                    pDecoder->setAudioFormat(2, 44100);
+                    pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
+                            m_bThreadedDemuxer);
+                    int TotalBytesDecoded = 0;
+                    int NumWrongTimestamps = 0;
+                    while(!pDecoder->isEOF()) {
+                        unsigned char AudioBuffer[1024];
+                        int BytesDecoded = pDecoder->fillAudioFrame(AudioBuffer, 1024);
+                        TotalBytesDecoded += BytesDecoded;
+                        int CurTime = int((TotalBytesDecoded/4)/44.1);
+                        if (abs(CurTime-pDecoder->getCurTime() > 10)) {
+                            NumWrongTimestamps++;
+                        }
+                        // TODO: Figure out why the timestamps go _backwards_ in mp3s 
+                        // sometimes.
+//                        cerr << CurTime << "->" << pDecoder->getCurTime() << endl;
+                    }
+                    if (NumWrongTimestamps>0) {
+                        TEST_FAILED(NumWrongTimestamps << " wrong timestamps.");
+                    }
+                    if (sFilename.find(".ogg") == string::npos) {
+                        // Check if we've decoded the whole file.
+                        // TODO: Find out what is broken with ogg files here.
+                        int FramesDecoded = TotalBytesDecoded/4;
+                        int FramesInDuration = pDecoder->getDuration()*44100/1000; 
+                        TEST (abs(FramesDecoded-FramesInDuration) < 45);
+                    }
+                }
+/*                
+                {
+                    cerr << "      Seek test." << endl;
+                    VideoDecoderPtr pDecoder = createDecoder();
+                    pDecoder->setAudioFormat(2, 44100);
+                    pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
+                            m_bThreadedDemuxer);
+                }
+*/
 
-                VideoDecoderPtr pDecoder = createDecoder();
-                pDecoder->setAudioFormat(2, 44100);
-                pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
-                        m_bThreadedDemuxer);
-                int TotalBytesDecoded = 0;
-                while(!pDecoder->isEOF()) {
-                    unsigned char AudioBuffer[1024];
-                    int BytesDecoded = pDecoder->fillAudioFrame(AudioBuffer, 1024);
-                    TotalBytesDecoded += BytesDecoded;
-                }
-                if (sFilename.find(".ogg") == string::npos) {
-                    // Check if we've decoded the whole file.
-                    // TODO: Find out what is broken with ogg files here.
-                    int FramesDecoded = TotalBytesDecoded/4;
-                    int FramesInDuration = pDecoder->getDuration()*44100/1000; 
-                    TEST (abs(FramesDecoded-FramesInDuration) < 45);
-                }
             } catch (Magick::Exception & ex) {
                 cerr << string(m_IndentLevel+6, ' ') << ex.what() << endl;
                 throw;
