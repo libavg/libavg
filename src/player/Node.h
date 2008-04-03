@@ -72,14 +72,14 @@ class Node
         }
         static NodeDefinition getNodeDefinition();
         
-        virtual ~Node () = 0;
+        virtual ~Node() = 0;
         virtual void setThis(NodeWeakPtr This);
         virtual void setArgs(const ArgList& Args);
         void setParent(DivNodeWeakPtr pParent);
         virtual void setDisplayEngine(DisplayEngine * pEngine);
         virtual void disconnect();
         
-        virtual const std::string& getID () const;
+        virtual const std::string& getID() const;
         void setID(const std::string& ID);
 
         double getX() const;

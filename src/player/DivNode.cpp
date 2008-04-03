@@ -170,7 +170,14 @@ NodePtr DivNode::getElementByPos (const DPoint & pos)
                 return pFoundNode;
             }
         }
-        return getThis(); // pos is in current node, but not in any child.
+        // Pos isn't in any of the children.
+        if (getRelSize() != DPoint(10000, 10000)) {
+            // Explicit width/height given for div.
+            return getThis(); 
+        } else {
+            // Explicit width/height not given: div itself doesn't react.
+            return NodePtr();
+        }
     } else { 
         return NodePtr();
     }

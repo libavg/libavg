@@ -4,6 +4,7 @@
     oncursordown="mainMouseDown" oncursorup="mainMouseUp">
   <image id="img1" x="0" y="0" href="rgb24-65x65.png"/>
   <div id="div1" x="65" y="0">
+    <image id="img3" x="0" y="0" href="rgb24-65x65.png"/>
     <image id="img2" x="0" y="65" href="rgb24-65x65.png"/>
   </div>
 </avg>
