@@ -101,7 +101,7 @@ class AsyncVideoDecoder: public IVideoDecoder
         bool m_bAudioEnabled;
         bool m_bVideoSeekPending;
         bool m_bAudioSeekPending;
-        boost::recursive_mutex m_SeekMutex;
+        boost::mutex m_SeekMutex;
         double m_Volume;
 
         long long m_LastVideoFrameTime;

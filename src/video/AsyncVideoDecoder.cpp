@@ -35,8 +35,6 @@
 using namespace boost;
 using namespace std;
 
-typedef recursive_mutex::scoped_lock rscoped_lock;
-
 namespace avg {
 
 AsyncVideoDecoder::AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder)
@@ -120,9 +118,9 @@ void AsyncVideoDecoder::close()
 
 void AsyncVideoDecoder::seek(long long DestTime)
 {
-    scoped_lock Lock1(m_AudioMutex);
-    rscoped_lock Lock2(m_SeekMutex);
     waitForSeekDone();
+    scoped_lock Lock1(m_AudioMutex);
+    scoped_lock Lock2(m_SeekMutex);
     m_bAudioEOF = false;
     m_bVideoEOF = false;
     m_bVideoSeekPending = false;
@@ -431,7 +429,7 @@ FrameVideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
 
 void AsyncVideoDecoder::waitForSeekDone()
 {
-    rscoped_lock Lock(m_SeekMutex);
+    scoped_lock Lock(m_SeekMutex);
     if (m_bVideoSeekPending || m_bAudioSeekPending) {
         do {
             bool& bSeekPending = m_bVideoSeekPending ? 
