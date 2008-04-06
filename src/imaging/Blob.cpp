@@ -81,6 +81,7 @@ void Blob::render(BitmapPtr pSrcBmp, BitmapPtr pDestBmp, Pixel32 Color,
     assert (pDestBmp);
     assert (pSrcBmp->getBytesPerPixel() == 1);
     assert (pDestBmp->getBytesPerPixel() == 4);
+    assert (pSrcBmp->getSize() == pDestBmp->getSize());
     unsigned char *pSrc;
     unsigned char *pDest;
     unsigned char *pColor = (unsigned char *)(&Color);
