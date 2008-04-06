@@ -84,6 +84,7 @@ Player * Player::s_pPlayer=0;
 Player::Player()
     : m_pRootNode(),
       m_pDisplayEngine(0),
+      m_pAudioEngine(0),
       m_pTracker(0),
       m_bInHandleTimers(false),
       m_bCurrentTimeoutDeleted(false), 
@@ -792,7 +793,9 @@ void Player::initGraphics()
 
 void Player::initAudio()
 {
-    m_pAudioEngine = new SDLAudioEngine();
+    if (!m_pAudioEngine) {
+        m_pAudioEngine = new SDLAudioEngine();
+    }
     m_pAudioEngine->init(m_AP);
     m_pAudioEngine->setAudioEnabled(!m_bFakeFPS);
     m_pAudioEngine->play();
