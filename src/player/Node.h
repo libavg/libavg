@@ -115,6 +115,8 @@ class Node
         void setSensitive(bool bSensitive);
 
         virtual DivNodePtr getParent() const;
+        void unlink();
+
         DPoint getRelPos(const DPoint& AbsPos) const;
 
         void setMouseEventCapture();

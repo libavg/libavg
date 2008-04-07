@@ -50,6 +50,10 @@ void export_node()
                 "getParent() -> node\n"
                 "Returns the container (AVGNode or DivNode) the node is in. For\n"
                 "the root node, returns None.\n")
+        .def("unlink", &Node::unlink,
+                "unlink() -> None\n"
+                "Removes a node from it's parent container. Equivalent to\n"
+                "node.getParent().removeChild(node.getParent().indexOf(node)).")
         .def("setEventCapture", &Node::setMouseEventCapture,
                 "setEventCapture(cursorid)\n"
                 "Sets up event capturing so that cursor events are sent to this node\n"

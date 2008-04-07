@@ -1057,13 +1057,18 @@ class PlayerTestCase(AVGTestCase):
         def removeImgs():
             self.imgNode = Player.getElementByID("newImage")
             rootNode = Player.getRootNode()
-            rootNode.removeChild( rootNode.indexOf(self.imgNode))
+            rootNode.removeChild(rootNode.indexOf(self.imgNode))
             rootNode.removeChild(0)
             self.assert_(Player.getElementByID("newImage") == None)
         def reAddImg():
             rootNode = Player.getRootNode()
             rootNode.appendChild(self.imgNode)
             self.imgNode = None
+        def removeAgain():
+            imgNode = Player.getElementByID("newImage")
+            imgNode.unlink()
+            gone = Player.getElementByID("newImage")
+            self.assert_(gone == None)
         def runTest(useXml):
             Player.loadFile("empty.avg")
             createImg(useXml)
@@ -1080,6 +1085,7 @@ class PlayerTestCase(AVGTestCase):
                      lambda: self.compareImage("testImgDynamics4", False),
                      reAddImg,
                      lambda: self.compareImage("testImgDynamics5", False),
+                     removeAgain,
                      Player.stop))
         runTest(True)
         runTest(False) 
