@@ -116,12 +116,12 @@ void DivNode::insertChild(NodePtr pNewNode, unsigned i)
                 pNewNode->getID()+"::insertChild: index out of bounds."));
     }
     std::vector<NodePtr>::iterator Pos = m_Children.begin()+i;
-    m_Children.insert(Pos, pNewNode);
-    DivNodePtr Ptr = boost::dynamic_pointer_cast<DivNode>(getThis());           
-    pNewNode->setParent(Ptr);
     if (getState() == NS_CONNECTED) {
         getPlayer()->registerNode(pNewNode);
     }
+    m_Children.insert(Pos, pNewNode);
+    DivNodePtr Ptr = boost::dynamic_pointer_cast<DivNode>(getThis());           
+    pNewNode->setParent(Ptr);
     if (isDisplayAvailable()) {
         pNewNode->setDisplayEngine(getEngine());
     }
