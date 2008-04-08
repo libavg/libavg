@@ -330,21 +330,24 @@ int AsyncVideoDecoder::fillAudioFrame(unsigned char* audioBuffer, int audioBuffe
                 return audioBufferSize;
             }
         }
-        
-        VideoMsgPtr pMsg = m_pAMsgQ->pop(true);
-        
-        EOFVideoMsgPtr pEOFMsg(dynamic_pointer_cast<EOFVideoMsg>(pMsg));
-        if (pEOFMsg) {
-            m_bAudioEOF = true;
+        try {
+            VideoMsgPtr pMsg = m_pAMsgQ->pop(false);
+            
+            EOFVideoMsgPtr pEOFMsg(dynamic_pointer_cast<EOFVideoMsg>(pMsg));
+            if (pEOFMsg) {
+                m_bAudioEOF = true;
+                return audioBufferSize-bufferLeftToFill;
+            }
+            
+            m_pAudioMsg = dynamic_pointer_cast<AudioVideoMsg>(pMsg);
+            assert(m_pAudioMsg);
+            
+            m_AudioMsgSize = m_pAudioMsg->getSize();
+            m_AudioMsgData = m_pAudioMsg->getBuffer();
+            m_LastAudioFrameTime = m_pAudioMsg->getFrameTime();
+        } catch (Exception &) {
             return audioBufferSize-bufferLeftToFill;
         }
-        
-        m_pAudioMsg = dynamic_pointer_cast<AudioVideoMsg>(pMsg);
-        assert(m_pAudioMsg);
-        
-        m_AudioMsgSize = m_pAudioMsg->getSize();
-        m_AudioMsgData = m_pAudioMsg->getBuffer();
-        m_LastAudioFrameTime = m_pAudioMsg->getFrameTime();
     }
 }
         

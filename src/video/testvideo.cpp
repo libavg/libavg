@@ -167,7 +167,11 @@ class DecoderTest: public Test {
                     int NumWrongTimestamps = 0;
                     while(!pDecoder->isEOF()) {
                         unsigned char AudioBuffer[1024];
-                        int BytesDecoded = pDecoder->fillAudioFrame(AudioBuffer, 1024);
+                        int BytesDecoded = 0;
+                        while (BytesDecoded == 0 && !pDecoder->isEOF()) {
+                            BytesDecoded = pDecoder->fillAudioFrame(AudioBuffer, 1024);
+                            TimeSource::get()->msleep(0);
+                        }
                         TotalBytesDecoded += BytesDecoded;
                         long long CurTime = (TotalBytesDecoded/4)/44.1;
                         if (abs(CurTime-pDecoder->getCurTime()) > 20) {
