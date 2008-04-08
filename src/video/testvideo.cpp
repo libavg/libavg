@@ -164,30 +164,10 @@ class DecoderTest: public Test {
                     pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
                             m_bThreadedDemuxer);
                     int TotalBytesDecoded = 0;
-                    int NumWrongTimestamps = 0;
-                    while(!pDecoder->isEOF()) {
-                        unsigned char AudioBuffer[1024];
-                        int BytesDecoded = 0;
-                        while (BytesDecoded == 0 && !pDecoder->isEOF()) {
-                            BytesDecoded = pDecoder->fillAudioFrame(AudioBuffer, 1024);
-                            TimeSource::get()->msleep(0);
-                        }
-                        TotalBytesDecoded += BytesDecoded;
-                        long long CurTime = (TotalBytesDecoded/4)/44.1;
-                        if (abs(CurTime-pDecoder->getCurTime()) > 20) {
-                            NumWrongTimestamps++;
-                        }
-//                        cerr << CurTime << "->" << pDecoder->getCurTime() << endl;
-                    }
-                    if (sFilename.find(".ogg") == string::npos &&
-                        sFilename.find(".mp3") == string::npos) 
-                    {
-                        // TODO: Figure out why the timestamps go _backwards_ in mp3s 
-                        // sometimes.
-                        if (NumWrongTimestamps>0) {
-                            TEST_FAILED(NumWrongTimestamps << " wrong timestamps.");
-                        }
-                    }
+                    bool bCheckTimestamps = (sFilename.find(".ogg") == string::npos &&
+                            sFilename.find(".mp3") == string::npos);
+                    readAudioToEOF(pDecoder, TotalBytesDecoded, bCheckTimestamps);
+
                     if (sFilename.find(".ogg") == string::npos) {
                         // Check if we've decoded the whole file.
                         // TODO: Find out what is broken with ogg files here.
@@ -198,19 +178,59 @@ class DecoderTest: public Test {
                         TEST (abs(FramesDecoded-FramesInDuration) < 45);
                     }
                 }
-/*                
                 {
                     cerr << "      Seek test." << endl;
                     VideoDecoderPtr pDecoder = createDecoder();
                     pDecoder->setAudioFormat(2, 44100);
                     pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
                             m_bThreadedDemuxer);
+                    long long Duration = pDecoder->getDuration();
+                    pDecoder->seek(Duration/2);
+                    unsigned char AudioBuffer[16];
+                    pDecoder->fillAudioFrame(AudioBuffer, 16);
+                    TEST(abs(Duration/2-pDecoder->getCurTime()) < 60); // 60 ms accuracy for seeks.
+                    int TotalBytesDecoded = 16;
+
+                    readAudioToEOF(pDecoder, TotalBytesDecoded, false);
+                    if (sFilename.find(".ogg") == string::npos) {
+                        // Check if we've decoded half the file.
+                        int FramesDecoded = TotalBytesDecoded/4;
+                        int FramesInDuration = pDecoder->getDuration()*44100/1000;
+//                        cerr << "FramesDecoded: " << FramesDecoded << endl;
+//                        cerr << "FramesInDuration: " << FramesInDuration << endl;
+                        TEST (abs(FramesDecoded-FramesInDuration/2) < 45);
+                    }
+
                 }
-*/
 
             } catch (Magick::Exception & ex) {
                 cerr << string(m_IndentLevel+6, ' ') << ex.what() << endl;
                 throw;
+            }
+        }
+
+        void readAudioToEOF(VideoDecoderPtr pDecoder, int& TotalBytesDecoded, 
+                bool bCheckTimestamps) 
+        {
+            int NumWrongTimestamps = 0;
+            while(!pDecoder->isEOF()) {
+                unsigned char AudioBuffer[1024];
+                int BytesDecoded = 0;
+                while (BytesDecoded == 0 && !pDecoder->isEOF()) {
+                    BytesDecoded = pDecoder->fillAudioFrame(AudioBuffer, 1024);
+                    TimeSource::get()->msleep(0);
+                }
+                TotalBytesDecoded += BytesDecoded;
+                long long CurTime = (TotalBytesDecoded/4)/44.1;
+                if (abs(CurTime-pDecoder->getCurTime()) > 20) {
+                    NumWrongTimestamps++;
+                }
+//                cerr << CurTime << "->" << pDecoder->getCurTime() << endl;
+            }
+            if (bCheckTimestamps) {
+                if (NumWrongTimestamps>0) {
+                    TEST_FAILED(NumWrongTimestamps << " wrong timestamps.");
+                }
             }
         }
 
