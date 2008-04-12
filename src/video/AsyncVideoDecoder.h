@@ -30,7 +30,6 @@
 
 #include "../graphics/Bitmap.h"
 
-#include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/mutex.hpp>
 
 #include <string>

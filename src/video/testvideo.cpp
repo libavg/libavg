@@ -392,6 +392,7 @@ class AVDecoderTest: public DecoderTest {
             while(!pDecoder->isEOF()) {
                 FrameAvailableCode FrameAvailable = 
                         pDecoder->renderToBmp(pBmp, 0);
+//                cerr << NumFrames << ", " << pDecoder->getCurFrame() << endl;
                 if (FrameAvailable == FA_NEW_FRAME) {
 //                    stringstream ss;
 //                    ss << "testfiles/result/" << sFilename << NumFrames << ".png";
@@ -405,14 +406,17 @@ class AVDecoderTest: public DecoderTest {
                     TimeSource::get()->msleep(0);
                 }
                 TotalBytesDecoded += BytesDecoded;
+//                cerr << "TotalBytesDecoded: " << TotalBytesDecoded << endl;
             }
             TEST(pDecoder->isEOF(SS_VIDEO));
+//            cerr << "NumFrames: " << NumFrames << endl;
             TEST(NumFrames == ExpectedNumFrames);
             compareImages(pBmp, sFilename+"_end");
 
             // Check if audio length was ok.
             int FramesDecoded = TotalBytesDecoded/4;
             int FramesInDuration = pDecoder->getDuration()*44100/1000;
+            cerr << "FramesDecoded: " << FramesDecoded << ", FramesInDuration: " << FramesInDuration << endl;
             TEST (abs(FramesDecoded-FramesInDuration) < 45);
             
             // Test loop.
@@ -475,10 +479,16 @@ int main(int nargs, char** args)
     deleteOldResultImages();
 
     VideoTestSuite Suite;
-
     Suite.runTests();
     bool bOK = Suite.isOk();
-
+/*    while(true) {
+        Suite.runTests();
+        bool bOK = Suite.isOk();
+        if (!bOK) {
+            return 0;
+        }
+    }        
+*/
     if (bOK) {
         return 0;
     } else {
