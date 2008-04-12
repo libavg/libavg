@@ -350,7 +350,7 @@ void FFMpegDecoder::close()
 
 void FFMpegDecoder::seek(long long DestTime) 
 {
-    if (m_bFirstPacket) {
+    if (m_bFirstPacket && m_pVStream) {
         AVFrame Frame;
         long long FrameTime;
         readFrame(Frame, FrameTime);

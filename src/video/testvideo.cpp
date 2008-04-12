@@ -475,8 +475,9 @@ int main(int nargs, char** args)
     deleteOldResultImages();
 
     VideoTestSuite Suite;
-
-    Suite.runTests();
+    while(true) {
+        Suite.runTests();
+    }        
     bool bOK = Suite.isOk();
 
     if (bOK) {
