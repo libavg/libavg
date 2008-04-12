@@ -56,12 +56,54 @@ using namespace std;
 //  - Remove testfiles from python tests.
 //  - Test YCbCr420p, YCbCr422
 
+
 class DecoderTest: public Test {
     public:
-        DecoderTest(bool bThreadedDecoder, bool bThreadedDemuxer)
-          : Test(getDecoderName(bThreadedDecoder, bThreadedDemuxer), 2),
+        DecoderTest(string sClassName, bool bThreadedDecoder, bool bThreadedDemuxer)
+          : Test(sClassName+getDecoderName(bThreadedDecoder, bThreadedDemuxer), 2),
             m_bThreadedDecoder(bThreadedDecoder),
             m_bThreadedDemuxer(bThreadedDemuxer)
+        {}
+
+    protected:
+        bool isDemuxerThreaded() 
+        {
+            return m_bThreadedDemuxer;
+        }
+
+        VideoDecoderPtr createDecoder() 
+        {
+            VideoDecoderPtr pDecoder;
+            pDecoder = VideoDecoderPtr(new FFMpegDecoder());
+            if (m_bThreadedDecoder) {
+                pDecoder = VideoDecoderPtr(new AsyncVideoDecoder(pDecoder));
+            }
+            return pDecoder;
+        }
+
+    private:
+        string getDecoderName(bool bThreadedDecoder, bool bThreadedDemuxer) {
+            string sName = "(";
+            if (bThreadedDecoder) {
+                sName += "Threaded decoder, ";
+            } else {
+                sName += "Sync decoder, ";
+            }
+            if (bThreadedDemuxer) {
+                return sName+string("Threaded demuxer)");
+            } else {
+                return sName+string("Sync demuxer)");
+            }
+        }
+
+        bool m_bThreadedDecoder;
+        bool m_bThreadedDemuxer;
+};
+
+class VideoDecoderTest: public DecoderTest {
+    public:
+        VideoDecoderTest(bool bThreadedDecoder, bool bThreadedDemuxer)
+            :DecoderTest("VideoDecoderTest", bThreadedDecoder, bThreadedDemuxer)
         {}
 
         void runTests()
@@ -69,23 +111,6 @@ class DecoderTest: public Test {
             basicFileTest("mpeg1-48x48.mpg", 30);
             basicFileTest("mjpeg-48x48.avi", 202);
             seekTest("mjpeg-48x48.avi");
-
-            audioTest("22.050Hz_16bit_mono.wav");
-
-            audioTest("44.1kHz_16bit_mono.wav");
-            audioTest("44.1kHz_16bit_stereo.wav");
-            audioTest("44.1kHz_24bit_mono.wav");
-            audioTest("44.1kHz_24bit_stereo.wav");
-
-            audioTest("48kHz_16bit_mono.wav");
-            audioTest("48kHz_16bit_stereo.wav");
-            audioTest("48kHz_24bit_mono.wav");
-            audioTest("48kHz_24bit_stereo.wav");
-
-            audioTest("44.1kHz_16bit_stereo.aif");
-            audioTest("44.1kHz_mono.ogg");
-            audioTest("44.1kHz_stereo.ogg");
-            audioTest("44.1kHz_stereo.mp3");
         }
 
     private:
@@ -96,7 +121,7 @@ class DecoderTest: public Test {
 
                 VideoDecoderPtr pDecoder = createDecoder();
                 pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
-                        m_bThreadedDemuxer);
+                        isDemuxerThreaded());
                 IntPoint FrameSize = pDecoder->getSize();
                 TEST(FrameSize == IntPoint(48, 48));
                 TEST(pDecoder->getPixelFormat() == B8G8R8X8);
@@ -124,7 +149,7 @@ class DecoderTest: public Test {
 
             VideoDecoderPtr pDecoder = createDecoder();
             pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
-                    m_bThreadedDemuxer);
+                    isDemuxerThreaded());
 
             IntPoint FrameSize = pDecoder->getSize();
             BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
@@ -147,6 +172,111 @@ class DecoderTest: public Test {
             pDecoder->close();
         }
 
+        void readWholeFile(const string& sFilename, 
+                double SpeedFactor, int ExpectedNumFrames)
+        {
+            // Read whole file, test last image.
+            VideoDecoderPtr pDecoder = createDecoder();
+            pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
+                    isDemuxerThreaded());
+            IntPoint FrameSize = pDecoder->getSize();
+            BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
+            double TimePerFrame = (1000.0/pDecoder->getFPS())*SpeedFactor;
+            int NumFrames = 0;
+            double CurTime = 0;
+
+            while(!pDecoder->isEOF()) {
+                FrameAvailableCode FrameAvailable = 
+                        pDecoder->renderToBmp(pBmp, (long long)CurTime);
+                if (FrameAvailable == FA_NEW_FRAME) {
+//                    stringstream ss;
+//                    ss << "testfiles/result/" << sFilename << NumFrames << ".png";
+//                    pBmp->save(ss.str());
+                    NumFrames++;
+
+                } else {
+                    TimeSource::get()->msleep(0);
+                }
+                if (FrameAvailable == FA_NEW_FRAME || FrameAvailable == FA_USE_LAST_FRAME) { 
+                    CurTime += TimePerFrame;
+                }
+            }
+//            cerr << "NumFrames: " << NumFrames << ", ExpectedNumFrames: " << ExpectedNumFrames << endl;
+            TEST(NumFrames == ExpectedNumFrames);
+            if (SpeedFactor == 1) {
+                compareImages(pBmp, sFilename+"_end");
+            }
+            
+            // Test loop.
+            pDecoder->seek(0);
+            pDecoder->renderToBmp(pBmp, -1);
+            compareImages(pBmp, sFilename+"_loop");
+
+            pDecoder->close();
+        }
+
+        void compareImages(BitmapPtr pBmp, const string& sFilename)
+        {
+            BitmapPtr pBaselineBmp;
+            try {
+                pBaselineBmp = BitmapPtr(new Bitmap(
+                        getSrcDir()+"testfiles/baseline/"+sFilename+".png"));
+            } catch (Magick::Exception & ex) {
+                TEST_FAILED("Error loading baseline image: " << ex.what()); 
+                pBmp->save(getSrcDir()+"testfiles/result/"+sFilename+".png");
+                return;
+            }
+            FilterFlipRGB().applyInPlace(pBaselineBmp);
+#ifdef __BIG_ENDIAN__
+            FilterFlipRGBA().applyInPlace(pBmp);
+#endif
+            int DiffPixels = pBaselineBmp->getNumDifferentPixels(*pBmp);
+            if (DiffPixels > 0) {
+                TEST_FAILED("Error: Decoded image differs from baseline '" << 
+                        sFilename << "'. " << DiffPixels << " different pixels.");
+                try {
+                    pBmp->save(getSrcDir()+"testfiles/result/"+sFilename+".png");
+                    BitmapPtr pOrigBmp(new Bitmap(getSrcDir()+"testfiles/baseline/"+sFilename+".png"));
+                    pOrigBmp->save(getSrcDir()+"testfiles/result/"+sFilename+"_baseline.png");
+                    Bitmap DiffBmp(*pBmp);
+                    DiffBmp.subtract(&*pBaselineBmp);
+                    DiffBmp.save(getSrcDir()+"testfiles/result/"+sFilename+"_diff.png");
+                } catch (Magick::Exception & ex) {
+                    TEST_FAILED("Error saving result image: " << ex.what()); 
+                    return;
+                }
+            }
+        }
+
+};
+
+class AudioDecoderTest: public DecoderTest {
+    public:
+        AudioDecoderTest(bool bThreadedDecoder, bool bThreadedDemuxer)
+          : DecoderTest("AudioDecoderTest", bThreadedDecoder, bThreadedDemuxer)
+        {}
+
+        void runTests()
+        {
+            audioTest("22.050Hz_16bit_mono.wav");
+
+            audioTest("44.1kHz_16bit_mono.wav");
+            audioTest("44.1kHz_16bit_stereo.wav");
+            audioTest("44.1kHz_24bit_mono.wav");
+            audioTest("44.1kHz_24bit_stereo.wav");
+
+            audioTest("48kHz_16bit_mono.wav");
+            audioTest("48kHz_16bit_stereo.wav");
+            audioTest("48kHz_24bit_mono.wav");
+            audioTest("48kHz_24bit_stereo.wav");
+
+            audioTest("44.1kHz_16bit_stereo.aif");
+            audioTest("44.1kHz_mono.ogg");
+            audioTest("44.1kHz_stereo.ogg");
+            audioTest("44.1kHz_stereo.mp3");
+        }
+
+    private:
         void audioTest(const string& sFilename)
         {
             // TODO:
@@ -162,7 +292,7 @@ class DecoderTest: public Test {
                     VideoDecoderPtr pDecoder = createDecoder();
                     pDecoder->setAudioFormat(2, 44100);
                     pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
-                            m_bThreadedDemuxer);
+                            isDemuxerThreaded());
                     int TotalBytesDecoded = 0;
                     bool bCheckTimestamps = (sFilename.find(".ogg") == string::npos &&
                             sFilename.find(".mp3") == string::npos);
@@ -183,7 +313,7 @@ class DecoderTest: public Test {
                     VideoDecoderPtr pDecoder = createDecoder();
                     pDecoder->setAudioFormat(2, 44100);
                     pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
-                            m_bThreadedDemuxer);
+                            isDemuxerThreaded());
                     long long Duration = pDecoder->getDuration();
                     pDecoder->seek(Duration/2);
                     unsigned char AudioBuffer[16];
@@ -233,119 +363,24 @@ class DecoderTest: public Test {
                 }
             }
         }
-
-        void readWholeFile(const string& sFilename, 
-                double SpeedFactor, int ExpectedNumFrames)
-        {
-            // Read whole file, test last image.
-            VideoDecoderPtr pDecoder = createDecoder();
-            pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
-                    m_bThreadedDemuxer);
-            IntPoint FrameSize = pDecoder->getSize();
-            BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
-            double TimePerFrame = (1000.0/pDecoder->getFPS())*SpeedFactor;
-            int NumFrames = 0;
-            double CurTime = 0;
-
-            while(!pDecoder->isEOF()) {
-                FrameAvailableCode FrameAvailable = 
-                        pDecoder->renderToBmp(pBmp, (long long)CurTime);
-                if (FrameAvailable == FA_NEW_FRAME) {
-//                    stringstream ss;
-//                    ss << "testfiles/result/" << sFilename << NumFrames << ".png";
-//                    pBmp->save(ss.str());
-                    NumFrames++;
-
-                } else {
-                    TimeSource::get()->msleep(0);
-                }
-                if (FrameAvailable == FA_NEW_FRAME || FrameAvailable == FA_USE_LAST_FRAME) { 
-                    CurTime += TimePerFrame;
-                }
-            }
-//            cerr << "NumFrames: " << NumFrames << ", ExpectedNumFrames: " << ExpectedNumFrames << endl;
-            TEST(NumFrames == ExpectedNumFrames);
-            if (SpeedFactor == 1) {
-                compareImages(pBmp, sFilename+"_end");
-            }
-            
-            // Test loop.
-            pDecoder->seek(0);
-            pDecoder->renderToBmp(pBmp, -1);
-            compareImages(pBmp, sFilename+"_loop");
-
-            pDecoder->close();
-        }
-
-        VideoDecoderPtr createDecoder() {
-            VideoDecoderPtr pDecoder;
-            pDecoder = VideoDecoderPtr(new FFMpegDecoder());
-            if (m_bThreadedDecoder) {
-                pDecoder = VideoDecoderPtr(new AsyncVideoDecoder(pDecoder));
-            }
-            return pDecoder;
-        }
-
-        void compareImages(BitmapPtr pBmp, const string& sFilename)
-        {
-            BitmapPtr pBaselineBmp;
-            try {
-                pBaselineBmp = BitmapPtr(new Bitmap(
-                        getSrcDir()+"testfiles/baseline/"+sFilename+".png"));
-            } catch (Magick::Exception & ex) {
-                TEST_FAILED("Error loading baseline image: " << ex.what()); 
-                pBmp->save(getSrcDir()+"testfiles/result/"+sFilename+".png");
-                return;
-            }
-            FilterFlipRGB().applyInPlace(pBaselineBmp);
-#ifdef __BIG_ENDIAN__
-            FilterFlipRGBA().applyInPlace(pBmp);
-#endif
-            int DiffPixels = pBaselineBmp->getNumDifferentPixels(*pBmp);
-            if (DiffPixels > 0) {
-                TEST_FAILED("Error: Decoded image differs from baseline '" << 
-                        sFilename << "'. " << DiffPixels << " different pixels.");
-                try {
-                    pBmp->save(getSrcDir()+"testfiles/result/"+sFilename+".png");
-                    BitmapPtr pOrigBmp(new Bitmap(getSrcDir()+"testfiles/baseline/"+sFilename+".png"));
-                    pOrigBmp->save(getSrcDir()+"testfiles/result/"+sFilename+"_baseline.png");
-                    Bitmap DiffBmp(*pBmp);
-                    DiffBmp.subtract(&*pBaselineBmp);
-                    DiffBmp.save(getSrcDir()+"testfiles/result/"+sFilename+"_diff.png");
-                } catch (Magick::Exception & ex) {
-                    TEST_FAILED("Error saving result image: " << ex.what()); 
-                    return;
-                }
-            }
-        }
-
-        string getDecoderName(bool bThreadedDecoder, bool bThreadedDemuxer) {
-            string sName = "DecoderTest(";
-            if (bThreadedDecoder) {
-                sName += "Threaded decoder, ";
-            } else {
-                sName += "Sync decoder, ";
-            }
-            if (bThreadedDemuxer) {
-                return sName+string("Threaded demuxer)");
-            } else {
-                return sName+string("Sync demuxer)");
-            }
-        }
-
-        bool m_bThreadedDecoder;
-        bool m_bThreadedDemuxer;
+        
 };
+
 
 class VideoTestSuite: public TestSuite {
 public:
     VideoTestSuite() 
         : TestSuite("VideoTestSuite")
     {
-        addTest(TestPtr(new DecoderTest(false, false)));
-        addTest(TestPtr(new DecoderTest(false, true)));
-        addTest(TestPtr(new DecoderTest(true, false)));
-        addTest(TestPtr(new DecoderTest(true, true)));
+        addTest(TestPtr(new VideoDecoderTest(false, false)));
+        addTest(TestPtr(new VideoDecoderTest(false, true)));
+        addTest(TestPtr(new VideoDecoderTest(true, false)));
+        addTest(TestPtr(new VideoDecoderTest(true, true)));
+        
+        addTest(TestPtr(new AudioDecoderTest(false, false)));
+        addTest(TestPtr(new AudioDecoderTest(false, true)));
+        addTest(TestPtr(new AudioDecoderTest(true, false)));
+        addTest(TestPtr(new AudioDecoderTest(true, true)));
     }
 };
 
