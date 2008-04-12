@@ -35,6 +35,7 @@
 #include "../graphics/Filterfliprgba.h"
 #include "../graphics/Filterfliprgb.h"
 
+#include "../base/StringHelper.h"
 #include "../base/TimeSource.h"
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -110,7 +111,7 @@ class VideoDecoderTest: public DecoderTest {
         {
             basicFileTest("mpeg1-48x48.mpg", 30);
             basicFileTest("mjpeg-48x48.avi", 202);
-            seekTest("mjpeg-48x48.avi");
+            testSeeks("mjpeg-48x48.avi");
         }
 
     private:
@@ -143,7 +144,7 @@ class VideoDecoderTest: public DecoderTest {
             }
         }
 
-        void seekTest(const string& sFilename)
+        void testSeeks(const string& sFilename)
         {
             cerr << "    Testing " << sFilename << " (seek)" << endl;
 
@@ -151,25 +152,25 @@ class VideoDecoderTest: public DecoderTest {
             pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
                     isDemuxerThreaded());
 
-            IntPoint FrameSize = pDecoder->getSize();
-            BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
-
             // Seek forward
-            pDecoder->seek((long long)(100*1000/pDecoder->getNominalFPS()));
-            pDecoder->renderToBmp(pBmp, -1);
-            compareImages(pBmp, sFilename+"_100");
-
+            testSeek(100, sFilename, pDecoder);
             // Seek backward
-            pDecoder->seek((long long)(53*1000/pDecoder->getNominalFPS()));
-            pDecoder->renderToBmp(pBmp, -1);
-            compareImages(pBmp, sFilename+"_53");
-
+            testSeek(53, sFilename, pDecoder);
             // Seek to last frame
-            pDecoder->seek((long long)(201*1000/pDecoder->getNominalFPS()));
-            pDecoder->renderToBmp(pBmp, -1);
-            compareImages(pBmp, sFilename+"_201");
+            testSeek(201, sFilename, pDecoder);
 
             pDecoder->close();
+        }
+
+        void testSeek(int FrameNum, const string& sFilename, VideoDecoderPtr pDecoder)
+        {
+            IntPoint FrameSize = pDecoder->getSize();
+
+            BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
+            pDecoder->seek((long long)(FrameNum*1000/pDecoder->getNominalFPS()));
+            pDecoder->renderToBmp(pBmp, -1);
+            compareImages(pBmp, sFilename+"_"+toString(FrameNum));
+
         }
 
         void readWholeFile(const string& sFilename, 
