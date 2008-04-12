@@ -889,9 +889,6 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long Tim
     // XXX: This code is sort-of duplicated in AsyncVideoDecoder::getBmpsForTime()
     long long FrameTime = -1000;
 
-    // If this video has audio, sync to that instead of the requested time
-    if(getMasterStream() == SS_AUDIO)
-        TimeWanted = m_LastAudioFrameTime;
 /*
     bool bDebug = (m_sFilename == "/home/uzadow/wos_videos/c-wars/thumbs/cwars-scene3.avi");
     if (bDebug) {
@@ -903,6 +900,10 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long Tim
     if (TimeWanted == -1) {
         readFrame(Frame, FrameTime);
     } else {
+        // If this video has audio, sync to that instead of the requested time
+        if (getMasterStream() == SS_AUDIO) {
+            TimeWanted = m_LastAudioFrameTime;
+        }
         double TimePerFrame = 1000/m_FPS;
         if (TimeWanted-m_LastVideoFrameTime < 0.5*TimePerFrame) {
 /*            
