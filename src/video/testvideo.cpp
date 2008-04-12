@@ -60,7 +60,7 @@ using namespace std;
 
 class DecoderTest: public Test {
     public:
-        DecoderTest(string sClassName, bool bThreadedDecoder, bool bThreadedDemuxer)
+        DecoderTest(const string& sClassName, bool bThreadedDecoder, bool bThreadedDemuxer)
           : Test(sClassName+getDecoderName(bThreadedDecoder, bThreadedDemuxer), 2),
             m_bThreadedDecoder(bThreadedDecoder),
             m_bThreadedDemuxer(bThreadedDemuxer)
@@ -386,7 +386,6 @@ class AVDecoderTest: public DecoderTest {
                     isDemuxerThreaded());
             IntPoint FrameSize = pDecoder->getSize();
             BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
-            double TimePerFrame = (1000.0/pDecoder->getFPS());
             int NumFrames = 0;
             int TotalBytesDecoded = 0;
 
@@ -435,7 +434,7 @@ public:
         addTest(TestPtr(new VideoDecoderTest(false, true)));
         addTest(TestPtr(new VideoDecoderTest(true, false)));
         addTest(TestPtr(new VideoDecoderTest(true, true)));
-        
+       
         addTest(TestPtr(new AudioDecoderTest(false, false)));
         addTest(TestPtr(new AudioDecoderTest(false, true)));
         addTest(TestPtr(new AudioDecoderTest(true, false)));

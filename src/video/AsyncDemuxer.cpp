@@ -29,7 +29,7 @@
 
 using namespace std;
 
-typedef boost::recursive_mutex::scoped_lock rscoped_lock;
+typedef boost::mutex::scoped_lock scoped_lock;
 
 namespace avg {
 
@@ -99,8 +99,8 @@ AVPacket * AsyncDemuxer::getPacket(int StreamIndex)
 
 void AsyncDemuxer::seek(long long DestTime)
 {
-    rscoped_lock Lock(m_SeekMutex);
     waitForSeekDone();
+    scoped_lock Lock(m_SeekMutex);
     m_pCmdQ->push(Command<VideoDemuxerThread>(boost::bind(
                 &VideoDemuxerThread::seek, _1, DestTime)));
     m_bSeekPending = true;
@@ -130,7 +130,7 @@ void AsyncDemuxer::seek(long long DestTime)
 
 void AsyncDemuxer::waitForSeekDone()
 {
-    rscoped_lock Lock(m_SeekMutex);
+    scoped_lock Lock(m_SeekMutex);
     if (m_bSeekPending) {
         m_bSeekPending = false;
         map<int, VideoPacketQueuePtr>::iterator it;
