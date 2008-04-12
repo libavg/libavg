@@ -138,11 +138,11 @@ void AsyncDemuxer::waitForSeekDone()
             VideoPacketQueuePtr pPacketQ = it->second;
             PacketVideoMsgPtr pPacketMsg;
             map<int, bool>::iterator itSeekDone = m_bSeekDone.find(it->first);
-            do {
+            while (!itSeekDone->second) {
                 pPacketMsg = pPacketQ->pop(true);
                 itSeekDone->second = pPacketMsg->isSeekDone();
                 pPacketMsg->freePacket();
-            } while (!itSeekDone->second);
+            }
         }
     }
 }
