@@ -185,7 +185,7 @@ IntPoint AsyncVideoDecoder::getSize()
 
 int AsyncVideoDecoder::getCurFrame()
 {
-    return int(getCurTime(SS_VIDEO)*getNominalFPS()/1000.0);
+    return int(getCurTime(SS_VIDEO)*getNominalFPS()/1000.0+0.5);
 }
 
 int AsyncVideoDecoder::getNumFrames()
