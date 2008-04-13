@@ -154,7 +154,7 @@ class DecoderTest: public Test {
                     NumFrames++;
 
                 } else {
-                    TimeSource::get()->msleep(0);
+                    msleep(0);
                 }
                 if (FrameAvailable == FA_NEW_FRAME || FrameAvailable == FA_USE_LAST_FRAME) { 
                     CurTime += TimePerFrame;

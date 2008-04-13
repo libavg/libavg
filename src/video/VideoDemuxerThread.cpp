@@ -58,7 +58,7 @@ bool VideoDemuxerThread::work()
 {
     if (m_PacketQs.empty() || m_bEOF) {
         // replace this with waitForMessage()
-        TimeSource::get()->msleep(10);
+        msleep(10);
     } else {
 
         map<int, VideoPacketQueuePtr>::iterator it;

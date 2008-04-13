@@ -73,7 +73,7 @@ public:
                 new TrackerEventSource(pCam, Config, IntPoint(640, 480), false));
 
         while(1){
-            TimeSource::get()->msleep(50);
+            msleep(50);
             std::vector<class Event *> e = pTracker->pollEvents();
             if(e.size()==0)
                 cerr<<"no new events"<<endl;

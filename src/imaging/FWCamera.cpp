@@ -290,7 +290,7 @@ BitmapPtr FWCamera::getImage(bool bWait)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     if (!m_bCameraAvailable && bWait) {
-        TimeSource::get()->msleep(1000);
+        msleep(1000);
         open();
     }
     if (!m_bCameraAvailable) {
