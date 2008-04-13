@@ -829,7 +829,7 @@ class PlayerTestCase(AVGTestCase):
     def testVideo(self):
         def newHRef():
             node = Player.getElementByID("clogo2")
-            node.href = "h264-48x48.h264"
+            node.href = "../video/testfiles/h264-48x48.h264"
             node.play()
         def move():
             node = Player.getElementByID("clogo2")
@@ -901,7 +901,7 @@ class PlayerTestCase(AVGTestCase):
 
     def testMediaDir(self):
         def setDir():
-            Player.getElementByID("main").mediadir="."
+            Player.getElementByID("main").mediadir="../video/testfiles"
         self.start("mediadir.avg",
                 (lambda: Player.getElementByID("video").play(),
                  lambda: self.compareImage("mediadir1", False),
@@ -1087,9 +1087,11 @@ class PlayerTestCase(AVGTestCase):
     def testVideoDynamics(self):
         def createVideo(useXml):
             if useXml:
-                node = Player.createNode("<video id='newVideo' href='mpeg1-48x48.mpg'/>")
+                node = Player.createNode(
+                        "<video id='newVideo' href='../video/testfiles/mpeg1-48x48.mpg'/>")
             else:
-                node = Player.createNode("video", {"id":"newVideo", "href":"mpeg1-48x48.mpg"})
+                node = Player.createNode("video", {"id":"newVideo", 
+                        "href":"../video/testfiles/mpeg1-48x48.mpg"})
             Player.getRootNode().appendChild(node)
             node.play()
         def removeVideo():

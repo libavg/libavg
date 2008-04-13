@@ -6,6 +6,6 @@
   <div id="nestedavg" x="40" y="30"
        width="80" height="60">
     <video id="movie" x="10" y="10" width="40" height="40" 
-            href="mpeg1-48x48.mpg"/>
+            href="../video/testfiles/mpeg1-48x48.mpg"/>
   </div>
 </avg>
