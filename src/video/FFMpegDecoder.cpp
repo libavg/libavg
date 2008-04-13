@@ -694,7 +694,6 @@ int FFMpegDecoder::decodeAudio()
 
 int FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer, int outputAudioBufferSize)
 {
-    // TODO: Why is this lock necessary?
     mutex::scoped_lock Lock(m_AudioMutex);
     
     assert(m_Channels);
@@ -733,9 +732,8 @@ int FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer, int outputAu
                 pBuffer += bytesProduced;
                 bufferLeft -= bytesProduced;
 
-                m_LastAudioFrameTime += (long long)(m_SpeedFactor * 1000.0 * bytesProduced /
+                m_LastAudioFrameTime += (m_SpeedFactor * 1000.0 * bytesProduced /
                         (2 * m_Channels * m_SampleRate));
-                
                 if (bufferLeft == 0) {
                     volumize((short*)outputAudioBuffer, outputAudioBufferSize/2);
                     return outputAudioBufferSize;
@@ -769,11 +767,12 @@ int FFMpegDecoder::fillAudioFrame(unsigned char* outputAudioBuffer, int outputAu
             m_bAudioEOF = true;
             return outputAudioBufferSize-bufferLeft;
         }
-        
-        if(m_AudioPacket->dts != AV_NOPTS_VALUE)
-            m_LastAudioFrameTime = (long long)(1000.0 * av_q2d(m_pAStream->time_base) * 
+/* 
+        if(m_AudioPacket->dts != AV_NOPTS_VALUE) {
+            long long dts = (long long)(1000.0 * av_q2d(m_pAStream->time_base) * 
                     m_AudioPacket->dts - m_AudioStartTimestamp);
-        
+        }
+*/
         // Initialize packet data pointers
         m_AudioPacketData = m_AudioPacket->data;
         m_AudioPacketSize = m_AudioPacket->size;

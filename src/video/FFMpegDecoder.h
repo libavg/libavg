@@ -140,7 +140,7 @@ class FFMpegDecoder: public IVideoDecoder
 
         double m_Volume;
         double m_LastVolume;
-        long long m_LastAudioFrameTime;
+        double m_LastAudioFrameTime;
         long long m_AudioStartTimestamp;
         
         unsigned char * m_pPacketData;
