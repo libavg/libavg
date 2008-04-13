@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
+
+<avg id="main" width="80" height="60">
+    <div id="button">
+        <words text="Up____"/>
+        <words text="Down"/>
+        <words text="Over"/>
+        <words text="Disabled"/>
+    </div>
+</avg>
+

@@ -20,9 +20,9 @@ else:
 SrcDir = os.getenv("srcdir",".")
 os.chdir(SrcDir)
 if platform.system() == 'Windows':
-    from libavg import anim, draggable
+    from libavg import anim, draggable, button
 else:    
-    import anim, draggable
+    import anim, draggable, button
 
 from testcase import *
 
@@ -123,13 +123,69 @@ class PythonTestCase(AVGTestCase):
                  lambda: self.compareImage("testDraggable2", False),
                  Player.stop))
 
+    def testButton(self):
+        def sendEvent(type, x, y):
+            Helper = Player.getTestHelper()
+            Helper.fakeMouseEvent(type, True, False, False,
+                        x, y, 1)
+        def onClick(event):
+            self.__clicked = True
+        def createButton():
+            self.button = button.Button(Player.getElementByID("button"), onClick)
+        def down():
+            sendEvent(avg.CURSORDOWN, 0, 0)
+        def out():
+            sendEvent(avg.CURSORMOTION, 0, 50)
+        def upOutside():
+            sendEvent(avg.CURSORUP, 0, 50)
+        def over():
+            sendEvent(avg.CURSORMOTION, 0, 0)
+        def upInside():
+            sendEvent(avg.CURSORUP, 0, 0)
+        self.__clicked = False
+        button.init(avg)
+        self.start("ButtonTest.avg",
+                (createButton,
+                lambda: self.compareImage("testButtonUp", False),
+                down,
+                lambda: self.compareImage("testButtonDown", False),
+                out,
+                lambda: self.compareImage("testButtonUp", False),
+                upOutside,
+                lambda: self.assert_(not(self.__clicked)),
+                down,
+                lambda: self.compareImage("testButtonDown", False),
+                out,
+                lambda: self.compareImage("testButtonUp", False),
+                over,
+                lambda: self.compareImage("testButtonDown", False),
+                upInside,
+                lambda: self.assert_(self.__clicked),
+                lambda: self.compareImage("testButtonOver", False),
+                out,
+                lambda: self.compareImage("testButtonUp", False),
+                Player.stop))
+
 
 def pythonTestSuite():
     suite = unittest.TestSuite()
     suite.addTest(PythonTestCase("testAnim"))
     suite.addTest(PythonTestCase("testContinuousAnim"))
     suite.addTest(PythonTestCase("testDraggable"))
+    suite.addTest(PythonTestCase("testButton"))
     return suite
+    
+Log = avg.Logger.get()
+Log.setCategories(Log.APP |
+        Log.WARNING
+#         Log.PROFILE |
+#         Log.PROFILE_LATEFRAMES |
+#         Log.CONFIG |
+#         Log.MEMORY |
+#         Log.BLTS    |
+#         Log.EVENTS |
+#         Log.EVENTS2
+              )
 
 if os.getenv("AVG_CONSOLE_TEST"):
     sys.exit(0)
