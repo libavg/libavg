@@ -390,8 +390,11 @@ class AVDecoderTest: public DecoderTest {
             int TotalBytesDecoded = 0;
 
             while(!pDecoder->isEOF()) {
-                FrameAvailableCode FrameAvailable = 
-                        pDecoder->renderToBmp(pBmp, 0);
+                FrameAvailableCode FrameAvailable;
+                do {
+                    FrameAvailable = pDecoder->renderToBmp(pBmp, 0);
+                    TimeSource::get()->msleep(0);
+                } while (FrameAvailable == FA_STILL_DECODING);
 //                cerr << NumFrames << ", " << pDecoder->getCurFrame() << endl;
                 if (FrameAvailable == FA_NEW_FRAME) {
 //                    stringstream ss;
@@ -406,7 +409,7 @@ class AVDecoderTest: public DecoderTest {
                     TimeSource::get()->msleep(0);
                 }
                 TotalBytesDecoded += BytesDecoded;
-//                cerr << "TotalBytesDecoded: " << TotalBytesDecoded << endl;
+//                cerr << "BytesDecoded: " << BytesDecoded << endl;
             }
             TEST(pDecoder->isEOF(SS_VIDEO));
 //            cerr << "NumFrames: " << NumFrames << endl;
@@ -416,7 +419,7 @@ class AVDecoderTest: public DecoderTest {
             // Check if audio length was ok.
             int FramesDecoded = TotalBytesDecoded/4;
             int FramesInDuration = pDecoder->getDuration()*44100/1000;
-            cerr << "FramesDecoded: " << FramesDecoded << ", FramesInDuration: " << FramesInDuration << endl;
+//            cerr << "FramesDecoded: " << FramesDecoded << ", FramesInDuration: " << FramesInDuration << endl;
             TEST (abs(FramesDecoded-FramesInDuration) < 45);
             
             // Test loop.
@@ -436,17 +439,14 @@ public:
     {
         addTest(TestPtr(new VideoDecoderTest(false, false)));
         addTest(TestPtr(new VideoDecoderTest(false, true)));
-        addTest(TestPtr(new VideoDecoderTest(true, false)));
         addTest(TestPtr(new VideoDecoderTest(true, true)));
        
         addTest(TestPtr(new AudioDecoderTest(false, false)));
         addTest(TestPtr(new AudioDecoderTest(false, true)));
-        addTest(TestPtr(new AudioDecoderTest(true, false)));
         addTest(TestPtr(new AudioDecoderTest(true, true)));
 
         addTest(TestPtr(new AVDecoderTest(false, false)));
         addTest(TestPtr(new AVDecoderTest(false, true)));
-        addTest(TestPtr(new AVDecoderTest(true, false)));
         addTest(TestPtr(new AVDecoderTest(true, true)));
     }
 };
@@ -479,20 +479,23 @@ int main(int nargs, char** args)
     deleteOldResultImages();
 
     VideoTestSuite Suite;
+    bool bOk;
+    
     Suite.runTests();
-    bool bOK = Suite.isOk();
-/*    while(true) {
-        Suite.runTests();
-        bool bOK = Suite.isOk();
-        if (!bOK) {
-            return 0;
-        }
-    }        
-*/
-    if (bOK) {
+    bOk = Suite.isOk();
+    if (bOk) {
         return 0;
     } else {
         return 1;
     }
+/*    
+    while(true) {
+        Suite.runTests();
+        bOk = Suite.isOk();
+        if (!bOk) {
+            return 1;
+        }
+    }
+*/    
 }
 
