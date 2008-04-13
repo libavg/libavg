@@ -31,11 +31,7 @@ if platform.system() == 'Windows':
 else:    
     import anim, draggable
 
-CREATE_BASELINE_IMAGES = False
-BASELINE_DIR = "baseline"
-RESULT_DIR = "resultimages"
-
-ourSaveDifferences = True
+from testcase import *
 
 class LoggerTestCase(unittest.TestCase):
     def test(self):
@@ -69,61 +65,6 @@ class LoggerTestCase(unittest.TestCase):
             self.Log.setSyslogDest(syslog.LOG_USER, syslog.LOG_CONS)
             self.Log.trace(self.Log.APP, "Test syslog entry.")
         self.Log.setConsoleDest()
-
-class AVGTestCase(unittest.TestCase):
-    def __init__(self, testFuncName, bpp):
-        self.__bpp = bpp
-        self.__testFuncName = testFuncName
-        self.Log = avg.Logger.get()
-        unittest.TestCase.__init__(self, testFuncName)
-    def setUpVideo(self):
-        Player.setResolution(0, 0, 0, self.__bpp)
-        if customOGLOptions:
-            Player.setOGLOptions(UsePOW2Textures, YCbCrMode, UsePixelBuffers, 1)
-    def setUp(self):
-        self.setUpVideo()
-        print "-------- ", self.__testFuncName, " --------"
-    def start(self, filename, actions):
-        self.assert_(Player.isPlaying() == 0)
-        if filename != None:
-            Player.loadFile(filename)
-        self.actions = actions
-        self.curFrame = 0
-        Player.setOnFrameHandler(self.nextAction)
-        Player.setFramerate(100)
-        Player.play()
-        self.assert_(Player.isPlaying() == 0)
-    def nextAction(self):
-        self.actions[self.curFrame]()
-#        print (self.curFrame)
-        self.curFrame += 1
-    def compareImage(self, fileName, warn):
-        global CREATE_BASELINE_IMAGES
-        Bmp = Player.screenshot()
-        if CREATE_BASELINE_IMAGES:
-            Bmp.save(BASELINE_DIR+"/"+fileName+".png")
-        else:
-            try:
-                BaselineBmp = avg.Bitmap(BASELINE_DIR+"/"+fileName+".png")
-                NumPixels = Player.getTestHelper().getNumDifferentPixels(Bmp, 
-                        BaselineBmp)
-                if (NumPixels > 20):
-                    if ourSaveDifferences:
-                        Bmp.save(RESULT_DIR+"/"+fileName+".png")
-                        BaselineBmp.save(RESULT_DIR+"/"+fileName+"_baseline.png")
-                        Bmp.subtract(BaselineBmp)
-                        Bmp.save(RESULT_DIR+"/"+fileName+"_diff.png")
-                    self.Log.trace(self.Log.WARNING, "Image compare: "+str(NumPixels)+
-                            " bright pixels.")
-                    if warn:
-                        self.Log.trace(self.Log.WARNING, "Image "+fileName
-                                +" differs from original.")
-                    else:
-                        self.assert_(False)
-            except RuntimeError:
-                Bmp.save(RESULT_DIR+"/"+fileName+".png")
-                self.Log.trace(self.Log.WARNING, "Could not load image "+fileName+".png")
-                self.assert_(False)
 
 def keyUp(Event):
     print "keyUp"
@@ -1263,18 +1204,6 @@ class PlayerTestCase(AVGTestCase):
         runTest(False)
             
 def playerTestSuite(bpp):
-    def rmBrokenDir():
-        try:
-            files = os.listdir(RESULT_DIR)
-            for file in files:
-                os.remove(RESULT_DIR+"/"+file)
-        except OSError:
-            try:
-                os.mkdir(RESULT_DIR)
-            except OSError:
-                # This can happen on make distcheck (permission denied...)
-                global ourSaveDifferences
-                ourSaveDifferences = False
     rmBrokenDir()
     suite = unittest.TestSuite()
     suite.addTest(PlayerTestCase("testImage", bpp))
@@ -1361,8 +1290,7 @@ else:
                 print "Third parameter must be shader, apple, mesa or none"
                 sys.exit(1)
             UsePixelBuffers = getBoolParam(4)
-        else:
-            customOGLOptions = False
+            setOGLOptions(UsePOW2Textures, YCbCrMode, UsePixelBuffers)
     else:
         print "Usage: Test.py [<bpp>"
         print "               [<UsePOW2Textures> <YCbCrMode> <UsePixelBuffers>]]"
