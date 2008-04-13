@@ -72,7 +72,8 @@ Video::Video (const ArgList& Args, Player * pPlayer)
       m_FramesTooLate(0),
       m_FramesPlayed(0),
       m_bAudioEnabled(true),
-      m_pDecoder(0)
+      m_pDecoder(0),
+      m_Volume(1.0)
 {
     Args.setMembers(this);
     m_Filename = m_href;
