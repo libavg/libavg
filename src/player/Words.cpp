@@ -233,7 +233,8 @@ void Words::setAlignment(const string& sAlign)
     } else if (sAlign == "right") {
         m_Alignment = PANGO_ALIGN_RIGHT;
     } else {
-        // TODO: Throw exception.
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "Words alignment "+sAlign+" not supported."));
     }
 
     m_bDrawNeeded = true;
@@ -256,7 +257,8 @@ void Words::setWeight(const string& sWeight)
     } else if (sWeight == "heavy") {
         m_Weight = PANGO_WEIGHT_HEAVY;
     } else {
-        // TODO: Throw exception.
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "Words weight "+sWeight+" not supported."));
     }
     m_bFontChanged = true;
     m_bDrawNeeded = true;
@@ -285,7 +287,8 @@ void Words::setStretch(const string& sStretch)
     } else if (sStretch == "ultraexpanded") {
         m_Stretch = PANGO_STRETCH_ULTRA_EXPANDED;
     } else {
-        // TODO: Throw exception.
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "Words stretch "+sStretch+" not supported."));
     }
     m_bFontChanged = true;
     m_bDrawNeeded = true;
