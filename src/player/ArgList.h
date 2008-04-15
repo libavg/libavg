@@ -46,10 +46,10 @@ public:
     ArgList(const ArgList& ArgTemplates, const boost::python::dict& PyDict);
     virtual ~ArgList();
 
-    const ArgBasePtr getArg(const std::string& Name) const;
+    const ArgBasePtr getArg(const std::string& sName) const;
    
     template<class T>
-    const T& getArgVal(const std::string& Name) const;
+    const T& getArgVal(const std::string& sName) const;
     
     const ArgMap& getArgMap() const;
     
@@ -60,6 +60,7 @@ public:
     void copyArgsFrom(const ArgList& ArgTemplates);
 
 private:
+    void setArgValue(const std::string & sName, const boost::python::object& Value);
     void setArgValue(const std::string & sName, const std::string & sValue);
     ArgMap m_Args;
 };

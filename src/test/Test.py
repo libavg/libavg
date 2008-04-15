@@ -976,7 +976,7 @@ class PlayerTestCase(AVGTestCase):
             if useXml:
                 node = Player.createNode("<camera id='newCamera' source='firewire' device='/dev/video1394/0' capturewidth='640' captureheight='480' pixelformat='MONO8' framerate='15'/>")
             else:
-                node = Player.createNode("camera", {"id":"newCamera", "source":"firewire", "device":"/dev/video1394/0", "capturewidth":"640", "captureheight":"480", "pixelformat":"MONO8", "framerate":"15"})
+                node = Player.createNode("camera", {"id":"newCamera", "source":"firewire", "device":"/dev/video1394/0", "capturewidth":640, "captureheight":480, "pixelformat":"MONO8", "framerate":15})
             Player.getRootNode().appendChild(node)
         def removeCamera():
             self.cameraNode = Player.getElementByID("newCamera")
@@ -1003,7 +1003,7 @@ class PlayerTestCase(AVGTestCase):
             if useXml:
                 node = Player.createNode("<panoimage id='newPano' href='panoimage.png' sensorwidth='4.60' sensorheight='3.97' focallength='12' width='160' height='120'/>")
             else:
-                node = Player.createNode("panoimage", {"id":"newPano", "href":"panoimage.png", "sensorwidth":"4.60", "sensorheight":"3.97", "focallength":"12", "width":"160", "height":"120"})
+                node = Player.createNode("panoimage", {"id":"newPano", "href":"panoimage.png", "sensorwidth":4.60, "sensorheight":3.97, "focallength":12, "width":160, "height":120})
             Player.getRootNode().appendChild(node)
         def removePano():
             self.panoNode = Player.getElementByID("newPano")
@@ -1045,7 +1045,7 @@ class PlayerTestCase(AVGTestCase):
             if useXml:
                 node = Player.createNode("<image id='img2' href='rgb24-64x64.png' x='64'/>")
             else:
-                node = Player.createNode("image", {"id":"img2", "href":"rgb24-64x64.png", "x":"64"})
+                node = Player.createNode("image", {"id":"img2", "href":"rgb24-64x64.png", "x":64})
             self.divNode.appendChild(node)
             Player.getRootNode().appendChild(self.divNode)
             self.divNode = None
