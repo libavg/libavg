@@ -50,11 +50,12 @@ class Button:
                 childNode.opacity = 0
 
 class Checkbox(Button):
-    def __init__(self, node):
+    def __init__(self, node, clickCallback):
         global g_Player
         g_Player = avg.Player.get()
         self.__node = node
         self.__setChecked(False)
+        self.__clickCallback = clickCallback
         Button.__init__(self, node, self.__onClick)
     def getState(self):
         return self.__isChecked
@@ -68,6 +69,8 @@ class Checkbox(Button):
             self.__node.getChild(4).opacity = 0
     def __onClick(self, Event):
         self.__setChecked(not(self.__isChecked))
+        if self.__clickCallback != None:
+            self.__clickCallback(self)
 
 def init(g_avg):
     global avg
