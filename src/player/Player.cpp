@@ -1045,7 +1045,9 @@ void Player::cleanup()
     }
     m_PendingTimeouts.clear();
     Profiler::get().dumpStatistics();
-    m_pRootNode->disconnect();
+    if (m_pRootNode) {
+        m_pRootNode->disconnect();
+    }
     m_pRootNode = AVGNodePtr();
     if (m_pDisplayEngine) {
         m_pDisplayEngine->deinitRender();
