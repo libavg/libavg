@@ -124,24 +124,20 @@ class PythonTestCase(AVGTestCase):
                  Player.stop))
 
     def testButton(self):
-        def sendEvent(type, x, y):
-            Helper = Player.getTestHelper()
-            Helper.fakeMouseEvent(type, True, False, False,
-                        x, y, 1)
         def onClick(event):
             self.__clicked = True
         def createButton():
             self.button = button.Button(Player.getElementByID("button"), onClick)
         def down():
-            sendEvent(avg.CURSORDOWN, 0, 0)
+            self.__sendEvent(avg.CURSORDOWN, 0, 0)
         def out():
-            sendEvent(avg.CURSORMOTION, 0, 50)
+            self.__sendEvent(avg.CURSORMOTION, 0, 50)
         def upOutside():
-            sendEvent(avg.CURSORUP, 0, 50)
+            self.__sendEvent(avg.CURSORUP, 0, 50)
         def over():
-            sendEvent(avg.CURSORMOTION, 0, 0)
+            self.__sendEvent(avg.CURSORMOTION, 0, 0)
         def upInside():
-            sendEvent(avg.CURSORUP, 0, 0)
+            self.__sendEvent(avg.CURSORUP, 0, 0)
         self.__clicked = False
         button.init(avg)
         self.start("ButtonTest.avg",
@@ -166,6 +162,35 @@ class PythonTestCase(AVGTestCase):
                 lambda: self.compareImage("testButtonUp", False),
                 Player.stop))
 
+    def testCheckbox(self):
+        def createCheckbox():
+            self.checkbox = button.Checkbox(Player.getElementByID("button"))
+        def down():
+            self.__sendEvent(avg.CURSORDOWN, 0, 0)
+        def up():
+            self.__sendEvent(avg.CURSORUP, 0, 0)
+        def out():
+            self.__sendEvent(avg.CURSORMOTION, 0, 50)
+        button.init(avg)
+        self.start("ButtonTest.avg",
+                (createCheckbox,
+                lambda: self.compareImage("testCheckboxUp", False),
+                down,
+                lambda: self.compareImage("testCheckboxDown", False),
+                up,
+                lambda: self.assert_(self.checkbox.getState() == True),
+                lambda: self.compareImage("testCheckboxClickedOver", False),
+                out,
+                lambda: self.compareImage("testCheckboxClickedOut", False),
+                down,
+                lambda: self.compareImage("testCheckboxClickedDown", False),
+                up,
+                lambda: self.compareImage("testCheckboxOver", False),
+                Player.stop))
+    def __sendEvent(self, type, x, y):
+        Helper = Player.getTestHelper()
+        Helper.fakeMouseEvent(type, True, False, False, x, y, 1)
+
 
 def pythonTestSuite():
     suite = unittest.TestSuite()
@@ -173,6 +198,7 @@ def pythonTestSuite():
     suite.addTest(PythonTestCase("testContinuousAnim"))
     suite.addTest(PythonTestCase("testDraggable"))
     suite.addTest(PythonTestCase("testButton"))
+    suite.addTest(PythonTestCase("testCheckbox"))
     return suite
     
 Log = avg.Logger.get()

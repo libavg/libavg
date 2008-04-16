@@ -7,6 +7,7 @@
         <words text="Down"/>
         <words text="Over"/>
         <words text="Disabled"/>
+        <words y="5" text="check" opacity="0"/>
     </div>
 </avg>
 
