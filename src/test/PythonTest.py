@@ -120,8 +120,8 @@ class PythonTestCase(AVGTestCase):
                  dragger.disable,
                  startDrag,
                  move,
-                 lambda: self.compareImage("testDraggable2", False),
-                 Player.stop))
+                 lambda: self.compareImage("testDraggable2", False)
+                ))
 
     def testButton(self):
         def onClick(event):
@@ -159,8 +159,8 @@ class PythonTestCase(AVGTestCase):
                 lambda: self.assert_(self.__clicked),
                 lambda: self.compareImage("testButtonOver", False),
                 out,
-                lambda: self.compareImage("testButtonUp", False),
-                Player.stop))
+                lambda: self.compareImage("testButtonUp", False)
+               ))
 
     def testCheckbox(self):
         def createCheckbox():
@@ -185,8 +185,8 @@ class PythonTestCase(AVGTestCase):
                 down,
                 lambda: self.compareImage("testCheckboxClickedDown", False),
                 up,
-                lambda: self.compareImage("testCheckboxOver", False),
-                Player.stop))
+                lambda: self.compareImage("testCheckboxOver", False)
+               ))
     def __sendEvent(self, type, x, y):
         Helper = Player.getTestHelper()
         Helper.fakeMouseEvent(type, True, False, False, x, y, 1)

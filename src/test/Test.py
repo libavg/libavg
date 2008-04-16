@@ -101,8 +101,8 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Player.setGamma(0.7, 0.7, 0.7),
                  lambda: Player.setGamma(1.0, 1.0, 1.0),
                  lambda: Player.showCursor(0),
-                 lambda: Player.showCursor(1),
-                 Player.stop))
+                 lambda: Player.showCursor(1)
+                ))
 
     def testRotate(self):
         def onOuterDown(Event):
@@ -126,16 +126,14 @@ class PlayerTestCase(AVGTestCase):
                  lambda: sendEvent(85, 70),
                  lambda: self.assert_(not(self.onOuterDownCalled)),
                  lambda: sendEvent(85, 75),
-                 lambda: self.assert_(self.onOuterDownCalled),
-                 Player.stop))
+                 lambda: self.assert_(self.onOuterDownCalled)
+                ))
     def testRotate2(self):
         self.start("rotate2.avg",
-                (lambda: self.compareImage("testRotate2", False),
-                 Player.stop))
+                [lambda: self.compareImage("testRotate2", False)])
     def testRotate3(self):
         self.start("rotate3.avg",
-                (lambda: self.compareImage("testRotate3", False),
-                 Player.stop))
+                [lambda: self.compareImage("testRotate3", False)])
     def testError(self):
         Player.loadFile("image.avg")
         Player.setTimeout(1, lambda: undefinedFunction)
@@ -152,8 +150,7 @@ class PlayerTestCase(AVGTestCase):
             raise ZeroDivisionError
         try:
             self.start("image.avg",
-                    (throwException,
-                     Player.stop))
+                    [throwException])
         except ZeroDivisionError:
             self.assert_(1)
         else:
@@ -163,8 +160,7 @@ class PlayerTestCase(AVGTestCase):
         def activateNode():
             Player.getElementByID("enclosingdiv").active = 1
         self.start("invalidfilename.avg",
-                (activateNode,
-                 Player.stop))
+                [activateNode])
 
     def testInvalidVideoFilename(self):
         def tryplay():
@@ -177,8 +173,8 @@ class PlayerTestCase(AVGTestCase):
                 self.assert_(0)
         self.start("invalidvideofilename.avg",
                 (lambda: tryplay,
-                 lambda: Player.getElementByID("brokenvideo").stop(),
-                 Player.stop))
+                 lambda: Player.getElementByID("brokenvideo").stop()
+                ))
 
     def testEvents(self):
         def getMouseState():
@@ -307,10 +303,10 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.assert_(not(self.tiltedMouseDownCalled)),
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         0, 80, 1),
-                 lambda: self.assert_(self.tiltedMouseDownCalled),
+                 lambda: self.assert_(self.tiltedMouseDownCalled)
                  # XXX
                  # - errMouseOver
-                 Player.stop))
+                ))
 
     def testEventCapture(self):
         def captureEvent():
@@ -341,8 +337,8 @@ class PlayerTestCase(AVGTestCase):
                         mainCaptureMouseDownCalled),
                  noCaptureEvent,
                  lambda: self.assert_(not(captureMouseDownCalled) and 
-                        mainCaptureMouseDownCalled),
-                 Player.stop))
+                        mainCaptureMouseDownCalled)
+                ))
 
     def testMouseOver(self):
         def onImg2MouseOver(Event):
@@ -454,9 +450,8 @@ class PlayerTestCase(AVGTestCase):
                         not(self.avgMouseOverCalled) and 
                         self.img2MouseOutCalled and 
                         not(self.divMouseOutCalled) and 
-                        not(self.img1MouseOverCalled)),
-
-                 Player.stop))
+                        not(self.img1MouseOverCalled))
+                ))
 
     def testTimeouts(self):
         self.timeout1called = False
@@ -476,8 +471,8 @@ class PlayerTestCase(AVGTestCase):
                 (setupTimeouts,
                  wait,
                  lambda: self.assert_(self.timeout1called),
-                 lambda: self.assert_(not(self.timeout2called)),
-                 Player.stop))
+                 lambda: self.assert_(not(self.timeout2called))
+                ))
 
     def testEventErr(self):
         Player.loadFile("errevent.avg")
@@ -494,8 +489,8 @@ class PlayerTestCase(AVGTestCase):
         self.start("hugeimage.avg",
                 (lambda: self.compareImage("testHugeImage0", False),
                  moveImage,
-                 lambda: self.compareImage("testHugeImage1", False),
-                 Player.stop))
+                 lambda: self.compareImage("testHugeImage1", False)
+                ))
 
     def testPanoImage(self):
         def changeProperties():
@@ -510,8 +505,8 @@ class PlayerTestCase(AVGTestCase):
                 (lambda: self.compareImage("testPanoImage", False),
                  lambda: time.sleep,
                  changeProperties,
-                 loadImage,
-                 Player.stop))
+                 loadImage
+                ))
 
     def testBroken(self):
         def testBrokenFile(filename):
@@ -540,13 +535,12 @@ class PlayerTestCase(AVGTestCase):
                 (lambda: self.compareImage("testMove1", False),
                  moveit,
                  checkRelPos,
-                 lambda: self.compareImage("testMove2", False),
-                 Player.stop))
+                 lambda: self.compareImage("testMove2", False)
+                ))
 
     def testBlend(self):
         self.start("blend.avg",
-                (lambda: self.compareImage("testBlend", False),
-                 Player.stop))
+                [lambda: self.compareImage("testBlend", False)])
 
     def testCropImage(self):
         def moveTLCrop():
@@ -591,8 +585,8 @@ class PlayerTestCase(AVGTestCase):
                  moveTLNegative,
                  lambda: self.compareImage("testCropImage9", False),
                  moveBRGone,
-                 lambda: self.compareImage("testCropImage10", False),
-                Player.stop))
+                 lambda: self.compareImage("testCropImage10", False)
+               ))
 
     def testCropMovie(self):
         def playMovie():
@@ -641,8 +635,8 @@ class PlayerTestCase(AVGTestCase):
                  moveTLNegative,
                  lambda: self.compareImage("testCropMovie9", False),
                  moveBRGone,
-                 lambda: self.compareImage("testCropMovie10", False),
-                 Player.stop))
+                 lambda: self.compareImage("testCropMovie10", False)
+                ))
 
     def testWarp(self):
         def moveVertex():
@@ -665,18 +659,16 @@ class PlayerTestCase(AVGTestCase):
                  moveVertex,
                  lambda: self.compareImage("testWarp2", False),
                  flip,
-                 lambda: self.compareImage("testWarp3", False),
-                 Player.stop))
+                 lambda: self.compareImage("testWarp3", False)
+                ))
 
     def testSimpleWords(self):
         self.start("simpletext.avg",
-                (lambda: self.compareImage("testSimpleWords", True),
-                 Player.stop))
+                [lambda: self.compareImage("testSimpleWords", True)])
 
     def testParaWords(self):
         self.start("paratext.avg",
-                (lambda: self.compareImage("testParaWords", True),
-                 Player.stop))
+                [lambda: self.compareImage("testParaWords", True)])
     
     def testDynamicWords(self):
         def changeText():
@@ -711,8 +703,8 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testDynamicWords3", True),
                  activateText,
                  changeFont2,
-                 lambda: self.compareImage("testDynamicWords4", True),
-                 Player.stop))
+                 lambda: self.compareImage("testDynamicWords4", True)
+                ))
 
     def testI18NWords(self):
         def changeUnicodeText():
@@ -720,8 +712,8 @@ class PlayerTestCase(AVGTestCase):
         self.start("i18ntext.avg",
                 (lambda: self.compareImage("testI18NWords1", True),
                  changeUnicodeText,
-                 lambda: self.compareImage("testI18NWords2", True),
-                 Player.stop))
+                 lambda: self.compareImage("testI18NWords2", True)
+                ))
 
     def testVideo(self):
         def newHRef():
@@ -755,8 +747,8 @@ class PlayerTestCase(AVGTestCase):
                  activateclogo,
                  lambda: self.compareImage("testVideo8", False),
                  lambda: Player.getElementByID("clogo").stop(),
-                 lambda: self.compareImage("testVideo9", False),
-                 Player.stop))
+                 lambda: self.compareImage("testVideo9", False)
+                ))
 
     def testVideoSeek(self):
         def seek(frame):
@@ -772,20 +764,20 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testVideoSeek2", False),
                  lambda: Player.getElementByID("clogo2").play(),
                  lambda: self.delay,
-                 lambda: self.compareImage("testVideoSeek3", False),
-                 Player.stop))
+                 lambda: self.compareImage("testVideoSeek3", False)
+                ))
     
     def testVideoFPS(self):
         Player.setFakeFPS(25)
         self.start("videofps.avg",
                 (lambda: Player.getElementByID("video").play(),
                  lambda: self.delay,
-                 lambda: self.compareImage("testVideoFPS", False),
-                 Player.stop))
+                 lambda: self.compareImage("testVideoFPS", False)
+                ))
 
     def testVideoEOF(self):
         def onEOF():
-            Player.stop()
+           Player.stop()
         def onNoEOF():
             self.assert_(False)
         Player.loadFile("video.avg")
@@ -804,8 +796,8 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("mediadir1", False),
                  setDir,
                  lambda: Player.getElementByID("video").play(), 
-                 lambda: self.compareImage("mediadir2", False),
-                 Player.stop))
+                 lambda: self.compareImage("mediadir2", False)
+                ))
 
 #    def testCamera(self):
 #        def createCameraNode(deviceFile):
@@ -819,15 +811,15 @@ class PlayerTestCase(AVGTestCase):
 #                node = createCameraNode("/dev/video1")
 #            if node.getDriverName() != "vivi":
 #                print("Kernel camera test driver not found - skipping camera test.")
-#                Player.stop()
+#               ()
 #            else:
 #                Player.getRootNode().appendChild(node)
 #                node.play()
 #
 #        self.start("empty.avg",
 #                (lambda: findCamera,
-#                 lambda: self.compareImage("testCamera", False),
-#                 Player.stop))
+#                 lambda: self.compareImage("testCamera", False)
+#                ))
 
     def testImgDynamics(self):
         def createImg(useXml):
@@ -888,8 +880,8 @@ class PlayerTestCase(AVGTestCase):
                      lambda: self.compareImage("testImgDynamics4", False),
                      reAddImg,
                      lambda: self.compareImage("testImgDynamics5", False),
-                     removeAgain,
-                     Player.stop))
+                     removeAgain
+                    ))
         runTest(True)
         runTest(False) 
 
@@ -929,8 +921,8 @@ class PlayerTestCase(AVGTestCase):
                      removeVideo,
                      lambda: self.compareImage("testVideoDynamics2", False),
                      reAddVideo,
-                     lambda: self.compareImage("testVideoDynamics3", False),
-                     Player.stop))
+                     lambda: self.compareImage("testVideoDynamics3", False)
+                    ))
         runTest(True)
         runTest(False)
 
@@ -966,8 +958,8 @@ class PlayerTestCase(AVGTestCase):
                      removeWords,
                      lambda: self.compareImage("testWordsDynamics2", True),
                      reAddWords,
-                     lambda: self.compareImage("testWordsDynamics3", True),
-                     Player.stop))
+                     lambda: self.compareImage("testWordsDynamics3", True)
+                    ))
         runTest(True)
         runTest(False)
 
@@ -993,8 +985,8 @@ class PlayerTestCase(AVGTestCase):
             self.start("empty.avg",
                     (lambda: createCamera(useXml),
                      removeCamera,
-                     reAddCamera,
-                     Player.stop))
+                     reAddCamera
+                    ))
 	    runTest(True)
 	    runTest(False)
 
@@ -1023,8 +1015,8 @@ class PlayerTestCase(AVGTestCase):
                      removePano,
                      lambda: self.compareImage("testPanoDynamics2", False),
                      reAddPano,
-                     lambda: self.compareImage("testPanoDynamics3", False),
-                     Player.stop))
+                     lambda: self.compareImage("testPanoDynamics3", False)
+                    ))
         runTest(True)
         runTest(False)
 
@@ -1060,8 +1052,8 @@ class PlayerTestCase(AVGTestCase):
                      removeDiv,
                      lambda: self.compareImage("testDivDynamics2", False),
                      lambda: reAddDiv(useXml),
-                     lambda: self.compareImage("testDivDynamics3", False),
-                     Player.stop))
+                     lambda: self.compareImage("testDivDynamics3", False)
+                    ))
         runTest(True)
         runTest(False)
             

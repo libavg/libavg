@@ -34,7 +34,8 @@ class AVGTestCase(unittest.TestCase):
     def setUpVideo(self):
         self.__Player.setResolution(0, 0, 0, self.__bpp)
         if g_CustomOGLOptions:
-            self.__Player.setOGLOptions(g_UsePOW2Textures, g_YCbCrMode, g__UsePixelBuffers, 1)
+            self.__Player.setOGLOptions(g_UsePOW2Textures, g_YCbCrMode, 
+                    g__UsePixelBuffers, 1)
     def setUp(self):
         self.setUpVideo()
         print "-------- ", self.__testFuncName, " --------"
@@ -49,7 +50,10 @@ class AVGTestCase(unittest.TestCase):
         self.__Player.play()
         self.assert_(self.__Player.isPlaying() == 0)
     def nextAction(self):
-        self.actions[self.curFrame]()
+        if len(self.actions) == self.curFrame:
+            self.__Player.stop()
+        else:
+            self.actions[self.curFrame]()
 #        print (self.curFrame)
         self.curFrame += 1
     def compareImage(self, fileName, warn):
