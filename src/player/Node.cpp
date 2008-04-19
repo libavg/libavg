@@ -30,6 +30,7 @@
 #include "Player.h"
 #include "DisplayEngine.h"
 #include "Arg.h"
+#include "WrapPython.h" 
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"

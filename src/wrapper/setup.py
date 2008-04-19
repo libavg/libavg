@@ -10,7 +10,7 @@ def gatherFilesInDir(dirName):
 # Gather dlls:
 dlls=[DEVEL_ROOT+'/bin/'+dllname for dllname in os.listdir(DEVEL_ROOT+'/bin/') 
         if dllname[-4:] == ".dll"]
-dlls.append(DEVEL_ROOT+'/Archimedes/libavg_win/python/Debug/avg.pyd')
+dlls.append(DEVEL_ROOT+'/Archimedes/libavg_win/wrapper/Debug/avg.pyd')
 
 fontconfig_files=[DEVEL_ROOT+'/etc/fonts/fonts.conf',
                   DEVEL_ROOT+'/etc/fonts/fonts.dtd']
@@ -21,8 +21,8 @@ test_files=[fname for fname in gatherFilesInDir('../test/')
 test_baseline_files=gatherFilesInDir('../test/baseline/')
 test_testmediadir_files=gatherFilesInDir('../test/testmediadir/')
 
-msvc_files=['c:\\Windows\\system32\\'+fname for fname in 
-        ['MSVCP71.dll', 'MSVCP71D.dll', 'MSVCR71D.dll']]
+#msvc_files=['c:\\Windows\\system32\\'+fname for fname in 
+#        ['MSVCP80.dll', 'MSVCP80D.dll', 'MSVCR80D.dll']]
 
 magick_files=[DEVEL_ROOT+'/bin/'+fname for fname in os.listdir(DEVEL_ROOT+'/bin/') 
         if fname[-4:] == ".mgk"]
@@ -43,7 +43,7 @@ setup(name='libavg',
                   ('Lib/site-packages/libavg/test/baseline', test_baseline_files),
                   ('Lib/site-packages/libavg/test/testmediadir', 
                         test_testmediadir_files),
-                  ('Lib/site-packages/libavg', msvc_files),
+#                  ('Lib/site-packages/libavg', msvc_files),
                   ('Lib/site-packages/libavg/magick', magick_files)
                  ]
       )

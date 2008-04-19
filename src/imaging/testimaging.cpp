@@ -124,6 +124,7 @@ class DeDistortTest: public Test {
     }
 };
 
+#pragma warning(disable: 4996)
 class SerializeTest: public Test {
 public:
     SerializeTest()

@@ -34,8 +34,6 @@
 #include "../video/AsyncVideoDecoder.h"
 #include "../video/FFMpegDecoder.h"
 
-#include "BoostPython.h"
-
 #include <iostream>
 #include <sstream>
 

@@ -122,8 +122,13 @@ Bitmap::Bitmap(const std::string& sURI)
     Image Img;
     try {
         Img.read(sURI);
-    } catch( Magick::WarningCoder &) {
-    }
+    } catch( Magick::Warning &e) {
+#ifdef _WIN32    
+		cerr << e.what() << endl;
+    } catch( Magick::ErrorConfigure &) {
+//		cerr << e.what() << endl;
+#endif
+	}
     PixelPacket * pSrcPixels = Img.getPixels(0, 0, Img.columns(), Img.rows());
     m_Size = IntPoint(Img.columns(), Img.rows());
     if (Img.matte()) {
