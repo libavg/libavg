@@ -25,6 +25,8 @@
 #ifndef __Dynamics_H__
 #define __Dynamics_H__
 
+#include "IProcessor.h"
+
 #include <math.h>
 #include <cmath>
 #include <limits>
@@ -34,14 +36,16 @@
 #define AVG1 27
 #define AVG2 38
 
+namespace avg {
+
 // Dynamics processor (compressor & limiter).
 template<typename T, int CHANNELS>
-class Dynamics
+class Dynamics: public IProcessor<T>
 {
     public:
         Dynamics(T fs);
         virtual ~Dynamics();
-        void process(T* pSamples);
+        virtual void process(T* pSamples);
 
         void setThreshold(T threshold);
         T getThreshold() const;
@@ -333,5 +337,6 @@ T Dynamics<T, CHANNELS>::getMakeupGain() const
     return makeupGain_;
 }
 
-#endif
+}
 
+#endif

@@ -22,6 +22,7 @@
 //
 
 #include "SDLAudioEngine.h"
+#include "Dynamics.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -63,13 +64,14 @@ int SDLAudioEngine::getSampleRate()
 void SDLAudioEngine::init(const AudioParams& AP) 
 {
     m_AP = AP;
-    m_pLimiter = new Dynamics<double, 2>(m_AP.m_SampleRate);
-    m_pLimiter->setThreshold(0.); // in dB
-    m_pLimiter->setAttackTime(0.); // in seconds
-    m_pLimiter->setReleaseTime(0.05); // in seconds
-    m_pLimiter->setRmsTime(0.); // in seconds
-    m_pLimiter->setRatio(std::numeric_limits<double>::infinity());
-    m_pLimiter->setMakeupGain(0.); // in dB
+    Dynamics<double, 2>* pLimiter = new Dynamics<double, 2>(m_AP.m_SampleRate);
+    pLimiter->setThreshold(0.); // in dB
+    pLimiter->setAttackTime(0.); // in seconds
+    pLimiter->setReleaseTime(0.05); // in seconds
+    pLimiter->setRmsTime(0.); // in seconds
+    pLimiter->setRatio(std::numeric_limits<double>::infinity());
+    pLimiter->setMakeupGain(0.); // in dB
+    m_pLimiter = pLimiter;
     
     SDL_AudioSpec desired;
     desired.freq = m_AP.m_SampleRate;
@@ -146,7 +148,7 @@ void SDLAudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
         m_pMixBuffer = new double[getChannels()*numFrames];
     }
 
-    for (int i=0; i<2*numFrames; ++i) {
+    for (int i=0; i<getChannels()*numFrames; ++i) {
         m_pMixBuffer[i]=0;
     }
     AudioSourceList::iterator it;

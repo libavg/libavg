@@ -26,7 +26,7 @@
 
 #include "AudioEngine.h"
 #include "AudioFrame.h"
-#include "Dynamics.h"
+#include "IProcessor.h"
 
 #include <SDL/SDL.h>
 
@@ -60,7 +60,7 @@ class SDLAudioEngine : public AudioEngine
         AudioParams m_AP;
         AudioFrame* m_TempFrame;
         double * m_pMixBuffer;
-        Dynamics<double, 2>* m_pLimiter;
+        IProcessor<double>* m_pLimiter;
 };
 
 }
