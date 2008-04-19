@@ -50,7 +50,7 @@ public:
 
 protected:
     int m_IndentLevel;
-    
+
 private:
     bool m_bOk;
     int m_NumSucceeded;
@@ -69,7 +69,7 @@ typedef boost::shared_ptr<Test> TestPtr;
 #define TEST(b)                            \
     cerr << string(m_IndentLevel+4, ' ') << "  TEST(" << #b << ")" << endl;  \
     test(b, __FILE__, __LINE__);
-    
+
 #define QUIET_TEST(b)                      \
     if(!b) {                               \
         cerr << string(m_IndentLevel+4, ' ') << "  TEST(" << #b << ")" << endl;  \
