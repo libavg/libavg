@@ -1,21 +1,18 @@
 
 INCLUDES = -I.. @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@ @SWSCALE_CFLAGS@
         
-ALL_H = AudioEngine.h AudioFrame.h AudioParams.h IAudioSource.h SDLAudioEngine.h 
+ALL_H = AudioEngine.h AudioFrame.h AudioParams.h IAudioSource.h SDLAudioEngine.h \
+        Dynamics.h Processor.h
 
-#TESTS=testaudio
-
-#EXTRA_DIST = testfiles/mjpeg-48x48.avi testfiles/mpeg1-48x48.mpg \
-#		$(wildcard testfiles/baseline/*.png)
+TESTS=testlimiter
 
 noinst_LTLIBRARIES = libaudio.la
-#noinst_PROGRAMS=testaudio
+noinst_PROGRAMS=testlimiter
 
 libaudio_la_SOURCES = AudioEngine.cpp AudioFrame.cpp AudioParams.cpp \
         SDLAudioEngine.cpp \
 		$(ALL_H)
 
-#testaudio_SOURCES = testaudio.cpp $(ALL_H)
-#testaudio_LDADD = ./libaudio.la ../graphics/libgraphics.la ../base/libbase.la
-#testaudio_LDFLAGS = @XML2_LIBS@  -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ \
-#		@LIBFFMPEG@  @SWSCALE_LIBS@ $(MAGICK_LIBS)
+testlimiter_SOURCES = testlimiter.cpp $(ALL_H)
+testlimiter_LDADD = ./libaudio.la ../base/libbase.la
+testlimiter_LDFLAGS = 
