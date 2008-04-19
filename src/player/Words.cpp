@@ -139,9 +139,12 @@ Words::Words (const ArgList& Args, Player * pPlayer)
             sFontConfPath = getAvgLibPath()+"etc/fonts/fonts.conf";
         }
         FcConfig * pConfig = FcConfigCreate();
-        FcBool bOk = FcConfigParseAndLoad(pConfig, (const FcChar8 *)(sFontConfPath.c_str()), true);
-        bOk = FcConfigBuildFonts(pConfig);
-        bOk = FcConfigSetCurrent(pConfig);
+        int Ok = (int)FcConfigParseAndLoad(pConfig, (const FcChar8 *)(sFontConfPath.c_str()), true);
+        checkFontError(Ok, string("Font error: could not load config file ")+sFontConfPath);
+        Ok = (int)FcConfigBuildFonts(pConfig);
+        checkFontError(Ok, string("Font error: FcConfigBuildFonts failed."));
+        Ok = (int)FcConfigSetCurrent(pConfig);
+        // TODO: Check FcConfigAppFontAddDir()
 /*
         FcStrList * pCacheDirs = FcConfigGetCacheDirs(pConfig);
         FcChar8 * pDir;
@@ -659,5 +662,11 @@ string Words::removeExcessSpaces(const string & sText)
     return s;
 }
 
+void Words::checkFontError(int Ok, const string& sMsg)
+{
+    if (Ok == 0) {
+        throw Exception(AVG_ERR_FONT_INIT_FAILED, sMsg);
+    }
+}
 
 }
