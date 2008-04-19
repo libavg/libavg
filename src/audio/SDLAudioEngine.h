@@ -26,6 +26,7 @@
 
 #include "AudioEngine.h"
 #include "AudioFrame.h"
+#include "Dynamics.h"
 
 #include <SDL/SDL.h>
 
@@ -52,12 +53,14 @@ class SDLAudioEngine : public AudioEngine
         virtual void removeSource(IAudioSource* pSource);
         
     private:
-        void mixAudio(Uint8 *audioBuffer, int audioBufferLen);
+        void mixAudio(Uint8 *pDestBuffer, int destBufferLen);
         static void audioCallback(void *userData, Uint8 *audioBuffer, int audioBufferLen);
-        void addBuffers(short *out, short *in, int size, double volume);
+        void addBuffers(double *pDest, short *pSrc, int numFrames);
         
         AudioParams m_AP;
-        AudioFrame* m_MixFrame;
+        AudioFrame* m_TempFrame;
+        double * m_pMixBuffer;
+        Dynamics<double, 2>* m_pLimiter;
 };
 
 }

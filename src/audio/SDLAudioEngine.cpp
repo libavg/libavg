@@ -32,7 +32,9 @@
 namespace avg {
 
 SDLAudioEngine::SDLAudioEngine()
-    : m_MixFrame(0)
+    : m_TempFrame(0),
+      m_pMixBuffer(0),
+      m_pLimiter(0)
 {
     if (SDL_InitSubSystem(SDL_INIT_AUDIO)==-1) {
         AVG_TRACE(Logger::ERROR, "Can't init SDL audio subsystem.");
@@ -42,8 +44,9 @@ SDLAudioEngine::SDLAudioEngine()
 
 SDLAudioEngine::~SDLAudioEngine()
 {
-    if(m_MixFrame)
-        delete m_MixFrame;
+    if (m_TempFrame) {
+        delete m_TempFrame;
+    }
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
@@ -60,6 +63,13 @@ int SDLAudioEngine::getSampleRate()
 void SDLAudioEngine::init(const AudioParams& AP) 
 {
     m_AP = AP;
+    m_pLimiter = new Dynamics<double, 2>(m_AP.m_SampleRate);
+    m_pLimiter->setThreshold(0.); // in dB
+    m_pLimiter->setAttackTime(0.); // in seconds
+    m_pLimiter->setReleaseTime(0.05); // in seconds
+    m_pLimiter->setRmsTime(0.); // in seconds
+    m_pLimiter->setRatio(std::numeric_limits<double>::infinity());
+    m_pLimiter->setMakeupGain(0.); // in dB
     
     SDL_AudioSpec desired;
     desired.freq = m_AP.m_SampleRate;
@@ -70,7 +80,7 @@ void SDLAudioEngine::init(const AudioParams& AP)
     desired.callback = audioCallback;
     desired.userdata = this;
 
-    if(SDL_OpenAudio(&desired, 0) < 0) {
+    if (SDL_OpenAudio(&desired, 0) < 0) {
       //throw new Exception("Cannot open audio device");
     }
 }
@@ -79,10 +89,14 @@ void SDLAudioEngine::teardown()
 {
     SDL_PauseAudio(1);
     SDL_CloseAudio();
-    
+
     SDL_LockAudio();
     getSources().clear();
     SDL_UnlockAudio();
+    if (m_pLimiter) {
+        delete m_pLimiter;
+        m_pLimiter = 0;
+    }
 }
 
 void SDLAudioEngine::setAudioEnabled(bool bEnabled)
@@ -116,27 +130,36 @@ void SDLAudioEngine::removeSource(IAudioSource* pSource)
     SDL_UnlockAudio();
 }
 
-void SDLAudioEngine::mixAudio(Uint8 *audioBuffer, int audioBufferLen)
+void SDLAudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
 {
-    if(m_MixFrame == NULL || m_MixFrame->getSize() < audioBufferLen)
-    {
-        if(m_MixFrame)
-            delete m_MixFrame;
-        m_MixFrame = new AudioFrame(audioBufferLen, m_AP);
+    int numFrames = destBufferLen/(2*getChannels()); // 16 bit samples.
+
+    if (getSources().size() == 0) {
+        return;
     }
-    
-    if(getSources().size() == 0)
-    	return;
-    
-    double channelVolume = 1.0 / getSources().size();
-    
+    if (!m_TempFrame || m_TempFrame->getSize() < destBufferLen) {
+        if (m_TempFrame) {
+            delete m_TempFrame;
+            delete m_pMixBuffer;
+        }
+        m_TempFrame = new AudioFrame(destBufferLen, m_AP);
+        m_pMixBuffer = new double[getChannels()*numFrames];
+    }
+
+    for (int i=0; i<2*numFrames; ++i) {
+        m_pMixBuffer[i]=0;
+    }
     AudioSourceList::iterator it;
-    for(it = getSources().begin(); it != getSources().end(); it++)
-    {
-        m_MixFrame->clear();
-        (*it)->fillAudioFrame(m_MixFrame);
-        addBuffers((short*)audioBuffer, (short*)m_MixFrame->getBuffer(),
-                audioBufferLen/2, channelVolume);
+    for(it = getSources().begin(); it != getSources().end(); it++) {
+        m_TempFrame->clear();
+        (*it)->fillAudioFrame(m_TempFrame);
+        addBuffers(m_pMixBuffer, (short*)m_TempFrame->getBuffer(), numFrames);
+    }
+    for (int i=0; i<numFrames; ++i) {
+        m_pLimiter->process(m_pMixBuffer+i*getChannels());
+        for (int j=0; j<getChannels(); ++j) {
+            ((short*)pDestBuffer)[i*2+j]=short(m_pMixBuffer[i*2+j]*32768);
+        }
     }
 }
 
@@ -146,12 +169,11 @@ void SDLAudioEngine::audioCallback(void *userData, Uint8 *audioBuffer, int audio
     pThis->mixAudio(audioBuffer, audioBufferLen);
 }
 
-void SDLAudioEngine::addBuffers(short *out, short *in, int size, double volume)
+void SDLAudioEngine::addBuffers(double *pDest, short *pSrc, int numFrames)
 {
-	for(int i = 0; i < size; ++i)
-	{
-		out[i] += short(in[i] * volume);
-	}
+    for(int i = 0; i < numFrames*getChannels(); ++i) {
+        pDest[i] += pSrc[i]/32768.0;
+    }
 }
 
 }

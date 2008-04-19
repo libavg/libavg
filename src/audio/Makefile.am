@@ -2,7 +2,7 @@
 INCLUDES = -I.. @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@ @SWSCALE_CFLAGS@
         
 ALL_H = AudioEngine.h AudioFrame.h AudioParams.h IAudioSource.h SDLAudioEngine.h \
-        Dynamics.h Processor.h
+        Dynamics.h
 
 TESTS=testlimiter
 

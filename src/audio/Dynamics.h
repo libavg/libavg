@@ -21,7 +21,6 @@
 //  Original author of this file is Andreas Beisler.
 //
 
-
 #pragma once
 #ifndef __Dynamics_H__
 #define __Dynamics_H__
@@ -31,20 +30,18 @@
 #include <limits>
 #include <memory.h>
 
-#include "Processor.h"
-
 #define LOOKAHEAD 64
 #define AVG1 27
 #define AVG2 38
 
 // Dynamics processor (compressor & limiter).
-template<typename T, int IN_CHANNELS, int OUT_CHANNELS>
-class Dynamics: public Processor<T, IN_CHANNELS, OUT_CHANNELS>
+template<typename T, int CHANNELS>
+class Dynamics
 {
     public:
         Dynamics(T fs);
         virtual ~Dynamics();
-        void Process(T* inSamples, T* outSamples);
+        void process(T* pSamples);
 
         void setThreshold(T threshold);
         T getThreshold() const;
@@ -59,8 +56,10 @@ class Dynamics: public Processor<T, IN_CHANNELS, OUT_CHANNELS>
         void setMakeupGain(T makeupGain);
         T getMakeupGain() const;
 
-    protected:
+    private:
         void maxFilter(T& rms);
+
+        T m_fs;
 
         T threshold_;
         T preGain_;
@@ -98,35 +97,35 @@ class Dynamics: public Processor<T, IN_CHANNELS, OUT_CHANNELS>
         T postGain_;
 };
 
-template<typename T, int IN_CHANNELS, int OUT_CHANNELS>
-Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::Dynamics(T fs):
-    Processor<T, IN_CHANNELS, OUT_CHANNELS>(fs),
-    threshold_(0.),
-    preGain_(1.),
-    rmsTime_(0.),
-    rmsCoef_(0.),
-    rms1_(0.),
-    lookaheadBuf_(0),
-    lookaheadBufIdx_(0),
-    ratio_(std::numeric_limits<T>::infinity()),
-    inverseRatio_(0.),
-    attTime_(0.),
-    attCoef_(0.),
-    relTime_(0.),
-    relCoef_(0.),
-    env1_(0.),
-    avg1Buf_(0),
-    avg1BufRIdx_(0),
-    avg1BufWIdx_(AVG1 - 1),
-    avg1Old_(0.),
-    avg2Buf_(0),
-    avg2BufRIdx_(0),
-    avg2BufWIdx_(AVG2 - 1),
-    avg2Old_(0.),
-    delayBuf_(0),
-    delayBufIdx_(0),
-    makeupGain_(0.),
-    postGain_(1.)
+template<typename T, int CHANNELS>
+Dynamics<T, CHANNELS>::Dynamics(T fs)
+    : m_fs(fs),
+      threshold_(0.),
+      preGain_(1.),
+      rmsTime_(0.),
+      rmsCoef_(0.),
+      rms1_(0.),
+      lookaheadBuf_(0),
+      lookaheadBufIdx_(0),
+      ratio_(std::numeric_limits<T>::infinity()),
+      inverseRatio_(0.),
+      attTime_(0.),
+      attCoef_(0.),
+      relTime_(0.),
+      relCoef_(0.),
+      env1_(0.),
+      avg1Buf_(0),
+      avg1BufRIdx_(0),
+      avg1BufWIdx_(AVG1 - 1),
+      avg1Old_(0.),
+      avg2Buf_(0),
+      avg2BufRIdx_(0),
+      avg2BufWIdx_(AVG2 - 1),
+      avg2Old_(0.),
+      delayBuf_(0),
+      delayBufIdx_(0),
+      makeupGain_(0.),
+      postGain_(1.)
 {
     lookaheadBuf_ = new T[LOOKAHEAD];
     for (int i = 0; i < LOOKAHEAD; i++) {
@@ -139,8 +138,8 @@ Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::Dynamics(T fs):
     avg2Buf_ = new T[AVG2];
     memset(avg2Buf_, 0, sizeof(T) * (AVG2));
 
-    delayBuf_ = new T[LOOKAHEAD*OUT_CHANNELS];
-    memset(delayBuf_, 0, sizeof(T)*LOOKAHEAD*OUT_CHANNELS);
+    delayBuf_ = new T[LOOKAHEAD*CHANNELS];
+    memset(delayBuf_, 0, sizeof(T)*LOOKAHEAD*CHANNELS);
 
     setThreshold(0.);
     setRmsTime(0.);
@@ -150,8 +149,8 @@ Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::Dynamics(T fs):
     setMakeupGain(0.);
 }
 
-template<typename T, int IN_CHANNELS, int OUT_CHANNELS>
-Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::~Dynamics()
+template<typename T, int CHANNELS>
+Dynamics<T, CHANNELS>::~Dynamics()
 {
     delete[] lookaheadBuf_;
 
@@ -161,8 +160,8 @@ Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::~Dynamics()
     delete[] delayBuf_;
 }
 
-template<typename T, int IN_CHANNELS, int OUT_CHANNELS>
-void Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::maxFilter(T& rms)
+template<typename T, int CHANNELS>
+void Dynamics<T, CHANNELS>::maxFilter(T& rms)
 {
     int j = lookaheadBufIdx_;
     for (int i = 0; i < LOOKAHEAD; i++)
@@ -174,16 +173,15 @@ void Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::maxFilter(T& rms)
     }
 }
 
-template<typename T, int IN_CHANNELS, int OUT_CHANNELS>
-void Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::Process(T* inSamples, T* outSamples)
+template<typename T, int CHANNELS>
+void Dynamics<T, CHANNELS>::process(T* pSamples)
 {
-    Processor<T, IN_CHANNELS, OUT_CHANNELS>::Process(inSamples, outSamples);
 
     //---------------- Preprocessing
     T x = 0.f;
-    for (int i = 0; i < OUT_CHANNELS; i++) {
+    for (int i = 0; i < CHANNELS; i++) {
         // Apply pregain
-        const T tmp = outSamples[i] * preGain_;
+        const T tmp = pSamples[i] * preGain_;
 
         T abs = std::fabs(tmp);
         if (abs > x) {
@@ -236,101 +234,101 @@ void Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::Process(T* inSamples, T* outSamples
     c = c / (static_cast<T>(AVG1) * static_cast<T>(AVG2));
 
     //---------------- Postprocessing
-    for (int i = 0; i < OUT_CHANNELS; i++) {
+    for (int i = 0; i < CHANNELS; i++) {
         // Delay input samples
-        const T in                 = delayBuf_[delayBufIdx_*OUT_CHANNELS+i];
-        delayBuf_[delayBufIdx_*OUT_CHANNELS+i] = outSamples[i];
+        const T in                 = delayBuf_[delayBufIdx_*CHANNELS+i];
+        delayBuf_[delayBufIdx_*CHANNELS+i] = pSamples[i];
 
         // Apply control signal
-        outSamples[i] = in * c * postGain_;
+        pSamples[i] = in * c * postGain_;
     }
 
     delayBufIdx_ = (delayBufIdx_+1)&(LOOKAHEAD-1);
 }
 
-template<typename T, int IN_CHANNELS, int OUT_CHANNELS>
-void Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::setThreshold(T threshold)
+template<typename T, int CHANNELS>
+void Dynamics<T, CHANNELS>::setThreshold(T threshold)
 {
     threshold_ = threshold;
     preGain_   = std::pow(10., -threshold / 20.);
 }
 
-template<typename T, int IN_CHANNELS, int OUT_CHANNELS>
-T Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::getThreshold() const
+template<typename T, int CHANNELS>
+T Dynamics<T, CHANNELS>::getThreshold() const
 {
     return threshold_;
 }
 
-template<typename T, int IN_CHANNELS, int OUT_CHANNELS>
-void Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::setRmsTime(T rmsTime)
+template<typename T, int CHANNELS>
+void Dynamics<T, CHANNELS>::setRmsTime(T rmsTime)
 {
     rmsTime_ = rmsTime;
     rmsCoef_ = 0.;
     if (rmsTime > 0.) {
-        rmsCoef_ = std::pow(0.001, 1. / (Processor<T, IN_CHANNELS, OUT_CHANNELS>::m_fs * rmsTime));
+        rmsCoef_ = std::pow(0.001, 1. / (m_fs * rmsTime));
     }
 }
 
-template<typename T, int IN_CHANNELS, int OUT_CHANNELS>
-T Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::getRmsTime() const
+template<typename T, int CHANNELS>
+T Dynamics<T, CHANNELS>::getRmsTime() const
 {
     return rmsTime_;
 }
 
-template<typename T, int IN_CHANNELS, int OUT_CHANNELS>
-void Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::setRatio(T ratio)
+template<typename T, int CHANNELS>
+void Dynamics<T, CHANNELS>::setRatio(T ratio)
 {
     ratio_        = ratio;
     inverseRatio_ = 1. / ratio;
 }
 
-template<typename T, int IN_CHANNELS, int OUT_CHANNELS>
-T Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::getRatio() const
+template<typename T, int CHANNELS>
+T Dynamics<T, CHANNELS>::getRatio() const
 {
     return ratio_;
 }
 
-template<typename T, int IN_CHANNELS, int OUT_CHANNELS>
-void Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::setAttackTime(T attTime)
+template<typename T, int CHANNELS>
+void Dynamics<T, CHANNELS>::setAttackTime(T attTime)
 {
     attTime_ = attTime;
     attCoef_ = 0.;
     if (attTime > 0.) {
-        attCoef_ = powf(0.001, 1. / (Processor<T, IN_CHANNELS, OUT_CHANNELS>::m_fs * attTime));
+        attCoef_ = powf(0.001, 1. / (m_fs * attTime));
     }
 }
 
-template<typename T, int IN_CHANNELS, int OUT_CHANNELS>
-T Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::getAttackTime() const
+template<typename T, int CHANNELS>
+T Dynamics<T, CHANNELS>::getAttackTime() const
 {
     return attTime_;
 }
 
-template<typename T, int IN_CHANNELS, int OUT_CHANNELS>
-void Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::setReleaseTime(T relTime)
+template<typename T, int CHANNELS>
+void Dynamics<T, CHANNELS>::setReleaseTime(T relTime)
 {
     relTime_ = relTime;
     relCoef_ = 0.;
     if (relTime > 0.) {
-        relCoef_ = powf(0.001, 1. / (Processor<T, IN_CHANNELS, OUT_CHANNELS>::m_fs * relTime));
+        relCoef_ = powf(0.001, 1. / (m_fs * relTime));
     }
 }
 
-template<typename T, int IN_CHANNELS, int OUT_CHANNELS>
-T Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::getReleaseTime() const
+template<typename T, int CHANNELS>
+T Dynamics<T, CHANNELS>::getReleaseTime() const
 {
     return relTime_;
 }
 
-template<typename T, int IN_CHANNELS, int OUT_CHANNELS>
-void Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::setMakeupGain(T makeupGain)
+template<typename T, int CHANNELS>
+void Dynamics<T, CHANNELS>::setMakeupGain(T makeupGain)
 {
     makeupGain_ = makeupGain;
     postGain_   = std::pow(10., makeupGain / 20.);
 }
 
-template<typename T, int IN_CHANNELS, int OUT_CHANNELS>
-T Dynamics<T, IN_CHANNELS, OUT_CHANNELS>::getMakeupGain() const
+template<typename T, int CHANNELS>
+T Dynamics<T, CHANNELS>::getMakeupGain() const
 {
     return makeupGain_;
 }
