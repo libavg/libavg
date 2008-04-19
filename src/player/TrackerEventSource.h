@@ -75,7 +75,7 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
 
     private:
         void setConfig();
-        void createBitmaps(const DRect & Area);
+        void createBitmaps(const IntRect & Area);
 
         boost::thread* m_pTrackerThread;
 

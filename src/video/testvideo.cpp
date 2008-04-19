@@ -229,7 +229,7 @@ class VideoDecoderTest: public DecoderTest {
                     NumFrames++;
 
                 } else {
-                    TimeSource::get()->msleep(0);
+                    msleep(0);
                 }
                 if (FrameAvailable == FA_NEW_FRAME || FrameAvailable == FA_USE_LAST_FRAME) { 
                     CurTime += TimePerFrame;
@@ -348,7 +348,7 @@ class AudioDecoderTest: public DecoderTest {
                 int BytesDecoded = 0;
                 while (BytesDecoded == 0 && !pDecoder->isEOF()) {
                     BytesDecoded = pDecoder->fillAudioFrame(AudioBuffer, 1024);
-                    TimeSource::get()->msleep(0);
+                    msleep(0);
                 }
                 TotalBytesDecoded += BytesDecoded;
                 long long CurTime = (TotalBytesDecoded/4)/44.1;
@@ -393,7 +393,7 @@ class AVDecoderTest: public DecoderTest {
                 FrameAvailableCode FrameAvailable;
                 do {
                     FrameAvailable = pDecoder->renderToBmp(pBmp, 0);
-                    TimeSource::get()->msleep(0);
+                    msleep(0);
                 } while (FrameAvailable == FA_STILL_DECODING);
 //                cerr << NumFrames << ", " << pDecoder->getCurFrame() << endl;
                 if (FrameAvailable == FA_NEW_FRAME) {
@@ -406,7 +406,7 @@ class AVDecoderTest: public DecoderTest {
                 int BytesDecoded = 0;
                 while (BytesDecoded == 0 && !pDecoder->isEOF(SS_AUDIO)) {
                     BytesDecoded = pDecoder->fillAudioFrame(AudioBuffer, 1024);
-                    TimeSource::get()->msleep(0);
+                    msleep(0);
                 }
                 TotalBytesDecoded += BytesDecoded;
 //                cerr << "BytesDecoded: " << BytesDecoded << endl;

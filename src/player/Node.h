@@ -73,14 +73,14 @@ class Node
         }
         static NodeDefinition getNodeDefinition();
         
-        virtual ~Node () = 0;
+        virtual ~Node() = 0;
         virtual void setThis(NodeWeakPtr This);
         virtual void setArgs(const ArgList& Args);
         void setParent(DivNodeWeakPtr pParent);
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
         virtual void disconnect();
         
-        virtual const std::string& getID () const;
+        virtual const std::string& getID() const;
         void setID(const std::string& ID);
 
         double getX() const;
@@ -116,6 +116,8 @@ class Node
         void setSensitive(bool bSensitive);
 
         virtual DivNodePtr getParent() const;
+        void unlink();
+
         DPoint getRelPos(const DPoint& AbsPos) const;
 
         void setMouseEventCapture();

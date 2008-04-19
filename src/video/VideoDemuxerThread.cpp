@@ -57,7 +57,7 @@ bool VideoDemuxerThread::work()
 {
     if (m_PacketQs.empty() || m_bEOF) {
         // replace this with waitForMessage()
-        TimeSource::get()->msleep(10);
+        msleep(10);
     } else {
 
         map<int, VideoPacketQueuePtr>::iterator it;
@@ -74,7 +74,7 @@ bool VideoDemuxerThread::work()
         
         if (ShortestQ < 0) {
             // All queues are at their max capacity. Take a nap and try again later.
-            TimeSource::get()->msleep(10);
+            msleep(10);
             return true;
         }
         

@@ -326,6 +326,7 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
     m_bEnableCrop = false;
 }
 
+#pragma warning(disable: 4996)
 void SDLDisplayEngine::teardown()
 {
     if (m_VBMethod == VB_DRI) {

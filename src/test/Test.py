@@ -3,13 +3,6 @@
 import unittest
 
 import sys, time, os, platform
-import tempfile
-
-try:
-    import syslog
-    SYSLOG_AVAILABLE = True
-except ImportError:
-    SYSLOG_AVAILABLE = False
 
 # Import the correct version of libavg. Since it should be possible to
 # run the tests without installing libavg, we add the location of the 
@@ -26,104 +19,8 @@ else:
 
 SrcDir = os.getenv("srcdir",".")
 os.chdir(SrcDir)
-if platform.system() == 'Windows':
-    from libavg import anim, draggable
-else:    
-    import anim, draggable
 
-CREATE_BASELINE_IMAGES = False
-BASELINE_DIR = "baseline"
-RESULT_DIR = "resultimages"
-
-ourSaveDifferences = True
-
-class LoggerTestCase(unittest.TestCase):
-    def test(self):
-        self.Log = avg.Logger.get()
-        self.Log.setCategories(self.Log.APP |
-                  self.Log.WARNING
-#                  self.Log.PROFILE |
-#                  self.Log.PROFILE_LATEFRAMES |
-#                  self.Log.CONFIG |
-#                  self.Log.MEMORY |
-#                  self.Log.BLTS    |
-#                  self.Log.EVENTS |
-#                  self.Log.EVENTS2
-                  )
-        myTempFile = os.path.join(tempfile.gettempdir(), "testavg.log")
-        try:
-            os.remove(myTempFile)
-        except OSError:
-            pass
-        self.Log.setFileDest(myTempFile)
-        self.Log.trace(self.Log.APP, "Test file log entry.")
-        readLog = file(myTempFile, "r").readlines()
-        self.assert_(len(readLog) == 1)
-        myBaseLine = "APP: Test file log entry."
-        self.assert_(readLog[0].find(myBaseLine) >= 0)
-        stats = os.stat(myTempFile)
-        # Windows text files have two chars for linefeed
-        self.assert_(stats.st_size in [50, 51])
-        
-        if SYSLOG_AVAILABLE:
-            self.Log.setSyslogDest(syslog.LOG_USER, syslog.LOG_CONS)
-            self.Log.trace(self.Log.APP, "Test syslog entry.")
-        self.Log.setConsoleDest()
-
-class AVGTestCase(unittest.TestCase):
-    def __init__(self, testFuncName, bpp):
-        self.__bpp = bpp
-        self.__testFuncName = testFuncName
-        self.Log = avg.Logger.get()
-        unittest.TestCase.__init__(self, testFuncName)
-    def setUpVideo(self):
-        Player.setResolution(0, 0, 0, self.__bpp)
-        if customOGLOptions:
-            Player.setOGLOptions(UsePOW2Textures, YCbCrMode, UsePixelBuffers, 1)
-    def setUp(self):
-        self.setUpVideo()
-        print "-------- ", self.__testFuncName, " --------"
-    def start(self, filename, actions):
-        self.assert_(Player.isPlaying() == 0)
-        if filename != None:
-            Player.loadFile(filename)
-        self.actions = actions
-        self.curFrame = 0
-        Player.setOnFrameHandler(self.nextAction)
-        Player.setFramerate(100)
-        Player.play()
-        self.assert_(Player.isPlaying() == 0)
-    def nextAction(self):
-        self.actions[self.curFrame]()
-#        print (self.curFrame)
-        self.curFrame += 1
-    def compareImage(self, fileName, warn):
-        global CREATE_BASELINE_IMAGES
-        Bmp = Player.screenshot()
-        if CREATE_BASELINE_IMAGES:
-            Bmp.save(BASELINE_DIR+"/"+fileName+".png")
-        else:
-            try:
-                BaselineBmp = avg.Bitmap(BASELINE_DIR+"/"+fileName+".png")
-                NumPixels = Player.getTestHelper().getNumDifferentPixels(Bmp, 
-                        BaselineBmp)
-                if (NumPixels > 20):
-                    if ourSaveDifferences:
-                        Bmp.save(RESULT_DIR+"/"+fileName+".png")
-                        BaselineBmp.save(RESULT_DIR+"/"+fileName+"_baseline.png")
-                        Bmp.subtract(BaselineBmp)
-                        Bmp.save(RESULT_DIR+"/"+fileName+"_diff.png")
-                    self.Log.trace(self.Log.WARNING, "Image compare: "+str(NumPixels)+
-                            " bright pixels.")
-                    if warn:
-                        self.Log.trace(self.Log.WARNING, "Image "+fileName
-                                +" differs from original.")
-                    else:
-                        self.assert_(False)
-            except RuntimeError:
-                Bmp.save(RESULT_DIR+"/"+fileName+".png")
-                self.Log.trace(self.Log.WARNING, "Could not load image "+fileName+".png")
-                self.assert_(False)
+from testcase import *
 
 def keyUp(Event):
     print "keyUp"
@@ -204,8 +101,8 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Player.setGamma(0.7, 0.7, 0.7),
                  lambda: Player.setGamma(1.0, 1.0, 1.0),
                  lambda: Player.showCursor(0),
-                 lambda: Player.showCursor(1),
-                 Player.stop))
+                 lambda: Player.showCursor(1)
+                ))
 
     def testRotate(self):
         def onOuterDown(Event):
@@ -229,16 +126,14 @@ class PlayerTestCase(AVGTestCase):
                  lambda: sendEvent(85, 70),
                  lambda: self.assert_(not(self.onOuterDownCalled)),
                  lambda: sendEvent(85, 75),
-                 lambda: self.assert_(self.onOuterDownCalled),
-                 Player.stop))
+                 lambda: self.assert_(self.onOuterDownCalled)
+                ))
     def testRotate2(self):
         self.start("rotate2.avg",
-                (lambda: self.compareImage("testRotate2", False),
-                 Player.stop))
+                [lambda: self.compareImage("testRotate2", False)])
     def testRotate3(self):
         self.start("rotate3.avg",
-                (lambda: self.compareImage("testRotate3", False),
-                 Player.stop))
+                [lambda: self.compareImage("testRotate3", False)])
     def testError(self):
         Player.loadFile("image.avg")
         Player.setTimeout(1, lambda: undefinedFunction)
@@ -255,8 +150,7 @@ class PlayerTestCase(AVGTestCase):
             raise ZeroDivisionError
         try:
             self.start("image.avg",
-                    (throwException,
-                     Player.stop))
+                    [throwException])
         except ZeroDivisionError:
             self.assert_(1)
         else:
@@ -266,8 +160,7 @@ class PlayerTestCase(AVGTestCase):
         def activateNode():
             Player.getElementByID("enclosingdiv").active = 1
         self.start("invalidfilename.avg",
-                (activateNode,
-                 Player.stop))
+                [activateNode])
 
     def testInvalidVideoFilename(self):
         def tryplay():
@@ -280,8 +173,8 @@ class PlayerTestCase(AVGTestCase):
                 self.assert_(0)
         self.start("invalidvideofilename.avg",
                 (lambda: tryplay,
-                 lambda: Player.getElementByID("brokenvideo").stop(),
-                 Player.stop))
+                 lambda: Player.getElementByID("brokenvideo").stop()
+                ))
 
     def testEvents(self):
         def getMouseState():
@@ -410,10 +303,10 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.assert_(not(self.tiltedMouseDownCalled)),
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         0, 80, 1),
-                 lambda: self.assert_(self.tiltedMouseDownCalled),
+                 lambda: self.assert_(self.tiltedMouseDownCalled)
                  # XXX
                  # - errMouseOver
-                 Player.stop))
+                ))
 
     def testEventCapture(self):
         def captureEvent():
@@ -444,8 +337,8 @@ class PlayerTestCase(AVGTestCase):
                         mainCaptureMouseDownCalled),
                  noCaptureEvent,
                  lambda: self.assert_(not(captureMouseDownCalled) and 
-                        mainCaptureMouseDownCalled),
-                 Player.stop))
+                        mainCaptureMouseDownCalled)
+                ))
 
     def testMouseOver(self):
         def onImg2MouseOver(Event):
@@ -557,9 +450,8 @@ class PlayerTestCase(AVGTestCase):
                         not(self.avgMouseOverCalled) and 
                         self.img2MouseOutCalled and 
                         not(self.divMouseOutCalled) and 
-                        not(self.img1MouseOverCalled)),
-
-                 Player.stop))
+                        not(self.img1MouseOverCalled))
+                ))
 
     def testTimeouts(self):
         self.timeout1called = False
@@ -579,8 +471,8 @@ class PlayerTestCase(AVGTestCase):
                 (setupTimeouts,
                  wait,
                  lambda: self.assert_(self.timeout1called),
-                 lambda: self.assert_(not(self.timeout2called)),
-                 Player.stop))
+                 lambda: self.assert_(not(self.timeout2called))
+                ))
 
     def testEventErr(self):
         Player.loadFile("errevent.avg")
@@ -597,8 +489,8 @@ class PlayerTestCase(AVGTestCase):
         self.start("hugeimage.avg",
                 (lambda: self.compareImage("testHugeImage0", False),
                  moveImage,
-                 lambda: self.compareImage("testHugeImage1", False),
-                 Player.stop))
+                 lambda: self.compareImage("testHugeImage1", False)
+                ))
 
     def testPanoImage(self):
         def changeProperties():
@@ -613,8 +505,8 @@ class PlayerTestCase(AVGTestCase):
                 (lambda: self.compareImage("testPanoImage", False),
                  lambda: time.sleep,
                  changeProperties,
-                 loadImage,
-                 Player.stop))
+                 loadImage
+                ))
 
     def testBroken(self):
         def testBrokenFile(filename):
@@ -643,13 +535,12 @@ class PlayerTestCase(AVGTestCase):
                 (lambda: self.compareImage("testMove1", False),
                  moveit,
                  checkRelPos,
-                 lambda: self.compareImage("testMove2", False),
-                 Player.stop))
+                 lambda: self.compareImage("testMove2", False)
+                ))
 
     def testBlend(self):
         self.start("blend.avg",
-                (lambda: self.compareImage("testBlend", False),
-                 Player.stop))
+                [lambda: self.compareImage("testBlend", False)])
 
     def testCropImage(self):
         def moveTLCrop():
@@ -694,8 +585,8 @@ class PlayerTestCase(AVGTestCase):
                  moveTLNegative,
                  lambda: self.compareImage("testCropImage9", False),
                  moveBRGone,
-                 lambda: self.compareImage("testCropImage10", False),
-                Player.stop))
+                 lambda: self.compareImage("testCropImage10", False)
+               ))
 
     def testCropMovie(self):
         def playMovie():
@@ -744,8 +635,8 @@ class PlayerTestCase(AVGTestCase):
                  moveTLNegative,
                  lambda: self.compareImage("testCropMovie9", False),
                  moveBRGone,
-                 lambda: self.compareImage("testCropMovie10", False),
-                 Player.stop))
+                 lambda: self.compareImage("testCropMovie10", False)
+                ))
 
     def testWarp(self):
         def moveVertex():
@@ -768,18 +659,16 @@ class PlayerTestCase(AVGTestCase):
                  moveVertex,
                  lambda: self.compareImage("testWarp2", False),
                  flip,
-                 lambda: self.compareImage("testWarp3", False),
-                 Player.stop))
+                 lambda: self.compareImage("testWarp3", False)
+                ))
 
     def testSimpleWords(self):
         self.start("simpletext.avg",
-                (lambda: self.compareImage("testSimpleWords", True),
-                 Player.stop))
+                [lambda: self.compareImage("testSimpleWords", True)])
 
     def testParaWords(self):
         self.start("paratext.avg",
-                (lambda: self.compareImage("testParaWords", True),
-                 Player.stop))
+                [lambda: self.compareImage("testParaWords", True)])
     
     def testDynamicWords(self):
         def changeText():
@@ -814,8 +703,8 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testDynamicWords3", True),
                  activateText,
                  changeFont2,
-                 lambda: self.compareImage("testDynamicWords4", True),
-                 Player.stop))
+                 lambda: self.compareImage("testDynamicWords4", True)
+                ))
 
     def testI18NWords(self):
         def changeUnicodeText():
@@ -823,8 +712,8 @@ class PlayerTestCase(AVGTestCase):
         self.start("i18ntext.avg",
                 (lambda: self.compareImage("testI18NWords1", True),
                  changeUnicodeText,
-                 lambda: self.compareImage("testI18NWords2", True),
-                 Player.stop))
+                 lambda: self.compareImage("testI18NWords2", True)
+                ))
 
     def testVideo(self):
         def newHRef():
@@ -858,8 +747,8 @@ class PlayerTestCase(AVGTestCase):
                  activateclogo,
                  lambda: self.compareImage("testVideo8", False),
                  lambda: Player.getElementByID("clogo").stop(),
-                 lambda: self.compareImage("testVideo9", False),
-                 Player.stop))
+                 lambda: self.compareImage("testVideo9", False)
+                ))
 
     def testVideoSeek(self):
         def seek(frame):
@@ -875,20 +764,20 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testVideoSeek2", False),
                  lambda: Player.getElementByID("clogo2").play(),
                  lambda: self.delay,
-                 lambda: self.compareImage("testVideoSeek3", False),
-                 Player.stop))
+                 lambda: self.compareImage("testVideoSeek3", False)
+                ))
     
     def testVideoFPS(self):
         Player.setFakeFPS(25)
         self.start("videofps.avg",
                 (lambda: Player.getElementByID("video").play(),
                  lambda: self.delay,
-                 lambda: self.compareImage("testVideoFPS", False),
-                 Player.stop))
+                 lambda: self.compareImage("testVideoFPS", False)
+                ))
 
     def testVideoEOF(self):
         def onEOF():
-            Player.stop()
+           Player.stop()
         def onNoEOF():
             self.assert_(False)
         Player.loadFile("video.avg")
@@ -907,8 +796,8 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("mediadir1", False),
                  setDir,
                  lambda: Player.getElementByID("video").play(), 
-                 lambda: self.compareImage("mediadir2", False),
-                 Player.stop))
+                 lambda: self.compareImage("mediadir2", False)
+                ))
 
 #    def testCamera(self):
 #        def createCameraNode(deviceFile):
@@ -922,109 +811,15 @@ class PlayerTestCase(AVGTestCase):
 #                node = createCameraNode("/dev/video1")
 #            if node.getDriverName() != "vivi":
 #                print("Kernel camera test driver not found - skipping camera test.")
-#                Player.stop()
+#               ()
 #            else:
 #                Player.getRootNode().appendChild(node)
 #                node.play()
 #
 #        self.start("empty.avg",
 #                (lambda: findCamera,
-#                 lambda: self.compareImage("testCamera", False),
-#                 Player.stop))
-
-    def testAnim(self):
-        def onStart():
-            Player.setTimeout(10, startAnim)
-            Player.setTimeout(380, startSplineAnim)
-            Player.setTimeout(800, lambda: self.compareImage("testAnim3", False))
-            Player.setTimeout(850, Player.stop)
-        def startAnim():
-            def onStop():
-                self.__animStopped = True
-            self.compareImage("testAnim1", False)
-            anim.fadeOut(Player.getElementByID("nestedimg2"), 200)
-            Player.getElementByID("nestedimg1").opacity = 0
-            anim.fadeIn(Player.getElementByID("nestedimg1"), 200, 1)
-            anim.LinearAnim(Player.getElementByID("nestedimg1"), "x", 
-                    200, 0, 100, 0, onStop)
-        def startSplineAnim():
-            self.assert_(self.__animStopped)
-            self.compareImage("testAnim2", False)
-            anim.SplineAnim(Player.getElementByID("mainimg"), "x", 
-                    200, 100, -400, 10, 0, 0, None)
-            anim.SplineAnim(Player.getElementByID("mainimg"), "y", 
-                    200, 100, 0, 10, -400, 1, None)
-        self.__animStopped = False
-        Player.setFakeFPS(60)
-        anim.init(avg)
-        Player.loadFile("avg.avg")
-        Player.setTimeout(1, onStart)
-        Player.setFramerate(60)
-        Player.play()
-
-    def testContinuousAnim(self):
-        def onStart():
-            Player.setTimeout(10,startAnim)
-            Player.setTimeout(100,lambda:self.compareImage("testContAnim1", False))
-            Player.setTimeout(200,startAnim2)
-            Player.setTimeout(400,lambda:self.compareImage("testContAnim2", False))
-            Player.setTimeout(450,startAnim3)
-            Player.setTimeout(700,lambda:self.compareImage("testContAnim3", False))
-            Player.setTimeout(800,stopAnim)
-            Player.setTimeout(900,lambda:self.compareImage("testContAnim4", False))
-            Player.setTimeout(1000,Player.stop)
-        def startAnim():
-            node=Player.getElementByID("mainimg")
-            self.anim=anim.ContinuousAnim(node,"angle",0,1,0)
-        def startAnim2():
-            node=Player.getElementByID("nestedimg1")
-            self.anim2=anim.ContinuousAnim(node,"width",0,50,0)
-        def startAnim3():
-            node=Player.getElementByID("nestedimg2")
-            self.anim3=anim.ContinuousAnim(node,"x",0,50,0)
-        def stopAnim():
-            self.anim.abort()
-            self.anim2.abort()
-            self.anim3.abort()
-
-        Player.setFakeFPS(25)
-        anim.init(avg)
-        Player.loadFile("avg.avg")
-        Player.setTimeout(1, onStart)
-        Player.play()
-
-    def testDraggable(self):
-        def onDragStart(event):
-            self.__dragStartCalled = True
-        def onDragEnd(event):
-            self.__dragEndCalled = True
-        def startDrag():
-            Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 140, 40, 1)
-        def move():
-            Helper.fakeMouseEvent(avg.CURSORMOTION, True, False, False, 150, 50, 1)
-        def stop():
-            Helper.fakeMouseEvent(avg.CURSORUP, True, False, False, 140, 40, 1)
-        self.__dragEndCalled = False
-        self.__dragStartCalled = False
-        Helper = Player.getTestHelper()    
-        Player.loadFile("image.avg")
-        draggable.init(avg)
-        dragger = draggable.Draggable(Player.getElementByID("testhue"),
-                onDragStart, onDragEnd)
-        dragger.enable()
-        self.start(None,
-                (startDrag,
-                 lambda: self.assert_(self.__dragStartCalled),
-                 move,
-                 lambda: self.compareImage("testDraggable1", False),
-                 stop,
-                 lambda: self.assert_(self.__dragEndCalled),
-                 lambda: self.compareImage("testDraggable2", False),
-                 dragger.disable,
-                 startDrag,
-                 move,
-                 lambda: self.compareImage("testDraggable2", False),
-                 Player.stop))
+#                 lambda: self.compareImage("testCamera", False)
+#                ))
 
     def testImgDynamics(self):
         def createImg(useXml):
@@ -1057,13 +852,18 @@ class PlayerTestCase(AVGTestCase):
         def removeImgs():
             self.imgNode = Player.getElementByID("newImage")
             rootNode = Player.getRootNode()
-            rootNode.removeChild( rootNode.indexOf(self.imgNode))
+            rootNode.removeChild(rootNode.indexOf(self.imgNode))
             rootNode.removeChild(0)
             self.assert_(Player.getElementByID("newImage") == None)
         def reAddImg():
             rootNode = Player.getRootNode()
             rootNode.appendChild(self.imgNode)
             self.imgNode = None
+        def removeAgain():
+            imgNode = Player.getElementByID("newImage")
+            imgNode.unlink()
+            gone = Player.getElementByID("newImage")
+            self.assert_(gone == None)
         def runTest(useXml):
             Player.loadFile("empty.avg")
             createImg(useXml)
@@ -1080,7 +880,8 @@ class PlayerTestCase(AVGTestCase):
                      lambda: self.compareImage("testImgDynamics4", False),
                      reAddImg,
                      lambda: self.compareImage("testImgDynamics5", False),
-                     Player.stop))
+                     removeAgain
+                    ))
         runTest(True)
         runTest(False) 
 
@@ -1122,8 +923,8 @@ class PlayerTestCase(AVGTestCase):
                      removeVideo,
                      lambda: self.compareImage("testVideoDynamics2", False),
                      reAddVideo,
-                     lambda: self.compareImage("testVideoDynamics3", False),
-                     Player.stop))
+                     lambda: self.compareImage("testVideoDynamics3", False)
+                    ))
         runTest(True)
         runTest(False)
 
@@ -1159,8 +960,8 @@ class PlayerTestCase(AVGTestCase):
                      removeWords,
                      lambda: self.compareImage("testWordsDynamics2", True),
                      reAddWords,
-                     lambda: self.compareImage("testWordsDynamics3", True),
-                     Player.stop))
+                     lambda: self.compareImage("testWordsDynamics3", True)
+                    ))
         runTest(True)
         runTest(False)
 
@@ -1169,7 +970,7 @@ class PlayerTestCase(AVGTestCase):
             if useXml:
                 node = Player.createNode("<camera id='newCamera' source='firewire' device='/dev/video1394/0' capturewidth='640' captureheight='480' pixelformat='MONO8' framerate='15'/>")
             else:
-                node = Player.createNode("camera", {"id":"newCamera", "source":"firewire", "device":"/dev/video1394/0", "capturewidth":"640", "captureheight":"480", "pixelformat":"MONO8", "framerate":"15"})
+                node = Player.createNode("camera", {"id":"newCamera", "source":"firewire", "device":"/dev/video1394/0", "capturewidth":640, "captureheight":480, "pixelformat":"MONO8", "framerate":15})
             Player.getRootNode().appendChild(node)
         def removeCamera():
             self.cameraNode = Player.getElementByID("newCamera")
@@ -1186,8 +987,8 @@ class PlayerTestCase(AVGTestCase):
             self.start("empty.avg",
                     (lambda: createCamera(useXml),
                      removeCamera,
-                     reAddCamera,
-                     Player.stop))
+                     reAddCamera
+                    ))
 	    runTest(True)
 	    runTest(False)
 
@@ -1196,7 +997,7 @@ class PlayerTestCase(AVGTestCase):
             if useXml:
                 node = Player.createNode("<panoimage id='newPano' href='panoimage.png' sensorwidth='4.60' sensorheight='3.97' focallength='12' width='160' height='120'/>")
             else:
-                node = Player.createNode("panoimage", {"id":"newPano", "href":"panoimage.png", "sensorwidth":"4.60", "sensorheight":"3.97", "focallength":"12", "width":"160", "height":"120"})
+                node = Player.createNode("panoimage", {"id":"newPano", "href":"panoimage.png", "sensorwidth":4.60, "sensorheight":3.97, "focallength":12, "width":160, "height":120})
             Player.getRootNode().appendChild(node)
         def removePano():
             self.panoNode = Player.getElementByID("newPano")
@@ -1216,8 +1017,8 @@ class PlayerTestCase(AVGTestCase):
                      removePano,
                      lambda: self.compareImage("testPanoDynamics2", False),
                      reAddPano,
-                     lambda: self.compareImage("testPanoDynamics3", False),
-                     Player.stop))
+                     lambda: self.compareImage("testPanoDynamics3", False)
+                    ))
         runTest(True)
         runTest(False)
 
@@ -1238,7 +1039,7 @@ class PlayerTestCase(AVGTestCase):
             if useXml:
                 node = Player.createNode("<image id='img2' href='rgb24-64x64.png' x='64'/>")
             else:
-                node = Player.createNode("image", {"id":"img2", "href":"rgb24-64x64.png", "x":"64"})
+                node = Player.createNode("image", {"id":"img2", "href":"rgb24-64x64.png", "x":64})
             self.divNode.appendChild(node)
             Player.getRootNode().appendChild(self.divNode)
             self.divNode = None
@@ -1253,24 +1054,12 @@ class PlayerTestCase(AVGTestCase):
                      removeDiv,
                      lambda: self.compareImage("testDivDynamics2", False),
                      lambda: reAddDiv(useXml),
-                     lambda: self.compareImage("testDivDynamics3", False),
-                     Player.stop))
+                     lambda: self.compareImage("testDivDynamics3", False)
+                    ))
         runTest(True)
         runTest(False)
             
 def playerTestSuite(bpp):
-    def rmBrokenDir():
-        try:
-            files = os.listdir(RESULT_DIR)
-            for file in files:
-                os.remove(RESULT_DIR+"/"+file)
-        except OSError:
-            try:
-                os.mkdir(RESULT_DIR)
-            except OSError:
-                # This can happen on make distcheck (permission denied...)
-                global ourSaveDifferences
-                ourSaveDifferences = False
     rmBrokenDir()
     suite = unittest.TestSuite()
     suite.addTest(PlayerTestCase("testImage", bpp))
@@ -1303,21 +1092,12 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testVideoEOF", bpp))
     suite.addTest(PlayerTestCase("testMediaDir", bpp))
     suite.addTest(PlayerTestCase("testWarp", bpp))
-    suite.addTest(PlayerTestCase("testAnim", bpp))
-    suite.addTest(PlayerTestCase("testContinuousAnim", bpp))
-    suite.addTest(PlayerTestCase("testDraggable", bpp))
     suite.addTest(PlayerTestCase("testImgDynamics", bpp))
     suite.addTest(PlayerTestCase("testVideoDynamics", bpp))
     suite.addTest(PlayerTestCase("testWordsDynamics", bpp))
     suite.addTest(PlayerTestCase("testPanoDynamics", bpp))
     suite.addTest(PlayerTestCase("testCameraDynamics", bpp))
     suite.addTest(PlayerTestCase("testDivDynamics", bpp))
-    return suite
-
-def completeTestSuite(bpp):
-    suite = unittest.TestSuite()
-    suite.addTest(LoggerTestCase("test"))
-    suite.addTest(playerTestSuite(bpp))
     return suite
 
 def runConsoleTest():
@@ -1357,8 +1137,7 @@ else:
                 print "Third parameter must be shader, apple, mesa or none"
                 sys.exit(1)
             UsePixelBuffers = getBoolParam(4)
-        else:
-            customOGLOptions = False
+            setOGLOptions(UsePOW2Textures, YCbCrMode, UsePixelBuffers)
     else:
         print "Usage: Test.py [<bpp>"
         print "               [<UsePOW2Textures> <YCbCrMode> <UsePixelBuffers>]]"
@@ -1366,12 +1145,8 @@ else:
 
     Player = avg.Player()
     runner = unittest.TextTestRunner()
-    rc = runner.run(completeTestSuite(bpp))
+    rc = runner.run(playerTestSuite(bpp))
     
-    term = os.getenv("TERM")
-    if term == None:
-        raw_input ("Press enter to end the test.")
-
     if rc.wasSuccessful():
         sys.exit(0)
     else:

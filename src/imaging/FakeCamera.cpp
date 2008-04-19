@@ -83,7 +83,7 @@ BitmapPtr FakeCamera::getImage(bool bWait)
     if (!m_bIsOpen || !bWait) {
         return BitmapPtr();
     } else {
-        TimeSource::get()->msleep(100);
+        msleep(100);
         BitmapPtr pBmp = m_pBmpQ->front();
         m_pBmpQ->pop(); 
         return pBmp; 

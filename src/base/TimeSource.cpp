@@ -111,7 +111,7 @@ void TimeSource::sleepUntil(long long TargetTime)
 #endif
 }
     
-void TimeSource::msleep(int millisecs)
+void msleep(int millisecs)
 {
 #if _WIN32
             Sleep(millisecs);

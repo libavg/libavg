@@ -19,6 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include <string>
+
 #ifdef _DEBUG
 #  undef _DEBUG // Don't let Python force the debug library just because we're debugging.
 #  define DEBUG_UNDEFINED_FROM_WRAPPYTHON_H
@@ -39,5 +41,4 @@
 # undef DEBUG_UNDEFINED_FROM_WRAPPYTHON_H
 # define _DEBUG
 #endif
-
 

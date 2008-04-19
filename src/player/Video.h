@@ -33,8 +33,6 @@
 
 #include "../audio/IAudioSource.h"
 
-#include <string>
-
 namespace avg {
 
 class IVideoDecoder;

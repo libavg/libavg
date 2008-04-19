@@ -139,9 +139,12 @@ Words::Words (const ArgList& Args, Player * pPlayer)
             sFontConfPath = getAvgLibPath()+"etc/fonts/fonts.conf";
         }
         FcConfig * pConfig = FcConfigCreate();
-        FcBool bOk = FcConfigParseAndLoad(pConfig, (const FcChar8 *)(sFontConfPath.c_str()), true);
-        bOk = FcConfigBuildFonts(pConfig);
-        bOk = FcConfigSetCurrent(pConfig);
+        int Ok = (int)FcConfigParseAndLoad(pConfig, (const FcChar8 *)(sFontConfPath.c_str()), true);
+        checkFontError(Ok, string("Font error: could not load config file ")+sFontConfPath);
+        Ok = (int)FcConfigBuildFonts(pConfig);
+        checkFontError(Ok, string("Font error: FcConfigBuildFonts failed."));
+        Ok = (int)FcConfigSetCurrent(pConfig);
+        // TODO: Check FcConfigAppFontAddDir()
 /*
         FcStrList * pCacheDirs = FcConfigGetCacheDirs(pConfig);
         FcChar8 * pDir;
@@ -233,7 +236,8 @@ void Words::setAlignment(const string& sAlign)
     } else if (sAlign == "right") {
         m_Alignment = PANGO_ALIGN_RIGHT;
     } else {
-        // TODO: Throw exception.
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "Words alignment "+sAlign+" not supported."));
     }
 
     m_bDrawNeeded = true;
@@ -256,7 +260,8 @@ void Words::setWeight(const string& sWeight)
     } else if (sWeight == "heavy") {
         m_Weight = PANGO_WEIGHT_HEAVY;
     } else {
-        // TODO: Throw exception.
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "Words weight "+sWeight+" not supported."));
     }
     m_bFontChanged = true;
     m_bDrawNeeded = true;
@@ -285,7 +290,8 @@ void Words::setStretch(const string& sStretch)
     } else if (sStretch == "ultraexpanded") {
         m_Stretch = PANGO_STRETCH_ULTRA_EXPANDED;
     } else {
-        // TODO: Throw exception.
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "Words stretch "+sStretch+" not supported."));
     }
     m_bFontChanged = true;
     m_bDrawNeeded = true;
@@ -656,5 +662,11 @@ string Words::removeExcessSpaces(const string & sText)
     return s;
 }
 
+void Words::checkFontError(int Ok, const string& sMsg)
+{
+    if (Ok == 0) {
+        throw Exception(AVG_ERR_FONT_INIT_FAILED, sMsg);
+    }
+}
 
 }

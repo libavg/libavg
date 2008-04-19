@@ -51,7 +51,7 @@ bool AudioDecoderThread::work()
 {
     if (m_pDecoder->isEOF(SS_AUDIO)) {
         // replace this with waitForMessage()
-        TimeSource::get()->msleep(10);
+        msleep(10);
     } else {
         AudioVideoMsgPtr pVMsg = AudioVideoMsgPtr(new AudioVideoMsg(m_BufferSize, 
                     m_pDecoder->getCurTime(SS_AUDIO)));

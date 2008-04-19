@@ -62,21 +62,12 @@ ArgList::ArgList(const ArgList& ArgTemplates, const boost::python::dict& PyDict)
         boost::python::object valObj = PyDict[keyObj];
         
         boost::python::extract<string> keyStrProxy(keyObj);
-        boost::python::extract<string> valStrProxy(valObj);
-        
         if (!keyStrProxy.check()) {
-            AVG_TRACE(Logger::WARNING, "Invalid argument name type (must be str)");
-            continue;
+            throw Exception(AVG_ERR_INVALID_ARGS, "Argument name must be a string.");
         }
-        if (!valStrProxy.check()) {
-            AVG_TRACE(Logger::WARNING, "Invalid argument value type (must be str)");
-            continue;
-        }
-        
         string keyStr = keyStrProxy();
-        string valStr = valStrProxy();
-       
-        setArgValue(keyStr, valStr);
+
+        setArgValue(keyStr, valObj);
     }
 }
 
@@ -84,11 +75,12 @@ ArgList::~ArgList()
 {
 }
 
-const ArgBasePtr ArgList::getArg(const string& Name) const
+const ArgBasePtr ArgList::getArg(const string& sName) const
 {
-    ArgMap::const_iterator valIt = m_Args.find(Name);
+    ArgMap::const_iterator valIt = m_Args.find(sName);
     if (valIt == m_Args.end()) {
-        throw Exception(AVG_ERR_NO_ARG, string("No arg '")+Name+"'");
+        // TODO: The error message should mention line number and node type.
+        throw Exception(AVG_ERR_INVALID_ARGS, string("Argument ")+sName+" is not valid.");
     }
     return valIt->second;
 }
@@ -122,14 +114,37 @@ void ArgList::setMembers(Node * pNode) const
     pNode->setArgs(*this);
 }
 
+template<class T>
+void setArgValue(Arg<T>* pArg, const std::string & sName, const boost::python::object& Value)
+{
+    boost::python::extract<T> valProxy(Value);
+    if (!valProxy.check()) {
+        throw Exception(AVG_ERR_INVALID_ARGS, "Type error in argument "+sName+": "+typeid(T).name()+" expected.");
+    }
+    pArg->setValue(valProxy());
+}
+
+void ArgList::setArgValue(const std::string & sName, const boost::python::object& Value)
+{
+    ArgBasePtr pArg = getArg(sName);
+    Arg<string>* pStringArg = dynamic_cast<Arg<string>* >(&*pArg);
+    Arg<int>* pIntArg = dynamic_cast<Arg<int>* >(&*pArg);
+    Arg<double>* pDoubleArg = dynamic_cast<Arg<double>* >(&*pArg);
+    Arg<bool>* pBoolArg = dynamic_cast<Arg<bool>* >(&*pArg);
+    if(pStringArg) {
+        avg::setArgValue(pStringArg, sName, Value);
+    } else if (pIntArg) {
+        avg::setArgValue(pIntArg, sName, Value);
+    } else if (pDoubleArg) {
+        avg::setArgValue(pDoubleArg, sName, Value);
+    } else if (pBoolArg) {
+        avg::setArgValue(pBoolArg, sName, Value);
+    }
+}
+
 void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
 {
-    ArgMap::iterator pos = m_Args.find(sName);
-    if (pos == m_Args.end()) {
-        // TODO: The error message should mention line number and node type.
-        throw Exception(AVG_ERR_INVALID_ARGS, string("Argument ")+sName+" is not valid.");
-    }
-    ArgBasePtr pArg = pos->second;
+    ArgBasePtr pArg = getArg(sName);
     Arg<string>* pStringArg = dynamic_cast<Arg<string>* >(&*pArg);
     Arg<int>* pIntArg = dynamic_cast<Arg<int>* >(&*pArg);
     Arg<double>* pDoubleArg = dynamic_cast<Arg<double>* >(&*pArg);

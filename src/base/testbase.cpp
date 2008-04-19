@@ -98,7 +98,7 @@ private:
     {
         for (int i=0; i<100; ++i) {
             pq->push(i);
-            TimeSource::get()->msleep(1);
+            msleep(1);
         }
     }
 
@@ -106,7 +106,7 @@ private:
     {
         for (int i=0; i<100; ++i) {
             pq->pop();
-            TimeSource::get()->msleep(3);
+            msleep(3);
         }
     }
 };

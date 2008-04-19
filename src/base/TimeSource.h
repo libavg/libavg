@@ -48,13 +48,14 @@ public:
     long long getCurrentMicrosecs();
     
     void sleepUntil(long long ticks);
-    void msleep(int millisecs);
 
 private:    
     TimeSource();
     
     static TimeSource* m_pTimeSource;
 };
+
+void msleep(int millisecs);
 
 }
 

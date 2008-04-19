@@ -29,6 +29,7 @@
 #include "Player.h"
 #include "DisplayEngine.h"
 #include "Arg.h"
+#include "WrapPython.h" 
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -279,6 +280,16 @@ DivNodePtr Node::getParent() const
     } else {
         return m_pParent.lock();
     }
+}
+
+void Node::unlink()
+{
+    if (m_pParent.expired()) {
+        throw(Exception(AVG_ERR_UNSUPPORTED, "Node with ID "+m_ID
+                +" has no parent. unlink invalid."));
+    }
+    DivNodePtr pParent = m_pParent.lock();
+    pParent->removeChild(pParent->indexOf(getThis()));
 }
 
 DPoint Node::getRelPos(const DPoint& AbsPos) const 
