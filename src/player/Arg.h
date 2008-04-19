@@ -58,7 +58,7 @@ Arg<T>::Arg(std::string sName, const T& Value, bool bRequired,
 }
 
 template<class T>
-Arg<T>::~Arg<T>()
+Arg<T>::~Arg()
 {
 }
 

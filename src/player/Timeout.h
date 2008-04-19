@@ -25,8 +25,6 @@
 // Python docs say python.h should be included before any standard headers (!)
 #include "WrapPython.h" 
 
-#include <string>
-
 namespace avg {
 
 class Timeout

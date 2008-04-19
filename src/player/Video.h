@@ -31,8 +31,6 @@
 #include "../base/Point.h"
 #include "../base/IFrameListener.h"
 
-#include <string>
-
 namespace avg {
 
 class IVideoDecoder;
