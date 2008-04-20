@@ -652,8 +652,8 @@ void FFMpegDecoder::resampleAudio()
         (2 * m_pAStream->codec->channels);
     
     int outputSamples = audio_resample(m_pAudioResampleContext,
-            (int16_t*)m_pResampleBuffer,
-            (int16_t*)(m_pSampleBuffer + m_SampleBufferStart), 
+            (short*)m_pResampleBuffer,
+            (short*)(m_pSampleBuffer + m_SampleBufferStart), 
             inputSamples);
     
     // Adjust buffer pointers
@@ -669,7 +669,7 @@ int FFMpegDecoder::decodeAudio()
     // Decode some data from packet into the audio buffer
     int packetBytesDecoded = avcodec_decode_audio2(
             m_pAStream->codec, 
-            (int16_t*)(m_pSampleBuffer + m_SampleBufferEnd),
+            (short*)(m_pSampleBuffer + m_SampleBufferEnd),
             &m_SampleBufferLeft, 
             m_AudioPacketData,
             m_AudioPacketSize);

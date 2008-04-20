@@ -317,7 +317,7 @@ int AsyncVideoDecoder::fillAudioFrame(unsigned char* audioBuffer, int audioBuffe
     waitForSeekDone();
     int bufferLeftToFill = audioBufferSize;
     while (bufferLeftToFill > 0) {
-        while (m_AudioMsgSize > 0) {
+        while (m_AudioMsgSize > 0 && bufferLeftToFill > 0) {
             int copyBytes = min(bufferLeftToFill, m_AudioMsgSize);
             memcpy(audioBuffer, m_AudioMsgData, copyBytes);
             m_AudioMsgSize -= copyBytes;

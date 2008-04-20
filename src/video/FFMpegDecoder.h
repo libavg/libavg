@@ -30,6 +30,9 @@
 
 #ifdef _WIN32
 #define EMULATE_INTTYPES
+#if !defined INT64_C
+#define INT64_C(c) c##i64
+#endif
 #else
 // This is probably GCC-specific.
 #if !defined INT64_C

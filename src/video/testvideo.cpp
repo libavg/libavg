@@ -302,7 +302,7 @@ class AudioDecoderTest: public DecoderTest {
                         // Check if we've decoded the whole file.
                         // TODO: Find out what is broken with ogg files here.
                         int FramesDecoded = TotalBytesDecoded/4;
-                        int FramesInDuration = pDecoder->getDuration()*44100/1000;
+                        int FramesInDuration = int(pDecoder->getDuration()*44100/1000);
 //                        cerr << "FramesDecoded: " << FramesDecoded << endl;
 //                        cerr << "FramesInDuration: " << FramesInDuration << endl;
                         TEST (abs(FramesDecoded-FramesInDuration) < 45);
@@ -318,14 +318,14 @@ class AudioDecoderTest: public DecoderTest {
                     pDecoder->seek(Duration/2);
                     unsigned char AudioBuffer[16];
                     pDecoder->fillAudioFrame(AudioBuffer, 16);
-                    TEST(abs(Duration/2-pDecoder->getCurTime()) < 60); // 60 ms accuracy for seeks.
+                    TEST(abs(long(Duration/2-pDecoder->getCurTime())) < 60); // 60 ms accuracy for seeks.
                     int TotalBytesDecoded = 16;
 
                     readAudioToEOF(pDecoder, TotalBytesDecoded, false);
                     if (sFilename.find(".ogg") == string::npos) {
                         // Check if we've decoded half the file.
                         int FramesDecoded = TotalBytesDecoded/4;
-                        int FramesInDuration = pDecoder->getDuration()*44100/1000;
+                        int FramesInDuration = int(pDecoder->getDuration()*44100/1000);
 //                        cerr << "FramesDecoded: " << FramesDecoded << endl;
 //                        cerr << "FramesInDuration: " << FramesInDuration << endl;
                         TEST (abs(FramesDecoded-FramesInDuration/2) < 45);
@@ -351,8 +351,8 @@ class AudioDecoderTest: public DecoderTest {
                     msleep(0);
                 }
                 TotalBytesDecoded += BytesDecoded;
-                long long CurTime = (TotalBytesDecoded/4)/44.1;
-                if (abs(CurTime-pDecoder->getCurTime()) > 20) {
+                long long CurTime = int((TotalBytesDecoded/4)/44.1);
+                if (abs(long(CurTime-pDecoder->getCurTime())) > 20) {
                     NumWrongTimestamps++;
                 }
 //                cerr << CurTime << "->" << pDecoder->getCurTime() << endl;
@@ -418,7 +418,7 @@ class AVDecoderTest: public DecoderTest {
 
             // Check if audio length was ok.
             int FramesDecoded = TotalBytesDecoded/4;
-            int FramesInDuration = pDecoder->getDuration()*44100/1000;
+            int FramesInDuration = int(pDecoder->getDuration()*44100/1000);
 //            cerr << "FramesDecoded: " << FramesDecoded << ", FramesInDuration: " << FramesInDuration << endl;
             TEST (abs(FramesDecoded-FramesInDuration) < 45);
             
