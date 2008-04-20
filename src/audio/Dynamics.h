@@ -298,7 +298,7 @@ void Dynamics<T, CHANNELS>::setAttackTime(T attTime)
     attTime_ = attTime;
     attCoef_ = 0.;
     if (attTime > 0.) {
-        attCoef_ = powf(0.001, 1. / (m_fs * attTime));
+        attCoef_ = pow(0.001, 1. / (m_fs * attTime));
     }
 }
 
@@ -314,7 +314,7 @@ void Dynamics<T, CHANNELS>::setReleaseTime(T relTime)
     relTime_ = relTime;
     relCoef_ = 0.;
     if (relTime > 0.) {
-        relCoef_ = powf(0.001, 1. / (m_fs * relTime));
+        relCoef_ = pow(0.001, 1. / (m_fs * relTime));
     }
 }
 
