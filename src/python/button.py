@@ -27,12 +27,12 @@ class Button:
         self.__isClicking = True
         self.__setMode(1)
     def __onUp(self, event):
+        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, None)
+        self.__node.releaseEventCapture()
         if self.__mode == 1 and self.__isClicking:
             self.__setMode(2)
             self.__clickCallback(self)
         self.__isClicking = False
-        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, None)
-        self.__node.releaseEventCapture()
     def __onOver(self, event):
         if self.__isClicking:
             self.__setMode(1)
