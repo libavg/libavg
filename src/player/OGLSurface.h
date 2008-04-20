@@ -25,11 +25,11 @@
 #include "ISurface.h"
 #include "DisplayEngine.h"
 #include "OGLTexture.h"
-#include "OGLHelper.h"
-#include "OGLShader.h"
 
 #include "../base/Point.h"
 #include "../base/Rect.h"
+
+#include "../graphics/OGLHelper.h"
 
 #include <vector>
 #include <string>

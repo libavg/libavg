@@ -21,7 +21,6 @@
 
 #include "PanoImage.h"
 #include "SDLDisplayEngine.h"
-#include "OGLHelper.h"
 #include "NodeDefinition.h"
 
 #include "../base/MathHelper.h"
@@ -33,6 +32,7 @@
 
 #include "../graphics/Filtercolorize.h"
 #include "../graphics/Filterfliprgb.h"
+#include "../graphics/OGLHelper.h"
 
 #include <Magick++.h>
 

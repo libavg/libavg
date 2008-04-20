@@ -11,21 +11,19 @@ else
 endif
 
 if APPLE
-    APPLE_SOURCES = SDLMain.m AppleGLHelper.cpp
-    APPLE_INCLUDES = AppleGLHelper.h
+    APPLE_SOURCES = SDLMain.m
     XGL_LIBS =
     APPLE_LINKFLAGS=-read_only_relocs suppress
 else
     APPLE_SOURCES =
-    APPLE_INCLUDES = 
     XGL_LIBS = -lXxf86vm
     APPLE_LINKFLAGS=
 endif
 
-GL_SOURCES = OGLHelper.cpp OGLSurface.cpp SDLDisplayEngine.cpp OGLTexture.cpp \
-        	 OGLShader.cpp VertexArray.cpp
-GL_INCLUDES = SDLDisplayEngine.h OGLHelper.h OGLSurface.h OGLTexture.h \
-              OGLShader.h VertexArray.h GL/gl.h GL/glext.h GL/glu.h GL/glx.h
+GL_SOURCES = OGLSurface.cpp SDLDisplayEngine.cpp OGLTexture.cpp \
+        	 VertexArray.cpp
+GL_INCLUDES = SDLDisplayEngine.h OGLHelper.h OGLTexture.h \
+              VertexArray.h
 
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
@@ -38,7 +36,7 @@ ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
         Event.h KeyEvent.h PanoImage.h TestHelper.h \
         RasterNode.h CameraNode.h TrackerEventSource.h TrackerCalibrator.h\
 	    TouchEvent.h EventStream.h BoostPython.h \
-        $(GL_INCLUDES) $(APPLE_INCLUDES)
+        $(GL_INCLUDES)
 
 TESTS=testcalibrator testplayer
 

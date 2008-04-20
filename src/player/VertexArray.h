@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "OGLHelper.h"
 #include "../base/Point.h"
+#include "../graphics/OGLHelper.h"
 
 namespace avg {
 

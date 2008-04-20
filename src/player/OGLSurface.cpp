@@ -20,7 +20,6 @@
 //
 
 #include "OGLSurface.h"
-#include "OGLHelper.h"
 #include "Player.h"
 #include "SDLDisplayEngine.h"
 

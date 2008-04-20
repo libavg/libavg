@@ -34,7 +34,6 @@
 #include "KeyEvent.h"
 
 #include "OGLSurface.h"
-#include "OGLHelper.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Exception.h"
@@ -53,10 +52,6 @@
 #include <X11/Xlib.h>
 #include <X11/extensions/xf86vmode.h>
 #endif
-
-//#define XMD_H 1
-#include "OGLHelper.h"
-
 
 #ifdef __APPLE__
 #include <OpenGL/OpenGL.h>

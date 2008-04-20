@@ -22,10 +22,10 @@
 #ifndef _OGLTexture_H_
 #define _OGLTexture_H_
 
-#include "OGLHelper.h"
 #include "VertexArray.h"
 #include "../base/Rect.h"
 #include "../graphics/Bitmap.h"
+#include "../graphics/OGLHelper.h"
 
 #include <boost/shared_ptr.hpp>
 

@@ -22,12 +22,12 @@
 #ifndef _SDLDisplayEngine_H_
 #define _SDLDisplayEngine_H_
 
-#include "OGLHelper.h"
-#include "OGLShader.h"
 #include "IEventSource.h"
 #include "DisplayEngine.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel32.h"
+#include "../graphics/OGLHelper.h"
+#include "../graphics/OGLShader.h"
 
 #include <SDL/SDL.h>
 

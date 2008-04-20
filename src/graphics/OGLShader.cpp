@@ -20,7 +20,6 @@
 //
 
 #include "OGLShader.h"
-#include "OGLHelper.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
