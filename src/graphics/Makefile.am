@@ -16,6 +16,7 @@ ALL_H = Bitmap.h Filter.h\
         FilterFastBandpass.h Filterfliprgba.h FilterFastDownscale.h \
         FilterGauss.h FilterBandpass.h FilterBlur.h FilterMask.h \
         OGLHelper.h OGLShader.h GL/gl.h GL/glext.h GL/glu.h GL/glx.h \
+        FBOImage.h \
          $(APPLE_INCLUDES)
 ALL_CPP = Bitmap.cpp Filter.cpp Filtergrayscale.cpp \
 		Filtercolorize.cpp Filterflip.cpp Filterfliprgb.cpp \
@@ -23,15 +24,16 @@ ALL_CPP = Bitmap.cpp Filter.cpp Filtergrayscale.cpp \
         FilterFastBandpass.cpp Filterfliprgba.cpp FilterFastDownscale.cpp \
         FilterGauss.cpp FilterBandpass.cpp FilterBlur.cpp FilterMask.cpp \
         OGLHelper.cpp OGLShader.cpp \
+        FBOImage.cpp \
         $(APPLE_SOURCES)
 
-TESTS=testgraphics
+TESTS=testgraphics testgpu
 
 EXTRA_DIST = rgb24-64x64.png $(wildcard testimages/*.png)
 
 noinst_LTLIBRARIES = libgraphics.la
 libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
-noinst_PROGRAMS=testgraphics benchmarkgraphics
+noinst_PROGRAMS=testgraphics testgpu benchmarkgraphics
 testgraphics_SOURCES=testgraphics.cpp $(ALL_H)
 testgraphics_LDADD = ./libgraphics.la ../base/libbase.la
 testgraphics_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS)
@@ -39,3 +41,8 @@ testgraphics_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_
 benchmarkgraphics_SOURCES=benchmarkgraphics.cpp $(ALL_H)
 benchmarkgraphics_LDADD = ./libgraphics.la ../base/libbase.la
 benchmarkgraphics_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS)
+
+testgpu_SOURCES=testgpu.cpp $(ALL_H)
+testgpu_LDADD = ./libgraphics.la ../base/libbase.la
+testgpu_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS) @GL_LIBS@ \
+        @GLU_LIBS@ @SDL_LIBS@

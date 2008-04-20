@@ -197,10 +197,10 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
         ss << DP.m_x << "," << DP.m_y;
         setEnv("SDL_VIDEO_WINDOW_POS", ss.str().c_str());
     }
-#ifdef linux    
+#ifdef linux
     int oldWindowWidth = m_WindowWidth;
     int oldWindowHeight = m_WindowHeight;
-#endif    
+#endif
     double AspectRatio = double(DP.m_Width)/double(DP.m_Height);
     if (DP.m_WindowWidth == 0 && DP.m_WindowHeight == 0) {
         m_WindowWidth = DP.m_Width;
@@ -214,7 +214,7 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
     }
 #ifdef linux
     // Workaround for what appears to be an SDL or X11 bug:
-    // Stencil buffers stop working after a window resize, so we reinit 
+    // Stencil buffers stop working after a window resize, so we reinit
     // everything.
     if (oldWindowWidth != m_WindowWidth || oldWindowHeight != m_WindowHeight) {
         SDL_QuitSubSystem(SDL_INIT_VIDEO);
@@ -276,9 +276,9 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
                 << m_WindowHeight << ", bpp=" << DP.m_BPP << ", multisamplesamples="
                 << m_MultiSampleSamples << ").");
         exit(-1);
-    }   
+    }
     glproc::init();
-    
+
     SDL_WM_SetCaption("AVG Renderer", 0);
     calcRefreshRate();
 
@@ -316,7 +316,7 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
     // SDL sets up a signal handler we really don't want.
     signal(SIGSEGV, SIG_DFL);
     logConfig();
-    
+
 //    dumpSDLGLParams();
     m_bEnableCrop = false;
 }

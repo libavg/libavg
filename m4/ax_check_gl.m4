@@ -216,8 +216,8 @@ if test $target_vendor = apple; then
   AC_DEFINE([HAVE_APPLE_OPENGL_FRAMEWORK], [1],
             [Use the Apple OpenGL framework.])
   AC_MSG_NOTICE([Using Apple OpenGL framework])
-  GL_CFLAGS=""
-  GL_LIBS="-framework OpenGL -framework AGL"
+  GL_CFLAGS="-framework GLUT"
+  GL_LIBS="-framework GLUT -framework OpenGL -framework AGL"
 else
   GL_CFLAGS="${PTHREAD_CFLAGS}"
   GL_LIBS="${PTHREAD_LIBS} -lm"

@@ -43,7 +43,7 @@ namespace glproc {
     PFNGLBINDBUFFERPROC BindBuffer;
     PFNGLMAPBUFFERPROC MapBuffer;
     PFNGLUNMAPBUFFERPROC UnmapBuffer;
-    
+
     PFNGLCREATESHADEROBJECTARBPROC CreateShaderObject;
     PFNGLSHADERSOURCEARBPROC ShaderSource;
     PFNGLCOMPILESHADERARBPROC CompileShader;
@@ -57,14 +57,15 @@ namespace glproc {
     PFNGLUNIFORM1IARBPROC Uniform1i;
     PFNGLBLENDEQUATIONPROC BlendEquation;
     PFNGLACTIVETEXTUREPROC ActiveTexture;
-#ifdef linux    
+    PFNGLGENFRAMEBUFFERSEXTPROC GenFramebuffers;
+#ifdef linux
     PFNGLXSWAPINTERVALSGIPROC SwapIntervalSGI;
     PFNGLXWAITVIDEOSYNCSGIPROC WaitVideoSyncSGI;
 #endif
 #ifdef _WIN32
     PFNWGLEXTSWAPCONTROLPROC SwapIntervalEXT;
 #endif
-}    
+}
 
 void OGLErrorCheck(int avgcode, const string & where) {
     GLenum err = glGetError();
@@ -219,6 +220,7 @@ namespace glproc {
         Uniform1i = (PFNGLUNIFORM1IARBPROC)getFuzzyProcAddress("glUniform1i");
         BlendEquation = (PFNGLBLENDEQUATIONPROC)getFuzzyProcAddress("glBlendEquation");
         ActiveTexture = (PFNGLACTIVETEXTUREPROC)getFuzzyProcAddress("glActiveTexture");
+        GenFramebuffers = (PFNGLGENFRAMEBUFFERSEXTPROC)getFuzzyProcAddress("glGenFramebuffers");
 #ifdef linux
         SwapIntervalSGI = (PFNGLXSWAPINTERVALSGIPROC)getglXProcAddress("glXSwapIntervalSGI");
         WaitVideoSyncSGI = (PFNGLXWAITVIDEOSYNCSGIPROC)getglXProcAddress("glXWaitVideoSyncSGI");

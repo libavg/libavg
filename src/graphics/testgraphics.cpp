@@ -106,7 +106,7 @@ public:
         runLineTest(R8G8B8A8, Pixel32(255,0,0,255));
         runLineTest(R8G8B8, Pixel24(255,0,0));
         runLineTest(I8, Pixel8(255));
-        
+
         cerr << "    Testing OwnsBits." << endl;
         unsigned char pData[4*7*3];
         Bitmap Bmp1 = Bitmap(IntPoint(4,7), R8G8B8, pData, 12, true, "");
@@ -187,7 +187,7 @@ private:
             cerr << "      Testing getNumDifferentPixels." << endl;
             Bitmap BmpCopy4 (*pBmp);
             TEST(pBmp->getNumDifferentPixels(BmpCopy4) == 0);
-            
+
             unsigned char * pPixel = BmpCopy4.getPixels();
             *pPixel += 27;
             TEST(pBmp->getNumDifferentPixels(BmpCopy4) == 0);
@@ -275,7 +275,6 @@ private:
         FilterColorize(100, 50).applyInPlace(pBmp);
         FilterColorize(50, 100).applyInPlace(pBmp);
 //        pBmp->dump();
-        
     }
 };
 
@@ -293,7 +292,7 @@ public:
         runPFTests(I8);
     }
 
-private:    
+private:
     void runPFTests(PixelFormat PF) {
         BitmapPtr pBmp = initBmp(PF);
         FilterGrayscale().applyInPlace(pBmp);
