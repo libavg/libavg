@@ -3,5 +3,5 @@
 <avg width="1024" height="768">
     <image id="testtiles" x="0" y="0"
         opacity="1" href="rgb24-65x65.png"/>
-    <video id="video" href="rgba-48x48.mov"/>
+    <video id="video" href="../video/testfiles/rgba-48x48.mov"/>
 </avg>

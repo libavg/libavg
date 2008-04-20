@@ -32,8 +32,19 @@ namespace avg {
 
 class SeekDoneVideoMsg: public VideoMsg {
     public:
-        SeekDoneVideoMsg() {};
-        virtual ~SeekDoneVideoMsg() {};
+        SeekDoneVideoMsg(bool PerformedSeek, 
+                long long VideoFrameTime, 
+                long long AudioFrameTime);
+        virtual ~SeekDoneVideoMsg();
+        
+        bool performedSeek();
+        long long getVideoFrameTime();
+        long long getAudioFrameTime();
+        
+    private:
+        bool m_bPerformedSeek;
+        long long m_VideoFrameTime;
+        long long m_AudioFrameTime;
 };
 
 typedef boost::shared_ptr<SeekDoneVideoMsg> SeekDoneVideoMsgPtr;

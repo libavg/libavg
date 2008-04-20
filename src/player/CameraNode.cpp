@@ -137,9 +137,9 @@ CameraNode::~CameraNode()
     close();
 }
 
-void CameraNode::setDisplayEngine(DisplayEngine * pEngine)
+void CameraNode::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
-    VideoBase::setDisplayEngine(pEngine);
+    VideoBase::setRenderingEngines(pDisplayEngine, pAudioEngine);
 }
 
 string CameraNode::getTypeStr()
@@ -301,7 +301,7 @@ bool CameraNode::renderToSurface(ISurface * pSurface)
             pSurface->unlockBmps();
             {
                 ScopeTimer Timer(CameraUploadProfilingZone);
-                getEngine()->surfaceChanged(pSurface);
+                getDisplayEngine()->surfaceChanged(pSurface);
             }
         }
     }

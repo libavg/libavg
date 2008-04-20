@@ -83,6 +83,14 @@ ConfigMgr::ConfigMgr()
     addOption("scr", "vsyncmode", "auto",
             "How to synchronize the display refresh."
             "Valid values are auto, ogl, dri and none.");
+    
+    addSubsys("aud");
+    addOption("aud", "channels", "2",
+            "Number of output audio channels.");
+    addOption("aud", "samplerate", "44100",
+            "Sampling rate (Hz) of output audio.");
+    addOption("aud", "outputbuffersamples", "1024",
+            "Size of the SDL audio buffer in samples.");
 
     m_sFName = "avgrc";
     loadFile(getGlobalConfigDir()+m_sFName);

@@ -44,10 +44,13 @@ class VideoDemuxerThread: public WorkerThread<VideoDemuxerThread> {
         void deinit();
 
         void enableStream(VideoPacketQueuePtr pPacketQ, int StreamIndex);
-        void seek(int DestFrame, long long StartTimestamp, int StreamIndex);
+        void seek(long long DestTime);
 
     private:
+        void onStreamEOF(int StreamIndex);
+        
         std::map<int, VideoPacketQueuePtr> m_PacketQs;
+        std::map<int, bool> m_PacketQbEOF;
         bool m_bEOF;
         AVFormatContext * m_pFormatContext;
         FFMpegDemuxerPtr m_pDemuxer;

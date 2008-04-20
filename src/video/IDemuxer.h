@@ -26,11 +26,15 @@
 
 #ifdef _WIN32
 #define EMULATE_INTTYPES
-#pragma warning(push)
-#pragma warning(disable:4244)
 #else
 // This is probably GCC-specific.
-#define INT64_C(c)    c ## L
+#if !defined INT64_C
+#if defined __WORDSIZE && __WORDSIZE == 64
+#define INT64_C(c) c ## L
+#else
+#define INT64_C(c) c ## LL
+#endif
+#endif
 #endif
 
 extern "C" {
@@ -51,7 +55,7 @@ namespace avg {
            
             virtual void enableStream(int StreamIndex) = 0;
             virtual AVPacket * getPacket(int StreamIndex) = 0;
-            virtual void seek(int DestFrame, long long StartTimestamp, int StreamIndex) = 0;
+            virtual void seek(long long DestTime) = 0;
             virtual void dump() {};
             
     };

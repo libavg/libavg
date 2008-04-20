@@ -18,35 +18,23 @@
 //
 //  Current versions can be found at www.libavg.de
 //
+//  Original author of this file is Nick Hebner (hebnern@gmail.com).
+//
 
-#ifndef _InfoVideoMsg_H_
-#define _InfoVideoMsg_H_
-
-#include "VideoMsg.h"
-
-#include "../graphics/Bitmap.h"
+#ifndef _AudioParams_H_
+#define _AudioParams_H_
 
 namespace avg {
 
-class InfoVideoMsg: public VideoMsg {
-    public:
-        InfoVideoMsg(IntPoint Size, int NumFrames, double FPS, PixelFormat PF);
-        virtual ~InfoVideoMsg();
+struct AudioParams {
+    AudioParams();
+    virtual ~AudioParams();
 
-        IntPoint getSize() const;
-        int getNumFrames() const;
-        double getFPS() const;
-        PixelFormat getPF() const;
-
-    private:
-        IntPoint m_Size;
-        int m_NumFrames;
-        double m_FPS;
-        PixelFormat m_PF;
+    int m_SampleRate;
+    int m_Channels;
+    int m_OutputBufferSamples;
 };
 
-typedef boost::shared_ptr<InfoVideoMsg> InfoVideoMsgPtr;
-
 }
-#endif 
 
+#endif

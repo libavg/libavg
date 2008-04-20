@@ -29,8 +29,15 @@
 #define EMULATE_INTTYPES
 #else
 // This is probably GCC-specific.
-#define INT64_C(c)    c ## L
+#if !defined INT64_C
+#if defined __WORDSIZE && __WORDSIZE == 64
+#define INT64_C(c) c ## L
+#else
+#define INT64_C(c) c ## LL
 #endif
+#endif
+#endif
+
 extern "C" {
 #include <ffmpeg/avformat.h>
 }

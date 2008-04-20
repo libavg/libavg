@@ -43,7 +43,7 @@ class CameraNode : public VideoBase
         CameraNode(const ArgList& Args, Player * pPlayer);
         virtual ~CameraNode();
 
-        virtual void setDisplayEngine(DisplayEngine * pEngine);
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
         virtual std::string getTypeStr();
 
         const std::string& getDevice() const 

@@ -45,7 +45,7 @@ class Words : public RasterNode
         virtual ~Words();
         
         virtual void initText(const std::string& sText);
-        virtual void setDisplayEngine(DisplayEngine * pEngine);
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
         virtual void disconnect();
         virtual void render(const DRect& Rect);
         virtual std::string getTypeStr();

@@ -18,41 +18,25 @@
 //
 //  Current versions can be found at www.libavg.de
 //
+//  Original author of this file is Nick Hebner (hebnern@gmail.com).
+//
 
-#include "InfoVideoMsg.h"
+#include "AudioParams.h"
+
+#include "../base/ObjectCounter.h"
 
 namespace avg {
-        
-InfoVideoMsg::InfoVideoMsg(IntPoint Size, int NumFrames, double FPS, PixelFormat PF)
-    : m_Size(Size),
-      m_NumFrames(NumFrames),
-      m_FPS(FPS),
-      m_PF(PF)
-{
+
+AudioParams::AudioParams()
+    : m_SampleRate(0),
+      m_Channels(0)
+{ 
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
-InfoVideoMsg::~InfoVideoMsg()
+AudioParams::~AudioParams()
 {
-}
-
-IntPoint InfoVideoMsg::getSize() const
-{
-    return m_Size;
-}
-
-int InfoVideoMsg::getNumFrames() const
-{
-    return m_NumFrames;
-}
-
-double InfoVideoMsg::getFPS() const
-{
-    return m_FPS;
-}
-
-PixelFormat InfoVideoMsg::getPF() const
-{
-    return m_PF;
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 }

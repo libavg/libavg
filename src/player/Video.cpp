@@ -31,6 +31,8 @@
 
 #include "../graphics/Filterflipuv.h"
 
+#include "../audio/AudioEngine.h"
+
 #include "../video/AsyncVideoDecoder.h"
 #include "../video/FFMpegDecoder.h"
 
@@ -55,7 +57,9 @@ NodeDefinition Video::getNodeDefinition()
         .addArg(Arg<string>("href", "", false, offsetof(Video, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(Video, m_bLoop)))
         .addArg(Arg<bool>("threaded", false, false, offsetof(Video, m_bThreaded)))
-        .addArg(Arg<double>("fps", 0.0, false, offsetof(Video, m_FPS)));
+        .addArg(Arg<double>("fps", 0.0, false, offsetof(Video, m_FPS)))
+        .addArg(Arg<double>("speedfactor", 1.0, false, offsetof(Video, m_SpeedFactor)))
+        ;
 }
 
 Video::Video (const ArgList& Args, Player * pPlayer)
@@ -65,7 +69,9 @@ Video::Video (const ArgList& Args, Player * pPlayer)
       m_pEOFCallback(0),
       m_FramesTooLate(0),
       m_FramesPlayed(0),
-      m_pDecoder(0)
+      m_bAudioEnabled(true),
+      m_pDecoder(0),
+      m_Volume(1.0)
 {
     Args.setMembers(this);
     m_Filename = m_href;
@@ -107,7 +113,7 @@ int Video::getNumFrames() const
 int Video::getCurFrame() const
 {
     if (getVideoState() != Unloaded) {
-        return m_CurFrame;
+    	return m_pDecoder->getCurFrame();
     } else {
         AVG_TRACE(Logger::WARNING, 
                 "Error in Video::GetCurFrame: Video not loaded.");
@@ -118,12 +124,43 @@ int Video::getCurFrame() const
 void Video::seekToFrame(int FrameNum)
 {
     if (getVideoState() != Unloaded) {
-        if (FrameNum != m_CurFrame) {
-            seek(FrameNum);
-        }
+        long long DestTime = (long long)(FrameNum*1000.0/m_pDecoder->getNominalFPS());
+        seek(DestTime);
     } else {
         AVG_TRACE(Logger::WARNING, 
-                "Error in Video::SeekToFrame: Video "+getID()+" not loaded.");
+                "Error in Video::SeekToTime: Video "+getID()+" not loaded.");
+    }
+}
+
+long long Video::getDuration() const
+{
+    if (getVideoState() != Unloaded) {
+        return m_pDecoder->getDuration();
+    } else {
+        AVG_TRACE(Logger::WARNING,
+               "Error in Video::getDuration: Video not loaded.");
+        return -1;
+    }
+}
+
+long long Video::getCurTime() const
+{
+    if (getVideoState() != Unloaded) {
+        return m_pDecoder->getCurTime();
+    } else {
+        AVG_TRACE(Logger::WARNING, 
+                "Error in Video::GetCurTime: Video not loaded.");
+        return -1;
+    }
+}
+
+void Video::seekToTime(long long Time)
+{
+    if (getVideoState() != Unloaded) {
+        seek(Time);
+    } else {
+        AVG_TRACE(Logger::WARNING, 
+                "Error in Video::SeekToTime: Video "+getID()+" not loaded.");
     }
 }
 
@@ -146,14 +183,20 @@ void Video::setEOFCallback(PyObject * pEOFCallback)
     m_pEOFCallback = pEOFCallback;
 }
 
-void Video::setDisplayEngine(DisplayEngine * pEngine)
+void Video::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
     checkReload();
-    VideoBase::setDisplayEngine(pEngine);
+    VideoBase::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    if(getAudioEngine()) {
+        getAudioEngine()->addSource(this);
+    }
 }
 
 void Video::disconnect()
 {
+    if(getAudioEngine()) {
+        getAudioEngine()->removeSource(this);
+    }
     stop();
     VideoBase::disconnect();
 }
@@ -167,6 +210,27 @@ void Video::setHRef(const string& href)
 {
     m_href = href;
     checkReload();
+}
+
+double Video::getSpeedFactor() const
+{
+    return m_SpeedFactor;
+}
+
+void Video::setSpeedFactor(double SpeedFactor)
+{
+    m_SpeedFactor = SpeedFactor;
+    if (m_pDecoder) {
+        m_pDecoder->setSpeedFactor(SpeedFactor);
+    }
+}
+
+void Video::setVolume(double Volume)
+{
+    m_Volume = Volume;
+    if (m_pDecoder) {
+        m_pDecoder->setVolume(Volume);
+    }
 }
 
 void Video::checkReload()
@@ -198,6 +262,21 @@ void Video::onFrameEnd()
     }
 }
 
+void Video::setAudioEnabled(bool bEnabled)
+{
+    m_bAudioEnabled = bEnabled;
+    if (m_pDecoder) {
+        m_pDecoder->setAudioEnabled(m_bAudioEnabled);
+    }
+}
+
+void Video::fillAudioFrame(AudioFrame* frame)
+{
+    if(m_bAudioEnabled && getVideoState() == Playing) {
+        m_pDecoder->fillAudioFrame(frame->getBuffer(), frame->getSize());
+    }
+}
+
 void Video::changeVideoState(VideoState NewVideoState)
 {
     if (isDisplayAvailable()) {
@@ -218,26 +297,30 @@ void Video::changeVideoState(VideoState NewVideoState)
     VideoBase::changeVideoState(NewVideoState);
 }
 
-void Video::seek(int DestFrame) 
+void Video::seek(long long DestTime) 
 {
-
-    m_pDecoder->seek(DestFrame);
-    m_StartTime = getPlayer()->getFrameTime()
-            -(long long)((DestFrame*1000.0)/m_pDecoder->getFPS());
+    m_pDecoder->seek(DestTime);
+    m_StartTime = getPlayer()->getFrameTime() - DestTime;
     m_PauseTime = 0;
     m_PauseStartTime = getPlayer()->getFrameTime();
-    m_CurFrame = DestFrame;
     setFrameAvailable(false);
 }
 
         
 void Video::open(YCbCrMode ycbcrMode)
 {
-    m_CurFrame = 0;
     m_FramesTooLate = 0;
     m_FramesPlayed = 0;
+    m_pDecoder->setAudioFormat(getAudioEngine()->getChannels(),
+            getAudioEngine()->getSampleRate());
     m_pDecoder->open(m_Filename, ycbcrMode, m_bThreaded);
-    m_pDecoder->setFPS(m_FPS);
+    m_pDecoder->setAudioEnabled(m_bAudioEnabled);
+    m_pDecoder->setVolume(m_Volume);
+    if(m_SpeedFactor != 1.0) {
+        m_pDecoder->setSpeedFactor(m_SpeedFactor);
+    } else if(m_FPS != 0.0) {
+        m_pDecoder->setFPS(m_FPS);
+    }
 }
 
 void Video::close()
@@ -268,7 +351,7 @@ double Video::getFPS()
     return m_pDecoder->getFPS();
 }
 
-long long Video::getCurTime()
+long long Video::getNextFrameTime()
 {
     switch (getVideoState()) {
         case Unloaded:
@@ -293,10 +376,10 @@ bool Video::renderToSurface(ISurface * pSurface)
     if (PF == YCbCr420p || PF == YCbCrJ420p) {
         BitmapPtr pBmp = pSurface->lockBmp(0);
         FrameAvailable = m_pDecoder->renderToYCbCr420p(pBmp,
-                pSurface->lockBmp(1), pSurface->lockBmp(2), getCurTime());
+                pSurface->lockBmp(1), pSurface->lockBmp(2), getNextFrameTime());
     } else {
         BitmapPtr pBmp = pSurface->lockBmp();
-        FrameAvailable = m_pDecoder->renderToBmp(pBmp, getCurTime());
+        FrameAvailable = m_pDecoder->renderToBmp(pBmp, getNextFrameTime());
 //        DisplayEngine::YCbCrMode ycbcrMode = getEngine()->getYCbCrMode();
 //        if (ycbcrMode == DisplayEngine::OGL_MESA && pBmp->getPixelFormat() == YCbCr422) {
 //            FilterFlipUV().applyInPlace(pBmp);
@@ -305,8 +388,7 @@ bool Video::renderToSurface(ISurface * pSurface)
     pSurface->unlockBmps();
     if (FrameAvailable == FA_NEW_FRAME) {
         m_FramesPlayed++;
-        getEngine()->surfaceChanged(pSurface);
-        m_CurFrame++;
+        getDisplayEngine()->surfaceChanged(pSurface);
     } else if (FrameAvailable == FA_STILL_DECODING) {
         m_FramesPlayed++;
         m_FramesTooLate++;

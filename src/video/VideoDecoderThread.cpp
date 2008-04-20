@@ -21,7 +21,6 @@
 
 #include "VideoDecoderThread.h"
 #include "FrameVideoMsg.h"
-#include "InfoVideoMsg.h"
 #include "ErrorVideoMsg.h"
 #include "EOFVideoMsg.h"
 #include "SeekDoneVideoMsg.h"
@@ -32,15 +31,11 @@ using namespace std;
 
 namespace avg {
 
-VideoDecoderThread::VideoDecoderThread(VideoMsgQueue& MsgQ, CmdQueue& CmdQ, 
-        VideoDecoderPtr pDecoder, const std::string& sFilename, 
-        YCbCrMode ycbcrMode, bool bThreadedDemuxer)
-    : WorkerThread<VideoDecoderThread>(string("Decoder: ")+sFilename, CmdQ),
+VideoDecoderThread::VideoDecoderThread(CmdQueue& CmdQ, VideoMsgQueue& MsgQ, 
+        VideoDecoderPtr pDecoder)
+    : WorkerThread<VideoDecoderThread>(string("Video Decoder"), CmdQ),
       m_MsgQ(MsgQ),
-      m_pDecoder(pDecoder),
-      m_sFilename(sFilename),
-      m_YCbCrMode(ycbcrMode),
-      m_bThreadedDemuxer(bThreadedDemuxer)
+      m_pDecoder(pDecoder)
 {
 }
 
@@ -48,26 +43,9 @@ VideoDecoderThread::~VideoDecoderThread()
 {
 }
 
-bool VideoDecoderThread::init()
-{
-    try {
-        m_pDecoder->open(m_sFilename, m_YCbCrMode, m_bThreadedDemuxer);
-        PixelFormat PF = m_pDecoder->getPixelFormat();
-        VideoMsgPtr pInfoMsg(new InfoVideoMsg(m_pDecoder->getSize(), 
-                m_pDecoder->getNumFrames(), m_pDecoder->getFPS(), PF));
-        m_MsgQ.push(pInfoMsg);
-        return true;
-    } catch (Exception& ex) {
-        AVG_TRACE(Logger::ERROR, ex.GetStr());
-        ErrorVideoMsgPtr pErrorMsg(new ErrorVideoMsg(ex));
-        m_MsgQ.push(pErrorMsg);
-        return false;
-    }
-};
-
 bool VideoDecoderThread::work() 
 {
-    if (m_pDecoder->isEOF()) {
+    if (m_pDecoder->isEOF(SS_VIDEO)) {
         // replace this with waitForMessage()
         msleep(10);
     } else {
@@ -94,23 +72,18 @@ bool VideoDecoderThread::work()
                 pBmps.push_back(pBmp);
             }
         }
-        if (m_pDecoder->isEOF()) {
+        if (m_pDecoder->isEOF(SS_VIDEO)) {
             m_MsgQ.push(VideoMsgPtr(new EOFVideoMsg()));
         } else {
             assert(FrameAvailable == FA_NEW_FRAME);
             m_MsgQ.push(VideoMsgPtr(new FrameVideoMsg(pBmps, 
-                    m_pDecoder->getCurFrameTime())));
+            		m_pDecoder->getCurTime(SS_VIDEO))));
         }
     }
     return true;
 }
 
-void VideoDecoderThread::deinit()
-{
-    m_pDecoder->close();
-}
-
-void VideoDecoderThread::seek(int DestFrame)
+void VideoDecoderThread::seek(long long DestTime)
 {
     try {
         while (!m_MsgQ.empty()) {
@@ -119,14 +92,19 @@ void VideoDecoderThread::seek(int DestFrame)
     } catch (Exception&) {
     }
 
-    vector<BitmapPtr> pBmps;  // Empty.
-    m_MsgQ.push(VideoMsgPtr(new SeekDoneVideoMsg()));
-    m_pDecoder->seek(DestFrame);
-}
-
-void VideoDecoderThread::setFPS(double FPS)
-{
-    m_pDecoder->setFPS(FPS);
+    bool performSeek = m_pDecoder->hasVideo();
+    long long VideoFrameTime = -1;
+    long long AudioFrameTime = -1;
+    if (performSeek) {
+        m_pDecoder->seek(DestTime);
+        VideoFrameTime = m_pDecoder->getCurTime(SS_VIDEO);
+        if (m_pDecoder->hasAudio()) {
+            AudioFrameTime = m_pDecoder->getCurTime(SS_AUDIO);
+        }
+    }
+    
+    m_MsgQ.push(VideoMsgPtr(new SeekDoneVideoMsg(performSeek, 
+                VideoFrameTime, AudioFrameTime)));
 }
 
 }

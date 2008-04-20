@@ -62,10 +62,10 @@ Image::~Image ()
 {
 }
 
-void Image::setDisplayEngine(DisplayEngine * pEngine)
+void Image::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
     checkReload();
-    RasterNode::setDisplayEngine(pEngine);
+    RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
     setupSurface(&*m_pBmp);
 }
 
@@ -142,7 +142,7 @@ void Image::setBitmap(const Bitmap * pBmp)
     BitmapPtr pSurfaceBmp = getSurface()->lockBmp();
     pSurfaceBmp->copyPixels(*pBmp);
     getSurface()->unlockBmps();
-    getEngine()->surfaceChanged(getSurface());
+    getDisplayEngine()->surfaceChanged(getSurface());
     DPoint Size = getPreferredMediaSize();
     setViewport(-32767, -32767, Size.x, Size.y);
 }
@@ -153,7 +153,7 @@ void Image::render (const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_href != "") {
-        getEngine()->blt32(getSurface(), getRelSize(), 
+        getDisplayEngine()->blt32(getSurface(), getRelSize(), 
                 getEffectiveOpacity(), getBlendMode());
     }
 }
@@ -227,7 +227,7 @@ void Image::setupSurface(const Bitmap * pBmp)
     }
 #endif
     getSurface()->unlockBmps();
-    getEngine()->surfaceChanged(getSurface());
+    getDisplayEngine()->surfaceChanged(getSurface());
 //    m_pBmp=BitmapPtr();
 }
 

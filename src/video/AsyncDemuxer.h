@@ -39,7 +39,7 @@ namespace avg {
            
             void enableStream(int StreamIndex);
             AVPacket * getPacket(int StreamIndex);
-            void seek(int DestFrame, long long StartTimestamp, int StreamIndex);
+            void seek(long long DestTime);
             
         private:
             void waitForSeekDone();
@@ -49,8 +49,10 @@ namespace avg {
 
             VideoDemuxerThread::CmdQueuePtr m_pCmdQ;
             std::map<int, VideoPacketQueuePtr> m_PacketQs;
+            std::map<int, bool> m_bSeekDone;
 
             bool m_bSeekPending;
+            boost::mutex m_SeekMutex;
 
     };
     typedef boost::shared_ptr<AsyncDemuxer> AsyncDemuxerPtr;

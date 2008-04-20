@@ -119,7 +119,7 @@ buildlibpng
 buildLib GraphicsMagick-1.1.10 "--without-x --without-perl --disable-shared --disable-delegate-build --without-modules --without-bzlib --without-dps --without-gslib --without-wmf --without-xml --without-ttf --with-quantum-depth=8"
 buildLib pkg-config-0.20
 buildLib ffmpeg "--disable-shared --disable-debug --disable-vhook"
-buildLib SDL-1.2.11 "--disable-shared --disable-audio --disable-cdrom --disable-threads --disable-file --disable-video-x11 --without-x"
+buildLib SDL-1.2.13 "--disable-shared --disable-cdrom --disable-threads --disable-file --disable-video-x11 --without-x"
 buildLib gettext-0.14.6 "--disable-shared --with-included-gettext --disable-csharp  --disable-libasprintf"
 buildglib
 

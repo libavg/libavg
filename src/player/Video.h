@@ -31,11 +31,13 @@
 #include "../base/Point.h"
 #include "../base/IFrameListener.h"
 
+#include "../audio/IAudioSource.h"
+
 namespace avg {
 
 class IVideoDecoder;
 
-class Video : public VideoBase, IFrameListener
+class Video : public VideoBase, IFrameListener, IAudioSource
 {
     public:
         static NodeDefinition getNodeDefinition();
@@ -43,16 +45,23 @@ class Video : public VideoBase, IFrameListener
         Video (const ArgList& Args, Player * pPlayer);
         virtual ~Video ();
         
-        virtual void setDisplayEngine(DisplayEngine * pEngine);
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
+                AudioEngine * pAudioEngine);
         virtual void disconnect();
 
         const std::string& getHRef() const;
         void setHRef(const std::string& href);
+        double getSpeedFactor() const;
+        void setSpeedFactor(double SpeedFactor);
+        void setVolume(double Volume);
         void checkReload();
 
         int getNumFrames() const;
         int getCurFrame() const;
         void seekToFrame(int FrameNum);
+        long long getDuration() const;
+        long long getCurTime() const;
+        void seekToTime(long long Time);
         bool getLoop() const;
         bool isThreaded() const;
         void setEOFCallback(PyObject * pEOFCallback);
@@ -60,6 +69,9 @@ class Video : public VideoBase, IFrameListener
         virtual std::string getTypeStr();
 
         virtual void onFrameEnd();
+        
+        virtual void setAudioEnabled(bool bEnabled);
+        virtual void fillAudioFrame(AudioFrame* frame);
 
     protected:
         virtual void changeVideoState(VideoState NewVideoState);
@@ -69,7 +81,7 @@ class Video : public VideoBase, IFrameListener
 
         bool renderToSurface(ISurface * pSurface);
         bool canRenderToBackbuffer(int BitsPerPixel);
-        void seek(int DestFrame);
+        void seek(long long DestTime);
         void onEOF();
        
         virtual void open(YCbCrMode ycbcrMode);
@@ -77,24 +89,26 @@ class Video : public VideoBase, IFrameListener
         virtual PixelFormat getPixelFormat();
         virtual IntPoint getMediaSize();
         virtual double getFPS();
-        virtual long long getCurTime();
+        virtual long long getNextFrameTime();
 
         std::string m_href;
         std::string m_Filename;
         bool m_bLoop;
         bool m_bThreaded;
         double m_FPS;
+        double m_SpeedFactor;
         bool m_bEOFPending;
         PyObject * m_pEOFCallback;
         int m_FramesTooLate;
         int m_FramesPlayed;
+        bool m_bAudioEnabled;
 
-        int m_CurFrame;
         long long m_StartTime;
         long long m_PauseTime;
         long long m_PauseStartTime;
 
         IVideoDecoder * m_pDecoder;
+        double m_Volume;
 
         static bool m_bInitialized;
 };

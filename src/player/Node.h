@@ -52,6 +52,7 @@ class DisplayEngine;
 class Player;
 class OGLSurface;
 class NodeDefinition;
+class AudioEngine;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
@@ -76,7 +77,7 @@ class Node
         virtual void setThis(NodeWeakPtr This);
         virtual void setArgs(const ArgList& Args);
         void setParent(DivNodeWeakPtr pParent);
-        virtual void setDisplayEngine(DisplayEngine * pEngine);
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
         virtual void disconnect();
         
         virtual const std::string& getID() const;
@@ -153,7 +154,8 @@ class Node
             { return DPoint(0,0); };
         DPoint getPivot() const;
         Player * getPlayer() const;
-        DisplayEngine * getEngine() const;
+        DisplayEngine * getDisplayEngine() const;
+        AudioEngine * getAudioEngine() const;
         NodePtr getThis() const;
 
         void callPython (PyObject * pFunc, avg::Event* pEvent);
@@ -171,7 +173,8 @@ class Node
 
         DivNodeWeakPtr m_pParent;
         NodeWeakPtr m_This;
-        DisplayEngine * m_pEngine;
+        DisplayEngine * m_pDisplayEngine;
+        AudioEngine * m_pAudioEngine;
         Player * m_pPlayer;
 
         std::string m_ID;

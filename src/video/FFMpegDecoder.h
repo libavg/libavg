@@ -28,11 +28,21 @@
 #include "../base/ProfilingZone.h"
 #include "../avgconfigwrapper.h"
 
-#ifndef _WIN32
+#ifdef _WIN32
+#define EMULATE_INTTYPES
+#else
 // This is probably GCC-specific.
-#define INT64_C(c)    c ## L
+#if !defined INT64_C
+#if defined __WORDSIZE && __WORDSIZE == 64
+#define INT64_C(c) c ## L
+#else
+#define INT64_C(c) c ## LL
 #endif
+#endif
+#endif
+
 extern "C" {
+#include <ffmpeg/avcodec.h>
 #include <ffmpeg/avformat.h>
 #ifdef AVG_ENABLE_SWSCALE
 #include <ffmpeg/swscale.h>
@@ -50,18 +60,33 @@ class FFMpegDecoder: public IVideoDecoder
         virtual void open(const std::string& sFilename, YCbCrMode ycbcrMode,
                 bool bThreadedDemuxer);
         virtual void close();
-        virtual void seek(int DestFrame);
+        virtual void seek(long long DestTime);
+        virtual StreamSelect getMasterStream();
+        virtual void setMasterStream(StreamSelect Stream);
+        virtual bool hasVideo();
+        virtual bool hasAudio();
         virtual IntPoint getSize();
+        virtual int getCurFrame();
         virtual int getNumFrames();
+        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT);
+        virtual long long getDuration();
+        virtual double getNominalFPS();
         virtual double getFPS();
         virtual void setFPS(double FPS);
+        virtual double getSpeedFactor();
+        virtual void setSpeedFactor(double Speed);
+        virtual double getVolume();
+        virtual void setVolume(double Volume);
+        virtual void setAudioEnabled(bool bEnabled);
+        virtual void setAudioFormat(int Channels, int SampleRate);
         virtual PixelFormat getPixelFormat();
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted);
         virtual FrameAvailableCode renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr, long long TimeWanted);
-        virtual long long getCurFrameTime();
-        virtual bool isEOF();
+        virtual bool isEOF(StreamSelect Stream = SS_ALL);
+        
+        virtual int fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize);
 
     private:
         void initVideoSupport();
@@ -70,19 +95,54 @@ class FFMpegDecoder: public IVideoDecoder
         PixelFormat calcPixelFormat(YCbCrMode ycbcrMode);
         void convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp);
         long long getFrameTime(AVPacket* pPacket);
-        double calcStreamFPS();
+        long long getStartTime(StreamSelect Stream = SS_DEFAULT);
+        int copyRawAudio(unsigned char* buf, int size);
+        int copyResampledAudio(unsigned char* buf, int size);
+        void resampleAudio();
+        int decodeAudio();
+        void volumize(short* buffer, int size);
 
         IDemuxer * m_pDemuxer;
         AVFormatContext * m_pFormatContext;
-        int m_VStreamIndex;
         AVStream * m_pVStream;
+        AVStream * m_pAStream;
+        int m_VStreamIndex;
+        int m_AStreamIndex;
         bool m_bEOFPending;
-        bool m_bEOF;
+        bool m_bVideoEOF;
+        bool m_bAudioEOF;
+        bool m_bAudioEnabled;
         PixelFormat m_PF;
 #ifdef AVG_ENABLE_SWSCALE
         SwsContext * m_pSwsContext;
 #endif
 
+        bool m_bForceMasterStream;
+        StreamSelect m_MasterStream;
+                
+        int m_Channels;
+        int m_SampleRate;
+        AVPacket * m_AudioPacket;
+        unsigned char * m_AudioPacketData;
+        int m_AudioPacketSize;
+        char * m_pSampleBuffer;
+        int m_SampleBufferStart;
+        int m_SampleBufferEnd;
+        int m_SampleBufferLeft;
+        int m_SampleBufferSize;
+        char * m_pResampleBuffer;
+        int m_ResampleBufferEnd;
+        int m_ResampleBufferStart;
+        int m_ResampleBufferSize;
+        int m_EffectiveSampleRate;
+        ReSampleContext * m_pAudioResampleContext;
+        boost::mutex m_AudioMutex;
+
+        double m_Volume;
+        double m_LastVolume;
+        double m_LastAudioFrameTime;
+        long long m_AudioStartTimestamp;
+        
         unsigned char * m_pPacketData;
         AVPacket * m_pPacket;
         int m_PacketLenLeft;
@@ -91,11 +151,12 @@ class FFMpegDecoder: public IVideoDecoder
         IntPoint m_Size;
 
         double m_TimeUnitsPerSecond;
-        long long m_StartTimestamp;
-        long long m_LastFrameTime;
+        long long m_VideoStartTimestamp;
+        long long m_LastVideoFrameTime;
         bool m_bUseStreamFPS;
         double m_FPS;
         long long m_StreamTimeOffset;
+        double m_SpeedFactor;
 
         ProfilingZone * m_pRenderToBmpProfilingZone;
         ProfilingZone * m_pConvertImageProfilingZone;

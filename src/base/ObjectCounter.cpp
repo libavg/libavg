@@ -71,6 +71,7 @@ void ObjectCounter::incRef(const std::type_info* pType)
     } else {
         (MapEntry->second)++;
     }
+//    cerr << "incRef " << demangle(pType->name()) << ":" << m_TypeMap[pType] << endl;
 #endif
 }
 
@@ -91,6 +92,7 @@ void ObjectCounter::decRef(const std::type_info* pType)
             assert (false);
         }
     }
+//    cerr << "decRef " << demangle(pType->name()) << ":" << MapEntry->second << endl;
 #endif
 }
     

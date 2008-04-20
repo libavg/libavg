@@ -7,4 +7,9 @@
     <usepixelbuffers>true</usepixelbuffers>
     <multisamplesamples>1</multisamplesamples>
   </scr>
+  <aud>
+    <channels>2</channels>
+    <samplerate>44100</samplerate>
+    <outputbuffersamples>1024</outputbuffersamples>
+  </aud>
 </avgrc>

@@ -35,6 +35,8 @@
 
 #include "../base/IFrameListener.h"
 
+#include "../audio/AudioParams.h"
+
 #include <libxml/parser.h>
 
 #include <map>
@@ -45,6 +47,7 @@ namespace avg {
 
 class Event;
 class TrackerEventSource;
+class AudioEngine;
 
 class Player : IEventSink
 {
@@ -58,6 +61,7 @@ class Player : IEventSink
         void setWindowPos(int x=0, int y=0);
         void setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode, 
                 bool bUsePixelBuffers, int MultiSampleSamples);
+        void setAudioOptions(int samplerate, int channels);
         void loadFile (const std::string& fileName);
         void play();
         void stop();
@@ -109,6 +113,7 @@ class Player : IEventSink
     private:
         void initConfig();
         void initGraphics();
+        void initAudio();
 
         NodePtr createNodeFromXml(const xmlDocPtr xmlDoc, 
                 const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);
@@ -121,6 +126,7 @@ class Player : IEventSink
 
         AVGNodePtr m_pRootNode;
         DisplayEngine * m_pDisplayEngine;
+        AudioEngine * m_pAudioEngine;
         IEventSource * m_pEventSource;
         TestHelper * m_pTestHelper;
         
@@ -149,6 +155,7 @@ class Player : IEventSink
 
         // Configuration variables.
         DisplayParams m_DP;
+        AudioParams m_AP;
         bool m_bUsePOW2Textures;
         YCbCrMode m_YCbCrMode;
         bool m_bUsePixelBuffers;

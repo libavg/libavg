@@ -20,7 +20,6 @@
 //
 
 #include "Node.h"
-#include "DivNode.h"
 
 #include "NodeDefinition.h"
 #include "Event.h"
@@ -76,7 +75,8 @@ NodeDefinition Node::getNodeDefinition()
 Node::Node (Player * pPlayer)
     : m_pParent(),
       m_This(),
-      m_pEngine(0),
+      m_pDisplayEngine(0),
+      m_pAudioEngine(0),
       m_pPlayer(pPlayer),
       m_RelViewport(0,0,0,0)
 {
@@ -119,7 +119,7 @@ void Node::setParent(DivNodeWeakPtr pParent)
     setState(NS_CONNECTED);
 }
 
-void Node::setDisplayEngine(DisplayEngine * pEngine)
+void Node::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
     m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
     DPoint PreferredSize = getPreferredMediaSize();
@@ -133,12 +133,14 @@ void Node::setDisplayEngine(DisplayEngine * pEngine)
     } else {
         m_RelViewport.setHeight(m_WantedSize.y);
     } 
-    m_pEngine = pEngine;
+    m_pDisplayEngine = pDisplayEngine;
+    m_pAudioEngine = pAudioEngine;
 }
 
 void Node::disconnect()
 {
-    m_pEngine = 0;
+    m_pDisplayEngine = 0;
+    m_pAudioEngine = 0;
     getPlayer()->removeNodeID(m_ID);
     setState(NS_UNCONNECTED);
 }
@@ -359,7 +361,7 @@ NodePtr Node::getElementByPos (const DPoint & pos)
 void Node::maybeRender (const DRect& Rect)
 {
     if (m_bActive) {
-        getEngine()->pushTransform(getRelViewport().tl, getAngle(), getPivot());
+        getDisplayEngine()->pushTransform(getRelViewport().tl, getAngle(), getPivot());
         if (getEffectiveOpacity() > 0.01) {
             if (m_ID != "") {
                 AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
@@ -369,7 +371,7 @@ void Node::maybeRender (const DRect& Rect)
             }
             render(Rect);
         }
-        getEngine()->popTransform();
+        getDisplayEngine()->popTransform();
     }
 }
 
@@ -384,7 +386,7 @@ Node::NodeState Node::getState() const
 
 bool Node::isDisplayAvailable() const
 {
-    return (getState() == NS_CONNECTED) && m_pEngine;
+    return (getState() == NS_CONNECTED) && m_pDisplayEngine;
 }
 
 DPoint Node::getPivot() const
@@ -444,9 +446,14 @@ double Node::getEffectiveOpacity()
     }
 }
 
-DisplayEngine * Node::getEngine() const
+DisplayEngine * Node::getDisplayEngine() const
 {
-    return m_pEngine;
+    return m_pDisplayEngine;
+}
+
+AudioEngine * Node::getAudioEngine() const
+{
+    return m_pAudioEngine;
 }
 
 NodePtr Node::getThis() const

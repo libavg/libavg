@@ -36,6 +36,10 @@ enum FrameAvailableCode {
     FA_NEW_FRAME, FA_USE_LAST_FRAME, FA_STILL_DECODING
 };
 
+enum StreamSelect {
+    SS_AUDIO, SS_VIDEO, SS_DEFAULT, SS_NONE, SS_ALL
+};
+
 class IVideoDecoder
 {
     public:
@@ -43,18 +47,33 @@ class IVideoDecoder
         virtual void open(const std::string& sFilename, YCbCrMode ycbcrMode,
                 bool bSyncDemuxer) = 0;
         virtual void close() = 0;
-        virtual void seek(int DestFrame) = 0;
+        virtual void seek(long long DestTime) = 0;
+        virtual StreamSelect getMasterStream() = 0;
+        virtual void setMasterStream(StreamSelect Stream) = 0;
+        virtual bool hasVideo() = 0;
+        virtual bool hasAudio() = 0;
         virtual IntPoint getSize() = 0;
+        virtual int getCurFrame() = 0;
         virtual int getNumFrames() = 0;
+        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT) = 0;
+        virtual long long getDuration() = 0;
+        virtual double getNominalFPS() = 0;
         virtual double getFPS() = 0;
         virtual void setFPS(double FPS) = 0;
+        virtual double getSpeedFactor() = 0;
+        virtual void setSpeedFactor(double Speed) = 0;
+        virtual double getVolume() = 0;
+        virtual void setVolume(double Volume) = 0;
+        virtual void setAudioEnabled(bool bEnabled) = 0;
+        virtual void setAudioFormat(int Channels, int SampleRate) = 0;
         virtual PixelFormat getPixelFormat() = 0;
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted) = 0;
         virtual FrameAvailableCode renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr, long long TimeWanted) = 0;
-        virtual long long getCurFrameTime() = 0;
-        virtual bool isEOF() = 0;
+        virtual bool isEOF(StreamSelect Stream = SS_ALL) = 0;
+        
+        virtual int fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize) = 0;
 };
 
 typedef boost::shared_ptr<IVideoDecoder> VideoDecoderPtr;

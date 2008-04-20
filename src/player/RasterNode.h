@@ -39,8 +39,8 @@ class RasterNode: public Node
         static NodeDefinition getNodeDefinition();
         
         virtual ~RasterNode ();
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
         virtual void setArgs(const ArgList& Args);
-        virtual void setDisplayEngine(DisplayEngine * pEngine);
         virtual void disconnect();
         
         // Warping support.

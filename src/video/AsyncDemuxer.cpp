@@ -29,6 +29,8 @@
 
 using namespace std;
 
+typedef boost::mutex::scoped_lock scoped_lock;
+
 namespace avg {
 
 AsyncDemuxer::AsyncDemuxer(AVFormatContext * pFormatContext)
@@ -80,6 +82,7 @@ void AsyncDemuxer::enableStream(int StreamIndex)
 {
     VideoPacketQueuePtr pPacketQ(new VideoPacketQueue(100));
     m_PacketQs[StreamIndex] = pPacketQ;
+    m_bSeekDone[StreamIndex] = true;
     m_pCmdQ->push(Command<VideoDemuxerThread>(boost::bind(
                 &VideoDemuxerThread::enableStream, _1, pPacketQ, StreamIndex)));
 }
@@ -94,49 +97,52 @@ AVPacket * AsyncDemuxer::getPacket(int StreamIndex)
     return pPacketMsg->getPacket();
 }
 
-void AsyncDemuxer::seek(int DestFrame, long long StartTimestamp, int StreamIndex)
+void AsyncDemuxer::seek(long long DestTime)
 {
     waitForSeekDone();
+    scoped_lock Lock(m_SeekMutex);
     m_pCmdQ->push(Command<VideoDemuxerThread>(boost::bind(
-                &VideoDemuxerThread::seek, _1, DestFrame, StartTimestamp, StreamIndex)));
+                &VideoDemuxerThread::seek, _1, DestTime)));
     m_bSeekPending = true;
+    bool bAllSeeksDone = true;
     map<int, VideoPacketQueuePtr>::iterator it;
     for (it=m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
         VideoPacketQueuePtr pPacketQ = it->second;
         PacketVideoMsgPtr pPacketMsg;
-        // TODO: Actually, we need a SeekDone flag per Queue. This isn't relevant now,
-        // but it will be for audio support.
-        bool bSeekDone = false;
+        map<int, bool>::iterator itSeekDone = m_bSeekDone.find(it->first);
+        itSeekDone->second = false;
         try {
-            while(!bSeekDone) {
+            while(!itSeekDone->second) {
                 pPacketMsg = pPacketQ->pop(false);
-                bSeekDone = pPacketMsg->isSeekDone();
+                itSeekDone->second = pPacketMsg->isSeekDone();
                 pPacketMsg->freePacket();
             }
+            itSeekDone->second = true;
         } catch (Exception&) {
             // This gets thrown if the queue is empty.
-        }
-        if (bSeekDone) {
-            m_bSeekPending = false;
+            bAllSeeksDone = false;
         }
     }
-
+    if (bAllSeeksDone) {
+        m_bSeekPending = false;
+    }
 }
 
 void AsyncDemuxer::waitForSeekDone()
 {
+    scoped_lock Lock(m_SeekMutex);
     if (m_bSeekPending) {
         m_bSeekPending = false;
         map<int, VideoPacketQueuePtr>::iterator it;
         for (it=m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
             VideoPacketQueuePtr pPacketQ = it->second;
             PacketVideoMsgPtr pPacketMsg;
-            bool bDone;
-            do {
+            map<int, bool>::iterator itSeekDone = m_bSeekDone.find(it->first);
+            while (!itSeekDone->second) {
                 pPacketMsg = pPacketQ->pop(true);
-                bDone = pPacketMsg->isSeekDone();
+                itSeekDone->second = pPacketMsg->isSeekDone();
                 pPacketMsg->freePacket();
-            } while (!bDone);
+            }
         }
     }
 }

@@ -24,9 +24,13 @@
 
 #include "IVideoDecoder.h"
 #include "VideoDecoderThread.h"
+#include "AudioDecoderThread.h"
 #include "FrameVideoMsg.h"
+#include "AudioVideoMsg.h"
 
 #include "../graphics/Bitmap.h"
+
+#include <boost/thread/mutex.hpp>
 
 #include <string>
 
@@ -40,21 +44,35 @@ class AsyncVideoDecoder: public IVideoDecoder
         virtual void open(const std::string& sFilename, YCbCrMode ycbcrMode,
                 bool bSyncDemuxer);
         virtual void close();
-        virtual void seek(int DestFrame);
+        virtual void seek(long long DestTime);
+        virtual StreamSelect getMasterStream();
+        virtual void setMasterStream(StreamSelect Stream);
+        virtual bool hasVideo();
+        virtual bool hasAudio();
         virtual IntPoint getSize();
+        virtual int getCurFrame();
         virtual int getNumFrames();
+        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT);
+        virtual long long getDuration();
+        virtual double getNominalFPS();
         virtual double getFPS();
         virtual void setFPS(double FPS);
+        virtual double getSpeedFactor();
+        virtual void setSpeedFactor(double SpeedFactor);
+        virtual double getVolume();
+        virtual void setVolume(double Volume);
+        virtual void setAudioEnabled(bool bEnabled);
+        virtual void setAudioFormat(int Channels, int SampleRate);
         virtual PixelFormat getPixelFormat();
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted);
         virtual FrameAvailableCode renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr, long long TimeWanted);
-        virtual long long getCurFrameTime();
-        virtual bool isEOF();
-
+        virtual bool isEOF(StreamSelect Stream = SS_ALL);
+        
+        virtual int fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize);
+        
     private:
-        void getInfoMsg(VideoMsgPtr pMsg);
         FrameVideoMsgPtr getBmpsForTime(long long TimeWanted, 
                 FrameAvailableCode& FrameAvailable);
         FrameVideoMsgPtr getNextBmps(bool bWait);
@@ -63,20 +81,30 @@ class AsyncVideoDecoder: public IVideoDecoder
         VideoDecoderPtr m_pSyncDecoder;
         std::string m_sFilename;
 
-        boost::thread* m_pDecoderThread;
+        boost::thread* m_pVDecoderThread;
+        VideoDecoderThread::CmdQueuePtr m_pVCmdQ;
+        VideoMsgQueuePtr m_pVMsgQ;
 
-        VideoDecoderThread::CmdQueuePtr m_pCmdQ;
-        VideoMsgQueuePtr m_pMsgQ;
+        boost::thread* m_pADecoderThread;
+        boost::mutex m_AudioMutex;
+        AudioDecoderThread::CmdQueuePtr m_pACmdQ;
+        VideoMsgQueuePtr m_pAMsgQ;
+        AudioVideoMsgPtr m_pAudioMsg;
+        unsigned char* m_AudioMsgData;
+        int m_AudioMsgSize;
+        int m_Channels;
+        int m_SampleRate;
 
-        IntPoint m_Size;
-        int m_NumFrames;
-        bool m_bUseStreamFPS;
-        double m_FPS;
-        PixelFormat m_PF;
-        bool m_bEOF;
-        bool m_bSeekPending;
+        bool m_bAudioEOF;
+        bool m_bVideoEOF;
+        bool m_bAudioEnabled;
+        bool m_bVideoSeekPending;
+        bool m_bAudioSeekPending;
+        boost::mutex m_SeekMutex;
+        double m_Volume;
 
-        long long m_LastFrameTime;
+        long long m_LastVideoFrameTime;
+        long long m_LastAudioFrameTime;
 };
 
 }
