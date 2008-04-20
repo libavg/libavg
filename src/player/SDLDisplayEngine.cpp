@@ -326,7 +326,9 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
     m_bEnableCrop = false;
 }
 
+#ifdef _WIN32
 #pragma warning(disable: 4996)
+#endif
 void SDLDisplayEngine::teardown()
 {
     if (m_VBMethod == VB_DRI) {

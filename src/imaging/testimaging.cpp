@@ -124,7 +124,9 @@ class DeDistortTest: public Test {
     }
 };
 
+#ifdef _WIN32
 #pragma warning(disable: 4996)
+#endif
 class SerializeTest: public Test {
 public:
     SerializeTest()
