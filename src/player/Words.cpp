@@ -670,3 +670,4 @@ void Words::checkFontError(int Ok, const string& sMsg)
 }
 
 }
+
