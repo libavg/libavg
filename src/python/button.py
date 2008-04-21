@@ -8,19 +8,29 @@ except ValueError:
 
 class Button:
     def __init__(self, node, clickCallback):
+        global g_Player
+        g_Player = avg.Player.get()
         self.__node = node
         self.__clickCallback = clickCallback
         self.__upNode = node.getChild(0)
         self.__downNode = node.getChild(1)
         self.__overNode = node.getChild(2)
         self.__disabledNode = node.getChild(3)
-        self.__setMode(0)
-        self.__isClicking = False
         node.width = self.__upNode.width
         node.height = self.__upNode.height
+        if self.__isMouseOver():
+            self.__setMode(2)
+        else:
+            self.__setMode(0)
+        self.__isClicking = False
         node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, self.__onDown)
         self.__node.setEventHandler(avg.CURSOROUT, avg.MOUSE, self.__onOut)
         self.__node.setEventHandler(avg.CURSOROVER, avg.MOUSE, self.__onOver)
+    def __isMouseOver(self):
+        Event = g_Player.getMouseState()
+        relPos = self.__node.getRelPos((Event.x, Event.y))
+        return (relPos[0] > 0 and relPos[0] < self.__node.width and
+                relPos[1] > 0 and relPos[1] < self.__node.height)
     def __onDown(self, event):
         self.__node.setEventCapture()
         self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onUp)
@@ -51,8 +61,6 @@ class Button:
 
 class Checkbox(Button):
     def __init__(self, node, clickCallback=None):
-        global g_Player
-        g_Player = avg.Player.get()
         self.__node = node
         self.__setChecked(False)
         self.__clickCallback = clickCallback
