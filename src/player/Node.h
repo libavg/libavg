@@ -143,7 +143,12 @@ class Node
         NodeState getState() const;
         bool isDisplayAvailable() const;
         virtual void checkReload() {};
-        
+
+        bool operator ==(const Node& other) const;
+        bool operator !=(const Node& other) const;
+
+        long getHash() const;
+
         // TODO: Do we still need this? Isn't rtti good enough?
         enum {NT_UNKNOWN, NT_IMAGE, NT_AVG, NT_VIDEO, NT_TEXT, NT_EXCL, 
                 NT_CAMERA, NT_DIV, NT_PANOIMAGE};

@@ -46,6 +46,9 @@ void export_node()
     class_<Node, boost::shared_ptr<Node>, boost::noncopyable>("Node",
             "Base class for all elements in the avg tree.",
             no_init)
+        .def(self == self)
+        .def(self != self)
+        .def("__hash__", &Node::getHash)
         .def("getParent", &Node::getParent,
                 "getParent() -> node\n"
                 "Returns the container (AVGNode or DivNode) the node is in. For\n"

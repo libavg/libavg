@@ -389,6 +389,21 @@ bool Node::isDisplayAvailable() const
     return (getState() == NS_CONNECTED) && m_pDisplayEngine;
 }
 
+bool Node::operator ==(const Node& other) const
+{
+    return m_This.lock() == other.m_This.lock();
+}
+
+bool Node::operator !=(const Node& other) const
+{
+    return m_This.lock() != other.m_This.lock();
+}
+
+long Node::getHash() const
+{
+    return long(&*m_This.lock());
+}
+
 DPoint Node::getPivot() const
 {
     if (m_bHasCustomPivot) {
