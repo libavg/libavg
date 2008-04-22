@@ -32,6 +32,7 @@
 #include "NodeFactory.h"
 #include "Node.h"
 #include "DisplayParams.h"
+#include "CursorState.h"
 
 #include "../base/IFrameListener.h"
 
@@ -119,9 +120,11 @@ class Player : IEventSink
                 const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);
 
         void render (bool bRenderEverything);
-        void sendOver(CursorEvent * pOtherEvent, Event::Type Type, 
+
+        void sendFakeEvents();
+        void sendOver(const CursorEvent * pOtherEvent, Event::Type Type, 
                 NodePtr pNode);
-        void handleCursorEvent(CursorEvent * pEvent);
+        void handleCursorEvent(const CursorEvent * pEvent, bool bOnlyCheckCursorOver=false);
         std::vector<NodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
 
         AVGNodePtr m_pRootNode;
@@ -150,7 +153,7 @@ class Player : IEventSink
         EventDispatcherPtr m_pEventDispatcher;
 
         // These are maps for each cursor id.
-        std::map<int, std::vector<NodeWeakPtr> > m_pLastCursorNodes;
+        std::map<int, CursorStatePtr> m_pLastCursorStates;
         std::map<int, NodeWeakPtr> m_pEventCaptureNode;
 
         // Configuration variables.

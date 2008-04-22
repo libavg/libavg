@@ -87,7 +87,7 @@ Player::Player()
       m_pAudioEngine(0),
       m_pTracker(0),
       m_bInHandleTimers(false),
-      m_bCurrentTimeoutDeleted(false), 
+      m_bCurrentTimeoutDeleted(false),
       m_pEventCaptureNode(),
       m_bUseFakeCamera(false),
       m_bIsPlaying(false),
@@ -603,6 +603,7 @@ void Player::doFrame ()
         {
             ScopeTimer Timer(EventsProfilingZone);
             m_pEventDispatcher->dispatch();
+            sendFakeEvents();
         }
         if (!m_bStopping) {
             ScopeTimer Timer(RenderProfilingZone);
@@ -958,7 +959,16 @@ bool Player::handleEvent(Event * pEvent)
     return true; 
 }
 
-void Player::handleCursorEvent(CursorEvent * pEvent)
+void Player::sendFakeEvents()
+{
+    std::map<int, CursorStatePtr>::iterator it;
+    for (it=m_pLastCursorStates.begin(); it != m_pLastCursorStates.end(); ++it) {
+        CursorStatePtr state = it->second;
+        handleCursorEvent(state->getLastEvent(), true);
+    }
+}
+
+void Player::handleCursorEvent(const CursorEvent * pEvent, bool bOnlyCheckCursorOver)
 {
     DPoint pos(pEvent->getXPosition(), pEvent->getYPosition());
     int cursorID = pEvent->getCursorID();
@@ -979,10 +989,17 @@ void Player::handleCursorEvent(CursorEvent * pEvent)
         }
     } 
 
-    vector<NodeWeakPtr> pLastCursorNodes = m_pLastCursorNodes[cursorID];
+    vector<NodeWeakPtr> pLastCursorNodes;
+    {
+        map<int, CursorStatePtr>::iterator it;
+        it = m_pLastCursorStates.find(cursorID);
+        if (it != m_pLastCursorStates.end()) {
+            pLastCursorNodes = it->second->getNodes();
+        }
+    }
 
     // Send out events.
-    vector<NodeWeakPtr>::iterator itLast;
+    vector<NodeWeakPtr>::const_iterator itLast;
     vector<NodeWeakPtr>::iterator itCur;
     for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); ++itLast) {
         NodePtr pLastNode = itLast->lock();
@@ -1015,23 +1032,34 @@ void Player::handleCursorEvent(CursorEvent * pEvent)
         }
     } 
 
-    // Iterate through the nodes and send the event to all of them.
-    vector<NodeWeakPtr>::iterator it;
-    for (it = pDestNodes.begin(); it != pDestNodes.end(); ++it) {
-        NodePtr pNode = (*it).lock();
-        if (pNode) {
-            CursorEvent * pNodeEvent = 
-                    dynamic_cast<CursorEvent *>(pEvent->cloneAs(pEvent->getType()));
-            pNodeEvent->setElement(pNode);
-            if (pNodeEvent->getType() != Event::CURSORMOTION) {
-                pNodeEvent->trace();
+    if (!bOnlyCheckCursorOver) {
+        // Iterate through the nodes and send the event to all of them.
+        vector<NodeWeakPtr>::iterator it;
+        for (it = pDestNodes.begin(); it != pDestNodes.end(); ++it) {
+            NodePtr pNode = (*it).lock();
+            if (pNode) {
+                CursorEvent * pNodeEvent = 
+                        dynamic_cast<CursorEvent *>(pEvent->cloneAs(pEvent->getType()));
+                pNodeEvent->setElement(pNode);
+                if (pNodeEvent->getType() != Event::CURSORMOTION) {
+                    pNodeEvent->trace();
+                }
+                pNode->handleEvent(pNodeEvent);
+                delete pNodeEvent;
             }
-            pNode->handleEvent(pNodeEvent);
-            delete pNodeEvent;
         }
     }
-    // Update list of nodes under cursor.
-    m_pLastCursorNodes[cursorID] = pCursorNodes;
+    // Update list of nodes under cursor
+    if (pEvent->getType() == Event::CURSORUP && pEvent->getSource() != Event::MOUSE) {
+        m_pLastCursorStates.erase(cursorID);
+    } else {
+        if (m_pLastCursorStates.find(cursorID) != m_pLastCursorStates.end()) {
+            m_pLastCursorStates[cursorID]->setInfo(pEvent, pCursorNodes);
+        } else {
+            m_pLastCursorStates[cursorID] =
+                    CursorStatePtr(new CursorState(pEvent, pCursorNodes));
+        }
+    }
 }
 
 vector<NodeWeakPtr> Player::getElementsByPos(const DPoint& pos) const
@@ -1055,7 +1083,7 @@ void Player::useFakeCamera(bool bFake)
     m_bUseFakeCamera = bFake;
 }
 
-void Player::sendOver(CursorEvent * pOtherEvent, Event::Type Type, 
+void Player::sendOver(const CursorEvent * pOtherEvent, Event::Type Type, 
                 NodePtr pNode)
 {
     if (pNode) {

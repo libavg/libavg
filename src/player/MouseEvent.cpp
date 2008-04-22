@@ -33,7 +33,7 @@ namespace avg {
 
 MouseEvent::MouseEvent(Event::Type eventType,
         bool leftButtonState, bool middleButtonState, bool rightButtonState,
-        IntPoint Position, int button)
+        const IntPoint& Position, int button)
     : CursorEvent(MOUSECURSORID, eventType, Position, MOUSE)
 {
     m_LeftButtonState = leftButtonState;
@@ -77,7 +77,7 @@ void MouseEvent::trace()
             << ", button: " << m_Button);
 }
 
-Event* MouseEvent::cloneAs(Type EventType)
+CursorEvent* MouseEvent::cloneAs(Type EventType) const
 {
     MouseEvent *res = new MouseEvent(*this);
     res->m_Type = EventType;

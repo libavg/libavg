@@ -30,7 +30,7 @@ ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
         DisplayEngine.h NodeFactory.h Arg.h ArgList.h Region.h Node.h \
         ISurface.h DisplayParams.h NodeDefinition.h \
-        AVGNode.h DivNode.h \
+        AVGNode.h DivNode.h CursorState.h \
         Image.h Timeout.h Words.h WrapPython.h\
         EventDispatcher.h CursorEvent.h MouseEvent.h \
         Event.h KeyEvent.h PanoImage.h TestHelper.h \
@@ -69,7 +69,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
 		Node.cpp RasterNode.cpp DivNode.cpp VideoBase.cpp Video.cpp \
         Player.cpp NodeFactory.cpp ArgBase.cpp ArgList.cpp DisplayEngine.cpp Region.cpp \
         PanoImage.cpp Words.cpp CameraNode.cpp NodeDefinition.cpp \
-        Timeout.cpp Event.cpp DisplayParams.cpp \
+        Timeout.cpp Event.cpp DisplayParams.cpp CursorState.cpp \
         Image.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp MouseEvent.cpp\
         TouchEvent.cpp AVGNode.cpp TestHelper.cpp \
 		TrackerEventSource.cpp EventStream.cpp TrackerCalibrator.cpp \

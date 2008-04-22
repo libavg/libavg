@@ -31,7 +31,7 @@
 
 
 namespace avg {
-TouchEvent::TouchEvent(int id, Type EventType, BlobPtr pBlob, IntPoint& Pos, Source source)
+TouchEvent::TouchEvent(int id, Type EventType, BlobPtr pBlob, const IntPoint& Pos, Source source)
     : CursorEvent(id, EventType, Pos, source),
       m_pBlob(pBlob)
 {
@@ -41,7 +41,7 @@ TouchEvent::~TouchEvent()
 {
 }
 
-Event* TouchEvent::cloneAs(Type EventType)
+CursorEvent* TouchEvent::cloneAs(Type EventType) const
 {
     TouchEvent *res = new TouchEvent(*this);
     res->m_Type = EventType;

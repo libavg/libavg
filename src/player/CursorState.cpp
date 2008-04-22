@@ -18,44 +18,47 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-//  Original author of this file is igor@c-base.org
-//
 
-#include "Node.h"
-#include "CursorEvent.h"
+#include "CursorState.h"
 
-namespace avg{
+#include <assert.h>
 
-CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& Position, Source source)
-            :Event(eventType, source),
-            m_Position(Position),
-            m_ID(id)
+using namespace std;
+
+namespace avg {
+
+CursorState::CursorState(const CursorEvent * pEvent, const vector<NodeWeakPtr>& pNodes)
+    : m_pNodes(pNodes)
 {
+    m_pLastEvent = pEvent->cloneAs(Event::CURSORMOTION);
 }
 
-CursorEvent::~CursorEvent()
+CursorState::~CursorState()
 {
+    if (m_pLastEvent) {
+        delete m_pLastEvent;
+    }
 }
 
-CursorEvent * CursorEvent::cloneAs(Type EventType) const
+void CursorState::setInfo(const CursorEvent * pEvent, const std::vector<NodeWeakPtr>& pNodes)
 {
-    assert(false);
-    return 0;
+    if (pEvent != m_pLastEvent) {
+        if (m_pLastEvent) {
+            delete m_pLastEvent;
+        }
+        m_pLastEvent = pEvent->cloneAs(Event::CURSORMOTION);
+    }
+    m_pNodes = pNodes;
 }
 
-int CursorEvent::getXPosition() const
+const vector<NodeWeakPtr>& CursorState::getNodes() const
 {
-    return m_Position.x;
+    return m_pNodes;
 }
 
-int CursorEvent::getYPosition() const
+const CursorEvent * CursorState::getLastEvent() const
 {
-    return m_Position.y;
-}
-
-int CursorEvent::getCursorID() const
-{
-    return m_ID;
+    return m_pLastEvent;
 }
 
 }

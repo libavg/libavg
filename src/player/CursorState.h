@@ -18,45 +18,36 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-//  Original author of this file is igor@c-base.org
-//
 
-#include "Node.h"
+#ifndef _CursorState_H_
+#define _CursorState_H_
+
 #include "CursorEvent.h"
+#include "Node.h"
 
-namespace avg{
+#include <vector>
+#include <boost/shared_ptr.hpp>
 
-CursorEvent::CursorEvent(int id, Type eventType, const IntPoint& Position, Source source)
-            :Event(eventType, source),
-            m_Position(Position),
-            m_ID(id)
-{
-}
+namespace avg {
 
-CursorEvent::~CursorEvent()
-{
-}
+class CursorState {
 
-CursorEvent * CursorEvent::cloneAs(Type EventType) const
-{
-    assert(false);
-    return 0;
-}
+public:
+    CursorState(const CursorEvent * pEvent, const std::vector<NodeWeakPtr>& pNodes);
+    ~CursorState();
 
-int CursorEvent::getXPosition() const
-{
-    return m_Position.x;
-}
+    void setInfo(const CursorEvent * pEvent, const std::vector<NodeWeakPtr>& pNodes);
+    const std::vector<NodeWeakPtr>& getNodes() const;
+    const CursorEvent * getLastEvent() const;
 
-int CursorEvent::getYPosition() const
-{
-    return m_Position.y;
-}
+private:
+    CursorState(const CursorState&);
 
-int CursorEvent::getCursorID() const
-{
-    return m_ID;
-}
+    std::vector<NodeWeakPtr> m_pNodes;
+    CursorEvent * m_pLastEvent;
+};
+
+typedef boost::shared_ptr<CursorState> CursorStatePtr;
 
 }
-
+#endif

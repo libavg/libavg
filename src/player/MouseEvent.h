@@ -33,7 +33,7 @@ class MouseEvent : public CursorEvent {
         MouseEvent(Event::Type eventType,
                 bool leftButtonState, bool middleButtonState, 
                 bool rightButtonState,
-                IntPoint Position, int button);
+                const IntPoint& Position, int button);
         virtual ~MouseEvent();
        
         //REFACTORME: get*ButtonState -> getButtonState(num=*)
@@ -41,7 +41,7 @@ class MouseEvent : public CursorEvent {
         bool getMiddleButtonState() const;
         bool getRightButtonState() const;
         int getButton() const;
-        virtual Event* cloneAs(Type EventType);
+        virtual CursorEvent* cloneAs(Type EventType) const;
         virtual void trace();
         static const long NO_BUTTON=0;
         static const long LEFT_BUTTON=1;

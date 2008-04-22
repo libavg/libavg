@@ -38,9 +38,9 @@ namespace avg {
 class TouchEvent: public CursorEvent 
 {
     public:
-        TouchEvent(int id, Type EventType, BlobPtr pBlob, IntPoint& Pos, Source source);
+        TouchEvent(int id, Type EventType, BlobPtr pBlob, const IntPoint& Pos, Source source);
         virtual ~TouchEvent();
-        virtual Event* cloneAs(Type EventType);
+        virtual CursorEvent* cloneAs(Type EventType) const;
 
         double getOrientation() const {return m_pBlob->getOrientation();};
         double getArea() const {return m_pBlob->getArea();};
