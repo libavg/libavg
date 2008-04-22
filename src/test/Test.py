@@ -73,11 +73,8 @@ def onCaptureMouseDown(Event):
 class PlayerTestCase(AVGTestCase):
     def __init__(self, testFuncName, bpp):
         AVGTestCase.__init__(self, testFuncName, bpp)
-    
-    def delay():
-        pass
-    
-    def testImage(self):    
+
+    def testImage(self):
         def loadNewFile():
             Player.getElementByID("test").href = "rgb24alpha-64x64.png"
             Player.getElementByID("testhue").href = "rgb24alpha-64x64.png"
@@ -760,10 +757,10 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testVideoSeek1", False),
                  lambda: Player.getElementByID("clogo2").pause(),
                  lambda: seek(26),
-                 lambda: self.delay,
+                 None,
                  lambda: self.compareImage("testVideoSeek2", False),
                  lambda: Player.getElementByID("clogo2").play(),
-                 lambda: self.delay,
+                 None,
                  lambda: self.compareImage("testVideoSeek3", False)
                 ))
     
@@ -771,7 +768,7 @@ class PlayerTestCase(AVGTestCase):
         Player.setFakeFPS(25)
         self.start("videofps.avg",
                 (lambda: Player.getElementByID("video").play(),
-                 lambda: self.delay,
+                 None,
                  lambda: self.compareImage("testVideoFPS", False)
                 ))
 

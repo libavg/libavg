@@ -7,21 +7,37 @@ import math
 avg = None
 g_Player = None
 
+g_ActiveAnimations = {}
+
+
 try:
     from . import avg
 except ValueError:
     pass
 
 
+def getNumRunningAnims():
+    return len(g_ActiveAnimations)
+
 class SimpleAnim:
     """
     Base class for animations that change libavg node attributes by interpolating
     over a set amount of time. Constructing an animation object starts the
-    animation. If abort() isn't needed, there is no need to hold on to the object - 
+    animation. If abort() isn't needed, there is no need to hold on to the object -
     it will exist exactly as long as the animation lasts and then disappear.
+
+    The animation framework makes sure that only one animation per attribute of a
+    node runs at any given time. If a second one is started, the first one is 
+    silently aborted.
     """
     def __init__(self, node, attrName, duration, useInt, onStop):
         global g_Player
+        global g_ActiveAnimations
+        if g_ActiveAnimations.has_key((node, attrName)):
+            oldAnim = g_ActiveAnimations.get((node, attrName))
+            oldAnim._remove()
+        g_ActiveAnimations[(node, attrName)] = self
+
         g_Player = avg.Player.get()
         self.node = node
         self.attrName = attrName
@@ -29,11 +45,33 @@ class SimpleAnim:
         self.startTime = g_Player.getFrameTime()
         self.onStop = onStop
         self.useInt = useInt
+        if duration != 0:
+            self.__stopTimeout = g_Player.setTimeout(duration, self._regularStop)
+        self.__interval = g_Player.setOnFrameHandler(self._step)
+        self.__done = False
+    def abort(self):
+        """
+        Stops the animation. Does not call onStop()
+        """
+        if not(self.isDone()):
+            self._remove()
+    def isDone(self):
+        """
+        Returns True if the animation has run its course.
+        """
+        return self.__done
+    def _remove(self):
+        global g_ActiveAnimations
+        self.__done = True
+        g_ActiveAnimations.pop((self.node, self.attrName))
+        g_Player.clearInterval(self.__interval)
+        if self.duration != 0:
+            g_Player.clearInterval(self.__stopTimeout)
 
 class LinearAnim(SimpleAnim):
     """
     Class that animates an attribute of a libavg node by interpolating linearly
-    between start and end values. 
+    between start and end values.
     """
     def __init__(self, node, attrName, duration, startValue, endValue, useInt=False, onStop=None):
         """
@@ -49,14 +87,11 @@ class LinearAnim(SimpleAnim):
         animations together by using lambda to create a second animation.
         """
         SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop)
-        self.__stopTimeout = g_Player.setTimeout(duration, self.__stop)
-        self.__interval = g_Player.setOnFrameHandler(self.__step)
         self.__startValue = startValue
         self.__endValue = endValue
-        self.__done = False
-        self.__step()
-    def __step(self):
-        if not(self.__done):
+        self._step()
+    def _step(self):
+        if not(self.isDone()):
             part = ((float(g_Player.getFrameTime())-self.startTime)/self.duration)
             if part > 1.0:
                 part = 1.0
@@ -64,39 +99,22 @@ class LinearAnim(SimpleAnim):
             if self.useInt:
                 curValue = int(curValue+0.5)
             setattr(self.node, self.attrName, curValue)
-    def __stop(self):
+    def _regularStop(self):
         setattr(self.node, self.attrName, self.__endValue)
-        self.__done = True
-        g_Player.clearInterval(self.__interval)
+        self._remove()
         if self.onStop != None:
             self.onStop()
-    def abort(self):
-        """
-        Stops the animation.
-        """
-        if not(self.__done):
-            self.__done = True 
-            g_Player.clearInterval(self.__interval)
-            g_Player.clearInterval(self.__stopTimeout)
-    def isDone(self):
-        """
-        Returns True if the animation has run its course.
-        """
-        return self.__done
 
 class EaseInOutAnim(SimpleAnim):
     def __init__(self, node, attrName, duration, startValue, endValue, 
             easeInDuration, easeOutDuration, useInt=False, onStop=None):
         SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop)
-        self.__stopTimeout = g_Player.setTimeout(duration, self.__stop)
-        self.__interval = g_Player.setOnFrameHandler(self.__step)
         self.__startValue = startValue
         self.__endValue = endValue
-        self.__easeInDuration = easeInDuration
-        self.__easeOutDuration = easeOutDuration
-        self.__done = False
-        self.__step()
-    def __step(self):
+        self.__easeInDuration = float(easeInDuration)/duration
+        self.__easeOutDuration = float(easeOutDuration)/duration
+        self._step()
+    def _step(self):
         def ease(t, easeInDuration, easeOutDuration):
             # All times here are normalized to be between 0 and 1
             if t > 1:
@@ -117,33 +135,18 @@ class EaseInOutAnim(SimpleAnim):
                 # Linear stage
                 dist = accelDist+t-easeInDuration
             return dist/(accelDist+(1-easeInDuration-easeOutDuration)+decelDist)
-        if not(self.__done):
-            part = ease((float(g_Player.getFrameTime())-self.startTime)/self.duration,
-                    self.__easeInDuration, self.__easeOutDuration)
+        if not(self.isDone()):
+            t = (float(g_Player.getFrameTime())-self.startTime)/self.duration;
+            part = ease(t, self.__easeInDuration, self.__easeOutDuration)
             curValue = self.__startValue+(self.__endValue-self.__startValue)*part
             if self.useInt:
                 curValue = int(curValue+0.5)
             setattr(self.node, self.attrName, curValue)
-    def __stop(self):
+    def _regularStop(self):
         setattr(self.node, self.attrName, self.__endValue)
-        self.__done = True
-        g_Player.clearInterval(self.__interval)
+        self._remove()
         if self.onStop != None:
             self.onStop()
-    def abort(self):
-        """
-        Stops the animation.
-        """
-        if not(self.__done):
-            self.__done = True 
-            g_Player.clearInterval(self.__interval)
-            g_Player.clearInterval(self.__stopTimeout)
-    def isDone(self):
-        """
-        Returns True if the animation has run its course.
-        """
-        return self.__done
- 
 
 class SplineAnim(SimpleAnim):
     """
@@ -167,8 +170,6 @@ class SplineAnim(SimpleAnim):
         animations together by using lambda to create a second animation.
         """
         SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop)
-        g_Player.setTimeout(duration, self.__stop)
-        self.interval = g_Player.setOnFrameHandler(self.__step)
         self.__startValue = startValue+0.0
         self.__startSpeed = startSpeed
         self.__endValue = endValue
@@ -177,10 +178,9 @@ class SplineAnim(SimpleAnim):
         self.__b = 3*(self.__endValue-self.__startValue)-2*self.__startSpeed-self.__endSpeed
         self.__c = self.__startSpeed
         self.__d = self.__startValue
-        self.__done = 0
-        self.__step()
-    def __step(self):
-        if not(self.__done):
+        self._step()
+    def _step(self):
+        if not(self.isDone()):
             part = ((float(g_Player.getFrameTime())-self.startTime)/self.duration)
             if part > 1.0:
                 part = 1.0
@@ -188,10 +188,9 @@ class SplineAnim(SimpleAnim):
             if self.useInt:
                 curValue = int(curValue+0.5)
             setattr(self.node, self.attrName, curValue)
-    def __stop(self):
+    def _regularStop(self):
         setattr(self.node, self.attrName, self.__endValue)
-        self.__done = 1
-        g_Player.clearInterval(self.interval)
+        self._remove()
         if self.onStop != None:
             self.onStop()
 
@@ -232,22 +231,19 @@ class ContinuousAnim(SimpleAnim):
         @param useInt: If True, the attribute is always set to an integer value.
         """
         SimpleAnim.__init__(self, node, attrName, 0, useInt, None)
-        self.__interval = g_Player.setOnFrameHandler(self.__step)
         self.__startValue = startValue
         self.__speed = speed
-        self.__step()
-    def __step(self):
+        self._step()
+    def _step(self):
         time = (float(g_Player.getFrameTime())-self.startTime)/1000
         curValue = self.__startValue+time*self.__speed
         if self.useInt:
             curValue = int(curValue+0.5)
         setattr(self.node, self.attrName, curValue)
-    def abort(self):
-        """
-        Stops the animation.
-        """
-        g_Player.clearInterval(self.__interval)
 
 def init(g_avg):
     global avg
+    global g_ActiveAnimations
     avg = g_avg
+    g_ActiveAnimations = {}
+

@@ -14,14 +14,14 @@ if platform.system() == 'Darwin':
 
 if platform.system() == 'Windows':
     from libavg import avg    # Under windows, there is no uninstalled version.
-else:    
+else:
     import avg
 
 SrcDir = os.getenv("srcdir",".")
 os.chdir(SrcDir)
 if platform.system() == 'Windows':
     from libavg import anim, draggable, button
-else:    
+else:
     import anim, draggable, button
 
 from testcase import *
@@ -29,35 +29,58 @@ from testcase import *
 class PythonTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName, 24)
-    def testAnim(self):
-        def onStart():
-            Player.setTimeout(10, startAnim)
-            Player.setTimeout(380, startSplineAnim)
-            Player.setTimeout(800, lambda: self.compareImage("testAnim3", False))
-            Player.setTimeout(850, Player.stop)
+    def testAnimType(self, createAnimFunc, imgBaseName):
+        def onStop():
+            self.__onStopCalled = True
         def startAnim():
-            def onStop():
-                self.__animStopped = True
-            self.compareImage("testAnim1", False)
-            anim.fadeOut(Player.getElementByID("nestedimg2"), 200)
-            Player.getElementByID("nestedimg1").opacity = 0
-            anim.fadeIn(Player.getElementByID("nestedimg1"), 200, 1)
-            anim.LinearAnim(Player.getElementByID("nestedimg1"), "x", 
-                    200, 0, 100, 0, onStop)
-        def startSplineAnim():
-            self.assert_(self.__animStopped)
-            self.compareImage("testAnim2", False)
-            anim.SplineAnim(Player.getElementByID("mainimg"), "x", 
-                    200, 100, -400, 10, 0, 0, None)
-            anim.SplineAnim(Player.getElementByID("mainimg"), "y", 
-                    200, 100, 0, 10, -400, 1, None)
-        self.__animStopped = False
-        Player.setFakeFPS(60)
+            self.__onStopCalled = False
+            node = Player.getElementByID("test")
+            self.__runningAnim = self.__createAnimFunc(node, onStop)
+        def abortAnim():
+            self.__runningAnim.abort()
+        self.__createAnimFunc = createAnimFunc
+        self.__onStopCalled = False
         anim.init(avg)
-        Player.loadFile("avg.avg")
-        Player.setTimeout(1, onStart)
-        Player.setFramerate(60)
-        Player.play()
+        Player.setFakeFPS(10)
+        self.start("image.avg",
+                (startAnim,
+                 lambda: self.compareImage(imgBaseName+"1", False),
+                 lambda: self.assert_(anim.getNumRunningAnims() == 1),
+                 None,
+                 None,
+                 lambda: self.assert_(self.__onStopCalled),
+                 lambda: self.assert_(self.__runningAnim.isDone),
+                 lambda: self.compareImage(imgBaseName+"2", False),
+                 lambda: self.assert_(Player.getElementByID("test").x == 100),
+                 startAnim,
+                 lambda: self.compareImage(imgBaseName+"1", False),
+                 abortAnim,
+                 lambda: self.assert_(anim.getNumRunningAnims() == 0),
+                 lambda: self.compareImage(imgBaseName+"3", False),
+                 lambda: self.assert_(self.__runningAnim.isDone),
+                 None,
+                 lambda: self.assert_(not(self.__onStopCalled)),
+                 startAnim,
+                 startAnim,
+                 lambda: self.assert_(anim.getNumRunningAnims() == 1)
+                ))
+
+    def testLinearAnim(self):
+        def createAnim(node, onStop):
+            return anim.LinearAnim(node, "x", 200, 0, 100, False, onStop)
+        self.testAnimType(createAnim, "testLinearAnim")
+
+    def testEaseInOutAnim(self):
+        def createAnim(node, onStop):
+            return anim.EaseInOutAnim(node, "x", 400, 0, 100, 100, 100,
+                    False, onStop)
+        self.testAnimType(createAnim, "testEaseInOutAnim")
+
+    def testSplineAnim(self):
+        def createAnim(node, onStop):
+            return anim.SplineAnim(node, "x", 300, 0, 0, 100, 0,
+                    False, onStop)
+        self.testAnimType(createAnim, "testSplineAnim")
 
     def testContinuousAnim(self):
         def onStart():
@@ -194,13 +217,15 @@ class PythonTestCase(AVGTestCase):
 
 def pythonTestSuite():
     suite = unittest.TestSuite()
-    suite.addTest(PythonTestCase("testAnim"))
+    suite.addTest(PythonTestCase("testLinearAnim"))
+    suite.addTest(PythonTestCase("testEaseInOutAnim"))
+    suite.addTest(PythonTestCase("testSplineAnim"))
     suite.addTest(PythonTestCase("testContinuousAnim"))
     suite.addTest(PythonTestCase("testDraggable"))
     suite.addTest(PythonTestCase("testButton"))
     suite.addTest(PythonTestCase("testCheckbox"))
     return suite
-    
+
 Log = avg.Logger.get()
 Log.setCategories(Log.APP |
         Log.WARNING
@@ -219,7 +244,6 @@ else:
     Player = avg.Player()
     runner = unittest.TextTestRunner()
     rc = runner.run(pythonTestSuite())
-    
     if rc.wasSuccessful():
         sys.exit(0)
     else:

@@ -53,8 +53,10 @@ class AVGTestCase(unittest.TestCase):
         if len(self.actions) == self.curFrame:
             self.__Player.stop()
         else:
-            self.actions[self.curFrame]()
-#        print (self.curFrame)
+            action = self.actions[self.curFrame]
+#            print self.__Player.getFrameTime(), ": ", self.curFrame, repr(action)
+            if action != None:
+                action()
         self.curFrame += 1
     def compareImage(self, fileName, warn):
         global CREATE_BASELINE_IMAGES
