@@ -31,7 +31,7 @@ class IEventSource {
     public:
         virtual ~IEventSource() {};
         virtual void initEventSource() {};
-        virtual std::vector<Event *> pollEvents()=0;
+        virtual std::vector<EventPtr> pollEvents()=0;
 };
 
 }

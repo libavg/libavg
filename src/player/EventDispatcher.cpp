@@ -29,7 +29,7 @@ using namespace std;
 namespace avg {
 
     EventDispatcher::EventDispatcher()
-        : m_LastMouseEvent(MouseEvent(Event::CURSORMOTION, false, false, false, 
+        : m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
                 IntPoint(0, 0), MouseEvent::NO_BUTTON))
     {
     }
@@ -40,27 +40,24 @@ namespace avg {
 
     void EventDispatcher::dispatch() 
     {
-        vector<Event *> Events;
+        vector<EventPtr> Events;
 
         for (unsigned int i = 0; i<m_EventSources.size(); ++i) {
-            vector<Event*> curEvents = m_EventSources[i]->pollEvents();
+            vector<EventPtr> curEvents = m_EventSources[i]->pollEvents();
             Events.insert(Events.end(), curEvents.begin(), curEvents.end());
         }
 
-        vector<Event *>::iterator it;
+        vector<EventPtr>::iterator it;
         for (it=Events.begin(); it != Events.end(); ++it) {
             handleEvent(*it);
         }
-        for (it=Events.begin(); it != Events.end(); ++it) {
-            delete *it;
-        }
     }
 
-    const MouseEvent& EventDispatcher::getLastMouseEvent() const 
+    MouseEventPtr EventDispatcher::getLastMouseEvent() const
     {
-        return m_LastMouseEvent;
+        return m_pLastMouseEvent;
     }
-        
+
     void EventDispatcher::addSource(IEventSource * pSource)
     {
         m_EventSources.push_back(pSource);
@@ -72,16 +69,15 @@ namespace avg {
         m_EventSinks.push_back(pSink);
     }
 
-    void EventDispatcher::sendEvent(Event* pEvent)
+    void EventDispatcher::sendEvent(EventPtr pEvent)
     {
         handleEvent(pEvent);
-        delete pEvent;
     }
 
-    void EventDispatcher::handleEvent(Event* pEvent)
+    void EventDispatcher::handleEvent(EventPtr pEvent)
     {
-        if (dynamic_cast<MouseEvent*>(pEvent) != 0) {
-            m_LastMouseEvent = *(dynamic_cast<MouseEvent*>(pEvent));
+        if (boost::dynamic_pointer_cast<MouseEvent>(pEvent) != 0) {
+            m_pLastMouseEvent = boost::dynamic_pointer_cast<MouseEvent>(pEvent);
         }
         for (unsigned int i = 0; i < m_EventSinks.size(); ++i) {
             if (m_EventSinks[i]->handleEvent(pEvent)) {

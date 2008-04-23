@@ -139,7 +139,7 @@ class Node
         virtual std::string dump (int indent = 0);
         virtual std::string getTypeStr () const;
         
-        virtual void handleEvent (Event* pEvent); 
+        virtual void handleEvent (EventPtr pEvent); 
         NodeState getState() const;
         bool isDisplayAvailable() const;
         virtual void checkReload() {};
@@ -163,7 +163,7 @@ class Node
         AudioEngine * getAudioEngine() const;
         NodePtr getThis() const;
 
-        void callPython (PyObject * pFunc, avg::Event* pEvent);
+        void callPython (PyObject * pFunc, avg::EventPtr pEvent);
         void addEventHandlers(Event::Type EventType, const std::string& Code);
         void addEventHandler(Event::Type EventType, Event::Source Source, 
                 const std::string& Code);

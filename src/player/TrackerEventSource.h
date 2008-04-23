@@ -63,7 +63,7 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         void saveConfig(const std::string& sFilename);
 
         Bitmap * getImage(TrackerImageID ImageID) const;
-        std::vector<Event *> pollEvents(); //main thread
+        std::vector<EventPtr> pollEvents(); //main thread
 
         // implement IBlobTarget
         // Called from Tracker Thread!
@@ -80,10 +80,10 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         boost::thread* m_pTrackerThread;
 
         // Used by main thread
-        void pollEventType(std::vector<Event*>& res, EventMap& Events,
+        void pollEventType(std::vector<EventPtr>& res, EventMap& Events,
                 CursorEvent::Source source);
-        void copyRelatedInfo(std::vector<Event*> pTouchEvents,
-                std::vector<Event*> pTrackEvents);
+        void copyRelatedInfo(std::vector<EventPtr> pTouchEvents,
+                std::vector<EventPtr> pTrackEvents);
 
         DeDistortPtr m_pOldTransformer;
         IntPoint m_DisplayExtents;

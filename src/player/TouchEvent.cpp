@@ -29,8 +29,10 @@
 
 #include "../base/Logger.h"
 
+using namespace std;
 
 namespace avg {
+
 TouchEvent::TouchEvent(int id, Type EventType, BlobPtr pBlob, const IntPoint& Pos, Source source)
     : CursorEvent(id, EventType, Pos, source),
       m_pBlob(pBlob)
@@ -41,11 +43,11 @@ TouchEvent::~TouchEvent()
 {
 }
 
-CursorEvent* TouchEvent::cloneAs(Type EventType) const
+CursorEventPtr TouchEvent::cloneAs(Type EventType) const
 {
-    TouchEvent *res = new TouchEvent(*this);
-    res->m_Type = EventType;
-    return res;
+    TouchEventPtr pClone(new TouchEvent(*this));
+    pClone->m_Type = EventType;
+    return pClone;
 }
 
 const BlobPtr TouchEvent::getBlob() const
@@ -80,14 +82,19 @@ ContourSeq TouchEvent::getContour()
     return m_pBlob->getContour();
 }
 
-void TouchEvent::addRelatedEvent(TouchEvent * pEvent)
+void TouchEvent::addRelatedEvent(TouchEventPtr pEvent)
 {
     m_RelatedEvents.push_back(pEvent);
 }
 
-std::vector<TouchEvent *> TouchEvent::getRelatedEvents() const
+vector<TouchEventPtr> TouchEvent::getRelatedEvents() const
 {
-    return m_RelatedEvents;
+    vector<TouchEventPtr> pRelatedEvents;
+    vector<TouchEventWeakPtr>::const_iterator it;
+    for (it=m_RelatedEvents.begin(); it != m_RelatedEvents.end(); ++it) {
+        pRelatedEvents.push_back((*it).lock());
+    }
+    return pRelatedEvents;
 }
 
 void TouchEvent::trace()

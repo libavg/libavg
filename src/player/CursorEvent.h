@@ -32,14 +32,15 @@ namespace avg {
 
 const int MOUSECURSORID=-1;
 
+class CursorEvent;
+typedef boost::shared_ptr<class CursorEvent> CursorEventPtr;
+
 class CursorEvent: public Event 
 {
     public:
         CursorEvent(int id, Type eventType, const IntPoint& Position, Source source);
         virtual ~CursorEvent();
-        // TODO: Most of the time when this method is called, CursorEventPtrs should
-        // be used.
-        virtual CursorEvent* cloneAs(Type EventType) const;
+        virtual CursorEventPtr cloneAs(Type EventType) const;
         int getXPosition() const;
         int getYPosition() const;
         int getCursorID() const;

@@ -32,15 +32,20 @@
 #include "../base/Point.h"
 
 #include <math.h>
+#include <boost/weak_ptr.hpp>
 
 namespace avg {
+
+class TouchEvent;
+typedef boost::shared_ptr<class TouchEvent> TouchEventPtr;
+typedef boost::weak_ptr<class TouchEvent> TouchEventWeakPtr;
 
 class TouchEvent: public CursorEvent 
 {
     public:
         TouchEvent(int id, Type EventType, BlobPtr pBlob, const IntPoint& Pos, Source source);
         virtual ~TouchEvent();
-        virtual CursorEvent* cloneAs(Type EventType) const;
+        virtual CursorEventPtr cloneAs(Type EventType) const;
 
         double getOrientation() const {return m_pBlob->getOrientation();};
         double getArea() const {return m_pBlob->getArea();};
@@ -53,14 +58,14 @@ class TouchEvent: public CursorEvent
         const DPoint & getMinorAxis() const;
         ContourSeq getContour();
 
-        void addRelatedEvent(TouchEvent * pEvent);
-        std::vector<TouchEvent *> getRelatedEvents() const;
+        void addRelatedEvent(TouchEventPtr pEvent);
+        std::vector<TouchEventPtr> getRelatedEvents() const;
 
         virtual void trace();
     
     private:
         BlobPtr m_pBlob;
-        std::vector<TouchEvent *> m_RelatedEvents; 
+        std::vector<TouchEventWeakPtr> m_RelatedEvents; 
 };
 
 }

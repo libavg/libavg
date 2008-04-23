@@ -48,11 +48,11 @@ class TestHelper : public IEventSource
         void dumpObjects();
 
         // From IEventSource
-        virtual std::vector<Event *> pollEvents();
+        virtual std::vector<EventPtr> pollEvents();
 
     private:
         Player * m_pPlayer;
-        std::vector<Event*> m_Events;
+        std::vector<EventPtr> m_Events;
 };
 
 }

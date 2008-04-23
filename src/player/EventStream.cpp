@@ -114,7 +114,7 @@ namespace avg {
         }
     }
 
-    Event* EventStream::pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, 
+    EventPtr EventStream::pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, 
             CursorEvent::Source Source, bool bEventOnMove)
     {
         assert(m_pBlob);
@@ -127,28 +127,28 @@ namespace avg {
         switch(m_State){
             case DOWN_PENDING:
                 m_State = DOWN_DELIVERED;
-                return new TouchEvent(m_Id, Event::CURSORDOWN,
-                        m_pBlob, Pos, Source);
+                return EventPtr(new TouchEvent(m_Id, Event::CURSORDOWN,
+                        m_pBlob, Pos, Source));
             case MOTION_PENDING:
                 m_State = MOTION_DELIVERED;
-                return new TouchEvent(m_Id, Event::CURSORMOTION,
-                        m_pBlob, Pos, Source);
+                return EventPtr(new TouchEvent(m_Id, Event::CURSORMOTION,
+                        m_pBlob, Pos, Source));
             case UP_PENDING:
                 m_State = UP_DELIVERED;
-                return new TouchEvent(m_Id, Event::CURSORUP,
-                        m_pBlob, Pos, Source);
+                return EventPtr(new TouchEvent(m_Id, Event::CURSORUP,
+                        m_pBlob, Pos, Source));
             case DOWN_DELIVERED:
             case MOTION_DELIVERED:
                 if (!bEventOnMove) {
-                    return new TouchEvent(m_Id, Event::CURSORMOTION,
-                            m_pBlob, Pos, Source);
+                    return EventPtr(new TouchEvent(m_Id, Event::CURSORMOTION,
+                            m_pBlob, Pos, Source));
                 } else {
-                    return 0;
+                    return EventPtr();
                 }
             case UP_DELIVERED:
             default:
                 //return no event
-                return 0;
+                return EventPtr();
         }
     };
 

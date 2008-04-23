@@ -74,12 +74,11 @@ public:
 
         while(1){
             msleep(50);
-            std::vector<class Event *> e = pTracker->pollEvents();
+            std::vector<EventPtr> e = pTracker->pollEvents();
             if(e.size()==0)
                 cerr<<"no new events"<<endl;
-            for(std::vector<class Event*>::iterator it=e.begin();it!=e.end();++it){
+            for(std::vector<EventPtr>::iterator it=e.begin();it!=e.end();++it){
                 (*it)->trace();
-                delete (*it);
             }
         }
     }

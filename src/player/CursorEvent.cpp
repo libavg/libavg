@@ -37,10 +37,10 @@ CursorEvent::~CursorEvent()
 {
 }
 
-CursorEvent * CursorEvent::cloneAs(Type EventType) const
+CursorEventPtr CursorEvent::cloneAs(Type EventType) const
 {
     assert(false);
-    return 0;
+    return CursorEventPtr();
 }
 
 int CursorEvent::getXPosition() const

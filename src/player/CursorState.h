@@ -33,18 +33,18 @@ namespace avg {
 class CursorState {
 
 public:
-    CursorState(const CursorEvent * pEvent, const std::vector<NodeWeakPtr>& pNodes);
+    CursorState(const CursorEventPtr pEvent, const std::vector<NodeWeakPtr>& pNodes);
     ~CursorState();
 
-    void setInfo(const CursorEvent * pEvent, const std::vector<NodeWeakPtr>& pNodes);
+    void setInfo(const CursorEventPtr pEvent, const std::vector<NodeWeakPtr>& pNodes);
     const std::vector<NodeWeakPtr>& getNodes() const;
-    const CursorEvent * getLastEvent() const;
+    CursorEventPtr getLastEvent() const;
 
 private:
     CursorState(const CursorState&);
 
     std::vector<NodeWeakPtr> m_pNodes;
-    CursorEvent * m_pLastEvent;
+    CursorEventPtr m_pLastEvent;
 };
 
 typedef boost::shared_ptr<CursorState> CursorStatePtr;

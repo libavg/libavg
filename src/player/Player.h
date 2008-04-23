@@ -46,7 +46,6 @@
 
 namespace avg {
 
-class Event;
 class TrackerEventSource;
 class AudioEngine;
 
@@ -57,7 +56,7 @@ class Player : IEventSink
         virtual ~Player();
         static Player* get();
 
-        void setResolution(bool bFullscreen, 
+        void setResolution(bool bFullscreen,
                 int width=0, int height=0, int bpp=0);
         void setWindowPos(int x=0, int y=0);
         void setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode, 
@@ -85,8 +84,8 @@ class Player : IEventSink
         int setOnFrameHandler(PyObject * pyfunc);
         bool clearInterval(int id);
 
-        const Event& getCurEvent() const;
-        const MouseEvent& getMouseState() const;
+        EventPtr getCurEvent() const;
+        MouseEventPtr getMouseState() const;
         Bitmap * screenshot();
         void showCursor(bool bShow);
         void setEventCapture(NodeWeakPtr pNode, int cursorID=MOUSECURSORID);
@@ -101,7 +100,7 @@ class Player : IEventSink
         double getFramerate();
         double getVideoRefreshRate();
         void setGamma(double Red, double Green, double Blue);
-        virtual bool handleEvent(Event * pEvent);
+        virtual bool handleEvent(EventPtr pEvent);
         DisplayEngine * getDisplayEngine() const;
         void useFakeCamera(bool bFake);
 
@@ -122,9 +121,9 @@ class Player : IEventSink
         void render (bool bRenderEverything);
 
         void sendFakeEvents();
-        void sendOver(const CursorEvent * pOtherEvent, Event::Type Type, 
+        void sendOver(CursorEventPtr pOtherEvent, Event::Type Type, 
                 NodePtr pNode);
-        void handleCursorEvent(const CursorEvent * pEvent, bool bOnlyCheckCursorOver=false);
+        void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
         std::vector<NodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
 
         AVGNodePtr m_pRootNode;

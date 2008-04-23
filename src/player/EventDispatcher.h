@@ -40,20 +40,20 @@ class EventDispatcher {
         virtual ~EventDispatcher();
         void dispatch();
         //REFACTORME: this method should be in Player -- to say the least
-        const MouseEvent& getLastMouseEvent() const;
+        MouseEventPtr getLastMouseEvent() const;
         
         void addSource(IEventSource * pSource);
         void addSink(IEventSink * pSink);
 
-        void sendEvent(Event* pEvent);
+        void sendEvent(EventPtr pEvent);
 
     private:
-        void handleEvent(Event* pEvent);
+        void handleEvent(EventPtr pEvent);
 
         std::vector<IEventSource*> m_EventSources;
         std::vector<IEventSink*> m_EventSinks;
 
-        MouseEvent m_LastMouseEvent;
+        MouseEventPtr m_pLastMouseEvent;
 };
 typedef boost::shared_ptr<EventDispatcher> EventDispatcherPtr;
 

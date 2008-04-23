@@ -77,11 +77,11 @@ void MouseEvent::trace()
             << ", button: " << m_Button);
 }
 
-CursorEvent* MouseEvent::cloneAs(Type EventType) const
+CursorEventPtr MouseEvent::cloneAs(Type EventType) const
 {
-    MouseEvent *res = new MouseEvent(*this);
-    res->m_Type = EventType;
-    return res;
+    MouseEventPtr pClone(new MouseEvent(*this));
+    pClone->m_Type = EventType;
+    return pClone;
 }
 
 }

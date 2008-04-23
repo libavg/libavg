@@ -347,11 +347,11 @@ namespace avg {
         m_pCalibrator = 0;
     }
 
-    vector<Event*> TrackerEventSource::pollEvents()
+    vector<EventPtr> TrackerEventSource::pollEvents()
     {
         boost::mutex::scoped_lock Lock(*m_pMutex);
-        vector<Event*> pTouchEvents = std::vector<Event *>();
-        vector<Event*> pTrackEvents = std::vector<Event *>();
+        vector<EventPtr> pTouchEvents;
+        vector<EventPtr> pTrackEvents;
         pollEventType(pTouchEvents, m_TouchEvents, CursorEvent::TOUCH);
         pollEventType(pTrackEvents, m_TrackEvents, CursorEvent::TRACK);
         copyRelatedInfo(pTouchEvents, pTrackEvents);
@@ -360,16 +360,16 @@ namespace avg {
         return pTouchEvents;
     }
    
-    void TrackerEventSource::pollEventType(vector<Event*>& res, EventMap& Events,
+    void TrackerEventSource::pollEventType(vector<EventPtr>& res, EventMap& Events,
             CursorEvent::Source source) 
     {
-        Event *pEvent;
+        EventPtr pEvent;
         int kill_counter = 0;
         DeDistortPtr pDeDistort = m_TrackerConfig.getTransform();
         bool bEventOnMove = m_TrackerConfig.getBoolParam("/tracker/eventonmove/@value");
         for (EventMap::iterator it = Events.begin(); it!= Events.end();) {
             EventStreamPtr pStream = (*it).second;
-            pEvent = pStream->pollevent(pDeDistort, m_DisplayExtents, 
+            pEvent = pStream->pollevent(pDeDistort, m_DisplayExtents,
                     source, bEventOnMove);
             if (pEvent) {
                 res.push_back(pEvent);
@@ -383,25 +383,25 @@ namespace avg {
         }
     }
 
-    void TrackerEventSource::copyRelatedInfo(vector<Event*> pTouchEvents,
-            vector<Event*> pTrackEvents)
+    void TrackerEventSource::copyRelatedInfo(vector<EventPtr> pTouchEvents,
+            vector<EventPtr> pTrackEvents)
     {
         // Copy related blobs to related events.
         // Yuck.
-        vector<Event *>::iterator it;
+        vector<EventPtr>::iterator it;
         for (it=pTouchEvents.begin(); it != pTouchEvents.end(); ++it) {
-            TouchEvent * pTouchEvent = dynamic_cast<TouchEvent *>(*it);
+            TouchEventPtr pTouchEvent = boost::dynamic_pointer_cast<TouchEvent>(*it);
             BlobPtr pTouchBlob = pTouchEvent->getBlob();
             BlobPtr pRelatedBlob = pTouchBlob->getFirstRelated();
             if (pRelatedBlob) {
-                vector<Event *>::iterator it2;
-                TouchEvent * pTrackEvent = 0;
+                vector<EventPtr>::iterator it2;
+                TouchEventPtr pTrackEvent;
                 BlobPtr pTrackBlob;
                 for (it2=pTrackEvents.begin(); 
                         pTrackBlob != pRelatedBlob && it2 != pTrackEvents.end(); 
                         ++it2) 
                 {
-                    pTrackEvent = dynamic_cast<TouchEvent *>(*it2);
+                    pTrackEvent = boost::dynamic_pointer_cast<TouchEvent>(*it2);
                     pTrackBlob = pTrackEvent->getBlob();
                 }
                 if (it2 != pTrackEvents.end()) {

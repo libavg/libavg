@@ -60,9 +60,11 @@ BOOST_PYTHON_MODULE(avg)
 #if (BOOST_VERSION / 100000) > 1 || ((BOOST_VERSION / 100) % 1000) >= 33
     register_exception_translator<Exception>(exception_translator);
 #endif
-    register_ptr_to_python< DivNodePtr >();
-    register_ptr_to_python< AVGNodePtr >();
-    
+    register_ptr_to_python<DivNodePtr>();
+    register_ptr_to_python<AVGNodePtr>();
+    register_ptr_to_python<EventPtr>();
+    register_ptr_to_python<MouseEventPtr>();
+
     to_python_converter<IntPoint, Point_to_python_tuple<int> >();
     to_python_converter<DPoint, Point_to_python_tuple<double> >();
     DPoint_from_python_tuple();
@@ -270,7 +272,6 @@ BOOST_PYTHON_MODULE(avg)
                 "Returns True if there was an interval with the given id, False if not.\n"
                 "@param id: An id returned by setInterval, setTimeout or setOnFrameHandler.\n")
         .def("getMouseState", &Player::getMouseState,
-                return_value_policy<reference_existing_object>(),
                 "getMouseState() -> event\n"
                 "Returns an interface to the last mouse event.\n")
         .def("screenshot", &Player::screenshot,

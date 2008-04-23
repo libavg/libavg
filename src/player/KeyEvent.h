@@ -48,6 +48,8 @@ class KeyEvent : public Event {
         int m_Modifiers;
 };
 
+typedef boost::shared_ptr<class KeyEvent> KeyEventPtr;
+
     namespace key {
         // Plattform independent key codes and modifiers follow. 
         // The constants are borrowed from SDL.
@@ -323,6 +325,7 @@ class KeyEvent : public Event {
         const long KEY_UNDO        = 322;      /* Atari keyboard has Undo */
         // Add any other keys here
     }
+
 }
 
 #endif

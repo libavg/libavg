@@ -947,10 +947,10 @@ const char * getEventTypeName(unsigned char Type)
     }
 }
 
-vector<Event *> SDLDisplayEngine::pollEvents()
+vector<EventPtr> SDLDisplayEngine::pollEvents()
 {
     SDL_Event sdlEvent;
-    vector<Event *> Events;
+    vector<EventPtr> Events;
 
     while(SDL_PollEvent(&sdlEvent)) {
         switch(sdlEvent.type) {
@@ -958,10 +958,10 @@ vector<Event *> SDLDisplayEngine::pollEvents()
                 if (sdlEvent.active.state & SDL_APPMOUSEFOCUS) {
                     m_bMouseOverApp = sdlEvent.active.gain != 0;
                     if (!sdlEvent.active.gain) {
-                        Events.push_back(
+                        Events.push_back(EventPtr(
                                 new MouseEvent (Event::CURSORMOTION, false,
                                         false, false, IntPoint(-1, -1), 
-                                        MouseEvent::NO_BUTTON));
+                                        MouseEvent::NO_BUTTON)));
                     }
                 }
             case SDL_MOUSEMOTION:
@@ -995,7 +995,7 @@ vector<Event *> SDLDisplayEngine::pollEvents()
                 break;
             case SDL_QUIT:
                 {
-                    Event * pEvent = new Event(Event::QUIT, Event::NONE);
+                    EventPtr pEvent(new Event(Event::QUIT, Event::NONE));
                     Events.push_back(pEvent);
                 }
                 break;
@@ -1009,21 +1009,21 @@ vector<Event *> SDLDisplayEngine::pollEvents()
     return Events;
 }
 
-Event * SDLDisplayEngine::createMouseMotionEvent
+EventPtr SDLDisplayEngine::createMouseMotionEvent
         (Event::Type Type, const SDL_Event & SDLEvent)
 {
     int x = int((SDLEvent.motion.x*m_Width)/m_WindowWidth);
     int y = int((SDLEvent.motion.y*m_Height)/m_WindowHeight);
-    MouseEvent * pEvent = new MouseEvent (Type, 
+    MouseEventPtr pEvent(new MouseEvent (Type, 
             (SDLEvent.motion.state & SDL_BUTTON(1)) == SDL_BUTTON(1),
-            (SDLEvent.motion.state & SDL_BUTTON(3)) == SDL_BUTTON(3), 
+            (SDLEvent.motion.state & SDL_BUTTON(3)) == SDL_BUTTON(3),
             (SDLEvent.motion.state & SDL_BUTTON(2)) == SDL_BUTTON(2),
-            IntPoint(x, y), 
-            MouseEvent::NO_BUTTON);
+            IntPoint(x, y),
+            MouseEvent::NO_BUTTON));
     return pEvent;
 }
 
-Event * SDLDisplayEngine::createMouseButtonEvent
+EventPtr SDLDisplayEngine::createMouseButtonEvent
         (Event::Type Type, const SDL_Event & SDLEvent) 
 {
     long Button = 0;
@@ -1048,23 +1048,23 @@ Event * SDLDisplayEngine::createMouseButtonEvent
     SDL_GetMouseState(&x, &y);
     x = int((x*m_Width)/m_WindowWidth);
     y = int((y*m_Height)/m_WindowHeight);
-    MouseEvent * pEvent = new MouseEvent(Type, 
+    MouseEventPtr pEvent(new MouseEvent(Type, 
             SDLEvent.button.button == SDL_BUTTON_LEFT,
             SDLEvent.button.button == SDL_BUTTON_MIDDLE, 
             SDLEvent.button.button == SDL_BUTTON_RIGHT,
-            IntPoint(x, y), Button);
+            IntPoint(x, y), Button));
     return pEvent; 
 }
 
 /*
-Event * SDLDisplayEngine::createAxisEvent(const SDL_Event & SDLEvent)
+EventPtr SDLDisplayEngine::createAxisEvent(const SDL_Event & SDLEvent)
 {
     return new AxisEvent(SDLEvent.jaxis.which, SDLEvent.jaxis.axis,
                 SDLEvent.jaxis.value);
 }
 
 
-Event * SDLDisplayEngine::createButtonEvent
+EventPtr SDLDisplayEngine::createButtonEvent
         (Event::Type Type, const SDL_Event & SDLEvent) 
 {
     return new ButtonEvent(Type, SDLEvent.jbutton.which,
@@ -1072,7 +1072,7 @@ Event * SDLDisplayEngine::createButtonEvent
 }
 */
 
-Event * SDLDisplayEngine::createKeyEvent
+EventPtr SDLDisplayEngine::createKeyEvent
         (Event::Type Type, const SDL_Event & SDLEvent)
 {
     long KeyCode = KeyCodeTranslationTable[SDLEvent.key.keysym.sym];
@@ -1103,9 +1103,9 @@ Event * SDLDisplayEngine::createKeyEvent
     if (SDLEvent.key.keysym.mod & KMOD_RESERVED) 
         { Modifiers |= key::KEYMOD_RESERVED; }
 
-    KeyEvent * pEvent = new KeyEvent(Type, 
+    KeyEventPtr pEvent(new KeyEvent(Type,
             SDLEvent.key.keysym.scancode, KeyCode,
-            SDL_GetKeyName(SDLEvent.key.keysym.sym), Modifiers);
+            SDL_GetKeyName(SDLEvent.key.keysym.sym), Modifiers));
     return pEvent;
 }
 

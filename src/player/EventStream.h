@@ -60,7 +60,7 @@ namespace avg {
             ~EventStream();
             void blobChanged(BlobPtr new_blob, bool bEventOnMove);
             void blobGone();
-            Event* pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, 
+            EventPtr pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, 
                     CursorEvent::Source Source, bool bEventOnMove);
             bool isGone();
             void setStale();

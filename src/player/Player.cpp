@@ -469,7 +469,7 @@ bool Player::clearInterval(int id)
     return false;
 }
 
-const MouseEvent& Player::getMouseState() const
+MouseEventPtr Player::getMouseState() const
 {
     return m_pEventDispatcher->getLastMouseEvent();
 }
@@ -928,10 +928,11 @@ void Player::handleTimers()
 }
 
 
-bool Player::handleEvent(Event * pEvent)
+bool Player::handleEvent(EventPtr pEvent)
 {
     assert(pEvent); 
-    if (CursorEvent * pCursorEvent = dynamic_cast<CursorEvent*>(pEvent)) {
+    if (CursorEventPtr pCursorEvent = boost::dynamic_pointer_cast<CursorEvent>(pEvent))
+    {
         if (pEvent->getType() == Event::CURSOROUT || 
                 pEvent->getType() == Event::CURSOROVER)
         {
@@ -940,7 +941,9 @@ bool Player::handleEvent(Event * pEvent)
         } else {
             handleCursorEvent(pCursorEvent);
         }
-    } else if (KeyEvent * pKeyEvent = dynamic_cast<KeyEvent*>(pEvent)) {
+    }
+    else if (KeyEventPtr pKeyEvent = boost::dynamic_pointer_cast<KeyEvent>(pEvent))
+    {
         m_pRootNode->handleEvent(pKeyEvent);
         if (pEvent->getType() == Event::KEYDOWN && pKeyEvent->getKeyCode() == 27) {
             m_bStopping = true;
@@ -968,7 +971,7 @@ void Player::sendFakeEvents()
     }
 }
 
-void Player::handleCursorEvent(const CursorEvent * pEvent, bool bOnlyCheckCursorOver)
+void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 {
     DPoint pos(pEvent->getXPosition(), pEvent->getYPosition());
     int cursorID = pEvent->getCursorID();
@@ -1038,14 +1041,13 @@ void Player::handleCursorEvent(const CursorEvent * pEvent, bool bOnlyCheckCursor
         for (it = pDestNodes.begin(); it != pDestNodes.end(); ++it) {
             NodePtr pNode = (*it).lock();
             if (pNode) {
-                CursorEvent * pNodeEvent = 
-                        dynamic_cast<CursorEvent *>(pEvent->cloneAs(pEvent->getType()));
+                CursorEventPtr pNodeEvent =
+                        boost::dynamic_pointer_cast<CursorEvent>(pEvent->cloneAs(pEvent->getType()));
                 pNodeEvent->setElement(pNode);
                 if (pNodeEvent->getType() != Event::CURSORMOTION) {
                     pNodeEvent->trace();
                 }
                 pNode->handleEvent(pNodeEvent);
-                delete pNodeEvent;
             }
         }
     }
@@ -1083,11 +1085,11 @@ void Player::useFakeCamera(bool bFake)
     m_bUseFakeCamera = bFake;
 }
 
-void Player::sendOver(const CursorEvent * pOtherEvent, Event::Type Type, 
+void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type Type, 
                 NodePtr pNode)
 {
     if (pNode) {
-        Event * pNewEvent = pOtherEvent->cloneAs(Type);
+        EventPtr pNewEvent = pOtherEvent->cloneAs(Type);
         pNewEvent->setElement(pNode);
         m_pEventDispatcher->sendEvent(pNewEvent);
     }

@@ -507,7 +507,7 @@ bool Node::EventHandlerID::operator < (const EventHandlerID& other) const {
     }
 }
 
-void Node::handleEvent (Event* pEvent)
+void Node::handleEvent (EventPtr pEvent)
 {
     EventHandlerID ID(pEvent->getType(), pEvent->getSource());
     EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
@@ -516,9 +516,9 @@ void Node::handleEvent (Event* pEvent)
     }
 }
 
-void Node::callPython (PyObject * pFunc, Event *pEvent)
+void Node::callPython (PyObject * pFunc, EventPtr pEvent)
 {
-    boost::python::call<void>(pFunc, boost::python::ptr(pEvent));
+    boost::python::call<void>(pFunc, pEvent);
 }
 
 PyObject * Node::findPythonFunc(const string& Code)

@@ -35,13 +35,13 @@ class MouseEvent : public CursorEvent {
                 bool rightButtonState,
                 const IntPoint& Position, int button);
         virtual ~MouseEvent();
-       
+        
         //REFACTORME: get*ButtonState -> getButtonState(num=*)
         bool getLeftButtonState() const;
         bool getMiddleButtonState() const;
         bool getRightButtonState() const;
         int getButton() const;
-        virtual CursorEvent* cloneAs(Type EventType) const;
+        virtual CursorEventPtr cloneAs(Type EventType) const;
         virtual void trace();
         static const long NO_BUTTON=0;
         static const long LEFT_BUTTON=1;
@@ -56,6 +56,8 @@ class MouseEvent : public CursorEvent {
         bool m_RightButtonState;
         int m_Button; // only used in button events
 };
+
+typedef boost::shared_ptr<class MouseEvent> MouseEventPtr;
 
 }
 
