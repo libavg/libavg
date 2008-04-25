@@ -712,79 +712,6 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testI18NWords2", True)
                 ))
 
-    def testVideo(self):
-        def newHRef():
-            node = Player.getElementByID("clogo2")
-            node.href = "../video/testfiles/h264-48x48.h264"
-            node.play()
-        def move():
-            node = Player.getElementByID("clogo2")
-            node.x += 30
-        def activateclogo():
-            Player.getElementByID('clogo').active=1
-        def deactivateclogo():
-            Player.getElementByID('clogo').active=0
-        Player.setFakeFPS(25)
-        self.start("video.avg",
-                (lambda: self.compareImage("testVideo1", False),
-                 lambda: Player.getElementByID("clogo2").play(),
-                 lambda: self.compareImage("testVideo2", False),
-                 lambda: Player.getElementByID("clogo2").pause(),
-                 lambda: self.compareImage("testVideo3", False),
-                 lambda: Player.getElementByID("clogo2").play(),
-                 lambda: self.compareImage("testVideo4", False),
-                 newHRef,
-                 lambda: Player.getElementByID("clogo1").play(),
-                 lambda: self.compareImage("testVideo5", False),
-                 move,
-                 lambda: Player.getElementByID("clogo").pause(),
-                 lambda: self.compareImage("testVideo6", False),
-                 deactivateclogo,
-                 lambda: self.compareImage("testVideo7", False),
-                 activateclogo,
-                 lambda: self.compareImage("testVideo8", False),
-                 lambda: Player.getElementByID("clogo").stop(),
-                 lambda: self.compareImage("testVideo9", False)
-                ))
-
-    def testVideoSeek(self):
-        def seek(frame):
-            Player.getElementByID("clogo2").seekToFrame(frame)
-        Player.setFakeFPS(25)
-        self.start("video.avg",
-                (lambda: Player.getElementByID("clogo2").play(),
-                 lambda: seek(100),
-                 lambda: self.compareImage("testVideoSeek1", False),
-                 lambda: Player.getElementByID("clogo2").pause(),
-                 lambda: seek(26),
-                 None,
-                 lambda: self.compareImage("testVideoSeek2", False),
-                 lambda: Player.getElementByID("clogo2").play(),
-                 None,
-                 lambda: self.compareImage("testVideoSeek3", False)
-                ))
-    
-    def testVideoFPS(self):
-        Player.setFakeFPS(25)
-        self.start("videofps.avg",
-                (lambda: Player.getElementByID("video").play(),
-                 None,
-                 lambda: self.compareImage("testVideoFPS", False)
-                ))
-
-    def testVideoEOF(self):
-        def onEOF():
-           Player.stop()
-        def onNoEOF():
-            self.assert_(False)
-        Player.loadFile("video.avg")
-        Player.setFakeFPS(25)
-        video = Player.getElementByID("clogo1")
-        video.play()
-        video.setEOFCallback(onEOF)
-        Player.setTimeout(10000, onNoEOF)
-        Player.play()
-
     def testMediaDir(self):
         def setDir():
             Player.getElementByID("main").mediadir="../video/testfiles"
@@ -986,8 +913,8 @@ class PlayerTestCase(AVGTestCase):
                      removeCamera,
                      reAddCamera
                     ))
-	    runTest(True)
-	    runTest(False)
+        runTest(True)
+        runTest(False)
 
     def testPanoDynamics(self):
         def createPano(useXml):
@@ -1083,10 +1010,6 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testParaWords", bpp))
     suite.addTest(PlayerTestCase("testDynamicWords", bpp))
     suite.addTest(PlayerTestCase("testI18NWords", bpp))
-    suite.addTest(PlayerTestCase("testVideo", bpp))
-    suite.addTest(PlayerTestCase("testVideoSeek", bpp))
-    suite.addTest(PlayerTestCase("testVideoFPS", bpp))
-    suite.addTest(PlayerTestCase("testVideoEOF", bpp))
     suite.addTest(PlayerTestCase("testMediaDir", bpp))
     suite.addTest(PlayerTestCase("testWarp", bpp))
     suite.addTest(PlayerTestCase("testImgDynamics", bpp))

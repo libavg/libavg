@@ -1,0 +1,129 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+import unittest
+
+import sys, time, os, platform
+
+# Import the correct version of libavg. Since it should be possible to
+# run the tests without installing libavg, we add the location of the 
+# uninstalled libavg to the path.
+# TODO: This is a mess. 
+sys.path += ['../wrapper/.libs', '../python']
+if platform.system() == 'Darwin':
+    sys.path += ['../..']     # Location of libavg in a mac installation. 
+
+if platform.system() == 'Windows':
+    from libavg import avg    # Under windows, there is no uninstalled version.
+else:
+    import avg
+
+from testcase import *
+
+class VideoTestCase(AVGTestCase):
+    def __init__(self, testFuncName):
+        AVGTestCase.__init__(self, testFuncName, 24)
+    def testVideo(self):
+        def newHRef():
+            node = Player.getElementByID("clogo2")
+            node.href = "../video/testfiles/h264-48x48.h264"
+            node.play()
+        def move():
+            node = Player.getElementByID("clogo2")
+            node.x += 30
+        def activateclogo():
+            Player.getElementByID('clogo').active=1
+        def deactivateclogo():
+            Player.getElementByID('clogo').active=0
+        Player.setFakeFPS(25)
+        self.start("video.avg",
+                (lambda: self.compareImage("testVideo1", False),
+                 lambda: Player.getElementByID("clogo2").play(),
+                 lambda: self.compareImage("testVideo2", False),
+                 lambda: Player.getElementByID("clogo2").pause(),
+                 lambda: self.compareImage("testVideo3", False),
+                 lambda: Player.getElementByID("clogo2").play(),
+                 lambda: self.compareImage("testVideo4", False),
+                 newHRef,
+                 lambda: Player.getElementByID("clogo1").play(),
+                 lambda: self.compareImage("testVideo5", False),
+                 move,
+                 lambda: Player.getElementByID("clogo").pause(),
+                 lambda: self.compareImage("testVideo6", False),
+                 deactivateclogo,
+                 lambda: self.compareImage("testVideo7", False),
+                 activateclogo,
+                 lambda: self.compareImage("testVideo8", False),
+                 lambda: Player.getElementByID("clogo").stop(),
+                 lambda: self.compareImage("testVideo9", False)
+                ))
+
+    def testVideoSeek(self):
+        def seek(frame):
+            Player.getElementByID("clogo2").seekToFrame(frame)
+        Player.setFakeFPS(25)
+        self.start("video.avg",
+                (lambda: Player.getElementByID("clogo2").play(),
+                 lambda: seek(100),
+                 lambda: self.compareImage("testVideoSeek1", False),
+                 lambda: Player.getElementByID("clogo2").pause(),
+                 lambda: seek(26),
+                 None,
+                 lambda: self.compareImage("testVideoSeek2", False),
+                 lambda: Player.getElementByID("clogo2").play(),
+                 None,
+                 lambda: self.compareImage("testVideoSeek3", False)
+                ))
+
+    def testVideoFPS(self):
+        Player.setFakeFPS(25)
+        self.start("videofps.avg",
+                (lambda: Player.getElementByID("video").play(),
+                 None,
+                 lambda: self.compareImage("testVideoFPS", False)
+                ))
+
+    def testVideoEOF(self):
+        def onEOF():
+           Player.stop()
+        def onNoEOF():
+            self.assert_(False)
+        Player.loadFile("video.avg")
+        Player.setFakeFPS(25)
+        video = Player.getElementByID("clogo1")
+        video.play()
+        video.setEOFCallback(onEOF)
+        Player.setTimeout(10000, onNoEOF)
+        Player.play()
+
+
+def videoTestSuite():
+    suite = unittest.TestSuite()
+    suite.addTest(VideoTestCase("testVideo"))
+    suite.addTest(VideoTestCase("testVideoSeek"))
+    suite.addTest(VideoTestCase("testVideoFPS"))
+    suite.addTest(VideoTestCase("testVideoEOF"))
+    return suite
+
+Log = avg.Logger.get()
+Log.setCategories(Log.APP |
+        Log.WARNING
+#         Log.PROFILE |
+#         Log.PROFILE_LATEFRAMES |
+#         Log.CONFIG |
+#         Log.MEMORY |
+#         Log.BLTS    |
+#         Log.EVENTS |
+#         Log.EVENTS2
+              )
+
+if os.getenv("AVG_CONSOLE_TEST"):
+    sys.exit(0)
+else:
+    Player = avg.Player()
+    runner = unittest.TextTestRunner()
+    rc = runner.run(videoTestSuite())
+    if rc.wasSuccessful():
+        sys.exit(0)
+    else:
+        sys.exit(1)
+        
