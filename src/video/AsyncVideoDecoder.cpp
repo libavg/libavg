@@ -260,8 +260,8 @@ void AsyncVideoDecoder::setAudioEnabled(bool bEnabled)
 
 void AsyncVideoDecoder::setAudioFormat(int Channels, int SampleRate)
 {
-	m_Channels = Channels;
-	m_SampleRate = SampleRate;
+    m_Channels = Channels;
+    m_SampleRate = SampleRate;
 }
 
 PixelFormat AsyncVideoDecoder::getPixelFormat()
@@ -308,7 +308,7 @@ bool AsyncVideoDecoder::isEOF(StreamSelect Stream)
 
 int AsyncVideoDecoder::fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize)
 {
-    if (m_bAudioEOF || !m_bAudioEnabled) {
+    if (m_bAudioEOF || !m_bAudioEnabled || !m_pADecoderThread) {
         // TODO: Currently, every video starts an audio playback, even if there's no
         // audio in the video. Once this has changed, we should assert here.
         return 0;
