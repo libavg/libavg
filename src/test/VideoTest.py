@@ -19,9 +19,36 @@ else:
 
 from testcase import *
 
+
 class VideoTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName, 24)
+        Player.setFakeFPS(25)
+    def testVideoFile(self, filename, isThreaded):
+        Player.loadFile("empty.avg")
+        node = Player.createNode("video",
+            {"id":"video", "href": "../video/testfiles/"+filename, "threaded": isThreaded})
+        Player.getRootNode().appendChild(node)
+        if isThreaded:
+            # Images on screen depend on timing issues in this case, so we just make
+            # sure there's no crash.
+            self.start(None,
+                    (lambda: Player.getElementByID("video").play(),
+                     None,
+                     None
+                    ))
+        else:
+            self.start(None,
+                    (lambda: Player.getElementByID("video").play(),
+                     lambda: self.compareImage("testVideo-"+filename+"1", False),
+                     None
+                    ))
+    def testVideoFiles(self):
+        for filename in ["mjpeg-48x48.avi", "mpeg1-48x48.mpg", "mpeg1-48x48-sound.avi", 
+                "rgba-48x48.mov", "h264-48x48.h264"]:
+            for isThreaded in [False, True]:
+                self.testVideoFile(filename, isThreaded)
+
     def testVideo(self):
         def newHRef():
             node = Player.getElementByID("clogo2")
@@ -34,7 +61,6 @@ class VideoTestCase(AVGTestCase):
             Player.getElementByID('clogo').active=1
         def deactivateclogo():
             Player.getElementByID('clogo').active=0
-        Player.setFakeFPS(25)
         self.start("video.avg",
                 (lambda: self.compareImage("testVideo1", False),
                  lambda: Player.getElementByID("clogo2").play(),
@@ -60,7 +86,6 @@ class VideoTestCase(AVGTestCase):
     def testVideoSeek(self):
         def seek(frame):
             Player.getElementByID("clogo2").seekToFrame(frame)
-        Player.setFakeFPS(25)
         self.start("video.avg",
                 (lambda: Player.getElementByID("clogo2").play(),
                  lambda: seek(100),
@@ -75,7 +100,6 @@ class VideoTestCase(AVGTestCase):
                 ))
 
     def testVideoFPS(self):
-        Player.setFakeFPS(25)
         self.start("videofps.avg",
                 (lambda: Player.getElementByID("video").play(),
                  None,
@@ -88,7 +112,6 @@ class VideoTestCase(AVGTestCase):
         def onNoEOF():
             self.assert_(False)
         Player.loadFile("video.avg")
-        Player.setFakeFPS(25)
         video = Player.getElementByID("clogo1")
         video.play()
         video.setEOFCallback(onEOF)
@@ -98,6 +121,7 @@ class VideoTestCase(AVGTestCase):
 
 def videoTestSuite():
     suite = unittest.TestSuite()
+    suite.addTest(VideoTestCase("testVideoFiles"))
     suite.addTest(VideoTestCase("testVideo"))
     suite.addTest(VideoTestCase("testVideoSeek"))
     suite.addTest(VideoTestCase("testVideoFPS"))
