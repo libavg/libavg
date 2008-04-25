@@ -40,6 +40,9 @@ public:
 
     void runTests() 
     {
+        if (!FBOImage::isFBOSupported()) {
+            cerr << "  GL_EXT_framebuffer_object not supported. Skipping FBO test." << endl;
+        }
         runPFTests(B8G8R8A8);
         runPFTests(R8G8B8X8);
         runPFTests(I8);

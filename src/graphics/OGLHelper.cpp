@@ -148,6 +148,10 @@ GLfunction getFuzzyProcAddress(const char * psz)
 {
     GLfunction pProc = (GLfunction)SDL_GL_GetProcAddress(psz);
     if (!pProc) {
+        string s = string(psz)+"EXT";
+        pProc = (GLfunction)SDL_GL_GetProcAddress(s.c_str());
+    }
+    if (!pProc) {
         string s = string(psz)+"ARB";
         pProc = (GLfunction)SDL_GL_GetProcAddress(s.c_str());
     }

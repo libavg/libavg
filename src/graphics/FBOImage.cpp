@@ -25,33 +25,39 @@
 #include "../base/Exception.h"
 
 namespace avg {
-    FBOImage::FBOImage(IntPoint size, PixelFormat pf)
-    {
-       glproc::GenFramebuffers(1, &m_FBO);
-       OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glproc::GenFramebuffers");
-    }
 
-    FBOImage::~FBOImage()
-    {
-    }
+FBOImage::FBOImage(IntPoint size, PixelFormat pf)
+{
+   glproc::GenFramebuffers(1, &m_FBO);
+   OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glproc::GenFramebuffers");
+}
 
-    void FBOImage::setImage(BitmapPtr pBmp)
-    {
-    }
+FBOImage::~FBOImage()
+{
+}
 
-    BitmapPtr FBOImage::getImage() const
-    {
-        return BitmapPtr();
-    }
+void FBOImage::setImage(BitmapPtr pBmp)
+{
+}
 
-    PixelFormat FBOImage::getPF()
-    {
-        return m_pf;
-    }
+BitmapPtr FBOImage::getImage() const
+{
+    return BitmapPtr();
+}
 
-    const IntPoint& FBOImage::getSize()
-    {
-        return m_Size;
-    }
+PixelFormat FBOImage::getPF()
+{
+    return m_pf;
+}
+
+const IntPoint& FBOImage::getSize()
+{
+    return m_Size;
+}
+
+bool FBOImage::isFBOSupported()
+{
+    return queryOGLExtension("GL_EXT_framebuffer_object");
+}
 
 }

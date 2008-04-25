@@ -39,6 +39,8 @@ public:
     PixelFormat getPF();
     const IntPoint& getSize();
 
+    static bool isFBOSupported();
+
 private:
     void checkError();
 
