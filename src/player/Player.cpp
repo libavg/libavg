@@ -29,6 +29,7 @@
 #include "CameraNode.h"
 #include "Image.h"
 #include "PanoImage.h"
+#include "Sound.h"
 #include "NodeDefinition.h"
 
 #include "TrackerEventSource.h"
@@ -109,7 +110,8 @@ Player::Player()
     registerNodeType(Video::getNodeDefinition());
     registerNodeType(CameraNode::getNodeDefinition());
     registerNodeType(PanoImage::getNodeDefinition());
-    
+    registerNodeType(Sound::getNodeDefinition());
+
     // Find and parse dtd.
     registerDTDEntityLoader("avg.dtd", m_NodeFactory.getDTD().c_str());
     string sDTDFName = "avg.dtd";

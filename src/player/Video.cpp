@@ -48,8 +48,6 @@ using namespace std;
 
 namespace avg {
 
-bool Video::m_bInitialized = false;
-
 NodeDefinition Video::getNodeDefinition()
 {
     return NodeDefinition("video", Node::buildNode<Video>)

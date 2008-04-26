@@ -336,9 +336,10 @@ void FFMpegDecoder::close()
         m_pAStream = 0;
         m_AStreamIndex = -1;
     }
-    
-    av_close_input_file(m_pFormatContext);
-    m_pFormatContext = 0;
+    if (m_pFormatContext) {
+        av_close_input_file(m_pFormatContext);
+        m_pFormatContext = 0;
+    }
     
 #ifdef AVG_ENABLE_SWSCALE
     if(m_pSwsContext) {
@@ -1042,10 +1043,10 @@ StreamSelect FFMpegDecoder::getMasterStream()
     if (m_bForceMasterStream) {
         return m_MasterStream;
     } else if (m_pAStream && m_bAudioEnabled) {
-		return SS_AUDIO;
-	} else {
-		return SS_VIDEO;
-	}
+        return SS_AUDIO;
+    } else {
+        return SS_VIDEO;
+    }
 }
 
 long long FFMpegDecoder::getStartTime(StreamSelect Stream)

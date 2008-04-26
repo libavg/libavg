@@ -36,7 +36,7 @@ class VideoTestCase(AVGTestCase):
             self.start(None,
                     (lambda: node.play(),
                      lambda: checkImage(filename),
-                     None
+                     lambda: node.stop()
                     ))
         for filename in ["mjpeg-48x48.avi", "mpeg1-48x48.mpg", "mpeg1-48x48-sound.avi", 
                 "rgba-48x48.mov", "h264-48x48.h264"]:
@@ -112,9 +112,25 @@ class VideoTestCase(AVGTestCase):
         Player.setTimeout(10000, onNoEOF)
         Player.play()
 
+class SoundTestCase(AVGTestCase):
+    def __init__(self, testFuncName):
+        AVGTestCase.__init__(self, testFuncName, 24)
+    def testSound(self):
+        def testSoundFile(filename):
+            Player.loadFile("empty.avg")
+            node = Player.createNode("sound",
+                {"href": "../video/testfiles/"+filename})
+            Player.getRootNode().appendChild(node)
+            self.start(None,
+                    (lambda: node.play(),
+                     None,
+                     lambda: node.stop(),
+                    ))
+        testSoundFile("44.1kHz_16bit_stereo.wav")
 
-def videoTestSuite():
+def avTestSuite():
     suite = unittest.TestSuite()
+    suite.addTest(SoundTestCase("testSound"))
     suite.addTest(VideoTestCase("testVideoFiles"))
     suite.addTest(VideoTestCase("testVideo"))
     suite.addTest(VideoTestCase("testVideoSeek"))
@@ -139,7 +155,7 @@ if os.getenv("AVG_CONSOLE_TEST"):
 else:
     Player = avg.Player()
     runner = unittest.TextTestRunner()
-    rc = runner.run(videoTestSuite())
+    rc = runner.run(avTestSuite())
     if rc.wasSuccessful():
         sys.exit(0)
     else:

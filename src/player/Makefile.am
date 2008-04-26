@@ -35,7 +35,7 @@ ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
         EventDispatcher.h CursorEvent.h MouseEvent.h \
         Event.h KeyEvent.h PanoImage.h TestHelper.h \
         RasterNode.h CameraNode.h TrackerEventSource.h TrackerCalibrator.h\
-	    TouchEvent.h EventStream.h BoostPython.h \
+	    TouchEvent.h EventStream.h BoostPython.h Sound.h \
         $(GL_INCLUDES)
 
 TESTS=testcalibrator testplayer
@@ -72,7 +72,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         Timeout.cpp Event.cpp DisplayParams.cpp CursorState.cpp \
         Image.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp MouseEvent.cpp\
         TouchEvent.cpp AVGNode.cpp TestHelper.cpp \
-		TrackerEventSource.cpp EventStream.cpp TrackerCalibrator.cpp \
+		TrackerEventSource.cpp EventStream.cpp TrackerCalibrator.cpp Sound.cpp \
         $(APPLE_SOURCES) \
 		$(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"

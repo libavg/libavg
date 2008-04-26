@@ -160,7 +160,7 @@ void export_raster()
                         return_value_policy<copy_const_reference>()),
                 make_function(&Video::setHRef,
                         return_value_policy<copy_const_reference>()),
-                "The source filename of the video (ro).\n")
+                "The source filename of the video.\n")
         .add_property("loop", &Video::getLoop,
                 "Whether to start the video again when it has ended (ro).\n")
     ;

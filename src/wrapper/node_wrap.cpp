@@ -34,6 +34,7 @@ void export_devices();
 #include "../player/AVGNode.h"
 #include "../player/DivNode.h"
 #include "../player/PanoImage.h"
+#include "../player/Sound.h"
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
@@ -174,6 +175,29 @@ void export_node()
                 "of certain buggy display drivers that don't work with cropping.)")
     ;
 
+    class_<Sound, bases<Node> >("Sound",
+            "A sound played from a file.\n",
+            no_init)
+        .def("play", &Sound::play,
+                "play()\n"
+                "Starts audio playback.")
+        .def("stop", &Sound::stop,
+                "stop()\n"
+                "Stops audio playback. Closes the object and 'rewinds' the playback\n"
+                "cursor.")
+        .def("pause", &Sound::pause,
+                "pause()\n"
+                "Stops audio playback but doesn't close the object. The playback\n"
+                "cursor stays at the same position.")
+        .def("setEOFCallback", &Sound::setEOFCallback,
+                "setEOFCallback(pyfunc)\n"
+                "Sets a python callable to be invoked when the video reaches end of file.")
+        .add_property("href", make_function(&Sound::getHRef, 
+                return_value_policy<copy_const_reference>()), &Sound::setHRef,
+                "The source filename of the sound.\n")
+        .add_property("loop", &Sound::getLoop,
+                "Whether to start the sound again when it has ended (ro).\n")
+    ;
     class_<PanoImage, bases<Node> >("PanoImage",
             "A panorama image displayed in cylindrical projection.\n",
             no_init)

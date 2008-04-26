@@ -19,86 +19,68 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Video_H_
-#define _Video_H_
+#ifndef _Sound_H_
+#define _Sound_H_
 
 // Python docs say python.h should be included before any standard headers (!)
 #include "WrapPython.h" 
 
 #include "Node.h"
-#include "VideoBase.h"
 
-#include "../base/Point.h"
 #include "../base/IFrameListener.h"
-
 #include "../audio/IAudioSource.h"
 
 namespace avg {
 
 class IVideoDecoder;
 
-class Video : public VideoBase, IFrameListener, IAudioSource
+class Sound : public Node, IFrameListener, IAudioSource
 {
     public:
         static NodeDefinition getNodeDefinition();
-        
-        Video (const ArgList& Args, Player * pPlayer);
-        virtual ~Video ();
-        
+
+        Sound (const ArgList& Args, Player * pPlayer);
+        virtual ~Sound ();
+
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
         virtual void disconnect();
 
+        void play();
+        void stop();
+        void pause();
+
         const std::string& getHRef() const;
         void setHRef(const std::string& href);
-        double getSpeedFactor() const;
-        void setSpeedFactor(double SpeedFactor);
         void setVolume(double Volume);
         void checkReload();
 
-        int getNumFrames() const;
-        int getCurFrame() const;
-        void seekToFrame(int FrameNum);
         long long getDuration() const;
         long long getCurTime() const;
         void seekToTime(long long Time);
         bool getLoop() const;
-        bool isThreaded() const;
         void setEOFCallback(PyObject * pEOFCallback);
 
         virtual std::string getTypeStr();
 
         virtual void onFrameEnd();
-        
         virtual void setAudioEnabled(bool bEnabled);
+
         virtual void fillAudioFrame(AudioFrame* frame);
 
-    protected:
-        virtual void changeVideoState(VideoState NewVideoState);
-
     private:
-        bool renderToSurface(ISurface * pSurface);
-        bool canRenderToBackbuffer(int BitsPerPixel);
         void seek(long long DestTime);
         void onEOF();
-       
-        virtual void open(YCbCrMode ycbcrMode);
-        virtual void close();
-        virtual PixelFormat getPixelFormat();
-        virtual IntPoint getMediaSize();
-        virtual double getFPS();
-        virtual long long getNextFrameTime();
+
+        typedef enum SoundState {Unloaded, Paused, Playing};
+        void changeSoundState(SoundState NewSoundState);
+        void open();
+        void close();
 
         std::string m_href;
         std::string m_Filename;
         bool m_bLoop;
-        bool m_bThreaded;
-        double m_FPS;
-        double m_SpeedFactor;
-        bool m_bEOFPending;
         PyObject * m_pEOFCallback;
-        int m_FramesTooLate;
-        int m_FramesPlayed;
         bool m_bAudioEnabled;
 
         long long m_StartTime;
@@ -107,6 +89,7 @@ class Video : public VideoBase, IFrameListener, IAudioSource
 
         IVideoDecoder * m_pDecoder;
         double m_Volume;
+        SoundState m_State;
 };
 
 }
