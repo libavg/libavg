@@ -113,7 +113,7 @@ int Video::getNumFrames() const
 int Video::getCurFrame() const
 {
     if (getVideoState() != Unloaded) {
-    	return m_pDecoder->getCurFrame();
+        return m_pDecoder->getCurFrame();
     } else {
         AVG_TRACE(Logger::WARNING, 
                 "Error in Video::GetCurFrame: Video not loaded.");
@@ -187,16 +187,10 @@ void Video::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pA
 {
     checkReload();
     VideoBase::setRenderingEngines(pDisplayEngine, pAudioEngine);
-    if(getAudioEngine()) {
-        getAudioEngine()->addSource(this);
-    }
 }
 
 void Video::disconnect()
 {
-    if(getAudioEngine()) {
-        getAudioEngine()->removeSource(this);
-    }
     stop();
     VideoBase::disconnect();
 }
@@ -272,7 +266,7 @@ void Video::setAudioEnabled(bool bEnabled)
 
 void Video::fillAudioFrame(AudioFrame* frame)
 {
-    if(m_bAudioEnabled && getVideoState() == Playing) {
+    if (m_bAudioEnabled && getVideoState() == Playing) {
         m_pDecoder->fillAudioFrame(frame->getBuffer(), frame->getSize());
     }
 }
@@ -306,7 +300,6 @@ void Video::seek(long long DestTime)
     setFrameAvailable(false);
 }
 
-        
 void Video::open(YCbCrMode ycbcrMode)
 {
     m_FramesTooLate = 0;
@@ -321,10 +314,16 @@ void Video::open(YCbCrMode ycbcrMode)
     } else if(m_FPS != 0.0) {
         m_pDecoder->setFPS(m_FPS);
     }
+    if(getAudioEngine()) {
+        getAudioEngine()->addSource(this);
+    }
 }
 
 void Video::close()
 {
+    if(getAudioEngine()) {
+        getAudioEngine()->removeSource(this);
+    }
     m_pDecoder->close();
     if (m_FramesTooLate > 0) {
         AVG_TRACE(Logger::PROFILE, "Missed video frames for " << getID() << ": " 

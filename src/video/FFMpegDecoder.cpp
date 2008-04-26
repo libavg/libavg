@@ -270,8 +270,8 @@ void FFMpegDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
     if ((m_VStreamIndex != -1 && openCodec(m_pFormatContext, m_VStreamIndex) == -1) ||
         (m_AStreamIndex != -1 && openCodec(m_pFormatContext, m_AStreamIndex) == -1))
     {
-    	throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-    	                sFilename + ": could not open codec (?!).");
+        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                        sFilename + ": could not open codec (?!).");
     }
 } 
 

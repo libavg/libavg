@@ -7,7 +7,7 @@ import sys, time, os, platform
 # Import the correct version of libavg. Since it should be possible to
 # run the tests without installing libavg, we add the location of the 
 # uninstalled libavg to the path.
-# TODO: This is a mess. 
+# TODO: This is a mess.
 sys.path += ['../wrapper/.libs', '../python']
 if platform.system() == 'Darwin':
     sys.path += ['../..']     # Location of libavg in a mac installation. 
@@ -24,30 +24,24 @@ class VideoTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName, 24)
         Player.setFakeFPS(25)
-    def testVideoFile(self, filename, isThreaded):
-        Player.loadFile("empty.avg")
-        node = Player.createNode("video",
-            {"id":"video", "href": "../video/testfiles/"+filename, "threaded": isThreaded})
-        Player.getRootNode().appendChild(node)
-        if isThreaded:
-            # Images on screen depend on timing issues in this case, so we just make
-            # sure there's no crash.
-            self.start(None,
-                    (lambda: Player.getElementByID("video").play(),
-                     None,
-                     None
-                    ))
-        else:
-            self.start(None,
-                    (lambda: Player.getElementByID("video").play(),
-                     lambda: self.compareImage("testVideo-"+filename+"1", False),
-                     None
-                    ))
     def testVideoFiles(self):
+        def testVideoFile(filename, isThreaded):
+            def checkImage(filename):
+                if not(isThreaded):
+                    self.compareImage("testVideo-"+filename+"1", False)
+            Player.loadFile("empty.avg")
+            node = Player.createNode("video",
+                {"href": "../video/testfiles/"+filename, "threaded": isThreaded})
+            Player.getRootNode().appendChild(node)
+            self.start(None,
+                    (lambda: node.play(),
+                     lambda: checkImage(filename),
+                     None
+                    ))
         for filename in ["mjpeg-48x48.avi", "mpeg1-48x48.mpg", "mpeg1-48x48-sound.avi", 
                 "rgba-48x48.mov", "h264-48x48.h264"]:
             for isThreaded in [False, True]:
-                self.testVideoFile(filename, isThreaded)
+                testVideoFile(filename, isThreaded)
 
     def testVideo(self):
         def newHRef():
