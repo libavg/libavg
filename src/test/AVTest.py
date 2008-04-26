@@ -20,9 +20,25 @@ else:
 from testcase import *
 
 
-class VideoTestCase(AVGTestCase):
+class AVTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName, 24)
+    def testEOF(self, node):
+        def onEOF():
+            Player.stop()
+        def onNoEOF():
+            self.assert_(False)
+        Player.loadFile("empty.avg")
+        Player.getRootNode().appendChild(node)
+        node.play()
+        node.setEOFCallback(onEOF)
+        Player.setTimeout(10000, onNoEOF)
+        Player.play()
+
+
+class VideoTestCase(AVTestCase):
+    def __init__(self, testFuncName):
+        AVTestCase.__init__(self, testFuncName)
         Player.setFakeFPS(25)
     def testVideoFiles(self):
         def testVideoFile(filename, isThreaded):
@@ -101,36 +117,45 @@ class VideoTestCase(AVGTestCase):
                 ))
 
     def testVideoEOF(self):
-        def onEOF():
-           Player.stop()
-        def onNoEOF():
-            self.assert_(False)
-        Player.loadFile("video.avg")
-        video = Player.getElementByID("clogo1")
-        video.play()
-        video.setEOFCallback(onEOF)
-        Player.setTimeout(10000, onNoEOF)
-        Player.play()
+        for filename in ["mpeg1-48x48.mpg", "mpeg1-48x48-sound.avi"]:
+            node = Player.createNode("video",
+                    {"href": "../video/testfiles/"+filename})
+            self.testEOF(node)
 
-class SoundTestCase(AVGTestCase):
+class SoundTestCase(AVTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName, 24)
     def testSound(self):
         def testSoundFile(filename):
             Player.loadFile("empty.avg")
             node = Player.createNode("sound",
-                {"href": "../video/testfiles/"+filename})
+                    {"href": "../video/testfiles/"+filename})
             Player.getRootNode().appendChild(node)
             self.start(None,
                     (lambda: node.play(),
                      None,
                      lambda: node.stop(),
+                     lambda: node.play(),
+                     lambda: node.pause(),
+                     lambda: node.play(),
+                     lambda: node.pause(),
+                     lambda: node.stop(),
+                     lambda: node.pause()
                     ))
-        testSoundFile("44.1kHz_16bit_stereo.wav")
+        for filename in ["22.050Hz_16bit_mono.wav", "44.1kHz_16bit_stereo.aif", 
+                "44.1kHz_16bit_stereo.wav", "44.1kHz_mono.ogg", "44.1kHz_stereo.mp3",
+                "48kHz_24bit_stereo.wav"]:
+            testSoundFile(filename)
+    def testSoundEOF(self):
+        node = Player.createNode("sound",
+                {"href": "../video/testfiles/44.1kHz_16bit_mono.wav"})
+        self.testEOF(node)
+
 
 def avTestSuite():
     suite = unittest.TestSuite()
     suite.addTest(SoundTestCase("testSound"))
+    suite.addTest(SoundTestCase("testSoundEOF"))
     suite.addTest(VideoTestCase("testVideoFiles"))
     suite.addTest(VideoTestCase("testVideo"))
     suite.addTest(VideoTestCase("testVideoSeek"))

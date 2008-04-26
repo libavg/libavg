@@ -575,7 +575,7 @@ bool FFMpegDecoder::isEOF(StreamSelect Stream)
 {
     switch(Stream) {
     case SS_AUDIO:
-        return (!m_pAStream || m_bAudioEOF);
+        return (!m_pAStream || !m_bAudioEnabled || m_bAudioEOF);
     case SS_VIDEO:
         return (!m_pVStream || m_bVideoEOF);
     case SS_ALL:
