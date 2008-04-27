@@ -71,7 +71,7 @@ class Video : public VideoBase, IFrameListener, IAudioSource
         virtual void onFrameEnd();
         
         virtual void setAudioEnabled(bool bEnabled);
-        virtual void fillAudioBuffer(AudioBufferPtr pBuffer);
+        virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
 
     protected:
         virtual void changeVideoState(VideoState NewVideoState);

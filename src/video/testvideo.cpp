@@ -115,6 +115,17 @@ class DecoderTest: public Test {
             }
         }
 
+        AudioBufferPtr createAudioBuffer(int NumFrames)
+        {
+            return AudioBufferPtr(new AudioBuffer(NumFrames, getAudioParams()));
+        }
+
+        const AudioParams& getAudioParams()
+        {
+            static AudioParams AP(44100, 2, 256);
+            return AP;
+        }
+
     private:
         string getDecoderName(bool bThreadedDecoder, bool bThreadedDemuxer) {
             string sName = "(";
@@ -154,8 +165,8 @@ class VideoDecoderTest: public DecoderTest {
                 cerr << "    Testing " << sFilename << endl;
 
                 VideoDecoderPtr pDecoder = createDecoder();
-                pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
-                        isDemuxerThreaded());
+                pDecoder->open(getSrcDir()+"testfiles/"+sFilename, getAudioParams(),
+                        OGL_NONE, isDemuxerThreaded());
                 IntPoint FrameSize = pDecoder->getSize();
                 TEST(FrameSize == IntPoint(48, 48));
                 TEST(pDecoder->getPixelFormat() == B8G8R8X8);
@@ -182,8 +193,8 @@ class VideoDecoderTest: public DecoderTest {
             cerr << "    Testing " << sFilename << " (seek)" << endl;
 
             VideoDecoderPtr pDecoder = createDecoder();
-            pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
-                    isDemuxerThreaded());
+            pDecoder->open(getSrcDir()+"testfiles/"+sFilename, getAudioParams(),
+                    OGL_NONE, isDemuxerThreaded());
 
             // Seek forward
             testSeek(100, sFilename, pDecoder);
@@ -211,8 +222,8 @@ class VideoDecoderTest: public DecoderTest {
         {
             // Read whole file, test last image.
             VideoDecoderPtr pDecoder = createDecoder();
-            pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
-                    isDemuxerThreaded());
+            pDecoder->open(getSrcDir()+"testfiles/"+sFilename, getAudioParams(),
+                    OGL_NONE, isDemuxerThreaded());
             IntPoint FrameSize = pDecoder->getSize();
             BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
             double TimePerFrame = (1000.0/pDecoder->getFPS())*SpeedFactor;
@@ -291,48 +302,46 @@ class AudioDecoderTest: public DecoderTest {
                     cerr << "      Reading complete file." << endl;
                     VideoDecoderPtr pDecoder = createDecoder();
                     pDecoder->setAudioFormat(2, 44100);
-                    pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
-                            isDemuxerThreaded());
-                    int TotalBytesDecoded = 0;
+                    pDecoder->open(getSrcDir()+"testfiles/"+sFilename, getAudioParams(),
+                            OGL_NONE, isDemuxerThreaded());
+                    int TotalFramesDecoded = 0;
                     bool bCheckTimestamps = (sFilename.find(".ogg") == string::npos &&
                             sFilename.find(".mp3") == string::npos);
-                    readAudioToEOF(pDecoder, TotalBytesDecoded, bCheckTimestamps);
+                    readAudioToEOF(pDecoder, TotalFramesDecoded, bCheckTimestamps);
 
                     if (sFilename.find(".ogg") == string::npos) {
                         // Check if we've decoded the whole file.
                         // TODO: Find out what is broken with ogg files here.
-                        int FramesDecoded = TotalBytesDecoded/4;
                         int FramesInDuration = int(pDecoder->getDuration()*44100/1000);
-//                        cerr << "FramesDecoded: " << FramesDecoded << endl;
+//                        cerr << "FramesDecoded: " << TotalFramesDecoded << endl;
 //                        cerr << "FramesInDuration: " << FramesInDuration << endl;
-                        TEST (abs(FramesDecoded-FramesInDuration) < 45);
+                        TEST (abs(TotalFramesDecoded-FramesInDuration) < 45);
                     }
                 }
                 {
                     cerr << "      Seek test." << endl;
                     VideoDecoderPtr pDecoder = createDecoder();
                     pDecoder->setAudioFormat(2, 44100);
-                    pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
-                            isDemuxerThreaded());
+                    pDecoder->open(getSrcDir()+"testfiles/"+sFilename, getAudioParams(),
+                            OGL_NONE, isDemuxerThreaded());
                     long long Duration = pDecoder->getDuration();
                     pDecoder->seek(Duration/2);
-                    unsigned char AudioBuffer[16];
-                    pDecoder->fillAudioFrame(AudioBuffer, 16);
+                    AudioBufferPtr pAudioBuffer = createAudioBuffer(4);
+                    pDecoder->fillAudioBuffer(pAudioBuffer);
                     TEST(abs(long(Duration/2-pDecoder->getCurTime())) < 60); // 60 ms accuracy for seeks.
-                    int TotalBytesDecoded = 16;
+                    int TotalFramesDecoded = 4;
 
-                    readAudioToEOF(pDecoder, TotalBytesDecoded, false);
+                    readAudioToEOF(pDecoder, TotalFramesDecoded, false);
                     if ((sFilename.find(".ogg") == string::npos) &&
                         (sFilename.find(".mp3") == string::npos))
                     {
                         // Check if we've decoded half the file.
                         // TODO: Find out why there are problems with this
                         // for ogg and mp3 files.
-                        int FramesDecoded = TotalBytesDecoded/4;
                         int FramesInDuration = int(pDecoder->getDuration()*44100/1000);
 //                        cerr << "FramesDecoded: " << FramesDecoded << endl;
 //                        cerr << "FramesInDuration: " << FramesInDuration << endl;
-                        TEST (abs(FramesDecoded-FramesInDuration/2) < 45);
+                        TEST (abs(TotalFramesDecoded-FramesInDuration/2) < 45);
                     }
 
                 }
@@ -343,19 +352,20 @@ class AudioDecoderTest: public DecoderTest {
             }
         }
 
-        void readAudioToEOF(VideoDecoderPtr pDecoder, int& TotalBytesDecoded, 
+        void readAudioToEOF(VideoDecoderPtr pDecoder, int& TotalFramesDecoded,
                 bool bCheckTimestamps) 
         {
             int NumWrongTimestamps = 0;
             while(!pDecoder->isEOF()) {
-                unsigned char AudioBuffer[1024];
-                int BytesDecoded = 0;
-                while (BytesDecoded == 0 && !pDecoder->isEOF()) {
-                    BytesDecoded = pDecoder->fillAudioFrame(AudioBuffer, 1024);
+                AudioBufferPtr pBuffer = createAudioBuffer(256);
+                int FramesDecoded = 0;
+                while (FramesDecoded == 0 && !pDecoder->isEOF()) {
+                    FramesDecoded = pDecoder->fillAudioBuffer(pBuffer);
+//                    cerr << "FramesDecoded: " << FramesDecoded << endl;
                     msleep(0);
                 }
-                TotalBytesDecoded += BytesDecoded;
-                long long CurTime = int((TotalBytesDecoded/4)/44.1);
+                TotalFramesDecoded += FramesDecoded;
+                long long CurTime = int(TotalFramesDecoded/44.1);
                 if (abs(long(CurTime-pDecoder->getCurTime())) > 20) {
                     NumWrongTimestamps++;
                 }
@@ -367,7 +377,6 @@ class AudioDecoderTest: public DecoderTest {
                 }
             }
         }
-        
 };
 
 class AVDecoderTest: public DecoderTest {
@@ -386,12 +395,12 @@ class AVDecoderTest: public DecoderTest {
         {
             VideoDecoderPtr pDecoder = createDecoder();
             pDecoder->setAudioFormat(2, 44100);
-            pDecoder->open(getSrcDir()+"testfiles/"+sFilename, OGL_NONE, 
-                    isDemuxerThreaded());
+            pDecoder->open(getSrcDir()+"testfiles/"+sFilename, getAudioParams(),
+                    OGL_NONE, isDemuxerThreaded());
             IntPoint FrameSize = pDecoder->getSize();
             BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
             int NumFrames = 0;
-            int TotalBytesDecoded = 0;
+            int TotalFramesDecoded = 0;
 
             while(!pDecoder->isEOF()) {
                 FrameAvailableCode FrameAvailable;
@@ -406,13 +415,13 @@ class AVDecoderTest: public DecoderTest {
 //                    pBmp->save(ss.str());
                     NumFrames++;
                 }
-                unsigned char AudioBuffer[1024];
-                int BytesDecoded = 0;
-                while (BytesDecoded == 0 && !pDecoder->isEOF(SS_AUDIO)) {
-                    BytesDecoded = pDecoder->fillAudioFrame(AudioBuffer, 1024);
+                AudioBufferPtr pBuffer = createAudioBuffer(256);
+                int FramesDecoded = 0;
+                while (FramesDecoded == 0 && !pDecoder->isEOF(SS_AUDIO)) {
+                    FramesDecoded = pDecoder->fillAudioBuffer(pBuffer);
                     msleep(0);
                 }
-                TotalBytesDecoded += BytesDecoded;
+                TotalFramesDecoded += FramesDecoded;
 //                cerr << "BytesDecoded: " << BytesDecoded << endl;
             }
             TEST(pDecoder->isEOF(SS_VIDEO));
@@ -421,10 +430,9 @@ class AVDecoderTest: public DecoderTest {
             compareImages(pBmp, sFilename+"_end");
 
             // Check if audio length was ok.
-            int FramesDecoded = TotalBytesDecoded/4;
             int FramesInDuration = int(pDecoder->getDuration()*44100/1000);
 //            cerr << "FramesDecoded: " << FramesDecoded << ", FramesInDuration: " << FramesInDuration << endl;
-            TEST (abs(FramesDecoded-FramesInDuration) < 45);
+            TEST (abs(TotalFramesDecoded-FramesInDuration) < 45);
             
             // Test loop.
             pDecoder->seek(0);
@@ -444,7 +452,7 @@ public:
         addTest(TestPtr(new VideoDecoderTest(false, false)));
         addTest(TestPtr(new VideoDecoderTest(false, true)));
         addTest(TestPtr(new VideoDecoderTest(true, true)));
-       
+
         addTest(TestPtr(new AudioDecoderTest(false, false)));
         addTest(TestPtr(new AudioDecoderTest(false, true)));
         addTest(TestPtr(new AudioDecoderTest(true, true)));

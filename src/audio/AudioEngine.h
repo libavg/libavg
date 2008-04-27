@@ -34,13 +34,15 @@ namespace avg {
 typedef std::vector<IAudioSource*> AudioSourceList;
 
 class AudioEngine
-{	
+{
     public:
         AudioEngine();
         virtual ~AudioEngine();
 
         virtual int getChannels() = 0;
         virtual int getSampleRate() = 0;
+        virtual const AudioParams & getParams() = 0;
+
         virtual void setAudioEnabled(bool bEnabled);
         
         virtual void init(const AudioParams& AP) = 0;

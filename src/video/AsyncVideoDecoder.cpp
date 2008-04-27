@@ -61,8 +61,8 @@ AsyncVideoDecoder::~AsyncVideoDecoder()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void AsyncVideoDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
-        bool bThreadedDemuxer)
+void AsyncVideoDecoder::open(const std::string& sFilename, const AudioParams& AP,
+        YCbCrMode ycbcrMode, bool bThreadedDemuxer)
 {
     m_bAudioEOF = false;
     m_bVideoEOF = false;
@@ -71,7 +71,7 @@ void AsyncVideoDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
     m_sFilename = sFilename;
 
     m_pSyncDecoder->setAudioFormat(m_Channels, m_SampleRate);
-    m_pSyncDecoder->open(m_sFilename, ycbcrMode, bThreadedDemuxer);
+    m_pSyncDecoder->open(m_sFilename, AP, ycbcrMode, bThreadedDemuxer);
     m_pSyncDecoder->setMasterStream(SS_DEFAULT);
     
     if (m_pSyncDecoder->hasVideo()) {
@@ -86,7 +86,7 @@ void AsyncVideoDecoder::open(const std::string& sFilename, YCbCrMode ycbcrMode,
         m_pACmdQ = AudioDecoderThread::CmdQueuePtr(new AudioDecoderThread::CmdQueue);
         m_pAMsgQ = VideoMsgQueuePtr(new VideoMsgQueue(8));
         m_pADecoderThread = new boost::thread(
-                 AudioDecoderThread(*m_pACmdQ, *m_pAMsgQ, m_pSyncDecoder));
+                 AudioDecoderThread(*m_pACmdQ, *m_pAMsgQ, m_pSyncDecoder, AP));
         m_AudioMsgData = 0;
         m_AudioMsgSize = 0;
         m_LastAudioFrameTime = 0;
@@ -306,7 +306,7 @@ bool AsyncVideoDecoder::isEOF(StreamSelect Stream)
     }
 }
 
-int AsyncVideoDecoder::fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize)
+int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
     if (m_bAudioEOF || !m_bAudioEnabled || !m_pADecoderThread) {
         // TODO: Currently, every video starts an audio playback, even if there's no
@@ -315,6 +315,10 @@ int AsyncVideoDecoder::fillAudioFrame(unsigned char* audioBuffer, int audioBuffe
     }
     scoped_lock Lock(m_AudioMutex);
     waitForSeekDone();
+
+    unsigned char* audioBuffer = (unsigned char *)(pBuffer->getData());
+    int audioBufferSize = pBuffer->getNumFrames()*sizeof(short)*m_Channels;
+
     int bufferLeftToFill = audioBufferSize;
     while (bufferLeftToFill > 0) {
         while (m_AudioMsgSize > 0 && bufferLeftToFill > 0) {
@@ -336,21 +340,22 @@ int AsyncVideoDecoder::fillAudioFrame(unsigned char* audioBuffer, int audioBuffe
                 EOFVideoMsgPtr pEOFMsg(dynamic_pointer_cast<EOFVideoMsg>(pMsg));
                 if (pEOFMsg) {
                     m_bAudioEOF = true;
-                    return audioBufferSize-bufferLeftToFill;
+                    return pBuffer->getNumFrames()-bufferLeftToFill/(sizeof(short)*m_Channels);
                 }
 
                 m_pAudioMsg = dynamic_pointer_cast<AudioVideoMsg>(pMsg);
                 assert(m_pAudioMsg);
 
-                m_AudioMsgSize = m_pAudioMsg->getSize();
-                m_AudioMsgData = m_pAudioMsg->getBuffer();
-                m_LastAudioFrameTime = m_pAudioMsg->getFrameTime();
+                m_AudioMsgSize = m_pAudioMsg->getBuffer()->getNumFrames()
+                        *sizeof(short)*m_Channels;
+                m_AudioMsgData = (unsigned char *)(m_pAudioMsg->getBuffer()->getData());
+                m_LastAudioFrameTime = m_pAudioMsg->getTime();
             } catch (Exception &) {
-                return audioBufferSize-bufferLeftToFill;
+                return pBuffer->getNumFrames()-bufferLeftToFill/(sizeof(short)*m_Channels);
             }
         }
     }
-    return audioBufferSize;
+    return pBuffer->getNumFrames();
 }
         
 FrameVideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long TimeWanted, 

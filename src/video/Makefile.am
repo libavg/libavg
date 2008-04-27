@@ -23,6 +23,7 @@ libvideo_la_SOURCES = FFMpegDemuxer.cpp VideoDemuxerThread.cpp FFMpegDecoder.cpp
 		$(ALL_H)
 
 testvideo_SOURCES = testvideo.cpp $(ALL_H)
-testvideo_LDADD = ./libvideo.la ../graphics/libgraphics.la ../base/libbase.la
+testvideo_LDADD = ./libvideo.la ../audio/libaudio.la ../graphics/libgraphics.la \
+        ../base/libbase.la
 testvideo_LDFLAGS = @XML2_LIBS@  -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ \
 		@LIBFFMPEG@  @SWSCALE_LIBS@ $(MAGICK_LIBS)

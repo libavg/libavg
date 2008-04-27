@@ -66,7 +66,7 @@ class Sound : public Node, IFrameListener, IAudioSource
         virtual void onFrameEnd();
         virtual void setAudioEnabled(bool bEnabled);
 
-        virtual void fillAudioBuffer(AudioBufferPtr pBuffer);
+        virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
 
     private:
         void seek(long long DestTime);

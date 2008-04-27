@@ -212,11 +212,12 @@ void Sound::setAudioEnabled(bool bEnabled)
     }
 }
 
-void Sound::fillAudioBuffer(AudioBufferPtr pBuffer)
+int Sound::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
     if (m_State == Playing) {
-        m_pDecoder->fillAudioFrame((unsigned char *)(pBuffer->getData()), 
-                pBuffer->getNumFrames()*4);
+        return m_pDecoder->fillAudioBuffer(pBuffer);
+    } else {
+        return 0;
     }
 }
 
@@ -255,7 +256,7 @@ void Sound::open()
 {
     m_pDecoder->setAudioFormat(getAudioEngine()->getChannels(),
             getAudioEngine()->getSampleRate());
-    m_pDecoder->open(m_Filename, OGL_NONE, true);
+    m_pDecoder->open(m_Filename, getAudioEngine()->getParams(), OGL_NONE, true);
     m_pDecoder->setAudioEnabled(m_bAudioEnabled);
     m_pDecoder->setVolume(m_Volume);
     if (getAudioEngine()) {

@@ -58,6 +58,11 @@ int SDLAudioEngine::getSampleRate()
     return m_AP.m_SampleRate;
 }
 
+const AudioParams & SDLAudioEngine::getParams()
+{
+    return m_AP;
+}
+
 void SDLAudioEngine::init(const AudioParams& AP) 
 {
     m_AP = AP;

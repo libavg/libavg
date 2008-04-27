@@ -26,6 +26,8 @@
 
 #include "VideoMsg.h"
 
+#include "../audio/AudioBuffer.h"
+
 #ifdef _WIN32
 #define EMULATE_INTTYPES
 #else
@@ -48,17 +50,16 @@ namespace avg {
 class AudioVideoMsg : public VideoMsg
 {
 public:
-    AudioVideoMsg(int Size, long long Time);
+    AudioVideoMsg(AudioBufferPtr pBuffer, long long Time);
     virtual ~AudioVideoMsg();
 
-    unsigned char* getBuffer();
-    int getSize();
-    long long getFrameTime();
+    AudioBufferPtr getBuffer();
+    long long getTime();
 
 private:
-    unsigned char* m_pBuffer;
+    AudioBufferPtr m_pBuffer;
     int m_Size;
-    long long m_FrameTime;
+    long long m_Time;
 };
 
 typedef boost::shared_ptr<AudioVideoMsg> AudioVideoMsgPtr;

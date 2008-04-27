@@ -23,6 +23,7 @@
 #define _IVideoDecoder_H_
 
 #include "../graphics/Bitmap.h"
+#include "../audio/IAudioSource.h"
 
 #include <string>
 
@@ -44,8 +45,8 @@ class IVideoDecoder
 {
     public:
         virtual ~IVideoDecoder() {};
-        virtual void open(const std::string& sFilename, YCbCrMode ycbcrMode,
-                bool bSyncDemuxer) = 0;
+        virtual void open(const std::string& sFilename, const AudioParams& AP,
+                YCbCrMode ycbcrMode, bool bSyncDemuxer) = 0;
         virtual void close() = 0;
         virtual void seek(long long DestTime) = 0;
         virtual StreamSelect getMasterStream() = 0;
@@ -73,7 +74,7 @@ class IVideoDecoder
                 BitmapPtr pBmpCr, long long TimeWanted) = 0;
         virtual bool isEOF(StreamSelect Stream = SS_ALL) = 0;
         
-        virtual int fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize) = 0;
+        virtual int fillAudioBuffer(AudioBufferPtr pBuffer) = 0;
 };
 
 typedef boost::shared_ptr<IVideoDecoder> VideoDecoderPtr;

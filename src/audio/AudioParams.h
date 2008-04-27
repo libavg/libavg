@@ -28,8 +28,7 @@ namespace avg {
 
 struct AudioParams {
     AudioParams();
-    virtual ~AudioParams();
-
+    AudioParams(int sampleRate, int channels, int outputBufferSamples);
     int m_SampleRate;
     int m_Channels;
     int m_OutputBufferSamples;

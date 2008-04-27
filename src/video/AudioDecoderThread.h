@@ -29,6 +29,7 @@
 
 #include "../base/WorkerThread.h"
 #include "../base/Command.h"
+#include "../audio/AudioParams.h"
 
 #include <boost/thread.hpp>
 
@@ -39,16 +40,16 @@ namespace avg {
 class AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
     public:
         AudioDecoderThread(CmdQueue& CmdQ, VideoMsgQueue& MsgQ, 
-                VideoDecoderPtr pDecoder);
+                VideoDecoderPtr pDecoder, const AudioParams& AP);
         virtual ~AudioDecoderThread();
         
         bool work();
         void seek(long long DestTime);
 
     private:
-        int m_BufferSize;
         VideoMsgQueue& m_MsgQ;
         VideoDecoderPtr m_pDecoder;
+        AudioParams m_AP;
 };
 
 }

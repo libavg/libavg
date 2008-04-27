@@ -28,18 +28,19 @@
 
 #include "../base/Logger.h"
 
-#define AUDIO_BUFFER_SIZE 1024
+// In Audio frames.
+#define AUDIO_BUFFER_SIZE 256
 
 using namespace std;
 
 namespace avg {
 
 AudioDecoderThread::AudioDecoderThread(CmdQueue& CmdQ, VideoMsgQueue& MsgQ, 
-        VideoDecoderPtr pDecoder)
+        VideoDecoderPtr pDecoder, const AudioParams& AP)
     : WorkerThread<AudioDecoderThread>(string("AudioDecoderThread"), CmdQ),
-      m_BufferSize(AUDIO_BUFFER_SIZE),
       m_MsgQ(MsgQ),
-      m_pDecoder(pDecoder)
+      m_pDecoder(pDecoder),
+      m_AP(AP)
 {
 }
 
@@ -53,18 +54,17 @@ bool AudioDecoderThread::work()
         // replace this with waitForMessage()
         msleep(10);
     } else {
-        AudioVideoMsgPtr pVMsg = AudioVideoMsgPtr(new AudioVideoMsg(m_BufferSize, 
-                    m_pDecoder->getCurTime(SS_AUDIO)));
-        int BytesWritten = m_pDecoder->fillAudioFrame(pVMsg->getBuffer(), pVMsg->getSize());
-        if (BytesWritten != pVMsg->getSize()) {
-            AudioVideoMsgPtr pOldMsg = pVMsg;
-            pVMsg = AudioVideoMsgPtr(new AudioVideoMsg(BytesWritten, 
-                        m_pDecoder->getCurTime(SS_AUDIO)));
-            memcpy(pVMsg->getBuffer(), pOldMsg->getBuffer(), BytesWritten);
-            m_MsgQ.push(pVMsg);
-        } else {
-            m_MsgQ.push(pVMsg);
+        AudioBufferPtr pBuffer(new AudioBuffer(AUDIO_BUFFER_SIZE, m_AP));
+        int FramesWritten = m_pDecoder->fillAudioBuffer(pBuffer);
+        if (FramesWritten != AUDIO_BUFFER_SIZE) {
+            AudioBufferPtr pOldBuffer = pBuffer;
+            pBuffer = AudioBufferPtr(new AudioBuffer(FramesWritten, m_AP));
+            memcpy(pBuffer->getData(), pOldBuffer->getData(),
+                    FramesWritten*m_AP.m_Channels*sizeof(short));
         }
+        AudioVideoMsgPtr pVMsg = AudioVideoMsgPtr(new AudioVideoMsg(pBuffer,
+                    m_pDecoder->getCurTime(SS_AUDIO)));
+        m_MsgQ.push(pVMsg);
         if (m_pDecoder->isEOF(SS_AUDIO)) {
             m_MsgQ.push(VideoMsgPtr(new EOFVideoMsg())); 
         }

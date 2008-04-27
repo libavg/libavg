@@ -29,6 +29,7 @@
 #include "AudioVideoMsg.h"
 
 #include "../graphics/Bitmap.h"
+#include "../audio/AudioParams.h"
 
 #include <boost/thread/mutex.hpp>
 
@@ -41,8 +42,8 @@ class AsyncVideoDecoder: public IVideoDecoder
     public:
         AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder);
         virtual ~AsyncVideoDecoder();
-        virtual void open(const std::string& sFilename, YCbCrMode ycbcrMode,
-                bool bSyncDemuxer);
+        virtual void open(const std::string& sFilename, const AudioParams& AP,
+                YCbCrMode ycbcrMode, bool bSyncDemuxer);
         virtual void close();
         virtual void seek(long long DestTime);
         virtual StreamSelect getMasterStream();
@@ -70,7 +71,7 @@ class AsyncVideoDecoder: public IVideoDecoder
                 BitmapPtr pBmpCr, long long TimeWanted);
         virtual bool isEOF(StreamSelect Stream = SS_ALL);
         
-        virtual int fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize);
+        virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
         
     private:
         FrameVideoMsgPtr getBmpsForTime(long long TimeWanted, 

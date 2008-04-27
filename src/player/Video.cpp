@@ -262,11 +262,12 @@ void Video::setAudioEnabled(bool bEnabled)
     }
 }
 
-void Video::fillAudioBuffer(AudioBufferPtr pBuffer)
+int Video::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
     if (m_bAudioEnabled && getVideoState() == Playing) {
-        m_pDecoder->fillAudioFrame((unsigned char *)(pBuffer->getData()), 
-                pBuffer->getNumFrames()*4);
+        return m_pDecoder->fillAudioBuffer(pBuffer);
+    } else {
+        return 0;
     }
 }
 
@@ -305,7 +306,7 @@ void Video::open(YCbCrMode ycbcrMode)
     m_FramesPlayed = 0;
     m_pDecoder->setAudioFormat(getAudioEngine()->getChannels(),
             getAudioEngine()->getSampleRate());
-    m_pDecoder->open(m_Filename, ycbcrMode, m_bThreaded);
+    m_pDecoder->open(m_Filename, getAudioEngine()->getParams(), ycbcrMode, m_bThreaded);
     m_pDecoder->setAudioEnabled(m_bAudioEnabled);
     m_pDecoder->setVolume(m_Volume);
     if(m_SpeedFactor != 1.0) {

@@ -25,31 +25,24 @@
 
 namespace avg {
 
-AudioVideoMsg::AudioVideoMsg(int Size, long long Time) :
-    m_Size(Size),
-    m_FrameTime(Time)
+AudioVideoMsg::AudioVideoMsg(AudioBufferPtr pBuffer, long long Time) :
+    m_pBuffer(pBuffer),
+    m_Time(Time)
 {
-    m_pBuffer = (unsigned char*)av_malloc(m_Size);
 }
 
 AudioVideoMsg::~AudioVideoMsg()
 {
-    av_free(m_pBuffer);
 }
 
-unsigned char* AudioVideoMsg::getBuffer()
+AudioBufferPtr AudioVideoMsg::getBuffer()
 {
     return m_pBuffer;
 }
 
-int AudioVideoMsg::getSize()
+long long AudioVideoMsg::getTime()
 {
-    return m_Size;
-}
-
-long long AudioVideoMsg::getFrameTime()
-{
-    return m_FrameTime;
+    return m_Time;
 }
 
 }

@@ -36,7 +36,7 @@ class IAudioSource
     public:
         virtual ~IAudioSource() {};
         virtual void setAudioEnabled(bool bEnabled) = 0;
-        virtual void fillAudioBuffer(AudioBufferPtr pBuffer) = 0;
+        virtual int fillAudioBuffer(AudioBufferPtr pBuffer) = 0;
 };
 
 typedef boost::weak_ptr<IAudioSource> IAudioSourceWeakPtr;

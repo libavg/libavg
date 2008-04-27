@@ -55,13 +55,15 @@ extern "C" {
 
 namespace avg {
 
+class AudioBuffer;
+
 class FFMpegDecoder: public IVideoDecoder
 {
     public:
         FFMpegDecoder();
         virtual ~FFMpegDecoder();
-        virtual void open(const std::string& sFilename, YCbCrMode ycbcrMode,
-                bool bThreadedDemuxer);
+        virtual void open(const std::string& sFilename, const AudioParams&,
+                YCbCrMode ycbcrMode, bool bThreadedDemuxer);
         virtual void close();
         virtual void seek(long long DestTime);
         virtual StreamSelect getMasterStream();
@@ -88,8 +90,8 @@ class FFMpegDecoder: public IVideoDecoder
         virtual FrameAvailableCode renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr, long long TimeWanted);
         virtual bool isEOF(StreamSelect Stream = SS_ALL);
-        
-        virtual int fillAudioFrame(unsigned char* audioBuffer, int audioBufferSize);
+
+        virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
 
     private:
         void initVideoSupport();
@@ -132,7 +134,6 @@ class FFMpegDecoder: public IVideoDecoder
         int m_SampleBufferStart;
         int m_SampleBufferEnd;
         int m_SampleBufferLeft;
-        int m_SampleBufferSize;
         char * m_pResampleBuffer;
         int m_ResampleBufferEnd;
         int m_ResampleBufferStart;

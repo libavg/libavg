@@ -26,18 +26,15 @@
 #include "../base/ObjectCounter.h"
 
 namespace avg {
+    AudioParams::AudioParams()
+    {
+    }
 
-AudioParams::AudioParams()
-    : m_SampleRate(0),
-      m_Channels(0)
-{ 
-    ObjectCounter::get()->incRef(&typeid(*this));
-}
-
-AudioParams::~AudioParams()
-{
-    ObjectCounter::get()->decRef(&typeid(*this));
-}
-
+    AudioParams::AudioParams(int sampleRate, int channels, int outputBufferSamples)
+        : m_SampleRate(sampleRate),
+          m_Channels(channels),
+          m_OutputBufferSamples(outputBufferSamples)
+    {
+    }
 }
 
