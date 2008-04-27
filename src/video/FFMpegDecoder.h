@@ -105,7 +105,7 @@ class FFMpegDecoder: public IVideoDecoder
         int copyResampledAudio(unsigned char* buf, int size);
         void resampleAudio();
         int decodeAudio();
-        void volumize(short* buffer, int size);
+        void volumize(AudioBufferPtr pBuffer);
 
         IDemuxer * m_pDemuxer;
         AVFormatContext * m_pFormatContext;

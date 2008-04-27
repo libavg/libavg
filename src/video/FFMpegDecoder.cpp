@@ -737,7 +737,7 @@ int FFMpegDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
                 m_LastAudioFrameTime += (m_SpeedFactor * 1000.0 * bytesProduced /
                         (2 * m_Channels * m_SampleRate));
                 if (bufferLeft == 0) {
-                    volumize((short*)outputAudioBuffer, outputAudioBufferSize/2);
+                    volumize(pBuffer);
                     return pBuffer->getNumFrames();
                 }
             }
@@ -1067,28 +1067,29 @@ long long FFMpegDecoder::getStartTime(StreamSelect Stream)
 }
 
 // TODO: this should be logarithmic...
-void FFMpegDecoder::volumize(short* buffer, int size)
+void FFMpegDecoder::volumize(AudioBufferPtr pBuffer)
 {
     double curVol = m_Volume;
     double volDiff = m_LastVolume - curVol;
     
     if(curVol == 1.0 && volDiff == 0.0)
         return;
-    
-    for(int i = 0; i < size; i++)
-    {
+   
+    short * pData = pBuffer->getData();
+    for (int i = 0; i < pBuffer->getNumFrames()*pBuffer->getNumChannels(); i++) {
         double fadeVol = 0;
-        if(volDiff != 0 && i < VOLUME_FADE_SAMPLES)
+        if (volDiff != 0 && i < VOLUME_FADE_SAMPLES) {
             fadeVol = volDiff * (VOLUME_FADE_SAMPLES - i) / VOLUME_FADE_SAMPLES;
+        }
         
-        int s = int(buffer[i] * (curVol + fadeVol));
+        int s = int(pData[i] * (curVol + fadeVol));
         
         if (s < -32768)
             s = -32768;
         if (s >  32767)
             s = 32767;
         
-        buffer[i] = s;
+        pData[i] = s;
     }
     m_LastVolume = curVol;
 }
