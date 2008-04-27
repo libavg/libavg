@@ -262,10 +262,11 @@ void Video::setAudioEnabled(bool bEnabled)
     }
 }
 
-void Video::fillAudioFrame(AudioFrame* frame)
+void Video::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
     if (m_bAudioEnabled && getVideoState() == Playing) {
-        m_pDecoder->fillAudioFrame(frame->getBuffer(), frame->getSize());
+        m_pDecoder->fillAudioFrame((unsigned char *)(pBuffer->getData()), 
+                pBuffer->getNumFrames()*4);
     }
 }
 

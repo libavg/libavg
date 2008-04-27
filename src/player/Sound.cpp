@@ -212,10 +212,11 @@ void Sound::setAudioEnabled(bool bEnabled)
     }
 }
 
-void Sound::fillAudioFrame(AudioFrame* frame)
+void Sound::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
     if (m_State == Playing) {
-        m_pDecoder->fillAudioFrame(frame->getBuffer(), frame->getSize());
+        m_pDecoder->fillAudioFrame((unsigned char *)(pBuffer->getData()), 
+                pBuffer->getNumFrames()*4);
     }
 }
 

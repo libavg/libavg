@@ -24,7 +24,7 @@
 #ifndef _IAudioSource_H_
 #define _IAudioSource_H_
 
-#include "AudioFrame.h"
+#include "AudioBuffer.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
@@ -36,7 +36,7 @@ class IAudioSource
     public:
         virtual ~IAudioSource() {};
         virtual void setAudioEnabled(bool bEnabled) = 0;
-        virtual void fillAudioFrame(AudioFrame* frame) = 0;
+        virtual void fillAudioBuffer(AudioBufferPtr pBuffer) = 0;
 };
 
 typedef boost::weak_ptr<IAudioSource> IAudioSourceWeakPtr;

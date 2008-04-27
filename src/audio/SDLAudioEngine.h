@@ -25,7 +25,7 @@
 #define _SDLAudioEngine_H_
 
 #include "AudioEngine.h"
-#include "AudioFrame.h"
+#include "AudioBuffer.h"
 #include "IProcessor.h"
 
 #include <SDL/SDL.h>
@@ -55,10 +55,10 @@ class SDLAudioEngine : public AudioEngine
     private:
         void mixAudio(Uint8 *pDestBuffer, int destBufferLen);
         static void audioCallback(void *userData, Uint8 *audioBuffer, int audioBufferLen);
-        void addBuffers(double *pDest, short *pSrc, int numFrames);
+        void addBuffers(double *pDest, AudioBufferPtr pSrc);
         
         AudioParams m_AP;
-        AudioFrame* m_TempFrame;
+        AudioBufferPtr m_pTempBuffer;
         double * m_pMixBuffer;
         IProcessor<double>* m_pLimiter;
 };

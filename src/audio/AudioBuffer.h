@@ -21,47 +21,36 @@
 //  Original author of this file is Nick Hebner (hebnern@gmail.com).
 //
 
-#include "AudioFrame.h"
+#ifndef _AudioBuffer_H_
+#define _AudioBuffer_H_
 
-#include <string>
+#include "AudioParams.h"
 
-namespace avg {
+#include <boost/shared_ptr.hpp>
 
-AudioFrame::AudioFrame(int size, AudioParams AP)
-    : m_Size(size),
-    m_AP(AP)
+namespace avg
 {
-    m_Buffer = new unsigned char[size];
-}
 
-AudioFrame::~AudioFrame()
+class AudioBuffer
 {
-    delete m_Buffer;
-}
+    public:
+        AudioBuffer(int numFrames, AudioParams AP);
+        virtual ~AudioBuffer();
 
-unsigned char* AudioFrame::getBuffer()
-{
-    return m_Buffer;
-}
+        short* getData();
+        int getNumFrames();
+        int getNumChannels();
+        int getRate();
+        void clear();
 
-int AudioFrame::getSize()
-{
-    return m_Size;
-}
+    private:
+        int m_NumFrames;
+        short* m_pData;
+        AudioParams m_AP;
+};
 
-int AudioFrame::getChannels()
-{
-    return m_AP.m_Channels;
-}
-
-int AudioFrame::getRate()
-{
-    return m_AP.m_SampleRate;
-}
-
-void AudioFrame::clear()
-{
-    memset(m_Buffer, 0, m_Size);
-}
+typedef boost::shared_ptr<AudioBuffer> AudioBufferPtr;
 
 }
+
+#endif /*AUDIOFRAME_H_*/

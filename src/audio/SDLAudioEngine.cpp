@@ -33,7 +33,7 @@
 namespace avg {
 
 SDLAudioEngine::SDLAudioEngine()
-    : m_TempFrame(0),
+    : m_pTempBuffer(),
       m_pMixBuffer(0),
       m_pLimiter(0)
 {
@@ -45,9 +45,6 @@ SDLAudioEngine::SDLAudioEngine()
 
 SDLAudioEngine::~SDLAudioEngine()
 {
-    if (m_TempFrame) {
-        delete m_TempFrame;
-    }
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
@@ -139,12 +136,11 @@ void SDLAudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
     if (getSources().size() == 0) {
         return;
     }
-    if (!m_TempFrame || m_TempFrame->getSize() < destBufferLen) {
-        if (m_TempFrame) {
-            delete m_TempFrame;
+    if (!m_pTempBuffer || m_pTempBuffer->getNumFrames() < numFrames) {
+        if (m_pTempBuffer) {
             delete m_pMixBuffer;
         }
-        m_TempFrame = new AudioFrame(destBufferLen, m_AP);
+        m_pTempBuffer = AudioBufferPtr(new AudioBuffer(numFrames, m_AP));
         m_pMixBuffer = new double[getChannels()*numFrames];
     }
 
@@ -153,9 +149,9 @@ void SDLAudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
     }
     AudioSourceList::iterator it;
     for(it = getSources().begin(); it != getSources().end(); it++) {
-        m_TempFrame->clear();
-        (*it)->fillAudioFrame(m_TempFrame);
-        addBuffers(m_pMixBuffer, (short*)m_TempFrame->getBuffer(), numFrames);
+        m_pTempBuffer->clear();
+        (*it)->fillAudioBuffer(m_pTempBuffer);
+        addBuffers(m_pMixBuffer, m_pTempBuffer);
     }
     for (int i=0; i<numFrames; ++i) {
         m_pLimiter->process(m_pMixBuffer+i*getChannels());
@@ -171,10 +167,12 @@ void SDLAudioEngine::audioCallback(void *userData, Uint8 *audioBuffer, int audio
     pThis->mixAudio(audioBuffer, audioBufferLen);
 }
 
-void SDLAudioEngine::addBuffers(double *pDest, short *pSrc, int numFrames)
+void SDLAudioEngine::addBuffers(double *pDest, AudioBufferPtr pSrc)
 {
+    int numFrames = pSrc->getNumFrames();
+    short * pData = pSrc->getData();
     for(int i = 0; i < numFrames*getChannels(); ++i) {
-        pDest[i] += pSrc[i]/32768.0;
+        pDest[i] += pData[i]/32768.0;
     }
 }
 

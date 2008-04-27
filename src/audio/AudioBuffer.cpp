@@ -21,32 +21,47 @@
 //  Original author of this file is Nick Hebner (hebnern@gmail.com).
 //
 
-#ifndef _AudioFrame_H_
-#define _AudioFrame_H_
+#include "AudioBuffer.h"
 
-#include "AudioParams.h"
+#include <string>
 
-namespace avg
+namespace avg {
+
+AudioBuffer::AudioBuffer(int numFrames, AudioParams AP)
+    : m_NumFrames(numFrames),
+      m_AP(AP)
 {
-
-class AudioFrame
-{
-    public:
-        AudioFrame(int size, AudioParams AP);
-        virtual ~AudioFrame();
-	
-        unsigned char* getBuffer();
-        int getSize();
-        int getChannels();
-        int getRate();
-        void clear();
-        
-    private:
-        int m_Size;
-        unsigned char* m_Buffer;
-        AudioParams m_AP;
-};
-
+    m_pData = new short[numFrames*sizeof(short)*AP.m_Channels];
 }
 
-#endif /*AUDIOFRAME_H_*/
+AudioBuffer::~AudioBuffer()
+{
+    delete[] m_pData;
+}
+
+short* AudioBuffer::getData()
+{
+    return m_pData;
+}
+
+int AudioBuffer::getNumFrames()
+{
+    return m_NumFrames;
+}
+
+int AudioBuffer::getNumChannels()
+{
+    return m_AP.m_Channels;
+}
+
+int AudioBuffer::getRate()
+{
+    return m_AP.m_SampleRate;
+}
+
+void AudioBuffer::clear()
+{
+    memset(m_pData, 0, m_NumFrames*sizeof(short)*m_AP.m_Channels);
+}
+
+}

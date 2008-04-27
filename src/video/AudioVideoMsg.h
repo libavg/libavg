@@ -48,13 +48,13 @@ namespace avg {
 class AudioVideoMsg : public VideoMsg
 {
 public:
-	AudioVideoMsg(int Size, long long Time);
-	virtual ~AudioVideoMsg();
-	
-	unsigned char* getBuffer();
-	int getSize();
-	long long getFrameTime();
-	
+    AudioVideoMsg(int Size, long long Time);
+    virtual ~AudioVideoMsg();
+
+    unsigned char* getBuffer();
+    int getSize();
+    long long getFrameTime();
+
 private:
     unsigned char* m_pBuffer;
     int m_Size;
