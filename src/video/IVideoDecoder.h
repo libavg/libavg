@@ -66,7 +66,6 @@ class IVideoDecoder
         virtual double getVolume() = 0;
         virtual void setVolume(double Volume) = 0;
         virtual void setAudioEnabled(bool bEnabled) = 0;
-        virtual void setAudioFormat(int Channels, int SampleRate) = 0;
         virtual PixelFormat getPixelFormat() = 0;
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted) = 0;

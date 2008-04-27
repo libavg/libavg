@@ -49,6 +49,16 @@ int AudioBuffer::getNumFrames()
     return m_NumFrames;
 }
 
+int AudioBuffer::getNumBytes()
+{
+    return m_NumFrames*m_AP.m_Channels*sizeof(short);
+}
+
+int AudioBuffer::getFrameSize()
+{
+    return m_AP.m_Channels*sizeof(short);
+}
+
 int AudioBuffer::getNumChannels()
 {
     return m_AP.m_Channels;

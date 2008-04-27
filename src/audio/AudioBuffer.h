@@ -39,6 +39,8 @@ class AudioBuffer
 
         short* getData();
         int getNumFrames();
+        int getNumBytes();
+        int getFrameSize();
         int getNumChannels();
         int getRate();
         void clear();

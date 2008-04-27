@@ -301,7 +301,6 @@ class AudioDecoderTest: public DecoderTest {
                 {
                     cerr << "      Reading complete file." << endl;
                     VideoDecoderPtr pDecoder = createDecoder();
-                    pDecoder->setAudioFormat(2, 44100);
                     pDecoder->open(getSrcDir()+"testfiles/"+sFilename, getAudioParams(),
                             OGL_NONE, isDemuxerThreaded());
                     int TotalFramesDecoded = 0;
@@ -321,7 +320,6 @@ class AudioDecoderTest: public DecoderTest {
                 {
                     cerr << "      Seek test." << endl;
                     VideoDecoderPtr pDecoder = createDecoder();
-                    pDecoder->setAudioFormat(2, 44100);
                     pDecoder->open(getSrcDir()+"testfiles/"+sFilename, getAudioParams(),
                             OGL_NONE, isDemuxerThreaded());
                     long long Duration = pDecoder->getDuration();
@@ -394,7 +392,6 @@ class AVDecoderTest: public DecoderTest {
         void basicFileTest(const string& sFilename, int ExpectedNumFrames)
         {
             VideoDecoderPtr pDecoder = createDecoder();
-            pDecoder->setAudioFormat(2, 44100);
             pDecoder->open(getSrcDir()+"testfiles/"+sFilename, getAudioParams(),
                     OGL_NONE, isDemuxerThreaded());
             IntPoint FrameSize = pDecoder->getSize();
@@ -422,7 +419,7 @@ class AVDecoderTest: public DecoderTest {
                     msleep(0);
                 }
                 TotalFramesDecoded += FramesDecoded;
-//                cerr << "BytesDecoded: " << BytesDecoded << endl;
+//                cerr << "FramesDecoded: " << FramesDecoded << endl;
             }
             TEST(pDecoder->isEOF(SS_VIDEO));
 //            cerr << "NumFrames: " << NumFrames << endl;

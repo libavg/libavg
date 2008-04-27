@@ -254,8 +254,6 @@ void Sound::seek(long long DestTime)
 
 void Sound::open()
 {
-    m_pDecoder->setAudioFormat(getAudioEngine()->getChannels(),
-            getAudioEngine()->getSampleRate());
     m_pDecoder->open(m_Filename, getAudioEngine()->getParams(), OGL_NONE, true);
     m_pDecoder->setAudioEnabled(m_bAudioEnabled);
     m_pDecoder->setVolume(m_Volume);

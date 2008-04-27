@@ -25,6 +25,7 @@
 #include "IVideoDecoder.h"
 #include "IDemuxer.h"
 
+#include "../audio/AudioParams.h"
 #include "../base/ProfilingZone.h"
 #include "../avgconfigwrapper.h"
 
@@ -62,7 +63,7 @@ class FFMpegDecoder: public IVideoDecoder
     public:
         FFMpegDecoder();
         virtual ~FFMpegDecoder();
-        virtual void open(const std::string& sFilename, const AudioParams&,
+        virtual void open(const std::string& sFilename, const AudioParams& AP,
                 YCbCrMode ycbcrMode, bool bThreadedDemuxer);
         virtual void close();
         virtual void seek(long long DestTime);
@@ -83,7 +84,6 @@ class FFMpegDecoder: public IVideoDecoder
         virtual double getVolume();
         virtual void setVolume(double Volume);
         virtual void setAudioEnabled(bool bEnabled);
-        virtual void setAudioFormat(int Channels, int SampleRate);
         virtual PixelFormat getPixelFormat();
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted);
@@ -124,9 +124,8 @@ class FFMpegDecoder: public IVideoDecoder
 
         bool m_bForceMasterStream;
         StreamSelect m_MasterStream;
-                
-        int m_Channels;
-        int m_SampleRate;
+        
+        AudioParams m_AP;
         AVPacket * m_AudioPacket;
         unsigned char * m_AudioPacketData;
         int m_AudioPacketSize;

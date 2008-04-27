@@ -70,7 +70,6 @@ void AsyncVideoDecoder::open(const std::string& sFilename, const AudioParams& AP
     m_bAudioSeekPending = false;
     m_sFilename = sFilename;
 
-    m_pSyncDecoder->setAudioFormat(m_Channels, m_SampleRate);
     m_pSyncDecoder->open(m_sFilename, AP, ycbcrMode, bThreadedDemuxer);
     m_pSyncDecoder->setMasterStream(SS_DEFAULT);
     
@@ -258,12 +257,6 @@ void AsyncVideoDecoder::setAudioEnabled(bool bEnabled)
     m_bAudioEnabled = bEnabled;
 }
 
-void AsyncVideoDecoder::setAudioFormat(int Channels, int SampleRate)
-{
-    m_Channels = Channels;
-    m_SampleRate = SampleRate;
-}
-
 PixelFormat AsyncVideoDecoder::getPixelFormat()
 {
     return m_pSyncDecoder->getPixelFormat();
@@ -317,7 +310,7 @@ int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
     waitForSeekDone();
 
     unsigned char* audioBuffer = (unsigned char *)(pBuffer->getData());
-    int audioBufferSize = pBuffer->getNumFrames()*sizeof(short)*m_Channels;
+    int audioBufferSize = pBuffer->getNumBytes();
 
     int bufferLeftToFill = audioBufferSize;
     while (bufferLeftToFill > 0) {
@@ -330,8 +323,7 @@ int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
             audioBuffer += copyBytes;
 
             m_LastAudioFrameTime += (long long)(m_pSyncDecoder->getSpeedFactor() * 
-                    1000.0 * copyBytes / (2 * m_Channels * m_SampleRate));
-            
+                    1000.0 * copyBytes / (pBuffer->getFrameSize() * pBuffer->getRate()));
         }
         if (bufferLeftToFill != 0) {
             try {
@@ -340,18 +332,18 @@ int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
                 EOFVideoMsgPtr pEOFMsg(dynamic_pointer_cast<EOFVideoMsg>(pMsg));
                 if (pEOFMsg) {
                     m_bAudioEOF = true;
-                    return pBuffer->getNumFrames()-bufferLeftToFill/(sizeof(short)*m_Channels);
+                    return pBuffer->getNumFrames()-bufferLeftToFill/pBuffer->getFrameSize();
                 }
 
                 m_pAudioMsg = dynamic_pointer_cast<AudioVideoMsg>(pMsg);
                 assert(m_pAudioMsg);
 
                 m_AudioMsgSize = m_pAudioMsg->getBuffer()->getNumFrames()
-                        *sizeof(short)*m_Channels;
+                        *pBuffer->getFrameSize();
                 m_AudioMsgData = (unsigned char *)(m_pAudioMsg->getBuffer()->getData());
                 m_LastAudioFrameTime = m_pAudioMsg->getTime();
             } catch (Exception &) {
-                return pBuffer->getNumFrames()-bufferLeftToFill/(sizeof(short)*m_Channels);
+                return pBuffer->getNumFrames()-bufferLeftToFill/pBuffer->getFrameSize();
             }
         }
     }

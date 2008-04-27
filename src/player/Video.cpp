@@ -304,8 +304,6 @@ void Video::open(YCbCrMode ycbcrMode)
 {
     m_FramesTooLate = 0;
     m_FramesPlayed = 0;
-    m_pDecoder->setAudioFormat(getAudioEngine()->getChannels(),
-            getAudioEngine()->getSampleRate());
     m_pDecoder->open(m_Filename, getAudioEngine()->getParams(), ycbcrMode, m_bThreaded);
     m_pDecoder->setAudioEnabled(m_bAudioEnabled);
     m_pDecoder->setVolume(m_Volume);

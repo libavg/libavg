@@ -63,7 +63,6 @@ class AsyncVideoDecoder: public IVideoDecoder
         virtual double getVolume();
         virtual void setVolume(double Volume);
         virtual void setAudioEnabled(bool bEnabled);
-        virtual void setAudioFormat(int Channels, int SampleRate);
         virtual PixelFormat getPixelFormat();
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted);
@@ -93,8 +92,6 @@ class AsyncVideoDecoder: public IVideoDecoder
         AudioVideoMsgPtr m_pAudioMsg;
         unsigned char* m_AudioMsgData;
         int m_AudioMsgSize;
-        int m_Channels;
-        int m_SampleRate;
 
         bool m_bAudioEOF;
         bool m_bVideoEOF;
