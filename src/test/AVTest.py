@@ -140,11 +140,11 @@ class SoundTestCase(AVTestCase):
                      None,
                      lambda: node.stop(),
                      lambda: node.play(),
-#                     lambda: node.pause(),
-#                     lambda: node.play(),
-#                     lambda: node.pause(),
-#                     lambda: node.stop(),
-#                     lambda: node.pause()
+                     lambda: node.pause(),
+                     lambda: node.play(),
+                     lambda: node.pause(),
+                     lambda: node.stop(),
+                     lambda: node.pause()
                     ))
         for filename in ["22.050Hz_16bit_mono.wav", "44.1kHz_16bit_stereo.aif", 
                 "44.1kHz_16bit_stereo.wav", "44.1kHz_mono.ogg", "44.1kHz_stereo.mp3",
