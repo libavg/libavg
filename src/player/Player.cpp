@@ -799,7 +799,7 @@ void Player::initAudio()
     if (!m_pAudioEngine) {
         m_pAudioEngine = new SDLAudioEngine();
     }
-    m_pAudioEngine->init(m_AP);
+    m_pAudioEngine->init(m_AP, m_Volume);
     m_pAudioEngine->setAudioEnabled(!m_bFakeFPS);
     m_pAudioEngine->play();
 }
@@ -1085,6 +1085,19 @@ DisplayEngine * Player::getDisplayEngine() const
 void Player::useFakeCamera(bool bFake)
 {
     m_bUseFakeCamera = bFake;
+}
+
+void Player::setVolume(double volume)
+{
+    m_Volume = volume;
+    if (m_pAudioEngine) {
+        m_pAudioEngine->setVolume(m_Volume);
+    }
+}
+
+double Player::getVolume() const
+{
+    return m_Volume;
 }
 
 void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type Type, 

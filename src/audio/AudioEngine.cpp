@@ -30,7 +30,8 @@ using namespace std;
 namespace avg {
 
 AudioEngine::AudioEngine()
-    : m_bEnabled(true)
+    : m_bEnabled(true),
+      m_Volume(1)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -57,6 +58,11 @@ void AudioEngine::setAudioEnabled(bool bEnabled)
     }
 }
 
+void AudioEngine::init(const AudioParams& AP, double volume)
+{
+    m_Volume = volume;
+}
+
 AudioSourceList& AudioEngine::getSources()
 {
     return m_AudioSources;
@@ -78,6 +84,16 @@ void AudioEngine::removeSource(IAudioSource* pSource)
             break;
         }
     }
+}
+
+void AudioEngine::setVolume(double volume)
+{
+    m_Volume = volume;
+}
+
+double AudioEngine::getVolume() const
+{
+    return m_Volume;
 }
 
 }

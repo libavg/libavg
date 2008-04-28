@@ -39,7 +39,6 @@ class AVTestCase(AVGTestCase):
 class VideoTestCase(AVTestCase):
     def __init__(self, testFuncName):
         AVTestCase.__init__(self, testFuncName)
-        Player.setFakeFPS(25)
     def testVideoFiles(self):
         def testVideoFile(filename, isThreaded):
             def checkImage(filename):
@@ -54,6 +53,7 @@ class VideoTestCase(AVTestCase):
                      lambda: checkImage(filename),
                      lambda: node.stop()
                     ))
+        Player.setFakeFPS(25)
         for filename in ["mjpeg-48x48.avi", "mpeg1-48x48.mpg", "mpeg1-48x48-sound.avi", 
                 "rgba-48x48.mov", "h264-48x48.h264"]:
             for isThreaded in [False, True]:
@@ -71,6 +71,7 @@ class VideoTestCase(AVTestCase):
             Player.getElementByID('clogo').active=1
         def deactivateclogo():
             Player.getElementByID('clogo').active=0
+        Player.setFakeFPS(25)
         self.start("video.avg",
                 (lambda: self.compareImage("testVideo1", False),
                  lambda: Player.getElementByID("clogo2").play(),
@@ -96,6 +97,7 @@ class VideoTestCase(AVTestCase):
     def testVideoSeek(self):
         def seek(frame):
             Player.getElementByID("clogo2").seekToFrame(frame)
+        Player.setFakeFPS(25)
         self.start("video.avg",
                 (lambda: Player.getElementByID("clogo2").play(),
                  lambda: seek(100),
@@ -110,6 +112,7 @@ class VideoTestCase(AVTestCase):
                 ))
 
     def testVideoFPS(self):
+        Player.setFakeFPS(25)
         self.start("videofps.avg",
                 (lambda: Player.getElementByID("video").play(),
                  None,
@@ -117,6 +120,7 @@ class VideoTestCase(AVTestCase):
                 ))
 
     def testVideoEOF(self):
+        Player.setFakeFPS(25)
         for filename in ["mpeg1-48x48.mpg", "mpeg1-48x48-sound.avi"]:
             node = Player.createNode("video",
                     {"href": "../video/testfiles/"+filename})
@@ -136,17 +140,19 @@ class SoundTestCase(AVTestCase):
                      None,
                      lambda: node.stop(),
                      lambda: node.play(),
-                     lambda: node.pause(),
-                     lambda: node.play(),
-                     lambda: node.pause(),
-                     lambda: node.stop(),
-                     lambda: node.pause()
+#                     lambda: node.pause(),
+#                     lambda: node.play(),
+#                     lambda: node.pause(),
+#                     lambda: node.stop(),
+#                     lambda: node.pause()
                     ))
         for filename in ["22.050Hz_16bit_mono.wav", "44.1kHz_16bit_stereo.aif", 
                 "44.1kHz_16bit_stereo.wav", "44.1kHz_mono.ogg", "44.1kHz_stereo.mp3",
                 "48kHz_24bit_stereo.wav"]:
             testSoundFile(filename)
     def testSoundEOF(self):
+        Player.setFakeFPS(-1)
+        Player.volume = 1 
         node = Player.createNode("sound",
                 {"href": "../video/testfiles/44.1kHz_16bit_mono.wav"})
         self.testEOF(node)
@@ -181,6 +187,8 @@ else:
     Player = avg.Player()
     runner = unittest.TextTestRunner()
     rc = runner.run(avTestSuite())
+#    while rc.wasSuccessful:
+#        rc = runner.run(avTestSuite())
     if rc.wasSuccessful():
         sys.exit(0)
     else:

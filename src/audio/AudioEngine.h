@@ -45,7 +45,7 @@ class AudioEngine
 
         virtual void setAudioEnabled(bool bEnabled);
         
-        virtual void init(const AudioParams& AP) = 0;
+        virtual void init(const AudioParams& AP, double volume);
         virtual void teardown() = 0;
         
         virtual void play() = 0;
@@ -54,11 +54,13 @@ class AudioEngine
         AudioSourceList& getSources();
         virtual void addSource(IAudioSource* pSource);
         virtual void removeSource(IAudioSource* pSource);
-        
+        virtual void setVolume(double volume);
+        double getVolume() const;
         
     private:
         bool m_bEnabled;
         AudioSourceList m_AudioSources;
+        double m_Volume;
 };
 
 }

@@ -30,6 +30,8 @@
 
 #include <SDL/SDL.h>
 
+#include <boost/thread/mutex.hpp>
+
 namespace avg {
 
 class SDLAudioEngine : public AudioEngine
@@ -42,7 +44,7 @@ class SDLAudioEngine : public AudioEngine
         virtual int getSampleRate();
         virtual const AudioParams & getParams();
         
-        virtual void init(const AudioParams& AP);
+        virtual void init(const AudioParams& AP, double volume);
         virtual void teardown();
         
         virtual void setAudioEnabled(bool bEnabled);
@@ -52,16 +54,19 @@ class SDLAudioEngine : public AudioEngine
         
         virtual void addSource(IAudioSource* pSource);
         virtual void removeSource(IAudioSource* pSource);
+        virtual void setVolume(double volume);
         
     private:
         void mixAudio(Uint8 *pDestBuffer, int destBufferLen);
         static void audioCallback(void *userData, Uint8 *audioBuffer, int audioBufferLen);
         void addBuffers(double *pDest, AudioBufferPtr pSrc);
+        void calcVolume(double *pBuffer, int numSamples, double volume);
         
         AudioParams m_AP;
         AudioBufferPtr m_pTempBuffer;
         double * m_pMixBuffer;
         IProcessor<double>* m_pLimiter;
+        boost::mutex m_Mutex;
 };
 
 }

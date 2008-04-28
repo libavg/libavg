@@ -303,6 +303,11 @@ BOOST_PYTHON_MODULE(avg)
                 "values. 1.0 is identity, higher values give a brighter image, lower\n"
                 "values a darker one.\n"
                 "@param red, green, blue: \n")
+        .add_property("volume", &Player::getVolume, &Player::setVolume,
+                "Total audio playback volume. 0 is silence, 1 passes media file\n"
+                "volume through unchanged. Values higher than 1 can be used to\n"
+                "amplify playback. A limiter prevents distortion when the volume\n"
+                "is set to high.\n")
     ;
 
 }

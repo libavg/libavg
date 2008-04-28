@@ -264,7 +264,7 @@ void Sound::open()
 
 void Sound::close()
 {
-    if(getAudioEngine()) {
+    if (getAudioEngine()) {
         getAudioEngine()->removeSource(this);
     }
     m_pDecoder->close();

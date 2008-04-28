@@ -102,17 +102,20 @@ void AsyncVideoDecoder::close()
         delete m_pVDecoderThread;
         m_pVDecoderThread = 0;
     }
-    if (m_pADecoderThread) {
-        m_pACmdQ->push(Command<AudioDecoderThread>(boost::bind(
-                &AudioDecoderThread::stop, _1)));
-        try {
-            m_pAMsgQ->pop(false);
-        } catch(Exception&) {}
-        m_pADecoderThread->join();
-        delete m_pADecoderThread;
-        m_pADecoderThread = 0;
-    }
-    m_pSyncDecoder->close();
+    {
+        scoped_lock Lock1(m_AudioMutex);
+        if (m_pADecoderThread) {
+            m_pACmdQ->push(Command<AudioDecoderThread>(boost::bind(
+                    &AudioDecoderThread::stop, _1)));
+            try {
+                m_pAMsgQ->pop(false);
+            } catch(Exception&) {}
+            m_pADecoderThread->join();
+            delete m_pADecoderThread;
+            m_pADecoderThread = 0;
+        }
+        m_pSyncDecoder->close();
+    }        
 }
 
 void AsyncVideoDecoder::seek(long long DestTime)

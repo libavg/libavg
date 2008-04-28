@@ -29,8 +29,12 @@
 #include "../base/ScopeTimer.h"
 #include "../base/Profiler.h"
 
+#include <iostream>
 
 namespace avg {
+
+using namespace std;
+using namespace boost;
 
 SDLAudioEngine::SDLAudioEngine()
     : m_pTempBuffer(),
@@ -63,8 +67,9 @@ const AudioParams & SDLAudioEngine::getParams()
     return m_AP;
 }
 
-void SDLAudioEngine::init(const AudioParams& AP) 
+void SDLAudioEngine::init(const AudioParams& AP, double volume) 
 {
+    AudioEngine::init(AP, volume);
     m_AP = AP;
     Dynamics<double, 2>* pLimiter = new Dynamics<double, 2>(m_AP.m_SampleRate);
     pLimiter->setThreshold(0.); // in dB
@@ -91,12 +96,11 @@ void SDLAudioEngine::init(const AudioParams& AP)
 
 void SDLAudioEngine::teardown()
 {
+    mutex::scoped_lock Lock(m_Mutex);
     SDL_PauseAudio(1);
     SDL_CloseAudio();
 
-    SDL_LockAudio();
     getSources().clear();
-    SDL_UnlockAudio();
     if (m_pLimiter) {
         delete m_pLimiter;
         m_pLimiter = 0;
@@ -105,9 +109,8 @@ void SDLAudioEngine::teardown()
 
 void SDLAudioEngine::setAudioEnabled(bool bEnabled)
 {
-    SDL_LockAudio();
+    mutex::scoped_lock Lock(m_Mutex);
     AudioEngine::setAudioEnabled(bEnabled);
-    SDL_UnlockAudio();
 }
 
 void SDLAudioEngine::play()
@@ -122,20 +125,25 @@ void SDLAudioEngine::pause()
 
 void SDLAudioEngine::addSource(IAudioSource* pSource)
 {
-    SDL_LockAudio();
+    mutex::scoped_lock Lock(m_Mutex);
     AudioEngine::addSource(pSource);
-    SDL_UnlockAudio();
 }
 
 void SDLAudioEngine::removeSource(IAudioSource* pSource)
 {
-    SDL_LockAudio();
+    mutex::scoped_lock Lock(m_Mutex);
     AudioEngine::removeSource(pSource);
-    SDL_UnlockAudio();
+}
+
+void SDLAudioEngine::setVolume(double volume)
+{
+    mutex::scoped_lock Lock(m_Mutex);
+    AudioEngine::setVolume(volume);
 }
 
 void SDLAudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
 {
+    mutex::scoped_lock Lock(m_Mutex);
     int numFrames = destBufferLen/(2*getChannels()); // 16 bit samples.
 
     if (getSources().size() == 0) {
@@ -158,6 +166,7 @@ void SDLAudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
         (*it)->fillAudioBuffer(m_pTempBuffer);
         addBuffers(m_pMixBuffer, m_pTempBuffer);
     }
+    calcVolume(m_pMixBuffer, numFrames*getChannels(), getVolume());
     for (int i=0; i<numFrames; ++i) {
         m_pLimiter->process(m_pMixBuffer+i*getChannels());
         for (int j=0; j<getChannels(); ++j) {
@@ -178,6 +187,14 @@ void SDLAudioEngine::addBuffers(double *pDest, AudioBufferPtr pSrc)
     short * pData = pSrc->getData();
     for(int i = 0; i < numFrames*getChannels(); ++i) {
         pDest[i] += pData[i]/32768.0;
+    }
+}
+
+void SDLAudioEngine::calcVolume(double *pBuffer, int numSamples, double volume)
+{
+    // TODO: We need a VolumeFader class that keeps state.
+    for(int i = 0; i < numSamples; ++i) {
+        pBuffer[i] *= volume;
     }
 }
 

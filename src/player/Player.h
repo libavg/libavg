@@ -103,6 +103,8 @@ class Player : IEventSink
         virtual bool handleEvent(EventPtr pEvent);
         DisplayEngine * getDisplayEngine() const;
         void useFakeCamera(bool bFake);
+        void setVolume(double volume);
+        double getVolume() const;
 
         void registerFrameListener(IFrameListener* pListener);
         void unregisterFrameListener(IFrameListener* pListener);
@@ -173,6 +175,8 @@ class Player : IEventSink
         long long m_FrameTime;
         long long m_PlayStartTime;
         long long m_NumFrames;
+
+        double m_Volume;
 
         std::vector<IFrameListener*> m_Listeners;
         xmlDtdPtr m_dtd;
