@@ -661,7 +661,10 @@ class PlayerTestCase(AVGTestCase):
 
     def testSimpleWords(self):
         fontList = avg.Words.getFonts()
-#        print fontList
+        try:
+            fontList.index("Liberation Serif")
+        except ValueError:
+            self.assert_(False)
         self.start("simpletext.avg",
                 [lambda: self.compareImage("testSimpleWords", True)])
 

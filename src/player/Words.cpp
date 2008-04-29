@@ -144,7 +144,9 @@ Words::Words (const ArgList& Args, Player * pPlayer)
         Ok = (int)FcConfigBuildFonts(pConfig);
         checkFontError(Ok, string("Font error: FcConfigBuildFonts failed."));
         Ok = (int)FcConfigSetCurrent(pConfig);
-        // TODO: Check FcConfigAppFontAddDir()
+        checkFontError(Ok, string("Font error: FcConfigSetCurrent failed."));
+        Ok = (int)FcConfigAppFontAddDir(pConfig, (const FcChar8 *)"fonts/");
+        checkFontError(Ok, string("Font error: FcConfigAppFontAddDir failed."));
 /*
         FcStrList * pCacheDirs = FcConfigGetCacheDirs(pConfig);
         FcChar8 * pDir;
