@@ -415,9 +415,8 @@ FrameVideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
             if (pEOFMsg) {
                 m_bVideoEOF = true;
                 return FrameVideoMsgPtr();
-            } else if(pErrorMsg) {
+            } else if (pErrorMsg) {
                 m_bVideoEOF = true;
-                close();
                 return FrameVideoMsgPtr();
             } else {
                 // Unhandled message type.

@@ -59,7 +59,8 @@ Sound::Sound (const ArgList& Args, Player * pPlayer)
       m_pEOFCallback(0),
       m_bAudioEnabled(true),
       m_pDecoder(0),
-      m_Volume(1.0)
+      m_Volume(1.0),
+      m_State(Unloaded)
 {
     Args.setMembers(this);
     m_Filename = m_href;
@@ -134,6 +135,11 @@ void Sound::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pA
 {
     checkReload();
     Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    if (m_State != Unloaded) {
+        SoundState state = m_State;
+        m_State = Unloaded;
+        changeSoundState(state);
+    }
 }
 
 void Sound::disconnect()
@@ -182,9 +188,12 @@ void Sound::checkReload()
     if (m_href != "") {
         initFilename(getPlayer(), fileName);
         if (fileName != m_Filename) {
+            SoundState oldState = m_State;
             changeSoundState(Unloaded);
             m_Filename = fileName;
-            changeSoundState(Paused);
+            if (oldState != Unloaded) {
+                changeSoundState(Paused);
+            }
         }
     } else {
         changeSoundState(Unloaded);
