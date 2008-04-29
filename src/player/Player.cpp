@@ -96,6 +96,7 @@ Player::Player()
       m_FakeFPS(0),
       m_FrameTime(0),
       m_PlayStartTime(0),
+      m_Volume(1),
       m_bPythonAvailable(true)
 {
     ThreadProfilerPtr pThreadProfiler = ThreadProfilerPtr(new ThreadProfiler("Main"));
