@@ -272,6 +272,13 @@ void Sound::close()
 
 void Sound::onEOF()
 {
+/*
+    seek(0);
+    if (!m_bLoop) {
+        changeSoundState(Paused);
+    }
+*/    
+    changeSoundState(Unloaded);
     if (m_pEOFCallback) {
         PyObject * arglist = Py_BuildValue("()");
         PyObject * result = PyEval_CallObject(m_pEOFCallback, arglist);
