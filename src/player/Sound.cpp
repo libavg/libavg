@@ -199,7 +199,7 @@ string Sound::getTypeStr ()
 
 void Sound::onFrameEnd()
 {
-    if (m_pDecoder->isEOF(SS_AUDIO)) {
+    if (m_State == Playing && m_pDecoder->isEOF(SS_AUDIO)) {
         onEOF();
     }
 }
@@ -272,13 +272,10 @@ void Sound::close()
 
 void Sound::onEOF()
 {
-/*
     seek(0);
     if (!m_bLoop) {
         changeSoundState(Paused);
     }
-*/    
-    changeSoundState(Unloaded);
     if (m_pEOFCallback) {
         PyObject * arglist = Py_BuildValue("()");
         PyObject * result = PyEval_CallObject(m_pEOFCallback, arglist);

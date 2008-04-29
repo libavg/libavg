@@ -355,9 +355,9 @@ void FFMpegDecoder::seek(long long DestTime)
     }
     m_pDemuxer->seek(DestTime + getStartTime());
     if (m_bUseStreamFPS) {
-    	m_LastVideoFrameTime = -1000;
+        m_LastVideoFrameTime = -1000;
     } else {
-    	m_LastVideoFrameTime = DestTime;
+        m_LastVideoFrameTime = DestTime;
     }
     if (m_pAStream) {
         mutex::scoped_lock Lock(m_AudioMutex);
