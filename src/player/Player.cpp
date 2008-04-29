@@ -134,6 +134,9 @@ Player::~Player()
     if (m_pDisplayEngine) {
         delete m_pDisplayEngine;
     }
+    if (m_pAudioEngine) {
+        delete m_pAudioEngine;
+    }
     if (m_pTracker) {
         delete m_pTracker;
     }
