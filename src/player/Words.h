@@ -31,6 +31,7 @@
 #include <set>
 #include <string>
 #include <iostream>
+#include <vector>
 
 namespace avg {
 
@@ -88,6 +89,8 @@ class Words : public RasterNode
         
         std::string getStretch() const;
         void setStretch(const std::string& sStretch);
+
+        static const std::vector<std::string>& getFonts();
 
     protected:        
         virtual DPoint getPreferredMediaSize();

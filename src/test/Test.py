@@ -660,6 +660,8 @@ class PlayerTestCase(AVGTestCase):
                 ))
 
     def testSimpleWords(self):
+        fontList = avg.Words.getFonts()
+#        print fontList
         self.start("simpletext.avg",
                 [lambda: self.compareImage("testSimpleWords", True)])
 

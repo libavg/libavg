@@ -34,6 +34,8 @@ void export_raster()
 {
     boost::python::to_python_converter<vector<DPoint>, 
         to_list<vector<DPoint> > >();    
+    boost::python::to_python_converter<vector<string>, 
+        to_list<vector<string> > >();    
     boost::python::to_python_converter<VertexGrid, 
         to_list<VertexGrid> >();    
    
@@ -223,5 +225,8 @@ void export_raster()
                 "'extraexpanded' and 'ultraexpanded'. Not implemented in most\n"
                 "fonts.\n")
         .add_property("smallcaps", &Words::getSmallCaps, &Words::setSmallCaps)
+        .def("getFonts", make_function(&Words::getFonts, 
+                return_value_policy<copy_const_reference>()))
+        .staticmethod("getFonts")
     ;
 }

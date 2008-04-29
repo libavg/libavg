@@ -195,7 +195,7 @@ void Words::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pA
     pango_ft2_get_context(72, 72);
     
     PangoFT2FontMap *fontmap;
-    fontmap = PANGO_FT2_FONT_MAP (pango_ft2_font_map_new ());
+    fontmap = PANGO_FT2_FONT_MAP (pango_ft2_font_map_new());
     pango_ft2_font_map_set_resolution (fontmap, 72, 72);
     pango_ft2_font_map_set_default_substitute (fontmap, text_subst_func, 0, 0);
     m_pContext = pango_ft2_font_map_create_context (fontmap);
@@ -472,6 +472,28 @@ string Words::getStretch() const
             return "ultraexpanded";
     }
     return "";
+}
+
+
+const vector<string>& Words::getFonts()
+{
+    static vector<string> sFonts;
+    PangoFT2FontMap *fontmap;
+    fontmap = PANGO_FT2_FONT_MAP (pango_ft2_font_map_new());
+    pango_ft2_font_map_set_resolution (fontmap, 72, 72);
+    pango_ft2_font_map_set_default_substitute (fontmap, text_subst_func, 0, 0);
+    PangoContext * pContext = pango_ft2_font_map_create_context (fontmap);
+    PangoFontMap* pFontMap = pango_context_get_font_map(pContext);
+
+    PangoFontFamily ** ppFamilies;
+    int numFamilies;
+    pango_font_map_list_families(pFontMap, &ppFamilies, &numFamilies);
+    for (int i=0; i<numFamilies; ++i) {
+        sFonts.push_back(pango_font_family_get_name(ppFamilies[i]));
+    }
+    g_free(ppFamilies);
+    sort(sFonts.begin(), sFonts.end());
+    return sFonts;
 }
 
 bool equalIgnoreCase(const string& s1, const string& s2) {
