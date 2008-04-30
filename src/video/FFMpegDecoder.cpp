@@ -63,6 +63,7 @@ FFMpegDecoder::FFMpegDecoder ()
       m_Volume(1.0),
       m_LastVolume(1.0),
       m_pPacketData(0),
+      m_bFirstPacket(0),
       m_Size(0,0),
       m_VideoStartTimestamp(-1),
       m_LastVideoFrameTime(-1000),
