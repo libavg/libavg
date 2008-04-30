@@ -100,8 +100,10 @@ void SDLAudioEngine::init(const AudioParams& AP, double volume)
 void SDLAudioEngine::teardown()
 {
     mutex::scoped_lock Lock(m_Mutex);
+    SDL_LockAudio();
     SDL_PauseAudio(1);
     SDL_CloseAudio();
+    SDL_UnlockAudio();
 
     getSources().clear();
     if (m_pLimiter) {
@@ -112,8 +114,10 @@ void SDLAudioEngine::teardown()
 
 void SDLAudioEngine::setAudioEnabled(bool bEnabled)
 {
+    SDL_LockAudio();
     mutex::scoped_lock Lock(m_Mutex);
     AudioEngine::setAudioEnabled(bEnabled);
+    SDL_UnlockAudio();
 }
 
 void SDLAudioEngine::play()
@@ -128,25 +132,30 @@ void SDLAudioEngine::pause()
 
 void SDLAudioEngine::addSource(IAudioSource* pSource)
 {
+    SDL_LockAudio();
     mutex::scoped_lock Lock(m_Mutex);
     AudioEngine::addSource(pSource);
+    SDL_UnlockAudio();
 }
 
 void SDLAudioEngine::removeSource(IAudioSource* pSource)
 {
+    SDL_LockAudio();
     mutex::scoped_lock Lock(m_Mutex);
     AudioEngine::removeSource(pSource);
+    SDL_UnlockAudio();
 }
 
 void SDLAudioEngine::setVolume(double volume)
 {
+    SDL_LockAudio();
     mutex::scoped_lock Lock(m_Mutex);
     AudioEngine::setVolume(volume);
+    SDL_UnlockAudio();
 }
 
 void SDLAudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
 {
-    mutex::scoped_lock Lock(m_Mutex);
     int numFrames = destBufferLen/(2*getChannels()); // 16 bit samples.
 
     if (getSources().size() == 0) {
@@ -163,11 +172,14 @@ void SDLAudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
     for (int i=0; i<getChannels()*numFrames; ++i) {
         m_pMixBuffer[i]=0;
     }
-    AudioSourceList::iterator it;
-    for(it = getSources().begin(); it != getSources().end(); it++) {
-        m_pTempBuffer->clear();
-        (*it)->fillAudioBuffer(m_pTempBuffer);
-        addBuffers(m_pMixBuffer, m_pTempBuffer);
+    {
+        mutex::scoped_lock Lock(m_Mutex);
+        AudioSourceList::iterator it;
+        for(it = getSources().begin(); it != getSources().end(); it++) {
+            m_pTempBuffer->clear();
+            (*it)->fillAudioBuffer(m_pTempBuffer);
+            addBuffers(m_pMixBuffer, m_pTempBuffer);
+        }
     }
     calcVolume(m_pMixBuffer, numFrames*getChannels(), getVolume());
     for (int i=0; i<numFrames; ++i) {
