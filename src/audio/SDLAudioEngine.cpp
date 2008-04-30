@@ -49,6 +49,9 @@ SDLAudioEngine::SDLAudioEngine()
 
 SDLAudioEngine::~SDLAudioEngine()
 {
+    if (m_pMixBuffer) {
+        delete[] m_pMixBuffer;
+    }
     SDL_QuitSubSystem(SDL_INIT_AUDIO);
 }
 
@@ -151,7 +154,7 @@ void SDLAudioEngine::mixAudio(Uint8 *pDestBuffer, int destBufferLen)
     }
     if (!m_pTempBuffer || m_pTempBuffer->getNumFrames() < numFrames) {
         if (m_pTempBuffer) {
-            delete m_pMixBuffer;
+            delete[] m_pMixBuffer;
         }
         m_pTempBuffer = AudioBufferPtr(new AudioBuffer(numFrames, m_AP));
         m_pMixBuffer = new double[getChannels()*numFrames];
