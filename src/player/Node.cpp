@@ -361,7 +361,6 @@ NodePtr Node::getElementByPos (const DPoint & pos)
 void Node::maybeRender (const DRect& Rect)
 {
     if (m_bActive) {
-        getDisplayEngine()->pushTransform(getRelViewport().tl, getAngle(), getPivot());
         if (getEffectiveOpacity() > 0.01 || dynamic_cast<DivNode*>(this) != 0) {
             if (m_ID != "") {
                 AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
@@ -369,9 +368,10 @@ void Node::maybeRender (const DRect& Rect)
             } else {
                 AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
             }
+            getDisplayEngine()->pushTransform(getRelViewport().tl, getAngle(), getPivot());
             render(Rect);
+            getDisplayEngine()->popTransform();
         }
-        getDisplayEngine()->popTransform();
     }
 }
 
