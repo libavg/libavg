@@ -362,7 +362,7 @@ void Node::maybeRender (const DRect& Rect)
 {
     if (m_bActive) {
         getDisplayEngine()->pushTransform(getRelViewport().tl, getAngle(), getPivot());
-        if (getEffectiveOpacity() > 0.01) {
+        if (getEffectiveOpacity() > 0.01 || dynamic_cast<DivNode*>(this) != 0) {
             if (m_ID != "") {
                 AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
                         " with ID " << m_ID);
