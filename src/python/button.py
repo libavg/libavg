@@ -16,6 +16,7 @@ class Button:
         self.__downNode = node.getChild(1)
         self.__overNode = node.getChild(2)
         self.__disabledNode = node.getChild(3)
+        self.__isDisabled = False
         node.width = self.__upNode.width
         node.height = self.__upNode.height
         if self.__isMouseOver():
@@ -32,11 +33,15 @@ class Button:
         return (relPos[0] > 0 and relPos[0] < self.__node.width and
                 relPos[1] > 0 and relPos[1] < self.__node.height)
     def __onDown(self, event):
+        if self.__isDisabled:
+            return
         self.__node.setEventCapture()
         self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onUp)
         self.__isClicking = True
         self.__setMode(1)
     def __onUp(self, event):
+        if self.__isDisabled:
+            return
         self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, None)
         self.__node.releaseEventCapture()
         if self.__mode == 1 and self.__isClicking:
@@ -44,11 +49,15 @@ class Button:
             self.__clickCallback(self)
         self.__isClicking = False
     def __onOver(self, event):
+        if self.__isDisabled:
+            return
         if self.__isClicking:
             self.__setMode(1)
         else:
             self.__setMode(2)
     def __onOut(self, event):
+        if self.__isDisabled:
+            return
         self.__setMode(0)
     def __setMode(self, newMode):
         self.__mode = newMode
@@ -58,6 +67,14 @@ class Button:
                 childNode.opacity = 1
             else:
                 childNode.opacity = 0
+    def setDisabled(self, disabled):
+        self.__isDisabled = disabled
+        if disabled:
+            try:
+                self.__node.releaseEventCapture()
+            except:
+                pass
+            self.__setMode(3)
 
 class Checkbox(Button):
     def __init__(self, node, clickCallback=None):
