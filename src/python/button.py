@@ -67,6 +67,7 @@ class Button:
                 childNode.opacity = 1
             else:
                 childNode.opacity = 0
+    # TODO: if setDisabled(False) and mouse is over the button it remains disabled
     def setDisabled(self, disabled):
         self.__isDisabled = disabled
         if disabled:
@@ -75,6 +76,8 @@ class Button:
             except:
                 pass
             self.__setMode(3)
+        else:
+            self.__setMode(0)
 
 class Checkbox(Button):
     def __init__(self, node, clickCallback=None):
