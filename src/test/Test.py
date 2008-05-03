@@ -732,6 +732,7 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("mediadir1", False),
                  setDir,
                  lambda: Player.getElementByID("video").play(), 
+                 lambda: self.assert_(Player.getElementByID("img").width == 1),
                  lambda: self.compareImage("mediadir2", False)
                 ))
 

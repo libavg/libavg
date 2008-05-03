@@ -143,14 +143,14 @@ void Image::setBitmap(const Bitmap * pBmp)
         pSurfaceBmp->copyPixels(*pBmp);
         getSurface()->unlockBmps();
         getDisplayEngine()->surfaceChanged(getSurface());
-        DPoint Size = getPreferredMediaSize();
-        setViewport(-32767, -32767, Size.x, Size.y);
     } else {
         if (m_pBmp->getSize() != pBmp->getSize() || m_pBmp->getPixelFormat() != pf) {
             m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
         }
         m_pBmp->copyPixels(*pBmp);
     }
+    DPoint Size = getPreferredMediaSize();
+    setViewport(-32767, -32767, Size.x, Size.y);
 }
 
 static ProfilingZone RenderProfilingZone("Image::render");
@@ -187,9 +187,11 @@ void Image::checkReload()
     }
     if (sLastFilename != m_Filename || !m_pBmp) {
         load();
-    }
-    if (isDisplayAvailable()) {
-        setupSurface(&*m_pBmp);
+        if (isDisplayAvailable()) {
+            setupSurface(&*m_pBmp);
+        }
+        DPoint Size = getPreferredMediaSize();
+        setViewport(-32767, -32767, Size.x, Size.y);
     }
 }
 
