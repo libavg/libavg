@@ -71,24 +71,24 @@ void Image::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pA
 
 void Image::disconnect()
 {
-/*
     // Commenting this (and the corresponding line in setupSurface) out causes 
     // a copy of the image to always be kept in main memory, so no readback has to
     // take place.
 
-    // Unload textures but keep bitmap in memory.
-    ISurface * pSurface = getSurface();
-    BitmapPtr pSurfaceBmp = pSurface->lockBmp();
-    m_pBmp = BitmapPtr(new Bitmap(pSurfaceBmp->getSize(), pSurfaceBmp->getPixelFormat()));
-    m_pBmp->copyPixels(*pSurfaceBmp);
-    getSurface()->unlockBmps();
+    if (isDisplayAvailable()) {
+        // Unload textures but keep bitmap in memory.
+        ISurface * pSurface = getSurface();
+        BitmapPtr pSurfaceBmp = pSurface->lockBmp();
+        m_pBmp = BitmapPtr(new Bitmap(pSurfaceBmp->getSize(), pSurfaceBmp->getPixelFormat()));
+        m_pBmp->copyPixels(*pSurfaceBmp);
+        getSurface()->unlockBmps();
 #ifdef __i386__
-    // XXX Yuck
-    if (!(getPlayer()->getDisplayEngine()->hasRGBOrdering())) {
-        FilterFlipRGB().applyInPlace(m_pBmp);
-    }
+        // XXX Yuck
+        if (!(getPlayer()->getDisplayEngine()->hasRGBOrdering())) {
+            FilterFlipRGB().applyInPlace(m_pBmp);
+        }
 #endif
-*/    
+    }
     RasterNode::disconnect();
 }
 
@@ -134,22 +134,22 @@ void Image::setBitmap(const Bitmap * pBmp)
     }
 #endif
 //    cerr << "pf: " << Bitmap::getPixelFormatString(pf) << endl;
-    if (m_pBmp->getSize() != pBmp->getSize() || m_pBmp->getPixelFormat() != pf) {
-        m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
-    }
-    m_pBmp->copyPixels(*pBmp);
-
     if (isDisplayAvailable()) {
         ISurface * pSurface = getSurface();
         if (pSurface->getSize() != pBmp->getSize() || pSurface->getPixelFormat() != pf) {
             pSurface->create(pBmp->getSize(), pf, true);
         }
         BitmapPtr pSurfaceBmp = getSurface()->lockBmp();
-        pSurfaceBmp->copyPixels(*m_pBmp);
+        pSurfaceBmp->copyPixels(*pBmp);
         getSurface()->unlockBmps();
         getDisplayEngine()->surfaceChanged(getSurface());
         DPoint Size = getPreferredMediaSize();
         setViewport(-32767, -32767, Size.x, Size.y);
+    } else {
+        if (m_pBmp->getSize() != pBmp->getSize() || m_pBmp->getPixelFormat() != pf) {
+            m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
+        }
+        m_pBmp->copyPixels(*pBmp);
     }
 }
 
@@ -195,10 +195,13 @@ void Image::checkReload()
 
 Bitmap * Image::getBitmap()
 {
-    assert(m_pBmp);
-    Bitmap * pBmp;
-    pBmp = new Bitmap(*m_pBmp);
-    return pBmp;
+    if (isDisplayAvailable()) {
+        return RasterNode::getBitmap();
+    } else {
+        Bitmap * pBmp;
+        pBmp = new Bitmap(*m_pBmp);
+        return pBmp;
+    }
 }
 
 void Image::load()
@@ -243,7 +246,7 @@ void Image::setupSurface(const Bitmap * pBmp)
 #endif
     getSurface()->unlockBmps();
     getDisplayEngine()->surfaceChanged(getSurface());
-//    m_pBmp=BitmapPtr();
+    m_pBmp=BitmapPtr();
 }
 
 }
