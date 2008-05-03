@@ -361,7 +361,7 @@ NodePtr Node::getElementByPos (const DPoint & pos)
 void Node::maybeRender (const DRect& Rect)
 {
     if (m_bActive) {
-        if (getEffectiveOpacity() > 0.01 || dynamic_cast<DivNode*>(this) != 0) {
+        if (getEffectiveOpacity() > 0.01) {
             if (m_ID != "") {
                 AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
                         " with ID " << m_ID);
