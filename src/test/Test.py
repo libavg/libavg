@@ -78,12 +78,6 @@ class PlayerTestCase(AVGTestCase):
         def loadNewFile():
             Player.getElementByID("test").href = "rgb24alpha-64x64.png"
             Player.getElementByID("testhue").href = "rgb24alpha-64x64.png"
-        def getBitmap():
-            node = Player.getElementByID("test")
-            Bmp = node.getBitmap()
-            self.assert_(Bmp.getSize() == (65,65))
-            self.assert_(Bmp.getFormat() == avg.R8G8B8X8 or 
-                    Bmp.getFormat() == avg.B8G8R8X8)
         def getFramerate():
             framerate = Player.getEffectiveFramerate()
             self.assert_(framerate > 0)
@@ -91,7 +85,6 @@ class PlayerTestCase(AVGTestCase):
         Player.showCursor(1)
         self.start("image.avg",
                 (lambda: self.compareImage("testimg", False), 
-                 getBitmap,
                  getFramerate,
                  loadNewFile, 
                  lambda: self.compareImage("testimgload", False),
@@ -99,6 +92,20 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Player.setGamma(1.0, 1.0, 1.0),
                  lambda: Player.showCursor(0),
                  lambda: Player.showCursor(1)
+                ))
+
+    def testBitmap(self):
+        def getBitmap(node):
+            Bmp = node.getBitmap()
+            self.assert_(Bmp.getSize() == (65,65))
+            self.assert_(Bmp.getFormat() == avg.R8G8B8X8 or 
+                    Bmp.getFormat() == avg.B8G8R8X8)
+            node.setBitmap(Bmp)
+        Player.loadFile("image.avg")
+        node = Player.getElementByID("test")
+        getBitmap(node)
+        self.start(None,
+                (lambda: getBitmap(Player.getElementByID("test")),
                 ))
 
     def testRotate(self):
@@ -992,6 +999,7 @@ def playerTestSuite(bpp):
     rmBrokenDir()
     suite = unittest.TestSuite()
     suite.addTest(PlayerTestCase("testImage", bpp))
+    suite.addTest(PlayerTestCase("testBitmap", bpp))
     suite.addTest(PlayerTestCase("testRotate", bpp))
     suite.addTest(PlayerTestCase("testRotate2", bpp))
     suite.addTest(PlayerTestCase("testRotate3", bpp))

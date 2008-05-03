@@ -55,6 +55,8 @@ class Image : public RasterNode
         virtual void render (const DRect& Rect);
         virtual std::string getTypeStr ();
         virtual void checkReload();
+        
+        virtual Bitmap* getBitmap();
 
     protected:        
         virtual DPoint getPreferredMediaSize();

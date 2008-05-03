@@ -65,7 +65,7 @@ class RasterNode: public Node
         virtual std::string getTypeStr ();
         NodePtr getElementByPos (const DPoint & pos);
 
-        Bitmap* getBitmap();
+        virtual Bitmap* getBitmap();
         
     protected:
         RasterNode (Player * pPlayer);

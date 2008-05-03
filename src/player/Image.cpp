@@ -55,7 +55,7 @@ Image::Image (const ArgList& Args, Player * pPlayer)
     : RasterNode(pPlayer)
 {
     Args.setMembers(this);
-    m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
+    setHRef(m_href);
 }
 
 Image::~Image ()
@@ -111,7 +111,8 @@ void Image::setHRef(const string& href)
 void Image::setBitmap(const Bitmap * pBmp)
 {
     // TODO: Add a unique bitmap identifier to the URI.
-    m_href = "mem://";
+    m_href = "";
+    m_Filename = "";
     PixelFormat pf;
     pf = R8G8B8X8;
     if (pBmp->hasAlpha()) {
@@ -121,30 +122,35 @@ void Image::setBitmap(const Bitmap * pBmp)
         pf = I8;
     }
 #if defined(__i386__) || defined(_WIN32)
-    if (!(getPlayer()->getDisplayEngine()->hasRGBOrdering())) {
-        switch (pf) {
-            case R8G8B8X8:
-                pf = B8G8R8X8;
-                break;
-            case R8G8B8A8:
-                pf = B8G8R8A8;
-                break;
-            default:
-                break;
-        }
+    switch (pf) {
+        case R8G8B8X8:
+            pf = B8G8R8X8;
+            break;
+        case R8G8B8A8:
+            pf = B8G8R8A8;
+            break;
+        default:
+            break;
     }
 #endif
 //    cerr << "pf: " << Bitmap::getPixelFormatString(pf) << endl;
-    ISurface * pSurface = getSurface();
-    if (pSurface->getSize() != pBmp->getSize() || pSurface->getPixelFormat() != pf) {
-        pSurface->create(pBmp->getSize(), pf, true);
+    if (m_pBmp->getSize() != pBmp->getSize() || m_pBmp->getPixelFormat() != pf) {
+        m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
     }
-    BitmapPtr pSurfaceBmp = getSurface()->lockBmp();
-    pSurfaceBmp->copyPixels(*pBmp);
-    getSurface()->unlockBmps();
-    getDisplayEngine()->surfaceChanged(getSurface());
-    DPoint Size = getPreferredMediaSize();
-    setViewport(-32767, -32767, Size.x, Size.y);
+    m_pBmp->copyPixels(*pBmp);
+
+    if (isDisplayAvailable()) {
+        ISurface * pSurface = getSurface();
+        if (pSurface->getSize() != pBmp->getSize() || pSurface->getPixelFormat() != pf) {
+            pSurface->create(pBmp->getSize(), pf, true);
+        }
+        BitmapPtr pSurfaceBmp = getSurface()->lockBmp();
+        pSurfaceBmp->copyPixels(*m_pBmp);
+        getSurface()->unlockBmps();
+        getDisplayEngine()->surfaceChanged(getSurface());
+        DPoint Size = getPreferredMediaSize();
+        setViewport(-32767, -32767, Size.x, Size.y);
+    }
 }
 
 static ProfilingZone RenderProfilingZone("Image::render");
@@ -187,9 +193,18 @@ void Image::checkReload()
     }
 }
 
+Bitmap * Image::getBitmap()
+{
+    assert(m_pBmp);
+    Bitmap * pBmp;
+    pBmp = new Bitmap(*m_pBmp);
+    return pBmp;
+}
+
 void Image::load()
 {
     m_Filename = m_href;
+    m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
     if (m_Filename != "") {
         initFilename(getPlayer(), m_Filename);
         AVG_TRACE(Logger::MEMORY, "Loading " << m_Filename);

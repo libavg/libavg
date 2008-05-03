@@ -142,8 +142,11 @@ NodePtr RasterNode::getElementByPos (const DPoint & pos)
 
 Bitmap* RasterNode::getBitmap()
 {
-    Bitmap * pBmp = new Bitmap(*(m_pSurface->lockBmp()));
-    m_pSurface->unlockBmps();
+    Bitmap * pBmp = 0;
+    if (m_pSurface) {
+        pBmp = new Bitmap(*(m_pSurface->lockBmp()));
+        m_pSurface->unlockBmps();
+    }
     return pBmp;
 }
 
