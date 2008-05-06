@@ -36,15 +36,15 @@ public:
     void setImage(BitmapPtr pBmp);
     BitmapPtr getImage() const;
 
-    PixelFormat getPF();
-    const IntPoint& getSize();
+    PixelFormat getPF() const;
+    const IntPoint& getSize() const;
 
     static bool isFBOSupported();
 
 private:
-    int getOGLMode(PixelFormat pf);
-    int getOGLPixelType(PixelFormat pf);
-    void checkError();
+    int getOGLMode(PixelFormat pf) const;
+    int getOGLPixelType(PixelFormat pf) const;
+    void checkError() const;
 
     PixelFormat m_pf;
     IntPoint m_Size;

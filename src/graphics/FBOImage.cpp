@@ -28,6 +28,8 @@
 namespace avg {
 
 FBOImage::FBOImage(IntPoint size, PixelFormat pf)
+    : m_pf(pf),
+      m_Size(size)
 {
     glproc::GenFramebuffers(1, &m_FBO);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage: GenFramebuffers()");
@@ -42,11 +44,8 @@ FBOImage::FBOImage(IntPoint size, PixelFormat pf)
     glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
 
     int OGLMode = getOGLMode(pf);
-    int OGLPixelType = getOGLPixelType(pf);
-    int OGLDestMode = OGLMode;
-
     glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, OGLMode, size.x, size.y, 0,
-            OGLMode, OGLPixelType, 0);
+            OGLMode, getOGLPixelType(pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage: glTexImage2D()");
 
     // bind this texture to the current framebuffer obj. as 
@@ -56,27 +55,53 @@ FBOImage::FBOImage(IntPoint size, PixelFormat pf)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage: glFramebufferTexture2D()");
 
     checkError();
+    
+    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
 }
 
 FBOImage::~FBOImage()
 {
+    glDeleteTextures(1, &m_TexID);
+    glproc::DeleteFramebuffers(1, &m_FBO);
 }
 
 void FBOImage::setImage(BitmapPtr pBmp)
 {
+    assert (pBmp->getSize() == m_Size);
+
+    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "FBOImage::setImage: glBindTexture()");
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, pBmp->getStride()/pBmp->getBytesPerPixel());
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "FBOImage::setImage: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
+    int OGLMode = getOGLMode(m_pf);
+    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, OGLMode, m_Size.x, m_Size.y, 0,
+            OGLMode, getOGLPixelType(m_pf), pBmp->getPixels());
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::setImage: glTexImage2D()");
 }
 
 BitmapPtr FBOImage::getImage() const
 {
-    return BitmapPtr();
+    BitmapPtr pBmp(new Bitmap(m_Size, m_pf));
+    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "FBOImage::getImage: glBindTexture()");
+    glPixelStorei(GL_PACK_ROW_LENGTH, pBmp->getStride()/pBmp->getBytesPerPixel());
+    int OGLMode = getOGLMode(m_pf);
+    glGetTexImage(GL_TEXTURE_RECTANGLE_ARB, 0, OGLMode, getOGLPixelType(m_pf), pBmp->getPixels());
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "FBOImage::getImage: glGetTexImage()");
+
+    return pBmp;
 }
 
-PixelFormat FBOImage::getPF()
+PixelFormat FBOImage::getPF() const
 {
     return m_pf;
 }
 
-const IntPoint& FBOImage::getSize()
+const IntPoint& FBOImage::getSize() const
 {
     return m_Size;
 }
@@ -86,7 +111,7 @@ bool FBOImage::isFBOSupported()
     return queryOGLExtension("GL_EXT_framebuffer_object");
 }
     
-int FBOImage::getOGLMode(PixelFormat pf)
+int FBOImage::getOGLMode(PixelFormat pf) const
 {
     switch (pf) {
         case B8G8R8X8:
@@ -101,7 +126,7 @@ int FBOImage::getOGLMode(PixelFormat pf)
     return 0;
 }
 
-int FBOImage::getOGLPixelType(PixelFormat pf)
+int FBOImage::getOGLPixelType(PixelFormat pf) const
 {
     if (pf == I16) {
         return GL_UNSIGNED_SHORT;
@@ -110,7 +135,7 @@ int FBOImage::getOGLPixelType(PixelFormat pf)
     }
 }
 
-void FBOImage::checkError()
+void FBOImage::checkError() const
 {
     GLenum status;
     status = glproc::CheckFramebufferStatus(GL_FRAMEBUFFER_EXT);

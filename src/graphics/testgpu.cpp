@@ -21,6 +21,7 @@
 
 #include "FBOImage.h"
 #include "OGLHelper.h"
+#include "Filterfliprgb.h"
 
 #include "../base/TestSuite.h"
 
@@ -43,14 +44,27 @@ public:
         if (!FBOImage::isFBOSupported()) {
             cerr << "  GL_EXT_framebuffer_object not supported. Skipping FBO test." << endl;
         }
-        runPFTests(B8G8R8X8);
-        runPFTests(B8G8R8A8);
+        runImageTests("../test/rgb24-64x64.png");
+        runImageTests("../test/rgb24alpha-64x64.png");
     }
 
 private:
-    void runPFTests(PixelFormat PF) {
-        cerr << "    Testing " << Bitmap::getPixelFormatString(PF) << endl;
-        FBOImage fbo(IntPoint(16, 16), PF);
+    void runImageTests(const string& sFName) {
+        cerr << "    Testing " << sFName << endl;
+        BitmapPtr pBmp(new Bitmap(sFName));
+        FilterFlipRGB().applyInPlace(pBmp);
+        FBOImage fbo(pBmp->getSize(), pBmp->getPixelFormat());
+        fbo.setImage(pBmp);
+        BitmapPtr pNewBmp = fbo.getImage();
+        testEqual(*pBmp, *pNewBmp);
+    }
+
+    void testEqual(Bitmap& Bmp1, Bitmap& Bmp2) 
+    {
+        TEST(Bmp1 == Bmp2);
+        if (!(Bmp1 == Bmp2)) {
+            Bmp2.save("result.png");
+        }
     }
 };
 

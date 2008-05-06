@@ -86,6 +86,7 @@ namespace glproc {
     extern PFNGLGENFRAMEBUFFERSEXTPROC GenFramebuffers;
     extern PFNGLBINDFRAMEBUFFEREXTPROC BindFramebuffer;
     extern PFNGLFRAMEBUFFERTEXTURE2DEXTPROC FramebufferTexture2D;
+    extern PFNGLDELETEFRAMEBUFFERSEXTPROC DeleteFramebuffers;
 
 #ifdef linux
     extern PFNGLXSWAPINTERVALSGIPROC SwapIntervalSGI;
