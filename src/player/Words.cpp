@@ -644,12 +644,16 @@ void Words::drawString()
     setViewport(-32767, -32767, -32767, -32767);
 }
 
+void Words::preRender ()
+{
+    drawString();
+}
+
 static ProfilingZone RenderProfilingZone("Words::render");
 
 void Words::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    drawString();
     if (m_Text.length() != 0 && getEffectiveOpacity() > 0.001) {
         getDisplayEngine()->blta8(getSurface(), getRelSize(),
                 getEffectiveOpacity(), m_Color, getBlendMode());

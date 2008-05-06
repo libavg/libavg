@@ -404,6 +404,7 @@ static ProfilingZone RootRenderProfilingZone("Root node: render");
 
 void SDLDisplayEngine::render(AVGNodePtr pRootNode)
 {
+    pRootNode->preRender();
     m_bEnableCrop = pRootNode->getCropSetting();
     
     glClearColor(0.0, 0.0, 0.0, 0.0); 

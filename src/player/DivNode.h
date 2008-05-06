@@ -52,6 +52,7 @@ class DivNode : public Node
         int indexOf(NodePtr pChild);
 
         virtual NodePtr getElementByPos (const DPoint & pos);
+        virtual void preRender();
         virtual void render (const DRect& rect);
         virtual std::string getTypeStr ();
         std::string getEffectiveMediaDir();

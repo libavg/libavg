@@ -183,6 +183,13 @@ NodePtr DivNode::getElementByPos (const DPoint & pos)
     }
 }
 
+void DivNode::preRender()
+{
+    for (int i=0; i<getNumChildren(); i++) {
+        getChild(i)->preRender();
+    }
+}
+
 void DivNode::render(const DRect& rect)
 {
     DPoint Viewport = getRelSize();
