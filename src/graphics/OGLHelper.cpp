@@ -57,7 +57,10 @@ namespace glproc {
     PFNGLUNIFORM1IARBPROC Uniform1i;
     PFNGLBLENDEQUATIONPROC BlendEquation;
     PFNGLACTIVETEXTUREPROC ActiveTexture;
+    PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC CheckFramebufferStatus;
     PFNGLGENFRAMEBUFFERSEXTPROC GenFramebuffers;
+    PFNGLBINDFRAMEBUFFEREXTPROC BindFramebuffer;
+    PFNGLFRAMEBUFFERTEXTURE2DEXTPROC FramebufferTexture2D;
 #ifdef linux
     PFNGLXSWAPINTERVALSGIPROC SwapIntervalSGI;
     PFNGLXWAITVIDEOSYNCSGIPROC WaitVideoSyncSGI;
@@ -224,7 +227,12 @@ namespace glproc {
         Uniform1i = (PFNGLUNIFORM1IARBPROC)getFuzzyProcAddress("glUniform1i");
         BlendEquation = (PFNGLBLENDEQUATIONPROC)getFuzzyProcAddress("glBlendEquation");
         ActiveTexture = (PFNGLACTIVETEXTUREPROC)getFuzzyProcAddress("glActiveTexture");
+        CheckFramebufferStatus = 
+                (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC)getFuzzyProcAddress("glCheckFramebufferStatus");
         GenFramebuffers = (PFNGLGENFRAMEBUFFERSEXTPROC)getFuzzyProcAddress("glGenFramebuffers");
+        BindFramebuffer = (PFNGLBINDFRAMEBUFFEREXTPROC)getFuzzyProcAddress("glBindFramebuffer");
+        FramebufferTexture2D = 
+                (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC)getFuzzyProcAddress("glFramebufferTexture2D");
 #ifdef linux
         SwapIntervalSGI = (PFNGLXSWAPINTERVALSGIPROC)getglXProcAddress("glXSwapIntervalSGI");
         WaitVideoSyncSGI = (PFNGLXWAITVIDEOSYNCSGIPROC)getglXProcAddress("glXWaitVideoSyncSGI");

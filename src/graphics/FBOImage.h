@@ -42,6 +42,8 @@ public:
     static bool isFBOSupported();
 
 private:
+    int getOGLMode(PixelFormat pf);
+    int getOGLPixelType(PixelFormat pf);
     void checkError();
 
     PixelFormat m_pf;
