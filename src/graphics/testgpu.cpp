@@ -49,13 +49,24 @@ public:
     }
 
 private:
-    void runImageTests(const string& sFName) {
+    void runImageTests(const string& sFName)
+    {
         cerr << "    Testing " << sFName << endl;
         BitmapPtr pBmp(new Bitmap(sFName));
         FilterFlipRGB().applyInPlace(pBmp);
+        cerr << "      PBO:" << endl;
+        PBOImage pbo(pBmp->getSize(), pBmp->getPixelFormat());
+        runPBOImageTest(pbo, pBmp);
+        
+        cerr << "      FBO:" << endl;
         FBOImage fbo(pBmp->getSize(), pBmp->getPixelFormat());
-        fbo.setImage(pBmp);
-        BitmapPtr pNewBmp = fbo.getImage();
+        runPBOImageTest(fbo, pBmp);
+    }
+
+    void runPBOImageTest(PBOImage& pbo, BitmapPtr pBmp)
+    {
+        pbo.setImage(pBmp);
+        BitmapPtr pNewBmp = pbo.getImage();
         testEqual(*pBmp, *pNewBmp);
     }
 

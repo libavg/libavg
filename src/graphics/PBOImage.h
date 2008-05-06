@@ -19,27 +19,38 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _FBOImage_H_
-#define _FBOImage_H_
+#ifndef _PBOImage_H_
+#define _PBOImage_H_
 
-#include "PBOImage.h"
 #include "Bitmap.h"
 #include "../base/Point.h"
 
 namespace avg {
 
-class FBOImage: public PBOImage {
+class PBOImage {
 
 public:
-    FBOImage(IntPoint size, PixelFormat pf);
-    virtual ~FBOImage();
+    PBOImage(IntPoint size, PixelFormat pf);
+    virtual ~PBOImage();
 
-    static bool isFBOSupported();
+    void setImage(BitmapPtr pBmp);
+    BitmapPtr getImage() const;
+
+    PixelFormat getPF() const;
+    const IntPoint& getSize() const;
+
+protected:
+    unsigned getTexID() const;
 
 private:
+    int getOGLMode(PixelFormat pf) const;
+    int getOGLPixelType(PixelFormat pf) const;
     void checkError() const;
 
-    unsigned m_FBO;
+    PixelFormat m_pf;
+    IntPoint m_Size;
+    unsigned m_PBO;
+    unsigned m_TexID;
 };
 
 
