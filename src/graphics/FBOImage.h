@@ -49,6 +49,7 @@ private:
     PixelFormat m_pf;
     IntPoint m_Size;
     unsigned m_FBO;
+    unsigned m_PBO;
     unsigned m_TexID;
 };
 

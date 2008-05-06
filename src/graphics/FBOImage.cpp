@@ -31,11 +31,21 @@ FBOImage::FBOImage(IntPoint size, PixelFormat pf)
     : m_pf(pf),
       m_Size(size)
 {
-    glproc::GenFramebuffers(1, &m_FBO);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage: GenFramebuffers()");
+    // Create a Pixel Buffer Object for data transfer and allocate its memory.
+    glproc::GenBuffers(1, &m_PBO);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage: GenBuffers()");
+    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_PBO);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage: BindBuffer()");
+    int MemNeeded = m_Size.x*m_Size.y*Bitmap::getBytesPerPixel(m_pf);
+    glproc::BufferData(GL_PIXEL_UNPACK_BUFFER_EXT, MemNeeded, 0,
+            GL_STREAM_DRAW);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage: BufferData()");
 
     glGenTextures(1, &m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage: glGenTextures()");
+
+    glproc::GenFramebuffers(1, &m_FBO);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage: GenFramebuffers()");
 
     //bind the framebuffer, so operations will now occur on it
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
@@ -61,13 +71,24 @@ FBOImage::FBOImage(IntPoint size, PixelFormat pf)
 
 FBOImage::~FBOImage()
 {
-    glDeleteTextures(1, &m_TexID);
     glproc::DeleteFramebuffers(1, &m_FBO);
+    glDeleteTextures(1, &m_TexID);
+    glproc::DeleteBuffers(1, &m_PBO);
 }
 
 void FBOImage::setImage(BitmapPtr pBmp)
 {
     assert (pBmp->getSize() == m_Size);
+    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_PBO);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::setImage BindBuffer()");
+    void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::setImage MapBuffer()");
+    memcpy(pPBOPixels, pBmp->getPixels(), pBmp->getMemNeeded());
+    
+    if (!glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT)) {
+        std::cerr << "Couldn't unmap pixel buffer. Exiting\n";
+        assert(false);
+    }
 
     glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
@@ -77,22 +98,32 @@ void FBOImage::setImage(BitmapPtr pBmp)
             "FBOImage::setImage: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
     int OGLMode = getOGLMode(m_pf);
     glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, OGLMode, m_Size.x, m_Size.y, 0,
-            OGLMode, getOGLPixelType(m_pf), pBmp->getPixels());
+            OGLMode, getOGLPixelType(m_pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::setImage: glTexImage2D()");
+    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
 }
 
 BitmapPtr FBOImage::getImage() const
 {
     BitmapPtr pBmp(new Bitmap(m_Size, m_pf));
+
+    glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, m_PBO);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::getImage BindBuffer()");
+
     glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "FBOImage::getImage: glBindTexture()");
     glPixelStorei(GL_PACK_ROW_LENGTH, pBmp->getStride()/pBmp->getBytesPerPixel());
     int OGLMode = getOGLMode(m_pf);
-    glGetTexImage(GL_TEXTURE_RECTANGLE_ARB, 0, OGLMode, getOGLPixelType(m_pf), pBmp->getPixels());
+    glGetTexImage(GL_TEXTURE_RECTANGLE_ARB, 0, OGLMode, getOGLPixelType(m_pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "FBOImage::getImage: glGetTexImage()");
 
+    void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_PACK_BUFFER_EXT, GL_READ_ONLY);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::getImage MapBuffer()");
+    memcpy(pBmp->getPixels(), pPBOPixels, pBmp->getMemNeeded());
+
+    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
     return pBmp;
 }
 
