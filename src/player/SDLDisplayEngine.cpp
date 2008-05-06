@@ -188,6 +188,7 @@ SDLDisplayEngine::SDLDisplayEngine()
 SDLDisplayEngine::~SDLDisplayEngine()
 {
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
+    assert(m_pSurfaces.size() == 0);
 }
 
 void SDLDisplayEngine::init(const DisplayParams& DP) 
@@ -562,7 +563,10 @@ void SDLDisplayEngine::swapBuffers()
 
 ISurface * SDLDisplayEngine::createSurface()
 {
-    return new OGLSurface(this);
+    OGLSurface * pOGLSurface = new OGLSurface(this);
+    m_pSurfaces.push_back(pOGLSurface);
+
+    return pOGLSurface;
 }
 
 void SDLDisplayEngine::surfaceChanged(ISurface * pSurface) 
@@ -1521,6 +1525,32 @@ void SDLDisplayEngine::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCb
     m_bShouldUsePixelBuffers = bUsePixelBuffers;
     m_MultiSampleSamples = MultiSampleSamples;
     m_DesiredVSyncMode = DesiredVSyncMode;
+}
+
+long long SDLDisplayEngine::getGPUMemoryUsage()
+{
+    vector<OGLSurface *>::iterator it;
+
+    long long lAmount = 0;
+    for(it = m_pSurfaces.begin() ; it != m_pSurfaces.end() ; ++it) {
+        lAmount += (*it)->getTotalTexMemory();
+    }
+    
+    return lAmount;
+}
+
+void SDLDisplayEngine::deregisterSurface(OGLSurface *pOGLSurface)
+{
+    vector<OGLSurface *>::iterator it;
+
+    for(it = m_pSurfaces.begin() ; it != m_pSurfaces.end() ; ++it) {
+        if (pOGLSurface == *it) {
+            m_pSurfaces.erase(it);
+            return;
+        }
+    }
+
+    assert(false);
 }
 
 }

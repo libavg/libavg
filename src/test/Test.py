@@ -995,6 +995,29 @@ class PlayerTestCase(AVGTestCase):
                     ))
         runTest(True)
         runTest(False)
+
+    def testGPUMemoryQuery(self):
+        def createNode():
+            self.node = Player.createNode("<image id='img' href='rgb24-64x64.png'/>")
+            self.assert_(Player.getGPUMemoryUsage() == 0)
+        def appendToTree():
+            self.rootNode = Player.getRootNode()
+            self.rootNode.appendChild(self.node)
+            self.assert_(Player.getGPUMemoryUsage() == 64 * 64 * 4)
+        def removeFromTree():
+            self.rootNode.removeChild(self.rootNode.indexOf(self.node))
+            self.assert_(Player.getGPUMemoryUsage() == 0)
+        def runTest():
+            Player.loadFile("empty.avg")
+            Player.stop()
+            self.setUpVideo()
+            self.start("empty.avg",
+                    (lambda: self.assert_(Player.getGPUMemoryUsage() == 0),
+                     createNode,
+                     appendToTree,
+                     removeFromTree
+                    ))
+        runTest()
             
 def playerTestSuite(bpp):
     rmBrokenDir()
@@ -1032,6 +1055,7 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testPanoDynamics", bpp))
     suite.addTest(PlayerTestCase("testCameraDynamics", bpp))
     suite.addTest(PlayerTestCase("testDivDynamics", bpp))
+    suite.addTest(PlayerTestCase("testGPUMemoryQuery", bpp))
     return suite
 
 def runConsoleTest():

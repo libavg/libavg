@@ -68,6 +68,7 @@ OGLSurface::~OGLSurface()
                 break;
         }
     }
+    m_pEngine->deregisterSurface(this);
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
@@ -570,7 +571,7 @@ void OGLSurface::bltTexture(const DPoint& DestSize,
             << DestSize.y << ")" << ", m_pf: " 
             << Bitmap::getPixelFormatString(m_pf) << ", " 
             << getGlModeString(m_pEngine->getOGLSrcMode(m_pf)) << "-->" 
-            << getGlModeString(m_pEngine->getOGLDestMode(m_pf)) << endl);
+            << getGlModeString(m_pEngine->getOGLDestMode(m_pf)));
 }
 
 DPoint OGLSurface::calcFinalVertex(const DPoint& Size,
@@ -593,6 +594,17 @@ void OGLSurface::checkBlendModeError(string sMode)
             bErrorReported = true;
         }
     }
+}
+
+int OGLSurface::getTotalTexMemory()
+{
+    int iAmount = 0;
+    for (int y=0; y<m_NumTextures.y; y++) {
+        for (int x=0; x<m_NumTextures.x; x++) {
+            iAmount += m_pTextures[y][x]->getTexMemDim();
+        }
+    }
+    return iAmount;
 }
 
 }

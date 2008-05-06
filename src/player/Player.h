@@ -111,6 +111,7 @@ class Player : IEventSink
         std::string getCurDirName();
 
         void disablePython();
+        long long getGPUMemoryUsage();
 
     private:
         void initConfig();

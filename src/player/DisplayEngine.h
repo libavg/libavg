@@ -88,7 +88,9 @@ class DisplayEngine
         virtual void showCursor (bool bShow) = 0;
 
         virtual BitmapPtr screenshot () = 0;
-    
+        virtual long long getGPUMemoryUsage() = 0;
+        virtual void deregisterSurface(OGLSurface *) = 0;
+
     protected:
         void checkJitter();
         

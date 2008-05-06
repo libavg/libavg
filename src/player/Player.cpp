@@ -1162,4 +1162,15 @@ void Player::removeTimeout(Timeout* pTimeout)
     m_PendingTimeouts.erase(it);
 }
 
+long long Player::getGPUMemoryUsage()
+{
+    if (m_pDisplayEngine) {
+        return m_pDisplayEngine->getGPUMemoryUsage();
+    } else {
+        return 0;
+    }
+}
+
+
+
 }

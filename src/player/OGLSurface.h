@@ -68,6 +68,8 @@ class OGLSurface: public ISurface {
         void setWarpedVertexCoords(const VertexGrid& Grid);
  
         bool isOneTexture(IntPoint Size);
+        
+        int getTotalTexMemory();
 
     private:
         void calcTileSizes();

@@ -278,4 +278,14 @@ void OGLTexture::calcTexCoords()
 //    cerr << endl;
 }
 
+const int OGLTexture::getTexMemDim()
+{
+    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+        return m_TexSize.x * m_TexSize.y * 1.5;
+    }
+    else {
+        return m_TexSize.x * m_TexSize.y * Bitmap::getBytesPerPixel(m_pf);
+    }
+}
+
 }

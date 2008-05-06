@@ -47,6 +47,7 @@ class OGLTexture {
         void downloadTexture(int i, BitmapPtr pBmp, int width, 
                 OGLMemoryMode MemoryMode) const;
         void blt(const VertexGrid* pVertexes) const;
+        const int getTexMemDim();
 
     private:
         void calcTexCoords();

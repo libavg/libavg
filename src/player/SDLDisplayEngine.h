@@ -94,6 +94,9 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         void setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYcbcrMode, 
                 bool bUsePixelBuffers, int MultiSampleSamples, 
                 VSyncMode DesiredVSyncMode);
+        
+        long long getGPUMemoryUsage();
+        void deregisterSurface(OGLSurface *);
 
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);
@@ -157,6 +160,8 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
 
         bool m_bCheckedMemoryMode;
         OGLMemoryMode m_MemoryMode;
+        
+        std::vector<OGLSurface *> m_pSurfaces;
 };
 
 }
