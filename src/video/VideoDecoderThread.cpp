@@ -77,7 +77,7 @@ bool VideoDecoderThread::work()
         } else {
             assert(FrameAvailable == FA_NEW_FRAME);
             m_MsgQ.push(VideoMsgPtr(new FrameVideoMsg(pBmps, 
-            		m_pDecoder->getCurTime(SS_VIDEO))));
+                    m_pDecoder->getCurTime(SS_VIDEO))));
         }
     }
     return true;

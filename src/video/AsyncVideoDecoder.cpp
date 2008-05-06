@@ -127,6 +127,7 @@ void AsyncVideoDecoder::seek(long long DestTime)
     m_bVideoEOF = false;
     m_bVideoSeekPending = false;
     m_bAudioSeekPending = false;
+    m_LastVideoFrameTime = -1000;
     if (m_pVCmdQ) {
         m_bVideoSeekPending = true;
         m_pVCmdQ->push(Command<VideoDecoderThread>(boost::bind(
@@ -367,12 +368,12 @@ FrameVideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long TimeWanted,
             TimeWanted = m_LastAudioFrameTime;
         }
 
-//        cerr << "getBmpsForTime " << TimeWanted << ", LastFrameTime= " << m_LastVFrameTime 
-//                << ", diff= " << TimeWanted-m_LastVFrameTime <<  endl;
+//        cerr << "getBmpsForTime " << TimeWanted << ", LastFrameTime= " << m_LastVideoFrameTime 
+//                << ", diff= " << TimeWanted-m_LastVideoFrameTime <<  endl;
         double TimePerFrame = 1000.0/getFPS();
         if (fabs(double(TimeWanted-m_LastVideoFrameTime)) < 0.5*TimePerFrame || 
                 m_LastVideoFrameTime > TimeWanted+TimePerFrame) {
-//            cerr << "   LastFrameTime = " << m_LastVFrameTime << ", display again." <<  endl;
+//            cerr << "   LastFrameTime = " << m_LastVideoFrameTime << ", display again." <<  endl;
             // The last frame is still current. Display it again.
             FrameAvailable = FA_USE_LAST_FRAME;
             return FrameVideoMsgPtr();
