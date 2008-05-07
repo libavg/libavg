@@ -52,7 +52,8 @@ NodeDefinition Image::getNodeDefinition()
 }
 
 Image::Image (const ArgList& Args, Player * pPlayer)
-    : RasterNode(pPlayer)
+    : RasterNode(pPlayer),
+      m_bIsImageAvailable(false)
 {
     Args.setMembers(this);
     setHRef(m_href);
@@ -113,6 +114,7 @@ void Image::setHRef(const string& href)
 void Image::setBitmap(const Bitmap * pBmp)
 {
     // TODO: Add a unique bitmap identifier to the URI.
+    m_bIsImageAvailable = true;
     m_href = "";
     m_Filename = "";
     PixelFormat pf;
@@ -135,7 +137,7 @@ void Image::setBitmap(const Bitmap * pBmp)
             break;
     }
 #endif
-//    cerr << "pf: " << Bitmap::getPixelFormatString(pf) << endl;
+//    cerr << "setBitmap, pf: " << Bitmap::getPixelFormatString(pf) << endl;
     if (isDisplayAvailable()) {
         ISurface * pSurface = getSurface();
         if (pSurface->getSize() != pBmp->getSize() || pSurface->getPixelFormat() != pf) {
@@ -160,7 +162,7 @@ static ProfilingZone RenderProfilingZone("Image::render");
 void Image::render (const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    if (m_href != "") {
+    if (m_bIsImageAvailable) {
         getDisplayEngine()->blt32(getSurface(), getRelSize(), 
                 getEffectiveOpacity(), getBlendMode());
     }
@@ -212,11 +214,13 @@ void Image::load()
 {
     m_Filename = m_href;
     m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
+    m_bIsImageAvailable = false;
     if (m_Filename != "") {
         initFilename(getPlayer(), m_Filename);
         AVG_TRACE(Logger::MEMORY, "Loading " << m_Filename);
         try {
             m_pBmp = BitmapPtr(new Bitmap(m_Filename));
+            m_bIsImageAvailable = true;
         } catch (Magick::Exception & ex) {
             AVG_TRACE(Logger::ERROR, ex.what());
         }

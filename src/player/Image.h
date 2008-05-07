@@ -67,6 +67,7 @@ class Image : public RasterNode
         std::string m_Filename;
         std::string m_href;
         BitmapPtr m_pBmp;
+        bool m_bIsImageAvailable;
     
         int m_Hue;
         int m_Saturation;
