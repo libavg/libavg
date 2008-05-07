@@ -131,36 +131,7 @@ Words::Words (const ArgList& Args, Player * pPlayer)
     Args.setMembers(this);
     setAlignment(Args.getArgVal<string>("alignment"));
     setWeight(Args.getArgVal<string>("weight"));
-
-    if (!s_bInitialized) {
-#if defined(_WIN32) || defined(__APPLE__)
-        std::string sFontConfPath = "/etc/fonts/fonts.conf"; 
-        if (!fileExists(sFontConfPath)) {
-            sFontConfPath = getAvgLibPath()+"etc/fonts/fonts.conf";
-        }
-        FcConfig * pConfig = FcConfigCreate();
-        int Ok = (int)FcConfigParseAndLoad(pConfig, (const FcChar8 *)(sFontConfPath.c_str()), true);
-        checkFontError(Ok, string("Font error: could not load config file ")+sFontConfPath);
-        Ok = (int)FcConfigBuildFonts(pConfig);
-        checkFontError(Ok, string("Font error: FcConfigBuildFonts failed."));
-        Ok = (int)FcConfigSetCurrent(pConfig);
-        checkFontError(Ok, string("Font error: FcConfigSetCurrent failed."));
-        Ok = (int)FcConfigAppFontAddDir(pConfig, (const FcChar8 *)"fonts/");
-        checkFontError(Ok, string("Font error: FcConfigAppFontAddDir failed."));
-/*
-        FcStrList * pCacheDirs = FcConfigGetCacheDirs(pConfig);
-        FcChar8 * pDir;
-        do {
-            pDir = FcStrListNext(pCacheDirs);
-            if (pDir) {
-                cerr << pDir << endl;
-            }
-        } while (pDir);
-*/
-#endif
-        g_log_set_default_handler(GLibLogFunc, 0);
-        s_bInitialized = true;
-    }
+    initFonts();
 }
 
 Words::~Words ()
@@ -480,6 +451,8 @@ string Words::getStretch() const
 const vector<string>& Words::getFonts()
 {
     static vector<string> sFonts;
+    sFonts.clear();
+    initFonts();
     PangoFT2FontMap *fontmap;
     fontmap = PANGO_FT2_FONT_MAP (pango_ft2_font_map_new());
     pango_ft2_font_map_set_resolution (fontmap, 72, 72);
@@ -694,6 +667,38 @@ void Words::checkFontError(int Ok, const string& sMsg)
 {
     if (Ok == 0) {
         throw Exception(AVG_ERR_FONT_INIT_FAILED, sMsg);
+    }
+}
+
+void Words::initFonts()
+{
+    if (!s_bInitialized) {
+        g_type_init();
+        std::string sFontConfPath = "/etc/fonts/fonts.conf"; 
+        if (!fileExists(sFontConfPath)) {
+            sFontConfPath = getAvgLibPath()+"etc/fonts/fonts.conf";
+        }
+        FcConfig * pConfig = FcConfigCreate();
+        int Ok = (int)FcConfigParseAndLoad(pConfig, (const FcChar8 *)(sFontConfPath.c_str()), true);
+        checkFontError(Ok, string("Font error: could not load config file ")+sFontConfPath);
+        Ok = (int)FcConfigBuildFonts(pConfig);
+        checkFontError(Ok, string("Font error: FcConfigBuildFonts failed."));
+        Ok = (int)FcConfigSetCurrent(pConfig);
+        checkFontError(Ok, string("Font error: FcConfigSetCurrent failed."));
+        Ok = (int)FcConfigAppFontAddDir(pConfig, (const FcChar8 *)"fonts/");
+        checkFontError(Ok, string("Font error: FcConfigAppFontAddDir failed."));
+/*
+        FcStrList * pCacheDirs = FcConfigGetCacheDirs(pConfig);
+        FcChar8 * pDir;
+        do {
+            pDir = FcStrListNext(pCacheDirs);
+            if (pDir) {
+                cerr << pDir << endl;
+            }
+        } while (pDir);
+*/
+        g_log_set_default_handler(GLibLogFunc, 0);
+        s_bInitialized = true;
     }
 }
 

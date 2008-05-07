@@ -100,8 +100,9 @@ class Words : public RasterNode
         void drawString();
         Pixel32 colorStringToColor(const std::string & colorString);
         std::string removeExcessSpaces(const std::string & sText);
-        void checkFontError(int Ok, const std::string& sMsg);
-        static void FT2SubstituteFunc (FcPattern *pattern, gpointer data);
+        static void checkFontError(int Ok, const std::string& sMsg);
+        static void FT2SubstituteFunc(FcPattern *pattern, gpointer data);
+        static void initFonts();
 
         // Exposed Attributes
         std::string m_FontName;

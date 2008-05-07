@@ -37,7 +37,7 @@ extern "C" {
 
 using namespace std;
 
-#define NUM_POINTS 4 
+#define NUM_POINTS 3 
 //#define DEBUG_FIT  1
 
 namespace avg {
