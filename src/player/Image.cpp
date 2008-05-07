@@ -84,7 +84,9 @@ void Image::disconnect()
         getSurface()->unlockBmps();
 #ifdef __i386__
         // XXX Yuck
-        if (!(getPlayer()->getDisplayEngine()->hasRGBOrdering())) {
+        if (!(getPlayer()->getDisplayEngine()->hasRGBOrdering()) && 
+            m_pBmp->getBytesPerPixel() >= 3)
+        {
             FilterFlipRGB().applyInPlace(m_pBmp);
         }
 #endif
