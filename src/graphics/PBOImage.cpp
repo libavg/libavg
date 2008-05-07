@@ -27,7 +27,7 @@
 
 namespace avg {
 
-PBOImage::PBOImage(IntPoint size, PixelFormat pf)
+PBOImage::PBOImage(const IntPoint& size, PixelFormat pf)
     : m_pf(pf),
       m_Size(size)
 {

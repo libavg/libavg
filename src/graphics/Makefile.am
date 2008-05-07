@@ -24,7 +24,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Filtergrayscale.cpp \
         FilterFastBandpass.cpp Filterfliprgba.cpp FilterFastDownscale.cpp \
         FilterGauss.cpp FilterBandpass.cpp FilterBlur.cpp FilterMask.cpp \
         OGLHelper.cpp OGLShader.cpp \
-        FBOImage.cpp  PBOImage.cpp \
+        FBOImage.cpp PBOImage.cpp \
         $(APPLE_SOURCES)
 
 TESTS=testgraphics testgpu

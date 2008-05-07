@@ -25,12 +25,14 @@
 #include "Bitmap.h"
 #include "../base/Point.h"
 
+#include <boost/shared_ptr.hpp>
+
 namespace avg {
 
 class PBOImage {
 
 public:
-    PBOImage(IntPoint size, PixelFormat pf);
+    PBOImage(const IntPoint& size, PixelFormat pf);
     virtual ~PBOImage();
 
     void setImage(BitmapPtr pBmp);
@@ -53,6 +55,7 @@ private:
     unsigned m_TexID;
 };
 
+typedef boost::shared_ptr<PBOImage> PBOImagePtr;
 
 }
 

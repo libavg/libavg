@@ -26,12 +26,14 @@
 #include "Bitmap.h"
 #include "../base/Point.h"
 
+#include <boost/shared_ptr.hpp>
+
 namespace avg {
 
 class FBOImage: public PBOImage {
 
 public:
-    FBOImage(IntPoint size, PixelFormat pf);
+    FBOImage(const IntPoint& size, PixelFormat pf);
     virtual ~FBOImage();
 
     static bool isFBOSupported();
@@ -42,6 +44,7 @@ private:
     unsigned m_FBO;
 };
 
+typedef boost::shared_ptr<FBOImage> FBOImagePtr;
 
 }
 

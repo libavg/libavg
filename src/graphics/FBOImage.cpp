@@ -27,7 +27,7 @@
 
 namespace avg {
 
-FBOImage::FBOImage(IntPoint size, PixelFormat pf)
+FBOImage::FBOImage(const IntPoint& size, PixelFormat pf)
     : PBOImage(size, pf)
 {
     glproc::GenFramebuffers(1, &m_FBO);
