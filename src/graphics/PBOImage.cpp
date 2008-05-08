@@ -21,6 +21,7 @@
 
 #include "PBOImage.h"
 #include "OGLHelper.h"
+#include "VertexArray.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
@@ -51,10 +52,18 @@ PBOImage::PBOImage(const IntPoint& size, PixelFormat pf)
     glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, OGLMode, size.x, size.y, 0,
             OGLMode, getOGLPixelType(pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: glTexImage2D()");
+
+    // Create a minimal vertex array to be used for drawing.
+    m_pVertexes = new VertexArray(1);
+    m_pVertexes->setPos(0, 0, DPoint(0, 0), DPoint(0, m_Size.y));
+    m_pVertexes->setPos(0, 1, DPoint(0, m_Size.y), DPoint(0, 0));
+    m_pVertexes->setPos(0, 2, DPoint(m_Size.x, m_Size.y), DPoint(m_Size.x, 0));
+    m_pVertexes->setPos(0, 3, DPoint(m_Size.x, 0), DPoint(m_Size.x, m_Size.y));
 }
 
 PBOImage::~PBOImage()
 {
+    delete m_pVertexes;
     glDeleteTextures(1, &m_TexID);
     glproc::DeleteBuffers(1, &m_PBO);
 }
@@ -108,6 +117,15 @@ BitmapPtr PBOImage::getImage() const
 
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
     return pBmp;
+}
+    
+void PBOImage::draw()
+{
+    
+    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "PBOImage::draw: glBindTexture()");
+    m_pVertexes->draw();
 }
 
 PixelFormat PBOImage::getPF() const

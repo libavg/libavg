@@ -1,0 +1,100 @@
+//
+//  libavg - Media Playback Engine. 
+//  Copyright (C) 2003-2006 Ulrich von Zadow
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2 of the License, or (at your option) any later version.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  Current versions can be found at www.libavg.de
+//
+
+#include "GPUBrightnessFilter.h"
+#include "Bitmap.h"
+
+#include "../base/ObjectCounter.h"
+#include "../base/Exception.h"
+
+#include <iostream>
+
+using namespace std;
+
+namespace avg {
+
+OGLShaderPtr GPUBrightnessFilter::s_pShader;
+
+GPUBrightnessFilter::GPUBrightnessFilter(const IntPoint& size, PixelFormat pf, 
+        double alpha)
+    : m_Size(size),
+      m_PF(pf),
+      m_Alpha(alpha),
+      m_pSrcPBO(new PBOImage(size, pf)),
+      m_pDestFBO(new FBOImage(size, pf))
+{
+    ObjectCounter::get()->incRef(&typeid(*this));
+
+    if (!s_pShader) {
+        initShader();
+    }
+}
+
+GPUBrightnessFilter::~GPUBrightnessFilter()
+{
+    ObjectCounter::get()->decRef(&typeid(*this));
+}
+
+BitmapPtr GPUBrightnessFilter::apply(BitmapPtr pBmpSource)
+{
+    m_pSrcPBO->setImage(pBmpSource);
+    m_pDestFBO->activate();
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glViewport(0, 0, m_Size.x, m_Size.y);
+
+    glDisable(GL_DEPTH_TEST);
+
+    GLhandleARB hProgram = s_pShader->getProgram();
+    glproc::UseProgramObject(hProgram);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "GPUBrightnessFilter::apply: glUseProgramObject()");
+    glproc::Uniform1f(glproc::GetUniformLocation(hProgram, "alpha"), m_Alpha);
+    glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "Texture"), 0);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    m_pSrcPBO->draw();
+    glDisableClientState(GL_VERTEX_ARRAY); 
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+    glproc::UseProgramObject(0);
+    m_pDestFBO->deactivate();
+    return m_pDestFBO->getImage();
+}
+
+void GPUBrightnessFilter::initShader()
+{
+    string sProgram =
+        "#extension GL_ARB_texture_rectangle : enable\n" 
+        
+        "uniform float alpha;\n"
+        "uniform sampler2DRect Texture;\n"
+
+        "void main(void)\n"
+        "{\n"
+        "  gl_FragColor = texture2DRect(Texture, gl_TexCoord[0].st)*alpha;\n"
+        "}\n"
+        ;
+
+    s_pShader = OGLShaderPtr(new OGLShader(sProgram));
+}
+
+} // namespace

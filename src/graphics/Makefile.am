@@ -16,7 +16,7 @@ ALL_H = Bitmap.h Filter.h\
         FilterFastBandpass.h Filterfliprgba.h FilterFastDownscale.h \
         FilterGauss.h FilterBandpass.h FilterBlur.h FilterMask.h \
         OGLHelper.h OGLShader.h GL/gl.h GL/glext.h GL/glu.h GL/glx.h \
-        FBOImage.h PBOImage.h \
+        FBOImage.h PBOImage.h GPUBrightnessFilter.h VertexArray.h\
          $(APPLE_INCLUDES)
 ALL_CPP = Bitmap.cpp Filter.cpp Filtergrayscale.cpp \
 		Filtercolorize.cpp Filterflip.cpp Filterfliprgb.cpp \
@@ -24,7 +24,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Filtergrayscale.cpp \
         FilterFastBandpass.cpp Filterfliprgba.cpp FilterFastDownscale.cpp \
         FilterGauss.cpp FilterBandpass.cpp FilterBlur.cpp FilterMask.cpp \
         OGLHelper.cpp OGLShader.cpp \
-        FBOImage.cpp PBOImage.cpp \
+        FBOImage.cpp PBOImage.cpp GPUBrightnessFilter.cpp VertexArray.cpp\
         $(APPLE_SOURCES)
 
 TESTS=testgraphics testgpu

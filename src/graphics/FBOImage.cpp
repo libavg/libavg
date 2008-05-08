@@ -51,6 +51,20 @@ FBOImage::~FBOImage()
 {
     glproc::DeleteFramebuffers(1, &m_FBO);
 }
+    
+void FBOImage::activate()
+{
+    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::activate: BindFramebuffer()");
+    
+}
+
+void FBOImage::deactivate()
+{
+    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::deactivate: BindFramebuffer()");
+    
+}
 
 bool FBOImage::isFBOSupported()
 {

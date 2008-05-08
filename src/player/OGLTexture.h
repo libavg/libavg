@@ -22,16 +22,16 @@
 #ifndef _OGLTexture_H_
 #define _OGLTexture_H_
 
-#include "VertexArray.h"
-#include "../base/Rect.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/OGLHelper.h"
+#include "../base/Rect.h"
 
 #include <boost/shared_ptr.hpp>
 
 namespace avg {
 
 class SDLDisplayEngine;
+class VertexArray;
 
 typedef std::vector<std::vector<DPoint> > VertexGrid;
 

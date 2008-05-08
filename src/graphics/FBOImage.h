@@ -36,6 +36,9 @@ public:
     FBOImage(const IntPoint& size, PixelFormat pf);
     virtual ~FBOImage();
 
+    void activate();
+    void deactivate();
+
     static bool isFBOSupported();
 
 private:

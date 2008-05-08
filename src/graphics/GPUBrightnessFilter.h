@@ -19,50 +19,38 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _PBOImage_H_
-#define _PBOImage_H_
+#ifndef _GPUBrightnessFilter_H_
+#define _GPUBrightnessFilter_H_
 
+#include "Filter.h"
 #include "Bitmap.h"
-#include "../base/Point.h"
-
-#include <boost/shared_ptr.hpp>
+#include "PBOImage.h"
+#include "FBOImage.h"
+#include "OGLShader.h"
 
 namespace avg {
 
-class VertexArray;
-
-class PBOImage {
-
+class GPUBrightnessFilter: public Filter
+{
 public:
-    PBOImage(const IntPoint& size, PixelFormat pf);
-    virtual ~PBOImage();
+    GPUBrightnessFilter(const IntPoint& size, PixelFormat pf, double alpha);
+    virtual ~GPUBrightnessFilter();
 
-    void setImage(BitmapPtr pBmp);
-    BitmapPtr getImage() const;
-    void draw();
-
-    PixelFormat getPF() const;
-    const IntPoint& getSize() const;
-
-protected:
-    unsigned getTexID() const;
+    virtual BitmapPtr apply(BitmapPtr pBmpSource);
 
 private:
-    int getOGLMode(PixelFormat pf) const;
-    int getOGLPixelType(PixelFormat pf) const;
-    void checkError() const;
+    static void initShader();
 
-    PixelFormat m_pf;
     IntPoint m_Size;
-    unsigned m_PBO;
-    unsigned m_TexID;
-    VertexArray * m_pVertexes;
+    PixelFormat m_PF;
+    double m_Alpha;
+
+    PBOImagePtr m_pSrcPBO;
+    FBOImagePtr m_pDestFBO;
+
+    static OGLShaderPtr s_pShader;
 };
 
-typedef boost::shared_ptr<PBOImage> PBOImagePtr;
-
-}
-
+} // namespace
 #endif
- 
 

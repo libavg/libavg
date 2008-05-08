@@ -22,8 +22,10 @@
 #include "FBOImage.h"
 #include "OGLHelper.h"
 #include "Filterfliprgb.h"
+#include "GPUBrightnessFilter.h"
 
 #include "../base/TestSuite.h"
+#include "../base/Exception.h"
 
 #include <SDL/SDL.h>
 
@@ -32,18 +34,33 @@
 using namespace avg;
 using namespace std;
 
-class FBOTest: public Test {
+class BmpTest: public Test {
+public:
+    BmpTest(const string& sName)
+        : Test(sName, 2)
+    {
+    }
+
+
+protected:
+    void testEqual(Bitmap& Bmp1, Bitmap& Bmp2) 
+    {
+        TEST(Bmp1 == Bmp2);
+        if (!(Bmp1 == Bmp2)) {
+            Bmp2.save("result.png");
+        }
+    }
+};
+
+class FBOTest: public BmpTest {
 public:
     FBOTest()
-        : Test("FBOTest", 2)
+        : BmpTest("FBOTest")
     {
     }
 
     void runTests() 
     {
-        if (!FBOImage::isFBOSupported()) {
-            cerr << "  GL_EXT_framebuffer_object not supported. Skipping FBO test." << endl;
-        }
         runImageTests("../test/rgb24-64x64.png");
         runImageTests("../test/rgb24alpha-64x64.png");
     }
@@ -70,12 +87,30 @@ private:
         testEqual(*pBmp, *pNewBmp);
     }
 
-    void testEqual(Bitmap& Bmp1, Bitmap& Bmp2) 
+};
+
+class BrightnessFilterTest: public BmpTest {
+public:
+    BrightnessFilterTest()
+        : BmpTest("BrightnessFilterTest")
     {
-        TEST(Bmp1 == Bmp2);
-        if (!(Bmp1 == Bmp2)) {
-            Bmp2.save("result.png");
-        }
+    }
+
+    void runTests() 
+    {
+        runImageTests("../test/rgb24-64x64.png");
+        runImageTests("../test/rgb24alpha-64x64.png");
+    }
+
+private:
+    void runImageTests(const string& sFName)
+    {
+        cerr << "    Testing " << sFName << endl;
+        BitmapPtr pBmp(new Bitmap(sFName));
+        FilterFlipRGB().applyInPlace(pBmp);
+        BitmapPtr pDestBmp;
+        pDestBmp = GPUBrightnessFilter(pBmp->getSize(), pBmp->getPixelFormat(), 1).apply(pBmp);
+        testEqual(*pBmp, *pDestBmp);
     }
 };
 
@@ -85,6 +120,7 @@ public:
         : TestSuite("GPUTestSuite")
     {
         addTest(TestPtr(new FBOTest));
+        addTest(TestPtr(new BrightnessFilterTest));
     }
 };
 
@@ -102,9 +138,52 @@ int main(int nargs, char** args)
     }
     glproc::init();
 
-    GPUTestSuite Suite;
-    Suite.runTests();
-    bool bOK = Suite.isOk();
+    // TODO: Check which of these calls are necessary
+    glViewport(0, 0, 64, 64);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "glViewport()");
+    glMatrixMode(GL_PROJECTION);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "glMatrixMode()");
+    glLoadIdentity();
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "glLoadIdentity()");
+    gluOrtho2D(0, 64, 64, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "gluOrtho2D()");
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "glTexEnvf()");
+    glBlendFunc(GL_ONE, GL_ZERO);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "glBlendFunc()");
+    
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "glLoadIdentity()");
+    glEnable(GL_BLEND);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glEnable(GL_BLEND)");
+    glShadeModel(GL_FLAT);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glShadeModel(GL_FLAT)");
+    glDisable(GL_DEPTH_TEST);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_DEPTH_TEST)");
+    glDisable(GL_STENCIL_TEST);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_STENCIL_TEST)");
+    glEnable(GL_TEXTURE_RECTANGLE_ARB);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glEnable(GL_TEXTURE_RECTANGLE_ARB);");
+    glDisable(GL_MULTISAMPLE);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_MULTISAMPLE);");
+
+    bool bOK;
+    if (!FBOImage::isFBOSupported()) {
+        bOK = true;
+        cerr << "  GL_EXT_framebuffer_object not supported. Skipping FBO test." << endl;
+    } else {
+        GPUTestSuite Suite;
+        Suite.runTests();
+        bOK = Suite.isOk();
+    }
 
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
     if (bOK) {

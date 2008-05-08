@@ -21,6 +21,7 @@
 
 #include "OGLTexture.h"
 #include "SDLDisplayEngine.h"
+#include "../graphics/VertexArray.h"
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"

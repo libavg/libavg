@@ -59,6 +59,12 @@ OGLShader::~OGLShader()
 {
 }
 
+void OGLShader::activate()
+{
+   glproc::UseProgramObject(m_hProgram);
+   OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::activate: glUseProgramObject()");
+}
+
 GLhandleARB OGLShader::getProgram()
 {
     return m_hProgram;

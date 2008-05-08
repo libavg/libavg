@@ -22,9 +22,9 @@
 #ifndef _OGLShader_H_
 #define _OGLShader_H_
 
-#include <boost/shared_ptr.hpp>
-
 #include "OGLHelper.h"
+
+#include <boost/shared_ptr.hpp>
 
 #include <string>
 
@@ -35,6 +35,7 @@ class OGLShader {
         OGLShader(std::string sProgram);
         virtual ~OGLShader();
 
+        void activate();
         GLhandleARB getProgram();
         
     private:
