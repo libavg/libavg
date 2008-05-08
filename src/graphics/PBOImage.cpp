@@ -121,11 +121,20 @@ BitmapPtr PBOImage::getImage() const
     
 void PBOImage::draw()
 {
-    
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glViewport(0, 0, m_Size.x, m_Size.y);
+
+    glDisable(GL_DEPTH_TEST);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "PBOImage::draw: glBindTexture()");
     m_pVertexes->draw();
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 PixelFormat PBOImage::getPF() const

@@ -20,12 +20,11 @@
 //
 
 #include "FBOImage.h"
-#include "OGLHelper.h"
 #include "Filterfliprgb.h"
 #include "GPUBrightnessFilter.h"
+#include "OGLImagingContext.h"
 
 #include "../base/TestSuite.h"
-#include "../base/Exception.h"
 
 #include <SDL/SDL.h>
 
@@ -137,43 +136,7 @@ int main(int nargs, char** args)
         return 1;
     }
     glproc::init();
-
-    // TODO: Check which of these calls are necessary
-    glViewport(0, 0, 64, 64);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "glViewport()");
-    glMatrixMode(GL_PROJECTION);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "glMatrixMode()");
-    glLoadIdentity();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "glLoadIdentity()");
-    gluOrtho2D(0, 64, 64, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "gluOrtho2D()");
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "glTexEnvf()");
-    glBlendFunc(GL_ONE, GL_ZERO);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "glBlendFunc()");
-    
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "glLoadIdentity()");
-    glEnable(GL_BLEND);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glEnable(GL_BLEND)");
-    glShadeModel(GL_FLAT);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glShadeModel(GL_FLAT)");
-    glDisable(GL_DEPTH_TEST);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_DEPTH_TEST)");
-    glDisable(GL_STENCIL_TEST);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_STENCIL_TEST)");
-    glEnable(GL_TEXTURE_RECTANGLE_ARB);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glEnable(GL_TEXTURE_RECTANGLE_ARB);");
-    glDisable(GL_MULTISAMPLE);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_MULTISAMPLE);");
+    OGLImagingContext context(IntPoint(64, 64));
 
     bool bOK;
     if (!FBOImage::isFBOSupported()) {

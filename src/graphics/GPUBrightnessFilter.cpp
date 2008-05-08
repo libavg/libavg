@@ -57,23 +57,13 @@ BitmapPtr GPUBrightnessFilter::apply(BitmapPtr pBmpSource)
 {
     m_pSrcPBO->setImage(pBmpSource);
     m_pDestFBO->activate();
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glViewport(0, 0, m_Size.x, m_Size.y);
-
-    glDisable(GL_DEPTH_TEST);
-
     GLhandleARB hProgram = s_pShader->getProgram();
     glproc::UseProgramObject(hProgram);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "GPUBrightnessFilter::apply: glUseProgramObject()");
     glproc::Uniform1f(glproc::GetUniformLocation(hProgram, "alpha"), m_Alpha);
     glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "Texture"), 0);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     m_pSrcPBO->draw();
-    glDisableClientState(GL_VERTEX_ARRAY); 
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
     glproc::UseProgramObject(0);
     m_pDestFBO->deactivate();
