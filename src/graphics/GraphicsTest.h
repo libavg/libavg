@@ -38,6 +38,10 @@ protected:
     void testEqual(Bitmap& ResultBmp, const std::string& sFName); 
     void testEqual(Bitmap& ResultBmp, Bitmap& BaselineBmp,
         const std::string& sFName);
+    void testEqualBrightness(Bitmap& ResultBmp, Bitmap& BaselineBmp, int epsilon);
+
+private:
+    int sumPixels(Bitmap& Bmp);
 };
 
 

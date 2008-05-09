@@ -21,7 +21,6 @@
 
 #include "GraphicsTest.h"
 #include "FBOImage.h"
-#include "Filterfliprgb.h"
 #include "GPUBrightnessFilter.h"
 #include "GPUBlurFilter.h"
 #include "OGLImagingContext.h"
@@ -53,7 +52,6 @@ private:
     {
         cerr << "    Testing " << sFName << endl;
         BitmapPtr pBmp = loadTestBmp(sFName);
-        FilterFlipRGB().applyInPlace(pBmp);
         cerr << "      PBO:" << endl;
         PBOImage pbo(pBmp->getSize(), pBmp->getPixelFormat());
         runPBOImageTest(pbo, pBmp, string("pbo_")+sFName);
@@ -90,7 +88,6 @@ private:
     {
         cerr << "    Testing " << sFName << endl;
         BitmapPtr pBmp = loadTestBmp(sFName);
-        FilterFlipRGB().applyInPlace(pBmp);
         BitmapPtr pDestBmp;
         pDestBmp = GPUBrightnessFilter(pBmp->getSize(), pBmp->getPixelFormat(), 1).apply(pBmp);
         testEqual(*pDestBmp, *pBmp, string("brightness_")+sFName);
@@ -106,8 +103,31 @@ public:
 
     void runTests() 
     {
+        BitmapPtr pBmp;
+        BitmapPtr pDestBmp;
+
+        pBmp = loadTestBmp("spike");
+        cerr << "    Testing spike, stddev 0.5" << endl;
+        pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 0.5).apply(pBmp);
+        testEqualBrightness(*pDestBmp, *pBmp, 5);
+        testEqual(*pDestBmp, "blur05_spike");
+        cerr << "    Testing spike, stddev 1" << endl;
+        pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 1).apply(pBmp);
+//        testEqualBrightness(*pDestBmp, *pBmp, 5);
+        testEqual(*pDestBmp, "blur1_spike");
+        cerr << "    Testing spike, stddev 3" << endl;
+        pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 3).apply(pBmp);
+//        testEqualBrightness(*pDestBmp, *pBmp, 5);
+        testEqual(*pDestBmp, "blur5_spike");
+
+        cerr << "    Testing flat, stddev 5" << endl;
+        pBmp = loadTestBmp("flat");
+        pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 5).apply(pBmp);
+        testEqualBrightness(*pDestBmp, *pBmp, 1);
+        testEqual(*pDestBmp, *pBmp, "blur05_flat");
+
         runImageTests("rgb24-64x64");
-//        runImageTests("rgb24alpha-64x64");
+        runImageTests("rgb24alpha-64x64");
     }
 
 private:
@@ -115,10 +135,9 @@ private:
     {
         cerr << "    Testing " << sFName << endl;
         BitmapPtr pBmp = loadTestBmp(sFName);
-        FilterFlipRGB().applyInPlace(pBmp);
         BitmapPtr pDestBmp;
         pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 10).apply(pBmp);
-        testEqual(*pDestBmp, *pBmp, string("blur_")+sFName);
+        testEqual(*pDestBmp, string("blur_")+sFName);
     }
 };
 
@@ -129,7 +148,7 @@ public:
     {
         addTest(TestPtr(new FBOTest));
         addTest(TestPtr(new BrightnessFilterTest));
-//        addTest(TestPtr(new BlurFilterTest));
+        addTest(TestPtr(new BlurFilterTest));
     }
 };
 

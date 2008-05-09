@@ -33,7 +33,7 @@ namespace avg {
 class GPUBlurFilter: public Filter
 {
 public:
-    GPUBlurFilter(const IntPoint& size, PixelFormat pf, double radius);
+    GPUBlurFilter(const IntPoint& size, PixelFormat pf, double stdDev);
     virtual ~GPUBlurFilter();
 
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
@@ -45,7 +45,7 @@ private:
 
     IntPoint m_Size;
     PixelFormat m_PF;
-    double m_Radius;
+    double m_StdDev;
     int m_KernelWidth;
     float m_Kernel[255];
 

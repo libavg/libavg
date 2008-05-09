@@ -35,10 +35,10 @@ OGLShaderPtr GPUBlurFilter::s_pHorizShader;
 OGLShaderPtr GPUBlurFilter::s_pVertShader;
 
 GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pf, 
-        double radius)
+        double stdDev)
     : m_Size(size),
       m_PF(pf),
-      m_Radius(radius),
+      m_StdDev(stdDev),
       m_pSrcPBO(new PBOImage(size, pf)),
       m_pInterFBO(new FBOImage(size, pf)),
       m_pDestFBO(new FBOImage(size, pf))
@@ -49,6 +49,7 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pf,
         initShaders();
     }
     calcKernel();
+//    dumpKernel();
 }
 
 GPUBlurFilter::~GPUBlurFilter()
@@ -95,7 +96,7 @@ void GPUBlurFilter::initShaders()
         "        vec4 tex = texture2DRect(Texture, gl_TexCoord[0].st+vec2(i,0));\n"
         "        sum += tex*kernel[i+radius];\n"
         "    }\n"
-        "    gl_FragColor = round(sum);\n"
+        "    gl_FragColor = floor(sum*255.0+0.5)/255.0;\n"
         "}\n"
         ;
 
@@ -109,7 +110,7 @@ void GPUBlurFilter::initShaders()
         "        vec4 tex = texture2DRect(Texture, gl_TexCoord[0].st+vec2(0,i));\n"
         "        sum += tex*kernel[i+radius];\n"
         "    }\n"
-        "    gl_FragColor = round(sum);\n"
+        "    gl_FragColor = floor(sum*255.0+0.5)/255.0;\n"
         "}\n"
         ;
 
@@ -118,21 +119,37 @@ void GPUBlurFilter::initShaders()
 
 void GPUBlurFilter::dumpKernel()
 {
-    cerr << "Gauss, radius " << m_Radius << endl;
+    cerr << "Gauss, std dev " << m_StdDev << endl;
     cerr << "  Kernel width: " << m_KernelWidth << endl;
+    float sum = 0;
     for (int i=0; i<m_KernelWidth; ++i) {
+        sum += m_Kernel[i];
         cerr << "  " << m_Kernel[i] << endl;
     }
+    cerr << "Sum of coefficients: " << sum << endl;
 }
 
 void GPUBlurFilter::calcKernel()
 {
-    int IntRadius = int(ceil(m_Radius));
-    m_KernelWidth = IntRadius*2+1;
-    for (int i=0; i<= IntRadius; ++i) {
-        m_Kernel[IntRadius+i] = exp(-i*i/m_Radius-1)/sqrt(2*M_PI);
-        m_Kernel[IntRadius-i] = m_Kernel[IntRadius+i];
+    int KernelCenter = ceil(m_StdDev*3); 
+    m_KernelWidth = KernelCenter*2+1;
+    float sum = 0;
+    for (int i=0; i<= KernelCenter; ++i) {
+        m_Kernel[KernelCenter+i] = exp(-i*i/(2*m_StdDev*m_StdDev))
+                /sqrt(2*M_PI*m_StdDev*m_StdDev);
+        sum += m_Kernel[KernelCenter+i];
+        if (i != 0) {
+            m_Kernel[KernelCenter-i] = m_Kernel[KernelCenter+i];
+            sum += m_Kernel[KernelCenter-i];
+        }
     }
+
+    // Make sure the sum of coefficients is 1 despite the inaccuracies
+    // introduced by using a kernel of finite size.
+    for (int i=0; i<=m_KernelWidth; ++i) {
+        m_Kernel[i] /= sum;
+    }
+
 }
 
 } // namespace

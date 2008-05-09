@@ -21,6 +21,7 @@
 
 #include "GraphicsTest.h"
 #include "Bitmap.h"
+#include "Filterfliprgb.h"
 
 #include "../base/Directory.h"
 
@@ -52,20 +53,22 @@ void GraphicsTest::createResultImgDir()
 
 BitmapPtr GraphicsTest::loadTestBmp(const std::string& sFName)
 {
-   return BitmapPtr(new Bitmap(string("testfiles/")+sFName+".png"));
+   BitmapPtr pBmp(new Bitmap(string("testfiles/")+sFName+".png"));
+   return FilterFlipRGB().apply(pBmp);
 }
 
 void GraphicsTest::testEqual(Bitmap& ResultBmp, const string& sFName) 
 {
-    BitmapPtr BaselineBmp;
+    BitmapPtr pBaselineBmp;
     try {
-        BaselineBmp = BitmapPtr(new Bitmap(string("baseline/")+sFName));
+        pBaselineBmp = BitmapPtr(new Bitmap(string("baseline/")+sFName+".png"));
+        FilterFlipRGB().applyInPlace(pBaselineBmp);
     } catch (Magick::Exception & ex) {
         cerr << ex.what() << endl;
-        TEST(false);
-        ResultBmp.save(string("resultimages/")+sFName+"_result.png");
+        ResultBmp.save(string("resultimages/")+sFName+".png");
+        throw;
     }
-    testEqual(ResultBmp, *BaselineBmp, sFName);
+    testEqual(ResultBmp, *pBaselineBmp, sFName);
 }
 
 void GraphicsTest::testEqual(Bitmap& ResultBmp, Bitmap& BaselineBmp,
@@ -75,9 +78,36 @@ void GraphicsTest::testEqual(Bitmap& ResultBmp, Bitmap& BaselineBmp,
     if (!(ResultBmp == BaselineBmp)) {
         string sResultName = string("resultimages/")+sFName;
         cerr << "Saving result image to " << sResultName << endl;
-        ResultBmp.save(sResultName+"_result.png");
+        ResultBmp.save(sResultName+".png");
         BaselineBmp.save(sResultName+"_expected.png");
     }
+}
+
+void GraphicsTest::testEqualBrightness(Bitmap& ResultBmp, Bitmap& BaselineBmp, int epsilon)
+{
+    int ResultBrightness = sumPixels(ResultBmp);
+    int BaselineBrightness = sumPixels(BaselineBmp);
+    TEST(abs(ResultBrightness - BaselineBrightness) < epsilon);
+    if (abs(ResultBrightness - BaselineBrightness) >= epsilon) {
+        cerr << "Baseline brightness: " << BaselineBrightness << ", Result brightness: " 
+                << ResultBrightness << endl;
+    }
+}
+
+int GraphicsTest::sumPixels(Bitmap& Bmp)
+{
+    assert(Bmp.getBytesPerPixel() == 4);
+    int sum = 0;
+    IntPoint size = Bmp.getSize();
+    for (int y = 0; y < size.y; y++) {
+        unsigned char * pLine = Bmp.getPixels()+y*Bmp.getStride();
+        for (int x = 0; x < size.x; x++) { 
+            sum += pLine[x*4];
+            sum += pLine[x*4+1];
+            sum += pLine[x*4+2];
+        }
+    }
+    return sum;
 }
 
 };

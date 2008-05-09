@@ -26,6 +26,10 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 
+#include <iostream>
+
+using namespace std;
+
 namespace avg {
 
 PBOImage::PBOImage(const IntPoint& size, PixelFormat pf)
@@ -49,6 +53,7 @@ PBOImage::PBOImage(const IntPoint& size, PixelFormat pf)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: glBindTexture()");
 
     int OGLMode = getOGLMode(pf);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, m_Size.x);
     glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, OGLMode, size.x, size.y, 0,
             OGLMode, getOGLPixelType(pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: glTexImage2D()");
@@ -64,8 +69,11 @@ PBOImage::PBOImage(const IntPoint& size, PixelFormat pf)
 PBOImage::~PBOImage()
 {
     delete m_pVertexes;
+    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, 0);
     glDeleteTextures(1, &m_TexID);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: DeleteTextures()");
     glproc::DeleteBuffers(1, &m_PBO);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: DeleteBuffers()");
 }
 
 void PBOImage::setImage(BitmapPtr pBmp)
@@ -115,7 +123,7 @@ BitmapPtr PBOImage::getImage() const
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::getImage MapBuffer()");
     memcpy(pBmp->getPixels(), pPBOPixels, pBmp->getMemNeeded());
 
-    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
+    glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
     return pBmp;
 }
     
