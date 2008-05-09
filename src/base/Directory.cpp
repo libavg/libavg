@@ -26,6 +26,7 @@
 #include <Windows.h>
 #endif
 #include <sys/stat.h>
+#include <iostream>
 
 using namespace std;
 

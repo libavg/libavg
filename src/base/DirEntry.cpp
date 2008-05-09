@@ -56,9 +56,9 @@ std::string DirEntry::getName()
 void DirEntry::remove()
 {
 #ifdef _WIN32
-    ::_unlink((m_sDirName+m_FindData.name).c_str());
+    ::_unlink((m_sDirName+"\\"+m_FindData.name).c_str());
 #else
-    ::unlink((m_sDirName+m_pEntry->d_name).c_str());
+    ::unlink((m_sDirName+"/"+m_pEntry->d_name).c_str());
 #endif
 }
 
