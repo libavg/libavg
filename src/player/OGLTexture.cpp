@@ -77,24 +77,23 @@ void OGLTexture::blt(const VertexGrid* pVertexes) const
 {
     int TextureMode = m_pEngine->getTextureMode();
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-        GLhandleARB hProgram;
+        OGLShaderPtr pShader;
         if (m_pf == YCbCr420p) {
-            hProgram = m_pEngine->getYCbCr420pShader()->getProgram();
+            pShader = m_pEngine->getYCbCr420pShader();
         } else {
-            hProgram = m_pEngine->getYCbCrJ420pShader()->getProgram();
+            pShader = m_pEngine->getYCbCrJ420pShader();
         }
-        glproc::UseProgramObject(hProgram);
+        pShader->activate();
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::blt: glUseProgramObject()");
         glproc::ActiveTexture(GL_TEXTURE0);
         glBindTexture(TextureMode, m_TexID[0]);
-        glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "YTexture"), 0);
+        pShader->setUniformIntParam("YTexture", 0);
         glproc::ActiveTexture(GL_TEXTURE1);
         glBindTexture(TextureMode, m_TexID[1]);
-        glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "CbTexture"), 1);
+        pShader->setUniformIntParam("CbTexture", 1);
         glproc::ActiveTexture(GL_TEXTURE2);
         glBindTexture(TextureMode, m_TexID[2]);
-        glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "CrTexture"), 2);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::blt: glUniform1i()");
+        pShader->setUniformIntParam("CrTexture", 2);
     } else {
         glproc::ActiveTexture(GL_TEXTURE0);
         glBindTexture(TextureMode, m_TexID[0]);

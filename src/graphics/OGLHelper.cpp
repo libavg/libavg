@@ -56,6 +56,7 @@ namespace glproc {
     PFNGLGETUNIFORMLOCATIONARBPROC GetUniformLocation;
     PFNGLUNIFORM1IARBPROC Uniform1i;
     PFNGLUNIFORM1FARBPROC Uniform1f;
+    PFNGLUNIFORM1FVARBPROC Uniform1fv;
     PFNGLBLENDEQUATIONPROC BlendEquation;
     PFNGLACTIVETEXTUREPROC ActiveTexture;
     PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC CheckFramebufferStatus;
@@ -228,6 +229,7 @@ namespace glproc {
                 getFuzzyProcAddress("glGetUniformLocation");
         Uniform1i = (PFNGLUNIFORM1IARBPROC)getFuzzyProcAddress("glUniform1i");
         Uniform1f = (PFNGLUNIFORM1FARBPROC)getFuzzyProcAddress("glUniform1f");
+        Uniform1fv = (PFNGLUNIFORM1FVARBPROC)getFuzzyProcAddress("glUniform1fv");
         BlendEquation = (PFNGLBLENDEQUATIONPROC)getFuzzyProcAddress("glBlendEquation");
         ActiveTexture = (PFNGLACTIVETEXTUREPROC)getFuzzyProcAddress("glActiveTexture");
         CheckFramebufferStatus = 

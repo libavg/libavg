@@ -62,6 +62,8 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glEnable(GL_TEXTURE_RECTANGLE_ARB);");
     glDisable(GL_MULTISAMPLE);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_MULTISAMPLE);");
+
+    // TODO: set up clamping.
 }
 
 OGLImagingContext::~OGLImagingContext()

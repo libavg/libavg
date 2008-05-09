@@ -22,6 +22,7 @@
 #include "FBOImage.h"
 #include "Filterfliprgb.h"
 #include "GPUBrightnessFilter.h"
+#include "GPUBlurFilter.h"
 #include "OGLImagingContext.h"
 
 #include "../base/TestSuite.h"
@@ -113,6 +114,31 @@ private:
     }
 };
 
+class BlurFilterTest: public BmpTest {
+public:
+    BlurFilterTest()
+        : BmpTest("BlurFilterTest")
+    {
+    }
+
+    void runTests() 
+    {
+        runImageTests("../test/rgb24-64x64.png");
+//        runImageTests("../test/rgb24alpha-64x64.png");
+    }
+
+private:
+    void runImageTests(const string& sFName)
+    {
+        cerr << "    Testing " << sFName << endl;
+        BitmapPtr pBmp(new Bitmap(sFName));
+        FilterFlipRGB().applyInPlace(pBmp);
+        BitmapPtr pDestBmp;
+        pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 10).apply(pBmp);
+        testEqual(*pBmp, *pDestBmp);
+    }
+};
+
 class GPUTestSuite: public TestSuite {
 public:
     GPUTestSuite() 
@@ -120,6 +146,7 @@ public:
     {
         addTest(TestPtr(new FBOTest));
         addTest(TestPtr(new BrightnessFilterTest));
+//        addTest(TestPtr(new BlurFilterTest));
     }
 };
 

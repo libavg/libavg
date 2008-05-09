@@ -37,10 +37,15 @@ class OGLShader {
 
         void activate();
         GLhandleARB getProgram();
+
+        void setUniformIntParam(const std::string& sName, int val);
+        void setUniformFloatParam(const std::string& sName, float val);
+        void setUniformFloatArrayParam(const std::string& sName, int count, float* pVal);
         
     private:
         void dumpInfoLog(GLhandleARB hObj);
-        
+        int safeGetUniformLoc(const std::string& sName);
+
         GLhandleARB m_hFragmentShader;
         GLhandleARB m_hProgram;
         std::string m_sProgram;

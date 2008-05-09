@@ -80,6 +80,7 @@ namespace glproc {
     extern PFNGLGETUNIFORMLOCATIONARBPROC GetUniformLocation;
     extern PFNGLUNIFORM1IARBPROC Uniform1i;
     extern PFNGLUNIFORM1FARBPROC Uniform1f;
+    extern PFNGLUNIFORM1FVARBPROC Uniform1fv;
     extern PFNGLBLENDEQUATIONPROC BlendEquation;
     extern PFNGLACTIVETEXTUREPROC ActiveTexture;
 

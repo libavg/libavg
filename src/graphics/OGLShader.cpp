@@ -70,6 +70,27 @@ GLhandleARB OGLShader::getProgram()
     return m_hProgram;
 }
 
+void OGLShader::setUniformIntParam(const std::string& sName, int val)
+{
+    int loc = safeGetUniformLoc(sName);
+    glproc::Uniform1i(loc, val);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, string("OGLShader: glUniform(")+sName+")");
+}
+
+void OGLShader::setUniformFloatParam(const std::string& sName, float val)
+{
+    int loc = safeGetUniformLoc(sName);
+    glproc::Uniform1f(loc, val);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, string("OGLShader: glUniform(")+sName+")");
+}
+
+void OGLShader::setUniformFloatArrayParam(const std::string& sName, int count, float* pVal)
+{
+    int loc = safeGetUniformLoc(sName);
+    glproc::Uniform1fv(loc, count, pVal);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, string("OGLShader: glUniform(")+sName+")");
+}
+        
 void OGLShader::dumpInfoLog(GLhandleARB hObj)
 {
     int InfoLogLength;
@@ -87,6 +108,14 @@ void OGLShader::dumpInfoLog(GLhandleARB hObj)
         AVG_TRACE(Logger::WARNING, pInfoLog);
         free(pInfoLog);
     }
+}
+
+int OGLShader::safeGetUniformLoc(const std::string& sName)
+{
+    int loc = glproc::GetUniformLocation(m_hProgram, sName.c_str());
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "OGLShader::setUniformIntParam: GetUniformLocation()");
+    return loc;
 }
 
 }
