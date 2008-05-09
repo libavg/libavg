@@ -31,7 +31,8 @@ using namespace std;
 
 namespace avg {
 
-OGLShaderPtr GPUBlurFilter::s_pShader;
+OGLShaderPtr GPUBlurFilter::s_pHorizShader;
+OGLShaderPtr GPUBlurFilter::s_pVertShader;
 
 GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pf, 
         double radius)
@@ -39,13 +40,13 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pf,
       m_PF(pf),
       m_Radius(radius),
       m_pSrcPBO(new PBOImage(size, pf)),
-      m_pInterFBO(new PBOImage(size, pf)),
+      m_pInterFBO(new FBOImage(size, pf)),
       m_pDestFBO(new FBOImage(size, pf))
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
-    if (!s_pShader) {
-        initShader();
+    if (!s_pHorizShader) {
+        initShaders();
     }
     calcKernel();
 }
@@ -59,23 +60,17 @@ BitmapPtr GPUBlurFilter::apply(BitmapPtr pBmpSource)
 {
     m_pSrcPBO->setImage(pBmpSource);
     m_pInterFBO->activate();
-    GLhandleARB hProgram = s_pShader->getProgram();
-    glproc::UseProgramObject(hProgram);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "GPUBlurFilter::apply: glUseProgramObject()");
-    s_pShader->setUniformIntParam("radius", (m_KernelWidth-1)/2);
-    s_pShader->setUniformFloatArrayParam("kernel", m_KernelWidth, m_Kernel);
-    s_pShader->setUniformIntParam("Texture", 0);
+    s_pHorizShader->activate();
+    s_pHorizShader->setUniformIntParam("radius", (m_KernelWidth-1)/2);
+    s_pHorizShader->setUniformFloatArrayParam("kernel", m_KernelWidth, m_Kernel);
+    s_pHorizShader->setUniformIntParam("Texture", 0);
     m_pSrcPBO->draw();
 
     m_pDestFBO->activate();
-    GLhandleARB hProgram = s_pShader->getProgram();
-    glproc::UseProgramObject(hProgram);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "GPUBlurFilter::apply: glUseProgramObject()");
-    s_pShader->setUniformIntParam("radius", (m_KernelWidth-1)/2);
-    s_pShader->setUniformFloatArrayParam("kernel", m_KernelWidth, m_Kernel);
-    s_pShader->setUniformIntParam("Texture", 0);
+    s_pVertShader->activate();
+    s_pVertShader->setUniformIntParam("radius", (m_KernelWidth-1)/2);
+    s_pVertShader->setUniformFloatArrayParam("kernel", m_KernelWidth, m_Kernel);
+    s_pVertShader->setUniformIntParam("Texture", 0);
     m_pInterFBO->draw();
     m_pDestFBO->deactivate();
 
