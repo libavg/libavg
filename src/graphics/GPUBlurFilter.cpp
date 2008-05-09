@@ -39,6 +39,7 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pf,
       m_PF(pf),
       m_Radius(radius),
       m_pSrcPBO(new PBOImage(size, pf)),
+      m_pInterFBO(new PBOImage(size, pf)),
       m_pDestFBO(new FBOImage(size, pf))
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -57,7 +58,7 @@ GPUBlurFilter::~GPUBlurFilter()
 BitmapPtr GPUBlurFilter::apply(BitmapPtr pBmpSource)
 {
     m_pSrcPBO->setImage(pBmpSource);
-    m_pDestFBO->activate();
+    m_pInterFBO->activate();
     GLhandleARB hProgram = s_pShader->getProgram();
     glproc::UseProgramObject(hProgram);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
@@ -67,20 +68,31 @@ BitmapPtr GPUBlurFilter::apply(BitmapPtr pBmpSource)
     s_pShader->setUniformIntParam("Texture", 0);
     m_pSrcPBO->draw();
 
-    glproc::UseProgramObject(0);
+    m_pDestFBO->activate();
+    GLhandleARB hProgram = s_pShader->getProgram();
+    glproc::UseProgramObject(hProgram);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "GPUBlurFilter::apply: glUseProgramObject()");
+    s_pShader->setUniformIntParam("radius", (m_KernelWidth-1)/2);
+    s_pShader->setUniformFloatArrayParam("kernel", m_KernelWidth, m_Kernel);
+    s_pShader->setUniformIntParam("Texture", 0);
+    m_pInterFBO->draw();
     m_pDestFBO->deactivate();
+
     return m_pDestFBO->getImage();
 }
 
-void GPUBlurFilter::initShader()
+void GPUBlurFilter::initShaders()
 {
-    string sProgram =
+    string sProgramHead =
         "#extension GL_ARB_texture_rectangle : enable\n" 
         
         "uniform sampler2DRect Texture;\n"
         "uniform int radius;\n"
         "uniform float kernel[255];\n"
+        ;
 
+    string sHorizProgram = sProgramHead + 
         "void main(void)\n"
         "{\n"
         "    vec4 sum = vec4(0,0,0,0);\n"
@@ -88,11 +100,25 @@ void GPUBlurFilter::initShader()
         "        vec4 tex = texture2DRect(Texture, gl_TexCoord[0].st+vec2(i,0));\n"
         "        sum += tex*kernel[i+radius];\n"
         "    }\n"
-        "    gl_FragColor = sum;\n"
+        "    gl_FragColor = round(sum);\n"
         "}\n"
         ;
 
-    s_pShader = OGLShaderPtr(new OGLShader(sProgram));
+    s_pHorizShader = OGLShaderPtr(new OGLShader(sHorizProgram));
+
+    string sVertProgram = sProgramHead + 
+        "void main(void)\n"
+        "{\n"
+        "    vec4 sum = vec4(0,0,0,0);\n"
+        "    for (int i=-radius; i<=radius; ++i) {\n"
+        "        vec4 tex = texture2DRect(Texture, gl_TexCoord[0].st+vec2(0,i));\n"
+        "        sum += tex*kernel[i+radius];\n"
+        "    }\n"
+        "    gl_FragColor = round(sum);\n"
+        "}\n"
+        ;
+
+    s_pVertShader = OGLShaderPtr(new OGLShader(sVertProgram));
 }
 
 void GPUBlurFilter::dumpKernel()

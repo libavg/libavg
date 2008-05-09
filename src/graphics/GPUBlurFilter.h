@@ -39,7 +39,7 @@ public:
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
 
 private:
-    static void initShader();
+    static void initShaders();
     void dumpKernel();
     void calcKernel();
 
@@ -50,9 +50,11 @@ private:
     float m_Kernel[255];
 
     PBOImagePtr m_pSrcPBO;
+    FBOImagePtr m_pInterFBO;
     FBOImagePtr m_pDestFBO;
 
-    static OGLShaderPtr s_pShader;
+    static OGLShaderPtr s_pHorizShader;
+    static OGLShaderPtr s_pVertShader;
 };
 
 } // namespace
