@@ -19,44 +19,26 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Directory_H_
-#define _Directory_H_
+#include "Bitmap.h"
 
-#include "DirEntry.h"
-
-#ifdef _WIN32
-#include <io.h>
-#else
-#include <dirent.h>
-#endif
+#include "../base/Test.h"
 
 #include <string>
 
 namespace avg {
-    
-class Directory {
+
+class GraphicsTest: public Test {
 public:
-    Directory(std::string sName);
-    virtual ~Directory();
+    GraphicsTest(const std::string& sName, int indentLevel);
+    
+    static void createResultImgDir();
 
-    int open(bool bCreateIfMissing = false);
-    DirEntryPtr getNextEntry();
-    void empty();
-
-private:
-    std::string m_sName;
-
-#ifdef _WIN32
-    _finddata_t m_FindData;
-    intptr_t m_hFile;
-    bool m_bFirstFile;
-#else
-    DIR * m_pDir;
-#endif
+protected:
+    BitmapPtr loadTestBmp(const std::string& sFName);
+    void testEqual(Bitmap& ResultBmp, const std::string& sFName); 
+    void testEqual(Bitmap& ResultBmp, Bitmap& BaselineBmp,
+        const std::string& sFName);
 };
 
+
 }
-
-#endif 
-
-

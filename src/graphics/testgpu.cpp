@@ -19,6 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include "GraphicsTest.h"
 #include "FBOImage.h"
 #include "Filterfliprgb.h"
 #include "GPUBrightnessFilter.h"
@@ -34,108 +35,90 @@
 using namespace avg;
 using namespace std;
 
-class BmpTest: public Test {
-public:
-    BmpTest(const string& sName)
-        : Test(sName, 2)
-    {
-    }
-
-
-protected:
-    void testEqual(Bitmap& Bmp1, Bitmap& Bmp2) 
-    {
-        TEST(Bmp1 == Bmp2);
-        if (!(Bmp1 == Bmp2)) {
-            Bmp2.save("result.png");
-        }
-    }
-};
-
-class FBOTest: public BmpTest {
+class FBOTest: public GraphicsTest {
 public:
     FBOTest()
-        : BmpTest("FBOTest")
+        : GraphicsTest("FBOTest", 2)
     {
     }
 
     void runTests() 
     {
-        runImageTests("../test/rgb24-64x64.png");
-        runImageTests("../test/rgb24alpha-64x64.png");
+        runImageTests("rgb24-64x64");
+        runImageTests("rgb24alpha-64x64");
     }
 
 private:
     void runImageTests(const string& sFName)
     {
         cerr << "    Testing " << sFName << endl;
-        BitmapPtr pBmp(new Bitmap(sFName));
+        BitmapPtr pBmp = loadTestBmp(sFName);
         FilterFlipRGB().applyInPlace(pBmp);
         cerr << "      PBO:" << endl;
         PBOImage pbo(pBmp->getSize(), pBmp->getPixelFormat());
-        runPBOImageTest(pbo, pBmp);
+        runPBOImageTest(pbo, pBmp, string("pbo_")+sFName);
         
         cerr << "      FBO:" << endl;
         FBOImage fbo(pBmp->getSize(), pBmp->getPixelFormat());
-        runPBOImageTest(fbo, pBmp);
+        runPBOImageTest(fbo, pBmp, string("fbo_")+sFName);
     }
 
-    void runPBOImageTest(PBOImage& pbo, BitmapPtr pBmp)
+    void runPBOImageTest(PBOImage& pbo, BitmapPtr pBmp, const string& sFName)
     {
         pbo.setImage(pBmp);
         BitmapPtr pNewBmp = pbo.getImage();
-        testEqual(*pBmp, *pNewBmp);
+        testEqual(*pNewBmp, *pBmp, sFName);
     }
 
 };
 
-class BrightnessFilterTest: public BmpTest {
+class BrightnessFilterTest: public GraphicsTest {
 public:
     BrightnessFilterTest()
-        : BmpTest("BrightnessFilterTest")
+        : GraphicsTest("BrightnessFilterTest", 2)
     {
     }
 
     void runTests() 
     {
-        runImageTests("../test/rgb24-64x64.png");
-        runImageTests("../test/rgb24alpha-64x64.png");
+        runImageTests("rgb24-64x64");
+        runImageTests("rgb24alpha-64x64");
     }
 
 private:
     void runImageTests(const string& sFName)
     {
         cerr << "    Testing " << sFName << endl;
-        BitmapPtr pBmp(new Bitmap(sFName));
+        BitmapPtr pBmp = loadTestBmp(sFName);
         FilterFlipRGB().applyInPlace(pBmp);
         BitmapPtr pDestBmp;
         pDestBmp = GPUBrightnessFilter(pBmp->getSize(), pBmp->getPixelFormat(), 1).apply(pBmp);
-        testEqual(*pBmp, *pDestBmp);
+        testEqual(*pDestBmp, *pBmp, string("brightness_")+sFName);
     }
 };
 
-class BlurFilterTest: public BmpTest {
+class BlurFilterTest: public GraphicsTest {
 public:
     BlurFilterTest()
-        : BmpTest("BlurFilterTest")
+        : GraphicsTest("BlurFilterTest", 2)
     {
     }
 
     void runTests() 
     {
-        runImageTests("../test/rgb24-64x64.png");
-//        runImageTests("../test/rgb24alpha-64x64.png");
+        runImageTests("rgb24-64x64");
+//        runImageTests("rgb24alpha-64x64");
     }
 
 private:
     void runImageTests(const string& sFName)
     {
         cerr << "    Testing " << sFName << endl;
-        BitmapPtr pBmp(new Bitmap(sFName));
+        BitmapPtr pBmp = loadTestBmp(sFName);
         FilterFlipRGB().applyInPlace(pBmp);
         BitmapPtr pDestBmp;
         pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 10).apply(pBmp);
-        testEqual(*pBmp, *pDestBmp);
+        testEqual(*pDestBmp, *pBmp, string("blur_")+sFName);
     }
 };
 
@@ -153,6 +136,8 @@ public:
 
 int main(int nargs, char** args)
 {
+    GraphicsTest::createResultImgDir();
+
     if (SDL_InitSubSystem(SDL_INIT_VIDEO)==-1) {
         cerr << "Can't init SDL." << endl;
         return 1;

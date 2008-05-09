@@ -19,44 +19,42 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Directory_H_
-#define _Directory_H_
+#ifndef _GPUBlurFilter_H_
+#define _GPUBlurFilter_H_
 
-#include "DirEntry.h"
-
-#ifdef _WIN32
-#include <io.h>
-#else
-#include <dirent.h>
-#endif
-
-#include <string>
+#include "Filter.h"
+#include "Bitmap.h"
+#include "PBOImage.h"
+#include "FBOImage.h"
+#include "OGLShader.h"
 
 namespace avg {
-    
-class Directory {
-public:
-    Directory(std::string sName);
-    virtual ~Directory();
 
-    int open(bool bCreateIfMissing = false);
-    DirEntryPtr getNextEntry();
-    void empty();
+class GPUBlurFilter: public Filter
+{
+public:
+    GPUBlurFilter(const IntPoint& size, PixelFormat pf, double radius);
+    virtual ~GPUBlurFilter();
+
+    virtual BitmapPtr apply(BitmapPtr pBmpSource);
 
 private:
-    std::string m_sName;
+    static void initShader();
+    void dumpKernel();
+    void calcKernel();
 
-#ifdef _WIN32
-    _finddata_t m_FindData;
-    intptr_t m_hFile;
-    bool m_bFirstFile;
-#else
-    DIR * m_pDir;
-#endif
+    IntPoint m_Size;
+    PixelFormat m_PF;
+    double m_Radius;
+    int m_KernelWidth;
+    float m_Kernel[255];
+
+    PBOImagePtr m_pSrcPBO;
+    FBOImagePtr m_pDestFBO;
+
+    static OGLShaderPtr s_pShader;
 };
 
-}
-
-#endif 
-
+} // namespace
+#endif
 

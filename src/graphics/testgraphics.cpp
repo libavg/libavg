@@ -19,6 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include "GraphicsTest.h"
 #include "Bitmap.h"
 #include "Pixel32.h"
 #include "Pixel24.h"
@@ -87,10 +88,10 @@ BitmapPtr initBmp(PixelFormat PF)
     return pBmp;
 }
 
-class BitmapTest: public Test {
+class BitmapTest: public GraphicsTest {
 public:
     BitmapTest()
-        : Test("BitmapTest", 2)
+        : GraphicsTest("BitmapTest", 2)
     {
     }
 
@@ -111,7 +112,7 @@ public:
         unsigned char pData[4*7*3];
         Bitmap Bmp1 = Bitmap(IntPoint(4,7), R8G8B8, pData, 12, true, "");
         Bitmap Bmp2 = Bitmap(IntPoint(4,7), R8G8B8, pData, 12, false, "");
-        testEqual(Bmp1, Bmp2);
+        testEqual(Bmp1, Bmp2, "BmpOwnsBits");
         {
             cerr << "    Testing copyPixels - R8G8B8X8->R8G8B8->R8G8B8X8." << endl;
             BitmapPtr pBmp = initBmp(R8G8B8X8);
@@ -125,7 +126,7 @@ public:
                             *Bmp2.getBytesPerPixel()+3) = 0x80;
                 }
             }
-            testEqual(*pBmp, Bmp2);
+            testEqual(Bmp2, *pBmp, "BmpCopyPixels_1");
         }
         {
             cerr << "    Testing copyPixels - R8G8B8A8->R8G8B8->R8G8B8A8." << endl;
@@ -140,7 +141,7 @@ public:
                             *pBmp->getBytesPerPixel()+3) = 0x80;
                 }
             }
-            testEqual(*pBmp, *pBaselineBmp);
+            testEqual(*pBmp, *pBaselineBmp, "BmpCopyPixels_2");
         }
         {
             cerr << "    Testing copyPixels - I8->I16->I8." << endl;
@@ -149,7 +150,7 @@ public:
             BitmapPtr pCopyBmp = BitmapPtr(new Bitmap(IntPoint(4,7), I16));
             pCopyBmp->copyPixels(*pBmp);
             pBmp->copyPixels(*pCopyBmp);
-            testEqual(*pBmp, *pBaselineBmp);
+            testEqual(*pBmp, *pBaselineBmp, "BmpCopyPixels_3");
 
         }
         runSaveTest(R8G8B8A8);
@@ -171,17 +172,17 @@ private:
         {
             cerr << "      Testing copy constructor." << endl;
             Bitmap BmpCopy1(*pBmp);
-            testEqual(*pBmp, BmpCopy1);
+            testEqual(BmpCopy1, *pBmp, "BmpCopyConstructor");
         }
         {
             cerr << "      Testing assignment operator." << endl;
             Bitmap BmpCopy2 = *pBmp;
-            testEqual(*pBmp, BmpCopy2);
+            testEqual(BmpCopy2, *pBmp, "BmpAssignment");
         }
         {
             cerr << "      Testing sub-bitmap constructor." << endl;
             Bitmap BmpCopy3 (*pBmp, IntRect(IntPoint(0,0), pBmp->getSize()));
-            testEqual(*pBmp, BmpCopy3);
+            testEqual(BmpCopy3, *pBmp, "BmpSubBmpCtor");
         }
         if (PF == R8G8B8X8 || PF == R8G8B8) {
             cerr << "      Testing getNumDifferentPixels." << endl;
@@ -218,7 +219,7 @@ private:
         pBmp->save("test.tif");
         Bitmap LoadedBmp("test.tif");
         ::remove("test.tif");
-        testEqual(*pBmp, LoadedBmp);
+        testEqual(LoadedBmp, *pBmp, "BmpSave");
     }
 
     template<class Pixel>
@@ -234,31 +235,19 @@ private:
         Bmp.drawLine(IntPoint(7,7), IntPoint(12,14), Color);
         Bmp.drawLine(IntPoint(7,7), IntPoint(14, 2), Color);
         Bmp.drawLine(IntPoint(7,7), IntPoint(14,12), Color);
-        string sFName = getSrcDir()+"testimages/LineResult"+Bitmap::getPixelFormatString(PF)+".png";
+        string sFName = getSrcDir()+"baseline/LineResult"+Bitmap::getPixelFormatString(PF)+".png";
 //        Bmp.save(sFName);
         Bitmap BaselineBmp(sFName);
         Bitmap BaselineBmp2(IntPoint(15,15), PF);
         BaselineBmp2.copyPixels(BaselineBmp);
-        testEqual(Bmp, BaselineBmp2);
+        testEqual(Bmp, BaselineBmp2, "BmpLineDraw");
     }
-
-    void testEqual(Bitmap& Bmp1, Bitmap& Bmp2) 
-    {
-        TEST(Bmp1 == Bmp2);
-        if (!(Bmp1 == Bmp2)) {
-            cerr << "Bmp1: " << endl;
-            Bmp1.dump(true);
-            cerr << "Bmp2: " << endl;
-            Bmp2.dump(true);
-        }
-    }
-
 };
 
-class FilterColorizeTest: public Test {
+class FilterColorizeTest: public GraphicsTest {
 public:
     FilterColorizeTest()
-        : Test("FilterColorizeTest", 2)
+        : GraphicsTest("FilterColorizeTest", 2)
     {
     }
 
@@ -278,10 +267,10 @@ private:
     }
 };
 
-class FilterGrayscaleTest: public Test {
+class FilterGrayscaleTest: public GraphicsTest {
 public:
     FilterGrayscaleTest()
-        : Test("FilterGrayscaleTest", 2)
+        : GraphicsTest("FilterGrayscaleTest", 2)
     {
     }
 
@@ -300,10 +289,10 @@ private:
     }
 };
 
-class FilterFillTest: public Test {
+class FilterFillTest: public GraphicsTest {
 public:
     FilterFillTest()
-        : Test("FilterFillTest", 2)
+        : GraphicsTest("FilterFillTest", 2)
     {
     }
 
@@ -322,10 +311,10 @@ private:
     }
 };
 
-class FilterFlipTest: public Test {
+class FilterFlipTest: public GraphicsTest {
 public:
     FilterFlipTest()
-        : Test("FilterFlipTest", 2)
+        : GraphicsTest("FilterFlipTest", 2)
     {
     }
 
@@ -356,10 +345,10 @@ private:
     }
 };
 
-class FilterFlipRGBTest: public Test {
+class FilterFlipRGBTest: public GraphicsTest {
 public:
     FilterFlipRGBTest()
-        : Test("FilterFlipRGBTest", 2)
+        : GraphicsTest("FilterFlipRGBTest", 2)
     {
     }
 
@@ -388,10 +377,10 @@ private:
     }
 };
 
-class FilterFlipUVTest: public Test {
+class FilterFlipUVTest: public GraphicsTest {
 public:
     FilterFlipUVTest()
-        : Test("FilterFlipUVTest", 2)
+        : GraphicsTest("FilterFlipUVTest", 2)
     {
     }
 
@@ -413,10 +402,10 @@ public:
     }
 };
 
-class FilterComboTest: public Test {
+class FilterComboTest: public GraphicsTest {
 public:
     FilterComboTest()
-        : Test("FilterComboTest", 2)
+        : GraphicsTest("FilterComboTest", 2)
     {
     }
 
@@ -451,10 +440,10 @@ private:
     }
 };
 
-class FilterConvolTest: public Test {
+class FilterConvolTest: public GraphicsTest {
 public:
     FilterConvolTest()
-        : Test("FilterConvolTest", 2)
+        : GraphicsTest("FilterConvolTest", 2)
     {
     }
 
@@ -500,10 +489,10 @@ private:
     }
 };
 
-class Filter3x3Test: public Test {
+class Filter3x3Test: public GraphicsTest {
 public:
     Filter3x3Test()
-        : Test("Filter3x3Test", 2)
+        : GraphicsTest("Filter3x3Test", 2)
     {
     }
 
@@ -548,10 +537,10 @@ private:
     }
 };
     
-class HistoryPreProcessorTest: public Test {
+class HistoryPreProcessorTest: public GraphicsTest {
 public:
     HistoryPreProcessorTest()
-        : Test("HistoryPreProcessor", 2)
+        : GraphicsTest("HistoryPreProcessor", 2)
     {
     }
     void testEqual(Bitmap& Bmp1, Bitmap& Bmp2) 
@@ -582,10 +571,10 @@ public:
 
 };
     
-class FilterFastBandpassTest: public Test {
+class FilterFastBandpassTest: public GraphicsTest {
 public:
     FilterFastBandpassTest()
-        : Test("FilterFastBandpassTest", 2)
+        : GraphicsTest("FilterFastBandpassTest", 2)
     {
     }
 
@@ -595,8 +584,8 @@ public:
         FilterFill<Pixel8>(0).applyInPlace(pBmp);
         *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
         BitmapPtr pDestBmp = FilterFastBandpass().apply(pBmp);
-//        pDestBmp->save("testimages/FastBandpassResult.png");
-        string sFName = getSrcDir()+"testimages/FastBandpassResult.png";
+//        pDestBmp->save("baseline/FastBandpassResult.png");
+        string sFName = getSrcDir()+"baseline/FastBandpassResult.png";
         BitmapPtr pBaselineBmp = FilterGrayscale().apply(
                 BitmapPtr(new Bitmap(sFName)));
         TEST(*pDestBmp == *pBaselineBmp);
@@ -604,10 +593,10 @@ public:
 };
 
 
-class FilterHighpassTest: public Test {
+class FilterHighpassTest: public GraphicsTest {
 public:
     FilterHighpassTest()
-        : Test("FilterHighpassTest", 2)
+        : GraphicsTest("FilterHighpassTest", 2)
     {
     }
 
@@ -617,8 +606,8 @@ public:
         FilterFill<Pixel8>(0).applyInPlace(pBmp);
         *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
         BitmapPtr pDestBmp = FilterHighpass().apply(pBmp);
-//        pDestBmp->save("testimages/HighpassResult.png");
-        string sFName = getSrcDir()+"testimages/HighpassResult.png";
+//        pDestBmp->save("baseline/HighpassResult.png");
+        string sFName = getSrcDir()+"baseline/HighpassResult.png";
         BitmapPtr pBaselineBmp = FilterGrayscale().apply(
                 BitmapPtr(new Bitmap(sFName)));
         TEST(*pDestBmp == *pBaselineBmp);
@@ -626,10 +615,10 @@ public:
 };
 
 
-class FilterGaussTest: public Test {
+class FilterGaussTest: public GraphicsTest {
 public:
     FilterGaussTest()
-        : Test("FilterGaussTest", 2)
+        : GraphicsTest("FilterGaussTest", 2)
     {
     }
 
@@ -645,26 +634,26 @@ public:
 //        FilterGauss(4).dumpKernel();
 //        FilterGauss(5).dumpKernel();
         BitmapPtr pDestBmp = FilterGauss(3).apply(pBmp);
-//        pDestBmp->save("testimages/Gauss3Result.png");
-        string sFName = getSrcDir()+"testimages/Gauss3Result.png";
+//        pDestBmp->save("baseline/Gauss3Result.png");
+        string sFName = getSrcDir()+"baseline/Gauss3Result.png";
         BitmapPtr pBaselineBmp = FilterGrayscale().apply(
                 BitmapPtr(new Bitmap(sFName)));
         TEST(*pDestBmp == *pBaselineBmp);
         pDestBmp = FilterGauss(1).apply(pBmp);
-//        pDestBmp->save("testimages/Gauss1Result.png");
-        sFName = getSrcDir()+"testimages/Gauss1Result.png";
+//        pDestBmp->save("baseline/Gauss1Result.png");
+        sFName = getSrcDir()+"baseline/Gauss1Result.png";
         pBaselineBmp = FilterGrayscale().apply(
                 BitmapPtr(new Bitmap(sFName)));
         TEST(*pDestBmp == *pBaselineBmp);
         pDestBmp = FilterGauss(1.5).apply(pBmp);
-//        pDestBmp->save("testimages/Gauss15Result.png");
-        sFName = getSrcDir()+"testimages/Gauss15Result.png";
+//        pDestBmp->save("baseline/Gauss15Result.png");
+        sFName = getSrcDir()+"baseline/Gauss15Result.png";
         pBaselineBmp = FilterGrayscale().apply(
                 BitmapPtr(new Bitmap(sFName)));
         TEST(*pDestBmp == *pBaselineBmp);
         pDestBmp = FilterGauss(5).apply(pBmp);
-//        pDestBmp->save("testimages/Gauss5Result.png");
-        sFName = getSrcDir()+"testimages/Gauss5Result.png";
+//        pDestBmp->save("baseline/Gauss5Result.png");
+        sFName = getSrcDir()+"baseline/Gauss5Result.png";
         pBaselineBmp = FilterGrayscale().apply(
                 BitmapPtr(new Bitmap(sFName)));
         TEST(*pDestBmp == *pBaselineBmp);
@@ -672,10 +661,10 @@ public:
 };
 
 
-class FilterBlurTest: public Test {
+class FilterBlurTest: public GraphicsTest {
 public:
     FilterBlurTest()
-        : Test("FilterBlurTest", 2)
+        : GraphicsTest("FilterBlurTest", 2)
     {
     }
 
@@ -685,18 +674,18 @@ public:
         FilterFill<Pixel8>(0).applyInPlace(pBmp);
         *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
         BitmapPtr pDestBmp = FilterBlur().apply(pBmp);
-//        pDestBmp->save("testimages/BlurResult.png");
+//        pDestBmp->save("baseline/BlurResult.png");
         BitmapPtr pBaselineBmp = FilterGrayscale().apply(
-                BitmapPtr(new Bitmap(getSrcDir()+"testimages/BlurResult.png")));
+                BitmapPtr(new Bitmap(getSrcDir()+"baseline/BlurResult.png")));
         TEST(*pDestBmp == *pBaselineBmp);
     }
 };
 
 
-class FilterBandpassTest: public Test {
+class FilterBandpassTest: public GraphicsTest {
 public:
     FilterBandpassTest()
-        : Test("FilterBandpassTest", 2)
+        : GraphicsTest("FilterBandpassTest", 2)
     {
     }
 
@@ -707,18 +696,18 @@ public:
         *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
         
         BitmapPtr pDestBmp = FilterBandpass(1.9,3).apply(pBmp);
-//        pDestBmp->save("testimages/BandpassResult.png");
-        string sFName = getSrcDir()+"testimages/BandpassResult.png";
+//        pDestBmp->save("baseline/BandpassResult.png");
+        string sFName = getSrcDir()+"baseline/BandpassResult.png";
         BitmapPtr pBaselineBmp = FilterGrayscale().apply(
                 BitmapPtr(new Bitmap(sFName)));
         TEST(*pDestBmp == *pBaselineBmp);
     }
 };
 
-class FilterFastDownscaleTest: public Test {
+class FilterFastDownscaleTest: public GraphicsTest {
 public:
     FilterFastDownscaleTest()
-        : Test("FilterFastDownscaleTest", 2)
+        : GraphicsTest("FilterFastDownscaleTest", 2)
     {
     }
 
@@ -729,18 +718,18 @@ public:
         *(pBmp->getPixels()+pBmp->getStride()*3+3) = 252;
 
         BitmapPtr pDestBmp = FilterFastDownscale(2).apply(pBmp);
-//        pDestBmp->save("testimages/FastDownscaleResult.png");
-        string sFName = getSrcDir()+"testimages/FastDownscaleResult.png";
+//        pDestBmp->save("baseline/FastDownscaleResult.png");
+        string sFName = getSrcDir()+"baseline/FastDownscaleResult.png";
         BitmapPtr pBaselineBmp = FilterGrayscale().apply(
                 BitmapPtr(new Bitmap(sFName)));
         TEST(*pDestBmp == *pBaselineBmp);
     }
 };
 
-class FilterMaskTest: public Test {
+class FilterMaskTest: public GraphicsTest {
 public:
     FilterMaskTest()
-        : Test("FilterMaskTest", 2)
+        : GraphicsTest("FilterMaskTest", 2)
     {
     }
 
@@ -763,7 +752,7 @@ private:
         }
 
         BitmapPtr pDestBmp = FilterMask(pMaskBmp).apply(pBmp);
-        string sFName = string("testimages/MaskResult")+sName+".png";
+        string sFName = string("baseline/MaskResult")+sName+".png";
 //        pDestBmp->save(sFName);
         sFName = getSrcDir()+sFName;
         BitmapPtr pRGBXBaselineBmp = BitmapPtr(new Bitmap(sFName));

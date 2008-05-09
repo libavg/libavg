@@ -115,5 +115,16 @@ DirEntryPtr Directory::getNextEntry()
     }
 #endif
 }
+    
+void Directory::empty()
+{
+    DirEntryPtr pEntry;
+    do {
+        pEntry = getNextEntry();
+        if (pEntry) {
+            pEntry->remove();
+        }
+    } while (pEntry);
+}
 
 }

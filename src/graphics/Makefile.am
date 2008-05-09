@@ -26,12 +26,12 @@ ALL_CPP = Bitmap.cpp Filter.cpp Filtergrayscale.cpp \
         FilterGauss.cpp FilterBandpass.cpp FilterBlur.cpp FilterMask.cpp \
         OGLHelper.cpp OGLShader.cpp \
         FBOImage.cpp PBOImage.cpp VertexArray.cpp OGLImagingContext.cpp \
-        GPUBrightnessFilter.cpp GPUBlurFilter.cpp \
+        GPUBrightnessFilter.cpp GPUBlurFilter.cpp GraphicsTest.cpp\
         $(APPLE_SOURCES)
 
 TESTS=testgraphics testgpu
 
-EXTRA_DIST = rgb24-64x64.png $(wildcard testimages/*.png)
+EXTRA_DIST = rgb24-64x64.png $(wildcard baseline/*.png)
 
 noinst_LTLIBRARIES = libgraphics.la
 libgraphics_la_SOURCES = $(ALL_CPP) $(ALL_H)
