@@ -22,7 +22,7 @@
 #ifndef _GPUBrightnessFilter_H_
 #define _GPUBrightnessFilter_H_
 
-#include "Filter.h"
+#include "GPUFilter.h"
 #include "Bitmap.h"
 #include "PBOImage.h"
 #include "FBOImage.h"
@@ -30,23 +30,18 @@
 
 namespace avg {
 
-class GPUBrightnessFilter: public Filter
+class GPUBrightnessFilter: public GPUFilter
 {
 public:
     GPUBrightnessFilter(const IntPoint& size, PixelFormat pf, double alpha);
     virtual ~GPUBrightnessFilter();
 
-    virtual BitmapPtr apply(BitmapPtr pBmpSource);
+    virtual void applyOnGPU();
 
 private:
     static void initShader();
 
-    IntPoint m_Size;
-    PixelFormat m_PF;
     double m_Alpha;
-
-    PBOImagePtr m_pSrcPBO;
-    FBOImagePtr m_pDestFBO;
 
     static OGLShaderPtr s_pShader;
 };

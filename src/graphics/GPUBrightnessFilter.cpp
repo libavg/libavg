@@ -35,11 +35,8 @@ OGLShaderPtr GPUBrightnessFilter::s_pShader;
 
 GPUBrightnessFilter::GPUBrightnessFilter(const IntPoint& size, PixelFormat pf, 
         double alpha)
-    : m_Size(size),
-      m_PF(pf),
-      m_Alpha(alpha),
-      m_pSrcPBO(new PBOImage(size, pf)),
-      m_pDestFBO(new FBOImage(size, pf))
+    : GPUFilter(size, pf),
+      m_Alpha(alpha)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
@@ -53,21 +50,19 @@ GPUBrightnessFilter::~GPUBrightnessFilter()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-BitmapPtr GPUBrightnessFilter::apply(BitmapPtr pBmpSource)
+void GPUBrightnessFilter::applyOnGPU()
 {
-    m_pSrcPBO->setImage(pBmpSource);
-    m_pDestFBO->activate();
+    getDestFBO()->activate();
     GLhandleARB hProgram = s_pShader->getProgram();
     glproc::UseProgramObject(hProgram);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "GPUBrightnessFilter::apply: glUseProgramObject()");
     glproc::Uniform1f(glproc::GetUniformLocation(hProgram, "alpha"), m_Alpha);
     glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "Texture"), 0);
-    m_pSrcPBO->draw();
+    getSrcPBO()->draw();
 
     glproc::UseProgramObject(0);
-    m_pDestFBO->deactivate();
-    return m_pDestFBO->getImage();
+    getDestFBO()->deactivate();
 }
 
 void GPUBrightnessFilter::initShader()
