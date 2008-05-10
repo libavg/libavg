@@ -19,41 +19,61 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _GPUBlurFilter_H_
-#define _GPUBlurFilter_H_
-
 #include "GPUFilter.h"
 #include "Bitmap.h"
-#include "PBOImage.h"
-#include "FBOImage.h"
-#include "OGLShader.h"
+
+#include "../base/ObjectCounter.h"
+
+#include <iostream>
+
+using namespace std;
 
 namespace avg {
 
-class GPUBlurFilter: public GPUFilter
+GPUFilter::GPUFilter(const IntPoint& size, PixelFormat pf)
+    : m_pSrcPBO(new PBOImage(size, pf)),
+      m_pDestFBO(new FBOImage(size, pf))
 {
-public:
-    GPUBlurFilter(const IntPoint& size, PixelFormat pf, double stdDev);
-    virtual ~GPUBlurFilter();
+    ObjectCounter::get()->incRef(&typeid(*this));
+}
+    
+GPUFilter::GPUFilter(PBOImagePtr pSrcPBO, FBOImagePtr pDestFBO)
+    : m_pSrcPBO(pSrcPBO),
+      m_pDestFBO(pDestFBO)
+{
+    ObjectCounter::get()->incRef(&typeid(*this));
+}
 
-    virtual void applyOnGPU();
+GPUFilter::~GPUFilter()
+{
+    ObjectCounter::get()->decRef(&typeid(*this));
+}
 
-private:
-    static void initShaders();
-    void dumpKernel();
-    void calcKernel();
+BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
+{
+    m_pSrcPBO->setImage(pBmpSource);
+    applyOnGPU();
+    return m_pDestFBO->getImage();
+}
 
-    double m_StdDev;
-    int m_KernelWidth;
-    float m_Kernel[255];
+PixelFormat GPUFilter::getPF() const
+{
+    return m_pSrcPBO->getPF();
+}
 
-    PBOImagePtr m_pGaussCurvePBO;
-    FBOImagePtr m_pInterFBO;
+const IntPoint& GPUFilter::getSize() const
+{
+    return m_pSrcPBO->getSize();
+}
 
-    static OGLShaderPtr s_pHorizShader;
-    static OGLShaderPtr s_pVertShader;
-};
+PBOImagePtr GPUFilter::getSrcPBO()
+{
+    return m_pSrcPBO;
+}
+
+FBOImagePtr GPUFilter::getDestFBO()
+{
+    return m_pDestFBO;
+}
 
 } // namespace
-#endif
-

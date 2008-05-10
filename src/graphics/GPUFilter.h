@@ -19,39 +19,37 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _GPUBlurFilter_H_
-#define _GPUBlurFilter_H_
+#ifndef _GPUFilter_H_
+#define _GPUFilter_H_
 
-#include "GPUFilter.h"
+#include "Filter.h"
 #include "Bitmap.h"
 #include "PBOImage.h"
 #include "FBOImage.h"
-#include "OGLShader.h"
 
 namespace avg {
 
-class GPUBlurFilter: public GPUFilter
+class GPUFilter: public Filter
 {
 public:
-    GPUBlurFilter(const IntPoint& size, PixelFormat pf, double stdDev);
-    virtual ~GPUBlurFilter();
+    GPUFilter(const IntPoint& size, PixelFormat pf);
+    GPUFilter(PBOImagePtr pSrcPBO, FBOImagePtr pDestFBO);
+    virtual ~GPUFilter();
 
-    virtual void applyOnGPU();
+    virtual BitmapPtr apply(BitmapPtr pBmpSource);
+    virtual void applyOnGPU() = 0;
+
+protected:
+    PixelFormat getPF() const;
+    const IntPoint& getSize() const;
+
+    PBOImagePtr getSrcPBO();
+    FBOImagePtr getDestFBO();
 
 private:
-    static void initShaders();
-    void dumpKernel();
-    void calcKernel();
-
-    double m_StdDev;
-    int m_KernelWidth;
-    float m_Kernel[255];
-
-    PBOImagePtr m_pGaussCurvePBO;
-    FBOImagePtr m_pInterFBO;
-
-    static OGLShaderPtr s_pHorizShader;
-    static OGLShaderPtr s_pVertShader;
+    PBOImagePtr m_pSrcPBO;
+    FBOImagePtr m_pDestFBO;
+    
 };
 
 } // namespace
