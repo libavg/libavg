@@ -84,7 +84,7 @@ void GPUBandpassFilter::initShader()
         "{\n"
         "  vec4 min =texture2DRect(minTex, gl_TexCoord[0].st);\n" 
         "  vec4 max =texture2DRect(maxTex, gl_TexCoord[0].st);\n" 
-        "  gl_FragColor = vec4(0.5, 0.5, 0.5, 0)+max-min;\n"
+        "  gl_FragColor = vec4(0.504, 0.504, 0.504, 0)+max-min;\n"
         "  gl_FragColor.a = 1.0;\n"
         "}\n"
         ;

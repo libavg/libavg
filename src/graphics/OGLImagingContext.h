@@ -21,6 +21,12 @@
 
 #include "../base/Point.h"
 
+#include "OGLHelper.h"
+
+#ifdef __APPLE__
+#include <AGL/agl.h>
+#endif
+
 namespace avg {
 
 class OGLImagingContext {
@@ -32,6 +38,9 @@ public:
 
 private:
     IntPoint m_Size;
+#ifdef __APPLE__    
+    AGLContext m_Context;
+#endif
 };
 
 }

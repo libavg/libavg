@@ -179,7 +179,7 @@ public:
         cerr << "    Testing spike, stddev 0.5" << endl;
         pBmp = loadTestBmp("spike");
         pDestBmp = GPUBandpassFilter(pBmp->getSize(), pBmp->getPixelFormat(), 0.5, 1.5).apply(pBmp);
-        TEST(fabs(pDestBmp->avg() -127) < 0.01);
+        TEST(fabs(pDestBmp->avg() -128) < 0.01);
         testEqual(*pDestBmp, "bandpass");
     }
 };
@@ -205,6 +205,7 @@ int main(int nargs, char** args)
         cerr << "Can't init SDL." << endl;
         return 1;
     }
+    
     SDL_Surface * pScreen = SDL_SetVideoMode(16, 16, 24, SDL_OPENGL);
     if (!pScreen) {
         cerr << "Setting SDL video mode failed: " << SDL_GetError() << endl;

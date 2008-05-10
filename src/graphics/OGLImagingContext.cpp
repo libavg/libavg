@@ -21,8 +21,6 @@
 
 #include "OGLImagingContext.h"
 
-#include "OGLHelper.h"
-
 #include "../base/Exception.h"
 
 namespace avg {
@@ -30,6 +28,22 @@ namespace avg {
 OGLImagingContext::OGLImagingContext(const IntPoint & size)
     : m_Size(size)
 {
+
+#ifdef __APPLE__
+    GLint attributes[] = {AGL_RGBA, AGL_ALL_RENDERERS,AGL_NONE};
+    AGLPixelFormat format;
+    format = aglChoosePixelFormat(NULL, 0, attributes);
+    assert(format);
+
+    m_Context = aglCreateContext(format, NULL);
+    assert(m_Context);
+    aglDestroyPixelFormat(format);
+    
+#endif
+
+    bool bOk = aglSetCurrentContext(m_Context);
+    assert (bOk);
+    
     // Coordinates
     glViewport(0, 0, m_Size.x, m_Size.y);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glViewport()");
@@ -68,10 +82,19 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
 
 OGLImagingContext::~OGLImagingContext()
 {
+#ifdef __APPLE__
+    if (m_Context) {
+        aglSetCurrentContext(0);
+        aglDestroyContext(m_Context);
+        m_Context = 0;
+    }
+#endif
 }
 
 void OGLImagingContext::activate()
 {
+    bool bOk = aglSetCurrentContext(m_Context);
+    assert (bOk);
 }
 
 }
