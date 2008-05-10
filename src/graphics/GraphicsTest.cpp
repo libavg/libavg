@@ -85,6 +85,9 @@ void GraphicsTest::testEqual(Bitmap& ResultBmp, Bitmap& BaselineBmp,
         cerr << "Saving result image to " << sResultName << endl;
         ResultBmp.save(sResultName+".png");
         BaselineBmp.save(sResultName+"_expected.png");
+        Bitmap DiffBmp(ResultBmp);
+        DiffBmp.subtract(&BaselineBmp);
+        DiffBmp.save(sResultName+"_diff.png");
     }
 }
 

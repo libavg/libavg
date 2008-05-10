@@ -592,6 +592,21 @@ void Bitmap::subtract(const Bitmap *pOtherBmp)
     unsigned char * pDest = m_pBits;
     for (int y=0; y<getSize().y; ++y) {
         switch(m_PF) {
+            case R8G8B8A8:
+            case B8G8R8A8:
+                {
+                    Pixel32 * pSrcPixel = (Pixel32 *)pSrc;
+                    Pixel32 * pDestPixel = (Pixel32 *)pDest;
+                    for (int x=0; x<m_Size.x; ++x) {
+                        pDestPixel->setR(abs(pSrcPixel->getR()-pDestPixel->getR()));
+                        pDestPixel->setG(abs(pSrcPixel->getG()-pDestPixel->getG()));
+                        pDestPixel->setB(abs(pSrcPixel->getB()-pDestPixel->getB()));
+                        pDestPixel->setA(abs(pSrcPixel->getA()-pDestPixel->getA()));
+                        pSrcPixel++;
+                        pDestPixel++;
+                    }
+                }
+                break;
             case R8G8B8X8:
             case B8G8R8X8:
                 lineSubtract<Pixel32>(pSrc, pDest, m_Size.x);
