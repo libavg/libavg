@@ -131,7 +131,7 @@ void GPUBlurFilter::dumpKernel()
 
 void GPUBlurFilter::calcKernel()
 {
-    int KernelCenter = ceil(m_StdDev*3); 
+    int KernelCenter = int(ceil(m_StdDev*3));
     m_KernelWidth = KernelCenter*2+1;
     float sum = 0;
     for (int i=0; i<= KernelCenter; ++i) {

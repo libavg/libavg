@@ -165,7 +165,12 @@ int PBOImage::getInternalFormat() const
         case GL_UNSIGNED_BYTE:
             return GL_RGBA;
         case GL_FLOAT:
+#ifdef linux
+            // Actually, this is probably an nvidia driver restriction.
+            return GL_FLOAT_RGBA_NV;
+#else
             return GL_RGBA32F_ARB;
+#endif
         default:
             assert(false);
             return 0;
