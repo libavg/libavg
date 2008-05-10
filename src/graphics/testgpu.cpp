@@ -43,21 +43,23 @@ public:
 
     void runTests() 
     {
-        runImageTests("rgb24-64x64");
-        runImageTests("rgb24alpha-64x64");
+        runImageTests("rgb24-64x64", GL_UNSIGNED_BYTE);
+        runImageTests("rgb24alpha-64x64", GL_UNSIGNED_BYTE);
+        runImageTests("rgb24-64x64", GL_FLOAT);
+        runImageTests("rgb24alpha-64x64", GL_FLOAT);
     }
 
 private:
-    void runImageTests(const string& sFName)
+    void runImageTests(const string& sFName, int precision)
     {
         cerr << "    Testing " << sFName << endl;
         BitmapPtr pBmp = loadTestBmp(sFName);
         cerr << "      PBO:" << endl;
-        PBOImage pbo(pBmp->getSize(), pBmp->getPixelFormat());
+        PBOImage pbo(pBmp->getSize(), pBmp->getPixelFormat(), precision);
         runPBOImageTest(pbo, pBmp, string("pbo_")+sFName);
         
         cerr << "      FBO:" << endl;
-        FBOImage fbo(pBmp->getSize(), pBmp->getPixelFormat());
+        FBOImage fbo(pBmp->getSize(), pBmp->getPixelFormat(), precision);
         runPBOImageTest(fbo, pBmp, string("fbo_")+sFName);
     }
 
@@ -105,9 +107,17 @@ public:
     {
         BitmapPtr pBmp;
         BitmapPtr pDestBmp;
-
+/*
+        // This has the effect of printing out all the brightness differences for different
+        // kernel sizes.
         pBmp = loadTestBmp("spike");
+        for (double stddev = 0.5; stddev < 5; stddev += 0.25) {
+            pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), stddev).apply(pBmp);
+            testEqualBrightness(*pDestBmp, *pBmp, 1);
+        }
+*/
         cerr << "    Testing spike, stddev 0.5" << endl;
+        pBmp = loadTestBmp("spike");
         pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 0.5).apply(pBmp);
         testEqualBrightness(*pDestBmp, *pBmp, 5);
         testEqual(*pDestBmp, "blur05_spike");

@@ -20,7 +20,6 @@
 //
 
 #include "PBOImage.h"
-#include "OGLHelper.h"
 #include "VertexArray.h"
 
 #include "../base/Logger.h"
@@ -32,9 +31,10 @@ using namespace std;
 
 namespace avg {
 
-PBOImage::PBOImage(const IntPoint& size, PixelFormat pf)
+PBOImage::PBOImage(const IntPoint& size, PixelFormat pf, int precision)
     : m_pf(pf),
-      m_Size(size)
+      m_Size(size),
+      m_Precision(precision)
 {
     // Create a Pixel Buffer Object for data transfer and allocate its memory.
     glproc::GenBuffers(1, &m_PBO);
@@ -52,10 +52,10 @@ PBOImage::PBOImage(const IntPoint& size, PixelFormat pf)
     glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: glBindTexture()");
 
-    int OGLMode = getOGLMode(pf);
+    int internalFormat = getInternalFormat();
     glPixelStorei(GL_UNPACK_ROW_LENGTH, m_Size.x);
-    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, OGLMode, size.x, size.y, 0,
-            OGLMode, getOGLPixelType(pf), 0);
+    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, internalFormat, size.x, size.y, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: glTexImage2D()");
 
     // Create a minimal vertex array to be used for drawing.
@@ -96,9 +96,9 @@ void PBOImage::setImage(BitmapPtr pBmp)
     glPixelStorei(GL_UNPACK_ROW_LENGTH, pBmp->getStride()/pBmp->getBytesPerPixel());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "PBOImage::setImage: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
-    int OGLMode = getOGLMode(m_pf);
-    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, OGLMode, m_Size.x, m_Size.y, 0,
-            OGLMode, getOGLPixelType(m_pf), 0);
+    int internalFormat = getInternalFormat();
+    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, internalFormat, m_Size.x, m_Size.y, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage: glTexImage2D()");
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
 }
@@ -114,8 +114,7 @@ BitmapPtr PBOImage::getImage() const
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "PBOImage::getImage: glBindTexture()");
     glPixelStorei(GL_PACK_ROW_LENGTH, pBmp->getStride()/pBmp->getBytesPerPixel());
-    int OGLMode = getOGLMode(m_pf);
-    glGetTexImage(GL_TEXTURE_RECTANGLE_ARB, 0, OGLMode, getOGLPixelType(m_pf), 0);
+    glGetTexImage(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "PBOImage::getImage: glGetTexImage()");
 
@@ -160,27 +159,16 @@ unsigned PBOImage::getTexID() const
     return m_TexID;
 }
 
-int PBOImage::getOGLMode(PixelFormat pf) const
+int PBOImage::getInternalFormat() const
 {
-    switch (pf) {
-        case B8G8R8X8:
-        case B8G8R8A8:
+    switch(m_Precision) {
+        case GL_UNSIGNED_BYTE:
             return GL_RGBA;
+        case GL_FLOAT:
+            return GL_RGBA32F_ARB;
         default:
-            AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << 
-                    Bitmap::getPixelFormatString(pf) <<
-                    " in PBOImage::getOGLMode()");
             assert(false);
-    }
-    return 0;
-}
-
-int PBOImage::getOGLPixelType(PixelFormat pf) const
-{
-    if (pf == I16) {
-        return GL_UNSIGNED_SHORT;
-    } else {
-        return GL_UNSIGNED_BYTE;
+            return 0;
     }
 }
 

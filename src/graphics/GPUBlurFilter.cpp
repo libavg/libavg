@@ -40,7 +40,7 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pf,
       m_PF(pf),
       m_StdDev(stdDev),
       m_pSrcPBO(new PBOImage(size, pf)),
-      m_pInterFBO(new FBOImage(size, pf)),
+      m_pInterFBO(new FBOImage(size, pf, GL_FLOAT)),
       m_pDestFBO(new FBOImage(size, pf))
 {
     ObjectCounter::get()->incRef(&typeid(*this));

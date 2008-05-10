@@ -23,6 +23,8 @@
 #define _PBOImage_H_
 
 #include "Bitmap.h"
+#include "OGLHelper.h"
+
 #include "../base/Point.h"
 
 #include <boost/shared_ptr.hpp>
@@ -34,7 +36,7 @@ class VertexArray;
 class PBOImage {
 
 public:
-    PBOImage(const IntPoint& size, PixelFormat pf);
+    PBOImage(const IntPoint& size, PixelFormat pf, int precision = GL_UNSIGNED_BYTE);
     virtual ~PBOImage();
 
     void setImage(BitmapPtr pBmp);
@@ -48,12 +50,12 @@ protected:
     unsigned getTexID() const;
 
 private:
-    int getOGLMode(PixelFormat pf) const;
-    int getOGLPixelType(PixelFormat pf) const;
+    int getInternalFormat() const;
     void checkError() const;
 
     PixelFormat m_pf;
     IntPoint m_Size;
+    int m_Precision;
     unsigned m_PBO;
     unsigned m_TexID;
     VertexArray * m_pVertexes;

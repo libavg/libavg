@@ -33,7 +33,7 @@ namespace avg {
 class FBOImage: public PBOImage {
 
 public:
-    FBOImage(const IntPoint& size, PixelFormat pf);
+    FBOImage(const IntPoint& size, PixelFormat pf, int precision = GL_UNSIGNED_BYTE);
     virtual ~FBOImage();
 
     void activate();
