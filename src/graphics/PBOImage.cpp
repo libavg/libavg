@@ -52,10 +52,9 @@ PBOImage::PBOImage(const IntPoint& size, PixelFormat pf, int precision)
     glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: glBindTexture()");
 
-    int internalFormat = getInternalFormat();
     glPixelStorei(GL_UNPACK_ROW_LENGTH, m_Size.x);
-    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, internalFormat, size.x, size.y, 0,
-            GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, getInternalFormat(), size.x, size.y, 0,
+            getFormat(), GL_UNSIGNED_BYTE, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: glTexImage2D()");
 
     // Create a minimal vertex array to be used for drawing.
@@ -96,9 +95,8 @@ void PBOImage::setImage(BitmapPtr pBmp)
     glPixelStorei(GL_UNPACK_ROW_LENGTH, pBmp->getStride()/pBmp->getBytesPerPixel());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "PBOImage::setImage: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
-    int internalFormat = getInternalFormat();
-    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, internalFormat, m_Size.x, m_Size.y, 0,
-            GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, getInternalFormat(), m_Size.x, m_Size.y, 0,
+            getFormat(), GL_UNSIGNED_BYTE, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage: glTexImage2D()");
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
 }
@@ -114,7 +112,7 @@ BitmapPtr PBOImage::getImage() const
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "PBOImage::getImage: glBindTexture()");
     glPixelStorei(GL_PACK_ROW_LENGTH, pBmp->getStride()/pBmp->getBytesPerPixel());
-    glGetTexImage(GL_TEXTURE_RECTANGLE_ARB, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    glGetTexImage(GL_TEXTURE_RECTANGLE_ARB, 0, getFormat(), GL_UNSIGNED_BYTE, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "PBOImage::getImage: glGetTexImage()");
 
@@ -159,17 +157,38 @@ unsigned PBOImage::getTexID() const
     return m_TexID;
 }
 
+int PBOImage::getFormat() const
+{
+    if (m_pf == I8) {
+        return GL_LUMINANCE;
+    } else {
+        return GL_RGBA;
+    }
+}
+
 int PBOImage::getInternalFormat() const
 {
     switch(m_Precision) {
         case GL_UNSIGNED_BYTE:
-            return GL_RGBA;
+            if (m_pf == I8) {
+                return GL_LUMINANCE;
+            } else {
+                return GL_RGBA;
+            }
         case GL_FLOAT:
 #ifdef linux
             // Actually, this is probably an nvidia driver restriction.
-            return GL_FLOAT_RGBA_NV;
+            if (m_pf == I8) {
+                return GL_FLOAT_R_NV;
+            } else {
+                return GL_FLOAT_RGBA_NV;
+            }
 #else
-            return GL_RGBA32F_ARB;
+            if (m_pf == I8) {
+                return GL_LUMINANCE32F_ARB;
+            } else {
+                return GL_RGBA32F_ARB;
+            }
 #endif
         default:
             assert(false);

@@ -34,7 +34,7 @@ public:
     static void createResultImgDir();
 
 protected:
-    BitmapPtr loadTestBmp(const std::string& sFName);
+    BitmapPtr loadTestBmp(const std::string& sFName, PixelFormat pf = R8G8B8X8);
     void testEqual(Bitmap& ResultBmp, const std::string& sFName); 
     void testEqual(Bitmap& ResultBmp, Bitmap& BaselineBmp,
         const std::string& sFName);

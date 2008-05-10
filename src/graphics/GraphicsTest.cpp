@@ -22,6 +22,7 @@
 #include "GraphicsTest.h"
 #include "Bitmap.h"
 #include "Filterfliprgb.h"
+#include "Filtergrayscale.h"
 
 #include "../base/Directory.h"
 
@@ -51,10 +52,14 @@ void GraphicsTest::createResultImgDir()
     }
 }
 
-BitmapPtr GraphicsTest::loadTestBmp(const std::string& sFName)
+BitmapPtr GraphicsTest::loadTestBmp(const std::string& sFName, PixelFormat pf)
 {
    BitmapPtr pBmp(new Bitmap(string("testfiles/")+sFName+".png"));
-   return FilterFlipRGB().apply(pBmp);
+   if (pf == I8) {
+       return FilterGrayscale().apply(pBmp);
+   } else {
+       return FilterFlipRGB().apply(pBmp);
+  }
 }
 
 void GraphicsTest::testEqual(Bitmap& ResultBmp, const string& sFName) 

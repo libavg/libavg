@@ -43,24 +43,27 @@ public:
 
     void runTests() 
     {
+        runImageTests("i8-64x64", GL_UNSIGNED_BYTE, I8);
         runImageTests("rgb24-64x64", GL_UNSIGNED_BYTE);
         runImageTests("rgb24alpha-64x64", GL_UNSIGNED_BYTE);
+        runImageTests("i8-64x64", GL_FLOAT, I8);
         runImageTests("rgb24-64x64", GL_FLOAT);
         runImageTests("rgb24alpha-64x64", GL_FLOAT);
     }
 
 private:
-    void runImageTests(const string& sFName, int precision)
+    void runImageTests(const string& sFName, int precision, PixelFormat pf = R8G8B8X8)
     {
-        cerr << "    Testing " << sFName << endl;
-        BitmapPtr pBmp = loadTestBmp(sFName);
+        BitmapPtr pBmp = loadTestBmp(sFName, pf);
+        cerr << "    Testing " << sFName << "(" << pBmp->getPixelFormatString() << ")" << endl;
         cerr << "      PBO:" << endl;
         PBOImage pbo(pBmp->getSize(), pBmp->getPixelFormat(), precision);
         runPBOImageTest(pbo, pBmp, string("pbo_")+sFName);
-        
-        cerr << "      FBO:" << endl;
-        FBOImage fbo(pBmp->getSize(), pBmp->getPixelFormat(), precision);
-        runPBOImageTest(fbo, pBmp, string("fbo_")+sFName);
+        if (pf != I8) {
+            cerr << "      FBO:" << endl;
+            FBOImage fbo(pBmp->getSize(), pBmp->getPixelFormat(), precision);
+            runPBOImageTest(fbo, pBmp, string("fbo_")+sFName);
+        }
     }
 
     void runPBOImageTest(PBOImage& pbo, BitmapPtr pBmp, const string& sFName)
