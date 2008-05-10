@@ -25,6 +25,10 @@
 
 #ifdef __APPLE__
 #include <AGL/agl.h>
+#else
+#ifdef linux
+#include <GL/glx.h>
+#endif
 #endif
 
 namespace avg {
@@ -38,8 +42,12 @@ public:
 
 private:
     IntPoint m_Size;
-#ifdef __APPLE__    
+#ifdef __APPLE__
     AGLContext m_Context;
+#else
+#ifdef linux
+    GLXContext m_Context;
+#endif
 #endif
 };
 

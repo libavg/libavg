@@ -133,6 +133,20 @@ bool GraphicsTest::bmpAlmostEqual(Bitmap& Bmp1, Bitmap& Bmp2)
                         return false;
                     }
                     break;
+                case 3:
+                    if (abs(pLine1[x*3]-pLine2[x*3])+abs(pLine1[x*3+1]-pLine2[x*3+1])+
+                            abs(pLine1[x*3+2]-pLine2[x*3+2]) > 3)
+                    {
+                        return false;
+                    }
+                    break;
+                case 2:
+                    if (abs(pLine1[x*2]-pLine2[x*2])+abs(pLine1[x*2+1]-pLine2[x*2+1])
+                            > 2)
+                    {
+                        return false;
+                    }
+                    break;
                 case 1:
                     if (abs(pLine1[x]-pLine2[x]) > 1) {
                         return false;

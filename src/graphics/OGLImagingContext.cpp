@@ -23,7 +23,12 @@
 
 #include "../base/Exception.h"
 
+#include <assert.h>
+#include <iostream>
+
 namespace avg {
+
+using namespace std;
 
 OGLImagingContext::OGLImagingContext(const IntPoint & size)
     : m_Size(size)
@@ -38,12 +43,25 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
     m_Context = aglCreateContext(format, NULL);
     assert(m_Context);
     aglDestroyPixelFormat(format);
-    
 
     bool bOk = aglSetCurrentContext(m_Context);
     assert (bOk);
+#else
+#ifdef linux
+    Display *dpy;
+    dpy = XOpenDisplay(0);
+    XVisualInfo *vi;
+    static int attributes[] = {GLX_RGBA, 0};
+    vi = glXChooseVisual(dpy, DefaultScreen(dpy), attributes);
+    m_Context = glXCreateContext(dpy, vi, 0, GL_TRUE);
+    assert(m_Context);
+    Pixmap pmp = XCreatePixmap(dpy, RootWindow(dpy, vi->screen),
+            8, 8, vi->depth);
+    GLXPixmap pixmap = glXCreateGLXPixmap(dpy, vi, pmp);
+    glXMakeCurrent(dpy, pixmap, m_Context);
 #endif
-    
+#endif
+
     // Coordinates
     glViewport(0, 0, m_Size.x, m_Size.y);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glViewport()");
