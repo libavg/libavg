@@ -164,7 +164,7 @@ BitmapPtr PBOImage::getImage() const
     return pBmp;
 }
 
-void PBOImage::activate(int textureUnit)
+void PBOImage::activateTex(int textureUnit)
 {
     glproc::ActiveTexture(textureUnit);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::activate ActiveTexture()");

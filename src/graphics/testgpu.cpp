@@ -23,6 +23,7 @@
 #include "FBOImage.h"
 #include "GPUBrightnessFilter.h"
 #include "GPUBlurFilter.h"
+#include "GPUBandpassFilter.h"
 #include "OGLImagingContext.h"
 
 #include "../base/TestSuite.h"
@@ -164,6 +165,25 @@ private:
     }
 };
 
+class BandpassFilterTest: public GraphicsTest {
+public:
+    BandpassFilterTest()
+        : GraphicsTest("BandpassFilterTest", 2)
+    {
+    }
+
+    void runTests() 
+    {
+        BitmapPtr pBmp;
+        BitmapPtr pDestBmp;
+        cerr << "    Testing spike, stddev 0.5" << endl;
+        pBmp = loadTestBmp("spike");
+        pDestBmp = GPUBandpassFilter(pBmp->getSize(), pBmp->getPixelFormat(), 0.5, 1.5).apply(pBmp);
+        TEST(fabs(pDestBmp->avg() -127) < 0.01);
+        testEqual(*pDestBmp, "bandpass");
+    }
+};
+
 class GPUTestSuite: public TestSuite {
 public:
     GPUTestSuite() 
@@ -172,6 +192,7 @@ public:
         addTest(TestPtr(new FBOTest));
         addTest(TestPtr(new BrightnessFilterTest));
         addTest(TestPtr(new BlurFilterTest));
+        addTest(TestPtr(new BandpassFilterTest));
     }
 };
 

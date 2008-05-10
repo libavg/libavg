@@ -625,6 +625,41 @@ void Bitmap::subtract(const Bitmap *pOtherBmp)
 }
 
 template<class Pixel>
+int lineSum(const unsigned char * pSrc, int lineLen)
+{
+    Pixel * pSrcPixel = (Pixel *)pSrc;
+    int Result = 0;
+    for (int x=0; x<lineLen; ++x) {
+        Result += pSrcPixel->getR()+pSrcPixel->getG()+pSrcPixel->getB();
+        pSrcPixel++;
+    }
+    return Result;
+}
+
+double Bitmap::avg()
+{
+    double sum = 0;
+    unsigned char * pSrc = m_pBits;
+    for (int y=0; y<getSize().y; ++y) {
+        switch(m_PF) {
+            case R8G8B8X8:
+            case B8G8R8X8:
+                sum += lineSum<Pixel32>(pSrc, m_Size.x);
+                break;
+            case R8G8B8:
+            case B8G8R8:
+                sum += lineSum<Pixel24>(pSrc, m_Size.x);
+                break;
+            default:
+                // Unimplemented.
+                assert(false);
+        }
+        pSrc += m_Stride;
+    }
+    return sum/(getSize().x*getSize().y*3);
+}
+
+template<class Pixel>
 int lineBrightPixels(const unsigned char * pSrc, int lineLen)
 {
     Pixel * pSrcPixel = (Pixel *)pSrc;

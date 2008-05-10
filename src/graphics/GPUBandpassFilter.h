@@ -19,55 +19,38 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _PBOImage_H_
-#define _PBOImage_H_
+#ifndef _GPUBandpassFilter_H_
+#define _GPUBandpassFilter_H_
 
+#include "GPUFilter.h"
+#include "GPUBlurFilter.h"
 #include "Bitmap.h"
-#include "OGLHelper.h"
-
-#include "../base/Point.h"
-
-#include <boost/shared_ptr.hpp>
+#include "PBOImage.h"
+#include "FBOImage.h"
+#include "OGLShader.h"
 
 namespace avg {
 
-class VertexArray;
-
-class PBOImage {
-
+class GPUBandpassFilter: public GPUFilter
+{
 public:
-    PBOImage(const IntPoint& size, PixelFormat pf, int precision = GL_UNSIGNED_BYTE);
-    virtual ~PBOImage();
+    GPUBandpassFilter(const IntPoint& size, PixelFormat pf, double min, double max);
+    virtual ~GPUBandpassFilter();
 
-    void setImage(BitmapPtr pBmp);
-    void setImage(float * pData);
-    BitmapPtr getImage() const;
-    void activateTex(int textureUnit);
-    void draw();
-
-    PixelFormat getPF() const;
-    const IntPoint& getSize() const;
-
-protected:
-    unsigned getTexID() const;
+    virtual void applyOnGPU();
 
 private:
-    int getInternalFormat() const;
-    int getFormat() const;
-    void checkError() const;
+    static void initShader();
 
-    PixelFormat m_pf;
-    IntPoint m_Size;
-    int m_Precision;
-    unsigned m_PBO;
-    unsigned m_TexID;
-    VertexArray * m_pVertexes;
+    FBOImagePtr m_pMinFBO;
+    FBOImagePtr m_pMaxFBO;
+
+    GPUBlurFilter m_MinFilter;
+    GPUBlurFilter m_MaxFilter;
+
+    static OGLShaderPtr s_pShader;
 };
 
-typedef boost::shared_ptr<PBOImage> PBOImagePtr;
-
-}
-
+} // namespace
 #endif
- 
 

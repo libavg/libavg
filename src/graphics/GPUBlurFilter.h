@@ -23,7 +23,6 @@
 #define _GPUBlurFilter_H_
 
 #include "GPUFilter.h"
-#include "Bitmap.h"
 #include "PBOImage.h"
 #include "FBOImage.h"
 #include "OGLShader.h"
@@ -34,6 +33,8 @@ class GPUBlurFilter: public GPUFilter
 {
 public:
     GPUBlurFilter(const IntPoint& size, PixelFormat pf, double stdDev);
+    GPUBlurFilter(PBOImagePtr pSrcPBO, FBOImagePtr pDestFBO, double stdDev);
+    void init();
     virtual ~GPUBlurFilter();
 
     virtual void applyOnGPU();
