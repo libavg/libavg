@@ -42,6 +42,7 @@ protected:
 
 private:
     int sumPixels(Bitmap& Bmp);
+    bool bmpAlmostEqual(Bitmap& Bmp1, Bitmap& Bmp2);
 };
 
 

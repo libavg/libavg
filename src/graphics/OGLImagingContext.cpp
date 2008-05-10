@@ -39,10 +39,10 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
     assert(m_Context);
     aglDestroyPixelFormat(format);
     
-#endif
 
     bool bOk = aglSetCurrentContext(m_Context);
     assert (bOk);
+#endif
     
     // Coordinates
     glViewport(0, 0, m_Size.x, m_Size.y);
@@ -93,8 +93,10 @@ OGLImagingContext::~OGLImagingContext()
 
 void OGLImagingContext::activate()
 {
+#ifdef __APPLE__
     bool bOk = aglSetCurrentContext(m_Context);
-    assert (bOk);
+    assert(bOk);
+#endif
 }
 
 }

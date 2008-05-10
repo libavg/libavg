@@ -79,8 +79,8 @@ void GraphicsTest::testEqual(Bitmap& ResultBmp, const string& sFName)
 void GraphicsTest::testEqual(Bitmap& ResultBmp, Bitmap& BaselineBmp,
         const string& sFName)
 {
-    TEST(ResultBmp == BaselineBmp);
-    if (!(ResultBmp == BaselineBmp)) {
+    TEST(bmpAlmostEqual(ResultBmp, BaselineBmp));
+    if (!bmpAlmostEqual(ResultBmp, BaselineBmp)) {
         string sResultName = string("resultimages/")+sFName;
         cerr << "Saving result image to " << sResultName << endl;
         ResultBmp.save(sResultName+".png");
@@ -116,6 +116,34 @@ int GraphicsTest::sumPixels(Bitmap& Bmp)
         }
     }
     return sum;
+}
+
+bool GraphicsTest::bmpAlmostEqual(Bitmap& Bmp1, Bitmap& Bmp2)
+{
+    IntPoint size = Bmp1.getSize();
+    for (int y = 0; y < size.y; y++) {
+        unsigned char * pLine1 = Bmp1.getPixels()+y*Bmp1.getStride();
+        unsigned char * pLine2 = Bmp2.getPixels()+y*Bmp2.getStride();
+        for (int x = 0; x < size.x; x++) {
+            switch (Bmp2.getBytesPerPixel()) {
+                case 4:
+                    if (abs(pLine1[x*4]-pLine2[x*4])+abs(pLine1[x*4+1]-pLine2[x*4+1])+
+                            abs(pLine1[x*4+2]-pLine2[x*4+2]) > 3)
+                    {
+                        return false;
+                    }
+                    break;
+                case 1:
+                    if (abs(pLine1[x]-pLine2[x]) > 1) {
+                        return false;
+                    }
+                    break;
+                default:
+                    assert(false);
+            }
+        }
+    }
+    return true;
 }
 
 };

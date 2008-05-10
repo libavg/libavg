@@ -151,7 +151,7 @@ public:
         testEqual(*pDestBmp, *pBmp, "blur05_flat");
 
         runImageTests("rgb24-64x64");
-//        runImageTests("rgb24alpha-64x64");
+        runImageTests("rgb24alpha-64x64");
     }
 
 private:
