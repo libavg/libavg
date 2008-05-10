@@ -49,13 +49,15 @@ public:
         runImageTests("i8-64x64", GL_FLOAT, I8);
         runImageTests("rgb24-64x64", GL_FLOAT);
         runImageTests("rgb24alpha-64x64", GL_FLOAT);
+
+        runParameterPBOTest();
     }
 
 private:
     void runImageTests(const string& sFName, int precision, PixelFormat pf = R8G8B8X8)
     {
         BitmapPtr pBmp = loadTestBmp(sFName, pf);
-        cerr << "    Testing " << sFName << "(" << pBmp->getPixelFormatString() << ")" << endl;
+        cerr << "    Testing " << sFName << " (" << pBmp->getPixelFormatString() << ")" << endl;
         cerr << "      PBO:" << endl;
         PBOImage pbo(pBmp->getSize(), pBmp->getPixelFormat(), precision);
         runPBOImageTest(pbo, pBmp, string("pbo_")+sFName);
@@ -64,6 +66,14 @@ private:
             FBOImage fbo(pBmp->getSize(), pBmp->getPixelFormat(), precision);
             runPBOImageTest(fbo, pBmp, string("fbo_")+sFName);
         }
+    }
+
+    void runParameterPBOTest()
+    {
+        cerr << "    Testing parameter PBO" << endl;
+        PBOImage pbo(IntPoint(11, 1), I8, GL_FLOAT);
+        float data[11];
+        pbo.setImage(data);
     }
 
     void runPBOImageTest(PBOImage& pbo, BitmapPtr pBmp, const string& sFName)

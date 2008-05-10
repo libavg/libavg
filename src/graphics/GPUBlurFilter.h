@@ -50,6 +50,7 @@ private:
     float m_Kernel[255];
 
     PBOImagePtr m_pSrcPBO;
+    PBOImagePtr m_pGaussCurvePBO;
     FBOImagePtr m_pInterFBO;
     FBOImagePtr m_pDestFBO;
 

@@ -40,7 +40,9 @@ public:
     virtual ~PBOImage();
 
     void setImage(BitmapPtr pBmp);
+    void setImage(float * pData);
     BitmapPtr getImage() const;
+    void activate(int textureUnit);
     void draw();
 
     PixelFormat getPF() const;

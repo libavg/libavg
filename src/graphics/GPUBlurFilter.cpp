@@ -40,6 +40,7 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pf,
       m_PF(pf),
       m_StdDev(stdDev),
       m_pSrcPBO(new PBOImage(size, pf)),
+      m_pGaussCurvePBO(new PBOImage(IntPoint(255, 1), I8, GL_FLOAT)),
       m_pInterFBO(new FBOImage(size, pf, GL_FLOAT)),
       m_pDestFBO(new FBOImage(size, pf))
 {
@@ -49,6 +50,7 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pf,
         initShaders();
     }
     calcKernel();
+    m_pGaussCurvePBO->setImage(m_Kernel);
 //    dumpKernel();
 }
 
@@ -63,15 +65,17 @@ BitmapPtr GPUBlurFilter::apply(BitmapPtr pBmpSource)
     m_pInterFBO->activate();
     s_pHorizShader->activate();
     s_pHorizShader->setUniformIntParam("radius", (m_KernelWidth-1)/2);
-    s_pHorizShader->setUniformFloatArrayParam("kernel", m_KernelWidth, m_Kernel);
     s_pHorizShader->setUniformIntParam("Texture", 0);
+    s_pHorizShader->setUniformIntParam("kernelTex", 1);
+    m_pGaussCurvePBO->activate(GL_TEXTURE1);
     m_pSrcPBO->draw();
 
     m_pDestFBO->activate();
     s_pVertShader->activate();
     s_pVertShader->setUniformIntParam("radius", (m_KernelWidth-1)/2);
-    s_pVertShader->setUniformFloatArrayParam("kernel", m_KernelWidth, m_Kernel);
     s_pVertShader->setUniformIntParam("Texture", 0);
+    s_pHorizShader->setUniformIntParam("kernelTex", 1);
+    m_pGaussCurvePBO->activate(GL_TEXTURE1);
     m_pInterFBO->draw();
     m_pDestFBO->deactivate();
 
@@ -85,7 +89,7 @@ void GPUBlurFilter::initShaders()
         
         "uniform sampler2DRect Texture;\n"
         "uniform int radius;\n"
-        "uniform float kernel[255];\n"
+        "uniform sampler2DRect kernelTex;\n"
         ;
 
     string sHorizProgram = sProgramHead + 
@@ -94,7 +98,8 @@ void GPUBlurFilter::initShaders()
         "    vec4 sum = vec4(0,0,0,0);\n"
         "    for (int i=-radius; i<=radius; ++i) {\n"
         "        vec4 tex = texture2DRect(Texture, gl_TexCoord[0].st+vec2(i,0));\n"
-        "        sum += tex*kernel[i+radius];\n"
+        "        float coeff = texture2DRect(kernelTex, vec2(float(i+radius)+0.5,0)).r;\n"
+        "        sum += tex*coeff;\n"
         "    }\n"
         "    gl_FragColor = floor(sum*255.0+0.5)/255.0;\n"
         "}\n"
@@ -108,7 +113,8 @@ void GPUBlurFilter::initShaders()
         "    vec4 sum = vec4(0,0,0,0);\n"
         "    for (int i=-radius; i<=radius; ++i) {\n"
         "        vec4 tex = texture2DRect(Texture, gl_TexCoord[0].st+vec2(0,i));\n"
-        "        sum += tex*kernel[i+radius];\n"
+        "        float coeff = texture2DRect(kernelTex, vec2(float(i+radius)+0.5,0)).r;\n"
+        "        sum += tex*coeff;\n"
         "    }\n"
         "    gl_FragColor = floor(sum*255.0+0.5)/255.0;\n"
         "}\n"

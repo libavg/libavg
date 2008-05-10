@@ -90,8 +90,7 @@ void PBOImage::setImage(BitmapPtr pBmp)
     }
 
     glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "PBOImage::setImage: glBindTexture()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage: glBindTexture()");
     glPixelStorei(GL_UNPACK_ROW_LENGTH, pBmp->getStride()/pBmp->getBytesPerPixel());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "PBOImage::setImage: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
@@ -99,6 +98,46 @@ void PBOImage::setImage(BitmapPtr pBmp)
             getFormat(), GL_UNSIGNED_BYTE, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage: glTexImage2D()");
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
+}
+
+void PBOImage::setImage(float * pData)
+{
+    // This is meant for 1D, 1-component float textures to be used as shader
+    // lookup tables.
+    // We use a temporary PBO here.
+    assert (m_Size.y == 1);
+    assert (m_pf == I8);
+    assert (m_Precision == GL_FLOAT);
+
+    unsigned TempPBO;
+    glproc::GenBuffers(1, &TempPBO);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage: GenBuffers()");
+    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, TempPBO);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage: BindBuffer()");
+    int MemNeeded = m_Size.x*sizeof(float);
+    glproc::BufferData(GL_PIXEL_UNPACK_BUFFER_EXT, MemNeeded, 0, GL_STREAM_DRAW);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage BufferData()");
+    void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage MapBuffer()");
+    memcpy(pPBOPixels, pData, m_Size.x*sizeof(float));
+    
+    if (!glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT)) {
+        std::cerr << "Couldn't unmap pixel buffer. Exiting\n";
+        assert(false);
+    }
+    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage: glBindTexture()");
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, m_Size.x);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "PBOImage::setImage: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
+    glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, getInternalFormat(), m_Size.x, 1, 0,
+            GL_LUMINANCE, GL_FLOAT, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage: glTexImage2D()");
+    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
+
+    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
+    glproc::DeleteBuffers(1, &TempPBO);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage: DeleteBuffers()");
 }
 
 BitmapPtr PBOImage::getImage() const
@@ -121,7 +160,16 @@ BitmapPtr PBOImage::getImage() const
     memcpy(pBmp->getPixels(), pPBOPixels, pBmp->getMemNeeded());
 
     glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::getImage BindBuffer(0)");
     return pBmp;
+}
+
+void PBOImage::activate(int textureUnit)
+{
+    glproc::ActiveTexture(textureUnit);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::activate ActiveTexture()");
+    glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::activate BindTexture()");
 }
     
 void PBOImage::draw()
@@ -134,9 +182,9 @@ void PBOImage::draw()
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glproc::ActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "PBOImage::draw: glBindTexture()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::draw: glBindTexture()");
     m_pVertexes->draw();
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
