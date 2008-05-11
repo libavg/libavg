@@ -174,13 +174,20 @@ public:
 
     void runTests() 
     {
-        BitmapPtr pBmp;
-        BitmapPtr pDestBmp;
-        cerr << "    Testing spike, stddev 0.5" << endl;
-        pBmp = loadTestBmp("spike");
-        pDestBmp = GPUBandpassFilter(pBmp->getSize(), pBmp->getPixelFormat(), 0.5, 1.5).apply(pBmp);
-        TEST(fabs(pDestBmp->avg() -128) < 0.01);
-        testEqual(*pDestBmp, "bandpass");
+        runImageTests("spike", B8G8R8X8);
+        runImageTests("i8-64x64", I8);
+    }
+
+private:
+    void runImageTests(const string& sFName, PixelFormat pf)
+    {
+        cerr << "    Testing " << sFName << endl;
+        BitmapPtr pBmp = loadTestBmp(sFName);
+        GPUBandpassFilter f(pBmp->getSize(), pBmp->getPixelFormat(), 0.5, 1.5);
+        BitmapPtr pDestBmp = f.apply(pBmp);
+        TEST(fabs(pDestBmp->avg() -128) < 0.1);
+        testEqual(*pDestBmp, "bandpass_"+sFName);
+//        TEST(pDestBmp->getPixelFormat() == pf);
     }
 };
 
