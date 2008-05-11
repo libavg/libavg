@@ -53,7 +53,14 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 {
     m_pSrcPBO->setImage(pBmpSource);
     applyOnGPU();
-    return m_pDestFBO->getImage();
+    BitmapPtr pFilteredBmp = m_pDestFBO->getImage();
+    BitmapPtr pDestBmp(new Bitmap(getSize(), pBmpSource->getPixelFormat()));
+    if (pFilteredBmp->getPixelFormat() != pBmpSource->getPixelFormat()) {
+        pDestBmp->copyPixels(*pFilteredBmp);
+    } else {
+        pDestBmp = pFilteredBmp;
+    }
+    return pDestBmp;
 }
 
 PixelFormat GPUFilter::getPF() const

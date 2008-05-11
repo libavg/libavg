@@ -54,7 +54,7 @@ PBOImage::PBOImage(const IntPoint& size, PixelFormat pf, int precision)
 
     glPixelStorei(GL_UNPACK_ROW_LENGTH, m_Size.x);
     glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, getInternalFormat(), size.x, size.y, 0,
-            getFormat(), GL_UNSIGNED_BYTE, 0);
+            getFormat(pf), GL_UNSIGNED_BYTE, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: glTexImage2D()");
 
     // Create a minimal vertex array to be used for drawing.
@@ -95,7 +95,7 @@ void PBOImage::setImage(BitmapPtr pBmp)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "PBOImage::setImage: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
     glTexImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, getInternalFormat(), m_Size.x, m_Size.y, 0,
-            getFormat(), GL_UNSIGNED_BYTE, 0);
+            getFormat(pBmp->getPixelFormat()), GL_UNSIGNED_BYTE, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage: glTexImage2D()");
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
 }
@@ -151,7 +151,7 @@ BitmapPtr PBOImage::getImage() const
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "PBOImage::getImage: glBindTexture()");
     glPixelStorei(GL_PACK_ROW_LENGTH, pBmp->getStride()/pBmp->getBytesPerPixel());
-    glGetTexImage(GL_TEXTURE_RECTANGLE_ARB, 0, getFormat(), GL_UNSIGNED_BYTE, 0);
+    glGetTexImage(GL_TEXTURE_RECTANGLE_ARB, 0, getFormat(m_pf), GL_UNSIGNED_BYTE, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "PBOImage::getImage: glGetTexImage()");
 
@@ -205,9 +205,9 @@ unsigned PBOImage::getTexID() const
     return m_TexID;
 }
 
-int PBOImage::getFormat() const
+int PBOImage::getFormat(PixelFormat pf) const
 {
-    if (m_pf == I8) {
+    if (pf == I8) {
         return GL_LUMINANCE;
     } else {
         return GL_RGBA;

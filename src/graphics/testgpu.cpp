@@ -182,12 +182,12 @@ private:
     void runImageTests(const string& sFName, PixelFormat pf)
     {
         cerr << "    Testing " << sFName << endl;
-        BitmapPtr pBmp = loadTestBmp(sFName);
-        GPUBandpassFilter f(pBmp->getSize(), pBmp->getPixelFormat(), 0.5, 1.5);
+        BitmapPtr pBmp = loadTestBmp(sFName, pf);
+        GPUBandpassFilter f(pBmp->getSize(), B8G8R8X8, 0.5, 1.5);
         BitmapPtr pDestBmp = f.apply(pBmp);
         TEST(fabs(pDestBmp->avg() -128) < 0.1);
-        testEqual(*pDestBmp, "bandpass_"+sFName);
-//        TEST(pDestBmp->getPixelFormat() == pf);
+        testEqual(*pDestBmp, "bandpass_"+sFName, pf);
+        TEST(pDestBmp->getPixelFormat() == pf);
     }
 };
 

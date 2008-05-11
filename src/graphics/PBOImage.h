@@ -53,7 +53,7 @@ protected:
 
 private:
     int getInternalFormat() const;
-    int getFormat() const;
+    int getFormat(PixelFormat pf) const;
     void checkError() const;
 
     PixelFormat m_pf;

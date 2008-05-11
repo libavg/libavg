@@ -620,6 +620,17 @@ void Bitmap::subtract(const Bitmap *pOtherBmp)
             case B8G8R8:
                 lineSubtract<Pixel24>(pSrc, pDest, m_Size.x);
                 break;
+            case I8:
+                {
+                    const unsigned char * pSrcPixel = pSrc;
+                    unsigned char * pDestPixel = pDest;
+                    for (int x=0; x<m_Size.x; ++x) {
+                        *pDestPixel = abs(*pSrcPixel-*pDestPixel);
+                        pSrcPixel++;
+                        pDestPixel++;
+                    }
+                }
+                break;
             default:
                 // Unimplemented.
                 assert(false);
@@ -655,13 +666,25 @@ double Bitmap::avg()
             case B8G8R8:
                 sum += lineSum<Pixel24>(pSrc, m_Size.x);
                 break;
+            case I8:
+                {
+                    unsigned char * pSrcPixel = pSrc;
+                    for (int x=0; x<m_Size.x; ++x) {
+                        sum += *pSrcPixel;
+                        pSrcPixel++;
+                    }
+                }
+                break;
             default:
                 // Unimplemented.
                 assert(false);
         }
         pSrc += m_Stride;
     }
-    return sum/(getSize().x*getSize().y*3);
+    if (m_PF != I8) {
+        sum /= 3;
+    }
+    return sum/(getSize().x*getSize().y);
 }
 
 template<class Pixel>
