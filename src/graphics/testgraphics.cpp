@@ -543,16 +543,6 @@ public:
         : GraphicsTest("HistoryPreProcessor", 2)
     {
     }
-    void testEqual(Bitmap& Bmp1, Bitmap& Bmp2) 
-    {
-        TEST(Bmp1 == Bmp2);
-        if (!(Bmp1 == Bmp2)) {
-            cerr << "Bmp1: " << endl;
-            Bmp1.dump(true);
-            cerr << "Bmp2: " << endl;
-            Bmp2.dump(true);
-        }
-    }
 
     void runTests() 
     {
@@ -562,10 +552,10 @@ public:
         pBmp->copyPixels(*pBaseBmp);
         HistoryPreProcessor filt(pBaseBmp->getSize(), 1, true);
         pBmp = filt.apply(pBaseBmp);
-        testEqual(*pBmp, *nullBmp);
+        testEqual(*pBmp, *nullBmp, "HistoryPreprocessor1");
         for(int i=0;i<1;i++){
             pBmp = filt.apply(pBaseBmp);
-            testEqual(*pBmp, *nullBmp);
+            testEqual(*pBmp, *nullBmp, "HistoryPreprocessor2");
         }
     }
 
@@ -584,11 +574,7 @@ public:
         FilterFill<Pixel8>(0).applyInPlace(pBmp);
         *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
         BitmapPtr pDestBmp = FilterFastBandpass().apply(pBmp);
-//        pDestBmp->save("baseline/FastBandpassResult.png");
-        string sFName = getSrcDir()+"baseline/FastBandpassResult.png";
-        BitmapPtr pBaselineBmp = FilterGrayscale().apply(
-                BitmapPtr(new Bitmap(sFName)));
-        TEST(*pDestBmp == *pBaselineBmp);
+        testEqual(*pDestBmp, "FastBandpassResult", I8);
     }
 };
 
@@ -606,11 +592,7 @@ public:
         FilterFill<Pixel8>(0).applyInPlace(pBmp);
         *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
         BitmapPtr pDestBmp = FilterHighpass().apply(pBmp);
-//        pDestBmp->save("baseline/HighpassResult.png");
-        string sFName = getSrcDir()+"baseline/HighpassResult.png";
-        BitmapPtr pBaselineBmp = FilterGrayscale().apply(
-                BitmapPtr(new Bitmap(sFName)));
-        TEST(*pDestBmp == *pBaselineBmp);
+        testEqual(*pDestBmp, "HighpassResult", I8);
     }
 };
 
@@ -634,29 +616,13 @@ public:
 //        FilterGauss(4).dumpKernel();
 //        FilterGauss(5).dumpKernel();
         BitmapPtr pDestBmp = FilterGauss(3).apply(pBmp);
-//        pDestBmp->save("baseline/Gauss3Result.png");
-        string sFName = getSrcDir()+"baseline/Gauss3Result.png";
-        BitmapPtr pBaselineBmp = FilterGrayscale().apply(
-                BitmapPtr(new Bitmap(sFName)));
-        TEST(*pDestBmp == *pBaselineBmp);
+        testEqual(*pDestBmp, "Gauss3Result", I8);
         pDestBmp = FilterGauss(1).apply(pBmp);
-//        pDestBmp->save("baseline/Gauss1Result.png");
-        sFName = getSrcDir()+"baseline/Gauss1Result.png";
-        pBaselineBmp = FilterGrayscale().apply(
-                BitmapPtr(new Bitmap(sFName)));
-        TEST(*pDestBmp == *pBaselineBmp);
+        testEqual(*pDestBmp, "Gauss1Result", I8);
         pDestBmp = FilterGauss(1.5).apply(pBmp);
-//        pDestBmp->save("baseline/Gauss15Result.png");
-        sFName = getSrcDir()+"baseline/Gauss15Result.png";
-        pBaselineBmp = FilterGrayscale().apply(
-                BitmapPtr(new Bitmap(sFName)));
-        TEST(*pDestBmp == *pBaselineBmp);
+        testEqual(*pDestBmp, "Gauss15Result", I8);
         pDestBmp = FilterGauss(5).apply(pBmp);
-//        pDestBmp->save("baseline/Gauss5Result.png");
-        sFName = getSrcDir()+"baseline/Gauss5Result.png";
-        pBaselineBmp = FilterGrayscale().apply(
-                BitmapPtr(new Bitmap(sFName)));
-        TEST(*pDestBmp == *pBaselineBmp);
+        testEqual(*pDestBmp, "Gauss5Result", I8);
     }
 };
 
@@ -674,10 +640,7 @@ public:
         FilterFill<Pixel8>(0).applyInPlace(pBmp);
         *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
         BitmapPtr pDestBmp = FilterBlur().apply(pBmp);
-//        pDestBmp->save("baseline/BlurResult.png");
-        BitmapPtr pBaselineBmp = FilterGrayscale().apply(
-                BitmapPtr(new Bitmap(getSrcDir()+"baseline/BlurResult.png")));
-        TEST(*pDestBmp == *pBaselineBmp);
+        testEqual(*pDestBmp, "BlurResult", I8);
     }
 };
 
@@ -696,11 +659,7 @@ public:
         *(pBmp->getPixels()+pBmp->getStride()*7+7) = 255;
         
         BitmapPtr pDestBmp = FilterBandpass(1.9,3).apply(pBmp);
-//        pDestBmp->save("baseline/BandpassResult.png");
-        string sFName = getSrcDir()+"baseline/BandpassResult.png";
-        BitmapPtr pBaselineBmp = FilterGrayscale().apply(
-                BitmapPtr(new Bitmap(sFName)));
-        TEST(*pDestBmp == *pBaselineBmp);
+        testEqual(*pDestBmp, "BandpassResult", I8);
     }
 };
 
@@ -718,11 +677,7 @@ public:
         *(pBmp->getPixels()+pBmp->getStride()*3+3) = 252;
 
         BitmapPtr pDestBmp = FilterFastDownscale(2).apply(pBmp);
-//        pDestBmp->save("baseline/FastDownscaleResult.png");
-        string sFName = getSrcDir()+"baseline/FastDownscaleResult.png";
-        BitmapPtr pBaselineBmp = FilterGrayscale().apply(
-                BitmapPtr(new Bitmap(sFName)));
-        TEST(*pDestBmp == *pBaselineBmp);
+        testEqual(*pDestBmp, "FastDownscaleResult", I8);
     }
 };
 

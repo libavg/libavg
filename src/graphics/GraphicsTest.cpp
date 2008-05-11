@@ -58,16 +58,21 @@ BitmapPtr GraphicsTest::loadTestBmp(const std::string& sFName, PixelFormat pf)
    if (pf == I8) {
        return FilterGrayscale().apply(pBmp);
    } else {
-       return FilterFlipRGB().apply(pBmp);
+       FilterFlipRGB().applyInPlace(pBmp);
   }
+  return pBmp;
 }
 
-void GraphicsTest::testEqual(Bitmap& ResultBmp, const string& sFName) 
+void GraphicsTest::testEqual(Bitmap& ResultBmp, const string& sFName, PixelFormat pf) 
 {
     BitmapPtr pBaselineBmp;
     try {
         pBaselineBmp = BitmapPtr(new Bitmap(string("baseline/")+sFName+".png"));
-        FilterFlipRGB().applyInPlace(pBaselineBmp);
+        if (pf == I8) {
+            FilterGrayscale().applyInPlace(pBaselineBmp);
+        } else {
+            FilterFlipRGB().applyInPlace(pBaselineBmp);
+        }
     } catch (Magick::Exception & ex) {
         cerr << ex.what() << endl;
         ResultBmp.save(string("resultimages/")+sFName+".png");
@@ -81,6 +86,8 @@ void GraphicsTest::testEqual(Bitmap& ResultBmp, Bitmap& BaselineBmp,
 {
     TEST(bmpAlmostEqual(ResultBmp, BaselineBmp));
     if (!bmpAlmostEqual(ResultBmp, BaselineBmp)) {
+        ResultBmp.dump();
+        BaselineBmp.dump();
         string sResultName = string("resultimages/")+sFName;
         cerr << "Saving result image to " << sResultName << endl;
         ResultBmp.save(sResultName+".png");

@@ -118,6 +118,11 @@ Bitmap::Bitmap(Bitmap& Orig, const IntRect& Rect)
 Bitmap::Bitmap(const std::string& sURI)
     : m_sName(sURI)
 {
+// TODO: This function loads grayscale images as RGB. That is because Magick++
+// provides no reliable way to determine whether a bitmap is grayscale or not. Maybe
+// the imagemagick C interface is less buggy? 
+// It also returns RGB bitmaps, but I think nearly everywhere in libavg, the bytes
+// are swapped and BGR is used.
 //    cerr << "Bitmap::Bitmap(" << sURI << ")" << endl;
     Image Img;
     try {
