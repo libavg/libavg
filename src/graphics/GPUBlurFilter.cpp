@@ -55,9 +55,8 @@ GPUBlurFilter::GPUBlurFilter(PBOImagePtr pSrcPBO, FBOImagePtr pDestFBO, double s
 void GPUBlurFilter::init()
 {
     IntPoint size = getSrcPBO()->getSize();
-    PixelFormat pf = getSrcPBO()->getPF();
     m_pGaussCurvePBO = PBOImagePtr(new PBOImage(IntPoint(255, 1), I8, GL_FLOAT));
-    m_pInterFBO = FBOImagePtr(new FBOImage(size, pf, GL_FLOAT));
+    m_pInterFBO = FBOImagePtr(new FBOImage(size, B8G8R8A8, GL_FLOAT));
     if (!s_pHorizShader) {
         initShaders();
     }

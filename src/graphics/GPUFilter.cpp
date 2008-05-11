@@ -32,7 +32,7 @@ namespace avg {
 
 GPUFilter::GPUFilter(const IntPoint& size, PixelFormat pf)
     : m_pSrcPBO(new PBOImage(size, pf)),
-      m_pDestFBO(new FBOImage(size, pf))
+      m_pDestFBO(new FBOImage(size, B8G8R8A8))
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
