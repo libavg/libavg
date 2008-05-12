@@ -101,6 +101,8 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 OGLImagingContext::~OGLImagingContext()

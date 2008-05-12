@@ -184,16 +184,10 @@ void PBOImage::activateTex(int textureUnit)
     
 void PBOImage::draw()
 {
-    glViewport(0, 0, m_Size.x, m_Size.y);
-
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glproc::ActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_RECTANGLE_ARB, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::draw: glBindTexture()");
     m_pVertexes->draw();
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 PixelFormat PBOImage::getPF() const

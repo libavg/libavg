@@ -52,6 +52,7 @@ GPUFilter::~GPUFilter()
 BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 {
     m_pSrcPBO->setImage(pBmpSource);
+    glViewport(0, 0, getSize().x, getSize().y);
     applyOnGPU();
     BitmapPtr pFilteredBmp = m_pDestFBO->getImage();
     BitmapPtr pDestBmp(new Bitmap(getSize(), pBmpSource->getPixelFormat()));
