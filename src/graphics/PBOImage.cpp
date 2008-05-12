@@ -186,8 +186,6 @@ void PBOImage::draw()
 {
     glViewport(0, 0, m_Size.x, m_Size.y);
 
-    glDisable(GL_DEPTH_TEST);
-
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glproc::ActiveTexture(GL_TEXTURE0);
