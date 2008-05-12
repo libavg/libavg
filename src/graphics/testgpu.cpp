@@ -60,11 +60,11 @@ private:
         BitmapPtr pBmp = loadTestBmp(sFName, pf);
         cerr << "    Testing " << sFName << " (" << pBmp->getPixelFormatString() << ")" << endl;
         cerr << "      PBO:" << endl;
-        PBOImage pbo(pBmp->getSize(), pBmp->getPixelFormat(), precision);
+        PBOImage pbo(pBmp->getSize(), pBmp->getPixelFormat(), precision, true, true);
         runPBOImageTest(pbo, pBmp, string("pbo_")+sFName);
         if (pf != I8) {
             cerr << "      FBO:" << endl;
-            FBOImage fbo(pBmp->getSize(), pBmp->getPixelFormat(), precision);
+            FBOImage fbo(pBmp->getSize(), pBmp->getPixelFormat(), precision, true, true);
             runPBOImageTest(fbo, pBmp, string("fbo_")+sFName);
         }
     }
@@ -72,7 +72,7 @@ private:
     void runParameterPBOTest()
     {
         cerr << "    Testing parameter PBO" << endl;
-        PBOImage pbo(IntPoint(11, 1), I8, GL_FLOAT);
+        PBOImage pbo(IntPoint(11, 1), I8, GL_FLOAT, false, false);
         float data[11];
         pbo.setImage(data);
     }

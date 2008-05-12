@@ -55,8 +55,8 @@ GPUBlurFilter::GPUBlurFilter(PBOImagePtr pSrcPBO, FBOImagePtr pDestFBO, double s
 void GPUBlurFilter::init()
 {
     IntPoint size = getSrcPBO()->getSize();
-    m_pGaussCurvePBO = PBOImagePtr(new PBOImage(IntPoint(255, 1), I8, GL_FLOAT));
-    m_pInterFBO = FBOImagePtr(new FBOImage(size, B8G8R8A8, GL_FLOAT));
+    m_pGaussCurvePBO = PBOImagePtr(new PBOImage(IntPoint(255, 1), I8, GL_FLOAT, false, false));
+    m_pInterFBO = FBOImagePtr(new FBOImage(size, B8G8R8A8, GL_FLOAT, false, false));
     if (!s_pHorizShader) {
         initShaders();
     }
@@ -85,7 +85,6 @@ void GPUBlurFilter::applyOnGPU()
     s_pVertShader->setUniformIntParam("radius", (m_KernelWidth-1)/2);
     s_pVertShader->setUniformIntParam("Texture", 0);
     s_pHorizShader->setUniformIntParam("kernelTex", 1);
-    m_pGaussCurvePBO->activateTex(GL_TEXTURE1);
     m_pInterFBO->draw();
     getDestFBO()->deactivate();
 }
@@ -110,7 +109,6 @@ void GPUBlurFilter::initShaders()
         "        sum += tex*coeff;\n"
         "    }\n"
         "    gl_FragColor = sum;\n"
-//        "    gl_FragColor = floor(sum*255.0+0.5)/255.0;\n"
         "}\n"
         ;
 
@@ -126,7 +124,6 @@ void GPUBlurFilter::initShaders()
         "        sum += tex*coeff;\n"
         "    }\n"
         "    gl_FragColor = sum;\n"
-//        "    gl_FragColor = floor(sum*255.0+0.5)/255.0;\n"
         "}\n"
         ;
 

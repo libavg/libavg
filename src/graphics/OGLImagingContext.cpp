@@ -99,7 +99,8 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
     glDisable(GL_MULTISAMPLE);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_MULTISAMPLE);");
 
-    // TODO: set up clamping.
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
 }
 
 OGLImagingContext::~OGLImagingContext()

@@ -44,6 +44,7 @@ namespace glproc {
     PFNGLBINDBUFFERPROC BindBuffer;
     PFNGLMAPBUFFERPROC MapBuffer;
     PFNGLUNMAPBUFFERPROC UnmapBuffer;
+    PFNGLGETBUFFERSUBDATAPROC GetBufferSubData;
 
     PFNGLCREATESHADEROBJECTARBPROC CreateShaderObject;
     PFNGLSHADERSOURCEARBPROC ShaderSource;
@@ -283,6 +284,7 @@ namespace glproc {
         BindBuffer = (PFNGLBINDBUFFERPROC)getFuzzyProcAddress("glBindBuffer");
         MapBuffer = (PFNGLMAPBUFFERPROC)getFuzzyProcAddress("glMapBuffer");
         UnmapBuffer = (PFNGLUNMAPBUFFERPROC)getFuzzyProcAddress("glUnmapBuffer");
+        GetBufferSubData = (PFNGLGETBUFFERSUBDATAPROC)getFuzzyProcAddress("glGetBufferSubData");
 
         CreateShaderObject = (PFNGLCREATESHADEROBJECTARBPROC)
                 getFuzzyProcAddress("glCreateShaderObject");

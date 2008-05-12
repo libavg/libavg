@@ -69,6 +69,7 @@ namespace glproc {
     extern PFNGLBINDBUFFERPROC BindBuffer;
     extern PFNGLMAPBUFFERPROC MapBuffer;
     extern PFNGLUNMAPBUFFERPROC UnmapBuffer;
+    extern PFNGLGETBUFFERSUBDATAPROC GetBufferSubData;
 
     extern PFNGLCREATESHADEROBJECTARBPROC CreateShaderObject;
     extern PFNGLSHADERSOURCEARBPROC ShaderSource;

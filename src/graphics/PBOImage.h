@@ -36,7 +36,8 @@ class VertexArray;
 class PBOImage {
 
 public:
-    PBOImage(const IntPoint& size, PixelFormat pf, int precision = GL_UNSIGNED_BYTE);
+    PBOImage(const IntPoint& size, PixelFormat pf, int precision, 
+            bool bUseInputPBO, bool bUseOutputPBO);
     virtual ~PBOImage();
 
     void setImage(BitmapPtr pBmp);
@@ -52,14 +53,20 @@ protected:
     unsigned getTexID() const;
 
 private:
-    int getInternalFormat() const;
     int getFormat(PixelFormat pf) const;
-    void checkError() const;
+    int getInternalFormat() const;
+    unsigned createInputPBO() const;
+    unsigned createOutputPBO() const;
+    void deletePBO(unsigned* pPBO);
+    void getPixelStride();
 
     PixelFormat m_pf;
     IntPoint m_Size;
     int m_Precision;
-    unsigned m_PBO;
+    bool m_bUseInputPBO;
+    bool m_bUseOutputPBO;
+    unsigned m_InputPBO;
+    unsigned m_OutputPBO;
     unsigned m_TexID;
     VertexArray * m_pVertexes;
 };

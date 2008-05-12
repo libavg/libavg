@@ -37,8 +37,8 @@ GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pf,
         double min, double max, double postScale)
     : GPUFilter(size, pf),
       m_PostScale(postScale),
-      m_pMinFBO(new FBOImage(size, B8G8R8A8, GL_FLOAT)),
-      m_pMaxFBO(new FBOImage(size, B8G8R8A8, GL_FLOAT)),
+      m_pMinFBO(new FBOImage(size, B8G8R8A8, GL_FLOAT, false, false)),
+      m_pMaxFBO(new FBOImage(size, B8G8R8A8, GL_FLOAT, false, false)),
       m_MinFilter(getSrcPBO(), m_pMinFBO, min),
       m_MaxFilter(getSrcPBO(), m_pMaxFBO, max)
 {
