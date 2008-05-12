@@ -62,6 +62,10 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
 #endif
 #endif
 
+    if (!isSupported()) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "GPU imaging not supported by OpenGL.");
+    }
+
     // Coordinates
     glViewport(0, 0, m_Size.x, m_Size.y);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glViewport()");
@@ -115,6 +119,21 @@ void OGLImagingContext::activate()
     bool bOk = aglSetCurrentContext(m_Context);
     assert(bOk);
 #endif
+}
+
+bool OGLImagingContext::isSupported()
+{
+    int glMajorVer;
+    int glMinorVer;
+    int slMajorVer;
+    int slMinorVer;
+    getGLVersion(glMajorVer, glMinorVer);
+    getGLShadingLanguageVersion(slMajorVer, slMinorVer);
+    // Not sure if we need shader version 1.2 as well - we'll see.
+    cerr << glMajorVer << ", " << queryOGLExtension("GL_ARB_texture_rectangle") << ", "
+            << queryOGLExtension("GL_ARB_pixel_buffer_object") << endl;
+    return (glMajorVer > 1 && queryOGLExtension("GL_ARB_texture_rectangle") && 
+            queryOGLExtension("GL_ARB_pixel_buffer_object"));
 }
 
 }

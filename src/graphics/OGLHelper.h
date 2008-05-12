@@ -51,6 +51,8 @@ namespace avg {
 void OGLErrorCheck(int avgcode, const std::string & where);
 bool queryOGLExtension(char *extName);
 bool queryGLXExtension(char *extName);
+void getGLVersion(int & major, int& minor);
+void getGLShadingLanguageVersion(int & major, int& minor);
 
 enum OGLMemoryMode { 
     OGL,  // Standard OpenGL

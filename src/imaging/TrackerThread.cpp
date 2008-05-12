@@ -94,9 +94,16 @@ TrackerThread::~TrackerThread()
 
 bool TrackerThread::init()
 {
-    m_pImagingContext = new OGLImagingContext(m_ROI.size());
-    m_pBandpassFilter = GPUBandpassFilterPtr(new GPUBandpassFilter(m_ROI.size(), I8,
-            0.5, 1.5));
+    try {
+        m_pImagingContext = new OGLImagingContext(m_ROI.size());
+        m_pBandpassFilter = FilterPtr(new GPUBandpassFilter(m_ROI.size(), I8,
+                0.5, 1.5));
+        AVG_TRACE(Logger::CONFIG, "Using fragment shaders for imaging operations.");
+    } catch (Exception& ) {
+        AVG_TRACE(Logger::CONFIG, "Using CPU for imaging operations (slow and inaccurate).");
+        m_pImagingContext = 0;
+        m_pBandpassFilter = FilterPtr(new FilterFastBandpass());
+    }
 // Done in TrackerEventSource::ctor to work around Leopard/libdc1394 threading issue.
 //    m_pCamera->open();
     return true;
@@ -237,7 +244,7 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
 
     setBitmaps(ROI, ppBitmaps);
     if (m_pImagingContext) {
-        m_pBandpassFilter = GPUBandpassFilterPtr(new GPUBandpassFilter(ROI.size(), I8,
+        m_pBandpassFilter = FilterPtr(new GPUBandpassFilter(ROI.size(), I8,
                 0.5, 1.5));
     }
 }

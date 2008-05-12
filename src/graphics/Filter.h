@@ -24,6 +24,8 @@
 
 #include "Bitmap.h"
 
+#include <boost/shared_ptr.hpp>
+
 namespace avg {
 
 // Base class for filters that operate on bitmaps. Derived classes need
@@ -45,6 +47,8 @@ public:
   // applyInPlace.
   virtual BitmapPtr apply(BitmapPtr pBmpSource);
 };
+
+typedef boost::shared_ptr<Filter> FilterPtr;
 
 } // namespace
 #endif

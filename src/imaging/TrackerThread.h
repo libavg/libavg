@@ -123,7 +123,7 @@ class TrackerThread: public WorkerThread<TrackerThread>
         bool m_bCreateFingerImage;
         
         OGLImagingContext* m_pImagingContext;
-        GPUBandpassFilterPtr m_pBandpassFilter;
+        FilterPtr m_pBandpassFilter;
 };
 
 }

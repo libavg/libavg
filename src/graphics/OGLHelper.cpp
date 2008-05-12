@@ -142,6 +142,18 @@ bool queryGLXExtension(char *extName) {
 #endif
 }
 
+void getGLVersion(int & major, int& minor)
+{
+    const char* pVersion = (const char*)glGetString(GL_VERSION);
+    sscanf(pVersion, "%d.%d", &major, &minor);
+}
+
+void getGLShadingLanguageVersion(int & major, int& minor)
+{
+    const char* pVersion = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
+    sscanf(pVersion, "%d.%d", &major, &minor);
+}
+
 void invalidGLCall()
 {
     // Use this to cause core dump so we have the stack.
