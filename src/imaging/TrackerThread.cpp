@@ -97,7 +97,7 @@ bool TrackerThread::init()
     try {
         m_pImagingContext = new OGLImagingContext(m_ROI.size());
         m_pBandpassFilter = FilterPtr(new GPUBandpassFilter(m_ROI.size(), I8,
-                0.5, 1.5));
+                1, 2, 8));
         AVG_TRACE(Logger::CONFIG, "Using fragment shaders for imaging operations.");
     } catch (Exception& ) {
         AVG_TRACE(Logger::CONFIG, "Using CPU for imaging operations (slow and inaccurate).");
@@ -245,7 +245,7 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
     setBitmaps(ROI, ppBitmaps);
     if (m_pImagingContext) {
         m_pBandpassFilter = FilterPtr(new GPUBandpassFilter(ROI.size(), I8,
-                0.5, 1.5));
+                1, 2, 8));
     }
 }
 

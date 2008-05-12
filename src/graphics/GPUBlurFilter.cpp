@@ -109,7 +109,8 @@ void GPUBlurFilter::initShaders()
         "        float coeff = texture2DRect(kernelTex, vec2(float(i+radius)+0.5,0)).r;\n"
         "        sum += tex*coeff;\n"
         "    }\n"
-        "    gl_FragColor = floor(sum*255.0+0.5)/255.0;\n"
+        "    gl_FragColor = sum;\n"
+//        "    gl_FragColor = floor(sum*255.0+0.5)/255.0;\n"
         "}\n"
         ;
 
@@ -124,7 +125,8 @@ void GPUBlurFilter::initShaders()
         "        float coeff = texture2DRect(kernelTex, vec2(float(i+radius)+0.5,0)).r;\n"
         "        sum += tex*coeff;\n"
         "    }\n"
-        "    gl_FragColor = floor(sum*255.0+0.5)/255.0;\n"
+        "    gl_FragColor = sum;\n"
+//        "    gl_FragColor = floor(sum*255.0+0.5)/255.0;\n"
         "}\n"
         ;
 

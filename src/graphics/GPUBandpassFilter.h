@@ -34,7 +34,8 @@ namespace avg {
 class GPUBandpassFilter: public GPUFilter
 {
 public:
-    GPUBandpassFilter(const IntPoint& size, PixelFormat pf, double min, double max);
+    GPUBandpassFilter(const IntPoint& size, PixelFormat pf, double min, double max, 
+            double postScale);
     virtual ~GPUBandpassFilter();
 
     virtual void applyOnGPU();
@@ -42,6 +43,7 @@ public:
 private:
     static void initShader();
 
+    double m_PostScale;
     FBOImagePtr m_pMinFBO;
     FBOImagePtr m_pMaxFBO;
 
