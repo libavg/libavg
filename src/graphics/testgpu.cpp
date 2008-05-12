@@ -208,18 +208,6 @@ public:
 int main(int nargs, char** args)
 {
     GraphicsTest::createResultImgDir();
-
-    if (SDL_InitSubSystem(SDL_INIT_VIDEO)==-1) {
-        cerr << "Can't init SDL." << endl;
-        return 1;
-    }
-    
-    SDL_Surface * pScreen = SDL_SetVideoMode(16, 16, 24, SDL_OPENGL);
-    if (!pScreen) {
-        cerr << "Setting SDL video mode failed: " << SDL_GetError() << endl;
-        return 1;
-    }
-    glproc::init();
     OGLImagingContext context(IntPoint(64, 64));
 
     bool bOK;
@@ -232,7 +220,6 @@ int main(int nargs, char** args)
         bOK = Suite.isOk();
     }
 
-    SDL_QuitSubSystem(SDL_INIT_VIDEO);
     if (bOK) {
         return 0;
     } else {

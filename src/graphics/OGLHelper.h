@@ -100,13 +100,13 @@ namespace glproc {
     extern PFNWGLEXTSWAPCONTROLPROC SwapIntervalEXT;
 #endif
     void init();
+
+    extern void * s_hGLLib;
 }
 
 
 }
 
-// This should be in a system-wide gl header, but for some reason it isn't
-// always there...
 #ifndef GL_TEXTURE_RECTANGLE_NV
 #define GL_TEXTURE_RECTANGLE_NV           0x84F5
 #endif

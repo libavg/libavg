@@ -28,7 +28,7 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 
-#include <SDL/SDL.h>
+#include <dlfcn.h>
 #include <iostream>
 #include <sstream>
 
@@ -71,6 +71,8 @@ namespace glproc {
 #ifdef _WIN32
     PFNWGLEXTSWAPCONTROLPROC SwapIntervalEXT;
 #endif
+
+    void * s_hGLLib = 0;
 }
 
 void OGLErrorCheck(int avgcode, const string & where) {
@@ -162,16 +164,70 @@ void invalidGLCall()
     // Cause core dump.
 }
 
+void loadGLLibrary()
+{
+#ifdef _WIN32
+    const char * pszFName = "OPENGL32.DLL";
+    char szErr[512];
+
+    glproc::s_hGLLib = (void *)LoadLibrary(pszFName);
+
+    if (glproc::s_hGLLib == 0) {
+        FormatMessage((FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM),
+                0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                szErr, 512, 0);
+        throw Exception(AVG_ERR_VIDEO_GENERAL, string("Loading ") + pszFName + "failed: " 
+                + szErr);
+    }
+#else
+#ifdef __APPLE__
+    const char * pszFName = "/System/Library/Frameworks/OpenGL.framework/OpenGL";
+#else
+    const char * pszFName = "libGL.so.1";
+#endif
+    glproc::s_hGLLib = dlopen(pszFName, RTLD_NOW);
+    if (glproc::s_hGLLib == 0) {
+        const char * pszErr = (char *)dlerror();
+        throw Exception(AVG_ERR_VIDEO_GENERAL, string("Loading ") + pszFName + "failed: " 
+                + pszErr);
+    }
+#endif
+}
+
+GLfunction getProcAddress(const string& sName)
+{
+    assert(glproc::s_hGLLib);
+#ifdef _WIN32
+    char szErr[512];
+    GLfunction pProc = (void *)GetProcAddress((HMODULE)glproc::s_hGLLib, sName.c_str());
+    if (!pProc) {
+        FormatMessage((FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM),
+                0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                szErr, 512, 0);
+        cerr << szErr << endl;
+    }
+    
+#else
+    GLfunction pProc = (GLfunction)dlsym(glproc::s_hGLLib, sName.c_str());
+    if (!pProc) {
+        // If the name didn't work, try using an underscore :-).
+        string sName_ = string("_")+sName;
+        pProc = (GLfunction)dlsym(glproc::s_hGLLib, sName_.c_str());
+    }
+#endif
+    return(pProc);
+}
+
 GLfunction getFuzzyProcAddress(const char * psz)
 {
-    GLfunction pProc = (GLfunction)SDL_GL_GetProcAddress(psz);
+    GLfunction pProc = getProcAddress(psz);
     if (!pProc) {
         string s = string(psz)+"EXT";
-        pProc = (GLfunction)SDL_GL_GetProcAddress(s.c_str());
+        pProc = getProcAddress(s);
     }
     if (!pProc) {
         string s = string(psz)+"ARB";
-        pProc = (GLfunction)SDL_GL_GetProcAddress(s.c_str());
+        pProc = getProcAddress(s);
     }
     if (!pProc) {
         pProc = invalidGLCall;
@@ -207,6 +263,12 @@ GLfunction getwglProcAddress(const char * psz)
 namespace glproc {
 
     void init() {
+        static bool s_bInitialized = false;
+        if (s_bInitialized) {
+            return;
+        }
+        s_bInitialized = true;
+        loadGLLibrary();
 #ifdef __APPLE__
         OSStatus err = aglInitEntryPoints();
         if (noErr != err) {

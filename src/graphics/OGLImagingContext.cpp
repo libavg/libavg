@@ -33,7 +33,7 @@ using namespace std;
 OGLImagingContext::OGLImagingContext(const IntPoint & size)
     : m_Size(size)
 {
-
+    glproc::init();
 #ifdef __APPLE__
     GLint attributes[] = {AGL_RGBA, AGL_ALL_RENDERERS,AGL_NONE};
     AGLPixelFormat format;
@@ -130,8 +130,6 @@ bool OGLImagingContext::isSupported()
     getGLVersion(glMajorVer, glMinorVer);
     getGLShadingLanguageVersion(slMajorVer, slMinorVer);
     // Not sure if we need shader version 1.2 as well - we'll see.
-    cerr << glMajorVer << ", " << queryOGLExtension("GL_ARB_texture_rectangle") << ", "
-            << queryOGLExtension("GL_ARB_pixel_buffer_object") << endl;
     return (glMajorVer > 1 && queryOGLExtension("GL_ARB_texture_rectangle") && 
             queryOGLExtension("GL_ARB_pixel_buffer_object"));
 }
