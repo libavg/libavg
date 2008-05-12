@@ -69,7 +69,7 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glMatrixMode()");
     glLoadIdentity();
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glLoadIdentity()");
-    gluOrtho2D(0, m_Size.y, m_Size.x, 0);
+    gluOrtho2D(0, m_Size.x, m_Size.y, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "gluOrtho2D()");
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();

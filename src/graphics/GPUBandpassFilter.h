@@ -29,6 +29,8 @@
 #include "FBOImage.h"
 #include "OGLShader.h"
 
+#include <boost/shared_ptr.hpp>
+
 namespace avg {
 
 class GPUBandpassFilter: public GPUFilter
@@ -50,6 +52,8 @@ private:
 
     static OGLShaderPtr s_pShader;
 };
+
+typedef boost::shared_ptr<GPUBandpassFilter> GPUBandpassFilterPtr;
 
 } // namespace
 #endif

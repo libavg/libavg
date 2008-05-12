@@ -33,6 +33,7 @@
 #include "../graphics/FilterBlur.h"
 #include "../graphics/FilterGauss.h"
 #include "../graphics/FilterMask.h"
+#include "../graphics/OGLImagingContext.h"
 
 #include <iostream>
 #include <stdlib.h>
@@ -68,7 +69,8 @@ TrackerThread::TrackerThread(IntRect ROI,
       m_pTarget(target),
       m_pTrafo(new DeDistort()),
       m_bCreateDebugImages(false),
-      m_bCreateFingerImage(false)
+      m_bCreateFingerImage(false),
+      m_pImagingContext(0)
 {
     m_bTrackBrighter = Config.getBoolParam("/tracker/brighterregions/@value");
     if (bSubtractHistory) {
@@ -92,6 +94,9 @@ TrackerThread::~TrackerThread()
 
 bool TrackerThread::init()
 {
+    m_pImagingContext = new OGLImagingContext(m_ROI.size());
+    m_pBandpassFilter = GPUBandpassFilterPtr(new GPUBandpassFilter(m_ROI.size(), I8,
+            0.5, 1.5));
 // Done in TrackerEventSource::ctor to work around Leopard/libdc1394 threading issue.
 //    m_pCamera->open();
     return true;
@@ -149,7 +154,7 @@ bool TrackerThread::work()
             if (m_TouchThreshold != 0) {
                 {
                     ScopeTimer Timer(ProfilingZoneBandpass);
-                    pBmpBandpass = FilterFastBandpass().apply(pCroppedBmp);
+                    pBmpBandpass = m_pBandpassFilter->apply(pCroppedBmp);
                 }
                 if (m_bCreateDebugImages) {
                     boost::mutex::scoped_lock Lock(*m_pMutex);
@@ -165,6 +170,7 @@ bool TrackerThread::work()
 void TrackerThread::deinit()
 {
     m_pCamera->close();
+    delete m_pImagingContext;
 }
 
 void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI, 
@@ -230,6 +236,10 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
     m_pConfig = TrackerConfigPtr(new TrackerConfig(Config));
 
     setBitmaps(ROI, ppBitmaps);
+    if (m_pImagingContext) {
+        m_pBandpassFilter = GPUBandpassFilterPtr(new GPUBandpassFilter(ROI.size(), I8,
+                0.5, 1.5));
+    }
 }
 
 void TrackerThread::setDebugImages(bool bImg, bool bFinger)

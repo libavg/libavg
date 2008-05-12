@@ -33,6 +33,7 @@
 #include "../graphics/HistoryPreProcessor.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel8.h"
+#include "../graphics/GPUBandpassFilter.h"
 
 #include <boost/thread.hpp>
 
@@ -52,6 +53,7 @@ typedef enum {
 } TrackerImageID;
 
 typedef boost::shared_ptr<boost::mutex> MutexPtr;
+class OGLImagingContext;
 
 class IBlobTarget {
     public:
@@ -119,6 +121,9 @@ class TrackerThread: public WorkerThread<TrackerThread>
         DeDistortPtr m_pTrafo;
         bool m_bCreateDebugImages;
         bool m_bCreateFingerImage;
+        
+        OGLImagingContext* m_pImagingContext;
+        GPUBandpassFilterPtr m_pBandpassFilter;
 };
 
 }

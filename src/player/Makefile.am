@@ -44,8 +44,9 @@ checktracker_SOURCES=checktracker.cpp
 checktracker_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
         ../lmfit/liblmfit.la
-checktracker_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS) \
-		$(BOOST_PYTHON_LIBS) $(PYTHON_LIBS)
+checktracker_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ \
+        @GLU_LIBS@ $(ALL_GL_LIBS) $(MAGICK_LIBS) \
+        $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS)
 
 testplayer_SOURCES=testplayer.cpp
 testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \

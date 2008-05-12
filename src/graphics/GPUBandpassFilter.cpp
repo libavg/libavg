@@ -36,8 +36,8 @@ OGLShaderPtr GPUBandpassFilter::s_pShader;
 GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pf, 
         double min, double max)
     : GPUFilter(size, pf),
-      m_pMinFBO(new FBOImage(size, B8G8R8A8)),
-      m_pMaxFBO(new FBOImage(size, B8G8R8A8)),
+      m_pMinFBO(new FBOImage(size, B8G8R8A8, GL_FLOAT)),
+      m_pMaxFBO(new FBOImage(size, B8G8R8A8, GL_FLOAT)),
       m_MinFilter(getSrcPBO(), m_pMinFBO, min),
       m_MaxFilter(getSrcPBO(), m_pMaxFBO, max)
 {
