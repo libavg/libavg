@@ -80,8 +80,8 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glLoadIdentity()");
 
     // Shading etc.
-    glEnable(GL_BLEND);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glEnable(GL_BLEND)");
+    glDisable(GL_BLEND);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_BLEND)");
     glShadeModel(GL_FLAT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glShadeModel(GL_FLAT)");
     glDisable(GL_DEPTH_TEST);
@@ -90,7 +90,7 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_STENCIL_TEST)");
 
     // Texturing
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); 
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE); 
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glTexEnvf()");
     glBlendFunc(GL_ONE, GL_ZERO);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glBlendFunc()");

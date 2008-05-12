@@ -184,8 +184,6 @@ void PBOImage::activateTex(int textureUnit)
     
 void PBOImage::draw()
 {
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glClear(GL_COLOR_BUFFER_BIT);
     glViewport(0, 0, m_Size.x, m_Size.y);
 
     glDisable(GL_DEPTH_TEST);
