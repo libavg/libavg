@@ -29,6 +29,7 @@
 #include "../base/Exception.h"
 
 #include <dlfcn.h>
+#include <assert.h>
 #include <iostream>
 #include <sstream>
 
