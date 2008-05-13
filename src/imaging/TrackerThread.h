@@ -33,7 +33,7 @@
 #include "../graphics/HistoryPreProcessor.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/Pixel8.h"
-#include "../graphics/GPUBandpassFilter.h"
+#include "../graphics/Filter.h"
 
 #include <boost/thread.hpp>
 

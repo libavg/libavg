@@ -36,15 +36,11 @@ EXTRA_DIST = test_comp.png $(wildcard testimages/*.png)
 
 noinst_LTLIBRARIES = libimaging.la
 libimaging_la_SOURCES = $(ALL_CPP) $(ALL_H)
-noinst_PROGRAMS=testimaging checkcomps checktracking
+noinst_PROGRAMS=testimaging checktracking
 
 testimaging_SOURCES=testimaging.cpp $(ALL_H)
 testimaging_LDADD = ./libimaging.la ../graphics/libgraphics.la ../base/libbase.la
 testimaging_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS)
-
-checkcomps_SOURCES=checkcomps.cpp $(ALL_H)
-checkcomps_LDADD = ./libimaging.la ../graphics/libgraphics.la ../base/libbase.la
-checkcomps_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGICK_LIBS)
 
 checktracking_SOURCES=checktracking.cpp $(ALL_H)
 checktracking_LDADD = ./libimaging.la ../graphics/libgraphics.la ../base/libbase.la
