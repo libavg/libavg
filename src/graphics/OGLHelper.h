@@ -36,7 +36,7 @@
 #endif
 #ifdef linux
 #define GLX_GLXEXT_PROTOTYPES
-#include "GL/glx.h"
+#include <GL/glx.h>
 #endif
 #ifdef _WIN32
 //TODO: Does anyone know where these are declared?
