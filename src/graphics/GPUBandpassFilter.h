@@ -35,7 +35,7 @@ class GPUBandpassFilter: public GPUFilter
 {
 public:
     GPUBandpassFilter(const IntPoint& size, PixelFormat pf, double min, double max, 
-            double postScale);
+            double postScale, bool bInvert);
     virtual ~GPUBandpassFilter();
 
     virtual void applyOnGPU();
@@ -44,6 +44,7 @@ private:
     static void initShader();
 
     double m_PostScale;
+    bool m_bInvert;
     FBOImagePtr m_pMinFBO;
     FBOImagePtr m_pMaxFBO;
 

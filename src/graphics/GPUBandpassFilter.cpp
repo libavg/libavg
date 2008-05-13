@@ -34,9 +34,10 @@ namespace avg {
 OGLShaderPtr GPUBandpassFilter::s_pShader;
 
 GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pf, 
-        double min, double max, double postScale)
+        double min, double max, double postScale, bool bInvert)
     : GPUFilter(size, pf),
       m_PostScale(postScale),
+      m_bInvert(bInvert),
       m_pMinFBO(new FBOImage(size, B8G8R8A8, GL_FLOAT, false, false)),
       m_pMaxFBO(new FBOImage(size, B8G8R8A8, GL_FLOAT, false, false)),
       m_MinFilter(getSrcPBO(), m_pMinFBO, min),
@@ -64,9 +65,10 @@ void GPUBandpassFilter::applyOnGPU()
     glproc::UseProgramObject(hProgram);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "GPUBandpassFilter::apply: glUseProgramObject()");
-    glproc::Uniform1f(glproc::GetUniformLocation(hProgram, "postScale"), m_PostScale);
     glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "minTex"), 0);
     glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "maxTex"), 1);
+    glproc::Uniform1f(glproc::GetUniformLocation(hProgram, "postScale"), m_PostScale);
+    glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "bInvert"), 1);
     m_pMaxFBO->activateTex(GL_TEXTURE1);
     m_pMinFBO->draw();
 
@@ -79,15 +81,19 @@ void GPUBandpassFilter::initShader()
     string sProgram =
         "#extension GL_ARB_texture_rectangle : enable\n" 
        
-        "uniform float postScale;\n"
         "uniform sampler2DRect minTex;\n"
         "uniform sampler2DRect maxTex;\n"
+        "uniform float postScale;\n"
+        "uniform bool bInvert;\n"
 
         "void main(void)\n"
         "{\n"
         "  vec4 min =texture2DRect(minTex, gl_TexCoord[0].st);\n" 
-        "  vec4 max =texture2DRect(maxTex, gl_TexCoord[0].st);\n" 
-        "  gl_FragColor = vec4(0.502, 0.502, 0.502, 0)+(max-min)*postScale;\n"
+        "  vec4 max =texture2DRect(maxTex, gl_TexCoord[0].st);\n"
+        "  gl_FragColor = vec4(0.502, 0.502, 0.502, 0)+(min-max)*postScale;\n"
+        "  if (bInvert) {\n"
+        "    gl_FragColor = vec4(1.004,1.004,1.004,1)-gl_FragColor;\n"
+        "  }\n"
         "  gl_FragColor.a = 1.0;\n"
         "}\n"
         ;
