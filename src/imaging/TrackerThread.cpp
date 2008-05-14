@@ -72,6 +72,8 @@ TrackerThread::TrackerThread(IntRect ROI,
       m_pTrafo(new DeDistort()),
       m_bCreateDebugImages(false),
       m_bCreateFingerImage(false),
+      m_NumFrames(0),
+      m_NumCamFramesDiscarded(0),
       m_pImagingContext(0)
 {
     m_bTrackBrighter = Config.getBoolParam("/tracker/brighterregions/@value");
@@ -115,9 +117,12 @@ bool TrackerThread::work()
     BitmapPtr pCamBmp;
     {
         ScopeTimer Timer(ProfilingZoneCapture);
+        m_NumFrames++;
         pCamBmp = m_pCamera->getImage(true);
         BitmapPtr pTempBmp1;
         while (pTempBmp1 = m_pCamera->getImage(false)) {
+            m_NumCamFramesDiscarded++;
+            m_NumFrames++;
             pCamBmp = pTempBmp1;
         }
     }
@@ -178,6 +183,8 @@ bool TrackerThread::work()
 void TrackerThread::deinit()
 {
     m_pCamera->close();
+    AVG_TRACE(Logger::PROFILE, "Total camera frames: " << m_NumFrames);
+    AVG_TRACE(Logger::PROFILE, "Camera frames discarded: " << m_NumCamFramesDiscarded);
     delete m_pImagingContext;
 }
 

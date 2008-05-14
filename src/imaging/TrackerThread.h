@@ -122,6 +122,8 @@ class TrackerThread: public WorkerThread<TrackerThread>
         DeDistortPtr m_pTrafo;
         bool m_bCreateDebugImages;
         bool m_bCreateFingerImage;
+        int m_NumFrames;
+        int m_NumCamFramesDiscarded;
         
         OGLImagingContext* m_pImagingContext;
         FilterPtr m_pBandpassFilter;
