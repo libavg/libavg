@@ -52,6 +52,7 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         TrackerEventSource(CameraPtr pCamera, const TrackerConfig& Config,
                 const IntPoint& DisplayExtents, bool bSubtractHistory = true);
         virtual ~TrackerEventSource();
+        void start();
 
         void setParam(const std::string& sElement, const std::string& Value);
         std::string getParam(const std::string& sElement);
@@ -85,6 +86,9 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         void copyRelatedInfo(std::vector<EventPtr> pTouchEvents,
                 std::vector<EventPtr> pTrackEvents);
 
+        IntRect m_InitialROI;
+        CameraPtr m_pCamera;
+        bool m_bSubtractHistory;
         DeDistortPtr m_pOldTransformer;
         IntPoint m_DisplayExtents;
         TrackerCalibrator * m_pCalibrator;

@@ -185,7 +185,9 @@ void TrackerThread::deinit()
     m_pCamera->close();
     AVG_TRACE(Logger::PROFILE, "Total camera frames: " << m_NumFrames);
     AVG_TRACE(Logger::PROFILE, "Camera frames discarded: " << m_NumCamFramesDiscarded);
-    delete m_pImagingContext;
+    if (m_pImagingContext) {
+        delete m_pImagingContext;
+    }
 }
 
 void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI, 

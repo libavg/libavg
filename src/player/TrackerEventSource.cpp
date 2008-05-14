@@ -58,7 +58,10 @@ namespace avg {
     TrackerEventSource::TrackerEventSource(CameraPtr pCamera, 
             const TrackerConfig& Config, const IntPoint& DisplayExtents,
             bool bSubtractHistory)
-        : m_DisplayExtents(DisplayExtents),
+        : m_pTrackerThread(0),
+          m_pCamera(pCamera),
+          m_bSubtractHistory(bSubtractHistory),
+          m_DisplayExtents(DisplayExtents),
           m_pCalibrator(0),
           m_TrackerConfig(Config)
     {
@@ -74,22 +77,8 @@ namespace avg {
                     << ROI << ", camera image size is " << ImgSize << ". Aborting.");
             exit(5);
         }
+        m_InitialROI = ROI;
         createBitmaps(ROI);
-        pCamera->open();
-        m_pTrackerThread = new boost::thread(
-                TrackerThread(
-                    ROI,
-                    pCamera,
-                    m_pBitmaps, 
-                    m_pMutex,
-                    *m_pCmdQueue,
-                    this,
-                    bSubtractHistory,
-                    m_TrackerConfig
-                    )
-                );
-        setConfig();
-        setDebugImages(false, false);
     }
 
     TrackerEventSource::~TrackerEventSource()
@@ -100,6 +89,25 @@ namespace avg {
         ObjectCounter::get()->decRef(&typeid(*this));
     }
     
+    void TrackerEventSource::start()
+    {
+        m_pCamera->open();
+        m_pTrackerThread = new boost::thread(
+                TrackerThread(
+                    m_InitialROI,
+                    m_pCamera,
+                    m_pBitmaps, 
+                    m_pMutex,
+                    *m_pCmdQueue,
+                    this,
+                    m_bSubtractHistory,
+                    m_TrackerConfig
+                    )
+                );
+        setConfig();
+        setDebugImages(false, false);
+    }
+
     void TrackerEventSource::setParam(const string& sElement, const string& sValue)
     {
         string sOldParamVal = m_TrackerConfig.getParam(sElement);

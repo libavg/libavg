@@ -139,9 +139,6 @@ Player::~Player()
     if (m_pAudioEngine) {
         delete m_pAudioEngine;
     }
-    if (m_pTracker) {
-        delete m_pTracker;
-    }
     if (m_dtd) {
         xmlFreeDtd(m_dtd);
     }
@@ -305,6 +302,9 @@ void Player::initPlayback()
 
     m_pDisplayEngine->initRender();
     m_bStopping = false;
+    if (m_pTracker) {
+        m_pTracker->start();
+    }
 
     m_PlayStartTime = TimeSource::get()->getCurrentMillisecs();
     m_FrameTime = 0;
@@ -1140,8 +1140,11 @@ void Player::cleanup()
         m_pAudioEngine->teardown();
     }
     AVG_TRACE(Logger::PROFILE, "Max. GPU memory used: " << m_MaxGPUMemUsed/1024 << "k");
+    if (m_pTracker) {
+        delete m_pTracker;
+        m_pTracker = 0;
+    }
     
-
     m_IDMap.clear();
     m_pEventDispatcher = EventDispatcherPtr();
     initConfig();
