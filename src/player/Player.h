@@ -105,13 +105,13 @@ class Player : IEventSink
         void useFakeCamera(bool bFake);
         void setVolume(double volume);
         double getVolume() const;
+        long long getGPUMemoryUsage();
 
         void registerFrameListener(IFrameListener* pListener);
         void unregisterFrameListener(IFrameListener* pListener);
         std::string getCurDirName();
 
         void disablePython();
-        long long getGPUMemoryUsage();
 
     private:
         void initConfig();
@@ -167,6 +167,7 @@ class Player : IEventSink
         int m_MultiSampleSamples;
         bool m_bUseFakeCamera;
         VSyncMode m_VSyncMode;
+        long long m_MaxGPUMemUsed;
 
         bool m_bIsPlaying;
 

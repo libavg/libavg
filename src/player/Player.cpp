@@ -91,6 +91,7 @@ Player::Player()
       m_bCurrentTimeoutDeleted(false),
       m_pEventCaptureNode(),
       m_bUseFakeCamera(false),
+      m_MaxGPUMemUsed(0),
       m_bIsPlaying(false),
       m_bFakeFPS(false),
       m_FakeFPS(0),
@@ -308,6 +309,7 @@ void Player::initPlayback()
     m_PlayStartTime = TimeSource::get()->getCurrentMillisecs();
     m_FrameTime = 0;
     m_NumFrames = 0;
+    m_MaxGPUMemUsed = 0;
     m_pDisplayEngine->render(m_pRootNode);
     if (m_pDisplayEngine->wasFrameLate()) {
         ThreadProfiler::get()->dumpFrame();
@@ -619,6 +621,9 @@ void Player::doFrame ()
                 Py_END_ALLOW_THREADS;
             } else {
                 m_pDisplayEngine->render(m_pRootNode);
+            }
+            if (getGPUMemoryUsage() > m_MaxGPUMemUsed) {
+                m_MaxGPUMemUsed = getGPUMemoryUsage();
             }
         }
         {
@@ -1134,6 +1139,9 @@ void Player::cleanup()
     if (m_pAudioEngine) {
         m_pAudioEngine->teardown();
     }
+    AVG_TRACE(Logger::PROFILE, "Max. GPU memory used: " << m_MaxGPUMemUsed/1024 << "k");
+    
+
     m_IDMap.clear();
     m_pEventDispatcher = EventDispatcherPtr();
     initConfig();

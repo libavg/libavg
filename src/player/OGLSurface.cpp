@@ -599,9 +599,11 @@ void OGLSurface::checkBlendModeError(string sMode)
 int OGLSurface::getTotalTexMemory()
 {
     int iAmount = 0;
-    for (int y=0; y<m_NumTextures.y; y++) {
-        for (int x=0; x<m_NumTextures.x; x++) {
-            iAmount += m_pTextures[y][x]->getTexMemDim();
+    if (m_bBound) {
+        for (int y=0; y<m_NumTextures.y; y++) {
+            for (int x=0; x<m_NumTextures.x; x++) {
+                iAmount += m_pTextures[y][x]->getTexMemDim();
+            }
         }
     }
     return iAmount;
