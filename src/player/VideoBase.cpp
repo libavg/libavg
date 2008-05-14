@@ -78,7 +78,7 @@ void VideoBase::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine 
 void VideoBase::disconnect()
 {
     changeVideoState(Unloaded);
-    Node::disconnect();
+    RasterNode::disconnect();
 }
 
 void VideoBase::play()

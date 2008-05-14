@@ -146,6 +146,7 @@ void GPUBlurFilter::calcKernel()
 {
     int KernelCenter = int(ceil(m_StdDev*3));
     m_KernelWidth = KernelCenter*2+1;
+    assert (m_KernelWidth < 256);
     float sum = 0;
     for (int i=0; i<= KernelCenter; ++i) {
         m_Kernel[KernelCenter+i] = exp(-i*i/(2*m_StdDev*m_StdDev))

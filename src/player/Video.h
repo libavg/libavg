@@ -47,7 +47,6 @@ class Video : public VideoBase, IFrameListener, IAudioSource
         
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
-        virtual void disconnect();
 
         const std::string& getHRef() const;
         void setHRef(const std::string& href);

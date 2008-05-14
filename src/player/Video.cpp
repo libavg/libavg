@@ -67,7 +67,6 @@ Video::Video (const ArgList& Args, Player * pPlayer)
       m_pEOFCallback(0),
       m_FramesTooLate(0),
       m_FramesPlayed(0),
-      m_bAudioEnabled(true),
       m_pDecoder(0),
       m_Volume(1.0)
 {
@@ -82,6 +81,7 @@ Video::Video (const ArgList& Args, Player * pPlayer)
     } else {
         m_pDecoder = new FFMpegDecoder();
     }
+    m_bAudioEnabled = m_bThreaded;
     getPlayer()->registerFrameListener(this);
 }
 
@@ -185,12 +185,6 @@ void Video::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pA
 {
     checkReload();
     VideoBase::setRenderingEngines(pDisplayEngine, pAudioEngine);
-}
-
-void Video::disconnect()
-{
-    stop();
-    VideoBase::disconnect();
 }
 
 const string& Video::getHRef() const
@@ -316,14 +310,14 @@ void Video::open(YCbCrMode ycbcrMode)
     } else if(m_FPS != 0.0) {
         m_pDecoder->setFPS(m_FPS);
     }
-    if(getAudioEngine()) {
+    if(getAudioEngine() && m_bAudioEnabled) {
         getAudioEngine()->addSource(this);
     }
 }
 
 void Video::close()
 {
-    if(getAudioEngine()) {
+    if(getAudioEngine() && m_bAudioEnabled) {
         getAudioEngine()->removeSource(this);
     }
     m_pDecoder->close();
