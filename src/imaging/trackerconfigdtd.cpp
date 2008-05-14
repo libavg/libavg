@@ -31,7 +31,7 @@ const char * g_pTrackerConfigDTD =
 "<!ELEMENT trackerconfig (camera|tracker|transform)* >\n"
 "<!ELEMENT camera (source|device|format|size|channel|fps|brightness|exposure|gamma|gain|shutter)* >\n"
 "<!ELEMENT tracker (mask|prescale|historyupdateinterval|brighterregions|eventonmove|contourprecision|touch|track)* >\n"
-"<!ELEMENT touch (threshold|similarity|areabounds|eccentricitybounds)* >\n"
+"<!ELEMENT touch (threshold|similarity|areabounds|eccentricitybounds|bandpass|bandpasspostmult)* >\n"
 "<!ELEMENT track (threshold|similarity|areabounds|eccentricitybounds)* >\n"
 "<!ELEMENT transform (cameradisplacement|camerascale|distortionparams|trapezoid|"
 "       angle|displaydisplacement|displayscale)* >\n"
@@ -119,6 +119,14 @@ const char * g_pTrackerConfigDTD =
 "<!ELEMENT eccentricitybounds EMPTY>\n"
 "<!ATTLIST eccentricitybounds\n"
 "   %minmaxAttrs; >\n"
+
+"<!ELEMENT bandpass EMPTY>\n"
+"<!ATTLIST bandpass\n"
+"   %minmaxAttrs; >\n"
+
+"<!ELEMENT bandpasspostmult EMPTY>\n"
+"<!ATTLIST bandpasspostmult\n"
+"   value CDATA #REQUIRED >\n"
 
 "<!ELEMENT distortionparams EMPTY>\n"
 "<!ATTLIST distortionparams\n"

@@ -87,6 +87,7 @@ class TrackerThread: public WorkerThread<TrackerThread>
     
     private:
         void setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAGES]);
+        void createBandpassFilter();
         void checkMessages();
         void calcHistory();
         void drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp);

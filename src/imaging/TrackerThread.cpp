@@ -84,9 +84,9 @@ TrackerThread::TrackerThread(IntRect ROI,
     setBitmaps(ROI, ppBitmaps);
 
     DeDistortPtr pDeDistort = Config.getTransform();
-
     m_pDistorter = FilterDistortionPtr(new FilterDistortion(
                 m_pBitmaps[TRACKER_IMG_CAMERA]->getSize()/m_Prescale, pDeDistort));
+
     m_pConfig = TrackerConfigPtr(new TrackerConfig(Config));
 }
 
@@ -98,8 +98,7 @@ bool TrackerThread::init()
 {
     try {
         m_pImagingContext = new OGLImagingContext(m_ROI.size());
-        m_pBandpassFilter = FilterPtr(new GPUBandpassFilter(m_ROI.size(), I8,
-                1.5, 2, 32, m_bTrackBrighter));
+        createBandpassFilter();
         AVG_TRACE(Logger::CONFIG, "Using fragment shaders for imaging operations.");
     } catch (Exception& ) {
         AVG_TRACE(Logger::CONFIG, "Using CPU for imaging operations (slow and inaccurate).");
@@ -245,10 +244,7 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
     m_pConfig = TrackerConfigPtr(new TrackerConfig(Config));
 
     setBitmaps(ROI, ppBitmaps);
-    if (m_pImagingContext) {
-        m_pBandpassFilter = FilterPtr(new GPUBandpassFilter(ROI.size(), I8,
-                1.5, 2, 32, m_bTrackBrighter));
-    }
+    createBandpassFilter();
 }
 
 void TrackerThread::setDebugImages(bool bImg, bool bFinger)
@@ -268,6 +264,16 @@ void TrackerThread::setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAG
                 new HistoryPreProcessor(ROI.size(), 
                         m_pHistoryPreProcessor->getInterval(), m_bTrackBrighter));
     }
+}
+
+void TrackerThread::createBandpassFilter()
+{
+    double bandpassMin = m_pConfig->getDoubleParam("/tracker/touch/bandpass/@min");
+    double bandpassMax = m_pConfig->getDoubleParam("/tracker/touch/bandpass/@max");
+    double bandpassPostMult = 
+        m_pConfig->getDoubleParam("/tracker/touch/bandpasspostmult/@value");
+    m_pBandpassFilter = FilterPtr(new GPUBandpassFilter(m_ROI.size(), I8,
+                bandpassMin, bandpassMax, bandpassPostMult, m_bTrackBrighter));
 }
 
 void TrackerThread::resetHistory()
