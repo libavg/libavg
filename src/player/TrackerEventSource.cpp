@@ -79,6 +79,7 @@ namespace avg {
         }
         m_InitialROI = ROI;
         createBitmaps(ROI);
+        setDebugImages(false, false);
     }
 
     TrackerEventSource::~TrackerEventSource()
@@ -105,7 +106,6 @@ namespace avg {
                     )
                 );
         setConfig();
-        setDebugImages(false, false);
     }
 
     void TrackerEventSource::setParam(const string& sElement, const string& sValue)
