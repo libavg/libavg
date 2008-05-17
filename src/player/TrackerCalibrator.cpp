@@ -255,11 +255,5 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
                      this, &control );
         initThisFromDouble(p);
         return m_CurrentTrafo;
-#if 0
-        cerr << "display_offset= " << display_offset << 
-                ", display_scale = " << display_scale << endl;
-        cerr << "DisplayOffset = " << m_DisplayOffset << 
-                ", data.FilmOffset = " << m_FilmOffset << endl;
-#endif
     }
 }

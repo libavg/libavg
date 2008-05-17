@@ -339,6 +339,13 @@ namespace avg {
     {
         assert(m_pCalibrator);
         m_TrackerConfig.setTransform(m_pCalibrator->makeTransformer());
+        DRect Area = m_TrackerConfig.getTransform()
+                ->getActiveBlobArea(DPoint(m_DisplayExtents));
+        if (Area.size().x*Area.size().y > 1024*1024*8) {
+            AVG_TRACE(Logger::WARNING, "Ignoring calibration - resulting area would be " 
+                    << Area);
+            m_TrackerConfig.setTransform(m_pOldTransformer);
+        }
         setConfig();
         delete m_pCalibrator;
         m_pCalibrator = 0;

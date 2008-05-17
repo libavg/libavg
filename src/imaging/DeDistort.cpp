@@ -102,6 +102,11 @@ DRect DeDistort::getActiveBlobArea(const DPoint& DisplayExtents)
         ActiveRect.tl.y = ActiveRect.br.y;
         ActiveRect.br.y = temp;
     } 
+    if (ActiveRect.width() < 1) {
+        double temp = ActiveRect.tl.x;
+        ActiveRect.tl.x = ActiveRect.br.x;
+        ActiveRect.br.x = temp;
+    } 
     return ActiveRect;
 }
 
