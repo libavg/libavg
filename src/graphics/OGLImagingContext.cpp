@@ -31,7 +31,6 @@ namespace avg {
 using namespace std;
 
 OGLImagingContext::OGLImagingContext(const IntPoint & size)
-    : m_Size(size)
 {
     glproc::init();
 #ifdef __APPLE__
@@ -67,17 +66,7 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
     }
 
     // Coordinates
-    glViewport(0, 0, m_Size.x, m_Size.y);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glViewport()");
-    glMatrixMode(GL_PROJECTION);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glMatrixMode()");
-    glLoadIdentity();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glLoadIdentity()");
-    gluOrtho2D(0, m_Size.x, m_Size.y, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "gluOrtho2D()");
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glLoadIdentity()");
+    setSize(size);
 
     // Shading etc.
     glDisable(GL_BLEND);
@@ -122,6 +111,22 @@ void OGLImagingContext::activate()
     bool bOk = aglSetCurrentContext(m_Context);
     assert(bOk);
 #endif
+}
+
+void OGLImagingContext::setSize(const IntPoint& size)
+{
+    m_Size = size;
+    glViewport(0, 0, m_Size.x, m_Size.y);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glViewport()");
+    glMatrixMode(GL_PROJECTION);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glMatrixMode()");
+    glLoadIdentity();
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glLoadIdentity()");
+    gluOrtho2D(0, m_Size.x, m_Size.y, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "gluOrtho2D()");
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glLoadIdentity()");
 }
 
 bool OGLImagingContext::isSupported()

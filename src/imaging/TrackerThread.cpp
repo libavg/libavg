@@ -273,10 +273,14 @@ void TrackerThread::setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAG
                 new HistoryPreProcessor(ROI.size(), 
                         m_pHistoryPreProcessor->getInterval(), m_bTrackBrighter));
     }
+    if (m_pBandpassFilter) {
+        createBandpassFilter();
+    }
 }
 
 void TrackerThread::createBandpassFilter()
 {
+    m_pImagingContext->setSize(m_ROI.size());
     double bandpassMin = m_pConfig->getDoubleParam("/tracker/touch/bandpass/@min");
     double bandpassMax = m_pConfig->getDoubleParam("/tracker/touch/bandpass/@max");
     double bandpassPostMult = 

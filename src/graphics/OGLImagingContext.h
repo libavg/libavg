@@ -39,6 +39,8 @@ public:
     virtual ~OGLImagingContext();
 
     void activate();
+    void setSize(const IntPoint & size);
+
     bool isSupported();
 
 private:
