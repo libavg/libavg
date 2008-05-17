@@ -55,7 +55,7 @@ class DivNode : public Node
         virtual void preRender();
         virtual void render (const DRect& rect);
         virtual std::string getTypeStr ();
-        std::string getEffectiveMediaDir();
+        virtual std::string getEffectiveMediaDir();
         virtual void checkReload();
 
         virtual std::string dump (int indent = 0);

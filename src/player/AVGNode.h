@@ -38,6 +38,7 @@ class AVGNode : public DivNode
         virtual ~AVGNode ();
 
         virtual std::string getTypeStr ();
+        virtual std::string getEffectiveMediaDir();
         bool getCropSetting();
         void setAngle(double angle);
         

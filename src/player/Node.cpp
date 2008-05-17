@@ -570,7 +570,7 @@ void Node::initFilename(Player * pPlayer, string& sFilename)
 #endif
     if (!bAbsDir) {
         if (m_pParent.expired()) {
-            sFilename = pPlayer->getCurDirName()+sFilename;
+            sFilename = pPlayer->getRootMediaDir()+sFilename;
         } else {
             sFilename = m_pParent.lock()->getEffectiveMediaDir()+sFilename;
         }

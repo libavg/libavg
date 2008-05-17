@@ -227,7 +227,7 @@ string DivNode::getEffectiveMediaDir()
     if (getParent()) {
         sMediaDir = getParent()->getEffectiveMediaDir()+m_sMediaDir;
     } else {
-        sMediaDir = getPlayer()->getCurDirName()+m_sMediaDir;
+        sMediaDir = getPlayer()->getRootMediaDir()+m_sMediaDir;
     }
     if (sMediaDir[sMediaDir.length()-1] != '/') {
         sMediaDir += '/';

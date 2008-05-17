@@ -581,6 +581,17 @@ string Player::getCurDirName()
 {
     return m_CurDirName;
 }
+        
+std::string Player::getRootMediaDir()
+{
+    string sMediaDir;
+    if (m_pRootNode) {
+        sMediaDir = m_pRootNode->getEffectiveMediaDir();
+    } else {
+        sMediaDir = m_CurDirName;
+    }
+    return sMediaDir;
+}
 
 void Player::disablePython()
 {

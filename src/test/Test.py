@@ -724,18 +724,6 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testI18NWords2", True)
                 ))
 
-    def testMediaDir(self):
-        def setDir():
-            Player.getElementByID("main").mediadir="../video/testfiles"
-        self.start("mediadir.avg",
-                (lambda: Player.getElementByID("video").play(),
-                 lambda: self.compareImage("mediadir1", False),
-                 setDir,
-                 lambda: Player.getElementByID("video").play(), 
-                 lambda: self.assert_(Player.getElementByID("img").width == 1),
-                 lambda: self.compareImage("mediadir2", False)
-                ))
-
 #    def testCamera(self):
 #        def createCameraNode(deviceFile):
 #            return Player.createNode("<camera id='camera1' width='640' height='480' "
@@ -996,6 +984,21 @@ class PlayerTestCase(AVGTestCase):
         runTest(True)
         runTest(False)
 
+    def testMediaDir(self):
+        def setDir():
+            Player.getElementByID("main").mediadir="../video/testfiles"
+        def createNode():
+            node = Player.createNode("video", {"href":"mjpeg1-48x48.avi"})
+        self.start("mediadir.avg",
+                (lambda: Player.getElementByID("video").play(),
+                 lambda: self.compareImage("mediadir1", False),
+                 setDir,
+                 lambda: Player.getElementByID("video").play(), 
+                 lambda: self.assert_(Player.getElementByID("img").width == 1),
+                 lambda: self.compareImage("mediadir2", False),
+                 createNode
+                ))
+
     def testGPUMemoryQuery(self):
         def createNode():
             self.node = Player.createNode("<image id='img' href='rgb24-64x64.png'/>")
@@ -1047,7 +1050,6 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testParaWords", bpp))
     suite.addTest(PlayerTestCase("testDynamicWords", bpp))
     suite.addTest(PlayerTestCase("testI18NWords", bpp))
-    suite.addTest(PlayerTestCase("testMediaDir", bpp))
     suite.addTest(PlayerTestCase("testWarp", bpp))
     suite.addTest(PlayerTestCase("testImgDynamics", bpp))
     suite.addTest(PlayerTestCase("testVideoDynamics", bpp))
@@ -1055,6 +1057,7 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testPanoDynamics", bpp))
     suite.addTest(PlayerTestCase("testCameraDynamics", bpp))
     suite.addTest(PlayerTestCase("testDivDynamics", bpp))
+    suite.addTest(PlayerTestCase("testMediaDir", bpp))
     suite.addTest(PlayerTestCase("testGPUMemoryQuery", bpp))
     return suite
 

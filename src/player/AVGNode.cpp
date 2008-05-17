@@ -20,6 +20,7 @@
 //
 
 #include "AVGNode.h"
+#include "Player.h"
 
 #include "NodeDefinition.h"
 
@@ -57,6 +58,16 @@ AVGNode::~AVGNode()
 string AVGNode::getTypeStr ()
 {
     return "AVGNode";
+}
+
+string AVGNode::getEffectiveMediaDir()
+{
+    string sMediaDir;
+    sMediaDir = getPlayer()->getCurDirName()+getMediaDir();
+    if (sMediaDir[sMediaDir.length()-1] != '/') {
+        sMediaDir += '/';
+    }
+    return sMediaDir;
 }
 
 bool AVGNode::getCropSetting() {
