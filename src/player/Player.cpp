@@ -1132,6 +1132,12 @@ void Player::cleanup()
         m_pRootNode->disconnect();
     }
     m_pRootNode = AVGNodePtr();
+
+    if (m_pTracker) {
+        delete m_pTracker;
+        m_pTracker = 0;
+    }
+
     if (m_pDisplayEngine) {
         m_pDisplayEngine->deinitRender();
         m_pDisplayEngine->teardown();
