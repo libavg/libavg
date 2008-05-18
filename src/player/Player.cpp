@@ -233,9 +233,7 @@ void Player::loadFile (const std::string& filename)
                     filename + " does not validate."));
         }
         xmlNodePtr xmlNode = xmlDocGetRootElement(doc);
-        m_pRootNode = boost::dynamic_pointer_cast<AVGNode>
-            (createNodeFromXml(doc, xmlNode, DivNodePtr()));
-        m_pRootNode->setParent(DivNodeWeakPtr());
+        createNodeFromXml(doc, xmlNode, DivNodePtr());
         registerNode(m_pRootNode);
         m_DP.m_Height = int(m_pRootNode->getHeight());
         m_DP.m_Width = int(m_pRootNode->getWidth());
@@ -901,6 +899,14 @@ NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc,
         boost::dynamic_pointer_cast<Words>(curNode)->initText(s);
     }
     curNode->setThis(curNode);
+
+    // If this is the root node, remember it.
+    AVGNodePtr pRootNode = boost::dynamic_pointer_cast<AVGNode>(curNode);
+    if (pRootNode) {
+        m_pRootNode = pRootNode;
+        m_pRootNode->setParent(DivNodeWeakPtr());
+    }
+
     // If this is a container, recurse into children
     DivNodePtr curDivNode = boost::dynamic_pointer_cast<DivNode>(curNode);
     if (curDivNode) {
