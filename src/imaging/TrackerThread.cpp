@@ -102,7 +102,8 @@ bool TrackerThread::init()
         m_pImagingContext = new OGLImagingContext(m_ROI.size());
         createBandpassFilter();
         AVG_TRACE(Logger::CONFIG, "Using fragment shaders for imaging operations.");
-    } catch (Exception& ) {
+    } catch (Exception& e) {
+        AVG_TRACE(Logger::WARNING, e.GetStr());
         AVG_TRACE(Logger::CONFIG, "Using CPU for imaging operations (slow and inaccurate).");
         m_pImagingContext = 0;
         m_pBandpassFilter = FilterPtr(new FilterFastBandpass());
