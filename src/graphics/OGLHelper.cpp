@@ -28,7 +28,10 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 
+#ifndef _WIN32
 #include <dlfcn.h>
+#endif
+
 #include <assert.h>
 #include <iostream>
 #include <sstream>
@@ -201,7 +204,7 @@ GLfunction getProcAddress(const string& sName)
     assert(glproc::s_hGLLib);
 #ifdef _WIN32
     char szErr[512];
-    GLfunction pProc = (void *)GetProcAddress((HMODULE)glproc::s_hGLLib, sName.c_str());
+    GLfunction pProc = (GLfunction)GetProcAddress((HMODULE)glproc::s_hGLLib, sName.c_str());
     if (!pProc) {
         FormatMessage((FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM),
                 0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),

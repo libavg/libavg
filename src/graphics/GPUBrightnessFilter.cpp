@@ -57,7 +57,8 @@ void GPUBrightnessFilter::applyOnGPU()
     glproc::UseProgramObject(hProgram);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "GPUBrightnessFilter::apply: glUseProgramObject()");
-    glproc::Uniform1f(glproc::GetUniformLocation(hProgram, "alpha"), m_Alpha);
+    glproc::Uniform1f(glproc::GetUniformLocation(hProgram, "alpha"),
+            GLfloat(m_Alpha));
     glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "Texture"), 0);
     getSrcPBO()->draw();
 

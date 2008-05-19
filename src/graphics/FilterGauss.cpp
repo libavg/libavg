@@ -24,12 +24,10 @@
 #include "Pixel8.h"
 #include "Bitmap.h"
 
+#include "../base/MathHelper.h"
+
 #include <iostream>
 #include <math.h>
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
 using namespace std;
 
 namespace avg {
@@ -188,7 +186,7 @@ void FilterGauss::calcKernel()
     int IntRadius = int(ceil(m_Radius));
     m_KernelWidth = IntRadius*2+1;
     for (int i=0; i<= IntRadius; ++i) {
-        FloatKernel[IntRadius+i] = exp(-i*i/m_Radius-1)/sqrt(2*M_PI);
+        FloatKernel[IntRadius+i] = exp(-i*i/m_Radius-1)/sqrt(2*PI);
         FloatKernel[IntRadius-i] = FloatKernel[IntRadius+i];
         Sum += FloatKernel[IntRadius+i];
         if (i != 0) {

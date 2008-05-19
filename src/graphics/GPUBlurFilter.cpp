@@ -23,7 +23,7 @@
 #include "Bitmap.h"
 
 #include "../base/ObjectCounter.h"
-#include "../base/Exception.h"
+#include "../base/MathHelper.h"
 
 #include <iostream>
 
@@ -149,8 +149,8 @@ void GPUBlurFilter::calcKernel()
     assert (m_KernelWidth < 256);
     float sum = 0;
     for (int i=0; i<= KernelCenter; ++i) {
-        m_Kernel[KernelCenter+i] = exp(-i*i/(2*m_StdDev*m_StdDev))
-                /sqrt(2*M_PI*m_StdDev*m_StdDev);
+        m_Kernel[KernelCenter+i] = float(exp(-i*i/(2*m_StdDev*m_StdDev))
+                /sqrt(2*PI*m_StdDev*m_StdDev));
         sum += m_Kernel[KernelCenter+i];
         if (i != 0) {
             m_Kernel[KernelCenter-i] = m_Kernel[KernelCenter+i];

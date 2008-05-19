@@ -67,7 +67,7 @@ void GPUBandpassFilter::applyOnGPU()
             "GPUBandpassFilter::apply: glUseProgramObject()");
     glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "minTex"), 0);
     glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "maxTex"), 1);
-    glproc::Uniform1f(glproc::GetUniformLocation(hProgram, "postScale"), m_PostScale);
+    glproc::Uniform1f(glproc::GetUniformLocation(hProgram, "postScale"), float(m_PostScale));
     glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "bInvert"), m_bInvert);
     m_pMaxFBO->activateTex(GL_TEXTURE1);
     m_pMinFBO->draw();

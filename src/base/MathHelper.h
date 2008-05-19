@@ -22,7 +22,7 @@
 #ifndef _MathHelper_H_
 #define _MathHelper_H_
 
-#define PI 3.14159
+#define PI 3.14159265358979323846
 #define EPSILON 0.00001
 
 namespace avg {
