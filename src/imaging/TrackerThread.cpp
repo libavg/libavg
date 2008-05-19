@@ -281,13 +281,15 @@ void TrackerThread::setBitmaps(IntRect ROI, BitmapPtr ppBitmaps[NUM_TRACKER_IMAG
 
 void TrackerThread::createBandpassFilter()
 {
-    m_pImagingContext->setSize(m_ROI.size());
     double bandpassMin = m_pConfig->getDoubleParam("/tracker/touch/bandpass/@min");
     double bandpassMax = m_pConfig->getDoubleParam("/tracker/touch/bandpass/@max");
     double bandpassPostMult = 
         m_pConfig->getDoubleParam("/tracker/touch/bandpasspostmult/@value");
-    m_pBandpassFilter = FilterPtr(new GPUBandpassFilter(m_ROI.size(), I8,
+    if (m_pImagingContext) {
+        m_pImagingContext->setSize(m_ROI.size());
+        m_pBandpassFilter = FilterPtr(new GPUBandpassFilter(m_ROI.size(), I8,
                 bandpassMin, bandpassMax, bandpassPostMult, m_bTrackBrighter));
+    }
 }
 
 void TrackerThread::resetHistory()
