@@ -1079,10 +1079,21 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
             }
         }
     }
-    // Update list of nodes under cursor
     if (pEvent->getType() == Event::CURSORUP && pEvent->getSource() != Event::MOUSE) {
+        // Cursor has disappeared: send out events.
+        if (bIsCapturing) {
+            NodePtr pNode = pDestNodes.begin()->lock();
+            sendOver(pEvent, Event::CURSOROUT, pNode);
+        } else {
+            vector<NodeWeakPtr>::iterator it;
+            for (it = pCursorNodes.begin(); it != pCursorNodes.end(); ++it) {
+                NodePtr pNode = it->lock();
+                sendOver(pEvent, Event::CURSOROUT, pNode);
+            } 
+        }
         m_pLastCursorStates.erase(cursorID);
     } else {
+        // Update list of nodes under cursor
         if (m_pLastCursorStates.find(cursorID) != m_pLastCursorStates.end()) {
             m_pLastCursorStates[cursorID]->setInfo(pEvent, pCursorNodes);
         } else {

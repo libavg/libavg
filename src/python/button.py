@@ -27,6 +27,9 @@ class Button:
         self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, self.__onDown)
         self.__node.setEventHandler(avg.CURSOROUT, avg.MOUSE, self.__onOut)
         self.__node.setEventHandler(avg.CURSOROVER, avg.MOUSE, self.__onOver)
+        self.__node.setEventHandler(avg.CURSORDOWN, avg.TOUCH, self.__onDown)
+        self.__node.setEventHandler(avg.CURSOROUT, avg.TRACK, self.__onOut)
+        self.__node.setEventHandler(avg.CURSOROVER, avg.TRACK, self.__onOver)
     def delete(self):
         self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, None)
         self.__node.setEventHandler(avg.CURSOROUT, avg.MOUSE, None)
@@ -40,15 +43,19 @@ class Button:
     def __onDown(self, event):
         if self.__isDisabled:
             return
-        self.__node.setEventCapture()
-        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onUp)
+        self.__node.setEventCapture(event.cursorid)
+        if event.source == avg.MOUSE:
+            self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onUp)
+        else:
+            self.__node.setEventHandler(avg.CURSORUP, avg.TOUCH, self.__onUp)
         self.__isClicking = True
         self.__setMode(1)
     def __onUp(self, event):
         if self.__isDisabled:
             return
         self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, None)
-        self.__node.releaseEventCapture()
+        self.__node.setEventHandler(avg.CURSORUP, avg.TOUCH, None)
+        self.__node.releaseEventCapture(event.cursorid)
         if self.__mode == 1 and self.__isClicking:
             self.__setMode(2)
             self.__clickCallback(self)
