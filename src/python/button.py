@@ -24,9 +24,14 @@ class Button:
         else:
             self.__setMode(0)
         self.__isClicking = False
-        node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, self.__onDown)
+        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, self.__onDown)
         self.__node.setEventHandler(avg.CURSOROUT, avg.MOUSE, self.__onOut)
         self.__node.setEventHandler(avg.CURSOROVER, avg.MOUSE, self.__onOver)
+    def delete(self):
+        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, None)
+        self.__node.setEventHandler(avg.CURSOROUT, avg.MOUSE, None)
+        self.__node.setEventHandler(avg.CURSOROVER, avg.MOUSE, None)
+        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, None)
     def __isMouseOver(self):
         Event = g_Player.getMouseState()
         relPos = self.__node.getRelPos((Event.x, Event.y))
