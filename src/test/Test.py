@@ -984,6 +984,44 @@ class PlayerTestCase(AVGTestCase):
         runTest(True)
         runTest(False)
 
+    def testDynamicEventCapture(self):
+        # Tests if deleting a node that has events captured works.
+        def createImg():
+            parentNode = Player.getRootNode()
+            node = Player.createNode("image", {"id": "img", "href":"rgb24-64x64.png"})
+            parentNode.appendChild(node)
+            node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, captureMouseDown)
+            parentNode.setEventHandler(avg.CURSORUP, avg.MOUSE, mainMouseUp)
+        def setEventCapture():
+            Player.getElementByID("img").setEventCapture()
+        def deleteImg():
+            parentNode = Player.getRootNode()
+            node = Player.getElementByID("img")
+            parentNode.removeChild(parentNode.indexOf(node))
+        def captureMouseDown(event):
+            global captureMouseDownCalled
+            captureMouseDownCalled = True
+        def mainMouseUp(event):
+            global mainMouseUpCalled
+            mainMouseUpCalled = True
+        Helper = Player.getTestHelper()
+        global captureMouseDownCalled
+        global mainMouseUpCalled
+        captureMouseDownCalled = False
+        mainMouseUpCalled = False
+        self.start("empty.avg",
+            (createImg,
+            setEventCapture,
+            lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
+                    100, 10, 1),
+            lambda: self.assert_(captureMouseDownCalled),
+            deleteImg,
+            lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
+                    100, 10, 1),
+            lambda: self.assert_(mainMouseUpCalled)
+        ))
+
+
     def testMediaDir(self):
         def setDir():
             Player.getElementByID("main").mediadir="../video/testfiles"
@@ -1057,6 +1095,7 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testPanoDynamics", bpp))
     suite.addTest(PlayerTestCase("testCameraDynamics", bpp))
     suite.addTest(PlayerTestCase("testDivDynamics", bpp))
+    suite.addTest(PlayerTestCase("testDynamicEventCapture", bpp))
     suite.addTest(PlayerTestCase("testMediaDir", bpp))
     suite.addTest(PlayerTestCase("testGPUMemoryQuery", bpp))
     return suite
@@ -1105,6 +1144,19 @@ else:
         sys.exit(1)
 
     Player = avg.Player()
+#    Log = avg.Logger.get()
+#    Log.setCategories(
+#            Log.APP |
+#            Log.WARNING |
+#            Log.PROFILE |
+#            Log.PROFILE_LATEFRAMES |
+#            Log.CONFIG |
+#            Log.MEMORY |
+#            Log.BLTS    |
+#            Log.EVENTS
+#            Log.EVENTS2
+#    )
+
     runner = unittest.TextTestRunner()
     rc = runner.run(playerTestSuite(bpp))
     
