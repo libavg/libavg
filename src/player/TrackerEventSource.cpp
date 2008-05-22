@@ -85,8 +85,10 @@ namespace avg {
     TrackerEventSource::~TrackerEventSource()
     {
         m_pCmdQueue->push(Command<TrackerThread>(boost::bind(&TrackerThread::stop, _1)));
-        m_pTrackerThread->join();
-        delete m_pTrackerThread;
+        if (m_pTrackerThread) {
+            m_pTrackerThread->join();
+            delete m_pTrackerThread;
+        }            
         ObjectCounter::get()->decRef(&typeid(*this));
     }
     
