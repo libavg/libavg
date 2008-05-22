@@ -422,6 +422,10 @@ TrackerEventSource * Player::addTracker(const string& sConfigFilename)
     m_pTracker = new TrackerEventSource(pCamera, Config, 
             IntPoint(m_DP.m_Width, m_DP.m_Height), true);
     m_pEventDispatcher->addSource(m_pTracker);
+    if (m_bIsPlaying) {
+        m_pTracker->start();
+    }
+
     return m_pTracker;
 }
 
@@ -1174,10 +1178,6 @@ void Player::cleanup()
         m_pAudioEngine->teardown();
     }
     AVG_TRACE(Logger::PROFILE, "Max. GPU memory used: " << m_MaxGPUMemUsed/1024 << "k");
-    if (m_pTracker) {
-        delete m_pTracker;
-        m_pTracker = 0;
-    }
     
     m_IDMap.clear();
     m_pEventDispatcher = EventDispatcherPtr();
