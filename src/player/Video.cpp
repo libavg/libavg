@@ -122,8 +122,10 @@ int Video::getCurFrame() const
 void Video::seekToFrame(int FrameNum)
 {
     if (getVideoState() != Unloaded) {
-        long long DestTime = (long long)(FrameNum*1000.0/m_pDecoder->getNominalFPS());
-        seek(DestTime);
+        if (getCurFrame() != FrameNum) {
+            long long DestTime = (long long)(FrameNum*1000.0/m_pDecoder->getNominalFPS());
+            seek(DestTime);
+        }
     } else {
         AVG_TRACE(Logger::WARNING, 
                 "Error in Video::SeekToTime: Video "+getID()+" not loaded.");

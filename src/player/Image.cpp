@@ -222,7 +222,9 @@ void Image::load()
             m_pBmp = BitmapPtr(new Bitmap(m_Filename));
             m_bIsImageAvailable = true;
         } catch (Magick::Exception & ex) {
-            AVG_TRACE(Logger::ERROR, ex.what());
+            if (getState() == Node::NS_CONNECTED) {
+                AVG_TRACE(Logger::ERROR, ex.what());
+            }
         }
     }
     if (m_Saturation != -1) {
