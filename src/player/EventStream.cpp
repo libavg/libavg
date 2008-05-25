@@ -59,7 +59,7 @@ namespace avg {
         DPoint c = new_blob->getCenter();
         bool pos_changed;
         if (bEventOnMove) {
-            pos_changed = (calcDist(c, m_Pos) > 1.5);
+            pos_changed = (calcDist(c, m_Pos) > 1);
         } else {
             pos_changed = true;
         }
