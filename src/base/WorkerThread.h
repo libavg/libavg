@@ -107,16 +107,18 @@ bool WorkerThread<DERIVED_THREAD>::init()
 template<class DERIVED_THREAD>
 void WorkerThread<DERIVED_THREAD>::processCommands()
 {
-    try {
-        // This loop always ends in an exception when the Queue is empty.
-        while (true) {
-            Command<DERIVED_THREAD> Cmd = m_CmdQ.pop(false);
-            Cmd.execute(dynamic_cast<DERIVED_THREAD*>(this));
-        }
-    } catch (const Exception& e) {
-        if (e.GetCode() != AVG_ERR_QUEUE_EMPTY) {
+    if (!m_CmdQ.empty()) {
+        try {
+            // This loop always ends in an exception when the Queue is empty.
+            while (true) {
+                Command<DERIVED_THREAD> Cmd = m_CmdQ.pop(false);
+                Cmd.execute(dynamic_cast<DERIVED_THREAD*>(this));
+            }
+        } catch (const Exception& e) {
+            if (e.GetCode() != AVG_ERR_QUEUE_EMPTY) {
                 AVG_TRACE(Logger::ERROR, "Uncaught exception in thread " 
                         << m_sName << ": " << e.GetStr());
+            }
         }
     }
    
