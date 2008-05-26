@@ -52,21 +52,7 @@ OGLSurface::~OGLSurface()
 {
     if (m_bCreated) {
         unbind();
-        switch(m_MemoryMode) {
-            case PBO:
-                if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-                    for (int i=0; i<3; i++) {
-                        glproc::DeleteBuffers(1, &m_hPixelBuffers[i]);
-                    }
-                } else {
-                    glproc::DeleteBuffers(1, &m_hPixelBuffers[0]);
-                }
-                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                        "OGLSurface::~OGLSurface: glDeleteBuffers()");
-                break;
-            default:
-                break;
-        }
+        deleteBuffers();
     }
     m_pEngine->deregisterSurface(this);
     ObjectCounter::get()->decRef(&typeid(*this));
@@ -75,10 +61,13 @@ OGLSurface::~OGLSurface()
 void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload)
 {
 //    cerr << "create: " << Size << ", " << Bitmap::getPixelFormatString(pf) << endl;
-    
     if (m_bBound && m_Size == Size && m_pf == pf) {
         // If nothing's changed, we can ignore everything.
         return;
+    }
+    if (m_bCreated) {
+        unbind();
+        deleteBuffers();
     }
     m_Size = Size;
     m_pf = pf;
@@ -95,7 +84,6 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
         createBitmap(Size, m_pf, 0);
     }
         
-    unbind();
     calcTileSizes();
     initTileVertices(m_TileVertices);
     m_bCreated = true;
@@ -497,6 +485,26 @@ void OGLSurface::createBitmap(const IntPoint& Size, PixelFormat pf, int i)
         // In that case, this is needed as a fallback.
         m_pBmps[i] = BitmapPtr(new Bitmap(Size, pf));
     }
+}
+
+void OGLSurface::deleteBuffers()
+{
+    switch(m_MemoryMode) {
+        case PBO:
+            if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+                for (int i=0; i<3; i++) {
+                    glproc::DeleteBuffers(1, &m_hPixelBuffers[i]);
+                }
+            } else {
+                glproc::DeleteBuffers(1, &m_hPixelBuffers[0]);
+            }
+            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                    "OGLSurface::~OGLSurface: glDeleteBuffers()");
+            break;
+        default:
+            break;
+    }
+    m_bCreated = false;
 }
 
 void OGLSurface::unlockBmp(int i) 

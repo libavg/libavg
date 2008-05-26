@@ -77,6 +77,7 @@ class OGLSurface: public ISurface {
         void initTileVertex (int x, int y, DPoint& Vertex);
 
         void createBitmap(const IntPoint& Size, PixelFormat pf, int index);
+        void deleteBuffers();
         void unlockBmp(int i);
         void bindOneTexture(OGLTexture& Texture);
         void bltTexture(const DPoint& DestSize, DisplayEngine::BlendMode Mode);
