@@ -67,7 +67,7 @@ void Image::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pA
 {
     checkReload();
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
-    setupSurface(&*m_pBmp);
+    setupSurface();
 }
 
 void Image::disconnect()
@@ -92,6 +92,7 @@ void Image::disconnect()
         }
 #endif
     }
+
     RasterNode::disconnect();
 }
 
@@ -105,7 +106,7 @@ void Image::setHRef(const string& href)
     m_href = href;
     load();
     if (isDisplayAvailable()) {
-        setupSurface(&*m_pBmp);
+        setupSurface();
     }
     DPoint Size = getPreferredMediaSize();
     setViewport(-32767, -32767, Size.x, Size.y);
@@ -192,7 +193,7 @@ void Image::checkReload()
     if (sLastFilename != m_Filename || !m_pBmp) {
         load();
         if (isDisplayAvailable()) {
-            setupSurface(&*m_pBmp);
+            setupSurface();
         }
         DPoint Size = getPreferredMediaSize();
         setViewport(-32767, -32767, Size.x, Size.y);
@@ -233,22 +234,22 @@ void Image::load()
     }
 }
 
-void Image::setupSurface(const Bitmap * pBmp)
+void Image::setupSurface()
 {
     PixelFormat pf;
     pf = R8G8B8X8;
-    if (pBmp->hasAlpha()) {
+    if (m_pBmp->hasAlpha()) {
         pf = R8G8B8A8;
     }
     bool bUsePBO = true;
 #if defined __APPLE__ || defined _WIN32
-    if (!getSurface()->isOneTexture(pBmp->getSize())) {
+    if (!getSurface()->isOneTexture(m_pBmp->getSize())) {
         bUsePBO = false;
     }
 #endif
-    getSurface()->create(pBmp->getSize(), pf, bUsePBO);
+    getSurface()->create(m_pBmp->getSize(), pf, bUsePBO);
     BitmapPtr pSurfaceBmp = getSurface()->lockBmp();
-    pSurfaceBmp->copyPixels(*pBmp);
+    pSurfaceBmp->copyPixels(*m_pBmp);
 #ifdef __i386__
     if (!(getPlayer()->getDisplayEngine()->hasRGBOrdering())) {
         FilterFlipRGB().applyInPlace(pSurfaceBmp);

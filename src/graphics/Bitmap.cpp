@@ -48,6 +48,7 @@ void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src);
 Bitmap::Bitmap(IntPoint Size, PixelFormat PF, const std::string& sName)
     : m_Size(Size),
       m_PF(PF),
+      m_pBits(0),
       m_bOwnsBits(true),
       m_sName(sName)
 {
@@ -61,6 +62,7 @@ Bitmap::Bitmap(IntPoint Size, PixelFormat PF, unsigned char * pBits,
         int Stride, bool bCopyBits, const std::string& sName)
     : m_Size(Size),
       m_PF(PF),
+      m_pBits(0),
       m_sName(sName)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -73,6 +75,7 @@ Bitmap::Bitmap(IntPoint Size, PixelFormat PF, unsigned char * pBits,
 Bitmap::Bitmap(const Bitmap& Orig)
     : m_Size(Orig.getSize()),
       m_PF(Orig.getPixelFormat()),
+      m_pBits(0),
       m_bOwnsBits(Orig.m_bOwnsBits),
       m_sName(Orig.getName()+" copy")
 {
@@ -85,6 +88,7 @@ Bitmap::Bitmap(const Bitmap& Orig)
 Bitmap::Bitmap(const Bitmap& Orig, bool bOwnsBits)
     : m_Size(Orig.getSize()),
       m_PF(Orig.getPixelFormat()),
+      m_pBits(0),
       m_bOwnsBits(bOwnsBits),
       m_sName(Orig.getName()+" copy")
 {
@@ -99,6 +103,7 @@ Bitmap::Bitmap(const Bitmap& Orig, bool bOwnsBits)
 Bitmap::Bitmap(Bitmap& Orig, const IntRect& Rect)
     : m_Size(Rect.size()),
       m_PF(Orig.getPixelFormat()),
+      m_pBits(0),
       m_bOwnsBits(false)
 {
 //    cerr << "Bitmap::Bitmap(Bitmap, " << Rect << "), Name: " << m_sName << endl;
@@ -116,7 +121,8 @@ Bitmap::Bitmap(Bitmap& Orig, const IntRect& Rect)
 }
 
 Bitmap::Bitmap(const std::string& sURI)
-    : m_sName(sURI)
+    : m_pBits(0),
+      m_sName(sURI)
 {
 // TODO: This function loads grayscale images as RGB. That is because Magick++
 // provides no reliable way to determine whether a bitmap is grayscale or not. Maybe
@@ -171,6 +177,7 @@ Bitmap::~Bitmap()
     ObjectCounter::get()->decRef(&typeid(*this));
     if (m_bOwnsBits) {
         delete[] m_pBits;
+        m_pBits = 0;
     }
 }
 
@@ -180,6 +187,7 @@ Bitmap &Bitmap::operator= (const Bitmap &Orig)
     if (this != &Orig) {
         if (m_bOwnsBits) {
             delete[] m_pBits;
+            m_pBits = 0;
         }
         m_Size = Orig.getSize();
         m_PF = Orig.getPixelFormat();
@@ -801,6 +809,7 @@ void Bitmap::initWithData(unsigned char * pBits, int Stride, bool bCopyBits)
 
 void Bitmap::allocBits()
 {
+    assert(!m_pBits);
 //    cerr << "Bitmap::allocBits():" << m_Size <<  endl;
     m_Stride = getLineLen();
     if (m_PF == YCbCr422 || m_PF == YCbCr420p) {

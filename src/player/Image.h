@@ -63,7 +63,7 @@ class Image : public RasterNode
 
     private:
         void load();
-        void setupSurface(const Bitmap * pBmp);
+        void setupSurface();
         std::string m_Filename;
         std::string m_href;
         BitmapPtr m_pBmp;
