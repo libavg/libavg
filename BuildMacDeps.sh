@@ -79,6 +79,7 @@ buildfontconfig()
     make clean
     make -j3
     sudo make install
+    sudo chown -R `whoami` ~/.fontconfig
     cd ..    
 }
 
