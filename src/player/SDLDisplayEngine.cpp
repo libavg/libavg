@@ -1021,8 +1021,8 @@ EventPtr SDLDisplayEngine::createMouseMotionEvent
     int y = int((SDLEvent.motion.y*m_Height)/m_WindowHeight);
     MouseEventPtr pEvent(new MouseEvent (Type, 
             (SDLEvent.motion.state & SDL_BUTTON(1)) == SDL_BUTTON(1),
-            (SDLEvent.motion.state & SDL_BUTTON(3)) == SDL_BUTTON(3),
             (SDLEvent.motion.state & SDL_BUTTON(2)) == SDL_BUTTON(2),
+            (SDLEvent.motion.state & SDL_BUTTON(3)) == SDL_BUTTON(3),
             IntPoint(x, y),
             MouseEvent::NO_BUTTON));
     return pEvent;
@@ -1050,13 +1050,13 @@ EventPtr SDLDisplayEngine::createMouseButtonEvent
             break;
     }
     int x,y;
-    SDL_GetMouseState(&x, &y);
+    Uint8 buttonState = SDL_GetMouseState(&x, &y);
     x = int((x*m_Width)/m_WindowWidth);
     y = int((y*m_Height)/m_WindowHeight);
     MouseEventPtr pEvent(new MouseEvent(Type, 
-            SDLEvent.button.button == SDL_BUTTON_LEFT,
-            SDLEvent.button.button == SDL_BUTTON_MIDDLE, 
-            SDLEvent.button.button == SDL_BUTTON_RIGHT,
+            (buttonState & SDL_BUTTON(1)),
+            (buttonState & SDL_BUTTON(2)),
+            (buttonState & SDL_BUTTON(3)),
             IntPoint(x, y), Button));
     return pEvent; 
 }
