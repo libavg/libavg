@@ -20,9 +20,9 @@ else:
 SrcDir = os.getenv("srcdir",".")
 os.chdir(SrcDir)
 if platform.system() == 'Windows':
-    from libavg import anim, draggable, button
+    from libavg import anim, draggable, button, textarea
 else:
-    import anim, draggable, button
+    import anim, draggable, button, textarea
 
 from testcase import *
 
@@ -210,6 +210,73 @@ class PythonTestCase(AVGTestCase):
                 up,
                 lambda: self.compareImage("testCheckboxOver", False)
                ))
+
+    def testTextarea(self):
+        def createTextareaSet():
+            self.ta1 = textarea.Textarea(Player.getElementByID('placeholder'))
+            self.ta1.setStyle(font='Arial', size=44, multiline=True)
+            self.ta1.setText("Lorem ipsum")
+
+            self.ta2 = textarea.Textarea(Player.getElementByID('placeholder_2'))
+            self.ta2.setStyle(font='Verdana', size=12, multiline=False)
+
+            self.ta3 = textarea.Textarea(Player.getElementByID('placeholder_3'), '1x1_white.png', True)
+            self.ta3.setStyle(font='Eurostile', size=18, multiline=True)
+        def setAndCheck(ta, text):
+            ta.setText(text)
+            self.assert_(ta.getText() == text)
+        def checkSingleLine():
+            text = ''
+            textarea.cycleFocus()
+            textarea.cycleFocus()
+            self.ta2.setText('')
+            while True:
+                self.assert_(len(text) < 60)
+                textarea.keyCharPressed('X')
+                text = text + 'X'
+                if text != self.ta2.getText():
+                    break
+        def clearPage():
+            textarea.keyCodePressed(12)
+            self.assert_(self.ta2.getText() == '')
+        def longText():
+            text = '''
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec massa nunc, pretium sed,
+sagittis mollis, dignissim vitae, erat. Vestibulum mattis, erat nec pulvinar lacinia,
+velit turpis molestie nulla, non dictum nisl nibh ac magna.
+Vestibulum ac dui non sapien luctus imperdiet.
+Morbi eros enim, laoreet non, tincidunt eu, varius eget, magna. Nulla facilisi.
+Aenean id nulla.
+Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae;
+Nam sodales. Cum sociis natoque penatibus et magnis dis parturient montes,
+nascetur ridiculus mus. Curabitur auctor sollicitudin tortor. 
+            '''
+            self.ta3.setText(text)
+            self.assert_(self.ta3.getText() == text)
+        def clickFocus():
+            self.__sendEvent(avg.CURSORDOWN, 20, 20)
+            self.__sendEvent(avg.CURSORUP, 20, 20)
+        def testClickFocus():
+            textarea.keyCodePressed(12)
+            textarea.keyCharPressed('X')
+            print "TA1:",self.ta1.getText()
+            print "TA2:",self.ta2.getText()
+            print "TA3:",self.ta3.getText()
+            self.assert_(self.ta1.getText() == 'X')
+        
+        textarea.init(avg, False)
+        self.start("TextareaTest.avg",
+               (createTextareaSet,
+               lambda: self.assert_(self.ta1.getText() != 'Lorem Ipsum'),
+               lambda: setAndCheck(self.ta1, ''),
+               lambda: setAndCheck(self.ta2, 'Lorem Ipsum'),
+               checkSingleLine,
+               clearPage,
+               longText,
+               clickFocus,
+               testClickFocus
+               ))
+
     def __sendEvent(self, type, x, y):
         Helper = Player.getTestHelper()
         Helper.fakeMouseEvent(type, True, False, False, x, y, 1)
@@ -224,6 +291,7 @@ def pythonTestSuite():
     suite.addTest(PythonTestCase("testDraggable"))
     suite.addTest(PythonTestCase("testButton"))
     suite.addTest(PythonTestCase("testCheckbox"))
+    suite.addTest(PythonTestCase("testTextarea"))
     return suite
 
 Log = avg.Logger.get()
