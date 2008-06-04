@@ -109,8 +109,8 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
         void setClipPlane(double Eqn[4], int WhichPlane);
         void safeSetAttribute( SDL_GLattr attr, int value);
 
-        EventPtr createMouseMotionEvent 
-                (Event::Type Type, const SDL_Event & SDLEvent);
+        EventPtr createMouseEvent
+                (Event::Type Type, const SDL_Event & SDLEvent, long Button);
         EventPtr createMouseButtonEvent
                 (Event::Type Type, const SDL_Event & SDLEvent);
         EventPtr createKeyEvent

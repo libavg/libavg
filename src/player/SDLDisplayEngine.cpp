@@ -972,7 +972,7 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
             case SDL_MOUSEMOTION:
                 if (m_bMouseOverApp) {
                     Events.push_back
-                            (createMouseMotionEvent(Event::CURSORMOTION, sdlEvent));
+                            (createMouseEvent(Event::CURSORMOTION, sdlEvent, MouseEvent::NO_BUTTON));
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:
@@ -1014,18 +1014,20 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
     return Events;
 }
 
-EventPtr SDLDisplayEngine::createMouseMotionEvent
-        (Event::Type Type, const SDL_Event & SDLEvent)
+EventPtr SDLDisplayEngine::createMouseEvent
+        (Event::Type Type, const SDL_Event & SDLEvent, long Button)
 {
-    int x = int((SDLEvent.motion.x*m_Width)/m_WindowWidth);
-    int y = int((SDLEvent.motion.y*m_Height)/m_WindowHeight);
-    MouseEventPtr pEvent(new MouseEvent (Type, 
-            (SDLEvent.motion.state & SDL_BUTTON(1)) == SDL_BUTTON(1),
-            (SDLEvent.motion.state & SDL_BUTTON(2)) == SDL_BUTTON(2),
-            (SDLEvent.motion.state & SDL_BUTTON(3)) == SDL_BUTTON(3),
-            IntPoint(x, y),
-            MouseEvent::NO_BUTTON));
-    return pEvent;
+    int x,y;
+    Uint8 buttonState = SDL_GetMouseState(&x, &y);
+    x = int((x*m_Width)/m_WindowWidth);
+    y = int((y*m_Height)/m_WindowHeight);
+    MouseEventPtr pEvent(new MouseEvent(Type, 
+            (buttonState & SDL_BUTTON(1)),
+            (buttonState & SDL_BUTTON(2)),
+            (buttonState & SDL_BUTTON(3)),
+            IntPoint(x, y), Button));
+    return pEvent; 
+
 }
 
 EventPtr SDLDisplayEngine::createMouseButtonEvent
@@ -1049,16 +1051,8 @@ EventPtr SDLDisplayEngine::createMouseButtonEvent
             Button = MouseEvent::WHEELDOWN_BUTTON;
             break;
     }
-    int x,y;
-    Uint8 buttonState = SDL_GetMouseState(&x, &y);
-    x = int((x*m_Width)/m_WindowWidth);
-    y = int((y*m_Height)/m_WindowHeight);
-    MouseEventPtr pEvent(new MouseEvent(Type, 
-            (buttonState & SDL_BUTTON(1)),
-            (buttonState & SDL_BUTTON(2)),
-            (buttonState & SDL_BUTTON(3)),
-            IntPoint(x, y), Button));
-    return pEvent; 
+    return createMouseEvent(Type, SDLEvent, Button);
+ 
 }
 
 /*
