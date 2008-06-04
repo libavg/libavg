@@ -143,13 +143,14 @@ Words::~Words ()
     }
 }
 
-void Words::initText(const string& sText)
+void Words::initText(const std::string& sText)
 {
     string sTemp = removeExcessSpaces(sText);
     if (sText.length() != 0) {
         m_Text = sTemp;
     }
 }
+
 
 static void
 text_subst_func (FcPattern *pattern, gpointer data)
@@ -304,6 +305,12 @@ void Words::setText(const std::string& sText)
     if (m_Text != sText) {
         m_Text = sText;
         m_bDrawNeeded = true;
+        
+        PangoAttrList * pAttrList = 0;
+        char * pText = 0;
+        parseString(&pAttrList, &pText);
+        pango_attr_list_unref (pAttrList);
+        g_free (pText);
     }
 }
 
@@ -479,6 +486,20 @@ bool equalIgnoreCase(const string& s1, const string& s2) {
     return sUpper1 == sUpper2;
 }
 
+void Words::parseString(PangoAttrList** ppAttrList, char** ppText)
+{
+    bool bOk;
+    GError * pError = 0;
+    bOk = (pango_parse_markup(m_Text.c_str(), int(m_Text.length()), 0,
+	    ppAttrList, ppText, 0, &pError) != 0);
+    if (!bOk) {
+	throw Exception(AVG_ERR_CANT_PARSE_STRING,
+		string("Can't parse string in node with id '")+
+		    getID()+"' ("+pError->message+")");
+    }
+
+}
+
 static ProfilingZone DrawStringProfilingZone("  Words::drawString");
 
 void Words::drawString()
@@ -532,17 +553,9 @@ void Words::drawString()
         PangoLayout *pLayout = pango_layout_new (m_pContext);
        
         {
-            bool bOk;
             PangoAttrList * pAttrList = 0;
             char * pText = 0;
-            GError * pError = 0;
-            bOk = (pango_parse_markup(m_Text.c_str(), int(m_Text.length()), 0,
-                    &pAttrList, &pText, 0, &pError) != 0);
-            if (!bOk) {
-                throw Exception(AVG_ERR_CANT_PARSE_STRING,
-                        string("Can't parse string in node with id '")+
-                            getID()+"' ("+pError->message+")");
-            }
+            parseString(&pAttrList, &pText);
             pango_layout_set_text (pLayout, pText, -1);
             pango_layout_set_attributes (pLayout, pAttrList);
             pango_attr_list_unref (pAttrList);

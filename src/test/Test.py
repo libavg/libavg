@@ -702,6 +702,12 @@ class PlayerTestCase(AVGTestCase):
         def changeFont2():
             node = Player.getElementByID("dynamictext")
             node.size = 18
+        def changeTextWithInvalidTag():
+            node = Player.getElementByID("dynamictext")
+            try:
+	        node.text = "This <invalid_tag/>bombs"
+            except:
+                node.text = "except"
         self.start("dynamictext.avg",
                 (lambda: self.compareImage("testDynamicWords1", True),
                  changeText,
@@ -712,7 +718,8 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testDynamicWords3", True),
                  activateText,
                  changeFont2,
-                 lambda: self.compareImage("testDynamicWords4", True)
+                 lambda: self.compareImage("testDynamicWords4", True),
+                 changeTextWithInvalidTag
                 ))
 
     def testI18NWords(self):

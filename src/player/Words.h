@@ -98,6 +98,7 @@ class Words : public RasterNode
     
     private:
         void drawString();
+        void parseString(PangoAttrList** ppAttrList, char** ppText);
         Pixel32 colorStringToColor(const std::string & colorString);
         std::string removeExcessSpaces(const std::string & sText);
         static void checkFontError(int Ok, const std::string& sMsg);
