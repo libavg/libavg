@@ -259,9 +259,6 @@ nascetur ridiculus mus. Curabitur auctor sollicitudin tortor.
         def testClickFocus():
             textarea.keyCodePressed(12)
             textarea.keyCharPressed('X')
-            print "TA1:",self.ta1.getText()
-            print "TA2:",self.ta2.getText()
-            print "TA3:",self.ta3.getText()
             self.assert_(self.ta1.getText() == 'X')
         
         textarea.init(avg, False)

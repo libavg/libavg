@@ -111,7 +111,6 @@ class Textarea:
         self.__hasFocus = hasFocus
 
     def __onClick(self, e):
-        print "GOT FOCUS"
         self.setFocus(True)
     
     def onKeyDown(self, keycode):
