@@ -213,33 +213,38 @@ class PythonTestCase(AVGTestCase):
 
     def testTextarea(self):
         def createTextareaSet():
-            self.ta1 = textarea.Textarea(Player.getElementByID('placeholder'))
+            self.ctx1 = textarea.FocusContext()
+            self.ctx2 = textarea.FocusContext()
+            
+            self.ta1 = textarea.Textarea(Player.getElementByID('placeholder'), self.ctx1)
             self.ta1.setStyle(font='Arial', size=44, multiline=True)
             self.ta1.setText("Lorem ipsum")
 
-            self.ta2 = textarea.Textarea(Player.getElementByID('placeholder_2'))
+            self.ta2 = textarea.Textarea(Player.getElementByID('placeholder_2'), self.ctx1)
             self.ta2.setStyle(font='Verdana', size=12, multiline=False)
 
-            self.ta3 = textarea.Textarea(Player.getElementByID('placeholder_3'), '1x1_white.png', True)
+            self.ta3 = textarea.Textarea(Player.getElementByID('placeholder_3'), self.ctx2, '1x1_white.png', True)
             self.ta3.setStyle(font='Eurostile', size=18, multiline=True)
+            
+            textarea.setActiveFocusContext(self.ctx1)
         def setAndCheck(ta, text):
             ta.setText(text)
             self.assert_(ta.getText() == text)
         def checkSingleLine():
             text = ''
-            textarea.cycleFocus()
-            textarea.cycleFocus()
             self.ta2.setText('')
             while True:
+                print text, self.ta2.getText()
                 self.assert_(len(text) < 60)
-                textarea.keyCharPressed('X')
+                self.ctx1.keyCharPressed('X')
                 text = text + 'X'
                 if text != self.ta2.getText():
                     break
         def clearPage():
-            textarea.keyCodePressed(12)
+            self.ctx1.keyCodePressed(12)
             self.assert_(self.ta2.getText() == '')
         def longText():
+            textarea.setActiveFocusContext(self.ctx2)
             text = '''
 Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec massa nunc, pretium sed,
 sagittis mollis, dignissim vitae, erat. Vestibulum mattis, erat nec pulvinar lacinia,
@@ -254,11 +259,13 @@ nascetur ridiculus mus. Curabitur auctor sollicitudin tortor.
             self.ta3.setText(text)
             self.assert_(self.ta3.getText() == text)
         def clickFocus():
+            textarea.setActiveFocusContext(self.ctx1)
+            self.ctx1.cycleFocus()
             self.__sendEvent(avg.CURSORDOWN, 20, 20)
             self.__sendEvent(avg.CURSORUP, 20, 20)
         def testClickFocus():
-            textarea.keyCodePressed(12)
-            textarea.keyCharPressed('X')
+            self.ctx1.keyCodePressed(12)
+            self.ctx1.keyCharPressed('X')
             self.assert_(self.ta1.getText() == 'X')
         
         textarea.init(avg, False)
