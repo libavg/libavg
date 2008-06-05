@@ -28,8 +28,6 @@
 
 #include "../base/TestSuite.h"
 
-#include <SDL/SDL.h>
-
 #include <iostream>
 
 using namespace avg;

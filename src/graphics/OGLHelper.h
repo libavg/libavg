@@ -49,6 +49,9 @@ typedef int (*PFNWGLEXTGETSWAPINTERVALPROC) (void);
 namespace avg {
 
 void OGLErrorCheck(int avgcode, const std::string & where);
+#ifdef _WIN32
+void winOGLErrorCheck(bool bOK, const std::string & where);
+#endif
 bool queryOGLExtension(char *extName);
 bool queryGLXExtension(char *extName);
 void getGLVersion(int & major, int& minor);

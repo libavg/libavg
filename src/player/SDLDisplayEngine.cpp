@@ -1022,9 +1022,9 @@ EventPtr SDLDisplayEngine::createMouseEvent
     x = int((x*m_Width)/m_WindowWidth);
     y = int((y*m_Height)/m_WindowHeight);
     MouseEventPtr pEvent(new MouseEvent(Type, 
-            (buttonState & SDL_BUTTON(1)),
-            (buttonState & SDL_BUTTON(2)),
-            (buttonState & SDL_BUTTON(3)),
+            bool(buttonState & SDL_BUTTON(1)),
+            bool(buttonState & SDL_BUTTON(2)),
+            bool(buttonState & SDL_BUTTON(3)),
             IntPoint(x, y), Button));
     return pEvent; 
 

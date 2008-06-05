@@ -32,7 +32,6 @@ using namespace std;
 
 OGLImagingContext::OGLImagingContext(const IntPoint & size)
 {
-    glproc::init();
 #ifdef __APPLE__
     GLint attributes[] = {AGL_RGBA, AGL_ALL_RENDERERS,AGL_NONE};
     AGLPixelFormat format;
@@ -58,8 +57,29 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
             8, 8, vi->depth);
     GLXPixmap pixmap = glXCreateGLXPixmap(dpy, vi, pmp);
     glXMakeCurrent(dpy, pixmap, m_Context);
+#else
+#ifdef _WIN32
+	PIXELFORMATDESCRIPTOR pfd;
+	HDC hDC = GetDC( 0 );
+	ZeroMemory(&pfd, sizeof(pfd));
+	pfd.nSize = sizeof(pfd);
+	pfd.nVersion = 1;
+	pfd.dwFlags = PFD_SUPPORT_OPENGL;
+	pfd.iPixelType = PFD_TYPE_RGBA;
+	pfd.cColorBits = 24;
+	pfd.cDepthBits = 16;
+	pfd.iLayerType = PFD_MAIN_PLANE;
+	
+	int iFormat = ChoosePixelFormat(hDC, &pfd);
+	SetPixelFormat( hDC, iFormat, &pfd );
+	m_Context = wglCreateContext(hDC);
+	winOGLErrorCheck(m_Context != 0, "wglCreateContext");
+	bool bOK = bool(wglMakeCurrent(hDC, m_Context));
+	winOGLErrorCheck(bOK, "wglMakeCurrent");
 #endif
 #endif
+#endif
+    glproc::init();
 
     if (!isSupported()) {
         throw Exception(AVG_ERR_VIDEO_GENERAL, "GPU imaging not supported by OpenGL.");
@@ -110,7 +130,12 @@ void OGLImagingContext::activate()
 #ifdef __APPLE__
     bool bOk = aglSetCurrentContext(m_Context);
     assert(bOk);
+#else
 #endif
+#ifdef _WIN32
+	wglDeleteContext( m_Context );
+#endif
+
 }
 
 void OGLImagingContext::setSize(const IntPoint& size)

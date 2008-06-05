@@ -80,7 +80,8 @@ namespace glproc {
     void * s_hGLLib = 0;
 }
 
-void OGLErrorCheck(int avgcode, const string & where) {
+void OGLErrorCheck(int avgcode, const string & where) 
+{
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
         stringstream s;
@@ -93,6 +94,20 @@ void OGLErrorCheck(int avgcode, const string & where) {
         throw Exception(avgcode, s.str());
     }
 }
+
+#ifdef _WIN32
+void winOGLErrorCheck(bool bOK, const string & where) 
+{
+    if (!bOK) {
+        char szErr[512];
+        FormatMessage((FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM),
+                0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                szErr, 512, 0);
+        throw Exception(AVG_ERR_VIDEO_GENERAL, where+":"+
+                + szErr);
+    }
+}
+#endif
 
 bool queryOGLExtension(char *extName)
 {
@@ -203,13 +218,13 @@ GLfunction getProcAddress(const string& sName)
 {
     assert(glproc::s_hGLLib);
 #ifdef _WIN32
-    char szErr[512];
-    GLfunction pProc = (GLfunction)GetProcAddress((HMODULE)glproc::s_hGLLib, sName.c_str());
+	GLfunction pProc = (GLfunction)wglGetProcAddress(sName.c_str());
     if (!pProc) {
+	    char szErr[512];
         FormatMessage((FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM),
                 0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                 szErr, 512, 0);
-        cerr << szErr << endl;
+        throw Exception(AVG_ERR_VIDEO_GENERAL, string("wglGetProcAddress failed: ") + szErr);
     }
     
 #else

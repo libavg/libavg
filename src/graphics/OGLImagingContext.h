@@ -28,6 +28,11 @@
 #else
 #ifdef linux
 #include <GL/glx.h>
+#else
+#ifdef _WIN32
+#include <gl/gl.h>
+#include <gl/glu.h>
+#endif
 #endif
 #endif
 
@@ -50,9 +55,11 @@ private:
 #else
 #ifdef linux
     GLXContext m_Context;
+#else
+#ifdef _WIN32
+	HGLRC m_Context;
+#endif
 #endif
 #endif
 };
-
 }
-
