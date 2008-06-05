@@ -92,6 +92,9 @@ class Words : public RasterNode
         void setStretch(const std::string& sStretch);
 
         static const std::vector<std::string>& getFonts();
+        
+        double getLastCharX() const;
+        double getLastCharY() const;
 
     protected:        
         virtual DPoint getPreferredMediaSize();
@@ -129,6 +132,8 @@ class Words : public RasterNode
 
         static std::set<std::string> s_sFontsNotFound;
         static bool s_bInitialized;
+        
+        DPoint m_LastCharPos;
 };
 
 }

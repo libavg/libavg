@@ -225,6 +225,10 @@ void export_raster()
                 "'extraexpanded' and 'ultraexpanded'. Not implemented in most\n"
                 "fonts.\n")
         .add_property("smallcaps", &Words::getSmallCaps, &Words::setSmallCaps)
+        .add_property("lastcharx", &Words::getLastCharX,
+                "Gets the X coordinate of the last character in the text node")
+        .add_property("lastchary", &Words::getLastCharY,
+                "Gets the Y coordinate of the last character in the text node")
         .def("getFonts", make_function(&Words::getFonts, 
                 return_value_policy<copy_const_reference>()))
         .staticmethod("getFonts")

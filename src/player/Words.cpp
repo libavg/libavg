@@ -126,7 +126,8 @@ Words::Words (const ArgList& Args, Player * pPlayer)
       m_pContext(0), 
       m_pFontDescription(0),
       m_bFontChanged(true),
-      m_bDrawNeeded(true)
+      m_bDrawNeeded(true),
+      m_LastCharPos(0,0)
 {
     Args.setMembers(this);
     setAlignment(Args.getArgVal<string>("alignment"));
@@ -281,6 +282,16 @@ double Words::getHeight()
 {
     drawString();
     return Node::getHeight();
+}
+
+double Words::getLastCharX() const
+{
+    return m_LastCharPos.x;
+}
+
+double Words::getLastCharY() const
+{
+    return m_LastCharPos.y;
 }
 
 const std::string& Words::getFont() const
@@ -583,6 +594,13 @@ void Words::drawString()
 //                << ink_rect.width << ", " << ink_rect.height << endl;
 //        cerr << "Logical: " << logical_rect.x << ", " << logical_rect.y << ", " 
 //                << logical_rect.width << ", " << logical_rect.height << endl;
+
+        PangoRectangle lastPos;
+        pango_layout_index_to_pos(pLayout, (int)m_Text.length(), &lastPos);
+//        cerr << "ITOPOS: " << lastPos.x / PANGO_SCALE << ", " << lastPos.y / PANGO_SCALE << endl;
+        m_LastCharPos.x = lastPos.x / PANGO_SCALE;
+        m_LastCharPos.y = lastPos.y / PANGO_SCALE;
+        
         m_StringExtents.y = logical_rect.height;
         m_StringExtents.x = m_ParaWidth;
         if (m_ParaWidth == -1) {
