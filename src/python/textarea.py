@@ -4,14 +4,103 @@
 
 avg = None
 g_Player = None
-g_TAStorage = []
-g_TAShiftPressed = False
+g_ShiftPressed = False
+g_FocusContext = None
+g_LastKeyEvent = None
+g_LastKeyRepeated = 0
+g_RepeatDelay = 0.2
+g_CharDelay = 0.1
+
+import time
 
 try:
     from . import avg
 except ValueError:
     pass
 
+class FocusContext:
+    """
+    This object serves as a grouping element for Textareas.
+    Textarea elements that belong to the same FocusContext cycle
+    focus among themselves. There can be several FocusContextes but
+    only one at once can be activated ( using the global function
+    setActiveFocusContext() )
+    """
+    def __init__(self):
+        self.TAElements = []
+        self.__isActive = False
+
+    def switchActive(self, active):
+        if active:
+            self.cycleFocus()
+        else:
+            self.resetFocuses()
+        
+        self.__isActive = active
+        
+    def isActive(self):
+        return self.__isActive
+        
+    def register(self, el):
+        self.TAElements.append(el)
+
+    def getFocused(self):
+        """
+        Returns a Textarea element that currently has focus within
+        this FocusContext
+        """
+        for ob in self.TAElements:
+            if ob.getFocus():
+                return ob
+        return None
+
+    def keyCharPressed(self, kchar):
+        """
+        Use this method to inject a character to active
+        (w/ focus) Textarea, convenience method for keyCodePressed()
+        @param kchar: string, a single character
+        """
+        self.keyCodePressed(ord(kchar[0]))
+
+    def keyCodePressed(self, keycode):
+        """
+        Shift a character (ASCII-coded) into the active (w/focus)
+        Textarea
+        @param keycode: int, ASCII representation of the character
+        """
+        # TAB key cycles focus through textareas
+        if keycode == 9:
+            self.cycleFocus()
+
+        for ob in self.TAElements:
+            if ob.getFocus():
+                ob.onKeyDown(keycode)
+
+    def resetFocuses(self):
+        for ob in self.TAElements:
+            ob.clearFocus()
+        
+    def cycleFocus(self):
+        """
+        Force a focus cycle among instantiated textareas
+        """
+        elected = 0
+        for ob in self.TAElements:
+            if not ob.getFocus():
+                elected = elected + 1
+            else:
+                break
+
+        if elected in (len(self.TAElements), len(self.TAElements)-1):
+            elected = 0
+        else:
+            elected = elected + 1
+
+        for ob in self.TAElements:
+            ob.setFocus(False)
+
+        self.TAElements[elected].setFocus(True)
+        
 class Textarea:
     """
     Textarea is an extended <words> node that reacts to user input
@@ -20,18 +109,20 @@ class Textarea:
     """
     CURSOR_CHAR='|'
     BLUR_OPACITY=0.3
-    def __init__(self, parent, bgImageFile=None, disableMouseFocus=False):
+    def __init__(self, parent, focusContext=None, bgImageFile=None, disableMouseFocus=False):
         """
         @param parent: a div node with defined dimensions
+        @param focusContext: FocusContext object which groups focus for Textarea elements
         @param bgImageFile: path and file name (relative to mediadir) of an image
         that is used as a background for Textarea. The image is stretched to extents
         of the instance
         @param disableMouseFocus: boolean, prevents that mouse can set focus for
         this instance
         """
-        global g_Player, g_TAStorage
+        global g_Player
         g_Player = avg.Player.get()
         self.__parent = parent
+        self.__focusContext = focusContext
         
         if bgImageFile is not None:
             bgNode = g_Player.createNode("<image/>")
@@ -49,11 +140,18 @@ class Textarea:
             
         parent.appendChild(textNode)
         
-        g_TAStorage.append(self)
+        if focusContext is not None:
+            focusContext.register(self)
         
         self.__textNode = textNode
         self.setStyle()
         self.setFocus(False)
+    
+    def clearText(self):
+        """
+        Clears the text
+        """
+        self.setText('')
         
     def setText(self, text):
         """
@@ -86,15 +184,27 @@ class Textarea:
         else:
             self.__textNode.parawidth = -1
 
+    def clearFocus(self):
+        """
+        Compact form to blur the Textarea
+        """
+        self.__parent.opacity = self.BLUR_OPACITY
+        self.__hasFocus = False
+        
     def setFocus(self, hasFocus):
         """
         Force the focus (or blur) of this Textarea
         @param hasFocus: boolean
         """
-        for ob in g_TAStorage:
-            ob.__setFocus(False)
-
-        self.__setFocus(hasFocus)
+        if self.__focusContext is not None:
+            self.__focusContext.resetFocuses()
+            
+        if hasFocus:
+            self.__parent.opacity = 1
+        else:
+            self.clearFocus()
+            
+        self.__hasFocus = hasFocus
 
     def getFocus(self):
         """
@@ -102,17 +212,7 @@ class Textarea:
         """
         return self.__hasFocus
     
-    
-    def __setFocus(self, hasFocus):
-        if hasFocus:
-            self.__parent.opacity = 1
-        else:
-            self.__parent.opacity = self.BLUR_OPACITY
-        self.__hasFocus = hasFocus
 
-    def __onClick(self, e):
-        self.setFocus(True)
-    
     def onKeyDown(self, keycode):
 #        print "DOWN: ",keycode, "->", keystring
         if keycode >= 32 and keycode <= 126:
@@ -121,21 +221,36 @@ class Textarea:
             self.__removeLastChar(True)
         # NP/FF clears text
         elif keycode == 12:
-            self.setText('')
+            self.clearText()
 
+    def __onClick(self, e):
+        if self.__focusContext is not None:
+            if self.__focusContext.isActive():
+                self.setFocus(True)
+        else:
+            self.setFocus(True)
+    
     def __appendChar(self, ch):
-        global g_TAShiftPressed
+        global g_ShiftPressed
+
+#        print "LASTCHARX/Y:",self.__textNode.lastcharx, self.__textNode.lastchary
+#        print "LIMITS:", self.__parent.height - self.__textNode.size*2, self.__parent.width - self.__textNode.size/1.5
         
         # don't wrap when Textarea is not multiline
-        if not self.__hasFocus or \
-            (not self.__isMultiline \
-            and self.__textNode.width > self.__parent.width - self.__textNode.size/2.0):
+        if not self.__isMultiline and \
+            self.__textNode.lastcharx > self.__parent.width - self.__textNode.size:
             return
-            
+        
+        # don't flee from borders in a multiline textarea
+        if self.__isMultiline and \
+            self.__textNode.lastchary > self.__parent.height - self.__textNode.size*2 and \
+            self.__textNode.lastcharx > self.__parent.width - self.__textNode.size:
+            return
+                        
         # remove the cursor
         self.__removeLastChar()
         
-        if g_TAShiftPressed:
+        if g_ShiftPressed:
             if ch >= 97 and ch <= 122:
                 ch = ch - 32
             elif ch >= 48 and ch <= 57:
@@ -143,7 +258,7 @@ class Textarea:
                 ch = ch - 16
 
         self.__textNode.text = self.__textNode.text + chr(ch) + self.CURSOR_CHAR
-    
+        
     def __removeLastChar(self, delete=False):
         if delete:
             until = -2
@@ -154,72 +269,62 @@ class Textarea:
         
         if delete:
             self.__textNode.text = self.__textNode.text + self.CURSOR_CHAR
-
-def cycleFocus():
-    """
-    Force a focus cycle among instantiated textareas
-    """
-    elected = 0
-    for ob in g_TAStorage:
-        if not ob.getFocus():
-            elected = elected + 1
-        else:
-            break
+            
     
-    if elected in (len(g_TAStorage), len(g_TAStorage)-1):
-        elected = 0
-    else:
-        elected = elected + 1
-
-    for ob in g_TAStorage:
-        ob.setFocus(False)
-    
-    g_TAStorage[elected].setFocus(True)
-    
-def keyCharPressed(kchar):
-    """
-    Use this method to inject a character to active
-    (w/ focus) Textarea, convenience method for keyCodePressed()
-    @param kchar: string, a single character
-    """
-    keyCodePressed(ord(kchar[0]))
-
-def keyCodePressed(keycode):
-    """
-    Shift a character (ASCII-coded) into the active (w/focus)
-    Textarea
-    @param keycode: int, ASCII representation of the character
-    """
-    global g_TAStorage, g_TAShiftPressed
-    
-    # TAB key cycles focus through textareas
-    if keycode == 9:
-        cycleFocus()
-    elif keycode in (301, 303, 304):
-        g_TAShiftPressed = True
-    
-    for ob in g_TAStorage:
-        if ob.getFocus():
-            ob.onKeyDown(keycode)
-
 def onKeyDown(e):
-    keyCodePressed(e.keycode)
+    global g_ShiftPressed, g_LastKeyEvent, g_LastKeyRepeated, g_RepeatDelay
+    
+#    print "KEYDOWN:",e.keycode,e.keystring
+    if e.keycode in (301, 303, 304):
+        g_ShiftPressed = True
+    else:
+        g_LastKeyEvent = e
+        g_LastKeyRepeated = time.time() + g_RepeatDelay
+
+    if g_FocusContext is not None:
+        g_FocusContext.keyCodePressed(e.keycode)
 
 def onKeyUp(e):
-    global g_TAStorage, g_TAShiftPressed
+    global g_ShiftPressed, g_LastKeyEvent
     
     if e.keycode in (301, 303, 304):
-        g_TAShiftPressed = False
+        g_ShiftPressed = False
+    else:
+        g_LastKeyEvent = None
 
-def init(g_avg, catchKeyboard=True):
+def setActiveFocusContext(focusContext):
+    """
+    @param afc: 
+    """
+    global g_FocusContext
+    
+    if g_FocusContext is not None:
+        g_FocusContext.switchActive(False)
+        
+    g_FocusContext = focusContext
+    g_FocusContext.switchActive(True)
+
+def onFrame():
+    global g_LastKeyEvent, g_LastKeyRepeated, g_CharDelay
+    if g_LastKeyEvent is not None and \
+        time.time() - g_LastKeyRepeated > g_CharDelay and \
+        g_FocusContext is not None:
+        g_FocusContext.keyCodePressed(g_LastKeyEvent.keycode)
+        g_LastKeyRepeated = time.time()
+        
+def init(g_avg, catchKeyboard=True, repeatDelay=0.2, charDelay=0.1):
     """
     This method should be called immediately after avg file
     load (Player.loadFile())
     @param g_avg: avg package
     @param catchKeyboard: boolean, if true events from keyboard are catched
     """
-    global avg
+    global avg, g_RepeatDelay, g_CharDelay
     avg = g_avg
+    g_RepeatDelay = repeatDelay
+    g_CharDelay = charDelay
+    
+    avg.Player.get().setOnFrameHandler(onFrame)
     
     if catchKeyboard:
         avg.Player.get().getRootNode().setEventHandler(avg.KEYDOWN, avg.NONE, onKeyDown)
