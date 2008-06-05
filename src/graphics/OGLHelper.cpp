@@ -219,14 +219,15 @@ GLfunction getProcAddress(const string& sName)
     assert(glproc::s_hGLLib);
 #ifdef _WIN32
 	GLfunction pProc = (GLfunction)wglGetProcAddress(sName.c_str());
+/*
     if (!pProc) {
 	    char szErr[512];
         FormatMessage((FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM),
                 0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                 szErr, 512, 0);
-        throw Exception(AVG_ERR_VIDEO_GENERAL, string("wglGetProcAddress failed: ") + szErr);
+        throw Exception(AVG_ERR_VIDEO_GENERAL, string("wglGetProcAddress("+sName+") failed: ") + szErr);
     }
-    
+*/
 #else
     GLfunction pProc = (GLfunction)dlsym(glproc::s_hGLLib, sName.c_str());
     if (!pProc) {
