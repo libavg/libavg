@@ -59,23 +59,23 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
     glXMakeCurrent(dpy, pixmap, m_Context);
 #else
 #ifdef _WIN32
-	PIXELFORMATDESCRIPTOR pfd;
-	HDC hDC = GetDC( 0 );
-	ZeroMemory(&pfd, sizeof(pfd));
-	pfd.nSize = sizeof(pfd);
-	pfd.nVersion = 1;
-	pfd.dwFlags = PFD_SUPPORT_OPENGL;
-	pfd.iPixelType = PFD_TYPE_RGBA;
-	pfd.cColorBits = 24;
-	pfd.cDepthBits = 16;
-	pfd.iLayerType = PFD_MAIN_PLANE;
-	
-	int iFormat = ChoosePixelFormat(hDC, &pfd);
-	SetPixelFormat( hDC, iFormat, &pfd );
-	m_Context = wglCreateContext(hDC);
-	winOGLErrorCheck(m_Context != 0, "wglCreateContext");
-	bool bOK = bool(wglMakeCurrent(hDC, m_Context));
-	winOGLErrorCheck(bOK, "wglMakeCurrent");
+    PIXELFORMATDESCRIPTOR pfd;
+    HDC hDC = GetDC( 0 );
+    ZeroMemory(&pfd, sizeof(pfd));
+    pfd.nSize = sizeof(pfd);
+    pfd.nVersion = 1;
+    pfd.dwFlags = PFD_SUPPORT_OPENGL;
+    pfd.iPixelType = PFD_TYPE_RGBA;
+    pfd.cColorBits = 24;
+    pfd.cDepthBits = 16;
+    pfd.iLayerType = PFD_MAIN_PLANE;
+    
+    int iFormat = ChoosePixelFormat(hDC, &pfd);
+    SetPixelFormat( hDC, iFormat, &pfd );
+    m_Context = wglCreateContext(hDC);
+    winOGLErrorCheck(m_Context != 0, "wglCreateContext");
+    bool bOK = bool(wglMakeCurrent(hDC, m_Context));
+    winOGLErrorCheck(bOK, "wglMakeCurrent");
 #endif
 #endif
 #endif
