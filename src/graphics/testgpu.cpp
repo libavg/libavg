@@ -131,7 +131,7 @@ public:
         cerr << "    Testing spike, stddev 0.5" << endl;
         pBmp = loadTestBmp("spike");
         pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 0.5).apply(pBmp);
-        testEqualBrightness(*pDestBmp, *pBmp, 5);
+        testEqualBrightness(*pDestBmp, *pBmp, 7);
         testEqual(*pDestBmp, "blur05_spike");
         cerr << "    Testing spike, stddev 1" << endl;
         pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 1).apply(pBmp);
@@ -184,7 +184,7 @@ private:
         GPUBandpassFilter f(pBmp->getSize(), pf, 0.5, 1.5, 1, false);
         BitmapPtr pDestBmp = f.apply(pBmp);
         cerr << "        " << pDestBmp->avg() << endl;
-        TEST(fabs(pDestBmp->avg() -128) < 0.05);
+        TEST(fabs(pDestBmp->avg() -128) < 0.06);
         testEqual(*pDestBmp, "bandpass_"+sFName, pf);
         TEST(pDestBmp->getPixelFormat() == pf);
     }
