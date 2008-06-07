@@ -26,11 +26,12 @@
 
 #define AVG_ERR_UNKNOWN -1
 #define AVG_ERR_XML_PARSE 1
-#define AVG_ERR_XML_EMPTY 2
-#define AVG_ERR_XML_NODE_UNKNOWN 3
-#define AVG_ERR_XML_DUPLICATE_ID 4
-#define AVG_ERR_VIDEO_INIT_FAILED 5
-#define AVG_ERR_VIDEO_GENERAL 6
+#define AVG_ERR_XML_VALID 2
+#define AVG_ERR_XML_EMPTY 3
+#define AVG_ERR_XML_NODE_UNKNOWN 4
+#define AVG_ERR_XML_DUPLICATE_ID 5
+#define AVG_ERR_VIDEO_INIT_FAILED 6
+#define AVG_ERR_VIDEO_GENERAL 7
 #define AVG_ERR_FONT_INIT_FAILED 10
 #define AVG_ERR_VIDEO_LOAD_FAILED 11
 #define AVG_ERR_UNSUPPORTED 12
@@ -61,7 +62,7 @@ class Exception
         virtual int GetCode () const;
         virtual const std::string& GetStr () const;
 
-	private:
+    private:
         int m_Code;
         std::string m_sErr;
 };

@@ -28,7 +28,7 @@ class AVTestCase(AVGTestCase):
             Player.stop()
         def onNoEOF():
             self.assert_(False)
-        Player.loadFile("empty.avg")
+        self._loadEmpty()
         Player.getRootNode().appendChild(node)
         node.play()
         node.setEOFCallback(onEOF)
@@ -44,7 +44,7 @@ class VideoTestCase(AVTestCase):
             def checkImage(filename):
                 if not(isThreaded):
                     self.compareImage("testVideo-"+filename+"1", False)
-            Player.loadFile("empty.avg")
+            self._loadEmpty()
             node = Player.createNode("video",
                 {"href": "../video/testfiles/"+filename, "threaded": isThreaded})
             Player.getRootNode().appendChild(node)
@@ -131,7 +131,7 @@ class SoundTestCase(AVTestCase):
         AVGTestCase.__init__(self, testFuncName, 24)
     def testSound(self):
         def testSoundFile(filename):
-            Player.loadFile("empty.avg")
+            self._loadEmpty()
             node = Player.createNode("sound",
                     {"href": "../video/testfiles/"+filename})
             Player.getRootNode().appendChild(node)

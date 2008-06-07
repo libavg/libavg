@@ -40,6 +40,7 @@
 #include "SDLDisplayEngine.h"
 
 #include "../base/FileHelper.h"
+#include "../base/StringHelper.h"
 #include "../base/OSHelper.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -185,69 +186,69 @@ void Player::setAudioOptions(int samplerate, int channels)
     m_AP.m_Channels = channels;
 }
 
-void Player::loadFile (const std::string& filename)
+void Player::loadFile (const std::string& sFilename)
 {
+    string RealFilename;
     try {
         AVG_TRACE(Logger::MEMORY, 
-                std::string("Player::LoadFile(") + filename + ")");
-        if (m_pRootNode) {
-            cleanup();
-        }
-        assert (!m_pRootNode);
-        m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
+                std::string("Player::loadFile(") + sFilename + ")");
 
         // When loading an avg file, assets are loaded from a directory relative
         // to the file.
         char szBuf[1024];
-        string RealFilename;
-        if (filename[0] == '/') {
-            RealFilename = filename; 
+        if (sFilename[0] == '/') {
+            RealFilename = sFilename; 
         } else {
             getcwd(szBuf, 1024);
             m_CurDirName = string(szBuf)+"/";
-            RealFilename = m_CurDirName+filename;
+            RealFilename = m_CurDirName+sFilename;
         }
         m_CurDirName = RealFilename.substr(0, RealFilename.rfind('/')+1);
-        
-        xmlPedanticParserDefault(1);
-        xmlDoValidityCheckingDefaultValue =0;
 
-        xmlDocPtr doc;
-        if (!fileExists(RealFilename)) {
-            throw (Exception(AVG_ERR_FILEIO, 
-                        string("File ")+RealFilename+" not found."));
-        }
-        doc = xmlParseFile(RealFilename.c_str());
-        if (!doc) {
-            throw (Exception(AVG_ERR_XML_PARSE, 
-                        string("Error parsing xml document ")+RealFilename));
-        }
+        string sAVG;
+        readWholeFile(RealFilename, sAVG);
+        internalLoad(sAVG);
 
-        xmlValidCtxtPtr cvp = xmlNewValidCtxt();
-        cvp->error = xmlParserValidityError;
-        cvp->warning = xmlParserValidityWarning;
-        int valid=xmlValidateDtd(cvp, doc, m_dtd);  
-        xmlFreeValidCtxt(cvp);
-        if (!valid) {
-            throw (Exception(AVG_ERR_XML_PARSE, 
-                    filename + " does not validate."));
-        }
-        xmlNodePtr xmlNode = xmlDocGetRootElement(doc);
-        createNodeFromXml(doc, xmlNode, DivNodePtr());
-        registerNode(m_pRootNode);
-        m_DP.m_Height = int(m_pRootNode->getHeight());
-        m_DP.m_Width = int(m_pRootNode->getWidth());
         // Reset the directory to load assets from to the current dir.
         getcwd(szBuf, 1024);
         m_CurDirName = string(szBuf)+"/";
-        
-        xmlFreeDoc(doc);
     } catch (Exception& ex) {
-        AVG_TRACE(Logger::ERROR, ex.GetStr());
-        throw;
-    } catch (Magick::Exception & ex) {
-        AVG_TRACE(Logger::ERROR, ex.what());
-        throw;
+        switch (ex.GetCode()) {
+            case AVG_ERR_XML_PARSE:
+                throw (Exception(AVG_ERR_XML_PARSE, 
+                        string("Error parsing xml document ")+RealFilename));
+                break;
+            case AVG_ERR_XML_VALID:
+                throw (Exception(AVG_ERR_XML_VALID, 
+                        RealFilename + " does not validate."));
+                break;
+            default:
+                throw;
+        }
+    }
+}
+
+void Player::loadString(const std::string& sAVG)
+{
+    try {
+        AVG_TRACE(Logger::MEMORY, "Player::loadString()");
+        char szBuf[1024];
+        getcwd(szBuf, 1024);
+        m_CurDirName = string(szBuf)+"/";
+
+        string sEffectiveDoc = removeStartEndSpaces(sAVG);
+        internalLoad(sEffectiveDoc);
+    } catch (Exception& ex) {
+        switch (ex.GetCode()) {
+            case AVG_ERR_XML_PARSE:
+                throw Exception(AVG_ERR_XML_PARSE, "Error parsing xml string.");
+                break;
+            case AVG_ERR_XML_VALID:
+                throw Exception(AVG_ERR_XML_VALID, "Error validating xml string.");
+                break;
+            default:
+                throw;
+        }
     }
 }
 
@@ -285,9 +286,8 @@ void Player::initPlayback()
 {
     m_bIsPlaying = true;
     if (!m_pRootNode) {
-        AVG_TRACE(Logger::ERROR, "play called, but no xml file loaded.");
+        throw Exception(AVG_ERR_NO_NODE, "Play called, but no xml file loaded.");
     }
-    assert(m_pRootNode);
     
     initGraphics();
     initAudio();
@@ -824,6 +824,52 @@ void Player::initAudio()
     m_pAudioEngine->init(m_AP, m_Volume);
     m_pAudioEngine->setAudioEnabled(!m_bFakeFPS);
     m_pAudioEngine->play();
+}
+
+void Player::internalLoad(const string& sAVG)
+{
+    try {
+        if (m_pRootNode) {
+            cleanup();
+        }
+        assert (!m_pRootNode);
+        m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
+
+        char szBuf[1024];
+        getcwd(szBuf, 1024);
+        m_CurDirName = string(szBuf)+"/";
+        
+        xmlPedanticParserDefault(1);
+        xmlDoValidityCheckingDefaultValue =0;
+
+        xmlDocPtr doc;
+        doc = xmlParseMemory(sAVG.c_str(), sAVG.length());
+        if (!doc) {
+            throw (Exception(AVG_ERR_XML_PARSE, ""));
+        }
+
+        xmlValidCtxtPtr cvp = xmlNewValidCtxt();
+        cvp->error = xmlParserValidityError;
+        cvp->warning = xmlParserValidityWarning;
+        int valid=xmlValidateDtd(cvp, doc, m_dtd);  
+        xmlFreeValidCtxt(cvp);
+        if (!valid) {
+            throw (Exception(AVG_ERR_XML_VALID, ""));
+        }
+        xmlNodePtr xmlNode = xmlDocGetRootElement(doc);
+        createNodeFromXml(doc, xmlNode, DivNodePtr());
+        registerNode(m_pRootNode);
+        m_DP.m_Height = int(m_pRootNode->getHeight());
+        m_DP.m_Width = int(m_pRootNode->getWidth());
+        
+        xmlFreeDoc(doc);
+    } catch (Exception& ex) {
+        AVG_TRACE(Logger::ERROR, ex.GetStr());
+        throw;
+    } catch (Magick::Exception & ex) {
+        AVG_TRACE(Logger::ERROR, ex.what());
+        throw;
+    }
 }
 
 void Player::registerNode(NodePtr pNode)

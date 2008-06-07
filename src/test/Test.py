@@ -797,11 +797,12 @@ class PlayerTestCase(AVGTestCase):
             gone = Player.getElementByID("newImage")
             self.assert_(gone == None)
         def runTest(useXml):
-            Player.loadFile("empty.avg")
+            self._loadEmpty()
             createImg(useXml)
             Player.stop()
             self.setUpVideo()
-            self.start("empty.avg",
+            self._loadEmpty()
+            self.start(None,
                     (lambda: createImg(useXml),
                      lambda: self.compareImage("testImgDynamics1", False),
                      lambda: createImg2(useXml),
@@ -845,11 +846,12 @@ class PlayerTestCase(AVGTestCase):
         def foo():
             pass
         def runTest(useXml):
-            Player.loadFile("empty.avg")
+            self._loadEmpty()
             createVideo(useXml)
             Player.stop()
             self.setUpVideo()
-            self.start("empty.avg",
+            self._loadEmpty()
+            self.start(None,
                     (lambda: createVideo(useXml),
                      lambda: self.compareImage("testVideoDynamics1", False),
                      removeVideo,
@@ -882,11 +884,12 @@ class PlayerTestCase(AVGTestCase):
             self.wordsNode.text='test2'
             self.wordsNode = None
         def runTest(useXml):
-            Player.loadFile("empty.avg")
+            self._loadEmpty()
             createWords(useXml)
             Player.stop()
             self.setUpVideo()
-            self.start("empty.avg",
+            self._loadEmpty()
+            self.start(None,
                     (lambda: createWords(useXml),
                      lambda: self.compareImage("testWordsDynamics1", True),
                      removeWords,
@@ -912,11 +915,12 @@ class PlayerTestCase(AVGTestCase):
             Player.getRootNode().appendChild(self.cameraNode)
             self.cameraNode = None
         def runTest(useXml):
-            Player.loadFile("empty.avg")
+            self._loadEmpty()
             createCamera(True)
             Player.stop()
             self.setUpVideo()
-            self.start("empty.avg",
+            self._loadEmpty()
+            self.start(None,
                     (lambda: createCamera(useXml),
                      removeCamera,
                      reAddCamera
@@ -939,11 +943,12 @@ class PlayerTestCase(AVGTestCase):
             Player.getRootNode().appendChild(self.panoNode)
             self.panoNode = None
         def runTest(useXml):
-            Player.loadFile("empty.avg")
+            self._loadEmpty()
             createPano(useXml)
             Player.stop()
             self.setUpVideo()
-            self.start("empty.avg",
+            self._loadEmpty()
+            self.start(None,
                     (lambda: createPano(useXml),
                      lambda: self.compareImage("testPanoDynamics1", False),
                      removePano,
@@ -976,11 +981,12 @@ class PlayerTestCase(AVGTestCase):
             Player.getRootNode().appendChild(self.divNode)
             self.divNode = None
         def runTest(useXml):
-            Player.loadFile("empty.avg")
+            self._loadEmpty()
             createDiv(useXml)
             Player.stop()
             self.setUpVideo()
-            self.start("empty.avg",
+            self._loadEmpty()
+            self.start(None,
                     (lambda: createDiv(useXml),
                      lambda: self.compareImage("testDivDynamics1", False),
                      removeDiv,
@@ -1016,7 +1022,8 @@ class PlayerTestCase(AVGTestCase):
         global mainMouseUpCalled
         captureMouseDownCalled = False
         mainMouseUpCalled = False
-        self.start("empty.avg",
+        self._loadEmpty()
+        self.start(None,
             (createImg,
             setEventCapture,
             lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
@@ -1056,10 +1063,9 @@ class PlayerTestCase(AVGTestCase):
             self.rootNode.removeChild(self.rootNode.indexOf(self.node))
             self.assert_(Player.getGPUMemoryUsage() == 0)
         def runTest():
-            Player.loadFile("empty.avg")
-            Player.stop()
             self.setUpVideo()
-            self.start("empty.avg",
+            self._loadEmpty()
+            self.start(None,
                     (lambda: self.assert_(Player.getGPUMemoryUsage() == 0),
                      createNode,
                      appendToTree,

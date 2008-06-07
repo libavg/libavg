@@ -65,5 +65,21 @@ bool stringToBool(const std::string& s)
     throw (Exception(AVG_ERR_TYPE, string("Could not convert ")+s+" to bool."));
 }
 
+std::string removeStartEndSpaces(const std::string& s)
+{
+    string sResult = s;
+    while (sResult[0] == ' ' || sResult[0] == '\n' || sResult[0] == '\r' 
+            || sResult[0] == '\t') 
+    {
+        sResult.erase(0, 1);
+    }
+    char c = sResult[sResult.length()-1];
+    while (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
+        sResult.erase(sResult.length()-1, 1);
+        c = sResult[sResult.length()-1];
+    }
+    return sResult;
+}
+
 }
 

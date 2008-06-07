@@ -156,14 +156,16 @@ BOOST_PYTHON_MODULE(avg)
         .staticmethod("get")
         .def("setResolution", &Player::setResolution,
                 "setResolution(fullscreen, width, height, bpp)\n"
-                "Sets display engine parameters. Must be called before loadFile.\n"
+                "Sets display engine parameters. Must be called before loadFile or\n"
+                "loadString.\n"
                 "@param fullscreen: True if the avg file should be rendered fullscreen.\n"
                 "@param width, height: Set the window size\n"
                 "(if fullscreen is false) or screen resolution (if fullscreen is true).\n"
                 "@param bpp: Number of bits per pixel to use.\n")
         .def("setWindowPos", &Player::setWindowPos,
                 "setWindowPos(x, y)\n"
-                "Sets the location of the player window. Must be called before loadFile.\n")
+                "Sets the location of the player window. Must be called before loadFile\n"
+                "or loadString.\n")
         .def("setOGLOptions", &Player::setOGLOptions,
                 "setOGLOptions(UsePOW2Textures, YCbCrMode, UsePixelBuffers, MultiSampleSamples)\n"
                 "Determines which OpenGL extensions to check for and use if possible.\n"
@@ -185,6 +187,10 @@ BOOST_PYTHON_MODULE(avg)
         .def("loadFile", &Player::loadFile,
                 "loadFile(filename)\n"
                 "Loads the avg file specified in filename.\n"
+                "@param filename: ")
+        .def("loadString", &Player::loadString,
+                "loadString(avgString)\n"
+                "Parses avgString and loads the nodes it contains.\n"
                 "@param filename: ")
         .def("play", &Player::play,
                 "play()\n"

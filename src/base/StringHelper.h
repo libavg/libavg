@@ -33,6 +33,8 @@ int stringToInt(const std::string& s);
 double stringToDouble(const std::string& s);
 bool stringToBool(const std::string& s);
 
+std::string removeStartEndSpaces(const std::string& s);
+
 template<class T>
 std::string toString(const T& i)
 {

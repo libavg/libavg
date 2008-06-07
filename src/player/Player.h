@@ -62,7 +62,8 @@ class Player : IEventSink
         void setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode, 
                 bool bUsePixelBuffers, int MultiSampleSamples);
         void setAudioOptions(int samplerate, int channels);
-        void loadFile (const std::string& fileName);
+        void loadFile(const std::string& sFilename);
+        void loadString(const std::string& sAVG);
         void play();
         void stop();
         void initPlayback();
@@ -118,6 +119,8 @@ class Player : IEventSink
         void initConfig();
         void initGraphics();
         void initAudio();
+
+        void internalLoad(const std::string& sAVG);
 
         NodePtr createNodeFromXml(const xmlDocPtr xmlDoc, 
                 const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);

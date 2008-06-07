@@ -86,6 +86,13 @@ class AVGTestCase(unittest.TestCase):
                 Bmp.save(RESULT_DIR+"/"+fileName+".png")
                 self.Log.trace(self.Log.WARNING, "Could not load image "+fileName+".png")
                 self.assert_(False)
+    def _loadEmpty(self):
+        self.__Player.loadString("""
+        <?xml version="1.0"?>
+        <avg id="avg" width="160" height="120">
+        </avg>
+        """)
+
 
 def setOGLOptions(UsePOW2Textures, YCbCrMode, UsePixelBuffers):
     global g_CustomOGLOptions
