@@ -658,7 +658,8 @@ int FFMpegDecoder::decodeAudio()
 {
     // Save current size of the audio buffer
     int lastSampleBufferSize = m_SampleBufferLeft;
-    
+
+#if LIBAVCODEC_BUILD > ((51<<16)+(11<<8)+0)
     // Decode some data from packet into the audio buffer
     int packetBytesDecoded = avcodec_decode_audio2(
             m_pAStream->codec, 
@@ -666,7 +667,15 @@ int FFMpegDecoder::decodeAudio()
             &m_SampleBufferLeft, 
             m_AudioPacketData,
             m_AudioPacketSize);
-    
+#else
+    int packetBytesDecoded = avcodec_decode_audio(
+            m_pAStream->codec, 
+            (short*)(m_pSampleBuffer + m_SampleBufferEnd),
+            &m_SampleBufferLeft, 
+            m_AudioPacketData,
+            m_AudioPacketSize);
+#endif
+
     // Skip frame on error
     if (packetBytesDecoded < 0)
         return -1;
