@@ -55,7 +55,9 @@ ArgList::ArgList(const ArgList& ArgTemplates, const boost::python::dict& PyDict)
     // TODO: Check if all required args are being set.
     copyArgsFrom(ArgTemplates);
     boost::python::list keys = PyDict.keys();
-    int nKeys = boost::python::extract<int>(keys.attr("__len__"))();
+    int nKeys = boost::python::len(keys);
+// Workaround for older boost::python
+//    int nKeys = boost::python::extract<int>(keys.attr("__len__"))();
     for(int i = 0; i < nKeys; i++)
     {
         boost::python::object keyObj = keys[i];
