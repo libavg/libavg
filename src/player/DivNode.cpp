@@ -101,6 +101,17 @@ void DivNode::appendChild (NodePtr pNewNode)
     insertChild(pNewNode, unsigned(m_Children.size()));
 }
 
+void DivNode::insertChildBefore(NodePtr pNewNode, NodePtr pOldChild)
+{
+    if (!pOldChild) {
+        throw Exception(AVG_ERR_NO_NODE,
+                getID()+"::insertChildBefore called without a node.");
+    }
+    unsigned i = indexOf(pOldChild);
+    insertChild(pNewNode, i);
+}
+
+
 void DivNode::insertChild(NodePtr pNewNode, unsigned i)
 {
     if (!pNewNode) {

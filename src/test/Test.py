@@ -763,7 +763,6 @@ class PlayerTestCase(AVGTestCase):
             node.x = 10
             node.y = 20
             node.angle = 0.1
-#            print node.toXML()
             rootNode = Player.getRootNode()
             rootNode.appendChild(node)
             exceptionRaised=False
@@ -778,7 +777,8 @@ class PlayerTestCase(AVGTestCase):
                 node = Player.createNode("<image href='rgb24-64x64.png' id='newImage2'/>")
             else:
                 node = Player.createNode("image", {"href":"rgb24-64x64.png", "id":"newImage2"})
-            Player.getRootNode().insertChild(node, 0)
+            oldNode = Player.getElementByID("newImage")
+            Player.getRootNode().insertChildBefore(node, oldNode)
         def reorderImg():
             Player.getRootNode().reorderChild(0, 1)
             node = Player.getElementByID("newImage")
