@@ -49,6 +49,7 @@ class DivNode : public Node
         void insertChild(NodePtr pNewNode, unsigned i);
         void removeChild(NodePtr pNode);
         void removeChild(unsigned i);
+        void reorderChild(NodePtr pNode, unsigned j);
         void reorderChild(unsigned i, unsigned j);
         int indexOf(NodePtr pChild);
 

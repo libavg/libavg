@@ -148,6 +148,18 @@ void DivNode::removeChild (unsigned i)
     m_Children.erase(m_Children.begin()+i);
 }
 
+void DivNode::reorderChild(NodePtr pNode, unsigned j)
+{
+    if (j > m_Children.size()-1) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                getID()+"::reorderChild: index "+toString(j)+" out of bounds."));
+    }
+    int i = indexOf(pNode);
+    m_Children.erase(m_Children.begin()+i);
+    std::vector<NodePtr>::iterator Pos = m_Children.begin()+j;
+    m_Children.insert(Pos, pNode);
+}
+
 void DivNode::reorderChild(unsigned i, unsigned j)
 {
     if (i>m_Children.size()-1 || j > m_Children.size()-1) {

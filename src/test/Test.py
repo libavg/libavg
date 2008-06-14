@@ -781,6 +781,8 @@ class PlayerTestCase(AVGTestCase):
             Player.getRootNode().insertChild(node, 0)
         def reorderImg():
             Player.getRootNode().reorderChild(0, 1)
+            node = Player.getElementByID("newImage")
+            Player.getRootNode().reorderChild(node, 0)
         def removeImgs():
             self.imgNode = Player.getElementByID("newImage")
             rootNode = Player.getRootNode()
