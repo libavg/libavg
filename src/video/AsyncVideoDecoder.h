@@ -47,7 +47,6 @@ class AsyncVideoDecoder: public IVideoDecoder
         virtual void close();
         virtual void seek(long long DestTime);
         virtual StreamSelect getMasterStream();
-        virtual void setMasterStream(StreamSelect Stream);
         virtual bool hasVideo();
         virtual bool hasAudio();
         virtual IntPoint getSize();

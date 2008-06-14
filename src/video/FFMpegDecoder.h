@@ -68,7 +68,6 @@ class FFMpegDecoder: public IVideoDecoder
         virtual void close();
         virtual void seek(long long DestTime);
         virtual StreamSelect getMasterStream();
-        virtual void setMasterStream(StreamSelect Stream);
         virtual bool hasVideo();
         virtual bool hasAudio();
         virtual IntPoint getSize();
@@ -122,9 +121,6 @@ class FFMpegDecoder: public IVideoDecoder
         SwsContext * m_pSwsContext;
 #endif
 
-        bool m_bForceMasterStream;
-        StreamSelect m_MasterStream;
-        
         AudioParams m_AP;
         AVPacket * m_AudioPacket;
         unsigned char * m_AudioPacketData;

@@ -71,7 +71,6 @@ void AsyncVideoDecoder::open(const std::string& sFilename, const AudioParams& AP
     m_sFilename = sFilename;
 
     m_pSyncDecoder->open(m_sFilename, AP, ycbcrMode, bThreadedDemuxer);
-    m_pSyncDecoder->setMasterStream(SS_DEFAULT);
     
     if (m_pSyncDecoder->hasVideo()) {
         m_pVCmdQ = VideoDecoderThread::CmdQueuePtr(new VideoDecoderThread::CmdQueue);
@@ -165,10 +164,6 @@ StreamSelect AsyncVideoDecoder::getMasterStream()
     } else {
         return SS_VIDEO;
     }
-}
-
-void AsyncVideoDecoder::setMasterStream(StreamSelect Stream)
-{
 }
 
 bool AsyncVideoDecoder::hasVideo()

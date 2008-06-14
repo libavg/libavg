@@ -285,7 +285,6 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams& AP,
                     sFilename + ": unsupported codec ("+szBuf+"). Disabling audio.");
         }
     }
-    setMasterStream(SS_DEFAULT);
 }
 
 void FFMpegDecoder::close() 
@@ -1047,17 +1046,9 @@ long long FFMpegDecoder::getFrameTime(AVPacket* pPacket)
     return FrameTime;
 }
 
-void FFMpegDecoder::setMasterStream(StreamSelect Stream)
-{
-    m_MasterStream = Stream;
-    m_bForceMasterStream = (Stream != SS_DEFAULT);
-}
-
 StreamSelect FFMpegDecoder::getMasterStream()
 {
-    if (m_bForceMasterStream) {
-        return m_MasterStream;
-    } else if (m_pAStream && m_bAudioEnabled) {
+    if (m_pAStream && m_bAudioEnabled) {
         return SS_AUDIO;
     } else {
         return SS_VIDEO;
