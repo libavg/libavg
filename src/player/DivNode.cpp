@@ -105,7 +105,7 @@ void DivNode::insertChild(NodePtr pNewNode, unsigned i)
 {
     if (!pNewNode) {
         throw Exception(AVG_ERR_NO_NODE,
-                "insertChild called without a node.");
+                getID()+"::insertChild called without a node.");
     }
     if (pNewNode->getState() == NS_CONNECTED) {
         throw(Exception(AVG_ERR_ALREADY_CONNECTED,
@@ -162,6 +162,10 @@ void DivNode::reorderChild(unsigned i, unsigned j)
 
 int DivNode::indexOf(NodePtr pChild)
 {
+    if (!pChild) {
+        throw Exception(AVG_ERR_NO_NODE,
+                getID()+"::indexOf called without a node.");
+    }
     for  (int i = 0; i< (int)m_Children.size(); ++i) {
         if (m_Children[i] == pChild) {
             return i;
