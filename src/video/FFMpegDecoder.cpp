@@ -236,6 +236,15 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams& AP,
         m_sFilename = sFilename;
         m_LastVideoFrameTime = -1000;
         m_PF = calcPixelFormat(ycbcrMode);
+    
+        int rc = openCodec(m_pFormatContext, m_VStreamIndex);
+        if (rc == -1) {
+            m_VStreamIndex = -1;
+            char szBuf[256];
+            avcodec_string(szBuf, sizeof(szBuf), m_pAStream->codec, 0);
+            throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                    sFilename + ": unsupported codec ("+szBuf+").");
+        }
     }
     
     // Enable audio stream demuxing.
@@ -266,15 +275,17 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams& AP,
                 (long long)(1000.0 * av_q2d(m_pAStream->time_base) * m_pAStream->start_time);
         
         m_EffectiveSampleRate = (int)(m_SpeedFactor*m_pAStream->codec->sample_rate);
+        int rc = openCodec(m_pFormatContext, m_AStreamIndex);
+        if (rc == -1) {
+            m_AStreamIndex = -1;
+            char szBuf[256];
+            avcodec_string(szBuf, sizeof(szBuf), m_pAStream->codec, 0);
+            m_pAStream = 0; 
+            AVG_TRACE(Logger::WARNING, 
+                    sFilename + ": unsupported codec ("+szBuf+"). Disabling audio.");
+        }
     }
     setMasterStream(SS_DEFAULT);
-    // Open codecs for audio and video
-    if ((m_VStreamIndex != -1 && openCodec(m_pFormatContext, m_VStreamIndex) == -1) ||
-        (m_AStreamIndex != -1 && openCodec(m_pFormatContext, m_AStreamIndex) == -1))
-    {
-        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                        sFilename + ": could not open codec (?!).");
-    }
 }
 
 void FFMpegDecoder::close() 

@@ -398,39 +398,44 @@ class AVDecoderTest: public DecoderTest {
             BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
             int NumFrames = 0;
             int TotalFramesDecoded = 0;
-
+            int curTime = 0;
+            
             while(!pDecoder->isEOF()) {
                 FrameAvailableCode FrameAvailable;
                 do {
-                    FrameAvailable = pDecoder->renderToBmp(pBmp, 0);
+                    FrameAvailable = pDecoder->renderToBmp(pBmp, curTime);
                     msleep(0);
                 } while (FrameAvailable == FA_STILL_DECODING);
-//                cerr << NumFrames << ", " << pDecoder->getCurFrame() << endl;
                 if (FrameAvailable == FA_NEW_FRAME) {
 //                    stringstream ss;
 //                    ss << "testfiles/result/" << sFilename << NumFrames << ".png";
 //                    pBmp->save(ss.str());
                     NumFrames++;
                 }
-                AudioBufferPtr pBuffer = createAudioBuffer(256);
-                int FramesDecoded = 0;
-                while (FramesDecoded == 0 && !pDecoder->isEOF(SS_AUDIO)) {
-                    FramesDecoded = pDecoder->fillAudioBuffer(pBuffer);
-                    msleep(0);
+                if (isDemuxerThreaded()) {
+                    AudioBufferPtr pBuffer = createAudioBuffer(256);
+                    int FramesDecoded = 0;
+                    while (FramesDecoded == 0 && !pDecoder->isEOF(SS_AUDIO)) {
+                        FramesDecoded = pDecoder->fillAudioBuffer(pBuffer);
+                        msleep(0);
+                    }
+                    TotalFramesDecoded += FramesDecoded;
+//                    cerr << "FramesDecoded: " << FramesDecoded << endl;
                 }
-                TotalFramesDecoded += FramesDecoded;
-//                cerr << "FramesDecoded: " << FramesDecoded << endl;
+                curTime += 1000/pDecoder->getFPS();
             }
             TEST(pDecoder->isEOF(SS_VIDEO));
 //            cerr << "NumFrames: " << NumFrames << endl;
             TEST(NumFrames == ExpectedNumFrames);
             compareImages(pBmp, sFilename+"_end");
 
-            // Check if audio length was ok.
-            int FramesInDuration = int(pDecoder->getDuration()*44100/1000);
+            if (isDemuxerThreaded()) {
+                // Check if audio length was ok.
+                int FramesInDuration = int(pDecoder->getDuration()*44100/1000);
 //            cerr << "FramesDecoded: " << FramesDecoded << ", FramesInDuration: " << FramesInDuration << endl;
-            TEST (abs(TotalFramesDecoded-FramesInDuration) < 45);
-            
+                TEST (abs(TotalFramesDecoded-FramesInDuration) < 45);
+            }
+
             // Test loop.
             pDecoder->seek(0);
             pDecoder->renderToBmp(pBmp, -1);
@@ -450,7 +455,6 @@ public:
         addTest(TestPtr(new VideoDecoderTest(false, true)));
         addTest(TestPtr(new VideoDecoderTest(true, true)));
 
-        addTest(TestPtr(new AudioDecoderTest(false, false)));
         addTest(TestPtr(new AudioDecoderTest(false, true)));
         addTest(TestPtr(new AudioDecoderTest(true, true)));
 
