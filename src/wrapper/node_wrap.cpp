@@ -124,7 +124,7 @@ void export_node()
 
     export_bitmap();
     export_raster();
-    
+   
     class_<DivNode, bases<Node>, boost::noncopyable>("DivNode", 
             "A div node is a node that groups other nodes logically and visually.\n"
             "Its upper left corner is used as point of origin for the coordinates\n"
@@ -148,7 +148,10 @@ void export_node()
         .def("insertChild", &DivNode::insertChild,
                 "insertChild(node, pos)\n"
                 "Adds a new child to the container at position pos.")
-        .def("removeChild", &DivNode::removeChild,
+        .def("removeChild", (void (DivNode::*)(NodePtr))(&DivNode::removeChild),
+                "removeChild(pNode)\n"
+                "Removes the child given by pNode.")
+        .def("removeChild", (void (DivNode::*)(unsigned))(&DivNode::removeChild),
                 "removeChild(pos)\n"
                 "Removes the child at index pos.")
         .def("reorderChild", &DivNode::reorderChild,

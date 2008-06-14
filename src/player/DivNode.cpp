@@ -27,6 +27,7 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/XMLHelper.h"
+#include "../base/StringHelper.h"
 
 #include <iostream>
 #include <sstream>
@@ -127,8 +128,20 @@ void DivNode::insertChild(NodePtr pNewNode, unsigned i)
     }
 }
 
+void DivNode::removeChild(NodePtr pNode)
+{
+    int i = indexOf(pNode);
+    pNode->setParent(DivNodePtr());
+    pNode->disconnect();
+    m_Children.erase(m_Children.begin()+i);
+}
+
 void DivNode::removeChild (unsigned i)
 {
+    if (i>m_Children.size()-1) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                getID()+"::removeChild: index "+toString(i)+" out of bounds."));
+    }
     NodePtr pNode = getChild(i);
     pNode->setParent(DivNodePtr());
     pNode->disconnect();
@@ -154,7 +167,9 @@ int DivNode::indexOf(NodePtr pChild)
             return i;
         }
     }
-    return -1;
+    throw(Exception(AVG_ERR_OUT_OF_RANGE,
+            "indexOf: node '"+pChild->getID()+"' is not a child of node '"
+            +getID()+"'"));
 }
 
 NodePtr DivNode::getElementByPos (const DPoint & pos)

@@ -785,7 +785,8 @@ class PlayerTestCase(AVGTestCase):
             self.imgNode = Player.getElementByID("newImage")
             rootNode = Player.getRootNode()
             rootNode.removeChild(rootNode.indexOf(self.imgNode))
-            rootNode.removeChild(0)
+            imgNode2 = Player.getElementByID("newImage2")
+            rootNode.removeChild(imgNode2)
             self.assert_(Player.getElementByID("newImage") == None)
         def reAddImg():
             rootNode = Player.getRootNode()
