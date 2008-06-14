@@ -312,7 +312,7 @@ void Video::open(YCbCrMode ycbcrMode)
     } else if(m_FPS != 0.0) {
         m_pDecoder->setFPS(m_FPS);
     }
-    if(getAudioEngine() && m_bAudioEnabled) {
+    if (m_pDecoder->hasAudio()) {
         getAudioEngine()->addSource(this);
     }
 }

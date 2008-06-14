@@ -186,12 +186,15 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams& AP,
 #endif
         switch(enc->codec_type) {
             case CODEC_TYPE_VIDEO:
-                if (m_VStreamIndex < 0)
+                if (m_VStreamIndex < 0) {
                     m_VStreamIndex = i;
+                }
                 break;
             case CODEC_TYPE_AUDIO:
-                if (m_AStreamIndex < 0)
+                // Ignore the audio stream if we're using sync demuxing. 
+                if (m_AStreamIndex < 0 && bThreadedDemuxer) {
                     m_AStreamIndex = i;
+                }
                 break;
             default:
                 break;
@@ -235,8 +238,8 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams& AP,
         m_PF = calcPixelFormat(ycbcrMode);
     }
     
-    // Enable audio stream demuxing
-    if(m_AStreamIndex >= 0)
+    // Enable audio stream demuxing.
+    if (m_AStreamIndex >= 0)
     {
         m_pAStream = m_pFormatContext->streams[m_AStreamIndex];
         m_pDemuxer->enableStream(m_AStreamIndex);
