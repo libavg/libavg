@@ -714,7 +714,9 @@ int FFMpegDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
     unsigned char* outputAudioBuffer = (unsigned char*)(pBuffer->getData());
     int outputAudioBufferSize = pBuffer->getNumBytes();
 
-    if(m_bAudioEOF || !m_pAStream || !m_bAudioEnabled) {
+    assert (m_pAStream);
+    assert (m_bAudioEnabled);
+    if (m_bAudioEOF) {
         // TODO: Shouldn't this assert?
         return 0;
     }

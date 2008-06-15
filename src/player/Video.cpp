@@ -319,7 +319,7 @@ void Video::open(YCbCrMode ycbcrMode)
 
 void Video::close()
 {
-    if(getAudioEngine() && m_bAudioEnabled) {
+    if (m_pDecoder->hasAudio()) {
         getAudioEngine()->removeSource(this);
     }
     m_pDecoder->close();
