@@ -294,7 +294,12 @@ void Video::open(YCbCrMode ycbcrMode)
     m_pDecoder->setAudioEnabled(m_bAudioEnabled);
     m_pDecoder->setVolume(m_Volume);
     if (m_FPS != 0.0) {
-        m_pDecoder->setFPS(m_FPS);
+        if (m_pDecoder->hasAudio()) {
+            AVG_TRACE(Logger::WARNING, 
+                    getID() + ": Can't set FPS if video contains audio. Ignored.");
+        } else {
+            m_pDecoder->setFPS(m_FPS);
+        }
     }
     if (m_pDecoder->hasAudio()) {
         getAudioEngine()->addSource(this);

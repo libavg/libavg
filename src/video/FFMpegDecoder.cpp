@@ -68,8 +68,7 @@ FFMpegDecoder::FFMpegDecoder ()
       m_VideoStartTimestamp(-1),
       m_LastVideoFrameTime(-1000),
       m_bUseStreamFPS(true),
-      m_FPS(0),
-      m_SpeedFactor(1.0)
+      m_FPS(0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     initVideoSupport();
@@ -274,7 +273,7 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams& AP,
             m_AudioStartTimestamp = 
                 (long long)(1000.0 * av_q2d(m_pAStream->time_base) * m_pAStream->start_time);
         
-        m_EffectiveSampleRate = (int)(m_SpeedFactor*m_pAStream->codec->sample_rate);
+        m_EffectiveSampleRate = (int)(m_pAStream->codec->sample_rate);
         int rc = openCodec(m_pFormatContext, m_AStreamIndex);
         if (rc == -1) {
             m_AStreamIndex = -1;
@@ -468,48 +467,11 @@ double FFMpegDecoder::getFPS()
 
 void FFMpegDecoder::setFPS(double FPS)
 {
-    if(FPS == 0) {
-        setSpeedFactor(1.0);
+    m_bUseStreamFPS = (FPS == 0);
+    if (FPS == 0) {
+        m_FPS = calcStreamFPS();
     } else {
-        setSpeedFactor(FPS / getNominalFPS());
-    }
-}
-
-double FFMpegDecoder::getSpeedFactor()
-{
-    return m_SpeedFactor;
-}
-
-void FFMpegDecoder::setSpeedFactor(double SpeedFactor)
-{
-    if(SpeedFactor < 0.001)
-        SpeedFactor = 0;
-    
-    if(m_SpeedFactor != SpeedFactor) {
-        m_SpeedFactor = SpeedFactor;
-        if(m_pAStream) {
-            mutex::scoped_lock Lock(m_AudioMutex);
-            m_EffectiveSampleRate = 
-                (int)(m_SpeedFactor*m_pAStream->codec->sample_rate);
-            
-            if(m_pAudioResampleContext) {
-                audio_resample_close(m_pAudioResampleContext);
-                m_pAudioResampleContext = 0;
-            }
-            
-            if (m_pResampleBuffer) {
-                av_free(m_pResampleBuffer);
-                m_pResampleBuffer = 0;
-                m_ResampleBufferSize = 0;
-                m_ResampleBufferStart = 0;
-                m_ResampleBufferEnd = 0;
-            }
-        }
-        
-        if(m_pVStream) {
-            m_bUseStreamFPS = (getMasterStream() != SS_VIDEO || m_SpeedFactor == 1.0);
-            m_FPS = m_SpeedFactor * getNominalFPS();
-        }
+        m_FPS = FPS;
     }
 }
 
@@ -749,7 +711,7 @@ int FFMpegDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
                 pCurBufferPos += bytesProduced;
                 bufferLeft -= bytesProduced;
 
-                m_LastAudioFrameTime += (m_SpeedFactor * 1000.0 * bytesProduced /
+                m_LastAudioFrameTime += (1000.0 * bytesProduced /
                         (2 * m_AP.m_Channels * m_AP.m_SampleRate));
                 if (bufferLeft == 0) {
                     volumize(pBuffer);
@@ -1071,6 +1033,15 @@ long long FFMpegDecoder::getStartTime(StreamSelect Stream)
         default:
             return -1;
     }
+}
+
+double FFMpegDecoder::calcStreamFPS()
+{
+#if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
+    return m_pVStream->r_frame_rate;
+#else
+    return (m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den);
+#endif 
 }
 
 // TODO: this should be logarithmic...

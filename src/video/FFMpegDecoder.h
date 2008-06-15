@@ -98,8 +98,7 @@ class FFMpegDecoder: public IVideoDecoder
         void convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp);
         long long getFrameTime(AVPacket* pPacket);
         long long getStartTime(StreamSelect Stream = SS_DEFAULT);
-        double getSpeedFactor();
-        void setSpeedFactor(double Speed);
+        double calcStreamFPS();
         int copyRawAudio(unsigned char* buf, int size);
         int copyResampledAudio(unsigned char* buf, int size);
         void resampleAudio();
@@ -155,7 +154,6 @@ class FFMpegDecoder: public IVideoDecoder
         bool m_bUseStreamFPS;
         double m_FPS;
         long long m_StreamTimeOffset;
-        double m_SpeedFactor;
 
         ProfilingZone * m_pRenderToBmpProfilingZone;
         ProfilingZone * m_pConvertImageProfilingZone;
