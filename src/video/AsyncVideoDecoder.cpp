@@ -235,22 +235,13 @@ double AsyncVideoDecoder::getFPS()
 
 void AsyncVideoDecoder::setFPS(double FPS)
 {
+    assert(!m_bAudioEnabled);
     m_pVCmdQ->push(Command<VideoDecoderThread>(boost::bind(
             &VideoDecoderThread::setFPS, _1, FPS)));
     m_bUseStreamFPS = (FPS == 0);
     if (FPS != 0) {
         m_FPS = FPS;
     }
-}
-
-double AsyncVideoDecoder::getSpeedFactor()
-{
-    return m_pSyncDecoder->getSpeedFactor();
-}
-
-void AsyncVideoDecoder::setSpeedFactor(double SpeedFactor)
-{
-    m_pSyncDecoder->setSpeedFactor(SpeedFactor);
 }
 
 double AsyncVideoDecoder::getVolume()
@@ -334,8 +325,8 @@ int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
             bufferLeftToFill -= copyBytes;
             audioBuffer += copyBytes;
 
-            m_LastAudioFrameTime += (long long)(m_pSyncDecoder->getSpeedFactor() * 
-                    1000.0 * copyBytes / (pBuffer->getFrameSize() * pBuffer->getRate()));
+            m_LastAudioFrameTime += (long long)(1000.0 * copyBytes / 
+                    (pBuffer->getFrameSize() * pBuffer->getRate()));
         }
         if (bufferLeftToFill != 0) {
             try {

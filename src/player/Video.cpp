@@ -56,7 +56,6 @@ NodeDefinition Video::getNodeDefinition()
         .addArg(Arg<bool>("loop", false, false, offsetof(Video, m_bLoop)))
         .addArg(Arg<bool>("threaded", false, false, offsetof(Video, m_bThreaded)))
         .addArg(Arg<double>("fps", 0.0, false, offsetof(Video, m_FPS)))
-        .addArg(Arg<double>("speedfactor", 1.0, false, offsetof(Video, m_SpeedFactor)))
         ;
 }
 
@@ -200,19 +199,6 @@ void Video::setHRef(const string& href)
     checkReload();
 }
 
-double Video::getSpeedFactor() const
-{
-    return m_SpeedFactor;
-}
-
-void Video::setSpeedFactor(double SpeedFactor)
-{
-    m_SpeedFactor = SpeedFactor;
-    if (m_pDecoder) {
-        m_pDecoder->setSpeedFactor(SpeedFactor);
-    }
-}
-
 void Video::setVolume(double Volume)
 {
     m_Volume = Volume;
@@ -307,9 +293,7 @@ void Video::open(YCbCrMode ycbcrMode)
     m_pDecoder->open(m_Filename, AP, ycbcrMode, m_bThreaded);
     m_pDecoder->setAudioEnabled(m_bAudioEnabled);
     m_pDecoder->setVolume(m_Volume);
-    if(m_SpeedFactor != 1.0) {
-        m_pDecoder->setSpeedFactor(m_SpeedFactor);
-    } else if(m_FPS != 0.0) {
+    if (m_FPS != 0.0) {
         m_pDecoder->setFPS(m_FPS);
     }
     if (m_pDecoder->hasAudio()) {

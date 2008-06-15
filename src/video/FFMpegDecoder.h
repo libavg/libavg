@@ -78,8 +78,6 @@ class FFMpegDecoder: public IVideoDecoder
         virtual double getNominalFPS();
         virtual double getFPS();
         virtual void setFPS(double FPS);
-        virtual double getSpeedFactor();
-        virtual void setSpeedFactor(double Speed);
         virtual double getVolume();
         virtual void setVolume(double Volume);
         virtual void setAudioEnabled(bool bEnabled);
@@ -100,6 +98,8 @@ class FFMpegDecoder: public IVideoDecoder
         void convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp);
         long long getFrameTime(AVPacket* pPacket);
         long long getStartTime(StreamSelect Stream = SS_DEFAULT);
+        double getSpeedFactor();
+        void setSpeedFactor(double Speed);
         int copyRawAudio(unsigned char* buf, int size);
         int copyResampledAudio(unsigned char* buf, int size);
         void resampleAudio();

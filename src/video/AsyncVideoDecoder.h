@@ -57,8 +57,6 @@ class AsyncVideoDecoder: public IVideoDecoder
         virtual double getNominalFPS();
         virtual double getFPS();
         virtual void setFPS(double FPS);
-        virtual double getSpeedFactor();
-        virtual void setSpeedFactor(double SpeedFactor);
         virtual double getVolume();
         virtual void setVolume(double Volume);
         virtual void setAudioEnabled(bool bEnabled);
