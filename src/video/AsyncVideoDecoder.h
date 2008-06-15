@@ -92,6 +92,14 @@ class AsyncVideoDecoder: public IVideoDecoder
         unsigned char* m_AudioMsgData;
         int m_AudioMsgSize;
 
+        IntPoint m_Size;
+        int m_NumFrames;
+        bool m_bUseStreamFPS;
+        double m_FPS;
+        PixelFormat m_PF;
+        bool m_bHasAudio;
+        bool m_bHasVideo;
+        
         bool m_bAudioEOF;
         bool m_bVideoEOF;
         bool m_bAudioEnabled;

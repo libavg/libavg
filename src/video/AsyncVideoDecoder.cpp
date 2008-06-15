@@ -71,16 +71,22 @@ void AsyncVideoDecoder::open(const std::string& sFilename, const AudioParams& AP
     m_sFilename = sFilename;
 
     m_pSyncDecoder->open(m_sFilename, AP, ycbcrMode, bThreadedDemuxer);
-    
-    if (m_pSyncDecoder->hasVideo()) {
+    m_bHasVideo = m_pSyncDecoder->hasVideo();
+    m_bHasAudio = m_pSyncDecoder->hasAudio();
+
+    if (m_bHasVideo) {
         m_pVCmdQ = VideoDecoderThread::CmdQueuePtr(new VideoDecoderThread::CmdQueue);
         m_pVMsgQ = VideoMsgQueuePtr(new VideoMsgQueue(8));
         m_pVDecoderThread = new boost::thread(
                  VideoDecoderThread(*m_pVCmdQ, *m_pVMsgQ, m_pSyncDecoder));
         m_LastVideoFrameTime = -1000;
+        m_Size = m_pSyncDecoder->getSize();
+        m_NumFrames = m_pSyncDecoder->getNumFrames();
+        m_FPS = m_pSyncDecoder->getFPS();
+        m_PF = m_pSyncDecoder->getPixelFormat();
     }
     
-    if (m_pSyncDecoder->hasAudio()) {
+    if (m_bHasAudio) {
         m_pACmdQ = AudioDecoderThread::CmdQueuePtr(new AudioDecoderThread::CmdQueue);
         m_pAMsgQ = VideoMsgQueuePtr(new VideoMsgQueue(8));
         m_pADecoderThread = new boost::thread(
@@ -159,7 +165,7 @@ void AsyncVideoDecoder::seek(long long DestTime)
 
 StreamSelect AsyncVideoDecoder::getMasterStream()
 {
-    if (m_pSyncDecoder->hasAudio() && m_bAudioEnabled) {
+    if (m_bHasAudio && m_bAudioEnabled) {
         return SS_AUDIO;
     } else {
         return SS_VIDEO;
@@ -168,17 +174,17 @@ StreamSelect AsyncVideoDecoder::getMasterStream()
 
 bool AsyncVideoDecoder::hasVideo()
 {
-    return m_pSyncDecoder->hasVideo();
+    return m_bHasVideo;
 }
 
 bool AsyncVideoDecoder::hasAudio()
 {
-    return m_pSyncDecoder->hasAudio();
+    return m_bHasAudio;
 }
 
 IntPoint AsyncVideoDecoder::getSize()
 {
-    return m_pSyncDecoder->getSize();
+    return m_Size;
 }
 
 int AsyncVideoDecoder::getCurFrame()
@@ -188,18 +194,18 @@ int AsyncVideoDecoder::getCurFrame()
 
 int AsyncVideoDecoder::getNumFrames()
 {
-    return m_pSyncDecoder->getNumFrames();
+    return m_NumFrames;
 }
 
 long long AsyncVideoDecoder::getCurTime(StreamSelect Stream)
 {
     switch(Stream) {
         case SS_VIDEO:
-            assert(m_pSyncDecoder->hasVideo());
+            assert(m_bHasVideo);
             return m_LastVideoFrameTime;
             break;
         case SS_AUDIO:
-            assert(m_pSyncDecoder->hasAudio());
+            assert(m_bHasAudio);
             return m_LastAudioFrameTime;
             break;
         case SS_DEFAULT:
@@ -223,7 +229,7 @@ double AsyncVideoDecoder::getNominalFPS()
 
 double AsyncVideoDecoder::getFPS()
 {
-    return m_pSyncDecoder->getFPS();
+    return m_FPS;
 }
 
 void AsyncVideoDecoder::setFPS(double FPS)
@@ -258,7 +264,7 @@ void AsyncVideoDecoder::setAudioEnabled(bool bEnabled)
 
 PixelFormat AsyncVideoDecoder::getPixelFormat()
 {
-    return m_pSyncDecoder->getPixelFormat();
+    return m_PF;
 }
 
 FrameAvailableCode AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp, long long TimeWanted)
@@ -288,9 +294,9 @@ bool AsyncVideoDecoder::isEOF(StreamSelect Stream)
 {
     switch(Stream) {
         case SS_AUDIO:
-            return (!m_pSyncDecoder->hasAudio() || m_bAudioEOF);
+            return (!m_bHasAudio || m_bAudioEOF);
         case SS_VIDEO:
-            return (!m_pSyncDecoder->hasVideo() || m_bVideoEOF);
+            return (!m_bHasVideo || m_bVideoEOF);
         case SS_ALL:
             return isEOF(SS_VIDEO) && isEOF(SS_AUDIO);
         default:
