@@ -42,6 +42,7 @@ class VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
         
         bool work();
         void seek(long long DestTime);
+        void setFPS(double FPS);
 
     private:
         VideoMsgQueue& m_MsgQ;

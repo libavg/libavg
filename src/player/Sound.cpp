@@ -243,8 +243,7 @@ void Sound::changeSoundState(SoundState NewSoundState)
             if (NewSoundState == Paused) {
                 m_PauseStartTime = CurTime;
             } else if (NewSoundState == Playing && m_State == Paused) {
-                m_PauseTime += (CurTime-m_PauseStartTime
-                        - (long long)(1000.0/m_pDecoder->getFPS()));
+                m_PauseTime += CurTime-m_PauseStartTime;
             } else if (NewSoundState == Unloaded) {
                 close();
             }

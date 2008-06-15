@@ -229,12 +229,18 @@ double AsyncVideoDecoder::getNominalFPS()
 
 double AsyncVideoDecoder::getFPS()
 {
+    assert(m_pVDecoderThread);
     return m_FPS;
 }
 
 void AsyncVideoDecoder::setFPS(double FPS)
 {
-    m_pSyncDecoder->setFPS(FPS);
+    m_pVCmdQ->push(Command<VideoDecoderThread>(boost::bind(
+            &VideoDecoderThread::setFPS, _1, FPS)));
+    m_bUseStreamFPS = (FPS == 0);
+    if (FPS != 0) {
+        m_FPS = FPS;
+    }
 }
 
 double AsyncVideoDecoder::getSpeedFactor()
@@ -264,6 +270,7 @@ void AsyncVideoDecoder::setAudioEnabled(bool bEnabled)
 
 PixelFormat AsyncVideoDecoder::getPixelFormat()
 {
+    assert(m_pVDecoderThread);
     return m_PF;
 }
 

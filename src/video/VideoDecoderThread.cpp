@@ -107,4 +107,9 @@ void VideoDecoderThread::seek(long long DestTime)
                 VideoFrameTime, AudioFrameTime)));
 }
 
+void VideoDecoderThread::setFPS(double FPS)
+{
+    m_pDecoder->setFPS(FPS);
+}
+
 }
