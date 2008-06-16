@@ -76,6 +76,12 @@ class FocusContext:
             if ob.getFocus():
                 ob.onKeyDown(keycode)
 
+    def backspace(self):
+        self.keyCodePressed(8)
+    
+    def clear(self):
+        self.keyCodePressed(12)
+
     def resetFocuses(self):
         for ob in self.TAElements:
             ob.clearFocus()
@@ -144,6 +150,7 @@ class Textarea:
             focusContext.register(self)
         
         self.__textNode = textNode
+        self.__charSize = -1
         self.setStyle()
         self.setFocus(False)
     
@@ -166,7 +173,7 @@ class Textarea:
         """
         return self.__textNode.text[0:-1]
         
-    def setStyle(self, font='Arial', size=12, color='000000', multiline=True):
+    def setStyle(self, font='Arial', size=12, weight='normal', color='000000', multiline=True):
         """
         Set some style parameters of the <words> node of the Textarea
         @param font: font face
@@ -177,13 +184,21 @@ class Textarea:
         self.__textNode.font = font
         self.__textNode.size = int(size)
         self.__textNode.color = color
+        self.__textNode.weight = weight
         self.__isMultiline = multiline
-
+        
         if multiline:
             self.__textNode.parawidth = int(self.__parent.width)
         else:
             self.__textNode.parawidth = -1
-
+    
+    def setMaxLength(self, maxlen):
+        """
+        Set character limit of the input
+        @param maxlen: max number of character allowed
+        """
+        self.__maxLength = maxlen
+        
     def clearFocus(self):
         """
         Compact form to blur the Textarea
@@ -245,6 +260,10 @@ class Textarea:
         if self.__isMultiline and \
             self.__textNode.lastchary > self.__parent.height - self.__textNode.size*2 and \
             self.__textNode.lastcharx > self.__parent.width - self.__textNode.size:
+            return
+        
+        # if maximum number of char is specified check it
+        if self.__maxLength > -1 and len(self.__textNode.text) > self.__maxLength:
             return
                         
         # remove the cursor
