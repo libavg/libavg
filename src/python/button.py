@@ -7,7 +7,7 @@ except ValueError:
     pass
 
 class Button:
-    def __init__(self, node, clickCallback):
+    def __init__(self, node, clickCallback, id=None):
         global g_Player
         g_Player = avg.Player.get()
         self.__node = node
@@ -17,6 +17,7 @@ class Button:
         self.__overNode = node.getChild(2)
         self.__disabledNode = node.getChild(3)
         self.__isDisabled = False
+        self.__id = id
         node.width = self.__upNode.width
         node.height = self.__upNode.height
         if self.__isMouseOver():
@@ -90,6 +91,8 @@ class Button:
             self.__setMode(3)
         else:
             self.__setMode(0)
+    def getID(self):
+        return self.__id
 
 class Checkbox(Button):
     def __init__(self, node, clickCallback=None):
