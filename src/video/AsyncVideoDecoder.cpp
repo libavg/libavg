@@ -41,6 +41,12 @@ AsyncVideoDecoder::AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder)
     : m_pSyncDecoder(pSyncDecoder),
       m_pVDecoderThread(0),
       m_pADecoderThread(0),
+      m_Size(0,0),
+      m_NumFrames(0),
+      m_bUseStreamFPS(true),
+      m_FPS(0),
+      m_PF(NO_PIXELFORMAT),
+      m_Duration(0),
       m_bAudioEOF(false),
       m_bVideoEOF(false),
       m_bAudioEnabled(true),
@@ -95,6 +101,7 @@ void AsyncVideoDecoder::open(const std::string& sFilename, const AudioParams& AP
         m_AudioMsgSize = 0;
         m_LastAudioFrameTime = 0;
     }
+    m_Duration = m_pSyncDecoder->getDuration();
 }
 
 void AsyncVideoDecoder::close()
@@ -219,7 +226,7 @@ long long AsyncVideoDecoder::getCurTime(StreamSelect Stream)
 
 long long AsyncVideoDecoder::getDuration()
 {
-    return m_pSyncDecoder->getDuration();
+    return m_Duration;
 }
 
 double AsyncVideoDecoder::getNominalFPS()
