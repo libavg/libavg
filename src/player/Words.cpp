@@ -108,10 +108,10 @@ NodeDefinition Words::getNodeDefinition()
         .extendDefinition(RasterNode::getNodeDefinition())
         .addChildren(sChildren)
         .addDTDElements(sDTDElements)
-        .addArg(Arg<string>("font", "arial", false, offsetof(Words, m_FontName)))
+        .addArg(Arg<string>("font", "arial", false, offsetof(Words, m_sFontName)))
         .addArg(Arg<string>("variant", "", false, offsetof(Words, m_sFontVariant)))
-        .addArg(Arg<string>("text", "", false, offsetof(Words, m_Text)))
-        .addArg(Arg<string>("color", "FFFFFF", false, offsetof(Words, m_ColorName)))
+        .addArg(Arg<string>("text", "", false, offsetof(Words, m_sText)))
+        .addArg(Arg<string>("color", "FFFFFF", false, offsetof(Words, m_sColorName)))
         .addArg(Arg<double>("size", 15, false, offsetof(Words, m_Size)))
         .addArg(Arg<int>("parawidth", -1, false, offsetof(Words, m_ParaWidth)))
         .addArg(Arg<int>("indent", 0, false, offsetof(Words, m_Indent)))
@@ -146,7 +146,7 @@ void Words::initText(const std::string& sText)
 {
     string sTemp = removeExcessSpaces(sText);
     if (sText.length() != 0) {
-        m_Text = sTemp;
+        m_sText = sTemp;
     }
 }
 
@@ -163,7 +163,7 @@ text_subst_func (FcPattern *pattern, gpointer data)
 
 void Words::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
-    m_Color = colorStringToColor(m_ColorName);
+    m_Color = colorStringToColor(m_sColorName);
 
     pango_ft2_get_context(72, 72);
     
@@ -239,12 +239,12 @@ double Words::getLastCharY() const
 
 const std::string& Words::getFont() const
 {
-    return m_FontName;
+    return m_sFontName;
 }
 
 void Words::setFont(const std::string& sName)
 {
-    m_FontName = sName;
+    m_sFontName = sName;
     m_bFontChanged = true;
     m_bDrawNeeded = true;
 }
@@ -263,13 +263,13 @@ void Words::setFontVariant(const std::string& sVariant)
 
 const std::string& Words::getText() const 
 {
-    return m_Text;
+    return m_sText;
 }
 
 void Words::setText(const std::string& sText)
 {
-    if (m_Text != sText) {
-        m_Text = sText;
+    if (m_sText != sText) {
+        m_sText = sText;
         m_bDrawNeeded = true;
         
         PangoAttrList * pAttrList = 0;
@@ -282,13 +282,13 @@ void Words::setText(const std::string& sText)
 
 const std::string& Words::getColor() const
 {
-    return m_ColorName;
+    return m_sColorName;
 }
 
 void Words::setColor(const std::string& sColor)
 {
-    m_ColorName = sColor;
-    m_Color = colorStringToColor(m_ColorName);
+    m_sColorName = sColor;
+    m_Color = colorStringToColor(m_sColorName);
     m_bDrawNeeded = true;
 }
 
@@ -420,7 +420,7 @@ void Words::parseString(PangoAttrList** ppAttrList, char** ppText)
 {
     bool bOk;
     GError * pError = 0;
-    bOk = (pango_parse_markup(m_Text.c_str(), int(m_Text.length()), 0,
+    bOk = (pango_parse_markup(m_sText.c_str(), int(m_sText.length()), 0,
             ppAttrList, ppText, 0, &pError) != 0);
     if (!bOk) {
         throw Exception(AVG_ERR_CANT_PARSE_STRING,
@@ -438,12 +438,12 @@ void Words::drawString()
         return;
     }
     ScopeTimer Timer(DrawStringProfilingZone);
-    if (m_Text.length() == 0) {
+    if (m_sText.length() == 0) {
         m_StringExtents = DPoint(0,0);
     } else {
         if (m_bFontChanged) {
-            AVG_TRACE(Logger::MEMORY, "Opening font " << m_FontName);
-            PangoFontFamily * pFamily = getFontFamily(m_FontName);
+            AVG_TRACE(Logger::MEMORY, "Opening font " << m_sFontName);
+            PangoFontFamily * pFamily = getFontFamily(m_sFontName);
             PangoFontFace ** ppFaces;
             int numFaces;
             pango_font_family_list_faces (pFamily, &ppFaces, &numFaces);
@@ -461,7 +461,7 @@ void Words::drawString()
             }
             if (!pFace) {
                 pFace = ppFaces[0];
-                AVG_TRACE(Logger::WARNING, "Could not find font variant " << m_FontName << 
+                AVG_TRACE(Logger::WARNING, "Could not find font variant " << m_sFontName << 
                         ":" << m_sFontVariant << ". Using " <<
                         pango_font_face_get_face_name(pFace) << " instead.");
 
@@ -484,11 +484,11 @@ void Words::drawString()
                     m_pFontDescription);
             PangoFontDescription * pUsedDescription = pango_font_describe(pUsedFont);
             string sUsedName = pango_font_description_get_family(pUsedDescription);
-            if (!equalIgnoreCase(sUsedName, m_FontName)) {
-                if (s_sFontsNotFound.find(m_FontName) == s_sFontsNotFound.end()) {
-                    AVG_TRACE(Logger::WARNING, "Could not find font face " << m_FontName <<
+            if (!equalIgnoreCase(sUsedName, m_sFontName)) {
+                if (s_sFontsNotFound.find(m_sFontName) == s_sFontsNotFound.end()) {
+                    AVG_TRACE(Logger::WARNING, "Could not find font face " << m_sFontName <<
                             ". Using " << sUsedName << " instead.");
-                    s_sFontsNotFound.insert(m_FontName);
+                    s_sFontsNotFound.insert(m_sFontName);
                 }
             }
             pango_font_description_free(pUsedDescription);
@@ -506,7 +506,7 @@ void Words::drawString()
             pango_attr_list_unref (pAttrList);
             g_free (pText);
 
-//        pango_layout_set_markup(pLayout, m_Text.c_str(), m_Text.length());
+//        pango_layout_set_markup(pLayout, m_sText.c_str(), m_sText.length());
         }
         pango_layout_set_alignment(pLayout, m_Alignment);
         pango_layout_set_width(pLayout, m_ParaWidth * PANGO_SCALE);
@@ -530,7 +530,7 @@ void Words::drawString()
 //                << logical_rect.width << ", " << logical_rect.height << endl;
 
         PangoRectangle lastPos;
-        pango_layout_index_to_pos(pLayout, (int)m_Text.length(), &lastPos);
+        pango_layout_index_to_pos(pLayout, (int)m_sText.length(), &lastPos);
 //        cerr << "ITOPOS: " << lastPos.x / PANGO_SCALE << ", " << lastPos.y / PANGO_SCALE << endl;
         m_LastCharPos.x = lastPos.x / PANGO_SCALE;
         m_LastCharPos.y = lastPos.y / PANGO_SCALE;
@@ -592,7 +592,7 @@ static ProfilingZone RenderProfilingZone("Words::render");
 void Words::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    if (m_Text.length() != 0 && getEffectiveOpacity() > 0.001) {
+    if (m_sText.length() != 0 && getEffectiveOpacity() > 0.001) {
         getDisplayEngine()->blta8(getSurface(), getRelSize(),
                 getEffectiveOpacity(), m_Color, getBlendMode());
     }

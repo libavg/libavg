@@ -104,10 +104,10 @@ class Words : public RasterNode
         static void initFonts();
 
         // Exposed Attributes
-        std::string m_FontName;
+        std::string m_sFontName;
         std::string m_sFontVariant;
-        std::string m_Text;
-        std::string m_ColorName;
+        std::string m_sText;
+        std::string m_sColorName;
         Pixel32 m_Color;
         double m_Size;
         int m_ParaWidth;
