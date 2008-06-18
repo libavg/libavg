@@ -95,11 +95,11 @@ class Button:
         return self.__id
 
 class Checkbox(Button):
-    def __init__(self, node, clickCallback=None):
+    def __init__(self, node, clickCallback=None, id=None):
         self.__node = node
         self.__setChecked(False)
         self.__clickCallback = clickCallback
-        Button.__init__(self, node, self.__onClick)
+        Button.__init__(self, node, self.__onClick, id)
     def getState(self):
         return self.__isChecked
     def setState(self, checked):
@@ -112,6 +112,27 @@ class Checkbox(Button):
             self.__node.getChild(4).opacity = 0
     def __onClick(self, Event):
         self.__setChecked(not(self.__isChecked))
+        if self.__clickCallback != None:
+            self.__clickCallback(self)
+
+class Radio(Checkbox):
+    def __init__(self, node, clickCallback=None, id=None):
+        self.__node = node
+        self.__setChecked(False)
+        self.__clickCallback = clickCallback
+        Button.__init__(self, node, self.__onClick, id)
+    def getState(self):
+        return self.__isChecked
+    def setState(self, checked):
+        self.__setChecked(checked)
+    def __setChecked(self, checked):
+        self.__isChecked = checked
+        if checked:
+            self.__node.getChild(4).opacity = 1
+        else:
+            self.__node.getChild(4).opacity = 0
+    def __onClick(self, Event):
+        self.__setChecked(True)
         if self.__clickCallback != None:
             self.__clickCallback(self)
 
