@@ -229,8 +229,11 @@ void export_raster()
                 "Gets the X coordinate of the last character in the text node")
         .add_property("lastchary", &Words::getLastCharY,
                 "Gets the Y coordinate of the last character in the text node")
-        .def("getFonts", make_function(&Words::getFonts, 
+        .def("getFontFamilies", make_function(&Words::getFontFamilies, 
                 return_value_policy<copy_const_reference>()))
-        .staticmethod("getFonts")
+        .staticmethod("getFontFamilies")
+        .def("getFontVariants", make_function(&Words::getFontVariants, 
+                return_value_policy<copy_const_reference>()))
+        .staticmethod("getFontVariants")
     ;
 }

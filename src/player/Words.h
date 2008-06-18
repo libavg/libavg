@@ -46,7 +46,8 @@ class Words : public RasterNode
         virtual ~Words();
         
         virtual void initText(const std::string& sText);
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
+                AudioEngine * pAudioEngine);
         virtual void disconnect();
         virtual void preRender();
         virtual void render(const DRect& Rect);
@@ -91,7 +92,9 @@ class Words : public RasterNode
         std::string getStretch() const;
         void setStretch(const std::string& sStretch);
 
-        static const std::vector<std::string>& getFonts();
+        static const std::vector<std::string>& getFontFamilies();
+        static const std::vector<std::string>& getFontVariants(
+                const std::string& sFontName);
         
         double getLastCharX() const;
         double getLastCharY() const;
@@ -132,6 +135,8 @@ class Words : public RasterNode
 
         static std::set<std::string> s_sFontsNotFound;
         static bool s_bInitialized;
+        static int s_NumFontFamilies;
+        static PangoFontFamily** s_ppFontFamilies;
         
         DPoint m_LastCharPos;
 };

@@ -46,6 +46,8 @@ namespace avg {
 
 std::set<std::string> Words::s_sFontsNotFound;
 bool Words::s_bInitialized = false;
+int Words::s_NumFontFamilies = 0;
+PangoFontFamily** Words::s_ppFontFamilies = 0;
 
 void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level, 
         const gchar *message, gpointer unused_data)
@@ -466,27 +468,51 @@ string Words::getStretch() const
 }
 
 
-const vector<string>& Words::getFonts()
+const vector<string>& Words::getFontFamilies()
 {
-    static vector<string> sFonts;
-    sFonts.clear();
     initFonts();
-    PangoFT2FontMap *fontmap;
-    fontmap = PANGO_FT2_FONT_MAP (pango_ft2_font_map_new());
-    pango_ft2_font_map_set_resolution (fontmap, 72, 72);
-    pango_ft2_font_map_set_default_substitute (fontmap, text_subst_func, 0, 0);
-    PangoContext * pContext = pango_ft2_font_map_create_context (fontmap);
-    PangoFontMap* pFontMap = pango_context_get_font_map(pContext);
+    if (s_ppFontFamilies == 0) {
+        PangoFT2FontMap *fontmap;
+        fontmap = PANGO_FT2_FONT_MAP (pango_ft2_font_map_new());
+        pango_ft2_font_map_set_resolution (fontmap, 72, 72);
+        pango_ft2_font_map_set_default_substitute (fontmap, text_subst_func, 0, 0);
+        PangoContext * pContext = pango_ft2_font_map_create_context (fontmap);
+        PangoFontMap* pFontMap = pango_context_get_font_map(pContext);
 
-    PangoFontFamily ** ppFamilies;
-    int numFamilies;
-    pango_font_map_list_families(pFontMap, &ppFamilies, &numFamilies);
-    for (int i=0; i<numFamilies; ++i) {
-        sFonts.push_back(pango_font_family_get_name(ppFamilies[i]));
+        pango_font_map_list_families(pFontMap, &s_ppFontFamilies, &s_NumFontFamilies);
+
     }
-    g_free(ppFamilies);
+    static vector<string> sFonts;
+    for (int i=0; i<s_NumFontFamilies; ++i) {
+        sFonts.push_back(pango_font_family_get_name(s_ppFontFamilies[i]));
+    }
     sort(sFonts.begin(), sFonts.end());
     return sFonts;
+}
+
+const vector<string>& Words::getFontVariants(const string& sFontName)
+{
+    getFontFamilies();
+    PangoFontFamily * pCurFamily;
+    bool bFound = false;
+    for (int i=0; i<s_NumFontFamilies && !bFound; ++i) {
+        pCurFamily = s_ppFontFamilies[i];
+        if (pango_font_family_get_name(pCurFamily) == sFontName) {
+            bFound = true;
+        }
+    }
+    if (!bFound) {
+        throw(Exception(AVG_ERR_INVALID_ARGS, 
+                "getFontVariants: Font family "+sFontName+" not supported."));
+    }
+    PangoFontFace ** ppFaces;
+    int numFaces;
+    pango_font_family_list_faces (pCurFamily, &ppFaces, &numFaces);
+    static vector<string> sVariants;
+    for (int i=0; i<numFaces; ++i) {
+        sVariants.push_back(pango_font_face_get_face_name(ppFaces[i]));
+    }
+    return sVariants;
 }
 
 bool equalIgnoreCase(const string& s1, const string& s2) {
@@ -502,11 +528,11 @@ void Words::parseString(PangoAttrList** ppAttrList, char** ppText)
     bool bOk;
     GError * pError = 0;
     bOk = (pango_parse_markup(m_Text.c_str(), int(m_Text.length()), 0,
-	    ppAttrList, ppText, 0, &pError) != 0);
+            ppAttrList, ppText, 0, &pError) != 0);
     if (!bOk) {
-	throw Exception(AVG_ERR_CANT_PARSE_STRING,
-		string("Can't parse string in node with id '")+
-		    getID()+"' ("+pError->message+")");
+        throw Exception(AVG_ERR_CANT_PARSE_STRING,
+                string("Can't parse string in node with id '")+
+                getID()+"' ("+pError->message+")");
     }
 
 }
