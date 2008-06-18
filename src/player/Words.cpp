@@ -109,17 +109,14 @@ NodeDefinition Words::getNodeDefinition()
         .addChildren(sChildren)
         .addDTDElements(sDTDElements)
         .addArg(Arg<string>("font", "arial", false, offsetof(Words, m_FontName)))
+        .addArg(Arg<string>("variant", "", false, offsetof(Words, m_sFontVariant)))
         .addArg(Arg<string>("text", "", false, offsetof(Words, m_Text)))
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(Words, m_ColorName)))
         .addArg(Arg<double>("size", 15, false, offsetof(Words, m_Size)))
         .addArg(Arg<int>("parawidth", -1, false, offsetof(Words, m_ParaWidth)))
         .addArg(Arg<int>("indent", 0, false, offsetof(Words, m_Indent)))
         .addArg(Arg<double>("linespacing", -1, false, offsetof(Words, m_LineSpacing)))
-        .addArg(Arg<string>("alignment", "left"))
-        .addArg(Arg<string>("weight", "normal"))
-        .addArg(Arg<bool>("italic", false, false, offsetof(Words, m_bItalic)))
-        .addArg(Arg<string>("stretch", "normal"))
-        .addArg(Arg<bool>("smallcaps", false, false, offsetof(Words, m_bSmallCaps)));
+        .addArg(Arg<string>("alignment", "left"));
 }
 
 Words::Words (const ArgList& Args, Player * pPlayer)
@@ -133,7 +130,6 @@ Words::Words (const ArgList& Args, Player * pPlayer)
 {
     Args.setMembers(this);
     setAlignment(Args.getArgVal<string>("alignment"));
-    setWeight(Args.getArgVal<string>("weight"));
     initFonts();
 }
 
@@ -160,7 +156,7 @@ text_subst_func (FcPattern *pattern, gpointer data)
 {
 //  GimpText *text = GIMP_TEXT (data);
 
-  FcPatternAddBool (pattern, FC_HINTING,true);
+  FcPatternAddBool (pattern, FC_HINTING, true);
   FcPatternAddBool (pattern, FC_AUTOHINT, true);
   FcPatternAddBool (pattern, FC_ANTIALIAS, true);
 }
@@ -181,7 +177,6 @@ void Words::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pA
     pango_context_set_language(m_pContext,
             pango_language_from_string ("en_US"));
     pango_context_set_base_dir(m_pContext, PANGO_DIRECTION_LTR);
-    m_pFontDescription = pango_font_description_new();
 
     m_bFontChanged = true;
     m_bDrawNeeded = true;
@@ -220,60 +215,6 @@ void Words::setAlignment(const string& sAlign)
     m_bDrawNeeded = true;
 }
 
-void Words::setWeight(const string& sWeight)
-{
-    if (sWeight == "ultralight") {
-        m_Weight = PANGO_WEIGHT_ULTRALIGHT;
-    } else if (sWeight == "light") {
-        m_Weight = PANGO_WEIGHT_LIGHT;
-    } else if (sWeight == "normal") {
-        m_Weight = PANGO_WEIGHT_NORMAL;
-    } else if (sWeight == "semibold") {
-        m_Weight = PANGO_WEIGHT_SEMIBOLD;
-    } else if (sWeight == "bold") {
-        m_Weight = PANGO_WEIGHT_BOLD;
-    } else if (sWeight == "ultrabold") {
-        m_Weight = PANGO_WEIGHT_ULTRABOLD;
-    } else if (sWeight == "heavy") {
-        m_Weight = PANGO_WEIGHT_HEAVY;
-    } else {
-        throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "Words weight "+sWeight+" not supported."));
-    }
-    m_bFontChanged = true;
-    m_bDrawNeeded = true;
-}
-
-void Words::setStretch(const string& sStretch)
-{
-    if (sStretch == "ultracondensed") {
-        m_Stretch = PANGO_STRETCH_ULTRA_CONDENSED;
-    } else if (sStretch == "extracondensed") {
-        m_Stretch = PANGO_STRETCH_EXTRA_CONDENSED;
-    } else if (sStretch == "condensed") {
-        m_Stretch = PANGO_STRETCH_CONDENSED;
-    } else if (sStretch == "semicondensed") {
-        m_Stretch = PANGO_STRETCH_SEMI_CONDENSED;
-    } else if (sStretch == "normal") {
-        m_Stretch = PANGO_STRETCH_SEMI_CONDENSED;
-    } else if (sStretch == "normal") {
-        m_Stretch = PANGO_STRETCH_NORMAL;
-    } else if (sStretch == "semiexpanded") {
-        m_Stretch = PANGO_STRETCH_SEMI_EXPANDED;
-    } else if (sStretch == "expanded") {
-        m_Stretch = PANGO_STRETCH_EXPANDED;
-    } else if (sStretch == "extraexpanded") {
-        m_Stretch = PANGO_STRETCH_EXTRA_EXPANDED;
-    } else if (sStretch == "ultraexpanded") {
-        m_Stretch = PANGO_STRETCH_ULTRA_EXPANDED;
-    } else {
-        throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "Words stretch "+sStretch+" not supported."));
-    }
-    m_bFontChanged = true;
-    m_bDrawNeeded = true;
-}
-        
 double Words::getWidth() 
 {
     drawString();
@@ -304,6 +245,18 @@ const std::string& Words::getFont() const
 void Words::setFont(const std::string& sName)
 {
     m_FontName = sName;
+    m_bFontChanged = true;
+    m_bDrawNeeded = true;
+}
+
+const std::string& Words::getFontVariant() const
+{
+    return m_sFontVariant;
+}
+
+void Words::setFontVariant(const std::string& sVariant)
+{
+    m_sFontVariant = sVariant;
     m_bFontChanged = true;
     m_bDrawNeeded = true;
 }
@@ -397,77 +350,6 @@ string Words::getAlignment() const
     return "";
 }
 
-bool Words::getItalic() const
-{
-    return m_bItalic;
-}
-
-void Words::setItalic(bool bItalic)
-{
-    m_bItalic = bItalic;
-    m_bFontChanged = true;
-    m_bDrawNeeded = true;
-}
-        
-string Words::getWeight() const
-{
-    switch (m_Weight) {
-        case PANGO_WEIGHT_ULTRALIGHT:
-            return "ultralight";
-        case PANGO_WEIGHT_LIGHT:
-            return "light";
-        case PANGO_WEIGHT_NORMAL:
-            return "normal";
-        case PANGO_WEIGHT_SEMIBOLD:
-            return "semibold";
-        case PANGO_WEIGHT_BOLD:
-            return "bold";
-        case PANGO_WEIGHT_ULTRABOLD:
-            return "ultrabold";
-        case PANGO_WEIGHT_HEAVY:
-            return "heavy";
-    }
-    return "";
-}
-        
-bool Words::getSmallCaps() const
-{
-    return m_bSmallCaps;
-}
-
-void Words::setSmallCaps(bool bSmallCaps)
-{
-    m_bSmallCaps = bSmallCaps;
-    m_bFontChanged = true;
-    m_bDrawNeeded = true;
-}
-
-string Words::getStretch() const
-{
-    switch (m_Stretch) {
-        case PANGO_STRETCH_ULTRA_CONDENSED:
-            return "ultracondensed";
-        case PANGO_STRETCH_EXTRA_CONDENSED:
-            return "extracondensed";
-        case PANGO_STRETCH_CONDENSED:
-            return "condensed";
-        case PANGO_STRETCH_SEMI_CONDENSED:
-            return "semicondensed";
-        case PANGO_STRETCH_NORMAL:
-            return "normal";
-        case PANGO_STRETCH_SEMI_EXPANDED:
-            return "semiexpanded";
-        case PANGO_STRETCH_EXPANDED:
-            return "expanded";
-        case PANGO_STRETCH_EXTRA_EXPANDED:
-            return "extraexpanded";
-        case PANGO_STRETCH_ULTRA_EXPANDED:
-            return "ultraexpanded";
-    }
-    return "";
-}
-
-
 const vector<string>& Words::getFontFamilies()
 {
     initFonts();
@@ -477,10 +359,15 @@ const vector<string>& Words::getFontFamilies()
         pango_ft2_font_map_set_resolution (fontmap, 72, 72);
         pango_ft2_font_map_set_default_substitute (fontmap, text_subst_func, 0, 0);
         PangoContext * pContext = pango_ft2_font_map_create_context (fontmap);
+        pango_context_set_language(pContext,
+                pango_language_from_string("en_US"));
         PangoFontMap* pFontMap = pango_context_get_font_map(pContext);
 
+        string sOldLang = "";
+        getEnv("LC_CTYPE", sOldLang);
+        setEnv("LC_CTYPE", "en-us");
         pango_font_map_list_families(pFontMap, &s_ppFontFamilies, &s_NumFontFamilies);
-
+        setEnv("LC_CTYPE", sOldLang);
     }
     static vector<string> sFonts;
     for (int i=0; i<s_NumFontFamilies; ++i) {
@@ -492,19 +379,7 @@ const vector<string>& Words::getFontFamilies()
 
 const vector<string>& Words::getFontVariants(const string& sFontName)
 {
-    getFontFamilies();
-    PangoFontFamily * pCurFamily;
-    bool bFound = false;
-    for (int i=0; i<s_NumFontFamilies && !bFound; ++i) {
-        pCurFamily = s_ppFontFamilies[i];
-        if (pango_font_family_get_name(pCurFamily) == sFontName) {
-            bFound = true;
-        }
-    }
-    if (!bFound) {
-        throw(Exception(AVG_ERR_INVALID_ARGS, 
-                "getFontVariants: Font family "+sFontName+" not supported."));
-    }
+    PangoFontFamily * pCurFamily = getFontFamily(sFontName);
     PangoFontFace ** ppFaces;
     int numFaces;
     pango_font_family_list_faces (pCurFamily, &ppFaces, &numFaces);
@@ -512,6 +387,7 @@ const vector<string>& Words::getFontVariants(const string& sFontName)
     for (int i=0; i<numFaces; ++i) {
         sVariants.push_back(pango_font_face_get_face_name(ppFaces[i]));
     }
+    g_free(ppFaces);
     return sVariants;
 }
 
@@ -521,6 +397,23 @@ bool equalIgnoreCase(const string& s1, const string& s2) {
     transform(s1.begin(), s1.end(), std::back_inserter(sUpper1), (int(*)(int)) toupper);
     transform(s2.begin(), s2.end(), std::back_inserter(sUpper2), (int(*)(int)) toupper);
     return sUpper1 == sUpper2;
+}
+
+PangoFontFamily * Words::getFontFamily(const string& sFamily)
+{
+    getFontFamilies();
+    PangoFontFamily * pFamily = 0;
+    assert(s_NumFontFamilies != 0);
+    for (int i=0; i<s_NumFontFamilies; ++i) {
+        if (equalIgnoreCase(pango_font_family_get_name(s_ppFontFamilies[i]), sFamily)) {
+            pFamily = s_ppFontFamilies[i];
+        }
+    }
+    if (!pFamily) {
+        throw(Exception(AVG_ERR_INVALID_ARGS, 
+                "getFontFamily: Font family "+sFamily+" not found."));
+    }
+    return pFamily;
 }
 
 void Words::parseString(PangoAttrList** ppAttrList, char** ppText)
@@ -550,22 +443,41 @@ void Words::drawString()
     } else {
         if (m_bFontChanged) {
             AVG_TRACE(Logger::MEMORY, "Opening font " << m_FontName);
-            pango_font_description_set_family(m_pFontDescription,
-                    g_strdup(m_FontName.c_str()));
-            pango_font_description_set_style(m_pFontDescription,
-                    m_bItalic?PANGO_STYLE_ITALIC:PANGO_STYLE_NORMAL);
-            pango_font_description_set_variant(m_pFontDescription,
-                    m_bSmallCaps?PANGO_VARIANT_SMALL_CAPS:PANGO_VARIANT_NORMAL);
-            pango_font_description_set_weight(m_pFontDescription,
-                    m_Weight);
-            pango_font_description_set_stretch(m_pFontDescription,
-                    m_Stretch);
+            PangoFontFamily * pFamily = getFontFamily(m_FontName);
+            PangoFontFace ** ppFaces;
+            int numFaces;
+            pango_font_family_list_faces (pFamily, &ppFaces, &numFaces);
+            PangoFontFace * pFace = 0;
+            if (m_sFontVariant == "") {
+                pFace = ppFaces[0];
+            } else {
+                for (int i=0; i<numFaces; ++i) {
+                    if (equalIgnoreCase(pango_font_face_get_face_name(ppFaces[i]), 
+                            m_sFontVariant)) 
+                    {
+                        pFace = ppFaces[i];
+                    }
+                }
+            }
+            if (!pFace) {
+                pFace = ppFaces[0];
+                AVG_TRACE(Logger::WARNING, "Could not find font variant " << m_FontName << 
+                        ":" << m_sFontVariant << ". Using " <<
+                        pango_font_face_get_face_name(pFace) << " instead.");
+
+            }
+            g_free(ppFaces);
+
+            if (m_pFontDescription) {
+                pango_font_description_free(m_pFontDescription);
+            }
+            m_pFontDescription = pango_font_face_describe(pFace);
             pango_font_description_set_absolute_size(m_pFontDescription,
                     (int)(m_Size * PANGO_SCALE));
 
             pango_context_set_font_description(m_pContext, m_pFontDescription);
             m_bFontChanged = false;
-            
+/*
             // Test if the font is actually available and warn if not.
             PangoFontMap* pFontMap = pango_context_get_font_map(m_pContext);
             PangoFont* pUsedFont = pango_font_map_load_font(pFontMap, m_pContext,
@@ -578,13 +490,9 @@ void Words::drawString()
                             ". Using " << sUsedName << " instead.");
                     s_sFontsNotFound.insert(m_FontName);
                 }
-            } else {
-                if (m_Weight != pango_font_description_get_weight(m_pFontDescription)) {
-                    AVG_TRACE(Logger::WARNING, "Font face " << m_FontName <<
-                        " not available in " << getWeight() << ".");
-                }
             }
             pango_font_description_free(pUsedDescription);
+*/
         }
 
         PangoLayout *pLayout = pango_layout_new (m_pContext);
@@ -674,7 +582,7 @@ void Words::drawString()
     setViewport(-32767, -32767, -32767, -32767);
 }
 
-void Words::preRender ()
+void Words::preRender()
 {
     drawString();
 }
@@ -755,6 +663,7 @@ void Words::initFonts()
         } while (pDir);
 */
         g_log_set_default_handler(GLibLogFunc, 0);
+
         s_bInitialized = true;
     }
 }

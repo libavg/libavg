@@ -58,7 +58,10 @@ class Words : public RasterNode
 
         const std::string& getFont() const;
         void setFont(const std::string& sName);
-            
+
+        const std::string& getFontVariant() const;
+        void setFontVariant(const std::string& sVariant);
+
         const std::string& getText() const; 
         void setText(const std::string& sText);
         
@@ -80,18 +83,6 @@ class Words : public RasterNode
         std::string getAlignment() const;
         void setAlignment(const std::string& sAlignment);
         
-        bool getItalic() const;
-        void setItalic(bool bItalic);
-        
-        std::string getWeight() const;
-        void setWeight(const std::string& sWeight);
-        
-        bool getSmallCaps() const;
-        void setSmallCaps(bool bSmallCaps);
-        
-        std::string getStretch() const;
-        void setStretch(const std::string& sStretch);
-
         static const std::vector<std::string>& getFontFamilies();
         static const std::vector<std::string>& getFontVariants(
                 const std::string& sFontName);
@@ -107,12 +98,14 @@ class Words : public RasterNode
         void parseString(PangoAttrList** ppAttrList, char** ppText);
         Pixel32 colorStringToColor(const std::string & colorString);
         std::string removeExcessSpaces(const std::string & sText);
+        static PangoFontFamily * getFontFamily(const std::string& sFamily);
         static void checkFontError(int Ok, const std::string& sMsg);
         static void FT2SubstituteFunc(FcPattern *pattern, gpointer data);
         static void initFonts();
 
         // Exposed Attributes
         std::string m_FontName;
+        std::string m_sFontVariant;
         std::string m_Text;
         std::string m_ColorName;
         Pixel32 m_Color;
@@ -121,10 +114,6 @@ class Words : public RasterNode
         int m_Indent;
         double m_LineSpacing;
         PangoAlignment m_Alignment;
-        PangoWeight m_Weight;
-        bool m_bItalic;
-        PangoStretch m_Stretch;
-        bool m_bSmallCaps;
 
         DPoint m_StringExtents;
         PangoContext * m_pContext;

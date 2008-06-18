@@ -211,20 +211,6 @@ void export_raster()
         .add_property("alignment", &Words::getAlignment, &Words::setAlignment,
                 "The paragraph alignment. Possible values are 'left',\n"
                 "'center' and 'right'.\n")
-        .add_property("weight", &Words::getWeight, &Words::setWeight,
-                "Sets the character weight. Possible values are\n"
-                "'ultralight', 'light', 'normal', 'semibold', 'bold', 'ultrabold'\n"
-                "and 'heavy'. This value is mapped to the weights implemented\n"
-                "in the font chosen. In most cases, working weights are limited\n"
-                "to 'normal' and 'bold'.\n")
-        .add_property("italic", &Words::getItalic, &Words::setItalic,
-                "Boolean value that determines if the text is displayed in italic.\n")
-        .add_property("stretch", &Words::getStretch,&Words::setStretch,
-                "One of 'ultracondensed', 'extracondensed', 'condensed',\n"
-                "'semicondensed', 'normal', 'semiexpanded', 'expanded',\n"
-                "'extraexpanded' and 'ultraexpanded'. Not implemented in most\n"
-                "fonts.\n")
-        .add_property("smallcaps", &Words::getSmallCaps, &Words::setSmallCaps)
         .add_property("lastcharx", &Words::getLastCharX,
                 "Gets the X coordinate of the last character in the text node")
         .add_property("lastchary", &Words::getLastCharY,

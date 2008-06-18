@@ -257,6 +257,12 @@ void Player::play()
     try {
         initPlayback();
         try {
+            m_pDisplayEngine->render(m_pRootNode);
+            if (m_pDisplayEngine->wasFrameLate()) {
+                ThreadProfiler::get()->dumpFrame();
+            }
+            ThreadProfiler::get()->start();
+
             while (!m_bStopping) {
                 doFrame();
             }
@@ -308,12 +314,6 @@ void Player::initPlayback()
     m_FrameTime = 0;
     m_NumFrames = 0;
     m_MaxGPUMemUsed = 0;
-    m_pDisplayEngine->render(m_pRootNode);
-    if (m_pDisplayEngine->wasFrameLate()) {
-        ThreadProfiler::get()->dumpFrame();
-    }
-
-    ThreadProfiler::get()->start();
 }
 
 bool Player::isPlaying()
