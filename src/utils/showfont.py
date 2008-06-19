@@ -8,10 +8,11 @@ import time
 Log = avg.Logger.get();
 Log.setCategories(Log.APP |
           Log.WARNING | 
-          Log.PROFILE |
+#          Log.PROFILE |
 #          Log.PROFILE_LATEFRAMES |
-          Log.CONFIG |
-          Log.EVENTS)
+#          Log.CONFIG |
+#          Log.EVENTS |
+          0)
 
 Player = avg.Player()
 
@@ -22,18 +23,25 @@ Player.loadString("""
 </avg>
 """)
 if len(sys.argv) ==1:
-    print "Usage: showfont.py <fontname>"
+    print "Usage: showfont.py <fontname> [<text>]"
     sys.exit(1)
 else:
     fontname=sys.argv[1]
+    if len(sys.argv) > 2:
+        displayText=sys.argv[2]
+    else:
+        displayText=""
 variants = avg.Words.getFontVariants(fontname)
 print variants
 rootNode = Player.getRootNode()
 y = 10
 for variant in variants:
-    completeName = fontname+": "+variant
+    if displayText == "":
+        text = fontname+": "+variant
+    else:
+        text = displayText
     node = Player.createNode("words", 
-            { "text": completeName,
+            { "text": text,
               "font": fontname,
               "variant": variant,
               "size": 24,
