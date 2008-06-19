@@ -535,7 +535,7 @@ void Words::drawString()
         m_LastCharPos.x = lastPos.x / PANGO_SCALE;
         m_LastCharPos.y = lastPos.y / PANGO_SCALE;
         
-        m_StringExtents.y = logical_rect.height;
+        m_StringExtents.y = logical_rect.height+2;
         m_StringExtents.x = m_ParaWidth;
         if (m_ParaWidth == -1) {
             m_StringExtents.x = logical_rect.width;
@@ -549,6 +549,7 @@ void Words::drawString()
         if (m_StringExtents.y == 0) {
             m_StringExtents.y = 1;
         }
+//        cerr << "libavg Extents: " << m_StringExtents << endl;
         getSurface()->create(IntPoint(m_StringExtents), I8, false);
 
         BitmapPtr pBmp = getSurface()->lockBmp();
