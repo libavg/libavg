@@ -42,7 +42,6 @@ void export_raster()
     from_python_sequence<vector<DPoint>, variable_capacity_policy>();
     from_python_sequence<VertexGrid, variable_capacity_policy>();
 
- 
     class_<RasterNode, bases<Node>, boost::noncopyable>("RasterNode",
             "Base class for all nodes that have a direct 2d raster representation.\n"
             "This includes Image, Word, Camera, and Video nodes. RasterNodes can\n"
@@ -179,8 +178,17 @@ void export_raster()
                 make_function(&Words::setFont,
                         return_value_policy<copy_const_reference>()),
                 "The family name of the truetype font to use. This font must\n"
-                "be installed in the system, for instance using the installfonts.sh\n"
-                "script in the main libavg source directory.\n")
+                "be installed in the system (for instance using the installfonts.sh\n"
+                "script in the main libavg source directory) or available in a fonts/\n"
+                "subdirectory of the current directory.\n")
+        .add_property("variant", 
+                make_function(&Words::getFontVariant,
+                        return_value_policy<copy_const_reference>()),
+                make_function(&Words::setFontVariant,
+                        return_value_policy<copy_const_reference>()),
+                "The variant (bold, italic, etc.) of the truetype font to use. To\n"
+                "figure out which variants are available, use the showfonts utility\n"
+                "under src/utils.\n")
         .add_property("text", 
                 make_function(&Words::getText,
                         return_value_policy<copy_const_reference>()),

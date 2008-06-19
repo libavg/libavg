@@ -1,6 +1,6 @@
 <avg width="160" height="120">
     <words x="1" y="1" size="12" font="Liberation Serif" text="Liberation"/>
-    <words x="64" y="1" size="12" font="the sans-" variant="plain" text="The Sans-"/>
+    <words id="sanstext" x="64" y="1" size="12" font="the sans-" variant="plain" text="The Sans-"/>
     <words x="1" y="30" size="15" parawidth="120" font="Liberation Serif">
         Custom 
         <span size='16000' rise='5000' foreground='red'><b>markup</b></span>, 

@@ -667,6 +667,9 @@ class PlayerTestCase(AVGTestCase):
                 ))
 
     def testSimpleWords(self):
+        def checkFont():
+            node = Player.getElementByID("sanstext")
+            self.assert_(node.variant=="plain")
         fontList = avg.Words.getFontFamilies()
         try:
             fontList.index("Liberation Serif")
@@ -675,7 +678,9 @@ class PlayerTestCase(AVGTestCase):
         variantList = avg.Words.getFontVariants("Liberation Serif")
         self.assert_(len(variantList) == 4)
         self.start("simpletext.avg",
-                [lambda: self.compareImage("testSimpleWords", True)])
+                [lambda: self.compareImage("testSimpleWords", True),
+                 checkFont]
+                 )
 
     def testParaWords(self):
         self.start("paratext.avg",
