@@ -186,6 +186,7 @@ class Textarea:
         self.__textNode.color = color
         self.__textNode.weight = weight
         self.__isMultiline = multiline
+        self.__maxLength = -1
         
         if multiline:
             self.__textNode.parawidth = int(self.__parent.width)
