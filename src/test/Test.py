@@ -669,14 +669,14 @@ class PlayerTestCase(AVGTestCase):
     def testSimpleWords(self):
         def checkFont():
             node = Player.getElementByID("sanstext")
-            self.assert_(node.variant=="plain")
+            self.assert_(node.variant=="bold")
         fontList = avg.Words.getFontFamilies()
         try:
-            fontList.index("Liberation Serif")
+            fontList.index("Bitstream Vera Sans")
         except ValueError:
             self.assert_(False)
-        variantList = avg.Words.getFontVariants("Liberation Serif")
-        self.assert_(len(variantList) == 4)
+        variantList = avg.Words.getFontVariants("Bitstream Vera Sans")
+        self.assert_(len(variantList) >= 4)
         self.start("simpletext.avg",
                 [lambda: self.compareImage("testSimpleWords", True),
                  checkFont]

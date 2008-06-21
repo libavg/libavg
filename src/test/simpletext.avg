@@ -1,7 +1,7 @@
 <avg width="160" height="120">
-    <words x="1" y="1" size="12" font="Liberation Serif" text="Liberation"/>
-    <words id="sanstext" x="64" y="1" size="12" font="the sans-" variant="plain" text="The Sans-"/>
-    <words x="1" y="30" size="15" parawidth="120" font="Liberation Serif">
+    <words x="1" y="1" size="12" font="Bitstream Vera Sans" text="Bitstream Vera Sans" variant="roman"/>
+    <words id="sanstext" x="1" y="16" size="12" font="Bitstream Vera Sans" variant="bold" text="Bold"/>
+    <words x="1" y="32" size="15" parawidth="120" font="Bitstream Vera Sans" variant="roman">
         Custom 
         <span size='16000' rise='5000' foreground='red'><b>markup</b></span>, 
         <i>italics</i>, etc.
