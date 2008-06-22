@@ -3,11 +3,11 @@
 
 <avg id="main" width="80" height="60">
     <div id="button">
-        <words text="Up____"/>
-        <words text="Down"/>
-        <words text="Over"/>
-        <words text="Disabled"/>
-        <words y="5" text="check" opacity="0"/>
+        <image href="button_up.png"/>
+        <image href="button_down.png"/>
+        <image href="button_over.png"/>
+        <image href="button_disabled.png"/>
+        <image href="button_check.png"/>
     </div>
 </avg>
 
