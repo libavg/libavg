@@ -4,5 +4,7 @@
             text="一二三四五六七八九"/>
     <words id="dynamictext" x="1" y="24" size="12" font="arial"
             text="foo"/>
+    <words x="1" y="48" size="12" font="arial">&amp;</words>
+    <words x="12" y="48" size="12" font="arial" text="&amp;"/>
 </avg>
 

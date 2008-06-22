@@ -128,6 +128,7 @@ Words::Words (const ArgList& Args, Player * pPlayer)
       m_bDrawNeeded(true),
       m_LastCharPos(0,0)
 {
+    m_bParsedText = false;
     Args.setMembers(this);
     setAlignment(Args.getArgVal<string>("alignment"));
     initFonts();
@@ -146,7 +147,7 @@ void Words::initText(const std::string& sText)
 {
     string sTemp = removeExcessSpaces(sText);
     if (sText.length() != 0) {
-        m_sText = sTemp;
+        setParsedText(sTemp);
     }
 }
 
@@ -269,14 +270,7 @@ const std::string& Words::getText() const
 void Words::setText(const std::string& sText)
 {
     if (m_sText != sText) {
-        m_sText = sText;
-        m_bDrawNeeded = true;
-        
-        PangoAttrList * pAttrList = 0;
-        char * pText = 0;
-        parseString(&pAttrList, &pText);
-        pango_attr_list_unref (pAttrList);
-        g_free (pText);
+        setParsedText(sText);
     }
 }
 
@@ -477,27 +471,11 @@ void Words::drawString()
 
             pango_context_set_font_description(m_pContext, m_pFontDescription);
             m_bFontChanged = false;
-/*
-            // Test if the font is actually available and warn if not.
-            PangoFontMap* pFontMap = pango_context_get_font_map(m_pContext);
-            PangoFont* pUsedFont = pango_font_map_load_font(pFontMap, m_pContext,
-                    m_pFontDescription);
-            PangoFontDescription * pUsedDescription = pango_font_describe(pUsedFont);
-            string sUsedName = pango_font_description_get_family(pUsedDescription);
-            if (!equalIgnoreCase(sUsedName, m_sFontName)) {
-                if (s_sFontsNotFound.find(m_sFontName) == s_sFontsNotFound.end()) {
-                    AVG_TRACE(Logger::WARNING, "Could not find font face " << m_sFontName <<
-                            ". Using " << sUsedName << " instead.");
-                    s_sFontsNotFound.insert(m_sFontName);
-                }
-            }
-            pango_font_description_free(pUsedDescription);
-*/
         }
 
         PangoLayout *pLayout = pango_layout_new (m_pContext);
-       
-        {
+
+        if (m_bParsedText) {
             PangoAttrList * pAttrList = 0;
             char * pText = 0;
             parseString(&pAttrList, &pText);
@@ -507,7 +485,10 @@ void Words::drawString()
             g_free (pText);
 
 //        pango_layout_set_markup(pLayout, m_sText.c_str(), m_sText.length());
+        } else {
+            pango_layout_set_text(pLayout, m_sText.c_str(), -1);
         }
+
         pango_layout_set_alignment(pLayout, m_Alignment);
         pango_layout_set_width(pLayout, m_ParaWidth * PANGO_SCALE);
         pango_layout_set_indent(pLayout, m_Indent * PANGO_SCALE);
@@ -627,6 +608,21 @@ string Words::removeExcessSpaces(const string & sText)
         pos = s.find_first_of(" \n\r", pos+1);
     }
     return s;
+}
+
+void Words::setParsedText(const std::string& sText)
+{
+    m_sText = sText;
+    m_bDrawNeeded = true;
+
+    // This just does a syntax check and throws an exception if appropriate.
+    // The results are discarded.
+    PangoAttrList * pAttrList = 0;
+    char * pText = 0;
+    parseString(&pAttrList, &pText);
+    pango_attr_list_unref (pAttrList);
+    g_free (pText);
+    m_bParsedText = true;
 }
 
 void Words::checkFontError(int Ok, const string& sMsg)

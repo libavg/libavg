@@ -712,9 +712,10 @@ class PlayerTestCase(AVGTestCase):
         def changeTextWithInvalidTag():
             node = Player.getElementByID("dynamictext")
             try:
-	        node.text = "This <invalid_tag/>bombs"
+                node.text = "This <invalid_tag/>bombs"
             except:
                 node.text = "except"
+            self.assert_(node.text == "except")
         self.start("dynamictext.avg",
                 (lambda: self.compareImage("testDynamicWords1", True),
                  changeText,
