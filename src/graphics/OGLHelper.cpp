@@ -172,11 +172,17 @@ void getGLVersion(int & major, int& minor)
 
 void getGLShadingLanguageVersion(int & major, int& minor)
 {
-    const char* pVersion = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
-    if (pVersion == 0) {
-        major = 0;
-        minor = 0;
+    int glMajor, glMinor;
+    getGLVersion(glMajor, glMinor);
+
+    major = minor = 0;
+    if (glMajor == 1) {
+        if (queryOGLExtension("GL_ARB_shading_language_100")) {
+            major = 1;
+            minor = 0;
+        }
     } else {
+        const char* pVersion = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
         sscanf(pVersion, "%d.%d", &major, &minor);
     }
 }
