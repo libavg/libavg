@@ -100,8 +100,7 @@ class VideoTestCase(AVTestCase):
         Player.setFakeFPS(25)
         self._loadEmpty()
         videoNode = Player.createNode("video",
-                {"x":80, "y":0, "width":80, "height":80, "loop":True,
-                 "href":"../video/testfiles/mjpeg-48x48.avi"})
+                {"loop":True, "href":"../video/testfiles/mjpeg-48x48.avi"})
         Player.getRootNode().appendChild(videoNode)
         self.start(None,
                 (lambda: videoNode.play(),
