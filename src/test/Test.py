@@ -83,7 +83,10 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(framerate > 0)
         Player.showCursor(0)
         Player.showCursor(1)
-        self.start("image.avg",
+        Player.loadFile("image.avg")
+        self.assert_(Player.getElementByID("test").width == 65)
+        self.assert_(Player.getElementByID("test").height == 65)
+        self.start(None,
                 (lambda: self.compareImage("testimg", False), 
                  getFramerate,
                  loadNewFile, 

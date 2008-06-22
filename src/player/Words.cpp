@@ -483,8 +483,6 @@ void Words::drawString()
             pango_layout_set_attributes (pLayout, pAttrList);
             pango_attr_list_unref (pAttrList);
             g_free (pText);
-
-//        pango_layout_set_markup(pLayout, m_sText.c_str(), m_sText.length());
         } else {
             pango_layout_set_text(pLayout, m_sText.c_str(), -1);
         }
