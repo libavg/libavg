@@ -66,7 +66,10 @@
 #include <iostream>
 #include <sstream>
 
-#ifndef _WIN32
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#else
 #include <unistd.h>
 #endif
 
@@ -603,11 +606,15 @@ OGLShaderPtr SDLDisplayEngine::getYCbCrJ420pShader()
 
 void SDLDisplayEngine::showCursor (bool bShow)
 {
+#ifdef _WIN32
+    ShowCursor(bShow);
+#else
     if (bShow) {
         SDL_ShowCursor(SDL_ENABLE);
     } else {
         SDL_ShowCursor(SDL_DISABLE);
     }
+#endif
 }
 
 BitmapPtr SDLDisplayEngine::screenshot ()
