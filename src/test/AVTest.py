@@ -97,23 +97,29 @@ class VideoTestCase(AVTestCase):
     def testVideoSeek(self):
         def seek(frame):
             videoNode.seekToFrame(frame)
-        Player.setFakeFPS(25)
-        self._loadEmpty()
-        videoNode = Player.createNode("video",
-                {"loop":True, "href":"../video/testfiles/mjpeg-48x48.avi"})
-        Player.getRootNode().appendChild(videoNode)
-        self.start(None,
-                (lambda: videoNode.play(),
-                 lambda: seek(100),
-                 lambda: self.compareImage("testVideoSeek1", False),
-                 lambda: videoNode.pause(),
-                 lambda: seek(26),
-                 None,
-                 lambda: self.compareImage("testVideoSeek2", False),
-                 lambda: videoNode.play(),
-                 None,
-                 lambda: self.compareImage("testVideoSeek3", False)
-                ))
+        for useCustomFPS in [False, True]:
+            Player.setFakeFPS(25)
+            self._loadEmpty()
+            if useCustomFPS:
+                videoNode = Player.createNode("video", 
+                        {"loop":True, "fps":25, 
+                         "href":"../video/testfiles/mjpeg-48x48.avi"})
+            else:
+                videoNode = Player.createNode("video",
+                        {"loop":True, "href":"../video/testfiles/mjpeg-48x48.avi"})
+            Player.getRootNode().appendChild(videoNode)
+            self.start(None,
+                    (lambda: videoNode.play(),
+                     lambda: seek(100),
+                     lambda: self.compareImage("testVideoSeek1", False),
+                     lambda: videoNode.pause(),
+                     lambda: seek(26),
+                     None,
+                     lambda: self.compareImage("testVideoSeek2", False),
+                     lambda: videoNode.play(),
+                     None,
+                     lambda: self.compareImage("testVideoSeek3", False)
+                    ))
 
     def testVideoFPS(self):
         Player.setFakeFPS(25)
