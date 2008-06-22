@@ -109,7 +109,7 @@ void winOGLErrorCheck(bool bOK, const string & where)
 }
 #endif
 
-bool queryOGLExtension(char *extName)
+bool queryOGLExtension(const char *extName)
 {
     /*
     ** Search for extName in the extensions string. Use of strstr()
@@ -138,7 +138,7 @@ bool queryOGLExtension(char *extName)
     return false;
 }
 
-bool queryGLXExtension(char *extName) {
+bool queryGLXExtension(const char *extName) {
 #if (defined __APPLE__) || (defined _WIN32)
     return false;
 #else

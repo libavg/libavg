@@ -34,7 +34,7 @@ namespace avg {
 class GPUBandpassFilter: public GPUFilter
 {
 public:
-    GPUBandpassFilter(const IntPoint& size, PixelFormat pf, double min, double max, 
+    GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc, double min, double max, 
             double postScale, bool bInvert);
     virtual ~GPUBandpassFilter();
 

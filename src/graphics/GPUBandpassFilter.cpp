@@ -33,9 +33,9 @@ namespace avg {
 
 OGLShaderPtr GPUBandpassFilter::s_pShader;
 
-GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pf, 
+GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc, 
         double min, double max, double postScale, bool bInvert)
-    : GPUFilter(size, pf),
+    : GPUFilter(size, pfSrc),
       m_PostScale(postScale),
       m_bInvert(bInvert),
       m_pMinFBO(new FBOImage(size, B8G8R8A8, GL_FLOAT, false, false)),

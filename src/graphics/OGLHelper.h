@@ -52,8 +52,8 @@ void OGLErrorCheck(int avgcode, const std::string & where);
 #ifdef _WIN32
 void winOGLErrorCheck(bool bOK, const std::string & where);
 #endif
-bool queryOGLExtension(char *extName);
-bool queryGLXExtension(char *extName);
+bool queryOGLExtension(const char *extName);
+bool queryGLXExtension(const char *extName);
 void getGLVersion(int & major, int& minor);
 void getGLShadingLanguageVersion(int & major, int& minor);
 

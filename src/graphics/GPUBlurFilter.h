@@ -32,7 +32,7 @@ namespace avg {
 class GPUBlurFilter: public GPUFilter
 {
 public:
-    GPUBlurFilter(const IntPoint& size, PixelFormat pf, double stdDev);
+    GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, double stdDev);
     GPUBlurFilter(PBOImagePtr pSrcPBO, FBOImagePtr pDestFBO, double stdDev);
     void init();
     virtual ~GPUBlurFilter();

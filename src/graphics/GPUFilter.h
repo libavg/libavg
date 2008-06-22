@@ -32,12 +32,13 @@ namespace avg {
 class GPUFilter: public Filter
 {
 public:
-    GPUFilter(const IntPoint& size, PixelFormat pf);
+    GPUFilter(const IntPoint& size, PixelFormat pfSrc);
     GPUFilter(PBOImagePtr pSrcPBO, FBOImagePtr pDestFBO);
     virtual ~GPUFilter();
 
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
     virtual void applyOnGPU() = 0;
+    static bool isSupported();
 
 protected:
     PixelFormat getPF() const;
