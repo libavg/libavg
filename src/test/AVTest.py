@@ -96,17 +96,22 @@ class VideoTestCase(AVTestCase):
 
     def testVideoSeek(self):
         def seek(frame):
-            Player.getElementByID("clogo2").seekToFrame(frame)
+            videoNode.seekToFrame(frame)
         Player.setFakeFPS(25)
-        self.start("video.avg",
-                (lambda: Player.getElementByID("clogo2").play(),
+        self._loadEmpty()
+        videoNode = Player.createNode("video",
+                {"x":80, "y":0, "width":80, "height":80, "loop":True,
+                 "href":"../video/testfiles/mjpeg-48x48.avi"})
+        Player.getRootNode().appendChild(videoNode)
+        self.start(None,
+                (lambda: videoNode.play(),
                  lambda: seek(100),
                  lambda: self.compareImage("testVideoSeek1", False),
-                 lambda: Player.getElementByID("clogo2").pause(),
+                 lambda: videoNode.pause(),
                  lambda: seek(26),
                  None,
                  lambda: self.compareImage("testVideoSeek2", False),
-                 lambda: Player.getElementByID("clogo2").play(),
+                 lambda: videoNode.play(),
                  None,
                  lambda: self.compareImage("testVideoSeek3", False)
                 ))
