@@ -57,6 +57,9 @@ private:
     GLXContext m_Context;
 #else
 #ifdef _WIN32
+    HDC m_hDC;
+    HBITMAP m_hBitmap;
+    void *m_pBits;
 	HGLRC m_Context;
 #endif
 #endif

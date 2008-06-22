@@ -27,6 +27,7 @@
 #include "OGLImagingContext.h"
 
 #include "../base/TestSuite.h"
+#include "../base/Exception.h"
 
 #include <iostream>
 
@@ -205,17 +206,22 @@ public:
 
 int main(int nargs, char** args)
 {
-    GraphicsTest::createResultImgDir();
-    OGLImagingContext context(IntPoint(64, 64));
+    bool bOK = true;
+    try {
+        GraphicsTest::createResultImgDir();
+        OGLImagingContext context(IntPoint(64, 64));
 
-    bool bOK;
-    if (!FBOImage::isFBOSupported()) {
+        try {
+            GPUTestSuite Suite;
+            Suite.runTests();
+            bOK = Suite.isOk();
+        } catch (Exception& ex) {
+            cerr << "Exception: " << ex.GetStr() << endl;
+        }
+    } catch (Exception& ex) {
+        cerr << "Failed to create OGL context: " << ex.GetStr() << endl;
+        cerr << "Skipping GPU imaging test." << endl;
         bOK = true;
-        cerr << "  GL_EXT_framebuffer_object not supported. Skipping FBO test." << endl;
-    } else {
-        GPUTestSuite Suite;
-        Suite.runTests();
-        bOK = Suite.isOk();
     }
 
     if (bOK) {

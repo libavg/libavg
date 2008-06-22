@@ -50,7 +50,7 @@ namespace avg {
 
 void OGLErrorCheck(int avgcode, const std::string & where);
 #ifdef _WIN32
-void winOGLErrorCheck(bool bOK, const std::string & where);
+void winOGLErrorCheck(BOOL bOK, const std::string & where);
 #endif
 bool queryOGLExtension(const char *extName);
 bool queryGLXExtension(const char *extName);

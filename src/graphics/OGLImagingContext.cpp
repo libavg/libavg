@@ -59,22 +59,36 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
     glXMakeCurrent(dpy, pixmap, m_Context);
 #else
 #ifdef _WIN32
+    // Create the bitmap for this OpenGL context
+    BITMAPINFO bmi;
+    memset(&bmi, 0, sizeof(BITMAPINFO));
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth = size.x;
+    bmi.bmiHeader.biHeight = size.y;
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 24;
+    bmi.bmiHeader.biCompression = BI_RGB;
+    bmi.bmiHeader.biSizeImage = size.x * size.y * 3; 
+    m_hDC = CreateCompatibleDC( 0 );
+    m_hBitmap = ::CreateDIBSection(m_hDC, &bmi, DIB_RGB_COLORS, &m_pBits, NULL, (DWORD)0);
+    ::SelectObject(m_hDC, m_hBitmap);
+
     PIXELFORMATDESCRIPTOR pfd;
-    HDC hDC = GetDC( 0 );
     ZeroMemory(&pfd, sizeof(pfd));
     pfd.nSize = sizeof(pfd);
     pfd.nVersion = 1;
-    pfd.dwFlags = PFD_SUPPORT_OPENGL;
+    pfd.dwFlags = PFD_DRAW_TO_BITMAP | PFD_GENERIC_FORMAT | PFD_SUPPORT_OPENGL;
     pfd.iPixelType = PFD_TYPE_RGBA;
     pfd.cColorBits = 24;
     pfd.cDepthBits = 16;
     pfd.iLayerType = PFD_MAIN_PLANE;
     
-    int iFormat = ChoosePixelFormat(hDC, &pfd);
-    SetPixelFormat( hDC, iFormat, &pfd );
-    m_Context = wglCreateContext(hDC);
+    int iFormat = ChoosePixelFormat(m_hDC, &pfd);
+    winOGLErrorCheck(iFormat != 0, "ChoosePixelFormat");
+    SetPixelFormat(m_hDC, iFormat, &pfd);
+    m_Context = wglCreateContext(m_hDC);
     winOGLErrorCheck(m_Context != 0, "wglCreateContext");
-    bool bOK = bool(wglMakeCurrent(hDC, m_Context));
+    BOOL bOK = wglMakeCurrent(m_hDC, m_Context);
     winOGLErrorCheck(bOK, "wglMakeCurrent");
 #endif
 #endif
@@ -122,6 +136,9 @@ OGLImagingContext::~OGLImagingContext()
         aglDestroyContext(m_Context);
         m_Context = 0;
     }
+#endif
+#ifdef _WIN32
+    DeleteDC(m_hDC);
 #endif
 }
 

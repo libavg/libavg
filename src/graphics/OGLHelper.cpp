@@ -96,7 +96,7 @@ void OGLErrorCheck(int avgcode, const string & where)
 }
 
 #ifdef _WIN32
-void winOGLErrorCheck(bool bOK, const string & where) 
+void winOGLErrorCheck(BOOL bOK, const string & where) 
 {
     if (!bOK) {
         char szErr[512];
@@ -173,7 +173,12 @@ void getGLVersion(int & major, int& minor)
 void getGLShadingLanguageVersion(int & major, int& minor)
 {
     const char* pVersion = (const char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
-    sscanf(pVersion, "%d.%d", &major, &minor);
+    if (pVersion == 0) {
+        major = 0;
+        minor = 0;
+    } else {
+        sscanf(pVersion, "%d.%d", &major, &minor);
+    }
 }
 
 void invalidGLCall()
