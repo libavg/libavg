@@ -30,6 +30,37 @@ namespace avg {
 
 using namespace std;
 
+#ifdef _WIN32
+LONG WINAPI imagingWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{ 
+    return DefWindowProc(hwnd, msg, wParam, lParam); 
+} 
+
+void registerWindowClass()
+{
+  static char * pClassName;
+  if (pClassName) {
+      return;
+  }
+  pClassName = "GLUT";
+
+  HINSTANCE hInstance = GetModuleHandle(NULL);
+  WNDCLASS  wc;
+  memset(&wc, 0, sizeof(WNDCLASS));
+  wc.style = CS_OWNDC;
+  wc.lpfnWndProc = (WNDPROC)imagingWindowProc;
+  wc.hInstance = hInstance;
+  wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
+  wc.hCursor = LoadCursor(hInstance, IDC_ARROW);
+  wc.hbrBackground = NULL;
+  wc.lpszMenuName = NULL;
+  wc.lpszClassName = pClassName;
+  
+  BOOL bOK = RegisterClass(&wc);
+  assert(bOK);
+}
+#endif
+
 OGLImagingContext::OGLImagingContext(const IntPoint & size)
 {
 #ifdef __APPLE__
@@ -59,28 +90,23 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
     glXMakeCurrent(dpy, pixmap, m_Context);
 #else
 #ifdef _WIN32
-    // Create the bitmap for this OpenGL context
-    BITMAPINFO bmi;
-    memset(&bmi, 0, sizeof(BITMAPINFO));
-    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    bmi.bmiHeader.biWidth = size.x;
-    bmi.bmiHeader.biHeight = size.y;
-    bmi.bmiHeader.biPlanes = 1;
-    bmi.bmiHeader.biBitCount = 24;
-    bmi.bmiHeader.biCompression = BI_RGB;
-    bmi.bmiHeader.biSizeImage = size.x * size.y * 3; 
-    m_hDC = CreateCompatibleDC( 0 );
-    m_hBitmap = ::CreateDIBSection(m_hDC, &bmi, DIB_RGB_COLORS, &m_pBits, NULL, (DWORD)0);
-    ::SelectObject(m_hDC, m_hBitmap);
+    registerWindowClass();
+    m_hwnd = CreateWindow("GLUT", "GLUT",
+            WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+            0, 0, 500, 300, 0, 0, GetModuleHandle(NULL), 0);
+    winOGLErrorCheck(m_hDC != 0, "CreateWindow");
+    
+    m_hDC = GetDC(m_hwnd);
+    winOGLErrorCheck(m_hDC != 0, "GetDC");
 
     PIXELFORMATDESCRIPTOR pfd;
     ZeroMemory(&pfd, sizeof(pfd));
     pfd.nSize = sizeof(pfd);
     pfd.nVersion = 1;
-    pfd.dwFlags = PFD_DRAW_TO_BITMAP | PFD_GENERIC_FORMAT | PFD_SUPPORT_OPENGL;
+    pfd.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
     pfd.iPixelType = PFD_TYPE_RGBA;
-    pfd.cColorBits = 24;
-    pfd.cDepthBits = 16;
+    pfd.cColorBits = 32;
+    pfd.cDepthBits = 32;
     pfd.iLayerType = PFD_MAIN_PLANE;
     
     int iFormat = ChoosePixelFormat(m_hDC, &pfd);
@@ -88,6 +114,7 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
     SetPixelFormat(m_hDC, iFormat, &pfd);
     m_Context = wglCreateContext(m_hDC);
     winOGLErrorCheck(m_Context != 0, "wglCreateContext");
+
     BOOL bOK = wglMakeCurrent(m_hDC, m_Context);
     winOGLErrorCheck(bOK, "wglMakeCurrent");
 #endif
@@ -96,7 +123,8 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
     glproc::init();
 
     if (!isSupported()) {
-        throw Exception(AVG_ERR_VIDEO_GENERAL, "GPU imaging not supported by OpenGL.");
+        throw Exception(AVG_ERR_VIDEO_GENERAL, 
+                "GPU imaging not supported by current OpenGL configuration.");
     }
 
     // Coordinates
@@ -138,7 +166,11 @@ OGLImagingContext::~OGLImagingContext()
     }
 #endif
 #ifdef _WIN32
-    DeleteDC(m_hDC);
+    if (m_Context) {
+        wglDeleteContext(m_Context);
+        DeleteDC(m_hDC);
+        DestroyWindow(m_hwnd);
+    }
 #endif
 }
 
