@@ -96,6 +96,7 @@ class AsyncVideoDecoder: public IVideoDecoder
         IntPoint m_Size;
         int m_NumFrames;
         bool m_bUseStreamFPS;
+        double m_StreamFPS;
         double m_FPS;
         PixelFormat m_PF;
         long long m_Duration;

@@ -170,6 +170,7 @@ class VideoDecoderTest: public DecoderTest {
                 IntPoint FrameSize = pDecoder->getSize();
                 TEST(FrameSize == IntPoint(48, 48));
                 TEST(pDecoder->getPixelFormat() == B8G8R8X8);
+                TEST(pDecoder->getNominalFPS() != 0);
                 BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
 
                 // Test first two frames.
@@ -397,6 +398,7 @@ class AVDecoderTest: public DecoderTest {
             VideoDecoderPtr pDecoder = createDecoder();
             pDecoder->open(getSrcDir()+"testfiles/"+sFilename, getAudioParams(),
                     OGL_NONE, isDemuxerThreaded());
+            TEST(pDecoder->getNominalFPS() != 0);
             IntPoint FrameSize = pDecoder->getSize();
             BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
             int NumFrames = 0;
