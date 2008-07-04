@@ -113,7 +113,6 @@ class FFMpegDecoder: public IVideoDecoder
         bool m_bEOFPending;
         bool m_bVideoEOF;
         bool m_bAudioEOF;
-        bool m_bAudioEnabled;
         PixelFormat m_PF;
 #ifdef AVG_ENABLE_SWSCALE
         SwsContext * m_pSwsContext;

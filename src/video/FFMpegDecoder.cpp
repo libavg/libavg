@@ -55,7 +55,6 @@ FFMpegDecoder::FFMpegDecoder ()
       m_pAStream(0),
       m_VStreamIndex(-1),
       m_AStreamIndex(-1),
-      m_bAudioEnabled(true),
 #ifdef AVG_ENABLE_SWSCALE
       m_pSwsContext(0),
 #endif
@@ -146,8 +145,8 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams* pAP,
         YCbCrMode ycbcrMode, bool bThreadedDemuxer)
 {
     mutex::scoped_lock Lock(s_OpenMutex);
-    m_bAudioEnabled = (pAP && bThreadedDemuxer);
-    if (m_bAudioEnabled) {
+    bool bAudioEnabled = (pAP && bThreadedDemuxer);
+    if (bAudioEnabled) {
         m_AP = *pAP;
     }
     m_bAudioEOF = false;
@@ -194,7 +193,7 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams* pAP,
                 break;
             case CODEC_TYPE_AUDIO:
                 // Ignore the audio stream if we're using sync demuxing. 
-                if (m_AStreamIndex < 0 && m_bAudioEnabled) {
+                if (m_AStreamIndex < 0 && bAudioEnabled) {
                     m_AStreamIndex = i;
                 }
                 break;
@@ -535,7 +534,7 @@ bool FFMpegDecoder::isEOF(StreamSelect Stream)
 {
     switch(Stream) {
         case SS_AUDIO:
-            return (!m_pAStream || !m_bAudioEnabled || m_bAudioEOF);
+            return (!m_pAStream || m_bAudioEOF);
         case SS_VIDEO:
             return (!m_pVStream || m_bVideoEOF);
         case SS_ALL:
@@ -670,7 +669,6 @@ int FFMpegDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
     int outputAudioBufferSize = pBuffer->getNumBytes();
 
     assert (m_pAStream);
-    assert (m_bAudioEnabled);
     if (m_bAudioEOF) {
         return 0;
     }
@@ -1000,7 +998,7 @@ long long FFMpegDecoder::getFrameTime(AVPacket* pPacket)
 
 StreamSelect FFMpegDecoder::getMasterStream()
 {
-    if (m_pAStream && m_bAudioEnabled) {
+    if (m_pAStream) {
         return SS_AUDIO;
     } else {
         return SS_VIDEO;

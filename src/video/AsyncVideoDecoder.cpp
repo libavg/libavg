@@ -48,7 +48,6 @@ AsyncVideoDecoder::AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder)
       m_Duration(0),
       m_bAudioEOF(false),
       m_bVideoEOF(false),
-      m_bAudioEnabled(true),
       m_bVideoSeekPending(false),
       m_bAudioSeekPending(false),
       m_Volume(1.0),
@@ -172,7 +171,7 @@ void AsyncVideoDecoder::seek(long long DestTime)
 
 StreamSelect AsyncVideoDecoder::getMasterStream()
 {
-    if (m_bHasAudio && m_bAudioEnabled) {
+    if (m_bHasAudio) {
         return SS_AUDIO;
     } else {
         return SS_VIDEO;
@@ -242,7 +241,7 @@ double AsyncVideoDecoder::getFPS()
 
 void AsyncVideoDecoder::setFPS(double FPS)
 {
-    assert(!m_bAudioEnabled || !m_pADecoderThread);
+    assert(!m_pADecoderThread);
     m_pVCmdQ->push(Command<VideoDecoderThread>(boost::bind(
             &VideoDecoderThread::setFPS, _1, FPS)));
     if (FPS != 0) {
@@ -258,15 +257,10 @@ double AsyncVideoDecoder::getVolume()
 void AsyncVideoDecoder::setVolume(double Volume)
 {
     m_Volume = Volume;
-    if (m_bHasAudio && m_bAudioEnabled) {
+    if (m_bHasAudio) {
         m_pACmdQ->push(Command<AudioDecoderThread>(boost::bind(
                 &AudioDecoderThread::setVolume, _1, Volume)));
     }
-}
-
-void AsyncVideoDecoder::setAudioEnabled(bool bEnabled)
-{
-    m_bAudioEnabled = bEnabled;
 }
 
 PixelFormat AsyncVideoDecoder::getPixelFormat()
@@ -314,9 +308,8 @@ bool AsyncVideoDecoder::isEOF(StreamSelect Stream)
 
 int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
-    if (m_bAudioEOF || !m_bAudioEnabled || !m_pADecoderThread) {
-        // TODO: Currently, every video starts an audio playback, even if there's no
-        // audio in the video. Once this has changed, we should assert here.
+    if (m_bAudioEOF || !m_pADecoderThread) {
+        // TODO: Change if !m_pADecoderThread to assert and see what happens.
         return 0;
     }
     scoped_lock Lock(m_AudioMutex);

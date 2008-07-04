@@ -59,7 +59,6 @@ class AsyncVideoDecoder: public IVideoDecoder
         virtual void setFPS(double FPS);
         virtual double getVolume();
         virtual void setVolume(double Volume);
-        virtual void setAudioEnabled(bool bEnabled);
         virtual PixelFormat getPixelFormat();
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted);
@@ -103,7 +102,6 @@ class AsyncVideoDecoder: public IVideoDecoder
         
         bool m_bAudioEOF;
         bool m_bVideoEOF;
-        bool m_bAudioEnabled;
         bool m_bVideoSeekPending;
         bool m_bAudioSeekPending;
         boost::mutex m_SeekMutex;
