@@ -308,8 +308,8 @@ bool AsyncVideoDecoder::isEOF(StreamSelect Stream)
 
 int AsyncVideoDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
-    if (m_bAudioEOF || !m_pADecoderThread) {
-        // TODO: Change if !m_pADecoderThread to assert and see what happens.
+    assert (m_pADecoderThread);
+    if (m_bAudioEOF) {
         return 0;
     }
     scoped_lock Lock(m_AudioMutex);
