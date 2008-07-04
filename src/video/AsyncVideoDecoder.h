@@ -42,7 +42,7 @@ class AsyncVideoDecoder: public IVideoDecoder
     public:
         AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder);
         virtual ~AsyncVideoDecoder();
-        virtual void open(const std::string& sFilename, const AudioParams& AP,
+        virtual void open(const std::string& sFilename, const AudioParams* AP,
                 YCbCrMode ycbcrMode, bool bSyncDemuxer);
         virtual void close();
         virtual void seek(long long DestTime);

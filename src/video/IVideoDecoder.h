@@ -45,7 +45,7 @@ class IVideoDecoder
 {
     public:
         virtual ~IVideoDecoder() {};
-        virtual void open(const std::string& sFilename, const AudioParams& AP,
+        virtual void open(const std::string& sFilename, const AudioParams* AP,
                 YCbCrMode ycbcrMode, bool bSyncDemuxer) = 0;
         virtual void close() = 0;
         virtual void seek(long long DestTime) = 0;
@@ -62,7 +62,6 @@ class IVideoDecoder
         virtual void setFPS(double FPS) = 0;
         virtual double getVolume() = 0;
         virtual void setVolume(double Volume) = 0;
-        virtual void setAudioEnabled(bool bEnabled) = 0;
         virtual PixelFormat getPixelFormat() = 0;
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted) = 0;

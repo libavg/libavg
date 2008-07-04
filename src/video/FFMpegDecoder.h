@@ -63,7 +63,7 @@ class FFMpegDecoder: public IVideoDecoder
     public:
         FFMpegDecoder();
         virtual ~FFMpegDecoder();
-        virtual void open(const std::string& sFilename, const AudioParams& AP,
+        virtual void open(const std::string& sFilename, const AudioParams* AP,
                 YCbCrMode ycbcrMode, bool bThreadedDemuxer);
         virtual void close();
         virtual void seek(long long DestTime);
@@ -80,7 +80,6 @@ class FFMpegDecoder: public IVideoDecoder
         virtual void setFPS(double FPS);
         virtual double getVolume();
         virtual void setVolume(double Volume);
-        virtual void setAudioEnabled(bool bEnabled);
         virtual PixelFormat getPixelFormat();
 
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted);

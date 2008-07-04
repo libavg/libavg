@@ -44,17 +44,12 @@ AudioEngine::~AudioEngine()
 
 void AudioEngine::setAudioEnabled(bool bEnabled)
 {
+    assert(m_AudioSources.empty());
     m_bEnabled = bEnabled;
     if (m_bEnabled) {
         play();
     } else {
         pause();
-    }
-    
-    AudioSourceList::iterator it;
-    for(it = m_AudioSources.begin(); it != m_AudioSources.end(); it++)
-    {
-        (*it)->setAudioEnabled(m_bEnabled);
     }
 }
 
@@ -70,7 +65,6 @@ AudioSourceList& AudioEngine::getSources()
 
 void AudioEngine::addSource(IAudioSource* pSource)
 {
-    pSource->setAudioEnabled(m_bEnabled);
     m_AudioSources.push_back(pSource);
 }
 
@@ -94,6 +88,11 @@ void AudioEngine::setVolume(double volume)
 double AudioEngine::getVolume() const
 {
     return m_Volume;
+}
+        
+bool AudioEngine::isEnabled() const
+{
+    return m_bEnabled;
 }
 
 }

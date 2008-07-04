@@ -80,7 +80,6 @@ Video::Video (const ArgList& Args, Player * pPlayer)
     } else {
         m_pDecoder = new FFMpegDecoder();
     }
-    m_bAudioEnabled = m_bThreaded;
     getPlayer()->registerFrameListener(this);
 }
 
@@ -239,17 +238,10 @@ void Video::onFrameEnd()
     }
 }
 
-void Video::setAudioEnabled(bool bEnabled)
-{
-    m_bAudioEnabled = bEnabled;
-    if (m_pDecoder) {
-        m_pDecoder->setAudioEnabled(m_bAudioEnabled);
-    }
-}
-
 int Video::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
-    if (m_bAudioEnabled && getVideoState() == Playing) {
+    assert(m_bThreaded);
+    if (getVideoState() == Playing) {
         return m_pDecoder->fillAudioBuffer(pBuffer);
     } else {
         return 0;
@@ -289,12 +281,11 @@ void Video::open(YCbCrMode ycbcrMode)
 {
     m_FramesTooLate = 0;
     m_FramesPlayed = 0;
-    AudioParams AP;
+    const AudioParams * pAP = 0;
     if (getAudioEngine()) {
-        AP = getAudioEngine()->getParams();
+        pAP = getAudioEngine()->getParams();
     }
-    m_pDecoder->open(m_Filename, AP, ycbcrMode, m_bThreaded);
-    m_pDecoder->setAudioEnabled(m_bAudioEnabled);
+    m_pDecoder->open(m_Filename, pAP, ycbcrMode, m_bThreaded);
     m_pDecoder->setVolume(m_Volume);
     if (m_FPS != 0.0) {
         if (m_pDecoder->hasAudio()) {

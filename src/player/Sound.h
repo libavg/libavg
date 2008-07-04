@@ -64,7 +64,6 @@ class Sound : public Node, IFrameListener, IAudioSource
         virtual std::string getTypeStr();
 
         virtual void onFrameEnd();
-        virtual void setAudioEnabled(bool bEnabled);
 
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
 

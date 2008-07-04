@@ -42,7 +42,7 @@ class SDLAudioEngine : public AudioEngine
         
         virtual int getChannels();
         virtual int getSampleRate();
-        virtual const AudioParams & getParams();
+        virtual const AudioParams * getParams();
         
         virtual void init(const AudioParams& AP, double volume);
         virtual void teardown();

@@ -142,11 +142,14 @@ int openCodec(AVFormatContext *formatContext, int streamIndex)
 }
 
 
-void FFMpegDecoder::open(const std::string& sFilename, const AudioParams& AP,
+void FFMpegDecoder::open(const std::string& sFilename, const AudioParams* pAP,
         YCbCrMode ycbcrMode, bool bThreadedDemuxer)
 {
     mutex::scoped_lock Lock(s_OpenMutex);
-    m_AP = AP;
+    m_bAudioEnabled = (pAP && bThreadedDemuxer);
+    if (m_bAudioEnabled) {
+        m_AP = *pAP;
+    }
     m_bAudioEOF = false;
     m_bVideoEOF = false;
     m_bEOFPending = false;
@@ -191,7 +194,7 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams& AP,
                 break;
             case CODEC_TYPE_AUDIO:
                 // Ignore the audio stream if we're using sync demuxing. 
-                if (m_AStreamIndex < 0 && bThreadedDemuxer) {
+                if (m_AStreamIndex < 0 && m_bAudioEnabled) {
                     m_AStreamIndex = i;
                 }
                 break;
@@ -483,11 +486,6 @@ double FFMpegDecoder::getVolume()
 void FFMpegDecoder::setVolume(double Volume)
 {
     m_Volume = Volume;
-}
-
-void FFMpegDecoder::setAudioEnabled(bool bEnabled)
-{
-    m_bAudioEnabled = bEnabled;
 }
 
 FrameAvailableCode FFMpegDecoder::renderToBmp(BitmapPtr pBmp, long long TimeWanted)

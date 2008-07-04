@@ -41,7 +41,7 @@ class AudioEngine
 
         virtual int getChannels() = 0;
         virtual int getSampleRate() = 0;
-        virtual const AudioParams & getParams() = 0;
+        virtual const AudioParams * getParams() = 0;
 
         virtual void setAudioEnabled(bool bEnabled);
         
@@ -56,6 +56,7 @@ class AudioEngine
         virtual void removeSource(IAudioSource* pSource);
         virtual void setVolume(double volume);
         double getVolume() const;
+        bool isEnabled() const;
         
     private:
         bool m_bEnabled;

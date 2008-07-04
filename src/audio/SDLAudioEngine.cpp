@@ -65,9 +65,13 @@ int SDLAudioEngine::getSampleRate()
     return m_AP.m_SampleRate;
 }
 
-const AudioParams & SDLAudioEngine::getParams()
+const AudioParams * SDLAudioEngine::getParams()
 {
-    return m_AP;
+    if (isEnabled()) {
+        return &m_AP;
+    } else {
+        return 0;
+    }
 }
 
 void SDLAudioEngine::init(const AudioParams& AP, double volume) 

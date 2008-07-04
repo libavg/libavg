@@ -116,13 +116,13 @@ class DecoderTest: public Test {
 
         AudioBufferPtr createAudioBuffer(int NumFrames)
         {
-            return AudioBufferPtr(new AudioBuffer(NumFrames, getAudioParams()));
+            return AudioBufferPtr(new AudioBuffer(NumFrames, *getAudioParams()));
         }
 
-        const AudioParams& getAudioParams()
+        const AudioParams* getAudioParams()
         {
             static AudioParams AP(44100, 2, 256);
-            return AP;
+            return &AP;
         }
 
     private:

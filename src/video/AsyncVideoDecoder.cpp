@@ -66,7 +66,7 @@ AsyncVideoDecoder::~AsyncVideoDecoder()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void AsyncVideoDecoder::open(const std::string& sFilename, const AudioParams& AP,
+void AsyncVideoDecoder::open(const std::string& sFilename, const AudioParams* pAP,
         YCbCrMode ycbcrMode, bool bThreadedDemuxer)
 {
     m_bAudioEOF = false;
@@ -75,7 +75,7 @@ void AsyncVideoDecoder::open(const std::string& sFilename, const AudioParams& AP
     m_bAudioSeekPending = false;
     m_sFilename = sFilename;
 
-    m_pSyncDecoder->open(m_sFilename, AP, ycbcrMode, bThreadedDemuxer);
+    m_pSyncDecoder->open(m_sFilename, pAP, ycbcrMode, bThreadedDemuxer);
     m_bHasVideo = m_pSyncDecoder->hasVideo();
     m_bHasAudio = m_pSyncDecoder->hasAudio();
     m_Duration = m_pSyncDecoder->getDuration();
@@ -97,7 +97,7 @@ void AsyncVideoDecoder::open(const std::string& sFilename, const AudioParams& AP
         m_pACmdQ = AudioDecoderThread::CmdQueuePtr(new AudioDecoderThread::CmdQueue);
         m_pAMsgQ = VideoMsgQueuePtr(new VideoMsgQueue(8));
         m_pADecoderThread = new boost::thread(
-                 AudioDecoderThread(*m_pACmdQ, *m_pAMsgQ, m_pSyncDecoder, AP));
+                 AudioDecoderThread(*m_pACmdQ, *m_pAMsgQ, m_pSyncDecoder, *pAP));
         m_AudioMsgData = 0;
         m_AudioMsgSize = 0;
         m_LastAudioFrameTime = 0;

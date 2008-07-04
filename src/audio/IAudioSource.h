@@ -35,7 +35,6 @@ class IAudioSource
 {
     public:
         virtual ~IAudioSource() {};
-        virtual void setAudioEnabled(bool bEnabled) = 0;
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer) = 0;
 };
 

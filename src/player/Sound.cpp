@@ -57,7 +57,6 @@ Sound::Sound (const ArgList& Args, Player * pPlayer)
     : Node(pPlayer),
       m_Filename(""),
       m_pEOFCallback(0),
-      m_bAudioEnabled(true),
       m_pDecoder(0),
       m_Volume(1.0),
       m_State(Unloaded)
@@ -216,14 +215,6 @@ void Sound::onFrameEnd()
     }
 }
 
-void Sound::setAudioEnabled(bool bEnabled)
-{
-    m_bAudioEnabled = bEnabled;
-    if (m_pDecoder) {
-        m_pDecoder->setAudioEnabled(m_bAudioEnabled);
-    }
-}
-
 int Sound::fillAudioBuffer(AudioBufferPtr pBuffer)
 {
     if (m_State == Playing) {
@@ -266,7 +257,6 @@ void Sound::seek(long long DestTime)
 void Sound::open()
 {
     m_pDecoder->open(m_Filename, getAudioEngine()->getParams(), OGL_NONE, true);
-    m_pDecoder->setAudioEnabled(m_bAudioEnabled);
     m_pDecoder->setVolume(m_Volume);
     if (getAudioEngine()) {
         getAudioEngine()->addSource(this);
