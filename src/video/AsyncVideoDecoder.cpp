@@ -242,7 +242,7 @@ double AsyncVideoDecoder::getFPS()
 
 void AsyncVideoDecoder::setFPS(double FPS)
 {
-    assert(!m_bAudioEnabled);
+    assert(!m_bAudioEnabled || !m_pADecoderThread);
     m_pVCmdQ->push(Command<VideoDecoderThread>(boost::bind(
             &VideoDecoderThread::setFPS, _1, FPS)));
     if (FPS != 0) {

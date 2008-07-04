@@ -536,14 +536,14 @@ FrameAvailableCode FFMpegDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr p
 bool FFMpegDecoder::isEOF(StreamSelect Stream)
 {
     switch(Stream) {
-    case SS_AUDIO:
-        return (!m_pAStream || !m_bAudioEnabled || m_bAudioEOF);
-    case SS_VIDEO:
-        return (!m_pVStream || m_bVideoEOF);
-    case SS_ALL:
-        return isEOF(SS_VIDEO) && isEOF(SS_AUDIO);
-    default:
-        return false;
+        case SS_AUDIO:
+            return (!m_pAStream || !m_bAudioEnabled || m_bAudioEOF);
+        case SS_VIDEO:
+            return (!m_pVStream || m_bVideoEOF);
+        case SS_ALL:
+            return isEOF(SS_VIDEO) && isEOF(SS_AUDIO);
+        default:
+            return false;
     }
 }
 
@@ -872,10 +872,6 @@ FrameAvailableCode FFMpegDecoder::readFrameForTime(AVFrame& Frame, long long Tim
     if (TimeWanted == -1) {
         readFrame(Frame, FrameTime);
     } else {
-        // If this video has audio, sync to that instead of the requested time
-        if (getMasterStream() == SS_AUDIO) {
-            TimeWanted = m_LastAudioFrameTime;
-        }
         double TimePerFrame = 1000/m_FPS;
         if (TimeWanted-m_LastVideoFrameTime < 0.5*TimePerFrame) {
 /*            

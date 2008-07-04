@@ -348,7 +348,12 @@ long long Video::getNextFrameTime()
         case Paused:
             return m_PauseStartTime-m_StartTime;
         case Playing:
-            return getPlayer()->getFrameTime()-m_StartTime-m_PauseTime;
+            if (m_pDecoder->getMasterStream() == SS_AUDIO) {
+                // Sync to audio if possible.
+                return m_pDecoder->getCurTime(SS_AUDIO);
+            } else {
+                return getPlayer()->getFrameTime()-m_StartTime-m_PauseTime;
+            }
         default:
             assert(false);
             return 0;
