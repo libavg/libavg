@@ -45,6 +45,7 @@ class AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
         
         bool work();
         void seek(long long DestTime);
+        void setVolume(double Volume);
 
     private:
         VideoMsgQueue& m_MsgQ;

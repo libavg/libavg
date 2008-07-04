@@ -201,6 +201,9 @@ void Video::setHRef(const string& href)
 
 void Video::setVolume(double Volume)
 {
+    if (Volume < 0) {
+        Volume = 0;
+    }
     m_Volume = Volume;
     if (m_pDecoder) {
         m_pDecoder->setVolume(Volume);

@@ -253,12 +253,16 @@ void AsyncVideoDecoder::setFPS(double FPS)
 
 double AsyncVideoDecoder::getVolume()
 {
-    return m_pSyncDecoder->getVolume();
+    return m_Volume;
 }
 
 void AsyncVideoDecoder::setVolume(double Volume)
 {
-    m_pSyncDecoder->setVolume(Volume);
+    m_Volume = Volume;
+    if (m_bHasAudio && m_bAudioEnabled) {
+        m_pACmdQ->push(Command<AudioDecoderThread>(boost::bind(
+                &AudioDecoderThread::setVolume, _1, Volume)));
+    }
 }
 
 void AsyncVideoDecoder::setAudioEnabled(bool bEnabled)

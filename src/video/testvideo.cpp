@@ -303,6 +303,8 @@ class AudioDecoderTest: public DecoderTest {
                     VideoDecoderPtr pDecoder = createDecoder();
                     pDecoder->open(getSrcDir()+"testfiles/"+sFilename, getAudioParams(),
                             OGL_NONE, isDemuxerThreaded());
+                    pDecoder->setVolume(0.5);
+                    TEST(pDecoder->getVolume() == 0.5);
                     int TotalFramesDecoded = 0;
                     bool bCheckTimestamps = (sFilename.find(".ogg") == string::npos &&
                             sFilename.find(".mp3") == string::npos);
@@ -326,7 +328,8 @@ class AudioDecoderTest: public DecoderTest {
                     pDecoder->seek(Duration/2);
                     AudioBufferPtr pAudioBuffer = createAudioBuffer(4);
                     pDecoder->fillAudioBuffer(pAudioBuffer);
-                    TEST(abs(long(Duration/2-pDecoder->getCurTime())) < 60); // 60 ms accuracy for seeks.
+                    // 60 ms accuracy for seeks.
+                    TEST(abs(long(Duration/2-pDecoder->getCurTime())) < 60); 
                     int TotalFramesDecoded = 4;
 
                     readAudioToEOF(pDecoder, TotalFramesDecoded, false);

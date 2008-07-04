@@ -96,4 +96,9 @@ void AudioDecoderThread::seek(long long DestTime)
                 VideoFrameTime, AudioFrameTime)));
 }
 
+void AudioDecoderThread::setVolume(double Volume)
+{
+    m_pDecoder->setVolume(Volume);
+}
+
 }

@@ -483,11 +483,6 @@ double FFMpegDecoder::getVolume()
 void FFMpegDecoder::setVolume(double Volume)
 {
     m_Volume = Volume;
-    if (m_Volume > 1.0) {
-        m_Volume = 1.0;
-    } else if (m_Volume < 0.0) {
-        m_Volume = 0.0;
-    }
 }
 
 void FFMpegDecoder::setAudioEnabled(bool bEnabled)
