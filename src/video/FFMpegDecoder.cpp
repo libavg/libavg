@@ -674,7 +674,6 @@ int FFMpegDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
     assert (m_pAStream);
     assert (m_bAudioEnabled);
     if (m_bAudioEOF) {
-        // TODO: Shouldn't this assert?
         return 0;
     }
     

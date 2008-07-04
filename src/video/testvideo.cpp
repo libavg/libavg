@@ -54,7 +54,6 @@ using namespace std;
 //  - Seek forward & back (longer movies)
 //  - Test getNumFrames
 //  - Repeat for other File formats.
-//  - Remove testfiles from python tests.
 //  - Test YCbCr420p, YCbCr422
 
 
@@ -292,10 +291,6 @@ class AudioDecoderTest: public DecoderTest {
     private:
         void testOneFile(const string& sFilename)
         {
-            // TODO:
-            // - get/setSpeedFactor()
-            // - get/setVolume()
-            // - seek()
             try {
                 cerr << "    Testing " << sFilename << endl;
                 
