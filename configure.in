@@ -32,7 +32,8 @@ AC_PATH_GENERIC(freetype,,,AC_MSG_ERROR([libfreetype not found. Aborting.]))
 
 PKG_CHECK_MODULES([MAGICK], [GraphicsMagick++])
 
-AM_LIB_FFMPEG
+PKG_CHECK_MODULES([FFMPEG], [libavcodec libavformat], [LIBFFMPEG="$FFMPEG_LIBS"], [:])
+AC_SUBST(LIBFFMPEG)
 PKG_CHECK_MODULES([SWSCALE], [libswscale],
         AC_DEFINE([AVG_ENABLE_SWSCALE],1,[Enable ffmpeg swscale support.]),
         foo="")
