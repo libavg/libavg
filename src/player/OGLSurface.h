@@ -49,10 +49,6 @@ class OGLSurface: public ISurface {
         virtual BitmapPtr lockBmp(int index=0);
         virtual void unlockBmps();
 
-        // Methods specific to OGLSurface
-        void createFromBits(Point<int> Size, PixelFormat pf,
-                unsigned char * pBits, int Stride);
-
         void bind();
         void unbind();
         void rebind();

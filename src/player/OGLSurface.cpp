@@ -89,18 +89,6 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
     m_bCreated = true;
 }
 
-void OGLSurface::createFromBits(IntPoint Size, PixelFormat pf,
-        unsigned char * pBits, int Stride)
-{
-    unbind();
-    m_MemoryMode = OGL;
-    m_Size = Size;
-    m_pf = pf;
-    m_pBmps[0] = BitmapPtr(new Bitmap(Size, pf, pBits, Stride, false, ""));
-    
-    calcTileSizes();
-}
-
 BitmapPtr OGLSurface::lockBmp(int i)
 {
 //    cerr << "lockBmp " << i << endl;
@@ -248,6 +236,7 @@ void OGLSurface::bind()
     } else {
         int Width = m_Size.x;
         int Height = m_Size.y;
+        vector<vector<OGLTexturePtr> > pOldTextures = m_pTextures;
         m_pTextures.clear();
         vector<OGLTexturePtr> v;
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -281,9 +270,22 @@ void OGLSurface::bind()
                 cerr << "m_TileSize: " << m_TileSize << endl;
                 cerr << "TileIndexExtents: " << TileIndexExtents << endl;
 */                
-                OGLTexturePtr pTexture = OGLTexturePtr(new OGLTexture(CurExtent, 
-                        CurSize, m_TileSize, TileIndexExtents, m_Size.x, m_pf,
-                        m_pEngine));
+                OGLTexturePtr pTexture;
+                bool bReuseTexture;
+                if (pOldTextures.empty()) {
+                    bReuseTexture = false;
+                } else {
+                    bReuseTexture = 
+                            ((pOldTextures[y][x])->getTileIndexExtent() == TileIndexExtents);
+                }
+                if (bReuseTexture) {
+                    pTexture = pOldTextures[y][x];
+                    pTexture->resize(CurExtent, CurSize, m_TileSize, m_Size.x);
+                } else {
+                    pTexture = OGLTexturePtr(new OGLTexture(CurExtent, 
+                                CurSize, m_TileSize, TileIndexExtents, m_Size.x, m_pf,
+                                m_pEngine));
+                }
                 m_pTextures[y].push_back(pTexture);
                 if (m_MemoryMode == PBO) {
                     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
@@ -318,9 +320,6 @@ void OGLSurface::bind()
 void OGLSurface::unbind() 
 {
 //    cerr << "OGLSurface::unbind()" << endl;
-    if (m_bBound) {
-        m_pTextures.clear();
-    }
     m_bBound = false;
 }
 

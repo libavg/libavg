@@ -45,13 +45,7 @@ OGLTexture::OGLTexture(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize,
       m_pEngine(pEngine)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-        createTexture(0, m_TexSize, Stride, I8);
-        createTexture(1, m_TexSize/2, Stride/2, I8);
-        createTexture(2, m_TexSize/2, Stride/2, I8);
-    } else {
-        createTexture(0, m_TexSize, Stride, m_pf);
-    }
+    createTextures(Stride);
     m_pVertexes = new VertexArray(m_TileIndexExtent.width()*m_TileIndexExtent.height());
     calcTexCoords();
 }
@@ -59,13 +53,19 @@ OGLTexture::OGLTexture(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize,
 OGLTexture::~OGLTexture()
 {
     delete m_pVertexes;
-    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-        glDeleteTextures(3, m_TexID);
-    } else {
-        glDeleteTextures(1, m_TexID);
-    }
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::~OGLTexture: glDeleteTextures()");    
+    deleteTextures();
     ObjectCounter::get()->decRef(&typeid(*this));
+}
+
+void OGLTexture::resize(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize, 
+        int Stride)
+{
+    deleteTextures();
+    m_TexExtent = TexExtent;
+    m_TexSize = TexSize;
+    m_TileSize = TileSize;
+    createTextures(Stride);
+    calcTexCoords();
 }
 
 int OGLTexture::getTexID(int i) const
@@ -133,6 +133,17 @@ void OGLTexture::blt(const VertexGrid* pVertexes) const
     }
 }
 
+void OGLTexture::createTextures(int Stride)
+{
+    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+        createTexture(0, m_TexSize, Stride, I8);
+        createTexture(1, m_TexSize/2, Stride/2, I8);
+        createTexture(2, m_TexSize/2, Stride/2, I8);
+    } else {
+        createTexture(0, m_TexSize, Stride, m_pf);
+    }
+}
+
 void OGLTexture::createTexture(int i, IntPoint Size, int Stride, PixelFormat pf)
 {
     glGenTextures(1, &m_TexID[i]);
@@ -176,6 +187,16 @@ void OGLTexture::createTexture(int i, IntPoint Size, int Stride, PixelFormat pf)
     if (TextureMode == GL_TEXTURE_2D) {
         free(pPixels);
     }
+}
+
+void OGLTexture::deleteTextures()
+{
+    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+        glDeleteTextures(3, m_TexID);
+    } else {
+        glDeleteTextures(1, m_TexID);
+    }
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::~OGLTexture: glDeleteTextures()");    
 }
 
 static ProfilingZone TexSubImageProfilingZone("OGLTexture::texture download");
@@ -276,6 +297,11 @@ void OGLTexture::calcTexCoords()
         }
     }
 //    cerr << endl;
+}
+
+const IntRect& OGLTexture::getTileIndexExtent() const
+{
+    return m_TileIndexExtent;
 }
 
 const int OGLTexture::getTexMemDim()

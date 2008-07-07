@@ -41,17 +41,22 @@ class OGLTexture {
                 IntRect TileIndexExtent, int Stride, PixelFormat pf,
                 SDLDisplayEngine * pEngine);
         virtual ~OGLTexture();
+        void resize(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize, 
+                int Stride);
 
         const IntPoint& getTexSize() const;
         int getTexID(int i) const;
         void downloadTexture(int i, BitmapPtr pBmp, int width, 
                 OGLMemoryMode MemoryMode) const;
         void blt(const VertexGrid* pVertexes) const;
+        const IntRect& getTileIndexExtent() const;
         const int getTexMemDim();
 
     private:
         void calcTexCoords();
+        void createTextures(int Stride);
         void createTexture(int i, IntPoint Size, int Stride, PixelFormat pf);
+        void deleteTextures();
 
         IntRect m_TexExtent;  // Extent of Texture in the PBO.
         IntPoint m_TexSize;   // Size of Texture in pixels. POW2 if necessary.
