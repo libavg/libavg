@@ -55,6 +55,7 @@ class IVideoDecoder
         virtual IntPoint getSize() = 0;
         virtual int getCurFrame() = 0;
         virtual int getNumFrames() = 0;
+        virtual int getNumFramesQueued() = 0;
         virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT) = 0;
         virtual long long getDuration() = 0;
         virtual double getNominalFPS() = 0;

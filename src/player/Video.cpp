@@ -117,6 +117,11 @@ int Video::getCurFrame() const
     }
 }
 
+int Video::getNumFramesQueued() const
+{
+    return m_pDecoder->getNumFramesQueued();
+}
+
 void Video::seekToFrame(int FrameNum)
 {
     if (getVideoState() != Unloaded) {

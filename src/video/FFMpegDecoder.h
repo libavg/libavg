@@ -73,6 +73,7 @@ class FFMpegDecoder: public IVideoDecoder
         virtual IntPoint getSize();
         virtual int getCurFrame();
         virtual int getNumFrames();
+        virtual int getNumFramesQueued();
         virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT);
         virtual long long getDuration();
         virtual double getNominalFPS();

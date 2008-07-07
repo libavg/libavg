@@ -252,7 +252,6 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams* pAP,
     if (m_AStreamIndex >= 0)
     {
         m_pAStream = m_pFormatContext->streams[m_AStreamIndex];
-        m_pDemuxer->enableStream(m_AStreamIndex);
         
         m_AudioPacket = 0;
         m_AudioPacketData = 0;
@@ -271,10 +270,10 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams* pAP,
         m_LastAudioFrameTime = 0;
         m_AudioStartTimestamp = 0;
         
-        if(m_pAStream->start_time != AV_NOPTS_VALUE)
-            m_AudioStartTimestamp = 
-                (long long)(1000.0 * av_q2d(m_pAStream->time_base) * m_pAStream->start_time);
-        
+        if (m_pAStream->start_time != AV_NOPTS_VALUE) {
+            m_AudioStartTimestamp = (long long)(1000.0 * av_q2d(m_pAStream->time_base) 
+                    * m_pAStream->start_time);
+        }
         m_EffectiveSampleRate = (int)(m_pAStream->codec->sample_rate);
         int rc = openCodec(m_pFormatContext, m_AStreamIndex);
         if (rc == -1) {
@@ -284,6 +283,8 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams* pAP,
             m_pAStream = 0; 
             AVG_TRACE(Logger::WARNING, 
                     sFilename + ": unsupported codec ("+szBuf+"). Disabling audio.");
+        } else {
+            m_pDemuxer->enableStream(m_AStreamIndex);
         }
     }
 }
@@ -417,6 +418,11 @@ int FFMpegDecoder::getNumFrames()
     return (m_pVStream->r_frame_rate.num/m_pVStream->r_frame_rate.den)*
             int(m_pVStream->duration/timeUnitsPerSecond);
 #endif 
+}
+
+int FFMpegDecoder::getNumFramesQueued()
+{
+    return 0;
 }
 
 long long FFMpegDecoder::getCurTime(StreamSelect Stream)

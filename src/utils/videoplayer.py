@@ -11,12 +11,25 @@ def resize():
     node.width = 1280
     node.height *= sizeFactor
 
+def onFrame():
+    node = Player.getElementByID("video")
+    curVideoTime = node.getCurTime()
+    Player.getElementByID("curtime").text = "Time: "+str(curVideoTime/1000.0)
+    framesQueued = node.getNumFramesQueued()
+    Player.getElementByID("framesqueued").text = "Frames queued: "+str(framesQueued)
+
+def onKey(event):
+    node = Player.getElementByID("video")
+    if event.keystring == "right":
+        node.seekToTime(node.getCurTime()+10000)
+    else:
+        print event.keystring
 
 Log = avg.Logger.get();
 Log.setCategories(Log.APP |
           Log.WARNING | 
           Log.PROFILE |
-#          Log.PROFILE_LATEFRAMES |
+          Log.MEMORY |
           Log.CONFIG |
           Log.EVENTS)
 
@@ -25,8 +38,10 @@ Player = avg.Player()
 Player.loadString("""
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg width="1280" height="720">
-  <video id="video" x="0" y="0" opacity="1" blendmode="blend" fps="25" threaded="true"/>
+<avg width="1280" height="720" onkeyup="onKey">
+  <video id="video" x="0" y="0" threaded="true"/>
+  <words id="curtime" x="10" y="10" font="arial" size="10"/> 
+  <words id="framesqueued" x="10" y="22" font="arial" size="10"/> 
 </avg>
 """)
 node = Player.getElementByID("video")
@@ -37,6 +52,7 @@ else:
     node.href=sys.argv[1]
 node.play()
 Player.setTimeout(10, resize)
+Player.setOnFrameHandler(onFrame)
 Player.setVBlankFramerate(1)
 Player.play()
 

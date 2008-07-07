@@ -203,6 +203,11 @@ int AsyncVideoDecoder::getNumFrames()
     return m_NumFrames;
 }
 
+int AsyncVideoDecoder::getNumFramesQueued()
+{
+    return m_pVMsgQ->size();
+}
+
 long long AsyncVideoDecoder::getCurTime(StreamSelect Stream)
 {
     switch(Stream) {

@@ -147,12 +147,21 @@ void export_raster()
             no_init)
         .def("getNumFrames", &Video::getNumFrames,
                 "getNumFrames()")
+        .def("getNumFramesQueued", &Video::getNumFramesQueued,
+                "getNumFramesQueued()\n"
+                "Returns the number of frames already decoded and waiting for playback.")
         .def("getCurFrame", &Video::getCurFrame,
                 "getCurFrame()\n"
                 "Returns the video frame currently playing.")
         .def("seekToFrame", &Video::seekToFrame,
                 "seekToFrame(num)\n"
                 "Moves the playback cursor to the frame given.")
+        .def("getCurTime", &Video::getCurTime,
+                "getCurTime()\n"
+                "Returns seconds of playback time since video start.")
+        .def("seekToTime", &Video::seekToTime,
+                "seekToTime(secs)\n"
+                "Moves the playback cursor to the time given.")
         .def("setEOFCallback", &Video::setEOFCallback,
                 "setEOFCallback(pyfunc)\n"
                 "Sets a python callable to be invoked when the video reaches end of file.")

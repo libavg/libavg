@@ -65,8 +65,9 @@ bool VideoDemuxerThread::work()
         int ShortestLength = INT_MAX;
         for (it=m_PacketQs.begin(); it != m_PacketQs.end(); it++) {
             if (it->second->size() < ShortestLength && 
-                it->second->size() < it->second->getMaxSize() &&
-                !m_PacketQbEOF[it->first]) {
+                    it->second->size() < it->second->getMaxSize() &&
+                    !m_PacketQbEOF[it->first])
+            {
                 ShortestLength = it->second->size();
                 ShortestQ = it->first;
             }

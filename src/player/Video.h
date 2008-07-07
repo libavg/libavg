@@ -55,6 +55,7 @@ class Video : public VideoBase, IFrameListener, IAudioSource
 
         int getNumFrames() const;
         int getCurFrame() const;
+        int getNumFramesQueued() const;
         void seekToFrame(int FrameNum);
         long long getDuration() const;
         long long getCurTime() const;
