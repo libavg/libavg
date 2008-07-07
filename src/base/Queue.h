@@ -31,6 +31,8 @@
 
 namespace avg {
 
+typedef boost::mutex::scoped_lock scoped_lock;
+
 template<class QElement>
 class Queue 
 {
@@ -41,17 +43,18 @@ class Queue
         bool empty() const;
         QElement pop(bool bBlock = true);
         void push(const QElement& Elem);
+        QElement peek(bool bBlock = true) const;
         int size() const;
         int getMaxSize() const;
 
     private:
+        QElement getFrontElement(bool bBlock, scoped_lock& Lock) const;
+
         std::deque<QElement> m_Elements;
         mutable boost::mutex m_Mutex;
         mutable boost::condition m_Cond;
         int m_MaxSize;
 };
-
-typedef boost::mutex::scoped_lock scoped_lock;
 
 template<class QElement>
 Queue<QElement>::Queue(int MaxSize)
@@ -75,17 +78,17 @@ template<class QElement>
 QElement Queue<QElement>::pop(bool bBlock)
 {
     scoped_lock Lock(m_Mutex);
-    if(m_Elements.empty()) {
-        if (bBlock) {
-            while(m_Elements.empty()) {
-                m_Cond.wait(Lock);
-            }
-        } else {
-            throw Exception(AVG_ERR_QUEUE_EMPTY);
-        }
-    }
-    QElement Elem = m_Elements.front(); 
+    QElement Elem = getFrontElement(bBlock, Lock); 
     m_Elements.pop_front();
+    m_Cond.notify_one();
+    return Elem;
+}
+
+template<class QElement>
+QElement Queue<QElement>::peek(bool bBlock) const
+{
+    scoped_lock Lock(m_Mutex);
+    QElement Elem = getFrontElement(bBlock, Lock); 
     m_Cond.notify_one();
     return Elem;
 }
@@ -115,6 +118,21 @@ int Queue<QElement>::getMaxSize() const
 {
     scoped_lock Lock(m_Mutex);
     return m_MaxSize;
+}
+
+template<class QElement>
+QElement Queue<QElement>::getFrontElement(bool bBlock, scoped_lock& Lock) const
+{
+    if(m_Elements.empty()) {
+        if (bBlock) {
+            while(m_Elements.empty()) {
+                m_Cond.wait(Lock);
+            }
+        } else {
+            throw Exception(AVG_ERR_QUEUE_EMPTY);
+        }
+    }
+    return m_Elements.front();
 }
 
 }

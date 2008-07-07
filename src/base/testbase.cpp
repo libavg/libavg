@@ -71,6 +71,7 @@ private:
         TEST(q.pop() == 2);
         q.push(4);
         TEST(q.pop() == 3);
+        TEST(q.peek() == 4);
         TEST(q.pop() == 4);
         TEST(q.empty());
         bool bExceptionThrown = false;
@@ -105,6 +106,7 @@ private:
     static void popThread(Queue<int>* pq)
     {
         for (int i=0; i<100; ++i) {
+            pq->peek();
             pq->pop();
             msleep(3);
         }
