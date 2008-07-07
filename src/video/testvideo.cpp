@@ -283,8 +283,6 @@ class AudioDecoderTest: public DecoderTest {
             testOneFile("48kHz_24bit_stereo.wav");
 
             testOneFile("44.1kHz_16bit_stereo.aif");
-            testOneFile("44.1kHz_mono.ogg");
-            testOneFile("44.1kHz_stereo.ogg");
             testOneFile("44.1kHz_stereo.mp3");
         }
 
@@ -306,14 +304,11 @@ class AudioDecoderTest: public DecoderTest {
                             sFilename.find(".mp3") == string::npos);
                     readAudioToEOF(pDecoder, TotalFramesDecoded, bCheckTimestamps);
 
-                    if (sFilename.find(".ogg") == string::npos) {
-                        // Check if we've decoded the whole file.
-                        // TODO: Find out what is broken with ogg files here.
-                        int FramesInDuration = int(pDecoder->getDuration()*44100/1000);
-//                        cerr << "FramesDecoded: " << TotalFramesDecoded << endl;
-//                        cerr << "FramesInDuration: " << FramesInDuration << endl;
-                        TEST (abs(TotalFramesDecoded-FramesInDuration) < 45);
-                    }
+                    // Check if we've decoded the whole file.
+                    int FramesInDuration = int(pDecoder->getDuration()*44100/1000);
+//                    cerr << "FramesDecoded: " << TotalFramesDecoded << endl;
+//                    cerr << "FramesInDuration: " << FramesInDuration << endl;
+                    TEST (abs(TotalFramesDecoded-FramesInDuration) < 45);
                 }
                 {
                     cerr << "      Seek test." << endl;
@@ -329,12 +324,11 @@ class AudioDecoderTest: public DecoderTest {
                     int TotalFramesDecoded = 4;
 
                     readAudioToEOF(pDecoder, TotalFramesDecoded, false);
-                    if ((sFilename.find(".ogg") == string::npos) &&
-                        (sFilename.find(".mp3") == string::npos))
+                    if (sFilename.find(".mp3") == string::npos)
                     {
                         // Check if we've decoded half the file.
                         // TODO: Find out why there are problems with this
-                        // for ogg and mp3 files.
+                        // for mp3 files.
                         int FramesInDuration = int(pDecoder->getDuration()*44100/1000);
 //                        cerr << "FramesDecoded: " << FramesDecoded << endl;
 //                        cerr << "FramesInDuration: " << FramesInDuration << endl;

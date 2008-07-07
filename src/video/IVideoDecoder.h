@@ -38,7 +38,7 @@ enum FrameAvailableCode {
 };
 
 enum StreamSelect {
-    SS_AUDIO, SS_VIDEO, SS_DEFAULT, SS_NONE, SS_ALL
+    SS_AUDIO, SS_VIDEO, SS_DEFAULT, SS_ALL
 };
 
 class IVideoDecoder

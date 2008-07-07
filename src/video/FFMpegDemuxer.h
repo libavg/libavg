@@ -39,8 +39,8 @@
 
 extern "C" {
 #ifdef _WIN32
-#pragma warning(push) 
-#pragma warning(disable:4244) 
+#pragma warning(push)
+#pragma warning(disable:4244)
 #endif
 #include <ffmpeg/avformat.h>
 #ifdef _WIN32
