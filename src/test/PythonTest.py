@@ -150,7 +150,9 @@ class PythonTestCase(AVGTestCase):
         def onClick(event):
             self.__clicked = True
         def createButton():
-            self.button = button.Button(Player.getElementByID("button"), onClick)
+            buttonNode = Player.getElementByID("button") 
+            self.button = button.Button(buttonNode, onClick)
+            buttonNode.getChild(4).opacity = 0
         def down():
             self.__sendEvent(avg.CURSORDOWN, 0, 0)
         def out():
@@ -161,6 +163,9 @@ class PythonTestCase(AVGTestCase):
             self.__sendEvent(avg.CURSORMOTION, 0, 0)
         def upInside():
             self.__sendEvent(avg.CURSORUP, 0, 0)
+        def disable():
+            self.button.setDisabled(True)
+            self.__clicked = False
         self.__clicked = False
         button.init(avg)
         self.start("ButtonTest.avg",
@@ -182,6 +187,16 @@ class PythonTestCase(AVGTestCase):
                 lambda: self.assert_(self.__clicked),
                 lambda: self.compareImage("testButtonOver", False),
                 out,
+                lambda: self.compareImage("testButtonUp", False),
+                disable,
+                lambda: self.compareImage("testButtonDisabled", False),
+                down,
+                lambda: self.compareImage("testButtonDisabled", False),
+                upInside,
+                lambda: self.assert_(not(self.__clicked)),
+                lambda: self.compareImage("testButtonDisabled", False),
+                out,
+                lambda: self.button.setDisabled(False),
                 lambda: self.compareImage("testButtonUp", False)
                ))
 
