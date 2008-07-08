@@ -69,7 +69,7 @@ class AVGTestCase(unittest.TestCase):
                 BaselineBmp = avg.Bitmap(BASELINE_DIR+"/"+fileName+".png")
                 NumPixels = self.__Player.getTestHelper().getNumDifferentPixels(Bmp, 
                         BaselineBmp)
-                if (NumPixels > 20):
+                if (NumPixels > 3):
                     if ourSaveDifferences:
                         Bmp.save(RESULT_DIR+"/"+fileName+".png")
                         BaselineBmp.save(RESULT_DIR+"/"+fileName+"_baseline.png")

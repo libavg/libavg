@@ -129,7 +129,7 @@ class PlayerTestCase(AVGTestCase):
         self.start(None,
                 (lambda: self.compareImage("testRotate1", False),
                  fakeRotate,
-                 lambda: self.compareImage("testRotate1", False),
+                 lambda: self.compareImage("testRotate1a", False),
                  lambda: sendEvent(85, 70),
                  lambda: self.assert_(not(self.onOuterDownCalled)),
                  lambda: sendEvent(85, 75),
