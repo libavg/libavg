@@ -437,7 +437,17 @@ void Words::drawString()
     } else {
         if (m_bFontChanged) {
             AVG_TRACE(Logger::MEMORY, "Opening font " << m_sFontName);
-            PangoFontFamily * pFamily = getFontFamily(m_sFontName);
+            PangoFontFamily * pFamily;
+            try {
+                pFamily = getFontFamily(m_sFontName);
+            } catch (Exception& ex) {
+                if (s_sFontsNotFound.find(m_sFontName) == s_sFontsNotFound.end()) {
+                    AVG_TRACE(Logger::WARNING, "Could not find font face " << 
+                            m_sFontName << ". Using sans instead.");
+                    s_sFontsNotFound.insert(m_sFontName);
+                }
+                pFamily = getFontFamily("sans");
+            }
             PangoFontFace ** ppFaces;
             int numFaces;
             pango_font_family_list_faces (pFamily, &ppFaces, &numFaces);
