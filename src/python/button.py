@@ -12,14 +12,11 @@ class Button:
         g_Player = avg.Player.get()
         self.__node = node
         self.__clickCallback = clickCallback
-        self.__upNode = node.getChild(0)
-        self.__downNode = node.getChild(1)
-        self.__overNode = node.getChild(2)
-        self.__disabledNode = node.getChild(3)
         self.__isDisabled = False
         self.__id = id
-        node.width = self.__upNode.width
-        node.height = self.__upNode.height
+        upNode = node.getChild(0)
+        node.width = upNode.width
+        node.height = upNode.height
         if self.__isMouseOver():
             self.__setMode(2)
         else:
