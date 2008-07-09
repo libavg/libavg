@@ -103,11 +103,11 @@ void SDLAudioEngine::init(const AudioParams& AP, double volume)
 
 void SDLAudioEngine::teardown()
 {
-    mutex::scoped_lock Lock(m_Mutex);
-    SDL_LockAudio();
-    SDL_PauseAudio(1);
+    {
+        mutex::scoped_lock Lock(m_Mutex);
+        SDL_PauseAudio(1);
+    }
     SDL_CloseAudio();
-    SDL_UnlockAudio();
 
     getSources().clear();
     if (m_pLimiter) {
