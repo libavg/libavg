@@ -66,59 +66,66 @@ class FFMpegDecoder: public IVideoDecoder
         virtual void open(const std::string& sFilename, const AudioParams* AP,
                 YCbCrMode ycbcrMode, bool bThreadedDemuxer);
         virtual void close();
-        virtual void seek(long long DestTime);
         virtual StreamSelect getMasterStream();
-        virtual bool hasVideo();
         virtual bool hasAudio();
-        virtual IntPoint getSize();
-        virtual int getCurFrame();
         virtual int getNumFrames();
-        virtual int getNumFramesQueued();
-        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT);
         virtual long long getDuration();
+
         virtual double getNominalFPS();
         virtual double getFPS();
-        virtual void setFPS(double FPS);
         virtual double getVolume();
-        virtual void setVolume(double Volume);
         virtual PixelFormat getPixelFormat();
 
+        // Called from video thread.
+        virtual IntPoint getSize();
+        virtual int getCurFrame();
+        virtual int getNumFramesQueued();
+        virtual long long getCurTime(StreamSelect Stream = SS_DEFAULT);
+        virtual void setFPS(double FPS);
         virtual FrameAvailableCode renderToBmp(BitmapPtr pBmp, long long TimeWanted);
         virtual FrameAvailableCode renderToYCbCr420p(BitmapPtr pBmpY, BitmapPtr pBmpCb, 
                 BitmapPtr pBmpCr, long long TimeWanted);
-        virtual bool isEOF(StreamSelect Stream = SS_ALL);
-
+        
+        // Called from audio decoder thread
+        virtual void setVolume(double Volume);
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
+
+        // Called from video and audio threads
+        virtual void seek(long long DestTime);
+        virtual bool hasVideo();
+        virtual bool isEOF(StreamSelect Stream = SS_ALL);
 
     private:
         void initVideoSupport();
-        FrameAvailableCode readFrameForTime(AVFrame& Frame, long long TimeWanted);
-        void readFrame(AVFrame& Frame, long long& FrameTime);
         PixelFormat calcPixelFormat(YCbCrMode ycbcrMode);
+
+        AVFormatContext * m_pFormatContext;
+        PixelFormat m_PF;
+        std::string m_sFilename;
+
+        // Used from video thread.
+        FrameAvailableCode readFrameForTime(AVFrame& Frame, long long TimeWanted);
         void convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp);
         long long getFrameTime(AVPacket* pPacket);
-        long long getStartTime(StreamSelect Stream = SS_DEFAULT);
         double calcStreamFPS();
+
+#ifdef AVG_ENABLE_SWSCALE
+        SwsContext * m_pSwsContext;
+#endif
+        IntPoint m_Size;
+        double m_TimeUnitsPerSecond;
+        bool m_bUseStreamFPS;
+        ProfilingZone * m_pRenderToBmpProfilingZone;
+        ProfilingZone * m_pConvertImageProfilingZone;
+
+        // Used from audio thread.
         int copyRawAudio(unsigned char* buf, int size);
         int copyResampledAudio(unsigned char* buf, int size);
         void resampleAudio();
         int decodeAudio();
         void volumize(AudioBufferPtr pBuffer);
 
-        IDemuxer * m_pDemuxer;
-        AVFormatContext * m_pFormatContext;
-        AVStream * m_pVStream;
-        AVStream * m_pAStream;
-        int m_VStreamIndex;
         int m_AStreamIndex;
-        bool m_bEOFPending;
-        bool m_bVideoEOF;
-        bool m_bAudioEOF;
-        PixelFormat m_PF;
-#ifdef AVG_ENABLE_SWSCALE
-        SwsContext * m_pSwsContext;
-#endif
-
         AudioParams m_AP;
         AVPacket * m_AudioPacket;
         unsigned char * m_AudioPacketData;
@@ -133,29 +140,32 @@ class FFMpegDecoder: public IVideoDecoder
         int m_ResampleBufferSize;
         int m_EffectiveSampleRate;
         ReSampleContext * m_pAudioResampleContext;
-        boost::mutex m_AudioMutex;
-
         double m_Volume;
         double m_LastVolume;
-        double m_LastAudioFrameTime;
         long long m_AudioStartTimestamp;
-        
+
+        // Used from video and audio threads.
+        void readFrame(AVFrame& Frame, long long& FrameTime);
+        long long getStartTime(StreamSelect Stream = SS_DEFAULT);
+
+        IDemuxer * m_pDemuxer;
+        AVStream * m_pVStream;
+        AVStream * m_pAStream;
+        int m_VStreamIndex;
+        bool m_bEOFPending;
+        bool m_bVideoEOF;
+        bool m_bAudioEOF;
+        boost::mutex m_AudioMutex;
+        double m_LastAudioFrameTime;
         unsigned char * m_pPacketData;
         AVPacket * m_pPacket;
         int m_PacketLenLeft;
         bool m_bFirstPacket;
-        std::string m_sFilename;
-        IntPoint m_Size;
-
-        double m_TimeUnitsPerSecond;
         long long m_VideoStartTimestamp;
         long long m_LastVideoFrameTime;
-        bool m_bUseStreamFPS;
+
         double m_FPS;
         long long m_StreamTimeOffset;
-
-        ProfilingZone * m_pRenderToBmpProfilingZone;
-        ProfilingZone * m_pConvertImageProfilingZone;
 
         static bool m_bInitialized;
         // Prevents different decoder instances from executing open/close simultaneously

@@ -49,24 +49,24 @@ bool FFMpegDecoder::m_bInitialized = false;
 mutex FFMpegDecoder::s_OpenMutex;
 
 FFMpegDecoder::FFMpegDecoder ()
-    : m_pDemuxer(0),
-      m_pFormatContext(0),
-      m_pVStream(0),
-      m_pAStream(0),
-      m_VStreamIndex(-1),
-      m_AStreamIndex(-1),
+    : m_pFormatContext(0),
 #ifdef AVG_ENABLE_SWSCALE
       m_pSwsContext(0),
 #endif
+      m_Size(0,0),
+      m_bUseStreamFPS(true),
+      m_AStreamIndex(-1),
       m_pAudioResampleContext(0),
       m_Volume(1.0),
       m_LastVolume(1.0),
+      m_pDemuxer(0),
+      m_pVStream(0),
+      m_pAStream(0),
+      m_VStreamIndex(-1),
       m_pPacketData(0),
       m_bFirstPacket(0),
-      m_Size(0,0),
       m_VideoStartTimestamp(-1),
       m_LastVideoFrameTime(-1000),
-      m_bUseStreamFPS(true),
       m_FPS(0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
