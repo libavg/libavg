@@ -87,9 +87,6 @@ void AudioDecoderThread::seek(long long DestTime)
     if (performSeek) {
         m_pDecoder->seek(DestTime);
         AudioFrameTime = m_pDecoder->getCurTime(SS_AUDIO);
-        if (m_pDecoder->hasVideo()) {
-            VideoFrameTime = m_pDecoder->getCurTime(SS_VIDEO);
-        }
     }
     
     m_MsgQ.push(VideoMsgPtr(new SeekDoneVideoMsg(performSeek, 
