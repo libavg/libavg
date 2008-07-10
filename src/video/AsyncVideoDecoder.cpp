@@ -48,8 +48,7 @@ AsyncVideoDecoder::AsyncVideoDecoder(VideoDecoderPtr pSyncDecoder)
       m_Duration(0),
       m_bAudioEOF(false),
       m_bVideoEOF(false),
-      m_bVideoSeekPending(false),
-      m_bAudioSeekPending(false),
+      m_bSeekPending(false),
       m_Volume(1.0),
       m_LastVideoFrameTime(-1000),
       m_LastAudioFrameTime(-1000)
@@ -70,8 +69,7 @@ void AsyncVideoDecoder::open(const std::string& sFilename, const AudioParams* pA
 {
     m_bAudioEOF = false;
     m_bVideoEOF = false;
-    m_bVideoSeekPending = false;
-    m_bAudioSeekPending = false;
+    m_bSeekPending = false;
     m_sFilename = sFilename;
 
     m_pSyncDecoder->open(m_sFilename, pAP, ycbcrMode, bThreadedDemuxer);
@@ -136,35 +134,31 @@ void AsyncVideoDecoder::seek(long long DestTime)
     scoped_lock Lock2(m_SeekMutex);
     m_bAudioEOF = false;
     m_bVideoEOF = false;
-    m_bVideoSeekPending = false;
-    m_bAudioSeekPending = false;
+    m_bSeekPending = false;
     m_LastVideoFrameTime = -1000;
+    m_bSeekPending = true;
     if (m_pVCmdQ) {
-        m_bVideoSeekPending = true;
         m_pVCmdQ->push(Command<VideoDecoderThread>(boost::bind(
                     &VideoDecoderThread::seek, _1, DestTime)));
-    }
-    if (m_pACmdQ) {
-        m_bAudioSeekPending = true;
+    } else {
         m_pACmdQ->push(Command<AudioDecoderThread>(boost::bind(
                     &AudioDecoderThread::seek, _1, DestTime)));
     }
     try {
-        do {
-            bool& bSeekPending = m_bVideoSeekPending ? 
-                    m_bVideoSeekPending : m_bAudioSeekPending;
-            VideoMsgQueuePtr pMsgQ = m_bVideoSeekPending ? m_pVMsgQ : m_pAMsgQ;
-            VideoMsgPtr pMsg = pMsgQ->pop(false);
+        while (m_bSeekPending) {
+            VideoMsgPtr pMsg;
+            if (m_pVCmdQ) {
+                pMsg = m_pVMsgQ->pop(false);
+            } else {
+                pMsg = m_pAMsgQ->pop(false);
+            }
             SeekDoneVideoMsgPtr pSeekDoneMsg = dynamic_pointer_cast<SeekDoneVideoMsg>(pMsg);
             if (pSeekDoneMsg) {
-                bSeekPending = false;
-                if (pSeekDoneMsg->performedSeek()) {
-                    m_LastVideoFrameTime = pSeekDoneMsg->getVideoFrameTime();
-                    m_LastAudioFrameTime = pSeekDoneMsg->getAudioFrameTime();
-                }
+                m_bSeekPending = false;
+                m_LastVideoFrameTime = pSeekDoneMsg->getVideoFrameTime();
+                m_LastAudioFrameTime = pSeekDoneMsg->getAudioFrameTime();
             }
-
-        } while (m_bVideoSeekPending || m_bAudioSeekPending);
+        }
     } catch (Exception&) {
     }
 }
@@ -442,22 +436,22 @@ FrameVideoMsgPtr AsyncVideoDecoder::getNextBmps(bool bWait)
 void AsyncVideoDecoder::waitForSeekDone()
 {
     scoped_lock Lock(m_SeekMutex);
-    if (m_bVideoSeekPending || m_bAudioSeekPending) {
+    if (m_bSeekPending) {
         do {
-            bool& bSeekPending = m_bVideoSeekPending ? 
-                    m_bVideoSeekPending : m_bAudioSeekPending;
-            VideoMsgQueuePtr pMsgQ = m_bVideoSeekPending ? m_pVMsgQ : m_pAMsgQ;
-            VideoMsgPtr pMsg = pMsgQ->pop(true);
+            VideoMsgPtr pMsg;
+            if (m_pVCmdQ) {
+                pMsg = m_pVMsgQ->pop(true);
+            } else {
+                pMsg = m_pAMsgQ->pop(true);
+            }
             SeekDoneVideoMsgPtr pSeekDoneMsg = dynamic_pointer_cast<SeekDoneVideoMsg>(pMsg);
             if (pSeekDoneMsg) {
-                bSeekPending = false;
-                if (pSeekDoneMsg->performedSeek()) {
-                    m_LastVideoFrameTime = pSeekDoneMsg->getVideoFrameTime();
-                    m_LastAudioFrameTime = pSeekDoneMsg->getAudioFrameTime();
-                }
+                m_bSeekPending = false;
+                m_LastVideoFrameTime = pSeekDoneMsg->getVideoFrameTime();
+                m_LastAudioFrameTime = pSeekDoneMsg->getAudioFrameTime();
             }
 
-        } while (m_bVideoSeekPending || m_bAudioSeekPending);
+        } while (m_bSeekPending);
     }
 }
 

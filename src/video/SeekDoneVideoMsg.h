@@ -32,17 +32,13 @@ namespace avg {
 
 class SeekDoneVideoMsg: public VideoMsg {
     public:
-        SeekDoneVideoMsg(bool PerformedSeek, 
-                long long VideoFrameTime, 
-                long long AudioFrameTime);
+        SeekDoneVideoMsg(long long VideoFrameTime, long long AudioFrameTime);
         virtual ~SeekDoneVideoMsg();
         
-        bool performedSeek();
         long long getVideoFrameTime();
         long long getAudioFrameTime();
         
     private:
-        bool m_bPerformedSeek;
         long long m_VideoFrameTime;
         long long m_AudioFrameTime;
 };

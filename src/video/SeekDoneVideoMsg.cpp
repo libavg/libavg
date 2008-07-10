@@ -25,21 +25,14 @@ using namespace std;
 
 namespace avg {
 
-SeekDoneVideoMsg::SeekDoneVideoMsg(bool PerformedSeek, 
-        long long VideoFrameTime, long long AudioFrameTime)
+SeekDoneVideoMsg::SeekDoneVideoMsg(long long VideoFrameTime, long long AudioFrameTime)
 {
-    m_bPerformedSeek = PerformedSeek;
     m_VideoFrameTime = VideoFrameTime;
     m_AudioFrameTime = AudioFrameTime;
 }
 
 SeekDoneVideoMsg::~SeekDoneVideoMsg()
 {
-}
-
-bool SeekDoneVideoMsg::performedSeek()
-{
-    return m_bPerformedSeek;
 }
 
 long long SeekDoneVideoMsg::getVideoFrameTime()

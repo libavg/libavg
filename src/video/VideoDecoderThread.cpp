@@ -92,18 +92,17 @@ void VideoDecoderThread::seek(long long DestTime)
     } catch (Exception&) {
     }
 
-    bool performSeek = m_pDecoder->hasVideo();
     long long VideoFrameTime = -1;
     long long AudioFrameTime = -1;
-    if (performSeek) {
-        m_pDecoder->seek(DestTime);
+    m_pDecoder->seek(DestTime);
+    if (m_pDecoder->hasVideo()) {
         VideoFrameTime = m_pDecoder->getCurTime(SS_VIDEO);
-        if (m_pDecoder->hasAudio()) {
-            AudioFrameTime = m_pDecoder->getCurTime(SS_AUDIO);
-        }
+    }
+    if (m_pDecoder->hasAudio()) {
+        AudioFrameTime = m_pDecoder->getCurTime(SS_AUDIO);
     }
     
-    m_MsgQ.push(VideoMsgPtr(new SeekDoneVideoMsg(performSeek, 
+    m_MsgQ.push(VideoMsgPtr(new SeekDoneVideoMsg(
                 VideoFrameTime, AudioFrameTime)));
 }
 
