@@ -93,14 +93,14 @@ void V4LCamera::open()
     struct stat St; 
 
     if ( stat(m_sDevice.c_str(), &St) == -1) {
-        AVG_TRACE(Logger::ERROR, "Unable to access v4l device " << 
+        AVG_TRACE(Logger::ERROR, "Unable to access v4l2 device " << 
           m_sDevice);
         // TODO: Disable camera instead of exit(1).
         exit(1);
     }
 
     if (!S_ISCHR (St.st_mode)) {
-        AVG_TRACE(Logger::ERROR, m_sDevice + " is not a v4l device");
+        AVG_TRACE(Logger::ERROR, m_sDevice + " is not a v4l2 device");
         // TODO: Disable camera instead of exit(1).
         exit(1);
     }
@@ -108,14 +108,14 @@ void V4LCamera::open()
     m_Fd = ::open(m_sDevice.c_str(), O_RDWR /* required */ | O_NONBLOCK, 0);
 
     if (m_Fd == -1) {
-        AVG_TRACE(Logger::ERROR, "Unable to open v4l device " << m_sDevice);
+        AVG_TRACE(Logger::ERROR, "Unable to open v4l2 device " << m_sDevice);
         // TODO: Disable camera instead of exit(1).
         exit(1);
     }
     
     initDevice();
     startCapture();
-    AVG_TRACE(Logger::CONFIG, "V4L Camera opened");
+    AVG_TRACE(Logger::CONFIG, "V4L2 Camera opened");
 }
 
 void V4LCamera::close()
@@ -134,9 +134,9 @@ void V4LCamera::close()
         m_vBuffers.clear();
 
         if ( ::close(m_Fd) == -1) {
-            AVG_TRACE(Logger::ERROR, "Error on closing v4l device");
+            AVG_TRACE(Logger::ERROR, "Error on closing v4l2 device");
         }
-        AVG_TRACE(Logger::CONFIG, "V4L Camera closed");
+        AVG_TRACE(Logger::CONFIG, "V4L2 Camera closed");
 
         m_Fd = -1;
         m_bCameraAvailable = false;
@@ -174,8 +174,7 @@ int V4LCamera::getCamPF(const std::string& sPF)
     }
     else {
         AVG_TRACE (Logger::WARNING,
-                std::string("Unsupported or illegal value for camera \
-                pixel format \"") 
+                std::string("Unsupported or illegal value for camera pixel format \"") 
                 + sPF + std::string("\"."));
     }
     
@@ -209,13 +208,12 @@ BitmapPtr V4LCamera::getImage(bool bWait)
 
         // caught signal or something else  
         if (Rc == -1) {
-            AVG_TRACE(Logger::WARNING, "V4L: select failed.");
+            AVG_TRACE(Logger::WARNING, "V4L2: select failed.");
             return BitmapPtr();
         }
         // timeout
         if (Rc == 0) {
-            AVG_TRACE(Logger::WARNING, "V4L: Timeout while waiting \
-               for image data");
+            AVG_TRACE(Logger::WARNING, "V4L2: Timeout while waiting for image data");
             return BitmapPtr();
         }
     }
@@ -372,7 +370,7 @@ V4LCID_t V4LCamera::getFeatureID(CameraFeature Feature) const
         V4LFeature = V4L2_CID_SATURATION;
     } else {
         AVG_TRACE(Logger::WARNING, "Feature " << cameraFeatureToString(Feature)
-                << " not supported for V4L.");
+                << " not supported for V4L2.");
         return -1;
     }
     
@@ -417,8 +415,7 @@ unsigned int V4LCamera::getFeature(CameraFeature Feature) const
 void V4LCamera::setFeature(V4LCID_t V4LFeature, int Value)
 {
     if (!m_bCameraAvailable) {
-        AVG_TRACE(Logger::WARNING, "setFeature() called before opening \
-            device: ignored");
+        AVG_TRACE(Logger::WARNING, "setFeature() called before opening device: ignored");
         return;
     }
 
@@ -499,26 +496,18 @@ void V4LCamera::initDevice()
     struct v4l2_crop Crop;
     struct v4l2_format Fmt;
 
-    if (-1 == xioctl (m_Fd, VIDIOC_QUERYCAP, &Cap)) {
-        if (EINVAL == errno) {
-            AVG_TRACE(Logger::ERROR, m_sDevice << " is not a valid \
-                V4L2 device");
-            exit(1);
-        } else {
-            AVG_TRACE(Logger::ERROR, "VIDIOC_QUERYCAP error");
-            exit(1);
-        }
+    if (xioctl(m_Fd, VIDIOC_QUERYCAP, &Cap) == -1) {
+        AVG_TRACE(Logger::ERROR, m_sDevice << " is not a valid V4L2 device");
+        exit(1);
     }
 
     if (!(Cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)) {
-        AVG_TRACE(Logger::ERROR, m_sDevice << " does not support \
-            capturing");
+        AVG_TRACE(Logger::ERROR, m_sDevice << " does not support capturing");
         exit(1);
     }
 
     if (!(Cap.capabilities & V4L2_CAP_STREAMING)) {
-        AVG_TRACE(Logger::ERROR, m_sDevice << " does not support \
-            streaming i/os");
+        AVG_TRACE(Logger::ERROR, m_sDevice << " does not support streaming i/os");
         exit(1);
     }
     m_sDriverName = (const char *)Cap.driver;
