@@ -93,30 +93,20 @@ paramList.extend([
 sendContour=0
 curParam=0
 
-g_CursorList = []
+g_CursorDict = {}
 
 def onTouch(Event):
     global OSCClient
     global g_TrackSize
-    global g_CursorList
+    global g_CursorDict
 
     try:
 
         if Event.source == avg.TOUCH:
-            if Event.type == avg.CURSORDOWN:
-                g_CursorList.append(Event.cursorid)
+            if Event.type == avg.CURSORDOWN or Event.type == avg.CURSORMOTION:
+                g_CursorDict[Event.cursorid] = Event
             elif Event.type == avg.CURSORUP:
-                del g_CursorList[g_CursorList.index(Event.cursorid)] 
-            posMsg = OSC.Message()
-            posMsg.setAddress('/tuio/2Dcur')
-            posMsg.append("set")
-            posMsg.append(Event.cursorid)
-            posMsg.append(Event.center[0]/g_TrackSize[0])
-            posMsg.append(Event.center[1]/g_TrackSize[1])
-            posMsg.append(Event.speed[0]) # Speed
-            posMsg.append(Event.speed[1])
-            posMsg.append(0.0) # Acceleration
-            
+                del g_CursorDict[Event.cursorid] 
 #            if sendContour and Type != 'd':
 #                bundle = OSC.Bundle()
 #                bundle.append(posMsg)
@@ -147,7 +137,6 @@ def onTouch(Event):
 #                OSCClient.sendRawMessage(bundle.getRawMessage())
 #
 #            else:
-            OSCClient.sendMessage(posMsg)
 #            print "msg: ", posMsg
     except socket.error, e:
         print e
@@ -235,17 +224,30 @@ def flipBitmap(Node):
 
 g_FrameNum = 0
 
-def sendFrameMsgs():   
+def sendFrameMsgs():
+    global g_CursorDict
+    aliveMsg = OSC.Message()
+    aliveMsg.setAddress('/tuio/2Dcur')
+    aliveMsg.append("alive")
+    for id in g_CursorDict:
+        aliveMsg.append(id)
+    OSCClient.sendMessage(aliveMsg)
+    for id in g_CursorDict:
+        event = g_CursorDict[id]
+        posMsg = OSC.Message()
+        posMsg.setAddress('/tuio/2Dcur')
+        posMsg.append("set")
+        posMsg.append(event.cursorid)
+        posMsg.append(event.center[0]/g_TrackSize[0])
+        posMsg.append(event.center[1]/g_TrackSize[1])
+        posMsg.append(event.speed[0]) # Speed
+        posMsg.append(event.speed[1])
+        posMsg.append(0.0) # Acceleration
+        OSCClient.sendMessage(posMsg)
     frameMsg = OSC.Message()
     frameMsg.setAddress('/tuio/2Dcur')
     frameMsg.append("fseq")
     frameMsg.append(g_FrameNum)
-    OSCClient.sendMessage(frameMsg)
-    aliveMsg = OSC.Message()
-    aliveMsg.setAddress('/tuio/2Dcur')
-    aliveMsg.append("alive")
-    for cursor in g_CursorList:
-        aliveMsg.append(cursor)
     OSCClient.sendMessage(frameMsg)
 
 def onFrame():

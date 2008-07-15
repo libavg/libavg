@@ -121,6 +121,7 @@ class Client:
         print "OSC Client Instantiated with address: " + address + " port: " + str(port) + " rcv/snd buffers: " + str(rcvb) + "/" + str(sndb)
 
     def sendMessage(self,message):
+#        print message
         self.sendRawMessage(message.getBinary())
 
     def sendRawMessage(self,rawMessage):
