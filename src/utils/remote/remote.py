@@ -5,7 +5,6 @@ import os
 from libavg import avg
 import OSC
 import socket
-#import pypm
 
 INPUT=0
 OUTPUT=1
@@ -91,27 +90,13 @@ paramList.extend([
      'min':-3.15, 'max':3.15, 'increment':0.01, 'precision':2},
 ])
 
-sendContour=1
+sendContour=0
 curParam=0
-
-def PrintDevices(InOrOut):
-    print
-    print 'MIDI INPUT DEVICES:'
-    for loop in range(pypm.CountDevices()):
-        interf,name,inp,outp,opened = pypm.GetDeviceInfo(loop)
-        if ((InOrOut == INPUT) & (inp == 1) |
-            (InOrOut == OUTPUT) & (outp ==1)):
-            print loop, name," ",
-            if (inp == 1): print "(input) ",
-            else: print "(output) ",
-            if (opened == 1): print "(opened)"
-            else: print "(unopened)"
-    print
 
 def onTouch(Event):
     global OSCClient
     global sendContour
-    return
+    global g_TrackSize
 
     try:
         if Event.type == avg.CURSORDOWN:
@@ -123,45 +108,49 @@ def onTouch(Event):
         else:
             print Event.type
 
-        if Event.source == avg.TRACK:
+        if Event.source == avg.TOUCH:
 
             posMsg = OSC.Message()
-            posMsg.setAddress('/b/'+Type)
+            posMsg.setAddress('/tuio/2Dcur')
             posMsg.append(Event.cursorid)
-            posMsg.append(int(Event.center[0]))
-            posMsg.append(int(Event.center[1]))
+            posMsg.append(Event.center[0]/g_TrackSize[0])
+            posMsg.append(Event.center[1]/g_TrackSize[1])
+            posMsg.append(0) # Speed
+            posMsg.append(0)
+            posMsg.append(0) # Acceleration
             
-            if sendContour and Type != 'd':
-                bundle = OSC.Bundle()
-                bundle.append(posMsg)
-                
-                contour = Event.getContour()
-
-                # This triggers contour reset on server side
-                rstMsg = OSC.Message()
-                rstMsg.setAddress('/b/r')
-                rstMsg.append(Event.cursorid)
-                rstMsg.append(len(contour))
-                
-                bundle.append(rstMsg)
-              
-                i = 0
-                contMsg = OSC.Message()
-                for point in contour:
-                    contMsg.clear()
-                    contMsg.setAddress('/b/v')
-                    contMsg.append(Event.cursorid)
-                    contMsg.append(point[0])
-                    contMsg.append(point[1])
-                    contMsg.append(i)
-
-                    bundle.append(contMsg)
-                    i = i+1
-                                    
-                OSCClient.sendRawMessage(bundle.getRawMessage())
-
-            else:
-                OSCClient.sendMessage(posMsg)
+#            if sendContour and Type != 'd':
+#                bundle = OSC.Bundle()
+#                bundle.append(posMsg)
+#                
+#                contour = Event.getContour()
+#
+#                # This triggers contour reset on server side
+#                rstMsg = OSC.Message()
+#                rstMsg.setAddress('/b/r')
+#                rstMsg.append(Event.cursorid)
+#                rstMsg.append(len(contour))
+#                
+#                bundle.append(rstMsg)
+#              
+#                i = 0
+#                contMsg = OSC.Message()
+#                for point in contour:
+#                    contMsg.clear()
+#                    contMsg.setAddress('/b/v')
+#                    contMsg.append(Event.cursorid)
+#                    contMsg.append(point[0])
+#                    contMsg.append(point[1])
+#                    contMsg.append(i)
+#
+#                    bundle.append(contMsg)
+#                    i = i+1
+#
+#                OSCClient.sendRawMessage(bundle.getRawMessage())
+#
+#            else:
+            OSCClient.sendMessage(posMsg)
+            print "msg: ", posMsg
     except socket.error, e:
         print e
 #        print "EVENT="+Type+" ID="+str(Event.cursorid)+" POS="+str(Event.x)+","+str(Event.y)+" AREA="+str(Event.area)
@@ -267,12 +256,6 @@ def onFrame():
     Player.getElementByID("fps").text = '%(val).2f' % {'val': fps} 
 
 
-#    while MidiIn.Poll():
-#        MidiData = MidiIn.Read(1) # read only 1 message at a time
-#        Tracker.setParam("/camera/brightness/@value",str(MidiData[0][0][2]*5))
-#        print "Got message :",MidiData[0][0][0]," ",MidiData[0][0][1]," ",MidiData[0][0][2], MidiData[0][0][3]
-#        print "VALUE=",MidiData[0][0][2]
-
 value = 0
 Player = avg.Player()
 Log = avg.Logger.get()
@@ -294,24 +277,21 @@ Tracker.setDebugImages(True, True)
 showImage = True
 
 #OSCClient = OSC.Client("194.95.203.37", 12000)
-#OSCClient = OSC.Client("127.0.0.1", 12000)
-#OSCClient.setBufSize(65535)
+OSCClient = OSC.Client("127.0.0.1", 12000)
+OSCClient.setBufSize(65535)
+rootNode = Player.getRootNode()
+g_TrackSize=(rootNode.width, rootNode.height)
 
-Bitmap = Tracker.getImage(avg.IMG_DISTORTED)
-
-initMsg = OSC.Message()
-initMsg.setAddress('/stage/init')
-initMsg.append(320)
-initMsg.append(165)
+#initMsg = OSC.Message()
+#initMsg.setAddress('/stage/init')
+#initMsg.append(320)
+#initMsg.append(165)
 #initMsg.append(Bitmap.getSize()[0])
 #initMsg.append(Bitmap.getSize()[1])
 #OSCClient.sendMessage(initMsg);
 
 Player.setOnFrameHandler(onFrame)
 displayParams()
-
-#PrintDevices(INPUT)
-#MidiIn = pypm.Input(5)
 
 Player.play()
 
