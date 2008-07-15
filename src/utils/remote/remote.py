@@ -93,34 +93,29 @@ paramList.extend([
 sendContour=0
 curParam=0
 
+g_CursorList = []
+
 def onTouch(Event):
     global OSCClient
-    global sendContour
     global g_TrackSize
+    global g_CursorList
 
     try:
-        if Event.type == avg.CURSORDOWN:
-            Type = "c"
-        elif Event.type == avg.CURSORUP:
-            Type = "d"
-        elif Event.type == avg.CURSORMOTION:
-            Type = "m"
-        else:
-            print Event.type
 
         if Event.source == avg.TOUCH:
+            if Event.type == avg.CURSORDOWN:
+                g_CursorList.append(Event.cursorid)
+            elif Event.type == avg.CURSORUP:
+                del g_CursorList[g_CursorList.index(Event.cursorid)] 
             posMsg = OSC.Message()
             posMsg.setAddress('/tuio/2Dcur')
             posMsg.append("set")
             posMsg.append(Event.cursorid)
-#            posMsg.append(0)
             posMsg.append(Event.center[0]/g_TrackSize[0])
             posMsg.append(Event.center[1]/g_TrackSize[1])
             posMsg.append(Event.speed[0]) # Speed
             posMsg.append(Event.speed[1])
             posMsg.append(0.0) # Acceleration
-            posMsg.append(0)
-            posMsg.append(0)
             
 #            if sendContour and Type != 'd':
 #                bundle = OSC.Bundle()
@@ -240,11 +235,17 @@ def flipBitmap(Node):
 
 g_FrameNum = 0
 
-def sendFSeq():   
+def sendFrameMsgs():   
     frameMsg = OSC.Message()
     frameMsg.setAddress('/tuio/2Dcur')
     frameMsg.append("fseq")
     frameMsg.append(g_FrameNum)
+    OSCClient.sendMessage(frameMsg)
+    aliveMsg = OSC.Message()
+    aliveMsg.setAddress('/tuio/2Dcur')
+    aliveMsg.append("alive")
+    for cursor in g_CursorList:
+        aliveMsg.append(cursor)
     OSCClient.sendMessage(frameMsg)
 
 def onFrame():
@@ -267,7 +268,7 @@ def onFrame():
         showTrackerImage(avg.IMG_HISTOGRAM, "histogram", 160, 120)
     fps = Player.getEffectiveFramerate()
     Player.getElementByID("fps").text = '%(val).2f' % {'val': fps} 
-    sendFSeq()
+    sendFrameMsgs()
 
 value = 0
 Player = avg.Player()
@@ -289,8 +290,8 @@ Tracker.setDebugImages(True, True)
 
 showImage = True
 
-#OSCClient = OSC.Client("192.168.100.113", 12000)
-OSCClient = OSC.Client("127.0.0.1", 12000)
+OSCClient = OSC.Client("192.168.100.113", 12000)
+#OSCClient = OSC.Client("127.0.0.1", 12000)
 OSCClient.setBufSize(65535)
 rootNode = Player.getRootNode()
 g_TrackSize=(rootNode.width, rootNode.height)
@@ -305,6 +306,5 @@ g_TrackSize=(rootNode.width, rootNode.height)
 
 Player.setOnFrameHandler(onFrame)
 displayParams()
-sendFSeq()
 Player.play()
 

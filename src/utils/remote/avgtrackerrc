@@ -16,7 +16,7 @@
   <prescale value="1"/>
   <historyupdateinterval value="25"/>
   <brighterregions value="true"/>
-  <eventonmove value="false"/>
+  <eventonmove value="true"/>
   <contourprecision value="0"/>
   <mask value=""/>
   <track>
