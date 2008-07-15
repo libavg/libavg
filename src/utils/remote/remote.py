@@ -111,6 +111,7 @@ def onTouch(Event):
         if Event.source == avg.TOUCH:
             posMsg = OSC.Message()
             posMsg.setAddress('/tuio/2Dcur')
+            posMsg.append("set")
             posMsg.append(Event.cursorid)
             posMsg.append(Event.center[0]/g_TrackSize[0])
             posMsg.append(Event.center[1]/g_TrackSize[1])
@@ -149,7 +150,7 @@ def onTouch(Event):
 #
 #            else:
             OSCClient.sendMessage(posMsg)
-            print "msg: ", posMsg
+#            print "msg: ", posMsg
     except socket.error, e:
         print e
 #        print "EVENT="+Type+" ID="+str(Event.cursorid)+" POS="+str(Event.x)+","+str(Event.y)+" AREA="+str(Event.area)
@@ -275,7 +276,7 @@ Tracker.setDebugImages(True, True)
 
 showImage = True
 
-#OSCClient = OSC.Client("194.95.203.37", 12000)
+#OSCClient = OSC.Client("192.168.100.113", 12000)
 OSCClient = OSC.Client("127.0.0.1", 12000)
 OSCClient.setBufSize(65535)
 rootNode = Player.getRootNode()
