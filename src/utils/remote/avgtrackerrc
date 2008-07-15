@@ -9,18 +9,18 @@
   <brightness value="1"/>
   <exposure value="7"/>
   <gamma value="0"/>
-  <gain value="16"/>
-  <shutter value="320"/>
+  <gain value="22"/>
+  <shutter value="346"/>
  </camera>
  <tracker>
   <prescale value="1"/>
   <historyupdateinterval value="25"/>
   <brighterregions value="true"/>
-  <eventonmove value="true"/>
+  <eventonmove value="false"/>
   <contourprecision value="0"/>
   <mask value=""/>
   <track>
-   <threshold value="15"/>
+   <threshold value="12"/>
    <similarity value="100"/>
    <areabounds min="700" max="1000000"/>
    <eccentricitybounds min="1" max="80"/>

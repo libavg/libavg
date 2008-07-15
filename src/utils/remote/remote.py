@@ -113,11 +113,14 @@ def onTouch(Event):
             posMsg.setAddress('/tuio/2Dcur')
             posMsg.append("set")
             posMsg.append(Event.cursorid)
+#            posMsg.append(0)
             posMsg.append(Event.center[0]/g_TrackSize[0])
             posMsg.append(Event.center[1]/g_TrackSize[1])
             posMsg.append(Event.speed[0]) # Speed
             posMsg.append(Event.speed[1])
             posMsg.append(0.0) # Acceleration
+            posMsg.append(0)
+            posMsg.append(0)
             
 #            if sendContour and Type != 'd':
 #                bundle = OSC.Bundle()
@@ -235,6 +238,15 @@ def flipBitmap(Node):
     Grid = [ [ (pos[0], 1-pos[1]) for pos in line ] for line in Grid]
     Node.setWarpedVertexCoords(Grid)
 
+g_FrameNum = 0
+
+def sendFSeq():   
+    frameMsg = OSC.Message()
+    frameMsg.setAddress('/tuio/2Dcur')
+    frameMsg.append("fseq")
+    frameMsg.append(g_FrameNum)
+    OSCClient.sendMessage(frameMsg)
+
 def onFrame():
     def showTrackerImage(TrackerImageID, NodeID, w=None, h=None):
         global Tracker
@@ -246,6 +258,7 @@ def onFrame():
             Node.height=h
         flipBitmap(Node)
     global showImage
+    global g_FrameNum
     if showImage:
         showTrackerImage(avg.IMG_DISTORTED, "distorted", 1280, 800)
         showTrackerImage(avg.IMG_FINGERS, "fingers", 1280, 800)
@@ -254,7 +267,7 @@ def onFrame():
         showTrackerImage(avg.IMG_HISTOGRAM, "histogram", 160, 120)
     fps = Player.getEffectiveFramerate()
     Player.getElementByID("fps").text = '%(val).2f' % {'val': fps} 
-
+    sendFSeq()
 
 value = 0
 Player = avg.Player()
@@ -292,6 +305,6 @@ g_TrackSize=(rootNode.width, rootNode.height)
 
 Player.setOnFrameHandler(onFrame)
 displayParams()
-
+sendFSeq()
 Player.play()
 
