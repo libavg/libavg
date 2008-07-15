@@ -140,6 +140,10 @@ void export_event()
         .add_property("minoraxis", make_function(&TouchEvent::getMinorAxis,
                 return_value_policy<copy_const_reference>()),
                 "Minor axis of an ellipse that is similar to the blob (ro).\n")
+        .add_property("speed", make_function(&TouchEvent::getSpeed,
+                return_value_policy<copy_const_reference>()),
+                "Current speed of the blob in pixels per millisecond as a\n"
+                "2-component vector (ro).\n")
         .def("getRelatedEvents", &TouchEvent::getRelatedEvents,
                 "getRelatedEvents() -> events\n"
                 "Returns a python tuple containing the events 'related' to this one.\n"

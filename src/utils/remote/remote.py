@@ -109,15 +109,14 @@ def onTouch(Event):
             print Event.type
 
         if Event.source == avg.TOUCH:
-
             posMsg = OSC.Message()
             posMsg.setAddress('/tuio/2Dcur')
             posMsg.append(Event.cursorid)
             posMsg.append(Event.center[0]/g_TrackSize[0])
             posMsg.append(Event.center[1]/g_TrackSize[1])
-            posMsg.append(0) # Speed
-            posMsg.append(0)
-            posMsg.append(0) # Acceleration
+            posMsg.append(Event.speed[0]) # Speed
+            posMsg.append(Event.speed[1])
+            posMsg.append(0.0) # Acceleration
             
 #            if sendContour and Type != 'd':
 #                bundle = OSC.Bundle()

@@ -35,7 +35,8 @@ namespace avg {
     
     int EventStream::s_LastLabel = 0;
 
-    EventStream::EventStream(BlobPtr first_blob)
+    EventStream::EventStream(BlobPtr first_blob, long long time)
+        : m_Time(time)
     {
         ObjectCounter::get()->incRef(&typeid(*this));
         m_Id = ++s_LastLabel;
@@ -51,7 +52,7 @@ namespace avg {
         ObjectCounter::get()->decRef(&typeid(*this));
     }
 
-    void EventStream::blobChanged(BlobPtr new_blob, bool bEventOnMove)
+    void EventStream::blobChanged(BlobPtr new_blob, long long time, bool bEventOnMove)
     {
         assert(m_pBlob);
         assert(new_blob);
@@ -63,6 +64,8 @@ namespace avg {
         } else {
             pos_changed = true;
         }
+        calcSpeed(c, time);
+        m_Time = time;
         switch(m_State) {
             case DOWN_PENDING:
                 //finger touch has not been polled yet. update position
@@ -128,20 +131,20 @@ namespace avg {
             case DOWN_PENDING:
                 m_State = DOWN_DELIVERED;
                 return EventPtr(new TouchEvent(m_Id, Event::CURSORDOWN,
-                        m_pBlob, Pos, Source));
+                        m_pBlob, Pos, Source, m_Speed));
             case MOTION_PENDING:
                 m_State = MOTION_DELIVERED;
                 return EventPtr(new TouchEvent(m_Id, Event::CURSORMOTION,
-                        m_pBlob, Pos, Source));
+                        m_pBlob, Pos, Source, m_Speed));
             case UP_PENDING:
                 m_State = UP_DELIVERED;
                 return EventPtr(new TouchEvent(m_Id, Event::CURSORUP,
-                        m_pBlob, Pos, Source));
+                        m_pBlob, Pos, Source, m_Speed));
             case DOWN_DELIVERED:
             case MOTION_DELIVERED:
                 if (!bEventOnMove) {
                     return EventPtr(new TouchEvent(m_Id, Event::CURSORMOTION,
-                            m_pBlob, Pos, Source));
+                            m_pBlob, Pos, Source, m_Speed));
                 } else {
                     return EventPtr();
                 }
@@ -187,11 +190,19 @@ namespace avg {
         }
     }
 
-    void EventStream::dump() {
+    void EventStream::dump() 
+    {
         cerr << "  " << m_Id << ": " << stateToString(m_State) << ", stale: " << m_Stale << endl;
         if (m_State == VANISHED) {
             cerr << "    VanishCounter: " << m_VanishCounter << endl;
         }
+    }
+
+    void EventStream::calcSpeed(DPoint pos, long long newTime)
+    {
+        double timeDiff = newTime-m_Time;
+        m_Speed.x = (pos.x-m_Pos.x)/timeDiff;
+        m_Speed.y = (pos.y-m_Pos.y)/timeDiff;
     }
 
 }

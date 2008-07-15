@@ -68,7 +68,8 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
 
         // implement IBlobTarget
         // Called from Tracker Thread!
-        virtual void update(BlobVectorPtr pTrackBlobs, BlobVectorPtr pTouchBlobs);
+        virtual void update(BlobVectorPtr pTrackBlobs, BlobVectorPtr pTouchBlobs,
+                long long time);
 
         TrackerCalibrator* startCalibration();
         void endCalibration();
@@ -94,7 +95,7 @@ class TrackerEventSource: public IBlobTarget, public IEventSource
         TrackerCalibrator * m_pCalibrator;
 
         // Used by tracker thread
-        void trackBlobIDs(BlobVectorPtr new_blobs, bool bTouch);
+        void trackBlobIDs(BlobVectorPtr new_blobs, long long time, bool bTouch);
         BlobPtr matchblob(BlobPtr new_blob, BlobVectorPtr old_blobs, double threshold, 
                 EventMap * pEvents);
 

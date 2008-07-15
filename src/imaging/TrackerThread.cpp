@@ -126,6 +126,7 @@ bool TrackerThread::work()
             pCamBmp = pTempBmp1;
         }
     }
+    long long time = TimeSource::get()->getCurrentMillisecs(); 
     if (pCamBmp) {
         m_NumFrames++;
         ScopeTimer Timer(ProfilingZoneTracker);
@@ -175,7 +176,7 @@ bool TrackerThread::work()
                     *(m_pBitmaps[TRACKER_IMG_HIGHPASS]) = *pBmpBandpass;
                 }
             }
-            calcBlobs(pCroppedBmp, pBmpBandpass);
+            calcBlobs(pCroppedBmp, pBmpBandpass, time);
         }
     }
     return true;
@@ -472,7 +473,7 @@ void TrackerThread::correlateHands(BlobVectorPtr pTrackBlobs,
     }
 }
 
-void TrackerThread::calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp) 
+void TrackerThread::calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp, long long time) 
 {
     BlobVectorPtr pTrackComps;
     BlobVectorPtr pTouchComps;
@@ -503,7 +504,7 @@ void TrackerThread::calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp)
         // Send the blobs to the BlobTarget.
         {
             ScopeTimer Timer(ProfilingZoneUpdate);
-            m_pTarget->update(pTrackComps, pTouchComps);
+            m_pTarget->update(pTrackComps, pTouchComps, time);
         }
     }
     

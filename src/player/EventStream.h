@@ -56,9 +56,9 @@ namespace avg {
             // VANISHED         -> MOTION_PENDING, UP_PENDING
             // UP_PENDING       -> UP_DELIVERED (CURSORUP event)
 
-            EventStream(BlobPtr first_blob);
-            ~EventStream();
-            void blobChanged(BlobPtr new_blob, bool bEventOnMove);
+            EventStream(BlobPtr first_blob, long long time);
+            virtual ~EventStream();
+            void blobChanged(BlobPtr new_blob, long long time, bool bEventOnMove);
             void blobGone();
             EventPtr pollevent(DeDistortPtr trafo, const IntPoint& DisplayExtents, 
                     CursorEvent::Source Source, bool bEventOnMove);
@@ -69,12 +69,16 @@ namespace avg {
             static std::string stateToString(StreamState State);
 
         private:
+            void calcSpeed(DPoint pos, long long newTime);
+
             bool m_Stale;
             int m_Id;
             StreamState m_State;
             int m_VanishCounter;
             DPoint m_Pos;
+            DPoint m_Speed;
             BlobPtr m_pBlob;
+            long long m_Time;
             static int s_LastLabel;
     };
 

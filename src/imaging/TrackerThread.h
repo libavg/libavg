@@ -59,7 +59,8 @@ class IBlobTarget {
     public:
         virtual ~IBlobTarget() {};
         // Note that this function is called by TrackerThread in it's own thread!
-        virtual void update(BlobVectorPtr pTrackBlobs, BlobVectorPtr pTouchBlobs) = 0;
+        virtual void update(BlobVectorPtr pTrackBlobs, BlobVectorPtr pTouchBlobs,
+                long long time) = 0;
 };
 
 
@@ -91,7 +92,7 @@ class TrackerThread: public WorkerThread<TrackerThread>
         void checkMessages();
         void calcHistory();
         void drawHistogram(BitmapPtr pDestBmp, BitmapPtr pSrcBmp);
-        void calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp);
+        void calcBlobs(BitmapPtr pTrackBmp, BitmapPtr pTouchBmp, long long time);
         bool isRelevant(BlobPtr pBlob, int MinArea, int MaxArea,
                 double MinEccentricity, double MaxEccentricity);
         BlobVectorPtr findRelevantBlobs(BlobVectorPtr pBlobs, bool bTouch);

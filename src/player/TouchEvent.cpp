@@ -33,9 +33,11 @@ using namespace std;
 
 namespace avg {
 
-TouchEvent::TouchEvent(int id, Type EventType, BlobPtr pBlob, const IntPoint& Pos, Source source)
+TouchEvent::TouchEvent(int id, Type EventType, BlobPtr pBlob, const IntPoint& Pos, 
+        Source source, DPoint speed)
     : CursorEvent(id, EventType, Pos, source),
-      m_pBlob(pBlob)
+      m_pBlob(pBlob),
+      m_Speed(speed)
 {
 }
 
@@ -48,6 +50,11 @@ CursorEventPtr TouchEvent::cloneAs(Type EventType) const
     TouchEventPtr pClone(new TouchEvent(*this));
     pClone->m_Type = EventType;
     return pClone;
+}
+
+const DPoint& TouchEvent::getSpeed() const
+{
+    return m_Speed;
 }
 
 const BlobPtr TouchEvent::getBlob() const

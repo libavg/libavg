@@ -43,10 +43,12 @@ typedef boost::weak_ptr<class TouchEvent> TouchEventWeakPtr;
 class TouchEvent: public CursorEvent 
 {
     public:
-        TouchEvent(int id, Type EventType, BlobPtr pBlob, const IntPoint& Pos, Source source);
+        TouchEvent(int id, Type EventType, BlobPtr pBlob, const IntPoint& Pos, 
+                Source source, DPoint speed);
         virtual ~TouchEvent();
         virtual CursorEventPtr cloneAs(Type EventType) const;
 
+        const DPoint& getSpeed() const;
         double getOrientation() const {return m_pBlob->getOrientation();};
         double getArea() const {return m_pBlob->getArea();};
         double getInertia() const {return m_pBlob->getInertia();};
@@ -65,6 +67,7 @@ class TouchEvent: public CursorEvent
     
     private:
         BlobPtr m_pBlob;
+        DPoint m_Speed;
         std::vector<TouchEventWeakPtr> m_RelatedEvents; 
 };
 

@@ -211,15 +211,15 @@ namespace avg {
     static ProfilingZone ProfilingZoneCalcTouch("trackBlobIDs(touch)");
 
     void TrackerEventSource::update(BlobVectorPtr pTrackBlobs, 
-            BlobVectorPtr pTouchBlobs)
+            BlobVectorPtr pTouchBlobs, long long time)
     {
         if (pTrackBlobs) {
             ScopeTimer Timer(ProfilingZoneCalcTrack);
-            trackBlobIDs(pTrackBlobs, false);
+            trackBlobIDs(pTrackBlobs, time, false);
         }
         if (pTouchBlobs) {
             ScopeTimer Timer(ProfilingZoneCalcTouch);
-            trackBlobIDs(pTouchBlobs, true);
+            trackBlobIDs(pTouchBlobs, time, true);
         }
     }
 
@@ -246,7 +246,8 @@ namespace avg {
         return e1->m_Dist > e2->m_Dist;
     }
 
-    void TrackerEventSource::trackBlobIDs(BlobVectorPtr pNewBlobs, bool bTouch)
+    void TrackerEventSource::trackBlobIDs(BlobVectorPtr pNewBlobs, long long time, 
+            bool bTouch)
     {
         EventMap * pEvents;
         string sConfigPath;
@@ -300,7 +301,7 @@ namespace avg {
                 assert (pEvents->find(pOldBlob) != pEvents->end());
                 EventStreamPtr pStream;
                 pStream = pEvents->find(pOldBlob)->second;
-                pStream->blobChanged(pNewBlob, bEventOnMove);
+                pStream->blobChanged(pNewBlob, time, bEventOnMove);
                 // Update the mapping.
                 (*pEvents)[pNewBlob] = pStream;
                 pEvents->erase(pOldBlob);
@@ -312,7 +313,7 @@ namespace avg {
         {
             if (MatchedNewBlobs.find(*it) == MatchedNewBlobs.end()) {
                 (*pEvents)[(*it)] = EventStreamPtr( 
-                        new EventStream(*it));
+                        new EventStream(*it, time));
             }
         }
 
