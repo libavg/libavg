@@ -314,4 +314,9 @@ const int OGLTexture::getTexMemDim()
     }
 }
 
+const PixelFormat OGLTexture::getPixelFormat() const
+{
+    return m_pf;
+}
+
 }

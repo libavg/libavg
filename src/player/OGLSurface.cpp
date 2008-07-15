@@ -276,7 +276,8 @@ void OGLSurface::bind()
                     bReuseTexture = false;
                 } else {
                     bReuseTexture = 
-                            ((pOldTextures[y][x])->getTileIndexExtent() == TileIndexExtents);
+                            ((pOldTextures[y][x])->getTileIndexExtent() == TileIndexExtents &&
+                             (pOldTextures[y][x]->getPixelFormat() == m_pf));
                 }
                 if (bReuseTexture) {
                     pTexture = pOldTextures[y][x];

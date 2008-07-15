@@ -104,9 +104,14 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(Bmp.getFormat() == avg.R8G8B8X8 or 
                     Bmp.getFormat() == avg.B8G8R8X8)
             node.setBitmap(Bmp)
+        def loadBitmap():
+            Bmp = avg.Bitmap("greyscale.png")
+            self.assert_(Bmp.getSize() == (64,64))
+            self.assert_(Bmp.getFormat() == avg.I8)
         Player.loadFile("image.avg")
         node = Player.getElementByID("test")
         getBitmap(node)
+#        loadBitmap()
         self.start(None,
                 (lambda: getBitmap(Player.getElementByID("test")),
                 ))

@@ -51,6 +51,7 @@ class OGLTexture {
         void blt(const VertexGrid* pVertexes) const;
         const IntRect& getTileIndexExtent() const;
         const int getTexMemDim();
+        const PixelFormat getPixelFormat() const;
 
     private:
         void calcTexCoords();
