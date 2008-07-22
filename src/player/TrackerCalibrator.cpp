@@ -59,8 +59,10 @@ void lm_print_tracker( int n_par, double* p, int m_dat, double* fvec,
     mydata->print_tracker(n_par, p, m_dat, fvec, iflag, iter, nfev);
 
 }
-void lm_evaluate_tracker( double* p, int m_dat, double* fvec,
-                                  void *data, int *info ) {
+
+void lm_evaluate_tracker(double* p, int m_dat, double* fvec,
+        void *data, int *info)
+{
     TrackerCalibrator *mydata = static_cast<TrackerCalibrator*>(data);
     mydata->evaluate_tracker(p, m_dat, fvec, info);
 

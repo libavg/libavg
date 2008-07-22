@@ -34,6 +34,11 @@ class ITransformerTarget;
 class TrackerCalibrator {
 
 public:
+    friend void lm_evaluate_tracker(double* p, int m_dat, double* fvec,
+            void *data, int *info);
+    friend void lm_print_tracker(int n_par, double* p, int m_dat, double* fvec, 
+            void *data, int iflag, int iter, int nfev);
+
     TrackerCalibrator(const IntPoint& CamExtents, const IntPoint& DisplayExtents);
     virtual ~TrackerCalibrator();
 
@@ -43,17 +48,14 @@ public:
 
     DeDistortPtr makeTransformer();
 
-    //actually these two should not really be public. They are not part of the public interface 
-    //of TrackerCalibrator.
-    //private:
-    //FIXME make lm_print_tracker and lm_evaluate_tracker friends of
-    //class TrackerCalibrator
+private:
+
+    void initThisFromDouble(double *p);
+    
     void evaluate_tracker(double *p, int m_dat, double *fvec, int* info);
     void print_tracker(int n_par, double *p, int m_dat, 
             double *fvec, int iflag, int iter, int nfev);
 
-private:
-    void initThisFromDouble(double *p);
     std::vector<double> m_DistortParams;
     double m_Angle;
     DPoint m_DisplayScale;
