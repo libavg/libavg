@@ -24,6 +24,7 @@
 #include "WorkerThread.h"
 #include "ObjectCounter.h"
 #include "Point.h"
+#include "GeomHelper.h"
 #include "OSHelper.h"
 #include "FileHelper.h"
 #include "StringHelper.h"
@@ -223,12 +224,43 @@ public:
 
     void runTests() 
     {
-        // TODO: This really isn't complete!
+        // TODO: The point tests aren't complete!
         DPoint pt1(0,0);
         DPoint pt2(3,4);
         TEST(calcDist(pt1, pt2)-5 < 0.0001);
         TEST(!almostEqual(pt1, pt2));
         TEST(almostEqual(pt1, pt1));
+        {
+            DLine l1(DPoint(0,0), DPoint(2,2));
+            DLine l2(DPoint(2,0), DPoint(0,2));
+            TEST(linesIntersect(l1, l2));
+            TEST(linesIntersect(l2, l1));
+        }
+        {
+            DLine l1(DPoint(0,0), DPoint(0,2));
+            DLine l2(DPoint(2,0), DPoint(2,2));
+            TEST(!linesIntersect(l1, l2));
+        }
+        {
+            DLine l1(DPoint(0,0), DPoint(2,0));
+            DLine l2(DPoint(0,2), DPoint(2,2));
+            TEST(!linesIntersect(l1, l2));
+        }
+        {
+            DPoint pt0(DPoint(1,1));
+            DPoint pt1(DPoint(1,3));
+            DPoint pt2(DPoint(1,-2));
+            vector<DPoint> poly;
+            poly.push_back(DPoint(0,0));
+            poly.push_back(DPoint(2,0));
+            poly.push_back(DPoint(2,2));
+            poly.push_back(DPoint(0,2));
+            TEST(pointInPolygon(pt0, poly));
+            TEST(!pointInPolygon(pt1, poly));
+            TEST(!pointInPolygon(pt2, poly));
+            poly.push_back(DPoint(2,1));
+            TEST(!pointInPolygon(pt0, poly));
+        }
     }
 };
 
