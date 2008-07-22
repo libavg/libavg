@@ -60,8 +60,13 @@ private:
     double m_TrapezoidFactor;
     DeDistortPtr m_CurrentTrafo;
     unsigned int m_CurPoint;
+
+    std::vector<IntPoint> m_ExtentsDisplayPoints;
+    std::vector<DPoint> m_ExtentsCamPoints;
+
     std::vector<IntPoint> m_DisplayPoints;
     std::vector<DPoint> m_CamPoints;
+    enum { FIND_EXTENTS, FIND_COORDS, CALIBRATION_DONE } m_Phase;
 
     IntPoint m_CamExtents;
     IntPoint m_DisplayExtents;

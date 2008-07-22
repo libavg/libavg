@@ -126,7 +126,11 @@ bool linesIntersect(const DLine& l0, const DLine& l1)
 
     return true;
 }
-    
+
+// Standard Jordan Curve Theorem (aka ray casting, even-odd-rule, crossing number)
+// point-in-polygon test.
+// Precomputing a bounding box for the polygon would speed this up a lot,
+// but we're not using the code in a speed-critical place so far.
 bool pointInPolygon(const DPoint& pt, const vector<DPoint>& poly)
 {
     DPoint pointOutside(0,0);
