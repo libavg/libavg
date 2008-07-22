@@ -42,7 +42,8 @@ using namespace std;
 
 namespace avg {
 
-    enum Params { DISPSCALE_X, DISPSCALE_Y, DISPOFFSET_X, DISPOFFSET_Y, DIST_2, DIST_3, ANGLE, TRAPEZ, NUM_PARAMS};
+enum Params { DISPSCALE_X, DISPSCALE_Y, DISPOFFSET_X, DISPOFFSET_Y, DIST_2, DIST_3, 
+            ANGLE, TRAPEZ, NUM_PARAMS};
 
 void lm_print_tracker( int n_par, double* p, int m_dat, double* fvec, 
                        void *data, int iflag, int iter, int nfev )
@@ -68,8 +69,180 @@ void lm_evaluate_tracker(double* p, int m_dat, double* fvec,
 
 }
 
+TrackerCalibrator::TrackerCalibrator(const IntPoint& CamExtents, 
+        const IntPoint& DisplayExtents)
+    : m_CurPoint(0),
+      m_CamExtents(CamExtents),
+      m_DisplayExtents(DisplayExtents),
+      m_bCurPointSet(false)
+{
+    ObjectCounter::get()->incRef(&typeid(*this));
+    double r0 = sqrt(double(DisplayExtents.x*DisplayExtents.x + 
+            DisplayExtents.y*DisplayExtents.y))/(NUM_POINTS*NUM_POINTS);
+    double x0 = DisplayExtents.x/2.;
+    double y0 = DisplayExtents.y/2.;
+    double aspect = DisplayExtents.x/double(DisplayExtents.y);
+    int count,c,i;
+    double d, R;
+    IntRect myPlane = IntRect(0,0,DisplayExtents.x-1,DisplayExtents.y-1);
+    for(i=0;i<NUM_POINTS;i++) {
+        count = int(pow(2.,2*i));
+        d = 2*M_PI/count;
+        R = r0 * i;
+        for(c=0;c<count;c++){
+            IntPoint cp = IntPoint(
+                    (int)floor(aspect*R*cos(c*d)+x0+0.5), 
+                    (int)floor(R*sin(c*d)+y0+0.5)
+                    );
+            if (myPlane.contains(cp)) {
+                m_DisplayPoints.push_back(cp);
+                m_CamPoints.push_back(DPoint(0,0));
+            }
+        }
+    }
+}
+
+TrackerCalibrator::~TrackerCalibrator()
+{
+    /*
+       cerr << "Calibration done. Number of points: " << m_DisplayPoints.size() << endl;
+       for (unsigned int i=0; i<m_DisplayPoints.size(); ++i) {
+       cerr << "  " << m_DisplayPoints[i] << "-->" << m_CamPoints[i] << endl;
+       }
+     */
+    ObjectCounter::get()->decRef(&typeid(*this));
+}
+
+
+bool TrackerCalibrator::nextPoint()
+{
+    if (!m_bCurPointSet) {
+        // There is no data for the previous point, so delete it.
+        m_DisplayPoints.erase(m_DisplayPoints.begin()+m_CurPoint);
+        m_CamPoints.erase(m_CamPoints.begin()+m_CurPoint);
+    } else {
+        m_CurPoint++;
+    }
+    m_bCurPointSet = false;
+    if (m_CurPoint < m_DisplayPoints.size()) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+IntPoint TrackerCalibrator::getDisplayPoint()
+{
+    return m_DisplayPoints[m_CurPoint];
+}
+
+void TrackerCalibrator::setCamPoint(const DPoint& pt)
+{
+    m_CamPoints[m_CurPoint] = pt;
+    m_bCurPointSet = true;
+}
+
+DeDistortPtr TrackerCalibrator::makeTransformer()
+{
+    lm_control_type control;
+    lm_initialize_control( &control );
+    control.maxcall=1000;
+    //        control.epsilon=1e-8;
+    //        control.ftol = 1e-4;
+    //        control.xtol = 1e-4;
+    //        control.gtol = 1e-4;
+
+    int dat = int(m_DisplayPoints.size());
+    assert(dat == int(m_CamPoints.size()));
+
+    //fill in reasonable defaults
+    m_DistortParams.clear();
+    m_DistortParams.push_back(0);
+    m_DistortParams.push_back(0);
+    m_Angle = 0;
+    m_TrapezoidFactor = 0.0;
+    m_DisplayOffset= DPoint(0,0);
+    m_DisplayScale = DPoint(2,2);
+
+    int n_p = NUM_PARAMS;
+    //should really match the Params enum!!!!
+    double p[] = {
+        m_DisplayScale.x, 
+        m_DisplayScale.y,
+        m_DisplayOffset.x, 
+        m_DisplayOffset.y, 
+        m_DistortParams[0],
+        m_DistortParams[1],
+        m_Angle,
+        m_TrapezoidFactor
+    };
+    initThisFromDouble(p);
+#ifdef DEBUG_FIT
+    for(unsigned j=0;j<m_DisplayPoints.size();j++) {
+        cerr<<"(cam) "<<m_CamPoints[j]<<" -> (display) "<<m_DisplayPoints[j]<<"\n";
+    }
+#endif
+    lm_minimize(dat, n_p, p, lm_evaluate_tracker, lm_print_tracker,
+            this, &control );
+    initThisFromDouble(p);
+    return m_CurrentTrafo;
+}
+
+void TrackerCalibrator::initThisFromDouble(double *p)
+{
+    m_DisplayOffset.x = p[DISPOFFSET_X]; 
+    m_DisplayOffset.y = p[DISPOFFSET_Y];
+    m_DisplayScale.x = p[DISPSCALE_X];
+    m_DisplayScale.y = p[DISPSCALE_Y];
+    m_DistortParams.clear();
+    m_DistortParams.push_back( p[DIST_2 ] );
+    m_DistortParams.push_back( p[DIST_3]);
+    m_Angle = p[ANGLE];
+    m_TrapezoidFactor = p[TRAPEZ];
+    m_CurrentTrafo = DeDistortPtr( 
+            new DeDistort(DPoint(m_CamExtents),
+                m_DistortParams,
+                m_Angle,
+                m_TrapezoidFactor,
+                m_DisplayOffset,
+                m_DisplayScale
+                )
+            );
+}
+
+void TrackerCalibrator::evaluate_tracker(double *p, int m_dat, double* fvec, int* info)
+{
+    initThisFromDouble(p);
+
+#ifdef DEBUG_FIT
+    for(int i=0;i<=12;i+=3) {
+        DPoint screenPoint = m_CurrentTrafo->transformBlobToScreen(
+                m_CurrentTrafo->transform_point(m_CamPoints[i]));
+        cerr << "sample value of trafo of (cam) "
+             << m_CamPoints[i]<<" : (transformed) "
+             << screenPoint
+             << "== (display)"
+             << DPoint(m_DisplayPoints[i])
+             << " dist="
+             << calcDist(DPoint(m_DisplayPoints[i]), screenPoint) 
+             << endl;
+    }
+#endif 
+    for (int i=0; i<m_dat; i++){
+        fvec[i] = calcDist(
+                m_CurrentTrafo->transformBlobToScreen(
+                    m_CurrentTrafo->transform_point(m_CamPoints[i])
+                    ), 
+                DPoint(m_DisplayPoints[i])
+                ); 
+    }
+    *info = *info; /* to prevent a 'unused variable' warning */
+    /* if <parameters drifted away> { *info = -1; } */
+}
+
 void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat, 
-        double *fvec, int iflag, int iter, int nfev){
+        double *fvec, int iflag, int iter, int nfev)
+{
 #ifdef DEBUG_FIT
     initThisFromDouble(p);
     if (iflag==2) {
@@ -92,170 +265,5 @@ void TrackerCalibrator::print_tracker(int n_par, double *p, int m_dat,
     cerr<<" => norm: "<< lm_enorm( m_dat, fvec )<<endl;
 #endif
 }
-    TrackerCalibrator::TrackerCalibrator(const IntPoint& CamExtents, const IntPoint& DisplayExtents)
-        : m_CurPoint(0),
-          m_CamExtents(CamExtents),
-          m_DisplayExtents(DisplayExtents),
-          m_bCurPointSet(false)
-    {
-        ObjectCounter::get()->incRef(&typeid(*this));
-        double r0 = sqrt(double(DisplayExtents.x*DisplayExtents.x + DisplayExtents.y*DisplayExtents.y))/(NUM_POINTS*NUM_POINTS);
-        double x0 = DisplayExtents.x/2.;
-        double y0 = DisplayExtents.y/2.;
-        double aspect = DisplayExtents.x/double(DisplayExtents.y);
-        int count,c,i;
-        double d, R;
-        IntRect myPlane = IntRect(0,0,DisplayExtents.x-1,DisplayExtents.y-1);
-        for(i=0;i<NUM_POINTS;i++) {
-        //    count = pow(2.,(i<=1)?2*i:i+1);
-            count = int(pow(2.,2*i));
-            d = 2*M_PI/count;
-            R = r0 * i;
-            for(c=0;c<count;c++){
-                IntPoint cp = IntPoint(
-                        (int)floor(aspect*R*cos(c*d)+x0+0.5), 
-                        (int)floor(R*sin(c*d)+y0+0.5)
-                        );
-                if (myPlane.contains(cp)) {
-                    m_DisplayPoints.push_back(cp);
-                    m_CamPoints.push_back(DPoint(0,0));
-                }
-            }
-        }
-    }
 
-    TrackerCalibrator::~TrackerCalibrator()
-    {
-/*
-        cerr << "Calibration done. Number of points: " << m_DisplayPoints.size() << endl;
-        for (unsigned int i=0; i<m_DisplayPoints.size(); ++i) {
-            cerr << "  " << m_DisplayPoints[i] << "-->" << m_CamPoints[i] << endl;
-        }
-*/
-        ObjectCounter::get()->decRef(&typeid(*this));
-    }
-
-
-    bool TrackerCalibrator::nextPoint()
-    {
-        if (!m_bCurPointSet) {
-            // There is no data for the previous point, so delete it.
-            m_DisplayPoints.erase(m_DisplayPoints.begin()+m_CurPoint);
-            m_CamPoints.erase(m_CamPoints.begin()+m_CurPoint);
-        } else {
-            m_CurPoint++;
-        }
-        m_bCurPointSet = false;
-        if (m_CurPoint < m_DisplayPoints.size()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    IntPoint TrackerCalibrator::getDisplayPoint()
-    {
-        return m_DisplayPoints[m_CurPoint];
-    }
-
-    void TrackerCalibrator::setCamPoint(const DPoint& pt)
-    {
-        m_CamPoints[m_CurPoint] = pt;
-        m_bCurPointSet = true;
-    }
-
-    void TrackerCalibrator::initThisFromDouble(double *p)
-    {
-        m_DisplayOffset.x = p[DISPOFFSET_X]; 
-        m_DisplayOffset.y = p[DISPOFFSET_Y];
-        m_DisplayScale.x = p[DISPSCALE_X];
-        m_DisplayScale.y = p[DISPSCALE_Y];
-        m_DistortParams.clear();
-        m_DistortParams.push_back( p[DIST_2 ] );
-        m_DistortParams.push_back( p[DIST_3]);
-        m_Angle = p[ANGLE];
-        m_TrapezoidFactor = p[TRAPEZ];
-        m_CurrentTrafo = DeDistortPtr( 
-                new DeDistort(DPoint(m_CamExtents),
-                    m_DistortParams,
-                    m_Angle,
-                    m_TrapezoidFactor,
-                    m_DisplayOffset,
-                    m_DisplayScale
-                    )
-                );
-    }
-
-    void TrackerCalibrator::evaluate_tracker(double *p, int m_dat, double* fvec, int* info){
-        initThisFromDouble(p);
-
-#ifdef DEBUG_FIT
-        for(int i=0;i<=12;i+=3) {
-            cerr<<"sample value of trafo of (cam) "
-                <<m_CamPoints[i]<<" : (transformed) "
-                <<m_CurrentTrafo->transformBlobToScreen(m_CurrentTrafo->transform_point(m_CamPoints[i]))
-            <<"== (display)"
-            <<DPoint(m_DisplayPoints[i])
-            <<" dist="
-            <<calcDist(DPoint(m_DisplayPoints[i]), m_CurrentTrafo->transformBlobToScreen(m_CurrentTrafo->transform_point(m_CamPoints[i])))
-            <<endl;
-        }
-#endif 
-        for (int i=0; i<m_dat; i++){
-            fvec[i] = calcDist(
-                    m_CurrentTrafo->transformBlobToScreen(
-                        m_CurrentTrafo->transform_point(m_CamPoints[i])
-                    ), 
-                    DPoint(m_DisplayPoints[i])
-                ); 
-        }
-        *info = *info; /* to prevent a 'unused variable' warning */
-        /* if <parameters drifted away> { *info = -1; } */
-    }
-
-    DeDistortPtr TrackerCalibrator::makeTransformer()
-    {
-        lm_control_type control;
-        lm_initialize_control( &control );
-        control.maxcall=1000;
-//        control.epsilon=1e-8;
-//        control.ftol = 1e-4;
-//        control.xtol = 1e-4;
-//        control.gtol = 1e-4;
-
-        int dat = int(m_DisplayPoints.size());
-        assert(dat == int(m_CamPoints.size()));
-      
-        //fill in reasonable defaults
-        m_DistortParams.clear();
-        m_DistortParams.push_back(0);
-        m_DistortParams.push_back(0);
-        m_Angle = 0;
-        m_TrapezoidFactor = 0.0;
-        m_DisplayOffset= DPoint(0,0);
-        m_DisplayScale = DPoint(2,2);
-
-        int n_p = NUM_PARAMS;
-        //should really match the Params enum!!!!
-        double p[] = {
-            m_DisplayScale.x, 
-            m_DisplayScale.y,
-            m_DisplayOffset.x, 
-            m_DisplayOffset.y, 
-            m_DistortParams[0],
-            m_DistortParams[1],
-            m_Angle,
-            m_TrapezoidFactor
-        };
-        initThisFromDouble(p);
-#ifdef DEBUG_FIT
-        for(int j=0;j<m_DisplayPoints.size();j++){
-            cerr<<"(cam) "<<m_CamPoints[j]<<" -> (display) "<<m_DisplayPoints[j]<<"\n";
-        }
-#endif
-        lm_minimize(dat, n_p, p, lm_evaluate_tracker, lm_print_tracker,
-                     this, &control );
-        initThisFromDouble(p);
-        return m_CurrentTrafo;
-    }
 }

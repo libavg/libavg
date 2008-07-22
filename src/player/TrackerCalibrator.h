@@ -29,8 +29,6 @@
 
 namespace avg {
 
-class ITransformerTarget;
-
 class TrackerCalibrator {
 
 public:
@@ -49,7 +47,6 @@ public:
     DeDistortPtr makeTransformer();
 
 private:
-
     void initThisFromDouble(double *p);
     
     void evaluate_tracker(double *p, int m_dat, double *fvec, int* info);
