@@ -23,7 +23,6 @@
 #include "TrackerEventSource.h"
 
 #include "../base/ObjectCounter.h"
-#include "../base/GeomHelper.h"
 
 #include "../imaging/DeDistort.h"
 
@@ -40,7 +39,6 @@ using namespace std;
 
 #define NUM_POINTS 3 
 //#define DEBUG_FIT  1
-#define REFERENCE_EDGE_DIST 10
 
 namespace avg {
 
@@ -74,24 +72,11 @@ void lm_evaluate_tracker(double* p, int m_dat, double* fvec,
 TrackerCalibrator::TrackerCalibrator(const IntPoint& CamExtents, 
         const IntPoint& DisplayExtents)
     : m_CurPoint(0),
-      m_Phase(FIND_EXTENTS),
       m_CamExtents(CamExtents),
       m_DisplayExtents(DisplayExtents),
       m_bCurPointSet(false)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-
-    // Calc extents reference points
-    m_ExtentsDisplayPoints.push_back(IntPoint(REFERENCE_EDGE_DIST, REFERENCE_EDGE_DIST));
-    m_ExtentsDisplayPoints.push_back(
-            IntPoint(DisplayExtents.x-REFERENCE_EDGE_DIST, REFERENCE_EDGE_DIST));
-    m_ExtentsDisplayPoints.push_back(IntPoint(DisplayExtents.x-REFERENCE_EDGE_DIST, 
-            DisplayExtents.y-REFERENCE_EDGE_DIST));
-    m_ExtentsDisplayPoints.push_back(IntPoint(REFERENCE_EDGE_DIST, 
-            DisplayExtents.y-REFERENCE_EDGE_DIST));
-    m_ExtentsCamPoints = vector<DPoint>(4);
-
-    // Calc coordinate reference points
     double r0 = sqrt(double(DisplayExtents.x*DisplayExtents.x + 
             DisplayExtents.y*DisplayExtents.y))/(NUM_POINTS*NUM_POINTS);
     double x0 = DisplayExtents.x/2.;
@@ -131,70 +116,34 @@ TrackerCalibrator::~TrackerCalibrator()
 
 bool TrackerCalibrator::nextPoint()
 {
-    switch(m_Phase) {
-        case FIND_EXTENTS:
-            if (m_bCurPointSet) {
-                m_CurPoint++;
-                if (m_CurPoint == 4) {
-                    m_Phase = FIND_COORDS;
-                    m_CurPoint = 0;
-                }
-            }
-            return true;
-        case FIND_COORDS:
-            if (!m_bCurPointSet) {
-                // There is no data for the previous point, so delete it.
-                m_DisplayPoints.erase(m_DisplayPoints.begin()+m_CurPoint);
-                m_CamPoints.erase(m_CamPoints.begin()+m_CurPoint);
-            } else {
-                m_CurPoint++;
-            }
-            m_bCurPointSet = false;
-            if (m_CurPoint < m_DisplayPoints.size()) {
-                return true;
-            } else {
-                m_Phase = CALIBRATION_DONE;
-                return false;
-            }
-            break;
-        default:
-            assert(false);
+    if (!m_bCurPointSet) {
+        // There is no data for the previous point, so delete it.
+        m_DisplayPoints.erase(m_DisplayPoints.begin()+m_CurPoint);
+        m_CamPoints.erase(m_CamPoints.begin()+m_CurPoint);
+    } else {
+        m_CurPoint++;
+    }
+    m_bCurPointSet = false;
+    if (m_CurPoint < m_DisplayPoints.size()) {
+        return true;
+    } else {
+        return false;
     }
 }
 
 IntPoint TrackerCalibrator::getDisplayPoint()
 {
-    switch(m_Phase) {
-        case FIND_EXTENTS:
-            return m_ExtentsDisplayPoints[m_CurPoint];
-        case FIND_COORDS:
-            return m_DisplayPoints[m_CurPoint];
-        default:
-            assert(false);
-    }
+    return m_DisplayPoints[m_CurPoint];
 }
 
 void TrackerCalibrator::setCamPoint(const DPoint& pt)
 {
-    switch(m_Phase) {
-        case FIND_EXTENTS:
-            m_ExtentsCamPoints[m_CurPoint] = pt;
-            break;
-        case FIND_COORDS:
-            if (pointInPolygon(pt, m_ExtentsCamPoints)) {
-                m_CamPoints[m_CurPoint] = pt;
-            }
-            break;
-        default:
-            assert(false);
-    }
+    m_CamPoints[m_CurPoint] = pt;
     m_bCurPointSet = true;
 }
 
 DeDistortPtr TrackerCalibrator::makeTransformer()
 {
-    assert(m_Phase == CALIBRATION_DONE);
-
     lm_control_type control;
     lm_initialize_control( &control );
     control.maxcall=1000;
