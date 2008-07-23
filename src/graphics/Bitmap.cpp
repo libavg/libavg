@@ -550,6 +550,27 @@ HistogramPtr Bitmap::getHistogram(int Stride) const
     return pHist;
 }
 
+void Bitmap::getMinMax(int Stride, int& min, int& max) const
+{
+    assert (m_PF == I8);
+    const unsigned char * pSrcLine = m_pBits;
+    min = 255;
+    max = 0;
+    for (int y=0; y < m_Size.y; y+=Stride) {
+        const unsigned char * pSrc = pSrcLine;
+        for (int x=0; x<m_Size.x; x+=Stride) {
+            if (*pSrc < min) {
+                min = *pSrc;
+            }
+            if (*pSrc > max) {
+                max = *pSrc;
+            }
+            pSrc+=Stride;
+        }
+        pSrcLine += m_Stride*Stride;
+    }
+}
+
 bool Bitmap::operator ==(const Bitmap & otherBmp)
 {
     // We allow Name, Stride and bOwnsBits to be different here, since we're looking for

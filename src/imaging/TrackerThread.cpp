@@ -30,6 +30,7 @@
 #include "../graphics/FilterHighpass.h"
 #include "../graphics/FilterFastBandpass.h"
 #include "../graphics/FilterFastDownscale.h"
+#include "../graphics/FilterNormalize.h"
 #include "../graphics/FilterBlur.h"
 #include "../graphics/FilterGauss.h"
 #include "../graphics/FilterMask.h"
@@ -43,6 +44,7 @@
 using namespace std;
 
 namespace avg {
+
 static ProfilingZone ProfilingZoneCapture ("Capture");
 static ProfilingZone ProfilingZoneMask ("Mask");
 static ProfilingZone ProfilingZoneTracker ("Tracker");
@@ -163,6 +165,7 @@ bool TrackerThread::work()
         if (m_bCreateDebugImages) {
             boost::mutex::scoped_lock Lock(*m_pMutex);
             m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pCroppedBmp);
+            FilterNormalize(4).applyInPlace(m_pBitmaps[TRACKER_IMG_NOHISTORY]);
         }
         {
             BitmapPtr pBmpBandpass;

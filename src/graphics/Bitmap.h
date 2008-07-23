@@ -100,6 +100,7 @@ public:
     int getMemNeeded() const;
     bool hasAlpha() const;
     HistogramPtr getHistogram(int Stride = 1) const;
+    void getMinMax(int Stride, int& min, int& max) const;
 
     template<class Pixel>
     void setPixel(const IntPoint& p, Pixel Color);
