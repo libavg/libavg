@@ -40,7 +40,15 @@ void FilterNormalize::applyInPlace(BitmapPtr pBmp)
     int min;
     int max;
     pBmp->getMinMax(m_Stride, min, max);
-    FilterIntensity(-min, 255./(max-min)).applyInPlace(pBmp); 
+    if (m_Stride > 1) {
+        min -= 2;
+        max += 2;
+    }
+    double factor = 255./(max-min);
+    if (factor > 10) {
+        factor = 10;
+    }
+    FilterIntensity(-min, factor).applyInPlace(pBmp); 
 }
 
 } // namespace

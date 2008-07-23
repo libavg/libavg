@@ -165,7 +165,7 @@ bool TrackerThread::work()
         if (m_bCreateDebugImages) {
             boost::mutex::scoped_lock Lock(*m_pMutex);
             m_pBitmaps[TRACKER_IMG_NOHISTORY]->copyPixels(*pCroppedBmp);
-            FilterNormalize(4).applyInPlace(m_pBitmaps[TRACKER_IMG_NOHISTORY]);
+            FilterNormalize(2).applyInPlace(m_pBitmaps[TRACKER_IMG_NOHISTORY]);
         }
         {
             BitmapPtr pBmpBandpass;
