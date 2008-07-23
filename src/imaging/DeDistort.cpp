@@ -58,6 +58,7 @@ DeDistort::DeDistort()
 {
     m_DistortionParams.push_back(0);
     m_DistortionParams.push_back(0);
+    m_DistortionParams.push_back(0);
     m_RescaleFactor = calc_rescale();
 }
 
@@ -67,6 +68,7 @@ DeDistort::DeDistort(const DPoint& CamExtents, const DPoint& DisplayExtents)
       m_DisplayOffset(0,0)
 {
     m_CamExtents = CamExtents; 
+    m_DistortionParams.push_back(0);
     m_DistortionParams.push_back(0);
     m_DistortionParams.push_back(0);
     m_DisplayScale.x = DisplayExtents.x/CamExtents.x;
@@ -118,6 +120,8 @@ void DeDistort::load(const DPoint &CameraExtents, const TrackerConfig& Config)
             ("/transform/distortionparams/@p2"));
     m_DistortionParams.push_back(Config.getDoubleParam
             ("/transform/distortionparams/@p3"));
+    m_DistortionParams.push_back(Config.getDoubleParam
+            ("/transform/distortionparams/@p4"));
     m_TrapezoidFactor = Config.getDoubleParam("/transform/trapezoid/@value");
     m_Angle = Config.getDoubleParam("/transform/angle/@value");
     m_DisplayOffset = Config.getPointParam("/transform/displaydisplacement/");
@@ -132,6 +136,8 @@ void DeDistort::save(TrackerConfig& Config)
             toString(m_DistortionParams[0]));
     Config.setParam("/transform/distortionparams/@p3", 
             toString(m_DistortionParams[1]));
+    Config.setParam("/transform/distortionparams/@p4", 
+            toString(m_DistortionParams[2]));
     Config.setParam("/transform/trapezoid/@value", 
             toString(m_TrapezoidFactor));
     Config.setParam("/transform/angle/@value", 
@@ -162,7 +168,7 @@ void DeDistort::dump() const
     cerr << "  Transform:" << endl;
     cerr << "    CamExtents: " << m_CamExtents << endl;
     cerr << "    DistortionParams: " << m_DistortionParams[0] << ", " 
-            << m_DistortionParams[1] << endl;
+            << m_DistortionParams[1] << m_DistortionParams[2] << endl;
     cerr << "    Trapezoid: " << m_TrapezoidFactor << endl;
     cerr << "    Angle: " << m_Angle << endl;
     cerr << "    DisplayOffset: " << m_DisplayOffset << endl;
@@ -227,7 +233,7 @@ DPoint DeDistort::trapezoid(const double trapezoid_factor, const DPoint &pt)
 double distort_map(const std::vector<double> &params, double r) 
 {
     double S = 0;
-    int counter = 3;
+    int counter = 2;
     std::vector<double>::const_iterator v;
     for(v=params.begin(); v!=params.end(); ++v){
         S += (*v) * pow(r, counter);
