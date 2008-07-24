@@ -393,8 +393,11 @@ bool equalIgnoreCase(const string& s1, const string& s2) {
     return sUpper1 == sUpper2;
 }
 
+static ProfilingZone FontFamilyProfilingZone("  Words::getFontFamily");
+
 PangoFontFamily * Words::getFontFamily(const string& sFamily)
 {
+    ScopeTimer Timer(FontFamilyProfilingZone);
     getFontFamilies();
     PangoFontFamily * pFamily = 0;
     assert(s_NumFontFamilies != 0);
@@ -425,6 +428,7 @@ void Words::parseString(PangoAttrList** ppAttrList, char** ppText)
 }
 
 static ProfilingZone DrawStringProfilingZone("  Words::drawString");
+static ProfilingZone OpenFontProfilingZone("    Words::open font");
 
 void Words::drawString()
 {
@@ -436,6 +440,7 @@ void Words::drawString()
         m_StringExtents = DPoint(0,0);
     } else {
         if (m_bFontChanged) {
+            ScopeTimer Timer(OpenFontProfilingZone);
             AVG_TRACE(Logger::MEMORY, "Opening font " << m_sFontName);
             PangoFontFamily * pFamily;
             try {
