@@ -388,7 +388,7 @@ bool Video::renderToSurface(ISurface * pSurface)
         if (m_FramesInRowTooLate > 3 && m_pDecoder->getMasterStream() != SS_AUDIO) {
             // Heuristic: If we've missed more than 3 frames in a row, we stop
             // advancing movie time until the decoder has caught up.
-            m_PauseTime += 1000/(getPlayer()->getEffectiveFramerate());
+            m_PauseTime += (long long)(1000/(getPlayer()->getEffectiveFramerate()));
         }
 //        AVG_TRACE(Logger::PROFILE, "Missed video frame.");
     } else if (FrameAvailable == FA_USE_LAST_FRAME) {
