@@ -285,6 +285,7 @@ void Video::seek(long long DestTime)
 void Video::open(YCbCrMode ycbcrMode)
 {
     m_FramesTooLate = 0;
+    m_FramesInRowTooLate = 0;
     m_FramesPlayed = 0;
     const AudioParams * pAP = 0;
     if (getAudioEngine()) {
@@ -378,12 +379,20 @@ bool Video::renderToSurface(ISurface * pSurface)
     pSurface->unlockBmps();
     if (FrameAvailable == FA_NEW_FRAME) {
         m_FramesPlayed++;
+        m_FramesInRowTooLate = 0;
         getDisplayEngine()->surfaceChanged(pSurface);
     } else if (FrameAvailable == FA_STILL_DECODING) {
         m_FramesPlayed++;
         m_FramesTooLate++;
+        m_FramesInRowTooLate++;
+        if (m_FramesInRowTooLate > 3 && m_pDecoder->getMasterStream() != SS_AUDIO) {
+            // Heuristic: If we've missed more than 3 frames in a row, we stop
+            // advancing movie time until the decoder has caught up.
+            m_PauseTime += 1000/(getPlayer()->getEffectiveFramerate());
+        }
 //        AVG_TRACE(Logger::PROFILE, "Missed video frame.");
-//    } else if (FrameAvailable == FA_USE_LAST_FRAME) {
+    } else if (FrameAvailable == FA_USE_LAST_FRAME) {
+        m_FramesInRowTooLate = 0;
 //        AVG_TRACE(Logger::PROFILE, "Video frame reused.");
     }
     if (m_pDecoder->isEOF()) {

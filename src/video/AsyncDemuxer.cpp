@@ -27,6 +27,8 @@
 
 #include <iostream>
 
+#define PACKET_QUEUE_LENGTH 50
+
 using namespace std;
 
 typedef boost::mutex::scoped_lock scoped_lock;
@@ -80,7 +82,7 @@ AsyncDemuxer::~AsyncDemuxer()
 
 void AsyncDemuxer::enableStream(int StreamIndex)
 {
-    VideoPacketQueuePtr pPacketQ(new VideoPacketQueue(100));
+    VideoPacketQueuePtr pPacketQ(new VideoPacketQueue(PACKET_QUEUE_LENGTH));
     m_PacketQs[StreamIndex] = pPacketQ;
     m_bSeekDone[StreamIndex] = true;
     m_pCmdQ->push(Command<VideoDemuxerThread>(boost::bind(
