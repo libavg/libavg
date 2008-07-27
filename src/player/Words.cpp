@@ -53,7 +53,6 @@ void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level,
         const gchar *message, gpointer unused_data)
 {
 // TODO: Reenable this
-/*
     string s = "Pango ";
     if (log_level & G_LOG_LEVEL_ERROR) {
         s += "error: ";
@@ -70,7 +69,6 @@ void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level,
     }
     s += message;
     AVG_TRACE(Logger::WARNING, s);
-*/
 }
 NodeDefinition Words::getNodeDefinition()
 {
@@ -443,6 +441,7 @@ void Words::drawString()
             ScopeTimer Timer(OpenFontProfilingZone);
             AVG_TRACE(Logger::MEMORY, "Opening font " << m_sFontName);
             PangoFontFamily * pFamily;
+            bool bFamilyFound = true;
             try {
                 pFamily = getFontFamily(m_sFontName);
             } catch (Exception& ex) {
@@ -451,6 +450,7 @@ void Words::drawString()
                             m_sFontName << ". Using sans instead.");
                     s_sFontsNotFound.insert(m_sFontName);
                 }
+                bFamilyFound = false;
                 pFamily = getFontFamily("sans");
             }
             PangoFontFace ** ppFaces;
@@ -470,10 +470,11 @@ void Words::drawString()
             }
             if (!pFace) {
                 pFace = ppFaces[0];
-                AVG_TRACE(Logger::WARNING, "Could not find font variant " << m_sFontName << 
-                        ":" << m_sFontVariant << ". Using " <<
-                        pango_font_face_get_face_name(pFace) << " instead.");
-
+                if (bFamilyFound) {
+                    AVG_TRACE(Logger::WARNING, "Could not find font variant " << m_sFontName << 
+                            ":" << m_sFontVariant << ". Using " <<
+                            pango_font_face_get_face_name(pFace) << " instead.");
+                }
             }
             g_free(ppFaces);
 

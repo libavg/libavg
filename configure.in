@@ -88,9 +88,9 @@ else
 fi 
 
 AC_ARG_ENABLE(v4l2,
-	      AC_HELP_STRING([--enable-v4l2],
-			     [compile support for video4linux v2 video devices]),
-			     enable_v4l2=$enableval, enable_v4l2=maybe)
+          AC_HELP_STRING([--enable-v4l2],
+                 [compile support for video4linux v2 video devices]),
+                 enable_v4l2=$enableval, enable_v4l2=maybe)
 if test "$enable_v4l2" = maybe; then
     AC_CHECK_TYPE([struct v4l2_buffer],
         [enable_v4l2=yes],
@@ -100,7 +100,7 @@ if test "$enable_v4l2" = maybe; then
 fi
 AM_CONDITIONAL(ENABLE_V4L2, test x$enable_v4l2 = xyes)
 if test "$enable_v4l2" = yes; then
-	AC_DEFINE(AVG_ENABLE_V4L2, 1, [Enable Video4Linux2 camera support])
+    AC_DEFINE(AVG_ENABLE_V4L2, 1, [Enable Video4Linux2 camera support])
 fi
 
 AC_CHECK_HEADER([linux/ppdev.h], enable_ParPort=yes, enable_ParPort=no)
@@ -126,4 +126,4 @@ AM_CONFIG_HEADER(src/avgconfig.h)
 AC_OUTPUT(Makefile src/Makefile src/test/Makefile 
     src/base/Makefile src/conradrelais/Makefile src/lmfit/Makefile src/wrapper/Makefile 
     src/player/Makefile src/parport/Makefile src/graphics/Makefile src/python/Makefile
-    src/imaging/Makefile src/video/Makefile src/audio/Makefile)
+    src/imaging/Makefile src/video/Makefile src/audio/Makefile src/utils/Makefile)
