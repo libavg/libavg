@@ -65,7 +65,6 @@ double normedInterpolate(double y0, double y1, double y2, double y3,
 
 double CubicSpline::interpolate(double orig)
 {
-    // XXX: This is not optimized.
     unsigned i = 0;
     if (m_X[m_X.size()-1] <= orig) {
         i = m_X.size();

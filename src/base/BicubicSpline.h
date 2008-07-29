@@ -19,46 +19,43 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _MathHelper_H_
-#define _MathHelper_H_
+#ifndef _BicubicSpline_H_
+#define _BicubicSpline_H_
 
-#define PI 3.14159265358979323846
-#define EPSILON 0.00001
+#include "Point.h"
 
+#include <boost/shared_ptr.hpp>
 #include <vector>
 
 namespace avg {
 
-bool ispow2(int n);
+class BicubicSpline {
+public:
+    BicubicSpline(const std::vector<double>& x, const std::vector<double>& y,
+            const std::vector<std::vector<double> >& f);
+    virtual ~BicubicSpline();
 
-int nextpow2(int n);
+    double interpolate(const DPoint& orig);
 
-int safeCeil(double d);
+private:
+    double getX(int j);
+    double getY(int i);
+    double getF(int i, int j);
+    void getCoeffs(int i, int j, std::vector<std::vector<double> > & coeffs);
 
-bool almostEqual(double d1, double d2);
+    std::vector<double> m_X;
+    std::vector<double> m_Y;
+    std::vector<std::vector<double> > m_F;
+    std::vector<std::vector<double> > m_Fdx;
+    std::vector<std::vector<double> > m_Fdy;
+    std::vector<std::vector<double> > m_Fdxy;
+};
 
-template<class T>
-std::vector<T> vectorFromCArray(int n, T* pData)
-{
-    std::vector<T> v;
-    for (int i=0; i<n; ++i) {
-        v.push_back(*(pData+i));
-    }
-    return v;
-}
-
-template<class T>
-std::vector<std::vector<T> > vector2DFromCArray(int n, int m, T* pData)
-{
-    std::vector<std::vector<T> > v(4, std::vector<T>());
-    for (int i=0; i<n; ++i) {
-        for (int j=0; j<m; ++j) {
-            v[i].push_back(*(pData+j+i*m));
-        }
-    }
-    return v;
-}
+typedef boost::shared_ptr<BicubicSpline> BicubicSplinePtr;
 
 }
-#endif
- 
+
+#endif 
+
+
+
