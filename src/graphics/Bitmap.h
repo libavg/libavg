@@ -57,6 +57,7 @@ typedef enum {
                // color components have values from 16...235.
     YCbCrJ420p,// Same as YCbCr420p, but this is the jpeg version with component
                // values in the range 0...255
+    BAYER8,
     NO_PIXELFORMAT
 } PixelFormat;
 
@@ -122,6 +123,7 @@ private:
     void I8toI16(const Bitmap& Orig);
     void I8toRGB(const Bitmap& Orig);
     void I16toI8(const Bitmap& Orig);
+    void BY8toRGB(const Bitmap& Orig);
 
     IntPoint m_Size;
     int m_Stride;

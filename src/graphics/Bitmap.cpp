@@ -264,6 +264,34 @@ void Bitmap::copyPixels(const Bitmap & Orig)
                         assert(false);
                 }
                 break;
+            case BAYER8:
+                switch(m_PF) {
+                    // Bayer patterns are saved as I8 bitmaps. So simply copy that
+                    case I8:
+                        {
+                            const unsigned char * pSrc = Orig.getPixels();
+                            unsigned char * pDest = m_pBits;
+                            int Height = min(Orig.getSize().y, m_Size.y);
+                            int LineLen = min(Orig.getLineLen(), getLineLen());
+                            int SrcStride = Orig.getStride();
+                            for (int y=0; y<Height; ++y) {
+                                memcpy(pDest, pSrc, LineLen);
+                                pDest += m_Stride;
+                                pSrc += SrcStride;
+                            }
+                        }
+                        break;
+                    case B8G8R8X8:
+                    case B8G8R8A8:
+                    case R8G8B8X8:
+                    case R8G8B8A8:
+                        BY8toRGB(Orig);
+                        break;
+                    default: 
+                        // Unimplemented conversion.
+                        assert(false);
+                }
+                break;
             default:
                 switch(m_PF) {
                     case B8G8R8A8:
@@ -503,6 +531,7 @@ int Bitmap::getBytesPerPixel(PixelFormat PF)
         case I16:
             return 2;
         case I8:
+        case BAYER8:
             return 1;
         case YUYV422:
         case YCbCr422:
@@ -650,6 +679,7 @@ void Bitmap::subtract(const Bitmap *pOtherBmp)
                 lineSubtract<Pixel24>(pSrc, pDest, m_Size.x);
                 break;
             case I8:
+            case BAYER8:
                 {
                     const unsigned char * pSrcPixel = pSrc;
                     unsigned char * pDestPixel = pDest;
@@ -696,6 +726,7 @@ double Bitmap::avg()
                 sum += lineSum<Pixel24>(pSrc, m_Size.x);
                 break;
             case I8:
+            case BAYER8:
                 {
                     unsigned char * pSrcPixel = pSrc;
                     for (int x=0; x<m_Size.x; ++x) {
@@ -1177,6 +1208,47 @@ void Bitmap::I8toRGB(const Bitmap& Orig)
     }
 }
 
+
+// TODO: now is just a mere copy of I8 to ARGB
+void Bitmap::BY8toRGB(const Bitmap& Orig)
+{
+    assert(getBytesPerPixel() == 4 || getBytesPerPixel() == 3);
+    assert(Orig.getPixelFormat() == BAYER8);
+    const unsigned char * pSrc = Orig.getPixels();
+    int Height = min(Orig.getSize().y, m_Size.y);
+    int Width = min(Orig.getSize().x, m_Size.x);
+    if (getBytesPerPixel() == 4) {
+        unsigned int * pDest = (unsigned int *)m_pBits;
+        int DestStrideInPixels = m_Stride/getBytesPerPixel();
+        for (int y=0; y<Height; ++y) {
+            const unsigned char * pSrcPixel = pSrc;
+            unsigned int * pDestPixel = pDest;
+            for (int x=0; x<Width; ++x) {
+                *pDestPixel = (((((255 << 8)+(*pSrcPixel)) << 8)+
+                        *pSrcPixel) << 8) +(*pSrcPixel);
+                pDestPixel ++;
+                pSrcPixel++;
+            }
+            pDest += DestStrideInPixels;
+            pSrc += Orig.getStride();
+        }
+    } else {
+        unsigned char * pDest = m_pBits;
+        for (int y=0; y<Height; ++y) {
+            const unsigned char * pSrcPixel = pSrc;
+            unsigned char * pDestPixel = pDest;
+            for (int x=0; x<Width; ++x) {
+                *pDestPixel++ = *pSrcPixel;
+                *pDestPixel++ = *pSrcPixel;
+                *pDestPixel++ = *pSrcPixel;
+                pSrcPixel++;
+            }
+            pDest += getStride();
+            pSrc += Orig.getStride();
+        }
+    }
+}
+
 template<class DestPixel, class SrcPixel>
 void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src)
 {
@@ -1245,6 +1317,7 @@ void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src)
             createTrueColorCopy<Pixel, Pixel16>(Dest, Src);
             break;
         case I8:
+        case BAYER8:
             createTrueColorCopy<Pixel, Pixel8>(Dest, Src);
             break;
         default:
