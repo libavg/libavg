@@ -232,12 +232,12 @@ bool ConfigMgr::loadFile(const std::string& sPath) {
             return false;
         }
 #else
-		// but this actually prevents ugly XML parsing errors when file does not exist
-		// and cygwin is used
-		int err = _access(sPath.c_str(), 0);
-		if (err == -1) {
-			return false;
-		}
+        // but this actually prevents ugly XML parsing errors when file does not exist
+        // and cygwin is used
+        int err = _access(sPath.c_str(), 0);
+        if (err == -1) {
+            return false;
+        }
 #endif
         xmlDocPtr doc;
         doc = xmlParseFile(sPath.c_str());
