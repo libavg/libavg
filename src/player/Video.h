@@ -94,6 +94,7 @@ class Video : public VideoBase, IFrameListener, IAudioSource
         bool m_bEOFPending;
         PyObject * m_pEOFCallback;
         int m_FramesTooLate;
+        int m_FramesInRowTooLate;
         int m_FramesPlayed;
 
         long long m_StartTime;

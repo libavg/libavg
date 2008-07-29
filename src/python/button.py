@@ -53,7 +53,11 @@ class Button:
             return
         self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, None)
         self.__node.setEventHandler(avg.CURSORUP, avg.TOUCH, None)
-        self.__node.releaseEventCapture(event.cursorid)
+        try:
+            self.__node.releaseEventCapture(event.cursorid)
+        except RuntimeError:
+            # Ignore 'releaseEventCapture called, but cursor not captured' errors.
+            pass
         if self.__mode == 1 and self.__isClicking:
             self.__setMode(2)
             self.__clickCallback(self)

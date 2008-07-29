@@ -23,10 +23,12 @@ Player.loadString("""
 </avg>
 """)
 if len(sys.argv) ==1:
-    print "Usage: showfont.py <fontname> [<text>]"
     print "Available fonts: "
     fontList = avg.Words.getFontFamilies()
     print fontList
+    print
+    print "Usage: showfont.py <fontname> [<text>]"
+    print
     sys.exit(1)
 else:
     fontname=sys.argv[1]
