@@ -29,6 +29,7 @@
 #include "FileHelper.h"
 #include "StringHelper.h"
 #include "MathHelper.h"
+#include "CubicSpline.h"
 
 #include "TestSuite.h"
 #include "TimeSource.h"
@@ -317,6 +318,56 @@ public:
     }
 };
 
+class SplineTest: public Test {
+public:
+    SplineTest()
+        : Test("SplineTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        {
+            vector<double> x;
+            x.push_back(0);
+            x.push_back(1);
+            x.push_back(2);
+            x.push_back(3);
+            vector<double> y;
+            y.push_back(3);
+            y.push_back(2);
+            y.push_back(1);
+            y.push_back(0);
+            CubicSpline spline(x, y);
+            TEST(almostEqual(spline.interpolate(-1), 4));
+            TEST(almostEqual(spline.interpolate(0), 3));
+            TEST(almostEqual(spline.interpolate(0.5), 2.5));
+            TEST(almostEqual(spline.interpolate(3), 0));
+            TEST(almostEqual(spline.interpolate(3.5), -0.5));
+        }
+        {
+            vector<double> x;
+            x.push_back(2);
+            x.push_back(4);
+            x.push_back(6);
+            x.push_back(8);
+            vector<double> y;
+            y.push_back(0);
+            y.push_back(1);
+            y.push_back(3);
+            y.push_back(6);
+            CubicSpline spline(x, y);
+            TEST(almostEqual(spline.interpolate(0), -1));
+            TEST(almostEqual(spline.interpolate(1), -0.5));
+            TEST(almostEqual(spline.interpolate(2), 0));
+            TEST(spline.interpolate(3) < 0.5);
+            TEST(almostEqual(spline.interpolate(8), 6));
+            TEST(almostEqual(spline.interpolate(9), 7.5));
+            TEST(almostEqual(spline.interpolate(10), 9));
+        }
+    }
+};
+
 class BaseTestSuite: public TestSuite {
 public:
     BaseTestSuite() 
@@ -329,6 +380,7 @@ public:
         addTest(TestPtr(new FileTest));
         addTest(TestPtr(new OSTest));
         addTest(TestPtr(new StringTest));
+        addTest(TestPtr(new SplineTest));
     }
 };
 
