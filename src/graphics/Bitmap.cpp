@@ -264,7 +264,7 @@ void Bitmap::copyPixels(const Bitmap & Orig)
                         assert(false);
                 }
                 break;
-            case BAYER8:
+            case BAYER8_GBRG:
                 switch(m_PF) {
                     // Bayer patterns are saved as I8 bitmaps. So simply copy that
                     case I8:
@@ -465,8 +465,8 @@ std::string Bitmap::getPixelFormatString(PixelFormat PF)
             return "YCbCr420p";
         case YCbCrJ420p:
             return "YCbCrJ420p";
-        case BAYER8:
-            return "BAYER8";
+        case BAYER8_GBRG:
+            return "BAYER8_GBRG";
         default:
             return "Unknown";
     }
@@ -533,7 +533,7 @@ int Bitmap::getBytesPerPixel(PixelFormat PF)
         case I16:
             return 2;
         case I8:
-        case BAYER8:
+        case BAYER8_GBRG:
             return 1;
         case YUYV422:
         case YCbCr422:
@@ -681,7 +681,7 @@ void Bitmap::subtract(const Bitmap *pOtherBmp)
                 lineSubtract<Pixel24>(pSrc, pDest, m_Size.x);
                 break;
             case I8:
-            case BAYER8:
+            case BAYER8_GBRG:
                 {
                     const unsigned char * pSrcPixel = pSrc;
                     unsigned char * pDestPixel = pDest;
@@ -728,7 +728,7 @@ double Bitmap::avg()
                 sum += lineSum<Pixel24>(pSrc, m_Size.x);
                 break;
             case I8:
-            case BAYER8:
+            case BAYER8_GBRG:
                 {
                     unsigned char * pSrcPixel = pSrc;
                     for (int x=0; x<m_Size.x; ++x) {
@@ -1212,106 +1212,95 @@ void Bitmap::I8toRGB(const Bitmap& Orig)
 
 
 // Nearest Neighbour Bayer Pattern de-mosaicking
-// Code has been taken and adapted from libdc1394 bayer conversion
+// Code has been taken and adapted from libdc1394 Bayer conversion
+// TODO: adapt it for RGB24, not just for RGB32
+// TODO: add more CFA patterns (now only the GBRG is defined and used)
 void Bitmap::BY8toRGB(const Bitmap& Orig)
 {
-    assert(getBytesPerPixel() == 4 || getBytesPerPixel() == 3);
-    assert(Orig.getPixelFormat() == BAYER8);
-    const unsigned char * pSrc = Orig.getPixels();
+    assert(getBytesPerPixel() == 4);
+    assert(Orig.getPixelFormat() == BAYER8_GBRG);
+
     int Height = min(Orig.getSize().y, m_Size.y);
     int Width = min(Orig.getSize().x, m_Size.x);
 
-//#define CFA_BGGR
-#define CFA_GBRG
-//#define CFA_GRBG
-
-    const int bayerStep = Width;
-    const int rgbStep = 3 * Width;
+    const int SrcStride = Width;
+    const int DestStride = 4 * Width;
     int width = Width;
     int height = Height;
 
-#ifdef CFA_BGGR
-    int blue = -1;
-    int start_with_green = 0;
-#elseifdef CFA_GBRG
-    int blue = -1;
-    int start_with_green = 1;
-#else
+    // CFA Pattern selection: BGGR: blue=-1, swg=0; GRBG: blue=1, swg=1
+    // Assuming GBRG
     int blue = 1;
     int start_with_green = 1;
-#endif
 
-    const unsigned char *bayer = pSrc;
-    int i, imax, iinc;
+    const unsigned char *pSrcPixel = Orig.getPixels();
+    unsigned char *pDestPixel = (unsigned char *) getPixels();
 
-    Bitmap tempRGB = Bitmap(IntPoint(Width,Height), R8G8B8);
-    unsigned char *rgb = (unsigned char *) tempRGB.getPixels();
-    // add black border
-    imax = Width * Height * 3;
-    for (i = Width * (height - 1) * 3; i < imax; i++) {
-        rgb[i] = 0;
-    }
-    iinc = (Width - 1) * 3;
-    for (i = (Width - 1) * 3; i < imax; i += iinc) {
-        rgb[i++] = 0;
-        rgb[i++] = 0;
-        rgb[i++] = 0;
-    }
-
-    rgb += 1;
+    pDestPixel += 1;
     width -= 1;
     height -= 1;
 
-    for (; height--; bayer += bayerStep, rgb += rgbStep) {
-      //int t0, t1;
-        const unsigned char *bayerEnd = bayer + width;
+    while (--height) {
+
+        const unsigned char *pSrcEndBoundary = pSrcPixel + width;
 
         if (start_with_green) {
-            rgb[-blue] = bayer[1];
-            rgb[0] = bayer[bayerStep + 1];
-            rgb[blue] = bayer[bayerStep];
-            bayer++;
-            rgb += 3;
+            pDestPixel[-blue] = pSrcPixel[1];
+            pDestPixel[0] = pSrcPixel[SrcStride + 1];
+            pDestPixel[blue] = pSrcPixel[SrcStride];
+            pDestPixel[2] = 255; // Alpha channel
+            ++pSrcPixel;
+            pDestPixel += 4;
         }
 
         if (blue > 0) {
-            for (; bayer <= bayerEnd - 2; bayer += 2, rgb += 6) {
-                rgb[-1] = bayer[0];
-                rgb[0] = bayer[1];
-                rgb[1] = bayer[bayerStep + 1];
+            while (pSrcPixel <= pSrcEndBoundary - 2) {
+                pDestPixel[-1] = pSrcPixel[0];
+                pDestPixel[0] = pSrcPixel[1];
+                pDestPixel[1] = pSrcPixel[SrcStride + 1];
+                pDestPixel[2] = 255; // Alpha channel
 
-                rgb[2] = bayer[2];
-                rgb[3] = bayer[bayerStep + 2];
-                rgb[4] = bayer[bayerStep + 1];
+                pDestPixel[3] = pSrcPixel[2];
+                pDestPixel[4] = pSrcPixel[SrcStride + 2];
+                pDestPixel[5] = pSrcPixel[SrcStride + 1];
+                
+                pSrcPixel += 2;
+                pDestPixel += 8;
             }
         } else {
-            for (; bayer <= bayerEnd - 2; bayer += 2, rgb += 6) {
-                rgb[1] = bayer[0];
-                rgb[0] = bayer[1];
-                rgb[-1] = bayer[bayerStep + 1];
+            while (pSrcPixel <= pSrcEndBoundary - 2) {
+                pDestPixel[1] = pSrcPixel[0];
+                pDestPixel[0] = pSrcPixel[1];
+                pDestPixel[-1] = pSrcPixel[SrcStride + 1];
 
-                rgb[4] = bayer[2];
-                rgb[3] = bayer[bayerStep + 2];
-                rgb[2] = bayer[bayerStep + 1];
+                pDestPixel[5] = pSrcPixel[2];
+                pDestPixel[4] = pSrcPixel[SrcStride + 2];
+                pDestPixel[3] = pSrcPixel[SrcStride + 1];
+                pDestPixel[2] = 255; // Alpha channel
+
+                pSrcPixel += 2;
+                pDestPixel += 8;
             }
         }
 
-        if (bayer < bayerEnd) {
-            rgb[-blue] = bayer[0];
-            rgb[0] = bayer[1];
-            rgb[blue] = bayer[bayerStep + 1];
-            bayer++;
-            rgb += 3;
+        if (pSrcPixel < pSrcEndBoundary) {
+            pDestPixel[-blue] = pSrcPixel[0];
+            pDestPixel[0] = pSrcPixel[1];
+            pDestPixel[blue] = pSrcPixel[SrcStride + 1];
+            pDestPixel[2] = 255; // Alpha channel
+            ++pSrcPixel;
+            pDestPixel += 4;
         }
 
-        bayer -= width;
-        rgb -= width * 3;
+        pSrcPixel -= width;
+        pDestPixel -= width * 4;
 
         blue = -blue;
         start_with_green = !start_with_green;
+
+        pSrcPixel += SrcStride;
+        pDestPixel += DestStride;
     }
-    
-    copyPixels(tempRGB);
 }
 
 template<class DestPixel, class SrcPixel>
@@ -1382,7 +1371,7 @@ void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src)
             createTrueColorCopy<Pixel, Pixel16>(Dest, Src);
             break;
         case I8:
-        case BAYER8:
+        case BAYER8_GBRG:
             createTrueColorCopy<Pixel, Pixel8>(Dest, Src);
             break;
         default:

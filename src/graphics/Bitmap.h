@@ -57,7 +57,7 @@ typedef enum {
                // color components have values from 16...235.
     YCbCrJ420p,// Same as YCbCr420p, but this is the jpeg version with component
                // values in the range 0...255
-    BAYER8,
+    BAYER8_GBRG,
     NO_PIXELFORMAT
 } PixelFormat;
 
