@@ -372,13 +372,21 @@ public:
             cerr << spline.interpolate(DPoint(1.5,1)) << endl;
             cerr << spline.interpolate(DPoint(0.5,1)) << endl;
             cerr << spline.interpolate(DPoint(1,2)) << endl;
+            cerr << spline.interpolate(DPoint(10,0)) << endl;
 */
+            TEST(almostEqual(spline.interpolate(DPoint(0,0)), 0));
             TEST(almostEqual(spline.interpolate(DPoint(1,1)), 0));
             TEST(almostEqual(spline.interpolate(DPoint(2,1)), 1));
             TEST(almostEqual(spline.interpolate(DPoint(1,2)), 0));
             TEST(spline.interpolate(DPoint(1.5,1)) > 0.5);
             TEST(spline.interpolate(DPoint(1.5,1)) < 1);
             TEST(spline.interpolate(DPoint(0.5,1)) < 0);
+            TEST(almostEqual(spline.interpolate(DPoint(-1,0)), 0));
+            TEST(almostEqual(spline.interpolate(DPoint(-10,0)), 0));
+            TEST(almostEqual(spline.interpolate(DPoint(0,-1)), 0));
+            TEST(almostEqual(spline.interpolate(DPoint(0,-10)), 0));
+            TEST(almostEqual(spline.interpolate(DPoint(0,10)), 0));
+            TEST(almostEqual(spline.interpolate(DPoint(10,0)), 0));
         }
         {
             double xd[] = {0,2,4,6};

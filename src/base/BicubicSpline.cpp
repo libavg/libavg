@@ -27,31 +27,63 @@ using namespace std;
 
 namespace avg {
 
-BicubicSpline::BicubicSpline(const std::vector<double>& x, const std::vector<double>& y,
-            const std::vector<std::vector<double> >& f)
+BicubicSpline::BicubicSpline(const vector<double>& x, const vector<double>& y,
+            const vector<vector<double> >& f)
     : m_X(x),
       m_Y(y),
       m_F(f)
 {
-    // TODO: Add support points at the borders.
-
     assert(y.size() == f.size());
     for (unsigned i=0; i<y.size(); ++i) {
         assert(x.size() == f[i].size());
     }
-/*    
-    for (int i=-1; i<=int(m_Y.size()); ++i) {
-        for (int j=-1; j<=int(m_X.size()); ++j) {
+/*
+    for (int i=-2; i<=int(m_Y.size()+1); ++i) {
+        for (int j=-2; j<=int(m_X.size()+1); ++j) {
             cerr << getF(i, j) << ", ";
         }
         cerr << endl;
     }
-*/    
+*/
+    // Add extra support points at the borders.
+    vector<vector<double> > tempF = f;
+    tempF.insert(tempF.begin(), vector<double>());
+    tempF.push_back(vector<double>());
+    for (unsigned j=0; j<m_X.size(); ++j) {
+        tempF[0].push_back(getF(-100,j));
+        tempF[tempF.size()-1].push_back(getF(m_F.size()+99,j));
+    }
+    for (unsigned i=0; i<m_Y.size(); ++i) {
+        tempF[i].insert(tempF[i].begin(), getF(i-1, -100));
+        tempF[i].push_back(getF(i-1, m_F.size()+99));
+    }
+    m_F = tempF;
+    
+    double edgeX = m_X[0]-100*(m_X[1]-m_X[0]);
+    double edgeY = m_Y[0]-100*(m_Y[1]-m_Y[0]);
+    m_X.insert(m_X.begin(), edgeX);
+    m_Y.insert(m_Y.begin(), edgeY);
+    int len = m_X.size();
+    edgeX = m_X[len-1]+100*(m_X[len-1]-m_X[len-2]);
+    len = m_Y.size();
+    edgeY = m_Y[len-1]+100*(m_Y[len-1]-m_Y[len-2]);
+    m_X.push_back(edgeX);
+    m_Y.push_back(edgeY);
+/*
+    cerr << "----" << endl;
+    for (int i=0; i<int(m_Y.size()); ++i) {
+        for (int j=0; j<int(m_X.size()); ++j) {
+            cerr << m_F[i][j] << ", ";
+        }
+        cerr << endl;
+    }
+*/
+
     // Calculate needed derivatives.
     for (int i=0; i<int(m_Y.size()); ++i) {
-        m_Fdx.push_back(vector<double>(4,0.0));
-        m_Fdy.push_back(vector<double>(4,0.0));
-        m_Fdxy.push_back(vector<double>(4,0.0));
+        m_Fdx.push_back(vector<double>(m_X.size(),0.0));
+        m_Fdy.push_back(vector<double>(m_X.size(),0.0));
+        m_Fdxy.push_back(vector<double>(m_X.size(),0.0));
         for (int j=0; j<int(m_X.size()); ++j) {
             m_Fdy[i][j] = (getF(i+1,j)-getF(i-1,j))/(getY(j+1)-getY(j-1));
             m_Fdx[i][j] = (getF(i,j+1)-getF(i,j-1))/(getX(i+1)-getX(i-1));
@@ -95,7 +127,7 @@ double BicubicSpline::interpolate(const DPoint& orig)
     double d2 = m_Y[i]-m_Y[i-1];
     double t=(orig.x-m_X[j-1])/d1;
     double u=(orig.y-m_Y[i-1])/d2;
-/*    
+/*
     cerr << "--  F --" << endl;
     cerr << "(" << m_F[i-1][j-1] << "), (" << m_F[i-1][j] << ")" << endl;
     cerr << "(" << m_F[i][j-1] << "), (" << m_F[i][j] << ")" << endl;
@@ -109,7 +141,7 @@ double BicubicSpline::interpolate(const DPoint& orig)
     cerr << "(" << m_Fdxy[i-1][j-1] << "), (" << m_Fdxy[i-1][j] << ")" << endl;
     cerr << "(" << m_Fdxy[i][j-1] << "), (" << m_Fdxy[i][j] << ")" << endl;
     cerr << "d1: " << d1 << ", d2: " << d2 << ", t: " << t << ", u: " << u << endl;
-*/    
+*/
     double result=0.0; 
     for (i=3; i>=0; i--) {
         result=t*result + ((coeffs[i][3]*u + coeffs[i][2])*u + coeffs[i][1])*u + coeffs[i][0]; 
@@ -141,22 +173,22 @@ double BicubicSpline::getY(int i)
 
 double BicubicSpline::getF(int i, int j)
 {
-    if (i == -1) {
+    if (i <= -1) {
        double pt0 = getF(0, j);
-       double pt1 = getF(1, j);
-       return 2*pt0-pt1;
-    } else if (i == int(m_Y.size())) {
-       double pt0 = getF(i-1, j);
-       double pt1 = getF(i-2, j);
-       return 2*pt0-pt1;
-    } else if (j == -1) {
+       double df = getF(1, j)-pt0;
+       return pt0+df*i;
+    } else if (i >= int(m_Y.size())) {
+       double pt0 = getF(m_Y.size()-1, j);
+       double df = getF(m_Y.size()-2, j)-pt0;
+       return pt0+df*(i-m_Y.size()+1);
+    } else if (j <= -1) {
        double pt0 = getF(i, 0);
-       double pt1 = getF(i, 1);
-       return 2*pt0-pt1;
+       double df = getF(i, 1)-pt0;
+       return pt0+df*j;
     } else if (j >= int(m_X.size())) {
-       double pt0 = getF(i, j-1);
-       double pt1 = getF(i, j-2);
-       return 2*pt0-pt1;
+       double pt0 = getF(i, m_X.size()-1);
+       double df = getF(i, m_X.size()-2)-pt0;
+       return pt0+df*(j-m_X.size()+1);
     } else {
         return m_F[i][j];
     }
@@ -211,6 +243,8 @@ void BicubicSpline::getCoeffs(int i, int j, vector<vector<double> > & coeffs)
     x[15] = m_Fdxy[i][j-1]*d1d2;
 
     // Matrix multiply by the stored table, solving the set of linear equations.
+    // XXX: This could be made much faster by multiplying the values directly since
+    // the matrix contains many zeros.
     double cl[16];
     for (int i=0;i<=15;i++) {
         double xx=0.0; 
