@@ -465,6 +465,8 @@ std::string Bitmap::getPixelFormatString(PixelFormat PF)
             return "YCbCr420p";
         case YCbCrJ420p:
             return "YCbCrJ420p";
+        case BAYER8:
+            return "BAYER8";
         default:
             return "Unknown";
     }
@@ -1209,7 +1211,8 @@ void Bitmap::I8toRGB(const Bitmap& Orig)
 }
 
 
-// TODO: now is just a mere copy of I8 to ARGB
+// Nearest Neighbour Bayer Pattern de-mosaicking
+// Code has been taken and adapted from libdc1394 bayer conversion
 void Bitmap::BY8toRGB(const Bitmap& Orig)
 {
     assert(getBytesPerPixel() == 4 || getBytesPerPixel() == 3);
@@ -1217,36 +1220,98 @@ void Bitmap::BY8toRGB(const Bitmap& Orig)
     const unsigned char * pSrc = Orig.getPixels();
     int Height = min(Orig.getSize().y, m_Size.y);
     int Width = min(Orig.getSize().x, m_Size.x);
-    if (getBytesPerPixel() == 4) {
-        unsigned int * pDest = (unsigned int *)m_pBits;
-        int DestStrideInPixels = m_Stride/getBytesPerPixel();
-        for (int y=0; y<Height; ++y) {
-            const unsigned char * pSrcPixel = pSrc;
-            unsigned int * pDestPixel = pDest;
-            for (int x=0; x<Width; ++x) {
-                *pDestPixel = (((((255 << 8)+(*pSrcPixel)) << 8)+
-                        *pSrcPixel) << 8) +(*pSrcPixel);
-                pDestPixel ++;
-                pSrcPixel++;
-            }
-            pDest += DestStrideInPixels;
-            pSrc += Orig.getStride();
-        }
-    } else {
-        unsigned char * pDest = m_pBits;
-        for (int y=0; y<Height; ++y) {
-            const unsigned char * pSrcPixel = pSrc;
-            unsigned char * pDestPixel = pDest;
-            for (int x=0; x<Width; ++x) {
-                *pDestPixel++ = *pSrcPixel;
-                *pDestPixel++ = *pSrcPixel;
-                *pDestPixel++ = *pSrcPixel;
-                pSrcPixel++;
-            }
-            pDest += getStride();
-            pSrc += Orig.getStride();
-        }
+
+//#define CFA_BGGR
+#define CFA_GBRG
+//#define CFA_GRBG
+
+    const int bayerStep = Width;
+    const int rgbStep = 3 * Width;
+    int width = Width;
+    int height = Height;
+
+#ifdef CFA_BGGR
+    int blue = -1;
+    int start_with_green = 0;
+#elseifdef CFA_GBRG
+    int blue = -1;
+    int start_with_green = 1;
+#else
+    int blue = 1;
+    int start_with_green = 1;
+#endif
+
+    const unsigned char *bayer = pSrc;
+    int i, imax, iinc;
+
+    Bitmap tempRGB = Bitmap(IntPoint(Width,Height), R8G8B8);
+    unsigned char *rgb = (unsigned char *) tempRGB.getPixels();
+    // add black border
+    imax = Width * Height * 3;
+    for (i = Width * (height - 1) * 3; i < imax; i++) {
+        rgb[i] = 0;
     }
+    iinc = (Width - 1) * 3;
+    for (i = (Width - 1) * 3; i < imax; i += iinc) {
+        rgb[i++] = 0;
+        rgb[i++] = 0;
+        rgb[i++] = 0;
+    }
+
+    rgb += 1;
+    width -= 1;
+    height -= 1;
+
+    for (; height--; bayer += bayerStep, rgb += rgbStep) {
+      //int t0, t1;
+        const unsigned char *bayerEnd = bayer + width;
+
+        if (start_with_green) {
+            rgb[-blue] = bayer[1];
+            rgb[0] = bayer[bayerStep + 1];
+            rgb[blue] = bayer[bayerStep];
+            bayer++;
+            rgb += 3;
+        }
+
+        if (blue > 0) {
+            for (; bayer <= bayerEnd - 2; bayer += 2, rgb += 6) {
+                rgb[-1] = bayer[0];
+                rgb[0] = bayer[1];
+                rgb[1] = bayer[bayerStep + 1];
+
+                rgb[2] = bayer[2];
+                rgb[3] = bayer[bayerStep + 2];
+                rgb[4] = bayer[bayerStep + 1];
+            }
+        } else {
+            for (; bayer <= bayerEnd - 2; bayer += 2, rgb += 6) {
+                rgb[1] = bayer[0];
+                rgb[0] = bayer[1];
+                rgb[-1] = bayer[bayerStep + 1];
+
+                rgb[4] = bayer[2];
+                rgb[3] = bayer[bayerStep + 2];
+                rgb[2] = bayer[bayerStep + 1];
+            }
+        }
+
+        if (bayer < bayerEnd) {
+            rgb[-blue] = bayer[0];
+            rgb[0] = bayer[1];
+            rgb[blue] = bayer[bayerStep + 1];
+            bayer++;
+            rgb += 3;
+        }
+
+        bayer -= width;
+        rgb -= width * 3;
+
+        blue = -blue;
+        start_with_green = !start_with_green;
+    }
+    
+    copyPixels(tempRGB);
 }
 
 template<class DestPixel, class SrcPixel>
