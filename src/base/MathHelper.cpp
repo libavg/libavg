@@ -23,6 +23,8 @@
 
 #include <math.h>
 
+using namespace std;
+
 namespace avg {
 
 bool ispow2(int n) {
