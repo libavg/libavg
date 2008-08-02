@@ -281,20 +281,30 @@ int CameraNode::getFrameNum() const
     return m_FrameNum;
 }
 
+static ProfilingZone CameraFetchImage("Camera fetch image");
 static ProfilingZone CameraProfilingZone("Camera::render");
 static ProfilingZone CameraUploadProfilingZone("Camera tex download");
 
-bool CameraNode::renderToSurface(ISurface * pSurface)
+void CameraNode::preRender()
 {
     if (m_pCamera) {
-        ScopeTimer Timer(CameraProfilingZone);
-        BitmapPtr pCurBmp = m_pCamera->getImage(false);
+        ScopeTimer Timer(CameraFetchImage);
+        pCurBmp = m_pCamera->getImage(false);
         if (pCurBmp) {
             BitmapPtr pTempBmp;
             while (pTempBmp = m_pCamera->getImage(false)) {
                 pCurBmp = pTempBmp;
             }
             m_FrameNum++;
+        }
+    }
+}
+
+bool CameraNode::renderToSurface(ISurface * pSurface)
+{
+    if (m_pCamera) {
+        ScopeTimer Timer(CameraProfilingZone);
+        if (pCurBmp) {
             BitmapPtr pBmp = pSurface->lockBmp();
             assert(pBmp->getPixelFormat() == pCurBmp->getPixelFormat());
             pBmp->copyPixels(*pCurBmp);

@@ -77,6 +77,8 @@ class CameraNode : public VideoBase
         void setGain(int Value);
         unsigned int getWhiteBalance() const;
         void setWhiteBalance(int Value);
+        
+        virtual void preRender();
 
         unsigned int getFeature (CameraFeature Feature) const;
         void setFeature (CameraFeature Feature, int Value);
@@ -94,6 +96,7 @@ class CameraNode : public VideoBase
 
         CameraPtr m_pCamera;
         int m_FrameNum;
+        BitmapPtr pCurBmp;
 };
 
 }
