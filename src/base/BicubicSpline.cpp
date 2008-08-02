@@ -243,8 +243,7 @@ void BicubicSpline::getCoeffs(int i, int j, vector<vector<double> > & coeffs)
     x[15] = m_Fdxy[i][j-1]*d1d2;
 
     // Matrix multiply by the stored table, solving the set of linear equations.
-    // XXX: This could be made much faster by multiplying the values directly since
-    // the matrix contains many zeros.
+    // XXX: This could be made much faster by multiplying the values inline
     double cl[16];
     for (int i=0;i<=15;i++) {
         double xx=0.0; 
