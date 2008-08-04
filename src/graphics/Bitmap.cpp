@@ -1263,6 +1263,7 @@ void Bitmap::BY8toRGB(const Bitmap& Orig)
                 pDestPixel[3] = pSrcPixel[2];
                 pDestPixel[4] = pSrcPixel[SrcStride + 2];
                 pDestPixel[5] = pSrcPixel[SrcStride + 1];
+                pDestPixel[6] = 255; // Alpha channel
                 
                 pSrcPixel += 2;
                 pDestPixel += 8;
@@ -1272,7 +1273,8 @@ void Bitmap::BY8toRGB(const Bitmap& Orig)
                 pDestPixel[1] = pSrcPixel[0];
                 pDestPixel[0] = pSrcPixel[1];
                 pDestPixel[-1] = pSrcPixel[SrcStride + 1];
-
+                
+                pDestPixel[6] = 255; // Alpha channel
                 pDestPixel[5] = pSrcPixel[2];
                 pDestPixel[4] = pSrcPixel[SrcStride + 2];
                 pDestPixel[3] = pSrcPixel[SrcStride + 1];
