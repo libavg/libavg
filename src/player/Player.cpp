@@ -897,37 +897,29 @@ NodePtr Player::createNode(const string& sType, const boost::python::dict& PyDic
 
 NodePtr Player::createNodeFromXmlString (const string& sXML)
 {
-    try {
-        xmlPedanticParserDefault(1);
-        xmlDoValidityCheckingDefaultValue =0;
-        
-        xmlDocPtr doc;
-        doc = xmlParseMemory(sXML.c_str(), int(sXML.length()));
-        if (!doc) {
-            throw (Exception(AVG_ERR_XML_PARSE, 
-                        string("Error parsing xml:\n  ")+sXML));
-        }
-        NodePtr pNode = createNodeFromXml(doc, xmlDocGetRootElement(doc), DivNodePtr());
+    xmlPedanticParserDefault(1);
+    xmlDoValidityCheckingDefaultValue =0;
 
-        xmlValidCtxtPtr cvp = xmlNewValidCtxt();
-        cvp->error = xmlParserValidityError;
-        cvp->warning = xmlParserValidityWarning;
-        int valid=xmlValidateDtd(cvp, doc, m_dtd);  
-        xmlFreeValidCtxt(cvp);
-        if (!valid) {
-            throw (Exception(AVG_ERR_XML_PARSE, 
-                    "Could not validate '"+sXML+"'"));
-        }
-
-        xmlFreeDoc(doc);
-        return pNode;
-    } catch (Exception& ex) {
-        AVG_TRACE(Logger::ERROR, ex.GetStr());
-        return NodePtr();
-    } catch (Magick::Exception& ex) {
-        AVG_TRACE(Logger::ERROR, ex.what());
-        return NodePtr();
+    xmlDocPtr doc;
+    doc = xmlParseMemory(sXML.c_str(), int(sXML.length()));
+    if (!doc) {
+        throw (Exception(AVG_ERR_XML_PARSE, 
+                    string("Error parsing xml:\n  ")+sXML));
     }
+    NodePtr pNode = createNodeFromXml(doc, xmlDocGetRootElement(doc), DivNodePtr());
+
+    xmlValidCtxtPtr cvp = xmlNewValidCtxt();
+    cvp->error = xmlParserValidityError;
+    cvp->warning = xmlParserValidityWarning;
+    int valid=xmlValidateDtd(cvp, doc, m_dtd);  
+    xmlFreeValidCtxt(cvp);
+    if (!valid) {
+        throw (Exception(AVG_ERR_XML_PARSE, 
+                    "Could not validate '"+sXML+"'"));
+    }
+
+    xmlFreeDoc(doc);
+    return pNode;
 }
 
 NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc, 
