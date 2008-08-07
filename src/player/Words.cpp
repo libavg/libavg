@@ -626,7 +626,7 @@ string Words::removeExcessSpaces(const string & sText)
 
 void Words::setParsedText(const std::string& sText)
 {
-    m_sText = sText;
+    m_sText = removeExcessSpaces(sText);
     m_bDrawNeeded = true;
 
     // This just does a syntax check and throws an exception if appropriate.
