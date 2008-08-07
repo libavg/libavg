@@ -22,6 +22,7 @@
 #include "StringHelper.h"
 
 #include <stdlib.h>
+#include <ctype.h>
 
 using namespace std;
 
@@ -77,6 +78,17 @@ std::string removeStartEndSpaces(const std::string& s)
     while (c == ' ' || c == '\n' || c == '\r' || c == '\t') {
         sResult.erase(sResult.length()-1, 1);
         c = sResult[sResult.length()-1];
+    }
+    return sResult;
+}
+
+string tolower(const string& s)
+{
+    string sResult;
+    char lower[2];
+    lower[1] = 0;
+    for (unsigned i=0; i<s.length(); ++i) {
+        sResult.push_back(::tolower(s[i]));
     }
     return sResult;
 }

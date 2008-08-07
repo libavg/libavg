@@ -35,6 +35,8 @@ bool stringToBool(const std::string& s);
 
 std::string removeStartEndSpaces(const std::string& s);
 
+std::string tolower(const std::string& s);
+
 template<class T>
 std::string toString(const T& i)
 {

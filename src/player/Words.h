@@ -98,6 +98,7 @@ class Words : public RasterNode
         void parseString(PangoAttrList** ppAttrList, char** ppText);
         Pixel32 colorStringToColor(const std::string & colorString);
         void setParsedText(const std::string& sText);
+        std::string applyBR(const std::string& sText);
         std::string removeExcessSpaces(const std::string & sText);
         static PangoFontFamily * getFontFamily(const std::string& sFamily);
         static void checkFontError(int Ok, const std::string& sMsg);

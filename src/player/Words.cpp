@@ -30,6 +30,7 @@
 #include "../base/XMLHelper.h"
 #include "../base/OSHelper.h"
 #include "../base/FileHelper.h"
+#include "../base/StringHelper.h"
 
 #include "../graphics/Filterfill.h"
 
@@ -72,7 +73,7 @@ void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level,
 }
 NodeDefinition Words::getNodeDefinition()
 {
-    static const string sChildren = "(#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*";
+    static const string sChildren = "(#PCDATA|span|b|big|i|s|sub|sup|small|tt|u|br)*";
     static const string sDTDElements = 
         "<!ELEMENT span (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
         "<!ATTLIST span\n"
@@ -100,7 +101,8 @@ NodeDefinition Words::getNodeDefinition()
         "<!ELEMENT sup (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
         "<!ELEMENT small (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
         "<!ELEMENT tt (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
-        "<!ELEMENT u (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n";
+        "<!ELEMENT u (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
+        "<!ELEMENT br (#PCDATA)*>\n";
 
     return NodeDefinition("words", Node::buildNode<Words>)
         .extendDefinition(RasterNode::getNodeDefinition())
@@ -413,9 +415,11 @@ PangoFontFamily * Words::getFontFamily(const string& sFamily)
 
 void Words::parseString(PangoAttrList** ppAttrList, char** ppText)
 {
+    string sTextWithoutBreaks = applyBR(m_sText);
     bool bOk;
     GError * pError = 0;
-    bOk = (pango_parse_markup(m_sText.c_str(), int(m_sText.length()), 0,
+    bOk = (pango_parse_markup(sTextWithoutBreaks.c_str(), 
+            int(sTextWithoutBreaks.length()), 0,
             ppAttrList, ppText, 0, &pError) != 0);
     if (!bOk) {
         throw Exception(AVG_ERR_CANT_PARSE_STRING,
@@ -637,6 +641,23 @@ void Words::setParsedText(const std::string& sText)
     pango_attr_list_unref (pAttrList);
     g_free (pText);
     m_bParsedText = true;
+}
+
+string Words::applyBR(const string& sText)
+{
+    string sResult(sText);
+    string sLowerText = tolower(sResult); 
+    string::size_type pos=sLowerText.find("<br/>");
+    while (pos != string::npos) {
+        sResult.replace(pos, 5, "\n");
+        sLowerText.replace(pos, 5, "\n");
+        if (sLowerText[pos+1] == ' ') {
+            sLowerText.erase(pos+1, 1);
+            sResult.erase(pos+1, 1);
+        }
+        pos=sLowerText.find("<br/>");
+    }
+    return sResult;
 }
 
 void Words::checkFontError(int Ok, const string& sMsg)

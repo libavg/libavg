@@ -263,16 +263,9 @@ class PythonTestCase(AVGTestCase):
             text = '''
 Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec massa nunc, pretium sed,
 sagittis mollis, dignissim vitae, erat. Vestibulum mattis, erat nec pulvinar lacinia,
-velit turpis molestie nulla, non dictum nisl nibh ac magna.
-Vestibulum ac dui non sapien luctus imperdiet.
-Morbi eros enim, laoreet non, tincidunt eu, varius eget, magna. Nulla facilisi.
-Aenean id nulla.
-Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae;
-Nam sodales. Cum sociis natoque penatibus et magnis dis parturient montes,
-nascetur ridiculus mus. Curabitur auctor sollicitudin tortor. 
-            '''
+'''
             self.ta3.setText(text)
-            self.assert_(self.ta3.getText() == text)
+            self.assert_(len(self.ta3.getText()) == len(text)-1)
         def clickFocus():
             textarea.setActiveFocusContext(self.ctx1)
             self.ctx1.cycleFocus()
