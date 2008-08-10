@@ -122,6 +122,9 @@ class PlayerTestCase(AVGTestCase):
         def fakeRotate():
             Player.getElementByID("outer").angle += 0.1
             Player.getElementByID("inner").angle -= 0.1
+        def testCoordConversions():
+            relPos = Player.getElementByID("inner").getRelPos((90, 80))
+            self.assert_(relPos == (10, 10))
         def sendEvent(x, y):
             Helper = Player.getTestHelper()
             Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
@@ -133,6 +136,7 @@ class PlayerTestCase(AVGTestCase):
         self.onOuterDownCalled = False
         self.start(None,
                 (lambda: self.compareImage("testRotate1", False),
+                 testCoordConversions,
                  fakeRotate,
                  lambda: self.compareImage("testRotate1a", False),
                  lambda: sendEvent(85, 70),
@@ -140,12 +144,15 @@ class PlayerTestCase(AVGTestCase):
                  lambda: sendEvent(85, 75),
                  lambda: self.assert_(self.onOuterDownCalled)
                 ))
+
     def testRotate2(self):
         self.start("rotate2.avg",
                 [lambda: self.compareImage("testRotate2", False)])
+        
     def testRotate3(self):
         self.start("rotate3.avg",
                 [lambda: self.compareImage("testRotate3", False)])
+
     def testError(self):
         Player.loadFile("image.avg")
         Player.setTimeout(1, lambda: undefinedFunction)
