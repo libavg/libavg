@@ -125,6 +125,8 @@ class PlayerTestCase(AVGTestCase):
         def testCoordConversions():
             relPos = Player.getElementByID("inner").getRelPos((90, 80))
             self.assert_(relPos == (10, 10))
+            relPos = Player.getElementByID("outer").getRelPos((90, 80))
+            print relPos
         def sendEvent(x, y):
             Helper = Player.getTestHelper()
             Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
