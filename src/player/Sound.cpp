@@ -53,7 +53,7 @@ NodeDefinition Sound::getNodeDefinition()
         ;
 }
 
-Sound::Sound (const ArgList& Args, Player * pPlayer)
+Sound::Sound (const ArgList& Args, Player * pPlayer, bool bFromXML)
     : Node(pPlayer),
       m_Filename(""),
       m_pEOFCallback(0),

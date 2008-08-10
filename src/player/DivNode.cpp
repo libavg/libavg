@@ -44,7 +44,7 @@ NodeDefinition DivNode::getNodeDefinition()
         .addArg(Arg<string>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)));
 }
 
-DivNode::DivNode (const ArgList& Args, Player * pPlayer)
+DivNode::DivNode (const ArgList& Args, Player * pPlayer, bool bFromXML)
     : Node(pPlayer)
 {
     Args.setMembers(this);

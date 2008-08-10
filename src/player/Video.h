@@ -42,7 +42,7 @@ class Video : public VideoBase, IFrameListener, IAudioSource
     public:
         static NodeDefinition getNodeDefinition();
         
-        Video (const ArgList& Args, Player * pPlayer);
+        Video (const ArgList& Args, Player * pPlayer, bool bFromXML);
         virtual ~Video ();
         
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 

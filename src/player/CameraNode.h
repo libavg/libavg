@@ -40,7 +40,7 @@ class CameraNode : public VideoBase
     public:
         static NodeDefinition getNodeDefinition();
         
-        CameraNode(const ArgList& Args, Player * pPlayer);
+        CameraNode(const ArgList& Args, Player * pPlayer, bool bFromXML);
         virtual ~CameraNode();
 
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);

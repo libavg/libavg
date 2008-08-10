@@ -59,7 +59,7 @@ NodeDefinition PanoImage::getNodeDefinition()
         .addArg(Arg<int>("saturation", -1, false, offsetof(PanoImage, m_Saturation)));
 }
 
-PanoImage::PanoImage (const ArgList& Args, Player * pPlayer)
+PanoImage::PanoImage (const ArgList& Args, Player * pPlayer, bool bFromXML)
     : Node (pPlayer)
 {
     Args.setMembers(this);

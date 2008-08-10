@@ -67,9 +67,9 @@ class Node
         enum NodeState {NS_UNCONNECTED, NS_CONNECTED};
         
         template<class NodeType>
-        static NodePtr buildNode(const ArgList& Args, Player* pPlayer)
+        static NodePtr buildNode(const ArgList& Args, Player* pPlayer, bool bFromXML)
         {
-            return NodePtr(new NodeType(Args, pPlayer));
+            return NodePtr(new NodeType(Args, pPlayer, bFromXML));
         }
         static NodeDefinition getNodeDefinition();
         

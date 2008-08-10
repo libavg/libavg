@@ -34,7 +34,7 @@ class AVGNode : public DivNode
     public:
         static NodeDefinition getNodeDefinition();
         
-        AVGNode (const ArgList& Args, Player * pPlayer);
+        AVGNode (const ArgList& Args, Player * pPlayer, bool bFromXML);
         virtual ~AVGNode ();
 
         virtual std::string getTypeStr ();

@@ -34,7 +34,7 @@ namespace avg {
 class ArgList;
 class Player;
 
-typedef NodePtr (*NodeBuilder)(const ArgList& Args, Player* pPlayer);
+typedef NodePtr (*NodeBuilder)(const ArgList& Args, Player* pPlayer, bool bFromXML);
 typedef std::map<std::string, NodeDefinition> ChildMap;
 
 class NodeDefinition

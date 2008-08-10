@@ -51,7 +51,7 @@ NodeDefinition Image::getNodeDefinition()
         .addArg(Arg<int>("saturation", -1, false, offsetof(Image, m_Saturation)));
 }
 
-Image::Image (const ArgList& Args, Player * pPlayer)
+Image::Image (const ArgList& Args, Player * pPlayer, bool bFromXML)
     : RasterNode(pPlayer),
       m_bIsImageAvailable(false)
 {

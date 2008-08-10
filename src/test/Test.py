@@ -685,15 +685,66 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(False)
         variantList = avg.Words.getFontVariants("Bitstream Vera Sans")
         self.assert_(len(variantList) >= 4)
-        self.start("simpletext.avg",
-                [lambda: self.compareImage("testSimpleWords", True),
-                 checkFont]
-                 )
+        Player.loadString("""
+          <avg width="160" height="120">
+            <words x="1" y="1" size="12" font="Bitstream Vera Sans" 
+                text="Bitstream Vera Sans" variant="roman"/>
+            <words id="sanstext" x="1" y="16" size="12" font="Bitstream Vera Sans" 
+                variant="bold" text="Bold"/>
+          </avg>
+        """)
+        self.start(None,
+                (lambda: self.compareImage("testSimpleWords", True),
+                 checkFont
+                ))
 
     def testParaWords(self):
         self.start("paratext.avg",
                 [lambda: self.compareImage("testParaWords", True)])
-    
+   
+    def testSpanWords(self):
+        def setTextAttrib():
+            self.baselineBmp = Player.screenshot()
+            node = Player.getElementByID("words")
+            node.text = self.text
+        def checkSameImage():
+            bmp = Player.screenshot()
+            self.assert_(Player.getTestHelper().getNumDifferentPixels(bmp, 
+                        self.baselineBmp) == 0)
+        def createUsingDict():
+            Player.getElementByID("words").unlink()
+            node = Player.createNode("words", {
+                    "id":"words", "x":1, "y":1, "size":12, "parawidth":120,
+                    "font":"Bitstream Vera Sans", "variant": "roman",
+                    "text":self.text
+                })
+            Player.getRootNode().appendChild(node)
+        self.text = """
+              Markup: 
+              <span size='14000' rise='5000' foreground='red'>span</span>, 
+              <i>italics</i>, <b>bold</b>
+        """
+        Player.loadString("""
+          <avg width="160" height="120">
+            <words id="words" x="1" y="1" size="12" parawidth="120" 
+                font="Bitstream Vera Sans" variant="roman">
+        """
+        +self.text+
+        """
+            </words>
+          </avg>
+        """)
+        self.start(None,
+                [lambda: self.compareImage("testSpanWords", True),
+                 setTextAttrib,
+                 lambda: self.compareImage("testSpanWords", True),
+                 checkSameImage,
+                 createUsingDict,
+                 lambda: self.compareImage("testSpanWords", True),
+                 checkSameImage,
+                ])
+                
+
     def testDynamicWords(self):
         def changeText():
             node = Player.getElementByID("dynamictext")
@@ -1118,6 +1169,7 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testCropMovie", bpp))
     suite.addTest(PlayerTestCase("testSimpleWords", bpp))
     suite.addTest(PlayerTestCase("testParaWords", bpp))
+    suite.addTest(PlayerTestCase("testSpanWords", bpp))
     suite.addTest(PlayerTestCase("testDynamicWords", bpp))
     suite.addTest(PlayerTestCase("testI18NWords", bpp))
     suite.addTest(PlayerTestCase("testWarp", bpp))

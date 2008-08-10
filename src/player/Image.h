@@ -35,7 +35,7 @@ class Image : public RasterNode
     public:
         static NodeDefinition getNodeDefinition();
         
-        Image (const ArgList& Args, Player * pPlayer);
+        Image (const ArgList& Args, Player * pPlayer, bool bFromXML);
         virtual ~Image ();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
         virtual void disconnect();

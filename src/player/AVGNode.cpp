@@ -42,8 +42,8 @@ NodeDefinition AVGNode::getNodeDefinition()
         .addArg(Arg<string>("onkeydown", ""));
 }
 
-AVGNode::AVGNode (const ArgList& Args, Player * pPlayer)
-    : DivNode(Args, pPlayer)
+AVGNode::AVGNode (const ArgList& Args, Player * pPlayer, bool bFromXML)
+    : DivNode(Args, pPlayer, bFromXML)
 {
     Args.setMembers(this);
     addEventHandler(Event::KEYUP, Event::NONE, Args.getArgVal<string>("onkeyup"));

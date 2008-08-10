@@ -51,7 +51,7 @@ NodePtr NodeFactory::createNode(const string& Type, const xmlNodePtr xmlNode,
     const NodeDefinition& Def = getNodeDef(Type);
     ArgList Args(Def.getDefaultArgs(), xmlNode);
     NodeBuilder builder = Def.getBuilder();
-    return builder(Args, pPlayer);
+    return builder(Args, pPlayer, true);
 }
 
 NodePtr NodeFactory::createNode(const string& Type, const boost::python::dict& PyDict,
@@ -60,7 +60,7 @@ NodePtr NodeFactory::createNode(const string& Type, const boost::python::dict& P
     const NodeDefinition& Def = getNodeDef(Type);
     ArgList Args(Def.getDefaultArgs(), PyDict);
     NodeBuilder builder = Def.getBuilder();
-    return builder(Args, pPlayer);
+    return builder(Args, pPlayer, false);
 }
 
 string NodeFactory::getDTD() const

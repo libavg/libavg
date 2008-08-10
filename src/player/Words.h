@@ -42,7 +42,7 @@ class Words : public RasterNode
     public:
         static NodeDefinition getNodeDefinition();
         
-        Words(const ArgList& Args, Player * pPlayer);
+        Words(const ArgList& Args, Player * pPlayer, bool bFromXML);
         virtual ~Words();
         
         virtual void initText(const std::string& sText);

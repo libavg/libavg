@@ -42,7 +42,7 @@ class PanoImage : public Node
     public:
         static NodeDefinition getNodeDefinition();
         
-        PanoImage(const ArgList& Args, Player * pPlayer);
+        PanoImage(const ArgList& Args, Player * pPlayer, bool bFromXML);
         virtual ~PanoImage();
         
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);

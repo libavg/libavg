@@ -53,7 +53,6 @@ PangoFontFamily** Words::s_ppFontFamilies = 0;
 void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level, 
         const gchar *message, gpointer unused_data)
 {
-// TODO: Reenable this
     string s = "Pango ";
     if (log_level & G_LOG_LEVEL_ERROR) {
         s += "error: ";
@@ -71,6 +70,7 @@ void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level,
     s += message;
     AVG_TRACE(Logger::WARNING, s);
 }
+
 NodeDefinition Words::getNodeDefinition()
 {
     static const string sChildren = "(#PCDATA|span|b|big|i|s|sub|sup|small|tt|u|br)*";
@@ -110,7 +110,7 @@ NodeDefinition Words::getNodeDefinition()
         .addDTDElements(sDTDElements)
         .addArg(Arg<string>("font", "arial", false, offsetof(Words, m_sFontName)))
         .addArg(Arg<string>("variant", "", false, offsetof(Words, m_sFontVariant)))
-        .addArg(Arg<string>("text", "", false, offsetof(Words, m_sText)))
+        .addArg(Arg<string>("text", ""))
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(Words, m_sColorName)))
         .addArg(Arg<double>("size", 15, false, offsetof(Words, m_Size)))
         .addArg(Arg<int>("parawidth", -1, false, offsetof(Words, m_ParaWidth)))
@@ -119,7 +119,7 @@ NodeDefinition Words::getNodeDefinition()
         .addArg(Arg<string>("alignment", "left"));
 }
 
-Words::Words (const ArgList& Args, Player * pPlayer)
+Words::Words (const ArgList& Args, Player * pPlayer, bool bFromXML)
     : RasterNode(pPlayer), 
       m_StringExtents(0,0),
       m_pContext(0), 
@@ -131,6 +131,11 @@ Words::Words (const ArgList& Args, Player * pPlayer)
     m_bParsedText = false;
     Args.setMembers(this);
     setAlignment(Args.getArgVal<string>("alignment"));
+    if (bFromXML) {
+        m_sText = Args.getArgVal<string>("text");
+    } else {
+        initText(Args.getArgVal<string>("text"));
+    }
     initFonts();
 }
 
