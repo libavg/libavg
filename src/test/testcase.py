@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-import sys, os, platform
+import sys, os, platform, math
 
 # Import the correct version of libavg. Since it should be possible to
 # run the tests without installing libavg, we add the location of the 
@@ -23,6 +23,9 @@ RESULT_DIR = "resultimages"
 
 ourSaveDifferences = True
 g_CustomOGLOptions = False
+
+def almostEqual(a,b):
+    return math.fabs(a-b) < 0.000001
 
 class AVGTestCase(unittest.TestCase):
     def __init__(self, testFuncName, bpp):
