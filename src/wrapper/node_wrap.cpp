@@ -88,9 +88,14 @@ void export_node()
                 "events, TRACK for multitouch track events or other tracking, \n"
                 "NONE for keyboard events.\n"
                 "@param pyfunc: The python callable to invoke.\n")
+        .def("getAbsPos", &Node::getAbsPos,
+                "getAbsPos(relpos) -> abspos\n"
+                "Transforms a position in coordinates relative to the node to a\n"
+                "position in window coordinates.\n"
+                "@param relpos: Relative coordinate to transform.")
         .def("getRelPos", &Node::getRelPos,
                 "getRelPos(abspos) -> relpos\n"
-                "Transforms a position in window coordinates to an position\n"
+                "Transforms a position in window coordinates to a position\n"
                 "in coordinates relative to the node.\n"
                 "@param abspos: Absolute coordinate to transform.")
         .add_property("id", make_function(&Node::getID,

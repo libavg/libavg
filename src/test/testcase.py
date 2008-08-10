@@ -25,7 +25,14 @@ ourSaveDifferences = True
 g_CustomOGLOptions = False
 
 def almostEqual(a,b):
-    return math.fabs(a-b) < 0.000001
+    try:
+        bOk = True
+        for i in range(len(a)):
+            if math.fabs(a[i]-b[i]) > 0.000001:
+                bOk = False
+        return bOk
+    except:
+        return math.fabs(a-b) < 0.000001
 
 class AVGTestCase(unittest.TestCase):
     def __init__(self, testFuncName, bpp):

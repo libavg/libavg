@@ -303,6 +303,18 @@ DPoint Node::getRelPos(const DPoint& AbsPos) const
     return toLocal(parentPos);
 }
 
+DPoint Node::getAbsPos(const DPoint& RelPos) const 
+{
+    DPoint thisPos = toGlobal(RelPos);
+    DPoint parentPos;
+    if (m_pParent.expired()) {
+        parentPos = thisPos;
+    } else {
+        parentPos = m_pParent.lock()->getAbsPos(thisPos);
+    }
+    return parentPos;
+}
+
 void Node::setMouseEventCapture()
 {
     setEventCapture(MOUSECURSORID);

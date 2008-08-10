@@ -128,6 +128,8 @@ class PlayerTestCase(AVGTestCase):
             relPos = Player.getElementByID("outer").getRelPos((90, 80))
             self.assert_(almostEqual(relPos[0], 12.332806394528092) and
                     almostEqual(relPos[1], 6.9211188716194592))
+            absPos = Player.getElementByID("outer").getAbsPos(relPos)
+            self.assert_(almostEqual(absPos, (90, 80)))
         def sendEvent(x, y):
             Helper = Player.getTestHelper()
             Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,

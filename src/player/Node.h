@@ -119,6 +119,7 @@ class Node
         void unlink();
 
         DPoint getRelPos(const DPoint& AbsPos) const;
+        DPoint getAbsPos(const DPoint& RelPos) const;
 
         void setMouseEventCapture();
         void releaseMouseEventCapture();
