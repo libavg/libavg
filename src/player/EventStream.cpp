@@ -45,6 +45,7 @@ namespace avg {
         m_State = DOWN_PENDING;
         m_Stale = false;
         m_VanishCounter = 0;
+        m_Speed = DPoint(0,0);
     };
 
     EventStream::~EventStream()
