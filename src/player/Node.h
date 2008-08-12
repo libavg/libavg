@@ -153,10 +153,6 @@ class Node
         virtual IntPoint getMediaSize() 
             { return IntPoint(0,0); };
 
-        // TODO: Do we still need this? Isn't rtti good enough?
-        enum {NT_UNKNOWN, NT_IMAGE, NT_AVG, NT_VIDEO, NT_TEXT, NT_EXCL, 
-                NT_CAMERA, NT_DIV, NT_PANOIMAGE};
-
     protected:
         Node (Player * pPlayer);
         DPoint getPivot() const;
