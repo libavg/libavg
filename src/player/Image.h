@@ -58,8 +58,6 @@ class Image : public RasterNode
         virtual void checkReload();
         
         virtual Bitmap* getBitmap();
-
-    protected:        
         virtual IntPoint getMediaSize();
 
     private:

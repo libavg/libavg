@@ -76,8 +76,10 @@ class PlayerTestCase(AVGTestCase):
 
     def testImage(self):
         def loadNewFile():
+            self.assert_(Player.getElementByID("test").getMediaSize() == (65,65))
             Player.getElementByID("test").href = "rgb24alpha-64x64.png"
             Player.getElementByID("testhue").href = "rgb24alpha-64x64.png"
+            self.assert_(Player.getElementByID("test").getMediaSize() == (64,64))
         def getFramerate():
             framerate = Player.getEffectiveFramerate()
             self.assert_(framerate > 0)

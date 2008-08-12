@@ -89,8 +89,6 @@ class Words : public RasterNode
         
         double getLastCharX() const;
         double getLastCharY() const;
-
-    protected:        
         virtual IntPoint getMediaSize();
     
     private:

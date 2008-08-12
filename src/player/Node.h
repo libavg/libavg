@@ -150,6 +150,8 @@ class Node
         bool operator !=(const Node& other) const;
 
         long getHash() const;
+        virtual IntPoint getMediaSize() 
+            { return IntPoint(0,0); };
 
         // TODO: Do we still need this? Isn't rtti good enough?
         enum {NT_UNKNOWN, NT_IMAGE, NT_AVG, NT_VIDEO, NT_TEXT, NT_EXCL, 
@@ -157,8 +159,6 @@ class Node
 
     protected:
         Node (Player * pPlayer);
-        virtual IntPoint getMediaSize() 
-            { return IntPoint(0,0); };
         DPoint getPivot() const;
         Player * getPlayer() const;
         DisplayEngine * getDisplayEngine() const;

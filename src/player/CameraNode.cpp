@@ -228,7 +228,7 @@ void CameraNode::setWhiteBalance(int Value)
 }
             
 
-IntPoint CameraNode::getMediaSize() 
+IntPoint CameraNode::getMediaSize()
 {
     if (m_pCamera) {
         return m_pCamera->getImgSize();

@@ -98,6 +98,13 @@ void export_node()
                 "Transforms a position in window coordinates to a position\n"
                 "in coordinates relative to the node.\n"
                 "@param abspos: Absolute coordinate to transform.")
+        .def("getMediaSize", &Node::getMediaSize,
+                "getMediaSize() -> mediasize\n"
+                "Returns the size in pixels of the media in the node. Image nodes\n"
+                "return the bitmap size, Camera nodes\n"
+                "the size of a camera frame and Words nodes the amount of space\n"
+                "the text takes. Video nodes the video size if decoding has started\n"
+                "or (0,0) if not.")
         .add_property("id", make_function(&Node::getID,
                 return_value_policy<copy_const_reference>()), &Node::setID,
                 "A unique identifier that can be used to reference the node.\n")

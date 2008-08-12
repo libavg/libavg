@@ -84,10 +84,7 @@ class CameraNode : public VideoBase
         void setFeature (CameraFeature Feature, int Value);
 
         int getFrameNum() const;
-
-    protected:
         IntPoint getMediaSize();
-
 
     private:
         virtual bool renderToSurface(ISurface * pSurface);

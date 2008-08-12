@@ -60,6 +60,8 @@ class VideoTestCase(AVTestCase):
                 testVideoFile(filename, isThreaded)
 
     def testVideo(self):
+        def testGetMediaSize():
+            self.assert_(Player.getElementByID("clogo2").getMediaSize() == (48, 48))
         def newHRef():
             node = Player.getElementByID("clogo2")
             node.href = "../video/testfiles/h264-48x48.h264"
@@ -90,6 +92,7 @@ class VideoTestCase(AVTestCase):
                  lambda: self.compareImage("testVideo7", False),
                  activateclogo,
                  lambda: self.compareImage("testVideo8", False),
+                 testGetMediaSize,
                  lambda: Player.getElementByID("clogo").stop(),
                  lambda: self.compareImage("testVideo9", False)
                 ))

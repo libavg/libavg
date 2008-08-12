@@ -62,8 +62,6 @@ class DivNode : public Node
         virtual void checkReload();
 
         virtual std::string dump (int indent = 0);
-
-    protected:
         virtual IntPoint getMediaSize();
     
     private:

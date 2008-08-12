@@ -69,10 +69,10 @@ class Video : public VideoBase, IFrameListener, IAudioSource
         virtual void onFrameEnd();
         
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer);
+        virtual IntPoint getMediaSize();
 
     protected:
         virtual void changeVideoState(VideoState NewVideoState);
-        virtual IntPoint getMediaSize();
 
     private:
         bool renderToSurface(ISurface * pSurface);
