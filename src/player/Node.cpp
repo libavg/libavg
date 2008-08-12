@@ -122,7 +122,7 @@ void Node::setParent(DivNodeWeakPtr pParent)
 void Node::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
     m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
-    DPoint PreferredSize = getPreferredMediaSize();
+    IntPoint PreferredSize = getMediaSize();
     if (m_WantedSize.x == 0.0) {
         m_RelViewport.setWidth(PreferredSize.x);
     } else {
@@ -439,7 +439,7 @@ void Node::setViewport (double x, double y, double width, double height)
     if (y == -32767) {
         y = getRelViewport().tl.y;
     }
-    DPoint MediaSize = getPreferredMediaSize();
+    IntPoint MediaSize = getMediaSize();
     if (width == -32767) {
         if (m_WantedSize.x == 0.0) {
             width = MediaSize.x;

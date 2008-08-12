@@ -37,7 +37,8 @@ class Image : public RasterNode
         
         Image (const ArgList& Args, Player * pPlayer, bool bFromXML);
         virtual ~Image ();
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
+                AudioEngine * pAudioEngine);
         virtual void disconnect();
 
         const std::string& getHRef() const;
@@ -59,7 +60,7 @@ class Image : public RasterNode
         virtual Bitmap* getBitmap();
 
     protected:        
-        virtual DPoint getPreferredMediaSize();
+        virtual IntPoint getMediaSize();
 
     private:
         void load();

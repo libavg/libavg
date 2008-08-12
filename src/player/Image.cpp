@@ -108,7 +108,7 @@ void Image::setHRef(const string& href)
     if (isDisplayAvailable()) {
         setupSurface();
     }
-    DPoint Size = getPreferredMediaSize();
+    IntPoint Size = getMediaSize();
     setViewport(-32767, -32767, Size.x, Size.y);
 }
 
@@ -154,7 +154,7 @@ void Image::setBitmap(const Bitmap * pBmp)
         }
         m_pBmp->copyPixels(*pBmp);
     }
-    DPoint Size = getPreferredMediaSize();
+    IntPoint Size = getMediaSize();
     setViewport(-32767, -32767, Size.x, Size.y);
 }
 
@@ -174,12 +174,12 @@ string Image::getTypeStr ()
     return "Image";
 }
 
-DPoint Image::getPreferredMediaSize()
+IntPoint Image::getMediaSize()
 {
     if (isDisplayAvailable()) {
-        return DPoint(getSurface()->getSize());
+        return getSurface()->getSize();
     } else {
-        return DPoint(m_pBmp->getSize());
+        return m_pBmp->getSize();
     }
 }
 
@@ -195,7 +195,7 @@ void Image::checkReload()
         if (isDisplayAvailable()) {
             setupSurface();
         }
-        DPoint Size = getPreferredMediaSize();
+        IntPoint Size = getMediaSize();
         setViewport(-32767, -32767, Size.x, Size.y);
     }
 }

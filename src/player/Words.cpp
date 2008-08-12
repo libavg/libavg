@@ -444,7 +444,7 @@ void Words::drawString()
     }
     ScopeTimer Timer(DrawStringProfilingZone);
     if (m_sText.length() == 0) {
-        m_StringExtents = DPoint(0,0);
+        m_StringExtents = IntPoint(0,0);
     } else {
         if (m_bFontChanged) {
             ScopeTimer Timer(OpenFontProfilingZone);
@@ -554,13 +554,13 @@ void Words::drawString()
             m_StringExtents.y = 1;
         }
 //        cerr << "libavg Extents: " << m_StringExtents << endl;
-        getSurface()->create(IntPoint(m_StringExtents), I8, false);
+        getSurface()->create(m_StringExtents, I8, false);
 
         BitmapPtr pBmp = getSurface()->lockBmp();
         FilterFill<unsigned char>(0).applyInPlace(pBmp);
         FT_Bitmap bitmap;
-        bitmap.rows = (int)m_StringExtents.y;
-        bitmap.width = (int)m_StringExtents.x;
+        bitmap.rows = m_StringExtents.y;
+        bitmap.width = m_StringExtents.x;
         unsigned char * pLines = pBmp->getPixels();
         bitmap.pitch = pBmp->getStride();
         bitmap.buffer = pLines;
@@ -610,7 +610,7 @@ Pixel32 Words::colorStringToColor(const string & colorString)
     return Pixel32(r,g,b);
 }
 
-DPoint Words::getPreferredMediaSize()
+IntPoint Words::getMediaSize()
 {
     drawString();
     return m_StringExtents;

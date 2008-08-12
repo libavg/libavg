@@ -157,8 +157,8 @@ class Node
 
     protected:
         Node (Player * pPlayer);
-        virtual DPoint getPreferredMediaSize() 
-            { return DPoint(0,0); };
+        virtual IntPoint getMediaSize() 
+            { return IntPoint(0,0); };
         DPoint getPivot() const;
         Player * getPlayer() const;
         DisplayEngine * getDisplayEngine() const;

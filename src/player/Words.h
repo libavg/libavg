@@ -91,7 +91,7 @@ class Words : public RasterNode
         double getLastCharY() const;
 
     protected:        
-        virtual DPoint getPreferredMediaSize();
+        virtual IntPoint getMediaSize();
     
     private:
         void drawString();
@@ -118,7 +118,7 @@ class Words : public RasterNode
         PangoAlignment m_Alignment;
 
         bool m_bParsedText;
-        DPoint m_StringExtents;
+        IntPoint m_StringExtents;
         PangoContext * m_pContext;
         PangoFontDescription * m_pFontDescription;
 

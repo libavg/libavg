@@ -165,24 +165,9 @@ void VideoBase::open()
     m_bFrameAvailable = false;
 }
 
-int VideoBase::getMediaWidth()
-{
-    return getMediaSize().x;
-}
-
-int VideoBase::getMediaHeight()
-{
-    return getMediaSize().y;
-}
-
 string VideoBase::dump (int indent)
 {
     return "";
-}
-
-DPoint VideoBase::getPreferredMediaSize()
-{
-    return DPoint(getMediaSize());
 }
 
 VideoBase::VideoState VideoBase::getVideoState() const

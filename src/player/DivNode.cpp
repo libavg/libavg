@@ -258,9 +258,9 @@ string DivNode::dump (int indent)
     return dumpStr;
 }
 
-DPoint DivNode::getPreferredMediaSize()
+IntPoint DivNode::getMediaSize()
 {
-    return DPoint(10000,10000);
+    return IntPoint(10000,10000);
 }
 
 string DivNode::getEffectiveMediaDir()

@@ -72,6 +72,7 @@ class Video : public VideoBase, IFrameListener, IAudioSource
 
     protected:
         virtual void changeVideoState(VideoState NewVideoState);
+        virtual IntPoint getMediaSize();
 
     private:
         bool renderToSurface(ISurface * pSurface);
@@ -82,7 +83,6 @@ class Video : public VideoBase, IFrameListener, IAudioSource
         virtual void open(YCbCrMode ycbcrMode);
         virtual void close();
         virtual PixelFormat getPixelFormat();
-        virtual IntPoint getMediaSize();
         virtual double getFPS();
         virtual long long getNextFrameTime();
 
