@@ -226,19 +226,19 @@ class PythonTestCase(AVGTestCase):
                 lambda: self.compareImage("testCheckboxOver", False)
                ))
 
-    def testTextarea(self):
-        def createTextareaSet():
+    def testTextArea(self):
+        def createTextAreaSet():
             self.ctx1 = textarea.FocusContext()
             self.ctx2 = textarea.FocusContext()
             
-            self.ta1 = textarea.Textarea(Player.getElementByID('placeholder'), self.ctx1)
+            self.ta1 = textarea.TextArea(Player.getElementByID('placeholder'), self.ctx1)
             self.ta1.setStyle(font='Bitstream Vera Sans', size=44, multiline=True)
             self.ta1.setText("Lorem ipsum")
 
-            self.ta2 = textarea.Textarea(Player.getElementByID('placeholder_2'), self.ctx1)
+            self.ta2 = textarea.TextArea(Player.getElementByID('placeholder_2'), self.ctx1)
             self.ta2.setStyle(font='Bitstream Vera Sans', size=12, multiline=False)
 
-            self.ta3 = textarea.Textarea(Player.getElementByID('placeholder_3'), self.ctx2, '1x1_white.png', True)
+            self.ta3 = textarea.TextArea(Player.getElementByID('placeholder_3'), self.ctx2, '1x1_white.png', True)
             self.ta3.setStyle(font='Bitstream Vera Sans', size=18, multiline=True)
             
             textarea.setActiveFocusContext(self.ctx1)
@@ -277,8 +277,8 @@ sagittis mollis, dignissim vitae, erat. Vestibulum mattis, erat nec pulvinar lac
             self.assert_(self.ta1.getText() == 'X')
         
         textarea.init(avg, False)
-        self.start("TextareaTest.avg",
-               (createTextareaSet,
+        self.start("TextAreaTest.avg",
+               (createTextAreaSet,
                lambda: self.assert_(self.ta1.getText() != 'Lorem Ipsum'),
                lambda: setAndCheck(self.ta1, ''),
                lambda: setAndCheck(self.ta2, 'Lorem Ipsum'),
@@ -303,7 +303,7 @@ def pythonTestSuite():
     suite.addTest(PythonTestCase("testDraggable"))
     suite.addTest(PythonTestCase("testButton"))
     suite.addTest(PythonTestCase("testCheckbox"))
-    suite.addTest(PythonTestCase("testTextarea"))
+    suite.addTest(PythonTestCase("testTextArea"))
     return suite
 
 Log = avg.Logger.get()
