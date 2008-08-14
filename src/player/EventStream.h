@@ -69,16 +69,17 @@ namespace avg {
             static std::string stateToString(StreamState State);
 
         private:
-            void calcSpeed(DPoint pos, long long newTime);
+            DPoint getSpeed(const DPoint& oldPos, const DPoint& newPos);
 
             bool m_Stale;
             int m_Id;
             StreamState m_State;
             int m_VanishCounter;
             DPoint m_Pos;
-            DPoint m_Speed;
+            DPoint m_OldPos;
             BlobPtr m_pBlob;
             long long m_Time;
+            long long m_OldTime;
             static int s_LastLabel;
     };
 

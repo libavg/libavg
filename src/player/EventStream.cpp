@@ -42,11 +42,12 @@ namespace avg {
         m_Id = ++s_LastLabel;
         m_pBlob = first_blob;
         m_Pos = m_pBlob->getCenter();
+        m_OldPos = m_pBlob->getCenter();
         m_State = DOWN_PENDING;
         m_Stale = false;
+        m_OldTime = 0;
         m_VanishCounter = 0;
-        m_Speed = DPoint(0,0);
-    };
+    }
 
     EventStream::~EventStream()
     {
@@ -65,8 +66,6 @@ namespace avg {
         } else {
             pos_changed = true;
         }
-        calcSpeed(c, time);
-        m_Time = time;
         switch(m_State) {
             case DOWN_PENDING:
                 //finger touch has not been polled yet. update position
@@ -93,6 +92,9 @@ namespace avg {
                 break;
         };
         if (pos_changed) {
+            m_OldTime = m_Time;
+            m_Time = time;
+            m_OldPos = m_Pos;
             m_Pos = c;
         }
         m_pBlob = new_blob;
@@ -128,24 +130,27 @@ namespace avg {
         IntPoint Pos = IntPoint(
                 int(screenpos.x+0.5), 
                 int(screenpos.y+0.5)); 
+        DPoint oldPos = trafo->transformBlobToScreen(m_OldPos + BlobOffset);
+        DPoint newPos = trafo->transformBlobToScreen(m_Pos + BlobOffset);
+        DPoint speed = getSpeed(oldPos, newPos);
         switch(m_State){
             case DOWN_PENDING:
                 m_State = DOWN_DELIVERED;
                 return EventPtr(new TouchEvent(m_Id, Event::CURSORDOWN,
-                        m_pBlob, Pos, Source, m_Speed));
+                        m_pBlob, Pos, Source, speed));
             case MOTION_PENDING:
                 m_State = MOTION_DELIVERED;
                 return EventPtr(new TouchEvent(m_Id, Event::CURSORMOTION,
-                        m_pBlob, Pos, Source, m_Speed));
+                        m_pBlob, Pos, Source, speed));
             case UP_PENDING:
                 m_State = UP_DELIVERED;
                 return EventPtr(new TouchEvent(m_Id, Event::CURSORUP,
-                        m_pBlob, Pos, Source, m_Speed));
+                        m_pBlob, Pos, Source, speed));
             case DOWN_DELIVERED:
             case MOTION_DELIVERED:
                 if (!bEventOnMove) {
                     return EventPtr(new TouchEvent(m_Id, Event::CURSORMOTION,
-                            m_pBlob, Pos, Source, m_Speed));
+                            m_pBlob, Pos, Source, speed));
                 } else {
                     return EventPtr();
                 }
@@ -199,11 +204,14 @@ namespace avg {
         }
     }
 
-    void EventStream::calcSpeed(DPoint pos, long long newTime)
+    DPoint EventStream::getSpeed (const DPoint& oldPos, const DPoint& newPos)
     {
-        double timeDiff = newTime-m_Time;
-        m_Speed.x = (pos.x-m_Pos.x)/timeDiff;
-        m_Speed.y = (pos.y-m_Pos.y)/timeDiff;
+        if (m_OldTime==0) {
+            return DPoint(0,0);
+        } else {
+            double timeDiff = m_OldTime-m_Time;
+            return (oldPos-newPos)/timeDiff;
+        }
     }
 
 }
