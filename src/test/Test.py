@@ -126,7 +126,7 @@ class PlayerTestCase(AVGTestCase):
             Player.getElementByID("inner").angle -= 0.1
         def testCoordConversions():
             relPos = Player.getElementByID("inner").getRelPos((90, 80))
-            self.assert_(relPos == (10, 10))
+            self.assert_(almostEqual(relPos, (10, 10)))
             relPos = Player.getElementByID("outer").getRelPos((90, 80))
             self.assert_(almostEqual(relPos[0], 12.332806394528092) and
                     almostEqual(relPos[1], 6.9211188716194592))
