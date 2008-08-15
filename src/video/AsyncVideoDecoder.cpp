@@ -194,6 +194,9 @@ int AsyncVideoDecoder::getCurFrame()
 
 int AsyncVideoDecoder::getNumFrames()
 {
+    if (m_NumFrames == 0) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "Error in AsyncVideoDecoder::getNumFrames: Video not loaded.");
+    }
     return m_NumFrames;
 }
 

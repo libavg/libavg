@@ -97,13 +97,7 @@ Video::~Video ()
 
 int Video::getNumFrames() const
 {
-    if (getVideoState() != Unloaded) {
-        return m_pDecoder->getNumFrames();
-    } else {
-        AVG_TRACE(Logger::WARNING,
-               "Error in Video::getNumFrames: Video not loaded.");
-        return -1;
-    }
+    return m_pDecoder->getNumFrames();
 }
 
 int Video::getCurFrame() const

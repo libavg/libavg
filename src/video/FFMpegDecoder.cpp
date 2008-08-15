@@ -405,6 +405,9 @@ int FFMpegDecoder::getCurFrame()
 
 int FFMpegDecoder::getNumFrames()
 {
+    if (!m_pVStream) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "Error in FFMpegDecoder::getNumFrames: Video not loaded.");
+    }
     // This is broken for some videos, but the code here is correct.
     // So fix ffmpeg :-).
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
