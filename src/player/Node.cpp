@@ -333,17 +333,22 @@ void Node::releaseEventCapture(int cursorID) {
     m_pPlayer->releaseEventCapture(cursorID);
 }
 
-void Node::setEventHandler(Event::Type Type, Event::Source Source, PyObject * pFunc)
+void Node::setEventHandler(Event::Type Type, int Sources, PyObject * pFunc)
 {
-    EventHandlerID ID(Type, Source);
-    EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
-    if (it != m_EventHandlerMap.end()) {
-        Py_DECREF(it->second);
-        m_EventHandlerMap.erase(it);
-    }
-    if (pFunc != Py_None) {
-        Py_INCREF(pFunc);
-        m_EventHandlerMap[ID] = pFunc;
+    for (int i=0; i<3; ++i) {
+        int source = pow(2.,i);
+        if (source & Sources) {
+            EventHandlerID ID(Type, (Event::Source)source);
+            EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
+            if (it != m_EventHandlerMap.end()) {
+                Py_DECREF(it->second);
+                m_EventHandlerMap.erase(it);
+            }
+            if (pFunc != Py_None) {
+                Py_INCREF(pFunc);
+                m_EventHandlerMap[ID] = pFunc;
+            }
+        }
     }
 }
 

@@ -86,7 +86,8 @@ void export_node()
                 "CURSORUP, CURSORDOWN, CURSOROVER, CURSOROUT, RESIZE or QUIT.\n"
                 "@param source: MOUSE for mouse events, TOUCH for multitouch touch\n"
                 "events, TRACK for multitouch track events or other tracking, \n"
-                "NONE for keyboard events.\n"
+                "NONE for keyboard events. Sources can be or'ed together to set a\n"
+                "handler for several sources at once.\n"
                 "@param pyfunc: The python callable to invoke.\n")
         .def("getAbsPos", &Node::getAbsPos,
                 "getAbsPos(relpos) -> abspos\n"

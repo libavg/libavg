@@ -43,7 +43,7 @@ class Event {
             RESIZE,
             QUIT 
         };
-        enum Source {MOUSE, TOUCH, TRACK, NONE};
+        enum Source {MOUSE=1, TOUCH=2, TRACK=4, NONE};
     
         Event(Type type, Source source=NONE, int when=-1);
         Event(const Event& e);

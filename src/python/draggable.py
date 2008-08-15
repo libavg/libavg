@@ -18,19 +18,19 @@ class Draggable:
         self.__onDragStart = onDragStart
         self.__onDragEnd = onDragEnd
     def enable(self):
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, self.__start)
+        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__start)
     def disable(self):
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, None)
-        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE, None)
-        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, None)
+        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, None)
+        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE | avg.TOUCH, None)
+        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, None)
     def __start(self, event):
         groupsNode = self.__node.getParent()
         groupsNode.reorderChild(groupsNode.indexOf(self.__node), 
                 groupsNode.getNumChildren()-1)
         self.__node.setEventCapture()
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, None)
-        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE, self.__move)
-        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__stop)
+        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, None)
+        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE | avg.TOUCH, self.__move)
+        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, self.__stop)
         self.__baseCursorPos = (event.x, event.y)
         self.__startDragPos = (self.__node.x, self.__node.y)
         if self.__onDragStart:
@@ -40,9 +40,9 @@ class Draggable:
         self.__node.y = self.__startDragPos[1]+event.y-self.__baseCursorPos[1]
     def __stop(self, event):
         self.__move(event)
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, self.__start)
-        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE, None)
-        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, None)
+        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__start)
+        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE | avg.TOUCH, None)
+        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, None)
         self.__node.releaseEventCapture()
         if self.__onDragEnd:
             self.__onDragEnd(event)
