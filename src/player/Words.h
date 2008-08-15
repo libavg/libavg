@@ -124,6 +124,7 @@ class Words : public RasterNode
         bool m_bDrawNeeded;
 
         static std::set<std::string> s_sFontsNotFound;
+        static std::set<std::pair<std::string, std::string> > s_VariantsNotFound;
         static bool s_bInitialized;
         static int s_NumFontFamilies;
         static PangoFontFamily** s_ppFontFamilies;

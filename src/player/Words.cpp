@@ -45,7 +45,8 @@ using namespace std;
 
 namespace avg {
 
-std::set<std::string> Words::s_sFontsNotFound;
+set<string> Words::s_sFontsNotFound;
+set<pair<string, string> > Words::s_VariantsNotFound;
 bool Words::s_bInitialized = false;
 int Words::s_NumFontFamilies = 0;
 PangoFontFamily** Words::s_ppFontFamilies = 0;
@@ -480,9 +481,13 @@ void Words::drawString()
             if (!pFace) {
                 pFace = ppFaces[0];
                 if (bFamilyFound) {
-                    AVG_TRACE(Logger::WARNING, "Could not find font variant " << m_sFontName << 
-                            ":" << m_sFontVariant << ". Using " <<
-                            pango_font_face_get_face_name(pFace) << " instead.");
+                    pair<string, string> variant(m_sFontName, m_sFontVariant);
+                    if (s_VariantsNotFound.find(variant) == s_VariantsNotFound.end()) {
+                        s_VariantsNotFound.insert(variant);
+                        AVG_TRACE(Logger::WARNING, "Could not find font variant " 
+                                << m_sFontName << ":" << m_sFontVariant << ". Using " <<
+                                pango_font_face_get_face_name(pFace) << " instead.");
+                    }
                 }
             }
             g_free(ppFaces);
