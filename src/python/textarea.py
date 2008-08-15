@@ -198,7 +198,7 @@ class TextArea:
         """
         return self.__textNode.text[0:-1]
         
-    def setStyle(self, font='Arial', size=12, alignment='left', variant='normal', color='000000', multiline=True):
+    def setStyle(self, font='Arial', size=12, alignment='left', variant='Regular', color='000000', multiline=True):
         """
         Set some style parameters of the <words> node of the TextArea
         @param font: font face

@@ -232,14 +232,14 @@ class PythonTestCase(AVGTestCase):
             self.ctx2 = textarea.FocusContext()
             
             self.ta1 = textarea.TextArea(Player.getElementByID('placeholder'), self.ctx1)
-            self.ta1.setStyle(font='Bitstream Vera Sans', size=44, multiline=True)
+            self.ta1.setStyle(font='Bitstream Vera Sans', variant="Roman", size=44, multiline=True)
             self.ta1.setText("Lorem ipsum")
 
             self.ta2 = textarea.TextArea(Player.getElementByID('placeholder_2'), self.ctx1)
-            self.ta2.setStyle(font='Bitstream Vera Sans', size=12, multiline=False)
+            self.ta2.setStyle(font='Bitstream Vera Sans', variant="Roman", size=12, multiline=False)
 
             self.ta3 = textarea.TextArea(Player.getElementByID('placeholder_3'), self.ctx2, '1x1_white.png', True)
-            self.ta3.setStyle(font='Bitstream Vera Sans', size=18, multiline=True)
+            self.ta3.setStyle(font='Bitstream Vera Sans', variant="Roman", size=18, multiline=True)
             
             textarea.setActiveFocusContext(self.ctx1)
         def setAndCheck(ta, text):
