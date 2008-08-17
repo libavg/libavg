@@ -48,6 +48,8 @@ void exception_translator(Exception const & e)
 
 BOOST_PYTHON_MODULE(avg)
 {
+    docstring_options doc_options(true, false);
+
     scope().attr("__doc__") =
         "The main libavg module.\n"
         "G{classtree Node}\n"
@@ -191,7 +193,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("loadString", &Player::loadString,
                 "loadString(avgString)\n"
                 "Parses avgString and loads the nodes it contains.\n"
-                "@param filename: ")
+                "@param avgString: An xml string containing an avg node hierarchy.")
         .def("play", &Player::play,
                 "play()\n"
                 "Opens a playback window or screen and starts playback. play returns\n"
@@ -244,7 +246,7 @@ BOOST_PYTHON_MODULE(avg)
                 "parameter to DivNode::appendChild() and insertChild().\n"
                 "This method will only create one node at a time.\n"
                 "@param type: type string of the node to create.\n"
-                "@param args: a dictionary specifying args to pass to the node.")
+                "@param args: a dictionary specifying attributes of the node.")
         .def("addTracker", &Player::addTracker,
                 return_value_policy<reference_existing_object>(),
                 "addTracker(configFilename)\n"
