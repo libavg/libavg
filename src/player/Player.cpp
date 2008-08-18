@@ -101,6 +101,9 @@ Player::Player()
       m_Volume(1),
       m_bPythonAvailable(true)
 {
+    if (s_pPlayer) {
+        throw Exception(AVG_ERR_UNKNOWN, "Player has been instantiated yet");
+    }
     ThreadProfilerPtr pThreadProfiler = ThreadProfilerPtr(new ThreadProfiler("Main"));
     Profiler::get().registerThreadProfiler(pThreadProfiler);
     initConfig();
@@ -148,6 +151,9 @@ Player::~Player()
 
 Player* Player::get()
 {
+    if (!s_pPlayer) {
+        s_pPlayer = new Player();
+    }
     return s_pPlayer;
 }
 

@@ -335,7 +335,7 @@ void Node::releaseEventCapture(int cursorID) {
 
 void Node::setEventHandler(Event::Type Type, int Sources, PyObject * pFunc)
 {
-    for (int i=0; i<3; ++i) {
+    for (int i=0; i<4; ++i) {
         int source = pow(2.,i);
         if (source & Sources) {
             EventHandlerID ID(Type, (Event::Source)source);
