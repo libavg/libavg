@@ -72,6 +72,27 @@ void export_event()
         .export_values()
     ;
 
+    enum_<int>("KeyModifier")
+        .value("KEYMOD_NONE", key::KEYMOD_NONE)
+        .value("KEYMOD_LSHIFT", key::KEYMOD_LSHIFT)
+        .value("KEYMOD_RSHIFT", key::KEYMOD_RSHIFT)
+        .value("KEYMOD_LCTRL", key::KEYMOD_LCTRL)
+        .value("KEYMOD_RCTRL", key::KEYMOD_RCTRL)
+        .value("KEYMOD_LALT", key::KEYMOD_LALT)
+        .value("KEYMOD_RALT", key::KEYMOD_RALT)
+        .value("KEYMOD_LMETA", key::KEYMOD_LMETA)
+        .value("KEYMOD_RMETA", key::KEYMOD_RMETA)
+        .value("KEYMOD_NUM", key::KEYMOD_NUM)
+        .value("KEYMOD_CAPS", key::KEYMOD_CAPS)
+        .value("KEYMOD_MODE", key::KEYMOD_MODE)
+        .value("KEYMOD_RESERVED", key::KEYMOD_RESERVED)
+        .value("KEYMOD_CTRL", key::KEYMOD_CTRL)
+        .value("KEYMOD_SHIFT", key::KEYMOD_SHIFT)
+        .value("KEYMOD_ALT", key::KEYMOD_ALT)
+        .value("KEYMOD_META", key::KEYMOD_META)
+        .export_values()
+    ;
+
     class_<KeyEvent, bases<Event> >("KeyEvent", 
             "Raised when a key is pressed or released.\n",
             no_init)

@@ -146,6 +146,7 @@ BOOST_PYTHON_MODULE(avg)
         .def("getNumDifferentPixels", &TestHelper::getNumDifferentPixels, "")
         .def("useFakeCamera", &TestHelper::useFakeCamera, "")
         .def("fakeMouseEvent", &TestHelper::fakeMouseEvent, "")
+        .def("fakeKeyEvent", &TestHelper::fakeKeyEvent, "")
         .def("dumpObjects", &TestHelper::dumpObjects, "")
     ;
 

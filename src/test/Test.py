@@ -248,6 +248,12 @@ class PlayerTestCase(AVGTestCase):
             pass
         def onTiltedMouseDown(Event):
             self.tiltedMouseDownCalled = True
+        def onKeyDown(Event):
+            if Event.keystring == 'A' and Event.keycode == 65:
+                self.keyDownCalled = True
+        def onKeyUp(Event):
+            if Event.keystring == 'A' and Event.keycode == 65:
+                self.keyUpCalled = True
         def neverCalled(Event):
             self.neverCalledCalled = True
 
@@ -262,6 +268,8 @@ class PlayerTestCase(AVGTestCase):
         self.mouseOver1Called=False
         self.mouseOut1Called=False
         self.touchDownCalled = False
+        self.keyDownCalled = False
+        self.keyUpCalled = False
         img1 = Player.getElementByID("img1")
         img1.setEventHandler(avg.CURSORMOTION, avg.MOUSE, onMouseMove1) 
         img1.setEventHandler(avg.CURSORUP, avg.MOUSE, onMouseUp1) 
@@ -269,6 +277,8 @@ class PlayerTestCase(AVGTestCase):
         img1.setEventHandler(avg.CURSOROVER, avg.MOUSE, onMouseOver1) 
         img1.setEventHandler(avg.CURSOROUT, avg.MOUSE, onMouseOut1) 
         img1.setEventHandler(avg.CURSORDOWN, avg.TOUCH, onTouchDown) 
+        Player.getRootNode().setEventHandler(avg.KEYDOWN, avg.NONE, onKeyDown)
+        Player.getRootNode().setEventHandler(avg.KEYUP, avg.NONE, onKeyUp)
 
         self.neverCalledCalled=False
         hidden = Player.getElementByID("hidden")
@@ -329,7 +339,11 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.assert_(not(self.tiltedMouseDownCalled)),
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         0, 80, 1),
-                 lambda: self.assert_(self.tiltedMouseDownCalled)
+                 lambda: self.assert_(self.tiltedMouseDownCalled),
+                 lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", avg.KEYMOD_NONE),
+                 lambda: self.assert_(self.keyDownCalled),
+                 lambda: Helper.fakeKeyEvent(avg.KEYUP, 65, 65, "A", avg.KEYMOD_NONE),
+                 lambda: self.assert_(self.keyUpCalled)
                  # XXX
                  # - errMouseOver
                 ))

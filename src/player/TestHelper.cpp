@@ -22,6 +22,7 @@
 #include "TestHelper.h"
 #include "Player.h"
 #include "MouseEvent.h"
+#include "KeyEvent.h"
 
 #include "../base/ObjectCounter.h"
 
@@ -57,6 +58,15 @@ void TestHelper::fakeMouseEvent(Event::Type eventType,
 {
     MouseEventPtr pEvent(new MouseEvent(eventType, leftButtonState, 
             middleButtonState, rightButtonState, IntPoint(xPosition, yPosition), button));
+    m_Events.push_back(pEvent);
+}
+
+void TestHelper::fakeKeyEvent(Event::Type eventType,
+        unsigned char scanCode, int keyCode, 
+        const string& keyString, int modifiers)
+{
+    KeyEventPtr pEvent(new KeyEvent(eventType, scanCode, keyCode, 
+        keyString, modifiers));
     m_Events.push_back(pEvent);
 }
 
