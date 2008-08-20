@@ -238,12 +238,13 @@ def sendFrameMsgs():
         posMsg.setAddress('/tuio/2Dcur')
         posMsg.append("set")
         posMsg.append(event.cursorid)
-        posMsg.append(event.center[0]/g_TrackSize[0])
-        posMsg.append(event.center[1]/g_TrackSize[1])
+        posMsg.append(float(event.x)/g_TrackSize[0])
+        posMsg.append(float(event.y)/g_TrackSize[1])
         posMsg.append(event.speed[0]) # Speed
         posMsg.append(event.speed[1])
         posMsg.append(0.0) # Acceleration
         OSCClient.sendMessage(posMsg)
+        print event.x, event.y, g_TrackSize
     frameMsg = OSC.Message()
     frameMsg.setAddress('/tuio/2Dcur')
     frameMsg.append("fseq")
@@ -292,8 +293,8 @@ Tracker.setDebugImages(True, True)
 
 showImage = True
 
-OSCClient = OSC.Client("192.168.100.113", 12000)
-#OSCClient = OSC.Client("127.0.0.1", 12000)
+#OSCClient = OSC.Client("192.168.100.113", 12000)
+OSCClient = OSC.Client("127.0.0.1", 57110)
 OSCClient.setBufSize(65535)
 rootNode = Player.getRootNode()
 g_TrackSize=(rootNode.width, rootNode.height)
