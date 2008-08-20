@@ -123,7 +123,8 @@ private:
     void I8toI16(const Bitmap& Orig);
     void I8toRGB(const Bitmap& Orig);
     void I16toI8(const Bitmap& Orig);
-    void BY8toRGB(const Bitmap& Orig);
+    void BY8toRGBNearest(const Bitmap& Orig);
+    void BY8toRGBBilinear(const Bitmap& Orig);
 
     IntPoint m_Size;
     int m_Stride;

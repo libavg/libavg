@@ -285,7 +285,7 @@ void Bitmap::copyPixels(const Bitmap & Orig)
                     case B8G8R8A8:
                     case R8G8B8X8:
                     case R8G8B8A8:
-                        BY8toRGB(Orig);
+                        BY8toRGBBilinear(Orig);
                         break;
                     default: 
                         // Unimplemented conversion.
@@ -1215,7 +1215,7 @@ void Bitmap::I8toRGB(const Bitmap& Orig)
 // Code has been taken and adapted from libdc1394 Bayer conversion
 // TODO: adapt it for RGB24, not just for RGB32
 // TODO: add more CFA patterns (now only the GBRG is defined and used)
-void Bitmap::BY8toRGB(const Bitmap& Orig)
+void Bitmap::BY8toRGBNearest(const Bitmap& Orig)
 {
     assert(getBytesPerPixel() == 4);
     assert(Orig.getPixelFormat() == BAYER8_GBRG);
@@ -1231,7 +1231,7 @@ void Bitmap::BY8toRGB(const Bitmap& Orig)
     // CFA Pattern selection: BGGR: blue=-1, swg=0; GRBG: blue=1, swg=1
     // Assuming GBRG
     int blue = 1;
-    int start_with_green = 1;
+    int greenFirst = 1;
 
     const unsigned char *pSrcPixel = Orig.getPixels();
     unsigned char *pDestPixel = (unsigned char *) getPixels();
@@ -1244,7 +1244,7 @@ void Bitmap::BY8toRGB(const Bitmap& Orig)
 
         const unsigned char *pSrcEndBoundary = pSrcPixel + width;
 
-        if (start_with_green) {
+        if (greenFirst) {
             pDestPixel[-blue] = pSrcPixel[1];
             pDestPixel[0] = pSrcPixel[SrcStride + 1];
             pDestPixel[blue] = pSrcPixel[SrcStride];
@@ -1298,8 +1298,127 @@ void Bitmap::BY8toRGB(const Bitmap& Orig)
         pDestPixel -= width * 4;
 
         blue = -blue;
-        start_with_green = !start_with_green;
+        greenFirst = !greenFirst;
 
+        pSrcPixel += SrcStride;
+        pDestPixel += DestStride;
+    }
+}
+
+// Bilinear Bayer Pattern de-mosaicking
+// Code has been taken and adapted from libdc1394 Bayer conversion
+// Original source is OpenCV Bayer pattern decoding
+// TODO: adapt it for RGB24, not just for RGB32
+// TODO: add more CFA patterns (now only the GBRG is defined and used)
+void Bitmap::BY8toRGBBilinear(const Bitmap& Orig)
+{
+    assert(getBytesPerPixel() == 4);
+    assert(Orig.getPixelFormat() == BAYER8_GBRG);
+
+    int Height = min(Orig.getSize().y, m_Size.y);
+    int Width = min(Orig.getSize().x, m_Size.x);
+
+    const int SrcStride = Width;
+    const int doubleSrcStride = SrcStride * 2;
+    const int DestStride = 4 * Width;
+    int width = Width;
+    int height = Height;
+
+    // CFA Pattern selection: BGGR: blue=-1, swg=0; GRBG: blue=1, swg=1
+    // Assuming GBRG
+    int blue = 1;
+    int greenFirst = 1;
+
+    const unsigned char *pSrcPixel = Orig.getPixels();
+    unsigned char *pDestPixel = (unsigned char *) getPixels();
+
+    pDestPixel += DestStride + 4 + 1;
+    height -= 2;
+    width -= 2;
+
+    while(height--) {
+        int t0, t1;
+        const uint8_t *pSrcEndBoundary = pSrcPixel + width;
+
+        if (greenFirst) {
+            t0 = (pSrcPixel[1] + pSrcPixel[doubleSrcStride + 1] + 1) >> 1;
+            t1 = (pSrcPixel[SrcStride] + pSrcPixel[SrcStride + 2] + 1) >> 1;
+            pDestPixel[-blue] = (uint8_t) t0;
+            pDestPixel[0] = pSrcPixel[SrcStride + 1];
+            pDestPixel[blue] = (uint8_t) t1;
+            pDestPixel[2] = 255; // Alpha channel
+            ++pSrcPixel;
+            pDestPixel += 4;
+        }
+                
+        if (blue > 0) {
+            while(pSrcPixel <= pSrcEndBoundary - 2) {
+                t0 = (pSrcPixel[0] + pSrcPixel[2] + pSrcPixel[doubleSrcStride] +
+                      pSrcPixel[doubleSrcStride + 2] + 2) >> 2;
+                t1 = (pSrcPixel[1] + pSrcPixel[SrcStride] +
+                      pSrcPixel[SrcStride + 2] + pSrcPixel[doubleSrcStride + 1] +
+                      2) >> 2;
+                pDestPixel[-1] = (uint8_t) t0;
+                pDestPixel[0] = (uint8_t) t1;
+                pDestPixel[1] = pSrcPixel[SrcStride + 1];
+                pDestPixel[2] = 255; // Alpha channel
+
+                t0 = (pSrcPixel[2] + pSrcPixel[doubleSrcStride + 2] + 1) >> 1;
+                t1 = (pSrcPixel[SrcStride + 1] + pSrcPixel[SrcStride + 3] +
+                      1) >> 1;
+                pDestPixel[3] = (uint8_t) t0;
+                pDestPixel[4] = pSrcPixel[SrcStride + 2];
+                pDestPixel[5] = (uint8_t) t1;
+                pDestPixel[6] = 255; // Alpha channel
+                
+                pSrcPixel += 2;
+                pDestPixel += 8;
+            }
+        } else {
+            while(pSrcPixel <= pSrcEndBoundary - 2) {
+                t0 = (pSrcPixel[0] + pSrcPixel[2] + pSrcPixel[doubleSrcStride] +
+                      pSrcPixel[doubleSrcStride + 2] + 2) >> 2;
+                t1 = (pSrcPixel[1] + pSrcPixel[SrcStride] +
+                      pSrcPixel[SrcStride + 2] + pSrcPixel[doubleSrcStride + 1] +
+                      2) >> 2;
+                pDestPixel[1] = (uint8_t) t0;
+                pDestPixel[0] = (uint8_t) t1;
+                pDestPixel[-1] = pSrcPixel[SrcStride + 1];
+                pDestPixel[2] = 255; // Alpha channel
+
+                t0 = (pSrcPixel[2] + pSrcPixel[doubleSrcStride + 2] + 1) >> 1;
+                t1 = (pSrcPixel[SrcStride + 1] + pSrcPixel[SrcStride + 3] +
+                      1) >> 1;
+                pDestPixel[5] = (uint8_t) t0;
+                pDestPixel[4] = pSrcPixel[SrcStride + 2];
+                pDestPixel[3] = (uint8_t) t1;
+                pDestPixel[6] = 255; // Alpha channel
+                
+                pSrcPixel += 2;
+                pDestPixel += 8;
+            }
+        }
+
+        if (pSrcPixel < pSrcEndBoundary) {
+            t0 = (pSrcPixel[0] + pSrcPixel[2] + pSrcPixel[doubleSrcStride] +
+                  pSrcPixel[doubleSrcStride + 2] + 2) >> 2;
+            t1 = (pSrcPixel[1] + pSrcPixel[SrcStride] +
+                  pSrcPixel[SrcStride + 2] + pSrcPixel[doubleSrcStride + 1] +
+                  2) >> 2;
+            pDestPixel[-blue] = (uint8_t) t0;
+            pDestPixel[0] = (uint8_t) t1;
+            pDestPixel[blue] = pSrcPixel[SrcStride + 1];
+            pDestPixel[2] = 255; // Alpha channel
+            pSrcPixel++;
+            pDestPixel += 4;
+        }
+
+        pSrcPixel -= width;
+        pDestPixel -= width * 4;
+
+        blue = -blue;
+        greenFirst = !greenFirst;
+        
         pSrcPixel += SrcStride;
         pDestPixel += DestStride;
     }
