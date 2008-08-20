@@ -82,7 +82,18 @@ string getFilenamePart(const string& Filename)
     return BaseName;
 }
 
-bool fileExists(const std::string& FileName) {
+bool isAbsPath(const std::string& path)
+{
+#ifdef _WIN32
+    return ((path.length() != 0) && path[1] == ':') || path[0] == '\\' || path[0] == '/';
+#else
+    return path[0] == '/';
+#endif
+    
+}
+
+bool fileExists(const std::string& FileName)
+{
     struct stat myStat;
     return stat(FileName.c_str(), &myStat) != -1;
 }

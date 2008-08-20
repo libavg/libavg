@@ -28,6 +28,7 @@
 #include "../base/Logger.h"
 #include "../base/XMLHelper.h"
 #include "../base/StringHelper.h"
+#include "../base/FileHelper.h"
 
 #include <iostream>
 #include <sstream>
@@ -265,11 +266,13 @@ IntPoint DivNode::getMediaSize()
 
 string DivNode::getEffectiveMediaDir()
 {
-    string sMediaDir;
-    if (getParent()) {
-        sMediaDir = getParent()->getEffectiveMediaDir()+m_sMediaDir;
-    } else {
-        sMediaDir = getPlayer()->getRootMediaDir()+m_sMediaDir;
+    string sMediaDir = m_sMediaDir;
+    if (!isAbsPath(sMediaDir)) {
+        if (getParent()) {
+            sMediaDir = getParent()->getEffectiveMediaDir()+m_sMediaDir;
+        } else {
+            sMediaDir = getPlayer()->getRootMediaDir()+m_sMediaDir;
+        }
     }
     if (sMediaDir[sMediaDir.length()-1] != '/') {
         sMediaDir += '/';

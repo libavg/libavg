@@ -25,6 +25,7 @@
 #include "NodeDefinition.h"
 
 #include "../base/XMLHelper.h"
+#include "../base/FileHelper.h"
 
 #include <iostream>
 
@@ -62,8 +63,10 @@ string AVGNode::getTypeStr ()
 
 string AVGNode::getEffectiveMediaDir()
 {
-    string sMediaDir;
-    sMediaDir = getPlayer()->getCurDirName()+getMediaDir();
+    string sMediaDir = getMediaDir();
+    if (!isAbsPath(sMediaDir)) {
+        sMediaDir = getPlayer()->getCurDirName()+sMediaDir;
+    }
     if (sMediaDir[sMediaDir.length()-1] != '/') {
         sMediaDir += '/';
     }

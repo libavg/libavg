@@ -1161,6 +1161,14 @@ class PlayerTestCase(AVGTestCase):
     def testMediaDir(self):
         def setDir():
             Player.getElementByID("main").mediadir="../video/testfiles"
+        def setAbsDir():
+            exceptionRaised = False
+            try:
+                # Should not find any media here...
+                Player.getElementByID("main").mediadir="/testmediadir"
+            except RuntimeError:
+                exceptionRaised = True
+            self.assert_(exceptionRaised)
         def createNode():
             node = Player.createNode("video", {"href":"mjpeg1-48x48.avi"})
         self.start("mediadir.avg",
@@ -1170,7 +1178,8 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Player.getElementByID("video").play(), 
                  lambda: self.assert_(Player.getElementByID("img").width == 1),
                  lambda: self.compareImage("mediadir2", False),
-                 createNode
+                 createNode,
+                 setAbsDir
                 ))
 
     def testGPUMemoryQuery(self):

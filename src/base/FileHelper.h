@@ -28,6 +28,7 @@ namespace avg {
     
 std::string getPath(const std::string& Filename);
 std::string getFilenamePart(const std::string& Filename);
+bool isAbsPath(const std::string& path);
 
 bool fileExists(const std::string& FileName);
 
