@@ -55,7 +55,7 @@ int getCamMode(IntPoint Size, std::string sPF)
             return MODE_800x600_RGB;
         }
     } else if (Size.x == 1024 && Size.y == 768) {
-        if (sPF == "MONO8") {
+        if (sPF == "MONO8" || sPF == "BY8_GBRG") {
             return MODE_1024x768_MONO;
         } else if (sPF == "MONO16") {
             return MODE_1024x768_MONO16;
@@ -169,7 +169,7 @@ dc1394video_mode_t getCamMode(IntPoint Size, std::string sPF)
             return DC1394_VIDEO_MODE_800x600_RGB8;
         }
     } else if (Size.x == 1024 && Size.y == 768) {
-        if (sPF == "MONO8") {
+        if (sPF == "MONO8" || sPF == "BY8_GBRG") {
             return DC1394_VIDEO_MODE_1024x768_MONO8;
         } else if (sPF == "MONO16") {
             return DC1394_VIDEO_MODE_1024x768_MONO16;

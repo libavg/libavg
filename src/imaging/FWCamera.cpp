@@ -42,6 +42,7 @@ using namespace std;
 FWCamera::FWCamera(std::string sDevice, IntPoint Size, std::string sPF,
             double FrameRate, bool bColor)
     : m_sDevice(sDevice),
+      m_sPF(sPF),
       m_Size(Size),
       m_FrameRate(FrameRate),
       m_bColor(bColor),
@@ -298,7 +299,7 @@ BitmapPtr FWCamera::getImage(bool bWait)
         return BitmapPtr();
     }
     BitmapPtr pCurBitmap;
-    if (m_bColor) { 
+    if (m_bColor || m_sPF == "BY8_GBRG") { 
         pCurBitmap = BitmapPtr(new Bitmap(m_Size, B8G8R8X8));
     } else {
         pCurBitmap = BitmapPtr(new Bitmap(m_Size, I8));
@@ -333,14 +334,25 @@ BitmapPtr FWCamera::getImage(bool bWait)
             switch (m_Mode) {
 #ifdef AVG_ENABLE_1394
                 case MODE_640x480_MONO:
+                case MODE_1024x768_MONO:
 #else
                 case DC1394_VIDEO_MODE_640x480_MONO8:
+                case DC1394_VIDEO_MODE_1024x768_MONO8:
 #endif                    
                     {
-                        Bitmap TempBmp(m_Size, I8, 
-                                pCaptureBuffer,
-                                m_Size.x, false, "TempCameraBmp");
-                        pCurBitmap->copyPixels(TempBmp);
+                        // Bayer pattern conversion
+                        if (m_sPF == "BY8_GBRG") {
+                            Bitmap TempBmp(m_Size, BAYER8_GBRG, 
+                                    pCaptureBuffer,
+                                    m_Size.x, false, "TempCameraBmp");
+                            pCurBitmap->copyPixels(TempBmp);
+                        }
+                        else {
+                            Bitmap TempBmp(m_Size, I8, 
+                                    pCaptureBuffer,
+                                    m_Size.x, false, "TempCameraBmp");
+                            pCurBitmap->copyPixels(TempBmp);
+                        }
                     }
                     break;
 #ifdef AVG_ENABLE_1394

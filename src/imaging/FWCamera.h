@@ -73,6 +73,7 @@ public:
 
 private:
     std::string m_sDevice;
+    std::string m_sPF;
     IntPoint m_Size;
     double m_FrameRate;
     bool m_bColor;
