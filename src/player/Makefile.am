@@ -1,8 +1,8 @@
 
 INCLUDES = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ \
-		@PANGOFT2_CFLAGS@ @PYTHON_INCLUDES@ @GL_CFLAGS@ @FFMPEG_CFLAGS@ \
+        @PANGOFT2_CFLAGS@ @PYTHON_INCLUDES@ @GL_CFLAGS@ @FFMPEG_CFLAGS@ \
         @DC1394_2_CFLAGS@ \
-		$(MAGICK_CFLAGS)
+        $(MAGICK_CFLAGS)
         
 if ENABLE_1394
     DC1394_LIBS = -ldc1394_control -lraw1394
@@ -32,8 +32,8 @@ ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
         Image.h Timeout.h Words.h WrapPython.h\
         EventDispatcher.h CursorEvent.h MouseEvent.h \
         Event.h KeyEvent.h PanoImage.h TestHelper.h \
-        RasterNode.h CameraNode.h TrackerEventSource.h TrackerCalibrator.h\
-	    TouchEvent.h EventStream.h BoostPython.h Sound.h \
+        RasterNode.h CameraNode.h TrackerEventSource.h TrackerCalibrator.h \
+        TouchEvent.h EventStream.h BoostPython.h Sound.h MouseState.h \
         $(GL_INCLUDES)
 
 TESTS=testcalibrator testplayer
@@ -65,13 +65,13 @@ testcalibrator_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGIC
 
 libplayer_la_LDFLAGS = $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS)
 libplayer_la_SOURCES = $(GL_SOURCES) \
-		Node.cpp RasterNode.cpp DivNode.cpp VideoBase.cpp Video.cpp \
+        Node.cpp RasterNode.cpp DivNode.cpp VideoBase.cpp Video.cpp \
         Player.cpp NodeFactory.cpp ArgBase.cpp ArgList.cpp DisplayEngine.cpp Region.cpp \
         PanoImage.cpp Words.cpp CameraNode.cpp NodeDefinition.cpp \
         Timeout.cpp Event.cpp DisplayParams.cpp CursorState.cpp \
         Image.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp MouseEvent.cpp\
-        TouchEvent.cpp AVGNode.cpp TestHelper.cpp \
-		TrackerEventSource.cpp EventStream.cpp TrackerCalibrator.cpp Sound.cpp \
+        TouchEvent.cpp AVGNode.cpp TestHelper.cpp MouseState.cpp \
+        TrackerEventSource.cpp EventStream.cpp TrackerCalibrator.cpp Sound.cpp \
         $(APPLE_SOURCES) \
-		$(ALL_H)
+        $(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"

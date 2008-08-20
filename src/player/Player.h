@@ -33,6 +33,7 @@
 #include "Node.h"
 #include "DisplayParams.h"
 #include "CursorState.h"
+#include "MouseState.h"
 
 #include "../base/IFrameListener.h"
 
@@ -157,6 +158,7 @@ class Player : IEventSink
         std::vector<Timeout *> m_NewTimeouts; // Timeouts to be added this frame.
 
         EventDispatcherPtr m_pEventDispatcher;
+        MouseState m_MouseState;
 
         // These are maps for each cursor id.
         std::map<int, CursorStatePtr> m_pLastCursorStates;

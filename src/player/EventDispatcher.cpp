@@ -29,8 +29,6 @@ using namespace std;
 namespace avg {
 
     EventDispatcher::EventDispatcher()
-        : m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
-                IntPoint(0, 0), MouseEvent::NO_BUTTON))
     {
     }
 
@@ -53,11 +51,6 @@ namespace avg {
         }
     }
 
-    MouseEventPtr EventDispatcher::getLastMouseEvent() const
-    {
-        return m_pLastMouseEvent;
-    }
-
     void EventDispatcher::addSource(IEventSource * pSource)
     {
         m_EventSources.push_back(pSource);
@@ -76,9 +69,6 @@ namespace avg {
 
     void EventDispatcher::handleEvent(EventPtr pEvent)
     {
-        if (boost::dynamic_pointer_cast<MouseEvent>(pEvent) != 0) {
-            m_pLastMouseEvent = boost::dynamic_pointer_cast<MouseEvent>(pEvent);
-        }
         for (unsigned int i = 0; i < m_EventSinks.size(); ++i) {
             if (m_EventSinks[i]->handleEvent(pEvent)) {
                 break;

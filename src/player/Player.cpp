@@ -487,7 +487,7 @@ bool Player::clearInterval(int id)
 
 MouseEventPtr Player::getMouseState() const
 {
-    return m_pEventDispatcher->getLastMouseEvent();
+    return m_MouseState.getLastEvent();
 }
 
 Bitmap * Player::screenshot()
@@ -1007,9 +1007,13 @@ void Player::handleTimers()
 
 bool Player::handleEvent(EventPtr pEvent)
 {
-    assert(pEvent); 
-    if (CursorEventPtr pCursorEvent = boost::dynamic_pointer_cast<CursorEvent>(pEvent))
-    {
+    assert(pEvent);
+   
+    if (MouseEventPtr pMouseEvent = boost::dynamic_pointer_cast<MouseEvent>(pEvent)) {
+        m_MouseState.setEvent(pMouseEvent);
+    }
+
+    if (CursorEventPtr pCursorEvent = boost::dynamic_pointer_cast<CursorEvent>(pEvent)) {
         if (pEvent->getType() == Event::CURSOROUT || 
                 pEvent->getType() == Event::CURSOROVER)
         {
@@ -1226,6 +1230,7 @@ void Player::cleanup()
     
     m_IDMap.clear();
     m_pEventDispatcher = EventDispatcherPtr();
+    m_MouseState = MouseState();
     initConfig();
     m_FrameTime = 0;
     m_bIsPlaying = false;
