@@ -272,7 +272,9 @@ void OGLSurface::bind()
 */                
                 OGLTexturePtr pTexture;
                 bool bReuseTexture;
-                if (pOldTextures.empty()) {
+                if (pOldTextures.size() != m_NumTextures.y || 
+                        pOldTextures[0].size() != m_NumTextures.x) 
+                {
                     bReuseTexture = false;
                 } else {
                     bReuseTexture = 
