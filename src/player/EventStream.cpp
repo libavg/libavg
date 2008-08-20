@@ -133,7 +133,7 @@ namespace avg {
         DPoint oldPos = trafo->transformBlobToScreen(m_OldPos + BlobOffset);
         DPoint newPos = trafo->transformBlobToScreen(m_Pos + BlobOffset);
         DPoint speed = getSpeed(oldPos, newPos);
-        DPoint firstDoubleScreenPos = trafo->transformBlobToScreen(m_FirstPos);
+        DPoint firstDoubleScreenPos = trafo->transformBlobToScreen(m_FirstPos+BlobOffset);
         IntPoint firstScreenPos(int(firstDoubleScreenPos.x+0.5), 
                 int(firstDoubleScreenPos.y+0.5));
         switch(m_State){

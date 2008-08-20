@@ -129,7 +129,8 @@ void export_event()
                 "The node that the event handler was declared in (ro).\n")
         .add_property("lastdownpos", &CursorEvent::getLastDownPos,
                 "The position of the last mouse down event with the same button.\n"
-                "Only valid if a button is pressed (ro).\n")
+                "Useful for implementing dragging. Only valid if a button is\n"
+                "pressed (ro).\n")
         ;
 
     class_<TouchEvent, bases<Event> >("TouchEvent", 
@@ -177,6 +178,8 @@ void export_event()
         .def("getContour", &TouchEvent::getContour,
                 "getContour()\n"
                 "Extracts contour envelope sequence for the event\n")
+        .add_property("lastdownpos", &CursorEvent::getLastDownPos,
+                "The initial position of the cursor. Useful for implementing dragging.\n")
         ;
    
     enum_<TrackerImageID>("TrackerImageID")
