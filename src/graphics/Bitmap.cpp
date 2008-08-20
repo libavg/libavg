@@ -1338,14 +1338,14 @@ void Bitmap::BY8toRGBBilinear(const Bitmap& Orig)
 
     while(height--) {
         int t0, t1;
-        const uint8_t *pSrcEndBoundary = pSrcPixel + width;
+        const unsigned char *pSrcEndBoundary = pSrcPixel + width;
 
         if (greenFirst) {
             t0 = (pSrcPixel[1] + pSrcPixel[doubleSrcStride + 1] + 1) >> 1;
             t1 = (pSrcPixel[SrcStride] + pSrcPixel[SrcStride + 2] + 1) >> 1;
-            pDestPixel[-blue] = (uint8_t) t0;
+            pDestPixel[-blue] = (unsigned char) t0;
             pDestPixel[0] = pSrcPixel[SrcStride + 1];
-            pDestPixel[blue] = (uint8_t) t1;
+            pDestPixel[blue] = (unsigned char) t1;
             pDestPixel[2] = 255; // Alpha channel
             ++pSrcPixel;
             pDestPixel += 4;
@@ -1358,17 +1358,17 @@ void Bitmap::BY8toRGBBilinear(const Bitmap& Orig)
                 t1 = (pSrcPixel[1] + pSrcPixel[SrcStride] +
                       pSrcPixel[SrcStride + 2] + pSrcPixel[doubleSrcStride + 1] +
                       2) >> 2;
-                pDestPixel[-1] = (uint8_t) t0;
-                pDestPixel[0] = (uint8_t) t1;
+                pDestPixel[-1] = (unsigned char) t0;
+                pDestPixel[0] = (unsigned char) t1;
                 pDestPixel[1] = pSrcPixel[SrcStride + 1];
                 pDestPixel[2] = 255; // Alpha channel
 
                 t0 = (pSrcPixel[2] + pSrcPixel[doubleSrcStride + 2] + 1) >> 1;
                 t1 = (pSrcPixel[SrcStride + 1] + pSrcPixel[SrcStride + 3] +
                       1) >> 1;
-                pDestPixel[3] = (uint8_t) t0;
+                pDestPixel[3] = (unsigned char) t0;
                 pDestPixel[4] = pSrcPixel[SrcStride + 2];
-                pDestPixel[5] = (uint8_t) t1;
+                pDestPixel[5] = (unsigned char) t1;
                 pDestPixel[6] = 255; // Alpha channel
                 
                 pSrcPixel += 2;
@@ -1381,17 +1381,17 @@ void Bitmap::BY8toRGBBilinear(const Bitmap& Orig)
                 t1 = (pSrcPixel[1] + pSrcPixel[SrcStride] +
                       pSrcPixel[SrcStride + 2] + pSrcPixel[doubleSrcStride + 1] +
                       2) >> 2;
-                pDestPixel[1] = (uint8_t) t0;
-                pDestPixel[0] = (uint8_t) t1;
+                pDestPixel[1] = (unsigned char) t0;
+                pDestPixel[0] = (unsigned char) t1;
                 pDestPixel[-1] = pSrcPixel[SrcStride + 1];
                 pDestPixel[2] = 255; // Alpha channel
 
                 t0 = (pSrcPixel[2] + pSrcPixel[doubleSrcStride + 2] + 1) >> 1;
                 t1 = (pSrcPixel[SrcStride + 1] + pSrcPixel[SrcStride + 3] +
                       1) >> 1;
-                pDestPixel[5] = (uint8_t) t0;
+                pDestPixel[5] = (unsigned char) t0;
                 pDestPixel[4] = pSrcPixel[SrcStride + 2];
-                pDestPixel[3] = (uint8_t) t1;
+                pDestPixel[3] = (unsigned char) t1;
                 pDestPixel[6] = 255; // Alpha channel
                 
                 pSrcPixel += 2;
@@ -1405,8 +1405,8 @@ void Bitmap::BY8toRGBBilinear(const Bitmap& Orig)
             t1 = (pSrcPixel[1] + pSrcPixel[SrcStride] +
                   pSrcPixel[SrcStride + 2] + pSrcPixel[doubleSrcStride + 1] +
                   2) >> 2;
-            pDestPixel[-blue] = (uint8_t) t0;
-            pDestPixel[0] = (uint8_t) t1;
+            pDestPixel[-blue] = (unsigned char) t0;
+            pDestPixel[0] = (unsigned char) t1;
             pDestPixel[blue] = pSrcPixel[SrcStride + 1];
             pDestPixel[2] = 255; // Alpha channel
             pSrcPixel++;
