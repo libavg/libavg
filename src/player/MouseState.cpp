@@ -21,6 +21,10 @@
 
 #include "MouseState.h"
 
+#include <iostream>
+
+using namespace std;
+
 namespace avg {
     MouseState::MouseState()
         : m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
@@ -41,7 +45,15 @@ namespace avg {
     void MouseState::setEvent(MouseEventPtr pEvent)
     {
         m_pLastMouseEvent = pEvent;
+        if (pEvent->getType() == Event::CURSORDOWN) {
+            m_LastDownPos[pEvent->getButton()] = 
+                    IntPoint(pEvent->getXPosition(), pEvent->getYPosition());
+        }
     }
     
+    const IntPoint& MouseState::getLastDownPos(long button) const
+    {
+        return m_LastDownPos[button];
+    }
 }
 

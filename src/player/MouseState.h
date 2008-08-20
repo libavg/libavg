@@ -34,11 +34,11 @@ class MouseState {
         
         MouseEventPtr getLastEvent() const;
         void setEvent(MouseEventPtr pEvent);
-//        IntPoint getDragStartPos(long button) const;
+        const IntPoint& getLastDownPos(long button) const;
 
     private:
         MouseEventPtr m_pLastMouseEvent;
-//        IntPoint m_DragStartPos[3];
+        IntPoint m_LastDownPos[6];
 };
 
 }

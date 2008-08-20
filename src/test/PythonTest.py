@@ -308,15 +308,15 @@ def pythonTestSuite():
 
 Log = avg.Logger.get()
 Log.setCategories(Log.APP |
-        Log.WARNING
-#         Log.PROFILE |
-#         Log.PROFILE_LATEFRAMES |
-#         Log.CONFIG |
-#         Log.MEMORY |
-#         Log.BLTS    |
-#         Log.EVENTS |
-#         Log.EVENTS2
-              )
+        Log.WARNING |
+#        Log.PROFILE |
+#        Log.PROFILE_LATEFRAMES |
+#        Log.CONFIG |
+#        Log.MEMORY |
+#        Log.BLTS    |
+#        Log.EVENTS |
+#        Log.EVENTS2 |
+        0)
 
 if os.getenv("AVG_CONSOLE_TEST"):
     sys.exit(0)

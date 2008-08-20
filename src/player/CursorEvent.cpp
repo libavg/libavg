@@ -58,5 +58,16 @@ int CursorEvent::getCursorID() const
     return m_ID;
 }
 
+IntPoint CursorEvent::getLastDownPos() const
+{
+    return m_LastDownPos;
+}
+
+void CursorEvent::setLastDownPos(const IntPoint& pos)
+{
+    m_LastDownPos = pos;
+}
+
+
 }
 

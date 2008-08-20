@@ -34,11 +34,12 @@ using namespace std;
 namespace avg {
 
 TouchEvent::TouchEvent(int id, Type EventType, BlobPtr pBlob, const IntPoint& Pos, 
-        Source source, DPoint speed)
+        Source source, const DPoint& speed, const IntPoint& lastDownPos)
     : CursorEvent(id, EventType, Pos, source),
       m_pBlob(pBlob),
       m_Speed(speed)
 {
+    setLastDownPos(lastDownPos);
 }
 
 TouchEvent::~TouchEvent()

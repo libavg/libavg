@@ -23,6 +23,7 @@
 #include "Node.h"
 
 #include "../base/Logger.h"
+#include "../base/Exception.h"
 
 #include <iostream>
 #include <sstream>
@@ -39,11 +40,7 @@ MouseEvent::MouseEvent(Event::Type eventType,
     m_LeftButtonState = leftButtonState;
     m_MiddleButtonState = middleButtonState;
     m_RightButtonState = rightButtonState;
-    if (eventType == CURSORMOTION) {
-        m_Button = 0;
-    } else {
-        m_Button = button;
-    }
+    m_Button = button;
 }
 
 MouseEvent::~MouseEvent()
@@ -82,6 +79,15 @@ CursorEventPtr MouseEvent::cloneAs(Type EventType) const
     MouseEventPtr pClone(new MouseEvent(*this));
     pClone->m_Type = EventType;
     return pClone;
+}
+
+IntPoint MouseEvent::getLastDownPos() const
+{
+    if (!m_LeftButtonState && !m_MiddleButtonState && !m_RightButtonState) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE, 
+                "MouseEvent::getLastDownPos() called, but no mouse button is pressed.");
+    }
+    return CursorEvent::getLastDownPos();
 }
 
 }

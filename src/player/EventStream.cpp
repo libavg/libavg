@@ -42,7 +42,8 @@ namespace avg {
         m_Id = ++s_LastLabel;
         m_pBlob = first_blob;
         m_Pos = m_pBlob->getCenter();
-        m_OldPos = m_pBlob->getCenter();
+        m_OldPos = m_Pos;
+        m_FirstPos = m_Pos;
         m_State = DOWN_PENDING;
         m_Stale = false;
         m_OldTime = 0;
@@ -127,30 +128,32 @@ namespace avg {
         DPoint BlobOffset = trafo->getActiveBlobArea(DPoint(DisplayExtents)).tl;
         DPoint pt = m_pBlob->getCenter()+BlobOffset;
         DPoint screenpos = trafo->transformBlobToScreen(pt);
-        IntPoint Pos = IntPoint(
-                int(screenpos.x+0.5), 
+        IntPoint Pos(int(screenpos.x+0.5), 
                 int(screenpos.y+0.5)); 
         DPoint oldPos = trafo->transformBlobToScreen(m_OldPos + BlobOffset);
         DPoint newPos = trafo->transformBlobToScreen(m_Pos + BlobOffset);
         DPoint speed = getSpeed(oldPos, newPos);
+        DPoint firstDoubleScreenPos = trafo->transformBlobToScreen(m_FirstPos);
+        IntPoint firstScreenPos(int(firstDoubleScreenPos.x+0.5), 
+                int(firstDoubleScreenPos.y+0.5));
         switch(m_State){
             case DOWN_PENDING:
                 m_State = DOWN_DELIVERED;
                 return EventPtr(new TouchEvent(m_Id, Event::CURSORDOWN,
-                        m_pBlob, Pos, Source, speed));
+                        m_pBlob, Pos, Source, speed, firstScreenPos));
             case MOTION_PENDING:
                 m_State = MOTION_DELIVERED;
                 return EventPtr(new TouchEvent(m_Id, Event::CURSORMOTION,
-                        m_pBlob, Pos, Source, speed));
+                        m_pBlob, Pos, Source, speed, firstScreenPos));
             case UP_PENDING:
                 m_State = UP_DELIVERED;
                 return EventPtr(new TouchEvent(m_Id, Event::CURSORUP,
-                        m_pBlob, Pos, Source, speed));
+                        m_pBlob, Pos, Source, speed, firstScreenPos));
             case DOWN_DELIVERED:
             case MOTION_DELIVERED:
                 if (!bEventOnMove) {
                     return EventPtr(new TouchEvent(m_Id, Event::CURSORMOTION,
-                            m_pBlob, Pos, Source, speed));
+                            m_pBlob, Pos, Source, speed, firstScreenPos));
                 } else {
                     return EventPtr();
                 }

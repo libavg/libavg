@@ -44,7 +44,7 @@ class TouchEvent: public CursorEvent
 {
     public:
         TouchEvent(int id, Type EventType, BlobPtr pBlob, const IntPoint& Pos, 
-                Source source, DPoint speed);
+                Source source, const DPoint& speed, const IntPoint& lastDownPos);
         virtual ~TouchEvent();
         virtual CursorEventPtr cloneAs(Type EventType) const;
 

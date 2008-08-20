@@ -45,9 +45,13 @@ class CursorEvent: public Event
         int getYPosition() const;
         int getCursorID() const;
 
+        virtual IntPoint getLastDownPos() const;
+        void setLastDownPos(const IntPoint& pos);
+
     protected:
         IntPoint m_Position;
         int m_ID;
+        IntPoint m_LastDownPos;
 };
 
 }

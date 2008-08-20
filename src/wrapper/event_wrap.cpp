@@ -127,6 +127,9 @@ void export_event()
                 "The button that caused the event (ro).\n")
         .add_property("node", &MouseEvent::getElement,
                 "The node that the event handler was declared in (ro).\n")
+        .add_property("lastdownpos", &CursorEvent::getLastDownPos,
+                "The position of the last mouse down event with the same button.\n"
+                "Only valid if a button is pressed (ro).\n")
         ;
 
     class_<TouchEvent, bases<Event> >("TouchEvent", 

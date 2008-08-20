@@ -1011,8 +1011,10 @@ bool Player::handleEvent(EventPtr pEvent)
    
     if (MouseEventPtr pMouseEvent = boost::dynamic_pointer_cast<MouseEvent>(pEvent)) {
         m_MouseState.setEvent(pMouseEvent);
+        pMouseEvent->setLastDownPos(IntPoint(m_MouseState.getLastDownPos(
+                pMouseEvent->getButton())));
     }
-
+    
     if (CursorEventPtr pCursorEvent = boost::dynamic_pointer_cast<CursorEvent>(pEvent)) {
         if (pEvent->getType() == Event::CURSOROUT || 
                 pEvent->getType() == Event::CURSOROVER)
