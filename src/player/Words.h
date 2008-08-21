@@ -117,12 +117,12 @@ class Words : public RasterNode
 
         bool m_bParsedText;
         IntPoint m_StringExtents;
-        PangoContext * m_pContext;
         PangoFontDescription * m_pFontDescription;
 
         bool m_bFontChanged;
         bool m_bDrawNeeded;
 
+        static PangoContext * s_pPangoContext;
         static std::set<std::string> s_sFontsNotFound;
         static std::set<std::pair<std::string, std::string> > s_VariantsNotFound;
         static bool s_bInitialized;

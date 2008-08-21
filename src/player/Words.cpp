@@ -50,6 +50,7 @@ set<pair<string, string> > Words::s_VariantsNotFound;
 bool Words::s_bInitialized = false;
 int Words::s_NumFontFamilies = 0;
 PangoFontFamily** Words::s_ppFontFamilies = 0;
+PangoContext * Words::s_pPangoContext = 0;
 
 void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level, 
         const gchar *message, gpointer unused_data)
@@ -123,7 +124,6 @@ NodeDefinition Words::getNodeDefinition()
 Words::Words (const ArgList& Args, Player * pPlayer, bool bFromXML)
     : RasterNode(pPlayer), 
       m_StringExtents(0,0),
-      m_pContext(0), 
       m_pFontDescription(0),
       m_bFontChanged(true),
       m_bDrawNeeded(true),
@@ -142,9 +142,7 @@ Words::Words (const ArgList& Args, Player * pPlayer, bool bFromXML)
 
 Words::~Words ()
 {
-    if (m_pContext) {
-        g_object_unref(m_pContext);
-        m_pContext = 0;
+    if (m_pFontDescription) {
         pango_font_description_free(m_pFontDescription);
     }
 }
@@ -172,18 +170,20 @@ void Words::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pA
 {
     m_Color = colorStringToColor(m_sColorName);
 
-    pango_ft2_get_context(72, 72);
-    
-    PangoFT2FontMap *fontmap;
-    fontmap = PANGO_FT2_FONT_MAP (pango_ft2_font_map_new());
-    pango_ft2_font_map_set_resolution (fontmap, 72, 72);
-    pango_ft2_font_map_set_default_substitute (fontmap, text_subst_func, 0, 0);
-    m_pContext = pango_ft2_font_map_create_context (fontmap);
-    g_object_unref (fontmap);
+    if (!s_pPangoContext) {
+        pango_ft2_get_context(72, 72);
+        
+        PangoFT2FontMap *fontmap;
+        fontmap = PANGO_FT2_FONT_MAP (pango_ft2_font_map_new());
+        pango_ft2_font_map_set_resolution (fontmap, 72, 72);
+        pango_ft2_font_map_set_default_substitute (fontmap, text_subst_func, 0, 0);
+        s_pPangoContext = pango_ft2_font_map_create_context (fontmap);
+        g_object_unref (fontmap);
 
-    pango_context_set_language(m_pContext,
-            pango_language_from_string ("en_US"));
-    pango_context_set_base_dir(m_pContext, PANGO_DIRECTION_LTR);
+        pango_context_set_language(s_pPangoContext,
+                pango_language_from_string ("en_US"));
+        pango_context_set_base_dir(s_pPangoContext, PANGO_DIRECTION_LTR);
+    }
 
     m_bFontChanged = true;
     m_bDrawNeeded = true;
@@ -192,9 +192,7 @@ void Words::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pA
 
 void Words::disconnect()
 {
-    if (m_pContext) {
-        g_object_unref(m_pContext);
-        m_pContext = 0;
+    if (m_pFontDescription) {
         pango_font_description_free(m_pFontDescription);
         m_pFontDescription = 0;
     }
@@ -499,11 +497,11 @@ void Words::drawString()
             pango_font_description_set_absolute_size(m_pFontDescription,
                     (int)(m_Size * PANGO_SCALE));
 
-            pango_context_set_font_description(m_pContext, m_pFontDescription);
             m_bFontChanged = false;
         }
+        pango_context_set_font_description(s_pPangoContext, m_pFontDescription);
 
-        PangoLayout *pLayout = pango_layout_new (m_pContext);
+        PangoLayout *pLayout = pango_layout_new (s_pPangoContext);
 
         if (m_bParsedText) {
             PangoAttrList * pAttrList = 0;
