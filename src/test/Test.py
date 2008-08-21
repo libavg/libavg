@@ -206,14 +206,6 @@ class PlayerTestCase(AVGTestCase):
         def getMouseState():
             Event = Player.getMouseState()
             self.assert_(Event.lastdownpos == (10,10))
-        def testLastDownException():
-            Event = Player.getMouseState()
-            exceptionThrown = False
-            try:
-                pos = Event.lastdownpos
-            except RuntimeError:
-                exceptionRaised = True
-            self.assert_(exceptionRaised)
         def testInactiveDiv():
             Player.getElementByID("div1").active = False
             Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
@@ -329,7 +321,6 @@ class PlayerTestCase(AVGTestCase):
                         12, 12, 1),
                  lambda: Helper.fakeMouseEvent(avg.CURSORMOTION, False, False, False,
                         70, 70, 1),
-                 testLastDownException,
                  lambda: self.assert_(self.mouseUp1Called and mainMouseUpCalled),
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         70, 70, 1),

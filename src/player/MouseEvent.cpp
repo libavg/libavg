@@ -81,13 +81,4 @@ CursorEventPtr MouseEvent::cloneAs(Type EventType) const
     return pClone;
 }
 
-IntPoint MouseEvent::getLastDownPos() const
-{
-    if (!m_LeftButtonState && !m_MiddleButtonState && !m_RightButtonState) {
-        throw Exception(AVG_ERR_OUT_OF_RANGE, 
-                "MouseEvent::getLastDownPos() called, but no mouse button is pressed.");
-    }
-    return CursorEvent::getLastDownPos();
-}
-
 }

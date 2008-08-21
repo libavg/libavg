@@ -129,8 +129,7 @@ void export_event()
                 "The node that the event handler was declared in (ro).\n")
         .add_property("lastdownpos", &CursorEvent::getLastDownPos,
                 "The position of the last mouse down event with the same button.\n"
-                "Useful for implementing dragging. Only valid if a button is\n"
-                "pressed (ro).\n")
+                "Useful for implementing dragging (ro).\n")
         ;
 
     class_<TouchEvent, bases<Event> >("TouchEvent", 

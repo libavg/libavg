@@ -42,7 +42,6 @@ class MouseEvent : public CursorEvent {
         bool getRightButtonState() const;
         int getButton() const;
         virtual CursorEventPtr cloneAs(Type EventType) const;
-        virtual IntPoint getLastDownPos() const;
         virtual void trace();
         static const long NO_BUTTON=0;
         static const long LEFT_BUTTON=1;

@@ -28,7 +28,8 @@ using namespace std;
 namespace avg {
     MouseState::MouseState()
         : m_pLastMouseEvent(new MouseEvent(Event::CURSORMOTION, false, false, false, 
-                IntPoint(0, 0), MouseEvent::NO_BUTTON))
+                IntPoint(0, 0), MouseEvent::NO_BUTTON)),
+          m_LastDownPos(0,0)
     {
     }
 
@@ -46,14 +47,13 @@ namespace avg {
     {
         m_pLastMouseEvent = pEvent;
         if (pEvent->getType() == Event::CURSORDOWN) {
-            m_LastDownPos[pEvent->getButton()] = 
-                    IntPoint(pEvent->getXPosition(), pEvent->getYPosition());
+            m_LastDownPos = IntPoint(pEvent->getXPosition(), pEvent->getYPosition());
         }
     }
     
-    const IntPoint& MouseState::getLastDownPos(long button) const
+    const IntPoint& MouseState::getLastDownPos() const
     {
-        return m_LastDownPos[button];
+        return m_LastDownPos;
     }
 }
 
