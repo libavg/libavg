@@ -95,6 +95,9 @@ string tolower(const string& s)
 
 bool equalIgnoreCase(const string& s1, const string& s2)
 {
+    if (s1.length() != s2.length()) {
+        return false;
+    }
     string sUpper1;
     string sUpper2;
     transform(s1.begin(), s1.end(), std::back_inserter(sUpper1), (int(*)(int)) toupper);
