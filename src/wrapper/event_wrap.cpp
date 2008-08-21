@@ -97,13 +97,15 @@ void export_event()
             "Raised when a key is pressed or released.\n",
             no_init)
         .add_property("scancode", &KeyEvent::getScanCode,
-            "The untranslated scancode of the key pressed (ro).\n")
+            "The untranslated (hardware-dependent) scancode of the key pressed (ro).\n")
         .add_property("keycode", &KeyEvent::getKeyCode,
-            "The keycode of the key according to the current layout (ro).\n")
+            "The keycode of the key according to US keyboard layout (ro).\n")
         .add_property("keystring", make_function(&KeyEvent::getKeyString, 
                 return_value_policy<copy_const_reference>()),
             "A character or word describing the key pressed (ro).\n")
-        // TODO: Export possible modifiers as enum.
+        .add_property("unicode", &KeyEvent::getUnicode,
+            "Unicode index of the character. Transparentyl dependent to modifiers,\n"
+            "issued only on KEYDOWN event (ro).\n")
         .add_property("modifiers", &KeyEvent::getModifiers,
             "Any modifiers (shift, ctrl,...) pressed as well (ro).\n")
     ;    

@@ -250,10 +250,10 @@ class PlayerTestCase(AVGTestCase):
         def onTiltedMouseDown(Event):
             self.tiltedMouseDownCalled = True
         def onKeyDown(Event):
-            if Event.keystring == 'A' and Event.keycode == 65:
+            if Event.keystring == 'A' and Event.keycode == 65 and Event.unicode == 65:
                 self.keyDownCalled = True
         def onKeyUp(Event):
-            if Event.keystring == 'A' and Event.keycode == 65:
+            if Event.keystring == 'A' and Event.keycode == 65 and Event.unicode == 65:
                 self.keyUpCalled = True
         def neverCalled(Event):
             self.neverCalledCalled = True
@@ -343,9 +343,9 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         0, 80, 1),
                  lambda: self.assert_(self.tiltedMouseDownCalled),
-                 lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", avg.KEYMOD_NONE),
+                 lambda: Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, avg.KEYMOD_NONE),
                  lambda: self.assert_(self.keyDownCalled),
-                 lambda: Helper.fakeKeyEvent(avg.KEYUP, 65, 65, "A", avg.KEYMOD_NONE),
+                 lambda: Helper.fakeKeyEvent(avg.KEYUP, 65, 65, "A", 65, avg.KEYMOD_NONE),
                  lambda: self.assert_(self.keyUpCalled)
                  # XXX
                  # - errMouseOver

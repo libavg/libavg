@@ -186,6 +186,7 @@ SDLDisplayEngine::SDLDisplayEngine()
         exit(-1);
     }
     initTranslationTable();
+    SDL_EnableUNICODE(true);
 }
 
 SDLDisplayEngine::~SDLDisplayEngine()
@@ -1111,7 +1112,7 @@ EventPtr SDLDisplayEngine::createKeyEvent
 
     KeyEventPtr pEvent(new KeyEvent(Type,
             SDLEvent.key.keysym.scancode, KeyCode,
-            SDL_GetKeyName(SDLEvent.key.keysym.sym), Modifiers));
+            SDL_GetKeyName(SDLEvent.key.keysym.sym), SDLEvent.key.keysym.unicode, Modifiers));
     return pEvent;
 }
 

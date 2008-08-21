@@ -47,7 +47,7 @@ class TestHelper : public IEventSource
                 int xPosition, int yPosition, int button);
         void fakeKeyEvent(Event::Type eventType,
                 unsigned char scanCode, int keyCode, 
-                const std::string& keyString, int modifiers);
+                const std::string& keyString, int unicode, int modifiers);
         void dumpObjects();
 
         // From IEventSource

@@ -260,7 +260,7 @@ class PythonTestCase(AVGTestCase):
                 if text != self.ta2.getText():
                     break
         def clearPage():
-            self.ctx1.keyCodePressed(12)
+            self.ctx1.keyUCodePressed(textarea.KEYCODE_FORMFEED)
             self.assert_(self.ta2.getText() == '')
         def longText():
             textarea.setActiveFocusContext(self.ctx2)
@@ -276,9 +276,23 @@ sagittis mollis, dignissim vitae, erat. Vestibulum mattis, erat nec pulvinar lac
             self.__sendEvent(avg.CURSORDOWN, 20, 20)
             self.__sendEvent(avg.CURSORUP, 20, 20)
         def testClickFocus():
-            self.ctx1.keyCodePressed(12)
+            self.ctx1.keyUCodePressed(textarea.KEYCODE_FORMFEED)
             self.ctx1.keyCharPressed('X')
             self.assert_(self.ta1.getText() == 'X')
+        def testUnicode():
+            self.ta1.setText('some ùnìcöde')
+            self.ctx1.keyUCodePressed(textarea.KEYCODE_BACKSPACE)
+            self.assert_(self.ta1.getText() == 'some ùnìcöd')
+            self.ctx1.keyUCodePressed(textarea.KEYCODE_BACKSPACE)
+            self.ctx1.keyUCodePressed(textarea.KEYCODE_BACKSPACE)
+            self.assert_(self.ta1.getText() == 'some ùnìc')
+            self.ctx1.keyCharPressed('ò')
+            self.assert_(self.ta1.getText() == 'some ùnìcò')
+        def testSpecialChars():
+            self.ctx1.keyUCodePressed(textarea.KEYCODE_FORMFEED)
+            self.ctx1.keyCharPressed('&')
+            self.ctx1.keyUCodePressed(textarea.KEYCODE_BACKSPACE)
+            self.assert_(self.ta1.getText() == '')
         
         textarea.init(avg, False)
         self.start("TextAreaTest.avg",
@@ -290,7 +304,9 @@ sagittis mollis, dignissim vitae, erat. Vestibulum mattis, erat nec pulvinar lac
                clearPage,
                longText,
                clickFocus,
-               testClickFocus
+               testClickFocus,
+               testUnicode,
+               testSpecialChars
                ))
 
     def __sendEvent(self, type, x, y):

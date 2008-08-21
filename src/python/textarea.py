@@ -4,7 +4,6 @@
 
 avg = None
 g_Player = None
-g_ShiftPressed = False
 g_FocusContext = None
 g_LastKeyEvent = None
 g_activityCallback = None
@@ -13,6 +12,11 @@ g_RepeatDelay = 0.2
 g_CharDelay = 0.1
 
 import time
+
+KEYCODE_TAB = 9
+KEYCODE_FORMFEED = 12
+KEYCODE_AMPERSAND = 38
+KEYCODE_BACKSPACE = 127
 
 try:
     from . import avg
@@ -58,20 +62,22 @@ class FocusContext:
     def keyCharPressed(self, kchar):
         """
         Use this method to inject a character to active
-        (w/ focus) TextArea, convenience method for keyCodePressed()
+        (w/ focus) TextArea, convenience method for keyUCodePressed()
         @param kchar: string, a single character
         """
-        self.keyCodePressed(ord(kchar[0]))
+        uch = unicode(kchar, 'utf-8')
+        self.keyUCodePressed(ord(uch[0]))
 
-    def keyCodePressed(self, keycode):
+    def keyUCodePressed(self, keycode):
         """
-        Shift a character (ASCII-coded) into the active (w/focus)
+        Shift a character (Unicode) into the active (w/focus)
         TextArea
-        @param keycode: int, ASCII representation of the character
+        @param keycode: int, unicode index of the character
         """
         # TAB key cycles focus through textareas
-        if keycode == 9:
+        if keycode == KEYCODE_TAB:
             self.cycleFocus()
+            return
 
         for ob in self.__elements:
             if ob.getFocus():
@@ -81,13 +87,13 @@ class FocusContext:
         """
         Emulates a backspace character
         """
-        self.keyCodePressed(8)
+        self.keyCodePressed(KEYCODE_BACKSPACE)
     
     def clear(self):
         """
         Clears the entire textarea, emulating the press of FF character
         """
-        self.keyCodePressed(12)
+        self.keyCodePressed(KEYCODE_FORMFEED)
 
     def resetFocuses(self):
         for ob in self.__elements:
@@ -151,6 +157,7 @@ class TextArea:
         self.__blurOpacity = blurOpacity
         self.__border = border
         self.__id = id
+        self.__unicodeSequence = []
         
         if bgImageFile is not None:
             bgNode = g_Player.createNode("image", {})
@@ -188,9 +195,14 @@ class TextArea:
     def setText(self, text):
         """
         Set the text on the TextArea
-        @param text: a string
+        @param text: an utf-8 encoded string
         """
         self.__textNode.text = text + self.__cursorChar
+
+        self.__unicodeSequence = []
+        utext = unicode(text, 'utf-8')
+        for i in range(len(utext)):
+            self.__unicodeSequence.append(ord(utext[i]))
         
     def getText(self):
         """
@@ -258,16 +270,16 @@ class TextArea:
         Query the focus status for this TextArea
         """
         return self.__hasFocus
-    
 
     def onKeyDown(self, keycode):
-        if keycode >= 32 and keycode <= 126:
-            self.__appendChar(keycode)
-        elif keycode == 8:
+        if keycode == KEYCODE_BACKSPACE:
             self.__removeLastChar(True)
         # NP/FF clears text
-        elif keycode == 12:
+        elif keycode == KEYCODE_FORMFEED:
             self.clearText()
+        # avoid shift-tab, return, zero, delete
+        elif keycode not in (0,13,25,63272):
+            self.__appendChar(keycode)
 
     def __onClick(self, e):
         if self.__focusContext is not None:
@@ -276,9 +288,7 @@ class TextArea:
         else:
             self.setFocus(True)
     
-    def __appendChar(self, ch):
-        global g_ShiftPressed
-
+    def __appendChar(self, keycode):
         # don't wrap when TextArea is not multiline
         if (not self.__isMultiline and
             self.__textNode.lastcharx > self.__parent.width - self.__textNode.size - self.__border * 2):
@@ -297,17 +307,31 @@ class TextArea:
         # remove the cursor
         self.__removeLastChar()
         
-        if g_ShiftPressed:
-            if ch >= 97 and ch <= 122:
-                ch = ch - 32
-            elif ch >= 48 and ch <= 57:
-                ch = ch - 16
-
-        self.__textNode.text = self.__textNode.text + chr(ch) + self.__cursorChar
+        # Treat ampersand character (&) with respect, escaping it
+        if keycode == KEYCODE_AMPERSAND:
+            self.__textNode.text = self.__textNode.text + '&amp;' + self.__cursorChar
+        else:
+            self.__textNode.text = self.__textNode.text + unichr(keycode).encode('utf-8') + self.__cursorChar
+            
+        self.__unicodeSequence.append(keycode)
         
     def __removeLastChar(self, delete=False):
         if delete:
-            until = -2
+            if len(self.__unicodeSequence) == 0:
+                return
+                
+            # verify the byte length of the last inserted character:
+            lastChar = self.__unicodeSequence.pop()
+            if lastChar == KEYCODE_AMPERSAND:
+                until = -6
+            elif lastChar < 0x80:
+                until = -2
+            elif lastChar < 0x800:
+                until = -3
+            elif lastChar < 0x10000:
+                until = -4
+            else:
+                until = -5
         else:
             until = -1
         
@@ -321,27 +345,24 @@ class TextArea:
 # GLOBAL FUNCTIONS
 
 def onKeyDown(e):
-    global g_ShiftPressed, g_LastKeyEvent, g_LastKeyRepeated, g_RepeatDelay, g_activityCallback
+    global g_LastKeyEvent, g_LastKeyRepeated, g_RepeatDelay, g_activityCallback
     
-    if e.keycode in (301, 303, 304):
-        g_ShiftPressed = True
-    else:
-        g_LastKeyEvent = e
-        g_LastKeyRepeated = time.time() + g_RepeatDelay
+    if e.unicode == 0:
+        return
+    
+    g_LastKeyEvent = e
+    g_LastKeyRepeated = time.time() + g_RepeatDelay
 
     if g_FocusContext is not None:
-        g_FocusContext.keyCodePressed(e.keycode)
+        g_FocusContext.keyUCodePressed(e.unicode)
 
         if g_activityCallback is not None:
             g_activityCallback(g_FocusContext)
 
 def onKeyUp(e):
-    global g_ShiftPressed, g_LastKeyEvent
+    global g_LastKeyEvent
     
-    if e.keycode in (301, 303, 304):
-        g_ShiftPressed = False
-    else:
-        g_LastKeyEvent = None
+    g_LastKeyEvent = None
 
 def setActiveFocusContext(focusContext):
     """
@@ -362,7 +383,7 @@ def onFrame():
     if (g_LastKeyEvent is not None and
         time.time() - g_LastKeyRepeated > g_CharDelay and
         g_FocusContext is not None):
-        g_FocusContext.keyCodePressed(g_LastKeyEvent.keycode)
+        g_FocusContext.keyUCodePressed(g_LastKeyEvent.unicode)
         g_LastKeyRepeated = time.time()
 
 def setActivityCallback(pyfunc):

@@ -63,10 +63,10 @@ void TestHelper::fakeMouseEvent(Event::Type eventType,
 
 void TestHelper::fakeKeyEvent(Event::Type eventType,
         unsigned char scanCode, int keyCode, 
-        const string& keyString, int modifiers)
+        const string& keyString, int unicode, int modifiers)
 {
     KeyEventPtr pEvent(new KeyEvent(eventType, scanCode, keyCode, 
-        keyString, modifiers));
+        keyString, unicode, modifiers));
     m_Events.push_back(pEvent);
 }
 
