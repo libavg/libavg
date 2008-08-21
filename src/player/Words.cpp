@@ -352,6 +352,7 @@ string Words::getAlignment() const
 
 const vector<string>& Words::getFontFamilies()
 {
+    static vector<string> sFonts;
     initFonts();
     if (s_ppFontFamilies == 0) {
         PangoFT2FontMap *fontmap;
@@ -368,12 +369,11 @@ const vector<string>& Words::getFontFamilies()
         setEnv("LC_CTYPE", "en-us");
         pango_font_map_list_families(pFontMap, &s_ppFontFamilies, &s_NumFontFamilies);
         setEnv("LC_CTYPE", sOldLang);
+        for (int i=0; i<s_NumFontFamilies; ++i) {
+            sFonts.push_back(pango_font_family_get_name(s_ppFontFamilies[i]));
+        }
+        sort(sFonts.begin(), sFonts.end());
     }
-    static vector<string> sFonts;
-    for (int i=0; i<s_NumFontFamilies; ++i) {
-        sFonts.push_back(pango_font_family_get_name(s_ppFontFamilies[i]));
-    }
-    sort(sFonts.begin(), sFonts.end());
     return sFonts;
 }
 
