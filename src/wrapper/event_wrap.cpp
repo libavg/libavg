@@ -104,7 +104,7 @@ void export_event()
                 return_value_policy<copy_const_reference>()),
             "A character or word describing the key pressed (ro).\n")
         .add_property("unicode", &KeyEvent::getUnicode,
-            "Unicode index of the character. Transparentyl dependent to modifiers,\n"
+            "Unicode index of the character. Transparently dependent to modifiers,\n"
             "issued only on KEYDOWN event (ro).\n")
         .add_property("modifiers", &KeyEvent::getModifiers,
             "Any modifiers (shift, ctrl,...) pressed as well (ro).\n")
