@@ -37,6 +37,8 @@ std::string removeStartEndSpaces(const std::string& s);
 
 std::string tolower(const std::string& s);
 
+bool equalIgnoreCase(const std::string& s1, const std::string& s2);
+
 template<class T>
 std::string toString(const T& i)
 {
