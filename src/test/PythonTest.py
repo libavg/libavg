@@ -64,6 +64,7 @@ class PythonTestCase(AVGTestCase):
                  startAnim,
                  lambda: self.assert_(anim.getNumRunningAnims() == 1)
                 ))
+        self.__runningAnim = None
 
     def testLinearAnim(self):
         def createAnim(node, onStop):
@@ -106,6 +107,9 @@ class PythonTestCase(AVGTestCase):
             self.anim.abort()
             self.anim2.abort()
             self.anim3.abort()
+            self.anim = None
+            self.anim2 = None
+            self.anim3 = None
 
         Player.setFakeFPS(25)
         anim.init(avg)
