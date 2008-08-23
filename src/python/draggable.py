@@ -17,13 +17,21 @@ class Draggable:
         self.__node = node
         self.__onDragStart = onDragStart
         self.__onDragEnd = onDragEnd
+        self.__isDragging = False
+
     def enable(self):
         self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__start)
+
     def disable(self):
         self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, None)
         self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE | avg.TOUCH, None)
         self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, None)
+
+    def isDragging(self):
+        return self.__isDragging
+
     def __start(self, event):
+        self.__isDragging = True
         groupsNode = self.__node.getParent()
         groupsNode.reorderChild(groupsNode.indexOf(self.__node), 
                 groupsNode.getNumChildren()-1)
@@ -34,10 +42,13 @@ class Draggable:
         self.__startDragPos = (self.__node.x, self.__node.y)
         if self.__onDragStart:
             self.__onDragStart(event)
+
     def __move(self, event):
         self.__node.x = self.__startDragPos[0]+event.x-event.lastdownpos[0]
         self.__node.y = self.__startDragPos[1]+event.y-event.lastdownpos[1]
+
     def __stop(self, event):
+        self.__isDragging = False
         self.__move(event)
         self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__start)
         self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE | avg.TOUCH, None)
