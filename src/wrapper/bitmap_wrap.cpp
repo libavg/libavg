@@ -28,6 +28,7 @@
 #include "../base/Point.h"
 
 #include <vector>
+#include <sstream>
 
 using namespace boost::python;
 using namespace std;
@@ -51,6 +52,13 @@ namespace DPointHelper
                 throw std::range_error("Index out of range for Point2D. Must be 0 or 1.");
         }
     }
+
+    string str(const DPoint& pt)
+    {
+        stringstream st;
+        st << "(" << pt.x << "," << pt.y << ")";
+        return st.str();
+    }
 }
 
 void export_bitmap()
@@ -58,13 +66,21 @@ void export_bitmap()
     from_python_sequence<vector<double>, variable_capacity_policy>();
 
     class_<DPoint>("Point2D",
-            "A point in 2D space.",
+            "A point in 2D space. Supports arithmetic operations on vectors.",
             no_init)
         .def(init<>())
         .def(init<double, double>())
         .def(init<vector<double> >())
+        .def(init<const DPoint&>())
         .def("__len__", &DPointHelper::len)
         .def("__getitem__", &DPointHelper::getItem)
+        .def("__str__", &DPointHelper::str)
+        .def("normalize", &DPoint::normalize,
+                "normalize()\n"
+                "Normalizes the point so it's angle stays the same but the norm is one.")
+        .def("getNorm", &DPoint::getNorm,
+                "getNorm() -> norm\n"
+                "Returns the euclidian norm of the point, that is sqrt(x*x+y*y).")
         .def(self == self)
         .def(self != self)
         .def(self += self)

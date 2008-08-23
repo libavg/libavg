@@ -44,6 +44,9 @@ public:
     Point(const std::vector<NUM>& v);
     ~Point();
 
+    void normalize();
+    double getNorm();
+
     Point<NUM> & operator =(const Point<NUM>& p);
 
     bool operator ==(const Point<NUM> & pt) const;
@@ -125,6 +128,22 @@ template<class NUM>
 Point<NUM>::~Point()
 {
 //    ObjectCounter::get()->decRef(&typeid(*this));
+}
+    
+template<class NUM>
+void Point<NUM>::normalize()
+{
+    double norm = getNorm();
+    if (norm != 0) {
+        x = x/norm;
+        y = y/norm;
+    } 
+}
+
+template<class NUM>
+double Point<NUM>::getNorm()
+{
+    return sqrt(x*x+y*y);
 }
 
 template<class NUM>
