@@ -74,6 +74,29 @@ class PlayerTestCase(AVGTestCase):
     def __init__(self, testFuncName, bpp):
         AVGTestCase.__init__(self, testFuncName, bpp)
 
+    def testPoint(self):
+        pt = avg.Point2D(10, 10)
+        self.assert_(pt == avg.Point2D(10, 10))
+        pt += avg.Point2D(10, 10)
+        self.assert_(pt == avg.Point2D(20, 20))
+        pt -= avg.Point2D(6, 6)
+        self.assert_(pt == avg.Point2D(14, 14))
+        self.assert_(pt != avg.Point2D(13, 13))
+        pt /= 2
+        self.assert_(pt == avg.Point2D(7, 7))
+        pt = 2*pt
+        pt = pt/2.
+        self.assert_(pt == avg.Point2D(7, 7))
+        pt = avg.Point2D((10, 10))
+        self.assert_(pt == (10, 10))
+        self.assert_(len(pt) == 2)
+        exceptionRaised = False
+        try:
+            d = pt[2]
+        except RuntimeError:
+            exceptionRaised = True
+        self.assert_(exceptionRaised)
+
     def testImage(self):
         def loadNewFile():
             self.assert_(Player.getElementByID("test").getMediaSize() == (65,65))
@@ -1198,6 +1221,7 @@ class PlayerTestCase(AVGTestCase):
 def playerTestSuite(bpp):
     rmBrokenDir()
     suite = unittest.TestSuite()
+    suite.addTest(PlayerTestCase("testPoint", bpp))
     suite.addTest(PlayerTestCase("testImage", bpp))
     suite.addTest(PlayerTestCase("testBitmap", bpp))
     suite.addTest(PlayerTestCase("testRotate", bpp))

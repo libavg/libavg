@@ -25,6 +25,7 @@
 #include "ObjectCounter.h"
 
 #include <ostream>
+#include <vector>
 #include <math.h>
 
 namespace avg {
@@ -40,6 +41,7 @@ public:
     template<class ORIGNUM> explicit Point(const Point<ORIGNUM>& p);
     Point(NUM X, NUM Y);
     Point(const Point<NUM>& p);
+    Point(const std::vector<NUM>& v);
     ~Point();
 
     Point<NUM> & operator =(const Point<NUM>& p);
@@ -63,6 +65,18 @@ std::ostream& operator<<( std::ostream& os, const Point<NUM> &p)
 {
     os << "(" << p.x << "," << p.y << ")";
     return os;
+}
+
+template<class NUM>
+Point<NUM> operator *(double f, const Point<NUM>& pt)
+{
+    return pt*f;
+}
+
+template<class NUM>
+Point<NUM> operator /(double f, const Point<NUM>& pt)
+{
+    return pt/f;
 }
 
 typedef Point<double> DPoint;
@@ -97,6 +111,14 @@ Point<NUM>::Point(const Point<NUM>& p)
 //    ObjectCounter::get()->incRef(&typeid(*this));
     x = p.x;
     y = p.y;
+}
+    
+template<class NUM>
+Point<NUM>::Point(const std::vector<NUM>& v)
+{
+    assert(v.size() == 2);
+    x = v[0];
+    y = v[1];
 }
 
 template<class NUM>

@@ -19,17 +19,67 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include "WrapHelper.h"
+
 #include "../player/BoostPython.h"
 
 #include "../graphics/Bitmap.h"
 
 #include "../base/Point.h"
 
+#include <vector>
+
 using namespace boost::python;
+using namespace std;
 using namespace avg;
+
+namespace DPointHelper
+{
+    int len(const DPoint&) 
+    {
+        return 2;
+    }
+
+    double getItem(const DPoint& pt, int i)
+    {
+        switch(i) {
+            case 0:
+                return pt.x;
+            case 1:
+                return pt.y;
+            default:
+                throw std::range_error("Index out of range for Point2D. Must be 0 or 1.");
+        }
+    }
+}
 
 void export_bitmap()
 {
+    from_python_sequence<vector<double>, variable_capacity_policy>();
+
+    class_<DPoint>("Point2D",
+            "A point in 2D space.",
+            no_init)
+        .def(init<>())
+        .def(init<double, double>())
+        .def(init<vector<double> >())
+        .def("__len__", &DPointHelper::len)
+        .def("__getitem__", &DPointHelper::getItem)
+        .def(self == self)
+        .def(self != self)
+        .def(self += self)
+        .def(self -= self)
+        .def(self *= float())
+        .def(self /= float())
+        .def(-self)
+        .def(self + self)
+        .def(self - self)
+        .def(self - self)
+        .def(float() * self)
+        .def(self * float())
+        .def(self / float())
+    ;
+
     enum_<PixelFormat>("pixelformat")
         .value("B5G6R5", B5G6R5)
         .value("B8G8R8", B8G8R8)
@@ -46,7 +96,7 @@ void export_bitmap()
         .value("I8", I8)
         .value("YCbCr422", YCbCr422)
         .export_values();
-    
+
     class_<Bitmap>("Bitmap",
             "Class representing a rectangular set of pixels. Bitmaps can be obtained\n"
             "from any RasterNode. For nodes of type Image, the current bitmap can be\n"

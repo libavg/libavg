@@ -232,6 +232,11 @@ public:
         TEST(calcDist(pt1, pt2)-5 < 0.0001);
         TEST(!almostEqual(pt1, pt2));
         TEST(almostEqual(pt1, pt1));
+        std::vector<double> v;
+        v.push_back(3);
+        v.push_back(4);
+        DPoint pt3(v);
+        TEST(almostEqual(pt2, pt3));
         {
             DLine l1(DPoint(0,0), DPoint(2,2));
             DLine l2(DPoint(2,0), DPoint(0,2));
