@@ -149,6 +149,8 @@ void export_node()
         .add_property("mediadir", make_function(&DivNode::getMediaDir,
                 return_value_policy<copy_const_reference>()), &DivNode::setMediaDir,
                 "The directory that the media files for the children of this node are in.\n")
+        .add_property("crop", &DivNode::getCrop, &DivNode::setCrop,
+                "Turns clipping on or off. Default is True.\n")
         .def("getNumChildren", &DivNode::getNumChildren,
                 "getNumChildren() -> numchildren\n"
                 "Returns the number of immediate children that this div contains.")

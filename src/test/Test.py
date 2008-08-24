@@ -159,6 +159,9 @@ class PlayerTestCase(AVGTestCase):
             Helper = Player.getTestHelper()
             Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
                         x, y, 1)
+        def disableCrop():
+            Player.getElementByID("outer").crop = False
+            Player.getElementByID("inner").crop = False
             
         Player.loadFile("rotate.avg")
         Player.getElementByID("outer").setEventHandler(
@@ -172,7 +175,9 @@ class PlayerTestCase(AVGTestCase):
                  lambda: sendEvent(85, 70),
                  lambda: self.assert_(not(self.onOuterDownCalled)),
                  lambda: sendEvent(85, 75),
-                 lambda: self.assert_(self.onOuterDownCalled)
+                 lambda: self.assert_(self.onOuterDownCalled),
+                 disableCrop,
+                 lambda: self.compareImage("testRotate1b", False),
                 ))
 
     def testRotate2(self):

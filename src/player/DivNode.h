@@ -43,6 +43,9 @@ class DivNode : public Node
         const std::string& getMediaDir() const;
         void setMediaDir(const std::string& mediaDir);
 
+        bool getCrop() const;
+        void setCrop(bool bCrop);
+
         int getNumChildren();
         NodePtr getChild(unsigned i);
         void appendChild(NodePtr pNewNode);
@@ -66,6 +69,7 @@ class DivNode : public Node
     
     private:
         std::string m_sMediaDir;
+        bool m_bCrop;
         std::vector<NodePtr> m_Children;
 };
 

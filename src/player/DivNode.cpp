@@ -42,7 +42,8 @@ NodeDefinition DivNode::getNodeDefinition()
     return NodeDefinition("div", Node::buildNode<DivNode>)
         .extendDefinition(Node::getNodeDefinition())
         .setGroupNode()
-        .addArg(Arg<string>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)));
+        .addArg(Arg<string>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)))
+        .addArg(Arg<bool>("crop", true, false, offsetof(DivNode, m_bCrop)));
 }
 
 DivNode::DivNode (const ArgList& Args, Player * pPlayer, bool bFromXML)
@@ -80,6 +81,16 @@ void DivNode::setMediaDir(const string& sMediaDir)
 {
     m_sMediaDir = sMediaDir;
     checkReload();
+}
+
+bool DivNode::getCrop() const
+{
+    return m_bCrop;
+}
+
+void DivNode::setCrop(bool bCrop)
+{
+    m_bCrop = bCrop;
 }
 
 int DivNode::getNumChildren ()
@@ -236,12 +247,16 @@ void DivNode::preRender()
 void DivNode::render(const DRect& rect)
 {
     DPoint Viewport = getRelSize();
-    DRect ClipRect(0, 0, Viewport.x, Viewport.y);
-    getDisplayEngine()->pushClipRect(ClipRect);
+    if (m_bCrop) {
+        DRect ClipRect(0, 0, Viewport.x, Viewport.y);
+        getDisplayEngine()->pushClipRect(ClipRect);
+    }
     for (int i=0; i<getNumChildren(); i++) {
         getChild(i)->maybeRender(rect);
     }
-    getDisplayEngine()->popClipRect();
+    if (m_bCrop) {
+        getDisplayEngine()->popClipRect();
+    }
 }
 
 string DivNode::getTypeStr ()
