@@ -50,12 +50,18 @@ namespace avg {
     {
         assert(QuadIndex < m_NumQuads);
         T2V3Vertex* pVertex = &(m_pVertexData[QuadIndex*4+VertexIndex]);
-        pVertex->m_Pos[0] = (GLfloat)Pos.x;
-        pVertex->m_Pos[1] = (GLfloat)Pos.y;
-        pVertex->m_Pos[2] = 0.0;
-        pVertex->m_Tex[0] = (GLfloat)TexPos.x;
-        pVertex->m_Tex[1] = (GLfloat)TexPos.y;
-        m_bDataChanged = true;
+        if (pVertex->m_Pos[0] != (GLfloat)Pos.x || 
+                pVertex->m_Pos[1] != (GLfloat)Pos.y ||
+                pVertex->m_Tex[0] != (GLfloat)TexPos.x || 
+                pVertex->m_Tex[1] != (GLfloat)TexPos.y)
+        {
+            pVertex->m_Pos[0] = (GLfloat)Pos.x;
+            pVertex->m_Pos[1] = (GLfloat)Pos.y;
+            pVertex->m_Pos[2] = 0.0;
+            pVertex->m_Tex[0] = (GLfloat)TexPos.x;
+            pVertex->m_Tex[1] = (GLfloat)TexPos.y;
+            m_bDataChanged = true;
+        }
     }
 
     void VertexArray::draw()

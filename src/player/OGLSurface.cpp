@@ -556,9 +556,6 @@ void OGLSurface::bltTexture(const DPoint& DestSize,
             break;
     }
 
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
     std::vector<DPoint> VertexesLine(m_NumTiles.x+1);
     VertexGrid FinalVertexes = std::vector<std::vector<DPoint> >
                 (m_NumTiles.y+1, VertexesLine);
@@ -573,9 +570,6 @@ void OGLSurface::bltTexture(const DPoint& DestSize,
             m_pTextures[y][x]->blt(&FinalVertexes); 
         }
     }
-
-    glDisableClientState(GL_VERTEX_ARRAY); 
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
     AVG_TRACE(Logger::BLTS, "(" << DestSize.x << ", " 
             << DestSize.y << ")" << ", m_pf: " 

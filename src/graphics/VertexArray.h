@@ -19,6 +19,9 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#ifndef _VertexArray_H_
+#define _VertexArray_H_
+
 #include "../base/Point.h"
 #include "../graphics/OGLHelper.h"
 
@@ -48,3 +51,5 @@ private:
 };
 
 }
+
+#endif

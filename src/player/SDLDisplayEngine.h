@@ -28,6 +28,7 @@
 #include "../graphics/Pixel32.h"
 #include "../graphics/OGLHelper.h"
 #include "../graphics/OGLShader.h"
+#include "../graphics/VertexArray.h"
 
 #include <SDL/SDL.h>
 

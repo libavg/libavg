@@ -305,6 +305,8 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
         glDisable(GL_MULTISAMPLE);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glDisable(GL_MULTISAMPLE);");
     }
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     setGamma(DP.m_Gamma[0], DP.m_Gamma[1], DP.m_Gamma[2]);
     showCursor(DP.m_bShowCursor);
     if (DP.m_Framerate == 0) {
@@ -539,9 +541,9 @@ void SDLDisplayEngine::clip(bool forward)
 
         glBegin(GL_QUADS);
             glVertex2d(rc.tl.x, rc.tl.y);
-            glVertex2d(rc.tl.x+rc.width(), rc.tl.y);
+            glVertex2d(rc.br.x, rc.tl.y);
             glVertex2d(rc.br.x, rc.br.y);
-            glVertex2d(rc.br.x-rc.width(), rc.br.y);
+            glVertex2d(rc.tl.x, rc.br.y);
         glEnd();
 
         // Set stencil test to only let
