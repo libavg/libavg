@@ -80,7 +80,7 @@ namespace glproc {
     void * s_hGLLib = 0;
 }
 
-void OGLErrorCheck(int avgcode, const string & where) 
+void OGLErrorCheck(int avgcode, const char * where) 
 {
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {

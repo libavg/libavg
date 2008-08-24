@@ -22,6 +22,7 @@
 #ifndef _ThreadProfiler_H_ 
 #define _ThreadProfiler_H_
 
+#include "Profiler.h"
 #include "ProfilingZone.h"
 
 #include <boost/thread.hpp>
@@ -39,7 +40,10 @@ class ThreadProfiler {
 public:
     ThreadProfiler(const std::string& sName);
     virtual ~ThreadProfiler();
-    static ThreadProfilerPtr get();
+    static ThreadProfilerPtr get()
+    {
+        return Profiler::get().getThreadProfiler();
+    }
  
     void addZone(ProfilingZone& Zone);
     void clear();
@@ -52,7 +56,10 @@ public:
     void reset();
     int getIndent();
 
-    bool isCurrent();
+    bool isCurrent() 
+    {
+        return boost::thread() == m_Thread;
+    }
     const std::string& getName();
 
 private:

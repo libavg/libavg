@@ -74,21 +74,21 @@ void OGLShader::setUniformIntParam(const std::string& sName, int val)
 {
     int loc = safeGetUniformLoc(sName);
     glproc::Uniform1i(loc, val);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, string("OGLShader: glUniform(")+sName+")");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, (string("OGLShader: glUniform(")+sName+")").c_str());
 }
 
 void OGLShader::setUniformFloatParam(const std::string& sName, float val)
 {
     int loc = safeGetUniformLoc(sName);
     glproc::Uniform1f(loc, val);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, string("OGLShader: glUniform(")+sName+")");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, (string("OGLShader: glUniform(")+sName+")").c_str());
 }
 
 void OGLShader::setUniformFloatArrayParam(const std::string& sName, int count, float* pVal)
 {
     int loc = safeGetUniformLoc(sName);
     glproc::Uniform1fv(loc, count, pVal);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, string("OGLShader: glUniform(")+sName+")");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, (string("OGLShader: glUniform(")+sName+")").c_str());
 }
         
 void OGLShader::dumpInfoLog(GLhandleARB hObj)

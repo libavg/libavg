@@ -20,6 +20,7 @@
 //
 
 #include "Profiler.h"
+#include "ThreadProfiler.h"
 #include "Logger.h"
 
 #include <sstream>

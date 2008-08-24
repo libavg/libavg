@@ -20,7 +20,6 @@
 //
 
 #include "ThreadProfiler.h"
-#include "Profiler.h"
 #include "Logger.h"
 #include "ObjectCounter.h"
 
@@ -47,11 +46,6 @@ ThreadProfiler::~ThreadProfiler()
         }
     }
     ObjectCounter::get()->decRef(&typeid(*this));
-}
-
-ThreadProfilerPtr ThreadProfiler::get()
-{
-    return Profiler::get().getThreadProfiler();
 }
 
 void ThreadProfiler::addZone(ProfilingZone& Zone)
@@ -156,11 +150,6 @@ void ThreadProfiler::reset()
 int ThreadProfiler::getIndent()
 {
     return int(2*m_ActiveZones.size());
-}
-
-bool ThreadProfiler::isCurrent()
-{
-    return thread() == m_Thread;
 }
 
 const std::string& ThreadProfiler::getName()

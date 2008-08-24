@@ -79,7 +79,7 @@ class OGLSurface: public ISurface {
         void bltTexture(const DPoint& DestSize, DisplayEngine::BlendMode Mode);
         DPoint calcFinalVertex(const DPoint& Size,
                 const DPoint & NormalizedVertex);
-        void checkBlendModeError(std::string sMode);
+        void checkBlendModeError(const char * mode);
 
         SDLDisplayEngine * m_pEngine;
        
@@ -97,6 +97,7 @@ class OGLSurface: public ISurface {
         IntPoint m_NumTiles;
         std::vector<std::vector<OGLTexturePtr> > m_pTextures;
         VertexGrid m_TileVertices;
+        VertexGrid m_FinalVertices;
 
         OGLMemoryMode m_MemoryMode;
 

@@ -442,6 +442,7 @@ void OGLSurface::initTileVertices(VertexGrid& Grid)
             initTileVertex(x, y, Grid[y][x]);
         }
     }
+    m_FinalVertices = std::vector<std::vector<DPoint> >(m_NumTiles.y+1, TileVerticesLine);
 }
 
 void OGLSurface::initTileVertex (int x, int y, DPoint& Vertex) 
@@ -556,18 +557,15 @@ void OGLSurface::bltTexture(const DPoint& DestSize,
             break;
     }
 
-    std::vector<DPoint> VertexesLine(m_NumTiles.x+1);
-    VertexGrid FinalVertexes = std::vector<std::vector<DPoint> >
-                (m_NumTiles.y+1, VertexesLine);
-    for (unsigned int y=0; y<FinalVertexes.size(); y++) {
-        for (unsigned int x=0; x<FinalVertexes[y].size(); x++) {
-            FinalVertexes[y][x] = calcFinalVertex(DestSize, m_TileVertices[y][x]);
+    for (unsigned int y=0; y<m_FinalVertices.size(); y++) {
+        for (unsigned int x=0; x<m_FinalVertices[y].size(); x++) {
+            m_FinalVertices[y][x] = calcFinalVertex(DestSize, m_TileVertices[y][x]);
         }
     }
 
     for (unsigned int y=0; y<m_pTextures.size(); y++) {
         for (unsigned int x=0; x<m_pTextures[y].size(); x++) {
-            m_pTextures[y][x]->blt(&FinalVertexes); 
+            m_pTextures[y][x]->blt(&m_FinalVertices); 
         }
     }
 
@@ -587,13 +585,13 @@ DPoint OGLSurface::calcFinalVertex(const DPoint& Size,
     return Point;
 }
 
-void OGLSurface::checkBlendModeError(string sMode) 
+void OGLSurface::checkBlendModeError(const char *mode) 
 {    
     GLenum err = glGetError();
     if (err != GL_NO_ERROR) {
         static bool bErrorReported = false;
         if (!bErrorReported) {
-            AVG_TRACE(Logger::WARNING, "Blendmode "+sMode+
+            AVG_TRACE(Logger::WARNING, "Blendmode "<<mode<<
                     " not supported by OpenGL implementation.");
             bErrorReported = true;
         }
