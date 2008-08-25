@@ -125,9 +125,9 @@ Words::Words (const ArgList& Args, Player * pPlayer, bool bFromXML)
     : RasterNode(pPlayer), 
       m_StringExtents(0,0),
       m_pFontDescription(0),
+      m_pLayout(0),
       m_bFontChanged(true),
-      m_bDrawNeeded(true),
-      m_LastCharPos(0,0)
+      m_bDrawNeeded(true)
 {
     m_bParsedText = false;
     Args.setMembers(this);
@@ -144,6 +144,9 @@ Words::~Words ()
 {
     if (m_pFontDescription) {
         pango_font_description_free(m_pFontDescription);
+    }
+    if (m_pLayout) {
+        g_object_unref(m_pLayout);
     }
 }
 
@@ -230,16 +233,6 @@ double Words::getHeight()
 {
     drawString();
     return Node::getHeight();
-}
-
-double Words::getLastCharX() const
-{
-    return m_LastCharPos.x;
-}
-
-double Words::getLastCharY() const
-{
-    return m_LastCharPos.y;
 }
 
 const std::string& Words::getFont() const
@@ -389,11 +382,20 @@ const vector<string>& Words::getFontVariants(const string& sFontName)
     return sVariants;
 }
 
-static ProfilingZone FontFamilyProfilingZone("  Words::getFontFamily");
+IntPoint Words::getGlyphPos(int i)
+{
+    PangoRectangle rect = getGlyphRect(i);
+    return IntPoint(rect.x/PANGO_SCALE, rect.y/PANGO_SCALE);
+}
+
+IntPoint Words::getGlyphSize(int i)
+{
+    PangoRectangle rect = getGlyphRect(i);
+    return IntPoint(rect.width/PANGO_SCALE, rect.height/PANGO_SCALE);
+}
 
 PangoFontFamily * Words::getFontFamily(const string& sFamily)
 {
-    ScopeTimer Timer(FontFamilyProfilingZone);
     getFontFamilies();
     PangoFontFamily * pFamily = 0;
     assert(s_NumFontFamilies != 0);
@@ -426,7 +428,6 @@ void Words::parseString(PangoAttrList** ppAttrList, char** ppText)
 }
 
 static ProfilingZone DrawStringProfilingZone("  Words::drawString");
-static ProfilingZone OpenFontProfilingZone("    Words::open font");
 
 void Words::drawString()
 {
@@ -438,8 +439,6 @@ void Words::drawString()
         m_StringExtents = IntPoint(0,0);
     } else {
         if (m_bFontChanged) {
-            ScopeTimer Timer(OpenFontProfilingZone);
-            AVG_TRACE(Logger::MEMORY, "Opening font " << m_sFontName);
             PangoFontFamily * pFamily;
             bool bFamilyFound = true;
             try {
@@ -493,47 +492,43 @@ void Words::drawString()
         }
         pango_context_set_font_description(s_pPangoContext, m_pFontDescription);
 
-        PangoLayout *pLayout = pango_layout_new (s_pPangoContext);
+        if (m_pLayout) {
+            g_object_unref(m_pLayout);
+        }
+        m_pLayout = pango_layout_new (s_pPangoContext);
 
         if (m_bParsedText) {
             PangoAttrList * pAttrList = 0;
             char * pText = 0;
             parseString(&pAttrList, &pText);
-            pango_layout_set_text (pLayout, pText, -1);
-            pango_layout_set_attributes (pLayout, pAttrList);
+            pango_layout_set_text (m_pLayout, pText, -1);
+            pango_layout_set_attributes (m_pLayout, pAttrList);
             pango_attr_list_unref (pAttrList);
             g_free (pText);
         } else {
-            pango_layout_set_text(pLayout, m_sText.c_str(), -1);
+            pango_layout_set_text(m_pLayout, m_sText.c_str(), -1);
         }
 
-        pango_layout_set_alignment(pLayout, m_Alignment);
-        pango_layout_set_width(pLayout, m_ParaWidth * PANGO_SCALE);
-        pango_layout_set_indent(pLayout, m_Indent * PANGO_SCALE);
+        pango_layout_set_alignment(m_pLayout, m_Alignment);
+        pango_layout_set_width(m_pLayout, m_ParaWidth * PANGO_SCALE);
+        pango_layout_set_indent(m_pLayout, m_Indent * PANGO_SCALE);
         if (m_Indent < 0) {
             // For hanging indentation, we add a tabstop to support lists
             PangoTabArray* pTabs = pango_tab_array_new_with_positions(1, false,
                     PANGO_TAB_LEFT, -m_Indent * PANGO_SCALE);
-            pango_layout_set_tabs(pLayout, pTabs);
+            pango_layout_set_tabs(m_pLayout, pTabs);
             pango_tab_array_free(pTabs);
         }
         if (m_LineSpacing != -1) {
-            pango_layout_set_spacing(pLayout, (int)(m_LineSpacing*PANGO_SCALE));
+            pango_layout_set_spacing(m_pLayout, (int)(m_LineSpacing*PANGO_SCALE));
         }
         PangoRectangle logical_rect;
         PangoRectangle ink_rect;
-        pango_layout_get_pixel_extents (pLayout, &ink_rect, &logical_rect);
+        pango_layout_get_pixel_extents (m_pLayout, &ink_rect, &logical_rect);
 //        cerr << "Ink: " << ink_rect.x << ", " << ink_rect.y << ", " 
 //                << ink_rect.width << ", " << ink_rect.height << endl;
 //        cerr << "Logical: " << logical_rect.x << ", " << logical_rect.y << ", " 
 //                << logical_rect.width << ", " << logical_rect.height << endl;
-
-        PangoRectangle lastPos;
-        pango_layout_index_to_pos(pLayout, (int)m_sText.length(), &lastPos);
-//        cerr << "ITOPOS: " << lastPos.x / PANGO_SCALE << ", " << lastPos.y / PANGO_SCALE << endl;
-        m_LastCharPos.x = lastPos.x / PANGO_SCALE;
-        m_LastCharPos.y = lastPos.y / PANGO_SCALE;
-        
         m_StringExtents.y = logical_rect.height+2;
         m_StringExtents.x = m_ParaWidth;
         if (m_ParaWidth == -1) {
@@ -568,14 +563,12 @@ void Words::drawString()
         }
 
         // Use 1 as x position here to make sure italic text is never cut off.
-        pango_ft2_render_layout(&bitmap, pLayout, 1, yoffset);
+        pango_ft2_render_layout(&bitmap, m_pLayout, 1, yoffset);
 
         getDisplayEngine()->surfaceChanged(getSurface());
         if (m_LineSpacing == -1) {
-            m_LineSpacing = pango_layout_get_spacing(pLayout)/PANGO_SCALE;
+            m_LineSpacing = pango_layout_get_spacing(m_pLayout)/PANGO_SCALE;
         }
-        g_object_unref(pLayout);
-        
     }
     m_bDrawNeeded = false;
 
@@ -626,6 +619,18 @@ string Words::removeExcessSpaces(const string & sText)
         pos = s.find_first_of(" \n\r", pos+1);
     }
     return s;
+}
+        
+PangoRectangle Words::getGlyphRect(int i)
+{
+    if (i >= int(m_sText.length())) {
+        throw(Exception(AVG_ERR_INVALID_ARGS, 
+                string("getGlyphRect: Index ") + toString(i) + " out of range."));
+    }
+    drawString();
+    PangoRectangle rect;
+    pango_layout_index_to_pos(m_pLayout, i, &rect);
+    return rect;
 }
 
 void Words::setParsedText(const std::string& sText)

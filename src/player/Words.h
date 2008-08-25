@@ -87,8 +87,8 @@ class Words : public RasterNode
         static const std::vector<std::string>& getFontVariants(
                 const std::string& sFontName);
         
-        double getLastCharX() const;
-        double getLastCharY() const;
+        IntPoint getGlyphPos(int i);
+        IntPoint getGlyphSize(int i);
         virtual IntPoint getMediaSize();
     
     private:
@@ -98,6 +98,8 @@ class Words : public RasterNode
         void setParsedText(const std::string& sText);
         std::string applyBR(const std::string& sText);
         std::string removeExcessSpaces(const std::string & sText);
+        PangoRectangle getGlyphRect(int i);
+
         static PangoFontFamily * getFontFamily(const std::string& sFamily);
         static void checkFontError(int Ok, const std::string& sMsg);
         static void FT2SubstituteFunc(FcPattern *pattern, gpointer data);
@@ -118,6 +120,7 @@ class Words : public RasterNode
         bool m_bParsedText;
         IntPoint m_StringExtents;
         PangoFontDescription * m_pFontDescription;
+        PangoLayout * m_pLayout;
 
         bool m_bFontChanged;
         bool m_bDrawNeeded;
@@ -129,7 +132,6 @@ class Words : public RasterNode
         static int s_NumFontFamilies;
         static PangoFontFamily** s_ppFontFamilies;
         
-        DPoint m_LastCharPos;
 };
 
 }

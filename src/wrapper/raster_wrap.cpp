@@ -228,10 +228,14 @@ void export_raster()
         .add_property("alignment", &Words::getAlignment, &Words::setAlignment,
                 "The paragraph alignment. Possible values are 'left',\n"
                 "'center' and 'right'.\n")
-        .add_property("lastcharx", &Words::getLastCharX,
-                "Gets the X coordinate of the last character in the text node")
-        .add_property("lastchary", &Words::getLastCharY,
-                "Gets the Y coordinate of the last character in the text node")
+        .def("getGlyphPos", &Words::getGlyphPos,
+                "getGlyphPos(i)->pos\n"
+                "Returns the position of the glyph at byte index i in the layout.\n"
+                "The position is a Point2D, in pixels, and relative to the words node.\n")
+        .def("getGlyphSize", &Words::getGlyphSize,
+                "getGlyphSize(i)->pos\n"
+                "Returns the size of the glyph at byte index i in the layout.\n"
+                "The position is a Point2D, in pixels.\n")
         .def("getFontFamilies", make_function(&Words::getFontFamilies, 
                 return_value_policy<copy_const_reference>()))
         .staticmethod("getFontFamilies")

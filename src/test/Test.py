@@ -737,6 +737,22 @@ class PlayerTestCase(AVGTestCase):
         def checkFont():
             node = Player.getElementByID("sanstext")
             self.assert_(node.variant=="bold")
+        def checkGlyphPos():
+            def posAlmostEqual(pos1, pos2):
+                return math.fabs(pos1[0]-pos2[0]) <= 2 and math.fabs(pos1[1]-pos2[1]) <= 2
+            node = Player.getElementByID("sanstext")
+            self.assert_(node.getGlyphPos(0) == (0,0))
+            size = node.getGlyphSize(0)
+            self.assert_(posAlmostEqual(size, (9, 15)))
+            self.assert_(node.getGlyphPos(3) == (22,0))
+            size = node.getGlyphSize(3)
+            self.assert_(posAlmostEqual(size, (9, 15)))
+            exceptionRaised = False
+            try:
+                node.getGlyphPos(4)
+            except RuntimeError:
+                exceptionRaised = True
+            self.assert_(exceptionRaised)
         fontList = avg.Words.getFontFamilies()
         try:
             fontList.index("Bitstream Vera Sans")
@@ -754,7 +770,8 @@ class PlayerTestCase(AVGTestCase):
         """)
         self.start(None,
                 (lambda: self.compareImage("testSimpleWords", True),
-                 checkFont
+                 checkFont,
+                 checkGlyphPos
                 ))
 
     def testParaWords(self):

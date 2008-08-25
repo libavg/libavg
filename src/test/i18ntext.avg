@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <avg id="textavg" width="160" height="120">
-    <words x="1" y="1" size="14" font="arial" 
+    <words id="jap" x="1" y="1" size="14" font="arial" 
             text="一二三四五六七八九"/>
     <words id="dynamictext" x="1" y="24" size="12" font="arial"
             text="foo"/>

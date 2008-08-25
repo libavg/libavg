@@ -289,15 +289,16 @@ class TextArea:
             self.setFocus(True)
     
     def __appendChar(self, keycode):
+        lastCharPos = self.__textNode.getGlyphPos(len(self.__textNode.text)-1)
         # don't wrap when TextArea is not multiline
         if (not self.__isMultiline and
-            self.__textNode.lastcharx > self.__parent.width - self.__textNode.size - self.__border * 2):
+            lastCharPos[0] > self.__parent.width - self.__textNode.size - self.__border * 2):
             return
         
         # don't flee from borders in a multiline textarea
         if (self.__isMultiline and
-            self.__textNode.lastchary > self.__parent.height - self.__textNode.size * 2 - self.__border * 2 and
-            self.__textNode.lastcharx > self.__parent.width - self.__textNode.size - self.__border * 2):
+            lastCharPos[1] > self.__parent.height - self.__textNode.size * 2 - self.__border * 2 and
+            lastCharPos[0] > self.__parent.width - self.__textNode.size - self.__border * 2):
             return
         
         # if maximum number of char is specified check it
