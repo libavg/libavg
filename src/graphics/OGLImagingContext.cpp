@@ -79,6 +79,9 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
 #ifdef linux
     Display *dpy;
     dpy = XOpenDisplay(0);
+    if (!dpy) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "No X windows display available.");
+    }
     XVisualInfo *vi;
     static int attributes[] = {GLX_RGBA, 0};
     vi = glXChooseVisual(dpy, DefaultScreen(dpy), attributes);
