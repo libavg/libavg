@@ -129,6 +129,10 @@ void export_event()
                 "The button that caused the event (ro).\n")
         .add_property("node", &MouseEvent::getElement,
                 "The node that the event handler was declared in (ro).\n")
+        .add_property("speed", make_function(&MouseEvent::getSpeed,
+                return_value_policy<copy_const_reference>()),
+                "Current speed of the mouse in pixels per millisecond as a\n"
+                "2-component vector (ro).\n")
         .add_property("lastdownpos", &CursorEvent::getLastDownPos,
                 "The position of the last mouse down event with the same button.\n"
                 "Useful for implementing dragging (ro).\n")

@@ -170,6 +170,7 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_VBMod(0),
       m_dri_fd(0),
       m_bMouseOverApp(true),
+      m_LastMousePos(-1, -1),
       m_TextureMode(0),
       m_MaxTexSize(0),
       m_bCheckedMemoryMode(false)
@@ -976,7 +977,7 @@ vector<EventPtr> SDLDisplayEngine::pollEvents()
                         Events.push_back(EventPtr(
                                 new MouseEvent (Event::CURSORMOTION, false,
                                         false, false, IntPoint(-1, -1), 
-                                        MouseEvent::NO_BUTTON)));
+                                        MouseEvent::NO_BUTTON, DPoint(0,0))));
                     }
                 }
             case SDL_MOUSEMOTION:
@@ -1031,11 +1032,17 @@ EventPtr SDLDisplayEngine::createMouseEvent
     Uint8 buttonState = SDL_GetMouseState(&x, &y);
     x = int((x*m_Width)/m_WindowWidth);
     y = int((y*m_Height)/m_WindowHeight);
-    MouseEventPtr pEvent(new MouseEvent(Type, 
-            bool(buttonState & SDL_BUTTON(1)),
-            bool(buttonState & SDL_BUTTON(2)),
-            bool(buttonState & SDL_BUTTON(3)),
-            IntPoint(x, y), Button));
+    DPoint speed;
+    if (m_LastMousePos.x == -1) {
+        speed = DPoint(0,0);
+    } else {
+        double lastFrameTime = 1000/getFramerate();
+        speed = DPoint(x-m_LastMousePos.x, y-m_LastMousePos.y)/lastFrameTime;
+    }
+    MouseEventPtr pEvent(new MouseEvent(Type, bool(buttonState & SDL_BUTTON(1)),
+            bool(buttonState & SDL_BUTTON(2)), bool(buttonState & SDL_BUTTON(3)),
+            IntPoint(x, y), Button, speed));
+    m_LastMousePos = IntPoint(x,y);
     return pEvent; 
 
 }

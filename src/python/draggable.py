@@ -11,12 +11,13 @@ except ValueError:
 
 
 class Draggable:
-    def __init__(self, node, onDragStart=None, onDragEnd=None):
+    def __init__(self, node, onDragStart=None, onDragEnd=None, onDragMove=None):
         global g_Player
         g_Player = avg.Player.get()
         self.__node = node
         self.__onDragStart = onDragStart
         self.__onDragEnd = onDragEnd
+        self.__onDragMove = onDragMove
         self.__isDragging = False
 
     def enable(self):
@@ -46,6 +47,8 @@ class Draggable:
     def __move(self, event):
         self.__node.x = self.__startDragPos[0]+event.x-event.lastdownpos[0]
         self.__node.y = self.__startDragPos[1]+event.y-event.lastdownpos[1]
+        if self.__onDragMove:
+            self.__onDragMove(event)
 
     def __stop(self, event):
         self.__isDragging = False
