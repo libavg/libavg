@@ -23,6 +23,7 @@
 
 #include <stdlib.h>
 #include <ctype.h>
+#include <algorithm>
 
 using namespace std;
 
