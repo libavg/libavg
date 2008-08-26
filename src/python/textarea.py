@@ -16,7 +16,7 @@ import time
 KEYCODE_TAB = 9
 KEYCODE_FORMFEED = 12
 KEYCODE_AMPERSAND = 38
-KEYCODE_BACKSPACE = 127
+KEYCODES_BACKSPACE = (8,127)
 
 try:
     from . import avg
@@ -87,7 +87,7 @@ class FocusContext:
         """
         Emulates a backspace character
         """
-        self.keyCodePressed(KEYCODE_BACKSPACE)
+        self.keyCodePressed(KEYCODES_BACKSPACE[0])
     
     def clear(self):
         """
@@ -272,7 +272,7 @@ class TextArea:
         return self.__hasFocus
 
     def onKeyDown(self, keycode):
-        if keycode == KEYCODE_BACKSPACE:
+        if keycode in KEYCODES_BACKSPACE:
             self.__removeLastChar(True)
         # NP/FF clears text
         elif keycode == KEYCODE_FORMFEED:
