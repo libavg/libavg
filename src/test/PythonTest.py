@@ -281,17 +281,17 @@ sagittis mollis, dignissim vitae, erat. Vestibulum mattis, erat nec pulvinar lac
             self.assert_(self.ta1.getText() == 'X')
         def testUnicode():
             self.ta1.setText('some ùnìcöde')
-            self.ctx1.keyUCodePressed(textarea.KEYCODE_BACKSPACE)
+            self.ctx1.keyUCodePressed(textarea.KEYCODES_BACKSPACE[0])
             self.assert_(self.ta1.getText() == 'some ùnìcöd')
-            self.ctx1.keyUCodePressed(textarea.KEYCODE_BACKSPACE)
-            self.ctx1.keyUCodePressed(textarea.KEYCODE_BACKSPACE)
+            self.ctx1.keyUCodePressed(textarea.KEYCODES_BACKSPACE[1])
+            self.ctx1.keyUCodePressed(textarea.KEYCODES_BACKSPACE[0])
             self.assert_(self.ta1.getText() == 'some ùnìc')
             self.ctx1.keyCharPressed('ò')
             self.assert_(self.ta1.getText() == 'some ùnìcò')
         def testSpecialChars():
             self.ctx1.keyUCodePressed(textarea.KEYCODE_FORMFEED)
             self.ctx1.keyCharPressed('&')
-            self.ctx1.keyUCodePressed(textarea.KEYCODE_BACKSPACE)
+            self.ctx1.keyUCodePressed(textarea.KEYCODES_BACKSPACE[0])
             self.assert_(self.ta1.getText() == '')
         
         textarea.init(avg, False)
