@@ -744,7 +744,7 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(node.getGlyphPos(0) == (0,0))
             size = node.getGlyphSize(0)
             self.assert_(posAlmostEqual(size, (9, 15)))
-            self.assert_(node.getGlyphPos(3) == (22,0))
+            self.assert_(posAlmostEqual(node.getGlyphPos(3), (22,0)))
             size = node.getGlyphSize(3)
             self.assert_(posAlmostEqual(size, (9, 15)))
             exceptionRaised = False
