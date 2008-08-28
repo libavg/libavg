@@ -1026,6 +1026,7 @@ bool Player::handleEvent(EventPtr pEvent)
     }
     else if (KeyEventPtr pKeyEvent = boost::dynamic_pointer_cast<KeyEvent>(pEvent))
     {
+        pEvent->trace();
         m_pRootNode->handleEvent(pKeyEvent);
         if (pEvent->getType() == Event::KEYDOWN && pKeyEvent->getKeyCode() == 27) {
             m_bStopping = true;
