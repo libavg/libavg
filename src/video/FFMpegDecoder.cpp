@@ -370,10 +370,10 @@ void FFMpegDecoder::seek(long long DestTime)
         readFrame(Frame, FrameTime);
     }
     m_pDemuxer->seek(DestTime + getStartTime());
-    m_LastVideoFrameTime = DestTime - 1000.0/m_FPS;
+    m_LastVideoFrameTime = DestTime - (long long)(1000.0/m_FPS);
     if (m_pAStream) {
         mutex::scoped_lock Lock(m_AudioMutex);
-        m_LastAudioFrameTime = DestTime;
+        m_LastAudioFrameTime = double(DestTime);
         m_SampleBufferStart = m_SampleBufferEnd = 0;
         m_SampleBufferLeft = SAMPLE_BUFFER_SIZE;
         m_ResampleBufferStart = m_ResampleBufferEnd = 0;
@@ -432,7 +432,7 @@ long long FFMpegDecoder::getCurTime(StreamSelect Stream)
             return m_LastVideoFrameTime;
         case SS_AUDIO:
             assert(m_pAStream);
-            return m_LastAudioFrameTime;
+            return (long long)m_LastAudioFrameTime;
         case SS_DEFAULT:
             return getCurTime(getMasterStream());
         default:

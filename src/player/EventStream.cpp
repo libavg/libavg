@@ -212,7 +212,7 @@ namespace avg {
         if (m_OldTime==0) {
             return DPoint(0,0);
         } else {
-            double timeDiff = m_OldTime-m_Time;
+            double timeDiff = double(m_OldTime-m_Time);
             return (oldPos-newPos)/timeDiff;
         }
     }

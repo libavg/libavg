@@ -443,7 +443,7 @@ void Words::drawString()
             bool bFamilyFound = true;
             try {
                 pFamily = getFontFamily(m_sFontName);
-            } catch (Exception& ex) {
+            } catch (Exception&) {
                 if (s_sFontsNotFound.find(m_sFontName) == s_sFontsNotFound.end()) {
                     AVG_TRACE(Logger::WARNING, "Could not find font face " << 
                             m_sFontName << ". Using sans instead.");
@@ -535,7 +535,7 @@ void Words::drawString()
             m_StringExtents.x = logical_rect.width;
             // Work around what appears to be a pango bug when computing the 
             // extents of italic text by adding an arbritary amount to the width.
-            m_StringExtents.x += m_Size/6+1;
+            m_StringExtents.x += int(m_Size/6+1);
         }
         if (m_StringExtents.x == 0) {
             m_StringExtents.x = 1;

@@ -43,7 +43,7 @@ void FilterIntensity::applyInPlace(BitmapPtr pBmp)
     for (int y = 0; y<size.y; ++y) {
         unsigned char * pPixel = pLine;
         for (int x = 0; x < size.x; ++x) {
-            *pPixel = (*pPixel+m_Offset)*m_Factor;
+            *pPixel = (unsigned char)((*pPixel+m_Offset)*m_Factor);
             ++pPixel;
         }
         pLine = pLine + pBmp->getStride();

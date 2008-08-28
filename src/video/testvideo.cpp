@@ -416,7 +416,7 @@ class AVDecoderTest: public DecoderTest {
                     TotalFramesDecoded += FramesDecoded;
 //                    cerr << "FramesDecoded: " << FramesDecoded << endl;
                 }
-                curTime += 1000/pDecoder->getFPS();
+                curTime += int(1000/pDecoder->getFPS());
             }
             TEST(pDecoder->isEOF(SS_VIDEO));
 //            cerr << "NumFrames: " << NumFrames << endl;
