@@ -118,6 +118,7 @@ void AsyncVideoDecoder::close()
                     &AudioDecoderThread::stop, _1)));
             try {
                 m_pAMsgQ->pop(false);
+                m_pAMsgQ->pop(false);
             } catch(Exception&) {}
             m_pADecoderThread->join();
             delete m_pADecoderThread;
