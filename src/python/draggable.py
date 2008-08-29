@@ -24,6 +24,8 @@ class Draggable:
         self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__start)
 
     def disable(self):
+        if self.__isDragging:
+            self.__stop(None)
         self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, None)
         self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE | avg.TOUCH, None)
         self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, None)
@@ -52,7 +54,8 @@ class Draggable:
 
     def __stop(self, event):
         self.__isDragging = False
-        self.__move(event)
+        if event:
+            self.__move(event)
         self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__start)
         self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE | avg.TOUCH, None)
         self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, None)
