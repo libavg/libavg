@@ -90,12 +90,7 @@ class PlayerTestCase(AVGTestCase):
         pt = avg.Point2D((10, 10))
         self.assert_(pt == (10, 10))
         self.assert_(len(pt) == 2)
-        exceptionRaised = False
-        try:
-            d = pt[2]
-        except RuntimeError:
-            exceptionRaised = True
-        self.assert_(exceptionRaised)
+        self.assertException(lambda: pt[2])
 
     def testImage(self):
         def loadNewFile():
@@ -218,13 +213,7 @@ class PlayerTestCase(AVGTestCase):
 
     def testInvalidVideoFilename(self):
         def tryplay():
-            exceptionRaised = False
-            try:
-                Player.getElementByID("brokenvideo").play()
-            except e:
-                self.assert_(1)
-            else:
-                self.assert_(0)
+            assertException(lambda: Player.getElementByID("brokenvideo").play())
         self.start("invalidvideofilename.avg",
                 (lambda: tryplay,
                  lambda: Player.getElementByID("brokenvideo").stop()
@@ -581,12 +570,7 @@ class PlayerTestCase(AVGTestCase):
 
     def testBroken(self):
         def testBrokenFile(filename):
-            exceptionRaised = False
-            try:
-                Player.loadFile(filename)
-            except RuntimeError:
-                exceptionRaised = True
-            self.assert_(exceptionRaised)
+            self.assertException(lambda: Player.loadFile(filename))
         testBrokenFile("filedoesntexist.avg")
         testBrokenFile("noxml.avg")
         testBrokenFile("noavg.avg")
@@ -747,12 +731,7 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(posAlmostEqual(node.getGlyphPos(3), (22,0)))
             size = node.getGlyphSize(3)
             self.assert_(posAlmostEqual(size, (9, 15)))
-            exceptionRaised = False
-            try:
-                node.getGlyphPos(4)
-            except RuntimeError:
-                exceptionRaised = True
-            self.assert_(exceptionRaised)
+            self.assertException(lambda: node.getGlyphPos(4))
         fontList = avg.Words.getFontFamilies()
         try:
             fontList.index("Bitstream Vera Sans")
@@ -910,6 +889,8 @@ class PlayerTestCase(AVGTestCase):
 
     def testImgDynamics(self):
         def createImg(useXml):
+            def setNodeID():
+                node.id = "bork"
             if useXml:
                 node = Player.createNode("<image href='rgb24-64x64.png'/>")
             else:
@@ -920,12 +901,7 @@ class PlayerTestCase(AVGTestCase):
             node.angle = 0.1
             rootNode = Player.getRootNode()
             rootNode.appendChild(node)
-            exceptionRaised=False
-            try:
-                node.id = "bork"
-            except RuntimeError:
-                exceptionRaised=True
-            self.assert_(exceptionRaised)
+            self.assertException(setNodeID)
             self.assert_(rootNode.indexOf(Player.getElementByID("newImage")) == 0)
         def createImg2(fromXml):
             if fromXml:
@@ -993,12 +969,7 @@ class PlayerTestCase(AVGTestCase):
         def reAddVideo():
             rootNode = Player.getRootNode()
             rootNode.appendChild(self.videoNode)
-            exceptionRaised = False
-            try:
-                rootNode.appendChild(self.videoNode)
-            except RuntimeError:
-                exceptionRaised = True
-            self.assert_(exceptionRaised)
+            self.assertException(lambda: rootNode.appendChild(self.videoNode))
             self.videoNode.play()
             self.videoNode = None
         def foo():
@@ -1198,13 +1169,10 @@ class PlayerTestCase(AVGTestCase):
         def setDir():
             Player.getElementByID("main").mediadir="../video/testfiles"
         def setAbsDir():
-            exceptionRaised = False
-            try:
+            def absDir():
                 # Should not find any media here...
                 Player.getElementByID("main").mediadir="/testmediadir"
-            except RuntimeError:
-                exceptionRaised = True
-            self.assert_(exceptionRaised)
+            self.assertException(absDir)
         def createNode():
             node = Player.createNode("video", {"href":"mjpeg1-48x48.avi"})
         self.start("mediadir.avg",

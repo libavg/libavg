@@ -34,6 +34,7 @@ def almostEqual(a,b):
     except:
         return math.fabs(a-b) < 0.000001
 
+
 class AVGTestCase(unittest.TestCase):
     def __init__(self, testFuncName, bpp):
         self.__Player = avg.Player.get()
@@ -41,14 +42,17 @@ class AVGTestCase(unittest.TestCase):
         self.__testFuncName = testFuncName
         self.Log = avg.Logger.get()
         unittest.TestCase.__init__(self, testFuncName)
+
     def setUpVideo(self):
         self.__Player.setResolution(0, 0, 0, self.__bpp)
         if g_CustomOGLOptions:
             self.__Player.setOGLOptions(g_UsePOW2Textures, g_YCbCrMode, 
                     g__UsePixelBuffers, 1)
+
     def setUp(self):
         self.setUpVideo()
         print "-------- ", self.__testFuncName, " --------"
+
     def start(self, filename, actions):
         self.assert_(self.__Player.isPlaying() == 0)
         if filename != None:
@@ -59,6 +63,7 @@ class AVGTestCase(unittest.TestCase):
         self.__Player.setFramerate(100)
         self.__Player.play()
         self.assert_(self.__Player.isPlaying() == 0)
+
     def nextAction(self):
         if len(self.actions) == self.curFrame:
             self.__Player.stop()
@@ -68,6 +73,7 @@ class AVGTestCase(unittest.TestCase):
             if action != None:
                 action()
         self.curFrame += 1
+
     def compareImage(self, fileName, warn):
         global CREATE_BASELINE_IMAGES
         global ourSaveDifferences
@@ -96,6 +102,14 @@ class AVGTestCase(unittest.TestCase):
                 Bmp.save(RESULT_DIR+"/"+fileName+".png")
                 self.Log.trace(self.Log.WARNING, "Could not load image "+fileName+".png")
                 self.assert_(False)
+
+    def assertException(self, code):
+        exceptionRaised = False
+        try:
+            code()
+        except RuntimeError:
+            exceptionRaised = True
+        self.assert_(exceptionRaised)
     def _loadEmpty(self):
         self.__Player.loadString("""
         <?xml version="1.0"?>
