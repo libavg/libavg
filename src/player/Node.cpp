@@ -135,6 +135,7 @@ void Node::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAu
     } 
     m_pDisplayEngine = pDisplayEngine;
     m_pAudioEngine = pAudioEngine;
+    setState(NS_CONNECTED);
 }
 
 void Node::disconnect()
