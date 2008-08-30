@@ -113,8 +113,12 @@ void export_node()
                 "The position of the node's left edge relative to it's parent node.\n")
         .add_property("y", &Node::getY, &Node::setY,
                 "The position of the node's top edge relative to it's parent node.\n")
+        .add_property("pos", make_function(&Node::getPos,
+                return_value_policy<copy_const_reference>()), &Node::setPos,
+                "The position of the node's top left corner relative to it's parent node.\n")
         .add_property("width", &Node::getWidth, &Node::setWidth)
         .add_property("height", &Node::getHeight, &Node::setHeight)
+        .add_property("size", &Node::getSize, &Node::setSize)
         .add_property("angle", &Node::getAngle, &Node::setAngle,
                 "The angle that the node is rotated to in radians. 0 is\n"
                 "unchanged, 3.14 is upside-down.\n")

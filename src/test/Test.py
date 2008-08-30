@@ -104,8 +104,11 @@ class PlayerTestCase(AVGTestCase):
         Player.showCursor(0)
         Player.showCursor(1)
         Player.loadFile("image.avg")
-        self.assert_(Player.getElementByID("test").width == 65)
-        self.assert_(Player.getElementByID("test").height == 65)
+        node = Player.getElementByID("test")
+        self.assert_(node.width == 65)
+        self.assert_(node.height == 65)
+        self.assert_(node.pos == (64, 30))
+        self.assert_(node.size == (65, 65))
         self.start(None,
                 (lambda: self.compareImage("testimg", False), 
                  getFramerate,

@@ -88,14 +88,18 @@ class Node
         
         double getY() const;
         void setY(double Y);
-        
+
+        const DPoint& getPos() const;
+        void setPos(const DPoint& pt);
+
         virtual double getWidth();
         void setWidth(double width);
         
         virtual double getHeight();
         void setHeight(double height);
        
-        DPoint getRelSize() const;
+        DPoint getSize() const;
+        void setSize(const DPoint& pt);
 
         double getAngle() const;
         void setAngle(double Angle);

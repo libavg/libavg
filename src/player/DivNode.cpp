@@ -215,7 +215,7 @@ NodePtr DivNode::getElementByPos (const DPoint & pos)
 {
     DPoint relPos = toLocal(pos);
     if (relPos.x >= 0 && relPos.y >= 0 && 
-            relPos.x < getRelSize().x && relPos.y < getRelSize().y &&
+            relPos.x < getSize().x && relPos.y < getSize().y &&
             reactsToMouseEvents())
     {
         for (int i=getNumChildren()-1; i>=0; i--) {
@@ -225,7 +225,7 @@ NodePtr DivNode::getElementByPos (const DPoint & pos)
             }
         }
         // Pos isn't in any of the children.
-        if (getRelSize() != DPoint(10000, 10000)) {
+        if (getSize() != DPoint(10000, 10000)) {
             // Explicit width/height given for div.
             return getThis(); 
         } else {
@@ -246,7 +246,7 @@ void DivNode::preRender()
 
 void DivNode::render(const DRect& rect)
 {
-    DPoint Viewport = getRelSize();
+    DPoint Viewport = getSize();
     if (m_bCrop) {
         DRect ClipRect(0, 0, Viewport.x, Viewport.y);
         getDisplayEngine()->pushClipRect(ClipRect);

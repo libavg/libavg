@@ -180,6 +180,16 @@ void Node::setY(double y)
     setViewport(-32767, y, -32767, -32767);
 }
 
+const DPoint& Node::getPos() const
+{
+    return m_RelViewport.tl;
+}
+
+void Node::setPos(const DPoint& pt)
+{
+    setViewport(pt.x, pt.y, -32767, -32767);
+}
+
 double Node::getWidth() 
 {
     return getRelViewport().width();
@@ -202,9 +212,14 @@ void Node::setHeight(double height)
     setViewport(-32767, -32767, -32767, height);
 }
 
-DPoint Node::getRelSize() const
+DPoint Node::getSize() const
 {
     return getRelViewport().size();
+}
+
+void Node::setSize(const DPoint& pt)
+{
+    setViewport(-32767, -32767, pt.x, pt.y);
 }
 
 double Node::getAngle() const
@@ -367,7 +382,7 @@ NodePtr Node::getElementByPos (const DPoint & pos)
 {
     DPoint relPos = toLocal(pos);
     if (relPos.x >= 0 && relPos.y >= 0 && 
-            relPos.x < getRelSize().x && relPos.y < getRelSize().y &&
+            relPos.x < getSize().x && relPos.y < getSize().y &&
             reactsToMouseEvents())
     {
         return m_This.lock();
@@ -427,8 +442,7 @@ DPoint Node::getPivot() const
     if (m_bHasCustomPivot) {
         return m_Pivot;
     } else {
-        const DPoint& pt = getRelSize();
-        return DPoint (pt.x/2, pt.y/2);
+        return getSize()/2;
     }
 }
 

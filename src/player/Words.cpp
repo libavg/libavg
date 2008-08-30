@@ -283,12 +283,12 @@ void Words::setColor(const std::string& sColor)
     m_bDrawNeeded = true;
 }
 
-double Words::getSize() const
+double Words::getFontSize() const
 {
     return m_Size;
 }
 
-void Words::setSize(double Size)
+void Words::setFontSize(double Size)
 {
     m_Size = Size;
     m_bFontChanged = true;
@@ -586,7 +586,7 @@ void Words::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_sText.length() != 0 && getEffectiveOpacity() > 0.001) {
-        getDisplayEngine()->blta8(getSurface(), getRelSize(),
+        getDisplayEngine()->blta8(getSurface(), getSize(),
                 getEffectiveOpacity(), m_Color, getBlendMode());
     }
 }

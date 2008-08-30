@@ -216,7 +216,7 @@ void export_raster()
                         return_value_policy<copy_const_reference>()),
                 "The color of the text in standard html color notation:\n" 
                 "FF0000 is red, 00FF00 green, etc.\n")
-        .add_property("size", &Words::getSize, &Words::setSize,
+        .add_property("size", &Words::getFontSize, &Words::setFontSize,
                 "The font size in pixels. Fractional sizes are supported.\n")
         .add_property("parawidth", &Words::getParaWidth, &Words::setParaWidth,
                 "The width at which to word-wrap.\n")

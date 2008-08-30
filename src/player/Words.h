@@ -68,8 +68,8 @@ class Words : public RasterNode
         const std::string& getColor() const;
         void setColor(const std::string& sColor);
         
-        double getSize() const;
-        void setSize(double Size);
+        double getFontSize() const;
+        void setFontSize(double Size);
         
         int getParaWidth() const;
         void setParaWidth(int ParaWidth);

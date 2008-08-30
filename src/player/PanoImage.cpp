@@ -133,7 +133,7 @@ void PanoImage::render(const DRect& Rect)
     glDisable (GL_CLIP_PLANE3);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImage::render: glDisable(GL_CLIP_PLANEx)");
-    DPoint Vpt = getRelSize();
+    DPoint Vpt = getSize();
     glViewport(0, 0, int(Vpt.x), int(Vpt.y));
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImage::render: glViewport()");
@@ -202,8 +202,8 @@ double PanoImage::getScreenPosFromAngle(double Angle) const
 {
     double HorizOffsetAngle = Angle-m_Rotation-m_fovy*m_aspect/2;
     double PixelDistFromCenter = m_FocalLength*tan(HorizOffsetAngle)/m_SensorWidth
-            *getRelSize().x;
-    return PixelDistFromCenter+getRelSize().x/2;
+            *getSize().x;
+    return PixelDistFromCenter+getSize().x/2;
 }
 
 double PanoImage::getScreenPosFromPanoPos(int PanoPos) const
