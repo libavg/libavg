@@ -30,6 +30,9 @@ class Draggable:
         self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE | avg.TOUCH, None)
         self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, None)
 
+    def startDrag(self, event):
+        self.__start(event)
+
     def isDragging(self):
         return self.__isDragging
 
