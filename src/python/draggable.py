@@ -42,9 +42,9 @@ class Draggable:
         self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, None)
         self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE | avg.TOUCH, self.__move)
         self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, self.__stop)
-        self.__startDragPos = (self.__node.x, self.__node.y)
         if self.__onDragStart:
             self.__onDragStart(event)
+        self.__startDragPos = self.__node.pos
 
     def __move(self, event):
         self.__node.x = self.__startDragPos[0]+event.x-event.lastdownpos[0]
