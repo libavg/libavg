@@ -82,9 +82,6 @@ class PlayerTestCase(AVGTestCase):
         pt -= avg.Point2D(6, 6)
         self.assert_(pt == avg.Point2D(14, 14))
         self.assert_(pt != avg.Point2D(13, 13))
-        pt /= 2
-        self.assert_(pt == avg.Point2D(7, 7))
-        pt = 2*pt
         pt = pt/2.
         self.assert_(pt == avg.Point2D(7, 7))
         pt = avg.Point2D((10, 10))
