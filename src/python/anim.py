@@ -19,6 +19,13 @@ except ValueError:
 def getNumRunningAnims():
     return len(g_ActiveAnimations)
 
+def abortAnim(node, attrName):
+    global g_ActiveAnimations
+    if g_ActiveAnimations.has_key((node, attrName)):
+        curAnim = g_ActiveAnimations.get((node, attrName))
+        curAnim._remove()
+ 
+
 class SimpleAnim:
     """
     Base class for animations that change libavg node attributes by interpolating
@@ -33,9 +40,7 @@ class SimpleAnim:
     def __init__(self, node, attrName, duration, useInt, onStop):
         global g_Player
         global g_ActiveAnimations
-        if g_ActiveAnimations.has_key((node, attrName)):
-            oldAnim = g_ActiveAnimations.get((node, attrName))
-            oldAnim._remove()
+        abortAnim(node, attrName)
         g_ActiveAnimations[(node, attrName)] = self
 
         g_Player = avg.Player.get()
