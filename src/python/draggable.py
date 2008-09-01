@@ -21,7 +21,7 @@ class Draggable:
         self.__isDragging = False
 
     def enable(self):
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__start)
+        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__onStart)
 
     def disable(self):
         if self.__isDragging:
@@ -31,40 +31,46 @@ class Draggable:
         self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, None)
 
     def startDrag(self, event):
-        self.__start(event)
+        self.__onStart(event)
 
     def isDragging(self):
         return self.__isDragging
 
-    def __start(self, event):
+    def __onStart(self, event):
+        self.__cursorID = event.cursorid
         self.__isDragging = True
         groupsNode = self.__node.getParent()
         groupsNode.reorderChild(groupsNode.indexOf(self.__node), 
                 groupsNode.getNumChildren()-1)
-        self.__node.setEventCapture()
+        self.__node.setEventCapture(event.cursorid)
         self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, None)
-        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE | avg.TOUCH, self.__move)
-        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, self.__stop)
+        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE | avg.TOUCH, self.__onMove)
+        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, self.__onStop)
         if self.__onDragStart:
             self.__onDragStart(event)
         self.__startDragPos = self.__node.pos
 
-    def __move(self, event):
-        self.__node.x = self.__startDragPos[0]+event.x-event.lastdownpos[0]
-        self.__node.y = self.__startDragPos[1]+event.y-event.lastdownpos[1]
-        if self.__onDragMove:
-            self.__onDragMove(event)
+    def __onMove(self, event):
+        if event.cursorid == self.__cursorID:
+            self.__node.x = self.__startDragPos[0]+event.x-event.lastdownpos[0]
+            self.__node.y = self.__startDragPos[1]+event.y-event.lastdownpos[1]
+            if self.__onDragMove:
+                self.__onDragMove(event)
 
-    def __stop(self, event):
-        self.__isDragging = False
-        if event:
-            self.__move(event)
-        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__start)
-        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE | avg.TOUCH, None)
-        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, None)
-        self.__node.releaseEventCapture()
+    def __onStop(self, event):
+        if event.cursorid == self.__cursorID:
+            self.__onMove(event)
+        self.__stop()
         if self.__onDragEnd:
             self.__onDragEnd(event)
+    
+    def __stop(self):
+        self.__isDragging = False
+        self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, self.__onStart)
+        self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE | avg.TOUCH, None)
+        self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, None)
+        self.__node.releaseEventCapture(self.__cursorID)
+
 
 def init(g_avg):
     global avg
