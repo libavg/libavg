@@ -146,6 +146,9 @@ void Image::setBitmap(const Bitmap * pBmp)
         }
         BitmapPtr pSurfaceBmp = getSurface()->lockBmp();
         pSurfaceBmp->copyPixels(*pBmp);
+        if (pf != I8) {
+            FilterFlipRGB().applyInPlace(pSurfaceBmp);
+        }
         getSurface()->unlockBmps();
         getDisplayEngine()->surfaceChanged(getSurface());
     } else {

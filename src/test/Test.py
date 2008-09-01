@@ -593,6 +593,25 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testMove2", False)
                 ))
 
+    def testSetBitmap(self):
+        def setBitmap():
+            node = Player.createNode('image',{'y':65})
+            bitmap = avg.Bitmap('rgb24-65x65.png')
+            node.setBitmap(bitmap)
+            parent = Player.getElementByID("mainavgnode")
+            parent.appendChild(node)
+        def setBitmapLinked():
+            node = Player.getElementByID("mainimg")
+            bitmap = avg.Bitmap('rgb24-65x65.png')
+            node.setBitmap(bitmap)
+        self.start("setbitmap.avg",
+                (
+                    setBitmap,
+                    lambda: self.compareImage("testSetBitmap", False),
+                    setBitmapLinked,
+                    lambda: self.compareImage("testSetBitmapLinked", False),
+                ))
+
     def testBlend(self):
         self.start("blend.avg",
                 [lambda: self.compareImage("testBlend", False)])
@@ -1230,6 +1249,7 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testPanoImage", bpp))
     suite.addTest(PlayerTestCase("testBroken", bpp))
     suite.addTest(PlayerTestCase("testMove", bpp))
+    suite.addTest(PlayerTestCase("testSetBitmap", bpp))
     suite.addTest(PlayerTestCase("testBlend", bpp))
     suite.addTest(PlayerTestCase("testCropImage", bpp))
     suite.addTest(PlayerTestCase("testCropMovie", bpp))
