@@ -25,7 +25,7 @@ class Draggable:
 
     def disable(self):
         if self.__isDragging:
-            self.__stop(None)
+            self.__stop()
         self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, None)
         self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE | avg.TOUCH, None)
         self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, None)
