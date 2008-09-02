@@ -141,14 +141,15 @@ void Image::setBitmap(const Bitmap * pBmp)
 //    cerr << "setBitmap, pf: " << Bitmap::getPixelFormatString(pf) << endl;
     if (isDisplayAvailable()) {
         ISurface * pSurface = getSurface();
-        if (pSurface->getSize() != pBmp->getSize() || pSurface->getPixelFormat() != pf) {
-            pSurface->create(pBmp->getSize(), pf, true);
+        BitmapPtr pTempBmp = BitmapPtr(new Bitmap(*pBmp));
+        if (pf != I8) {
+            FilterFlipRGB().applyInPlace(pTempBmp);
+        }
+        if (pSurface->getSize() != pTempBmp->getSize() || pSurface->getPixelFormat() != pf) {
+            pSurface->create(pTempBmp->getSize(), pf, true);
         }
         BitmapPtr pSurfaceBmp = getSurface()->lockBmp();
-        pSurfaceBmp->copyPixels(*pBmp);
-        if (pf != I8) {
-            FilterFlipRGB().applyInPlace(pSurfaceBmp);
-        }
+        pSurfaceBmp->copyPixels(*pTempBmp);
         getSurface()->unlockBmps();
         getDisplayEngine()->surfaceChanged(getSurface());
     } else {

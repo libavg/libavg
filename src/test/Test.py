@@ -600,16 +600,18 @@ class PlayerTestCase(AVGTestCase):
             node.setBitmap(bitmap)
             parent = Player.getElementByID("mainavgnode")
             parent.appendChild(node)
-        def setBitmapLinked():
-            node = Player.getElementByID("mainimg")
+        def setBitmapLinked(nodeID):
+            node = Player.getElementByID(nodeID)
             bitmap = avg.Bitmap('rgb24-65x65.png')
             node.setBitmap(bitmap)
         self.start("setbitmap.avg",
                 (
                     setBitmap,
-                    lambda: self.compareImage("testSetBitmap", False),
-                    setBitmapLinked,
-                    lambda: self.compareImage("testSetBitmapLinked", False),
+                    lambda: self.compareImage("testSetBitmap1", False),
+                    lambda: setBitmapLinked("fullimg"),
+                    lambda: self.compareImage("testSetBitmap2", False),
+                    lambda: setBitmapLinked("emptyimg"),
+                    lambda: self.compareImage("testSetBitmap3", False),
                 ))
 
     def testBlend(self):

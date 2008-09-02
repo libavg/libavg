@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 <avg id="mainavgnode" width="160" height="120">
-  <image id="mainimg" href="rgb24-65x65.png"/>
+  <image id="fullimg" href="rgb24-65x65.png"/>
+  <image id="emptyimg" x="65"/>
 </avg>
