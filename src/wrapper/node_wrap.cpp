@@ -226,7 +226,10 @@ void export_node()
                 "The source filename of the sound.\n")
         .add_property("loop", &Sound::getLoop,
                 "Whether to start the sound again when it has ended (ro).\n")
+        .add_property("duration", &Sound::getDuration,
+                "The duration of the sound file in milliseconds (ro).\n")
     ;
+
     class_<PanoImage, bases<Node> >("PanoImage",
             "A panorama image displayed in cylindrical projection.\n",
             no_init)
