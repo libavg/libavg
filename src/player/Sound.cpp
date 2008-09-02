@@ -50,6 +50,7 @@ NodeDefinition Sound::getNodeDefinition()
         .extendDefinition(Node::getNodeDefinition())
         .addArg(Arg<string>("href", "", false, offsetof(Sound, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(Sound, m_bLoop)))
+        .addArg(Arg<double>("volume", 1.0, false, offsetof(Sound, m_Volume)))
         ;
 }
 
