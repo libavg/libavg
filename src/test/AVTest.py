@@ -153,7 +153,10 @@ class SoundTestCase(AVTestCase):
                     {"href": "../video/testfiles/"+filename})
             Player.getRootNode().appendChild(node)
             self.start(None,
-                    (lambda: node.play(),
+                    (
+#                     lambda: setVolume(0.5),
+#                     lambda: testGetVolume(0.5),
+                     lambda: node.play(),
                      None,
                      lambda: node.stop(),
                      lambda: node.play(),
