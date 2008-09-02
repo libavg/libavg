@@ -173,6 +173,11 @@ void Sound::setHRef(const string& href)
     checkReload();
 }
 
+double Sound::getVolume()
+{
+    return m_Volume;
+}
+
 void Sound::setVolume(double Volume)
 {
     if (Volume < 0) {

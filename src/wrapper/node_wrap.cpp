@@ -228,6 +228,11 @@ void export_node()
                 "Whether to start the sound again when it has ended (ro).\n")
         .add_property("duration", &Sound::getDuration,
                 "The duration of the sound file in milliseconds (ro).\n")
+        .add_property("volume", &Sound::getVolume, &Sound::setVolume,
+                "Audio playback volume for this sound. 0 is silence, 1 passes media\n"
+                "file volume through unchanged. Values higher than 1 can be used to\n"
+                "amplify sound if the sound file doesn't use the complete dynamic\n"
+                "range.\n")
     ;
 
     class_<PanoImage, bases<Node> >("PanoImage",

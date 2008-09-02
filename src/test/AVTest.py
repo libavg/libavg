@@ -144,6 +144,10 @@ class SoundTestCase(AVTestCase):
         AVGTestCase.__init__(self, testFuncName, 24)
     def testSound(self):
         def testSoundFile(filename):
+            def setVolume(volume):
+                node.volume = volume
+            def testGetVolume(volume):
+                self.assert_(node.volume == volume)
             self._loadEmpty()
             node = Player.createNode("sound",
                     {"href": "../video/testfiles/"+filename})
@@ -155,8 +159,12 @@ class SoundTestCase(AVTestCase):
                      lambda: node.play(),
                      lambda: node.pause(),
                      lambda: node.play(),
+                     lambda: setVolume(0.5),
+                     lambda: testGetVolume(0.5),
                      lambda: node.pause(),
                      lambda: node.stop(),
+                     lambda: setVolume(0.3),
+                     lambda: testGetVolume(0.3),
                      lambda: node.pause()
                     ))
         Player.setFakeFPS(-1)

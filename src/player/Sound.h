@@ -52,6 +52,7 @@ class Sound : public Node, IFrameListener, IAudioSource
 
         const std::string& getHRef() const;
         void setHRef(const std::string& href);
+        double getVolume();
         void setVolume(double Volume);
         void checkReload();
 
