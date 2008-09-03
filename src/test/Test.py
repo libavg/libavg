@@ -1244,13 +1244,18 @@ class PlayerTestCase(AVGTestCase):
         def testEscape3():
             Player.stopOnEscape(True)
             pressEscape()
+        def setAlive():
+            self.testStopOnEscapeAlive = True
 
+        self.testStopOnEscapeAlive = False
         self.start('avg.avg',
                 (testEscape1,
                 testEscape2,
-                # TODO: assert this point is reached
-                testEscape3, # this should exit the player
-                lambda: self.assert_(False)
+                setAlive))
+        self.assert_(self.testStopOnEscapeAlive)
+        self.start('avg.avg',
+                (testEscape3, # this should exit the player
+                lambda: self.assert_(False),
                 ))
             
 def playerTestSuite(bpp):
