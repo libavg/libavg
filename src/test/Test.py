@@ -1228,6 +1228,30 @@ class PlayerTestCase(AVGTestCase):
                      removeFromTree
                     ))
         runTest()
+    def testStopOnEscape(self):
+        def pressEscape():
+            Helper = Player.getTestHelper()
+            escape = 27
+            Helper.fakeKeyEvent(avg.KEYDOWN, escape, escape, "escape", escape, avg.KEYMOD_NONE),
+            Helper.fakeKeyEvent(avg.KEYUP, escape, escape, "escape", escape, avg.KEYMOD_NONE),
+        def testEscape1():
+            Player.stopOnEscape(False)
+            pressEscape()
+        def testEscape2():
+            Player.stopOnEscape(True)
+            Player.stopOnEscape(False)
+            pressEscape()
+        def testEscape3():
+            Player.stopOnEscape(True)
+            pressEscape()
+
+        self.start('avg.avg',
+                (testEscape1,
+                testEscape2,
+                # TODO: assert this point is reached
+                testEscape3, # this should exit the player
+                lambda: self.assert_(False)
+                ))
             
 def playerTestSuite(bpp):
     rmBrokenDir()
@@ -1271,6 +1295,7 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testDynamicEventCapture", bpp))
     suite.addTest(PlayerTestCase("testMediaDir", bpp))
     suite.addTest(PlayerTestCase("testGPUMemoryQuery", bpp))
+    suite.addTest(PlayerTestCase("testStopOnEscape", bpp))
     return suite
 
 def runConsoleTest():

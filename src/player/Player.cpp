@@ -93,6 +93,7 @@ Player::Player()
       m_pEventCaptureNode(),
       m_bUseFakeCamera(false),
       m_MaxGPUMemUsed(0),
+      m_bStopOnEscape(true),
       m_bIsPlaying(false),
       m_bFakeFPS(false),
       m_FakeFPS(0),
@@ -1028,7 +1029,10 @@ bool Player::handleEvent(EventPtr pEvent)
     {
         pEvent->trace();
         m_pRootNode->handleEvent(pKeyEvent);
-        if (pEvent->getType() == Event::KEYDOWN && pKeyEvent->getKeyCode() == 27) {
+        if (m_bStopOnEscape
+                && pEvent->getType() == Event::KEYDOWN
+                && pKeyEvent->getKeyCode() == avg::key::KEY_ESCAPE)
+        {
             m_bStopping = true;
         }
     } else {
@@ -1177,6 +1181,11 @@ DisplayEngine * Player::getDisplayEngine() const
 void Player::useFakeCamera(bool bFake)
 {
     m_bUseFakeCamera = bFake;
+}
+
+void Player::stopOnEscape(bool bStop)
+{
+    m_bStopOnEscape = bStop;
 }
 
 void Player::setVolume(double volume)

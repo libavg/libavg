@@ -105,6 +105,7 @@ class Player : IEventSink
         virtual bool handleEvent(EventPtr pEvent);
         DisplayEngine * getDisplayEngine() const;
         void useFakeCamera(bool bFake);
+        void stopOnEscape(bool bStop);
         void setVolume(double volume);
         double getVolume() const;
         long long getGPUMemoryUsage();
@@ -174,6 +175,8 @@ class Player : IEventSink
         bool m_bUseFakeCamera;
         VSyncMode m_VSyncMode;
         long long m_MaxGPUMemUsed;
+
+        bool m_bStopOnEscape;
 
         bool m_bIsPlaying;
 

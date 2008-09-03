@@ -286,6 +286,10 @@ BOOST_PYTHON_MODULE(avg)
                 return_value_policy<manage_new_object>(),
                 "screenshot() -> bitmap\n"
                 "Returns the contents of the current screen as a bitmap.\n")
+        .def("stopOnEscape", &Player::stopOnEscape,
+                "stopOnEscape(stop)\n"
+                "Toggles player stop upon escape keystroke.\n"
+                "@param stop: True if player should stop on escape\n")
         .def("showCursor", &Player::showCursor,
                 "showCursor(show)\n"
                 "Shows or hides the mouse cursor.\n"
