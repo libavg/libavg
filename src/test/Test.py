@@ -742,17 +742,9 @@ class PlayerTestCase(AVGTestCase):
         def checkFont():
             node = Player.getElementByID("sanstext")
             self.assert_(node.variant=="bold")
-        def checkGlyphPos():
-            def posAlmostEqual(pos1, pos2):
-                return math.fabs(pos1[0]-pos2[0]) <= 2 and math.fabs(pos1[1]-pos2[1]) <= 2
+        def checkUnicodeText():
             node = Player.getElementByID("sanstext")
-            self.assert_(node.getGlyphPos(0) == (0,0))
-            size = node.getGlyphSize(0)
-            self.assert_(posAlmostEqual(size, (9, 15)))
-            self.assert_(posAlmostEqual(node.getGlyphPos(3), (22,0)))
-            size = node.getGlyphSize(3)
-            self.assert_(posAlmostEqual(size, (9, 15)))
-            self.assertException(lambda: node.getGlyphPos(4))
+            node.text = u"föa"
         fontList = avg.Words.getFontFamilies()
         try:
             fontList.index("Bitstream Vera Sans")
@@ -771,8 +763,24 @@ class PlayerTestCase(AVGTestCase):
         self.start(None,
                 (lambda: self.compareImage("testSimpleWords", True),
                  checkFont,
-                 checkGlyphPos
+                 checkUnicodeText
                 ))
+
+    def testGlyphPos(self):
+        def posAlmostEqual(pos1, pos2):
+            return math.fabs(pos1[0]-pos2[0]) <= 2 and math.fabs(pos1[1]-pos2[1]) <= 2
+        node = Player.createNode("words", {"text":"Bold"})
+        self.assert_(node.getGlyphPos(0) == (0,0))
+        size = node.getGlyphSize(0)
+        self.assert_(posAlmostEqual(size, (10, 18)))
+        self.assert_(posAlmostEqual(node.getGlyphPos(3), (22,0)))
+        size = node.getGlyphSize(3)
+        self.assert_(posAlmostEqual(size, (8, 18)))
+        self.assertException(lambda: node.getGlyphPos(4))
+        node.text=u"föa"
+        self.assert_(posAlmostEqual(node.getGlyphPos(1), (6,0)))
+        self.assert_(posAlmostEqual(node.getGlyphPos(2), (15,0)))
+        self.assertException(lambda: node.getGlyphPos(3))
 
     def testParaWords(self):
         self.start("paratext.avg",
@@ -1285,6 +1293,7 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testCropImage", bpp))
     suite.addTest(PlayerTestCase("testCropMovie", bpp))
     suite.addTest(PlayerTestCase("testSimpleWords", bpp))
+    suite.addTest(PlayerTestCase("testGlyphPos", bpp))
     suite.addTest(PlayerTestCase("testParaWords", bpp))
     suite.addTest(PlayerTestCase("testSpanWords", bpp))
     suite.addTest(PlayerTestCase("testWordsBR", bpp))

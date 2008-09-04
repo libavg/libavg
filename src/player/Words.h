@@ -24,6 +24,7 @@
 
 #include "RasterNode.h"
 #include "../graphics/Pixel32.h"
+#include "../base/UTF8String.h"
 
 #include <pango/pango.h>
 #include <fontconfig/fontconfig.h>
@@ -62,8 +63,8 @@ class Words : public RasterNode
         const std::string& getFontVariant() const;
         void setFontVariant(const std::string& sVariant);
 
-        const std::string& getText() const; 
-        void setText(const std::string& sText);
+        const UTF8String& getText() const; 
+        void setText(const UTF8String& sText);
         
         const std::string& getColor() const;
         void setColor(const std::string& sColor);
@@ -95,8 +96,8 @@ class Words : public RasterNode
         void drawString();
         void parseString(PangoAttrList** ppAttrList, char** ppText);
         Pixel32 colorStringToColor(const std::string & colorString);
-        void setParsedText(const std::string& sText);
-        std::string applyBR(const std::string& sText);
+        void setParsedText(const UTF8String& sText);
+        UTF8String applyBR(const UTF8String& sText);
         std::string removeExcessSpaces(const std::string & sText);
         PangoRectangle getGlyphRect(int i);
 
@@ -108,7 +109,7 @@ class Words : public RasterNode
         // Exposed Attributes
         std::string m_sFontName;
         std::string m_sFontVariant;
-        std::string m_sText;
+        UTF8String m_sText;
         std::string m_sColorName;
         Pixel32 m_Color;
         double m_Size;

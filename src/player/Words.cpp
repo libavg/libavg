@@ -150,9 +150,9 @@ Words::~Words ()
     }
 }
 
-void Words::initText(const std::string& sText)
+void Words::initText(const string& sText)
 {
-    string sTemp = removeExcessSpaces(sText);
+    UTF8String sTemp = removeExcessSpaces(sText);
     if (sText.length() != 0) {
         setParsedText(sTemp);
     }
@@ -259,12 +259,12 @@ void Words::setFontVariant(const std::string& sVariant)
     m_bDrawNeeded = true;
 }
 
-const std::string& Words::getText() const 
+const UTF8String& Words::getText() const 
 {
     return m_sText;
 }
 
-void Words::setText(const std::string& sText)
+void Words::setText(const UTF8String& sText)
 {
     if (m_sText != sText) {
         setParsedText(sText);
@@ -413,7 +413,7 @@ PangoFontFamily * Words::getFontFamily(const string& sFamily)
 
 void Words::parseString(PangoAttrList** ppAttrList, char** ppText)
 {
-    string sTextWithoutBreaks = applyBR(m_sText);
+    UTF8String sTextWithoutBreaks = applyBR(m_sText);
     bool bOk;
     GError * pError = 0;
     bOk = (pango_parse_markup(sTextWithoutBreaks.c_str(), 
@@ -431,7 +431,7 @@ static ProfilingZone DrawStringProfilingZone("  Words::drawString");
 
 void Words::drawString()
 {
-    if (!m_bDrawNeeded || !isDisplayAvailable()) {
+    if (!m_bDrawNeeded) {
         return;
     }
     ScopeTimer Timer(DrawStringProfilingZone);
@@ -544,35 +544,38 @@ void Words::drawString()
             m_StringExtents.y = 1;
         }
 //        cerr << "libavg Extents: " << m_StringExtents << endl;
-        getSurface()->create(m_StringExtents, I8, false);
+        if (isDisplayAvailable()) {
+            getSurface()->create(m_StringExtents, I8, false);
 
-        BitmapPtr pBmp = getSurface()->lockBmp();
-        FilterFill<unsigned char>(0).applyInPlace(pBmp);
-        FT_Bitmap bitmap;
-        bitmap.rows = m_StringExtents.y;
-        bitmap.width = m_StringExtents.x;
-        unsigned char * pLines = pBmp->getPixels();
-        bitmap.pitch = pBmp->getStride();
-        bitmap.buffer = pLines;
-        bitmap.num_grays = 256;
-        bitmap.pixel_mode = ft_pixel_mode_grays;
+            BitmapPtr pBmp = getSurface()->lockBmp();
+            FilterFill<unsigned char>(0).applyInPlace(pBmp);
+            FT_Bitmap bitmap;
+            bitmap.rows = m_StringExtents.y;
+            bitmap.width = m_StringExtents.x;
+            unsigned char * pLines = pBmp->getPixels();
+            bitmap.pitch = pBmp->getStride();
+            bitmap.buffer = pLines;
+            bitmap.num_grays = 256;
+            bitmap.pixel_mode = ft_pixel_mode_grays;
 
-        int yoffset = 0;
-        if (ink_rect.y < 0) {
-            yoffset = -ink_rect.y;
-        }
+            int yoffset = 0;
+            if (ink_rect.y < 0) {
+                yoffset = -ink_rect.y;
+            }
 
-        // Use 1 as x position here to make sure italic text is never cut off.
-        pango_ft2_render_layout(&bitmap, m_pLayout, 1, yoffset);
+            // Use 1 as x position here to make sure italic text is never cut off.
+            pango_ft2_render_layout(&bitmap, m_pLayout, 1, yoffset);
 
-        getDisplayEngine()->surfaceChanged(getSurface());
-        if (m_LineSpacing == -1) {
-            m_LineSpacing = pango_layout_get_spacing(m_pLayout)/PANGO_SCALE;
+            getDisplayEngine()->surfaceChanged(getSurface());
+            if (m_LineSpacing == -1) {
+                m_LineSpacing = pango_layout_get_spacing(m_pLayout)/PANGO_SCALE;
+            }
         }
     }
-    m_bDrawNeeded = false;
-
-    setViewport(-32767, -32767, -32767, -32767);
+    if (isDisplayAvailable()) {
+        m_bDrawNeeded = false;
+        setViewport(-32767, -32767, -32767, -32767);
+    }
 }
 
 void Words::preRender()
@@ -623,17 +626,19 @@ string Words::removeExcessSpaces(const string & sText)
         
 PangoRectangle Words::getGlyphRect(int i)
 {
-    if (i >= int(m_sText.length())) {
+    if (i >= int(g_utf8_strlen(m_sText.c_str(), -1))) {
         throw(Exception(AVG_ERR_INVALID_ARGS, 
                 string("getGlyphRect: Index ") + toString(i) + " out of range."));
     }
+    char * pChar = g_utf8_offset_to_pointer(m_sText.c_str(), i);
+    int byteOffset = pChar-m_sText.c_str();
     drawString();
     PangoRectangle rect;
-    pango_layout_index_to_pos(m_pLayout, i, &rect);
+    pango_layout_index_to_pos(m_pLayout, byteOffset, &rect);
     return rect;
 }
 
-void Words::setParsedText(const std::string& sText)
+void Words::setParsedText(const UTF8String& sText)
 {
     m_sText = removeExcessSpaces(sText);
     m_bDrawNeeded = true;
@@ -648,10 +653,10 @@ void Words::setParsedText(const std::string& sText)
     m_bParsedText = true;
 }
 
-string Words::applyBR(const string& sText)
+UTF8String Words::applyBR(const UTF8String& sText)
 {
-    string sResult(sText);
-    string sLowerText = tolower(sResult); 
+    UTF8String sResult(sText);
+    UTF8String sLowerText = tolower(sResult); 
     string::size_type pos=sLowerText.find("<br/>");
     while (pos != string::npos) {
         sResult.replace(pos, 5, "\n");
