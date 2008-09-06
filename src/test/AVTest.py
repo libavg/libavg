@@ -17,8 +17,10 @@ if platform.system() == 'Windows':
 else:
     import avg
 
-from testcase import *
+SrcDir = os.getenv("srcdir",".")
+os.chdir(SrcDir)
 
+from testcase import *
 
 class AVTestCase(AVGTestCase):
     def __init__(self, testFuncName):
