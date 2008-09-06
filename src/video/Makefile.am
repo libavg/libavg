@@ -11,6 +11,8 @@ TESTS=testvideo
 
 EXTRA_DIST = $(wildcard testfiles/*.mov) $(wildcard testfiles/*.mpg) \
         $(wildcard testfiles/*.avi) $(wildcard testfiles/*.h264) \
+		$(wildcard testfiles/*.wav) $(wildcard testfiles/*.ogg) \
+		$(wildcard testfiles/*.mp3) $(wildcard testfiles/*.aif) \
 		$(wildcard testfiles/baseline/*.png)
 
 noinst_LTLIBRARIES = libvideo.la
