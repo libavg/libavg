@@ -235,7 +235,7 @@ private:
         Bmp.drawLine(IntPoint(7,7), IntPoint(12,14), Color);
         Bmp.drawLine(IntPoint(7,7), IntPoint(14, 2), Color);
         Bmp.drawLine(IntPoint(7,7), IntPoint(14,12), Color);
-        string sFName = getSrcDir()+"baseline/LineResult"+Bitmap::getPixelFormatString(PF)+".png";
+        string sFName = getSrcDirName()+"baseline/LineResult"+Bitmap::getPixelFormatString(PF)+".png";
 //        Bmp.save(sFName);
         Bitmap BaselineBmp(sFName);
         Bitmap BaselineBmp2(IntPoint(15,15), PF);
@@ -709,7 +709,7 @@ private:
         BitmapPtr pDestBmp = FilterMask(pMaskBmp).apply(pBmp);
         string sFName = string("baseline/MaskResult")+sName+".png";
 //        pDestBmp->save(sFName);
-        sFName = getSrcDir()+sFName;
+        sFName = getSrcDirName()+sFName;
         BitmapPtr pRGBXBaselineBmp = BitmapPtr(new Bitmap(sFName));
         BitmapPtr pBaselineBmp = BitmapPtr(
                 new Bitmap(pRGBXBaselineBmp->getSize(), pBmp->getPixelFormat()));

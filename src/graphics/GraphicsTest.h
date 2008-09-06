@@ -45,9 +45,6 @@ private:
     int sumPixels(Bitmap& Bmp);
     bool bmpAlmostEqual(Bitmap& Bmp1, Bitmap& Bmp2);
 
-    static const std::string& getBaseDirName();
-    static std::string s_sBaseDirName;
-
 };
 
 

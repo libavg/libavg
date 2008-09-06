@@ -21,12 +21,16 @@
 
 #include "Test.h"
 
+#include "../base/OSHelper.h"
+
 #include <iostream>
 #include <stdlib.h>
 
 using namespace std;
 
 namespace avg {
+
+string Test::s_sSrcDirName;
 
 Test::Test(const string & sName, int IndentLevel)
     : m_IndentLevel(IndentLevel),
@@ -94,15 +98,16 @@ void Test::printResults()
         
 }
 
-std::string getSrcDir()
+const string& Test::getSrcDirName()
 {
-    char * pSrcDir = getenv("srcdir");
-    if (!pSrcDir) {
-        return "";
-    } else {
-        return string(pSrcDir)+"/";
+    if (s_sSrcDirName == "") {
+        bool bInEnviron = getEnv("srcdir", s_sSrcDirName);
+        if (!bInEnviron) {
+            s_sSrcDirName = ".";
+        }
+        s_sSrcDirName += "/";
     }
-
+    return s_sSrcDirName;
 }
 
 }

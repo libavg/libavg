@@ -137,7 +137,7 @@ public:
     void runTests() 
     {
         TrackerConfig Config;
-        Config.load("avgtrackerrc.minimal");
+        Config.load(getSrcDirName()+"avgtrackerrc.minimal");
         
         Config.setParam("/transform/distortionparams/@p2", "0");
         Config.setParam("/transform/distortionparams/@p3", "0");
@@ -148,13 +148,15 @@ public:
         Config.setParam("/transform/displayscale/@x", "2");
         Config.setParam("/transform/displayscale/@y", "2");
 
-        Config.save("avgtrackerrc.minimal.mod");
+        if (getSrcDirName() == "./") {
+            Config.save(getSrcDirName()+"avgtrackerrc.minimal.mod");
 
-        TrackerConfig LoadedConfig;
-        LoadedConfig.load("avgtrackerrc.minimal.mod");
-        DPoint Scale = LoadedConfig.getPointParam("/transform/displayscale/");
-        TEST(almostEqual(Scale, DPoint(2,2)));
-        unlink("avgtrackerrc.minimal.mod");
+            TrackerConfig LoadedConfig;
+            LoadedConfig.load(getSrcDirName()+"avgtrackerrc.minimal.mod");
+            DPoint Scale = LoadedConfig.getPointParam("/transform/displayscale/");
+            TEST(almostEqual(Scale, DPoint(2,2)));
+            unlink((getSrcDirName()+"avgtrackerrc.minimal.mod").c_str());
+        }
     }
 };
 

@@ -24,7 +24,6 @@
 #include "Filterfliprgb.h"
 #include "Filtergrayscale.h"
 
-#include "../base/OSHelper.h"
 #include "../base/Directory.h"
 #include "../base/Exception.h"
 
@@ -37,8 +36,6 @@ namespace avg {
 using namespace avg;
 using namespace std;
 
-string GraphicsTest::s_sBaseDirName;
-
 GraphicsTest::GraphicsTest(const string& sName, int indentLevel)
         : Test(sName, indentLevel)
 {
@@ -46,7 +43,7 @@ GraphicsTest::GraphicsTest(const string& sName, int indentLevel)
 
 void GraphicsTest::createResultImgDir()
 {
-    Directory dir(getBaseDirName()+"resultimages");
+    Directory dir(getSrcDirName()+"resultimages");
     int ok = dir.open(true);
     if (ok == 0) {
         dir.empty();
@@ -57,7 +54,7 @@ void GraphicsTest::createResultImgDir()
 
 BitmapPtr GraphicsTest::loadTestBmp(const std::string& sFName, PixelFormat pf)
 {
-   BitmapPtr pBmp(new Bitmap(getBaseDirName()+"testfiles/"+sFName+".png"));
+   BitmapPtr pBmp(new Bitmap(getSrcDirName()+"testfiles/"+sFName+".png"));
    if (pf == I8) {
        return FilterGrayscale().apply(pBmp);
    } else {
@@ -70,7 +67,7 @@ void GraphicsTest::testEqual(Bitmap& ResultBmp, const string& sFName, PixelForma
 {
     BitmapPtr pBaselineBmp;
     try {
-        pBaselineBmp = BitmapPtr(new Bitmap(getBaseDirName()+"baseline/"+sFName+".png"));
+        pBaselineBmp = BitmapPtr(new Bitmap(getSrcDirName()+"baseline/"+sFName+".png"));
         if (pf == I8) {
             FilterGrayscale().applyInPlace(pBaselineBmp);
         } else {
@@ -78,7 +75,7 @@ void GraphicsTest::testEqual(Bitmap& ResultBmp, const string& sFName, PixelForma
         }
     } catch (Magick::Exception & ex) {
         cerr << ex.what() << endl;
-        ResultBmp.save(getBaseDirName()+"resultimages/"+sFName+".png");
+        ResultBmp.save(getSrcDirName()+"resultimages/"+sFName+".png");
         throw;
     }
     testEqual(ResultBmp, *pBaselineBmp, sFName);
@@ -91,7 +88,7 @@ void GraphicsTest::testEqual(Bitmap& ResultBmp, Bitmap& BaselineBmp,
     if (!bmpAlmostEqual(ResultBmp, BaselineBmp)) {
         ResultBmp.dump();
         BaselineBmp.dump();
-        string sResultName = getBaseDirName()+"resultimages/"+sFName;
+        string sResultName = getSrcDirName()+"resultimages/"+sFName;
         cerr << "Saving result image to " << sResultName << endl;
         ResultBmp.save(sResultName+".png");
         BaselineBmp.save(sResultName+"_expected.png");
@@ -168,18 +165,6 @@ bool GraphicsTest::bmpAlmostEqual(Bitmap& Bmp1, Bitmap& Bmp2)
         }
     }
     return true;
-}
-
-const string& GraphicsTest::getBaseDirName()
-{
-    if (s_sBaseDirName == "") {
-        bool bInEnviron = getEnv("srcdir", s_sBaseDirName);
-        if (!bInEnviron) {
-            s_sBaseDirName = ".";
-        }
-        s_sBaseDirName += "/";
-    }
-    return s_sBaseDirName;
 }
 
 };

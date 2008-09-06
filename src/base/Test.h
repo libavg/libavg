@@ -49,6 +49,9 @@ public:
     virtual void printResults();
 
 protected:
+    static const std::string& getSrcDirName();
+    static std::string s_sSrcDirName;
+
     int m_IndentLevel;
 
 private:
@@ -57,8 +60,6 @@ private:
     int m_NumFailed;
     std::string m_sName;
 };
-
-std::string getSrcDir();
 
 typedef boost::shared_ptr<Test> TestPtr;
 

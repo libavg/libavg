@@ -31,7 +31,7 @@ ALL_CPP = Camera.cpp TrackerThread.cpp TrackerConfig.cpp Blob.cpp FWCamera.cpp R
 
 TESTS=testimaging
 
-EXTRA_DIST = test_comp.png $(wildcard testimages/*.png)
+EXTRA_DIST = avgtrackerrc.minimal $(wildcard testimages/*.png)
 
 noinst_LTLIBRARIES = libimaging.la
 libimaging_la_SOURCES = $(ALL_CPP) $(ALL_H)
