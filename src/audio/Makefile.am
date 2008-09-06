@@ -15,4 +15,4 @@ libaudio_la_SOURCES = AudioEngine.cpp AudioBuffer.cpp AudioParams.cpp \
 
 testlimiter_SOURCES = testlimiter.cpp $(ALL_H)
 testlimiter_LDADD = ./libaudio.la ../base/libbase.la
-testlimiter_LDFLAGS = 
+testlimiter_LDFLAGS = -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@
