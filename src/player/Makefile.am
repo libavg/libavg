@@ -21,13 +21,13 @@ else
 endif
 
 GL_SOURCES = OGLSurface.cpp SDLDisplayEngine.cpp OGLTexture.cpp 
-GL_INCLUDES = SDLDisplayEngine.h OGLHelper.h OGLTexture.h
+GL_INCLUDES = OGLSurface.h SDLDisplayEngine.h OGLTexture.h
 
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
 ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
-        DisplayEngine.h NodeFactory.h Arg.h ArgList.h Region.h Node.h \
-        ISurface.h DisplayParams.h NodeDefinition.h \
+        DisplayEngine.h NodeFactory.h Arg.h ArgBase.h ArgList.h Region.h \
+        Node.h ISurface.h DisplayParams.h NodeDefinition.h \
         AVGNode.h DivNode.h CursorState.h \
         Image.h Timeout.h Words.h WrapPython.h\
         EventDispatcher.h CursorEvent.h MouseEvent.h \

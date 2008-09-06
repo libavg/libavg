@@ -17,7 +17,7 @@ ALL_H = Bitmap.h Filter.h\
         FilterGauss.h FilterBandpass.h FilterBlur.h FilterMask.h \
         OGLHelper.h OGLShader.h GL/gl.h GL/glext.h GL/glu.h GL/glx.h \
         FBOImage.h PBOImage.h VertexArray.h OGLImagingContext.h \
-        GPUBrightnessFilter.h GPUBlurFilter.h \
+        GPUBrightnessFilter.h GPUBlurFilter.h GraphicsTest.h\
         GPUFilter.h GPUBandpassFilter.h FilterIntensity.h \
         FilterNormalize.h \
         $(APPLE_INCLUDES)

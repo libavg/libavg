@@ -219,8 +219,8 @@ int main(int nargs, char** args)
             cerr << "Exception: " << ex.GetStr() << endl;
         }
     } catch (Exception& ex) {
-        cerr << "Failed to create OGL context: " << ex.GetStr() << endl;
         cerr << "Skipping GPU imaging test." << endl;
+        cerr << "Reason: " << ex.GetStr() << endl;
         bOK = true;
     }
 
