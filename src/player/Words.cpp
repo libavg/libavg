@@ -164,9 +164,10 @@ text_subst_func (FcPattern *pattern, gpointer data)
 {
 //  GimpText *text = GIMP_TEXT (data);
 
-  FcPatternAddBool (pattern, FC_HINTING, true);
-  FcPatternAddBool (pattern, FC_AUTOHINT, true);
-  FcPatternAddBool (pattern, FC_ANTIALIAS, true);
+  FcPatternAddBool(pattern, FC_HINTING, true);
+  FcPatternAddInteger(pattern, FC_HINT_STYLE, FC_HINT_MEDIUM);
+  FcPatternAddInteger(pattern, FC_RGBA, FC_RGBA_NONE);
+  FcPatternAddBool(pattern, FC_ANTIALIAS, true);
 }
 
 void Words::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)

@@ -38,5 +38,10 @@ cd ..
 
 cd ffmpeg
 patch -p0 <../../libavg/mac/ffmpeg.patch
+cd ..
+
+cd freetype-2.3.5
+patch -p1 <../../libavg/mac/freetype.hinting.patch
+cd ..
 
 echo "Done"

@@ -778,8 +778,9 @@ class PlayerTestCase(AVGTestCase):
         self.assert_(posAlmostEqual(size, (8, 18)))
         self.assertException(lambda: node.getGlyphPos(4))
         node.text=u"föa"
-        self.assert_(posAlmostEqual(node.getGlyphPos(1), (6,0)))
-        self.assert_(posAlmostEqual(node.getGlyphPos(2), (15,0)))
+        self.assert_(posAlmostEqual(node.getGlyphPos(1), (4,0)))
+#        print [ node.getGlyphPos(i) for i in range(3)]
+        self.assert_(posAlmostEqual(node.getGlyphPos(2), (12,0)))
         self.assertException(lambda: node.getGlyphPos(3))
 
     def testParaWords(self):
