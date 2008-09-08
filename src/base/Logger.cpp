@@ -50,6 +50,7 @@ const long Logger::ERROR=128;
 const long Logger::MEMORY=256;
 const long Logger::APP=512;
 const long Logger::LOGGER=1024;
+const long Logger::WATCHDOG=2048;
 
 Logger* Logger::m_pLogger = 0;
 boost::mutex log_Mutex;
@@ -205,6 +206,8 @@ const char * Logger::categoryToString(int category)
             return "APP";
         case LOGGER:
             return "LOGGER";
+        case WATCHDOG:
+            return "WATCHDOG";
         default:
             return "UNKNOWN";
     }

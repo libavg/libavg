@@ -54,6 +54,7 @@ public:
     static const long CONFIG;  
     static const long WARNING;
     static const long ERROR;  
+    static const long WATCHDOG;  
 
     static const long MEMORY;
     static const long APP;
