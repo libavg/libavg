@@ -635,7 +635,15 @@ PangoRectangle Words::getGlyphRect(int i)
     int byteOffset = pChar-m_sText.c_str();
     drawString();
     PangoRectangle rect;
-    pango_layout_index_to_pos(m_pLayout, byteOffset, &rect);
+    
+    if (m_pLayout && byteOffset >=0) {
+        pango_layout_index_to_pos(m_pLayout, byteOffset, &rect);
+    } else {
+        rect.x = 0;
+        rect.y = 0;
+        rect.width = 0;
+        rect.height = 0;
+    }
     return rect;
 }
 
