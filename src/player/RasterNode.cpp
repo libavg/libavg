@@ -218,11 +218,11 @@ string RasterNode::getTypeStr ()
     return "RasterNode";
 }
 
-void RasterNode::checkDisplayAvailable(char *pMsg)
+void RasterNode::checkDisplayAvailable(std::string sMsg)
 {
     if (!getOGLSurface()) {
         throw Exception(AVG_ERR_UNSUPPORTED,
-            string(pMsg) + ": cannot access vertex coordinates before Player.play().");
+            string(sMsg) + ": cannot access vertex coordinates before Player.play().");
     }
 }
 
