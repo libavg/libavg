@@ -94,18 +94,21 @@ void RasterNode::disconnect()
 VertexGrid RasterNode::getOrigVertexCoords()
 {
     OGLSurface * pOGLSurface = getOGLSurface();
+    checkDisplayAvailable("getOrigVertexCoords");
     return pOGLSurface->getOrigVertexCoords();
 }
 
 VertexGrid RasterNode::getWarpedVertexCoords() 
 {
     OGLSurface * pOGLSurface = getOGLSurface();
+    checkDisplayAvailable("getWarpedVertexCoords");
     return pOGLSurface->getWarpedVertexCoords();
 }
 
 void RasterNode::setWarpedVertexCoords(const VertexGrid& Grid)
 {
     OGLSurface * pOGLSurface = getOGLSurface();
+    checkDisplayAvailable("setWarpedVertexCoords");
     pOGLSurface->setWarpedVertexCoords(Grid);
 }
 
@@ -200,7 +203,12 @@ DisplayEngine::BlendMode RasterNode::getBlendMode() const
 ISurface * RasterNode::getSurface()
 {
     if (!m_pSurface) {
-        m_pSurface = getDisplayEngine()->createSurface();
+        DisplayEngine *pDisplayEngine = getDisplayEngine();
+        if (pDisplayEngine) {
+            m_pSurface = pDisplayEngine->createSurface();
+        } else {
+            return 0;
+        }
     }
     return m_pSurface;
 }
@@ -208,6 +216,14 @@ ISurface * RasterNode::getSurface()
 string RasterNode::getTypeStr ()
 {
     return "RasterNode";
+}
+
+void RasterNode::checkDisplayAvailable(char *pMsg)
+{
+    if (!getOGLSurface()) {
+        throw Exception(AVG_ERR_UNSUPPORTED,
+            string(pMsg) + ": cannot access vertex coordinates before Player.play().");
+    }
 }
 
 }

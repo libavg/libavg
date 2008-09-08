@@ -729,7 +729,11 @@ class PlayerTestCase(AVGTestCase):
             grid = node.getOrigVertexCoords()
             grid = [ [ (1-pos[0], pos[1]) for pos in line ] for line in grid]
             node.setWarpedVertexCoords(grid)
-        self.start("video.avg",
+        Player.loadFile("video.avg")
+        node = Player.getElementByID("testtiles")
+        self.assertException(node.getOrigVertexCoords)
+        self.assertException(node.getWarpedVertexCoords)
+        self.start(None,
                 (lambda: Player.getElementByID("clogo1").play(),
                  lambda: self.compareImage("testWarp1", False),
                  moveVertex,

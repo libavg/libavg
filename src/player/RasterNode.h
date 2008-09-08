@@ -72,6 +72,7 @@ class RasterNode: public Node
         ISurface * getSurface();
  
     private:
+        void RasterNode::checkDisplayAvailable(char *pMsg);
         ISurface * m_pSurface;
         
         IntPoint m_MaxTileSize;
