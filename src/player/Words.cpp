@@ -627,7 +627,8 @@ string Words::removeExcessSpaces(const string & sText)
         
 PangoRectangle Words::getGlyphRect(int i)
 {
-    if (i >= int(g_utf8_strlen(m_sText.c_str(), -1))) {
+    
+    if (i >= int(g_utf8_strlen(m_sText.c_str(), -1)) || i < 0) {
         throw(Exception(AVG_ERR_INVALID_ARGS, 
                 string("getGlyphRect: Index ") + toString(i) + " out of range."));
     }
@@ -636,7 +637,7 @@ PangoRectangle Words::getGlyphRect(int i)
     drawString();
     PangoRectangle rect;
     
-    if (m_pLayout && byteOffset >=0) {
+    if (m_pLayout) {
         pango_layout_index_to_pos(m_pLayout, byteOffset, &rect);
     } else {
         rect.x = 0;
