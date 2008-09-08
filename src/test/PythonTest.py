@@ -232,20 +232,22 @@ class PythonTestCase(AVGTestCase):
 
     def testTextArea(self):
         def createTextAreaSet():
+            textarea.init(avg)
             self.ctx1 = textarea.FocusContext()
             self.ctx2 = textarea.FocusContext()
             
-            self.ta1 = textarea.TextArea(Player.getElementByID('placeholder'), self.ctx1)
-            self.ta1.setStyle(font='Bitstream Vera Sans', variant="Roman", size=44, multiline=True)
+            self.ta1 = textarea.TextArea(Player.getElementByID('placeholder'), self.ctx1, id='ta1')
+            self.ta1.setStyle(font='Bitstream Vera Sans', variant="Roman", size=4, multiline=True)
             self.ta1.setText("Lorem ipsum")
 
-            self.ta2 = textarea.TextArea(Player.getElementByID('placeholder_2'), self.ctx1)
-            self.ta2.setStyle(font='Bitstream Vera Sans', variant="Roman", size=12, multiline=False)
+            self.ta2 = textarea.TextArea(Player.getElementByID('placeholder_2'), self.ctx1, id='ta2')
+            self.ta2.setStyle(font='Bitstream Vera Sans', variant="Roman", size=2, multiline=False)
 
-            self.ta3 = textarea.TextArea(Player.getElementByID('placeholder_3'), self.ctx2, '1x1_white.png', True)
-            self.ta3.setStyle(font='Bitstream Vera Sans', variant="Roman", size=18, multiline=True)
+            self.ta3 = textarea.TextArea(Player.getElementByID('placeholder_3'), self.ctx2, '1x1_white.png', True, id='ta3')
+            self.ta3.setStyle(font='Bitstream Vera Sans', variant="Roman", size=3, multiline=True)
             
             textarea.setActiveFocusContext(self.ctx1)
+            
         def setAndCheck(ta, text):
             ta.setText(text)
             self.assert_(ta.getText() == text)
@@ -264,9 +266,9 @@ class PythonTestCase(AVGTestCase):
             self.assert_(self.ta2.getText() == '')
         def longText():
             textarea.setActiveFocusContext(self.ctx2)
-            text = '''
+            text = u'''
 Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec massa nunc, pretium sed,
-sagittis mollis, dignissim vitae, erat. Vestibulum mattis, erat nec pulvinar lacinia,
+sagittis mollis, dignissim vitae, erat. Vestibulum mattis, erat nec pulvinar lacìnia,
 '''
             self.ta3.setText(text)
             self.assert_(len(self.ta3.getText()) == len(text)-1)
@@ -276,23 +278,33 @@ sagittis mollis, dignissim vitae, erat. Vestibulum mattis, erat nec pulvinar lac
             self.__sendEvent(avg.CURSORDOWN, 20, 20)
             self.__sendEvent(avg.CURSORUP, 20, 20)
         def testClickFocus():
+            self.assert_(self.ctx1.getFocused())
+            self.assert_(self.ctx1.getFocused().getID() == 'ta1')
             self.ctx1.keyUCodePressed(textarea.KEYCODE_FORMFEED)
             self.ctx1.keyCharPressed('X')
             self.assert_(self.ta1.getText() == 'X')
         def testUnicode():
-            self.ta1.setText('some ùnìcöde')
+            self.ta1.setText(u'some ùnìcöde')
             self.ctx1.keyUCodePressed(textarea.KEYCODES_BACKSPACE[0])
-            self.assert_(self.ta1.getText() == 'some ùnìcöd')
+            self.assert_(self.ta1.getText() == u'some ùnìcöd')
             self.ctx1.keyUCodePressed(textarea.KEYCODES_BACKSPACE[1])
             self.ctx1.keyUCodePressed(textarea.KEYCODES_BACKSPACE[0])
-            self.assert_(self.ta1.getText() == 'some ùnìc')
+            self.assert_(self.ta1.getText() == u'some ùnìc')
             self.ctx1.keyCharPressed('ò')
-            self.assert_(self.ta1.getText() == 'some ùnìcò')
+            self.assert_(self.ta1.getText() == u'some ùnìcò')
         def testSpecialChars():
-            self.ctx1.keyUCodePressed(textarea.KEYCODE_FORMFEED)
+            self.ctx1.clear()
             self.ctx1.keyCharPressed('&')
             self.ctx1.keyUCodePressed(textarea.KEYCODES_BACKSPACE[0])
             self.assert_(self.ta1.getText() == '')
+        def sendKeyEvents():
+            Helper = Player.getTestHelper()
+            Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 0)
+            Helper.fakeKeyEvent(avg.KEYUP, 65, 65, "A", 65, 0)
+            Helper.fakeKeyEvent(avg.KEYDOWN, 59, 59, ";", 242, 0)
+            Helper.fakeKeyEvent(avg.KEYUP, 59, 59, ";", 242, 0)
+        def testKeyEvents():
+            self.assert_(self.ta1.getText() == u'Aò')
         
         textarea.init(avg, False)
         self.start("TextAreaTest.avg",
@@ -306,7 +318,9 @@ sagittis mollis, dignissim vitae, erat. Vestibulum mattis, erat nec pulvinar lac
                clickFocus,
                testClickFocus,
                testUnicode,
-               testSpecialChars
+               testSpecialChars,
+               sendKeyEvents,
+               testKeyEvents
                ))
 
     def __sendEvent(self, type, x, y):
