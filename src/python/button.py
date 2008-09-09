@@ -39,7 +39,7 @@ class Button:
         return (relPos[0] > 0 and relPos[0] < self.__node.width and
                 relPos[1] > 0 and relPos[1] < self.__node.height)
     def __onDown(self, event):
-        if self.__isDisabled:
+        if self.__isDisabled or self.__isClicking:
             return
         self.__node.setEventCapture(event.cursorid)
         if event.source == avg.MOUSE:
@@ -49,7 +49,7 @@ class Button:
         self.__isClicking = True
         self.__setMode(1)
     def __onUp(self, event):
-        if self.__isDisabled:
+        if self.__isDisabled or not(self.__isClicking):
             return
         self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE, None)
         self.__node.setEventHandler(avg.CURSORUP, avg.TOUCH, None)
@@ -58,7 +58,7 @@ class Button:
         except RuntimeError:
             # Ignore 'releaseEventCapture called, but cursor not captured' errors.
             pass
-        if self.__mode == 1 and self.__isClicking:
+        if self.__mode == 1:
             self.__setMode(2)
             self.__clickCallback(self)
         self.__isClicking = False
