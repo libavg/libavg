@@ -3,7 +3,7 @@
 set -e
 set -x
 
-export VERSION=0.7.1.pre1
+export VERSION=0.8.0.pre1
 export INSTALL_PATH_10_4="/Library/Python/2.3/site-packages/libavg"
 export INSTALL_PATH_10_5="/Library/Python/2.5/site-packages/libavg"
 
