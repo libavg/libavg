@@ -34,23 +34,32 @@ makeOneDist()
     cd libavg
     mkdir avg
     mkdir avg/test
-    cp -Rv ../../lib/python/$PYTHON_VER/site-packages/libavg/ .
+    mkdir avg/video
+    mkdir avg/video/testfiles
+    cp -Rv /Library/Python/$PYTHON_VER/site-packages/libavg/ .
     cp ../../libavg/src/avgrc avg
     mkdir etc
     cp -R /etc/fonts etc/
     cd $LIBAVGDIR/src/test
-    cp -Rv Test.py *.avg *.png *.jpg *.tif *.py *.mov *.mpg *.avi *.h264 ${AVG_PATH}/dist/libavg/avg/test
+    cp -Rv Test.sh *.py *.avg *.png *.jpg *.tif ${AVG_PATH}/dist/libavg/avg/test
     mkdir ${AVG_PATH}/dist/libavg/avg/test/baseline
     cp baseline/* ${AVG_PATH}/dist/libavg/avg/test/baseline
+    
+    cd $LIBAVGDIR/src/video/testfiles/
+    cp -Rv *.mov *.mpg *.avi *.h264 *.wav *.aif *.ogg *.mp3 ${AVG_PATH}/dist/libavg/avg/video/testfiles
 
-    cd $LIBAVGDIR/../dist/libavg
+#    cd $LIBAVGDIR/../dist/libavg
     # Fix up library references and build one version of the package.
-    distLib libMagick++.10 $INSTALL_PATH
-    distLib libWand.10 $INSTALL_PATH
-    fixLib libMagick++.10.dylib libWand.10 $INSTALL_PATH 
-    distLib libMagick.10 $INSTALL_PATH 
-    fixLib libMagick++.10.dylib libMagick.10 $INSTALL_PATH 
-    fixLib libWand.10.dylib libMagick.10 $INSTALL_PATH 
+#    distLib libMagick++.10 $INSTALL_PATH
+#    distLib libWand.10 $INSTALL_PATH
+#    fixLib libMagick++.10.dylib libWand.10 $INSTALL_PATH 
+#    distLib libMagick.10 $INSTALL_PATH 
+#    fixLib libMagick++.10.dylib libMagick.10 $INSTALL_PATH 
+#    fixLib libWand.10.dylib libMagick.10 $INSTALL_PATH 
+
+    cd $LIBAVGDIR/../bindist
+    rm -rf *
+    cp /usr/local/bin/avg_* .
 }
 
 if [[ x"${PKG_CONFIG_PATH}" == "x" ]]
@@ -78,7 +87,7 @@ then
 else
     makeOneDist $INSTALL_PATH_10_5 2.5
     cd $LIBAVGDIR
-    /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker --doc mac/libavg.10.5.pmdoc -v -o libavg.pkg
-    hdiutil create libavg-mac-leopard-${PLATFORM}.${VERSION}.dmg -srcfolder libavg.pkg -ov 
+    /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker --doc mac/libavg.10.5.pmdoc -v -o libavg.mpkg
+    hdiutil create libavg-mac-leopard-${PLATFORM}.${VERSION}.dmg -srcfolder libavg.mpkg -ov 
     hdiutil internet-enable -yes libavg-mac-leopard-${PLATFORM}.${VERSION}.dmg
 fi

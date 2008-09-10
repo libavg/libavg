@@ -5,7 +5,7 @@ import sys
 
 print "Building font cache. This can take a while."
 Player=avg.Player()
-Player.loadFile(sys.argv[2]+"/libavg/avg/test/text.avg")
+Player.loadFile(sys.argv[2]+"/libavg/avg/test/paratext.avg")
 #"$2/libavg/avg/fc-cache" -v -f
 print "Done."
 sys.exit(0)
