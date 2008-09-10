@@ -834,19 +834,6 @@ class PlayerTestCase(AVGTestCase):
                  checkSameImage,
                 ])
     
-    def testWordsBR(self):
-        Player.loadString("""
-          <avg width="160" height="120">
-            <words id="words" x="1" y="1" size="12" 
-                font="Bitstream Vera Sans" variant="roman">
-               paragraph 1<br/>paragraph 2
-            </words>
-          </avg>
-        """)
-        self.start(None,
-                [lambda: self.compareImage("testWordsBR", True)
-                ])
-
     def testDynamicWords(self):
         def changeText():
             node = Player.getElementByID("dynamictext")
@@ -1302,7 +1289,6 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testGlyphPos", bpp))
     suite.addTest(PlayerTestCase("testParaWords", bpp))
     suite.addTest(PlayerTestCase("testSpanWords", bpp))
-    suite.addTest(PlayerTestCase("testWordsBR", bpp))
     suite.addTest(PlayerTestCase("testDynamicWords", bpp))
     suite.addTest(PlayerTestCase("testI18NWords", bpp))
     suite.addTest(PlayerTestCase("testWarp", bpp))
