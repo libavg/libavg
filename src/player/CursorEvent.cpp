@@ -43,9 +43,9 @@ CursorEventPtr CursorEvent::cloneAs(Type EventType) const
     return CursorEventPtr();
 }
 
-IntPoint CursorEvent::getPos() const
+DPoint CursorEvent::getPos() const
 {
-    return m_Position;
+    return DPoint(m_Position);
 }
 
 int CursorEvent::getXPosition() const
@@ -63,9 +63,9 @@ int CursorEvent::getCursorID() const
     return m_ID;
 }
 
-IntPoint CursorEvent::getLastDownPos() const
+DPoint CursorEvent::getLastDownPos() const
 {
-    return m_LastDownPos;
+    return DPoint(m_LastDownPos);
 }
 
 void CursorEvent::setLastDownPos(const IntPoint& pos)

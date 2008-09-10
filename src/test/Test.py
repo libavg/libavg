@@ -222,8 +222,10 @@ class PlayerTestCase(AVGTestCase):
     def testEvents(self):
         def getMouseState():
             Event = Player.getMouseState()
-            self.assert_(Event.pos == (10,10))
-            self.assert_(Event.lastdownpos == (10,10))
+            self.assert_(Event.pos == avg.Point2D(10,10))
+            self.assert_(Event.lastdownpos == avg.Point2D(10,10))
+            # Make sure we're getting a Point2D as return value.
+            self.assert_(Event.lastdownpos/2 == avg.Point2D(5, 5))
         def testInactiveDiv():
             Player.getElementByID("div1").active = False
             Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
