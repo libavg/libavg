@@ -32,6 +32,7 @@
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
+#include "../base/Exception.h"
 
 #include <Magick++.h>
 
@@ -119,6 +120,11 @@ void Image::setBitmap(const Bitmap * pBmp)
     m_href = "";
     m_Filename = "";
     PixelFormat pf;
+
+    if(!pBmp)
+        throw Exception(AVG_ERR_UNSUPPORTED,
+            "setBitmap(): bitmap must not be None!");
+
     pf = R8G8B8X8;
     if (pBmp->hasAlpha()) {
         pf = R8G8B8A8;

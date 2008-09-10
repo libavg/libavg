@@ -607,6 +607,10 @@ class PlayerTestCase(AVGTestCase):
             node = Player.getElementByID(nodeID)
             bitmap = avg.Bitmap('rgb24-65x65.png')
             node.setBitmap(bitmap)
+        def setNullBitmap():
+            node = Player.getElementByID("fullimg")
+            node.setBitmap(None)
+
         self.start("setbitmap.avg",
                 (
                     setBitmap,
@@ -615,6 +619,7 @@ class PlayerTestCase(AVGTestCase):
                     lambda: self.compareImage("testSetBitmap2", False),
                     lambda: setBitmapLinked("emptyimg"),
                     lambda: self.compareImage("testSetBitmap3", False),
+                    lambda: self.assertException(setNullBitmap)
                 ))
 
     def testBlend(self):
