@@ -98,6 +98,7 @@ void AsyncVideoDecoder::open(const std::string& sFilename, const AudioParams* pA
         m_AudioMsgData = 0;
         m_AudioMsgSize = 0;
         m_LastAudioFrameTime = 0;
+        setVolume(m_Volume);
     }
 }
 
@@ -260,7 +261,7 @@ double AsyncVideoDecoder::getVolume()
 void AsyncVideoDecoder::setVolume(double Volume)
 {
     m_Volume = Volume;
-    if (m_bHasAudio) {
+    if (m_bHasAudio && m_pACmdQ) {
         m_pACmdQ->push(Command<AudioDecoderThread>(boost::bind(
                 &AudioDecoderThread::setVolume, _1, Volume)));
     }

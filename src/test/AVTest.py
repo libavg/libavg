@@ -156,8 +156,8 @@ class SoundTestCase(AVTestCase):
             Player.getRootNode().appendChild(node)
             self.start(None,
                     (
-#                     lambda: setVolume(0.5),
-#                     lambda: testGetVolume(0.5),
+                     lambda: setVolume(0.5),
+                     lambda: testGetVolume(0.5),
                      lambda: node.play(),
                      None,
                      lambda: node.stop(),
