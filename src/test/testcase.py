@@ -83,6 +83,7 @@ class AVGTestCase(unittest.TestCase):
         else:
             try:
                 BaselineBmp = avg.Bitmap(BASELINE_DIR+"/"+fileName+".png")
+                DiffBmp = Bmp.subtract(BaselineBmp)
                 NumPixels = self.__Player.getTestHelper().getNumDifferentPixels(Bmp, 
                         BaselineBmp)
                 if (NumPixels > 3):
@@ -102,6 +103,12 @@ class AVGTestCase(unittest.TestCase):
                 Bmp.save(RESULT_DIR+"/"+fileName+".png")
                 self.Log.trace(self.Log.WARNING, "Could not load image "+fileName+".png")
                 self.assert_(False)
+
+    def areSimilarBmps(self, bmp1, bmp2, maxAvg, maxStdDev):
+        DiffBmp = bmp1.subtract(bmp2)
+        avg = DiffBmp.getAvg()
+        stdDev = DiffBmp.getStdDev()
+        return avg <= maxAvg and stdDev <= maxStdDev
 
     def assertException(self, code):
         exceptionRaised = False

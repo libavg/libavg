@@ -638,56 +638,65 @@ bool Bitmap::operator ==(const Bitmap & otherBmp)
 }
 
 template<class Pixel>
-void lineSubtract(const unsigned char * pSrc, unsigned char * pDest, int lineLen)
+void lineSubtract(const unsigned char * pSrc1, const unsigned char * pSrc2,
+        unsigned char * pDest, int lineLen)
 {
-    Pixel * pSrcPixel = (Pixel *)pSrc;
+    Pixel * pSrcPixel1 = (Pixel *)pSrc1;
+    Pixel * pSrcPixel2 = (Pixel *)pSrc2;
     Pixel * pDestPixel = (Pixel *)pDest;
     for (int x=0; x<lineLen; ++x) {
-        pDestPixel->setR(abs(pSrcPixel->getR()-pDestPixel->getR()));
-        pDestPixel->setG(abs(pSrcPixel->getG()-pDestPixel->getG()));
-        pDestPixel->setB(abs(pSrcPixel->getB()-pDestPixel->getB()));
-        pSrcPixel++;
+        pDestPixel->setR(abs(pSrcPixel1->getR()-pSrcPixel2->getR()));
+        pDestPixel->setG(abs(pSrcPixel1->getG()-pSrcPixel2->getG()));
+        pDestPixel->setB(abs(pSrcPixel1->getB()-pSrcPixel2->getB()));
+        pSrcPixel1++;
+        pSrcPixel2++;
         pDestPixel++;
     }
 }
 
-void Bitmap::subtract(const Bitmap *pOtherBmp)
+Bitmap * Bitmap::subtract(const Bitmap *pOtherBmp)
 {
-    const unsigned char * pSrc = pOtherBmp->getPixels();
-    unsigned char * pDest = m_pBits;
+    Bitmap * pResultBmp = new Bitmap(m_Size, m_PF);
+    const unsigned char * pSrc1 = pOtherBmp->getPixels();
+    const unsigned char * pSrc2 = m_pBits;
+    unsigned char * pDest = pResultBmp->getPixels();
     for (int y=0; y<getSize().y; ++y) {
         switch(m_PF) {
             case R8G8B8A8:
             case B8G8R8A8:
                 {
-                    Pixel32 * pSrcPixel = (Pixel32 *)pSrc;
+                    Pixel32 * pSrcPixel1 = (Pixel32 *)pSrc1;
+                    Pixel32 * pSrcPixel2 = (Pixel32 *)pSrc2;
                     Pixel32 * pDestPixel = (Pixel32 *)pDest;
                     for (int x=0; x<m_Size.x; ++x) {
-                        pDestPixel->setR(abs(pSrcPixel->getR()-pDestPixel->getR()));
-                        pDestPixel->setG(abs(pSrcPixel->getG()-pDestPixel->getG()));
-                        pDestPixel->setB(abs(pSrcPixel->getB()-pDestPixel->getB()));
-                        pDestPixel->setA(abs(pSrcPixel->getA()-pDestPixel->getA()));
-                        pSrcPixel++;
+                        pDestPixel->setR(abs(pSrcPixel1->getR()-pSrcPixel2->getR()));
+                        pDestPixel->setG(abs(pSrcPixel1->getG()-pSrcPixel2->getG()));
+                        pDestPixel->setB(abs(pSrcPixel1->getB()-pSrcPixel2->getB()));
+                        pDestPixel->setA(abs(pSrcPixel1->getA()-pSrcPixel2->getA()));
+                        pSrcPixel1++;
+                        pSrcPixel2++;
                         pDestPixel++;
                     }
                 }
                 break;
             case R8G8B8X8:
             case B8G8R8X8:
-                lineSubtract<Pixel32>(pSrc, pDest, m_Size.x);
+                lineSubtract<Pixel32>(pSrc1, pSrc2, pDest, m_Size.x);
                 break;
             case R8G8B8:
             case B8G8R8:
-                lineSubtract<Pixel24>(pSrc, pDest, m_Size.x);
+                lineSubtract<Pixel24>(pSrc1, pSrc2, pDest, m_Size.x);
                 break;
             case I8:
             case BAYER8_GBRG:
                 {
-                    const unsigned char * pSrcPixel = pSrc;
+                    const unsigned char * pSrcPixel1 = pSrc1;
+                    const unsigned char * pSrcPixel2 = pSrc2;
                     unsigned char * pDestPixel = pDest;
                     for (int x=0; x<m_Size.x; ++x) {
-                        *pDestPixel = abs(*pSrcPixel-*pDestPixel);
-                        pSrcPixel++;
+                        *pDestPixel = abs(*pSrcPixel1-*pSrcPixel2);
+                        pSrcPixel1++;
+                        pSrcPixel2++;
                         pDestPixel++;
                     }
                 }
@@ -696,9 +705,11 @@ void Bitmap::subtract(const Bitmap *pOtherBmp)
                 // Unimplemented.
                 assert(false);
         }
-        pDest += m_Stride;
-        pSrc += pOtherBmp->getStride();
+        pSrc1 += getStride();
+        pSrc2 += pOtherBmp->getStride();
+        pDest += pResultBmp->getStride();
     }
+    return pResultBmp;
 }
 
 template<class Pixel>
@@ -721,11 +732,13 @@ double Bitmap::getAvg() const
     for (int y=0; y<getSize().y; ++y) {
         switch(m_PF) {
             case R8G8B8A8:
-            case B8G8R8A8:
-                unsigned char * pSrcComponent = pSrc;
-                for (int x=0; x<m_Size.x*4; ++x) {
-                    sum += *pSrcComponent;
-                    pSrcComponent++;
+            case B8G8R8A8: 
+                {
+                    unsigned char * pSrcComponent = pSrc;
+                    for (int x=0; x<m_Size.x*4; ++x) {
+                        sum += *pSrcComponent;
+                        pSrcComponent++;
+                    }
                 }
                 break;
             case R8G8B8X8:
@@ -782,10 +795,12 @@ double Bitmap::getStdDev() const
         switch(m_PF) {
             case R8G8B8A8:
             case B8G8R8A8:
-                unsigned char * pSrcComponent = pSrc;
-                for (int x=0; x<m_Size.x*4; ++x) {
-                    sum += sqr(*pSrcComponent-average);
-                    pSrcComponent++;
+                {
+                    unsigned char * pSrcComponent = pSrc;
+                    for (int x=0; x<m_Size.x*4; ++x) {
+                        sum += sqr(*pSrcComponent-average);
+                        pSrcComponent++;
+                    }
                 }
                 break;
             case R8G8B8X8:
@@ -841,9 +856,7 @@ int Bitmap::getNumDifferentPixels(const Bitmap & otherBmp)
         return m_Size.x*m_Size.y;
     }
 
-    BitmapPtr pTempBmp(new Bitmap(*this));
-//    pTempBmp->dump(true);
-    pTempBmp->subtract(&otherBmp);
+    BitmapPtr pTempBmp(BitmapPtr(subtract(&otherBmp)));
 //    pTempBmp->dump(true);
     double Matrix[3][3] = {
             {0.111,0.111,0.111},

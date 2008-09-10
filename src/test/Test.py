@@ -807,8 +807,7 @@ class PlayerTestCase(AVGTestCase):
             node.text = self.text
         def checkSameImage():
             bmp = Player.screenshot()
-            self.assert_(Player.getTestHelper().getNumDifferentPixels(bmp, 
-                        self.baselineBmp) == 0)
+            self.assert_(self.areSimilarBmps(bmp, self.baselineBmp, 0, 0))
         def createUsingDict():
             Player.getElementByID("words").unlink()
             node = Player.createNode("words", {

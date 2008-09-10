@@ -102,11 +102,12 @@ class DecoderTest: public Test {
                         sFilename << "'. " << DiffPixels << " different pixels.");
                 try {
                     pBmp->save(getSrcDirName()+"testfiles/result/"+sFilename+".png");
-                    BitmapPtr pOrigBmp(new Bitmap(getSrcDirName()+"testfiles/baseline/"+sFilename+".png"));
+                    BitmapPtr pOrigBmp(new Bitmap(
+                            getSrcDirName()+"testfiles/baseline/"+sFilename+".png"));
                     pOrigBmp->save(getSrcDirName()+"testfiles/result/"+sFilename+"_baseline.png");
                     Bitmap DiffBmp(*pBmp);
-                    DiffBmp.subtract(&*pBaselineBmp);
-                    DiffBmp.save(getSrcDirName()+"testfiles/result/"+sFilename+"_diff.png");
+                    BitmapPtr pDiffBmp = BitmapPtr(pBmp->subtract(&*pBaselineBmp));
+                    pDiffBmp->save(getSrcDirName()+"testfiles/result/"+sFilename+"_diff.png");
                 } catch (Magick::Exception & ex) {
                     TEST_FAILED("Error saving result image: " << ex.what()); 
                     return;
