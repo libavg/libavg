@@ -767,6 +767,7 @@ class PlayerTestCase(AVGTestCase):
                 variant="bold" text="Bold"/>
           </avg>
         """)
+        pos = Player.getElementByID("sanstext").getGlyphPos(0)
         self.start(None,
                 (lambda: self.compareImage("testSimpleWords", True),
                  checkFont,

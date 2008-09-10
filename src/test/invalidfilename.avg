@@ -4,8 +4,5 @@
 <avg width="160" height="120">
   <div id="enclosingdiv" active="0">
     <image href="filedoesntexist.png"/>
-    <words font="Bitstream Vera Sans" size="64">
-        Hello World
-    </words>
   </div>
 </avg>

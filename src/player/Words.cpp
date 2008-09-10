@@ -59,7 +59,9 @@ void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level,
     if (log_level & G_LOG_LEVEL_ERROR) {
         s += "error: ";
     } else if (log_level & G_LOG_LEVEL_CRITICAL) {
-        s += "critical: ";
+        s += string("critical: ")+message;
+        AVG_TRACE(Logger::ERROR, s);
+        assert(false);
     } else if (log_level & G_LOG_LEVEL_WARNING) {
         s += "warning: ";
     } else if (log_level & G_LOG_LEVEL_MESSAGE) {
@@ -121,6 +123,17 @@ NodeDefinition Words::getNodeDefinition()
         .addArg(Arg<string>("alignment", "left"));
 }
 
+static void
+text_subst_func (FcPattern *pattern, gpointer data)
+{
+//  GimpText *text = GIMP_TEXT (data);
+
+  FcPatternAddBool(pattern, FC_HINTING, true);
+  FcPatternAddInteger(pattern, FC_HINT_STYLE, FC_HINT_MEDIUM);
+  FcPatternAddInteger(pattern, FC_RGBA, FC_RGBA_NONE);
+  FcPatternAddBool(pattern, FC_ANTIALIAS, true);
+}
+
 Words::Words (const ArgList& Args, Player * pPlayer, bool bFromXML)
     : RasterNode(pPlayer), 
       m_StringExtents(0,0),
@@ -130,6 +143,22 @@ Words::Words (const ArgList& Args, Player * pPlayer, bool bFromXML)
       m_bDrawNeeded(true)
 {
     m_bParsedText = false;
+
+    if (!s_pPangoContext) {
+        pango_ft2_get_context(72, 72);
+        
+        PangoFT2FontMap *fontmap;
+        fontmap = PANGO_FT2_FONT_MAP (pango_ft2_font_map_new());
+        pango_ft2_font_map_set_resolution (fontmap, 72, 72);
+        pango_ft2_font_map_set_default_substitute (fontmap, text_subst_func, 0, 0);
+        s_pPangoContext = pango_ft2_font_map_create_context (fontmap);
+        g_object_unref (fontmap);
+
+        pango_context_set_language(s_pPangoContext,
+                pango_language_from_string ("en_US"));
+        pango_context_set_base_dir(s_pPangoContext, PANGO_DIRECTION_LTR);
+    }
+
     Args.setMembers(this);
     setAlignment(Args.getArgVal<string>("alignment"));
     if (bFromXML) {
@@ -158,36 +187,9 @@ void Words::initText(const string& sText)
     }
 }
 
-
-static void
-text_subst_func (FcPattern *pattern, gpointer data)
-{
-//  GimpText *text = GIMP_TEXT (data);
-
-  FcPatternAddBool(pattern, FC_HINTING, true);
-  FcPatternAddInteger(pattern, FC_HINT_STYLE, FC_HINT_MEDIUM);
-  FcPatternAddInteger(pattern, FC_RGBA, FC_RGBA_NONE);
-  FcPatternAddBool(pattern, FC_ANTIALIAS, true);
-}
-
 void Words::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
     m_Color = colorStringToColor(m_sColorName);
-
-    if (!s_pPangoContext) {
-        pango_ft2_get_context(72, 72);
-        
-        PangoFT2FontMap *fontmap;
-        fontmap = PANGO_FT2_FONT_MAP (pango_ft2_font_map_new());
-        pango_ft2_font_map_set_resolution (fontmap, 72, 72);
-        pango_ft2_font_map_set_default_substitute (fontmap, text_subst_func, 0, 0);
-        s_pPangoContext = pango_ft2_font_map_create_context (fontmap);
-        g_object_unref (fontmap);
-
-        pango_context_set_language(s_pPangoContext,
-                pango_language_from_string ("en_US"));
-        pango_context_set_base_dir(s_pPangoContext, PANGO_DIRECTION_LTR);
-    }
 
     m_bFontChanged = true;
     m_bDrawNeeded = true;
