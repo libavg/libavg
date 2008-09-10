@@ -41,6 +41,7 @@ class CursorEvent: public Event
         CursorEvent(int id, Type eventType, const IntPoint& Position, Source source);
         virtual ~CursorEvent();
         virtual CursorEventPtr cloneAs(Type EventType) const;
+        IntPoint getPos() const;
         int getXPosition() const;
         int getYPosition() const;
         int getCursorID() const;

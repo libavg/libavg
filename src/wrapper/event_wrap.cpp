@@ -118,6 +118,8 @@ void export_event()
         .add_property("leftbuttonstate", &MouseEvent::getLeftButtonState)
         .add_property("middlebuttonstate", &MouseEvent::getMiddleButtonState)
         .add_property("rightbuttonstate", &MouseEvent::getRightButtonState)
+        .add_property("pos", &MouseEvent::getPos,
+                "Position in the global coordinate system (ro).\n")
         .add_property("x", &MouseEvent::getXPosition,
                 "x position in the global coordinate system (ro).\n")
         .add_property("y", &MouseEvent::getYPosition,
@@ -154,6 +156,8 @@ void export_event()
                 "of the hand (ro).\n")
         .add_property("inertia", &TouchEvent::getInertia)
         .add_property("eccentricity", &TouchEvent::getInertia)
+        .add_property("pos", &MouseEvent::getPos,
+                "Position in the global coordinate system (ro).\n")
         .add_property("x", &TouchEvent::getXPosition,
                 "x position in the global coordinate system (ro).\n")
         .add_property("y", &TouchEvent::getYPosition,

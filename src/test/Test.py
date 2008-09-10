@@ -222,6 +222,7 @@ class PlayerTestCase(AVGTestCase):
     def testEvents(self):
         def getMouseState():
             Event = Player.getMouseState()
+            self.assert_(Event.pos == (10,10))
             self.assert_(Event.lastdownpos == (10,10))
         def testInactiveDiv():
             Player.getElementByID("div1").active = False

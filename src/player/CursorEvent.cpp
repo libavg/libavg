@@ -43,6 +43,11 @@ CursorEventPtr CursorEvent::cloneAs(Type EventType) const
     return CursorEventPtr();
 }
 
+IntPoint CursorEvent::getPos() const
+{
+    return m_Position;
+}
+
 int CursorEvent::getXPosition() const
 {
     return m_Position.x;
