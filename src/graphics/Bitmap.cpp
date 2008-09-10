@@ -713,14 +713,24 @@ int lineSum(const unsigned char * pSrc, int lineLen)
     return Result;
 }
 
-double Bitmap::avg()
+double Bitmap::getAvg() const
 {
     double sum = 0;
     unsigned char * pSrc = m_pBits;
+    int componentsPerPixel = getBytesPerPixel();
     for (int y=0; y<getSize().y; ++y) {
         switch(m_PF) {
+            case R8G8B8A8:
+            case B8G8R8A8:
+                unsigned char * pSrcComponent = pSrc;
+                for (int x=0; x<m_Size.x*4; ++x) {
+                    sum += *pSrcComponent;
+                    pSrcComponent++;
+                }
+                break;
             case R8G8B8X8:
             case B8G8R8X8:
+                componentsPerPixel = 3;
                 sum += lineSum<Pixel32>(pSrc, m_Size.x);
                 break;
             case R8G8B8:
@@ -743,10 +753,69 @@ double Bitmap::avg()
         }
         pSrc += m_Stride;
     }
-    if (m_PF != I8) {
-        sum /= 3;
-    }
+    sum /= componentsPerPixel;
     return sum/(getSize().x*getSize().y);
+}
+
+template<class Pixel>
+double lineSqrDev(const unsigned char * pSrc, int lineLen, double average)
+{
+    Pixel * pSrcPixel = (Pixel *)pSrc;
+    int Result = 0;
+    for (int x=0; x<lineLen; ++x) {
+        Result += sqr(pSrcPixel->getR()-average);
+        Result += sqr(pSrcPixel->getG()-average);
+        Result += sqr(pSrcPixel->getB()-average);
+        pSrcPixel++;
+    }
+    return Result;
+}
+
+double Bitmap::getStdDev() const
+{
+    double average = getAvg();
+    double sum = 0;
+
+    unsigned char * pSrc = m_pBits;
+    int componentsPerPixel = getBytesPerPixel();
+    for (int y=0; y<getSize().y; ++y) {
+        switch(m_PF) {
+            case R8G8B8A8:
+            case B8G8R8A8:
+                unsigned char * pSrcComponent = pSrc;
+                for (int x=0; x<m_Size.x*4; ++x) {
+                    sum += sqr(*pSrcComponent-average);
+                    pSrcComponent++;
+                }
+                break;
+            case R8G8B8X8:
+            case B8G8R8X8:
+                componentsPerPixel = 3;
+                sum += lineSqrDev<Pixel32>(pSrc, m_Size.x, average);
+                break;
+            case R8G8B8:
+            case B8G8R8:
+                sum += lineSqrDev<Pixel24>(pSrc, m_Size.x, average);
+                break;
+            case I8:
+            case BAYER8_GBRG:
+                {
+                    unsigned char * pSrcPixel = pSrc;
+                    for (int x=0; x<m_Size.x; ++x) {
+                        sum += sqr(*pSrcPixel-average);
+                        pSrcPixel++;
+                    }
+                }
+                break;
+            default:
+                // Unimplemented.
+                assert(false);
+        }
+        pSrc += m_Stride;
+    }
+    sum /= componentsPerPixel;
+    sum /= (getSize().x*getSize().y);
+    return sqrt(sum);
 }
 
 template<class Pixel>

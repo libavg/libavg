@@ -35,6 +35,12 @@ int nextpow2(int n);
 
 int safeCeil(double d);
 
+template<class T>
+T sqr(T d)
+{
+    return d*d;
+}
+
 bool almostEqual(double d1, double d2);
 
 template<class T>

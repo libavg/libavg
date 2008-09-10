@@ -184,8 +184,8 @@ private:
         BitmapPtr pBmp = loadTestBmp(sFName, pf);
         GPUBandpassFilter f(pBmp->getSize(), pf, 0.5, 1.5, 1, false);
         BitmapPtr pDestBmp = f.apply(pBmp);
-        cerr << "        " << pDestBmp->avg() << endl;
-        TEST(fabs(pDestBmp->avg() -128) < 0.06);
+        cerr << "        " << pDestBmp->getAvg() << endl;
+        TEST(fabs(pDestBmp->getAvg() -128) < 0.06);
         testEqual(*pDestBmp, "bandpass_"+sFName, pf);
         TEST(pDestBmp->getPixelFormat() == pf);
     }

@@ -151,6 +151,20 @@ public:
             pCopyBmp->copyPixels(*pBmp);
             pBmp->copyPixels(*pCopyBmp);
             testEqual(*pBmp, *pBaselineBmp, "BmpCopyPixels_3");
+        }
+        {
+            cerr << "    Testing statistics." << endl;
+            cerr << "      I8" << endl;
+            testStatistics(I8, Pixel8(0), Pixel8(0), Pixel8(2), Pixel8(2));
+            cerr << "      R8G8B8A8" << endl;
+            testStatistics(R8G8B8A8, Pixel32(0,0,0,0), Pixel32(0,0,0,0), 
+                    Pixel32(2,2,2,2), Pixel32(2,2,2,2));
+            cerr << "      R8G8B8X8" << endl;
+            testStatistics(R8G8B8X8, Pixel32(0,0,0,255), Pixel32(0,0,0,255), 
+                    Pixel32(2,2,2,255), Pixel32(2,2,2,255));
+            cerr << "      R8G8B8" << endl;
+            testStatistics(R8G8B8, Pixel24(0,0,0), Pixel24(0,0,0), 
+                    Pixel24(2,2,2), Pixel24(2,2,2));
 
         }
         runSaveTest(R8G8B8A8);
@@ -158,6 +172,19 @@ public:
     }
     
 private:
+    template<class Pixel>
+    void testStatistics(PixelFormat pf, const Pixel& p00, const Pixel& p01,
+            const Pixel& p10, const Pixel& p11)
+    {
+        BitmapPtr pBmp = BitmapPtr(new Bitmap(IntPoint(2,2), pf));
+        pBmp->setPixel(IntPoint(0,0), p00);
+        pBmp->setPixel(IntPoint(0,1), p01);
+        pBmp->setPixel(IntPoint(1,0), p10);
+        pBmp->setPixel(IntPoint(1,1), p11);
+        TEST(pBmp->getAvg() == 1);
+        TEST(pBmp->getStdDev() == 1);
+    }
+
     void runPFTests(PixelFormat PF) {
         cerr << "    Testing " << Bitmap::getPixelFormatString(PF) << endl;
         BitmapPtr pBmp = initBmp(PF);

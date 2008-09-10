@@ -109,7 +109,8 @@ public:
     void drawLine(IntPoint p0, IntPoint p1, Pixel Color);
 
     void subtract(const Bitmap* pOtherBmp);
-    double avg();
+    double getAvg() const;
+    double getStdDev() const;
 
     bool operator ==(const Bitmap & otherBmp);
     int getNumDifferentPixels(const Bitmap & otherBmp);
