@@ -261,7 +261,7 @@ namespace avg {
                         pOldBlob->getEstimatedNextCenter());
                 if (distSquared <= MaxDistSquared) {
                     BlobDistEntryPtr pEntry = BlobDistEntryPtr(
-                            new BlobDistEntry(sqrt(distSquared),
+                            new BlobDistEntry(distSquared,
                                     pNewBlob, pOldBlob));
                     DistHeap.push(pEntry);
                 }
