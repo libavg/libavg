@@ -114,7 +114,7 @@ class AVGTestCase(unittest.TestCase):
         exceptionRaised = False
         try:
             code()
-        except RuntimeError:
+        except:
             exceptionRaised = True
         self.assert_(exceptionRaised)
     def _loadEmpty(self):
