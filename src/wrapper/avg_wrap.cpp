@@ -142,7 +142,6 @@ BOOST_PYTHON_MODULE(avg)
     ;
 
     class_<TestHelper>("TestHelper", "Miscelaneous routines used by tests.", no_init)
-        .def("getNumDifferentPixels", &TestHelper::getNumDifferentPixels, "")
         .def("useFakeCamera", &TestHelper::useFakeCamera, "")
         .def("fakeMouseEvent", &TestHelper::fakeMouseEvent, "")
         .def("fakeKeyEvent", &TestHelper::fakeKeyEvent, "")
