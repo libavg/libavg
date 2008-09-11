@@ -96,17 +96,17 @@ class DecoderTest: public Test {
 #ifdef __BIG_ENDIAN__
             FilterFlipRGBA().applyInPlace(pBmp);
 #endif
-            int DiffPixels = pBaselineBmp->getNumDifferentPixels(*pBmp);
-            if (DiffPixels > 0) {
+            BitmapPtr pDiffBmp = BitmapPtr(pBmp->subtract(&*pBaselineBmp));
+            double average = pDiffBmp->getAvg();
+            double stdDev = pDiffBmp->getStdDev();
+            if (average > 0.01 || stdDev > 0.01) {
                 TEST_FAILED("Error: Decoded image differs from baseline '" << 
-                        sFilename << "'. " << DiffPixels << " different pixels.");
+                        sFilename << "'. average=" << average << ", stdDev=" << stdDev);
                 try {
                     pBmp->save(getSrcDirName()+"testfiles/result/"+sFilename+".png");
                     BitmapPtr pOrigBmp(new Bitmap(
                             getSrcDirName()+"testfiles/baseline/"+sFilename+".png"));
                     pOrigBmp->save(getSrcDirName()+"testfiles/result/"+sFilename+"_baseline.png");
-                    Bitmap DiffBmp(*pBmp);
-                    BitmapPtr pDiffBmp = BitmapPtr(pBmp->subtract(&*pBaselineBmp));
                     pDiffBmp->save(getSrcDirName()+"testfiles/result/"+sFilename+"_diff.png");
                 } catch (Magick::Exception & ex) {
                     TEST_FAILED("Error saving result image: " << ex.what()); 
