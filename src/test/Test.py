@@ -1205,14 +1205,14 @@ class PlayerTestCase(AVGTestCase):
                 Player.getElementByID("main").mediadir="/testmediadir"
             self.assertException(absDir)
         def createNode():
-            node = Player.createNode("video", {"href":"mjpeg1-48x48.avi"})
+            node = Player.createNode("video", {"href":"mjpeg1-48x48.avi", "fps":30})
         self.start("mediadir.avg",
                 (lambda: Player.getElementByID("video").play(),
                  lambda: self.compareImage("mediadir1", False),
                  setDir,
                  lambda: Player.getElementByID("video").play(), 
-                 lambda: self.assert_(Player.getElementByID("img").width == 1),
                  lambda: self.compareImage("mediadir2", False),
+                 lambda: self.assert_(Player.getElementByID("img").width == 1),
                  createNode,
                  setAbsDir
                 ))
