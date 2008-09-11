@@ -119,6 +119,7 @@ class AVGTestCase(unittest.TestCase):
         except RuntimeError:
             exceptionRaised = True
         self.assert_(exceptionRaised)
+
     def _loadEmpty(self):
         self.__Player.loadString("""
         <?xml version="1.0"?>
