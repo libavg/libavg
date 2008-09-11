@@ -833,56 +833,6 @@ double Bitmap::getStdDev() const
     return sqrt(sum);
 }
 
-template<class Pixel>
-int lineBrightPixels(const unsigned char * pSrc, int lineLen)
-{
-    Pixel * pSrcPixel = (Pixel *)pSrc;
-    int Result = 0;
-    for (int x=0; x<lineLen; ++x) {
-        int Val = pSrcPixel->getR()+pSrcPixel->getG()+pSrcPixel->getB();
-        if (Val > 256) {
-            Result++;
-        }
-        pSrcPixel++;
-    }
-    return Result;
-}
-
-int Bitmap::getNumDifferentPixels(const Bitmap & otherBmp)
-{
-    // We allow Name, Stride and bOwnsBits to be different here, since we're looking for
-    // equal value only.
-    if (m_Size != otherBmp.m_Size || m_PF != otherBmp.m_PF) {
-        return m_Size.x*m_Size.y;
-    }
-
-    BitmapPtr pTempBmp(BitmapPtr(subtract(&otherBmp)));
-//    pTempBmp->dump(true);
-    double Matrix[3][3] = {
-            {0.111,0.111,0.111},
-            {0.111,0.111,0.111},
-            {0.111,0.111,0.111}
-    };
-    Filter3x3(Matrix).applyInPlace(pTempBmp);
-
-    int NumBrightPixels = 0;
-    for (int y = 0; y < m_Size.y-2; y++) {
-        const unsigned char * pLine = pTempBmp->getPixels()+y*pTempBmp->getStride();
-        
-        switch (pTempBmp->getBytesPerPixel()) {
-            case 4:
-                NumBrightPixels += lineBrightPixels<Pixel32>(pLine, m_Size.x-2);
-                break;
-            case 3:
-                NumBrightPixels += lineBrightPixels<Pixel24>(pLine, m_Size.x-2);
-                break;
-            default:
-                assert(false);
-        }
-    }
-    return NumBrightPixels;
-}
-
 void Bitmap::dump(bool bDumpPixels) const
 {
     cerr << "Bitmap: " << m_sName << endl;

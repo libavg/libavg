@@ -113,7 +113,6 @@ public:
     double getStdDev() const;
 
     bool operator ==(const Bitmap & otherBmp);
-    int getNumDifferentPixels(const Bitmap & otherBmp);
     void dump(bool bDumpPixels=false) const;
 
 private:
