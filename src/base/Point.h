@@ -237,6 +237,12 @@ double calcDist(const Point<NUM>& pt1, const Point<NUM>& pt2)
     return sqrt(sqr(pt1.x-pt2.x)+sqr(pt1.y-pt2.y));
 }
 
+template<class NUM>
+double calcDistSquared(const Point<NUM>& pt1, const Point<NUM>& pt2)
+{
+    return sqr(pt1.x-pt2.x)+sqr(pt1.y-pt2.y);
+}
+
 bool almostEqual(const DPoint& pt1, const DPoint& pt2);
 DPoint rotate(const DPoint& pt, double angle, const DPoint& pivot=DPoint(0,0));
 
