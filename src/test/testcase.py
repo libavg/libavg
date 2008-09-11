@@ -85,7 +85,7 @@ class AVGTestCase(unittest.TestCase):
             try:
                 BaselineBmp = avg.Bitmap(BASELINE_DIR+"/"+fileName+".png")
                 DiffBmp = Bmp.subtract(BaselineBmp)
-                if not(self.areSimilarBmps(Bmp, BaselineBmp, 1, 2)):
+                if not(self.areSimilarBmps(Bmp, BaselineBmp, 2, 6)):
 #                NumPixels = self.__Player.getTestHelper().getNumDifferentPixels(Bmp, 
 #                        BaselineBmp)
 #                if (NumPixels > 3):

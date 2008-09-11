@@ -741,9 +741,10 @@ class PlayerTestCase(AVGTestCase):
         node = Player.getElementByID("testtiles")
         self.assertException(node.getOrigVertexCoords)
         self.assertException(node.getWarpedVertexCoords)
+        Player.setFakeFPS(30)
         self.start(None,
                 (lambda: Player.getElementByID("clogo1").play(),
-                 lambda: self.compareImage("testWarp1", True),
+                 lambda: self.compareImage("testWarp1", False),
                  moveVertex,
                  lambda: self.compareImage("testWarp2", False),
                  flip,
