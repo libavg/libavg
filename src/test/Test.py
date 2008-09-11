@@ -743,7 +743,7 @@ class PlayerTestCase(AVGTestCase):
         self.assertException(node.getWarpedVertexCoords)
         self.start(None,
                 (lambda: Player.getElementByID("clogo1").play(),
-                 lambda: self.compareImage("testWarp1", False),
+                 lambda: self.compareImage("testWarp1", True),
                  moveVertex,
                  lambda: self.compareImage("testWarp2", False),
                  flip,
@@ -807,8 +807,7 @@ class PlayerTestCase(AVGTestCase):
             node.text = self.text
         def checkSameImage():
             bmp = Player.screenshot()
-            self.assert_(Player.getTestHelper().getNumDifferentPixels(bmp, 
-                        self.baselineBmp) == 0)
+            self.assert_(self.areSimilarBmps(bmp, self.baselineBmp, 0, 0))
         def createUsingDict():
             Player.getElementByID("words").unlink()
             node = Player.createNode("words", {

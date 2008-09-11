@@ -186,6 +186,12 @@ BOOST_PYTHON_MODULE(avg)
                 "costs performance and smoothes the edges of polygons. A value of 1 turns\n"
                 "multisampling (also knowna as FSAA - Full-Screen Antialiasing) off. Good\n"
                 "values are dependent on the graphics driver.\n")
+        .def("setMultiSampleSamples", &Player::setMultiSampleSamples,
+                "setMultiSampleSamples(multiSampleSamples)\n"
+                "@param MultiSampleSamples: The number of samples per pixel to compute. This\n"
+                "costs performance and smoothes the edges of polygons. A value of 1 turns\n"
+                "multisampling (also knowna as FSAA - Full-Screen Antialiasing) off. Good\n"
+                "values are dependent on the graphics driver.\n")
         .def("loadFile", &Player::loadFile,
                 "loadFile(filename)\n"
                 "Loads the avg file specified in filename.\n"

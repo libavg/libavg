@@ -47,7 +47,8 @@ class AVGTestCase(unittest.TestCase):
         self.__Player.setResolution(0, 0, 0, self.__bpp)
         if g_CustomOGLOptions:
             self.__Player.setOGLOptions(g_UsePOW2Textures, g_YCbCrMode, 
-                    g__UsePixelBuffers, 1)
+                    g_UsePixelBuffers, 1)
+        self.__Player.setMultiSampleSamples(1)
 
     def setUp(self):
         self.setUpVideo()
@@ -83,16 +84,18 @@ class AVGTestCase(unittest.TestCase):
         else:
             try:
                 BaselineBmp = avg.Bitmap(BASELINE_DIR+"/"+fileName+".png")
-                NumPixels = self.__Player.getTestHelper().getNumDifferentPixels(Bmp, 
-                        BaselineBmp)
-                if (NumPixels > 3):
+                DiffBmp = Bmp.subtract(BaselineBmp)
+                if not(self.areSimilarBmps(Bmp, BaselineBmp, 2, 3)):
+#                NumPixels = self.__Player.getTestHelper().getNumDifferentPixels(Bmp, 
+#                        BaselineBmp)
+#                if (NumPixels > 3):
                     if ourSaveDifferences:
                         Bmp.save(RESULT_DIR+"/"+fileName+".png")
                         BaselineBmp.save(RESULT_DIR+"/"+fileName+"_baseline.png")
-                        Bmp.subtract(BaselineBmp)
-                        Bmp.save(RESULT_DIR+"/"+fileName+"_diff.png")
-                    self.Log.trace(self.Log.WARNING, "Image compare: "+str(NumPixels)+
-                            " bright pixels.")
+                        DiffBmp.save(RESULT_DIR+"/"+fileName+"_diff.png")
+                    self.Log.trace(self.Log.WARNING, 
+                            "Image compare: Difference image has avg="+str(DiffBmp.getAvg())+
+                            ", std dev="+str(DiffBmp.getStdDev()))
                     if warn:
                         self.Log.trace(self.Log.WARNING, "Image "+fileName
                                 +" differs from original.")
@@ -102,6 +105,12 @@ class AVGTestCase(unittest.TestCase):
                 Bmp.save(RESULT_DIR+"/"+fileName+".png")
                 self.Log.trace(self.Log.WARNING, "Could not load image "+fileName+".png")
                 self.assert_(False)
+
+    def areSimilarBmps(self, bmp1, bmp2, maxAvg, maxStdDev):
+        DiffBmp = bmp1.subtract(bmp2)
+        avg = DiffBmp.getAvg()
+        stdDev = DiffBmp.getStdDev()
+        return avg <= maxAvg and stdDev <= maxStdDev
 
     def assertException(self, code):
         exceptionRaised = False

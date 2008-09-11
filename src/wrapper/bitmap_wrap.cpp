@@ -142,8 +142,11 @@ void export_bitmap()
                 "or pixel format. Can be used to interface to the python imaging\n"
                 "library PIL (U{http://www.pythonware.com/products/pil/}).\n"
                 "@param pixels: Image data as a python string.")
-        .def("subtract", &Bitmap::subtract, 
-                "subtract(otherbitmap)\n")
+        .def("subtract", &Bitmap::subtract,
+                return_value_policy<manage_new_object>(),
+                "subtract(otherbitmap) -> bmp\n")
+        .def("getAvg", &Bitmap::getAvg)
+        .def("getStdDev", &Bitmap::getStdDev)
         .def("getName", &Bitmap::getName, 
                 return_value_policy<copy_const_reference>(),
                 "getName() -> string\n\n")

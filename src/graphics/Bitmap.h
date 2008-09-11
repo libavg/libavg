@@ -108,7 +108,7 @@ public:
     template<class Pixel>
     void drawLine(IntPoint p0, IntPoint p1, Pixel Color);
 
-    void subtract(const Bitmap* pOtherBmp);
+    Bitmap * subtract(const Bitmap* pOtherBmp);
     double getAvg() const;
     double getStdDev() const;
 

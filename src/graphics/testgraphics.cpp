@@ -211,18 +211,6 @@ private:
             Bitmap BmpCopy3 (*pBmp, IntRect(IntPoint(0,0), pBmp->getSize()));
             testEqual(BmpCopy3, *pBmp, "BmpSubBmpCtor");
         }
-        if (PF == R8G8B8X8 || PF == R8G8B8) {
-            cerr << "      Testing getNumDifferentPixels." << endl;
-            Bitmap BmpCopy4 (*pBmp);
-            TEST(pBmp->getNumDifferentPixels(BmpCopy4) == 0);
-
-            unsigned char * pPixel = BmpCopy4.getPixels();
-            *pPixel += 27;
-            TEST(pBmp->getNumDifferentPixels(BmpCopy4) == 0);
-            *pPixel = 255;
-            *(pPixel+BmpCopy4.getStride()) = 255;
-            TEST(!pBmp->getNumDifferentPixels(BmpCopy4) == 1);
-        }
         if (PF == I8) {
             cerr << "      Testing getHistogram." << endl;
             HistogramPtr pHist = pBmp->getHistogram();
