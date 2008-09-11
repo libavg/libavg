@@ -66,6 +66,7 @@ class Blob
         ContourSeq getContour();
 
         const DPoint& getCenter() const;
+        const DPoint& getEstimatedNextCenter() const;
         double getArea() const;
         const IntRect & getBoundingBox() const;
         double getEccentricity() const;
@@ -75,6 +76,7 @@ class Blob
         const DPoint& getEigenVector(int i) const;
         const DPoint& getEigenValues() const;
 
+        void calcNextCenter(DPoint oldCenter);
         void clearRelated();
         void addRelated(BlobPtr pBlob);
         const BlobPtr getFirstRelated(); 
@@ -96,6 +98,7 @@ class Blob
                                           // For hands, this contains the fingers.
 
         bool m_bStatsAvailable;
+        DPoint m_EstimatedNextCenter;
         DPoint m_Center;
         double m_Area;
         IntRect m_BoundingBox;

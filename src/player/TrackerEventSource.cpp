@@ -191,20 +191,9 @@ namespace avg {
         return new Bitmap(*m_pBitmaps[ImageID]);
     }
     
-    double distSquared(BlobPtr p1, BlobPtr p2) 
+    double getDistSquared(DPoint c1, DPoint c2)
     {
-        DPoint c1 = p1->getCenter();
-        DPoint c2 = p2->getCenter();
-
         return (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y);
-    }
-
-    double distance(BlobPtr p1, BlobPtr p2) 
-    {
-        DPoint c1 = p1->getCenter();
-        DPoint c2 = p2->getCenter();
-
-        return sqrt( (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y));
     }
 
     static ProfilingZone ProfilingZoneCalcTrack("trackBlobIDs(track)");
@@ -273,9 +262,11 @@ namespace avg {
             BlobPtr pNewBlob = *it;
             for(BlobVector::iterator it2 = OldBlobs.begin(); it2!=OldBlobs.end(); ++it2) { 
                 BlobPtr pOldBlob = *it2;
-                if (distSquared(pNewBlob, pOldBlob) <= MaxDistSquared) {
+                double distSquared = getDistSquared(pNewBlob->getCenter(),
+                        pOldBlob->getEstimatedNextCenter());
+                if (distSquared <= MaxDistSquared) {
                     BlobDistEntryPtr pEntry = BlobDistEntryPtr(
-                            new BlobDistEntry(distance(pNewBlob, pOldBlob), 
+                            new BlobDistEntry(sqrt(distSquared),
                                     pNewBlob, pOldBlob));
                     DistHeap.push(pEntry);
                 }
@@ -302,6 +293,7 @@ namespace avg {
                 EventStreamPtr pStream;
                 pStream = pEvents->find(pOldBlob)->second;
                 pStream->blobChanged(pNewBlob, time, bEventOnMove);
+                pNewBlob->calcNextCenter(pOldBlob->getCenter());
                 // Update the mapping.
                 (*pEvents)[pNewBlob] = pStream;
                 pEvents->erase(pOldBlob);

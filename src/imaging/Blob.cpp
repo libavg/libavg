@@ -152,6 +152,7 @@ bool Blob::contains(IntPoint pt)
 void Blob::calcStats()
 {
     m_Center = calcCenter();
+    m_EstimatedNextCenter = m_Center;
     m_Area = calcArea();
     m_BoundingBox = calcBBox();
     /*
@@ -242,6 +243,10 @@ const DPoint & Blob::getCenter() const
 {
     return m_Center;
 }
+const DPoint & Blob::getEstimatedNextCenter() const
+{
+    return m_EstimatedNextCenter;
+}
 
 double Blob::getArea() const
 {
@@ -281,6 +286,11 @@ const DPoint & Blob::getEigenVector(int i) const
 const DPoint & Blob::getEigenValues() const
 {
     return m_EigenValues;
+}
+
+void Blob::calcNextCenter(DPoint oldCenter)
+{
+    m_EstimatedNextCenter = m_Center + (m_Center - oldCenter);
 }
 
 void Blob::clearRelated()
@@ -590,5 +600,6 @@ BlobVectorPtr findConnectedComponents(BitmapPtr image, unsigned char threshold)
     delete runs2;
     return pResultBlobs;
 }
+
 
 }
