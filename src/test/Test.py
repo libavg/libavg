@@ -698,6 +698,7 @@ class PlayerTestCase(AVGTestCase):
             node.y = 10
             Player.getElementByID("nestedavg").angle = 1.0
             Player.getElementByID("bkgd").angle = 1.0
+        Player.setFakeFPS(30)
         self.start("crop.avg",
                 (playMovie,
                  lambda: self.compareImage("testCropMovie1", False),
