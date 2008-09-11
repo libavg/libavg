@@ -512,6 +512,7 @@ void Words::drawString()
 
         pango_layout_set_alignment(m_pLayout, m_Alignment);
         pango_layout_set_width(m_pLayout, m_ParaWidth * PANGO_SCALE);
+        pango_layout_set_wrap(m_pLayout, PANGO_WRAP_WORD_CHAR);
         pango_layout_set_indent(m_pLayout, m_Indent * PANGO_SCALE);
         if (m_Indent < 0) {
             // For hanging indentation, we add a tabstop to support lists
