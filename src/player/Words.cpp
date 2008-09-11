@@ -95,7 +95,8 @@ NodeDefinition Words::getNodeDefinition()
         "  rise CDATA #IMPLIED\n"
         "  strikethrough CDATA #IMPLIED\n"
         "  fallback CDATA #IMPLIED\n"
-        "  lang CDATA #IMPLIED >\n"
+        "  lang CDATA #IMPLIED\n"
+        "  rawtextmode CDATA #IMPLIED >\n"
 
         "<!ELEMENT b (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
         "<!ELEMENT big (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
@@ -120,7 +121,8 @@ NodeDefinition Words::getNodeDefinition()
         .addArg(Arg<int>("parawidth", -1, false, offsetof(Words, m_ParaWidth)))
         .addArg(Arg<int>("indent", 0, false, offsetof(Words, m_Indent)))
         .addArg(Arg<double>("linespacing", -1, false, offsetof(Words, m_LineSpacing)))
-        .addArg(Arg<string>("alignment", "left"));
+        .addArg(Arg<string>("alignment", "left"))
+        .addArg(Arg<bool>("rawtextmode", false, false, offsetof(Words, m_bRawTextMode)));
 }
 
 static void
@@ -161,11 +163,7 @@ Words::Words (const ArgList& Args, Player * pPlayer, bool bFromXML)
 
     Args.setMembers(this);
     setAlignment(Args.getArgVal<string>("alignment"));
-    if (bFromXML) {
-        m_sText = Args.getArgVal<string>("text");
-    } else {
-        initText(Args.getArgVal<string>("text"));
-    }
+    setText(Args.getArgVal<string>("text"));
     initFonts();
 }
 
@@ -179,11 +177,13 @@ Words::~Words ()
     }
 }
 
-void Words::initText(const string& sText)
+void Words::setTextFromNodeValue(const string& sText)
 {
+//    cerr << "NODE VALUE: " << sText << "|" << endl;
+    // Gives priority to Node Values only if they aren't empty
     UTF8String sTemp = removeExcessSpaces(sText);
-    if (sText.length() != 0) {
-        setParsedText(sTemp);
+    if (sTemp.length() != 0) {
+        setText(sText);
     }
 }
 
@@ -264,13 +264,21 @@ void Words::setFontVariant(const std::string& sVariant)
 
 const UTF8String& Words::getText() const 
 {
-    return m_sText;
+    return m_sRawText;
 }
 
 void Words::setText(const UTF8String& sText)
 {
-    if (m_sText != sText) {
-        setParsedText(sText);
+//    cerr << "setText(): " << sText << "|" << endl;
+    if (m_sRawText != sText) {
+        m_sRawText = sText;
+        m_sText = m_sRawText;
+        if (m_bRawTextMode) {
+            m_bParsedText = false;
+        } else {
+            setParsedText(sText);
+        }
+        m_bDrawNeeded = true;
     }
 }
 
@@ -329,6 +337,25 @@ void Words::setLineSpacing(double LineSpacing)
 {
     m_LineSpacing = LineSpacing;
     m_bDrawNeeded = true;
+}
+
+bool Words::getRawTextMode() const
+{
+    return m_bRawTextMode;
+}
+
+void Words::setRawTextMode(bool RawTextMode)
+{
+    if (RawTextMode != m_bRawTextMode) {
+        m_sText = m_sRawText;
+        if (RawTextMode) {
+            m_bParsedText = false;
+        } else {
+            setParsedText(m_sText);
+        }
+        m_bRawTextMode = RawTextMode;
+        m_bDrawNeeded = true;
+    }
 }
 
 string Words::getAlignment() const
@@ -421,9 +448,13 @@ void Words::parseString(PangoAttrList** ppAttrList, char** ppText)
     bOk = (pango_parse_markup(m_sText.c_str(), int(m_sText.length()), 0,
             ppAttrList, ppText, 0, &pError) != 0);
     if (!bOk) {
-        throw Exception(AVG_ERR_CANT_PARSE_STRING,
-                string("Can't parse string in node with id '")+
-                getID()+"' ("+pError->message+")");
+        string sError;
+        if (getID() != "") {
+            sError = string("Can't parse string in node with id '")+getID()+"' ("+pError->message+")";
+        } else {
+            sError = string("Can't parse string '")+m_sRawText+"' ("+pError->message+")";
+        }
+        throw Exception(AVG_ERR_CANT_PARSE_STRING, sError);
     }
 
 }

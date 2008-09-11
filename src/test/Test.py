@@ -894,6 +894,40 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testI18NWords2", True)
                 ))
 
+    def testRawText(self):
+        def createDynNodes():
+            self.dictdnode = Player.createNode("words", {'text':'&lt;test dyndict&amp;', 'rawtextmode':True, 'x':1, 'y':65, 'font':'arial', 'size':12})
+            Player.getRootNode().appendChild(self.dictdnode)
+
+            self.xmldnode = Player.createNode("<words text=\"&lt;test dynattr&amp;\" size=\"12\" font=\"arial\" rawtextmode=\"true\" x=\"1\" y=\"85\"/>")
+            Player.getRootNode().appendChild(self.xmldnode)
+        def switchRawMode():
+            self.dictdnode.rawtextmode = False
+            Player.getElementByID('nodeval').rawtextmode = True
+            Player.getElementByID('attrib').rawtextmode = True
+        def bombIt():
+            try:
+                self.xmldnode.rawtextmode = False
+                self.assert_(0)
+            except RuntimeError:
+                pass
+        def assignNewTexts():
+            text = u'&ùùààxx>'
+            self.dictdnode.rawtextmode = True
+            self.dictdnode.text = text
+            self.xmldnode.text = text
+            Player.getElementByID('nodeval').text = text
+            Player.getElementByID('attrib').text = text
+        self.start("rawtext.avg",
+        (lambda: self.compareImage("testRawText1", True),
+        createDynNodes,
+        lambda: self.compareImage("testRawText2", True),
+        switchRawMode,
+        lambda: self.compareImage("testRawText3", True),
+        bombIt,
+        assignNewTexts,
+        lambda: self.compareImage("testRawText4", True),
+        ))
 #    def testCamera(self):
 #        def createCameraNode(deviceFile):
 #            return Player.createNode("<camera id='camera1' width='640' height='480' "
@@ -1298,6 +1332,7 @@ def playerTestSuite(bpp):
     suite.addTest(PlayerTestCase("testSpanWords", bpp))
     suite.addTest(PlayerTestCase("testDynamicWords", bpp))
     suite.addTest(PlayerTestCase("testI18NWords", bpp))
+    suite.addTest(PlayerTestCase("testRawText", bpp))
     suite.addTest(PlayerTestCase("testWarp", bpp))
     suite.addTest(PlayerTestCase("testImgDynamics", bpp))
     suite.addTest(PlayerTestCase("testVideoDynamics", bpp))

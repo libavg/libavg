@@ -950,7 +950,7 @@ NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc,
         // TODO: This is an end-run around the generic serialization mechanism
         // that will probably break at some point.
         string s = getXmlChildrenAsString(xmlDoc, xmlNode);
-        boost::dynamic_pointer_cast<Words>(curNode)->initText(s);
+        boost::dynamic_pointer_cast<Words>(curNode)->setTextFromNodeValue(s);
     }
     curNode->setThis(curNode);
 

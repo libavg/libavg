@@ -43,10 +43,9 @@ class Words : public RasterNode
     public:
         static NodeDefinition getNodeDefinition();
         
-        Words(const ArgList& Args, Player * pPlayer, bool bFromXML);
+        Words(const ArgList& Args, Player * pPlayer, bool bFromXMLNodeValue);
         virtual ~Words();
         
-        virtual void initText(const std::string& sText);
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
         virtual void disconnect();
@@ -56,6 +55,8 @@ class Words : public RasterNode
 
         virtual double getWidth();
         virtual double getHeight();
+
+        void setTextFromNodeValue(const std::string& sText);
 
         const std::string& getFont() const;
         void setFont(const std::string& sName);
@@ -80,6 +81,9 @@ class Words : public RasterNode
         
         double getLineSpacing() const;
         void setLineSpacing(double LineSpacing);
+        
+        bool getRawTextMode() const;
+        void setRawTextMode(bool RawTextMode);
         
         std::string getAlignment() const;
         void setAlignment(const std::string& sAlignment);
@@ -109,6 +113,7 @@ class Words : public RasterNode
         std::string m_sFontName;
         std::string m_sFontVariant;
         UTF8String m_sText;
+        UTF8String m_sRawText;
         std::string m_sColorName;
         Pixel32 m_Color;
         double m_Size;
@@ -118,6 +123,7 @@ class Words : public RasterNode
         PangoAlignment m_Alignment;
 
         bool m_bParsedText;
+        bool m_bRawTextMode;
         IntPoint m_StringExtents;
         PangoFontDescription * m_pFontDescription;
         PangoLayout * m_pLayout;

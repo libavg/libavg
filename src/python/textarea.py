@@ -15,10 +15,7 @@ import time
 KEYCODE_TAB = 9
 KEYCODE_SHTAB = 25
 KEYCODE_FORMFEED = 12
-KEYCODE_AMPERSAND = 38
 KEYCODES_BACKSPACE = (8,127)
-
-EMBEDDED_SEQ_AMPERSAND = u'&amp;'
 
 DEFAULT_CURSOR_PX = 'tacursorpx.png'
 CURSOR_PADDING_PCT = 15
@@ -209,7 +206,7 @@ class TextArea:
             bgNode.height = parent.height
             parent.appendChild(bgNode)
         
-        textNode = g_Player.createNode("words", {})
+        textNode = g_Player.createNode("words", {'rawtextmode':True})
         
         if not disableMouseFocus:
             parent.setEventHandler(avg.CURSORUP, avg.MOUSE, self.__onClick)
@@ -385,19 +382,10 @@ class TextArea:
         if self.__maxLength > -1 and slen > self.__maxLength:
             return
         
-        # Treat ampersand character (&) with respect, escaping it
-        if keycode == KEYCODE_AMPERSAND:
-            self.__textNode.text = self.__textNode.text + EMBEDDED_SEQ_AMPERSAND
-        else:
-            self.__textNode.text = self.__textNode.text + unichr(keycode)
+        self.__textNode.text = self.__textNode.text + unichr(keycode)
         
     def __removeChar(self):
-        ampPos = self.__textNode.text.rfind(EMBEDDED_SEQ_AMPERSAND)
-        if ampPos != -1 and ampPos == len(self.__textNode.text) - len(EMBEDDED_SEQ_AMPERSAND):
-            until = -len(EMBEDDED_SEQ_AMPERSAND)
-        else:
-            until = -1
-        self.__textNode.text = self.__textNode.text[0:until]
+        self.__textNode.text = self.__textNode.text[0:-1]
 
     def __resetCursorPosition(self):
         wslen = len(self.__textNode.text)

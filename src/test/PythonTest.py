@@ -314,7 +314,7 @@ sagittis mollis, dignissim vitae, erat. Vestibulum mattis, erat nec pulvinar lac
                lambda: setAndCheck(self.ta2, 'Lorem Ipsum'),
                checkSingleLine,
                clearPage,
-               longText,
+#               longText,
                clickFocus,
                testClickFocus,
                testUnicode,

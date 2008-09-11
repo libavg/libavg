@@ -5,6 +5,6 @@
     <words id="dynamictext" x="1" y="24" size="12" font="arial"
             text="foo"/>
     <words x="1" y="48" size="12" font="arial">&amp;</words>
-    <words x="12" y="48" size="12" font="arial" text="&amp;"/>
+    <words x="12" y="48" size="12" font="arial" text="&amp;" rawtextmode="true" />
 </avg>
 
