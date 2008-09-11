@@ -393,6 +393,10 @@ TrackerEventSource * Player::addTracker(const string& sConfigFilename)
     string sPixFmt = Config.getParam("/camera/format/@value");
     double FPS = Config.getDoubleParam("/camera/fps/@value");
 
+    if (!m_pEventDispatcher) {
+        throw Exception(AVG_ERR_UNSUPPORTED, "You must use loadFile() before addTracker().");
+    }
+
     if (sSource == "v4l") {
 #ifdef AVG_ENABLE_V4L2
         int Channel = Config.getIntParam("/camera/channel/@value");
