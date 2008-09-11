@@ -85,21 +85,18 @@ class AVGTestCase(unittest.TestCase):
             try:
                 BaselineBmp = avg.Bitmap(BASELINE_DIR+"/"+fileName+".png")
                 DiffBmp = Bmp.subtract(BaselineBmp)
-                if not(self.areSimilarBmps(Bmp, BaselineBmp, 2, 3)):
-#                NumPixels = self.__Player.getTestHelper().getNumDifferentPixels(Bmp, 
-#                        BaselineBmp)
-#                if (NumPixels > 3):
+                average = DiffBmp.getAvg()
+                stdDev = DiffBmp.getStdDev()
+                if (average > 0.1 or stdDev > 0.5):
                     if ourSaveDifferences:
                         Bmp.save(RESULT_DIR+"/"+fileName+".png")
                         BaselineBmp.save(RESULT_DIR+"/"+fileName+"_baseline.png")
                         DiffBmp.save(RESULT_DIR+"/"+fileName+"_diff.png")
-                    self.Log.trace(self.Log.WARNING, 
-                            "Image compare: Difference image has avg="+str(DiffBmp.getAvg())+
-                            ", std dev="+str(DiffBmp.getStdDev()))
-                    if warn:
-                        self.Log.trace(self.Log.WARNING, "Image "+fileName
-                                +" differs from original.")
-                    else:
+                if (average > 2 or stdDev > 3):
+                    print ("  "+fileName+
+                            ": Difference image has avg=%(avg).2f, std dev=%(stddev).2f"%
+                            {'avg':average, 'stddev':stdDev})
+                    if not(warn):
                         self.assert_(False)
             except RuntimeError:
                 Bmp.save(RESULT_DIR+"/"+fileName+".png")
