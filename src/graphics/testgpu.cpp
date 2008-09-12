@@ -105,7 +105,7 @@ private:
         BitmapPtr pBmp = loadTestBmp(sFName);
         BitmapPtr pDestBmp;
         pDestBmp = GPUBrightnessFilter(pBmp->getSize(), pBmp->getPixelFormat(), 1).apply(pBmp);
-        testEqual(*pDestBmp, *pBmp, string("brightness_")+sFName);
+        testEqual(*pDestBmp, *pBmp, string("brightness_")+sFName, 0.2, 0.5);
     }
 };
 
@@ -132,16 +132,16 @@ public:
         cerr << "    Testing spike, stddev 0.5" << endl;
         pBmp = loadTestBmp("spike");
         pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 0.5).apply(pBmp);
-        testEqualBrightness(*pDestBmp, *pBmp, 7);
-        testEqual(*pDestBmp, "blur05_spike");
+        testEqualBrightness(*pDestBmp, *pBmp, 0.0004);
+        testEqual(*pDestBmp, "blur05_spike", NO_PIXELFORMAT, 0.01, 0.1);
         cerr << "    Testing spike, stddev 1" << endl;
         pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 1).apply(pBmp);
 //        testEqualBrightness(*pDestBmp, *pBmp, 5);
-        testEqual(*pDestBmp, "blur1_spike");
+        testEqual(*pDestBmp, "blur1_spike", NO_PIXELFORMAT, 0.01, 0.1);
         cerr << "    Testing spike, stddev 3" << endl;
         pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 3).apply(pBmp);
 //        testEqualBrightness(*pDestBmp, *pBmp, 5);
-        testEqual(*pDestBmp, "blur5_spike");
+        testEqual(*pDestBmp, "blur5_spike", NO_PIXELFORMAT, 0.01, 0.1);
 
         cerr << "    Testing flat, stddev 5" << endl;
         pBmp = loadTestBmp("flat");
@@ -160,7 +160,7 @@ private:
         BitmapPtr pBmp = loadTestBmp(sFName);
         BitmapPtr pDestBmp;
         pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 10).apply(pBmp);
-        testEqual(*pDestBmp, string("blur_")+sFName);
+        testEqual(*pDestBmp, string("blur_")+sFName, pBmp->getPixelFormat(), 0.2, 0.5);
     }
 };
 
@@ -186,7 +186,7 @@ private:
         BitmapPtr pDestBmp = f.apply(pBmp);
         cerr << "        " << pDestBmp->getAvg() << endl;
         TEST(fabs(pDestBmp->getAvg() -128) < 0.06);
-        testEqual(*pDestBmp, "bandpass_"+sFName, pf);
+        testEqual(*pDestBmp, "bandpass_"+sFName, pf, 0.2, 0.5);
         TEST(pDestBmp->getPixelFormat() == pf);
     }
 };

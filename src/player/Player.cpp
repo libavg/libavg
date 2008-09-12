@@ -187,6 +187,11 @@ void Player::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode,
     m_MultiSampleSamples = MultiSampleSamples;
 }
 
+void Player::setMultiSampleSamples(int MultiSampleSamples)
+{
+    m_MultiSampleSamples = MultiSampleSamples;
+}
+
 void Player::setAudioOptions(int samplerate, int channels)
 {
     m_AP.m_SampleRate = samplerate;

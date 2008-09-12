@@ -48,11 +48,10 @@ string getPath(const string& Filename)
     int pos = int(Filename.find_last_of("\\/"));
     string DirName;
     if (pos >= 0) {
-        DirName = Filename.substr(0, pos);
+        DirName = Filename.substr(0, pos+1);
     } else {
         DirName = Filename;
     }
-    DirName += "\\";
 #else
     char * pszBuffer = strdup(Filename.c_str());
 

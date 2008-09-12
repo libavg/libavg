@@ -142,7 +142,6 @@ BOOST_PYTHON_MODULE(avg)
     ;
 
     class_<TestHelper>("TestHelper", "Miscelaneous routines used by tests.", no_init)
-        .def("getNumDifferentPixels", &TestHelper::getNumDifferentPixels, "")
         .def("useFakeCamera", &TestHelper::useFakeCamera, "")
         .def("fakeMouseEvent", &TestHelper::fakeMouseEvent, "")
         .def("fakeKeyEvent", &TestHelper::fakeKeyEvent, "")
@@ -182,6 +181,12 @@ BOOST_PYTHON_MODULE(avg)
                 "to the screen. Can be shader, mesa, apple or none.\n"
                 "@param UsePixelBuffers: If False, disables the use of OpenGL pixel buffer\n"
                 "objects.\n"
+                "@param MultiSampleSamples: The number of samples per pixel to compute. This\n"
+                "costs performance and smoothes the edges of polygons. A value of 1 turns\n"
+                "multisampling (also knowna as FSAA - Full-Screen Antialiasing) off. Good\n"
+                "values are dependent on the graphics driver.\n")
+        .def("setMultiSampleSamples", &Player::setMultiSampleSamples,
+                "setMultiSampleSamples(multiSampleSamples)\n"
                 "@param MultiSampleSamples: The number of samples per pixel to compute. This\n"
                 "costs performance and smoothes the edges of polygons. A value of 1 turns\n"
                 "multisampling (also knowna as FSAA - Full-Screen Antialiasing) off. Good\n"

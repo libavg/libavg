@@ -47,7 +47,8 @@ class AVGTestCase(unittest.TestCase):
         self.__Player.setResolution(0, 0, 0, self.__bpp)
         if g_CustomOGLOptions:
             self.__Player.setOGLOptions(g_UsePOW2Textures, g_YCbCrMode, 
-                    g__UsePixelBuffers, 1)
+                    g_UsePixelBuffers, 1)
+        self.__Player.setMultiSampleSamples(1)
 
     def setUp(self):
         self.setUpVideo()
@@ -84,20 +85,18 @@ class AVGTestCase(unittest.TestCase):
             try:
                 BaselineBmp = avg.Bitmap(BASELINE_DIR+"/"+fileName+".png")
                 DiffBmp = Bmp.subtract(BaselineBmp)
-                NumPixels = self.__Player.getTestHelper().getNumDifferentPixels(Bmp, 
-                        BaselineBmp)
-                if (NumPixels > 3):
+                average = DiffBmp.getAvg()
+                stdDev = DiffBmp.getStdDev()
+                if (average > 0.1 or stdDev > 0.5):
                     if ourSaveDifferences:
                         Bmp.save(RESULT_DIR+"/"+fileName+".png")
                         BaselineBmp.save(RESULT_DIR+"/"+fileName+"_baseline.png")
-                        Bmp.subtract(BaselineBmp)
-                        Bmp.save(RESULT_DIR+"/"+fileName+"_diff.png")
-                    self.Log.trace(self.Log.WARNING, "Image compare: "+str(NumPixels)+
-                            " bright pixels.")
-                    if warn:
-                        self.Log.trace(self.Log.WARNING, "Image "+fileName
-                                +" differs from original.")
-                    else:
+                        DiffBmp.save(RESULT_DIR+"/"+fileName+"_diff.png")
+                if (average > 2 or stdDev > 5):
+                    print ("  "+fileName+
+                            ": Difference image has avg=%(avg).2f, std dev=%(stddev).2f"%
+                            {'avg':average, 'stddev':stdDev})
+                    if not(warn):
                         self.assert_(False)
             except RuntimeError:
                 Bmp.save(RESULT_DIR+"/"+fileName+".png")
@@ -117,6 +116,7 @@ class AVGTestCase(unittest.TestCase):
         except:
             exceptionRaised = True
         self.assert_(exceptionRaised)
+
     def _loadEmpty(self):
         self.__Player.loadString("""
         <?xml version="1.0"?>

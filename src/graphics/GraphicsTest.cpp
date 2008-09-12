@@ -63,7 +63,8 @@ BitmapPtr GraphicsTest::loadTestBmp(const std::string& sFName, PixelFormat pf)
   return pBmp;
 }
 
-void GraphicsTest::testEqual(Bitmap& ResultBmp, const string& sFName, PixelFormat pf) 
+void GraphicsTest::testEqual(Bitmap& ResultBmp, const string& sFName, PixelFormat pf, 
+        double maxAverage, double maxStdDev) 
 {
     BitmapPtr pBaselineBmp;
     try {
@@ -78,33 +79,35 @@ void GraphicsTest::testEqual(Bitmap& ResultBmp, const string& sFName, PixelForma
         ResultBmp.save(getSrcDirName()+"resultimages/"+sFName+".png");
         throw;
     }
-    testEqual(ResultBmp, *pBaselineBmp, sFName);
+    testEqual(ResultBmp, *pBaselineBmp, sFName, maxAverage, maxStdDev);
 }
 
-void GraphicsTest::testEqual(Bitmap& ResultBmp, Bitmap& BaselineBmp,
-        const string& sFName)
+void GraphicsTest::testEqual(Bitmap& ResultBmp, Bitmap& BaselineBmp, 
+        const string& sFName, double maxAverage, double maxStdDev)
 {
-    TEST(bmpAlmostEqual(ResultBmp, BaselineBmp));
-    if (!bmpAlmostEqual(ResultBmp, BaselineBmp)) {
-        ResultBmp.dump();
-        BaselineBmp.dump();
+    BitmapPtr pDiffBmp = BitmapPtr(ResultBmp.subtract(&BaselineBmp));
+    double average = pDiffBmp->getAvg();
+    double stdDev = pDiffBmp->getStdDev();
+    if (average > maxAverage || stdDev > maxStdDev) {
+        TEST_FAILED("Error: Decoded image differs from baseline '" << 
+                sFName << "'. average=" << average << ", stdDev=" << stdDev);
+//        ResultBmp.dump();
+//        BaselineBmp.dump();
         string sResultName = getSrcDirName()+"resultimages/"+sFName;
-        cerr << "Saving result image to " << sResultName << endl;
         ResultBmp.save(sResultName+".png");
-        BaselineBmp.save(sResultName+"_expected.png");
+        BaselineBmp.save(sResultName+"_baseline.png");
         BitmapPtr pDiffBmp(ResultBmp.subtract(&BaselineBmp));
         pDiffBmp->save(sResultName+"_diff.png");
     }
 }
 
-void GraphicsTest::testEqualBrightness(Bitmap& ResultBmp, Bitmap& BaselineBmp, int epsilon)
+void GraphicsTest::testEqualBrightness(Bitmap& ResultBmp, Bitmap& BaselineBmp, 
+        double epsilon)
 {
-    int ResultBrightness = sumPixels(ResultBmp);
-    int BaselineBrightness = sumPixels(BaselineBmp);
-    TEST(abs(ResultBrightness - BaselineBrightness) < epsilon);
-    if (abs(ResultBrightness - BaselineBrightness) >= epsilon) {
-        cerr << "Baseline brightness: " << BaselineBrightness << ", Result brightness: " 
-                << ResultBrightness << endl;
+    double diff = fabs(ResultBmp.getAvg()-BaselineBmp.getAvg());
+    if (diff >= epsilon) {
+        cerr << "        Baseline brightness: " << BaselineBmp.getAvg() << ", Result brightness: " 
+                << ResultBmp.getAvg() << ", difference: " << diff << endl;
     }
 }
 
@@ -122,48 +125,6 @@ int GraphicsTest::sumPixels(Bitmap& Bmp)
         }
     }
     return sum;
-}
-
-bool GraphicsTest::bmpAlmostEqual(Bitmap& Bmp1, Bitmap& Bmp2)
-{
-    IntPoint size = Bmp1.getSize();
-    for (int y = 0; y < size.y; y++) {
-        unsigned char * pLine1 = Bmp1.getPixels()+y*Bmp1.getStride();
-        unsigned char * pLine2 = Bmp2.getPixels()+y*Bmp2.getStride();
-        for (int x = 0; x < size.x; x++) {
-            switch (Bmp2.getBytesPerPixel()) {
-                case 4:
-                    if (abs(pLine1[x*4]-pLine2[x*4])+abs(pLine1[x*4+1]-pLine2[x*4+1])+
-                            abs(pLine1[x*4+2]-pLine2[x*4+2]) > 3)
-                    {
-                        return false;
-                    }
-                    break;
-                case 3:
-                    if (abs(pLine1[x*3]-pLine2[x*3])+abs(pLine1[x*3+1]-pLine2[x*3+1])+
-                            abs(pLine1[x*3+2]-pLine2[x*3+2]) > 3)
-                    {
-                        return false;
-                    }
-                    break;
-                case 2:
-                    if (abs(pLine1[x*2]-pLine2[x*2])+abs(pLine1[x*2+1]-pLine2[x*2+1])
-                            > 2)
-                    {
-                        return false;
-                    }
-                    break;
-                case 1:
-                    if (abs(pLine1[x]-pLine2[x]) > 1) {
-                        return false;
-                    }
-                    break;
-                default:
-                    assert(false);
-            }
-        }
-    }
-    return true;
 }
 
 };

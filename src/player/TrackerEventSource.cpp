@@ -190,6 +190,11 @@ namespace avg {
         boost::mutex::scoped_lock Lock(*m_pMutex);
         return new Bitmap(*m_pBitmaps[ImageID]);
     }
+    
+    double getDistSquared(DPoint c1, DPoint c2)
+    {
+        return (c1.x-c2.x)*(c1.x-c2.x) + (c1.y-c2.y)*(c1.y-c2.y);
+    }
 
     static ProfilingZone ProfilingZoneCalcTrack("trackBlobIDs(track)");
     static ProfilingZone ProfilingZoneCalcTouch("trackBlobIDs(touch)");
@@ -257,12 +262,11 @@ namespace avg {
             BlobPtr pNewBlob = *it;
             for(BlobVector::iterator it2 = OldBlobs.begin(); it2!=OldBlobs.end(); ++it2) { 
                 BlobPtr pOldBlob = *it2;
-                double distSquared = calcDistSquared(pNewBlob->getCenter(),
+                double distSquared = getDistSquared(pNewBlob->getCenter(),
                         pOldBlob->getEstimatedNextCenter());
                 if (distSquared <= MaxDistSquared) {
                     BlobDistEntryPtr pEntry = BlobDistEntryPtr(
-                            new BlobDistEntry(distSquared,
-                                    pNewBlob, pOldBlob));
+                            new BlobDistEntry(distSquared, pNewBlob, pOldBlob));
                     DistHeap.push(pEntry);
                 }
             }

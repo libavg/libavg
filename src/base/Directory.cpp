@@ -63,7 +63,7 @@ int Directory::open(bool bCreateIfMissing)
             if (err == 0) {
                 return -1;
             } else {
-                m_hFile = _findfirst(m_sName.c_str(), &m_FindData);
+                m_hFile = _findfirst((m_sName+"/*").c_str(), &m_FindData);
                 m_bFirstFile = true;
                 return 0;
             }

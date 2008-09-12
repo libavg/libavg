@@ -698,6 +698,7 @@ class PlayerTestCase(AVGTestCase):
             node.y = 10
             Player.getElementByID("nestedavg").angle = 1.0
             Player.getElementByID("bkgd").angle = 1.0
+        Player.setFakeFPS(30)
         self.start("crop.avg",
                 (playMovie,
                  lambda: self.compareImage("testCropMovie1", False),
@@ -731,6 +732,7 @@ class PlayerTestCase(AVGTestCase):
             node = Player.getElementByID("clogo1")
             grid = node.getWarpedVertexCoords()
             grid[0][0] = (grid[0][0][0]+0.06, grid[0][0][1]+0.06)
+            grid[1][1] = (grid[1][1][0]-0.06, grid[1][1][1]-0.06)
             node.setWarpedVertexCoords(grid)
         def flip():
             node = Player.getElementByID("testtiles")
@@ -741,6 +743,7 @@ class PlayerTestCase(AVGTestCase):
         node = Player.getElementByID("testtiles")
         self.assertException(node.getOrigVertexCoords)
         self.assertException(node.getWarpedVertexCoords)
+        Player.setFakeFPS(30)
         self.start(None,
                 (lambda: Player.getElementByID("clogo1").play(),
                  lambda: self.compareImage("testWarp1", False),
@@ -1237,14 +1240,14 @@ class PlayerTestCase(AVGTestCase):
                 Player.getElementByID("main").mediadir="/testmediadir"
             self.assertException(absDir)
         def createNode():
-            node = Player.createNode("video", {"href":"mjpeg1-48x48.avi"})
+            node = Player.createNode("video", {"href":"mjpeg1-48x48.avi", "fps":30})
         self.start("mediadir.avg",
                 (lambda: Player.getElementByID("video").play(),
                  lambda: self.compareImage("mediadir1", False),
                  setDir,
                  lambda: Player.getElementByID("video").play(), 
-                 lambda: self.assert_(Player.getElementByID("img").width == 1),
                  lambda: self.compareImage("mediadir2", False),
+                 lambda: self.assert_(Player.getElementByID("img").width == 1),
                  createNode,
                  setAbsDir
                 ))

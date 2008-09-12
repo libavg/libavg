@@ -34,6 +34,7 @@
 
 #include "../graphics/Filterfliprgba.h"
 #include "../graphics/Filterfliprgb.h"
+#include "../graphics/GraphicsTest.h"
 
 #include "../base/StringHelper.h"
 #include "../base/TimeSource.h"
@@ -57,10 +58,10 @@ using namespace std;
 //  - Test YCbCr420p, YCbCr422
 
 
-class DecoderTest: public Test {
+class DecoderTest: public GraphicsTest {
     public:
         DecoderTest(const string& sClassName, bool bThreadedDecoder, bool bThreadedDemuxer)
-          : Test(sClassName+getDecoderName(bThreadedDecoder, bThreadedDemuxer), 2),
+          : GraphicsTest(sClassName+getDecoderName(bThreadedDecoder, bThreadedDemuxer), 2),
             m_bThreadedDecoder(bThreadedDecoder),
             m_bThreadedDemuxer(bThreadedDemuxer)
         {}
@@ -79,40 +80,6 @@ class DecoderTest: public Test {
                 pDecoder = VideoDecoderPtr(new AsyncVideoDecoder(pDecoder));
             }
             return pDecoder;
-        }
-
-        void compareImages(BitmapPtr pBmp, const string& sFilename)
-        {
-            BitmapPtr pBaselineBmp;
-            try {
-                pBaselineBmp = BitmapPtr(new Bitmap(
-                        getSrcDirName()+"testfiles/baseline/"+sFilename+".png"));
-            } catch (Magick::Exception & ex) {
-                TEST_FAILED("Error loading baseline image: " << ex.what()); 
-                pBmp->save(getSrcDirName()+"testfiles/result/"+sFilename+".png");
-                return;
-            }
-            FilterFlipRGB().applyInPlace(pBaselineBmp);
-#ifdef __BIG_ENDIAN__
-            FilterFlipRGBA().applyInPlace(pBmp);
-#endif
-            int DiffPixels = pBaselineBmp->getNumDifferentPixels(*pBmp);
-            if (DiffPixels > 0) {
-                TEST_FAILED("Error: Decoded image differs from baseline '" << 
-                        sFilename << "'. " << DiffPixels << " different pixels.");
-                try {
-                    pBmp->save(getSrcDirName()+"testfiles/result/"+sFilename+".png");
-                    BitmapPtr pOrigBmp(new Bitmap(
-                            getSrcDirName()+"testfiles/baseline/"+sFilename+".png"));
-                    pOrigBmp->save(getSrcDirName()+"testfiles/result/"+sFilename+"_baseline.png");
-                    Bitmap DiffBmp(*pBmp);
-                    BitmapPtr pDiffBmp = BitmapPtr(pBmp->subtract(&*pBaselineBmp));
-                    pDiffBmp->save(getSrcDirName()+"testfiles/result/"+sFilename+"_diff.png");
-                } catch (Magick::Exception & ex) {
-                    TEST_FAILED("Error saving result image: " << ex.what()); 
-                    return;
-                }
-            }
         }
 
         AudioBufferPtr createAudioBuffer(int NumFrames)
@@ -175,9 +142,9 @@ class VideoDecoderTest: public DecoderTest {
 
                 // Test first two frames.
                 pDecoder->renderToBmp(pBmp, -1);
-                compareImages(pBmp, sFilename+"_1");
+                testEqual(*pBmp, sFilename+"_1");
                 pDecoder->renderToBmp(pBmp, -1);
-                compareImages(pBmp, sFilename+"_2");
+                testEqual(*pBmp, sFilename+"_2");
                 pDecoder->close();
                 
                 readWholeFile(sFilename, 1, ExpectedNumFrames); 
@@ -214,7 +181,7 @@ class VideoDecoderTest: public DecoderTest {
             BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
             pDecoder->seek((long long)(FrameNum*1000/pDecoder->getNominalFPS()));
             pDecoder->renderToBmp(pBmp, -1);
-            compareImages(pBmp, sFilename+"_"+toString(FrameNum));
+            testEqual(*pBmp, sFilename+"_"+toString(FrameNum));
 
         }
 
@@ -250,13 +217,13 @@ class VideoDecoderTest: public DecoderTest {
 //            cerr << "NumFrames: " << NumFrames << ", ExpectedNumFrames: " << ExpectedNumFrames << endl;
             TEST(NumFrames == ExpectedNumFrames);
             if (SpeedFactor == 1) {
-                compareImages(pBmp, sFilename+"_end");
+                testEqual(*pBmp, sFilename+"_end");
             }
             
             // Test loop.
             pDecoder->seek(0);
             pDecoder->renderToBmp(pBmp, -1);
-            compareImages(pBmp, sFilename+"_loop");
+            testEqual(*pBmp, sFilename+"_loop");
 
             pDecoder->close();
         }
@@ -422,7 +389,7 @@ class AVDecoderTest: public DecoderTest {
             TEST(pDecoder->isEOF(SS_VIDEO));
 //            cerr << "NumFrames: " << NumFrames << endl;
             TEST(NumFrames == ExpectedNumFrames);
-            compareImages(pBmp, sFilename+"_end");
+            testEqual(*pBmp, sFilename+"_end");
 
             if (isDemuxerThreaded()) {
                 // Check if audio length was ok.
@@ -434,7 +401,7 @@ class AVDecoderTest: public DecoderTest {
             // Test loop.
             pDecoder->seek(0);
             pDecoder->renderToBmp(pBmp, -1);
-            compareImages(pBmp, sFilename+"_loop");
+            testEqual(*pBmp, sFilename+"_loop");
 
             pDecoder->close();
         }
@@ -462,7 +429,7 @@ public:
 
 void deleteOldResultImages() 
 {
-    string sDirName("testfiles/result/");
+    string sDirName("resultimages");
     Directory Dir(sDirName);
     int err = Dir.open(true);
     if (err) {

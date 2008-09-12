@@ -36,14 +36,14 @@ public:
 protected:
     BitmapPtr loadTestBmp(const std::string& sFName, PixelFormat pf = NO_PIXELFORMAT);
     void testEqual(Bitmap& ResultBmp, const std::string& sFName, 
-            PixelFormat pf = NO_PIXELFORMAT); 
+            PixelFormat pf = NO_PIXELFORMAT, double maxAverage=0.01, 
+            double maxStdDev=0.05); 
     void testEqual(Bitmap& ResultBmp, Bitmap& BaselineBmp,
-        const std::string& sFName);
-    void testEqualBrightness(Bitmap& ResultBmp, Bitmap& BaselineBmp, int epsilon);
+        const std::string& sFName, double maxAverage=0.01, double maxStdDev=0.05);
+    void testEqualBrightness(Bitmap& ResultBmp, Bitmap& BaselineBmp, double epsilon);
 
 private:
     int sumPixels(Bitmap& Bmp);
-    bool bmpAlmostEqual(Bitmap& Bmp1, Bitmap& Bmp2);
 
 };
 

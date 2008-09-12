@@ -41,11 +41,6 @@ TestHelper::~TestHelper()
 {
 }
 
-int TestHelper::getNumDifferentPixels(Bitmap* pBmp1, Bitmap* pBmp2)
-{
-    return pBmp1->getNumDifferentPixels(*pBmp2);
-}
-
 void TestHelper::useFakeCamera(bool bFake)
 {
     m_pPlayer->useFakeCamera(bFake);

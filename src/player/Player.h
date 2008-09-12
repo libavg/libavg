@@ -62,6 +62,7 @@ class Player : IEventSink
         void setWindowPos(int x=0, int y=0);
         void setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode, 
                 bool bUsePixelBuffers, int MultiSampleSamples);
+        void setMultiSampleSamples(int MultiSampleSamples);
         void setAudioOptions(int samplerate, int channels);
         void loadFile(const std::string& sFilename);
         void loadString(const std::string& sAVG);
