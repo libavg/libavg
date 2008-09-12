@@ -429,7 +429,7 @@ public:
 
 void deleteOldResultImages() 
 {
-    string sDirName("testfiles/result/");
+    string sDirName("resultimages");
     Directory Dir(sDirName);
     int err = Dir.open(true);
     if (err) {

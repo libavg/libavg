@@ -48,7 +48,7 @@ public:
         if (pszDir) {
             sFName = string(pszDir)+ "/../test/image.avg";
         } else {
-            sFName = "../test/empty.avg";
+            sFName = "../test/image.avg";
         }
         player.loadFile(sFName);
         player.disablePython();
