@@ -186,7 +186,7 @@ private:
         BitmapPtr pDestBmp = f.apply(pBmp);
         cerr << "        " << pDestBmp->getAvg() << endl;
         TEST(fabs(pDestBmp->getAvg() -128) < 0.06);
-        testEqual(*pDestBmp, "bandpass_"+sFName, pf);
+        testEqual(*pDestBmp, "bandpass_"+sFName, pf, 0.2, 0.5);
         TEST(pDestBmp->getPixelFormat() == pf);
     }
 };
