@@ -398,6 +398,10 @@ TrackerEventSource * Player::addTracker(const string& sConfigFilename)
     string sPixFmt = Config.getParam("/camera/format/@value");
     double FPS = Config.getDoubleParam("/camera/fps/@value");
 
+    if (!m_pEventDispatcher) {
+        throw Exception(AVG_ERR_UNSUPPORTED, "You must use loadFile() before addTracker().");
+    }
+
     if (sSource == "v4l") {
 #ifdef AVG_ENABLE_V4L2
         int Channel = Config.getIntParam("/camera/channel/@value");
@@ -951,7 +955,7 @@ NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc,
         // TODO: This is an end-run around the generic serialization mechanism
         // that will probably break at some point.
         string s = getXmlChildrenAsString(xmlDoc, xmlNode);
-        boost::dynamic_pointer_cast<Words>(curNode)->initText(s);
+        boost::dynamic_pointer_cast<Words>(curNode)->setTextFromNodeValue(s);
     }
     curNode->setThis(curNode);
 

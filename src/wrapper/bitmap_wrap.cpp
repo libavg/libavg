@@ -49,7 +49,7 @@ namespace DPointHelper
             case 1:
                 return pt.y;
             default:
-                throw std::range_error("Index out of range for Point2D. Must be 0 or 1.");
+                throw std::out_of_range("Index out of range for Point2D. Must be 0 or 1.");
         }
     }
 

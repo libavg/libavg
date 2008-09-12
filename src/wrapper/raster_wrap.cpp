@@ -276,7 +276,8 @@ void export_raster()
                 "node itself. In the second case, the string can be formatted\n"
                 "using the pango text attribute markup language described at\n"
                 "U{http://developer.gnome.org/doc/API/2.0/pango/PangoMarkupFormat.html}.\n"
-                "Markup can also be used if the text is set using python.\n")
+                "Markup can also be used if the text is set using python.\n"
+                "Markup parsing is controlled with 'parsetext' property\n")
         .add_property("color", 
                 make_function(&Words::getColor,
                         return_value_policy<copy_const_reference>()),
@@ -296,6 +297,9 @@ void export_raster()
         .add_property("alignment", &Words::getAlignment, &Words::setAlignment,
                 "The paragraph alignment. Possible values are 'left',\n"
                 "'center' and 'right'.\n")
+        .add_property("rawtextmode", &Words::getRawTextMode, &Words::setRawTextMode,
+                "Sets whether the text should be parsed (False) or set\n"
+                "as raw string (True).\n")
         .def("getGlyphPos", &Words::getGlyphPos,
                 "getGlyphPos(i)->pos\n"
                 "Returns the position of the glyph at byte index i in the layout.\n"
