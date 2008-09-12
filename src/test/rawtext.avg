@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <avg id="textavg" width="160" height="120">
-    <words id="attrib" text="ùnicòdé &lt;b&gt;bold&lt;/b&gt;" size="12" x="1" y="5" font="arial" />
-    <words id="nodeval" size="12" x="1" y="25" font="arial">
+    <words id="attrib" text="ùnicòdé &lt;b&gt;bold&lt;/b&gt;" size="12" x="1" y="5" font="Bitstream Vera Sans" />
+    <words id="nodeval" size="12" x="1" y="25" font="Bitstream Vera Sans">
         <b>bold</b> ùnicòdé  &lt;
     </words>
-    <words x="1" y="45" size="15" font="arial">&amp;</words>
+    <words x="1" y="45" size="15" font="Bitstream Vera Sans">&amp;</words>
 </avg>
 

@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <avg id="textavg" width="160" height="120">
-    <words id="jap" x="1" y="1" size="14" font="arial" 
+    <words id="jap" x="1" y="1" size="14" font="Bitstream Vera Sans" 
             text="一二三四五六七八九"/>
-    <words id="dynamictext" x="1" y="24" size="12" font="arial"
+    <words id="dynamictext" x="1" y="24" size="12" font="Bitstream Vera Sans"
             text="foo"/>
-    <words x="1" y="48" size="12" font="arial">&amp;</words>
-    <words x="12" y="48" size="12" font="arial" text="&amp;" rawtextmode="true" />
+    <words x="1" y="48" size="12" font="Bitstream Vera Sans">&amp;</words>
+    <words x="12" y="48" size="12" font="Bitstream Vera Sans" text="&amp;" rawtextmode="true" />
 </avg>
 

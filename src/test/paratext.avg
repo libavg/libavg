@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <avg width="160" height="120">
-    <words id="para" x="1" y="1" size="12" parawidth="60" font="arial"
+    <words id="para" x="1" y="1" size="12" parawidth="60" font="Bitstream Vera Sans"
             text="Left-justified paragraph."/>
     <words id="paracenter" x="70" y="1" size="12" parawidth="60" 
-            font="arial" alignment="center"
+            font="Bitstream Vera Sans" alignment="center"
             text="Centered paragraph"/>
     <words id="pararight" x="1" y="60" size="12" parawidth="60" 
-            font="arial" alignment="right"
+            font="Bitstream Vera Sans" alignment="right"
             text="Right-justified paragraph."/>
     <words id="paralinespacing" x="70" y="60" size="12" parawidth="60" 
-            font="arial" linespacing="-4"
+            font="Bitstream Vera Sans" linespacing="-4"
             text="Paragraph with custom line spacing."/>
 </avg>

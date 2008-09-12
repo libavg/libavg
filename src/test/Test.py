@@ -899,21 +899,20 @@ class PlayerTestCase(AVGTestCase):
 
     def testRawText(self):
         def createDynNodes():
-            self.dictdnode = Player.createNode("words", {'text':'&lt;test dyndict&amp;', 'rawtextmode':True, 'x':1, 'y':65, 'font':'arial', 'size':12})
+            self.dictdnode = Player.createNode("words", {'text':'&lt;test dyndict&amp;', 'rawtextmode':True, 'x':1, 'y':65, 'font':'Bitstream Vera Sans', 'variant': 'roman', 'size':12})
             Player.getRootNode().appendChild(self.dictdnode)
 
-            self.xmldnode = Player.createNode("<words text=\"&lt;test dynattr&amp;\" size=\"12\" font=\"arial\" rawtextmode=\"true\" x=\"1\" y=\"85\"/>")
+            self.xmldnode = Player.createNode("<words text=\"&lt;test dynattr&amp;\" size=\"12\" font=\"Bitstream Vera Sans\" variant=\"roman\" rawtextmode=\"true\" x=\"1\" y=\"85\"/>")
             Player.getRootNode().appendChild(self.xmldnode)
         def switchRawMode():
             self.dictdnode.rawtextmode = False
             Player.getElementByID('nodeval').rawtextmode = True
             Player.getElementByID('attrib').rawtextmode = True
         def bombIt():
-            try:
+            def cantRun():
                 self.xmldnode.rawtextmode = False
                 self.assert_(0)
-            except RuntimeError:
-                pass
+            self.assertException(cantRun)
         def assignNewTexts():
             text = u'&ùùààxx>'
             self.dictdnode.rawtextmode = True
