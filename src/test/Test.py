@@ -732,6 +732,7 @@ class PlayerTestCase(AVGTestCase):
             node = Player.getElementByID("clogo1")
             grid = node.getWarpedVertexCoords()
             grid[0][0] = (grid[0][0][0]+0.06, grid[0][0][1]+0.06)
+            grid[1][1] = (grid[1][1][0]-0.06, grid[1][1][1]-0.06)
             node.setWarpedVertexCoords(grid)
         def flip():
             node = Player.getElementByID("testtiles")
