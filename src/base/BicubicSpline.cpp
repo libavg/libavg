@@ -53,7 +53,7 @@ BicubicSpline::BicubicSpline(const vector<double>& x, const vector<double>& y,
         tempF[0].push_back(getF(-100,j));
         tempF[tempF.size()-1].push_back(getF(m_F.size()+99,j));
     }
-    for (unsigned i=0; i<m_Y.size(); ++i) {
+    for (unsigned i=0; i<m_Y.size()+2; ++i) {
         tempF[i].insert(tempF[i].begin(), getF(i-1, -100));
         tempF[i].push_back(getF(i-1, m_F.size()+99));
     }
