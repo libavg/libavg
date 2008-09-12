@@ -132,7 +132,7 @@ public:
         cerr << "    Testing spike, stddev 0.5" << endl;
         pBmp = loadTestBmp("spike");
         pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 0.5).apply(pBmp);
-        testEqualBrightness(*pDestBmp, *pBmp, 7);
+        testEqualBrightness(*pDestBmp, *pBmp, 0.0004);
         testEqual(*pDestBmp, "blur05_spike");
         cerr << "    Testing spike, stddev 1" << endl;
         pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 1).apply(pBmp);
@@ -160,7 +160,7 @@ private:
         BitmapPtr pBmp = loadTestBmp(sFName);
         BitmapPtr pDestBmp;
         pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 10).apply(pBmp);
-        testEqual(*pDestBmp, string("blur_")+sFName);
+        testEqual(*pDestBmp, string("blur_")+sFName, pBmp->getPixelFormat(), 0.2, 0.5);
     }
 };
 
