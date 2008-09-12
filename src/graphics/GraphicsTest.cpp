@@ -88,13 +88,12 @@ void GraphicsTest::testEqual(Bitmap& ResultBmp, Bitmap& BaselineBmp,
     BitmapPtr pDiffBmp = BitmapPtr(ResultBmp.subtract(&BaselineBmp));
     double average = pDiffBmp->getAvg();
     double stdDev = pDiffBmp->getStdDev();
-    TEST(average <= maxAverage && stdDev <= maxStdDev);
     if (average > maxAverage || stdDev > maxStdDev) {
-        cerr << "          avg: " << average << ", stdDev: " << stdDev << endl;
+        TEST_FAILED("Error: Decoded image differs from baseline '" << 
+                sFName << "'. average=" << average << ", stdDev=" << stdDev);
 //        ResultBmp.dump();
 //        BaselineBmp.dump();
         string sResultName = getSrcDirName()+"resultimages/"+sFName;
-        cerr << "          Saving result image to " << sResultName << endl;
         ResultBmp.save(sResultName+".png");
         BaselineBmp.save(sResultName+"_baseline.png");
         BitmapPtr pDiffBmp(ResultBmp.subtract(&BaselineBmp));
