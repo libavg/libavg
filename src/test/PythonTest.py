@@ -355,6 +355,7 @@ Log.setCategories(Log.APP |
 if os.getenv("AVG_CONSOLE_TEST"):
     sys.exit(0)
 else:
+    rmBrokenDir()
     Player = avg.Player()
     runner = unittest.TextTestRunner()
     rc = runner.run(pythonTestSuite())
