@@ -1,6 +1,49 @@
+libavg 0.8.0.pre2 - September 13, 2008
+
+  svn revision 3161
+
+  Major new Features:
+  
+    * Major tracking improvements: Parts now run as shaders on the GPU, 
+      lots of optimizations, speed and ellipse axes of blobs are now available
+      in python, blob contours can be calculated, etc.
+    * Major rendering performance improvements.
+    * Much improved words node - variant attribute to select font variant to use,
+      _much_ faster rendering, full unicode support, getGlyphPos() and 
+      getGlyphSize() methods, avg_showfont.py utility (parts by oxullol02l.org).
+    * Support for stereo sound mixing (Mostly Nick Hebner - hebern@gmail.com).
+    * Support for audio playback for videos (Mostly Nick Hebner - hebern@gmail.com).
+  
+  Other improvements:
+    * General Mac OS X 10.5 stability.
+    * Added mediadir attribute for div nodes to specify where media used in child
+      nodes should be loaded from.
+    * Switched from ImageMagick to GraphicsMagick.
+    * Nodes can now be constructed in python using a dict for the attributes (Nick
+      Hebner - hebern@gmail.com).
+    * Mouse Wheel support.
+    * Added Player::setWindowPos()
+    * Added Node::unlink() to remove a node from the tree.
+    * The anim module now allows only one animation per node attribute.
+    * avg_videoplayer.py utility.
+    * Support for application-specific fonts.
+    * Added Player::getGPUMemoryUsage() (oxullo@02l.net).
+    * Experimental button, checkbox and textarea gui classes.
+    * Added Player::loadString() to load avg tree from a string.
+    * Added DivNode::reorderChild(), ::insertChildBefore() and ::removeChild(pNode).
+    * Experimental TUIO protocol support in remote.py.
+    * Support for bayer pattern decoding (oxullo@02l.net).
+    * Added Node::getAbsPos().
+    * Added Node::getMediaSize().
+    * Unicode handling for keyboard events.
+    * New Point2D class exposed to python.
+    * Added anim.abortAnim(node, attrName).
+
+
 libavg 0.8.0.pre1 - September 9, 2008
 
   svn revision 3118
+
 
 libavg 0.7.1.pre1 - November 25, 2007
 
@@ -36,7 +79,6 @@ libavg 0.7.0 - August 31, 2007
     * API cleanups (not really a major feature, but a heads up that things will 
       break :-)).
     * Much improved documentation.
-
 
   Other improvements:
   
