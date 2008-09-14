@@ -173,6 +173,7 @@ class DynamicsTestCase(AVGTestCase):
         self.__runDynamicsTest(createDiv, "testDivDynamics")
 
     def testDynamicEventCapture(self):
+
         # Tests if deleting a node that has events captured works.
         def createImg():
             parentNode = Player.getRootNode()
@@ -180,35 +181,35 @@ class DynamicsTestCase(AVGTestCase):
             parentNode.appendChild(node)
             node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, captureMouseDown)
             parentNode.setEventHandler(avg.CURSORUP, avg.MOUSE, mainMouseUp)
+        
         def setEventCapture():
             Player.getElementByID("img").setEventCapture()
+        
         def deleteImg():
             parentNode = Player.getRootNode()
             node = Player.getElementByID("img")
             parentNode.removeChild(parentNode.indexOf(node))
+        
         def captureMouseDown(event):
-            global captureMouseDownCalled
-            captureMouseDownCalled = True
+            self.captureMouseDownCalled = True
+        
         def mainMouseUp(event):
-            global mainMouseUpCalled
-            mainMouseUpCalled = True
+            self.mainMouseUpCalled = True
+        
         Helper = Player.getTestHelper()
-        global captureMouseDownCalled
-        global mainMouseUpCalled
-        captureMouseDownCalled = False
-        mainMouseUpCalled = False
+        self.captureMouseDownCalled = False
+        self.mainMouseUpCalled = False
         self._loadEmpty()
         self.start(None,
             (createImg,
             setEventCapture,
-            lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
-                    100, 10, 1),
-            lambda: self.assert_(captureMouseDownCalled),
+            lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 100, 10, 1),
+            lambda: self.assert_(self.captureMouseDownCalled),
             deleteImg,
-            lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False,
-                    100, 10, 1),
-            lambda: self.assert_(mainMouseUpCalled)
+            lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False, 100, 10, 1),
+            lambda: self.assert_(self.mainMouseUpCalled)
         ))
+
 
 
 def dynamicsTestSuite():
