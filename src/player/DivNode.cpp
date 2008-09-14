@@ -155,7 +155,7 @@ void DivNode::insertChild(NodePtr pNewNode, unsigned i)
     m_Children.insert(Pos, pNewNode);
     DivNodePtr Ptr = boost::dynamic_pointer_cast<DivNode>(getThis());           
     pNewNode->setParent(Ptr, getState());
-    if (isDisplayAvailable()) {
+    if (getState() == NS_CANRENDER) {
         pNewNode->setRenderingEngines(getDisplayEngine(), getAudioEngine());
     }
 }

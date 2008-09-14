@@ -221,7 +221,7 @@ void PanoImage::setHRef(const string& href)
 {
     m_href = href;
     load();
-    if (isDisplayAvailable()) {
+    if (getState() == NS_CANRENDER) {
         setupTextures();
     }
 }

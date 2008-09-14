@@ -249,7 +249,7 @@ int Video::fillAudioBuffer(AudioBufferPtr pBuffer)
 
 void Video::changeVideoState(VideoState NewVideoState)
 {
-    if (isDisplayAvailable()) {
+    if (getState() == NS_CANRENDER) {
         long long CurTime = getPlayer()->getFrameTime(); 
         if (NewVideoState != getVideoState()) {
             if (getVideoState() == Unloaded) {

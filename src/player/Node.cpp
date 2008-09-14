@@ -438,11 +438,6 @@ Node::NodeState Node::getState() const
     return m_State;
 }
 
-bool Node::isDisplayAvailable() const
-{
-    return (getState() == NS_CANRENDER);
-}
-
 bool Node::operator ==(const Node& other) const
 {
     return m_This.lock() == other.m_This.lock();

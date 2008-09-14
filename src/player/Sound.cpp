@@ -232,7 +232,7 @@ int Sound::fillAudioBuffer(AudioBufferPtr pBuffer)
 
 void Sound::changeSoundState(SoundState NewSoundState)
 {
-    if (isDisplayAvailable()) {
+    if (getState() == NS_CANRENDER) {
         long long CurTime = getPlayer()->getFrameTime(); 
         if (NewSoundState != m_State) {
             if (m_State == Unloaded) {

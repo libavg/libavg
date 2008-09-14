@@ -135,7 +135,7 @@ void VideoBase::render (const DRect& Rect)
 
 void VideoBase::changeVideoState(VideoState NewVideoState)
 {
-    if (isDisplayAvailable()) {
+    if (getState() == NS_CANRENDER) {
         if (m_VideoState == NewVideoState) {
             return;
         }

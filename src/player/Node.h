@@ -149,7 +149,6 @@ class Node
         
         virtual void handleEvent (EventPtr pEvent); 
         NodeState getState() const;
-        bool isDisplayAvailable() const;
         virtual void checkReload() {};
 
         bool operator ==(const Node& other) const;

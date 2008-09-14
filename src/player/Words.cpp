@@ -576,7 +576,7 @@ void Words::drawString()
             m_StringExtents.y = 1;
         }
 //        cerr << "libavg Extents: " << m_StringExtents << endl;
-        if (isDisplayAvailable()) {
+        if (getState() == NS_CANRENDER) {
             getSurface()->create(m_StringExtents, I8, false);
 
             BitmapPtr pBmp = getSurface()->lockBmp();
@@ -604,7 +604,7 @@ void Words::drawString()
             }
         }
     }
-    if (isDisplayAvailable()) {
+    if (getState() == NS_CANRENDER) {
         m_bDrawNeeded = false;
         setViewport(-32767, -32767, -32767, -32767);
     }

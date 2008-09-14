@@ -77,7 +77,7 @@ void Image::disconnect()
     // a copy of the image to always be kept in main memory, so no readback has to
     // take place.
 
-    if (isDisplayAvailable()) {
+    if (getState() == NS_CANRENDER) {
         // Unload textures but keep bitmap in memory.
         ISurface * pSurface = getSurface();
         BitmapPtr pSurfaceBmp = pSurface->lockBmp();
@@ -106,7 +106,7 @@ void Image::setHRef(const string& href)
 {
     m_href = href;
     load();
-    if (isDisplayAvailable()) {
+    if (getState() == NS_CANRENDER) {
         setupSurface();
     }
     IntPoint Size = getMediaSize();
@@ -145,7 +145,7 @@ void Image::setBitmap(const Bitmap * pBmp)
     }
 #endif
 //    cerr << "setBitmap, pf: " << Bitmap::getPixelFormatString(pf) << endl;
-    if (isDisplayAvailable()) {
+    if (getState() == NS_CANRENDER) {
         ISurface * pSurface = getSurface();
         BitmapPtr pTempBmp = BitmapPtr(new Bitmap(*pBmp));
         if (pf != I8) {
@@ -186,7 +186,7 @@ string Image::getTypeStr ()
 
 IntPoint Image::getMediaSize()
 {
-    if (isDisplayAvailable()) {
+    if (getState() == NS_CANRENDER) {
         return getSurface()->getSize();
     } else {
         return m_pBmp->getSize();
@@ -202,7 +202,7 @@ void Image::checkReload()
     }
     if (sLastFilename != m_Filename || !m_pBmp) {
         load();
-        if (isDisplayAvailable()) {
+        if (getState() == NS_CANRENDER) {
             setupSurface();
         }
         IntPoint Size = getMediaSize();
@@ -212,7 +212,7 @@ void Image::checkReload()
 
 Bitmap * Image::getBitmap()
 {
-    if (isDisplayAvailable()) {
+    if (getState() == NS_CANRENDER) {
         return RasterNode::getBitmap();
     } else {
         Bitmap * pBmp;
