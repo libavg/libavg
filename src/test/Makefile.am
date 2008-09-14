@@ -2,4 +2,4 @@ EXTRA_DIST = $(wildcard *.avg) $(wildcard *.png) $(wildcard *.jpg) $(wildcard *.
 	$(wildcard *.py)  \
 	$(wildcard baseline/*.png) $(wildcard testmediadir/*)
 
-TESTS= LoggerTest.py Test.py PythonTest.py AVTest.py
+TESTS= LoggerTest.py Test.py WordsTest.py PythonTest.py AVTest.py
