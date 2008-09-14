@@ -160,13 +160,13 @@ class DynamicsTestCase(AVGTestCase):
         def createDiv(useXml):
             if useXml:
                 node = Player.createNode("""
-                    <div id='newDiv'>
+                    <div>
                       <image href='rgb24-64x64.png'/>
                     </div>
                     """)
             else:
                 imgNode = Player.createNode("image", {"href":"rgb24-64x64.png"})
-                node = Player.createNode("div", {"id":"newDiv"})
+                node = Player.createNode("div", {})
                 node.appendChild(imgNode)
             return node
 
@@ -201,15 +201,52 @@ class DynamicsTestCase(AVGTestCase):
         self.mainMouseUpCalled = False
         self._loadEmpty()
         self.start(None,
-            (createImg,
-            setEventCapture,
-            lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 100, 10, 1),
-            lambda: self.assert_(self.captureMouseDownCalled),
-            deleteImg,
-            lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False, 100, 10, 1),
-            lambda: self.assert_(self.mainMouseUpCalled)
-        ))
+                (createImg,
+                 setEventCapture,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 100, 10, 1),
+                 lambda: self.assert_(self.captureMouseDownCalled),
+                 deleteImg,
+                 lambda: Helper.fakeMouseEvent(avg.CURSORUP, True, False, False, 100, 10, 1),
+                 lambda: self.assert_(self.mainMouseUpCalled)
+                ))
 
+    def testComplexDiv(self):
+        
+        def setImageID(imgNode):
+            imgNode.id = "imageid"
+
+        def createDiv():
+            imgNode = Player.createNode("image", 
+                    {"id":"imageid", "href":"rgb24-64x64.png"})
+            node = Player.createNode("div", {"id":"divid"})
+            node.appendChild(imgNode)
+            imgNode.id = "imageid"
+            Player.getRootNode().appendChild(node)
+            self.assertException(lambda: setImageID(imgNode))
+  
+        def removeDiv():
+            node = Player.getElementByID("divid")
+            imgNode = Player.getElementByID("imageid")
+            node.unlink()
+            imgNode.id = "imageid"
+            imgNode.unlink()
+            Player.getRootNode().appendChild(node)
+            node.appendChild(imgNode)
+            self.assertException(lambda: setImageID(imgNode))
+
+        self._loadEmpty()
+        createDiv()
+        removeDiv()
+        Player.stop()
+        self.setUpVideo()
+        self._loadEmpty()
+        Player.setFakeFPS(25)
+        self.start(None,
+                (createDiv,
+                 lambda: self.compareImage("testComplexDiv1", False),
+                 removeDiv,
+                 lambda: self.compareImage("testComplexDiv1", False),
+                ))
 
 
 def dynamicsTestSuite():
@@ -220,6 +257,7 @@ def dynamicsTestSuite():
 #    suite.addTest(DynamicsTestCase("testPanoDynamics"))
     suite.addTest(DynamicsTestCase("testDivDynamics"))
     suite.addTest(DynamicsTestCase("testDynamicEventCapture"))
+    suite.addTest(DynamicsTestCase("testComplexDiv"))
     return suite
 
 Log = avg.Logger.get()

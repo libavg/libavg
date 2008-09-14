@@ -64,7 +64,7 @@ typedef boost::weak_ptr<AVGNode> AVGNodeWeakPtr;
 class Node
 {
     public:
-        enum NodeState {NS_UNCONNECTED, NS_CONNECTED};
+        enum NodeState {NS_UNCONNECTED, NS_CONNECTED, NS_CANRENDER};
         
         template<class NodeType>
         static NodePtr buildNode(const ArgList& Args, Player* pPlayer, bool bFromXML)
@@ -76,8 +76,10 @@ class Node
         virtual ~Node() = 0;
         virtual void setThis(NodeWeakPtr This);
         virtual void setArgs(const ArgList& Args);
-        void setParent(DivNodeWeakPtr pParent);
+        virtual void setParent(DivNodeWeakPtr pParent, NodeState parentState);
+        void removeParent();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
+        virtual void connect();
         virtual void disconnect();
         
         virtual const std::string& getID() const;

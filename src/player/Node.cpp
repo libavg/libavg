@@ -78,10 +78,10 @@ Node::Node (Player * pPlayer)
       m_pDisplayEngine(0),
       m_pAudioEngine(0),
       m_pPlayer(pPlayer),
-      m_RelViewport(0,0,0,0)
+      m_RelViewport(0,0,0,0),
+      m_State(NS_UNCONNECTED)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    setState(NS_UNCONNECTED);
 }
 
 Node::~Node()
@@ -109,18 +109,30 @@ void Node::setArgs(const ArgList& Args)
     m_RelViewport.setHeight(m_WantedSize.y);
 }
 
-void Node::setParent(DivNodeWeakPtr pParent)
+void Node::setParent(DivNodeWeakPtr pParent, NodeState parentState)
 {
+    assert(getState() == NS_UNCONNECTED);
     if (getParent() && !!(pParent.lock())) {
         throw(Exception(AVG_ERR_UNSUPPORTED, 
                 string("Can't change parent of node (") + m_ID + ")."));
     }
     m_pParent = pParent;
-    setState(NS_CONNECTED);
+    if (parentState != NS_UNCONNECTED) {
+        connect();
+    }
+}
+
+void Node::removeParent()
+{
+    m_pParent = DivNodePtr();
+    if (getState() != NS_UNCONNECTED) {
+        disconnect();
+    }
 }
 
 void Node::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
+    assert(getState() == NS_CONNECTED);
     m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
     IntPoint PreferredSize = getMediaSize();
     if (m_WantedSize.x == 0.0) {
@@ -135,25 +147,33 @@ void Node::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAu
     } 
     m_pDisplayEngine = pDisplayEngine;
     m_pAudioEngine = pAudioEngine;
+    setState(NS_CANRENDER);
+}
+
+void Node::connect()
+{
     setState(NS_CONNECTED);
 }
 
 void Node::disconnect()
 {
-    m_pDisplayEngine = 0;
-    m_pAudioEngine = 0;
+    assert(getState() != NS_UNCONNECTED);
+    if (getState() == NS_CANRENDER) {
+        m_pDisplayEngine = 0;
+        m_pAudioEngine = 0;
+    }
     getPlayer()->removeNodeID(m_ID);
     setState(NS_UNCONNECTED);
 }
 
-const string& Node::getID () const
+const string& Node::getID() const
 {
     return m_ID;
 }
 
 void Node::setID(const std::string& ID)
 {
-    if (getState() == NS_CONNECTED) {
+    if (getState() != NS_UNCONNECTED) {
         throw(Exception(AVG_ERR_UNSUPPORTED, "Node with ID "+m_ID
                 +" is connected. setID invalid."));
     }
@@ -393,6 +413,7 @@ NodePtr Node::getElementByPos (const DPoint & pos)
 
 void Node::maybeRender (const DRect& Rect)
 {
+    assert(getState() == NS_CANRENDER);
     if (m_bActive) {
         if (getEffectiveOpacity() > 0.01) {
             if (m_ID != "") {
@@ -419,7 +440,7 @@ Node::NodeState Node::getState() const
 
 bool Node::isDisplayAvailable() const
 {
-    return (getState() == NS_CONNECTED) && m_pDisplayEngine;
+    return (getState() == NS_CANRENDER);
 }
 
 bool Node::operator ==(const Node& other) const
@@ -611,8 +632,8 @@ void Node::initFilename(Player * pPlayer, string& sFilename)
 
 void Node::setState(Node::NodeState State)
 {
-/*
-    cerr << m_ID << "state: ";
+/*    
+    cerr << m_ID << " state: ";
     switch(State) {
         case NS_UNCONNECTED:
             cerr << "unconnected" << endl;
@@ -620,11 +641,18 @@ void Node::setState(Node::NodeState State)
         case NS_CONNECTED:
             cerr << "connected" << endl;
             break;
-        case NS_DISABLED:
-            cerr << "disabled" << endl;
+        case NS_CANRENDER:
+            cerr << "canrender" << endl;
             break;
     }
 */
+    if (m_State == NS_UNCONNECTED) {
+        assert(State != NS_CANRENDER);
+    }
+    if (m_State == NS_CANRENDER) {
+        assert(State != NS_CONNECTED);
+    }
+
     m_State = State;
 }
 

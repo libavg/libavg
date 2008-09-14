@@ -64,6 +64,14 @@ void DivNode::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * 
     }
 }
 
+void DivNode::connect()
+{
+    Node::connect();
+    for (int i = 0; i< (int)m_Children.size(); ++i) {
+        m_Children[i]->connect();
+    }
+}
+
 void DivNode::disconnect()
 {
     for  (int i = 0; i< (int)m_Children.size(); ++i) {
@@ -130,7 +138,8 @@ void DivNode::insertChild(NodePtr pNewNode, unsigned i)
         throw Exception(AVG_ERR_NO_NODE,
                 getID()+"::insertChild called without a node.");
     }
-    if (pNewNode->getState() == NS_CONNECTED) {
+    if (pNewNode->getState() == NS_CONNECTED || pNewNode->getState() == NS_CANRENDER) 
+    {
         throw(Exception(AVG_ERR_ALREADY_CONNECTED,
                 "Can't connect node with id "+pNewNode->getID()+
                 ": already connected."));
@@ -140,12 +149,12 @@ void DivNode::insertChild(NodePtr pNewNode, unsigned i)
                 pNewNode->getID()+"::insertChild: index out of bounds."));
     }
     std::vector<NodePtr>::iterator Pos = m_Children.begin()+i;
-    if (getState() == NS_CONNECTED) {
+    if (getState() == NS_CONNECTED || getState() == NS_CANRENDER) {
         getPlayer()->registerNode(pNewNode);
     }
     m_Children.insert(Pos, pNewNode);
     DivNodePtr Ptr = boost::dynamic_pointer_cast<DivNode>(getThis());           
-    pNewNode->setParent(Ptr);
+    pNewNode->setParent(Ptr, getState());
     if (isDisplayAvailable()) {
         pNewNode->setRenderingEngines(getDisplayEngine(), getAudioEngine());
     }
@@ -154,20 +163,18 @@ void DivNode::insertChild(NodePtr pNewNode, unsigned i)
 void DivNode::removeChild(NodePtr pNode)
 {
     int i = indexOf(pNode);
-    pNode->setParent(DivNodePtr());
-    pNode->disconnect();
+    pNode->removeParent();
     m_Children.erase(m_Children.begin()+i);
 }
 
-void DivNode::removeChild (unsigned i)
+void DivNode::removeChild(unsigned i)
 {
     if (i>m_Children.size()-1) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE,
                 getID()+"::removeChild: index "+toString(i)+" out of bounds."));
     }
     NodePtr pNode = getChild(i);
-    pNode->setParent(DivNodePtr());
-    pNode->disconnect();
+    pNode->removeParent();
     m_Children.erase(m_Children.begin()+i);
 }
 

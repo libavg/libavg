@@ -569,8 +569,8 @@ void Player::removeNodeID(const std::string& id)
         if (it != m_IDMap.end()) {
             m_IDMap.erase(it);
         } else {
-            AVG_TRACE(Logger::ERROR, "removeNodeID(\""+id+"\") failed.");
-            exit(1);
+            cerr << "removeNodeID(\"" << id << "\") failed." << endl;
+            assert(false);
         }
     }
 }
@@ -963,7 +963,7 @@ NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc,
     AVGNodePtr pRootNode = boost::dynamic_pointer_cast<AVGNode>(curNode);
     if (pRootNode) {
         m_pRootNode = pRootNode;
-        m_pRootNode->setParent(DivNodeWeakPtr());
+        m_pRootNode->setParent(DivNodeWeakPtr(), Node::NS_CONNECTED);
     }
 
     // If this is a container, recurse into children
