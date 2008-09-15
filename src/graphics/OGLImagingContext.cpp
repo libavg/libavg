@@ -61,10 +61,10 @@ void registerWindowClass()
 }
 #endif
 
+#ifdef linux
 static bool s_bX11Error;
 static int (*s_DefaultErrorHandler) (Display *, XErrorEvent *);
 
-#ifdef linux
 int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
 {
     if (pErrEvent->request_code == 145 && pErrEvent->minor_code == 7) {
