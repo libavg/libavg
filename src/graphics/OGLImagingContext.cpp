@@ -61,6 +61,20 @@ void registerWindowClass()
 }
 #endif
 
+static bool s_bX11Error;
+static int (*s_DefaultErrorHandler) (Display *, XErrorEvent *);
+
+#ifdef linux
+int X11ErrorHandler(Display * pDisplay, XErrorEvent * pErrEvent)
+{
+    if (pErrEvent->request_code == 145 && pErrEvent->minor_code == 7) {
+        s_bX11Error = true;
+    } else {
+        s_DefaultErrorHandler(pDisplay, pErrEvent);
+    }
+}
+#endif
+
 OGLImagingContext::OGLImagingContext(const IntPoint & size)
 {
 #ifdef __APPLE__
@@ -90,7 +104,15 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
     Pixmap pmp = XCreatePixmap(dpy, RootWindow(dpy, vi->screen),
             8, 8, vi->depth);
     GLXPixmap pixmap = glXCreateGLXPixmap(dpy, vi, pmp);
+    
+    s_bX11Error = false;
+    s_DefaultErrorHandler = XSetErrorHandler(X11ErrorHandler);
     glXMakeCurrent(dpy, pixmap, m_Context);
+    XSetErrorHandler(s_DefaultErrorHandler);
+    
+    if (s_bX11Error) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL, "X error creating OpenGL context.");
+    }
 #else
 #ifdef _WIN32
     registerWindowClass();
@@ -185,7 +207,7 @@ void OGLImagingContext::activate()
 #else
 #endif
 #ifdef _WIN32
-	wglDeleteContext( m_Context );
+    wglDeleteContext( m_Context );
 #endif
 
 }
