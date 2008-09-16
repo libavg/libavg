@@ -306,6 +306,11 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
         glDisable(GL_MULTISAMPLE);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glDisable(GL_MULTISAMPLE);");
     }
+    if (!queryOGLExtension("GL_ARB_vertex_buffer_object")) {
+        throw Exception(AVG_ERR_UNSUPPORTED,
+            "Graphics driver lacks vertex buffer support, unable to initialize graphics.");
+    }
+
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     setGamma(DP.m_Gamma[0], DP.m_Gamma[1], DP.m_Gamma[2]);
