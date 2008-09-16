@@ -1293,7 +1293,7 @@ void Bitmap::BY8toRGBBilinear(const Bitmap& Orig)
     int width = Width;
     int height = Height;
 
-    // CFA Pattern selection: BGGR: blue=-1, swg=0; GRBG: blue=1, swg=1
+    // CFA Pattern selection: BGGR: blue=-1, greenFirst=0; GRBG: blue=1, greenFirst=1
     // Assuming GBRG
     int blue = 1;
     int greenFirst = 1;

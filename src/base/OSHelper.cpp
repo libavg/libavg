@@ -33,6 +33,9 @@
 #include <mach-o/dyld.h>
 #endif
 
+#include <stdlib.h>
+#include <cstdlib>
+
 using namespace std;
 
 namespace avg {

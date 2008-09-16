@@ -24,6 +24,7 @@
 #include "AudioBuffer.h"
 
 #include <string>
+#include <cstring>
 
 namespace avg {
 
