@@ -26,6 +26,7 @@
 #include "../base/Exception.h"
 
 #include <iostream>
+#include <cstring>
 
 using namespace std;
 
