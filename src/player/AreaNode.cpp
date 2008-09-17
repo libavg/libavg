@@ -27,12 +27,10 @@
 #include "DivNode.h"
 #include "Player.h"
 #include "DisplayEngine.h"
-#include "WrapPython.h" 
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
 #include "../base/Exception.h"
-#include "../base/XMLHelper.h"
 #include "../base/ObjectCounter.h"
 
 #include <object.h>
@@ -112,6 +110,11 @@ void AreaNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
         m_RelViewport.setHeight(m_WantedSize.y);
     }
     Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
+}
+
+DivNodePtr AreaNode::getDivParent() const
+{
+    return dynamic_pointer_cast<DivNode>(Node::getParent());
 }
 
 double AreaNode::getX() const 
@@ -250,7 +253,7 @@ void AreaNode::setSensitive(bool bSensitive)
 DPoint AreaNode::getRelPos(const DPoint& AbsPos) const 
 {
     DPoint parentPos;
-    DivNodePtr pParent = getParent();
+    DivNodePtr pParent = getDivParent();
     if (!pParent) {
         parentPos = AbsPos;
     } else {
@@ -263,7 +266,7 @@ DPoint AreaNode::getAbsPos(const DPoint& RelPos) const
 {
     DPoint thisPos = toGlobal(RelPos);
     DPoint parentPos;
-    DivNodePtr pParent = getParent();
+    DivNodePtr pParent = getDivParent();
     if (!pParent) {
         parentPos = thisPos;
     } else {
@@ -387,8 +390,8 @@ const DRect& AreaNode::getRelViewport () const
 
 double AreaNode::getEffectiveOpacity()
 {
-    if (getParent()) {
-        return m_Opacity*getParent()->getEffectiveOpacity();
+    if (getDivParent()) {
+        return m_Opacity*getDivParent()->getEffectiveOpacity();
     } else {
         return m_Opacity;
     }
@@ -477,7 +480,7 @@ void AreaNode::initFilename(string& sFilename)
     }
 #endif
     if (!bAbsDir) {
-        DivNodePtr pParent = getParent();
+        DivNodePtr pParent = getDivParent();
         if (!pParent) {
             sFilename = Player::get()->getRootMediaDir()+sFilename;
         } else {

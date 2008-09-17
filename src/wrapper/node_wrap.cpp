@@ -147,8 +147,49 @@ void export_node()
 
     export_bitmap();
     export_raster();
-   
-    class_<DivNode, bases<AreaNode>, boost::noncopyable>("DivNode", 
+  
+    class_<GroupNode, bases<AreaNode>, boost::noncopyable>("GroupNode",
+            "",
+            no_init)
+        .add_property("crop", &GroupNode::getCrop, &GroupNode::setCrop,
+                "Turns clipping on or off. Default is True.\n")
+        .def("getNumChildren", &GroupNode::getNumChildren,
+                "getNumChildren() -> numchildren\n"
+                "Returns the number of immediate children that this div contains.")
+        .def("getChild", &GroupNode::getChild, 
+                "getChild(pos) -> node\n"
+                "Returns the child at position pos.")
+        .def("appendChild", &GroupNode::appendChild,
+                "appendChild(node)\n"
+                "Adds a new child to the container behind the last existing child.")
+        .def("insertChildBefore", &GroupNode::insertChildBefore,
+                "insertChildBefore(newNode, oldChild)\n"
+                "Adds a new child to the container in front of the existing node oldChild.")
+        .def("insertChild", &GroupNode::insertChild,
+                "insertChild(node, pos)\n"
+                "Adds a new child to the container at position pos.")
+        .def("removeChild", (void (GroupNode::*)(NodePtr))(&GroupNode::removeChild),
+                "removeChild(node)\n"
+                "Removes the child given by pNode.")
+        .def("removeChild", (void (GroupNode::*)(unsigned))(&GroupNode::removeChild),
+                "removeChild(pos)\n"
+                "Removes the child at index pos.")
+        .def("reorderChild", (void (GroupNode::*)(unsigned, unsigned))(&GroupNode::reorderChild),
+                "reorderChild(oldPos, newPos)\n"
+                "Moves the child at index pos so it's at index newPos. This function\n"
+                "can be used to change the order in which the children are drawn.")
+        .def("reorderChild", (void (GroupNode::*)(NodePtr, unsigned))(&GroupNode::reorderChild),
+                "reorderChild(node, newPos)\n"
+                "Moves the child node so it's at index newPos. This function\n"
+                "can be used to change the order in which the children are drawn.")
+        .def("indexOf", &GroupNode::indexOf,
+                "indexOf(childnode)\n"
+                "Returns the index of the child given or -1 if childnode isn't a\n"
+                "child of the container. This function does a linear search through\n"
+                "the list of children until the child is found.")
+    ;
+
+    class_<DivNode, bases<GroupNode>, boost::noncopyable>("DivNode", 
             "A div node is a node that groups other nodes logically and visually.\n"
             "Its upper left corner is used as point of origin for the coordinates\n"
             "of its child nodes. Its extents are used to clip the children. Its\n"
@@ -159,42 +200,6 @@ void export_node()
         .add_property("mediadir", make_function(&DivNode::getMediaDir,
                 return_value_policy<copy_const_reference>()), &DivNode::setMediaDir,
                 "The directory that the media files for the children of this node are in.\n")
-        .add_property("crop", &DivNode::getCrop, &DivNode::setCrop,
-                "Turns clipping on or off. Default is True.\n")
-        .def("getNumChildren", &DivNode::getNumChildren,
-                "getNumChildren() -> numchildren\n"
-                "Returns the number of immediate children that this div contains.")
-        .def("getChild", &DivNode::getChild, 
-                "getChild(pos) -> node\n"
-                "Returns the child at position pos.")
-        .def("appendChild", &DivNode::appendChild,
-                "appendChild(node)\n"
-                "Adds a new child to the container behind the last existing child.")
-        .def("insertChildBefore", &DivNode::insertChildBefore,
-                "insertChildBefore(newNode, oldChild)\n"
-                "Adds a new child to the container in front of the existing node oldChild.")
-        .def("insertChild", &DivNode::insertChild,
-                "insertChild(node, pos)\n"
-                "Adds a new child to the container at position pos.")
-        .def("removeChild", (void (DivNode::*)(NodePtr))(&DivNode::removeChild),
-                "removeChild(node)\n"
-                "Removes the child given by pNode.")
-        .def("removeChild", (void (DivNode::*)(unsigned))(&DivNode::removeChild),
-                "removeChild(pos)\n"
-                "Removes the child at index pos.")
-        .def("reorderChild", (void (DivNode::*)(unsigned, unsigned))(&DivNode::reorderChild),
-                "reorderChild(oldPos, newPos)\n"
-                "Moves the child at index pos so it's at index newPos. This function\n"
-                "can be used to change the order in which the children are drawn.")
-        .def("reorderChild", (void (DivNode::*)(NodePtr, unsigned))(&DivNode::reorderChild),
-                "reorderChild(node, newPos)\n"
-                "Moves the child node so it's at index newPos. This function\n"
-                "can be used to change the order in which the children are drawn.")
-        .def("indexOf", &DivNode::indexOf,
-                "indexOf(childnode)\n"
-                "Returns the index of the child given or -1 if childnode isn't a\n"
-                "child of the container. This function does a linear search through\n"
-                "the list of children until the child is found.")
     ;
     
     class_<AVGNode, bases<DivNode> >("AVGNode",

@@ -133,7 +133,7 @@ class Player : IEventSink
         void internalLoad(const std::string& sAVG);
 
         NodePtr createNodeFromXml(const xmlDocPtr xmlDoc, 
-                const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);
+                const xmlNodePtr xmlNode, GroupNodeWeakPtr pParent);
 
         void render (bool bRenderEverything);
 

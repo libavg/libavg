@@ -22,25 +22,20 @@
 #ifndef _Node_H_
 #define _Node_H_
 
-#include "ArgList.h"
 
 #include "../base/Rect.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
-// Python docs say python.h should be included before any standard headers (!)
-#include "WrapPython.h" 
-
-#include <vector>
 #include <string>
-#include <map>
 
 namespace avg {
 
 class Node;
-class DivNode;
+class GroupNode;
 class AVGNode;
+class ArgList;
 class DisplayEngine;
 class AudioEngine;
 class Player;
@@ -48,8 +43,8 @@ class NodeDefinition;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
-typedef boost::shared_ptr<DivNode> DivNodePtr;
-typedef boost::weak_ptr<DivNode> DivNodeWeakPtr;
+typedef boost::shared_ptr<GroupNode> GroupNodePtr;
+typedef boost::weak_ptr<GroupNode> GroupNodeWeakPtr;
 typedef boost::shared_ptr<AVGNode> AVGNodePtr;
 typedef boost::weak_ptr<AVGNode> AVGNodeWeakPtr;
 
@@ -68,7 +63,7 @@ class Node
         virtual ~Node() = 0;
         virtual void setThis(NodeWeakPtr This);
         virtual void setArgs(const ArgList& Args) {};
-        virtual void setParent(DivNodeWeakPtr pParent, NodeState parentState);
+        virtual void setParent(GroupNodeWeakPtr pParent, NodeState parentState);
         void removeParent();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
@@ -78,7 +73,7 @@ class Node
         virtual const std::string& getID() const;
         void setID(const std::string& ID);
 
-        virtual DivNodePtr getParent() const;
+        virtual GroupNodePtr getParent() const;
         void unlink();
 
         virtual void preRender() {};
@@ -103,7 +98,7 @@ class Node
         void setState(NodeState State);
  
     private:
-        DivNodeWeakPtr m_pParent;
+        GroupNodeWeakPtr m_pParent;
         NodeWeakPtr m_This;
         DisplayEngine * m_pDisplayEngine;
         AudioEngine * m_pAudioEngine;

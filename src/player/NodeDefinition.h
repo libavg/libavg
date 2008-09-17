@@ -25,14 +25,12 @@
 #define _NodeDefinition_H_
 
 #include "Node.h"
+#include "ArgList.h"
 
 #include <map>
 #include <string>
 
 namespace avg {
-
-class ArgList;
-class Player;
 
 typedef NodePtr (*NodeBuilder)(const ArgList& Args, bool bFromXML);
 typedef std::map<std::string, NodeDefinition> ChildMap;

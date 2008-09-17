@@ -24,15 +24,11 @@
 
 #include "Node.h"
 
-//#include "Region.h"
 #include "Event.h"
 #include "ISurface.h"
-#include "ArgList.h"
 
 #include "../base/Point.h"
 #include "../base/Rect.h"
-
-//#include <libxml/parser.h>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
@@ -40,16 +36,19 @@
 // Python docs say python.h should be included before any standard headers (!)
 #include "WrapPython.h" 
 
-#include <vector>
 #include <string>
 #include <map>
 
 namespace avg {
 
 class AreaNode;
+class DivNode;
+class ArgList;
 
 typedef boost::shared_ptr<AreaNode> AreaNodePtr;
 typedef boost::weak_ptr<AreaNode> AreaNodeWeakPtr;
+typedef boost::shared_ptr<DivNode> DivNodePtr;
+typedef boost::weak_ptr<DivNode> DivNodeWeakPtr;
 
 class AreaNode: public Node
 {
@@ -66,6 +65,8 @@ class AreaNode: public Node
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
         
+        virtual DivNodePtr getDivParent() const;
+
         double getX() const;
         void setX(double x);
         

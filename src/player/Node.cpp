@@ -22,7 +22,7 @@
 #include "Node.h"
 
 #include "NodeDefinition.h"
-#include "DivNode.h"
+#include "GroupNode.h"
 #include "Player.h"
 #include "DisplayEngine.h"
 #include "Arg.h"
@@ -65,7 +65,7 @@ void Node::setThis(NodeWeakPtr This)
     m_This = This;
 }
 
-void Node::setParent(DivNodeWeakPtr pParent, NodeState parentState)
+void Node::setParent(GroupNodeWeakPtr pParent, NodeState parentState)
 {
     assert(getState() == NS_UNCONNECTED);
     if (getParent() && !!(pParent.lock())) {
@@ -80,7 +80,7 @@ void Node::setParent(DivNodeWeakPtr pParent, NodeState parentState)
 
 void Node::removeParent()
 {
-    m_pParent = DivNodePtr();
+    m_pParent = GroupNodePtr();
     if (getState() != NS_UNCONNECTED) {
         disconnect();
     }
@@ -124,10 +124,10 @@ void Node::setID(const std::string& ID)
     m_ID = ID;
 }
 
-DivNodePtr Node::getParent() const
+GroupNodePtr Node::getParent() const
 {
     if (m_pParent.expired()) {
-        return DivNodePtr();
+        return GroupNodePtr();
     } else {
         return m_pParent.lock();
     }
@@ -139,7 +139,7 @@ void Node::unlink()
         throw(Exception(AVG_ERR_UNSUPPORTED, "Node with ID "+m_ID
                 +" has no parent. unlink invalid."));
     }
-    DivNodePtr pParent = m_pParent.lock();
+    GroupNodePtr pParent = m_pParent.lock();
     pParent->removeChild(pParent->indexOf(getThis()));
 }
 

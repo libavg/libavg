@@ -940,7 +940,7 @@ NodePtr Player::createNodeFromXmlString (const string& sXML)
 }
 
 NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc, 
-        const xmlNodePtr xmlNode, DivNodeWeakPtr pParent)
+        const xmlNodePtr xmlNode, GroupNodeWeakPtr pParent)
 {
     NodePtr curNode;
     const char * nodeType = (const char *)xmlNode->name;
@@ -967,14 +967,13 @@ NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc,
     }
 
     // If this is a container, recurse into children
-    DivNodePtr curDivNode = boost::dynamic_pointer_cast<DivNode>(curNode);
-    if (curDivNode) {
+    GroupNodePtr curGroup = boost::dynamic_pointer_cast<GroupNode>(curNode);
+    if (curGroup) {
         xmlNodePtr curXmlChild = xmlNode->xmlChildrenNode;
         while (curXmlChild) {
-            NodePtr curChild = createNodeFromXml(xmlDoc, curXmlChild, 
-                    curDivNode);
+            NodePtr curChild = createNodeFromXml(xmlDoc, curXmlChild, curGroup);
             if (curChild) {
-                curDivNode->appendChild(curChild);
+                curGroup->appendChild(curChild);
             }
             curXmlChild = curXmlChild->next;
         }
