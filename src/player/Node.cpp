@@ -255,7 +255,7 @@ void Node::setAngle(double Angle)
 
 double Node::getPivotX() const
 {
-    return m_Pivot.x;
+    return getPivot().x;
 }
 
 void Node::setPivotX(double Pivotx)
@@ -267,13 +267,29 @@ void Node::setPivotX(double Pivotx)
 
 double Node::getPivotY() const
 {
-    return m_Pivot.y;
+    return getPivot().y;
 }
 
 void Node::setPivotY(double Pivoty)
 {
     m_Pivot = getPivot();
     m_Pivot.y = Pivoty;
+    m_bHasCustomPivot = true;
+}
+
+DPoint Node::getPivot() const
+{
+    if (m_bHasCustomPivot) {
+        return m_Pivot;
+    } else {
+        return getSize()/2;
+    }
+}
+
+void Node::setPivot (const DPoint& pt)
+{
+    m_Pivot.x = pt.x;
+    m_Pivot.y = pt.y;
     m_bHasCustomPivot = true;
 }
 
@@ -452,15 +468,6 @@ bool Node::operator !=(const Node& other) const
 long Node::getHash() const
 {
     return long(&*m_This.lock());
-}
-
-DPoint Node::getPivot() const
-{
-    if (m_bHasCustomPivot) {
-        return m_Pivot;
-    } else {
-        return getSize()/2;
-    }
 }
 
 Player * Node::getPlayer() const

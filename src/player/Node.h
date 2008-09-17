@@ -111,6 +111,9 @@ class Node
         
         double getPivotY() const;
         void setPivotY(double Pivoty);
+
+        DPoint getPivot() const;
+        void setPivot(const DPoint& pt);
         
         double getOpacity() const;
         void setOpacity(double opacity);
@@ -160,7 +163,6 @@ class Node
 
     protected:
         Node (Player * pPlayer);
-        DPoint getPivot() const;
         Player * getPlayer() const;
         DisplayEngine * getDisplayEngine() const;
         AudioEngine * getAudioEngine() const;

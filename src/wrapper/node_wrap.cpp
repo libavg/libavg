@@ -128,6 +128,9 @@ void export_node()
         .add_property("pivoty", &Node::getPivotY, &Node::setPivotY,
                 "y coordinate of the point that the node is rotated around.\n"
                 "Default is the center of the node.\n")
+        .add_property("pivot",  &Node::getPivot, &Node::setPivot,
+                "The position of the point that the node is rotated around.\n"
+                "Default is the center of the node.\n")
         .add_property("opacity", &Node::getOpacity, &Node::setOpacity,
                       "A measure of the node's transparency. 0.0 is completely\n"
                       "transparent, 1.0 is completely opaque. Opacity is relative to\n"
