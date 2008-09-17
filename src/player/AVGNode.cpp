@@ -37,7 +37,6 @@ NodeDefinition AVGNode::getNodeDefinition()
 {
     return NodeDefinition("avg", Node::buildNode<AVGNode>)
         .extendDefinition(DivNode::getNodeDefinition())
-        .setGroupNode()
         .addArg(Arg<bool>("enablecrop", true, false, offsetof(AVGNode, m_bEnableCrop)))
         .addArg(Arg<string>("onkeyup", ""))
         .addArg(Arg<string>("onkeydown", ""));

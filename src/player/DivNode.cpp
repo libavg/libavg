@@ -29,6 +29,7 @@
 #include "../base/XMLHelper.h"
 #include "../base/StringHelper.h"
 #include "../base/FileHelper.h"
+#include "../base/MathHelper.h"
 
 #include <iostream>
 #include <sstream>
@@ -39,9 +40,11 @@ namespace avg {
 
 NodeDefinition DivNode::getNodeDefinition()
 {
+    string sChildArray[] = {"image", "div", "words", "video", "camera", "panoimage"};
+    vector<string> sChildren = vectorFromCArray(6, sChildArray); 
     return NodeDefinition("div", Node::buildNode<DivNode>)
         .extendDefinition(Node::getNodeDefinition())
-        .setGroupNode()
+        .addChildren(sChildren)
         .addArg(Arg<string>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)))
         .addArg(Arg<bool>("crop", true, false, offsetof(DivNode, m_bCrop)));
 }

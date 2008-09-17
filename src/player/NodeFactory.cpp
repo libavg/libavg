@@ -71,22 +71,16 @@ string NodeFactory::getDTD() const
     
     stringstream ss;
     
-    NodeDefMap::const_iterator it = m_NodeDefs.begin();
-    ss << "<!ENTITY % anyNode \"" << it->first;
-    for(it++; it != m_NodeDefs.end(); it++) {
-        ss << "|" << it->first;
-    }
-    ss << "\" >\n";
-    
-    set<string> nodesWritten;
-    
-    for(NodeDefMap::const_iterator defIt = m_NodeDefs.begin(); defIt != m_NodeDefs.end(); defIt++) {
+    for(NodeDefMap::const_iterator defIt = m_NodeDefs.begin();
+            defIt != m_NodeDefs.end(); defIt++) 
+    {
         const NodeDefinition& Def = defIt->second;
         writeNodeDTD(Def, ss);
-        nodesWritten.insert(Def.getName());
     }
    
-    for(NodeDefMap::const_iterator defIt = m_NodeDefs.begin(); defIt != m_NodeDefs.end(); defIt++) {
+    for(NodeDefMap::const_iterator defIt = m_NodeDefs.begin(); 
+            defIt != m_NodeDefs.end(); defIt++) 
+    {
         const NodeDefinition& Def = defIt->second;
         ss << Def.getDTDElements();
     }
@@ -106,14 +100,7 @@ const NodeDefinition& NodeFactory::getNodeDef(const string& Type)
 
 void NodeFactory::writeNodeDTD(const NodeDefinition& Def, stringstream& ss) const
 {
-    string sChildren = Def.getChildren();
-    if (Def.isGroupNode()) {
-        sChildren = "(%anyNode;)*";
-    } else if (sChildren == "") {
-        sChildren = "EMPTY";
-    }
-    
-    ss << "<!ELEMENT " << Def.getName() << " " << sChildren << " >\n";
+    ss << "<!ELEMENT " << Def.getName() << " " << Def.getChildren() << " >\n";
     if (!Def.getDefaultArgs().getArgMap().empty()) {
         ss << "<!ATTLIST " << Def.getName();
         for(ArgMap::const_iterator argIt = Def.getDefaultArgs().getArgMap().begin(); 

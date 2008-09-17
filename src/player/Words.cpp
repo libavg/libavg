@@ -31,6 +31,7 @@
 #include "../base/OSHelper.h"
 #include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
+#include "../base/MathHelper.h"
 
 #include "../graphics/Filterfill.h"
 
@@ -77,7 +78,6 @@ void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level,
 
 NodeDefinition Words::getNodeDefinition()
 {
-    static const string sChildren = "(#PCDATA|span|b|big|i|s|sub|sup|small|tt|u|br)*";
     static const string sDTDElements = 
         "<!ELEMENT span (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
         "<!ATTLIST span\n"
@@ -109,6 +109,9 @@ NodeDefinition Words::getNodeDefinition()
         "<!ELEMENT u (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
         "<!ELEMENT br (#PCDATA)*>\n";
 
+    string sChildArray[] = {"#PCDATA", "span", "b", "big", "i", "s", "sup", "sub", 
+            "small", "tt", "u"};
+    vector<string> sChildren = vectorFromCArray(6, sChildArray); 
     return NodeDefinition("words", Node::buildNode<Words>)
         .extendDefinition(RasterNode::getNodeDefinition())
         .addChildren(sChildren)

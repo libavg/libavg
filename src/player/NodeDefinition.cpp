@@ -31,8 +31,7 @@ namespace avg {
 
 NodeDefinition::NodeDefinition(const string& Name, NodeBuilder pBuilder)
     : m_sName(Name),
-      m_pBuilder(pBuilder),
-      m_bIsGroupNode(false)
+      m_pBuilder(pBuilder)
 {
 }
 
@@ -55,25 +54,31 @@ const ArgList& NodeDefinition::getDefaultArgs() const
     return m_Args;
 }
 
-bool NodeDefinition::isGroupNode() const
-{
-    return m_bIsGroupNode;
-}
-
 const string& NodeDefinition::getDTDElements() const
 {
     return m_sDTDElements;
 }
 
-const string& NodeDefinition::getChildren() const
+string NodeDefinition::getChildren() const
 {
-    return m_sChildren;
+    if (m_sChildren.empty()) {
+        return "EMPTY";
+    } else {
+        string sChildren = "(";
+
+        for (unsigned i=0; i<m_sChildren.size()-1; ++i) {
+            sChildren += m_sChildren[i]+"|";
+        }
+        sChildren += m_sChildren[m_sChildren.size()-1]+")*";
+        return sChildren;
+    }
 }
 
 
 NodeDefinition& NodeDefinition::extendDefinition(const NodeDefinition& Def)
 {
     m_Args.copyArgsFrom(Def.m_Args);
+    m_sChildren = Def.m_sChildren;
     return *this;
 }
 
@@ -83,21 +88,15 @@ NodeDefinition& NodeDefinition::addArg(const ArgBase& newArg)
     return *this;
 }
 
-NodeDefinition& NodeDefinition::setGroupNode()
-{
-    m_bIsGroupNode = true;
-    return *this;
-}
-    
 NodeDefinition& NodeDefinition::addDTDElements(const string& s)
 {
     m_sDTDElements = s;
     return *this;
 }
 
-NodeDefinition& NodeDefinition::addChildren(const string& s)
+NodeDefinition& NodeDefinition::addChildren(const vector<string>& sChildren)
 {
-    m_sChildren = s;
+    m_sChildren.insert(m_sChildren.end(), sChildren.begin(), sChildren.end());
     return *this;
 }
 
