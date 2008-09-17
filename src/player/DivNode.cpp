@@ -29,25 +29,29 @@
 #include "../base/XMLHelper.h"
 #include "../base/StringHelper.h"
 #include "../base/FileHelper.h"
+#include "../base/MathHelper.h"
 
 #include <iostream>
 #include <sstream>
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
 NodeDefinition DivNode::getNodeDefinition()
 {
+    string sChildArray[] = {"image", "div", "words", "video", "camera", "panoimage"};
+    vector<string> sChildren = vectorFromCArray(6, sChildArray); 
     return NodeDefinition("div", Node::buildNode<DivNode>)
-        .extendDefinition(Node::getNodeDefinition())
-        .setGroupNode()
+        .extendDefinition(AreaNode::getNodeDefinition())
+        .addChildren(sChildren)
         .addArg(Arg<string>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)))
         .addArg(Arg<bool>("crop", true, false, offsetof(DivNode, m_bCrop)));
 }
 
 DivNode::DivNode (const ArgList& Args, Player * pPlayer, bool bFromXML)
-    : Node(pPlayer)
+    : AreaNode(pPlayer)
 {
     Args.setMembers(this);
 }
@@ -58,7 +62,7 @@ DivNode::~DivNode()
 
 void DivNode::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
-    Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
     for  (int i = 0; i< (int)m_Children.size(); ++i) {
         m_Children[i]->setRenderingEngines(pDisplayEngine, pAudioEngine);
     }
@@ -66,7 +70,7 @@ void DivNode::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * 
 
 void DivNode::connect()
 {
-    Node::connect();
+    AreaNode::connect();
     for (int i = 0; i< (int)m_Children.size(); ++i) {
         m_Children[i]->connect();
     }
@@ -77,7 +81,7 @@ void DivNode::disconnect()
     for  (int i = 0; i< (int)m_Children.size(); ++i) {
         m_Children[i]->disconnect();
     }
-    Node::disconnect();
+    AreaNode::disconnect();
 }
 
 const string& DivNode::getMediaDir() const
@@ -218,7 +222,7 @@ int DivNode::indexOf(NodePtr pChild)
             +getID()+"'"));
 }
 
-NodePtr DivNode::getElementByPos (const DPoint & pos)
+AreaNodePtr DivNode::getElementByPos (const DPoint & pos)
 {
     DPoint relPos = toLocal(pos);
     if (relPos.x >= 0 && relPos.y >= 0 && 
@@ -226,7 +230,8 @@ NodePtr DivNode::getElementByPos (const DPoint & pos)
             reactsToMouseEvents())
     {
         for (int i=getNumChildren()-1; i>=0; i--) {
-            NodePtr pFoundNode = getChild(i)->getElementByPos(relPos);
+            AreaNodePtr pFoundNode = dynamic_pointer_cast<AreaNode>(getChild(i))
+                    ->getElementByPos(relPos);
             if (pFoundNode) {
                 return pFoundNode;
             }
@@ -234,13 +239,13 @@ NodePtr DivNode::getElementByPos (const DPoint & pos)
         // Pos isn't in any of the children.
         if (getSize() != DPoint(10000, 10000)) {
             // Explicit width/height given for div.
-            return getThis(); 
+            return dynamic_pointer_cast<AreaNode>(getThis());
         } else {
             // Explicit width/height not given: div itself doesn't react.
-            return NodePtr();
+            return AreaNodePtr();
         }
     } else { 
-        return NodePtr();
+        return AreaNodePtr();
     }
 }
 
@@ -306,7 +311,7 @@ void DivNode::checkReload()
 {
     vector<NodePtr>::iterator it;
     for (it=m_Children.begin(); it<m_Children.end(); it++) {
-        (*it)->checkReload();
+        dynamic_pointer_cast<AreaNode>(*it)->checkReload();
     }
 }
 

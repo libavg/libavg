@@ -22,7 +22,7 @@
 #ifndef _RasterNode_H_
 #define _RasterNode_H_
 
-#include "Node.h"
+#include "AreaNode.h"
 #include "DisplayEngine.h"
 #include "OGLSurface.h"
 
@@ -33,7 +33,7 @@
 
 namespace avg {
 
-class RasterNode: public Node
+class RasterNode: public AreaNode
 {
     public:
         static NodeDefinition getNodeDefinition();
@@ -63,7 +63,7 @@ class RasterNode: public Node
         OGLSurface * getOGLSurface();
         DisplayEngine::BlendMode getBlendMode() const;
         virtual std::string getTypeStr ();
-        NodePtr getElementByPos (const DPoint & pos);
+        AreaNodePtr getElementByPos (const DPoint & pos);
 
         virtual Bitmap* getBitmap();
         

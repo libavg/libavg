@@ -58,7 +58,16 @@ void export_node()
                 "unlink() -> None\n"
                 "Removes a node from it's parent container. Equivalent to\n"
                 "node.getParent().removeChild(node.getParent().indexOf(node)).")
-        .def("setEventCapture", &Node::setMouseEventCapture,
+        .add_property("id", make_function(&Node::getID,
+                return_value_policy<copy_const_reference>()), &Node::setID,
+                "A unique identifier that can be used to reference the node.\n");
+
+    class_<AreaNode, boost::shared_ptr<AreaNode>, bases<Node>, boost::noncopyable>(
+            "AreaNode", 
+            "Base class for elements in the avg tree that define an area on the screen.\n"
+            "Is responsible for coordinate transformations and event handling.\n",
+            no_init)
+        .def("setEventCapture", &AreaNode::setMouseEventCapture,
                 "setEventCapture(cursorid)\n"
                 "Sets up event capturing so that cursor events are sent to this node\n"
                 "regardless of the cursor position. cursorid is optional; if left out,\n"
@@ -69,13 +78,13 @@ void export_node()
                 "node can capture a cursor at any one time. Normal operation can\n"
                 "be restored by calling releaseEventCapture().\n"
                 "@param cursorid: The id of the tracker cursor to capture (optional).\n")
-        .def("setEventCapture", &Node::setEventCapture)
-        .def("releaseEventCapture", &Node::releaseMouseEventCapture,
+        .def("setEventCapture", &AreaNode::setEventCapture)
+        .def("releaseEventCapture", &AreaNode::releaseMouseEventCapture,
                 "releaseEventCapture(cursorid)\n"
                 "Restores normal mouse operation after a call to setEventCapture().\n"
                 "@param cursorid: The id of the tracker cursor to release (optional).\n")
-        .def("releaseEventCapture", &Node::releaseEventCapture)
-        .def("setEventHandler", &Node::setEventHandler,
+        .def("releaseEventCapture", &AreaNode::releaseEventCapture)
+        .def("setEventHandler", &AreaNode::setEventHandler,
                 "setEventHandler(type, source, pyfunc)\n"
                 "Sets a callback function that is invoked whenever an event of the\n"
                 "specified type from the specified source occurs. This function is\n"
@@ -89,60 +98,57 @@ void export_node()
                 "NONE for keyboard events. Sources can be or'ed together to set a\n"
                 "handler for several sources at once.\n"
                 "@param pyfunc: The python callable to invoke.\n")
-        .def("getAbsPos", &Node::getAbsPos,
+        .def("getAbsPos", &AreaNode::getAbsPos,
                 "getAbsPos(relpos) -> abspos\n"
                 "Transforms a position in coordinates relative to the node to a\n"
                 "position in window coordinates.\n"
                 "@param relpos: Relative coordinate to transform.")
-        .def("getRelPos", &Node::getRelPos,
+        .def("getRelPos", &AreaNode::getRelPos,
                 "getRelPos(abspos) -> relpos\n"
                 "Transforms a position in window coordinates to a position\n"
                 "in coordinates relative to the node.\n"
                 "@param abspos: Absolute coordinate to transform.")
-        .def("getMediaSize", &Node::getMediaSize,
+        .def("getMediaSize", &AreaNode::getMediaSize,
                 "getMediaSize() -> mediasize\n"
                 "Returns the size in pixels of the media in the node. Image nodes\n"
                 "return the bitmap size, Camera nodes\n"
                 "the size of a camera frame and Words nodes the amount of space\n"
                 "the text takes. Video nodes the video size if decoding has started\n"
                 "or (0,0) if not.")
-        .add_property("id", make_function(&Node::getID,
-                return_value_policy<copy_const_reference>()), &Node::setID,
-                "A unique identifier that can be used to reference the node.\n")
-        .add_property("x", &Node::getX, &Node::setX,
+        .add_property("x", &AreaNode::getX, &AreaNode::setX,
                 "The position of the node's left edge relative to it's parent node.\n")
-        .add_property("y", &Node::getY, &Node::setY,
+        .add_property("y", &AreaNode::getY, &AreaNode::setY,
                 "The position of the node's top edge relative to it's parent node.\n")
-        .add_property("pos", make_function(&Node::getPos,
-                return_value_policy<copy_const_reference>()), &Node::setPos,
+        .add_property("pos", make_function(&AreaNode::getPos,
+                return_value_policy<copy_const_reference>()), &AreaNode::setPos,
                 "The position of the node's top left corner relative to it's parent node.\n")
-        .add_property("width", &Node::getWidth, &Node::setWidth)
-        .add_property("height", &Node::getHeight, &Node::setHeight)
-        .add_property("size", &Node::getSize, &Node::setSize)
-        .add_property("angle", &Node::getAngle, &Node::setAngle,
+        .add_property("width", &AreaNode::getWidth, &AreaNode::setWidth)
+        .add_property("height", &AreaNode::getHeight, &AreaNode::setHeight)
+        .add_property("size", &AreaNode::getSize, &AreaNode::setSize)
+        .add_property("angle", &AreaNode::getAngle, &AreaNode::setAngle,
                 "The angle that the node is rotated to in radians. 0 is\n"
                 "unchanged, 3.14 is upside-down.\n")
-        .add_property("pivotx", &Node::getPivotX, &Node::setPivotX,
+        .add_property("pivotx", &AreaNode::getPivotX, &AreaNode::setPivotX,
                 "x coordinate of the point that the node is rotated around.\n"
                 "Default is the center of the node.\n")
-        .add_property("pivoty", &Node::getPivotY, &Node::setPivotY,
+        .add_property("pivoty", &AreaNode::getPivotY, &AreaNode::setPivotY,
                 "y coordinate of the point that the node is rotated around.\n"
                 "Default is the center of the node.\n")
-        .add_property("opacity", &Node::getOpacity, &Node::setOpacity,
+        .add_property("opacity", &AreaNode::getOpacity, &AreaNode::setOpacity,
                       "A measure of the node's transparency. 0.0 is completely\n"
                       "transparent, 1.0 is completely opaque. Opacity is relative to\n"
                       "the parent node's opacity.\n")
-        .add_property("active", &Node::getActive, &Node::setActive,
+        .add_property("active", &AreaNode::getActive, &AreaNode::setActive,
                       "If this attribute is true, the node behaves as usual. If not, it\n"
                       "is neither drawn nor does it react to events. Videos are paused.\n")
-        .add_property("sensitive", &Node::getSensitive, &Node::setSensitive,
+        .add_property("sensitive", &AreaNode::getSensitive, &AreaNode::setSensitive,
                       "A node only reacts to events if sensitive is true.")
     ;
 
     export_bitmap();
     export_raster();
    
-    class_<DivNode, bases<Node>, boost::noncopyable>("DivNode", 
+    class_<DivNode, bases<AreaNode>, boost::noncopyable>("DivNode", 
             "A div node is a node that groups other nodes logically and visually.\n"
             "Its upper left corner is used as point of origin for the coordinates\n"
             "of its child nodes. Its extents are used to clip the children. Its\n"
@@ -204,7 +210,7 @@ void export_node()
                 "of certain buggy display drivers that don't work with cropping.)")
     ;
 
-    class_<Sound, bases<Node> >("Sound",
+    class_<Sound, bases<AreaNode> >("Sound",
             "A sound played from a file.\n",
             no_init)
         .def("play", &Sound::play,
@@ -235,7 +241,7 @@ void export_node()
                 "range.\n")
     ;
 
-    class_<PanoImage, bases<Node> >("PanoImage",
+    class_<PanoImage, bases<AreaNode> >("PanoImage",
             "A panorama image displayed in cylindrical projection.\n",
             no_init)
         .def("getScreenPosFromPanoPos", &PanoImage::getScreenPosFromPanoPos,

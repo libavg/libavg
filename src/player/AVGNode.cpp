@@ -37,7 +37,6 @@ NodeDefinition AVGNode::getNodeDefinition()
 {
     return NodeDefinition("avg", Node::buildNode<AVGNode>)
         .extendDefinition(DivNode::getNodeDefinition())
-        .setGroupNode()
         .addArg(Arg<bool>("enablecrop", true, false, offsetof(AVGNode, m_bEnableCrop)))
         .addArg(Arg<string>("onkeyup", ""))
         .addArg(Arg<string>("onkeydown", ""));
@@ -49,7 +48,7 @@ AVGNode::AVGNode (const ArgList& Args, Player * pPlayer, bool bFromXML)
     Args.setMembers(this);
     addEventHandler(Event::KEYUP, Event::NONE, Args.getArgVal<string>("onkeyup"));
     addEventHandler(Event::KEYDOWN, Event::NONE, Args.getArgVal<string>("onkeydown"));
-    Node::setAngle(0.0);
+    AreaNode::setAngle(0.0);
 }
 
 AVGNode::~AVGNode()

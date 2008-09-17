@@ -89,7 +89,7 @@ class DisplayEngine
 
         virtual BitmapPtr screenshot () = 0;
         virtual long long getGPUMemoryUsage() = 0;
-        virtual void deregisterSurface(OGLSurface *) = 0;
+        virtual void deregisterSurface(ISurface *) = 0;
 
     protected:
         void checkJitter();

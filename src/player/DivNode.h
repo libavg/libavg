@@ -22,7 +22,7 @@
 #ifndef _DivNode_H_
 #define _DivNode_H_
 
-#include "Node.h"
+#include "AreaNode.h"
 
 #include "../base/Point.h"
 
@@ -30,14 +30,15 @@
 
 namespace avg {
     
-class DivNode : public Node
+class DivNode : public AreaNode
 {
     public:
         static NodeDefinition getNodeDefinition();
         
-        DivNode (const ArgList& Args, Player * pPlayer, bool bFromXML);
-        virtual ~DivNode ();
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
+        DivNode(const ArgList& Args, Player * pPlayer, bool bFromXML);
+        virtual ~DivNode();
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
+                AudioEngine * pAudioEngine);
         virtual void connect();
         virtual void disconnect();
 
@@ -58,14 +59,14 @@ class DivNode : public Node
         void reorderChild(unsigned i, unsigned j);
         int indexOf(NodePtr pChild);
 
-        virtual NodePtr getElementByPos (const DPoint & pos);
+        virtual AreaNodePtr getElementByPos(const DPoint & pos);
         virtual void preRender();
-        virtual void render (const DRect& rect);
-        virtual std::string getTypeStr ();
+        virtual void render(const DRect& rect);
+        virtual std::string getTypeStr();
         virtual std::string getEffectiveMediaDir();
         virtual void checkReload();
 
-        virtual std::string dump (int indent = 0);
+        virtual std::string dump(int indent = 0);
         virtual IntPoint getMediaSize();
     
     private:

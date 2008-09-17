@@ -49,7 +49,7 @@ namespace avg {
 NodeDefinition PanoImage::getNodeDefinition()
 {
     return NodeDefinition("panoimage", Node::buildNode<PanoImage>)
-        .extendDefinition(Node::getNodeDefinition())
+        .extendDefinition(AreaNode::getNodeDefinition())
         .addArg(Arg<string>("href", "", false, offsetof(PanoImage, m_href)))
         .addArg(Arg<double>("sensorwidth", 1.0, false, offsetof(PanoImage, m_SensorWidth)))
         .addArg(Arg<double>("sensorheight", 1.0, false, offsetof(PanoImage, m_SensorHeight)))
@@ -60,7 +60,7 @@ NodeDefinition PanoImage::getNodeDefinition()
 }
 
 PanoImage::PanoImage (const ArgList& Args, Player * pPlayer, bool bFromXML)
-    : Node (pPlayer)
+    : AreaNode (pPlayer)
 {
     Args.setMembers(this);
     m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8));
@@ -74,7 +74,7 @@ PanoImage::~PanoImage ()
 
 void PanoImage::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
-    Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
     
     setupTextures();
 }
@@ -82,7 +82,7 @@ void PanoImage::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine 
 void PanoImage::disconnect()
 {
     clearTextures();
-    Node::disconnect();
+    AreaNode::disconnect();
 }
 
 static ProfilingZone PanoRenderProfilingZone("PanoImage::render");

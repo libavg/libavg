@@ -47,7 +47,7 @@ namespace avg {
 NodeDefinition Sound::getNodeDefinition()
 {
     return NodeDefinition("sound", Node::buildNode<Sound>)
-        .extendDefinition(Node::getNodeDefinition())
+        .extendDefinition(AreaNode::getNodeDefinition())
         .addArg(Arg<string>("href", "", false, offsetof(Sound, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(Sound, m_bLoop)))
         .addArg(Arg<double>("volume", 1.0, false, offsetof(Sound, m_Volume)))
@@ -55,7 +55,7 @@ NodeDefinition Sound::getNodeDefinition()
 }
 
 Sound::Sound (const ArgList& Args, Player * pPlayer, bool bFromXML)
-    : Node(pPlayer),
+    : AreaNode(pPlayer),
       m_Filename(""),
       m_pEOFCallback(0),
       m_pDecoder(0),
@@ -134,7 +134,7 @@ void Sound::setEOFCallback(PyObject * pEOFCallback)
 void Sound::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
     checkReload();
-    Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
     if (m_State != Unloaded) {
         SoundState state = m_State;
         m_State = Unloaded;
@@ -145,7 +145,7 @@ void Sound::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pA
 void Sound::disconnect()
 {
     changeSoundState(Unloaded);
-    Node::disconnect();
+    AreaNode::disconnect();
 }
 
 void Sound::play()

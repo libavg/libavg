@@ -25,7 +25,7 @@
 // Python docs say python.h should be included before any standard headers (!)
 #include "WrapPython.h" 
 
-#include "Node.h"
+#include "AreaNode.h"
 
 #include "../base/IFrameListener.h"
 #include "../audio/IAudioSource.h"
@@ -34,7 +34,7 @@ namespace avg {
 
 class IVideoDecoder;
 
-class Sound : public Node, IFrameListener, IAudioSource
+class Sound : public AreaNode, IFrameListener, IAudioSource
 {
     public:
         static NodeDefinition getNodeDefinition();

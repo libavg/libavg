@@ -30,20 +30,23 @@
 
 namespace avg {
 
+class AreaNode;
+typedef boost::weak_ptr<AreaNode> AreaNodeWeakPtr;
+
 class CursorState {
 
 public:
-    CursorState(const CursorEventPtr pEvent, const std::vector<NodeWeakPtr>& pNodes);
+    CursorState(const CursorEventPtr pEvent, const std::vector<AreaNodeWeakPtr>& pNodes);
     ~CursorState();
 
-    void setInfo(const CursorEventPtr pEvent, const std::vector<NodeWeakPtr>& pNodes);
-    const std::vector<NodeWeakPtr>& getNodes() const;
+    void setInfo(const CursorEventPtr pEvent, const std::vector<AreaNodeWeakPtr>& pNodes);
+    const std::vector<AreaNodeWeakPtr>& getNodes() const;
     CursorEventPtr getLastEvent() const;
 
 private:
     CursorState(const CursorState&);
 
-    std::vector<NodeWeakPtr> m_pNodes;
+    std::vector<AreaNodeWeakPtr> m_pNodes;
     CursorEventPtr m_pLastEvent;
 };
 
