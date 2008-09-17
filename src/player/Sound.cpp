@@ -54,9 +54,8 @@ NodeDefinition Sound::getNodeDefinition()
         ;
 }
 
-Sound::Sound (const ArgList& Args, Player * pPlayer, bool bFromXML)
-    : AreaNode(pPlayer),
-      m_Filename(""),
+Sound::Sound (const ArgList& Args, bool bFromXML)
+    : m_Filename(""),
       m_pEOFCallback(0),
       m_pDecoder(0),
       m_Volume(1.0),
@@ -65,17 +64,17 @@ Sound::Sound (const ArgList& Args, Player * pPlayer, bool bFromXML)
     Args.setMembers(this);
     m_Filename = m_href;
     if (m_Filename != "") {
-        initFilename(getPlayer(), m_Filename);
+        initFilename(m_Filename);
     }
     VideoDecoderPtr pSyncDecoder(new FFMpegDecoder());
     m_pDecoder = new AsyncVideoDecoder(pSyncDecoder);
 
-    getPlayer()->registerFrameListener(this);
+    Player::get()->registerFrameListener(this);
 }
 
 Sound::~Sound ()
 {
-    getPlayer()->unregisterFrameListener(this);
+    Player::get()->unregisterFrameListener(this);
     if (m_pDecoder) {
         delete m_pDecoder;
         m_pDecoder = 0;
@@ -194,7 +193,7 @@ void Sound::checkReload()
 {
     string fileName (m_href);
     if (m_href != "") {
-        initFilename(getPlayer(), fileName);
+        initFilename(fileName);
         if (fileName != m_Filename) {
             SoundState oldState = m_State;
             changeSoundState(Unloaded);
@@ -233,7 +232,7 @@ int Sound::fillAudioBuffer(AudioBufferPtr pBuffer)
 void Sound::changeSoundState(SoundState NewSoundState)
 {
     if (getState() == NS_CANRENDER) {
-        long long CurTime = getPlayer()->getFrameTime(); 
+        long long CurTime = Player::get()->getFrameTime(); 
         if (NewSoundState != m_State) {
             if (m_State == Unloaded) {
                 m_StartTime = CurTime;
@@ -255,9 +254,9 @@ void Sound::changeSoundState(SoundState NewSoundState)
 void Sound::seek(long long DestTime) 
 {
     m_pDecoder->seek(DestTime);
-    m_StartTime = getPlayer()->getFrameTime() - DestTime;
+    m_StartTime = Player::get()->getFrameTime() - DestTime;
     m_PauseTime = 0;
-    m_PauseStartTime = getPlayer()->getFrameTime();
+    m_PauseStartTime = Player::get()->getFrameTime();
 }
 
 void Sound::open()

@@ -139,9 +139,8 @@ text_subst_func (FcPattern *pattern, gpointer data)
   FcPatternAddBool(pattern, FC_ANTIALIAS, true);
 }
 
-Words::Words (const ArgList& Args, Player * pPlayer, bool bFromXML)
-    : RasterNode(pPlayer), 
-      m_StringExtents(0,0),
+Words::Words (const ArgList& Args, bool bFromXML)
+    : m_StringExtents(0,0),
       m_pFontDescription(0),
       m_pLayout(0),
       m_bFontChanged(true),

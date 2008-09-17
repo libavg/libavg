@@ -39,7 +39,8 @@ class RasterNode: public AreaNode
         static NodeDefinition getNodeDefinition();
         
         virtual ~RasterNode ();
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
+                AudioEngine * pAudioEngine);
         virtual void setArgs(const ArgList& Args);
         virtual void disconnect();
         
@@ -68,7 +69,7 @@ class RasterNode: public AreaNode
         virtual Bitmap* getBitmap();
         
     protected:
-        RasterNode (Player * pPlayer);
+        RasterNode();
         ISurface * getSurface();
  
     private:

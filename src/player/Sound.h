@@ -39,7 +39,7 @@ class Sound : public AreaNode, IFrameListener, IAudioSource
     public:
         static NodeDefinition getNodeDefinition();
 
-        Sound (const ArgList& Args, Player * pPlayer, bool bFromXML);
+        Sound (const ArgList& Args, bool bFromXML);
         virtual ~Sound ();
 
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 

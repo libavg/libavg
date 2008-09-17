@@ -59,9 +59,8 @@ NodeDefinition Video::getNodeDefinition()
         ;
 }
 
-Video::Video (const ArgList& Args, Player * pPlayer, bool bFromXML)
-    : VideoBase(pPlayer),
-      m_Filename(""),
+Video::Video (const ArgList& Args, bool bFromXML)
+    : m_Filename(""),
       m_bEOFPending(false),
       m_pEOFCallback(0),
       m_FramesTooLate(0),
@@ -72,7 +71,7 @@ Video::Video (const ArgList& Args, Player * pPlayer, bool bFromXML)
     Args.setMembers(this);
     m_Filename = m_href;
     if (m_Filename != "") {
-        initFilename(getPlayer(), m_Filename);
+        initFilename(m_Filename);
     }
     if (m_bThreaded) {
         VideoDecoderPtr pSyncDecoder = VideoDecoderPtr(new FFMpegDecoder());
@@ -80,12 +79,12 @@ Video::Video (const ArgList& Args, Player * pPlayer, bool bFromXML)
     } else {
         m_pDecoder = new FFMpegDecoder();
     }
-    getPlayer()->registerFrameListener(this);
+    Player::get()->registerFrameListener(this);
 }
 
 Video::~Video ()
 {
-    getPlayer()->unregisterFrameListener(this);
+    Player::get()->unregisterFrameListener(this);
     if (m_pDecoder) {
         delete m_pDecoder;
         m_pDecoder = 0;
@@ -212,7 +211,7 @@ void Video::checkReload()
 {
     string fileName (m_href);
     if (m_href != "") {
-        initFilename(getPlayer(), fileName);
+        initFilename(fileName);
         if (fileName != m_Filename) {
             changeVideoState(Unloaded);
             m_Filename = fileName;
@@ -250,7 +249,7 @@ int Video::fillAudioBuffer(AudioBufferPtr pBuffer)
 void Video::changeVideoState(VideoState NewVideoState)
 {
     if (getState() == NS_CANRENDER) {
-        long long CurTime = getPlayer()->getFrameTime(); 
+        long long CurTime = Player::get()->getFrameTime(); 
         if (NewVideoState != getVideoState()) {
             if (getVideoState() == Unloaded) {
                 m_StartTime = CurTime;
@@ -270,9 +269,9 @@ void Video::changeVideoState(VideoState NewVideoState)
 void Video::seek(long long DestTime) 
 {
     m_pDecoder->seek(DestTime);
-    m_StartTime = getPlayer()->getFrameTime() - DestTime;
+    m_StartTime = Player::get()->getFrameTime() - DestTime;
     m_PauseTime = 0;
-    m_PauseStartTime = getPlayer()->getFrameTime();
+    m_PauseStartTime = Player::get()->getFrameTime();
     setFrameAvailable(false);
 }
 
@@ -343,7 +342,7 @@ long long Video::getNextFrameTime()
                 // Sync to audio if possible.
                 return m_pDecoder->getCurTime(SS_AUDIO);
             } else {
-                return getPlayer()->getFrameTime()-m_StartTime-m_PauseTime;
+                return Player::get()->getFrameTime()-m_StartTime-m_PauseTime;
             }
         default:
             assert(false);
@@ -382,7 +381,7 @@ bool Video::renderToSurface(ISurface * pSurface)
         if (m_FramesInRowTooLate > 3 && m_pDecoder->getMasterStream() != SS_AUDIO) {
             // Heuristic: If we've missed more than 3 frames in a row, we stop
             // advancing movie time until the decoder has caught up.
-            m_PauseTime += (long long)(1000/(getPlayer()->getEffectiveFramerate()));
+            m_PauseTime += (long long)(1000/(Player::get()->getEffectiveFramerate()));
         }
 //        AVG_TRACE(Logger::PROFILE, "Missed video frame.");
     } else if (FrameAvailable == FA_USE_LAST_FRAME) {

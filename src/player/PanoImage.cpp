@@ -59,8 +59,7 @@ NodeDefinition PanoImage::getNodeDefinition()
         .addArg(Arg<int>("saturation", -1, false, offsetof(PanoImage, m_Saturation)));
 }
 
-PanoImage::PanoImage (const ArgList& Args, Player * pPlayer, bool bFromXML)
-    : AreaNode (pPlayer)
+PanoImage::PanoImage (const ArgList& Args, bool bFromXML)
 {
     Args.setMembers(this);
     m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8));
@@ -305,7 +304,7 @@ void PanoImage::load()
     m_Filename = m_href;
     AVG_TRACE(Logger::MEMORY, "Loading " << m_Filename);
     if (m_Filename != "") {
-        initFilename(getPlayer(), m_Filename);
+        initFilename(m_Filename);
         try {
             
             m_pBmp = BitmapPtr(new Bitmap(m_Filename));

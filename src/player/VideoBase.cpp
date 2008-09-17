@@ -51,9 +51,8 @@ NodeDefinition VideoBase::getNodeDefinition()
         .extendDefinition(RasterNode::getNodeDefinition());
 }
 
-VideoBase::VideoBase (Player * pPlayer)
-    : RasterNode(pPlayer),
-      m_VideoState(Unloaded),
+VideoBase::VideoBase()
+    : m_VideoState(Unloaded),
       m_bFrameAvailable(false),
       m_bFirstFrameDecoded(false)
 {

@@ -42,9 +42,8 @@ NodeDefinition RasterNode::getNodeDefinition()
         .addArg(Arg<string>("blendmode", "blend", false, offsetof(RasterNode, m_sBlendMode)));
 }
 
-RasterNode::RasterNode (Player * pPlayer)
-    : AreaNode(pPlayer),
-      m_pSurface(0),
+RasterNode::RasterNode()
+    : m_pSurface(0),
       m_MaxTileSize(IntPoint(-1,-1)),
       m_sBlendMode("blend")
 {

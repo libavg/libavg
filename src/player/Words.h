@@ -43,7 +43,7 @@ class Words : public RasterNode
     public:
         static NodeDefinition getNodeDefinition();
         
-        Words(const ArgList& Args, Player * pPlayer, bool bFromXMLNodeValue);
+        Words(const ArgList& Args, bool bFromXMLNodeValue);
         virtual ~Words();
         
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 

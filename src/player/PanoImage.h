@@ -42,7 +42,7 @@ class PanoImage: public AreaNode
     public:
         static NodeDefinition getNodeDefinition();
         
-        PanoImage(const ArgList& Args, Player * pPlayer, bool bFromXML);
+        PanoImage(const ArgList& Args, bool bFromXML);
         virtual ~PanoImage();
         
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 

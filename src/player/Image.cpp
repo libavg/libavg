@@ -52,9 +52,8 @@ NodeDefinition Image::getNodeDefinition()
         .addArg(Arg<int>("saturation", -1, false, offsetof(Image, m_Saturation)));
 }
 
-Image::Image (const ArgList& Args, Player * pPlayer, bool bFromXML)
-    : RasterNode(pPlayer),
-      m_bIsImageAvailable(false)
+Image::Image (const ArgList& Args, bool bFromXML)
+    : m_bIsImageAvailable(false)
 {
     Args.setMembers(this);
     setHRef(m_href);
@@ -86,7 +85,7 @@ void Image::disconnect()
         getSurface()->unlockBmps();
 #ifdef __i386__
         // XXX Yuck
-        if (!(getPlayer()->getDisplayEngine()->hasRGBOrdering()) && 
+        if (!(getDisplayEngine()->hasRGBOrdering()) && 
             m_pBmp->getBytesPerPixel() >= 3)
         {
             FilterFlipRGB().applyInPlace(m_pBmp);
@@ -198,7 +197,7 @@ void Image::checkReload()
     string sLastFilename = m_Filename;
     m_Filename = m_href;
     if (m_Filename != "") {
-        initFilename(getPlayer(), m_Filename);
+        initFilename(m_Filename);
     }
     if (sLastFilename != m_Filename || !m_pBmp) {
         load();
@@ -227,7 +226,7 @@ void Image::load()
     m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
     m_bIsImageAvailable = false;
     if (m_Filename != "") {
-        initFilename(getPlayer(), m_Filename);
+        initFilename(m_Filename);
         AVG_TRACE(Logger::MEMORY, "Loading " << m_Filename);
         try {
             m_pBmp = BitmapPtr(new Bitmap(m_Filename));
@@ -261,7 +260,7 @@ void Image::setupSurface()
     BitmapPtr pSurfaceBmp = getSurface()->lockBmp();
     pSurfaceBmp->copyPixels(*m_pBmp);
 #ifdef __i386__
-    if (!(getPlayer()->getDisplayEngine()->hasRGBOrdering())) {
+    if (!(getDisplayEngine()->hasRGBOrdering())) {
         FilterFlipRGB().applyInPlace(pSurfaceBmp);
     }
 #endif

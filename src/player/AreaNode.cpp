@@ -70,9 +70,8 @@ NodeDefinition AreaNode::getNodeDefinition()
         .addArg(Arg<bool>("sensitive", true, false, offsetof(AreaNode, m_bSensitive)));
 }
 
-AreaNode::AreaNode (Player * pPlayer)
-    : Node(pPlayer),
-      m_RelViewport(0,0,0,0)
+AreaNode::AreaNode()
+    : m_RelViewport(0,0,0,0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -285,12 +284,12 @@ void AreaNode::releaseMouseEventCapture()
 
 void AreaNode::setEventCapture(int cursorID) 
 {
-    getPlayer()->setEventCapture(dynamic_pointer_cast<AreaNode>(getThis()), cursorID);
+    Player::get()->setEventCapture(dynamic_pointer_cast<AreaNode>(getThis()), cursorID);
 }
 
 void AreaNode::releaseEventCapture(int cursorID) 
 {
-    getPlayer()->releaseEventCapture(cursorID);
+    Player::get()->releaseEventCapture(cursorID);
 }
 
 void AreaNode::setEventHandler(Event::Type Type, int Sources, PyObject * pFunc)
@@ -469,7 +468,7 @@ void AreaNode::addEventHandler(Event::Type EventType, Event::Source Source,
     }
 }
 
-void AreaNode::initFilename(Player * pPlayer, string& sFilename)
+void AreaNode::initFilename(string& sFilename)
 {
     bool bAbsDir = sFilename[0] == '/';
 #ifdef _WIN32
@@ -480,7 +479,7 @@ void AreaNode::initFilename(Player * pPlayer, string& sFilename)
     if (!bAbsDir) {
         DivNodePtr pParent = getParent();
         if (!pParent) {
-            sFilename = pPlayer->getRootMediaDir()+sFilename;
+            sFilename = Player::get()->getRootMediaDir()+sFilename;
         } else {
             sFilename = pParent->getEffectiveMediaDir()+sFilename;
         }

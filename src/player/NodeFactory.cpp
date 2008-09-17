@@ -45,22 +45,20 @@ void NodeFactory::registerNodeType(NodeDefinition& Def)
     m_NodeDefs.insert(NodeDefMap::value_type(Def.getName(), Def));
 }
 
-NodePtr NodeFactory::createNode(const string& Type, const xmlNodePtr xmlNode,
-        Player* pPlayer)
+NodePtr NodeFactory::createNode(const string& Type, const xmlNodePtr xmlNode)
 {
     const NodeDefinition& Def = getNodeDef(Type);
     ArgList Args(Def.getDefaultArgs(), xmlNode);
     NodeBuilder builder = Def.getBuilder();
-    return builder(Args, pPlayer, true);
+    return builder(Args, true);
 }
 
-NodePtr NodeFactory::createNode(const string& Type, const boost::python::dict& PyDict,
-        Player* pPlayer)
+NodePtr NodeFactory::createNode(const string& Type, const boost::python::dict& PyDict)
 {
     const NodeDefinition& Def = getNodeDef(Type);
     ArgList Args(Def.getDefaultArgs(), PyDict);
     NodeBuilder builder = Def.getBuilder();
-    return builder(Args, pPlayer, false);
+    return builder(Args, false);
 }
 
 string NodeFactory::getDTD() const

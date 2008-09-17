@@ -47,12 +47,11 @@ NodeDefinition Node::getNodeDefinition()
         .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)));
 }
 
-Node::Node (Player * pPlayer)
+Node::Node ()
     : m_pParent(),
       m_This(),
       m_pDisplayEngine(0),
       m_pAudioEngine(0),
-      m_pPlayer(pPlayer),
       m_State(NS_UNCONNECTED)
 {
 }
@@ -107,7 +106,7 @@ void Node::disconnect()
         m_pDisplayEngine = 0;
         m_pAudioEngine = 0;
     }
-    getPlayer()->removeNodeID(m_ID);
+    Player::get()->removeNodeID(m_ID);
     setState(NS_UNCONNECTED);
 }
 
@@ -162,11 +161,6 @@ bool Node::operator !=(const Node& other) const
 long Node::getHash() const
 {
     return long(&*m_This.lock());
-}
-
-Player * Node::getPlayer() const
-{
-    return m_pPlayer;
 }
 
 DisplayEngine * Node::getDisplayEngine() const

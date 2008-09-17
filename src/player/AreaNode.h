@@ -55,9 +55,9 @@ class AreaNode: public Node
 {
     public:
         template<class NodeType>
-        static NodePtr buildNode(const ArgList& Args, Player* pPlayer, bool bFromXML)
+        static NodePtr buildNode(const ArgList& Args, bool bFromXML)
         {
-            return NodePtr(new NodeType(Args, pPlayer, bFromXML));
+            return NodePtr(new NodeType(Args, bFromXML));
         }
         static NodeDefinition getNodeDefinition();
         
@@ -128,7 +128,7 @@ class AreaNode: public Node
             { return IntPoint(0,0); };
 
     protected:
-        AreaNode(Player * pPlayer);
+        AreaNode();
         DPoint getPivot() const;
 
         void callPython(PyObject * pFunc, avg::EventPtr pEvent);
@@ -136,7 +136,7 @@ class AreaNode: public Node
         void addEventHandler(Event::Type EventType, Event::Source Source, 
                 const std::string& Code);
             
-        void initFilename(Player * pPlayer, std::string& sFilename);
+        void initFilename(std::string& sFilename);
         DPoint toLocal(const DPoint& pos) const;
         DPoint toGlobal(const DPoint& pos) const;
  

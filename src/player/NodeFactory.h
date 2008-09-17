@@ -41,10 +41,8 @@ public:
     virtual ~NodeFactory();
     
     void registerNodeType(NodeDefinition& Def);
-    NodePtr createNode(const std::string& Type, const xmlNodePtr xmlNode, 
-            Player* pPlayer);
-    NodePtr createNode(const std::string& Type, const boost::python::dict& PyDict,
-            Player* pPlayer);
+    NodePtr createNode(const std::string& Type, const xmlNodePtr xmlNode);
+    NodePtr createNode(const std::string& Type, const boost::python::dict& PyDict);
     
     std::string getDTD() const;
     

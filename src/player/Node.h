@@ -59,9 +59,9 @@ class Node
         enum NodeState {NS_UNCONNECTED, NS_CONNECTED, NS_CANRENDER};
         
         template<class NodeType>
-        static NodePtr buildNode(const ArgList& Args, Player* pPlayer, bool bFromXML)
+        static NodePtr buildNode(const ArgList& Args, bool bFromXML)
         {
-            return NodePtr(new NodeType(Args, pPlayer, bFromXML));
+            return NodePtr(new NodeType(Args, bFromXML));
         }
         static NodeDefinition getNodeDefinition();
         
@@ -96,8 +96,7 @@ class Node
         long getHash() const;
 
     protected:
-        Node (Player * pPlayer);
-        Player * getPlayer() const;
+        Node();
         DisplayEngine * getDisplayEngine() const;
         AudioEngine * getAudioEngine() const;
         NodePtr getThis() const;
@@ -108,7 +107,6 @@ class Node
         NodeWeakPtr m_This;
         DisplayEngine * m_pDisplayEngine;
         AudioEngine * m_pAudioEngine;
-        Player * m_pPlayer;
 
         std::string m_ID;
         NodeState m_State;

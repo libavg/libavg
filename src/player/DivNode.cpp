@@ -50,8 +50,8 @@ NodeDefinition DivNode::getNodeDefinition()
         .addArg(Arg<bool>("crop", true, false, offsetof(DivNode, m_bCrop)));
 }
 
-DivNode::DivNode (const ArgList& Args, Player * pPlayer, bool bFromXML)
-    : AreaNode(pPlayer)
+DivNode::DivNode (const ArgList& Args, bool bFromXML)
+    : AreaNode()
 {
     Args.setMembers(this);
 }
@@ -154,7 +154,7 @@ void DivNode::insertChild(NodePtr pNewNode, unsigned i)
     }
     std::vector<NodePtr>::iterator Pos = m_Children.begin()+i;
     if (getState() == NS_CONNECTED || getState() == NS_CANRENDER) {
-        getPlayer()->registerNode(pNewNode);
+        Player::get()->registerNode(pNewNode);
     }
     m_Children.insert(Pos, pNewNode);
     DivNodePtr Ptr = boost::dynamic_pointer_cast<DivNode>(getThis());           
@@ -298,7 +298,7 @@ string DivNode::getEffectiveMediaDir()
         if (getParent()) {
             sMediaDir = getParent()->getEffectiveMediaDir()+m_sMediaDir;
         } else {
-            sMediaDir = getPlayer()->getRootMediaDir()+m_sMediaDir;
+            sMediaDir = Player::get()->getRootMediaDir()+m_sMediaDir;
         }
     }
     if (sMediaDir[sMediaDir.length()-1] != '/') {

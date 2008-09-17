@@ -35,7 +35,7 @@ class DivNode : public AreaNode
     public:
         static NodeDefinition getNodeDefinition();
         
-        DivNode(const ArgList& Args, Player * pPlayer, bool bFromXML);
+        DivNode(const ArgList& Args, bool bFromXML);
         virtual ~DivNode();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
