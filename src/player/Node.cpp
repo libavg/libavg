@@ -239,6 +239,7 @@ DPoint Node::getSize() const
 
 void Node::setSize(const DPoint& pt)
 {
+    m_WantedSize = pt;
     setViewport(-32767, -32767, pt.x, pt.y);
 }
 
