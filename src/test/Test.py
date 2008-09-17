@@ -88,6 +88,14 @@ class PlayerTestCase(AVGTestCase):
         self.assert_(pt == (10, 10))
         self.assert_(len(pt) == 2)
         self.assertException(lambda: pt[2])
+        pt = avg.Point2D((10, 11))
+        self.assert_(pt.x==10)
+        self.assert_(pt.y==11)
+        pt.x=23
+        pt.y=42
+        self.assert_(pt.x==23)
+        self.assert_(pt.y==42)
+        self.assert_(pt==(23,42))
 
     def testImage(self):
         def loadNewFile():
