@@ -68,6 +68,7 @@ GLfunction getFuzzyProcAddress(const char * psz);
 namespace glproc {
     extern PFNGLGENBUFFERSPROC GenBuffers;
     extern PFNGLBUFFERDATAPROC BufferData;
+    extern PFNGLBUFFERSUBDATAPROC BufferSubData;
     extern PFNGLDELETEBUFFERSPROC DeleteBuffers;
     extern PFNGLBINDBUFFERPROC BindBuffer;
     extern PFNGLMAPBUFFERPROC MapBuffer;
