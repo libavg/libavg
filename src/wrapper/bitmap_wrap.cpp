@@ -57,15 +57,31 @@ namespace DPointHelper
         pt.y = val;
     }
 
+    void checkItemRange(int i) {
+        if (i!=0 && i!=1) {
+            throw std::out_of_range("Index out of range for Point2D. Must be 0 or 1.");
+        }
+    }
     double getItem(const DPoint& pt, int i)
     {
+        checkItemRange(i);
         switch(i) {
             case 0:
                 return pt.x;
             case 1:
                 return pt.y;
-            default:
-                throw std::out_of_range("Index out of range for Point2D. Must be 0 or 1.");
+        }
+    }
+    void setItem(DPoint& pt, int i, double val)
+    {
+        checkItemRange(i);
+        switch(i) {
+            case 0:
+                pt.x = val;
+                break;
+            case 1:
+                pt.y = val;
+                break;
         }
     }
 
@@ -73,6 +89,12 @@ namespace DPointHelper
     {
         stringstream st;
         st << "(" << pt.x << "," << pt.y << ")";
+        return st.str();
+    }
+    string repr(const DPoint& pt)
+    {
+        stringstream st;
+        st << "Point2D(" << pt.x << "," << pt.y << ")";
         return st.str();
     }
 }
@@ -90,7 +112,9 @@ void export_bitmap()
         .def(init<const DPoint&>())
         .def("__len__", &DPointHelper::len)
         .def("__getitem__", &DPointHelper::getItem)
+        .def("__setitem__", &DPointHelper::setItem)
         .def("__str__", &DPointHelper::str)
+        .def("__repr__", &DPointHelper::repr)
         .def("normalize", &DPoint::normalize,
                 "normalize()\n"
                 "Normalizes the point so it's angle stays the same but the norm is one.")
