@@ -24,12 +24,14 @@
 #include "../avgconfigwrapper.h"
 #include "AVGNode.h"
 #include "DivNode.h"
+#include "CanvasNode.h"
 #include "Words.h"
 #include "Video.h"
 #include "CameraNode.h"
 #include "Image.h"
 #include "PanoImage.h"
 #include "Sound.h"
+#include "LineNode.h"
 #include "NodeDefinition.h"
 
 #include "TrackerEventSource.h"
@@ -112,12 +114,14 @@ Player::Player()
     // Register all node types
     registerNodeType(AVGNode::getNodeDefinition());
     registerNodeType(DivNode::getNodeDefinition());
+    registerNodeType(CanvasNode::getNodeDefinition());
     registerNodeType(Image::getNodeDefinition());
     registerNodeType(Words::getNodeDefinition());
     registerNodeType(Video::getNodeDefinition());
     registerNodeType(CameraNode::getNodeDefinition());
     registerNodeType(PanoImage::getNodeDefinition());
     registerNodeType(Sound::getNodeDefinition());
+    registerNodeType(LineNode::getNodeDefinition());
 
     // Find and parse dtd.
     registerDTDEntityLoader("avg.dtd", m_NodeFactory.getDTD().c_str());

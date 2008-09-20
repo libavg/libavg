@@ -19,52 +19,37 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _GroupNode_H_
-#define _GroupNode_H_
+#ifndef _CanvasNode_H_
+#define _CanvasNode_H_
 
-#include "AreaNode.h"
+#include "GroupNode.h"
+
+#include "../graphics/VertexArray.h"
 
 #include <string>
 
 namespace avg {
     
-class GroupNode: public AreaNode
+class CanvasNode : public GroupNode
 {
     public:
         static NodeDefinition getNodeDefinition();
         
-        GroupNode();
-        virtual ~GroupNode();
+        CanvasNode(const ArgList& Args, bool bFromXML);
+        virtual ~CanvasNode();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
-        virtual void connect();
-        virtual void disconnect();
 
-        bool getCrop() const;
-        void setCrop(bool bCrop);
-
-        int getNumChildren();
-        NodePtr getChild(unsigned i);
-        void appendChild(NodePtr pNewNode);
-        void insertChildBefore(NodePtr pNewNode, NodePtr pOldChild);
-        void insertChild(NodePtr pNewNode, unsigned i);
-        void removeChild(NodePtr pNode);
-        void removeChild(unsigned i);
-        void reorderChild(NodePtr pNode, unsigned j);
-        void reorderChild(unsigned i, unsigned j);
-        int indexOf(NodePtr pChild);
-
+        virtual void preRender();
+        virtual void render(const DRect& rect);
         virtual std::string getTypeStr();
 
         virtual std::string dump(int indent = 0);
-        IntPoint GroupNode::getMediaSize();
     
     private:
-        std::string m_sMediaDir;
-        bool m_bCrop;
-        std::vector<NodePtr> m_Children;
+        VertexArrayPtr m_pVertexArray;
 };
 
 }
 
-#endif
+#endif //_CanvasNode_H_

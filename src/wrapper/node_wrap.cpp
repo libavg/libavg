@@ -33,8 +33,10 @@ void export_devices();
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
 #include "../player/DivNode.h"
+#include "../player/CanvasNode.h"
 #include "../player/PanoImage.h"
 #include "../player/Sound.h"
+#include "../player/LineNode.h"
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
@@ -201,6 +203,10 @@ void export_node()
                 return_value_policy<copy_const_reference>()), &DivNode::setMediaDir,
                 "The directory that the media files for the children of this node are in.\n")
     ;
+
+    class_<CanvasNode, bases<GroupNode>, boost::noncopyable>("CanvasNode", 
+            no_init)
+    ;
     
     class_<AVGNode, bases<DivNode> >("AVGNode",
             "Root node of any avg tree. Defines the properties of the display and\n"
@@ -281,4 +287,7 @@ void export_node()
                 "The maximum angle the viewer can look at.\n")
     ;
 
+    class_<LineNode, bases<Node>, boost::noncopyable>("LineNode", 
+            no_init)
+    ;
 }

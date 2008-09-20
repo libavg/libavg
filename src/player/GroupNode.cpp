@@ -205,13 +205,6 @@ int GroupNode::indexOf(NodePtr pChild)
             +getID()+"'"));
 }
 
-void GroupNode::preRender()
-{
-    for (int i=0; i<getNumChildren(); i++) {
-        getChild(i)->preRender();
-    }
-}
-
 string GroupNode::getTypeStr ()
 {
     return "GroupNode";

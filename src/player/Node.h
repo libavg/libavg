@@ -77,11 +77,11 @@ class Node
         void unlink();
 
         virtual void preRender() {};
-        virtual void maybeRender(const DRect& Rect) = 0;
-        virtual void render (const DRect& Rect) {};
+        virtual void maybeRender(const DRect& Rect) {};
+        virtual void render(const DRect& Rect) {};
         
-        virtual std::string dump (int indent = 0);
-        virtual std::string getTypeStr () const;
+        virtual std::string dump(int indent = 0);
+        virtual std::string getTypeStr() const;
         
         NodeState getState() const;
 

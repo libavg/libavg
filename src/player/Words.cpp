@@ -628,13 +628,6 @@ void Words::render(const DRect& Rect)
     }
 }
 
-Pixel32 Words::colorStringToColor(const string & colorString)
-{
-    int r,g,b;
-    sscanf(colorString.c_str(), "%2x%2x%2x", &r, &g, &b);
-    return Pixel32(r,g,b);
-}
-
 IntPoint Words::getMediaSize()
 {
     drawString();

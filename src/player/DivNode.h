@@ -40,6 +40,7 @@ class DivNode : public GroupNode
         void setMediaDir(const std::string& mediaDir);
 
         virtual AreaNodePtr getElementByPos(const DPoint & pos);
+        virtual void preRender();
         virtual void render(const DRect& rect);
         virtual std::string getTypeStr();
         virtual std::string getEffectiveMediaDir();

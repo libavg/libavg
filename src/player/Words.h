@@ -99,7 +99,6 @@ class Words : public RasterNode
     private:
         void drawString();
         void parseString(PangoAttrList** ppAttrList, char** ppText);
-        Pixel32 colorStringToColor(const std::string & colorString);
         void setParsedText(const UTF8String& sText);
         std::string removeExcessSpaces(const std::string & sText);
         PangoRectangle getGlyphRect(int i);

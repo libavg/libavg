@@ -41,15 +41,15 @@ namespace avg {
 
 NodeDefinition DivNode::getNodeDefinition()
 {
-    string sChildArray[] = {"image", "div", "words", "video", "camera", "panoimage"};
-    vector<string> sChildren = vectorFromCArray(6, sChildArray); 
+    string sChildArray[] = {"image", "div", "canvas", "words", "video", "camera", "panoimage"};
+    vector<string> sChildren = vectorFromCArray(7, sChildArray); 
     return NodeDefinition("div", Node::buildNode<DivNode>)
         .extendDefinition(GroupNode::getNodeDefinition())
         .addChildren(sChildren)
         .addArg(Arg<string>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)));
 }
 
-DivNode::DivNode (const ArgList& Args, bool)
+DivNode::DivNode(const ArgList& Args, bool)
 {
     Args.setMembers(this);
 }
@@ -93,6 +93,13 @@ AreaNodePtr DivNode::getElementByPos (const DPoint & pos)
         }
     } else { 
         return AreaNodePtr();
+    }
+}
+
+void DivNode::preRender()
+{
+    for (int i=0; i<getNumChildren(); i++) {
+        getChild(i)->preRender();
     }
 }
 

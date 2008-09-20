@@ -19,52 +19,45 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _GroupNode_H_
-#define _GroupNode_H_
+#ifndef _LineNode_H_
+#define _LineNode_H_
 
-#include "AreaNode.h"
+#include "Node.h"
 
-#include <string>
+#include "../graphics/Pixel32.h"
 
 namespace avg {
-    
-class GroupNode: public AreaNode
+
+class VertexArray;
+typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
+
+class LineNode : public Node
 {
     public:
         static NodeDefinition getNodeDefinition();
         
-        GroupNode();
-        virtual ~GroupNode();
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
+        LineNode(const ArgList& Args, bool bFromXML);
+        virtual ~LineNode();
+        void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
-        virtual void connect();
-        virtual void disconnect();
 
-        bool getCrop() const;
-        void setCrop(bool bCrop);
-
-        int getNumChildren();
-        NodePtr getChild(unsigned i);
-        void appendChild(NodePtr pNewNode);
-        void insertChildBefore(NodePtr pNewNode, NodePtr pOldChild);
-        void insertChild(NodePtr pNewNode, unsigned i);
-        void removeChild(NodePtr pNode);
-        void removeChild(unsigned i);
-        void reorderChild(NodePtr pNode, unsigned j);
-        void reorderChild(unsigned i, unsigned j);
-        int indexOf(NodePtr pChild);
-
+        virtual void updateData(VertexArrayPtr pVertexArray, int quadIndex);
         virtual std::string getTypeStr();
 
-        virtual std::string dump(int indent = 0);
-        IntPoint GroupNode::getMediaSize();
-    
     private:
-        std::string m_sMediaDir;
-        bool m_bCrop;
-        std::vector<NodePtr> m_Children;
+        DPoint m_P1;
+        DPoint m_P2;
+        std::string m_sColorName;
+        Pixel32 m_Color;
+        double m_Width;
+
+        bool m_bDrawNeeded;
+
 };
+
+typedef boost::shared_ptr<LineNode> LineNodePtr;
 
 }
 
 #endif
+
