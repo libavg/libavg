@@ -24,8 +24,11 @@
 
 #include "Pixeldefs.h"
 
+#include <string>
 #include <math.h>
 #include <stdlib.h>
+
+namespace avg {
 
 class Pixel32
 {
@@ -67,6 +70,8 @@ public:
   private:
     unsigned char m_Data[4];
 };
+
+Pixel32 colorStringToColor(const std::string& s);
 
 inline Pixel32::Pixel32()
 {
@@ -207,4 +212,5 @@ inline Pixel32::operator unsigned int() const
     return *(unsigned int*)(m_Data);
 }
 
+}
 #endif

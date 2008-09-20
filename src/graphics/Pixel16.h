@@ -29,6 +29,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+namespace avg {
+
 // 16 bit pixel class. A pixel in this class contains 5 bits of
 // red, 6 of green and 5 of blue (in that order). 
 class Pixel16
@@ -173,4 +175,5 @@ inline bool Pixel16::operator !=(const Pixel16 Pix) const
 }
 
 
+}
 #endif

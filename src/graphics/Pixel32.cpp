@@ -19,43 +19,20 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _VertexArray_H_
-#define _VertexArray_H_
+#include "Pixel32.h"
 
-#include "../base/Point.h"
-#include "../graphics/Pixel32.h"
-#include "../graphics/OGLHelper.h"
-
-#include <boost/shared_ptr.hpp>
+#include <string>
+#include <stdio.h>
 
 namespace avg {
 
-struct T2V3C4Vertex {
-    GLfloat m_Tex[2];
-    GLfloat m_Pos[3];
-    Pixel32 m_Color;
-    GLfloat m_Dummy[2];  // Align to 32 bytes
-};
+using namespace std;
 
-class VertexArray {
-public:
-    VertexArray(int NumQuads);
-    virtual ~VertexArray();
-
-    void setPos(int quadIndex, int vertexIndex, const DPoint& pos, const DPoint& texPos,
-            const Pixel32& color = Pixel32(0,0,0,0));
-    void update();
-    void draw();
-
-private:
-    int m_NumQuads;
-    T2V3C4Vertex * m_pVertexData;
-    bool m_bDataChanged;
-
-    unsigned int m_VBOArrayID;
-};
-typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
-
+Pixel32 colorStringToColor(const string & s)
+{
+    int r,g,b;
+    sscanf(s.c_str(), "%2x%2x%2x", &r, &g, &b);
+    return Pixel32(r,g,b);
 }
 
-#endif
+}

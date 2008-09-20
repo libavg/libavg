@@ -21,7 +21,7 @@ ALL_H = Bitmap.h Filter.h\
         GPUFilter.h GPUBandpassFilter.h FilterIntensity.h \
         FilterNormalize.h \
         $(APPLE_INCLUDES)
-ALL_CPP = Bitmap.cpp Filter.cpp Filtergrayscale.cpp \
+ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp \
         Filtercolorize.cpp Filterflip.cpp Filterfliprgb.cpp \
         Filterflipuv.cpp Filter3x3.cpp HistoryPreProcessor.cpp FilterHighpass.cpp \
         FilterFastBandpass.cpp Filterfliprgba.cpp FilterFastDownscale.cpp \

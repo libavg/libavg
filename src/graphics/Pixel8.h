@@ -28,6 +28,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
+namespace avg {
+
 class Pixel8
 {
   public:
@@ -147,4 +149,5 @@ inline void Pixel8::operator -= (const Pixel8& Pix)
   m_i -= Pix.m_i;
 }
 
+}
 #endif
