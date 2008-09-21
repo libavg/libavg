@@ -134,11 +134,9 @@ Bitmap::Bitmap(const std::string& sURI)
     try {
         Img.read(sURI);
     } catch( Magick::Warning &e) {
-#ifdef _WIN32    
         cerr << e.what() << endl;
-    } catch( Magick::ErrorConfigure &) {
-//      cerr << e.what() << endl;
-#endif
+    } catch( Magick::ErrorConfigure &e) {
+//        cerr << e.what() << endl;
     }
     PixelPacket * pSrcPixels = Img.getPixels(0, 0, Img.columns(), Img.rows());
     m_Size = IntPoint(Img.columns(), Img.rows());
