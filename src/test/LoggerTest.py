@@ -57,11 +57,5 @@ class LoggerTestCase(unittest.TestCase):
             self.Log.trace(self.Log.APP, "Test syslog entry.")
         self.Log.setConsoleDest()
 
-runner = unittest.TextTestRunner()
-rc = runner.run(LoggerTestCase())
-
-if rc.wasSuccessful():
-    sys.exit(0)
-else:
-    sys.exit(1)
+Player = avg.Player.get()
 
