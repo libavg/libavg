@@ -18,42 +18,38 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-//  Original author of this file is Nick Hebner (hebnern@gmail.com).
-//
 
-#ifndef _NodeFactory_H_
-#define _NodeFactory_H_
+#ifndef _CanvasNode_H_
+#define _CanvasNode_H_
 
-#include "Node.h"
-#include "ArgList.h"
-#include "NodeDefinition.h"
+#include "GroupNode.h"
 
-#include <map>
+#include "../graphics/VertexArray.h"
+
 #include <string>
-#include <sstream>
 
 namespace avg {
-
-class NodeFactory
+    
+class CanvasNode : public GroupNode
 {
-public:
-    NodeFactory();
-    virtual ~NodeFactory();
+    public:
+        static NodeDefinition getNodeDefinition();
+        
+        CanvasNode(const ArgList& Args, bool bFromXML);
+        virtual ~CanvasNode();
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
+                AudioEngine * pAudioEngine);
+
+        virtual void preRender();
+        virtual void render(const DRect& rect);
+        virtual std::string getTypeStr();
+
+        virtual std::string dump(int indent = 0);
     
-    void registerNodeType(NodeDefinition& Def);
-    NodePtr createNode(const std::string& Type, const xmlNodePtr xmlNode);
-    NodePtr createNode(const std::string& Type, const boost::python::dict& PyDict);
-    
-    std::string getDTD() const;
-    
-private:
-    const NodeDefinition& getNodeDef(const std::string& Type);
-    void writeNodeDTD(const NodeDefinition& Def, std::stringstream& ss) const;
-    
-    typedef std::map<std::string, NodeDefinition> NodeDefMap;
-    NodeDefMap m_NodeDefs;
+    private:
+        VertexArrayPtr m_pVertexArray;
 };
 
 }
 
-#endif
+#endif //_CanvasNode_H_

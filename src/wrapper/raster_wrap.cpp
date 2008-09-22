@@ -110,7 +110,7 @@ void export_raster()
     from_python_sequence<vector<DPoint>, variable_capacity_policy>();
     from_python_sequence<VertexGrid, variable_capacity_policy>();
 
-    class_<RasterNode, bases<Node>, boost::noncopyable>("RasterNode",
+    class_<RasterNode, bases<AreaNode>, boost::noncopyable>("RasterNode",
             "Base class for all nodes that have a direct 2d raster representation.\n"
             "This includes Image, Word, Camera, and Video nodes. RasterNodes can\n"
             "be rotated. Warping of RasterNodes is implemented using a grid of\n"

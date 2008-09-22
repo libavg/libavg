@@ -42,13 +42,13 @@ NodeDefinition AVGNode::getNodeDefinition()
         .addArg(Arg<string>("onkeydown", ""));
 }
 
-AVGNode::AVGNode (const ArgList& Args, Player * pPlayer, bool bFromXML)
-    : DivNode(Args, pPlayer, bFromXML)
+AVGNode::AVGNode (const ArgList& Args, bool bFromXML)
+    : DivNode(Args, bFromXML)
 {
     Args.setMembers(this);
     addEventHandler(Event::KEYUP, Event::NONE, Args.getArgVal<string>("onkeyup"));
     addEventHandler(Event::KEYDOWN, Event::NONE, Args.getArgVal<string>("onkeydown"));
-    Node::setAngle(0.0);
+    AreaNode::setAngle(0.0);
 }
 
 AVGNode::~AVGNode()
@@ -64,7 +64,7 @@ string AVGNode::getEffectiveMediaDir()
 {
     string sMediaDir = getMediaDir();
     if (!isAbsPath(sMediaDir)) {
-        sMediaDir = getPlayer()->getCurDirName()+sMediaDir;
+        sMediaDir = Player::get()->getCurDirName()+sMediaDir;
     }
     if (sMediaDir[sMediaDir.length()-1] != '/') {
         sMediaDir += '/';

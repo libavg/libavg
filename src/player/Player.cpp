@@ -24,12 +24,14 @@
 #include "../avgconfigwrapper.h"
 #include "AVGNode.h"
 #include "DivNode.h"
+#include "CanvasNode.h"
 #include "Words.h"
 #include "Video.h"
 #include "CameraNode.h"
 #include "Image.h"
 #include "PanoImage.h"
 #include "Sound.h"
+#include "LineNode.h"
 #include "NodeDefinition.h"
 
 #include "TrackerEventSource.h"
@@ -112,12 +114,14 @@ Player::Player()
     // Register all node types
     registerNodeType(AVGNode::getNodeDefinition());
     registerNodeType(DivNode::getNodeDefinition());
+    registerNodeType(CanvasNode::getNodeDefinition());
     registerNodeType(Image::getNodeDefinition());
     registerNodeType(Words::getNodeDefinition());
     registerNodeType(Video::getNodeDefinition());
     registerNodeType(CameraNode::getNodeDefinition());
     registerNodeType(PanoImage::getNodeDefinition());
     registerNodeType(Sound::getNodeDefinition());
+    registerNodeType(LineNode::getNodeDefinition());
 
     // Find and parse dtd.
     registerDTDEntityLoader("avg.dtd", m_NodeFactory.getDTD().c_str());
@@ -515,11 +519,11 @@ void Player::showCursor(bool bShow)
     }
 }
 
-void Player::setEventCapture(NodeWeakPtr pNode, int cursorID) {
-    std::map<int, NodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
+void Player::setEventCapture(AreaNodePtr pNode, int cursorID) {
+    std::map<int, AreaNodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
     if (it!=m_pEventCaptureNode.end()&&!it->second.expired()) {
         throw Exception(AVG_ERR_INVALID_CAPTURE, "setEventCapture called for '"
-                + pNode.lock()->getID() + "', but cursor already captured by '"
+                + pNode->getID() + "', but cursor already captured by '"
                 + it->second.lock()->getID() + "'.");
     } else {
         m_pEventCaptureNode[cursorID] = pNode;
@@ -527,7 +531,7 @@ void Player::setEventCapture(NodeWeakPtr pNode, int cursorID) {
 }
 
 void Player::releaseEventCapture(int cursorID) {
-    std::map<int, NodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
+    std::map<int, AreaNodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
     if(it==m_pEventCaptureNode.end()||(it->second.expired()) ) {
         throw Exception(AVG_ERR_INVALID_CAPTURE,
                 "releaseEventCapture called, but cursor not captured.");
@@ -907,7 +911,7 @@ void Player::registerNodeType(NodeDefinition Def)
 
 NodePtr Player::createNode(const string& sType, const boost::python::dict& PyDict)
 {
-    NodePtr pNode = m_NodeFactory.createNode(sType, PyDict, this);
+    NodePtr pNode = m_NodeFactory.createNode(sType, PyDict);
     pNode->setThis(pNode);
     return pNode;
 }
@@ -940,7 +944,7 @@ NodePtr Player::createNodeFromXmlString (const string& sXML)
 }
 
 NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc, 
-        const xmlNodePtr xmlNode, DivNodeWeakPtr pParent)
+        const xmlNodePtr xmlNode, GroupNodeWeakPtr pParent)
 {
     NodePtr curNode;
     const char * nodeType = (const char *)xmlNode->name;
@@ -950,7 +954,7 @@ NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc,
         // Ignore whitespace & comments
         return NodePtr();
     }
-    curNode = m_NodeFactory.createNode(nodeType, xmlNode, this);
+    curNode = m_NodeFactory.createNode(nodeType, xmlNode);
     if (!strcmp (nodeType, "words")) {
         // TODO: This is an end-run around the generic serialization mechanism
         // that will probably break at some point.
@@ -967,14 +971,13 @@ NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc,
     }
 
     // If this is a container, recurse into children
-    DivNodePtr curDivNode = boost::dynamic_pointer_cast<DivNode>(curNode);
-    if (curDivNode) {
+    GroupNodePtr curGroup = boost::dynamic_pointer_cast<GroupNode>(curNode);
+    if (curGroup) {
         xmlNodePtr curXmlChild = xmlNode->xmlChildrenNode;
         while (curXmlChild) {
-            NodePtr curChild = createNodeFromXml (xmlDoc, curXmlChild, 
-                    curDivNode);
+            NodePtr curChild = createNodeFromXml(xmlDoc, curXmlChild, curGroup);
             if (curChild) {
-                curDivNode->appendChild(curChild);
+                curGroup->appendChild(curChild);
             }
             curXmlChild = curXmlChild->next;
         }
@@ -1072,23 +1075,23 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     DPoint pos(pEvent->getXPosition(), pEvent->getYPosition());
     int cursorID = pEvent->getCursorID();
     // Find all nodes under the cursor.
-    vector<NodeWeakPtr> pCursorNodes = getElementsByPos(pos);
+    vector<AreaNodeWeakPtr> pCursorNodes = getElementsByPos(pos);
 
     // Determine the nodes the event should be sent to.
-    vector<NodeWeakPtr> pDestNodes = pCursorNodes;
+    vector<AreaNodeWeakPtr> pDestNodes = pCursorNodes;
     bool bIsCapturing = false;
     if (m_pEventCaptureNode.find(cursorID) != m_pEventCaptureNode.end()) {
-        NodeWeakPtr pEventCaptureNode = m_pEventCaptureNode[cursorID];
+        AreaNodeWeakPtr pEventCaptureNode = m_pEventCaptureNode[cursorID];
         if (pEventCaptureNode.expired()) {
             m_pEventCaptureNode.erase(cursorID);
         } else {
-            pDestNodes = vector<NodeWeakPtr>();
+            pDestNodes = vector<AreaNodeWeakPtr>();
             pDestNodes.push_back(pEventCaptureNode);
             bIsCapturing = true;
         }
     } 
 
-    vector<NodeWeakPtr> pLastCursorNodes;
+    vector<AreaNodeWeakPtr> pLastCursorNodes;
     {
         map<int, CursorStatePtr>::iterator it;
         it = m_pLastCursorStates.find(cursorID);
@@ -1098,10 +1101,10 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     }
 
     // Send out events.
-    vector<NodeWeakPtr>::const_iterator itLast;
-    vector<NodeWeakPtr>::iterator itCur;
+    vector<AreaNodeWeakPtr>::const_iterator itLast;
+    vector<AreaNodeWeakPtr>::iterator itCur;
     for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); ++itLast) {
-        NodePtr pLastNode = itLast->lock();
+        AreaNodePtr pLastNode = itLast->lock();
         for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
             if (itCur->lock() == pLastNode) {
                 break;
@@ -1116,7 +1119,7 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 
     // Send over events.
     for (itCur = pCursorNodes.begin(); itCur != pCursorNodes.end(); ++itCur) {
-        NodePtr pCurNode = itCur->lock();
+        AreaNodePtr pCurNode = itCur->lock();
         for (itLast = pLastCursorNodes.begin(); itLast != pLastCursorNodes.end(); 
                 ++itLast) 
         {
@@ -1133,9 +1136,9 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
 
     if (!bOnlyCheckCursorOver) {
         // Iterate through the nodes and send the event to all of them.
-        vector<NodeWeakPtr>::iterator it;
+        vector<AreaNodeWeakPtr>::iterator it;
         for (it = pDestNodes.begin(); it != pDestNodes.end(); ++it) {
-            NodePtr pNode = (*it).lock();
+            AreaNodePtr pNode = (*it).lock();
             if (pNode) {
                 CursorEventPtr pNodeEvent =
                         boost::dynamic_pointer_cast<CursorEvent>(pEvent->cloneAs(pEvent->getType()));
@@ -1150,12 +1153,12 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     if (pEvent->getType() == Event::CURSORUP && pEvent->getSource() != Event::MOUSE) {
         // Cursor has disappeared: send out events.
         if (bIsCapturing) {
-            NodePtr pNode = pDestNodes.begin()->lock();
+            AreaNodePtr pNode = pDestNodes.begin()->lock();
             sendOver(pEvent, Event::CURSOROUT, pNode);
         } else {
-            vector<NodeWeakPtr>::iterator it;
+            vector<AreaNodeWeakPtr>::iterator it;
             for (it = pCursorNodes.begin(); it != pCursorNodes.end(); ++it) {
-                NodePtr pNode = it->lock();
+                AreaNodePtr pNode = it->lock();
                 sendOver(pEvent, Event::CURSOROUT, pNode);
             } 
         }
@@ -1171,10 +1174,10 @@ void Player::handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver)
     }
 }
 
-vector<NodeWeakPtr> Player::getElementsByPos(const DPoint& pos) const
+vector<AreaNodeWeakPtr> Player::getElementsByPos(const DPoint& pos) const
 {
-    vector<NodeWeakPtr> Elements;
-    NodePtr pNode = m_pRootNode->getElementByPos(pos);
+    vector<AreaNodeWeakPtr> Elements;
+    AreaNodePtr pNode = m_pRootNode->getElementByPos(pos);
     while (pNode) {
         Elements.push_back(pNode);
         pNode = pNode->getParent();
@@ -1211,7 +1214,7 @@ double Player::getVolume() const
 }
 
 void Player::sendOver(const CursorEventPtr pOtherEvent, Event::Type Type, 
-                NodePtr pNode)
+                AreaNodePtr pNode)
 {
     if (pNode) {
         EventPtr pNewEvent = pOtherEvent->cloneAs(Type);

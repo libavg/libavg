@@ -18,42 +18,46 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-//  Original author of this file is Nick Hebner (hebnern@gmail.com).
-//
 
-#ifndef _NodeFactory_H_
-#define _NodeFactory_H_
+#ifndef _LineNode_H_
+#define _LineNode_H_
 
 #include "Node.h"
-#include "ArgList.h"
-#include "NodeDefinition.h"
 
-#include <map>
-#include <string>
-#include <sstream>
+#include "../graphics/Pixel32.h"
 
 namespace avg {
 
-class NodeFactory
+class VertexArray;
+typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
+
+class LineNode : public Node
 {
-public:
-    NodeFactory();
-    virtual ~NodeFactory();
-    
-    void registerNodeType(NodeDefinition& Def);
-    NodePtr createNode(const std::string& Type, const xmlNodePtr xmlNode);
-    NodePtr createNode(const std::string& Type, const boost::python::dict& PyDict);
-    
-    std::string getDTD() const;
-    
-private:
-    const NodeDefinition& getNodeDef(const std::string& Type);
-    void writeNodeDTD(const NodeDefinition& Def, std::stringstream& ss) const;
-    
-    typedef std::map<std::string, NodeDefinition> NodeDefMap;
-    NodeDefMap m_NodeDefs;
+    public:
+        static NodeDefinition getNodeDefinition();
+        
+        LineNode(const ArgList& Args, bool bFromXML);
+        virtual ~LineNode();
+        void setRenderingEngines(DisplayEngine * pDisplayEngine, 
+                AudioEngine * pAudioEngine);
+
+        virtual void updateData(VertexArrayPtr pVertexArray, int quadIndex);
+        virtual std::string getTypeStr();
+
+    private:
+        DPoint m_P1;
+        DPoint m_P2;
+        std::string m_sColorName;
+        Pixel32 m_Color;
+        double m_Width;
+
+        bool m_bDrawNeeded;
+
 };
+
+typedef boost::shared_ptr<LineNode> LineNodePtr;
 
 }
 
 #endif
+

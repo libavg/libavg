@@ -24,7 +24,7 @@
 
 #include "../avgconfigwrapper.h"
 
-#include "Node.h"
+#include "AreaNode.h"
 #ifdef AVG_ENABLE_GL
 #include "OGLSurface.h"
 #endif
@@ -37,15 +37,16 @@ namespace avg {
     
 class SDLDisplayEngine;
 
-class PanoImage : public Node
+class PanoImage: public AreaNode
 {
     public:
         static NodeDefinition getNodeDefinition();
         
-        PanoImage(const ArgList& Args, Player * pPlayer, bool bFromXML);
+        PanoImage(const ArgList& Args, bool bFromXML);
         virtual ~PanoImage();
         
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
+                AudioEngine * pAudioEngine);
         virtual void disconnect();
         virtual void render(const DRect& Rect);
         virtual std::string getTypeStr();

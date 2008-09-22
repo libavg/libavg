@@ -18,42 +18,21 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-//  Original author of this file is Nick Hebner (hebnern@gmail.com).
-//
 
-#ifndef _NodeFactory_H_
-#define _NodeFactory_H_
+#include "Pixel32.h"
 
-#include "Node.h"
-#include "ArgList.h"
-#include "NodeDefinition.h"
-
-#include <map>
 #include <string>
-#include <sstream>
+#include <stdio.h>
 
 namespace avg {
 
-class NodeFactory
-{
-public:
-    NodeFactory();
-    virtual ~NodeFactory();
-    
-    void registerNodeType(NodeDefinition& Def);
-    NodePtr createNode(const std::string& Type, const xmlNodePtr xmlNode);
-    NodePtr createNode(const std::string& Type, const boost::python::dict& PyDict);
-    
-    std::string getDTD() const;
-    
-private:
-    const NodeDefinition& getNodeDef(const std::string& Type);
-    void writeNodeDTD(const NodeDefinition& Def, std::stringstream& ss) const;
-    
-    typedef std::map<std::string, NodeDefinition> NodeDefMap;
-    NodeDefMap m_NodeDefs;
-};
+using namespace std;
 
+Pixel32 colorStringToColor(const string & s)
+{
+    int r,g,b;
+    sscanf(s.c_str(), "%2x%2x%2x", &r, &g, &b);
+    return Pixel32(r,g,b);
 }
 
-#endif
+}

@@ -29,6 +29,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
+namespace avg {
+    
 class Pixel24
 {
   public:
@@ -182,4 +184,5 @@ inline void Pixel24::operator -= (const Pixel24& Pix)
   m_Data[2] -= Pix.m_Data[2];
 }
 
+}
 #endif

@@ -36,15 +36,14 @@ namespace avg {
 NodeDefinition RasterNode::getNodeDefinition()
 {
     return NodeDefinition("rasternode")
-        .extendDefinition(Node::getNodeDefinition())
+        .extendDefinition(AreaNode::getNodeDefinition())
         .addArg(Arg<int>("maxtilewidth", -1, false, offsetof(RasterNode, m_MaxTileSize.x)))
         .addArg(Arg<int>("maxtileheight", -1, false, offsetof(RasterNode, m_MaxTileSize.y)))
         .addArg(Arg<string>("blendmode", "blend", false, offsetof(RasterNode, m_sBlendMode)));
 }
 
-RasterNode::RasterNode (Player * pPlayer)
-    : Node(pPlayer),
-      m_pSurface(0),
+RasterNode::RasterNode()
+    : m_pSurface(0),
       m_MaxTileSize(IntPoint(-1,-1)),
       m_sBlendMode("blend")
 {
@@ -60,7 +59,7 @@ RasterNode::~RasterNode()
 
 void RasterNode::setArgs(const ArgList& Args)
 {
-    Node::setArgs(Args);
+    AreaNode::setArgs(Args);
     if ((!ispow2(m_MaxTileSize.x) && m_MaxTileSize.x != -1)
             || (!ispow2(m_MaxTileSize.y) && m_MaxTileSize.y != -1)) 
     {
@@ -72,7 +71,7 @@ void RasterNode::setArgs(const ArgList& Args)
 
 void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
-    Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 
     if (m_MaxTileSize != IntPoint(-1, -1)) {
         OGLSurface * pOGLSurface = 
@@ -88,7 +87,7 @@ void RasterNode::disconnect()
         delete m_pSurface;
         m_pSurface = 0;
     }
-    Node::disconnect();
+    AreaNode::disconnect();
 }
 
 VertexGrid RasterNode::getOrigVertexCoords()
@@ -133,13 +132,13 @@ void RasterNode::setBlendModeStr(const std::string& sBlendMode)
     }
 }
 
-NodePtr RasterNode::getElementByPos (const DPoint & pos)
+AreaNodePtr RasterNode::getElementByPos (const DPoint & pos)
 {
     // Node isn't pickable if it's warped.
     if (m_MaxTileSize == IntPoint(-1, -1)) {
-        return Node::getElementByPos(pos);
+        return AreaNode::getElementByPos(pos);
     } else {
-        return NodePtr();
+        return AreaNodePtr();
     }
 }
 

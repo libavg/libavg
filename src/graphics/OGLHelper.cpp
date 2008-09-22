@@ -44,6 +44,7 @@ namespace avg {
 namespace glproc {
     PFNGLGENBUFFERSPROC GenBuffers;
     PFNGLBUFFERDATAPROC BufferData;
+    PFNGLBUFFERSUBDATAPROC BufferSubData;
     PFNGLDELETEBUFFERSPROC DeleteBuffers;
     PFNGLBINDBUFFERPROC BindBuffer;
     PFNGLMAPBUFFERPROC MapBuffer;
@@ -311,6 +312,7 @@ namespace glproc {
 #endif    
         GenBuffers = (PFNGLGENBUFFERSPROC)getFuzzyProcAddress("glGenBuffers");
         BufferData = (PFNGLBUFFERDATAPROC)getFuzzyProcAddress("glBufferData");
+        BufferSubData = (PFNGLBUFFERSUBDATAPROC)getFuzzyProcAddress("glBufferSubData");
         DeleteBuffers = (PFNGLDELETEBUFFERSPROC)getFuzzyProcAddress("glDeleteBuffers");
         BindBuffer = (PFNGLBINDBUFFERPROC)getFuzzyProcAddress("glBindBuffer");
         MapBuffer = (PFNGLMAPBUFFERPROC)getFuzzyProcAddress("glMapBuffer");

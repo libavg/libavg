@@ -139,9 +139,8 @@ text_subst_func (FcPattern *pattern, gpointer data)
   FcPatternAddBool(pattern, FC_ANTIALIAS, true);
 }
 
-Words::Words (const ArgList& Args, Player * pPlayer, bool bFromXML)
-    : RasterNode(pPlayer), 
-      m_StringExtents(0,0),
+Words::Words (const ArgList& Args, bool bFromXML)
+    : m_StringExtents(0,0),
       m_pFontDescription(0),
       m_pLayout(0),
       m_bFontChanged(true),
@@ -232,13 +231,13 @@ void Words::setAlignment(const string& sAlign)
 double Words::getWidth() 
 {
     drawString();
-    return Node::getWidth();
+    return AreaNode::getWidth();
 }
 
 double Words::getHeight()
 {
     drawString();
-    return Node::getHeight();
+    return AreaNode::getHeight();
 }
 
 const std::string& Words::getFont() const
@@ -627,13 +626,6 @@ void Words::render(const DRect& Rect)
         getDisplayEngine()->blta8(getSurface(), getSize(),
                 getEffectiveOpacity(), m_Color, getBlendMode());
     }
-}
-
-Pixel32 Words::colorStringToColor(const string & colorString)
-{
-    int r,g,b;
-    sscanf(colorString.c_str(), "%2x%2x%2x", &r, &g, &b);
-    return Pixel32(r,g,b);
 }
 
 IntPoint Words::getMediaSize()

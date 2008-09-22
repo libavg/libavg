@@ -1556,7 +1556,7 @@ long long SDLDisplayEngine::getGPUMemoryUsage()
     return lAmount;
 }
 
-void SDLDisplayEngine::deregisterSurface(OGLSurface *pOGLSurface)
+void SDLDisplayEngine::deregisterSurface(ISurface *pOGLSurface)
 {
     vector<OGLSurface *>::iterator it;
 

@@ -19,39 +19,52 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _DivNode_H_
-#define _DivNode_H_
+#ifndef _GroupNode_H_
+#define _GroupNode_H_
 
-#include "GroupNode.h"
+#include "AreaNode.h"
 
 #include <string>
 
 namespace avg {
     
-class DivNode : public GroupNode
+class GroupNode: public AreaNode
 {
     public:
         static NodeDefinition getNodeDefinition();
         
-        DivNode(const ArgList& Args, bool bFromXML);
-        virtual ~DivNode();
+        GroupNode();
+        virtual ~GroupNode();
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
+                AudioEngine * pAudioEngine);
+        virtual void connect();
+        virtual void disconnect();
 
-        const std::string& getMediaDir() const;
-        void setMediaDir(const std::string& mediaDir);
+        bool getCrop() const;
+        void setCrop(bool bCrop);
 
-        virtual AreaNodePtr getElementByPos(const DPoint & pos);
-        virtual void preRender();
-        virtual void render(const DRect& rect);
+        int getNumChildren();
+        NodePtr getChild(unsigned i);
+        void appendChild(NodePtr pNewNode);
+        void insertChildBefore(NodePtr pNewNode, NodePtr pOldChild);
+        void insertChild(NodePtr pNewNode, unsigned i);
+        void removeChild(NodePtr pNode);
+        void removeChild(unsigned i);
+        void reorderChild(NodePtr pNode, unsigned j);
+        void reorderChild(unsigned i, unsigned j);
+        int indexOf(NodePtr pChild);
+
         virtual std::string getTypeStr();
-        virtual std::string getEffectiveMediaDir();
-        virtual void checkReload();
 
         virtual std::string dump(int indent = 0);
+        IntPoint GroupNode::getMediaSize();
     
     private:
         std::string m_sMediaDir;
+        bool m_bCrop;
+        std::vector<NodePtr> m_Children;
 };
 
 }
 
-#endif //_DivNode_H_
+#endif

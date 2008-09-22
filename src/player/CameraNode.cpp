@@ -68,9 +68,8 @@ NodeDefinition CameraNode::getNodeDefinition()
         .addArg(Arg<int>("whitebalance", -1));
 }
 
-CameraNode::CameraNode(const ArgList& Args, Player * pPlayer, bool bFromXML)
-    : VideoBase(pPlayer),
-      m_FrameNum(0)
+CameraNode::CameraNode(const ArgList& Args, bool bFromXML)
+    : m_FrameNum(0)
 {
     Args.setMembers(this);
     string sDevice = Args.getArgVal<string>("device");

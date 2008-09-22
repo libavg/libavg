@@ -43,7 +43,7 @@ class Words : public RasterNode
     public:
         static NodeDefinition getNodeDefinition();
         
-        Words(const ArgList& Args, Player * pPlayer, bool bFromXMLNodeValue);
+        Words(const ArgList& Args, bool bFromXMLNodeValue);
         virtual ~Words();
         
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
@@ -99,7 +99,6 @@ class Words : public RasterNode
     private:
         void drawString();
         void parseString(PangoAttrList** ppAttrList, char** ppText);
-        Pixel32 colorStringToColor(const std::string & colorString);
         void setParsedText(const UTF8String& sText);
         std::string removeExcessSpaces(const std::string & sText);
         PangoRectangle getGlyphRect(int i);

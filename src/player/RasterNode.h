@@ -22,7 +22,7 @@
 #ifndef _RasterNode_H_
 #define _RasterNode_H_
 
-#include "Node.h"
+#include "AreaNode.h"
 #include "DisplayEngine.h"
 #include "OGLSurface.h"
 
@@ -33,13 +33,14 @@
 
 namespace avg {
 
-class RasterNode: public Node
+class RasterNode: public AreaNode
 {
     public:
         static NodeDefinition getNodeDefinition();
         
         virtual ~RasterNode ();
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
+                AudioEngine * pAudioEngine);
         virtual void setArgs(const ArgList& Args);
         virtual void disconnect();
         
@@ -63,12 +64,12 @@ class RasterNode: public Node
         OGLSurface * getOGLSurface();
         DisplayEngine::BlendMode getBlendMode() const;
         virtual std::string getTypeStr ();
-        NodePtr getElementByPos (const DPoint & pos);
+        AreaNodePtr getElementByPos (const DPoint & pos);
 
         virtual Bitmap* getBitmap();
         
     protected:
-        RasterNode (Player * pPlayer);
+        RasterNode();
         ISurface * getSurface();
  
     private:

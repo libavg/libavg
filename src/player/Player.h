@@ -30,7 +30,6 @@
 #include "DisplayEngine.h"
 #include "TestHelper.h"
 #include "NodeFactory.h"
-#include "Node.h"
 #include "DisplayParams.h"
 #include "CursorState.h"
 #include "MouseState.h"
@@ -49,6 +48,14 @@ namespace avg {
 
 class TrackerEventSource;
 class AudioEngine;
+class Node;
+class AreaNode;
+
+typedef boost::shared_ptr<Node> NodePtr;
+typedef boost::weak_ptr<Node> NodeWeakPtr;
+typedef boost::shared_ptr<AreaNode> AreaNodePtr;
+typedef boost::weak_ptr<AreaNode> AreaNodeWeakPtr;
+
 
 class Player : IEventSink
 {
@@ -91,7 +98,7 @@ class Player : IEventSink
         MouseEventPtr getMouseState() const;
         Bitmap * screenshot();
         void showCursor(bool bShow);
-        void setEventCapture(NodeWeakPtr pNode, int cursorID=MOUSECURSORID);
+        void setEventCapture(AreaNodePtr pNode, int cursorID=MOUSECURSORID);
         void releaseEventCapture(int cursorID=MOUSECURSORID);
 
         NodePtr getElementByID(const std::string& id);
@@ -126,15 +133,15 @@ class Player : IEventSink
         void internalLoad(const std::string& sAVG);
 
         NodePtr createNodeFromXml(const xmlDocPtr xmlDoc, 
-                const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);
+                const xmlNodePtr xmlNode, GroupNodeWeakPtr pParent);
 
         void render (bool bRenderEverything);
 
         void sendFakeEvents();
         void sendOver(CursorEventPtr pOtherEvent, Event::Type Type, 
-                NodePtr pNode);
+                AreaNodePtr pNode);
         void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
-        std::vector<NodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
+        std::vector<AreaNodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
 
         AVGNodePtr m_pRootNode;
         DisplayEngine * m_pDisplayEngine;
@@ -164,7 +171,7 @@ class Player : IEventSink
 
         // These are maps for each cursor id.
         std::map<int, CursorStatePtr> m_pLastCursorStates;
-        std::map<int, NodeWeakPtr> m_pEventCaptureNode;
+        std::map<int, AreaNodeWeakPtr> m_pEventCaptureNode;
 
         // Configuration variables.
         DisplayParams m_DP;

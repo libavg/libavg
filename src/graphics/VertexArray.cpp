@@ -36,7 +36,11 @@ namespace avg {
           m_bDataChanged(true)
     {
         glproc::GenBuffers(1, &m_VBOArrayID);
-        m_pVertexData = new T2V3Vertex[NumQuads*4];
+        m_pVertexData = new T2V3C4Vertex[NumQuads*4];
+        glproc::BindBuffer(GL_ARRAY_BUFFER, m_VBOArrayID);
+        glproc::BufferData(GL_ARRAY_BUFFER, m_NumQuads*4*sizeof(T2V3C4Vertex), 0, 
+                GL_STREAM_DRAW);
+
     }
 
     VertexArray::~VertexArray()
@@ -45,41 +49,52 @@ namespace avg {
         glproc::DeleteBuffers(1, &m_VBOArrayID);
     }
 
-    void VertexArray::setPos(int QuadIndex, int VertexIndex, const DPoint& Pos, 
-            const DPoint& TexPos)
+    void VertexArray::setPos(int quadIndex, int vertexIndex, const DPoint& pos, 
+            const DPoint& texPos, const Pixel32& color)
     {
-        assert(QuadIndex < m_NumQuads);
-        T2V3Vertex* pVertex = &(m_pVertexData[QuadIndex*4+VertexIndex]);
-        if (pVertex->m_Pos[0] != (GLfloat)Pos.x || 
-                pVertex->m_Pos[1] != (GLfloat)Pos.y ||
-                pVertex->m_Tex[0] != (GLfloat)TexPos.x || 
-                pVertex->m_Tex[1] != (GLfloat)TexPos.y)
+        assert(quadIndex < m_NumQuads);
+        T2V3C4Vertex* pVertex = &(m_pVertexData[quadIndex*4+vertexIndex]);
+        if (pVertex->m_Pos[0] != (GLfloat)pos.x || 
+                pVertex->m_Pos[1] != (GLfloat)pos.y ||
+                pVertex->m_Tex[0] != (GLfloat)texPos.x || 
+                pVertex->m_Tex[1] != (GLfloat)texPos.y ||
+                pVertex->m_Color != color)
         {
-            pVertex->m_Pos[0] = (GLfloat)Pos.x;
-            pVertex->m_Pos[1] = (GLfloat)Pos.y;
+            pVertex->m_Pos[0] = (GLfloat)pos.x;
+            pVertex->m_Pos[1] = (GLfloat)pos.y;
             pVertex->m_Pos[2] = 0.0;
-            pVertex->m_Tex[0] = (GLfloat)TexPos.x;
-            pVertex->m_Tex[1] = (GLfloat)TexPos.y;
+            pVertex->m_Tex[0] = (GLfloat)texPos.x;
+            pVertex->m_Tex[1] = (GLfloat)texPos.y;
+            pVertex->m_Color = color;
             m_bDataChanged = true;
         }
     }
 
+    void VertexArray::update()
+    {
+        // TODO: In case of performance issues, start using glMapBuffer.
+        if (m_bDataChanged) {
+            glproc::BindBuffer(GL_ARRAY_BUFFER, m_VBOArrayID);
+            glproc::BufferSubData(GL_ARRAY_BUFFER, 0, m_NumQuads*4*sizeof(T2V3C4Vertex),
+                    m_pVertexData);
+        }
+        m_bDataChanged = false;
+    }
+
     void VertexArray::draw()
     {
-        glproc::BindBuffer(GL_ARRAY_BUFFER, m_VBOArrayID);
         if (m_bDataChanged) {
-            glproc::BufferData(GL_ARRAY_BUFFER, m_NumQuads*4*sizeof(T2V3Vertex),
-                    m_pVertexData, GL_STREAM_DRAW);
+            update();
+        } else {
+            glproc::BindBuffer(GL_ARRAY_BUFFER, m_VBOArrayID);
         }
-        glVertexPointer(3, GL_FLOAT, sizeof(T2V3Vertex),
-                (void *)(offsetof(T2V3Vertex, m_Pos)));
-        glTexCoordPointer(2, GL_FLOAT, sizeof(T2V3Vertex),
-                0);
+        glVertexPointer(3, GL_FLOAT, sizeof(T2V3C4Vertex),
+                (void *)(offsetof(T2V3C4Vertex, m_Pos)));
+        glTexCoordPointer(2, GL_FLOAT, sizeof(T2V3C4Vertex), 0);
+        glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(T2V3C4Vertex), 0);
         
         glDrawArrays(GL_QUADS, 0, 4*m_NumQuads);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VertexArray::draw()");
-
-        m_bDataChanged = false;
     }
 
 }

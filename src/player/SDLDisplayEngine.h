@@ -97,7 +97,7 @@ class SDLDisplayEngine: public DisplayEngine, public IEventSource
                 VSyncMode DesiredVSyncMode);
         
         long long getGPUMemoryUsage();
-        void deregisterSurface(OGLSurface *);
+        void deregisterSurface(ISurface *);
 
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);

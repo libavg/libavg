@@ -49,7 +49,7 @@ namespace avg {
 NodeDefinition PanoImage::getNodeDefinition()
 {
     return NodeDefinition("panoimage", Node::buildNode<PanoImage>)
-        .extendDefinition(Node::getNodeDefinition())
+        .extendDefinition(AreaNode::getNodeDefinition())
         .addArg(Arg<string>("href", "", false, offsetof(PanoImage, m_href)))
         .addArg(Arg<double>("sensorwidth", 1.0, false, offsetof(PanoImage, m_SensorWidth)))
         .addArg(Arg<double>("sensorheight", 1.0, false, offsetof(PanoImage, m_SensorHeight)))
@@ -59,8 +59,7 @@ NodeDefinition PanoImage::getNodeDefinition()
         .addArg(Arg<int>("saturation", -1, false, offsetof(PanoImage, m_Saturation)));
 }
 
-PanoImage::PanoImage (const ArgList& Args, Player * pPlayer, bool bFromXML)
-    : Node (pPlayer)
+PanoImage::PanoImage (const ArgList& Args, bool bFromXML)
 {
     Args.setMembers(this);
     m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8));
@@ -74,7 +73,7 @@ PanoImage::~PanoImage ()
 
 void PanoImage::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
-    Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
     
     setupTextures();
 }
@@ -82,7 +81,7 @@ void PanoImage::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine 
 void PanoImage::disconnect()
 {
     clearTextures();
-    Node::disconnect();
+    AreaNode::disconnect();
 }
 
 static ProfilingZone PanoRenderProfilingZone("PanoImage::render");
@@ -305,7 +304,7 @@ void PanoImage::load()
     m_Filename = m_href;
     AVG_TRACE(Logger::MEMORY, "Loading " << m_Filename);
     if (m_Filename != "") {
-        initFilename(getPlayer(), m_Filename);
+        initFilename(m_Filename);
         try {
             
             m_pBmp = BitmapPtr(new Bitmap(m_Filename));

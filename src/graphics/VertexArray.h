@@ -23,14 +23,18 @@
 #define _VertexArray_H_
 
 #include "../base/Point.h"
+#include "../graphics/Pixel32.h"
 #include "../graphics/OGLHelper.h"
+
+#include <boost/shared_ptr.hpp>
 
 namespace avg {
 
-struct T2V3Vertex {
+struct T2V3C4Vertex {
     GLfloat m_Tex[2];
     GLfloat m_Pos[3];
-    GLfloat m_Dummy[3];
+    Pixel32 m_Color;
+    GLfloat m_Dummy[2];  // Align to 32 bytes
 };
 
 class VertexArray {
@@ -38,17 +42,19 @@ public:
     VertexArray(int NumQuads);
     virtual ~VertexArray();
 
-    void setPos(int QuadIndex, int VertexIndex, const DPoint& Pos, 
-            const DPoint& TexPos);
+    void setPos(int quadIndex, int vertexIndex, const DPoint& pos, const DPoint& texPos,
+            const Pixel32& color = Pixel32(0,0,0,0));
+    void update();
     void draw();
 
 private:
     int m_NumQuads;
-    T2V3Vertex * m_pVertexData;
+    T2V3C4Vertex * m_pVertexData;
     bool m_bDataChanged;
 
     unsigned int m_VBOArrayID;
 };
+typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 
 }
 

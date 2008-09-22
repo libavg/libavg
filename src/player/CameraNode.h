@@ -40,10 +40,11 @@ class CameraNode : public VideoBase
     public:
         static NodeDefinition getNodeDefinition();
         
-        CameraNode(const ArgList& Args, Player * pPlayer, bool bFromXML);
+        CameraNode(const ArgList& Args, bool bFromXML);
         virtual ~CameraNode();
 
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine,
+                AudioEngine * pAudioEngine);
         virtual std::string getTypeStr();
 
         const std::string& getDevice() const 
