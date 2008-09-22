@@ -57,7 +57,7 @@ class GroupNode: public AreaNode
         virtual std::string getTypeStr();
 
         virtual std::string dump(int indent = 0);
-        IntPoint GroupNode::getMediaSize();
+        IntPoint getMediaSize();
     
     private:
         std::string m_sMediaDir;
