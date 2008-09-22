@@ -49,23 +49,19 @@ namespace DPointHelper
     double getItem(const DPoint& pt, int i)
     {
         checkItemRange(i);
-        switch(i) {
-            case 0:
-                return pt.x;
-            case 1:
-                return pt.y;
+        if (i==0) {
+            return pt.x;
+        } else {
+            return pt.y;
         }
     }
     void setItem(DPoint& pt, int i, double val)
     {
         checkItemRange(i);
-        switch(i) {
-            case 0:
-                pt.x = val;
-                break;
-            case 1:
-                pt.y = val;
-                break;
+        if (i==0) {
+            pt.x = val;
+        } else {
+            pt.y = val;
         }
     }
 
