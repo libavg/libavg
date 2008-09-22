@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import unittest
 
@@ -22,6 +22,7 @@ os.chdir(SrcDir)
 
 from LoggerTest import *
 from AVGTest import *
+from VectorTest import *
 from WordsTest import *
 from AVTest import *
 from DynamicsTest import *
@@ -31,6 +32,7 @@ def AVGTestSuite(bpp):
     suite = unittest.TestSuite()
     suite.addTest(LoggerTestCase())
     suite.addTest(playerTestSuite(bpp))
+    suite.addTest(vectorTestSuite())
     suite.addTest(wordsTestSuite())
     suite.addTest(avTestSuite())
     suite.addTest(dynamicsTestSuite())
