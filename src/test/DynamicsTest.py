@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-import sys, time, os, platform
+import sys, platform
 
 # Import the correct version of libavg. Since it should be possible to
 # run the tests without installing libavg, we add the location of the 
@@ -16,9 +16,6 @@ if platform.system() == 'Windows':
     from libavg import avg    # Under windows, there is no uninstalled version.
 else:
     import avg
-
-SrcDir = os.getenv("srcdir",".")
-os.chdir(SrcDir)
 
 from testcase import *
 
@@ -260,27 +257,4 @@ def dynamicsTestSuite():
     suite.addTest(DynamicsTestCase("testComplexDiv"))
     return suite
 
-Log = avg.Logger.get()
-Log.setCategories(Log.APP |
-        Log.WARNING
-#         Log.PROFILE |
-#         Log.PROFILE_LATEFRAMES |
-#         Log.CONFIG |
-#         Log.MEMORY |
-#         Log.BLTS    |
-#         Log.EVENTS |
-#         Log.EVENTS2
-              )
-
-if os.getenv("AVG_CONSOLE_TEST"):
-    sys.exit(0)
-else:
-    rmBrokenDir()
-    Player = avg.Player()
-    runner = unittest.TextTestRunner()
-    rc = runner.run(dynamicsTestSuite())
-    if rc.wasSuccessful():
-        sys.exit(0)
-    else:
-        sys.exit(1)
-        
+Player = avg.Player.get()
