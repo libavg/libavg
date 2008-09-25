@@ -39,6 +39,7 @@ class CanvasNode : public GroupNode
         virtual ~CanvasNode();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
+        virtual void disconnect();
 
         virtual void preRender();
         virtual void render(const DRect& rect);
@@ -47,6 +48,8 @@ class CanvasNode : public GroupNode
         virtual std::string dump(int indent = 0);
     
     private:
+        virtual void childrenChanged();
+
         VertexArrayPtr m_pVertexArray;
 };
 

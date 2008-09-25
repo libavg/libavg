@@ -39,21 +39,27 @@ struct T2V3C4Vertex {
 
 class VertexArray {
 public:
-    VertexArray(int NumQuads);
+    VertexArray(int numQuads, int reserveQuads = 0);
     virtual ~VertexArray();
 
     void setPos(int quadIndex, int vertexIndex, const DPoint& pos, const DPoint& texPos,
             const Pixel32& color = Pixel32(0,0,0,0));
+    void changeSize(int numQuads);
+
     void update();
     void draw();
 
 private:
+    void setBufferSize();
+
     int m_NumQuads;
+    int m_ReserveQuads;
     T2V3C4Vertex * m_pVertexData;
     bool m_bDataChanged;
 
     unsigned int m_VBOArrayID;
 };
+
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 
 }

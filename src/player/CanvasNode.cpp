@@ -29,6 +29,8 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/MathHelper.h"
+#include "../base/ScopeTimer.h"
+
 #include <iostream>
 #include <sstream>
 
@@ -60,17 +62,26 @@ void CanvasNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
 {
     GroupNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 
-    m_pVertexArray = VertexArrayPtr(new VertexArray(getNumChildren()));
+    m_pVertexArray = VertexArrayPtr(new VertexArray(getNumChildren(), 100));
 
+}
+
+void CanvasNode::disconnect()
+{
+    m_pVertexArray = VertexArrayPtr();
+    GroupNode::disconnect();
 }
 
 void CanvasNode::preRender()
 {
-    for (int i=0; i<getNumChildren(); ++i) {
+    int numChildren = getNumChildren();
+    for (int i=0; i<numChildren; ++i) {
         dynamic_pointer_cast<LineNode>(getChild(i))->updateData(m_pVertexArray, i);
     }
     m_pVertexArray->update();
 }
+
+static ProfilingZone RenderProfilingZone("CanvasNode::render");
 
 void CanvasNode::render(const DRect& rect)
 {
@@ -79,29 +90,38 @@ void CanvasNode::render(const DRect& rect)
         DRect ClipRect(0, 0, Viewport.x, Viewport.y);
         getDisplayEngine()->pushClipRect(ClipRect);
     }
-
-    int TexMode = dynamic_cast<SDLDisplayEngine*>(getDisplayEngine())->getTextureMode();
-    glDisable(TexMode);
-    m_pVertexArray->draw();
-    glEnable(TexMode);
+    {
+        ScopeTimer Timer(RenderProfilingZone);
+        int TexMode = dynamic_cast<SDLDisplayEngine*>(getDisplayEngine())->getTextureMode();
+        glDisable(TexMode);
+        m_pVertexArray->draw();
+        glEnable(TexMode);
+    }
     
     if (getCrop()) {
         getDisplayEngine()->popClipRect();
     }
 }
 
-string CanvasNode::getTypeStr ()
+string CanvasNode::getTypeStr()
 {
     return "CanvasNode";
 }
 
-string CanvasNode::dump (int indent)
+string CanvasNode::dump(int indent)
 {
     string dumpStr = GroupNode::dump () + "\n";
     for(int i=0; i<getNumChildren(); ++i) {
         dumpStr += getChild(i)->dump(indent+2)+"\n";
     }
     return dumpStr;
+}
+
+void CanvasNode::childrenChanged()
+{
+    if (m_pVertexArray) {
+        m_pVertexArray->changeSize(getNumChildren());
+    }
 }
 
 }

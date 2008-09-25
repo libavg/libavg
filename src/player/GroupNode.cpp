@@ -145,6 +145,7 @@ void GroupNode::insertChild(NodePtr pNewNode, unsigned i)
     if (getState() == NS_CANRENDER) {
         pNewNode->setRenderingEngines(getDisplayEngine(), getAudioEngine());
     }
+    childrenChanged();
 }
 
 void GroupNode::removeChild(NodePtr pNode)
@@ -152,6 +153,7 @@ void GroupNode::removeChild(NodePtr pNode)
     int i = indexOf(pNode);
     pNode->removeParent();
     m_Children.erase(m_Children.begin()+i);
+    childrenChanged();
 }
 
 void GroupNode::removeChild(unsigned i)
@@ -163,6 +165,7 @@ void GroupNode::removeChild(unsigned i)
     NodePtr pNode = getChild(i);
     pNode->removeParent();
     m_Children.erase(m_Children.begin()+i);
+    childrenChanged();
 }
 
 void GroupNode::reorderChild(NodePtr pNode, unsigned j)
@@ -175,6 +178,7 @@ void GroupNode::reorderChild(NodePtr pNode, unsigned j)
     m_Children.erase(m_Children.begin()+i);
     std::vector<NodePtr>::iterator Pos = m_Children.begin()+j;
     m_Children.insert(Pos, pNode);
+    childrenChanged();
 }
 
 void GroupNode::reorderChild(unsigned i, unsigned j)
@@ -187,6 +191,7 @@ void GroupNode::reorderChild(unsigned i, unsigned j)
     m_Children.erase(m_Children.begin()+i);
     std::vector<NodePtr>::iterator Pos = m_Children.begin()+j;
     m_Children.insert(Pos, pNode);
+    childrenChanged();
 }
 
 int GroupNode::indexOf(NodePtr pChild)

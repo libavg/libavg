@@ -34,9 +34,9 @@ class VectorTestCase(AVGTestCase):
               <canvas id="canvas" width="160" height="120"/>
             </avg>
         """)
-        addLines()
         self.start(None,
-                (lambda: self.compareImage("testline", False), 
+                (addLines,
+                 lambda: self.compareImage("testline", False), 
                 ))
 
 def vectorTestSuite():

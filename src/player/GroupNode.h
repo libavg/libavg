@@ -60,6 +60,8 @@ class GroupNode: public AreaNode
         IntPoint getMediaSize();
     
     private:
+        virtual void childrenChanged() {};
+
         std::string m_sMediaDir;
         bool m_bCrop;
         std::vector<NodePtr> m_Children;
