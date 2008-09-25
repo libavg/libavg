@@ -3,7 +3,7 @@
 set -e
 set -x
 
-export VERSION=0.8.0.pre1
+export VERSION=0.8.0
 export INSTALL_PATH_10_4="/Library/Python/2.3/site-packages/libavg"
 export INSTALL_PATH_10_5="/Library/Python/2.5/site-packages/libavg"
 
@@ -37,6 +37,7 @@ makeOneDist()
     mkdir avg/video
     mkdir avg/video/testfiles
     cp -Rv /Library/Python/$PYTHON_VER/site-packages/libavg/ .
+    strip -S avg.0.0.0.so
     cp ../../libavg/src/avgrc avg
     mkdir etc
     cp -R /etc/fonts etc/
@@ -44,6 +45,10 @@ makeOneDist()
     cp -Rv Test.sh *.py *.avg *.png *.jpg *.tif ${AVG_PATH}/dist/libavg/avg/test
     mkdir ${AVG_PATH}/dist/libavg/avg/test/baseline
     cp baseline/* ${AVG_PATH}/dist/libavg/avg/test/baseline
+    mkdir ${AVG_PATH}/dist/libavg/avg/test/testmediadir
+    cp testmediadir/* ${AVG_PATH}/dist/libavg/avg/test/testmediadir
+    mkdir ${AVG_PATH}/dist/libavg/avg/test/fonts
+    cp fonts/* ${AVG_PATH}/dist/libavg/avg/test/fonts
     
     cd $LIBAVGDIR/src/video/testfiles/
     cp -Rv *.mov *.mpg *.avi *.h264 *.wav *.aif *.ogg *.mp3 ${AVG_PATH}/dist/libavg/avg/video/testfiles

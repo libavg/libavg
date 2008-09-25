@@ -40,7 +40,7 @@ def AVGTestSuite(bpp):
     return suite
 
 def runConsoleTest():
-    Player = avg.Player()
+    Player = avg.Player.get()
     Player.loadFile("video.avg")
 
 def getBoolParam(paramIndex):

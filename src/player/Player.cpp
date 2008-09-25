@@ -105,7 +105,7 @@ Player::Player()
       m_bPythonAvailable(true)
 {
     if (s_pPlayer) {
-        throw Exception(AVG_ERR_UNKNOWN, "Player has been instantiated yet");
+        throw Exception(AVG_ERR_UNKNOWN, "Player has already been instantiated.");
     }
     ThreadProfilerPtr pThreadProfiler = ThreadProfilerPtr(new ThreadProfiler("Main"));
     Profiler::get().registerThreadProfiler(pThreadProfiler);

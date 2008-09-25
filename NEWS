@@ -1,3 +1,15 @@
+libavg 0.8.0 - September 22, 2008
+
+  svn revision 3196
+
+libavg 0.8.0.pre3 - September 16, 2008
+
+  svn revision 3171
+
+  * Fixed testgpu bug on older graphics cards.
+  * Fixed gcc 4.3 compile.
+  * Error instead of crash if vertex buffers are not supported.
+
 libavg 0.8.0.pre2 - September 13, 2008
 
   svn revision 3161
