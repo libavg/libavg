@@ -178,15 +178,15 @@ NodePtr Node::getThis() const
     return m_This.lock();
 }
 
-string Node::dump (int indent)
+string Node::dump(int indent)
 {
     string dumpStr = string(indent, ' ') + getTypeStr() + ": m_ID=" + m_ID;
     return dumpStr; 
 }
 
-string Node::getTypeStr () const 
+string Node::getTypeStr() const 
 {
-    return "Node";
+    return "node";
 }
 
 void Node::setState(Node::NodeState State)

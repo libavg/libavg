@@ -616,6 +616,11 @@ std::string Player::getRootMediaDir()
     return sMediaDir;
 }
 
+const NodeDefinition& Player::getNodeDef(const std::string& sType)
+{
+    return m_NodeFactory.getNodeDef(sType);
+}
+
 void Player::disablePython()
 {
     m_bPythonAvailable = false;

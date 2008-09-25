@@ -223,9 +223,9 @@ void Video::checkReload()
     }
 }
 
-string Video::getTypeStr ()
+string Video::getTypeStr() const
 {
-    return "Video";
+    return "video";
 }
 
 void Video::onFrameEnd()

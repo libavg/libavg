@@ -46,6 +46,7 @@ public:
     const ArgList& getDefaultArgs() const;
     const std::string& getDTDElements() const;
     std::string getChildren() const;
+    bool isChildAllowed(const std::string& sChild) const;
     
     NodeDefinition& extendDefinition(const NodeDefinition& Def);
     NodeDefinition& addArg(const ArgBase& newArg);

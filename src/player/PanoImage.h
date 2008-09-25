@@ -49,7 +49,7 @@ class PanoImage: public AreaNode
                 AudioEngine * pAudioEngine);
         virtual void disconnect();
         virtual void render(const DRect& Rect);
-        virtual std::string getTypeStr();
+        virtual std::string getTypeStr() const;
 
         double getScreenPosFromPanoPos(int PanoPos) const;
         double getScreenPosFromAngle(double Angle) const;

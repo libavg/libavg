@@ -42,7 +42,6 @@ VertexArray::VertexArray(int numQuads, int reserveQuads)
     glproc::GenBuffers(1, &m_VBOArrayID);
     m_pVertexData = new T2V3C4Vertex[m_ReserveQuads*4];
     setBufferSize();
-    cerr << sizeof(T2V3C4Vertex) << endl;
 }
 
 VertexArray::~VertexArray()

@@ -64,7 +64,7 @@ class Video : public VideoBase, IFrameListener, IAudioSource
         bool isThreaded() const;
         void setEOFCallback(PyObject * pEOFCallback);
 
-        virtual std::string getTypeStr();
+        virtual std::string getTypeStr() const;
 
         virtual void onFrameEnd();
         

@@ -42,7 +42,7 @@ class DivNode : public GroupNode
         virtual AreaNodePtr getElementByPos(const DPoint & pos);
         virtual void preRender();
         virtual void render(const DRect& rect);
-        virtual std::string getTypeStr();
+        virtual std::string getTypeStr() const;
         virtual std::string getEffectiveMediaDir();
         virtual void checkReload();
 

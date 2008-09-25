@@ -122,6 +122,7 @@ class Player : IEventSink
         void unregisterFrameListener(IFrameListener* pListener);
         std::string getCurDirName();
         std::string getRootMediaDir();
+        const NodeDefinition& getNodeDef(const std::string& sType);
 
         void disablePython();
 

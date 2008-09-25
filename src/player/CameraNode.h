@@ -45,7 +45,7 @@ class CameraNode : public VideoBase
 
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine,
                 AudioEngine * pAudioEngine);
-        virtual std::string getTypeStr();
+        virtual std::string getTypeStr() const;
 
         const std::string& getDevice() const 
         {

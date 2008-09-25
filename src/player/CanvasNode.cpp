@@ -42,7 +42,8 @@ namespace avg {
 NodeDefinition CanvasNode::getNodeDefinition()
 {
     string sChildArray[] = {"line"};
-    vector<string> sChildren = vectorFromCArray(1, sChildArray); 
+    vector<string> sChildren = vectorFromCArray(
+            sizeof(sChildArray) / sizeof(*sChildArray), sChildArray); 
     return NodeDefinition("canvas", Node::buildNode<CanvasNode>)
         .extendDefinition(GroupNode::getNodeDefinition())
         .addChildren(sChildren);
@@ -103,9 +104,9 @@ void CanvasNode::render(const DRect& rect)
     }
 }
 
-string CanvasNode::getTypeStr()
+string CanvasNode::getTypeStr() const
 {
-    return "CanvasNode";
+    return "canvas";
 }
 
 string CanvasNode::dump(int indent)

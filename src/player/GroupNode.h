@@ -54,12 +54,13 @@ class GroupNode: public AreaNode
         void reorderChild(unsigned i, unsigned j);
         int indexOf(NodePtr pChild);
 
-        virtual std::string getTypeStr();
+        virtual std::string getTypeStr() const;
 
         virtual std::string dump(int indent = 0);
         IntPoint getMediaSize();
     
     private:
+        bool isChildTypeAllowed(const std::string& sType);
         virtual void childrenChanged() {};
 
         std::string m_sMediaDir;

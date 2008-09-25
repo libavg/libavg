@@ -74,6 +74,15 @@ string NodeDefinition::getChildren() const
     }
 }
 
+bool NodeDefinition::isChildAllowed(const string& sChild) const
+{
+    for (unsigned i=0; i<m_sChildren.size(); ++i) {
+        if (m_sChildren[i] == sChild) {
+            return true;
+        }
+    }
+    return false;
+}
 
 NodeDefinition& NodeDefinition::extendDefinition(const NodeDefinition& Def)
 {

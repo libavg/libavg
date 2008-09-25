@@ -169,7 +169,7 @@ void Image::setBitmap(const Bitmap * pBmp)
 
 static ProfilingZone RenderProfilingZone("Image::render");
 
-void Image::render (const DRect& Rect)
+void Image::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_bIsImageAvailable) {
@@ -178,9 +178,9 @@ void Image::render (const DRect& Rect)
     }
 }
 
-string Image::getTypeStr ()
+string Image::getTypeStr() const
 {
-    return "Image";
+    return "image";
 }
 
 IntPoint Image::getMediaSize()

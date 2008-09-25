@@ -76,9 +76,9 @@ void LineNode::updateData(VertexArrayPtr pVertexArray, int quadIndex)
     m_bDrawNeeded = false;
 }
 
-string LineNode::getTypeStr()
+string LineNode::getTypeStr() const
 {
-    return "LineNode";
+    return "line";
 }
 
 }

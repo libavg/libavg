@@ -55,9 +55,9 @@ AVGNode::~AVGNode()
 {
 }
 
-string AVGNode::getTypeStr ()
+string AVGNode::getTypeStr() const
 {
-    return "AVGNode";
+    return "avg";
 }
 
 string AVGNode::getEffectiveMediaDir()

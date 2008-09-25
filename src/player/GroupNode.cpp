@@ -125,6 +125,12 @@ void GroupNode::insertChild(NodePtr pNewNode, unsigned i)
         throw Exception(AVG_ERR_NO_NODE,
                 getID()+"::insertChild called without a node.");
     }
+    if (!isChildTypeAllowed(pNewNode->getTypeStr())) {
+        throw(Exception(AVG_ERR_ALREADY_CONNECTED,
+                "Can't insert a node of type "+pNewNode->getTypeStr()+
+                " into a node of type "+getTypeStr()+"."));
+
+    }
     if (pNewNode->getState() == NS_CONNECTED || pNewNode->getState() == NS_CANRENDER) 
     {
         throw(Exception(AVG_ERR_ALREADY_CONNECTED,
@@ -210,7 +216,7 @@ int GroupNode::indexOf(NodePtr pChild)
             +getID()+"'"));
 }
 
-string GroupNode::getTypeStr ()
+string GroupNode::getTypeStr() const
 {
     return "GroupNode";
 }
@@ -228,6 +234,12 @@ string GroupNode::dump (int indent)
 IntPoint GroupNode::getMediaSize()
 {
     return IntPoint(10000,10000);
+}
+
+bool GroupNode::isChildTypeAllowed(const string& sType)
+{
+    const NodeDefinition& nodeDef = Player::get()->getNodeDef(getTypeStr());
+    return nodeDef.isChildAllowed(sType);
 }
 
 }

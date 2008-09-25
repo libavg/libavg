@@ -207,9 +207,9 @@ void Words::disconnect()
     RasterNode::disconnect();
 }
 
-string Words::getTypeStr ()
+string Words::getTypeStr() const
 {
-    return "Words";
+    return "words";
 }
 
 void Words::setAlignment(const string& sAlign)

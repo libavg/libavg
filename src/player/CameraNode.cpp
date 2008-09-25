@@ -141,9 +141,9 @@ void CameraNode::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine
     VideoBase::setRenderingEngines(pDisplayEngine, pAudioEngine);
 }
 
-string CameraNode::getTypeStr()
+string CameraNode::getTypeStr() const
 {
-    return "Camera";
+    return "camera";
 }
 
 int CameraNode::getBrightness() const

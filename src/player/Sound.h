@@ -62,7 +62,7 @@ class Sound : public AreaNode, IFrameListener, IAudioSource
         bool getLoop() const;
         void setEOFCallback(PyObject * pEOFCallback);
 
-        virtual std::string getTypeStr();
+        virtual std::string getTypeStr() const;
 
         virtual void onFrameEnd();
 

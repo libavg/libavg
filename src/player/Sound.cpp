@@ -208,9 +208,9 @@ void Sound::checkReload()
     }
 }
 
-string Sound::getTypeStr ()
+string Sound::getTypeStr() const
 {
-    return "Sound";
+    return "sound";
 }
 
 void Sound::onFrameEnd()

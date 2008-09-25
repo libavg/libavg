@@ -192,9 +192,9 @@ void PanoImage::render(const DRect& Rect)
     glPopMatrix();
 }
 
-string PanoImage::getTypeStr ()
+string PanoImage::getTypeStr() const
 {
-    return "PanoImage";
+    return "panoimage";
 }
 
 double PanoImage::getScreenPosFromAngle(double Angle) const

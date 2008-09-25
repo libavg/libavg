@@ -43,7 +43,7 @@ class CanvasNode : public GroupNode
 
         virtual void preRender();
         virtual void render(const DRect& rect);
-        virtual std::string getTypeStr();
+        virtual std::string getTypeStr() const;
 
         virtual std::string dump(int indent = 0);
     

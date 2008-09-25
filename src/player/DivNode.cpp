@@ -120,9 +120,9 @@ void DivNode::render(const DRect& rect)
     }
 }
 
-string DivNode::getTypeStr ()
+string DivNode::getTypeStr() const
 {
-    return "DivNode";
+    return "div";
 }
 
 string DivNode::getEffectiveMediaDir()
@@ -148,7 +148,7 @@ void DivNode::checkReload()
     }
 }
 
-string DivNode::dump (int indent)
+string DivNode::dump(int indent)
 {
     string dumpStr = GroupNode::dump () + "\n";
     for(int i=0; i<getNumChildren(); ++i) {

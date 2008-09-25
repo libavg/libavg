@@ -53,8 +53,8 @@ class Image : public RasterNode
         }
         void setBitmap(const Bitmap * pBmp);
         
-        virtual void render (const DRect& Rect);
-        virtual std::string getTypeStr ();
+        virtual void render(const DRect& Rect);
+        virtual std::string getTypeStr() const;
         virtual void checkReload();
         
         virtual Bitmap* getBitmap();

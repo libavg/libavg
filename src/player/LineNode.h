@@ -42,7 +42,7 @@ class LineNode : public Node
                 AudioEngine * pAudioEngine);
 
         virtual void updateData(VertexArrayPtr pVertexArray, int quadIndex);
-        virtual std::string getTypeStr();
+        virtual std::string getTypeStr() const;
 
     private:
         DPoint m_P1;
