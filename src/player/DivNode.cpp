@@ -41,7 +41,8 @@ namespace avg {
 
 NodeDefinition DivNode::getNodeDefinition()
 {
-    string sChildArray[] = {"image", "div", "canvas", "words", "video", "camera", "panoimage"};
+    string sChildArray[] = {"image", "div", "canvas", "words", "video", "camera", 
+            "panoimage", "sound"};
     vector<string> sChildren = vectorFromCArray(7, sChildArray); 
     return NodeDefinition("div", Node::buildNode<DivNode>)
         .extendDefinition(GroupNode::getNodeDefinition())
