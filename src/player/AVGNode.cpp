@@ -33,10 +33,10 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition AVGNode::getNodeDefinition()
+NodeDefinition AVGNode::createDefinition()
 {
     return NodeDefinition("avg", Node::buildNode<AVGNode>)
-        .extendDefinition(DivNode::getNodeDefinition())
+        .extendDefinition(DivNode::createDefinition())
         .addArg(Arg<bool>("enablecrop", true, false, offsetof(AVGNode, m_bEnableCrop)))
         .addArg(Arg<string>("onkeyup", ""))
         .addArg(Arg<string>("onkeydown", ""));
@@ -53,11 +53,6 @@ AVGNode::AVGNode (const ArgList& Args, bool bFromXML)
 
 AVGNode::~AVGNode()
 {
-}
-
-string AVGNode::getTypeStr() const
-{
-    return "avg";
 }
 
 string AVGNode::getEffectiveMediaDir()

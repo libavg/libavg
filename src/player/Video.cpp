@@ -48,10 +48,10 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition Video::getNodeDefinition()
+NodeDefinition Video::createDefinition()
 {
     return NodeDefinition("video", Node::buildNode<Video>)
-        .extendDefinition(VideoBase::getNodeDefinition())
+        .extendDefinition(VideoBase::createDefinition())
         .addArg(Arg<string>("href", "", false, offsetof(Video, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(Video, m_bLoop)))
         .addArg(Arg<bool>("threaded", false, false, offsetof(Video, m_bThreaded)))
@@ -221,11 +221,6 @@ void Video::checkReload()
         changeVideoState(Unloaded);
         m_Filename = "";
     }
-}
-
-string Video::getTypeStr() const
-{
-    return "video";
 }
 
 void Video::onFrameEnd()

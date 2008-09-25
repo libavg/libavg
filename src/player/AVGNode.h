@@ -32,12 +32,11 @@ namespace avg {
 class AVGNode : public DivNode
 {
     public:
-        static NodeDefinition getNodeDefinition();
+        static NodeDefinition createDefinition();
         
         AVGNode (const ArgList& Args, bool bFromXML);
         virtual ~AVGNode ();
 
-        virtual std::string getTypeStr() const;
         virtual std::string getEffectiveMediaDir();
         bool getCropSetting();
         void setAngle(double angle);

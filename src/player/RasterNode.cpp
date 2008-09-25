@@ -33,10 +33,10 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition RasterNode::getNodeDefinition()
+NodeDefinition RasterNode::createDefinition()
 {
     return NodeDefinition("rasternode")
-        .extendDefinition(AreaNode::getNodeDefinition())
+        .extendDefinition(AreaNode::createDefinition())
         .addArg(Arg<int>("maxtilewidth", -1, false, offsetof(RasterNode, m_MaxTileSize.x)))
         .addArg(Arg<int>("maxtileheight", -1, false, offsetof(RasterNode, m_MaxTileSize.y)))
         .addArg(Arg<string>("blendmode", "blend", false, offsetof(RasterNode, m_sBlendMode)));
@@ -210,11 +210,6 @@ ISurface * RasterNode::getSurface()
         }
     }
     return m_pSurface;
-}
-
-string RasterNode::getTypeStr ()
-{
-    return "RasterNode";
 }
 
 void RasterNode::checkDisplayAvailable(std::string sMsg)

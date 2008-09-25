@@ -33,7 +33,7 @@ namespace avg {
 class CanvasNode : public GroupNode
 {
     public:
-        static NodeDefinition getNodeDefinition();
+        static NodeDefinition createDefinition();
         
         CanvasNode(const ArgList& Args, bool bFromXML);
         virtual ~CanvasNode();
@@ -43,7 +43,6 @@ class CanvasNode : public GroupNode
 
         virtual void preRender();
         virtual void render(const DRect& rect);
-        virtual std::string getTypeStr() const;
 
         virtual std::string dump(int indent = 0);
     

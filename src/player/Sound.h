@@ -37,7 +37,7 @@ class IVideoDecoder;
 class Sound : public AreaNode, IFrameListener, IAudioSource
 {
     public:
-        static NodeDefinition getNodeDefinition();
+        static NodeDefinition createDefinition();
 
         Sound (const ArgList& Args, bool bFromXML);
         virtual ~Sound ();
@@ -61,8 +61,6 @@ class Sound : public AreaNode, IFrameListener, IAudioSource
         void seekToTime(long long Time);
         bool getLoop() const;
         void setEOFCallback(PyObject * pEOFCallback);
-
-        virtual std::string getTypeStr() const;
 
         virtual void onFrameEnd();
 

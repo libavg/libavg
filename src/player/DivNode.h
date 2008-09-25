@@ -31,7 +31,7 @@ namespace avg {
 class DivNode : public GroupNode
 {
     public:
-        static NodeDefinition getNodeDefinition();
+        static NodeDefinition createDefinition();
         
         DivNode(const ArgList& Args, bool bFromXML);
         virtual ~DivNode();
@@ -42,7 +42,6 @@ class DivNode : public GroupNode
         virtual AreaNodePtr getElementByPos(const DPoint & pos);
         virtual void preRender();
         virtual void render(const DRect& rect);
-        virtual std::string getTypeStr() const;
         virtual std::string getEffectiveMediaDir();
         virtual void checkReload();
 

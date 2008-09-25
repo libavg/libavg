@@ -38,14 +38,13 @@ namespace avg {
 class CameraNode : public VideoBase
 {
     public:
-        static NodeDefinition getNodeDefinition();
+        static NodeDefinition createDefinition();
         
         CameraNode(const ArgList& Args, bool bFromXML);
         virtual ~CameraNode();
 
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine,
                 AudioEngine * pAudioEngine);
-        virtual std::string getTypeStr() const;
 
         const std::string& getDevice() const 
         {

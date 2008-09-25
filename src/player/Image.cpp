@@ -43,10 +43,10 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition Image::getNodeDefinition()
+NodeDefinition Image::createDefinition()
 {
     return NodeDefinition("image", Node::buildNode<Image>)
-        .extendDefinition(RasterNode::getNodeDefinition())
+        .extendDefinition(RasterNode::createDefinition())
         .addArg(Arg<string>("href", "", false, offsetof(Image, m_href)))
         .addArg(Arg<int>("hue", -1, false, offsetof(Image, m_Hue)))
         .addArg(Arg<int>("saturation", -1, false, offsetof(Image, m_Saturation)));
@@ -176,11 +176,6 @@ void Image::render(const DRect& Rect)
         getDisplayEngine()->blt32(getSurface(), getSize(), getEffectiveOpacity(), 
                 getBlendMode());
     }
-}
-
-string Image::getTypeStr() const
-{
-    return "image";
 }
 
 IntPoint Image::getMediaSize()

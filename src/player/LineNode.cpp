@@ -33,10 +33,10 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition LineNode::getNodeDefinition()
+NodeDefinition LineNode::createDefinition()
 {
     return NodeDefinition("line", Node::buildNode<LineNode>)
-        .extendDefinition(Node::getNodeDefinition())
+        .extendDefinition(Node::createDefinition())
         .addArg(Arg<double>("x1", 0, true, offsetof(LineNode, m_P1.x)))
         .addArg(Arg<double>("y1", 0, true, offsetof(LineNode, m_P1.y)))
         .addArg(Arg<double>("x2", 0, true, offsetof(LineNode, m_P2.x)))
@@ -74,11 +74,6 @@ void LineNode::updateData(VertexArrayPtr pVertexArray, int quadIndex)
         pVertexArray->setPos(quadIndex, 3, m_P2-w, DPoint(0,0), m_Color);
     }
     m_bDrawNeeded = false;
-}
-
-string LineNode::getTypeStr() const
-{
-    return "line";
 }
 
 }

@@ -58,10 +58,10 @@ class Node
         {
             return NodePtr(new NodeType(Args, bFromXML));
         }
-        static NodeDefinition getNodeDefinition();
+        static NodeDefinition createDefinition();
         
         virtual ~Node() = 0;
-        virtual void setThis(NodeWeakPtr This);
+        virtual void setThis(NodeWeakPtr This, const NodeDefinition * pDefinition);
         virtual void setArgs(const ArgList& Args) {};
         virtual void setParent(GroupNodeWeakPtr pParent, NodeState parentState);
         void removeParent();
@@ -81,7 +81,7 @@ class Node
         virtual void render(const DRect& Rect) {};
         
         virtual std::string dump(int indent = 0);
-        virtual std::string getTypeStr() const;
+        std::string getTypeStr() const;
         
         NodeState getState() const;
 
@@ -89,6 +89,7 @@ class Node
         bool operator !=(const Node& other) const;
 
         long getHash() const;
+        virtual const NodeDefinition* getDefinition() const;
 
     protected:
         Node();
@@ -105,6 +106,7 @@ class Node
 
         std::string m_ID;
         NodeState m_State;
+        const NodeDefinition* m_pDefinition;
 };
 
 }

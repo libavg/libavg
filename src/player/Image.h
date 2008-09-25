@@ -33,7 +33,7 @@ namespace avg {
 class Image : public RasterNode
 {
     public:
-        static NodeDefinition getNodeDefinition();
+        static NodeDefinition createDefinition();
         
         Image (const ArgList& Args, bool bFromXML);
         virtual ~Image ();
@@ -54,7 +54,6 @@ class Image : public RasterNode
         void setBitmap(const Bitmap * pBmp);
         
         virtual void render(const DRect& Rect);
-        virtual std::string getTypeStr() const;
         virtual void checkReload();
         
         virtual Bitmap* getBitmap();

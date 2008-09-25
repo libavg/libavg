@@ -39,14 +39,14 @@ using namespace boost;
 
 namespace avg {
 
-NodeDefinition DivNode::getNodeDefinition()
+NodeDefinition DivNode::createDefinition()
 {
     string sChildArray[] = {"image", "div", "canvas", "words", "video", "camera", 
             "panoimage", "sound"};
     vector<string> sChildren = vectorFromCArray(
             sizeof(sChildArray) / sizeof(*sChildArray), sChildArray);
     return NodeDefinition("div", Node::buildNode<DivNode>)
-        .extendDefinition(GroupNode::getNodeDefinition())
+        .extendDefinition(GroupNode::createDefinition())
         .addChildren(sChildren)
         .addArg(Arg<string>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)));
 }
@@ -118,11 +118,6 @@ void DivNode::render(const DRect& rect)
     if (getCrop()) {
         getDisplayEngine()->popClipRect();
     }
-}
-
-string DivNode::getTypeStr() const
-{
-    return "div";
 }
 
 string DivNode::getEffectiveMediaDir()

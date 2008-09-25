@@ -40,7 +40,7 @@ class IVideoDecoder;
 class Video : public VideoBase, IFrameListener, IAudioSource
 {
     public:
-        static NodeDefinition getNodeDefinition();
+        static NodeDefinition createDefinition();
         
         Video (const ArgList& Args, bool bFromXML);
         virtual ~Video ();
@@ -63,8 +63,6 @@ class Video : public VideoBase, IFrameListener, IAudioSource
         bool getLoop() const;
         bool isThreaded() const;
         void setEOFCallback(PyObject * pEOFCallback);
-
-        virtual std::string getTypeStr() const;
 
         virtual void onFrameEnd();
         

@@ -37,10 +37,10 @@ using namespace boost;
 
 namespace avg {
 
-NodeDefinition GroupNode::getNodeDefinition()
+NodeDefinition GroupNode::createDefinition()
 {
     return NodeDefinition("group")
-        .extendDefinition(AreaNode::getNodeDefinition())
+        .extendDefinition(AreaNode::createDefinition())
         .addArg(Arg<bool>("crop", true, false, offsetof(GroupNode, m_bCrop)));
 }
 
@@ -214,11 +214,6 @@ int GroupNode::indexOf(NodePtr pChild)
     throw(Exception(AVG_ERR_OUT_OF_RANGE,
             "indexOf: node '"+pChild->getID()+"' is not a child of node '"
             +getID()+"'"));
-}
-
-string GroupNode::getTypeStr() const
-{
-    return "GroupNode";
 }
 
 string GroupNode::dump (int indent)

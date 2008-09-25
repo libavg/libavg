@@ -41,7 +41,7 @@ class ISurface;
 class Words : public RasterNode
 {
     public:
-        static NodeDefinition getNodeDefinition();
+        static NodeDefinition createDefinition();
         
         Words(const ArgList& Args, bool bFromXMLNodeValue);
         virtual ~Words();
@@ -51,7 +51,6 @@ class Words : public RasterNode
         virtual void disconnect();
         virtual void preRender();
         virtual void render(const DRect& Rect);
-        virtual std::string getTypeStr() const;
 
         virtual double getWidth();
         virtual double getHeight();

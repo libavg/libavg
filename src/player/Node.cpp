@@ -31,17 +31,13 @@
 #include "../base/Exception.h"
 #include "../base/XMLHelper.h"
 
-//#include <object.h>
-//#include <compile.h>
-//#include <eval.h>
-
 #include <iostream>
 
 using namespace std;
 
 namespace avg {
 
-NodeDefinition Node::getNodeDefinition()
+NodeDefinition Node::createDefinition()
 {
     return NodeDefinition("node")
         .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)));
@@ -60,9 +56,10 @@ Node::~Node()
 {
 }
 
-void Node::setThis(NodeWeakPtr This)
+void Node::setThis(NodeWeakPtr This, const NodeDefinition * pDefinition)
 {
     m_This = This;
+    m_pDefinition = pDefinition;
 }
 
 void Node::setParent(GroupNodeWeakPtr pParent, NodeState parentState)
@@ -163,6 +160,11 @@ long Node::getHash() const
     return long(&*m_This.lock());
 }
 
+const NodeDefinition* Node::getDefinition() const
+{
+    return m_pDefinition;
+}
+
 DisplayEngine * Node::getDisplayEngine() const
 {
     return m_pDisplayEngine;
@@ -186,7 +188,7 @@ string Node::dump(int indent)
 
 string Node::getTypeStr() const 
 {
-    return "node";
+    return m_pDefinition->getName();
 }
 
 void Node::setState(Node::NodeState State)

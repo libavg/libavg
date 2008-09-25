@@ -39,13 +39,13 @@ using namespace boost;
 
 namespace avg {
 
-NodeDefinition CanvasNode::getNodeDefinition()
+NodeDefinition CanvasNode::createDefinition()
 {
     string sChildArray[] = {"line"};
     vector<string> sChildren = vectorFromCArray(
             sizeof(sChildArray) / sizeof(*sChildArray), sChildArray); 
     return NodeDefinition("canvas", Node::buildNode<CanvasNode>)
-        .extendDefinition(GroupNode::getNodeDefinition())
+        .extendDefinition(GroupNode::createDefinition())
         .addChildren(sChildren);
 }
 
@@ -102,11 +102,6 @@ void CanvasNode::render(const DRect& rect)
     if (getCrop()) {
         getDisplayEngine()->popClipRect();
     }
-}
-
-string CanvasNode::getTypeStr() const
-{
-    return "canvas";
 }
 
 string CanvasNode::dump(int indent)

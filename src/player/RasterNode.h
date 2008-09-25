@@ -36,7 +36,7 @@ namespace avg {
 class RasterNode: public AreaNode
 {
     public:
-        static NodeDefinition getNodeDefinition();
+        static NodeDefinition createDefinition();
         
         virtual ~RasterNode ();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
@@ -63,7 +63,6 @@ class RasterNode: public AreaNode
         void setBlendModeStr(const std::string& sBlendMode);
         OGLSurface * getOGLSurface();
         DisplayEngine::BlendMode getBlendMode() const;
-        virtual std::string getTypeStr ();
         AreaNodePtr getElementByPos (const DPoint & pos);
 
         virtual Bitmap* getBitmap();

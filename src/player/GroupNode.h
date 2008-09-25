@@ -31,7 +31,7 @@ namespace avg {
 class GroupNode: public AreaNode
 {
     public:
-        static NodeDefinition getNodeDefinition();
+        static NodeDefinition createDefinition();
         
         GroupNode();
         virtual ~GroupNode();
@@ -53,8 +53,6 @@ class GroupNode: public AreaNode
         void reorderChild(NodePtr pNode, unsigned j);
         void reorderChild(unsigned i, unsigned j);
         int indexOf(NodePtr pChild);
-
-        virtual std::string getTypeStr() const;
 
         virtual std::string dump(int indent = 0);
         IntPoint getMediaSize();

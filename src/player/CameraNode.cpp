@@ -47,10 +47,10 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition CameraNode::getNodeDefinition()
+NodeDefinition CameraNode::createDefinition()
 {
     return NodeDefinition("camera", Node::buildNode<CameraNode>)
-        .extendDefinition(VideoBase::getNodeDefinition())
+        .extendDefinition(VideoBase::createDefinition())
         .addArg(Arg<string>("device", ""))
         .addArg(Arg<double>("framerate", 15))
         .addArg(Arg<string>("source", "firewire"))
@@ -139,11 +139,6 @@ CameraNode::~CameraNode()
 void CameraNode::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
     VideoBase::setRenderingEngines(pDisplayEngine, pAudioEngine);
-}
-
-string CameraNode::getTypeStr() const
-{
-    return "camera";
 }
 
 int CameraNode::getBrightness() const

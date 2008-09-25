@@ -112,16 +112,16 @@ Player::Player()
     initConfig();
 
     // Register all node types
-    registerNodeType(AVGNode::getNodeDefinition());
-    registerNodeType(DivNode::getNodeDefinition());
-    registerNodeType(CanvasNode::getNodeDefinition());
-    registerNodeType(Image::getNodeDefinition());
-    registerNodeType(Words::getNodeDefinition());
-    registerNodeType(Video::getNodeDefinition());
-    registerNodeType(CameraNode::getNodeDefinition());
-    registerNodeType(PanoImage::getNodeDefinition());
-    registerNodeType(Sound::getNodeDefinition());
-    registerNodeType(LineNode::getNodeDefinition());
+    registerNodeType(AVGNode::createDefinition());
+    registerNodeType(DivNode::createDefinition());
+    registerNodeType(CanvasNode::createDefinition());
+    registerNodeType(Image::createDefinition());
+    registerNodeType(Words::createDefinition());
+    registerNodeType(Video::createDefinition());
+    registerNodeType(CameraNode::createDefinition());
+    registerNodeType(PanoImage::createDefinition());
+    registerNodeType(Sound::createDefinition());
+    registerNodeType(LineNode::createDefinition());
 
     // Find and parse dtd.
     registerDTDEntityLoader("avg.dtd", m_NodeRegistry.getDTD().c_str());
@@ -917,7 +917,6 @@ void Player::registerNodeType(NodeDefinition Def)
 NodePtr Player::createNode(const string& sType, const boost::python::dict& PyDict)
 {
     NodePtr pNode = m_NodeRegistry.createNode(sType, PyDict);
-    pNode->setThis(pNode);
     return pNode;
 }
 
@@ -966,7 +965,6 @@ NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc,
         string s = getXmlChildrenAsString(xmlDoc, xmlNode);
         boost::dynamic_pointer_cast<Words>(curNode)->setTextFromNodeValue(s);
     }
-    curNode->setThis(curNode);
 
     // If this is the root node, remember it.
     AVGNodePtr pRootNode = boost::dynamic_pointer_cast<AVGNode>(curNode);

@@ -47,10 +47,10 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition AreaNode::getNodeDefinition()
+NodeDefinition AreaNode::createDefinition()
 {
     return NodeDefinition("areanode")
-        .extendDefinition(Node::getNodeDefinition())
+        .extendDefinition(Node::createDefinition())
         .addArg(Arg<string>("oncursormove", ""))
         .addArg(Arg<string>("oncursorup", ""))
         .addArg(Arg<string>("oncursordown", ""))

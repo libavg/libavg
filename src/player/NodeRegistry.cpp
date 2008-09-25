@@ -50,7 +50,9 @@ NodePtr NodeRegistry::createNode(const string& Type, const xmlNodePtr xmlNode)
     const NodeDefinition& Def = getNodeDef(Type);
     ArgList Args(Def.getDefaultArgs(), xmlNode);
     NodeBuilder builder = Def.getBuilder();
-    return builder(Args, true);
+    NodePtr pNode = builder(Args, true);
+    pNode->setThis(pNode, &Def);
+    return pNode;
 }
 
 NodePtr NodeRegistry::createNode(const string& Type, const boost::python::dict& PyDict)
@@ -58,7 +60,9 @@ NodePtr NodeRegistry::createNode(const string& Type, const boost::python::dict& 
     const NodeDefinition& Def = getNodeDef(Type);
     ArgList Args(Def.getDefaultArgs(), PyDict);
     NodeBuilder builder = Def.getBuilder();
-    return builder(Args, false);
+    NodePtr pNode = builder(Args, true);
+    pNode->setThis(pNode, &Def);
+    return pNode;
 }
 
 string NodeRegistry::getDTD() const

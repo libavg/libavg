@@ -44,10 +44,10 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition Sound::getNodeDefinition()
+NodeDefinition Sound::createDefinition()
 {
     return NodeDefinition("sound", Node::buildNode<Sound>)
-        .extendDefinition(AreaNode::getNodeDefinition())
+        .extendDefinition(AreaNode::createDefinition())
         .addArg(Arg<string>("href", "", false, offsetof(Sound, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(Sound, m_bLoop)))
         .addArg(Arg<double>("volume", 1.0, false, offsetof(Sound, m_Volume)))
@@ -206,11 +206,6 @@ void Sound::checkReload()
         changeSoundState(Unloaded);
         m_Filename = "";
     }
-}
-
-string Sound::getTypeStr() const
-{
-    return "sound";
 }
 
 void Sound::onFrameEnd()

@@ -45,10 +45,10 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition VideoBase::getNodeDefinition()
+NodeDefinition VideoBase::createDefinition()
 {
     return NodeDefinition("videobase")
-        .extendDefinition(RasterNode::getNodeDefinition());
+        .extendDefinition(RasterNode::createDefinition());
 }
 
 VideoBase::VideoBase()

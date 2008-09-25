@@ -58,7 +58,7 @@ class AreaNode: public Node
         {
             return NodePtr(new NodeType(Args, bFromXML));
         }
-        static NodeDefinition getNodeDefinition();
+        static NodeDefinition createDefinition();
         
         virtual ~AreaNode() = 0;
         virtual void setArgs(const ArgList& Args);

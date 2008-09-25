@@ -34,7 +34,7 @@ typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 class LineNode : public Node
 {
     public:
-        static NodeDefinition getNodeDefinition();
+        static NodeDefinition createDefinition();
         
         LineNode(const ArgList& Args, bool bFromXML);
         virtual ~LineNode();
@@ -42,7 +42,6 @@ class LineNode : public Node
                 AudioEngine * pAudioEngine);
 
         virtual void updateData(VertexArrayPtr pVertexArray, int quadIndex);
-        virtual std::string getTypeStr() const;
 
     private:
         DPoint m_P1;

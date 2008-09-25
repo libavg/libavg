@@ -35,7 +35,7 @@ namespace avg {
 class VideoBase : public RasterNode
 {
     public:
-        static NodeDefinition getNodeDefinition();
+        static NodeDefinition createDefinition();
         
         virtual ~VideoBase ();
         void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);

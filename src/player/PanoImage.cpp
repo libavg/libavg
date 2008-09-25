@@ -46,10 +46,10 @@ const int TEX_WIDTH = 64;
 
 namespace avg {
 
-NodeDefinition PanoImage::getNodeDefinition()
+NodeDefinition PanoImage::createDefinition()
 {
     return NodeDefinition("panoimage", Node::buildNode<PanoImage>)
-        .extendDefinition(AreaNode::getNodeDefinition())
+        .extendDefinition(AreaNode::createDefinition())
         .addArg(Arg<string>("href", "", false, offsetof(PanoImage, m_href)))
         .addArg(Arg<double>("sensorwidth", 1.0, false, offsetof(PanoImage, m_SensorWidth)))
         .addArg(Arg<double>("sensorheight", 1.0, false, offsetof(PanoImage, m_SensorHeight)))
@@ -190,11 +190,6 @@ void PanoImage::render(const DRect& Rect)
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
-}
-
-string PanoImage::getTypeStr() const
-{
-    return "panoimage";
 }
 
 double PanoImage::getScreenPosFromAngle(double Angle) const

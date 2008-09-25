@@ -76,7 +76,7 @@ void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level,
     AVG_TRACE(Logger::WARNING, s);
 }
 
-NodeDefinition Words::getNodeDefinition()
+NodeDefinition Words::createDefinition()
 {
     static const string sDTDElements = 
         "<!ELEMENT span (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
@@ -113,7 +113,7 @@ NodeDefinition Words::getNodeDefinition()
             "small", "tt", "u"};
     vector<string> sChildren = vectorFromCArray(6, sChildArray); 
     return NodeDefinition("words", Node::buildNode<Words>)
-        .extendDefinition(RasterNode::getNodeDefinition())
+        .extendDefinition(RasterNode::createDefinition())
         .addChildren(sChildren)
         .addDTDElements(sDTDElements)
         .addArg(Arg<string>("font", "arial", false, offsetof(Words, m_sFontName)))
@@ -205,11 +205,6 @@ void Words::disconnect()
         m_pFontDescription = 0;
     }
     RasterNode::disconnect();
-}
-
-string Words::getTypeStr() const
-{
-    return "words";
 }
 
 void Words::setAlignment(const string& sAlign)
