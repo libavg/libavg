@@ -43,7 +43,8 @@ NodeDefinition DivNode::getNodeDefinition()
 {
     string sChildArray[] = {"image", "div", "canvas", "words", "video", "camera", 
             "panoimage", "sound"};
-    vector<string> sChildren = vectorFromCArray(7, sChildArray); 
+    vector<string> sChildren = vectorFromCArray(
+            sizeof(sChildArray) / sizeof(*sChildArray), sChildArray);
     return NodeDefinition("div", Node::buildNode<DivNode>)
         .extendDefinition(GroupNode::getNodeDefinition())
         .addChildren(sChildren)
