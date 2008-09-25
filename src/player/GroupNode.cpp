@@ -233,8 +233,7 @@ IntPoint GroupNode::getMediaSize()
 
 bool GroupNode::isChildTypeAllowed(const string& sType)
 {
-    const NodeDefinition& nodeDef = Player::get()->getNodeDef(getTypeStr());
-    return nodeDef.isChildAllowed(sType);
+    return getDefinition()->isChildAllowed(sType);
 }
 
 }
