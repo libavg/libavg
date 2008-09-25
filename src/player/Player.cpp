@@ -124,7 +124,7 @@ Player::Player()
     registerNodeType(LineNode::getNodeDefinition());
 
     // Find and parse dtd.
-    registerDTDEntityLoader("avg.dtd", m_NodeFactory.getDTD().c_str());
+    registerDTDEntityLoader("avg.dtd", m_NodeRegistry.getDTD().c_str());
     string sDTDFName = "avg.dtd";
     m_dtd = xmlParseDTD(NULL, (const xmlChar*) sDTDFName.c_str());
     if (!m_dtd) {
@@ -618,7 +618,7 @@ std::string Player::getRootMediaDir()
 
 const NodeDefinition& Player::getNodeDef(const std::string& sType)
 {
-    return m_NodeFactory.getNodeDef(sType);
+    return m_NodeRegistry.getNodeDef(sType);
 }
 
 void Player::disablePython()
@@ -911,12 +911,12 @@ void Player::registerNode(NodePtr pNode)
 
 void Player::registerNodeType(NodeDefinition Def)
 {
-    m_NodeFactory.registerNodeType(Def);
+    m_NodeRegistry.registerNodeType(Def);
 }
 
 NodePtr Player::createNode(const string& sType, const boost::python::dict& PyDict)
 {
-    NodePtr pNode = m_NodeFactory.createNode(sType, PyDict);
+    NodePtr pNode = m_NodeRegistry.createNode(sType, PyDict);
     pNode->setThis(pNode);
     return pNode;
 }
@@ -959,7 +959,7 @@ NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc,
         // Ignore whitespace & comments
         return NodePtr();
     }
-    curNode = m_NodeFactory.createNode(nodeType, xmlNode);
+    curNode = m_NodeRegistry.createNode(nodeType, xmlNode);
     if (!strcmp (nodeType, "words")) {
         // TODO: This is an end-run around the generic serialization mechanism
         // that will probably break at some point.

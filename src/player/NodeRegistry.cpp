@@ -21,7 +21,7 @@
 //  Original author of this file is Nick Hebner (hebnern@gmail.com).
 //
 
-#include "NodeFactory.h"
+#include "NodeRegistry.h"
 #include "NodeDefinition.h"
 
 #include "../base/Exception.h"
@@ -32,20 +32,20 @@ using namespace std;
 
 namespace avg {
 
-NodeFactory::NodeFactory()
+NodeRegistry::NodeRegistry()
 {
 }
 
-NodeFactory::~NodeFactory()
+NodeRegistry::~NodeRegistry()
 {
 }
 
-void NodeFactory::registerNodeType(NodeDefinition& Def)
+void NodeRegistry::registerNodeType(NodeDefinition& Def)
 {
     m_NodeDefs.insert(NodeDefMap::value_type(Def.getName(), Def));
 }
 
-NodePtr NodeFactory::createNode(const string& Type, const xmlNodePtr xmlNode)
+NodePtr NodeRegistry::createNode(const string& Type, const xmlNodePtr xmlNode)
 {
     const NodeDefinition& Def = getNodeDef(Type);
     ArgList Args(Def.getDefaultArgs(), xmlNode);
@@ -53,7 +53,7 @@ NodePtr NodeFactory::createNode(const string& Type, const xmlNodePtr xmlNode)
     return builder(Args, true);
 }
 
-NodePtr NodeFactory::createNode(const string& Type, const boost::python::dict& PyDict)
+NodePtr NodeRegistry::createNode(const string& Type, const boost::python::dict& PyDict)
 {
     const NodeDefinition& Def = getNodeDef(Type);
     ArgList Args(Def.getDefaultArgs(), PyDict);
@@ -61,7 +61,7 @@ NodePtr NodeFactory::createNode(const string& Type, const boost::python::dict& P
     return builder(Args, false);
 }
 
-string NodeFactory::getDTD() const
+string NodeRegistry::getDTD() const
 {
     if (m_NodeDefs.empty()) {
         return string("");
@@ -86,7 +86,7 @@ string NodeFactory::getDTD() const
     return ss.str();
 }
 
-const NodeDefinition& NodeFactory::getNodeDef(const string& Type)
+const NodeDefinition& NodeRegistry::getNodeDef(const string& Type)
 {
     NodeDefMap::const_iterator it = m_NodeDefs.find(Type);
     if (it == m_NodeDefs.end()) {
@@ -96,7 +96,7 @@ const NodeDefinition& NodeFactory::getNodeDef(const string& Type)
     return it->second;
 }
 
-void NodeFactory::writeNodeDTD(const NodeDefinition& Def, stringstream& ss) const
+void NodeRegistry::writeNodeDTD(const NodeDefinition& Def, stringstream& ss) const
 {
     ss << "<!ELEMENT " << Def.getName() << " " << Def.getChildren() << " >\n";
     if (!Def.getDefaultArgs().getArgMap().empty()) {

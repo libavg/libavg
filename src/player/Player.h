@@ -29,7 +29,7 @@
 #include "MouseEvent.h"
 #include "DisplayEngine.h"
 #include "TestHelper.h"
-#include "NodeFactory.h"
+#include "NodeRegistry.h"
 #include "DisplayParams.h"
 #include "CursorState.h"
 #include "MouseState.h"
@@ -154,7 +154,7 @@ class Player : IEventSink
         bool m_bStopping;
         typedef std::map<std::string, NodePtr> NodeIDMap;
         NodeIDMap m_IDMap;
-        NodeFactory m_NodeFactory;
+        NodeRegistry m_NodeRegistry;
 
         TrackerEventSource * m_pTracker;
 

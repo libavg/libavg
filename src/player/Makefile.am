@@ -26,7 +26,7 @@ GL_INCLUDES = OGLSurface.h SDLDisplayEngine.h OGLTexture.h
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
 ALL_H = Player.h IEventSource.h IEventSink.h VideoBase.h Video.h\
-        DisplayEngine.h NodeFactory.h Arg.h ArgBase.h ArgList.h Region.h \
+        DisplayEngine.h NodeRegistry.h Arg.h ArgBase.h ArgList.h Region.h \
         Node.h AreaNode.h ISurface.h DisplayParams.h NodeDefinition.h \
         AVGNode.h GroupNode.h DivNode.h CursorState.h CanvasNode.h \
         Image.h Timeout.h Words.h WrapPython.h\
@@ -67,7 +67,7 @@ testcalibrator_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(MAGIC
 libplayer_la_LDFLAGS = $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS)
 libplayer_la_SOURCES = $(GL_SOURCES) \
         Node.cpp AreaNode.cpp RasterNode.cpp DivNode.cpp VideoBase.cpp Video.cpp \
-        Player.cpp NodeFactory.cpp ArgBase.cpp ArgList.cpp DisplayEngine.cpp Region.cpp \
+        Player.cpp NodeRegistry.cpp ArgBase.cpp ArgList.cpp DisplayEngine.cpp Region.cpp \
         PanoImage.cpp Words.cpp CameraNode.cpp NodeDefinition.cpp GroupNode.cpp \
         Timeout.cpp Event.cpp DisplayParams.cpp CursorState.cpp CanvasNode.cpp \
         Image.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp MouseEvent.cpp\

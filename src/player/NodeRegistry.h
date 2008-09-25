@@ -21,8 +21,8 @@
 //  Original author of this file is Nick Hebner (hebnern@gmail.com).
 //
 
-#ifndef _NodeFactory_H_
-#define _NodeFactory_H_
+#ifndef _NodeRegistry_H_
+#define _NodeRegistry_H_
 
 #include "Node.h"
 #include "ArgList.h"
@@ -34,11 +34,11 @@
 
 namespace avg {
 
-class NodeFactory
+class NodeRegistry
 {
 public:
-    NodeFactory();
-    virtual ~NodeFactory();
+    NodeRegistry();
+    virtual ~NodeRegistry();
     
     void registerNodeType(NodeDefinition& Def);
     const NodeDefinition& getNodeDef(const std::string& Type);
