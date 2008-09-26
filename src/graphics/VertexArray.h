@@ -34,7 +34,6 @@ struct T2V3C4Vertex {
     GLfloat m_Tex[2];
     Pixel32 m_Color;
     GLfloat m_Pos[3];
-    GLfloat m_Dummy[2];  // Align to 32 bytes
 };
 
 class VertexArray {

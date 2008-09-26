@@ -29,7 +29,9 @@
 #include <string>
 
 namespace avg {
-    
+
+class LineNode;
+
 class CanvasNode : public GroupNode
 {
     public:
@@ -47,6 +49,7 @@ class CanvasNode : public GroupNode
         virtual std::string dump(int indent = 0);
     
     private:
+        LineNode * getCanvasChild(int i);
         virtual void childrenChanged();
         int getNumTris();
 

@@ -158,7 +158,8 @@ void export_node()
         .def("getNumChildren", &GroupNode::getNumChildren,
                 "getNumChildren() -> numchildren\n"
                 "Returns the number of immediate children that this div contains.")
-        .def("getChild", &GroupNode::getChild, 
+        .def("getChild", make_function(&GroupNode::getChild,
+                return_value_policy<copy_const_reference>()),
                 "getChild(pos) -> node\n"
                 "Returns the child at position pos.")
         .def("appendChild", &GroupNode::appendChild,

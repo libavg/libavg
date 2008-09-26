@@ -93,7 +93,7 @@ int GroupNode::getNumChildren()
     return int(m_Children.size());
 }
 
-NodePtr GroupNode::getChild(unsigned i)
+const NodePtr& GroupNode::getChild(unsigned i)
 {
     if (i >= m_Children.size()) {
         stringstream s;

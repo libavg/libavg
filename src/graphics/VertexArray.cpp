@@ -77,9 +77,9 @@ void VertexArray::setPos(int primitiveIndex, int vertexIndex, const DPoint& pos,
 
 void VertexArray::changeSize(int numPrimitives)
 {
+    int oldNumPrimitives = m_NumPrimitives;
     m_NumPrimitives = numPrimitives;
     if (m_NumPrimitives > m_ReservePrimitives) {
-        int oldReserve = m_ReservePrimitives;
         m_ReservePrimitives *= 1.5;
         if (m_ReservePrimitives < m_NumPrimitives) {
             m_ReservePrimitives = m_NumPrimitives;
@@ -87,7 +87,7 @@ void VertexArray::changeSize(int numPrimitives)
         T2V3C4Vertex * pOldVertexes = m_pVertexData;
         m_pVertexData = new T2V3C4Vertex[m_ReservePrimitives*m_VertexesPerPrimitive];
         memcpy(m_pVertexData, pOldVertexes, 
-                sizeof(T2V3C4Vertex)*oldReserve*m_VertexesPerPrimitive);
+                sizeof(T2V3C4Vertex)*oldNumPrimitives*m_VertexesPerPrimitive);
         delete[] pOldVertexes;
         setBufferSize();
     }

@@ -202,8 +202,8 @@ void export_event()
     ;
 
     class_<TrackerEventSource, boost::noncopyable>("Tracker",
-            "A tracker that uses a camera to track moving objects\n"
-            "(e.g. fingers) and delivers them to the player as avg events.\n"
+            "A class that uses a camera to track moving objects.\n"
+            "and delivers them to the player as avg events.\n"
             "Create a tracker by using Player::addTracker(). The properties\n"
             "of this class are explained under U{https://www.libavg.de/wiki/index.php/Tracker_Setup}.",
             no_init)

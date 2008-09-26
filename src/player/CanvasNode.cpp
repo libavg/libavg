@@ -73,19 +73,29 @@ void CanvasNode::disconnect()
     GroupNode::disconnect();
 }
 
+static ProfilingZone PrerenderProfilingZone("CanvasNode::prerender");
+static ProfilingZone VAProfilingZone("CanvasNode::update VA");
+static ProfilingZone VASizeProfilingZone("CanvasNode::resize VA");
+
 void CanvasNode::preRender()
 {
+    ScopeTimer Timer(PrerenderProfilingZone);
+
     if (m_bChildrenChanged) {
+        ScopeTimer Timer(VASizeProfilingZone);
         m_pVertexArray->changeSize(getNumTris());
     }
     int numChildren = getNumChildren();
     int curTri = 0;
     for (int i=0; i<numChildren; ++i) {
-        LineNodePtr pLine = dynamic_pointer_cast<LineNode>(getChild(i));
+        LineNode * pLine = getCanvasChild(i);
         pLine->updateData(m_pVertexArray, curTri);
         curTri += pLine->getNumTriangles();
     }
-    m_pVertexArray->update();
+    {
+        ScopeTimer Timer(VAProfilingZone);
+        m_pVertexArray->update();
+    }
 }
 
 static ProfilingZone RenderProfilingZone("CanvasNode::render");
@@ -120,6 +130,12 @@ string CanvasNode::dump(int indent)
     return dumpStr;
 }
 
+LineNode * CanvasNode::getCanvasChild(int i)
+{
+    // Can't use dynamic_cast for speed reasons.
+    return (LineNode *)(&*getChild(i));
+}
+
 void CanvasNode::childrenChanged()
 {
     m_bChildrenChanged = true;
@@ -129,8 +145,7 @@ int CanvasNode::getNumTris()
 {
     int numTris = 0;
     for (int i=0; i<getNumChildren(); i++) {
-        LineNodePtr pLine = dynamic_pointer_cast<LineNode>(getChild(i));
-        numTris += pLine->getNumTriangles();
+        numTris += getCanvasChild(i)->getNumTriangles();
     }
     return numTris;
 }
