@@ -25,7 +25,7 @@ class VectorTestCase(AVGTestCase):
     def testLine(self):
         def addLines():
             canvas = Player.getElementByID("canvas")
-            line = Player.createNode("line", {"x1":2, "y1":2, "x2":10, "y2":2})
+            line = Player.createNode("line", {"x1":2.5, "y1":2.5, "x2":10.5, "y2":2.5})
             canvas.appendChild(line)
         Player.loadString("""
             <?xml version="1.0"?>
