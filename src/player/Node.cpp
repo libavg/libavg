@@ -30,6 +30,7 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/XMLHelper.h"
+#include "../base/StringHelper.h"
 
 #include <iostream>
 
@@ -40,7 +41,8 @@ namespace avg {
 NodeDefinition Node::createDefinition()
 {
     return NodeDefinition("node")
-        .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)));
+        .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)))
+        .addArg(Arg<double>("opacity", 1.0, false, offsetof(AreaNode, m_Opacity)));
 }
 
 Node::Node ()
@@ -121,6 +123,21 @@ void Node::setID(const std::string& ID)
     m_ID = ID;
 }
 
+double Node::getOpacity() const 
+{
+    return m_Opacity;
+}
+
+void Node::setOpacity(double opacity) 
+{
+    m_Opacity = opacity;
+    if (m_Opacity < 0.0) {
+        m_Opacity = 0.0;
+    } else if (m_Opacity > 1.0) {
+        m_Opacity = 1.0;
+    }
+}
+
 GroupNodePtr Node::getParent() const
 {
     if (m_pParent.expired()) {
@@ -180,9 +197,19 @@ NodePtr Node::getThis() const
     return m_This.lock();
 }
 
+double Node::getEffectiveOpacity()
+{
+    if (getParent()) {
+        return m_Opacity*getParent()->getEffectiveOpacity();
+    } else {
+        return m_Opacity;
+    }
+}
+
 string Node::dump(int indent)
 {
-    string dumpStr = string(indent, ' ') + getTypeStr() + ": m_ID=" + m_ID;
+    string dumpStr = string(indent, ' ') + getTypeStr() + ": m_ID=" + m_ID + 
+            "m_Opacity=" + toString(m_Opacity);
     return dumpStr; 
 }
 

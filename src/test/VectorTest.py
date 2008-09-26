@@ -63,13 +63,31 @@ class VectorTestCase(AVGTestCase):
                 (addLines,
                  lambda: self.compareImage("testlotsoflines", False), 
                 ))
-        
+
+    def testLineOpacity(self):
+        def addLines():
+            canvas = Player.getElementByID("canvas")
+            line = Player.createNode("line", 
+                    {"x1":2, "y1":2.5, "x2":10, "y2":2.5, "opacity":0.5})
+            canvas.appendChild(line)
+        def changeCanvasOpacity():
+            Player.getElementByID("canvas").opacity = 0.5
+            
+        self.makeEmptyCanvas()
+        self.start(None,
+                (addLines,
+                 lambda: self.compareImage("testlineopacity1", False), 
+                 changeCanvasOpacity,
+                 lambda: self.compareImage("testlineopacity2", False), 
+
+                ))
 
 
 def vectorTestSuite():
     suite = unittest.TestSuite()
     suite.addTest(VectorTestCase("testLine"))
     suite.addTest(VectorTestCase("testLotsOfLines"))
+    suite.addTest(VectorTestCase("testLineOpacity"))
     return suite
 
 Player = avg.Player.get()

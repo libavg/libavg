@@ -40,7 +40,8 @@ class VectorNode : public Node
         virtual ~VectorNode();
 
         virtual int getNumTriangles() = 0;
-        virtual void updateData(VertexArrayPtr pVertexArray, int triIndex) = 0;
+        virtual void updateData(VertexArrayPtr pVertexArray, int triIndex, 
+                double opacity, bool bDrawNeeded) = 0;
 
         Pixel32 getColor() const;
         double getWidth() const;

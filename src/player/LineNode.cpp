@@ -65,19 +65,24 @@ int LineNode::getNumTriangles()
     return 2;
 }
 
-void LineNode::updateData(VertexArrayPtr pVertexArray, int triIndex)
+void LineNode::updateData(VertexArrayPtr pVertexArray, int triIndex, double opacity, 
+        bool bDrawNeeded)
 {
-    if (m_bDrawNeeded) {
+    if (m_bDrawNeeded || bDrawNeeded) {
+        double curOpacity = opacity*getOpacity();
+        Pixel32 color = getColor();
+        color.setA(curOpacity*255);
+
         DPoint m = (m_P2-m_P1);
         m.normalize();
         DPoint w = DPoint(m.y, -m.x)*getWidth()/2;
-        pVertexArray->setPos(triIndex, 0, m_P1-w, DPoint(0,0), getColor());
-        pVertexArray->setPos(triIndex, 1, m_P1+w, DPoint(0,0), getColor());
-        pVertexArray->setPos(triIndex, 2, m_P2+w, DPoint(0,0), getColor());
+        pVertexArray->setPos(triIndex, 0, m_P1-w, DPoint(0,0), color);
+        pVertexArray->setPos(triIndex, 1, m_P1+w, DPoint(0,0), color);
+        pVertexArray->setPos(triIndex, 2, m_P2+w, DPoint(0,0), color);
 
-        pVertexArray->setPos(triIndex+1, 0, m_P1-w, DPoint(0,0), getColor());
-        pVertexArray->setPos(triIndex+1, 1, m_P2+w, DPoint(0,0), getColor());
-        pVertexArray->setPos(triIndex+1, 2, m_P2-w, DPoint(0,0), getColor());
+        pVertexArray->setPos(triIndex+1, 0, m_P1-w, DPoint(0,0), color);
+        pVertexArray->setPos(triIndex+1, 1, m_P2+w, DPoint(0,0), color);
+        pVertexArray->setPos(triIndex+1, 2, m_P2-w, DPoint(0,0), color);
     }
     m_bDrawNeeded = false;
 }

@@ -50,6 +50,7 @@ NodeDefinition CanvasNode::createDefinition()
 }
 
 CanvasNode::CanvasNode(const ArgList& Args, bool)
+    : m_LastOpacity(-1)
 {
     Args.setMembers(this);
 }
@@ -87,9 +88,11 @@ void CanvasNode::preRender()
     }
     int numChildren = getNumChildren();
     int curTri = 0;
+    double opacity = getEffectiveOpacity();
+    bool bUpdateEverything = m_LastOpacity != opacity;
     for (int i=0; i<numChildren; ++i) {
         VectorNode * pLine = getCanvasChild(i);
-        pLine->updateData(m_pVertexArray, curTri);
+        pLine->updateData(m_pVertexArray, curTri, opacity, bUpdateEverything);
         curTri += pLine->getNumTriangles();
     }
     {

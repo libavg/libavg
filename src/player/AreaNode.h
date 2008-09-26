@@ -94,9 +94,6 @@ class AreaNode: public Node
         double getPivotY() const;
         void setPivotY(double Pivoty);
         
-        double getOpacity() const;
-        void setOpacity(double opacity);
-        
         bool getActive() const;
         void setActive(bool bActive);
         
@@ -118,7 +115,6 @@ class AreaNode: public Node
         virtual void maybeRender(const DRect& Rect);
         virtual void setViewport(double x, double y, double width, double height);
         virtual const DRect& getRelViewport() const;
-        virtual double getEffectiveOpacity();
 
         virtual std::string dump(int indent = 0);
         
@@ -156,7 +152,6 @@ class AreaNode: public Node
         EventHandlerMap m_EventHandlerMap;
 
         DRect m_RelViewport;      // In coordinates relative to the parent.
-        double m_Opacity;
         bool m_bActive;
         bool m_bSensitive;
         double m_Angle;

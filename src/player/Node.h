@@ -73,6 +73,9 @@ class Node
         virtual const std::string& getID() const;
         void setID(const std::string& ID);
 
+        double getOpacity() const;
+        void setOpacity(double opacity);
+        
         virtual GroupNodePtr getParent() const;
         void unlink();
 
@@ -80,6 +83,7 @@ class Node
         virtual void maybeRender(const DRect& Rect) {};
         virtual void render(const DRect& Rect) {};
         
+        virtual double getEffectiveOpacity();
         virtual std::string dump(int indent = 0);
         std::string getTypeStr() const;
         
@@ -105,6 +109,7 @@ class Node
         AudioEngine * m_pAudioEngine;
 
         std::string m_ID;
+        double m_Opacity;
         NodeState m_State;
         const NodeDefinition* m_pDefinition;
 };

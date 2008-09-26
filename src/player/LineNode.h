@@ -42,7 +42,8 @@ class LineNode : public VectorNode
                 AudioEngine * pAudioEngine);
 
         virtual int getNumTriangles();
-        virtual void updateData(VertexArrayPtr pVertexArray, int triIndex);
+        virtual void updateData(VertexArrayPtr pVertexArray, int triIndex, 
+                double opacity, bool bDrawNeeded);
 
     private:
         DPoint m_P1;

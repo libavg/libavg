@@ -63,7 +63,6 @@ NodeDefinition AreaNode::createDefinition()
         .addArg(Arg<double>("angle", 0.0, false, offsetof(AreaNode, m_Angle)))
         .addArg(Arg<double>("pivotx", -32767, false, offsetof(AreaNode, m_Pivot.x)))
         .addArg(Arg<double>("pivoty", -32767, false, offsetof(AreaNode, m_Pivot.y)))
-        .addArg(Arg<double>("opacity", 1.0, false, offsetof(AreaNode, m_Opacity)))
         .addArg(Arg<bool>("active", true, false, offsetof(AreaNode, m_bActive)))
         .addArg(Arg<bool>("sensitive", true, false, offsetof(AreaNode, m_bSensitive)));
 }
@@ -211,21 +210,6 @@ void AreaNode::setPivotY(double Pivoty)
     m_Pivot = getPivot();
     m_Pivot.y = Pivoty;
     m_bHasCustomPivot = true;
-}
-
-double AreaNode::getOpacity() const 
-{
-    return m_Opacity;
-}
-
-void AreaNode::setOpacity(double opacity) 
-{
-    m_Opacity = opacity;
-    if (m_Opacity < 0.0) {
-        m_Opacity = 0.0;
-    } else if (m_Opacity > 1.0) {
-        m_Opacity = 1.0;
-    }
 }
 
 bool AreaNode::getActive() const 
@@ -381,29 +365,20 @@ void AreaNode::setViewport (double x, double y, double width, double height)
     m_RelViewport = DRect (x, y, x+width, y+height);
 }
 
-const DRect& AreaNode::getRelViewport () const
+const DRect& AreaNode::getRelViewport() const
 {
 //    cerr << "Node " << getID() << ": (" << m_RelViewport.tl.x << ", " 
 //            << m_RelViewport.tl.y << ")" << endl;
     return m_RelViewport;
 }
 
-double AreaNode::getEffectiveOpacity()
-{
-    if (getDivParent()) {
-        return m_Opacity*getDivParent()->getEffectiveOpacity();
-    } else {
-        return m_Opacity;
-    }
-}
-
-string AreaNode::dump (int indent)
+string AreaNode::dump(int indent)
 {
     string dumpStr = Node::dump(indent); 
     char sz[256];
-    sprintf (sz, ", x=%.1f, y=%.1f, width=%.1f, height=%.1f, opacity=%.2f\n",
+    sprintf (sz, ", x=%.1f, y=%.1f, width=%.1f, height=%.1f\n",
             m_RelViewport.tl.x, m_RelViewport.tl.y,
-            m_RelViewport.width(), m_RelViewport.height(), m_Opacity);
+            m_RelViewport.width(), m_RelViewport.height());
     dumpStr += sz;
 
     return dumpStr; 
