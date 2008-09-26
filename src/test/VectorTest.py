@@ -41,6 +41,9 @@ class VectorTestCase(AVGTestCase):
             addLine({"x1":11.5, "y1":4, "x2":11.5, "y2":12})
             addLine({"x1":14, "y1":3, "x2":22, "y2":3, "width":2})
             addLine({"x1":24, "y1":5, "x2":24, "y2":13, "width":2})
+            addLine({"x1":2, "y1":13.5, "x2":10, "y2":13.5, "color":"FF0000"})
+            addLine({"x1":2, "y1":15.5, "x2":10, "y2":15.5, "color":"00FF00"})
+            addLine({"x1":2, "y1":17.5, "x2":10, "y2":17.5, "color":"0000FF"})
         self.makeEmptyCanvas()
         self.start(None,
                 (addLines,

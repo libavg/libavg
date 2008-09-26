@@ -112,8 +112,10 @@ void CanvasNode::render(const DRect& rect)
         int TexMode = dynamic_cast<SDLDisplayEngine*>(
                 getDisplayEngine())->getTextureMode();
         glDisable(TexMode);
+        glEnableClientState(GL_COLOR_ARRAY);
         m_pVertexArray->draw();
         glEnable(TexMode);
+        glDisableClientState(GL_COLOR_ARRAY);
     }
     
     if (getCrop()) {
