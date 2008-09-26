@@ -48,8 +48,10 @@ class CanvasNode : public GroupNode
     
     private:
         virtual void childrenChanged();
+        int getNumTris();
 
         VertexArrayPtr m_pVertexArray;
+        bool m_bChildrenChanged;
 };
 
 }

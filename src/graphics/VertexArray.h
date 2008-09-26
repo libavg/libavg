@@ -32,18 +32,18 @@ namespace avg {
 
 struct T2V3C4Vertex {
     GLfloat m_Tex[2];
-    GLfloat m_Pos[3];
     Pixel32 m_Color;
+    GLfloat m_Pos[3];
     GLfloat m_Dummy[2];  // Align to 32 bytes
 };
 
 class VertexArray {
 public:
-    VertexArray(int numQuads, int reserveQuads = 0);
+    VertexArray(int vertexesPerPrimitive, int numPrimitives, int reservePrimitives = 0);
     virtual ~VertexArray();
 
-    void setPos(int quadIndex, int vertexIndex, const DPoint& pos, const DPoint& texPos,
-            const Pixel32& color = Pixel32(0,0,0,0));
+    void setPos(int primitiveIndex, int vertexIndex, const DPoint& pos, 
+            const DPoint& texPos, const Pixel32& color = Pixel32(0,0,0,0));
     void changeSize(int numQuads);
 
     void update();
@@ -52,8 +52,9 @@ public:
 private:
     void setBufferSize();
 
-    int m_NumQuads;
-    int m_ReserveQuads;
+    int m_VertexesPerPrimitive;
+    int m_NumPrimitives;
+    int m_ReservePrimitives;
     T2V3C4Vertex * m_pVertexData;
     bool m_bDataChanged;
 

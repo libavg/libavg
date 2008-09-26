@@ -62,16 +62,24 @@ void LineNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
 }
 
-void LineNode::updateData(VertexArrayPtr pVertexArray, int quadIndex)
+int LineNode::getNumTriangles()
+{
+    return 2;
+}
+
+void LineNode::updateData(VertexArrayPtr pVertexArray, int triIndex)
 {
     if (m_bDrawNeeded) {
         DPoint m = (m_P2-m_P1);
         m.normalize();
         DPoint w = DPoint(m.y, -m.x)*m_Width/2;
-        pVertexArray->setPos(quadIndex, 0, m_P1-w, DPoint(0,0), m_Color);
-        pVertexArray->setPos(quadIndex, 1, m_P1+w, DPoint(0,0), m_Color);
-        pVertexArray->setPos(quadIndex, 2, m_P2+w, DPoint(0,0), m_Color);
-        pVertexArray->setPos(quadIndex, 3, m_P2-w, DPoint(0,0), m_Color);
+        pVertexArray->setPos(triIndex, 0, m_P1-w, DPoint(0,0), m_Color);
+        pVertexArray->setPos(triIndex, 1, m_P1+w, DPoint(0,0), m_Color);
+        pVertexArray->setPos(triIndex, 2, m_P2+w, DPoint(0,0), m_Color);
+
+        pVertexArray->setPos(triIndex+1, 0, m_P1-w, DPoint(0,0), m_Color);
+        pVertexArray->setPos(triIndex+1, 1, m_P2+w, DPoint(0,0), m_Color);
+        pVertexArray->setPos(triIndex+1, 2, m_P2-w, DPoint(0,0), m_Color);
     }
     m_bDrawNeeded = false;
 }

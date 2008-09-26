@@ -63,8 +63,8 @@ void CanvasNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
 {
     GroupNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 
-    m_pVertexArray = VertexArrayPtr(new VertexArray(getNumChildren(), 100));
-
+    m_pVertexArray = VertexArrayPtr(new VertexArray(3, getNumTris(), 100));
+    m_bChildrenChanged = false;
 }
 
 void CanvasNode::disconnect()
@@ -75,9 +75,15 @@ void CanvasNode::disconnect()
 
 void CanvasNode::preRender()
 {
+    if (m_bChildrenChanged) {
+        m_pVertexArray->changeSize(getNumTris());
+    }
     int numChildren = getNumChildren();
+    int curTri = 0;
     for (int i=0; i<numChildren; ++i) {
-        dynamic_pointer_cast<LineNode>(getChild(i))->updateData(m_pVertexArray, i);
+        LineNodePtr pLine = dynamic_pointer_cast<LineNode>(getChild(i));
+        pLine->updateData(m_pVertexArray, curTri);
+        curTri += pLine->getNumTriangles();
     }
     m_pVertexArray->update();
 }
@@ -93,7 +99,8 @@ void CanvasNode::render(const DRect& rect)
     }
     {
         ScopeTimer Timer(RenderProfilingZone);
-        int TexMode = dynamic_cast<SDLDisplayEngine*>(getDisplayEngine())->getTextureMode();
+        int TexMode = dynamic_cast<SDLDisplayEngine*>(
+                getDisplayEngine())->getTextureMode();
         glDisable(TexMode);
         m_pVertexArray->draw();
         glEnable(TexMode);
@@ -115,9 +122,17 @@ string CanvasNode::dump(int indent)
 
 void CanvasNode::childrenChanged()
 {
-    if (m_pVertexArray) {
-        m_pVertexArray->changeSize(getNumChildren());
+    m_bChildrenChanged = true;
+}
+
+int CanvasNode::getNumTris()
+{
+    int numTris = 0;
+    for (int i=0; i<getNumChildren(); i++) {
+        LineNodePtr pLine = dynamic_pointer_cast<LineNode>(getChild(i));
+        numTris += pLine->getNumTriangles();
     }
+    return numTris;
 }
 
 }

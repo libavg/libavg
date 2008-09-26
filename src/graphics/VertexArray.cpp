@@ -31,16 +31,19 @@ using namespace std;
 
 namespace avg {
 
-VertexArray::VertexArray(int numQuads, int reserveQuads)
-    : m_NumQuads(numQuads),
-      m_ReserveQuads(reserveQuads),
+VertexArray::VertexArray(int vertexesPerPrimitive, int numPrimitives, 
+        int reservePrimitives)
+    : m_VertexesPerPrimitive(vertexesPerPrimitive),
+      m_NumPrimitives(numPrimitives),
+      m_ReservePrimitives(reservePrimitives),
       m_bDataChanged(true)
 {
-    if (m_NumQuads > m_ReserveQuads) {
-        m_ReserveQuads = m_NumQuads;
+    assert(vertexesPerPrimitive == 3 || vertexesPerPrimitive == 4);
+    if (m_NumPrimitives > m_ReservePrimitives) {
+        m_ReservePrimitives = m_NumPrimitives;
     }
     glproc::GenBuffers(1, &m_VBOArrayID);
-    m_pVertexData = new T2V3C4Vertex[m_ReserveQuads*4];
+    m_pVertexData = new T2V3C4Vertex[m_ReservePrimitives*m_VertexesPerPrimitive];
     setBufferSize();
 }
 
@@ -50,11 +53,12 @@ VertexArray::~VertexArray()
     glproc::DeleteBuffers(1, &m_VBOArrayID);
 }
 
-void VertexArray::setPos(int quadIndex, int vertexIndex, const DPoint& pos, 
+void VertexArray::setPos(int primitiveIndex, int vertexIndex, const DPoint& pos, 
         const DPoint& texPos, const Pixel32& color)
 {
-    assert(quadIndex < m_NumQuads);
-    T2V3C4Vertex* pVertex = &(m_pVertexData[quadIndex*4+vertexIndex]);
+    assert(primitiveIndex < m_NumPrimitives);
+    T2V3C4Vertex* pVertex = &(m_pVertexData[primitiveIndex*m_VertexesPerPrimitive+
+            vertexIndex]);
     if (pVertex->m_Pos[0] != (GLfloat)pos.x || 
             pVertex->m_Pos[1] != (GLfloat)pos.y ||
             pVertex->m_Tex[0] != (GLfloat)texPos.x || 
@@ -71,15 +75,19 @@ void VertexArray::setPos(int quadIndex, int vertexIndex, const DPoint& pos,
     }
 }
 
-void VertexArray::changeSize(int numQuads)
+void VertexArray::changeSize(int numPrimitives)
 {
-    m_NumQuads = numQuads;
-    if (m_NumQuads > m_ReserveQuads) {
-        int oldReserve = m_ReserveQuads;
-        m_ReserveQuads *= 1.5;
+    m_NumPrimitives = numPrimitives;
+    if (m_NumPrimitives > m_ReservePrimitives) {
+        int oldReserve = m_ReservePrimitives;
+        m_ReservePrimitives *= 1.5;
+        if (m_ReservePrimitives < m_NumPrimitives) {
+            m_ReservePrimitives = m_NumPrimitives;
+        }
         T2V3C4Vertex * pOldVertexes = m_pVertexData;
-        m_pVertexData = new T2V3C4Vertex[m_ReserveQuads*4];
-        memcpy(m_pVertexData, pOldVertexes, sizeof(T2V3C4Vertex)*oldReserve*4);
+        m_pVertexData = new T2V3C4Vertex[m_ReservePrimitives*m_VertexesPerPrimitive];
+        memcpy(m_pVertexData, pOldVertexes, 
+                sizeof(T2V3C4Vertex)*oldReserve*m_VertexesPerPrimitive);
         delete[] pOldVertexes;
         setBufferSize();
     }
@@ -88,15 +96,17 @@ void VertexArray::changeSize(int numQuads)
 
 void VertexArray::update()
 {
-    // TODO: In case of performance issues, start using glMapBuffer.
     if (m_bDataChanged) {
         glproc::BindBuffer(GL_ARRAY_BUFFER, m_VBOArrayID);
-        glproc::BufferData(GL_ARRAY_BUFFER, m_ReserveQuads*4*sizeof(T2V3C4Vertex), 0, 
-            GL_STREAM_DRAW);
+        glproc::BufferData(GL_ARRAY_BUFFER, 
+                m_ReservePrimitives*m_VertexesPerPrimitive*sizeof(T2V3C4Vertex), 0, 
+                GL_STREAM_DRAW);
         void * pOGLBuffer = glproc::MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-        memcpy(pOGLBuffer, m_pVertexData, m_NumQuads*4*sizeof(T2V3C4Vertex));
+        memcpy(pOGLBuffer, m_pVertexData, 
+                m_NumPrimitives*m_VertexesPerPrimitive*sizeof(T2V3C4Vertex));
         glproc::UnmapBuffer(GL_ARRAY_BUFFER);
-//        glproc::BufferSubData(GL_ARRAY_BUFFER, 0, m_NumQuads*4*sizeof(T2V3C4Vertex),
+//        glproc::BufferSubData(GL_ARRAY_BUFFER, 0,
+//                m_NumPrimitives*m_VertexesPerPrimitive*sizeof(T2V3C4Vertex),
 //                m_pVertexData);
     }
     m_bDataChanged = false;
@@ -110,18 +120,24 @@ void VertexArray::draw()
         glproc::BindBuffer(GL_ARRAY_BUFFER, m_VBOArrayID);
     }
     glTexCoordPointer(2, GL_FLOAT, sizeof(T2V3C4Vertex), 0);
-    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(T2V3C4Vertex), 0);
+    glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(T2V3C4Vertex), 
+            (void *)(offsetof(T2V3C4Vertex, m_Color)));
     glVertexPointer(3, GL_FLOAT, sizeof(T2V3C4Vertex),
             (void *)(offsetof(T2V3C4Vertex, m_Pos)));
-    
-    glDrawArrays(GL_QUADS, 0, 4*m_NumQuads);
+
+    if (m_VertexesPerPrimitive==3) {
+        glDrawArrays(GL_TRIANGLES, 0, m_VertexesPerPrimitive*m_NumPrimitives);
+    } else {
+        glDrawArrays(GL_QUADS, 0, m_VertexesPerPrimitive*m_NumPrimitives);
+    }
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VertexArray::draw()");
 }
 
 void VertexArray::setBufferSize() 
 {
     glproc::BindBuffer(GL_ARRAY_BUFFER, m_VBOArrayID);
-    glproc::BufferData(GL_ARRAY_BUFFER, m_ReserveQuads*4*sizeof(T2V3C4Vertex), 0, 
+    glproc::BufferData(GL_ARRAY_BUFFER, 
+            m_ReservePrimitives*m_VertexesPerPrimitive*sizeof(T2V3C4Vertex), 0, 
             GL_STREAM_DRAW);
 }
 

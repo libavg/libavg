@@ -46,7 +46,8 @@ OGLTexture::OGLTexture(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize,
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     createTextures(Stride);
-    m_pVertexes = new VertexArray(m_TileIndexExtent.width()*m_TileIndexExtent.height());
+    m_pVertexes = new VertexArray(4, 
+            m_TileIndexExtent.width()*m_TileIndexExtent.height());
     calcTexCoords();
 }
 

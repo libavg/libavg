@@ -41,7 +41,8 @@ class LineNode : public Node
         void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
 
-        virtual void updateData(VertexArrayPtr pVertexArray, int quadIndex);
+        virtual int getNumTriangles();
+        virtual void updateData(VertexArrayPtr pVertexArray, int triIndex);
 
     private:
         DPoint m_P1;
