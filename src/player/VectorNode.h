@@ -19,44 +19,42 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _CanvasNode_H_
-#define _CanvasNode_H_
+#ifndef _VectorNode_H_
+#define _VectorNode_H_
 
-#include "GroupNode.h"
+#include "Node.h"
 
-#include "../graphics/VertexArray.h"
-
-#include <string>
+#include "../graphics/Pixel32.h"
 
 namespace avg {
 
-class VectorNode;
+class VertexArray;
+typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 
-class CanvasNode : public GroupNode
+class VectorNode : public Node
 {
     public:
         static NodeDefinition createDefinition();
         
-        CanvasNode(const ArgList& Args, bool bFromXML);
-        virtual ~CanvasNode();
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
-        virtual void disconnect();
+        VectorNode(const ArgList& Args);
+        virtual ~VectorNode();
 
-        virtual void preRender();
-        virtual void render(const DRect& rect);
+        virtual int getNumTriangles() = 0;
+        virtual void updateData(VertexArrayPtr pVertexArray, int triIndex) = 0;
 
-        virtual std::string dump(int indent = 0);
-    
+        Pixel32 getColor() const;
+        double getWidth() const;
+
     private:
-        VectorNode * getCanvasChild(int i);
-        virtual void childrenChanged();
-        int getNumTris();
+        std::string m_sColorName;
+        Pixel32 m_Color;
+        double m_Width;
 
-        VertexArrayPtr m_pVertexArray;
-        bool m_bChildrenChanged;
 };
+
+typedef boost::shared_ptr<VectorNode> VectorNodePtr;
 
 }
 
-#endif //_CanvasNode_H_
+#endif
+

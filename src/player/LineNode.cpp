@@ -36,19 +36,17 @@ namespace avg {
 NodeDefinition LineNode::createDefinition()
 {
     return NodeDefinition("line", Node::buildNode<LineNode>)
-        .extendDefinition(Node::createDefinition())
+        .extendDefinition(VectorNode::createDefinition())
         .addArg(Arg<double>("x1", 0, true, offsetof(LineNode, m_P1.x)))
         .addArg(Arg<double>("y1", 0, true, offsetof(LineNode, m_P1.y)))
         .addArg(Arg<double>("x2", 0, true, offsetof(LineNode, m_P2.x)))
-        .addArg(Arg<double>("y2", 0, true, offsetof(LineNode, m_P2.y)))
-        .addArg(Arg<string>("color", "FFFFFF", false, offsetof(LineNode, m_sColorName)))
-        .addArg(Arg<double>("width", 1, false, offsetof(LineNode, m_Width)));
+        .addArg(Arg<double>("y2", 0, true, offsetof(LineNode, m_P2.y)));
 }
 
-LineNode::LineNode (const ArgList& Args, bool bFromXML)
+LineNode::LineNode(const ArgList& Args, bool bFromXML)
+    : VectorNode(Args)
 {
     Args.setMembers(this);
-    m_Color = colorStringToColor(m_sColorName);
 }
 
 LineNode::~LineNode()
@@ -72,14 +70,14 @@ void LineNode::updateData(VertexArrayPtr pVertexArray, int triIndex)
     if (m_bDrawNeeded) {
         DPoint m = (m_P2-m_P1);
         m.normalize();
-        DPoint w = DPoint(m.y, -m.x)*m_Width/2;
-        pVertexArray->setPos(triIndex, 0, m_P1-w, DPoint(0,0), m_Color);
-        pVertexArray->setPos(triIndex, 1, m_P1+w, DPoint(0,0), m_Color);
-        pVertexArray->setPos(triIndex, 2, m_P2+w, DPoint(0,0), m_Color);
+        DPoint w = DPoint(m.y, -m.x)*getWidth()/2;
+        pVertexArray->setPos(triIndex, 0, m_P1-w, DPoint(0,0), getColor());
+        pVertexArray->setPos(triIndex, 1, m_P1+w, DPoint(0,0), getColor());
+        pVertexArray->setPos(triIndex, 2, m_P2+w, DPoint(0,0), getColor());
 
-        pVertexArray->setPos(triIndex+1, 0, m_P1-w, DPoint(0,0), m_Color);
-        pVertexArray->setPos(triIndex+1, 1, m_P2+w, DPoint(0,0), m_Color);
-        pVertexArray->setPos(triIndex+1, 2, m_P2-w, DPoint(0,0), m_Color);
+        pVertexArray->setPos(triIndex+1, 0, m_P1-w, DPoint(0,0), getColor());
+        pVertexArray->setPos(triIndex+1, 1, m_P2+w, DPoint(0,0), getColor());
+        pVertexArray->setPos(triIndex+1, 2, m_P2-w, DPoint(0,0), getColor());
     }
     m_bDrawNeeded = false;
 }

@@ -22,7 +22,7 @@
 #ifndef _LineNode_H_
 #define _LineNode_H_
 
-#include "Node.h"
+#include "VectorNode.h"
 
 #include "../graphics/Pixel32.h"
 
@@ -31,7 +31,7 @@ namespace avg {
 class VertexArray;
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 
-class LineNode : public Node
+class LineNode : public VectorNode
 {
     public:
         static NodeDefinition createDefinition();
@@ -47,15 +47,9 @@ class LineNode : public Node
     private:
         DPoint m_P1;
         DPoint m_P2;
-        std::string m_sColorName;
-        Pixel32 m_Color;
-        double m_Width;
 
         bool m_bDrawNeeded;
-
 };
-
-typedef boost::shared_ptr<LineNode> LineNodePtr;
 
 }
 

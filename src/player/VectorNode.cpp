@@ -19,44 +19,46 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _CanvasNode_H_
-#define _CanvasNode_H_
+#include "VectorNode.h"
 
-#include "GroupNode.h"
+#include "NodeDefinition.h"
 
 #include "../graphics/VertexArray.h"
+#include "../base/Exception.h"
 
-#include <string>
+#include <iostream>
+#include <sstream>
+
+using namespace std;
 
 namespace avg {
 
-class VectorNode;
-
-class CanvasNode : public GroupNode
+NodeDefinition VectorNode::createDefinition()
 {
-    public:
-        static NodeDefinition createDefinition();
-        
-        CanvasNode(const ArgList& Args, bool bFromXML);
-        virtual ~CanvasNode();
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
-        virtual void disconnect();
-
-        virtual void preRender();
-        virtual void render(const DRect& rect);
-
-        virtual std::string dump(int indent = 0);
-    
-    private:
-        VectorNode * getCanvasChild(int i);
-        virtual void childrenChanged();
-        int getNumTris();
-
-        VertexArrayPtr m_pVertexArray;
-        bool m_bChildrenChanged;
-};
-
+    return NodeDefinition("vector")
+        .extendDefinition(Node::createDefinition())
+        .addArg(Arg<string>("color", "FFFFFF", false, offsetof(VectorNode, m_sColorName)))
+        .addArg(Arg<double>("width", 1, false, offsetof(VectorNode, m_Width)));
 }
 
-#endif //_CanvasNode_H_
+VectorNode::VectorNode(const ArgList& Args)
+{
+    Args.setMembers(this);
+    m_Color = colorStringToColor(m_sColorName);
+}
+
+VectorNode::~VectorNode()
+{
+}
+
+Pixel32 VectorNode::getColor() const
+{
+    return m_Color;
+}
+
+double VectorNode::getWidth() const
+{
+    return m_Width;
+}
+
+}

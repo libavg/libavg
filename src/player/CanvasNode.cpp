@@ -20,7 +20,7 @@
 //
 
 #include "CanvasNode.h"
-#include "LineNode.h"
+#include "VectorNode.h"
 #include "SDLDisplayEngine.h"
 #include "Player.h"
 #include "NodeDefinition.h"
@@ -88,7 +88,7 @@ void CanvasNode::preRender()
     int numChildren = getNumChildren();
     int curTri = 0;
     for (int i=0; i<numChildren; ++i) {
-        LineNode * pLine = getCanvasChild(i);
+        VectorNode * pLine = getCanvasChild(i);
         pLine->updateData(m_pVertexArray, curTri);
         curTri += pLine->getNumTriangles();
     }
@@ -132,10 +132,10 @@ string CanvasNode::dump(int indent)
     return dumpStr;
 }
 
-LineNode * CanvasNode::getCanvasChild(int i)
+VectorNode * CanvasNode::getCanvasChild(int i)
 {
     // Can't use dynamic_cast for speed reasons.
-    return (LineNode *)(&*getChild(i));
+    return (VectorNode *)(&*getChild(i));
 }
 
 void CanvasNode::childrenChanged()
