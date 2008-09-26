@@ -22,26 +22,51 @@ class VectorTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName, 24)
 
-    def testLine(self):
-        def addLines():
-            canvas = Player.getElementByID("canvas")
-            line = Player.createNode("line", {"x1":2.5, "y1":2.5, "x2":10.5, "y2":2.5})
-            canvas.appendChild(line)
+    def makeEmptyCanvas(self):
         Player.loadString("""
             <?xml version="1.0"?>
             <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
             <avg width="160" height="120">
-              <canvas id="canvas" width="160" height="120"/>
+              <canvas id="canvas" x="0" y="0" width="160" height="120"/>
             </avg>
         """)
+
+    def testLine(self):
+        def addLines():
+            def addLine(attribs):
+                line = Player.createNode("line", attribs)
+                canvas.appendChild(line)
+            canvas = Player.getElementByID("canvas")
+            addLine({"x1":2, "y1":2.5, "x2":10, "y2":2.5})
+            addLine({"x1":11.5, "y1":4, "x2":11.5, "y2":12})
+            addLine({"x1":14, "y1":3, "x2":22, "y2":3, "width":2})
+            addLine({"x1":24, "y1":5, "x2":24, "y2":13, "width":2})
+        self.makeEmptyCanvas()
         self.start(None,
                 (addLines,
                  lambda: self.compareImage("testline", False), 
                 ))
 
+    def testLotsOfLines(self):
+        def addLines():
+            canvas = Player.getElementByID("canvas")
+            for i in xrange(5000):
+                y = i/10+2.5
+                line = Player.createNode("line", {"x1":2, "y1":y, "x2":10, "y2":y})
+                canvas.appendChild(line)
+                
+        self.makeEmptyCanvas()
+        self.start(None,
+                (addLines,
+                 lambda: self.compareImage("testlotsoflines", False), 
+                ))
+        
+
+
 def vectorTestSuite():
     suite = unittest.TestSuite()
     suite.addTest(VectorTestCase("testLine"))
+    suite.addTest(VectorTestCase("testLotsOfLines"))
     return suite
 
 Player = avg.Player.get()
