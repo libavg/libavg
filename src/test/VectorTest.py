@@ -36,16 +36,17 @@ class VectorTestCase(AVGTestCase):
             def addLine(attribs):
                 line = Player.createNode("line", attribs)
                 canvas.appendChild(line)
-            addLine({"x1":2, "y1":2.5, "x2":10, "y2":2.5})
-            addLine({"x1":11.5, "y1":4, "x2":11.5, "y2":12})
-            addLine({"x1":14, "y1":3, "x2":22, "y2":3, "width":2})
-            addLine({"x1":24, "y1":5, "x2":24, "y2":13, "width":2})
-            addLine({"x1":2, "y1":13.5, "x2":10, "y2":13.5, "color":"FF0000"})
-            addLine({"x1":2, "y1":15.5, "x2":10, "y2":15.5, "color":"00FF00"})
-            addLine({"x1":2, "y1":17.5, "x2":10, "y2":17.5, "color":"0000FF"})
+            addLine({"x1":2, "y1":2.5, "x2":100, "y2":2.5})
+            addLine({"x1":2, "y1":5, "x2":100, "y2":5, "width":2})
+            addLine({"x1":2.5, "y1":20, "x2":2.5, "y2":100})
+            addLine({"x1":5, "y1":20, "x2":5, "y2":100, "width":2})
+            addLine({"x1":2, "y1":7.5, "x2":100, "y2":7.5, "color":"FF0000"})
+            addLine({"x1":2, "y1":9.5, "x2":100, "y2":9.5, "color":"00FF00"})
+            addLine({"x1":2, "y1":11.5, "x2":100, "y2":11.5, "color":"0000FF"})
         def changeLine():
             line = canvas.getChild(0)
-            line.color = "FF0000"
+            line.color="FF0000"
+            line.width=3
         self.makeEmptyCanvas()
         canvas = Player.getElementByID("canvas")
         self.start(None,
