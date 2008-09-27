@@ -42,7 +42,7 @@ NodeDefinition Node::createDefinition()
 {
     return NodeDefinition("node")
         .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)))
-        .addArg(Arg<double>("opacity", 1.0, false, offsetof(AreaNode, m_Opacity)));
+        .addArg(Arg<double>("opacity", 1.0, false, offsetof(Node, m_Opacity)));
 }
 
 Node::Node ()

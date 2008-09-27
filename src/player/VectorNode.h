@@ -38,19 +38,30 @@ class VectorNode : public Node
         
         VectorNode(const ArgList& Args);
         virtual ~VectorNode();
+        void setRenderingEngines(DisplayEngine * pDisplayEngine, 
+                AudioEngine * pAudioEngine);
 
         virtual int getNumTriangles() = 0;
         virtual void updateData(VertexArrayPtr pVertexArray, int triIndex, 
-                double opacity, bool bDrawNeeded) = 0;
+                double opacity, bool bParentDrawNeeded) = 0;
 
-        Pixel32 getColor() const;
+        void setColor(const std::string& sColor);
+        const std::string& getColor() const;
+
+        void setWidth(double d);
         double getWidth() const;
+
+    protected:
+        Pixel32 getColorVal() const;
+        bool isDrawNeeded();
+        void resetDrawNeeded();
 
     private:
         std::string m_sColorName;
         Pixel32 m_Color;
         double m_Width;
 
+        bool m_bDrawNeeded;
 };
 
 typedef boost::shared_ptr<VectorNode> VectorNodePtr;

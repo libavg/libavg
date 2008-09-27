@@ -38,18 +38,14 @@ class LineNode : public VectorNode
         
         LineNode(const ArgList& Args, bool bFromXML);
         virtual ~LineNode();
-        void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
 
         virtual int getNumTriangles();
         virtual void updateData(VertexArrayPtr pVertexArray, int triIndex, 
-                double opacity, bool bDrawNeeded);
+                double opacity, bool bParentDrawNeeded);
 
     private:
         DPoint m_P1;
         DPoint m_P2;
-
-        bool m_bDrawNeeded;
 };
 
 }

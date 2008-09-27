@@ -53,24 +53,17 @@ LineNode::~LineNode()
 {
 }
 
-void LineNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
-        AudioEngine * pAudioEngine)
-{
-    m_bDrawNeeded = true;
-    Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
-}
-
 int LineNode::getNumTriangles()
 {
     return 2;
 }
 
 void LineNode::updateData(VertexArrayPtr pVertexArray, int triIndex, double opacity, 
-        bool bDrawNeeded)
+        bool bParentDrawNeeded)
 {
-    if (m_bDrawNeeded || bDrawNeeded) {
+    if (isDrawNeeded() || bParentDrawNeeded) {
         double curOpacity = opacity*getOpacity();
-        Pixel32 color = getColor();
+        Pixel32 color = getColorVal();
         color.setA(curOpacity*255);
 
         DPoint m = (m_P2-m_P1);
@@ -84,7 +77,7 @@ void LineNode::updateData(VertexArrayPtr pVertexArray, int triIndex, double opac
         pVertexArray->setPos(triIndex+1, 1, m_P2+w, DPoint(0,0), color);
         pVertexArray->setPos(triIndex+1, 2, m_P2-w, DPoint(0,0), color);
     }
-    m_bDrawNeeded = false;
+    resetDrawNeeded();
 }
 
 }

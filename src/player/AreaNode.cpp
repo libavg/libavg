@@ -384,21 +384,21 @@ string AreaNode::dump(int indent)
     return dumpStr; 
 }
 
-DPoint AreaNode::getPivot() const
-{
-    if (m_bHasCustomPivot) {
-        return m_Pivot;
-    } else {
-        return getSize()/2;
-    }
-}
-
 void AreaNode::handleEvent(EventPtr pEvent)
 {
     EventHandlerID ID(pEvent->getType(), pEvent->getSource());
     EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
     if (it!=m_EventHandlerMap.end()) {
         callPython(it->second, pEvent);
+    }
+}
+
+DPoint AreaNode::getPivot() const
+{
+    if (m_bHasCustomPivot) {
+        return m_Pivot;
+    } else {
+        return getSize()/2;
     }
 }
 
@@ -467,12 +467,12 @@ void AreaNode::initFilename(string& sFilename)
 DPoint AreaNode::toLocal(const DPoint& globalPos) const
 {
     DPoint localPos = globalPos-m_RelViewport.tl;
-    return rotate(localPos, -m_Angle, getPivot());
+    return rotate(localPos, -getAngle(), getPivot());
 }
 
 DPoint AreaNode::toGlobal(const DPoint& localPos) const
 {
-    DPoint globalPos = rotate(localPos, m_Angle, getPivot());
+    DPoint globalPos = rotate(localPos, getAngle(), getPivot());
     return globalPos+m_RelViewport.tl;
 }
 

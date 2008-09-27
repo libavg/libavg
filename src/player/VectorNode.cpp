@@ -51,14 +51,53 @@ VectorNode::~VectorNode()
 {
 }
 
-Pixel32 VectorNode::getColor() const
+void VectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
+        AudioEngine * pAudioEngine)
 {
-    return m_Color;
+    m_bDrawNeeded = true;
+    Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
+}
+
+void VectorNode::setColor(const string& sColor)
+{
+    if (m_sColorName != sColor) {
+        m_sColorName = sColor;
+        m_Color = colorStringToColor(m_sColorName);
+        m_bDrawNeeded = true;
+    }
+}
+
+const string& VectorNode::getColor() const
+{
+    return m_sColorName;
+}
+
+void VectorNode::setWidth(double width)
+{
+    if (width != m_Width) {
+        m_bDrawNeeded = true;
+        m_Width = width;
+    }
 }
 
 double VectorNode::getWidth() const
 {
     return m_Width;
+}
+
+Pixel32 VectorNode::getColorVal() const
+{
+    return m_Color;
+}
+        
+bool VectorNode::isDrawNeeded()
+{
+    return m_bDrawNeeded;
+}
+
+void VectorNode::resetDrawNeeded()
+{
+    m_bDrawNeeded = false;
 }
 
 }

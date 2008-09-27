@@ -62,7 +62,14 @@ void export_node()
                 "node.getParent().removeChild(node.getParent().indexOf(node)).")
         .add_property("id", make_function(&Node::getID,
                 return_value_policy<copy_const_reference>()), &Node::setID,
-                "A unique identifier that can be used to reference the node.\n");
+                "A unique identifier that can be used to reference the node.\n")
+        .add_property("angle", &AreaNode::getAngle, &AreaNode::setAngle,
+                "The angle that the node is rotated to in radians. 0 is\n"
+                "unchanged, 3.14 is upside-down.\n")
+        .add_property("opacity", &AreaNode::getOpacity, &AreaNode::setOpacity,
+                      "A measure of the node's transparency. 0.0 is completely\n"
+                      "transparent, 1.0 is completely opaque. Opacity is relative to\n"
+                      "the parent node's opacity.\n");
 
     class_<AreaNode, boost::shared_ptr<AreaNode>, bases<Node>, boost::noncopyable>(
             "AreaNode", 
@@ -127,19 +134,12 @@ void export_node()
         .add_property("width", &AreaNode::getWidth, &AreaNode::setWidth)
         .add_property("height", &AreaNode::getHeight, &AreaNode::setHeight)
         .add_property("size", &AreaNode::getSize, &AreaNode::setSize)
-        .add_property("angle", &AreaNode::getAngle, &AreaNode::setAngle,
-                "The angle that the node is rotated to in radians. 0 is\n"
-                "unchanged, 3.14 is upside-down.\n")
         .add_property("pivotx", &AreaNode::getPivotX, &AreaNode::setPivotX,
                 "x coordinate of the point that the node is rotated around.\n"
                 "Default is the center of the node.\n")
         .add_property("pivoty", &AreaNode::getPivotY, &AreaNode::setPivotY,
                 "y coordinate of the point that the node is rotated around.\n"
                 "Default is the center of the node.\n")
-        .add_property("opacity", &AreaNode::getOpacity, &AreaNode::setOpacity,
-                      "A measure of the node's transparency. 0.0 is completely\n"
-                      "transparent, 1.0 is completely opaque. Opacity is relative to\n"
-                      "the parent node's opacity.\n")
         .add_property("active", &AreaNode::getActive, &AreaNode::setActive,
                       "If this attribute is true, the node behaves as usual. If not, it\n"
                       "is neither drawn nor does it react to events. Videos are paused.\n")
@@ -288,7 +288,18 @@ void export_node()
                 "The maximum angle the viewer can look at.\n")
     ;
 
-    class_<LineNode, bases<Node>, boost::noncopyable>("LineNode", 
+    class_<VectorNode, bases<Node>, boost::noncopyable>("VectorNode", 
+            no_init)
+        .add_property("width", &VectorNode::getWidth, 
+                &VectorNode::setWidth,
+                "The width of the strokes in the vector.\n")
+        .add_property("color", make_function(&VectorNode::getColor,
+               return_value_policy<copy_const_reference>()), &VectorNode::setColor,
+               "The color of the strokes in standard html color notation:\n" 
+                "FF0000 is red, 00FF00 green, etc.\n")
+    ;
+
+    class_<LineNode, bases<VectorNode>, boost::noncopyable>("LineNode", 
             no_init)
     ;
 }
