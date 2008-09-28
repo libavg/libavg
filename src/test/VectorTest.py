@@ -30,6 +30,7 @@ class VectorTestCase(AVGTestCase):
               <canvas id="canvas" x="0" y="0" width="160" height="120"/>
             </avg>
         """)
+        return Player.getElementByID("canvas")
 
     def testLine(self):
         def addLines():
@@ -51,8 +52,7 @@ class VectorTestCase(AVGTestCase):
             line = canvas.getChild(0)
             line.pos1 += (0, 30)
             line.y2 += 30
-        self.makeEmptyCanvas()
-        canvas = Player.getElementByID("canvas")
+        canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addLines,
                  lambda: self.compareImage("testline1", False), 
@@ -64,13 +64,12 @@ class VectorTestCase(AVGTestCase):
 
     def testLotsOfLines(self):
         def addLines():
-            canvas = Player.getElementByID("canvas")
             for i in xrange(5000):
                 y = i/10+2.5
                 line = Player.createNode("line", {"x1":2, "y1":y, "x2":10, "y2":y})
                 canvas.appendChild(line)
                 
-        self.makeEmptyCanvas()
+        canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addLines,
                  lambda: self.compareImage("testlotsoflines", False), 
@@ -84,13 +83,29 @@ class VectorTestCase(AVGTestCase):
         def changeCanvasOpacity():
             canvas.opacity = 0.5
             canvas.getChild(0).opacity = 0.25
-        self.makeEmptyCanvas()
-        canvas = Player.getElementByID("canvas")
+        canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addLines,
                  lambda: self.compareImage("testlineopacity1", False), 
                  changeCanvasOpacity,
                  lambda: self.compareImage("testlineopacity2", False), 
+                ))
+
+    def testRect(self):
+        def addRects():
+            rect = Player.createNode("rect",
+                    {"x":2, "y":2, "width":50, "height":50})
+            canvas.appendChild(rect)
+        def moveRect():
+            rect = canvas.getChild(0)
+            rect.pos = (50, 50)
+            rect.size = (10, 10)
+        canvas = self.makeEmptyCanvas()
+        self.start(None,
+                (addRects,
+                 lambda: self.compareImage("testRect1", False),
+                 moveRect,
+                 lambda: self.compareImage("testRect2", False)
                 ))
 
 
@@ -99,6 +114,7 @@ def vectorTestSuite():
     suite.addTest(VectorTestCase("testLine"))
     suite.addTest(VectorTestCase("testLotsOfLines"))
     suite.addTest(VectorTestCase("testLineOpacity"))
+    suite.addTest(VectorTestCase("testRect"))
     return suite
 
 Player = avg.Player.get()

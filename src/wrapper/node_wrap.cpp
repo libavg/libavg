@@ -37,6 +37,7 @@ void export_devices();
 #include "../player/PanoImage.h"
 #include "../player/Sound.h"
 #include "../player/LineNode.h"
+#include "../player/RectNode.h"
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
@@ -309,5 +310,16 @@ void export_node()
         .add_property("y2", &LineNode::getY2, &LineNode::setY2)
         .add_property("pos2", make_function(&LineNode::getPos2,
                return_value_policy<copy_const_reference>()), &LineNode::setPos2)
+    ;
+
+    class_<RectNode, bases<VectorNode>, boost::noncopyable>("RectNode", 
+            no_init)
+        .add_property("x", &RectNode::getX, &RectNode::setX)
+        .add_property("y", &RectNode::getY, &RectNode::setY)
+        .add_property("pos", make_function(&RectNode::getPos,
+               return_value_policy<copy_const_reference>()), &RectNode::setPos)
+        .add_property("width", &RectNode::getWidth, &RectNode::setWidth)
+        .add_property("height", &RectNode::getHeight, &RectNode::setHeight)
+        .add_property("size", &RectNode::getSize, &RectNode::setSize)
     ;
 }
