@@ -88,7 +88,26 @@ Pixel32 VectorNode::getColorVal() const
 {
     return m_Color;
 }
-        
+
+void VectorNode::updateLineData(VertexArrayPtr pVertexArray, int triIndex, double opacity,
+        const DPoint& p1, const DPoint& p2)
+{
+    double curOpacity = opacity*getOpacity();
+    Pixel32 color = getColorVal();
+    color.setA(curOpacity*255);
+
+    DPoint m = (p2-p1);
+    m.normalize();
+    DPoint w = DPoint(m.y, -m.x)*getStrokeWidth()/2;
+    pVertexArray->setPos(triIndex, 0, p1-w, DPoint(0,0), color);
+    pVertexArray->setPos(triIndex, 1, p1+w, DPoint(0,0), color);
+    pVertexArray->setPos(triIndex, 2, p2+w, DPoint(0,0), color);
+
+    pVertexArray->setPos(triIndex+1, 0, p1-w, DPoint(0,0), color);
+    pVertexArray->setPos(triIndex+1, 1, p2+w, DPoint(0,0), color);
+    pVertexArray->setPos(triIndex+1, 2, p2-w, DPoint(0,0), color);
+}
+     
 bool VectorNode::isDrawNeeded()
 {
     return m_bDrawNeeded;

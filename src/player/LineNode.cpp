@@ -128,20 +128,7 @@ void LineNode::updateData(VertexArrayPtr pVertexArray, int triIndex, double opac
         bool bParentDrawNeeded)
 {
     if (isDrawNeeded() || bParentDrawNeeded) {
-        double curOpacity = opacity*getOpacity();
-        Pixel32 color = getColorVal();
-        color.setA(curOpacity*255);
-
-        DPoint m = (m_P2-m_P1);
-        m.normalize();
-        DPoint w = DPoint(m.y, -m.x)*getStrokeWidth()/2;
-        pVertexArray->setPos(triIndex, 0, m_P1-w, DPoint(0,0), color);
-        pVertexArray->setPos(triIndex, 1, m_P1+w, DPoint(0,0), color);
-        pVertexArray->setPos(triIndex, 2, m_P2+w, DPoint(0,0), color);
-
-        pVertexArray->setPos(triIndex+1, 0, m_P1-w, DPoint(0,0), color);
-        pVertexArray->setPos(triIndex+1, 1, m_P2+w, DPoint(0,0), color);
-        pVertexArray->setPos(triIndex+1, 2, m_P2-w, DPoint(0,0), color);
+        updateLineData(pVertexArray, triIndex, opacity, m_P1, m_P2);
     }
     setDrawNeeded(false);
 }

@@ -41,7 +41,7 @@ NodeDefinition RectNode::createDefinition()
         .addArg(Arg<double>("y", 0, false, offsetof(RectNode, m_Rect.tl.y)))
         .addArg(Arg<double>("width", 0))
         .addArg(Arg<double>("height", 0))
-        .addArg(Arg<double>("fillopacity", 1.0, false, 
+        .addArg(Arg<double>("fillopacity", 0, false, 
                 offsetof(RectNode, m_FillOpacity)))
         .addArg(Arg<string>("fillcolor", "FFFFFF", false, 
                 offsetof(RectNode, m_sFillColorName)));
@@ -162,7 +162,7 @@ const string& RectNode::getFillColor() const
 
 int RectNode::getNumTriangles()
 {
-    return 2;
+    return 10;
 }
 
 void RectNode::updateData(VertexArrayPtr pVertexArray, int triIndex, double opacity, 
@@ -173,15 +173,25 @@ void RectNode::updateData(VertexArrayPtr pVertexArray, int triIndex, double opac
         Pixel32 color = m_FillColor;
         color.setA(curOpacity*255);
 
-        pVertexArray->setPos(triIndex, 0, m_Rect.tl, DPoint(0,0), color);
-        pVertexArray->setPos(triIndex, 1, DPoint(m_Rect.tl.x, m_Rect.br.y),
-                DPoint(0,0), color);
-        pVertexArray->setPos(triIndex, 2, m_Rect.br, DPoint(0,0), color);
+        DPoint p1 = m_Rect.tl;
+        DPoint p2(m_Rect.tl.x, m_Rect.br.y);
+        DPoint p3 = m_Rect.br;
+        DPoint p4(m_Rect.br.x, m_Rect.tl.y);
+        pVertexArray->setPos(triIndex, 0, p1, DPoint(0,0), color);
+        pVertexArray->setPos(triIndex, 1, p2, DPoint(0,0), color);
+        pVertexArray->setPos(triIndex, 2, p3, DPoint(0,0), color);
 
-        pVertexArray->setPos(triIndex+1, 0, m_Rect.tl, DPoint(0,0), color);
-        pVertexArray->setPos(triIndex+1, 1, m_Rect.br, DPoint(0,0), color);
-        pVertexArray->setPos(triIndex+1, 2, DPoint(m_Rect.br.x, m_Rect.tl.y), 
-                DPoint(0,0), color);
+        pVertexArray->setPos(triIndex+1, 0, p1, DPoint(0,0), color);
+        pVertexArray->setPos(triIndex+1, 1, p3, DPoint(0,0), color);
+        pVertexArray->setPos(triIndex+1, 2, p4, DPoint(0,0), color);
+        updateLineData(pVertexArray, triIndex+2, opacity, p1, p2);
+        updateLineData(pVertexArray, triIndex+4, opacity, p3, p4);
+        p1.x -= getStrokeWidth()/2;
+        p2.x -= getStrokeWidth()/2;
+        p3.x += getStrokeWidth()/2;
+        p4.x += getStrokeWidth()/2;
+        updateLineData(pVertexArray, triIndex+6, opacity, p2, p3);
+        updateLineData(pVertexArray, triIndex+8, opacity, p4, p1);
     }
     setDrawNeeded(false);
 }

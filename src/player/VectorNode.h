@@ -53,6 +53,8 @@ class VectorNode : public Node
 
     protected:
         Pixel32 getColorVal() const;
+        void updateLineData(VertexArrayPtr pVertexArray, int triIndex, double opacity,
+                const DPoint& p1, const DPoint& p2);
         bool isDrawNeeded();
         void setDrawNeeded(bool bSet);
 

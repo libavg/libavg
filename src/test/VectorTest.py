@@ -94,16 +94,17 @@ class VectorTestCase(AVGTestCase):
     def testRect(self):
         def addRects():
             rect = Player.createNode("rect",
-                    {"x":2, "y":2, "width":50, "height":30})
+                    {"x":2, "y":2, "width":50, "height":30, "fillopacity":1, 
+                     "strokewidth":0})
             canvas.appendChild(rect)
         def moveRect():
             rect = canvas.getChild(0)
             rect.pos = (50, 50)
             rect.size = (30, 10)
             rect.fillcolor = "FF0000"
-            rect.color = "0000FF"
-            rect.strokewidth = 2
             rect.fillopacity = 0.5
+            rect.color = "FFFF00"
+            rect.strokewidth = 2
         canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addRects,
