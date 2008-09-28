@@ -47,13 +47,19 @@ class VectorTestCase(AVGTestCase):
             line = canvas.getChild(0)
             line.color="FF0000"
             line.width=3
+        def moveLine():
+            line = canvas.getChild(0)
+            line.pos1 += (0, 30)
+            line.y2 += 30
         self.makeEmptyCanvas()
         canvas = Player.getElementByID("canvas")
         self.start(None,
                 (addLines,
                  lambda: self.compareImage("testline1", False), 
                  changeLine,
-                 lambda: self.compareImage("testline2", False), 
+                 lambda: self.compareImage("testline2", False),
+                 moveLine,
+                 lambda: self.compareImage("testline3", False),
                 ))
 
     def testLotsOfLines(self):

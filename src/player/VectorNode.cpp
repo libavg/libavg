@@ -95,9 +95,9 @@ bool VectorNode::isDrawNeeded()
     return m_bDrawNeeded;
 }
 
-void VectorNode::resetDrawNeeded()
+void VectorNode::setDrawNeeded(bool bSet)
 {
-    m_bDrawNeeded = false;
+    m_bDrawNeeded = bSet;
 }
 
 }

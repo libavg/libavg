@@ -54,7 +54,7 @@ class VectorNode : public Node
     protected:
         Pixel32 getColorVal() const;
         bool isDrawNeeded();
-        void resetDrawNeeded();
+        void setDrawNeeded(bool bSet);
 
     private:
         std::string m_sColorName;

@@ -53,6 +53,72 @@ LineNode::~LineNode()
 {
 }
 
+double LineNode::getX1() const 
+{
+    return m_P1.x;
+}
+
+void LineNode::setX1(double x) 
+{
+    m_P1.x = x;
+    setDrawNeeded(true);
+}
+
+double LineNode::getY1() const 
+{
+    return m_P1.y;
+}
+
+void LineNode::setY1(double y) 
+{
+    m_P1.y = y;
+    setDrawNeeded(true);
+}
+
+const DPoint& LineNode::getPos1() const 
+{
+    return m_P1;
+}
+
+void LineNode::setPos1(const DPoint& pt) 
+{
+    m_P1 = pt;
+    setDrawNeeded(true);
+}
+
+double LineNode::getX2() const 
+{
+    return m_P2.x;
+}
+
+void LineNode::setX2(double x) 
+{
+    m_P2.x = x;
+    setDrawNeeded(true);
+}
+
+double LineNode::getY2() const 
+{
+    return m_P2.y;
+}
+
+void LineNode::setY2(double y) 
+{
+    m_P2.y = y;
+    setDrawNeeded(true);
+}
+
+const DPoint& LineNode::getPos2() const 
+{
+    return m_P2;
+}
+
+void LineNode::setPos2(const DPoint& pt) 
+{
+    m_P2 = pt;
+    setDrawNeeded(true);
+}
+
 int LineNode::getNumTriangles()
 {
     return 2;
@@ -77,7 +143,7 @@ void LineNode::updateData(VertexArrayPtr pVertexArray, int triIndex, double opac
         pVertexArray->setPos(triIndex+1, 1, m_P2+w, DPoint(0,0), color);
         pVertexArray->setPos(triIndex+1, 2, m_P2-w, DPoint(0,0), color);
     }
-    resetDrawNeeded();
+    setDrawNeeded(false);
 }
 
 }

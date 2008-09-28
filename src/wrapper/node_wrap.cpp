@@ -301,5 +301,13 @@ void export_node()
 
     class_<LineNode, bases<VectorNode>, boost::noncopyable>("LineNode", 
             no_init)
+        .add_property("x1", &LineNode::getX1, &LineNode::setX1)
+        .add_property("y1", &LineNode::getY1, &LineNode::setY1)
+        .add_property("pos1", make_function(&LineNode::getPos1,
+               return_value_policy<copy_const_reference>()), &LineNode::setPos1)
+        .add_property("x2", &LineNode::getX2, &LineNode::setX2)
+        .add_property("y2", &LineNode::getY2, &LineNode::setY2)
+        .add_property("pos2", make_function(&LineNode::getPos2,
+               return_value_policy<copy_const_reference>()), &LineNode::setPos2)
     ;
 }
