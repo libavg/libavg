@@ -25,6 +25,7 @@
 
 #include "../graphics/VertexArray.h"
 #include "../base/Exception.h"
+#include "../base/MathHelper.h"
 
 #include <iostream>
 #include <sstream>
@@ -41,6 +42,7 @@ NodeDefinition RectNode::createDefinition()
         .addArg(Arg<double>("y", 0, false, offsetof(RectNode, m_Rect.tl.y)))
         .addArg(Arg<double>("width", 0))
         .addArg(Arg<double>("height", 0))
+        .addArg(Arg<double>("angle", 0.0, false, offsetof(RectNode, m_Angle)))
         .addArg(Arg<double>("fillopacity", 0, false, 
                 offsetof(RectNode, m_FillOpacity)))
         .addArg(Arg<string>("fillcolor", "FFFFFF", false, 
@@ -135,6 +137,17 @@ void RectNode::setSize(const DPoint& pt)
     setDrawNeeded(true);
 }
 
+double RectNode::getAngle() const
+{
+    return m_Angle;
+}
+
+void RectNode::setAngle(double angle)
+{
+    m_Angle = fmod(angle, 2*PI);
+    setDrawNeeded(true);
+}
+
 double RectNode::getFillOpacity() const
 {
     return m_FillOpacity;
@@ -173,25 +186,35 @@ void RectNode::updateData(VertexArrayPtr pVertexArray, int triIndex, double opac
         Pixel32 color = m_FillColor;
         color.setA(curOpacity*255);
 
+        DPoint pivot = m_Rect.tl+m_Rect.size()/2;
+
         DPoint p1 = m_Rect.tl;
         DPoint p2(m_Rect.tl.x, m_Rect.br.y);
         DPoint p3 = m_Rect.br;
         DPoint p4(m_Rect.br.x, m_Rect.tl.y);
-        pVertexArray->setPos(triIndex, 0, p1, DPoint(0,0), color);
-        pVertexArray->setPos(triIndex, 1, p2, DPoint(0,0), color);
-        pVertexArray->setPos(triIndex, 2, p3, DPoint(0,0), color);
+        DPoint rp1 = rotate(p1, m_Angle, pivot); 
+        DPoint rp2 = rotate(p2, m_Angle, pivot); 
+        DPoint rp3 = rotate(p3, m_Angle, pivot); 
+        DPoint rp4 = rotate(p4, m_Angle, pivot); 
+        pVertexArray->setPos(triIndex, 0, rp1, DPoint(0,0), color);
+        pVertexArray->setPos(triIndex, 1, rp2, DPoint(0,0), color);
+        pVertexArray->setPos(triIndex, 2, rp3, DPoint(0,0), color);
 
-        pVertexArray->setPos(triIndex+1, 0, p1, DPoint(0,0), color);
-        pVertexArray->setPos(triIndex+1, 1, p3, DPoint(0,0), color);
-        pVertexArray->setPos(triIndex+1, 2, p4, DPoint(0,0), color);
-        updateLineData(pVertexArray, triIndex+2, opacity, p1, p2);
-        updateLineData(pVertexArray, triIndex+4, opacity, p3, p4);
+        pVertexArray->setPos(triIndex+1, 0, rp1, DPoint(0,0), color);
+        pVertexArray->setPos(triIndex+1, 1, rp3, DPoint(0,0), color);
+        pVertexArray->setPos(triIndex+1, 2, rp4, DPoint(0,0), color);
+        updateLineData(pVertexArray, triIndex+2, opacity, rp1, rp2);
+        updateLineData(pVertexArray, triIndex+4, opacity, rp3, rp4);
         p1.x -= getStrokeWidth()/2;
         p2.x -= getStrokeWidth()/2;
         p3.x += getStrokeWidth()/2;
         p4.x += getStrokeWidth()/2;
-        updateLineData(pVertexArray, triIndex+6, opacity, p2, p3);
-        updateLineData(pVertexArray, triIndex+8, opacity, p4, p1);
+        rp1 = rotate(p1, m_Angle, pivot); 
+        rp2 = rotate(p2, m_Angle, pivot); 
+        rp3 = rotate(p3, m_Angle, pivot); 
+        rp4 = rotate(p4, m_Angle, pivot); 
+        updateLineData(pVertexArray, triIndex+6, opacity, rp2, rp3);
+        updateLineData(pVertexArray, triIndex+8, opacity, rp4, rp1);
     }
     setDrawNeeded(false);
 }

@@ -57,6 +57,9 @@ class RectNode : public VectorNode
         DPoint getSize() const;
         void setSize(const DPoint& pt);
 
+        double getAngle() const;
+        void setAngle(double angle);
+
         double getFillOpacity() const;
         void setFillOpacity(double opacity);
 
@@ -70,9 +73,10 @@ class RectNode : public VectorNode
     private:
         DRect m_Rect;
 
+        double m_Angle;
+        double m_FillOpacity;
         std::string m_sFillColorName;
         Pixel32 m_FillColor;
-        double m_FillOpacity;
 };
 
 }

@@ -105,12 +105,17 @@ class VectorTestCase(AVGTestCase):
             rect.fillopacity = 0.5
             rect.color = "FFFF00"
             rect.strokewidth = 2
+        def rotateRect():
+            rect = canvas.getChild(0)
+            rect.angle = 1.57
         canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addRects,
                  lambda: self.compareImage("testRect1", False),
                  moveRect,
-                 lambda: self.compareImage("testRect2", False)
+                 lambda: self.compareImage("testRect2", False),
+                 rotateRect,
+                 lambda: self.compareImage("testRect3", False)
                 ))
 
 

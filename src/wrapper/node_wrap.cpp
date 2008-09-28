@@ -64,10 +64,7 @@ void export_node()
         .add_property("id", make_function(&Node::getID,
                 return_value_policy<copy_const_reference>()), &Node::setID,
                 "A unique identifier that can be used to reference the node.\n")
-        .add_property("angle", &AreaNode::getAngle, &AreaNode::setAngle,
-                "The angle that the node is rotated to in radians. 0 is\n"
-                "unchanged, 3.14 is upside-down.\n")
-        .add_property("opacity", &AreaNode::getOpacity, &AreaNode::setOpacity,
+        .add_property("opacity", &Node::getOpacity, &Node::setOpacity,
                       "A measure of the node's transparency. 0.0 is completely\n"
                       "transparent, 1.0 is completely opaque. Opacity is relative to\n"
                       "the parent node's opacity.\n");
@@ -134,6 +131,9 @@ void export_node()
                 "The position of the node's top left corner relative to it's parent node.\n")
         .add_property("width", &AreaNode::getWidth, &AreaNode::setWidth)
         .add_property("height", &AreaNode::getHeight, &AreaNode::setHeight)
+        .add_property("angle", &AreaNode::getAngle, &AreaNode::setAngle,
+                "The angle that the node is rotated to in radians. 0 is\n"
+                "unchanged, 3.14 is upside-down.\n")
         .add_property("size", &AreaNode::getSize, &AreaNode::setSize)
         .add_property("pivotx", &AreaNode::getPivotX, &AreaNode::setPivotX,
                 "x coordinate of the point that the node is rotated around.\n"
@@ -322,6 +322,10 @@ void export_node()
         .add_property("width", &RectNode::getWidth, &RectNode::setWidth)
         .add_property("height", &RectNode::getHeight, &RectNode::setHeight)
         .add_property("size", &RectNode::getSize, &RectNode::setSize)
+        .add_property("angle", &RectNode::getAngle, &RectNode::setAngle,
+                "The angle that the rectangle is rotated to in radians. 0 is\n"
+                "unchanged, 3.14 is upside-down. The rectangle is rotated around it's\n"
+                "center\n")
         .add_property("fillcolor", make_function(&RectNode::getFillColor,
                return_value_policy<copy_const_reference>()), &RectNode::setFillColor)
         .add_property("fillopacity", &RectNode::getFillOpacity, &RectNode::setFillOpacity)
