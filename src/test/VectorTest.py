@@ -38,16 +38,16 @@ class VectorTestCase(AVGTestCase):
                 line = Player.createNode("line", attribs)
                 canvas.appendChild(line)
             addLine({"x1":2, "y1":2.5, "x2":100, "y2":2.5})
-            addLine({"x1":2, "y1":5, "x2":100, "y2":5, "width":2})
+            addLine({"x1":2, "y1":5, "x2":100, "y2":5, "strokewidth":2})
             addLine({"x1":2.5, "y1":20, "x2":2.5, "y2":100})
-            addLine({"x1":5, "y1":20, "x2":5, "y2":100, "width":2})
+            addLine({"x1":5, "y1":20, "x2":5, "y2":100, "strokewidth":2})
             addLine({"x1":2, "y1":7.5, "x2":100, "y2":7.5, "color":"FF0000"})
             addLine({"x1":2, "y1":9.5, "x2":100, "y2":9.5, "color":"00FF00"})
             addLine({"x1":2, "y1":11.5, "x2":100, "y2":11.5, "color":"0000FF"})
         def changeLine():
             line = canvas.getChild(0)
             line.color="FF0000"
-            line.width=3
+            line.strokewidth=3
         def moveLine():
             line = canvas.getChild(0)
             line.pos1 += (0, 30)
@@ -94,12 +94,16 @@ class VectorTestCase(AVGTestCase):
     def testRect(self):
         def addRects():
             rect = Player.createNode("rect",
-                    {"x":2, "y":2, "width":50, "height":50})
+                    {"x":2, "y":2, "width":50, "height":30})
             canvas.appendChild(rect)
         def moveRect():
             rect = canvas.getChild(0)
             rect.pos = (50, 50)
-            rect.size = (10, 10)
+            rect.size = (30, 10)
+            rect.fillcolor = "FF0000"
+            rect.color = "0000FF"
+            rect.strokewidth = 2
+            rect.fillopacity = 0.5
         canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addRects,

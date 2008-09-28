@@ -38,13 +38,11 @@ NodeDefinition VectorNode::createDefinition()
     return NodeDefinition("vector")
         .extendDefinition(Node::createDefinition())
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(VectorNode, m_sColorName)))
-        .addArg(Arg<double>("width", 1, false, offsetof(VectorNode, m_Width)));
+        .addArg(Arg<double>("strokewidth", 1, false, offsetof(VectorNode, m_StrokeWidth)));
 }
 
 VectorNode::VectorNode(const ArgList& Args)
 {
-    Args.setMembers(this);
-    m_Color = colorStringToColor(m_sColorName);
 }
 
 VectorNode::~VectorNode()
@@ -55,6 +53,7 @@ void VectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
         AudioEngine * pAudioEngine)
 {
     m_bDrawNeeded = true;
+    m_Color = colorStringToColor(m_sColorName);
     Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
 }
 
@@ -72,17 +71,17 @@ const string& VectorNode::getColor() const
     return m_sColorName;
 }
 
-void VectorNode::setWidth(double width)
+void VectorNode::setStrokeWidth(double width)
 {
-    if (width != m_Width) {
+    if (width != m_StrokeWidth) {
         m_bDrawNeeded = true;
-        m_Width = width;
+        m_StrokeWidth = width;
     }
 }
 
-double VectorNode::getWidth() const
+double VectorNode::getStrokeWidth() const
 {
-    return m_Width;
+    return m_StrokeWidth;
 }
 
 Pixel32 VectorNode::getColorVal() const

@@ -57,12 +57,22 @@ class RectNode : public VectorNode
         DPoint getSize() const;
         void setSize(const DPoint& pt);
 
+        double getFillOpacity() const;
+        void setFillOpacity(double opacity);
+
+        void setFillColor(const std::string& sColor);
+        const std::string& getFillColor() const;
+
         virtual int getNumTriangles();
         virtual void updateData(VertexArrayPtr pVertexArray, int triIndex, 
                 double opacity, bool bParentDrawNeeded);
 
     private:
         DRect m_Rect;
+
+        std::string m_sFillColorName;
+        Pixel32 m_FillColor;
+        double m_FillOpacity;
 };
 
 }

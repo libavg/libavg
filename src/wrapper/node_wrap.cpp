@@ -291,9 +291,10 @@ void export_node()
 
     class_<VectorNode, bases<Node>, boost::noncopyable>("VectorNode", 
             no_init)
-        .add_property("width", &VectorNode::getWidth, 
-                &VectorNode::setWidth,
-                "The width of the strokes in the vector.\n")
+        .add_property("strokewidth", &VectorNode::getStrokeWidth, 
+                &VectorNode::setStrokeWidth,
+                "The width of the strokes in the vector. For lines, this is the line\n"
+                "width. For rectangles, it is the width of the outline, etc.\n")
         .add_property("color", make_function(&VectorNode::getColor,
                return_value_policy<copy_const_reference>()), &VectorNode::setColor,
                "The color of the strokes in standard html color notation:\n" 
@@ -321,5 +322,8 @@ void export_node()
         .add_property("width", &RectNode::getWidth, &RectNode::setWidth)
         .add_property("height", &RectNode::getHeight, &RectNode::setHeight)
         .add_property("size", &RectNode::getSize, &RectNode::setSize)
+        .add_property("fillcolor", make_function(&RectNode::getFillColor,
+               return_value_policy<copy_const_reference>()), &RectNode::setFillColor)
+        .add_property("fillopacity", &RectNode::getFillOpacity, &RectNode::setFillOpacity)
     ;
 }

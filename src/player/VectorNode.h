@@ -48,8 +48,8 @@ class VectorNode : public Node
         void setColor(const std::string& sColor);
         const std::string& getColor() const;
 
-        void setWidth(double d);
-        double getWidth() const;
+        void setStrokeWidth(double width);
+        double getStrokeWidth() const;
 
     protected:
         Pixel32 getColorVal() const;
@@ -59,7 +59,7 @@ class VectorNode : public Node
     private:
         std::string m_sColorName;
         Pixel32 m_Color;
-        double m_Width;
+        double m_StrokeWidth;
 
         bool m_bDrawNeeded;
 };

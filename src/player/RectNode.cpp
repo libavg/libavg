@@ -40,7 +40,11 @@ NodeDefinition RectNode::createDefinition()
         .addArg(Arg<double>("x", 0, false, offsetof(RectNode, m_Rect.tl.x)))
         .addArg(Arg<double>("y", 0, false, offsetof(RectNode, m_Rect.tl.y)))
         .addArg(Arg<double>("width", 0))
-        .addArg(Arg<double>("height", 0));
+        .addArg(Arg<double>("height", 0))
+        .addArg(Arg<double>("fillopacity", 1.0, false, 
+                offsetof(RectNode, m_FillOpacity)))
+        .addArg(Arg<string>("fillcolor", "FFFFFF", false, 
+                offsetof(RectNode, m_sFillColorName)));
 }
 
 RectNode::RectNode(const ArgList& Args, bool bFromXML)
@@ -49,6 +53,7 @@ RectNode::RectNode(const ArgList& Args, bool bFromXML)
     Args.setMembers(this);
     m_Rect.setWidth(Args.getArgVal<double>("width"));
     m_Rect.setHeight(Args.getArgVal<double>("height"));
+    m_FillColor = colorStringToColor(m_sFillColorName);
 }
 
 RectNode::~RectNode()
@@ -130,6 +135,31 @@ void RectNode::setSize(const DPoint& pt)
     setDrawNeeded(true);
 }
 
+double RectNode::getFillOpacity() const
+{
+    return m_FillOpacity;
+}
+
+void RectNode::setFillOpacity(double opacity)
+{
+    m_FillOpacity = opacity;
+    setDrawNeeded(true);
+}
+
+void RectNode::setFillColor(const string& sFillColor)
+{
+    if (m_sFillColorName != sFillColor) {
+        m_sFillColorName = sFillColor;
+        m_FillColor = colorStringToColor(m_sFillColorName);
+        setDrawNeeded(true);
+    }
+}
+
+const string& RectNode::getFillColor() const
+{
+    return m_sFillColorName;
+}
+
 int RectNode::getNumTriangles()
 {
     return 2;
@@ -139,8 +169,8 @@ void RectNode::updateData(VertexArrayPtr pVertexArray, int triIndex, double opac
         bool bParentDrawNeeded)
 {
     if (isDrawNeeded() || bParentDrawNeeded) {
-        double curOpacity = opacity*getOpacity();
-        Pixel32 color = getColorVal();
+        double curOpacity = opacity*m_FillOpacity;
+        Pixel32 color = m_FillColor;
         color.setA(curOpacity*255);
 
         pVertexArray->setPos(triIndex, 0, m_Rect.tl, DPoint(0,0), color);
