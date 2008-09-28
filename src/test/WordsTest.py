@@ -54,7 +54,7 @@ class WordsTestCase(AVGTestCase):
     def testGlyphPos(self):
         def posAlmostEqual(pos1, pos2):
             return math.fabs(pos1[0]-pos2[0]) <= 2 and math.fabs(pos1[1]-pos2[1]) <= 2
-        node = Player.createNode("words", {"text":"Bold"})
+        node = Player.createNode("words", {"text":"Bold", "font":"Bitstream Vera Sans"})
         self.assert_(node.getGlyphPos(0) == (0,0))
         size = node.getGlyphSize(0)
         self.assert_(posAlmostEqual(size, (10, 18)))
@@ -130,7 +130,7 @@ class WordsTestCase(AVGTestCase):
             Player.getElementByID('dynamictext').active = 0
         def changeFont():
             node = Player.getElementByID("dynamictext")
-            node.font = "Times New Roman"
+            node.font = "Bitstream Vera Sans"
             node.height = 0
             node.size = 30
         def changeFont2():
