@@ -111,6 +111,7 @@ clean
 
 cd ../deps
 
+buildLib libxml2-2.6.32 --disable-shared
 buildLib libtool-1.5.22
 buildLib automake-1.9.6
 buildlibjpeg
