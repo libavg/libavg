@@ -33,6 +33,7 @@
 #include "Sound.h"
 #include "LineNode.h"
 #include "RectNode.h"
+#include "CurveNode.h"
 #include "NodeDefinition.h"
 
 #include "TrackerEventSource.h"
@@ -124,6 +125,7 @@ Player::Player()
     registerNodeType(Sound::createDefinition());
     registerNodeType(LineNode::createDefinition());
     registerNodeType(RectNode::createDefinition());
+    registerNodeType(CurveNode::createDefinition());
 
     // Find and parse dtd.
     registerDTDEntityLoader("avg.dtd", m_NodeRegistry.getDTD().c_str());
