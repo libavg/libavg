@@ -55,7 +55,7 @@ class CanvasNode : public GroupNode
 
         VertexArrayPtr m_pVertexArray;
         bool m_bChildrenChanged;
-        bool m_LastOpacity;
+        double m_LastOpacity;
 };
 
 }

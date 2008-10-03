@@ -83,7 +83,7 @@ class CurveNode : public VectorNode
                 double opacity, bool bParentDrawNeeded);
 
     private:
-        double getCurveLen();
+        int getCurveLen();
         void updateLines();
         void addLRCurvePoint(const DPoint& pos, const DPoint& delta);
         DPoint m_P1;

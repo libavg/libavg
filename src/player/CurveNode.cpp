@@ -210,7 +210,7 @@ void CurveNode::updateData(VertexArrayPtr pVertexArray, int triIndex, double opa
         updateLines();
         double curOpacity = opacity*getOpacity();
         Pixel32 color = getColorVal();
-        color.setA(curOpacity*255);
+        color.setA(unsigned char(curOpacity*255));
         for (unsigned i=0; i<m_LeftCurve.size()-1; ++i) {
             const DPoint& p1 = m_LeftCurve[i];
             const DPoint& p2 = m_LeftCurve[i+1];
@@ -228,10 +228,10 @@ void CurveNode::updateData(VertexArrayPtr pVertexArray, int triIndex, double opa
     setDrawNeeded(false);
 }
 
-double CurveNode::getCurveLen()
+int CurveNode::getCurveLen()
 {
     // Calc. upper bound for spline length.
-    return calcDist(m_P2,m_P1)+calcDist(m_P3,m_P2)+calcDist(m_P4,m_P3);
+    return int(calcDist(m_P2,m_P1)+calcDist(m_P3,m_P2)+calcDist(m_P4,m_P3));
 }
 
 void CurveNode::updateLines()

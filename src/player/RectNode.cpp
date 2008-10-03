@@ -184,7 +184,7 @@ void RectNode::updateData(VertexArrayPtr pVertexArray, int triIndex, double opac
     if (isDrawNeeded() || bParentDrawNeeded) {
         double curOpacity = opacity*m_FillOpacity;
         Pixel32 color = m_FillColor;
-        color.setA(curOpacity*255);
+        color.setA((unsigned char)(curOpacity*255));
 
         DPoint pivot = m_Rect.tl+m_Rect.size()/2;
 

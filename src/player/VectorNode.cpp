@@ -94,7 +94,7 @@ void VectorNode::updateLineData(VertexArrayPtr pVertexArray, int triIndex, doubl
 {
     double curOpacity = opacity*getOpacity();
     Pixel32 color = getColorVal();
-    color.setA(curOpacity*255);
+    color.setA((unsigned char)(curOpacity*255));
 
     DPoint m = (p2-p1);
     m.normalize();
