@@ -80,7 +80,7 @@ void VertexArray::changeSize(int numPrimitives)
     int oldNumPrimitives = m_NumPrimitives;
     m_NumPrimitives = numPrimitives;
     if (m_NumPrimitives > m_ReservePrimitives) {
-        m_ReservePrimitives *= 1.5;
+        m_ReservePrimitives = int (m_ReservePrimitives*1.5);
         if (m_ReservePrimitives < m_NumPrimitives) {
             m_ReservePrimitives = m_NumPrimitives;
         }

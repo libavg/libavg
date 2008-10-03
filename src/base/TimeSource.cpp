@@ -26,7 +26,6 @@
 #ifdef _WIN32
 #include <time.h>
 #include <sys/timeb.h>
-#define WIN32_LEAN_AND_MEAN  /* somewhat limit Win32 pollution */
 #include <windows.h>
 #include <Mmsystem.h>
 #else

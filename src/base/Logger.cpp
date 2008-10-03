@@ -22,7 +22,6 @@
 #include "Logger.h"
 
 #ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN  /* somewhat limit Win32 pollution */
 #include <Winsock2.h>
 #undef ERROR
 #undef WARNING
