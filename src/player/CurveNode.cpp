@@ -210,7 +210,7 @@ void CurveNode::updateData(VertexArrayPtr pVertexArray, int triIndex, double opa
         updateLines();
         double curOpacity = opacity*getOpacity();
         Pixel32 color = getColorVal();
-        color.setA(unsigned char(curOpacity*255));
+        color.setA((unsigned char)(curOpacity*255));
         for (unsigned i=0; i<m_LeftCurve.size()-1; ++i) {
             const DPoint& p1 = m_LeftCurve[i];
             const DPoint& p2 = m_LeftCurve[i+1];
