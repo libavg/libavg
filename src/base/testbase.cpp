@@ -31,6 +31,7 @@
 #include "MathHelper.h"
 #include "CubicSpline.h"
 #include "BicubicSpline.h"
+#include "BezierCurve.h"
 
 #include "TestSuite.h"
 #include "TimeSource.h"
@@ -418,6 +419,22 @@ public:
     }
 };
 
+class BezierCurveTest: public Test {
+public:
+    BezierCurveTest()
+        : Test("BezierCurveTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BezierCurve curve(DPoint(0,0), DPoint(1,0), DPoint(1,1), DPoint(0,1));
+        TEST(almostEqual(curve.interpolate(0), DPoint(0,0)));
+        TEST(almostEqual(curve.interpolate(1), DPoint(0,1)));
+        TEST(almostEqual(curve.interpolate(0.5), DPoint(0.75,0.5)));
+    }
+};
+
 class BaseTestSuite: public TestSuite {
 public:
     BaseTestSuite() 
@@ -431,6 +448,7 @@ public:
         addTest(TestPtr(new OSTest));
         addTest(TestPtr(new StringTest));
         addTest(TestPtr(new SplineTest));
+        addTest(TestPtr(new BezierCurveTest));
     }
 };
 
