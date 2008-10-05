@@ -34,6 +34,7 @@ public:
     BezierCurve(const DPoint& p0, const DPoint& p1, const DPoint& p2, const DPoint& p3);
 
     DPoint interpolate(double t) const;
+    DPoint getDeriv(double t) const;
 
 private:
     DPoint m_P0;

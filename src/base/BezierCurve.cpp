@@ -43,5 +43,11 @@ DPoint BezierCurve::interpolate(double t) const
            3*t*t*(1-t)      *m_P2+
            t*t*t            *m_P3;
 }
+DPoint BezierCurve::getDeriv(double t) const
+{
+    return 3*(m_P1-m_P0)*(1-t)*(1-t)+
+           6*(m_P2-m_P1)*(1-t)*t+ 
+           3*(m_P3-m_P2)*t*t;
+}
 
 }

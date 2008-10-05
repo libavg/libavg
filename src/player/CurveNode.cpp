@@ -26,7 +26,7 @@
 #include "../graphics/VertexArray.h"
 #include "../base/Exception.h"
 #include "../base/MathHelper.h"
-#include "../base/CubicSpline.h"
+#include "../base/BezierCurve.h"
 
 #include <iostream>
 #include <sstream>
@@ -219,7 +219,7 @@ void CurveNode::updateData(VertexArrayPtr pVertexArray, int curVertex, int curIn
         
         pVertexArray->setPos(curVertex, m_LeftCurve[0], DPoint(0,0), color);
         pVertexArray->setPos(curVertex+1, m_RightCurve[0], DPoint(0,0), color);
-        for (unsigned i=0; i<m_LeftCurve.size()-2; ++i) {
+        for (unsigned i=0; i<m_LeftCurve.size()-1; ++i) {
             pVertexArray->setPos(curVertex+i*2+2, m_LeftCurve[i+1], DPoint(0,0), 
                     color);
             pVertexArray->setPos(curVertex+i*2+3, m_RightCurve[i+1], DPoint(0,0), 
@@ -244,40 +244,25 @@ int CurveNode::getCurveLen()
 void CurveNode::updateLines()
 {
     // Generate control points the way CubicSpline.cpp wants.
-    static double ControlPoints[] = {-1, 0, 1, 2};
-    double xPoints[] = {2*m_P1.x-m_P2.x, m_P1.x, m_P4.x, 2*m_P4.x-m_P3.x};
-    double yPoints[] = {2*m_P1.y-m_P2.y, m_P1.y, m_P4.y, 2*m_P4.y-m_P3.y};
-    vector<double> splineControl = vectorFromCArray(4, ControlPoints);
-    vector<double> splineX = vectorFromCArray(4, xPoints);
-    CubicSpline xSpline(splineControl, splineX);
-    vector<double> splineY = vectorFromCArray(4, yPoints);
-    CubicSpline ySpline(splineControl, splineY);
+    BezierCurve curve(m_P1, m_P2, m_P3, m_P4);
     
     // Calc. upper bound for spline length.
     double len = getCurveLen();
-    
-    vector<DPoint> centerCurve;
-    for (int i=0; i<len; ++i) {
-        DPoint curPt(xSpline.interpolate(i/len), ySpline.interpolate(i/len));
-        centerCurve.push_back(curPt);
-    }
-    centerCurve.push_back(m_P4);
-
     m_LeftCurve.clear();
     m_RightCurve.clear();
+    m_LeftCurve.reserve(len+1);
+    m_RightCurve.reserve(len+1);
 
-    addLRCurvePoint(centerCurve[0], centerCurve[1]-centerCurve[0]);
-    for (unsigned i=1; i<centerCurve.size()-1; ++i) {
-        addLRCurvePoint(centerCurve[i], centerCurve[i-1]-centerCurve[i+1]);
+    for (unsigned i=0; i<len; ++i) {
+        double t = i/len;
+        addLRCurvePoint(curve.interpolate(t), curve.getDeriv(t));
     }
-    unsigned l = centerCurve.size();
-    addLRCurvePoint(centerCurve[l-1], centerCurve[l-2]-centerCurve[l-1]);
+    addLRCurvePoint(curve.interpolate(1), curve.getDeriv(1));
 }
 
-void CurveNode::addLRCurvePoint(const DPoint& pos, const DPoint& delta)
+void CurveNode::addLRCurvePoint(const DPoint& pos, const DPoint& deriv)
 {
-    // TODO: Use correct derivative of the curve.
-    DPoint m(delta);
+    DPoint m(deriv);
     m.normalize();
     DPoint w = DPoint(m.y, -m.x)*getStrokeWidth()/2;
     m_LeftCurve.push_back(pos-w);

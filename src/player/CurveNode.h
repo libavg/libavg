@@ -86,7 +86,7 @@ class CurveNode : public VectorNode
     private:
         int getCurveLen();
         void updateLines();
-        void addLRCurvePoint(const DPoint& pos, const DPoint& delta);
+        void addLRCurvePoint(const DPoint& pos, const DPoint& deriv);
         DPoint m_P1;
         DPoint m_P2;
         DPoint m_P3;

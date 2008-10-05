@@ -430,7 +430,9 @@ public:
     {
         BezierCurve curve(DPoint(0,0), DPoint(1,0), DPoint(1,1), DPoint(0,1));
         TEST(almostEqual(curve.interpolate(0), DPoint(0,0)));
+        TEST(almostEqual(curve.getDeriv(0), DPoint(3, 0)));
         TEST(almostEqual(curve.interpolate(1), DPoint(0,1)));
+        TEST(almostEqual(curve.getDeriv(1), DPoint(-3, 0)));
         TEST(almostEqual(curve.interpolate(0.5), DPoint(0.75,0.5)));
     }
 };

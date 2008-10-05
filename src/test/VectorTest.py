@@ -121,11 +121,13 @@ class VectorTestCase(AVGTestCase):
     def testCurve(self):
         def addCurves():
             curve = Player.createNode("curve",
-                {"x1":10, "y1":10, "x2":10, "y2":80, "x3":80, "y3":80, "x4":80, "y4":10})
+                {"x1":10.5, "y1":10, "x2":10.5, "y2":80, 
+                 "x3":80.5, "y3":80, "x4":80.5, "y4":10})
             canvas.appendChild(curve)
         def changeCurve():
             curve = canvas.getChild(0)
-            curve.strokewidth = 20 
+            curve.strokewidth = 20
+            curve.color="FFFF00"
         canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addCurves,
