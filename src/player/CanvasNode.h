@@ -51,7 +51,8 @@ class CanvasNode : public GroupNode
     private:
         VectorNode * getCanvasChild(int i);
         virtual void childrenChanged();
-        int getNumTris();
+        int getNumVertexes();
+        int getNumIndexes();
 
         VertexArrayPtr m_pVertexArray;
         bool m_bChildrenChanged;

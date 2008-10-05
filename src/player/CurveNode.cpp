@@ -198,31 +198,38 @@ void CurveNode::setPos4(const DPoint& pt)
     setDrawNeeded(true);
 }
 
-int CurveNode::getNumTriangles()
+int CurveNode::getNumVertexes()
 {
-    return (getCurveLen())*2;
+    return (getCurveLen()+1)*2;
 }
 
-void CurveNode::updateData(VertexArrayPtr pVertexArray, int triIndex, double opacity, 
-        bool bParentDrawNeeded)
+int CurveNode::getNumIndexes()
+{
+    return (getCurveLen())*2*3;
+}
+
+void CurveNode::updateData(VertexArrayPtr pVertexArray, int curVertex, int curIndex, 
+        double opacity, bool bParentDrawNeeded)
 {
     if (isDrawNeeded() || bParentDrawNeeded) {
         updateLines();
         double curOpacity = opacity*getOpacity();
         Pixel32 color = getColorVal();
         color.setA((unsigned char)(curOpacity*255));
-        for (unsigned i=0; i<m_LeftCurve.size()-1; ++i) {
-            const DPoint& p1 = m_LeftCurve[i];
-            const DPoint& p2 = m_LeftCurve[i+1];
-            const DPoint& p3 = m_RightCurve[i+1];
-            const DPoint& p4 = m_RightCurve[i];
-            pVertexArray->setPos(triIndex+i*2, 0, p1, DPoint(0,0), color);
-            pVertexArray->setPos(triIndex+i*2, 1, p2, DPoint(0,0), color);
-            pVertexArray->setPos(triIndex+i*2, 2, p3, DPoint(0,0), color);
-
-            pVertexArray->setPos(triIndex+i*2+1, 0, p1, DPoint(0,0), color);
-            pVertexArray->setPos(triIndex+i*2+1, 1, p3, DPoint(0,0), color);
-            pVertexArray->setPos(triIndex+i*2+1, 2, p4, DPoint(0,0), color);
+        
+        pVertexArray->setPos(curVertex, m_LeftCurve[0], DPoint(0,0), color);
+        pVertexArray->setPos(curVertex+1, m_RightCurve[0], DPoint(0,0), color);
+        for (unsigned i=0; i<m_LeftCurve.size()-2; ++i) {
+            pVertexArray->setPos(curVertex+i*2+2, m_LeftCurve[i+1], DPoint(0,0), 
+                    color);
+            pVertexArray->setPos(curVertex+i*2+3, m_RightCurve[i+1], DPoint(0,0), 
+                    color);
+            pVertexArray->setIndex(curIndex+i*6, i*2);
+            pVertexArray->setIndex(curIndex+i*6+1, (i+1)*2);
+            pVertexArray->setIndex(curIndex+i*6+2, (i+1)*2+1);
+            pVertexArray->setIndex(curIndex+i*6+3, i*2);
+            pVertexArray->setIndex(curIndex+i*6+4, (i+1)*2+1);
+            pVertexArray->setIndex(curIndex+i*6+5, i*2+1);
         }
     }
     setDrawNeeded(false);

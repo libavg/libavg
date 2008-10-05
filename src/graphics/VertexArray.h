@@ -38,12 +38,14 @@ struct T2V3C4Vertex {
 
 class VertexArray {
 public:
-    VertexArray(int vertexesPerPrimitive, int numPrimitives, int reservePrimitives = 0);
+    VertexArray(int numVerts, int numIndexes, int reserveVerts = 0, 
+            int reserveIndexes = 0);
     virtual ~VertexArray();
 
-    void setPos(int primitiveIndex, int vertexIndex, const DPoint& pos, 
+    void setPos(int vertexIndex, const DPoint& pos, 
             const DPoint& texPos, const Pixel32& color = Pixel32(0,0,0,0));
-    void changeSize(int numQuads);
+    void setIndex(int i, int vertexIndex);
+    void changeSize(int numVerts, int numIndexes);
 
     void update();
     void draw();
@@ -51,13 +53,16 @@ public:
 private:
     void setBufferSize();
 
-    int m_VertexesPerPrimitive;
-    int m_NumPrimitives;
-    int m_ReservePrimitives;
+    int m_NumVerts;
+    int m_ReserveVerts;
+    int m_NumIndexes;
+    int m_ReserveIndexes;
     T2V3C4Vertex * m_pVertexData;
+    unsigned int * m_pIndexData;
     bool m_bDataChanged;
 
-    unsigned int m_VBOArrayID;
+    unsigned int m_GLVertexBufferID;
+    unsigned int m_GLIndexBufferID;
 };
 
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;

@@ -66,8 +66,9 @@ class RectNode : public VectorNode
         void setFillColor(const std::string& sColor);
         const std::string& getFillColor() const;
 
-        virtual int getNumTriangles();
-        virtual void updateData(VertexArrayPtr pVertexArray, int triIndex, 
+        virtual int getNumVertexes();
+        virtual int getNumIndexes();
+        virtual void updateData(VertexArrayPtr pVertexArray, int curVertex, int curIndex, 
                 double opacity, bool bParentDrawNeeded);
 
     private:

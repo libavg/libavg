@@ -173,13 +173,18 @@ const string& RectNode::getFillColor() const
     return m_sFillColorName;
 }
 
-int RectNode::getNumTriangles()
+int RectNode::getNumVertexes()
 {
-    return 10;
+    return 4*5;
 }
 
-void RectNode::updateData(VertexArrayPtr pVertexArray, int triIndex, double opacity, 
-        bool bParentDrawNeeded)
+int RectNode::getNumIndexes()
+{
+    return 6*5;
+}
+
+void RectNode::updateData(VertexArrayPtr pVertexArray, int curVertex, int curIndex, 
+        double opacity, bool bParentDrawNeeded)
 {
     if (isDrawNeeded() || bParentDrawNeeded) {
         double curOpacity = opacity*m_FillOpacity;
@@ -196,15 +201,19 @@ void RectNode::updateData(VertexArrayPtr pVertexArray, int triIndex, double opac
         DPoint rp2 = rotate(p2, m_Angle, pivot); 
         DPoint rp3 = rotate(p3, m_Angle, pivot); 
         DPoint rp4 = rotate(p4, m_Angle, pivot); 
-        pVertexArray->setPos(triIndex, 0, rp1, DPoint(0,0), color);
-        pVertexArray->setPos(triIndex, 1, rp2, DPoint(0,0), color);
-        pVertexArray->setPos(triIndex, 2, rp3, DPoint(0,0), color);
+        pVertexArray->setPos(curVertex, rp1, DPoint(0,0), color);
+        pVertexArray->setPos(curVertex+1, rp2, DPoint(0,0), color);
+        pVertexArray->setPos(curVertex+2, rp3, DPoint(0,0), color);
+        pVertexArray->setPos(curVertex+3, rp4, DPoint(0,0), color);
+        pVertexArray->setIndex(curIndex, curVertex);
+        pVertexArray->setIndex(curIndex+1, curVertex+1);
+        pVertexArray->setIndex(curIndex+2, curVertex+2);
+        pVertexArray->setIndex(curIndex+3, curVertex);
+        pVertexArray->setIndex(curIndex+4, curVertex+2);
+        pVertexArray->setIndex(curIndex+5, curVertex+3);
 
-        pVertexArray->setPos(triIndex+1, 0, rp1, DPoint(0,0), color);
-        pVertexArray->setPos(triIndex+1, 1, rp3, DPoint(0,0), color);
-        pVertexArray->setPos(triIndex+1, 2, rp4, DPoint(0,0), color);
-        updateLineData(pVertexArray, triIndex+2, opacity, rp1, rp2);
-        updateLineData(pVertexArray, triIndex+4, opacity, rp3, rp4);
+        updateLineData(pVertexArray, curVertex+4, curIndex+6, opacity, rp1, rp2);
+        updateLineData(pVertexArray, curVertex+8, curIndex+12, opacity, rp3, rp4);
         p1.x -= getStrokeWidth()/2;
         p2.x -= getStrokeWidth()/2;
         p3.x += getStrokeWidth()/2;
@@ -213,8 +222,8 @@ void RectNode::updateData(VertexArrayPtr pVertexArray, int triIndex, double opac
         rp2 = rotate(p2, m_Angle, pivot); 
         rp3 = rotate(p3, m_Angle, pivot); 
         rp4 = rotate(p4, m_Angle, pivot); 
-        updateLineData(pVertexArray, triIndex+6, opacity, rp2, rp3);
-        updateLineData(pVertexArray, triIndex+8, opacity, rp4, rp1);
+        updateLineData(pVertexArray, curVertex+12, curIndex+18, opacity, rp2, rp3);
+        updateLineData(pVertexArray, curVertex+16, curIndex+24, opacity, rp4, rp1);
     }
     setDrawNeeded(false);
 }

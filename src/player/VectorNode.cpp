@@ -89,8 +89,8 @@ Pixel32 VectorNode::getColorVal() const
     return m_Color;
 }
 
-void VectorNode::updateLineData(VertexArrayPtr pVertexArray, int triIndex, double opacity,
-        const DPoint& p1, const DPoint& p2)
+void VectorNode::updateLineData(VertexArrayPtr pVertexArray, int curVertex, int curIndex,
+        double opacity, const DPoint& p1, const DPoint& p2)
 {
     double curOpacity = opacity*getOpacity();
     Pixel32 color = getColorVal();
@@ -99,13 +99,16 @@ void VectorNode::updateLineData(VertexArrayPtr pVertexArray, int triIndex, doubl
     DPoint m = (p2-p1);
     m.normalize();
     DPoint w = DPoint(m.y, -m.x)*getStrokeWidth()/2;
-    pVertexArray->setPos(triIndex, 0, p1-w, DPoint(0,0), color);
-    pVertexArray->setPos(triIndex, 1, p1+w, DPoint(0,0), color);
-    pVertexArray->setPos(triIndex, 2, p2+w, DPoint(0,0), color);
-
-    pVertexArray->setPos(triIndex+1, 0, p1-w, DPoint(0,0), color);
-    pVertexArray->setPos(triIndex+1, 1, p2+w, DPoint(0,0), color);
-    pVertexArray->setPos(triIndex+1, 2, p2-w, DPoint(0,0), color);
+    pVertexArray->setPos(curVertex, p1-w, DPoint(0,0), color);
+    pVertexArray->setPos(curVertex+1, p1+w, DPoint(0,0), color);
+    pVertexArray->setPos(curVertex+2, p2+w, DPoint(0,0), color);
+    pVertexArray->setPos(curVertex+3, p2-w, DPoint(0,0), color);
+    pVertexArray->setIndex(curIndex, curVertex);
+    pVertexArray->setIndex(curIndex+1, curVertex+1);
+    pVertexArray->setIndex(curIndex+2, curVertex+2);
+    pVertexArray->setIndex(curIndex+3, curVertex);
+    pVertexArray->setIndex(curIndex+4, curVertex+2);
+    pVertexArray->setIndex(curIndex+5, curVertex+3);
 }
      
 bool VectorNode::isDrawNeeded()

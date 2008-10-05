@@ -57,8 +57,9 @@ class LineNode : public VectorNode
         const DPoint& getPos2() const;
         void setPos2(const DPoint& pt);
 
-        virtual int getNumTriangles();
-        virtual void updateData(VertexArrayPtr pVertexArray, int triIndex, 
+        virtual int getNumVertexes();
+        virtual int getNumIndexes();
+        virtual void updateData(VertexArrayPtr pVertexArray, int curVertex, int curIndex, 
                 double opacity, bool bParentDrawNeeded);
 
     private:

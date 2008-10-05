@@ -64,7 +64,8 @@ void CanvasNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
 {
     GroupNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 
-    m_pVertexArray = VertexArrayPtr(new VertexArray(3, getNumTris(), 100));
+    m_pVertexArray = VertexArrayPtr(new VertexArray(getNumVertexes(), getNumIndexes(),
+            100, 100));
     m_bChildrenChanged = false;
 }
 
@@ -84,16 +85,19 @@ void CanvasNode::preRender()
 
     if (m_bChildrenChanged) {
         ScopeTimer Timer(VASizeProfilingZone);
-        m_pVertexArray->changeSize(getNumTris());
+        m_pVertexArray->changeSize(getNumVertexes(), getNumIndexes());
     }
     int numChildren = getNumChildren();
-    int curTri = 0;
+    int curVertex = 0;
+    int curIndex = 0;
     double opacity = getEffectiveOpacity();
     bool bUpdateEverything = m_LastOpacity != opacity;
     for (int i=0; i<numChildren; ++i) {
         VectorNode * pLine = getCanvasChild(i);
-        pLine->updateData(m_pVertexArray, curTri, opacity, bUpdateEverything);
-        curTri += pLine->getNumTriangles();
+        pLine->updateData(m_pVertexArray, curVertex, curIndex, opacity, 
+                bUpdateEverything);
+        curVertex += pLine->getNumVertexes();
+        curIndex += pLine->getNumIndexes();
     }
     {
         ScopeTimer Timer(VAProfilingZone);
@@ -146,13 +150,22 @@ void CanvasNode::childrenChanged()
     m_bChildrenChanged = true;
 }
 
-int CanvasNode::getNumTris()
+int CanvasNode::getNumVertexes()
 {
-    int numTris = 0;
+    int numVertexes = 0;
     for (int i=0; i<getNumChildren(); i++) {
-        numTris += getCanvasChild(i)->getNumTriangles();
+        numVertexes += getCanvasChild(i)->getNumVertexes();
     }
-    return numTris;
+    return numVertexes;
+}
+
+int CanvasNode::getNumIndexes()
+{
+    int numIndexes = 0;
+    for (int i=0; i<getNumChildren(); i++) {
+        numIndexes += getCanvasChild(i)->getNumIndexes();
+    }
+    return numIndexes;
 }
 
 }

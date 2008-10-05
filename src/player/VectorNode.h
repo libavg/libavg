@@ -41,8 +41,9 @@ class VectorNode : public Node
         void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
 
-        virtual int getNumTriangles() = 0;
-        virtual void updateData(VertexArrayPtr pVertexArray, int triIndex, 
+        virtual int getNumVertexes() = 0;
+        virtual int getNumIndexes() = 0;
+        virtual void updateData(VertexArrayPtr pVertexArray, int curVertex, int curIndex, 
                 double opacity, bool bParentDrawNeeded) = 0;
 
         void setColor(const std::string& sColor);
@@ -53,8 +54,8 @@ class VectorNode : public Node
 
     protected:
         Pixel32 getColorVal() const;
-        void updateLineData(VertexArrayPtr pVertexArray, int triIndex, double opacity,
-                const DPoint& p1, const DPoint& p2);
+        void updateLineData(VertexArrayPtr pVertexArray, int curVertex, int curIndex,
+                double opacity, const DPoint& p1, const DPoint& p2);
         bool isDrawNeeded();
         void setDrawNeeded(bool bSet);
 

@@ -46,8 +46,8 @@ OGLTexture::OGLTexture(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize,
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     createTextures(Stride);
-    m_pVertexes = new VertexArray(4, 
-            m_TileIndexExtent.width()*m_TileIndexExtent.height());
+    int numTiles = m_TileIndexExtent.width()*m_TileIndexExtent.height();
+    m_pVertexes = new VertexArray(numTiles*4, numTiles*6);
     calcTexCoords();
 }
 
@@ -103,20 +103,28 @@ void OGLTexture::blt(const VertexGrid* pVertexes) const
         }
     }
     if (pVertexes) {
-        int TileIndex=0;
+        int curVertex=0;
+        int curIndex=0;
         for (int y=m_TileIndexExtent.tl.y; y<m_TileIndexExtent.br.y; y++) {
             for (int x=m_TileIndexExtent.tl.x; x<m_TileIndexExtent.br.x; x++) {
                 int xoffset = x-m_TileIndexExtent.tl.x;
                 int yoffset = y-m_TileIndexExtent.tl.y;
-                m_pVertexes->setPos(TileIndex, 0, (*pVertexes)[y][x], 
+                m_pVertexes->setPos(curVertex, (*pVertexes)[y][x], 
                         m_TexCoords[yoffset][xoffset]); 
-                m_pVertexes->setPos(TileIndex, 1, (*pVertexes)[y][x+1], 
+                m_pVertexes->setPos(curVertex+1, (*pVertexes)[y][x+1], 
                         m_TexCoords[yoffset][xoffset+1]); 
-                m_pVertexes->setPos(TileIndex, 2, (*pVertexes)[y+1][x+1],
+                m_pVertexes->setPos(curVertex+2, (*pVertexes)[y+1][x+1],
                         m_TexCoords[yoffset+1][xoffset+1]); 
-                m_pVertexes->setPos(TileIndex, 3, (*pVertexes)[y+1][x],
+                m_pVertexes->setPos(curVertex+3, (*pVertexes)[y+1][x],
                         m_TexCoords[yoffset+1][xoffset]); 
-                TileIndex++;
+                m_pVertexes->setIndex(curIndex, curVertex);
+                m_pVertexes->setIndex(curIndex+1, curVertex+1);
+                m_pVertexes->setIndex(curIndex+2, curVertex+2);
+                m_pVertexes->setIndex(curIndex+3, curVertex);
+                m_pVertexes->setIndex(curIndex+4, curVertex+2);
+                m_pVertexes->setIndex(curIndex+5, curVertex+3);
+                curVertex+=4;
+                curIndex+=6;
             }
         }
     }

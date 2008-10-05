@@ -60,11 +60,17 @@ PBOImage::PBOImage(const IntPoint& size, PixelFormat pf, int precision,
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage: glTexImage2D()");
 
     // Create a minimal vertex array to be used for drawing.
-    m_pVertexes = new VertexArray(4, 1);
-    m_pVertexes->setPos(0, 0, DPoint(0, 0), DPoint(0, m_Size.y));
-    m_pVertexes->setPos(0, 1, DPoint(0, m_Size.y), DPoint(0, 0));
-    m_pVertexes->setPos(0, 2, DPoint(m_Size.x, m_Size.y), DPoint(m_Size.x, 0));
-    m_pVertexes->setPos(0, 3, DPoint(m_Size.x, 0), DPoint(m_Size.x, m_Size.y));
+    m_pVertexes = new VertexArray(4, 6);
+    m_pVertexes->setPos(0, DPoint(0, 0), DPoint(0, m_Size.y));
+    m_pVertexes->setPos(1, DPoint(0, m_Size.y), DPoint(0, 0));
+    m_pVertexes->setPos(2, DPoint(m_Size.x, m_Size.y), DPoint(m_Size.x, 0));
+    m_pVertexes->setPos(3, DPoint(m_Size.x, 0), DPoint(m_Size.x, m_Size.y));
+    m_pVertexes->setIndex(0,0);
+    m_pVertexes->setIndex(1,1);
+    m_pVertexes->setIndex(2,2);
+    m_pVertexes->setIndex(3,0);
+    m_pVertexes->setIndex(4,2);
+    m_pVertexes->setIndex(5,3);
 }
 
 PBOImage::~PBOImage()

@@ -119,16 +119,21 @@ void LineNode::setPos2(const DPoint& pt)
     setDrawNeeded(true);
 }
 
-int LineNode::getNumTriangles()
+int LineNode::getNumVertexes()
 {
-    return 2;
+    return 4;
 }
 
-void LineNode::updateData(VertexArrayPtr pVertexArray, int triIndex, double opacity, 
-        bool bParentDrawNeeded)
+int LineNode::getNumIndexes()
+{
+    return 6;
+}
+
+void LineNode::updateData(VertexArrayPtr pVertexArray, int curVertex, int curIndex,
+        double opacity, bool bParentDrawNeeded)
 {
     if (isDrawNeeded() || bParentDrawNeeded) {
-        updateLineData(pVertexArray, triIndex, opacity, m_P1, m_P2);
+        updateLineData(pVertexArray, curVertex, curIndex, opacity, m_P1, m_P2);
     }
     setDrawNeeded(false);
 }
