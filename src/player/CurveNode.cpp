@@ -243,15 +243,14 @@ int CurveNode::getCurveLen()
 
 void CurveNode::updateLines()
 {
-    // Generate control points the way CubicSpline.cpp wants.
     BezierCurve curve(m_P1, m_P2, m_P3, m_P4);
     
     // Calc. upper bound for spline length.
     double len = getCurveLen();
     m_LeftCurve.clear();
     m_RightCurve.clear();
-    m_LeftCurve.reserve(len+1);
-    m_RightCurve.reserve(len+1);
+    m_LeftCurve.reserve(int(len+1.5));
+    m_RightCurve.reserve(int(len+1.5));
 
     for (unsigned i=0; i<len; ++i) {
         double t = i/len;
