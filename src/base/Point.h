@@ -22,6 +22,7 @@
 #ifndef _Point_H_
 #define _Point_H_
 
+#include "MathHelper.h"
 #include "ObjectCounter.h"
 
 #include <ostream>
@@ -134,10 +135,10 @@ Point<NUM>::~Point()
 template<class NUM>
 void Point<NUM>::normalize()
 {
-    double norm = getNorm();
-    if (norm != 0) {
-        x = x/norm;
-        y = y/norm;
+    double invNorm = invSqrt(x*x+y*y);
+    if (invNorm != 0) {
+        x = x*invNorm;
+        y = y*invNorm;
     } 
 }
 

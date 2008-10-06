@@ -41,7 +41,9 @@ T sqr(T d)
     return d*d;
 }
 
-bool almostEqual(double d1, double d2);
+bool almostEqual(double d1, double d2, double epsilon=EPSILON);
+
+float invSqrt(float x);
 
 template<class T>
 std::vector<T> vectorFromCArray(int n, T* pData)

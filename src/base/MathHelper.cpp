@@ -22,6 +22,7 @@
 #include "MathHelper.h"
 
 #include <math.h>
+#include <iostream>
 
 using namespace std;
 
@@ -61,9 +62,21 @@ int safeCeil(double d)
     }
 }
 
-bool almostEqual(double d1, double d2)
+float invSqrt(float x)
 {
-    return (fabs(d1-d2)<EPSILON);
+    float xhalf = 0.5f*x;
+    int i = *(int*)&x;         // get bits for floating value
+    i = 0x5f3759d5 - (i>>1);   // give initial guess y0
+    x = *(float*)&i;          // convert bits back to float
+    x *= 1.5f - xhalf*x*x;     // newton step, repeating this step
+                               // increases accuracy
+    x *= 1.5f - xhalf*x*x;
+    return x;    
+}
+
+bool almostEqual(double d1, double d2, double epsilon)
+{
+    return (fabs(d1-d2)<epsilon);
 }
 
 }

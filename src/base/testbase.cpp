@@ -227,6 +227,10 @@ public:
 
     void runTests() 
     {
+        // TODO: Move to a separate math test once we're done here.
+        TEST(almostEqual(invSqrt(1), 1));
+        TEST(almostEqual(invSqrt(4), 0.5));
+
         // TODO: The point tests aren't complete!
         DPoint pt1(0,0);
         DPoint pt2(3,4);
