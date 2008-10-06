@@ -207,6 +207,50 @@ class DynamicsTestCase(AVGTestCase):
                  lambda: self.assert_(self.mainMouseUpCalled)
                 ))
 
+    def testEventBubbling(self):
+        def click (x, y):
+            Helper = Player.getTestHelper()
+            Helper.fakeMouseEvent (avg.CURSORDOWN, True, False, False, x, y, 1)
+        def createNodes():
+            def appendEventString (s):
+                self.__eventString += s
+                return True
+            def setHandler (node, s, swallow = False):
+                node.setEventHandler(avg.CURSORDOWN, avg.MOUSE, lambda e: appendEventString(s) and swallow)
+            parentNode = Player.getRootNode()
+            node = Player.createNode("div", {'x':0,'y':0,'width':50, 'height':50})
+            setHandler (node, 'a')
+            parentNode.appendChild(node)
+            node = Player.createNode("div", {'x':0,'y':0,'width':100, 'height':100})
+            setHandler (node, 'b')
+            parentNode.insertChild(node,0)
+            parentNode = node
+            node = Player.createNode("div", {'x':40,'y':40,'width':30, 'height':30})
+            setHandler (node, 'c')
+            parentNode.appendChild(node)
+            node = Player.createNode("div", {'x':60,'y':40,'width':30, 'height':30})
+            setHandler (node, 'd', True)
+            parentNode.appendChild(node)
+
+        def resetEventString():
+            self.__eventString = ''
+
+        self._loadEmpty()
+        self.start(None, (
+                createNodes,
+                resetEventString,
+                lambda: click (10,10),
+                lambda: self.assert_(self.__eventString=='a'),
+                resetEventString,
+                lambda: click (55,55),
+                lambda: self.assert_(self.__eventString=='cb'),
+                resetEventString,
+                lambda: click (65,55),
+                lambda: self.assert_(self.__eventString=='d'),
+                )
+                )
+
+
     def testComplexDiv(self):
         
         def setImageID(imgNode):
@@ -253,6 +297,7 @@ def dynamicsTestSuite(tests):
             "testWordsDynamics",
         #   "testPanoDynamics",
             "testDivDynamics",
+            "testEventBubbling",
             "testDynamicEventCapture",
             "testComplexDiv",
             )

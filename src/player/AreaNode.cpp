@@ -400,18 +400,20 @@ string AreaNode::dump(int indent)
     return dumpStr; 
 }
 
-void AreaNode::handleEvent(EventPtr pEvent)
+bool AreaNode::handleEvent(EventPtr pEvent)
 {
     EventHandlerID ID(pEvent->getType(), pEvent->getSource());
     EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
     if (it!=m_EventHandlerMap.end()) {
-        callPython(it->second, pEvent);
+        return callPython(it->second, pEvent);
+    } else {
+        return false;
     }
 }
 
-void AreaNode::callPython (PyObject * pFunc, EventPtr pEvent)
+bool AreaNode::callPython (PyObject * pFunc, EventPtr pEvent)
 {
-    boost::python::call<void>(pFunc, pEvent);
+    return boost::python::call<bool>(pFunc, pEvent);
 }
 
 PyObject * AreaNode::findPythonFunc(const string& Code)

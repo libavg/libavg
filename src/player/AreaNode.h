@@ -121,7 +121,7 @@ class AreaNode: public Node
 
         virtual std::string dump(int indent = 0);
         
-        virtual void handleEvent(EventPtr pEvent); 
+        virtual bool handleEvent(EventPtr pEvent); 
         virtual void checkReload() {};
 
         virtual IntPoint getMediaSize() 
@@ -130,7 +130,7 @@ class AreaNode: public Node
     protected:
         AreaNode();
 
-        void callPython(PyObject * pFunc, avg::EventPtr pEvent);
+        bool callPython(PyObject * pFunc, avg::EventPtr pEvent);
         void addEventHandlers(Event::Type EventType, const std::string& Code);
         void addEventHandler(Event::Type EventType, Event::Source Source, 
                 const std::string& Code);
