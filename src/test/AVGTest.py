@@ -72,7 +72,14 @@ class PlayerTestCase(AVGTestCase):
 
     def testPoint(self):
         pt = avg.Point2D(10, 10)
+        self.assert_(pt[0]==pt.x)
+        self.assert_(pt[1]==pt.y)
         self.assert_(pt == avg.Point2D(10, 10))
+        pt.x = 21
+        pt.y = 23
+        self.assert_(pt == avg.Point2D(21, 23))
+        pt.x -= 11
+        pt.y -= 13
         pt += avg.Point2D(10, 10)
         self.assert_(pt == avg.Point2D(20, 20))
         pt -= avg.Point2D(6, 6)
@@ -83,6 +90,8 @@ class PlayerTestCase(AVGTestCase):
         pt = avg.Point2D((10, 10))
         self.assert_(pt == (10, 10))
         self.assert_(len(pt) == 2)
+        self.assert_(pt[0]==pt.x)
+        self.assert_(pt[1]==pt.y)
         self.assertException(lambda: pt[2])
 
     def testImage(self):
@@ -112,6 +121,30 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Player.showCursor(0),
                  lambda: Player.showCursor(1)
                 ))
+    def testDivResize(self):
+        def checkSize (w, h):
+            self.assert_(node.width == w)
+            self.assert_(node.height == h)
+            self.assert_(node.size == (w,h))
+        def setSize (size):
+            node.size = size
+        def setWidth (w):
+            node.width = w
+        def setHeight (h):
+            node.height = h
+
+        Player.loadFile("avg.avg")
+        node = Player.getElementByID('nestedavg')
+
+        self.start(None,
+                (lambda: checkSize(128, 32),
+                    lambda: setSize((14,15)),
+                    lambda: checkSize(14,15),
+                    lambda: setWidth(23),
+                    lambda: checkSize(23,15),
+                    lambda: setHeight(22),
+                    lambda: checkSize(23,22),
+                    ))
 
     def testBitmap(self):
         def getBitmap(node):
@@ -178,6 +211,25 @@ class PlayerTestCase(AVGTestCase):
     def testRotate3(self):
         self.start("rotate3.avg",
                 [lambda: self.compareImage("testRotate3", False)])
+
+    def testRotatePivot(self):
+        def setPivot (pos):
+            node.pivot = pos
+        def addPivotX (x):
+            node.pivotx += x
+        def setPivotY (y):
+            node.pivoty = y
+        Player.loadFile("rotate3.avg")
+        node = Player.getElementByID('div1')
+        self.start(None, (
+            lambda: setPivot((10, 10)),
+            lambda: self.compareImage("testRotatePivot1", False),
+            lambda: addPivotX(-8),
+            lambda: self.compareImage("testRotatePivot2", False),
+            lambda: setPivotY(1),
+            lambda: self.compareImage("testRotatePivot3", False),
+
+                    ))
 
     def testError(self):
         Player.loadFile("image.avg")
@@ -849,10 +901,12 @@ def playerTestSuite(bpp):
     suite = unittest.TestSuite()
     suite.addTest(PlayerTestCase("testPoint", bpp))
     suite.addTest(PlayerTestCase("testImage", bpp))
+    suite.addTest(PlayerTestCase("testDivResize", bpp))
     suite.addTest(PlayerTestCase("testBitmap", bpp))
     suite.addTest(PlayerTestCase("testRotate", bpp))
     suite.addTest(PlayerTestCase("testRotate2", bpp))
     suite.addTest(PlayerTestCase("testRotate3", bpp))
+    suite.addTest(PlayerTestCase("testRotatePivot", bpp))
     suite.addTest(PlayerTestCase("testError", bpp))
     suite.addTest(PlayerTestCase("testExceptionInTimeout", bpp))
     suite.addTest(PlayerTestCase("testInvalidImageFilename", bpp))

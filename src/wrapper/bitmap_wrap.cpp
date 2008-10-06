@@ -40,6 +40,22 @@ namespace DPointHelper
     {
         return 2;
     }
+    double getX(const DPoint& pt)
+    {
+        return pt.x;
+    }
+    double getY(const DPoint& pt)
+    {
+        return pt.y;
+    }
+    void setX(DPoint& pt, double val)
+    {
+        pt.x = val;
+    }
+    void setY(DPoint& pt, double val)
+    {
+        pt.y = val;
+    }
 
     void checkItemRange(int i) {
         if (i!=0 && i!=1) {
@@ -110,6 +126,9 @@ void export_bitmap()
         .def(float() * self)
         .def(self * float())
         .def(self / float())
+        .add_property("x", &DPointHelper::getX, &DPointHelper::setX,"")
+        .add_property("y", &DPointHelper::getY, &DPointHelper::setY,"")
+
     ;
 
     enum_<PixelFormat>("pixelformat")

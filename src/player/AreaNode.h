@@ -93,6 +93,9 @@ class AreaNode: public Node
         
         double getPivotY() const;
         void setPivotY(double Pivoty);
+
+        DPoint getPivot() const;
+        void setPivot(const DPoint& pt);
         
         bool getActive() const;
         void setActive(bool bActive);
@@ -126,7 +129,6 @@ class AreaNode: public Node
 
     protected:
         AreaNode();
-        DPoint getPivot() const;
 
         void callPython(PyObject * pFunc, avg::EventPtr pEvent);
         void addEventHandlers(Event::Type EventType, const std::string& Code);

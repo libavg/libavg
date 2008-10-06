@@ -175,6 +175,7 @@ DPoint AreaNode::getSize() const
 
 void AreaNode::setSize(const DPoint& pt)
 {
+    m_WantedSize = pt;
     setViewport(-32767, -32767, pt.x, pt.y);
 }
 
@@ -190,7 +191,7 @@ void AreaNode::setAngle(double Angle)
 
 double AreaNode::getPivotX() const
 {
-    return m_Pivot.x;
+    return getPivot().x;
 }
 
 void AreaNode::setPivotX(double Pivotx)
@@ -202,13 +203,28 @@ void AreaNode::setPivotX(double Pivotx)
 
 double AreaNode::getPivotY() const
 {
-    return m_Pivot.y;
+    return getPivot().y;
 }
 
 void AreaNode::setPivotY(double Pivoty)
 {
     m_Pivot = getPivot();
     m_Pivot.y = Pivoty;
+    m_bHasCustomPivot = true;
+}
+
+DPoint AreaNode::getPivot() const
+{
+    if (m_bHasCustomPivot) {
+        return m_Pivot;
+    } else {
+        return getSize()/2;
+    }
+}
+void AreaNode::setPivot (const DPoint& pt)
+{
+    m_Pivot.x = pt.x;
+    m_Pivot.y = pt.y;
     m_bHasCustomPivot = true;
 }
 
@@ -390,15 +406,6 @@ void AreaNode::handleEvent(EventPtr pEvent)
     EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
     if (it!=m_EventHandlerMap.end()) {
         callPython(it->second, pEvent);
-    }
-}
-
-DPoint AreaNode::getPivot() const
-{
-    if (m_bHasCustomPivot) {
-        return m_Pivot;
-    } else {
-        return getSize()/2;
     }
 }
 

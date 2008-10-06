@@ -142,6 +142,9 @@ void export_node()
         .add_property("pivoty", &AreaNode::getPivotY, &AreaNode::setPivotY,
                 "y coordinate of the point that the node is rotated around.\n"
                 "Default is the center of the node.\n")
+        .add_property("pivot",  &AreaNode::getPivot, &AreaNode::setPivot,
+                "The position of the point that the node is rotated around.\n"
+                "Default is the center of the node.\n")
         .add_property("active", &AreaNode::getActive, &AreaNode::setActive,
                       "If this attribute is true, the node behaves as usual. If not, it\n"
                       "is neither drawn nor does it react to events. Videos are paused.\n")
