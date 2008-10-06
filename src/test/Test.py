@@ -2,7 +2,10 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-import sys, os, platform
+from optparse import OptionParser, OptionValueError
+import sys
+import os
+import platform
 
 # Import the correct version of libavg. Since it should be possible to
 # run the tests without installing libavg, we add the location of the 
@@ -28,59 +31,82 @@ from AVTest import *
 from DynamicsTest import *
 from PythonTest import *
 
-def AVGTestSuite(bpp):
-    suite = unittest.TestSuite()
-    suite.addTest(LoggerTestCase())
-    suite.addTest(playerTestSuite(bpp))
-    suite.addTest(vectorTestSuite())
-    suite.addTest(wordsTestSuite())
-    suite.addTest(avTestSuite())
-    suite.addTest(dynamicsTestSuite())
-    suite.addTest(pythonTestSuite())
-    return suite
 
 def runConsoleTest():
     Player = avg.Player.get()
     Player.loadFile("video.avg")
 
-def getBoolParam(paramIndex):
-    param = sys.argv[paramIndex].upper()
-    if param == "TRUE":
-        return True
-    elif param == "FALSE":
-        return False
-    else:
-        print "Parameter "+paramIndex+" must be 'True' or 'False'"
-
 if os.getenv("AVG_CONSOLE_TEST"):
     runConsoleTest()
 else:
-    if len(sys.argv) == 1:
-        bpp = 24
-        customOGLOptions = False
-    elif len(sys.argv) == 2 or len(sys.argv) == 5:
-        bpp = int(sys.argv[1])
-        if (len(sys.argv) == 5):
-            customOGLOptions = True
-            UsePOW2Textures = getBoolParam(2)
-            s = sys.argv[3]
-            if s == "shader":
-                YCbCrMode = avg.shader
-            elif s == "apple":
-                YCbCrMode = avg.apple
-            elif s == "mesa":
-                YCbCrMode = avg.mesa
-            elif s == "none":
-                YCbCrMode = avg.none
-            else:
-                print "Third parameter must be shader, apple, mesa or none"
-                sys.exit(1)
-            UsePixelBuffers = getBoolParam(4)
-            setOGLOptions(UsePOW2Textures, YCbCrMode, UsePixelBuffers)
+    def setPow2(option, opt, value, parser):
+        if value not in ('yes','no'):
+            raise OptionValueError('argument must be "yes" or "no"')
+        setUsePOW2Textures(value == 'yes')
+    def setMode(option, opt, value, parser):
+        try:
+            mode = {
+                    'shader': avg.shader,
+                    'apple': avg.apple,
+                    'mesa': avg.mesa,
+                    'none': avg.none,
+                    }[value]
+        except KeyError:
+            print value
+            raise OptionValueError('mode must be shader, apple, mesa or none')
+        setYCbCrMode(mode)
+    def setPixBuf(option, opt, value, parser):
+        if value not in ('yes','no'):
+            raise OptionValueError('argument must be "yes" or "no"')
+        setUsePixelBuffers (value == 'yes')
+
+    parser = OptionParser("usage: %prog [options] [<suite> [testcase] [testcase] [...]]")
+    parser.add_option("-b", "--bpp", dest = "bpp",
+            type = "int",
+            help = "set pixel depth")
+    parser.add_option("-2", "--power2", dest = "power",
+            type = "string",
+            action = 'callback', callback = setPow2,
+            help = "Use power of 2 textures (yes, no)")
+    parser.add_option("-y", "--mode", dest = "mode",
+            type = "string",
+            action = 'callback', callback = setMode,
+            help = "YCbCrMode, must be shader, apple, mesa or none")
+    parser.add_option("-p", "--pixelbuffers", dest = "pixelbuffers",
+            type = "string",
+            action = 'callback', callback = setPixBuf,
+            help = "Use pixel buffers (yes, no)")
+    parser.set_defaults (bpp = 24)
+    options, args = parser.parse_args()
+
+    availableSuites = {
+            'logger': (loggerTestSuite,{}),
+            'player': (playerTestSuite, {'bpp':options.bpp}),
+            'vector': (vectorTestSuite, {}),
+            'words': (wordsTestSuite, {}),
+            'sound': (soundTestSuite, {}),
+            'video': (videoTestSuite, {}),
+            'dynamics': (dynamicsTestSuite, {}),
+            'python': (pythonTestSuite, {}),
+            }
+    tests = []
+    if len(args): # suite
+        suiteName = args.pop(0)
+        if suiteName not in availableSuites:
+            parser.print_usage()
+            print "ERROR: unknown test suite, known suites:"
+            print ", ".join(availableSuites.keys())
+            sys.exit(1)
+        else:
+            suitesToRun = [availableSuites[suiteName]]
+        tests = args
     else:
-        print "Usage: Test.py [<bpp>"
-        print "               [<UsePOW2Textures> <YCbCrMode> <UsePixelBuffers>]]"
-        sys.exit(1)
+        suitesToRun = availableSuites.values()
+
+    suite = unittest.TestSuite()
+    for s, args in suitesToRun:
+        args.update({'tests':tests})
+        suite.addTest(s(**args))
 
     Player = avg.Player.get()
     Log = avg.Logger.get()
@@ -98,7 +124,7 @@ else:
 
     runner = unittest.TextTestRunner()
     rmBrokenDir()
-    rc = runner.run(AVGTestSuite(bpp))
+    rc = runner.run(suite)
     
     if rc.wasSuccessful():
         sys.exit(0)

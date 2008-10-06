@@ -57,5 +57,11 @@ class LoggerTestCase(unittest.TestCase):
             self.Log.trace(self.Log.APP, "Test syslog entry.")
         self.Log.setConsoleDest()
 
+
+def loggerTestSuite (tests):
+    suite = unittest.TestSuite()
+    suite.addTest (LoggerTestCase())
+    return suite
+
 Player = avg.Player.get()
 

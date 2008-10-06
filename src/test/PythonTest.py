@@ -326,16 +326,22 @@ sagittis mollis, dignissim vitae, erat. Vestibulum mattis, erat nec pulvinar lac
         Helper.fakeMouseEvent(type, True, False, False, x, y, 1)
 
 
-def pythonTestSuite():
-    suite = unittest.TestSuite()
-    suite.addTest(PythonTestCase("testLinearAnim"))
-    suite.addTest(PythonTestCase("testEaseInOutAnim"))
-    suite.addTest(PythonTestCase("testSplineAnim"))
-    suite.addTest(PythonTestCase("testContinuousAnim"))
-    suite.addTest(PythonTestCase("testDraggable"))
-    suite.addTest(PythonTestCase("testButton"))
-    suite.addTest(PythonTestCase("testCheckbox"))
-    suite.addTest(PythonTestCase("testTextArea"))
-    return suite
+def pythonTestSuite (tests):
+    availableTests = (
+        "testLinearAnim",
+        "testEaseInOutAnim",
+        "testSplineAnim",
+        "testContinuousAnim",
+        "testDraggable",
+        "testButton",
+        "testCheckbox",
+        "testTextArea",
+        )
+    return AVGTestSuite (availableTests, PythonTestCase, tests)
 
 Player = avg.Player.get()
+
+if __name__ == '__main__':
+    runStandaloneTest (pythonTestSuite)
+
+

@@ -897,37 +897,41 @@ class PlayerTestCase(AVGTestCase):
                 lambda: self.assert_(False),
                 ))
             
-def playerTestSuite(bpp):
-    suite = unittest.TestSuite()
-    suite.addTest(PlayerTestCase("testPoint", bpp))
-    suite.addTest(PlayerTestCase("testImage", bpp))
-    suite.addTest(PlayerTestCase("testDivResize", bpp))
-    suite.addTest(PlayerTestCase("testBitmap", bpp))
-    suite.addTest(PlayerTestCase("testRotate", bpp))
-    suite.addTest(PlayerTestCase("testRotate2", bpp))
-    suite.addTest(PlayerTestCase("testRotate3", bpp))
-    suite.addTest(PlayerTestCase("testRotatePivot", bpp))
-    suite.addTest(PlayerTestCase("testError", bpp))
-    suite.addTest(PlayerTestCase("testExceptionInTimeout", bpp))
-    suite.addTest(PlayerTestCase("testInvalidImageFilename", bpp))
-    suite.addTest(PlayerTestCase("testInvalidVideoFilename", bpp))
-    suite.addTest(PlayerTestCase("testEvents", bpp))
-    suite.addTest(PlayerTestCase("testEventCapture", bpp))
-    suite.addTest(PlayerTestCase("testMouseOver", bpp))
-    suite.addTest(PlayerTestCase("testTimeouts", bpp))
-    suite.addTest(PlayerTestCase("testEventErr", bpp))
-    suite.addTest(PlayerTestCase("testHugeImage", bpp))
-    suite.addTest(PlayerTestCase("testPanoImage", bpp))
-    suite.addTest(PlayerTestCase("testBroken", bpp))
-    suite.addTest(PlayerTestCase("testMove", bpp))
-    suite.addTest(PlayerTestCase("testSetBitmap", bpp))
-    suite.addTest(PlayerTestCase("testBlend", bpp))
-    suite.addTest(PlayerTestCase("testCropImage", bpp))
-    suite.addTest(PlayerTestCase("testCropMovie", bpp))
-    suite.addTest(PlayerTestCase("testWarp", bpp))
-    suite.addTest(PlayerTestCase("testMediaDir", bpp))
-    suite.addTest(PlayerTestCase("testGPUMemoryQuery", bpp))
-    suite.addTest(PlayerTestCase("testStopOnEscape", bpp))
-    return suite
+def playerTestSuite(bpp, tests):
+    availableTests = (
+            "testPoint",
+            "testImage",
+            "testDivResize",
+            "testBitmap",
+            "testRotate",
+            "testRotate2",
+            "testRotate3",
+            "testRotatePivot",
+            "testError",
+            "testExceptionInTimeout",
+            "testInvalidImageFilename",
+            "testInvalidVideoFilename",
+            "testEvents",
+            "testEventCapture",
+            "testMouseOver",
+            "testTimeouts",
+            "testEventErr",
+            "testHugeImage",
+            "testPanoImage",
+            "testBroken",
+            "testMove",
+            "testSetBitmap",
+            "testBlend",
+            "testCropImage",
+            "testCropMovie",
+            "testWarp",
+            "testMediaDir",
+            "testGPUMemoryQuery",
+            "testStopOnEscape",
+            )
+    return AVGTestSuite (availableTests, PlayerTestCase, tests, (), {'bpp' : bpp})
 
 Player = avg.Player.get()
+
+if __name__ == '__main__':
+    runStandaloneTest(playerTestSuite)

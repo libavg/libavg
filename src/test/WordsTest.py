@@ -200,15 +200,19 @@ class WordsTestCase(AVGTestCase):
         lambda: self.compareImage("testRawText4", True),
         ))
 
-def wordsTestSuite():
-    suite = unittest.TestSuite()
-    suite.addTest(WordsTestCase("testSimpleWords"))
-    suite.addTest(WordsTestCase("testGlyphPos"))
-    suite.addTest(WordsTestCase("testParaWords"))
-    suite.addTest(WordsTestCase("testSpanWords"))
-    suite.addTest(WordsTestCase("testDynamicWords"))
-    suite.addTest(WordsTestCase("testI18NWords"))
-    suite.addTest(WordsTestCase("testRawText"))
-    return suite
+def wordsTestSuite(tests):
+    availableTests = (
+            "testSimpleWords",
+            "testGlyphPos",
+            "testParaWords",
+            "testSpanWords",
+            "testDynamicWords",
+            "testI18NWords",
+            "testRawText",
+            )
+    return AVGTestSuite (availableTests, WordsTestCase, tests)
 
 Player = avg.Player.get()
+if __name__ == '__main__':
+    runStandaloneTest (wordsTestSuite)
+

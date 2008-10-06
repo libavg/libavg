@@ -23,6 +23,9 @@ RESULT_DIR = "resultimages"
 
 ourSaveDifferences = True
 g_CustomOGLOptions = False
+g_UsePOW2Textures = False
+g_YCbCrMode = None
+g_UsePixelBuffers = True
 
 def almostEqual(a,b):
     try:
@@ -125,15 +128,23 @@ class AVGTestCase(unittest.TestCase):
         """)
 
 
-def setOGLOptions(UsePOW2Textures, YCbCrMode, UsePixelBuffers):
+def setYCbCrMode (val):
+    global g_CustomOGLOptions
+    global g_YCbCrMode
+    g_YCbCrMode = val
+
+def setUsePOW2Textures (val):
     global g_CustomOGLOptions
     global g_UsePOW2Textures
-    global g_YCbCrMode
+    g_CustomOGLOptions = True
+    g_UsePOW2Textures = val
+
+def setUsePixelBuffers (val):
+    global g_CustomOGLOptions
     global g_UsePixelBuffers
     g_CustomOGLOptions = True
-    g_UsePOW2Textures = UsePOW2Textures
-    g_YCbCrMode = YCbCrMode
-    g_UsePixelBuffers = UsePixelBuffers
+    g_UsePixelBuffers = val
+
 
 def rmBrokenDir():
     try:
@@ -147,4 +158,30 @@ def rmBrokenDir():
             # This can happen on make distcheck (permission denied...)
             global ourSaveDifferences
             ourSaveDifferences = False
+
+def AVGTestSuite (availableTests, TestCase, tests, extraargs=(), extrakwargs={}):
+    suite = unittest.TestSuite()
+    if tests:
+        for testname in tests:
+            if testname in availableTests:
+                name = testname
+            elif 'test'+testname in availableTests:
+                name = 'test' + testname
+            else:
+                print "no test named %s" % testname
+                sys.exit(1)
+            testNames = (name,)
+    else:
+            testNames = availableTests
+    for name in testNames:
+        suite.addTest(TestCase(*([name,]+list(extraargs)), **extrakwargs ))
+    return suite
+
+def runStandaloneTest(suite):
+    runner = unittest.TextTestRunner()
+    rc = runner.run(suite(None))
+    return 0 if rc.wasSuccessful() else 1
+
+
+    pass
 

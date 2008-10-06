@@ -183,15 +183,25 @@ class SoundTestCase(AVTestCase):
         self.testEOF(node)
 
 
-def avTestSuite():
-    suite = unittest.TestSuite()
-    suite.addTest(SoundTestCase("testSound"))
-    suite.addTest(SoundTestCase("testSoundEOF"))
-    suite.addTest(VideoTestCase("testVideoFiles"))
-    suite.addTest(VideoTestCase("testVideo"))
-    suite.addTest(VideoTestCase("testVideoSeek"))
-    suite.addTest(VideoTestCase("testVideoFPS"))
-    suite.addTest(VideoTestCase("testVideoEOF"))
-    return suite
+def soundTestSuite(tests):
+    availableTests = (
+            'testSound',
+            'testSoundEOF',
+            )
+    return AVGTestSuite (availableTests, SoundTestCase, tests)
+def videoTestSuite(tests):
+    availableTests = (
+            "testVideoFiles",
+            "testVideo",
+            "testVideoSeek",
+            "testVideoFPS",
+            "testVideoEOF",
+            )
+    return AVGTestSuite (availableTests, VideoTestCase, tests)
 
 Player = avg.Player.get()
+
+if __name__ == '__main__':
+    runStandaloneTest(soundTestSuite)
+    runStandaloneTest(videoTestSuite)
+

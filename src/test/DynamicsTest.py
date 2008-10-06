@@ -246,15 +246,22 @@ class DynamicsTestCase(AVGTestCase):
                 ))
 
 
-def dynamicsTestSuite():
-    suite = unittest.TestSuite()
-    suite.addTest(DynamicsTestCase("testImgDynamics"))
-    suite.addTest(DynamicsTestCase("testVideoDynamics"))
-    suite.addTest(DynamicsTestCase("testWordsDynamics"))
-#    suite.addTest(DynamicsTestCase("testPanoDynamics"))
-    suite.addTest(DynamicsTestCase("testDivDynamics"))
-    suite.addTest(DynamicsTestCase("testDynamicEventCapture"))
-    suite.addTest(DynamicsTestCase("testComplexDiv"))
-    return suite
+def dynamicsTestSuite(tests):
+    availableTests = (
+            "testImgDynamics",
+            "testVideoDynamics",
+            "testWordsDynamics",
+        #   "testPanoDynamics",
+            "testDivDynamics",
+            "testDynamicEventCapture",
+            "testComplexDiv",
+            )
+
+    return AVGTestSuite (availableTests, DynamicsTestCase, tests)
 
 Player = avg.Player.get()
+
+if __name__ == '__main__':
+    runStandaloneTest (dynamicsTestSuite)
+
+
