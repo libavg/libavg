@@ -68,7 +68,7 @@ class RectNode : public VectorNode
 
         virtual int getNumVertexes();
         virtual int getNumIndexes();
-        virtual void updateData(VertexArrayPtr pVertexArray, int curVertex, int curIndex, 
+        virtual void updateData(VertexArrayPtr& pVertexArray, int curVertex, int curIndex, 
                 double opacity, bool bParentDrawNeeded);
 
     private:

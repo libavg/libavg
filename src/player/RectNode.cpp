@@ -183,7 +183,7 @@ int RectNode::getNumIndexes()
     return 6*5;
 }
 
-void RectNode::updateData(VertexArrayPtr pVertexArray, int curVertex, int curIndex, 
+void RectNode::updateData(VertexArrayPtr& pVertexArray, int curVertex, int curIndex, 
         double opacity, bool bParentDrawNeeded)
 {
     if (isDrawNeeded() || bParentDrawNeeded) {

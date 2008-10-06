@@ -89,7 +89,7 @@ Pixel32 VectorNode::getColorVal() const
     return m_Color;
 }
 
-void VectorNode::updateLineData(VertexArrayPtr pVertexArray, int curVertex, int curIndex,
+void VectorNode::updateLineData(VertexArrayPtr& pVertexArray, int curVertex, int curIndex,
         double opacity, const DPoint& p1, const DPoint& p2)
 {
     double curOpacity = opacity*getOpacity();

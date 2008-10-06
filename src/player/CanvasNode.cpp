@@ -93,11 +93,11 @@ void CanvasNode::preRender()
     double opacity = getEffectiveOpacity();
     bool bUpdateEverything = m_LastOpacity != opacity;
     for (int i=0; i<numChildren; ++i) {
-        VectorNode * pLine = getCanvasChild(i);
-        pLine->updateData(m_pVertexArray, curVertex, curIndex, opacity, 
+        VectorNode * pVector = getCanvasChild(i);
+        pVector->updateData(m_pVertexArray, curVertex, curIndex, opacity, 
                 bUpdateEverything);
-        curVertex += pLine->getNumVertexes();
-        curIndex += pLine->getNumIndexes();
+        curVertex += pVector->getNumVertexes();
+        curIndex += pVector->getNumIndexes();
     }
     {
         ScopeTimer Timer(VAProfilingZone);

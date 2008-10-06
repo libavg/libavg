@@ -208,7 +208,7 @@ int CurveNode::getNumIndexes()
     return (getCurveLen())*2*3;
 }
 
-void CurveNode::updateData(VertexArrayPtr pVertexArray, int curVertex, int curIndex, 
+void CurveNode::updateData(VertexArrayPtr& pVertexArray, int curVertex, int curIndex, 
         double opacity, bool bParentDrawNeeded)
 {
     if (isDrawNeeded() || bParentDrawNeeded) {
@@ -245,7 +245,6 @@ void CurveNode::updateLines()
 {
     BezierCurve curve(m_P1, m_P2, m_P3, m_P4);
     
-    // Calc. upper bound for spline length.
     double len = getCurveLen();
     m_LeftCurve.clear();
     m_RightCurve.clear();

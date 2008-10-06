@@ -129,7 +129,7 @@ int LineNode::getNumIndexes()
     return 6;
 }
 
-void LineNode::updateData(VertexArrayPtr pVertexArray, int curVertex, int curIndex,
+void LineNode::updateData(VertexArrayPtr& pVertexArray, int curVertex, int curIndex,
         double opacity, bool bParentDrawNeeded)
 {
     if (isDrawNeeded() || bParentDrawNeeded) {
