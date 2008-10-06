@@ -180,8 +180,8 @@ def AVGTestSuite (availableTests, TestCase, tests, extraargs=(), extrakwargs={})
 def runStandaloneTest(suite):
     runner = unittest.TextTestRunner()
     rc = runner.run(suite(None))
-    return 0 if rc.wasSuccessful() else 1
-
-
-    pass
+    if rc.wasSuccessful():
+        return 0
+    else:
+        return 1
 
