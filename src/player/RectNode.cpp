@@ -98,7 +98,7 @@ void RectNode::setPos(const DPoint& pt)
     double w = m_Rect.width();
     double h = m_Rect.height();
     m_Rect.tl = pt;
-    m_Rect.setHeight(w);
+    m_Rect.setWidth(w);
     m_Rect.setHeight(h);
     setDrawNeeded(true);
 }
