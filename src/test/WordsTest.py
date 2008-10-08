@@ -200,6 +200,20 @@ class WordsTestCase(AVGTestCase):
         lambda: self.compareImage("testRawText4", True),
         ))
 
+    def testWordsBR(self):
+        Player.loadString("""
+          <avg width="160" height="120">
+            <words id="words" x="1" y="1" size="12" 
+                font="Bitstream Vera Sans" variant="roman">
+               paragraph 1<br/>paragraph 2
+            </words>
+          </avg>
+        """)
+        self.start(None,
+                [lambda: self.compareImage("testWordsBR", True)
+                ])
+
+
 def wordsTestSuite(tests):
     availableTests = (
             "testSimpleWords",
@@ -209,10 +223,12 @@ def wordsTestSuite(tests):
             "testDynamicWords",
             "testI18NWords",
             "testRawText",
+            "testWordsBR",
             )
     return AVGTestSuite (availableTests, WordsTestCase, tests)
 
 Player = avg.Player.get()
 if __name__ == '__main__':
     runStandaloneTest (wordsTestSuite)
+
 

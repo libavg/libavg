@@ -110,8 +110,8 @@ NodeDefinition Words::createDefinition()
         "<!ELEMENT br (#PCDATA)*>\n";
 
     string sChildArray[] = {"#PCDATA", "span", "b", "big", "i", "s", "sup", "sub", 
-            "small", "tt", "u"};
-    vector<string> sChildren = vectorFromCArray(6, sChildArray); 
+            "small", "tt", "u", "br"};
+    vector<string> sChildren = vectorFromCArray(sizeof(sChildArray)/sizeof(*sChildArray), sChildArray); 
     return NodeDefinition("words", Node::buildNode<Words>)
         .extendDefinition(RasterNode::createDefinition())
         .addChildren(sChildren)
@@ -440,9 +440,11 @@ PangoFontFamily * Words::getFontFamily(const string& sFamily)
 
 void Words::parseString(PangoAttrList** ppAttrList, char** ppText)
 {
+    UTF8String sTextWithoutBreaks = applyBR(m_sText);
     bool bOk;
     GError * pError = 0;
-    bOk = (pango_parse_markup(m_sText.c_str(), int(m_sText.length()), 0,
+    bOk = (pango_parse_markup(sTextWithoutBreaks.c_str(), 
+            int(sTextWithoutBreaks.length()), 0,
             ppAttrList, ppText, 0, &pError) != 0);
     if (!bOk) {
         string sError;
@@ -682,6 +684,23 @@ void Words::setParsedText(const UTF8String& sText)
     pango_attr_list_unref (pAttrList);
     g_free (pText);
     m_bParsedText = true;
+}
+
+UTF8String Words::applyBR(const UTF8String& sText)
+{
+    UTF8String sResult(sText);
+    UTF8String sLowerText = tolower(sResult); 
+    string::size_type pos=sLowerText.find("<br/>");
+    while (pos != string::npos) {
+        sResult.replace(pos, 5, "\n");
+        sLowerText.replace(pos, 5, "\n");
+        if (sLowerText[pos+1] == ' ') {
+            sLowerText.erase(pos+1, 1);
+            sResult.erase(pos+1, 1);
+        }
+        pos=sLowerText.find("<br/>");
+    }
+    return sResult;
 }
 
 void Words::checkFontError(int Ok, const string& sMsg)

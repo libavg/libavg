@@ -99,6 +99,7 @@ class Words : public RasterNode
         void drawString();
         void parseString(PangoAttrList** ppAttrList, char** ppText);
         void setParsedText(const UTF8String& sText);
+        UTF8String applyBR(const UTF8String& sText);
         std::string removeExcessSpaces(const std::string & sText);
         PangoRectangle getGlyphRect(int i);
 
