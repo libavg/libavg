@@ -26,6 +26,7 @@
 
 #include <iostream>
 #include <stddef.h>
+#include <string.h>
 
 using namespace std;
 
