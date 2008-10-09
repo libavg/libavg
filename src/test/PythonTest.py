@@ -253,7 +253,6 @@ class PythonTestCase(AVGTestCase):
             text = ''
             self.ta2.setText('')
             while True:
-                print text, self.ta2.getText()
                 self.assert_(len(text) < 60)
                 self.ctx1.keyCharPressed('X')
                 text = text + 'X'
