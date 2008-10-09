@@ -959,7 +959,7 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
             }
             int Len1 = avcodec_decode_video(enc, &Frame,
                     &gotPicture, m_pPacketData, m_PacketLenLeft);
-            if (Len1 < 0) {
+            if (Len1 <= 0) {
 //                AVG_TRACE(Logger::WARNING, "Error decoding " <<
 //                        m_sFilename);
                 m_PacketLenLeft = 0;
