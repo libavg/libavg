@@ -64,6 +64,8 @@ int safeCeil(double d)
 
 float invSqrt(float x)
 {
+#if 0
+    // TODO: This gives incorrect results on Athlon X2, gcc 4.2.
     float xhalf = 0.5f*x;
     int i = *(int*)&x;         // get bits for floating value
     i = 0x5f3759d5 - (i>>1);   // give initial guess y0
@@ -71,7 +73,9 @@ float invSqrt(float x)
     x *= 1.5f - xhalf*x*x;     // newton step, repeating this step
                                // increases accuracy
     x *= 1.5f - xhalf*x*x;
-    return x;    
+    return x;
+#endif
+    return 1/sqrt(x);
 }
 
 bool almostEqual(double d1, double d2, double epsilon)
