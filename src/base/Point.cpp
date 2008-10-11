@@ -23,7 +23,35 @@
 
 #include <math.h>
 
+#ifdef __SSE__
+#include <xmmintrin.h>
+#endif
+
 namespace avg {
+
+template<>
+void Point<double>::normalize()
+{
+#if defined(__SSE__) && defined( __GNUC__)
+#pragma pack(16)
+    float result[4];
+    float normSqr = x*x+y*y;
+    __m128 src = _mm_setr_ps(x, y, 0, 0);
+    __m128 normSqrVec = _mm_set_ps1(normSqr);
+    __m128 invSqrt = _mm_rsqrt_ps(normSqrVec);
+    __m128 resultVec = _mm_mul_ps(src, invSqrt);
+    _mm_storeu_ps(result, resultVec);
+    x = result[0];
+    y = result[1];
+#pragma pack()
+#else
+    double invNorm = invSqrt(x*x+y*y);
+    if (invNorm != 0) {
+        x = x*invNorm;
+        y = y*invNorm;
+    } 
+#endif
+}
 
 bool almostEqual(const DPoint& pt1, const DPoint& pt2)
 {

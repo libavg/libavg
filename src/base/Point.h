@@ -133,16 +133,6 @@ Point<NUM>::~Point()
 }
     
 template<class NUM>
-void Point<NUM>::normalize()
-{
-    double invNorm = invSqrt(x*x+y*y);
-    if (invNorm != 0) {
-        x = x*invNorm;
-        y = y*invNorm;
-    } 
-}
-
-template<class NUM>
 double Point<NUM>::getNorm()
 {
     return sqrt(x*x+y*y);
