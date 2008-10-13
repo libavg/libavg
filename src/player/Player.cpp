@@ -1301,12 +1301,12 @@ long long Player::getGPUMemoryUsage()
 
 void Player::loadPlugin(const std::string& name)
 {
-    AVG_TRACE(Logger::PLUGIN, "loading plugin '" << name << "'");	
+    AVG_TRACE(Logger::PLUGIN, "loading plugin: '" << name << "'");	
 }
 
 void Player::unloadPlugin(const std::string& name)
 {
-    AVG_TRACE(Logger::PLUGIN, "unloading plugin '" << name << "'");		
+    AVG_TRACE(Logger::PLUGIN, "unloading plugin: '" << name << "'");		
 }
 
 
