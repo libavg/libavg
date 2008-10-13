@@ -59,6 +59,8 @@ public:
     static const long MEMORY;
     static const long APP;
     static const long LOGGER;
+    static const long PLUGIN;
+
 
 private:
     Logger();

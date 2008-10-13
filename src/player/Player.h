@@ -126,6 +126,9 @@ class Player : IEventSink
 
         void disablePython();
 
+		void loadPlugin(const std::string& name);
+		void unloadPlugin(const std::string& name);
+
     private:
         void initConfig();
         void initGraphics();

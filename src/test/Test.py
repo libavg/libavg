@@ -24,6 +24,7 @@ SrcDir = os.getenv("srcdir",".")
 os.chdir(SrcDir)
 
 from LoggerTest import *
+from PluginTest import *
 from AVGTest import *
 from VectorTest import *
 from WordsTest import *
@@ -81,6 +82,7 @@ else:
 
     availableSuites = {
             'logger': (loggerTestSuite,{}),
+            'plugin': (pluginTestSuite,{}),
             'player': (playerTestSuite, {'bpp':options.bpp}),
             'vector': (vectorTestSuite, {}),
             'words': (wordsTestSuite, {}),
