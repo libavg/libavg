@@ -25,11 +25,12 @@
 #include "../IPlugin.h"
 
 #include <string>
+#include <iostream>
 
 using namespace std;
 
 extern "C" void callback();
-
+extern const char* g_aGlobalVariable;
 namespace avg {
 
 class HelloWorldPlugin : 
@@ -42,6 +43,7 @@ public:
 	virtual std::string getDescription() const
 	{
 		callback();
+		cout << "Accessing the global from within the plugin:" << g_aGlobalVariable << endl;
 		return "Hello World!";
 	}
 	

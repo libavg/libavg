@@ -33,6 +33,8 @@ extern "C" void callback() {
 	cout << "I am the loader" << endl;
 }
 
+extern const char* g_aGlobalVariable = "I am global!";
+
 int main(int argc, char **argv) {
 	string fullpath("./HelloWorldPlugin.so");
 	
@@ -45,7 +47,7 @@ int main(int argc, char **argv) {
 	}
 
 	typedef IPlugin* (*CreateFuncPtr)();
-	CreateFuncPtr createFunc = (CreateFuncPtr) dlsym(handle, "createPlugin");
+	CreateFuncPtr createFunc = reinterpret_cast<CreateFuncPtr> (dlsym(handle, "createPlugin"));
 	if (!createFunc) {
 		string message(dlerror());
 		// TODO: exception
