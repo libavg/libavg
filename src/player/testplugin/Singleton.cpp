@@ -37,3 +37,4 @@ Singleton& Singleton::get() {
 	cout << "getting Singleton instance at " << &theInstance << endl;
 	return theInstance;
 }
+
