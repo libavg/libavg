@@ -22,6 +22,8 @@
 //
 
 #include "../IPlugin.h"
+#include "Singleton.h"
+
 #include <iostream>
 #include <string>
 #include <dlfcn.h>
@@ -36,6 +38,7 @@ extern "C" void callback() {
 extern const char* g_aGlobalVariable = "I am global!";
 
 int main(int argc, char **argv) {
+	Singleton::get();
 	string fullpath("./HelloWorldPlugin.so");
 	
 	void *handle = dlopen(fullpath.c_str(), RTLD_LOCAL | RTLD_NOW);

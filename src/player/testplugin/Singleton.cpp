@@ -19,41 +19,21 @@
 //  Current versions can be found at www.libavg.de
 //
 //  Original author of this file is Jan Boelsche (regular.gonzales@googlemail.com).
-	//
+//
 
-#define BUILDING_AVG_PLUGIN
-#include "../IPlugin.h"
 #include "Singleton.h"
 
-#include <string>
 #include <iostream>
 
+using namespace avg;
 using namespace std;
 
-extern "C" void callback();
-extern const char* g_aGlobalVariable;
-namespace avg {
-
-class HelloWorldPlugin : 
-	public IPlugin 
-{
-public:
-	HelloWorldPlugin() 
-	{}
-	
-	virtual std::string getDescription() const
-	{
-		Singleton::get();
-		callback();
-		cout << "Accessing the global from within the plugin:" << g_aGlobalVariable << endl;
-		return "Hello World!";
-	}
-	
-};
-
-extern "C" IPlugin* createPlugin() {
-	return new HelloWorldPlugin;
+Singleton::Singleton() {
+	cout << "Singleton creaton" << endl;
 }
 
+Singleton& Singleton::get() {
+	static Singleton theInstance;
+	cout << "getting Singleton instance at " << &theInstance << endl;
+	return theInstance;
 }
-
