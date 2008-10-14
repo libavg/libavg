@@ -53,3 +53,4 @@ int main(int argc, char **argv) {
 	cout << plugin->getDescription() << endl;
 	return 0;
 }
+
