@@ -28,6 +28,8 @@
 
 using namespace std;
 
+extern "C" void callback();
+
 namespace avg {
 
 class HelloWorldPlugin : 
@@ -39,6 +41,7 @@ public:
 	
 	virtual std::string getDescription() const
 	{
+		callback();
 		return "Hello World!";
 	}
 	

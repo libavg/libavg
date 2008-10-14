@@ -29,6 +29,10 @@
 using namespace std;
 using namespace avg;
 
+extern "C" void callback() {
+	cout << "I am the loader" << endl;
+}
+
 int main(int argc, char **argv) {
 	string fullpath("./HelloWorldPlugin.so");
 	
