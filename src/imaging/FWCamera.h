@@ -75,11 +75,6 @@ public:
 private:
     void setStrobeDuration(int microsecs);
 
-    uint32_t safeGetDCAMControlRegister(uint32_t offset, const std::string& sRegName);
-    void safeSetDCAMControlRegister(uint32_t offset, uint32_t value, 
-            const std::string& sRegName);
-    uint32_t getDCAMRegisterOffset(uint32_t inqRegister);
-
     std::string m_sDevice;
     std::string m_sPF;
     IntPoint m_Size;
