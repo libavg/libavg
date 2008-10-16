@@ -94,7 +94,7 @@ string PluginManager::_locateSharedObject(const string& aFilename) {
 void PluginManager::unloadPlugin(const string& aPluginName) {
 	// is it leaded?
 	PluginMap::iterator i = m_loadedPlugins.find(aPluginName);
-	if (i != m_loadedPlugins.end()) {
+	if (i == m_loadedPlugins.end()) {
 		// no, this is something we probably can ignore
 		AVG_TRACE(Logger::PLUGIN, "Warning: request to unload plugin that wasn't loaded: '" << aPluginName << "'.");	
 	} else {
@@ -158,8 +158,13 @@ void* PluginManager::_internalLoadPlugin(const string& fullpath) {
 		AVG_TRACE(Logger::PLUGIN, "dlopen failed with message '" << message << "'");
 		throw PluginCorrupted(message);
 	}
-
-	_inspectPlugin(handle);
+	try {
+		_inspectPlugin(handle);
+	} catch(PluginCorrupted& e) {
+		_internalUnloadPlugin(handle);
+		throw e;
+	}
+	 
 	return handle;
 }
 
@@ -169,16 +174,17 @@ void PluginManager::_internalUnloadPlugin(void* handle) {
 }
 
 void PluginManager::_inspectPlugin(void* handle) {
-	typedef NodeDefinition* (*GetNodeDefinitionPtr)();
+	typedef NodeDefinition (*GetNodeDefinitionPtr)();
 	GetNodeDefinitionPtr getNodeDefinition = reinterpret_cast<GetNodeDefinitionPtr> (dlsym(handle, "getNodeDefinition"));
 
 	if (getNodeDefinition) {
 		AVG_TRACE(Logger::PLUGIN, "NodePlugin detected");
 		
-		//NodeDefinition myNodeDefinition = getNodeDefinition();
-		//AVG_TRACE(Logger::PLUGIN, "found definition for Node " << myNodeDefinition.getName());
+		NodeDefinition myNodeDefinition = getNodeDefinition();
+		AVG_TRACE(Logger::PLUGIN, "found definition for Node " << myNodeDefinition.getName());
 	} else {
 		AVG_TRACE(Logger::PLUGIN, "no magic symbols found");
+		throw PluginCorrupted("no magic symbols found.");
 	}
 }
 

@@ -33,16 +33,22 @@ namespace avg {
 
 class ColorNode : public Node {
 public:
+	static NodePtr create(const ArgList& Args, bool bFromXML);
+	static NodeDefinition createNodeDefinition();
 	virtual ~ColorNode() {}	
 };
 
-NodePtr createColorNode(const ArgList& Args, bool bFromXML) {
-	return new ColorNode();
+NodePtr ColorNode::create(const ArgList& Args, bool bFromXML) {
+	return NodePtr(new ColorNode());
 }
 
-extern "C" NodeDefinition getNodeDefinition() {
-	return NodeDefinition("ColorNode", (NodeBuilder)&createColorNode);
+NodeDefinition ColorNode::createNodeDefinition() {
+	return NodeDefinition("colornode", (NodeBuilder)ColorNode::create)
+		.extendDefinition(Node::createDefinition());
 }
  
 }
 
+extern "C" avg::NodeDefinition getNodeDefinition() {
+	return avg::ColorNode::createNodeDefinition();
+}
