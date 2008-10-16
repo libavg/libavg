@@ -33,10 +33,10 @@ class PluginTestCase(unittest.TestCase):
 #                  self.Log.EVENTS2
                   )
                 
-#        self.assert_(len(readLog) == 1)
         player = avg.Player.get()
-        player.loadPlugin("hello_world")
-        player.unloadPlugin("hello_world")
+        player.pluginPath = ".:/Users/regular/dev/avg/libavg/src/player/testplugin"
+        player.loadPlugin("HelloWorldPlugin")
+        player.unloadPlugin("HelloWorldPlugin")
 
 def pluginTestSuite (tests):
     suite = unittest.TestSuite()

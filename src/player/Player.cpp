@@ -35,6 +35,7 @@
 #include "RectNode.h"
 #include "CurveNode.h"
 #include "NodeDefinition.h"
+#include "PluginManager.h"
 
 #include "TrackerEventSource.h"
 #include "Event.h"
@@ -1299,14 +1300,24 @@ long long Player::getGPUMemoryUsage()
     }
 }
 
+void Player::setPluginPath(const string& newPath) {
+	PluginManager::get().setSearchPath(newPath);
+}
+
+string Player::getPluginPath() const {
+	return 	PluginManager::get().getSearchPath();
+}
+
 void Player::loadPlugin(const std::string& name)
 {
-    AVG_TRACE(Logger::PLUGIN, "loading plugin: '" << name << "'");	
+    AVG_TRACE(Logger::PLUGIN, "player loading plugin: '" << name << "'");	
+	PluginManager::get().loadPlugin(name);
 }
 
 void Player::unloadPlugin(const std::string& name)
 {
-    AVG_TRACE(Logger::PLUGIN, "unloading plugin: '" << name << "'");		
+    AVG_TRACE(Logger::PLUGIN, "player unloading plugin: '" << name << "'");		
+	PluginManager::get().unloadPlugin(name);
 }
 
 

@@ -128,7 +128,8 @@ class Player : IEventSink
 
 		void loadPlugin(const std::string& name);
 		void unloadPlugin(const std::string& name);
-
+		void setPluginPath(const std::string& newPath);
+		std::string getPluginPath() const;
     private:
         void initConfig();
         void initGraphics();

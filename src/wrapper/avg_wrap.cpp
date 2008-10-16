@@ -334,6 +334,9 @@ BOOST_PYTHON_MODULE(avg)
 						"unloadPlugin(name)\n"
 						"unloads a previously loaded plugin.\n"
 						"@param name: name of the plugin (without directory and file extension)\n")
+		.add_property("pluginPath", &Player::getPluginPath, &Player::setPluginPath,
+		                "A colon-separated list of directories where the player\n"
+		                "searches for plugins when loadPlugin() is called.\n")
 		.add_property("volume", &Player::getVolume, &Player::setVolume,
                 "Total audio playback volume. 0 is silence, 1 passes media file\n"
                 "volume through unchanged. Values higher than 1 can be used to\n"
