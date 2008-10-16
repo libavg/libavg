@@ -50,6 +50,7 @@
 #define AVG_ERR_INVALID_ARGS 25
 #define AVG_ERR_NO_BUILDER 26
 #define AVG_ERR_TYPE 27
+#define AVG_ERR_CAMERA 28
 
 namespace avg {
  
