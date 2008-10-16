@@ -50,7 +50,6 @@ dc1394framerate_t getFrameRateConst(double FrameRate);
 dc1394feature_t getFeatureID(CameraFeature Feature);
 #endif
 
-
 }
 
 #endif

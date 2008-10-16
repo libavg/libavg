@@ -255,6 +255,8 @@ void FWCamera::open()
         fatalError("Camera doesn't seem to want to turn on!\n");
     }
 #endif
+    // Default to turning off any camera sharpness manipulation.
+    setFeature(CAM_FEATURE_SHARPNESS, -1);
     AVG_TRACE(Logger::CONFIG, "Firewire camera opened.");
     for (FeatureMap::iterator it=m_Features.begin(); it != m_Features.end(); it++) {
         setFeature(it->first, it->second);
@@ -478,6 +480,7 @@ unsigned int FWCamera::getFeature(CameraFeature Feature) const
 void FWCamera::setFeature(CameraFeature Feature, int Value)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
+//    cerr << "Setting camera " << cameraFeatureToString(Feature) << " to " << Value << endl;
     if (Feature == CAM_FEATURE_STROBE_DURATION) {
         m_StrobeDuration = Value;
         if (m_bCameraAvailable) {
@@ -513,14 +516,22 @@ void FWCamera::setFeature(dc1394feature_t Feature, int Value) {
     dc1394error_t err;
     if (Value == -1) {
         err = dc1394_feature_set_mode(m_pCamera, Feature, DC1394_FEATURE_MODE_AUTO);
+        err = dc1394_feature_set_power(m_pCamera, Feature, DC1394_OFF);
     } else {
         dc1394_feature_set_mode(m_pCamera, Feature, DC1394_FEATURE_MODE_MANUAL);
+        err = dc1394_feature_set_power(m_pCamera, Feature, DC1394_ON);
         err = dc1394_feature_set_value(m_pCamera, Feature, Value);
     }
+/*
+    dc1394feature_info_t featureInfo;
+    featureInfo.id = Feature;
+    err = dc1394_feature_get(m_pCamera, &featureInfo);
+    dc1394_feature_print(&featureInfo, stdout);
     if (err != DC1394_SUCCESS) {
         AVG_TRACE(Logger::WARNING, "FWCamera: Unable to set " << Feature << 
                 ". Error was " << err);
     }
+*/
 #endif
 }
 
