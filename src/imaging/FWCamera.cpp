@@ -498,8 +498,10 @@ void FWCamera::setFeature(dc1394feature_t Feature, int Value) {
     int err;
     if (Value == -1) {
         err = dc1394_auto_on_off(m_FWHandle, m_Camera.node, Feature, 1);
+        err = dc1394_feature_on_off(m_FWHandle, m_Camera.node, Feature, 0);
     } else {
         dc1394_auto_on_off(m_FWHandle, m_Camera.node, Feature, 0);
+        err = dc1394_feature_on_off(m_FWHandle, m_Camera.node, Feature, 1);
         err = dc1394_set_feature_value(m_FWHandle, m_Camera.node, Feature, 
                 (unsigned int)Value);
     } 
