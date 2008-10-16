@@ -52,3 +52,4 @@ NodeDefinition ColorNode::createNodeDefinition() {
 extern "C" avg::NodeDefinition getNodeDefinition() {
 	return avg::ColorNode::createNodeDefinition();
 }
+

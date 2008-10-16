@@ -34,7 +34,7 @@ class PluginTestCase(unittest.TestCase):
                   )
                 
         player = avg.Player.get()
-        player.pluginPath = ".:/Users/regular/dev/avg/libavg/src/player/testplugin"
+        player.pluginPath = "../player/testplugin"
         player.loadPlugin("ColorNode")
         player.unloadPlugin("ColorNode")
 
