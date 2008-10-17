@@ -54,6 +54,16 @@ private:
 ColorNode::ColorNode(const ArgList& Args, bool bFromXML) :
 	m_sFillColorName("FFFFFF")
 {
+
+    ArgMap am = Args.getArgMap();
+    ArgMap::iterator i = am.begin();
+    while(i != am.end()) {
+        string key = i->first;
+        string value = Args.getArgVal<string>(key);
+        AVG_TRACE(Logger::PLUGIN, "ColorNode constructed with key=" << key << " value=" << value);	
+        ++i;
+    };
+    
 	Args.setMembers(this);
 	AVG_TRACE(Logger::PLUGIN, "ColorNode constructed with " << m_sFillColorName);	
 
