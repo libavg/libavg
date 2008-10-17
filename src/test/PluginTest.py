@@ -45,7 +45,7 @@ class PluginTestCase(unittest.TestCase):
           </avg>
         """)
         mynode = Player.getElementByID("mynode")
-        print mynode.fillcolor
+        self.assert_(mynode.fillcolor == "7f7f00")
 
         player.unloadPlugin("ColorNode")
 
