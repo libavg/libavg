@@ -55,6 +55,8 @@ ColorNode::ColorNode(const ArgList& Args, bool bFromXML) :
 	m_sFillColorName("FFFFFF")
 {
 
+    /* this crashes on mac and linux
+    // probalby the iterator becomes invalid
     ArgMap am = Args.getArgMap();
     ArgMap::iterator i = am.begin();
     while(i != am.end()) {
@@ -63,6 +65,9 @@ ColorNode::ColorNode(const ArgList& Args, bool bFromXML) :
         AVG_TRACE(Logger::PLUGIN, "ColorNode constructed with key=" << key << " value=" << value);	
         ++i;
     };
+    */
+    
+     AVG_TRACE(Logger::PLUGIN, "ColorNode c'tor gets Argument fillcolor= "  << Args.getArgVal<string>("fillcolor"));	
     
 	Args.setMembers(this);
 	AVG_TRACE(Logger::PLUGIN, "ColorNode constructed with " << m_sFillColorName);	
