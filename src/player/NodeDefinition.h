@@ -38,6 +38,7 @@ typedef std::map<std::string, NodeDefinition> ChildMap;
 class NodeDefinition
 {
 public:
+	NodeDefinition();
     NodeDefinition(const std::string& Name, NodeBuilder pBuilder = 0);
     virtual ~NodeDefinition();
     

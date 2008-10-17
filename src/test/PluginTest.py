@@ -36,6 +36,17 @@ class PluginTestCase(unittest.TestCase):
         player = avg.Player.get()
         player.pluginPath = "../player/testplugin"
         player.loadPlugin("ColorNode")
+
+        Player.loadString("""
+          <avg width="160" height="120">
+              <div width="160" height="120">
+                 <colornode id="mynode" fillcolor="7f7f00" />
+              </div>
+          </avg>
+        """)
+        mynode = Player.getElementByID("mynode")
+        #print mynode.fillcolor
+
         player.unloadPlugin("ColorNode")
 
 def pluginTestSuite (tests):

@@ -24,6 +24,7 @@
 #include "PluginManager.h"
 
 #include "NodeDefinition.h"
+#include "Player.h"
 
 #include "../base/FileHelper.h"
 #include "../base/Logger.h"
@@ -182,6 +183,16 @@ void PluginManager::_inspectPlugin(void* handle) {
 		
 		NodeDefinition myNodeDefinition = getNodeDefinition();
 		AVG_TRACE(Logger::PLUGIN, "found definition for Node " << myNodeDefinition.getName());
+		Player::get()->registerNodeType(myNodeDefinition);
+		
+		// HACK
+		// allow our new node type to be a child of DIV 
+		string sChildArray[1];
+		sChildArray[0] = myNodeDefinition.getName();
+	    vector<string> sChildren = vectorFromCArray(1, sChildArray);
+		NodeDefinition ndDiv = Player::get()->getNodeDef("div");
+		ndDiv.addChildren(sChildren);
+        Player::get()->updateNodeDefinition(ndDiv);
 	} else {
 		AVG_TRACE(Logger::PLUGIN, "no magic symbols found");
 		throw PluginCorrupted("no magic symbols found.");

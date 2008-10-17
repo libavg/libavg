@@ -27,6 +27,8 @@
 #include "../Node.h"
 #include "../NodeDefinition.h"
 
+#include "../../graphics/Pixel32.h"
+
 using namespace std;
 
 namespace avg {
@@ -35,16 +37,47 @@ class ColorNode : public Node {
 public:
 	static NodePtr create(const ArgList& Args, bool bFromXML);
 	static NodeDefinition createNodeDefinition();
-	virtual ~ColorNode() {}	
+	
+	ColorNode(const ArgList& Args, bool bFromXML);
+	virtual ~ColorNode() {}
+
+	void setFillColor(const std::string& sColor);
+    const std::string& getFillColor() const;
+private:
+	std::string m_sFillColorName;
+    Pixel32 m_FillColor;
 };
 
+ColorNode::ColorNode(const ArgList& Args, bool bFromXML) :
+	m_sFillColorName("FFFFFF")
+{
+	Args.setMembers(this);
+	setFillColor(m_sFillColorName);
+}
+
+void ColorNode::setFillColor(const string& sFillColor)
+{
+    if (m_sFillColorName != sFillColor) {
+        m_sFillColorName = sFillColor;
+        m_FillColor = colorStringToColor(m_sFillColorName);
+        //setDrawNeeded(true);
+    }
+}
+
+const string& ColorNode::getFillColor() const
+{
+    return m_sFillColorName;
+}
+
 NodePtr ColorNode::create(const ArgList& Args, bool bFromXML) {
-	return NodePtr(new ColorNode());
+	return NodePtr(new ColorNode(Args, bFromXML));
 }
 
 NodeDefinition ColorNode::createNodeDefinition() {
 	return NodeDefinition("colornode", (NodeBuilder)ColorNode::create)
-		.extendDefinition(Node::createDefinition());
+		.extendDefinition(Node::createDefinition())
+		.addArg(Arg<string>("fillcolor", "FFFFFF", false, 
+                offsetof(ColorNode, m_sFillColorName)));
 }
  
 }

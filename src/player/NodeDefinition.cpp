@@ -29,6 +29,11 @@ using namespace std;
 
 namespace avg {
 
+NodeDefinition::NodeDefinition() :
+      m_pBuilder(0)
+{
+}
+
 NodeDefinition::NodeDefinition(const string& Name, NodeBuilder pBuilder)
     : m_sName(Name),
       m_pBuilder(pBuilder)

@@ -64,6 +64,8 @@ class Player : IEventSink
         virtual ~Player();
         static Player* get();
 
+		void updateDTD();
+
         void setResolution(bool bFullscreen,
                 int width=0, int height=0, int bpp=0);
         void setWindowPos(int x=0, int y=0);
@@ -86,7 +88,9 @@ class Player : IEventSink
         long long getFrameTime();
 
         void registerNodeType(NodeDefinition Def);
-        NodePtr createNode (const std::string& sType, const boost::python::dict& PyDict);
+        void updateNodeDefinition(const NodeDefinition& Def);
+		
+		NodePtr createNode (const std::string& sType, const boost::python::dict& PyDict);
         NodePtr createNodeFromXmlString (const std::string& sXML);
         TrackerEventSource * addTracker(const std::string& sConfigFilename);
         int setInterval(int time, PyObject * pyfunc);
