@@ -45,7 +45,7 @@ class PluginTestCase(unittest.TestCase):
           </avg>
         """)
         mynode = Player.getElementByID("mynode")
-        #print mynode.fillcolor
+        print mynode.fillcolor
 
         player.unloadPlugin("ColorNode")
 

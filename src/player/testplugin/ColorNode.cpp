@@ -28,8 +28,10 @@
 #include "../NodeDefinition.h"
 
 #include "../../graphics/Pixel32.h"
+#include "../../wrapper/WrapHelper.h"
 
 using namespace std;
+using namespace boost::python;
 
 namespace avg {
 
@@ -74,6 +76,10 @@ NodePtr ColorNode::create(const ArgList& Args, bool bFromXML) {
 }
 
 NodeDefinition ColorNode::createNodeDefinition() {
+	class_<ColorNode, bases<Node>, boost::noncopyable>("ColorNode", no_init)
+        .add_property("fillcolor", make_function(&ColorNode::getFillColor,
+		return_value_policy<copy_const_reference>()), &ColorNode::setFillColor);
+       
 	return NodeDefinition("colornode", (NodeBuilder)ColorNode::create)
 		.extendDefinition(Node::createDefinition())
 		.addArg(Arg<string>("fillcolor", "FFFFFF", false, 
