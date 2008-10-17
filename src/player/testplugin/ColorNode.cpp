@@ -54,11 +54,13 @@ ColorNode::ColorNode(const ArgList& Args, bool bFromXML) :
 	m_sFillColorName("FFFFFF")
 {
 	Args.setMembers(this);
-	setFillColor(m_sFillColorName);
+	cout << "ColorNode constructed with " << sFillColorName << endl;
+    m_FillColor = colorStringToColor(m_sFillColorName);
 }
 
 void ColorNode::setFillColor(const string& sFillColor)
 {
+    cout << "setFillColor called with " << sFillColor << endl;
     if (m_sFillColorName != sFillColor) {
         m_sFillColorName = sFillColor;
         m_FillColor = colorStringToColor(m_sFillColorName);
