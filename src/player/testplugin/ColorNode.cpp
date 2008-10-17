@@ -1,4 +1,4 @@
-//
+	//
 //  libavg - Media Playback Engine. 
 //  Copyright (C) 2003-2008 Ulrich von Zadow
 //
@@ -27,6 +27,7 @@
 #include "../Node.h"
 #include "../NodeDefinition.h"
 
+#include "../../base/Logger.h"
 #include "../../graphics/Pixel32.h"
 #include "../../wrapper/WrapHelper.h"
 
@@ -54,30 +55,33 @@ ColorNode::ColorNode(const ArgList& Args, bool bFromXML) :
 	m_sFillColorName("FFFFFF")
 {
 	Args.setMembers(this);
-	cout << "ColorNode constructed with " << sFillColorName << endl;
+	AVG_TRACE(Logger::PLUGIN, "ColorNode constructed with " << m_sFillColorName);	
+
     m_FillColor = colorStringToColor(m_sFillColorName);
 }
 
 void ColorNode::setFillColor(const string& sFillColor)
 {
-    cout << "setFillColor called with " << sFillColor << endl;
-    if (m_sFillColorName != sFillColor) {
-        m_sFillColorName = sFillColor;
+	AVG_TRACE(Logger::PLUGIN, "setFillColor called with " << sFillColor);	
+    if (sFillColor != m_sFillColorName) {
+     	m_sFillColorName = sFillColor;
         m_FillColor = colorStringToColor(m_sFillColorName);
         //setDrawNeeded(true);
     }
 }
 
-const string& ColorNode::getFillColor() const
+const std::string& ColorNode::getFillColor() const
 {
     return m_sFillColorName;
 }
 
-NodePtr ColorNode::create(const ArgList& Args, bool bFromXML) {
+NodePtr ColorNode::create(const ArgList& Args, bool bFromXML)
+{
 	return NodePtr(new ColorNode(Args, bFromXML));
 }
 
-NodeDefinition ColorNode::createNodeDefinition() {
+NodeDefinition ColorNode::createNodeDefinition()
+{
 	class_<ColorNode, bases<Node>, boost::noncopyable>("ColorNode", no_init)
         .add_property("fillcolor", make_function(&ColorNode::getFillColor,
 		return_value_policy<copy_const_reference>()), &ColorNode::setFillColor);
