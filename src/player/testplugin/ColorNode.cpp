@@ -103,7 +103,7 @@ NodeDefinition ColorNode::createNodeDefinition()
        
 	return NodeDefinition("colornode", (NodeBuilder)ColorNode::create)
 		.extendDefinition(Node::createDefinition())
-		.addArg(Arg<string>("fillcolor", "FFFFFF", false, 
+		.addArg(Arg<string>("fillcolor", "0F0F0F", false, 
                 offsetof(ColorNode, m_sFillColorName)));
 }
  
