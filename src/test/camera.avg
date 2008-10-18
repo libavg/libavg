@@ -6,7 +6,7 @@
             pixelformat="MONO8" framerate="30" strobeduration="-1"/>
     <camera id="camera1" x="640" y="0" width="640" height="480" source="v4l"
             pixelformat="YUYV422" capturewidth="640" captureheight="480"
-            device="/dev/video1" framerate="30"/>
+            device="/dev/video0" framerate="30"/>
 </avg>
 <!--<avg width="1280" height="960">
     <camera id="camera" x="0" y="0" width="1280" height="960"

@@ -226,7 +226,7 @@ void CameraNode::setWhiteBalance(int Value)
     setFeature(CAM_FEATURE_WHITE_BALANCE, Value);
 }
             
-unsigned int CameraNode::getStrobeDuration() const
+int CameraNode::getStrobeDuration() const
 {
     return getFeature(CAM_FEATURE_STROBE_DURATION);
 }
