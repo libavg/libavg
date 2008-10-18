@@ -226,6 +226,7 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
     int Gamma = Config.getIntParam("/camera/gamma/@value");
     int Gain = Config.getIntParam("/camera/gain/@value");
     int Shutter = Config.getIntParam("/camera/shutter/@value");
+    int StrobeDuration = Config.getIntParam("/camera/strobeduration/@value");
     string sCameraMaskFName = Config.getParam("/tracker/mask/@value");
     bool bNewCameraMask = (!m_pConfig || 
             m_pConfig->getParam("/tracker/mask/@value") != sCameraMaskFName);
@@ -234,6 +235,7 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
              int(m_pCamera->getFeature(CAM_FEATURE_GAMMA)) != Gamma ||
              int(m_pCamera->getFeature(CAM_FEATURE_GAIN)) != Gain ||
              int(m_pCamera->getFeature(CAM_FEATURE_SHUTTER)) != Shutter ||
+             int(m_pCamera->getFeature(CAM_FEATURE_STROBE_DURATION)) != StrobeDuration ||
              bNewCameraMask)
     {
         m_pHistoryPreProcessor->reset();
@@ -244,6 +246,7 @@ void TrackerThread::setConfig(TrackerConfig Config, IntRect ROI,
     m_pCamera->setFeature(CAM_FEATURE_GAMMA, Gamma);
     m_pCamera->setFeature(CAM_FEATURE_GAIN, Gain);
     m_pCamera->setFeature(CAM_FEATURE_SHUTTER, Shutter);
+    m_pCamera->setFeature(CAM_FEATURE_STROBE_DURATION, StrobeDuration);
 
     if (bNewCameraMask) {
         if (sCameraMaskFName == "") {

@@ -173,7 +173,10 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
         pDoubleArg->setValue(ret); 
     } else if (pBoolArg) {
         pBoolArg->setValue(sValue == "True" || sValue == "true" || sValue == "1");
+    } else {
+        assert(false);
     }
+     
 }
 
 void ArgList::copyArgsFrom(const ArgList& ArgTemplates)

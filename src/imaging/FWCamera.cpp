@@ -484,7 +484,12 @@ void FWCamera::setFeature(CameraFeature Feature, int Value)
     if (Feature == CAM_FEATURE_STROBE_DURATION) {
         m_StrobeDuration = Value;
         if (m_bCameraAvailable) {
-            setStrobeDuration(Value);
+            try {
+                setStrobeDuration(Value);
+            } catch (Exception& e) {
+                AVG_TRACE(Logger::WARNING, string("Camera: Setting strobe duration failed "
+                        "- possibly not supported by camera. ")+e.GetStr());
+            }
         }
     }
     dc1394feature_t FeatureID = getFeatureID(Feature);

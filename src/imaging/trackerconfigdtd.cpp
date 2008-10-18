@@ -29,7 +29,7 @@ const char * g_pTrackerConfigDTD =
 "    y CDATA #REQUIRED\" >\n"
  
 "<!ELEMENT trackerconfig (camera|tracker|transform)* >\n"
-"<!ELEMENT camera (source|device|format|size|channel|fps|brightness|exposure|gamma|gain|shutter)* >\n"
+"<!ELEMENT camera (source|device|format|size|channel|fps|brightness|exposure|gamma|gain|shutter|strobeduration)* >\n"
 "<!ELEMENT tracker (mask|prescale|historyupdateinterval|brighterregions|eventonmove|contourprecision|touch|track)* >\n"
 "<!ELEMENT touch (threshold|similarity|areabounds|eccentricitybounds|bandpass|bandpasspostmult)* >\n"
 "<!ELEMENT track (threshold|similarity|areabounds|eccentricitybounds)* >\n"
@@ -78,6 +78,10 @@ const char * g_pTrackerConfigDTD =
 
 "<!ELEMENT shutter EMPTY>\n"
 "<!ATTLIST shutter\n"
+"   value CDATA #REQUIRED >\n"
+
+"<!ELEMENT strobeduration EMPTY>\n"
+"<!ATTLIST strobeduration\n"
 "   value CDATA #REQUIRED >\n"
 
 "<!ELEMENT brighterregions EMPTY>\n"
