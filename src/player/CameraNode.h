@@ -77,6 +77,8 @@ class CameraNode : public VideoBase
         void setGain(int Value);
         unsigned int getWhiteBalance() const;
         void setWhiteBalance(int Value);
+        unsigned int getStrobeDuration() const;
+        void setStrobeDuration(int Value);
         
         virtual void preRender();
 

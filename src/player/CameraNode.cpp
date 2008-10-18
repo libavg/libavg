@@ -67,7 +67,8 @@ NodeDefinition CameraNode::createDefinition()
         .addArg(Arg<int>("gamma", -1))
         .addArg(Arg<int>("shutter", -1))
         .addArg(Arg<int>("gain", -1))
-        .addArg(Arg<int>("whitebalance", -1));
+        .addArg(Arg<int>("whitebalance", -1))
+        .addArg(Arg<int>("strobeduration", -1));
 }
 
 CameraNode::CameraNode(const ArgList& Args, bool bFromXML)
@@ -114,22 +115,24 @@ CameraNode::CameraNode(const ArgList& Args, bool bFromXML)
     }
 
     if (m_pCamera) {
-        m_pCamera->setFeature (CAM_FEATURE_BRIGHTNESS,
-            Args.getArgVal<int>("brightness"));
-        m_pCamera->setFeature (CAM_FEATURE_EXPOSURE,
-            Args.getArgVal<int>("exposure"));
-        m_pCamera->setFeature (CAM_FEATURE_SHARPNESS,
-            Args.getArgVal<int>("sharpness"));
-        m_pCamera->setFeature (CAM_FEATURE_SATURATION,
-            Args.getArgVal<int>("saturation"));
-        m_pCamera->setFeature (CAM_FEATURE_GAMMA,
-            Args.getArgVal<int>("gamma"));
-        m_pCamera->setFeature (CAM_FEATURE_SHUTTER,
-            Args.getArgVal<int>("shutter"));
-        m_pCamera->setFeature (CAM_FEATURE_GAIN,
-            Args.getArgVal<int>("gain"));
-        m_pCamera->setFeature (CAM_FEATURE_WHITE_BALANCE,
-            Args.getArgVal<int>("whitebalance"));
+        m_pCamera->setFeature(CAM_FEATURE_BRIGHTNESS,
+                Args.getArgVal<int>("brightness"));
+        m_pCamera->setFeature(CAM_FEATURE_EXPOSURE,
+                Args.getArgVal<int>("exposure"));
+        m_pCamera->setFeature(CAM_FEATURE_SHARPNESS,
+                Args.getArgVal<int>("sharpness"));
+        m_pCamera->setFeature(CAM_FEATURE_SATURATION,
+                Args.getArgVal<int>("saturation"));
+        m_pCamera->setFeature(CAM_FEATURE_GAMMA,
+                Args.getArgVal<int>("gamma"));
+        m_pCamera->setFeature(CAM_FEATURE_SHUTTER,
+                Args.getArgVal<int>("shutter"));
+        m_pCamera->setFeature(CAM_FEATURE_GAIN,
+                Args.getArgVal<int>("gain"));
+        m_pCamera->setFeature(CAM_FEATURE_WHITE_BALANCE,
+                Args.getArgVal<int>("whitebalance"));
+        m_pCamera->setFeature(CAM_FEATURE_STROBE_DURATION,
+                Args.getArgVal<int>("strobeduration"));
     }
 }
 
@@ -145,82 +148,92 @@ void CameraNode::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine
 
 int CameraNode::getBrightness() const
 {
-    return getFeature (CAM_FEATURE_BRIGHTNESS);
+    return getFeature(CAM_FEATURE_BRIGHTNESS);
 }
 
 void CameraNode::setBrightness(int Value)
 {
-    setFeature (CAM_FEATURE_BRIGHTNESS, Value);
+    setFeature(CAM_FEATURE_BRIGHTNESS, Value);
 }
 
 int CameraNode::getExposure() const
 {
-    return getFeature (CAM_FEATURE_EXPOSURE);
+    return getFeature(CAM_FEATURE_EXPOSURE);
 }
 
 void CameraNode::setExposure(int Value)
 {
-    setFeature (CAM_FEATURE_EXPOSURE, Value);
+    setFeature(CAM_FEATURE_EXPOSURE, Value);
 }
 
 int CameraNode::getSharpness() const
 {
-    return getFeature (CAM_FEATURE_SHARPNESS);
+    return getFeature(CAM_FEATURE_SHARPNESS);
 }
 
 void CameraNode::setSharpness(int Value)
 {
-    setFeature (CAM_FEATURE_SHARPNESS, Value);
+    setFeature(CAM_FEATURE_SHARPNESS, Value);
 }
 
 int CameraNode::getSaturation() const
 {
-    return getFeature (CAM_FEATURE_SATURATION);
+    return getFeature(CAM_FEATURE_SATURATION);
 }
 
 void CameraNode::setSaturation(int Value)
 {
-    setFeature (CAM_FEATURE_SATURATION, Value);
+    setFeature(CAM_FEATURE_SATURATION, Value);
 }
 
 int CameraNode::getGamma() const
 {
-    return getFeature (CAM_FEATURE_GAMMA);
+    return getFeature(CAM_FEATURE_GAMMA);
 }
 
 void CameraNode::setGamma(int Value)
 {
-    setFeature (CAM_FEATURE_GAMMA, Value);
+    setFeature(CAM_FEATURE_GAMMA, Value);
 }
 
 int CameraNode::getShutter() const
 {
-    return getFeature (CAM_FEATURE_SHUTTER);
+    return getFeature(CAM_FEATURE_SHUTTER);
 }
 
 void CameraNode::setShutter(int Value)
 {
-    setFeature (CAM_FEATURE_SHUTTER, Value);
+    setFeature(CAM_FEATURE_SHUTTER, Value);
 }
 
 int CameraNode::getGain() const
 {
-    return getFeature (CAM_FEATURE_GAIN);
+    return getFeature(CAM_FEATURE_GAIN);
 }
 
 void CameraNode::setGain(int Value)
 {
-    setFeature (CAM_FEATURE_GAIN, Value);
+    setFeature(CAM_FEATURE_GAIN, Value);
 }
 
 unsigned int CameraNode::getWhiteBalance() const
 {
-    return getFeature (CAM_FEATURE_WHITE_BALANCE);
+    return getFeature(CAM_FEATURE_WHITE_BALANCE);
 }
 
 void CameraNode::setWhiteBalance(int Value)
 {
-    setFeature (CAM_FEATURE_WHITE_BALANCE, Value);
+    setFeature(CAM_FEATURE_WHITE_BALANCE, Value);
+}
+            
+unsigned int CameraNode::getStrobeDuration() const
+{
+    return getFeature(CAM_FEATURE_STROBE_DURATION);
+}
+
+void CameraNode::setStrobeDuration(int Value)
+{
+    setFeature(CAM_FEATURE_STROBE_DURATION, Value);
 }
             
 

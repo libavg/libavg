@@ -25,6 +25,9 @@ class CameraTestCase(unittest.TestCase):
         def stopPlayback():
             self.__camera.stop()
             Player.setTimeout(500, self.__camera.play)
+        def setStrobe():
+            self.__camera.strobeduration += 10
+            print self.__camera.strobeduration
         self.curFrame = 200
         Player.loadFile("camera.avg")
         Player.setFramerate(60)
