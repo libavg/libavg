@@ -49,8 +49,7 @@ FWCamera::FWCamera(std::string sDevice, IntPoint Size, std::string sPF,
       m_Size(Size),
       m_FrameRate(FrameRate),
       m_bColor(bColor),
-      m_bCameraAvailable(false),
-      m_StrobeDuration(0)
+      m_bCameraAvailable(false)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     m_FrameRateConstant = getFrameRateConst(m_FrameRate);
@@ -461,16 +460,11 @@ double FWCamera::getFrameRate() const
 unsigned int FWCamera::getFeature(CameraFeature Feature) const
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-    if (Feature == CAM_FEATURE_STROBE_DURATION) {
-        return m_StrobeDuration;
+    FeatureMap::const_iterator it = m_Features.find(Feature);
+    if (it == m_Features.end()) {
+        return 0;
     } else {
-        dc1394feature_t FeatureID = getFeatureID(Feature);
-        FeatureMap::const_iterator it = m_Features.find(FeatureID);
-        if (it == m_Features.end()) {
-            return 0;
-        } else {
-            return it->second;
-        }
+        return it->second;
     }
 #else
     return 0;
@@ -479,25 +473,18 @@ unsigned int FWCamera::getFeature(CameraFeature Feature) const
 
 void FWCamera::setFeature(CameraFeature Feature, int Value)
 {
+    m_Features[Feature] = Value;
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-//    cerr << "Setting camera " << cameraFeatureToString(Feature) << " to " << Value << endl;
-    if (Feature == CAM_FEATURE_STROBE_DURATION) {
-        m_StrobeDuration = Value;
-        if (m_bCameraAvailable) {
+    if (m_bCameraAvailable) {
+        if (Feature == CAM_FEATURE_STROBE_DURATION) {
             try {
                 setStrobeDuration(Value);
             } catch (Exception& e) {
-                if (Value != -1) {
-                    AVG_TRACE(Logger::WARNING, 
-                            string("Camera: Setting strobe duration failed "
-                            "- possibly not supported by camera. ")+e.GetStr());
-                }
+                AVG_TRACE(Logger::WARNING, 
+                        string("Camera: Setting strobe duration failed. ")+e.GetStr());
             }
-        }
-    } else {
-        dc1394feature_t FeatureID = getFeatureID(Feature);
-        m_Features[FeatureID] = Value;
-        if (m_bCameraAvailable) {
+        } else {
+            dc1394feature_t FeatureID = getFeatureID(Feature);
             setFeature(FeatureID, Value);
             //        dumpCameraInfo();
         }
@@ -645,7 +632,7 @@ void FWCamera::setStrobeDuration(int microsecs)
 #ifdef AVG_ENABLE_1394_2
     dc1394error_t err;
     uint32_t durationRegValue;
-    if (microsecs >= 63930 || microsecs < 0) {
+    if (microsecs >= 63930 || microsecs < -1) {
         throw Exception(AVG_ERR_CAMERA, string("Illegal value ")+toString(microsecs)
                 +" for strobe duration.");
     }

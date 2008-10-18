@@ -99,9 +99,8 @@ private:
     void dumpCameraInfo();
 
     bool m_bCameraAvailable;
-    typedef std::map<dc1394feature_t, int> FeatureMap;
+    typedef std::map<CameraFeature, int> FeatureMap;
     FeatureMap m_Features;
-    int m_StrobeDuration;
 };
 
 }
