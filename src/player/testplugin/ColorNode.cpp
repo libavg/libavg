@@ -1,4 +1,4 @@
-	//
+		//
 //  libavg - Media Playback Engine. 
 //  Copyright (C) 2003-2008 Ulrich von Zadow
 //
@@ -35,6 +35,8 @@ using namespace std;
 using namespace boost::python;
 
 namespace avg {
+	
+extern template class Arg<string>;
 
 class ColorNode : public Node {
 public:
