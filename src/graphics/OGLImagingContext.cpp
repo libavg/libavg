@@ -203,13 +203,10 @@ void OGLImagingContext::activate()
 {
 #ifdef __APPLE__
     bool bOk = aglSetCurrentContext(m_Context);
+#elif defined _WIN32
+    BOOL bOk = wglMakeCurrent(m_hDC, m_Context);
+#endif
     assert(bOk);
-#else
-#endif
-#ifdef _WIN32
-    wglDeleteContext( m_Context );
-#endif
-
 }
 
 void OGLImagingContext::setSize(const IntPoint& size)
