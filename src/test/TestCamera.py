@@ -32,6 +32,7 @@ class CameraTestCase(unittest.TestCase):
         Player.loadFile("camera.avg")
         Player.setFramerate(60)
         self.__camera = Player.getElementByID("camera")
+        self.__camera.strobeduration = -1
         self.__camera.play()
         Player.getElementByID("camera1").play()
 #        self.brightness = 0
