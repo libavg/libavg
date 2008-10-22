@@ -86,11 +86,6 @@ using namespace std;
 
 namespace avg {
 	
-	// explicitly instanciate template class Arg<T>
-	// for use in plug ins
-	
-	template class Arg<string>;
-
 Player * Player::s_pPlayer=0;
 
 Player::Player()

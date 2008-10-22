@@ -36,8 +36,6 @@ using namespace boost::python;
 
 namespace avg {
 	
-extern template class Arg<string>;
-
 class ColorNode : public Node {
 public:
 	static NodePtr create(const ArgList& Args, bool bFromXML);
