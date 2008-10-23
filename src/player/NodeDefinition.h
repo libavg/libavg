@@ -24,6 +24,8 @@
 #ifndef _NodeDefinition_H_
 #define _NodeDefinition_H_
 
+#include "../api.h"
+
 #include "Node.h"
 #include "ArgList.h"
 
@@ -35,7 +37,7 @@ namespace avg {
 typedef NodePtr (*NodeBuilder)(const ArgList& Args, bool bFromXML);
 typedef std::map<std::string, NodeDefinition> ChildMap;
 
-class NodeDefinition
+class AVG_API NodeDefinition
 {
 public:
 	NodeDefinition();

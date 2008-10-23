@@ -25,10 +25,14 @@ class PluginTestCase(AVGTestCase):
 
     def testColorNodePlugin(self):
         def loadPlugin():
-            Player.pluginPath = "../player/testplugin"
+            if platform.system() == 'Windows':
+                Player.pluginPath = "../../../../Archimedes/libavg_win/debug"
+            else:
+                Player.pluginPath = "../player/testplugin"
             Player.loadPlugin("ColorNode")
 
         def usePlugin():
+            Player.stop()
             Player.loadString("""
             <avg width="160" height="120">
                 <div width="160" height="120">
@@ -37,6 +41,7 @@ class PluginTestCase(AVGTestCase):
             </avg>""")
             mynode = Player.getElementByID("mynode")
             self.assert_(mynode.fillcolor == "7f7f00")
+            Player.play()
         
         self._loadEmpty()
         self.start(None, (

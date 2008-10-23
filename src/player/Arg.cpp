@@ -26,8 +26,9 @@
 
 using namespace avg;
 
+
 // explicit instanciation
 
-template class Arg<int>;
-template class Arg<float>;
-template class Arg<std::string>;
+template class avg::Arg<int>;
+template class avg::Arg<float>;
+template class avg::Arg<std::string>;

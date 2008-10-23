@@ -1,4 +1,4 @@
-		//
+//
 //  libavg - Media Playback Engine. 
 //  Copyright (C) 2003-2008 Ulrich von Zadow
 //
@@ -21,14 +21,16 @@
 //  Original author of this file is Jan Boelsche (regular.gonzales@googlemail.com).
 //
 
-#include "../Node.h"
+#define AVG_PLUGIN
+#define AVG_PLUGIN_API extern "C" __declspec(dllexport)
+
+#include "../AreaNode.h"
 #include "../NodeDefinition.h"
 
 #include "../../base/Logger.h"
 #include "../../graphics/Pixel32.h"
+#include "../../graphics/OGLHelper.h"
 #include "../../wrapper/WrapHelper.h"
-
-#include <OpenGL/OpenGL.h>
 
 #include <string>
 #include <iostream>
@@ -38,7 +40,7 @@ using namespace boost::python;
 
 namespace avg {
 	
-class ColorNode : public Node 
+class ColorNode : public AreaNode 
 {
 public:
 	static NodePtr create(const ArgList& Args, bool bFromXML);
@@ -49,7 +51,8 @@ public:
 
 	void setFillColor(const std::string& sColor);
     const std::string& getFillColor() const;
-	//void render (const DRect& Rect);
+	virtual void maybeRender(const DRect& Rect);
+	virtual void render (const DRect& Rect);
 
 private:
 	std::string m_sFillColorName;
@@ -82,15 +85,18 @@ const std::string& ColorNode::getFillColor() const
     return m_sFillColorName;
 }
 
-/*
+void ColorNode::maybeRender(const DRect& Rect) {
+	render(Rect);
+}
+
 void ColorNode::render (const DRect& Rect)
 {
-	AVG_TRACE(Logger::PLUGIN, "ColorNode::render");	
+	//AVG_TRACE(Logger::PLUGIN, "ColorNode::render");	
 	
 	glClearColor(1.0, 1.0, 0.0, 1.0); 
     glClear(GL_COLOR_BUFFER_BIT);
 }
-*/
+
 
 NodePtr ColorNode::create(const ArgList& Args, bool bFromXML)
 {
@@ -100,19 +106,19 @@ NodePtr ColorNode::create(const ArgList& Args, bool bFromXML)
 
 NodeDefinition ColorNode::createNodeDefinition()
 {
-	class_<ColorNode, bases<Node>, boost::noncopyable>("ColorNode", no_init)
+	class_<ColorNode, bases<AreaNode>, boost::noncopyable>("ColorNode", no_init)
         .add_property("fillcolor", make_function(&ColorNode::getFillColor,
 		return_value_policy<copy_const_reference>()), &ColorNode::setFillColor);
        
 	return NodeDefinition("colornode", (NodeBuilder)ColorNode::create)
-		.extendDefinition(Node::createDefinition())
+		.extendDefinition(AreaNode::createDefinition())
 		.addArg(Arg<string>("fillcolor", "0F0F0F", false, 
                 offsetof(ColorNode, m_sFillColorName)));
 }
  
 }
 
-extern "C" avg::NodeDefinition getNodeDefinition() {
+AVG_PLUGIN_API avg::NodeDefinition getNodeDefinition() {
 	return avg::ColorNode::createNodeDefinition();
 }
 

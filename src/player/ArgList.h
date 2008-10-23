@@ -24,6 +24,8 @@
 #ifndef _ArgList_H_
 #define _ArgList_H_
 
+#include "../api.h"
+
 #include "BoostPython.h"
 #include "Arg.h"
 
@@ -38,7 +40,7 @@ typedef std::map<std::string, ArgBasePtr> ArgMap;
 
 class Node;
 
-class ArgList
+class AVG_API ArgList
 {
 public:
     ArgList();
