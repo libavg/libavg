@@ -22,7 +22,7 @@
 //
 
 #define AVG_PLUGIN
-#define AVG_PLUGIN_API extern "C" __declspec(dllexport)
+#include "../api.h"
 
 #include "../AreaNode.h"
 #include "../NodeDefinition.h"
@@ -51,9 +51,9 @@ public:
 
 	void setFillColor(const std::string& sColor);
     const std::string& getFillColor() const;
+
 	virtual void maybeRender(const DRect& Rect);
 	virtual void render (const DRect& Rect);
-
 private:
 	std::string m_sFillColorName;
     Pixel32 m_FillColor;
@@ -76,7 +76,6 @@ void ColorNode::setFillColor(const string& sFillColor)
     if (sFillColor != m_sFillColorName) {
      	m_sFillColorName = sFillColor;
         m_FillColor = colorStringToColor(m_sFillColorName);
-        //setDrawNeeded(true);
     }
 }
 
@@ -85,18 +84,18 @@ const std::string& ColorNode::getFillColor() const
     return m_sFillColorName;
 }
 
-void ColorNode::maybeRender(const DRect& Rect) {
-	render(Rect);
+void ColorNode::maybeRender(const DRect& rect)
+{
+	render(rect);
 }
 
-void ColorNode::render (const DRect& Rect)
+void ColorNode::render (const DRect& rect)
 {
 	//AVG_TRACE(Logger::PLUGIN, "ColorNode::render");	
 	
 	glClearColor(1.0, 1.0, 0.0, 1.0); 
     glClear(GL_COLOR_BUFFER_BIT);
 }
-
 
 NodePtr ColorNode::create(const ArgList& Args, bool bFromXML)
 {
