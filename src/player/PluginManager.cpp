@@ -42,139 +42,123 @@ PluginManager::PluginNotFound::PluginNotFound(const string& message) :
 PluginManager::PluginCorrupted::PluginCorrupted(const string& message) :
 	Exception(AVG_ERR_CORRUPT_PLUGIN, message) {}
 	
-PluginManager& PluginManager::get() {
-	static PluginManager theInstance;
-	return theInstance;
+PluginManager& PluginManager::get()
+{
+	static PluginManager sTheInstance;
+	return sTheInstance;
 }
 
-PluginManager::PluginManager() {
-	_parsePath(".");
+PluginManager::PluginManager()
+{
+	parsePath(".");
 }
 
-void PluginManager::setSearchPath(const string& aNewPath) {
-	m_currentSearchPath = aNewPath;
-	_parsePath(m_currentSearchPath);
+void PluginManager::setSearchPath(const string& sNewPath)
+{
+	m_sCurrentSearchPath = sNewPath;
+	parsePath(m_sCurrentSearchPath);
 }
 
-string PluginManager::getSearchPath() const {
-	return m_currentSearchPath;
+string PluginManager::getSearchPath() const
+{
+	return m_sCurrentSearchPath;
 }
 	
-void PluginManager::loadPlugin(const std::string& aPluginName) {
+void PluginManager::loadPlugin(const std::string& sPluginName)
+{
 	// is it leaded aready?
-	PluginMap::iterator i = m_loadedPlugins.find(aPluginName);
+	PluginMap::iterator i = m_loadedPlugins.find(sPluginName);
 	if (i == m_loadedPlugins.end()) {
 		// no, let's try to load it!
-		string fullpath = _locateSharedObject(aPluginName+".so");
-		void *handle = _internalLoadPlugin(fullpath);
+		string sFullpath = locateSharedObject(sPluginName+".so");
+		void *handle = internalLoadPlugin(sFullpath);
 		// add to map of loaded plugins
-		m_loadedPlugins[aPluginName] = make_pair(handle, 1);
+		m_loadedPlugins[sPluginName] = make_pair(handle, 1);
 	} else {
 		// yes, just increase the reference count
 		int referenceCount = i->second.second;
 		++referenceCount;
-		m_loadedPlugins[aPluginName] = make_pair(i->second.first, referenceCount);
+		m_loadedPlugins[sPluginName] = make_pair(i->second.first, referenceCount);
 	}
 }
 
-string PluginManager::_locateSharedObject(const string& aFilename) {
+string PluginManager::locateSharedObject(const string& sFilename)
+{
 	vector<string>::iterator i = m_pathComponents.begin();
-	string myFullpath;
+	string sFullpath;
 	while(i != m_pathComponents.end()) {
-		myFullpath = *i + aFilename;
-		if (fileExists(myFullpath)) {
-			return myFullpath;
+		sFullpath = *i + sFilename;
+		if (fileExists(sFullpath)) {
+			return sFullpath;
 		}
 		++i;
 	}
-	string message = "unable to locate plugin file '" + aFilename + "'. Was looking in " + m_currentSearchPath;
-	AVG_TRACE(Logger::PLUGIN, message);		
-	throw PluginNotFound(message);
+	string sMessage = "unable to locate plugin file '" + sFilename + "'. Was looking in " + m_sCurrentSearchPath;
+	AVG_TRACE(Logger::PLUGIN, sMessage);		
+	throw PluginNotFound(sMessage);
 }
 
-void PluginManager::unloadPlugin(const string& aPluginName) {
-	// is it leaded?
-	PluginMap::iterator i = m_loadedPlugins.find(aPluginName);
-	if (i == m_loadedPlugins.end()) {
-		// no, this is something we probably can ignore
-		AVG_TRACE(Logger::PLUGIN, "Warning: request to unload plugin that wasn't loaded: '" << aPluginName << "'.");	
-	} else {
-		// yes,  decrease the reference count
-		int referenceCount = i->second.second;
-		if (--referenceCount) {
-			// reference count is not zero
-			// store the new reference count and keep the module loaded
-			m_loadedPlugins[aPluginName] = make_pair(i->second.first, referenceCount);
-		} else {
-			m_loadedPlugins.erase(i);
-			_internalUnloadPlugin(i->second.first);
-		}
-	}
-}
-
-string PluginManager::_checkDirectory(const string& aDirectory) {
-	string directory;
-	char lastChar = *aDirectory.rbegin();
+string PluginManager::checkDirectory(const string& sDirectory)
+{
+	string sFixedDirectory;
+	char lastChar = *sDirectory.rbegin();
 	if (lastChar != '/' && lastChar != '\\') {
-		directory = aDirectory + "/";
+		sFixedDirectory = sDirectory + "/";
 	} else {
-		directory = aDirectory;
+		sFixedDirectory = sDirectory;
 	}
-	if (!fileExists(directory)) {
-		AVG_TRACE(Logger::PLUGIN, "Warning: non-existing plugin directory '" << directory << "'");		
+	if (!fileExists(sFixedDirectory)) {
+		AVG_TRACE(Logger::PLUGIN, "Warning: non-existing plugin directory '"
+		        << sFixedDirectory << "'");		
 	}
-	return directory;
+	return sFixedDirectory;
 }
 
-void PluginManager::_parsePath(const std::string& aPath) {
+void PluginManager::parsePath(const std::string& sPath) {
 	// break the string into colon separated components
 	// and make sure each component has a trailing slash
 	// warn about non-existing directories
 	
 	m_pathComponents.clear();
-	string remaining = aPath;
+	string sRemaining = sPath;
 	string::size_type i;
 	do {
-		i = remaining.find(':');
-		string directory;
+		i = sRemaining.find(':');
+		string sDirectory;
 		if (i == string::npos) {
-			directory = remaining;
-			remaining = "";
+			sDirectory = sRemaining;
+			sRemaining = "";
 		} else {
-			directory = remaining.substr(0, i);
-			remaining = remaining.substr(i+1);
+			sDirectory = sRemaining.substr(0, i);
+			sRemaining = sRemaining.substr(i+1);
 		}
-		directory = _checkDirectory(directory);
-		AVG_TRACE(Logger::PLUGIN, "adding plugin directory '" << directory << "'");		
+		sDirectory = checkDirectory(sDirectory);
+		AVG_TRACE(Logger::PLUGIN, "adding plugin directory '" << sDirectory << "'");		
 		
-		m_pathComponents.push_back(directory);
-	} while(!remaining.empty());
+		m_pathComponents.push_back(sDirectory);
+	} while(!sRemaining.empty());
 }
 	
-void* PluginManager::_internalLoadPlugin(const string& fullpath) {	
-	AVG_TRACE(Logger::PLUGIN, "dlopening '" << fullpath << "'");
-	void *handle = dlopen(fullpath.c_str(), RTLD_LOCAL | RTLD_NOW);
+void* PluginManager::internalLoadPlugin(const string& sFullpath)
+{	
+	AVG_TRACE(Logger::PLUGIN, "dlopening '" << sFullpath << "'");
+	void *handle = dlopen(sFullpath.c_str(), RTLD_LOCAL | RTLD_NOW);
 	if (!handle) {
-		string message(dlerror());
-		AVG_TRACE(Logger::PLUGIN, "dlopen failed with message '" << message << "'");
-		throw PluginCorrupted(message);
+		string sMessage(dlerror());
+		AVG_TRACE(Logger::PLUGIN, "dlopen failed with message '" << sMessage << "'");
+		throw PluginCorrupted(sMessage);
 	}
 	try {
-		_inspectPlugin(handle);
+		inspectPlugin(handle);
 	} catch(PluginCorrupted& e) {
-		_internalUnloadPlugin(handle);
+		dlclose(handle);
 		throw e;
-	}
-	 
+	}	 
 	return handle;
 }
 
-void PluginManager::_internalUnloadPlugin(void* handle) {
-	AVG_TRACE(Logger::PLUGIN, "dlclosing");
-	dlclose(handle);
-}
-
-void PluginManager::_inspectPlugin(void* handle) {
+void PluginManager::inspectPlugin(void* handle)
+{
 	typedef NodeDefinition (*GetNodeDefinitionPtr)();
 	GetNodeDefinitionPtr getNodeDefinition = reinterpret_cast<GetNodeDefinitionPtr> (dlsym(handle, "getNodeDefinition"));
 

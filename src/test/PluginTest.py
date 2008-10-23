@@ -47,8 +47,6 @@ class PluginTestCase(unittest.TestCase):
         mynode = Player.getElementByID("mynode")
         self.assert_(mynode.fillcolor == "7f7f00")
 
-        #player.unloadPlugin("ColorNode")
-
 def pluginTestSuite (tests):
     suite = unittest.TestSuite()
     suite.addTest (PluginTestCase())

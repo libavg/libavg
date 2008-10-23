@@ -131,7 +131,6 @@ class Player : IEventSink
         void disablePython();
 
 		void loadPlugin(const std::string& name);
-		void unloadPlugin(const std::string& name);
 		void setPluginPath(const std::string& newPath);
 		std::string getPluginPath() const;
     private:

@@ -330,10 +330,6 @@ BOOST_PYTHON_MODULE(avg)
 		                "loadPlugin(name)\n"
 		                "load a Plugin and extend the XML DTD.\n"
 		                "@param name: name of the plugin (without directory and file extension)\n")
-        .def("unloadPlugin", &Player::unloadPlugin,
-						"unloadPlugin(name)\n"
-						"unloads a previously loaded plugin.\n"
-						"@param name: name of the plugin (without directory and file extension)\n")
 		.add_property("pluginPath", &Player::getPluginPath, &Player::setPluginPath,
 		                "A colon-separated list of directories where the player\n"
 		                "searches for plugins when loadPlugin() is called.\n")

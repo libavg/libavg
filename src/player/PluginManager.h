@@ -20,8 +20,8 @@
 //
 //  Original author of this file is Jan Boelsche (regular.gonzales@googlemail.com).
 //
-#ifndef _PluginManager_h_
-#define _PluginManager_h_
+#ifndef _PluginManager_H_
+#define _PluginManager_H_
 
 #include "../base/Exception.h"
 
@@ -30,44 +30,43 @@
 #include <memory>
 
 namespace avg {
-	
-class PluginManager {
+    
+class PluginManager
+{
 public:
-	class PluginNotFound : public Exception {
-	public:
-		PluginNotFound(const std::string& message);
-	};
-	class PluginCorrupted : public Exception {
-	public:
-		PluginCorrupted(const std::string& message);
-	};
-	
-	static PluginManager& get();
-	
-	void setSearchPath(const std::string& aNewPath);
-	std::string getSearchPath() const;
-	
-	void loadPlugin(const std::string& aPluginName);
-	void unloadPlugin(const std::string& aPluginName);
+    class PluginNotFound : public Exception {
+    public:
+        PluginNotFound(const std::string& message);
+    };
+    class PluginCorrupted : public Exception {
+    public:
+        PluginCorrupted(const std::string& message);
+    };
+    
+    static PluginManager& get();
+    
+    void setSearchPath(const std::string& aNewPath);
+    std::string getSearchPath() const;
+    
+    void loadPlugin(const std::string& aPluginName);
 
 private:
-	PluginManager();	
-	
-	std::string _checkDirectory(const std::string& aDirectory);
-	void _parsePath(const std::string& aPath);
-	std::string _locateSharedObject(const std::string& aPluginName);
-	void* _internalLoadPlugin(const std::string& aPluginName);
-	void _internalUnloadPlugin(void*);
-	void _inspectPlugin(void* handle);
-	
-	
-	// maps module names to a pair of handle and reference count
-	typedef std::map<std::string, std::pair<void*, int> > PluginMap;
-	PluginMap m_loadedPlugins;
-	std::vector<std::string> m_pathComponents;
-	std::string m_currentSearchPath;	
+    PluginManager();    
+    
+    std::string checkDirectory(const std::string& aDirectory);
+    void parsePath(const std::string& aPath);
+    std::string locateSharedObject(const std::string& aPluginName);
+    void* internalLoadPlugin(const std::string& aPluginName);
+    void inspectPlugin(void* handle);
+    
+    
+    // maps module names to a pair of handle and reference count
+    typedef std::map<std::string, std::pair<void*, int> > PluginMap;
+    PluginMap m_loadedPlugins;
+    std::vector<std::string> m_pathComponents;
+    std::string m_sCurrentSearchPath;    
 };
-	
+    
 }
 
 #endif

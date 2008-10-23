@@ -1327,11 +1327,4 @@ void Player::loadPlugin(const std::string& name)
 	PluginManager::get().loadPlugin(name);
 }
 
-void Player::unloadPlugin(const std::string& name)
-{
-    AVG_TRACE(Logger::PLUGIN, "player unloading plugin: '" << name << "'");		
-	PluginManager::get().unloadPlugin(name);
-}
-
-
 }
