@@ -17,40 +17,48 @@ if platform.system() == 'Windows':
 else:    
     import avg
 
-class PluginTestCase(unittest.TestCase):
-    def runTest(self):
-        self.Log = avg.Logger.get()
-        self.Log.setCategories(self.Log.APP |
-                self.Log.WARNING |
-                self.Log.PLUGIN
+from testcase import *
 
-#                  self.Log.PROFILE |
-#                  self.Log.PROFILE_LATEFRAMES |
-#                  self.Log.CONFIG |
-#                  self.Log.MEMORY |
-#                  self.Log.BLTS    |
-#                  self.Log.EVENTS |
-#                  self.Log.EVENTS2
-                  )
-                
-        player = avg.Player.get()
-        player.pluginPath = "../player/testplugin"
-        player.loadPlugin("ColorNode")
+class PluginTestCase(AVGTestCase):
+    def __init__(self, testFuncName):
+        AVGTestCase.__init__(self, testFuncName, 24)
 
-        Player.loadString("""
-          <avg width="160" height="120">
-              <div width="160" height="120">
-                 <colornode id="mynode" fillcolor="7f7f00" />
-              </div>
-          </avg>
-        """)
-        mynode = Player.getElementByID("mynode")
-        self.assert_(mynode.fillcolor == "7f7f00")
+    def testColorNodePlugin(self):
+        def loadPlugin():
+            Player.pluginPath = "../player/testplugin"
+            Player.loadPlugin("ColorNode")
+
+        def usePlugin():
+            Player.loadString("""
+            <avg width="160" height="120">
+                <div width="160" height="120">
+                    <colornode id="mynode" fillcolor="7f7f00" />
+                </div>
+            </avg>""")
+            mynode = Player.getElementByID("mynode")
+            self.assert_(mynode.fillcolor == "7f7f00")
+        
+        self._loadEmpty()
+        self.start(None, (
+            loadPlugin,
+            lambda: True, 
+            usePlugin,
+            lambda: True #self.compareImage("testline2", False),
+        ))
 
 def pluginTestSuite (tests):
-    suite = unittest.TestSuite()
-    suite.addTest (PluginTestCase())
-    return suite
-
+    availableTests = (
+        "testColorNodePlugin",
+        )    
+    return AVGTestSuite (availableTests, PluginTestCase, tests)
+    
 Player = avg.Player.get()
+Log = avg.Logger.get()
+Log.setCategories(
+    Log.APP |
+    Log.WARNING |
+    Log.PLUGIN
+)
 
+if __name__ == '__main__':
+    runStandaloneTest (pluginTestSuite)

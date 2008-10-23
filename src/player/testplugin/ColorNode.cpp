@@ -21,9 +21,6 @@
 //  Original author of this file is Jan Boelsche (regular.gonzales@googlemail.com).
 //
 
-#include <string>
-#include <iostream>
-
 #include "../Node.h"
 #include "../NodeDefinition.h"
 
@@ -31,12 +28,18 @@
 #include "../../graphics/Pixel32.h"
 #include "../../wrapper/WrapHelper.h"
 
+#include <OpenGL/OpenGL.h>
+
+#include <string>
+#include <iostream>
+
 using namespace std;
 using namespace boost::python;
 
 namespace avg {
 	
-class ColorNode : public Node {
+class ColorNode : public Node 
+{
 public:
 	static NodePtr create(const ArgList& Args, bool bFromXML);
 	static NodeDefinition createNodeDefinition();
@@ -46,6 +49,8 @@ public:
 
 	void setFillColor(const std::string& sColor);
     const std::string& getFillColor() const;
+	void render (const DRect& Rect);
+
 private:
 	std::string m_sFillColorName;
     Pixel32 m_FillColor;
@@ -53,21 +58,8 @@ private:
 
 ColorNode::ColorNode(const ArgList& Args, bool bFromXML) :
 	m_sFillColorName("FFFFFF")
-{
-
-    /* this crashes on mac and linux
-    // probalby the iterator becomes invalid
-    ArgMap am = Args.getArgMap();
-    ArgMap::iterator i = am.begin();
-    while(i != am.end()) {
-        string key = i->first;
-        string value = Args.getArgVal<string>(key);
-        AVG_TRACE(Logger::PLUGIN, "ColorNode constructed with key=" << key << " value=" << value);	
-        ++i;
-    };
-    */
-    
-     AVG_TRACE(Logger::PLUGIN, "ColorNode c'tor gets Argument fillcolor= "  << Args.getArgVal<string>("fillcolor"));	
+{   
+    AVG_TRACE(Logger::PLUGIN, "ColorNode c'tor gets Argument fillcolor= "  << Args.getArgVal<string>("fillcolor"));	
     
 	Args.setMembers(this);
 	AVG_TRACE(Logger::PLUGIN, "ColorNode constructed with " << m_sFillColorName);	
@@ -90,10 +82,20 @@ const std::string& ColorNode::getFillColor() const
     return m_sFillColorName;
 }
 
+void ColorNode::render (const DRect& Rect)
+{
+	AVG_TRACE(Logger::PLUGIN, "ColorNode::render");	
+	
+	glClearColor(1.0, 1.0, 0.0, 1.0); 
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
+
 NodePtr ColorNode::create(const ArgList& Args, bool bFromXML)
 {
 	return NodePtr(new ColorNode(Args, bFromXML));
 }
+
 
 NodeDefinition ColorNode::createNodeDefinition()
 {
