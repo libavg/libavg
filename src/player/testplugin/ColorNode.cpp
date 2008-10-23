@@ -49,7 +49,7 @@ public:
 
 	void setFillColor(const std::string& sColor);
     const std::string& getFillColor() const;
-	void render (const DRect& Rect);
+	//void render (const DRect& Rect);
 
 private:
 	std::string m_sFillColorName;
@@ -82,6 +82,7 @@ const std::string& ColorNode::getFillColor() const
     return m_sFillColorName;
 }
 
+/*
 void ColorNode::render (const DRect& Rect)
 {
 	AVG_TRACE(Logger::PLUGIN, "ColorNode::render");	
@@ -89,7 +90,7 @@ void ColorNode::render (const DRect& Rect)
 	glClearColor(1.0, 1.0, 0.0, 1.0); 
     glClear(GL_COLOR_BUFFER_BIT);
 }
-
+*/
 
 NodePtr ColorNode::create(const ArgList& Args, bool bFromXML)
 {
