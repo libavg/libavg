@@ -95,6 +95,7 @@ ArgBase* Arg<T>::createCopy() const
 // declare specific template instances as extern
 extern template class Arg<int>;
 extern template class Arg<float>;
+extern template class Arg<double>;
 extern template class Arg<std::string>;
 #endif
 

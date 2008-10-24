@@ -24,11 +24,9 @@
 #include "Arg.h"
 #include <string>
 
-using namespace avg;
-
-
-// explicit instanciation
+// explicit template instanciation
 
 template class avg::Arg<int>;
 template class avg::Arg<float>;
+template class avg::Arg<double>;
 template class avg::Arg<std::string>;
