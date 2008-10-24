@@ -47,7 +47,7 @@ class PluginTestCase(AVGTestCase):
             loadPlugin,
             lambda: True, 
             usePlugin,
-            lambda: True #self.compareImage("testline2", False),
+            lambda: self.compareImage("testplugin", False),
         ))
 
 def pluginTestSuite (tests):

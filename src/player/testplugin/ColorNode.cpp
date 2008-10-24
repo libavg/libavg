@@ -40,42 +40,42 @@ using namespace std;
 using namespace boost::python;
 
 namespace avg {
-	
+    
 class ColorNode : public AreaNode 
 {
 public:
-	static NodePtr create(const ArgList& Args, bool bFromXML);
-	static NodeDefinition createNodeDefinition();
-	
-	ColorNode(const ArgList& Args, bool bFromXML);
+    static NodePtr create(const ArgList& Args, bool bFromXML);
+    static NodeDefinition createNodeDefinition();
+    
+    ColorNode(const ArgList& Args, bool bFromXML);
 
-	void setFillColor(const std::string& sColor);
+    void setFillColor(const std::string& sColor);
     const std::string& getFillColor() const;
 
-	virtual void maybeRender(const DRect& Rect);
-	virtual void render (const DRect& Rect);
+    virtual void maybeRender(const DRect& Rect);
+    virtual void render (const DRect& Rect);
 
 protected:
-	void parseColor(const std::string& sColorSreing);
-	
-	std::string m_sFillColorName;
+    void parseColor(const std::string& sColorSreing);
+    
+    std::string m_sFillColorName;
     float m_r, m_g, m_b;
 };
 
 ColorNode::ColorNode(const ArgList& Args, bool bFromXML) :
-	m_sFillColorName("FFFFFF")
+    m_sFillColorName("FFFFFF")
 {   
-    AVG_TRACE(Logger::PLUGIN, "ColorNode c'tor gets Argument fillcolor= "  << Args.getArgVal<string>("fillcolor"));	
+    AVG_TRACE(Logger::PLUGIN, "ColorNode c'tor gets Argument fillcolor= "  << Args.getArgVal<string>("fillcolor")); 
     
-	Args.setMembers(this);
-	AVG_TRACE(Logger::PLUGIN, "ColorNode constructed with " << m_sFillColorName);	
+    Args.setMembers(this);
+    AVG_TRACE(Logger::PLUGIN, "ColorNode constructed with " << m_sFillColorName);   
 
     parseColor(m_sFillColorName);
 }
 
 void ColorNode::setFillColor(const string& sFillColor)
 {
-	AVG_TRACE(Logger::PLUGIN, "setFillColor called with " << sFillColor);	
+    AVG_TRACE(Logger::PLUGIN, "setFillColor called with " << sFillColor);   
     m_sFillColorName = sFillColor;
     parseColor(m_sFillColorName);
 }
@@ -87,46 +87,46 @@ const std::string& ColorNode::getFillColor() const
 
 void ColorNode::parseColor(const std::string& sColorSreing)
 {
-	istringstream(sColorSreing.substr(0,2)) >> hex >> m_r;
-	istringstream(sColorSreing.substr(2,2)) >> hex >> m_g;
-	istringstream(sColorSreing.substr(4,2)) >> hex >> m_b;
+    istringstream(sColorSreing.substr(0,2)) >> hex >> m_r;
+    istringstream(sColorSreing.substr(2,2)) >> hex >> m_g;
+    istringstream(sColorSreing.substr(4,2)) >> hex >> m_b;
 }
 
 
 void ColorNode::maybeRender(const DRect& rect)
 {
-	render(rect);
+    render(rect);
 }
 
 void ColorNode::render (const DRect& rect)
 {
-	//AVG_TRACE(Logger::PLUGIN, "ColorNode::render");	
-	
-	glClearColor(m_r, m_g, m_b, 1.0); 
+    //AVG_TRACE(Logger::PLUGIN, "ColorNode::render");   
+    
+    glClearColor(m_r, m_g, m_b, 1.0); 
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
 NodePtr ColorNode::create(const ArgList& Args, bool bFromXML)
 {
-	return NodePtr(new ColorNode(Args, bFromXML));
+    return NodePtr(new ColorNode(Args, bFromXML));
 }
 
 
 NodeDefinition ColorNode::createNodeDefinition()
 {
-	class_<ColorNode, bases<AreaNode>, boost::noncopyable>("ColorNode", no_init)
+    class_<ColorNode, bases<AreaNode>, boost::noncopyable>("ColorNode", no_init)
         .add_property("fillcolor", make_function(&ColorNode::getFillColor,
-		return_value_policy<copy_const_reference>()), &ColorNode::setFillColor);
+        return_value_policy<copy_const_reference>()), &ColorNode::setFillColor);
        
-	return NodeDefinition("colornode", (NodeBuilder)ColorNode::create)
-		.extendDefinition(AreaNode::createDefinition())
-		.addArg(Arg<string>("fillcolor", "0F0F0F", false, 
+    return NodeDefinition("colornode", (NodeBuilder)ColorNode::create)
+        .extendDefinition(AreaNode::createDefinition())
+        .addArg(Arg<string>("fillcolor", "0F0F0F", false, 
                 offsetof(ColorNode, m_sFillColorName)));
 }
  
 }
 
 AVG_PLUGIN_API avg::NodeDefinition getNodeDefinition() {
-	return avg::ColorNode::createNodeDefinition();
+    return avg::ColorNode::createNodeDefinition();
 }
 
