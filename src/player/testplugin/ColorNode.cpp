@@ -28,12 +28,13 @@
 #include "../NodeDefinition.h"
 
 #include "../../base/Logger.h"
-#include "../../graphics/Pixel32.h"
 #include "../../graphics/OGLHelper.h"
 #include "../../wrapper/WrapHelper.h"
 
 #include <string>
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 
 using namespace std;
 using namespace boost::python;
@@ -47,16 +48,18 @@ public:
 	static NodeDefinition createNodeDefinition();
 	
 	ColorNode(const ArgList& Args, bool bFromXML);
-	virtual ~ColorNode() {}
 
 	void setFillColor(const std::string& sColor);
     const std::string& getFillColor() const;
 
 	virtual void maybeRender(const DRect& Rect);
 	virtual void render (const DRect& Rect);
-private:
+
+protected:
+	void parseColor(const std::string& sColorSreing);
+	
 	std::string m_sFillColorName;
-    Pixel32 m_FillColor;
+    float m_r, m_g, m_b;
 };
 
 ColorNode::ColorNode(const ArgList& Args, bool bFromXML) :
@@ -67,22 +70,28 @@ ColorNode::ColorNode(const ArgList& Args, bool bFromXML) :
 	Args.setMembers(this);
 	AVG_TRACE(Logger::PLUGIN, "ColorNode constructed with " << m_sFillColorName);	
 
-    m_FillColor = colorStringToColor(m_sFillColorName);
+    parseColor(m_sFillColorName);
 }
 
 void ColorNode::setFillColor(const string& sFillColor)
 {
 	AVG_TRACE(Logger::PLUGIN, "setFillColor called with " << sFillColor);	
-    if (sFillColor != m_sFillColorName) {
-     	m_sFillColorName = sFillColor;
-        m_FillColor = colorStringToColor(m_sFillColorName);
-    }
+    m_sFillColorName = sFillColor;
+    parseColor(m_sFillColorName);
 }
 
 const std::string& ColorNode::getFillColor() const
 {
     return m_sFillColorName;
 }
+
+void ColorNode::parseColor(const std::string& sColorSreing)
+{
+	istringstream(sColorSreing.substr(0,2)) >> hex >> m_r;
+	istringstream(sColorSreing.substr(2,2)) >> hex >> m_g;
+	istringstream(sColorSreing.substr(4,2)) >> hex >> m_b;
+}
+
 
 void ColorNode::maybeRender(const DRect& rect)
 {
@@ -93,7 +102,7 @@ void ColorNode::render (const DRect& rect)
 {
 	//AVG_TRACE(Logger::PLUGIN, "ColorNode::render");	
 	
-	glClearColor(1.0, 1.0, 0.0, 1.0); 
+	glClearColor(m_r, m_g, m_b, 1.0); 
     glClear(GL_COLOR_BUFFER_BIT);
 }
 

@@ -30,20 +30,19 @@ class PluginTestCase(AVGTestCase):
             else:
                 Player.pluginPath = "../player/testplugin"
             Player.loadPlugin("ColorNode")
-
+            
         def usePlugin():
-            Player.stop()
-            Player.loadString("""
-            <avg width="160" height="120">
-                <div width="160" height="120">
-                    <colornode id="mynode" fillcolor="7f7f00" />
-                </div>
-            </avg>""")
+            node = Player.createNode("colornode", {"fillcolor":"7f7f00", "id":"mynode"})
+            Player.getElementByID("container").appendChild(node)
+            
             mynode = Player.getElementByID("mynode")
             self.assert_(mynode.fillcolor == "7f7f00")
-            Player.play()
         
-        self._loadEmpty()
+        Player.loadString("""
+            <avg width="160" height="120">
+                <div width="160" height="120" id="container" />
+            </avg>""")
+
         self.start(None, (
             loadPlugin,
             lambda: True, 
@@ -52,9 +51,7 @@ class PluginTestCase(AVGTestCase):
         ))
 
 def pluginTestSuite (tests):
-    availableTests = (
-        "testColorNodePlugin",
-        )    
+    availableTests = ("testColorNodePlugin",)
     return AVGTestSuite (availableTests, PluginTestCase, tests)
     
 Player = avg.Player.get()
