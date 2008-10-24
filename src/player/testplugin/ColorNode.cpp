@@ -22,7 +22,7 @@
 //
 
 #define AVG_PLUGIN
-#include "../api.h"
+#include "../../api.h"
 
 #include "../AreaNode.h"
 #include "../NodeDefinition.h"
