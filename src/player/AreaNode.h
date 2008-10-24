@@ -169,3 +169,4 @@ class AVG_API AreaNode: public Node
 }
 
 #endif
+
