@@ -28,6 +28,7 @@
 
 #include "../base/FileHelper.h"
 #include "../base/Logger.h"
+#include "../base/OSHelper.h"
 
 #include <iostream>
 #include <string>
@@ -50,7 +51,7 @@ PluginManager& PluginManager::get()
 
 PluginManager::PluginManager()
 {
-	parsePath(".");
+	parsePath("./plugin:" + getAvgLibPath() + "plugin");
 }
 
 void PluginManager::setSearchPath(const string& sNewPath)
@@ -67,26 +68,26 @@ string PluginManager::getSearchPath() const
 void PluginManager::loadPlugin(const std::string& sPluginName)
 {
 	// is it leaded aready?
-	PluginMap::iterator i = m_loadedPlugins.find(sPluginName);
-	if (i == m_loadedPlugins.end()) {
+	PluginMap::iterator i = m_LoadedPlugins.find(sPluginName);
+	if (i == m_LoadedPlugins.end()) {
 		// no, let's try to load it!
 		string sFullpath = locateSharedObject(sPluginName+".so");
 		void *handle = internalLoadPlugin(sFullpath);
 		// add to map of loaded plugins
-		m_loadedPlugins[sPluginName] = make_pair(handle, 1);
+		m_LoadedPlugins[sPluginName] = make_pair(handle, 1);
 	} else {
 		// yes, just increase the reference count
 		int referenceCount = i->second.second;
 		++referenceCount;
-		m_loadedPlugins[sPluginName] = make_pair(i->second.first, referenceCount);
+		m_LoadedPlugins[sPluginName] = make_pair(i->second.first, referenceCount);
 	}
 }
 
 string PluginManager::locateSharedObject(const string& sFilename)
 {
-	vector<string>::iterator i = m_pathComponents.begin();
+	vector<string>::iterator i = m_PathComponents.begin();
 	string sFullpath;
-	while(i != m_pathComponents.end()) {
+	while(i != m_PathComponents.end()) {
 		sFullpath = *i + sFilename;
 		if (fileExists(sFullpath)) {
 			return sFullpath;
@@ -114,12 +115,13 @@ string PluginManager::checkDirectory(const string& sDirectory)
 	return sFixedDirectory;
 }
 
-void PluginManager::parsePath(const std::string& sPath) {
+void PluginManager::parsePath(const std::string& sPath)
+{
 	// break the string into colon separated components
 	// and make sure each component has a trailing slash
 	// warn about non-existing directories
 	
-	m_pathComponents.clear();
+	m_PathComponents.clear();
 	string sRemaining = sPath;
 	string::size_type i;
 	do {
@@ -135,7 +137,7 @@ void PluginManager::parsePath(const std::string& sPath) {
 		sDirectory = checkDirectory(sDirectory);
 		AVG_TRACE(Logger::PLUGIN, "adding plugin directory '" << sDirectory << "'");		
 		
-		m_pathComponents.push_back(sDirectory);
+		m_PathComponents.push_back(sDirectory);
 	} while(!sRemaining.empty());
 }
 	

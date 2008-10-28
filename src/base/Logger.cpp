@@ -208,6 +208,8 @@ const char * Logger::categoryToString(int category)
             return "LOGGER";
         case WATCHDOG:
             return "WATCHDOG";
+        case PLUGIN:
+            return "PLUGIN";
         default:
             return "UNKNOWN";
     }

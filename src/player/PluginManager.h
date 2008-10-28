@@ -53,17 +53,16 @@ public:
 private:
     PluginManager();    
     
-    std::string checkDirectory(const std::string& aDirectory);
-    void parsePath(const std::string& aPath);
-    std::string locateSharedObject(const std::string& aPluginName);
-    void* internalLoadPlugin(const std::string& aPluginName);
-    void inspectPlugin(void* handle);
-    
-    
+    std::string checkDirectory(const std::string& sDirectory);
+    void parsePath(const std::string& sPath);
+    std::string locateSharedObject(const std::string& sPluginName);
+    void* internalLoadPlugin(const std::string& sPluginName);
+    void inspectPlugin(void* pHandle);
+      
     // maps module names to a pair of handle and reference count
     typedef std::map<std::string, std::pair<void*, int> > PluginMap;
-    PluginMap m_loadedPlugins;
-    std::vector<std::string> m_pathComponents;
+    PluginMap m_LoadedPlugins;
+    std::vector<std::string> m_PathComponents;
     std::string m_sCurrentSearchPath;    
 };
     

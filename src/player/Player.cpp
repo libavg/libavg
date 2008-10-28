@@ -139,7 +139,8 @@ Player::Player()
     s_pPlayer = this;
 }
 
-void Player::updateDTD() {
+void Player::updateDTD()
+{
     // Find and parse dtd.
     registerDTDEntityLoader("avg.dtd", m_NodeRegistry.getDTD().c_str());
     string sDTDFName = "avg.dtd";
