@@ -151,7 +151,7 @@ void* PluginManager::internalLoadPlugin(const string& sFullpath)
 		throw PluginCorrupted(sMessage);
 	}
 	try {
-		inspectPlugin(handle);
+		registerPlugin(handle);
 	} catch(PluginCorrupted& e) {
 		dlclose(handle);
 		throw e;
@@ -159,10 +159,13 @@ void* PluginManager::internalLoadPlugin(const string& sFullpath)
 	return handle;
 }
 
-void PluginManager::inspectPlugin(void* handle)
+void PluginManager::registerPlugin(void* handle)
 {
 	typedef NodeDefinition (*GetNodeDefinitionPtr)();
 	GetNodeDefinitionPtr getNodeDefinition = reinterpret_cast<GetNodeDefinitionPtr> (dlsym(handle, "getNodeDefinition"));
+
+	typedef char** (*GetAllowedParentNodeNamesPtr)();
+	GetAllowedParentNodeNamesPtr getAllowedParentNodeNames = reinterpret_cast<GetAllowedParentNodeNamesPtr> (dlsym(handle, "getAllowedParentNodeNames"));
 
 	if (getNodeDefinition) {
 		AVG_TRACE(Logger::PLUGIN, "NodePlugin detected");
@@ -171,14 +174,34 @@ void PluginManager::inspectPlugin(void* handle)
 		AVG_TRACE(Logger::PLUGIN, "found definition for Node " << myNodeDefinition.getName());
 		Player::get()->registerNodeType(myNodeDefinition);
 		
-		// HACK
-		// allow our new node type to be a child of DIV 
+		char **pParentNames = 0;
+		if (getAllowedParentNodeNames) {
+			pParentNames = getAllowedParentNodeNames();
+		} else {
+			AVG_TRACE(Logger::PLUGIN, "Plugin does not export getAllowedParentNodeNames()");
+		}
+		
+		char *defaultParents[] = {"avg", "div", 0};			
+		if (!pParentNames) {
+			AVG_TRACE(Logger::PLUGIN, "defaulting to allowed parent nodes 'avg' and 'div'");
+			pParentNames = defaultParents;
+		}
+		
 		string sChildArray[1];
 		sChildArray[0] = myNodeDefinition.getName();
 	    vector<string> sChildren = vectorFromCArray(1, sChildArray);
-		NodeDefinition ndDiv = Player::get()->getNodeDef("div");
-		ndDiv.addChildren(sChildren);
-        Player::get()->updateNodeDefinition(ndDiv);
+	
+		char **pCurrParentName = pParentNames;
+		while(*pCurrParentName) {
+			AVG_TRACE(Logger::PLUGIN, "adding allowed child to parent NodeDefinition " << *pCurrParentName);
+			
+			NodeDefinition nodeDefinition = Player::get()->getNodeDef(*pCurrParentName);
+			nodeDefinition.addChildren(sChildren);
+			Player::get()->updateNodeDefinition(nodeDefinition);
+	        
+			++pCurrParentName;
+		}
+
 	} else {
 		AVG_TRACE(Logger::PLUGIN, "no magic symbols found");
 		throw PluginCorrupted("no magic symbols found.");

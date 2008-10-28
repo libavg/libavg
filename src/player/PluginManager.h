@@ -57,7 +57,7 @@ private:
     void parsePath(const std::string& sPath);
     std::string locateSharedObject(const std::string& sPluginName);
     void* internalLoadPlugin(const std::string& sPluginName);
-    void inspectPlugin(void* pHandle);
+    void registerPlugin(void* pHandle);
       
     // maps module names to a pair of handle and reference count
     typedef std::map<std::string, std::pair<void*, int> > PluginMap;
