@@ -10,64 +10,65 @@ import sys, os, platform
 # TODO: This is a mess. 
 sys.path += ['../wrapper/.libs', '../python']
 if platform.system() == 'Darwin':
-    sys.path += ['../..']     # Location of libavg in a mac installation. 
+	sys.path += ['../..']	  # Location of libavg in a mac installation. 
 
 if platform.system() == 'Windows':
-    from libavg import avg    # Under windows, there is no uninstalled version.
-else:    
-    import avg
+	from libavg import avg	  # Under windows, there is no uninstalled version.
+else:	 
+	import avg
 
 from testcase import *
 
 class PluginTestCase(AVGTestCase):
-    def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName, 24)
+	def __init__(self, testFuncName):
+		AVGTestCase.__init__(self, testFuncName, 24)
 
-    def testColorNodePlugin(self):
-        def loadPlugin():
-            if platform.system() == 'Windows':
-                Player.pluginPath = "../../../../Archimedes/libavg_win/debug"
-            else:
-                Player.pluginPath = "../player/testplugin"
-            Player.loadPlugin("ColorNode")
-            
-        def usePlugin1():
-            node = Player.createNode("colornode", {"fillcolor":"7f7f00", "id":"mynode1"})
-            Player.getElementByID("container").appendChild(node)
-            
-            mynode = Player.getElementByID("mynode1")
-            self.assert_(mynode.fillcolor == "7f7f00")
+	def testColorNodePlugin(self):
+		def loadPlugin():
+			if platform.system() == 'Windows':
+				Player.pluginPath = "../../../../Archimedes/libavg_win/debug"
+			else:
+				pass
+				#Player.pluginPath = "../player/testplugin"
+			Player.loadPlugin("ColorNode")
+			
+		def usePlugin1():
+			node = Player.createNode("colornode", {"fillcolor":"7f7f00", "id":"mynode1"})
+			Player.getElementByID("container").appendChild(node)
+			
+			mynode = Player.getElementByID("mynode1")
+			self.assert_(mynode.fillcolor == "7f7f00")
  
-        def usePlugin2():
-            node = Player.createNode('<colornode fillcolor="0f3f7f" id="mynode2" />')
-            Player.getElementByID("container").appendChild(node)
+		def usePlugin2():
+			node = Player.createNode('<colornode fillcolor="0f3f7f" id="mynode2" />')
+			Player.getElementByID("container").appendChild(node)
 
-            mynode = Player.getElementByID("mynode2")
-            self.assert_(mynode.fillcolor == "0f3f7f")
+			mynode = Player.getElementByID("mynode2")
+			self.assert_(mynode.fillcolor == "0f3f7f")
 
-       
-        Player.loadString("""
-            <avg width="160" height="120" id="container" />""")
+	   
+		Player.loadString("""
+			<avg width="160" height="120" id="container" />""")
 
-        self.start(None, (
-            loadPlugin,
-            usePlugin1,
-            lambda: self.compareImage("testplugin1", False),
-            usePlugin2,
-            lambda: self.compareImage("testplugin2", False),
-        ))
+		self.start(None, (
+			loadPlugin,
+			usePlugin1,
+			lambda: self.compareImage("testplugin1", False),
+			usePlugin2,
+			lambda: self.compareImage("testplugin2", False),
+		))
 
 def pluginTestSuite (tests):
-    availableTests = ("testColorNodePlugin",)
-    return AVGTestSuite (availableTests, PluginTestCase, tests)
-    
+	availableTests = ("testColorNodePlugin",)
+	return AVGTestSuite (availableTests, PluginTestCase, tests)
+	
 Player = avg.Player.get()
 Log = avg.Logger.get()
 Log.setCategories(
-    Log.APP |
-    Log.WARNING |
-    Log.PLUGIN
+	Log.APP |
+	Log.WARNING |
+	Log.PLUGIN
 )
 
 if __name__ == '__main__':
-    runStandaloneTest (pluginTestSuite)
+	runStandaloneTest (pluginTestSuite)

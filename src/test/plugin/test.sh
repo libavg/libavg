@@ -1,5 +1,5 @@
 #!/bin/bash
-pushd $AVG_PATH/libavg/src/test
+pushd ..
 ./PluginTest.py
 popd
 
