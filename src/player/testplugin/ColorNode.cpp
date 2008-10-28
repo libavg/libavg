@@ -44,7 +44,6 @@ namespace avg {
 class ColorNode : public AreaNode 
 {
 public:
-    static NodePtr create(const ArgList& Args, bool bFromXML);
     static NodeDefinition createNodeDefinition();
     
     ColorNode(const ArgList& Args, bool bFromXML);
@@ -106,19 +105,13 @@ void ColorNode::render (const DRect& rect)
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-NodePtr ColorNode::create(const ArgList& Args, bool bFromXML)
-{
-    return NodePtr(new ColorNode(Args, bFromXML));
-}
-
-
 NodeDefinition ColorNode::createNodeDefinition()
 {
     class_<ColorNode, bases<AreaNode>, boost::noncopyable>("ColorNode", no_init)
         .add_property("fillcolor", make_function(&ColorNode::getFillColor,
         return_value_policy<copy_const_reference>()), &ColorNode::setFillColor);
        
-    return NodeDefinition("colornode", (NodeBuilder)ColorNode::create)
+    return NodeDefinition("colornode", (NodeBuilder)ColorNode::buildNode<ColorNode>)
         .extendDefinition(AreaNode::createDefinition())
         .addArg(Arg<string>("fillcolor", "0F0F0F", false, 
                 offsetof(ColorNode, m_sFillColorName)));
