@@ -22,14 +22,14 @@
 //
 
 #define AVG_PLUGIN
-#include "api.h"
+#include "../../api.h"
 
-#include "player/AreaNode.h"
-#include "player/NodeDefinition.h"
+#include "../../player/AreaNode.h"
+#include "../../player/NodeDefinition.h"
 
-#include "base/Logger.h"
-#include "graphics/OGLHelper.h"
-#include "wrapper/WrapHelper.h"
+#include "../../base/Logger.h"
+#include "../../graphics/OGLHelper.h"
+#include "../../wrapper/WrapHelper.h"
 
 #include <string>
 #include <iostream>
