@@ -124,8 +124,9 @@ AVG_PLUGIN_API avg::NodeDefinition getNodeDefinition()
     return avg::ColorNode::createNodeDefinition();
 }
 
-AVG_PLUGIN_API char** getAllowedParentNodeNames()
+AVG_PLUGIN_API const char** getAllowedParentNodeNames()
 {
-	static char *names[] = {"avg", 0};
+	static const char *names[] = {"avg", 0};
 	return names;
 }
+
