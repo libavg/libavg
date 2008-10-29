@@ -108,10 +108,6 @@ string PluginManager::checkDirectory(const string& sDirectory)
 	} else {
 		sFixedDirectory = sDirectory;
 	}
-	if (!fileExists(sFixedDirectory)) {
-		AVG_TRACE(Logger::PLUGIN, "Warning: non-existing plugin directory '"
-		        << sFixedDirectory << "'");		
-	}
 	return sFixedDirectory;
 }
 
