@@ -35,7 +35,7 @@ namespace avg {
 class Node;
 
 template<class T>
-class AVG_API AVG_TEMPLATE_API Arg: public ArgBase
+class AVG_TEMPLATE_API Arg: public ArgBase
 {
 public:
     Arg(std::string sName, const T& Value, bool bRequired = false, 

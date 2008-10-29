@@ -34,7 +34,7 @@
 namespace avg {
 
 template<class NUM>
-class AVG_API Point
+class AVG_TEMPLATE_API Point
 {
 public:
     NUM x;

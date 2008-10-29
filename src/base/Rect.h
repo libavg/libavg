@@ -31,7 +31,7 @@ namespace avg {
 // If NUM is an integer, contains all points from tl up to but not including 
 // br.
 template<class NUM>
-class AVG_API Rect
+class AVG_TEMPLATE_API Rect
 {
 public:
     Point<NUM> tl;
