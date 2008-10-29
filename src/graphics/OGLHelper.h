@@ -23,6 +23,7 @@
 #define _OGLHelper_H_
 
 #ifdef _WIN32
+#include "../api.h"
 #include <windows.h>
 #undef ERROR
 #undef WARNING

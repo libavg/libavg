@@ -22,6 +22,7 @@
 #ifndef _Player_H_
 #define _Player_H_
 
+#include "../api.h"
 #include "IEventSink.h"
 #include "EventDispatcher.h"
 #include "Timeout.h"
@@ -57,7 +58,7 @@ typedef boost::shared_ptr<AreaNode> AreaNodePtr;
 typedef boost::weak_ptr<AreaNode> AreaNodeWeakPtr;
 
 
-class Player : IEventSink
+class AVG_API Player : IEventSink
 {
     public:
         Player();

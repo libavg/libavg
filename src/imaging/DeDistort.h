@@ -22,6 +22,7 @@
 #ifndef _DeDistort_H_
 #define _DeDistort_H_
 
+#include "../api.h"
 #include "CoordTransformer.h"
 
 #include "../base/Point.h"
@@ -39,7 +40,7 @@ namespace avg {
 
 class TrackerConfig;
 
-class DeDistort: public CoordTransformer {
+class AVG_API DeDistort: public CoordTransformer {
     public:
         DeDistort();
         DeDistort(const DPoint& CamExtents, const DPoint& DisplayExtents);

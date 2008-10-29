@@ -22,6 +22,7 @@
 #ifndef _EventDispatcher_h_
 #define _EventDispatcher_h_
 
+#include "../api.h"
 #include "IEventSink.h"
 #include "IEventSource.h"
 #include "MouseEvent.h"
@@ -34,7 +35,7 @@ namespace avg {
 
 class Event;
 
-class EventDispatcher {
+class AVG_API EventDispatcher {
     public:
         EventDispatcher();
         virtual ~EventDispatcher();

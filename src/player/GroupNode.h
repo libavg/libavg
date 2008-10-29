@@ -22,13 +22,14 @@
 #ifndef _GroupNode_H_
 #define _GroupNode_H_
 
+#include "../api.h"
 #include "AreaNode.h"
 
 #include <string>
 
 namespace avg {
     
-class GroupNode: public AreaNode
+class AVG_API GroupNode: public AreaNode
 {
     public:
         static NodeDefinition createDefinition();

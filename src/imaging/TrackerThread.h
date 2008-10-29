@@ -21,6 +21,7 @@
 #ifndef _TrackerThread_H_
 #define _TrackerThread_H_
 
+#include "../api.h"
 #include "TrackerConfig.h"
 #include "Camera.h"
 #include "Blob.h"
@@ -55,7 +56,7 @@ typedef enum {
 typedef boost::shared_ptr<boost::mutex> MutexPtr;
 class OGLImagingContext;
 
-class IBlobTarget {
+class AVG_API IBlobTarget {
     public:
         virtual ~IBlobTarget() {};
         // Note that this function is called by TrackerThread in it's own thread!
@@ -64,7 +65,7 @@ class IBlobTarget {
 };
 
 
-class TrackerThread: public WorkerThread<TrackerThread>
+class AVG_API TrackerThread: public WorkerThread<TrackerThread>
 {
     public:
         TrackerThread(IntRect ROI, 

@@ -22,6 +22,7 @@
 #ifndef _Directory_H_
 #define _Directory_H_
 
+#include "../api.h"
 #include "DirEntry.h"
 
 #ifdef _WIN32
@@ -34,7 +35,7 @@
 
 namespace avg {
     
-class Directory {
+class AVG_API Directory {
 public:
     Directory(std::string sName);
     virtual ~Directory();

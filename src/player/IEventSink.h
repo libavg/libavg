@@ -22,11 +22,12 @@
 #ifndef _IEventSink_
 #define _IEventSink_
 
+#include "../api.h"
 #include "Event.h"
 
 namespace avg {
 
-class IEventSink {
+class AVG_API IEventSink {
     public:
         virtual ~IEventSink() {};
         virtual bool handleEvent(EventPtr pEvent) =0;

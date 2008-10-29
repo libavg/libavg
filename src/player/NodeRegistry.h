@@ -24,6 +24,7 @@
 #ifndef _NodeRegistry_H_
 #define _NodeRegistry_H_
 
+#include "../api.h"
 #include "Node.h"
 #include "ArgList.h"
 #include "NodeDefinition.h"
@@ -34,7 +35,7 @@
 
 namespace avg {
 
-class NodeRegistry
+class AVG_API NodeRegistry
 {
 public:
     NodeRegistry();

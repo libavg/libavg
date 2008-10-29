@@ -22,12 +22,13 @@
 #ifndef _Command_H_
 #define _Command_H_
 
+#include "../api.h"
 #include <boost/function.hpp>
 
 namespace avg {
 
 template<class RECEIVER>
-class Command {
+class AVG_API Command {
     typedef boost::function<void(RECEIVER*)> CmdFunc;
 
 public:

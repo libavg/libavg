@@ -22,11 +22,12 @@
 #ifndef _FilterNormalize_H_
 #define _FilterNormalize_H_
 
+#include "../api.h"
 #include "Filter.h"
 
 namespace avg {
 
-class FilterNormalize : public Filter
+class AVG_API FilterNormalize : public Filter
 {
 public:
     FilterNormalize(int stride);

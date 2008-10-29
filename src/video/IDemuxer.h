@@ -22,6 +22,7 @@
 #ifndef _IDemuxer_H_
 #define _IDemuxer_H_
 
+#include "../api.h"
 #include <math.h>
 
 #ifdef _WIN32
@@ -52,7 +53,7 @@ extern "C" {
 
 namespace avg {
 
-    class IDemuxer {
+    class AVG_API IDemuxer {
         public:
             virtual ~IDemuxer() {};
            

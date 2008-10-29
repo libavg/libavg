@@ -22,6 +22,7 @@
 #ifndef _OGLSurface_H_
 #define _OGLSurface_H_
 
+#include "../api.h"
 #include "ISurface.h"
 #include "DisplayEngine.h"
 #include "OGLTexture.h"
@@ -38,7 +39,7 @@ namespace avg {
 
 class SDLDisplayEngine;
 
-class OGLSurface: public ISurface {
+class AVG_API OGLSurface: public ISurface {
     public:
         OGLSurface(SDLDisplayEngine * pEngine);
         virtual ~OGLSurface();

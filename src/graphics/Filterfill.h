@@ -23,6 +23,7 @@
 #ifndef _Filterfill_H_
 #define _Filterfill_H_
 
+#include "../api.h"
 #include "Filter.h"
 #include "Filterfillrect.h"
 
@@ -32,7 +33,7 @@ namespace avg {
 
 // Filter that fills a bitmap with a color.
 template<class PixelC> 
-class FilterFill : public Filter
+class AVG_API FilterFill : public Filter
 {
 public:
   FilterFill (const PixelC& Color);

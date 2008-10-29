@@ -22,13 +22,14 @@
 #ifndef _Filtergrayscale_H_
 #define _Filtergrayscale_H_
 
+#include "../api.h"
 #include "Filter.h"
 #include "Bitmap.h"
 
 namespace avg {
 
 // Creates a grayscale version of a 32 bpp bitmap.
-class FilterGrayscale : public Filter
+class AVG_API FilterGrayscale : public Filter
 {
 public:
   FilterGrayscale();

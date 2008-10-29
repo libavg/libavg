@@ -23,6 +23,7 @@
 #define _Video_H_
 
 // Python docs say python.h should be included before any standard headers (!)
+#include "../api.h"
 #include "WrapPython.h" 
 
 #include "Node.h"
@@ -37,7 +38,7 @@ namespace avg {
 
 class IVideoDecoder;
 
-class Video : public VideoBase, IFrameListener, IAudioSource
+class AVG_API Video : public VideoBase, IFrameListener, IAudioSource
 {
     public:
         static NodeDefinition createDefinition();

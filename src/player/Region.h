@@ -22,13 +22,14 @@
 #ifndef _Region_H_
 #define _Region_H_
 
+#include "../api.h"
 #include "../base/Rect.h"
 
 #include <vector>
 
 namespace avg {
 
-class Region 
+class AVG_API Region 
 {
     public:
         Region();

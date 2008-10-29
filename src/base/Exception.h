@@ -22,6 +22,7 @@
 #ifndef _Exception_H_
 #define _Exception_H_
 
+#include "../api.h"
 #include <string>
 
 #define AVG_ERR_UNKNOWN -1
@@ -55,7 +56,7 @@
 
 namespace avg {
  
-class Exception 
+class AVG_API Exception 
 {
     public:
         Exception (int Code, const std::string& sErr = "");

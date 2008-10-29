@@ -24,6 +24,7 @@
 #ifndef _FilterDistortion_H_
 #define _FilterDistortion_H_
 
+#include "../api.h"
 #include "CoordTransformer.h"
 
 #include "../graphics/Filter.h"
@@ -34,7 +35,7 @@
 #include <boost/shared_ptr.hpp>
 
 namespace avg {
-    class FilterDistortion: public Filter 
+    class AVG_API FilterDistortion: public Filter 
     {
         public:
             FilterDistortion(const IntPoint& SrcSize, CoordTransformerPtr coordtrans);

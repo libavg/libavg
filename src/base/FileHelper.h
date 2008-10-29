@@ -22,6 +22,7 @@
 #ifndef _FileHelper_H_
 #define _FileHelper_H_
 
+#include "../api.h"
 #include <string>
 
 namespace avg {

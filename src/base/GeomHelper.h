@@ -22,6 +22,7 @@
 #ifndef _GeomHelper_H_
 #define _GeomHelper_H_
 
+#include "../api.h"
 #include "Point.h"
 
 #include <vector>

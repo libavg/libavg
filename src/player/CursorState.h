@@ -22,6 +22,7 @@
 #ifndef _CursorState_H_
 #define _CursorState_H_
 
+#include "../api.h"
 #include "CursorEvent.h"
 #include "Node.h"
 
@@ -33,7 +34,7 @@ namespace avg {
 class AreaNode;
 typedef boost::weak_ptr<AreaNode> AreaNodeWeakPtr;
 
-class CursorState {
+class AVG_API CursorState {
 
 public:
     CursorState(const CursorEventPtr pEvent, const std::vector<AreaNodeWeakPtr>& pNodes);

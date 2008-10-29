@@ -25,6 +25,7 @@
 #define PI 3.14159265358979323846
 #define EPSILON 0.00001
 
+#include "../api.h"
 #include <vector>
 
 namespace avg {

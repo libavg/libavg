@@ -22,6 +22,7 @@
 #ifndef _TestSuite_H_ 
 #define _TestSuite_H_
 
+#include "../api.h"
 #include "Test.h"
 
 #include <iostream>
@@ -29,7 +30,7 @@
 #include <vector>
 
 namespace avg {
-class TestSuite: public Test
+class AVG_API TestSuite: public Test
 {
 public:
     TestSuite(const std::string& sName);

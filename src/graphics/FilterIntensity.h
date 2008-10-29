@@ -22,11 +22,12 @@
 #ifndef _FilterIntensity_H_
 #define _FilterIntensity_H_
 
+#include "../api.h"
 #include "Filter.h"
 
 namespace avg {
 
-class FilterIntensity : public Filter
+class AVG_API FilterIntensity : public Filter
 {
 public:
     FilterIntensity(int offset, double factor);

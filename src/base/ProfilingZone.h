@@ -22,13 +22,14 @@
 #ifndef _ProfilingZone_H_ 
 #define _ProfilingZone_H_
 
+#include "../api.h"
 #include "TimeSource.h"
 
 #include <string>
 
 namespace avg {
 
-class ProfilingZone {
+class AVG_API ProfilingZone {
 public:
     ProfilingZone(const std::string& sName, bool bIsStatic = true);
     virtual ~ProfilingZone();

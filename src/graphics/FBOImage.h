@@ -22,6 +22,7 @@
 #ifndef _FBOImage_H_
 #define _FBOImage_H_
 
+#include "../api.h"
 #include "PBOImage.h"
 #include "Bitmap.h"
 #include "../base/Point.h"
@@ -30,7 +31,7 @@
 
 namespace avg {
 
-class FBOImage: public PBOImage {
+class AVG_API FBOImage: public PBOImage {
 
 public:
     FBOImage(const IntPoint& size, PixelFormat pf, int precision, 

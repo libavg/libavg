@@ -22,6 +22,7 @@
 #ifndef _Test_H_ 
 #define _Test_H_
 
+#include "../api.h"
 #include <boost/shared_ptr.hpp>
 
 #include <iostream>
@@ -29,7 +30,7 @@
 #include <string>
 
 namespace avg {
-class Test
+class AVG_API Test
 {
 public:
     Test(const std::string & sName, int IndentLevel);

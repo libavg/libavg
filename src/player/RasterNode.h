@@ -22,6 +22,7 @@
 #ifndef _RasterNode_H_
 #define _RasterNode_H_
 
+#include "../api.h"
 #include "AreaNode.h"
 #include "DisplayEngine.h"
 #include "OGLSurface.h"
@@ -33,7 +34,7 @@
 
 namespace avg {
 
-class RasterNode: public AreaNode
+class AVG_API RasterNode: public AreaNode
 {
     public:
         static NodeDefinition createDefinition();

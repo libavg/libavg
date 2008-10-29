@@ -22,6 +22,7 @@
 #ifndef _Camera_H_
 #define _Camera_H_
 
+#include "../api.h"
 #include "../graphics/Bitmap.h"
 
 #include <boost/shared_ptr.hpp>
@@ -56,7 +57,7 @@ enum CameraFeature {
 
 std::string cameraFeatureToString(CameraFeature Feature);
 
-class Camera
+class AVG_API Camera
 {
 public:
     virtual ~Camera() {};

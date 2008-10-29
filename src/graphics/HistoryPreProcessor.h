@@ -24,6 +24,7 @@
 #ifndef _HistoryPreProcessor_H_
 #define _HistoryPreProcessor_H_
 
+#include "../api.h"
 #include "Filter.h"
 #include "Bitmap.h"
 
@@ -31,7 +32,7 @@
 
 namespace avg {
 
-class HistoryPreProcessor: public Filter
+class AVG_API HistoryPreProcessor: public Filter
 {
     public:
         HistoryPreProcessor(IntPoint dimensions, unsigned int UpdateInterval, bool bBrighter);

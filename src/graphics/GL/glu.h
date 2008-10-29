@@ -31,6 +31,7 @@
 #define __glu_h__
 
 #if defined(USE_MGL_NAMESPACE)
+#include "../../api.h"
 #include "glu_mangle.h"
 #endif
 

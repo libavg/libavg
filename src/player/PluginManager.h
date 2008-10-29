@@ -23,6 +23,7 @@
 #ifndef _PluginManager_H_
 #define _PluginManager_H_
 
+#include "../api.h"
 #include "../base/Exception.h"
 
 #include <map>
@@ -31,14 +32,14 @@
 
 namespace avg {
     
-class PluginManager
+class AVG_API PluginManager
 {
 public:
-    class PluginNotFound : public Exception {
+    class AVG_API PluginNotFound : public Exception {
     public:
         PluginNotFound(const std::string& message);
     };
-    class PluginCorrupted : public Exception {
+    class AVG_API PluginCorrupted : public Exception {
     public:
         PluginCorrupted(const std::string& message);
     };

@@ -22,6 +22,7 @@
 #ifndef _StringHelper_H_
 #define _StringHelper_H_
 
+#include "../api.h"
 #include "Exception.h"
 
 #include <string>

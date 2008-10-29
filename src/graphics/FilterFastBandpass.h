@@ -22,6 +22,7 @@
 #ifndef _FilterFastBandpass_H_
 #define _FilterFastBandpass_H_
 
+#include "../api.h"
 #include "Filter.h"
 #include "Bitmap.h"
 
@@ -30,7 +31,7 @@
 namespace avg {
 
 // This is a fast and sloppy bandpass filter that uses a 7x7 kernel. 
-class FilterFastBandpass: public Filter{
+class AVG_API FilterFastBandpass: public Filter{
     public:
         FilterFastBandpass();
         virtual ~FilterFastBandpass();

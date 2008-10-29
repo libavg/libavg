@@ -22,6 +22,7 @@
 #ifndef _WrapHelper_H_
 #define _WrapHelper_H_
 
+#include "../api.h"
 #include "../base/Point.h"
 
 #include "../player/BoostPython.h"

@@ -23,11 +23,12 @@
 #define _Timeout_H_
 
 // Python docs say python.h should be included before any standard headers (!)
+#include "../api.h"
 #include "WrapPython.h" 
 
 namespace avg {
 
-class Timeout
+class AVG_API Timeout
 {
     public:
         Timeout (int time, PyObject * pyfunc, bool isInterval, long long StartTime);

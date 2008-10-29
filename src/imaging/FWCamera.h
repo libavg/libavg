@@ -22,6 +22,7 @@
 #ifndef _FWCamera_H_
 #define _FWCamera_H_
 
+#include "../api.h"
 #include "../avgconfigwrapper.h"
 
 #include "Camera.h"
@@ -52,7 +53,7 @@ namespace avg {
 
 typedef Queue<BitmapPtr> BitmapQueue;
 
-class FWCamera: public Camera {
+class AVG_API FWCamera: public Camera {
 public:
     FWCamera(std::string sDevice, IntPoint Size, std::string sPF,
             double FrameRate, bool bColor);

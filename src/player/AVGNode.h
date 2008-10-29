@@ -22,6 +22,7 @@
 #ifndef _AVGNode_H_
 #define _AVGNode_H_
 
+#include "../api.h"
 #include "DivNode.h"
 #include "KeyEvent.h"
 
@@ -29,7 +30,7 @@
 
 namespace avg {
 
-class AVGNode : public DivNode
+class AVG_API AVGNode : public DivNode
 {
     public:
         static NodeDefinition createDefinition();

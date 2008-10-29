@@ -22,6 +22,7 @@
 #ifndef _TestHelper_H_
 #define _TestHelper_H_
 
+#include "../api.h"
 #include "../graphics/Bitmap.h"
 #include "Event.h"
 #include "IEventSource.h"
@@ -32,7 +33,7 @@ namespace avg {
     
 class Player;
     
-class TestHelper : public IEventSource
+class AVG_API TestHelper : public IEventSource
 {
 
     public: 

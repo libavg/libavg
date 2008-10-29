@@ -22,6 +22,7 @@
 #ifndef _TrackerCalibrator_H_
 #define _TrackerCalibrator_H_
 
+#include "../api.h"
 #include "../imaging/DeDistort.h"
 #include "../base/Point.h"
 
@@ -29,7 +30,7 @@
 
 namespace avg {
 
-class TrackerCalibrator {
+class AVG_API TrackerCalibrator {
 
 public:
     friend void lm_evaluate_tracker(double* p, int m_dat, double* fvec,

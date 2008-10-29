@@ -22,6 +22,7 @@
 #ifndef _Filter_H_
 #define _Filter_H_
 
+#include "../api.h"
 #include "Bitmap.h"
 
 #include <boost/shared_ptr.hpp>
@@ -32,7 +33,7 @@ namespace avg {
 // to override either the ApplyInPlace or the Apply function. The base-class
 // versions of these functions simply implement one function in terms of the
 // other.
-class Filter
+class AVG_API Filter
 {
 public:
   Filter();

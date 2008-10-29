@@ -22,12 +22,13 @@
 #ifndef _CubicSpline_H_
 #define _CubicSpline_H_
 
+#include "../api.h"
 #include <boost/shared_ptr.hpp>
 #include <vector>
 
 namespace avg {
     
-class CubicSpline {
+class AVG_API CubicSpline {
 public:
     CubicSpline(const std::vector<double>& x, const std::vector<double>& y);
     virtual ~CubicSpline();

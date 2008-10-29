@@ -22,6 +22,7 @@
 #ifndef _ThreadProfiler_H_ 
 #define _ThreadProfiler_H_
 
+#include "../api.h"
 #include "Profiler.h"
 #include "ProfilingZone.h"
 
@@ -36,7 +37,7 @@ namespace avg {
 class ThreadProfiler;
 typedef boost::shared_ptr<ThreadProfiler> ThreadProfilerPtr;
 
-class ThreadProfiler {
+class AVG_API ThreadProfiler {
 public:
     ThreadProfiler(const std::string& sName);
     virtual ~ThreadProfiler();

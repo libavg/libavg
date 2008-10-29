@@ -24,6 +24,7 @@
 #ifndef _IAudioSource_H_
 #define _IAudioSource_H_
 
+#include "../api.h"
 #include "AudioBuffer.h"
 
 #include <boost/shared_ptr.hpp>
@@ -31,7 +32,7 @@
 
 namespace avg {
 
-class IAudioSource
+class AVG_API IAudioSource
 {
     public:
         virtual ~IAudioSource() {};

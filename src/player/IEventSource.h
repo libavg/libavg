@@ -22,12 +22,13 @@
 #ifndef _EventSource_h_
 #define _EventSource_h_
 
+#include "../api.h"
 #include "Event.h"
 #include <vector>
 
 namespace avg {
 
-class IEventSource {
+class AVG_API IEventSource {
     public:
         virtual ~IEventSource() {};
         virtual void initEventSource() {};

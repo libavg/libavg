@@ -27,6 +27,7 @@
 #define __gl_h_
 
 #if defined(USE_MGL_NAMESPACE)
+#include "../../api.h"
 #include "gl_mangle.h"
 #endif
 

@@ -22,6 +22,7 @@
 #ifndef _ParPort_H_
 #define _ParPort_H_
 
+#include "../api.h"
 #include <string>
 
 // Copied from linux/parport.h so we have a plattform-independent interface.
@@ -49,7 +50,7 @@ enum ParPortData {
     BIT7 = 128
 };
         
-class ParPort
+class AVG_API ParPort
 {
     public:
         ParPort();

@@ -25,7 +25,7 @@
 namespace avg {
 
 template<typename T>
-class IProcessor 
+class AVG_API IProcessor 
 {
 public:
     virtual ~IProcessor() {};

@@ -22,12 +22,13 @@
 #ifndef _ScopeTimer_H_ 
 #define _ScopeTimer_H_
 
+#include "../api.h"
 #include "ProfilingZone.h"
 #include "TimeSource.h"
 
 namespace avg {
     
-class ScopeTimer {
+class AVG_API ScopeTimer {
 public:
     ScopeTimer(ProfilingZone& Zone);
     virtual ~ScopeTimer();

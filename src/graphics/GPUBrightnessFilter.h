@@ -22,6 +22,7 @@
 #ifndef _GPUBrightnessFilter_H_
 #define _GPUBrightnessFilter_H_
 
+#include "../api.h"
 #include "GPUFilter.h"
 #include "Bitmap.h"
 #include "PBOImage.h"
@@ -30,7 +31,7 @@
 
 namespace avg {
 
-class GPUBrightnessFilter: public GPUFilter
+class AVG_API GPUBrightnessFilter: public GPUFilter
 {
 public:
     GPUBrightnessFilter(const IntPoint& size, PixelFormat pf, double alpha);

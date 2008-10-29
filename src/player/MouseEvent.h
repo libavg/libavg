@@ -22,13 +22,14 @@
 #ifndef _MouseEvent_h_
 #define _MouseEvent_h_
 
+#include "../api.h"
 #include "Event.h"
 #include "CursorEvent.h"
 #include "Node.h"
 
 namespace avg {
 
-class MouseEvent : public CursorEvent {
+class AVG_API MouseEvent : public CursorEvent {
     public:
         MouseEvent(Event::Type eventType,
                 bool leftButtonState, bool middleButtonState, bool rightButtonState,

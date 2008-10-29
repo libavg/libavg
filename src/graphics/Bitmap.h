@@ -22,6 +22,7 @@
 #ifndef _Bitmap_H_
 #define _Bitmap_H_
 
+#include "../api.h"
 #include "../base/Point.h"
 #include "../base/Rect.h"
 
@@ -64,7 +65,7 @@ typedef enum {
 typedef std::vector<int> Histogram;
 typedef boost::shared_ptr<Histogram> HistogramPtr;
 
-class Bitmap
+class AVG_API Bitmap
 {
 public:
     Bitmap(IntPoint Size, PixelFormat PF, const std::string& sName="");

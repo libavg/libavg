@@ -22,6 +22,7 @@
 #ifndef _V4LCamera_H_
 #define _V4LCamera_H_
 
+#include "../api.h"
 #include "../avgconfigwrapper.h"
 
 #include "Camera.h"
@@ -32,7 +33,7 @@ namespace avg {
 
 typedef unsigned int V4LCID_t;
 
-class V4LCamera: public Camera {
+class AVG_API V4LCamera: public Camera {
 
     struct Buffer {
         void * start;

@@ -23,12 +23,13 @@
 #ifndef _Filterflip_H_
 #define _Filterflip_H_
 
+#include "../api.h"
 #include "Filter.h"
 
 namespace avg {
 
 // Flips a bitmap upside-down
-class FilterFlip: public Filter
+class AVG_API FilterFlip: public Filter
 {
 public:
   FilterFlip();

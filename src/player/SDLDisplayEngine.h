@@ -22,6 +22,7 @@
 #ifndef _SDLDisplayEngine_H_
 #define _SDLDisplayEngine_H_
 
+#include "../api.h"
 #include "IEventSource.h"
 #include "DisplayEngine.h"
 #include "../graphics/Bitmap.h"
@@ -39,7 +40,7 @@ namespace avg {
 
 class OGLSurface;
 
-class SDLDisplayEngine: public DisplayEngine, public IEventSource
+class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
 {
     public:
         SDLDisplayEngine();

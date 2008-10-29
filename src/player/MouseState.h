@@ -22,12 +22,13 @@
 #ifndef _MouseState_h_
 #define _MouseState_h_
 
+#include "../api.h"
 #include "MouseEvent.h"
 #include "Node.h"
 
 namespace avg {
 
-class MouseState {
+class AVG_API MouseState {
     public:
         MouseState();
         virtual ~MouseState();

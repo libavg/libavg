@@ -22,12 +22,13 @@
 #ifndef _FilterMask_H
 #define _FilterMask_H
 
+#include "../api.h"
 #include "Filter.h"
 
 namespace avg {
 
 // Filter that applies a greyscale mask to an image.
-class FilterMask : public Filter
+class AVG_API FilterMask : public Filter
 {
 public:
     FilterMask(BitmapPtr pMaskBmp);

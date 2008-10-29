@@ -22,12 +22,13 @@
 #ifndef _Filterfliprgba_H
 #define _Filterfliprgba_H
 
+#include "../api.h"
 #include "Filter.h"
 
 namespace avg {
 
 // Filter that flips the R and B components of a bitmap.
-class FilterFlipRGBA : public Filter
+class AVG_API FilterFlipRGBA : public Filter
 {
 public:
   FilterFlipRGBA();

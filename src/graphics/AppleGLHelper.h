@@ -22,6 +22,7 @@
 #ifndef _AppleGLHelper_H_
 #define _AppleGLHelper_H_
 
+#include "../api.h"
 #include <Carbon/Carbon.h>
 
 OSStatus aglInitEntryPoints (void);
