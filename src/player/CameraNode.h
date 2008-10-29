@@ -77,16 +77,18 @@ class CameraNode : public VideoBase
         void setGain(int Value);
         unsigned int getWhiteBalance() const;
         void setWhiteBalance(int Value);
+        int getStrobeDuration() const;
+        void setStrobeDuration(int Value);
         
         virtual void preRender();
-
-        unsigned int getFeature (CameraFeature Feature) const;
-        void setFeature (CameraFeature Feature, int Value);
 
         int getFrameNum() const;
         IntPoint getMediaSize();
 
     private:
+        unsigned int getFeature (CameraFeature Feature) const;
+        void setFeature (CameraFeature Feature, int Value);
+
         virtual bool renderToSurface(ISurface * pSurface);
         virtual double getFPS();
         virtual void open(YCbCrMode ycbcrMode);

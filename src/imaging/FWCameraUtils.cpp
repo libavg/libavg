@@ -260,5 +260,4 @@ dc1394feature_t getFeatureID(CameraFeature Feature)
 
 #endif
 
-
 }

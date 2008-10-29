@@ -77,7 +77,7 @@ void HistoryPreProcessor::updateHistory(BitmapPtr pNewBmp)
         case INITIALIZING:
             calcAvg<FAST_HISTORY_SPEED>(pNewBmp);
             m_NumInitImages++;
-            if (m_NumInitImages == FAST_HISTORY_SPEED) {
+            if (m_NumInitImages == FAST_HISTORY_SPEED*2) {
                 m_State = NORMAL;
             }
             break;

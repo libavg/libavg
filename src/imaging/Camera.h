@@ -50,7 +50,8 @@ enum CameraFeature {
     CAM_FEATURE_OPTICAL_FILTER,
     CAM_FEATURE_CAPTURE_SIZE,
     CAM_FEATURE_CAPTURE_QUALITY,
-    CAM_FEATURE_CONTRAST
+    CAM_FEATURE_CONTRAST,
+    CAM_FEATURE_STROBE_DURATION
 };
 
 std::string cameraFeatureToString(CameraFeature Feature);

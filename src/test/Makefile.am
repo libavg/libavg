@@ -1,4 +1,4 @@
-SUBDIRSS = plugin
+SUBDIRS = plugin
 
 EXTRA_DIST = $(wildcard *.avg) $(wildcard *.png) $(wildcard *.jpg) $(wildcard *.tif) \
 	$(wildcard *.py)  \

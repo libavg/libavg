@@ -39,6 +39,7 @@
 #endif
 #ifdef AVG_ENABLE_1394_2
 #include <dc1394/control.h>
+#include <dc1394/register.h>
 #endif
 #ifndef AVG_ENABLE_1394_2
 typedef unsigned int dc1394feature_t;
@@ -72,6 +73,8 @@ public:
     void setFeature(dc1394feature_t Feature, int Value);
 
 private:
+    void setStrobeDuration(int microsecs);
+
     std::string m_sDevice;
     std::string m_sPF;
     IntPoint m_Size;
@@ -96,7 +99,7 @@ private:
     void dumpCameraInfo();
 
     bool m_bCameraAvailable;
-    typedef std::map<dc1394feature_t, int> FeatureMap;
+    typedef std::map<CameraFeature, int> FeatureMap;
     FeatureMap m_Features;
 };
 

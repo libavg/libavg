@@ -207,6 +207,8 @@ void export_raster()
         .add_property("gain", &CameraNode::getGain, &CameraNode::setGain)
         .add_property("whitebalance", &CameraNode::getWhiteBalance, 
                 &CameraNode::setWhiteBalance)
+        .add_property("strobeduration", &CameraNode::getStrobeDuration, 
+                &CameraNode::setStrobeDuration)
     ;
         
     class_<Video, bases<VideoBase> >("Video",

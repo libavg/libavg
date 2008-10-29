@@ -25,17 +25,22 @@ class CameraTestCase(unittest.TestCase):
         def stopPlayback():
             self.__camera.stop()
             Player.setTimeout(500, self.__camera.play)
+        def setStrobe():
+#            print self.__camera.strobeduration
+            self.__camera.strobeduration += 10
         self.curFrame = 200
         Player.loadFile("camera.avg")
         Player.setFramerate(60)
-        self.__camera = Player.getElementByID("camera1")
+        self.__camera = Player.getElementByID("camera")
+        self.__camera.strobeduration = -1
         self.__camera.play()
-        Player.getElementByID("camera").play()
+        Player.getElementByID("camera1").play()
 #        self.brightness = 0
 #        Player.setInterval(200, changeBrightness)
 #        Player.setTimeout(200, setWhitebalance)
 #        Player.setTimeout(300, resetWhitebalance)
-        Player.setInterval(3000, stopPlayback)
+#        Player.setInterval(3000, stopPlayback)
+        Player.setInterval(200, setStrobe)
         Player.play()
 
 def playerTestSuite(bpp):

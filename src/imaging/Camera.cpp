@@ -66,6 +66,8 @@ std::string cameraFeatureToString(CameraFeature Feature)
             return "capture quality";
         case CAM_FEATURE_CONTRAST:
             return "contrast";
+        case CAM_FEATURE_STROBE_DURATION:
+            return "strobe duration";
         default:
             return "unknown";
     }

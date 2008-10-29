@@ -18,7 +18,8 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-
+#ifndef _OGLImagingContext_H_
+#define _OGLImagingContext_H_
 #include "../base/Point.h"
 
 #include "OGLHelper.h"
@@ -67,4 +68,5 @@ private:
 #endif
 };
 }
+#endif
 
