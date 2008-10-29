@@ -22,6 +22,7 @@
 #ifndef _Exception_H_
 #define _Exception_H_
 
+#include "../api.h"
 #include <string>
 
 #define AVG_ERR_UNKNOWN -1
@@ -50,11 +51,12 @@
 #define AVG_ERR_INVALID_ARGS 25
 #define AVG_ERR_NO_BUILDER 26
 #define AVG_ERR_TYPE 27
-#define AVG_ERR_CAMERA 28
+#define AVG_ERR_CORRUPT_PLUGIN 28
+#define AVG_ERR_CAMERA 29
 
 namespace avg {
  
-class Exception 
+class AVG_API Exception 
 {
     public:
         Exception (int Code, const std::string& sErr = "");

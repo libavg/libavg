@@ -22,6 +22,7 @@
 #ifndef _XMLHelper_H_
 #define _XMLHelper_H_
 
+#include "../api.h"
 #include "Point.h"
 
 #include <libxml/parser.h>

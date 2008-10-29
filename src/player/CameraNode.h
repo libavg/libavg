@@ -22,6 +22,7 @@
 #ifndef _CameraNode_H_
 #define _CameraNode_H_
 
+#include "../api.h"
 #include "../avgconfigwrapper.h"
 
 #include "VideoBase.h"
@@ -35,7 +36,7 @@
 
 namespace avg {
 
-class CameraNode : public VideoBase
+class AVG_API CameraNode : public VideoBase
 {
     public:
         static NodeDefinition createDefinition();

@@ -22,12 +22,13 @@
 #ifndef _Filterflipuv_H
 #define _Filterflipuv_H
 
+#include "../api.h"
 #include "Filter.h"
 
 namespace avg {
 
 // Filter that flips the U and V components of a YCbCr422 bitmap.
-class FilterFlipUV : public Filter
+class AVG_API FilterFlipUV : public Filter
 {
 public:
   FilterFlipUV();

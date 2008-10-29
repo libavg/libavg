@@ -22,13 +22,14 @@
 #ifndef _VideoMsg_H_
 #define _VideoMsg_H_
 
+#include "../api.h"
 #include "../base/Queue.h"
 
 #include <boost/shared_ptr.hpp>
 
 namespace avg {
 
-class VideoMsg {
+class AVG_API VideoMsg {
     public:
         VideoMsg();
         virtual ~VideoMsg();

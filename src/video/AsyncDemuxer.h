@@ -22,6 +22,7 @@
 #ifndef _AsyncDemuxer_H_
 #define _AsyncDemuxer_H_
 
+#include "../api.h"
 #include "IDemuxer.h"
 #include "VideoDemuxerThread.h"
 
@@ -32,7 +33,7 @@
 
 namespace avg {
 
-    class AsyncDemuxer: public IDemuxer {
+    class AVG_API AsyncDemuxer: public IDemuxer {
         public:
             AsyncDemuxer(AVFormatContext * pFormatContext);
             virtual ~AsyncDemuxer();

@@ -22,6 +22,7 @@
 #ifndef _Point_H_
 #define _Point_H_
 
+#include "../api.h"
 #include "MathHelper.h"
 #include "ObjectCounter.h"
 
@@ -33,7 +34,7 @@
 namespace avg {
 
 template<class NUM>
-class Point
+class AVG_TEMPLATE_API Point
 {
 public:
     NUM x;

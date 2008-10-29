@@ -22,6 +22,7 @@
 #ifndef _CanvasNode_H_
 #define _CanvasNode_H_
 
+#include "../api.h"
 #include "GroupNode.h"
 
 #include "../graphics/VertexArray.h"
@@ -32,7 +33,7 @@ namespace avg {
 
 class VectorNode;
 
-class CanvasNode : public GroupNode
+class AVG_API CanvasNode : public GroupNode
 {
     public:
         static NodeDefinition createDefinition();

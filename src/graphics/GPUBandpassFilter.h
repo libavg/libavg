@@ -22,6 +22,7 @@
 #ifndef _GPUBandpassFilter_H_
 #define _GPUBandpassFilter_H_
 
+#include "../api.h"
 #include "GPUFilter.h"
 #include "GPUBlurFilter.h"
 #include "Bitmap.h"
@@ -31,7 +32,7 @@
 
 namespace avg {
 
-class GPUBandpassFilter: public GPUFilter
+class AVG_API GPUBandpassFilter: public GPUFilter
 {
 public:
     GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc, double min, double max, 

@@ -22,6 +22,7 @@
 #ifndef _Queue_H_
 #define _Queue_H_
 
+#include "../api.h"
 #include "Exception.h"
 
 #include <boost/thread/mutex.hpp>
@@ -34,7 +35,7 @@ namespace avg {
 typedef boost::mutex::scoped_lock scoped_lock;
 
 template<class QElement>
-class Queue 
+class AVG_API Queue 
 {
     public:
         Queue(int MaxSize=-1);

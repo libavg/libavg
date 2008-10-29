@@ -24,6 +24,7 @@
 #ifndef _ConnectedComps_H_
 #define _ConnectedComps_H_
 
+#include "../api.h"
 #include "Run.h"
 
 #include "../graphics/Bitmap.h"
@@ -47,7 +48,7 @@ typedef std::vector<BlobWeakPtr> BlobWeakPtrVector;
 typedef boost::shared_ptr<BlobVector> BlobVectorPtr;
 typedef std::vector<IntPoint> ContourSeq;
 
-class Blob
+class AVG_API Blob
 {
     public:
         Blob(const Run & run);

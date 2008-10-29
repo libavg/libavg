@@ -22,6 +22,7 @@
 #ifndef _FilterBandpass_H_
 #define _FilterBandpass_H_
 
+#include "../api.h"
 #include "Filter.h"
 #include "FilterGauss.h"
 #include "Bitmap.h"
@@ -31,7 +32,7 @@
 namespace avg {
 
 // XXX: Warning, possibly buggy.
-class FilterBandpass: public Filter{
+class AVG_API FilterBandpass: public Filter{
     public:
         FilterBandpass(double lowWidth, double highWidth);
         virtual ~FilterBandpass();

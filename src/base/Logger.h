@@ -22,6 +22,8 @@
 #ifndef _Logger_H_ 
 #define _Logger_H_
 
+#include "../api.h"
+
 #include <iostream>
 #include <sstream>
 
@@ -31,7 +33,7 @@ namespace avg {
 #undef ERROR
 #endif
 
-class Logger {
+class AVG_API Logger {
 public:
     static Logger* get();
     virtual ~Logger();
@@ -59,6 +61,8 @@ public:
     static const long MEMORY;
     static const long APP;
     static const long LOGGER;
+    static const long PLUGIN;
+
 
 private:
     Logger();

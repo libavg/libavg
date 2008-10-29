@@ -20,6 +20,7 @@
 //
 
 #ifdef _WIN32
+#include "api.h"
 #include "../avgconfig_win.h"
 #else
 #include "../avgconfig.h"

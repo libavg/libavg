@@ -22,6 +22,7 @@
 #ifndef _OGLTexture_H_
 #define _OGLTexture_H_
 
+#include "../api.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/OGLHelper.h"
 #include "../base/Rect.h"
@@ -35,7 +36,7 @@ class VertexArray;
 
 typedef std::vector<std::vector<DPoint> > VertexGrid;
 
-class OGLTexture {
+class AVG_API OGLTexture {
     public:
         OGLTexture(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize, 
                 IntRect TileIndexExtent, int Stride, PixelFormat pf,

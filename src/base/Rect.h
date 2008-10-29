@@ -22,6 +22,7 @@
 #ifndef _Rect_H_
 #define _Rect_H_
 
+#include "../api.h"
 #include "Point.h"
 
 namespace avg {
@@ -30,7 +31,7 @@ namespace avg {
 // If NUM is an integer, contains all points from tl up to but not including 
 // br.
 template<class NUM>
-class Rect
+class AVG_TEMPLATE_API Rect
 {
 public:
     Point<NUM> tl;

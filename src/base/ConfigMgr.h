@@ -22,6 +22,7 @@
 #ifndef _ConfigMgr_H_
 #define _ConfigMgr_H_
 
+#include "../api.h"
 #include "CmdLine.h"
 
 #include <libxml/parser.h>
@@ -43,7 +44,7 @@ struct ConfigOption {
 
 typedef std::vector<ConfigOption> ConfigOptionVector;
 
-class ConfigMgr {
+class AVG_API ConfigMgr {
 public:
     static ConfigMgr* get();
 

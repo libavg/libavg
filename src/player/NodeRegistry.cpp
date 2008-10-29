@@ -40,9 +40,14 @@ NodeRegistry::~NodeRegistry()
 {
 }
 
-void NodeRegistry::registerNodeType(NodeDefinition& Def)
+void NodeRegistry::registerNodeType(const NodeDefinition& Def)
 {
     m_NodeDefs.insert(NodeDefMap::value_type(Def.getName(), Def));
+}
+
+void NodeRegistry::updateNodeDefinition(const NodeDefinition& Def)
+{
+	m_NodeDefs[Def.getName()] = Def;
 }
 
 NodePtr NodeRegistry::createNode(const string& Type, const xmlNodePtr xmlNode)

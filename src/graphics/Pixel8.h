@@ -22,6 +22,7 @@
 #ifndef _Pixel8_H_
 #define _Pixel8_H_
 
+#include "../api.h"
 #include "Pixeldefs.h"
 #include "Pixel32.h"
 
@@ -30,7 +31,7 @@
 
 namespace avg {
 
-class Pixel8
+class AVG_API Pixel8
 {
   public:
     Pixel8 ();

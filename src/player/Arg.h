@@ -24,6 +24,8 @@
 #ifndef _Arg_H_
 #define _Arg_H_
 
+#include "../api.h"
+
 #include "ArgBase.h"
 
 #include <string>
@@ -33,7 +35,7 @@ namespace avg {
 class Node;
 
 template<class T>
-class Arg: public ArgBase
+class AVG_TEMPLATE_API Arg: public ArgBase
 {
 public:
     Arg(std::string sName, const T& Value, bool bRequired = false, 
@@ -88,6 +90,14 @@ ArgBase* Arg<T>::createCopy() const
 {
     return new Arg<T>(*this);
 }
+
+#ifdef AVG_PLUGIN
+// declare specific template instances as extern
+extern template class Arg<int>;
+extern template class Arg<float>;
+extern template class Arg<double>;
+extern template class Arg<std::string>;
+#endif
 
 }
 

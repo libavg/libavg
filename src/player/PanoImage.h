@@ -22,6 +22,7 @@
 #ifndef _PanoImage_H_
 #define _PanoImage_H_
 
+#include "../api.h"
 #include "../avgconfigwrapper.h"
 
 #include "AreaNode.h"
@@ -37,7 +38,7 @@ namespace avg {
     
 class SDLDisplayEngine;
 
-class PanoImage: public AreaNode
+class AVG_API PanoImage: public AreaNode
 {
     public:
         static NodeDefinition createDefinition();

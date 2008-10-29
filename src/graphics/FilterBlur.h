@@ -22,6 +22,7 @@
 #ifndef _FilterBlur_H_
 #define _FilterBlur_H_
 
+#include "../api.h"
 #include "Filter.h"
 #include "Bitmap.h"
 
@@ -29,7 +30,7 @@
 
 namespace avg {
 
-class FilterBlur: public Filter{
+class AVG_API FilterBlur: public Filter{
     public:
         FilterBlur();
         virtual ~FilterBlur();

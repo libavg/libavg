@@ -22,6 +22,7 @@
 #ifndef _VideoDemuxerThread_H_
 #define _VideoDemuxerThread_H_
 
+#include "../api.h"
 #include "FFMpegDemuxer.h"
 #include "PacketVideoMsg.h"
 
@@ -35,7 +36,7 @@
 
 namespace avg {
 
-class VideoDemuxerThread: public WorkerThread<VideoDemuxerThread> {
+class AVG_API VideoDemuxerThread: public WorkerThread<VideoDemuxerThread> {
     public:
         VideoDemuxerThread(CmdQueue& CmdQ, AVFormatContext * pFormatContext);
         virtual ~VideoDemuxerThread();

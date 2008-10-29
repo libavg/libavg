@@ -22,6 +22,7 @@
 #ifndef _Event_H_
 #define _Event_H_
 
+#include "../api.h"
 #include <functional>
 #include <boost/shared_ptr.hpp>
 #undef _POSIX_C_SOURCE
@@ -30,7 +31,7 @@ namespace avg {
 
 class AreaNode;
 typedef boost::shared_ptr<class AreaNode> AreaNodePtr;
-class Event {
+class AVG_API Event {
     public:
         enum Type {
             KEYUP,

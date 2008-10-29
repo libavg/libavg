@@ -22,6 +22,7 @@
 #ifndef _BezierCurve_H_
 #define _BezierCurve_H_
 
+#include "../api.h"
 #include "Point.h"
 
 #include <boost/shared_ptr.hpp>
@@ -29,7 +30,7 @@
 
 namespace avg {
 
-class BezierCurve {
+class AVG_API BezierCurve {
 public:
     BezierCurve(const DPoint& p0, const DPoint& p1, const DPoint& p2, const DPoint& p3);
 

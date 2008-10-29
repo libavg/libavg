@@ -24,6 +24,7 @@
 #ifndef _CursorEvent_h_
 #define _CursorEvent_h_
 
+#include "../api.h"
 #include "Event.h"
 
 #include "../base/Point.h"
@@ -35,7 +36,7 @@ const int MOUSECURSORID=-1;
 class CursorEvent;
 typedef boost::shared_ptr<class CursorEvent> CursorEventPtr;
 
-class CursorEvent: public Event 
+class AVG_API CursorEvent: public Event 
 {
     public:
         CursorEvent(int id, Type eventType, const IntPoint& Position, Source source);

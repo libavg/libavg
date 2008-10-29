@@ -22,11 +22,12 @@
 #ifndef _UTF8String_H_
 #define _UTF8String_H_
 
+#include "../api.h"
 #include <string>
 
 namespace avg {
 
-class UTF8String: public std::string
+class AVG_API UTF8String: public std::string
 {
 public:
     UTF8String();

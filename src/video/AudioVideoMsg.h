@@ -24,6 +24,7 @@
 #ifndef _AudioVideoMsg_H_
 #define _AudioVideoMsg_H_
 
+#include "../api.h"
 #include "VideoMsg.h"
 
 #include "../audio/AudioBuffer.h"
@@ -47,7 +48,7 @@ extern "C" {
 
 namespace avg {
 
-class AudioVideoMsg : public VideoMsg
+class AVG_API AudioVideoMsg : public VideoMsg
 {
 public:
     AudioVideoMsg(AudioBufferPtr pBuffer, long long Time);

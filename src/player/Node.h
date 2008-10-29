@@ -22,6 +22,7 @@
 #ifndef _Node_H_
 #define _Node_H_
 
+#include "../api.h"
 
 #include "../base/Rect.h"
 
@@ -48,7 +49,7 @@ typedef boost::weak_ptr<GroupNode> GroupNodeWeakPtr;
 typedef boost::shared_ptr<AVGNode> AVGNodePtr;
 typedef boost::weak_ptr<AVGNode> AVGNodeWeakPtr;
 
-class Node
+class AVG_API Node
 {
     public:
         enum NodeState {NS_UNCONNECTED, NS_CONNECTED, NS_CANRENDER};

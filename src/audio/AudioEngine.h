@@ -24,6 +24,7 @@
 #ifndef _AudioEngine_H_
 #define _AudioEngine_H_
 
+#include "../api.h"
 #include "IAudioSource.h"
 #include "AudioParams.h"
 
@@ -33,7 +34,7 @@ namespace avg {
 
 typedef std::vector<IAudioSource*> AudioSourceList;
 
-class AudioEngine
+class AVG_API AudioEngine
 {
     public:
         AudioEngine();

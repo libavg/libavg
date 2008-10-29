@@ -24,6 +24,8 @@
 #ifndef _ArgBase_H_
 #define _ArgBase_H_
 
+#include "../api.h"
+
 #include <string>
 
 #include <boost/shared_ptr.hpp>
@@ -32,7 +34,7 @@ namespace avg {
 
 class Node;
 
-class ArgBase
+class AVG_API ArgBase
 {
 public:
     ArgBase(std::string Name, bool bRequired = false, ptrdiff_t MemberOffset = -1);

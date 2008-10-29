@@ -35,6 +35,7 @@
 #include "RectNode.h"
 #include "CurveNode.h"
 #include "NodeDefinition.h"
+#include "PluginManager.h"
 
 #include "TrackerEventSource.h"
 #include "Event.h"
@@ -84,7 +85,7 @@
 using namespace std;
 
 namespace avg {
-
+	
 Player * Player::s_pPlayer=0;
 
 Player::Player()
@@ -127,6 +128,19 @@ Player::Player()
     registerNodeType(RectNode::createDefinition());
     registerNodeType(CurveNode::createDefinition());
 
+	updateDTD();
+	
+    m_pTestHelper = new TestHelper(this);
+
+#ifdef _WIN32
+    Magick::InitializeMagick((getAvgLibPath()+"magick\\").c_str());
+#endif
+
+    s_pPlayer = this;
+}
+
+void Player::updateDTD()
+{
     // Find and parse dtd.
     registerDTDEntityLoader("avg.dtd", m_NodeRegistry.getDTD().c_str());
     string sDTDFName = "avg.dtd";
@@ -135,13 +149,6 @@ Player::Player()
         AVG_TRACE(Logger::WARNING, 
                 "DTD not found at " << sDTDFName << ". Not validating xml files.");
     }
-    m_pTestHelper = new TestHelper(this);
-
-#ifdef _WIN32
-    Magick::InitializeMagick((getAvgLibPath()+"magick\\").c_str());
-#endif
-
-    s_pPlayer = this;
 }
 
 Player::~Player()
@@ -902,6 +909,7 @@ void Player::internalLoad(const string& sAVG)
     }
 }
 
+
 void Player::registerNode(NodePtr pNode)
 {
     addNodeID(pNode);    
@@ -917,6 +925,13 @@ void Player::registerNodeType(NodeDefinition Def)
 {
     m_NodeRegistry.registerNodeType(Def);
 }
+
+void Player::updateNodeDefinition(const NodeDefinition& Def)
+{
+    m_NodeRegistry.updateNodeDefinition(Def);
+	updateDTD();
+}
+
 
 NodePtr Player::createNode(const string& sType, const boost::python::dict& PyDict)
 {
@@ -1299,6 +1314,18 @@ long long Player::getGPUMemoryUsage()
     }
 }
 
+void Player::setPluginPath(const string& newPath) {
+	PluginManager::get().setSearchPath(newPath);
+}
 
+string Player::getPluginPath() const {
+	return 	PluginManager::get().getSearchPath();
+}
+
+void Player::loadPlugin(const std::string& name)
+{
+    AVG_TRACE(Logger::PLUGIN, "player loading plugin: '" << name << "'");	
+	PluginManager::get().loadPlugin(name);
+}
 
 }

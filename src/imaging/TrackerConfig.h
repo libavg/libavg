@@ -21,6 +21,7 @@
 #ifndef _TrackerConfig_H_
 #define _TrackerConfig_H_
 
+#include "../api.h"
 #include "../base/Rect.h"
 
 #include <boost/shared_ptr.hpp>
@@ -33,7 +34,7 @@ namespace avg {
 class DeDistort;
 typedef boost::shared_ptr<DeDistort> DeDistortPtr;
 
-class TrackerConfig
+class AVG_API TrackerConfig
 {
 public:
     TrackerConfig();

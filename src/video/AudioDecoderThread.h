@@ -24,6 +24,7 @@
 #ifndef _AudioDecoderThread_H_
 #define _AudioDecoderThread_H_
 
+#include "../api.h"
 #include "IVideoDecoder.h"
 #include "VideoMsg.h"
 
@@ -37,7 +38,7 @@
 
 namespace avg {
 
-class AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
+class AVG_API AudioDecoderThread : public WorkerThread<AudioDecoderThread> {
     public:
         AudioDecoderThread(CmdQueue& CmdQ, VideoMsgQueue& MsgQ, 
                 VideoDecoderPtr pDecoder, const AudioParams& AP);

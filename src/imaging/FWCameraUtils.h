@@ -22,6 +22,7 @@
 #ifndef _FWCameraUtils_H_
 #define _FWCameraUtils_H_
 
+#include "../api.h"
 #include "Camera.h"
 
 #include "../avgconfigwrapper.h"

@@ -22,6 +22,7 @@
 #ifndef _OGLShader_H_
 #define _OGLShader_H_
 
+#include "../api.h"
 #include "OGLHelper.h"
 
 #include <boost/shared_ptr.hpp>
@@ -30,7 +31,7 @@
 
 namespace avg {
 
-class OGLShader {
+class AVG_API OGLShader {
     public:
         OGLShader(std::string sProgram);
         virtual ~OGLShader();

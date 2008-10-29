@@ -22,6 +22,7 @@
 #ifndef _FilterFastDownscale_H_
 #define _FilterFastDownscale_H_
 
+#include "../api.h"
 #include "Filter.h"
 #include "Bitmap.h"
 
@@ -29,7 +30,7 @@ namespace avg {
 
 // Returns a bitmap that is scaled downward by Scale in both x and y directions
 // using simple box sampling.
-class FilterFastDownscale : public Filter
+class AVG_API FilterFastDownscale : public Filter
 {
 public:
     FilterFastDownscale(int Factor);

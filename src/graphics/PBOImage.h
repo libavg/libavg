@@ -22,6 +22,7 @@
 #ifndef _PBOImage_H_
 #define _PBOImage_H_
 
+#include "../api.h"
 #include "Bitmap.h"
 #include "OGLHelper.h"
 
@@ -33,7 +34,7 @@ namespace avg {
 
 class VertexArray;
 
-class PBOImage {
+class AVG_API PBOImage {
 
 public:
     PBOImage(const IntPoint& size, PixelFormat pf, int precision, 

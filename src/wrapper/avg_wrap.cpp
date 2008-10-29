@@ -126,6 +126,7 @@ BOOST_PYTHON_MODULE(avg)
         .def_readonly("ERROR", &Logger::ERROR)
         .def_readonly("MEMORY", &Logger::MEMORY)
         .def_readonly("APP", &Logger::APP)
+        .def_readonly("PLUGIN", &Logger::PLUGIN)
     ;
 
 #ifndef WIN32
@@ -325,7 +326,14 @@ BOOST_PYTHON_MODULE(avg)
                 "getGPUMemoryUsage() -> bytes\n"
                 "Get the amount of memory currently allocated for textures storaging\n"
                 "on the graphics adapter.\n")
-        .add_property("volume", &Player::getVolume, &Player::setVolume,
+		.def("loadPlugin", &Player::loadPlugin,
+		                "loadPlugin(name)\n"
+		                "load a Plugin and extend the XML DTD.\n"
+		                "@param name: name of the plugin (without directory and file extension)\n")
+		.add_property("pluginPath", &Player::getPluginPath, &Player::setPluginPath,
+		                "A colon-separated list of directories where the player\n"
+		                "searches for plugins when loadPlugin() is called.\n")
+		.add_property("volume", &Player::getVolume, &Player::setVolume,
                 "Total audio playback volume. 0 is silence, 1 passes media file\n"
                 "volume through unchanged. Values higher than 1 can be used to\n"
                 "amplify playback. A limiter prevents distortion when the volume\n"

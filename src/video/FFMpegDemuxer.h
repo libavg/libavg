@@ -22,6 +22,7 @@
 #ifndef _FFMpegDemuxer_H_
 #define _FFMpegDemuxer_H_
 
+#include "../api.h"
 #include "IDemuxer.h"
 
 #ifdef _WIN32
@@ -55,7 +56,7 @@ extern "C" {
 
 namespace avg {
 
-    class FFMpegDemuxer: public IDemuxer {
+    class AVG_API FFMpegDemuxer: public IDemuxer {
         public:
             FFMpegDemuxer(AVFormatContext * pFormatContext);
             virtual ~FFMpegDemuxer();

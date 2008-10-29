@@ -24,6 +24,7 @@
 #ifndef _NodeRegistry_H_
 #define _NodeRegistry_H_
 
+#include "../api.h"
 #include "Node.h"
 #include "ArgList.h"
 #include "NodeDefinition.h"
@@ -34,13 +35,14 @@
 
 namespace avg {
 
-class NodeRegistry
+class AVG_API NodeRegistry
 {
 public:
     NodeRegistry();
     virtual ~NodeRegistry();
     
-    void registerNodeType(NodeDefinition& Def);
+    void registerNodeType(const NodeDefinition& Def);
+    void updateNodeDefinition(const NodeDefinition& Def);
     const NodeDefinition& getNodeDef(const std::string& Type);
     NodePtr createNode(const std::string& Type, const xmlNodePtr xmlNode);
     NodePtr createNode(const std::string& Type, const boost::python::dict& PyDict);

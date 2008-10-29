@@ -22,6 +22,7 @@
 #ifndef _VideoBase_H_
 #define _VideoBase_H_
 
+#include "../api.h"
 #include "RasterNode.h"
 
 #include "../base/Rect.h"
@@ -32,7 +33,7 @@ class ISurface;
 
 namespace avg {
 
-class VideoBase : public RasterNode
+class AVG_API VideoBase : public RasterNode
 {
     public:
         static NodeDefinition createDefinition();

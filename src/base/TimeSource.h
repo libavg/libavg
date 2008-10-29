@@ -22,6 +22,8 @@
 #ifndef _TimeSource_H_ 
 #define _TimeSource_H_
 
+#include "../api.h"
+
 #ifdef _WIN32
 #include <Winsock2.h>
 #undef ERROR
@@ -38,7 +40,7 @@ namespace avg {
 
 typedef unsigned long long CycleCount;
 
-class TimeSource {
+class AVG_API TimeSource {
 public:
     static TimeSource* get();
     virtual ~TimeSource();

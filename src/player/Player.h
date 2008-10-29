@@ -22,6 +22,7 @@
 #ifndef _Player_H_
 #define _Player_H_
 
+#include "../api.h"
 #include "IEventSink.h"
 #include "EventDispatcher.h"
 #include "Timeout.h"
@@ -57,12 +58,14 @@ typedef boost::shared_ptr<AreaNode> AreaNodePtr;
 typedef boost::weak_ptr<AreaNode> AreaNodeWeakPtr;
 
 
-class Player : IEventSink
+class AVG_API Player : IEventSink
 {
     public:
         Player();
         virtual ~Player();
         static Player* get();
+
+		void updateDTD();
 
         void setResolution(bool bFullscreen,
                 int width=0, int height=0, int bpp=0);
@@ -86,7 +89,9 @@ class Player : IEventSink
         long long getFrameTime();
 
         void registerNodeType(NodeDefinition Def);
-        NodePtr createNode (const std::string& sType, const boost::python::dict& PyDict);
+        void updateNodeDefinition(const NodeDefinition& Def);
+		
+		NodePtr createNode (const std::string& sType, const boost::python::dict& PyDict);
         NodePtr createNodeFromXmlString (const std::string& sXML);
         TrackerEventSource * addTracker(const std::string& sConfigFilename);
         int setInterval(int time, PyObject * pyfunc);
@@ -126,6 +131,9 @@ class Player : IEventSink
 
         void disablePython();
 
+		void loadPlugin(const std::string& name);
+		void setPluginPath(const std::string& newPath);
+		std::string getPluginPath() const;
     private:
         void initConfig();
         void initGraphics();

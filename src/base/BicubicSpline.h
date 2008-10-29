@@ -22,6 +22,7 @@
 #ifndef _BicubicSpline_H_
 #define _BicubicSpline_H_
 
+#include "../api.h"
 #include "Point.h"
 
 #include <boost/shared_ptr.hpp>
@@ -29,7 +30,7 @@
 
 namespace avg {
 
-class BicubicSpline {
+class AVG_API BicubicSpline {
 public:
     BicubicSpline(const std::vector<double>& x, const std::vector<double>& y,
             const std::vector<std::vector<double> >& f);

@@ -22,6 +22,7 @@
 #ifndef _DirEntry_H_
 #define _DirEntry_H_
 
+#include "../api.h"
 #include <boost/shared_ptr.hpp>
 
 #ifdef _WIN32
@@ -33,7 +34,7 @@
 
 namespace avg {
     
-class DirEntry {
+class AVG_API DirEntry {
 public:
 #ifdef _WIN32
     DirEntry(std::string sDirName, const _finddata_t& FindData);

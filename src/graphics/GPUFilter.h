@@ -22,6 +22,7 @@
 #ifndef _GPUFilter_H_
 #define _GPUFilter_H_
 
+#include "../api.h"
 #include "Filter.h"
 #include "Bitmap.h"
 #include "PBOImage.h"
@@ -29,7 +30,7 @@
 
 namespace avg {
 
-class GPUFilter: public Filter
+class AVG_API GPUFilter: public Filter
 {
 public:
     GPUFilter(const IntPoint& size, PixelFormat pfSrc);

@@ -22,6 +22,7 @@
 #ifndef _TrackerEventStream_H_
 #define _TrackerEventStream_H_
 
+#include "../api.h"
 #include "CursorEvent.h"
 
 #include "../base/Point.h"
@@ -33,7 +34,7 @@
 
 namespace avg {
 
-    class  EventStream
+    class AVG_API EventStream
     //internal class to keep track of blob/event states
     {
         public:

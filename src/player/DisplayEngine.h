@@ -22,6 +22,7 @@
 #ifndef _DisplayEngine_H_
 #define _DisplayEngine_H_
 
+#include "../api.h"
 #include "Node.h"
 #include "DisplayParams.h"
 
@@ -40,7 +41,7 @@ class ISurface;
 
 class Region;
 
-class DisplayEngine
+class AVG_API DisplayEngine
 {   
     public:
         typedef enum BlendMode {BLEND_BLEND, BLEND_ADD, BLEND_MIN, BLEND_MAX};

@@ -22,13 +22,14 @@
 #ifndef _ObjectCounter_H_
 #define _ObjectCounter_H_
 
+#include "../api.h"
 #include <string>
 #include <map>
 #include <typeinfo>
 
 namespace avg {
 
-class ObjectCounter {
+class AVG_API ObjectCounter {
 public:
     static ObjectCounter* get();
     virtual ~ObjectCounter();

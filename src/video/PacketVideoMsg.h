@@ -22,6 +22,7 @@
 #ifndef _PacketVideoMsg_H_
 #define _PacketVideoMsg_H_
 
+#include "../api.h"
 #include "../base/Queue.h"
 #include "../graphics/Bitmap.h"
 
@@ -46,7 +47,7 @@ extern "C" {
 
 namespace avg {
 
-class PacketVideoMsg {
+class AVG_API PacketVideoMsg {
     public:
         PacketVideoMsg(AVPacket * pPacket, bool bSeekDone);
         virtual ~PacketVideoMsg();

@@ -22,6 +22,7 @@
 #ifndef _VertexArray_H_
 #define _VertexArray_H_
 
+#include "../api.h"
 #include "../base/Point.h"
 #include "../graphics/Pixel32.h"
 #include "../graphics/OGLHelper.h"
@@ -36,7 +37,7 @@ struct T2V3C4Vertex {
     GLfloat m_Pos[3];
 };
 
-class VertexArray {
+class AVG_API VertexArray {
 public:
     VertexArray(int numVerts, int numIndexes, int reserveVerts = 0, 
             int reserveIndexes = 0);

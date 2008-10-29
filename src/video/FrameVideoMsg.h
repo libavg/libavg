@@ -22,6 +22,7 @@
 #ifndef _FrameVideoMsg_H_
 #define _FrameVideoMsg_H_
 
+#include "../api.h"
 #include "VideoMsg.h"
 
 #include "../graphics/Bitmap.h"
@@ -30,7 +31,7 @@
 
 namespace avg {
 
-class FrameVideoMsg: public VideoMsg {
+class AVG_API FrameVideoMsg: public VideoMsg {
     public:
         FrameVideoMsg(std::vector<BitmapPtr> pBmps, long long FrameTime);
         virtual ~FrameVideoMsg();

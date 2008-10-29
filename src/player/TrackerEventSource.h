@@ -22,6 +22,7 @@
 #ifndef _TrackerEventSource_H_
 #define _TrackerEventSource_H_
 
+#include "../api.h"
 #include "CursorEvent.h"
 #include "IEventSource.h"
 #include "TrackerCalibrator.h"
@@ -46,7 +47,7 @@ class EventStream;
 typedef boost::shared_ptr<EventStream> EventStreamPtr;
 typedef std::map<BlobPtr, EventStreamPtr> EventMap;
 
-class TrackerEventSource: public IBlobTarget, public IEventSource
+class AVG_API TrackerEventSource: public IBlobTarget, public IEventSource
 {
     public:
         TrackerEventSource(CameraPtr pCamera, const TrackerConfig& Config,

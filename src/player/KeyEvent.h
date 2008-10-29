@@ -22,13 +22,14 @@
 #ifndef _KeyEvent_h_
 #define _KeyEvent_h_
 
+#include "../api.h"
 #include "Event.h"
 
 #include <string>
 
 namespace avg {
 
-class KeyEvent : public Event {
+class AVG_API KeyEvent : public Event {
     public:
         KeyEvent(Type eventType, unsigned char scanCode, int keyCode, 
                 const std::string& keyString, int unicode, int modifiers);

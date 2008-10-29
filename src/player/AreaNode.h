@@ -22,6 +22,8 @@
 #ifndef _AreaNode_H_
 #define _AreaNode_H_
 
+#include "../api.h"
+
 #include "Node.h"
 
 #include "Event.h"
@@ -50,7 +52,7 @@ typedef boost::weak_ptr<AreaNode> AreaNodeWeakPtr;
 typedef boost::shared_ptr<DivNode> DivNodePtr;
 typedef boost::weak_ptr<DivNode> DivNodeWeakPtr;
 
-class AreaNode: public Node
+class AVG_API AreaNode: public Node
 {
     public:
         template<class NodeType>
@@ -167,3 +169,4 @@ class AreaNode: public Node
 }
 
 #endif
+

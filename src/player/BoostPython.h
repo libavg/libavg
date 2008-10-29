@@ -25,6 +25,7 @@
 #pragma warning(disable: 4244)
 #endif
 
+#include "../api.h"
 #include <boost/python.hpp>
 
 #ifdef _WIN32

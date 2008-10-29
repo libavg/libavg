@@ -22,6 +22,8 @@
 #ifndef _Pixel32_H_
 #define _Pixel32_H_
 
+#include "../api.h"
+
 #include "Pixeldefs.h"
 
 #include <string>
@@ -30,7 +32,7 @@
 
 namespace avg {
 
-class Pixel32
+class AVG_API Pixel32
 {
 
 public:
@@ -71,7 +73,7 @@ public:
     unsigned char m_Data[4];
 };
 
-Pixel32 colorStringToColor(const std::string& s);
+Pixel32 AVG_API colorStringToColor(const std::string& s);
 
 inline Pixel32::Pixel32()
 {

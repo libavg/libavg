@@ -22,6 +22,7 @@
 #ifndef _CoordTransformer_H_
 #define _CoordTransformer_H_
 
+#include "../api.h"
 #include "../base/Point.h"
 
 #include <boost/shared_ptr.hpp>
@@ -29,7 +30,7 @@
 namespace avg {
 
 
-class CoordTransformer
+class AVG_API CoordTransformer
 {
     public:
         CoordTransformer();

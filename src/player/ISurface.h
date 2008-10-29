@@ -22,13 +22,14 @@
 #ifndef _ISurface_H_
 #define _ISurface_H_
 
+#include "../api.h"
 #include "../graphics/Bitmap.h"
 
 #include <string>
 
 namespace avg {
 
-class ISurface {
+class AVG_API ISurface {
     public:
         virtual ~ISurface(){};
         virtual void create(const IntPoint& Size, PixelFormat PF, 

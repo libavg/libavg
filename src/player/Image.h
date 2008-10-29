@@ -22,6 +22,7 @@
 #ifndef _Image_H_
 #define _Image_H_
 
+#include "../api.h"
 #include "RasterNode.h"
 
 #include "../graphics/Bitmap.h"
@@ -30,7 +31,7 @@
 
 namespace avg {
 
-class Image : public RasterNode
+class AVG_API Image : public RasterNode
 {
     public:
         static NodeDefinition createDefinition();

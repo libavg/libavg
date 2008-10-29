@@ -24,6 +24,7 @@
 #ifndef _FilterId_H_
 #define _FilterId_H_
 
+#include "../api.h"
 #include "Filter.h"
 #include "Bitmap.h"
 
@@ -31,7 +32,7 @@
 
 namespace avg {
     
-class FilterId: public Filter
+class AVG_API FilterId: public Filter
 {
     public:
         FilterId(){};

@@ -24,6 +24,7 @@
 #ifndef _AudioBuffer_H_
 #define _AudioBuffer_H_
 
+#include "../api.h"
 #include "AudioParams.h"
 
 #include <boost/shared_ptr.hpp>
@@ -31,7 +32,7 @@
 namespace avg
 {
 
-class AudioBuffer
+class AVG_API AudioBuffer
 {
     public:
         AudioBuffer(int numFrames, AudioParams AP);

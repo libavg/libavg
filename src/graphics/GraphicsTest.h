@@ -19,6 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include "../api.h"
 #include "Bitmap.h"
 
 #include "../base/Test.h"
@@ -27,7 +28,7 @@
 
 namespace avg {
 
-class GraphicsTest: public Test {
+class AVG_API GraphicsTest: public Test {
 public:
     GraphicsTest(const std::string& sName, int indentLevel);
     

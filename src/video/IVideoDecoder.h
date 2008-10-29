@@ -22,6 +22,7 @@
 #ifndef _IVideoDecoder_H_
 #define _IVideoDecoder_H_
 
+#include "../api.h"
 #include "../graphics/Bitmap.h"
 #include "../audio/IAudioSource.h"
 
@@ -41,7 +42,7 @@ enum StreamSelect {
     SS_AUDIO, SS_VIDEO, SS_DEFAULT, SS_ALL
 };
 
-class IVideoDecoder
+class AVG_API IVideoDecoder
 {
     public:
         virtual ~IVideoDecoder() {};

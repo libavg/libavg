@@ -24,6 +24,7 @@
 #ifndef _SDLAudioEngine_H_
 #define _SDLAudioEngine_H_
 
+#include "../api.h"
 #include "AudioEngine.h"
 #include "AudioBuffer.h"
 #include "IProcessor.h"
@@ -34,7 +35,7 @@
 
 namespace avg {
 
-class SDLAudioEngine : public AudioEngine
+class AVG_API SDLAudioEngine : public AudioEngine
 {   
     public:
         SDLAudioEngine();

@@ -24,6 +24,7 @@
 #ifndef _TouchEvent_H_
 #define _TouchEvent_H_
 
+#include "../api.h"
 #include "CursorEvent.h"
 #include "Node.h"
 
@@ -40,7 +41,7 @@ class TouchEvent;
 typedef boost::shared_ptr<class TouchEvent> TouchEventPtr;
 typedef boost::weak_ptr<class TouchEvent> TouchEventWeakPtr;
 
-class TouchEvent: public CursorEvent 
+class AVG_API TouchEvent: public CursorEvent 
 {
     public:
         TouchEvent(int id, Type EventType, BlobPtr pBlob, const IntPoint& Pos, 

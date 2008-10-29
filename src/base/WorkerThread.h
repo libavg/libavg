@@ -22,6 +22,7 @@
 #ifndef _WorkerThread_H_
 #define _WorkerThread_H_
 
+#include "../api.h"
 #include "Command.h"
 #include "Exception.h"
 #include "Logger.h"
@@ -37,7 +38,7 @@ namespace avg {
 
 
 template<class DERIVED_THREAD>
-class WorkerThread {
+class AVG_API WorkerThread {
 public:
     typedef Queue<Command<DERIVED_THREAD> > CmdQueue;
     typedef boost::shared_ptr<CmdQueue> CmdQueuePtr;

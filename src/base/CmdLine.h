@@ -22,6 +22,7 @@
 #ifndef _CmdLine_H_
 #define _CmdLine_H_
 
+#include "../api.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -30,7 +31,7 @@ namespace avg {
 
 typedef std::map<std::string, std::string> OptionMap;
 
-class CmdLine {
+class AVG_API CmdLine {
 public:
     CmdLine(int argc, char **argv);
 

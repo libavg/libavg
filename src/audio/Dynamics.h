@@ -25,6 +25,7 @@
 #ifndef __Dynamics_H__
 #define __Dynamics_H__
 
+#include "../api.h"
 #include "IProcessor.h"
 
 #include <math.h>
@@ -40,7 +41,7 @@ namespace avg {
 
 // Dynamics processor (compressor & limiter).
 template<typename T, int CHANNELS>
-class Dynamics: public IProcessor<T>
+class AVG_API Dynamics: public IProcessor<T>
 {
     public:
         Dynamics(T fs);

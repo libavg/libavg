@@ -22,6 +22,7 @@
 #ifndef _Pixel16_H_
 #define _Pixel16_H_
 
+#include "../api.h"
 #include "Pixeldefs.h"
 #include "Pixel24.h"
 #include "Pixel32.h"
@@ -33,7 +34,7 @@ namespace avg {
 
 // 16 bit pixel class. A pixel in this class contains 5 bits of
 // red, 6 of green and 5 of blue (in that order). 
-class Pixel16
+class AVG_API Pixel16
 {
   public:
     Pixel16 ();

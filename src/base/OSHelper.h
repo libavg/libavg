@@ -22,6 +22,7 @@
 #ifndef _OSHelper_H_
 #define _OSHelper_H_
 
+#include "../api.h"
 #include <string>
 
 namespace avg {

@@ -22,6 +22,7 @@
 #ifndef _FilterConvol_H
 #define _FilterConvol_H
 
+#include "../api.h"
 #include "Filter.h"
 
 #include "Pixel8.h"
@@ -34,7 +35,7 @@ namespace avg {
 
 // Filter that applies a 3x3 kernel to the bitmap.
 template<class Pixel>
-class FilterConvol : public Filter
+class AVG_API FilterConvol : public Filter
 {
 public:
     FilterConvol(double *Mat,int n,int m, int offset=0);

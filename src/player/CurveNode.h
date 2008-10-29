@@ -22,6 +22,7 @@
 #ifndef _CurveNode_H_
 #define _CurveNode_H_
 
+#include "../api.h"
 #include "VectorNode.h"
 
 #include "../graphics/Pixel32.h"
@@ -31,7 +32,7 @@ namespace avg {
 class VertexArray;
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 
-class CurveNode : public VectorNode
+class AVG_API CurveNode : public VectorNode
 {
     public:
         static NodeDefinition createDefinition();

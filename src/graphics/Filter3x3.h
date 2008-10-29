@@ -22,6 +22,7 @@
 #ifndef _Filter3x3_H
 #define _Filter3x3_H
 
+#include "../api.h"
 #include "Filter.h"
 
 #include "Pixel8.h"
@@ -33,7 +34,7 @@
 namespace avg {
 
 // Filter that applies a 3x3 kernel to the bitmap.
-class Filter3x3 : public Filter
+class AVG_API Filter3x3 : public Filter
 {
 public:
     Filter3x3(double Mat[3][3]);

@@ -20,6 +20,7 @@
 //
 #ifndef _OGLImagingContext_H_
 #define _OGLImagingContext_H_
+#include "../api.h"
 #include "../base/Point.h"
 
 #include "OGLHelper.h"
@@ -39,7 +40,7 @@
 
 namespace avg {
 
-class OGLImagingContext {
+class AVG_API OGLImagingContext {
 public:
     OGLImagingContext(const IntPoint & size);
     virtual ~OGLImagingContext();
@@ -62,7 +63,7 @@ private:
     HDC m_hDC;
     HBITMAP m_hBitmap;
     void *m_pBits;
-	HGLRC m_Context;
+    HGLRC m_Context;
 #endif
 #endif
 #endif

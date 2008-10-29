@@ -43,6 +43,7 @@
  *                                                                               *
  \*******************************************************************************/
 
+#include "../../api.h"
 #include <stdio.h>
 
 /* Maximum number of data points allowed */

@@ -22,6 +22,7 @@
 #ifndef _SeekDoneVideoMsg_H_
 #define _SeekDoneVideoMsg_H_
 
+#include "../api.h"
 #include "VideoMsg.h"
 
 #include "../graphics/Bitmap.h"
@@ -30,7 +31,7 @@
 
 namespace avg {
 
-class SeekDoneVideoMsg: public VideoMsg {
+class AVG_API SeekDoneVideoMsg: public VideoMsg {
     public:
         SeekDoneVideoMsg(long long VideoFrameTime, long long AudioFrameTime);
         virtual ~SeekDoneVideoMsg();

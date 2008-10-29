@@ -23,6 +23,7 @@
 #define _Sound_H_
 
 // Python docs say python.h should be included before any standard headers (!)
+#include "../api.h"
 #include "WrapPython.h" 
 
 #include "AreaNode.h"
@@ -34,7 +35,7 @@ namespace avg {
 
 class IVideoDecoder;
 
-class Sound : public AreaNode, IFrameListener, IAudioSource
+class AVG_API Sound : public AreaNode, IFrameListener, IAudioSource
 {
     public:
         static NodeDefinition createDefinition();

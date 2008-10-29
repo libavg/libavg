@@ -19,6 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
+#include "../api.h"
 #include <string>
 
 #ifdef _DEBUG

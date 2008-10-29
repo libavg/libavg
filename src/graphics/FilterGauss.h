@@ -22,6 +22,7 @@
 #ifndef _FilterGauss_H_
 #define _FilterGauss_H_
 
+#include "../api.h"
 #include "Filter.h"
 #include "Bitmap.h"
 
@@ -29,7 +30,7 @@
 
 namespace avg {
 
-class FilterGauss: public Filter{
+class AVG_API FilterGauss: public Filter{
     public:
         FilterGauss(double Radius);
         virtual ~FilterGauss();

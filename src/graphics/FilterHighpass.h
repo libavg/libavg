@@ -22,6 +22,7 @@
 #ifndef _FilterHighpass_H_
 #define _FilterHighpass_H_
 
+#include "../api.h"
 #include "Filter.h"
 #include "Bitmap.h"
 
@@ -30,7 +31,7 @@
 namespace avg {
 
 // This is a highpass filter that uses a 7x7 kernel. 
-class FilterHighpass: public Filter{
+class AVG_API FilterHighpass: public Filter{
     public:
         FilterHighpass();
         virtual ~FilterHighpass();

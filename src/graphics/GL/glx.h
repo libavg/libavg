@@ -28,6 +28,7 @@
 
 
 #ifdef __VMS
+#include "../../api.h"
 #include <GL/vms_x_fix.h>
 # ifdef __cplusplus
 /* VMS Xlib.h gives problems with C++.

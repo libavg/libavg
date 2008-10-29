@@ -24,7 +24,7 @@
 
 namespace avg {
     
-class IFrameListener {
+class AVG_API IFrameListener {
 public:
     virtual ~IFrameListener() {};
     virtual void onFrameEnd() = 0;

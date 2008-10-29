@@ -22,6 +22,7 @@
 #ifndef _GPUBlurFilter_H_
 #define _GPUBlurFilter_H_
 
+#include "../api.h"
 #include "GPUFilter.h"
 #include "PBOImage.h"
 #include "FBOImage.h"
@@ -29,7 +30,7 @@
 
 namespace avg {
 
-class GPUBlurFilter: public GPUFilter
+class AVG_API GPUBlurFilter: public GPUFilter
 {
 public:
     GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, double stdDev);

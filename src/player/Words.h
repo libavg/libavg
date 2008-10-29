@@ -22,6 +22,7 @@
 #ifndef _Words_H_
 #define _Words_H_
 
+#include "../api.h"
 #include "RasterNode.h"
 #include "../graphics/Pixel32.h"
 #include "../base/UTF8String.h"
@@ -38,7 +39,7 @@ namespace avg {
 
 class ISurface;
  
-class Words : public RasterNode
+class AVG_API Words : public RasterNode
 {
     public:
         static NodeDefinition createDefinition();
