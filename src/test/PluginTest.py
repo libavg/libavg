@@ -27,10 +27,10 @@ class PluginTestCase(AVGTestCase):
 		def loadPlugin():
 			if platform.system() == 'Windows':
 				Player.pluginPath = "../../../../Archimedes/libavg_win/debug"
+				Player.loadPlugin("ColorNode")
 			else:
-				pass
-				#Player.pluginPath = "../player/testplugin"
-			Player.loadPlugin("ColorNode")
+				Player.pluginPath = "./plugin/.libs"
+		        Player.loadPlugin("libColorNode")
 			
 		def usePlugin1():
 			node = Player.createNode("colornode", {"fillcolor":"7f7f00", "id":"mynode1"})
