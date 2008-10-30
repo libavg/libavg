@@ -22,9 +22,7 @@
 #ifndef _Sound_H_
 #define _Sound_H_
 
-// Python docs say python.h should be included before any standard headers (!)
 #include "../api.h"
-#include "WrapPython.h" 
 
 #include "AreaNode.h"
 
