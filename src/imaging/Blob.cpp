@@ -410,7 +410,7 @@ IntPoint Blob::findNeighborInside(const IntPoint& Pt, int& Dir)
         Dir -= 8;
     }
 
-    for (int i = 0; i < 8; i++)	{
+    for (int i = 0; i < 8; i++) {
         IntPoint CurPt = getNeighbor(Pt, Dir);
         if (ptIsInBlob(CurPt)) {
             return CurPt;
@@ -420,7 +420,7 @@ IntPoint Blob::findNeighborInside(const IntPoint& Pt, int& Dir)
                 Dir += 8;
             }
         }
-	}
+    }
     assert(false);
     return Pt;
 }

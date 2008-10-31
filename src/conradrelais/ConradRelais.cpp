@@ -141,7 +141,7 @@ void ConradRelais::initBoard()
     while (bOk) {
         ssize_t rc = read(m_File, rbuf, 4);
         if (rc != 4  || rbuf[0] != 254 || rbuf[1] != m_NumCards+1) {
-    	    bOk = false;
+            bOk = false;
         } else {
             m_NumCards++;
         }

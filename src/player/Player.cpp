@@ -85,7 +85,7 @@
 using namespace std;
 
 namespace avg {
-	
+    
 Player * Player::s_pPlayer=0;
 
 Player::Player()
@@ -128,8 +128,8 @@ Player::Player()
     registerNodeType(RectNode::createDefinition());
     registerNodeType(CurveNode::createDefinition());
 
-	updateDTD();
-	
+    updateDTD();
+    
     m_pTestHelper = new TestHelper(this);
 
 #ifdef _WIN32
@@ -929,7 +929,7 @@ void Player::registerNodeType(NodeDefinition Def)
 void Player::updateNodeDefinition(const NodeDefinition& Def)
 {
     m_NodeRegistry.updateNodeDefinition(Def);
-	updateDTD();
+    updateDTD();
 }
 
 
@@ -1315,17 +1315,17 @@ long long Player::getGPUMemoryUsage()
 }
 
 void Player::setPluginPath(const string& newPath) {
-	PluginManager::get().setSearchPath(newPath);
+    PluginManager::get().setSearchPath(newPath);
 }
 
 string Player::getPluginPath() const {
-	return 	PluginManager::get().getSearchPath();
+    return  PluginManager::get().getSearchPath();
 }
 
 void Player::loadPlugin(const std::string& name)
 {
-    AVG_TRACE(Logger::PLUGIN, "player loading plugin: '" << name << "'");	
-	PluginManager::get().loadPlugin(name);
+    AVG_TRACE(Logger::PLUGIN, "player loading plugin: '" << name << "'");   
+    PluginManager::get().loadPlugin(name);
 }
 
 }

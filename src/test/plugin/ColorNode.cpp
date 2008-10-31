@@ -126,7 +126,7 @@ AVG_PLUGIN_API avg::NodeDefinition getNodeDefinition()
 
 AVG_PLUGIN_API const char** getAllowedParentNodeNames()
 {
-	static const char *names[] = {"avg", 0};
-	return names;
+    static const char *names[] = {"avg", 0};
+    return names;
 }
 

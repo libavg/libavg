@@ -47,7 +47,7 @@ void NodeRegistry::registerNodeType(const NodeDefinition& Def)
 
 void NodeRegistry::updateNodeDefinition(const NodeDefinition& Def)
 {
-	m_NodeDefs[Def.getName()] = Def;
+    m_NodeDefs[Def.getName()] = Def;
 }
 
 NodePtr NodeRegistry::createNode(const string& Type, const xmlNodePtr xmlNode)

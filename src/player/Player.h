@@ -65,7 +65,7 @@ class AVG_API Player : IEventSink
         virtual ~Player();
         static Player* get();
 
-		void updateDTD();
+        void updateDTD();
 
         void setResolution(bool bFullscreen,
                 int width=0, int height=0, int bpp=0);
@@ -90,8 +90,8 @@ class AVG_API Player : IEventSink
 
         void registerNodeType(NodeDefinition Def);
         void updateNodeDefinition(const NodeDefinition& Def);
-		
-		NodePtr createNode (const std::string& sType, const boost::python::dict& PyDict);
+        
+        NodePtr createNode (const std::string& sType, const boost::python::dict& PyDict);
         NodePtr createNodeFromXmlString (const std::string& sXML);
         TrackerEventSource * addTracker(const std::string& sConfigFilename);
         int setInterval(int time, PyObject * pyfunc);
@@ -131,9 +131,9 @@ class AVG_API Player : IEventSink
 
         void disablePython();
 
-		void loadPlugin(const std::string& name);
-		void setPluginPath(const std::string& newPath);
-		std::string getPluginPath() const;
+        void loadPlugin(const std::string& name);
+        void setPluginPath(const std::string& newPath);
+        std::string getPluginPath() const;
     private:
         void initConfig();
         void initGraphics();

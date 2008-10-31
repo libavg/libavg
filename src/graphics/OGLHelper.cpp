@@ -231,10 +231,10 @@ GLfunction getProcAddress(const string& sName)
 {
     assert(glproc::s_hGLLib);
 #ifdef _WIN32
-	GLfunction pProc = (GLfunction)wglGetProcAddress(sName.c_str());
+    GLfunction pProc = (GLfunction)wglGetProcAddress(sName.c_str());
 /*
     if (!pProc) {
-	    char szErr[512];
+        char szErr[512];
         FormatMessage((FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM),
                 0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                 szErr, 512, 0);
