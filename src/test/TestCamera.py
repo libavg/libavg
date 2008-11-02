@@ -4,7 +4,7 @@
 from libavg import avg
 
 import unittest
-import sys, syslog
+import sys
 
 class CameraTestCase(unittest.TestCase):
     def __init__(self, testFuncName, bpp):
