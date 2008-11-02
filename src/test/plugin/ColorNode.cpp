@@ -119,6 +119,9 @@ NodeDefinition ColorNode::createNodeDefinition()
  
 }
 
+#ifdef _WIN32
+#pragma warning(disable: 4190)
+#endif
 AVG_PLUGIN_API avg::NodeDefinition getNodeDefinition()
 {
     return avg::ColorNode::createNodeDefinition();

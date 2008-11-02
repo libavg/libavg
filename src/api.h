@@ -25,6 +25,7 @@
 #define _API_H_
 
 #ifdef _WIN32 // in declspec land
+#pragma warning(disable: 4251)
 #define AVG_PLUGIN_API extern "C" __declspec(dllexport)
 #ifdef AVG_PLUGIN
 #define AVG_API __declspec(dllimport)
