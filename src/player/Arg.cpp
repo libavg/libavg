@@ -24,9 +24,11 @@
 #include "Arg.h"
 #include <string>
 
-// explicit template instanciation
-
+// Explicit template instantiation. See Arg.h for comments.
+#ifndef _WIN32
 template class avg::Arg<int>;
-template class avg::Arg<float>;
+template class avg::Arg<bool>;
 template class avg::Arg<double>;
+template class avg::Arg<float>;
 template class avg::Arg<std::string>;
+#endif

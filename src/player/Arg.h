@@ -92,11 +92,16 @@ ArgBase* Arg<T>::createCopy() const
 }
 
 #ifdef AVG_PLUGIN
-// declare specific template instances as extern
+#ifndef _WIN32
+// Under Linux, templates used by plugins need to be instantiated explicitly if
+// RTTI is needed. Templates instantiated implicitly get instantiated again in the
+// plugin with a different typeid. 
 extern template class Arg<int>;
+extern template class Arg<bool>;
 extern template class Arg<float>;
 extern template class Arg<double>;
 extern template class Arg<std::string>;
+#endif
 #endif
 
 }

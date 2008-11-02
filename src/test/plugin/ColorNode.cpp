@@ -51,6 +51,9 @@ public:
     void setFillColor(const std::string& sColor);
     const std::string& getFillColor() const;
 
+    float getFloat() const;
+    void setFloat(float f);
+
     virtual void maybeRender(const DRect& Rect);
     virtual void render (const DRect& Rect);
 
@@ -59,6 +62,7 @@ protected:
     
     std::string m_sFillColorName;
     float m_r, m_g, m_b;
+    float m_FloatParam;
 };
 
 ColorNode::ColorNode(const ArgList& Args, bool bFromXML) :
@@ -84,6 +88,17 @@ const std::string& ColorNode::getFillColor() const
     return m_sFillColorName;
 }
 
+float ColorNode::getFloat() const
+{
+    return m_FloatParam;
+}
+
+void ColorNode::setFloat(float f)
+{
+    m_FloatParam = f;
+}
+
+
 void ColorNode::parseColor(const std::string& sColorSreing)
 {
     istringstream(sColorSreing.substr(0,2)) >> hex >> m_r;
@@ -97,7 +112,7 @@ void ColorNode::maybeRender(const DRect& rect)
     render(rect);
 }
 
-void ColorNode::render (const DRect& rect)
+void ColorNode::render(const DRect& rect)
 {
     //AVG_TRACE(Logger::PLUGIN, "ColorNode::render");   
     
@@ -108,11 +123,14 @@ void ColorNode::render (const DRect& rect)
 NodeDefinition ColorNode::createNodeDefinition()
 {
     class_<ColorNode, bases<AreaNode>, boost::noncopyable>("ColorNode", no_init)
+        .add_property("floatparam", &ColorNode::getFloat, &ColorNode::setFloat)
         .add_property("fillcolor", make_function(&ColorNode::getFillColor,
         return_value_policy<copy_const_reference>()), &ColorNode::setFillColor);
        
     return NodeDefinition("colornode", (NodeBuilder)ColorNode::buildNode<ColorNode>)
         .extendDefinition(AreaNode::createDefinition())
+        .addArg(Arg<float>("floatparam", 0.0f, false,
+                offsetof(ColorNode, m_FloatParam)))
         .addArg(Arg<string>("fillcolor", "0F0F0F", false, 
                 offsetof(ColorNode, m_sFillColorName)));
 }
