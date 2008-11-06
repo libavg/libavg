@@ -294,7 +294,7 @@ Tracker.setDebugImages(True, True)
 showImage = True
 
 #OSCClient = OSC.Client("192.168.100.113", 12000)
-OSCClient = OSC.Client("127.0.0.1", 57110)
+OSCClient = OSC.Client("127.0.0.1", 3333)
 OSCClient.setBufSize(65535)
 rootNode = Player.getRootNode()
 g_TrackSize=(rootNode.width, rootNode.height)
