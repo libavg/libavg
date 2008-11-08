@@ -26,7 +26,6 @@ class PluginTestCase(AVGTestCase):
     def testColorNodePlugin(self):
         def loadPlugin():
             if platform.system() == 'Windows':
-                Player.pluginPath = "../../../../Archimedes/libavg_win/debug"
                 Player.loadPlugin("ColorNode")
             else:
                 Player.pluginPath = "./plugin/.libs"

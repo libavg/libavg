@@ -37,6 +37,14 @@
 using namespace std;
 using namespace avg;
 
+#ifdef _WIN32
+#define PATH_DELIMITER ";"
+#define PLUGIN_EXTENSION ".dll"
+#else
+#define PATH_DELIMITER ":"
+#define PLUGIN_EXTENSION ".so"
+#endif
+
 PluginManager::PluginNotFound::PluginNotFound(const string& message) :
     Exception(AVG_ERR_FILEIO, message) {}
 
@@ -51,7 +59,7 @@ PluginManager& PluginManager::get()
 
 PluginManager::PluginManager()
 {
-    parsePath("./plugin:" + getAvgLibPath() + "plugin");
+    setSearchPath("./plugin"PATH_DELIMITER + getAvgLibPath() + "plugin");
 }
 
 void PluginManager::setSearchPath(const string& sNewPath)
@@ -71,7 +79,7 @@ void PluginManager::loadPlugin(const std::string& sPluginName)
     PluginMap::iterator i = m_LoadedPlugins.find(sPluginName);
     if (i == m_LoadedPlugins.end()) {
         // no, let's try to load it!
-        string sFullpath = locateSharedObject(sPluginName+".so");
+        string sFullpath = locateSharedObject(sPluginName+PLUGIN_EXTENSION);
         void *handle = internalLoadPlugin(sFullpath);
         // add to map of loaded plugins
         m_LoadedPlugins[sPluginName] = make_pair(handle, 1);
@@ -121,7 +129,7 @@ void PluginManager::parsePath(const std::string& sPath)
     string sRemaining = sPath;
     string::size_type i;
     do {
-        i = sRemaining.find(':');
+        i = sRemaining.find(PATH_DELIMITER);
         string sDirectory;
         if (i == string::npos) {
             sDirectory = sRemaining;
@@ -157,50 +165,16 @@ void* PluginManager::internalLoadPlugin(const string& sFullpath)
 
 void PluginManager::registerPlugin(void* handle)
 {
-    typedef NodeDefinition (*GetNodeDefinitionPtr)();
-    GetNodeDefinitionPtr getNodeDefinition = reinterpret_cast<GetNodeDefinitionPtr> (dlsym(handle, "getNodeDefinition"));
+   typedef void (*RegisterPluginPtr)();
+   RegisterPluginPtr registerPlugin = 
+       reinterpret_cast<RegisterPluginPtr> (dlsym(handle, "registerPlugin"));
 
-    typedef char** (*GetAllowedParentNodeNamesPtr)();
-    GetAllowedParentNodeNamesPtr getAllowedParentNodeNames = reinterpret_cast<GetAllowedParentNodeNamesPtr> (dlsym(handle, "getAllowedParentNodeNames"));
-
-    if (getNodeDefinition) {
-        AVG_TRACE(Logger::PLUGIN, "NodePlugin detected");
-        
-        NodeDefinition myNodeDefinition = getNodeDefinition();
-        AVG_TRACE(Logger::PLUGIN, "found definition for Node " << myNodeDefinition.getName());
-        Player::get()->registerNodeType(myNodeDefinition);
-        
-        char **pParentNames = 0;
-        if (getAllowedParentNodeNames) {
-            pParentNames = getAllowedParentNodeNames();
-        } else {
-            AVG_TRACE(Logger::PLUGIN, "Plugin does not export getAllowedParentNodeNames()");
-        }
-        
-        char *defaultParents[] = {"avg", "div", 0};         
-        if (!pParentNames) {
-            AVG_TRACE(Logger::PLUGIN, "defaulting to allowed parent nodes 'avg' and 'div'");
-            pParentNames = defaultParents;
-        }
-        
-        string sChildArray[1];
-        sChildArray[0] = myNodeDefinition.getName();
-        vector<string> sChildren = vectorFromCArray(1, sChildArray);
-    
-        char **pCurrParentName = pParentNames;
-        while(*pCurrParentName) {
-            AVG_TRACE(Logger::PLUGIN, "adding allowed child to parent NodeDefinition " << *pCurrParentName);
-            
-            NodeDefinition nodeDefinition = Player::get()->getNodeDef(*pCurrParentName);
-            nodeDefinition.addChildren(sChildren);
-            Player::get()->updateNodeDefinition(nodeDefinition);
-            
-            ++pCurrParentName;
-        }
-
+    if (registerPlugin) {
+        AVG_TRACE(Logger::PLUGIN, "Plugin registration function detected");
+        registerPlugin();
     } else {
-        AVG_TRACE(Logger::PLUGIN, "no magic symbols found");
-        throw PluginCorrupted("no magic symbols found.");
+        AVG_TRACE(Logger::PLUGIN, "No plugin registration function detected");
+        throw PluginCorrupted("No plugin registration function detected");
     }
 }
 

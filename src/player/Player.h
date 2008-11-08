@@ -88,8 +88,7 @@ class AVG_API Player : IEventSink
         void setFakeFPS(double fps);
         long long getFrameTime();
 
-        void registerNodeType(NodeDefinition Def);
-        void updateNodeDefinition(const NodeDefinition& Def);
+        void registerNodeType(NodeDefinition Def, const char* pParentNames[] = 0);
         
         NodePtr createNode (const std::string& sType, const boost::python::dict& PyDict);
         NodePtr createNodeFromXmlString (const std::string& sXML);
@@ -207,6 +206,7 @@ class AVG_API Player : IEventSink
         double m_Volume;
 
         std::vector<IFrameListener*> m_Listeners;
+        bool m_bDirtyDTD;
         xmlDtdPtr m_dtd;
 
         bool m_bPythonAvailable;

@@ -127,8 +127,6 @@ Player::Player()
     registerNodeType(LineNode::createDefinition());
     registerNodeType(RectNode::createDefinition());
     registerNodeType(CurveNode::createDefinition());
-
-    updateDTD();
     
     m_pTestHelper = new TestHelper(this);
 
@@ -149,6 +147,7 @@ void Player::updateDTD()
         AVG_TRACE(Logger::WARNING, 
                 "DTD not found at " << sDTDFName << ". Not validating xml files.");
     }
+    m_bDirtyDTD = false;
 }
 
 Player::~Player()
@@ -885,6 +884,9 @@ void Player::internalLoad(const string& sAVG)
             throw (Exception(AVG_ERR_XML_PARSE, ""));
         }
 
+        if (m_bDirtyDTD)
+            updateDTD();
+
         xmlValidCtxtPtr cvp = xmlNewValidCtxt();
         cvp->error = xmlParserValidityError;
         cvp->warning = xmlParserValidityWarning;
@@ -921,17 +923,26 @@ void Player::registerNode(NodePtr pNode)
     }
 }
 
-void Player::registerNodeType(NodeDefinition Def)
+void Player::registerNodeType(NodeDefinition Def, const char* pParentNames[])
 {
     m_NodeRegistry.registerNodeType(Def);
-}
 
-void Player::updateNodeDefinition(const NodeDefinition& Def)
-{
-    m_NodeRegistry.updateNodeDefinition(Def);
-    updateDTD();
-}
+    if (pParentNames) {
+       string sChildArray[1];
+       sChildArray[0] = Def.getName();
+       vector<string> sChildren = vectorFromCArray(1, sChildArray);
+        const char **pCurrParentName = pParentNames;
 
+        while(*pCurrParentName) {
+            NodeDefinition nodeDefinition = m_NodeRegistry.getNodeDef(*pCurrParentName);
+            nodeDefinition.addChildren(sChildren);
+            m_NodeRegistry.updateNodeDefinition(nodeDefinition);
+            
+            ++pCurrParentName;
+        }
+    }
+    m_bDirtyDTD = true;
+}
 
 NodePtr Player::createNode(const string& sType, const boost::python::dict& PyDict)
 {
@@ -951,6 +962,9 @@ NodePtr Player::createNodeFromXmlString (const string& sXML)
                     string("Error parsing xml:\n  ")+sXML));
     }
     NodePtr pNode = createNodeFromXml(doc, xmlDocGetRootElement(doc), DivNodePtr());
+
+    if (m_bDirtyDTD)
+        updateDTD();
 
     xmlValidCtxtPtr cvp = xmlNewValidCtxt();
     cvp->error = xmlParserValidityError;

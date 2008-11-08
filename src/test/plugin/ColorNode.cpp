@@ -24,6 +24,7 @@
 #define AVG_PLUGIN
 #include "../../api.h"
 
+#include "../../player/Player.h"
 #include "../../player/AreaNode.h"
 #include "../../player/NodeDefinition.h"
 
@@ -137,17 +138,12 @@ NodeDefinition ColorNode::createNodeDefinition()
  
 }
 
-#ifdef _WIN32
-#pragma warning(disable: 4190)
-#endif
-AVG_PLUGIN_API avg::NodeDefinition getNodeDefinition()
+AVG_PLUGIN_API void registerPlugin()
 {
-    return avg::ColorNode::createNodeDefinition();
-}
+    avg::NodeDefinition myNodeDefinition = avg::ColorNode::createNodeDefinition();
+    const char* allowedParentNodeNames[] = {"avg", 0};
 
-AVG_PLUGIN_API const char** getAllowedParentNodeNames()
-{
-    static const char *names[] = {"avg", 0};
-    return names;
+    // Register this node type
+    avg::Player::get()->registerNodeType(myNodeDefinition, allowedParentNodeNames);
 }
 
