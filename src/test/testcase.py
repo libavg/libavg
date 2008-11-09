@@ -24,7 +24,7 @@ RESULT_DIR = "resultimages"
 ourSaveDifferences = True
 g_CustomOGLOptions = False
 g_UsePOW2Textures = False
-g_YCbCrMode = None
+g_YCbCrMode = avg.shader
 g_UsePixelBuffers = True
 
 def almostEqual(a,b):
