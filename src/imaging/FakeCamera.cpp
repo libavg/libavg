@@ -125,7 +125,7 @@ unsigned int FakeCamera::getFeature(CameraFeature Feature) const
     return 0;
 }
 
-void FakeCamera::setFeature(CameraFeature Feature, int Value)
+void FakeCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue)
 {
 }
 

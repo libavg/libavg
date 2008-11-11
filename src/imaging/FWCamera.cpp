@@ -258,7 +258,7 @@ void FWCamera::open()
     setFeature(CAM_FEATURE_SHARPNESS, -1);
     AVG_TRACE(Logger::CONFIG, "Firewire camera opened.");
     for (FeatureMap::iterator it=m_Features.begin(); it != m_Features.end(); it++) {
-        setFeature(it->first, it->second);
+        setFeature(it->first, it->second, true);
     }
 }
 
@@ -471,28 +471,31 @@ unsigned int FWCamera::getFeature(CameraFeature Feature) const
 #endif
 }
 
-void FWCamera::setFeature(CameraFeature Feature, int Value)
+void FWCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue)
 {
-    m_Features[Feature] = Value;
+    if (bIgnoreOldValue || m_Features[Feature] != Value) {
+        m_Features[Feature] = Value;
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-    if (m_bCameraAvailable) {
-        if (Feature == CAM_FEATURE_STROBE_DURATION) {
-            try {
-                setStrobeDuration(Value);
-            } catch (Exception& e) {
-                AVG_TRACE(Logger::WARNING, 
-                        string("Camera: Setting strobe duration failed. ")+e.GetStr());
+        if (m_bCameraAvailable) {
+            if (Feature == CAM_FEATURE_STROBE_DURATION) {
+                try {
+                    setStrobeDuration(Value);
+                } catch (Exception& e) {
+                    AVG_TRACE(Logger::WARNING, 
+                            string("Camera: Setting strobe duration failed. ")+e.GetStr());
+                }
+            } else {
+                dc1394feature_t FeatureID = getFeatureID(Feature);
+                setFeature(FeatureID, Value);
+                //        dumpCameraInfo();
             }
-        } else {
-            dc1394feature_t FeatureID = getFeatureID(Feature);
-            setFeature(FeatureID, Value);
-            //        dumpCameraInfo();
         }
-    }
 #endif
+    }
 }
 
-void FWCamera::setFeature(dc1394feature_t Feature, int Value) {
+void FWCamera::setFeature(dc1394feature_t Feature, int Value)
+{
 #ifdef AVG_ENABLE_1394
     int err;
     if (Value == -1) {
@@ -656,40 +659,16 @@ void FWCamera::setStrobeDuration(int microsecs)
             assert(len == sizeof(realTimes)/sizeof(*realTimes));
             int i;
             for (i=1; realTimes[i] < targetMillisecs; ++i); 
-    //        cerr << "targetMillisecs: " << targetMillisecs << endl;
-    //        cerr << i << ": [" << realTimes[i-1] << ", " << realTimes[i] << "]" << endl;
             double ratio = (targetMillisecs-realTimes[i])/(realTimes[i-1]-realTimes[i]);
             durationRegValue = ratio*regValues[i-1]+(1-ratio)*regValues[i];
         } 
-    //    cerr << "durationRegValue: " << durationRegValue << endl;
 
-    /*
-        uint32_t pioDirection;
-        err = dc1394_get_PIO_register(m_pCamera, 0x08, &pioDirection);
-        checkDC1394Error(err, "Unable to get camera PIO direction register.");
-        cerr << "Old PIO direction: " << hex << pioDirection << endl;
-    */
         err = dc1394_set_PIO_register(m_pCamera, 0x08, 0xC0000000);
         checkDC1394Error(err, "Unable to set camera PIO direction register.");
-    /*    
-        err = dc1394_get_PIO_register(m_pCamera, 0x08, &pioDirection);
-        checkDC1394Error(err, "Unable to get camera PIO direction register.");
-        cerr << "New PIO direction: " << pioDirection << endl;
-    */
-    /*    
-        uint32_t strobe0Status;
-        err = dc1394_get_strobe_register(m_pCamera, 0x100, &strobe0Status);
-        checkDC1394Error(err, "Unable to get camera strobe register.");
-        cerr << "Old strobe status: " << strobe0Status << endl;
-    */    
+        
         uint32_t strobeRegValue = 0x83001000+durationRegValue;
         err = dc1394_set_strobe_register(m_pCamera, 0x200, strobeRegValue);
         checkDC1394Error(err, "Unable to set camera strobe register.");
-    /*    
-        err = dc1394_get_strobe_register(m_pCamera, 0x100, &strobe0Status);
-        checkDC1394Error(err, "Unable to get camera strobe register.");
-        cerr << "New strobe status: " << strobe0Status << endl;
-    */
     }
 #else
     throw Exception(AVG_ERR_CAMERA, "setStrobeDuration not supported for libdc1394 v.1");

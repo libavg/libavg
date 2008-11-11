@@ -73,7 +73,7 @@ public:
     virtual double getFrameRate() const = 0;
     
     virtual unsigned int getFeature(CameraFeature Feature) const = 0;
-    virtual void setFeature(CameraFeature Feature, int Value) = 0;
+    virtual void setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue=false) = 0;
 
 };
 
