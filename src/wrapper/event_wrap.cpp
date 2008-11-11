@@ -33,8 +33,8 @@ using namespace std;
 
 void export_event()
 {
-    boost::python::to_python_converter<vector<TouchEvent*>, 
-        to_tuple<vector<TouchEvent *> > >();
+    boost::python::to_python_converter<vector<TouchEventPtr>, 
+        to_tuple<vector<TouchEventPtr> > >();
           
     boost::python::to_python_converter<ContourSeq, 
         to_list<ContourSeq> >();    
