@@ -616,7 +616,7 @@ OGLShaderPtr SDLDisplayEngine::getYCbCrJ420pShader()
     return m_pYCbCrJShader;
 }
 
-void SDLDisplayEngine::showCursor (bool bShow)
+void SDLDisplayEngine::showCursor(bool bShow)
 {
 #ifdef _WIN32
     ShowCursor(bShow);
@@ -629,11 +629,16 @@ void SDLDisplayEngine::showCursor (bool bShow)
 #endif
 }
 
-BitmapPtr SDLDisplayEngine::screenshot ()
+BitmapPtr SDLDisplayEngine::screenshot()
 {
+    
     BitmapPtr pBmp (new Bitmap(IntPoint(m_Width, m_Height), R8G8B8X8, "screenshot"));
-    //glReadBuffer(GL_BACK);
-    glReadBuffer(GL_FRONT);
+    if (isParallels()) {
+        // Workaround for buggy GL_FRONT on virtual machines running under parallels.
+        glReadBuffer(GL_BACK);
+    } else {
+        glReadBuffer(GL_FRONT);
+    }
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::screenshot:glReadBuffer()");
     glReadPixels(0, 0, m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE, 
             pBmp->getPixels());
@@ -1513,13 +1518,11 @@ int SDLDisplayEngine::getOGLPixelType(PixelFormat pf)
 
 OGLMemoryMode SDLDisplayEngine::getMemoryModeSupported()
 {
-    bool bIsParallels = 
-            (string((char*)glGetString(GL_VENDOR)).find("Parallels") != string::npos);
     if (!m_bCheckedMemoryMode) {
         if ((queryOGLExtension("GL_ARB_pixel_buffer_object") || 
              queryOGLExtension("GL_EXT_pixel_buffer_object")) &&
             m_bShouldUsePixelBuffers &&
-            !bIsParallels)
+            !isParallels())
         {
             m_MemoryMode = PBO;
         } else {
@@ -1530,7 +1533,12 @@ OGLMemoryMode SDLDisplayEngine::getMemoryModeSupported()
     return m_MemoryMode;
 }
 
-
+bool SDLDisplayEngine::isParallels()
+{
+    static bool bIsParallels = 
+            (string((char*)glGetString(GL_VENDOR)).find("Parallels") != string::npos);
+    return bIsParallels;
+}
 
 void SDLDisplayEngine::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode, 
         bool bUsePixelBuffers, int MultiSampleSamples, 

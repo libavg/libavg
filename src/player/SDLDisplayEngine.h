@@ -109,7 +109,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual void swapBuffers();
         void clip(bool forward);
         void setClipPlane(double Eqn[4], int WhichPlane);
-        void safeSetAttribute( SDL_GLattr attr, int value);
+        void safeSetAttribute(SDL_GLattr attr, int value);
+        static bool isParallels();
 
         EventPtr createMouseEvent
                 (Event::Type Type, const SDL_Event & SDLEvent, long Button);
