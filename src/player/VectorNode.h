@@ -57,6 +57,7 @@ class AVG_API VectorNode : public Node
         Pixel32 getColorVal() const;
         void updateLineData(VertexArrayPtr& pVertexArray, int curVertex, int curIndex,
                 double opacity, const DPoint& p1, const DPoint& p2);
+        DPoint getLineWidthOffset(const DPoint& pt1, const DPoint& pt2);
         bool isDrawNeeded();
         void setDrawNeeded(bool bSet);
 

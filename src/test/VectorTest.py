@@ -136,6 +136,27 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testCurve2", False),
                 )) 
 
+    def testPolyLine(self):
+        def addPolyLine():
+            polyline = Player.createNode("polyline", {"strokewidth":2, "color":"FF00FF"})
+            polyline.pos = [(10,10), (50,10), (90,50), (90, 90)]
+            canvas.appendChild(polyline)
+        def changePolyLine():
+            polyline = canvas.getChild(0)
+            polyline.strokewidth = 16
+            polyline.color="FFFF00"
+            pos = polyline.pos
+            pos.append((10, 10))
+            print pos
+            polyline.pos = pos
+        canvas = self.makeEmptyCanvas()
+        self.start(None,
+                (addPolyLine,
+                 lambda: self.compareImage("testPolyLine1", False),
+                 changePolyLine,
+                 lambda: self.compareImage("testPolyLine2", False),
+                ))
+
 def vectorTestSuite(tests):
     availableTests = (
             "testLine",
@@ -143,6 +164,7 @@ def vectorTestSuite(tests):
             "testLineOpacity",
             "testRect",
             "testCurve",
+            "testPolyLine",
             )
     return AVGTestSuite (availableTests, VectorTestCase, tests)
 

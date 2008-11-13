@@ -96,9 +96,7 @@ void VectorNode::updateLineData(VertexArrayPtr& pVertexArray, int curVertex, int
     Pixel32 color = getColorVal();
     color.setA((unsigned char)(curOpacity*255));
 
-    DPoint m = (p2-p1);
-    m.normalize();
-    DPoint w = DPoint(m.y, -m.x)*getStrokeWidth()/2;
+    DPoint w(getLineWidthOffset(p1, p2));
     pVertexArray->setPos(curVertex, p1-w, DPoint(0,0), color);
     pVertexArray->setPos(curVertex+1, p1+w, DPoint(0,0), color);
     pVertexArray->setPos(curVertex+2, p2+w, DPoint(0,0), color);
@@ -119,6 +117,13 @@ bool VectorNode::isDrawNeeded()
 void VectorNode::setDrawNeeded(bool bSet)
 {
     m_bDrawNeeded = bSet;
+}
+
+DPoint VectorNode::getLineWidthOffset(const DPoint& pt1, const DPoint& pt2)
+{
+    DPoint m = (pt2-pt1);
+    m.normalize();
+    return DPoint(m.y, -m.x)*getStrokeWidth()/2;
 }
 
 }

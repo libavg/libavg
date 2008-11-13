@@ -39,6 +39,7 @@ void export_devices();
 #include "../player/LineNode.h"
 #include "../player/RectNode.h"
 #include "../player/CurveNode.h"
+#include "../player/PolyLineNode.h"
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
@@ -354,4 +355,8 @@ void export_node()
         .add_property("pos4", make_function(&CurveNode::getPos4,
                return_value_policy<copy_const_reference>()), &CurveNode::setPos4)
     ;
+
+    class_<PolyLineNode, bases<VectorNode>, boost::noncopyable>("PolyLineNode", no_init)
+        .add_property("pos", make_function(&PolyLineNode::getPos, 
+                return_value_policy<copy_const_reference>()), &PolyLineNode::setPos);
 }

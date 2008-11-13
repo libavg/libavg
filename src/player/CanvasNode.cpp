@@ -41,7 +41,7 @@ namespace avg {
 
 NodeDefinition CanvasNode::createDefinition()
 {
-    string sChildArray[] = {"line", "rect", "curve"};
+    string sChildArray[] = {"line", "rect", "curve", "polyline"};
     vector<string> sChildren = vectorFromCArray(
             sizeof(sChildArray) / sizeof(*sChildArray), sChildArray); 
     return NodeDefinition("canvas", Node::buildNode<CanvasNode>)
