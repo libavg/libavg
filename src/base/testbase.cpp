@@ -246,20 +246,20 @@ public:
         pt3.normalize();
         TEST(almostEqual(pt3.getNorm(), 1, 0.0001));
         {
-            DLine l1(DPoint(0,0), DPoint(2,2));
-            DLine l2(DPoint(2,0), DPoint(0,2));
-            TEST(linesIntersect(l1, l2));
-            TEST(linesIntersect(l2, l1));
+            DLineSegment l1(DPoint(0,0), DPoint(2,2));
+            DLineSegment l2(DPoint(2,0), DPoint(0,2));
+            TEST(lineSegmentsIntersect(l1, l2));
+            TEST(lineSegmentsIntersect(l2, l1));
         }
         {
-            DLine l1(DPoint(0,0), DPoint(0,2));
-            DLine l2(DPoint(2,0), DPoint(2,2));
-            TEST(!linesIntersect(l1, l2));
+            DLineSegment l1(DPoint(0,0), DPoint(0,2));
+            DLineSegment l2(DPoint(2,0), DPoint(2,2));
+            TEST(!lineSegmentsIntersect(l1, l2));
         }
         {
-            DLine l1(DPoint(0,0), DPoint(2,0));
-            DLine l2(DPoint(0,2), DPoint(2,2));
-            TEST(!linesIntersect(l1, l2));
+            DLineSegment l1(DPoint(0,0), DPoint(2,0));
+            DLineSegment l2(DPoint(0,2), DPoint(2,2));
+            TEST(!lineSegmentsIntersect(l1, l2));
         }
         {
             DPoint pt0(DPoint(1,1));
@@ -275,6 +275,13 @@ public:
             TEST(!pointInPolygon(pt2, poly));
             poly.push_back(DPoint(2,1));
             TEST(!pointInPolygon(pt0, poly));
+        }
+        {
+            DPoint p1(DPoint(0,0));
+            DPoint v1(DPoint(1,1));
+            DPoint p2(DPoint(2,1));
+            DPoint v2(DPoint(1,0));
+            TEST(getLineLineIntersection(p1, v1, p2, v2) == DPoint(1,1));
         }
     }
 };

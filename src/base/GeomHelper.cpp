@@ -28,7 +28,7 @@ using namespace std;
 
 namespace avg {
 
-DLine::DLine(const DPoint& pt0, const DPoint& pt1)
+DLineSegment::DLineSegment(const DPoint& pt0, const DPoint& pt1)
     : p0(pt0),
       p1(pt1)
 {
@@ -36,7 +36,7 @@ DLine::DLine(const DPoint& pt0, const DPoint& pt1)
 
 // Code adapted from Antonio, Franklin, "Faster Line Segment Intersection,"
 // Graphics Gems III (David Kirk, ed.), Academic Press, pp. 199-202, 1992.
-bool linesIntersect(const DLine& l0, const DLine& l1)
+bool lineSegmentsIntersect(const DLineSegment& l0, const DLineSegment& l1)
 {
     double xdiff0 = l0.p1.x-l0.p0.x;
     double xdiff1 = l1.p0.x-l1.p1.x;
@@ -142,12 +142,12 @@ bool pointInPolygon(const DPoint& pt, const vector<DPoint>& poly)
     }
     pointOutside.x -= 1;
 
-    DLine line0(pointOutside, pt);
+    DLineSegment line0(pointOutside, pt);
     DPoint lastPt = *(--poly.end());
     bool ptInPoly = false;
     for (it=poly.begin(); it != poly.end(); ++it) {
-        DLine line1(lastPt, *it);
-        if (linesIntersect(line0, line1)) {
+        DLineSegment line1(lastPt, *it);
+        if (lineSegmentsIntersect(line0, line1)) {
             ptInPoly = !ptInPoly;
         }
         lastPt = *it;
@@ -155,5 +155,20 @@ bool pointInPolygon(const DPoint& pt, const vector<DPoint>& poly)
     return ptInPoly;
 }
  
+DPoint getLineLineIntersection(const DPoint& p1, const DPoint& v1, const DPoint& p2, 
+        const DPoint& v2)
+{
+    double denom = v2.y*v1.x-v2.x*v1.y;
+    if (fabs(denom) < 0.0000001) {
+        // If the lines are parallel or coincident, we just return p2!
+        return p2;
+    }
+    double numer = v2.x*(p1.y-p2.y) - v2.y*(p1.x-p2.x);
+    double ua = numer/denom;
+
+    return p1+ua*v1;
+
+}
+
 
 }

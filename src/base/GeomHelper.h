@@ -29,17 +29,20 @@
 
 namespace avg {
 
-struct DLine {
+struct DLineSegment {
 public:
-    DLine(const DPoint& pt0, const DPoint& pt1);
+    DLineSegment(const DPoint& pt0, const DPoint& pt1);
     DPoint p0;
     DPoint p1;
 
 };
 
-bool linesIntersect(const DLine& l0, const DLine& l1);
+bool lineSegmentsIntersect(const DLineSegment& l0, const DLineSegment& l1);
 
 bool pointInPolygon(const DPoint& pt, const std::vector<DPoint>& poly); 
+
+DPoint getLineLineIntersection(const DPoint& p1, const DPoint& v1, const DPoint& p2, 
+        const DPoint& v2);
 
 }
 #endif
