@@ -32,7 +32,6 @@
 
 #include <assert.h>
 #include <oleauto.h>
-//#include <atlcomcli.h>
 
 #include <math.h>
 

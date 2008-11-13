@@ -91,8 +91,18 @@ string getStringProp(IPropertyBag *pPropBag, LPCOLESTR pszPropName)
     }
 //    checkForDShowError(hr, string("DSHelper::getStringProp(")+pszPropName+")::Read PropBag");
 
-    USES_CONVERSION;
-    string s (OLE2A(varName.bstrVal));
+    string s;
+    int lenWStr = SysStringLen(varName.bstrVal);
+    int lenAStr = WideCharToMultiByte(CP_ACP, 0, varName.bstrVal, lenWStr, 0, 0, NULL, NULL);
+    if (lenAStr > 0)
+    {
+        char* pAStr = new char[lenAStr + 1];
+        WideCharToMultiByte(CP_ACP, 0, varName.bstrVal, lenWStr, pAStr, lenAStr, NULL, NULL);
+        pAStr[lenAStr] = 0;
+        s = pAStr;
+        delete pAStr;
+    }
+
     VariantClear(&varName);
     return s;
 }

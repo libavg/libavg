@@ -29,7 +29,6 @@
 #include <string>
 
 #define _WIN32_DCOM
-#include <atlcomcli.h>
 #include <windows.h>
 #include <dshow.h>
 #include <Qedit.h>
