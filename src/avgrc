@@ -12,4 +12,4 @@
     <samplerate>44100</samplerate>
     <outputbuffersamples>1024</outputbuffersamples>
   </aud>
-</avgrc>
+</avgrc>  
