@@ -35,6 +35,7 @@
 #include "RectNode.h"
 #include "CurveNode.h"
 #include "PolyLineNode.h"
+#include "PolygonNode.h"
 #include "NodeDefinition.h"
 #include "PluginManager.h"
 
@@ -129,6 +130,7 @@ Player::Player()
     registerNodeType(RectNode::createDefinition());
     registerNodeType(CurveNode::createDefinition());
     registerNodeType(PolyLineNode::createDefinition());
+    registerNodeType(PolygonNode::createDefinition());
     
     m_pTestHelper = new TestHelper(this);
 

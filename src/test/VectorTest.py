@@ -156,6 +156,26 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testPolyLine2", False),
                 ))
 
+    def testPolygon(self):
+        def addPolygon():
+            polygon = Player.createNode("polygon", {"strokewidth":2, "color":"FF00FF"})
+            polygon.pos = [(10,10), (50,10), (90,50), (90, 90)]
+            canvas.appendChild(polygon)
+        def changePolygon():
+            polygon = canvas.getChild(0)
+            polygon.strokewidth = 16
+            polygon.color="FFFF00"
+            pos = polygon.pos
+            pos.append((10, 90))
+            polygon.pos = pos
+        canvas = self.makeEmptyCanvas()
+        self.start(None,
+                (addPolygon,
+                 lambda: self.compareImage("testPolygon1", False),
+                 changePolygon,
+                 lambda: self.compareImage("testPolygon2", False),
+                ))
+
 def vectorTestSuite(tests):
     availableTests = (
             "testLine",
@@ -164,6 +184,7 @@ def vectorTestSuite(tests):
             "testRect",
             "testCurve",
             "testPolyLine",
+            "testPolygon",
             )
     return AVGTestSuite (availableTests, VectorTestCase, tests)
 

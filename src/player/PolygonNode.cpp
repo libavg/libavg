@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "PolyLineNode.h"
+#include "PolygonNode.h"
 
 #include "NodeDefinition.h"
 
@@ -34,73 +34,73 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition PolyLineNode::createDefinition()
+NodeDefinition PolygonNode::createDefinition()
 {
-    return NodeDefinition("polyline", Node::buildNode<PolyLineNode>)
+    return NodeDefinition("polygon", Node::buildNode<PolygonNode>)
         .extendDefinition(VectorNode::createDefinition());
 }
 
-PolyLineNode::PolyLineNode(const ArgList& Args, bool bFromXML)
+PolygonNode::PolygonNode(const ArgList& Args, bool bFromXML)
     : VectorNode(Args)
 {
     Args.setMembers(this);
 }
 
-PolyLineNode::~PolyLineNode()
+PolygonNode::~PolygonNode()
 {
 }
 
-const vector<DPoint>& PolyLineNode::getPos() const 
+const vector<DPoint>& PolygonNode::getPos() const 
 {
     return m_Pts;
 }
 
-void PolyLineNode::setPos(const vector<DPoint>& pts) 
+void PolygonNode::setPos(const vector<DPoint>& pts) 
 {
     m_Pts = pts;
     setDrawNeeded(true);
 }
 
-int PolyLineNode::getNumVertexes()
+int PolygonNode::getNumVertexes()
 {
-    if (m_Pts.size() < 2) {
+    if (m_Pts.size() < 3) {
         return 0;
     }
     return 2*m_Pts.size();
 }
 
-int PolyLineNode::getNumIndexes()
+int PolygonNode::getNumIndexes()
 {
     if (m_Pts.size() < 2) {
         return 0;
     }
-    return 6*(m_Pts.size()-1);
+    return 6*m_Pts.size();
 }
 
-void PolyLineNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
+void PolygonNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
 {
-    if (m_Pts.size() < 2) {
+    if (m_Pts.size() < 3) {
         return;
     }
     Pixel32 color = getColorVal();
     
     int numPts = m_Pts.size();
+    
     DPoint w1;
-    DPoint w2(getLineWidthOffset(m_Pts[0], m_Pts[1]));
+    DPoint w2(getLineWidthOffset(m_Pts[numPts-1], m_Pts[0]));
     DPoint pl1;
     DPoint pl2 = m_Pts[0]-w2;
     DPoint pr1;
     DPoint pr2 = m_Pts[0]+w2;
     w2 = DPoint(w2.y, -w2.x); // Point in the direction of the line, not 
                               // perpendicular to it.
-
-    pVertexData->setPos(0, pl2, DPoint(0,0), color);
-    pVertexData->setPos(1, pr2, DPoint(0,0), color);
-    for (int i=1; i<numPts-1; ++i) {
+    
+    for (int i=0; i<numPts; ++i) {
+        int nextPt = (i+1) % numPts;
         w1 = w2;
         pl1 = pl2;
         pr1 = pr2;
-        w2 = getLineWidthOffset(m_Pts[i], m_Pts[i+1]);
+        w2 = getLineWidthOffset(m_Pts[i], m_Pts[nextPt]);
         pl2 = m_Pts[i]-w2;
         pr2 = m_Pts[i]+w2;
         w2 = DPoint(w2.y, -w2.x);
@@ -110,11 +110,6 @@ void PolyLineNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
         pVertexData->setPos(2*i, pli, DPoint(0,0), color);
         pVertexData->setPos(2*i+1, pri, DPoint(0,0), color);
     }
-    DPoint w = getLineWidthOffset(m_Pts[numPts-2], m_Pts[numPts-1]);
-    pVertexData->setPos((numPts-1)*2, m_Pts[numPts-1]-w, DPoint(0,0), 
-            color);
-    pVertexData->setPos((numPts-1)*2+1, m_Pts[numPts-1]+w, DPoint(0,0), 
-            color);
 
     for (int i=0; i<numPts-1; ++i) {
         int loopIndex = i*6;
@@ -126,6 +121,14 @@ void PolyLineNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
         pVertexData->setIndex(loopIndex+4, loopVertex+3);
         pVertexData->setIndex(loopIndex+5, loopVertex+2);
     }
+    int loopIndex = (numPts-1)*6;
+    int loopVertex = (numPts-1)*2;
+    pVertexData->setIndex(loopIndex, loopVertex);
+    pVertexData->setIndex(loopIndex+1, loopVertex+1);
+    pVertexData->setIndex(loopIndex+2, 1);
+    pVertexData->setIndex(loopIndex+3, loopVertex);
+    pVertexData->setIndex(loopIndex+4, 0);
+    pVertexData->setIndex(loopIndex+5, 1);
 }
 
 }
