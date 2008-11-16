@@ -109,7 +109,6 @@ void VertexArray::setVertexData(int vertexIndex, int indexIndex,
 
 void VertexArray::changeSize(int numVerts, int numIndexes)
 {
-    int oldNumVerts = m_NumVerts;
     m_NumVerts = numVerts;
     m_NumIndexes = numIndexes;
     bool bBufferSizeChanged = false;
@@ -118,10 +117,8 @@ void VertexArray::changeSize(int numVerts, int numIndexes)
         if (m_ReserveVerts < m_NumVerts) {
             m_ReserveVerts = m_NumVerts;
         }
-        T2V3C4Vertex * pOldVertexes = m_pVertexData;
+        delete m_pVertexData;
         m_pVertexData = new T2V3C4Vertex[m_ReserveVerts];
-        memcpy(m_pVertexData, pOldVertexes, sizeof(T2V3C4Vertex)*oldNumVerts);
-        delete[] pOldVertexes;
         bBufferSizeChanged = true;
     }
     if (m_NumIndexes > m_ReserveIndexes) {
@@ -129,10 +126,8 @@ void VertexArray::changeSize(int numVerts, int numIndexes)
         if (m_ReserveIndexes < m_NumIndexes) {
             m_ReserveIndexes = m_NumIndexes;
         }
-        unsigned int * pOldIndexes = m_pIndexData;
+        delete m_pIndexData;
         m_pIndexData = new unsigned int[m_ReserveIndexes];
-        memcpy(m_pIndexData, pOldIndexes, sizeof(unsigned int)*oldNumVerts);
-        delete[] pOldIndexes;
         bBufferSizeChanged = true;
     }
     if (bBufferSizeChanged) {
