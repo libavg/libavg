@@ -33,6 +33,7 @@
 #endif
 
 #include <assert.h>
+#include <cstdio>
 #include <iostream>
 #include <sstream>
 #include <cstring>

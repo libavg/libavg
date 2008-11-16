@@ -25,6 +25,8 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 
+#include <cstdio>
+
 namespace avg {
 
 FBOImage::FBOImage(const IntPoint& size, PixelFormat pf, int precision, 
