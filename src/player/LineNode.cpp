@@ -23,7 +23,7 @@
 
 #include "NodeDefinition.h"
 
-#include "../graphics/VertexArray.h"
+#include "../graphics/VertexData.h"
 #include "../base/Exception.h"
 
 #include <iostream>
@@ -61,7 +61,7 @@ double LineNode::getX1() const
 void LineNode::setX1(double x) 
 {
     m_P1.x = x;
-    setDrawNeeded(true);
+    setDrawNeeded(false);
 }
 
 double LineNode::getY1() const 
@@ -72,7 +72,7 @@ double LineNode::getY1() const
 void LineNode::setY1(double y) 
 {
     m_P1.y = y;
-    setDrawNeeded(true);
+    setDrawNeeded(false);
 }
 
 const DPoint& LineNode::getPos1() const 
@@ -83,7 +83,7 @@ const DPoint& LineNode::getPos1() const
 void LineNode::setPos1(const DPoint& pt) 
 {
     m_P1 = pt;
-    setDrawNeeded(true);
+    setDrawNeeded(false);
 }
 
 double LineNode::getX2() const 
@@ -94,7 +94,7 @@ double LineNode::getX2() const
 void LineNode::setX2(double x) 
 {
     m_P2.x = x;
-    setDrawNeeded(true);
+    setDrawNeeded(false);
 }
 
 double LineNode::getY2() const 
@@ -105,7 +105,7 @@ double LineNode::getY2() const
 void LineNode::setY2(double y) 
 {
     m_P2.y = y;
-    setDrawNeeded(true);
+    setDrawNeeded(false);
 }
 
 const DPoint& LineNode::getPos2() const 
@@ -116,7 +116,7 @@ const DPoint& LineNode::getPos2() const
 void LineNode::setPos2(const DPoint& pt) 
 {
     m_P2 = pt;
-    setDrawNeeded(true);
+    setDrawNeeded(false);
 }
 
 int LineNode::getNumVertexes()
@@ -129,13 +129,9 @@ int LineNode::getNumIndexes()
     return 6;
 }
 
-void LineNode::updateData(VertexArrayPtr& pVertexArray, int curVertex, int curIndex,
-        double opacity, bool bParentDrawNeeded)
+void LineNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
 {
-    if (isDrawNeeded() || bParentDrawNeeded) {
-        updateLineData(pVertexArray, curVertex, curIndex, opacity, m_P1, m_P2);
-    }
-    setDrawNeeded(false);
+    updateLineData(pVertexData, 0, 0, opacity, m_P1, m_P2);
 }
 
 }

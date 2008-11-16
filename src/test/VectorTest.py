@@ -147,7 +147,6 @@ class VectorTestCase(AVGTestCase):
             polyline.color="FFFF00"
             pos = polyline.pos
             pos.append((10, 10))
-            print pos
             polyline.pos = pos
         canvas = self.makeEmptyCanvas()
         self.start(None,

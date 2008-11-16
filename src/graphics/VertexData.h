@@ -19,52 +19,50 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _LineNode_H_
-#define _LineNode_H_
+#ifndef _VertexData_H_
+#define _VertexData_H_
 
 #include "../api.h"
-#include "VectorNode.h"
-
+#include "../base/Point.h"
 #include "../graphics/Pixel32.h"
+#include "../graphics/OGLHelper.h"
+
+#include <boost/shared_ptr.hpp>
 
 namespace avg {
 
-class AVG_API LineNode : public VectorNode
-{
-    public:
-        static NodeDefinition createDefinition();
-        
-        LineNode(const ArgList& Args, bool bFromXML);
-        virtual ~LineNode();
-
-        double getX1() const;
-        void setX1(double x);
-        
-        double getY1() const;
-        void setY1(double y);
-
-        const DPoint& getPos1() const;
-        void setPos1(const DPoint& pt);
-
-        double getX2() const;
-        void setX2(double x);
-        
-        double getY2() const;
-        void setY2(double y);
-
-        const DPoint& getPos2() const;
-        void setPos2(const DPoint& pt);
-
-        virtual int getNumVertexes();
-        virtual int getNumIndexes();
-        virtual void calcVertexes(VertexDataPtr& pVertexData, double opacity);
-
-    private:
-        DPoint m_P1;
-        DPoint m_P2;
+struct T2V3C4Vertex {
+    GLfloat m_Tex[2];
+    Pixel32 m_Color;
+    GLfloat m_Pos[3];
 };
+
+class AVG_API VertexData {
+public:
+    VertexData();
+    virtual ~VertexData();
+
+    void setPos(int vertexIndex, const DPoint& pos, 
+            const DPoint& texPos, const Pixel32& color = Pixel32(0,0,0,0));
+    void setIndex(int i, int vertexIndex);
+    void changeSize(int numVerts, int numIndexes);
+
+    int getNumVerts() const;
+    int getNumIndexes() const;
+    const T2V3C4Vertex * getVertexData() const;
+    const unsigned int * getIndexData() const;
+
+private:
+    int m_NumVerts;
+    int m_ReserveVerts;
+    int m_NumIndexes;
+    int m_ReserveIndexes;
+    T2V3C4Vertex * m_pVertexData;
+    unsigned int * m_pIndexData;
+};
+
+typedef boost::shared_ptr<VertexData> VertexDataPtr;
 
 }
 
 #endif
-

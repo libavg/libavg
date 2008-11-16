@@ -31,9 +31,6 @@
 
 namespace avg {
 
-class VertexArray;
-typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
-
 class AVG_API PolyLineNode : public VectorNode
 {
     public:
@@ -47,8 +44,7 @@ class AVG_API PolyLineNode : public VectorNode
 
         virtual int getNumVertexes();
         virtual int getNumIndexes();
-        virtual void updateData(VertexArrayPtr& pVertexArray, int curVertex, int curIndex, 
-                double opacity, bool bParentDrawNeeded);
+        virtual void calcVertexes(VertexDataPtr& pVertexData, double opacity);
 
     private:
         std::vector<DPoint> m_Pts;

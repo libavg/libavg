@@ -29,9 +29,6 @@
 
 namespace avg {
 
-class VertexArray;
-typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
-
 class AVG_API CurveNode : public VectorNode
 {
     public:
@@ -39,9 +36,6 @@ class AVG_API CurveNode : public VectorNode
         
         CurveNode(const ArgList& Args, bool bFromXML);
         virtual ~CurveNode();
-
-        void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-            AudioEngine * pAudioEngine);
 
         double getX1() const;
         void setX1(double x);
@@ -81,8 +75,7 @@ class AVG_API CurveNode : public VectorNode
 
         virtual int getNumVertexes();
         virtual int getNumIndexes();
-        virtual void updateData(VertexArrayPtr& pVertexArray, int curVertex, int curIndex, 
-                double opacity, bool bParentDrawNeeded);
+        virtual void calcVertexes(VertexDataPtr& pVertexData, double opacity);
 
     private:
         int getCurveLen();

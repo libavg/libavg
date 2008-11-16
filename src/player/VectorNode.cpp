@@ -21,6 +21,7 @@
 
 #include "VectorNode.h"
 
+#include "CanvasNode.h"
 #include "NodeDefinition.h"
 
 #include "../graphics/VertexArray.h"
@@ -42,6 +43,7 @@ NodeDefinition VectorNode::createDefinition()
 }
 
 VectorNode::VectorNode(const ArgList& Args)
+    : m_pVertexData(new VertexData())
 {
 }
 
@@ -55,6 +57,19 @@ void VectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     m_bDrawNeeded = true;
     m_Color = colorStringToColor(m_sColorName);
     Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
+}
+
+void VectorNode::updateData(VertexArrayPtr& pVertexArray, int curVertex, int curIndex, 
+        double opacity, bool bParentDrawNeeded, bool bPosChanged)
+{
+    if (isDrawNeeded() || bParentDrawNeeded) {
+        m_pVertexData->changeSize(getNumVertexes(), getNumIndexes());
+        calcVertexes(m_pVertexData, opacity);
+        m_bDrawNeeded = false;
+        pVertexArray->setVertexData(curVertex, curIndex, m_pVertexData);
+    } else if (bPosChanged) {
+        pVertexArray->setVertexData(curVertex, curIndex, m_pVertexData);
+    }
 }
 
 void VectorNode::setColor(const string& sColor)
@@ -89,7 +104,7 @@ Pixel32 VectorNode::getColorVal() const
     return m_Color;
 }
 
-void VectorNode::updateLineData(VertexArrayPtr& pVertexArray, int curVertex, int curIndex,
+void VectorNode::updateLineData(VertexDataPtr& pVertexData, int curVertex, int curIndex,
         double opacity, const DPoint& p1, const DPoint& p2)
 {
     double curOpacity = opacity*getOpacity();
@@ -97,16 +112,16 @@ void VectorNode::updateLineData(VertexArrayPtr& pVertexArray, int curVertex, int
     color.setA((unsigned char)(curOpacity*255));
 
     DPoint w(getLineWidthOffset(p1, p2));
-    pVertexArray->setPos(curVertex, p1-w, DPoint(0,0), color);
-    pVertexArray->setPos(curVertex+1, p1+w, DPoint(0,0), color);
-    pVertexArray->setPos(curVertex+2, p2+w, DPoint(0,0), color);
-    pVertexArray->setPos(curVertex+3, p2-w, DPoint(0,0), color);
-    pVertexArray->setIndex(curIndex, curVertex);
-    pVertexArray->setIndex(curIndex+1, curVertex+1);
-    pVertexArray->setIndex(curIndex+2, curVertex+2);
-    pVertexArray->setIndex(curIndex+3, curVertex);
-    pVertexArray->setIndex(curIndex+4, curVertex+2);
-    pVertexArray->setIndex(curIndex+5, curVertex+3);
+    pVertexData->setPos(curVertex, p1-w, DPoint(0,0), color);
+    pVertexData->setPos(curVertex+1, p1+w, DPoint(0,0), color);
+    pVertexData->setPos(curVertex+2, p2+w, DPoint(0,0), color);
+    pVertexData->setPos(curVertex+3, p2-w, DPoint(0,0), color);
+    pVertexData->setIndex(curIndex, curVertex);
+    pVertexData->setIndex(curIndex+1, curVertex+1);
+    pVertexData->setIndex(curIndex+2, curVertex+2);
+    pVertexData->setIndex(curIndex+3, curVertex);
+    pVertexData->setIndex(curIndex+4, curVertex+2);
+    pVertexData->setIndex(curIndex+5, curVertex+3);
 }
      
 bool VectorNode::isDrawNeeded()
@@ -114,9 +129,13 @@ bool VectorNode::isDrawNeeded()
     return m_bDrawNeeded;
 }
 
-void VectorNode::setDrawNeeded(bool bSet)
+void VectorNode::setDrawNeeded(bool bSizeChanged)
 {
-    m_bDrawNeeded = bSet;
+    m_bDrawNeeded = true;
+    GroupNodePtr pParent = getParent(); 
+    if (bSizeChanged && pParent) {
+        boost::dynamic_pointer_cast<CanvasNode>(pParent)->setVASizeChanged();
+    }
 }
 
 DPoint VectorNode::getLineWidthOffset(const DPoint& pt1, const DPoint& pt2)

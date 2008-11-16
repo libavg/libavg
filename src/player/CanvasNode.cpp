@@ -66,7 +66,7 @@ void CanvasNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
 
     m_pVertexArray = VertexArrayPtr(new VertexArray(getNumVertexes(), getNumIndexes(),
             100, 100));
-    m_bChildrenChanged = false;
+    m_bVASizeChanged = false;
 }
 
 void CanvasNode::disconnect()
@@ -83,7 +83,7 @@ void CanvasNode::preRender()
 {
     ScopeTimer Timer(PrerenderProfilingZone);
 
-    if (m_bChildrenChanged) {
+    if (m_bVASizeChanged) {
         ScopeTimer Timer(VASizeProfilingZone);
         m_pVertexArray->changeSize(getNumVertexes(), getNumIndexes());
     }
@@ -91,11 +91,11 @@ void CanvasNode::preRender()
     int curVertex = 0;
     int curIndex = 0;
     double opacity = getEffectiveOpacity();
-    bool bUpdateEverything = m_LastOpacity != opacity;
+    bool bUpdateEverything = m_LastOpacity != opacity || m_bVASizeChanged;
     for (int i=0; i<numChildren; ++i) {
         VectorNode * pVector = getCanvasChild(i);
         pVector->updateData(m_pVertexArray, curVertex, curIndex, opacity, 
-                bUpdateEverything);
+                bUpdateEverything, m_bVASizeChanged);
         curVertex += pVector->getNumVertexes();
         curIndex += pVector->getNumIndexes();
     }
@@ -103,6 +103,7 @@ void CanvasNode::preRender()
         ScopeTimer Timer(VAProfilingZone);
         m_pVertexArray->update();
     }
+    m_bVASizeChanged = false;
 }
 
 static ProfilingZone RenderProfilingZone("CanvasNode::render");
@@ -130,6 +131,11 @@ void CanvasNode::render(const DRect& rect)
     }
 }
 
+void CanvasNode::setVASizeChanged()
+{
+    m_bVASizeChanged = true;
+}
+
 string CanvasNode::dump(int indent)
 {
     string dumpStr = GroupNode::dump () + "\n";
@@ -147,7 +153,7 @@ VectorNode * CanvasNode::getCanvasChild(int i)
 
 void CanvasNode::childrenChanged()
 {
-    m_bChildrenChanged = true;
+    m_bVASizeChanged = true;
 }
 
 int CanvasNode::getNumVertexes()

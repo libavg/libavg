@@ -22,6 +22,8 @@
 #ifndef _VertexArray_H_
 #define _VertexArray_H_
 
+#include "VertexData.h"
+
 #include "../api.h"
 #include "../base/Point.h"
 #include "../graphics/Pixel32.h"
@@ -30,12 +32,6 @@
 #include <boost/shared_ptr.hpp>
 
 namespace avg {
-
-struct T2V3C4Vertex {
-    GLfloat m_Tex[2];
-    Pixel32 m_Color;
-    GLfloat m_Pos[3];
-};
 
 class AVG_API VertexArray {
 public:
@@ -46,6 +42,7 @@ public:
     void setPos(int vertexIndex, const DPoint& pos, 
             const DPoint& texPos, const Pixel32& color = Pixel32(0,0,0,0));
     void setIndex(int i, int vertexIndex);
+    void setVertexData(int vertexIndex, int indexIndex, const VertexDataPtr& pVertexes);
     void changeSize(int numVerts, int numIndexes);
 
     void update();

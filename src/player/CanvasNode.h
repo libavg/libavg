@@ -47,6 +47,8 @@ class AVG_API CanvasNode : public GroupNode
         virtual void preRender();
         virtual void render(const DRect& rect);
 
+        void setVASizeChanged();
+
         virtual std::string dump(int indent = 0);
     
     private:
@@ -56,7 +58,7 @@ class AVG_API CanvasNode : public GroupNode
         int getNumIndexes();
 
         VertexArrayPtr m_pVertexArray;
-        bool m_bChildrenChanged;
+        bool m_bVASizeChanged;
         double m_LastOpacity;
 };
 

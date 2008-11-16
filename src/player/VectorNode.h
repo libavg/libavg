@@ -31,6 +31,8 @@ namespace avg {
 
 class VertexArray;
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
+class VertexData;
+typedef boost::shared_ptr<VertexData> VertexDataPtr;
 
 class AVG_API VectorNode : public Node
 {
@@ -42,10 +44,12 @@ class AVG_API VectorNode : public Node
         void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
 
+        void updateData(VertexArrayPtr& pVertexArray, int curVertex, int curIndex, 
+                double opacity, bool bParentDrawNeeded, bool bPosChanged);
+
         virtual int getNumVertexes() = 0;
         virtual int getNumIndexes() = 0;
-        virtual void updateData(VertexArrayPtr& pVertexArray, int curVertex, int curIndex, 
-                double opacity, bool bParentDrawNeeded) = 0;
+        virtual void calcVertexes(VertexDataPtr& pVertexData, double opacity) = 0;
 
         void setColor(const std::string& sColor);
         const std::string& getColor() const;
@@ -55,16 +59,17 @@ class AVG_API VectorNode : public Node
 
     protected:
         Pixel32 getColorVal() const;
-        void updateLineData(VertexArrayPtr& pVertexArray, int curVertex, int curIndex,
+        void updateLineData(VertexDataPtr& pVertexData, int curVertex, int curIndex,
                 double opacity, const DPoint& p1, const DPoint& p2);
         DPoint getLineWidthOffset(const DPoint& pt1, const DPoint& pt2);
         bool isDrawNeeded();
-        void setDrawNeeded(bool bSet);
+        void setDrawNeeded(bool bSizeChanged);
 
     private:
         std::string m_sColorName;
         Pixel32 m_Color;
         double m_StrokeWidth;
+        VertexDataPtr m_pVertexData;
 
         bool m_bDrawNeeded;
 };

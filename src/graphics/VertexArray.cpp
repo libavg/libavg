@@ -87,6 +87,26 @@ void VertexArray::setIndex(int i, int vertexIndex)
     m_pIndexData[i] = vertexIndex;
 }
 
+void VertexArray::setVertexData(int vertexIndex, int indexIndex, 
+        const VertexDataPtr& pVertexes)
+{
+    int numVerts = pVertexes->getNumVerts();
+    int numIndexes = pVertexes->getNumIndexes();
+    assert(vertexIndex+numVerts<=m_NumVerts);
+    assert(indexIndex+numIndexes<=m_NumIndexes);
+
+    memcpy(m_pVertexData+vertexIndex, pVertexes->getVertexData(), 
+            numVerts*sizeof(T2V3C4Vertex));
+    memcpy(m_pIndexData+indexIndex, pVertexes->getIndexData(),
+            numIndexes*sizeof(unsigned int));
+    unsigned int * pCurIndex = &(m_pIndexData[indexIndex]);
+    for (int i=0; i<numIndexes; ++i) {
+        *pCurIndex += vertexIndex;
+        ++pCurIndex;
+    }
+    m_bDataChanged = true;
+}
+
 void VertexArray::changeSize(int numVerts, int numIndexes)
 {
     int oldNumVerts = m_NumVerts;
