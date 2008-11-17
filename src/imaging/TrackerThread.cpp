@@ -190,6 +190,9 @@ void TrackerThread::deinit()
     m_pCamera->close();
     AVG_TRACE(Logger::PROFILE, "Total camera frames: " << m_NumFrames);
     AVG_TRACE(Logger::PROFILE, "Camera frames discarded: " << m_NumCamFramesDiscarded);
+    if (m_pBandpassFilter) {
+        m_pBandpassFilter.reset();
+    }
     if (m_pImagingContext) {
         delete m_pImagingContext;
     }
