@@ -132,6 +132,7 @@ void ArgList::setArgValue(const std::string & sName, const boost::python::object
     Arg<string>* pStringArg = dynamic_cast<Arg<string>* >(&*pArg);
     Arg<int>* pIntArg = dynamic_cast<Arg<int>* >(&*pArg);
     Arg<double>* pDoubleArg = dynamic_cast<Arg<double>* >(&*pArg);
+    Arg<float>* pFloatArg = dynamic_cast<Arg<float>* >(&*pArg);
     Arg<bool>* pBoolArg = dynamic_cast<Arg<bool>* >(&*pArg);
     if(pStringArg) {
         avg::setArgValue(pStringArg, sName, Value);
@@ -139,8 +140,12 @@ void ArgList::setArgValue(const std::string & sName, const boost::python::object
         avg::setArgValue(pIntArg, sName, Value);
     } else if (pDoubleArg) {
         avg::setArgValue(pDoubleArg, sName, Value);
+    } else if (pFloatArg) {
+        avg::setArgValue(pFloatArg, sName, Value);
     } else if (pBoolArg) {
         avg::setArgValue(pBoolArg, sName, Value);
+    } else {
+        assert(false);
     }
 }
 
@@ -150,6 +155,7 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
     Arg<string>* pStringArg = dynamic_cast<Arg<string>* >(&*pArg);
     Arg<int>* pIntArg = dynamic_cast<Arg<int>* >(&*pArg);
     Arg<double>* pDoubleArg = dynamic_cast<Arg<double>* >(&*pArg);
+    Arg<float>* pFloatArg = dynamic_cast<Arg<float>* >(&*pArg);
     Arg<bool>* pBoolArg = dynamic_cast<Arg<bool>* >(&*pArg);
     if (pStringArg) {
         pStringArg->setValue(sValue);
@@ -162,7 +168,7 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
                     string("Error in conversion of '")+sValue+"' to int");
         }
         pIntArg->setValue(ret);
-    } else if (pDoubleArg) {
+    } else if (pDoubleArg || pFloatArg) {
         char * errStr;
         const char * valStr = sValue.c_str();
         double ret = strtod(valStr, &errStr);
@@ -170,7 +176,11 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
             throw Exception(AVG_ERR_NO_ARG, 
                     string("Error in conversion of '")+sValue+"' to double");
         }
-        pDoubleArg->setValue(ret); 
+        if (pDoubleArg) {
+            pDoubleArg->setValue(ret);
+        } else {
+            pFloatArg->setValue((float)ret);
+        }
     } else if (pBoolArg) {
         pBoolArg->setValue(sValue == "True" || sValue == "true" || sValue == "1");
     } else {
