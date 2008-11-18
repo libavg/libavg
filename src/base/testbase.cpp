@@ -24,6 +24,7 @@
 #include "WorkerThread.h"
 #include "ObjectCounter.h"
 #include "Point.h"
+#include "Triangulate.h"
 #include "GeomHelper.h"
 #include "OSHelper.h"
 #include "FileHelper.h"
@@ -286,6 +287,38 @@ public:
     }
 };
 
+class TriangulationTest: public Test {
+public:
+    TriangulationTest()
+        : Test("TriangulationTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        DPoint polyArray[] = {DPoint(0,0), DPoint(8,2), DPoint(9,0), DPoint(9,3), 
+                DPoint(1,1), DPoint(0,3)}; 
+
+        DPointVector poly = vectorFromCArray(6, polyArray);
+
+        TriangleVector triangulation;
+        Triangulate::Process(poly, triangulation);
+    
+        TEST(triangulation.size() == 4);
+        TEST(triangulation[0] == Triangle(DPoint(8,2), DPoint(9,0), DPoint(9,3)));
+        TEST(triangulation[1] == Triangle(DPoint(1,1), DPoint(0,3), DPoint(0,0)));
+        TEST(triangulation[2] == Triangle(DPoint(0,0), DPoint(8,2), DPoint(9,3)));
+        TEST(triangulation[3] == Triangle(DPoint(9,3), DPoint(1,1), DPoint(0,0)));
+/*
+        for (unsigned int i=0; i<result.size(); i++) {
+            const Triangle& tri = result[i];
+            cerr << i << ":" << tri << endl;
+        }
+*/
+    }
+
+};
+
 class FileTest: public Test {
 public:
     FileTest()
@@ -457,6 +490,7 @@ public:
         addTest(TestPtr(new WorkerThreadTest));
         addTest(TestPtr(new ObjectCounterTest));
         addTest(TestPtr(new PointTest));
+        addTest(TestPtr(new TriangulationTest));
         addTest(TestPtr(new FileTest));
         addTest(TestPtr(new OSTest));
         addTest(TestPtr(new StringTest));

@@ -238,6 +238,8 @@ double calcDistSquared(const Point<NUM>& pt1, const Point<NUM>& pt2)
 bool almostEqual(const DPoint& pt1, const DPoint& pt2);
 DPoint rotate(const DPoint& pt, double angle, const DPoint& pivot=DPoint(0,0));
 
+typedef std::vector<DPoint> DPointVector;
+
 }
 
 #endif
