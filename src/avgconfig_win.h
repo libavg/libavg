@@ -3,6 +3,9 @@
 /* Enable DirectShow camera support */
 #define AVG_ENABLE_DSHOW
 
+/* Enable CMU 1394 Digital Camera Driver support */
+#define AVG_ENABLE_CMU1394
+
 /* Enable firewire camera support */
 #undef AVG_ENABLE_1394
 

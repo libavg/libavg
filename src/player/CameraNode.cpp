@@ -35,6 +35,9 @@
 #ifdef AVG_ENABLE_V4L2
 #include "../imaging/V4LCamera.h"
 #endif
+#ifdef AVG_ENABLE_CMU1394
+#include "../imaging/CMUCamera.h"
+#endif
 #ifdef AVG_ENABLE_DSHOW
 #include "../imaging/DSCamera.h"
 #endif
@@ -86,6 +89,9 @@ CameraNode::CameraNode(const ArgList& Args, bool bFromXML)
 #if defined(AVG_ENABLE_1394)\
     || defined(AVG_ENABLE_1394_2)
     m_pCamera = CameraPtr(new FWCamera(sDevice, IntPoint(Width, Height), sPF, 
+            FrameRate, true));
+#elif defined(AVG_ENABLE_CMU1394)
+    m_pCamera = CameraPtr(new CMUCamera(sDevice, IntPoint(Width, Height), sPF, 
             FrameRate, true));
 #else
         AVG_TRACE(Logger::ERROR, "Firewire camera specified, but firewire "

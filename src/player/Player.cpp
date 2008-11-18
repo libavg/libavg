@@ -61,6 +61,9 @@
 #ifdef AVG_ENABLE_V4L2
 #include "../imaging/V4LCamera.h"
 #endif
+#ifdef AVG_ENABLE_CMU1394
+#include "../imaging/CMUCamera.h"
+#endif
 #ifdef AVG_ENABLE_DSHOW
 #include "../imaging/DSCamera.h"
 #endif
@@ -434,9 +437,19 @@ TrackerEventSource * Player::addTracker(const string& sConfigFilename)
         exit(1);
 #endif
     } else if (sSource == "fw") {
+#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
         AVG_TRACE(Logger::CONFIG, "Adding a Tracker for FW camera " << 
                 sDevice << " size=" << Size << " format=" << sPixFmt);
         pCamera = CameraPtr(new FWCamera(sDevice, Size, sPixFmt, FPS, false));
+#elif defined(AVG_ENABLE_CMU1394)
+        AVG_TRACE(Logger::CONFIG, "Adding a Tracker for FW camera " << 
+                sDevice << " size=" << Size << " format=" << sPixFmt);
+        pCamera = CameraPtr(new CMUCamera(sDevice, Size, sPixFmt, FPS, false));
+#else
+        AVG_TRACE(Logger::ERROR, "FW camera tracker requested, but " 
+                "FW support not compiled in.");
+        exit(1);
+#endif
     } else if (sSource == "ds") {
 #ifdef AVG_ENABLE_DSHOW        
         AVG_TRACE(Logger::CONFIG, "Adding a Tracker for DS camera " << 

@@ -78,6 +78,7 @@ public:
 };
 
 typedef boost::shared_ptr<Camera> CameraPtr;
+typedef std::map<CameraFeature, int> FeatureMap;
 
 }
 

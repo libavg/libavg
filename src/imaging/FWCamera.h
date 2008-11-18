@@ -100,7 +100,6 @@ private:
     void dumpCameraInfo();
 
     bool m_bCameraAvailable;
-    typedef std::map<CameraFeature, int> FeatureMap;
     FeatureMap m_Features;
 };
 
