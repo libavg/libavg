@@ -51,7 +51,6 @@ VertexArray::~VertexArray()
 void VertexArray::setPos(int vertexIndex, const DPoint& pos, 
         const DPoint& texPos, const Pixel32& color)
 {
-    assert(vertexIndex < getNumVerts());
     T2V3C4Vertex* pVertex = &(getVertexData()[vertexIndex]);
     if (pVertex->m_Pos[0] != (GLfloat)pos.x || 
             pVertex->m_Pos[1] != (GLfloat)pos.y ||
@@ -59,12 +58,7 @@ void VertexArray::setPos(int vertexIndex, const DPoint& pos,
             pVertex->m_Tex[1] != (GLfloat)texPos.y ||
             pVertex->m_Color != color)
     {
-        pVertex->m_Pos[0] = (GLfloat)pos.x;
-        pVertex->m_Pos[1] = (GLfloat)pos.y;
-        pVertex->m_Pos[2] = 0.0;
-        pVertex->m_Tex[0] = (GLfloat)texPos.x;
-        pVertex->m_Tex[1] = (GLfloat)texPos.y;
-        pVertex->m_Color = color;
+        VertexData::setPos(vertexIndex, pos, texPos, color);
         m_bDataChanged = true;
     }
 }
