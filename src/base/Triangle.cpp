@@ -41,27 +41,24 @@ bool Triangle::operator ==(const Triangle & tri) const
 
 bool Triangle::isInside(const DPoint& pt) const
 {
-  double ax, ay, bx, by, cx, cy, apx, apy, bpx, bpy, cpx, cpy;
-  double cCROSSap, bCROSScp, aCROSSbp;
+    DPoint a = p2-p1;
+    DPoint bp = pt-p1;
+    double aCROSSbp = a.x*bp.y - a.y*bp.x;
+    if (aCROSSbp < 0.0) {
+        return false;
+    }
+    
+    DPoint b = p0-p2;
+    DPoint cp = pt-p2;
+    double bCROSScp = b.x*cp.y - b.y*cp.x;
+    if (bCROSScp < 0.0) {
+        return false;
+    }
 
-  ax = p2.x - p1.x;
-  ay = p2.y - p1.y;
-  bx = p0.x - p2.x;
-  by = p0.y - p2.y;
-  cx = p1.x - p0.x;
-  cy = p1.y - p0.y;
-  apx= pt.x - p0.x;
-  apy= pt.y - p0.y;
-  bpx= pt.x - p1.x;
-  bpy= pt.y - p1.y;
-  cpx= pt.x - p2.x;
-  cpy= pt.y - p2.y;
-
-  aCROSSbp = ax*bpy - ay*bpx;
-  cCROSSap = cx*apy - cy*apx;
-  bCROSScp = bx*cpy - by*cpx;
-
-  return ((aCROSSbp >= 0.0) && (bCROSScp >= 0.0) && (cCROSSap >= 0.0));
+    DPoint c = p1-p0;
+    DPoint ap = pt-p0;
+    double cCROSSap = c.x*ap.y - c.y*ap.x;
+    return cCROSSap >= 0.0;
 }
 
 std::ostream& operator<<(std::ostream& os, const Triangle& tri)
