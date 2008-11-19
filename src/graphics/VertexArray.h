@@ -33,18 +33,17 @@
 
 namespace avg {
 
-class AVG_API VertexArray {
+class AVG_API VertexArray: public VertexData {
 public:
     VertexArray(int numVerts, int numIndexes, int reserveVerts = 0, 
             int reserveIndexes = 0);
     virtual ~VertexArray();
 
-    void setPos(int vertexIndex, const DPoint& pos, 
+    virtual void setPos(int vertexIndex, const DPoint& pos, 
             const DPoint& texPos, const Pixel32& color = Pixel32(0,0,0,0));
-    void setIndex(int i, int vertexIndex);
-    void setTriIndexes(int i, int v0, int v1, int v2);
-    void setVertexData(int vertexIndex, int indexIndex, const VertexDataPtr& pVertexes);
-    void changeSize(int numVerts, int numIndexes);
+    virtual void setVertexData(int vertexIndex, int indexIndex, 
+            const VertexDataPtr& pVertexes);
+    virtual void changeSize(int numVerts, int numIndexes);
 
     void update();
     void draw();
@@ -52,12 +51,6 @@ public:
 private:
     void setBufferSize();
 
-    int m_NumVerts;
-    int m_ReserveVerts;
-    int m_NumIndexes;
-    int m_ReserveIndexes;
-    T2V3C4Vertex * m_pVertexData;
-    unsigned int * m_pIndexData;
     bool m_bDataChanged;
 
     unsigned int m_GLVertexBufferID;

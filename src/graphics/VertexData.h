@@ -37,32 +37,43 @@ struct T2V3C4Vertex {
     GLfloat m_Pos[3];
 };
 
+
+class AVG_API VertexData;
+typedef boost::shared_ptr<VertexData> VertexDataPtr;
+
 class AVG_API VertexData {
 public:
-    VertexData();
+    VertexData(int numVerts=0, int numIndexes=0, int reserveVerts=10, 
+            int reserveIndexes=20);
     virtual ~VertexData();
 
-    void setPos(int vertexIndex, const DPoint& pos, 
+    virtual void setPos(int vertexIndex, const DPoint& pos, 
             const DPoint& texPos, const Pixel32& color = Pixel32(0,0,0,0));
     void setIndex(int i, int vertexIndex);
     void setTriIndexes(int i, int v0, int v1, int v2);
-    void changeSize(int numVerts, int numIndexes);
+    virtual void setVertexData(int vertexIndex, int indexIndex, 
+        const VertexDataPtr& pVertexes);
+    virtual void changeSize(int numVerts, int numIndexes);
 
     int getNumVerts() const;
     int getNumIndexes() const;
     const T2V3C4Vertex * getVertexData() const;
     const unsigned int * getIndexData() const;
 
+protected:
+    int getReservedVerts() const;
+    int getReservedIndexes() const;
+    T2V3C4Vertex* getVertexData();
+    unsigned int* getIndexData();
+
 private:
     int m_NumVerts;
-    int m_ReserveVerts;
     int m_NumIndexes;
+    int m_ReserveVerts;
     int m_ReserveIndexes;
     T2V3C4Vertex * m_pVertexData;
     unsigned int * m_pIndexData;
 };
-
-typedef boost::shared_ptr<VertexData> VertexDataPtr;
 
 }
 

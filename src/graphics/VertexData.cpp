@@ -32,12 +32,18 @@ using namespace std;
 
 namespace avg {
 
-VertexData::VertexData()
-    : m_NumVerts(0),
-      m_ReserveVerts(10),
-      m_NumIndexes(0),
-      m_ReserveIndexes(20)
+VertexData::VertexData(int numVerts, int numIndexes, int reserveVerts, int reserveIndexes)
+    : m_NumVerts(numVerts),
+      m_NumIndexes(numIndexes),
+      m_ReserveVerts(reserveVerts),
+      m_ReserveIndexes(reserveIndexes)
 {
+    if (m_NumVerts > m_ReserveVerts) {
+        m_ReserveVerts = m_NumVerts;
+    }
+    if (m_NumIndexes > m_ReserveIndexes) {
+        m_ReserveIndexes = m_NumIndexes;
+    }
     m_pVertexData = new T2V3C4Vertex[m_ReserveVerts];
     m_pIndexData = new unsigned int[m_ReserveIndexes];
 }
@@ -71,6 +77,25 @@ void VertexData::setTriIndexes(int i, int v0, int v1, int v2)
     m_pIndexData[i] = v0;
     m_pIndexData[i+1] = v1;
     m_pIndexData[i+2] = v2;
+}
+
+void VertexData::setVertexData(int vertexIndex, int indexIndex, 
+        const VertexDataPtr& pVertexes)
+{
+    int numVerts = pVertexes->getNumVerts();
+    int numIndexes = pVertexes->getNumIndexes();
+    assert(vertexIndex+numVerts<=m_NumVerts);
+    assert(indexIndex+numIndexes<=m_NumIndexes);
+
+    memcpy(m_pVertexData+vertexIndex, pVertexes->getVertexData(), 
+            numVerts*sizeof(T2V3C4Vertex));
+    memcpy(m_pIndexData+indexIndex, pVertexes->getIndexData(),
+            numIndexes*sizeof(unsigned int));
+    unsigned int * pCurIndex = &(m_pIndexData[indexIndex]);
+    for (int i=0; i<numIndexes; ++i) {
+        *pCurIndex += vertexIndex;
+        ++pCurIndex;
+    }
 }
 
 void VertexData::changeSize(int numVerts, int numIndexes)
@@ -114,5 +139,26 @@ const unsigned int * VertexData::getIndexData() const
 {
     return m_pIndexData;
 }
+
+int VertexData::getReservedVerts() const 
+{
+    return m_ReserveVerts;
+}
+ 
+int VertexData::getReservedIndexes() const 
+{
+    return m_ReserveIndexes;
+}
+ 
+T2V3C4Vertex* VertexData::getVertexData() 
+{
+    return m_pVertexData;
+}
+ 
+unsigned int* VertexData::getIndexData() 
+{
+    return m_pIndexData;
+}
+ 
 
 }
