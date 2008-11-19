@@ -54,7 +54,7 @@ VectorNode::~VectorNode()
 void VectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
         AudioEngine * pAudioEngine)
 {
-    m_bDrawNeeded = true;
+    setDrawNeeded(true);
     m_Color = colorStringToColor(m_sColorName);
     Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
 }

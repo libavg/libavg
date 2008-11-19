@@ -91,7 +91,7 @@ void PolygonNode::setFillColor(const string& sFillColor)
     if (m_sFillColorName != sFillColor) {
         m_sFillColorName = sFillColor;
         m_FillColor = colorStringToColor(m_sFillColorName);
-        setDrawNeeded(true);
+        setDrawNeeded(false);
     }
 }
 
