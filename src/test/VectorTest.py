@@ -170,8 +170,14 @@ class VectorTestCase(AVGTestCase):
             polygon.pos = pos
         def fillPolygon():
             polygon = canvas.getChild(0)
+            polygon.strokewidth = 5 
             polygon.fillcolor = "00FFFF"
-            polygon.fillopacity = 0.5 
+            polygon.fillopacity = 0.5
+            pos = polygon.pos
+            pos.append((80, 50))
+            pos.append((50, 20))
+            pos.append((40, 40))
+            polygon.pos = pos
         canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addPolygon,

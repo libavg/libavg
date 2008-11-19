@@ -3,6 +3,8 @@
 
 #include "Triangulate.h"
 
+#include "../base/Exception.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,7 +17,6 @@ using namespace std;
 
 double getPolygonArea(const DPointVector &contour)
 {
-
   int n = contour.size();
 
   double A=0.0;
@@ -81,7 +82,10 @@ void triangulatePolygon(const DPointVector &contour, vector<int> &resultIndexes)
 
     for(int m=0, v=nv-1; nv>2; )
     {
-        assert(count>0);  // Bad (non-simple) input polygon.
+        if (count <= 0) {
+            throw Exception(AVG_ERR_INVALID_ARGS, 
+                    "Non-simple polygon: Self-intersecting polygons are not supported.");
+        }
         count--;
 
         /* three consecutive vertices in current polygon, <u,v,w> */
