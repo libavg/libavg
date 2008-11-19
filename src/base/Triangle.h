@@ -39,6 +39,7 @@ public:
     
     bool operator ==(const Triangle & tri) const;
     bool isInside(const DPoint& pt) const;
+    double getArea() const;
 };
 
 std::ostream& operator<<(std::ostream& os, const Triangle& tri);

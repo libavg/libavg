@@ -61,6 +61,18 @@ bool Triangle::isInside(const DPoint& pt) const
     return cCROSSap >= 0.0;
 }
 
+double Triangle::getArea() const
+{
+    return fabs((((tri.p1.x-tri.p0.x)*(tri.p2.y-tri.p0.y)) -
+            ((tri.p1.y-tri.p0.y)*(tri.p2.x-tri.p0.x)))/2);
+}
+
+bool Triangle::isClockwise() const
+{
+    return ((tri.p1.x-tri.p0.x)*(tri.p2.y-tri.p0.y)) -
+            ((tri.p1.y-tri.p0.y)*(tri.p2.x-tri.p0.x)) < 0;
+}
+
 std::ostream& operator<<(std::ostream& os, const Triangle& tri)
 {
     os << "(" << tri.p0 << "," << tri.p1 << "," << tri.p2 << ")";

@@ -36,9 +36,9 @@ bool snip(const DPointVector &contour,int u,int v,int w,int n,int *V)
     tri.p1 = contour[V[v]];
     tri.p2 = contour[V[w]];
 
-    if ( EPSILON > (((tri.p1.x-tri.p0.x)*(tri.p2.y-tri.p0.y)) - 
-            ((tri.p1.y-tri.p0.y)*(tri.p2.x-tri.p0.x))) ) 
-    {
+//    double area = tri.getArea();
+
+    if (tri.isClockwise()) {
         return false;
     }
 
@@ -83,7 +83,7 @@ void triangulatePolygon(const DPointVector &contour, vector<int> &resultIndexes)
     {
         if (count <= 0) {
             throw Exception(AVG_ERR_INVALID_ARGS, 
-                    "Non-simple polygon: Self-intersecting polygons are not supported.");
+                    "Non-simple polygon: Self-intersecting polygons or degenerate polygons are not supported.");
         }
         count--;
 
