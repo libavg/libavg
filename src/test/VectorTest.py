@@ -178,6 +178,11 @@ class VectorTestCase(AVGTestCase):
             pos.append((50, 20))
             pos.append((40, 40))
             polygon.pos = pos
+        def addEmptyPoint():
+            polygon = canvas.getChild(0)
+            pos = polygon.pos
+            pos.append((40, 40))
+            polygon.pos = pos
         canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addPolygon,
@@ -185,6 +190,8 @@ class VectorTestCase(AVGTestCase):
                  changePolygon,
                  lambda: self.compareImage("testPolygon2", False),
                  fillPolygon,
+                 lambda: self.compareImage("testPolygon3", False),
+                 addEmptyPoint,
                  lambda: self.compareImage("testPolygon3", False)
                 ))
 
