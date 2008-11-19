@@ -126,6 +126,9 @@ int PolygonNode::getNumIndexes()
 
 void PolygonNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
 {
+    if (m_Pts.size() < 3) {
+        return;
+    }
     int numPts = m_Pts.size();
     int startOutlinePt = 0;
     int startOutlineIndex = 0;
@@ -181,21 +184,13 @@ void PolygonNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
     for (int i=0; i<numPts-1; ++i) {
         int loopIndex = startOutlineIndex+i*6;
         int loopVertex = startOutlinePt+i*2;
-        pVertexData->setIndex(loopIndex, loopVertex);
-        pVertexData->setIndex(loopIndex+1, loopVertex+1);
-        pVertexData->setIndex(loopIndex+2, loopVertex+3);
-        pVertexData->setIndex(loopIndex+3, loopVertex);
-        pVertexData->setIndex(loopIndex+4, loopVertex+3);
-        pVertexData->setIndex(loopIndex+5, loopVertex+2);
+        pVertexData->setTriIndexes(loopIndex, loopVertex, loopVertex+1, loopVertex+3);
+        pVertexData->setTriIndexes(loopIndex+3, loopVertex, loopVertex+3, loopVertex+2);
     }
     int loopIndex = startOutlineIndex+(numPts-1)*6;
     int loopVertex = startOutlinePt+(numPts-1)*2;
-    pVertexData->setIndex(loopIndex, loopVertex);
-    pVertexData->setIndex(loopIndex+1, loopVertex+1);
-    pVertexData->setIndex(loopIndex+2, startOutlinePt+1);
-    pVertexData->setIndex(loopIndex+3, loopVertex);
-    pVertexData->setIndex(loopIndex+4, startOutlinePt);
-    pVertexData->setIndex(loopIndex+5, startOutlinePt+1);
+    pVertexData->setTriIndexes(loopIndex, loopVertex, loopVertex+1, startOutlinePt+1);
+    pVertexData->setTriIndexes(loopIndex+3, loopVertex, startOutlinePt, startOutlinePt+1);
 }
 
 }

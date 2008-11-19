@@ -116,12 +116,8 @@ void VectorNode::updateLineData(VertexDataPtr& pVertexData, int curVertex, int c
     pVertexData->setPos(curVertex+1, p1+w, DPoint(0,0), color);
     pVertexData->setPos(curVertex+2, p2+w, DPoint(0,0), color);
     pVertexData->setPos(curVertex+3, p2-w, DPoint(0,0), color);
-    pVertexData->setIndex(curIndex, curVertex);
-    pVertexData->setIndex(curIndex+1, curVertex+1);
-    pVertexData->setIndex(curIndex+2, curVertex+2);
-    pVertexData->setIndex(curIndex+3, curVertex);
-    pVertexData->setIndex(curIndex+4, curVertex+2);
-    pVertexData->setIndex(curIndex+5, curVertex+3);
+    pVertexData->setTriIndexes(curIndex, curVertex, curVertex+1, curVertex+2);
+    pVertexData->setTriIndexes(curIndex+3, curVertex, curVertex+2, curVertex+3);
 }
      
 bool VectorNode::isDrawNeeded()

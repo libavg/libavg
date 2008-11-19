@@ -203,12 +203,8 @@ void RectNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
     pVertexData->setPos(1, rp2, DPoint(0,0), color);
     pVertexData->setPos(2, rp3, DPoint(0,0), color);
     pVertexData->setPos(3, rp4, DPoint(0,0), color);
-    pVertexData->setIndex(0, 0);
-    pVertexData->setIndex(1, 1);
-    pVertexData->setIndex(2, 2);
-    pVertexData->setIndex(3, 0);
-    pVertexData->setIndex(4, 2);
-    pVertexData->setIndex(5, 3);
+    pVertexData->setTriIndexes(0, 0, 1, 2);
+    pVertexData->setTriIndexes(3, 0, 2, 3);
 
     updateLineData(pVertexData, 4, 6, opacity, rp1, rp2);
     updateLineData(pVertexData, 8, 12, opacity, rp3, rp4);

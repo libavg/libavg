@@ -215,12 +215,8 @@ void CurveNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
                 color);
         pVertexData->setPos(i*2+3, m_RightCurve[i+1], DPoint(0,0), 
                 color);
-        pVertexData->setIndex(i*6, i*2);
-        pVertexData->setIndex(i*6+1, (i+1)*2);
-        pVertexData->setIndex(i*6+2, (i+1)*2+1);
-        pVertexData->setIndex(i*6+3, i*2);
-        pVertexData->setIndex(i*6+4, (i+1)*2+1);
-        pVertexData->setIndex(i*6+5, i*2+1);
+        pVertexData->setTriIndexes(i*6, i*2, (i+1)*2, (i+1)*2+1);
+        pVertexData->setTriIndexes(i*6+3, i*2, (i+1)*2+1, i*2+1);
     }
 }
 

@@ -87,6 +87,13 @@ void VertexArray::setIndex(int i, int vertexIndex)
     m_pIndexData[i] = vertexIndex;
 }
 
+void VertexArray::setTriIndexes(int i, int v0, int v1, int v2)
+{
+    m_pIndexData[i] = v0;
+    m_pIndexData[i+1] = v1;
+    m_pIndexData[i+2] = v2;
+}
+
 void VertexArray::setVertexData(int vertexIndex, int indexIndex, 
         const VertexDataPtr& pVertexes)
 {

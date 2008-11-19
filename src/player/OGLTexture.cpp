@@ -117,12 +117,8 @@ void OGLTexture::blt(const VertexGrid* pVertexes) const
                         m_TexCoords[yoffset+1][xoffset+1]); 
                 m_pVertexes->setPos(curVertex+3, (*pVertexes)[y+1][x],
                         m_TexCoords[yoffset+1][xoffset]); 
-                m_pVertexes->setIndex(curIndex, curVertex);
-                m_pVertexes->setIndex(curIndex+1, curVertex+1);
-                m_pVertexes->setIndex(curIndex+2, curVertex+2);
-                m_pVertexes->setIndex(curIndex+3, curVertex);
-                m_pVertexes->setIndex(curIndex+4, curVertex+2);
-                m_pVertexes->setIndex(curIndex+5, curVertex+3);
+                m_pVertexes->setTriIndexes(curIndex, curVertex, curVertex+1, curVertex+2);
+                m_pVertexes->setTriIndexes(curIndex+3, curVertex, curVertex+2, curVertex+3);
                 curVertex+=4;
                 curIndex+=6;
             }
