@@ -11,7 +11,8 @@
 
 namespace avg {
 
-void triangulatePolygon(const DPointVector &contour, TriangleVector &result);
+// Result type is suitable for use in a Triangle Vertex Array.
+void triangulatePolygon(const DPointVector &contour, std::vector<int> &resultIndexes);
 
 double getPolygonArea(const DPointVector &contour);
 

@@ -44,17 +44,17 @@ bool Triangle::isInside(const DPoint& pt) const
   double ax, ay, bx, by, cx, cy, apx, apy, bpx, bpy, cpx, cpy;
   double cCROSSap, bCROSScp, aCROSSbp;
 
-  ax = p2.x - p1.x;  
+  ax = p2.x - p1.x;
   ay = p2.y - p1.y;
-  bx = p0.x - p2.x;  
+  bx = p0.x - p2.x;
   by = p0.y - p2.y;
-  cx = p1.x - p0.x;  
+  cx = p1.x - p0.x;
   cy = p1.y - p0.y;
-  apx= pt.x - p0.x;  
+  apx= pt.x - p0.x;
   apy= pt.y - p0.y;
-  bpx= pt.x - p1.x;  
+  bpx= pt.x - p1.x;
   bpy= pt.y - p1.y;
-  cpx= pt.x - p2.x;  
+  cpx= pt.x - p2.x;
   cpy= pt.y - p2.y;
 
   aCROSSbp = ax*bpy - ay*bpx;

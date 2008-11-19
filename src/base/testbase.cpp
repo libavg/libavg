@@ -308,18 +308,14 @@ public:
 
         DPointVector poly = vectorFromCArray(6, polyArray);
 
-        TriangleVector triangulation;
+        vector<int> triangulation;
         triangulatePolygon(poly, triangulation);
 
-        TEST(triangulation.size() == 4);
-        TEST(triangulation[0] == Triangle(DPoint(8,2), DPoint(9,0), DPoint(9,3)));
-        TEST(triangulation[1] == Triangle(DPoint(1,1), DPoint(0,3), DPoint(0,0)));
-        TEST(triangulation[2] == Triangle(DPoint(0,0), DPoint(8,2), DPoint(9,3)));
-        TEST(triangulation[3] == Triangle(DPoint(9,3), DPoint(1,1), DPoint(0,0)));
-
+        TEST(triangulation.size() == 4*3);
+        int baselineIndexes[] = {1,2,3, 4,5,0, 0,1,3, 3,4,0};
+        TEST(triangulation == vectorFromCArray(12, baselineIndexes));
         for (unsigned int i=0; i<triangulation.size(); i++) {
-            const Triangle& tri = triangulation[i];
-            cerr << i << ":" << tri << endl;
+            cerr << i << ":" << triangulation[i] << endl;
         }
     }
 

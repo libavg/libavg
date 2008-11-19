@@ -27,7 +27,7 @@ double getPolygonArea(const DPointVector &contour)
 }
 
 
-bool Snip(const DPointVector &contour,int u,int v,int w,int n,int *V)
+bool snip(const DPointVector &contour,int u,int v,int w,int n,int *V)
 {
     int p;
     Triangle tri;
@@ -53,7 +53,7 @@ bool Snip(const DPointVector &contour,int u,int v,int w,int n,int *V)
     return true;
 }
 
-void triangulatePolygon(const DPointVector &contour, TriangleVector &result)
+void triangulatePolygon(const DPointVector &contour, vector<int> &resultIndexes)
 {
     /* allocate and initialize list of Vertices in polygon */
 
@@ -98,10 +98,8 @@ void triangulatePolygon(const DPointVector &contour, TriangleVector &result)
             w = 0;
         }
 
-        cerr << u << ", " << v << ", " << w << endl;
-        if ( Snip(contour,u,v,w,nv,V) )
+        if (snip(contour,u,v,w,nv,V))
         {
-            cerr << "snip" << endl;
             int a,b,c,s,t;
 
             /* true names of the vertices */
@@ -109,7 +107,9 @@ void triangulatePolygon(const DPointVector &contour, TriangleVector &result)
 
             /* output Triangle */
 
-            result.push_back(Triangle(contour[a], contour[b], contour[c]));
+            resultIndexes.push_back(a);
+            resultIndexes.push_back(b);
+            resultIndexes.push_back(c);
 
             m++;
 
