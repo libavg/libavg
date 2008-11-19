@@ -363,5 +363,10 @@ void export_node()
 
     class_<PolygonNode, bases<VectorNode>, boost::noncopyable>("PolygonNode", no_init)
         .add_property("pos", make_function(&PolygonNode::getPos, 
-                return_value_policy<copy_const_reference>()), &PolygonNode::setPos);
+                return_value_policy<copy_const_reference>()), &PolygonNode::setPos)
+        .add_property("fillcolor", make_function(&PolygonNode::getFillColor,
+                return_value_policy<copy_const_reference>()), &PolygonNode::setFillColor)
+        .add_property("fillopacity", &PolygonNode::getFillOpacity, 
+                &PolygonNode::setFillOpacity)
+    ;
 }

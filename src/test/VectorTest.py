@@ -168,12 +168,18 @@ class VectorTestCase(AVGTestCase):
             pos = polygon.pos
             pos.append((10, 90))
             polygon.pos = pos
+        def fillPolygon():
+            polygon = canvas.getChild(0)
+            polygon.fillcolor = "00FFFF"
+            polygon.fillopacity = 0.5 
         canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addPolygon,
                  lambda: self.compareImage("testPolygon1", False),
                  changePolygon,
                  lambda: self.compareImage("testPolygon2", False),
+                 fillPolygon,
+                 lambda: self.compareImage("testPolygon3", False)
                 ))
 
 def vectorTestSuite(tests):

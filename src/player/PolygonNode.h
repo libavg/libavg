@@ -42,12 +42,21 @@ class AVG_API PolygonNode : public VectorNode
         const std::vector<DPoint>& getPos() const;
         void setPos(const std::vector<DPoint>& pts);
 
+        double getFillOpacity() const;
+        void setFillOpacity(double opacity);
+
+        void setFillColor(const std::string& sColor);
+        const std::string& getFillColor() const;
+
         virtual int getNumVertexes();
         virtual int getNumIndexes();
         virtual void calcVertexes(VertexDataPtr& pVertexData, double opacity);
 
     private:
-        std::vector<DPoint> m_Pts;
+        DPointVector m_Pts;
+        double m_FillOpacity;
+        std::string m_sFillColorName;
+        Pixel32 m_FillColor;
 };
 
 }

@@ -22,11 +22,23 @@
 #include "Pixel32.h"
 
 #include <string>
+#include <sstream>
+#include <iostream>
+#include <iomanip>
 #include <stdio.h>
 
 namespace avg {
 
 using namespace std;
+
+std::string Pixel32::getColorString() const
+{
+    stringstream s;
+    s.fill('0');
+    s << hex << setw(2) << (int)(m_Data[0]) << setw(2) << (int)(m_Data[1]) <<
+            setw(2) << (int)(m_Data[2]) << setw(2) << (int)(m_Data[3]);
+    return s.str();
+}
 
 Pixel32 colorStringToColor(const string & s)
 {
@@ -34,5 +46,12 @@ Pixel32 colorStringToColor(const string & s)
     sscanf(s.c_str(), "%2x%2x%2x", &r, &g, &b);
     return Pixel32(r,g,b);
 }
+
+std::ostream& operator<<(std::ostream& os, const Pixel32& pix)
+{
+    os << pix.getColorString();
+    return os;
+}
+
 
 }

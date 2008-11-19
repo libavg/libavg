@@ -43,8 +43,6 @@ public:
 
 std::ostream& operator<<(std::ostream& os, const Triangle& tri);
 
-typedef std::vector<Triangle> TriangleVector;
-
 }
 
 #endif

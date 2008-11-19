@@ -314,9 +314,11 @@ public:
         TEST(triangulation.size() == 4*3);
         int baselineIndexes[] = {1,2,3, 4,5,0, 0,1,3, 3,4,0};
         TEST(triangulation == vectorFromCArray(12, baselineIndexes));
+/*        
         for (unsigned int i=0; i<triangulation.size(); i++) {
             cerr << i << ":" << triangulation[i] << endl;
         }
+*/        
     }
 
 };
