@@ -11,29 +11,9 @@
 
 namespace avg {
 
-class Triangulate
-{
-public:
+void triangulatePolygon(const DPointVector &contour, TriangleVector &result);
 
-  // triangulate a contour/polygon, places results in STL vector
-  // as series of triangles.
-  static bool Process(const DPointVector &contour,
-                      TriangleVector &result);
-
-  // compute area of a contour/polygon
-  static float Area(const DPointVector &contour);
-
-  // decide if point Px/Py is inside triangle defined by
-  // (Ax,Ay) (Bx,By) (Cx,Cy)
-  static bool InsideTriangle(float Ax, float Ay,
-                      float Bx, float By,
-                      float Cx, float Cy,
-                      float Px, float Py);
-
-private:
-  static bool Snip(const DPointVector &contour,int u,int v,int w,int n,int *V);
-
-};
+double getPolygonArea(const DPointVector &contour);
 
 }
 

@@ -30,9 +30,38 @@ Triangle::Triangle(const DPoint& P0, const DPoint& P1, const DPoint& P2)
 {
 }
 
+Triangle::Triangle()
+{
+}
+
 bool Triangle::operator ==(const Triangle & tri) const
 {
-  return (p0 == tri.p0 && p1 == tri.p1 &&  p2 == tri.p2);
+    return (p0 == tri.p0 && p1 == tri.p1 &&  p2 == tri.p2);
+}
+
+bool Triangle::isInside(const DPoint& pt) const
+{
+  double ax, ay, bx, by, cx, cy, apx, apy, bpx, bpy, cpx, cpy;
+  double cCROSSap, bCROSScp, aCROSSbp;
+
+  ax = p2.x - p1.x;  
+  ay = p2.y - p1.y;
+  bx = p0.x - p2.x;  
+  by = p0.y - p2.y;
+  cx = p1.x - p0.x;  
+  cy = p1.y - p0.y;
+  apx= pt.x - p0.x;  
+  apy= pt.y - p0.y;
+  bpx= pt.x - p1.x;  
+  bpy= pt.y - p1.y;
+  cpx= pt.x - p2.x;  
+  cpy= pt.y - p2.y;
+
+  aCROSSbp = ax*bpy - ay*bpx;
+  cCROSSap = cx*apy - cy*apx;
+  bCROSScp = bx*cpy - by*cpx;
+
+  return ((aCROSSbp >= 0.0) && (bCROSScp >= 0.0) && (cCROSSap >= 0.0));
 }
 
 std::ostream& operator<<(std::ostream& os, const Triangle& tri)

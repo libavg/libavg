@@ -287,34 +287,40 @@ public:
     }
 };
 
-class TriangulationTest: public Test {
+class TriangleTest: public Test {
 public:
-    TriangulationTest()
-        : Test("TriangulationTest", 2)
+    TriangleTest()
+        : Test("TriangleTest", 2)
     {
     }
 
     void runTests()
     {
+        Triangle tri(DPoint(0,0), DPoint(4,4), DPoint(4,8));
+        TEST(tri.isInside(DPoint(3,4)));
+        TEST(!tri.isInside(DPoint(1,4)));
+        TEST(!tri.isInside(DPoint(2,1)));
+        TEST(!tri.isInside(DPoint(-2,5)));
+        TEST(!tri.isInside(DPoint(5,5)));
+
         DPoint polyArray[] = {DPoint(0,0), DPoint(8,2), DPoint(9,0), DPoint(9,3), 
                 DPoint(1,1), DPoint(0,3)}; 
 
         DPointVector poly = vectorFromCArray(6, polyArray);
 
         TriangleVector triangulation;
-        Triangulate::Process(poly, triangulation);
-    
+        triangulatePolygon(poly, triangulation);
+
         TEST(triangulation.size() == 4);
         TEST(triangulation[0] == Triangle(DPoint(8,2), DPoint(9,0), DPoint(9,3)));
         TEST(triangulation[1] == Triangle(DPoint(1,1), DPoint(0,3), DPoint(0,0)));
         TEST(triangulation[2] == Triangle(DPoint(0,0), DPoint(8,2), DPoint(9,3)));
         TEST(triangulation[3] == Triangle(DPoint(9,3), DPoint(1,1), DPoint(0,0)));
-/*
-        for (unsigned int i=0; i<result.size(); i++) {
-            const Triangle& tri = result[i];
+
+        for (unsigned int i=0; i<triangulation.size(); i++) {
+            const Triangle& tri = triangulation[i];
             cerr << i << ":" << tri << endl;
         }
-*/
     }
 
 };
@@ -490,7 +496,7 @@ public:
         addTest(TestPtr(new WorkerThreadTest));
         addTest(TestPtr(new ObjectCounterTest));
         addTest(TestPtr(new PointTest));
-        addTest(TestPtr(new TriangulationTest));
+        addTest(TestPtr(new TriangleTest));
         addTest(TestPtr(new FileTest));
         addTest(TestPtr(new OSTest));
         addTest(TestPtr(new StringTest));

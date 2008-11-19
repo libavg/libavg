@@ -35,8 +35,10 @@ public:
     DPoint p2;
 
     Triangle(const DPoint& P0, const DPoint& P1, const DPoint& P2);
+    Triangle();
     
     bool operator ==(const Triangle & tri) const;
+    bool isInside(const DPoint& pt) const;
 };
 
 std::ostream& operator<<(std::ostream& os, const Triangle& tri);
