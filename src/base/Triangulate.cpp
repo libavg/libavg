@@ -63,31 +63,18 @@ void triangulatePolygon(const DPointVector &contour, vector<int> &resultIndexes)
 
     int *V = new int[n];
 
-    // we want a counter-clockwise polygon in V that doesn't contain duplicated vertexes. 
-    int nv = n;
-
+    // we want a counter-clockwise polygon in V. 
     if (0.0 < getPolygonArea(contour)) {
-        cerr << 1 << endl;
-        V[0] = 0;
-        int w=1;
-        for (int v=1; v<n; v++) {
-            if (V[v] != V[v-1]) {
-                V[v] = w;
-                w++;
-            }
+        for (int v=0; v<n; v++) {
+            V[v] = v;
         }
-        nv = w;
     } else {
-        cerr << 2 << endl;
-        V[0] = n-1;
-        int w=n-2;
-        for (int v=1; v<n; v++) {
-            if (V[v] != V[v-1]) {
-                V[v] = w;
-                w--;
-            }
+        for(int v=0; v<n; v++) {
+            V[v] = (n-1)-v;
         }
     }
+
+    int nv = n;
 
     /*  remove nv-2 Vertices, creating 1 triangle every time */
     int count = 2*nv;   /* error detection */

@@ -192,7 +192,7 @@ class VectorTestCase(AVGTestCase):
                  fillPolygon,
                  lambda: self.compareImage("testPolygon3", False),
                  addEmptyPoint,
-                 lambda: self.compareImage("testPolygon3", False)
+                 lambda: self.compareImage("testPolygon4", False)
                 ))
 
 def vectorTestSuite(tests):

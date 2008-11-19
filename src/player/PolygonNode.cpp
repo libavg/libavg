@@ -64,7 +64,14 @@ const vector<DPoint>& PolygonNode::getPos() const
 
 void PolygonNode::setPos(const vector<DPoint>& pts) 
 {
-    m_Pts = pts;
+    m_Pts.clear();
+    m_Pts.push_back(pts[0]);
+    // Remove possible duplicated points.
+    for (int i=1; i<pts.size(); ++i) {
+        if (pts[i] != pts[i-1]) {
+            m_Pts.push_back(pts[i]);
+        }
+    }
     setDrawNeeded(true);
 }
 
