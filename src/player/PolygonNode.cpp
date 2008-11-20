@@ -134,7 +134,7 @@ void PolygonNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
     int startOutlineIndex = 0;
     Pixel32 color = getColorVal();
 
-    // Polygon
+    // Fill
     if (m_FillOpacity > 0.001) {
         double curOpacity = opacity*m_FillOpacity;
         Pixel32 fillColor = m_FillColor;
@@ -152,33 +152,24 @@ void PolygonNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
         startOutlineIndex = triIndexes.size();
     }
     // Outline
-    if (m_Pts.size() < 3) {
-        return;
+    vector<WideLine> lines;
+    lines.reserve(numPts);
+    for (int i=0; i<numPts-1; ++i) {
+        lines.push_back(WideLine(m_Pts[i], m_Pts[i+1], getStrokeWidth()));
     }
-    
-    DPoint w1;
-    DPoint w2(getLineWidthOffset(m_Pts[numPts-1], m_Pts[0]));
-    DPoint pl1;
-    DPoint pl2 = m_Pts[0]-w2;
-    DPoint pr1;
-    DPoint pr2 = m_Pts[0]+w2;
-    w2 = DPoint(w2.y, -w2.x); // Point in the direction of the line, not 
-                              // perpendicular to it.
+    lines.push_back(WideLine(m_Pts[numPts-1], m_Pts[0], getStrokeWidth()));
+
+    const WideLine* pLastLine = &(lines[numPts-1]);
     
     for (int i=0; i<numPts; ++i) {
-        int nextPt = (i+1) % numPts;
-        w1 = w2;
-        pl1 = pl2;
-        pr1 = pr2;
-        w2 = getLineWidthOffset(m_Pts[i], m_Pts[nextPt]);
-        pl2 = m_Pts[i]-w2;
-        pr2 = m_Pts[i]+w2;
-        w2 = DPoint(w2.y, -w2.x);
-        DPoint pli = getLineLineIntersection(pl1, w1, pl2, w2);
-        DPoint pri = getLineLineIntersection(pr1, w1, pr2, w2);
-
+        const WideLine* pThisLine = &(lines[i]);
+        DPoint pli = getLineLineIntersection(pLastLine->pl0, pLastLine->dir, 
+                pThisLine->pl0, pThisLine->dir);
+        DPoint pri = getLineLineIntersection(pLastLine->pr0, pLastLine->dir, 
+                pThisLine->pr0, pThisLine->dir);
         pVertexData->setPos(startOutlinePt+2*i, pli, DPoint(0,0), color);
         pVertexData->setPos(startOutlinePt+2*i+1, pri, DPoint(0,0), color);
+        pLastLine = pThisLine;
     }
 
     for (int i=0; i<numPts-1; ++i) {

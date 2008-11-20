@@ -59,6 +59,7 @@ public:
     int getNumIndexes() const;
     const T2V3C4Vertex * getVertexData() const;
     const unsigned int * getIndexData() const;
+    void dump() const;
 
 protected:
     int getReservedVerts() const;

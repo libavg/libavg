@@ -140,6 +140,20 @@ const unsigned int * VertexData::getIndexData() const
     return m_pIndexData;
 }
 
+void VertexData::dump() const
+{
+    cerr << "Vertexes: " << endl;
+    for (int i=0; i<m_NumVerts; ++i) {
+        GLfloat* pos = m_pVertexData[i].m_Pos;
+        cerr << "  (" << pos[0] << ", " << pos[1] << ", " << pos[2] << ")" << endl;
+    }
+    cerr << "Indexes: " << endl;
+    for (int i=0; i<m_NumIndexes; ++i) {
+        cerr << " " << m_pIndexData[i];
+    }
+    cerr << endl;
+}
+
 int VertexData::getReservedVerts() const 
 {
     return m_ReserveVerts;

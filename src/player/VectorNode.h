@@ -34,6 +34,19 @@ typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 class VertexData;
 typedef boost::shared_ptr<VertexData> VertexDataPtr;
 
+class AVG_API WideLine
+{
+    public:
+        WideLine(const DPoint& p0, const DPoint& p1, double width);
+
+        DPoint pt0, pt1;
+        DPoint pl0, pl1;
+        DPoint pr0, pr1;
+        DPoint dir;
+};
+
+std::ostream& operator<<(std::ostream& os, const WideLine& line);
+
 class AVG_API VectorNode : public Node
 {
     public:
@@ -61,7 +74,6 @@ class AVG_API VectorNode : public Node
         Pixel32 getColorVal() const;
         void updateLineData(VertexDataPtr& pVertexData, int curVertex, int curIndex,
                 double opacity, const DPoint& p1, const DPoint& p2);
-        DPoint getLineWidthOffset(const DPoint& pt1, const DPoint& pt2);
         bool isDrawNeeded();
         void setDrawNeeded(bool bSizeChanged);
 

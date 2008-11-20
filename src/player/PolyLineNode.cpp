@@ -85,36 +85,26 @@ void PolyLineNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
     Pixel32 color = getColorVal();
     
     int numPts = m_Pts.size();
-    DPoint w1;
-    DPoint w2(getLineWidthOffset(m_Pts[0], m_Pts[1]));
-    DPoint pl1;
-    DPoint pl2 = m_Pts[0]-w2;
-    DPoint pr1;
-    DPoint pr2 = m_Pts[0]+w2;
-    w2 = DPoint(w2.y, -w2.x); // Point in the direction of the line, not 
-                              // perpendicular to it.
 
-    pVertexData->setPos(0, pl2, DPoint(0,0), color);
-    pVertexData->setPos(1, pr2, DPoint(0,0), color);
-    for (int i=1; i<numPts-1; ++i) {
-        w1 = w2;
-        pl1 = pl2;
-        pr1 = pr2;
-        w2 = getLineWidthOffset(m_Pts[i], m_Pts[i+1]);
-        pl2 = m_Pts[i]-w2;
-        pr2 = m_Pts[i]+w2;
-        w2 = DPoint(w2.y, -w2.x);
-        DPoint pli = getLineLineIntersection(pl1, w1, pl2, w2);
-        DPoint pri = getLineLineIntersection(pr1, w1, pr2, w2);
-
-        pVertexData->setPos(2*i, pli, DPoint(0,0), color);
-        pVertexData->setPos(2*i+1, pri, DPoint(0,0), color);
+    vector<WideLine> lines;
+    lines.reserve(numPts-1);
+    for (int i=0; i<numPts-1; ++i) {
+        lines.push_back(WideLine(m_Pts[i], m_Pts[i+1], getStrokeWidth()));
     }
-    DPoint w = getLineWidthOffset(m_Pts[numPts-2], m_Pts[numPts-1]);
-    pVertexData->setPos((numPts-1)*2, m_Pts[numPts-1]-w, DPoint(0,0), 
-            color);
-    pVertexData->setPos((numPts-1)*2+1, m_Pts[numPts-1]+w, DPoint(0,0), 
-            color);
+
+    pVertexData->setPos(0, lines[0].pl0, DPoint(0,0), color);
+    pVertexData->setPos(1, lines[0].pr0, DPoint(0,0), color);
+    for (int i=0; i<numPts-2; ++i) {
+        const WideLine& line1 = lines[i];
+        const WideLine& line2 = lines[i+1];
+        DPoint pli = getLineLineIntersection(line1.pl0, line1.dir, line2.pl0, line2.dir);
+        DPoint pri = getLineLineIntersection(line1.pr0, line1.dir, line2.pr0, line2.dir);
+
+        pVertexData->setPos(2*i+2, pli, DPoint(0,0), color);
+        pVertexData->setPos(2*i+3, pri, DPoint(0,0), color);
+    }
+    pVertexData->setPos((numPts-1)*2, lines[numPts-2].pl1, DPoint(0,0), color);
+    pVertexData->setPos((numPts-1)*2+1, lines[numPts-2].pr1, DPoint(0,0), color);
 
     for (int i=0; i<numPts-1; ++i) {
         int loopIndex = i*6;

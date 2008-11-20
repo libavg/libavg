@@ -111,13 +111,13 @@ void VectorNode::updateLineData(VertexDataPtr& pVertexData, int curVertex, int c
     Pixel32 color = getColorVal();
     color.setA((unsigned char)(curOpacity*255));
 
-    DPoint w(getLineWidthOffset(p1, p2));
-    pVertexData->setPos(curVertex, p1-w, DPoint(0,0), color);
-    pVertexData->setPos(curVertex+1, p1+w, DPoint(0,0), color);
-    pVertexData->setPos(curVertex+2, p2+w, DPoint(0,0), color);
-    pVertexData->setPos(curVertex+3, p2-w, DPoint(0,0), color);
-    pVertexData->setTriIndexes(curIndex, curVertex, curVertex+1, curVertex+2);
-    pVertexData->setTriIndexes(curIndex+3, curVertex, curVertex+2, curVertex+3);
+    WideLine wl(p1, p2, getStrokeWidth());
+    pVertexData->setPos(curVertex, wl.pl0, DPoint(0,0), color);
+    pVertexData->setPos(curVertex+1, wl.pr0, DPoint(0,0), color);
+    pVertexData->setPos(curVertex+2, wl.pl1, DPoint(0,0), color);
+    pVertexData->setPos(curVertex+3, wl.pr1, DPoint(0,0), color);
+    pVertexData->setTriIndexes(curIndex, curVertex, curVertex+1, curVertex+3);
+    pVertexData->setTriIndexes(curIndex+3, curVertex, curVertex+3, curVertex+2);
 }
      
 bool VectorNode::isDrawNeeded()
@@ -134,11 +134,25 @@ void VectorNode::setDrawNeeded(bool bSizeChanged)
     }
 }
 
-DPoint VectorNode::getLineWidthOffset(const DPoint& pt1, const DPoint& pt2)
+WideLine::WideLine(const DPoint& p0, const DPoint& p1, double width)
+    : pt0(p0),
+      pt1(p1)
 {
-    DPoint m = (pt2-pt1);
+    DPoint m = (pt1-pt0);
     m.normalize();
-    return DPoint(m.y, -m.x)*getStrokeWidth()/2;
+    DPoint w = DPoint(m.y, -m.x)*width/2;
+    pl0 = p0-w;
+    pr0 = p0+w;
+    pl1 = p1-w;
+    pr1 = p1+w;
+    dir = DPoint(w.y, -w.x); 
 }
+
+std::ostream& operator<<(std::ostream& os, const WideLine& line)
+{
+    os << "(" << line.pt0 << "," << line.pt1 << ")";
+    return os;
+}
+
 
 }
