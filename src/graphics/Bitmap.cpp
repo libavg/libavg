@@ -29,6 +29,7 @@
 #include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/ObjectCounter.h"
+#include "../base/StringHelper.h"
 
 #include <Magick++.h>
 #include <assert.h>
@@ -637,7 +638,11 @@ bool Bitmap::operator ==(const Bitmap & otherBmp)
 
 Bitmap * Bitmap::subtract(const Bitmap *pOtherBmp)
 {
-    assert(m_PF == pOtherBmp->getPixelFormat() && m_Size == pOtherBmp->getSize());
+    if (m_PF != pOtherBmp->getPixelFormat())
+        throw Exception(AVG_ERR_UNSUPPORTED, "Bitmap::subtract: pixel formats differ");
+    if (m_Size != pOtherBmp->getSize())
+        throw Exception(AVG_ERR_UNSUPPORTED, string("Bitmap::subtract: bitmap sizes differ (this=")
+        + toString(m_Size) + ", other=" + toString(pOtherBmp->getSize()) + ")");
     Bitmap * pResultBmp = new Bitmap(m_Size, m_PF);
     const unsigned char * pSrcLine1 = pOtherBmp->getPixels();
     const unsigned char * pSrcLine2 = m_pBits;
