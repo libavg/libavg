@@ -67,19 +67,30 @@ class PythonTestCase(AVGTestCase):
     def testLinearAnim(self):
         def createAnim(node, onStop):
             return anim.LinearAnim(node, "x", 200, 0, 100, False, onStop)
+        def createAnimZeroDuration(node, onStop):
+            return anim.LinearAnim(node, "x", 0, 0, 100, False, onStop)
         self.testAnimType(createAnim, "testLinearAnim")
+        self.testAnimType(createAnim, "testLinearAnimZeroDuration")
 
     def testEaseInOutAnim(self):
         def createAnim(node, onStop):
             return anim.EaseInOutAnim(node, "x", 400, 0, 100, 100, 100,
                     False, onStop)
+        def createAnimZeroDuration(node, onStop):
+            return anim.EaseInOutAnim(node, "x", 0, 0, 100, 100, 100,
+                    False, onStop)
         self.testAnimType(createAnim, "testEaseInOutAnim")
+        self.testAnimType(createAnim, "testEaseInOutAnimZeroDuration")
 
     def testSplineAnim(self):
         def createAnim(node, onStop):
             return anim.SplineAnim(node, "x", 300, 0, 0, 100, 0,
                     False, onStop)
+        def createAnimZeroDuration(node, onStop):
+            return anim.SplineAnim(node, "x", 0, 0, 0, 100, 0,
+                    False, onStop)
         self.testAnimType(createAnim, "testSplineAnim")
+        self.testAnimType(createAnim, "testSplineAnimZeroDuration")
 
     def testContinuousAnim(self):
         def onStart():
