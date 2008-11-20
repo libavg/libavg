@@ -50,9 +50,12 @@ class SimpleAnim:
         self.startTime = g_Player.getFrameTime()
         self.onStop = onStop
         self.useInt = useInt
-        if duration != 0:
-            self.__stopTimeout = g_Player.setTimeout(duration, self._regularStop)
         self.__interval = g_Player.setOnFrameHandler(self._step)
+        if duration == 0:
+            self._regularStop()
+            return
+        elif duration:
+            self.__stopTimeout = g_Player.setTimeout(duration, self._regularStop)
         self.__done = False
     def abort(self):
         """
@@ -70,7 +73,7 @@ class SimpleAnim:
         self.__done = True
         g_ActiveAnimations.pop((self.node, self.attrName))
         g_Player.clearInterval(self.__interval)
-        if self.duration != 0:
+        if self.duration:
             g_Player.clearInterval(self.__stopTimeout)
 
 class LinearAnim(SimpleAnim):
@@ -91,9 +94,9 @@ class LinearAnim(SimpleAnim):
         the animation has finished. This can be used to chain 
         animations together by using lambda to create a second animation.
         """
-        SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop)
         self.__startValue = startValue
         self.__endValue = endValue
+        SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop)
         self._step()
     def _step(self):
         if not(self.isDone()):
@@ -113,9 +116,9 @@ class LinearAnim(SimpleAnim):
 class EaseInOutAnim(SimpleAnim):
     def __init__(self, node, attrName, duration, startValue, endValue, 
             easeInDuration, easeOutDuration, useInt=False, onStop=None):
-        SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop)
         self.__startValue = startValue
         self.__endValue = endValue
+        SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop)
         self.__easeInDuration = float(easeInDuration)/duration
         self.__easeOutDuration = float(easeOutDuration)/duration
         self._step()
@@ -174,11 +177,11 @@ class SplineAnim(SimpleAnim):
         the animation has finished. This can be used to chain 
         animations together by using lambda to create a second animation.
         """
-        SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop)
         self.__startValue = startValue+0.0
         self.__startSpeed = startSpeed
         self.__endValue = endValue
         self.__endSpeed = endSpeed
+        SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop)
         self.__a = -2*(self.__endValue-self.__startValue)+self.__startSpeed+self.__endSpeed
         self.__b = 3*(self.__endValue-self.__startValue)-2*self.__startSpeed-self.__endSpeed
         self.__c = self.__startSpeed
@@ -235,7 +238,7 @@ class ContinuousAnim(SimpleAnim):
         @param speed: Animation speed, value to be added per second.
         @param useInt: If True, the attribute is always set to an integer value.
         """
-        SimpleAnim.__init__(self, node, attrName, 0, useInt, None)
+        SimpleAnim.__init__(self, node, attrName, None, useInt, None)
         self.__startValue = startValue
         self.__speed = speed
         self._step()
