@@ -104,7 +104,7 @@ class AVGTestCase(unittest.TestCase):
             except RuntimeError:
                 Bmp.save(RESULT_DIR+"/"+fileName+".png")
                 self.Log.trace(self.Log.WARNING, "Could not load image "+fileName+".png")
-                self.assert_(False)
+                raise
 
     def areSimilarBmps(self, bmp1, bmp2, maxAvg, maxStdDev):
         DiffBmp = bmp1.subtract(bmp2)
