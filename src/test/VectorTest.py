@@ -148,18 +148,24 @@ class VectorTestCase(AVGTestCase):
             pos = polyline.pos
             pos.append((10, 10))
             polyline.pos = pos
-#        def testDegenerate():
-#            polyline = canvas.getChild(0)
-#            polyline.strokewidth = 10
-#            polyline.pos = [(10,10), (50,10), (10,10.1)]
+        def miterPolyLine():
+            polyline = canvas.getChild(0)
+            polyline.linejoin = "miter"
+        def testDegenerate():
+            polyline = canvas.getChild(0)
+            polyline.linejoin = "bevel"
+            polyline.strokewidth = 10
+            polyline.pos = [(10,10), (50,10), (10,10.1)]
         canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addPolyLine,
                  lambda: self.compareImage("testPolyLine1", False),
                  changePolyLine,
                  lambda: self.compareImage("testPolyLine2", False),
-#                 testDegenerate,
-#                 lambda: self.compareImage("testPolyLine3", False)
+                 miterPolyLine,
+                 lambda: self.compareImage("testPolyLine3", False),
+                 testDegenerate,
+                 lambda: self.compareImage("testPolyLine4", False),
                 ))
 
     def testPolygon(self):

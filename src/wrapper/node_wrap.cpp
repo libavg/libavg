@@ -359,7 +359,8 @@ void export_node()
 
     class_<PolyLineNode, bases<VectorNode>, boost::noncopyable>("PolyLineNode", no_init)
         .add_property("pos", make_function(&PolyLineNode::getPos, 
-                return_value_policy<copy_const_reference>()), &PolyLineNode::setPos);
+                return_value_policy<copy_const_reference>()), &PolyLineNode::setPos)
+        .add_property("linejoin", &PolyLineNode::getLineJoin, &PolyLineNode::setLineJoin);
 
     class_<PolygonNode, bases<VectorNode>, boost::noncopyable>("PolygonNode", no_init)
         .add_property("pos", make_function(&PolygonNode::getPos, 

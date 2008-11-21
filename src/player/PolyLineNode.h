@@ -42,12 +42,16 @@ class AVG_API PolyLineNode : public VectorNode
         const std::vector<DPoint>& getPos() const;
         void setPos(const std::vector<DPoint>& pts);
 
+        std::string getLineJoin() const;
+        void setLineJoin(const std::string& sAlign);
+
         virtual int getNumVertexes();
         virtual int getNumIndexes();
         virtual void calcVertexes(VertexDataPtr& pVertexData, double opacity);
 
     private:
         std::vector<DPoint> m_Pts;
+        LineJoin m_LineJoin;
 };
 
 }

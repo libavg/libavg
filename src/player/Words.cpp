@@ -111,7 +111,8 @@ NodeDefinition Words::createDefinition()
 
     string sChildArray[] = {"#PCDATA", "span", "b", "big", "i", "s", "sup", "sub", 
             "small", "tt", "u", "br"};
-    vector<string> sChildren = vectorFromCArray(sizeof(sChildArray)/sizeof(*sChildArray), sChildArray); 
+    vector<string> sChildren = vectorFromCArray(sizeof(sChildArray)/sizeof(*sChildArray),
+            sChildArray); 
     return NodeDefinition("words", Node::buildNode<Words>)
         .extendDefinition(RasterNode::createDefinition())
         .addChildren(sChildren)
@@ -205,6 +206,20 @@ void Words::disconnect()
         m_pFontDescription = 0;
     }
     RasterNode::disconnect();
+}
+
+string Words::getAlignment() const
+{
+    switch(m_Alignment) {
+        case PANGO_ALIGN_LEFT:
+            return "left";
+        case PANGO_ALIGN_CENTER:
+            return "center";
+        case PANGO_ALIGN_RIGHT:
+            return "right";
+        default:
+            assert(false);
+    }
 }
 
 void Words::setAlignment(const string& sAlign)
@@ -353,19 +368,6 @@ void Words::setRawTextMode(bool RawTextMode)
         m_bRawTextMode = RawTextMode;
         m_bDrawNeeded = true;
     }
-}
-
-string Words::getAlignment() const
-{
-    switch(m_Alignment) {
-        case PANGO_ALIGN_LEFT:
-            return "left";
-        case PANGO_ALIGN_CENTER:
-            return "center";
-        case PANGO_ALIGN_RIGHT:
-            return "right";
-    }
-    return "";
 }
 
 const vector<string>& Words::getFontFamilies()
