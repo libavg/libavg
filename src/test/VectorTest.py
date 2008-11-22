@@ -196,7 +196,7 @@ class VectorTestCase(AVGTestCase):
             canvas.appendChild(polygon)
         def changePolygon():
             polygon = canvas.getChild(0)
-            polygon.strokewidth = 16
+            polygon.strokewidth = 12
             polygon.color="FFFF00"
             pos = polygon.pos
             pos.append((10, 90))
