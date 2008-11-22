@@ -31,8 +31,8 @@ using namespace std;
 namespace avg {
 
 GPUFilter::GPUFilter(const IntPoint& size, PixelFormat pfSrc)
-    : m_pSrcPBO(new PBOImage(size, pfSrc, GL_UNSIGNED_BYTE, true, false)),
-      m_pDestFBO(new FBOImage(size, B8G8R8A8, GL_UNSIGNED_BYTE, false, true))
+    : m_pSrcPBO(new PBOImage(size, pfSrc, pfSrc, true, false)),
+      m_pDestFBO(new FBOImage(size, B8G8R8A8, B8G8R8A8, false, true))
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -62,11 +62,6 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
         pDestBmp = pFilteredBmp;
     }
     return pDestBmp;
-}
-
-PixelFormat GPUFilter::getPF() const
-{
-    return m_pSrcPBO->getPF();
 }
 
 const IntPoint& GPUFilter::getSize() const

@@ -466,6 +466,10 @@ std::string Bitmap::getPixelFormatString(PixelFormat PF)
             return "YCbCrJ420p";
         case BAYER8_GBRG:
             return "BAYER8_GBRG";
+        case R32G32B32A32F:
+            return "R32G32B32A32F";
+        case I32F:
+            return "I32F";
         default:
             return "Unknown";
     }
@@ -515,6 +519,8 @@ int Bitmap::getBytesPerPixel() const
 int Bitmap::getBytesPerPixel(PixelFormat PF)
 {
     switch (PF) {
+        case R32G32B32A32F:
+            return 16;
         case A8B8G8R8:
         case X8B8G8R8:
         case A8R8G8B8:
@@ -523,6 +529,7 @@ int Bitmap::getBytesPerPixel(PixelFormat PF)
         case B8G8R8X8:
         case R8G8B8A8:
         case R8G8B8X8:
+		case I32F:
             return 4;
         case R8G8B8:
         case B8G8R8:

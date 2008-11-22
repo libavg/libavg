@@ -59,6 +59,8 @@ typedef enum {
     YCbCrJ420p,// Same as YCbCr420p, but this is the jpeg version with component
                // values in the range 0...255
     BAYER8_GBRG,
+    R32G32B32A32F, // 32bit per channel float rgba
+    I32F,
     NO_PIXELFORMAT
 } PixelFormat;
 

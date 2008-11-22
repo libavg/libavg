@@ -28,6 +28,9 @@
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
+#include "../base/Test.h"
+#include "../base/StringHelper.h"
+
 
 #include <iostream>
 
@@ -50,7 +53,14 @@ public:
         runImageTests("rgb24-64x64", GL_FLOAT);
         runImageTests("rgb24alpha-64x64", GL_FLOAT);
 
-        runParameterPBOTest();
+        runPBOFloatbufTestI32F();
+        runPBOFloatbufTestR32G32B32A32F();
+        
+        runPBOBitmapTestR32G32B32A32F();
+        runPBOBitmapTestI32F();
+
+        runPBOBitmapTestR32G32B32A32FextR8G8B8A8();
+        runPBOBitmapTestI32FextI8();
     }
 
 private:
@@ -60,21 +70,131 @@ private:
         cerr << "    Testing " << sFName << " (" << pBmp->getPixelFormatString() << ")" 
                 << endl;
         cerr << "      PBO:" << endl;
-        PBOImage pbo(pBmp->getSize(), pBmp->getPixelFormat(), precision, true, true);
+        PBOImage pbo(pBmp->getSize(), pBmp->getPixelFormat(), pBmp->getPixelFormat(), true, true);
         runPBOImageTest(pbo, pBmp, string("pbo_")+sFName);
         if (pf != I8) {
             cerr << "      FBO:" << endl;
-            FBOImage fbo(pBmp->getSize(), pBmp->getPixelFormat(), precision, true, true);
+            FBOImage fbo(pBmp->getSize(), pBmp->getPixelFormat(), pBmp->getPixelFormat(), true, true);
             runPBOImageTest(fbo, pBmp, string("fbo_")+sFName);
         }
     }
 
-    void runParameterPBOTest()
+    void compareByteArrays(unsigned char *in, unsigned char *out, int n) {
+        for (int i=0; i<n; i++) {
+            if (in[i] != out[i]) {
+                TEST_FAILED("compareByteArrays: " + toString((int)in[i]) + " (in) != " + toString((int)out[i]) + " (out)")
+            }
+        }
+    }
+    void compareFloatArrays(float *in, float *out, int n) {
+        for (int i=0; i<n; i++) {
+            if (fabs(in[i]-out[i])>1e-5) {
+                TEST_FAILED("compareFloatArrays: " + toString(in[i]) + " (in) != " + toString(out[i]) + " (out)")
+            }
+        }
+    }
+
+    void setAndCompareImage(PBOImage *pbo, float *in, int n) {
+        pbo->setImage(in);
+        BitmapPtr res = pbo->getImage();
+        float *out = (float*)res->getPixels();
+        compareFloatArrays(in, out, n);
+    }
+
+    void fillFloatArray(float *data, int n) {
+        for (int i=0;i<n;i++) {
+            data[i] = 0.01f * i;
+        }
+    }
+    void fillByteArray(unsigned char *data, int n) {
+        for (int i = 0; i<n; i++) {
+            data[i] = i * 2;
+        }
+    }
+    void runPBOFloatbufTest(PixelFormat pf) {
+        assert(pf == I32F || pf == R32G32B32A32F);
+        IntPoint size = IntPoint(11, 3);
+        int numFloats = size.x*size.y*Bitmap::getBytesPerPixel(pf)/sizeof(float);
+        float *pixels = new float[numFloats];
+        fillFloatArray(pixels, numFloats);
+
+        PBOImage pbo(size, pf, pf, false, true);
+        setAndCompareImage(&pbo, pixels, numFloats);
+        delete[] pixels;
+
+    }
+    void runPBOFloatbufTestI32F()
     {
-        cerr << "    Testing parameter PBO" << endl;
-        PBOImage pbo(IntPoint(11, 1), I8, GL_FLOAT, false, false);
-        float data[11];
-        pbo.setImage(data);
+        cerr << "    runPBOFloatbufTestI32F" << endl;
+        runPBOFloatbufTest(I32F);
+        return;
+    }
+
+    void runPBOFloatbufTestR32G32B32A32F()
+    {
+        cerr << "    runPBOFloatbufTestR32G32B32A32F" << endl;
+        runPBOFloatbufTest(R32G32B32A32F);
+        return;
+    }
+    void runPBOFloatBitmapTest(PixelFormat pf)
+    {
+        assert(pf == I32F || pf == R32G32B32A32F);
+        IntPoint size = IntPoint(5,3);
+        int numFloats = size.x*size.y*Bitmap::getBytesPerPixel(pf)/sizeof(float);
+        float *pixels = new float [numFloats];
+        fillFloatArray(pixels, numFloats);
+
+        PBOImagePtr pPBO = PBOImagePtr(new PBOImage(size, pf, pf, true, true));
+        BitmapPtr pBmp = BitmapPtr (new Bitmap(size, pf, (unsigned char*)(pixels),
+            size.x*Bitmap::getBytesPerPixel(pf), false));
+        pPBO->setImage(pBmp);
+        BitmapPtr res = pPBO->getImage();
+        compareFloatArrays(pixels,(float*)res->getPixels(), numFloats);
+
+        delete[] pixels;
+    }
+
+    void runPBOBitmapTestI32F()
+    {
+        cerr << "    runPBOBitmapTestI32F" << endl;
+        runPBOFloatBitmapTest(I32F);
+        return;
+    }
+    void runPBOBitmapTestR32G32B32A32F()
+    {
+        cerr << "    runPBOBitmapTestR32G32B32A32F" << endl;
+        runPBOFloatBitmapTest(R32G32B32A32F);
+        return;
+    }
+
+    void runPBOBitmapTestIntFloatExtByte(PixelFormat intPF, PixelFormat extPF)
+    {
+        IntPoint size = IntPoint(3,5);
+        unsigned char *pixels = new unsigned char [
+            size.x*size.y*Bitmap::getBytesPerPixel(extPF)];
+        fillByteArray(pixels, size.x*size.y*Bitmap::getBytesPerPixel(extPF));
+
+        PBOImagePtr pPBO = PBOImagePtr(new PBOImage(size, intPF, extPF, true, true));
+        BitmapPtr pBmp = BitmapPtr (new Bitmap(size, extPF, pixels,
+            size.x*Bitmap::getBytesPerPixel(extPF), false));
+        pPBO->setImage(pBmp);
+        BitmapPtr res = pPBO->getImage();
+        compareByteArrays(pixels, res->getPixels(),
+            size.x*size.y*Bitmap::getBytesPerPixel(extPF));
+
+        delete[] pixels;
+    }
+
+    void runPBOBitmapTestR32G32B32A32FextR8G8B8A8()
+    {
+        cerr << "    runPBOFloatbufTestR32G32B32A32FextR8G8B8A8" << endl;
+        runPBOBitmapTestIntFloatExtByte(R32G32B32A32F, R8G8B8A8);
+    }
+    
+    void runPBOBitmapTestI32FextI8()
+    {
+        cerr << "    runPBOBitmapTestI32FextI8" << endl;
+        runPBOBitmapTestIntFloatExtByte(I32F, I8);
     }
 
     void runPBOImageTest(PBOImage& pbo, BitmapPtr pBmp, const string& sFName)

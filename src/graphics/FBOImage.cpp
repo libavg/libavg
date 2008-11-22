@@ -29,9 +29,9 @@
 
 namespace avg {
 
-FBOImage::FBOImage(const IntPoint& size, PixelFormat pf, int precision, 
+FBOImage::FBOImage(const IntPoint& size, PixelFormat pfInternal, PixelFormat pfExternal,
             bool bUseInputPBO, bool bUseOutputPBO)
-    : PBOImage(size, pf, precision, bUseInputPBO, bUseOutputPBO)
+    : PBOImage(size, pfInternal, pfExternal, bUseInputPBO, bUseOutputPBO)
 {
     glproc::GenFramebuffers(1, &m_FBO);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage: GenFramebuffers()");
@@ -53,6 +53,7 @@ FBOImage::FBOImage(const IntPoint& size, PixelFormat pf, int precision,
 FBOImage::~FBOImage()
 {
     glproc::DeleteFramebuffers(1, &m_FBO);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::~FBOImage: DeleteFramebuffers");
 }
     
 void FBOImage::activate()

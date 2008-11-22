@@ -34,7 +34,7 @@ namespace avg {
 class AVG_API FBOImage: public PBOImage {
 
 public:
-    FBOImage(const IntPoint& size, PixelFormat pf, int precision, 
+    FBOImage(const IntPoint& size, PixelFormat pfInternal, PixelFormat pfExternal,
             bool bUseInputPBO, bool bUseOutputPBO);
     virtual ~FBOImage();
 

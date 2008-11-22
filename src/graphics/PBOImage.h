@@ -37,7 +37,7 @@ class VertexArray;
 class AVG_API PBOImage {
 
 public:
-    PBOImage(const IntPoint& size, PixelFormat pf, int precision, 
+    PBOImage(const IntPoint& size, PixelFormat pfInternal, PixelFormat pfExternal,
             bool bUseInputPBO, bool bUseOutputPBO);
     virtual ~PBOImage();
 
@@ -47,7 +47,8 @@ public:
     void activateTex(int textureUnit);
     void draw();
 
-    PixelFormat getPF() const;
+    PixelFormat getIntPF() const;
+    PixelFormat getExtPF() const;
     const IntPoint& getSize() const;
 
 protected:
@@ -55,13 +56,14 @@ protected:
 
 private:
     int getFormat(PixelFormat pf) const;
+    int getType(PixelFormat pf) const;
     int getInternalFormat() const;
     unsigned createInputPBO() const;
     unsigned createOutputPBO() const;
     void deletePBO(unsigned* pPBO);
     void getPixelStride();
 
-    PixelFormat m_pf;
+    PixelFormat m_pfInt, m_pfExt;
     IntPoint m_Size;
     int m_Precision;
     bool m_bUseInputPBO;

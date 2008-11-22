@@ -42,7 +42,6 @@ public:
     static bool isSupported();
 
 protected:
-    PixelFormat getPF() const;
     const IntPoint& getSize() const;
 
     PBOImagePtr getSrcPBO();
