@@ -1310,7 +1310,6 @@ void Player::cleanup()
     m_IDMap.clear();
     m_pEventDispatcher = EventDispatcherPtr();
     m_MouseState = MouseState();
-    initConfig();
     m_FrameTime = 0;
     m_bIsPlaying = false;
 }
