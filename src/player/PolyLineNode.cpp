@@ -159,7 +159,7 @@ void PolyLineNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
             case LJ_BEVEL:
                 {
                     Triangle tri(line1.pl1, line2.pl0, pri);
-                    if (tri.getArea() < 0) {
+                    if (tri.isClockwise()) {
                         pVertexData->setPos(curVertex, line1.pl1, DPoint(0,0), color);
                         pVertexData->setPos(curVertex+1, line2.pl0, DPoint(0,0), color);
                         pVertexData->setPos(curVertex+2, pri, DPoint(0,0), color);

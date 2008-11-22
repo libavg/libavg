@@ -168,16 +168,15 @@ class VectorTestCase(AVGTestCase):
             polyline.strokewidth = 16
             polyline.color="FFFF00"
             pos = polyline.pos
-            pos.append((10, 10))
+            pos.append((110, 90))
             polyline.pos = pos
         def miterPolyLine():
             polyline = canvas.getChild(0)
             polyline.linejoin = "miter"
-        def testDegenerate():
-            polyline = Player.createNode("polyline", 
-                    {"strokewidth":10, "color":"FF00FF", "linejoin":"bevel"})
-            canvas.insertChild(polyline, 0)
-            polyline.pos = [(10,100), (50,100), (10,100)]
+        def addPolyLine2():
+            polyline = Player.createNode("polyline", {"strokewidth":2, "color":"FF00FF"})
+            polyline.pos = [(110,10), (100,50), (110,70)]
+            canvas.insertChild(polyline,0)
         canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addPolyLine,
@@ -186,7 +185,7 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testPolyLine2", False),
                  miterPolyLine,
                  lambda: self.compareImage("testPolyLine3", False),
-                 testDegenerate,
+                 addPolyLine2,
                  lambda: self.compareImage("testPolyLine4", False),
                 ))
 
@@ -217,6 +216,10 @@ class VectorTestCase(AVGTestCase):
             pos = polygon.pos
             pos.append((40, 40))
             polygon.pos = pos
+        def addPolygon2():
+            polygon = Player.createNode("polygon", {"strokewidth":2, "color":"FF00FF"})
+            polygon.pos = [(100,10), (100,30), (120,30), (120, 10)]
+            canvas.insertChild(polygon, 0)
         canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addPolygon,
@@ -226,7 +229,9 @@ class VectorTestCase(AVGTestCase):
                  fillPolygon,
                  lambda: self.compareImage("testPolygon3", False),
                  addEmptyPoint,
-                 lambda: self.compareImage("testPolygon4", False)
+                 lambda: self.compareImage("testPolygon4", False),
+                 addPolygon2,
+                 lambda: self.compareImage("testPolygon5", False)
                 ))
 
 def vectorTestSuite(tests):
