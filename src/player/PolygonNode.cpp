@@ -181,13 +181,11 @@ void PolygonNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
                 pVertexData->setPos(curVertex+1, pri, DPoint(0,0), color);
                 pLastLine = pThisLine;
                 if (i<numPts-1) {
-                    pVertexData->setTriIndexes(curIndex, curVertex, curVertex+1, curVertex+3);
-                    pVertexData->setTriIndexes(curIndex+3, curVertex, curVertex+3, curVertex+2);
+                    pVertexData->setQuadIndexes(curIndex, 
+                            curVertex+1, curVertex, curVertex+3, curVertex+2);
                 } else {
-                    pVertexData->setTriIndexes(curIndex, 
-                            curVertex, curVertex+1, startOutlinePt+1);
-                    pVertexData->setTriIndexes(curIndex+3, curVertex, 
-                            startOutlinePt, startOutlinePt+1);
+                    pVertexData->setQuadIndexes(curIndex,
+                            curVertex+1, curVertex, startOutlinePt+1, startOutlinePt);
                 }
                 curVertex += 2;
                 curIndex += 6;
@@ -202,14 +200,10 @@ void PolygonNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
                         pVertexData->setTriIndexes(curIndex, 
                                 curVertex, curVertex+1, curVertex+2);
                         if (i<numPts-1) {
-                            pVertexData->setTriIndexes(curIndex+3, 
-                                    curVertex, curVertex+2, curVertex+3);
-                            pVertexData->setTriIndexes(curIndex+6, 
-                                    curVertex+2, curVertex+3, curVertex+4);
+                            pVertexData->setQuadIndexes(curIndex+3,
+                                    curVertex, curVertex+2, curVertex+3, curVertex+4);
                         } else {
-                            pVertexData->setTriIndexes(curIndex+3, 
-                                    curVertex, curVertex+2, startOutlinePt);
-                            pVertexData->setTriIndexes(curIndex+6, 
+                            pVertexData->setQuadIndexes(curIndex+3, curVertex,
                                     curVertex+2, startOutlinePt, startOutlinePt+1);
                         }
                     } else {
@@ -219,14 +213,10 @@ void PolygonNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
                         pVertexData->setTriIndexes(curIndex, 
                                 curVertex, curVertex+1, curVertex+2);
                         if (i<numPts-1) {
-                            pVertexData->setTriIndexes(curIndex+3, 
-                                    curVertex+1, curVertex+2, curVertex+3);
-                            pVertexData->setTriIndexes(curIndex+6, 
-                                    curVertex+1, curVertex+3, curVertex+4);
+                            pVertexData->setQuadIndexes(curIndex+3, 
+                                    curVertex+2, curVertex+1, curVertex+3, curVertex+4);
                         } else {
-                            pVertexData->setTriIndexes(curIndex+3, 
-                                    curVertex+1, curVertex+2, startOutlinePt);
-                            pVertexData->setTriIndexes(curIndex+6, 
+                            pVertexData->setQuadIndexes(curIndex+3, curVertex+2, 
                                     curVertex+1, startOutlinePt, startOutlinePt+1);
                         }
                     }

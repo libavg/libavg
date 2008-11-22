@@ -211,12 +211,9 @@ void CurveNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
     pVertexData->setPos(0, m_LeftCurve[0], DPoint(0,0), color);
     pVertexData->setPos(1, m_RightCurve[0], DPoint(0,0), color);
     for (unsigned i=0; i<m_LeftCurve.size()-1; ++i) {
-        pVertexData->setPos(i*2+2, m_LeftCurve[i+1], DPoint(0,0), 
-                color);
-        pVertexData->setPos(i*2+3, m_RightCurve[i+1], DPoint(0,0), 
-                color);
-        pVertexData->setTriIndexes(i*6, i*2, (i+1)*2, (i+1)*2+1);
-        pVertexData->setTriIndexes(i*6+3, i*2, (i+1)*2+1, i*2+1);
+        pVertexData->setPos(i*2+2, m_LeftCurve[i+1], DPoint(0,0), color);
+        pVertexData->setPos(i*2+3, m_RightCurve[i+1], DPoint(0,0), color);
+        pVertexData->setQuadIndexes(i*6, (i+1)*2, i*2, (i+1)*2+1, i*2+1);
     }
 }
 

@@ -161,9 +161,8 @@ void PolyLineNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
             case LJ_MITER:
                 pVertexData->setPos(curVertex, pli, DPoint(0,0), color);
                 pVertexData->setPos(curVertex+1, pri, DPoint(0,0), color);
-                
-                pVertexData->setTriIndexes(curIndex, curVertex-2, curVertex-1, curVertex+1);
-                pVertexData->setTriIndexes(curIndex+3, curVertex-2, curVertex+1, curVertex);
+                pVertexData->setQuadIndexes(curIndex, 
+                        curVertex-1, curVertex-2, curVertex+1, curVertex);
                 curVertex += 2;
                 curIndex += 6;
                 break;
@@ -174,20 +173,16 @@ void PolyLineNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
                         pVertexData->setPos(curVertex, line1.pl1, DPoint(0,0), color);
                         pVertexData->setPos(curVertex+1, line2.pl0, DPoint(0,0), color);
                         pVertexData->setPos(curVertex+2, pri, DPoint(0,0), color);
-                        pVertexData->setTriIndexes(curIndex, 
-                                curVertex-2, curVertex-1, curVertex+2);
-                        pVertexData->setTriIndexes(curIndex+3, 
-                                curVertex-2, curVertex+2, curVertex);
+                        pVertexData->setQuadIndexes(curIndex, 
+                                curVertex-1, curVertex-2, curVertex+2, curVertex);
                         pVertexData->setTriIndexes(curIndex+6, 
                                 curVertex, curVertex+1, curVertex+2);
                     } else {
                         pVertexData->setPos(curVertex, line1.pr1, DPoint(0,0), color);
                         pVertexData->setPos(curVertex+1, pli, DPoint(0,0), color);
                         pVertexData->setPos(curVertex+2, line2.pr0, DPoint(0,0), color);
-                        pVertexData->setTriIndexes(curIndex, 
-                                curVertex-2, curVertex-1, curVertex+1);
-                        pVertexData->setTriIndexes(curIndex+3, 
-                                curVertex-1, curVertex+1, curVertex);
+                        pVertexData->setQuadIndexes(curIndex,
+                                curVertex-2, curVertex-1, curVertex+1, curVertex);
                         pVertexData->setTriIndexes(curIndex+6, 
                                 curVertex, curVertex+1, curVertex+2);
                     }
@@ -201,8 +196,8 @@ void PolyLineNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
     }
     pVertexData->setPos(curVertex, lines[numPts-2].pl1, DPoint(0,0), color);
     pVertexData->setPos(curVertex+1, lines[numPts-2].pr1, DPoint(0,0), color);
-    pVertexData->setTriIndexes(curIndex, curVertex-2, curVertex-1, curVertex+1);
-    pVertexData->setTriIndexes(curIndex+3, curVertex-2, curVertex+1, curVertex);
+    pVertexData->setQuadIndexes(curIndex, 
+            curVertex-1, curVertex-2, curVertex+1, curVertex);
 }
 
 PolyLineNode::LineJoin PolyLineNode::getLineJoinEnum() const

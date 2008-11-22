@@ -116,8 +116,7 @@ void VectorNode::updateLineData(VertexDataPtr& pVertexData, int curVertex, int c
     pVertexData->setPos(curVertex+1, wl.pr0, DPoint(0,0), color);
     pVertexData->setPos(curVertex+2, wl.pl1, DPoint(0,0), color);
     pVertexData->setPos(curVertex+3, wl.pr1, DPoint(0,0), color);
-    pVertexData->setTriIndexes(curIndex, curVertex, curVertex+1, curVertex+3);
-    pVertexData->setTriIndexes(curIndex+3, curVertex, curVertex+3, curVertex+2);
+    pVertexData->setQuadIndexes(curIndex, curVertex+1, curVertex, curVertex+3, curVertex+2); 
 }
      
 bool VectorNode::isDrawNeeded()
