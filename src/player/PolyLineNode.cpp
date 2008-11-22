@@ -115,7 +115,7 @@ int PolyLineNode::getNumIndexes()
         case LJ_MITER:
             return 6*(m_Pts.size()-1);
         case LJ_BEVEL:
-            return 9*(m_Pts.size()-1)-1;
+            return 3*(3*m_Pts.size()-4);
         default:
             assert(false);
     }

@@ -152,10 +152,10 @@ class VectorTestCase(AVGTestCase):
             polyline = canvas.getChild(0)
             polyline.linejoin = "miter"
         def testDegenerate():
-            polyline = canvas.getChild(0)
-            polyline.linejoin = "bevel"
-            polyline.strokewidth = 10
-            polyline.pos = [(10,10), (50,10), (10,10.1)]
+            polyline = Player.createNode("polyline", 
+                    {"strokewidth":10, "color":"FF00FF", "linejoin":"bevel"})
+            canvas.insertChild(polyline, 0)
+            polyline.pos = [(10,100), (50,100), (10,100)]
         canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addPolyLine,
