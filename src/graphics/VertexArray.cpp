@@ -48,18 +48,20 @@ VertexArray::~VertexArray()
     glproc::DeleteBuffers(1, &m_GLIndexBufferID);
 }
 
-void VertexArray::setPos(int vertexIndex, const DPoint& pos, 
+void VertexArray::appendPos(const DPoint& pos, 
         const DPoint& texPos, const Pixel32& color)
 {
-    T2V3C4Vertex* pVertex = &(getVertexData()[vertexIndex]);
+    T2V3C4Vertex* pVertex = &(getVertexData()[getCurVert()]);
     if (pVertex->m_Pos[0] != (GLfloat)pos.x || 
             pVertex->m_Pos[1] != (GLfloat)pos.y ||
             pVertex->m_Tex[0] != (GLfloat)texPos.x || 
             pVertex->m_Tex[1] != (GLfloat)texPos.y ||
             pVertex->m_Color != color)
     {
-        VertexData::setPos(vertexIndex, pos, texPos, color);
+        VertexData::appendPos(pos, texPos, color);
         m_bDataChanged = true;
+    } else {
+        incCurVert();
     }
 }
 

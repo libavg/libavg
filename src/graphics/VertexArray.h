@@ -39,7 +39,7 @@ public:
             int reserveIndexes = 0);
     virtual ~VertexArray();
 
-    virtual void setPos(int vertexIndex, const DPoint& pos, 
+    virtual void appendPos(const DPoint& pos, 
             const DPoint& texPos, const Pixel32& color = Pixel32(0,0,0,0));
     virtual void setVertexData(int vertexIndex, int indexIndex, 
             const VertexDataPtr& pVertexes);

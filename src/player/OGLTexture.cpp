@@ -103,24 +103,22 @@ void OGLTexture::blt(const VertexGrid* pVertexes) const
         }
     }
     if (pVertexes) {
-        int curVertex=0;
-        int curIndex=0;
+        m_pVertexes->reset();
         for (int y=m_TileIndexExtent.tl.y; y<m_TileIndexExtent.br.y; y++) {
             for (int x=m_TileIndexExtent.tl.x; x<m_TileIndexExtent.br.x; x++) {
                 int xoffset = x-m_TileIndexExtent.tl.x;
                 int yoffset = y-m_TileIndexExtent.tl.y;
-                m_pVertexes->setPos(curVertex, (*pVertexes)[y][x], 
+                int curVertex=m_pVertexes->getCurVert();
+                m_pVertexes->appendPos((*pVertexes)[y][x], 
                         m_TexCoords[yoffset][xoffset]); 
-                m_pVertexes->setPos(curVertex+1, (*pVertexes)[y][x+1], 
+                m_pVertexes->appendPos((*pVertexes)[y][x+1], 
                         m_TexCoords[yoffset][xoffset+1]); 
-                m_pVertexes->setPos(curVertex+2, (*pVertexes)[y+1][x+1],
+                m_pVertexes->appendPos((*pVertexes)[y+1][x+1],
                         m_TexCoords[yoffset+1][xoffset+1]); 
-                m_pVertexes->setPos(curVertex+3, (*pVertexes)[y+1][x],
+                m_pVertexes->appendPos((*pVertexes)[y+1][x],
                         m_TexCoords[yoffset+1][xoffset]); 
-                m_pVertexes->setQuadIndexes(curIndex, 
+                m_pVertexes->appendQuadIndexes(
                         curVertex+1, curVertex, curVertex+2, curVertex+3);
-                curVertex+=4;
-                curIndex+=6;
             }
         }
     }

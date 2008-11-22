@@ -148,11 +148,11 @@ void PolygonNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
         vector<int> triIndexes;
         triangulatePolygon(pts, triIndexes);
         for (int i=0; i<numPts; ++i) {
-            pVertexData->setPos(i, pts[i], DPoint(0,0), fillColor);
+            pVertexData->appendPos(pts[i], DPoint(0,0), fillColor);
         }
         startOutlinePt = numPts;
-        for (unsigned int i=0; i<triIndexes.size(); ++i) {
-            pVertexData->setIndex(i, triIndexes[i]);
+        for (unsigned int i=0; i<triIndexes.size(); i+=3) {
+            pVertexData->appendTriIndexes(triIndexes[i], triIndexes[i+1], triIndexes[i+2]);
         }
         startOutlineIndex = triIndexes.size();
     }
@@ -167,61 +167,56 @@ void PolygonNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
 
     const WideLine* pLastLine = &(lines[numPts-1]);
 
-    int curVertex = startOutlinePt;
-    int curIndex = startOutlineIndex;
     for (int i=0; i<numPts; ++i) {
         const WideLine* pThisLine = &(lines[i]);
         DPoint pli = getLineLineIntersection(pLastLine->pl0, pLastLine->dir, 
                 pThisLine->pl0, pThisLine->dir);
         DPoint pri = getLineLineIntersection(pLastLine->pr0, pLastLine->dir, 
                 pThisLine->pr0, pThisLine->dir);
+        int curVertex = pVertexData->getCurVert();
         switch(getLineJoinEnum()) {
             case LJ_MITER:
-                pVertexData->setPos(curVertex, pli, DPoint(0,0), color);
-                pVertexData->setPos(curVertex+1, pri, DPoint(0,0), color);
+                pVertexData->appendPos(pli, DPoint(0,0), color);
+                pVertexData->appendPos(pri, DPoint(0,0), color);
                 pLastLine = pThisLine;
                 if (i<numPts-1) {
-                    pVertexData->setQuadIndexes(curIndex, 
+                    pVertexData->appendQuadIndexes(
                             curVertex+1, curVertex, curVertex+3, curVertex+2);
                 } else {
-                    pVertexData->setQuadIndexes(curIndex,
+                    pVertexData->appendQuadIndexes(
                             curVertex+1, curVertex, startOutlinePt+1, startOutlinePt);
                 }
-                curVertex += 2;
-                curIndex += 6;
                 break;
             case LJ_BEVEL:
                 {
                     Triangle tri(pLastLine->pl1, pThisLine->pl0, pri);
                     if (tri.isClockwise()) {
-                        pVertexData->setPos(curVertex, pri, DPoint(0,0), color);
-                        pVertexData->setPos(curVertex+1, pLastLine->pl1, DPoint(0,0), color);
-                        pVertexData->setPos(curVertex+2, pThisLine->pl0, DPoint(0,0), color);
-                        pVertexData->setTriIndexes(curIndex, 
+                        pVertexData->appendPos(pri, DPoint(0,0), color);
+                        pVertexData->appendPos(pLastLine->pl1, DPoint(0,0), color);
+                        pVertexData->appendPos(pThisLine->pl0, DPoint(0,0), color);
+                        pVertexData->appendTriIndexes(
                                 curVertex, curVertex+1, curVertex+2);
                         if (i<numPts-1) {
-                            pVertexData->setQuadIndexes(curIndex+3,
+                            pVertexData->appendQuadIndexes(
                                     curVertex, curVertex+2, curVertex+3, curVertex+4);
                         } else {
-                            pVertexData->setQuadIndexes(curIndex+3, curVertex,
+                            pVertexData->appendQuadIndexes(curVertex,
                                     curVertex+2, startOutlinePt, startOutlinePt+1);
                         }
                     } else {
-                        pVertexData->setPos(curVertex, pLastLine->pr1, DPoint(0,0), color);
-                        pVertexData->setPos(curVertex+1, pli, DPoint(0,0), color);
-                        pVertexData->setPos(curVertex+2, pThisLine->pr0, DPoint(0,0), color);
-                        pVertexData->setTriIndexes(curIndex, 
+                        pVertexData->appendPos(pLastLine->pr1, DPoint(0,0), color);
+                        pVertexData->appendPos(pli, DPoint(0,0), color);
+                        pVertexData->appendPos(pThisLine->pr0, DPoint(0,0), color);
+                        pVertexData->appendTriIndexes(
                                 curVertex, curVertex+1, curVertex+2);
                         if (i<numPts-1) {
-                            pVertexData->setQuadIndexes(curIndex+3, 
+                            pVertexData->appendQuadIndexes(
                                     curVertex+2, curVertex+1, curVertex+3, curVertex+4);
                         } else {
-                            pVertexData->setQuadIndexes(curIndex+3, curVertex+2, 
+                            pVertexData->appendQuadIndexes(curVertex+2, 
                                     curVertex+1, startOutlinePt, startOutlinePt+1);
                         }
                     }
-                    curVertex += 3;
-                    curIndex += 9;
                 }
                 break;
             default:

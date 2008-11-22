@@ -130,7 +130,7 @@ int LineNode::getNumIndexes()
 
 void LineNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
 {
-    updateLineData(pVertexData, 0, 0, opacity, m_P1, m_P2);
+    updateLineData(pVertexData, opacity, m_P1, m_P2);
 }
 
 }

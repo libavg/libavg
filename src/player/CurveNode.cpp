@@ -208,12 +208,12 @@ void CurveNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
     Pixel32 color = getColorVal();
     color.setA((unsigned char)(curOpacity*255));
 
-    pVertexData->setPos(0, m_LeftCurve[0], DPoint(0,0), color);
-    pVertexData->setPos(1, m_RightCurve[0], DPoint(0,0), color);
+    pVertexData->appendPos(m_LeftCurve[0], DPoint(0,0), color);
+    pVertexData->appendPos(m_RightCurve[0], DPoint(0,0), color);
     for (unsigned i=0; i<m_LeftCurve.size()-1; ++i) {
-        pVertexData->setPos(i*2+2, m_LeftCurve[i+1], DPoint(0,0), color);
-        pVertexData->setPos(i*2+3, m_RightCurve[i+1], DPoint(0,0), color);
-        pVertexData->setQuadIndexes(i*6, (i+1)*2, i*2, (i+1)*2+1, i*2+1);
+        pVertexData->appendPos(m_LeftCurve[i+1], DPoint(0,0), color);
+        pVertexData->appendPos(m_RightCurve[i+1], DPoint(0,0), color);
+        pVertexData->appendQuadIndexes((i+1)*2, i*2, (i+1)*2+1, i*2+1);
     }
 }
 

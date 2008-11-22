@@ -104,7 +104,7 @@ Pixel32 VectorNode::getColorVal() const
     return m_Color;
 }
 
-void VectorNode::updateLineData(VertexDataPtr& pVertexData, int curVertex, int curIndex,
+void VectorNode::updateLineData(VertexDataPtr& pVertexData,
         double opacity, const DPoint& p1, const DPoint& p2)
 {
     double curOpacity = opacity*getOpacity();
@@ -112,11 +112,12 @@ void VectorNode::updateLineData(VertexDataPtr& pVertexData, int curVertex, int c
     color.setA((unsigned char)(curOpacity*255));
 
     WideLine wl(p1, p2, getStrokeWidth());
-    pVertexData->setPos(curVertex, wl.pl0, DPoint(0,0), color);
-    pVertexData->setPos(curVertex+1, wl.pr0, DPoint(0,0), color);
-    pVertexData->setPos(curVertex+2, wl.pl1, DPoint(0,0), color);
-    pVertexData->setPos(curVertex+3, wl.pr1, DPoint(0,0), color);
-    pVertexData->setQuadIndexes(curIndex, curVertex+1, curVertex, curVertex+3, curVertex+2); 
+    int curVertex = pVertexData->getCurVert();
+    pVertexData->appendPos(wl.pl0, DPoint(0,0), color);
+    pVertexData->appendPos(wl.pr0, DPoint(0,0), color);
+    pVertexData->appendPos(wl.pl1, DPoint(0,0), color);
+    pVertexData->appendPos(wl.pr1, DPoint(0,0), color);
+    pVertexData->appendQuadIndexes(curVertex+1, curVertex, curVertex+3, curVertex+2); 
 }
      
 bool VectorNode::isDrawNeeded()

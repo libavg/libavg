@@ -147,57 +147,52 @@ void PolyLineNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
         lines.push_back(WideLine(m_Pts[i], m_Pts[i+1], getStrokeWidth()));
     }
 
-    int curVertex = 0;
-    int curIndex = 0;
-    pVertexData->setPos(curVertex++, lines[0].pl0, DPoint(0,0), color);
-    pVertexData->setPos(curVertex++, lines[0].pr0, DPoint(0,0), color);
+    pVertexData->appendPos(lines[0].pl0, DPoint(0,0), color);
+    pVertexData->appendPos(lines[0].pr0, DPoint(0,0), color);
     for (int i=0; i<numPts-2; ++i) {
         const WideLine& line1 = lines[i];
         const WideLine& line2 = lines[i+1];
         DPoint pli = getLineLineIntersection(line1.pl0, line1.dir, line2.pl0, line2.dir);
         DPoint pri = getLineLineIntersection(line1.pr0, line1.dir, line2.pr0, line2.dir);
 
+        int curVertex = pVertexData->getCurVert();
         switch (m_LineJoin) {
             case LJ_MITER:
-                pVertexData->setPos(curVertex, pli, DPoint(0,0), color);
-                pVertexData->setPos(curVertex+1, pri, DPoint(0,0), color);
-                pVertexData->setQuadIndexes(curIndex, 
+                pVertexData->appendPos(pli, DPoint(0,0), color);
+                pVertexData->appendPos(pri, DPoint(0,0), color);
+                pVertexData->appendQuadIndexes(
                         curVertex-1, curVertex-2, curVertex+1, curVertex);
-                curVertex += 2;
-                curIndex += 6;
                 break;
             case LJ_BEVEL:
                 {
                     Triangle tri(line1.pl1, line2.pl0, pri);
                     if (tri.isClockwise()) {
-                        pVertexData->setPos(curVertex, line1.pl1, DPoint(0,0), color);
-                        pVertexData->setPos(curVertex+1, line2.pl0, DPoint(0,0), color);
-                        pVertexData->setPos(curVertex+2, pri, DPoint(0,0), color);
-                        pVertexData->setQuadIndexes(curIndex, 
+                        pVertexData->appendPos(line1.pl1, DPoint(0,0), color);
+                        pVertexData->appendPos(line2.pl0, DPoint(0,0), color);
+                        pVertexData->appendPos(pri, DPoint(0,0), color);
+                        pVertexData->appendQuadIndexes(
                                 curVertex-1, curVertex-2, curVertex+2, curVertex);
-                        pVertexData->setTriIndexes(curIndex+6, 
+                        pVertexData->appendTriIndexes(
                                 curVertex, curVertex+1, curVertex+2);
                     } else {
-                        pVertexData->setPos(curVertex, line1.pr1, DPoint(0,0), color);
-                        pVertexData->setPos(curVertex+1, pli, DPoint(0,0), color);
-                        pVertexData->setPos(curVertex+2, line2.pr0, DPoint(0,0), color);
-                        pVertexData->setQuadIndexes(curIndex,
+                        pVertexData->appendPos(line1.pr1, DPoint(0,0), color);
+                        pVertexData->appendPos(pli, DPoint(0,0), color);
+                        pVertexData->appendPos(line2.pr0, DPoint(0,0), color);
+                        pVertexData->appendQuadIndexes(
                                 curVertex-2, curVertex-1, curVertex+1, curVertex);
-                        pVertexData->setTriIndexes(curIndex+6, 
+                        pVertexData->appendTriIndexes(
                                 curVertex, curVertex+1, curVertex+2);
                     }
-                    curVertex += 3;
-                    curIndex += 9;
                 }
                 break;
             default:
                 assert(false);
         }
     }
-    pVertexData->setPos(curVertex, lines[numPts-2].pl1, DPoint(0,0), color);
-    pVertexData->setPos(curVertex+1, lines[numPts-2].pr1, DPoint(0,0), color);
-    pVertexData->setQuadIndexes(curIndex, 
-            curVertex-1, curVertex-2, curVertex+1, curVertex);
+    int curVertex = pVertexData->getCurVert();
+    pVertexData->appendPos(lines[numPts-2].pl1, DPoint(0,0), color);
+    pVertexData->appendPos(lines[numPts-2].pr1, DPoint(0,0), color);
+    pVertexData->appendQuadIndexes(curVertex-1, curVertex-2, curVertex+1, curVertex);
 }
 
 PolyLineNode::LineJoin PolyLineNode::getLineJoinEnum() const

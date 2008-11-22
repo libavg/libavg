@@ -36,7 +36,9 @@ VertexData::VertexData(int numVerts, int numIndexes, int reserveVerts, int reser
     : m_NumVerts(numVerts),
       m_NumIndexes(numIndexes),
       m_ReserveVerts(reserveVerts),
-      m_ReserveIndexes(reserveIndexes)
+      m_ReserveIndexes(reserveIndexes),
+      m_CurVert(0),
+      m_CurIndex(0)
 {
     if (m_NumVerts > m_ReserveVerts) {
         m_ReserveVerts = m_NumVerts;
@@ -54,39 +56,36 @@ VertexData::~VertexData()
     delete[] m_pIndexData;
 }
 
-void VertexData::setPos(int vertexIndex, const DPoint& pos, 
-        const DPoint& texPos, const Pixel32& color)
+void VertexData::appendPos(const DPoint& pos, const DPoint& texPos, const Pixel32& color)
 {
-    assert(vertexIndex < m_NumVerts);
-    T2V3C4Vertex* pVertex = &m_pVertexData[vertexIndex];
+    assert(m_CurVert < m_NumVerts);
+    T2V3C4Vertex* pVertex = &m_pVertexData[m_CurVert];
     pVertex->m_Pos[0] = (GLfloat)pos.x;
     pVertex->m_Pos[1] = (GLfloat)pos.y;
     pVertex->m_Pos[2] = 0.0;
     pVertex->m_Tex[0] = (GLfloat)texPos.x;
     pVertex->m_Tex[1] = (GLfloat)texPos.y;
     pVertex->m_Color = color;
+    m_CurVert++;
 }
 
-void VertexData::setIndex(int i, int vertexIndex)
+void VertexData::appendTriIndexes(int v0, int v1, int v2)
 {
-    m_pIndexData[i] = vertexIndex;
+    m_pIndexData[m_CurIndex] = v0;
+    m_pIndexData[m_CurIndex+1] = v1;
+    m_pIndexData[m_CurIndex+2] = v2;
+    m_CurIndex+=3;
 }
 
-void VertexData::setTriIndexes(int i, int v0, int v1, int v2)
+void VertexData::appendQuadIndexes(int v0, int v1, int v2, int v3)
 {
-    m_pIndexData[i] = v0;
-    m_pIndexData[i+1] = v1;
-    m_pIndexData[i+2] = v2;
-}
-
-void VertexData::setQuadIndexes(int i, int v0, int v1, int v2, int v3)
-{
-    m_pIndexData[i] = v0;
-    m_pIndexData[i+1] = v1;
-    m_pIndexData[i+2] = v2;
-    m_pIndexData[i+3] = v1;
-    m_pIndexData[i+4] = v2;
-    m_pIndexData[i+5] = v3;
+    m_pIndexData[m_CurIndex] = v0;
+    m_pIndexData[m_CurIndex+1] = v1;
+    m_pIndexData[m_CurIndex+2] = v2;
+    m_pIndexData[m_CurIndex+3] = v1;
+    m_pIndexData[m_CurIndex+4] = v2;
+    m_pIndexData[m_CurIndex+5] = v3;
+    m_CurIndex+=6;
 }
 
 void VertexData::setVertexData(int vertexIndex, int indexIndex, 
@@ -128,6 +127,14 @@ void VertexData::changeSize(int numVerts, int numIndexes)
         delete m_pIndexData;
         m_pIndexData = new unsigned int[m_ReserveIndexes];
     }
+    m_CurVert = 0;
+    m_CurIndex = 0;
+}
+
+void VertexData::reset()
+{
+    m_CurVert = 0;
+    m_CurIndex = 0;
 }
 
 int VertexData::getNumVerts() const
@@ -138,6 +145,11 @@ int VertexData::getNumVerts() const
 int VertexData::getNumIndexes() const
 {
     return m_NumIndexes;
+}
+
+int VertexData::getCurVert() const
+{
+    return m_CurVert;
 }
 
 const T2V3C4Vertex * VertexData::getVertexData() const
@@ -177,6 +189,11 @@ int VertexData::getReservedIndexes() const
     return m_ReserveIndexes;
 }
  
+void VertexData::incCurVert()
+{
+    m_CurVert++;
+}
+
 T2V3C4Vertex* VertexData::getVertexData() 
 {
     return m_pVertexData;

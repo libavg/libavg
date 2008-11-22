@@ -47,17 +47,19 @@ public:
             int reserveIndexes=20);
     virtual ~VertexData();
 
-    virtual void setPos(int vertexIndex, const DPoint& pos, 
+    virtual void appendPos(const DPoint& pos, 
             const DPoint& texPos, const Pixel32& color = Pixel32(0,0,0,0));
-    void setIndex(int i, int vertexIndex);
-    void setTriIndexes(int i, int v0, int v1, int v2);
-    void setQuadIndexes(int i, int v0, int v1, int v2, int v3);
+    void appendTriIndexes(int v0, int v1, int v2);
+    void appendQuadIndexes(int v0, int v1, int v2, int v3);
     virtual void setVertexData(int vertexIndex, int indexIndex, 
         const VertexDataPtr& pVertexes);
     virtual void changeSize(int numVerts, int numIndexes);
+    void reset();
 
     int getNumVerts() const;
     int getNumIndexes() const;
+    int getCurVert() const;
+    int getCurIndex() const;
     const T2V3C4Vertex * getVertexData() const;
     const unsigned int * getIndexData() const;
     void dump() const;
@@ -65,6 +67,7 @@ public:
 protected:
     int getReservedVerts() const;
     int getReservedIndexes() const;
+    void incCurVert();
     T2V3C4Vertex* getVertexData();
     unsigned int* getIndexData();
 
@@ -73,6 +76,8 @@ private:
     int m_NumIndexes;
     int m_ReserveVerts;
     int m_ReserveIndexes;
+    int m_CurVert;
+    int m_CurIndex;
     T2V3C4Vertex * m_pVertexData;
     unsigned int * m_pIndexData;
 };

@@ -198,14 +198,14 @@ void RectNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
     DPoint rp2 = rotate(p2, m_Angle, pivot); 
     DPoint rp3 = rotate(p3, m_Angle, pivot); 
     DPoint rp4 = rotate(p4, m_Angle, pivot); 
-    pVertexData->setPos(0, rp1, DPoint(0,0), color);
-    pVertexData->setPos(1, rp2, DPoint(0,0), color);
-    pVertexData->setPos(2, rp3, DPoint(0,0), color);
-    pVertexData->setPos(3, rp4, DPoint(0,0), color);
-    pVertexData->setQuadIndexes(0, 1, 0, 2, 3);
+    pVertexData->appendPos(rp1, DPoint(0,0), color);
+    pVertexData->appendPos(rp2, DPoint(0,0), color);
+    pVertexData->appendPos(rp3, DPoint(0,0), color);
+    pVertexData->appendPos(rp4, DPoint(0,0), color);
+    pVertexData->appendQuadIndexes(1, 0, 2, 3);
 
-    updateLineData(pVertexData, 4, 6, opacity, rp1, rp2);
-    updateLineData(pVertexData, 8, 12, opacity, rp3, rp4);
+    updateLineData(pVertexData, opacity, rp1, rp2);
+    updateLineData(pVertexData, opacity, rp3, rp4);
     p1.x -= getStrokeWidth()/2;
     p2.x -= getStrokeWidth()/2;
     p3.x += getStrokeWidth()/2;
@@ -214,8 +214,8 @@ void RectNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
     rp2 = rotate(p2, m_Angle, pivot); 
     rp3 = rotate(p3, m_Angle, pivot); 
     rp4 = rotate(p4, m_Angle, pivot); 
-    updateLineData(pVertexData, 12, 18, opacity, rp2, rp3);
-    updateLineData(pVertexData, 16, 24, opacity, rp4, rp1);
+    updateLineData(pVertexData, opacity, rp2, rp3);
+    updateLineData(pVertexData, opacity, rp4, rp1);
 }
 
 }
