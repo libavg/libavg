@@ -92,7 +92,7 @@ class VectorTestCase(AVGTestCase):
                 ))
 
     def testRect(self):
-        def addRects():
+        def addRect():
             rect = Player.createNode("rect",
                     {"x":2, "y":2, "width":50, "height":30, "fillopacity":1, 
                      "strokewidth":0})
@@ -108,18 +108,26 @@ class VectorTestCase(AVGTestCase):
         def rotateRect():
             rect = canvas.getChild(0)
             rect.angle = 1.57
+        def addRect2():
+            rect = Player.createNode("rect",
+                    {"x":60, "y":2, "width":50, "height":30, "fillopacity":1, 
+                     "strokewidth":2})
+            rect.color = "FFFF00"
+            canvas.insertChild(rect, 0)
         canvas = self.makeEmptyCanvas()
         self.start(None,
-                (addRects,
+                (addRect,
                  lambda: self.compareImage("testRect1", False),
                  moveRect,
                  lambda: self.compareImage("testRect2", False),
                  rotateRect,
-                 lambda: self.compareImage("testRect3", False)
+                 lambda: self.compareImage("testRect3", False),
+                 addRect2,
+                 lambda: self.compareImage("testRect4", False),
                 ))
 
     def testCurve(self):
-        def addCurves():
+        def addCurve():
             curve = Player.createNode("curve",
                 {"x1":10.5, "y1":10, "x2":10.5, "y2":80, 
                  "x3":80.5, "y3":80, "x4":80.5, "y4":10})
@@ -128,12 +136,26 @@ class VectorTestCase(AVGTestCase):
             curve = canvas.getChild(0)
             curve.strokewidth = 20
             curve.color="FFFF00"
+        def moveCurve():
+            curve = canvas.getChild(0)
+            curve.pos2 = (10.5, 120)
+            curve.pos3 = (80.5, 120)
+        def addCurve2():
+            curve = Player.createNode("curve",
+                {"x1":30.5, "y1":10, "x2":30.5, "y2":120, 
+                 "x3":100.5, "y3":120, "x4":100.5, "y4":10})
+            curve.color="FF0000"
+            canvas.appendChild(curve)
         canvas = self.makeEmptyCanvas()
         self.start(None,
-                (addCurves,
+                (addCurve,
                  lambda: self.compareImage("testCurve1", False),
                  changeCurve,
                  lambda: self.compareImage("testCurve2", False),
+                 moveCurve,
+                 lambda: self.compareImage("testCurve3", False),
+                 addCurve2,
+                 lambda: self.compareImage("testCurve4", False),
                 )) 
 
     def testPolyLine(self):
