@@ -34,9 +34,9 @@ namespace avg {
 
 PBOImage::PBOImage(const IntPoint& size, PixelFormat pfInternal, PixelFormat pfExternal,
         bool bUseInputPBO, bool bUseOutputPBO)
-    : m_Size(size),
-      m_pfInt(pfInternal),
+    : m_pfInt(pfInternal),
       m_pfExt(pfExternal),
+      m_Size(size),
       m_bUseInputPBO(bUseInputPBO),
       m_bUseOutputPBO(bUseOutputPBO),
       m_InputPBO(0),
