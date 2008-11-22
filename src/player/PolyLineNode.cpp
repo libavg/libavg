@@ -205,4 +205,9 @@ void PolyLineNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
     pVertexData->setTriIndexes(curIndex+3, curVertex-2, curVertex+1, curVertex);
 }
 
+PolyLineNode::LineJoin PolyLineNode::getLineJoinEnum() const
+{
+    return m_LineJoin;
+}
+
 }

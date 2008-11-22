@@ -149,6 +149,9 @@ void VertexData::dump() const
     }
     cerr << "Indexes: " << endl;
     for (int i=0; i<m_NumIndexes; ++i) {
+        if (i%3 == 0) {
+            cerr << " " << endl;
+        }
         cerr << " " << m_pIndexData[i];
     }
     cerr << endl;

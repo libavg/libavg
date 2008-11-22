@@ -217,9 +217,14 @@ class VectorTestCase(AVGTestCase):
             pos.append((40, 40))
             polygon.pos = pos
         def addPolygon2():
-            polygon = Player.createNode("polygon", {"strokewidth":2, "color":"FF00FF"})
-            polygon.pos = [(100,10), (100,30), (120,30), (120, 10)]
+            polygon = Player.createNode("polygon", {"strokewidth":3, "color":"FF00FF"})
+            polygon.pos = [(100.5,10.5), (100.5,30.5), (120.5,30.5), (120.5, 10.5)]
             canvas.insertChild(polygon, 0)
+        def miterPolygons():
+            polygon = canvas.getChild(0)
+            polygon.linejoin = "miter"
+            polygon = canvas.getChild(1)
+            polygon.linejoin = "miter"
         canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addPolygon,
@@ -231,7 +236,9 @@ class VectorTestCase(AVGTestCase):
                  addEmptyPoint,
                  lambda: self.compareImage("testPolygon4", False),
                  addPolygon2,
-                 lambda: self.compareImage("testPolygon5", False)
+                 lambda: self.compareImage("testPolygon5", False),
+                 miterPolygons,
+                 lambda: self.compareImage("testPolygon6", False)
                 ))
 
 def vectorTestSuite(tests):

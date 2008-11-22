@@ -50,8 +50,6 @@ std::ostream& operator<<(std::ostream& os, const WideLine& line);
 class AVG_API VectorNode : public Node
 {
     public:
-        enum LineJoin {LJ_MITER, LJ_BEVEL};
-
         static NodeDefinition createDefinition();
         
         VectorNode();

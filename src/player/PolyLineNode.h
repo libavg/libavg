@@ -34,6 +34,8 @@ namespace avg {
 class AVG_API PolyLineNode : public VectorNode
 {
     public:
+        enum LineJoin {LJ_MITER, LJ_BEVEL};
+
         static NodeDefinition createDefinition();
         
         PolyLineNode(const ArgList& Args, bool bFromXML);
@@ -51,6 +53,7 @@ class AVG_API PolyLineNode : public VectorNode
 
     protected:
         PolyLineNode();
+        LineJoin getLineJoinEnum() const;
 
     private:
         std::vector<DPoint> m_Pts;
