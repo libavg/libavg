@@ -135,6 +135,7 @@ void PolygonNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
         }
         startOutlineIndex = triIndexes.size();
     }
+
     // Outline
     vector<WideLine> lines;
     lines.reserve(numPts);
@@ -144,28 +145,30 @@ void PolygonNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
     lines.push_back(WideLine(pts[numPts-1], pts[0], getStrokeWidth()));
 
     const WideLine* pLastLine = &(lines[numPts-1]);
-    
+
+    int curVertex = startOutlinePt;
+    int curIndex = startOutlineIndex;
     for (int i=0; i<numPts; ++i) {
         const WideLine* pThisLine = &(lines[i]);
         DPoint pli = getLineLineIntersection(pLastLine->pl0, pLastLine->dir, 
                 pThisLine->pl0, pThisLine->dir);
         DPoint pri = getLineLineIntersection(pLastLine->pr0, pLastLine->dir, 
                 pThisLine->pr0, pThisLine->dir);
-        pVertexData->setPos(startOutlinePt+2*i, pli, DPoint(0,0), color);
-        pVertexData->setPos(startOutlinePt+2*i+1, pri, DPoint(0,0), color);
+        pVertexData->setPos(curVertex, pli, DPoint(0,0), color);
+        pVertexData->setPos(curVertex+1, pri, DPoint(0,0), color);
         pLastLine = pThisLine;
+        if (i<numPts-1) {
+            pVertexData->setTriIndexes(curIndex, curVertex, curVertex+1, curVertex+3);
+            pVertexData->setTriIndexes(curIndex+3, curVertex, curVertex+3, curVertex+2);
+        } else {
+            pVertexData->setTriIndexes(curIndex, 
+                    curVertex, curVertex+1, startOutlinePt+1);
+            pVertexData->setTriIndexes(curIndex+3, curVertex, 
+                    startOutlinePt, startOutlinePt+1);
+        }
+        curVertex += 2;
+        curIndex += 6;
     }
-
-    for (int i=0; i<numPts-1; ++i) {
-        int loopIndex = startOutlineIndex+i*6;
-        int loopVertex = startOutlinePt+i*2;
-        pVertexData->setTriIndexes(loopIndex, loopVertex, loopVertex+1, loopVertex+3);
-        pVertexData->setTriIndexes(loopIndex+3, loopVertex, loopVertex+3, loopVertex+2);
-    }
-    int loopIndex = startOutlineIndex+(numPts-1)*6;
-    int loopVertex = startOutlinePt+(numPts-1)*2;
-    pVertexData->setTriIndexes(loopIndex, loopVertex, loopVertex+1, startOutlinePt+1);
-    pVertexData->setTriIndexes(loopIndex+3, loopVertex, startOutlinePt, startOutlinePt+1);
 }
 
 }
