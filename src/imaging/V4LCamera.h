@@ -56,7 +56,8 @@ class AVG_API V4LCamera: public Camera {
         virtual double getFrameRate() const;
         
         virtual unsigned int getFeature(CameraFeature Feature) const;
-        virtual void setFeature(CameraFeature Feature, int Value);
+        virtual void setFeature(CameraFeature Feature, int Value, 
+                bool bIgnoreOldValue=false);
         
     private:
         int m_Fd;
