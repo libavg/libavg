@@ -49,6 +49,9 @@ class AVG_API PolyLineNode : public VectorNode
         virtual int getNumIndexes();
         virtual void calcVertexes(VertexDataPtr& pVertexData, double opacity);
 
+    protected:
+        PolyLineNode();
+
     private:
         std::vector<DPoint> m_Pts;
         LineJoin m_LineJoin;

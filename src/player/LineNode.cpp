@@ -44,7 +44,6 @@ NodeDefinition LineNode::createDefinition()
 }
 
 LineNode::LineNode(const ArgList& Args, bool bFromXML)
-    : VectorNode(Args)
 {
     Args.setMembers(this);
 }

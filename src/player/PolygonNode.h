@@ -23,7 +23,7 @@
 #define _PolygonNode_H_
 
 #include "../api.h"
-#include "VectorNode.h"
+#include "PolyLineNode.h"
 
 #include "../graphics/Pixel32.h"
 
@@ -31,16 +31,13 @@
 
 namespace avg {
 
-class AVG_API PolygonNode : public VectorNode
+class AVG_API PolygonNode : public PolyLineNode
 {
     public:
         static NodeDefinition createDefinition();
         
         PolygonNode(const ArgList& Args, bool bFromXML);
         virtual ~PolygonNode();
-
-        const std::vector<DPoint>& getPos() const;
-        void setPos(const std::vector<DPoint>& pts);
 
         double getFillOpacity() const;
         void setFillOpacity(double opacity);
@@ -53,7 +50,6 @@ class AVG_API PolygonNode : public VectorNode
         virtual void calcVertexes(VertexDataPtr& pVertexData, double opacity);
 
     private:
-        DPointVector m_Pts;
         double m_FillOpacity;
         std::string m_sFillColorName;
         Pixel32 m_FillColor;

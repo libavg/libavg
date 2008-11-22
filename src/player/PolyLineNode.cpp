@@ -44,10 +44,13 @@ NodeDefinition PolyLineNode::createDefinition()
 }
 
 PolyLineNode::PolyLineNode(const ArgList& Args, bool bFromXML)
-    : VectorNode(Args)
 {
     Args.setMembers(this);
     setLineJoin(Args.getArgVal<string>("linejoin"));
+}
+
+PolyLineNode::PolyLineNode()
+{
 }
 
 PolyLineNode::~PolyLineNode()
@@ -61,7 +64,15 @@ const vector<DPoint>& PolyLineNode::getPos() const
 
 void PolyLineNode::setPos(const vector<DPoint>& pts) 
 {
-    m_Pts = pts;
+    m_Pts.clear();
+    m_Pts.reserve(pts.size());
+    m_Pts.push_back(pts[0]);
+    // Remove possible duplicated points.
+    for (unsigned int i=1; i<pts.size(); ++i) {
+        if (pts[i] != pts[i-1]) {
+            m_Pts.push_back(pts[i]);
+        }
+    }
     setDrawNeeded(true);
 }
 

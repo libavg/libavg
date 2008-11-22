@@ -54,7 +54,7 @@ class AVG_API VectorNode : public Node
 
         static NodeDefinition createDefinition();
         
-        VectorNode(const ArgList& Args);
+        VectorNode();
         virtual ~VectorNode();
         void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);

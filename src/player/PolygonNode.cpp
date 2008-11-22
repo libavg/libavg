@@ -38,7 +38,7 @@ namespace avg {
 NodeDefinition PolygonNode::createDefinition()
 {
     return NodeDefinition("polygon", Node::buildNode<PolygonNode>)
-        .extendDefinition(VectorNode::createDefinition())
+        .extendDefinition(PolyLineNode::createDefinition())
         .addArg(Arg<double>("fillopacity", 0, false, 
                 offsetof(PolygonNode, m_FillOpacity)))
         .addArg(Arg<string>("fillcolor", "FFFFFF", false, 
@@ -47,7 +47,6 @@ NodeDefinition PolygonNode::createDefinition()
 }
 
 PolygonNode::PolygonNode(const ArgList& Args, bool bFromXML)
-    : VectorNode(Args)
 {
     Args.setMembers(this);
     m_FillColor = colorStringToColor(m_sFillColorName);
@@ -55,24 +54,6 @@ PolygonNode::PolygonNode(const ArgList& Args, bool bFromXML)
 
 PolygonNode::~PolygonNode()
 {
-}
-
-const vector<DPoint>& PolygonNode::getPos() const 
-{
-    return m_Pts;
-}
-
-void PolygonNode::setPos(const vector<DPoint>& pts) 
-{
-    m_Pts.clear();
-    m_Pts.push_back(pts[0]);
-    // Remove possible duplicated points.
-    for (unsigned int i=1; i<pts.size(); ++i) {
-        if (pts[i] != pts[i-1]) {
-            m_Pts.push_back(pts[i]);
-        }
-    }
-    setDrawNeeded(true);
 }
 
 double PolygonNode::getFillOpacity() const
@@ -102,34 +83,37 @@ const string& PolygonNode::getFillColor() const
 
 int PolygonNode::getNumVertexes()
 {
-    if (m_Pts.size() < 3) {
+    const vector<DPoint>& pts = getPos();
+    if (pts.size() < 3) {
         return 0;
     }
-    int numVerts = 2*m_Pts.size();
+    int numVerts = 2*pts.size();
     if (m_FillOpacity > 0.001) {
-        numVerts += m_Pts.size();
+        numVerts += pts.size();
     }
     return numVerts;
 }
 
 int PolygonNode::getNumIndexes()
 {
-    if (m_Pts.size() < 2) {
+    const vector<DPoint>& pts = getPos();
+    if (pts.size() < 2) {
         return 0;
     }
-    int numIndexes = 6*m_Pts.size();
+    int numIndexes = 6*pts.size();
     if (m_FillOpacity > 0.001) {
-        numIndexes += (m_Pts.size()-2)*3;
+        numIndexes += (pts.size()-2)*3;
     }
     return numIndexes;
 }
 
 void PolygonNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
 {
-    if (m_Pts.size() < 3) {
+    const vector<DPoint>& pts = getPos();
+    if (pts.size() < 3) {
         return;
     }
-    int numPts = m_Pts.size();
+    int numPts = pts.size();
     int startOutlinePt = 0;
     int startOutlineIndex = 0;
     Pixel32 color = getColorVal();
@@ -141,9 +125,9 @@ void PolygonNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
         fillColor.setA((unsigned char)(curOpacity*255));
 
         vector<int> triIndexes;
-        triangulatePolygon(m_Pts, triIndexes);
+        triangulatePolygon(pts, triIndexes);
         for (int i=0; i<numPts; ++i) {
-            pVertexData->setPos(i, m_Pts[i], DPoint(0,0), fillColor);
+            pVertexData->setPos(i, pts[i], DPoint(0,0), fillColor);
         }
         startOutlinePt = numPts;
         for (unsigned int i=0; i<triIndexes.size(); ++i) {
@@ -155,9 +139,9 @@ void PolygonNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
     vector<WideLine> lines;
     lines.reserve(numPts);
     for (int i=0; i<numPts-1; ++i) {
-        lines.push_back(WideLine(m_Pts[i], m_Pts[i+1], getStrokeWidth()));
+        lines.push_back(WideLine(pts[i], pts[i+1], getStrokeWidth()));
     }
-    lines.push_back(WideLine(m_Pts[numPts-1], m_Pts[0], getStrokeWidth()));
+    lines.push_back(WideLine(pts[numPts-1], pts[0], getStrokeWidth()));
 
     const WideLine* pLastLine = &(lines[numPts-1]);
     

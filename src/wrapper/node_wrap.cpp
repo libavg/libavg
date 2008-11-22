@@ -362,9 +362,7 @@ void export_node()
                 return_value_policy<copy_const_reference>()), &PolyLineNode::setPos)
         .add_property("linejoin", &PolyLineNode::getLineJoin, &PolyLineNode::setLineJoin);
 
-    class_<PolygonNode, bases<VectorNode>, boost::noncopyable>("PolygonNode", no_init)
-        .add_property("pos", make_function(&PolygonNode::getPos, 
-                return_value_policy<copy_const_reference>()), &PolygonNode::setPos)
+    class_<PolygonNode, bases<PolyLineNode>, boost::noncopyable>("PolygonNode", no_init)
         .add_property("fillcolor", make_function(&PolygonNode::getFillColor,
                 return_value_policy<copy_const_reference>()), &PolygonNode::setFillColor)
         .add_property("fillopacity", &PolygonNode::getFillOpacity, 

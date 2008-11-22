@@ -42,7 +42,7 @@ NodeDefinition VectorNode::createDefinition()
         .addArg(Arg<double>("strokewidth", 1, false, offsetof(VectorNode, m_StrokeWidth)));
 }
 
-VectorNode::VectorNode(const ArgList& Args)
+VectorNode::VectorNode()
     : m_pVertexData(new VertexData())
 {
 }
