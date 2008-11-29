@@ -260,7 +260,7 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
                     "in SDLDisplayEngine::init()");
             exit(-1);
     }
-    safeSetAttribute(SDL_GL_DEPTH_SIZE, 0);
+    safeSetAttribute(SDL_GL_DEPTH_SIZE, 24);
     safeSetAttribute(SDL_GL_STENCIL_SIZE, 8);
     safeSetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     if (m_MultiSampleSamples > 1) {
@@ -430,6 +430,9 @@ void SDLDisplayEngine::render(AVGNodePtr pRootNode)
     glClear(GL_STENCIL_BUFFER_BIT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "SDLDisplayEngine::render::glClear(GL_STENCIL_BUFFER_BIT)");
+    glClear(GL_DEPTH_BUFFER_BIT);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "SDLDisplayEngine::render::glClear(GL_DEPTH_BUFFER_BIT)");
     glViewport(0, 0, m_WindowWidth, m_WindowHeight);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "SDLDisplayEngine::render: glViewport()");
