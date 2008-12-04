@@ -137,7 +137,9 @@ void PolygonNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
     int numPts = pts.size();
     int startOutlinePt = 0;
     int startOutlineIndex = 0;
+    double curOpacity = opacity*getOpacity();
     Pixel32 color = getColorVal();
+    color.setA((unsigned char)(curOpacity*255));
 
     // Fill
     if (m_FillOpacity > 0.001) {

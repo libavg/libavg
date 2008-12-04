@@ -137,7 +137,9 @@ void PolyLineNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
     if (m_Pts.size() < 2) {
         return;
     }
+    double curOpacity = opacity*getOpacity();
     Pixel32 color = getColorVal();
+    color.setA((unsigned char)(curOpacity*255));
     
     int numPts = m_Pts.size();
 
