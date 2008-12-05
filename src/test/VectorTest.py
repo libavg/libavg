@@ -177,6 +177,9 @@ class VectorTestCase(AVGTestCase):
             polyline = Player.createNode("polyline", {"strokewidth":2, "color":"FF00FF"})
             polyline.pos = [(110,10), (100,50), (110,70)]
             canvas.insertChild(polyline,0)
+        def testEmptyPolyline():
+            polyline = canvas.getChild(0)
+            polyline.pos=[]
         canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addPolyLine,
@@ -187,6 +190,8 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testPolyLine3", False),
                  addPolyLine2,
                  lambda: self.compareImage("testPolyLine4", False),
+                 testEmptyPolyline,
+                 lambda: self.compareImage("testPolyLine5", False)
                 ))
 
     def testPolygon(self):

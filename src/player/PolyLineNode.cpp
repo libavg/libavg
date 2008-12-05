@@ -66,11 +66,13 @@ void PolyLineNode::setPos(const vector<DPoint>& pts)
 {
     m_Pts.clear();
     m_Pts.reserve(pts.size());
-    m_Pts.push_back(pts[0]);
-    // Remove possible duplicated points.
-    for (unsigned int i=1; i<pts.size(); ++i) {
-        if (pts[i] != pts[i-1]) {
-            m_Pts.push_back(pts[i]);
+    if (!pts.empty()) {
+        m_Pts.push_back(pts[0]);
+        // Remove possible duplicated points.
+        for (unsigned int i=1; i<pts.size(); ++i) {
+            if (pts[i] != pts[i-1]) {
+                m_Pts.push_back(pts[i]);
+            }
         }
     }
     setDrawNeeded(true);
