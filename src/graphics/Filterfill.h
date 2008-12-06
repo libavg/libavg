@@ -33,7 +33,7 @@ namespace avg {
 
 // Filter that fills a bitmap with a color.
 template<class PixelC> 
-class AVG_API FilterFill : public Filter
+class AVG_TEMPLATE_API FilterFill : public Filter
 {
 public:
   FilterFill (const PixelC& Color);
