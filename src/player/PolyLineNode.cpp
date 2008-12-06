@@ -87,6 +87,7 @@ string PolyLineNode::getLineJoin() const
             return "bevel";
         default:
             assert(false);
+            return 0;
     }
 }
 
@@ -115,6 +116,7 @@ int PolyLineNode::getNumVertexes()
             return 3*m_Pts.size()-2;
         default:
             assert(false);
+            return 0;
     }
 
 }
@@ -131,6 +133,7 @@ int PolyLineNode::getNumIndexes()
             return 3*(3*m_Pts.size()-4);
         default:
             assert(false);
+            return 0;
     }
 }
 
