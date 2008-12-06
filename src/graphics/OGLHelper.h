@@ -22,8 +22,8 @@
 #ifndef _OGLHelper_H_
 #define _OGLHelper_H_
 
-#ifdef _WIN32
 #include "../api.h"
+#ifdef _WIN32
 #include <windows.h>
 #undef ERROR
 #undef WARNING
