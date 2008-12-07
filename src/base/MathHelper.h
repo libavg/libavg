@@ -22,11 +22,12 @@
 #ifndef _MathHelper_H_
 #define _MathHelper_H_
 
-#define PI 3.14159265358979323846
-#define EPSILON 0.00001
-
 #include "../api.h"
 #include <vector>
+#include <math.h>
+
+#define PI 3.14159265358979323846
+#define EPSILON 0.00001
 
 namespace avg {
 
@@ -36,15 +37,21 @@ int nextpow2(int n);
 
 int safeCeil(double d);
 
+bool almostEqual(double d1, double d2, double epsilon=EPSILON);
+
+float invSqrt(float x);
+
 template<class T>
 T sqr(T d)
 {
     return d*d;
 }
 
-bool almostEqual(double d1, double d2, double epsilon=EPSILON);
-
-float invSqrt(float x);
+template<class T>
+int sgn(T val)
+{
+    return int(val/fabs(val));
+}
 
 template<class T>
 std::vector<T> vectorFromCArray(int n, T* pData)
