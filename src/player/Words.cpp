@@ -219,6 +219,7 @@ string Words::getAlignment() const
             return "right";
         default:
             assert(false);
+            return "";
     }
 }
 
