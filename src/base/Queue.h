@@ -35,7 +35,7 @@ namespace avg {
 typedef boost::mutex::scoped_lock scoped_lock;
 
 template<class QElement>
-class AVG_API Queue 
+class AVG_TEMPLATE_API Queue 
 {
     public:
         Queue(int MaxSize=-1);

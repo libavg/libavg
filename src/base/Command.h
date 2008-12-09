@@ -28,7 +28,7 @@
 namespace avg {
 
 template<class RECEIVER>
-class AVG_API Command {
+class AVG_TEMPLATE_API Command {
     typedef boost::function<void(RECEIVER*)> CmdFunc;
 
 public:
