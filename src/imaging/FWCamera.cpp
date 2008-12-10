@@ -364,10 +364,12 @@ BitmapPtr FWCamera::getImage(bool bWait)
                 case MODE_320x240_YUV422:
                 case MODE_640x480_YUV422:
                 case MODE_1024x768_YUV422:
+                case MODE_1280x960_YUV422:
 #else
                 case DC1394_VIDEO_MODE_320x240_YUV422:
                 case DC1394_VIDEO_MODE_640x480_YUV422:
                 case DC1394_VIDEO_MODE_1024x768_YUV422:
+                case DC1394_VIDEO_MODE_1280x960_YUV422:
 #endif                    
                     {
                         Bitmap TempBmp(m_Size, YCbCr422, 
@@ -521,15 +523,15 @@ void FWCamera::setFeature(dc1394feature_t Feature, int Value)
         err = dc1394_feature_set_power(m_pCamera, Feature, DC1394_ON);
         err = dc1394_feature_set_value(m_pCamera, Feature, Value);
     }
+    if (err != DC1394_SUCCESS) {
+        AVG_TRACE(Logger::WARNING, "Camera: Unable to set " << Feature << 
+                ". Error was " << err);
+    }
 /*
     dc1394feature_info_t featureInfo;
     featureInfo.id = Feature;
     err = dc1394_feature_get(m_pCamera, &featureInfo);
     dc1394_feature_print(&featureInfo, stdout);
-    if (err != DC1394_SUCCESS) {
-        AVG_TRACE(Logger::WARNING, "FWCamera: Unable to set " << Feature << 
-                ". Error was " << err);
-    }
 */
 #endif
 }

@@ -64,6 +64,16 @@ int getCamMode(IntPoint Size, std::string sPF)
         } else if (sPF == "RGB") {
             return MODE_1024x768_RGB;
         }
+    } else if (Size.x == 1280 && Size.y == 960) {
+        if (sPF == "MONO8" || sPF == "BY8_GBRG") {
+            return MODE_1280x960_MONO;
+        } else if (sPF == "MONO16") {
+            return MODE_1280x960_MONO16;
+        } else if (sPF == "YUV422") {
+            return MODE_1280x960_YUV422;
+        } else if (sPF == "RGB") {
+            return MODE_1280x960_RGB;
+        }
     }
     AVG_TRACE (Logger::WARNING,
             std::string("getCamMode: Unsupported or illegal value for camera mode: (")
@@ -177,6 +187,16 @@ dc1394video_mode_t getCamMode(IntPoint Size, std::string sPF)
             return DC1394_VIDEO_MODE_1024x768_YUV422;
         } else if (sPF == "RGB") {
             return DC1394_VIDEO_MODE_1024x768_RGB8;
+        }
+    } else if (Size.x == 1280 && Size.y == 960) {
+        if (sPF == "MONO8" || sPF == "BY8_GBRG") {
+            return DC1394_VIDEO_MODE_1280x960_MONO8;
+        } else if (sPF == "MONO16") {
+            return DC1394_VIDEO_MODE_1280x960_MONO16;
+        } else if (sPF == "YUV422") {
+            return DC1394_VIDEO_MODE_1280x960_YUV422;
+        } else if (sPF == "RGB") {
+            return DC1394_VIDEO_MODE_1280x960_RGB8;
         }
     }
     AVG_TRACE (Logger::WARNING,
