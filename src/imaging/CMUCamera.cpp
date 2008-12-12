@@ -83,7 +83,13 @@ void CMUCamera::open()
 
     // Find and open camera
     if (m_Camera.RefreshCameraList() <= 0) {
-        fatalError("No cameras detected");
+        static bool bFirstWarning = true;
+        if (bFirstWarning) {
+            AVG_TRACE(Logger::WARNING, "No firewire cameras found.");
+            bFirstWarning = false;
+        }
+        m_bCameraAvailable = false;
+        return;
     }
     if (m_Camera.SelectCamera(atoi(m_sDevice.c_str())) != CAM_SUCCESS) {
         fatalError(string("Error selecting camera") + m_sDevice);
