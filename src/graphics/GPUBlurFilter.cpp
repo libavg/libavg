@@ -35,7 +35,7 @@ OGLShaderPtr GPUBlurFilter::s_pHorizShader;
 OGLShaderPtr GPUBlurFilter::s_pVertShader;
 
 GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, double stdDev)
-    : GPUFilter(size, pfSrc),
+    : GPUFilter(size, pfSrc, B8G8R8A8),
       m_StdDev(stdDev)
 {
     ObjectCounter::get()->incRef(&typeid(*this));

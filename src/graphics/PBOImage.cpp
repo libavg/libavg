@@ -269,7 +269,7 @@ int PBOImage::getInternalFormat() const
         case B8G8R8X8:
             return GL_RGBA;
         case R32G32B32A32F:
-            return GL_RGBA32F_ARB;
+            return MY_GL_RGBA32F;
         default:
             assert(false);
             return 0;

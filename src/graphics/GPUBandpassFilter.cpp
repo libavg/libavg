@@ -35,7 +35,7 @@ OGLShaderPtr GPUBandpassFilter::s_pShader;
 
 GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc, 
         double min, double max, double postScale, bool bInvert)
-    : GPUFilter(size, pfSrc),
+    : GPUFilter(size, pfSrc, B8G8R8A8),
       m_PostScale(postScale),
       m_bInvert(bInvert),
       m_pMinFBO(new FBOImage(size, R32G32B32A32F, B8G8R8A8, false, false)),

@@ -33,7 +33,7 @@ namespace avg {
 class AVG_API GPUFilter: public Filter
 {
 public:
-    GPUFilter(const IntPoint& size, PixelFormat pfSrc);
+    GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest);
     GPUFilter(PBOImagePtr pSrcPBO, FBOImagePtr pDestFBO);
     virtual ~GPUFilter();
 

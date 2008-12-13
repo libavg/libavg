@@ -30,9 +30,9 @@ using namespace std;
 
 namespace avg {
 
-GPUFilter::GPUFilter(const IntPoint& size, PixelFormat pfSrc)
+GPUFilter::GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest)
     : m_pSrcPBO(new PBOImage(size, pfSrc, pfSrc, true, false)),
-      m_pDestFBO(new FBOImage(size, B8G8R8A8, B8G8R8A8, false, true))
+      m_pDestFBO(new FBOImage(size, pfDest, pfDest, false, true))
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }

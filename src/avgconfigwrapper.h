@@ -23,7 +23,7 @@
 #include "api.h"
 #include "../avgconfig_win.h"
 #else
-#include "../avgconfig.h"
+#include "avgconfig.h"
 #endif
 
 // These defines regularly cause multiple definition warnings and are usually
