@@ -529,7 +529,7 @@ int Bitmap::getBytesPerPixel(PixelFormat PF)
         case B8G8R8X8:
         case R8G8B8A8:
         case R8G8B8X8:
-		case I32F:
+        case I32F:
             return 4;
         case R8G8B8:
         case B8G8R8:

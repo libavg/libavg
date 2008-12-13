@@ -43,7 +43,7 @@ public:
 
     void setImage(BitmapPtr pBmp);
     void setImage(float * pData);
-    BitmapPtr getImage() const;
+    virtual BitmapPtr getImage() const;
     void activateTex(int textureUnit);
     void draw();
 
@@ -53,10 +53,11 @@ public:
 
 protected:
     unsigned getTexID() const;
-
-private:
+    unsigned getOutputPBO() const;
     int getFormat(PixelFormat pf) const;
     int getType(PixelFormat pf) const;
+
+private:
     int getInternalFormat() const;
     unsigned createInputPBO() const;
     unsigned createOutputPBO() const;

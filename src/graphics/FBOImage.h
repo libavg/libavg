@@ -38,8 +38,9 @@ public:
             bool bUseInputPBO, bool bUseOutputPBO);
     virtual ~FBOImage();
 
-    void activate();
-    void deactivate();
+    void activate() const;
+    void deactivate() const;
+    virtual BitmapPtr getImage() const;
 
     static bool isFBOSupported();
 

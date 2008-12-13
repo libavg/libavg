@@ -213,6 +213,11 @@ unsigned PBOImage::getTexID() const
     return m_TexID;
 }
 
+unsigned PBOImage::getOutputPBO() const
+{
+    return m_OutputPBO;
+}
+
 int PBOImage::getType(PixelFormat pf) const
 {
     switch (pf) {

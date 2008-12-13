@@ -56,19 +56,47 @@ FBOImage::~FBOImage()
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::~FBOImage: DeleteFramebuffers");
 }
     
-void FBOImage::activate()
+void FBOImage::activate() const
 {
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::activate: BindFramebuffer()");
     
 }
 
-void FBOImage::deactivate()
+void FBOImage::deactivate() const
 {
     glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::deactivate: BindFramebuffer()");
     
 }
+
+BitmapPtr FBOImage::getImage() const
+{
+    activate();
+    BitmapPtr pBmp(new Bitmap(getSize(), getExtPF()));
+    glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, getOutputPBO());
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::getImage BindBuffer()");
+    glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::getImage ReadBuffer()");
+    
+    int memNeeded = getSize().x*getSize().y * Bitmap::getBytesPerPixel(getExtPF());
+    glproc::BufferData(GL_PIXEL_PACK_BUFFER_EXT, memNeeded, 0, GL_STREAM_READ);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::getImage BufferData()");
+    glReadPixels (0, 0, getSize().x, getSize().y, getFormat(getExtPF()), 
+            getType(getExtPF()), 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::getImage ReadPixels()");
+    void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_PACK_BUFFER_EXT, GL_READ_ONLY);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::getImage MapBuffer()");
+    Bitmap PBOBitmap(getSize(), getExtPF(), (unsigned char *)pPBOPixels, 
+            getSize().x*Bitmap::getBytesPerPixel(getExtPF()), false);
+    pBmp->copyPixels(PBOBitmap);
+    glproc::UnmapBuffer(GL_PIXEL_PACK_BUFFER_EXT);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::getImage: UnmapBuffer()");
+    glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
+    deactivate();
+    return pBmp;
+}
+
 
 bool FBOImage::isFBOSupported()
 {
