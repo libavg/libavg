@@ -215,6 +215,7 @@ unsigned PBOImage::getTexID() const
 
 unsigned PBOImage::getOutputPBO() const
 {
+    assert (m_bUseOutputPBO);
     return m_OutputPBO;
 }
 

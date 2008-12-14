@@ -26,6 +26,9 @@
 #include "../base/Exception.h"
 
 #include <cstdio>
+#include <iostream>
+
+using namespace std;
 
 namespace avg {
 
@@ -36,8 +39,7 @@ FBOImage::FBOImage(const IntPoint& size, PixelFormat pfInternal, PixelFormat pfE
     glproc::GenFramebuffers(1, &m_FBO);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage: GenFramebuffers()");
 
-    //bind the framebuffer, so operations will now occur on it
-    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, m_FBO);
+    activate();
 
     // bind this texture to the current framebuffer obj. as 
     // color_attachement_0 
@@ -46,8 +48,16 @@ FBOImage::FBOImage(const IntPoint& size, PixelFormat pfInternal, PixelFormat pfE
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage: glFramebufferTexture2D()");
 
     checkError();
-    
-    glproc::BindFramebuffer(GL_FRAMEBUFFER_EXT, 0);
+   
+    if (bUseOutputPBO) {
+        glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, getOutputPBO());
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::FBOImage BindBuffer()");
+        int memNeeded = getSize().x*getSize().y * Bitmap::getBytesPerPixel(getExtPF());
+        glproc::BufferData(GL_PIXEL_PACK_BUFFER_EXT, memNeeded, 0, GL_STREAM_READ);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::FBOImage BufferData()");
+    }
+
+    deactivate();
 }
 
 FBOImage::~FBOImage()
@@ -79,9 +89,6 @@ BitmapPtr FBOImage::getImage() const
     glReadBuffer(GL_COLOR_ATTACHMENT0_EXT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::getImage ReadBuffer()");
     
-    int memNeeded = getSize().x*getSize().y * Bitmap::getBytesPerPixel(getExtPF());
-    glproc::BufferData(GL_PIXEL_PACK_BUFFER_EXT, memNeeded, 0, GL_STREAM_READ);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::getImage BufferData()");
     glReadPixels (0, 0, getSize().x, getSize().y, getFormat(getExtPF()), 
             getType(getExtPF()), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::getImage ReadPixels()");
