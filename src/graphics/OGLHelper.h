@@ -48,14 +48,14 @@ typedef int (*PFNWGLEXTGETSWAPINTERVALPROC) (void);
 
 namespace avg {
 
-void OGLErrorCheck(int avgcode, const char * where);
+void AVG_API OGLErrorCheck(int avgcode, const char * where);
 #ifdef _WIN32
-void winOGLErrorCheck(BOOL bOK, const std::string & where);
+void AVG_API winOGLErrorCheck(BOOL bOK, const std::string & where);
 #endif
-bool queryOGLExtension(const char *extName);
-bool queryGLXExtension(const char *extName);
-void getGLVersion(int & major, int& minor);
-void getGLShadingLanguageVersion(int & major, int& minor);
+bool AVG_API queryOGLExtension(const char *extName);
+bool AVG_API queryGLXExtension(const char *extName);
+void AVG_API getGLVersion(int & major, int& minor);
+void AVG_API getGLShadingLanguageVersion(int & major, int& minor);
 
 enum OGLMemoryMode { 
     OGL,  // Standard OpenGL
@@ -63,7 +63,7 @@ enum OGLMemoryMode {
 };
 
 typedef void (*GLfunction)();
-GLfunction getFuzzyProcAddress(const char * psz);
+GLfunction AVG_API getFuzzyProcAddress(const char * psz);
 
 namespace glproc {
     extern AVG_API PFNGLGENBUFFERSPROC GenBuffers;
