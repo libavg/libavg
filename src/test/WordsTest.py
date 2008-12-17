@@ -71,7 +71,18 @@ class WordsTestCase(AVGTestCase):
     def testParaWords(self):
         self.start("paratext.avg",
                 [lambda: self.compareImage("testParaWords", True)])
-   
+
+    def testJustify(self):
+        Player.loadString("""
+          <avg width="160" height="120">
+            <words x="1" y="1" size="12" font="Bitstream Vera Sans"
+                variant="roman" justify="true" parawidth="100"
+                text="Justified paragraph more than one line long."/>
+          </avg>
+        """)
+        self.start(None,
+                [lambda: self.compareImage("testJustify", True)])
+
     def testSpanWords(self):
         def setTextAttrib():
             self.baselineBmp = Player.screenshot()
@@ -168,7 +179,14 @@ class WordsTestCase(AVGTestCase):
 
     def testRawText(self):
         def createDynNodes():
-            self.dictdnode = Player.createNode("words", {'text':'&lt;test dyndict&amp;', 'rawtextmode':True, 'x':1, 'y':65, 'font':'Bitstream Vera Sans', 'variant': 'roman', 'size':12})
+            self.dictdnode = Player.createNode("words", 
+                    {'text':'&lt;test dyndict&amp;', 
+                     'rawtextmode':True, 
+                     'x':1, 
+                     'y':65, 
+                     'font':'Bitstream Vera Sans', 
+                     'variant': 'roman', 
+                     'size':12})
             Player.getRootNode().appendChild(self.dictdnode)
 
             self.xmldnode = Player.createNode("<words text=\"&lt;test dynattr&amp;\" size=\"12\" font=\"Bitstream Vera Sans\" variant=\"roman\" rawtextmode=\"true\" x=\"1\" y=\"85\"/>")
@@ -219,6 +237,7 @@ def wordsTestSuite(tests):
             "testSimpleWords",
             "testGlyphPos",
             "testParaWords",
+            "testJustify",
             "testSpanWords",
             "testDynamicWords",
             "testI18NWords",

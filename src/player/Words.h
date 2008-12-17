@@ -87,7 +87,10 @@ class AVG_API Words : public RasterNode
         
         std::string getAlignment() const;
         void setAlignment(const std::string& sAlignment);
-        
+ 
+        bool getJustify() const;
+        void setJustify(bool bJustify);
+
         static const std::vector<std::string>& getFontFamilies();
         static const std::vector<std::string>& getFontVariants(
                 const std::string& sFontName);
@@ -121,6 +124,7 @@ class AVG_API Words : public RasterNode
         int m_Indent;
         double m_LineSpacing;
         PangoAlignment m_Alignment;
+        bool m_bJustify;
 
         bool m_bParsedText;
         bool m_bRawTextMode;

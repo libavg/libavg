@@ -299,6 +299,9 @@ void export_raster()
         .add_property("alignment", &Words::getAlignment, &Words::setAlignment,
                 "The paragraph alignment. Possible values are 'left',\n"
                 "'center' and 'right'.\n")
+        .add_property("justify", &Words::getJustify, &Words::setJustify,
+                "Whether each complete line should be stretched to fill\n"
+                "the entire width of the layout. Default is false.\n")
         .add_property("rawtextmode", &Words::getRawTextMode, &Words::setRawTextMode,
                 "Sets whether the text should be parsed (False) or set\n"
                 "as raw string (True).\n")

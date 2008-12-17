@@ -126,6 +126,7 @@ NodeDefinition Words::createDefinition()
         .addArg(Arg<int>("indent", 0, false, offsetof(Words, m_Indent)))
         .addArg(Arg<double>("linespacing", -1, false, offsetof(Words, m_LineSpacing)))
         .addArg(Arg<string>("alignment", "left"))
+        .addArg(Arg<bool>("justify", false, false, offsetof(Words, m_bJustify)))
         .addArg(Arg<bool>("rawtextmode", false, false, offsetof(Words, m_bRawTextMode)));
 }
 
@@ -236,6 +237,17 @@ void Words::setAlignment(const string& sAlign)
                 "Words alignment "+sAlign+" not supported."));
     }
 
+    m_bDrawNeeded = true;
+}
+
+bool Words::getJustify() const
+{
+    return m_bJustify;
+}
+
+void Words::setJustify(bool bJustify)
+{
+    m_bJustify = bJustify;
     m_bDrawNeeded = true;
 }
 
@@ -544,6 +556,7 @@ void Words::drawString()
         }
 
         pango_layout_set_alignment(m_pLayout, m_Alignment);
+        pango_layout_set_justify(m_pLayout, m_bJustify);
         pango_layout_set_width(m_pLayout, m_ParaWidth * PANGO_SCALE);
         pango_layout_set_indent(m_pLayout, m_Indent * PANGO_SCALE);
         if (m_Indent < 0) {
