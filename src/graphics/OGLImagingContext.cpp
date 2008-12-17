@@ -155,30 +155,7 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
     // Coordinates
     setSize(size);
 
-    // Shading etc.
-    glDisable(GL_BLEND);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_BLEND)");
-    glShadeModel(GL_FLAT);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glShadeModel(GL_FLAT)");
-    glDisable(GL_DEPTH_TEST);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_DEPTH_TEST)");
-    glDisable(GL_STENCIL_TEST);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_STENCIL_TEST)");
-
-    // Texturing
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE); 
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glTexEnvf()");
-    glBlendFunc(GL_ONE, GL_ZERO);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glBlendFunc()");
-    glEnable(GL_TEXTURE_RECTANGLE_ARB);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glEnable(GL_TEXTURE_RECTANGLE_ARB);");
-    glDisable(GL_MULTISAMPLE);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_MULTISAMPLE);");
-
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    setStandardState(size);
 }
 
 OGLImagingContext::~OGLImagingContext()
@@ -214,17 +191,7 @@ void OGLImagingContext::activate()
 void OGLImagingContext::setSize(const IntPoint& size)
 {
     m_Size = size;
-    glViewport(0, 0, m_Size.x, m_Size.y);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glViewport()");
-    glMatrixMode(GL_PROJECTION);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glMatrixMode()");
-    glLoadIdentity();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glLoadIdentity()");
-    gluOrtho2D(0, m_Size.x, m_Size.y, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "gluOrtho2D()");
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glLoadIdentity()");
+    setSizeState(size);
 }
 
 bool OGLImagingContext::isSupported()
@@ -239,6 +206,51 @@ bool OGLImagingContext::isSupported()
     return (glMajorVer > 1 && queryOGLExtension("GL_ARB_texture_rectangle") && 
             queryOGLExtension("GL_ARB_pixel_buffer_object") &&
             queryOGLExtension("GL_EXT_framebuffer_object"));
+}
+
+void OGLImagingContext::setStandardState(const IntPoint & size)
+{
+    setSizeState(size);
+
+    // Shading etc.
+    glDisable(GL_BLEND);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_BLEND)");
+    glShadeModel(GL_FLAT);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glShadeModel(GL_FLAT)");
+    glDisable(GL_DEPTH_TEST);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_DEPTH_TEST)");
+    glDisable(GL_STENCIL_TEST);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_STENCIL_TEST)");
+
+    // Texturing
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE); 
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glTexEnvf()");
+    glBlendFunc(GL_ONE, GL_ZERO);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glBlendFunc()");
+    glEnable(GL_TEXTURE_RECTANGLE_ARB);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glEnable(GL_TEXTURE_RECTANGLE_ARB);");
+    glDisable(GL_MULTISAMPLE);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glDisable(GL_MULTISAMPLE);");
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+}
+
+void OGLImagingContext::setSizeState(const IntPoint & size)
+{
+    glViewport(0, 0, size.x, size.y);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glViewport()");
+    glMatrixMode(GL_PROJECTION);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glMatrixMode()");
+    glLoadIdentity();
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glLoadIdentity()");
+    gluOrtho2D(0, size.x, size.y, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "gluOrtho2D()");
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "glLoadIdentity()");
 }
 
 }

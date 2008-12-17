@@ -50,6 +50,9 @@ public:
 
     bool isSupported();
 
+    static void setStandardState(const IntPoint & size);
+    static void setSizeState(const IntPoint & size);
+
 private:
     IntPoint m_Size;
 #ifdef __APPLE__
