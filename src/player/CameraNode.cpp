@@ -304,11 +304,11 @@ void CameraNode::preRender()
 {
     if (m_pCamera) {
         ScopeTimer Timer(CameraFetchImage);
-        pCurBmp = m_pCamera->getImage(false);
-        if (pCurBmp) {
+        m_pCurBmp = m_pCamera->getImage(false);
+        if (m_pCurBmp) {
             BitmapPtr pTempBmp;
             while (pTempBmp = m_pCamera->getImage(false)) {
-                pCurBmp = pTempBmp;
+                m_pCurBmp = pTempBmp;
             }
             m_FrameNum++;
         }
@@ -319,10 +319,10 @@ bool CameraNode::renderToSurface(ISurface * pSurface)
 {
     if (m_pCamera) {
         ScopeTimer Timer(CameraProfilingZone);
-        if (pCurBmp) {
+        if (m_pCurBmp) {
             BitmapPtr pBmp = pSurface->lockBmp();
-            assert(pBmp->getPixelFormat() == pCurBmp->getPixelFormat());
-            pBmp->copyPixels(*pCurBmp);
+            assert(pBmp->getPixelFormat() == m_pCurBmp->getPixelFormat());
+            pBmp->copyPixels(*m_pCurBmp);
             pSurface->unlockBmps();
             {
                 ScopeTimer Timer(CameraUploadProfilingZone);

@@ -99,7 +99,7 @@ class AVG_API CameraNode : public VideoBase
 
         CameraPtr m_pCamera;
         int m_FrameNum;
-        BitmapPtr pCurBmp;
+        BitmapPtr m_pCurBmp;
 };
 
 }
