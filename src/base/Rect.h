@@ -25,6 +25,8 @@
 #include "../api.h"
 #include "Point.h"
 
+#include <algorithm>
+
 namespace avg {
 
 // Simple rectangle class.
@@ -157,14 +159,6 @@ bool Rect<NUM>::intersects(const Rect<NUM>& rect) const
     else
       return true;
 }
-
-#ifndef  min
-#define min(a, b)       ((a) < (b) ? (a) : (b))
-#endif
-
-#ifndef  max
-#define max(a, b)       ((a) < (b) ? (b) : (a))
-#endif
 
 template<class NUM>
 void Rect<NUM>::expand(const Rect<NUM>& rect)

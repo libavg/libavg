@@ -41,6 +41,7 @@
 #include "FilterFastDownscale.h"
 #include "FilterMask.h"
 #include "FilterFloodfill.h"
+#include "FilterDilation.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -764,6 +765,35 @@ public:
 
 };
 
+class FilterDilationTest: public GraphicsTest {
+public:
+    FilterDilationTest()
+        : GraphicsTest("FilterDilationTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BitmapPtr pBmp(new Bitmap(IntPoint(6,6), I8));
+        FilterFill<Pixel8>(Pixel8(0)).applyInPlace(pBmp);
+        for (int y=0; y<4; ++y) {
+            pBmp->setPixel(IntPoint(2, y), Pixel8(128));
+            pBmp->setPixel(IntPoint(4, y), Pixel8(128));
+        }
+        pBmp->setPixel(IntPoint(3, 1), Pixel8(255));
+        BitmapPtr pDestBmp = FilterDilation().apply(pBmp);
+        string sFName = "baseline/DilationResult.png";
+        pDestBmp->save(sFName);
+        sFName = getSrcDirName()+sFName;
+        BitmapPtr pRGBXBaselineBmp = BitmapPtr(new Bitmap(sFName));
+        BitmapPtr pBaselineBmp = BitmapPtr(
+                new Bitmap(pRGBXBaselineBmp->getSize(), pDestBmp->getPixelFormat()));
+        pBaselineBmp->copyPixels(*pRGBXBaselineBmp);
+        TEST(*pDestBmp == *pBaselineBmp);
+    }
+
+};
+
 
 class GraphicsTestSuite: public TestSuite {
 public:
@@ -789,6 +819,7 @@ public:
         addTest(TestPtr(new FilterFastDownscaleTest));
         addTest(TestPtr(new FilterMaskTest));
         addTest(TestPtr(new FilterFloodfillTest));
+        addTest(TestPtr(new FilterDilationTest));
     }
 };
 
