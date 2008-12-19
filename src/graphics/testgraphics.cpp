@@ -40,6 +40,7 @@
 #include "FilterBandpass.h"
 #include "FilterFastDownscale.h"
 #include "FilterMask.h"
+#include "FilterFloodfill.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -733,6 +734,36 @@ private:
     }
 };
 
+class FilterFloodfillTest: public GraphicsTest {
+public:
+    FilterFloodfillTest()
+        : GraphicsTest("FilterFloodfillTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BitmapPtr pBmp(new Bitmap(IntPoint(6,6), B8G8R8A8));
+        FilterFill<Pixel32>(Pixel32(0,0,0,255)).applyInPlace(pBmp);
+        for (int y=0; y<4; ++y) {
+            pBmp->setPixel(IntPoint(2, y), Pixel32(255,255,255,255));
+            pBmp->setPixel(IntPoint(4, y), Pixel32(255,255,255,255));
+        }
+        pBmp->setPixel(IntPoint(3, 1), Pixel32(255,255,255,255));
+        BitmapPtr pDestBmp = FilterFloodfill<ColorTester>(
+                ColorTester(Pixel32(255,255,255,255)), IntPoint(4,3)).apply(pBmp);
+        string sFName = "baseline/FloodfillResult.png";
+//        pDestBmp->save(sFName);
+        sFName = getSrcDirName()+sFName;
+        BitmapPtr pRGBXBaselineBmp = BitmapPtr(new Bitmap(sFName));
+        BitmapPtr pBaselineBmp = BitmapPtr(
+                new Bitmap(pRGBXBaselineBmp->getSize(), pDestBmp->getPixelFormat()));
+        pBaselineBmp = FilterFlipRGB().apply(pRGBXBaselineBmp);
+        TEST(*pDestBmp == *pBaselineBmp);
+    }
+
+};
+
 
 class GraphicsTestSuite: public TestSuite {
 public:
@@ -757,6 +788,7 @@ public:
         addTest(TestPtr(new FilterFastBandpassTest));
         addTest(TestPtr(new FilterFastDownscaleTest));
         addTest(TestPtr(new FilterMaskTest));
+        addTest(TestPtr(new FilterFloodfillTest));
     }
 };
 
