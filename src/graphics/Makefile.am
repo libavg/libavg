@@ -19,7 +19,7 @@ ALL_H = Bitmap.h Filter.h\
         FBOImage.h PBOImage.h VertexArray.h VertexData.h OGLImagingContext.h \
         GPUBrightnessFilter.h GPUBlurFilter.h GraphicsTest.h\
         GPUFilter.h GPUBandpassFilter.h FilterIntensity.h \
-        FilterNormalize.h FilterFloodfill.h FilterDilation.h \
+        FilterNormalize.h FilterFloodfill.h FilterDilation.h FilterErosion.h \
         $(APPLE_INCLUDES)
 ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp \
         Filtercolorize.cpp Filterflip.cpp Filterfliprgb.cpp \
@@ -30,7 +30,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp \
         FBOImage.cpp PBOImage.cpp VertexArray.cpp VertexData.cpp OGLImagingContext.cpp \
         GPUBrightnessFilter.cpp GPUBlurFilter.cpp GraphicsTest.cpp \
         GPUFilter.cpp GPUBandpassFilter.cpp FilterIntensity.cpp \
-        FilterNormalize.cpp FilterDilation.cpp \
+        FilterNormalize.cpp FilterDilation.cpp FilterErosion.cpp \
         $(APPLE_SOURCES)
 
 TESTS=testgraphics testgpu

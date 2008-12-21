@@ -42,6 +42,7 @@
 #include "FilterMask.h"
 #include "FilterFloodfill.h"
 #include "FilterDilation.h"
+#include "FilterErosion.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -768,6 +769,22 @@ public:
 
 };
 
+class FilterErosionTest: public GraphicsTest {
+public:
+    FilterErosionTest()
+        : GraphicsTest("FilterErosionTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BitmapPtr pBmp = loadTestBmp("erosion", I8);
+        BitmapPtr pDestBmp = FilterErosion().apply(pBmp);
+        testEqual(*pDestBmp, "ErosionResult", I8, 0, 0);
+    }
+
+};
+
 class GraphicsTestSuite: public TestSuite {
 public:
     GraphicsTestSuite() 
@@ -793,6 +810,7 @@ public:
         addTest(TestPtr(new FilterMaskTest));
         addTest(TestPtr(new FilterFloodfillTest));
         addTest(TestPtr(new FilterDilationTest));
+        addTest(TestPtr(new FilterErosionTest));
     }
 };
 
