@@ -30,7 +30,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp \
         FBOImage.cpp PBOImage.cpp VertexArray.cpp VertexData.cpp OGLImagingContext.cpp \
         GPUBrightnessFilter.cpp GPUBlurFilter.cpp GraphicsTest.cpp \
         GPUFilter.cpp GPUBandpassFilter.cpp FilterIntensity.cpp \
-        FilterNormalize.cpp  FilterDilation.cpp \
+        FilterNormalize.cpp FilterDilation.cpp \
         $(APPLE_SOURCES)
 
 TESTS=testgraphics testgpu

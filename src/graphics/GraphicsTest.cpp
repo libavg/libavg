@@ -54,13 +54,18 @@ void GraphicsTest::createResultImgDir()
 
 BitmapPtr GraphicsTest::loadTestBmp(const std::string& sFName, PixelFormat pf)
 {
-   BitmapPtr pBmp(new Bitmap(getSrcDirName()+"testfiles/"+sFName+".png"));
-   if (pf == I8) {
-       return FilterGrayscale().apply(pBmp);
-   } else {
-       FilterFlipRGB().applyInPlace(pBmp);
-  }
-  return pBmp;
+    try {
+        BitmapPtr pBmp(new Bitmap(getSrcDirName()+"testfiles/"+sFName+".png"));
+        if (pf == I8) {
+            return FilterGrayscale().apply(pBmp);
+        } else {
+            FilterFlipRGB().applyInPlace(pBmp);
+        }
+        return pBmp;
+    } catch (Magick::Exception & ex) {
+        cerr << ex.what() << endl;
+        throw;
+    }
 }
 
 void GraphicsTest::testEqual(Bitmap& ResultBmp, const string& sFName, PixelFormat pf, 

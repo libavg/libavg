@@ -744,13 +744,7 @@ public:
 
     void runTests()
     {
-        BitmapPtr pBmp(new Bitmap(IntPoint(6,6), B8G8R8A8));
-        FilterFill<Pixel32>(Pixel32(0,0,0,255)).applyInPlace(pBmp);
-        for (int y=0; y<4; ++y) {
-            pBmp->setPixel(IntPoint(2, y), Pixel32(255,255,255,255));
-            pBmp->setPixel(IntPoint(4, y), Pixel32(255,255,255,255));
-        }
-        pBmp->setPixel(IntPoint(3, 1), Pixel32(255,255,255,255));
+        BitmapPtr pBmp = loadTestBmp("floodfill");
         BitmapPtr pDestBmp = FilterFloodfill<ColorTester>(
                 ColorTester(Pixel32(255,255,255,255)), IntPoint(4,3)).apply(pBmp);
         testEqual(*pDestBmp, "FloodfillResult", B8G8R8A8, 0, 0);
@@ -767,19 +761,12 @@ public:
 
     void runTests()
     {
-        BitmapPtr pBmp(new Bitmap(IntPoint(6,6), I8));
-        FilterFill<Pixel8>(Pixel8(0)).applyInPlace(pBmp);
-        for (int y=0; y<4; ++y) {
-            pBmp->setPixel(IntPoint(2, y), Pixel8(128));
-            pBmp->setPixel(IntPoint(4, y), Pixel8(128));
-        }
-        pBmp->setPixel(IntPoint(3, 1), Pixel8(255));
+        BitmapPtr pBmp = loadTestBmp("dilation", I8);
         BitmapPtr pDestBmp = FilterDilation().apply(pBmp);
         testEqual(*pDestBmp, "DilationResult", I8, 0, 0);
     }
 
 };
-
 
 class GraphicsTestSuite: public TestSuite {
 public:

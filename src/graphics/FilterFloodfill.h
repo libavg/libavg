@@ -62,6 +62,9 @@ private:
     Pixel32 m_Color;
 };
 
+// Flood fill filter. The comparison functor used to determine whether a pixel
+// belongs to the area is passed as template parameter. Pixels in the flooded area
+// are made transparent.
 template<class PixelTester> 
 class AVG_TEMPLATE_API FilterFloodfill : public Filter
 {
