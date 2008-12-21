@@ -753,14 +753,7 @@ public:
         pBmp->setPixel(IntPoint(3, 1), Pixel32(255,255,255,255));
         BitmapPtr pDestBmp = FilterFloodfill<ColorTester>(
                 ColorTester(Pixel32(255,255,255,255)), IntPoint(4,3)).apply(pBmp);
-        string sFName = "baseline/FloodfillResult.png";
-//        pDestBmp->save(sFName);
-        sFName = getSrcDirName()+sFName;
-        BitmapPtr pRGBXBaselineBmp = BitmapPtr(new Bitmap(sFName));
-        BitmapPtr pBaselineBmp = BitmapPtr(
-                new Bitmap(pRGBXBaselineBmp->getSize(), pDestBmp->getPixelFormat()));
-        pBaselineBmp = FilterFlipRGB().apply(pRGBXBaselineBmp);
-        TEST(*pDestBmp == *pBaselineBmp);
+        testEqual(*pDestBmp, "FloodfillResult", B8G8R8A8, 0, 0);
     }
 
 };
@@ -782,14 +775,7 @@ public:
         }
         pBmp->setPixel(IntPoint(3, 1), Pixel8(255));
         BitmapPtr pDestBmp = FilterDilation().apply(pBmp);
-        string sFName = "baseline/DilationResult.png";
-        pDestBmp->save(sFName);
-        sFName = getSrcDirName()+sFName;
-        BitmapPtr pRGBXBaselineBmp = BitmapPtr(new Bitmap(sFName));
-        BitmapPtr pBaselineBmp = BitmapPtr(
-                new Bitmap(pRGBXBaselineBmp->getSize(), pDestBmp->getPixelFormat()));
-        pBaselineBmp->copyPixels(*pRGBXBaselineBmp);
-        TEST(*pDestBmp == *pBaselineBmp);
+        testEqual(*pDestBmp, "DilationResult", I8, 0, 0);
     }
 
 };
