@@ -32,7 +32,7 @@
 
 namespace avg {
 
-class AVG_API Pixel32
+class Pixel32
 {
 
 public:
@@ -63,7 +63,7 @@ public:
     // equally.
     int boxDist (const Pixel32 Pix) const;
 
-    std::string getColorString() const;
+    std::string AVG_API getColorString() const;
 
     // Returns a weighed average between two pixels. Factor must be 
     // between 0 and 256. Factor=256 means Pix1 is the result, Factor=0 
@@ -75,9 +75,9 @@ public:
     unsigned char m_Data[4];
 };
 
-std::ostream& operator<<(std::ostream& os, const Pixel32& pix);
+AVG_API std::ostream& operator<<(std::ostream& os, const Pixel32& pix);
 
-Pixel32 AVG_API colorStringToColor(const std::string& s);
+AVG_API Pixel32 colorStringToColor(const std::string& s);
 
 inline Pixel32::Pixel32()
 {

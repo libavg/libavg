@@ -22,13 +22,15 @@
 #ifndef _DisplayParams_H_
 #define _DisplayParams_H_
 
+#include "../api.h"
+
 namespace avg {
 
 enum VSyncMode {
     VSYNC_AUTO, VSYNC_OGL, VSYNC_DRI, VSYNC_NONE
 };
 
-struct DisplayParams {
+struct AVG_API DisplayParams {
     DisplayParams();
     virtual ~DisplayParams();
 
