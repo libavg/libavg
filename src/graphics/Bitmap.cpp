@@ -688,6 +688,30 @@ Bitmap * Bitmap::subtract(const Bitmap *pOtherBmp)
     }
     return pResultBmp;
 }
+    
+void Bitmap::blt(const Bitmap* pOtherBmp, const IntPoint& pos)
+{
+    assert(getBytesPerPixel() == 4);
+    assert(pOtherBmp->getPixelFormat() == B8G8R8A8 || 
+            pOtherBmp->getPixelFormat() == R8G8B8A8);
+
+    IntRect destRect(pos.x, pos.y, pos.x+pOtherBmp->getSize().x, 
+            pos.y+pOtherBmp->getSize().y);
+    destRect.intersect(IntRect(IntPoint(0,0), getSize()));
+    for (int y = 0; y < destRect.height(); y++) {
+        unsigned char * pSrcPixel = getPixels()+(pos.y+y)*getStride()+pos.x*4;
+        const unsigned char * pOtherPixel = pOtherBmp->getPixels()+
+                y*pOtherBmp->getStride(); 
+        for (int x = 0; x < destRect.width(); x++) {
+            int srcAlpha = 255-pOtherPixel[3];
+            pSrcPixel[0] = (srcAlpha*pSrcPixel[0]+(int)(pOtherPixel[3])*pOtherPixel[0])/256;
+            pSrcPixel[1] = (srcAlpha*pSrcPixel[1]+(int)(pOtherPixel[3])*pOtherPixel[1])/256;
+            pSrcPixel[2] = (srcAlpha*pSrcPixel[2]+(int)(pOtherPixel[3])*pOtherPixel[2])/256;
+            pSrcPixel += 4;
+            pOtherPixel += 4;
+        }
+    }
+}
 
 double Bitmap::getAvg() const
 {

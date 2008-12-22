@@ -112,6 +112,7 @@ public:
     void drawLine(IntPoint p0, IntPoint p1, Pixel Color);
 
     Bitmap * subtract(const Bitmap* pOtherBmp);
+    void blt(const Bitmap* pOtherBmp, const IntPoint& pos);
     double getAvg() const;
     double getStdDev() const;
 
