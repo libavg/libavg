@@ -49,6 +49,16 @@ using namespace std;
 #define MODE_1024x768_YUV422 3
 #define MODE_1024x768_RGB    4
 
+#define FORMAT_2 2
+#define MODE_1280x960_MONO   2
+#define MODE_1280x960_MONO16 6
+#define MODE_1280x960_YUV422 0
+#define MODE_1280x960_RGB    1
+#define MODE_1600x1200_MONO   5
+#define MODE_1600x1200_MONO16 7
+#define MODE_1600x1200_YUV422 3
+#define MODE_1600x1200_RGB    4
+
 // Framerates
 #define FRAMERATE_1_875 0
 #define FRAMERATE_3_75  1
@@ -102,6 +112,28 @@ void getVideoFormatAndMode(IntPoint& Size, std::string& sPF,
             *pVideoMode = MODE_1024x768_YUV422;
         } else if (sPF == "RGB" || sPF == "BGR") {
             *pVideoMode = MODE_1024x768_RGB;
+        }
+    } else if (Size.x == 1280 && Size.y == 960) {
+        *pVideoFormat = FORMAT_2;
+        if (sPF == "MONO8" || sPF == "BY8_GBRG") {
+            *pVideoMode = MODE_1280x960_MONO;
+        } else if (sPF == "MONO16") {
+            *pVideoMode = MODE_1280x960_MONO16;
+        } else if (sPF == "YUV422") {
+            *pVideoMode = MODE_1280x960_YUV422;
+        } else if (sPF == "RGB" || sPF == "BGR") {
+            *pVideoMode = MODE_1280x960_RGB;
+        }
+    } else if (Size.x == 1600 && Size.y == 1200) {
+        *pVideoFormat = FORMAT_2;
+        if (sPF == "MONO8" || sPF == "BY8_GBRG") {
+            *pVideoMode = MODE_1600x1200_MONO;
+        } else if (sPF == "MONO16") {
+            *pVideoMode = MODE_1600x1200_MONO16;
+        } else if (sPF == "YUV422") {
+            *pVideoMode = MODE_1600x1200_YUV422;
+        } else if (sPF == "RGB" || sPF == "BGR") {
+            *pVideoMode = MODE_1600x1200_RGB;
         }
     } else {
         AVG_TRACE (Logger::WARNING,

@@ -34,7 +34,7 @@
 
 namespace avg {
 
-class CMUCamera : public Camera {
+class AVG_API CMUCamera : public Camera {
 public:
     CMUCamera(std::string sDevice, IntPoint Size, std::string sPF,
             double FrameRate, bool bColor);

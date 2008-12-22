@@ -25,6 +25,7 @@
 #include "CMUCameraUtils.h"
 
 #include "../base/Logger.h"
+#include "../base/StringHelper.h"
 #include "../graphics/Filterfliprgb.h"
 
 
@@ -100,10 +101,12 @@ void CMUCamera::open()
 
     // Setup video format and rate
     if (m_Camera.SetVideoFormat(videoFormat) != CAM_SUCCESS) {
-        fatalError("Error setting video format");
+        fatalError(string("CMUCamera: Error setting video format ") 
+                + toString(videoFormat) + ", mode: " + toString(videoMode));
     }
     if (m_Camera.SetVideoMode(videoMode) != CAM_SUCCESS) {
-        fatalError("Error setting video mode");
+        fatalError(string("CMUCamera: Error setting video mode ") 
+                + toString(videoMode) + ", format: " + toString(videoFormat));
     }
     if (m_Camera.SetVideoFrameRate(getFrameRateConst(m_FrameRate)) != CAM_SUCCESS) {
         fatalError("Error setting frame rate");
