@@ -62,8 +62,8 @@ enum OGLMemoryMode {
     PBO   // pixel buffer objects
 };
 
-void pushGLState();
-void popGLState();
+void AVG_API pushGLState();
+void AVG_API popGLState();
 
 typedef void (*GLfunction)();
 GLfunction AVG_API getFuzzyProcAddress(const char * psz);
