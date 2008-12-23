@@ -228,6 +228,27 @@ void CMUCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValu
     }
 }
 
+void CMUCamera::setFeatureOneShot(CameraFeature Feature)
+{
+    if (m_bCameraAvailable) {
+        CAMERA_FEATURE cmuFeature = getFeatureID(Feature);
+        if (cmuFeature != FEATURE_INVALID_FEATURE && m_Camera.HasFeature(cmuFeature)) {
+            C1394CameraControl* pControl = m_Camera.GetCameraControl(cmuFeature);
+            if (pControl->SetAutoMode(false) != CAM_SUCCESS) {
+                AVG_TRACE(Logger::WARNING, string("Error setting feature: ") + 
+                        cameraFeatureToString(Feature));
+            }
+            if (pControl->SetOnePush(true) != CAM_SUCCESS) {
+                AVG_TRACE(Logger::WARNING, string("Error setting feature: ") + 
+                        cameraFeatureToString(Feature));
+            }
+        } else {
+            AVG_TRACE(Logger::WARNING, string("Camera does not support feature: ") + 
+                    cameraFeatureToString(Feature));
+        }
+    }
+}
+
 void CMUCamera::fatalError(const string & sMsg)
 {
     AVG_TRACE(Logger::ERROR, sMsg);

@@ -392,6 +392,12 @@ void DSCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue
     }
 }
 
+void DSCamera::setFeatureOneShot(CameraFeature Feature)
+{
+    AVG_TRACE(Logger::WARNING, 
+            "OneShot feature setting not implemented for DirectShow camera driver.");
+}
+
 void DSCamera::initGraphBuilder()
 {
     HRESULT hr;

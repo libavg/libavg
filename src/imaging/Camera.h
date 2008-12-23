@@ -75,6 +75,7 @@ public:
     virtual unsigned int getFeature(CameraFeature Feature) const = 0;
     virtual void setFeature(CameraFeature Feature, int Value, 
             bool bIgnoreOldValue=false) = 0;
+    virtual void setFeatureOneShot(CameraFeature Feature) = 0;
 };
 
 typedef boost::shared_ptr<Camera> CameraPtr;

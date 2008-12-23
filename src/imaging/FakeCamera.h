@@ -53,6 +53,7 @@ class AVG_API FakeCamera: public Camera
         
         virtual unsigned int getFeature(CameraFeature Feature) const;
         virtual void setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue=false);
+        virtual void setFeatureOneShot(CameraFeature Feature);
 
     private:
         IntPoint m_ImgSize;

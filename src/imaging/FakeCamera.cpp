@@ -129,6 +129,10 @@ void FakeCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldVal
 {
 }
 
+void FakeCamera::setFeatureOneShot(CameraFeature Feature)
+{
+}
+
 }
 
 

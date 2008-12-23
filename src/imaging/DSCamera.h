@@ -61,6 +61,7 @@ public:
 
     virtual unsigned int getFeature(CameraFeature Feature) const;
     virtual void setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue=false);
+    virtual void setFeatureOneShot(CameraFeature Feature);
 
 private:
     void initGraphBuilder();
