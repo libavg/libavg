@@ -307,5 +307,36 @@ struct DPoint_from_python_tuple
     }
 };
 
+//TODO: This is duplicated code.
+struct IntPoint_from_python_tuple
+{
+    IntPoint_from_python_tuple()
+    {
+        boost::python::converter::registry::push_back(
+                &convertible,
+                &construct,
+                boost::python::type_id<avg::IntPoint>());
+    }
+
+    static void* convertible(PyObject* obj_ptr)
+    {
+        if (!PyTuple_Check(obj_ptr)) return 0;
+        return obj_ptr;
+    }
+
+    static void construct(PyObject* obj_ptr,
+            boost::python::converter::rvalue_from_python_stage1_data* data)
+    {
+        avg::IntPoint pt;
+        PyObject * pEntry = PyTuple_GetItem(obj_ptr, 0);
+        pt.x = PyInt_AsLong(pEntry);
+        pEntry = PyTuple_GetItem(obj_ptr, 1);
+        pt.y = PyInt_AsLong(pEntry);
+        void* storage = (
+                (boost::python::converter::rvalue_from_python_storage<avg::IntPoint>*)data)->storage.bytes;
+        new (storage) avg::IntPoint(pt);
+        data->convertible = storage;
+    }
+};
 
 #endif

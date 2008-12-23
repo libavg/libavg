@@ -69,6 +69,7 @@ BOOST_PYTHON_MODULE(avg)
     register_ptr_to_python<MouseEventPtr>();
 
     to_python_converter<IntPoint, Point_to_python_tuple<int> >();
+    IntPoint_from_python_tuple();
     DPoint_from_python_tuple();
 
     class_<Logger>("Logger", 
