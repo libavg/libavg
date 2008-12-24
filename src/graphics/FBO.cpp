@@ -58,20 +58,20 @@ BitmapPtr FBO::getImage(int i) const
     IntPoint size = m_pOutputPBO->getSize();
     BitmapPtr pBmp(new Bitmap(m_pOutputPBO->getSize(), pf));
     glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, m_pOutputPBO->getOutputPBO());
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::getImage BindBuffer()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage BindBuffer()");
     glReadBuffer(GL_COLOR_ATTACHMENT0_EXT+i);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::getImage ReadBuffer()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage ReadBuffer()");
     
     glReadPixels (0, 0, size.x, size.y, m_pOutputPBO->getFormat(pf), 
             m_pOutputPBO->getType(pf), 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::getImage ReadPixels()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage ReadPixels()");
     void * pPBOPixels = glproc::MapBuffer(GL_PIXEL_PACK_BUFFER_EXT, GL_READ_ONLY);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::getImage MapBuffer()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage MapBuffer()");
     Bitmap PBOBitmap(size, pf, (unsigned char *)pPBOPixels, 
             size.x*Bitmap::getBytesPerPixel(pf), false);
     pBmp->copyPixels(PBOBitmap);
     glproc::UnmapBuffer(GL_PIXEL_PACK_BUFFER_EXT);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBOImage::getImage: UnmapBuffer()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "FBO::getImage: UnmapBuffer()");
     glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
     deactivate();
     return pBmp;
