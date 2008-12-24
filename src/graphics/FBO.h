@@ -19,43 +19,48 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "FBOImage.h"
-#include "OGLHelper.h"
+#ifndef _FBO_H_
+#define _FBO_H_
 
-#include "../base/Logger.h"
-#include "../base/Exception.h"
+#include "../api.h"
 
-#include <cstdio>
-#include <iostream>
+#include "../base/Point.h"
+#include "../graphics/PBOImage.h"
 
-using namespace std;
+#include <boost/shared_ptr.hpp>
+#include <vector>
 
 namespace avg {
 
-FBOImage::FBOImage(const IntPoint& size, PixelFormat pfInternal, PixelFormat pfExternal,
-            bool bUseInputPBO, bool bUseOutputPBO)
-    : PBOImage(size, pfInternal, pfExternal, bUseInputPBO, bUseOutputPBO)
+class AVG_API FBO
 {
-    m_pFBO = FBOPtr(new FBO(size, pfExternal, getTexID()));
+public:
+    FBO(const IntPoint& size, PixelFormat pf, unsigned texID);
+    FBO(const IntPoint& size, PixelFormat pf, std::vector<unsigned> texIDs);
+    virtual ~FBO();
+
+    void activate() const;
+    void deactivate() const;
+
+    BitmapPtr getImage(int i) const;
+
+    static bool isFBOSupported();
+
+private:
+    void init();
+    void checkError() const;
+
+    IntPoint m_Size;
+    PixelFormat m_PF;
+    PBOImagePtr m_pOutputPBO;
+    unsigned m_FBO;
+    std::vector<unsigned> m_TexIDs;
+};
+
+typedef boost::shared_ptr<FBO> FBOPtr;
+
 }
 
-FBOImage::~FBOImage()
-{
-}
-    
-void FBOImage::activate() const
-{
-    m_pFBO->activate();
-}
 
-void FBOImage::deactivate() const
-{
-    m_pFBO->deactivate();
-}
+#endif 
 
-BitmapPtr FBOImage::getImage() const
-{
-    return m_pFBO->getImage(0);
-}
-
-}

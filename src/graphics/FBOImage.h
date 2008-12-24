@@ -23,6 +23,7 @@
 #define _FBOImage_H_
 
 #include "../api.h"
+#include "FBO.h"
 #include "PBOImage.h"
 #include "Bitmap.h"
 #include "../base/Point.h"
@@ -45,9 +46,7 @@ public:
     static bool isFBOSupported();
 
 private:
-    void checkError() const;
-
-    unsigned m_FBO;
+    FBOPtr m_pFBO;
 };
 
 typedef boost::shared_ptr<FBOImage> FBOImagePtr;

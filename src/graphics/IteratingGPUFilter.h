@@ -1,25 +1,33 @@
-// Copyright (C) 2008 Archimedes Solutions GmbH,
-// Saarbrücker Str. 24b, Berlin, Germany
 //
-// This file contains proprietary source code and confidential
-// information. Its contents may not be disclosed or distributed to
-// third parties unless prior specific permission by Archimedes
-// Solutions GmbH, Berlin, Germany is obtained in writing. This applies
-// to copies made in any form and using any medium. It applies to
-// partial as well as complete copies.
+//  libavg - Media Playback Engine. 
+//  Copyright (C) 2003-2008 Ulrich von Zadow
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2 of the License, or (at your option) any later version.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  Current versions can be found at www.libavg.de
+//
 
 #ifndef _IteratingGPUFilter_H_
 #define _IteratingGPUFilter_H_
 
 #include "../api.h"
 
+#include "Filter.h"
+#include "PBOImage.h"
+#include "FBO.h"
 #include "../base/Point.h"
-#include "../base/ScopeTimer.h"
-
-#include "../graphics/Filter.h"
-#include "../graphics/PBOImage.h"
-
-using namespace std;
 
 namespace avg {
 
@@ -29,22 +37,15 @@ public:
     IteratingGPUFilter(const IntPoint& size, int numIterations);
     virtual ~IteratingGPUFilter();
     virtual BitmapPtr apply(BitmapPtr pImage);
-    BitmapPtr getImage() const;
 
 private:
-    void createFBO();
-    void activate() const;
-    void deactivate() const;
-    void checkError() const;
-
     void applyOnGPU();
     virtual void applyOnce(PBOImagePtr pSrc) = 0;
    
-    IntPoint m_Size;
     int m_NumIterations;
     PBOImagePtr m_pSrcPBO;
     PBOImagePtr m_pDestPBO;
-    unsigned m_FBO;
+    FBOPtr m_pFBO;
 };
 
 }
