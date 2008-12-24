@@ -536,6 +536,17 @@ void FWCamera::setFeature(dc1394feature_t Feature, int Value)
 #endif
 }
 
+void FWCamera::setFeatureOneShot(CameraFeature Feature)
+{
+#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
+    if (m_bCameraAvailable) {
+        dc1394feature_t FeatureID = getFeatureID(Feature);
+        dc1394error_t err = dc1394_feature_set_mode(m_pCamera, FeatureID, 
+                DC1394_FEATURE_MODE_ONE_PUSH_AUTO);
+    }
+#endif
+}
+
 #ifdef AVG_ENABLE_1394
 bool FWCamera::findCameraOnPort(int port, raw1394handle_t& FWHandle)
 {

@@ -72,6 +72,7 @@ public:
     virtual unsigned int getFeature(CameraFeature Feature) const;
     virtual void setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue=false);
     void setFeature(dc1394feature_t Feature, int Value);
+    virtual void setFeatureOneShot(CameraFeature Feature);
 
 private:
     void setStrobeDuration(int microsecs);
