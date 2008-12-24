@@ -25,6 +25,7 @@
 #include "GPUBlurFilter.h"
 #include "GPUBandpassFilter.h"
 #include "OGLImagingContext.h"
+#include "IteratingGPUFilter.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -70,11 +71,13 @@ private:
         cerr << "    Testing " << sFName << " (" << pBmp->getPixelFormatString() << ")" 
                 << endl;
         cerr << "      PBO:" << endl;
-        PBOImage pbo(pBmp->getSize(), pBmp->getPixelFormat(), pBmp->getPixelFormat(), true, true);
+        PBOImage pbo(pBmp->getSize(), pBmp->getPixelFormat(), pBmp->getPixelFormat(), 
+                true, true);
         runPBOImageTest(pbo, pBmp, string("pbo_")+sFName);
         if (pf != I8) {
             cerr << "      FBO:" << endl;
-            FBOImage fbo(pBmp->getSize(), pBmp->getPixelFormat(), pBmp->getPixelFormat(), true, true);
+            FBOImage fbo(pBmp->getSize(), pBmp->getPixelFormat(), pBmp->getPixelFormat(),
+                    true, true);
             runPBOImageTest(fbo, pBmp, string("fbo_")+sFName);
         }
     }
@@ -82,14 +85,16 @@ private:
     void compareByteArrays(unsigned char *in, unsigned char *out, int n) {
         for (int i=0; i<n; i++) {
             if (in[i] != out[i]) {
-                TEST_FAILED("compareByteArrays: " + toString((int)in[i]) + " (in) != " + toString((int)out[i]) + " (out)")
+                TEST_FAILED("compareByteArrays: " + toString((int)in[i]) + " (in) != "
+                        + toString((int)out[i]) + " (out)")
             }
         }
     }
     void compareFloatArrays(float *in, float *out, int n) {
         for (int i=0; i<n; i++) {
             if (fabs(in[i]-out[i])>1e-5) {
-                TEST_FAILED("compareFloatArrays: " + toString(in[i]) + " (in) != " + toString(out[i]) + " (out)")
+                TEST_FAILED("compareFloatArrays: " + toString(in[i]) + " (in) != " 
+                        + toString(out[i]) + " (out)")
             }
         }
     }
@@ -254,15 +259,15 @@ public:
         pBmp = loadTestBmp("spike");
         pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 0.5).apply(pBmp);
         testEqualBrightness(*pDestBmp, *pBmp, 0.0004);
-        testEqual(*pDestBmp, "blur05_spike", NO_PIXELFORMAT, 0.01, 0.1);
+        testEqual(*pDestBmp, "blur05_spike", B8G8R8X8, 0.01, 0.1);
         cerr << "    Testing spike, stddev 1" << endl;
         pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 1).apply(pBmp);
 //        testEqualBrightness(*pDestBmp, *pBmp, 5);
-        testEqual(*pDestBmp, "blur1_spike", NO_PIXELFORMAT, 0.01, 0.1);
+        testEqual(*pDestBmp, "blur1_spike", B8G8R8X8, 0.01, 0.1);
         cerr << "    Testing spike, stddev 3" << endl;
         pDestBmp = GPUBlurFilter(pBmp->getSize(), pBmp->getPixelFormat(), 3).apply(pBmp);
 //        testEqualBrightness(*pDestBmp, *pBmp, 5);
-        testEqual(*pDestBmp, "blur5_spike", NO_PIXELFORMAT, 0.01, 0.1);
+        testEqual(*pDestBmp, "blur5_spike", B8G8R8X8, 0.01, 0.1);
 
         cerr << "    Testing flat, stddev 5" << endl;
         pBmp = loadTestBmp("flat");
@@ -312,6 +317,65 @@ private:
     }
 };
 
+
+class IteratingGPUTestFilter: public IteratingGPUFilter 
+{
+public:
+    IteratingGPUTestFilter(const IntPoint& size)
+        : IteratingGPUFilter(size, 1)
+    {
+        if (!s_pShader) {
+            initShader();
+        }
+    }
+
+protected:
+    void initShader()
+    {
+        string sCode =
+            "#extension GL_ARB_texture_rectangle : enable\n" 
+            "uniform sampler2DRect Texture;\n"
+            "void main(void)\n"
+            "{\n"
+            "    gl_FragColor = texture2DRect(Texture,\n"
+            "           vec2(gl_TexCoord[0].s, gl_TexCoord[0].t-10.0));\n"
+            "}\n";
+        s_pShader = OGLShaderPtr(new OGLShader(sCode));
+    }
+
+    void applyOnce(PBOImagePtr pSrc)
+    {
+        s_pShader->activate();
+        s_pShader->setUniformIntParam("Texture", 0);
+        pSrc->draw();
+    }
+
+private:
+    OGLShaderPtr s_pShader;
+};
+
+
+class IteratingGPUFilterTest: public GraphicsTest {
+public:
+    IteratingGPUFilterTest()
+        : GraphicsTest("IteratingGPUFilterTest", 2)
+    {
+    }
+
+    void runTests() 
+    {
+        BitmapPtr pBmp = loadTestBmp("spike", R8G8B8A8);
+        BitmapPtr pSrcBmp(new Bitmap(pBmp->getSize(), R32G32B32A32F));
+        pSrcBmp->copyPixels(*pBmp); 
+        IteratingGPUTestFilter f(pBmp->getSize());
+        BitmapPtr pDestBmp = f.apply(pSrcBmp);
+        BitmapPtr pByteDestBmp(new Bitmap(pBmp->getSize(), R8G8B8A8));
+        pByteDestBmp->copyPixels(*pDestBmp);
+        testEqual(*pByteDestBmp, "iteratingGPUFilter", R8G8B8A8);
+    }
+};
+
+
 class GPUTestSuite: public TestSuite {
 public:
     GPUTestSuite() 
@@ -321,6 +385,7 @@ public:
         addTest(TestPtr(new BrightnessFilterTest));
         addTest(TestPtr(new BlurFilterTest));
         addTest(TestPtr(new BandpassFilterTest));
+        addTest(TestPtr(new IteratingGPUFilterTest));
     }
 };
 

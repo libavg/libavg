@@ -236,6 +236,7 @@ int PBOImage::getType(PixelFormat pf) const
             return 0;
     }
 }
+
 int PBOImage::getFormat(PixelFormat pf) const
 {
     switch (pf) {

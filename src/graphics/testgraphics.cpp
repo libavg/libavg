@@ -156,6 +156,15 @@ public:
             testEqual(*pBmp, *pBaselineBmp, "BmpCopyPixels_3");
         }
         {
+            cerr << "    Testing copyPixels - R8G8B8A8->R32G32B32A32F->R8G8B8A8." << endl;
+            BitmapPtr pBmp = initBmp(R8G8B8A8);
+            BitmapPtr pBaselineBmp = initBmp(R8G8B8A8);
+            BitmapPtr pCopyBmp = BitmapPtr(new Bitmap(IntPoint(4,7), R32G32B32A32F));
+            pCopyBmp->copyPixels(*pBmp);
+            pBmp->copyPixels(*pCopyBmp);
+            testEqual(*pBmp, *pBaselineBmp, "BmpCopyPixels_3");
+        }
+        {
             cerr << "    Testing statistics." << endl;
             cerr << "      I8" << endl;
             testStatistics(I8, Pixel8(0), Pixel8(0), Pixel8(2), Pixel8(2));

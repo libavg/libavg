@@ -291,8 +291,26 @@ void Bitmap::copyPixels(const Bitmap & Orig)
                         assert(false);
                 }
                 break;
+            case R32G32B32A32F:
+                if (getBytesPerPixel() == 4) {
+                    FloatRGBAtoByteRGBA(Orig);
+                } else {
+                    cerr << "Can't convert " << Orig.getPixelFormatString() 
+                        << " to " << getPixelFormatString() << endl;
+                    assert(false);
+                }
+                break;
             default:
                 switch(m_PF) {
+                    case R32G32B32A32F:
+                        if (Orig.getBytesPerPixel() == 4) {
+                            ByteRBBAtoFloatRGBA(Orig);
+                        } else {
+                            cerr << "Can't convert " << Orig.getPixelFormatString() 
+                                    << " to " << getPixelFormatString() << endl;
+                            assert(false);
+                        }
+                        break;
                     case B8G8R8A8:
                     case B8G8R8X8:
                     case A8B8G8R8:
@@ -646,7 +664,10 @@ bool Bitmap::operator ==(const Bitmap & otherBmp)
 Bitmap * Bitmap::subtract(const Bitmap *pOtherBmp)
 {
     if (m_PF != pOtherBmp->getPixelFormat())
-        throw Exception(AVG_ERR_UNSUPPORTED, "Bitmap::subtract: pixel formats differ");
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                string("Bitmap::subtract: pixel formats differ(")
+                + getPixelFormatString(m_PF)+", "
+                + getPixelFormatString(pOtherBmp->getPixelFormat())+")");
     if (m_Size != pOtherBmp->getSize())
         throw Exception(AVG_ERR_UNSUPPORTED, string("Bitmap::subtract: bitmap sizes differ (this=")
         + toString(m_Size) + ", other=" + toString(pOtherBmp->getSize()) + ")");
@@ -818,12 +839,21 @@ void Bitmap::dump(bool bDumpPixels) const
             unsigned char * pLine = m_pBits+m_Stride*y;
             cerr << "    ";
             for (int x=0; x<m_Size.x; ++x) {
-                unsigned char * pPixel = pLine+getBytesPerPixel()*x;
-                cerr << "[";
-                for (int i=0; i<getBytesPerPixel(); ++i) {
-                    cerr << hex << setw(2) << (int)(pPixel[i]) << " ";
+                if (m_PF == R32G32B32A32F) {
+                    float * pPixel = (float*)(pLine+getBytesPerPixel()*x);
+                    cerr << "[";
+                    for (int i=0; i<4; ++i) {
+                        cerr << setw(4) << setprecision(2) << pPixel[i] << " ";
+                    }
+                    cerr << "]";
+                } else {
+                    unsigned char * pPixel = pLine+getBytesPerPixel()*x;
+                    cerr << "[";
+                    for (int i=0; i<getBytesPerPixel(); ++i) {
+                        cerr << hex << setw(2) << (int)(pPixel[i]) << " ";
+                    }
+                    cerr << "]";
                 }
-                cerr << "]";
             }
             cerr << endl;
         }
@@ -1213,6 +1243,47 @@ void Bitmap::I8toRGB(const Bitmap& Orig)
     }
 }
 
+void Bitmap::ByteRBBAtoFloatRGBA(const Bitmap& Orig)
+{
+    assert(getPixelFormat() == R32G32B32A32F);
+    assert(Orig.getBytesPerPixel() == 4);
+    const unsigned char * pSrc = Orig.getPixels();
+    int Height = min(Orig.getSize().y, m_Size.y);
+    int Width = min(Orig.getSize().x, m_Size.x);
+    float * pDest = (float *)m_pBits;
+    for (int y=0; y<Height; ++y) {
+        const unsigned char * pSrcPixel = pSrc;
+        float * pDestPixel = pDest;
+        for (int x=0; x<Width*4; ++x) {
+            *pDestPixel = float(*pSrcPixel)/255;
+            pDestPixel ++;
+            pSrcPixel++;
+        }
+        pDest += m_Stride/sizeof(float);
+        pSrc += Orig.getStride();
+    }
+}
+
+void Bitmap::FloatRGBAtoByteRGBA(const Bitmap& Orig)
+{
+    assert(getBytesPerPixel() == 4);
+    assert(Orig.getPixelFormat() == R32G32B32A32F);
+    const float * pSrc = (const float *)Orig.getPixels();
+    int Height = min(Orig.getSize().y, m_Size.y);
+    int Width = min(Orig.getSize().x, m_Size.x);
+    unsigned char * pDest = m_pBits;
+    for (int y=0; y<Height; ++y) {
+        const float * pSrcPixel = pSrc;
+        unsigned char * pDestPixel = pDest;
+        for (int x=0; x<Width*4; ++x) {
+            *pDestPixel = (unsigned char)(*pSrcPixel*255);
+            pDestPixel++;
+            pSrcPixel++;
+        }
+        pDest += m_Stride;
+        pSrc += Orig.getStride()/sizeof(float);
+    }
+}
 
 // Nearest Neighbour Bayer Pattern de-mosaicking
 // Code has been taken and adapted from libdc1394 Bayer conversion

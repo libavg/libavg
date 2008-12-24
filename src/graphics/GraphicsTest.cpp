@@ -74,10 +74,17 @@ void GraphicsTest::testEqual(Bitmap& ResultBmp, const string& sFName, PixelForma
     BitmapPtr pBaselineBmp;
     try {
         pBaselineBmp = BitmapPtr(new Bitmap(getSrcDirName()+"baseline/"+sFName+".png"));
-        if (pf == I8) {
-            FilterGrayscale().applyInPlace(pBaselineBmp);
-        } else {
-            FilterFlipRGB().applyInPlace(pBaselineBmp);
+        switch (pf) {
+            case I8:
+                FilterGrayscale().applyInPlace(pBaselineBmp);
+                break;
+            case B8G8R8:
+            case B8G8R8A8:
+            case B8G8R8X8:
+                FilterFlipRGB().applyInPlace(pBaselineBmp);
+                break;
+            default:
+                break;
         }
     } catch (Magick::Exception & ex) {
         cerr << ex.what() << endl;

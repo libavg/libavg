@@ -142,9 +142,9 @@ class VideoDecoderTest: public DecoderTest {
 
                 // Test first two frames.
                 pDecoder->renderToBmp(pBmp, -1);
-                testEqual(*pBmp, sFilename+"_1");
+                testEqual(*pBmp, sFilename+"_1", B8G8R8X8);
                 pDecoder->renderToBmp(pBmp, -1);
-                testEqual(*pBmp, sFilename+"_2");
+                testEqual(*pBmp, sFilename+"_2", B8G8R8X8);
                 pDecoder->close();
                 
                 readWholeFile(sFilename, 1, ExpectedNumFrames); 
@@ -181,7 +181,7 @@ class VideoDecoderTest: public DecoderTest {
             BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
             pDecoder->seek((long long)(FrameNum*1000/pDecoder->getNominalFPS()));
             pDecoder->renderToBmp(pBmp, -1);
-            testEqual(*pBmp, sFilename+"_"+toString(FrameNum));
+            testEqual(*pBmp, sFilename+"_"+toString(FrameNum), B8G8R8X8);
 
         }
 
@@ -217,13 +217,13 @@ class VideoDecoderTest: public DecoderTest {
 //            cerr << "NumFrames: " << NumFrames << ", ExpectedNumFrames: " << ExpectedNumFrames << endl;
             TEST(NumFrames == ExpectedNumFrames);
             if (SpeedFactor == 1) {
-                testEqual(*pBmp, sFilename+"_end");
+                testEqual(*pBmp, sFilename+"_end", B8G8R8X8);
             }
             
             // Test loop.
             pDecoder->seek(0);
             pDecoder->renderToBmp(pBmp, -1);
-            testEqual(*pBmp, sFilename+"_loop");
+            testEqual(*pBmp, sFilename+"_loop", B8G8R8X8);
 
             pDecoder->close();
         }
@@ -389,7 +389,7 @@ class AVDecoderTest: public DecoderTest {
             TEST(pDecoder->isEOF(SS_VIDEO));
 //            cerr << "NumFrames: " << NumFrames << endl;
             TEST(NumFrames == ExpectedNumFrames);
-            testEqual(*pBmp, sFilename+"_end");
+            testEqual(*pBmp, sFilename+"_end", B8G8R8X8);
 
             if (isDemuxerThreaded()) {
                 // Check if audio length was ok.
@@ -401,7 +401,7 @@ class AVDecoderTest: public DecoderTest {
             // Test loop.
             pDecoder->seek(0);
             pDecoder->renderToBmp(pBmp, -1);
-            testEqual(*pBmp, sFilename+"_loop");
+            testEqual(*pBmp, sFilename+"_loop", B8G8R8X8);
 
             pDecoder->close();
         }

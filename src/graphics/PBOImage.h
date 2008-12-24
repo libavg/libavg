@@ -50,8 +50,6 @@ public:
     PixelFormat getIntPF() const;
     PixelFormat getExtPF() const;
     const IntPoint& getSize() const;
-
-protected:
     unsigned getTexID() const;
     unsigned getOutputPBO() const;
     int getFormat(PixelFormat pf) const;
