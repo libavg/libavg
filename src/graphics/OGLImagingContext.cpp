@@ -23,6 +23,12 @@
 
 #include "../base/Exception.h"
 
+// XXX: If the following include is not there, the MS linker optimizes away
+// IteratingGPUFilter so it can't be used by plugins anymore (!).
+#ifdef _WIN32
+#include "IteratingGPUFilter.h"
+#endif
+
 #include <assert.h>
 #include <iostream>
 
@@ -156,6 +162,7 @@ OGLImagingContext::OGLImagingContext(const IntPoint & size)
     setSize(size);
 
     setStandardState(size);
+//    IteratingGPUFilter f(IntPoint(100, 100), 15);
 }
 
 OGLImagingContext::~OGLImagingContext()
