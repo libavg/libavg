@@ -29,10 +29,10 @@
 #include "../base/FileHelper.h"
 #include "../base/Logger.h"
 #include "../base/OSHelper.h"
+#include "dlfcn.h"
 
 #include <iostream>
 #include <string>
-#include <dlfcn.h>
 
 using namespace std;
 using namespace avg;
@@ -59,7 +59,8 @@ PluginManager& PluginManager::get()
 
 PluginManager::PluginManager()
 {
-    setSearchPath("./plugin"PATH_DELIMITER + getAvgLibPath() + "plugin");
+    setSearchPath(string("."PATH_DELIMITER) + "./plugin"PATH_DELIMITER + 
+            getAvgLibPath() + "plugin");
 }
 
 void PluginManager::setSearchPath(const string& sNewPath)
