@@ -44,6 +44,7 @@
 #include "FilterDilation.h"
 #include "FilterErosion.h"
 #include "FilterGetAlpha.h"
+#include "FilterResizeBilinear.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -814,6 +815,31 @@ public:
 
 };
 
+class FilterResizeBilinearTest: public GraphicsTest {
+public:
+    FilterResizeBilinearTest()
+        : GraphicsTest("FilterResizeBilinearTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BitmapPtr pBmp = loadTestBmp("rgb24alpha-64x64", B8G8R8A8);
+        runTestWithBitmap(pBmp);
+        pBmp = loadTestBmp("rgb24-64x64", B8G8R8X8);
+        runTestWithBitmap(pBmp);
+    }
+
+private:
+    void runTestWithBitmap(BitmapPtr pBmp)
+    {
+        BitmapPtr pDestBmp = FilterResizeBilinear(IntPoint(32,32)).apply(pBmp);
+        string sName = string("ResizeBilinearResult")+pBmp->getPixelFormatString();
+        testEqual(*pDestBmp, sName, pBmp->getPixelFormat());
+    }
+
+};
+
 class GraphicsTestSuite: public TestSuite {
 public:
     GraphicsTestSuite() 
@@ -841,6 +867,7 @@ public:
         addTest(TestPtr(new FilterDilationTest));
         addTest(TestPtr(new FilterErosionTest));
         addTest(TestPtr(new FilterAlphaTest));
+        addTest(TestPtr(new FilterResizeBilinearTest));
     }
 };
 

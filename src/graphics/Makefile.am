@@ -21,6 +21,8 @@ ALL_H = Bitmap.h Filter.h\
         GPUFilter.h GPUBandpassFilter.h FilterIntensity.h \
         FilterNormalize.h FilterFloodfill.h FilterDilation.h FilterErosion.h \
         FilterGetAlpha.h IteratingGPUFilter.h FBO.h \
+        ContribDefs.h TwoPassScale.h FilterResizeBilinear.h \
+        FilterResizeGaussian.h \
         $(APPLE_INCLUDES)
 ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp \
         Filtercolorize.cpp Filterflip.cpp Filterfliprgb.cpp \
@@ -33,6 +35,7 @@ ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp \
         GPUFilter.cpp GPUBandpassFilter.cpp FilterIntensity.cpp \
         FilterNormalize.cpp FilterDilation.cpp FilterErosion.cpp \
         FilterGetAlpha.cpp IteratingGPUFilter.cpp FBO.cpp \
+        FilterResizeBilinear.cpp FilterResizeGaussian.cpp \
         $(APPLE_SOURCES)
 
 TESTS=testgraphics testgpu

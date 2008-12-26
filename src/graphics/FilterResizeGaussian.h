@@ -1,5 +1,3 @@
-//
-//  libavg - Media Playback Engine. 
 //  Copyright (C) 2003-2008 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -19,37 +17,25 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Filter_H_
-#define _Filter_H_
+#ifndef _FilterResizeGaussian_H_
+#define _FilterResizeGaussian_H_
 
-#include "../api.h"
+#include "Filter.h"
 #include "Bitmap.h"
-
-#include <boost/shared_ptr.hpp>
 
 namespace avg {
 
-// Base class for filters that operate on bitmaps. Derived classes need
-// to override either the applyInPlace or the apply function. The base-class
-// versions of these functions simply implement one function in terms of the
-// other.
-class AVG_API Filter
+class FilterResizeGaussian : public Filter
 {
 public:
-    Filter();
-    virtual ~Filter();
+    FilterResizeGaussian(const IntPoint& newSize, double radius);
+    virtual BitmapPtr apply(BitmapPtr pBmpSrc);
 
-    // In-Place Apply. Applies the filter to pBmp. The base-class
-    // version copies the bitmap after calling Apply (pBmp, pTempBmp).
-    virtual void applyInPlace(BitmapPtr pBmp);
-
-    // Applies the Filter to pBmpSource and returns the result
-    // The base-class version copies the bitmap before calling
-    // applyInPlace.
-    virtual BitmapPtr apply(BitmapPtr pBmpSource);
+private:
+    IntPoint m_NewSize;
+    double m_Radius;
 };
 
-typedef boost::shared_ptr<Filter> FilterPtr;
-
 }
-#endif
+#endif 
+

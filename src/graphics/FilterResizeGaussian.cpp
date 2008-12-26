@@ -1,5 +1,3 @@
-//
-//  libavg - Media Playback Engine. 
 //  Copyright (C) 2003-2008 Ulrich von Zadow
 //
 //  This library is free software; you can redistribute it and/or
@@ -19,37 +17,33 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Filter_H_
-#define _Filter_H_
-
-#include "../api.h"
+#include "FilterResizeGaussian.h"
 #include "Bitmap.h"
-
-#include <boost/shared_ptr.hpp>
+#include "TwoPassScale.h"
 
 namespace avg {
 
-// Base class for filters that operate on bitmaps. Derived classes need
-// to override either the applyInPlace or the apply function. The base-class
-// versions of these functions simply implement one function in terms of the
-// other.
-class AVG_API Filter
+FilterResizeGaussian::FilterResizeGaussian(const IntPoint& newSize, double radius)
+    : m_NewSize(newSize),
+      m_Radius(radius)
 {
-public:
-    Filter();
-    virtual ~Filter();
+}
 
-    // In-Place Apply. Applies the filter to pBmp. The base-class
-    // version copies the bitmap after calling Apply (pBmp, pTempBmp).
-    virtual void applyInPlace(BitmapPtr pBmp);
+BitmapPtr FilterResizeGaussian::apply(BitmapPtr pBmpSrc)
+{
+    assert(pBmpSrc->getBytesPerPixel()==4);
 
-    // Applies the Filter to pBmpSource and returns the result
-    // The base-class version copies the bitmap before calling
-    // applyInPlace.
-    virtual BitmapPtr apply(BitmapPtr pBmpSource);
-};
+    BitmapPtr pBmpDest = BitmapPtr(new Bitmap(m_NewSize, 
+            pBmpSrc->getPixelFormat(), pBmpSrc->getName()+"_resized"));
 
-typedef boost::shared_ptr<Filter> FilterPtr;
+    GaussianContribDef f(m_Radius);
+    TwoPassScale<CDataRGBA_UBYTE> sS(f);
+    sS.Scale((CDataRGBA_UBYTE::PixelClass *) pBmpSrc->getPixels(), 
+            pBmpSrc->getSize(), pBmpSrc->getStride(), 
+            (CDataRGBA_UBYTE::PixelClass *) pBmpDest->getPixels(),
+            pBmpDest->getSize(), pBmpDest->getStride());
+    return pBmpDest;
+}
 
 }
-#endif
+

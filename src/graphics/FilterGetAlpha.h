@@ -19,37 +19,27 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Filter_H_
-#define _Filter_H_
+#ifndef _FilterGetAlpha_H_
+#define _FilterGetAlpha_H_
 
 #include "../api.h"
+#include "Filter.h"
 #include "Bitmap.h"
-
-#include <boost/shared_ptr.hpp>
 
 namespace avg {
 
-// Base class for filters that operate on bitmaps. Derived classes need
-// to override either the applyInPlace or the apply function. The base-class
-// versions of these functions simply implement one function in terms of the
-// other.
-class AVG_API Filter
+// Extracts the alpha channel of a 32 bpp bitmap.
+class AVG_API FilterGetAlpha : public Filter
 {
 public:
-    Filter();
-    virtual ~Filter();
+  FilterGetAlpha();
+  virtual ~FilterGetAlpha();
+  virtual BitmapPtr apply(BitmapPtr pBmpSource);
 
-    // In-Place Apply. Applies the filter to pBmp. The base-class
-    // version copies the bitmap after calling Apply (pBmp, pTempBmp).
-    virtual void applyInPlace(BitmapPtr pBmp);
-
-    // Applies the Filter to pBmpSource and returns the result
-    // The base-class version copies the bitmap before calling
-    // applyInPlace.
-    virtual BitmapPtr apply(BitmapPtr pBmpSource);
+private:
 };
 
-typedef boost::shared_ptr<Filter> FilterPtr;
+} // namespace
 
-}
 #endif
+
