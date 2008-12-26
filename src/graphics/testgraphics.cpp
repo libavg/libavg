@@ -805,8 +805,11 @@ public:
     void runTests()
     {
         BitmapPtr pBmp = loadTestBmp("rgb24alpha-64x64", R8G8B8A8);
-        BitmapPtr pDestBmp = FilterGetAlpha().apply(pBmp);
-        testEqual(*pDestBmp, "GetAlphaResult", I8, 0, 0);
+        BitmapPtr pAlphaBmp = FilterGetAlpha().apply(pBmp);
+        testEqual(*pAlphaBmp, "GetAlphaResult", I8, 0, 0);
+        BitmapPtr pDestBmp(new Bitmap(*pBmp));
+        pDestBmp->setAlpha(*pAlphaBmp);
+        testEqual(*pDestBmp, *pBmp, "SetAlphaResult", 0, 0);
     }
 
 };

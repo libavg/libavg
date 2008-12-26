@@ -626,6 +626,26 @@ void Bitmap::getMinMax(int Stride, int& min, int& max) const
     }
 }
 
+void Bitmap::setAlpha(const Bitmap& alphaBmp)
+{
+    assert(hasAlpha());
+    assert(alphaBmp.getPixelFormat() == I8);
+    unsigned char * pLine = m_pBits;
+    const unsigned char * pAlphaLine = alphaBmp.getPixels();
+    for (int y=0; y < m_Size.y; y++) {
+        unsigned char * pPixel = pLine;
+        const unsigned char * pAlphaPixel = pAlphaLine;
+        for (int x=0; x<m_Size.x; x++) {
+            pPixel[ALPHAPOS] = *pAlphaPixel;
+            pPixel+=4;
+            pAlphaPixel++;
+        }
+        pLine += m_Stride;
+        pAlphaLine += alphaBmp.getStride();
+    }
+
+}
+
 bool Bitmap::operator ==(const Bitmap & otherBmp)
 {
     // We allow Name, Stride and bOwnsBits to be different here, since we're looking for
