@@ -43,6 +43,7 @@
 #include "FilterFloodfill.h"
 #include "FilterDilation.h"
 #include "FilterErosion.h"
+#include "FilterGetAlpha.h"
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
@@ -794,6 +795,22 @@ public:
 
 };
 
+class FilterAlphaTest: public GraphicsTest {
+public:
+    FilterAlphaTest()
+        : GraphicsTest("FilterAlphaTest", 2)
+    {
+    }
+
+    void runTests()
+    {
+        BitmapPtr pBmp = loadTestBmp("rgb24alpha-64x64", R8G8B8A8);
+        BitmapPtr pDestBmp = FilterGetAlpha().apply(pBmp);
+        testEqual(*pDestBmp, "GetAlphaResult", I8, 0, 0);
+    }
+
+};
+
 class GraphicsTestSuite: public TestSuite {
 public:
     GraphicsTestSuite() 
@@ -820,6 +837,7 @@ public:
         addTest(TestPtr(new FilterFloodfillTest));
         addTest(TestPtr(new FilterDilationTest));
         addTest(TestPtr(new FilterErosionTest));
+        addTest(TestPtr(new FilterAlphaTest));
     }
 };
 
