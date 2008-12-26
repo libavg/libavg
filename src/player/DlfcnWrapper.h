@@ -22,6 +22,7 @@
 #ifndef _DLFCN_H
 #define _DLFCN_H
 
+#ifdef _WIN32
 #define RTLD_LOCAL 0
 #define RTLD_NOW 0
 
@@ -33,5 +34,8 @@ void* dlsym(void* handle, const char* functionName);
 const char* dlerror();
 
 }
+#else
+#include <dlfcn.h>
+#endif
 
 #endif

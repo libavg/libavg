@@ -34,7 +34,7 @@ ALL_H = Player.h PluginManager.h IEventSource.h IEventSink.h VideoBase.h Video.h
         RasterNode.h CameraNode.h TrackerEventSource.h TrackerCalibrator.h \
         TouchEvent.h EventStream.h BoostPython.h Sound.h MouseState.h \
         VectorNode.h LineNode.h PolyLineNode.h RectNode.h CurveNode.h\
-        PolygonNode.h \
+        PolygonNode.h DlfcnWrapper.h \
         $(GL_INCLUDES)
 
 TESTS=testcalibrator testplayer

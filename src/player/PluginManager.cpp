@@ -25,11 +25,11 @@
 
 #include "NodeDefinition.h"
 #include "Player.h"
+#include "DlfcnWrapper.h"
 
 #include "../base/FileHelper.h"
 #include "../base/Logger.h"
 #include "../base/OSHelper.h"
-#include "dlfcn.h"
 
 #include <iostream>
 #include <string>
