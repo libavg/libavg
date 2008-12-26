@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "dlfcn.h"
+#include "DlfcnWrapper.h"
 #include <sstream>
 #include <string.h>
 
