@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _DLFCN_H
-#define _DLFCN_H
+#ifndef _DlfcnWrapper_h_
+#define _DlfcnWrapper_h_
 
 #ifdef _WIN32
 #define RTLD_LOCAL 0
