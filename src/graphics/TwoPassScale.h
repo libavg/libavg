@@ -8,6 +8,7 @@
 
 #include <math.h>
 #include <algorithm>
+#include <cstring>
 
 namespace avg {
 
