@@ -52,7 +52,7 @@ class AVG_API VideoBase : public RasterNode
         
     protected:        
         VideoBase();
-        typedef enum VideoState {Unloaded, Paused, Playing};
+        enum VideoState {Unloaded, Paused, Playing};
         virtual VideoState getVideoState() const;
         void setFrameAvailable(bool bAvailable);
         virtual void changeVideoState(VideoState NewVideoState);

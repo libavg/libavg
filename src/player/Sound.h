@@ -69,7 +69,7 @@ class AVG_API Sound : public AreaNode, IFrameListener, IAudioSource
         void seek(long long DestTime);
         void onEOF();
 
-        typedef enum SoundState {Unloaded, Paused, Playing};
+        enum SoundState {Unloaded, Paused, Playing};
         void changeSoundState(SoundState NewSoundState);
         void open();
         void close();

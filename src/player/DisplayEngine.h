@@ -44,7 +44,7 @@ class Region;
 class AVG_API DisplayEngine
 {   
     public:
-        typedef enum BlendMode {BLEND_BLEND, BLEND_ADD, BLEND_MIN, BLEND_MAX};
+        enum BlendMode {BLEND_BLEND, BLEND_ADD, BLEND_MIN, BLEND_MAX};
 
         DisplayEngine();
         virtual ~DisplayEngine();
