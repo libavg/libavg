@@ -58,6 +58,7 @@ class AVG_API V4LCamera: public Camera {
         virtual unsigned int getFeature(CameraFeature Feature) const;
         virtual void setFeature(CameraFeature Feature, int Value, 
                 bool bIgnoreOldValue=false);
+        virtual void setFeatureOneShot(CameraFeature Feature);
         
     private:
         int m_Fd;

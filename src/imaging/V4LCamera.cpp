@@ -441,6 +441,11 @@ void V4LCamera::setFeature(V4LCID_t V4LFeature, int Value)
     }
 }
 
+void V4LCamera::setFeatureOneShot(CameraFeature Feature)
+{
+    AVG_TRACE(Logger::WARNING, "setFeatureOneShot is not supported by V4L cameras.");
+}
+
 void V4LCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue)
 {
     // ignore -1 coming from default unbiased cameranode parameters
