@@ -1,5 +1,5 @@
 
-INCLUDES = -I.. $(MAGICK_CFLAGS) @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@  @SWSCALE_CFLAGS@
+INCLUDES = -I.. $(MAGICK_CFLAGS) @PTHREAD_CFLAGS@ @FFMPEG_CFLAGS@
         
 ALL_H = FFMpegDemuxer.h VideoDemuxerThread.h FFMpegDecoder.h IVideoDecoder.h \
         VideoDecoderThread.h AudioDecoderThread.h VideoMsg.h FrameVideoMsg.h \
@@ -28,4 +28,4 @@ testvideo_SOURCES = testvideo.cpp $(ALL_H)
 testvideo_LDADD = ./libvideo.la ../audio/libaudio.la ../graphics/libgraphics.la \
         ../base/libbase.la
 testvideo_LDFLAGS = @XML2_LIBS@  -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ \
-		@LIBFFMPEG@  @SWSCALE_LIBS@ $(MAGICK_LIBS)
+		@LIBFFMPEG@ $(MAGICK_LIBS)

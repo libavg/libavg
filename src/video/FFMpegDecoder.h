@@ -49,9 +49,7 @@
 extern "C" {
 #include <ffmpeg/avcodec.h>
 #include <ffmpeg/avformat.h>
-#ifdef AVG_ENABLE_SWSCALE
 #include <ffmpeg/swscale.h>
-#endif
 }
 #include <boost/thread/mutex.hpp>
 
@@ -110,9 +108,7 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         long long getFrameTime(AVPacket* pPacket);
         double calcStreamFPS();
 
-#ifdef AVG_ENABLE_SWSCALE
         SwsContext * m_pSwsContext;
-#endif
         IntPoint m_Size;
         double m_TimeUnitsPerSecond;
         bool m_bUseStreamFPS;

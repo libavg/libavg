@@ -34,9 +34,6 @@ PKG_CHECK_MODULES([MAGICK], [GraphicsMagick++])
 
 PKG_CHECK_MODULES([FFMPEG], [libavcodec libavformat], [LIBFFMPEG="$FFMPEG_LIBS"], [:])
 AC_SUBST(LIBFFMPEG)
-PKG_CHECK_MODULES([SWSCALE], [libswscale],
-        AC_DEFINE([AVG_ENABLE_SWSCALE],1,[Enable ffmpeg swscale support.]),
-        foo="")
 
 AM_PATH_PYTHON
 

@@ -50,9 +50,7 @@ mutex FFMpegDecoder::s_OpenMutex;
 
 FFMpegDecoder::FFMpegDecoder ()
     : m_pFormatContext(0),
-#ifdef AVG_ENABLE_SWSCALE
       m_pSwsContext(0),
-#endif
       m_Size(0,0),
       m_bUseStreamFPS(true),
       m_AStreamIndex(-1),
@@ -354,12 +352,10 @@ void FFMpegDecoder::close()
         m_pFormatContext = 0;
     }
     
-#ifdef AVG_ENABLE_SWSCALE
     if(m_pSwsContext) {
         sws_freeContext(m_pSwsContext);
         m_pSwsContext = 0;
     }
-#endif
 }
 
 void FFMpegDecoder::seek(long long DestTime) 
@@ -819,7 +815,6 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
 #endif
     {
 //        ScopeTimer Timer(*m_pConvertImageProfilingZone);
-#ifdef AVG_ENABLE_SWSCALE
         if (!m_pSwsContext) {
             m_pSwsContext = sws_getContext(enc->width, enc->height, enc->pix_fmt,
                         enc->width, enc->height, DestFmt, SWS_BICUBIC, 
@@ -830,14 +825,6 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
         }
         sws_scale(m_pSwsContext, Frame.data, Frame.linesize, 0, 
             enc->height, DestPict.data, DestPict.linesize);
-#else
-        int rc = img_convert(&DestPict, DestFmt,
-                (AVPicture*)&Frame, enc->pix_fmt,
-                enc->width, enc->height);
-        if (rc != 0) {
-            AVG_TRACE(Logger::ERROR, "FFFMpegDecoder: img_convert failed.");
-        }
-#endif
     }
 }
        

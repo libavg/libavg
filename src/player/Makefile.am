@@ -55,7 +55,7 @@ testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../lmfit/liblmfit.la
 testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker  \
         @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(DC1394_LIBS) \
-        @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) @LIBFFMPEG@ @SWSCALE_LIBS@ \
+        @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) @LIBFFMPEG@ \
         @PANGOFT2_LIBS@ $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) $(MAGICK_LIBS) 
 
 testcalibrator_SOURCES=testcalibrator.cpp

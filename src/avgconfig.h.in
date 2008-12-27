@@ -9,9 +9,6 @@
 /* Enable parallel port support */
 #undef AVG_ENABLE_PARPORT
 
-/* Enable ffmpeg swscale support. */
-#undef AVG_ENABLE_SWSCALE
-
 /* Enable Video4Linux2 camera support */
 #undef AVG_ENABLE_V4L2
 
