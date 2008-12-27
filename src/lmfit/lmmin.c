@@ -122,7 +122,7 @@ char *lm_shortmsg[] = {
 /* ************************** implementation ******************************* */
 
 
-#define BUG 0
+#undef BUG
 #if BUG 
 #include <stdio.h>
 #endif
