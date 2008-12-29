@@ -745,9 +745,9 @@ void Bitmap::blt(const Bitmap* pOtherBmp, const IntPoint& pos)
                 y*pOtherBmp->getStride(); 
         for (int x = 0; x < destRect.width(); x++) {
             int srcAlpha = 255-pOtherPixel[3];
-            pSrcPixel[0] = (srcAlpha*pSrcPixel[0]+(int)(pOtherPixel[3])*pOtherPixel[0])/256;
-            pSrcPixel[1] = (srcAlpha*pSrcPixel[1]+(int)(pOtherPixel[3])*pOtherPixel[1])/256;
-            pSrcPixel[2] = (srcAlpha*pSrcPixel[2]+(int)(pOtherPixel[3])*pOtherPixel[2])/256;
+            pSrcPixel[0] = (srcAlpha*pSrcPixel[0]+int(pOtherPixel[3])*pOtherPixel[0])/255;
+            pSrcPixel[1] = (srcAlpha*pSrcPixel[1]+int(pOtherPixel[3])*pOtherPixel[1])/255;
+            pSrcPixel[2] = (srcAlpha*pSrcPixel[2]+int(pOtherPixel[3])*pOtherPixel[2])/255;
             pSrcPixel += 4;
             pOtherPixel += 4;
         }
