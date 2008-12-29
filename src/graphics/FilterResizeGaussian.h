@@ -25,7 +25,7 @@
 
 namespace avg {
 
-class FilterResizeGaussian : public Filter
+class AVG_API FilterResizeGaussian : public Filter
 {
 public:
     FilterResizeGaussian(const IntPoint& newSize, double radius);

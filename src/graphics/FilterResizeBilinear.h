@@ -24,7 +24,7 @@
 
 namespace avg {
 
-class FilterResizeBilinear : public Filter
+class AVG_API FilterResizeBilinear : public Filter
 {
 public:
     FilterResizeBilinear(const IntPoint& newSize);

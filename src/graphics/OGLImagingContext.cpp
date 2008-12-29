@@ -23,10 +23,15 @@
 
 #include "../base/Exception.h"
 
-// XXX: If the following include is not there, the MS linker optimizes away
-// IteratingGPUFilter so it can't be used by plugins anymore (!).
+// XXX: If the following includes are not there, the MS linker optimizes away
+// the classes so they can't be used by plugins anymore (!).
 #ifdef _WIN32
 #include "IteratingGPUFilter.h"
+#include "FilterGetAlpha.h"
+#include "FilterErosion.h"
+#include "FilterDilation.h"
+#include "FilterGetAlpha.h"
+#include "FilterResizeBilinear.h"
 #endif
 
 #include <assert.h>

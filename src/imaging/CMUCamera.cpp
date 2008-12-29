@@ -142,24 +142,33 @@ IntPoint CMUCamera::getImgSize()
 
 BitmapPtr CMUCamera::getImage(bool bWait)
 {
-    if ((bWait || WaitForSingleObject(m_Camera.GetFrameEvent(), 0) == WAIT_OBJECT_0) &&
-            (m_Camera.AcquireImageEx(TRUE, NULL) == CAM_SUCCESS)) {
-        unsigned long captureBufferLength;
-        unsigned char* pCaptureBuffer = m_Camera.GetRawData(&captureBufferLength);
-
-        Bitmap frame(m_Size, m_FramePixelFormat, pCaptureBuffer, 
-                captureBufferLength / m_Size.y, false, "TempCameraBmp");
-        
-        BitmapPtr pFrameBuffer = BitmapPtr(new Bitmap(m_Size, m_OutputPixelFormat));
-        pFrameBuffer->copyPixels(frame);
-        if (m_bFlipRGB) {
-            FilterFlipRGB().applyInPlace(pFrameBuffer);
-        }
-
-        return pFrameBuffer;
+    if (bWait) {
+        // XXX: Untested!
+        unsigned rc = WaitForSingleObject(m_Camera.GetFrameEvent(), INFINITE);
+        assert(rc == WAIT_OBJECT_0);
     } else {
-        return BitmapPtr();
+        unsigned rc = WaitForSingleObject(m_Camera.GetFrameEvent(), 0);
+        if (rc == WAIT_TIMEOUT) {
+            // No frame yet
+            return BitmapPtr();
+        }
+        assert(rc == WAIT_OBJECT_0);
     }
+    int rc2 = m_Camera.AcquireImageEx(FALSE, NULL);
+    assert(rc2 == CAM_SUCCESS);
+    unsigned long captureBufferLength;
+    unsigned char* pCaptureBuffer = m_Camera.GetRawData(&captureBufferLength);
+
+    Bitmap frame(m_Size, m_FramePixelFormat, pCaptureBuffer, 
+            captureBufferLength / m_Size.y, false, "TempCameraBmp");
+    
+    BitmapPtr pFrameBuffer = BitmapPtr(new Bitmap(m_Size, m_OutputPixelFormat));
+    pFrameBuffer->copyPixels(frame);
+    if (m_bFlipRGB) {
+        FilterFlipRGB().applyInPlace(pFrameBuffer);
+    }
+
+    return pFrameBuffer;
 }
     
 bool CMUCamera::isCameraAvailable()
