@@ -243,6 +243,10 @@ void CMUCamera::setFeatureOneShot(CameraFeature Feature)
         CAMERA_FEATURE cmuFeature = getFeatureID(Feature);
         if (cmuFeature != FEATURE_INVALID_FEATURE && m_Camera.HasFeature(cmuFeature)) {
             C1394CameraControl* pControl = m_Camera.GetCameraControl(cmuFeature);
+            if (pControl->SetOnOff(false) != CAM_SUCCESS) {
+                AVG_TRACE(Logger::WARNING, string("Error setting feature: ") + 
+                        cameraFeatureToString(Feature));
+            }
             if (pControl->SetAutoMode(false) != CAM_SUCCESS) {
                 AVG_TRACE(Logger::WARNING, string("Error setting feature: ") + 
                         cameraFeatureToString(Feature));
