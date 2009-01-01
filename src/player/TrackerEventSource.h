@@ -91,6 +91,7 @@ class AVG_API TrackerEventSource: public IBlobTarget, public IEventSource
         IntRect m_InitialROI;
         CameraPtr m_pCamera;
         bool m_bSubtractHistory;
+        DeDistortPtr m_pDeDistort;
         DeDistortPtr m_pOldTransformer;
         IntPoint m_DisplayExtents;
         TrackerCalibrator * m_pCalibrator;

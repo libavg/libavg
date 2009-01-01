@@ -71,7 +71,8 @@ namespace avg {
         m_pBitmaps[0] = BitmapPtr(new Bitmap(ImgSize, I8));
         m_pMutex = MutexPtr(new boost::mutex);
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
-        IntRect ROI = m_TrackerConfig.getTransform()->getActiveBlobArea(DPoint(m_DisplayExtents));
+        m_pDeDistort = m_TrackerConfig.getTransform();
+        IntRect ROI = m_pDeDistort->getActiveBlobArea(DPoint(m_DisplayExtents));
         if (ROI.tl.x < 0 || ROI.tl.y < 0 || ROI.br.x > ImgSize.x || ROI.br.y > ImgSize.y) {
             AVG_TRACE(Logger::ERROR, "Impossible tracker configuration: Region of interest is " 
                     << ROI << ", camera image size is " << ImgSize << ". Aborting.");
@@ -116,8 +117,7 @@ namespace avg {
         m_TrackerConfig.setParam(sElement, sValue);
 
         // Test if active area is outside camera.
-        DRect Area = m_TrackerConfig.getTransform()
-                ->getActiveBlobArea(DPoint(m_DisplayExtents));
+        DRect Area = m_pDeDistort->getActiveBlobArea(DPoint(m_DisplayExtents));
         DPoint Size = m_TrackerConfig.getPointParam("/camera/size/");
         int Prescale = m_TrackerConfig.getIntParam("/tracker/prescale/@value");
         if (Area.br.x > Size.x/Prescale || Area.br.y > Size.y/Prescale ||
@@ -154,8 +154,8 @@ namespace avg {
 
     void TrackerEventSource::setConfig()
     {
-        DRect Area = m_TrackerConfig.getTransform()
-                ->getActiveBlobArea(DPoint(m_DisplayExtents));
+        m_pDeDistort = m_TrackerConfig.getTransform();
+        DRect Area = m_pDeDistort->getActiveBlobArea(DPoint(m_DisplayExtents));
         createBitmaps(Area);
         m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
                 &TrackerThread::setConfig, _1, m_TrackerConfig, Area, m_pBitmaps)));
@@ -374,11 +374,10 @@ namespace avg {
     {
         EventPtr pEvent;
         int kill_counter = 0;
-        DeDistortPtr pDeDistort = m_TrackerConfig.getTransform();
         bool bEventOnMove = m_TrackerConfig.getBoolParam("/tracker/eventonmove/@value");
         for (EventMap::iterator it = Events.begin(); it!= Events.end();) {
             EventStreamPtr pStream = (*it).second;
-            pEvent = pStream->pollevent(pDeDistort, m_DisplayExtents,
+            pEvent = pStream->pollevent(m_pDeDistort, m_DisplayExtents,
                     source, bEventOnMove);
             if (pEvent) {
                 res.push_back(pEvent);
