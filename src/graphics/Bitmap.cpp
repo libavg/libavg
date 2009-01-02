@@ -1296,7 +1296,7 @@ void Bitmap::FloatRGBAtoByteRGBA(const Bitmap& Orig)
         const float * pSrcPixel = pSrc;
         unsigned char * pDestPixel = pDest;
         for (int x=0; x<Width*4; ++x) {
-            *pDestPixel = (unsigned char)(*pSrcPixel*255);
+            *pDestPixel = (unsigned char)(*pSrcPixel*255+0.5);
             pDestPixel++;
             pSrcPixel++;
         }
