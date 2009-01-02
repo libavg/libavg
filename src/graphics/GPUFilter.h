@@ -33,18 +33,22 @@ namespace avg {
 class AVG_API GPUFilter: public Filter
 {
 public:
-    GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest);
-    GPUFilter(PBOImagePtr pSrcPBO, PBOImagePtr pDestPBO);
+    GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest, bool bOwnFBO);
+    GPUFilter(PBOImagePtr pSrcPBO, PBOImagePtr pDestPBO, bool bOwnFBO);
     virtual ~GPUFilter();
 
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
+    virtual void apply(FBOPtr pFBO = FBOPtr());
     virtual void applyOnGPU() = 0;
+
     static bool isSupported();
 
 protected:
+    void setFBO(FBOPtr pFBO);
     const IntPoint& getSize() const;
 
     PBOImagePtr getSrcPBO();
+    PBOImagePtr getDestPBO();
     FBOPtr getFBO();
 
 private:

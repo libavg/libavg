@@ -35,7 +35,7 @@ OGLShaderPtr GPUBlurFilter::s_pHorizShader;
 OGLShaderPtr GPUBlurFilter::s_pVertShader;
 
 GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, double stdDev)
-    : GPUFilter(size, pfSrc, B8G8R8A8),
+    : GPUFilter(size, pfSrc, R32G32B32A32F, false),
       m_StdDev(stdDev)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -44,7 +44,7 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, double std
 }
 
 GPUBlurFilter::GPUBlurFilter(PBOImagePtr pSrcPBO, PBOImagePtr pDestPBO, double stdDev)
-    : GPUFilter(pSrcPBO, pDestPBO),
+    : GPUFilter(pSrcPBO, pDestPBO, false),
       m_StdDev(stdDev)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -55,9 +55,14 @@ GPUBlurFilter::GPUBlurFilter(PBOImagePtr pSrcPBO, PBOImagePtr pDestPBO, double s
 void GPUBlurFilter::init()
 {
     IntPoint size = getSrcPBO()->getSize();
-    m_pGaussCurvePBO = PBOImagePtr(new PBOImage(IntPoint(255, 1), I32F, I32F, false, false));
-    m_pInterPBO = PBOImagePtr(new PBOImage(size, R32G32B32A32F, B8G8R8A8, false, false));
-    m_pInterFBO = FBOPtr(new FBO(size, B8G8R8A8, m_pInterPBO->getTexID()));
+    m_pGaussCurvePBO = PBOImagePtr(new PBOImage(IntPoint(255, 1), I32F, I32F, 
+            false, false));
+    m_pInterPBO = PBOImagePtr(new PBOImage(size, R32G32B32A32F, B8G8R8A8, 
+            false, false));
+    vector<unsigned> texIDs;
+    texIDs.push_back(getDestPBO()->getTexID());
+    texIDs.push_back(m_pInterPBO->getTexID());
+    setFBO(FBOPtr(new FBO(size, R32G32B32A32F, texIDs)));
     if (!s_pHorizShader) {
         initShaders();
     }
@@ -73,7 +78,7 @@ GPUBlurFilter::~GPUBlurFilter()
 
 void GPUBlurFilter::applyOnGPU()
 {
-    m_pInterFBO->activate();
+    glDrawBuffer(GL_COLOR_ATTACHMENT1_EXT);
     s_pHorizShader->activate();
     s_pHorizShader->setUniformIntParam("radius", (m_KernelWidth-1)/2);
     s_pHorizShader->setUniformIntParam("Texture", 0);
@@ -81,7 +86,7 @@ void GPUBlurFilter::applyOnGPU()
     m_pGaussCurvePBO->activateTex(GL_TEXTURE1);
     getSrcPBO()->draw();
 
-    getFBO()->activate();
+    glDrawBuffer(GL_COLOR_ATTACHMENT0_EXT);
     s_pVertShader->activate();
     s_pVertShader->setUniformIntParam("radius", (m_KernelWidth-1)/2);
     s_pVertShader->setUniformIntParam("Texture", 0);

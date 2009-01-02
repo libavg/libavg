@@ -30,21 +30,26 @@ using namespace std;
 
 namespace avg {
 
-GPUFilter::GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest)
+GPUFilter::GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest,
+        bool bOwnFBO)
     : m_pSrcPBO(new PBOImage(size, pfSrc, pfSrc, true, false)),
       m_pDestPBO(new PBOImage(size, pfDest, pfDest, false, true))
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    m_pFBO = FBOPtr(new FBO(size, pfDest, m_pDestPBO->getTexID()));
+    if (bOwnFBO) {
+        m_pFBO = FBOPtr(new FBO(size, pfDest, m_pDestPBO->getTexID()));
+    }
 }
   
-GPUFilter::GPUFilter(PBOImagePtr pSrcPBO, PBOImagePtr pDestPBO)
+GPUFilter::GPUFilter(PBOImagePtr pSrcPBO, PBOImagePtr pDestPBO, bool bOwnFBO)
     : m_pSrcPBO(pSrcPBO),
       m_pDestPBO(pDestPBO)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    m_pFBO = FBOPtr(new FBO(m_pSrcPBO->getSize(), m_pDestPBO->getExtPF(), 
+    if (bOwnFBO) {
+        m_pFBO = FBOPtr(new FBO(m_pSrcPBO->getSize(), m_pDestPBO->getExtPF(), 
                 m_pDestPBO->getTexID()));
+    }
 }
 
 GPUFilter::~GPUFilter()
@@ -54,12 +59,9 @@ GPUFilter::~GPUFilter()
 
 BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 {
-    getFBO();
+    assert(m_pFBO);
     m_pSrcPBO->setImage(pBmpSource);
-    glViewport(0, 0, getSize().x, getSize().y);
-    m_pFBO->activate();
-    applyOnGPU();
-    m_pFBO->deactivate();
+    apply(m_pFBO);
     BitmapPtr pFilteredBmp = m_pFBO->getImage(0);
     BitmapPtr pDestBmp(new Bitmap(getSize(), pBmpSource->getPixelFormat()));
     if (pFilteredBmp->getPixelFormat() != pBmpSource->getPixelFormat()) {
@@ -70,14 +72,36 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
     return pDestBmp;
 }
 
+void GPUFilter::apply(FBOPtr pFBO)
+{
+    if (!pFBO) {
+        pFBO = m_pFBO;
+    }
+    glViewport(0, 0, getSize().x, getSize().y);
+    pFBO->activate();
+    applyOnGPU();
+    pFBO->deactivate();
+}
+
 const IntPoint& GPUFilter::getSize() const
 {
     return m_pSrcPBO->getSize();
+}
+    
+void GPUFilter::setFBO(FBOPtr pFBO)
+{
+    assert(!m_pFBO);
+    m_pFBO = pFBO;
 }
 
 PBOImagePtr GPUFilter::getSrcPBO()
 {
     return m_pSrcPBO;
+}
+
+PBOImagePtr GPUFilter::getDestPBO()
+{
+    return m_pDestPBO;
 }
 
 FBOPtr GPUFilter::getFBO()

@@ -35,7 +35,7 @@ OGLShaderPtr GPUBrightnessFilter::s_pShader;
 
 GPUBrightnessFilter::GPUBrightnessFilter(const IntPoint& size, PixelFormat pf, 
         double alpha)
-    : GPUFilter(size, pf, B8G8R8A8),
+    : GPUFilter(size, pf, B8G8R8A8, true),
       m_Alpha(alpha)
 {
     ObjectCounter::get()->incRef(&typeid(*this));

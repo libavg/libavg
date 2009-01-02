@@ -35,11 +35,11 @@ OGLShaderPtr GPUBandpassFilter::s_pShader;
 
 GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc, 
         double min, double max, double postScale, bool bInvert)
-    : GPUFilter(size, pfSrc, B8G8R8A8),
+    : GPUFilter(size, pfSrc, B8G8R8A8, true),
       m_PostScale(postScale),
       m_bInvert(bInvert),
-      m_pMinPBO(new PBOImage(size, R32G32B32A32F, B8G8R8A8, false, false)),
-      m_pMaxPBO(new PBOImage(size, R32G32B32A32F, B8G8R8A8, false, false)),
+      m_pMinPBO(new PBOImage(size, R32G32B32A32F, R32G32B32A32F, false, false)),
+      m_pMaxPBO(new PBOImage(size, R32G32B32A32F, R32G32B32A32F, false, false)),
       m_MinFilter(getSrcPBO(), m_pMinPBO, min),
       m_MaxFilter(getSrcPBO(), m_pMaxPBO, max)
 {
@@ -57,8 +57,8 @@ GPUBandpassFilter::~GPUBandpassFilter()
 
 void GPUBandpassFilter::applyOnGPU()
 {
-    m_MinFilter.applyOnGPU();
-    m_MaxFilter.applyOnGPU();
+    m_MinFilter.apply();
+    m_MaxFilter.apply();
 
     getFBO()->activate();
     GLhandleARB hProgram = s_pShader->getProgram();
