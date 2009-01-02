@@ -26,7 +26,7 @@
 #include "Filter.h"
 #include "Bitmap.h"
 #include "PBOImage.h"
-#include "FBOImage.h"
+#include "FBO.h"
 
 namespace avg {
 
@@ -34,7 +34,7 @@ class AVG_API GPUFilter: public Filter
 {
 public:
     GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest);
-    GPUFilter(PBOImagePtr pSrcPBO, FBOImagePtr pDestFBO);
+    GPUFilter(PBOImagePtr pSrcPBO, PBOImagePtr pDestPBO);
     virtual ~GPUFilter();
 
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
@@ -45,12 +45,12 @@ protected:
     const IntPoint& getSize() const;
 
     PBOImagePtr getSrcPBO();
-    FBOImagePtr getDestFBO();
+    FBOPtr getFBO();
 
 private:
     PBOImagePtr m_pSrcPBO;
-    FBOImagePtr m_pDestFBO;
-    
+    PBOImagePtr m_pDestPBO;
+    FBOPtr m_pFBO;
 };
 
 } // namespace

@@ -52,7 +52,7 @@ GPUBrightnessFilter::~GPUBrightnessFilter()
 
 void GPUBrightnessFilter::applyOnGPU()
 {
-    getDestFBO()->activate();
+    getFBO()->activate();
     GLhandleARB hProgram = s_pShader->getProgram();
     glproc::UseProgramObject(hProgram);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
@@ -63,7 +63,7 @@ void GPUBrightnessFilter::applyOnGPU()
     getSrcPBO()->draw();
 
     glproc::UseProgramObject(0);
-    getDestFBO()->deactivate();
+    getFBO()->deactivate();
 }
 
 void GPUBrightnessFilter::initShader()

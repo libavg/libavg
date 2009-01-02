@@ -43,8 +43,8 @@ GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, double std
     init();
 }
 
-GPUBlurFilter::GPUBlurFilter(PBOImagePtr pSrcPBO, FBOImagePtr pDestFBO, double stdDev)
-    : GPUFilter(pSrcPBO, pDestFBO),
+GPUBlurFilter::GPUBlurFilter(PBOImagePtr pSrcPBO, PBOImagePtr pDestPBO, double stdDev)
+    : GPUFilter(pSrcPBO, pDestPBO),
       m_StdDev(stdDev)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -56,7 +56,8 @@ void GPUBlurFilter::init()
 {
     IntPoint size = getSrcPBO()->getSize();
     m_pGaussCurvePBO = PBOImagePtr(new PBOImage(IntPoint(255, 1), I32F, I32F, false, false));
-    m_pInterFBO = FBOImagePtr(new FBOImage(size, R32G32B32A32F, B8G8R8A8, false, false));
+    m_pInterPBO = PBOImagePtr(new PBOImage(size, R32G32B32A32F, B8G8R8A8, false, false));
+    m_pInterFBO = FBOPtr(new FBO(size, B8G8R8A8, m_pInterPBO->getTexID()));
     if (!s_pHorizShader) {
         initShaders();
     }
@@ -80,13 +81,13 @@ void GPUBlurFilter::applyOnGPU()
     m_pGaussCurvePBO->activateTex(GL_TEXTURE1);
     getSrcPBO()->draw();
 
-    getDestFBO()->activate();
+    getFBO()->activate();
     s_pVertShader->activate();
     s_pVertShader->setUniformIntParam("radius", (m_KernelWidth-1)/2);
     s_pVertShader->setUniformIntParam("Texture", 0);
     s_pVertShader->setUniformIntParam("kernelTex", 1);
-    m_pInterFBO->draw();
-    getDestFBO()->deactivate();
+    m_pInterPBO->draw();
+    getFBO()->deactivate();
 }
 
 void GPUBlurFilter::initShaders()

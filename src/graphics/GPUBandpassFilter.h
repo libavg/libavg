@@ -27,7 +27,6 @@
 #include "GPUBlurFilter.h"
 #include "Bitmap.h"
 #include "PBOImage.h"
-#include "FBOImage.h"
 #include "OGLShader.h"
 
 namespace avg {
@@ -46,8 +45,8 @@ private:
 
     double m_PostScale;
     bool m_bInvert;
-    FBOImagePtr m_pMinFBO;
-    FBOImagePtr m_pMaxFBO;
+    PBOImagePtr m_pMinPBO;
+    PBOImagePtr m_pMaxPBO;
 
     GPUBlurFilter m_MinFilter;
     GPUBlurFilter m_MaxFilter;

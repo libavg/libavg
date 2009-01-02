@@ -20,7 +20,6 @@
 //
 
 #include "GraphicsTest.h"
-#include "FBOImage.h"
 #include "GPUBrightnessFilter.h"
 #include "GPUBlurFilter.h"
 #include "GPUBandpassFilter.h"
@@ -74,12 +73,6 @@ private:
         PBOImage pbo(pBmp->getSize(), pBmp->getPixelFormat(), pBmp->getPixelFormat(), 
                 true, true);
         runPBOImageTest(pbo, pBmp, string("pbo_")+sFName);
-        if (pf != I8) {
-            cerr << "      FBO:" << endl;
-            FBOImage fbo(pBmp->getSize(), pBmp->getPixelFormat(), pBmp->getPixelFormat(),
-                    true, true);
-            runPBOImageTest(fbo, pBmp, string("fbo_")+sFName);
-        }
     }
 
     void compareByteArrays(unsigned char *in, unsigned char *out, int n) {

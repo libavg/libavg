@@ -38,10 +38,10 @@ GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc,
     : GPUFilter(size, pfSrc, B8G8R8A8),
       m_PostScale(postScale),
       m_bInvert(bInvert),
-      m_pMinFBO(new FBOImage(size, R32G32B32A32F, B8G8R8A8, false, false)),
-      m_pMaxFBO(new FBOImage(size, R32G32B32A32F, B8G8R8A8, false, false)),
-      m_MinFilter(getSrcPBO(), m_pMinFBO, min),
-      m_MaxFilter(getSrcPBO(), m_pMaxFBO, max)
+      m_pMinPBO(new PBOImage(size, R32G32B32A32F, B8G8R8A8, false, false)),
+      m_pMaxPBO(new PBOImage(size, R32G32B32A32F, B8G8R8A8, false, false)),
+      m_MinFilter(getSrcPBO(), m_pMinPBO, min),
+      m_MaxFilter(getSrcPBO(), m_pMaxPBO, max)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 
@@ -60,7 +60,7 @@ void GPUBandpassFilter::applyOnGPU()
     m_MinFilter.applyOnGPU();
     m_MaxFilter.applyOnGPU();
 
-    getDestFBO()->activate();
+    getFBO()->activate();
     GLhandleARB hProgram = s_pShader->getProgram();
     glproc::UseProgramObject(hProgram);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
@@ -69,11 +69,11 @@ void GPUBandpassFilter::applyOnGPU()
     glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "maxTex"), 1);
     glproc::Uniform1f(glproc::GetUniformLocation(hProgram, "postScale"), float(m_PostScale));
     glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "bInvert"), m_bInvert);
-    m_pMaxFBO->activateTex(GL_TEXTURE1);
-    m_pMinFBO->draw();
+    m_pMaxPBO->activateTex(GL_TEXTURE1);
+    m_pMinPBO->draw();
 
     glproc::UseProgramObject(0);
-    getDestFBO()->deactivate();
+    getFBO()->deactivate();
 }
 
 void GPUBandpassFilter::initShader()

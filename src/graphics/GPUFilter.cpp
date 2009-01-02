@@ -32,16 +32,19 @@ namespace avg {
 
 GPUFilter::GPUFilter(const IntPoint& size, PixelFormat pfSrc, PixelFormat pfDest)
     : m_pSrcPBO(new PBOImage(size, pfSrc, pfSrc, true, false)),
-      m_pDestFBO(new FBOImage(size, pfDest, pfDest, false, true))
+      m_pDestPBO(new PBOImage(size, pfDest, pfDest, false, true))
 {
     ObjectCounter::get()->incRef(&typeid(*this));
+    m_pFBO = FBOPtr(new FBO(size, pfDest, m_pDestPBO->getTexID()));
 }
-    
-GPUFilter::GPUFilter(PBOImagePtr pSrcPBO, FBOImagePtr pDestFBO)
+  
+GPUFilter::GPUFilter(PBOImagePtr pSrcPBO, PBOImagePtr pDestPBO)
     : m_pSrcPBO(pSrcPBO),
-      m_pDestFBO(pDestFBO)
+      m_pDestPBO(pDestPBO)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
+    m_pFBO = FBOPtr(new FBO(m_pSrcPBO->getSize(), pDestPBO->getExtPF(), 
+            m_pDestPBO->getTexID()));
 }
 
 GPUFilter::~GPUFilter()
@@ -54,7 +57,7 @@ BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
     m_pSrcPBO->setImage(pBmpSource);
     glViewport(0, 0, getSize().x, getSize().y);
     applyOnGPU();
-    BitmapPtr pFilteredBmp = m_pDestFBO->getImage();
+    BitmapPtr pFilteredBmp = m_pFBO->getImage(0);
     BitmapPtr pDestBmp(new Bitmap(getSize(), pBmpSource->getPixelFormat()));
     if (pFilteredBmp->getPixelFormat() != pBmpSource->getPixelFormat()) {
         pDestBmp->copyPixels(*pFilteredBmp);
@@ -74,9 +77,9 @@ PBOImagePtr GPUFilter::getSrcPBO()
     return m_pSrcPBO;
 }
 
-FBOImagePtr GPUFilter::getDestFBO()
+FBOPtr GPUFilter::getFBO()
 {
-    return m_pDestFBO;
+    return m_pFBO;
 }
 
 } // namespace

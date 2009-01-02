@@ -25,7 +25,6 @@
 #include "../api.h"
 #include "GPUFilter.h"
 #include "PBOImage.h"
-#include "FBOImage.h"
 #include "OGLShader.h"
 
 namespace avg {
@@ -34,7 +33,7 @@ class AVG_API GPUBlurFilter: public GPUFilter
 {
 public:
     GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, double stdDev);
-    GPUBlurFilter(PBOImagePtr pSrcPBO, FBOImagePtr pDestFBO, double stdDev);
+    GPUBlurFilter(PBOImagePtr pSrcPBO, PBOImagePtr pDestPBO, double stdDev);
     void init();
     virtual ~GPUBlurFilter();
 
@@ -50,7 +49,8 @@ private:
     float m_Kernel[255];
 
     PBOImagePtr m_pGaussCurvePBO;
-    FBOImagePtr m_pInterFBO;
+    PBOImagePtr m_pInterPBO;
+    FBOPtr m_pInterFBO;
 
     static OGLShaderPtr s_pHorizShader;
     static OGLShaderPtr s_pVertShader;

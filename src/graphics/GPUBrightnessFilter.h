@@ -26,7 +26,6 @@
 #include "GPUFilter.h"
 #include "Bitmap.h"
 #include "PBOImage.h"
-#include "FBOImage.h"
 #include "OGLShader.h"
 
 namespace avg {
