@@ -73,7 +73,6 @@ void GPUBandpassFilter::applyOnGPU()
     m_pMinPBO->draw();
 
     glproc::UseProgramObject(0);
-    getFBO()->deactivate();
 }
 
 void GPUBandpassFilter::initShader()

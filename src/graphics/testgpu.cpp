@@ -69,7 +69,6 @@ private:
         BitmapPtr pBmp = loadTestBmp(sFName, pf);
         cerr << "    Testing " << sFName << " (" << pBmp->getPixelFormatString() << ")" 
                 << endl;
-        cerr << "      PBO:" << endl;
         PBOImage pbo(pBmp->getSize(), pBmp->getPixelFormat(), pBmp->getPixelFormat(), 
                 true, true);
         runPBOImageTest(pbo, pBmp, string("pbo_")+sFName);

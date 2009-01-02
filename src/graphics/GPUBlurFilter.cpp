@@ -87,7 +87,6 @@ void GPUBlurFilter::applyOnGPU()
     s_pVertShader->setUniformIntParam("Texture", 0);
     s_pVertShader->setUniformIntParam("kernelTex", 1);
     m_pInterPBO->draw();
-    getFBO()->deactivate();
 }
 
 void GPUBlurFilter::initShaders()

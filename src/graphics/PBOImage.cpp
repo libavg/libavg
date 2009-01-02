@@ -198,6 +198,7 @@ PixelFormat PBOImage::getIntPF() const
 {
     return m_pfInt;
 }
+
 PixelFormat PBOImage::getExtPF() const
 {
     return m_pfExt;

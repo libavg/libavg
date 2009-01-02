@@ -43,8 +43,8 @@ GPUFilter::GPUFilter(PBOImagePtr pSrcPBO, PBOImagePtr pDestPBO)
       m_pDestPBO(pDestPBO)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    m_pFBO = FBOPtr(new FBO(m_pSrcPBO->getSize(), pDestPBO->getExtPF(), 
-            m_pDestPBO->getTexID()));
+    m_pFBO = FBOPtr(new FBO(m_pSrcPBO->getSize(), m_pDestPBO->getExtPF(), 
+                m_pDestPBO->getTexID()));
 }
 
 GPUFilter::~GPUFilter()
@@ -54,9 +54,12 @@ GPUFilter::~GPUFilter()
 
 BitmapPtr GPUFilter::apply(BitmapPtr pBmpSource)
 {
+    getFBO();
     m_pSrcPBO->setImage(pBmpSource);
     glViewport(0, 0, getSize().x, getSize().y);
+    m_pFBO->activate();
     applyOnGPU();
+    m_pFBO->deactivate();
     BitmapPtr pFilteredBmp = m_pFBO->getImage(0);
     BitmapPtr pDestBmp(new Bitmap(getSize(), pBmpSource->getPixelFormat()));
     if (pFilteredBmp->getPixelFormat() != pBmpSource->getPixelFormat()) {
