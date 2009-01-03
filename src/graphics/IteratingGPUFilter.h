@@ -37,11 +37,15 @@ public:
     IteratingGPUFilter(const IntPoint& size, int numIterations);
     virtual ~IteratingGPUFilter();
     virtual BitmapPtr apply(BitmapPtr pImage);
+    void applyOnGPU();
+
+    PBOImagePtr getSrcPBO();
+    PBOImagePtr getDestPBO();
 
 private:
-    void applyOnGPU();
+    virtual void setupShader() {};
     virtual void applyOnce(PBOImagePtr pSrc) = 0;
-   
+
     int m_NumIterations;
     PBOImagePtr m_pSrcPBO;
     PBOImagePtr m_pDestPBO;

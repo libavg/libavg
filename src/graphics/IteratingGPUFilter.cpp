@@ -52,8 +52,19 @@ BitmapPtr IteratingGPUFilter::apply(BitmapPtr pImage)
     return m_pFBO->getImage(1);
 }
 
+PBOImagePtr IteratingGPUFilter::getSrcPBO()
+{
+    return m_pSrcPBO;
+}
+
+PBOImagePtr IteratingGPUFilter::getDestPBO()
+{
+    return m_pDestPBO;
+}
+
 void IteratingGPUFilter::applyOnGPU()
 {
+    setupShader();
     for(int i=0;i<2;i++) {
         glproc::ActiveTexture(GL_TEXTURE0+i);        
         glTexParameteri(GL_TEXTURE_RECTANGLE_ARB, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

@@ -40,6 +40,7 @@ public:
     virtual BitmapPtr apply(BitmapPtr pBmpSource);
     virtual void apply(FBOPtr pFBO = FBOPtr());
     virtual void applyOnGPU() = 0;
+    FBOPtr getFBO();
 
     static bool isSupported();
 
@@ -49,7 +50,6 @@ protected:
 
     PBOImagePtr getSrcPBO();
     PBOImagePtr getDestPBO();
-    FBOPtr getFBO();
 
 private:
     PBOImagePtr m_pSrcPBO;
