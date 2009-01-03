@@ -395,6 +395,11 @@ void Bitmap::save(const std::string& sFilename)
             pBmp = BitmapPtr(new Bitmap(*this));
             sPF = "I";
             break;
+        case R32G32B32A32F:
+            pBmp = BitmapPtr(new Bitmap(*this));
+            ChannelFormat = Magick::FloatPixel;
+            sPF = "RGBA";
+            break;
         default:
             cerr << "Unsupported pixel format " << getPixelFormatString(m_PF) 
                     << endl;
