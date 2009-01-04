@@ -169,8 +169,6 @@ IntPoint DSCamera::getImgSize()
     return m_Size;
 }
 
-static ProfilingZone CameraConvertProfilingZone("DS Camera format conversion");
-
 BitmapPtr DSCamera::getImage(bool bWait)
 {
     if (!m_bCameraAvailable && bWait) {
@@ -195,7 +193,6 @@ BitmapPtr DSCamera::getImage(bool bWait)
 
 void DSCamera::setCaptureFormat()
 {
-
     // First, look for a camera image format that matches the color selection
     bool bFound = selectMediaType(m_bColor, false);
     // Then, look for one that doesn't match and convert the images afterwards.
@@ -400,16 +397,22 @@ void DSCamera::setFeatureOneShot(CameraFeature Feature)
 
 int DSCamera::getWhitebalanceU() const
 {
+    AVG_TRACE(Logger::WARNING, 
+            "Whitebalance not implemented for DirectShow camera driver.");
     return 0;
 }
 
 int DSCamera::getWhitebalanceV() const
 {
+    AVG_TRACE(Logger::WARNING, 
+            "Whitebalance not implemented for DirectShow camera driver.");
     return 0;
 }
 
 void DSCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
 {
+    AVG_TRACE(Logger::WARNING, 
+            "Whitebalance not implemented for DirectShow camera driver.");
 }
 
 void DSCamera::initGraphBuilder()
