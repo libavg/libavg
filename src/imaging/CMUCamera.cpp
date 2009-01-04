@@ -40,7 +40,9 @@ CMUCamera::CMUCamera(std::string sDevice, IntPoint Size, std::string sPF,
       m_Size(Size),
       m_FrameRate(FrameRate),
       m_bCameraAvailable(false),
-      m_bFlipRGB(false)
+      m_bFlipRGB(false),
+      m_WhitebalanceU(-1),
+      m_WhitebalanceV(-1)
 {
     if (m_sPF == "MONO8") {
         m_FramePixelFormat = I8;
@@ -125,6 +127,7 @@ void CMUCamera::open()
     for (FeatureMap::iterator it=m_Features.begin(); it != m_Features.end(); it++) {
         setFeature(it->first, it->second, true);
     }
+    setWhitebalance(m_WhitebalanceU, m_WhitebalanceV, true);
 }
 
 void CMUCamera::close()
@@ -194,26 +197,10 @@ double CMUCamera::getFrameRate() const
 
 int CMUCamera::getFeature(CameraFeature Feature) const
 {
-    if (m_bCameraAvailable) {
-        CAMERA_FEATURE cmuFeature = getFeatureID(Feature);
-        if (m_Camera.HasFeature(cmuFeature)) {
-            C1394CameraControl* pControl = m_Camera.GetCameraControl(cmuFeature);
-            unsigned short val;
-            pControl->GetValue(&val);
-            return val;
-        } else {
-            AVG_TRACE(Logger::WARNING, string("Error reading camera feature: ") + 
-                    cameraFeatureToString(Feature));
-            return -1;
-        }
-    } else {
-        FeatureMap::const_iterator it = m_Features.find(Feature);
-        if (it == m_Features.end()) {
-            return 0;
-        } else {
-            return it->second;
-        }
-    }
+    unsigned short val1;
+    unsigned short val2;
+    internalGetFeature(Feature, &val1, &val2);
+    return val1;
 }
 
 void CMUCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue)
@@ -278,16 +265,73 @@ void CMUCamera::setFeatureOneShot(CameraFeature Feature)
 
 int CMUCamera::getWhitebalanceU() const
 {
-    return 0;
+    if (m_bCameraAvailable) {
+        unsigned short val1;
+        unsigned short val2;
+        internalGetFeature(CAM_FEATURE_WHITE_BALANCE, &val1, &val2);
+        return val1;
+    } else {
+        return m_WhitebalanceU;
+    }
 }
 
 int CMUCamera::getWhitebalanceV() const
 {
-    return 0;
+    if (m_bCameraAvailable) {
+        unsigned short val1;
+        unsigned short val2;
+        internalGetFeature(CAM_FEATURE_WHITE_BALANCE, &val1, &val2);
+        return val2;
+    } else {
+        return m_WhitebalanceV;
+    }
 }
 
 void CMUCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
 {
+    if (bIgnoreOldValue || m_WhitebalanceU != u || m_WhitebalanceV != v) {
+        m_WhitebalanceU = u;
+        m_WhitebalanceV = v;
+        if (m_bCameraAvailable) {
+            CAMERA_FEATURE cmuFeature = getFeatureID(CAM_FEATURE_WHITE_BALANCE);
+            if (m_Camera.HasFeature(FEATURE_WHITE_BALANCE)) {
+                bool bAuto = (u == -1);
+                
+                C1394CameraControl* pControl = m_Camera.GetCameraControl(cmuFeature);
+
+                if ((pControl->SetAutoMode(bAuto) != CAM_SUCCESS) ||
+                        (!bAuto && pControl->SetValue(u, v) != CAM_SUCCESS)) {
+                    AVG_TRACE(Logger::WARNING, string("Error setting camera feature: ") + 
+                            cameraFeatureToString(CAM_FEATURE_WHITE_BALANCE));
+                }
+            } else {
+                AVG_TRACE(Logger::WARNING, string("Camera does not support feature: ") + 
+                        cameraFeatureToString(CAM_FEATURE_WHITE_BALANCE));
+            }
+        }
+    }
+}
+
+void CMUCamera::internalGetFeature(CameraFeature Feature, unsigned short* val1, 
+        unsigned short* val2) const
+{
+    *val1 = -1;
+    *val2 = -1;
+    if (m_bCameraAvailable) {
+        CAMERA_FEATURE cmuFeature = getFeatureID(Feature);
+        if (m_Camera.HasFeature(cmuFeature)) {
+            C1394CameraControl* pControl = m_Camera.GetCameraControl(cmuFeature);
+            pControl->GetValue(val1, val2);
+        } else {
+            AVG_TRACE(Logger::WARNING, string("Error reading camera feature: ") + 
+                    cameraFeatureToString(Feature));
+        }
+    } else {
+        FeatureMap::const_iterator it = m_Features.find(Feature);
+        if (it != m_Features.end()) {
+            *val1 = it->second;
+        }
+    }
 }
 
 void CMUCamera::fatalError(const string & sMsg)

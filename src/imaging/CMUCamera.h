@@ -58,6 +58,8 @@ public:
     virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
 
 private:
+    void internalGetFeature(CameraFeature Feature, unsigned short* val1, 
+            unsigned short* val2) const;
     void fatalError(const std::string& sMsg);
 
     bool m_bCameraAvailable;
@@ -70,8 +72,10 @@ private:
     PixelFormat m_FramePixelFormat;
     PixelFormat m_OutputPixelFormat;
 
-    mutable C1394Camera m_Camera;
+    mutable C1394Camera m_Camera; // The CMU1394 lib is not const-correct.
     FeatureMap m_Features;
+    int m_WhitebalanceU;
+    int m_WhitebalanceV;
 };
 
 }
