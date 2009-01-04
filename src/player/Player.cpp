@@ -229,11 +229,11 @@ void Player::loadFile (const std::string& sFilename)
         // When loading an avg file, assets are loaded from a directory relative
         // to the file.
         char szBuf[1024];
+        char * pBuf = getcwd(szBuf, 1024);
         if (sFilename[0] == '/') {
             RealFilename = sFilename; 
         } else {
-            getcwd(szBuf, 1024);
-            m_CurDirName = string(szBuf)+"/";
+            m_CurDirName = string(pBuf)+"/";
             RealFilename = m_CurDirName+sFilename;
         }
         m_CurDirName = RealFilename.substr(0, RealFilename.rfind('/')+1);
@@ -243,8 +243,7 @@ void Player::loadFile (const std::string& sFilename)
         internalLoad(sAVG);
 
         // Reset the directory to load assets from to the current dir.
-        getcwd(szBuf, 1024);
-        m_CurDirName = string(szBuf)+"/";
+        m_CurDirName = string(pBuf)+"/";
     } catch (Exception& ex) {
         switch (ex.GetCode()) {
             case AVG_ERR_XML_PARSE:
@@ -265,9 +264,6 @@ void Player::loadString(const std::string& sAVG)
 {
     try {
         AVG_TRACE(Logger::MEMORY, "Player::loadString()");
-        char szBuf[1024];
-        getcwd(szBuf, 1024);
-        m_CurDirName = string(szBuf)+"/";
 
         string sEffectiveDoc = removeStartEndSpaces(sAVG);
         internalLoad(sEffectiveDoc);
@@ -889,8 +885,8 @@ void Player::internalLoad(const string& sAVG)
         m_pEventDispatcher = EventDispatcherPtr(new EventDispatcher);
 
         char szBuf[1024];
-        getcwd(szBuf, 1024);
-        m_CurDirName = string(szBuf)+"/";
+        char * pBuf = getcwd(szBuf, 1024);
+        m_CurDirName = string(pBuf)+"/";
         
         xmlPedanticParserDefault(1);
         xmlDoValidityCheckingDefaultValue =0;
