@@ -194,11 +194,25 @@ double CMUCamera::getFrameRate() const
 
 int CMUCamera::getFeature(CameraFeature Feature) const
 {
-    FeatureMap::const_iterator it = m_Features.find(Feature);
-    if (it == m_Features.end()) {
-        return 0;
+    if (m_bCameraAvailable) {
+        CAMERA_FEATURE cmuFeature = getFeatureID(Feature);
+        if (m_Camera.HasFeature(cmuFeature)) {
+            C1394CameraControl* pControl = m_Camera.GetCameraControl(cmuFeature);
+            unsigned short val;
+            pControl->GetValue(&val);
+            return val;
+        } else {
+            AVG_TRACE(Logger::WARNING, string("Error reading camera feature: ") + 
+                    cameraFeatureToString(Feature));
+            return -1;
+        }
     } else {
-        return it->second;
+        FeatureMap::const_iterator it = m_Features.find(Feature);
+        if (it == m_Features.end()) {
+            return 0;
+        } else {
+            return it->second;
+        }
     }
 }
 
@@ -211,21 +225,21 @@ void CMUCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValu
                 if (m_Camera.HasStrobe()) {
                     C1394CameraControlStrobe* pControl = m_Camera.GetStrobeControl(0);
                     if (pControl->SetValue(Value) != CAM_SUCCESS) {
-                        AVG_TRACE(Logger::WARNING, "Error setting strobe");
+                        AVG_TRACE(Logger::WARNING, "Error setting camera strobe.");
                     }
                 } else {
-                    AVG_TRACE(Logger::WARNING, "Camera does not support strobe");
+                    AVG_TRACE(Logger::WARNING, "Camera does not support strobe.");
                 }
             } else {
                 CAMERA_FEATURE cmuFeature = getFeatureID(Feature);
-                if (cmuFeature != FEATURE_INVALID_FEATURE && m_Camera.HasFeature(cmuFeature)) {
+                if (m_Camera.HasFeature(cmuFeature)) {
                     bool bAuto = (Value == -1);
                     
                     C1394CameraControl* pControl = m_Camera.GetCameraControl(cmuFeature);
 
                     if ((pControl->SetAutoMode(bAuto) != CAM_SUCCESS) ||
                             (!bAuto && pControl->SetValue(Value) != CAM_SUCCESS)) {
-                        AVG_TRACE(Logger::WARNING, string("Error setting feature: ") + 
+                        AVG_TRACE(Logger::WARNING, string("Error setting camera feature: ") + 
                                 cameraFeatureToString(Feature));
                     }
                 } else {

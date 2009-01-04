@@ -70,7 +70,7 @@ private:
     PixelFormat m_FramePixelFormat;
     PixelFormat m_OutputPixelFormat;
 
-    C1394Camera m_Camera;
+    mutable C1394Camera m_Camera;
     FeatureMap m_Features;
 };
 
