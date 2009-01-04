@@ -50,9 +50,12 @@ public:
     virtual const std::string& getDriverName() const; 
     virtual double getFrameRate() const;
 
-    virtual unsigned int getFeature(CameraFeature Feature) const;
+    virtual int getFeature(CameraFeature Feature) const;
     virtual void setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue=false);
     virtual void setFeatureOneShot(CameraFeature Feature);
+    virtual int getWhitebalanceU() const;
+    virtual int getWhitebalanceV() const;
+    virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
 
 private:
     void fatalError(const std::string& sMsg);

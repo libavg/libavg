@@ -15,10 +15,14 @@ class CameraTestCase(unittest.TestCase):
     def setUp(self):
         Player.setResolution(0, 0, 0, self.__bpp)
     def test(self):
+        def getWhitebalance():
+            self.__wb = (self.__camera.getWhitebalanceU(), 
+                    self.__camera.getWhitebalanceV())
+            print self.__wb
         def setWhitebalance():
-            self.__camera.whitebalance = 24407
+            self.__camera.setWhitebalance(128, 128);
         def resetWhitebalance():
-            self.__camera.whitebalance = -1
+            self.__camera.setWhitebalance(self.__wb[0], self.__wb[1])
         def changeBrightness():
             self.brightness += 10
             self.__camera.brightness = self.brightness
@@ -37,10 +41,11 @@ class CameraTestCase(unittest.TestCase):
         Player.getElementByID("camera1").play()
 #        self.brightness = 0
 #        Player.setInterval(200, changeBrightness)
-#        Player.setTimeout(200, setWhitebalance)
-#        Player.setTimeout(300, resetWhitebalance)
+        Player.setTimeout(200, getWhitebalance)
+        Player.setTimeout(1200, setWhitebalance)
+        Player.setTimeout(2200, resetWhitebalance)
 #        Player.setInterval(3000, stopPlayback)
-        Player.setInterval(200, setStrobe)
+#        Player.setInterval(200, setStrobe)
         Player.play()
 
 def playerTestSuite(bpp):

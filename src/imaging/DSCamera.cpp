@@ -398,6 +398,20 @@ void DSCamera::setFeatureOneShot(CameraFeature Feature)
             "OneShot feature setting not implemented for DirectShow camera driver.");
 }
 
+int DSCamera::getWhitebalanceU() const
+{
+    return 0;
+}
+
+int DSCamera::getWhitebalanceV() const
+{
+    return 0;
+}
+
+void DSCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
+{
+}
+
 void DSCamera::initGraphBuilder()
 {
     HRESULT hr;

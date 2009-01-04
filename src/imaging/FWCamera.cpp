@@ -502,8 +502,8 @@ void FWCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue
 void FWCamera::setFeatureOneShot(CameraFeature Feature)
 {
     if (m_bCameraAvailable) {
-        dc1394feature_t FeatureID = getFeatureID(Feature);
 #if defined(AVG_ENABLE_1394) 
+        dc1394feature_t FeatureID = getFeatureID(Feature);
         dc1394_auto_on_off(m_FWHandle, m_Camera.node, Feature, 0);
         int err = dc1394_start_one_push_operation(m_FWHandle, m_Camera.node, FeatureID);
         if (err != DC1394_SUCCESS) {
@@ -511,6 +511,7 @@ void FWCamera::setFeatureOneShot(CameraFeature Feature)
                     << cameraFeatureToString(Feature) << ". Error was " << err);
         }
 #elif defined(AVG_ENABLE_1394_2)
+        dc1394feature_t FeatureID = getFeatureID(Feature);
         dc1394error_t err = dc1394_feature_set_mode(m_pCamera, FeatureID, 
                 DC1394_FEATURE_MODE_ONE_PUSH_AUTO);
         if (err != DC1394_SUCCESS) {
@@ -551,6 +552,10 @@ void FWCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
                 err = dc1394_auto_on_off(m_FWHandle, m_Camera.node, FEATURE_WHITE_BALANCE, 0);
                 err = dc1394_set_white_balance(m_FWHandle, m_Camera.node, u, v); 
             } 
+            if (err != DC1394_SUCCESS) {
+                AVG_TRACE(Logger::WARNING,
+                        "Camera: Unable to set whitebalance. Error was " << err);
+            }
 #elif AVG_ENABLE_1394_2
             dc1394error_t err;
             if (u == -1) {
@@ -561,11 +566,11 @@ void FWCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
                         DC1394_FEATURE_MODE_MANUAL);
                 err = dc1394_feature_whitebalance_set_value(m_pCamera, u, v);
             }
-#endif
             if (err != DC1394_SUCCESS) {
                 AVG_TRACE(Logger::WARNING,
                         "Camera: Unable to set whitebalance. Error was " << err);
             }
+#endif
         }
     }
         

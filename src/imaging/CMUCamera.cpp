@@ -192,7 +192,7 @@ double CMUCamera::getFrameRate() const
     return m_FrameRate;
 }
 
-unsigned int CMUCamera::getFeature(CameraFeature Feature) const
+int CMUCamera::getFeature(CameraFeature Feature) const
 {
     FeatureMap::const_iterator it = m_Features.find(Feature);
     if (it == m_Features.end()) {
@@ -260,6 +260,20 @@ void CMUCamera::setFeatureOneShot(CameraFeature Feature)
                     cameraFeatureToString(Feature));
         }
     }
+}
+
+int CMUCamera::getWhitebalanceU() const
+{
+    return 0;
+}
+
+int CMUCamera::getWhitebalanceV() const
+{
+    return 0;
+}
+
+void CMUCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
+{
 }
 
 void CMUCamera::fatalError(const string & sMsg)
