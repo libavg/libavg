@@ -69,13 +69,17 @@ public:
     virtual const std::string& getDriverName() const; 
     virtual double getFrameRate() const;
 
-    virtual unsigned int getFeature(CameraFeature Feature) const;
+    virtual int getFeature(CameraFeature Feature) const;
     virtual void setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue=false);
-    void setFeature(dc1394feature_t Feature, int Value);
     virtual void setFeatureOneShot(CameraFeature Feature);
+    virtual int getWhitebalanceU() const;
+    virtual int getWhitebalanceV() const;
+    virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
 
 private:
+    void setFeature(dc1394feature_t Feature, int Value);
     void setStrobeDuration(int microsecs);
+    void getWhitebalance(int* pU, int* pV) const;
 
     std::string m_sDevice;
     std::string m_sPF;
@@ -96,12 +100,14 @@ private:
     dc1394framerate_t m_FrameRateConstant; 
     dc1394video_mode_t m_Mode;            
 #endif
-    void checkDC1394Error(int Code, const std::string & sMsg);
+    void checkDC1394Error(int Code, const std::string & sMsg) const;
     void fatalError(const std::string & sMsg);
     void dumpCameraInfo();
 
     bool m_bCameraAvailable;
     FeatureMap m_Features;
+    int m_WhitebalanceU;
+    int m_WhitebalanceV;
 };
 
 }

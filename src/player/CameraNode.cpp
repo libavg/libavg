@@ -70,7 +70,6 @@ NodeDefinition CameraNode::createDefinition()
         .addArg(Arg<int>("gamma", -1))
         .addArg(Arg<int>("shutter", -1))
         .addArg(Arg<int>("gain", -1))
-        .addArg(Arg<int>("whitebalance", -1))
         .addArg(Arg<int>("strobeduration", -1));
 }
 
@@ -135,8 +134,6 @@ CameraNode::CameraNode(const ArgList& Args, bool bFromXML)
                 Args.getArgVal<int>("shutter"));
         m_pCamera->setFeature(CAM_FEATURE_GAIN,
                 Args.getArgVal<int>("gain"));
-        m_pCamera->setFeature(CAM_FEATURE_WHITE_BALANCE,
-                Args.getArgVal<int>("whitebalance"));
         m_pCamera->setFeature(CAM_FEATURE_STROBE_DURATION,
                 Args.getArgVal<int>("strobeduration"));
     }
@@ -222,14 +219,29 @@ void CameraNode::setGain(int Value)
     setFeature(CAM_FEATURE_GAIN, Value);
 }
 
-unsigned int CameraNode::getWhiteBalance() const
+int CameraNode::getWhitebalanceU() const
 {
-    return getFeature(CAM_FEATURE_WHITE_BALANCE);
+    if (m_pCamera) {
+        return m_pCamera->getWhitebalanceU();
+    } else {
+        return 0;
+    }
 }
 
-void CameraNode::setWhiteBalance(int Value)
+int CameraNode::getWhitebalanceV() const
 {
-    setFeature(CAM_FEATURE_WHITE_BALANCE, Value);
+    if (m_pCamera) {
+        return m_pCamera->getWhitebalanceV();
+    } else {
+        return 0;
+    }
+}
+
+void CameraNode::setWhitebalance(int u, int v)
+{
+    if (m_pCamera) {
+        m_pCamera->setWhitebalance(u, v);
+    }
 }
             
 int CameraNode::getStrobeDuration() const

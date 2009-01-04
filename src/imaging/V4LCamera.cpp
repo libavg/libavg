@@ -18,7 +18,7 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-// V4L2/libavg compliance by 02L > Outside Standing Level
+//  V4L2/libavg compliance by 02L > Outside Standing Level
 
 #include "V4LCamera.h"
 
@@ -363,8 +363,6 @@ V4LCID_t V4LCamera::getFeatureID(CameraFeature Feature) const
         V4LFeature = V4L2_CID_GAIN;
     } else if (Feature == CAM_FEATURE_EXPOSURE) {
         V4LFeature = V4L2_CID_EXPOSURE;
-    } else if (Feature == CAM_FEATURE_WHITE_BALANCE) {
-        V4LFeature = V4L2_CID_WHITENESS;
     } else if (Feature == CAM_FEATURE_GAMMA) {
         V4LFeature = V4L2_CID_GAMMA;
     } else if (Feature == CAM_FEATURE_SATURATION) {
@@ -400,7 +398,7 @@ bool V4LCamera::isFeatureSupported(V4LCID_t V4LFeature) const
     }
 }
 
-unsigned int V4LCamera::getFeature(CameraFeature Feature) const
+int V4LCamera::getFeature(CameraFeature Feature) const
 {
     V4LCID_t V4LFeature = getFeatureID(Feature);
     
@@ -444,6 +442,24 @@ void V4LCamera::setFeature(V4LCID_t V4LFeature, int Value)
 void V4LCamera::setFeatureOneShot(CameraFeature Feature)
 {
     AVG_TRACE(Logger::WARNING, "setFeatureOneShot is not supported by V4L cameras.");
+}
+
+int V4LCamera::getWhitebalanceU() const
+{
+    AVG_TRACE(Logger::WARNING, "getWhitebalance is not supported by V4L cameras.");
+    return 0;
+}
+
+int V4LCamera::getWhitebalanceV() const
+{
+    AVG_TRACE(Logger::WARNING, "getWhitebalance is not supported by V4L cameras.");
+    return 0;
+}
+
+void V4LCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
+{
+    setFeature(V4L2_CID_RED_BALANCE, u); 
+    setFeature(V4L2_CID_BLUE_BALANCE, v); 
 }
 
 void V4LCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue)

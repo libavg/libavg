@@ -76,8 +76,9 @@ class AVG_API CameraNode : public VideoBase
         void setShutter(int Value);
         int getGain() const;
         void setGain(int Value);
-        unsigned int getWhiteBalance() const;
-        void setWhiteBalance(int Value);
+        int getWhitebalanceU() const;
+        int getWhitebalanceV() const;
+        void setWhitebalance(int u, int v);
         int getStrobeDuration() const;
         void setStrobeDuration(int Value);
         

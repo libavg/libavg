@@ -49,7 +49,9 @@ FWCamera::FWCamera(std::string sDevice, IntPoint Size, std::string sPF,
       m_Size(Size),
       m_FrameRate(FrameRate),
       m_bColor(bColor),
-      m_bCameraAvailable(false)
+      m_bCameraAvailable(false),
+      m_WhitebalanceU(-1),
+      m_WhitebalanceV(-1)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     m_FrameRateConstant = getFrameRateConst(m_FrameRate);
@@ -260,6 +262,7 @@ void FWCamera::open()
     for (FeatureMap::iterator it=m_Features.begin(); it != m_Features.end(); it++) {
         setFeature(it->first, it->second, true);
     }
+    setWhitebalance(m_WhitebalanceU, m_WhitebalanceV, true);
 }
 
 void FWCamera::close()
@@ -459,7 +462,7 @@ double FWCamera::getFrameRate() const
     return m_FrameRate;
 }
 
-unsigned int FWCamera::getFeature(CameraFeature Feature) const
+int FWCamera::getFeature(CameraFeature Feature) const
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     FeatureMap::const_iterator it = m_Features.find(Feature);
@@ -494,6 +497,78 @@ void FWCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue
         }
 #endif
     }
+}
+
+void FWCamera::setFeatureOneShot(CameraFeature Feature)
+{
+    if (m_bCameraAvailable) {
+        dc1394feature_t FeatureID = getFeatureID(Feature);
+#if defined(AVG_ENABLE_1394) 
+        dc1394_auto_on_off(m_FWHandle, m_Camera.node, Feature, 0);
+        int err = dc1394_start_one_push_operation(m_FWHandle, m_Camera.node, FeatureID);
+        if (err != DC1394_SUCCESS) {
+            AVG_TRACE(Logger::WARNING, "Camera: Unable to set one-shot for " 
+                    << cameraFeatureToString(Feature) << ". Error was " << err);
+        }
+#elif defined(AVG_ENABLE_1394_2)
+        dc1394error_t err = dc1394_feature_set_mode(m_pCamera, FeatureID, 
+                DC1394_FEATURE_MODE_ONE_PUSH_AUTO);
+        if (err != DC1394_SUCCESS) {
+            AVG_TRACE(Logger::WARNING, "Camera: Unable to set one-shot for " 
+                    << cameraFeatureToString(Feature) << ". Error was " << err);
+        }
+#endif
+    }
+}
+
+int FWCamera::getWhitebalanceU() const
+{
+    int u;
+    int v;
+    getWhitebalance(&u, &v);
+    return u;
+}
+
+int FWCamera::getWhitebalanceV() const
+{
+    int u;
+    int v;
+    getWhitebalance(&u, &v);
+    return v;
+}
+
+void FWCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
+{
+    if (bIgnoreOldValue || u != m_WhitebalanceU || v != m_WhitebalanceV) {
+        m_WhitebalanceU = u;
+        m_WhitebalanceV = v;
+        if (m_bCameraAvailable) {
+#ifdef AVG_ENABLE_1394
+            int err;
+            if (u == -1) {
+                err = dc1394_auto_on_off(m_FWHandle, m_Camera.node, FEATURE_WHITE_BALANCE, 1);
+            } else {
+                err = dc1394_auto_on_off(m_FWHandle, m_Camera.node, FEATURE_WHITE_BALANCE, 0);
+                err = dc1394_set_white_balance(m_FWHandle, m_Camera.node, u, v); 
+            } 
+#elif AVG_ENABLE_1394_2
+            dc1394error_t err;
+            if (u == -1) {
+                err = dc1394_feature_set_mode(m_pCamera, DC1394_FEATURE_WHITE_BALANCE,
+                        DC1394_FEATURE_MODE_AUTO);
+            } else {
+                err = dc1394_feature_set_mode(m_pCamera, DC1394_FEATURE_WHITE_BALANCE, 
+                        DC1394_FEATURE_MODE_MANUAL);
+                err = dc1394_feature_whitebalance_set_value(m_pCamera, u, v);
+            }
+#endif
+            if (err != DC1394_SUCCESS) {
+                AVG_TRACE(Logger::WARNING,
+                        "Camera: Unable to set whitebalance. Error was " << err);
+            }
+        }
+    }
+        
 }
 
 void FWCamera::setFeature(dc1394feature_t Feature, int Value)
@@ -536,18 +611,67 @@ void FWCamera::setFeature(dc1394feature_t Feature, int Value)
 #endif
 }
 
-void FWCamera::setFeatureOneShot(CameraFeature Feature)
+void FWCamera::setStrobeDuration(int microsecs)
+{
+#ifdef AVG_ENABLE_1394_2
+    dc1394error_t err;
+    uint32_t durationRegValue;
+    if (microsecs >= 63930 || microsecs < -1) {
+        throw Exception(AVG_ERR_CAMERA, string("Illegal value ")+toString(microsecs)
+                +" for strobe duration.");
+    }
+    if (microsecs == -1) {
+        // Turn off strobe. No error checking done here (if the camera doesn't support
+        // strobe, setting the register will fail. But there is really no error, because
+        // we're turning the feature off anyway.)
+        uint32_t strobeRegValue = 0x81000000;
+        err = dc1394_set_strobe_register(m_pCamera, 0x200, strobeRegValue);
+    } else {
+        if (microsecs < 0x400) {
+            durationRegValue = microsecs;
+        } else {
+            // Wierd calculations: IIDC register values for time are non-linear. Translate
+            // the method parameter in microseconds to appropriate register values.
+            double targetMillisecs = microsecs/1000.;
+            const double realTimes[] = {1,2,4,6,8,12,16,24,32,48,63.93};
+            const uint32_t regValues[] = 
+                {0x400, 0x600, 0x800, 0x900, 0xA00, 0xB00, 0xC00, 0xD00, 
+                 0xE00, 0xF00, 0xFFF};
+            int len = sizeof(regValues)/sizeof(*regValues);
+            assert(len == sizeof(realTimes)/sizeof(*realTimes));
+            int i;
+            for (i=1; realTimes[i] < targetMillisecs; ++i); 
+            double ratio = (targetMillisecs-realTimes[i])/(realTimes[i-1]-realTimes[i]);
+            durationRegValue = ratio*regValues[i-1]+(1-ratio)*regValues[i];
+        } 
+
+        err = dc1394_set_PIO_register(m_pCamera, 0x08, 0xC0000000);
+        checkDC1394Error(err, "Unable to set camera PIO direction register.");
+        
+        uint32_t strobeRegValue = 0x83001000+durationRegValue;
+        err = dc1394_set_strobe_register(m_pCamera, 0x200, strobeRegValue);
+        checkDC1394Error(err, "Unable to set camera strobe register.");
+    }
+#else
+    throw Exception(AVG_ERR_CAMERA, "setStrobeDuration not supported for libdc1394 v.1");
+#endif
+}
+
+void FWCamera::getWhitebalance(int* pU, int* pV) const
 {
     if (m_bCameraAvailable) {
-#if defined(AVG_ENABLE_1394) 
-        dc1394feature_t FeatureID = getFeatureID(Feature);
-        dc1394_auto_on_off(m_FWHandle, m_Camera.node, Feature, 0);
-        int err = dc1394_start_one_push_operation(m_FWHandle, m_Camera.node, FeatureID);
-#elif defined(AVG_ENABLE_1394_2)
-        dc1394feature_t FeatureID = getFeatureID(Feature);
-        dc1394error_t err = dc1394_feature_set_mode(m_pCamera, FeatureID, 
-                DC1394_FEATURE_MODE_ONE_PUSH_AUTO);
+#ifdef AVG_ENABLE_1394
+        int err = dc1394_get_white_balance(m_FWHandle, m_Camera.node, 
+                (uint32_t*)pU, (uint32_t*)pV); 
+        checkDC1394Error(err, "Unable to read out whitebalance.");
+#elif AVG_ENABLE_1394_2
+        dc1394error_t err = dc1394_feature_whitebalance_get_value(m_pCamera, 
+                (uint32_t*)pU, (uint32_t*)pV);
+        checkDC1394Error(err, "Unable to read out whitebalance.");
 #endif
+    } else {
+        *pU = m_WhitebalanceU;
+        *pV = m_WhitebalanceV;
     }
 }
 
@@ -585,7 +709,7 @@ bool FWCamera::findCameraOnPort(int port, raw1394handle_t& FWHandle)
 }
 #endif
 
-void FWCamera::checkDC1394Error(int Code, const string & sMsg)
+void FWCamera::checkDC1394Error(int Code, const string & sMsg) const
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
     if (Code != DC1394_SUCCESS) {
@@ -646,50 +770,5 @@ void FWCamera::dumpCameraInfo()
 {
 }
 #endif
-
-void FWCamera::setStrobeDuration(int microsecs)
-{
-#ifdef AVG_ENABLE_1394_2
-    dc1394error_t err;
-    uint32_t durationRegValue;
-    if (microsecs >= 63930 || microsecs < -1) {
-        throw Exception(AVG_ERR_CAMERA, string("Illegal value ")+toString(microsecs)
-                +" for strobe duration.");
-    }
-    if (microsecs == -1) {
-        // Turn off strobe. No error checking done here (if the camera doesn't support
-        // strobe, setting the register will fail. But there is really no error, because
-        // we're turning the feature off anyway.)
-        uint32_t strobeRegValue = 0x81000000;
-        err = dc1394_set_strobe_register(m_pCamera, 0x200, strobeRegValue);
-    } else {
-        if (microsecs < 0x400) {
-            durationRegValue = microsecs;
-        } else {
-            // Wierd calculations: IIDC register values for time are non-linear. Translate
-            // the method parameter in microseconds to appropriate register values.
-            double targetMillisecs = microsecs/1000.;
-            const double realTimes[] = {1,2,4,6,8,12,16,24,32,48,63.93};
-            const uint32_t regValues[] = 
-                {0x400, 0x600, 0x800, 0x900, 0xA00, 0xB00, 0xC00, 0xD00, 0xE00, 0xF00, 0xFFF};
-            int len = sizeof(regValues)/sizeof(*regValues);
-            assert(len == sizeof(realTimes)/sizeof(*realTimes));
-            int i;
-            for (i=1; realTimes[i] < targetMillisecs; ++i); 
-            double ratio = (targetMillisecs-realTimes[i])/(realTimes[i-1]-realTimes[i]);
-            durationRegValue = ratio*regValues[i-1]+(1-ratio)*regValues[i];
-        } 
-
-        err = dc1394_set_PIO_register(m_pCamera, 0x08, 0xC0000000);
-        checkDC1394Error(err, "Unable to set camera PIO direction register.");
-        
-        uint32_t strobeRegValue = 0x83001000+durationRegValue;
-        err = dc1394_set_strobe_register(m_pCamera, 0x200, strobeRegValue);
-        checkDC1394Error(err, "Unable to set camera strobe register.");
-    }
-#else
-    throw Exception(AVG_ERR_CAMERA, "setStrobeDuration not supported for libdc1394 v.1");
-#endif
-}
 
 }

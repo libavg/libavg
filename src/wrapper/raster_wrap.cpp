@@ -207,10 +207,11 @@ void export_raster()
         .add_property("gamma", &CameraNode::getGamma, &CameraNode::setGamma)
         .add_property("shutter", &CameraNode::getShutter, &CameraNode::setShutter)
         .add_property("gain", &CameraNode::getGain, &CameraNode::setGain)
-        .add_property("whitebalance", &CameraNode::getWhiteBalance, 
-                &CameraNode::setWhiteBalance)
         .add_property("strobeduration", &CameraNode::getStrobeDuration, 
                 &CameraNode::setStrobeDuration)
+        .def("getWhitebalanceU", &CameraNode::getWhitebalanceU)
+        .def("getWhitebalanceV", &CameraNode::getWhitebalanceV)
+        .def("setWhitebalance", &CameraNode::setWhitebalance)
     ;
         
     class_<Video, bases<VideoBase> >("Video",

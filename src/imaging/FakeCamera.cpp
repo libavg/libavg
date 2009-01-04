@@ -42,7 +42,7 @@ FakeCamera::FakeCamera(std::vector<std::string> &pictures)
     : m_pBmpQ(new std::queue<BitmapPtr>()),
       m_bIsOpen(false)
 {
-    for(std::vector<std::string>::iterator it=pictures.begin();it!=pictures.end();++it){
+    for(std::vector<std::string>::iterator it=pictures.begin();it!=pictures.end();++it) {
         try {
             BitmapPtr pBmp (new Bitmap(*it));
             FilterGrayscale().applyInPlace(pBmp);
@@ -120,7 +120,7 @@ const string& FakeCamera::getMode() const
 }
 
 
-unsigned int FakeCamera::getFeature(CameraFeature Feature) const
+int FakeCamera::getFeature(CameraFeature Feature) const
 {
     return 0;
 }
@@ -130,6 +130,20 @@ void FakeCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldVal
 }
 
 void FakeCamera::setFeatureOneShot(CameraFeature Feature)
+{
+}
+
+int FakeCamera::getWhitebalanceU() const
+{
+    return 0;
+}
+
+int FakeCamera::getWhitebalanceV() const
+{
+    return 0;
+}
+
+void FakeCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
 {
 }
 

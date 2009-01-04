@@ -72,10 +72,13 @@ public:
     virtual const std::string& getDriverName() const = 0; 
     virtual double getFrameRate() const = 0;
     
-    virtual unsigned int getFeature(CameraFeature Feature) const = 0;
+    virtual int getFeature(CameraFeature Feature) const = 0;
     virtual void setFeature(CameraFeature Feature, int Value, 
             bool bIgnoreOldValue=false) = 0;
     virtual void setFeatureOneShot(CameraFeature Feature) = 0;
+    virtual int getWhitebalanceU() const = 0;
+    virtual int getWhitebalanceV() const = 0;
+    virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false) = 0;
 };
 
 typedef boost::shared_ptr<Camera> CameraPtr;

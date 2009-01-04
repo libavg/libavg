@@ -36,29 +36,32 @@ typedef boost::shared_ptr<std::queue<BitmapPtr> > BitmapQueuePtr;
 
 class AVG_API FakeCamera: public Camera
 {
-    public:
-        FakeCamera(std::vector<std::string> &pictures);
-        virtual ~FakeCamera();
-        virtual void open();
-        virtual void close();
+public:
+    FakeCamera(std::vector<std::string> &pictures);
+    virtual ~FakeCamera();
+    virtual void open();
+    virtual void close();
 
-        virtual IntPoint getImgSize();
-        virtual BitmapPtr getImage(bool bWait);
-        virtual bool isCameraAvailable();
+    virtual IntPoint getImgSize();
+    virtual BitmapPtr getImage(bool bWait);
+    virtual bool isCameraAvailable();
 
-        virtual const std::string& getDevice() const; 
-        virtual const std::string& getDriverName() const; 
-        virtual double getFrameRate() const;
-        virtual const std::string& getMode() const;
-        
-        virtual unsigned int getFeature(CameraFeature Feature) const;
-        virtual void setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue=false);
-        virtual void setFeatureOneShot(CameraFeature Feature);
+    virtual const std::string& getDevice() const; 
+    virtual const std::string& getDriverName() const; 
+    virtual double getFrameRate() const;
+    virtual const std::string& getMode() const;
 
-    private:
-        IntPoint m_ImgSize;
-        BitmapQueuePtr m_pBmpQ;
-        bool m_bIsOpen;
+    virtual int getFeature(CameraFeature Feature) const;
+    virtual void setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue=false);
+    virtual void setFeatureOneShot(CameraFeature Feature);
+    virtual int getWhitebalanceU() const;
+    virtual int getWhitebalanceV() const;
+    virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
+
+private:
+    IntPoint m_ImgSize;
+    BitmapQueuePtr m_pBmpQ;
+    bool m_bIsOpen;
 };
 
 }

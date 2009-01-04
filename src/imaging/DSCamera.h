@@ -59,7 +59,7 @@ public:
     virtual const std::string& getDriverName() const; 
     virtual double getFrameRate() const;
 
-    virtual unsigned int getFeature(CameraFeature Feature) const;
+    virtual int getFeature(CameraFeature Feature) const;
     virtual void setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue=false);
     virtual void setFeatureOneShot(CameraFeature Feature);
 
@@ -91,7 +91,7 @@ private:
     IMediaControl * m_pMediaControl;
     IBaseFilter * m_pSrcFilter;
     IBaseFilter * m_pGrabFilter;
-	ISampleGrabber * m_pSampleGrabber;
+    ISampleGrabber * m_pSampleGrabber;
     IAMVideoProcAmp * m_pCameraPropControl;
     IAMCameraControl * m_pAMCameraControl;
 

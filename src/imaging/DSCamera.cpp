@@ -72,10 +72,10 @@ void DSCamera::open()
 
         // Create and configure the sample grabber that delivers the frames to
         // the app.
-	    hr = CoCreateInstance(CLSID_SampleGrabber, NULL, 
+        hr = CoCreateInstance(CLSID_SampleGrabber, NULL, 
                 CLSCTX_INPROC_SERVER, IID_IBaseFilter, (LPVOID *)&m_pGrabFilter);
         checkForDShowError(hr, "DSCamera::open()::Create SampleGrabber");
-	    hr = m_pGrabFilter->QueryInterface(IID_ISampleGrabber, 
+        hr = m_pGrabFilter->QueryInterface(IID_ISampleGrabber, 
                 (void **)&m_pSampleGrabber);
         checkForDShowError(hr, "DSCamera::open()::Create SampleGrabber 2");
 
@@ -113,7 +113,7 @@ void DSCamera::open()
         }
 
         m_pSampleQueue = new DSSampleQueue(m_Size, m_CameraPF, DestPF);
-	    m_pSampleGrabber->SetCallback(m_pSampleQueue, 0);
+        m_pSampleGrabber->SetCallback(m_pSampleQueue, 0);
 
 /*
         cerr << "Grabber type: " << mediaTypeToString(mt.majortype) << 
@@ -123,11 +123,11 @@ void DSCamera::open()
 */
 
         IBaseFilter * pNull;
-		hr = CoCreateInstance(CLSID_NullRenderer, NULL, CLSCTX_INPROC_SERVER, 
-	                                   IID_IBaseFilter, (LPVOID*) &pNull);
+        hr = CoCreateInstance(CLSID_NullRenderer, NULL, CLSCTX_INPROC_SERVER, 
+                                       IID_IBaseFilter, (LPVOID*) &pNull);
         checkForDShowError(hr, "DSCamera::open()::Create null filter");
-		m_pGraph->AddFilter(pNull, L"NullRender");
-		pNull->Release();
+        m_pGraph->AddFilter(pNull, L"NullRender");
+        pNull->Release();
 
         connectFilters(m_pGraph, m_pSrcFilter, m_pGrabFilter);
         connectFilters(m_pGraph, m_pGrabFilter, pNull);
@@ -206,9 +206,9 @@ void DSCamera::setCaptureFormat()
 
 bool DSCamera::selectMediaType(bool bColor, bool bForce) 
 {
-	IAMStreamConfig *pSC;
+    IAMStreamConfig *pSC;
     HRESULT hr = m_pCapture->FindInterface(&PIN_CATEGORY_CAPTURE,
-			&MEDIATYPE_Video, m_pSrcFilter, IID_IAMStreamConfig, (void **)&pSC);
+            &MEDIATYPE_Video, m_pSrcFilter, IID_IAMStreamConfig, (void **)&pSC);
     checkForDShowError(hr, "DSCamera::setCaptureFormat::FindInterface");
 
     int Count = 0;
@@ -314,7 +314,7 @@ bool DSCamera::selectMediaType(bool bColor, bool bForce)
             fatalError("Could not find suitable camera image format.");
         }
     }
-	pSC->Release();
+    pSC->Release();
     return bFormatFound;
 }
 
@@ -339,7 +339,7 @@ double DSCamera::getFrameRate() const
     return m_FrameRate;
 }
 
-unsigned int DSCamera::getFeature(CameraFeature Feature) const
+int DSCamera::getFeature(CameraFeature Feature) const
 {
     long Prop = getDSFeatureID(Feature);
     long Val;
@@ -411,7 +411,7 @@ void DSCamera::initGraphBuilder()
     checkForDShowError(hr, "DSCamera::initGraphBuilder()::GraphBuilder");
     // Create the capture graph builder
     hr = CoCreateInstance (CLSID_CaptureGraphBuilder2 , NULL, CLSCTX_INPROC,
-                           IID_ICaptureGraphBuilder2, (void **) &m_pCapture);	
+                           IID_ICaptureGraphBuilder2, (void **) &m_pCapture);   
     checkForDShowError(hr, "DSCamera::initGraphBuilder()::CaptureGraphBuilder2");
 
     hr = m_pCapture->SetFiltergraph(m_pGraph);
@@ -436,11 +436,11 @@ void DSCamera::findCaptureDevice(IBaseFilter ** ppSrcFilter)
     // Create an enumerator for the video capture devices
     hr = pDevEnum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory, 
             &pClassEnum, 0);
-	checkForDShowError(hr, "DSCamera::findCaptureDevice()::CreateClassEnumerator");
+    checkForDShowError(hr, "DSCamera::findCaptureDevice()::CreateClassEnumerator");
 
-	// If there are no enumerators for the requested type, then 
-	// CreateClassEnumerator will succeed, but pClassEnum will be NULL.
-	if (pClassEnum == NULL) {
+    // If there are no enumerators for the requested type, then 
+    // CreateClassEnumerator will succeed, but pClassEnum will be NULL.
+    if (pClassEnum == NULL) {
         AVG_TRACE(Logger::WARNING, "No DirectShow capture device found. Disabling camera.");
         m_bCameraAvailable = false;
         *ppSrcFilter = 0;
@@ -455,7 +455,7 @@ void DSCamera::findCaptureDevice(IBaseFilter ** ppSrcFilter)
     while (!bFound && pClassEnum->Next(1, &pMoniker, NULL) == S_OK) {
         IPropertyBag *pPropBag;
         hr = pMoniker->BindToStorage(0, 0, IID_IPropertyBag, (void**)(&pPropBag));
-    	checkForDShowError(hr, "DSCamera::findCaptureDevice()::BindToStorage");
+        checkForDShowError(hr, "DSCamera::findCaptureDevice()::BindToStorage");
 
         string sDescription = getStringProp(pPropBag, L"Description");
         string sFriendlyName = getStringProp(pPropBag, L"FriendlyName");
@@ -468,7 +468,7 @@ void DSCamera::findCaptureDevice(IBaseFilter ** ppSrcFilter)
         }
         sDescriptions.push_back(sDescription);
         sFriendlyNames.push_back(sFriendlyName);
-		sDevicePaths.push_back(sDevicePath);
+        sDevicePaths.push_back(sDevicePath);
 
         pPropBag->Release();
     }
@@ -477,20 +477,20 @@ void DSCamera::findCaptureDevice(IBaseFilter ** ppSrcFilter)
         for (unsigned i=0; i<sDescriptions.size(); i++) {
             char sz[256];
             AVG_TRACE(Logger::WARNING, "  "+string(_itoa(i, sz, 10))+
-				": Description='"+sDescriptions[i]+"', Name: '"+sFriendlyNames[i]+"', Path: '"+sDevicePaths[i]+"'");
+                ": Description='"+sDescriptions[i]+"', Name: '"+sFriendlyNames[i]+"', Path: '"+sDevicePaths[i]+"'");
         }
         fatalError("DSCamera::findCaptureDevice(): Unable to access video capture device.");
     }
 
     // Bind Moniker to a filter object
     hr = pMoniker->BindToObject(0,0,IID_IBaseFilter, (void**)&pSrc);
-	checkForDShowError(hr, "DSCamera::findCaptureDevice()::BindToObject");
+    checkForDShowError(hr, "DSCamera::findCaptureDevice()::BindToObject");
 
     // Copy the found filter pointer to the output parameter.
     *ppSrcFilter = pSrc;
-	(*ppSrcFilter)->AddRef();
+    (*ppSrcFilter)->AddRef();
 
-	pSrc->Release();
+    pSrc->Release();
     pMoniker->Release();
     pDevEnum->Release();
     pClassEnum->Release();
