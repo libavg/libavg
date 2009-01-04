@@ -93,6 +93,20 @@ class DecoderTest: public GraphicsTest {
             return &AP;
         }
 
+        virtual void testEqual(Bitmap& ResultBmp, const std::string& sFName, 
+                avg::PixelFormat pf = NO_PIXELFORMAT, double maxAverage=1.0,
+                double maxStdDev=1.0)
+        {
+            GraphicsTest::testEqual(ResultBmp, sFName, pf, maxAverage, maxStdDev);
+        }
+
+        void testEqual(Bitmap& ResultBmp, Bitmap& BaselineBmp,
+                const std::string& sFName, double maxAverage=1.0, double maxStdDev=1.0)
+        {
+            GraphicsTest::testEqual(ResultBmp, BaselineBmp, sFName, 
+                    maxAverage, maxStdDev);
+        }
+
     private:
         string getDecoderName(bool bThreadedDecoder, bool bThreadedDemuxer) {
             string sName = "(";
