@@ -32,6 +32,7 @@
 #include "../base/XMLHelper.h"
 
 #include "../imaging/FWCamera.h"
+#include "../imaging/FakeCamera.h"
 #ifdef AVG_ENABLE_V4L2
 #include "../imaging/V4LCamera.h"
 #endif
@@ -93,7 +94,7 @@ CameraNode::CameraNode(const ArgList& Args, bool bFromXML)
     m_pCamera = CameraPtr(new CMUCamera(sDevice, IntPoint(Width, Height), sPF, 
             FrameRate, true));
 #else
-        AVG_TRACE(Logger::ERROR, "Firewire camera specified, but firewire "
+        AVG_TRACE(Logger::WARNING, "Firewire camera specified, but firewire "
                 "support not compiled in.");
 #endif
     } else if (sSource == "v4l") {
@@ -103,7 +104,7 @@ CameraNode::CameraNode(const ArgList& Args, bool bFromXML)
         m_pCamera = CameraPtr(new V4LCamera(sDevice, Channel,
             IntPoint(Width, Height), sPF, true));
 #else
-        AVG_TRACE(Logger::ERROR, "Video4Linux camera specified, but "
+        AVG_TRACE(Logger::WARNING, "Video4Linux camera specified, but "
                 "Video4Linux support not compiled in.");
 #endif
     } else if (sSource == "directshow") {
@@ -111,32 +112,34 @@ CameraNode::CameraNode(const ArgList& Args, bool bFromXML)
         m_pCamera = CameraPtr(new DSCamera(sDevice, IntPoint(Width, Height), sPF, 
             FrameRate, true));
 #else
-        AVG_TRACE(Logger::ERROR, "DirectShow camera specified, but "
+        AVG_TRACE(Logger::WARNING, "DirectShow camera specified, but "
                 "DirectShow is only available under windows.");
 #endif
     } else {
-        AVG_TRACE(Logger::ERROR,
-            "Unable to set up camera. Camera source '"+sSource+"' unknown.");
+        throw Exception(AVG_ERR_INVALID_ARGS,
+                "Unable to set up camera. Camera source '"+sSource+"' unknown.");
     }
 
-    if (m_pCamera) {
-        m_pCamera->setFeature(CAM_FEATURE_BRIGHTNESS,
-                Args.getArgVal<int>("brightness"));
-        m_pCamera->setFeature(CAM_FEATURE_EXPOSURE,
-                Args.getArgVal<int>("exposure"));
-        m_pCamera->setFeature(CAM_FEATURE_SHARPNESS,
-                Args.getArgVal<int>("sharpness"));
-        m_pCamera->setFeature(CAM_FEATURE_SATURATION,
-                Args.getArgVal<int>("saturation"));
-        m_pCamera->setFeature(CAM_FEATURE_GAMMA,
-                Args.getArgVal<int>("gamma"));
-        m_pCamera->setFeature(CAM_FEATURE_SHUTTER,
-                Args.getArgVal<int>("shutter"));
-        m_pCamera->setFeature(CAM_FEATURE_GAIN,
-                Args.getArgVal<int>("gain"));
-        m_pCamera->setFeature(CAM_FEATURE_STROBE_DURATION,
-                Args.getArgVal<int>("strobeduration"));
+    if (!m_pCamera) {
+        m_pCamera = CameraPtr(new FakeCamera());
     }
+
+    m_pCamera->setFeature(CAM_FEATURE_BRIGHTNESS,
+            Args.getArgVal<int>("brightness"));
+    m_pCamera->setFeature(CAM_FEATURE_EXPOSURE,
+            Args.getArgVal<int>("exposure"));
+    m_pCamera->setFeature(CAM_FEATURE_SHARPNESS,
+            Args.getArgVal<int>("sharpness"));
+    m_pCamera->setFeature(CAM_FEATURE_SATURATION,
+            Args.getArgVal<int>("saturation"));
+    m_pCamera->setFeature(CAM_FEATURE_GAMMA,
+            Args.getArgVal<int>("gamma"));
+    m_pCamera->setFeature(CAM_FEATURE_SHUTTER,
+            Args.getArgVal<int>("shutter"));
+    m_pCamera->setFeature(CAM_FEATURE_GAIN,
+            Args.getArgVal<int>("gain"));
+    m_pCamera->setFeature(CAM_FEATURE_STROBE_DURATION,
+            Args.getArgVal<int>("strobeduration"));
 }
 
 CameraNode::~CameraNode()
@@ -221,29 +224,19 @@ void CameraNode::setGain(int Value)
 
 int CameraNode::getWhitebalanceU() const
 {
-    if (m_pCamera) {
-        return m_pCamera->getWhitebalanceU();
-    } else {
-        return 0;
-    }
+    return m_pCamera->getWhitebalanceU();
 }
 
 int CameraNode::getWhitebalanceV() const
 {
-    if (m_pCamera) {
-        return m_pCamera->getWhitebalanceV();
-    } else {
-        return 0;
-    }
+    return m_pCamera->getWhitebalanceV();
 }
 
 void CameraNode::setWhitebalance(int u, int v)
 {
-    if (m_pCamera) {
-        m_pCamera->setWhitebalance(u, v);
-    }
+    m_pCamera->setWhitebalance(u, v);
 }
-            
+
 int CameraNode::getStrobeDuration() const
 {
     return getFeature(CAM_FEATURE_STROBE_DURATION);
@@ -257,50 +250,32 @@ void CameraNode::setStrobeDuration(int Value)
 
 IntPoint CameraNode::getMediaSize()
 {
-    if (m_pCamera) {
-        return m_pCamera->getImgSize();
-    } else {
-        return IntPoint(640,480);
-    }
+    return m_pCamera->getImgSize();
 }
 
 double CameraNode::getFPS()
 {
-    if (m_pCamera) {
-        return m_pCamera->getFrameRate();
-    } else {
-        return 0;
-    }
+    return m_pCamera->getFrameRate();
 }
 
 void CameraNode::open(YCbCrMode ycbcrMode)
 {
-    if (m_pCamera) {
-        m_pCamera->open();
-    }
+    m_pCamera->open();
 }
 
 void CameraNode::close()
 {
-    if (m_pCamera) {
-        m_pCamera->close();
-    }
+    m_pCamera->close();
 }
 
-unsigned int CameraNode::getFeature(CameraFeature Feature) const
+int CameraNode::getFeature(CameraFeature Feature) const
 {
-    if (m_pCamera) {
-        return m_pCamera->getFeature(Feature);
-    } else {
-        return 0;
-    }
+    return m_pCamera->getFeature(Feature);
 }
 
 void CameraNode::setFeature(CameraFeature Feature, int Value)
 {
-    if (m_pCamera) {
-        m_pCamera->setFeature(Feature, Value);
-    }  
+    m_pCamera->setFeature(Feature, Value);
 }
 
 int CameraNode::getFrameNum() const
@@ -309,37 +284,34 @@ int CameraNode::getFrameNum() const
 }
 
 static ProfilingZone CameraFetchImage("Camera fetch image");
-static ProfilingZone CameraProfilingZone("Camera::render");
-static ProfilingZone CameraUploadProfilingZone("Camera tex download");
 
 void CameraNode::preRender()
 {
-    if (m_pCamera) {
-        ScopeTimer Timer(CameraFetchImage);
-        m_pCurBmp = m_pCamera->getImage(false);
-        if (m_pCurBmp) {
-            BitmapPtr pTempBmp;
-            while (pTempBmp = m_pCamera->getImage(false)) {
-                m_pCurBmp = pTempBmp;
-            }
-            m_FrameNum++;
+    ScopeTimer Timer(CameraFetchImage);
+    m_pCurBmp = m_pCamera->getImage(false);
+    if (m_pCurBmp) {
+        BitmapPtr pTempBmp;
+        while (pTempBmp = m_pCamera->getImage(false)) {
+            m_pCurBmp = pTempBmp;
         }
+        m_FrameNum++;
     }
 }
 
+static ProfilingZone CameraProfilingZone("Camera::render");
+static ProfilingZone CameraDownloadProfilingZone("Camera tex download");
+
 bool CameraNode::renderToSurface(ISurface * pSurface)
 {
-    if (m_pCamera) {
-        ScopeTimer Timer(CameraProfilingZone);
-        if (m_pCurBmp) {
-            BitmapPtr pBmp = pSurface->lockBmp();
-            assert(pBmp->getPixelFormat() == m_pCurBmp->getPixelFormat());
-            pBmp->copyPixels(*m_pCurBmp);
-            pSurface->unlockBmps();
-            {
-                ScopeTimer Timer(CameraUploadProfilingZone);
-                getDisplayEngine()->surfaceChanged(pSurface);
-            }
+    ScopeTimer Timer(CameraProfilingZone);
+    if (m_pCurBmp) {
+        BitmapPtr pBmp = pSurface->lockBmp();
+        assert(pBmp->getPixelFormat() == m_pCurBmp->getPixelFormat());
+        pBmp->copyPixels(*m_pCurBmp);
+        pSurface->unlockBmps();
+        {
+            ScopeTimer Timer(CameraDownloadProfilingZone);
+            getDisplayEngine()->surfaceChanged(pSurface);
         }
     }
     return true;

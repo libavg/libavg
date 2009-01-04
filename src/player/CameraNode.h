@@ -88,7 +88,7 @@ class AVG_API CameraNode : public VideoBase
         IntPoint getMediaSize();
 
     private:
-        unsigned int getFeature (CameraFeature Feature) const;
+        int getFeature (CameraFeature Feature) const;
         void setFeature (CameraFeature Feature, int Value);
 
         virtual bool renderToSurface(ISurface * pSurface);

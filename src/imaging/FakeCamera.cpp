@@ -37,12 +37,19 @@ using namespace std;
 
 namespace avg {
 
+FakeCamera::FakeCamera()
+    : m_pBmpQ(new std::queue<BitmapPtr>()),
+      m_bIsOpen(false)
+{
+    m_ImgSize = IntPoint(640, 480);
+}
 
 FakeCamera::FakeCamera(std::vector<std::string> &pictures)
     : m_pBmpQ(new std::queue<BitmapPtr>()),
       m_bIsOpen(false)
 {
-    for(std::vector<std::string>::iterator it=pictures.begin();it!=pictures.end();++it) {
+    m_ImgSize = IntPoint(640, 480);
+    for(std::vector<std::string>::iterator it=pictures.begin();it!=pictures.end();++it){
         try {
             BitmapPtr pBmp (new Bitmap(*it));
             FilterGrayscale().applyInPlace(pBmp);

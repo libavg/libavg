@@ -37,6 +37,7 @@ typedef boost::shared_ptr<std::queue<BitmapPtr> > BitmapQueuePtr;
 class AVG_API FakeCamera: public Camera
 {
 public:
+    FakeCamera();
     FakeCamera(std::vector<std::string> &pictures);
     virtual ~FakeCamera();
     virtual void open();
