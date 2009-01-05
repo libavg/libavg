@@ -24,14 +24,6 @@
 
 #include "../api.h"
 
-#ifndef _WIN32
-#include <sys/time.h>
-#endif
-
-#ifdef __APPLE__
-#include <mach/mach_time.h>
-#endif
-
 namespace avg {
 
 typedef unsigned long long CycleCount;

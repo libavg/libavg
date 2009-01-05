@@ -29,6 +29,7 @@
 #include <windows.h>
 #include <Mmsystem.h>
 #else
+#include <sys/time.h>
 #include <unistd.h>
 #include <fcntl.h>
 #ifdef __APPLE__ 
@@ -39,7 +40,6 @@
 #include <sys/types.h>
 
 #include <errno.h>
-//#include <sys/ioctl.h>
 #include <iostream>
 #include <sstream>
 
