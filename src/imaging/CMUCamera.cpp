@@ -26,6 +26,7 @@
 
 #include "../base/Logger.h"
 #include "../base/StringHelper.h"
+#include "../base/TimeSource.h"
 #include "../graphics/Filterfliprgb.h"
 
 
@@ -145,6 +146,14 @@ IntPoint CMUCamera::getImgSize()
 
 BitmapPtr CMUCamera::getImage(bool bWait)
 {
+    if (!m_bCameraAvailable && bWait) {
+        msleep(1000);
+        open();
+    }
+    if (!m_bCameraAvailable) {
+        // Open failed
+        return BitmapPtr();
+    }
     if (bWait) {
         // XXX: Untested!
         unsigned rc = WaitForSingleObject(m_Camera.GetFrameEvent(), INFINITE);

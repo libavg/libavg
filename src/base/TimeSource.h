@@ -24,11 +24,7 @@
 
 #include "../api.h"
 
-#ifdef _WIN32
-#include <Winsock2.h>
-#undef ERROR
-#undef WARNING
-#else
+#ifndef _WIN32
 #include <sys/time.h>
 #endif
 
