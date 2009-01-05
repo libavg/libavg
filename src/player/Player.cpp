@@ -219,7 +219,7 @@ void Player::setAudioOptions(int samplerate, int channels)
     m_AP.m_Channels = channels;
 }
 
-void Player::loadFile (const std::string& sFilename)
+void Player::loadFile(const std::string& sFilename)
 {
     string RealFilename;
     try {
@@ -308,7 +308,7 @@ void Player::play()
     }
 }
 
-void Player::stop ()
+void Player::stop()
 {
     if (m_bIsPlaying) {
         m_bStopping = true;
@@ -359,7 +359,8 @@ void Player::setFramerate(double rate) {
     }
 }
 
-bool Player::setVBlankFramerate(int rate) {
+bool Player::setVBlankFramerate(int rate)
+{
     // TODO: Why does this function return anything?
     if (m_bIsPlaying) {
         return m_pDisplayEngine->setVBlankRate(rate);
@@ -542,7 +543,8 @@ void Player::showCursor(bool bShow)
     }
 }
 
-void Player::setEventCapture(AreaNodePtr pNode, int cursorID) {
+void Player::setEventCapture(AreaNodePtr pNode, int cursorID)
+{
     std::map<int, AreaNodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
     if (it!=m_pEventCaptureNode.end()&&!it->second.expired()) {
         throw Exception(AVG_ERR_INVALID_CAPTURE, "setEventCapture called for '"
@@ -553,7 +555,8 @@ void Player::setEventCapture(AreaNodePtr pNode, int cursorID) {
     }
 }
 
-void Player::releaseEventCapture(int cursorID) {
+void Player::releaseEventCapture(int cursorID)
+{
     std::map<int, AreaNodeWeakPtr>::iterator it = m_pEventCaptureNode.find(cursorID);
     if(it==m_pEventCaptureNode.end()||(it->second.expired()) ) {
         throw Exception(AVG_ERR_INVALID_CAPTURE,
@@ -564,7 +567,7 @@ void Player::releaseEventCapture(int cursorID) {
 
 }
 
-NodePtr Player::getElementByID (const std::string& id)
+NodePtr Player::getElementByID(const std::string& id)
 {
     if (m_IDMap.find(id) != m_IDMap.end()) {
         return m_IDMap.find(id)->second;
@@ -602,7 +605,7 @@ void Player::removeNodeID(const std::string& id)
     }
 }
 
-AVGNodePtr Player::getRootNode ()
+AVGNodePtr Player::getRootNode()
 {
     return m_pRootNode;
 }
@@ -655,7 +658,7 @@ static ProfilingZone EventsProfilingZone("Player - dispatch events");
 static ProfilingZone RenderProfilingZone("Player - render");
 static ProfilingZone ListenerProfilingZone("Player - listeners");
 
-void Player::doFrame ()
+void Player::doFrame()
 {
     {
         ScopeTimer Timer(MainProfilingZone);
@@ -711,7 +714,7 @@ void Player::doFrame ()
     ThreadProfiler::get()->reset();
 }
 
-double Player::getFramerate ()
+double Player::getFramerate()
 {
     if (!m_pDisplayEngine) {
         return m_DP.m_Framerate;
@@ -738,7 +741,8 @@ void Player::setGamma(double Red, double Green, double Blue)
     }
 }
 
-void Player::initConfig() {
+void Player::initConfig()
+{
     // Get data from config files.
     ConfigMgr* pMgr = ConfigMgr::get();
     
@@ -963,7 +967,7 @@ NodePtr Player::createNode(const string& sType, const boost::python::dict& PyDic
     return pNode;
 }
 
-NodePtr Player::createNodeFromXmlString (const string& sXML)
+NodePtr Player::createNodeFromXmlString(const string& sXML)
 {
     xmlPedanticParserDefault(1);
     xmlDoValidityCheckingDefaultValue =0;
@@ -993,7 +997,7 @@ NodePtr Player::createNodeFromXmlString (const string& sXML)
     return pNode;
 }
 
-NodePtr Player::createNodeFromXml (const xmlDocPtr xmlDoc, 
+NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc, 
         const xmlNodePtr xmlNode, GroupNodeWeakPtr pParent)
 {
     NodePtr curNode;
@@ -1237,7 +1241,7 @@ vector<AreaNodeWeakPtr> Player::getElementsByPos(const DPoint& pos) const
     return Elements;
 }
 
-DisplayEngine * Player::getDisplayEngine() const 
+DisplayEngine * Player::getDisplayEngine() const
 {
     return m_pDisplayEngine;
 }
@@ -1340,11 +1344,13 @@ long long Player::getGPUMemoryUsage()
     }
 }
 
-void Player::setPluginPath(const string& newPath) {
+void Player::setPluginPath(const string& newPath)
+{
     PluginManager::get().setSearchPath(newPath);
 }
 
-string Player::getPluginPath() const {
+string Player::getPluginPath() const 
+{
     return  PluginManager::get().getSearchPath();
 }
 
