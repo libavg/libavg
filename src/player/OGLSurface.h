@@ -24,7 +24,6 @@
 
 #include "../api.h"
 #include "ISurface.h"
-#include "DisplayEngine.h"
 #include "OGLTexture.h"
 
 #include "../base/Point.h"
@@ -57,6 +56,9 @@ class AVG_API OGLSurface: public ISurface {
         PixelFormat getPixelFormat();
         IntPoint getSize();
 
+        void blt32(const DPoint& DestSize, double opacity, DisplayEngine::BlendMode Mode);
+        void blta8(const DPoint& DestSize, double opacity, 
+                const Pixel32& color, DisplayEngine::BlendMode Mode);
         void blt(const DPoint& DestSize, DisplayEngine::BlendMode Mode);
 
         void setMaxTileSize(const IntPoint& MaxTileSize);

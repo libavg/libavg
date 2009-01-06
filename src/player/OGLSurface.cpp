@@ -372,10 +372,24 @@ IntPoint OGLSurface::getSize()
     return m_Size;
 }
 
+void OGLSurface::blt32(const DPoint& DestSize, double opacity, 
+        DisplayEngine::BlendMode Mode)
+{
+    glColor4d(1.0, 1.0, 1.0, opacity);
+    blt(DestSize, Mode);
+}
+
+void OGLSurface::blta8(const DPoint& DestSize, double opacity, 
+        const Pixel32& color, DisplayEngine::BlendMode Mode)
+{
+    glColor4d(double(color.getR())/256, double(color.getG())/256, 
+            double(color.getB())/256, opacity);
+    blt(DestSize, Mode);
+}
+
 void OGLSurface::blt(const DPoint& DestSize, 
         DisplayEngine::BlendMode Mode)
 {
-//    cerr << "OGLSurface::blt()" << endl;
     if (!m_bBound) {
         bind();
     }

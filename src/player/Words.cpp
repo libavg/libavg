@@ -636,8 +636,7 @@ void Words::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_sText.length() != 0 && getEffectiveOpacity() > 0.001) {
-        getDisplayEngine()->blta8(getSurface(), getSize(),
-                getEffectiveOpacity(), m_Color, getBlendMode());
+        getSurface()->blta8(getSize(), getEffectiveOpacity(), m_Color, getBlendMode());
     }
 }
 

@@ -70,10 +70,6 @@ class AVG_API DisplayEngine
         virtual const DRect& getClipRect() = 0;
         virtual void pushTransform(const DPoint& translate, double angle, const DPoint& pivot) = 0;
         virtual void popTransform() = 0;
-        virtual void blt32(ISurface * pSurface, const DPoint& DestSize, 
-                double opacity, BlendMode Mode) = 0;
-        virtual void blta8(ISurface * pSurface, const DPoint& DestSize, 
-                double opacity, const Pixel32& color, BlendMode Mode) = 0;
         virtual ISurface * createSurface() = 0;
         virtual void surfaceChanged(ISurface * pSurface) {};
 

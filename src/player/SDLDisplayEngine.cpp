@@ -508,24 +508,6 @@ void SDLDisplayEngine::popTransform()
     glPopMatrix();
 }
 
-void SDLDisplayEngine::blt32(ISurface * pSurface, const DPoint& DestSize, 
-        double opacity, BlendMode Mode)
-{
-    OGLSurface * pOGLSurface = dynamic_cast<OGLSurface*>(pSurface);
-    glColor4d(1.0, 1.0, 1.0, opacity);
-    pOGLSurface->blt(DestSize, Mode);
-}
-
-void SDLDisplayEngine::blta8(ISurface * pSurface, 
-        const DPoint& DestSize, double opacity, 
-        const Pixel32& color, BlendMode Mode)
-{
-    OGLSurface * pOGLSurface = dynamic_cast<OGLSurface*>(pSurface);
-    glColor4d(double(color.getR())/256, double(color.getG())/256, 
-            double(color.getB())/256, opacity);
-    pOGLSurface->blt(DestSize, Mode);
-}
-
 void SDLDisplayEngine::clip(bool forward)
 {
     if (m_bEnableCrop && !m_ClipRects.empty()) {

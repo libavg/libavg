@@ -57,12 +57,9 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual bool pushClipRect(const DRect& rc);
         virtual void popClipRect();
         virtual const DRect& getClipRect();
-        virtual void pushTransform(const DPoint& translate, double angle, const DPoint& pivot);
+        virtual void pushTransform(const DPoint& translate, double angle, 
+                const DPoint& pivot);
         virtual void popTransform();
-        virtual void blt32(ISurface * pSurface, const DPoint& DestSize, 
-                double opacity, BlendMode Mode);
-        virtual void blta8(ISurface * pSurface, const DPoint& DestSize,
-                double opacity, const Pixel32& color, BlendMode Mode);
 
         virtual ISurface * createSurface();
         virtual void surfaceChanged(ISurface * pSurface);

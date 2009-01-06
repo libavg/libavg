@@ -110,8 +110,7 @@ void VideoBase::render (const DRect& Rect)
                     m_bFirstFrameDecoded = true;
                 }
                 if (m_bFirstFrameDecoded) {
-                    getDisplayEngine()->blt32(getSurface(), getSize(),
-                            getEffectiveOpacity(), getBlendMode());
+                    getSurface()->blt32(getSize(), getEffectiveOpacity(), getBlendMode());
                 }
             }
             break;
@@ -123,8 +122,7 @@ void VideoBase::render (const DRect& Rect)
                 m_bFirstFrameDecoded = true;
             }
             if (m_bFirstFrameDecoded) {
-                getDisplayEngine()->blt32(getSurface(), getSize(),
-                        getEffectiveOpacity(), getBlendMode());
+                getSurface()->blt32(getSize(), getEffectiveOpacity(), getBlendMode());
             }
             break;
         case Unloaded:

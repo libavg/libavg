@@ -173,8 +173,7 @@ void Image::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_bIsImageAvailable) {
-        getDisplayEngine()->blt32(getSurface(), getSize(), getEffectiveOpacity(), 
-                getBlendMode());
+        getSurface()->blt32(getSize(), getEffectiveOpacity(), getBlendMode());
     }
 }
 

@@ -152,42 +152,6 @@ Bitmap* RasterNode::getBitmap()
     return pBmp;
 }
 
-/*
-string RasterNode::getImageFormat()
-{
-    PixelFormat pf = m_pSurface->lockBmp()->getPixelFormat();
-    m_pSurface->unlockBmps();
-    switch(pf) {
-        case B8G8R8:
-            return "RGB";
-        case B8G8R8A8:
-            return "RGBA";
-        case B8G8R8X8:
-            return "RGBX";
-        case A8B8G8R8:
-            return "ABGR";
-        case X8B8G8R8:
-            return "XBGR";
-        case R8G8B8:
-            return "RGB";
-        case R8G8B8A8:
-            return "RGBA";
-        case R8G8B8X8:
-            return "RGBX";
-        case A8R8G8B8:
-            return "ARGB";
-        case X8R8G8B8:
-            return "XRGB";
-        case I8:
-            return "L";
-        case YCbCr422:
-            return "YCbCr";
-        default:
-            return Bitmap::getPixelFormatString(pf);
-    }
-}
-*/
-
 OGLSurface * RasterNode::getOGLSurface()
 {
     OGLSurface * pOGLSurface = dynamic_cast<OGLSurface *>(getSurface());

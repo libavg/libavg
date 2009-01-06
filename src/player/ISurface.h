@@ -25,6 +25,8 @@
 #include "../api.h"
 #include "../graphics/Bitmap.h"
 
+#include "DisplayEngine.h"
+
 #include <string>
 
 namespace avg {
@@ -39,6 +41,11 @@ class AVG_API ISurface {
         
         virtual PixelFormat getPixelFormat() = 0;
         virtual IntPoint getSize() = 0;
+
+        virtual void blt32(const DPoint& DestSize, double opacity, 
+                DisplayEngine::BlendMode Mode) = 0;
+        virtual void blta8(const DPoint& DestSize, double opacity, 
+                const Pixel32& color, DisplayEngine::BlendMode Mode) = 0;
 
         virtual bool isOneTexture(IntPoint Size) { return false; }
 };
