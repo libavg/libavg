@@ -667,6 +667,7 @@ void Player::doFrame()
             m_FrameTime = (long long)((m_NumFrames*1000.0)/m_FakeFPS);
         } else {
             m_FrameTime = m_pDisplayEngine->getDisplayTime();
+//            cerr << m_FrameTime << endl;
 //            m_FrameTime = TimeSource::get()->getCurrentMillisecs()-m_PlayStartTime;
         }
         {
