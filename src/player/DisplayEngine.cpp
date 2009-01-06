@@ -158,11 +158,7 @@ void DisplayEngine::frameWait()
 
 long long DisplayEngine::getDisplayTime() 
 {
-    if (m_VBRate == 0) {
-        return m_LastFrameTime/1000-m_StartTime;
-    } else {
-        return m_LastVideoFrameTime/1000;
-    }
+    return m_LastFrameTime/1000-m_StartTime;
 }
 
 void DisplayEngine::checkJitter()

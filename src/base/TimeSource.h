@@ -44,7 +44,7 @@ private:
     static TimeSource* m_pTimeSource;
 };
 
-void msleep(int millisecs);
+void AVG_API msleep(int millisecs);
 
 }
 
