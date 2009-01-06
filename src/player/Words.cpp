@@ -613,7 +613,7 @@ void Words::drawString()
             // Use 1 as x position here to make sure italic text is never cut off.
             pango_ft2_render_layout(&bitmap, m_pLayout, 1, yoffset);
 
-            getDisplayEngine()->surfaceChanged(getSurface());
+            getSurface()->bind();
             if (m_LineSpacing == -1) {
                 m_LineSpacing = pango_layout_get_spacing(m_pLayout)/PANGO_SCALE;
             }

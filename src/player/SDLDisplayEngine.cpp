@@ -570,12 +570,6 @@ ISurface * SDLDisplayEngine::createSurface()
     return pOGLSurface;
 }
 
-void SDLDisplayEngine::surfaceChanged(ISurface * pSurface) 
-{
-    OGLSurface * pOGLSurface = dynamic_cast<OGLSurface *>(pSurface);
-    pOGLSurface->bind();
-}
-
 bool SDLDisplayEngine::supportsBpp(int bpp)
 {
     return (bpp == 24 || bpp == 32);

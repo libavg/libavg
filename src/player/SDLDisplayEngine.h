@@ -62,7 +62,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual void popTransform();
 
         virtual ISurface * createSurface();
-        virtual void surfaceChanged(ISurface * pSurface);
 
         virtual int getWidth();
         virtual int getHeight();

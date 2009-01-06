@@ -71,7 +71,6 @@ class AVG_API DisplayEngine
         virtual void pushTransform(const DPoint& translate, double angle, const DPoint& pivot) = 0;
         virtual void popTransform() = 0;
         virtual ISurface * createSurface() = 0;
-        virtual void surfaceChanged(ISurface * pSurface) {};
 
         virtual int getWidth() = 0;
         virtual int getHeight() = 0;

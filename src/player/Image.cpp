@@ -156,7 +156,7 @@ void Image::setBitmap(const Bitmap * pBmp)
         BitmapPtr pSurfaceBmp = getSurface()->lockBmp();
         pSurfaceBmp->copyPixels(*pTempBmp);
         getSurface()->unlockBmps();
-        getDisplayEngine()->surfaceChanged(getSurface());
+        getSurface()->bind();
     } else {
         if (m_pBmp->getSize() != pBmp->getSize() || m_pBmp->getPixelFormat() != pf) {
             m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
@@ -259,7 +259,7 @@ void Image::setupSurface()
     }
 #endif
     getSurface()->unlockBmps();
-    getDisplayEngine()->surfaceChanged(getSurface());
+    getSurface()->bind();
     m_pBmp=BitmapPtr();
 }
 

@@ -368,7 +368,7 @@ bool Video::renderToSurface(ISurface * pSurface)
     if (FrameAvailable == FA_NEW_FRAME) {
         m_FramesPlayed++;
         m_FramesInRowTooLate = 0;
-        getDisplayEngine()->surfaceChanged(pSurface);
+        pSurface->bind();
     } else if (FrameAvailable == FA_STILL_DECODING) {
         m_FramesPlayed++;
         m_FramesTooLate++;

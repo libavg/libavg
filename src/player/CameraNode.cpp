@@ -311,7 +311,7 @@ bool CameraNode::renderToSurface(ISurface * pSurface)
         pSurface->unlockBmps();
         {
             ScopeTimer Timer(CameraDownloadProfilingZone);
-            getDisplayEngine()->surfaceChanged(pSurface);
+            pSurface->bind();
         }
     }
     return true;

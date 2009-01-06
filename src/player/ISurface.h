@@ -42,6 +42,7 @@ class AVG_API ISurface {
         virtual PixelFormat getPixelFormat() = 0;
         virtual IntPoint getSize() = 0;
 
+        virtual void bind() = 0;
         virtual void blt32(const DPoint& DestSize, double opacity, 
                 DisplayEngine::BlendMode Mode) = 0;
         virtual void blta8(const DPoint& DestSize, double opacity, 
