@@ -31,7 +31,7 @@ FilterResizeBilinear::FilterResizeBilinear (const IntPoint& newSize)
 BitmapPtr FilterResizeBilinear::apply(BitmapPtr pBmpSrc)
 {
     int bpp = pBmpSrc->getBytesPerPixel();
-    assert(bpp==4 || bpp==3);
+    assert(bpp==4 || bpp==3 || bpp==1);
 
     BitmapPtr pBmpDest = BitmapPtr(new Bitmap(m_NewSize, 
             pBmpSrc->getPixelFormat(), pBmpSrc->getName()+"_resized"));
@@ -53,6 +53,15 @@ BitmapPtr FilterResizeBilinear::apply(BitmapPtr pBmpSrc)
                 sS.Scale((CDataRGB_UBYTE::PixelClass *) pBmpSrc->getPixels(), 
                         pBmpSrc->getSize(), pBmpSrc->getStride(), 
                         (CDataRGB_UBYTE::PixelClass *) pBmpDest->getPixels(),
+                        pBmpDest->getSize(), pBmpDest->getStride());
+            }
+            break;
+        case 1:
+            {
+                TwoPassScale <CDataA_UBYTE> sS(f);
+                sS.Scale((CDataA_UBYTE::PixelClass *) pBmpSrc->getPixels(), 
+                        pBmpSrc->getSize(), pBmpSrc->getStride(), 
+                        (CDataA_UBYTE::PixelClass *) pBmpDest->getPixels(),
                         pBmpDest->getSize(), pBmpDest->getStride());
             }
             break;

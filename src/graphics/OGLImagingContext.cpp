@@ -33,6 +33,7 @@
 #include "FilterDilation.h"
 #include "FilterGetAlpha.h"
 #include "FilterResizeBilinear.h"
+#include "FilterResizeGaussian.h"
 #endif
 
 #include <assert.h>

@@ -25,6 +25,29 @@ typedef struct
        LineLength;               // Length of line (no. or rows / cols)
 } LineContribType;               // Contribution information for an entire line (row or column)
 
+class CDataA_UBYTE
+{
+public:
+  typedef unsigned char PixelClass;
+  class _Accumulator {
+  public:
+      _Accumulator ()
+      {
+        val = 0;
+      };
+      void Accumulate (int Weight, PixelClass &value)
+      {
+        val += (Weight * value);
+      };
+
+      void Store (PixelClass* value)
+      {
+        *value = (unsigned char) ((val + 128)/256);
+      };
+      int val;
+  };
+};
+
 class CDataRGB_UBYTE
 {
 public:
@@ -225,10 +248,11 @@ TwoPassScale<DataClass>::ScaleRow(PixelClass *pSrc, int uSrcWidth,
         typename DataClass::_Accumulator a;
         int iLeft = pContrib->ContribRow[x].Left;    // Retrieve left boundries
         int iRight = pContrib->ContribRow[x].Right;  // Retrieve right boundries
+        int * Weights = pContrib->ContribRow[x].Weights;
         for (int i = iLeft; i <= iRight; i++) {
             // Scan between boundries
             // Accumulate weighted effect of each neighboring pixel
-            a.Accumulate(pContrib->ContribRow[x].Weights[i-iLeft], pSrc[i]);
+            a.Accumulate(Weights[i-iLeft], pSrc[i]);
         }
         a.Store(pDestPixel);
         pDestPixel++;
@@ -277,6 +301,7 @@ void TwoPassScale<DataClass>::VertScale(PixelClass *pSrcData, const IntPoint& sr
         LineContribType * pContrib = CalcContributions(destSize.y, srcSize.y);
         for (int y = 0; y < destSize.y; y++) {
             PixelClass * pDestPixel = pDest;
+            int * Weights = pContrib->ContribRow[y].Weights;
             for (int x = 0; x < destSize.x; x++) {
                 typename DataClass::_Accumulator a;
                 int iLeft = pContrib->ContribRow[y].Left;    // Retrieve left boundries
@@ -284,8 +309,7 @@ void TwoPassScale<DataClass>::VertScale(PixelClass *pSrcData, const IntPoint& sr
                 for (int i = iLeft; i <= iRight; i++) {
                     // Scan between boundries
                     // Accumulate weighted effect of each neighboring pixel
-                    a.Accumulate(pContrib->ContribRow[y].Weights[i-iLeft], 
-                            pSrc[i*srcStride+x]);
+                    a.Accumulate(Weights[i-iLeft], pSrc[i*srcStride+x]);
                 }
                 a.Store(pDestPixel);
                 pDestPixel++;
