@@ -308,8 +308,8 @@ void TwoPassScale<DataClass>::VertScale(PixelClass *pSrcData, const IntPoint& sr
             for (int x = 0; x < destSize.x; x++) {
                 typename DataClass::_Accumulator a;
                 int * pWeight = pWeights;
-                pSrcPixelBase++;
                 PixelClass * pSrcPixel = pSrcPixelBase;
+                pSrcPixelBase++;
                 for (int i = iLeft; i <= iRight; i++) {
                     // Scan between boundries
                     // Accumulate weighted effect of each neighboring pixel
