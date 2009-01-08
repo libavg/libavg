@@ -27,10 +27,9 @@
 #include "../api.h"
 #include "Camera.h"
 
-#include <windows.h>
-#include <1394Camera.h>
-
 #include <string>
+
+class C1394Camera;
 
 namespace avg {
 
@@ -72,7 +71,7 @@ private:
     PixelFormat m_FramePixelFormat;
     PixelFormat m_OutputPixelFormat;
 
-    mutable C1394Camera m_Camera; // The CMU1394 lib is not const-correct.
+    mutable C1394Camera * m_pCamera; // The CMU1394 lib is not const-correct.
     FeatureMap m_Features;
     int m_WhitebalanceU;
     int m_WhitebalanceV;

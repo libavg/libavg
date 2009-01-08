@@ -29,6 +29,8 @@
 #include "../base/TimeSource.h"
 #include "../graphics/Filterfliprgb.h"
 
+#include <windows.h>
+#include <1394Camera.h>
 
 using namespace std;
 
@@ -43,7 +45,8 @@ CMUCamera::CMUCamera(std::string sDevice, IntPoint Size, std::string sPF,
       m_bCameraAvailable(false),
       m_bFlipRGB(false),
       m_WhitebalanceU(-1),
-      m_WhitebalanceV(-1)
+      m_WhitebalanceV(-1),
+      m_pCamera(0)
 {
     if (m_sPF == "MONO8") {
         m_FramePixelFormat = I8;
@@ -73,11 +76,13 @@ CMUCamera::CMUCamera(std::string sDevice, IntPoint Size, std::string sPF,
     } else {
         m_OutputPixelFormat = I8;
     }
+    m_pCamera = new C1394Camera();
 }
 
 CMUCamera::~CMUCamera()
 {
     close();
+    delete m_pCamera;
 }
 
 void CMUCamera::open()
@@ -86,7 +91,7 @@ void CMUCamera::open()
     getVideoFormatAndMode(m_Size, m_sPF, &videoFormat, &videoMode);
 
     // Find and open camera
-    if (m_Camera.RefreshCameraList() <= 0) {
+    if (m_pCamera->RefreshCameraList() <= 0) {
         static bool bFirstWarning = true;
         if (bFirstWarning) {
             AVG_TRACE(Logger::WARNING, "No firewire cameras found.");
@@ -95,28 +100,28 @@ void CMUCamera::open()
         m_bCameraAvailable = false;
         return;
     }
-    if (m_Camera.SelectCamera(atoi(m_sDevice.c_str())) != CAM_SUCCESS) {
+    if (m_pCamera->SelectCamera(atoi(m_sDevice.c_str())) != CAM_SUCCESS) {
         fatalError(string("Error selecting camera") + m_sDevice);
     }
-    if (m_Camera.InitCamera(TRUE) != CAM_SUCCESS) {
+    if (m_pCamera->InitCamera(TRUE) != CAM_SUCCESS) {
         fatalError("Error initializing camera");
     }
 
     // Setup video format and rate
-    if (m_Camera.SetVideoFormat(videoFormat) != CAM_SUCCESS) {
+    if (m_pCamera->SetVideoFormat(videoFormat) != CAM_SUCCESS) {
         fatalError(string("CMUCamera: Error setting video format ") 
                 + toString(videoFormat) + ", mode: " + toString(videoMode));
     }
-    if (m_Camera.SetVideoMode(videoMode) != CAM_SUCCESS) {
+    if (m_pCamera->SetVideoMode(videoMode) != CAM_SUCCESS) {
         fatalError(string("CMUCamera: Error setting video mode ") 
                 + toString(videoMode) + ", format: " + toString(videoFormat));
     }
-    if (m_Camera.SetVideoFrameRate(getFrameRateConst(m_FrameRate)) != CAM_SUCCESS) {
+    if (m_pCamera->SetVideoFrameRate(getFrameRateConst(m_FrameRate)) != CAM_SUCCESS) {
         fatalError("Error setting frame rate");
     }
 
     // Start capturing images
-    if (m_Camera.StartImageAcquisition() != CAM_SUCCESS) {
+    if (m_pCamera->StartImageAcquisition() != CAM_SUCCESS) {
         fatalError("Error starting image acquisition");
     }
 
@@ -134,7 +139,7 @@ void CMUCamera::open()
 void CMUCamera::close()
 {
     if (m_bCameraAvailable) {
-        m_Camera.StopImageAcquisition();
+        m_pCamera->StopImageAcquisition();
         m_bCameraAvailable = false;
     }
 }
@@ -156,20 +161,20 @@ BitmapPtr CMUCamera::getImage(bool bWait)
     }
     if (bWait) {
         // XXX: Untested!
-        unsigned rc = WaitForSingleObject(m_Camera.GetFrameEvent(), INFINITE);
+        unsigned rc = WaitForSingleObject(m_pCamera->GetFrameEvent(), INFINITE);
         assert(rc == WAIT_OBJECT_0);
     } else {
-        unsigned rc = WaitForSingleObject(m_Camera.GetFrameEvent(), 0);
+        unsigned rc = WaitForSingleObject(m_pCamera->GetFrameEvent(), 0);
         if (rc == WAIT_TIMEOUT) {
             // No frame yet
             return BitmapPtr();
         }
         assert(rc == WAIT_OBJECT_0);
     }
-    int rc2 = m_Camera.AcquireImageEx(FALSE, NULL);
+    int rc2 = m_pCamera->AcquireImageEx(FALSE, NULL);
     assert(rc2 == CAM_SUCCESS);
     unsigned long captureBufferLength;
-    unsigned char* pCaptureBuffer = m_Camera.GetRawData(&captureBufferLength);
+    unsigned char* pCaptureBuffer = m_pCamera->GetRawData(&captureBufferLength);
 
     Bitmap frame(m_Size, m_FramePixelFormat, pCaptureBuffer, 
             captureBufferLength / m_Size.y, false, "TempCameraBmp");
@@ -218,8 +223,8 @@ void CMUCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValu
         m_Features[Feature] = Value;
         if (m_bCameraAvailable) {
             if (Feature == CAM_FEATURE_STROBE_DURATION) {
-                if (m_Camera.HasStrobe()) {
-                    C1394CameraControlStrobe* pControl = m_Camera.GetStrobeControl(0);
+                if (m_pCamera->HasStrobe()) {
+                    C1394CameraControlStrobe* pControl = m_pCamera->GetStrobeControl(0);
                     if (pControl->SetValue(Value) != CAM_SUCCESS) {
                         AVG_TRACE(Logger::WARNING, "Error setting camera strobe.");
                     }
@@ -228,10 +233,10 @@ void CMUCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValu
                 }
             } else {
                 CAMERA_FEATURE cmuFeature = getFeatureID(Feature);
-                if (m_Camera.HasFeature(cmuFeature)) {
+                if (m_pCamera->HasFeature(cmuFeature)) {
                     bool bAuto = (Value == -1);
                     
-                    C1394CameraControl* pControl = m_Camera.GetCameraControl(cmuFeature);
+                    C1394CameraControl* pControl = m_pCamera->GetCameraControl(cmuFeature);
 
                     if ((pControl->SetAutoMode(bAuto) != CAM_SUCCESS) ||
                             (!bAuto && pControl->SetValue(Value) != CAM_SUCCESS)) {
@@ -251,8 +256,8 @@ void CMUCamera::setFeatureOneShot(CameraFeature Feature)
 {
     if (m_bCameraAvailable) {
         CAMERA_FEATURE cmuFeature = getFeatureID(Feature);
-        if (cmuFeature != FEATURE_INVALID_FEATURE && m_Camera.HasFeature(cmuFeature)) {
-            C1394CameraControl* pControl = m_Camera.GetCameraControl(cmuFeature);
+        if (cmuFeature != FEATURE_INVALID_FEATURE && m_pCamera->HasFeature(cmuFeature)) {
+            C1394CameraControl* pControl = m_pCamera->GetCameraControl(cmuFeature);
             if (pControl->SetOnOff(false) != CAM_SUCCESS) {
                 AVG_TRACE(Logger::WARNING, string("Error setting feature: ") + 
                         cameraFeatureToString(Feature));
@@ -303,10 +308,10 @@ void CMUCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
         m_WhitebalanceV = v;
         if (m_bCameraAvailable) {
             CAMERA_FEATURE cmuFeature = getFeatureID(CAM_FEATURE_WHITE_BALANCE);
-            if (m_Camera.HasFeature(FEATURE_WHITE_BALANCE)) {
+            if (m_pCamera->HasFeature(FEATURE_WHITE_BALANCE)) {
                 bool bAuto = (u == -1);
                 
-                C1394CameraControl* pControl = m_Camera.GetCameraControl(cmuFeature);
+                C1394CameraControl* pControl = m_pCamera->GetCameraControl(cmuFeature);
 
                 if ((pControl->SetAutoMode(bAuto) != CAM_SUCCESS) ||
                         (!bAuto && pControl->SetValue(u, v) != CAM_SUCCESS)) {
@@ -328,8 +333,8 @@ void CMUCamera::internalGetFeature(CameraFeature Feature, unsigned short* val1,
     *val2 = -1;
     if (m_bCameraAvailable) {
         CAMERA_FEATURE cmuFeature = getFeatureID(Feature);
-        if (m_Camera.HasFeature(cmuFeature)) {
-            C1394CameraControl* pControl = m_Camera.GetCameraControl(cmuFeature);
+        if (m_pCamera->HasFeature(cmuFeature)) {
+            C1394CameraControl* pControl = m_pCamera->GetCameraControl(cmuFeature);
             pControl->GetValue(val1, val2);
         } else {
             AVG_TRACE(Logger::WARNING, string("Error reading camera feature: ") + 
