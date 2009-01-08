@@ -302,10 +302,10 @@ void TwoPassScale<DataClass>::VertScale(PixelClass *pSrcData, const IntPoint& sr
         for (int y = 0; y < destSize.y; y++) {
             PixelClass * pDestPixel = pDest;
             int * Weights = pContrib->ContribRow[y].Weights;
+            int iLeft = pContrib->ContribRow[y].Left;    // Retrieve left boundries
+            int iRight = pContrib->ContribRow[y].Right;  // Retrieve right boundries
             for (int x = 0; x < destSize.x; x++) {
                 typename DataClass::_Accumulator a;
-                int iLeft = pContrib->ContribRow[y].Left;    // Retrieve left boundries
-                int iRight = pContrib->ContribRow[y].Right;  // Retrieve right boundries
                 for (int i = iLeft; i <= iRight; i++) {
                     // Scan between boundries
                     // Accumulate weighted effect of each neighboring pixel
