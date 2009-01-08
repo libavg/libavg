@@ -301,15 +301,21 @@ void TwoPassScale<DataClass>::VertScale(PixelClass *pSrcData, const IntPoint& sr
         LineContribType * pContrib = CalcContributions(destSize.y, srcSize.y);
         for (int y = 0; y < destSize.y; y++) {
             PixelClass * pDestPixel = pDest;
-            int * Weights = pContrib->ContribRow[y].Weights;
-            int iLeft = pContrib->ContribRow[y].Left;    // Retrieve left boundries
-            int iRight = pContrib->ContribRow[y].Right;  // Retrieve right boundries
+            int * pWeights = pContrib->ContribRow[y].Weights;
+            int iLeft = pContrib->ContribRow[y].Left;
+            int iRight = pContrib->ContribRow[y].Right;
+            PixelClass * pSrcPixelBase = pSrc+iLeft*srcStride;
             for (int x = 0; x < destSize.x; x++) {
                 typename DataClass::_Accumulator a;
+                int * pWeight = pWeights;
+                pSrcPixelBase++;
+                PixelClass * pSrcPixel = pSrcPixelBase;
                 for (int i = iLeft; i <= iRight; i++) {
                     // Scan between boundries
                     // Accumulate weighted effect of each neighboring pixel
-                    a.Accumulate(Weights[i-iLeft], pSrc[i*srcStride+x]);
+                    a.Accumulate(*pWeight, *pSrcPixel);
+                    pWeight++;
+                    pSrcPixel += srcStride;
                 }
                 a.Store(pDestPixel);
                 pDestPixel++;
