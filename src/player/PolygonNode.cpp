@@ -108,7 +108,7 @@ int PolygonNode::getNumVertexes()
 int PolygonNode::getNumIndexes()
 {
     const vector<DPoint>& pts = getPos();
-    if (pts.size() < 2) {
+    if (pts.size() < 3) {
         return 0;
     }
     int numIndexes;
