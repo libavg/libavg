@@ -31,22 +31,22 @@
 using namespace std;
 
 void* avg::dlopen(const char *path, int ignored) {
-	return LoadLibrary(path);
+    return LoadLibrary(path);
 }
 
 void avg::dlclose(void* handle) {
-	FreeLibrary((HMODULE)handle);
+    FreeLibrary((HMODULE)handle);
 }
 
 void* avg::dlsym(void* handle, const char* functionName) {
-	return GetProcAddress((HMODULE)handle, functionName);
+    return GetProcAddress((HMODULE)handle, functionName);
 }
 
 const char* avg::dlerror() {
-	static char buffer[1024];
-	int err = GetLastError();
-	ostringstream ss;
-	ss << err;
-	strncpy(buffer,ss.str().c_str(),1023);
-	return buffer;
+    static char buffer[1024];
+    int err = GetLastError();
+    ostringstream ss;
+    ss << err;
+    strncpy(buffer,ss.str().c_str(),1023);
+    return buffer;
 }
