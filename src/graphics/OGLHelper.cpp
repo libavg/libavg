@@ -94,7 +94,7 @@ void OGLErrorCheck(int avgcode, const char * where)
         if (err != GL_INVALID_OPERATION) {
             OGLErrorCheck(avgcode, "  --");
         }
-        throw Exception(avgcode, s.str());
+        assert(false);
     }
 }
 
@@ -106,20 +106,14 @@ void winOGLErrorCheck(BOOL bOK, const string & where)
         FormatMessage((FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM),
                 0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                 szErr, 512, 0);
-        throw Exception(AVG_ERR_VIDEO_GENERAL, where+":"+
-                + szErr);
+        AVG_TRACE(Logger::ERROR, where+":"+szErr);
+        assert(false);
     }
 }
 #endif
 
 bool queryOGLExtension(const char *extName)
 {
-    /*
-    ** Search for extName in the extensions string. Use of strstr()
-    ** is not sufficient because extension names can be prefixes of
-    ** other extension names. Could use strtok() but the constant
-    ** string returned by glGetString might be in read-only memory.
-    */
     char *p;
     size_t extNameLen = strlen(extName);
 

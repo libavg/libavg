@@ -107,6 +107,7 @@ void PBOImage::setImage(BitmapPtr pBmp)
     glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, m_Size.x, m_Size.y,
             getFormat(m_pfExt), getType(m_pfExt), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage: glTexSubImage2D()");
+    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
 }
 
 void PBOImage::setImage(float * pData)
@@ -144,6 +145,7 @@ void PBOImage::setImage(float * pData)
 */
     glproc::DeleteBuffers(1, &TempPBO);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::setImage: DeleteBuffers()");
+    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
 }
 
 BitmapPtr PBOImage::getImage() const
@@ -174,6 +176,7 @@ BitmapPtr PBOImage::getImage() const
     pBmp->copyPixels(PBOBitmap);
     glproc::UnmapBuffer(GL_PIXEL_PACK_BUFFER_EXT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "PBOImage::getImage: UnmapBuffer()");
+    glproc::BindBuffer(GL_PIXEL_PACK_BUFFER_EXT, 0);
     
     return pBmp;
 }
