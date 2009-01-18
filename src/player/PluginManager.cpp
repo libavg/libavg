@@ -76,7 +76,7 @@ string PluginManager::getSearchPath() const
     
 void PluginManager::loadPlugin(const std::string& sPluginName)
 {
-    // is it leaded aready?
+    // is it loaded aready?
     PluginMap::iterator i = m_LoadedPlugins.find(sPluginName);
     if (i == m_LoadedPlugins.end()) {
         // no, let's try to load it!
@@ -103,7 +103,7 @@ string PluginManager::locateSharedObject(const string& sFilename)
         }
         ++i;
     }
-    string sMessage = "unable to locate plugin file '" + sFilename + "'. Was looking in " + m_sCurrentSearchPath;
+    string sMessage = "Unable to locate plugin file '" + sFilename + "'. Was looking in " + m_sCurrentSearchPath;
     AVG_TRACE(Logger::PLUGIN, sMessage);        
     throw PluginNotFound(sMessage);
 }
@@ -140,19 +140,18 @@ void PluginManager::parsePath(const std::string& sPath)
             sRemaining = sRemaining.substr(i+1);
         }
         sDirectory = checkDirectory(sDirectory);
-        AVG_TRACE(Logger::PLUGIN, "adding plugin directory '" << sDirectory << "'");        
         
         m_PathComponents.push_back(sDirectory);
     } while(!sRemaining.empty());
+    AVG_TRACE(Logger::PLUGIN, "Plugin search path set to '" << sPath << "'"); 
 }
     
 void* PluginManager::internalLoadPlugin(const string& sFullpath)
 {   
-    AVG_TRACE(Logger::PLUGIN, "dlopening '" << sFullpath << "'");
     void *handle = dlopen(sFullpath.c_str(), RTLD_LOCAL | RTLD_NOW);
     if (!handle) {
         string sMessage(dlerror());
-        AVG_TRACE(Logger::PLUGIN, "dlopen failed with message '" << sMessage << "'");
+        AVG_TRACE(Logger::PLUGIN, "Could not load plugin. dlopen failed with message '" << sMessage << "'");
         throw PluginCorrupted(sMessage);
     }
     try {
@@ -161,6 +160,7 @@ void* PluginManager::internalLoadPlugin(const string& sFullpath)
         dlclose(handle);
         throw e;
     }    
+    AVG_TRACE(Logger::PLUGIN, "Loaded plugin '" << sFullpath << "'");
     return handle;
 }
 
@@ -171,7 +171,6 @@ void PluginManager::registerPlugin(void* handle)
        reinterpret_cast<RegisterPluginPtr> (dlsym(handle, "registerPlugin"));
 
     if (registerPlugin) {
-        AVG_TRACE(Logger::PLUGIN, "Plugin registration function detected");
         registerPlugin();
     } else {
         AVG_TRACE(Logger::PLUGIN, "No plugin registration function detected");

@@ -1357,7 +1357,6 @@ string Player::getPluginPath() const
 
 void Player::loadPlugin(const std::string& name)
 {
-    AVG_TRACE(Logger::PLUGIN, "player loading plugin: '" << name << "'");   
     PluginManager::get().loadPlugin(name);
 }
 
