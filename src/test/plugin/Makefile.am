@@ -22,5 +22,4 @@ ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
 lib_LTLIBRARIES = libColorNode.la
 libColorNode_la_SOURCES = ColorNode.cpp 
-libColorNode_la_LDFLAGS = $(APPLE_LDFLAGS) -module -XCClinker ../../wrapper/.libs/avg.so
-
+libColorNode_la_LDFLAGS = $(APPLE_LDFLAGS) -module 
