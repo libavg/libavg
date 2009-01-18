@@ -835,10 +835,10 @@ class PlayerTestCase(AVGTestCase):
             node = Player.createNode("video", {"href":"mjpeg1-48x48.avi", "fps":30})
         self.start("mediadir.avg",
                 (lambda: Player.getElementByID("video").play(),
-                 lambda: self.compareImage("mediadir1", False),
+                 lambda: self.compareImage("testMediaDir1", False),
                  setDir,
                  lambda: Player.getElementByID("video").play(), 
-                 lambda: self.compareImage("mediadir2", False),
+                 lambda: self.compareImage("testMediaDir2", False),
                  lambda: self.assert_(Player.getElementByID("img").width == 1),
                  createNode,
                  setAbsDir

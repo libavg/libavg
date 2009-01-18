@@ -65,9 +65,14 @@ Image::~Image ()
 
 void Image::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
-    checkReload();
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
     setupSurface();
+}
+
+void Image::connect()
+{
+    RasterNode::connect();
+    checkReload();
 }
 
 void Image::disconnect()
@@ -228,6 +233,8 @@ void Image::load()
         } catch (Magick::Exception & ex) {
             if (getState() == Node::NS_CONNECTED) {
                 AVG_TRACE(Logger::ERROR, ex.what());
+            } else {
+                AVG_TRACE(Logger::MEMORY, ex.what());
             }
         }
     }
@@ -235,6 +242,7 @@ void Image::load()
         FilterColorize(m_Hue, m_Saturation).applyInPlace(
                 m_pBmp);
     }
+    assert(m_pBmp);
 }
 
 void Image::setupSurface()

@@ -289,6 +289,20 @@ class DynamicsTestCase(AVGTestCase):
                  lambda: self.compareImage("testComplexDiv1", False),
                 ))
 
+    def testDynamicMediaDir(self):
+        def attachNode():
+            Player.getRootNode().appendChild(imageNode1)
+        self._loadEmpty()
+        Player.getRootNode().mediadir="testmediadir"
+        imageNode1 = Player.createNode("image", {"href": "rgb24-64x64a.png"})
+        imageNode2 = Player.createNode("image", {"href": "rgb24-64x64a.png", "x":30})
+        Player.getRootNode().appendChild(imageNode2)
+        self.start(None,
+                (lambda: self.compareImage("testDynamicMediaDir1", False),
+                 attachNode,
+                 lambda: self.compareImage("testDynamicMediaDir2", False)
+                ))
+
 
 def dynamicsTestSuite(tests):
     availableTests = (
@@ -300,6 +314,7 @@ def dynamicsTestSuite(tests):
             "testEventBubbling",
             "testDynamicEventCapture",
             "testComplexDiv",
+            "testDynamicMediaDir"
             )
 
     return AVGTestSuite (availableTests, DynamicsTestCase, tests)

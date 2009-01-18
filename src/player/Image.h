@@ -40,6 +40,7 @@ class AVG_API Image : public RasterNode
         virtual ~Image ();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
+        virtual void connect();
         virtual void disconnect();
 
         const std::string& getHRef() const;
