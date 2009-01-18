@@ -12,14 +12,14 @@ endif
 
 if APPLE
     XGL_LIBS =
-    APPLE_LDFLAGS=-read_only_relocs suppress
+    EXTRA_LDFLAGS=-read_only_relocs suppress
 else
     XGL_LIBS = -lXxf86vm
-    APPLE_LDFLAGS=
+    EXTRA_LDFLAGS=-XCClinker ../../wrapper/.libs/avg.so
 endif
 
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
 lib_LTLIBRARIES = libColorNode.la
 libColorNode_la_SOURCES = ColorNode.cpp 
-libColorNode_la_LDFLAGS = $(APPLE_LDFLAGS) -module 
+libColorNode_la_LDFLAGS = $(EXTRA_LDFLAGS) -module 
