@@ -59,7 +59,7 @@ class AVG_API DisplayEngine
         bool wasFrameLate();
         virtual double getRefreshRate() = 0;
         virtual void setGamma(double Red, double Green, double Blue) = 0;
-
+        virtual void setMousePos(const IntPoint& pos) = 0;
 
         virtual void render(AVGNodePtr pRootNode) = 0;
         void frameWait();

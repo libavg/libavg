@@ -51,6 +51,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual void teardown();
         virtual double getRefreshRate();
         virtual void setGamma(double Red, double Green, double Blue);
+        virtual void setMousePos(const IntPoint& pos);
 
         virtual void render(AVGNodePtr pRootNode);
         

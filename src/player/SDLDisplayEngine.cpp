@@ -367,6 +367,10 @@ void SDLDisplayEngine::setGamma(double Red, double Green, double Blue)
     }
 }
 
+void SDLDisplayEngine::setMousePos(const IntPoint& pos)
+{
+    SDL_WarpMouse(pos.x, pos.y);
+}
 
 void SDLDisplayEngine::logConfig() 
 {

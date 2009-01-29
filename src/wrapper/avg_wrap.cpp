@@ -323,6 +323,10 @@ BOOST_PYTHON_MODULE(avg)
                 "values. 1.0 is identity, higher values give a brighter image, lower\n"
                 "values a darker one.\n"
                 "@param red, green, blue: \n")
+        .def("setMousePos", &Player::setMousePos,
+                "setMousePos(pos)\n"
+                "Sets the position of the mouse cursor. Generates a mouse motion event.\n"
+                "@param pos: new coordinates as a Point2D.\n")
         .def("getGPUMemoryUsage", &Player::getGPUMemoryUsage,
                 "getGPUMemoryUsage() -> bytes\n"
                 "Get the amount of memory currently allocated for textures storaging\n"

@@ -528,6 +528,11 @@ MouseEventPtr Player::getMouseState() const
     return m_MouseState.getLastEvent();
 }
 
+void Player::setMousePos(const IntPoint& pos)
+{
+    m_pDisplayEngine->setMousePos(pos);
+}
+
 Bitmap * Player::screenshot()
 {
     BitmapPtr pBmp = m_pDisplayEngine->screenshot();
