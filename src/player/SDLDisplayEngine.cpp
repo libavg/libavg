@@ -346,7 +346,7 @@ void SDLDisplayEngine::teardown()
         close(m_dri_fd);
     }
     if (m_pScreen) {
-        SDL_SetVideoMode(m_WindowWidth, m_WindowHeight, 24, None);
+        SDL_SetVideoMode(m_WindowWidth, m_WindowHeight, 24, 0);
         m_pScreen = 0;
     }
 }
