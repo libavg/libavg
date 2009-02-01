@@ -344,8 +344,11 @@ void SDLDisplayEngine::teardown()
 {
     if (m_VBMethod == VB_DRI) {
         close(m_dri_fd);
-    }    
-    m_pScreen = 0;
+    }
+    if (m_pScreen) {
+        SDL_SetVideoMode(m_WindowWidth, m_WindowHeight, 24, None);
+        m_pScreen = 0;
+    }
 }
 
 double SDLDisplayEngine::getRefreshRate() 
