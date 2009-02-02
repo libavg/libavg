@@ -346,7 +346,10 @@ void SDLDisplayEngine::teardown()
         close(m_dri_fd);
     }
     if (m_pScreen) {
+#ifdef linux
+        // Workaround for broken mouse cursor on exit under Ubuntu 8.04.
         SDL_SetVideoMode(m_WindowWidth, m_WindowHeight, 24, 0);
+#endif
         m_pScreen = 0;
     }
 }
