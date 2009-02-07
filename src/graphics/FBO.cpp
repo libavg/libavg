@@ -48,7 +48,7 @@ FBO::FBO(const IntPoint& size, PixelFormat pf, vector<unsigned> texIDs)
 
 FBO::~FBO()
 {
-    //TODO: Delete gl fbo.
+    glproc::DeleteFramebuffers(1, &m_FBO);
 }
 
 BitmapPtr FBO::getImage(int i) const
