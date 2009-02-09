@@ -198,6 +198,8 @@ void Blob::calcStats()
     m_Orientation = 0.5*atan2(2*c_xy,c_xx-c_yy);
     //the l_i are variances (unit L^2) so to arrive at numbers that 
     //correspond to lengths in the picture we use sqrt
+    //Ensure that eigenvectors always have standard orientation, i.e. the determinant of the matrix with the eigenvectors as columns is >0
+    //             E_1.x E_2.y - E_1.y E_2.x > 0
     if (fabs(c_xy) > 1e-30) {
         //FIXME. check l1!=0 l2!=0. li=0 happens for line-like components
         l1 = 0.5 * ( (c_xx+c_yy) + sqrt( (c_xx+c_yy)*(c_xx+c_yy) - 4 * (c_xx*c_yy-c_xy*c_xy) ) );
@@ -214,6 +216,9 @@ void Blob::calcStats()
         m_EigenVector[1].x = tmp_x/mag;
         m_EigenVector[1].y = tmp_y/mag;
         m_EigenValues.y = l2;
+        if (m_EigenVector[0].x*m_EigenVector[1].y - m_EigenVector[0].y*m_EigenVector[1].x < 0) {
+            m_EigenVector[0] *= -1;
+        }
     } else {
         //matrix already diagonal
         if (c_xx > c_yy) {
@@ -225,7 +230,7 @@ void Blob::calcStats()
             m_EigenValues.y = c_yy;
         } else {
             m_EigenVector[0].x = 0;
-            m_EigenVector[0].y = 1;
+            m_EigenVector[0].y = -1;
             m_EigenVector[1].x = 1;
             m_EigenVector[1].y = 0;
             m_EigenValues.x = c_yy;
