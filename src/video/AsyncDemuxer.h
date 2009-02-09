@@ -22,7 +22,7 @@
 #ifndef _AsyncDemuxer_H_
 #define _AsyncDemuxer_H_
 
-#include "../api.h"
+#include "../avgconfigwrapper.h"
 #include "IDemuxer.h"
 #include "VideoDemuxerThread.h"
 

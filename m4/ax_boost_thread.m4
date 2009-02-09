@@ -40,7 +40,7 @@ if test "$ax_cv_boost_thread" = yes; then
     ax_thread_lib=$with_boost_thread
     ax_boost_thread_lib=boost_thread-$with_boost_thread
   fi])
-  for ax_lib in $ax_thread_lib $ax_boost_thread_lib boost_thread; do
+  for ax_lib in $ax_thread_lib $ax_boost_thread_lib boost_thread boost_thread-mt; do
     AC_CHECK_LIB($ax_lib, main, [BOOST_THREAD_LIB=$ax_lib
 break])
   done

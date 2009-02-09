@@ -43,7 +43,11 @@ extern "C" {
 #pragma warning(push)
 #pragma warning(disable:4244)
 #endif
+#ifdef HAVE_LIBAVFORMAT_AVFORMAT_H
+#include <libavformat/avformat.h>
+#else
 #include <ffmpeg/avformat.h>
+#endif
 #ifdef _WIN32
 #pragma warning(pop)
 #endif

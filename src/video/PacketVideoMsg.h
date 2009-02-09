@@ -22,7 +22,7 @@
 #ifndef _PacketVideoMsg_H_
 #define _PacketVideoMsg_H_
 
-#include "../api.h"
+#include "../avgconfigwrapper.h"
 #include "../base/Queue.h"
 #include "../graphics/Bitmap.h"
 
@@ -40,7 +40,11 @@
 #endif
 
 extern "C" {
+#ifdef HAVE_LIBAVFORMAT_AVFORMAT_H
+#include <libavformat/avformat.h>
+#else
 #include <ffmpeg/avformat.h>
+#endif
 }
 
 #include <vector>

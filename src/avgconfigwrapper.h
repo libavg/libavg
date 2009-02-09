@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifdef _WIN32
 #include "api.h"
+#ifdef _WIN32
 #include "../avgconfig_win.h"
 #else
 #include "avgconfig.h"

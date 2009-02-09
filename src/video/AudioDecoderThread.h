@@ -24,7 +24,7 @@
 #ifndef _AudioDecoderThread_H_
 #define _AudioDecoderThread_H_
 
-#include "../api.h"
+#include "../avgconfigwrapper.h"
 #include "IVideoDecoder.h"
 #include "VideoMsg.h"
 

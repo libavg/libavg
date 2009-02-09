@@ -22,7 +22,7 @@
 #ifndef _FFMpegDecoder_H_
 #define _FFMpegDecoder_H_
 
-#include "../api.h"
+#include "../avgconfigwrapper.h"
 #include "IVideoDecoder.h"
 #include "IDemuxer.h"
 
@@ -47,9 +47,15 @@
 #endif
 
 extern "C" {
+#ifdef HAVE_LIBAVFORMAT_AVFORMAT_H
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
+#else
 #include <ffmpeg/avcodec.h>
 #include <ffmpeg/avformat.h>
 #include <ffmpeg/swscale.h>
+#endif
 }
 #include <boost/thread/mutex.hpp>
 

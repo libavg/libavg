@@ -33,7 +33,11 @@ AC_PATH_GENERIC(freetype,,,AC_MSG_ERROR([libfreetype not found. Aborting.]))
 PKG_CHECK_MODULES([MAGICK], [GraphicsMagick++])
 
 PKG_CHECK_MODULES([FFMPEG], [libavcodec libavformat libswscale], [LIBFFMPEG="$FFMPEG_LIBS"], [:])
+#Need to extend cflags or else the check_headers will not work as expected...
+CFLAGS="$CFLAGS $FFMPEG_CFLAGS"
+CPPFLAGS="$CPPFLAGS $FFMPEG_CFLAGS"
 AC_SUBST(LIBFFMPEG)
+AC_CHECK_HEADERS([libavformat/avformat.h])dnl
 
 AM_PATH_PYTHON
 
