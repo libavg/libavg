@@ -28,6 +28,7 @@
 #include "../base/MathHelper.h"
 #include "../base/BezierCurve.h"
 
+#include <math.h>
 #include <iostream>
 #include <sstream>
 
@@ -220,7 +221,11 @@ void CurveNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
 int CurveNode::getCurveLen()
 {
     // Calc. upper bound for spline length.
-    return int(calcDist(m_P2,m_P1)+calcDist(m_P3,m_P2)+calcDist(m_P4,m_P3));
+    double curveLen = calcDist(m_P2,m_P1)+calcDist(m_P3,m_P2)+calcDist(m_P4,m_P3);
+    if (curveLen > 50000 || !isnormal(curveLen)) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE, "Illegal points in curve.");
+    }
+    return int(curveLen);
 }
 
 void CurveNode::updateLines()
