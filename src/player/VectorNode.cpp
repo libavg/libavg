@@ -21,16 +21,20 @@
 
 #include "VectorNode.h"
 
-#include "CanvasNode.h"
 #include "NodeDefinition.h"
+#include "SDLDisplayEngine.h"
 
 #include "../graphics/VertexArray.h"
+
 #include "../base/Exception.h"
+#include "../base/Logger.h"
+#include "../base/ScopeTimer.h"
 
 #include <iostream>
 #include <sstream>
 
 using namespace std;
+using namespace boost;
 
 namespace avg {
 
@@ -43,7 +47,6 @@ NodeDefinition VectorNode::createDefinition()
 }
 
 VectorNode::VectorNode()
-    : m_pVertexData(new VertexData())
 {
 }
 
@@ -57,18 +60,72 @@ void VectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     setDrawNeeded(true);
     m_Color = colorStringToColor(m_sColorName);
     Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
+
+    m_pVertexArray = VertexArrayPtr(new VertexArray(getNumVertexes(), getNumIndexes(),
+            100, 100));
+    m_OldOpacity = -1;
 }
 
-void VectorNode::updateData(VertexArrayPtr& pVertexArray, int curVertex, int curIndex, 
-        double opacity, bool bParentDrawNeeded, bool bPosChanged)
+void VectorNode::disconnect()
 {
-    if (isDrawNeeded() || bParentDrawNeeded) {
-        m_pVertexData->changeSize(getNumVertexes(), getNumIndexes());
-        calcVertexes(m_pVertexData, opacity);
-        m_bDrawNeeded = false;
-        pVertexArray->setVertexData(curVertex, curIndex, m_pVertexData);
-    } else if (bPosChanged) {
-        pVertexArray->setVertexData(curVertex, curIndex, m_pVertexData);
+    m_pVertexArray = VertexArrayPtr();
+    Node::disconnect();
+}
+
+static ProfilingZone PrerenderProfilingZone("VectorNode::prerender");
+static ProfilingZone VAProfilingZone("VectorNode::update VA");
+static ProfilingZone VASizeProfilingZone("VectorNode::resize VA");
+
+void VectorNode::preRender()
+{
+    ScopeTimer Timer(PrerenderProfilingZone);
+    double curOpacity = getEffectiveOpacity();
+
+    if (m_bVASizeChanged) {
+        ScopeTimer Timer(VASizeProfilingZone);
+        m_pVertexArray->changeSize(getNumVertexes(), getNumIndexes());
+        m_bVASizeChanged = false;
+    }
+    {
+        ScopeTimer Timer(VAProfilingZone);
+        if (m_bDrawNeeded || curOpacity != m_OldOpacity) {
+            m_pVertexArray->reset();
+            calcVertexes(m_pVertexArray, curOpacity);
+            m_pVertexArray->update();
+            m_bDrawNeeded = false;
+            m_OldOpacity = curOpacity;
+        }
+    }
+    
+}
+
+void VectorNode::maybeRender(const DRect& Rect)
+{
+    assert(getState() == NS_CANRENDER);
+    if (getEffectiveOpacity() > 0.01) {
+        if (getID() != "") {
+            AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
+                    " with ID " << getID());
+        } else {
+            AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
+        }
+        render(Rect);
+    }
+}
+
+static ProfilingZone RenderProfilingZone("VectorNode::render");
+
+void VectorNode::render(const DRect& rect)
+{
+    {
+        ScopeTimer Timer(RenderProfilingZone);
+        int TexMode = dynamic_cast<SDLDisplayEngine*>(
+                getDisplayEngine())->getTextureMode();
+        glDisable(TexMode);
+        glEnableClientState(GL_COLOR_ARRAY);
+        m_pVertexArray->draw();
+        glEnable(TexMode);
+        glDisableClientState(GL_COLOR_ARRAY);
     }
 }
 
@@ -104,33 +161,27 @@ Pixel32 VectorNode::getColorVal() const
     return m_Color;
 }
 
-void VectorNode::updateLineData(VertexDataPtr& pVertexData,
+void VectorNode::updateLineData(VertexArrayPtr& pVertexArray,
         double opacity, const DPoint& p1, const DPoint& p2)
 {
-    double curOpacity = opacity*getOpacity();
     Pixel32 color = getColorVal();
-    color.setA((unsigned char)(curOpacity*255));
+    color.setA((unsigned char)(opacity*255));
 
     WideLine wl(p1, p2, getStrokeWidth());
-    int curVertex = pVertexData->getCurVert();
-    pVertexData->appendPos(wl.pl0, DPoint(0,0), color);
-    pVertexData->appendPos(wl.pr0, DPoint(0,0), color);
-    pVertexData->appendPos(wl.pl1, DPoint(0,0), color);
-    pVertexData->appendPos(wl.pr1, DPoint(0,0), color);
-    pVertexData->appendQuadIndexes(curVertex+1, curVertex, curVertex+3, curVertex+2); 
+    int curVertex = pVertexArray->getCurVert();
+    pVertexArray->appendPos(wl.pl0, DPoint(0,0), color);
+    pVertexArray->appendPos(wl.pr0, DPoint(0,0), color);
+    pVertexArray->appendPos(wl.pl1, DPoint(0,0), color);
+    pVertexArray->appendPos(wl.pr1, DPoint(0,0), color);
+    pVertexArray->appendQuadIndexes(curVertex+1, curVertex, curVertex+3, curVertex+2); 
 }
      
-bool VectorNode::isDrawNeeded()
-{
-    return m_bDrawNeeded;
-}
-
 void VectorNode::setDrawNeeded(bool bSizeChanged)
 {
     m_bDrawNeeded = true;
     GroupNodePtr pParent = getParent(); 
-    if (bSizeChanged && pParent) {
-        boost::dynamic_pointer_cast<CanvasNode>(pParent)->setVASizeChanged();
+    if (bSizeChanged) {
+        m_bVASizeChanged = true;
     }
 }
 

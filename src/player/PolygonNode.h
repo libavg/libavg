@@ -47,7 +47,7 @@ class AVG_API PolygonNode : public PolyLineNode
 
         virtual int getNumVertexes();
         virtual int getNumIndexes();
-        virtual void calcVertexes(VertexDataPtr& pVertexData, double opacity);
+        virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity);
 
     private:
         double m_FillOpacity;

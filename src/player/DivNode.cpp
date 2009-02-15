@@ -42,7 +42,7 @@ namespace avg {
 NodeDefinition DivNode::createDefinition()
 {
     string sChildArray[] = {"image", "div", "canvas", "words", "video", "camera", 
-            "panoimage", "sound"};
+            "panoimage", "sound", "line", "rect", "curve", "polyline", "polygon"};
     vector<string> sChildren = vectorFromCArray(
             sizeof(sChildArray) / sizeof(*sChildArray), sChildArray);
     return NodeDefinition("div", Node::buildNode<DivNode>)
@@ -79,10 +79,12 @@ AreaNodePtr DivNode::getElementByPos (const DPoint & pos)
             reactsToMouseEvents())
     {
         for (int i=getNumChildren()-1; i>=0; i--) {
-            AreaNodePtr pFoundNode = dynamic_pointer_cast<AreaNode>(getChild(i))
-                    ->getElementByPos(relPos);
-            if (pFoundNode) {
-                return pFoundNode;
+            AreaNodePtr pCurChild = dynamic_pointer_cast<AreaNode>(getChild(i));
+            if (pCurChild) {
+                AreaNodePtr pFoundNode = pCurChild->getElementByPos(relPos);
+                if (pFoundNode) {
+                    return pFoundNode;
+                }
             }
         }
         // Pos isn't in any of the children.

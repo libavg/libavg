@@ -26,13 +26,9 @@
 #include "Node.h"
 
 #include "../graphics/Pixel32.h"
+#include "../graphics/VertexArray.h"
 
 namespace avg {
-
-class VertexArray;
-typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
-class VertexData;
-typedef boost::shared_ptr<VertexData> VertexDataPtr;
 
 class AVG_API WideLine
 {
@@ -54,15 +50,20 @@ class AVG_API VectorNode : public Node
         
         VectorNode();
         virtual ~VectorNode();
-        void setRenderingEngines(DisplayEngine * pDisplayEngine, 
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
+        virtual void disconnect();
 
-        void updateData(VertexArrayPtr& pVertexArray, int curVertex, int curIndex, 
-                double opacity, bool bParentDrawNeeded, bool bPosChanged);
+        virtual void preRender();
+        virtual void maybeRender(const DRect& Rect);
+        virtual void render(const DRect& rect);
+
+//        void updateData(VertexArrayPtr& pVertexArray, int curVertex, int curIndex, 
+//                double opacity, bool bParentDrawNeeded, bool bPosChanged);
 
         virtual int getNumVertexes() = 0;
         virtual int getNumIndexes() = 0;
-        virtual void calcVertexes(VertexDataPtr& pVertexData, double opacity) = 0;
+        virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity) = 0;
 
         void setColor(const std::string& sColor);
         const std::string& getColor() const;
@@ -72,18 +73,19 @@ class AVG_API VectorNode : public Node
 
     protected:
         Pixel32 getColorVal() const;
-        void updateLineData(VertexDataPtr& pVertexData,
+        void updateLineData(VertexArrayPtr& pVertexArray,
                 double opacity, const DPoint& p1, const DPoint& p2);
-        bool isDrawNeeded();
         void setDrawNeeded(bool bSizeChanged);
 
     private:
         std::string m_sColorName;
         Pixel32 m_Color;
         double m_StrokeWidth;
-        VertexDataPtr m_pVertexData;
 
+        VertexArrayPtr m_pVertexArray;
         bool m_bDrawNeeded;
+        bool m_bVASizeChanged;
+        double m_OldOpacity;
 };
 
 typedef boost::shared_ptr<VectorNode> VectorNodePtr;

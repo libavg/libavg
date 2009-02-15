@@ -49,7 +49,7 @@ class AVG_API PolyLineNode : public VectorNode
 
         virtual int getNumVertexes();
         virtual int getNumIndexes();
-        virtual void calcVertexes(VertexDataPtr& pVertexData, double opacity);
+        virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity);
 
     protected:
         PolyLineNode();

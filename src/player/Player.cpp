@@ -24,7 +24,6 @@
 #include "../avgconfigwrapper.h"
 #include "AVGNode.h"
 #include "DivNode.h"
-#include "CanvasNode.h"
 #include "Words.h"
 #include "Video.h"
 #include "CameraNode.h"
@@ -122,7 +121,6 @@ Player::Player()
     // Register all node types
     registerNodeType(AVGNode::createDefinition());
     registerNodeType(DivNode::createDefinition());
-    registerNodeType(CanvasNode::createDefinition());
     registerNodeType(Image::createDefinition());
     registerNodeType(Words::createDefinition());
     registerNodeType(Video::createDefinition());

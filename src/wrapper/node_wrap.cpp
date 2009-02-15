@@ -33,7 +33,6 @@ void export_devices();
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
 #include "../player/DivNode.h"
-#include "../player/CanvasNode.h"
 #include "../player/PanoImage.h"
 #include "../player/Sound.h"
 #include "../player/LineNode.h"
@@ -212,10 +211,6 @@ void export_node()
                 "The directory that the media files for the children of this node are in.\n")
     ;
 
-    class_<CanvasNode, bases<GroupNode>, boost::noncopyable>("CanvasNode", 
-            no_init)
-    ;
-    
     class_<AVGNode, bases<DivNode> >("AVGNode",
             "Root node of any avg tree. Defines the properties of the display and\n"
             "handles key press events. The AVGNode's width and height define the\n"

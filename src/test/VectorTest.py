@@ -27,7 +27,7 @@ class VectorTestCase(AVGTestCase):
             <?xml version="1.0"?>
             <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
             <avg width="160" height="120">
-              <canvas id="canvas" x="0" y="0" width="160" height="120"/>
+              <div id="canvas" x="0" y="0" width="160" height="120"/>
             </avg>
         """)
         return Player.getElementByID("canvas")
