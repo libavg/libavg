@@ -23,22 +23,39 @@
 #define _DivNode_H_
 
 #include "../api.h"
-#include "GroupNode.h"
+#include "AreaNode.h"
 
 #include <string>
 
 namespace avg {
     
-class AVG_API DivNode : public GroupNode
+class AVG_API DivNode : public AreaNode
 {
     public:
         static NodeDefinition createDefinition();
         
         DivNode(const ArgList& Args, bool bFromXML);
         virtual ~DivNode();
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
+                AudioEngine * pAudioEngine);
+        virtual void connect();
+        virtual void disconnect();
 
+        bool getCrop() const;
+        void setCrop(bool bCrop);
         const std::string& getMediaDir() const;
         void setMediaDir(const std::string& mediaDir);
+
+        int getNumChildren();
+        const NodePtr& getChild(unsigned i);
+        void appendChild(NodePtr pNewNode);
+        void insertChildBefore(NodePtr pNewNode, NodePtr pOldChild);
+        void insertChild(NodePtr pNewNode, unsigned i);
+        void removeChild(NodePtr pNode);
+        void removeChild(unsigned i);
+        void reorderChild(NodePtr pNode, unsigned j);
+        void reorderChild(unsigned i, unsigned j);
+        int indexOf(NodePtr pChild);
 
         virtual AreaNodePtr getElementByPos(const DPoint & pos);
         virtual void preRender();
@@ -47,9 +64,14 @@ class AVG_API DivNode : public GroupNode
         virtual void checkReload();
 
         virtual std::string dump(int indent = 0);
+        IntPoint getMediaSize();
     
     private:
+        bool isChildTypeAllowed(const std::string& sType);
+
         std::string m_sMediaDir;
+        bool m_bCrop;
+        std::vector<NodePtr> m_Children;
 };
 
 }

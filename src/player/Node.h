@@ -34,7 +34,7 @@
 namespace avg {
 
 class Node;
-class GroupNode;
+class DivNode;
 class AVGNode;
 class ArgList;
 class DisplayEngine;
@@ -44,8 +44,8 @@ class NodeDefinition;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
-typedef boost::shared_ptr<GroupNode> GroupNodePtr;
-typedef boost::weak_ptr<GroupNode> GroupNodeWeakPtr;
+typedef boost::shared_ptr<DivNode> DivNodePtr;
+typedef boost::weak_ptr<DivNode> DivNodeWeakPtr;
 typedef boost::shared_ptr<AVGNode> AVGNodePtr;
 typedef boost::weak_ptr<AVGNode> AVGNodeWeakPtr;
 
@@ -64,7 +64,7 @@ class AVG_API Node
         virtual ~Node() = 0;
         virtual void setThis(NodeWeakPtr This, const NodeDefinition * pDefinition);
         virtual void setArgs(const ArgList& Args) {};
-        virtual void setParent(GroupNodeWeakPtr pParent, NodeState parentState);
+        virtual void setParent(DivNodeWeakPtr pParent, NodeState parentState);
         void removeParent();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
@@ -77,7 +77,7 @@ class AVG_API Node
         double getOpacity() const;
         void setOpacity(double opacity);
         
-        virtual GroupNodePtr getParent() const;
+        virtual DivNodePtr getParent() const;
         void unlink();
 
         virtual void preRender() {};
@@ -104,7 +104,7 @@ class AVG_API Node
         void setState(NodeState State);
  
     private:
-        GroupNodeWeakPtr m_pParent;
+        DivNodeWeakPtr m_pParent;
         NodeWeakPtr m_This;
         DisplayEngine * m_pDisplayEngine;
         AudioEngine * m_pAudioEngine;

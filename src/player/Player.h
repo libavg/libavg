@@ -142,7 +142,7 @@ class AVG_API Player : IEventSink
         void internalLoad(const std::string& sAVG);
 
         NodePtr createNodeFromXml(const xmlDocPtr xmlDoc, 
-                const xmlNodePtr xmlNode, GroupNodeWeakPtr pParent);
+                const xmlNodePtr xmlNode, DivNodeWeakPtr pParent);
 
         void render (bool bRenderEverything);
 

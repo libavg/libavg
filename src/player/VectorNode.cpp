@@ -174,7 +174,6 @@ void VectorNode::updateLineData(VertexArrayPtr& pVertexArray,
 void VectorNode::setDrawNeeded(bool bSizeChanged)
 {
     m_bDrawNeeded = true;
-    GroupNodePtr pParent = getParent(); 
     if (bSizeChanged) {
         m_bVASizeChanged = true;
     }
