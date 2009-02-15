@@ -26,7 +26,7 @@
 #include "MouseEvent.h"
 #include "DivNode.h"
 #include "Player.h"
-#include "DisplayEngine.h"
+#include "SDLDisplayEngine.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -348,14 +348,18 @@ void AreaNode::maybeRender(const DRect& Rect)
             } else {
                 AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
             }
-            getDisplayEngine()->pushTransform(getRelViewport().tl, getAngle(), getPivot());
+            SDLDisplayEngine * pEngine = dynamic_cast<SDLDisplayEngine*>(
+                    getDisplayEngine());
+            pEngine->pushTransform(getRelViewport().tl, getAngle(), getPivot());
+            pEngine->enableGLColorArray(false);
+            pEngine->enableTexture(true);
             render(Rect);
-            getDisplayEngine()->popTransform();
+            pEngine->popTransform();
         }
     }
 }
 
-void AreaNode::setViewport (double x, double y, double width, double height)
+void AreaNode::setViewport(double x, double y, double width, double height)
 {
     if (x == -32767) {
         x = getRelViewport().tl.x;
@@ -411,7 +415,7 @@ bool AreaNode::handleEvent(EventPtr pEvent)
     }
 }
 
-bool AreaNode::callPython (PyObject * pFunc, EventPtr pEvent)
+bool AreaNode::callPython(PyObject * pFunc, EventPtr pEvent)
 {
     return boost::python::call<bool>(pFunc, pEvent);
 }

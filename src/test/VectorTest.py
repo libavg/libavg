@@ -64,8 +64,8 @@ class VectorTestCase(AVGTestCase):
 
     def testLotsOfLines(self):
         def addLines():
-            for i in xrange(5000):
-                y = i/10+2.5
+            for i in xrange(500):
+                y = i+2.5
                 line = Player.createNode("line", {"x1":2, "y1":y, "x2":10, "y2":y})
                 canvas.appendChild(line)
                 

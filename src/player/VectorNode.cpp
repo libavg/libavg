@@ -109,6 +109,9 @@ void VectorNode::maybeRender(const DRect& Rect)
         } else {
             AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
         }
+        SDLDisplayEngine * pEngine = dynamic_cast<SDLDisplayEngine*>(getDisplayEngine());
+        pEngine->enableTexture(false);
+        pEngine->enableGLColorArray(true);
         render(Rect);
     }
 }
@@ -117,16 +120,8 @@ static ProfilingZone RenderProfilingZone("VectorNode::render");
 
 void VectorNode::render(const DRect& rect)
 {
-    {
-        ScopeTimer Timer(RenderProfilingZone);
-        int TexMode = dynamic_cast<SDLDisplayEngine*>(
-                getDisplayEngine())->getTextureMode();
-        glDisable(TexMode);
-        glEnableClientState(GL_COLOR_ARRAY);
-        m_pVertexArray->draw();
-        glEnable(TexMode);
-        glDisableClientState(GL_COLOR_ARRAY);
-    }
+    ScopeTimer Timer(RenderProfilingZone);
+    m_pVertexArray->draw();
 }
 
 void VectorNode::setColor(const string& sColor)

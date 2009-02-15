@@ -1423,6 +1423,30 @@ int SDLDisplayEngine::getMaxTexSize()
     return m_MaxTexSize;
 }
 
+void SDLDisplayEngine::enableTexture(bool bEnable)
+{
+    if (bEnable != m_bEnableTexture) {
+        if (bEnable) {
+            glEnable(getTextureMode());
+        } else {
+            glDisable(getTextureMode());
+        }
+        m_bEnableTexture = bEnable;
+    }
+}
+
+void SDLDisplayEngine::enableGLColorArray(bool bEnable)
+{
+    if (bEnable != m_bEnableGLColorArray) {
+        if (bEnable) {
+            glEnableClientState(GL_COLOR_ARRAY);
+        } else {
+            glDisableClientState(GL_COLOR_ARRAY);
+        }
+        m_bEnableGLColorArray = bEnable;
+    }
+}
+
 // This is what OpenGL calls InternalFormat
 int SDLDisplayEngine::getOGLDestMode(PixelFormat pf)
 {

@@ -84,6 +84,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         // Texture config.
         int getTextureMode();
         int getMaxTexSize();
+        void enableTexture(bool bEnable);
+        void enableGLColorArray(bool bEnable);
         
         int getOGLDestMode(PixelFormat pf);
         int getOGLSrcMode(PixelFormat pf);
@@ -152,6 +154,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         // Texture config.
         int m_TextureMode;
         int m_MaxTexSize;
+        bool m_bEnableTexture;
+        bool m_bEnableGLColorArray;
 
         bool m_bShouldUsePOW2Textures;
         YCbCrMode m_DesiredYCbCrMode;

@@ -71,7 +71,7 @@ void DivNode::setMediaDir(const string& sMediaDir)
     checkReload();
 }
 
-AreaNodePtr DivNode::getElementByPos (const DPoint & pos)
+AreaNodePtr DivNode::getElementByPos(const DPoint & pos)
 {
     DPoint relPos = toLocal(pos);
     if (relPos.x >= 0 && relPos.y >= 0 && 
