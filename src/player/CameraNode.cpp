@@ -76,8 +76,7 @@ CameraNode::CameraNode(const ArgList& Args, bool bFromXML)
     int Height = Args.getArgVal<int>("captureheight");
     string sPF = Args.getArgVal<string>("pixelformat");
 
-
-    m_pCamera = getCamera(sSource, sDevice, sChannel, IntPoint(Width, Height), sPF, FrameRate);
+    m_pCamera = getCamera(sSource, sDevice, sChannel, IntPoint(Width, Height), sPF, FrameRate, true);
     AVG_TRACE(Logger::CONFIG, "Got Camera "<<m_pCamera->getDevice() <<" from driver: "<<m_pCamera->getDriverName());
     
     m_pCamera->setFeature(CAM_FEATURE_BRIGHTNESS,

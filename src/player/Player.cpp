@@ -411,7 +411,7 @@ TrackerEventSource * Player::addTracker(const string& sConfigFilename)
         throw Exception(AVG_ERR_UNSUPPORTED, "You must use loadFile() before addTracker().");
     }
     AVG_TRACE(Logger::CONFIG, "Trying to create a Tracker for "<<sSource<<" Camera: "<< sDevice <<" Size: "<<CaptureSize << "format: "<<sCaptureFormat); 
-    pCamera = getCamera(sSource, sDevice, "", CaptureSize, sCaptureFormat, FrameRate );
+    pCamera = getCamera(sSource, sDevice, "", CaptureSize, sCaptureFormat, FrameRate, false );
     AVG_TRACE(Logger::CONFIG, "Got Camera "<<pCamera->getDevice() <<" from driver: "<<pCamera->getDriverName());
     m_pTracker = new TrackerEventSource(pCamera, Config, 
             IntPoint(m_DP.m_Width, m_DP.m_Height), true);

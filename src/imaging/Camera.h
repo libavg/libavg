@@ -81,8 +81,9 @@ public:
 typedef boost::shared_ptr<Camera> CameraPtr;
 typedef std::map<CameraFeature, int> FeatureMap;
 
-CameraPtr getCamera(const std::string& sSource, const std::string& sDevice, const std::string& sChannel, const IntPoint& CaptureSize, const std::string& sCaptureFormat, double FrameRate);
-
+CameraPtr getCamera(const std::string& sSource, const std::string& sDevice,
+        const std::string& sChannel, const IntPoint& CaptureSize, 
+        const std::string& sCaptureFormat, double FrameRate, bool bColor);
 }
 
 #endif

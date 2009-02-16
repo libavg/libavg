@@ -94,8 +94,10 @@ std::string cameraFeatureToString(CameraFeature Feature)
     }
 }
 
-CameraPtr getCamera(const std::string& sSource, const std::string& sDevice, const std::string& sChannel, const IntPoint& CaptureSize, const std::string& sCaptureFormat, double FrameRate) {
-
+CameraPtr getCamera(const std::string& sSource, const std::string& sDevice, 
+        const std::string& sChannel, const IntPoint& CaptureSize, 
+        const std::string& sCaptureFormat, double FrameRate, bool bColor) 
+{
     CameraPtr pCamera;
     try {
         if (sSource == "firewire" || sSource == "fw") {
@@ -103,8 +105,8 @@ CameraPtr getCamera(const std::string& sSource, const std::string& sDevice, cons
         || defined(AVG_ENABLE_1394_2)
             //IFIXME parse sChannel and extract guid/unit
         char *dummy;
-        pCamera = CameraPtr(new FWCamera(sDevice, strtoll(sChannel.c_str(),&dummy,10), -1, CaptureSize, sCaptureFormat, 
-                FrameRate, true));
+        pCamera = CameraPtr(new FWCamera(sDevice, strtoll(sChannel.c_str(),&dummy,10), -1, 
+                    CaptureSize, sCaptureFormat, FrameRate, bColor));
 #elif defined(AVG_ENABLE_CMU1394)
         pCamera = CameraPtr(new CMUCamera(sDevice, CaptureSize, sCaptureFormat, 
                 FrameRate, true));
@@ -117,7 +119,7 @@ CameraPtr getCamera(const std::string& sSource, const std::string& sDevice, cons
             char *dummy;
             int Channel = strtol(sChannel.c_str(), &dummy, 10);
             pCamera = CameraPtr(new V4LCamera(sDevice, Channel,
-                CaptureSize, sCaptureFormat, true));
+                CaptureSize, sCaptureFormat, bColor));
 #else
             AVG_TRACE(Logger::WARNING, "Video4Linux camera specified, but "
                     "Video4Linux support not compiled in.");
@@ -125,7 +127,7 @@ CameraPtr getCamera(const std::string& sSource, const std::string& sDevice, cons
         } else if (sSource == "directshow") {
 #if defined(AVG_ENABLE_DSHOW)
             pCamera = CameraPtr(new DSCamera(sDevice, CaptureSize, sCaptureFormat, 
-                FrameRate, true));
+                FrameRate, bColor));
 #else
             AVG_TRACE(Logger::WARNING, "DirectShow camera specified, but "
                     "DirectShow is only available under windows.");
