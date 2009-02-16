@@ -48,12 +48,9 @@ public:
     DSCamera(std::string sDevice, IntPoint Size, std::string sPF,
             double FrameRate, bool bColor);
     virtual ~DSCamera();
-    virtual void open();
-    virtual void close();
 
     virtual IntPoint getImgSize();
     virtual BitmapPtr getImage(bool bWait);
-    virtual bool isCameraAvailable();
 
     virtual const std::string& getDevice() const; 
     virtual const std::string& getDriverName() const; 
@@ -67,6 +64,8 @@ public:
     virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
 
 private:
+    virtual void open();
+    virtual void close();
     void initGraphBuilder();
     void findCaptureDevice(IBaseFilter ** ppSrcFilter);
 
@@ -86,8 +85,6 @@ private:
     bool m_bCameraIsColor;
     std::string m_sPF;
     PixelFormat m_CameraPF;
-
-    bool m_bCameraAvailable;
 
     IGraphBuilder * m_pGraph;
     ICaptureGraphBuilder2 * m_pCapture;

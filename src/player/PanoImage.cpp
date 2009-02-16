@@ -54,9 +54,7 @@ NodeDefinition PanoImage::createDefinition()
         .addArg(Arg<double>("sensorwidth", 1.0, false, offsetof(PanoImage, m_SensorWidth)))
         .addArg(Arg<double>("sensorheight", 1.0, false, offsetof(PanoImage, m_SensorHeight)))
         .addArg(Arg<double>("focallength", 10.0, false, offsetof(PanoImage, m_FocalLength)))
-        .addArg(Arg<double>("rotation", -1.0, false, offsetof(PanoImage, m_Rotation)))
-        .addArg(Arg<int>("hue", -1, false, offsetof(PanoImage, m_Hue)))
-        .addArg(Arg<int>("saturation", -1, false, offsetof(PanoImage, m_Saturation)));
+        .addArg(Arg<double>("rotation", -1.0, false, offsetof(PanoImage, m_Rotation)));
 }
 
 PanoImage::PanoImage (const ArgList& Args, bool bFromXML)
@@ -250,16 +248,6 @@ void PanoImage::setFocalLength (double focalLength)
     m_FocalLength = focalLength;
 }
 
-int PanoImage::getHue () const
-{
-    return m_Hue;
-}
-
-int PanoImage::getSaturation () const
-{
-    return m_Saturation;
-}
-
 double PanoImage::getRotation () const
 {
     return m_Rotation;
@@ -308,10 +296,6 @@ void PanoImage::load()
         }
     }
 
-    if (m_Saturation != -1) {
-        FilterColorize(m_Hue, m_Saturation).applyInPlace(m_pBmp);
-    }
-    
     calcProjection();
     if (m_Rotation == -1) {
         m_Rotation = m_MaxRotation/2;

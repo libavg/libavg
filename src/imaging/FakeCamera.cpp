@@ -87,7 +87,7 @@ IntPoint FakeCamera::getImgSize()
 
 BitmapPtr FakeCamera::getImage(bool bWait)
 {
-    if (!m_bIsOpen || !bWait) {
+    if (!m_bIsOpen || !bWait || m_pBmpQ->empty()) {
         return BitmapPtr();
     } else {
         msleep(100);

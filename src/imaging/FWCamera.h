@@ -22,7 +22,6 @@
 #ifndef _FWCamera_H_
 #define _FWCamera_H_
 
-#include "../api.h"
 #include "../avgconfigwrapper.h"
 
 #include "Camera.h"
@@ -45,6 +44,9 @@
 #ifndef AVG_ENABLE_1394_2
 typedef unsigned int dc1394feature_t;
 #endif
+#ifndef uint64_t
+#define uint64_t unsigned long long
+#endif
 
 #include <string>
 #include <map>
@@ -55,15 +57,12 @@ typedef Queue<BitmapPtr> BitmapQueue;
 
 class AVG_API FWCamera: public Camera {
 public:
-    FWCamera(std::string sDevice, IntPoint Size, std::string sPF,
-            double FrameRate, bool bColor);
+    FWCamera(std::string sDevice, uint64_t sGuid, int Unit, IntPoint Size, 
+            std::string sPF, double FrameRate, bool bColor);
     virtual ~FWCamera();
-    virtual void open();
-    virtual void close();
 
     virtual IntPoint getImgSize();
     virtual BitmapPtr getImage(bool bWait);
-    virtual bool isCameraAvailable();
 
     virtual const std::string& getDevice() const; 
     virtual const std::string& getDriverName() const; 
@@ -82,13 +81,15 @@ private:
     void getWhitebalance(int* pU, int* pV) const;
 
     std::string m_sDevice;
+    uint64_t m_Guid;
+    int m_Unit;
     std::string m_sPF;
     IntPoint m_Size;
     double m_FrameRate;
     bool m_bColor;
 
 #ifdef AVG_ENABLE_1394
-    bool findCameraOnPort(int port, raw1394handle_t& FWHandle);
+    bool findCameraOnPort(int port);
 
     dc1394_cameracapture m_Camera;
     raw1394handle_t m_FWHandle;
@@ -104,7 +105,6 @@ private:
     void fatalError(const std::string & sMsg);
     void dumpCameraInfo();
 
-    bool m_bCameraAvailable;
     FeatureMap m_Features;
     int m_WhitebalanceU;
     int m_WhitebalanceV;

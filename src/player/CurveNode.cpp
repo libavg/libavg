@@ -29,6 +29,7 @@
 #include "../base/BezierCurve.h"
 
 #include <math.h>
+#include <float.h>
 #include <iostream>
 #include <sstream>
 
@@ -222,7 +223,7 @@ int CurveNode::getCurveLen()
 {
     // Calc. upper bound for spline length.
     double curveLen = calcDist(m_P2,m_P1)+calcDist(m_P3,m_P2)+calcDist(m_P4,m_P3);
-    if (curveLen > 50000 || !isnormal(curveLen)) {
+    if (curveLen > 50000) {
         throw Exception(AVG_ERR_OUT_OF_RANGE, "Illegal points in curve.");
     }
     return int(curveLen);

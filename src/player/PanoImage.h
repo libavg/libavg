@@ -61,8 +61,6 @@ class AVG_API PanoImage: public AreaNode
         void setSensorHeight(double sensorHeight);
         double getFocalLength() const;
         void setFocalLength(double focalLength);
-        int getHue() const;
-        int getSaturation() const;
         double getRotation() const;
         void setRotation(double rotation);
         double getMaxRotation() const;
@@ -96,9 +94,6 @@ class AVG_API PanoImage: public AreaNode
         double m_MaxRotation;  // Maximum rotation angle (=Total angle - visible area)
 
         double m_Rotation;
-
-        int m_Hue;
-        int m_Saturation;
 };
 
 }

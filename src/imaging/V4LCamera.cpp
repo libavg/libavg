@@ -25,6 +25,7 @@
 #include "../base/ScopeTimer.h"
 #include "../base/TimeSource.h"
 #include "../base/Logger.h"
+#include "../base/Exception.h"
 
 #include <sys/stat.h>
 #include <sys/ioctl.h>
@@ -65,7 +66,6 @@ V4LCamera::V4LCamera(std::string sDevice, int Channel, IntPoint Size,
            : m_Fd(-1),
            m_Channel(Channel),
            m_sDevice(sDevice), 
-           m_bCameraAvailable(false),
            m_bColor(bColor),
            m_ImgSize(Size)
 {
@@ -82,28 +82,21 @@ V4LCamera::V4LCamera(std::string sDevice, int Channel, IntPoint Size,
     m_FeaturesNames[V4L2_CID_WHITENESS] = "whiteness";
     m_FeaturesNames[V4L2_CID_GAMMA] = "gamma";
     m_FeaturesNames[V4L2_CID_SATURATION] = "saturation";
-}
-
-V4LCamera::~V4LCamera() 
-{
-    close();
-}
-
-void V4LCamera::open()
-{
     struct stat St; 
 
     if ( stat(m_sDevice.c_str(), &St) == -1) {
         AVG_TRACE(Logger::ERROR, "Unable to access v4l2 device " << 
           m_sDevice);
         // TODO: Disable camera instead of exit(1).
-        exit(1);
+        close();
+        throw(Exception(AVG_ERR_CAMERA, "Unable to access v4l2 device"));
     }
 
     if (!S_ISCHR (St.st_mode)) {
         AVG_TRACE(Logger::ERROR, m_sDevice + " is not a v4l2 device");
         // TODO: Disable camera instead of exit(1).
-        exit(1);
+        close();
+        throw(Exception(AVG_ERR_CAMERA, "invalid v4l2 device"));
     }
 
     m_Fd = ::open(m_sDevice.c_str(), O_RDWR /* required */ | O_NONBLOCK, 0);
@@ -111,7 +104,8 @@ void V4LCamera::open()
     if (m_Fd == -1) {
         AVG_TRACE(Logger::ERROR, "Unable to open v4l2 device " << m_sDevice);
         // TODO: Disable camera instead of exit(1).
-        exit(1);
+        close();
+        throw(Exception(AVG_ERR_CAMERA, "could not open v4l2 device"));
     }
     
     initDevice();
@@ -119,29 +113,32 @@ void V4LCamera::open()
     AVG_TRACE(Logger::CONFIG, "V4L2 Camera opened");
 }
 
+V4LCamera::~V4LCamera() 
+{
+    close();
+}
+
+
 void V4LCamera::close()
 {
-    if (m_bCameraAvailable) {
-        enum v4l2_buf_type Type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-        if (-1 == xioctl (m_Fd, VIDIOC_STREAMOFF, &Type)) {
-            AVG_TRACE(Logger::ERROR, "VIDIOC_STREAMOFF");
-        }
-        vector<Buffer>::iterator it;
-        for (it=m_vBuffers.begin(); it != m_vBuffers.end(); ++it) {
-            if (-1 == munmap (it->start, it->length)) {
-                AVG_TRACE(Logger::WARNING, "V4lCamera::close(): munmap failed.");
-            }
-        }
-        m_vBuffers.clear();
-
-        if ( ::close(m_Fd) == -1) {
-            AVG_TRACE(Logger::ERROR, "Error on closing v4l2 device");
-        }
-        AVG_TRACE(Logger::CONFIG, "V4L2 Camera closed");
-
-        m_Fd = -1;
-        m_bCameraAvailable = false;
+    enum v4l2_buf_type Type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+    if (-1 == xioctl (m_Fd, VIDIOC_STREAMOFF, &Type)) {
+        AVG_TRACE(Logger::ERROR, "VIDIOC_STREAMOFF");
     }
+    vector<Buffer>::iterator it;
+    for (it=m_vBuffers.begin(); it != m_vBuffers.end(); ++it) {
+        if (-1 == munmap (it->start, it->length)) {
+            AVG_TRACE(Logger::WARNING, "V4lCamera::close(): munmap failed.");
+        }
+    }
+    m_vBuffers.clear();
+
+    if ( ::close(m_Fd) == -1) {
+        AVG_TRACE(Logger::ERROR, "Error on closing v4l2 device");
+    }
+    AVG_TRACE(Logger::CONFIG, "V4L2 Camera closed");
+
+    m_Fd = -1;
 }
 
 IntPoint V4LCamera::getImgSize()
@@ -230,17 +227,17 @@ BitmapPtr V4LCamera::getImage(bool bWait)
 
             case EIO:
                     AVG_TRACE(Logger::ERROR, "EIO");
-                    exit(1);
+                    throw(Exception(AVG_ERR_CAMERA, "got EIO when acquiring image"));
                     break;
 
             case EINVAL:
                     AVG_TRACE(Logger::ERROR, "EINVAL");
-                    exit(1);
+                    throw(Exception(AVG_ERR_CAMERA, "got EINVAL when acquiring image"));
                     break;
 
             default:
                     AVG_TRACE(Logger::ERROR, "VIDIOC_DQBUF");
-                    exit(1);
+                    throw(Exception(AVG_ERR_CAMERA, "got VIDIOC_DQBUF when acquiring image"));
         }
     }
     
@@ -312,7 +309,7 @@ BitmapPtr V4LCamera::getImage(bool bWait)
     // enqueues free buffer for mmap
     if (-1 == xioctl (m_Fd, VIDIOC_QBUF, &Buf)) {
         AVG_TRACE(Logger::ERROR, "VIDIOC_DQBUF");
-        exit(1);
+        throw(Exception(AVG_ERR_CAMERA, "got VIDIOC_DQBUF when acquiring image"));
     }
     
     return pCurBitmap;
@@ -386,7 +383,7 @@ bool V4LCamera::isFeatureSupported(V4LCID_t V4LFeature) const
     if (ioctl (m_Fd, VIDIOC_QUERYCTRL, &QueryCtrl) == -1) {
             if (errno != EINVAL) {
                     AVG_TRACE(Logger::ERROR,"VIDIOC_QUERYCTRL");
-                    exit(1);
+                    throw(Exception(AVG_ERR_CAMERA, "got VIDIOC_DQBUF while trying to enumerate features"));
             } 
             else {
                 return false;
@@ -496,7 +493,7 @@ void V4LCamera::startCapture()
 
         if (-1 == xioctl (m_Fd, VIDIOC_QBUF, &Buf)) {
             AVG_TRACE(Logger::ERROR, "VIDIOC_QBUF");
-            exit(1);
+            throw(Exception(AVG_ERR_CAMERA, "got VIDIOC_QBUF while trying to start capture"));
         }
     }
     
@@ -504,7 +501,7 @@ void V4LCamera::startCapture()
 
     if (-1 == xioctl (m_Fd, VIDIOC_STREAMON, &Type)) {
         AVG_TRACE(Logger::ERROR, "VIDIOC_STREAMON");
-        exit(1);
+        throw(Exception(AVG_ERR_CAMERA, "got VIDIOC_STREAMON while trying to start capture"));
     }
 
 }
@@ -520,17 +517,20 @@ void V4LCamera::initDevice()
 
     if (xioctl(m_Fd, VIDIOC_QUERYCAP, &Cap) == -1) {
         AVG_TRACE(Logger::ERROR, m_sDevice << " is not a valid V4L2 device");
-        exit(1);
+        close();
+        throw(Exception(AVG_ERR_CAMERA, "invalid v4l2 device"));
     }
 
     if (!(Cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)) {
         AVG_TRACE(Logger::ERROR, m_sDevice << " does not support capturing");
-        exit(1);
+        close();
+        throw(Exception(AVG_ERR_CAMERA, "capture not supported"));
     }
 
     if (!(Cap.capabilities & V4L2_CAP_STREAMING)) {
         AVG_TRACE(Logger::ERROR, m_sDevice << " does not support streaming i/os");
-        exit(1);
+        close();
+        throw(Exception(AVG_ERR_CAMERA, "streaming i/o not supported"));
     }
     m_sDriverName = (const char *)Cap.driver;
 
@@ -568,7 +568,7 @@ void V4LCamera::initDevice()
         AVG_TRACE(Logger::ERROR, m_sDevice << " could not set image format (" 
                 << strerror(errno) << ")");
         close();
-        exit(1);
+        throw(Exception(AVG_ERR_CAMERA, "image format could not be set"));
     }
 
     initMMap ();
@@ -578,7 +578,7 @@ void V4LCamera::initDevice()
     if (xioctl(m_Fd, VIDIOC_S_INPUT, &m_Channel) == -1) {
         AVG_TRACE(Logger::ERROR, "Cannot set MUX channel " << m_Channel);
         close();
-        exit(1);
+        throw(Exception(AVG_ERR_CAMERA, "mux channel could not be set"));
     }
     
     m_bCameraAvailable = true;
@@ -603,16 +603,20 @@ void V4LCamera::initMMap()
         if (EINVAL == errno) {
             AVG_TRACE(Logger::ERROR, m_sDevice << " does not support \
                 memory mapping");
-            exit(1);
+            close();
+            throw(Exception(AVG_ERR_CAMERA, "memory mapping not supported by your device"));
+
         } else {
             AVG_TRACE(Logger::ERROR, "V4LCamera::initMMap: " << strerror(errno));
-            exit(1);
+            close();
+            throw(Exception(AVG_ERR_CAMERA, "mmap failure in V4Lcamera"));
         }
     }
     
     if (Req.count < 2) {
         AVG_TRACE(Logger::ERROR, "Insufficient buffer memory on " << m_sDevice);
-        exit(1);
+        close();
+        throw(Exception(AVG_ERR_CAMERA, "not enough memory on device"));
     }
 
     m_vBuffers.clear();
@@ -629,7 +633,8 @@ void V4LCamera::initMMap()
 
         if (xioctl (m_Fd, VIDIOC_QUERYBUF, &Buf) == -1) {
             AVG_TRACE(Logger::ERROR, "VIDIOC_QUERYBUF index=" << i);
-            exit(1);
+            close();
+            throw(Exception(AVG_ERR_CAMERA, "VIDIOC_QUERYBUF failure"));
         }
 
         Tmp.length = Buf.length;
@@ -642,7 +647,8 @@ void V4LCamera::initMMap()
 
         if (MAP_FAILED == Tmp.start) {
             AVG_TRACE(Logger::ERROR, "mmap() failed on buffer index=" << i);
-            exit(1);
+            close();
+            throw(Exception(AVG_ERR_CAMERA, "mmap failure"));
         }
                 
         m_vBuffers.push_back(Tmp);

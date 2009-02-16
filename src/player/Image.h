@@ -45,14 +45,6 @@ class AVG_API Image : public RasterNode
 
         const std::string& getHRef() const;
         void setHRef(const std::string& href);
-        int getHue() const
-        {
-            return m_Hue;
-        }
-        int getSaturation() const
-        {
-            return m_Saturation;
-        }
         void setBitmap(const Bitmap * pBmp);
         
         virtual void render(const DRect& Rect);
@@ -68,9 +60,6 @@ class AVG_API Image : public RasterNode
         std::string m_href;
         BitmapPtr m_pBmp;
         bool m_bIsImageAvailable;
-    
-        int m_Hue;
-        int m_Saturation;
 };
 
 }
