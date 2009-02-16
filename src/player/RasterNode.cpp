@@ -75,7 +75,7 @@ void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 
     if (m_MaxTileSize != IntPoint(-1, -1)) {
-        OGLSurface * pOGLSurface = getSurface();
+        OGLTiledSurface * pOGLSurface = getSurface();
         pOGLSurface->setMaxTileSize(m_MaxTileSize);
     }
     setBlendModeStr(m_sBlendMode);
@@ -92,21 +92,21 @@ void RasterNode::disconnect()
 
 VertexGrid RasterNode::getOrigVertexCoords()
 {
-    OGLSurface * pOGLSurface = getSurface();
+    OGLTiledSurface * pOGLSurface = getSurface();
     checkDisplayAvailable("getOrigVertexCoords");
     return pOGLSurface->getOrigVertexCoords();
 }
 
 VertexGrid RasterNode::getWarpedVertexCoords() 
 {
-    OGLSurface * pOGLSurface = getSurface();
+    OGLTiledSurface * pOGLSurface = getSurface();
     checkDisplayAvailable("getWarpedVertexCoords");
     return pOGLSurface->getWarpedVertexCoords();
 }
 
 void RasterNode::setWarpedVertexCoords(const VertexGrid& Grid)
 {
-    OGLSurface * pOGLSurface = getSurface();
+    OGLTiledSurface * pOGLSurface = getSurface();
     checkDisplayAvailable("setWarpedVertexCoords");
     pOGLSurface->setWarpedVertexCoords(Grid);
 }
@@ -157,12 +157,12 @@ DisplayEngine::BlendMode RasterNode::getBlendMode() const
     return m_BlendMode;
 }
 
-OGLSurface * RasterNode::getSurface()
+OGLTiledSurface * RasterNode::getSurface()
 {
     if (!m_pSurface) {
         DisplayEngine *pDisplayEngine = getDisplayEngine();
         if (pDisplayEngine) {
-            m_pSurface = pDisplayEngine->createSurface();
+            m_pSurface = pDisplayEngine->createTiledSurface();
         } else {
             return 0;
         }

@@ -256,7 +256,7 @@ void CameraNode::preRender()
 static ProfilingZone CameraProfilingZone("Camera::render");
 static ProfilingZone CameraDownloadProfilingZone("Camera tex download");
 
-bool CameraNode::renderToSurface(OGLSurface * pSurface)
+bool CameraNode::renderToSurface(OGLTiledSurface * pSurface)
 {
     ScopeTimer Timer(CameraProfilingZone);
     if (m_pCurBmp) {

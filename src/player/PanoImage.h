@@ -26,9 +26,6 @@
 #include "../avgconfigwrapper.h"
 
 #include "AreaNode.h"
-#ifdef AVG_ENABLE_GL
-#include "OGLSurface.h"
-#endif
 #include "../graphics/Bitmap.h"
 
 #include <string>

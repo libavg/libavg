@@ -33,7 +33,7 @@
 #include "MouseEvent.h"
 #include "KeyEvent.h"
 
-#include "OGLSurface.h"
+#include "OGLTiledSurface.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Exception.h"
@@ -572,9 +572,9 @@ void SDLDisplayEngine::swapBuffers()
     AVG_TRACE(Logger::BLTS, "GL SwapBuffers");
 }
 
-OGLSurface * SDLDisplayEngine::createSurface()
+OGLTiledSurface * SDLDisplayEngine::createTiledSurface()
 {
-    OGLSurface * pOGLSurface = new OGLSurface(this);
+    OGLTiledSurface * pOGLSurface = new OGLTiledSurface(this);
     m_pSurfaces.push_back(pOGLSurface);
 
     return pOGLSurface;
@@ -1571,7 +1571,7 @@ void SDLDisplayEngine::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCb
 
 long long SDLDisplayEngine::getGPUMemoryUsage()
 {
-    vector<OGLSurface *>::iterator it;
+    vector<OGLTiledSurface *>::iterator it;
 
     long long lAmount = 0;
     for(it = m_pSurfaces.begin() ; it != m_pSurfaces.end() ; ++it) {
@@ -1581,9 +1581,9 @@ long long SDLDisplayEngine::getGPUMemoryUsage()
     return lAmount;
 }
 
-void SDLDisplayEngine::deregisterSurface(OGLSurface *pOGLSurface)
+void SDLDisplayEngine::deregisterSurface(OGLTiledSurface *pOGLSurface)
 {
-    vector<OGLSurface *>::iterator it;
+    vector<OGLTiledSurface *>::iterator it;
 
     for(it = m_pSurfaces.begin() ; it != m_pSurfaces.end() ; ++it) {
         if (pOGLSurface == *it) {
