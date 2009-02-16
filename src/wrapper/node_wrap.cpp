@@ -285,10 +285,6 @@ void export_node()
         .add_property("focallength", &PanoImage::getFocalLength, 
                 &PanoImage::setFocalLength,
                 "The focal length of the lens in millimeters.\n")
-        .add_property("hue", &PanoImage::getHue,
-                "A hue to color the image in. (ro, deprecated)\n")
-        .add_property("saturation", &PanoImage::getSaturation,
-                "The saturation the image should have. (ro, deprecated)\n")
         .add_property("rotation", &PanoImage::getRotation, &PanoImage::setRotation,
                 "The current angle the viewer is looking at in radians.\n")
         .add_property("maxrotation", &PanoImage::getMaxRotation,

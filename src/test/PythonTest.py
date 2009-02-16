@@ -142,7 +142,7 @@ class PythonTestCase(AVGTestCase):
         Helper = Player.getTestHelper()    
         Player.loadFile("image.avg")
         draggable.init(avg)
-        dragger = draggable.Draggable(Player.getElementByID("testhue"),
+        dragger = draggable.Draggable(Player.getElementByID("test1"),
                 onDragStart, onDragEnd)
         dragger.enable()
         self.start(None,

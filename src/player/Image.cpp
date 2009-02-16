@@ -47,9 +47,7 @@ NodeDefinition Image::createDefinition()
 {
     return NodeDefinition("image", Node::buildNode<Image>)
         .extendDefinition(RasterNode::createDefinition())
-        .addArg(Arg<string>("href", "", false, offsetof(Image, m_href)))
-        .addArg(Arg<int>("hue", -1, false, offsetof(Image, m_Hue)))
-        .addArg(Arg<int>("saturation", -1, false, offsetof(Image, m_Saturation)));
+        .addArg(Arg<string>("href", "", false, offsetof(Image, m_href)));
 }
 
 Image::Image (const ArgList& Args, bool bFromXML)
@@ -237,10 +235,6 @@ void Image::load()
                 AVG_TRACE(Logger::MEMORY, ex.what());
             }
         }
-    }
-    if (m_Saturation != -1) {
-        FilterColorize(m_Hue, m_Saturation).applyInPlace(
-                m_pBmp);
     }
     assert(m_pBmp);
 }

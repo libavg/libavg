@@ -6,6 +6,6 @@
         opacity="1" href="rgb24-65x65.png" maxtilewidth="16" maxtileheight="32"/>
     <image id="test" x="64" y="30"
         opacity="1" href="rgb24-65x65.png" pivotx="0" pivoty="0" angle="0.274"/>
-    <image id="testhue" x="129" y="30"
-        opacity="1" href="rgb24-65x65.png" hue="195" saturation="30"/>
+    <image id="test1" x="129" y="30"
+        opacity="1" href="rgb24-65x65.png"/>
 </avg>

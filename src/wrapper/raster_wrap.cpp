@@ -165,10 +165,6 @@ void export_raster()
                 make_function(&Image::setHRef,
                         return_value_policy<copy_const_reference>()),
                 "The source filename of the image.\n")
-        .add_property("hue", &Image::getHue,
-                "A hue to color the image in (ro, deprecated).\n")
-        .add_property("saturation", &Image::getSaturation,
-                "The saturation the image should have (ro, deprecated).\n")
     ;
 
     class_<VideoBase, bases<RasterNode>, boost::noncopyable>("VideoBase", 
