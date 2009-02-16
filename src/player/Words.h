@@ -37,8 +37,6 @@
 
 namespace avg {
 
-class ISurface;
- 
 class AVG_API Words : public RasterNode
 {
     public:

@@ -23,8 +23,8 @@
 #define _OGLSurface_H_
 
 #include "../api.h"
-#include "ISurface.h"
 #include "OGLTexture.h"
+#include "SDLDisplayEngine.h"
 
 #include "../base/Point.h"
 #include "../base/Rect.h"
@@ -38,12 +38,11 @@ namespace avg {
 
 class SDLDisplayEngine;
 
-class AVG_API OGLSurface: public ISurface {
+class AVG_API OGLSurface {
     public:
         OGLSurface(SDLDisplayEngine * pEngine);
         virtual ~OGLSurface();
 
-        // Implementation of ISurface.
         virtual void create(const IntPoint& Size, PixelFormat PF,
                 bool bFastDownload);
         virtual BitmapPtr lockBmp(int index=0);

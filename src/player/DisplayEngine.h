@@ -37,9 +37,8 @@
 
 namespace avg {
 
-class ISurface;
-
 class Region;
+class OGLSurface;
 
 class AVG_API DisplayEngine
 {   
@@ -70,7 +69,7 @@ class AVG_API DisplayEngine
         virtual const DRect& getClipRect() = 0;
         virtual void pushTransform(const DPoint& translate, double angle, const DPoint& pivot) = 0;
         virtual void popTransform() = 0;
-        virtual ISurface * createSurface() = 0;
+        virtual OGLSurface * createSurface() = 0;
 
         virtual int getWidth() = 0;
         virtual int getHeight() = 0;
@@ -85,7 +84,7 @@ class AVG_API DisplayEngine
 
         virtual BitmapPtr screenshot () = 0;
         virtual long long getGPUMemoryUsage() = 0;
-        virtual void deregisterSurface(ISurface *) = 0;
+        virtual void deregisterSurface(OGLSurface *) = 0;
 
     protected:
         void checkJitter();

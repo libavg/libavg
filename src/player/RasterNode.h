@@ -70,11 +70,11 @@ class AVG_API RasterNode: public AreaNode
         
     protected:
         RasterNode();
-        ISurface * getSurface();
+        OGLSurface * getSurface();
  
     private:
         void checkDisplayAvailable(std::string sMsg);
-        ISurface * m_pSurface;
+        OGLSurface * m_pSurface;
         
         IntPoint m_MaxTileSize;
         std::string m_sBlendMode;

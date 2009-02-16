@@ -23,7 +23,7 @@
 
 #include "DisplayEngine.h"
 #include "Player.h"
-#include "ISurface.h"
+#include "OGLSurface.h"
 #include "NodeDefinition.h"
 
 #include "../graphics/Filtercolorize.h"
@@ -81,7 +81,7 @@ void Image::disconnect()
 
     if (getState() == NS_CANRENDER) {
         // Unload textures but keep bitmap in memory.
-        ISurface * pSurface = getSurface();
+        OGLSurface * pSurface = getSurface();
         BitmapPtr pSurfaceBmp = pSurface->lockBmp();
         m_pBmp = BitmapPtr(new Bitmap(pSurfaceBmp->getSize(), pSurfaceBmp->getPixelFormat()));
         m_pBmp->copyPixels(*pSurfaceBmp);
@@ -148,7 +148,7 @@ void Image::setBitmap(const Bitmap * pBmp)
 #endif
 //    cerr << "setBitmap, pf: " << Bitmap::getPixelFormatString(pf) << endl;
     if (getState() == NS_CANRENDER) {
-        ISurface * pSurface = getSurface();
+        OGLSurface * pSurface = getSurface();
         BitmapPtr pTempBmp = BitmapPtr(new Bitmap(*pBmp));
         if (pf != I8) {
             FilterFlipRGB().applyInPlace(pTempBmp);

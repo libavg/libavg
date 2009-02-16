@@ -26,7 +26,7 @@ ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
 ALL_H = Player.h PluginManager.h IEventSource.h IEventSink.h VideoBase.h Video.h\
         DisplayEngine.h NodeRegistry.h Arg.h ArgBase.h ArgList.h Region.h \
-        Node.h AreaNode.h ISurface.h DisplayParams.h NodeDefinition.h \
+        Node.h AreaNode.h DisplayParams.h NodeDefinition.h \
         AVGNode.h DivNode.h CursorState.h \
         Image.h Timeout.h Words.h WrapPython.h\
         EventDispatcher.h CursorEvent.h MouseEvent.h \

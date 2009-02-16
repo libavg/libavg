@@ -27,7 +27,6 @@
 #include "Node.h"
 
 #include "Event.h"
-#include "ISurface.h"
 
 #include "../base/Point.h"
 #include "../base/Rect.h"

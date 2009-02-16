@@ -21,7 +21,7 @@
 
 #include "Words.h"
 #include "DisplayEngine.h"
-#include "ISurface.h"
+#include "OGLSurface.h"
 #include "NodeDefinition.h"
 
 #include "../base/Logger.h"

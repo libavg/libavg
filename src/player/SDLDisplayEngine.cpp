@@ -572,7 +572,7 @@ void SDLDisplayEngine::swapBuffers()
     AVG_TRACE(Logger::BLTS, "GL SwapBuffers");
 }
 
-ISurface * SDLDisplayEngine::createSurface()
+OGLSurface * SDLDisplayEngine::createSurface()
 {
     OGLSurface * pOGLSurface = new OGLSurface(this);
     m_pSurfaces.push_back(pOGLSurface);
@@ -1581,7 +1581,7 @@ long long SDLDisplayEngine::getGPUMemoryUsage()
     return lAmount;
 }
 
-void SDLDisplayEngine::deregisterSurface(ISurface *pOGLSurface)
+void SDLDisplayEngine::deregisterSurface(OGLSurface *pOGLSurface)
 {
     vector<OGLSurface *>::iterator it;
 

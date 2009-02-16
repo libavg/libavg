@@ -69,13 +69,13 @@ void RasterNode::setArgs(const ArgList& Args)
     setBlendModeStr(m_sBlendMode);
 }
 
-void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
+void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
+        AudioEngine * pAudioEngine)
 {
     AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 
     if (m_MaxTileSize != IntPoint(-1, -1)) {
-        OGLSurface * pOGLSurface = 
-            dynamic_cast<OGLSurface*>(getSurface());
+        OGLSurface * pOGLSurface = getSurface();
         pOGLSurface->setMaxTileSize(m_MaxTileSize);
     }
     setBlendModeStr(m_sBlendMode);
@@ -92,21 +92,21 @@ void RasterNode::disconnect()
 
 VertexGrid RasterNode::getOrigVertexCoords()
 {
-    OGLSurface * pOGLSurface = getOGLSurface();
+    OGLSurface * pOGLSurface = getSurface();
     checkDisplayAvailable("getOrigVertexCoords");
     return pOGLSurface->getOrigVertexCoords();
 }
 
 VertexGrid RasterNode::getWarpedVertexCoords() 
 {
-    OGLSurface * pOGLSurface = getOGLSurface();
+    OGLSurface * pOGLSurface = getSurface();
     checkDisplayAvailable("getWarpedVertexCoords");
     return pOGLSurface->getWarpedVertexCoords();
 }
 
 void RasterNode::setWarpedVertexCoords(const VertexGrid& Grid)
 {
-    OGLSurface * pOGLSurface = getOGLSurface();
+    OGLSurface * pOGLSurface = getSurface();
     checkDisplayAvailable("setWarpedVertexCoords");
     pOGLSurface->setWarpedVertexCoords(Grid);
 }
@@ -152,18 +152,12 @@ Bitmap* RasterNode::getBitmap()
     return pBmp;
 }
 
-OGLSurface * RasterNode::getOGLSurface()
-{
-    OGLSurface * pOGLSurface = dynamic_cast<OGLSurface *>(getSurface());
-    return pOGLSurface; 
-}
-
 DisplayEngine::BlendMode RasterNode::getBlendMode() const
 {
     return m_BlendMode;
 }
 
-ISurface * RasterNode::getSurface()
+OGLSurface * RasterNode::getSurface()
 {
     if (!m_pSurface) {
         DisplayEngine *pDisplayEngine = getDisplayEngine();
@@ -178,7 +172,7 @@ ISurface * RasterNode::getSurface()
 
 void RasterNode::checkDisplayAvailable(std::string sMsg)
 {
-    if (!getOGLSurface()) {
+    if (!getSurface()) {
         throw Exception(AVG_ERR_UNSUPPORTED,
             string(sMsg) + ": cannot access vertex coordinates before Player.play().");
     }

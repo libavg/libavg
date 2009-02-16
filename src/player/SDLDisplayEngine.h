@@ -38,8 +38,6 @@
 
 namespace avg {
 
-class OGLSurface;
-
 class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
 {
     public:
@@ -62,7 +60,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
                 const DPoint& pivot);
         virtual void popTransform();
 
-        virtual ISurface * createSurface();
+        virtual OGLSurface * createSurface();
 
         virtual int getWidth();
         virtual int getHeight();
@@ -97,7 +95,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
                 VSyncMode DesiredVSyncMode);
         
         long long getGPUMemoryUsage();
-        void deregisterSurface(ISurface *);
+        void deregisterSurface(OGLSurface *);
 
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);

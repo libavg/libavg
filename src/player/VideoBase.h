@@ -29,9 +29,10 @@
 
 #include <string>
 
-class ISurface;
 
 namespace avg {
+
+class OGLSurface;
 
 class AVG_API VideoBase : public RasterNode
 {
@@ -61,7 +62,7 @@ class AVG_API VideoBase : public RasterNode
         void renderToBackbuffer();
         void open();
 
-        virtual bool renderToSurface(ISurface * pSurface) = 0;
+        virtual bool renderToSurface(OGLSurface * pSurface) = 0;
         virtual void open(YCbCrMode ycbcrMode) = 0;
         virtual void close() = 0;
         virtual PixelFormat getPixelFormat() = 0;
