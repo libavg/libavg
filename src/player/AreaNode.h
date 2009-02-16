@@ -124,7 +124,6 @@ class AVG_API AreaNode: public Node
         virtual std::string dump(int indent = 0);
         
         virtual bool handleEvent(EventPtr pEvent); 
-        virtual void checkReload() {};
 
         virtual IntPoint getMediaSize() 
             { return IntPoint(0,0); };

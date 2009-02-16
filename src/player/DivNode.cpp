@@ -139,7 +139,7 @@ string DivNode::getEffectiveMediaDir()
 void DivNode::checkReload()
 {
     for(int i=0; i<getNumChildren(); ++i) {
-        dynamic_pointer_cast<AreaNode>(getChild(i))->checkReload();
+        getChild(i)->checkReload();
     }
 }
 

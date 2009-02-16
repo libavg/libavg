@@ -70,7 +70,8 @@ class AVG_API Node
                 AudioEngine * pAudioEngine);
         virtual void connect();
         virtual void disconnect();
-        
+        virtual void checkReload() {};
+
         virtual const std::string& getID() const;
         void setID(const std::string& ID);
 
