@@ -57,17 +57,7 @@
 #include "../base/ScopeTimer.h"
 #include "../base/TimeSource.h"
 
-#include "../imaging/FWCamera.h"
-#ifdef AVG_ENABLE_V4L2
-#include "../imaging/V4LCamera.h"
-#endif
-#ifdef AVG_ENABLE_CMU1394
-#include "../imaging/CMUCamera.h"
-#endif
-#ifdef AVG_ENABLE_DSHOW
-#include "../imaging/DSCamera.h"
-#endif
-#include "../imaging/FakeCamera.h"
+#include "../imaging/Camera.h"
 
 #include "../audio/SDLAudioEngine.h"
 
@@ -412,57 +402,17 @@ TrackerEventSource * Player::addTracker(const string& sConfigFilename)
 
     string sSource = Config.getParam("/camera/source/@value");
     string sDevice = Config.getParam("/camera/device/@value");
-    IntPoint Size(Config.getPointParam("/camera/size/"));
-    string sPixFmt = Config.getParam("/camera/format/@value");
-    double FPS = Config.getDoubleParam("/camera/fps/@value");
+    //IFIXME: support attribute channel for v4l cameras
+    IntPoint CaptureSize(Config.getPointParam("/camera/size/"));
+    string sCaptureFormat = Config.getParam("/camera/format/@value");
+    double FrameRate = Config.getDoubleParam("/camera/fps/@value");
 
     if (!m_pEventDispatcher) {
         throw Exception(AVG_ERR_UNSUPPORTED, "You must use loadFile() before addTracker().");
     }
-
-    if (sSource == "v4l") {
-#ifdef AVG_ENABLE_V4L2
-        int Channel = Config.getIntParam("/camera/channel/@value");
-        AVG_TRACE(Logger::CONFIG, "Adding a Tracker for V4L camera " << sDevice
-                << " size=" << Size << " channel=" << Channel << " format=" 
-                << sPixFmt);
-        
-        pCamera = CameraPtr(new V4LCamera(sDevice, Channel, Size, sPixFmt, false));
-#else
-        AVG_TRACE(Logger::ERROR, "Video4Linux camera tracker requested, but " 
-                "Video4Linux support not compiled in.");
-        exit(1);
-#endif
-    } else if (sSource == "fw") {
-#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-        AVG_TRACE(Logger::CONFIG, "Adding a Tracker for FW camera " << 
-                sDevice << " size=" << Size << " format=" << sPixFmt);
-        pCamera = CameraPtr(new FWCamera(sDevice, Size, sPixFmt, FPS, false));
-#elif defined(AVG_ENABLE_CMU1394)
-        AVG_TRACE(Logger::CONFIG, "Adding a Tracker for FW camera " << 
-                sDevice << " size=" << Size << " format=" << sPixFmt);
-        pCamera = CameraPtr(new CMUCamera(sDevice, Size, sPixFmt, FPS, false));
-#else
-        AVG_TRACE(Logger::ERROR, "FW camera tracker requested, but " 
-                "FW support not compiled in.");
-        exit(1);
-#endif
-    } else if (sSource == "ds") {
-#ifdef AVG_ENABLE_DSHOW        
-        AVG_TRACE(Logger::CONFIG, "Adding a Tracker for DS camera " << 
-                sDevice << " size=" << Size << " format=" << sPixFmt);
-        pCamera = CameraPtr(new DSCamera(sDevice, Size, sPixFmt, FPS, false));
-#else
-        AVG_TRACE(Logger::ERROR, "DS camera tracker requested, but " 
-                "DS support not compiled in.");
-        exit(1);
-#endif        
-    } else {
-        throw Exception(AVG_ERR_INVALID_CAPTURE,
-                string("Invalid camera source value '")+sSource+
-                        "'. Can't initialize tracker.");
-    }
-    
+    AVG_TRACE(Logger::CONFIG, "Trying to create a Tracker for "<<sSource<<" Camera: "<< sDevice <<" Size: "<<CaptureSize << "format: "<<sCaptureFormat); 
+    pCamera = getCamera(sSource, sDevice, "", CaptureSize, sCaptureFormat, FrameRate );
+    AVG_TRACE(Logger::CONFIG, "Got Camera "<<pCamera->getDevice() <<" from driver: "<<pCamera->getDriverName());
     m_pTracker = new TrackerEventSource(pCamera, Config, 
             IntPoint(m_DP.m_Width, m_DP.m_Height), true);
     m_pEventDispatcher->addSource(m_pTracker);

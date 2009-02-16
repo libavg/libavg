@@ -24,6 +24,7 @@
 #include "CMUCamera.h"
 #include "CMUCameraUtils.h"
 
+#include "../base/Exception.h"
 #include "../base/Logger.h"
 #include "../base/StringHelper.h"
 #include "../base/TimeSource.h"
@@ -42,7 +43,6 @@ CMUCamera::CMUCamera(std::string sDevice, IntPoint Size, std::string sPF,
       m_sPF(sPF),
       m_Size(Size),
       m_FrameRate(FrameRate),
-      m_bCameraAvailable(false),
       m_bFlipRGB(false),
       m_WhitebalanceU(-1),
       m_WhitebalanceV(-1),
@@ -77,28 +77,12 @@ CMUCamera::CMUCamera(std::string sDevice, IntPoint Size, std::string sPF,
         m_OutputPixelFormat = I8;
     }
     m_pCamera = new C1394Camera();
-}
-
-CMUCamera::~CMUCamera()
-{
-    close();
-    delete m_pCamera;
-}
-
-void CMUCamera::open()
-{
     unsigned long videoFormat, videoMode;
     getVideoFormatAndMode(m_Size, m_sPF, &videoFormat, &videoMode);
 
     // Find and open camera
     if (m_pCamera->RefreshCameraList() <= 0) {
-        static bool bFirstWarning = true;
-        if (bFirstWarning) {
-            AVG_TRACE(Logger::WARNING, "No firewire cameras found.");
-            bFirstWarning = false;
-        }
-        m_bCameraAvailable = false;
-        return;
+        throw Exception(AVG_ERR_CAMERA, "No Firewire cameras found");
     }
     if (m_pCamera->SelectCamera(atoi(m_sDevice.c_str())) != CAM_SUCCESS) {
         fatalError(string("Error selecting camera") + m_sDevice);
@@ -125,7 +109,6 @@ void CMUCamera::open()
         fatalError("Error starting image acquisition");
     }
 
-    m_bCameraAvailable = true;
     
     AVG_TRACE(Logger::CONFIG, "Firewire camera opened.");
 
@@ -136,13 +119,12 @@ void CMUCamera::open()
     setWhitebalance(m_WhitebalanceU, m_WhitebalanceV, true);
 }
 
-void CMUCamera::close()
+CMUCamera::~CMUCamera()
 {
-    if (m_bCameraAvailable) {
-        m_pCamera->StopImageAcquisition();
-        m_bCameraAvailable = false;
-    }
+    m_pCamera->StopImageAcquisition();
+    delete m_pCamera;
 }
+
 
 IntPoint CMUCamera::getImgSize()
 {
@@ -151,14 +133,6 @@ IntPoint CMUCamera::getImgSize()
 
 BitmapPtr CMUCamera::getImage(bool bWait)
 {
-    if (!m_bCameraAvailable && bWait) {
-        msleep(1000);
-        open();
-    }
-    if (!m_bCameraAvailable) {
-        // Open failed
-        return BitmapPtr();
-    }
     if (bWait) {
         // XXX: Untested!
         unsigned rc = WaitForSingleObject(m_pCamera->GetFrameEvent(), INFINITE);
@@ -188,10 +162,6 @@ BitmapPtr CMUCamera::getImage(bool bWait)
     return pFrameBuffer;
 }
     
-bool CMUCamera::isCameraAvailable()
-{
-    return m_bCameraAvailable;
-}
 
 const string& CMUCamera::getDevice() const
 {
@@ -221,32 +191,30 @@ void CMUCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValu
 {
     if (bIgnoreOldValue || m_Features[Feature] != Value) {
         m_Features[Feature] = Value;
-        if (m_bCameraAvailable) {
-            if (Feature == CAM_FEATURE_STROBE_DURATION) {
-                if (m_pCamera->HasStrobe()) {
-                    C1394CameraControlStrobe* pControl = m_pCamera->GetStrobeControl(0);
-                    if (pControl->SetValue(Value) != CAM_SUCCESS) {
-                        AVG_TRACE(Logger::WARNING, "Error setting camera strobe.");
-                    }
-                } else {
-                    AVG_TRACE(Logger::WARNING, "Camera does not support strobe.");
+        if (Feature == CAM_FEATURE_STROBE_DURATION) {
+            if (m_pCamera->HasStrobe()) {
+                C1394CameraControlStrobe* pControl = m_pCamera->GetStrobeControl(0);
+                if (pControl->SetValue(Value) != CAM_SUCCESS) {
+                    AVG_TRACE(Logger::WARNING, "Error setting camera strobe.");
                 }
             } else {
-                CAMERA_FEATURE cmuFeature = getFeatureID(Feature);
-                if (m_pCamera->HasFeature(cmuFeature)) {
-                    bool bAuto = (Value == -1);
-                    
-                    C1394CameraControl* pControl = m_pCamera->GetCameraControl(cmuFeature);
+                AVG_TRACE(Logger::WARNING, "Camera does not support strobe.");
+            }
+        } else {
+            CAMERA_FEATURE cmuFeature = getFeatureID(Feature);
+            if (m_pCamera->HasFeature(cmuFeature)) {
+                bool bAuto = (Value == -1);
+                
+                C1394CameraControl* pControl = m_pCamera->GetCameraControl(cmuFeature);
 
-                    if ((pControl->SetAutoMode(bAuto) != CAM_SUCCESS) ||
-                            (!bAuto && pControl->SetValue(Value) != CAM_SUCCESS)) {
-                        AVG_TRACE(Logger::WARNING, string("Error setting camera feature: ") + 
-                                cameraFeatureToString(Feature));
-                    }
-                } else {
-                    AVG_TRACE(Logger::WARNING, string("Camera does not support feature: ") + 
+                if ((pControl->SetAutoMode(bAuto) != CAM_SUCCESS) ||
+                        (!bAuto && pControl->SetValue(Value) != CAM_SUCCESS)) {
+                    AVG_TRACE(Logger::WARNING, string("Error setting camera feature: ") + 
                             cameraFeatureToString(Feature));
                 }
+            } else {
+                AVG_TRACE(Logger::WARNING, string("Camera does not support feature: ") + 
+                        cameraFeatureToString(Feature));
             }
         }
     }
@@ -254,51 +222,41 @@ void CMUCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValu
 
 void CMUCamera::setFeatureOneShot(CameraFeature Feature)
 {
-    if (m_bCameraAvailable) {
-        CAMERA_FEATURE cmuFeature = getFeatureID(Feature);
-        if (cmuFeature != FEATURE_INVALID_FEATURE && m_pCamera->HasFeature(cmuFeature)) {
-            C1394CameraControl* pControl = m_pCamera->GetCameraControl(cmuFeature);
-            if (pControl->SetOnOff(false) != CAM_SUCCESS) {
-                AVG_TRACE(Logger::WARNING, string("Error setting feature: ") + 
-                        cameraFeatureToString(Feature));
-            }
-            if (pControl->SetAutoMode(false) != CAM_SUCCESS) {
-                AVG_TRACE(Logger::WARNING, string("Error setting feature: ") + 
-                        cameraFeatureToString(Feature));
-            }
-            if (pControl->SetOnePush(true) != CAM_SUCCESS) {
-                AVG_TRACE(Logger::WARNING, string("Error setting feature: ") + 
-                        cameraFeatureToString(Feature));
-            }
-        } else {
-            AVG_TRACE(Logger::WARNING, string("Camera does not support feature: ") + 
+    CAMERA_FEATURE cmuFeature = getFeatureID(Feature);
+    if (cmuFeature != FEATURE_INVALID_FEATURE && m_pCamera->HasFeature(cmuFeature)) {
+        C1394CameraControl* pControl = m_pCamera->GetCameraControl(cmuFeature);
+        if (pControl->SetOnOff(false) != CAM_SUCCESS) {
+            AVG_TRACE(Logger::WARNING, string("Error setting feature: ") + 
                     cameraFeatureToString(Feature));
         }
+        if (pControl->SetAutoMode(false) != CAM_SUCCESS) {
+            AVG_TRACE(Logger::WARNING, string("Error setting feature: ") + 
+                    cameraFeatureToString(Feature));
+        }
+        if (pControl->SetOnePush(true) != CAM_SUCCESS) {
+            AVG_TRACE(Logger::WARNING, string("Error setting feature: ") + 
+                    cameraFeatureToString(Feature));
+        }
+    } else {
+        AVG_TRACE(Logger::WARNING, string("Camera does not support feature: ") + 
+                cameraFeatureToString(Feature));
     }
 }
 
 int CMUCamera::getWhitebalanceU() const
 {
-    if (m_bCameraAvailable) {
-        unsigned short val1;
-        unsigned short val2;
-        internalGetFeature(CAM_FEATURE_WHITE_BALANCE, &val1, &val2);
-        return val1;
-    } else {
-        return m_WhitebalanceU;
-    }
+    unsigned short val1;
+    unsigned short val2;
+    internalGetFeature(CAM_FEATURE_WHITE_BALANCE, &val1, &val2);
+    return val1;
 }
 
 int CMUCamera::getWhitebalanceV() const
 {
-    if (m_bCameraAvailable) {
-        unsigned short val1;
-        unsigned short val2;
-        internalGetFeature(CAM_FEATURE_WHITE_BALANCE, &val1, &val2);
-        return val2;
-    } else {
-        return m_WhitebalanceV;
-    }
+    unsigned short val1;
+    unsigned short val2;
+    internalGetFeature(CAM_FEATURE_WHITE_BALANCE, &val1, &val2);
+    return val2;
 }
 
 void CMUCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
@@ -306,22 +264,20 @@ void CMUCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
     if (bIgnoreOldValue || m_WhitebalanceU != u || m_WhitebalanceV != v) {
         m_WhitebalanceU = u;
         m_WhitebalanceV = v;
-        if (m_bCameraAvailable) {
-            CAMERA_FEATURE cmuFeature = getFeatureID(CAM_FEATURE_WHITE_BALANCE);
-            if (m_pCamera->HasFeature(FEATURE_WHITE_BALANCE)) {
-                bool bAuto = (u == -1);
-                
-                C1394CameraControl* pControl = m_pCamera->GetCameraControl(cmuFeature);
+        CAMERA_FEATURE cmuFeature = getFeatureID(CAM_FEATURE_WHITE_BALANCE);
+        if (m_pCamera->HasFeature(FEATURE_WHITE_BALANCE)) {
+            bool bAuto = (u == -1);
+            
+            C1394CameraControl* pControl = m_pCamera->GetCameraControl(cmuFeature);
 
-                if ((pControl->SetAutoMode(bAuto) != CAM_SUCCESS) ||
-                        (!bAuto && pControl->SetValue(u, v) != CAM_SUCCESS)) {
-                    AVG_TRACE(Logger::WARNING, string("Error setting camera feature: ") + 
-                            cameraFeatureToString(CAM_FEATURE_WHITE_BALANCE));
-                }
-            } else {
-                AVG_TRACE(Logger::WARNING, string("Camera does not support feature: ") + 
+            if ((pControl->SetAutoMode(bAuto) != CAM_SUCCESS) ||
+                    (!bAuto && pControl->SetValue(u, v) != CAM_SUCCESS)) {
+                AVG_TRACE(Logger::WARNING, string("Error setting camera feature: ") + 
                         cameraFeatureToString(CAM_FEATURE_WHITE_BALANCE));
             }
+        } else {
+            AVG_TRACE(Logger::WARNING, string("Camera does not support feature: ") + 
+                    cameraFeatureToString(CAM_FEATURE_WHITE_BALANCE));
         }
     }
 }
@@ -331,28 +287,19 @@ void CMUCamera::internalGetFeature(CameraFeature Feature, unsigned short* val1,
 {
     *val1 = -1;
     *val2 = -1;
-    if (m_bCameraAvailable) {
-        CAMERA_FEATURE cmuFeature = getFeatureID(Feature);
-        if (m_pCamera->HasFeature(cmuFeature)) {
-            C1394CameraControl* pControl = m_pCamera->GetCameraControl(cmuFeature);
-            pControl->GetValue(val1, val2);
-        } else {
-            AVG_TRACE(Logger::WARNING, string("Error reading camera feature: ") + 
-                    cameraFeatureToString(Feature));
-        }
+    CAMERA_FEATURE cmuFeature = getFeatureID(Feature);
+    if (m_pCamera->HasFeature(cmuFeature)) {
+        C1394CameraControl* pControl = m_pCamera->GetCameraControl(cmuFeature);
+        pControl->GetValue(val1, val2);
     } else {
-        FeatureMap::const_iterator it = m_Features.find(Feature);
-        if (it != m_Features.end()) {
-            *val1 = it->second;
-        }
+        AVG_TRACE(Logger::WARNING, string("Error reading camera feature: ") + 
+                cameraFeatureToString(Feature));
     }
 }
 
 void CMUCamera::fatalError(const string & sMsg)
 {
-    AVG_TRACE(Logger::ERROR, sMsg);
-    close();
-    exit(1);
+    throw Exception(AVG_ERR_CAMERA, sMsg);
 }
 
 }

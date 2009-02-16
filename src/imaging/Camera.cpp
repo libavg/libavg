@@ -21,6 +21,27 @@
 
 #include "Camera.h"
 
+#include "../base/Logger.h"
+#include "../base/Exception.h"
+
+#include <cstdlib>
+
+//alright. I know this looks strange. Don't argue
+#if defined(AVG_ENABLE_1394_2) || defined(AVG_ENABLE_1394)
+#include "../imaging/FWCamera.h"
+#endif
+#ifdef AVG_ENABLE_V4L2
+#include "../imaging/V4LCamera.h"
+#endif
+#ifdef AVG_ENABLE_CMU1394
+#include "../imaging/CMUCamera.h"
+#endif
+#ifdef AVG_ENABLE_DSHOW
+#include "../imaging/DSCamera.h"
+#endif
+#include "../imaging/FakeCamera.h"
+
+
 namespace avg {
 
 std::string cameraFeatureToString(CameraFeature Feature)
@@ -71,6 +92,57 @@ std::string cameraFeatureToString(CameraFeature Feature)
         default:
             return "unknown";
     }
+}
+
+CameraPtr getCamera(const std::string& sSource, const std::string& sDevice, const std::string& sChannel, const IntPoint& CaptureSize, const std::string& sCaptureFormat, double FrameRate) {
+
+    CameraPtr pCamera;
+    try {
+        if (sSource == "firewire" || sSource == "fw") {
+#if defined(AVG_ENABLE_1394)\
+        || defined(AVG_ENABLE_1394_2)
+            //IFIXME parse sChannel and extract guid/unit
+        char *dummy;
+        pCamera = CameraPtr(new FWCamera(sDevice, strtoll(sChannel.c_str(),&dummy,10), -1, CaptureSize, sCaptureFormat, 
+                FrameRate, true));
+#elif defined(AVG_ENABLE_CMU1394)
+        pCamera = CameraPtr(new CMUCamera(sDevice, CaptureSize, sCaptureFormat, 
+                FrameRate, true));
+#else
+            AVG_TRACE(Logger::WARNING, "Firewire camera specified, but firewire "
+                    "support not compiled in.");
+#endif
+        } else if (sSource == "v4l") {
+#if defined(AVG_ENABLE_V4L2)
+            char *dummy;
+            int Channel = strtol(sChannel.c_str(), &dummy, 10);
+            pCamera = CameraPtr(new V4LCamera(sDevice, Channel,
+                CaptureSize, sCaptureFormat, true));
+#else
+            AVG_TRACE(Logger::WARNING, "Video4Linux camera specified, but "
+                    "Video4Linux support not compiled in.");
+#endif
+        } else if (sSource == "directshow") {
+#if defined(AVG_ENABLE_DSHOW)
+            pCamera = CameraPtr(new DSCamera(sDevice, CaptureSize, sCaptureFormat, 
+                FrameRate, true));
+#else
+            AVG_TRACE(Logger::WARNING, "DirectShow camera specified, but "
+                    "DirectShow is only available under windows.");
+#endif
+        } else {
+            throw Exception(AVG_ERR_INVALID_ARGS,
+                    "Unable to set up camera. Camera source '"+sSource+"' unknown.");
+        }
+    } catch (const Exception &e) {
+        AVG_TRACE(Logger::WARNING, e.GetStr());
+
+    }
+    if (!pCamera){
+        pCamera = CameraPtr(new FakeCamera());
+    }
+    return pCamera;
+
 }
 
 }

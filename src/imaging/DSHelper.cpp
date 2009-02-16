@@ -195,6 +195,7 @@ bool isDSFeatureCamControl(CameraFeature Feature)
         case CAM_FEATURE_HUE:
         case CAM_FEATURE_SATURATION:
         case CAM_FEATURE_GAMMA:
+        case CAM_FEATURE_GAIN:
             return false;
         case CAM_FEATURE_EXPOSURE:
         case CAM_FEATURE_IRIS:
@@ -204,7 +205,6 @@ bool isDSFeatureCamControl(CameraFeature Feature)
         case CAM_FEATURE_TILT:
             return true;
         case CAM_FEATURE_SHUTTER:
-        case CAM_FEATURE_GAIN:
         case CAM_FEATURE_TEMPERATURE:
         case CAM_FEATURE_TRIGGER:
         case CAM_FEATURE_OPTICAL_FILTER:
@@ -236,6 +236,8 @@ long getDSFeatureID(CameraFeature Feature)
             return VideoProcAmp_Saturation;
         case CAM_FEATURE_GAMMA:
             return VideoProcAmp_Gamma;
+        case CAM_FEATURE_GAIN:
+            return VideoProcAmp_Gain;
         case CAM_FEATURE_EXPOSURE:
             return CameraControl_Exposure;
         case CAM_FEATURE_IRIS:
@@ -249,7 +251,6 @@ long getDSFeatureID(CameraFeature Feature)
         case CAM_FEATURE_TILT:
             return CameraControl_Tilt;
         case CAM_FEATURE_SHUTTER:
-        case CAM_FEATURE_GAIN:
         case CAM_FEATURE_TEMPERATURE:
         case CAM_FEATURE_TRIGGER:
         case CAM_FEATURE_OPTICAL_FILTER:

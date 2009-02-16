@@ -47,13 +47,13 @@ DSCamera::DSCamera(std::string sDevice, IntPoint Size, std::string sPF,
       m_Size(Size),
       m_FrameRate(FrameRate),
       m_bColor(bColor),
-      m_bCameraAvailable(false),
       m_pGraph(0),
       m_pCapture(0),
       m_pCameraPropControl(0),
       m_pSampleQueue(0),
       m_sPF(sPF)
 {
+    open();
 }
 
 DSCamera::~DSCamera()
@@ -139,29 +139,24 @@ void DSCamera::open()
 
         hr = m_pMediaControl->Run(); // Start capturing
         checkForDShowError(hr, "DSCamera::open()::Run");
-
-        m_bCameraAvailable = true;
     } else {
-        m_bCameraAvailable = false;
+        throw(Exception(AVG_ERR_CAMERA,"DS Camera unavailable"));
     }
 }
 
 void DSCamera::close()
 {
-    if (m_bCameraAvailable) {
-        m_pAMCameraControl->Release();
-        m_pMediaControl->Stop();
-        RemoveGraphFromRot(m_GraphRegisterID);
-        m_pGraph->Release();
-        m_pCapture->Release();
-        m_pMediaControl->Release();
-        m_pCameraPropControl->Release();
-        m_pSrcFilter->Release();
-        m_pGrabFilter->Release();
-        m_pSampleGrabber->Release();
-        delete m_pSampleQueue;
-    }
-    m_bCameraAvailable = false;
+    m_pAMCameraControl->Release();
+    m_pMediaControl->Stop();
+    RemoveGraphFromRot(m_GraphRegisterID);
+    m_pGraph->Release();
+    m_pCapture->Release();
+    m_pMediaControl->Release();
+    m_pCameraPropControl->Release();
+    m_pSrcFilter->Release();
+    m_pGrabFilter->Release();
+    m_pSampleGrabber->Release();
+    delete m_pSampleQueue;
 }
 
 IntPoint DSCamera::getImgSize()
@@ -171,14 +166,6 @@ IntPoint DSCamera::getImgSize()
 
 BitmapPtr DSCamera::getImage(bool bWait)
 {
-    if (!m_bCameraAvailable && bWait) {
-        msleep(1000);
-        open();
-    }
-    if (!m_bCameraAvailable) {
-        // Open failed
-        return BitmapPtr();
-    }
 
     bool bGotFrame = true;
     BitmapPtr pBmp;
@@ -234,24 +221,18 @@ bool DSCamera::selectMediaType(bool bColor, bool bForce)
                 ", " << 10000000L/pvih->AvgTimePerFrame << " fps.";
         sImageFormats.push_back(ss.str());
 
-        if (m_sPF != "") {
-            if ( ((m_sPF == "MONO8" || m_sPF == "BY8_GBRG") && pmtConfig->subtype == MEDIASUBTYPE_Y800) ||
-                 (m_sPF == "YUV422" && pmtConfig->subtype == MEDIASUBTYPE_UYVY) )
-            {
-                bFormatFound = true;
-                break;
-            } else {
-                CoTaskMemFree((PVOID)pmtConfig->pbFormat);
-                CoTaskMemFree(pmtConfig);
-            }
-        } else if (bih.biWidth == m_Size.x && bih.biHeight == m_Size.y && 
+        if (bih.biWidth == m_Size.x && bih.biHeight == m_Size.y && 
+            (m_sPF == "")?
             ((bColor && 
                 (pmtConfig->subtype == MEDIASUBTYPE_YUY2 ||
                  pmtConfig->subtype == MEDIASUBTYPE_UYVY ||
                  pmtConfig->subtype == MEDIASUBTYPE_Y411 ||
                  pmtConfig->subtype == MEDIASUBTYPE_Y41P ||
                  pmtConfig->subtype == MEDIASUBTYPE_YVYU)) ||
-            (!bColor && pmtConfig->subtype == MEDIASUBTYPE_Y800)))
+                 (!bColor && pmtConfig->subtype == MEDIASUBTYPE_Y800))
+                 :((m_sPF == "MONO8" || m_sPF == "BY8_GBRG") && pmtConfig->subtype == MEDIASUBTYPE_Y800) ||
+                 (m_sPF == "YUV422" && pmtConfig->subtype == MEDIASUBTYPE_UYVY)
+            )
         {
             if (fabs(m_FrameRate-FrameRate) < 0.001) {
                 bFormatFound = true;
@@ -291,7 +272,7 @@ bool DSCamera::selectMediaType(bool bColor, bool bForce)
             AVG_TRACE(Logger::CONFIG, "Camera image format: (" << bih.biWidth 
                     << "x" << bih.biHeight << "), "
                     << mediaSubtypeToString(pmtCloseConfig->subtype) << ", " 
-                    << 10000000L/pvih->AvgTimePerFrame << " fps.");
+                    << 10000000L/pvih->AvgTimePerFrame << " fps (set manually).");
             hr = pSC->SetFormat(pmtCloseConfig);
             checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
             m_CameraPF = mediaSubtypeToPixelFormat(pmtCloseConfig->subtype, m_sPF);
@@ -315,10 +296,6 @@ bool DSCamera::selectMediaType(bool bColor, bool bForce)
     return bFormatFound;
 }
 
-bool DSCamera::isCameraAvailable()
-{
-    return m_bCameraAvailable;
-}
 
 const string& DSCamera::getDevice() const
 {
@@ -458,10 +435,8 @@ void DSCamera::findCaptureDevice(IBaseFilter ** ppSrcFilter)
     // If there are no enumerators for the requested type, then 
     // CreateClassEnumerator will succeed, but pClassEnum will be NULL.
     if (pClassEnum == NULL) {
-        AVG_TRACE(Logger::WARNING, "No DirectShow capture device found. Disabling camera.");
-        m_bCameraAvailable = false;
         *ppSrcFilter = 0;
-        return;
+        throw(Exception(AVG_ERR_CAMERA,"No DirectShow Capture Device found"));
     }
 
     vector<string> sDescriptions;
@@ -563,7 +538,7 @@ void DSCamera::fatalError(const string & sMsg)
 {
     AVG_TRACE(Logger::ERROR, sMsg);
     close();
-    exit(1);
+    throw(Exception(AVG_ERR_CAMERA, sMsg));
 }
 
 #pragma warning(disable : 4995)

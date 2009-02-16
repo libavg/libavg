@@ -22,7 +22,7 @@
 #ifndef _Camera_H_
 #define _Camera_H_
 
-#include "../api.h"
+#include "../avgconfigwrapper.h"
 #include "../graphics/Bitmap.h"
 
 #include <boost/shared_ptr.hpp>
@@ -61,12 +61,9 @@ class AVG_API Camera
 {
 public:
     virtual ~Camera() {};
-    virtual void open() = 0;
-    virtual void close() = 0;
 
     virtual IntPoint getImgSize() = 0;
     virtual BitmapPtr getImage(bool bWait) = 0;
-    virtual bool isCameraAvailable() = 0;
 
     virtual const std::string& getDevice() const = 0; 
     virtual const std::string& getDriverName() const = 0; 
@@ -83,6 +80,8 @@ public:
 
 typedef boost::shared_ptr<Camera> CameraPtr;
 typedef std::map<CameraFeature, int> FeatureMap;
+
+CameraPtr getCamera(const std::string& sSource, const std::string& sDevice, const std::string& sChannel, const IntPoint& CaptureSize, const std::string& sCaptureFormat, double FrameRate);
 
 }
 

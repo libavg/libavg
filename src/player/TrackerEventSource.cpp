@@ -36,9 +36,6 @@
 
 #include "../imaging/DeDistort.h"
 #include "../imaging/CoordTransformer.h"
-#if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-#include "../imaging/CameraUtils.h"
-#endif
 
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
@@ -95,7 +92,6 @@ namespace avg {
     
     void TrackerEventSource::start()
     {
-        m_pCamera->open();
         m_pTrackerThread = new boost::thread(
                 TrackerThread(
                     m_InitialROI,

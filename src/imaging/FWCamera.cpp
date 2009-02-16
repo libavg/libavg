@@ -42,14 +42,15 @@ namespace avg {
 
 using namespace std;
 
-FWCamera::FWCamera(std::string sDevice, IntPoint Size, std::string sPF,
-            double FrameRate, bool bColor)
+FWCamera::FWCamera(std::string sDevice, uint64_t Guid, int Unit, IntPoint Size, 
+        std::string sPF, double FrameRate, bool bColor)
     : m_sDevice(sDevice),
       m_sPF(sPF),
+      m_Guid(Guid),
+      m_Unit(Unit),
       m_Size(Size),
       m_FrameRate(FrameRate),
       m_bColor(bColor),
-      m_bCameraAvailable(false),
       m_WhitebalanceU(-1),
       m_WhitebalanceV(-1)
 {
@@ -57,15 +58,6 @@ FWCamera::FWCamera(std::string sDevice, IntPoint Size, std::string sPF,
     m_FrameRateConstant = getFrameRateConst(m_FrameRate);
     m_Mode = getCamMode(Size, sPF);
 #endif
-}
-
-FWCamera::~FWCamera()
-{
-    close();
-}
-
-void FWCamera::open()
-{
 #ifdef AVG_ENABLE_1394
     int CaptureFormat = 0;
     switch(m_Mode) {
@@ -96,16 +88,13 @@ void FWCamera::open()
         AVG_TRACE(Logger::ERROR,
                 "  - if you have read/write access to /dev/raw1394.");
 #endif
-        // TODO: Disable camera instead of exit(-1).
-        exit(-1);
+        throw Exception(AVG_ERR_CAMERA,"Unable to get a firewire handle");
     }
 
     /* get the number of ports (cards) */
     struct raw1394_portinfo ports[MAX_PORTS];
     int numPorts = 0;
     numPorts = raw1394_get_port_info(m_FWHandle, ports, numPorts);
-    raw1394_destroy_handle(m_FWHandle);
-    m_FWHandle = 0;
 
     bool bFound = false;
     int j;
@@ -115,7 +104,7 @@ void FWCamera::open()
             if (m_FWHandle != 0) {
                 dc1394_destroy_handle(m_FWHandle);
             }
-            bFound = findCameraOnPort(i, m_FWHandle);
+            bFound = findCameraOnPort(i);
         } /* next port */
     } /* next reset retry */
 
@@ -125,16 +114,13 @@ void FWCamera::open()
             AVG_TRACE(Logger::WARNING, "No firewire cameras found.");
             bFirstWarning = false;
         }
-        m_bCameraAvailable = false;
         if (m_FWHandle != 0) {
             dc1394_destroy_handle(m_FWHandle);
         }
-        return;
+        throw Exception(AVG_ERR_CAMERA,"No firewire cameras found.");
     }
-    m_bCameraAvailable = true;
     if (j == MAX_RESETS) {
-        AVG_TRACE(Logger::ERROR, "Failed to not make camera root node.");
-        exit(1);
+        throw Exception(AVG_ERR_CAMERA,"Failed to not make camera the root node");
     }
     int err;
 //    dumpCameraInfo();
@@ -156,13 +142,12 @@ void FWCamera::open()
         AVG_TRACE(Logger::ERROR, "supported by your camera.");
 //        dc1394_dma_release_camera(m_FWHandle,&m_Camera);
         dc1394_destroy_handle(m_FWHandle);
-        exit(1);
+        throw Exception(AVG_ERR_CAMERA,"Failed to setup firewire camera");
     }
 
     err = dc1394_start_iso_transmission(m_FWHandle, m_Camera.node);
     checkDC1394Error(err, "Unable to start camera iso transmission");
 #elif AVG_ENABLE_1394_2
-    m_bCameraAvailable = true;
     dc1394camera_list_t * pCameraList;
 
     m_pDC1394 = dc1394_new();
@@ -177,24 +162,45 @@ void FWCamera::open()
         AVG_TRACE(Logger::ERROR,
                 "  - if you have read/write access to /dev/raw1394.");
 #endif
-        exit(1);
+        dc1394_camera_free_list(pCameraList);
+        throw Exception(AVG_ERR_CAMERA,"Firewire failure");
     }
     
     if (pCameraList->num == 0) {
-        static bool bFirstWarning = true;
-        if (bFirstWarning) {
-            AVG_TRACE(Logger::WARNING, "No firewire cameras found.");
-            bFirstWarning = false;
-        }
-        m_bCameraAvailable = false;
-        return;
+        dc1394_camera_free_list(pCameraList);
+        throw Exception(AVG_ERR_CAMERA,"No firewire cameras found.");
     }
-    // This always uses the first camera on the bus.
-    m_pCamera=dc1394_camera_new(m_pDC1394, pCameraList->ids[0].guid);
+    {
+        dc1394camera_id_t *pCamera;
+        for(int i=0; i<pCameraList->num;++i)
+        {
+            AVG_TRACE(Logger::CONFIG,"Found firewire camera guid="<<pCameraList->ids[i].guid<<" unit="<<pCameraList->ids[i].unit);
+        }
+    }
+    int id_to_use = -1;
+    if (m_Guid != 0) {
+        dc1394camera_id_t *pCamera = 0;
+        for(int i=0; i<pCameraList->num;++i)
+        {
+            if (pCameraList->ids[i].guid == m_Guid) {
+                id_to_use = i;
+            }       
+        }
+        if ( id_to_use == -1 ){
+            AVG_TRACE(Logger::WARNING, "Firewire GUID="<<m_Guid<<" requested but not found on bus. Using first camera");
+            id_to_use = 0;
+        }
+    } else {
+        id_to_use = 0;
+    }
+    if (m_Unit != -1) {
+        m_pCamera = dc1394_camera_new_unit(m_pDC1394, pCameraList->ids[id_to_use].guid, m_Unit);
+    } else {
+        m_pCamera = dc1394_camera_new(m_pDC1394, pCameraList->ids[id_to_use].guid);
+    }
     if (!m_pCamera) {
-        AVG_TRACE(Logger::WARNING, "Could not initialize firewire camera.");
-        m_bCameraAvailable = false;
-        return;
+        dc1394_camera_free_list(pCameraList);
+        throw Exception(AVG_ERR_CAMERA,"Failed to initialize camera");
     }
 
     dc1394_camera_free_list(pCameraList);
@@ -222,7 +228,7 @@ void FWCamera::open()
         dc1394_capture_stop(m_pCamera);
         dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
         dc1394_camera_free(m_pCamera);
-        exit(1);
+        throw Exception(AVG_ERR_CAMERA,"Failed to initialize camera");
     }
 
     err = dc1394_video_set_framerate(m_pCamera, m_FrameRateConstant);
@@ -236,10 +242,13 @@ void FWCamera::open()
         dc1394_capture_stop(m_pCamera);
         dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
         dc1394_camera_free(m_pCamera);
-        exit(1);
+        throw Exception(AVG_ERR_CAMERA,"Failed to initialize camera");
     }
     if (dc1394_video_set_transmission(m_pCamera, DC1394_ON) !=DC1394_SUCCESS) {
-        fatalError("Unable to start camera iso transmission\n");
+        dc1394_capture_stop(m_pCamera);
+        dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
+        dc1394_camera_free(m_pCamera);
+        throw Exception(AVG_ERR_CAMERA,"Unable to start camera iso transmission");
     }
 
     dc1394switch_t status = DC1394_OFF;
@@ -248,12 +257,18 @@ void FWCamera::open()
     while( status == DC1394_OFF && i++ < 5 ) {
         usleep(50000);
         if (dc1394_video_get_transmission(m_pCamera, &status)!=DC1394_SUCCESS) {
-            fatalError("unable to get transmision status\n");
+        dc1394_capture_stop(m_pCamera);
+        dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
+        dc1394_camera_free(m_pCamera);
+        throw Exception(AVG_ERR_CAMERA,"unable to get transmision status");
         }
     }
 
     if( i == 5 ) {
-        fatalError("Camera doesn't seem to want to turn on!\n");
+        dc1394_capture_stop(m_pCamera);
+        dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
+        dc1394_camera_free(m_pCamera);
+        throw Exception(AVG_ERR_CAMERA,"Camera doesn't seem to want to turn on");
     }
 #endif
     // Default to turning off any camera sharpness manipulation.
@@ -265,23 +280,19 @@ void FWCamera::open()
     setWhitebalance(m_WhitebalanceU, m_WhitebalanceV, true);
 }
 
-void FWCamera::close()
+FWCamera::~FWCamera()
 {
-    if (m_bCameraAvailable) {
-
 #ifdef AVG_ENABLE_1394
-        dc1394_dma_unlisten(m_FWHandle, &m_Camera);
+    dc1394_dma_unlisten(m_FWHandle, &m_Camera);
 //        dc1394_dma_release_camera(m_FWHandle, &m_Camera);
-        dc1394_destroy_handle(m_FWHandle);
+    dc1394_destroy_handle(m_FWHandle);
 #elif AVG_ENABLE_1394_2
-        dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
-        dc1394_capture_stop(m_pCamera);
-        dc1394_camera_free(m_pCamera);
-        dc1394_free(m_pDC1394);
+    dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
+    dc1394_capture_stop(m_pCamera);
+    dc1394_camera_free(m_pCamera);
+    dc1394_free(m_pDC1394);
 #endif
-        m_bCameraAvailable = false;
-        AVG_TRACE(Logger::CONFIG, "Firewire camera closed.");
-    }
+    AVG_TRACE(Logger::CONFIG, "Firewire camera closed.");
 }
 
 IntPoint FWCamera::getImgSize()
@@ -293,19 +304,12 @@ IntPoint FWCamera::getImgSize()
 #endif
 }
 
+
 static ProfilingZone CameraConvertProfilingZone("FW Camera format conversion");
 
 BitmapPtr FWCamera::getImage(bool bWait)
 {
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-    if (!m_bCameraAvailable && bWait) {
-        msleep(1000);
-        open();
-    }
-    if (!m_bCameraAvailable) {
-        // Open failed
-        return BitmapPtr();
-    }
     BitmapPtr pCurBitmap;
     if (m_bColor || m_sPF == "BY8_GBRG") { 
         pCurBitmap = BitmapPtr(new Bitmap(m_Size, B8G8R8X8));
@@ -441,20 +445,31 @@ BitmapPtr FWCamera::getImage(bool bWait)
 #endif
 }
     
-bool FWCamera::isCameraAvailable()
-{
-    return m_bCameraAvailable;
-}
 
 const string& FWCamera::getDevice() const
 {
-    return m_sDevice;
+    static string deviceInfo;
+    stringstream ss;
+#ifdef AVG_ENABLE_1394_2
+    ss<<m_pCamera->vendor<<" "<<m_pCamera->model<<" (guid="<<m_pCamera->guid<<", unit="<<m_pCamera->unit<<")";
+#elif AVG_ENABLE_1394
+    dc1394_camerainfo info;
+    dc1394_get_camera_info(m_FWHandle,m_Camera.node,&info);
+    ss<<info.vendor<<" "<<info.model<<" (guid="<<info.euid_64<<")";
+#endif
+    deviceInfo = ss.str();
+    return deviceInfo;
 }
 
 const std::string& FWCamera::getDriverName() const
 {
-    static string sDriverName = "libdc1394";
+#ifdef AVG_ENABLE_1394
+    static string sDriverName = "libdc1394 v1";
     return sDriverName;
+#elif AVG_ENABLE_1394_2
+    static string sDriverName = "libdc1394 v2";
+    return sDriverName;
+#endif
 }
 
 double FWCamera::getFrameRate() const
@@ -481,19 +496,17 @@ void FWCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue
     if (bIgnoreOldValue || m_Features[Feature] != Value) {
         m_Features[Feature] = Value;
 #if defined(AVG_ENABLE_1394) || defined(AVG_ENABLE_1394_2)
-        if (m_bCameraAvailable) {
-            if (Feature == CAM_FEATURE_STROBE_DURATION) {
-                try {
-                    setStrobeDuration(Value);
-                } catch (Exception& e) {
-                    AVG_TRACE(Logger::WARNING, 
-                            string("Camera: Setting strobe duration failed. ")+e.GetStr());
-                }
-            } else {
-                dc1394feature_t FeatureID = getFeatureID(Feature);
-                setFeature(FeatureID, Value);
-                //        dumpCameraInfo();
+        if (Feature == CAM_FEATURE_STROBE_DURATION) {
+            try {
+                setStrobeDuration(Value);
+            } catch (Exception& e) {
+                AVG_TRACE(Logger::WARNING, 
+                        string("Camera: Setting strobe duration failed. ")+e.GetStr());
             }
+        } else {
+            dc1394feature_t FeatureID = getFeatureID(Feature);
+            setFeature(FeatureID, Value);
+            //        dumpCameraInfo();
         }
 #endif
     }
@@ -501,25 +514,23 @@ void FWCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue
 
 void FWCamera::setFeatureOneShot(CameraFeature Feature)
 {
-    if (m_bCameraAvailable) {
 #if defined(AVG_ENABLE_1394) 
-        dc1394feature_t FeatureID = getFeatureID(Feature);
-        dc1394_auto_on_off(m_FWHandle, m_Camera.node, Feature, 0);
-        int err = dc1394_start_one_push_operation(m_FWHandle, m_Camera.node, FeatureID);
-        if (err != DC1394_SUCCESS) {
-            AVG_TRACE(Logger::WARNING, "Camera: Unable to set one-shot for " 
-                    << cameraFeatureToString(Feature) << ". Error was " << err);
-        }
-#elif defined(AVG_ENABLE_1394_2)
-        dc1394feature_t FeatureID = getFeatureID(Feature);
-        dc1394error_t err = dc1394_feature_set_mode(m_pCamera, FeatureID, 
-                DC1394_FEATURE_MODE_ONE_PUSH_AUTO);
-        if (err != DC1394_SUCCESS) {
-            AVG_TRACE(Logger::WARNING, "Camera: Unable to set one-shot for " 
-                    << cameraFeatureToString(Feature) << ". Error was " << err);
-        }
-#endif
+    dc1394feature_t FeatureID = getFeatureID(Feature);
+    dc1394_auto_on_off(m_FWHandle, m_Camera.node, Feature, 0);
+    int err = dc1394_start_one_push_operation(m_FWHandle, m_Camera.node, FeatureID);
+    if (err != DC1394_SUCCESS) {
+        AVG_TRACE(Logger::WARNING, "Camera: Unable to set one-shot for " 
+                << cameraFeatureToString(Feature) << ". Error was " << err);
     }
+#elif defined(AVG_ENABLE_1394_2)
+    dc1394feature_t FeatureID = getFeatureID(Feature);
+    dc1394error_t err = dc1394_feature_set_mode(m_pCamera, FeatureID, 
+            DC1394_FEATURE_MODE_ONE_PUSH_AUTO);
+    if (err != DC1394_SUCCESS) {
+        AVG_TRACE(Logger::WARNING, "Camera: Unable to set one-shot for " 
+                << cameraFeatureToString(Feature) << ". Error was " << err);
+    }
+#endif
 }
 
 int FWCamera::getWhitebalanceU() const
@@ -543,37 +554,34 @@ void FWCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
     if (bIgnoreOldValue || u != m_WhitebalanceU || v != m_WhitebalanceV) {
         m_WhitebalanceU = u;
         m_WhitebalanceV = v;
-        if (m_bCameraAvailable) {
 #ifdef AVG_ENABLE_1394
-            int err;
-            if (u == -1) {
-                err = dc1394_auto_on_off(m_FWHandle, m_Camera.node, FEATURE_WHITE_BALANCE, 1);
-            } else {
-                err = dc1394_auto_on_off(m_FWHandle, m_Camera.node, FEATURE_WHITE_BALANCE, 0);
-                err = dc1394_set_white_balance(m_FWHandle, m_Camera.node, u, v); 
-            } 
-            if (err != DC1394_SUCCESS) {
-                AVG_TRACE(Logger::WARNING,
-                        "Camera: Unable to set whitebalance. Error was " << err);
-            }
-#elif AVG_ENABLE_1394_2
-            dc1394error_t err;
-            if (u == -1) {
-                err = dc1394_feature_set_mode(m_pCamera, DC1394_FEATURE_WHITE_BALANCE,
-                        DC1394_FEATURE_MODE_AUTO);
-            } else {
-                err = dc1394_feature_set_mode(m_pCamera, DC1394_FEATURE_WHITE_BALANCE, 
-                        DC1394_FEATURE_MODE_MANUAL);
-                err = dc1394_feature_whitebalance_set_value(m_pCamera, u, v);
-            }
-            if (err != DC1394_SUCCESS) {
-                AVG_TRACE(Logger::WARNING,
-                        "Camera: Unable to set whitebalance. Error was " << err);
-            }
-#endif
+        int err;
+        if (u == -1) {
+            err = dc1394_auto_on_off(m_FWHandle, m_Camera.node, FEATURE_WHITE_BALANCE, 1);
+        } else {
+            err = dc1394_auto_on_off(m_FWHandle, m_Camera.node, FEATURE_WHITE_BALANCE, 0);
+            err = dc1394_set_white_balance(m_FWHandle, m_Camera.node, u, v); 
+        } 
+        if (err != DC1394_SUCCESS) {
+            AVG_TRACE(Logger::WARNING,
+                    "Camera: Unable to set whitebalance. Error was " << err);
         }
+#elif AVG_ENABLE_1394_2
+        dc1394error_t err;
+        if (u == -1) {
+            err = dc1394_feature_set_mode(m_pCamera, DC1394_FEATURE_WHITE_BALANCE,
+                    DC1394_FEATURE_MODE_AUTO);
+        } else {
+            err = dc1394_feature_set_mode(m_pCamera, DC1394_FEATURE_WHITE_BALANCE, 
+                    DC1394_FEATURE_MODE_MANUAL);
+            err = dc1394_feature_whitebalance_set_value(m_pCamera, u, v);
+        }
+        if (err != DC1394_SUCCESS) {
+            AVG_TRACE(Logger::WARNING,
+                    "Camera: Unable to set whitebalance. Error was " << err);
+        }
+#endif
     }
-        
 }
 
 void FWCamera::setFeature(dc1394feature_t Feature, int Value)
@@ -664,52 +672,65 @@ void FWCamera::setStrobeDuration(int microsecs)
 
 void FWCamera::getWhitebalance(int* pU, int* pV) const
 {
-    if (m_bCameraAvailable) {
 #ifdef AVG_ENABLE_1394
-        int err = dc1394_get_white_balance(m_FWHandle, m_Camera.node, 
-                (uint32_t*)pU, (uint32_t*)pV); 
-        checkDC1394Error(err, "Unable to read out whitebalance.");
+    int err = dc1394_get_white_balance(m_FWHandle, m_Camera.node, 
+            (uint32_t*)pU, (uint32_t*)pV); 
+    checkDC1394Error(err, "Unable to read out whitebalance.");
 #elif AVG_ENABLE_1394_2
-        dc1394error_t err = dc1394_feature_whitebalance_get_value(m_pCamera, 
-                (uint32_t*)pU, (uint32_t*)pV);
-        checkDC1394Error(err, "Unable to read out whitebalance.");
+    dc1394error_t err = dc1394_feature_whitebalance_get_value(m_pCamera, 
+            (uint32_t*)pU, (uint32_t*)pV);
+    checkDC1394Error(err, "Unable to read out whitebalance.");
 #endif
-    } else {
-        *pU = m_WhitebalanceU;
-        *pV = m_WhitebalanceV;
-    }
 }
 
 #ifdef AVG_ENABLE_1394
-bool FWCamera::findCameraOnPort(int port, raw1394handle_t& FWHandle)
+bool FWCamera::findCameraOnPort(int port)
 {
     bool bFound = false;
-    FWHandle = dc1394_create_handle(port);
-    if (FWHandle == NULL) {
+    m_FWHandle = dc1394_create_handle(port);
+    if (m_FWHandle == NULL) {
         AVG_TRACE(Logger::ERROR,
                 "Unable to aquire a raw1394 handle for port "
                 << port << ".");
-        // TODO: Disable node instead of exit(-1).
-        exit(-1);
+
+        throw Exception(AVG_ERR_CAMERA, "Unable to acquire a raw1394 handle");
     }
     int numCameras = 0;
-    nodeid_t * camera_nodes = dc1394_get_camera_nodes(FWHandle, &numCameras, 0);
-    if (numCameras > 0) {
-        /* use the first camera found */
-        m_Camera.node = camera_nodes[0];
-        bFound = true;
-
-        /* camera can not be root--highest order node */
-        if (m_Camera.node == raw1394_get_nodecount(FWHandle)-1) {
-            /* reset and retry if root */
-            AVG_TRACE(Logger::WARNING,
-                    "Resetting firewire bus for camera support...");
-            raw1394_reset_bus(FWHandle);
-            sleep(2);
-            bFound = false;
-        }
-        dc1394_free_camera_nodes(camera_nodes);
+    nodeid_t * camera_nodes = dc1394_get_camera_nodes(m_FWHandle, &numCameras, 0);
+    if (numCameras <= 0) {
+        return bFound;
     }
+    int id_to_use = -1;
+    if (m_Guid != 0) {
+        for(int i=0; i<numCameras;++i)
+        {       
+
+            dc1394_camerainfo info;
+            dc1394_get_camera_info(m_FWHandle, camera_nodes[i], &info);
+            if (info.euid_64 == m_Guid) {
+                id_to_use = i;
+            }       
+        }
+        if ( id_to_use == -1 ){
+            AVG_TRACE(Logger::WARNING, "Firewire GUID="<<m_Guid<<" requested but not found on bus. Using first camera");
+            id_to_use = 0;
+        }
+    } else {
+        id_to_use = 0;
+    }
+    m_Camera.node = camera_nodes[id_to_use];
+    bFound = true;
+
+    /* camera can not be root--highest order node */
+    if (m_Camera.node == raw1394_get_nodecount(m_FWHandle)-1) {
+        /* reset and retry if root */
+        AVG_TRACE(Logger::WARNING,
+                "Resetting firewire bus for camera support...");
+        raw1394_reset_bus(m_FWHandle);
+        sleep(2);
+        bFound = false;
+    }
+    dc1394_free_camera_nodes(camera_nodes);
     return bFound;
 }
 #endif
@@ -726,8 +747,7 @@ void FWCamera::checkDC1394Error(int Code, const string & sMsg) const
 void FWCamera::fatalError(const string & sMsg)
 {
     AVG_TRACE(Logger::ERROR, sMsg);
-    close();
-    exit(1);
+    throw Exception(AVG_ERR_CAMERA, sMsg);
 }
 
 #ifdef AVG_ENABLE_1394

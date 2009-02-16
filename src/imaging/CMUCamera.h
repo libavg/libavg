@@ -38,12 +38,9 @@ public:
     CMUCamera(std::string sDevice, IntPoint Size, std::string sPF,
             double FrameRate, bool bColor);
     virtual ~CMUCamera();
-    virtual void open();
-    virtual void close();
 
     virtual IntPoint getImgSize();
     virtual BitmapPtr getImage(bool bWait);
-    virtual bool isCameraAvailable();
 
     virtual const std::string& getDevice() const; 
     virtual const std::string& getDriverName() const; 
@@ -61,7 +58,6 @@ private:
             unsigned short* val2) const;
     void fatalError(const std::string& sMsg);
 
-    bool m_bCameraAvailable;
     std::string m_sDevice;
     std::string m_sPF;
     IntPoint m_Size;

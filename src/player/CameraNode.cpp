@@ -31,17 +31,7 @@
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
 
-#include "../imaging/FWCamera.h"
-#include "../imaging/FakeCamera.h"
-#ifdef AVG_ENABLE_V4L2
-#include "../imaging/V4LCamera.h"
-#endif
-#ifdef AVG_ENABLE_CMU1394
-#include "../imaging/CMUCamera.h"
-#endif
-#ifdef AVG_ENABLE_DSHOW
-#include "../imaging/DSCamera.h"
-#endif
+#include "../imaging/Camera.h"
 
 #include <iostream>
 #include <sstream>
@@ -63,7 +53,7 @@ NodeDefinition CameraNode::createDefinition()
         .addArg(Arg<int>("capturewidth", 640))
         .addArg(Arg<int>("captureheight", 480))
         .addArg(Arg<string>("pixelformat", "RGB"))
-        .addArg(Arg<int>("channel", 0))
+        .addArg(Arg<string>("channel", ""))
         .addArg(Arg<int>("brightness", -1))
         .addArg(Arg<int>("exposure", -1))
         .addArg(Arg<int>("sharpness", -1))
@@ -79,51 +69,17 @@ CameraNode::CameraNode(const ArgList& Args, bool bFromXML)
 {
     Args.setMembers(this);
     string sDevice = Args.getArgVal<string>("device");
+    string sChannel = Args.getArgVal<string>("channel");
     double FrameRate = Args.getArgVal<double>("framerate");
     string sSource = Args.getArgVal<string>("source");
     int Width = Args.getArgVal<int>("capturewidth");
     int Height = Args.getArgVal<int>("captureheight");
     string sPF = Args.getArgVal<string>("pixelformat");
 
-    if (sSource == "firewire") {
-#if defined(AVG_ENABLE_1394)\
-    || defined(AVG_ENABLE_1394_2)
-    m_pCamera = CameraPtr(new FWCamera(sDevice, IntPoint(Width, Height), sPF, 
-            FrameRate, true));
-#elif defined(AVG_ENABLE_CMU1394)
-    m_pCamera = CameraPtr(new CMUCamera(sDevice, IntPoint(Width, Height), sPF, 
-            FrameRate, true));
-#else
-        AVG_TRACE(Logger::WARNING, "Firewire camera specified, but firewire "
-                "support not compiled in.");
-#endif
-    } else if (sSource == "v4l") {
-#if defined(AVG_ENABLE_V4L2)
-        int Channel = Args.getArgVal<int>("channel");
-        
-        m_pCamera = CameraPtr(new V4LCamera(sDevice, Channel,
-            IntPoint(Width, Height), sPF, true));
-#else
-        AVG_TRACE(Logger::WARNING, "Video4Linux camera specified, but "
-                "Video4Linux support not compiled in.");
-#endif
-    } else if (sSource == "directshow") {
-#if defined(AVG_ENABLE_DSHOW)
-        m_pCamera = CameraPtr(new DSCamera(sDevice, IntPoint(Width, Height), sPF, 
-            FrameRate, true));
-#else
-        AVG_TRACE(Logger::WARNING, "DirectShow camera specified, but "
-                "DirectShow is only available under windows.");
-#endif
-    } else {
-        throw Exception(AVG_ERR_INVALID_ARGS,
-                "Unable to set up camera. Camera source '"+sSource+"' unknown.");
-    }
 
-    if (!m_pCamera) {
-        m_pCamera = CameraPtr(new FakeCamera());
-    }
-
+    m_pCamera = getCamera(sSource, sDevice, sChannel, IntPoint(Width, Height), sPF, FrameRate);
+    AVG_TRACE(Logger::CONFIG, "Got Camera "<<m_pCamera->getDevice() <<" from driver: "<<m_pCamera->getDriverName());
+    
     m_pCamera->setFeature(CAM_FEATURE_BRIGHTNESS,
             Args.getArgVal<int>("brightness"));
     m_pCamera->setFeature(CAM_FEATURE_EXPOSURE,
@@ -144,7 +100,7 @@ CameraNode::CameraNode(const ArgList& Args, bool bFromXML)
 
 CameraNode::~CameraNode()
 {
-    close();
+    m_pCamera = CameraPtr();
 }
 
 void CameraNode::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
@@ -260,12 +216,12 @@ double CameraNode::getFPS()
 
 void CameraNode::open(YCbCrMode ycbcrMode)
 {
-    m_pCamera->open();
+    //m_pCamera->open();
 }
 
 void CameraNode::close()
 {
-    m_pCamera->close();
+    //m_pCamera->close();
 }
 
 int CameraNode::getFeature(CameraFeature Feature) const

@@ -44,8 +44,6 @@ class AVG_API V4LCamera: public Camera {
         V4LCamera(std::string sDevice, int Channel, IntPoint Size,
             const std::string &PixelFormat, bool bColor);
         virtual ~V4LCamera();
-        virtual void open();
-        virtual void close();
 
         virtual IntPoint getImgSize();
         virtual BitmapPtr getImage(bool bWait);
@@ -79,6 +77,7 @@ class AVG_API V4LCamera: public Camera {
         void initDevice();
         void startCapture();
         void initMMap();
+        virtual void close();
         
         void setFeature(V4LCID_t V4LFeature, int Value);
         V4LCID_t getFeatureID(CameraFeature Feature) const;

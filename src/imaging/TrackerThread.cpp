@@ -187,7 +187,7 @@ bool TrackerThread::work()
 
 void TrackerThread::deinit()
 {
-    m_pCamera->close();
+    m_pCamera = CameraPtr();
     AVG_TRACE(Logger::PROFILE, "Total camera frames: " << m_NumFrames);
     AVG_TRACE(Logger::PROFILE, "Camera frames discarded: " << m_NumCamFramesDiscarded);
     if (m_pBandpassFilter) {
