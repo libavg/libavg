@@ -234,16 +234,6 @@ void OGLTexture::downloadTexture(int i, BitmapPtr pBmp, int stride,
     if (MemoryMode == OGL) {
         pStartPos += (ptrdiff_t)(pBmp->getPixels());
     }
-#ifdef __APPLE__
-    // Under Mac OS X 10.5.0 and 10.5.1, the combination of glTexSubImage2D, 
-    // GL_ALPHA and PBO is broken if pStartPos is 0. So we use an offset. 
-    // There's corresponding code in OGLSurface that undoes this... bleagh.
-    if (MemoryMode == PBO && 
-            (m_pf == I8 || m_pf == YCbCr420p || m_pf == YCbCrJ420p || m_pf == YCbCr422)) 
-    {
-        pStartPos += 4;
-    }
-#endif
     {
         ScopeTimer Timer(TexSubImageProfilingZone);
         glTexSubImage2D(TextureMode, 0, 0, 0, Extent.width(), Extent.height(),
