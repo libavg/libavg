@@ -537,7 +537,6 @@ void DSCamera::getUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, IPi
 void DSCamera::fatalError(const string & sMsg)
 {
     AVG_TRACE(Logger::ERROR, sMsg);
-    close();
     throw(Exception(AVG_ERR_CAMERA, sMsg));
 }
 
