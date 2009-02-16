@@ -45,9 +45,9 @@ using namespace std;
 FWCamera::FWCamera(std::string sDevice, uint64_t Guid, int Unit, IntPoint Size, 
         std::string sPF, double FrameRate, bool bColor)
     : m_sDevice(sDevice),
-      m_sPF(sPF),
       m_Guid(Guid),
       m_Unit(Unit),
+      m_sPF(sPF),
       m_Size(Size),
       m_FrameRate(FrameRate),
       m_bColor(bColor),
@@ -170,17 +170,13 @@ FWCamera::FWCamera(std::string sDevice, uint64_t Guid, int Unit, IntPoint Size,
         dc1394_camera_free_list(pCameraList);
         throw Exception(AVG_ERR_CAMERA,"No firewire cameras found.");
     }
+    for(unsigned i=0; i<pCameraList->num;++i)
     {
-        dc1394camera_id_t *pCamera;
-        for(int i=0; i<pCameraList->num;++i)
-        {
-            AVG_TRACE(Logger::CONFIG,"Found firewire camera guid="<<pCameraList->ids[i].guid<<" unit="<<pCameraList->ids[i].unit);
-        }
+        AVG_TRACE(Logger::CONFIG,"Found firewire camera guid="<<pCameraList->ids[i].guid<<" unit="<<pCameraList->ids[i].unit);
     }
     int id_to_use = -1;
     if (m_Guid != 0) {
-        dc1394camera_id_t *pCamera = 0;
-        for(int i=0; i<pCameraList->num;++i)
+        for(unsigned i=0; i<pCameraList->num;++i)
         {
             if (pCameraList->ids[i].guid == m_Guid) {
                 id_to_use = i;
