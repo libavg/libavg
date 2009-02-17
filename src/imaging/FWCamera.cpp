@@ -151,6 +151,9 @@ FWCamera::FWCamera(std::string sDevice, uint64_t Guid, int Unit, IntPoint Size,
     dc1394camera_list_t * pCameraList;
 
     m_pDC1394 = dc1394_new();
+    if (m_pDC1394 == 0) {
+        throw Exception(AVG_ERR_CAMERA, "Failed to initialize firewire subsystem");
+    }
     int err=dc1394_camera_enumerate(m_pDC1394, &pCameraList);
 
     if (err!=DC1394_SUCCESS) {
