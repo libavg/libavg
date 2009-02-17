@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Image_H_
-#define _Image_H_
+#ifndef _ImageNode_H_
+#define _ImageNode_H_
 
 #include "../api.h"
 #include "RasterNode.h"
@@ -31,13 +31,13 @@
 
 namespace avg {
 
-class AVG_API Image : public RasterNode
+class AVG_API ImageNode : public RasterNode
 {
     public:
         static NodeDefinition createDefinition();
         
-        Image(const ArgList& Args, bool bFromXML);
-        virtual ~Image();
+        ImageNode(const ArgList& Args, bool bFromXML);
+        virtual ~ImageNode();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
         virtual void connect();

@@ -27,7 +27,7 @@
 #include "Words.h"
 #include "Video.h"
 #include "CameraNode.h"
-#include "Image.h"
+#include "ImageNode.h"
 #include "PanoImage.h"
 #include "Sound.h"
 #include "LineNode.h"
@@ -111,7 +111,7 @@ Player::Player()
     // Register all node types
     registerNodeType(AVGNode::createDefinition());
     registerNodeType(DivNode::createDefinition());
-    registerNodeType(Image::createDefinition());
+    registerNodeType(ImageNode::createDefinition());
     registerNodeType(Words::createDefinition());
     registerNodeType(Video::createDefinition());
     registerNodeType(CameraNode::createDefinition());

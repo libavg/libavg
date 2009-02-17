@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "Image.h"
+#include "ImageNode.h"
 
 #include "DisplayEngine.h"
 #include "Player.h"
@@ -42,38 +42,38 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition Image::createDefinition()
+NodeDefinition ImageNode::createDefinition()
 {
-    return NodeDefinition("image", Node::buildNode<Image>)
+    return NodeDefinition("image", Node::buildNode<ImageNode>)
         .extendDefinition(RasterNode::createDefinition())
-        .addArg(Arg<string>("href", "", false, offsetof(Image, m_href)));
+        .addArg(Arg<string>("href", "", false, offsetof(ImageNode, m_href)));
 }
 
-Image::Image(const ArgList& Args, bool bFromXML)
+ImageNode::ImageNode(const ArgList& Args, bool bFromXML)
     : m_bIsImageAvailable(false)
 {
     Args.setMembers(this);
     setHRef(m_href);
 }
 
-Image::~Image()
+ImageNode::~ImageNode()
 {
 }
 
-void Image::setRenderingEngines(DisplayEngine * pDisplayEngine,
+void ImageNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
         AudioEngine * pAudioEngine)
 {
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
     setupSurface();
 }
 
-void Image::connect()
+void ImageNode::connect()
 {
     RasterNode::connect();
     checkReload();
 }
 
-void Image::disconnect()
+void ImageNode::disconnect()
 {
     if (getState() == NS_CANRENDER) {
         // Unload textures but keep bitmap in memory.
@@ -96,12 +96,12 @@ void Image::disconnect()
     RasterNode::disconnect();
 }
 
-const std::string& Image::getHRef() const
+const std::string& ImageNode::getHRef() const
 {
     return m_href;
 }
 
-void Image::setHRef(const string& href)
+void ImageNode::setHRef(const string& href)
 {
     m_href = href;
     load();
@@ -109,7 +109,7 @@ void Image::setHRef(const string& href)
     setViewport(-32767, -32767, Size.x, Size.y);
 }
 
-void Image::setBitmap(const Bitmap * pBmp)
+void ImageNode::setBitmap(const Bitmap * pBmp)
 {
     // TODO: Add a unique bitmap identifier to the URI.
     m_bIsImageAvailable = true;
@@ -164,9 +164,9 @@ void Image::setBitmap(const Bitmap * pBmp)
     setViewport(-32767, -32767, Size.x, Size.y);
 }
 
-static ProfilingZone RenderProfilingZone("Image::render");
+static ProfilingZone RenderProfilingZone("ImageNode::render");
 
-void Image::render(const DRect& Rect)
+void ImageNode::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_bIsImageAvailable) {
@@ -174,7 +174,7 @@ void Image::render(const DRect& Rect)
     }
 }
 
-IntPoint Image::getMediaSize()
+IntPoint ImageNode::getMediaSize()
 {
     if (getState() == NS_CANRENDER) {
         return getSurface()->getSize();
@@ -183,7 +183,7 @@ IntPoint Image::getMediaSize()
     }
 }
 
-void Image::checkReload()
+void ImageNode::checkReload()
 {
     string sLastFilename = m_Filename;
     m_Filename = m_href;
@@ -197,7 +197,7 @@ void Image::checkReload()
     }
 }
 
-Bitmap * Image::getBitmap()
+Bitmap * ImageNode::getBitmap()
 {
     if (getState() == NS_CANRENDER) {
         return RasterNode::getBitmap();
@@ -208,7 +208,7 @@ Bitmap * Image::getBitmap()
     }
 }
 
-void Image::load()
+void ImageNode::load()
 {
     m_Filename = m_href;
     m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
@@ -233,7 +233,7 @@ void Image::load()
     }
 }
 
-void Image::setupSurface()
+void ImageNode::setupSurface()
 {
     PixelFormat pf;
     pf = R8G8B8X8;
