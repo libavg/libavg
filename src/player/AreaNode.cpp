@@ -343,8 +343,7 @@ void AreaNode::maybeRender(const DRect& Rect)
             } else {
                 AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
             }
-            SDLDisplayEngine * pEngine = dynamic_cast<SDLDisplayEngine*>(
-                    getDisplayEngine());
+            SDLDisplayEngine * pEngine = getDisplayEngine();
             pEngine->pushTransform(getRelViewport().tl, getAngle(), getPivot());
             pEngine->enableGLColorArray(false);
             pEngine->enableTexture(true);

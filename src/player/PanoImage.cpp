@@ -91,8 +91,8 @@ void PanoImage::render(const DRect& Rect)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImage::render: glPushMatrix()");
     glproc::ActiveTexture(GL_TEXTURE0);
-    if (getSDLEngine()->getTextureMode() != GL_TEXTURE_2D) {
-        glDisable(getSDLEngine()->getTextureMode());
+    if (getDisplayEngine()->getTextureMode() != GL_TEXTURE_2D) {
+        glDisable(getDisplayEngine()->getTextureMode());
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
                 "PanoImage::render: glDisable(Old texture mode);");
         glEnable(GL_TEXTURE_2D);
@@ -176,11 +176,11 @@ void PanoImage::render(const DRect& Rect)
     glViewport(0, 0, getDisplayEngine()->getWidth(), getDisplayEngine()->getHeight());
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
             "PanoImage::render: glViewport() restore");
-    if (getSDLEngine()->getTextureMode() != GL_TEXTURE_2D) {
+    if (getDisplayEngine()->getTextureMode() != GL_TEXTURE_2D) {
         glDisable(GL_TEXTURE_2D);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
                 "PanoImage::render: glDisable(GL_TEXTURE_2D);");
-        glEnable(getSDLEngine()->getTextureMode());
+        glEnable(getDisplayEngine()->getTextureMode());
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL,
                 "PanoImage::render: glEnable(Old texture mode);");
     }
@@ -381,11 +381,6 @@ void PanoImage::clearTextures()
         glDeleteTextures(1, &TexID);
     }
     m_TileTextureIDs.clear();
-}
-
-SDLDisplayEngine * PanoImage::getSDLEngine()
-{
-    return dynamic_cast<SDLDisplayEngine*>(getDisplayEngine());
 }
 
 }

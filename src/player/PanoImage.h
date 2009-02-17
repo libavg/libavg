@@ -71,8 +71,6 @@ class AVG_API PanoImage: public AreaNode
         void setupTextures();
         void clearTextures();
 
-        SDLDisplayEngine * getSDLEngine();
-    
         std::string m_href;
         std::string m_Filename;
         double m_SensorWidth;

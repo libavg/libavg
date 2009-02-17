@@ -168,7 +168,7 @@ static ProfilingZone RenderProfilingZone("VectorNode::render");
 void VectorNode::render(const DRect& rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    SDLDisplayEngine * pEngine = dynamic_cast<SDLDisplayEngine*>(getDisplayEngine());
+    SDLDisplayEngine * pEngine = getDisplayEngine();
     if (m_bIsTextured) {
         glproc::ActiveTexture(GL_TEXTURE0);
         glBindTexture(pEngine->getTextureMode(), m_TexID);
@@ -247,7 +247,7 @@ void VectorNode::setDrawNeeded(bool bSizeChanged)
         
 DPoint VectorNode::calcTexCoord(const DPoint& origCoord)
 {
-    SDLDisplayEngine * pEngine = dynamic_cast<SDLDisplayEngine*>(getDisplayEngine());
+    SDLDisplayEngine * pEngine = getDisplayEngine();
     if (pEngine->getTextureMode() == GL_TEXTURE_2D || !m_pSurface) {
         return origCoord;
     } else {
@@ -289,8 +289,7 @@ void VectorNode::setupSurface()
         pf = R8G8B8A8;
     }
     if (!m_pSurface) {
-        m_pSurface = new OGLSurface(dynamic_cast<SDLDisplayEngine*>(
-                getDisplayEngine()));
+        m_pSurface = new OGLSurface(getDisplayEngine());
     }
     m_pSurface->create(m_pBmp->getSize(), pf, true);
     createTexture();
@@ -311,7 +310,7 @@ void VectorNode::createTexture()
     PixelFormat pf = m_pSurface->getPixelFormat();
     IntPoint size = m_pSurface->getSize();
 
-    SDLDisplayEngine* pEngine = dynamic_cast<SDLDisplayEngine*>(getDisplayEngine());
+    SDLDisplayEngine* pEngine = getDisplayEngine();
     glGenTextures(1, &m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VectorNode::createTexture: glGenTextures()");
     glproc::ActiveTexture(GL_TEXTURE0);
@@ -346,7 +345,7 @@ void VectorNode::createTexture()
 
 void VectorNode::downloadTexture(BitmapPtr pBmp) const
 {
-    SDLDisplayEngine* pEngine = dynamic_cast<SDLDisplayEngine*>(getDisplayEngine());
+    SDLDisplayEngine* pEngine = getDisplayEngine();
     PixelFormat pf = m_pSurface->getPixelFormat();
     IntPoint size = m_pSurface->getSize();
     m_pSurface->bindPBO();

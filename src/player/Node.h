@@ -38,6 +38,7 @@ class DivNode;
 class AVGNode;
 class ArgList;
 class DisplayEngine;
+class SDLDisplayEngine;
 class AudioEngine;
 class Player;
 class NodeDefinition;
@@ -99,7 +100,7 @@ class AVG_API Node
 
     protected:
         Node();
-        DisplayEngine * getDisplayEngine() const;
+        SDLDisplayEngine * getDisplayEngine() const;
         AudioEngine * getAudioEngine() const;
         NodePtr getThis() const;
         void setState(NodeState State);
@@ -108,7 +109,7 @@ class AVG_API Node
     private:
         DivNodeWeakPtr m_pParent;
         NodeWeakPtr m_This;
-        DisplayEngine * m_pDisplayEngine;
+        SDLDisplayEngine * m_pDisplayEngine;
         AudioEngine * m_pAudioEngine;
 
         std::string m_ID;
