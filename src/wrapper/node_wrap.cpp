@@ -291,6 +291,9 @@ void export_node()
                return_value_policy<copy_const_reference>()), &VectorNode::setColor,
                "The color of the strokes in standard html color notation:\n" 
                 "FF0000 is red, 00FF00 green, etc.\n")
+        .add_property("texhref", make_function(&VectorNode::getTexHRef,
+               return_value_policy<copy_const_reference>()), &VectorNode::setTexHRef,
+               "An image file to use as a texture for the node.\n")
     ;
 
     class_<LineNode, bases<VectorNode>, boost::noncopyable>("LineNode", 
@@ -303,6 +306,8 @@ void export_node()
         .add_property("y2", &LineNode::getY2, &LineNode::setY2)
         .add_property("pos2", make_function(&LineNode::getPos2,
                return_value_policy<copy_const_reference>()), &LineNode::setPos2)
+        .add_property("texcoord1", &LineNode::getTexCoord1, &LineNode::setTexCoord1)
+        .add_property("texcoord2", &LineNode::getTexCoord2, &LineNode::setTexCoord2)
     ;
 
     class_<RectNode, bases<VectorNode>, boost::noncopyable>("RectNode", 

@@ -52,7 +52,7 @@ NodeDefinition CurveNode::createDefinition()
 }
 
 CurveNode::CurveNode(const ArgList& Args, bool bFromXML)
-    : VectorNode()
+   : VectorNode(Args)
 {
     Args.setMembers(this);
 }

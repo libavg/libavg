@@ -55,6 +55,12 @@ class AVG_API LineNode : public VectorNode
         const DPoint& getPos2() const;
         void setPos2(const DPoint& pt);
 
+        double getTexCoord1() const;
+        void setTexCoord1(double tc);
+
+        double getTexCoord2() const;
+        void setTexCoord2(double tc);
+
         virtual int getNumVertexes();
         virtual int getNumIndexes();
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity);
@@ -62,6 +68,8 @@ class AVG_API LineNode : public VectorNode
     private:
         DPoint m_P1;
         DPoint m_P2;
+        double m_TC1;
+        double m_TC2;
 };
 
 }

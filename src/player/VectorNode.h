@@ -27,8 +27,11 @@
 
 #include "../graphics/Pixel32.h"
 #include "../graphics/VertexArray.h"
+#include "../graphics/Bitmap.h"
 
 namespace avg {
+
+class OGLSurface;
 
 class AVG_API WideLine
 {
@@ -48,18 +51,20 @@ class AVG_API VectorNode : public Node
     public:
         static NodeDefinition createDefinition();
         
-        VectorNode();
+        VectorNode(const ArgList& Args);
         virtual ~VectorNode();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
+        virtual void connect();
         virtual void disconnect();
+
+        const std::string& getTexHRef() const;
+        void setTexHRef(const std::string& href);
 
         virtual void preRender();
         virtual void maybeRender(const DRect& Rect);
         virtual void render(const DRect& rect);
-
-//        void updateData(VertexArrayPtr& pVertexArray, int curVertex, int curIndex, 
-//                double opacity, bool bParentDrawNeeded, bool bPosChanged);
+        virtual void checkReload();
 
         virtual int getNumVertexes() = 0;
         virtual int getNumIndexes() = 0;
@@ -73,9 +78,10 @@ class AVG_API VectorNode : public Node
 
     protected:
         Pixel32 getColorVal() const;
-        void updateLineData(VertexArrayPtr& pVertexArray,
-                double opacity, const DPoint& p1, const DPoint& p2);
+        void updateLineData(VertexArrayPtr& pVertexArray, double opacity, 
+                const DPoint& p1, const DPoint& p2, double TC1=0, double TC2=1);
         void setDrawNeeded(bool bSizeChanged);
+        DPoint calcTexCoord(const DPoint& origCoord);
 
     private:
         std::string m_sColorName;
@@ -86,6 +92,18 @@ class AVG_API VectorNode : public Node
         bool m_bDrawNeeded;
         bool m_bVASizeChanged;
         double m_OldOpacity;
+
+        // Texture stuff
+        void loadTex();
+        void setupSurface();
+        void createTexture();
+        void downloadTexture(BitmapPtr pBmp) const;
+        std::string m_TexFilename;
+        std::string m_TexHRef;
+        BitmapPtr m_pBmp;
+        bool m_bIsTextured;
+        OGLSurface * m_pSurface;
+        unsigned m_TexID;
 };
 
 typedef boost::shared_ptr<VectorNode> VectorNodePtr;

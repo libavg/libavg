@@ -26,13 +26,12 @@
 #include "OGLTiledSurface.h"
 #include "NodeDefinition.h"
 
-#include "../graphics/Filtercolorize.h"
-#include "../graphics/Filterfliprgb.h"
-
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
 #include "../base/Exception.h"
+
+#include "../graphics/Filterfliprgb.h"
 
 #include <Magick++.h>
 
@@ -50,18 +49,19 @@ NodeDefinition Image::createDefinition()
         .addArg(Arg<string>("href", "", false, offsetof(Image, m_href)));
 }
 
-Image::Image (const ArgList& Args, bool bFromXML)
+Image::Image(const ArgList& Args, bool bFromXML)
     : m_bIsImageAvailable(false)
 {
     Args.setMembers(this);
     setHRef(m_href);
 }
 
-Image::~Image ()
+Image::~Image()
 {
 }
 
-void Image::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
+void Image::setRenderingEngines(DisplayEngine * pDisplayEngine,
+        AudioEngine * pAudioEngine)
 {
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
     setupSurface();
@@ -79,7 +79,8 @@ void Image::disconnect()
         // Unload textures but keep bitmap in memory.
         OGLTiledSurface * pSurface = getSurface();
         BitmapPtr pSurfaceBmp = pSurface->lockBmp();
-        m_pBmp = BitmapPtr(new Bitmap(pSurfaceBmp->getSize(), pSurfaceBmp->getPixelFormat()));
+        m_pBmp = BitmapPtr(new Bitmap(pSurfaceBmp->getSize(), 
+                pSurfaceBmp->getPixelFormat()));
         m_pBmp->copyPixels(*pSurfaceBmp);
         pSurface->unlockBmps();
 #ifdef __i386__
@@ -104,9 +105,6 @@ void Image::setHRef(const string& href)
 {
     m_href = href;
     load();
-    if (getState() == NS_CANRENDER) {
-        setupSurface();
-    }
     IntPoint Size = getMediaSize();
     setViewport(-32767, -32767, Size.x, Size.y);
 }
@@ -194,9 +192,6 @@ void Image::checkReload()
     }
     if (sLastFilename != m_Filename || !m_pBmp) {
         load();
-        if (getState() == NS_CANRENDER) {
-            setupSurface();
-        }
         IntPoint Size = getMediaSize();
         setViewport(-32767, -32767, Size.x, Size.y);
     }
@@ -233,6 +228,9 @@ void Image::load()
         }
     }
     assert(m_pBmp);
+    if (getState() == NS_CANRENDER) {
+        setupSurface();
+    }
 }
 
 void Image::setupSurface()

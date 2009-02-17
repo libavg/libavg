@@ -44,12 +44,14 @@ NodeDefinition PolyLineNode::createDefinition()
 }
 
 PolyLineNode::PolyLineNode(const ArgList& Args, bool bFromXML)
+    : VectorNode(Args)
 {
     Args.setMembers(this);
     setLineJoin(Args.getArgVal<string>("linejoin"));
 }
 
-PolyLineNode::PolyLineNode()
+PolyLineNode::PolyLineNode(const ArgList& Args)
+    : VectorNode(Args)
 {
 }
 

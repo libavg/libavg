@@ -459,24 +459,6 @@ void AreaNode::addEventHandler(Event::Type EventType, Event::Source Source,
     }
 }
 
-void AreaNode::initFilename(string& sFilename)
-{
-    bool bAbsDir = sFilename[0] == '/';
-#ifdef _WIN32
-    if (!bAbsDir) {
-        bAbsDir = (sFilename[0] == '\\' || sFilename[1] == ':');
-    }
-#endif
-    if (!bAbsDir) {
-        DivNodePtr pParent = getDivParent();
-        if (!pParent) {
-            sFilename = Player::get()->getRootMediaDir()+sFilename;
-        } else {
-            sFilename = pParent->getEffectiveMediaDir()+sFilename;
-        }
-    }
-}
-
 DPoint AreaNode::toLocal(const DPoint& globalPos) const
 {
     DPoint localPos = globalPos-m_RelViewport.tl;

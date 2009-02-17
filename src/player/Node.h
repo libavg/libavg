@@ -103,6 +103,7 @@ class AVG_API Node
         AudioEngine * getAudioEngine() const;
         NodePtr getThis() const;
         void setState(NodeState State);
+        void initFilename(std::string& sFilename);
  
     private:
         DivNodeWeakPtr m_pParent;

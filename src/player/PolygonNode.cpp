@@ -47,6 +47,7 @@ NodeDefinition PolygonNode::createDefinition()
 }
 
 PolygonNode::PolygonNode(const ArgList& Args, bool bFromXML)
+    : PolyLineNode(Args)
 {
     Args.setMembers(this);
     setLineJoin(Args.getArgVal<string>("linejoin"));

@@ -75,6 +75,17 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testlotsoflines", False), 
                 ))
 
+    def testTexturedLine(self):
+        def addLine():
+            line = Player.createNode("line", {"x1":2, "y1":20, "x2":100, "y2":20,
+                    "texhref":"rgb24-64x64.png", "strokewidth":30})
+            canvas.appendChild(line)
+        canvas = self.makeEmptyCanvas()
+        self.start(None,
+                (addLine,
+                 lambda: self.compareImage("testtexturedline", False), 
+                ))
+
     def testLineOpacity(self):
         def addLines():
             line = Player.createNode("line", 
@@ -251,6 +262,7 @@ def vectorTestSuite(tests):
             "testLine",
             "testLotsOfLines",
             "testLineOpacity",
+            "testTexturedLine",
             "testRect",
             "testCurve",
             "testPolyLine",
