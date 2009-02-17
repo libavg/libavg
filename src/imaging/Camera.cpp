@@ -109,7 +109,7 @@ CameraPtr getCamera(const std::string& sSource, const std::string& sDevice,
                     CaptureSize, sCaptureFormat, FrameRate, bColor));
 #elif defined(AVG_ENABLE_CMU1394)
         pCamera = CameraPtr(new CMUCamera(sDevice, CaptureSize, sCaptureFormat, 
-                FrameRate, true));
+                FrameRate, bColor));
 #else
             AVG_TRACE(Logger::WARNING, "Firewire camera specified, but firewire "
                     "support not compiled in.");
