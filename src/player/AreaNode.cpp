@@ -26,7 +26,7 @@
 #include "MouseEvent.h"
 #include "DivNode.h"
 #include "Player.h"
-#include "DisplayEngine.h"
+#include "SDLDisplayEngine.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -348,16 +348,20 @@ void AreaNode::maybeRender(const DRect& Rect)
             } else {
                 AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
             }
-            getDisplayEngine()->pushTransform(getRelViewport().tl, getAngle(), getPivot());
+            SDLDisplayEngine * pEngine = dynamic_cast<SDLDisplayEngine*>(
+                    getDisplayEngine());
+            pEngine->pushTransform(getRelViewport().tl, getAngle(), getPivot());
+            pEngine->enableGLColorArray(false);
+            pEngine->enableTexture(true);
             getDisplayEngine()->setShaders( getFragmentShader(), getVertexShader());
             //FIXME Howto deal with uniform parameters? they need to be set now
             render(Rect);
-            getDisplayEngine()->popTransform();
+            pEngine->popTransform();
         }
     }
 }
 
-void AreaNode::setViewport (double x, double y, double width, double height)
+void AreaNode::setViewport(double x, double y, double width, double height)
 {
     if (x == -32767) {
         x = getRelViewport().tl.x;
@@ -413,7 +417,7 @@ bool AreaNode::handleEvent(EventPtr pEvent)
     }
 }
 
-bool AreaNode::callPython (PyObject * pFunc, EventPtr pEvent)
+bool AreaNode::callPython(PyObject * pFunc, EventPtr pEvent)
 {
     return boost::python::call<bool>(pFunc, pEvent);
 }
@@ -457,7 +461,6 @@ void AreaNode::addEventHandler(Event::Type EventType, Event::Source Source,
     }
 }
 
-
 OGLShaderPtr AreaNode::getVertexShader() 
 {
     return OGLShaderPtr();
@@ -466,24 +469,6 @@ OGLShaderPtr AreaNode::getVertexShader()
 OGLShaderPtr AreaNode::getFragmentShader() 
 {
     return OGLShaderPtr();
-}
-
-void AreaNode::initFilename(string& sFilename)
-{
-    bool bAbsDir = sFilename[0] == '/';
-#ifdef _WIN32
-    if (!bAbsDir) {
-        bAbsDir = (sFilename[0] == '\\' || sFilename[1] == ':');
-    }
-#endif
-    if (!bAbsDir) {
-        DivNodePtr pParent = getDivParent();
-        if (!pParent) {
-            sFilename = Player::get()->getRootMediaDir()+sFilename;
-        } else {
-            sFilename = pParent->getEffectiveMediaDir()+sFilename;
-        }
-    }
 }
 
 DPoint AreaNode::toLocal(const DPoint& globalPos) const

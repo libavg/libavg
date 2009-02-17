@@ -50,6 +50,7 @@ NodeDefinition RectNode::createDefinition()
 }
 
 RectNode::RectNode(const ArgList& Args, bool bFromXML)
+    : VectorNode(Args)
 {
     Args.setMembers(this);
     m_Rect.setWidth(Args.getArgVal<double>("width"));
@@ -182,7 +183,7 @@ int RectNode::getNumIndexes()
     return 6*5;
 }
 
-void RectNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
+void RectNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
 {
     double curOpacity = opacity*m_FillOpacity;
     Pixel32 color = m_FillColor;
@@ -198,14 +199,14 @@ void RectNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
     DPoint rp2 = rotate(p2, m_Angle, pivot); 
     DPoint rp3 = rotate(p3, m_Angle, pivot); 
     DPoint rp4 = rotate(p4, m_Angle, pivot); 
-    pVertexData->appendPos(rp1, DPoint(0,0), color);
-    pVertexData->appendPos(rp2, DPoint(0,0), color);
-    pVertexData->appendPos(rp3, DPoint(0,0), color);
-    pVertexData->appendPos(rp4, DPoint(0,0), color);
-    pVertexData->appendQuadIndexes(1, 0, 2, 3);
+    pVertexArray->appendPos(rp1, DPoint(0,0), color);
+    pVertexArray->appendPos(rp2, DPoint(0,0), color);
+    pVertexArray->appendPos(rp3, DPoint(0,0), color);
+    pVertexArray->appendPos(rp4, DPoint(0,0), color);
+    pVertexArray->appendQuadIndexes(1, 0, 2, 3);
 
-    updateLineData(pVertexData, opacity, rp1, rp2);
-    updateLineData(pVertexData, opacity, rp3, rp4);
+    updateLineData(pVertexArray, opacity, rp1, rp2);
+    updateLineData(pVertexArray, opacity, rp3, rp4);
     p1.x -= getStrokeWidth()/2;
     p2.x -= getStrokeWidth()/2;
     p3.x += getStrokeWidth()/2;
@@ -214,8 +215,8 @@ void RectNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
     rp2 = rotate(p2, m_Angle, pivot); 
     rp3 = rotate(p3, m_Angle, pivot); 
     rp4 = rotate(p4, m_Angle, pivot); 
-    updateLineData(pVertexData, opacity, rp2, rp3);
-    updateLineData(pVertexData, opacity, rp4, rp1);
+    updateLineData(pVertexArray, opacity, rp2, rp3);
+    updateLineData(pVertexArray, opacity, rp4, rp1);
 }
 
 }

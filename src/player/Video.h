@@ -74,7 +74,7 @@ class AVG_API Video : public VideoBase, IFrameListener, IAudioSource
         virtual void changeVideoState(VideoState NewVideoState);
 
     private:
-        bool renderToSurface(ISurface * pSurface);
+        bool renderToSurface(OGLTiledSurface * pSurface);
         bool canRenderToBackbuffer(int BitsPerPixel);
         void seek(long long DestTime);
         void onEOF();

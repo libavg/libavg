@@ -26,13 +26,12 @@
 #include "Node.h"
 
 #include "../graphics/Pixel32.h"
+#include "../graphics/VertexArray.h"
+#include "../graphics/Bitmap.h"
 
 namespace avg {
 
-class VertexArray;
-typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
-class VertexData;
-typedef boost::shared_ptr<VertexData> VertexDataPtr;
+class OGLSurface;
 
 class AVG_API WideLine
 {
@@ -52,17 +51,24 @@ class AVG_API VectorNode : public Node
     public:
         static NodeDefinition createDefinition();
         
-        VectorNode();
+        VectorNode(const ArgList& Args);
         virtual ~VectorNode();
-        void setRenderingEngines(DisplayEngine * pDisplayEngine, 
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
+        virtual void connect();
+        virtual void disconnect();
 
-        void updateData(VertexArrayPtr& pVertexArray, int curVertex, int curIndex, 
-                double opacity, bool bParentDrawNeeded, bool bPosChanged);
+        const std::string& getTexHRef() const;
+        void setTexHRef(const std::string& href);
+
+        virtual void preRender();
+        virtual void maybeRender(const DRect& Rect);
+        virtual void render(const DRect& rect);
+        virtual void checkReload();
 
         virtual int getNumVertexes() = 0;
         virtual int getNumIndexes() = 0;
-        virtual void calcVertexes(VertexDataPtr& pVertexData, double opacity) = 0;
+        virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity) = 0;
 
         void setColor(const std::string& sColor);
         const std::string& getColor() const;
@@ -72,18 +78,32 @@ class AVG_API VectorNode : public Node
 
     protected:
         Pixel32 getColorVal() const;
-        void updateLineData(VertexDataPtr& pVertexData,
-                double opacity, const DPoint& p1, const DPoint& p2);
-        bool isDrawNeeded();
+        void updateLineData(VertexArrayPtr& pVertexArray, double opacity, 
+                const DPoint& p1, const DPoint& p2, double TC1=0, double TC2=1);
         void setDrawNeeded(bool bSizeChanged);
+        DPoint calcTexCoord(const DPoint& origCoord);
 
     private:
         std::string m_sColorName;
         Pixel32 m_Color;
         double m_StrokeWidth;
-        VertexDataPtr m_pVertexData;
 
+        VertexArrayPtr m_pVertexArray;
         bool m_bDrawNeeded;
+        bool m_bVASizeChanged;
+        double m_OldOpacity;
+
+        // Texture stuff
+        void loadTex();
+        void setupSurface();
+        void createTexture();
+        void downloadTexture(BitmapPtr pBmp) const;
+        std::string m_TexFilename;
+        std::string m_TexHRef;
+        BitmapPtr m_pBmp;
+        bool m_bIsTextured;
+        OGLSurface * m_pSurface;
+        unsigned m_TexID;
 };
 
 typedef boost::shared_ptr<VectorNode> VectorNodePtr;

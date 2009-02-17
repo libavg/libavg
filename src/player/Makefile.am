@@ -19,15 +19,15 @@ else
     APPLE_LINKFLAGS=
 endif
 
-GL_SOURCES = OGLSurface.cpp SDLDisplayEngine.cpp OGLTexture.cpp 
-GL_INCLUDES = OGLSurface.h SDLDisplayEngine.h OGLTexture.h
+GL_SOURCES = OGLSurface.cpp OGLTiledSurface.cpp SDLDisplayEngine.cpp OGLTexture.cpp 
+GL_INCLUDES = OGLSurface.h OGLTiledSurface.h SDLDisplayEngine.h OGLTexture.h
 
 ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
 ALL_H = Player.h PluginManager.h IEventSource.h IEventSink.h VideoBase.h Video.h\
         DisplayEngine.h NodeRegistry.h Arg.h ArgBase.h ArgList.h Region.h \
-        Node.h AreaNode.h ISurface.h DisplayParams.h NodeDefinition.h \
-        AVGNode.h GroupNode.h DivNode.h CursorState.h CanvasNode.h \
+        Node.h AreaNode.h DisplayParams.h NodeDefinition.h \
+        AVGNode.h DivNode.h CursorState.h \
         Image.h Timeout.h Words.h WrapPython.h\
         EventDispatcher.h CursorEvent.h MouseEvent.h \
         Event.h KeyEvent.h PanoImage.h TestHelper.h \
@@ -70,8 +70,8 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         VideoBase.cpp Video.cpp \
         Player.cpp PluginManager.cpp NodeRegistry.cpp ArgBase.cpp ArgList.cpp \
         DisplayEngine.cpp Region.cpp \
-        PanoImage.cpp Words.cpp CameraNode.cpp NodeDefinition.cpp GroupNode.cpp \
-        Timeout.cpp Event.cpp DisplayParams.cpp CursorState.cpp CanvasNode.cpp \
+        PanoImage.cpp Words.cpp CameraNode.cpp NodeDefinition.cpp \
+        Timeout.cpp Event.cpp DisplayParams.cpp CursorState.cpp \
         Image.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp MouseEvent.cpp\
         TouchEvent.cpp AVGNode.cpp TestHelper.cpp MouseState.cpp \
         TrackerEventSource.cpp EventStream.cpp TrackerCalibrator.cpp Sound.cpp \

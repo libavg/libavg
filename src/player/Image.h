@@ -36,8 +36,8 @@ class AVG_API Image : public RasterNode
     public:
         static NodeDefinition createDefinition();
         
-        Image (const ArgList& Args, bool bFromXML);
-        virtual ~Image ();
+        Image(const ArgList& Args, bool bFromXML);
+        virtual ~Image();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
         virtual void connect();

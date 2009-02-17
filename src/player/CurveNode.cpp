@@ -52,7 +52,7 @@ NodeDefinition CurveNode::createDefinition()
 }
 
 CurveNode::CurveNode(const ArgList& Args, bool bFromXML)
-    : VectorNode()
+   : VectorNode(Args)
 {
     Args.setMembers(this);
 }
@@ -203,19 +203,19 @@ int CurveNode::getNumIndexes()
     return (getCurveLen())*2*3;
 }
 
-void CurveNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
+void CurveNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
 {
     updateLines();
     double curOpacity = opacity*getOpacity();
     Pixel32 color = getColorVal();
     color.setA((unsigned char)(curOpacity*255));
 
-    pVertexData->appendPos(m_LeftCurve[0], DPoint(0,0), color);
-    pVertexData->appendPos(m_RightCurve[0], DPoint(0,0), color);
+    pVertexArray->appendPos(m_LeftCurve[0], DPoint(0,0), color);
+    pVertexArray->appendPos(m_RightCurve[0], DPoint(0,0), color);
     for (unsigned i=0; i<m_LeftCurve.size()-1; ++i) {
-        pVertexData->appendPos(m_LeftCurve[i+1], DPoint(0,0), color);
-        pVertexData->appendPos(m_RightCurve[i+1], DPoint(0,0), color);
-        pVertexData->appendQuadIndexes((i+1)*2, i*2, (i+1)*2+1, i*2+1);
+        pVertexArray->appendPos(m_LeftCurve[i+1], DPoint(0,0), color);
+        pVertexArray->appendPos(m_RightCurve[i+1], DPoint(0,0), color);
+        pVertexArray->appendQuadIndexes((i+1)*2, i*2, (i+1)*2+1, i*2+1);
     }
 }
 

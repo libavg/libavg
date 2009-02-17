@@ -23,12 +23,9 @@
 #define _OGLSurface_H_
 
 #include "../api.h"
-#include "ISurface.h"
-#include "OGLTexture.h"
-
 #include "../base/Point.h"
-#include "../base/Rect.h"
 
+#include "../graphics/Bitmap.h"
 #include "../graphics/OGLHelper.h"
 
 #include <vector>
@@ -38,70 +35,38 @@ namespace avg {
 
 class SDLDisplayEngine;
 
-class AVG_API OGLSurface: public ISurface {
+class AVG_API OGLSurface {
     public:
         OGLSurface(SDLDisplayEngine * pEngine);
         virtual ~OGLSurface();
 
-        // Implementation of ISurface.
-        virtual void create(const IntPoint& Size, PixelFormat PF,
-                bool bFastDownload);
+        virtual void create(const IntPoint& Size, PixelFormat PF, bool bFastDownload);
         virtual BitmapPtr lockBmp(int index=0);
         virtual void unlockBmps();
 
-        void bind();
-        void unbind();
-        void rebind();
+        void bindPBO(int index=0);
+        void unbindPBO();
 
         PixelFormat getPixelFormat();
         IntPoint getSize();
 
-        void blt32(const DPoint& DestSize, double opacity, DisplayEngine::BlendMode Mode);
-        void blta8(const DPoint& DestSize, double opacity, 
-                const Pixel32& color, DisplayEngine::BlendMode Mode);
-        void blt(const DPoint& DestSize, DisplayEngine::BlendMode Mode);
-
-        void setMaxTileSize(const IntPoint& MaxTileSize);
-        VertexGrid getOrigVertexCoords();
-        VertexGrid getWarpedVertexCoords();
-        void setWarpedVertexCoords(const VertexGrid& Grid);
- 
-        bool isOneTexture(IntPoint Size);
-        
-        int getTotalTexMemory();
-        virtual OGLShaderPtr getFragmentShader();
+    protected:
+        SDLDisplayEngine * getEngine();
+        BitmapPtr getBmp(int i);
+        OGLMemoryMode getMemMode() const;
 
     private:
-        void calcTileSizes();
-        void initTileVertices(VertexGrid& Grid);
-        void initTileVertex (int x, int y, DPoint& Vertex);
-
         void createBitmap(const IntPoint& Size, PixelFormat pf, int index);
         void deleteBuffers();
         void unlockBmp(int i);
-        void bindOneTexture(OGLTexture& Texture);
-        void bltTexture(const DPoint& DestSize, DisplayEngine::BlendMode Mode);
-        DPoint calcFinalVertex(const DPoint& Size,
-                const DPoint & NormalizedVertex);
-        void checkBlendModeError(const char * mode);
 
         SDLDisplayEngine * m_pEngine;
        
         bool m_bCreated;
-        bool m_bBound;
 
         BitmapPtr m_pBmps[3];
         IntPoint m_Size;
         PixelFormat m_pf;
-
-        IntPoint m_TextureSize;
-        IntPoint m_NumTextures;
-        IntPoint m_MaxTileSize;
-        IntPoint m_TileSize;
-        IntPoint m_NumTiles;
-        std::vector<std::vector<OGLTexturePtr> > m_pTextures;
-        VertexGrid m_TileVertices;
-        VertexGrid m_FinalVertices;
 
         OGLMemoryMode m_MemoryMode;
 

@@ -24,7 +24,6 @@
 #include "../avgconfigwrapper.h"
 #include "AVGNode.h"
 #include "DivNode.h"
-#include "CanvasNode.h"
 #include "Words.h"
 #include "Video.h"
 #include "CameraNode.h"
@@ -112,7 +111,6 @@ Player::Player()
     // Register all node types
     registerNodeType(AVGNode::createDefinition());
     registerNodeType(DivNode::createDefinition());
-    registerNodeType(CanvasNode::createDefinition());
     registerNodeType(Image::createDefinition());
     registerNodeType(Words::createDefinition());
     registerNodeType(Video::createDefinition());
@@ -954,7 +952,7 @@ NodePtr Player::createNodeFromXmlString(const string& sXML)
 }
 
 NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc, 
-        const xmlNodePtr xmlNode, GroupNodeWeakPtr pParent)
+        const xmlNodePtr xmlNode, DivNodeWeakPtr pParent)
 {
     NodePtr curNode;
     const char * nodeType = (const char *)xmlNode->name;
@@ -980,7 +978,7 @@ NodePtr Player::createNodeFromXml(const xmlDocPtr xmlDoc,
     }
 
     // If this is a container, recurse into children
-    GroupNodePtr curGroup = boost::dynamic_pointer_cast<GroupNode>(curNode);
+    DivNodePtr curGroup = boost::dynamic_pointer_cast<DivNode>(curNode);
     if (curGroup) {
         xmlNodePtr curXmlChild = xmlNode->xmlChildrenNode;
         while (curXmlChild) {

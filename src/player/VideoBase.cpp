@@ -25,7 +25,6 @@
 #include "DivNode.h"
 #include "DisplayEngine.h"
 #include "Player.h"
-#include "ISurface.h"
 #include "NodeDefinition.h"
 
 #include "../base/Exception.h"
@@ -95,8 +94,7 @@ void VideoBase::pause()
     changeVideoState(Paused);
 }
 
-
-void VideoBase::render (const DRect& Rect)
+void VideoBase::render(const DRect& Rect)
 {
     switch(m_VideoState) 
     {

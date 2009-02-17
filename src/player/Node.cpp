@@ -22,7 +22,7 @@
 #include "Node.h"
 
 #include "NodeDefinition.h"
-#include "GroupNode.h"
+#include "DivNode.h"
 #include "Player.h"
 #include "DisplayEngine.h"
 #include "Arg.h"
@@ -64,7 +64,7 @@ void Node::setThis(NodeWeakPtr This, const NodeDefinition * pDefinition)
     m_pDefinition = pDefinition;
 }
 
-void Node::setParent(GroupNodeWeakPtr pParent, NodeState parentState)
+void Node::setParent(DivNodeWeakPtr pParent, NodeState parentState)
 {
     assert(getState() == NS_UNCONNECTED);
     if (getParent() && !!(pParent.lock())) {
@@ -79,7 +79,7 @@ void Node::setParent(GroupNodeWeakPtr pParent, NodeState parentState)
 
 void Node::removeParent()
 {
-    m_pParent = GroupNodePtr();
+    m_pParent = DivNodePtr();
     if (getState() != NS_UNCONNECTED) {
         disconnect();
     }
@@ -138,10 +138,10 @@ void Node::setOpacity(double opacity)
     }
 }
 
-GroupNodePtr Node::getParent() const
+DivNodePtr Node::getParent() const
 {
     if (m_pParent.expired()) {
-        return GroupNodePtr();
+        return DivNodePtr();
     } else {
         return m_pParent.lock();
     }
@@ -153,7 +153,7 @@ void Node::unlink()
         throw(Exception(AVG_ERR_UNSUPPORTED, "Node with ID "+m_ID
                 +" has no parent. unlink invalid."));
     }
-    GroupNodePtr pParent = m_pParent.lock();
+    DivNodePtr pParent = m_pParent.lock();
     pParent->removeChild(pParent->indexOf(getThis()));
 }
 
@@ -242,6 +242,24 @@ void Node::setState(Node::NodeState State)
     }
 
     m_State = State;
+}
+        
+void Node::initFilename(string& sFilename)
+{
+    bool bAbsDir = sFilename[0] == '/';
+#ifdef _WIN32
+    if (!bAbsDir) {
+        bAbsDir = (sFilename[0] == '\\' || sFilename[1] == ':');
+    }
+#endif
+    if (!bAbsDir) {
+        DivNodePtr pParent = getParent();
+        if (!pParent) {
+            sFilename = Player::get()->getRootMediaDir()+sFilename;
+        } else {
+            sFilename = pParent->getEffectiveMediaDir()+sFilename;
+        }
+    }
 }
 
 }

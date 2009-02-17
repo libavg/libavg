@@ -25,7 +25,7 @@
 #include "../api.h"
 #include "AreaNode.h"
 #include "DisplayEngine.h"
-#include "OGLSurface.h"
+#include "OGLTiledSurface.h"
 
 #include "../avgconfigwrapper.h"
 #include "../base/Point.h"
@@ -62,7 +62,6 @@ class AVG_API RasterNode: public AreaNode
         
         const std::string& getBlendModeStr() const;
         void setBlendModeStr(const std::string& sBlendMode);
-        OGLSurface * getOGLSurface();
         DisplayEngine::BlendMode getBlendMode() const;
         AreaNodePtr getElementByPos (const DPoint & pos);
 
@@ -72,11 +71,11 @@ class AVG_API RasterNode: public AreaNode
         
     protected:
         RasterNode();
-        ISurface * getSurface();
+        OGLTiledSurface * getSurface();
  
     private:
         void checkDisplayAvailable(std::string sMsg);
-        ISurface * m_pSurface;
+        OGLTiledSurface * m_pSurface;
         
         IntPoint m_MaxTileSize;
         std::string m_sBlendMode;

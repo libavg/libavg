@@ -21,7 +21,7 @@
 #include "Video.h"
 #include "DisplayEngine.h"
 #include "Player.h"
-#include "ISurface.h"
+#include "OGLTiledSurface.h"
 #include "NodeDefinition.h"
 
 #include "../base/Exception.h"
@@ -347,7 +347,7 @@ long long Video::getNextFrameTime()
 
 static ProfilingZone RenderProfilingZone("Video::render");
 
-bool Video::renderToSurface(ISurface * pSurface)
+bool Video::renderToSurface(OGLTiledSurface * pSurface)
 {
     ScopeTimer Timer(RenderProfilingZone);
     PixelFormat PF = m_pDecoder->getPixelFormat();

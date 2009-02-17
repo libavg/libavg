@@ -33,7 +33,7 @@
 #include "MouseEvent.h"
 #include "KeyEvent.h"
 
-#include "OGLSurface.h"
+#include "OGLTiledSurface.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Exception.h"
@@ -579,9 +579,9 @@ void SDLDisplayEngine::swapBuffers()
     AVG_TRACE(Logger::BLTS, "GL SwapBuffers");
 }
 
-ISurface * SDLDisplayEngine::createSurface()
+OGLTiledSurface * SDLDisplayEngine::createTiledSurface()
 {
-    OGLSurface * pOGLSurface = new OGLSurface(this);
+    OGLTiledSurface * pOGLSurface = new OGLTiledSurface(this);
     m_pSurfaces.push_back(pOGLSurface);
 
     return pOGLSurface;
@@ -1473,6 +1473,30 @@ int SDLDisplayEngine::getMaxTexSize()
     return m_MaxTexSize;
 }
 
+void SDLDisplayEngine::enableTexture(bool bEnable)
+{
+    if (bEnable != m_bEnableTexture) {
+        if (bEnable) {
+            glEnable(getTextureMode());
+        } else {
+            glDisable(getTextureMode());
+        }
+        m_bEnableTexture = bEnable;
+    }
+}
+
+void SDLDisplayEngine::enableGLColorArray(bool bEnable)
+{
+    if (bEnable != m_bEnableGLColorArray) {
+        if (bEnable) {
+            glEnableClientState(GL_COLOR_ARRAY);
+        } else {
+            glDisableClientState(GL_COLOR_ARRAY);
+        }
+        m_bEnableGLColorArray = bEnable;
+    }
+}
+
 // This is what OpenGL calls InternalFormat
 int SDLDisplayEngine::getOGLDestMode(PixelFormat pf)
 {
@@ -1597,7 +1621,7 @@ void SDLDisplayEngine::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCb
 
 long long SDLDisplayEngine::getGPUMemoryUsage()
 {
-    vector<OGLSurface *>::iterator it;
+    vector<OGLTiledSurface *>::iterator it;
 
     long long lAmount = 0;
     for(it = m_pSurfaces.begin() ; it != m_pSurfaces.end() ; ++it) {
@@ -1607,9 +1631,9 @@ long long SDLDisplayEngine::getGPUMemoryUsage()
     return lAmount;
 }
 
-void SDLDisplayEngine::deregisterSurface(ISurface *pOGLSurface)
+void SDLDisplayEngine::deregisterSurface(OGLTiledSurface *pOGLSurface)
 {
-    vector<OGLSurface *>::iterator it;
+    vector<OGLTiledSurface *>::iterator it;
 
     for(it = m_pSurfaces.begin() ; it != m_pSurfaces.end() ; ++it) {
         if (pOGLSurface == *it) {

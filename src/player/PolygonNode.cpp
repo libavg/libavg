@@ -47,6 +47,7 @@ NodeDefinition PolygonNode::createDefinition()
 }
 
 PolygonNode::PolygonNode(const ArgList& Args, bool bFromXML)
+    : PolyLineNode(Args)
 {
     Args.setMembers(this);
     setLineJoin(Args.getArgVal<string>("linejoin"));
@@ -128,7 +129,7 @@ int PolygonNode::getNumIndexes()
     return numIndexes;
 }
 
-void PolygonNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
+void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
 {
     const vector<DPoint>& pts = getPos();
     if (pts.size() < 3) {
@@ -150,11 +151,11 @@ void PolygonNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
         vector<int> triIndexes;
         triangulatePolygon(pts, triIndexes);
         for (int i=0; i<numPts; ++i) {
-            pVertexData->appendPos(pts[i], DPoint(0,0), fillColor);
+            pVertexArray->appendPos(pts[i], DPoint(0,0), fillColor);
         }
         startOutlinePt = numPts;
         for (unsigned int i=0; i<triIndexes.size(); i+=3) {
-            pVertexData->appendTriIndexes(triIndexes[i], triIndexes[i+1], triIndexes[i+2]);
+            pVertexArray->appendTriIndexes(triIndexes[i], triIndexes[i+1], triIndexes[i+2]);
         }
         startOutlineIndex = triIndexes.size();
     }
@@ -175,17 +176,17 @@ void PolygonNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
                 pThisLine->pl0, pThisLine->dir);
         DPoint pri = getLineLineIntersection(pLastLine->pr0, pLastLine->dir, 
                 pThisLine->pr0, pThisLine->dir);
-        int curVertex = pVertexData->getCurVert();
+        int curVertex = pVertexArray->getCurVert();
         switch(getLineJoinEnum()) {
             case LJ_MITER:
-                pVertexData->appendPos(pli, DPoint(0,0), color);
-                pVertexData->appendPos(pri, DPoint(0,0), color);
+                pVertexArray->appendPos(pli, DPoint(0,0), color);
+                pVertexArray->appendPos(pri, DPoint(0,0), color);
                 pLastLine = pThisLine;
                 if (i<numPts-1) {
-                    pVertexData->appendQuadIndexes(
+                    pVertexArray->appendQuadIndexes(
                             curVertex+1, curVertex, curVertex+3, curVertex+2);
                 } else {
-                    pVertexData->appendQuadIndexes(
+                    pVertexArray->appendQuadIndexes(
                             curVertex+1, curVertex, startOutlinePt+1, startOutlinePt);
                 }
                 break;
@@ -193,29 +194,29 @@ void PolygonNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
                 {
                     Triangle tri(pLastLine->pl1, pThisLine->pl0, pri);
                     if (tri.isClockwise()) {
-                        pVertexData->appendPos(pri, DPoint(0,0), color);
-                        pVertexData->appendPos(pLastLine->pl1, DPoint(0,0), color);
-                        pVertexData->appendPos(pThisLine->pl0, DPoint(0,0), color);
-                        pVertexData->appendTriIndexes(
+                        pVertexArray->appendPos(pri, DPoint(0,0), color);
+                        pVertexArray->appendPos(pLastLine->pl1, DPoint(0,0), color);
+                        pVertexArray->appendPos(pThisLine->pl0, DPoint(0,0), color);
+                        pVertexArray->appendTriIndexes(
                                 curVertex, curVertex+1, curVertex+2);
                         if (i<numPts-1) {
-                            pVertexData->appendQuadIndexes(
+                            pVertexArray->appendQuadIndexes(
                                     curVertex, curVertex+2, curVertex+3, curVertex+4);
                         } else {
-                            pVertexData->appendQuadIndexes(curVertex,
+                            pVertexArray->appendQuadIndexes(curVertex,
                                     curVertex+2, startOutlinePt, startOutlinePt+1);
                         }
                     } else {
-                        pVertexData->appendPos(pLastLine->pr1, DPoint(0,0), color);
-                        pVertexData->appendPos(pli, DPoint(0,0), color);
-                        pVertexData->appendPos(pThisLine->pr0, DPoint(0,0), color);
-                        pVertexData->appendTriIndexes(
+                        pVertexArray->appendPos(pLastLine->pr1, DPoint(0,0), color);
+                        pVertexArray->appendPos(pli, DPoint(0,0), color);
+                        pVertexArray->appendPos(pThisLine->pr0, DPoint(0,0), color);
+                        pVertexArray->appendTriIndexes(
                                 curVertex, curVertex+1, curVertex+2);
                         if (i<numPts-1) {
-                            pVertexData->appendQuadIndexes(
+                            pVertexArray->appendQuadIndexes(
                                     curVertex+2, curVertex+1, curVertex+3, curVertex+4);
                         } else {
-                            pVertexData->appendQuadIndexes(curVertex+2, 
+                            pVertexArray->appendQuadIndexes(curVertex+2, 
                                     curVertex+1, startOutlinePt, startOutlinePt+1);
                         }
                     }

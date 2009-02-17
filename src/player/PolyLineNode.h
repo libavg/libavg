@@ -39,6 +39,7 @@ class AVG_API PolyLineNode : public VectorNode
         static NodeDefinition createDefinition();
         
         PolyLineNode(const ArgList& Args, bool bFromXML);
+        PolyLineNode(const ArgList& Args);
         virtual ~PolyLineNode();
 
         const std::vector<DPoint>& getPos() const;
@@ -49,7 +50,7 @@ class AVG_API PolyLineNode : public VectorNode
 
         virtual int getNumVertexes();
         virtual int getNumIndexes();
-        virtual void calcVertexes(VertexDataPtr& pVertexData, double opacity);
+        virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity);
 
     protected:
         PolyLineNode();

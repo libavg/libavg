@@ -27,10 +27,11 @@
 #include "Node.h"
 
 #include "Event.h"
-#include "ISurface.h"
 
 #include "../base/Point.h"
 #include "../base/Rect.h"
+
+#include "../graphics/OGLShader.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
@@ -139,7 +140,6 @@ class AVG_API AreaNode: public Node
         void addEventHandler(Event::Type EventType, Event::Source Source, 
                 const std::string& Code);
             
-        void initFilename(std::string& sFilename);
         DPoint toLocal(const DPoint& pos) const;
         DPoint toGlobal(const DPoint& pos) const;
  

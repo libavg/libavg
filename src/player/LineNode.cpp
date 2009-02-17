@@ -40,10 +40,14 @@ NodeDefinition LineNode::createDefinition()
         .addArg(Arg<double>("x1", 0, true, offsetof(LineNode, m_P1.x)))
         .addArg(Arg<double>("y1", 0, true, offsetof(LineNode, m_P1.y)))
         .addArg(Arg<double>("x2", 0, true, offsetof(LineNode, m_P2.x)))
-        .addArg(Arg<double>("y2", 0, true, offsetof(LineNode, m_P2.y)));
+        .addArg(Arg<double>("y2", 0, true, offsetof(LineNode, m_P2.y)))
+        .addArg(Arg<double>("texcoord1", 0, true, offsetof(LineNode, m_TC1)))
+        .addArg(Arg<double>("texcoord2", 1, true, offsetof(LineNode, m_TC2)))
+        ;
 }
 
 LineNode::LineNode(const ArgList& Args, bool bFromXML)
+    : VectorNode(Args)
 {
     Args.setMembers(this);
 }
@@ -118,6 +122,26 @@ void LineNode::setPos2(const DPoint& pt)
     setDrawNeeded(false);
 }
 
+double LineNode::getTexCoord1() const
+{
+    return m_TC1;
+}
+
+void LineNode::setTexCoord1(double tc)
+{
+    m_TC1 = tc;
+}
+
+double LineNode::getTexCoord2() const
+{
+    return m_TC2;
+}
+
+void LineNode::setTexCoord2(double tc)
+{
+    m_TC2 = tc;
+}
+
 int LineNode::getNumVertexes()
 {
     return 4;
@@ -128,9 +152,9 @@ int LineNode::getNumIndexes()
     return 6;
 }
 
-void LineNode::calcVertexes(VertexDataPtr& pVertexData, double opacity)
+void LineNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
 {
-    updateLineData(pVertexData, opacity, m_P1, m_P2);
+    updateLineData(pVertexArray, opacity, m_P1, m_P2);
 }
 
 }

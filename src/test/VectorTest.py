@@ -27,7 +27,7 @@ class VectorTestCase(AVGTestCase):
             <?xml version="1.0"?>
             <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
             <avg width="160" height="120">
-              <canvas id="canvas" x="0" y="0" width="160" height="120"/>
+              <div id="canvas" x="0" y="0" width="160" height="120"/>
             </avg>
         """)
         return Player.getElementByID("canvas")
@@ -64,8 +64,8 @@ class VectorTestCase(AVGTestCase):
 
     def testLotsOfLines(self):
         def addLines():
-            for i in xrange(5000):
-                y = i/10+2.5
+            for i in xrange(500):
+                y = i+2.5
                 line = Player.createNode("line", {"x1":2, "y1":y, "x2":10, "y2":y})
                 canvas.appendChild(line)
                 
@@ -73,6 +73,17 @@ class VectorTestCase(AVGTestCase):
         self.start(None,
                 (addLines,
                  lambda: self.compareImage("testlotsoflines", False), 
+                ))
+
+    def testTexturedLine(self):
+        def addLine():
+            line = Player.createNode("line", {"x1":2, "y1":20, "x2":100, "y2":20,
+                    "texhref":"rgb24-64x64.png", "strokewidth":30})
+            canvas.appendChild(line)
+        canvas = self.makeEmptyCanvas()
+        self.start(None,
+                (addLine,
+                 lambda: self.compareImage("testtexturedline", False), 
                 ))
 
     def testLineOpacity(self):
@@ -251,6 +262,7 @@ def vectorTestSuite(tests):
             "testLine",
             "testLotsOfLines",
             "testLineOpacity",
+            "testTexturedLine",
             "testRect",
             "testCurve",
             "testPolyLine",

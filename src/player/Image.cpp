@@ -23,16 +23,15 @@
 
 #include "DisplayEngine.h"
 #include "Player.h"
-#include "ISurface.h"
+#include "OGLTiledSurface.h"
 #include "NodeDefinition.h"
-
-#include "../graphics/Filtercolorize.h"
-#include "../graphics/Filterfliprgb.h"
 
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
 #include "../base/Exception.h"
+
+#include "../graphics/Filterfliprgb.h"
 
 #include <Magick++.h>
 
@@ -50,18 +49,19 @@ NodeDefinition Image::createDefinition()
         .addArg(Arg<string>("href", "", false, offsetof(Image, m_href)));
 }
 
-Image::Image (const ArgList& Args, bool bFromXML)
+Image::Image(const ArgList& Args, bool bFromXML)
     : m_bIsImageAvailable(false)
 {
     Args.setMembers(this);
     setHRef(m_href);
 }
 
-Image::~Image ()
+Image::~Image()
 {
 }
 
-void Image::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
+void Image::setRenderingEngines(DisplayEngine * pDisplayEngine,
+        AudioEngine * pAudioEngine)
 {
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
     setupSurface();
@@ -75,17 +75,14 @@ void Image::connect()
 
 void Image::disconnect()
 {
-    // Commenting this (and the corresponding line in setupSurface) out causes 
-    // a copy of the image to always be kept in main memory, so no readback has to
-    // take place.
-
     if (getState() == NS_CANRENDER) {
         // Unload textures but keep bitmap in memory.
-        ISurface * pSurface = getSurface();
+        OGLTiledSurface * pSurface = getSurface();
         BitmapPtr pSurfaceBmp = pSurface->lockBmp();
-        m_pBmp = BitmapPtr(new Bitmap(pSurfaceBmp->getSize(), pSurfaceBmp->getPixelFormat()));
+        m_pBmp = BitmapPtr(new Bitmap(pSurfaceBmp->getSize(), 
+                pSurfaceBmp->getPixelFormat()));
         m_pBmp->copyPixels(*pSurfaceBmp);
-        getSurface()->unlockBmps();
+        pSurface->unlockBmps();
 #ifdef __i386__
         // XXX Yuck
         if (!(getDisplayEngine()->hasRGBOrdering()) && 
@@ -108,9 +105,6 @@ void Image::setHRef(const string& href)
 {
     m_href = href;
     load();
-    if (getState() == NS_CANRENDER) {
-        setupSurface();
-    }
     IntPoint Size = getMediaSize();
     setViewport(-32767, -32767, Size.x, Size.y);
 }
@@ -148,7 +142,7 @@ void Image::setBitmap(const Bitmap * pBmp)
 #endif
 //    cerr << "setBitmap, pf: " << Bitmap::getPixelFormatString(pf) << endl;
     if (getState() == NS_CANRENDER) {
-        ISurface * pSurface = getSurface();
+        OGLTiledSurface * pSurface = getSurface();
         BitmapPtr pTempBmp = BitmapPtr(new Bitmap(*pBmp));
         if (pf != I8) {
             FilterFlipRGB().applyInPlace(pTempBmp);
@@ -156,10 +150,10 @@ void Image::setBitmap(const Bitmap * pBmp)
         if (pSurface->getSize() != pTempBmp->getSize() || pSurface->getPixelFormat() != pf) {
             pSurface->create(pTempBmp->getSize(), pf, true);
         }
-        BitmapPtr pSurfaceBmp = getSurface()->lockBmp();
+        BitmapPtr pSurfaceBmp = pSurface->lockBmp();
         pSurfaceBmp->copyPixels(*pTempBmp);
-        getSurface()->unlockBmps();
-        getSurface()->bind();
+        pSurface->unlockBmps();
+        pSurface->bind();
     } else {
         if (m_pBmp->getSize() != pBmp->getSize() || m_pBmp->getPixelFormat() != pf) {
             m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
@@ -198,9 +192,6 @@ void Image::checkReload()
     }
     if (sLastFilename != m_Filename || !m_pBmp) {
         load();
-        if (getState() == NS_CANRENDER) {
-            setupSurface();
-        }
         IntPoint Size = getMediaSize();
         setViewport(-32767, -32767, Size.x, Size.y);
     }
@@ -237,6 +228,9 @@ void Image::load()
         }
     }
     assert(m_pBmp);
+    if (getState() == NS_CANRENDER) {
+        setupSurface();
+    }
 }
 
 void Image::setupSurface()
@@ -246,22 +240,17 @@ void Image::setupSurface()
     if (m_pBmp->hasAlpha()) {
         pf = R8G8B8A8;
     }
-    bool bUsePBO = true;
-#if defined __APPLE__ || defined _WIN32
-    if (!getSurface()->isOneTexture(m_pBmp->getSize())) {
-        bUsePBO = false;
-    }
-#endif
-    getSurface()->create(m_pBmp->getSize(), pf, bUsePBO);
-    BitmapPtr pSurfaceBmp = getSurface()->lockBmp();
+    OGLTiledSurface * pSurface = getSurface();
+    pSurface->create(m_pBmp->getSize(), pf, true);
+    BitmapPtr pSurfaceBmp = pSurface->lockBmp();
     pSurfaceBmp->copyPixels(*m_pBmp);
 #ifdef __i386__
     if (!(getDisplayEngine()->hasRGBOrdering())) {
         FilterFlipRGB().applyInPlace(pSurfaceBmp);
     }
 #endif
-    getSurface()->unlockBmps();
-    getSurface()->bind();
+    pSurface->unlockBmps();
+    pSurface->bind();
     m_pBmp=BitmapPtr();
 }
 

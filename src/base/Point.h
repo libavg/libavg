@@ -217,6 +217,12 @@ Point<NUM> Point<NUM>::operator *(double f) const
   return Point<NUM> (NUM(x*f), NUM(y*f));
 }
 
+template<class NUM>
+Point<NUM> Point<NUM>::operator *(const Point<NUM>& pt) const
+{
+  return Point<NUM> (x*pt.x, y*pt.y);
+}
+
 inline
 double sqr(double x)
 {

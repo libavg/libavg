@@ -42,12 +42,13 @@ namespace avg {
 NodeDefinition DivNode::createDefinition()
 {
     string sChildArray[] = {"image", "div", "canvas", "words", "video", "camera", 
-            "panoimage", "sound"};
+            "panoimage", "sound", "line", "rect", "curve", "polyline", "polygon"};
     vector<string> sChildren = vectorFromCArray(
             sizeof(sChildArray) / sizeof(*sChildArray), sChildArray);
     return NodeDefinition("div", Node::buildNode<DivNode>)
-        .extendDefinition(GroupNode::createDefinition())
+        .extendDefinition(AreaNode::createDefinition())
         .addChildren(sChildren)
+        .addArg(Arg<bool>("crop", true, false, offsetof(DivNode, m_bCrop)))
         .addArg(Arg<string>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)));
 }
 
@@ -58,6 +59,41 @@ DivNode::DivNode(const ArgList& Args, bool)
 
 DivNode::~DivNode()
 {
+}
+
+void DivNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
+        AudioEngine * pAudioEngine)
+{
+    AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    for  (int i = 0; i<(int)m_Children.size(); ++i) {
+        m_Children[i]->setRenderingEngines(pDisplayEngine, pAudioEngine);
+    }
+}
+
+void DivNode::connect()
+{
+    AreaNode::connect();
+    for (int i = 0; i< (int)m_Children.size(); ++i) {
+        m_Children[i]->connect();
+    }
+}
+
+void DivNode::disconnect()
+{
+    for  (int i = 0; i< (int)m_Children.size(); ++i) {
+        m_Children[i]->disconnect();
+    }
+    AreaNode::disconnect();
+}
+
+bool DivNode::getCrop() const
+{
+    return m_bCrop;
+}
+
+void DivNode::setCrop(bool bCrop)
+{
+    m_bCrop = bCrop;
 }
 
 const string& DivNode::getMediaDir() const
@@ -71,7 +107,130 @@ void DivNode::setMediaDir(const string& sMediaDir)
     checkReload();
 }
 
-AreaNodePtr DivNode::getElementByPos (const DPoint & pos)
+int DivNode::getNumChildren()
+{
+    return int(m_Children.size());
+}
+
+const NodePtr& DivNode::getChild(unsigned i)
+{
+    if (i >= m_Children.size()) {
+        stringstream s;
+        s << "Index " << i << " is out of range in DivNode::getChild()";
+        throw(Exception(AVG_ERR_OUT_OF_RANGE, s.str()));
+    }
+    return m_Children[i];
+}
+
+void DivNode::appendChild(NodePtr pNewNode)
+{
+    insertChild(pNewNode, unsigned(m_Children.size()));
+}
+
+void DivNode::insertChildBefore(NodePtr pNewNode, NodePtr pOldChild)
+{
+    if (!pOldChild) {
+        throw Exception(AVG_ERR_NO_NODE,
+                getID()+"::insertChildBefore called without a node.");
+    }
+    unsigned i = indexOf(pOldChild);
+    insertChild(pNewNode, i);
+}
+
+
+void DivNode::insertChild(NodePtr pNewNode, unsigned i)
+{
+    if (!pNewNode) {
+        throw Exception(AVG_ERR_NO_NODE,
+                getID()+"::insertChild called without a node.");
+    }
+    if (!isChildTypeAllowed(pNewNode->getTypeStr())) {
+        throw(Exception(AVG_ERR_ALREADY_CONNECTED,
+                "Can't insert a node of type "+pNewNode->getTypeStr()+
+                " into a node of type "+getTypeStr()+"."));
+
+    }
+    if (pNewNode->getState() == NS_CONNECTED || pNewNode->getState() == NS_CANRENDER) 
+    {
+        throw(Exception(AVG_ERR_ALREADY_CONNECTED,
+                "Can't connect node with id "+pNewNode->getID()+
+                ": already connected."));
+    }
+    if (i>m_Children.size()) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                pNewNode->getID()+"::insertChild: index out of bounds."));
+    }
+    std::vector<NodePtr>::iterator Pos = m_Children.begin()+i;
+    if (getState() == NS_CONNECTED || getState() == NS_CANRENDER) {
+        Player::get()->registerNode(pNewNode);
+    }
+    m_Children.insert(Pos, pNewNode);
+    DivNodePtr Ptr = boost::dynamic_pointer_cast<DivNode>(getThis());           
+    pNewNode->setParent(Ptr, getState());
+    if (getState() == NS_CANRENDER) {
+        pNewNode->setRenderingEngines(getDisplayEngine(), getAudioEngine());
+    }
+}
+
+void DivNode::removeChild(NodePtr pNode)
+{
+    int i = indexOf(pNode);
+    pNode->removeParent();
+    m_Children.erase(m_Children.begin()+i);
+}
+
+void DivNode::removeChild(unsigned i)
+{
+    if (i>m_Children.size()-1) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                getID()+"::removeChild: index "+toString(i)+" out of bounds."));
+    }
+    NodePtr pNode = getChild(i);
+    pNode->removeParent();
+    m_Children.erase(m_Children.begin()+i);
+}
+
+void DivNode::reorderChild(NodePtr pNode, unsigned j)
+{
+    if (j > m_Children.size()-1) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                getID()+"::reorderChild: index "+toString(j)+" out of bounds."));
+    }
+    int i = indexOf(pNode);
+    m_Children.erase(m_Children.begin()+i);
+    std::vector<NodePtr>::iterator Pos = m_Children.begin()+j;
+    m_Children.insert(Pos, pNode);
+}
+
+void DivNode::reorderChild(unsigned i, unsigned j)
+{
+    if (i>m_Children.size()-1 || j > m_Children.size()-1) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE,
+                getID()+"::reorderChild: index out of bounds."));
+    }
+    NodePtr pNode = getChild(i);
+    m_Children.erase(m_Children.begin()+i);
+    std::vector<NodePtr>::iterator Pos = m_Children.begin()+j;
+    m_Children.insert(Pos, pNode);
+}
+
+int DivNode::indexOf(NodePtr pChild)
+{
+    if (!pChild) {
+        throw Exception(AVG_ERR_NO_NODE,
+                getID()+"::indexOf called without a node.");
+    }
+    for  (int i = 0; i< (int)m_Children.size(); ++i) {
+        if (m_Children[i] == pChild) {
+            return i;
+        }
+    }
+    throw(Exception(AVG_ERR_OUT_OF_RANGE,
+            "indexOf: node '"+pChild->getID()+"' is not a child of node '"
+            +getID()+"'"));
+}
+
+AreaNodePtr DivNode::getElementByPos(const DPoint & pos)
 {
     DPoint relPos = toLocal(pos);
     if (relPos.x >= 0 && relPos.y >= 0 && 
@@ -79,10 +238,12 @@ AreaNodePtr DivNode::getElementByPos (const DPoint & pos)
             reactsToMouseEvents())
     {
         for (int i=getNumChildren()-1; i>=0; i--) {
-            AreaNodePtr pFoundNode = dynamic_pointer_cast<AreaNode>(getChild(i))
-                    ->getElementByPos(relPos);
-            if (pFoundNode) {
-                return pFoundNode;
+            AreaNodePtr pCurChild = dynamic_pointer_cast<AreaNode>(getChild(i));
+            if (pCurChild) {
+                AreaNodePtr pFoundNode = pCurChild->getElementByPos(relPos);
+                if (pFoundNode) {
+                    return pFoundNode;
+                }
             }
         }
         // Pos isn't in any of the children.
@@ -147,11 +308,22 @@ void DivNode::checkReload()
 
 string DivNode::dump(int indent)
 {
-    string dumpStr = GroupNode::dump () + "\n";
-    for(int i=0; i<getNumChildren(); ++i) {
-        dumpStr += getChild(i)->dump(indent+2)+"\n";
+    string dumpStr = AreaNode::dump () + "\n";
+    vector<NodePtr>::iterator it;
+    for (it=m_Children.begin(); it<m_Children.end(); it++) {
+        dumpStr += (*it)->dump(indent+2)+"\n";
     }
     return dumpStr;
+}
+
+IntPoint DivNode::getMediaSize()
+{
+    return IntPoint(10000,10000);
+}
+ 
+bool DivNode::isChildTypeAllowed(const string& sType)
+{
+    return getDefinition()->isChildAllowed(sType);
 }
 
 }

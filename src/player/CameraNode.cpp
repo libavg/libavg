@@ -22,7 +22,7 @@
 #include "CameraNode.h"
 #include "DisplayEngine.h"
 #include "Player.h"
-#include "ISurface.h"
+#include "OGLSurface.h"
 #include "NodeDefinition.h"
 
 #include "../base/TimeSource.h"
@@ -256,7 +256,7 @@ void CameraNode::preRender()
 static ProfilingZone CameraProfilingZone("Camera::render");
 static ProfilingZone CameraDownloadProfilingZone("Camera tex download");
 
-bool CameraNode::renderToSurface(ISurface * pSurface)
+bool CameraNode::renderToSurface(OGLTiledSurface * pSurface)
 {
     ScopeTimer Timer(CameraProfilingZone);
     if (m_pCurBmp) {
