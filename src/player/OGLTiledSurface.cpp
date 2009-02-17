@@ -60,6 +60,11 @@ void OGLTiledSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDow
         return;
     }
     m_bBound = false;
+#if defined __APPLE__ || defined _WIN32
+    if (!isOneTexture(Size)) {
+        bFastDownload = false;
+    }
+#endif
     OGLSurface::create(Size, pf, bFastDownload);
         
     calcTileSizes();

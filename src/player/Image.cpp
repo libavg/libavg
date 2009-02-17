@@ -75,10 +75,6 @@ void Image::connect()
 
 void Image::disconnect()
 {
-    // Commenting this (and the corresponding line in setupSurface) out causes 
-    // a copy of the image to always be kept in main memory, so no readback has to
-    // take place.
-
     if (getState() == NS_CANRENDER) {
         // Unload textures but keep bitmap in memory.
         OGLTiledSurface * pSurface = getSurface();
@@ -246,14 +242,8 @@ void Image::setupSurface()
     if (m_pBmp->hasAlpha()) {
         pf = R8G8B8A8;
     }
-    bool bUsePBO = true;
     OGLTiledSurface * pSurface = getSurface();
-#if defined __APPLE__ || defined _WIN32
-    if (!pSurface->isOneTexture(m_pBmp->getSize())) {
-        bUsePBO = false;
-    }
-#endif
-    pSurface->create(m_pBmp->getSize(), pf, bUsePBO);
+    pSurface->create(m_pBmp->getSize(), pf, true);
     BitmapPtr pSurfaceBmp = pSurface->lockBmp();
     pSurfaceBmp->copyPixels(*m_pBmp);
 #ifdef __i386__
