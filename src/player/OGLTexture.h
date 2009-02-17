@@ -40,11 +40,9 @@ typedef std::vector<std::vector<DPoint> > VertexGrid;
 class AVG_API OGLTexture {
     public:
         OGLTexture(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize, 
-                IntRect TileIndexExtent, int Stride, PixelFormat pf,
-                SDLDisplayEngine * pEngine);
+                IntRect TileIndexExtent, PixelFormat pf, SDLDisplayEngine * pEngine);
         virtual ~OGLTexture();
-        void resize(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize, 
-                int Stride);
+        void resize(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize);
 
         const IntPoint& getTexSize() const;
         int getTexID(int i) const;
@@ -58,8 +56,8 @@ class AVG_API OGLTexture {
 
     private:
         void calcTexCoords();
-        void createTextures(int Stride);
-        void createTexture(int i, IntPoint Size, int Stride, PixelFormat pf);
+        void createTextures();
+        void createTexture(int i, IntPoint Size, PixelFormat pf);
         void deleteTextures();
 
         IntRect m_TexExtent;  // Extent of Texture in the PBO.
