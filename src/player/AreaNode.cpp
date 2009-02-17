@@ -353,6 +353,8 @@ void AreaNode::maybeRender(const DRect& Rect)
             pEngine->pushTransform(getRelViewport().tl, getAngle(), getPivot());
             pEngine->enableGLColorArray(false);
             pEngine->enableTexture(true);
+            getDisplayEngine()->setShaders( getFragmentShader(), getVertexShader());
+            //FIXME Howto deal with uniform parameters? they need to be set now
             render(Rect);
             pEngine->popTransform();
         }
@@ -457,6 +459,16 @@ void AreaNode::addEventHandler(Event::Type EventType, Event::Source Source,
         EventHandlerID ID(EventType, Source);
         m_EventHandlerMap[ID] = pFunc;
     }
+}
+
+OGLShaderPtr AreaNode::getVertexShader() 
+{
+    return OGLShaderPtr();
+}
+
+OGLShaderPtr AreaNode::getFragmentShader() 
+{
+    return OGLShaderPtr();
 }
 
 DPoint AreaNode::toLocal(const DPoint& globalPos) const

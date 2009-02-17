@@ -332,7 +332,7 @@ protected:
             "    gl_FragColor = texture2DRect(Texture,\n"
             "           vec2(gl_TexCoord[0].s, gl_TexCoord[0].t-10.0));\n"
             "}\n";
-        s_pShader = OGLShaderPtr(new OGLShader(sCode));
+        s_pShader = OGLProgram::buildProgram(OGLShaderPtr(new OGLShader(sCode)));
     }
 
     void applyOnce(PBOImagePtr pSrc)
@@ -343,7 +343,7 @@ protected:
     }
 
 private:
-    OGLShaderPtr s_pShader;
+    OGLProgramPtr s_pShader;
 };
 
 

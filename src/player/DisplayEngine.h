@@ -30,6 +30,8 @@
 
 #include "../graphics/Pixel32.h"
 #include "../graphics/Bitmap.h"
+#include "../graphics/OGLProgram.h"
+
 
 #include "../base/Rect.h"
 
@@ -86,13 +88,17 @@ class AVG_API DisplayEngine
         virtual long long getGPUMemoryUsage() = 0;
         virtual void deregisterSurface(OGLTiledSurface *) = 0;
 
+        virtual void pushShader() = 0;
+        virtual void popShader() = 0;
+        virtual OGLProgramPtr getActiveShader()=0;
+        virtual void setShaders(OGLShaderPtr pFragmentShader, OGLShaderPtr pVertexShader) = 0;
     protected:
         void checkJitter();
         
     private:
         virtual bool initVBlank(int rate) = 0;
         virtual bool vbWait(int rate) = 0;
-
+        
         void calcEffFramerate();
         
         int m_NumFrames;
@@ -110,6 +116,7 @@ class AVG_API DisplayEngine
 
         long long m_StartFramerateCalcTime;
         double m_EffFramerate;
+
 };
 
 }

@@ -449,4 +449,14 @@ int OGLTiledSurface::getTotalTexMemory()
     return iAmount;
 }
 
+OGLShaderPtr OGLTiledSurface::getFragmentShader()
+{
+    //cerr <<"OGLSurface::getFrag"<<endl;
+    if (!m_pTextures.empty()) {
+        return m_pTextures[0][0]->getFragmentShader();
+    } else {
+        return OGLShaderPtr();
+    }
+}
+
 }

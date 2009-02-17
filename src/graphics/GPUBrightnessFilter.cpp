@@ -31,7 +31,7 @@ using namespace std;
 
 namespace avg {
 
-OGLShaderPtr GPUBrightnessFilter::s_pShader;
+OGLProgramPtr GPUBrightnessFilter::s_pShader;
 
 GPUBrightnessFilter::GPUBrightnessFilter(const IntPoint& size, PixelFormat pf, 
         double alpha)
@@ -52,16 +52,12 @@ GPUBrightnessFilter::~GPUBrightnessFilter()
 
 void GPUBrightnessFilter::applyOnGPU()
 {
-    GLhandleARB hProgram = s_pShader->getProgram();
-    glproc::UseProgramObject(hProgram);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "GPUBrightnessFilter::apply: glUseProgramObject()");
-    glproc::Uniform1f(glproc::GetUniformLocation(hProgram, "alpha"),
-            GLfloat(m_Alpha));
-    glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "Texture"), 0);
+    s_pShader->activate();
+    s_pShader->setUniformFloatParam("alpha", float(m_Alpha));
+    s_pShader->setUniformIntParam("Texture", 0);
     getSrcPBO()->draw();
 
-    glproc::UseProgramObject(0);
+    s_pShader->deactivate();
 }
 
 void GPUBrightnessFilter::initShader()
@@ -80,7 +76,7 @@ void GPUBrightnessFilter::initShader()
         "}\n"
         ;
 
-    s_pShader = OGLShaderPtr(new OGLShader(sProgram));
+    s_pShader = OGLProgram::buildProgram(OGLShaderPtr(new OGLShader(sProgram)));
 }
 
 } // namespace

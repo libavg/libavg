@@ -31,7 +31,7 @@ using namespace std;
 
 namespace avg {
 
-OGLShaderPtr GPUBandpassFilter::s_pShader;
+OGLProgramPtr GPUBandpassFilter::s_pShader;
 
 GPUBandpassFilter::GPUBandpassFilter(const IntPoint& size, PixelFormat pfSrc, 
         double min, double max, double postScale, bool bInvert)
@@ -61,14 +61,11 @@ void GPUBandpassFilter::applyOnGPU()
     m_MaxFilter.apply();
 
     getFBO()->activate();
-    GLhandleARB hProgram = s_pShader->getProgram();
-    glproc::UseProgramObject(hProgram);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "GPUBandpassFilter::apply: glUseProgramObject()");
-    glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "minTex"), 0);
-    glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "maxTex"), 1);
-    glproc::Uniform1f(glproc::GetUniformLocation(hProgram, "postScale"), float(m_PostScale));
-    glproc::Uniform1i(glproc::GetUniformLocation(hProgram, "bInvert"), m_bInvert);
+    s_pShader->activate();
+    s_pShader->setUniformIntParam("minTex",0);
+    s_pShader->setUniformIntParam("maxTex",1);
+    s_pShader->setUniformFloatParam("postScale", float(m_PostScale));
+    s_pShader->setUniformIntParam("bInvert",m_bInvert);
     m_pMaxPBO->activateTex(GL_TEXTURE1);
     m_pMinPBO->draw();
 
@@ -97,7 +94,7 @@ void GPUBandpassFilter::initShader()
         "}\n"
         ;
 
-    s_pShader = OGLShaderPtr(new OGLShader(sProgram));
+    s_pShader = OGLProgram::buildProgram(OGLShaderPtr(new OGLShader(sProgram)));
 }
 
 } // namespace

@@ -74,19 +74,28 @@ int OGLTexture::getTexID(int i) const
     return m_TexID[i];
 }
 
-void OGLTexture::blt(const VertexGrid* pVertexes) const
-{
-    int TextureMode = m_pEngine->getTextureMode();
+OGLShaderPtr OGLTexture::getFragmentShader() {
+    OGLShaderPtr pShader;
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-        OGLShaderPtr pShader;
         if (m_pf == YCbCr420p) {
             pShader = m_pEngine->getYCbCr420pShader();
         } else {
             pShader = m_pEngine->getYCbCrJ420pShader();
         }
-        pShader->activate();
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::blt: glUseProgramObject()");
-        glproc::ActiveTexture(GL_TEXTURE0);
+        //cerr<<"Please?!? (()) "<<pShader<<"\n";
+    }
+    //cerr<<"Texture::getFrag "<<pShader<<" "<<this<<"\n";
+    return pShader;
+}
+
+void OGLTexture::blt(const VertexGrid* pVertexes) const
+{
+    int TextureMode = m_pEngine->getTextureMode();
+    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+        OGLProgramPtr pShader = m_pEngine->getActiveShader();
+        assert(pShader);
+        //pShader->activate();
+        //glproc::ActiveTexture(GL_TEXTURE0);
         glBindTexture(TextureMode, m_TexID[0]);
         pShader->setUniformIntParam("YTexture", 0);
         glproc::ActiveTexture(GL_TEXTURE1);
@@ -98,9 +107,10 @@ void OGLTexture::blt(const VertexGrid* pVertexes) const
     } else {
         glproc::ActiveTexture(GL_TEXTURE0);
         glBindTexture(TextureMode, m_TexID[0]);
-        if (m_pEngine->getYCbCrMode() == OGL_SHADER) {
-            glproc::UseProgramObject(0);
-        }
+        //Igor: Now handled in a more general manner
+        //if (m_pEngine->getYCbCrMode() == OGL_SHADER) {
+        //    glproc::UseProgramObject(0);
+        //}
     }
     if (pVertexes) {
         m_pVertexes->reset();
