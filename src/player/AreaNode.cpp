@@ -349,6 +349,8 @@ void AreaNode::maybeRender(const DRect& Rect)
                 AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
             }
             getDisplayEngine()->pushTransform(getRelViewport().tl, getAngle(), getPivot());
+            getDisplayEngine()->setShaders( getFragmentShader(), getVertexShader());
+            //FIXME Howto deal with uniform parameters? they need to be set now
             render(Rect);
             getDisplayEngine()->popTransform();
         }
@@ -453,6 +455,17 @@ void AreaNode::addEventHandler(Event::Type EventType, Event::Source Source,
         EventHandlerID ID(EventType, Source);
         m_EventHandlerMap[ID] = pFunc;
     }
+}
+
+
+OGLShaderPtr AreaNode::getVertexShader() 
+{
+    return OGLShaderPtr();
+}
+
+OGLShaderPtr AreaNode::getFragmentShader() 
+{
+    return OGLShaderPtr();
 }
 
 void AreaNode::initFilename(string& sFilename)

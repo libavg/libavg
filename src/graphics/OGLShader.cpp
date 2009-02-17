@@ -1,3 +1,4 @@
+
 //
 //  libavg - Media Playback Engine. 
 //  Copyright (C) 2003-2008 Ulrich von Zadow
@@ -21,101 +22,36 @@
 
 #include "OGLShader.h"
 
-#include "../base/Logger.h"
 #include "../base/Exception.h"
-
 #include <iostream>
 
-namespace avg {
-
 using namespace std;
-    
-OGLShader::OGLShader(string sProgram)
-    : m_sProgram(sProgram)
-{
-    m_hFragmentShader = glproc::CreateShaderObject(GL_FRAGMENT_SHADER);
-    const char * pProgramStr = m_sProgram.c_str();
-    glproc::ShaderSource(m_hFragmentShader, 1, &pProgramStr, 0);
-    glproc::CompileShader(m_hFragmentShader);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::OGLShader: glCompileShader()");
-    dumpInfoLog(m_hFragmentShader);
 
-    m_hProgram = glproc::CreateProgramObject();
-    glproc::AttachObject(m_hProgram, m_hFragmentShader);
-    glproc::LinkProgram(m_hProgram);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::OGLShader: glLinkProgram()");
-
-    GLint bLinked;
-    glproc::GetObjectParameteriv(m_hProgram, GL_OBJECT_LINK_STATUS_ARB, &bLinked);
-    dumpInfoLog(m_hProgram);
-    if (!bLinked) {
-        AVG_TRACE(Logger::ERROR, "Linking shader program failed. Aborting.");
-        exit(-1);
-    }
-    
-}
-
-OGLShader::~OGLShader()
-{
-}
-
-void OGLShader::activate()
-{
-   glproc::UseProgramObject(m_hProgram);
-   OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::activate: glUseProgramObject()");
-}
-
-GLhandleARB OGLShader::getProgram()
-{
-    return m_hProgram;
-}
-
-void OGLShader::setUniformIntParam(const std::string& sName, int val)
-{
-    int loc = safeGetUniformLoc(sName);
-    glproc::Uniform1i(loc, val);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, (string("OGLShader: glUniform(")+sName+")").c_str());
-}
-
-void OGLShader::setUniformFloatParam(const std::string& sName, float val)
-{
-    int loc = safeGetUniformLoc(sName);
-    glproc::Uniform1f(loc, val);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, (string("OGLShader: glUniform(")+sName+")").c_str());
-}
-
-void OGLShader::setUniformFloatArrayParam(const std::string& sName, int count, float* pVal)
-{
-    int loc = safeGetUniformLoc(sName);
-    glproc::Uniform1fv(loc, count, pVal);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, (string("OGLShader: glUniform(")+sName+")").c_str());
-}
+namespace avg {
+    OGLShader::OGLShader(string sProgram, int type):
+        m_sProgram(sProgram) 
+    {
         
-void OGLShader::dumpInfoLog(GLhandleARB hObj)
-{
-    int InfoLogLength;
-    GLcharARB * pInfoLog;
-
-    glproc::GetObjectParameteriv(hObj, GL_OBJECT_INFO_LOG_LENGTH_ARB, &InfoLogLength);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "OGLShader::dumpInfoLog: glGetObjectParameteriv()");
-    if (InfoLogLength > 1) {
-        pInfoLog = (GLcharARB*)malloc(InfoLogLength);
-        int CharsWritten;
-        glproc::GetInfoLog(hObj, InfoLogLength, &CharsWritten, pInfoLog);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "OGLShader::dumpInfoLog: glGetInfoLog()");
-        AVG_TRACE(Logger::WARNING, pInfoLog);
-        free(pInfoLog);
+        m_hShader = glproc::CreateShaderObject(type); //Maybe actively check for valid type first
+        //cerr<<"Created a GLHandle "<<m_hShader<<" in "<<this<<endl;
+        const char * pProgramStr = m_sProgram.c_str();
+        glproc::ShaderSource(m_hShader, 1, &pProgramStr, 0);
+        glproc::CompileShader(m_hShader);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLShader::OGLShader: glCompileShader()");
+        dumpInfoLog(m_hShader);
     }
-}
+    OGLShader::~OGLShader() {
+        //cerr<<"Deleting a GLHandle "<<m_hShader<<" in "<<this<<endl;
+        glproc::DeleteShader(m_hShader);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLshader::OGLShader: Destructor");
+        m_hShader = -1;
+    }
 
-int OGLShader::safeGetUniformLoc(const std::string& sName)
-{
-    int loc = glproc::GetUniformLocation(m_hProgram, sName.c_str());
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "OGLShader::setUniformIntParam: GetUniformLocation()");
-    return loc;
-}
+    int OGLShader::getType() {
+        return m_Type;
+    }
+    GLhandleARB OGLShader::getGLHandle() {
+        return m_hShader;
+    }
 
 }

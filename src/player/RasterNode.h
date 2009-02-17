@@ -66,6 +66,8 @@ class AVG_API RasterNode: public AreaNode
         DisplayEngine::BlendMode getBlendMode() const;
         AreaNodePtr getElementByPos (const DPoint & pos);
 
+        virtual OGLShaderPtr getFragmentShader();
+
         virtual Bitmap* getBitmap();
         
     protected:

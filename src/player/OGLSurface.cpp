@@ -141,6 +141,15 @@ void OGLSurface::unlockBmps()
     }
 }
 
+OGLShaderPtr OGLSurface::getFragmentShader() {
+    //cerr <<"OGLSurface::getFrag"<<endl;
+    if (!m_pTextures.empty()) {
+        return m_pTextures[0][0]->getFragmentShader();
+    } else {
+        return OGLShaderPtr();
+    }
+}
+
 void OGLSurface::setMaxTileSize(const IntPoint& MaxTileSize)
 {
     if (m_bBound) {
@@ -220,6 +229,8 @@ string getGlModeString(int Mode)
 
 void OGLSurface::bind() 
 {
+
+    //cerr<<"OGLSurface::bind"<<endl;
     if (m_bBound) {
         rebind();
     } else {

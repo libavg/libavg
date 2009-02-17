@@ -176,6 +176,16 @@ ISurface * RasterNode::getSurface()
     return m_pSurface;
 }
 
+
+OGLShaderPtr RasterNode::getFragmentShader() 
+{
+    //cerr<<"RasterNode::getFrag"<<endl;
+    if (m_pSurface) {
+        return m_pSurface->getFragmentShader();
+    } else {
+        return OGLShaderPtr();
+    }
+}
 void RasterNode::checkDisplayAvailable(std::string sMsg)
 {
     if (!getOGLSurface()) {

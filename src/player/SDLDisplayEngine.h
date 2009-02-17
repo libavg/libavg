@@ -29,6 +29,7 @@
 #include "../graphics/Pixel32.h"
 #include "../graphics/OGLHelper.h"
 #include "../graphics/OGLShader.h"
+#include "../graphics/OGLProgram.h"
 #include "../graphics/VertexArray.h"
 
 #include <SDL/SDL.h>
@@ -74,6 +75,9 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual YCbCrMode getYCbCrMode();
         OGLShaderPtr getYCbCr420pShader();
         OGLShaderPtr getYCbCrJ420pShader();
+
+        virtual OGLProgramPtr getActiveShader();
+        virtual void setShaders(OGLShaderPtr pFragmentShader, OGLShaderPtr pVertexShader);
         
         virtual void showCursor (bool bShow);
         virtual BitmapPtr screenshot ();
@@ -96,7 +100,10 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         
         long long getGPUMemoryUsage();
         void deregisterSurface(ISurface *);
+    
 
+        void pushShader();
+        void popShader();
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);
         void initInput();
@@ -126,6 +133,13 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         bool m_bEnableCrop;
 
         SDL_Surface * m_pScreen;
+        
+        OGLShaderPtr m_pCurrentFragmentShader;
+        OGLShaderPtr m_pCurrentVertexShader;
+        
+        std::vector<OGLShaderPtr> m_ShaderStack;
+
+        OGLProgramPtr m_pActiveShader;
 
         void checkYCbCrSupport();
         YCbCrMode m_YCbCrMode;
@@ -163,6 +177,8 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         OGLMemoryMode m_MemoryMode;
         
         std::vector<OGLSurface *> m_pSurfaces;
+
+
 };
 
 }

@@ -1,3 +1,4 @@
+
 //
 //  libavg - Media Playback Engine. 
 //  Copyright (C) 2003-2008 Ulrich von Zadow
@@ -18,12 +19,12 @@
 //
 //  Current versions can be found at www.libavg.de
 //
-
 #ifndef _OGLShader_H_
 #define _OGLShader_H_
 
 #include "../api.h"
 #include "OGLHelper.h"
+#include "OGLShader.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -33,23 +34,14 @@ namespace avg {
 
 class AVG_API OGLShader {
     public:
-        OGLShader(std::string sProgram);
+        OGLShader(std::string sProgram, int type=GL_FRAGMENT_SHADER);
         virtual ~OGLShader();
-
-        void activate();
-        GLhandleARB getProgram();
-
-        void setUniformIntParam(const std::string& sName, int val);
-        void setUniformFloatParam(const std::string& sName, float val);
-        void setUniformFloatArrayParam(const std::string& sName, int count, float* pVal);
-        
+        int getType();
+        GLhandleARB getGLHandle();
     private:
-        void dumpInfoLog(GLhandleARB hObj);
-        int safeGetUniformLoc(const std::string& sName);
-
-        GLhandleARB m_hFragmentShader;
-        GLhandleARB m_hProgram;
         std::string m_sProgram;
+        GLhandleARB m_hShader;
+        int m_Type;
 };
 
 typedef boost::shared_ptr<OGLShader> OGLShaderPtr;

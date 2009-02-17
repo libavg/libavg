@@ -342,6 +342,12 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
 #endif
 void SDLDisplayEngine::teardown()
 {
+    m_pYCbCrJShader = OGLShaderPtr();
+    m_pYCbCrShader = OGLShaderPtr();
+    m_pActiveShader = OGLProgramPtr();
+    m_pCurrentVertexShader = OGLShaderPtr();
+    m_pCurrentFragmentShader = OGLShaderPtr();
+    m_ShaderStack.clear();
     if (m_VBMethod == VB_DRI) {
         close(m_dri_fd);
     }
@@ -463,6 +469,7 @@ void SDLDisplayEngine::render(AVGNodePtr pRootNode)
             "SDLDisplayEngine::render: glBlendFunc()");
     
     const DRect rc(0,0, m_Width, m_Height);
+    //FIXME clear Shaders
     glMatrixMode(GL_MODELVIEW);
     {
         ScopeTimer Timer(RootRenderProfilingZone);
@@ -603,6 +610,49 @@ OGLShaderPtr SDLDisplayEngine::getYCbCr420pShader()
 OGLShaderPtr SDLDisplayEngine::getYCbCrJ420pShader()
 {
     return m_pYCbCrJShader;
+}
+
+void SDLDisplayEngine::setShaders(OGLShaderPtr pFragmentShader, OGLShaderPtr pVertexShader) {
+    // null pointers as arguments -> no change
+    // to disable a shader one needs to pass an EmptyShader (handle == 0 probably)
+    bool changed = false;
+    //cerr <<"Maybe Switching Program " <<m_pCurrentFragmentShader<<" "<<m_pCurrentVertexShader<<"\n";
+    if (pFragmentShader && pFragmentShader != m_pCurrentFragmentShader) {
+        m_pCurrentFragmentShader = pFragmentShader;
+        changed = true;
+    }
+    if (pVertexShader && pVertexShader != m_pCurrentVertexShader) {
+        m_pCurrentVertexShader = pVertexShader;
+        changed = true;
+    }
+    if (!changed) {
+        return;
+    }
+    m_pActiveShader = OGLProgram::buildProgram(m_pCurrentFragmentShader, m_pCurrentVertexShader);
+    m_pActiveShader->activate();
+}
+
+void SDLDisplayEngine::pushShader(){
+    //copy current pair Frag/Vert Shader onto stack
+    //cerr<<"PUSH\n";
+    m_ShaderStack.push_back(m_pCurrentFragmentShader);
+    m_ShaderStack.push_back(m_pCurrentVertexShader);
+
+}
+void SDLDisplayEngine::popShader() {
+    //restore topmost frag/vert pair from stack
+    //cerr<<"POP\n";
+    m_pCurrentVertexShader = m_ShaderStack.back();
+    m_ShaderStack.pop_back();
+    m_pCurrentFragmentShader = m_ShaderStack.back();
+    m_ShaderStack.pop_back();
+    m_pActiveShader = OGLProgram::buildProgram(m_pCurrentFragmentShader, m_pCurrentVertexShader);
+    m_pActiveShader->activate();
+    
+}
+
+OGLProgramPtr SDLDisplayEngine::getActiveShader() {
+    return m_pActiveShader;
 }
 
 void SDLDisplayEngine::showCursor(bool bShow)

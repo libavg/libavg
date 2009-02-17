@@ -69,6 +69,7 @@ class AVG_API OGLSurface: public ISurface {
         bool isOneTexture(IntPoint Size);
         
         int getTotalTexMemory();
+        virtual OGLShaderPtr getFragmentShader();
 
     private:
         void calcTileSizes();

@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "../graphics/Bitmap.h"
+#include "../graphics/OGLShader.h"
 
 #include "DisplayEngine.h"
 
@@ -49,6 +50,7 @@ class AVG_API ISurface {
                 const Pixel32& color, DisplayEngine::BlendMode Mode) = 0;
 
         virtual bool isOneTexture(IntPoint Size) { return false; }
+        virtual OGLShaderPtr getFragmentShader() = 0;
 };
 
 }

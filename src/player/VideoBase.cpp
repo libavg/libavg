@@ -95,6 +95,7 @@ void VideoBase::pause()
     changeVideoState(Paused);
 }
 
+
 void VideoBase::render (const DRect& Rect)
 {
     switch(m_VideoState) 
@@ -152,12 +153,13 @@ void VideoBase::open()
     setViewport(-32767, -32767, -32767, -32767);
     PixelFormat pf = getPixelFormat();
     getSurface()->create(getMediaSize(), pf, true);
+    getSurface()->bind();
     if (pf == B8G8R8X8 || pf == B8G8R8A8) {
         FilterFill<Pixel32> Filter(Pixel32(0,0,0,255));
         Filter.applyInPlace(getSurface()->lockBmp());
         getSurface()->unlockBmps();
     }
-
+    
     m_bFirstFrameDecoded = false;
     m_bFrameAvailable = false;
 }

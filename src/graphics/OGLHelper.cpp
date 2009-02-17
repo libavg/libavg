@@ -52,15 +52,17 @@ namespace glproc {
     PFNGLUNMAPBUFFERPROC UnmapBuffer;
     PFNGLGETBUFFERSUBDATAPROC GetBufferSubData;
 
-    PFNGLCREATESHADEROBJECTARBPROC CreateShaderObject;
+    PFNGLCREATESHADERPROC CreateShaderObject;
     PFNGLSHADERSOURCEARBPROC ShaderSource;
     PFNGLCOMPILESHADERARBPROC CompileShader;
+    PFNGLDELETESHADERPROC DeleteShader;
     PFNGLCREATEPROGRAMOBJECTARBPROC CreateProgramObject;
     PFNGLATTACHOBJECTARBPROC AttachObject;
     PFNGLLINKPROGRAMARBPROC LinkProgram;
     PFNGLGETOBJECTPARAMETERIVARBPROC GetObjectParameteriv;
     PFNGLGETINFOLOGARBPROC GetInfoLog;
     PFNGLUSEPROGRAMOBJECTARBPROC UseProgramObject;
+    PFNGLDELETEPROGRAMPROC DeleteProgram;
     PFNGLGETUNIFORMLOCATIONARBPROC GetUniformLocation;
     PFNGLUNIFORM1IARBPROC Uniform1i;
     PFNGLUNIFORM1FARBPROC Uniform1f;
@@ -94,7 +96,7 @@ void OGLErrorCheck(int avgcode, const char * where)
         if (err != GL_INVALID_OPERATION) {
             OGLErrorCheck(avgcode, "  --");
         }
-        assert(false);
+        assert(false); //raise an exception here?
     }
 }
 
@@ -107,7 +109,7 @@ void winOGLErrorCheck(BOOL bOK, const string & where)
                 0, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                 szErr, 512, 0);
         AVG_TRACE(Logger::ERROR, where+":"+szErr);
-        assert(false);
+        assert(false); //raise an exception here?
     }
 }
 #endif
@@ -319,6 +321,26 @@ GLfunction getwglProcAddress(const char * psz)
 }
 #endif
 
+void dumpInfoLog(GLhandleARB hObj)
+{
+    int InfoLogLength;
+    GLcharARB * pInfoLog;
+
+    glproc::GetObjectParameteriv(hObj, GL_OBJECT_INFO_LOG_LENGTH_ARB, &InfoLogLength);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+        "dumpInfoLog: glGetObjectParameteriv()");
+    if (InfoLogLength > 1) {
+        pInfoLog = (GLcharARB*)malloc(InfoLogLength);
+        int CharsWritten;
+        glproc::GetInfoLog(hObj, InfoLogLength, &CharsWritten, pInfoLog);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "dumpInfoLog: glGetInfoLog()");
+        AVG_TRACE(Logger::WARNING, pInfoLog);
+        free(pInfoLog);
+    }
+}
+
+
 namespace glproc {
 
     void init() {
@@ -344,12 +366,13 @@ namespace glproc {
         UnmapBuffer = (PFNGLUNMAPBUFFERPROC)getFuzzyProcAddress("glUnmapBuffer");
         GetBufferSubData = (PFNGLGETBUFFERSUBDATAPROC)getFuzzyProcAddress("glGetBufferSubData");
 
-        CreateShaderObject = (PFNGLCREATESHADEROBJECTARBPROC)
-                getFuzzyProcAddress("glCreateShaderObject");
+        CreateShaderObject = (PFNGLCREATESHADERPROC)
+                getFuzzyProcAddress("glCreateShader");
         ShaderSource = (PFNGLSHADERSOURCEARBPROC)
                 getFuzzyProcAddress("glShaderSource");
         CompileShader = (PFNGLCOMPILESHADERARBPROC)
                 getFuzzyProcAddress("glCompileShader");
+        DeleteShader = (PFNGLDELETESHADERPROC) getFuzzyProcAddress("glDeleteShader");
         CreateProgramObject = (PFNGLCREATEPROGRAMOBJECTARBPROC)
                 getFuzzyProcAddress("glCreateProgramObject");
         AttachObject = (PFNGLATTACHOBJECTARBPROC)
@@ -360,6 +383,7 @@ namespace glproc {
         GetInfoLog = (PFNGLGETINFOLOGARBPROC)getFuzzyProcAddress("glGetInfoLog");
         UseProgramObject =(PFNGLUSEPROGRAMOBJECTARBPROC) 
                 getFuzzyProcAddress("glUseProgramObject");
+        DeleteProgram = (PFNGLDELETEPROGRAMPROC)getFuzzyProcAddress("glDeleteProgram");
         GetUniformLocation = (PFNGLGETUNIFORMLOCATIONARBPROC)
                 getFuzzyProcAddress("glGetUniformLocation");
         Uniform1i = (PFNGLUNIFORM1IARBPROC)getFuzzyProcAddress("glUniform1i");
@@ -384,6 +408,7 @@ namespace glproc {
         SwapIntervalEXT = (PFNWGLEXTSWAPCONTROLPROC) getwglProcAddress("wglSwapIntervalEXT");
 #endif
     }
-}
 
 }
+}
+

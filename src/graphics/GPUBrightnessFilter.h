@@ -26,7 +26,7 @@
 #include "GPUFilter.h"
 #include "Bitmap.h"
 #include "PBOImage.h"
-#include "OGLShader.h"
+#include "OGLProgram.h"
 
 namespace avg {
 
@@ -43,7 +43,7 @@ private:
 
     double m_Alpha;
 
-    static OGLShaderPtr s_pShader;
+    static OGLProgramPtr s_pShader;
 };
 
 } // namespace

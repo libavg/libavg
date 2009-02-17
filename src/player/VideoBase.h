@@ -49,7 +49,7 @@ class AVG_API VideoBase : public RasterNode
         
         virtual void render (const DRect& Rect);
         virtual std::string dump (int indent = 0);
-        
+       
     protected:        
         VideoBase();
         enum VideoState {Unloaded, Paused, Playing};
