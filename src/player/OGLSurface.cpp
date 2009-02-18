@@ -82,6 +82,7 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
 BitmapPtr OGLSurface::lockBmp(int i)
 {
 //    cerr << "lockBmp " << i << endl;
+    assert(m_bCreated);
     switch (m_MemoryMode) {
         case PBO:
             {
@@ -120,6 +121,7 @@ BitmapPtr OGLSurface::lockBmp(int i)
 
 void OGLSurface::unlockBmps()
 {
+    assert(m_bCreated);
 //    cerr << "unlockBmps" << endl;
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
         for (int i=0; i<3; i++) {
@@ -133,12 +135,14 @@ void OGLSurface::unlockBmps()
 
 void OGLSurface::bindPBO(int i) 
 {
+    assert(m_bCreated);
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::bind: glBindBuffer()");
 }
 
 void OGLSurface::unbindPBO() 
 {
+    assert(m_bCreated);
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::bind: glBindBuffer()");
 }
@@ -151,6 +155,19 @@ PixelFormat OGLSurface::getPixelFormat()
 IntPoint OGLSurface::getSize()
 {
     return m_Size;
+}
+
+int OGLSurface::getTotalTexMemory()
+{
+    if (m_bCreated) {
+        if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+            return int(m_Size.x*m_Size.y*1.5);
+        } else {
+            return m_Size.x*m_Size.y*Bitmap::getBytesPerPixel(m_pf);
+        }
+    } else {
+        return 0;
+    }
 }
 
 SDLDisplayEngine * OGLSurface::getEngine()

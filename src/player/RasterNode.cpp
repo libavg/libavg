@@ -22,7 +22,7 @@
 #include "RasterNode.h"
 
 #include "NodeDefinition.h"
-#include "DisplayEngine.h"
+#include "SDLDisplayEngine.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -92,22 +92,22 @@ void RasterNode::disconnect()
 
 VertexGrid RasterNode::getOrigVertexCoords()
 {
-    OGLTiledSurface * pOGLSurface = getSurface();
     checkDisplayAvailable("getOrigVertexCoords");
+    OGLTiledSurface * pOGLSurface = getSurface();
     return pOGLSurface->getOrigVertexCoords();
 }
 
 VertexGrid RasterNode::getWarpedVertexCoords() 
 {
-    OGLTiledSurface * pOGLSurface = getSurface();
     checkDisplayAvailable("getWarpedVertexCoords");
+    OGLTiledSurface * pOGLSurface = getSurface();
     return pOGLSurface->getWarpedVertexCoords();
 }
 
 void RasterNode::setWarpedVertexCoords(const VertexGrid& Grid)
 {
-    OGLTiledSurface * pOGLSurface = getSurface();
     checkDisplayAvailable("setWarpedVertexCoords");
+    OGLTiledSurface * pOGLSurface = getSurface();
     pOGLSurface->setWarpedVertexCoords(Grid);
 }
 
@@ -180,9 +180,10 @@ OGLShaderPtr RasterNode::getFragmentShader()
         return OGLShaderPtr();
     }
 }
+
 void RasterNode::checkDisplayAvailable(std::string sMsg)
 {
-    if (!getSurface()) {
+    if (!(getState() == Node::NS_CANRENDER)) {
         throw Exception(AVG_ERR_UNSUPPORTED,
             string(sMsg) + ": cannot access vertex coordinates before Player.play().");
     }

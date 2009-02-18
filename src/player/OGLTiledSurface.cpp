@@ -81,10 +81,10 @@ void OGLTiledSurface::setMaxTileSize(const IntPoint& MaxTileSize)
     if (m_MaxTileSize.y != -1) {
         m_MaxTileSize.y = nextpow2(m_MaxTileSize.y/2+1);
     }
-    if (getBmp(0)) {
+//    if (getBmp(0)) {
         calcTileSizes();
         initTileVertices(m_TileVertices);
-    }
+//    }
 }
 
 VertexGrid OGLTiledSurface::getOrigVertexCoords()
@@ -434,19 +434,6 @@ void OGLTiledSurface::checkBlendModeError(const char *mode)
             bErrorReported = true;
         }
     }
-}
-
-int OGLTiledSurface::getTotalTexMemory()
-{
-    int iAmount = 0;
-    if (m_bBound) {
-        for (int y=0; y<m_NumTextures.y; y++) {
-            for (int x=0; x<m_NumTextures.x; x++) {
-                iAmount += m_pTextures[y][x]->getTexMemDim();
-            }
-        }
-    }
-    return iAmount;
 }
 
 OGLShaderPtr OGLTiledSurface::getFragmentShader()

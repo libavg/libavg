@@ -111,11 +111,6 @@ void AreaNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
 }
 
-DivNodePtr AreaNode::getDivParent() const
-{
-    return dynamic_pointer_cast<DivNode>(Node::getParent());
-}
-
 double AreaNode::getX() const 
 {
     return m_RelViewport.tl.x;
@@ -253,7 +248,7 @@ void AreaNode::setSensitive(bool bSensitive)
 DPoint AreaNode::getRelPos(const DPoint& AbsPos) const 
 {
     DPoint parentPos;
-    DivNodePtr pParent = getDivParent();
+    DivNodePtr pParent = getParent();
     if (!pParent) {
         parentPos = AbsPos;
     } else {
@@ -266,7 +261,7 @@ DPoint AreaNode::getAbsPos(const DPoint& RelPos) const
 {
     DPoint thisPos = toGlobal(RelPos);
     DPoint parentPos;
-    DivNodePtr pParent = getDivParent();
+    DivNodePtr pParent = getParent();
     if (!pParent) {
         parentPos = thisPos;
     } else {
@@ -348,8 +343,7 @@ void AreaNode::maybeRender(const DRect& Rect)
             } else {
                 AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
             }
-            SDLDisplayEngine * pEngine = dynamic_cast<SDLDisplayEngine*>(
-                    getDisplayEngine());
+            SDLDisplayEngine * pEngine = getDisplayEngine();
             pEngine->pushTransform(getRelViewport().tl, getAngle(), getPivot());
             pEngine->enableGLColorArray(false);
             pEngine->enableTexture(true);

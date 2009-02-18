@@ -49,6 +49,7 @@ class AVG_API OGLSurface {
 
         PixelFormat getPixelFormat();
         IntPoint getSize();
+        int getTotalTexMemory();
 
     protected:
         SDLDisplayEngine * getEngine();

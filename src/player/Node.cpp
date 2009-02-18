@@ -24,7 +24,7 @@
 #include "NodeDefinition.h"
 #include "DivNode.h"
 #include "Player.h"
-#include "DisplayEngine.h"
+#include "SDLDisplayEngine.h"
 #include "Arg.h"
 
 #include "../base/Logger.h"
@@ -88,7 +88,7 @@ void Node::removeParent()
 void Node::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
     assert(getState() == NS_CONNECTED);
-    m_pDisplayEngine = pDisplayEngine;
+    m_pDisplayEngine = dynamic_cast<SDLDisplayEngine*>(pDisplayEngine);
     m_pAudioEngine = pAudioEngine;
     setState(NS_CANRENDER);
 }
@@ -182,7 +182,7 @@ const NodeDefinition* Node::getDefinition() const
     return m_pDefinition;
 }
 
-DisplayEngine * Node::getDisplayEngine() const
+SDLDisplayEngine * Node::getDisplayEngine() const
 {
     return m_pDisplayEngine;
 }
