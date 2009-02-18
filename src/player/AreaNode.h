@@ -68,8 +68,6 @@ class AVG_API AreaNode: public Node
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
         
-        virtual DivNodePtr getDivParent() const;
-
         double getX() const;
         void setX(double x);
         

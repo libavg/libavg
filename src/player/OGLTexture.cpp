@@ -35,8 +35,7 @@ namespace avg {
 using namespace std;
     
 OGLTexture::OGLTexture(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize,
-        IntRect TileIndexExtent, int Stride, PixelFormat pf, 
-        SDLDisplayEngine * pEngine) 
+        IntRect TileIndexExtent, PixelFormat pf, SDLDisplayEngine * pEngine) 
     : m_TexExtent(TexExtent),
       m_TexSize(TexSize),
       m_TileSize(TileSize),
@@ -45,7 +44,7 @@ OGLTexture::OGLTexture(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize,
       m_pEngine(pEngine)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    createTextures(Stride);
+    createTextures();
     int numTiles = m_TileIndexExtent.width()*m_TileIndexExtent.height();
     m_pVertexes = new VertexArray(numTiles*4, numTiles*6);
     calcTexCoords();
@@ -58,14 +57,13 @@ OGLTexture::~OGLTexture()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void OGLTexture::resize(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize, 
-        int Stride)
+void OGLTexture::resize(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize)
 {
     deleteTextures();
     m_TexExtent = TexExtent;
     m_TexSize = TexSize;
     m_TileSize = TileSize;
-    createTextures(Stride);
+    createTextures();
     calcTexCoords();
 }
 
@@ -146,18 +144,18 @@ void OGLTexture::blt(const VertexGrid* pVertexes) const
     }
 }
 
-void OGLTexture::createTextures(int Stride)
+void OGLTexture::createTextures()
 {
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-        createTexture(0, m_TexSize, Stride, I8);
-        createTexture(1, m_TexSize/2, Stride/2, I8);
-        createTexture(2, m_TexSize/2, Stride/2, I8);
+        createTexture(0, m_TexSize, I8);
+        createTexture(1, m_TexSize/2, I8);
+        createTexture(2, m_TexSize/2, I8);
     } else {
-        createTexture(0, m_TexSize, Stride, m_pf);
+        createTexture(0, m_TexSize, m_pf);
     }
 }
 
-void OGLTexture::createTexture(int i, IntPoint Size, int Stride, PixelFormat pf)
+void OGLTexture::createTexture(int i, IntPoint Size, PixelFormat pf)
 {
     glGenTextures(1, &m_TexID[i]);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::createTexture: glGenTextures()");
@@ -176,15 +174,6 @@ void OGLTexture::createTexture(int i, IntPoint Size, int Stride, PixelFormat pf)
             "OGLTexture::createTexture: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
     
     GLenum DestMode = m_pEngine->getOGLDestMode(pf);
-#if defined(__APPLE__) && !defined(__i386__)
-    // XXX: Hack to work around broken Mac OS X GL_ALPHA/GL_UNPACK_ROW_LENGTH on 
-    // PPC macs. If this is gone, the Stride parameter can be removed too :-).
-    if (Stride != Size.x && DestMode == GL_ALPHA &&
-            (m_pf == YCbCr420p || m_pf == YCbCrJ420p)) 
-    {
-        DestMode = GL_RGBA;
-    }
-#endif
     char * pPixels = 0;
     if (TextureMode == GL_TEXTURE_2D) {
         // Make sure the texture is transparent and black before loading stuff 

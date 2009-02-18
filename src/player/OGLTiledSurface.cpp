@@ -197,17 +197,16 @@ void OGLTiledSurface::bind()
                             ((pOldTextures[y][x])->getTileIndexExtent() == TileIndexExtents &&
                              (pOldTextures[y][x]->getPixelFormat() == pf));
                 }
-                int width = getSize().x;
                 if (bReuseTexture) {
                     pTexture = pOldTextures[y][x];
-                    pTexture->resize(CurExtent, CurSize, m_TileSize, width);
+                    pTexture->resize(CurExtent, CurSize, m_TileSize);
                 } else {
-                    pTexture = OGLTexturePtr(new OGLTexture(CurExtent, 
-                                CurSize, m_TileSize, TileIndexExtents, width, pf,
-                                getEngine()));
+                    pTexture = OGLTexturePtr(new OGLTexture(CurExtent, CurSize, 
+                            m_TileSize, TileIndexExtents, pf, getEngine()));
                 }
                 m_pTextures[y].push_back(pTexture);
                 OGLMemoryMode memMode = getMemMode();
+                int width = getSize().x;
                 if (memMode == PBO) {
                     if (pf == YCbCr420p || pf == YCbCrJ420p) {
                         for (int i=0; i<3; i++) {

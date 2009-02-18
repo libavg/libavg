@@ -20,7 +20,7 @@
 //
 
 #include "DivNode.h"
-#include "DisplayEngine.h"
+#include "SDLDisplayEngine.h"
 #include "Player.h"
 #include "NodeDefinition.h"
 
@@ -287,8 +287,8 @@ string DivNode::getEffectiveMediaDir()
 {
     string sMediaDir = m_sMediaDir;
     if (!isAbsPath(sMediaDir)) {
-        if (getDivParent()) {
-            sMediaDir = getDivParent()->getEffectiveMediaDir()+m_sMediaDir;
+        if (getParent()) {
+            sMediaDir = getParent()->getEffectiveMediaDir()+m_sMediaDir;
         } else {
             sMediaDir = Player::get()->getRootMediaDir()+m_sMediaDir;
         }

@@ -21,17 +21,13 @@
 
 #include "Image.h"
 
-#include "DisplayEngine.h"
-#include "Player.h"
-#include "OGLTiledSurface.h"
-#include "NodeDefinition.h"
-
 #include "../base/Logger.h"
-#include "../base/ScopeTimer.h"
-#include "../base/XMLHelper.h"
 #include "../base/Exception.h"
 
 #include "../graphics/Filterfliprgb.h"
+
+#include "OGLTiledSurface.h"
+#include "SDLDisplayEngine.h"
 
 #include <Magick++.h>
 
@@ -42,86 +38,22 @@ using namespace std;
 
 namespace avg {
 
-NodeDefinition Image::createDefinition()
+Image::Image(const string& sFilename, bool bTiled)
+    : m_sFilename(sFilename),
+      m_pBmp(new Bitmap(IntPoint(1,1), R8G8B8X8)),
+      m_pSurface(0),
+      m_State(NOT_AVAILABLE),
+      m_bTiled(bTiled)
 {
-    return NodeDefinition("image", Node::buildNode<Image>)
-        .extendDefinition(RasterNode::createDefinition())
-        .addArg(Arg<string>("href", "", false, offsetof(Image, m_href)));
-}
-
-Image::Image(const ArgList& Args, bool bFromXML)
-    : m_bIsImageAvailable(false)
-{
-    Args.setMembers(this);
-    setHRef(m_href);
-}
-
-Image::~Image()
-{
-}
-
-void Image::setRenderingEngines(DisplayEngine * pDisplayEngine,
-        AudioEngine * pAudioEngine)
-{
-    RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
-    setupSurface();
-}
-
-void Image::connect()
-{
-    RasterNode::connect();
-    checkReload();
-}
-
-void Image::disconnect()
-{
-    if (getState() == NS_CANRENDER) {
-        // Unload textures but keep bitmap in memory.
-        OGLTiledSurface * pSurface = getSurface();
-        BitmapPtr pSurfaceBmp = pSurface->lockBmp();
-        m_pBmp = BitmapPtr(new Bitmap(pSurfaceBmp->getSize(), 
-                pSurfaceBmp->getPixelFormat()));
-        m_pBmp->copyPixels(*pSurfaceBmp);
-        pSurface->unlockBmps();
-#ifdef __i386__
-        // XXX Yuck
-        if (!(getDisplayEngine()->hasRGBOrdering()) && 
-            m_pBmp->getBytesPerPixel() >= 3)
-        {
-            FilterFlipRGB().applyInPlace(m_pBmp);
-        }
-#endif
-    }
-
-    RasterNode::disconnect();
-}
-
-const std::string& Image::getHRef() const
-{
-    return m_href;
-}
-
-void Image::setHRef(const string& href)
-{
-    m_href = href;
     load();
-    IntPoint Size = getMediaSize();
-    setViewport(-32767, -32767, Size.x, Size.y);
 }
 
-void Image::setBitmap(const Bitmap * pBmp)
+Image::Image(const Bitmap* pBmp, bool bTiled)
+    : m_pSurface(0),
+      m_State(CPU),
+      m_bTiled(bTiled)
 {
-    // TODO: Add a unique bitmap identifier to the URI.
-    m_bIsImageAvailable = true;
-    m_href = "";
-    m_Filename = "";
-    PixelFormat pf;
-
-    if(!pBmp)
-        throw Exception(AVG_ERR_UNSUPPORTED,
-            "setBitmap(): bitmap must not be None!");
-
-    pf = R8G8B8X8;
+    PixelFormat pf = R8G8B8X8;
     if (pBmp->hasAlpha()) {
         pf = R8G8B8A8;
     }
@@ -140,97 +72,100 @@ void Image::setBitmap(const Bitmap * pBmp)
             break;
     }
 #endif
-//    cerr << "setBitmap, pf: " << Bitmap::getPixelFormatString(pf) << endl;
-    if (getState() == NS_CANRENDER) {
-        OGLTiledSurface * pSurface = getSurface();
-        BitmapPtr pTempBmp = BitmapPtr(new Bitmap(*pBmp));
-        if (pf != I8) {
-            FilterFlipRGB().applyInPlace(pTempBmp);
-        }
-        if (pSurface->getSize() != pTempBmp->getSize() || pSurface->getPixelFormat() != pf) {
-            pSurface->create(pTempBmp->getSize(), pf, true);
-        }
-        BitmapPtr pSurfaceBmp = pSurface->lockBmp();
-        pSurfaceBmp->copyPixels(*pTempBmp);
-        pSurface->unlockBmps();
-        pSurface->bind();
+    m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
+    m_pBmp->copyPixels(*pBmp);
+}
+
+Image::~Image()
+{
+    if (m_State == GPU) {
+        delete m_pSurface;
+        m_pSurface = 0;
+    }
+}
+
+void Image::moveToGPU(SDLDisplayEngine* pEngine)
+{
+    m_pEngine = pEngine;
+    if (m_State == GPU) {
+        return;
+    }
+    m_State = GPU;
+    setupSurface();
+}
+
+void Image::moveToCPU()
+{
+    if (m_State != GPU) {
+        return;
+    }
+    BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
+    m_pBmp = BitmapPtr(new Bitmap(pSurfaceBmp->getSize(), 
+                pSurfaceBmp->getPixelFormat()));
+    m_pBmp->copyPixels(*pSurfaceBmp);
+    m_pSurface->unlockBmps();
+#ifdef __i386__
+    // XXX Yuck
+    if (!m_pEngine->hasRGBOrdering() && m_pBmp->getBytesPerPixel() >= 3) {
+        FilterFlipRGB().applyInPlace(m_pBmp);
+    }
+#endif
+    m_State = CPU;
+    m_pEngine = 0;
+    delete m_pSurface;
+    m_pSurface = 0;
+}
+
+const string& Image::getFilename() const
+{
+    return m_sFilename;
+}
+
+Bitmap* Image::getBitmap()
+{
+    if (m_State == GPU) {
+        Bitmap* pBmp = new Bitmap(*(m_pSurface->lockBmp()));
+        m_pSurface->unlockBmps();
+        return pBmp;
     } else {
-        if (m_pBmp->getSize() != pBmp->getSize() || m_pBmp->getPixelFormat() != pf) {
-            m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
-        }
-        m_pBmp->copyPixels(*pBmp);
-    }
-    IntPoint Size = getMediaSize();
-    setViewport(-32767, -32767, Size.x, Size.y);
-}
-
-static ProfilingZone RenderProfilingZone("Image::render");
-
-void Image::render(const DRect& Rect)
-{
-    ScopeTimer Timer(RenderProfilingZone);
-    if (m_bIsImageAvailable) {
-        getSurface()->blt32(getSize(), getEffectiveOpacity(), getBlendMode());
+        return new Bitmap(*m_pBmp);
     }
 }
 
-IntPoint Image::getMediaSize()
+IntPoint Image::getSize()
 {
-    if (getState() == NS_CANRENDER) {
-        return getSurface()->getSize();
+    if (m_State == GPU) {
+        return m_pSurface->getSize();
     } else {
         return m_pBmp->getSize();
     }
 }
 
-void Image::checkReload()
+OGLSurface* Image::getSurface()
 {
-    string sLastFilename = m_Filename;
-    m_Filename = m_href;
-    if (m_Filename != "") {
-        initFilename(m_Filename);
-    }
-    if (sLastFilename != m_Filename || !m_pBmp) {
-        load();
-        IntPoint Size = getMediaSize();
-        setViewport(-32767, -32767, Size.x, Size.y);
-    }
+    assert(m_State != CPU);
+    return m_pSurface;
 }
 
-Bitmap * Image::getBitmap()
+OGLTiledSurface* Image::getTiledSurface()
 {
-    if (getState() == NS_CANRENDER) {
-        return RasterNode::getBitmap();
-    } else {
-        Bitmap * pBmp;
-        pBmp = new Bitmap(*m_pBmp);
-        return pBmp;
-    }
+    return dynamic_cast<OGLTiledSurface*>(getSurface());
+}
+
+Image::State Image::getState()
+{
+    return m_State;
 }
 
 void Image::load()
 {
-    m_Filename = m_href;
-    m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
-    m_bIsImageAvailable = false;
-    if (m_Filename != "") {
-        initFilename(m_Filename);
-        AVG_TRACE(Logger::MEMORY, "Loading " << m_Filename);
-        try {
-            m_pBmp = BitmapPtr(new Bitmap(m_Filename));
-            m_bIsImageAvailable = true;
-        } catch (Magick::Exception & ex) {
-            if (getState() == Node::NS_CONNECTED) {
-                AVG_TRACE(Logger::ERROR, ex.what());
-            } else {
-                AVG_TRACE(Logger::MEMORY, ex.what());
-            }
-        }
+    assert (m_State == NOT_AVAILABLE);
+    if (m_sFilename == "") {
+        return;
     }
-    assert(m_pBmp);
-    if (getState() == NS_CANRENDER) {
-        setupSurface();
-    }
+    AVG_TRACE(Logger::MEMORY, "Loading " << m_sFilename);
+    m_pBmp = BitmapPtr(new Bitmap(m_sFilename));
+    m_State = CPU;
 }
 
 void Image::setupSurface()
@@ -240,17 +175,20 @@ void Image::setupSurface()
     if (m_pBmp->hasAlpha()) {
         pf = R8G8B8A8;
     }
-    OGLTiledSurface * pSurface = getSurface();
-    pSurface->create(m_pBmp->getSize(), pf, true);
-    BitmapPtr pSurfaceBmp = pSurface->lockBmp();
+    if (m_bTiled) {
+        m_pSurface = m_pEngine->createTiledSurface();
+    } else {
+        m_pSurface = new OGLSurface(m_pEngine);
+    }
+    m_pSurface->create(m_pBmp->getSize(), pf, true);
+    BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
     pSurfaceBmp->copyPixels(*m_pBmp);
 #ifdef __i386__
-    if (!(getDisplayEngine()->hasRGBOrdering())) {
+    if (!(m_pEngine->hasRGBOrdering())) {
         FilterFlipRGB().applyInPlace(pSurfaceBmp);
     }
 #endif
-    pSurface->unlockBmps();
-    pSurface->bind();
+    m_pSurface->unlockBmps();
     m_pBmp=BitmapPtr();
 }
 

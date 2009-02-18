@@ -19,57 +19,48 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Image_H_
-#define _Image_H_
+#ifndef _ImageNode_H_
+#define _ImageNode_H_
 
 #include "../api.h"
+#include "RasterNode.h"
+#include "Image.h"
 
-#include "../base/Point.h"
 #include "../graphics/Bitmap.h"
 
-#include <boost/shared_ptr.hpp>
 #include <string>
 
 namespace avg {
 
-class OGLSurface;
-class OGLTiledSurface;
-class SDLDisplayEngine;
-
-class AVG_API Image
+class AVG_API ImageNode : public RasterNode
 {
     public:
-        typedef enum State {NOT_AVAILABLE, CPU, GPU};
-
-        Image(const std::string& sFilename, bool bTiled);
-        Image(const Bitmap* pBmp, bool bTiled);
-        virtual ~Image();
-
-        void moveToGPU(SDLDisplayEngine* pEngine);
-        void moveToCPU();
-
-        const std::string& getFilename() const;
+        static NodeDefinition createDefinition();
         
-        Bitmap* getBitmap();
-        IntPoint getSize();
-        OGLSurface* getSurface();
-        OGLTiledSurface* getTiledSurface();
-        State getState();
+        ImageNode(const ArgList& Args, bool bFromXML);
+        virtual ~ImageNode();
+        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
+                AudioEngine * pAudioEngine);
+        virtual void connect();
+        virtual void disconnect();
 
+        const std::string& getHRef() const;
+        void setHRef(const std::string& href);
+        void setBitmap(const Bitmap * pBmp);
+        
+        virtual void render(const DRect& Rect);
+        
+        virtual Bitmap* getBitmap();
+        virtual IntPoint getMediaSize();
+        virtual void checkReload();
+
+    protected:
+        virtual OGLTiledSurface * getSurface();
+    
     private:
-        void load();
-        void setupSurface();
-
-        std::string m_sFilename;
-        BitmapPtr m_pBmp;
-        OGLSurface * m_pSurface;
-        SDLDisplayEngine * m_pEngine;
-
-        State m_State;
-        bool m_bTiled;
+        std::string m_href;
+        ImagePtr m_pImage;
 };
-
-typedef boost::shared_ptr<Image> ImagePtr;
 
 }
 

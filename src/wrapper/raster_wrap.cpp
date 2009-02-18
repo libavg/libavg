@@ -22,7 +22,7 @@
 #include "WrapHelper.h"
 
 #include "../player/CameraNode.h"
-#include "../player/Image.h"
+#include "../player/ImageNode.h"
 #include "../player/Video.h"
 #include "../player/Words.h"
 
@@ -150,19 +150,19 @@ void export_raster()
                 "it. Valid values are 'blend', 'add', 'min' and 'max'.")
     ;
 
-    class_<Image, bases<RasterNode> >("Image",
+    class_<ImageNode, bases<RasterNode> >("Image",
             "A static raster image on the screen. Images are loaded from files on\n"
             "program start. Alpha channels of the image files are used as\n"
             "transparency information.\n",
             no_init)
-        .def("setBitmap", &Image::setBitmap, 
+        .def("setBitmap", &ImageNode::setBitmap, 
                 "setBitmap(bitmap)\n"
                 "Sets the bitmap pixels of the image.\n"
                 "@param bitmap: A libavg bitmap object to use.")
         .add_property("href", 
-                make_function(&Image::getHRef,
+                make_function(&ImageNode::getHRef,
                         return_value_policy<copy_const_reference>()),
-                make_function(&Image::setHRef,
+                make_function(&ImageNode::setHRef,
                         return_value_policy<copy_const_reference>()),
                 "The source filename of the image.\n")
     ;
