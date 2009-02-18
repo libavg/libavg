@@ -73,27 +73,6 @@ void ImageNode::connect()
     string sLastFilename = m_pImage->getFilename();
     string sFilename = m_href;
     checkReload();
-/*    
-    if (sFilename != "") {
-        initFilename(sFilename);
-    }
-    if (sLastFilename != sFilename) {
-        try {
-            m_pImage = ImagePtr(new Image(sFilename, true));
-        } catch (Magick::Exception & ex) {
-            if (getState() == Node::NS_CONNECTED) {
-                AVG_TRACE(Logger::ERROR, ex.what());
-            } else {
-                AVG_TRACE(Logger::MEMORY, ex.what());
-            }
-        }
-        IntPoint Size = getMediaSize();
-        setViewport(-32767, -32767, Size.x, Size.y);
-    }
-    if (getDisplayEngine()) {
-        m_pImage->moveToGPU(getDisplayEngine());
-    }
-*/    
 }
 
 void ImageNode::disconnect()
@@ -111,27 +90,6 @@ void ImageNode::setHRef(const string& href)
 {
     m_href = href;
     checkReload();
-/*    
-    string sFilename = m_href;
-    if (sFilename != "") {
-        initFilename(sFilename);
-    }
-    try {
-        m_pImage = ImagePtr(new Image(sFilename, true));
-    } catch (Magick::Exception & ex) {
-        if (getState() == Node::NS_CONNECTED) {
-            AVG_TRACE(Logger::ERROR, ex.what());
-        } else {
-            AVG_TRACE(Logger::MEMORY, ex.what());
-        }
-    }
-    if (getState() == NS_CANRENDER) {
-        m_pImage->moveToGPU(getDisplayEngine());
-    }
-    
-    IntPoint Size = getMediaSize();
-    setViewport(-32767, -32767, Size.x, Size.y);
-*/
 }
 
 void ImageNode::setBitmap(const Bitmap * pBmp)
