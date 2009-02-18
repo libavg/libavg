@@ -33,8 +33,6 @@
 
 #include "../graphics/Filterfliprgb.h"
 
-#include <Magick++.h>
-
 #include <iostream>
 #include <sstream>
 
@@ -125,26 +123,9 @@ IntPoint ImageNode::getMediaSize()
 
 void ImageNode::checkReload()
 {
-    string sLastFilename = m_pImage->getFilename();
-    string sFilename = m_href;
-    initFilename(sFilename);
-    if (sLastFilename != sFilename) {
-        try {
-            m_pImage = ImagePtr(new Image(sFilename, true));
-        } catch (Magick::Exception & ex) {
-            m_pImage = ImagePtr(new Image("", true));
-            if (getState() == Node::NS_CONNECTED) {
-                AVG_TRACE(Logger::ERROR, ex.what());
-            } else {
-                AVG_TRACE(Logger::MEMORY, ex.what());
-            }
-        }
-        IntPoint Size = getMediaSize();
-        setViewport(-32767, -32767, Size.x, Size.y);
-    }
-    if (getDisplayEngine()) {
-        m_pImage->moveToGPU(getDisplayEngine());
-    }
+    Node::checkReload(m_href, m_pImage);
+    IntPoint Size = getMediaSize();
+    setViewport(-32767, -32767, Size.x, Size.y);
 }
 
 Bitmap * ImageNode::getBitmap()

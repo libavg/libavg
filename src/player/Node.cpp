@@ -26,11 +26,14 @@
 #include "Player.h"
 #include "SDLDisplayEngine.h"
 #include "Arg.h"
+#include "Image.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/XMLHelper.h"
 #include "../base/StringHelper.h"
+
+#include <Magick++.h>
 
 #include <iostream>
 
@@ -261,6 +264,28 @@ void Node::initFilename(string& sFilename)
                 sFilename = pParent->getEffectiveMediaDir()+sFilename;
             }
         }
+    }
+}
+
+void Node::checkReload(const std::string& sHRef, ImagePtr& pImage)
+{
+    string sLastFilename = pImage->getFilename();
+    string sFilename = sHRef;
+    initFilename(sFilename);
+    if (sLastFilename != sFilename) {
+        try {
+            pImage = ImagePtr(new Image(sFilename, true));
+        } catch (Magick::Exception & ex) {
+            pImage = ImagePtr(new Image("", true));
+            if (getState() == Node::NS_CONNECTED) {
+                AVG_TRACE(Logger::ERROR, ex.what());
+            } else {
+                AVG_TRACE(Logger::MEMORY, ex.what());
+            }
+        }
+    }
+    if (getDisplayEngine()) {
+        pImage->moveToGPU(getDisplayEngine());
     }
 }
 
