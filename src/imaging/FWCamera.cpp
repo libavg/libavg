@@ -464,12 +464,12 @@ const std::string& FWCamera::getDriverName() const
 {
 #ifdef AVG_ENABLE_1394
     static string sDriverName = "libdc1394 v1";
-    return sDriverName;
 #elif AVG_ENABLE_1394_2
     static string sDriverName = "libdc1394 v2";
-    return sDriverName;
+#else
+    static string sDriverName = "unused";
 #endif
-    return "";
+    return sDriverName;
 }
 
 double FWCamera::getFrameRate() const

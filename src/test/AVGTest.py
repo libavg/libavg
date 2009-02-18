@@ -594,6 +594,30 @@ class PlayerTestCase(AVGTestCase):
             print("(Intentional) NameError caught")
             self.assert_(1)
 
+    def testNOPShader(self):
+        def addShader():
+            shaderProg="""void main() {
+                gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+                gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;
+                gl_FrontColor = gl_Color;
+                gl_TexCoord[0] = gl_MultiTexCoord0;
+            }"""
+            Player.getElementByID("pano").setVertexShader(shaderProg)
+        def changeProperties():
+            node = Player.getElementByID("pano")
+            node.sensorheight=10
+            node.sensorwidth=15
+            node.focallength=25
+        def loadImage():
+            node = Player.getElementByID("pano")
+            node.href = "rgb24-65x65.png"
+        self.start("panoimage.avg",
+                (addShader,
+                 lambda: self.compareImage("testPanoImagewNOP", False),
+                 lambda: time.sleep,
+                 changeProperties,
+                 loadImage
+                ))
     def testHugeImage(self):
         def moveImage():
             Player.getElementByID("mainimg").x -= 2500
@@ -917,6 +941,7 @@ def playerTestSuite(bpp, tests):
             "testTimeouts",
             "testEventErr",
             "testHugeImage",
+            "testNOPShader",
             "testPanoImage",
             "testBroken",
             "testMove",

@@ -60,7 +60,7 @@ OGLProgramPtr OGLProgram::buildProgram(OGLShaderPtr fragmentShader, OGLShaderPtr
     } else {
         prog = OGLProgramPtr(new OGLProgram(fragmentShader, vertexShader));
         ProgramCache[ShaderPair(fragmentShader, vertexShader)] = prog;
-        cerr<<"Build Shader Program: "<<fragmentShader<<", "<<vertexShader<<endl;
+        //cerr<<"Build Shader Program: "<<fragmentShader<<", "<<vertexShader<<endl;
     }
     return prog;
 }
