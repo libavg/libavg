@@ -295,13 +295,13 @@ void VectorNode::setupSurface()
     createTexture();
     BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
     pSurfaceBmp->copyPixels(*m_pBmp);
+    m_pSurface->unlockBmps();
     downloadTexture(pSurfaceBmp);
 #ifdef __i386__
     if (!(getDisplayEngine()->hasRGBOrdering())) {
         FilterFlipRGB().applyInPlace(pSurfaceBmp);
     }
 #endif
-    m_pSurface->unlockBmps();
     m_pBmp=BitmapPtr();
 }
 

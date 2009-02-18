@@ -81,6 +81,7 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
 
 BitmapPtr OGLSurface::lockBmp(int i)
 {
+    assert(m_bCreated);
 //    cerr << "lockBmp " << i << endl;
     switch (m_MemoryMode) {
         case PBO:
@@ -133,12 +134,15 @@ void OGLSurface::unlockBmps()
 
 void OGLSurface::bindPBO(int i) 
 {
+//    cerr << "bindPBO" << endl;
+    assert(m_bCreated);
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::bind: glBindBuffer()");
 }
 
 void OGLSurface::unbindPBO() 
 {
+//    cerr << "unbindPBO" << endl;
     glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::bind: glBindBuffer()");
 }
