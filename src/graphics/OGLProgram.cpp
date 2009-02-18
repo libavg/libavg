@@ -39,6 +39,11 @@ typedef map<ShaderPair, OGLProgramPtr> ProgramCacheType;
 static ProgramCacheType ProgramCache;
 
 
+void OGLProgram::flushCache()
+{
+    ProgramCache.clear();
+}
+
 OGLProgramPtr OGLProgram::buildProgram(OGLShaderPtr fragmentShader)
 {
     return OGLProgram::buildProgram( fragmentShader, OGLShaderPtr());
