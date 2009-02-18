@@ -72,6 +72,8 @@ void ImageNode::connect()
     RasterNode::connect();
     string sLastFilename = m_pImage->getFilename();
     string sFilename = m_href;
+    checkReload();
+/*    
     if (sFilename != "") {
         initFilename(sFilename);
     }
@@ -91,6 +93,7 @@ void ImageNode::connect()
     if (getDisplayEngine()) {
         m_pImage->moveToGPU(getDisplayEngine());
     }
+*/    
 }
 
 void ImageNode::disconnect()
@@ -107,6 +110,8 @@ const std::string& ImageNode::getHRef() const
 void ImageNode::setHRef(const string& href)
 {
     m_href = href;
+    checkReload();
+/*    
     string sFilename = m_href;
     if (sFilename != "") {
         initFilename(sFilename);
@@ -126,6 +131,7 @@ void ImageNode::setHRef(const string& href)
     
     IntPoint Size = getMediaSize();
     setViewport(-32767, -32767, Size.x, Size.y);
+*/
 }
 
 void ImageNode::setBitmap(const Bitmap * pBmp)
