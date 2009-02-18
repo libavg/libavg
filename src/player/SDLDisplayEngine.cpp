@@ -342,6 +342,7 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
 #endif
 void SDLDisplayEngine::teardown()
 {
+    OGLProgram::flushCache();
     m_pYCbCrJShader = OGLShaderPtr();
     m_pYCbCrShader = OGLShaderPtr();
     m_pActiveShader = OGLProgramPtr();

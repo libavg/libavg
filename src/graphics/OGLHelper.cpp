@@ -86,6 +86,18 @@ namespace glproc {
     void * s_hGLLib = 0;
 }
 
+void OGLUserErrorCheck(const char * where)
+{
+    GLenum err = glGetError();
+    if (err != GL_NO_ERROR) {
+        stringstream s;
+        s << "OpenGL error in " << where <<": " << gluErrorString(err)
+            << " (#" << err << ") ";
+        AVG_TRACE(Logger::ERROR, s.str());
+        throw Exception(AVG_ERR_INVALID_ARGS, s.str());
+    }
+}
+
 void OGLErrorCheck(int avgcode, const char * where) 
 {
     GLenum err = glGetError();

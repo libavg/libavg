@@ -49,6 +49,7 @@ class AVG_API OGLProgram {
         //Construct and link a program with the given shaders. Is a Factory to ease future caching
         static OGLProgramPtr buildProgram(OGLShaderPtr fragmentShader, OGLShaderPtr vertexShader);  
         static OGLProgramPtr buildProgram(OGLShaderPtr fragmentShader);
+        static void flushCache();
     private:
         OGLProgram(OGLShaderPtr pFragmentShader);
         OGLProgram(OGLShaderPtr pFragmentShader, OGLShaderPtr pVertexShader);
