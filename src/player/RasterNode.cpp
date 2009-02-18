@@ -22,7 +22,7 @@
 #include "RasterNode.h"
 
 #include "NodeDefinition.h"
-#include "DisplayEngine.h"
+#include "SDLDisplayEngine.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"

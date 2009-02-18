@@ -25,7 +25,7 @@
 #include "../api.h"
 #include "OGLSurface.h"
 #include "OGLTexture.h"
-#include "SDLDisplayEngine.h"
+#include "DisplayEngine.h"
 
 #include "../base/Point.h"
 #include "../base/Rect.h"
