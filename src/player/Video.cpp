@@ -70,9 +70,7 @@ Video::Video (const ArgList& Args, bool bFromXML)
 {
     Args.setMembers(this);
     m_Filename = m_href;
-    if (m_Filename != "") {
-        initFilename(m_Filename);
-    }
+    initFilename(m_Filename);
     if (m_bThreaded) {
         VideoDecoderPtr pSyncDecoder = VideoDecoderPtr(new FFMpegDecoder());
         m_pDecoder = new AsyncVideoDecoder(pSyncDecoder);

@@ -246,18 +246,20 @@ void Node::setState(Node::NodeState State)
         
 void Node::initFilename(string& sFilename)
 {
-    bool bAbsDir = sFilename[0] == '/';
+    if (sFilename != "") {
+        bool bAbsDir = sFilename[0] == '/';
 #ifdef _WIN32
-    if (!bAbsDir) {
-        bAbsDir = (sFilename[0] == '\\' || sFilename[1] == ':');
-    }
+        if (!bAbsDir) {
+            bAbsDir = (sFilename[0] == '\\' || sFilename[1] == ':');
+        }
 #endif
-    if (!bAbsDir) {
-        DivNodePtr pParent = getParent();
-        if (!pParent) {
-            sFilename = Player::get()->getRootMediaDir()+sFilename;
-        } else {
-            sFilename = pParent->getEffectiveMediaDir()+sFilename;
+        if (!bAbsDir) {
+            DivNodePtr pParent = getParent();
+            if (!pParent) {
+                sFilename = Player::get()->getRootMediaDir()+sFilename;
+            } else {
+                sFilename = pParent->getEffectiveMediaDir()+sFilename;
+            }
         }
     }
 }

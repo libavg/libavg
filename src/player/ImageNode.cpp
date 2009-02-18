@@ -127,9 +127,7 @@ void ImageNode::checkReload()
 {
     string sLastFilename = m_pImage->getFilename();
     string sFilename = m_href;
-    if (sFilename != "") {
-        initFilename(sFilename);
-    }
+    initFilename(sFilename);
     if (sLastFilename != sFilename) {
         try {
             m_pImage = ImagePtr(new Image(sFilename, true));
