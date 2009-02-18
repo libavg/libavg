@@ -24,21 +24,40 @@
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 
+#include "boost/tuple/tuple.hpp"
+#include "boost/tuple/tuple_comparison.hpp"
+
+#include <map>
 #include <iostream>
+
 
 namespace avg {
 
 using namespace std;
+typedef boost::tuple<OGLShaderPtr, OGLShaderPtr> ShaderPair; 
+typedef map<ShaderPair, OGLProgramPtr> ProgramCacheType;
+static ProgramCacheType ProgramCache;
+
 
 OGLProgramPtr OGLProgram::buildProgram(OGLShaderPtr fragmentShader)
 {
-    //plz cache me!
-    return OGLProgramPtr(new OGLProgram(fragmentShader));
+    return OGLProgram::buildProgram( fragmentShader, OGLShaderPtr());
 }
+
 OGLProgramPtr OGLProgram::buildProgram(OGLShaderPtr fragmentShader, OGLShaderPtr vertexShader)
 {
-    //plz cache me!
-    return OGLProgramPtr(new OGLProgram(fragmentShader, vertexShader));
+    ProgramCacheType::iterator pos;
+    OGLProgramPtr prog;
+    pos = ProgramCache.find( ShaderPair(fragmentShader,vertexShader) );
+    if (pos != ProgramCache.end()){
+        //Found it!
+        prog = pos->second;
+    } else {
+        prog = OGLProgramPtr(new OGLProgram(fragmentShader, vertexShader));
+        ProgramCache[ShaderPair(fragmentShader, vertexShader)] = prog;
+        cerr<<"Build Shader Program: "<<fragmentShader<<", "<<vertexShader<<endl;
+    }
+    return prog;
 }
 
 void OGLProgram::attachAndLink()
@@ -91,7 +110,7 @@ OGLProgram::OGLProgram(vector<OGLShaderPtr> &vShaders)
 
 OGLProgram::~OGLProgram()
 {
-    //glproc::DeleteProgram(m_hProgram); 
+    glproc::DeleteProgram(m_hProgram); 
     //FIXME Deleteing the GLProgram breaks SDLDisplayEngine::render somehow???
 }
 

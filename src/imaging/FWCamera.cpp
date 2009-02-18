@@ -469,6 +469,7 @@ const std::string& FWCamera::getDriverName() const
     static string sDriverName = "libdc1394 v2";
     return sDriverName;
 #endif
+    return "";
 }
 
 double FWCamera::getFrameRate() const

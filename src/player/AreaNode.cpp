@@ -457,12 +457,32 @@ void AreaNode::addEventHandler(Event::Type EventType, Event::Source Source,
 
 OGLShaderPtr AreaNode::getVertexShader() 
 {
-    return OGLShaderPtr();
+    return m_pMyVertexShader;
 }
 
 OGLShaderPtr AreaNode::getFragmentShader() 
 {
-    return OGLShaderPtr();
+    return m_pMyFragmentShader;
+}
+
+void AreaNode::setVertexShader(OGLShaderPtr pShader)
+{
+    m_pMyVertexShader = pShader;
+}
+void AreaNode::setVertexShaderProgram(std::string sProgram)
+{
+    m_pMyVertexShader = OGLShaderPtr(new OGLShader(sProgram,GL_VERTEX_SHADER));
+    OGLUserErrorCheck("User Vertex Shader construction");
+}
+
+void AreaNode::setFragmentShader(OGLShaderPtr pShader)
+{
+    m_pMyFragmentShader = pShader;
+}
+void AreaNode::setFragmentShaderProgram(std::string sProgram)
+{
+    m_pMyFragmentShader = OGLShaderPtr(new OGLShader(sProgram,GL_FRAGMENT_SHADER));
+    OGLUserErrorCheck("User Fragment Shader construction");
 }
 
 DPoint AreaNode::toLocal(const DPoint& globalPos) const
