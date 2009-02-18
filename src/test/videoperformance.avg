@@ -4,17 +4,18 @@
 <!--  <image x="100" y="100"
       href="rgb24-64x64.png"/>-->
   <video id="mpeg1" x="100" y="60"  opacity="0.8"  blendmode="blend"
-      href="enterprise/enterprise - 1 - 03 - fight_or_flight.vcd.gamblor-wow.mpg"/> 
+      href="/home/igor/IT-Crowd-Staffel3/The.IT.Crowd.S03E01.XviD.avi"/>
   <video id="mpeg2" x="100" y="180"  opacity="0.8" blendmode="blend"
-      href="enterprise/enterprise - 1 - 04 - strange new world.vcd.cid-wow.mpg"/> 
+      href="/home/igor/IT-Crowd-Staffel3/the.it.crowd.s03e02.xvid.avi"/> 
   <video id="mpeg3" x="450" y="60"  opacity="0.8" blendmode="blend"
-      href="enterprise/enterprise - 1 - 05 - unexpected.vcd.cid-wow.mpg"/> 
+      href="/home/igor/IT-Crowd-Staffel3/the.it.crowd.s03e03.ws.pdtv.xvid-river_SeriesGringas.Org.avi"/> 
   <video id="mpeg4" x="450" y="180"  opacity="0.8" blendmode="blend"
-      href="enterprise/enterprise - 1 - 06 - terra_nova.vcd.cid-wow.mpg"/> 
-  <video id="mpeg5" x="100" y="300"  opacity="0.8" blendmode="blend"
+      href="/home/igor/IT-Crowd-Staffel3/the.it.crowd.s03e04.xvid.avi"/> 
+  <!--  <video id="mpeg5" x="100" y="300"  opacity="0.8" blendmode="blend"
       href="enterprise/Enterprise - 1 - 07 - The Andorian Incident.mpg"/> 
   <video id="mpeg6" x="450" y="300"  opacity="0.8" blendmode="blend"
       href="enterprise/enterprise - 1 - 08 - Breaking The Ice.mpg"/> 
+  -->
 <!--
   <video id="mpeg7" x="704" y="0" opacity="0.6"
       href="enterprise/Enterprise - 1 - 09 - Civilization(chaos).mpg"/> 

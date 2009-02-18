@@ -83,6 +83,7 @@ void ImageNode::disconnect()
                 pSurfaceBmp->getPixelFormat()));
         m_pBmp->copyPixels(*pSurfaceBmp);
         pSurface->unlockBmps();
+#if 0
 #ifdef __i386__
         // XXX Yuck
         if (!(getDisplayEngine()->hasRGBOrdering()) && 
@@ -90,6 +91,7 @@ void ImageNode::disconnect()
         {
             FilterFlipRGB().applyInPlace(m_pBmp);
         }
+#endif
 #endif
     }
 
@@ -244,10 +246,12 @@ void ImageNode::setupSurface()
     pSurface->create(m_pBmp->getSize(), pf, true);
     BitmapPtr pSurfaceBmp = pSurface->lockBmp();
     pSurfaceBmp->copyPixels(*m_pBmp);
+#if 0
 #ifdef __i386__
     if (!(getDisplayEngine()->hasRGBOrdering())) {
         FilterFlipRGB().applyInPlace(pSurfaceBmp);
     }
+#endif
 #endif
     pSurface->unlockBmps();
     pSurface->bind();
