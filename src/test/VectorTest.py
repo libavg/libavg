@@ -80,10 +80,23 @@ class VectorTestCase(AVGTestCase):
             line = Player.createNode("line", {"x1":2, "y1":20, "x2":100, "y2":20,
                     "texhref":"rgb24-64x64.png", "strokewidth":30})
             canvas.appendChild(line)
+        def removeLine():
+            self.line = canvas.getChild(0)
+            self.line.unlink()
+        def reAddLine():
+            canvas.appendChild(self.line)
         canvas = self.makeEmptyCanvas()
+        addLine()
         self.start(None,
-                (addLine,
-                 lambda: self.compareImage("testtexturedline", False), 
+                (lambda: self.compareImage("testtexturedline1", False), 
+                 removeLine,
+                 lambda: self.compareImage("testtexturedline2", False), 
+                 addLine,
+                 lambda: self.compareImage("testtexturedline1", False), 
+                 removeLine,
+                 lambda: self.compareImage("testtexturedline2", False), 
+                 reAddLine,
+                 lambda: self.compareImage("testtexturedline1", False)
                 ))
 
     def testLineOpacity(self):
