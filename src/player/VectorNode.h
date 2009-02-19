@@ -57,6 +57,7 @@ class AVG_API VectorNode : public Node
                 AudioEngine * pAudioEngine);
         virtual void connect();
         virtual void disconnect();
+        virtual void checkReload();
 
         const std::string& getTexHRef() const;
         void setTexHRef(const std::string& href);
@@ -64,7 +65,6 @@ class AVG_API VectorNode : public Node
         virtual void preRender();
         virtual void maybeRender(const DRect& Rect);
         virtual void render(const DRect& rect);
-        virtual void checkReload();
 
         virtual int getNumVertexes() = 0;
         virtual int getNumIndexes() = 0;
@@ -94,15 +94,12 @@ class AVG_API VectorNode : public Node
         double m_OldOpacity;
 
         // Texture stuff
-        void loadTex();
-        void setupSurface();
         void createTexture();
-        void downloadTexture(BitmapPtr pBmp) const;
-        std::string m_TexFilename;
+        void downloadTexture() const;
+        void deleteTexture();
+        bool isTextured() const;
         std::string m_TexHRef;
-        BitmapPtr m_pBmp;
-        bool m_bIsTextured;
-        OGLSurface * m_pSurface;
+        ImagePtr m_pImage;
         unsigned m_TexID;
 };
 

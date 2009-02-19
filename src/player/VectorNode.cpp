@@ -24,6 +24,7 @@
 #include "NodeDefinition.h"
 #include "SDLDisplayEngine.h"
 #include "OGLSurface.h"
+#include "Image.h"
 
 #include "../base/Exception.h"
 #include "../base/Logger.h"
@@ -54,7 +55,7 @@ NodeDefinition VectorNode::createDefinition()
 }
 
 VectorNode::VectorNode(const ArgList& Args)
-    : m_pSurface(0)
+    : m_pImage(new Image("", true))
 {
     m_TexHRef = Args.getArgVal<string>("texhref"); 
     setTexHRef(m_TexHRef);
@@ -69,14 +70,16 @@ void VectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
 {
     setDrawNeeded(true);
     m_Color = colorStringToColor(m_sColorName);
+    m_pImage->moveToGPU(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
     Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    if (isTextured()) {
+        createTexture();
+        downloadTexture();
+    }
 
     m_pVertexArray = VertexArrayPtr(new VertexArray(getNumVertexes(), getNumIndexes(),
             100, 100));
     m_OldOpacity = -1;
-    if (m_TexFilename != "") {
-        setupSurface();
-    }
 }
 
 void VectorNode::connect()
@@ -88,25 +91,8 @@ void VectorNode::connect()
 void VectorNode::disconnect()
 {
     m_pVertexArray = VertexArrayPtr();
-
-    if (getState() == NS_CANRENDER && m_pSurface ) {
-        // Unload textures but keep bitmap in memory.
-        BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
-        m_pBmp = BitmapPtr(new Bitmap(pSurfaceBmp->getSize(), 
-                pSurfaceBmp->getPixelFormat()));
-        m_pBmp->copyPixels(*pSurfaceBmp);
-        m_pSurface->unlockBmps();
-#ifdef __i386__
-        // XXX Yuck
-        if (!(getDisplayEngine()->hasRGBOrdering()) && 
-            m_pBmp->getBytesPerPixel() >= 3)
-        {
-            FilterFlipRGB().applyInPlace(m_pBmp);
-        }
-#endif
-        delete m_pSurface;
-        m_pSurface = 0;
-    }
+    m_pImage->moveToCPU();
+    deleteTexture();
 
     Node::disconnect();
 }
@@ -119,7 +105,7 @@ const std::string& VectorNode::getTexHRef() const
 void VectorNode::setTexHRef(const string& href)
 {
     m_TexHRef = href;
-    loadTex();
+    checkReload();
 }
 
 static ProfilingZone PrerenderProfilingZone("VectorNode::prerender");
@@ -168,25 +154,26 @@ static ProfilingZone RenderProfilingZone("VectorNode::render");
 void VectorNode::render(const DRect& rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    SDLDisplayEngine * pEngine = dynamic_cast<SDLDisplayEngine*>(getDisplayEngine());
-    if (m_bIsTextured) {
+    SDLDisplayEngine * pEngine = getDisplayEngine();
+    if (isTextured()) {
         glproc::ActiveTexture(GL_TEXTURE0);
         glBindTexture(pEngine->getTextureMode(), m_TexID);
     }
-    pEngine->enableTexture(m_bIsTextured);
-    pEngine->enableGLColorArray(!m_bIsTextured);
+    pEngine->enableTexture(isTextured());
+    pEngine->enableGLColorArray(!isTextured());
     m_pVertexArray->draw();
 }
 
 void VectorNode::checkReload()
 {
-    string sLastFilename = m_TexFilename;
-    m_TexFilename = m_TexHRef;
-    if (m_TexFilename != "") {
-        initFilename(m_TexFilename);
-    }
-    if (sLastFilename != m_TexFilename || !m_bIsTextured) {
-        loadTex();
+    bool bOldImageExists = isTextured();
+    string sLastFilename = m_pImage->getFilename();
+    Node::checkReload(m_TexHRef, m_pImage);
+    if (m_pImage->getState() == Image::GPU && 
+        (sLastFilename != m_pImage->getFilename() || !bOldImageExists))
+    {
+        createTexture();
+        downloadTexture();
     }
 }
 
@@ -248,70 +235,20 @@ void VectorNode::setDrawNeeded(bool bSizeChanged)
 DPoint VectorNode::calcTexCoord(const DPoint& origCoord)
 {
     SDLDisplayEngine * pEngine = dynamic_cast<SDLDisplayEngine*>(getDisplayEngine());
-    if (pEngine->getTextureMode() == GL_TEXTURE_2D || !m_pSurface) {
+    if (pEngine->getTextureMode() == GL_TEXTURE_2D || !isTextured()) {
         return origCoord;
     } else {
-        DPoint size = DPoint(m_pSurface->getSize());
+        DPoint size = DPoint(m_pImage->getSize());
         return origCoord*size;
     }
 }
 
-void VectorNode::loadTex()
-{
-    m_TexFilename = m_TexHRef;
-    m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
-    m_bIsTextured = false;
-    if (m_TexFilename != "") {
-        initFilename(m_TexFilename);
-        AVG_TRACE(Logger::MEMORY, "Loading " << m_TexFilename);
-        try {
-            m_pBmp = BitmapPtr(new Bitmap(m_TexFilename));
-            m_bIsTextured = true;
-        } catch (Magick::Exception & ex) {
-            if (getState() == Node::NS_CONNECTED) {
-                AVG_TRACE(Logger::ERROR, ex.what());
-            } else {
-                AVG_TRACE(Logger::MEMORY, ex.what());
-            }
-        }
-        if (getState() == NS_CANRENDER) {
-            setupSurface();
-        }
-    }
-    assert(m_pBmp);
-}
-
-void VectorNode::setupSurface()
-{
-    PixelFormat pf;
-    pf = R8G8B8X8;
-    if (m_pBmp->hasAlpha()) {
-        pf = R8G8B8A8;
-    }
-    if (!m_pSurface) {
-        m_pSurface = new OGLSurface(dynamic_cast<SDLDisplayEngine*>(
-                getDisplayEngine()));
-    }
-    m_pSurface->create(m_pBmp->getSize(), pf, true);
-    createTexture();
-    BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
-    pSurfaceBmp->copyPixels(*m_pBmp);
-    m_pSurface->unlockBmps();
-    downloadTexture(pSurfaceBmp);
-#ifdef __i386__
-    if (!(getDisplayEngine()->hasRGBOrdering())) {
-        FilterFlipRGB().applyInPlace(pSurfaceBmp);
-    }
-#endif
-    m_pBmp=BitmapPtr();
-}
-
 void VectorNode::createTexture()
 {
-    PixelFormat pf = m_pSurface->getPixelFormat();
-    IntPoint size = m_pSurface->getSize();
+    PixelFormat pf = m_pImage->getPixelFormat();
+    IntPoint size = m_pImage->getSize();
 
-    SDLDisplayEngine* pEngine = dynamic_cast<SDLDisplayEngine*>(getDisplayEngine());
+    SDLDisplayEngine* pEngine = getDisplayEngine();
     glGenTextures(1, &m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VectorNode::createTexture: glGenTextures()");
     glproc::ActiveTexture(GL_TEXTURE0);
@@ -344,12 +281,13 @@ void VectorNode::createTexture()
     }
 }
 
-void VectorNode::downloadTexture(BitmapPtr pBmp) const
+void VectorNode::downloadTexture() const
 {
-    SDLDisplayEngine* pEngine = dynamic_cast<SDLDisplayEngine*>(getDisplayEngine());
-    PixelFormat pf = m_pSurface->getPixelFormat();
-    IntPoint size = m_pSurface->getSize();
-    m_pSurface->bindPBO();
+    SDLDisplayEngine* pEngine = getDisplayEngine();
+    OGLSurface* pSurface = m_pImage->getSurface();
+    PixelFormat pf = m_pImage->getPixelFormat();
+    IntPoint size = m_pImage->getSize();
+    pSurface->bindPBO();
     int TextureMode = pEngine->getTextureMode();
     glBindTexture(TextureMode, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
@@ -359,7 +297,17 @@ void VectorNode::downloadTexture(BitmapPtr pBmp) const
             pEngine->getOGLSrcMode(pf), pEngine->getOGLPixelType(pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "VectorNode::downloadTexture: glTexSubImage2D()");
-    m_pSurface->unbindPBO();
+    pSurface->unbindPBO();
+}
+
+void VectorNode::deleteTexture()
+{
+    glDeleteTextures(1, &m_TexID);
+}
+
+bool VectorNode::isTextured() const
+{
+    return (m_pImage->getState() != Image::NOT_AVAILABLE);
 }
 
 

@@ -43,6 +43,7 @@ class AVG_API ImageNode : public RasterNode
                 AudioEngine * pAudioEngine);
         virtual void connect();
         virtual void disconnect();
+        virtual void checkReload();
 
         const std::string& getHRef() const;
         void setHRef(const std::string& href);
@@ -52,7 +53,6 @@ class AVG_API ImageNode : public RasterNode
         
         virtual Bitmap* getBitmap();
         virtual IntPoint getMediaSize();
-        virtual void checkReload();
 
     protected:
         virtual OGLTiledSurface * getSurface();

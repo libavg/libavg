@@ -74,8 +74,8 @@ void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
 {
     AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 
-    if (m_MaxTileSize != IntPoint(-1, -1)) {
-        OGLTiledSurface * pOGLSurface = getSurface();
+    OGLTiledSurface * pOGLSurface = getSurface();
+    if (m_MaxTileSize != IntPoint(-1, -1) && pOGLSurface) {
         pOGLSurface->setMaxTileSize(m_MaxTileSize);
     }
     setBlendModeStr(m_sBlendMode);

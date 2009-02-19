@@ -87,11 +87,10 @@ Image::~Image()
 void Image::moveToGPU(SDLDisplayEngine* pEngine)
 {
     m_pEngine = pEngine;
-    if (m_State == GPU) {
-        return;
+    if (m_State == CPU) {
+        m_State = GPU;
+        setupSurface();
     }
-    m_State = GPU;
-    setupSurface();
 }
 
 void Image::moveToCPU()
@@ -138,6 +137,15 @@ IntPoint Image::getSize()
         return m_pSurface->getSize();
     } else {
         return m_pBmp->getSize();
+    }
+}
+
+PixelFormat Image::getPixelFormat()
+{
+    if (m_State == GPU) {
+        return m_pSurface->getPixelFormat();
+    } else {
+        return m_pBmp->getPixelFormat();
     }
 }
 

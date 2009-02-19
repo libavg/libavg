@@ -52,6 +52,7 @@ class AVG_API Image
         
         Bitmap* getBitmap();
         IntPoint getSize();
+        PixelFormat getPixelFormat();
         OGLSurface* getSurface();
         OGLTiledSurface* getTiledSurface();
         State getState();

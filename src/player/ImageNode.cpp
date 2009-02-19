@@ -68,8 +68,6 @@ void ImageNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
 void ImageNode::connect()
 {
     RasterNode::connect();
-    string sLastFilename = m_pImage->getFilename();
-    string sFilename = m_href;
     checkReload();
 }
 
