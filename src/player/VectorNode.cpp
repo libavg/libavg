@@ -157,12 +157,7 @@ void VectorNode::render(const DRect& rect)
     SDLDisplayEngine * pEngine = getDisplayEngine();
     if (isTextured()) {
         glproc::ActiveTexture(GL_TEXTURE0);
-        int TextureMode = pEngine->getTextureMode();
-        glBindTexture(TextureMode, m_TexID);
-        glTexParameteri(TextureMode, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(TextureMode, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                "VectorNode::render: glTexParameteri()");
+        glBindTexture(GL_TEXTURE_2D, m_TexID);
     }
     pEngine->enableTexture(isTextured());
     pEngine->enableGLColorArray(!isTextured());
@@ -222,10 +217,10 @@ void VectorNode::updateLineData(VertexArrayPtr& pVertexArray, double opacity,
 
     WideLine wl(p1, p2, getStrokeWidth());
     int curVertex = pVertexArray->getCurVert();
-    pVertexArray->appendPos(wl.pl0, calcTexCoord(DPoint(TC1, 1)), color);
-    pVertexArray->appendPos(wl.pr0, calcTexCoord(DPoint(TC1, 0)), color);
-    pVertexArray->appendPos(wl.pl1, calcTexCoord(DPoint(TC2, 1)), color);
-    pVertexArray->appendPos(wl.pr1, calcTexCoord(DPoint(TC2, 0)), color);
+    pVertexArray->appendPos(wl.pl0, DPoint(TC1, 1), color);
+    pVertexArray->appendPos(wl.pr0, DPoint(TC1, 0), color);
+    pVertexArray->appendPos(wl.pl1, DPoint(TC2, 1), color);
+    pVertexArray->appendPos(wl.pr1, DPoint(TC2, 0), color);
     pVertexArray->appendQuadIndexes(curVertex+1, curVertex, curVertex+3, curVertex+2); 
 }
      
@@ -237,17 +232,6 @@ void VectorNode::setDrawNeeded(bool bSizeChanged)
     }
 }
         
-DPoint VectorNode::calcTexCoord(const DPoint& origCoord)
-{
-    SDLDisplayEngine * pEngine = dynamic_cast<SDLDisplayEngine*>(getDisplayEngine());
-    if (pEngine->getTextureMode() == GL_TEXTURE_2D || !isTextured()) {
-        return origCoord;
-    } else {
-        DPoint size = DPoint(m_pImage->getSize());
-        return origCoord*size;
-    }
-}
-
 void VectorNode::createTexture()
 {
     PixelFormat pf = m_pImage->getPixelFormat();
@@ -257,25 +241,30 @@ void VectorNode::createTexture()
     glGenTextures(1, &m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VectorNode::createTexture: glGenTextures()");
     glproc::ActiveTexture(GL_TEXTURE0);
-    int TextureMode = pEngine->getTextureMode();
-    glBindTexture(TextureMode, m_TexID);
+    glBindTexture(GL_TEXTURE_2D, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VectorNode::createTexture: glBindTexture()");
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "VectorNode::render: glTexParameteri()");
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
     GLenum DestMode = pEngine->getOGLDestMode(pf);
     char * pPixels = 0;
-    if (TextureMode == GL_TEXTURE_2D) {
+    if (pEngine->usePOTTextures()) {
         // Make sure the texture is transparent and black before loading stuff 
         // into it to avoid garbage at the borders.
         int TexMemNeeded = size.x*size.y*Bitmap::getBytesPerPixel(pf);
         pPixels = new char[TexMemNeeded];
         memset(pPixels, 0, TexMemNeeded);
     }
-    glTexImage2D(TextureMode, 0, DestMode, size.x, size.y, 0,
+    glTexImage2D(GL_TEXTURE_2D, 0, DestMode, size.x, size.y, 0,
             pEngine->getOGLSrcMode(pf), pEngine->getOGLPixelType(pf), pPixels);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "VectorNode::createTexture: glTexImage2D()");
-    if (TextureMode == GL_TEXTURE_2D) {
+    if (pEngine->usePOTTextures()) {
         free(pPixels);
     }
 }
@@ -287,12 +276,11 @@ void VectorNode::downloadTexture() const
     PixelFormat pf = m_pImage->getPixelFormat();
     IntPoint size = m_pImage->getSize();
     pSurface->bindPBO();
-    int TextureMode = pEngine->getTextureMode();
-    glBindTexture(TextureMode, m_TexID);
+    glBindTexture(GL_TEXTURE_2D, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "VectorNode::downloadTexture: glBindTexture()");
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    glTexSubImage2D(TextureMode, 0, 0, 0, size.x, size.y,
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y,
             pEngine->getOGLSrcMode(pf), pEngine->getOGLPixelType(pf), 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "VectorNode::downloadTexture: glTexSubImage2D()");

@@ -175,7 +175,7 @@ void OGLTiledSurface::bind()
                         safeCeil(double(CurExtent.tl.y)/m_TileSize.y),
                         safeCeil(double(CurExtent.br.x)/m_TileSize.x), 
                         safeCeil(double(CurExtent.br.y)/m_TileSize.y));
-                if (getEngine()->getTextureMode() == GL_TEXTURE_2D) {
+                if (getEngine()->usePOTTextures()) {
                     CurSize.x = nextpow2(CurSize.x);
                     CurSize.y = nextpow2(CurSize.y);
                 }
@@ -286,14 +286,15 @@ void OGLTiledSurface::blt(const DPoint& DestSize,
     if (!m_bBound) {
         bind();
     }
+    getEngine()->enableGLColorArray(false);
+    getEngine()->enableTexture(true);
     bltTexture(DestSize, Mode);
 }
 
 bool OGLTiledSurface::isOneTexture(IntPoint Size)
 {
-    if (Size.x > getEngine()->getMaxTexSize() || 
-        Size.y > getEngine()->getMaxTexSize() ||
-        getEngine()->getTextureMode() == GL_TEXTURE_2D)
+    if (Size.x > getEngine()->getMaxTexSize() || Size.y > getEngine()->getMaxTexSize() ||
+        getEngine()->usePOTTextures())
     {
         return false;
     } else {
@@ -304,7 +305,7 @@ bool OGLTiledSurface::isOneTexture(IntPoint Size)
 void OGLTiledSurface::calcTileSizes()
 {
     IntPoint size = getSize();
-    if (getEngine()->getTextureMode() == GL_TEXTURE_2D) {
+    if (getEngine()->usePOTTextures()) {
         if ((size.x > 256 && nextpow2(size.x) > size.x*1.3) ||
                 (size.y > 256 && nextpow2(size.y) > size.y*1.3)) 
         {
