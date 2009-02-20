@@ -157,7 +157,12 @@ void VectorNode::render(const DRect& rect)
     SDLDisplayEngine * pEngine = getDisplayEngine();
     if (isTextured()) {
         glproc::ActiveTexture(GL_TEXTURE0);
-        glBindTexture(pEngine->getTextureMode(), m_TexID);
+        int TextureMode = pEngine->getTextureMode();
+        glBindTexture(TextureMode, m_TexID);
+        glTexParameteri(TextureMode, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(TextureMode, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                "VectorNode::render: glTexParameteri()");
     }
     pEngine->enableTexture(isTextured());
     pEngine->enableGLColorArray(!isTextured());
@@ -255,12 +260,6 @@ void VectorNode::createTexture()
     int TextureMode = pEngine->getTextureMode();
     glBindTexture(TextureMode, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VectorNode::createTexture: glBindTexture()");
-    glTexParameteri(TextureMode, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(TextureMode, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(TextureMode, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(TextureMode, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "VectorNode::createTexture: glTexParameteri()");
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
     GLenum DestMode = pEngine->getOGLDestMode(pf);
