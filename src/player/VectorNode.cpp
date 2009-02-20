@@ -160,7 +160,7 @@ void VectorNode::render(const DRect& rect)
         int TextureMode = pEngine->getTextureMode();
         glBindTexture(TextureMode, m_TexID);
         glTexParameteri(TextureMode, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(TextureMode, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(TextureMode, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "VectorNode::render: glTexParameteri()");
     }
