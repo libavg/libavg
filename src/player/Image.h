@@ -39,7 +39,7 @@ class SDLDisplayEngine;
 class AVG_API Image
 {
     public:
-        typedef enum State {NOT_AVAILABLE, CPU, GPU};
+        enum State {NOT_AVAILABLE, CPU, GPU};
 
         Image(const std::string& sFilename, bool bTiled);
         Image(const Bitmap* pBmp, bool bTiled);
