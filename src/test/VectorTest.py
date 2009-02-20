@@ -85,9 +85,9 @@ class VectorTestCase(AVGTestCase):
             self.line.unlink()
         def reAddLine():
             canvas.appendChild(self.line)
-#        def moveTexture():
-#            self.line.texcoord1 = -0.5
-#            self.line.texcoord2 = 1.5
+        def moveTexture():
+            self.line.texcoord1 = -0.5
+            self.line.texcoord2 = 1.5
         canvas = self.makeEmptyCanvas()
         addLine()
         self.start(None,
@@ -99,9 +99,9 @@ class VectorTestCase(AVGTestCase):
                  removeLine,
                  lambda: self.compareImage("testtexturedline2", False), 
                  reAddLine,
-                 lambda: self.compareImage("testtexturedline1", False)
-#                 moveTexture,
-#                 lambda: self.compareImage("testtexturedline3", False)
+                 lambda: self.compareImage("testtexturedline1", False),
+                 moveTexture,
+                 lambda: self.compareImage("testtexturedline3", False)
                 ))
 
     def testLineOpacity(self):
