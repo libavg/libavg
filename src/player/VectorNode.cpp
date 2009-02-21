@@ -288,6 +288,11 @@ WideLine::WideLine(const DPoint& p0, const DPoint& p1, double width)
     dir = DPoint(w.y, -w.x); 
 }
 
+double WideLine::getLen() const
+{
+    return calcDist(pt0, pt1);
+}
+
 std::ostream& operator<<(std::ostream& os, const WideLine& line)
 {
     os << "(" << line.pt0 << "," << line.pt1 << ")";

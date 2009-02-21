@@ -209,6 +209,13 @@ class VectorTestCase(AVGTestCase):
         def testEmptyPolyline():
             polyline = canvas.getChild(0)
             polyline.pos=[]
+        def texturePolyLine():
+            canvas.removeChild(0)
+            canvas.removeChild(0)
+            polyline = Player.createNode("polyline", 
+                    {"strokewidth":20, "color":"FF00FF", "texhref":"rgb24-64x64.png"})
+            polyline.pos = [(10,10), (50,10), (90,50), (90, 90)]
+            canvas.appendChild(polyline)
         canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addPolyLine,
@@ -220,7 +227,9 @@ class VectorTestCase(AVGTestCase):
                  addPolyLine2,
                  lambda: self.compareImage("testPolyLine4", False),
                  testEmptyPolyline,
-                 lambda: self.compareImage("testPolyLine5", False)
+                 lambda: self.compareImage("testPolyLine5", False),
+                 texturePolyLine,
+                 lambda: self.compareImage("testPolyLine6", False)
                 ))
 
     def testPolygon(self):
