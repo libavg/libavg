@@ -94,8 +94,7 @@ class AVG_API VectorNode : public Node
         double m_OldOpacity;
 
         // Texture stuff
-        void createTexture();
-        void downloadTexture() const;
+        void downloadTexture();
         void deleteTexture();
         bool isTextured() const;
         std::string m_TexHRef;

@@ -73,7 +73,6 @@ void VectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     m_pImage->moveToGPU(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
     Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
     if (isTextured()) {
-        createTexture();
         downloadTexture();
     }
 
@@ -172,7 +171,6 @@ void VectorNode::checkReload()
     if (m_pImage->getState() == Image::GPU && 
         (sLastFilename != m_pImage->getFilename() || !bOldImageExists))
     {
-        createTexture();
         downloadTexture();
     }
 }
@@ -232,23 +230,18 @@ void VectorNode::setDrawNeeded(bool bSizeChanged)
     }
 }
         
-void VectorNode::createTexture()
+void VectorNode::downloadTexture()
 {
     PixelFormat pf = m_pImage->getPixelFormat();
     IntPoint size = m_pImage->getSize();
 
-    m_TexID = getDisplayEngine()->createTexture(size, pf);
+    SDLDisplayEngine* pEngine = getDisplayEngine();
+    m_TexID = pEngine->createTexture(size, pf);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "VectorNode::render: glTexParameteri()");
-}
-
-void VectorNode::downloadTexture() const
-{
-    SDLDisplayEngine* pEngine = getDisplayEngine();
+            "VectorNode::downloadTexture: glTexParameteri()");
+    
     OGLSurface* pSurface = m_pImage->getSurface();
-    PixelFormat pf = m_pImage->getPixelFormat();
-    IntPoint size = m_pImage->getSize();
     unsigned char * pPixels;
     if (pSurface->getMemMode() == OGL) {
         pPixels = pSurface->getBmp()->getPixels();

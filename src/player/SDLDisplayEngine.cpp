@@ -1645,16 +1645,16 @@ unsigned SDLDisplayEngine::createTexture(const IntPoint& size, PixelFormat pf)
 {
     unsigned texID;
     glGenTextures(1, &texID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VectorNode::createTexture: glGenTextures()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::createTexture: glGenTextures()");
     glproc::ActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VectorNode::createTexture: glBindTexture()");
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::createTexture: glBindTexture()");
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "VectorNode::render: glTexParameteri()");
+            "SDLDisplayEngine::createTexture: glTexParameteri()");
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 
     char * pPixels = 0;
@@ -1668,7 +1668,7 @@ unsigned SDLDisplayEngine::createTexture(const IntPoint& size, PixelFormat pf)
     glTexImage2D(GL_TEXTURE_2D, 0, getOGLDestMode(pf), size.x, size.y, 0,
             getOGLSrcMode(pf), getOGLPixelType(pf), pPixels);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "VectorNode::createTexture: glTexImage2D()");
+            "SDLDisplayEngine::createTexture: glTexImage2D()");
     if (usePOTTextures()) {
         free(pPixels);
     }
