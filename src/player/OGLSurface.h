@@ -50,11 +50,11 @@ class AVG_API OGLSurface {
         PixelFormat getPixelFormat();
         IntPoint getSize();
         int getTotalTexMemory();
+        OGLMemoryMode getMemMode() const;
+        BitmapPtr getBmp(int i=0);
 
     protected:
         SDLDisplayEngine * getEngine();
-        BitmapPtr getBmp(int i);
-        OGLMemoryMode getMemMode() const;
 
     private:
         void createBitmap(const IntPoint& Size, PixelFormat pf, int index);

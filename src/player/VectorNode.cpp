@@ -275,16 +275,24 @@ void VectorNode::downloadTexture() const
     OGLSurface* pSurface = m_pImage->getSurface();
     PixelFormat pf = m_pImage->getPixelFormat();
     IntPoint size = m_pImage->getSize();
-    pSurface->bindPBO();
+    unsigned char * pPixels;
+    if (pSurface->getMemMode() == OGL) {
+        pPixels = pSurface->getBmp()->getPixels();
+    } else {
+        pPixels = 0;
+        pSurface->bindPBO();
+    }
     glBindTexture(GL_TEXTURE_2D, m_TexID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "VectorNode::downloadTexture: glBindTexture()");
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y,
-            pEngine->getOGLSrcMode(pf), pEngine->getOGLPixelType(pf), 0);
+            pEngine->getOGLSrcMode(pf), pEngine->getOGLPixelType(pf), pPixels);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "VectorNode::downloadTexture: glTexSubImage2D()");
-    pSurface->unbindPBO();
+    if (pSurface->getMemMode() == PBO) {
+        pSurface->unbindPBO();
+    }
 }
 
 void VectorNode::deleteTexture()
