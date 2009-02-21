@@ -237,36 +237,10 @@ void VectorNode::createTexture()
     PixelFormat pf = m_pImage->getPixelFormat();
     IntPoint size = m_pImage->getSize();
 
-    SDLDisplayEngine* pEngine = getDisplayEngine();
-    glGenTextures(1, &m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VectorNode::createTexture: glGenTextures()");
-    glproc::ActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VectorNode::createTexture: glBindTexture()");
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    m_TexID = getDisplayEngine()->createTexture(size, pf);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "VectorNode::render: glTexParameteri()");
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-
-    GLenum DestMode = pEngine->getOGLDestMode(pf);
-    char * pPixels = 0;
-    if (pEngine->usePOTTextures()) {
-        // Make sure the texture is transparent and black before loading stuff 
-        // into it to avoid garbage at the borders.
-        int TexMemNeeded = size.x*size.y*Bitmap::getBytesPerPixel(pf);
-        pPixels = new char[TexMemNeeded];
-        memset(pPixels, 0, TexMemNeeded);
-    }
-    glTexImage2D(GL_TEXTURE_2D, 0, DestMode, size.x, size.y, 0,
-            pEngine->getOGLSrcMode(pf), pEngine->getOGLPixelType(pf), pPixels);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "VectorNode::createTexture: glTexImage2D()");
-    if (pEngine->usePOTTextures()) {
-        free(pPixels);
-    }
 }
 
 void VectorNode::downloadTexture() const

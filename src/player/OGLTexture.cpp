@@ -146,46 +146,11 @@ void OGLTexture::blt(const VertexGrid* pVertexes) const
 void OGLTexture::createTextures()
 {
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-        createTexture(0, m_TexSize, I8);
-        createTexture(1, m_TexSize/2, I8);
-        createTexture(2, m_TexSize/2, I8);
+        m_TexID[0] = m_pEngine->createTexture(m_TexSize, I8);
+        m_TexID[1] = m_pEngine->createTexture(m_TexSize/2, I8);
+        m_TexID[2] = m_pEngine->createTexture(m_TexSize/2, I8);
     } else {
-        createTexture(0, m_TexSize, m_pf);
-    }
-}
-
-void OGLTexture::createTexture(int i, IntPoint Size, PixelFormat pf)
-{
-    glGenTextures(1, &m_TexID[i]);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::createTexture: glGenTextures()");
-    glproc::ActiveTexture(GL_TEXTURE0+i);
-    glBindTexture(GL_TEXTURE_2D, m_TexID[i]);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::createTexture: glBindTexture()");
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "OGLTexture::createTexture: glTexParameteri()");
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, Size.x);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "OGLTexture::createTexture: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
-    
-    GLenum DestMode = m_pEngine->getOGLDestMode(pf);
-    char * pPixels = 0;
-    if (m_pEngine->usePOTTextures()) {
-        // Make sure the texture is transparent and black before loading stuff 
-        // into it to avoid garbage at the borders.
-        int TexMemNeeded = Size.x*Size.y*Bitmap::getBytesPerPixel(pf);
-        pPixels = new char[TexMemNeeded];
-        memset(pPixels, 0, TexMemNeeded);
-    }
-    glTexImage2D(GL_TEXTURE_2D, 0, DestMode, Size.x, Size.y, 0,
-            m_pEngine->getOGLSrcMode(pf), m_pEngine->getOGLPixelType(pf), pPixels);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "OGLTexture::createTexture: glTexImage2D()");
-    if (m_pEngine->usePOTTextures()) {
-        free(pPixels);
+        m_TexID[0] = m_pEngine->createTexture(m_TexSize, m_pf);
     }
 }
 
