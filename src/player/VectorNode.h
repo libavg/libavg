@@ -29,6 +29,8 @@
 #include "../graphics/VertexArray.h"
 #include "../graphics/Bitmap.h"
 
+#include "Shape.h"
+
 namespace avg {
 
 class OGLSurface;
@@ -79,18 +81,14 @@ class AVG_API VectorNode : public Node
         Pixel32 m_Color;
         double m_StrokeWidth;
 
-        VertexArrayPtr m_pVertexArray;
         bool m_bDrawNeeded;
         bool m_bVASizeChanged;
         double m_OldOpacity;
 
         // Texture stuff
-        void downloadTexture();
-        void deleteTexture();
         bool isTextured() const;
         std::string m_TexHRef;
-        ImagePtr m_pImage;
-        unsigned m_TexID;
+        ShapePtr m_pShape;
         
         VertexArrayPtr m_pFillVertexArray;
 };

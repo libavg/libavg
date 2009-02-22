@@ -56,7 +56,7 @@ NodeDefinition VectorNode::createDefinition()
 }
 
 VectorNode::VectorNode(const ArgList& Args)
-    : m_pImage(new Image("", true))
+    : m_pShape(new Shape(""))
 {
     m_TexHRef = Args.getArgVal<string>("texhref"); 
     setTexHRef(m_TexHRef);
@@ -71,14 +71,9 @@ void VectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
 {
     setDrawNeeded(true);
     m_Color = colorStringToColor(m_sColorName);
-    m_pImage->moveToGPU(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
     Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
-    if (isTextured()) {
-        downloadTexture();
-    }
+    m_pShape->moveToGPU(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
 
-    m_pVertexArray = VertexArrayPtr(new VertexArray(getNumVertexes(), getNumIndexes(),
-            100, 100));
     if (getNumFillVertexes() != 0) {
             m_pFillVertexArray = VertexArrayPtr(new VertexArray(
                     getNumFillVertexes(), getNumFillIndexes(), 100, 100));
@@ -94,10 +89,8 @@ void VectorNode::connect()
 
 void VectorNode::disconnect()
 {
-    m_pVertexArray = VertexArrayPtr();
     m_pFillVertexArray = VertexArrayPtr();
-    m_pImage->moveToCPU();
-    deleteTexture();
+    m_pShape->moveToCPU();
 
     Node::disconnect();
 }
@@ -122,9 +115,10 @@ void VectorNode::preRender()
     ScopeTimer Timer(PrerenderProfilingZone);
     double curOpacity = getEffectiveOpacity();
 
+    VertexArrayPtr pVA = m_pShape->getVertexArray();
     if (m_bVASizeChanged) {
         ScopeTimer Timer(VASizeProfilingZone);
-        m_pVertexArray->changeSize(getNumVertexes(), getNumIndexes());
+        pVA->changeSize(getNumVertexes(), getNumIndexes());
         if (getNumFillVertexes() != 0) {
             m_pFillVertexArray->changeSize(getNumFillVertexes(), getNumFillIndexes());
         }
@@ -133,12 +127,12 @@ void VectorNode::preRender()
     {
         ScopeTimer Timer(VAProfilingZone);
         if (m_bDrawNeeded || curOpacity != m_OldOpacity) {
-            m_pVertexArray->reset();
+            pVA->reset();
             if (getNumFillVertexes() != 0) {
                 m_pFillVertexArray->reset();
             }
-            calcVertexes(m_pVertexArray, m_pFillVertexArray, curOpacity);
-            m_pVertexArray->update();
+            calcVertexes(pVA, m_pFillVertexArray, curOpacity);
+            pVA->update();
             if (getNumFillVertexes() != 0) {
                 m_pFillVertexArray->update();
             }
@@ -174,13 +168,7 @@ void VectorNode::render(const DRect& rect)
         pEngine->enableGLColorArray(true);
         m_pFillVertexArray->draw();
     }
-    if (isTextured()) {
-        glproc::ActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_TexID);
-    }
-    pEngine->enableTexture(isTextured());
-    pEngine->enableGLColorArray(!isTextured());
-    m_pVertexArray->draw();
+    m_pShape->draw();
 }
 
 int VectorNode::getNumFillVertexes()
@@ -195,14 +183,9 @@ int VectorNode::getNumFillIndexes()
 
 void VectorNode::checkReload()
 {
-    bool bOldImageExists = isTextured();
-    string sLastFilename = m_pImage->getFilename();
-    Node::checkReload(m_TexHRef, m_pImage);
-    if (m_pImage->getState() == Image::GPU && 
-        (sLastFilename != m_pImage->getFilename() || !bOldImageExists))
-    {
-        downloadTexture();
-    }
+    string sLastFilename = m_pShape->getFilename();
+    ImagePtr pImage = boost::dynamic_pointer_cast<Image>(m_pShape);
+    Node::checkReload(m_TexHRef, pImage);
 }
 
 void VectorNode::setColor(const string& sColor)
@@ -265,46 +248,9 @@ bool VectorNode::isDrawNeeded()
     return m_bDrawNeeded;
 }
 
-void VectorNode::downloadTexture()
-{
-    PixelFormat pf = m_pImage->getPixelFormat();
-    IntPoint size = m_pImage->getSize();
-
-    SDLDisplayEngine* pEngine = getDisplayEngine();
-    m_TexID = pEngine->createTexture(size, pf);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "VectorNode::downloadTexture: glTexParameteri()");
-    
-    OGLSurface* pSurface = m_pImage->getSurface();
-    unsigned char * pPixels;
-    if (pSurface->getMemMode() == OGL) {
-        pPixels = pSurface->getBmp()->getPixels();
-    } else {
-        pPixels = 0;
-        pSurface->bindPBO();
-    }
-    glBindTexture(GL_TEXTURE_2D, m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "VectorNode::downloadTexture: glBindTexture()");
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y,
-            pEngine->getOGLSrcMode(pf), pEngine->getOGLPixelType(pf), pPixels);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "VectorNode::downloadTexture: glTexSubImage2D()");
-    if (pSurface->getMemMode() == PBO) {
-        pSurface->unbindPBO();
-    }
-}
-
-void VectorNode::deleteTexture()
-{
-    glDeleteTextures(1, &m_TexID);
-}
-
 bool VectorNode::isTextured() const
 {
-    return (m_pImage->getState() != Image::NOT_AVAILABLE);
+    return (m_pShape->getState() != Image::NOT_AVAILABLE);
 }
 
 }

@@ -274,9 +274,9 @@ void Node::checkReload(const std::string& sHRef, ImagePtr& pImage)
     initFilename(sFilename);
     if (sLastFilename != sFilename) {
         try {
-            pImage = ImagePtr(new Image(sFilename, true));
+            pImage->setFilename(sFilename);
         } catch (Magick::Exception & ex) {
-            pImage = ImagePtr(new Image("", true));
+            pImage->setFilename("");
             if (getState() == Node::NS_CONNECTED) {
                 AVG_TRACE(Logger::ERROR, ex.what());
             } else {

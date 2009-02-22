@@ -115,6 +115,22 @@ void Image::moveToCPU()
     m_pSurface = 0;
 }
 
+void Image::setFilename(const std::string& sFilename)
+{
+    bool bWasGPU = (m_State == GPU);
+    if (bWasGPU) {
+        delete m_pSurface;
+        m_pSurface = 0;
+        m_State = NOT_AVAILABLE;
+        m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
+    }
+    m_sFilename = sFilename;
+    load();
+    if (bWasGPU) {
+        moveToGPU(m_pEngine);
+    }
+}
+
 const string& Image::getFilename() const
 {
     return m_sFilename;
@@ -165,9 +181,13 @@ Image::State Image::getState()
     return m_State;
 }
 
+SDLDisplayEngine* Image::getEngine()
+{
+    return m_pEngine;
+}
+
 void Image::load()
 {
-    assert (m_State == NOT_AVAILABLE);
     if (m_sFilename == "") {
         return;
     }

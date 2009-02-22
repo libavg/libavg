@@ -19,62 +19,42 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Image_H_
-#define _Image_H_
+#ifndef _Shape_H_
+#define _Shape_H_
 
 #include "../api.h"
+#include "Image.h"
 
 #include "../base/Point.h"
 #include "../graphics/Bitmap.h"
+#include "../graphics/VertexArray.h"
 
 #include <boost/shared_ptr.hpp>
 #include <string>
 
 namespace avg {
 
-class OGLSurface;
-class OGLTiledSurface;
-class SDLDisplayEngine;
-
-class AVG_API Image
+class AVG_API Shape: public Image
 {
     public:
-        enum State {NOT_AVAILABLE, CPU, GPU};
-
-        Image(const std::string& sFilename, bool bTiled);
-        Image(const Bitmap* pBmp, bool bTiled);
-        virtual ~Image();
+        Shape(const std::string& sFilename);
+        virtual ~Shape();
 
         virtual void moveToGPU(SDLDisplayEngine* pEngine);
         virtual void moveToCPU();
 
-        void setFilename(const std::string& sFilename);
-        const std::string& getFilename() const;
-        
-        Bitmap* getBitmap();
-        IntPoint getSize();
-        PixelFormat getPixelFormat();
-        OGLSurface* getSurface();
-        OGLTiledSurface* getTiledSurface();
-        State getState();
-
-    protected:
-        SDLDisplayEngine* getEngine();
+        VertexArrayPtr getVertexArray();
+        void draw();
 
     private:
-        void load();
-        void setupSurface();
+        void downloadTexture();
+        void deleteTexture();
 
-        std::string m_sFilename;
-        BitmapPtr m_pBmp;
-        OGLSurface * m_pSurface;
-        SDLDisplayEngine * m_pEngine;
-
-        State m_State;
-        bool m_bTiled;
+        unsigned m_TexID;
+        VertexArrayPtr m_pVertexArray;
 };
 
-typedef boost::shared_ptr<Image> ImagePtr;
+typedef boost::shared_ptr<Shape> ShapePtr;
 
 }
 
