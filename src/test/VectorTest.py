@@ -155,6 +155,23 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testRect4", False),
                 ))
 
+    def testTexturedRect(self):
+        def addRect():
+            rect = Player.createNode("rect",
+                    {"x":20, "y":20, "width":50, "height":40, "fillopacity":1, 
+                     "strokewidth":20, "texhref":"rgb24-64x64.png"})
+            canvas.appendChild(rect)
+        def setTexCoords():
+            rect = canvas.getChild(0)
+            rect.texcoords = [-1, 0, 1, 2, 3]
+        canvas = self.makeEmptyCanvas()
+        self.start(None,
+                (addRect,
+                 lambda: self.compareImage("testTexturedRect1", False),
+                 setTexCoords,
+                 lambda: self.compareImage("testTexturedRect2", False)
+                ))
+
     def testCurve(self):
         def addCurve():
             curve = Player.createNode("curve",
@@ -304,6 +321,7 @@ def vectorTestSuite(tests):
             "testLineOpacity",
             "testTexturedLine",
             "testRect",
+            "testTexturedRect",
             "testCurve",
             "testPolyLine",
             "testTexturedPolyLine",

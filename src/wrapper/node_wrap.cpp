@@ -327,6 +327,8 @@ void export_node()
         .add_property("width", &RectNode::getWidth, &RectNode::setWidth)
         .add_property("height", &RectNode::getHeight, &RectNode::setHeight)
         .add_property("size", &RectNode::getSize, &RectNode::setSize)
+        .add_property("texcoords", make_function(&RectNode::getTexCoords, 
+                return_value_policy<copy_const_reference>()), &RectNode::setTexCoords)
         .add_property("angle", &RectNode::getAngle, &RectNode::setAngle,
                 "The angle that the rectangle is rotated to in radians. 0 is\n"
                 "unchanged, 3.14 is upside-down. The rectangle is rotated around it's\n"

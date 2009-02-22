@@ -56,6 +56,8 @@ RectNode::RectNode(const ArgList& Args, bool bFromXML)
     m_Rect.setWidth(Args.getArgVal<double>("width"));
     m_Rect.setHeight(Args.getArgVal<double>("height"));
     m_FillColor = colorStringToColor(m_sFillColorName);
+    double texCoords[] = {0, 0.25, 0.5, 0.75, 1};
+    m_TexCoords = vectorFromCArray(5, texCoords);
 }
 
 RectNode::~RectNode()
@@ -137,6 +139,21 @@ void RectNode::setSize(const DPoint& pt)
     setDrawNeeded(false);
 }
 
+const vector<double>& RectNode::getTexCoords() const
+{
+    return m_TexCoords;
+}
+
+void RectNode::setTexCoords(const vector<double>& coords)
+{
+    if (coords.size() != 5) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE, 
+                "Number of texture coordinates for a rectangle must be 5."));
+    }
+    m_TexCoords = coords;
+    setDrawNeeded(false);
+}
+
 double RectNode::getAngle() const
 {
     return m_Angle;
@@ -205,8 +222,8 @@ void RectNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
     pVertexArray->appendPos(rp4, DPoint(0,0), color);
     pVertexArray->appendQuadIndexes(1, 0, 2, 3);
 
-    updateLineData(pVertexArray, opacity, rp1, rp2);
-    updateLineData(pVertexArray, opacity, rp3, rp4);
+    updateLineData(pVertexArray, opacity, rp1, rp2, m_TexCoords[0], m_TexCoords[1]);
+    updateLineData(pVertexArray, opacity, rp3, rp4, m_TexCoords[2], m_TexCoords[3]);
     p1.x -= getStrokeWidth()/2;
     p2.x -= getStrokeWidth()/2;
     p3.x += getStrokeWidth()/2;
@@ -215,8 +232,8 @@ void RectNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
     rp2 = rotate(p2, m_Angle, pivot); 
     rp3 = rotate(p3, m_Angle, pivot); 
     rp4 = rotate(p4, m_Angle, pivot); 
-    updateLineData(pVertexArray, opacity, rp2, rp3);
-    updateLineData(pVertexArray, opacity, rp4, rp1);
+    updateLineData(pVertexArray, opacity, rp2, rp3, m_TexCoords[1], m_TexCoords[2]);
+    updateLineData(pVertexArray, opacity, rp4, rp1, m_TexCoords[3], m_TexCoords[4]);
 }
 
 }

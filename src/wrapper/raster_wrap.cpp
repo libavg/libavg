@@ -103,14 +103,8 @@ void export_raster()
     UTF8String_from_unicode();
     UTF8String_from_string();
 
-    to_python_converter<vector<DPoint>, to_list<vector<DPoint> > >();    
-    to_python_converter<vector<string>, to_list<vector<string> > >();    
     to_python_converter<VertexGrid, to_list<VertexGrid> >();    
-   
-    from_python_sequence<vector<DPoint>, variable_capacity_policy>();
-    from_python_sequence<vector<IntPoint>, variable_capacity_policy>();
     from_python_sequence<VertexGrid, variable_capacity_policy>();
-    from_python_sequence<vector<string>, variable_capacity_policy>();
 
     class_<RasterNode, bases<AreaNode>, boost::noncopyable>("RasterNode",
             "Base class for all nodes that have a direct 2d raster representation.\n"
