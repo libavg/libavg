@@ -228,9 +228,9 @@ void RectNode::calcVertexes(VertexArrayPtr& pVertexArray,
     DPoint rp3 = rotate(p3, m_Angle, pivot); 
     DPoint rp4 = rotate(p4, m_Angle, pivot); 
     pFillVertexArray->appendPos(rp1, DPoint(0,0), color);
-    pFillVertexArray->appendPos(rp2, DPoint(0,0), color);
-    pFillVertexArray->appendPos(rp3, DPoint(0,0), color);
-    pFillVertexArray->appendPos(rp4, DPoint(0,0), color);
+    pFillVertexArray->appendPos(rp2, DPoint(0,1), color);
+    pFillVertexArray->appendPos(rp3, DPoint(1,1), color);
+    pFillVertexArray->appendPos(rp4, DPoint(1,0), color);
     pFillVertexArray->appendQuadIndexes(1, 0, 2, 3);
 
     updateLineData(pVertexArray, opacity, rp1, rp2, m_TexCoords[0], m_TexCoords[1]);

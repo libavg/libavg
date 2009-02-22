@@ -302,6 +302,10 @@ void export_node()
         .add_property("texhref", make_function(&VectorNode::getTexHRef,
                return_value_policy<copy_const_reference>()), &VectorNode::setTexHRef,
                "An image file to use as a texture for the node.\n")
+        .add_property("filltexhref", make_function(&VectorNode::getFillTexHRef,
+               return_value_policy<copy_const_reference>()), &VectorNode::setFillTexHRef,
+               "An image file to use as a texture for the area of the node. Valid\n"
+               "only for Rect and Polygon nodes.\n")
     ;
 
     class_<LineNode, bases<VectorNode>, boost::noncopyable>("LineNode", 

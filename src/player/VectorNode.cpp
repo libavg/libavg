@@ -52,6 +52,8 @@ NodeDefinition VectorNode::createDefinition()
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(VectorNode, m_sColorName)))
         .addArg(Arg<double>("strokewidth", 1, false, offsetof(VectorNode, m_StrokeWidth)))
         .addArg(Arg<string>("texhref", "", false, offsetof(VectorNode, m_TexHRef)))
+        .addArg(Arg<string>("filltexhref", "", false, 
+                offsetof(VectorNode, m_FillTexHRef)))
         ;
 }
 
@@ -62,6 +64,8 @@ VectorNode::VectorNode(const ArgList& Args, bool bIsFilled)
     setTexHRef(m_TexHRef);
     if (bIsFilled) {
         m_pFillShape = ShapePtr(new Shape(""));
+        m_FillTexHRef = Args.getArgVal<string>("filltexhref"); 
+        setFillTexHRef(m_FillTexHRef);
     }
 }
 
@@ -107,6 +111,19 @@ void VectorNode::setTexHRef(const string& href)
 {
     m_TexHRef = href;
     checkReload();
+    setDrawNeeded(true);
+}
+
+const std::string& VectorNode::getFillTexHRef() const
+{
+    return m_FillTexHRef;
+}
+
+void VectorNode::setFillTexHRef(const string& href)
+{
+    m_FillTexHRef = href;
+    checkReload();
+    setDrawNeeded(true);
 }
 
 static ProfilingZone PrerenderProfilingZone("VectorNode::prerender");
@@ -187,9 +204,12 @@ int VectorNode::getNumFillIndexes()
 
 void VectorNode::checkReload()
 {
-    string sLastFilename = m_pShape->getFilename();
     ImagePtr pImage = boost::dynamic_pointer_cast<Image>(m_pShape);
     Node::checkReload(m_TexHRef, pImage);
+    if (m_pFillShape) {
+        pImage = boost::dynamic_pointer_cast<Image>(m_pFillShape);
+        Node::checkReload(m_FillTexHRef, pImage);
+    }
 }
 
 void VectorNode::setColor(const string& sColor)
@@ -250,11 +270,6 @@ void VectorNode::setDrawNeeded(bool bSizeChanged)
 bool VectorNode::isDrawNeeded()
 {
     return m_bDrawNeeded;
-}
-
-bool VectorNode::isTextured() const
-{
-    return (m_pShape->getState() != Image::NOT_AVAILABLE);
 }
 
 }

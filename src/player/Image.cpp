@@ -42,6 +42,7 @@ Image::Image(const string& sFilename, bool bTiled)
     : m_sFilename(sFilename),
       m_pBmp(new Bitmap(IntPoint(1,1), R8G8B8X8)),
       m_pSurface(0),
+      m_pEngine(0),
       m_State(NOT_AVAILABLE),
       m_bTiled(bTiled)
 {
@@ -117,16 +118,15 @@ void Image::moveToCPU()
 
 void Image::setFilename(const std::string& sFilename)
 {
-    bool bWasGPU = (m_State == GPU);
-    if (bWasGPU) {
+    if (m_State == GPU) {
         delete m_pSurface;
         m_pSurface = 0;
-        m_State = NOT_AVAILABLE;
-        m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
     }
+    m_State = NOT_AVAILABLE;
+    m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
     m_sFilename = sFilename;
     load();
-    if (bWasGPU) {
+    if (m_pEngine) {
         moveToGPU(m_pEngine);
     }
 }

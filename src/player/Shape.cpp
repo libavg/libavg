@@ -90,6 +90,7 @@ void Shape::downloadTexture()
     SDLDisplayEngine* pEngine = getEngine();
     
     m_TexID = pEngine->createTexture(size, pf);
+    // TODO: Add configurable clamp/repeat behaviour to Shape
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Shape::downloadTexture: glTexParameteri()");
     

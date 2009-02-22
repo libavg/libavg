@@ -51,6 +51,9 @@ class AVG_API VectorNode : public Node
         const std::string& getTexHRef() const;
         void setTexHRef(const std::string& href);
 
+        const std::string& getFillTexHRef() const;
+        void setFillTexHRef(const std::string& href);
+
         virtual void preRender();
         virtual void maybeRender(const DRect& Rect);
         virtual void render(const DRect& rect);
@@ -85,10 +88,9 @@ class AVG_API VectorNode : public Node
         bool m_bVASizeChanged;
         double m_OldOpacity;
 
-        // Texture stuff
-        bool isTextured() const;
         std::string m_TexHRef;
         ShapePtr m_pShape;
+        std::string m_FillTexHRef;
         ShapePtr m_pFillShape;
 };
 

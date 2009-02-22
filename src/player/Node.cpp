@@ -284,9 +284,6 @@ void Node::checkReload(const std::string& sHRef, ImagePtr& pImage)
             }
         }
     }
-    if (getDisplayEngine()) {
-        pImage->moveToGPU(getDisplayEngine());
-    }
 }
 
 }
