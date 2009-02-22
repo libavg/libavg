@@ -40,7 +40,7 @@ class AVG_API VectorNode : public Node
     public:
         static NodeDefinition createDefinition();
         
-        VectorNode(const ArgList& Args);
+        VectorNode(const ArgList& Args, bool bIsFilled=false);
         virtual ~VectorNode();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
@@ -89,8 +89,7 @@ class AVG_API VectorNode : public Node
         bool isTextured() const;
         std::string m_TexHRef;
         ShapePtr m_pShape;
-        
-        VertexArrayPtr m_pFillVertexArray;
+        ShapePtr m_pFillShape;
 };
 
 typedef boost::shared_ptr<VectorNode> VectorNodePtr;

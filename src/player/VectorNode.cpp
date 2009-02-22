@@ -55,11 +55,14 @@ NodeDefinition VectorNode::createDefinition()
         ;
 }
 
-VectorNode::VectorNode(const ArgList& Args)
+VectorNode::VectorNode(const ArgList& Args, bool bIsFilled)
     : m_pShape(new Shape(""))
 {
     m_TexHRef = Args.getArgVal<string>("texhref"); 
     setTexHRef(m_TexHRef);
+    if (bIsFilled) {
+        m_pFillShape = ShapePtr(new Shape(""));
+    }
 }
 
 VectorNode::~VectorNode()
@@ -72,11 +75,9 @@ void VectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     setDrawNeeded(true);
     m_Color = colorStringToColor(m_sColorName);
     Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
-    m_pShape->moveToGPU(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
-
-    if (getNumFillVertexes() != 0) {
-            m_pFillVertexArray = VertexArrayPtr(new VertexArray(
-                    getNumFillVertexes(), getNumFillIndexes(), 100, 100));
+    m_pShape->moveToGPU(getDisplayEngine());
+    if (m_pFillShape) {
+        m_pFillShape->moveToGPU(getDisplayEngine());
     }
     m_OldOpacity = -1;
 }
@@ -89,7 +90,9 @@ void VectorNode::connect()
 
 void VectorNode::disconnect()
 {
-    m_pFillVertexArray = VertexArrayPtr();
+    if (m_pFillShape) {
+        m_pFillShape->moveToCPU();
+    }
     m_pShape->moveToCPU();
 
     Node::disconnect();
@@ -116,11 +119,15 @@ void VectorNode::preRender()
     double curOpacity = getEffectiveOpacity();
 
     VertexArrayPtr pVA = m_pShape->getVertexArray();
+    VertexArrayPtr pFillVA;
+    if (m_pFillShape) {
+        pFillVA = m_pFillShape->getVertexArray();
+    }
     if (m_bVASizeChanged) {
         ScopeTimer Timer(VASizeProfilingZone);
         pVA->changeSize(getNumVertexes(), getNumIndexes());
-        if (getNumFillVertexes() != 0) {
-            m_pFillVertexArray->changeSize(getNumFillVertexes(), getNumFillIndexes());
+        if (pFillVA) {
+            pFillVA->changeSize(getNumFillVertexes(), getNumFillIndexes());
         }
         m_bVASizeChanged = false;
     }
@@ -128,13 +135,13 @@ void VectorNode::preRender()
         ScopeTimer Timer(VAProfilingZone);
         if (m_bDrawNeeded || curOpacity != m_OldOpacity) {
             pVA->reset();
-            if (getNumFillVertexes() != 0) {
-                m_pFillVertexArray->reset();
+            if (pFillVA) {
+                pFillVA->reset();
             }
-            calcVertexes(pVA, m_pFillVertexArray, curOpacity);
+            calcVertexes(pVA, pFillVA, curOpacity);
             pVA->update();
-            if (getNumFillVertexes() != 0) {
-                m_pFillVertexArray->update();
+            if (pFillVA) {
+                pFillVA->update();
             }
             m_bDrawNeeded = false;
             m_OldOpacity = curOpacity;
@@ -162,11 +169,8 @@ static ProfilingZone RenderProfilingZone("VectorNode::render");
 void VectorNode::render(const DRect& rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    SDLDisplayEngine * pEngine = getDisplayEngine();
-    if (getNumFillVertexes() != 0) {
-        pEngine->enableTexture(false);
-        pEngine->enableGLColorArray(true);
-        m_pFillVertexArray->draw();
+    if (m_pFillShape) {
+        m_pFillShape->draw();
     }
     m_pShape->draw();
 }

@@ -50,7 +50,7 @@ NodeDefinition RectNode::createDefinition()
 }
 
 RectNode::RectNode(const ArgList& Args, bool bFromXML)
-    : VectorNode(Args)
+    : VectorNode(Args, true)
 {
     Args.setMembers(this);
     m_Rect.setWidth(Args.getArgVal<double>("width"));
