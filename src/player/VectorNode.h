@@ -33,21 +33,6 @@ namespace avg {
 
 class OGLSurface;
 
-class AVG_API WideLine
-{
-    public:
-        WideLine(const DPoint& p0, const DPoint& p1, double width);
-
-        double getLen() const;
-
-        DPoint pt0, pt1;
-        DPoint pl0, pl1;
-        DPoint pr0, pr1;
-        DPoint dir;
-};
-
-std::ostream& operator<<(std::ostream& os, const WideLine& line);
-
 class AVG_API VectorNode : public Node
 {
     public:

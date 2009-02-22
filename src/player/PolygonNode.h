@@ -26,6 +26,7 @@
 #include "PolyLineNode.h"
 
 #include "../graphics/Pixel32.h"
+#include "../base/WideLine.h"
 
 #include <vector>
 

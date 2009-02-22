@@ -30,6 +30,7 @@
 #include "../base/Logger.h"
 #include "../base/ScopeTimer.h"
 #include "../base/Exception.h"
+#include "../base/WideLine.h"
 
 #include "../graphics/VertexArray.h"
 #include "../graphics/Filterfliprgb.h"
@@ -168,14 +169,14 @@ void VectorNode::render(const DRect& rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
     SDLDisplayEngine * pEngine = getDisplayEngine();
-    if (isTextured()) {
-        glproc::ActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_TexID);
-    }
     if (getNumFillVertexes() != 0) {
         pEngine->enableTexture(false);
         pEngine->enableGLColorArray(true);
         m_pFillVertexArray->draw();
+    }
+    if (isTextured()) {
+        glproc::ActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_TexID);
     }
     pEngine->enableTexture(isTextured());
     pEngine->enableGLColorArray(!isTextured());
@@ -305,33 +306,5 @@ bool VectorNode::isTextured() const
 {
     return (m_pImage->getState() != Image::NOT_AVAILABLE);
 }
-
-
-
-WideLine::WideLine(const DPoint& p0, const DPoint& p1, double width)
-    : pt0(p0),
-      pt1(p1)
-{
-    DPoint m = (pt1-pt0);
-    m.normalize();
-    DPoint w = DPoint(m.y, -m.x)*width/2;
-    pl0 = p0-w;
-    pr0 = p0+w;
-    pl1 = p1-w;
-    pr1 = p1+w;
-    dir = DPoint(w.y, -w.x); 
-}
-
-double WideLine::getLen() const
-{
-    return calcDist(pt0, pt1);
-}
-
-std::ostream& operator<<(std::ostream& os, const WideLine& line)
-{
-    os << "(" << line.pt0 << "," << line.pt1 << ")";
-    return os;
-}
-
 
 }
