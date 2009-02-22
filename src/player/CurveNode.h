@@ -73,9 +73,16 @@ class AVG_API CurveNode : public VectorNode
         const DPoint& getPos4() const;
         void setPos4(const DPoint& pt);
 
+        double getTexCoord1() const;
+        void setTexCoord1(double tc);
+
+        double getTexCoord2() const;
+        void setTexCoord2(double tc);
+
         virtual int getNumVertexes();
         virtual int getNumIndexes();
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity);
+        virtual void calcVertexes(VertexArrayPtr& pVertexArray, 
+                VertexArrayPtr& pFillVertexArray, double opacity);
 
     private:
         int getCurveLen();
@@ -85,6 +92,8 @@ class AVG_API CurveNode : public VectorNode
         DPoint m_P2;
         DPoint m_P3;
         DPoint m_P4;
+        double m_TC1;
+        double m_TC2;
 
         std::vector<DPoint> m_LeftCurve;
         std::vector<DPoint> m_RightCurve;

@@ -80,10 +80,28 @@ class VectorTestCase(AVGTestCase):
             line = Player.createNode("line", {"x1":2, "y1":20, "x2":100, "y2":20,
                     "texhref":"rgb24-64x64.png", "strokewidth":30})
             canvas.appendChild(line)
+        def removeLine():
+            self.line = canvas.getChild(0)
+            self.line.unlink()
+        def reAddLine():
+            canvas.appendChild(self.line)
+        def moveTexture():
+            self.line.texcoord1 = -0.5
+            self.line.texcoord2 = 1.5
         canvas = self.makeEmptyCanvas()
+        addLine()
         self.start(None,
-                (addLine,
-                 lambda: self.compareImage("testtexturedline", False), 
+                (lambda: self.compareImage("testtexturedline1", False), 
+                 removeLine,
+                 lambda: self.compareImage("testtexturedline2", False), 
+                 addLine,
+                 lambda: self.compareImage("testtexturedline1", False), 
+                 removeLine,
+                 lambda: self.compareImage("testtexturedline2", False), 
+                 reAddLine,
+                 lambda: self.compareImage("testtexturedline1", False),
+                 moveTexture,
+                 lambda: self.compareImage("testtexturedline3", False)
                 ))
 
     def testLineOpacity(self):
@@ -137,6 +155,28 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testRect4", False),
                 ))
 
+    def testTexturedRect(self):
+        def addRect():
+            rect = Player.createNode("rect",
+                    {"x":20, "y":20, "width":50, "height":40, "fillopacity":1, 
+                     "strokewidth":20, "texhref":"rgb24-64x64.png"})
+            canvas.appendChild(rect)
+        def setTexCoords():
+            rect = canvas.getChild(0)
+            rect.texcoords = [-1, 0, 1, 2, 3]
+        def setFillTex():
+            rect = canvas.getChild(0)
+            rect.filltexhref="rgb24alpha-64x64.png"
+        canvas = self.makeEmptyCanvas()
+        self.start(None,
+                (addRect,
+                 lambda: self.compareImage("testTexturedRect1", False),
+                 setTexCoords,
+                 lambda: self.compareImage("testTexturedRect2", False),
+                 setFillTex,
+                 lambda: self.compareImage("testTexturedRect3", False)
+                ))
+
     def testCurve(self):
         def addCurve():
             curve = Player.createNode("curve",
@@ -167,6 +207,25 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testCurve3", False),
                  addCurve2,
                  lambda: self.compareImage("testCurve4", False),
+                )) 
+
+    def testTexturedCurve(self):
+        def addCurve():
+            curve = Player.createNode("curve",
+                {"x1":10.5, "y1":10, "x2":10.5, "y2":80, 
+                 "x3":80.5, "y3":80, "x4":80.5, "y4":10, 
+                 "strokewidth":20, "texhref":"rgb24-64x64.png"})
+            canvas.appendChild(curve)
+        def setTexCoords():
+            curve = canvas.getChild(0)
+            curve.texcoord1=-1
+            curve.texcoord2=2
+        canvas = self.makeEmptyCanvas()
+        self.start(None,
+                (addCurve,
+                 lambda: self.compareImage("testTexturedCurve1", False),
+                 setTexCoords,
+                 lambda: self.compareImage("testTexturedCurve2", False)
                 )) 
 
     def testPolyLine(self):
@@ -203,6 +262,28 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testPolyLine4", False),
                  testEmptyPolyline,
                  lambda: self.compareImage("testPolyLine5", False)
+                ))
+
+    def testTexturedPolyLine(self):
+        def texturePolyLine():
+            polyline = Player.createNode("polyline", 
+                    {"strokewidth":20, "color":"FF00FF", "texhref":"rgb24-64x64.png"})
+            polyline.pos = [(10,10), (50,10), (90,50), (90, 90)]
+            canvas.appendChild(polyline)
+        def miter():
+            polyline = canvas.getChild(0)
+            polyline.linejoin = "miter"
+        def setTexCoords():
+            polyline = canvas.getChild(0)
+            polyline.texcoords = [-1, 0, 1, 2]
+        canvas = self.makeEmptyCanvas()
+        self.start(None,
+                (texturePolyLine,
+                 lambda: self.compareImage("testTexturedPolyLine1", False),
+                 miter,
+                 lambda: self.compareImage("testTexturedPolyLine2", False),
+                 setTexCoords,
+                 lambda: self.compareImage("testTexturedPolyLine3", False)
                 ))
 
     def testPolygon(self):
@@ -264,8 +345,11 @@ def vectorTestSuite(tests):
             "testLineOpacity",
             "testTexturedLine",
             "testRect",
+            "testTexturedRect",
             "testCurve",
+            "testTexturedCurve",
             "testPolyLine",
+            "testTexturedPolyLine",
             "testPolygon",
             )
     return AVGTestSuite (availableTests, VectorTestCase, tests)

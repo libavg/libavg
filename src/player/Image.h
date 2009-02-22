@@ -19,61 +19,62 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _OGLSurface_H_
-#define _OGLSurface_H_
+#ifndef _Image_H_
+#define _Image_H_
 
 #include "../api.h"
+
 #include "../base/Point.h"
-
 #include "../graphics/Bitmap.h"
-#include "../graphics/OGLHelper.h"
 
-#include <vector>
+#include <boost/shared_ptr.hpp>
 #include <string>
 
 namespace avg {
 
+class OGLSurface;
+class OGLTiledSurface;
 class SDLDisplayEngine;
 
-class AVG_API OGLSurface {
+class AVG_API Image
+{
     public:
-        OGLSurface(SDLDisplayEngine * pEngine);
-        virtual ~OGLSurface();
+        enum State {NOT_AVAILABLE, CPU, GPU};
 
-        virtual void create(const IntPoint& Size, PixelFormat PF, bool bFastDownload);
-        virtual BitmapPtr lockBmp(int index=0);
-        virtual void unlockBmps();
+        Image(const std::string& sFilename, bool bTiled);
+        Image(const Bitmap* pBmp, bool bTiled);
+        virtual ~Image();
 
-        void bindPBO(int index=0);
-        void unbindPBO();
+        virtual void moveToGPU(SDLDisplayEngine* pEngine);
+        virtual void moveToCPU();
 
-        PixelFormat getPixelFormat();
+        void setFilename(const std::string& sFilename);
+        const std::string& getFilename() const;
+        
+        Bitmap* getBitmap();
         IntPoint getSize();
-        int getTotalTexMemory();
-        OGLMemoryMode getMemMode() const;
-        BitmapPtr getBmp(int i=0);
+        PixelFormat getPixelFormat();
+        OGLSurface* getSurface();
+        OGLTiledSurface* getTiledSurface();
+        State getState();
 
     protected:
-        SDLDisplayEngine * getEngine();
+        SDLDisplayEngine* getEngine();
 
     private:
-        void createBitmap(const IntPoint& Size, PixelFormat pf, int index);
-        void deleteBuffers();
-        void unlockBmp(int i);
+        void load();
+        void setupSurface();
 
+        std::string m_sFilename;
+        BitmapPtr m_pBmp;
+        OGLSurface * m_pSurface;
         SDLDisplayEngine * m_pEngine;
-       
-        bool m_bCreated;
 
-        BitmapPtr m_pBmps[3];
-        IntPoint m_Size;
-        PixelFormat m_pf;
-
-        OGLMemoryMode m_MemoryMode;
-
-        // PBO memory mode
-        GLuint m_hPixelBuffers[3];
+        State m_State;
+        bool m_bTiled;
 };
+
+typedef boost::shared_ptr<Image> ImagePtr;
 
 }
 

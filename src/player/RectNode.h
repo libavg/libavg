@@ -55,6 +55,9 @@ class AVG_API RectNode : public VectorNode
         DPoint getSize() const;
         void setSize(const DPoint& pt);
 
+        const std::vector<double>& getTexCoords() const;
+        void setTexCoords(const std::vector<double>& coords);
+
         double getAngle() const;
         void setAngle(double angle);
 
@@ -66,10 +69,14 @@ class AVG_API RectNode : public VectorNode
 
         virtual int getNumVertexes();
         virtual int getNumIndexes();
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity);
+        virtual int getNumFillVertexes();
+        virtual int getNumFillIndexes();
+        virtual void calcVertexes(VertexArrayPtr& pVertexArray, 
+                VertexArrayPtr& pFillVertexArray, double opacity);
 
     private:
         DRect m_Rect;
+        std::vector<double> m_TexCoords;
 
         double m_Angle;
         double m_FillOpacity;

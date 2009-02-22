@@ -81,10 +81,10 @@ void OGLTiledSurface::setMaxTileSize(const IntPoint& MaxTileSize)
     if (m_MaxTileSize.y != -1) {
         m_MaxTileSize.y = nextpow2(m_MaxTileSize.y/2+1);
     }
-    if (getBmp(0)) {
+//    if (getBmp(0)) {
         calcTileSizes();
         initTileVertices(m_TileVertices);
-    }
+//    }
 }
 
 VertexGrid OGLTiledSurface::getOrigVertexCoords()
@@ -175,7 +175,7 @@ void OGLTiledSurface::bind()
                         safeCeil(double(CurExtent.tl.y)/m_TileSize.y),
                         safeCeil(double(CurExtent.br.x)/m_TileSize.x), 
                         safeCeil(double(CurExtent.br.y)/m_TileSize.y));
-                if (getEngine()->getTextureMode() == GL_TEXTURE_2D) {
+                if (getEngine()->usePOTTextures()) {
                     CurSize.x = nextpow2(CurSize.x);
                     CurSize.y = nextpow2(CurSize.y);
                 }
@@ -286,14 +286,15 @@ void OGLTiledSurface::blt(const DPoint& DestSize,
     if (!m_bBound) {
         bind();
     }
+    getEngine()->enableGLColorArray(false);
+    getEngine()->enableTexture(true);
     bltTexture(DestSize, Mode);
 }
 
 bool OGLTiledSurface::isOneTexture(IntPoint Size)
 {
-    if (Size.x > getEngine()->getMaxTexSize() || 
-        Size.y > getEngine()->getMaxTexSize() ||
-        getEngine()->getTextureMode() == GL_TEXTURE_2D)
+    if (Size.x > getEngine()->getMaxTexSize() || Size.y > getEngine()->getMaxTexSize() ||
+        getEngine()->usePOTTextures())
     {
         return false;
     } else {
@@ -304,7 +305,7 @@ bool OGLTiledSurface::isOneTexture(IntPoint Size)
 void OGLTiledSurface::calcTileSizes()
 {
     IntPoint size = getSize();
-    if (getEngine()->getTextureMode() == GL_TEXTURE_2D) {
+    if (getEngine()->usePOTTextures()) {
         if ((size.x > 256 && nextpow2(size.x) > size.x*1.3) ||
                 (size.y > 256 && nextpow2(size.y) > size.y*1.3)) 
         {
@@ -433,19 +434,6 @@ void OGLTiledSurface::checkBlendModeError(const char *mode)
             bErrorReported = true;
         }
     }
-}
-
-int OGLTiledSurface::getTotalTexMemory()
-{
-    int iAmount = 0;
-    if (m_bBound) {
-        for (int y=0; y<m_NumTextures.y; y++) {
-            for (int x=0; x<m_NumTextures.x; x++) {
-                iAmount += m_pTextures[y][x]->getTexMemDim();
-            }
-        }
-    }
-    return iAmount;
 }
 
 OGLShaderPtr OGLTiledSurface::getFragmentShader()

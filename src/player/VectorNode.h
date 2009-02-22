@@ -29,46 +29,41 @@
 #include "../graphics/VertexArray.h"
 #include "../graphics/Bitmap.h"
 
+#include "Shape.h"
+
 namespace avg {
 
 class OGLSurface;
-
-class AVG_API WideLine
-{
-    public:
-        WideLine(const DPoint& p0, const DPoint& p1, double width);
-
-        DPoint pt0, pt1;
-        DPoint pl0, pl1;
-        DPoint pr0, pr1;
-        DPoint dir;
-};
-
-std::ostream& operator<<(std::ostream& os, const WideLine& line);
 
 class AVG_API VectorNode : public Node
 {
     public:
         static NodeDefinition createDefinition();
         
-        VectorNode(const ArgList& Args);
+        VectorNode(const ArgList& Args, bool bIsFilled=false);
         virtual ~VectorNode();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
         virtual void connect();
         virtual void disconnect();
+        virtual void checkReload();
 
         const std::string& getTexHRef() const;
         void setTexHRef(const std::string& href);
 
+        const std::string& getFillTexHRef() const;
+        void setFillTexHRef(const std::string& href);
+
         virtual void preRender();
         virtual void maybeRender(const DRect& Rect);
         virtual void render(const DRect& rect);
-        virtual void checkReload();
 
         virtual int getNumVertexes() = 0;
         virtual int getNumIndexes() = 0;
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity) = 0;
+        virtual int getNumFillVertexes();
+        virtual int getNumFillIndexes();
+        virtual void calcVertexes(VertexArrayPtr& pVertexArray, 
+                VertexArrayPtr& pFillVertexArray, double opacity) = 0;
 
         void setColor(const std::string& sColor);
         const std::string& getColor() const;
@@ -81,6 +76,7 @@ class AVG_API VectorNode : public Node
         void updateLineData(VertexArrayPtr& pVertexArray, double opacity, 
                 const DPoint& p1, const DPoint& p2, double TC1=0, double TC2=1);
         void setDrawNeeded(bool bSizeChanged);
+        bool isDrawNeeded();
         DPoint calcTexCoord(const DPoint& origCoord);
 
     private:
@@ -88,22 +84,14 @@ class AVG_API VectorNode : public Node
         Pixel32 m_Color;
         double m_StrokeWidth;
 
-        VertexArrayPtr m_pVertexArray;
         bool m_bDrawNeeded;
         bool m_bVASizeChanged;
         double m_OldOpacity;
 
-        // Texture stuff
-        void loadTex();
-        void setupSurface();
-        void createTexture();
-        void downloadTexture(BitmapPtr pBmp) const;
-        std::string m_TexFilename;
         std::string m_TexHRef;
-        BitmapPtr m_pBmp;
-        bool m_bIsTextured;
-        OGLSurface * m_pSurface;
-        unsigned m_TexID;
+        ShapePtr m_pShape;
+        std::string m_FillTexHRef;
+        ShapePtr m_pFillShape;
 };
 
 typedef boost::shared_ptr<VectorNode> VectorNodePtr;

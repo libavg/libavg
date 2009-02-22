@@ -42,6 +42,7 @@ class SDLDisplayEngine;
 class AudioEngine;
 class Player;
 class NodeDefinition;
+class Image;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
@@ -49,6 +50,7 @@ typedef boost::shared_ptr<DivNode> DivNodePtr;
 typedef boost::weak_ptr<DivNode> DivNodeWeakPtr;
 typedef boost::shared_ptr<AVGNode> AVGNodePtr;
 typedef boost::weak_ptr<AVGNode> AVGNodeWeakPtr;
+typedef boost::shared_ptr<Image> ImagePtr;
 
 class AVG_API Node
 {
@@ -105,7 +107,8 @@ class AVG_API Node
         NodePtr getThis() const;
         void setState(NodeState State);
         void initFilename(std::string& sFilename);
- 
+        void checkReload(const std::string& sHRef, ImagePtr& pImage);
+
     private:
         DivNodeWeakPtr m_pParent;
         NodeWeakPtr m_This;

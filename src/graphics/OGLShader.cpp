@@ -31,11 +31,7 @@ namespace avg {
     OGLShader::OGLShader(string sProgram, int type):
         m_sProgram(sProgram) 
     {
-        if (sProgram==""){
-            m_hShader = 0;
-            return;
-
-        }
+        
         m_hShader = glproc::CreateShaderObject(type); //Maybe actively check for valid type first
         //cerr<<"Created a GLHandle "<<m_hShader<<" in "<<this<<endl;
         const char * pProgramStr = m_sProgram.c_str();

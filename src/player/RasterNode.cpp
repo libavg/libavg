@@ -74,8 +74,8 @@ void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
 {
     AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 
-    if (m_MaxTileSize != IntPoint(-1, -1)) {
-        OGLTiledSurface * pOGLSurface = getSurface();
+    OGLTiledSurface * pOGLSurface = getSurface();
+    if (m_MaxTileSize != IntPoint(-1, -1) && pOGLSurface) {
         pOGLSurface->setMaxTileSize(m_MaxTileSize);
     }
     setBlendModeStr(m_sBlendMode);
@@ -92,22 +92,22 @@ void RasterNode::disconnect()
 
 VertexGrid RasterNode::getOrigVertexCoords()
 {
-    OGLTiledSurface * pOGLSurface = getSurface();
     checkDisplayAvailable("getOrigVertexCoords");
+    OGLTiledSurface * pOGLSurface = getSurface();
     return pOGLSurface->getOrigVertexCoords();
 }
 
 VertexGrid RasterNode::getWarpedVertexCoords() 
 {
-    OGLTiledSurface * pOGLSurface = getSurface();
     checkDisplayAvailable("getWarpedVertexCoords");
+    OGLTiledSurface * pOGLSurface = getSurface();
     return pOGLSurface->getWarpedVertexCoords();
 }
 
 void RasterNode::setWarpedVertexCoords(const VertexGrid& Grid)
 {
-    OGLTiledSurface * pOGLSurface = getSurface();
     checkDisplayAvailable("setWarpedVertexCoords");
+    OGLTiledSurface * pOGLSurface = getSurface();
     pOGLSurface->setWarpedVertexCoords(Grid);
 }
 
@@ -180,9 +180,10 @@ OGLShaderPtr RasterNode::getFragmentShader()
         return OGLShaderPtr();
     }
 }
+
 void RasterNode::checkDisplayAvailable(std::string sMsg)
 {
-    if (!getSurface()) {
+    if (!(getState() == Node::NS_CANRENDER)) {
         throw Exception(AVG_ERR_UNSUPPORTED,
             string(sMsg) + ": cannot access vertex coordinates before Player.play().");
     }

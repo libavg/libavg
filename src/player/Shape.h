@@ -19,48 +19,42 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _ImageNode_H_
-#define _ImageNode_H_
+#ifndef _Shape_H_
+#define _Shape_H_
 
 #include "../api.h"
-#include "RasterNode.h"
 #include "Image.h"
 
+#include "../base/Point.h"
 #include "../graphics/Bitmap.h"
+#include "../graphics/VertexArray.h"
 
+#include <boost/shared_ptr.hpp>
 #include <string>
 
 namespace avg {
 
-class AVG_API ImageNode : public RasterNode
+class AVG_API Shape: public Image
 {
     public:
-        static NodeDefinition createDefinition();
-        
-        ImageNode(const ArgList& Args, bool bFromXML);
-        virtual ~ImageNode();
-        virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
-                AudioEngine * pAudioEngine);
-        virtual void connect();
-        virtual void disconnect();
-        virtual void checkReload();
+        Shape(const std::string& sFilename);
+        virtual ~Shape();
 
-        const std::string& getHRef() const;
-        void setHRef(const std::string& href);
-        void setBitmap(const Bitmap * pBmp);
-        
-        virtual void render(const DRect& Rect);
-        
-        virtual Bitmap* getBitmap();
-        virtual IntPoint getMediaSize();
+        virtual void moveToGPU(SDLDisplayEngine* pEngine);
+        virtual void moveToCPU();
 
-    protected:
-        virtual OGLTiledSurface * getSurface();
-    
+        VertexArrayPtr getVertexArray();
+        void draw();
+
     private:
-        std::string m_href;
-        ImagePtr m_pImage;
+        void downloadTexture();
+        void deleteTexture();
+
+        unsigned m_TexID;
+        VertexArrayPtr m_pVertexArray;
 };
+
+typedef boost::shared_ptr<Shape> ShapePtr;
 
 }
 

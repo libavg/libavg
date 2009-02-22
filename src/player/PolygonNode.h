@@ -26,6 +26,7 @@
 #include "PolyLineNode.h"
 
 #include "../graphics/Pixel32.h"
+#include "../base/WideLine.h"
 
 #include <vector>
 
@@ -47,7 +48,8 @@ class AVG_API PolygonNode : public PolyLineNode
 
         virtual int getNumVertexes();
         virtual int getNumIndexes();
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity);
+        virtual void calcVertexes(VertexArrayPtr& pVertexArray, 
+                VertexArrayPtr& pFillVertexArray, double opacity);
 
     private:
         double m_FillOpacity;

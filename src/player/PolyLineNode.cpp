@@ -68,16 +68,48 @@ void PolyLineNode::setPos(const vector<DPoint>& pts)
 {
     m_Pts.clear();
     m_Pts.reserve(pts.size());
+    m_TexCoords.clear();
+    m_TexCoords.reserve(pts.size());
     if (!pts.empty()) {
+        vector<double> distances;
+        double totalDist = 0;
+
         m_Pts.push_back(pts[0]);
-        // Remove possible duplicated points.
-        for (unsigned int i=1; i<pts.size(); ++i) {
+        m_TexCoords.push_back(0);
+        for (unsigned i=1; i<pts.size(); ++i) {
             if (pts[i] != pts[i-1]) {
                 m_Pts.push_back(pts[i]);
+            } else {
+                // Move duplicated points a bit to avoid degenerate triangles later.
+                m_Pts.push_back(pts[i]+DPoint(0,0.01));
             }
+            double dist = calcDist(pts[i], pts[i-1]);
+            distances.push_back(dist);
+            totalDist += dist;
+
+        }
+        double cumDist = 0;
+        for (unsigned i=0; i<distances.size(); ++i) {
+            cumDist += distances[i]/totalDist;
+            m_TexCoords.push_back(cumDist);
         }
     }
     setDrawNeeded(true);
+}
+        
+const vector<double>& PolyLineNode::getTexCoords() const
+{
+    return m_TexCoords;
+}
+
+void PolyLineNode::setTexCoords(const vector<double>& coords)
+{
+    if (coords.size() != m_Pts.size()) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE, 
+                "Number of texture coordinates in polyline or polygon must match number of points."));
+    }
+    m_TexCoords = coords;
+    setDrawNeeded(false);
 }
 
 string PolyLineNode::getLineJoin() const
@@ -139,7 +171,8 @@ int PolyLineNode::getNumIndexes()
     }
 }
 
-void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
+void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, 
+                VertexArrayPtr& pFillVertexArray, double opacity)
 {
     if (m_Pts.size() < 2) {
         return;
@@ -156,8 +189,8 @@ void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
         lines.push_back(WideLine(m_Pts[i], m_Pts[i+1], getStrokeWidth()));
     }
 
-    pVertexArray->appendPos(lines[0].pl0, DPoint(0,0), color);
-    pVertexArray->appendPos(lines[0].pr0, DPoint(0,0), color);
+    pVertexArray->appendPos(lines[0].pl0, DPoint(m_TexCoords[0],1), color);
+    pVertexArray->appendPos(lines[0].pr0, DPoint(m_TexCoords[0],0), color);
     for (int i=0; i<numPts-2; ++i) {
         const WideLine& line1 = lines[i];
         const WideLine& line2 = lines[i+1];
@@ -165,10 +198,11 @@ void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
         DPoint pri = getLineLineIntersection(line1.pr0, line1.dir, line2.pr0, line2.dir);
 
         int curVertex = pVertexArray->getCurVert();
+        double curTC = m_TexCoords[i+1];
         switch (m_LineJoin) {
             case LJ_MITER:
-                pVertexArray->appendPos(pli, DPoint(0,0), color);
-                pVertexArray->appendPos(pri, DPoint(0,0), color);
+                pVertexArray->appendPos(pli, DPoint(curTC,1), color);
+                pVertexArray->appendPos(pri, DPoint(curTC,0), color);
                 pVertexArray->appendQuadIndexes(
                         curVertex-1, curVertex-2, curVertex+1, curVertex);
                 break;
@@ -176,17 +210,21 @@ void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
                 {
                     Triangle tri(line1.pl1, line2.pl0, pri);
                     if (tri.isClockwise()) {
-                        pVertexArray->appendPos(line1.pl1, DPoint(0,0), color);
-                        pVertexArray->appendPos(line2.pl0, DPoint(0,0), color);
-                        pVertexArray->appendPos(pri, DPoint(0,0), color);
+                        double TC0, TC1;
+                        calcBevelTC(line1, line2, true, i+1, TC0, TC1);
+                        pVertexArray->appendPos(line1.pl1, DPoint(TC0,1), color);
+                        pVertexArray->appendPos(line2.pl0, DPoint(TC1,1), color);
+                        pVertexArray->appendPos(pri, DPoint(curTC,0), color);
                         pVertexArray->appendQuadIndexes(
                                 curVertex-1, curVertex-2, curVertex+2, curVertex);
                         pVertexArray->appendTriIndexes(
                                 curVertex, curVertex+1, curVertex+2);
                     } else {
-                        pVertexArray->appendPos(line1.pr1, DPoint(0,0), color);
-                        pVertexArray->appendPos(pli, DPoint(0,0), color);
-                        pVertexArray->appendPos(line2.pr0, DPoint(0,0), color);
+                        double TC0, TC1;
+                        calcBevelTC(line1, line2, false, i+1, TC0, TC1);
+                        pVertexArray->appendPos(line1.pr1, DPoint(TC0,0), color);
+                        pVertexArray->appendPos(pli, DPoint(curTC,1), color);
+                        pVertexArray->appendPos(line2.pr0, DPoint(TC1,0), color);
                         pVertexArray->appendQuadIndexes(
                                 curVertex-2, curVertex-1, curVertex+1, curVertex);
                         pVertexArray->appendTriIndexes(
@@ -199,14 +237,32 @@ void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
         }
     }
     int curVertex = pVertexArray->getCurVert();
-    pVertexArray->appendPos(lines[numPts-2].pl1, DPoint(0,0), color);
-    pVertexArray->appendPos(lines[numPts-2].pr1, DPoint(0,0), color);
+    double curTC = m_TexCoords[numPts-1];
+    pVertexArray->appendPos(lines[numPts-2].pl1, DPoint(curTC,1), color);
+    pVertexArray->appendPos(lines[numPts-2].pr1, DPoint(curTC,0), color);
     pVertexArray->appendQuadIndexes(curVertex-1, curVertex-2, curVertex+1, curVertex);
 }
 
 PolyLineNode::LineJoin PolyLineNode::getLineJoinEnum() const
 {
     return m_LineJoin;
+}
+
+void PolyLineNode::calcBevelTC(const WideLine& line1, const WideLine& line2, 
+        bool bIsLeft, int i, double& TC0, double& TC1)
+{
+    double line1Len = line1.getLen();
+    double line2Len = line2.getLen();
+    double triLen;
+    if (bIsLeft) {
+        triLen = calcDist(line1.pl1, line2.pl0);
+    } else {
+        triLen = calcDist(line1.pr1, line2.pr0);
+    }
+    double ratio = line1Len/(line1Len+triLen/2);
+    TC0 = (1-ratio)*m_TexCoords[i-1]+ratio*m_TexCoords[i];
+    ratio = line2Len/(line2Len+triLen/2);
+    TC1 = ratio*m_TexCoords[i]+(1-ratio)*m_TexCoords[i+1];
 }
 
 }

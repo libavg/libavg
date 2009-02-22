@@ -26,6 +26,7 @@
 #include "VectorNode.h"
 
 #include "../graphics/Pixel32.h"
+#include "../base/WideLine.h"
 
 #include <vector>
 
@@ -45,19 +46,27 @@ class AVG_API PolyLineNode : public VectorNode
         const std::vector<DPoint>& getPos() const;
         void setPos(const std::vector<DPoint>& pts);
 
+        const std::vector<double>& getTexCoords() const;
+        void setTexCoords(const std::vector<double>& coords);
+
         std::string getLineJoin() const;
         void setLineJoin(const std::string& sAlign);
 
         virtual int getNumVertexes();
         virtual int getNumIndexes();
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity);
+        virtual void calcVertexes(VertexArrayPtr& pVertexArray, 
+                VertexArrayPtr& pFillVertexArray, double opacity);
 
     protected:
         PolyLineNode();
         LineJoin getLineJoinEnum() const;
 
     private:
+        void calcBevelTC(const WideLine& line1, const WideLine& line2, 
+                bool bIsLeft, int i, double& TC0, double& TC1);
+
         std::vector<DPoint> m_Pts;
+        std::vector<double> m_TexCoords;
         LineJoin m_LineJoin;
 };
 

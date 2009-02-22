@@ -345,8 +345,6 @@ void AreaNode::maybeRender(const DRect& Rect)
             }
             SDLDisplayEngine * pEngine = getDisplayEngine();
             pEngine->pushTransform(getRelViewport().tl, getAngle(), getPivot());
-            pEngine->enableGLColorArray(false);
-            pEngine->enableTexture(true);
             getDisplayEngine()->setShaders( getFragmentShader(), getVertexShader());
             //FIXME Howto deal with uniform parameters? they need to be set now
             render(Rect);

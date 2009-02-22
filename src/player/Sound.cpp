@@ -63,9 +63,7 @@ Sound::Sound (const ArgList& Args, bool bFromXML)
 {
     Args.setMembers(this);
     m_Filename = m_href;
-    if (m_Filename != "") {
-        initFilename(m_Filename);
-    }
+    initFilename(m_Filename);
     VideoDecoderPtr pSyncDecoder(new FFMpegDecoder());
     m_pDecoder = new AsyncVideoDecoder(pSyncDecoder);
 

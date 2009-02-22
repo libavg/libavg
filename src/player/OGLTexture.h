@@ -57,7 +57,6 @@ class AVG_API OGLTexture {
     private:
         void calcTexCoords();
         void createTextures();
-        void createTexture(int i, IntPoint Size, PixelFormat pf);
         void deleteTextures();
 
         IntRect m_TexExtent;  // Extent of Texture in the PBO.

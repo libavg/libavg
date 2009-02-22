@@ -88,23 +88,22 @@ OGLShaderPtr OGLTexture::getFragmentShader() {
 
 void OGLTexture::blt(const VertexGrid* pVertexes) const
 {
-    int TextureMode = m_pEngine->getTextureMode();
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
         OGLProgramPtr pShader = m_pEngine->getActiveShader();
         assert(pShader);
         //pShader->activate();
         //glproc::ActiveTexture(GL_TEXTURE0);
-        glBindTexture(TextureMode, m_TexID[0]);
+        glBindTexture(GL_TEXTURE_2D, m_TexID[0]);
         pShader->setUniformIntParam("YTexture", 0);
         glproc::ActiveTexture(GL_TEXTURE1);
-        glBindTexture(TextureMode, m_TexID[1]);
+        glBindTexture(GL_TEXTURE_2D, m_TexID[1]);
         pShader->setUniformIntParam("CbTexture", 1);
         glproc::ActiveTexture(GL_TEXTURE2);
-        glBindTexture(TextureMode, m_TexID[2]);
+        glBindTexture(GL_TEXTURE_2D, m_TexID[2]);
         pShader->setUniformIntParam("CrTexture", 2);
     } else {
         glproc::ActiveTexture(GL_TEXTURE0);
-        glBindTexture(TextureMode, m_TexID[0]);
+        glBindTexture(GL_TEXTURE_2D, m_TexID[0]);
         //Igor: Now handled in a more general manner
         //if (m_pEngine->getYCbCrMode() == OGL_SHADER) {
         //    glproc::UseProgramObject(0);
@@ -135,59 +134,23 @@ void OGLTexture::blt(const VertexGrid* pVertexes) const
     
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
         glproc::ActiveTexture(GL_TEXTURE1);
-        glDisable(TextureMode);
+        glDisable(GL_TEXTURE_2D);
         glproc::ActiveTexture(GL_TEXTURE2);
-        glDisable(TextureMode);
+        glDisable(GL_TEXTURE_2D);
         glproc::ActiveTexture(GL_TEXTURE0);
         glproc::UseProgramObject(0);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::blt: glDisable(TextureMode)");
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::blt: glDisable(GL_TEXTURE_2D)");
     }
 }
 
 void OGLTexture::createTextures()
 {
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-        createTexture(0, m_TexSize, I8);
-        createTexture(1, m_TexSize/2, I8);
-        createTexture(2, m_TexSize/2, I8);
+        m_TexID[0] = m_pEngine->createTexture(m_TexSize, I8);
+        m_TexID[1] = m_pEngine->createTexture(m_TexSize/2, I8);
+        m_TexID[2] = m_pEngine->createTexture(m_TexSize/2, I8);
     } else {
-        createTexture(0, m_TexSize, m_pf);
-    }
-}
-
-void OGLTexture::createTexture(int i, IntPoint Size, PixelFormat pf)
-{
-    glGenTextures(1, &m_TexID[i]);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::createTexture: glGenTextures()");
-    glproc::ActiveTexture(GL_TEXTURE0+i);
-    int TextureMode = m_pEngine->getTextureMode();
-    glBindTexture(TextureMode, m_TexID[i]);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::createTexture: glBindTexture()");
-    glTexParameteri(TextureMode, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(TextureMode, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(TextureMode, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(TextureMode, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "OGLTexture::createTexture: glTexParameteri()");
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, Size.x);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "OGLTexture::createTexture: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
-    
-    GLenum DestMode = m_pEngine->getOGLDestMode(pf);
-    char * pPixels = 0;
-    if (TextureMode == GL_TEXTURE_2D) {
-        // Make sure the texture is transparent and black before loading stuff 
-        // into it to avoid garbage at the borders.
-        int TexMemNeeded = Size.x*Size.y*Bitmap::getBytesPerPixel(pf);
-        pPixels = new char[TexMemNeeded];
-        memset(pPixels, 0, TexMemNeeded);
-    }
-    glTexImage2D(TextureMode, 0, DestMode, Size.x, Size.y, 0,
-            m_pEngine->getOGLSrcMode(pf), m_pEngine->getOGLPixelType(pf), pPixels);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "OGLTexture::createTexture: glTexImage2D()");
-    if (TextureMode == GL_TEXTURE_2D) {
-        free(pPixels);
+        m_TexID[0] = m_pEngine->createTexture(m_TexSize, m_pf);
     }
 }
 
@@ -217,8 +180,7 @@ void OGLTexture::downloadTexture(int i, BitmapPtr pBmp, int stride,
         stride /= 2;
         Extent = IntRect(m_TexExtent.tl/2.0, m_TexExtent.br/2.0);
     }
-    int TextureMode = m_pEngine->getTextureMode();
-    glBindTexture(TextureMode, m_TexID[i]);
+    glBindTexture(GL_TEXTURE_2D, m_TexID[i]);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "OGLTexture::downloadTexture: glBindTexture()");
     int bpp = Bitmap::getBytesPerPixel(pf);
@@ -235,7 +197,7 @@ void OGLTexture::downloadTexture(int i, BitmapPtr pBmp, int stride,
     }
     {
         ScopeTimer Timer(TexSubImageProfilingZone);
-        glTexSubImage2D(TextureMode, 0, 0, 0, Extent.width(), Extent.height(),
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Extent.width(), Extent.height(),
                 m_pEngine->getOGLSrcMode(pf), m_pEngine->getOGLPixelType(pf), 
                 pStartPos);
     }
@@ -249,24 +211,16 @@ void OGLTexture::calcTexCoords()
     double TexHeight;
     double TexWidthPerTile;
     double TexHeightPerTile;
-    int TextureMode = m_pEngine->getTextureMode();
 /*   
     cerr << "----calcTexCoords" << endl;
     cerr << "m_TexExtent: " << m_TexExtent << endl;
     cerr << "m_TileSize: " << m_TileSize << endl;
     cerr << "m_TexSize: " << m_TexSize << endl;
 */    
-    if (TextureMode == GL_TEXTURE_2D) {
-        TexWidth = double(m_TexExtent.width())/m_TexSize.x;
-        TexHeight = double(m_TexExtent.height())/m_TexSize.y;
-        TexWidthPerTile=double(m_TileSize.x)/m_TexSize.x;
-        TexHeightPerTile=double(m_TileSize.y)/m_TexSize.y;
-    } else {
-        TexWidth = m_TexSize.x;
-        TexHeight = m_TexSize.y;
-        TexWidthPerTile=m_TileSize.x;
-        TexHeightPerTile=m_TileSize.y;
-    }
+    TexWidth = double(m_TexExtent.width())/m_TexSize.x;
+    TexHeight = double(m_TexExtent.height())/m_TexSize.y;
+    TexWidthPerTile=double(m_TileSize.x)/m_TexSize.x;
+    TexHeightPerTile=double(m_TileSize.y)/m_TexSize.y;
 /*
     cerr << "TexSize: " << TexWidth << ", " << TexHeight << endl;
     cerr << "TexTileSize: " << TexWidthPerTile << ", " << TexHeightPerTile << endl;

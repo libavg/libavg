@@ -302,6 +302,10 @@ void export_node()
         .add_property("texhref", make_function(&VectorNode::getTexHRef,
                return_value_policy<copy_const_reference>()), &VectorNode::setTexHRef,
                "An image file to use as a texture for the node.\n")
+        .add_property("filltexhref", make_function(&VectorNode::getFillTexHRef,
+               return_value_policy<copy_const_reference>()), &VectorNode::setFillTexHRef,
+               "An image file to use as a texture for the area of the node. Valid\n"
+               "only for Rect and Polygon nodes.\n")
     ;
 
     class_<LineNode, bases<VectorNode>, boost::noncopyable>("LineNode", 
@@ -327,6 +331,8 @@ void export_node()
         .add_property("width", &RectNode::getWidth, &RectNode::setWidth)
         .add_property("height", &RectNode::getHeight, &RectNode::setHeight)
         .add_property("size", &RectNode::getSize, &RectNode::setSize)
+        .add_property("texcoords", make_function(&RectNode::getTexCoords, 
+                return_value_policy<copy_const_reference>()), &RectNode::setTexCoords)
         .add_property("angle", &RectNode::getAngle, &RectNode::setAngle,
                 "The angle that the rectangle is rotated to in radians. 0 is\n"
                 "unchanged, 3.14 is upside-down. The rectangle is rotated around it's\n"
@@ -354,11 +360,15 @@ void export_node()
         .add_property("y4", &CurveNode::getY4, &CurveNode::setY4)
         .add_property("pos4", make_function(&CurveNode::getPos4,
                return_value_policy<copy_const_reference>()), &CurveNode::setPos4)
+        .add_property("texcoord1", &CurveNode::getTexCoord1, &CurveNode::setTexCoord1)
+        .add_property("texcoord2", &CurveNode::getTexCoord2, &CurveNode::setTexCoord2)
     ;
 
     class_<PolyLineNode, bases<VectorNode>, boost::noncopyable>("PolyLineNode", no_init)
         .add_property("pos", make_function(&PolyLineNode::getPos, 
                 return_value_policy<copy_const_reference>()), &PolyLineNode::setPos)
+        .add_property("texcoords", make_function(&PolyLineNode::getTexCoords, 
+                return_value_policy<copy_const_reference>()), &PolyLineNode::setTexCoords)
         .add_property("linejoin", &PolyLineNode::getLineJoin, &PolyLineNode::setLineJoin);
 
     class_<PolygonNode, bases<PolyLineNode>, boost::noncopyable>("PolygonNode", no_init)

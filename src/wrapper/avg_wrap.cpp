@@ -40,6 +40,7 @@ void export_devices();
 
 using namespace boost::python;
 using namespace avg;
+using namespace std;
 
 void exception_translator(Exception const & e) 
 {
@@ -70,6 +71,13 @@ BOOST_PYTHON_MODULE(avg)
     to_python_converter<IntPoint, Point_to_python_tuple<int> >();
     IntPoint_from_python_tuple();
     DPoint_from_python_tuple();
+
+    to_python_converter<vector<DPoint>, to_list<vector<DPoint> > >();    
+    to_python_converter<vector<string>, to_list<vector<string> > >();    
+   
+    from_python_sequence<vector<DPoint>, variable_capacity_policy>();
+    from_python_sequence<vector<IntPoint>, variable_capacity_policy>();
+    from_python_sequence<vector<string>, variable_capacity_policy>();
 
     class_<Logger>("Logger", 
             "Interface to the logger used by the avg player. Enables the setting\n"

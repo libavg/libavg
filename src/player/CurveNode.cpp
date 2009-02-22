@@ -48,7 +48,9 @@ NodeDefinition CurveNode::createDefinition()
         .addArg(Arg<double>("x3", 0, true, offsetof(CurveNode, m_P3.x)))
         .addArg(Arg<double>("y3", 0, true, offsetof(CurveNode, m_P3.y)))
         .addArg(Arg<double>("x4", 0, true, offsetof(CurveNode, m_P4.x)))
-        .addArg(Arg<double>("y4", 0, true, offsetof(CurveNode, m_P4.y)));
+        .addArg(Arg<double>("y4", 0, true, offsetof(CurveNode, m_P4.y)))
+        .addArg(Arg<double>("texcoord1", 0, true, offsetof(CurveNode, m_TC1)))
+        .addArg(Arg<double>("texcoord2", 1, true, offsetof(CurveNode, m_TC2)));
 }
 
 CurveNode::CurveNode(const ArgList& Args, bool bFromXML)
@@ -193,6 +195,28 @@ void CurveNode::setPos4(const DPoint& pt)
     setDrawNeeded(true);
 }
 
+double CurveNode::getTexCoord1() const
+{
+    return m_TC1;
+}
+
+void CurveNode::setTexCoord1(double tc)
+{
+    m_TC1 = tc;
+    setDrawNeeded(false);
+}
+
+double CurveNode::getTexCoord2() const
+{
+    return m_TC2;
+}
+
+void CurveNode::setTexCoord2(double tc)
+{
+    m_TC2 = tc;
+    setDrawNeeded(false);
+}
+
 int CurveNode::getNumVertexes()
 {
     return (getCurveLen()+1)*2;
@@ -203,18 +227,21 @@ int CurveNode::getNumIndexes()
     return (getCurveLen())*2*3;
 }
 
-void CurveNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
+void CurveNode::calcVertexes(VertexArrayPtr& pVertexArray, 
+                VertexArrayPtr& pFillVertexArray, double opacity)
 {
     updateLines();
     double curOpacity = opacity*getOpacity();
     Pixel32 color = getColorVal();
     color.setA((unsigned char)(curOpacity*255));
 
-    pVertexArray->appendPos(m_LeftCurve[0], DPoint(0,0), color);
-    pVertexArray->appendPos(m_RightCurve[0], DPoint(0,0), color);
+    pVertexArray->appendPos(m_LeftCurve[0], DPoint(m_TC1,1), color);
+    pVertexArray->appendPos(m_RightCurve[0], DPoint(m_TC2,0), color);
     for (unsigned i=0; i<m_LeftCurve.size()-1; ++i) {
-        pVertexArray->appendPos(m_LeftCurve[i+1], DPoint(0,0), color);
-        pVertexArray->appendPos(m_RightCurve[i+1], DPoint(0,0), color);
+        double ratio = i/double(m_LeftCurve.size());
+        double tc = (1-ratio)*m_TC1+ratio*m_TC2;
+        pVertexArray->appendPos(m_LeftCurve[i+1], DPoint(tc,1), color);
+        pVertexArray->appendPos(m_RightCurve[i+1], DPoint(tc,0), color);
         pVertexArray->appendQuadIndexes((i+1)*2, i*2, (i+1)*2+1, i*2+1);
     }
 }

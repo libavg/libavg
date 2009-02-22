@@ -26,11 +26,14 @@
 #include "Player.h"
 #include "SDLDisplayEngine.h"
 #include "Arg.h"
+#include "Image.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/XMLHelper.h"
 #include "../base/StringHelper.h"
+
+#include <Magick++.h>
 
 #include <iostream>
 
@@ -246,18 +249,39 @@ void Node::setState(Node::NodeState State)
         
 void Node::initFilename(string& sFilename)
 {
-    bool bAbsDir = sFilename[0] == '/';
+    if (sFilename != "") {
+        bool bAbsDir = sFilename[0] == '/';
 #ifdef _WIN32
-    if (!bAbsDir) {
-        bAbsDir = (sFilename[0] == '\\' || sFilename[1] == ':');
-    }
+        if (!bAbsDir) {
+            bAbsDir = (sFilename[0] == '\\' || sFilename[1] == ':');
+        }
 #endif
-    if (!bAbsDir) {
-        DivNodePtr pParent = getParent();
-        if (!pParent) {
-            sFilename = Player::get()->getRootMediaDir()+sFilename;
-        } else {
-            sFilename = pParent->getEffectiveMediaDir()+sFilename;
+        if (!bAbsDir) {
+            DivNodePtr pParent = getParent();
+            if (!pParent) {
+                sFilename = Player::get()->getRootMediaDir()+sFilename;
+            } else {
+                sFilename = pParent->getEffectiveMediaDir()+sFilename;
+            }
+        }
+    }
+}
+
+void Node::checkReload(const std::string& sHRef, ImagePtr& pImage)
+{
+    string sLastFilename = pImage->getFilename();
+    string sFilename = sHRef;
+    initFilename(sFilename);
+    if (sLastFilename != sFilename) {
+        try {
+            pImage->setFilename(sFilename);
+        } catch (Magick::Exception & ex) {
+            pImage->setFilename("");
+            if (getState() == Node::NS_CONNECTED) {
+                AVG_TRACE(Logger::ERROR, ex.what());
+            } else {
+                AVG_TRACE(Logger::MEMORY, ex.what());
+            }
         }
     }
 }

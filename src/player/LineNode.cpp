@@ -130,6 +130,7 @@ double LineNode::getTexCoord1() const
 void LineNode::setTexCoord1(double tc)
 {
     m_TC1 = tc;
+    setDrawNeeded(false);
 }
 
 double LineNode::getTexCoord2() const
@@ -140,6 +141,7 @@ double LineNode::getTexCoord2() const
 void LineNode::setTexCoord2(double tc)
 {
     m_TC2 = tc;
+    setDrawNeeded(false);
 }
 
 int LineNode::getNumVertexes()
@@ -152,9 +154,10 @@ int LineNode::getNumIndexes()
     return 6;
 }
 
-void LineNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
+void LineNode::calcVertexes(VertexArrayPtr& pVertexArray, 
+                VertexArrayPtr& pFillVertexArray, double opacity)
 {
-    updateLineData(pVertexArray, opacity, m_P1, m_P2);
+    updateLineData(pVertexArray, opacity, m_P1, m_P2, m_TC1, m_TC2);
 }
 
 }

@@ -295,9 +295,9 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glDisable(GL_DEPTH_TEST)");
     glEnable(GL_STENCIL_TEST);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(GL_STENCIL_TEST)");
-    int TexMode = getTextureMode();
-    glEnable(TexMode);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(TexMode);");
+    initTextureMode();
+    glEnable(GL_TEXTURE_2D);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(GL_TEXTURE_2D);");
     if (!queryOGLExtension("GL_ARB_multisample")) {
         m_MultiSampleSamples = 1;
     } else {
@@ -313,6 +313,10 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
         throw Exception(AVG_ERR_UNSUPPORTED,
             "Graphics driver lacks vertex buffer support, unable to initialize graphics.");
     }
+    m_bEnableTexture=false;
+    enableTexture(true);
+    m_bEnableGLColorArray=true;
+    enableGLColorArray(false);
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -709,26 +713,23 @@ void SDLDisplayEngine::checkYCbCrSupport()
     if (queryOGLExtension("GL_ARB_fragment_shader") &&
         queryOGLExtension("GL_ARB_texture_rectangle") &&
         getMemoryModeSupported() == PBO &&
-        m_DesiredYCbCrMode == OGL_SHADER && 
-        getTextureMode() != GL_TEXTURE_2D
+        m_DesiredYCbCrMode == OGL_SHADER
        )
     {
         m_YCbCrMode = OGL_SHADER;
         string sProgramInit =
-            "#extension GL_ARB_texture_rectangle : enable\n"
-            
-            "uniform sampler2DRect YTexture;\n"
-            "uniform sampler2DRect CbTexture;\n"
-            "uniform sampler2DRect CrTexture;\n"
+            "uniform sampler2D YTexture;\n"
+            "uniform sampler2D CbTexture;\n"
+            "uniform sampler2D CrTexture;\n"
             "\n";
         string sProgram =
             sProgramInit + 
             "void main(void)\n"
             "{\n"
             "  vec3 YCbCr;\n"
-            "  YCbCr.r = texture2DRect(YTexture, gl_TexCoord[0].st).a-0.0625;\n"
-            "  YCbCr.g = texture2DRect(CbTexture, (gl_TexCoord[0].st)/2.0).a-0.5;\n"
-            "  YCbCr.b = texture2DRect(CrTexture, (gl_TexCoord[0].st)/2.0).a-0.5;\n"
+            "  YCbCr.r = texture2D(YTexture, gl_TexCoord[0].st).a-0.0625;\n"
+            "  YCbCr.g = texture2D(CbTexture, (gl_TexCoord[0].st)).a-0.5;\n"
+            "  YCbCr.b = texture2D(CrTexture, (gl_TexCoord[0].st)).a-0.5;\n"
             "  vec3 RGB;"
             "  RGB = YCbCr*mat3(1.16,  0.0,   1.60,\n"
             "                   1.16, -0.39, -0.81,\n"
@@ -743,9 +744,9 @@ void SDLDisplayEngine::checkYCbCrSupport()
             "void main(void)\n"
             "{\n"
             "  vec3 YCbCr;\n"
-            "  YCbCr.r = texture2DRect(YTexture, gl_TexCoord[0].st).a;\n"
-            "  YCbCr.g = texture2DRect(CbTexture, (gl_TexCoord[0].st)/2.0).a-0.5;\n"
-            "  YCbCr.b = texture2DRect(CrTexture, (gl_TexCoord[0].st)/2.0).a-0.5;\n"
+            "  YCbCr.r = texture2D(YTexture, gl_TexCoord[0].st).a;\n"
+            "  YCbCr.g = texture2D(CbTexture, (gl_TexCoord[0].st)).a-0.5;\n"
+            "  YCbCr.b = texture2D(CrTexture, (gl_TexCoord[0].st)).a-0.5;\n"
             "  vec3 RGB;"
             "  RGB = YCbCr*mat3(1,  0.0  , 1.40,\n"
             "                   1, -0.34, -0.71,\n"
@@ -1446,24 +1447,18 @@ void SDLDisplayEngine::initTranslationTable()
     TRANSLATION_ENTRY(UNDO);
 }
 
-int SDLDisplayEngine::getTextureMode()
+void SDLDisplayEngine::initTextureMode()
 {
-    if (m_TextureMode == 0) {
-        if (m_bShouldUsePOW2Textures) {
-            m_TextureMode = GL_TEXTURE_2D;
-        } else {
-            if (queryOGLExtension("GL_NV_texture_rectangle")) {
-                m_TextureMode = GL_TEXTURE_RECTANGLE_NV;
-            } else if (queryOGLExtension("GL_EXT_texture_rectangle") ||
-                    queryOGLExtension("GL_ARB_texture_rectangle")) 
-            {
-                m_TextureMode = GL_TEXTURE_RECTANGLE_ARB;
-            } else {
-                m_TextureMode = GL_TEXTURE_2D;
-            }
-        }
+    if (m_bShouldUsePOW2Textures) {
+        m_bUsePOTTextures = true;
+    } else {
+        m_bUsePOTTextures = !queryOGLExtension("GL_ARB_texture_non_power_of_two");
     }
-    return m_TextureMode;
+}
+
+bool SDLDisplayEngine::usePOTTextures()
+{
+    return m_bUsePOTTextures;
 }
 
 int SDLDisplayEngine::getMaxTexSize() 
@@ -1478,9 +1473,9 @@ void SDLDisplayEngine::enableTexture(bool bEnable)
 {
     if (bEnable != m_bEnableTexture) {
         if (bEnable) {
-            glEnable(getTextureMode());
+            glEnable(GL_TEXTURE_2D);
         } else {
-            glDisable(getTextureMode());
+            glDisable(GL_TEXTURE_2D);
         }
         m_bEnableTexture = bEnable;
     }
@@ -1646,4 +1641,39 @@ void SDLDisplayEngine::deregisterSurface(OGLTiledSurface *pOGLSurface)
     assert(false);
 }
 
+unsigned SDLDisplayEngine::createTexture(const IntPoint& size, PixelFormat pf)
+{
+    unsigned texID;
+    glGenTextures(1, &texID);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::createTexture: glGenTextures()");
+    glproc::ActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texID);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::createTexture: glBindTexture()");
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "SDLDisplayEngine::createTexture: glTexParameteri()");
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+
+    char * pPixels = 0;
+    if (usePOTTextures()) {
+        // Make sure the texture is transparent and black before loading stuff 
+        // into it to avoid garbage at the borders.
+        int TexMemNeeded = size.x*size.y*Bitmap::getBytesPerPixel(pf);
+        pPixels = new char[TexMemNeeded];
+        memset(pPixels, 0, TexMemNeeded);
+    }
+    glTexImage2D(GL_TEXTURE_2D, 0, getOGLDestMode(pf), size.x, size.y, 0,
+            getOGLSrcMode(pf), getOGLPixelType(pf), pPixels);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "SDLDisplayEngine::createTexture: glTexImage2D()");
+    if (usePOTTextures()) {
+        free(pPixels);
+    }
+    return texID;
 }
+
+}
+

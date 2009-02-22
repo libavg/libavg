@@ -77,14 +77,15 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual OGLProgramPtr getActiveShader();
         virtual void setShaders(OGLShaderPtr pFragmentShader, OGLShaderPtr pVertexShader);
         
-        virtual void showCursor (bool bShow);
-        virtual BitmapPtr screenshot ();
+        virtual void showCursor(bool bShow);
+        virtual BitmapPtr screenshot();
 
         // From IEventSource
         virtual std::vector<EventPtr> pollEvents();
 
         // Texture config.
-        int getTextureMode();
+        void initTextureMode();
+        bool usePOTTextures();
         int getMaxTexSize();
         void enableTexture(bool bEnable);
         void enableGLColorArray(bool bEnable);
@@ -100,7 +101,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         
         long long getGPUMemoryUsage();
         void deregisterSurface(OGLTiledSurface *);
-    
+        unsigned createTexture(const IntPoint& size, PixelFormat pf);
 
         void pushShader();
         void popShader();
@@ -164,6 +165,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         static std::vector<long> KeyCodeTranslationTable;
 
         // Texture config.
+        bool m_bUsePOTTextures;
         int m_TextureMode;
         int m_MaxTexSize;
         bool m_bEnableTexture;

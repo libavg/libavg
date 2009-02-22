@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 <avg width="160" height="120">
-    <div id="contain">
   <image id="testtiles" x="0" y="0" opacity="1" href="rgb24-64x64.png"
       maxtilewidth="32" maxtileheight="16"/> 
   <video id="clogo" x="0" y="0" opacity="1" loop="true"
@@ -10,5 +9,4 @@
       href="../video/testfiles/mpeg1-48x48.mpg" fps="30"/>
   <video id="clogo2" x="80" y="0" width="80" height="80" loop="true"
       href="../video/testfiles/mjpeg-48x48.avi" maxtilewidth="16" maxtileheight="32"/>
-  </div>
 </avg>
