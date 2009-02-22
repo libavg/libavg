@@ -360,6 +360,8 @@ void export_node()
         .add_property("y4", &CurveNode::getY4, &CurveNode::setY4)
         .add_property("pos4", make_function(&CurveNode::getPos4,
                return_value_policy<copy_const_reference>()), &CurveNode::setPos4)
+        .add_property("texcoord1", &CurveNode::getTexCoord1, &CurveNode::setTexCoord1)
+        .add_property("texcoord2", &CurveNode::getTexCoord2, &CurveNode::setTexCoord2)
     ;
 
     class_<PolyLineNode, bases<VectorNode>, boost::noncopyable>("PolyLineNode", no_init)
