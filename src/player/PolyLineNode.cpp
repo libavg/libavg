@@ -171,7 +171,8 @@ int PolyLineNode::getNumIndexes()
     }
 }
 
-void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
+void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, 
+                VertexArrayPtr& pFillVertexArray, double opacity)
 {
     if (m_Pts.size() < 2) {
         return;

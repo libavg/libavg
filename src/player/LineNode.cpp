@@ -154,7 +154,8 @@ int LineNode::getNumIndexes()
     return 6;
 }
 
-void LineNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
+void LineNode::calcVertexes(VertexArrayPtr& pVertexArray, 
+                VertexArrayPtr& pFillVertexArray, double opacity)
 {
     updateLineData(pVertexArray, opacity, m_P1, m_P2, m_TC1, m_TC2);
 }

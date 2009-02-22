@@ -78,6 +78,10 @@ void VectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
 
     m_pVertexArray = VertexArrayPtr(new VertexArray(getNumVertexes(), getNumIndexes(),
             100, 100));
+    if (getNumFillVertexes() != 0) {
+            m_pFillVertexArray = VertexArrayPtr(new VertexArray(
+                    getNumFillVertexes(), getNumFillIndexes(), 100, 100));
+    }
     m_OldOpacity = -1;
 }
 
@@ -90,6 +94,7 @@ void VectorNode::connect()
 void VectorNode::disconnect()
 {
     m_pVertexArray = VertexArrayPtr();
+    m_pFillVertexArray = VertexArrayPtr();
     m_pImage->moveToCPU();
     deleteTexture();
 
@@ -119,14 +124,23 @@ void VectorNode::preRender()
     if (m_bVASizeChanged) {
         ScopeTimer Timer(VASizeProfilingZone);
         m_pVertexArray->changeSize(getNumVertexes(), getNumIndexes());
+        if (getNumFillVertexes() != 0) {
+            m_pFillVertexArray->changeSize(getNumFillVertexes(), getNumFillIndexes());
+        }
         m_bVASizeChanged = false;
     }
     {
         ScopeTimer Timer(VAProfilingZone);
         if (m_bDrawNeeded || curOpacity != m_OldOpacity) {
             m_pVertexArray->reset();
-            calcVertexes(m_pVertexArray, curOpacity);
+            if (getNumFillVertexes() != 0) {
+                m_pFillVertexArray->reset();
+            }
+            calcVertexes(m_pVertexArray, m_pFillVertexArray, curOpacity);
             m_pVertexArray->update();
+            if (getNumFillVertexes() != 0) {
+                m_pFillVertexArray->update();
+            }
             m_bDrawNeeded = false;
             m_OldOpacity = curOpacity;
         }
@@ -158,9 +172,24 @@ void VectorNode::render(const DRect& rect)
         glproc::ActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_TexID);
     }
+    if (getNumFillVertexes() != 0) {
+        pEngine->enableTexture(false);
+        pEngine->enableGLColorArray(true);
+        m_pFillVertexArray->draw();
+    }
     pEngine->enableTexture(isTextured());
     pEngine->enableGLColorArray(!isTextured());
     m_pVertexArray->draw();
+}
+
+int VectorNode::getNumFillVertexes()
+{
+    return 0;
+}
+
+int VectorNode::getNumFillIndexes()
+{
+    return 0;
 }
 
 void VectorNode::checkReload()
@@ -230,6 +259,11 @@ void VectorNode::setDrawNeeded(bool bSizeChanged)
     }
 }
         
+bool VectorNode::isDrawNeeded()
+{
+    return m_bDrawNeeded;
+}
+
 void VectorNode::downloadTexture()
 {
     PixelFormat pf = m_pImage->getPixelFormat();

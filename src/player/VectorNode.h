@@ -70,7 +70,10 @@ class AVG_API VectorNode : public Node
 
         virtual int getNumVertexes() = 0;
         virtual int getNumIndexes() = 0;
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity) = 0;
+        virtual int getNumFillVertexes();
+        virtual int getNumFillIndexes();
+        virtual void calcVertexes(VertexArrayPtr& pVertexArray, 
+                VertexArrayPtr& pFillVertexArray, double opacity) = 0;
 
         void setColor(const std::string& sColor);
         const std::string& getColor() const;
@@ -83,6 +86,7 @@ class AVG_API VectorNode : public Node
         void updateLineData(VertexArrayPtr& pVertexArray, double opacity, 
                 const DPoint& p1, const DPoint& p2, double TC1=0, double TC2=1);
         void setDrawNeeded(bool bSizeChanged);
+        bool isDrawNeeded();
         DPoint calcTexCoord(const DPoint& origCoord);
 
     private:
@@ -102,6 +106,8 @@ class AVG_API VectorNode : public Node
         std::string m_TexHRef;
         ImagePtr m_pImage;
         unsigned m_TexID;
+        
+        VertexArrayPtr m_pFillVertexArray;
 };
 
 typedef boost::shared_ptr<VectorNode> VectorNodePtr;

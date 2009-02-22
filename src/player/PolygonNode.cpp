@@ -129,7 +129,8 @@ int PolygonNode::getNumIndexes()
     return numIndexes;
 }
 
-void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
+void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray,
+        VertexArrayPtr& pFillVertexArray, double opacity)
 {
     const vector<DPoint>& pts = getPos();
     if (pts.size() < 3) {
