@@ -298,6 +298,10 @@ void export_raster()
         .add_property("rawtextmode", &Words::getRawTextMode, &Words::setRawTextMode,
                 "Sets whether the text should be parsed (False) or set\n"
                 "as raw string (True).\n")
+        .add_property("letterspacing", &Words::getLetterSpacing, &Words::setLetterSpacing,
+                "The amount of space between the idividual glyphs of the text in\n"
+                "pixels, with 0 being standard spacing and negative values indicating\n"
+                "packed text (less letter spacing than normal).")
         .def("getGlyphPos", &Words::getGlyphPos,
                 "getGlyphPos(i)->pos\n"
                 "Returns the position of the glyph at byte index i in the layout.\n"

@@ -96,6 +96,7 @@ NodeDefinition Words::createDefinition()
         "  strikethrough CDATA #IMPLIED\n"
         "  fallback CDATA #IMPLIED\n"
         "  lang CDATA #IMPLIED\n"
+        "  letter_spacing CDATA #IMPLIED\n"
         "  rawtextmode CDATA #IMPLIED >\n"
 
         "<!ELEMENT b (#PCDATA|span|b|big|i|s|sub|sup|small|tt|u)*>\n"
@@ -127,11 +128,13 @@ NodeDefinition Words::createDefinition()
         .addArg(Arg<double>("linespacing", -1, false, offsetof(Words, m_LineSpacing)))
         .addArg(Arg<string>("alignment", "left"))
         .addArg(Arg<bool>("justify", false, false, offsetof(Words, m_bJustify)))
-        .addArg(Arg<bool>("rawtextmode", false, false, offsetof(Words, m_bRawTextMode)));
+        .addArg(Arg<bool>("rawtextmode", false, false, offsetof(Words, m_bRawTextMode)))
+        .addArg(Arg<double>("letterspacing", 0, false, offsetof(Words, m_LetterSpacing)))
+        ;
 }
 
 static void
-text_subst_func (FcPattern *pattern, gpointer data)
+text_subst_func(FcPattern *pattern, gpointer data)
 {
 //  GimpText *text = GIMP_TEXT (data);
 
@@ -141,7 +144,7 @@ text_subst_func (FcPattern *pattern, gpointer data)
   FcPatternAddBool(pattern, FC_ANTIALIAS, true);
 }
 
-Words::Words (const ArgList& Args, bool bFromXML)
+Words::Words(const ArgList& Args, bool bFromXML)
     : m_StringExtents(0,0),
       m_pFontDescription(0),
       m_pLayout(0),
@@ -171,7 +174,7 @@ Words::Words (const ArgList& Args, bool bFromXML)
     initFonts();
 }
 
-Words::~Words ()
+Words::~Words()
 {
     if (m_pFontDescription) {
         pango_font_description_free(m_pFontDescription);
@@ -248,6 +251,17 @@ bool Words::getJustify() const
 void Words::setJustify(bool bJustify)
 {
     m_bJustify = bJustify;
+    m_bDrawNeeded = true;
+}
+
+double Words::getLetterSpacing() const
+{
+    return m_LetterSpacing;
+}
+
+void Words::setLetterSpacing(double letterSpacing)
+{
+    m_LetterSpacing = letterSpacing;
     m_bDrawNeeded = true;
 }
 
@@ -500,7 +514,7 @@ void Words::drawString()
             }
             PangoFontFace ** ppFaces;
             int numFaces;
-            pango_font_family_list_faces (pFamily, &ppFaces, &numFaces);
+            pango_font_family_list_faces(pFamily, &ppFaces, &numFaces);
             PangoFontFace * pFace = 0;
             if (m_sFontVariant == "") {
                 pFace = ppFaces[0];
@@ -541,19 +555,24 @@ void Words::drawString()
         if (m_pLayout) {
             g_object_unref(m_pLayout);
         }
-        m_pLayout = pango_layout_new (s_pPangoContext);
+        m_pLayout = pango_layout_new(s_pPangoContext);
 
+        PangoAttrList * pAttrList = 0;
+        PangoAttribute * pLetterSpacing = pango_attr_letter_spacing_new
+                (m_LetterSpacing*1024);
         if (m_bParsedText) {
-            PangoAttrList * pAttrList = 0;
             char * pText = 0;
             parseString(&pAttrList, &pText);
-            pango_layout_set_text (m_pLayout, pText, -1);
-            pango_layout_set_attributes (m_pLayout, pAttrList);
-            pango_attr_list_unref (pAttrList);
+            pango_attr_list_insert_before(pAttrList, pLetterSpacing);
+            pango_layout_set_text(m_pLayout, pText, -1);
             g_free (pText);
         } else {
+            pAttrList = pango_attr_list_new();
+            pango_attr_list_insert_before(pAttrList, pLetterSpacing);
             pango_layout_set_text(m_pLayout, m_sText.c_str(), -1);
         }
+        pango_layout_set_attributes(m_pLayout, pAttrList);
+        pango_attr_list_unref(pAttrList);
 
         pango_layout_set_alignment(m_pLayout, m_Alignment);
         pango_layout_set_justify(m_pLayout, m_bJustify);
@@ -571,7 +590,7 @@ void Words::drawString()
         }
         PangoRectangle logical_rect;
         PangoRectangle ink_rect;
-        pango_layout_get_pixel_extents (m_pLayout, &ink_rect, &logical_rect);
+        pango_layout_get_pixel_extents(m_pLayout, &ink_rect, &logical_rect);
 //        cerr << "Ink: " << ink_rect.x << ", " << ink_rect.y << ", " 
 //                << ink_rect.width << ", " << ink_rect.height << endl;
 //        cerr << "Logical: " << logical_rect.x << ", " << logical_rect.y << ", " 
