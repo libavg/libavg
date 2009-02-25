@@ -42,9 +42,10 @@ namespace avg {
     }
     OGLShader::~OGLShader() {
         //cerr<<"Deleting a GLHandle "<<m_hShader<<" in "<<this<<endl;
-        glproc::DeleteShader(m_hShader);
-        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLshader::OGLShader: Destructor");
-        m_hShader = -1;
+        //TODO: Fix shader lifetime in GPUXxxFilter.
+//        glproc::DeleteShader(m_hShader);
+//        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLshader::OGLShader: Destructor");
+//        m_hShader = -1;
     }
 
     int OGLShader::getType() {
