@@ -46,7 +46,7 @@ else:
         setUsePOW2Textures(value == 'yes')
     def setMode(option, opt, value, parser):
         try:
-            mode = {
+            ycbcrmode = {
                     'shader': avg.shader,
                     'apple': avg.apple,
                     'mesa': avg.mesa,
@@ -54,30 +54,30 @@ else:
                     }[value]
         except KeyError:
             print value
-            raise OptionValueError('mode must be shader, apple, mesa or none')
-        setYCbCrMode(mode)
+            raise OptionValueError('ycbcrmode must be shader, apple, mesa or none')
+        setYCbCrMode(ycbcrmode)
     def setPixBuf(option, opt, value, parser):
         if value not in ('yes','no'):
             raise OptionValueError('argument must be "yes" or "no"')
-        setUsePixelBuffers (value == 'yes')
+        setUsePixelBuffers(value == 'yes')
 
     parser = OptionParser("usage: %prog [options] [<suite> [testcase] [testcase] [...]]")
     parser.add_option("-b", "--bpp", dest = "bpp",
             type = "int",
             help = "set pixel depth")
-    parser.add_option("-2", "--power2", dest = "power",
+    parser.add_option("-2", "--usepow2textures", dest = "usepow2textures",
             type = "string",
             action = 'callback', callback = setPow2,
             help = "Use power of 2 textures (yes, no)")
-    parser.add_option("-y", "--mode", dest = "mode",
+    parser.add_option("-y", "--ycbcrmode", dest = "ycbcrmode",
             type = "string",
             action = 'callback', callback = setMode,
             help = "YCbCrMode, must be shader, apple, mesa or none")
-    parser.add_option("-p", "--pixelbuffers", dest = "pixelbuffers",
+    parser.add_option("-p", "--usepixelbuffers", dest = "usepixelbuffers",
             type = "string",
             action = 'callback', callback = setPixBuf,
             help = "Use pixel buffers (yes, no)")
-    parser.set_defaults (bpp = 24)
+    parser.set_defaults(bpp = 24)
     options, args = parser.parse_args()
 
     availableSuites = {
