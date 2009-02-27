@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
-<avg width="1280" height="480">
-  <video id="hd1" x="0" y="0" opacity="0.8" threaded="true" loop="true" blendmode="add"
-      href="/home/uzadow/wos_videos/c-wars/cwars-scene22.avi"/> 
-<!--  <video id="hd2" x="0" y="256" opacity="0.8" blendmode="add"
-      href="/home/uzadow/wos_videos/c-wars/cwars-scene20.avi"/> -->
+<avg width="1280" height="720" mediadir="/Users/uzadow/Movies/hd_test_videos/">
+  <video id="hd1" x="0" y="0" width="960" height="540" opacity="0.8"
+      loop="true" blendmode="add" href="Stormchasers_1080.wmv"/> 
+  <video id="hd2" x="0" y="256" opacity="0.8" width="960" height="540"
+      blendmode="add" href="To_The_Limit_1080.wmv"/> 
 </avg>

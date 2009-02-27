@@ -31,7 +31,7 @@ AVGPlayer.loadFile("videoperformance_hd.avg")
 
 #AVGPlayer.setInterval(10, rotate)
 AVGPlayer.setTimeout(10, lambda: videoPlay('hd1'))
-#AVGPlayer.setTimeout(40, lambda: videoPlay('hd2'))
+AVGPlayer.setTimeout(40, lambda: videoPlay('hd2'))
 AVGPlayer.setVBlankFramerate(2)
 AVGPlayer.play()
 

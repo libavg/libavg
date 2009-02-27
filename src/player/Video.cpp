@@ -54,7 +54,7 @@ NodeDefinition Video::createDefinition()
         .extendDefinition(VideoBase::createDefinition())
         .addArg(Arg<string>("href", "", false, offsetof(Video, m_href)))
         .addArg(Arg<bool>("loop", false, false, offsetof(Video, m_bLoop)))
-        .addArg(Arg<bool>("threaded", false, false, offsetof(Video, m_bThreaded)))
+        .addArg(Arg<bool>("threaded", true, false, offsetof(Video, m_bThreaded)))
         .addArg(Arg<double>("fps", 0.0, false, offsetof(Video, m_FPS)))
         ;
 }

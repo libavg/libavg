@@ -5,7 +5,7 @@
        maxtilewidth="32" maxtileheight="32"/>
   <div id="nestedavg" x="40" y="30"
        width="80" height="60">
-    <video id="movie" x="10" y="10" width="40" height="40" 
+    <video id="movie" x="10" y="10" width="40" height="40" threaded="false" 
             href="../video/testfiles/mpeg1-48x48.mpg" fps="30"/>
   </div>
 </avg>

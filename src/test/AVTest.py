@@ -100,11 +100,12 @@ class AVTestCase(AVGTestCase):
             self._loadEmpty()
             if useCustomFPS:
                 videoNode = Player.createNode("video", 
-                        {"loop":True, "fps":25, 
+                        {"loop":True, "fps":25, "threaded":False, 
                          "href":"../video/testfiles/mjpeg-48x48.avi"})
             else:
                 videoNode = Player.createNode("video",
-                        {"loop":True, "href":"../video/testfiles/mjpeg-48x48.avi"})
+                        {"loop":True, "href":"../video/testfiles/mjpeg-48x48.avi",
+                         "threaded":False})
             Player.getRootNode().appendChild(videoNode)
             self.start(None,
                     (lambda: videoNode.play(),
