@@ -55,8 +55,16 @@ class AVG_API CircleNode : public VectorNode
         double getTexCoord2() const;
         void setTexCoord2(double tc);
 
+        double getFillOpacity() const;
+        void setFillOpacity(double opacity);
+
+        void setFillColor(const std::string& sColor);
+        const std::string& getFillColor() const;
+
         virtual int getNumVertexes();
         virtual int getNumIndexes();
+        virtual int getNumFillVertexes();
+        virtual int getNumFillIndexes();
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, 
                 VertexArrayPtr& pFillVertexArray, double opacity);
 
@@ -67,6 +75,9 @@ class AVG_API CircleNode : public VectorNode
         double m_Radius;
         double m_TC1;
         double m_TC2;
+        double m_FillOpacity;
+        std::string m_sFillColorName;
+        Pixel32 m_FillColor;
 };
 
 }

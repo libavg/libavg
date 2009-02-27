@@ -388,5 +388,9 @@ void export_node()
         .add_property("r", &CircleNode::getR, &CircleNode::setR)
         .add_property("texcoord1", &CircleNode::getTexCoord1, &CircleNode::setTexCoord1)
         .add_property("texcoord2", &CircleNode::getTexCoord2, &CircleNode::setTexCoord2)
+        .add_property("fillcolor", make_function(&CircleNode::getFillColor,
+                return_value_policy<copy_const_reference>()), &CircleNode::setFillColor)
+        .add_property("fillopacity", &CircleNode::getFillOpacity, 
+                &CircleNode::setFillOpacity)
     ;
 }

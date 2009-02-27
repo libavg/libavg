@@ -345,6 +345,8 @@ class VectorTestCase(AVGTestCase):
         def changeCircle():
             circle = canvas.getChild(0)
             circle.color="FF0000"
+            circle.fillcolor="FFFFFF"
+            circle.fillopacity=0.5
             circle.strokewidth=3
         def textureCircle():
             circle = canvas.getChild(0)
