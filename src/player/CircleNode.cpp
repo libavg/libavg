@@ -1,0 +1,168 @@
+//
+//  libavg - Media Playback Engine. 
+//  Copyright (C) 2003-2008 Ulrich von Zadow
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2 of the License, or (at your option) any later version.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+//
+//  Current versions can be found at www.libavg.de
+//
+
+#include "CircleNode.h"
+
+#include "NodeDefinition.h"
+
+#include "../graphics/VertexData.h"
+#include "../base/Exception.h"
+
+#include <iostream>
+#include <sstream>
+
+using namespace std;
+
+namespace avg {
+
+NodeDefinition CircleNode::createDefinition()
+{
+    return NodeDefinition("circle", Node::buildNode<CircleNode>)
+        .extendDefinition(VectorNode::createDefinition())
+        .addArg(Arg<double>("x", 0, true, offsetof(CircleNode, m_Pos.x)))
+        .addArg(Arg<double>("y", 0, true, offsetof(CircleNode, m_Pos.y)))
+        .addArg(Arg<double>("r", 0, true, offsetof(CircleNode, m_Radius)))
+        .addArg(Arg<double>("texcoord1", 0, true, offsetof(CircleNode, m_TC1)))
+        .addArg(Arg<double>("texcoord2", 1, true, offsetof(CircleNode, m_TC2)))
+        ;
+}
+
+CircleNode::CircleNode(const ArgList& Args, bool bFromXML)
+    : VectorNode(Args)
+{
+    Args.setMembers(this);
+}
+
+CircleNode::~CircleNode()
+{
+}
+
+double CircleNode::getX() const 
+{
+    return m_Pos.x;
+}
+
+void CircleNode::setX(double x) 
+{
+    m_Pos.x = x;
+    setDrawNeeded(false);
+}
+
+double CircleNode::getY() const 
+{
+    return m_Pos.y;
+}
+
+void CircleNode::setY(double y) 
+{
+    m_Pos.y = y;
+    setDrawNeeded(false);
+}
+
+const DPoint& CircleNode::getPos() const 
+{
+    return m_Pos;
+}
+
+void CircleNode::setPos(const DPoint& pt) 
+{
+    m_Pos = pt;
+    setDrawNeeded(false);
+}
+
+double CircleNode::getR() const 
+{
+    return m_Radius;
+}
+
+void CircleNode::setR(double r) 
+{
+    m_Radius = r;
+    setDrawNeeded(true);
+}
+
+double CircleNode::getTexCoord1() const
+{
+    return m_TC1;
+}
+
+void CircleNode::setTexCoord1(double tc)
+{
+    m_TC1 = tc;
+    setDrawNeeded(false);
+}
+
+double CircleNode::getTexCoord2() const
+{
+    return m_TC2;
+}
+
+void CircleNode::setTexCoord2(double tc)
+{
+    m_TC2 = tc;
+    setDrawNeeded(false);
+}
+
+int CircleNode::getNumVertexes()
+{
+    return (getNumCircumferencePoints()+1)*2;
+}
+
+int CircleNode::getNumIndexes()
+{
+    return getNumCircumferencePoints()*6;
+}
+
+void CircleNode::calcVertexes(VertexArrayPtr& pVertexArray, 
+        VertexArrayPtr& pFillVertexArray, double opacity)
+{
+    Pixel32 color = getColorVal();
+    color.setA((unsigned char)(opacity*255));
+
+    DPoint lastPt1 = getCirclePt(0, m_Radius+getStrokeWidth()/2);
+    DPoint lastPt2 = getCirclePt(0, m_Radius-getStrokeWidth()/2);
+    int curVertex = 0;
+    pVertexArray->appendPos(lastPt1, DPoint(m_TC1, 0), color);
+    pVertexArray->appendPos(lastPt2, DPoint(m_TC1, 1), color);
+    for (int i=1; i<=getNumCircumferencePoints(); ++i) {
+        double ratio = (double(i)/getNumCircumferencePoints());
+        double angle = ratio*2*3.14159;
+        DPoint curPt1 = getCirclePt(angle, m_Radius+getStrokeWidth()/2);
+        DPoint curPt2 = getCirclePt(angle, m_Radius-getStrokeWidth()/2);
+        double curTC = (1-ratio)*m_TC1+ratio*m_TC2;
+        pVertexArray->appendPos(curPt1, DPoint(curTC, 0), color);
+        pVertexArray->appendPos(curPt2, DPoint(curTC, 1), color);
+        pVertexArray->appendQuadIndexes(curVertex+1, curVertex, curVertex+3, curVertex+2); 
+        curVertex += 2;
+    }
+}
+
+int CircleNode::getNumCircumferencePoints()
+{
+    return m_Radius*3;
+}
+
+DPoint CircleNode::getCirclePt(double angle, double radius)
+{
+    return DPoint(sin(angle)*radius, -cos(angle)*radius)+m_Pos;
+}
+
+}

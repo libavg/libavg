@@ -40,6 +40,7 @@ void export_devices();
 #include "../player/CurveNode.h"
 #include "../player/PolyLineNode.h"
 #include "../player/PolygonNode.h"
+#include "../player/CircleNode.h"
 
 #include <boost/version.hpp>
 #include <boost/shared_ptr.hpp>
@@ -376,5 +377,16 @@ void export_node()
                 return_value_policy<copy_const_reference>()), &PolygonNode::setFillColor)
         .add_property("fillopacity", &PolygonNode::getFillOpacity, 
                 &PolygonNode::setFillOpacity)
+    ;
+
+    class_<CircleNode, bases<VectorNode>, boost::noncopyable>("CircleNode", 
+            no_init)
+        .add_property("x", &CircleNode::getX, &CircleNode::setX)
+        .add_property("y", &CircleNode::getY, &CircleNode::setY)
+        .add_property("pos", make_function(&CircleNode::getPos,
+               return_value_policy<copy_const_reference>()), &CircleNode::setPos)
+        .add_property("r", &CircleNode::getR, &CircleNode::setR)
+        .add_property("texcoord1", &CircleNode::getTexCoord1, &CircleNode::setTexCoord1)
+        .add_property("texcoord2", &CircleNode::getTexCoord2, &CircleNode::setTexCoord2)
     ;
 }
