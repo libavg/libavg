@@ -34,10 +34,6 @@ class AVTestCase(AVGTestCase):
         Player.setTimeout(10000, onNoEOF)
         Player.play()
 
-
-class VideoTestCase(AVTestCase):
-    def __init__(self, testFuncName):
-        AVTestCase.__init__(self, testFuncName)
     def testVideoFiles(self):
         def testVideoFile(filename, isThreaded):
             def checkImage(filename):
@@ -138,9 +134,6 @@ class VideoTestCase(AVTestCase):
                     {"href": "../video/testfiles/"+filename})
             self.testEOF(node)
 
-class SoundTestCase(AVTestCase):
-    def __init__(self, testFuncName):
-        AVGTestCase.__init__(self, testFuncName, 24)
     def testSound(self):
         def testSoundFile(filename):
             def setVolume(volume):
@@ -183,25 +176,20 @@ class SoundTestCase(AVTestCase):
         self.testEOF(node)
 
 
-def soundTestSuite(tests):
+def AVTestSuite(tests):
     availableTests = (
             'testSound',
             'testSoundEOF',
-            )
-    return AVGTestSuite (availableTests, SoundTestCase, tests)
-def videoTestSuite(tests):
-    availableTests = (
             "testVideoFiles",
             "testVideo",
             "testVideoSeek",
             "testVideoFPS",
             "testVideoEOF",
             )
-    return AVGTestSuite (availableTests, VideoTestCase, tests)
+    return AVGTestSuite(availableTests, AVTestCase, tests)
 
 Player = avg.Player.get()
 
 if __name__ == '__main__':
-    runStandaloneTest(soundTestSuite)
-    runStandaloneTest(videoTestSuite)
+    runStandaloneTest(AVTestSuite)
 

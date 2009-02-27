@@ -954,7 +954,7 @@ def playerTestSuite(bpp, tests):
             "testGPUMemoryQuery",
             "testStopOnEscape",
             )
-    return AVGTestSuite (availableTests, PlayerTestCase, tests, (), {'bpp' : bpp})
+    return AVGTestSuite(availableTests, PlayerTestCase, tests, (), {'bpp' : bpp})
 
 Player = avg.Player.get()
 

@@ -25,7 +25,7 @@ os.chdir(SrcDir)
 
 from LoggerTest import *
 from PluginTest import *
-from AVGTest import *
+from PlayerTest import *
 from VectorTest import *
 from WordsTest import *
 from AVTest import *
@@ -86,8 +86,7 @@ else:
             'player': (playerTestSuite, {'bpp':options.bpp}),
             'vector': (vectorTestSuite, {}),
             'words': (wordsTestSuite, {}),
-            'sound': (soundTestSuite, {}),
-            'video': (videoTestSuite, {}),
+            'av': (AVTestSuite, {}),
             'dynamics': (dynamicsTestSuite, {}),
             'python': (pythonTestSuite, {}),
             }
