@@ -38,136 +38,175 @@ namespace avg {
 NodeDefinition PolygonNode::createDefinition()
 {
     return NodeDefinition("polygon", Node::buildNode<PolygonNode>)
-        .extendDefinition(PolyLineNode::createDefinition())
-        .addArg(Arg<double>("fillopacity", 0, false, 
-                offsetof(PolygonNode, m_FillOpacity)))
-        .addArg(Arg<string>("fillcolor", "FFFFFF", false, 
-                offsetof(PolygonNode, m_sFillColorName)))
+        .extendDefinition(FilledVectorNode::createDefinition())
+        .addArg(Arg<string>("linejoin", "bevel"))
         ;
 }
 
 PolygonNode::PolygonNode(const ArgList& Args, bool bFromXML)
-    : PolyLineNode(Args)
+    : FilledVectorNode(Args)
 {
     Args.setMembers(this);
     setLineJoin(Args.getArgVal<string>("linejoin"));
-    m_FillColor = colorStringToColor(m_sFillColorName);
 }
 
 PolygonNode::~PolygonNode()
 {
 }
 
-double PolygonNode::getFillOpacity() const
+const vector<DPoint>& PolygonNode::getPos() const 
 {
-    return m_FillOpacity;
+    return m_Pts;
 }
 
-void PolygonNode::setFillOpacity(double opacity)
+void PolygonNode::setPos(const vector<DPoint>& pts) 
 {
-    m_FillOpacity = opacity;
+    m_Pts.clear();
+    m_Pts.reserve(pts.size());
+    m_TexCoords.clear();
+    m_TexCoords.reserve(pts.size());
+    if (!pts.empty()) {
+        vector<double> distances;
+        double totalDist = 0;
+
+        m_Pts.push_back(pts[0]);
+        m_TexCoords.push_back(0);
+        for (unsigned i=1; i<pts.size(); ++i) {
+            if (pts[i] != pts[i-1]) {
+                m_Pts.push_back(pts[i]);
+            } else {
+                // Move duplicated points a bit to avoid degenerate triangles later.
+                m_Pts.push_back(pts[i]+DPoint(0,0.01));
+            }
+            double dist = calcDist(pts[i], pts[i-1]);
+            distances.push_back(dist);
+            totalDist += dist;
+
+        }
+        double cumDist = 0;
+        for (unsigned i=0; i<distances.size(); ++i) {
+            cumDist += distances[i]/totalDist;
+            m_TexCoords.push_back(cumDist);
+        }
+    }
     setDrawNeeded(true);
 }
-
-void PolygonNode::setFillColor(const string& sFillColor)
+        
+const vector<double>& PolygonNode::getTexCoords() const
 {
-    if (m_sFillColorName != sFillColor) {
-        m_sFillColorName = sFillColor;
-        m_FillColor = colorStringToColor(m_sFillColorName);
-        setDrawNeeded(false);
+    return m_TexCoords;
+}
+
+void PolygonNode::setTexCoords(const vector<double>& coords)
+{
+    if (coords.size() != m_Pts.size()) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE, 
+                "Number of texture coordinates in polyline or polygon must match number of points."));
+    }
+    m_TexCoords = coords;
+    setDrawNeeded(false);
+}
+
+string PolygonNode::getLineJoin() const
+{
+    switch(m_LineJoin) {
+        case LJ_MITER:
+            return "miter";
+        case LJ_BEVEL:
+            return "bevel";
+        default:
+            assert(false);
+            return 0;
     }
 }
 
-const string& PolygonNode::getFillColor() const
+void PolygonNode::setLineJoin(const string& sAlign)
 {
-    return m_sFillColorName;
+    if (sAlign == "miter") {
+        m_LineJoin = LJ_MITER;
+    } else if (sAlign == "bevel") {
+        m_LineJoin = LJ_BEVEL;
+    } else {
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "Vector linejoin "+sAlign+" not supported."));
+    }
+    setDrawNeeded(true);
 }
 
 int PolygonNode::getNumVertexes()
 {
-    const vector<DPoint>& pts = getPos();
-    if (pts.size() < 3) {
+    if (m_Pts.size() < 3) {
         return 0;
     }
     int numVerts;
-    switch(getLineJoinEnum()) {
+    switch(m_LineJoin) {
         case LJ_MITER:
-            numVerts = 2*pts.size();
+            numVerts = 2*m_Pts.size();
             break;
         case LJ_BEVEL:
-            numVerts = 3*pts.size();
+            numVerts = 3*m_Pts.size();
             break;
         default:
             assert(false);
-    }
-    if (m_FillOpacity > 0.001) {
-        numVerts += pts.size();
     }
     return numVerts;
 }
 
 int PolygonNode::getNumIndexes()
 {
-    const vector<DPoint>& pts = getPos();
-    if (pts.size() < 3) {
+    if (m_Pts.size() < 3) {
         return 0;
     }
     int numIndexes;
-    switch(getLineJoinEnum()) {
+    switch(m_LineJoin) {
         case LJ_MITER:
-            numIndexes = 6*pts.size();
+            numIndexes = 6*m_Pts.size();
             break;
         case LJ_BEVEL:
-            numIndexes = 9*pts.size();
+            numIndexes = 9*m_Pts.size();
             break;
         default:
             assert(false);
     }
-    if (m_FillOpacity > 0.001) {
-        numIndexes += (pts.size()-2)*3;
-    }
     return numIndexes;
 }
 
-void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray,
-        VertexArrayPtr& pFillVertexArray, double opacity)
+int PolygonNode::getNumFillVertexes()
 {
-    const vector<DPoint>& pts = getPos();
-    if (pts.size() < 3) {
+
+    if (getFillOpacity() < 0.001 || m_Pts.size() < 3) {
+        return 0;
+    } else {
+        return m_Pts.size();
+    }
+}
+
+int PolygonNode::getNumFillIndexes()
+{
+    if (getFillOpacity() < 0.001 || m_Pts.size() < 3) {
+        return 0;
+    } else {
+        return (m_Pts.size()-2)*3;
+    }
+
+}
+
+void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
+{
+    if (m_Pts.size() < 3) {
         return;
     }
-    int numPts = pts.size();
-    int startOutlinePt = 0;
-    int startOutlineIndex = 0;
-    double curOpacity = opacity*getOpacity();
+    int numPts = m_Pts.size();
     Pixel32 color = getColorVal();
-    color.setA((unsigned char)(curOpacity*255));
-
-    // Fill
-    if (m_FillOpacity > 0.001) {
-        double curOpacity = opacity*m_FillOpacity;
-        Pixel32 fillColor = m_FillColor;
-        fillColor.setA((unsigned char)(curOpacity*255));
-
-        vector<int> triIndexes;
-        triangulatePolygon(pts, triIndexes);
-        for (int i=0; i<numPts; ++i) {
-            pVertexArray->appendPos(pts[i], DPoint(0,0), fillColor);
-        }
-        startOutlinePt = numPts;
-        for (unsigned int i=0; i<triIndexes.size(); i+=3) {
-            pVertexArray->appendTriIndexes(triIndexes[i], triIndexes[i+1], triIndexes[i+2]);
-        }
-        startOutlineIndex = triIndexes.size();
-    }
-
+    color.setA((unsigned char)(opacity*255));
+    
     // Outline
     vector<WideLine> lines;
     lines.reserve(numPts);
     for (int i=0; i<numPts-1; ++i) {
-        lines.push_back(WideLine(pts[i], pts[i+1], getStrokeWidth()));
+        lines.push_back(WideLine(m_Pts[i], m_Pts[i+1], getStrokeWidth()));
     }
-    lines.push_back(WideLine(pts[numPts-1], pts[0], getStrokeWidth()));
+    lines.push_back(WideLine(m_Pts[numPts-1], m_Pts[0], getStrokeWidth()));
 
     const WideLine* pLastLine = &(lines[numPts-1]);
 
@@ -178,7 +217,7 @@ void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray,
         DPoint pri = getLineLineIntersection(pLastLine->pr0, pLastLine->dir, 
                 pThisLine->pr0, pThisLine->dir);
         int curVertex = pVertexArray->getCurVert();
-        switch(getLineJoinEnum()) {
+        switch(m_LineJoin) {
             case LJ_MITER:
                 pVertexArray->appendPos(pli, DPoint(0,0), color);
                 pVertexArray->appendPos(pri, DPoint(0,0), color);
@@ -187,8 +226,7 @@ void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray,
                     pVertexArray->appendQuadIndexes(
                             curVertex+1, curVertex, curVertex+3, curVertex+2);
                 } else {
-                    pVertexArray->appendQuadIndexes(
-                            curVertex+1, curVertex, startOutlinePt+1, startOutlinePt);
+                    pVertexArray->appendQuadIndexes(curVertex+1, curVertex, 1, 0);
                 }
                 break;
             case LJ_BEVEL:
@@ -204,8 +242,7 @@ void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray,
                             pVertexArray->appendQuadIndexes(
                                     curVertex, curVertex+2, curVertex+3, curVertex+4);
                         } else {
-                            pVertexArray->appendQuadIndexes(curVertex,
-                                    curVertex+2, startOutlinePt, startOutlinePt+1);
+                            pVertexArray->appendQuadIndexes(curVertex, curVertex+2, 0, 1);
                         }
                     } else {
                         pVertexArray->appendPos(pLastLine->pr1, DPoint(0,0), color);
@@ -217,8 +254,8 @@ void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray,
                             pVertexArray->appendQuadIndexes(
                                     curVertex+2, curVertex+1, curVertex+3, curVertex+4);
                         } else {
-                            pVertexArray->appendQuadIndexes(curVertex+2, 
-                                    curVertex+1, startOutlinePt, startOutlinePt+1);
+                            pVertexArray->appendQuadIndexes(
+                                    curVertex+2, curVertex+1, 0, 1);
                         }
                     }
                 }
@@ -227,6 +264,23 @@ void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray,
                 assert(false);
         }
         pLastLine = pThisLine;
+    }
+}
+
+void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, double opacity)
+{
+    if (opacity > 0.001 && m_Pts.size() > 2) {
+        Pixel32 color = getFillColorVal();
+        color.setA((unsigned char)(opacity*255));
+
+        vector<int> triIndexes;
+        triangulatePolygon(m_Pts, triIndexes);
+        for (unsigned i=0; i<m_Pts.size(); ++i) {
+            pVertexArray->appendPos(m_Pts[i], DPoint(0,0), color);
+        }
+        for (unsigned i=0; i<triIndexes.size(); i+=3) {
+            pVertexArray->appendTriIndexes(triIndexes[i], triIndexes[i+1], triIndexes[i+2]);
+        }
     }
 }
 

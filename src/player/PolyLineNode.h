@@ -35,12 +35,9 @@ namespace avg {
 class AVG_API PolyLineNode : public VectorNode
 {
     public:
-        enum LineJoin {LJ_MITER, LJ_BEVEL};
-
         static NodeDefinition createDefinition();
         
         PolyLineNode(const ArgList& Args, bool bFromXML);
-        PolyLineNode(const ArgList& Args);
         virtual ~PolyLineNode();
 
         const std::vector<DPoint>& getPos() const;
@@ -54,12 +51,7 @@ class AVG_API PolyLineNode : public VectorNode
 
         virtual int getNumVertexes();
         virtual int getNumIndexes();
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, 
-                VertexArrayPtr& pFillVertexArray, double opacity);
-
-    protected:
-        PolyLineNode();
-        LineJoin getLineJoinEnum() const;
+        virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity);
 
     private:
         void calcBevelTC(const WideLine& line1, const WideLine& line2, 

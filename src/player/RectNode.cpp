@@ -37,25 +37,21 @@ namespace avg {
 NodeDefinition RectNode::createDefinition()
 {
     return NodeDefinition("rect", Node::buildNode<RectNode>)
-        .extendDefinition(VectorNode::createDefinition())
+        .extendDefinition(FilledVectorNode::createDefinition())
         .addArg(Arg<double>("x", 0, false, offsetof(RectNode, m_Rect.tl.x)))
         .addArg(Arg<double>("y", 0, false, offsetof(RectNode, m_Rect.tl.y)))
         .addArg(Arg<double>("width", 0))
         .addArg(Arg<double>("height", 0))
         .addArg(Arg<double>("angle", 0.0, false, offsetof(RectNode, m_Angle)))
-        .addArg(Arg<double>("fillopacity", 0, false, 
-                offsetof(RectNode, m_FillOpacity)))
-        .addArg(Arg<string>("fillcolor", "FFFFFF", false, 
-                offsetof(RectNode, m_sFillColorName)));
+        ;
 }
 
 RectNode::RectNode(const ArgList& Args, bool bFromXML)
-    : VectorNode(Args, true)
+    : FilledVectorNode(Args)
 {
     Args.setMembers(this);
     m_Rect.setWidth(Args.getArgVal<double>("width"));
     m_Rect.setHeight(Args.getArgVal<double>("height"));
-    m_FillColor = colorStringToColor(m_sFillColorName);
     double texCoords[] = {0, 0.25, 0.5, 0.75, 1};
     m_TexCoords = vectorFromCArray(5, texCoords);
 }
@@ -165,31 +161,6 @@ void RectNode::setAngle(double angle)
     setDrawNeeded(false);
 }
 
-double RectNode::getFillOpacity() const
-{
-    return m_FillOpacity;
-}
-
-void RectNode::setFillOpacity(double opacity)
-{
-    m_FillOpacity = opacity;
-    setDrawNeeded(false);
-}
-
-void RectNode::setFillColor(const string& sFillColor)
-{
-    if (m_sFillColorName != sFillColor) {
-        m_sFillColorName = sFillColor;
-        m_FillColor = colorStringToColor(m_sFillColorName);
-        setDrawNeeded(false);
-    }
-}
-
-const string& RectNode::getFillColor() const
-{
-    return m_sFillColorName;
-}
-
 int RectNode::getNumVertexes()
 {
     return 4*4;
@@ -210,13 +181,8 @@ int RectNode::getNumFillIndexes()
     return 6;
 }
 
-void RectNode::calcVertexes(VertexArrayPtr& pVertexArray, 
-                VertexArrayPtr& pFillVertexArray, double opacity)
+void RectNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
 {
-    double curOpacity = opacity*m_FillOpacity;
-    Pixel32 color = m_FillColor;
-    color.setA((unsigned char)(curOpacity*255));
-
     DPoint pivot = m_Rect.tl+m_Rect.size()/2;
 
     DPoint p1 = m_Rect.tl;
@@ -227,11 +193,6 @@ void RectNode::calcVertexes(VertexArrayPtr& pVertexArray,
     DPoint rp2 = rotate(p2, m_Angle, pivot); 
     DPoint rp3 = rotate(p3, m_Angle, pivot); 
     DPoint rp4 = rotate(p4, m_Angle, pivot); 
-    pFillVertexArray->appendPos(rp1, DPoint(0,0), color);
-    pFillVertexArray->appendPos(rp2, DPoint(0,1), color);
-    pFillVertexArray->appendPos(rp3, DPoint(1,1), color);
-    pFillVertexArray->appendPos(rp4, DPoint(1,0), color);
-    pFillVertexArray->appendQuadIndexes(1, 0, 2, 3);
 
     updateLineData(pVertexArray, opacity, rp1, rp2, m_TexCoords[0], m_TexCoords[1]);
     updateLineData(pVertexArray, opacity, rp3, rp4, m_TexCoords[2], m_TexCoords[3]);
@@ -245,6 +206,28 @@ void RectNode::calcVertexes(VertexArrayPtr& pVertexArray,
     rp4 = rotate(p4, m_Angle, pivot); 
     updateLineData(pVertexArray, opacity, rp2, rp3, m_TexCoords[1], m_TexCoords[2]);
     updateLineData(pVertexArray, opacity, rp4, rp1, m_TexCoords[3], m_TexCoords[4]);
+}
+
+void RectNode::calcFillVertexes(VertexArrayPtr& pVertexArray, double opacity)
+{
+    Pixel32 color = getFillColorVal();
+    color.setA((unsigned char)(opacity*255));
+
+    DPoint pivot = m_Rect.tl+m_Rect.size()/2;
+
+    DPoint p1 = m_Rect.tl;
+    DPoint p2(m_Rect.tl.x, m_Rect.br.y);
+    DPoint p3 = m_Rect.br;
+    DPoint p4(m_Rect.br.x, m_Rect.tl.y);
+    DPoint rp1 = rotate(p1, m_Angle, pivot); 
+    DPoint rp2 = rotate(p2, m_Angle, pivot); 
+    DPoint rp3 = rotate(p3, m_Angle, pivot); 
+    DPoint rp4 = rotate(p4, m_Angle, pivot); 
+    pVertexArray->appendPos(rp1, DPoint(0,0), color);
+    pVertexArray->appendPos(rp2, DPoint(0,1), color);
+    pVertexArray->appendPos(rp3, DPoint(1,1), color);
+    pVertexArray->appendPos(rp4, DPoint(1,0), color);
+    pVertexArray->appendQuadIndexes(1, 0, 2, 3);
 }
 
 }

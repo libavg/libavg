@@ -23,13 +23,13 @@
 #define _CircleNode_H_
 
 #include "../api.h"
-#include "VectorNode.h"
+#include "FilledVectorNode.h"
 
 #include "../graphics/Pixel32.h"
 
 namespace avg {
 
-class AVG_API CircleNode : public VectorNode
+class AVG_API CircleNode : public FilledVectorNode
 {
     public:
         static NodeDefinition createDefinition();
@@ -55,18 +55,12 @@ class AVG_API CircleNode : public VectorNode
         double getTexCoord2() const;
         void setTexCoord2(double tc);
 
-        double getFillOpacity() const;
-        void setFillOpacity(double opacity);
-
-        void setFillColor(const std::string& sColor);
-        const std::string& getFillColor() const;
-
         virtual int getNumVertexes();
         virtual int getNumIndexes();
         virtual int getNumFillVertexes();
         virtual int getNumFillIndexes();
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, 
-                VertexArrayPtr& pFillVertexArray, double opacity);
+        virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity);
+        virtual void calcFillVertexes(VertexArrayPtr& pVertexArray, double opacity);
 
     private:
         int getNumCircumferencePoints();
@@ -75,9 +69,6 @@ class AVG_API CircleNode : public VectorNode
         double m_Radius;
         double m_TC1;
         double m_TC2;
-        double m_FillOpacity;
-        std::string m_sFillColorName;
-        Pixel32 m_FillColor;
 };
 
 }

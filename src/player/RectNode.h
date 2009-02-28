@@ -23,13 +23,13 @@
 #define _RectNode_H_
 
 #include "../api.h"
-#include "VectorNode.h"
+#include "FilledVectorNode.h"
 
 #include "../graphics/Pixel32.h"
 
 namespace avg {
 
-class AVG_API RectNode : public VectorNode
+class AVG_API RectNode : public FilledVectorNode
 {
     public:
         static NodeDefinition createDefinition();
@@ -61,27 +61,18 @@ class AVG_API RectNode : public VectorNode
         double getAngle() const;
         void setAngle(double angle);
 
-        double getFillOpacity() const;
-        void setFillOpacity(double opacity);
-
-        void setFillColor(const std::string& sColor);
-        const std::string& getFillColor() const;
-
         virtual int getNumVertexes();
         virtual int getNumIndexes();
         virtual int getNumFillVertexes();
         virtual int getNumFillIndexes();
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, 
-                VertexArrayPtr& pFillVertexArray, double opacity);
+        virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity);
+        virtual void calcFillVertexes(VertexArrayPtr& pVertexArray, double opacity);
 
     private:
         DRect m_Rect;
         std::vector<double> m_TexCoords;
 
         double m_Angle;
-        double m_FillOpacity;
-        std::string m_sFillColorName;
-        Pixel32 m_FillColor;
 };
 
 }

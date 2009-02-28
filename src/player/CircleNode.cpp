@@ -36,24 +36,19 @@ namespace avg {
 NodeDefinition CircleNode::createDefinition()
 {
     return NodeDefinition("circle", Node::buildNode<CircleNode>)
-        .extendDefinition(VectorNode::createDefinition())
+        .extendDefinition(FilledVectorNode::createDefinition())
         .addArg(Arg<double>("x", 0, true, offsetof(CircleNode, m_Pos.x)))
         .addArg(Arg<double>("y", 0, true, offsetof(CircleNode, m_Pos.y)))
         .addArg(Arg<double>("r", 0, true, offsetof(CircleNode, m_Radius)))
         .addArg(Arg<double>("texcoord1", 0, true, offsetof(CircleNode, m_TC1)))
         .addArg(Arg<double>("texcoord2", 1, true, offsetof(CircleNode, m_TC2)))
-        .addArg(Arg<double>("fillopacity", 0, false, 
-                offsetof(CircleNode, m_FillOpacity)))
-        .addArg(Arg<string>("fillcolor", "FFFFFF", false, 
-                offsetof(CircleNode, m_sFillColorName)));
         ;
 }
 
 CircleNode::CircleNode(const ArgList& Args, bool bFromXML)
-    : VectorNode(Args, true)
+    : FilledVectorNode(Args)
 {
     Args.setMembers(this);
-    m_FillColor = colorStringToColor(m_sFillColorName);
 }
 
 CircleNode::~CircleNode()
@@ -126,31 +121,6 @@ void CircleNode::setTexCoord2(double tc)
     setDrawNeeded(false);
 }
 
-double CircleNode::getFillOpacity() const
-{
-    return m_FillOpacity;
-}
-
-void CircleNode::setFillOpacity(double opacity)
-{
-    m_FillOpacity = opacity;
-    setDrawNeeded(false);
-}
-
-void CircleNode::setFillColor(const string& sFillColor)
-{
-    if (m_sFillColorName != sFillColor) {
-        m_sFillColorName = sFillColor;
-        m_FillColor = colorStringToColor(m_sFillColorName);
-        setDrawNeeded(false);
-    }
-}
-
-const string& CircleNode::getFillColor() const
-{
-    return m_sFillColorName;
-}
-
 int CircleNode::getNumVertexes()
 {
     return (getNumCircumferencePoints()+1)*2;
@@ -171,10 +141,8 @@ int CircleNode::getNumFillIndexes()
     return getNumCircumferencePoints()*3;
 }
 
-void CircleNode::calcVertexes(VertexArrayPtr& pVertexArray, 
-        VertexArrayPtr& pFillVertexArray, double opacity)
+void CircleNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
 {
-    // Outline
     Pixel32 color = getColorVal();
     color.setA((unsigned char)(opacity*255));
 
@@ -195,21 +163,23 @@ void CircleNode::calcVertexes(VertexArrayPtr& pVertexArray,
         curVertex += 2;
     }
 
-    // Fill
-    double curOpacity = opacity*m_FillOpacity;
-    color = m_FillColor;
-    color.setA((unsigned char)(curOpacity*255));
+}
+
+void CircleNode::calcFillVertexes(VertexArrayPtr& pVertexArray, double opacity)
+{
+    Pixel32 color = getFillColorVal();
+    color.setA((unsigned char)(opacity*255));
     
-    pFillVertexArray->appendPos(m_Pos, DPoint(0,0), color);
-    curVertex = 1;
+    pVertexArray->appendPos(m_Pos, DPoint(0,0), color);
+    int curVertex = 1;
     DPoint firstPt = getCirclePt(0, m_Radius);
-    pFillVertexArray->appendPos(firstPt, DPoint(0,0), color);
+    pVertexArray->appendPos(firstPt, DPoint(0,0), color);
     for (int i=1; i<=getNumCircumferencePoints(); ++i) {
         double ratio = (double(i)/getNumCircumferencePoints());
         double angle = ratio*2*3.14159;
         DPoint curPt = getCirclePt(angle, m_Radius);
-        pFillVertexArray->appendPos(curPt, DPoint(0, 0), color);
-        pFillVertexArray->appendTriIndexes(0, curVertex, curVertex+1);
+        pVertexArray->appendPos(curPt, DPoint(0, 0), color);
+        pVertexArray->appendTriIndexes(0, curVertex, curVertex+1);
         curVertex++;
     }
 }

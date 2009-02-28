@@ -338,6 +338,28 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testPolygon6", False)
                 ))
 
+    def testTexturedPolygon(self):
+        def texturePolygon():
+            polygon = Player.createNode("polygon", 
+                    {"strokewidth":20, "color":"FF00FF", "texhref":"rgb24-64x64.png"})
+            polygon.pos = [(10,10), (50,10), (90,50), (90, 90)]
+            canvas.appendChild(polygon)
+        def miter():
+            polygon = canvas.getChild(0)
+            polygon.linejoin = "miter"
+        def setTexCoords():
+            polygon = canvas.getChild(0)
+            polygon.texcoords = [-1, 0, 1, 2]
+        canvas = self.makeEmptyCanvas()
+        self.start(None,
+                (texturePolygon,
+                 lambda: self.compareImage("testTexturedPolygon1", False),
+                 miter,
+                 lambda: self.compareImage("testTexturedPolygon2", False),
+                 setTexCoords,
+                 lambda: self.compareImage("testTexturedPolygon3", False)
+                ))
+
     def testCircle(self):
         def addCircle():
             circle = Player.createNode("circle", {"x":30, "y":30, "r":20})
@@ -378,6 +400,7 @@ def vectorTestSuite(tests):
             "testPolyLine",
             "testTexturedPolyLine",
             "testPolygon",
+#            "testTexturedPolygon",
             "testCircle",
             )
     return AVGTestSuite (availableTests, VectorTestCase, tests)

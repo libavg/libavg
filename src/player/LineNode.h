@@ -63,8 +63,7 @@ class AVG_API LineNode : public VectorNode
 
         virtual int getNumVertexes();
         virtual int getNumIndexes();
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, 
-                VertexArrayPtr& pFillVertexArray, double opacity);
+        virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity);
 
     private:
         DPoint m_P1;

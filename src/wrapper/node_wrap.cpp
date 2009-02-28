@@ -297,16 +297,25 @@ void export_node()
                 "The width of the strokes in the vector. For lines, this is the line\n"
                 "width. For rectangles, it is the width of the outline, etc.\n")
         .add_property("color", make_function(&VectorNode::getColor,
-               return_value_policy<copy_const_reference>()), &VectorNode::setColor,
-               "The color of the strokes in standard html color notation:\n" 
+                return_value_policy<copy_const_reference>()), &VectorNode::setColor,
+                "The color of the strokes in standard html color notation:\n" 
                 "FF0000 is red, 00FF00 green, etc.\n")
         .add_property("texhref", make_function(&VectorNode::getTexHRef,
-               return_value_policy<copy_const_reference>()), &VectorNode::setTexHRef,
-               "An image file to use as a texture for the node.\n")
-        .add_property("filltexhref", make_function(&VectorNode::getFillTexHRef,
-               return_value_policy<copy_const_reference>()), &VectorNode::setFillTexHRef,
-               "An image file to use as a texture for the area of the node. Valid\n"
-               "only for Rect and Polygon nodes.\n")
+                return_value_policy<copy_const_reference>()), &VectorNode::setTexHRef,
+                "An image file to use as a texture for the node.\n")
+    ;
+
+    class_<FilledVectorNode, bases<VectorNode>, boost::noncopyable>("FilledVectorNode", 
+            no_init)
+        .add_property("filltexhref", make_function(&FilledVectorNode::getFillTexHRef,
+                return_value_policy<copy_const_reference>()), 
+                &FilledVectorNode::setFillTexHRef,
+                "An image file to use as a texture for the area of the node.\n")
+        .add_property("fillcolor", make_function(&FilledVectorNode::getFillColor,
+                return_value_policy<copy_const_reference>()), 
+                &FilledVectorNode::setFillColor)
+        .add_property("fillopacity", &FilledVectorNode::getFillOpacity, 
+                &FilledVectorNode::setFillOpacity)
     ;
 
     class_<LineNode, bases<VectorNode>, boost::noncopyable>("LineNode", 
@@ -323,12 +332,12 @@ void export_node()
         .add_property("texcoord2", &LineNode::getTexCoord2, &LineNode::setTexCoord2)
     ;
 
-    class_<RectNode, bases<VectorNode>, boost::noncopyable>("RectNode", 
+    class_<RectNode, bases<FilledVectorNode>, boost::noncopyable>("RectNode", 
             no_init)
         .add_property("x", &RectNode::getX, &RectNode::setX)
         .add_property("y", &RectNode::getY, &RectNode::setY)
         .add_property("pos", make_function(&RectNode::getPos,
-               return_value_policy<copy_const_reference>()), &RectNode::setPos)
+                return_value_policy<copy_const_reference>()), &RectNode::setPos)
         .add_property("width", &RectNode::getWidth, &RectNode::setWidth)
         .add_property("height", &RectNode::getHeight, &RectNode::setHeight)
         .add_property("size", &RectNode::getSize, &RectNode::setSize)
@@ -338,9 +347,6 @@ void export_node()
                 "The angle that the rectangle is rotated to in radians. 0 is\n"
                 "unchanged, 3.14 is upside-down. The rectangle is rotated around it's\n"
                 "center\n")
-        .add_property("fillcolor", make_function(&RectNode::getFillColor,
-               return_value_policy<copy_const_reference>()), &RectNode::setFillColor)
-        .add_property("fillopacity", &RectNode::getFillOpacity, &RectNode::setFillOpacity)
     ;
     
     class_<CurveNode, bases<VectorNode>, boost::noncopyable>("CurveNode", 
@@ -370,16 +376,19 @@ void export_node()
                 return_value_policy<copy_const_reference>()), &PolyLineNode::setPos)
         .add_property("texcoords", make_function(&PolyLineNode::getTexCoords, 
                 return_value_policy<copy_const_reference>()), &PolyLineNode::setTexCoords)
-        .add_property("linejoin", &PolyLineNode::getLineJoin, &PolyLineNode::setLineJoin);
-
-    class_<PolygonNode, bases<PolyLineNode>, boost::noncopyable>("PolygonNode", no_init)
-        .add_property("fillcolor", make_function(&PolygonNode::getFillColor,
-                return_value_policy<copy_const_reference>()), &PolygonNode::setFillColor)
-        .add_property("fillopacity", &PolygonNode::getFillOpacity, 
-                &PolygonNode::setFillOpacity)
+        .add_property("linejoin", &PolyLineNode::getLineJoin, &PolyLineNode::setLineJoin)
     ;
 
-    class_<CircleNode, bases<VectorNode>, boost::noncopyable>("CircleNode", 
+    class_<PolygonNode, bases<FilledVectorNode>, boost::noncopyable>("PolygonNode", 
+            no_init)
+        .add_property("pos", make_function(&PolygonNode::getPos, 
+                return_value_policy<copy_const_reference>()), &PolygonNode::setPos)
+        .add_property("texcoords", make_function(&PolygonNode::getTexCoords, 
+                return_value_policy<copy_const_reference>()), &PolygonNode::setTexCoords)
+        .add_property("linejoin", &PolygonNode::getLineJoin, &PolygonNode::setLineJoin)
+    ;
+
+    class_<CircleNode, bases<FilledVectorNode>, boost::noncopyable>("CircleNode", 
             no_init)
         .add_property("x", &CircleNode::getX, &CircleNode::setX)
         .add_property("y", &CircleNode::getY, &CircleNode::setY)
@@ -388,9 +397,5 @@ void export_node()
         .add_property("r", &CircleNode::getR, &CircleNode::setR)
         .add_property("texcoord1", &CircleNode::getTexCoord1, &CircleNode::setTexCoord1)
         .add_property("texcoord2", &CircleNode::getTexCoord2, &CircleNode::setTexCoord2)
-        .add_property("fillcolor", make_function(&CircleNode::getFillColor,
-                return_value_policy<copy_const_reference>()), &CircleNode::setFillColor)
-        .add_property("fillopacity", &CircleNode::getFillOpacity, 
-                &CircleNode::setFillOpacity)
     ;
 }

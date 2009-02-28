@@ -33,8 +33,8 @@ ALL_H = Player.h PluginManager.h IEventSource.h IEventSink.h VideoBase.h Video.h
         Event.h KeyEvent.h PanoImage.h TestHelper.h \
         RasterNode.h CameraNode.h TrackerEventSource.h TrackerCalibrator.h \
         TouchEvent.h EventStream.h BoostPython.h Sound.h MouseState.h \
-        VectorNode.h LineNode.h PolyLineNode.h RectNode.h CurveNode.h\
-        PolygonNode.h CircleNode.h Shape.h \
+        VectorNode.h FilledVectorNode.h LineNode.h PolyLineNode.h RectNode.h \
+        CurveNode.h PolygonNode.h CircleNode.h Shape.h \
         $(GL_INCLUDES)
 
 TESTS=testcalibrator testplayer
@@ -75,7 +75,7 @@ libplayer_la_SOURCES = $(GL_SOURCES) \
         Image.cpp ImageNode.cpp EventDispatcher.cpp KeyEvent.cpp CursorEvent.cpp \
         MouseEvent.cpp TouchEvent.cpp AVGNode.cpp TestHelper.cpp MouseState.cpp \
         TrackerEventSource.cpp EventStream.cpp TrackerCalibrator.cpp Sound.cpp \
-        VectorNode.cpp LineNode.cpp PolyLineNode.cpp RectNode.cpp CurveNode.cpp \
-        PolygonNode.cpp CircleNode.cpp Shape.cpp \
+        VectorNode.cpp  FilledVectorNode.cpp LineNode.cpp PolyLineNode.cpp \
+        RectNode.cpp CurveNode.cpp PolygonNode.cpp CircleNode.cpp Shape.cpp \
         $(APPLE_SOURCES) $(ALL_H)
 libplayer_a_CXXFLAGS = -DPREFIXDIR=\"$(prefix)\"

@@ -227,8 +227,7 @@ int CurveNode::getNumIndexes()
     return (getCurveLen())*2*3;
 }
 
-void CurveNode::calcVertexes(VertexArrayPtr& pVertexArray, 
-                VertexArrayPtr& pFillVertexArray, double opacity)
+void CurveNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
 {
     updateLines();
     double curOpacity = opacity*getOpacity();

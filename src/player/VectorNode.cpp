@@ -52,21 +52,14 @@ NodeDefinition VectorNode::createDefinition()
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(VectorNode, m_sColorName)))
         .addArg(Arg<double>("strokewidth", 1, false, offsetof(VectorNode, m_StrokeWidth)))
         .addArg(Arg<string>("texhref", "", false, offsetof(VectorNode, m_TexHRef)))
-        .addArg(Arg<string>("filltexhref", "", false, 
-                offsetof(VectorNode, m_FillTexHRef)))
         ;
 }
 
-VectorNode::VectorNode(const ArgList& Args, bool bIsFilled)
+VectorNode::VectorNode(const ArgList& Args)
     : m_pShape(new Shape(""))
 {
     m_TexHRef = Args.getArgVal<string>("texhref"); 
     setTexHRef(m_TexHRef);
-    if (bIsFilled) {
-        m_pFillShape = ShapePtr(new Shape(""));
-        m_FillTexHRef = Args.getArgVal<string>("filltexhref"); 
-        setFillTexHRef(m_FillTexHRef);
-    }
 }
 
 VectorNode::~VectorNode()
@@ -80,9 +73,6 @@ void VectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     m_Color = colorStringToColor(m_sColorName);
     Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
     m_pShape->moveToGPU(getDisplayEngine());
-    if (m_pFillShape) {
-        m_pFillShape->moveToGPU(getDisplayEngine());
-    }
     m_OldOpacity = -1;
 }
 
@@ -94,12 +84,14 @@ void VectorNode::connect()
 
 void VectorNode::disconnect()
 {
-    if (m_pFillShape) {
-        m_pFillShape->moveToCPU();
-    }
     m_pShape->moveToCPU();
-
     Node::disconnect();
+}
+
+void VectorNode::checkReload()
+{
+    ImagePtr pImage = boost::dynamic_pointer_cast<Image>(m_pShape);
+    Node::checkReload(m_TexHRef, pImage);
 }
 
 const std::string& VectorNode::getTexHRef() const
@@ -114,18 +106,6 @@ void VectorNode::setTexHRef(const string& href)
     setDrawNeeded(true);
 }
 
-const std::string& VectorNode::getFillTexHRef() const
-{
-    return m_FillTexHRef;
-}
-
-void VectorNode::setFillTexHRef(const string& href)
-{
-    m_FillTexHRef = href;
-    checkReload();
-    setDrawNeeded(true);
-}
-
 static ProfilingZone PrerenderProfilingZone("VectorNode::prerender");
 static ProfilingZone VAProfilingZone("VectorNode::update VA");
 static ProfilingZone VASizeProfilingZone("VectorNode::resize VA");
@@ -136,30 +116,17 @@ void VectorNode::preRender()
     double curOpacity = getEffectiveOpacity();
 
     VertexArrayPtr pVA = m_pShape->getVertexArray();
-    VertexArrayPtr pFillVA;
-    if (m_pFillShape) {
-        pFillVA = m_pFillShape->getVertexArray();
-    }
     if (m_bVASizeChanged) {
         ScopeTimer Timer(VASizeProfilingZone);
         pVA->changeSize(getNumVertexes(), getNumIndexes());
-        if (pFillVA) {
-            pFillVA->changeSize(getNumFillVertexes(), getNumFillIndexes());
-        }
         m_bVASizeChanged = false;
     }
     {
         ScopeTimer Timer(VAProfilingZone);
         if (m_bDrawNeeded || curOpacity != m_OldOpacity) {
             pVA->reset();
-            if (pFillVA) {
-                pFillVA->reset();
-            }
-            calcVertexes(pVA, pFillVA, curOpacity);
+            calcVertexes(pVA, curOpacity);
             pVA->update();
-            if (pFillVA) {
-                pFillVA->update();
-            }
             m_bDrawNeeded = false;
             m_OldOpacity = curOpacity;
         }
@@ -186,30 +153,7 @@ static ProfilingZone RenderProfilingZone("VectorNode::render");
 void VectorNode::render(const DRect& rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
-    if (m_pFillShape) {
-        m_pFillShape->draw();
-    }
     m_pShape->draw();
-}
-
-int VectorNode::getNumFillVertexes()
-{
-    return 0;
-}
-
-int VectorNode::getNumFillIndexes()
-{
-    return 0;
-}
-
-void VectorNode::checkReload()
-{
-    ImagePtr pImage = boost::dynamic_pointer_cast<Image>(m_pShape);
-    Node::checkReload(m_TexHRef, pImage);
-    if (m_pFillShape) {
-        pImage = boost::dynamic_pointer_cast<Image>(m_pFillShape);
-        Node::checkReload(m_FillTexHRef, pImage);
-    }
 }
 
 void VectorNode::setColor(const string& sColor)
@@ -270,6 +214,11 @@ void VectorNode::setDrawNeeded(bool bSizeChanged)
 bool VectorNode::isDrawNeeded()
 {
     return m_bDrawNeeded;
+}
+
+bool VectorNode::hasVASizeChanged()
+{
+    return m_bVASizeChanged;
 }
 
 }

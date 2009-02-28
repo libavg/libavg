@@ -50,11 +50,6 @@ PolyLineNode::PolyLineNode(const ArgList& Args, bool bFromXML)
     setLineJoin(Args.getArgVal<string>("linejoin"));
 }
 
-PolyLineNode::PolyLineNode(const ArgList& Args)
-    : VectorNode(Args)
-{
-}
-
 PolyLineNode::~PolyLineNode()
 {
 }
@@ -171,8 +166,7 @@ int PolyLineNode::getNumIndexes()
     }
 }
 
-void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, 
-                VertexArrayPtr& pFillVertexArray, double opacity)
+void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
 {
     if (m_Pts.size() < 2) {
         return;
@@ -241,11 +235,6 @@ void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray,
     pVertexArray->appendPos(lines[numPts-2].pl1, DPoint(curTC,1), color);
     pVertexArray->appendPos(lines[numPts-2].pr1, DPoint(curTC,0), color);
     pVertexArray->appendQuadIndexes(curVertex-1, curVertex-2, curVertex+1, curVertex);
-}
-
-PolyLineNode::LineJoin PolyLineNode::getLineJoinEnum() const
-{
-    return m_LineJoin;
 }
 
 void PolyLineNode::calcBevelTC(const WideLine& line1, const WideLine& line2, 

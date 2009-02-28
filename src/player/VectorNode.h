@@ -38,9 +38,11 @@ class OGLSurface;
 class AVG_API VectorNode : public Node
 {
     public:
+        enum LineJoin {LJ_MITER, LJ_BEVEL};
+
         static NodeDefinition createDefinition();
         
-        VectorNode(const ArgList& Args, bool bIsFilled=false);
+        VectorNode(const ArgList& Args);
         virtual ~VectorNode();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
@@ -51,19 +53,13 @@ class AVG_API VectorNode : public Node
         const std::string& getTexHRef() const;
         void setTexHRef(const std::string& href);
 
-        const std::string& getFillTexHRef() const;
-        void setFillTexHRef(const std::string& href);
-
         virtual void preRender();
         virtual void maybeRender(const DRect& Rect);
         virtual void render(const DRect& rect);
 
         virtual int getNumVertexes() = 0;
         virtual int getNumIndexes() = 0;
-        virtual int getNumFillVertexes();
-        virtual int getNumFillIndexes();
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, 
-                VertexArrayPtr& pFillVertexArray, double opacity) = 0;
+        virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity) = 0;
 
         void setColor(const std::string& sColor);
         const std::string& getColor() const;
@@ -77,7 +73,7 @@ class AVG_API VectorNode : public Node
                 const DPoint& p1, const DPoint& p2, double TC1=0, double TC2=1);
         void setDrawNeeded(bool bSizeChanged);
         bool isDrawNeeded();
-        DPoint calcTexCoord(const DPoint& origCoord);
+        bool hasVASizeChanged();
 
     private:
         std::string m_sColorName;
@@ -90,8 +86,6 @@ class AVG_API VectorNode : public Node
 
         std::string m_TexHRef;
         ShapePtr m_pShape;
-        std::string m_FillTexHRef;
-        ShapePtr m_pFillShape;
 };
 
 typedef boost::shared_ptr<VectorNode> VectorNodePtr;

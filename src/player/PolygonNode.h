@@ -23,7 +23,7 @@
 #define _PolygonNode_H_
 
 #include "../api.h"
-#include "PolyLineNode.h"
+#include "FilledVectorNode.h"
 
 #include "../graphics/Pixel32.h"
 #include "../base/WideLine.h"
@@ -32,7 +32,7 @@
 
 namespace avg {
 
-class AVG_API PolygonNode : public PolyLineNode
+class AVG_API PolygonNode : public FilledVectorNode
 {
     public:
         static NodeDefinition createDefinition();
@@ -40,21 +40,26 @@ class AVG_API PolygonNode : public PolyLineNode
         PolygonNode(const ArgList& Args, bool bFromXML);
         virtual ~PolygonNode();
 
-        double getFillOpacity() const;
-        void setFillOpacity(double opacity);
+        const std::vector<DPoint>& getPos() const;
+        void setPos(const std::vector<DPoint>& pts);
 
-        void setFillColor(const std::string& sColor);
-        const std::string& getFillColor() const;
+        const std::vector<double>& getTexCoords() const;
+        void setTexCoords(const std::vector<double>& coords);
+
+        std::string getLineJoin() const;
+        void setLineJoin(const std::string& sAlign);
 
         virtual int getNumVertexes();
         virtual int getNumIndexes();
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, 
-                VertexArrayPtr& pFillVertexArray, double opacity);
+        virtual int getNumFillVertexes();
+        virtual int getNumFillIndexes();
+        virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity);
+        virtual void calcFillVertexes(VertexArrayPtr& pVertexArray, double opacity);
 
     private:
-        double m_FillOpacity;
-        std::string m_sFillColorName;
-        Pixel32 m_FillColor;
+        std::vector<DPoint> m_Pts;
+        std::vector<double> m_TexCoords;
+        LineJoin m_LineJoin;
 };
 
 }
