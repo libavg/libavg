@@ -34,6 +34,7 @@
 namespace avg {
 
 class OGLSurface;
+class WideLine;
 
 class AVG_API VectorNode : public Node
 {
@@ -67,6 +68,9 @@ class AVG_API VectorNode : public Node
         void setStrokeWidth(double width);
         double getStrokeWidth() const;
 
+        static LineJoin string2LineJoin(const std::string& s);
+        static std::string lineJoin2String(LineJoin lineJoin);
+
     protected:
         Pixel32 getColorVal() const;
         void updateLineData(VertexArrayPtr& pVertexArray, double opacity, 
@@ -74,6 +78,9 @@ class AVG_API VectorNode : public Node
         void setDrawNeeded(bool bSizeChanged);
         bool isDrawNeeded();
         bool hasVASizeChanged();
+        void calcBevelTC(const WideLine& line1, const WideLine& line2, 
+                bool bIsLeft, const std::vector<double>& texCoords, int i, 
+                double& TC0, double& TC1);
 
     private:
         std::string m_sColorName;

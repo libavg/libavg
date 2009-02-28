@@ -64,13 +64,12 @@ void PolygonNode::setPos(const vector<DPoint>& pts)
     m_Pts.clear();
     m_Pts.reserve(pts.size());
     m_TexCoords.clear();
-    m_TexCoords.reserve(pts.size());
+    m_TexCoords.reserve(pts.size()+1);
     if (!pts.empty()) {
         vector<double> distances;
         double totalDist = 0;
 
         m_Pts.push_back(pts[0]);
-        m_TexCoords.push_back(0);
         for (unsigned i=1; i<pts.size(); ++i) {
             if (pts[i] != pts[i-1]) {
                 m_Pts.push_back(pts[i]);
@@ -81,9 +80,12 @@ void PolygonNode::setPos(const vector<DPoint>& pts)
             double dist = calcDist(pts[i], pts[i-1]);
             distances.push_back(dist);
             totalDist += dist;
-
         }
+        double dist = calcDist(pts[pts.size()-1], pts[0]);
+        distances.push_back(dist);
+        totalDist += dist;
         double cumDist = 0;
+        m_TexCoords.push_back(0);
         for (unsigned i=0; i<distances.size(); ++i) {
             cumDist += distances[i]/totalDist;
             m_TexCoords.push_back(cumDist);
@@ -101,7 +103,7 @@ void PolygonNode::setTexCoords(const vector<double>& coords)
 {
     if (coords.size() != m_Pts.size()) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE, 
-                "Number of texture coordinates in polyline or polygon must match number of points."));
+                "Number of texture coordinates in polygon must equal number of points."));
     }
     m_TexCoords = coords;
     setDrawNeeded(false);
@@ -109,27 +111,12 @@ void PolygonNode::setTexCoords(const vector<double>& coords)
 
 string PolygonNode::getLineJoin() const
 {
-    switch(m_LineJoin) {
-        case LJ_MITER:
-            return "miter";
-        case LJ_BEVEL:
-            return "bevel";
-        default:
-            assert(false);
-            return 0;
-    }
+    return lineJoin2String(m_LineJoin);
 }
 
-void PolygonNode::setLineJoin(const string& sAlign)
+void PolygonNode::setLineJoin(const string& s)
 {
-    if (sAlign == "miter") {
-        m_LineJoin = LJ_MITER;
-    } else if (sAlign == "bevel") {
-        m_LineJoin = LJ_BEVEL;
-    } else {
-        throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "Vector linejoin "+sAlign+" not supported."));
-    }
+    m_LineJoin = string2LineJoin(s);
     setDrawNeeded(true);
 }
 
@@ -200,7 +187,6 @@ void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
     Pixel32 color = getColorVal();
     color.setA((unsigned char)(opacity*255));
     
-    // Outline
     vector<WideLine> lines;
     lines.reserve(numPts);
     for (int i=0; i<numPts-1; ++i) {
@@ -217,10 +203,11 @@ void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
         DPoint pri = getLineLineIntersection(pLastLine->pr0, pLastLine->dir, 
                 pThisLine->pr0, pThisLine->dir);
         int curVertex = pVertexArray->getCurVert();
+        double curTC = m_TexCoords[i];
         switch(m_LineJoin) {
             case LJ_MITER:
-                pVertexArray->appendPos(pli, DPoint(0,0), color);
-                pVertexArray->appendPos(pri, DPoint(0,0), color);
+                pVertexArray->appendPos(pli, DPoint(curTC,1), color);
+                pVertexArray->appendPos(pri, DPoint(curTC,0), color);
                 pLastLine = pThisLine;
                 if (i<numPts-1) {
                     pVertexArray->appendQuadIndexes(
@@ -232,10 +219,13 @@ void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
             case LJ_BEVEL:
                 {
                     Triangle tri(pLastLine->pl1, pThisLine->pl0, pri);
+                    double TC0, TC1;
                     if (tri.isClockwise()) {
-                        pVertexArray->appendPos(pri, DPoint(0,0), color);
-                        pVertexArray->appendPos(pLastLine->pl1, DPoint(0,0), color);
-                        pVertexArray->appendPos(pThisLine->pl0, DPoint(0,0), color);
+                        calcBevelTC(*pLastLine, *pThisLine, true, m_TexCoords, i, TC0, TC1);
+                        
+                        pVertexArray->appendPos(pri, DPoint(curTC,0), color);
+                        pVertexArray->appendPos(pLastLine->pl1, DPoint(TC0,1), color);
+                        pVertexArray->appendPos(pThisLine->pl0, DPoint(TC1,1), color);
                         pVertexArray->appendTriIndexes(
                                 curVertex, curVertex+1, curVertex+2);
                         if (i<numPts-1) {
@@ -245,9 +235,10 @@ void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
                             pVertexArray->appendQuadIndexes(curVertex, curVertex+2, 0, 1);
                         }
                     } else {
-                        pVertexArray->appendPos(pLastLine->pr1, DPoint(0,0), color);
-                        pVertexArray->appendPos(pli, DPoint(0,0), color);
-                        pVertexArray->appendPos(pThisLine->pr0, DPoint(0,0), color);
+                        calcBevelTC(*pLastLine, *pThisLine, false, m_TexCoords, i, TC0, TC1);
+                        pVertexArray->appendPos(pLastLine->pr1, DPoint(curTC,0), color);
+                        pVertexArray->appendPos(pli, DPoint(TC0,1), color);
+                        pVertexArray->appendPos(pThisLine->pr0, DPoint(TC1,1), color);
                         pVertexArray->appendTriIndexes(
                                 curVertex, curVertex+1, curVertex+2);
                         if (i<numPts-1) {

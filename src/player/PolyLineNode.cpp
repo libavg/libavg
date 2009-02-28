@@ -109,27 +109,12 @@ void PolyLineNode::setTexCoords(const vector<double>& coords)
 
 string PolyLineNode::getLineJoin() const
 {
-    switch(m_LineJoin) {
-        case LJ_MITER:
-            return "miter";
-        case LJ_BEVEL:
-            return "bevel";
-        default:
-            assert(false);
-            return 0;
-    }
+    return lineJoin2String(m_LineJoin);
 }
 
-void PolyLineNode::setLineJoin(const string& sAlign)
+void PolyLineNode::setLineJoin(const string& s)
 {
-    if (sAlign == "miter") {
-        m_LineJoin = LJ_MITER;
-    } else if (sAlign == "bevel") {
-        m_LineJoin = LJ_BEVEL;
-    } else {
-        throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "Vector linejoin "+sAlign+" not supported."));
-    }
+    m_LineJoin = string2LineJoin(s);
     setDrawNeeded(true);
 }
 
@@ -203,9 +188,9 @@ void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
             case LJ_BEVEL:
                 {
                     Triangle tri(line1.pl1, line2.pl0, pri);
+                    double TC0, TC1;
                     if (tri.isClockwise()) {
-                        double TC0, TC1;
-                        calcBevelTC(line1, line2, true, i+1, TC0, TC1);
+                        calcBevelTC(line1, line2, true, m_TexCoords, i+1, TC0, TC1);
                         pVertexArray->appendPos(line1.pl1, DPoint(TC0,1), color);
                         pVertexArray->appendPos(line2.pl0, DPoint(TC1,1), color);
                         pVertexArray->appendPos(pri, DPoint(curTC,0), color);
@@ -214,8 +199,7 @@ void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
                         pVertexArray->appendTriIndexes(
                                 curVertex, curVertex+1, curVertex+2);
                     } else {
-                        double TC0, TC1;
-                        calcBevelTC(line1, line2, false, i+1, TC0, TC1);
+                        calcBevelTC(line1, line2, false,  m_TexCoords, i+1, TC0, TC1);
                         pVertexArray->appendPos(line1.pr1, DPoint(TC0,0), color);
                         pVertexArray->appendPos(pli, DPoint(curTC,1), color);
                         pVertexArray->appendPos(line2.pr0, DPoint(TC1,0), color);
@@ -235,23 +219,6 @@ void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
     pVertexArray->appendPos(lines[numPts-2].pl1, DPoint(curTC,1), color);
     pVertexArray->appendPos(lines[numPts-2].pr1, DPoint(curTC,0), color);
     pVertexArray->appendQuadIndexes(curVertex-1, curVertex-2, curVertex+1, curVertex);
-}
-
-void PolyLineNode::calcBevelTC(const WideLine& line1, const WideLine& line2, 
-        bool bIsLeft, int i, double& TC0, double& TC1)
-{
-    double line1Len = line1.getLen();
-    double line2Len = line2.getLen();
-    double triLen;
-    if (bIsLeft) {
-        triLen = calcDist(line1.pl1, line2.pl0);
-    } else {
-        triLen = calcDist(line1.pr1, line2.pr0);
-    }
-    double ratio = line1Len/(line1Len+triLen/2);
-    TC0 = (1-ratio)*m_TexCoords[i-1]+ratio*m_TexCoords[i];
-    ratio = line2Len/(line2Len+triLen/2);
-    TC1 = ratio*m_TexCoords[i]+(1-ratio)*m_TexCoords[i+1];
 }
 
 }

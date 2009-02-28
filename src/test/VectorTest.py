@@ -343,6 +343,7 @@ class VectorTestCase(AVGTestCase):
             polygon = Player.createNode("polygon", 
                     {"strokewidth":20, "color":"FF00FF", "texhref":"rgb24-64x64.png"})
             polygon.pos = [(10,10), (50,10), (90,50), (90, 90)]
+            polygon.linejoin = "miter"
             canvas.appendChild(polygon)
         def miter():
             polygon = canvas.getChild(0)

@@ -188,6 +188,31 @@ Pixel32 VectorNode::getColorVal() const
     return m_Color;
 }
 
+VectorNode::LineJoin VectorNode::string2LineJoin(const string& s)
+{
+    if (s == "miter") {
+        return LJ_MITER;
+    } else if (s == "bevel") {
+        return LJ_BEVEL;
+    } else {
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "Vector linejoin "+s+" not supported."));
+    }
+}
+
+string VectorNode::lineJoin2String(LineJoin lineJoin)
+{
+    switch(lineJoin) {
+        case LJ_MITER:
+            return "miter";
+        case LJ_BEVEL:
+            return "bevel";
+        default:
+            assert(false);
+            return 0;
+    }
+}
+
 void VectorNode::updateLineData(VertexArrayPtr& pVertexArray, double opacity,
         const DPoint& p1, const DPoint& p2, double TC1, double TC2)
 {
@@ -219,6 +244,23 @@ bool VectorNode::isDrawNeeded()
 bool VectorNode::hasVASizeChanged()
 {
     return m_bVASizeChanged;
+}
+
+void VectorNode::calcBevelTC(const WideLine& line1, const WideLine& line2, 
+        bool bIsLeft, const vector<double>& texCoords, int i, double& TC0, double& TC1)
+{
+    double line1Len = line1.getLen();
+    double line2Len = line2.getLen();
+    double triLen;
+    if (bIsLeft) {
+        triLen = calcDist(line1.pl1, line2.pl0);
+    } else {
+        triLen = calcDist(line1.pr1, line2.pr0);
+    }
+    double ratio = line1Len/(line1Len+triLen/2);
+    TC0 = (1-ratio)*texCoords[i-1]+ratio*texCoords[i];
+    ratio = line2Len/(line2Len+triLen/2);
+    TC1 = ratio*texCoords[i]+(1-ratio)*texCoords[i+1];
 }
 
 }

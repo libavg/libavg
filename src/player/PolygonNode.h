@@ -47,7 +47,7 @@ class AVG_API PolygonNode : public FilledVectorNode
         void setTexCoords(const std::vector<double>& coords);
 
         std::string getLineJoin() const;
-        void setLineJoin(const std::string& sAlign);
+        void setLineJoin(const std::string& s);
 
         virtual int getNumVertexes();
         virtual int getNumIndexes();

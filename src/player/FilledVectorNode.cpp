@@ -22,24 +22,10 @@
 #include "FilledVectorNode.h"
 
 #include "NodeDefinition.h"
-//#include "SDLDisplayEngine.h"
-//#include "OGLSurface.h"
 #include "Image.h"
 #include "DivNode.h"
-//
-//#include "../base/Exception.h"
-//#include "../base/Logger.h"
+
 #include "../base/ScopeTimer.h"
-//#include "../base/Exception.h"
-//#include "../base/WideLine.h"
-//
-//#include "../graphics/VertexArray.h"
-//#include "../graphics/Filterfliprgb.h"
-//
-//#include <Magick++.h>
-//
-//#include <iostream>
-//#include <sstream>
 
 using namespace std;
 using namespace boost;

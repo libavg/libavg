@@ -47,16 +47,13 @@ class AVG_API PolyLineNode : public VectorNode
         void setTexCoords(const std::vector<double>& coords);
 
         std::string getLineJoin() const;
-        void setLineJoin(const std::string& sAlign);
+        void setLineJoin(const std::string& s);
 
         virtual int getNumVertexes();
         virtual int getNumIndexes();
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity);
 
     private:
-        void calcBevelTC(const WideLine& line1, const WideLine& line2, 
-                bool bIsLeft, int i, double& TC0, double& TC1);
-
         std::vector<DPoint> m_Pts;
         std::vector<double> m_TexCoords;
         LineJoin m_LineJoin;
