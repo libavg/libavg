@@ -51,7 +51,7 @@ class AVG_API PolyLineNode : public VectorNode
 
         virtual int getNumVertexes();
         virtual int getNumIndexes();
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity);
+        virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
 
     private:
         std::vector<DPoint> m_Pts;

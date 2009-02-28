@@ -141,11 +141,8 @@ int CircleNode::getNumFillIndexes()
     return getNumCircumferencePoints()*3;
 }
 
-void CircleNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
+void CircleNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
-    Pixel32 color = getColorVal();
-    color.setA((unsigned char)(opacity*255));
-
     DPoint firstPt1 = getCirclePt(0, m_Radius+getStrokeWidth()/2);
     DPoint firstPt2 = getCirclePt(0, m_Radius-getStrokeWidth()/2);
     int curVertex = 0;
@@ -165,11 +162,8 @@ void CircleNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
 
 }
 
-void CircleNode::calcFillVertexes(VertexArrayPtr& pVertexArray, double opacity)
+void CircleNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
-    Pixel32 color = getFillColorVal();
-    color.setA((unsigned char)(opacity*255));
-    
     pVertexArray->appendPos(m_Pos, DPoint(0,0), color);
     int curVertex = 1;
     DPoint firstPt = getCirclePt(0, m_Radius);

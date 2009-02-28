@@ -227,13 +227,10 @@ int CurveNode::getNumIndexes()
     return (getCurveLen())*2*3;
 }
 
-void CurveNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
+void CurveNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
     updateLines();
-    double curOpacity = opacity*getOpacity();
-    Pixel32 color = getColorVal();
-    color.setA((unsigned char)(curOpacity*255));
-
+    
     pVertexArray->appendPos(m_LeftCurve[0], DPoint(m_TC1,1), color);
     pVertexArray->appendPos(m_RightCurve[0], DPoint(m_TC2,0), color);
     for (unsigned i=0; i<m_LeftCurve.size()-1; ++i) {

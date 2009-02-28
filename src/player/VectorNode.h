@@ -60,7 +60,7 @@ class AVG_API VectorNode : public Node
 
         virtual int getNumVertexes() = 0;
         virtual int getNumIndexes() = 0;
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, double opacity) = 0;
+        virtual void calcVertexes(VertexArrayPtr& pVertexArray, const Pixel32 color) = 0;
 
         void setColor(const std::string& sColor);
         const std::string& getColor() const;
@@ -73,7 +73,7 @@ class AVG_API VectorNode : public Node
 
     protected:
         Pixel32 getColorVal() const;
-        void updateLineData(VertexArrayPtr& pVertexArray, double opacity, 
+        void updateLineData(VertexArrayPtr& pVertexArray, Pixel32 color, 
                 const DPoint& p1, const DPoint& p2, double TC1=0, double TC2=1);
         void setDrawNeeded(bool bSizeChanged);
         bool isDrawNeeded();

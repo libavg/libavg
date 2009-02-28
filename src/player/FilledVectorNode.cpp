@@ -113,7 +113,9 @@ void FilledVectorNode::preRender()
     }
     if (isDrawNeeded() || curOpacity != m_OldOpacity) {
         pFillVA->reset();
-        calcFillVertexes(pFillVA, curOpacity);
+        Pixel32 color = getFillColorVal();
+        color.setA((unsigned char)(curOpacity*255));
+        calcFillVertexes(pFillVA, color);
         pFillVA->update();
         m_OldOpacity = curOpacity;
     }

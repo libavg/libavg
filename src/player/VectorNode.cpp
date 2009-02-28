@@ -125,7 +125,9 @@ void VectorNode::preRender()
         ScopeTimer Timer(VAProfilingZone);
         if (m_bDrawNeeded || curOpacity != m_OldOpacity) {
             pVA->reset();
-            calcVertexes(pVA, curOpacity);
+            Pixel32 color = getColorVal();
+            color.setA((unsigned char)(curOpacity*255));
+            calcVertexes(pVA, color);
             pVA->update();
             m_bDrawNeeded = false;
             m_OldOpacity = curOpacity;
@@ -213,12 +215,9 @@ string VectorNode::lineJoin2String(LineJoin lineJoin)
     }
 }
 
-void VectorNode::updateLineData(VertexArrayPtr& pVertexArray, double opacity,
+void VectorNode::updateLineData(VertexArrayPtr& pVertexArray, Pixel32 color,
         const DPoint& p1, const DPoint& p2, double TC1, double TC2)
 {
-    Pixel32 color = getColorVal();
-    color.setA((unsigned char)(opacity*255));
-
     WideLine wl(p1, p2, getStrokeWidth());
     int curVertex = pVertexArray->getCurVert();
     pVertexArray->appendPos(wl.pl0, DPoint(TC1, 1), color);

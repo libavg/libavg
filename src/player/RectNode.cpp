@@ -181,7 +181,7 @@ int RectNode::getNumFillIndexes()
     return 6;
 }
 
-void RectNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
+void RectNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
     DPoint pivot = m_Rect.tl+m_Rect.size()/2;
 
@@ -194,8 +194,8 @@ void RectNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
     DPoint rp3 = rotate(p3, m_Angle, pivot); 
     DPoint rp4 = rotate(p4, m_Angle, pivot); 
 
-    updateLineData(pVertexArray, opacity, rp1, rp2, m_TexCoords[0], m_TexCoords[1]);
-    updateLineData(pVertexArray, opacity, rp3, rp4, m_TexCoords[2], m_TexCoords[3]);
+    updateLineData(pVertexArray, color, rp1, rp2, m_TexCoords[0], m_TexCoords[1]);
+    updateLineData(pVertexArray, color, rp3, rp4, m_TexCoords[2], m_TexCoords[3]);
     p1.x -= getStrokeWidth()/2;
     p2.x -= getStrokeWidth()/2;
     p3.x += getStrokeWidth()/2;
@@ -204,15 +204,12 @@ void RectNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
     rp2 = rotate(p2, m_Angle, pivot); 
     rp3 = rotate(p3, m_Angle, pivot); 
     rp4 = rotate(p4, m_Angle, pivot); 
-    updateLineData(pVertexArray, opacity, rp2, rp3, m_TexCoords[1], m_TexCoords[2]);
-    updateLineData(pVertexArray, opacity, rp4, rp1, m_TexCoords[3], m_TexCoords[4]);
+    updateLineData(pVertexArray, color, rp2, rp3, m_TexCoords[1], m_TexCoords[2]);
+    updateLineData(pVertexArray, color, rp4, rp1, m_TexCoords[3], m_TexCoords[4]);
 }
 
-void RectNode::calcFillVertexes(VertexArrayPtr& pVertexArray, double opacity)
+void RectNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
-    Pixel32 color = getFillColorVal();
-    color.setA((unsigned char)(opacity*255));
-
     DPoint pivot = m_Rect.tl+m_Rect.size()/2;
 
     DPoint p1 = m_Rect.tl;

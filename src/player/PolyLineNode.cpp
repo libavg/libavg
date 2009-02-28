@@ -151,15 +151,11 @@ int PolyLineNode::getNumIndexes()
     }
 }
 
-void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
+void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
     if (m_Pts.size() < 2) {
         return;
     }
-    double curOpacity = opacity*getOpacity();
-    Pixel32 color = getColorVal();
-    color.setA((unsigned char)(curOpacity*255));
-    
     int numPts = m_Pts.size();
 
     vector<WideLine> lines;

@@ -178,14 +178,12 @@ int PolygonNode::getNumFillIndexes()
 
 }
 
-void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
+void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
     if (m_Pts.size() < 3) {
         return;
     }
     int numPts = m_Pts.size();
-    Pixel32 color = getColorVal();
-    color.setA((unsigned char)(opacity*255));
     
     vector<WideLine> lines;
     lines.reserve(numPts);
@@ -258,12 +256,9 @@ void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, double opacity)
     }
 }
 
-void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, double opacity)
+void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
-    if (opacity > 0.001 && m_Pts.size() > 2) {
-        Pixel32 color = getFillColorVal();
-        color.setA((unsigned char)(opacity*255));
-
+    if (color.getA() > 0 && m_Pts.size() > 2) {
         vector<int> triIndexes;
         triangulatePolygon(m_Pts, triIndexes);
         for (unsigned i=0; i<m_Pts.size(); ++i) {
