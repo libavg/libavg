@@ -61,22 +61,13 @@ const vector<DPoint>& PolygonNode::getPos() const
 
 void PolygonNode::setPos(const vector<DPoint>& pts) 
 {
-    m_Pts.clear();
-    m_Pts.reserve(pts.size());
+    m_Pts = pts;
     m_TexCoords.clear();
     m_TexCoords.reserve(pts.size()+1);
     if (!pts.empty()) {
         vector<double> distances;
         double totalDist = 0;
-
-        m_Pts.push_back(pts[0]);
         for (unsigned i=1; i<pts.size(); ++i) {
-            if (pts[i] != pts[i-1]) {
-                m_Pts.push_back(pts[i]);
-            } else {
-                // Move duplicated points a bit to avoid degenerate triangles later.
-                m_Pts.push_back(pts[i]+DPoint(0,0.01));
-            }
             double dist = calcDist(pts[i], pts[i-1]);
             distances.push_back(dist);
             totalDist += dist;
@@ -125,13 +116,19 @@ int PolygonNode::getNumVertexes()
     if (m_Pts.size() < 3) {
         return 0;
     }
+    int numPts = m_Pts.size();
+    for (unsigned i=1; i<m_Pts.size(); ++i) {
+        if (calcDistSquared(m_Pts[i], m_Pts[i-1])<0.1) {
+            numPts--;
+        }
+    }
     int numVerts;
     switch(m_LineJoin) {
         case LJ_MITER:
-            numVerts = 2*m_Pts.size()+2;
+            numVerts = 2*numPts+2;
             break;
         case LJ_BEVEL:
-            numVerts = 3*m_Pts.size()+2;
+            numVerts = 3*numPts+2;
             break;
         default:
             assert(false);
@@ -144,13 +141,19 @@ int PolygonNode::getNumIndexes()
     if (m_Pts.size() < 3) {
         return 0;
     }
+    int numPts = m_Pts.size();
+    for (unsigned i=1; i<m_Pts.size(); ++i) {
+        if (calcDistSquared(m_Pts[i], m_Pts[i-1])<0.1) {
+            numPts--;
+        }
+    }
     int numIndexes;
     switch(m_LineJoin) {
         case LJ_MITER:
-            numIndexes = 6*m_Pts.size();
+            numIndexes = 6*numPts;
             break;
         case LJ_BEVEL:
-            numIndexes = 9*m_Pts.size();
+            numIndexes = 9*numPts;
             break;
         default:
             assert(false);

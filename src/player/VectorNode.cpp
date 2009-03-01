@@ -157,6 +157,7 @@ static ProfilingZone RenderProfilingZone("VectorNode::render");
 void VectorNode::render(const DRect& rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
+//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     m_pShape->draw();
 }
 
@@ -247,9 +248,24 @@ bool VectorNode::hasVASizeChanged()
     return m_bVASizeChanged;
 }
 
-void VectorNode::calcPolyLine(const vector<DPoint>& pts, const vector<double>& texCoords,
-        bool bIsClosed, LineJoin lineJoin, VertexArrayPtr& pVertexArray, Pixel32 color)
+void VectorNode::calcPolyLine(const vector<DPoint>& origPts, 
+        const vector<double>& origTexCoords, bool bIsClosed, LineJoin lineJoin, 
+        VertexArrayPtr& pVertexArray, Pixel32 color)
 {
+    vector<DPoint> pts;
+    vector<double> texCoords;
+    pts.push_back(origPts[0]);
+    texCoords.push_back(origTexCoords[0]);
+    for (unsigned i=1; i<origPts.size(); ++i) {
+        if (calcDistSquared(origPts[i], origPts[i-1])>0.1) {
+            pts.push_back(origPts[i]);
+            texCoords.push_back(origTexCoords[i]);
+        }
+    }
+    if (bIsClosed) {
+        texCoords.push_back(origTexCoords[origTexCoords.size()-1]);
+    }
+
     int numPts = pts.size();
 
     // Create array of wide lines.
@@ -363,7 +379,8 @@ void VectorNode::calcPolyLine(const vector<DPoint>& pts, const vector<double>& t
 }
 
 void VectorNode::calcBevelTC(const WideLine& line1, const WideLine& line2, 
-        bool bIsLeft, const vector<double>& texCoords, int i, double& TC0, double& TC1)
+        bool bIsLeft, const vector<double>& texCoords, unsigned i, 
+        double& TC0, double& TC1)
 {
     double line1Len = line1.getLen();
     double line2Len = line2.getLen();

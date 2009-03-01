@@ -78,11 +78,11 @@ class AVG_API VectorNode : public Node
         void setDrawNeeded(bool bSizeChanged);
         bool isDrawNeeded();
         bool hasVASizeChanged();
-        void calcPolyLine(const std::vector<DPoint>& pts, 
-                const std::vector<double>& texCoords, bool bIsClosed, LineJoin lineJoin,
+        void calcPolyLine(const std::vector<DPoint>& origPts, 
+                const std::vector<double>& origTexCoords, bool bIsClosed, LineJoin lineJoin,
                 VertexArrayPtr& pVertexArray, Pixel32 color);
         void calcBevelTC(const WideLine& line1, const WideLine& line2, 
-                bool bIsLeft, const std::vector<double>& texCoords, int i, 
+                bool bIsLeft, const std::vector<double>& texCoords, unsigned i, 
                 double& TC0, double& TC1);
 
     private:

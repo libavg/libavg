@@ -59,29 +59,19 @@ const vector<DPoint>& PolyLineNode::getPos() const
 
 void PolyLineNode::setPos(const vector<DPoint>& pts) 
 {
-    m_Pts.clear();
-    m_Pts.reserve(pts.size());
+    m_Pts = pts;
     m_TexCoords.clear();
     m_TexCoords.reserve(pts.size());
     if (!pts.empty()) {
         vector<double> distances;
         double totalDist = 0;
-
-        m_Pts.push_back(pts[0]);
-        m_TexCoords.push_back(0);
         for (unsigned i=1; i<pts.size(); ++i) {
-            if (pts[i] != pts[i-1]) {
-                m_Pts.push_back(pts[i]);
-            } else {
-                // Move duplicated points a bit to avoid degenerate triangles later.
-                m_Pts.push_back(pts[i]+DPoint(0,0.01));
-            }
             double dist = calcDist(pts[i], pts[i-1]);
             distances.push_back(dist);
             totalDist += dist;
-
         }
         double cumDist = 0;
+        m_TexCoords.push_back(0);
         for (unsigned i=0; i<distances.size(); ++i) {
             cumDist += distances[i]/totalDist;
             m_TexCoords.push_back(cumDist);
@@ -121,11 +111,17 @@ int PolyLineNode::getNumVertexes()
     if (m_Pts.size() < 2) {
         return 0;
     }
+    int numPts = m_Pts.size();
+    for (unsigned i=1; i<m_Pts.size(); ++i) {
+        if (calcDistSquared(m_Pts[i], m_Pts[i-1])<0.1) {
+            numPts--;
+        }
+    }
     switch (m_LineJoin) {
         case LJ_MITER:
-            return 2*m_Pts.size();
+            return 2*numPts;
         case LJ_BEVEL:
-            return 3*m_Pts.size()-2;
+            return 3*numPts-2;
         default:
             assert(false);
             return 0;
@@ -138,11 +134,17 @@ int PolyLineNode::getNumIndexes()
     if (m_Pts.size() < 2) {
         return 0;
     }
+    int numPts = m_Pts.size();
+    for (unsigned i=1; i<m_Pts.size(); ++i) {
+        if (calcDistSquared(m_Pts[i], m_Pts[i-1])<0.1) {
+            numPts--;
+        }
+    }
     switch (m_LineJoin) {
         case LJ_MITER:
-            return 6*(m_Pts.size()-1);
+            return 6*(numPts-1);
         case LJ_BEVEL:
-            return 3*(3*m_Pts.size()-4);
+            return 3*(3*numPts-4);
         default:
             assert(false);
             return 0;

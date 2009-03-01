@@ -325,15 +325,15 @@ class VectorTestCase(AVGTestCase):
         canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addPolygon,
-                 lambda: self.compareImage("testPolygon1", False),
+                 lambda: self.compareImage("testPolygon1", True),
                  changePolygon,
-                 lambda: self.compareImage("testPolygon2", False),
+                 lambda: self.compareImage("testPolygon2", True),
                  fillPolygon,
-                 lambda: self.compareImage("testPolygon3", False),
-#                 addEmptyPoint,
-#                 lambda: self.compareImage("testPolygon4", False),
+                 lambda: self.compareImage("testPolygon3", True),
+                 addEmptyPoint,
+                 lambda: self.compareImage("testPolygon4", True),
                  addPolygon2,
-                 lambda: self.compareImage("testPolygon5", False),
+                 lambda: self.compareImage("testPolygon5", True),
                  miterPolygons,
                  lambda: self.compareImage("testPolygon6", False)
                 ))
