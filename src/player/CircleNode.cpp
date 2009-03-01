@@ -180,7 +180,7 @@ void CircleNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 
 int CircleNode::getNumCircumferencePoints()
 {
-    return m_Radius*3;
+    return int(m_Radius*3);
 }
 
 DPoint CircleNode::getCirclePt(double angle, double radius)

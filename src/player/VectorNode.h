@@ -34,7 +34,7 @@
 namespace avg {
 
 class OGLSurface;
-class WideLine;
+struct WideLine;
 
 class AVG_API VectorNode : public Node
 {
@@ -60,7 +60,7 @@ class AVG_API VectorNode : public Node
 
         virtual int getNumVertexes() = 0;
         virtual int getNumIndexes() = 0;
-        virtual void calcVertexes(VertexArrayPtr& pVertexArray, const Pixel32 color) = 0;
+        virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color) = 0;
 
         void setColor(const std::string& sColor);
         const std::string& getColor() const;
