@@ -302,13 +302,15 @@ void VectorNode::calcPolyLine(const vector<DPoint>& pts, const vector<double>& t
         numNormalSegments = pts.size()-2;
     }
     for (unsigned i=0; i<numNormalSegments; ++i) {
-        const WideLine& line1 = lines[i];
-        WideLine& line2 = lines[i+1];
+        const WideLine* pLine1 = &(lines[i]);
+        const WideLine* pLine2;
         if (i == pts.size()-1) {
-            line2 = lines[0];
+            pLine2 = &(lines[0]);
+        } else {
+            pLine2 = &(lines[i+1]);
         }
-        DPoint pli = getLineLineIntersection(line1.pl0, line1.dir, line2.pl0, line2.dir);
-        DPoint pri = getLineLineIntersection(line1.pr0, line1.dir, line2.pr0, line2.dir);
+        DPoint pli = getLineLineIntersection(pLine1->pl0, pLine1->dir, pLine2->pl0, pLine2->dir);
+        DPoint pri = getLineLineIntersection(pLine1->pr0, pLine1->dir, pLine2->pr0, pLine2->dir);
 
         int curVertex = pVertexArray->getCurVert();
         double curTC = texCoords[i+1];
@@ -321,23 +323,23 @@ void VectorNode::calcPolyLine(const vector<DPoint>& pts, const vector<double>& t
                 break;
             case LJ_BEVEL:
                 {
-                    Triangle tri(line1.pl1, line2.pl0, pri);
+                    Triangle tri(pLine1->pl1, pLine2->pl0, pri);
                     double TC0;
                     double TC1;
                     if (tri.isClockwise()) {
-                        calcBevelTC(line1, line2, true, texCoords, i+1, TC0, TC1);
-                        pVertexArray->appendPos(line1.pl1, DPoint(TC0,1), color);
-                        pVertexArray->appendPos(line2.pl0, DPoint(TC1,1), color);
+                        calcBevelTC(*pLine1, *pLine2, true, texCoords, i+1, TC0, TC1);
+                        pVertexArray->appendPos(pLine1->pl1, DPoint(TC0,1), color);
+                        pVertexArray->appendPos(pLine2->pl0, DPoint(TC1,1), color);
                         pVertexArray->appendPos(pri, DPoint(curTC,0), color);
                         pVertexArray->appendQuadIndexes(
                                 curVertex-1, curVertex-2, curVertex+2, curVertex);
                         pVertexArray->appendTriIndexes(
                                 curVertex, curVertex+1, curVertex+2);
                     } else {
-                        calcBevelTC(line1, line2, false,  texCoords, i+1, TC0, TC1);
-                        pVertexArray->appendPos(line1.pr1, DPoint(TC0,0), color);
+                        calcBevelTC(*pLine1, *pLine2, false,  texCoords, i+1, TC0, TC1);
+                        pVertexArray->appendPos(pLine1->pr1, DPoint(TC0,0), color);
                         pVertexArray->appendPos(pli, DPoint(curTC,1), color);
-                        pVertexArray->appendPos(line2.pr0, DPoint(TC1,0), color);
+                        pVertexArray->appendPos(pLine2->pr0, DPoint(TC1,0), color);
                         pVertexArray->appendQuadIndexes(
                                 curVertex-2, curVertex-1, curVertex+1, curVertex);
                         pVertexArray->appendTriIndexes(
@@ -373,8 +375,14 @@ void VectorNode::calcBevelTC(const WideLine& line1, const WideLine& line2,
     }
     double ratio0 = line1Len/(line1Len+triLen/2);
     TC0 = (1-ratio0)*texCoords[i-1]+ratio0*texCoords[i];
+    double nextTexCoord;
+    if (i == texCoords.size()-1) {
+        nextTexCoord = texCoords[i];
+    } else {
+        nextTexCoord = texCoords[i+1];
+    }
     double ratio1 = line2Len/(line2Len+triLen/2);
-    TC1 = ratio1*texCoords[i]+(1-ratio1)*texCoords[i+1];
+    TC1 = ratio1*texCoords[i]+(1-ratio1)*nextTexCoord;
 }
 
 }
