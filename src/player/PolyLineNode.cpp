@@ -25,8 +25,6 @@
 
 #include "../graphics/VertexArray.h"
 #include "../base/Exception.h"
-#include "../base/GeomHelper.h"
-#include "../base/Triangle.h"
 
 #include <iostream>
 #include <sstream>
@@ -156,65 +154,7 @@ void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     if (m_Pts.size() < 2) {
         return;
     }
-    int numPts = m_Pts.size();
-
-    vector<WideLine> lines;
-    lines.reserve(numPts-1);
-    for (int i=0; i<numPts-1; ++i) {
-        lines.push_back(WideLine(m_Pts[i], m_Pts[i+1], getStrokeWidth()));
-    }
-
-    pVertexArray->appendPos(lines[0].pl0, DPoint(m_TexCoords[0],1), color);
-    pVertexArray->appendPos(lines[0].pr0, DPoint(m_TexCoords[0],0), color);
-    for (int i=0; i<numPts-2; ++i) {
-        const WideLine& line1 = lines[i];
-        const WideLine& line2 = lines[i+1];
-        DPoint pli = getLineLineIntersection(line1.pl0, line1.dir, line2.pl0, line2.dir);
-        DPoint pri = getLineLineIntersection(line1.pr0, line1.dir, line2.pr0, line2.dir);
-
-        int curVertex = pVertexArray->getCurVert();
-        double curTC = m_TexCoords[i+1];
-        switch (m_LineJoin) {
-            case LJ_MITER:
-                pVertexArray->appendPos(pli, DPoint(curTC,1), color);
-                pVertexArray->appendPos(pri, DPoint(curTC,0), color);
-                pVertexArray->appendQuadIndexes(
-                        curVertex-1, curVertex-2, curVertex+1, curVertex);
-                break;
-            case LJ_BEVEL:
-                {
-                    Triangle tri(line1.pl1, line2.pl0, pri);
-                    double TC0, TC1;
-                    if (tri.isClockwise()) {
-                        calcBevelTC(line1, line2, true, m_TexCoords, i+1, TC0, TC1);
-                        pVertexArray->appendPos(line1.pl1, DPoint(TC0,1), color);
-                        pVertexArray->appendPos(line2.pl0, DPoint(TC1,1), color);
-                        pVertexArray->appendPos(pri, DPoint(curTC,0), color);
-                        pVertexArray->appendQuadIndexes(
-                                curVertex-1, curVertex-2, curVertex+2, curVertex);
-                        pVertexArray->appendTriIndexes(
-                                curVertex, curVertex+1, curVertex+2);
-                    } else {
-                        calcBevelTC(line1, line2, false,  m_TexCoords, i+1, TC0, TC1);
-                        pVertexArray->appendPos(line1.pr1, DPoint(TC0,0), color);
-                        pVertexArray->appendPos(pli, DPoint(curTC,1), color);
-                        pVertexArray->appendPos(line2.pr0, DPoint(TC1,0), color);
-                        pVertexArray->appendQuadIndexes(
-                                curVertex-2, curVertex-1, curVertex+1, curVertex);
-                        pVertexArray->appendTriIndexes(
-                                curVertex, curVertex+1, curVertex+2);
-                    }
-                }
-                break;
-            default:
-                assert(false);
-        }
-    }
-    int curVertex = pVertexArray->getCurVert();
-    double curTC = m_TexCoords[numPts-1];
-    pVertexArray->appendPos(lines[numPts-2].pl1, DPoint(curTC,1), color);
-    pVertexArray->appendPos(lines[numPts-2].pr1, DPoint(curTC,0), color);
-    pVertexArray->appendQuadIndexes(curVertex-1, curVertex-2, curVertex+1, curVertex);
+    calcPolyLine(m_Pts, m_TexCoords, false, m_LineJoin, pVertexArray, color);
 }
 
 }

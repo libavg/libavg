@@ -31,6 +31,8 @@
 #include "../base/ScopeTimer.h"
 #include "../base/Exception.h"
 #include "../base/WideLine.h"
+#include "../base/GeomHelper.h"
+#include "../base/Triangle.h"
 
 #include "../graphics/VertexArray.h"
 #include "../graphics/Filterfliprgb.h"
@@ -245,6 +247,119 @@ bool VectorNode::hasVASizeChanged()
     return m_bVASizeChanged;
 }
 
+void VectorNode::calcPolyLine(const vector<DPoint>& pts, const vector<double>& texCoords,
+        bool bIsClosed, LineJoin lineJoin, VertexArrayPtr& pVertexArray, Pixel32 color)
+{
+    int numPts = pts.size();
+
+    // Create array of wide lines.
+    vector<WideLine> lines;
+    lines.reserve(numPts-1);
+    for (int i=0; i<numPts-1; ++i) {
+        lines.push_back(WideLine(pts[i], pts[i+1], m_StrokeWidth));
+    }
+    if (bIsClosed) {
+        lines.push_back(WideLine(pts[numPts-1], pts[0], m_StrokeWidth));
+    }
+    // First points
+    if (bIsClosed) {
+        WideLine lastLine = lines[lines.size()-1];
+        DPoint pli = getLineLineIntersection(lastLine.pl0, lastLine.dir, 
+                lines[0].pl0, lines[0].dir);
+        DPoint pri = getLineLineIntersection(lastLine.pr0, lastLine.dir, 
+                lines[0].pr0, lines[0].dir);
+        double curTC = texCoords[0];
+        switch (lineJoin) {
+            case LJ_MITER:
+                pVertexArray->appendPos(pli, DPoint(curTC,1), color);
+                pVertexArray->appendPos(pri, DPoint(curTC,0), color);
+                break;
+            case LJ_BEVEL: {
+                    Triangle tri(lastLine.pl1, lines[0].pl0, pri);
+                    if (tri.isClockwise()) {
+                        pVertexArray->appendPos(lines[0].pl0, DPoint(curTC,1), color);
+                        pVertexArray->appendPos(pri, DPoint(curTC,0), color);
+                    } else {
+                        pVertexArray->appendPos(pli, DPoint(curTC,1), color);
+                        pVertexArray->appendPos(lines[0].pr0, DPoint(curTC,0), color);
+                    }
+                }
+                break;
+            default:
+                assert(false);
+                break;
+        }
+    } else {
+        pVertexArray->appendPos(lines[0].pl0, DPoint(texCoords[0],1), color);
+        pVertexArray->appendPos(lines[0].pr0, DPoint(texCoords[0],0), color);
+    }
+
+    // All complete line segments
+    unsigned numNormalSegments;
+    if (bIsClosed) {
+        numNormalSegments = pts.size();
+    } else {
+        numNormalSegments = pts.size()-2;
+    }
+    for (unsigned i=0; i<numNormalSegments; ++i) {
+        const WideLine& line1 = lines[i];
+        WideLine& line2 = lines[i+1];
+        if (i == pts.size()-1) {
+            line2 = lines[0];
+        }
+        DPoint pli = getLineLineIntersection(line1.pl0, line1.dir, line2.pl0, line2.dir);
+        DPoint pri = getLineLineIntersection(line1.pr0, line1.dir, line2.pr0, line2.dir);
+
+        int curVertex = pVertexArray->getCurVert();
+        double curTC = texCoords[i+1];
+        switch (lineJoin) {
+            case LJ_MITER:
+                pVertexArray->appendPos(pli, DPoint(curTC,1), color);
+                pVertexArray->appendPos(pri, DPoint(curTC,0), color);
+                pVertexArray->appendQuadIndexes(
+                        curVertex-1, curVertex-2, curVertex+1, curVertex);
+                break;
+            case LJ_BEVEL:
+                {
+                    Triangle tri(line1.pl1, line2.pl0, pri);
+                    double TC0;
+                    double TC1;
+                    if (tri.isClockwise()) {
+                        calcBevelTC(line1, line2, true, texCoords, i+1, TC0, TC1);
+                        pVertexArray->appendPos(line1.pl1, DPoint(TC0,1), color);
+                        pVertexArray->appendPos(line2.pl0, DPoint(TC1,1), color);
+                        pVertexArray->appendPos(pri, DPoint(curTC,0), color);
+                        pVertexArray->appendQuadIndexes(
+                                curVertex-1, curVertex-2, curVertex+2, curVertex);
+                        pVertexArray->appendTriIndexes(
+                                curVertex, curVertex+1, curVertex+2);
+                    } else {
+                        calcBevelTC(line1, line2, false,  texCoords, i+1, TC0, TC1);
+                        pVertexArray->appendPos(line1.pr1, DPoint(TC0,0), color);
+                        pVertexArray->appendPos(pli, DPoint(curTC,1), color);
+                        pVertexArray->appendPos(line2.pr0, DPoint(TC1,0), color);
+                        pVertexArray->appendQuadIndexes(
+                                curVertex-2, curVertex-1, curVertex+1, curVertex);
+                        pVertexArray->appendTriIndexes(
+                                curVertex, curVertex+1, curVertex+2);
+                    }
+                }
+                break;
+            default:
+                assert(false);
+        }
+    }
+
+    // Last segment (PolyLine only)
+    if (!bIsClosed) {
+        int curVertex = pVertexArray->getCurVert();
+        double curTC = texCoords[numPts-1];
+        pVertexArray->appendPos(lines[numPts-2].pl1, DPoint(curTC,1), color);
+        pVertexArray->appendPos(lines[numPts-2].pr1, DPoint(curTC,0), color);
+        pVertexArray->appendQuadIndexes(curVertex-1, curVertex-2, curVertex+1, curVertex);
+    }
+}
+
 void VectorNode::calcBevelTC(const WideLine& line1, const WideLine& line2, 
         bool bIsLeft, const vector<double>& texCoords, int i, double& TC0, double& TC1)
 {
@@ -256,10 +371,10 @@ void VectorNode::calcBevelTC(const WideLine& line1, const WideLine& line2,
     } else {
         triLen = calcDist(line1.pr1, line2.pr0);
     }
-    double ratio = line1Len/(line1Len+triLen/2);
-    TC0 = (1-ratio)*texCoords[i-1]+ratio*texCoords[i];
-    ratio = line2Len/(line2Len+triLen/2);
-    TC1 = ratio*texCoords[i]+(1-ratio)*texCoords[i+1];
+    double ratio0 = line1Len/(line1Len+triLen/2);
+    TC0 = (1-ratio0)*texCoords[i-1]+ratio0*texCoords[i];
+    double ratio1 = line2Len/(line2Len+triLen/2);
+    TC1 = ratio1*texCoords[i]+(1-ratio1)*texCoords[i+1];
 }
 
 }

@@ -101,9 +101,9 @@ const vector<double>& PolygonNode::getTexCoords() const
 
 void PolygonNode::setTexCoords(const vector<double>& coords)
 {
-    if (coords.size() != m_Pts.size()) {
+    if (coords.size() != m_Pts.size()+1) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE, 
-                "Number of texture coordinates in polygon must equal number of points."));
+                "Number of texture coordinates in polygon must be one greater than number of points."));
     }
     m_TexCoords = coords;
     setDrawNeeded(false);
@@ -128,10 +128,10 @@ int PolygonNode::getNumVertexes()
     int numVerts;
     switch(m_LineJoin) {
         case LJ_MITER:
-            numVerts = 2*m_Pts.size();
+            numVerts = 2*m_Pts.size()+2;
             break;
         case LJ_BEVEL:
-            numVerts = 3*m_Pts.size();
+            numVerts = 3*m_Pts.size()+2;
             break;
         default:
             assert(false);
@@ -183,77 +183,7 @@ void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     if (m_Pts.size() < 3) {
         return;
     }
-    int numPts = m_Pts.size();
-    
-    vector<WideLine> lines;
-    lines.reserve(numPts);
-    for (int i=0; i<numPts-1; ++i) {
-        lines.push_back(WideLine(m_Pts[i], m_Pts[i+1], getStrokeWidth()));
-    }
-    lines.push_back(WideLine(m_Pts[numPts-1], m_Pts[0], getStrokeWidth()));
-
-    const WideLine* pLastLine = &(lines[numPts-1]);
-
-    for (int i=0; i<numPts; ++i) {
-        const WideLine* pThisLine = &(lines[i]);
-        DPoint pli = getLineLineIntersection(pLastLine->pl0, pLastLine->dir, 
-                pThisLine->pl0, pThisLine->dir);
-        DPoint pri = getLineLineIntersection(pLastLine->pr0, pLastLine->dir, 
-                pThisLine->pr0, pThisLine->dir);
-        int curVertex = pVertexArray->getCurVert();
-        double curTC = m_TexCoords[i];
-        switch(m_LineJoin) {
-            case LJ_MITER:
-                pVertexArray->appendPos(pli, DPoint(curTC,1), color);
-                pVertexArray->appendPos(pri, DPoint(curTC,0), color);
-                pLastLine = pThisLine;
-                if (i<numPts-1) {
-                    pVertexArray->appendQuadIndexes(
-                            curVertex+1, curVertex, curVertex+3, curVertex+2);
-                } else {
-                    pVertexArray->appendQuadIndexes(curVertex+1, curVertex, 1, 0);
-                }
-                break;
-            case LJ_BEVEL:
-                {
-                    Triangle tri(pLastLine->pl1, pThisLine->pl0, pri);
-                    double TC0, TC1;
-                    if (tri.isClockwise()) {
-                        calcBevelTC(*pLastLine, *pThisLine, true, m_TexCoords, i, TC0, TC1);
-                        
-                        pVertexArray->appendPos(pri, DPoint(curTC,0), color);
-                        pVertexArray->appendPos(pLastLine->pl1, DPoint(TC0,1), color);
-                        pVertexArray->appendPos(pThisLine->pl0, DPoint(TC1,1), color);
-                        pVertexArray->appendTriIndexes(
-                                curVertex, curVertex+1, curVertex+2);
-                        if (i<numPts-1) {
-                            pVertexArray->appendQuadIndexes(
-                                    curVertex, curVertex+2, curVertex+3, curVertex+4);
-                        } else {
-                            pVertexArray->appendQuadIndexes(curVertex, curVertex+2, 0, 1);
-                        }
-                    } else {
-                        calcBevelTC(*pLastLine, *pThisLine, false, m_TexCoords, i, TC0, TC1);
-                        pVertexArray->appendPos(pLastLine->pr1, DPoint(curTC,0), color);
-                        pVertexArray->appendPos(pli, DPoint(TC0,1), color);
-                        pVertexArray->appendPos(pThisLine->pr0, DPoint(TC1,1), color);
-                        pVertexArray->appendTriIndexes(
-                                curVertex, curVertex+1, curVertex+2);
-                        if (i<numPts-1) {
-                            pVertexArray->appendQuadIndexes(
-                                    curVertex+2, curVertex+1, curVertex+3, curVertex+4);
-                        } else {
-                            pVertexArray->appendQuadIndexes(
-                                    curVertex+2, curVertex+1, 0, 1);
-                        }
-                    }
-                }
-                break;
-            default:
-                assert(false);
-        }
-        pLastLine = pThisLine;
-    }
+    calcPolyLine(m_Pts, m_TexCoords, true, m_LineJoin, pVertexArray, color);
 }
 
 void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
