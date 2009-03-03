@@ -34,7 +34,7 @@ const char * g_pTrackerConfigDTD =
 "<!ELEMENT touch (threshold|similarity|areabounds|eccentricitybounds|bandpass|bandpasspostmult)* >\n"
 "<!ELEMENT track (threshold|similarity|areabounds|eccentricitybounds)* >\n"
 "<!ELEMENT transform (cameradisplacement|camerascale|distortionparams|trapezoid|"
-"       angle|displaydisplacement|displayscale)* >\n"
+"       angle|displaydisplacement|displayscale|activedisplaysize)* >\n"
 
 "<!ELEMENT source EMPTY>\n"
 "<!ATTLIST source\n"
@@ -154,6 +154,9 @@ const char * g_pTrackerConfigDTD =
 "<!ATTLIST displayscale\n"
 "   %posAttrs; >\n"
 
+"<!ELEMENT activedisplaysize EMPTY>\n"
+"<!ATTLIST activedisplaysize\n"
+"   %posAttrs; >\n"
 
 ;
 

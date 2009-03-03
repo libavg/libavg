@@ -58,7 +58,6 @@ namespace avg {
         : m_pTrackerThread(0),
           m_pCamera(pCamera),
           m_bSubtractHistory(bSubtractHistory),
-          m_DisplayExtents(DisplayExtents),
           m_pCalibrator(0),
           m_TrackerConfig(Config)
     {
@@ -69,7 +68,14 @@ namespace avg {
         m_pMutex = MutexPtr(new boost::mutex);
         m_pCmdQueue = TrackerThread::CmdQueuePtr(new TrackerThread::CmdQueue);
         m_pDeDistort = m_TrackerConfig.getTransform();
-        IntRect ROI = m_pDeDistort->getActiveBlobArea(DPoint(m_DisplayExtents));
+        m_ActiveDisplaySize = DisplayExtents;
+        try {
+            m_ActiveDisplaySize = IntPoint(
+                    m_TrackerConfig.getPointParam("/transform/activedisplaysize/"));
+        } catch (Exception) {
+        }
+
+        IntRect ROI = m_pDeDistort->getActiveBlobArea(DPoint(m_ActiveDisplaySize));
         if (ROI.tl.x < 0 || ROI.tl.y < 0 || ROI.br.x > ImgSize.x || ROI.br.y > ImgSize.y) {
             AVG_TRACE(Logger::ERROR, "Impossible tracker configuration: Region of interest is " 
                     << ROI << ", camera image size is " << ImgSize << ". Aborting.");
@@ -113,7 +119,7 @@ namespace avg {
         m_TrackerConfig.setParam(sElement, sValue);
 
         // Test if active area is outside camera.
-        DRect Area = m_pDeDistort->getActiveBlobArea(DPoint(m_DisplayExtents));
+        DRect Area = m_pDeDistort->getActiveBlobArea(DPoint(m_ActiveDisplaySize));
         DPoint Size = m_TrackerConfig.getPointParam("/camera/size/");
         int Prescale = m_TrackerConfig.getIntParam("/tracker/prescale/@value");
         if (Area.br.x > Size.x/Prescale || Area.br.y > Size.y/Prescale ||
@@ -151,7 +157,7 @@ namespace avg {
     void TrackerEventSource::setConfig()
     {
         m_pDeDistort = m_TrackerConfig.getTransform();
-        DRect Area = m_pDeDistort->getActiveBlobArea(DPoint(m_DisplayExtents));
+        DRect Area = m_pDeDistort->getActiveBlobArea(DPoint(m_ActiveDisplaySize));
         createBitmaps(Area);
         m_pCmdQueue->push(Command<TrackerThread>(boost::bind(
                 &TrackerThread::setConfig, _1, m_TrackerConfig, Area, m_pBitmaps)));
@@ -318,10 +324,10 @@ namespace avg {
         assert(!m_pCalibrator);
         m_pOldTransformer = m_TrackerConfig.getTransform();
         m_TrackerConfig.setTransform(DeDistortPtr(new DeDistort(
-                DPoint(m_pBitmaps[0]->getSize()), DPoint(m_DisplayExtents))));
+                DPoint(m_pBitmaps[0]->getSize()), DPoint(m_ActiveDisplaySize))));
         setConfig();
         m_pCalibrator = new TrackerCalibrator(m_pBitmaps[0]->getSize(),
-                m_DisplayExtents);
+                m_ActiveDisplaySize);
         return m_pCalibrator;
     }
 
@@ -330,7 +336,7 @@ namespace avg {
         assert(m_pCalibrator);
         m_TrackerConfig.setTransform(m_pCalibrator->makeTransformer());
         DRect Area = m_TrackerConfig.getTransform()
-                ->getActiveBlobArea(DPoint(m_DisplayExtents));
+                ->getActiveBlobArea(DPoint(m_ActiveDisplaySize));
         if (Area.size().x*Area.size().y > 1024*1024*8) {
             AVG_TRACE(Logger::WARNING, "Ignoring calibration - resulting area would be " 
                     << Area);
@@ -373,7 +379,7 @@ namespace avg {
         bool bEventOnMove = m_TrackerConfig.getBoolParam("/tracker/eventonmove/@value");
         for (EventMap::iterator it = Events.begin(); it!= Events.end();) {
             EventStreamPtr pStream = (*it).second;
-            pEvent = pStream->pollevent(m_pDeDistort, m_DisplayExtents,
+            pEvent = pStream->pollevent(m_pDeDistort, m_ActiveDisplaySize,
                     source, bEventOnMove);
             if (pEvent) {
                 res.push_back(pEvent);
