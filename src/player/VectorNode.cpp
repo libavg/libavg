@@ -158,6 +158,8 @@ void VectorNode::render(const DRect& rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
 //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    double curOpacity = getEffectiveOpacity();
+    glColor4d(1.0, 1.0, 1.0, curOpacity);
     m_pShape->draw();
 }
 

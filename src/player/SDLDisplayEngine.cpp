@@ -1488,7 +1488,6 @@ void SDLDisplayEngine::enableGLColorArray(bool bEnable)
             glEnableClientState(GL_COLOR_ARRAY);
         } else {
             glDisableClientState(GL_COLOR_ARRAY);
-            glColor4f(1,1,1,1);
         }
         m_bEnableGLColorArray = bEnable;
     }
