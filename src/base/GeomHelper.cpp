@@ -38,12 +38,10 @@ bool DLineSegment::isPointOver(const DPoint& pt)
 {
     DPoint c = pt - p0;   // DPoint from a to Point
     DPoint v = (p1 - p0);
-    v.normalize(); // Unit DPoint from a to b
-    double d = (p1 - p0).getNorm(); // Length of the line segment
+    double d = v.getNorm(); // Length of the line segment
+    v /= d; // Unit DPoint from a to b
     double t = dotProduct(v, c);  // Intersection point Distance from a
 
-    // Check to see if the point is on the line
-    // if not then return the endpoint
     return (t >= 0 && t <= d);
 }
 
