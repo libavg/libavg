@@ -244,6 +244,12 @@ double calcDistSquared(const Point<NUM>& pt1, const Point<NUM>& pt2)
 bool almostEqual(const DPoint& pt1, const DPoint& pt2);
 DPoint rotate(const DPoint& pt, double angle, const DPoint& pivot=DPoint(0,0));
 
+inline
+double dotProduct(const DPoint& pt1, const DPoint pt2)
+{
+    return pt1.x*pt2.x+pt1.y*pt2.y;
+}
+
 typedef std::vector<DPoint> DPointVector;
 
 }

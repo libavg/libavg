@@ -263,6 +263,13 @@ public:
             TEST(!lineSegmentsIntersect(l1, l2));
         }
         {
+            DLineSegment l1(DPoint(0,0), DPoint(2,0));
+            TEST(l1.isPointOver(DPoint(1,23)));
+            TEST(l1.isPointOver(DPoint(1.9,-5)));
+            TEST(!l1.isPointOver(DPoint(-1,1)));
+            TEST(!l1.isPointOver(DPoint(3,-1)));
+        }
+        {
             DPoint pt0(DPoint(1,1));
             DPoint pt1(DPoint(1,3));
             DPoint pt2(DPoint(1,-2));

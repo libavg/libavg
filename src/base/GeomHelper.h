@@ -35,6 +35,8 @@ public:
     DPoint p0;
     DPoint p1;
 
+    bool isPointOver(const DPoint& pt);
+
 };
 
 bool lineSegmentsIntersect(const DLineSegment& l0, const DLineSegment& l1);

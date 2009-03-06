@@ -34,6 +34,19 @@ DLineSegment::DLineSegment(const DPoint& pt0, const DPoint& pt1)
 {
 }
 
+bool DLineSegment::isPointOver(const DPoint& pt)
+{
+    DPoint c = pt - p0;   // DPoint from a to Point
+    DPoint v = (p1 - p0);
+    v.normalize(); // Unit DPoint from a to b
+    double d = (p1 - p0).getNorm(); // Length of the line segment
+    double t = dotProduct(v, c);  // Intersection point Distance from a
+
+    // Check to see if the point is on the line
+    // if not then return the endpoint
+    return (t >= 0 && t <= d);
+}
+
 // Code adapted from Antonio, Franklin, "Faster Line Segment Intersection,"
 // Graphics Gems III (David Kirk, ed.), Academic Press, pp. 199-202, 1992.
 bool lineSegmentsIntersect(const DLineSegment& l0, const DLineSegment& l1)
