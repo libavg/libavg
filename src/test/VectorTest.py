@@ -247,9 +247,15 @@ class VectorTestCase(AVGTestCase):
             polyline = Player.createNode("polyline", {"strokewidth":2, "color":"FF00FF"})
             polyline.pos = [(110,10), (100,50), (110,70)]
             canvas.insertChild(polyline,0)
-        def testEmptyPolyline():
+        def testEmptyPolyLine():
             polyline = canvas.getChild(0)
             polyline.pos=[]
+        def testAcutePolyLine():
+            polyline = canvas.getChild(0)
+            polyline.strokewidth = 10
+            polyline.linejoin="bevel"
+            polyline.pos = [(50,10), (60,10), (50,11)]
+            canvas.removeChild(1)
         canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addPolyLine,
@@ -260,8 +266,10 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testPolyLine3", False),
                  addPolyLine2,
                  lambda: self.compareImage("testPolyLine4", False),
-                 testEmptyPolyline,
-                 lambda: self.compareImage("testPolyLine5", False)
+                 testEmptyPolyLine,
+                 lambda: self.compareImage("testPolyLine5", False),
+                 testAcutePolyLine,
+                 lambda: self.compareImage("testPolyLine6", False)
                 ))
 
     def testTexturedPolyLine(self):

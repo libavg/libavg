@@ -286,6 +286,21 @@ void VectorNode::calcPolyLine(const vector<DPoint>& origPts,
                 lines[0].pl0, lines[0].dir);
         DPoint pri = getLineLineIntersection(lastLine.pr0, lastLine.dir, 
                 lines[0].pr0, lines[0].dir);
+        Triangle tri(lastLine.pl1, lines[0].pl0, pri);
+        if (tri.isClockwise()) {
+            if (!DLineSegment(lastLine.pr0, lastLine.pr1).isPointOver(pri) &&
+                    !DLineSegment(lines[0].pr0, lines[0].pr1).isPointOver(pri))
+            {
+                pri = lines[0].pr1;
+            }
+        } else {
+            if (!DLineSegment(lastLine.pl0, lastLine.pl1).isPointOver(pli) &&
+                    !DLineSegment(lines[0].pl0, lines[0].pl1).isPointOver(pli))
+            {
+                pli = lines[0].pl1;
+            }
+        }
+
         double curTC = texCoords[0];
         switch (lineJoin) {
             case LJ_MITER:
@@ -293,7 +308,6 @@ void VectorNode::calcPolyLine(const vector<DPoint>& origPts,
                 pVertexArray->appendPos(pri, DPoint(curTC,0), color);
                 break;
             case LJ_BEVEL: {
-                    Triangle tri(lastLine.pl1, lines[0].pl0, pri);
                     if (tri.isClockwise()) {
                         pVertexArray->appendPos(lines[0].pl0, DPoint(curTC,1), color);
                         pVertexArray->appendPos(pri, DPoint(curTC,0), color);
@@ -329,6 +343,20 @@ void VectorNode::calcPolyLine(const vector<DPoint>& origPts,
         }
         DPoint pli = getLineLineIntersection(pLine1->pl0, pLine1->dir, pLine2->pl0, pLine2->dir);
         DPoint pri = getLineLineIntersection(pLine1->pr0, pLine1->dir, pLine2->pr0, pLine2->dir);
+        Triangle tri(pLine1->pl1, pLine2->pl0, pri);
+        if (tri.isClockwise()) {
+            if (!DLineSegment(pLine1->pr0, pLine1->pr1).isPointOver(pri) &&
+                    !DLineSegment(pLine2->pr0, pLine2->pr1).isPointOver(pri))
+            {
+                pri = pLine2->pr1;
+            }
+        } else {
+            if (!DLineSegment(pLine1->pl0, pLine1->pl1).isPointOver(pli) &&
+                    !DLineSegment(pLine2->pl0, pLine2->pl1).isPointOver(pli))
+            {
+                pli = pLine2->pl1;
+            }
+        }
 
         int curVertex = pVertexArray->getCurVert();
         double curTC = texCoords[i+1];
@@ -341,7 +369,6 @@ void VectorNode::calcPolyLine(const vector<DPoint>& origPts,
                 break;
             case LJ_BEVEL:
                 {
-                    Triangle tri(pLine1->pl1, pLine2->pl0, pri);
                     double TC0;
                     double TC1;
                     if (tri.isClockwise()) {
