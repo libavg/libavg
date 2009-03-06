@@ -54,8 +54,12 @@ class AVG_API PolyLineNode : public VectorNode
         virtual void calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
 
     private:
+        void calcEffTexCoords();
+
         std::vector<DPoint> m_Pts;
+        std::vector<double> m_CumulDist;
         std::vector<double> m_TexCoords;
+        std::vector<double> m_EffTexCoords;
         LineJoin m_LineJoin;
 };
 

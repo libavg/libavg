@@ -284,6 +284,10 @@ class VectorTestCase(AVGTestCase):
         def setTexCoords():
             polyline = canvas.getChild(0)
             polyline.texcoords = [-1, 0, 1, 2]
+        def repeatTexCoords():
+            polyline = canvas.getChild(0)
+            polyline.pos = [(10,10), (30,10), (30,50), (50,50), (50,70), (70,70)]
+            polyline.texcoords = [1, 2, 3]
         canvas = self.makeEmptyCanvas()
         self.start(None,
                 (texturePolyLine,
@@ -291,7 +295,9 @@ class VectorTestCase(AVGTestCase):
                  miter,
                  lambda: self.compareImage("testTexturedPolyLine2", False),
                  setTexCoords,
-                 lambda: self.compareImage("testTexturedPolyLine3", False)
+                 lambda: self.compareImage("testTexturedPolyLine3", False),
+                 repeatTexCoords,
+                 lambda: self.compareImage("testTexturedPolyLine4", False)
                 ))
 
     def testPolygon(self):

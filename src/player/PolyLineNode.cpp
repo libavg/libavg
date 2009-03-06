@@ -61,22 +61,8 @@ void PolyLineNode::setPos(const vector<DPoint>& pts)
 {
     m_Pts = pts;
     m_TexCoords.clear();
-    m_TexCoords.reserve(pts.size());
-    if (!pts.empty()) {
-        vector<double> distances;
-        double totalDist = 0;
-        for (unsigned i=1; i<pts.size(); ++i) {
-            double dist = calcDist(pts[i], pts[i-1]);
-            distances.push_back(dist);
-            totalDist += dist;
-        }
-        double cumDist = 0;
-        m_TexCoords.push_back(0);
-        for (unsigned i=0; i<distances.size(); ++i) {
-            cumDist += distances[i]/totalDist;
-            m_TexCoords.push_back(cumDist);
-        }
-    }
+    m_EffTexCoords.clear();
+    calcPolyLineCumulDist(m_CumulDist, m_Pts);
     setDrawNeeded(true);
 }
         
@@ -87,10 +73,11 @@ const vector<double>& PolyLineNode::getTexCoords() const
 
 void PolyLineNode::setTexCoords(const vector<double>& coords)
 {
-    if (coords.size() != m_Pts.size()) {
+    if (coords.size() > m_Pts.size()) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE, 
                 "Number of texture coordinates in polyline or polygon must match number of points."));
     }
+    m_EffTexCoords.clear();
     m_TexCoords = coords;
     setDrawNeeded(false);
 }
@@ -156,7 +143,40 @@ void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     if (m_Pts.size() < 2) {
         return;
     }
-    calcPolyLine(m_Pts, m_TexCoords, false, m_LineJoin, pVertexArray, color);
+    if (m_EffTexCoords.empty()) {
+        calcEffTexCoords();
+    }
+    calcPolyLine(m_Pts, m_EffTexCoords, false, m_LineJoin, pVertexArray, color);
+}
+
+void PolyLineNode::calcEffTexCoords()
+{
+    if (m_TexCoords.empty()) {
+        m_EffTexCoords = m_CumulDist;
+    } else if (m_TexCoords.size() == m_CumulDist.size()) {
+        m_EffTexCoords = m_TexCoords;
+    } else {
+        m_EffTexCoords.reserve(m_CumulDist.size());
+        m_EffTexCoords = m_TexCoords;
+        double minGivenTexCoord = m_TexCoords[0];
+        double maxGivenTexCoord = m_TexCoords[m_TexCoords.size()-1];
+        double maxCumulDist = m_CumulDist[m_TexCoords.size()-1];
+        int baselineDist = 0;
+        for (unsigned i=m_TexCoords.size(); i<m_CumulDist.size(); ++i) {
+            int repeatFactor = int(m_CumulDist[i]/maxCumulDist);
+            double effCumulDist = fmod(m_CumulDist[i], maxCumulDist);
+            while (m_CumulDist[baselineDist+1] < effCumulDist) {
+                baselineDist++;
+            }
+            double ratio = (effCumulDist-m_CumulDist[baselineDist])/
+                    (m_CumulDist[baselineDist+1]-m_CumulDist[baselineDist]);
+            double rawTexCoord = (1-ratio)*m_TexCoords[baselineDist]
+                    +ratio*m_TexCoords[baselineDist+1];
+            double texCoord = rawTexCoord
+                    +repeatFactor*(maxGivenTexCoord-minGivenTexCoord);
+            m_EffTexCoords.push_back(texCoord);
+        }
+    }
 }
 
 }

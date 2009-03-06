@@ -78,6 +78,8 @@ class AVG_API VectorNode : public Node
         void setDrawNeeded(bool bSizeChanged);
         bool isDrawNeeded();
         bool hasVASizeChanged();
+        void calcPolyLineCumulDist(std::vector<double>& cumulDist, 
+                const std::vector<DPoint>& pts);
         void calcPolyLine(const std::vector<DPoint>& origPts, 
                 const std::vector<double>& origTexCoords, bool bIsClosed, LineJoin lineJoin,
                 VertexArrayPtr& pVertexArray, Pixel32 color);

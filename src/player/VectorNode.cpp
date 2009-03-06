@@ -250,6 +250,29 @@ bool VectorNode::hasVASizeChanged()
     return m_bVASizeChanged;
 }
 
+void VectorNode::calcPolyLineCumulDist(vector<double>& cumulDists, 
+        const vector<DPoint>& pts)
+{
+    cumulDists.clear();
+    cumulDists.reserve(pts.size());
+    if (!pts.empty()) {
+        vector<double> distances;
+        distances.reserve(pts.size());
+        double totalDist = 0;
+        for (unsigned i=1; i<pts.size(); ++i) {
+            double dist = calcDist(pts[i], pts[i-1]);
+            distances.push_back(dist);
+            totalDist += dist;
+        }
+        double cumulDist = 0;
+        cumulDists.push_back(0);
+        for (unsigned i=0; i<distances.size(); ++i) {
+            cumulDist += distances[i]/totalDist;
+            cumulDists.push_back(cumulDist);
+        }
+    }
+}
+
 void VectorNode::calcPolyLine(const vector<DPoint>& origPts, 
         const vector<double>& origTexCoords, bool bIsClosed, LineJoin lineJoin, 
         VertexArrayPtr& pVertexArray, Pixel32 color)
