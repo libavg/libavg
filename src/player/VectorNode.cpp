@@ -54,6 +54,7 @@ NodeDefinition VectorNode::createDefinition()
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(VectorNode, m_sColorName)))
         .addArg(Arg<double>("strokewidth", 1, false, offsetof(VectorNode, m_StrokeWidth)))
         .addArg(Arg<string>("texhref", "", false, offsetof(VectorNode, m_TexHRef)))
+        .addArg(Arg<string>("blendmode", "blend", false, offsetof(VectorNode, m_sBlendMode)))
         ;
 }
 
@@ -76,6 +77,7 @@ void VectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
     m_pShape->moveToGPU(getDisplayEngine());
     m_OldOpacity = -1;
+    setBlendModeStr(m_sBlendMode);
 }
 
 void VectorNode::connect()
@@ -106,6 +108,17 @@ void VectorNode::setTexHRef(const string& href)
     m_TexHRef = href;
     checkReload();
     setDrawNeeded(true);
+}
+
+const string& VectorNode::getBlendModeStr() const
+{
+    return m_sBlendMode;
+}
+
+void VectorNode::setBlendModeStr(const string& sBlendMode)
+{
+    m_sBlendMode = sBlendMode;
+    m_BlendMode = DisplayEngine::stringToBlendMode(sBlendMode);
 }
 
 static ProfilingZone PrerenderProfilingZone("VectorNode::prerender");
@@ -148,6 +161,7 @@ void VectorNode::maybeRender(const DRect& Rect)
         } else {
             AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr()); 
         }
+        getDisplayEngine()->setBlendMode(m_BlendMode);
         render(Rect);
     }
 }

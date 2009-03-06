@@ -43,9 +43,7 @@ NodeDefinition RasterNode::createDefinition()
 }
 
 RasterNode::RasterNode()
-    : m_pSurface(0),
-      m_MaxTileSize(IntPoint(-1,-1)),
-      m_sBlendMode("blend")
+    : m_pSurface(0)
 {
 }
 
@@ -64,9 +62,8 @@ void RasterNode::setArgs(const ArgList& Args)
             || (!ispow2(m_MaxTileSize.y) && m_MaxTileSize.y != -1)) 
     {
         throw Exception(AVG_ERR_OUT_OF_RANGE, 
-                "maxtilewidth and maxtilehight must be powers of two.");
+                "maxtilewidth and maxtileheight must be powers of two.");
     }
-    setBlendModeStr(m_sBlendMode);
 }
 
 void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
@@ -119,17 +116,7 @@ const std::string& RasterNode::getBlendModeStr() const
 void RasterNode::setBlendModeStr(const std::string& sBlendMode)
 {
     m_sBlendMode = sBlendMode;
-    if (m_sBlendMode == "blend") {
-        m_BlendMode = DisplayEngine::BLEND_BLEND;
-    } else if (m_sBlendMode == "add") {
-        m_BlendMode = DisplayEngine::BLEND_ADD;
-    } else if (m_sBlendMode == "min") {
-        m_BlendMode = DisplayEngine::BLEND_MIN;
-    } else if (m_sBlendMode == "max") {
-        m_BlendMode = DisplayEngine::BLEND_MAX;
-    } else {
-        // TODO: throw exception here
-    }
+    m_BlendMode = DisplayEngine::stringToBlendMode(sBlendMode);
 }
 
 AreaNodePtr RasterNode::getElementByPos(const DPoint & pos)

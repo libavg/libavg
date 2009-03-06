@@ -296,8 +296,6 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
     glEnable(GL_STENCIL_TEST);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(GL_STENCIL_TEST)");
     initTextureMode();
-    glEnable(GL_TEXTURE_2D);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "init: glEnable(GL_TEXTURE_2D);");
     if (!queryOGLExtension("GL_ARB_multisample")) {
         m_MultiSampleSamples = 1;
     } else {
@@ -317,6 +315,8 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
     enableTexture(true);
     m_bEnableGLColorArray=true;
     enableGLColorArray(false);
+    m_BlendMode = BLEND_ADD;
+    setBlendMode(BLEND_BLEND);
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -1490,6 +1490,49 @@ void SDLDisplayEngine::enableGLColorArray(bool bEnable)
             glDisableClientState(GL_COLOR_ARRAY);
         }
         m_bEnableGLColorArray = bEnable;
+    }
+}
+
+void checkBlendModeError(const char *mode) 
+{    
+    GLenum err = glGetError();
+    if (err != GL_NO_ERROR) {
+        static bool bErrorReported = false;
+        if (!bErrorReported) {
+            AVG_TRACE(Logger::WARNING, "Blendmode "<< mode <<
+                    " not supported by OpenGL implementation.");
+            bErrorReported = true;
+        }
+    }
+}
+
+void SDLDisplayEngine::setBlendMode(BlendMode mode)
+{
+    if (mode != m_BlendMode) {
+        switch (mode) {
+            case BLEND_BLEND:
+                glproc::BlendEquation(GL_FUNC_ADD);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                checkBlendModeError("blend");
+                break;
+            case BLEND_ADD:
+                glproc::BlendEquation(GL_FUNC_ADD);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+                checkBlendModeError("add");
+                break;
+            case BLEND_MIN:
+                glproc::BlendEquation(GL_MIN);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                checkBlendModeError("min");
+                break;
+            case BLEND_MAX:
+                glproc::BlendEquation(GL_MAX);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                checkBlendModeError("max");
+                break;
+        }
+
+        m_BlendMode = mode;
     }
 }
 

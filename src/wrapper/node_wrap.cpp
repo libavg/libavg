@@ -303,6 +303,12 @@ void export_node()
         .add_property("texhref", make_function(&VectorNode::getTexHRef,
                 return_value_policy<copy_const_reference>()), &VectorNode::setTexHRef,
                 "An image file to use as a texture for the node.\n")
+        .add_property("blendmode", 
+                make_function(&VectorNode::getBlendModeStr, 
+                        return_value_policy<copy_const_reference>()),
+                &VectorNode::setBlendModeStr,
+                "The method of compositing the node with the nodes under\n"
+                "it. Valid values are 'blend', 'add', 'min' and 'max'.\n")
     ;
 
     class_<FilledVectorNode, bases<VectorNode>, boost::noncopyable>("FilledVectorNode", 

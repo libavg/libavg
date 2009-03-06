@@ -369,30 +369,9 @@ void OGLTiledSurface::initTileVertex(int x, int y, DPoint& Vertex)
 }
 
 void OGLTiledSurface::bltTexture(const DPoint& DestSize, 
-        DisplayEngine::BlendMode Mode)
+        DisplayEngine::BlendMode mode)
 {
-    switch(Mode) {
-        case DisplayEngine::BLEND_BLEND:
-            glproc::BlendEquation(GL_FUNC_ADD);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            checkBlendModeError("blend");
-            break;
-        case DisplayEngine::BLEND_ADD:
-            glproc::BlendEquation(GL_FUNC_ADD);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-            checkBlendModeError("add");
-            break;
-        case DisplayEngine::BLEND_MIN:
-            glproc::BlendEquation(GL_MIN);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            checkBlendModeError("min");
-            break;
-        case DisplayEngine::BLEND_MAX:
-            glproc::BlendEquation(GL_MAX);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            checkBlendModeError("max");
-            break;
-    }
+    getEngine()->setBlendMode(mode);
 
     for (unsigned int y=0; y<m_FinalVertices.size(); y++) {
         for (unsigned int x=0; x<m_FinalVertices[y].size(); x++) {
@@ -421,19 +400,6 @@ DPoint OGLTiledSurface::calcFinalVertex(const DPoint& Size,
     Point.x = Size.x*NormalizedVertex.x;
     Point.y = Size.y*NormalizedVertex.y;
     return Point;
-}
-
-void OGLTiledSurface::checkBlendModeError(const char *mode) 
-{    
-    GLenum err = glGetError();
-    if (err != GL_NO_ERROR) {
-        static bool bErrorReported = false;
-        if (!bErrorReported) {
-            AVG_TRACE(Logger::WARNING, "Blendmode "<<mode<<
-                    " not supported by OpenGL implementation.");
-            bErrorReported = true;
-        }
-    }
 }
 
 OGLShaderPtr OGLTiledSurface::getFragmentShader()

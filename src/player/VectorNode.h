@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "Node.h"
+#include "DisplayEngine.h"
 #include "Shape.h"
 
 #include "../graphics/Pixel32.h"
@@ -51,6 +52,9 @@ class AVG_API VectorNode : public Node
 
         const std::string& getTexHRef() const;
         void setTexHRef(const std::string& href);
+
+        const std::string& getBlendModeStr() const;
+        void setBlendModeStr(const std::string& sBlendMode);
 
         virtual void preRender();
         virtual void maybeRender(const DRect& Rect);
@@ -93,13 +97,15 @@ class AVG_API VectorNode : public Node
         std::string m_sColorName;
         Pixel32 m_Color;
         double m_StrokeWidth;
+        std::string m_TexHRef;
+        std::string m_sBlendMode;
 
         bool m_bDrawNeeded;
         bool m_bVASizeChanged;
         double m_OldOpacity;
 
-        std::string m_TexHRef;
         ShapePtr m_pShape;
+        DisplayEngine::BlendMode m_BlendMode;
 };
 
 typedef boost::shared_ptr<VectorNode> VectorNodePtr;

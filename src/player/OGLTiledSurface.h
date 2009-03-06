@@ -72,7 +72,6 @@ class AVG_API OGLTiledSurface: public OGLSurface {
         void bindOneTexture(OGLTexture& Texture);
         void bltTexture(const DPoint& DestSize, DisplayEngine::BlendMode Mode);
         DPoint calcFinalVertex(const DPoint& Size, const DPoint & NormalizedVertex);
-        void checkBlendModeError(const char * mode);
 
         bool m_bBound;
 

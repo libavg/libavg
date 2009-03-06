@@ -52,6 +52,12 @@ class VectorTestCase(AVGTestCase):
             line = canvas.getChild(0)
             line.pos1 += (0, 30)
             line.y2 += 30
+        def blendMode():
+            line = canvas.getChild(6)
+            line.y1 = 7.5 
+            line.y2 = 7.5 
+            line.strokewidth = 10
+            line.blendmode="add"
         canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addLines,
@@ -60,6 +66,8 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testline2", False),
                  moveLine,
                  lambda: self.compareImage("testline3", False),
+                 blendMode,
+                 lambda: self.compareImage("testline4", False)
                 ))
 
     def testLotsOfLines(self):

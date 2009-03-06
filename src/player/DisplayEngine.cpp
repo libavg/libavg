@@ -161,6 +161,21 @@ long long DisplayEngine::getDisplayTime()
     return m_LastFrameTime/1000-m_StartTime;
 }
 
+DisplayEngine::BlendMode DisplayEngine::stringToBlendMode(const string& s)
+{
+    if (s == "blend") {
+        return DisplayEngine::BLEND_BLEND;
+    } else if (s == "add") {
+        return DisplayEngine::BLEND_ADD;
+    } else if (s == "min") {
+        return DisplayEngine::BLEND_MIN;
+    } else if (s == "max") {
+        return DisplayEngine::BLEND_MAX;
+    } else {
+        throw(Exception(AVG_ERR_UNSUPPORTED, "Blend mode "+s+" not supported."));
+    }
+}
+
 void DisplayEngine::checkJitter()
 {
     m_LastFrameTime = TimeSource::get()->getCurrentMillisecs()*1000;

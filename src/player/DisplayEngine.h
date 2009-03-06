@@ -45,8 +45,6 @@ class OGLTiledSurface;
 class AVG_API DisplayEngine
 {   
     public:
-        enum BlendMode {BLEND_BLEND, BLEND_ADD, BLEND_MIN, BLEND_MAX};
-
         DisplayEngine();
         virtual ~DisplayEngine();
         virtual void init(const DisplayParams& DP) = 0;
@@ -92,6 +90,10 @@ class AVG_API DisplayEngine
         virtual void popShader() = 0;
         virtual OGLProgramPtr getActiveShader()=0;
         virtual void setShaders(OGLShaderPtr pFragmentShader, OGLShaderPtr pVertexShader) = 0;
+
+        enum BlendMode {BLEND_BLEND, BLEND_ADD, BLEND_MIN, BLEND_MAX};
+        static BlendMode stringToBlendMode(const std::string& s);
+
     protected:
         void checkJitter();
         

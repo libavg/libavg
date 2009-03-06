@@ -141,7 +141,7 @@ void export_raster()
                         return_value_policy<copy_const_reference>()),
                 &RasterNode::setBlendModeStr,
                 "The method of compositing the node with the nodes under\n"
-                "it. Valid values are 'blend', 'add', 'min' and 'max'.")
+                "it. Valid values are 'blend', 'add', 'min' and 'max'.\n")
     ;
 
     class_<ImageNode, bases<RasterNode> >("Image",

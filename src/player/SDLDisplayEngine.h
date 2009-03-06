@@ -87,8 +87,11 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         void initTextureMode();
         bool usePOTTextures();
         int getMaxTexSize();
+
+        // OpenGL state setting.
         void enableTexture(bool bEnable);
         void enableGLColorArray(bool bEnable);
+        void setBlendMode(BlendMode mode);
         
         int getOGLDestMode(PixelFormat pf);
         int getOGLSrcMode(PixelFormat pf);
@@ -105,6 +108,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
 
         void pushShader();
         void popShader();
+
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);
         void initInput();
@@ -168,8 +172,11 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         bool m_bUsePOTTextures;
         int m_TextureMode;
         int m_MaxTexSize;
+
+        // OpenGL state
         bool m_bEnableTexture;
         bool m_bEnableGLColorArray;
+        BlendMode m_BlendMode;
 
         bool m_bShouldUsePOW2Textures;
         YCbCrMode m_DesiredYCbCrMode;
