@@ -251,7 +251,7 @@ bool VectorNode::hasVASizeChanged()
 }
 
 void VectorNode::calcPolyLineCumulDist(vector<double>& cumulDists, 
-        const vector<DPoint>& pts)
+        const vector<DPoint>& pts, bool bIsClosed)
 {
     cumulDists.clear();
     cumulDists.reserve(pts.size());
@@ -264,11 +264,47 @@ void VectorNode::calcPolyLineCumulDist(vector<double>& cumulDists,
             distances.push_back(dist);
             totalDist += dist;
         }
+        if (bIsClosed) {
+            double dist = calcDist(pts[pts.size()-1], pts[0]);
+            distances.push_back(dist);
+            totalDist += dist;
+        }
+
         double cumulDist = 0;
         cumulDists.push_back(0);
         for (unsigned i=0; i<distances.size(); ++i) {
             cumulDist += distances[i]/totalDist;
             cumulDists.push_back(cumulDist);
+        }
+    }
+}
+
+void VectorNode::calcEffPolyLineTexCoords(vector<double>& effTC, 
+        const vector<double>& tc, const vector<double>& cumulDist)
+{
+    if (tc.empty()) {
+        effTC = cumulDist;
+    } else if (tc.size() == cumulDist.size()) {
+        effTC = tc;
+    } else {
+        effTC.reserve(cumulDist.size());
+        effTC = tc;
+        double minGivenTexCoord = tc[0];
+        double maxGivenTexCoord = tc[tc.size()-1];
+        double maxCumulDist = cumulDist[tc.size()-1];
+        int baselineDist = 0;
+        for (unsigned i=tc.size(); i<cumulDist.size(); ++i) {
+            int repeatFactor = int(cumulDist[i]/maxCumulDist);
+            double effCumulDist = fmod(cumulDist[i], maxCumulDist);
+            while (cumulDist[baselineDist+1] < effCumulDist) {
+                baselineDist++;
+            }
+            double ratio = (effCumulDist-cumulDist[baselineDist])/
+                    (cumulDist[baselineDist+1]-cumulDist[baselineDist]);
+            double rawTexCoord = (1-ratio)*tc[baselineDist] +ratio*tc[baselineDist+1];
+            double texCoord = rawTexCoord
+                    +repeatFactor*(maxGivenTexCoord-minGivenTexCoord);
+            effTC.push_back(texCoord);
         }
     }
 }

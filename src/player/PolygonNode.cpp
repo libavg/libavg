@@ -63,25 +63,8 @@ void PolygonNode::setPos(const vector<DPoint>& pts)
 {
     m_Pts = pts;
     m_TexCoords.clear();
-    m_TexCoords.reserve(pts.size()+1);
-    if (!pts.empty()) {
-        vector<double> distances;
-        double totalDist = 0;
-        for (unsigned i=1; i<pts.size(); ++i) {
-            double dist = calcDist(pts[i], pts[i-1]);
-            distances.push_back(dist);
-            totalDist += dist;
-        }
-        double dist = calcDist(pts[pts.size()-1], pts[0]);
-        distances.push_back(dist);
-        totalDist += dist;
-        double cumDist = 0;
-        m_TexCoords.push_back(0);
-        for (unsigned i=0; i<distances.size(); ++i) {
-            cumDist += distances[i]/totalDist;
-            m_TexCoords.push_back(cumDist);
-        }
-    }
+    m_EffTexCoords.clear();
+    calcPolyLineCumulDist(m_CumulDist, m_Pts, true);
     setDrawNeeded(true);
 }
         
@@ -92,10 +75,11 @@ const vector<double>& PolygonNode::getTexCoords() const
 
 void PolygonNode::setTexCoords(const vector<double>& coords)
 {
-    if (coords.size() != m_Pts.size()+1) {
+    if (coords.size() > m_Pts.size()+1) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE, 
-                "Number of texture coordinates in polygon must be one greater than number of points."));
+                "Too many texture coordinates in polygon"));
     }
+    m_EffTexCoords.clear();
     m_TexCoords = coords;
     setDrawNeeded(false);
 }
@@ -186,7 +170,10 @@ void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     if (m_Pts.size() < 3) {
         return;
     }
-    calcPolyLine(m_Pts, m_TexCoords, true, m_LineJoin, pVertexArray, color);
+    if (m_EffTexCoords.empty()) {
+        calcEffPolyLineTexCoords(m_EffTexCoords, m_TexCoords, m_CumulDist);
+    }
+    calcPolyLine(m_Pts, m_EffTexCoords, true, m_LineJoin, pVertexArray, color);
 }
 
 void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)

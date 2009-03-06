@@ -58,7 +58,9 @@ class AVG_API PolygonNode : public FilledVectorNode
 
     private:
         std::vector<DPoint> m_Pts;
+        std::vector<double> m_CumulDist;
         std::vector<double> m_TexCoords;
+        std::vector<double> m_EffTexCoords;
         LineJoin m_LineJoin;
 };
 
