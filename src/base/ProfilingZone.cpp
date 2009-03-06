@@ -64,7 +64,7 @@ void ProfilingZone::start()
 {
     ThreadProfilerPtr pProfiler = ThreadProfiler::get();
     if (!pProfiler) {
-        cerr << "Can't find ThreadProfiler for " << m_sName << endl;
+        assert(false);
     }
     // Start gets called when the zone is first entered. 
     if (!m_bIsRegistered && pProfiler->isRunning()) {

@@ -23,7 +23,6 @@
 #define _ThreadProfiler_H_
 
 #include "../api.h"
-#include "Profiler.h"
 #include "ProfilingZone.h"
 
 #include <boost/thread.hpp>
@@ -39,12 +38,9 @@ typedef boost::shared_ptr<ThreadProfiler> ThreadProfilerPtr;
 
 class AVG_API ThreadProfiler {
 public:
-    ThreadProfiler(const std::string& sName);
+    static ThreadProfilerPtr& get();
+    ThreadProfiler();
     virtual ~ThreadProfiler();
-    static ThreadProfilerPtr get()
-    {
-        return Profiler::get().getThreadProfiler();
-    }
  
     void addZone(ProfilingZone& Zone);
     void clear();
@@ -57,11 +53,8 @@ public:
     void reset();
     int getIndent();
 
-    bool isCurrent() 
-    {
-        return boost::thread() == m_Thread;
-    }
-    const std::string& getName();
+    const std::string& getName() const;
+    void setName(const std::string& sName);
 
 private:
     std::string m_sName;

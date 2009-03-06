@@ -462,8 +462,9 @@ void deleteOldResultImages()
 
 int main(int nargs, char** args)
 {
-    ThreadProfilerPtr pThreadProfiler = ThreadProfilerPtr(new ThreadProfiler("Main"));
-    Profiler::get().registerThreadProfiler(pThreadProfiler);
+    ThreadProfilerPtr pProfiler = ThreadProfiler::get();
+    pProfiler->setName("main");
+    Profiler::get().registerThreadProfiler(pProfiler);
 
     deleteOldResultImages();
 

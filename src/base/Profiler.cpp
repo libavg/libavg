@@ -67,17 +67,5 @@ void Profiler::registerThreadProfiler(ThreadProfilerPtr pThreadProfiler)
     m_ThreadProfilers.push_back(pThreadProfiler);
 }
 
-ThreadProfilerPtr Profiler::getThreadProfiler()
-{
-    mutex::scoped_lock Lock(m_Mutex);
-    ThreadProfilerArray::iterator it;
-    for (it= m_ThreadProfilers.begin(); it != m_ThreadProfilers.end(); ++it) {
-        if ((*it)->isCurrent()) {
-            return *it;
-        }
-    }
-    return ThreadProfilerPtr();
-}
-
 }
 

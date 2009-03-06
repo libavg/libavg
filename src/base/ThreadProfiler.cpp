@@ -23,6 +23,8 @@
 #include "Logger.h"
 #include "ObjectCounter.h"
 
+#include <boost/thread/tss.hpp>
+
 #include <sstream>
 #include <iomanip>
 
@@ -31,8 +33,17 @@ using namespace boost;
 
 namespace avg {
     
-ThreadProfiler::ThreadProfiler(const string& sName)
-    : m_sName(sName)
+ThreadProfilerPtr& ThreadProfiler::get() 
+{
+    static thread_specific_ptr<ThreadProfilerPtr> s_pInstance;
+    if (s_pInstance.get() == 0) {
+        s_pInstance.reset(new ThreadProfilerPtr(new ThreadProfiler()));
+    }
+    return *s_pInstance;
+}
+
+ThreadProfiler::ThreadProfiler()
+    : m_sName("")
 {
     m_bRunning = false;
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -152,9 +163,14 @@ int ThreadProfiler::getIndent()
     return int(2*m_ActiveZones.size());
 }
 
-const std::string& ThreadProfiler::getName()
+const std::string& ThreadProfiler::getName() const
 {
     return m_sName;
+}
+
+void ThreadProfiler::setName(const std::string& sName)
+{
+    m_sName = sName;
 }
 
 }

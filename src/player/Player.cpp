@@ -105,8 +105,9 @@ Player::Player()
     if (s_pPlayer) {
         throw Exception(AVG_ERR_UNKNOWN, "Player has already been instantiated.");
     }
-    ThreadProfilerPtr pThreadProfiler = ThreadProfilerPtr(new ThreadProfiler("Main"));
-    Profiler::get().registerThreadProfiler(pThreadProfiler);
+    ThreadProfilerPtr pProfiler = ThreadProfiler::get();
+    pProfiler->setName("main");
+    Profiler::get().registerThreadProfiler(pProfiler);
     initConfig();
 
     // Register all node types

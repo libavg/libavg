@@ -59,8 +59,6 @@ private:
     std::string m_sName;
     bool m_bShouldStop;
     CmdQueue& m_CmdQ;
-
-    ThreadProfilerPtr m_pProfiler;
 };
 
 template<class DERIVED_THREAD>
@@ -75,14 +73,15 @@ template<class DERIVED_THREAD>
 void WorkerThread<DERIVED_THREAD>::operator()()
 {
     try {
-        m_pProfiler = ThreadProfilerPtr(new ThreadProfiler(m_sName));
-        Profiler::get().registerThreadProfiler(m_pProfiler);
+        ThreadProfilerPtr pProfiler = ThreadProfiler::get();
+        pProfiler->setName(m_sName);
+        Profiler::get().registerThreadProfiler(pProfiler);
         bool bOK;
         bOK = init();
         if (!bOK) {
             return;
         }
-        m_pProfiler->start();
+        pProfiler->start();
         while (!m_bShouldStop) {
             bOK = work();
             if (!bOK) {
@@ -90,7 +89,7 @@ void WorkerThread<DERIVED_THREAD>::operator()()
             } else {
                 processCommands();
             }
-            m_pProfiler->reset();
+            pProfiler->reset();
         }
         deinit();
     } catch (const Exception& e) {
