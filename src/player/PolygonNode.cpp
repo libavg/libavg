@@ -100,12 +100,7 @@ int PolygonNode::getNumVertexes()
     if (m_Pts.size() < 3) {
         return 0;
     }
-    int numPts = m_Pts.size();
-    for (unsigned i=1; i<m_Pts.size(); ++i) {
-        if (calcDistSquared(m_Pts[i], m_Pts[i-1])<0.1) {
-            numPts--;
-        }
-    }
+    int numPts = getNumDifferentPts(m_Pts);
     int numVerts;
     switch(m_LineJoin) {
         case LJ_MITER:
@@ -125,12 +120,7 @@ int PolygonNode::getNumIndexes()
     if (m_Pts.size() < 3) {
         return 0;
     }
-    int numPts = m_Pts.size();
-    for (unsigned i=1; i<m_Pts.size(); ++i) {
-        if (calcDistSquared(m_Pts[i], m_Pts[i-1])<0.1) {
-            numPts--;
-        }
-    }
+    int numPts = getNumDifferentPts(m_Pts);
     int numIndexes;
     switch(m_LineJoin) {
         case LJ_MITER:

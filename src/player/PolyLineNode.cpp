@@ -98,12 +98,7 @@ int PolyLineNode::getNumVertexes()
     if (m_Pts.size() < 2) {
         return 0;
     }
-    int numPts = m_Pts.size();
-    for (unsigned i=1; i<m_Pts.size(); ++i) {
-        if (calcDistSquared(m_Pts[i], m_Pts[i-1])<0.1) {
-            numPts--;
-        }
-    }
+    int numPts = getNumDifferentPts(m_Pts);
     switch (m_LineJoin) {
         case LJ_MITER:
             return 2*numPts;
@@ -121,12 +116,7 @@ int PolyLineNode::getNumIndexes()
     if (m_Pts.size() < 2) {
         return 0;
     }
-    int numPts = m_Pts.size();
-    for (unsigned i=1; i<m_Pts.size(); ++i) {
-        if (calcDistSquared(m_Pts[i], m_Pts[i-1])<0.1) {
-            numPts--;
-        }
-    }
+    int numPts = getNumDifferentPts(m_Pts);
     switch (m_LineJoin) {
         case LJ_MITER:
             return 6*(numPts-1);

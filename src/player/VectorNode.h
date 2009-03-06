@@ -24,12 +24,10 @@
 
 #include "../api.h"
 #include "Node.h"
+#include "Shape.h"
 
 #include "../graphics/Pixel32.h"
 #include "../graphics/VertexArray.h"
-#include "../graphics/Bitmap.h"
-
-#include "Shape.h"
 
 namespace avg {
 
@@ -89,6 +87,7 @@ class AVG_API VectorNode : public Node
         void calcBevelTC(const WideLine& line1, const WideLine& line2, 
                 bool bIsLeft, const std::vector<double>& texCoords, unsigned i, 
                 double& TC0, double& TC1);
+        int getNumDifferentPts(const std::vector<DPoint>& pts);
 
     private:
         std::string m_sColorName;

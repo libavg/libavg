@@ -490,4 +490,15 @@ void VectorNode::calcBevelTC(const WideLine& line1, const WideLine& line2,
     TC1 = ratio1*texCoords[i]+(1-ratio1)*nextTexCoord;
 }
 
+int VectorNode::getNumDifferentPts(const vector<DPoint>& pts)
+{
+    int numPts = pts.size();
+    for (unsigned i=1; i<pts.size(); ++i) {
+        if (calcDistSquared(pts[i], pts[i-1])<0.1) {
+            numPts--;
+        }
+    }
+    return numPts;
+}
+
 }
