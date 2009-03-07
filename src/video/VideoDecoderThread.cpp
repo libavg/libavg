@@ -20,7 +20,6 @@
 //
 
 #include "VideoDecoderThread.h"
-#include "FrameVideoMsg.h"
 #include "ErrorVideoMsg.h"
 #include "EOFVideoMsg.h"
 #include "SeekDoneVideoMsg.h"
@@ -35,7 +34,9 @@ VideoDecoderThread::VideoDecoderThread(CmdQueue& CmdQ, VideoMsgQueue& MsgQ,
         VideoDecoderPtr pDecoder)
     : WorkerThread<VideoDecoderThread>(string("Video Decoder"), CmdQ),
       m_MsgQ(MsgQ),
-      m_pDecoder(pDecoder)
+      m_pDecoder(pDecoder),
+      m_pBmpQ(new BitmapQueue()),
+      m_pHalfBmpQ(new BitmapQueue())
 {
 }
 
@@ -54,10 +55,10 @@ bool VideoDecoderThread::work()
         PixelFormat PF = m_pDecoder->getPixelFormat();
         FrameAvailableCode FrameAvailable;
         if (PF == YCbCr420p || PF ==YCbCrJ420p) {
-            BitmapPtr pBmpY = BitmapPtr(new Bitmap(Size, I8));
+            BitmapPtr pBmpY = getBmp(m_pBmpQ, Size, I8);
             IntPoint HalfSize(Size.x/2, Size.y/2);
-            BitmapPtr pBmpU = BitmapPtr(new Bitmap(HalfSize, I8));
-            BitmapPtr pBmpV = BitmapPtr(new Bitmap(HalfSize, I8));
+            BitmapPtr pBmpU = getBmp(m_pHalfBmpQ, HalfSize, I8);
+            BitmapPtr pBmpV = getBmp(m_pHalfBmpQ, HalfSize, I8);
             FrameAvailable = 
                     m_pDecoder->renderToYCbCr420p(pBmpY, pBmpU, pBmpV, -1);
             if (FrameAvailable == FA_NEW_FRAME) {
@@ -66,7 +67,7 @@ bool VideoDecoderThread::work()
                 pBmps.push_back(pBmpV);
             }
         } else {
-            BitmapPtr pBmp = BitmapPtr(new Bitmap(Size, PF));
+            BitmapPtr pBmp = getBmp(m_pBmpQ, Size, PF);
             FrameAvailable = m_pDecoder->renderToBmp(pBmp, -1);
             if (FrameAvailable == FA_NEW_FRAME) {
                 pBmps.push_back(pBmp);
@@ -109,6 +110,28 @@ void VideoDecoderThread::seek(long long DestTime)
 void VideoDecoderThread::setFPS(double FPS)
 {
     m_pDecoder->setFPS(FPS);
+}
+
+void VideoDecoderThread::returnFrame(FrameVideoMsgPtr pMsg)
+{
+    m_pBmpQ->push(pMsg->getBitmap(0));
+    PixelFormat PF = m_pDecoder->getPixelFormat();
+    if (PF == YCbCr420p || PF ==YCbCrJ420p) {
+        m_pHalfBmpQ->push(pMsg->getBitmap(1));
+        m_pHalfBmpQ->push(pMsg->getBitmap(2));
+    }
+}
+
+BitmapPtr VideoDecoderThread::getBmp(BitmapQueuePtr pBmpQ, const IntPoint& size, 
+        PixelFormat pf)
+{
+    if (pBmpQ->empty()) {
+        return BitmapPtr(new Bitmap(size, pf)); 
+    } else {
+        BitmapPtr pBmp = pBmpQ->pop();
+        assert (pBmp->getSize() == size && pBmp->getPixelFormat() == pf);
+        return pBmp;
+    }
 }
 
 }

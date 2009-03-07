@@ -75,6 +75,7 @@ class AVG_API AsyncVideoDecoder: public IVideoDecoder
                 FrameAvailableCode& FrameAvailable);
         FrameVideoMsgPtr getNextBmps(bool bWait);
         void waitForSeekDone();
+        void returnFrame(FrameVideoMsgPtr& pFrameMsg);
 
         VideoDecoderPtr m_pSyncDecoder;
         std::string m_sFilename;

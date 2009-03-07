@@ -160,6 +160,10 @@ void AsyncVideoDecoder::seek(long long DestTime)
                 m_LastVideoFrameTime = pSeekDoneMsg->getVideoFrameTime();
                 m_LastAudioFrameTime = pSeekDoneMsg->getAudioFrameTime();
             }
+            FrameVideoMsgPtr pFrameMsg = dynamic_pointer_cast<FrameVideoMsg>(pMsg);
+            if (pFrameMsg) {
+                returnFrame(pFrameMsg);
+            }
         }
     } catch (Exception&) {
     }
@@ -279,6 +283,7 @@ FrameAvailableCode AsyncVideoDecoder::renderToBmp(BitmapPtr pBmp, long long Time
     FrameVideoMsgPtr pFrameMsg = getBmpsForTime(TimeWanted, FrameAvailable);
     if (FrameAvailable == FA_NEW_FRAME) {
         pBmp->copyPixels(*(pFrameMsg->getBitmap(0)));
+        returnFrame(pFrameMsg);
     }
     return FrameAvailable;
 }
@@ -292,6 +297,7 @@ FrameAvailableCode AsyncVideoDecoder::renderToYCbCr420p(BitmapPtr pBmpY, BitmapP
         pBmpY->copyPixels(*(pFrameMsg->getBitmap(0)));
         pBmpCb->copyPixels(*(pFrameMsg->getBitmap(1)));
         pBmpCr->copyPixels(*(pFrameMsg->getBitmap(2)));
+        returnFrame(pFrameMsg);
     }
     return FrameAvailable;
 }
@@ -373,35 +379,28 @@ FrameVideoMsgPtr AsyncVideoDecoder::getBmpsForTime(long long TimeWanted,
         if (getMasterStream() == SS_AUDIO) {
             TimeWanted = m_LastAudioFrameTime;
         }
-
-//        cerr << "getBmpsForTime " << TimeWanted << ", LastFrameTime= " << m_LastVideoFrameTime 
-//                << ", diff= " << TimeWanted-m_LastVideoFrameTime <<  endl;
         double TimePerFrame = 1000.0/getFPS();
         if (fabs(double(TimeWanted-m_LastVideoFrameTime)) < 0.5*TimePerFrame || 
                 m_LastVideoFrameTime > TimeWanted+TimePerFrame) {
-//            cerr << "   LastFrameTime = " << m_LastVideoFrameTime << ", display again." <<  endl;
             // The last frame is still current. Display it again.
             FrameAvailable = FA_USE_LAST_FRAME;
             return FrameVideoMsgPtr();
         } else {
             if (m_bVideoEOF) {
-//                cerr << "  EOF." << endl;
                 FrameAvailable = FA_USE_LAST_FRAME;
                 return FrameVideoMsgPtr();
             }
             while (FrameTime-TimeWanted < -0.5*TimePerFrame && !m_bVideoEOF) {
+                returnFrame(pFrameMsg);
                 pFrameMsg = getNextBmps(false);
                 if (pFrameMsg) {
                     FrameTime = pFrameMsg->getFrameTime();
-//                    cerr << "   readFrame returned time " << FrameTime << "." <<  endl;
                 } else {
-//                    cerr << "   no frame available." <<  endl;
                     FrameAvailable = FA_STILL_DECODING;
                     return FrameVideoMsgPtr();
                 }
             }
             FrameAvailable = FA_NEW_FRAME;
-//            cerr << "  frame ok." << endl;
         }
     }
     if (pFrameMsg) {
@@ -455,8 +454,19 @@ void AsyncVideoDecoder::waitForSeekDone()
                 m_LastVideoFrameTime = pSeekDoneMsg->getVideoFrameTime();
                 m_LastAudioFrameTime = pSeekDoneMsg->getAudioFrameTime();
             }
-
+            FrameVideoMsgPtr pFrameMsg = dynamic_pointer_cast<FrameVideoMsg>(pMsg);
+            if (pFrameMsg) {
+                returnFrame(pFrameMsg);
+            }
         } while (m_bSeekPending);
+    }
+}
+
+void AsyncVideoDecoder::returnFrame(FrameVideoMsgPtr& pFrameMsg)
+{
+    if (pFrameMsg) {
+        m_pVCmdQ->push(Command<VideoDecoderThread>(boost::bind(
+                    &VideoDecoderThread::returnFrame, _1, pFrameMsg)));
     }
 }
 

@@ -25,15 +25,20 @@
 #include "../api.h"
 #include "IVideoDecoder.h"
 #include "VideoMsg.h"
+#include "FrameVideoMsg.h"
 
 #include "../base/WorkerThread.h"
 #include "../base/Command.h"
+#include "../base/Queue.h"
 
 #include <boost/thread.hpp>
 
 #include <string>
 
 namespace avg {
+
+typedef Queue<BitmapPtr> BitmapQueue;
+typedef boost::shared_ptr<BitmapQueue> BitmapQueuePtr;
 
 class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
     public:
@@ -44,10 +49,16 @@ class AVG_API VideoDecoderThread: public WorkerThread<VideoDecoderThread> {
         bool work();
         void seek(long long DestTime);
         void setFPS(double FPS);
+        void returnFrame(FrameVideoMsgPtr pMsg);
 
     private:
+        BitmapPtr getBmp(BitmapQueuePtr BmpQ, const IntPoint& Size, 
+                PixelFormat pf);
         VideoMsgQueue& m_MsgQ;
         VideoDecoderPtr m_pDecoder;
+
+        BitmapQueuePtr m_pBmpQ;
+        BitmapQueuePtr m_pHalfBmpQ;
 };
 
 }
