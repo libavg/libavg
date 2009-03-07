@@ -54,8 +54,8 @@ class VectorTestCase(AVGTestCase):
             line.y2 += 30
         def blendMode():
             line = canvas.getChild(6)
-            line.y1 = 7.5 
-            line.y2 = 7.5 
+            line.y1 = 7.9 
+            line.y2 = 7.9 
             line.strokewidth = 10
             line.blendmode="add"
         canvas = self.makeEmptyCanvas()
