@@ -174,7 +174,13 @@ class VectorTestCase(AVGTestCase):
             rect.texcoords = [-1, 0, 1, 2, 3]
         def setFillTex():
             rect = canvas.getChild(0)
+            rect.strokewidth = 2
+            rect.texhref = ""
             rect.filltexhref="rgb24alpha-64x64.png"
+        def setFillTexCoords():
+            rect = canvas.getChild(0)
+            rect.filltexcoord1 = (0.5, 0.5)
+            rect.filltexcoord2 = (1.5, 1.5)
         canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addRect,
@@ -182,7 +188,9 @@ class VectorTestCase(AVGTestCase):
                  setTexCoords,
                  lambda: self.compareImage("testTexturedRect2", False),
                  setFillTex,
-                 lambda: self.compareImage("testTexturedRect3", False)
+                 lambda: self.compareImage("testTexturedRect3", False),
+                 setFillTexCoords,
+                 lambda: self.compareImage("testTexturedRect4", False)
                 ))
 
     def testCurve(self):

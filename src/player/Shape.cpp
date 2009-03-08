@@ -38,9 +38,11 @@ using namespace std;
 
 namespace avg {
 
-Shape::Shape(const string& sFilename)
+Shape::Shape(const string& sFilename, int texWrapSMode, int texWrapTMode)
     : Image(sFilename, false),
-      m_TexID(-1)
+      m_TexID(-1),
+      m_TexWrapSMode(texWrapSMode),
+      m_TexWrapTMode(texWrapTMode)
 {
 }
 
@@ -90,8 +92,8 @@ void Shape::downloadTexture()
     SDLDisplayEngine* pEngine = getEngine();
     
     m_TexID = pEngine->createTexture(size, pf);
-    // TODO: Add configurable clamp/repeat behaviour to Shape
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_TexWrapSMode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_TexWrapTMode);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Shape::downloadTexture: glTexParameteri()");
     
     OGLSurface* pSurface = getSurface();

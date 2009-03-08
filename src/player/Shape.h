@@ -37,7 +37,7 @@ namespace avg {
 class AVG_API Shape: public Image
 {
     public:
-        Shape(const std::string& sFilename);
+        Shape(const std::string& sFilename, int texWrapSMode, int texWrapTMode);
         virtual ~Shape();
 
         virtual void moveToGPU(SDLDisplayEngine* pEngine);
@@ -51,6 +51,8 @@ class AVG_API Shape: public Image
         void deleteTexture();
 
         unsigned m_TexID;
+        int m_TexWrapSMode;
+        int m_TexWrapTMode;
         VertexArrayPtr m_pVertexArray;
 };
 

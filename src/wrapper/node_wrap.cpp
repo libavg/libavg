@@ -353,6 +353,10 @@ void export_node()
                 "The angle that the rectangle is rotated to in radians. 0 is\n"
                 "unchanged, 3.14 is upside-down. The rectangle is rotated around it's\n"
                 "center\n")
+        .add_property("filltexcoord1", make_function(&RectNode::getFillTexCoord1,
+               return_value_policy<copy_const_reference>()), &RectNode::setFillTexCoord1)
+        .add_property("filltexcoord2", make_function(&RectNode::getFillTexCoord2,
+               return_value_policy<copy_const_reference>()), &RectNode::setFillTexCoord2)
     ;
     
     class_<CurveNode, bases<VectorNode>, boost::noncopyable>("CurveNode", 

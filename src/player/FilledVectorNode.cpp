@@ -46,8 +46,8 @@ NodeDefinition FilledVectorNode::createDefinition()
 }
 
 FilledVectorNode::FilledVectorNode(const ArgList& Args)
-    : VectorNode(Args) ,
-      m_pFillShape(new Shape(""))
+    : VectorNode(Args),
+      m_pFillShape(new Shape("", GL_REPEAT, GL_REPEAT))
 {
     m_FillTexHRef = Args.getArgVal<string>("filltexhref"); 
     setFillTexHRef(m_FillTexHRef);
@@ -128,6 +128,8 @@ static ProfilingZone RenderProfilingZone("FilledVectorNode::render");
 void FilledVectorNode::render(const DRect& rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
+    double curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
+    glColor4d(1.0, 1.0, 1.0, curOpacity);
     m_pFillShape->draw();
     VectorNode::render(rect);
 }
