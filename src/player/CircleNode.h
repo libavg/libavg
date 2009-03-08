@@ -55,6 +55,11 @@ class AVG_API CircleNode : public FilledVectorNode
         double getTexCoord2() const;
         void setTexCoord2(double tc);
 
+        const DPoint& getFillTexCoord1() const;
+        void setFillTexCoord1(const DPoint& pt);
+        const DPoint& getFillTexCoord2() const;
+        void setFillTexCoord2(const DPoint& pt);
+
         virtual int getNumVertexes();
         virtual int getNumIndexes();
         virtual int getNumFillVertexes();
@@ -65,10 +70,14 @@ class AVG_API CircleNode : public FilledVectorNode
     private:
         int getNumCircumferencePoints();
         DPoint getCirclePt(double angle, double radius);
+        DPoint calcTexCoord(const DPoint& pt, const DPoint& minPt, const DPoint& maxPt);
+
         DPoint m_Pos;
         double m_Radius;
         double m_TC1;
         double m_TC2;
+        DPoint m_FillTexCoord1;
+        DPoint m_FillTexCoord2;
 };
 
 }

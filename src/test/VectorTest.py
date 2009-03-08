@@ -397,6 +397,14 @@ class VectorTestCase(AVGTestCase):
             circle.pos = (50, 50)
             circle.texcoord1 = -1
             circle.texcoord2 = 1
+        def setFillTex():
+            circle.strokewidth=1
+            circle.fillopacity=1
+            circle.texhref = ""
+            circle.filltexhref="rgb24alpha-64x64.png"
+        def setFillTexCoords():
+            circle.filltexcoord1 = (0.5, 0.5)
+            circle.filltexcoord2 = (1.5, 1.5)
         canvas = self.makeEmptyCanvas()
         circle = addCircle()
         self.start(None,
@@ -405,6 +413,10 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testCircle2", False),
                  textureCircle,
                  lambda: self.compareImage("testCircle3", False),
+                 setFillTex,
+                 lambda: self.compareImage("testCircle4", False),
+                 setFillTexCoords,
+                 lambda: self.compareImage("testCircle5", False),
                 ))
 
 def vectorTestSuite(tests):

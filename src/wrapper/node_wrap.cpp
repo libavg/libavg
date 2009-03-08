@@ -407,5 +407,9 @@ void export_node()
         .add_property("r", &CircleNode::getR, &CircleNode::setR)
         .add_property("texcoord1", &CircleNode::getTexCoord1, &CircleNode::setTexCoord1)
         .add_property("texcoord2", &CircleNode::getTexCoord2, &CircleNode::setTexCoord2)
+        .add_property("filltexcoord1", make_function(&CircleNode::getFillTexCoord1,
+               return_value_policy<copy_const_reference>()), &CircleNode::setFillTexCoord1)
+        .add_property("filltexcoord2", make_function(&CircleNode::getFillTexCoord2,
+               return_value_policy<copy_const_reference>()), &CircleNode::setFillTexCoord2)
     ;
 }
