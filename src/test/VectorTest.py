@@ -45,11 +45,9 @@ class VectorTestCase(AVGTestCase):
             addLine({"x1":2, "y1":9.5, "x2":100, "y2":9.5, "color":"00FF00"})
             addLine({"x1":2, "y1":11.5, "x2":100, "y2":11.5, "color":"0000FF"})
         def changeLine():
-            line = canvas.getChild(0)
             line.color="FF0000"
             line.strokewidth=3
         def moveLine():
-            line = canvas.getChild(0)
             line.pos1 += (0, 30)
             line.y2 += 30
         def blendMode():
@@ -59,9 +57,10 @@ class VectorTestCase(AVGTestCase):
             line.strokewidth = 10
             line.blendmode="add"
         canvas = self.makeEmptyCanvas()
+        addLines()
+        line = canvas.getChild(0)
         self.start(None,
-                (addLines,
-                 lambda: self.compareImage("testline1", False), 
+                (lambda: self.compareImage("testline1", False), 
                  changeLine,
                  lambda: self.compareImage("testline2", False),
                  moveLine,
@@ -76,7 +75,6 @@ class VectorTestCase(AVGTestCase):
                 y = i+2.5
                 line = Player.createNode("line", {"x1":2, "y1":y, "x2":10, "y2":y})
                 canvas.appendChild(line)
-                
         canvas = self.makeEmptyCanvas()
         self.start(None,
                 (addLines,
@@ -113,7 +111,7 @@ class VectorTestCase(AVGTestCase):
                 ))
 
     def testLineOpacity(self):
-        def addLines():
+        def addLine():
             line = Player.createNode("line", 
                     {"x1":2, "y1":2.5, "x2":158, "y2":2.5, "opacity":0.5})
             canvas.appendChild(line)
@@ -122,7 +120,7 @@ class VectorTestCase(AVGTestCase):
             canvas.getChild(0).opacity = 0.25
         canvas = self.makeEmptyCanvas()
         self.start(None,
-                (addLines,
+                (addLine,
                  lambda: self.compareImage("testlineopacity1", False), 
                  changeCanvasOpacity,
                  lambda: self.compareImage("testlineopacity2", False), 
@@ -134,8 +132,8 @@ class VectorTestCase(AVGTestCase):
                     {"x":2, "y":2, "width":50, "height":30, "fillopacity":1, 
                      "strokewidth":0})
             canvas.appendChild(rect)
+            return rect
         def moveRect():
-            rect = canvas.getChild(0)
             rect.pos = (50, 50)
             rect.size = (30, 10)
             rect.fillcolor = "FF0000"
@@ -143,7 +141,6 @@ class VectorTestCase(AVGTestCase):
             rect.color = "FFFF00"
             rect.strokewidth = 2
         def rotateRect():
-            rect = canvas.getChild(0)
             rect.angle = 1.57
         def addRect2():
             rect = Player.createNode("rect",
@@ -152,9 +149,9 @@ class VectorTestCase(AVGTestCase):
             rect.color = "FFFF00"
             canvas.insertChild(rect, 0)
         canvas = self.makeEmptyCanvas()
+        rect = addRect()
         self.start(None,
-                (addRect,
-                 lambda: self.compareImage("testRect1", False),
+                (lambda: self.compareImage("testRect1", False),
                  moveRect,
                  lambda: self.compareImage("testRect2", False),
                  rotateRect,
@@ -169,22 +166,20 @@ class VectorTestCase(AVGTestCase):
                     {"x":20, "y":20, "width":50, "height":40, "fillopacity":1, 
                      "strokewidth":20, "texhref":"rgb24-64x64.png"})
             canvas.appendChild(rect)
+            return rect
         def setTexCoords():
-            rect = canvas.getChild(0)
             rect.texcoords = [-1, 0, 1, 2, 3]
         def setFillTex():
-            rect = canvas.getChild(0)
             rect.strokewidth = 2
             rect.texhref = ""
             rect.filltexhref="rgb24alpha-64x64.png"
         def setFillTexCoords():
-            rect = canvas.getChild(0)
             rect.filltexcoord1 = (0.5, 0.5)
             rect.filltexcoord2 = (1.5, 1.5)
         canvas = self.makeEmptyCanvas()
+        rect = addRect()
         self.start(None,
-                (addRect,
-                 lambda: self.compareImage("testTexturedRect1", False),
+                (lambda: self.compareImage("testTexturedRect1", False),
                  setTexCoords,
                  lambda: self.compareImage("testTexturedRect2", False),
                  setFillTex,
@@ -199,12 +194,11 @@ class VectorTestCase(AVGTestCase):
                 {"x1":10.5, "y1":10, "x2":10.5, "y2":80, 
                  "x3":80.5, "y3":80, "x4":80.5, "y4":10})
             canvas.appendChild(curve)
+            return curve
         def changeCurve():
-            curve = canvas.getChild(0)
             curve.strokewidth = 20
             curve.color="FFFF00"
         def moveCurve():
-            curve = canvas.getChild(0)
             curve.pos2 = (10.5, 120)
             curve.pos3 = (80.5, 120)
         def addCurve2():
@@ -214,9 +208,9 @@ class VectorTestCase(AVGTestCase):
             curve.color="FF0000"
             canvas.appendChild(curve)
         canvas = self.makeEmptyCanvas()
+        curve = addCurve()
         self.start(None,
-                (addCurve,
-                 lambda: self.compareImage("testCurve1", False),
+                (lambda: self.compareImage("testCurve1", False),
                  changeCurve,
                  lambda: self.compareImage("testCurve2", False),
                  moveCurve,
@@ -232,14 +226,14 @@ class VectorTestCase(AVGTestCase):
                  "x3":80.5, "y3":80, "x4":80.5, "y4":10, 
                  "strokewidth":20, "texhref":"rgb24-64x64.png"})
             canvas.appendChild(curve)
+            return curve
         def setTexCoords():
-            curve = canvas.getChild(0)
             curve.texcoord1=-1
             curve.texcoord2=2
         canvas = self.makeEmptyCanvas()
+        curve = addCurve()
         self.start(None,
-                (addCurve,
-                 lambda: self.compareImage("testTexturedCurve1", False),
+                (lambda: self.compareImage("testTexturedCurve1", False),
                  setTexCoords,
                  lambda: self.compareImage("testTexturedCurve2", False)
                 )) 
@@ -249,33 +243,32 @@ class VectorTestCase(AVGTestCase):
             polyline = Player.createNode("polyline", {"strokewidth":2, "color":"FF00FF"})
             polyline.pos = [(10,10), (50,10), (90,50), (90, 90)]
             canvas.appendChild(polyline)
+            return polyline
         def changePolyLine():
-            polyline = canvas.getChild(0)
             polyline.strokewidth = 16
             polyline.color="FFFF00"
             pos = polyline.pos
             pos.append((110, 90))
             polyline.pos = pos
         def miterPolyLine():
-            polyline = canvas.getChild(0)
             polyline.linejoin = "miter"
         def addPolyLine2():
-            polyline = Player.createNode("polyline", {"strokewidth":2, "color":"FF00FF"})
-            polyline.pos = [(110,10), (100,50), (110,70)]
-            canvas.insertChild(polyline,0)
+            polyline2 = Player.createNode("polyline", {"strokewidth":2, "color":"FF00FF"})
+            polyline2.pos = [(110,10), (100,50), (110,70)]
+            canvas.insertChild(polyline2,0)
         def testEmptyPolyLine():
-            polyline = canvas.getChild(0)
-            polyline.pos=[]
+            polyline2 = canvas.getChild(0)
+            polyline2.pos=[]
         def testAcutePolyLine():
-            polyline = canvas.getChild(0)
-            polyline.strokewidth = 10
-            polyline.linejoin="bevel"
-            polyline.pos = [(50,10), (60,10), (50,11)]
+            polyline2 = canvas.getChild(0)
+            polyline2.strokewidth = 10
+            polyline2.linejoin="bevel"
+            polyline2.pos = [(50,10), (60,10), (50,11)]
             canvas.removeChild(1)
         canvas = self.makeEmptyCanvas()
+        polyline = addPolyLine()
         self.start(None,
-                (addPolyLine,
-                 lambda: self.compareImage("testPolyLine1", False),
+                (lambda: self.compareImage("testPolyLine1", False),
                  changePolyLine,
                  lambda: self.compareImage("testPolyLine2", False),
                  miterPolyLine,
@@ -294,20 +287,18 @@ class VectorTestCase(AVGTestCase):
                     {"strokewidth":20, "color":"FF00FF", "texhref":"rgb24-64x64.png"})
             polyline.pos = [(10,10), (50,10), (90,50), (90, 90)]
             canvas.appendChild(polyline)
+            return polyline
         def miter():
-            polyline = canvas.getChild(0)
             polyline.linejoin = "miter"
         def setTexCoords():
-            polyline = canvas.getChild(0)
             polyline.texcoords = [-1, 0, 1, 2]
         def repeatTexCoords():
-            polyline = canvas.getChild(0)
             polyline.pos = [(10,10), (30,10), (30,50), (50,50), (50,70), (70,70)]
             polyline.texcoords = [1, 2, 3]
         canvas = self.makeEmptyCanvas()
+        polyline = texturePolyLine()
         self.start(None,
-                (texturePolyLine,
-                 lambda: self.compareImage("testTexturedPolyLine1", False),
+                (lambda: self.compareImage("testTexturedPolyLine1", False),
                  miter,
                  lambda: self.compareImage("testTexturedPolyLine2", False),
                  setTexCoords,
@@ -321,15 +312,14 @@ class VectorTestCase(AVGTestCase):
             polygon = Player.createNode("polygon", {"strokewidth":2, "color":"FF00FF"})
             polygon.pos = [(10,10), (50,10), (90,50), (90, 90)]
             canvas.appendChild(polygon)
+            return polygon
         def changePolygon():
-            polygon = canvas.getChild(0)
             polygon.strokewidth = 12
             polygon.color="FFFF00"
             pos = polygon.pos
             pos.append((10, 90))
             polygon.pos = pos
         def fillPolygon():
-            polygon = canvas.getChild(0)
             polygon.strokewidth = 4
             polygon.fillcolor = "00FFFF"
             polygon.fillopacity = 0.5
@@ -339,7 +329,6 @@ class VectorTestCase(AVGTestCase):
             pos.append((40, 40))
             polygon.pos = pos
         def addEmptyPoint():
-            polygon = canvas.getChild(0)
             pos = polygon.pos
             pos.append((40, 40))
             polygon.pos = pos
@@ -348,14 +337,13 @@ class VectorTestCase(AVGTestCase):
             polygon.pos = [(100.5,10.5), (100.5,30.5), (120.5,30.5), (120.5, 10.5)]
             canvas.insertChild(polygon, 0)
         def miterPolygons():
-            polygon = canvas.getChild(0)
             polygon.linejoin = "miter"
-            polygon = canvas.getChild(1)
-            polygon.linejoin = "miter"
+            polygon2 = canvas.getChild(0)
+            polygon2.linejoin = "miter"
         canvas = self.makeEmptyCanvas()
+        polygon = addPolygon()
         self.start(None,
-                (addPolygon,
-                 lambda: self.compareImage("testPolygon1", True),
+                (lambda: self.compareImage("testPolygon1", True),
                  changePolygon,
                  lambda: self.compareImage("testPolygon2", True),
                  fillPolygon,
@@ -374,19 +362,17 @@ class VectorTestCase(AVGTestCase):
                     {"strokewidth":20, "color":"FF00FF", "texhref":"rgb24-64x64.png"})
             polygon.pos = [(10,10), (50,10), (90,50), (90, 90)]
             canvas.appendChild(polygon)
+            return polygon
         def miter():
-            polygon = canvas.getChild(0)
             polygon.linejoin = "miter"
         def setTexCoords():
-            polygon = canvas.getChild(0)
             polygon.texcoords = [-1, 0, 1, 2, 3]
         def repeatTexCoords():
-            polygon = canvas.getChild(0)
             polygon.texcoords = [0, 1]
         canvas = self.makeEmptyCanvas()
+        polygon = texturePolygon()
         self.start(None,
-                (texturePolygon,
-                 lambda: self.compareImage("testTexturedPolygon1", False),
+                (lambda: self.compareImage("testTexturedPolygon1", False),
                  miter,
                  lambda: self.compareImage("testTexturedPolygon2", False),
                  setTexCoords,
@@ -399,23 +385,22 @@ class VectorTestCase(AVGTestCase):
         def addCircle():
             circle = Player.createNode("circle", {"x":30, "y":30, "r":20})
             canvas.appendChild(circle)
+            return circle
         def changeCircle():
-            circle = canvas.getChild(0)
             circle.color="FF0000"
             circle.fillcolor="FFFFFF"
             circle.fillopacity=0.5
             circle.strokewidth=3
         def textureCircle():
-            circle = canvas.getChild(0)
             circle.texhref="rgb24-64x64.png"
             circle.strokewidth=20
             circle.pos = (50, 50)
             circle.texcoord1 = -1
             circle.texcoord2 = 1
         canvas = self.makeEmptyCanvas()
+        circle = addCircle()
         self.start(None,
-                (addCircle,
-                 lambda: self.compareImage("testCircle1", False), 
+                (lambda: self.compareImage("testCircle1", False), 
                  changeCircle,
                  lambda: self.compareImage("testCircle2", False),
                  textureCircle,
