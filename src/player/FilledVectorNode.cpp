@@ -47,6 +47,8 @@ NodeDefinition FilledVectorNode::createDefinition()
 
 FilledVectorNode::FilledVectorNode(const ArgList& Args)
     : VectorNode(Args),
+      m_FillTexCoord1(0,0),
+      m_FillTexCoord2(1,1),
       m_pFillShape(new Shape("", GL_REPEAT, GL_REPEAT))
 {
     m_FillTexHRef = Args.getArgVal<string>("filltexhref"); 
@@ -90,6 +92,28 @@ void FilledVectorNode::setFillTexHRef(const string& href)
     m_FillTexHRef = href;
     checkReload();
     setDrawNeeded(true);
+}
+
+const DPoint& FilledVectorNode::getFillTexCoord1() const
+{
+    return m_FillTexCoord1;
+}
+
+void FilledVectorNode::setFillTexCoord1(const DPoint& pt)
+{
+    m_FillTexCoord1 = pt;
+    setDrawNeeded(false);
+}
+
+const DPoint& FilledVectorNode::getFillTexCoord2() const
+{
+    return m_FillTexCoord2;
+}
+
+void FilledVectorNode::setFillTexCoord2(const DPoint& pt)
+{
+    m_FillTexCoord2 = pt;
+    setDrawNeeded(false);
 }
 
 double FilledVectorNode::getFillOpacity() const
@@ -151,6 +175,17 @@ const string& FilledVectorNode::getFillColor() const
 Pixel32 FilledVectorNode::getFillColorVal() const
 {
     return m_FillColor;
+}
+
+DPoint FilledVectorNode::calcFillTexCoord(const DPoint& pt, const DPoint& minPt, 
+        const DPoint& maxPt)
+{
+    DPoint texPt;
+    texPt.x = (m_FillTexCoord2.x-m_FillTexCoord1.x)*(pt.x-minPt.x)/(maxPt.x-minPt.x)
+            +m_FillTexCoord1.x;
+    texPt.y = (m_FillTexCoord2.y-m_FillTexCoord1.y)*(pt.y-minPt.y)/(maxPt.y-minPt.y)
+            +m_FillTexCoord1.y;
+    return texPt;
 }
 
 }

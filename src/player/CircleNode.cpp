@@ -46,9 +46,7 @@ NodeDefinition CircleNode::createDefinition()
 }
 
 CircleNode::CircleNode(const ArgList& Args, bool bFromXML)
-    : FilledVectorNode(Args),
-      m_FillTexCoord1(0,0),
-      m_FillTexCoord2(1,1)
+    : FilledVectorNode(Args)
 {
     Args.setMembers(this);
 }
@@ -123,28 +121,6 @@ void CircleNode::setTexCoord2(double tc)
     setDrawNeeded(false);
 }
 
-const DPoint& CircleNode::getFillTexCoord1() const
-{
-    return m_FillTexCoord1;
-}
-
-void CircleNode::setFillTexCoord1(const DPoint& pt)
-{
-    m_FillTexCoord1 = pt;
-    setDrawNeeded(false);
-}
-
-const DPoint& CircleNode::getFillTexCoord2() const
-{
-    return m_FillTexCoord2;
-}
-
-void CircleNode::setFillTexCoord2(const DPoint& pt)
-{
-    m_FillTexCoord2 = pt;
-    setDrawNeeded(false);
-}
-
 int CircleNode::getNumVertexes()
 {
     return (getNumCircumferencePoints()+1)*2;
@@ -190,17 +166,17 @@ void CircleNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
     DPoint minPt = m_Pos-DPoint(m_Radius, m_Radius);
     DPoint maxPt = m_Pos+DPoint(m_Radius, m_Radius);
-    DPoint centerTexCoord = calcTexCoord(m_Pos, minPt, maxPt);
+    DPoint centerTexCoord = calcFillTexCoord(m_Pos, minPt, maxPt);
     pVertexArray->appendPos(m_Pos, centerTexCoord, color);
     int curVertex = 1;
     DPoint firstPt = getCirclePt(0, m_Radius);
-    DPoint firstTexCoord = calcTexCoord(firstPt, minPt, maxPt);
+    DPoint firstTexCoord = calcFillTexCoord(firstPt, minPt, maxPt);
     pVertexArray->appendPos(firstPt, firstTexCoord, color);
     for (int i=1; i<=getNumCircumferencePoints(); ++i) {
         double ratio = (double(i)/getNumCircumferencePoints());
         double angle = ratio*2*3.14159;
         DPoint curPt = getCirclePt(angle, m_Radius);
-        DPoint curTexCoord = calcTexCoord(curPt, minPt, maxPt);
+        DPoint curTexCoord = calcFillTexCoord(curPt, minPt, maxPt);
         pVertexArray->appendPos(curPt, curTexCoord, color);
         pVertexArray->appendTriIndexes(0, curVertex, curVertex+1);
         curVertex++;
@@ -215,16 +191,6 @@ int CircleNode::getNumCircumferencePoints()
 DPoint CircleNode::getCirclePt(double angle, double radius)
 {
     return DPoint(sin(angle)*radius, -cos(angle)*radius)+m_Pos;
-}
-
-DPoint CircleNode::calcTexCoord(const DPoint& pt, const DPoint& minPt, const DPoint& maxPt)
-{
-    DPoint texPt;
-    texPt.x = (m_FillTexCoord2.x-m_FillTexCoord1.x)*(pt.x-minPt.x)/(maxPt.x-minPt.x)
-            +m_FillTexCoord1.x;
-    texPt.y = (m_FillTexCoord2.y-m_FillTexCoord1.y)*(pt.y-minPt.y)/(maxPt.y-minPt.y)
-            +m_FillTexCoord1.y;
-    return texPt;
 }
 
 }

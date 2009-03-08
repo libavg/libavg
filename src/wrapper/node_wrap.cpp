@@ -322,6 +322,12 @@ void export_node()
                 &FilledVectorNode::setFillColor)
         .add_property("fillopacity", &FilledVectorNode::getFillOpacity, 
                 &FilledVectorNode::setFillOpacity)
+        .add_property("filltexcoord1", make_function(&FilledVectorNode::getFillTexCoord1,
+               return_value_policy<copy_const_reference>()), 
+               &FilledVectorNode::setFillTexCoord1)
+        .add_property("filltexcoord2", make_function(&FilledVectorNode::getFillTexCoord2,
+               return_value_policy<copy_const_reference>()), 
+               &FilledVectorNode::setFillTexCoord2)
     ;
 
     class_<LineNode, bases<VectorNode>, boost::noncopyable>("LineNode", 
@@ -353,10 +359,6 @@ void export_node()
                 "The angle that the rectangle is rotated to in radians. 0 is\n"
                 "unchanged, 3.14 is upside-down. The rectangle is rotated around it's\n"
                 "center\n")
-        .add_property("filltexcoord1", make_function(&RectNode::getFillTexCoord1,
-               return_value_policy<copy_const_reference>()), &RectNode::setFillTexCoord1)
-        .add_property("filltexcoord2", make_function(&RectNode::getFillTexCoord2,
-               return_value_policy<copy_const_reference>()), &RectNode::setFillTexCoord2)
     ;
     
     class_<CurveNode, bases<VectorNode>, boost::noncopyable>("CurveNode", 
@@ -407,9 +409,5 @@ void export_node()
         .add_property("r", &CircleNode::getR, &CircleNode::setR)
         .add_property("texcoord1", &CircleNode::getTexCoord1, &CircleNode::setTexCoord1)
         .add_property("texcoord2", &CircleNode::getTexCoord2, &CircleNode::setTexCoord2)
-        .add_property("filltexcoord1", make_function(&CircleNode::getFillTexCoord1,
-               return_value_policy<copy_const_reference>()), &CircleNode::setFillTexCoord1)
-        .add_property("filltexcoord2", make_function(&CircleNode::getFillTexCoord2,
-               return_value_policy<copy_const_reference>()), &CircleNode::setFillTexCoord2)
     ;
 }

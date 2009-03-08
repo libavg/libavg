@@ -47,9 +47,7 @@ NodeDefinition RectNode::createDefinition()
 }
 
 RectNode::RectNode(const ArgList& Args, bool bFromXML)
-    : FilledVectorNode(Args),
-      m_FillTexCoord1(0,0),
-      m_FillTexCoord2(1,1)
+    : FilledVectorNode(Args)
 {
     Args.setMembers(this);
     m_Rect.setWidth(Args.getArgVal<double>("width"));
@@ -163,28 +161,6 @@ void RectNode::setAngle(double angle)
     setDrawNeeded(false);
 }
 
-const DPoint& RectNode::getFillTexCoord1() const
-{
-    return m_FillTexCoord1;
-}
-
-void RectNode::setFillTexCoord1(const DPoint& pt)
-{
-    m_FillTexCoord1 = pt;
-    setDrawNeeded(false);
-}
-
-const DPoint& RectNode::getFillTexCoord2() const
-{
-    return m_FillTexCoord2;
-}
-
-void RectNode::setFillTexCoord2(const DPoint& pt)
-{
-    m_FillTexCoord2 = pt;
-    setDrawNeeded(false);
-}
-
 int RectNode::getNumVertexes()
 {
     return 4*4;
@@ -244,11 +220,11 @@ void RectNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     DPoint rp2 = rotate(p2, m_Angle, pivot); 
     DPoint rp3 = rotate(p3, m_Angle, pivot); 
     DPoint rp4 = rotate(p4, m_Angle, pivot); 
-    pVertexArray->appendPos(rp1, m_FillTexCoord1, color);
-    DPoint blTexCoord = DPoint(m_FillTexCoord1.x, m_FillTexCoord2.y);
+    pVertexArray->appendPos(rp1, getFillTexCoord1(), color);
+    DPoint blTexCoord = DPoint(getFillTexCoord1().x, getFillTexCoord2().y);
     pVertexArray->appendPos(rp2, blTexCoord, color);
-    pVertexArray->appendPos(rp3, m_FillTexCoord2, color);
-    DPoint trTexCoord = DPoint(m_FillTexCoord2.x, m_FillTexCoord1.y);
+    pVertexArray->appendPos(rp3, getFillTexCoord2(), color);
+    DPoint trTexCoord = DPoint(getFillTexCoord2().x, getFillTexCoord1().y);
     pVertexArray->appendPos(rp4, trTexCoord, color);
     pVertexArray->appendQuadIndexes(1, 0, 2, 3);
 }

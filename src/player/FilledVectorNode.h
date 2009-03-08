@@ -42,6 +42,11 @@ class AVG_API FilledVectorNode : public VectorNode
         const std::string& getFillTexHRef() const;
         void setFillTexHRef(const std::string& href);
 
+        const DPoint& getFillTexCoord1() const;
+        void setFillTexCoord1(const DPoint& pt);
+        const DPoint& getFillTexCoord2() const;
+        void setFillTexCoord2(const DPoint& pt);
+
         void setFillColor(const std::string& sColor);
         const std::string& getFillColor() const;
 
@@ -57,11 +62,15 @@ class AVG_API FilledVectorNode : public VectorNode
 
     protected:
         Pixel32 getFillColorVal() const;
+        DPoint calcFillTexCoord(const DPoint& pt, const DPoint& minPt, 
+                const DPoint& maxPt);
 
     private:
         double m_OldOpacity;
 
         std::string m_FillTexHRef;
+        DPoint m_FillTexCoord1;
+        DPoint m_FillTexCoord2;
         ShapePtr m_pFillShape;
         double m_FillOpacity;
         std::string m_sFillColorName;
