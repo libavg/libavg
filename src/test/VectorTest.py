@@ -369,6 +369,14 @@ class VectorTestCase(AVGTestCase):
             polygon.texcoords = [-1, 0, 1, 2, 3]
         def repeatTexCoords():
             polygon.texcoords = [0, 1]
+        def setFillTex():
+            polygon.fillopacity=1
+            polygon.texhref=""
+            polygon.strokewidth=1
+            polygon.filltexhref="rgb24alpha-64x64.png"
+        def setFillTexCoords():
+            polygon.filltexcoord1=(0.5, 1)
+            polygon.filltexcoord2=(1.5, 3)
         canvas = self.makeEmptyCanvas()
         polygon = texturePolygon()
         self.start(None,
@@ -378,7 +386,11 @@ class VectorTestCase(AVGTestCase):
                  setTexCoords,
                  lambda: self.compareImage("testTexturedPolygon3", False),
                  repeatTexCoords,
-                 lambda: self.compareImage("testTexturedPolygon4", False)
+                 lambda: self.compareImage("testTexturedPolygon4", False),
+                 setFillTex,
+                 lambda: self.compareImage("testTexturedPolygon5", False),
+                 setFillTexCoords,
+                 lambda: self.compareImage("testTexturedPolygon6", False)
                 ))
 
     def testCircle(self):

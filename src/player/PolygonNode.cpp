@@ -169,10 +169,27 @@ void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
     if (color.getA() > 0 && m_Pts.size() > 2) {
+        DPoint minCoord = m_Pts[0];
+        DPoint maxCoord = m_Pts[0];
+        for (unsigned i=1; i<m_Pts.size(); ++i) {
+            if (m_Pts[i].x < minCoord.x) {
+                minCoord.x = m_Pts[i].x;
+            }
+            if (m_Pts[i].x > maxCoord.x) {
+                maxCoord.x = m_Pts[i].x;
+            }
+            if (m_Pts[i].y < minCoord.y) {
+                minCoord.y = m_Pts[i].y;
+            }
+            if (m_Pts[i].y > maxCoord.y) {
+                maxCoord.y = m_Pts[i].y;
+            }
+        }
         vector<int> triIndexes;
         triangulatePolygon(m_Pts, triIndexes);
         for (unsigned i=0; i<m_Pts.size(); ++i) {
-            pVertexArray->appendPos(m_Pts[i], DPoint(0,0), color);
+            DPoint texCoord = calcFillTexCoord(m_Pts[i], minCoord, maxCoord);
+            pVertexArray->appendPos(m_Pts[i], texCoord, color);
         }
         for (unsigned i=0; i<triIndexes.size(); i+=3) {
             pVertexArray->appendTriIndexes(triIndexes[i], triIndexes[i+1], triIndexes[i+2]);
