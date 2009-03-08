@@ -563,7 +563,7 @@ void Words::drawString()
         if (m_bParsedText) {
             char * pText = 0;
             parseString(&pAttrList, &pText);
-            pango_attr_list_insert_before(pAttrList, pLetterSpacing);
+//            pango_attr_list_insert_before(pAttrList, pLetterSpacing);
             pango_layout_set_text(m_pLayout, pText, -1);
             g_free (pText);
         } else {
