@@ -40,8 +40,8 @@ NodeDefinition CircleNode::createDefinition()
         .addArg(Arg<double>("x", 0, true, offsetof(CircleNode, m_Pos.x)))
         .addArg(Arg<double>("y", 0, true, offsetof(CircleNode, m_Pos.y)))
         .addArg(Arg<double>("r", 0, true, offsetof(CircleNode, m_Radius)))
-        .addArg(Arg<double>("texcoord1", 0, true, offsetof(CircleNode, m_TC1)))
-        .addArg(Arg<double>("texcoord2", 1, true, offsetof(CircleNode, m_TC2)))
+        .addArg(Arg<double>("texcoord1", 0, false, offsetof(CircleNode, m_TC1)))
+        .addArg(Arg<double>("texcoord2", 1, false, offsetof(CircleNode, m_TC2)))
         ;
 }
 

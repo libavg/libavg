@@ -41,8 +41,8 @@ NodeDefinition LineNode::createDefinition()
         .addArg(Arg<double>("y1", 0, true, offsetof(LineNode, m_P1.y)))
         .addArg(Arg<double>("x2", 0, true, offsetof(LineNode, m_P2.x)))
         .addArg(Arg<double>("y2", 0, true, offsetof(LineNode, m_P2.y)))
-        .addArg(Arg<double>("texcoord1", 0, true, offsetof(LineNode, m_TC1)))
-        .addArg(Arg<double>("texcoord2", 1, true, offsetof(LineNode, m_TC2)))
+        .addArg(Arg<double>("texcoord1", 0, false, offsetof(LineNode, m_TC1)))
+        .addArg(Arg<double>("texcoord2", 1, false, offsetof(LineNode, m_TC2)))
         ;
 }
 
