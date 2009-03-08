@@ -2,7 +2,7 @@
 <!DOCTYPE avg SYSTEM "../../doc/avg.dtd">
 <avg width="1280" height="720" mediadir="/Users/uzadow/Movies/hd_test_videos/">
   <video id="hd1" x="0" y="0" width="960" height="540" opacity="0.8"
-      loop="true" blendmode="add" href="Stormchasers_1080.wmv"/> 
+      loop="true" blendmode="add" href="Clip1_59.94i.mpg"/> 
   <video id="hd2" x="0" y="256" opacity="0.8" width="960" height="540"
-      blendmode="add" href="To_The_Limit_1080.wmv"/> 
+      blendmode="add" href="Clip2_59.94i.mpg"/> 
 </avg>

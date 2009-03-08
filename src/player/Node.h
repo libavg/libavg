@@ -81,14 +81,14 @@ class AVG_API Node
         double getOpacity() const;
         void setOpacity(double opacity);
         
-        virtual DivNodePtr getParent() const;
+        DivNodePtr getParent() const;
         void unlink();
 
-        virtual void preRender() {};
+        virtual void preRender();
         virtual void maybeRender(const DRect& Rect) {};
         virtual void render(const DRect& Rect) {};
         
-        virtual double getEffectiveOpacity();
+        double getEffectiveOpacity();
         virtual std::string dump(int indent = 0);
         std::string getTypeStr() const;
         
@@ -119,6 +119,8 @@ class AVG_API Node
         double m_Opacity;
         NodeState m_State;
         const NodeDefinition* m_pDefinition;
+
+        double m_EffectiveOpacity;
 };
 
 }

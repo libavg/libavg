@@ -127,6 +127,7 @@ static ProfilingZone VASizeProfilingZone("VectorNode::resize VA");
 
 void VectorNode::preRender()
 {
+    Node::preRender();
     ScopeTimer Timer(PrerenderProfilingZone);
     double curOpacity = getEffectiveOpacity();
 

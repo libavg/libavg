@@ -242,6 +242,7 @@ static ProfilingZone CameraFetchImage("Camera fetch image");
 
 void CameraNode::preRender()
 {
+    Node::preRender();
     ScopeTimer Timer(CameraFetchImage);
     m_pCurBmp = m_pCamera->getImage(false);
     if (m_pCurBmp) {

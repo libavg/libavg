@@ -105,6 +105,7 @@ void FilledVectorNode::setFillOpacity(double opacity)
 
 void FilledVectorNode::preRender()
 {
+    Node::preRender();
     double curOpacity = getParent()->getEffectiveOpacity()*m_FillOpacity;
     VertexArrayPtr pFillVA;
     pFillVA = m_pFillShape->getVertexArray();

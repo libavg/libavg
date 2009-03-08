@@ -646,6 +646,7 @@ void Words::drawString()
 
 void Words::preRender()
 {
+    Node::preRender();
     drawString();
 }
 

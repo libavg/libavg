@@ -262,6 +262,7 @@ AreaNodePtr DivNode::getElementByPos(const DPoint & pos)
 
 void DivNode::preRender()
 {
+    Node::preRender();
     for (int i=0; i<getNumChildren(); i++) {
         getChild(i)->preRender();
     }

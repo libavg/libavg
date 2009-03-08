@@ -160,6 +160,15 @@ void Node::unlink()
     pParent->removeChild(pParent->indexOf(getThis()));
 }
 
+void Node::preRender()
+{
+    if (getParent()) {
+        m_EffectiveOpacity = m_Opacity*getParent()->getEffectiveOpacity();
+    } else {
+        m_EffectiveOpacity = m_Opacity;
+    }
+}
+
 Node::NodeState Node::getState() const
 {
     return m_State;
@@ -202,11 +211,7 @@ NodePtr Node::getThis() const
 
 double Node::getEffectiveOpacity()
 {
-    if (getParent()) {
-        return m_Opacity*getParent()->getEffectiveOpacity();
-    } else {
-        return m_Opacity;
-    }
+    return m_EffectiveOpacity;
 }
 
 string Node::dump(int indent)
