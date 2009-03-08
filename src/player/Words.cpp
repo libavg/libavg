@@ -563,7 +563,10 @@ void Words::drawString()
         if (m_bParsedText) {
             char * pText = 0;
             parseString(&pAttrList, &pText);
-//            pango_attr_list_insert_before(pAttrList, pLetterSpacing);
+#if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2) 
+            // Workaround for pango bug.
+            pango_attr_list_insert_before(pAttrList, pLetterSpacing);
+#endif            
             pango_layout_set_text(m_pLayout, pText, -1);
             g_free (pText);
         } else {
