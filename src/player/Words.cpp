@@ -571,7 +571,9 @@ void Words::drawString()
             g_free (pText);
         } else {
             pAttrList = pango_attr_list_new();
+#if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2) 
             pango_attr_list_insert_before(pAttrList, pLetterSpacing);
+#endif
             pango_layout_set_text(m_pLayout, m_sText.c_str(), -1);
         }
         pango_layout_set_attributes(m_pLayout, pAttrList);
