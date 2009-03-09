@@ -218,7 +218,9 @@ class TextArea:
             focusContext.register(self)
         
         if cursorPixFile is None:
-            crspx = os.path.dirname(__file__)+'/'+DEFAULT_CURSOR_PX
+            crspx = os.path.join(os.path.dirname(__file__),DEFAULT_CURSOR_PX)
+            if not os.path.exists(crspx):
+                raise RuntimeError, "ERROR: Pixel template for textarea cursor file not found (%s)" %crspx
         else:
             crspx = cursorPixFile
 
