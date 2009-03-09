@@ -252,7 +252,25 @@ class WordsTestCase(AVGTestCase):
                  setSpacing,
                  lambda: self.compareImage("testLetterSpacing2", True)
                 ))
-        
+       
+    def testPositioning(self):
+        Player.loadString("""
+          <avg width="160" height="120">
+            <line x1="4" y1="20.5" x2="150" y2="20.5" color="FF0000"/>
+            <line x1="4.5" y1="20.5" x2="4.5" y2="110" color="FF0000"/>
+            <words id="words1" x="4" y="20" size="12" font="Bitstream Vera Sans"
+                    variant="roman" text="Norm"/>
+            <words id="words2" x="45" y="20" size="12" font="Bitstream Vera Sans"
+                    variant="roman" text="orm"/>
+            <words id="words3" x="75" y="20" size="12" font="Bitstream Vera Sans"
+                    variant="roman" text="ÖÄÜ"/>
+            <words id="words4" x="4" y="40" size="12" font="Bitstream Vera Sans"
+                    variant="oblique" text="Jtalic"/>
+          </avg>
+        """)
+        self.start(None,
+                (lambda: self.compareImage("testPositioning", True),
+                ))
 
 def wordsTestSuite(tests):
     availableTests = (
@@ -266,6 +284,7 @@ def wordsTestSuite(tests):
             "testRawText",
             "testWordsBR",
             "testLetterSpacing",
+            "testPositioning",
             )
     return AVGTestSuite (availableTests, WordsTestCase, tests)
 

@@ -131,6 +131,7 @@ class AVG_API Words : public RasterNode
         bool m_bParsedText;
         bool m_bRawTextMode;
         IntPoint m_StringExtents;
+        IntPoint m_PosOffset;
         PangoFontDescription * m_pFontDescription;
         PangoLayout * m_pLayout;
 

@@ -20,7 +20,7 @@
 //
 
 #include "Words.h"
-#include "DisplayEngine.h"
+#include "SDLDisplayEngine.h"
 #include "OGLTiledSurface.h"
 #include "NodeDefinition.h"
 
@@ -629,13 +629,14 @@ void Words::drawString()
             bitmap.num_grays = 256;
             bitmap.pixel_mode = ft_pixel_mode_grays;
 
-            int yoffset = 0;
+            m_PosOffset = IntPoint(0,0);
             if (ink_rect.y < 0) {
-                yoffset = -ink_rect.y;
+                m_PosOffset.y = ink_rect.y;
             }
-
-            // Use 1 as x position here to make sure italic text is never cut off.
-            pango_ft2_render_layout(&bitmap, m_pLayout, 1, yoffset);
+            if (ink_rect.x < 0) {
+                m_PosOffset.x = ink_rect.x;
+            }
+            pango_ft2_render_layout(&bitmap, m_pLayout, -m_PosOffset.x, -m_PosOffset.y);
 
             getSurface()->bind();
             if (m_LineSpacing == -1) {
@@ -661,7 +662,13 @@ void Words::render(const DRect& Rect)
 {
     ScopeTimer Timer(RenderProfilingZone);
     if (m_sText.length() != 0 && getEffectiveOpacity() > 0.001) {
+        if (m_PosOffset != IntPoint(0,0)) {
+            getDisplayEngine()->pushTransform(DPoint(m_PosOffset), 0, DPoint(0,0));
+        }
         getSurface()->blta8(getSize(), getEffectiveOpacity(), m_Color, getBlendMode());
+        if (m_PosOffset != IntPoint(0,0)) {
+            getDisplayEngine()->popTransform();
+        }
     }
 }
 
