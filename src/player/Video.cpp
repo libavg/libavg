@@ -152,6 +152,7 @@ void Video::seekToTime(long long Time)
 {
     if (getVideoState() != Unloaded) {
         seek(Time);
+        m_bSeekPending = true;
     } else {
         AVG_TRACE(Logger::WARNING, 
                 "Error in Video::SeekToTime: Video "+getID()+" not loaded.");
@@ -266,6 +267,7 @@ void Video::seek(long long DestTime)
     m_PauseTime = 0;
     m_PauseStartTime = Player::get()->getFrameTime();
     setFrameAvailable(false);
+    m_bSeekPending = true;
 }
 
 void Video::open(YCbCrMode ycbcrMode)
@@ -290,6 +292,7 @@ void Video::open(YCbCrMode ycbcrMode)
     if (m_pDecoder->hasAudio()) {
         getAudioEngine()->addSource(this);
     }
+    m_bSeekPending = true;
 }
 
 void Video::close()
@@ -367,18 +370,25 @@ bool Video::renderToSurface(OGLTiledSurface * pSurface)
         m_FramesPlayed++;
         m_FramesInRowTooLate = 0;
         pSurface->bind();
+        m_bSeekPending = false;
     } else if (FrameAvailable == FA_STILL_DECODING) {
         m_FramesPlayed++;
         m_FramesTooLate++;
         m_FramesInRowTooLate++;
-        if (m_FramesInRowTooLate > 3 && m_pDecoder->getMasterStream() != SS_AUDIO) {
+        if ((m_FramesInRowTooLate > 3 && m_pDecoder->getMasterStream() != SS_AUDIO) ||
+            m_bSeekPending) 
+        {
             // Heuristic: If we've missed more than 3 frames in a row, we stop
             // advancing movie time until the decoder has caught up.
-            m_PauseTime += (long long)(1000/(Player::get()->getEffectiveFramerate()));
+            double framerate = Player::get()->getEffectiveFramerate();
+            if (framerate != 0) {
+                m_PauseTime += (long long)(1000/framerate);
+            }
         }
 //        AVG_TRACE(Logger::PROFILE, "Missed video frame.");
     } else if (FrameAvailable == FA_USE_LAST_FRAME) {
         m_FramesInRowTooLate = 0;
+        m_bSeekPending = false;
 //        AVG_TRACE(Logger::PROFILE, "Video frame reused.");
     }
     if (m_pDecoder->isEOF()) {

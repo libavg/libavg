@@ -95,6 +95,7 @@ class AVG_API Video : public VideoBase, IFrameListener, IAudioSource
         int m_FramesTooLate;
         int m_FramesInRowTooLate;
         int m_FramesPlayed;
+        bool m_bSeekPending;
 
         long long m_StartTime;
         long long m_PauseTime;
