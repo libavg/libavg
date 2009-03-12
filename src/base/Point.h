@@ -49,6 +49,7 @@ public:
 
     void normalize();
     double getNorm();
+    Point getRotated (double angle, const Point& pivot = Point(0,0)) const;
 
     Point<NUM> & operator =(const Point<NUM>& p);
 
@@ -137,6 +138,26 @@ template<class NUM>
 double Point<NUM>::getNorm()
 {
     return sqrt(x*x+y*y);
+}
+
+template<class NUM>
+Point<NUM> Point<NUM>::getRotated (double angle, const Point<NUM>& pivot) const
+{
+
+    double cosVal = cos(angle);
+    double sinVal = sin(angle);
+
+    // translate pivot to origin
+    Point<NUM> translated = *this - pivot;
+    
+    // calculate rotated coordinates about the origin
+    Point<NUM> rotated(translated.x * cosVal - translated.y * sinVal,
+        translated.x * sinVal + translated.y * cosVal);
+
+    // re-translate pivot to original position
+    rotated += pivot;
+
+    return rotated;
 }
 
 template<class NUM>

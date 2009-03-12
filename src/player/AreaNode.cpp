@@ -486,12 +486,12 @@ void AreaNode::setFragmentShaderProgram(std::string sProgram)
 DPoint AreaNode::toLocal(const DPoint& globalPos) const
 {
     DPoint localPos = globalPos-m_RelViewport.tl;
-    return rotate(localPos, -getAngle(), getPivot());
+    return localPos.getRotated(-getAngle(), getPivot());
 }
 
 DPoint AreaNode::toGlobal(const DPoint& localPos) const
 {
-    DPoint globalPos = rotate(localPos, getAngle(), getPivot());
+    DPoint globalPos = localPos.getRotated(getAngle(), getPivot());
     return globalPos+m_RelViewport.tl;
 }
 

@@ -188,7 +188,7 @@ DPoint DeDistort::inverse_transform_point(const DPoint &pt)
     DPoint DestPt = pt-m_CamExtents/2;
     DestPt = DPoint(2*DestPt.x/m_CamExtents.x, 2*DestPt.y/m_CamExtents.y);
     DestPt = inv_trapezoid(m_TrapezoidFactor, DestPt);
-    DestPt = rotate(DestPt, -m_Angle);
+    DestPt = DestPt.getRotated(-m_Angle);
     DestPt *= m_RescaleFactor;
     DestPt = inverse_undistort(m_DistortionParams, DestPt);
     DestPt = DPoint(DestPt.x*m_CamExtents.x/2, DestPt.y*m_CamExtents.y/2);
@@ -209,7 +209,7 @@ DPoint DeDistort::transform_point(const DPoint &pt)
     DestPt = DPoint(2*DestPt.x/m_CamExtents.x, 2*DestPt.y/m_CamExtents.y);
     DestPt = undistort(m_DistortionParams, DestPt);
     DestPt /= m_RescaleFactor;
-    DestPt = rotate(DestPt, m_Angle);
+    DestPt = DestPt.getRotated(m_Angle);
     DestPt = trapezoid(m_TrapezoidFactor, DestPt);
     DestPt = DPoint(DestPt.x*m_CamExtents.x/2, DestPt.y*m_CamExtents.y/2);
     DestPt += m_CamExtents/2;

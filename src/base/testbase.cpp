@@ -291,6 +291,11 @@ public:
             DPoint v2(DPoint(1,0));
             TEST(getLineLineIntersection(p1, v1, p2, v2) == DPoint(1,1));
         }
+        TEST(almostEqual(DPoint(10,0).getRotated(PI, DPoint(15,5)), DPoint(20,10)))
+        TEST(almostEqual(DPoint(10,0).getRotated(PI*0.5, DPoint(15,5)), DPoint(20,0)))
+        TEST(almostEqual(DPoint(10,0).getRotated(PI*1.5, DPoint(15,5)), DPoint(10,10)))
+        TEST(almostEqual(DPoint(10,0).getRotated(PI*2, DPoint(15,5)), DPoint(10,0)))
+        TEST(almostEqual(DPoint(23,0).getRotated(PI*0.5), DPoint(0,23)))
     }
 };
 
