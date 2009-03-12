@@ -360,6 +360,10 @@ void FFMpegDecoder::close()
 
 void FFMpegDecoder::seek(long long DestTime) 
 {
+    if (DestTime == 0 && m_LastVideoFrameTime == -(long long)(1000.0/m_FPS)) {
+        // Hack to improve performance when looping videos
+        return;
+    }
     if (m_bFirstPacket && m_pVStream) {
         AVFrame Frame;
         long long FrameTime;
@@ -893,6 +897,7 @@ void FFMpegDecoder::readFrame(AVFrame& Frame, long long& FrameTime)
 {
     assert(m_pDemuxer);
     if (m_bVideoEOF) {
+        seek(0);
         return;
     }
     if (m_bEOFPending) {
