@@ -50,31 +50,13 @@ Image::Image(const string& sFilename, bool bTiled)
 }
 
 Image::Image(const Bitmap* pBmp, bool bTiled)
-    : m_pSurface(0),
+    : m_sFilename(""),
+      m_pSurface(0),
+      m_pEngine(0),
       m_State(CPU),
       m_bTiled(bTiled)
 {
-    PixelFormat pf = R8G8B8X8;
-    if (pBmp->hasAlpha()) {
-        pf = R8G8B8A8;
-    }
-    if (pBmp->getPixelFormat() == I8) {
-        pf = I8;
-    }
-#if defined(__i386__) || defined(_WIN32)
-    switch (pf) {
-        case R8G8B8X8:
-            pf = B8G8R8X8;
-            break;
-        case R8G8B8A8:
-            pf = B8G8R8A8;
-            break;
-        default:
-            break;
-    }
-#endif
-    m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
-    m_pBmp->copyPixels(*pBmp);
+    setBitmap(pBmp);
 }
 
 Image::~Image()
@@ -83,6 +65,47 @@ Image::~Image()
         delete m_pSurface;
         m_pSurface = 0;
     }
+}
+        
+void Image::setBitmap(const Bitmap * pBmp)
+{
+    PixelFormat pf = calcSurfacePF(*pBmp);
+    if (m_pEngine) {
+        if (!m_pSurface) {
+            if (m_bTiled) {
+                m_pSurface = m_pEngine->createTiledSurface();
+            } else {
+                m_pSurface = new OGLSurface(m_pEngine);
+            }
+        }
+        if (m_pSurface->getSize() != pBmp->getSize() || 
+                m_pSurface->getPixelFormat() != pf)
+        {
+            m_pSurface->create(pBmp->getSize(), pf, true);
+        }            
+        BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
+        pSurfaceBmp->copyPixels(*pBmp);
+        m_pSurface->unlockBmps();
+        m_pBmp=BitmapPtr();
+        m_State = GPU;
+    } else {
+#if defined(__i386__) || defined(_WIN32)
+        switch (pf) {
+            case R8G8B8X8:
+                pf = B8G8R8X8;
+                break;
+            case R8G8B8A8:
+                pf = B8G8R8A8;
+                break;
+            default:
+                break;
+        }
+#endif
+        m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
+        m_pBmp->copyPixels(*pBmp);
+        m_State = CPU;
+    }
+
 }
 
 void Image::moveToGPU(SDLDisplayEngine* pEngine)
@@ -198,11 +221,7 @@ void Image::load()
 
 void Image::setupSurface()
 {
-    PixelFormat pf;
-    pf = R8G8B8X8;
-    if (m_pBmp->hasAlpha()) {
-        pf = R8G8B8A8;
-    }
+    PixelFormat pf = calcSurfacePF(*m_pBmp);
     if (m_bTiled) {
         m_pSurface = m_pEngine->createTiledSurface();
     } else {
@@ -218,6 +237,19 @@ void Image::setupSurface()
 #endif
     m_pSurface->unlockBmps();
     m_pBmp=BitmapPtr();
+}
+
+PixelFormat Image::calcSurfacePF(const Bitmap& bmp)
+{
+    PixelFormat pf;
+    pf = R8G8B8X8;
+    if (bmp.hasAlpha()) {
+        pf = R8G8B8A8;
+    }
+    if (bmp.getPixelFormat() == I8) {
+        pf = I8;
+    }
+    return pf;
 }
 
 }

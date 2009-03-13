@@ -558,8 +558,10 @@ void Words::drawString()
         m_pLayout = pango_layout_new(s_pPangoContext);
 
         PangoAttrList * pAttrList = 0;
+#if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2) 
         PangoAttribute * pLetterSpacing = pango_attr_letter_spacing_new
                 (m_LetterSpacing*1024);
+#endif
         if (m_bParsedText) {
             char * pText = 0;
             parseString(&pAttrList, &pText);

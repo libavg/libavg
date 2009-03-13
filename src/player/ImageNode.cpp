@@ -93,12 +93,8 @@ void ImageNode::setBitmap(const Bitmap * pBmp)
     if(!pBmp) {
         throw Exception(AVG_ERR_UNSUPPORTED, "setBitmap(): bitmap must not be None!");
     }
-
-    m_pImage = ImagePtr(new Image(pBmp, true));
+    m_pImage->setBitmap(pBmp);
     m_href = "";
-    if (getState() == NS_CANRENDER) {
-        m_pImage->moveToGPU(getDisplayEngine());
-    }
     IntPoint Size = getMediaSize();
     setViewport(-32767, -32767, Size.x, Size.y);
 }

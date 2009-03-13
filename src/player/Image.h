@@ -45,6 +45,8 @@ class AVG_API Image
         Image(const Bitmap* pBmp, bool bTiled);
         virtual ~Image();
 
+        void setBitmap(const Bitmap * pBmp);
+
         virtual void moveToGPU(SDLDisplayEngine* pEngine);
         virtual void moveToCPU();
 
@@ -64,6 +66,7 @@ class AVG_API Image
     private:
         void load();
         void setupSurface();
+        PixelFormat calcSurfacePF(const Bitmap& Bmp);
 
         std::string m_sFilename;
         BitmapPtr m_pBmp;
