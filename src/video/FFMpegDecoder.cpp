@@ -29,6 +29,7 @@
 #include "../base/ObjectCounter.h"
 
 #include "../graphics/Filterflipuv.h"
+#include "../graphics/Filterfliprgba.h"
 
 #include <iostream>
 #include <sstream>
@@ -829,6 +830,9 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
         }
         sws_scale(m_pSwsContext, Frame.data, Frame.linesize, 0, 
             enc->height, DestPict.data, DestPict.linesize);
+#ifndef __i386__
+        FilterFlipRGBA().applyInPlace(pBmp);
+#endif
     }
 }
        
