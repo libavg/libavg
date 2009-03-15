@@ -48,13 +48,12 @@ Shape::Shape(const string& sFilename, int texWrapSMode, int texWrapTMode)
 
 Shape::~Shape()
 {
-    if (getState() == GPU) {
-        deleteTexture();
-    }
+    deleteTexture();
 }
 
 void Shape::setBitmap(const Bitmap* pBmp)
 {
+    deleteTexture();
     State prevState = getState();
     Image::setBitmap(pBmp);
     if (getState() == GPU) {
@@ -102,7 +101,7 @@ void Shape::downloadTexture()
     PixelFormat pf = getPixelFormat();
     IntPoint size = getSize();
     SDLDisplayEngine* pEngine = getEngine();
-    
+   
     m_TexID = pEngine->createTexture(size, pf);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_TexWrapSMode);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_TexWrapTMode);
@@ -131,7 +130,9 @@ void Shape::downloadTexture()
 
 void Shape::deleteTexture()
 {
-    glDeleteTextures(1, &m_TexID);
+    if (m_TexID != -1) {
+        glDeleteTextures(1, &m_TexID);
+    }
 }
 
 
