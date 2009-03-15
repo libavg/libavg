@@ -106,7 +106,9 @@ class AVG_API AreaNode: public Node
 
         DPoint getRelPos(const DPoint& AbsPos) const;
         DPoint getAbsPos(const DPoint& RelPos) const;
-
+        DPoint toLocal(const DPoint& pos) const;
+        DPoint toGlobal(const DPoint& pos) const;
+ 
         void setMouseEventCapture();
         void releaseMouseEventCapture();
         void setEventCapture(int cursorID);
@@ -148,9 +150,6 @@ class AVG_API AreaNode: public Node
         void addEventHandler(Event::Type EventType, Event::Source Source, 
                 const std::string& Code);
             
-        DPoint toLocal(const DPoint& pos) const;
-        DPoint toGlobal(const DPoint& pos) const;
- 
     private:
         PyObject * findPythonFunc(const std::string& Code);
 

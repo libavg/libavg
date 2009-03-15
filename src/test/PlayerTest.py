@@ -121,6 +121,7 @@ class PlayerTestCase(AVGTestCase):
                  lambda: Player.showCursor(0),
                  lambda: Player.showCursor(1)
                 ))
+
     def testDivResize(self):
         def checkSize (w, h):
             self.assert_(node.width == w)
@@ -172,13 +173,18 @@ class PlayerTestCase(AVGTestCase):
             Player.getElementByID("outer").angle += 0.1
             Player.getElementByID("inner").angle -= 0.1
         def testCoordConversions():
-            relPos = Player.getElementByID("inner").getRelPos((90, 80))
+            innerNode = Player.getElementByID("inner")
+            relPos = innerNode.getRelPos((90, 80))
             self.assert_(almostEqual(relPos, (10, 10)))
-            relPos = Player.getElementByID("outer").getRelPos((90, 80))
+            outerNode = Player.getElementByID("outer")
+            relPos = outerNode.getRelPos((90, 80))
             self.assert_(almostEqual(relPos[0], 12.332806394528092) and
                     almostEqual(relPos[1], 6.9211188716194592))
-            absPos = Player.getElementByID("outer").getAbsPos(relPos)
+            absPos = outerNode.getAbsPos(relPos)
             self.assert_(almostEqual(absPos, (90, 80)))
+            self.assert_(outerNode.getElementByPos((10, 10)) == innerNode)
+            self.assert_(outerNode.getElementByPos((0, 10)) == outerNode)
+            self.assert_(outerNode.getElementByPos((-10, -110)) == None)
         def sendEvent(x, y):
             Helper = Player.getTestHelper()
             Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,

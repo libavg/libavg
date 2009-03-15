@@ -118,6 +118,11 @@ void export_node()
                 "Transforms a position in window coordinates to a position\n"
                 "in coordinates relative to the node.\n"
                 "@param abspos: Absolute coordinate to transform.")
+        .def("getElementByPos", &AreaNode::getElementByPos,
+                "getElementByPos(pos) -> AreaNode\n"
+                "Returns the topmost child node that is at the position given. pos\n"
+                "is in coordinates relative to the called node. The algorithm used\n"
+                "is the same as the cursor hit test algorithm used for events.\n")
         .def("getMediaSize", &AreaNode::getMediaSize,
                 "getMediaSize() -> mediasize\n"
                 "Returns the size in pixels of the media in the node. Image nodes\n"

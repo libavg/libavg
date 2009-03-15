@@ -233,14 +233,13 @@ int DivNode::indexOf(NodePtr pChild)
 
 AreaNodePtr DivNode::getElementByPos(const DPoint & pos)
 {
-    DPoint relPos = toLocal(pos);
-    if (relPos.x >= 0 && relPos.y >= 0 && 
-            relPos.x < getSize().x && relPos.y < getSize().y &&
+    if (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y &&
             reactsToMouseEvents())
     {
         for (int i=getNumChildren()-1; i>=0; i--) {
             AreaNodePtr pCurChild = dynamic_pointer_cast<AreaNode>(getChild(i));
             if (pCurChild) {
+                DPoint relPos = pCurChild->toLocal(pos);
                 AreaNodePtr pFoundNode = pCurChild->getElementByPos(relPos);
                 if (pFoundNode) {
                     return pFoundNode;

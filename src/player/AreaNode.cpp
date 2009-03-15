@@ -321,9 +321,7 @@ bool AreaNode::reactsToMouseEvents()
 
 AreaNodePtr AreaNode::getElementByPos(const DPoint & pos)
 {
-    DPoint relPos = toLocal(pos);
-    if (relPos.x >= 0 && relPos.y >= 0 && 
-            relPos.x < getSize().x && relPos.y < getSize().y &&
+    if (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y &&
             reactsToMouseEvents())
     {
         return dynamic_pointer_cast<AreaNode>(getThis());
