@@ -1,0 +1,91 @@
+import math
+from libavg import Point2D
+
+def getAngle(p1, p2):
+    vec = p2 - p1
+    res = math.atan2(vec.y, vec.x)
+    if res < 0:
+        res += math.pi * 2
+    return res
+
+def getDistance (p, q):
+    return math.sqrt((p.x-q.x)**2 + (p.y-q.y)**2)
+
+def getDistSquared (p, q):
+    return (p.x-q.x)**2 + (p.y-q.y)**2
+
+def getScaledDim (size, max, min):
+    width, height = size
+
+    if max:
+        max = Point2D(max)
+        if width > max.x:
+            height = height * (max.x / width)
+            width = max.x
+        if height > max.y:
+            width = width * (max.y / height)
+            height = max.y
+
+    if min:
+        min = Point2D(min)
+        if width < min.x:
+            height = height * (min.x / width)
+            width = min.x
+        if height < min.y:
+            width = width * (min.y / height)
+            height = min.y
+
+    return Point2D(width, height)
+
+
+class EquationNotSolvable (Exception):
+    pass
+class EquationSingular (Exception):
+    pass
+
+def gauss_jordan(m, eps = 1.0/(10**10)):
+    """Puts given matrix (2D array) into the Reduced Row Echelon Form.
+         Returns True if successful, False if 'm' is singular.
+         NOTE: make sure all the matrix items support fractions! Int matrix will NOT work!
+         Written by Jarno Elonen in April 2005, released into Public Domain
+         http://elonen.iki.fi/code/misc-notes/affine-fit/index.html"""
+    (h, w) = (len(m), len(m[0]))
+    for y in range(0,h):
+        maxrow = y
+        for y2 in range(y+1, h):        # Find max pivot
+            if abs(m[y2][y]) > abs(m[maxrow][y]):
+                maxrow = y2
+        (m[y], m[maxrow]) = (m[maxrow], m[y])
+        if abs(m[y][y]) <= eps:         # Singular?
+            raise EquationSingular
+        for y2 in range(y+1, h):        # Eliminate column y
+            c = m[y2][y] / m[y][y]
+            for x in range(y, w):
+                m[y2][x] -= m[y][x] * c
+    for y in range(h-1, 0-1, -1): # Backsubstitute
+        c    = m[y][y]
+        for y2 in range(0,y):
+            for x in range(w-1, y-1, -1):
+                m[y2][x] -=    m[y][x] * m[y2][y] / c
+        m[y][y] /= c
+        for x in range(h, w):             # Normalize row y
+            m[y][x] /= c
+    return m
+
+
+def solveEquationMatrix(_matrix, eps = 1.0/(10**10)):
+    matrix=[]
+    for coefficients, res in _matrix:
+        newrow = map(float, coefficients + (res,))
+        matrix.append(newrow)
+    matrix = gauss_jordan (matrix)
+    res=[]
+    for col in xrange(len(matrix[0])-1):
+        rows = filter(lambda row: row[col] >= eps, matrix)
+        if len(rows)!=1:
+            raise EquationNotSolvable
+        res.append (rows[0][-1])
+
+    return res
+
+
