@@ -110,6 +110,13 @@ void VectorNode::setTexHRef(const string& href)
     setDrawNeeded(true);
 }
 
+void VectorNode::setBitmap(const Bitmap * pBmp)
+{
+    m_TexHRef = "";
+    m_pShape->setBitmap(pBmp);
+    setDrawNeeded(true);
+}
+
 const string& VectorNode::getBlendModeStr() const
 {
     return m_sBlendMode;

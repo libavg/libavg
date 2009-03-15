@@ -69,6 +69,9 @@ Image::~Image()
         
 void Image::setBitmap(const Bitmap * pBmp)
 {
+    if(!pBmp) {
+        throw Exception(AVG_ERR_UNSUPPORTED, "setBitmap(): bitmap must not be None!");
+    }
     PixelFormat pf = calcSurfacePF(*pBmp);
     if (m_pEngine) {
         if (!m_pSurface) {
@@ -105,6 +108,7 @@ void Image::setBitmap(const Bitmap * pBmp)
         m_pBmp->copyPixels(*pBmp);
         m_State = CPU;
     }
+    m_sFilename = "";
 
 }
 

@@ -40,6 +40,8 @@ class AVG_API Shape: public Image
         Shape(const std::string& sFilename, int texWrapSMode, int texWrapTMode);
         virtual ~Shape();
 
+        void setBitmap(const Bitmap * pBmp);
+
         virtual void moveToGPU(SDLDisplayEngine* pEngine);
         virtual void moveToCPU();
 

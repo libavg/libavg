@@ -53,6 +53,18 @@ Shape::~Shape()
     }
 }
 
+void Shape::setBitmap(const Bitmap* pBmp)
+{
+    State prevState = getState();
+    Image::setBitmap(pBmp);
+    if (getState() == GPU) {
+        downloadTexture();
+        if (prevState != GPU) {
+            m_pVertexArray = VertexArrayPtr(new VertexArray(0, 0, 100, 100));
+        }
+    }
+}
+
 void Shape::moveToGPU(SDLDisplayEngine* pEngine)
 {
     Image::moveToGPU(pEngine);

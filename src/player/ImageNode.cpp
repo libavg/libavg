@@ -90,9 +90,6 @@ void ImageNode::setHRef(const string& href)
 
 void ImageNode::setBitmap(const Bitmap * pBmp)
 {
-    if(!pBmp) {
-        throw Exception(AVG_ERR_UNSUPPORTED, "setBitmap(): bitmap must not be None!");
-    }
     m_pImage->setBitmap(pBmp);
     m_href = "";
     IntPoint Size = getMediaSize();

@@ -94,6 +94,9 @@ class VectorTestCase(AVGTestCase):
         def moveTexture():
             self.line.texcoord1 = -0.5
             self.line.texcoord2 = 1.5
+        def bmpTexture():
+            bmp = avg.Bitmap("rgb24alpha-64x64.png")
+            self.line.setBitmap(bmp)
         canvas = self.makeEmptyCanvas()
         addLine()
         self.start(None,
@@ -107,7 +110,9 @@ class VectorTestCase(AVGTestCase):
                  reAddLine,
                  lambda: self.compareImage("testtexturedline1", False),
                  moveTexture,
-                 lambda: self.compareImage("testtexturedline3", False)
+                 lambda: self.compareImage("testtexturedline3", False),
+                 bmpTexture,
+                 lambda: self.compareImage("testtexturedline4", False)
                 ))
 
     def testLineOpacity(self):
