@@ -17,7 +17,7 @@
 #
 # Current versions can be found at www.libavg.de
 #
-# Original author of this file is Martin Heistermann <mh@sponc.de>
+# Original author of this file is Martin Heistermann <mh at sponc dot de>
 #
 
 from libavg import Point2D
