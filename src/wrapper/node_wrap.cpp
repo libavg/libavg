@@ -337,12 +337,12 @@ void export_node()
         .add_property("filltexcoord2", make_function(&FilledVectorNode::getFillTexCoord2,
                return_value_policy<copy_const_reference>()), 
                &FilledVectorNode::setFillTexCoord2)
-/*        .def("setFillBitmap", &FilledVectorNode::setFillBitmap, 
+        .def("setFillBitmap", &FilledVectorNode::setFillBitmap, 
                 "setFillBitmap(bitmap)\n"
                 "Sets a bitmap to use as a fill texture. Sets filltexhref to an empty\n"
                 "string.\n"
                 "@param bitmap: A libavg bitmap object to use.")
-*/    ;
+    ;
 
     class_<LineNode, bases<VectorNode>, boost::noncopyable>("LineNode", 
             no_init)

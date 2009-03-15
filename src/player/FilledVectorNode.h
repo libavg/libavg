@@ -41,6 +41,7 @@ class AVG_API FilledVectorNode : public VectorNode
 
         const std::string& getFillTexHRef() const;
         void setFillTexHRef(const std::string& href);
+        void setFillBitmap(const Bitmap * pBmp);
 
         const DPoint& getFillTexCoord1() const;
         void setFillTexCoord1(const DPoint& pt);

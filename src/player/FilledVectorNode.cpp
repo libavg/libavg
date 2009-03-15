@@ -94,6 +94,13 @@ void FilledVectorNode::setFillTexHRef(const string& href)
     setDrawNeeded(true);
 }
 
+void FilledVectorNode::setFillBitmap(const Bitmap * pBmp)
+{
+    m_FillTexHRef = "";
+    m_pFillShape->setBitmap(pBmp);
+    setDrawNeeded(true);
+}
+
 const DPoint& FilledVectorNode::getFillTexCoord1() const
 {
     return m_FillTexCoord1;
