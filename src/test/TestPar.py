@@ -37,7 +37,7 @@ def playerTestSuite():
     suite.addTest(ParPortTestCase("test"))
     return suite
 
-Player = avg.Player()
+Player = avg.Player.get()
 
 runner = unittest.TextTestRunner()
 runner.run(playerTestSuite())

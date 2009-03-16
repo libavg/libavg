@@ -36,7 +36,7 @@ Log.setCategories(Log.APP |
 #         Log.EVENTS2
               )
 
-Player = avg.Player()
+Player = avg.Player.get()
 self._loadEmpty()
 root = Player.getRootNode()
 node = Player.createNode("sound",

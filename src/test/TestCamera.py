@@ -56,7 +56,7 @@ def playerTestSuite(bpp):
     suite.addTest(CameraTestCase("test", bpp))
     return suite
 
-Player = avg.Player()
+Player = avg.Player.get()
 Log = avg.Logger.get()
 Log.setCategories(Log.APP |
           Log.WARNING | 

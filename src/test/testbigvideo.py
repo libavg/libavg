@@ -21,7 +21,7 @@ class BigVideoTestCase(unittest.TestCase):
 #        Player.setInterval(10, onFrame)
         Player.play()
 
-Player = avg.Player()
+Player = avg.Player.get()
 Log = avg.Logger.get()
 Log.setCategories(Log.APP |
             Log.WARNING | 

@@ -25,7 +25,7 @@ Log.setCategories(Log.APP |
           Log.CONFIG |
           Log.EVENTS)
 
-AVGPlayer = avg.Player()
+AVGPlayer = avg.Player.get()
 AVGPlayer.setResolution(0,0,0,0)
 
 AVGPlayer.loadFile("videoperformance.avg")

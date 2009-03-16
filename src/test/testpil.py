@@ -29,7 +29,7 @@ class PILTestCase(unittest.TestCase):
         Player.play()
         self.assert_(Player.isPlaying() == 0)
 
-Player = avg.Player()
+Player = avg.Player.get()
 runner = unittest.TextTestRunner()
 runner.run(PILTestCase("test"))
 

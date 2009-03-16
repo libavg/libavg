@@ -42,7 +42,7 @@ def hardwareTestSuite():
     suite.addTest(ConradRelaisTestCase("test"))
     return suite
     
-Player = avg.Player()
+Player = avg.Player.get()
 runner = unittest.TextTestRunner()
 runner.run(hardwareTestSuite())
 

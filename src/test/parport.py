@@ -77,7 +77,7 @@ def keyup():
 ParPort = avg.ParPort()
 ParPort.init("")
 
-Player = avg.Player()
+Player = avg.Player.get()
 Player.loadFile("parport.avg")
 Player.play(30)
 

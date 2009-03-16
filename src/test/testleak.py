@@ -142,7 +142,7 @@ def init_termine():
     terminVonLinks = 0 
     Player.setTimeout(10, start_termin)
 
-Player = avg.Player()
+Player = avg.Player.get()
 Log = avg.Logger.get()
 Player.setResolution(0, 0, 0, 0) 
 Log.setCategories(Log.APP |
