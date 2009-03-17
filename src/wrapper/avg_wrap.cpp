@@ -309,6 +309,12 @@ BOOST_PYTHON_MODULE(avg)
                 "showCursor(show)\n"
                 "Shows or hides the mouse cursor.\n"
                 "@param show: True if the mouse cursor should be visible.\n")
+        .def("setCursor", &Player::setCursor,
+                "setCursor(bitmap, hotspot)\n"
+                "Sets the mouse cursor to the bitmap given. The bitmap must have a size\n"
+                "divisible by 8 and an RGBA pixel format. The cursor generated is binary\n"
+                "black and white with a binary transparency channel. hotspot is the relative\n"
+                "position of the actual pointing coordinate in the bitmap.\n")
         .def("getElementByID", &Player::getElementByID,
                 "getElementByID(id) -> node\n"
                 "Returns an element in the avg tree.\n"

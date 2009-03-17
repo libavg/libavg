@@ -102,6 +102,7 @@ class AVG_API Player : IEventSink
         MouseEventPtr getMouseState() const;
         void setMousePos(const IntPoint& pos);
         Bitmap * screenshot();
+        void setCursor(const Bitmap* pBmp, IntPoint hotSpot);
         void showCursor(bool bShow);
         void setEventCapture(AreaNodePtr pNode, int cursorID=MOUSECURSORID);
         void releaseEventCapture(int cursorID=MOUSECURSORID);
