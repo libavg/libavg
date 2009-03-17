@@ -52,12 +52,12 @@ class Grabable:
             onDragStart = lambda: None,
             initialDown = None,
             inertia = 0.95,
-            rotInertia = 0.95,
+            torque = 0.95,
             moveNode = True):
 
         global g_player
         self.__inertia = inertia
-        self.__rotInertia = rotInertia
+        self.__torque = torque
         self.__node = node
         self.__minSize = minSize
         self.__maxSize = maxSize
@@ -114,11 +114,11 @@ class Grabable:
                     self.__callback['onStop']()
                     self.__stopInertia()
                     return
-            if(self.__moveNode):
+            if self.__moveNode:
                 self.__node.pos += self.__speed
                 self.__node.angle += self.__rotSpeed
             self.__speed *= self.__inertia
-            self.__rotSpeed *= self.__inertia
+            self.__rotSpeed *= self.__torque
         else:
             # save current speed for inertia
             pos = self.__getAbsCenter()
