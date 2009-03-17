@@ -91,7 +91,13 @@ class Grabable:
 
     def isDragging(self):
         return len(self.__eventList) > 0
-
+    
+    def getSpeed(self):
+        return self.__speed
+    
+    def getAngle(self):
+        return self.__angle
+    
     def delete(self):
         global g_player
         g_player.clearInterval(self.__onFrameHandler)
@@ -108,9 +114,10 @@ class Grabable:
                     self.__callback['onStop']()
                     self.__stopInertia()
                     return
-            self.__node.pos += self.__speed
+            if(self.__moveNode):
+                self.__node.pos += self.__speed
+                self.__node.angle += self.__rotSpeed
             self.__speed *= self.__inertia
-            self.__node.angle += self.__rotSpeed
             self.__rotSpeed *= self.__inertia
         else:
             # save current speed for inertia
