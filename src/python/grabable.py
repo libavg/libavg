@@ -243,7 +243,6 @@ class Grabable:
                 ratio = newSize.x / size.x
                 newPivot = pivot * ratio
 
-                p
                 pos += getOffsetForMovedPivot(
                         oldPivot = pivot,
                         newPivot = newPivot,
