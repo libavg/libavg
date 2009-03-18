@@ -4,4 +4,4 @@ import draggable
 import camcalibrator
 import button
 import textarea
-from grabable import Grabable
+from grabbable import Grabbable

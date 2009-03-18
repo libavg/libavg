@@ -32,9 +32,9 @@ NUM_SPEEDS = 5
 
 g_player = avg.Player.get()
 
-class Grabable:
+class Grabbable:
     """Helper for multitouch object movement.
-    Grabable will add the well-known multitouch gestures
+    Grabbable will add the well-known multitouch gestures
     to a node, i.e. moving with one finger, rotating,
     resizing and moving with 2 fingers.
     It also works with many more cursors/fingers, clustering
@@ -205,7 +205,7 @@ class Grabable:
             try:
                 param = solveEquationMatrix (equationMatrix)
             except (EquationSingular, EquationNotSolvable):
-                print "WARNING: Grabable: cannot solve equation, skipping movement"
+                print "WARNING: Grabbable: cannot solve equation, skipping movement"
                 return False
 
             absTouchCenter = cursor2.getPos() + (cursor1.getPos() - cursor2.getPos()) / 2
