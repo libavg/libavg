@@ -66,23 +66,35 @@ class Draggable:
         self.__node.setEventHandler(avg.CURSORDOWN, avg.MOUSE | avg.TOUCH, None)
         self.__node.setEventHandler(avg.CURSORMOTION, avg.MOUSE | avg.TOUCH, self.__onMove)
         self.__node.setEventHandler(avg.CURSORUP, avg.MOUSE | avg.TOUCH, self.__onStop)
+        stopBubble = False
         if self.__onDragStart:
-            self.__onDragStart(event)
+            stopBubble = self.__onDragStart(event)
+            if stopBubble == None:
+                stopBubble = False
         self.__startDragPos = self.__node.pos
+        return stopBubble
 
     def __onMove(self, event):
         if event.cursorid == self.__cursorID:
             self.__node.x = self.__startDragPos[0]+event.x-event.lastdownpos[0]
             self.__node.y = self.__startDragPos[1]+event.y-event.lastdownpos[1]
+            stopBubble = False
             if self.__onDragMove:
-                self.__onDragMove(event)
+                stopBubble = self.__onDragMove(event)
+                if stopBubble == None:
+                    stopBubble = False
+            return stopBubble
 
     def __onStop(self, event):
         if event.cursorid == self.__cursorID:
             self.__onMove(event)
         self.__stop()
+        stopBubble = False
         if self.__onDragEnd:
-            self.__onDragEnd(event)
+            stopBubble = self.__onDragEnd(event)
+            if stopBubble == None:
+                stopBubble = False
+        return stopBubble
     
     def __stop(self):
         self.__isDragging = False
