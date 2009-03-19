@@ -59,7 +59,10 @@ BOOST_PYTHON_MODULE(avg)
         "G{classtree Tracker TrackerCalibrator}\n"
         "G{classtree Logger}\n"
         "G{classtree ConradRelais ParPort}";
-    scope().attr("svn_revision") = "$Rev$";
+
+    scope().attr("svnrevision") = "$Rev$";
+    scope().attr("svndate") = "$LastChangedDate $";
+
 #if (BOOST_VERSION / 100000) > 1 || ((BOOST_VERSION / 100) % 1000) >= 33
     register_exception_translator<Exception>(exception_translator);
 #endif
