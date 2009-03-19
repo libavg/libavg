@@ -182,12 +182,11 @@ class ClusteredEventList:
                 for p in cursors:
                     for q in cursors:
                         dist = getDistSquared(p.getPos(),q.getPos())
-                        if dist >= maxDist:
+                        if dist >= maxDist and p != q:
                             points = p,q
                             maxDist = dist
 
                 assert(points)
-                assert(points[0] != points[1])
                 for point in points:
                     createCentroid(point)
             elif len(self.__eventList) == 1:
