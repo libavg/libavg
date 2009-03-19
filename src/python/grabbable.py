@@ -113,10 +113,21 @@ class Grabbable:
                     self.__stopped = True
                     self.__callback['onStop']()
                     self.__stopInertia()
-                    return
+                return
+
+            pos = self.__node.pos + self.__speed
+            angle = self.__node.angle + self.__rotSpeed
+            size = self.__node.size
+            pivot = self.__node.pivot
+
             if self.__moveNode:
-                self.__node.pos += self.__speed
-                self.__node.angle += self.__rotSpeed
+                self.__node.pos = pos
+                self.__node.size = size
+                self.__node.angle = angle
+                self.__node.pivot = pivot
+
+            self.__callback['onMotion'](pos, size, angle, pivot)
+
             self.__speed *= self.__inertia
             self.__rotSpeed *= self.__torque
         else:
