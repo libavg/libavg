@@ -90,7 +90,7 @@ void Image::setBitmap(const Bitmap * pBmp)
         pSurfaceBmp->copyPixels(*pBmp);
         m_pSurface->unlockBmps();
         if (m_bTiled) {
-            getTiledSurface()->rebind();
+            getTiledSurface()->bind();
         }
         m_pBmp=BitmapPtr();
         m_State = GPU;

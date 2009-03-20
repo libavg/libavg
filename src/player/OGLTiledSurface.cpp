@@ -54,7 +54,6 @@ OGLTiledSurface::~OGLTiledSurface()
 
 void OGLTiledSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload)
 {
-//    cerr << "create: " << Size << ", " << Bitmap::getPixelFormatString(pf) << endl;
     if (m_bBound && getSize() == Size && getPixelFormat() == pf) {
         // If nothing's changed, we can ignore everything.
         return;
@@ -148,6 +147,7 @@ string getGlModeString(int Mode)
 
 void OGLTiledSurface::bind() 
 {
+//    cerr << "bind" << endl;
     if (m_bBound) {
         rebind();
     } else {
