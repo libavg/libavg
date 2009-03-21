@@ -87,11 +87,20 @@ namespace DPointHelper
         st << "(" << pt.x << "," << pt.y << ")";
         return st.str();
     }
+
     string repr(const DPoint& pt)
     {
         stringstream st;
         st << "Point2D(" << pt.x << "," << pt.y << ")";
         return st.str();
+    }
+
+    long getHash(const DPoint& pt)
+    {
+        // Wild guess at what could constitute a good hash function.
+        // Will generate very bad hashes if most values are in a range < 0.1,
+        // but this is meant for pixel values anyway, right? ;-).
+        return long(pt.x*42+pt.y*23);
     }
 }
 
@@ -111,6 +120,7 @@ void export_bitmap()
         .def("__setitem__", &DPointHelper::setItem)
         .def("__str__", &DPointHelper::str)
         .def("__repr__", &DPointHelper::repr)
+        .def("__hash__", &DPointHelper::getHash)
         .def("normalize", &DPoint::normalize,
                 "normalize()\n"
                 "Normalizes the point so it's angle stays the same but the norm is one.")
