@@ -53,6 +53,7 @@ FilledVectorNode::FilledVectorNode(const ArgList& Args)
 {
     m_FillTexHRef = Args.getArgVal<string>("filltexhref"); 
     setFillTexHRef(m_FillTexHRef);
+    m_sFillColorName = Args.getArgVal<string>("fillcolor");
     m_FillColor = colorStringToColor(m_sFillColorName);
 }
 

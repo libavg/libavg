@@ -63,6 +63,8 @@ VectorNode::VectorNode(const ArgList& Args)
 {
     m_TexHRef = Args.getArgVal<string>("texhref"); 
     setTexHRef(m_TexHRef);
+    m_sColorName = Args.getArgVal<string>("color");
+    m_Color = colorStringToColor(m_sColorName);
 }
 
 VectorNode::~VectorNode()
