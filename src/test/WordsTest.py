@@ -271,6 +271,27 @@ class WordsTestCase(AVGTestCase):
         self.start(None,
                 (lambda: self.compareImage("testPositioning", True),
                 ))
+    def testInvalidColor(self):
+        def testColor(color):
+            Player.createNode('words', {'color':color})
+        def assignValidColor():
+            testColor('123456')
+        def assignInvalidColor1():
+            testColor('1234567')
+        def assignInvalidColor2():
+            testColor('xxx')
+        def assignInvalidColor3():
+            testColor('xxxxxx')
+
+        Player.loadString("""
+          <avg width="160" height="120">
+          </avg>
+        """)
+        self.start(None, (
+            self.assertException(assignInvalidColor1),
+            self.assertException(assignInvalidColor2),
+            self.assertException(assignInvalidColor3),
+                    ))
 
 def wordsTestSuite(tests):
     availableTests = (
@@ -285,6 +306,7 @@ def wordsTestSuite(tests):
             "testWordsBR",
             "testLetterSpacing",
             "testPositioning",
+            "testInvalidColor",
             )
     return AVGTestSuite (availableTests, WordsTestCase, tests)
 

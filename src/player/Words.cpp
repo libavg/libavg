@@ -172,6 +172,7 @@ Words::Words(const ArgList& Args, bool bFromXML)
     setAlignment(Args.getArgVal<string>("alignment"));
     setText(Args.getArgVal<string>("text"));
     initFonts();
+    m_Color = colorStringToColor(m_sColorName);
 }
 
 Words::~Words()
@@ -196,8 +197,6 @@ void Words::setTextFromNodeValue(const string& sText)
 
 void Words::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
-    m_Color = colorStringToColor(m_sColorName);
-
     m_bFontChanged = true;
     m_bDrawNeeded = true;
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);

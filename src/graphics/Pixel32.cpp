@@ -21,6 +21,8 @@
 
 #include "Pixel32.h"
 
+#include "../base/Exception.h"
+
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -43,7 +45,9 @@ std::string Pixel32::getColorString() const
 Pixel32 colorStringToColor(const string & s)
 {
     int r,g,b;
-    sscanf(s.c_str(), "%2x%2x%2x", &r, &g, &b);
+    if ((s.length() != 6) || (sscanf(s.c_str(), "%2x%2x%2x", &r, &g, &b) != 3)) {
+        throw(Exception (AVG_ERR_INVALID_ARGS, "colorstring cannot be parsed."));
+    }
     return Pixel32(r,g,b);
 }
 
