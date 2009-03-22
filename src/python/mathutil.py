@@ -36,7 +36,7 @@ def getDistance (p, q):
 def getDistSquared (p, q):
     return (p.x-q.x)**2 + (p.y-q.y)**2
 
-def getScaledDim (size, max, min):
+def getScaledDim (size, max = None, min = None):
     width, height = size
 
     if max:
