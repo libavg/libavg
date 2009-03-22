@@ -223,24 +223,22 @@ class SplineAnim(SimpleAnim):
         if self.onStop != None:
             self.onStop()
 
-def fadeOut(node, duration):
+def fadeOut(node, duration, onStop = None):
     """
     Fades the opacity of a node to zero.
     @param node: The node to fade.
     @param duration: Length of the fade in milliseconds.
     """
-    curValue = getattr(node, "opacity")
-    return LinearAnim(node, "opacity", duration, curValue, 0)
+    return LinearAnim(node, "opacity", duration, node.opacity, 0, onStop = onStop)
 
-def fadeIn(node, duration, max=1.0):
+def fadeIn(node, duration, max=1.0, onStop = None):
     """
     Fades the opacity of a node.
     @param node: The node to fade.
     @param duration: Length of the fade in milliseconds.
     @param max: The opacity of the node at the end of the fade.
     """
-    curValue = getattr(node, "opacity")
-    return LinearAnim(node, "opacity", duration, curValue, max)
+    return LinearAnim(node, "opacity", duration, node.opacity, max, onStop = onStop)
 
 
 class ContinuousAnim(SimpleAnim):
