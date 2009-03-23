@@ -95,18 +95,6 @@ void Image::setBitmap(const Bitmap * pBmp)
         m_pBmp=BitmapPtr();
         m_State = GPU;
     } else {
-#if defined(__i386__) || defined(_WIN32)
-        switch (pf) {
-            case R8G8B8X8:
-                pf = B8G8R8X8;
-                break;
-            case R8G8B8A8:
-                pf = B8G8R8A8;
-                break;
-            default:
-                break;
-        }
-#endif
         m_pBmp = BitmapPtr(new Bitmap(pBmp->getSize(), pf, ""));
         m_pBmp->copyPixels(*pBmp);
         m_State = CPU;
@@ -134,12 +122,6 @@ void Image::moveToCPU()
                 pSurfaceBmp->getPixelFormat()));
     m_pBmp->copyPixels(*pSurfaceBmp);
     m_pSurface->unlockBmps();
-#ifdef __i386__
-    // XXX Yuck
-    if (!m_pEngine->hasRGBOrdering() && m_pBmp->getBytesPerPixel() >= 3) {
-        FilterFlipRGB().applyInPlace(m_pBmp);
-    }
-#endif
     m_State = CPU;
     m_pEngine = 0;
     delete m_pSurface;
@@ -237,11 +219,6 @@ void Image::setupSurface()
     m_pSurface->create(m_pBmp->getSize(), pf, true);
     BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
     pSurfaceBmp->copyPixels(*m_pBmp);
-#ifdef __i386__
-    if (!(m_pEngine->hasRGBOrdering())) {
-        FilterFlipRGB().applyInPlace(pSurfaceBmp);
-    }
-#endif
     m_pSurface->unlockBmps();
     m_pBmp=BitmapPtr();
 }
