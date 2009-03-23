@@ -830,7 +830,7 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
         }
         sws_scale(m_pSwsContext, Frame.data, Frame.linesize, 0, 
             enc->height, DestPict.data, DestPict.linesize);
-#ifndef __i386__
+#if !defined(__i386__) && !defined(_WIN32)
         FilterFlipRGBA().applyInPlace(pBmp);
 #endif
     }
