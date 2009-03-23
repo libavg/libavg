@@ -110,6 +110,10 @@ class Grabbable:
             # inertia
             if self.__speed.getNorm() < 1:
                 if not self.__stopped:
+                    pos = Point2D(round(self.__node.pos.x), round(self.__node.pos.y))
+                    size = Point2D(round(self.__node.size.x), round(self.__node.size.y))
+                    self.__callback['onMotion'](pos, size, self.__node.angle, 
+                            self.__node.pivot)
                     self.__stopped = True
                     self.__callback['onStop']()
                     self.__stopInertia()
