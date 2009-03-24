@@ -196,9 +196,13 @@ void DisplayEngine::checkJitter()
    
 void DisplayEngine::calcEffFramerate()
 {
-    long long CurIntervalTime = TimeSource::get()->getCurrentMillisecs()
-            -m_StartFramerateCalcTime;
-    m_EffFramerate = 1000.0/CurIntervalTime;
+    if (m_StartFramerateCalcTime == 0) {
+        m_EffFramerate = 0;
+    } else {
+        long long CurIntervalTime = TimeSource::get()->getCurrentMillisecs()
+                -m_StartFramerateCalcTime;
+        m_EffFramerate = 1000.0/CurIntervalTime;
+    }
     m_StartFramerateCalcTime = TimeSource::get()->getCurrentMillisecs();
 }
 
