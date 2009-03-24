@@ -115,7 +115,8 @@ OGLProgram::OGLProgram(vector<OGLShaderPtr> &vShaders)
 
 OGLProgram::~OGLProgram()
 {
-    glproc::DeleteProgram(m_hProgram); 
+    //TODO: Fix shader lifetime in GPUXxxFilter.
+    //glproc::DeleteProgram(m_hProgram); 
     //FIXME Deleteing the GLProgram breaks SDLDisplayEngine::render somehow???
 }
 
