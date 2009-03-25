@@ -111,3 +111,8 @@ def solveEquationMatrix(_matrix, eps = 1.0/(10**10)):
     return res
 
 
+def getOffsetForMovedPivot(oldPivot, newPivot, angle):
+    oldPos = Point2D(0,0).getRotated(angle, oldPivot)
+    newPos = Point2D(0,0).getRotated(angle, newPivot)
+    return oldPos - newPos
+

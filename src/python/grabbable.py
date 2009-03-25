@@ -25,7 +25,7 @@ import math
 from libavg import avg, Point2D
 from clusteredEventList import ClusteredEventList
 from mathutil import solveEquationMatrix, EquationSingular, EquationNotSolvable
-from mathutil import getAngle, getDistance, getScaledDim
+from mathutil import getAngle, getDistance, getScaledDim, getOffsetForMovedPivot
 
 
 NUM_SPEEDS = 5
@@ -241,11 +241,6 @@ class Grabbable:
 
             # get middle of touches relative to the node
             relTouchCenter = getRelPos(absTouchCenter, n_tl, angle, Point2D(0,0))
-
-            def getOffsetForMovedPivot(oldPivot, newPivot, angle):
-                oldPos = Point2D(0,0).getRotated(angle, oldPivot)
-                newPos = Point2D(0,0).getRotated(angle, newPivot)
-                return oldPos - newPos
 
             pos += getOffsetForMovedPivot(
                     oldPivot = Point2D(0,0),
