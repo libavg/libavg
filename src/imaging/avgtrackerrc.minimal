@@ -32,7 +32,7 @@
   </touch>
  </tracker>
  <transform>
-  <distortionparams p2="4.3e-06" p3="0.0000000" p4="0"/>
+  <distortionparams p2="4.3e-06"/>
   <trapezoid value="0.000"/>
   <angle value="0"/>
   <displaydisplacement x="0" y="0"/>
