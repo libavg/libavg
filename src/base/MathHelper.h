@@ -75,6 +75,14 @@ std::vector<std::vector<T> > vector2DFromCArray(int n, int m, T* pData)
     return v;
 }
 
+template<typename T>
+T signum(T n)
+{
+    if (n < 0) return -1;
+    if (n > 0) return 1;
+    return 0;
+}
+
 }
 #endif
  

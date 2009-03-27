@@ -10,7 +10,7 @@ endif
 
 ALL_H = Bitmap.h Filter.h\
         Pixel32.h Pixel24.h Pixel16.h Pixel8.h Pixeldefs.h \
-        Filtercolorize.h Filterfill.h Filterfillrect.h Filterflip.h \
+        Filtercolorize.h Filterfill.h Filterfillrect.h Filterflip.h FilterflipX.h \
         Filterfliprgb.h Filterflipuv.h Filtergrayscale.h Filter3x3.h \
         FilterId.h HistoryPreProcessor.h FilterConvol.h FilterHighpass.h \
         FilterFastBandpass.h Filterfliprgba.h FilterFastDownscale.h \
@@ -25,7 +25,7 @@ ALL_H = Bitmap.h Filter.h\
         FilterResizeGaussian.h \
         $(APPLE_INCLUDES)
 ALL_CPP = Bitmap.cpp Filter.cpp Pixel32.cpp Filtergrayscale.cpp \
-        Filtercolorize.cpp Filterflip.cpp Filterfliprgb.cpp \
+        Filtercolorize.cpp Filterflip.cpp FilterflipX.cpp Filterfliprgb.cpp \
         Filterflipuv.cpp Filter3x3.cpp HistoryPreProcessor.cpp FilterHighpass.cpp \
         FilterFastBandpass.cpp Filterfliprgba.cpp FilterFastDownscale.cpp \
         FilterGauss.cpp FilterBandpass.cpp FilterBlur.cpp FilterMask.cpp \

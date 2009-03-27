@@ -108,6 +108,12 @@ DRect DeDistort::getActiveBlobArea(const DPoint& DisplayExtents)
     return ActiveRect;
 }
 
+void DeDistort::getFlip(bool& bFlipX, bool& bFlipY)
+{
+    bFlipX = signum(m_DisplayScale.x) < 0;
+    bFlipY = signum(m_DisplayScale.y) < 0;
+}
+
 void DeDistort::load(const DPoint &CameraExtents, const TrackerConfig& Config)
 {
     m_CamExtents = CameraExtents;

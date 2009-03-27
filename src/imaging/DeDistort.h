@@ -56,6 +56,7 @@ class AVG_API DeDistort: public CoordTransformer {
         virtual DPoint transform_point(const DPoint & pt); 
         virtual DPoint inverse_transform_point(const DPoint & pt);
         DRect getActiveBlobArea(const DPoint& DisplayExtents);
+        void getFlip(bool& bFlipX, bool& bFlipY);
 
         void load(const DPoint &CameraExtents, const TrackerConfig& Config);
         void save(TrackerConfig& Config);
