@@ -134,9 +134,7 @@ const char * g_pTrackerConfigDTD =
 
 "<!ELEMENT distortionparams EMPTY>\n"
 "<!ATTLIST distortionparams\n"
-"   p2 CDATA #REQUIRED\n"
-"   p3 CDATA #REQUIRED\n"
-"   p4 CDATA #REQUIRED >\n"
+"   p2 CDATA #REQUIRED >\n"
 
 "<!ELEMENT trapezoid EMPTY>\n"
 "<!ATTLIST trapezoid\n"

@@ -57,8 +57,6 @@ DeDistort::DeDistort()
       m_DisplayScale(1,1)
 {
     m_DistortionParams.push_back(0);
-    m_DistortionParams.push_back(0);
-    m_DistortionParams.push_back(0);
     m_RescaleFactor = calc_rescale();
 }
 
@@ -68,8 +66,6 @@ DeDistort::DeDistort(const DPoint& CamExtents, const DPoint& DisplayExtents)
       m_DisplayOffset(0,0)
 {
     m_CamExtents = CamExtents; 
-    m_DistortionParams.push_back(0);
-    m_DistortionParams.push_back(0);
     m_DistortionParams.push_back(0);
     m_DisplayScale.x = DisplayExtents.x/CamExtents.x;
     m_DisplayScale.y = DisplayExtents.y/CamExtents.y;
@@ -118,10 +114,6 @@ void DeDistort::load(const DPoint &CameraExtents, const TrackerConfig& Config)
     m_DistortionParams.clear();
     m_DistortionParams.push_back(Config.getDoubleParam
             ("/transform/distortionparams/@p2"));
-    m_DistortionParams.push_back(Config.getDoubleParam
-            ("/transform/distortionparams/@p3"));
-    m_DistortionParams.push_back(Config.getDoubleParam
-            ("/transform/distortionparams/@p4"));
     m_TrapezoidFactor = Config.getDoubleParam("/transform/trapezoid/@value");
     m_Angle = Config.getDoubleParam("/transform/angle/@value");
     m_DisplayOffset = Config.getPointParam("/transform/displaydisplacement/");
@@ -134,10 +126,6 @@ void DeDistort::save(TrackerConfig& Config)
 {
     Config.setParam("/transform/distortionparams/@p2", 
             toString(m_DistortionParams[0]));
-    Config.setParam("/transform/distortionparams/@p3", 
-            toString(m_DistortionParams[1]));
-    Config.setParam("/transform/distortionparams/@p4", 
-            toString(m_DistortionParams[2]));
     Config.setParam("/transform/trapezoid/@value", 
             toString(m_TrapezoidFactor));
     Config.setParam("/transform/angle/@value", 

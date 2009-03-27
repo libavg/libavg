@@ -44,8 +44,8 @@ using namespace std;
 
 namespace avg {
 
-enum Params { DISPSCALE_X, DISPSCALE_Y, DISPOFFSET_X, DISPOFFSET_Y, DIST_2, DIST_3,
-            DIST_4, ANGLE, TRAPEZ, NUM_PARAMS};
+enum Params { DISPSCALE_X, DISPSCALE_Y, DISPOFFSET_X, DISPOFFSET_Y, DIST_2, 
+            ANGLE, TRAPEZ, NUM_PARAMS};
 
 void lm_print_tracker( int n_par, double* p, int m_dat, double* fvec, 
                        void *data, int iflag, int iter, int nfev )
@@ -141,8 +141,6 @@ DeDistortPtr TrackerCalibrator::makeTransformer()
     //fill in reasonable defaults
     m_DistortParams.clear();
     m_DistortParams.push_back(0);
-    m_DistortParams.push_back(0);
-    m_DistortParams.push_back(0);
     m_Angle = 0;
     m_TrapezoidFactor = 0.0;
     m_DisplayOffset= DPoint(0,0);
@@ -156,8 +154,6 @@ DeDistortPtr TrackerCalibrator::makeTransformer()
         m_DisplayOffset.x, 
         m_DisplayOffset.y, 
         m_DistortParams[0],
-        m_DistortParams[1],
-        m_DistortParams[2],
         m_Angle,
         m_TrapezoidFactor
     };
@@ -196,8 +192,6 @@ void TrackerCalibrator::initThisFromDouble(double *p)
     m_DisplayScale.y = p[DISPSCALE_Y];
     m_DistortParams.clear();
     m_DistortParams.push_back( p[DIST_2]);
-    m_DistortParams.push_back( p[DIST_3]);
-    m_DistortParams.push_back( p[DIST_4]);
     m_Angle = p[ANGLE];
     m_TrapezoidFactor = p[TRAPEZ];
     m_CurrentTrafo = DeDistortPtr( 
