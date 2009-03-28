@@ -161,6 +161,19 @@ void RectNode::setAngle(double angle)
     setDrawNeeded(false);
 }
 
+NodePtr RectNode::getElementByPos(const DPoint & pos)
+{
+    DPoint pivot = m_Rect.tl+m_Rect.size()/2;
+    DPoint rpos = pos.getRotated(m_Angle, pivot);
+    if (rpos.x >= m_Rect.tl.x && rpos.y >= m_Rect.tl.y && rpos.x < m_Rect.br.x && 
+            rpos.y < m_Rect.br.y && reactsToMouseEvents())
+    {
+        return getThis();
+    } else {
+        return NodePtr();
+    }
+}
+
 int RectNode::getNumVertexes()
 {
     return 4*4;

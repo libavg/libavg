@@ -157,6 +157,7 @@ class VectorTestCase(AVGTestCase):
                     {"x":2, "y":2, "width":50, "height":30, "fillopacity":1, 
                      "strokewidth":0})
             canvas.appendChild(rect)
+            rect.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onMouseDown)
             return rect
         def moveRect():
             rect.pos = (50, 50)
@@ -173,8 +174,12 @@ class VectorTestCase(AVGTestCase):
                      "strokewidth":2})
             rect.color = "FFFF00"
             canvas.insertChild(rect, 0)
+        def onMouseDown(event):
+            self.__mouseDownCalled = True
+        self.__mouseDownCalled = False
         canvas = self.makeEmptyCanvas()
         rect = addRect()
+        helper = Player.getTestHelper()
         self.start(None,
                 (lambda: self.compareImage("testRect1", False),
                  moveRect,
@@ -183,6 +188,15 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testRect3", False),
                  addRect2,
                  lambda: self.compareImage("testRect4", False),
+                 lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
+                        100, 100, 1),
+                 lambda: self.assert_(self.__mouseDownCalled == False),
+                 lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
+                        55, 50, 1),
+                 lambda: self.assert_(self.__mouseDownCalled == False),
+                 lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
+                        65, 60, 1),
+                 lambda: self.assert_(self.__mouseDownCalled)
                 ))
 
     def testTexturedRect(self):

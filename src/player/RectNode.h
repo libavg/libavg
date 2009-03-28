@@ -61,6 +61,8 @@ class AVG_API RectNode : public FilledVectorNode
         double getAngle() const;
         void setAngle(double angle);
 
+        NodePtr getElementByPos(const DPoint & pos);
+
         virtual int getNumVertexes();
         virtual int getNumIndexes();
         virtual int getNumFillVertexes();
