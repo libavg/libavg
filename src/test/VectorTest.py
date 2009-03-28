@@ -440,6 +440,7 @@ class VectorTestCase(AVGTestCase):
     def testCircle(self):
         def addCircle():
             circle = Player.createNode("circle", {"x":30, "y":30, "r":20})
+            circle.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onMouseDown)
             canvas.appendChild(circle)
             return circle
         def changeCircle():
@@ -461,8 +462,12 @@ class VectorTestCase(AVGTestCase):
         def setFillTexCoords():
             circle.filltexcoord1 = (0.5, 0.5)
             circle.filltexcoord2 = (1.5, 1.5)
+        def onMouseDown(event):
+            self.__mouseDownCalled = True
+        self.__mouseDownCalled = False
         canvas = self.makeEmptyCanvas()
         circle = addCircle()
+        helper = Player.getTestHelper()
         self.start(None,
                 (lambda: self.compareImage("testCircle1", False), 
                  changeCircle,
@@ -473,6 +478,12 @@ class VectorTestCase(AVGTestCase):
                  lambda: self.compareImage("testCircle4", False),
                  setFillTexCoords,
                  lambda: self.compareImage("testCircle5", False),
+                 lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
+                        32, 32, 1),
+                 lambda: self.assert_(self.__mouseDownCalled == False),
+                 lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
+                        67, 50, 1),
+                 lambda: self.assert_(self.__mouseDownCalled)
                 ))
 
 def vectorTestSuite(tests):

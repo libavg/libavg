@@ -121,6 +121,16 @@ void CircleNode::setTexCoord2(double tc)
     setDrawNeeded(false);
 }
 
+NodePtr CircleNode::getElementByPos(const DPoint & pos)
+{
+    if (calcDist(pos, m_Pos) <= m_Radius)
+    {
+        return getThis();
+    } else {
+        return NodePtr();
+    }
+}
+
 int CircleNode::getNumVertexes()
 {
     return (getNumCircumferencePoints()+1)*2;
