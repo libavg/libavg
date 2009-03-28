@@ -355,6 +355,7 @@ class VectorTestCase(AVGTestCase):
         def addPolygon():
             polygon = Player.createNode("polygon", {"strokewidth":2, "color":"FF00FF"})
             polygon.pos = [(10,10), (50,10), (90,50), (90, 90)]
+            polygon.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onMouseDown)
             canvas.appendChild(polygon)
             return polygon
         def changePolygon():
@@ -384,8 +385,12 @@ class VectorTestCase(AVGTestCase):
             polygon.linejoin = "miter"
             polygon2 = canvas.getChild(0)
             polygon2.linejoin = "miter"
+        def onMouseDown(event):
+            self.__mouseDownCalled = True
+        self.__mouseDownCalled = False
         canvas = self.makeEmptyCanvas()
         polygon = addPolygon()
+        helper = Player.getTestHelper()
         self.start(None,
                 (lambda: self.compareImage("testPolygon1", True),
                  changePolygon,
@@ -397,7 +402,13 @@ class VectorTestCase(AVGTestCase):
                  addPolygon2,
                  lambda: self.compareImage("testPolygon5", True),
                  miterPolygons,
-                 lambda: self.compareImage("testPolygon6", False)
+                 lambda: self.compareImage("testPolygon6", False),
+                 lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
+                        50, 50, 1),
+                 lambda: self.assert_(self.__mouseDownCalled == False),
+                 lambda: helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 
+                        20, 87, 1),
+                 lambda: self.assert_(self.__mouseDownCalled)
                 ))
 
     def testTexturedPolygon(self):

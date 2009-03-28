@@ -95,6 +95,16 @@ void PolygonNode::setLineJoin(const string& s)
     setDrawNeeded(true);
 }
 
+NodePtr PolygonNode::getElementByPos(const DPoint & pos)
+{
+    if (pointInPolygon(pos, m_Pts))
+    {
+        return getThis();
+    } else {
+        return NodePtr();
+    }
+}
+
 int PolygonNode::getNumVertexes()
 {
     if (m_Pts.size() < 3) {
