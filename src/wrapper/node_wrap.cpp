@@ -64,20 +64,7 @@ void export_node()
                 "unlink() -> None\n"
                 "Removes a node from it's parent container. Equivalent to\n"
                 "node.getParent().removeChild(node.getParent().indexOf(node)).")
-        .add_property("id", make_function(&Node::getID,
-                return_value_policy<copy_const_reference>()), &Node::setID,
-                "A unique identifier that can be used to reference the node.\n")
-        .add_property("opacity", &Node::getOpacity, &Node::setOpacity,
-                      "A measure of the node's transparency. 0.0 is completely\n"
-                      "transparent, 1.0 is completely opaque. Opacity is relative to\n"
-                      "the parent node's opacity.\n");
-
-    class_<AreaNode, boost::shared_ptr<AreaNode>, bases<Node>, boost::noncopyable>(
-            "AreaNode", 
-            "Base class for elements in the avg tree that define an area on the screen.\n"
-            "Is responsible for coordinate transformations and event handling.\n",
-            no_init)
-        .def("setEventCapture", &AreaNode::setMouseEventCapture,
+        .def("setEventCapture", &Node::setMouseEventCapture,
                 "setEventCapture(cursorid)\n"
                 "Sets up event capturing so that cursor events are sent to this node\n"
                 "regardless of the cursor position. cursorid is optional; if left out,\n"
@@ -88,13 +75,13 @@ void export_node()
                 "node can capture a cursor at any one time. Normal operation can\n"
                 "be restored by calling releaseEventCapture().\n"
                 "@param cursorid: The id of the tracker cursor to capture (optional).\n")
-        .def("setEventCapture", &AreaNode::setEventCapture)
-        .def("releaseEventCapture", &AreaNode::releaseMouseEventCapture,
+        .def("setEventCapture", &Node::setEventCapture)
+        .def("releaseEventCapture", &Node::releaseMouseEventCapture,
                 "releaseEventCapture(cursorid)\n"
                 "Restores normal mouse operation after a call to setEventCapture().\n"
                 "@param cursorid: The id of the tracker cursor to release (optional).\n")
-        .def("releaseEventCapture", &AreaNode::releaseEventCapture)
-        .def("setEventHandler", &AreaNode::setEventHandler,
+        .def("releaseEventCapture", &Node::releaseEventCapture)
+        .def("setEventHandler", &Node::setEventHandler,
                 "setEventHandler(type, source, pyfunc)\n"
                 "Sets a callback function that is invoked whenever an event of the\n"
                 "specified type from the specified source occurs. This function is\n"
@@ -108,6 +95,24 @@ void export_node()
                 "NONE for keyboard events. Sources can be or'ed together to set a\n"
                 "handler for several sources at once.\n"
                 "@param pyfunc: The python callable to invoke.\n")
+        .add_property("id", make_function(&Node::getID,
+                return_value_policy<copy_const_reference>()), &Node::setID,
+                "A unique identifier that can be used to reference the node.\n")
+        .add_property("active", &Node::getActive, &Node::setActive,
+                      "If this attribute is true, the node behaves as usual. If not, it\n"
+                      "is neither drawn nor does it react to events. Videos are paused.\n")
+        .add_property("sensitive", &Node::getSensitive, &Node::setSensitive,
+                      "A node only reacts to events if sensitive is true.")
+        .add_property("opacity", &Node::getOpacity, &Node::setOpacity,
+                      "A measure of the node's transparency. 0.0 is completely\n"
+                      "transparent, 1.0 is completely opaque. Opacity is relative to\n"
+                      "the parent node's opacity.\n");
+
+    class_<AreaNode, boost::shared_ptr<AreaNode>, bases<Node>, boost::noncopyable>(
+            "AreaNode", 
+            "Base class for elements in the avg tree that define an area on the screen.\n"
+            "Is responsible for coordinate transformations and event handling.\n",
+            no_init)
         .def("getAbsPos", &AreaNode::getAbsPos,
                 "getAbsPos(relpos) -> abspos\n"
                 "Transforms a position in coordinates relative to the node to a\n"
@@ -160,11 +165,6 @@ void export_node()
         .add_property("pivot",  &AreaNode::getPivot, &AreaNode::setPivot,
                 "The position of the point that the node is rotated around.\n"
                 "Default is the center of the node.\n")
-        .add_property("active", &AreaNode::getActive, &AreaNode::setActive,
-                      "If this attribute is true, the node behaves as usual. If not, it\n"
-                      "is neither drawn nor does it react to events. Videos are paused.\n")
-        .add_property("sensitive", &AreaNode::getSensitive, &AreaNode::setSensitive,
-                      "A node only reacts to events if sensitive is true.")
     ;
 
     export_bitmap();

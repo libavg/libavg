@@ -29,8 +29,9 @@
 
 namespace avg {
 
-class AreaNode;
-typedef boost::shared_ptr<class AreaNode> AreaNodePtr;
+class Node;
+typedef boost::shared_ptr<class Node> NodePtr;
+
 class AVG_API Event {
     public:
         enum Type {
@@ -55,14 +56,14 @@ class AVG_API Event {
         long long getWhen() const;
         Type getType() const;
         Event::Source getSource() const;
-        AreaNodePtr getElement() const;
-        void setElement(AreaNodePtr pNode);
+        NodePtr getElement() const;
+        void setElement(NodePtr pNode);
         
         friend struct isEventAfter;
         
     protected:
         Type m_Type;
-        AreaNodePtr m_pNode;
+        NodePtr m_pNode;
         long long m_When;
 
     private:

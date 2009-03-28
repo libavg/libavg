@@ -22,12 +22,17 @@
 #ifndef _Node_H_
 #define _Node_H_
 
+#include "Event.h"
+
 #include "../api.h"
 
 #include "../base/Rect.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
+
+// Python docs say python.h should be included before any standard headers (!)
+#include "WrapPython.h" 
 
 #include <string>
 
@@ -66,7 +71,7 @@ class AVG_API Node
         
         virtual ~Node() = 0;
         virtual void setThis(NodeWeakPtr This, const NodeDefinition * pDefinition);
-        virtual void setArgs(const ArgList& Args) {};
+        virtual void setArgs(const ArgList& Args);
         virtual void setParent(DivNodeWeakPtr pParent, NodeState parentState);
         void removeParent();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
@@ -81,8 +86,22 @@ class AVG_API Node
         double getOpacity() const;
         void setOpacity(double opacity);
         
+        bool getActive() const;
+        void setActive(bool bActive);
+        
+        bool getSensitive() const;
+        void setSensitive(bool bSensitive);
+
         DivNodePtr getParent() const;
         void unlink();
+
+        void setMouseEventCapture();
+        void releaseMouseEventCapture();
+        void setEventCapture(int cursorID);
+        void releaseEventCapture(int cursorID);
+        void setEventHandler(Event::Type Type, int Sources, PyObject * pFunc);
+
+        virtual NodePtr getElementByPos(const DPoint & pos);
 
         virtual void preRender();
         virtual void maybeRender(const DRect& Rect) {};
@@ -99,9 +118,16 @@ class AVG_API Node
 
         long getHash() const;
         virtual const NodeDefinition* getDefinition() const;
+        virtual bool handleEvent(EventPtr pEvent); 
 
     protected:
         Node();
+
+        void addEventHandlers(Event::Type EventType, const std::string& Code);
+        void addEventHandler(Event::Type EventType, Event::Source Source, 
+                const std::string& Code);
+        bool reactsToMouseEvents();
+            
         SDLDisplayEngine * getDisplayEngine() const;
         AudioEngine * getAudioEngine() const;
         NodePtr getThis() const;
@@ -110,6 +136,20 @@ class AVG_API Node
         void checkReload(const std::string& sHRef, ImagePtr& pImage);
 
     private:
+        PyObject * findPythonFunc(const std::string& Code);
+        bool callPython(PyObject * pFunc, avg::EventPtr pEvent);
+
+        struct EventHandlerID {
+            EventHandlerID(Event::Type EventType, Event::Source Source);
+
+            bool operator < (const EventHandlerID& other) const;
+
+            Event::Type m_Type;
+            Event::Source m_Source;
+        };
+        typedef std::map<EventHandlerID, PyObject *> EventHandlerMap;
+        EventHandlerMap m_EventHandlerMap;
+
         DivNodeWeakPtr m_pParent;
         NodeWeakPtr m_This;
         SDLDisplayEngine * m_pDisplayEngine;
@@ -120,6 +160,8 @@ class AVG_API Node
         NodeState m_State;
         const NodeDefinition* m_pDefinition;
 
+        bool m_bActive;
+        bool m_bSensitive;
         double m_EffectiveOpacity;
 };
 

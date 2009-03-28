@@ -63,7 +63,7 @@ class AVG_API RasterNode: public AreaNode
         const std::string& getBlendModeStr() const;
         void setBlendModeStr(const std::string& sBlendMode);
         DisplayEngine::BlendMode getBlendMode() const;
-        AreaNodePtr getElementByPos (const DPoint & pos);
+        NodePtr getElementByPos(const DPoint & pos);
 
         virtual OGLShaderPtr getFragmentShader();
 

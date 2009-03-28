@@ -119,13 +119,13 @@ void RasterNode::setBlendModeStr(const std::string& sBlendMode)
     m_BlendMode = DisplayEngine::stringToBlendMode(sBlendMode);
 }
 
-AreaNodePtr RasterNode::getElementByPos(const DPoint & pos)
+NodePtr RasterNode::getElementByPos(const DPoint & pos)
 {
     // Node isn't pickable if it's warped.
     if (m_MaxTileSize == IntPoint(-1, -1)) {
         return AreaNode::getElementByPos(pos);
     } else {
-        return AreaNodePtr();
+        return NodePtr();
     }
 }
 

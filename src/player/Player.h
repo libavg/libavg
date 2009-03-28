@@ -50,13 +50,9 @@ namespace avg {
 class TrackerEventSource;
 class AudioEngine;
 class Node;
-class AreaNode;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
-typedef boost::shared_ptr<AreaNode> AreaNodePtr;
-typedef boost::weak_ptr<AreaNode> AreaNodeWeakPtr;
-
 
 class AVG_API Player : IEventSink
 {
@@ -104,7 +100,7 @@ class AVG_API Player : IEventSink
         Bitmap * screenshot();
         void setCursor(const Bitmap* pBmp, IntPoint hotSpot);
         void showCursor(bool bShow);
-        void setEventCapture(AreaNodePtr pNode, int cursorID=MOUSECURSORID);
+        void setEventCapture(NodePtr pNode, int cursorID=MOUSECURSORID);
         void releaseEventCapture(int cursorID=MOUSECURSORID);
 
         NodePtr getElementByID(const std::string& id);
@@ -148,10 +144,9 @@ class AVG_API Player : IEventSink
         void render (bool bRenderEverything);
 
         void sendFakeEvents();
-        void sendOver(CursorEventPtr pOtherEvent, Event::Type Type, 
-                AreaNodePtr pNode);
+        void sendOver(CursorEventPtr pOtherEvent, Event::Type Type, NodePtr pNode);
         void handleCursorEvent(CursorEventPtr pEvent, bool bOnlyCheckCursorOver=false);
-        std::vector<AreaNodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
+        std::vector<NodeWeakPtr> getElementsByPos(const DPoint& Pos) const;
 
         AVGNodePtr m_pRootNode;
         DisplayEngine * m_pDisplayEngine;
@@ -181,7 +176,7 @@ class AVG_API Player : IEventSink
 
         // These are maps for each cursor id.
         std::map<int, CursorStatePtr> m_pLastCursorStates;
-        std::map<int, AreaNodeWeakPtr> m_pEventCaptureNode;
+        std::map<int, NodeWeakPtr> m_pEventCaptureNode;
 
         // Configuration variables.
         DisplayParams m_DP;

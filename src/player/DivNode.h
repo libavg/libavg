@@ -57,7 +57,7 @@ class AVG_API DivNode : public AreaNode
         void reorderChild(unsigned i, unsigned j);
         int indexOf(NodePtr pChild);
 
-        virtual AreaNodePtr getElementByPos(const DPoint & pos);
+        virtual NodePtr getElementByPos(const DPoint & pos);
         virtual void preRender();
         virtual void render(const DRect& rect);
         virtual std::string getEffectiveMediaDir();

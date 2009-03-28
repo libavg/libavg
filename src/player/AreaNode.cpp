@@ -51,20 +51,13 @@ NodeDefinition AreaNode::createDefinition()
 {
     return NodeDefinition("areanode")
         .extendDefinition(Node::createDefinition())
-        .addArg(Arg<string>("oncursormove", ""))
-        .addArg(Arg<string>("oncursorup", ""))
-        .addArg(Arg<string>("oncursordown", ""))
-        .addArg(Arg<string>("oncursorover", ""))
-        .addArg(Arg<string>("oncursorout", ""))
         .addArg(Arg<double>("x", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.x)))
         .addArg(Arg<double>("y", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.y)))
         .addArg(Arg<double>("width", 0.0, false, offsetof(AreaNode, m_WantedSize.x)))
         .addArg(Arg<double>("height", 0.0, false, offsetof(AreaNode, m_WantedSize.y)))
         .addArg(Arg<double>("angle", 0.0, false, offsetof(AreaNode, m_Angle)))
         .addArg(Arg<double>("pivotx", -32767, false, offsetof(AreaNode, m_Pivot.x)))
-        .addArg(Arg<double>("pivoty", -32767, false, offsetof(AreaNode, m_Pivot.y)))
-        .addArg(Arg<bool>("active", true, false, offsetof(AreaNode, m_bActive)))
-        .addArg(Arg<bool>("sensitive", true, false, offsetof(AreaNode, m_bSensitive)));
+        .addArg(Arg<double>("pivoty", -32767, false, offsetof(AreaNode, m_Pivot.y)));
 }
 
 AreaNode::AreaNode()
@@ -75,20 +68,12 @@ AreaNode::AreaNode()
 
 AreaNode::~AreaNode()
 {
-    EventHandlerMap::iterator it;
-    for (it=m_EventHandlerMap.begin(); it != m_EventHandlerMap.end(); ++it) {
-        Py_DECREF(it->second);
-    }
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void AreaNode::setArgs(const ArgList& Args)
 {
-    addEventHandlers(Event::CURSORMOTION, Args.getArgVal<string> ("oncursormove"));
-    addEventHandlers(Event::CURSORUP, Args.getArgVal<string> ("oncursorup"));
-    addEventHandlers(Event::CURSORDOWN, Args.getArgVal<string> ("oncursordown"));
-    addEventHandlers(Event::CURSOROVER, Args.getArgVal<string> ("oncursorover"));
-    addEventHandlers(Event::CURSOROUT, Args.getArgVal<string> ("oncursorout"));
+    Node::setArgs(Args);
     m_RelViewport.setWidth(m_WantedSize.x);
     m_RelViewport.setHeight(m_WantedSize.y);
 }
@@ -216,33 +201,12 @@ DPoint AreaNode::getPivot() const
         return getSize()/2;
     }
 }
-void AreaNode::setPivot (const DPoint& pt)
+
+void AreaNode::setPivot(const DPoint& pt)
 {
     m_Pivot.x = pt.x;
     m_Pivot.y = pt.y;
     m_bHasCustomPivot = true;
-}
-
-bool AreaNode::getActive() const 
-{
-    return m_bActive;
-}
-
-void AreaNode::setActive(bool bActive)
-{
-    if (bActive != m_bActive) {
-        m_bActive = bActive;
-    }
-}
-
-bool AreaNode::getSensitive() const 
-{
-    return m_bSensitive;
-}
-
-void AreaNode::setSensitive(bool bSensitive)
-{
-    m_bSensitive = bSensitive;
 }
 
 DPoint AreaNode::getRelPos(const DPoint& AbsPos) const 
@@ -270,70 +234,21 @@ DPoint AreaNode::getAbsPos(const DPoint& RelPos) const
     return parentPos;
 }
 
-void AreaNode::setMouseEventCapture()
-{
-    setEventCapture(MOUSECURSORID);
-}
-
-void AreaNode::releaseMouseEventCapture()
-{
-    releaseEventCapture(MOUSECURSORID);
-}
-
-void AreaNode::setEventCapture(int cursorID) 
-{
-    Player::get()->setEventCapture(dynamic_pointer_cast<AreaNode>(getThis()), cursorID);
-}
-
-void AreaNode::releaseEventCapture(int cursorID) 
-{
-    Player::get()->releaseEventCapture(cursorID);
-}
-
-void AreaNode::setEventHandler(Event::Type Type, int Sources, PyObject * pFunc)
-{
-    for (int i=0; i<4; ++i) {
-        int source = int(pow(2.,i));
-        if (source & Sources) {
-            EventHandlerID ID(Type, (Event::Source)source);
-            EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
-            if (it != m_EventHandlerMap.end()) {
-                Py_DECREF(it->second);
-                m_EventHandlerMap.erase(it);
-            }
-            if (pFunc != Py_None) {
-                Py_INCREF(pFunc);
-                m_EventHandlerMap[ID] = pFunc;
-            }
-        }
-    }
-}
-
-bool AreaNode::isActive()
-{
-    return m_bActive;
-}
-
-bool AreaNode::reactsToMouseEvents()
-{
-    return m_bActive && m_bSensitive;
-}
-
-AreaNodePtr AreaNode::getElementByPos(const DPoint & pos)
+NodePtr AreaNode::getElementByPos(const DPoint & pos)
 {
     if (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y &&
             reactsToMouseEvents())
     {
-        return dynamic_pointer_cast<AreaNode>(getThis());
+        return getThis();
     } else {
-        return AreaNodePtr();
+        return NodePtr();
     }
 }
 
 void AreaNode::maybeRender(const DRect& Rect)
 {
     assert(getState() == NS_CANRENDER);
-    if (m_bActive) {
+    if (getActive()) {
         if (getEffectiveOpacity() > 0.01) {
             if (getID() != "") {
                 AVG_TRACE(Logger::BLTS, "Rendering " << getTypeStr() << 
@@ -396,61 +311,6 @@ string AreaNode::dump(int indent)
     return dumpStr; 
 }
 
-bool AreaNode::handleEvent(EventPtr pEvent)
-{
-    EventHandlerID ID(pEvent->getType(), pEvent->getSource());
-    EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
-    if (it!=m_EventHandlerMap.end()) {
-        return callPython(it->second, pEvent);
-    } else {
-        return false;
-    }
-}
-
-bool AreaNode::callPython(PyObject * pFunc, EventPtr pEvent)
-{
-    return boost::python::call<bool>(pFunc, pEvent);
-}
-
-PyObject * AreaNode::findPythonFunc(const string& Code)
-{
-    if (Code.empty()) {
-        return 0;
-    } else {
-        PyObject * pModule = PyImport_AddModule("__main__");
-        if (!pModule) {
-            cerr << "Could not find module __main__." << endl;
-            exit(-1);
-        }
-        PyObject * pDict = PyModule_GetDict(pModule);
-        PyObject * pFunc = PyDict_GetItemString(pDict, Code.c_str());
-        if (!pFunc) {
-            AVG_TRACE(Logger::ERROR, "Function \"" << Code << 
-                    "\" not defined for node with id '"+getID()+"'. Aborting.");
-            exit(-1);
-        }
-        return pFunc;
-    }
-}
-
-void AreaNode::addEventHandlers(Event::Type EventType, const string& Code)
-{
-    addEventHandler(EventType, Event::MOUSE, Code);
-    addEventHandler(EventType, Event::TOUCH, Code);
-    addEventHandler(EventType, Event::TRACK, Code);
-}
-
-void AreaNode::addEventHandler(Event::Type EventType, Event::Source Source, 
-        const string& Code)
-{
-    PyObject * pFunc = findPythonFunc(Code);
-    if (pFunc) {
-        Py_INCREF(pFunc);
-        EventHandlerID ID(EventType, Source);
-        m_EventHandlerMap[ID] = pFunc;
-    }
-}
-
 OGLShaderPtr AreaNode::getVertexShader() 
 {
     return m_pMyVertexShader;
@@ -465,6 +325,7 @@ void AreaNode::setVertexShader(OGLShaderPtr pShader)
 {
     m_pMyVertexShader = pShader;
 }
+
 void AreaNode::setVertexShaderProgram(std::string sProgram)
 {
     m_pMyVertexShader = OGLShaderPtr(new OGLShader(sProgram,GL_VERTEX_SHADER));
@@ -491,21 +352,6 @@ DPoint AreaNode::toGlobal(const DPoint& localPos) const
 {
     DPoint globalPos = localPos.getRotated(getAngle(), getPivot());
     return globalPos+m_RelViewport.tl;
-}
-
-AreaNode::EventHandlerID::EventHandlerID(Event::Type EventType, Event::Source Source)
-    : m_Type(EventType),
-      m_Source(Source)
-{
-}
-
-bool AreaNode::EventHandlerID::operator < (const EventHandlerID& other) const 
-{
-    if (m_Type == other.m_Type) {
-        return m_Source < other.m_Source;
-    } else {
-        return m_Type < other.m_Type;
-    }
 }
 
 }

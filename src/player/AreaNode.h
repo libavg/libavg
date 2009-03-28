@@ -26,8 +26,6 @@
 
 #include "Node.h"
 
-#include "Event.h"
-
 #include "../base/Point.h"
 #include "../base/Rect.h"
 
@@ -35,9 +33,6 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
-
-// Python docs say python.h should be included before any standard headers (!)
-#include "WrapPython.h" 
 
 #include <string>
 #include <map>
@@ -98,33 +93,18 @@ class AVG_API AreaNode: public Node
         DPoint getPivot() const;
         void setPivot(const DPoint& pt);
         
-        bool getActive() const;
-        void setActive(bool bActive);
-        
-        bool getSensitive() const;
-        void setSensitive(bool bSensitive);
-
         DPoint getRelPos(const DPoint& AbsPos) const;
         DPoint getAbsPos(const DPoint& RelPos) const;
         DPoint toLocal(const DPoint& pos) const;
         DPoint toGlobal(const DPoint& pos) const;
  
-        void setMouseEventCapture();
-        void releaseMouseEventCapture();
-        void setEventCapture(int cursorID);
-        void releaseEventCapture(int cursorID);
-        void setEventHandler(Event::Type Type, int Sources, PyObject * pFunc);
-
-        bool isActive();
-        bool reactsToMouseEvents();
-        virtual AreaNodePtr getElementByPos(const DPoint & pos);
+        virtual NodePtr getElementByPos(const DPoint & pos);
         virtual void maybeRender(const DRect& Rect);
         virtual void setViewport(double x, double y, double width, double height);
         virtual const DRect& getRelViewport() const;
 
         virtual std::string dump(int indent = 0);
         
-        virtual bool handleEvent(EventPtr pEvent); 
         virtual void checkReload() {};
         virtual OGLShaderPtr getFragmentShader();
         virtual OGLShaderPtr getVertexShader();
@@ -145,28 +125,8 @@ class AVG_API AreaNode: public Node
     protected:
         AreaNode();
 
-        bool callPython(PyObject * pFunc, avg::EventPtr pEvent);
-        void addEventHandlers(Event::Type EventType, const std::string& Code);
-        void addEventHandler(Event::Type EventType, Event::Source Source, 
-                const std::string& Code);
-            
     private:
-        PyObject * findPythonFunc(const std::string& Code);
-
-        struct EventHandlerID {
-            EventHandlerID(Event::Type EventType, Event::Source Source);
-
-            bool operator < (const EventHandlerID& other) const;
-
-            Event::Type m_Type;
-            Event::Source m_Source;
-        };
-        typedef std::map<EventHandlerID, PyObject *> EventHandlerMap;
-        EventHandlerMap m_EventHandlerMap;
-
         DRect m_RelViewport;      // In coordinates relative to the parent.
-        bool m_bActive;
-        bool m_bSensitive;
         double m_Angle;
         DPoint m_Pivot;
         bool m_bHasCustomPivot;

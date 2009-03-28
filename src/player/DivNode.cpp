@@ -231,31 +231,36 @@ int DivNode::indexOf(NodePtr pChild)
             +getID()+"'"));
 }
 
-AreaNodePtr DivNode::getElementByPos(const DPoint & pos)
+NodePtr DivNode::getElementByPos(const DPoint & pos)
 {
     if (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y &&
             reactsToMouseEvents())
     {
         for (int i=getNumChildren()-1; i>=0; i--) {
+            // TODO: Move coordinate handling to Node (& get rid of AreaNode entirely?)
             AreaNodePtr pCurChild = dynamic_pointer_cast<AreaNode>(getChild(i));
+            NodePtr pFoundNode;
+            DPoint relPos;
             if (pCurChild) {
-                DPoint relPos = pCurChild->toLocal(pos);
-                AreaNodePtr pFoundNode = pCurChild->getElementByPos(relPos);
-                if (pFoundNode) {
-                    return pFoundNode;
-                }
+                relPos = pCurChild->toLocal(pos);
+                pFoundNode = pCurChild->getElementByPos(relPos);
+            } else {
+                pFoundNode = getChild(i)->getElementByPos(pos);
+            }
+            if (pFoundNode) {
+                return pFoundNode;
             }
         }
         // Pos isn't in any of the children.
         if (getSize() != DPoint(10000, 10000)) {
             // Explicit width/height given for div.
-            return dynamic_pointer_cast<AreaNode>(getThis());
+            return getThis();
         } else {
             // Explicit width/height not given: div itself doesn't react.
-            return AreaNodePtr();
+            return NodePtr();
         }
     } else { 
-        return AreaNodePtr();
+        return NodePtr();
     }
 }
 

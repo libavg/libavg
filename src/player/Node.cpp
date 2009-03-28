@@ -45,6 +45,13 @@ NodeDefinition Node::createDefinition()
 {
     return NodeDefinition("node")
         .addArg(Arg<string>("id", "", false, offsetof(Node, m_ID)))
+        .addArg(Arg<string>("oncursormove", ""))
+        .addArg(Arg<string>("oncursorup", ""))
+        .addArg(Arg<string>("oncursordown", ""))
+        .addArg(Arg<string>("oncursorover", ""))
+        .addArg(Arg<string>("oncursorout", ""))
+        .addArg(Arg<bool>("active", true, false, offsetof(Node, m_bActive)))
+        .addArg(Arg<bool>("sensitive", true, false, offsetof(Node, m_bSensitive)))
         .addArg(Arg<double>("opacity", 1.0, false, offsetof(Node, m_Opacity)));
 }
 
@@ -59,6 +66,19 @@ Node::Node ()
 
 Node::~Node()
 {
+    EventHandlerMap::iterator it;
+    for (it=m_EventHandlerMap.begin(); it != m_EventHandlerMap.end(); ++it) {
+        Py_DECREF(it->second);
+    }
+}
+
+void Node::setArgs(const ArgList& Args)
+{
+    addEventHandlers(Event::CURSORMOTION, Args.getArgVal<string> ("oncursormove"));
+    addEventHandlers(Event::CURSORUP, Args.getArgVal<string> ("oncursorup"));
+    addEventHandlers(Event::CURSORDOWN, Args.getArgVal<string> ("oncursordown"));
+    addEventHandlers(Event::CURSOROVER, Args.getArgVal<string> ("oncursorover"));
+    addEventHandlers(Event::CURSOROUT, Args.getArgVal<string> ("oncursorout"));
 }
 
 void Node::setThis(NodeWeakPtr This, const NodeDefinition * pDefinition)
@@ -141,6 +161,28 @@ void Node::setOpacity(double opacity)
     }
 }
 
+bool Node::getActive() const 
+{
+    return m_bActive;
+}
+
+void Node::setActive(bool bActive)
+{
+    if (bActive != m_bActive) {
+        m_bActive = bActive;
+    }
+}
+
+bool Node::getSensitive() const 
+{
+    return m_bSensitive;
+}
+
+void Node::setSensitive(bool bSensitive)
+{
+    m_bSensitive = bSensitive;
+}
+
 DivNodePtr Node::getParent() const
 {
     if (m_pParent.expired()) {
@@ -158,6 +200,55 @@ void Node::unlink()
     }
     DivNodePtr pParent = m_pParent.lock();
     pParent->removeChild(pParent->indexOf(getThis()));
+}
+
+void Node::setMouseEventCapture()
+{
+    setEventCapture(MOUSECURSORID);
+}
+
+void Node::releaseMouseEventCapture()
+{
+    releaseEventCapture(MOUSECURSORID);
+}
+
+void Node::setEventCapture(int cursorID) 
+{
+    Player::get()->setEventCapture(getThis(), cursorID);
+}
+
+void Node::releaseEventCapture(int cursorID) 
+{
+    Player::get()->releaseEventCapture(cursorID);
+}
+
+void Node::setEventHandler(Event::Type Type, int Sources, PyObject * pFunc)
+{
+    for (int i=0; i<4; ++i) {
+        int source = int(pow(2.,i));
+        if (source & Sources) {
+            EventHandlerID ID(Type, (Event::Source)source);
+            EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
+            if (it != m_EventHandlerMap.end()) {
+                Py_DECREF(it->second);
+                m_EventHandlerMap.erase(it);
+            }
+            if (pFunc != Py_None) {
+                Py_INCREF(pFunc);
+                m_EventHandlerMap[ID] = pFunc;
+            }
+        }
+    }
+}
+
+bool Node::reactsToMouseEvents()
+{
+    return m_bActive && m_bSensitive;
+}
+
+NodePtr Node::getElementByPos(const DPoint & pos)
+{
+    return NodePtr();
 }
 
 void Node::preRender()
@@ -192,6 +283,35 @@ long Node::getHash() const
 const NodeDefinition* Node::getDefinition() const
 {
     return m_pDefinition;
+}
+
+bool Node::handleEvent(EventPtr pEvent)
+{
+    EventHandlerID ID(pEvent->getType(), pEvent->getSource());
+    EventHandlerMap::iterator it = m_EventHandlerMap.find(ID);
+    if (it!=m_EventHandlerMap.end()) {
+        return callPython(it->second, pEvent);
+    } else {
+        return false;
+    }
+}
+
+void Node::addEventHandlers(Event::Type EventType, const string& Code)
+{
+    addEventHandler(EventType, Event::MOUSE, Code);
+    addEventHandler(EventType, Event::TOUCH, Code);
+    addEventHandler(EventType, Event::TRACK, Code);
+}
+
+void Node::addEventHandler(Event::Type EventType, Event::Source Source, 
+        const string& Code)
+{
+    PyObject * pFunc = findPythonFunc(Code);
+    if (pFunc) {
+        Py_INCREF(pFunc);
+        EventHandlerID ID(EventType, Source);
+        m_EventHandlerMap[ID] = pFunc;
+    }
 }
 
 SDLDisplayEngine * Node::getDisplayEngine() const
@@ -288,6 +408,47 @@ void Node::checkReload(const std::string& sHRef, ImagePtr& pImage)
                 AVG_TRACE(Logger::MEMORY, ex.what());
             }
         }
+    }
+}
+
+bool Node::callPython(PyObject * pFunc, EventPtr pEvent)
+{
+    return boost::python::call<bool>(pFunc, pEvent);
+}
+
+PyObject * Node::findPythonFunc(const string& Code)
+{
+    if (Code.empty()) {
+        return 0;
+    } else {
+        PyObject * pModule = PyImport_AddModule("__main__");
+        if (!pModule) {
+            cerr << "Could not find module __main__." << endl;
+            exit(-1);
+        }
+        PyObject * pDict = PyModule_GetDict(pModule);
+        PyObject * pFunc = PyDict_GetItemString(pDict, Code.c_str());
+        if (!pFunc) {
+            AVG_TRACE(Logger::ERROR, "Function \"" << Code << 
+                    "\" not defined for node with id '"+getID()+"'. Aborting.");
+            exit(-1);
+        }
+        return pFunc;
+    }
+}
+
+Node::EventHandlerID::EventHandlerID(Event::Type EventType, Event::Source Source)
+    : m_Type(EventType),
+      m_Source(Source)
+{
+}
+
+bool Node::EventHandlerID::operator < (const EventHandlerID& other) const 
+{
+    if (m_Type == other.m_Type) {
+        return m_Source < other.m_Source;
+    } else {
+        return m_Type < other.m_Type;
     }
 }
 
