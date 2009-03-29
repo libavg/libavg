@@ -164,7 +164,7 @@ void RectNode::setAngle(double angle)
 NodePtr RectNode::getElementByPos(const DPoint & pos)
 {
     DPoint pivot = m_Rect.tl+m_Rect.size()/2;
-    DPoint rpos = pos.getRotated(m_Angle, pivot);
+    DPoint rpos = pos.getRotatedPivot(m_Angle, pivot);
     if (rpos.x >= m_Rect.tl.x && rpos.y >= m_Rect.tl.y && rpos.x < m_Rect.br.x && 
             rpos.y < m_Rect.br.y && reactsToMouseEvents())
     {
@@ -202,10 +202,10 @@ void RectNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     DPoint p2(m_Rect.tl.x, m_Rect.br.y);
     DPoint p3 = m_Rect.br;
     DPoint p4(m_Rect.br.x, m_Rect.tl.y);
-    DPoint rp1 = p1.getRotated(m_Angle, pivot);
-    DPoint rp2 = p2.getRotated(m_Angle, pivot);
-    DPoint rp3 = p3.getRotated(m_Angle, pivot);
-    DPoint rp4 = p4.getRotated(m_Angle, pivot);
+    DPoint rp1 = p1.getRotatedPivot(m_Angle, pivot);
+    DPoint rp2 = p2.getRotatedPivot(m_Angle, pivot);
+    DPoint rp3 = p3.getRotatedPivot(m_Angle, pivot);
+    DPoint rp4 = p4.getRotatedPivot(m_Angle, pivot);
 
     updateLineData(pVertexArray, color, rp1, rp2, m_TexCoords[0], m_TexCoords[1]);
     updateLineData(pVertexArray, color, rp3, rp4, m_TexCoords[2], m_TexCoords[3]);
@@ -213,10 +213,10 @@ void RectNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     p2.x -= getStrokeWidth()/2;
     p3.x += getStrokeWidth()/2;
     p4.x += getStrokeWidth()/2;
-    rp1 = p1.getRotated(m_Angle, pivot);
-    rp2 = p2.getRotated(m_Angle, pivot);
-    rp3 = p3.getRotated(m_Angle, pivot);
-    rp4 = p4.getRotated(m_Angle, pivot);
+    rp1 = p1.getRotatedPivot(m_Angle, pivot);
+    rp2 = p2.getRotatedPivot(m_Angle, pivot);
+    rp3 = p3.getRotatedPivot(m_Angle, pivot);
+    rp4 = p4.getRotatedPivot(m_Angle, pivot);
     updateLineData(pVertexArray, color, rp2, rp3, m_TexCoords[1], m_TexCoords[2]);
     updateLineData(pVertexArray, color, rp4, rp1, m_TexCoords[3], m_TexCoords[4]);
 }
@@ -229,10 +229,10 @@ void RectNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     DPoint p2(m_Rect.tl.x, m_Rect.br.y);
     DPoint p3 = m_Rect.br;
     DPoint p4(m_Rect.br.x, m_Rect.tl.y);
-    DPoint rp1 = p1.getRotated(m_Angle, pivot);
-    DPoint rp2 = p2.getRotated(m_Angle, pivot);
-    DPoint rp3 = p3.getRotated(m_Angle, pivot);
-    DPoint rp4 = p4.getRotated(m_Angle, pivot);
+    DPoint rp1 = p1.getRotatedPivot(m_Angle, pivot);
+    DPoint rp2 = p2.getRotatedPivot(m_Angle, pivot);
+    DPoint rp3 = p3.getRotatedPivot(m_Angle, pivot);
+    DPoint rp4 = p4.getRotatedPivot(m_Angle, pivot);
     pVertexArray->appendPos(rp1, getFillTexCoord1(), color);
     DPoint blTexCoord = DPoint(getFillTexCoord1().x, getFillTexCoord2().y);
     pVertexArray->appendPos(rp2, blTexCoord, color);

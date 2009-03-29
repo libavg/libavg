@@ -49,7 +49,8 @@ public:
 
     void normalize();
     double getNorm();
-    Point getRotated (double angle, const Point& pivot = Point(0,0)) const;
+    Point getRotated(double angle) const;
+    Point getRotatedPivot(double angle, const Point& pivot = Point(0,0)) const;
 
     Point<NUM> & operator =(const Point<NUM>& p);
 
@@ -141,18 +142,21 @@ double Point<NUM>::getNorm()
 }
 
 template<class NUM>
-Point<NUM> Point<NUM>::getRotated (double angle, const Point<NUM>& pivot) const
+Point<NUM> Point<NUM>::getRotated(double angle) const
 {
-
     double cosVal = cos(angle);
     double sinVal = sin(angle);
+    return Point<NUM>(x*cosVal - y*sinVal, x*sinVal + y*cosVal);
+}
 
+template<class NUM>
+Point<NUM> Point<NUM>::getRotatedPivot(double angle, const Point<NUM>& pivot) const
+{
     // translate pivot to origin
     Point<NUM> translated = *this - pivot;
-    
+   
     // calculate rotated coordinates about the origin
-    Point<NUM> rotated(translated.x * cosVal - translated.y * sinVal,
-        translated.x * sinVal + translated.y * cosVal);
+    Point<NUM> rotated = translated.getRotated(angle);
 
     // re-translate pivot to original position
     rotated += pivot;
@@ -263,7 +267,6 @@ double calcDistSquared(const Point<NUM>& pt1, const Point<NUM>& pt2)
 }
 
 bool almostEqual(const DPoint& pt1, const DPoint& pt2);
-DPoint rotate(const DPoint& pt, double angle, const DPoint& pivot=DPoint(0,0));
 
 inline
 double dotProduct(const DPoint& pt1, const DPoint pt2)

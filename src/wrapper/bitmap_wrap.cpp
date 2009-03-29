@@ -128,6 +128,9 @@ void export_bitmap()
                 "getNorm() -> norm\n"
                 "Returns the euclidian norm of the point, that is sqrt(x*x+y*y).")
         .def("getRotated", &DPoint::getRotated,
+                "getRotated(angle) -> pos\n"
+                "Return the position of point rotated around the origin.")
+        .def("getRotated", &DPoint::getRotatedPivot,
                 "getRotated(angle, pivot) -> pos\n"
                 "Return the position of point rotated around pivot.")
         .def(self == self)
