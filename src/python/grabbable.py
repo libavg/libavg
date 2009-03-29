@@ -159,7 +159,7 @@ class Grabbable:
         self.__lastPos = None
 
     def __onDown(self):
-        def __gotoTopLayer ():
+        def __gotoTopLayer():
             parent = self.__node.getParent()
             numChildren = parent.getNumChildren()
             parent.reorderChild(self.__node, numChildren - 1)
@@ -168,7 +168,8 @@ class Grabbable:
         self.__stopInertia()
         self.__reshape()
         if len(self.__eventList) == 1: # first finger down
-            __gotoTopLayer()
+            if self.__moveNode:
+                __gotoTopLayer()
             self.__callback['onDragStart']()
         self.__callback['onAction']()
 
