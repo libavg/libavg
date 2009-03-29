@@ -97,7 +97,7 @@ void PolygonNode::setLineJoin(const string& s)
 
 NodePtr PolygonNode::getElementByPos(const DPoint & pos)
 {
-    if (pointInPolygon(pos, m_Pts) && reactsToMouseEvents())
+    if (reactsToMouseEvents() && pointInPolygon(pos, m_Pts))
     {
         return getThis();
     } else {
