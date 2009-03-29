@@ -123,7 +123,7 @@ void CircleNode::setTexCoord2(double tc)
 
 NodePtr CircleNode::getElementByPos(const DPoint & pos)
 {
-    if (calcDist(pos, m_Pos) <= m_Radius)
+    if (calcDist(pos, m_Pos) <= m_Radius && reactsToMouseEvents())
     {
         return getThis();
     } else {
