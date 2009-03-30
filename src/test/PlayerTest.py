@@ -205,10 +205,6 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(outerNode.getElementByPos((10, 10)) == innerNode)
             self.assert_(outerNode.getElementByPos((0, 10)) == outerNode)
             self.assert_(outerNode.getElementByPos((-10, -110)) == None)
-        def showOutlines():
-            Player.getRootNode().elementoutlinecolor = "FFFFFF"
-        def hideOutlines():
-            Player.getRootNode().elementoutlinecolor = ""
         def sendEvent(x, y):
             Helper = Player.getTestHelper()
             Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
@@ -224,17 +220,14 @@ class PlayerTestCase(AVGTestCase):
         self.start(None,
                 (lambda: self.compareImage("testRotate1", False),
                  testCoordConversions,
-                 showOutlines,
-                 lambda: self.compareImage("testRotate1a", False),
-                 hideOutlines,
                  fakeRotate,
-                 lambda: self.compareImage("testRotate1b", False),
+                 lambda: self.compareImage("testRotate1a", False),
                  lambda: sendEvent(85, 70),
                  lambda: self.assert_(not(self.onOuterDownCalled)),
                  lambda: sendEvent(85, 75),
                  lambda: self.assert_(self.onOuterDownCalled),
                  disableCrop,
-                 lambda: self.compareImage("testRotate1c", False),
+                 lambda: self.compareImage("testRotate1b", False),
                 ))
 
     def testRotate2(self):
@@ -262,8 +255,16 @@ class PlayerTestCase(AVGTestCase):
             lambda: self.compareImage("testRotatePivot2", False),
             lambda: setPivotY(1),
             lambda: self.compareImage("testRotatePivot3", False),
+            ))
 
-                    ))
+    def testOutlines(self):
+        Player.loadFile("rotate.avg")
+        Player.getRootNode().elementoutlinecolor = "FFFFFF"
+        Player.getElementByID("inner").width = 10000
+        Player.getElementByID("inner").height = 10000
+        self.start(None, 
+                [lambda: self.compareImage("testOutlines", False)
+                ])
 
     def testError(self):
         Player.loadFile("image.avg")
@@ -965,6 +966,7 @@ def playerTestSuite(bpp, tests):
             "testRotate2",
             "testRotate3",
             "testRotatePivot",
+            "testOutlines",
             "testError",
             "testExceptionInTimeout",
             "testInvalidImageFilename",

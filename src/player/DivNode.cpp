@@ -312,15 +312,22 @@ void DivNode::renderOutlines(VertexArrayPtr pVA, Pixel32 color)
     Pixel32 effColor = color;
     if (m_ElementOutlineColor != Pixel32(0,0,0,0)) {
         effColor = m_ElementOutlineColor;
-        effColor.setA(128);
+        effColor.setA(64);
     }
     if (effColor != Pixel32(0,0,0,0)) {
         DPoint size = getSize();
-        DPoint p0 = getAbsPos(DPoint(0.5, 0.5));
-        DPoint p1 = getAbsPos(DPoint(size.x+0.5,0.5));
-        DPoint p2 = getAbsPos(DPoint(size.x+0.5,size.y+0.5));
-        DPoint p3 = getAbsPos(DPoint(0.5,size.y+0.5));
-        if (size != DPoint(10000, 10000)) {
+        if (size == DPoint(10000, 10000)) {
+            DPoint p0 = getAbsPos(DPoint(-4, 0.5));
+            DPoint p1 = getAbsPos(DPoint(5, 0.5));
+            DPoint p2 = getAbsPos(DPoint(0.5, -4));
+            DPoint p3 = getAbsPos(DPoint(0.5, 5));
+            pVA->addLineData(effColor, p0, p1, 1);
+            pVA->addLineData(effColor, p2, p3, 1);
+        } else {
+            DPoint p0 = getAbsPos(DPoint(0.5, 0.5));
+            DPoint p1 = getAbsPos(DPoint(size.x+0.5,0.5));
+            DPoint p2 = getAbsPos(DPoint(size.x+0.5,size.y+0.5));
+            DPoint p3 = getAbsPos(DPoint(0.5,size.y+0.5));
             pVA->addLineData(effColor, p0, p1, 1);
             pVA->addLineData(effColor, p1, p2, 1);
             pVA->addLineData(effColor, p2, p3, 1);
