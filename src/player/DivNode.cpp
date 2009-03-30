@@ -251,8 +251,9 @@ int DivNode::indexOf(NodePtr pChild)
 
 NodePtr DivNode::getElementByPos(const DPoint & pos)
 {
-    if (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y &&
-            reactsToMouseEvents())
+    if (reactsToMouseEvents() &&
+            ((getSize() == DPoint(10000, 10000) ||
+             (pos.x >= 0 && pos.y >= 0 && pos.x < getSize().x && pos.y < getSize().y))))
     {
         for (int i=getNumChildren()-1; i>=0; i--) {
             // TODO: Move coordinate handling to Node (& get rid of AreaNode entirely?)
@@ -270,12 +271,12 @@ NodePtr DivNode::getElementByPos(const DPoint & pos)
             }
         }
         // Pos isn't in any of the children.
-        if (getSize() != DPoint(10000, 10000)) {
-            // Explicit width/height given for div.
-            return getThis();
-        } else {
+        if (getSize() == DPoint(10000, 10000)) {
             // Explicit width/height not given: div itself doesn't react.
             return NodePtr();
+        } else {
+            // Explicit width/height given for div.
+            return getThis();
         }
     } else { 
         return NodePtr();
