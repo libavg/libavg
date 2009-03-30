@@ -312,7 +312,7 @@ void DivNode::renderOutlines(VertexArrayPtr pVA, Pixel32 color)
     Pixel32 effColor = color;
     if (m_ElementOutlineColor != Pixel32(0,0,0,0)) {
         effColor = m_ElementOutlineColor;
-        effColor.setA(64);
+        effColor.setA(128);
     }
     if (effColor != Pixel32(0,0,0,0)) {
         DPoint size = getSize();
