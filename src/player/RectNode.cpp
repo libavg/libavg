@@ -207,18 +207,19 @@ void RectNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     DPoint rp3 = p3.getRotatedPivot(m_Angle, pivot);
     DPoint rp4 = p4.getRotatedPivot(m_Angle, pivot);
 
-    updateLineData(pVertexArray, color, rp1, rp2, m_TexCoords[0], m_TexCoords[1]);
-    updateLineData(pVertexArray, color, rp3, rp4, m_TexCoords[2], m_TexCoords[3]);
-    p1.x -= getStrokeWidth()/2;
-    p2.x -= getStrokeWidth()/2;
-    p3.x += getStrokeWidth()/2;
-    p4.x += getStrokeWidth()/2;
+    double width = getStrokeWidth();
+    pVertexArray->addLineData(color, rp1, rp2, width, m_TexCoords[0], m_TexCoords[1]);
+    pVertexArray->addLineData(color, rp3, rp4, width, m_TexCoords[2], m_TexCoords[3]);
+    p1.x -= width/2;
+    p2.x -= width/2;
+    p3.x += width/2;
+    p4.x += width/2;
     rp1 = p1.getRotatedPivot(m_Angle, pivot);
     rp2 = p2.getRotatedPivot(m_Angle, pivot);
     rp3 = p3.getRotatedPivot(m_Angle, pivot);
     rp4 = p4.getRotatedPivot(m_Angle, pivot);
-    updateLineData(pVertexArray, color, rp2, rp3, m_TexCoords[1], m_TexCoords[2]);
-    updateLineData(pVertexArray, color, rp4, rp1, m_TexCoords[3], m_TexCoords[4]);
+    pVertexArray->addLineData(color, rp2, rp3, width, m_TexCoords[1], m_TexCoords[2]);
+    pVertexArray->addLineData(color, rp4, rp1, width, m_TexCoords[3], m_TexCoords[4]);
 }
 
 void RectNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)

@@ -244,18 +244,6 @@ string VectorNode::lineJoin2String(LineJoin lineJoin)
     }
 }
 
-void VectorNode::updateLineData(VertexArrayPtr& pVertexArray, Pixel32 color,
-        const DPoint& p1, const DPoint& p2, double TC1, double TC2)
-{
-    WideLine wl(p1, p2, getStrokeWidth());
-    int curVertex = pVertexArray->getCurVert();
-    pVertexArray->appendPos(wl.pl0, DPoint(TC1, 1), color);
-    pVertexArray->appendPos(wl.pr0, DPoint(TC1, 0), color);
-    pVertexArray->appendPos(wl.pl1, DPoint(TC2, 1), color);
-    pVertexArray->appendPos(wl.pr1, DPoint(TC2, 0), color);
-    pVertexArray->appendQuadIndexes(curVertex+1, curVertex, curVertex+3, curVertex+2); 
-}
-     
 void VectorNode::setDrawNeeded(bool bSizeChanged)
 {
     m_bDrawNeeded = true;

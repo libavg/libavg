@@ -20,7 +20,8 @@
 //
 
 #include "VertexData.h"
-#include "../base/Exception.h"
+
+#include "../base/WideLine.h"
 
 #include <assert.h>
 
@@ -86,6 +87,18 @@ void VertexData::appendQuadIndexes(int v0, int v1, int v2, int v3)
     m_pIndexData[m_CurIndex+4] = v2;
     m_pIndexData[m_CurIndex+5] = v3;
     m_CurIndex+=6;
+}
+
+void VertexData::addLineData(Pixel32 color, const DPoint& p1, const DPoint& p2, 
+        double width, double TC1, double TC2)
+{
+    WideLine wl(p1, p2, width);
+    int curVertex = getCurVert();
+    appendPos(wl.pl0, DPoint(TC1, 1), color);
+    appendPos(wl.pr0, DPoint(TC1, 0), color);
+    appendPos(wl.pl1, DPoint(TC2, 1), color);
+    appendPos(wl.pr1, DPoint(TC2, 0), color);
+    appendQuadIndexes(curVertex+1, curVertex, curVertex+3, curVertex+2); 
 }
 
 void VertexData::setVertexData(int vertexIndex, int indexIndex, 

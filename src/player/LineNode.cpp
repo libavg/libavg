@@ -156,7 +156,7 @@ int LineNode::getNumIndexes()
 
 void LineNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
-    updateLineData(pVertexArray, color, m_P1, m_P2, m_TC1, m_TC2);
+    pVertexArray->addLineData(color, m_P1, m_P2, getStrokeWidth(), m_TC1, m_TC2);
 }
 
 }

@@ -76,8 +76,6 @@ class AVG_API VectorNode : public Node
 
     protected:
         Pixel32 getColorVal() const;
-        void updateLineData(VertexArrayPtr& pVertexArray, Pixel32 color, 
-                const DPoint& p1, const DPoint& p2, double TC1=0, double TC2=1);
         void setDrawNeeded(bool bSizeChanged);
         bool isDrawNeeded();
         bool hasVASizeChanged();

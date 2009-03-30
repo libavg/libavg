@@ -51,8 +51,10 @@ public:
             const DPoint& texPos, const Pixel32& color = Pixel32(0,0,0,0));
     void appendTriIndexes(int v0, int v1, int v2);
     void appendQuadIndexes(int v0, int v1, int v2, int v3);
+    void addLineData(Pixel32 color, const DPoint& p1, const DPoint& p2, double width,
+            double TC1=0, double TC2=1);
     virtual void setVertexData(int vertexIndex, int indexIndex, 
-        const VertexDataPtr& pVertexes);
+            const VertexDataPtr& pVertexes);
     virtual void changeSize(int numVerts, int numIndexes);
     void reset();
 
