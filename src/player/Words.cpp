@@ -207,6 +207,7 @@ void Words::disconnect()
     if (m_pFontDescription) {
         pango_font_description_free(m_pFontDescription);
         m_pFontDescription = 0;
+        m_bFontChanged = true;
     }
     RasterNode::disconnect();
 }
