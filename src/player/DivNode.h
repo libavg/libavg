@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "AreaNode.h"
+#include "../graphics/VertexArray.h"
 
 #include <string>
 
@@ -43,6 +44,10 @@ class AVG_API DivNode : public AreaNode
 
         bool getCrop() const;
         void setCrop(bool bCrop);
+
+        const std::string& getElementOutlineColor() const;
+        void setElementOutlineColor(const std::string& sColor);
+
         const std::string& getMediaDir() const;
         void setMediaDir(const std::string& mediaDir);
 
@@ -60,6 +65,8 @@ class AVG_API DivNode : public AreaNode
         virtual NodePtr getElementByPos(const DPoint & pos);
         virtual void preRender();
         virtual void render(const DRect& rect);
+        virtual void renderOutlines(VertexArrayPtr pVA, Pixel32 color);
+
         virtual std::string getEffectiveMediaDir();
         virtual void checkReload();
 
@@ -71,6 +78,8 @@ class AVG_API DivNode : public AreaNode
 
         std::string m_sMediaDir;
         bool m_bCrop;
+        std::string m_sElementOutlineColor;
+        Pixel32 m_ElementOutlineColor;
         std::vector<NodePtr> m_Children;
 };
 

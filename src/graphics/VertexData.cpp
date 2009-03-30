@@ -165,6 +165,11 @@ int VertexData::getCurVert() const
     return m_CurVert;
 }
 
+int VertexData::getCurIndex() const
+{
+    return m_CurIndex;
+}
+
 const T2V3C4Vertex * VertexData::getVertexData() const
 {
     return m_pVertexData;

@@ -205,6 +205,10 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(outerNode.getElementByPos((10, 10)) == innerNode)
             self.assert_(outerNode.getElementByPos((0, 10)) == outerNode)
             self.assert_(outerNode.getElementByPos((-10, -110)) == None)
+        def showOutlines():
+            Player.getRootNode().elementoutlinecolor = "FFFFFF"
+        def hideOutlines():
+            Player.getRootNode().elementoutlinecolor = ""
         def sendEvent(x, y):
             Helper = Player.getTestHelper()
             Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False,
@@ -220,19 +224,23 @@ class PlayerTestCase(AVGTestCase):
         self.start(None,
                 (lambda: self.compareImage("testRotate1", False),
                  testCoordConversions,
-                 fakeRotate,
+                 showOutlines,
                  lambda: self.compareImage("testRotate1a", False),
+                 hideOutlines,
+                 fakeRotate,
+                 lambda: self.compareImage("testRotate1b", False),
                  lambda: sendEvent(85, 70),
                  lambda: self.assert_(not(self.onOuterDownCalled)),
                  lambda: sendEvent(85, 75),
                  lambda: self.assert_(self.onOuterDownCalled),
                  disableCrop,
-                 lambda: self.compareImage("testRotate1b", False),
+                 lambda: self.compareImage("testRotate1c", False),
                 ))
 
     def testRotate2(self):
         self.start("rotate2.avg",
-                [lambda: self.compareImage("testRotate2", False)])
+                [lambda: self.compareImage("testRotate2", False),
+                 ])
         
     def testRotate3(self):
         self.start("rotate3.avg",

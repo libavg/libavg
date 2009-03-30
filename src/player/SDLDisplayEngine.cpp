@@ -28,6 +28,7 @@
 #include "Player.h"
 #include "Node.h"
 #include "AVGNode.h"
+#include "Shape.h"
 
 #include "Event.h"
 #include "MouseEvent.h"
@@ -479,6 +480,18 @@ void SDLDisplayEngine::render(AVGNodePtr pRootNode)
     {
         ScopeTimer Timer(RootRenderProfilingZone);
         pRootNode->maybeRender(rc);
+
+        Shape * pShape = new Shape("", GL_REPEAT, GL_CLAMP_TO_EDGE);
+        pShape->moveToGPU(this);
+        VertexArrayPtr pVA = pShape->getVertexArray();
+        pVA->changeSize(8000, 8000);  // Breaks at 1000 nodes.
+        pRootNode->renderOutlines(pVA, Pixel32(0,0,0,0));
+        if (pVA->getCurVert() != 0) {
+            pVA->changeSize(pVA->getCurVert(), pVA->getCurIndex());
+            pVA->update();
+            pShape->draw();
+        }
+        delete pShape;
     }
     frameWait();
     swapBuffers();

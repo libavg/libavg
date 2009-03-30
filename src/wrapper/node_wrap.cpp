@@ -180,6 +180,14 @@ void export_node()
             no_init)
         .add_property("crop", &DivNode::getCrop, &DivNode::setCrop,
                 "Turns clipping on or off. Default is True.\n")
+        .add_property("elementoutlinecolor",
+                make_function(&DivNode::getElementOutlineColor,
+                        return_value_policy<copy_const_reference>()),
+                make_function(&DivNode::setElementOutlineColor,
+                        return_value_policy<copy_const_reference>()),
+                "Allows debugging of div node nesting by rendering the outlines of\n"
+                "this div and all its div children in the specified color. Turn off\n"
+                "by setting the color to \"\".\n")
         .def("getNumChildren", &DivNode::getNumChildren,
                 "getNumChildren() -> numchildren\n"
                 "Returns the number of immediate children that this div contains.")

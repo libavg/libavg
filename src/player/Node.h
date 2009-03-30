@@ -27,6 +27,7 @@
 #include "../api.h"
 
 #include "../base/Rect.h"
+#include "../graphics/Pixel32.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
@@ -48,6 +49,7 @@ class AudioEngine;
 class Player;
 class NodeDefinition;
 class Image;
+class VertexArray;
 
 typedef boost::shared_ptr<Node> NodePtr;
 typedef boost::weak_ptr<Node> NodeWeakPtr;
@@ -56,6 +58,7 @@ typedef boost::weak_ptr<DivNode> DivNodeWeakPtr;
 typedef boost::shared_ptr<AVGNode> AVGNodePtr;
 typedef boost::weak_ptr<AVGNode> AVGNodeWeakPtr;
 typedef boost::shared_ptr<Image> ImagePtr;
+typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
 
 class AVG_API Node
 {
@@ -106,7 +109,8 @@ class AVG_API Node
         virtual void preRender();
         virtual void maybeRender(const DRect& Rect) {};
         virtual void render(const DRect& Rect) {};
-        
+        virtual void renderOutlines(VertexArrayPtr pVA, Pixel32 color) {};
+
         double getEffectiveOpacity();
         virtual std::string dump(int indent = 0);
         std::string getTypeStr() const;

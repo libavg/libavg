@@ -50,12 +50,15 @@ NodeDefinition DivNode::createDefinition()
         .extendDefinition(AreaNode::createDefinition())
         .addChildren(sChildren)
         .addArg(Arg<bool>("crop", true, false, offsetof(DivNode, m_bCrop)))
+        .addArg(Arg<string>("elementoutlinecolor", "", false, 
+                offsetof(DivNode, m_sElementOutlineColor)))
         .addArg(Arg<string>("mediadir", "", false, offsetof(DivNode, m_sMediaDir)));
 }
 
 DivNode::DivNode(const ArgList& Args, bool)
 {
     Args.setMembers(this);
+    setElementOutlineColor(m_sElementOutlineColor);
 }
 
 DivNode::~DivNode()
@@ -95,6 +98,21 @@ bool DivNode::getCrop() const
 void DivNode::setCrop(bool bCrop)
 {
     m_bCrop = bCrop;
+}
+
+const std::string& DivNode::getElementOutlineColor() const
+{
+    return m_sElementOutlineColor;
+}
+
+void DivNode::setElementOutlineColor(const std::string& sColor)
+{
+    m_sElementOutlineColor = sColor;
+    if (sColor == "") {
+        m_ElementOutlineColor = Pixel32(0,0,0,0);
+    } else {
+        m_ElementOutlineColor = colorStringToColor(m_sElementOutlineColor);
+    }
 }
 
 const string& DivNode::getMediaDir() const
@@ -286,6 +304,31 @@ void DivNode::render(const DRect& rect)
     }
     if (getCrop()) {
         getDisplayEngine()->popClipRect();
+    }
+}
+
+void DivNode::renderOutlines(VertexArrayPtr pVA, Pixel32 color)
+{
+    Pixel32 effColor = color;
+    if (m_ElementOutlineColor != Pixel32(0,0,0,0)) {
+        effColor = m_ElementOutlineColor;
+        effColor.setA(128);
+    }
+    if (effColor != Pixel32(0,0,0,0)) {
+        DPoint size = getSize();
+        DPoint p0 = getAbsPos(DPoint(0.5, 0.5));
+        DPoint p1 = getAbsPos(DPoint(size.x+0.5,0.5));
+        DPoint p2 = getAbsPos(DPoint(size.x+0.5,size.y+0.5));
+        DPoint p3 = getAbsPos(DPoint(0.5,size.y+0.5));
+        if (size != DPoint(10000, 10000)) {
+            pVA->addLineData(effColor, p0, p1, 1);
+            pVA->addLineData(effColor, p1, p2, 1);
+            pVA->addLineData(effColor, p2, p3, 1);
+            pVA->addLineData(effColor, p3, p0, 1);
+        }
+    }
+    for (int i=0; i<getNumChildren(); i++) {
+        getChild(i)->renderOutlines(pVA, effColor);
     }
 }
 
