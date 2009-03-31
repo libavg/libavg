@@ -114,17 +114,16 @@ class ClusteredEventList:
             self.__callback['onDown']()
 
     def __onUp(self, eventCursor):
-        if eventCursor in self.__centroidByEvent:
-            centroid = self.__centroidByEvent[eventCursor]
-            centroid.removeMember(eventCursor)
-            if len(centroid) == 0:
-                self.__callback['onUp']()
-            del self.__centroidByEvent[eventCursor]
-        else:
-            print "eventCursor %s not found" % eventCursor
+        assert eventCursor in self.__centroidByEvent
+        centroid = self.__centroidByEvent[eventCursor]
+        centroid.removeMember(eventCursor)
+        del self.__centroidByEvent[eventCursor]
 
         self.calcClusters()
         self.__resetMotion()
+
+        if len(centroid) == 0:
+            self.__callback['onUp']()
 
     def __onMotion(self, eventCursor):
         oldPositions = {}
