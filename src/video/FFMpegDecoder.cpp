@@ -361,10 +361,12 @@ void FFMpegDecoder::close()
 
 void FFMpegDecoder::seek(long long DestTime) 
 {
+/* XXX: Causes audio hangs.
     if (DestTime == 0 && m_LastVideoFrameTime == -(long long)(1000.0/m_FPS)) {
         // Hack to improve performance when looping videos
         return;
     }
+*/
     if (m_bFirstPacket && m_pVStream) {
         AVFrame Frame;
         long long FrameTime;

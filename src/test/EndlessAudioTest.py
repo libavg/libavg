@@ -56,7 +56,9 @@ Log.setCategories(Log.APP |
               )
 
 Player = avg.Player.get()
-self._loadEmpty()
+Player.loadString("""
+<avg width="160" height="120">
+</avg>""")
 root = Player.getRootNode()
 node = Player.createNode("sound",
         {"href":"../video/testfiles/44.1kHz_16bit_mono.wav"})
