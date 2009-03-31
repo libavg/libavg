@@ -45,7 +45,6 @@ namespace avg {
         private:
             void waitForSeekDone();
 
-            IDemuxerPtr m_pSyncDemuxer;
             boost::thread* m_pDemuxThread;
 
             VideoDemuxerThread::CmdQueuePtr m_pCmdQ;

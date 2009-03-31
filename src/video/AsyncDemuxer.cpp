@@ -40,7 +40,6 @@ AsyncDemuxer::AsyncDemuxer(AVFormatContext * pFormatContext)
       m_bSeekPending(false)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    m_pSyncDemuxer = IDemuxerPtr(new FFMpegDemuxer(pFormatContext));
     m_pDemuxThread = new boost::thread(VideoDemuxerThread(*m_pCmdQ, pFormatContext));
 }
 
