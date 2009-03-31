@@ -40,7 +40,6 @@
 #include <iostream>
 #include <stdlib.h>
 #include <algorithm>
-#include <cctype> // for toupper
 
 using namespace std;
 
