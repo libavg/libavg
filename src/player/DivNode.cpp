@@ -59,10 +59,12 @@ DivNode::DivNode(const ArgList& Args, bool)
 {
     Args.setMembers(this);
     setElementOutlineColor(m_sElementOutlineColor);
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 DivNode::~DivNode()
 {
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void DivNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 

@@ -172,6 +172,7 @@ Words::Words(const ArgList& Args, bool bFromXML)
     setText(Args.getArgVal<string>("text"));
     initFonts();
     m_Color = colorStringToColor(m_sColorName);
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 Words::~Words()
@@ -182,6 +183,7 @@ Words::~Words()
     if (m_pLayout) {
         g_object_unref(m_pLayout);
     }
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void Words::setTextFromNodeValue(const string& sText)
