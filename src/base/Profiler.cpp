@@ -67,5 +67,23 @@ void Profiler::registerThreadProfiler(ThreadProfilerPtr pThreadProfiler)
     m_ThreadProfilers.push_back(pThreadProfiler);
 }
 
+void Profiler::threadProfilerStopped(ThreadProfilerPtr pThreadProfiler)
+{
+    ThreadProfilerArray::iterator it = m_ThreadProfilers.begin();
+    bool bFound = false;
+    while (it != m_ThreadProfilers.end()) {
+        if (*it == pThreadProfiler) {
+            if (pThreadProfiler->getNumZones() == 0) {
+                m_ThreadProfilers.erase(it); 
+                ThreadProfiler::kill();
+            }
+            bFound = true;
+            break;
+        }
+        ++it;
+    }
+    assert(bFound);
+}
+
 }
 

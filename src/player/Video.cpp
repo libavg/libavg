@@ -78,6 +78,7 @@ Video::Video (const ArgList& Args, bool bFromXML)
         m_pDecoder = new FFMpegDecoder();
     }
     Player::get()->registerFrameListener(this);
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 Video::~Video ()
@@ -90,6 +91,7 @@ Video::~Video ()
     if (m_pEOFCallback) {
         Py_DECREF(m_pEOFCallback);
     }
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 int Video::getNumFrames() const

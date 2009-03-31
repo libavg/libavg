@@ -44,6 +44,7 @@ public:
 
     // Interface to ThreadProfiler
     void registerThreadProfiler(ThreadProfilerPtr pThreadProfiler);
+    void threadProfilerStopped(ThreadProfilerPtr pThreadProfiler);
 
 private:
     Profiler();

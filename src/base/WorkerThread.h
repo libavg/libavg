@@ -29,6 +29,7 @@
 #include "Queue.h"
 #include "Profiler.h"
 #include "ThreadProfiler.h"
+#include "ObjectCounter.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -44,7 +45,8 @@ public:
     typedef boost::shared_ptr<CmdQueue> CmdQueuePtr;
 
     WorkerThread(const std::string& sName, CmdQueue& CmdQ);
-    virtual ~WorkerThread() {};
+    WorkerThread(WorkerThread const& other);
+    virtual ~WorkerThread();
     void operator()();
 
     void stop();
@@ -67,6 +69,22 @@ WorkerThread<DERIVED_THREAD>::WorkerThread(const std::string& sName, CmdQueue& C
       m_bShouldStop(false),
       m_CmdQ(CmdQ)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
+}
+
+template<class DERIVED_THREAD>
+WorkerThread<DERIVED_THREAD>::WorkerThread(WorkerThread const& other)
+    : m_CmdQ(other.m_CmdQ)
+{
+    m_sName = other.m_sName;
+    m_bShouldStop = other.m_bShouldStop;
+    ObjectCounter::get()->incRef(&typeid(*this));
+}
+
+template<class DERIVED_THREAD>
+WorkerThread<DERIVED_THREAD>::~WorkerThread()
+{
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 template<class DERIVED_THREAD>
@@ -92,6 +110,7 @@ void WorkerThread<DERIVED_THREAD>::operator()()
             pProfiler->reset();
         }
         deinit();
+        Profiler::get().threadProfilerStopped(pProfiler);
     } catch (const Exception& e) {
          AVG_TRACE(Logger::ERROR, "Uncaught exception in thread " << m_sName << ": "
                   << e.GetStr());

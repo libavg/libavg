@@ -52,10 +52,12 @@ ImageNode::ImageNode(const ArgList& Args, bool bFromXML)
 {
     Args.setMembers(this);
     setHRef(m_href);
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 ImageNode::~ImageNode()
 {
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void ImageNode::setRenderingEngines(DisplayEngine * pDisplayEngine,

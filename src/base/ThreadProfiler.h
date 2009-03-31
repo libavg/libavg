@@ -27,6 +27,7 @@
 
 #include <boost/thread.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/tss.hpp>
 
 #include <list>
 #include <map>
@@ -39,6 +40,7 @@ typedef boost::shared_ptr<ThreadProfiler> ThreadProfilerPtr;
 class AVG_API ThreadProfiler {
 public:
     static ThreadProfilerPtr& get();
+    static void kill();
     ThreadProfiler();
     virtual ~ThreadProfiler();
  
@@ -52,6 +54,7 @@ public:
     void dumpStatistics();
     void reset();
     int getIndent();
+    int getNumZones();
 
     const std::string& getName() const;
     void setName(const std::string& sName);
@@ -64,6 +67,8 @@ private:
     ZoneList m_ActiveZones;
     bool m_bRunning;
     boost::thread m_Thread;
+
+    static boost::thread_specific_ptr<ThreadProfilerPtr> s_pInstance;
 };
 
 }

@@ -54,7 +54,7 @@ NodeDefinition Sound::createDefinition()
         ;
 }
 
-Sound::Sound (const ArgList& Args, bool bFromXML)
+Sound::Sound(const ArgList& Args, bool bFromXML)
     : m_Filename(""),
       m_pEOFCallback(0),
       m_pDecoder(0),
@@ -68,9 +68,10 @@ Sound::Sound (const ArgList& Args, bool bFromXML)
     m_pDecoder = new AsyncVideoDecoder(pSyncDecoder);
 
     Player::get()->registerFrameListener(this);
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
-Sound::~Sound ()
+Sound::~Sound()
 {
     Player::get()->unregisterFrameListener(this);
     if (m_pDecoder) {
@@ -80,6 +81,7 @@ Sound::~Sound ()
     if (m_pEOFCallback) {
         Py_DECREF(m_pEOFCallback);
     }
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 long long Sound::getDuration() const
