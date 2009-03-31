@@ -93,12 +93,10 @@ class AVG_API AreaNode: public Node
         DPoint getPivot() const;
         void setPivot(const DPoint& pt);
         
-        DPoint getRelPos(const DPoint& AbsPos) const;
-        DPoint getAbsPos(const DPoint& RelPos) const;
-        DPoint toLocal(const DPoint& pos) const;
-        DPoint toGlobal(const DPoint& pos) const;
- 
+        virtual DPoint toLocal(const DPoint& pos) const;
+        virtual DPoint toGlobal(const DPoint& pos) const;
         virtual NodePtr getElementByPos(const DPoint & pos);
+
         virtual void maybeRender(const DRect& Rect);
         virtual void setViewport(double x, double y, double width, double height);
         virtual const DRect& getRelViewport() const;

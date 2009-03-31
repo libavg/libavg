@@ -246,6 +246,41 @@ bool Node::reactsToMouseEvents()
     return m_bActive && m_bSensitive;
 }
 
+DPoint Node::getRelPos(const DPoint& AbsPos) const 
+{
+    DPoint parentPos;
+    DivNodePtr pParent = getParent();
+    if (!pParent) {
+        parentPos = AbsPos;
+    } else {
+        parentPos = pParent->getRelPos(AbsPos);
+    }
+    return toLocal(parentPos);
+}
+
+DPoint Node::getAbsPos(const DPoint& RelPos) const 
+{
+    DPoint thisPos = toGlobal(RelPos);
+    DPoint parentPos;
+    DivNodePtr pParent = getParent();
+    if (!pParent) {
+        parentPos = thisPos;
+    } else {
+        parentPos = pParent->getAbsPos(thisPos);
+    }
+    return parentPos;
+}
+
+DPoint Node::toLocal(const DPoint& globalPos) const
+{
+    return globalPos;
+}
+
+DPoint Node::toGlobal(const DPoint& localPos) const
+{
+    return localPos;
+}
+
 NodePtr Node::getElementByPos(const DPoint & pos)
 {
     return NodePtr();

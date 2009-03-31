@@ -95,6 +95,16 @@ void export_node()
                 "NONE for keyboard events. Sources can be or'ed together to set a\n"
                 "handler for several sources at once.\n"
                 "@param pyfunc: The python callable to invoke.\n")
+        .def("getAbsPos", &Node::getAbsPos,
+                "getAbsPos(relpos) -> abspos\n"
+                "Transforms a position in coordinates relative to the node to a\n"
+                "position in window coordinates.\n"
+                "@param relpos: Relative coordinate to transform.")
+        .def("getRelPos", &Node::getRelPos,
+                "getRelPos(abspos) -> relpos\n"
+                "Transforms a position in window coordinates to a position\n"
+                "in coordinates relative to the node.\n"
+                "@param abspos: Absolute coordinate to transform.")
         .add_property("id", make_function(&Node::getID,
                 return_value_policy<copy_const_reference>()), &Node::setID,
                 "A unique identifier that can be used to reference the node.\n")
@@ -113,16 +123,6 @@ void export_node()
             "Base class for elements in the avg tree that define an area on the screen.\n"
             "Is responsible for coordinate transformations and event handling.\n",
             no_init)
-        .def("getAbsPos", &AreaNode::getAbsPos,
-                "getAbsPos(relpos) -> abspos\n"
-                "Transforms a position in coordinates relative to the node to a\n"
-                "position in window coordinates.\n"
-                "@param relpos: Relative coordinate to transform.")
-        .def("getRelPos", &AreaNode::getRelPos,
-                "getRelPos(abspos) -> relpos\n"
-                "Transforms a position in window coordinates to a position\n"
-                "in coordinates relative to the node.\n"
-                "@param abspos: Absolute coordinate to transform.")
         .def("getElementByPos", &AreaNode::getElementByPos,
                 "getElementByPos(pos) -> AreaNode\n"
                 "Returns the topmost child node that is at the position given. pos\n"

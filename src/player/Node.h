@@ -104,6 +104,10 @@ class AVG_API Node
         void releaseEventCapture(int cursorID);
         void setEventHandler(Event::Type Type, int Sources, PyObject * pFunc);
 
+        DPoint getRelPos(const DPoint& AbsPos) const;
+        DPoint getAbsPos(const DPoint& RelPos) const;
+        virtual DPoint toLocal(const DPoint& pos) const;
+        virtual DPoint toGlobal(const DPoint& pos) const;
         virtual NodePtr getElementByPos(const DPoint & pos);
 
         virtual void preRender();

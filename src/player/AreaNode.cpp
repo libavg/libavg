@@ -209,29 +209,16 @@ void AreaNode::setPivot(const DPoint& pt)
     m_bHasCustomPivot = true;
 }
 
-DPoint AreaNode::getRelPos(const DPoint& AbsPos) const 
+DPoint AreaNode::toLocal(const DPoint& globalPos) const
 {
-    DPoint parentPos;
-    DivNodePtr pParent = getParent();
-    if (!pParent) {
-        parentPos = AbsPos;
-    } else {
-        parentPos = pParent->getRelPos(AbsPos);
-    }
-    return toLocal(parentPos);
+    DPoint localPos = globalPos-m_RelViewport.tl;
+    return localPos.getRotatedPivot(-getAngle(), getPivot());
 }
 
-DPoint AreaNode::getAbsPos(const DPoint& RelPos) const 
+DPoint AreaNode::toGlobal(const DPoint& localPos) const
 {
-    DPoint thisPos = toGlobal(RelPos);
-    DPoint parentPos;
-    DivNodePtr pParent = getParent();
-    if (!pParent) {
-        parentPos = thisPos;
-    } else {
-        parentPos = pParent->getAbsPos(thisPos);
-    }
-    return parentPos;
+    DPoint globalPos = localPos.getRotatedPivot(getAngle(), getPivot());
+    return globalPos+m_RelViewport.tl;
 }
 
 NodePtr AreaNode::getElementByPos(const DPoint & pos)
@@ -340,18 +327,6 @@ void AreaNode::setFragmentShaderProgram(std::string sProgram)
 {
     m_pMyFragmentShader = OGLShaderPtr(new OGLShader(sProgram,GL_FRAGMENT_SHADER));
     OGLUserErrorCheck("User Fragment Shader construction");
-}
-
-DPoint AreaNode::toLocal(const DPoint& globalPos) const
-{
-    DPoint localPos = globalPos-m_RelViewport.tl;
-    return localPos.getRotatedPivot(-getAngle(), getPivot());
-}
-
-DPoint AreaNode::toGlobal(const DPoint& localPos) const
-{
-    DPoint globalPos = localPos.getRotatedPivot(getAngle(), getPivot());
-    return globalPos+m_RelViewport.tl;
 }
 
 }
