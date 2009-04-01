@@ -209,7 +209,7 @@ namespace avg {
 
     DPoint EventStream::getSpeed (const DPoint& oldPos, const DPoint& newPos)
     {
-        if (m_OldTime==0) {
+        if (m_OldTime==0 || m_Time == m_OldTime) {
             return DPoint(0,0);
         } else {
             double timeDiff = double(m_OldTime-m_Time);
