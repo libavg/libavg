@@ -140,6 +140,7 @@ public:
         Config.load(getSrcDirName()+"avgtrackerrc.minimal");
         
         Config.setParam("/transform/distortionparams/@p2", "0");
+        Config.setParam("/transform/distortionparams/@p3", "0");
         Config.setParam("/transform/trapezoid/@value", "0");
         Config.setParam("/transform/angle/@value", "0");
         Config.setParam("/transform/displaydisplacement/@x", "0");
