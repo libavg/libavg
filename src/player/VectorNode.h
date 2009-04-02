@@ -76,6 +76,8 @@ class AVG_API VectorNode : public Node
 
     protected:
         Pixel32 getColorVal() const;
+        DisplayEngine::BlendMode getBlendMode() const;
+
         void setDrawNeeded(bool bSizeChanged);
         bool isDrawNeeded();
         bool hasVASizeChanged();

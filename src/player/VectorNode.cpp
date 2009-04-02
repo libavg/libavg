@@ -219,6 +219,11 @@ Pixel32 VectorNode::getColorVal() const
     return m_Color;
 }
 
+DisplayEngine::BlendMode VectorNode::getBlendMode() const
+{
+    return m_BlendMode;
+}
+
 VectorNode::LineJoin VectorNode::string2LineJoin(const string& s)
 {
     if (s == "miter") {
