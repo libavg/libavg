@@ -32,6 +32,13 @@ NUM_SPEEDS = 5
 
 g_player = avg.Player.get()
 
+def getRelPos(pos, nodePos, angle, pivot):
+    return (pos - nodePos).getRotated(-angle, pivot)
+
+def getAbsPos(pos, nodePos, angle, pivot):
+    return Point2D(pos).getRotated(angle, Point2D(pivot)) + Point2D(nodePos)
+
+
 class Grabbable:
     """Helper for multitouch object movement.
     Grabbable will add the well-known multitouch gestures
@@ -234,12 +241,6 @@ class Grabbable:
             size = Point2D(getDistance (n_tl, n_tr), getDistance (n_tl, n_bl))
             angle = getAngle(n_tl, n_tr) # pivot for this rotation is 0,0 (rel. to node)
 
-            def getRelPos(pos, nodePos, angle, pivot):
-                return (pos - nodePos).getRotated(-angle, pivot)
-
-            def getAbsPos(pos, nodePos, angle, pivot):
-                return pos.getRotated(angle, pivot) + nodePos
-
             # get middle of touches relative to the node
             relTouchCenter = getRelPos(absTouchCenter, n_tl, angle, Point2D(0,0))
 
@@ -294,9 +295,11 @@ class Grabbable:
         """ sets a new movement start point """
         # store absolute position at the beginning of the movement
         # for 2-finger-movements:
-        self.o_tl = self.__node.getAbsPos ((0, 0))
-        self.o_bl = self.__node.getAbsPos ((0, self.__node.height))
-        self.o_tr = self.__node.getAbsPos ((self.__node.width, 0))
+        def getPos(pos):
+            return getAbsPos(pos, self.__node.pos, self.__node.angle, self.__node.pivot)
+        self.o_tl = getPos((0, 0))
+        self.o_bl = getPos((0, self.__node.height))
+        self.o_tr = getPos((self.__node.width, 0))
 
         # for 1-finger-movements:
         self.__oldpos = self.__node.pos
