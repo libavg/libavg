@@ -136,7 +136,7 @@ class Grabbable:
             self.__rotSpeed *= self.__torque
         else:
             # save current speed for inertia
-            pos = self.__getAbsCenter()
+            pos = self.__node.pos
             angle = self.__node.angle
             if self.__lastPos:
                 speed = pos - self.__lastPos
@@ -289,11 +289,6 @@ class Grabbable:
             self.__callback['onResize']()
 
         self.__callback['onMotion'](pos, size, angle, pivot)
-
-
-
-    def __getAbsCenter(self):
-        return self.__node.getAbsPos (self.__node.size/2)
 
     def __resetMotion (self):
         """ sets a new movement start point """
