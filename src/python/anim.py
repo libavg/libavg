@@ -78,17 +78,20 @@ class SimpleAnim:
         elif duration:
             self.__stopTimeout = g_Player.setTimeout(duration, self._regularStop)
         self.__done = False
+
     def abort(self):
         """
         Stops the animation. Does not call onStop()
         """
         if not(self.isDone()):
             self._remove()
+
     def isDone(self):
         """
         Returns True if the animation has run its course.
         """
         return self.__done
+
     def _remove(self):
         global g_ActiveAnimations
         self.__done = True
@@ -96,6 +99,7 @@ class SimpleAnim:
         g_Player.clearInterval(self.__interval)
         if self.duration:
             g_Player.clearInterval(self.__stopTimeout)
+
 
 class LinearAnim(SimpleAnim):
     """
@@ -119,6 +123,7 @@ class LinearAnim(SimpleAnim):
         self.__endValue = endValue
         SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop)
         self._step()
+
     def _step(self):
         if not(self.isDone()):
             part = ((float(g_Player.getFrameTime())-self.startTime)/self.duration)
@@ -128,11 +133,13 @@ class LinearAnim(SimpleAnim):
             if self.useInt:
                 curValue = int(curValue+0.5)
             setattr(self.node, self.attrName, curValue)
+
     def _regularStop(self):
         setattr(self.node, self.attrName, self.__endValue)
         self._remove()
         if self.onStop != None:
             self.onStop()
+
 
 class EaseInOutAnim(SimpleAnim):
     def __init__(self, node, attrName, duration, startValue, endValue, 
@@ -143,6 +150,7 @@ class EaseInOutAnim(SimpleAnim):
         self.__easeInDuration = float(easeInDuration)/duration
         self.__easeOutDuration = float(easeOutDuration)/duration
         self._step()
+
     def _step(self):
         def ease(t, easeInDuration, easeOutDuration):
             # All times here are normalized to be between 0 and 1
@@ -171,11 +179,13 @@ class EaseInOutAnim(SimpleAnim):
             if self.useInt:
                 curValue = int(curValue+0.5)
             setattr(self.node, self.attrName, curValue)
+
     def _regularStop(self):
         setattr(self.node, self.attrName, self.__endValue)
         self._remove()
         if self.onStop != None:
             self.onStop()
+
 
 class SplineAnim(SimpleAnim):
     """
@@ -208,6 +218,7 @@ class SplineAnim(SimpleAnim):
         self.__c = self.__startSpeed
         self.__d = self.__startValue
         self._step()
+
     def _step(self):
         if not(self.isDone()):
             part = ((float(g_Player.getFrameTime())-self.startTime)/self.duration)
@@ -217,11 +228,13 @@ class SplineAnim(SimpleAnim):
             if self.useInt:
                 curValue = int(curValue+0.5)
             setattr(self.node, self.attrName, curValue)
+
     def _regularStop(self):
         setattr(self.node, self.attrName, self.__endValue)
         self._remove()
         if self.onStop != None:
             self.onStop()
+
 
 def fadeOut(node, duration, onStop = None):
     """
@@ -261,12 +274,14 @@ class ContinuousAnim(SimpleAnim):
         self.__startValue = startValue
         self.__speed = speed
         self._step()
+
     def _step(self):
         time = (float(g_Player.getFrameTime())-self.startTime)/1000
         curValue = self.__startValue+time*self.__speed
         if self.useInt:
             curValue = int(curValue+0.5)
         setattr(self.node, self.attrName, curValue)
+
 
 def init(g_avg):
     global avg
