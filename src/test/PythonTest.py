@@ -146,6 +146,37 @@ class PythonTestCase(AVGTestCase):
         Player.setTimeout(1, onStart)
         Player.play()
 
+    def testParallelAnim(self):
+        def animStopped():
+            self.__endCalled = True
+
+        def startAnim():
+            node0 = Player.getElementByID("mainimg")
+            node1 = Player.getElementByID("test")
+            node2 = Player.getElementByID("test1")
+            self.anim = anim.ParallelAnim(
+                    [ anim.LinearAnim(node0, "x", 200, 0, 2, start=False),
+                      anim.SplineAnim(node1, "x", 400, 0, 40, 0, 0, start=False),
+                      anim.EaseInOutAnim(node2, "x", 300, 129, 99, 100, 100, start=False)
+                    ], animStopped)
+
+        anim.init(avg)
+        self.__endCalled = False
+        Player.loadFile("image.avg")
+        Player.setFakeFPS(10)
+        self.start("image.avg",
+                (startAnim,
+                 lambda: self.assert_(anim.getNumRunningAnims() == 3),
+                 lambda: self.assert_(not(self.anim.isDone())),
+                 lambda: self.compareImage("testParallelAnims1", False),
+                 None,
+                 None,
+                 lambda: self.compareImage("testParallelAnims2", False),
+                 lambda: self.assert_(self.anim.isDone()),
+                 lambda: self.assert_(self.__endCalled)
+                ))
+
+
     def testDraggable(self):
         def onDragStart(event):
             self.__dragStartCalled = True
@@ -362,6 +393,7 @@ def pythonTestSuite (tests):
         "testEaseInOutAnim",
         "testSplineAnim",
         "testContinuousAnim",
+        "testParallelAnim",
         "testDraggable",
         "testButton",
         "testCheckbox",

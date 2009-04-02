@@ -20,8 +20,7 @@
 
 
 # TODO:
-# - loops
-# - Folgen, Gruppen
+# - Folgen
 
 import math
 
@@ -58,26 +57,36 @@ class SimpleAnim:
     node runs at any given time. If a second one is started, the first one is 
     silently aborted.
     """
-    def __init__(self, node, attrName, duration, useInt, onStop):
+    def __init__(self, node, attrName, duration, useInt, onStop, start):
         global g_Player
         global g_ActiveAnimations
-        abortAnim(node, attrName)
-        g_ActiveAnimations[(node, attrName)] = self
 
         g_Player = avg.Player.get()
         self.node = node
         self.attrName = attrName
         self.duration = duration
-        self.startTime = g_Player.getFrameTime()
         self.onStop = onStop
+        self.onAbort = lambda: None
         self.useInt = useInt
+        if start:
+            self.start()
+
+    def setHandler(self, onStop, onAbort):
+        self.onStop = onStop
+        self.onAbort = onAbort
+
+    def start(self):
+        abortAnim(self.node, self.attrName)
+        g_ActiveAnimations[(self.node, self.attrName)] = self
+        self.startTime = g_Player.getFrameTime()
         self.__interval = g_Player.setOnFrameHandler(self._step)
-        if duration == 0:
+        self.__done = False
+        self._step()
+        if self.duration == 0:
             self._regularStop()
             return
-        elif duration:
-            self.__stopTimeout = g_Player.setTimeout(duration, self._regularStop)
-        self.__done = False
+        elif self.duration:
+            self.__stopTimeout = g_Player.setTimeout(self.duration, self._regularStop)
 
     def abort(self):
         """
@@ -85,6 +94,7 @@ class SimpleAnim:
         """
         if not(self.isDone()):
             self._remove()
+            self.onAbort()
 
     def isDone(self):
         """
@@ -106,7 +116,8 @@ class LinearAnim(SimpleAnim):
     Class that animates an attribute of a libavg node by interpolating linearly
     between start and end values.
     """
-    def __init__(self, node, attrName, duration, startValue, endValue, useInt=False, onStop=None):
+    def __init__(self, node, attrName, duration, startValue, endValue, useInt=False, 
+            onStop=None, start=True):
         """
         @param node: The libavg node object to animate.
         @param attrName: The name of the attribute to change. Must be a numeric
@@ -121,8 +132,8 @@ class LinearAnim(SimpleAnim):
         """
         self.__startValue = startValue
         self.__endValue = endValue
-        SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop)
-        self._step()
+        SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop, 
+                start)
 
     def _step(self):
         if not(self.isDone()):
@@ -143,13 +154,14 @@ class LinearAnim(SimpleAnim):
 
 class EaseInOutAnim(SimpleAnim):
     def __init__(self, node, attrName, duration, startValue, endValue, 
-            easeInDuration, easeOutDuration, useInt=False, onStop=None):
+            easeInDuration, easeOutDuration, useInt=False, onStop=None, 
+            start=True):
         self.__startValue = startValue
         self.__endValue = endValue
-        SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop)
         self.__easeInDuration = float(easeInDuration)/duration
         self.__easeOutDuration = float(easeOutDuration)/duration
-        self._step()
+        SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop, 
+                start)
 
     def _step(self):
         def ease(t, easeInDuration, easeOutDuration):
@@ -192,8 +204,8 @@ class SplineAnim(SimpleAnim):
     Class that animates an attribute of a libavg node by interpolating 
     between start and end values using a cubic spline.
     """
-    def __init__(self, node, attrName, duration, 
-            startValue, startSpeed, endValue, endSpeed, useInt=False, onStop=None):
+    def __init__(self, node, attrName, duration, startValue, startSpeed, endValue, 
+            endSpeed, useInt=False, onStop=None, start=True):
         """
         @param node: The libavg node object to animate.
         @param attrName: The name of the attribute to change. Must be a numeric
@@ -212,12 +224,11 @@ class SplineAnim(SimpleAnim):
         self.__startSpeed = startSpeed
         self.__endValue = endValue
         self.__endSpeed = endSpeed
-        SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop)
         self.__a = -2*(self.__endValue-self.__startValue)+self.__startSpeed+self.__endSpeed
         self.__b = 3*(self.__endValue-self.__startValue)-2*self.__startSpeed-self.__endSpeed
         self.__c = self.__startSpeed
         self.__d = self.__startValue
-        self._step()
+        SimpleAnim.__init__(self, node, attrName, duration, useInt, onStop, start)
 
     def _step(self):
         if not(self.isDone()):
@@ -261,7 +272,8 @@ class ContinuousAnim(SimpleAnim):
     A possible use case is the continuous rotation of an object.
 
     """
-    def __init__(self, node, attrName, startValue, speed, useInt=False):
+    def __init__(self, node, attrName, startValue, speed, useInt=False, 
+            start=True):
         """
         @param node: The libavg node object to animate.
         @param attrName: The name of the attribute to change. Must be a numeric
@@ -270,10 +282,9 @@ class ContinuousAnim(SimpleAnim):
         @param speed: Animation speed, value to be added per second.
         @param useInt: If True, the attribute is always set to an integer value.
         """
-        SimpleAnim.__init__(self, node, attrName, None, useInt, None)
         self.__startValue = startValue
         self.__speed = speed
-        self._step()
+        SimpleAnim.__init__(self, node, attrName, None, useInt, None, start)
 
     def _step(self):
         time = (float(g_Player.getFrameTime())-self.startTime)/1000
@@ -281,6 +292,32 @@ class ContinuousAnim(SimpleAnim):
         if self.useInt:
             curValue = int(curValue+0.5)
         setattr(self.node, self.attrName, curValue)
+
+
+class ParallelAnim:
+    def __init__(self, anims, onStop):
+        self.__anims = anims
+        self.onStop = onStop
+        for anim in anims:
+            stopHandler = lambda anim=anim: self.__animStopped(anim)
+            anim.setHandler(onStop = stopHandler, onAbort = stopHandler)
+            anim.start()
+        self.__isDone = False
+
+    def abort(self):
+        if not(self.__isDone()):
+            self.__isDone = True
+            for anim in anims:
+                anim.abort()
+
+    def isDone(self):
+        return self.__isDone
+
+    def __animStopped(self, anim):
+        self.__anims.remove(anim)
+        if len(self.__anims) == 0:
+            self.onStop()
+            self.__isDone = True
 
 
 def init(g_avg):
