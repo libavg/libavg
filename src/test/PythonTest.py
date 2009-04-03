@@ -146,6 +146,56 @@ class PythonTestCase(AVGTestCase):
         Player.setTimeout(1, onStart)
         Player.play()
 
+    def testWaitAnim(self):
+        def animStopped():
+            self.__endCalled = True
+
+        def startAnim():
+            self.anim = anim.WaitAnim(200, animStopped, False)
+            self.anim.start()
+
+        anim.init(avg)
+        Player.setFakeFPS(10)
+        self.__endCalled = False
+        self.start("image.avg",
+                (startAnim, 
+                 lambda: self.assert_(not(self.anim.isDone())),
+                 None,
+                 None,
+                 lambda: self.assert_(self.anim.isDone()),
+                 lambda: self.assert_(self.__endCalled)
+                ))
+
+    def testStateAnim(self):
+        def state2Callback():
+            self.__state2CallbackCalled = True
+        def makeAnim():
+            node = Player.getElementByID("test")
+            self.anim = anim.StateAnim(
+                    {"STATE1": anim.LinearAnim(node, "x", 200, 64, 128, start=False),
+                     "STATE2": anim.LinearAnim(node, "x", 200, 128, 64, start=False),
+                     "STATE3": anim.WaitAnim(start=False)},
+                    {"STATE1": anim.AnimTransition("STATE2", state2Callback),
+                     "STATE2": anim.AnimTransition("STATE3")})
+        anim.init(avg)
+        Player.setFakeFPS(10)
+        self.__state2CallbackCalled = False
+        self.start("image.avg",
+                (makeAnim,
+                 lambda: self.compareImage("testStateAnim1", False),
+                 lambda: self.anim.setState("STATE1"),
+                 None,
+                 lambda: self.compareImage("testStateAnim2", False),
+                 lambda: self.anim.getState() == "STATE2",
+                 lambda: self.compareImage("testStateAnim3", False),
+                 lambda: self.assert_(self.__state2CallbackCalled),
+                 lambda: self.anim.getState() == "STATE3",
+                 lambda: self.compareImage("testStateAnim4", False),
+                 lambda: self.anim.setState("STATE1"),
+                 lambda: self.assert_(anim.getNumRunningAnims() == 1),
+                 lambda: self.compareImage("testStateAnim5", False)
+                ))
+
     def testParallelAnim(self):
         def animStopped():
             self.__endCalled = True
@@ -162,7 +212,6 @@ class PythonTestCase(AVGTestCase):
 
         anim.init(avg)
         self.__endCalled = False
-        Player.loadFile("image.avg")
         Player.setFakeFPS(10)
         self.start("image.avg",
                 (startAnim,
@@ -393,7 +442,9 @@ def pythonTestSuite (tests):
         "testEaseInOutAnim",
         "testSplineAnim",
         "testContinuousAnim",
+        "testWaitAnim",
         "testParallelAnim",
+        "testStateAnim",
         "testDraggable",
         "testButton",
         "testCheckbox",

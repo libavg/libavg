@@ -294,6 +294,42 @@ class ContinuousAnim(SimpleAnim):
         setattr(self.node, self.attrName, curValue)
 
 
+class WaitAnim:
+    def __init__(self, duration=None, onStop=None, start=True):
+        self.__duration = duration
+        self.onStop = onStop
+        self.onAbort = None
+        self.__isDone = True
+        if start:
+            self.start()
+
+    def setHandler(self, onStop, onAbort):
+        self.onStop = onStop
+        self.onAbort = onAbort
+
+    def start(self):
+        self.__isDone = False
+        if self.__duration:
+            self.__stopTimeout = g_Player.setTimeout(self.__duration, self.__regularStop)
+        else:
+            self.__stopTimeout = None
+
+    def abort(self):
+        if self.__stopTimeout:
+            g_Player.clearInterval(self.__stopTimeout)
+        if not(self.isDone()):
+            self.__isDone = True
+            self.onAbort()
+
+    def isDone(self):
+        return self.__isDone
+
+    def __regularStop(self):
+        self.__isDone = True
+        self.onStop()
+        
+
+
 class ParallelAnim:
     def __init__(self, anims, onStop=None, start=True):
         self.__anims = anims
@@ -323,6 +359,45 @@ class ParallelAnim:
         if len(self.__anims) == 0:
             self.onStop()
             self.__isDone = True
+
+class StateAnim:
+    def __init__(self, states, transitions, initialState=None):
+        self.__states = states
+        for name in states:
+            states[name].setHandler(self.__onStateDone, self.__onStateDone)
+        self.__transitions = transitions
+        self.__curState = None
+        if not(initialState):
+            self.setState(initialState)
+
+    def setState(self, stateName):
+        if self.__curState == stateName:
+            return
+        if self.__curState:
+            self.__states[self.__curState].abort()
+        self.__curState = stateName
+        if stateName:
+            self.__states[stateName].start()
+
+    def getState(self):
+        return self.__curState
+
+    def __onStateDone(self):
+        if self.__curState in self.__transitions:
+            transition = self.__transitions[self.__curState]
+            if transition.callback:
+                transition.callback()
+            stateName = transition.nextAnimName
+            self.__curState = stateName
+            self.__states[stateName].start()
+        else:
+            self.__curState = None
+
+
+class AnimTransition:
+    def __init__(self, nextAnimName, callback = None):
+        self.nextAnimName = nextAnimName
+        self.callback = callback
 
 
 def init(g_avg):
