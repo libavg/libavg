@@ -295,10 +295,15 @@ class ContinuousAnim(SimpleAnim):
 
 
 class ParallelAnim:
-    def __init__(self, anims, onStop):
+    def __init__(self, anims, onStop=None, start=True):
         self.__anims = anims
         self.onStop = onStop
-        for anim in anims:
+        if start:
+            self.start()
+        self.__isDone = False
+
+    def start(self):
+        for anim in self.__anims:
             stopHandler = lambda anim=anim: self.__animStopped(anim)
             anim.setHandler(onStop = stopHandler, onAbort = stopHandler)
             anim.start()
