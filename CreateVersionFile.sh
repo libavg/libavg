@@ -5,5 +5,11 @@ then
     echo "$0 <outpath>"
 elif which -s svn
 then
-    LC_ALL=C svn info >"$1/version.txt"
+    if [ -d .svn ]
+    then
+        LC_ALL=C svn info >"$1/version.txt"
+    else
+        REL=$(basename $PWD)
+        echo "Version: $REL" >$1/version.txt
+    fi
 fi
