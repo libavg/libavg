@@ -19,16 +19,13 @@
 #
 
 
-# TODO:
-# - Folgen
-
 import math
 
 avg = None
 g_Player = None
 
+# Map of all active SimpleAnimations: (node, attribute)->SimpleAnimation
 g_ActiveAnimations = {}
-
 
 try:
     from . import avg
@@ -94,7 +91,8 @@ class SimpleAnim:
         """
         if not(self.isDone()):
             self._remove()
-            self.onAbort()
+            if self.onAbort:
+                self.onAbort()
 
     def isDone(self):
         """
@@ -319,7 +317,8 @@ class WaitAnim:
             g_Player.clearInterval(self.__stopTimeout)
         if not(self.isDone()):
             self.__isDone = True
-            self.onAbort()
+            if self.onAbort:
+                self.onAbort()
 
     def isDone(self):
         return self.__isDone
@@ -338,6 +337,10 @@ class ParallelAnim:
             self.start()
         self.__isDone = False
 
+    def setHandler(self, onStop, onAbort):
+        self.onStop = onStop
+        self.onAbort = onAbort
+
     def start(self):
         for anim in self.__anims:
             stopHandler = lambda anim=anim: self.__animStopped(anim)
@@ -350,6 +353,8 @@ class ParallelAnim:
             self.__isDone = True
             for anim in anims:
                 anim.abort()
+            if self.onAbort:
+                self.onAbort()
 
     def isDone(self):
         return self.__isDone
@@ -364,13 +369,16 @@ class StateAnim:
     def __init__(self, states, transitions, initialState=None):
         self.__states = states
         for name in states:
-            states[name].setHandler(self.__onStateDone, self.__onStateDone)
+            states[name].setHandler(self.__onStateDone, None)
         self.__transitions = transitions
         self.__curState = None
-        if not(initialState):
+        self.__debug = False
+        if initialState:
             self.setState(initialState)
 
     def setState(self, stateName):
+        if self.__debug:
+            print "setState: ", self.__curState, "-->", stateName
         if self.__curState == stateName:
             return
         if self.__curState:
@@ -382,15 +390,22 @@ class StateAnim:
     def getState(self):
         return self.__curState
 
+    def setDebug(self, debug):
+        self.__debug = debug
+
     def __onStateDone(self):
         if self.__curState in self.__transitions:
             transition = self.__transitions[self.__curState]
             if transition.callback:
                 transition.callback()
             stateName = transition.nextAnimName
+            if self.__debug:
+                print "StateDone: ", self.__curState, "-->", stateName
             self.__curState = stateName
             self.__states[stateName].start()
         else:
+            if self.__debug:
+                print "StateDone: ", self.__curState, "--> None"
             self.__curState = None
 
 
