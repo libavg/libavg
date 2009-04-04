@@ -23,13 +23,12 @@
 #include "SDLDisplayEngine.h"
 #include "OGLTiledSurface.h"
 #include "NodeDefinition.h"
+#include "TextEngine.h"
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
 #include "../base/ScopeTimer.h"
 #include "../base/XMLHelper.h"
-#include "../base/OSHelper.h"
-#include "../base/FileHelper.h"
 #include "../base/StringHelper.h"
 #include "../base/MathHelper.h"
 
@@ -38,42 +37,11 @@
 #include <pango/pangoft2.h>
 
 #include <iostream>
-#include <stdlib.h>
 #include <algorithm>
 
 using namespace std;
 
 namespace avg {
-
-set<string> Words::s_sFontsNotFound;
-set<pair<string, string> > Words::s_VariantsNotFound;
-bool Words::s_bInitialized = false;
-int Words::s_NumFontFamilies = 0;
-PangoFontFamily** Words::s_ppFontFamilies = 0;
-PangoContext * Words::s_pPangoContext = 0;
-
-void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level, 
-        const gchar *message, gpointer unused_data)
-{
-    string s = "Pango ";
-    if (log_level & G_LOG_LEVEL_ERROR) {
-        s += "error: ";
-    } else if (log_level & G_LOG_LEVEL_CRITICAL) {
-        s += string("critical: ")+message;
-        AVG_TRACE(Logger::ERROR, s);
-        assert(false);
-    } else if (log_level & G_LOG_LEVEL_WARNING) {
-        s += "warning: ";
-    } else if (log_level & G_LOG_LEVEL_MESSAGE) {
-        s += "message: ";
-    } else if (log_level & G_LOG_LEVEL_INFO) {
-        s += "info: ";
-    } else if (log_level & G_LOG_LEVEL_DEBUG) {
-        s += "debug: ";
-    }
-    s += message;
-    AVG_TRACE(Logger::WARNING, s);
-}
 
 NodeDefinition Words::createDefinition()
 {
@@ -132,17 +100,6 @@ NodeDefinition Words::createDefinition()
         ;
 }
 
-static void
-text_subst_func(FcPattern *pattern, gpointer data)
-{
-//  GimpText *text = GIMP_TEXT (data);
-
-  FcPatternAddBool(pattern, FC_HINTING, true);
-  FcPatternAddInteger(pattern, FC_HINT_STYLE, FC_HINT_MEDIUM);
-  FcPatternAddInteger(pattern, FC_RGBA, FC_RGBA_NONE);
-  FcPatternAddBool(pattern, FC_ANTIALIAS, true);
-}
-
 Words::Words(const ArgList& Args, bool bFromXML)
     : m_StringExtents(0,0),
       m_pFontDescription(0),
@@ -152,25 +109,9 @@ Words::Words(const ArgList& Args, bool bFromXML)
 {
     m_bParsedText = false;
 
-    if (!s_pPangoContext) {
-        pango_ft2_get_context(72, 72);
-        
-        PangoFT2FontMap *fontmap;
-        fontmap = PANGO_FT2_FONT_MAP (pango_ft2_font_map_new());
-        pango_ft2_font_map_set_resolution (fontmap, 72, 72);
-        pango_ft2_font_map_set_default_substitute (fontmap, text_subst_func, 0, 0);
-        s_pPangoContext = pango_ft2_font_map_create_context (fontmap);
-        g_object_unref (fontmap);
-
-        pango_context_set_language(s_pPangoContext,
-                pango_language_from_string ("en_US"));
-        pango_context_set_base_dir(s_pPangoContext, PANGO_DIRECTION_LTR);
-    }
-
     Args.setMembers(this);
     setAlignment(Args.getArgVal<string>("alignment"));
     setText(Args.getArgVal<string>("text"));
-    initFonts();
     m_Color = colorStringToColor(m_sColorName);
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -398,47 +339,6 @@ void Words::setRawTextMode(bool RawTextMode)
     }
 }
 
-const vector<string>& Words::getFontFamilies()
-{
-    static vector<string> sFonts;
-    initFonts();
-    if (s_ppFontFamilies == 0) {
-        PangoFT2FontMap *fontmap;
-        fontmap = PANGO_FT2_FONT_MAP (pango_ft2_font_map_new());
-        pango_ft2_font_map_set_resolution (fontmap, 72, 72);
-        pango_ft2_font_map_set_default_substitute (fontmap, text_subst_func, 0, 0);
-        PangoContext * pContext = pango_ft2_font_map_create_context (fontmap);
-        pango_context_set_language(pContext,
-                pango_language_from_string("en_US"));
-        PangoFontMap* pFontMap = pango_context_get_font_map(pContext);
-
-        string sOldLang = "";
-        getEnv("LC_CTYPE", sOldLang);
-        setEnv("LC_CTYPE", "en-us");
-        pango_font_map_list_families(pFontMap, &s_ppFontFamilies, &s_NumFontFamilies);
-        setEnv("LC_CTYPE", sOldLang);
-        for (int i=0; i<s_NumFontFamilies; ++i) {
-            sFonts.push_back(pango_font_family_get_name(s_ppFontFamilies[i]));
-        }
-        sort(sFonts.begin(), sFonts.end());
-    }
-    return sFonts;
-}
-
-const vector<string>& Words::getFontVariants(const string& sFontName)
-{
-    PangoFontFamily * pCurFamily = getFontFamily(sFontName);
-    PangoFontFace ** ppFaces;
-    int numFaces;
-    pango_font_family_list_faces (pCurFamily, &ppFaces, &numFaces);
-    static vector<string> sVariants;
-    for (int i=0; i<numFaces; ++i) {
-        sVariants.push_back(pango_font_face_get_face_name(ppFaces[i]));
-    }
-    g_free(ppFaces);
-    return sVariants;
-}
-
 IntPoint Words::getGlyphPos(int i)
 {
     PangoRectangle rect = getGlyphRect(i);
@@ -449,23 +349,6 @@ IntPoint Words::getGlyphSize(int i)
 {
     PangoRectangle rect = getGlyphRect(i);
     return IntPoint(rect.width/PANGO_SCALE, rect.height/PANGO_SCALE);
-}
-
-PangoFontFamily * Words::getFontFamily(const string& sFamily)
-{
-    getFontFamilies();
-    PangoFontFamily * pFamily = 0;
-    assert(s_NumFontFamilies != 0);
-    for (int i=0; i<s_NumFontFamilies; ++i) {
-        if (equalIgnoreCase(pango_font_family_get_name(s_ppFontFamilies[i]), sFamily)) {
-            pFamily = s_ppFontFamilies[i];
-        }
-    }
-    if (!pFamily) {
-        throw(Exception(AVG_ERR_INVALID_ARGS, 
-                "getFontFamily: Font family "+sFamily+" not found."));
-    }
-    return pFamily;
 }
 
 void Words::parseString(PangoAttrList** ppAttrList, char** ppText)
@@ -500,48 +383,8 @@ void Words::drawString()
         m_StringExtents = IntPoint(0,0);
     } else {
         if (m_bFontChanged) {
-            PangoFontFamily * pFamily;
-            bool bFamilyFound = true;
-            try {
-                pFamily = getFontFamily(m_sFontName);
-            } catch (Exception&) {
-                if (s_sFontsNotFound.find(m_sFontName) == s_sFontsNotFound.end()) {
-                    AVG_TRACE(Logger::WARNING, "Could not find font face " << 
-                            m_sFontName << ". Using sans instead.");
-                    s_sFontsNotFound.insert(m_sFontName);
-                }
-                bFamilyFound = false;
-                pFamily = getFontFamily("sans");
-            }
-            PangoFontFace ** ppFaces;
-            int numFaces;
-            pango_font_family_list_faces(pFamily, &ppFaces, &numFaces);
-            PangoFontFace * pFace = 0;
-            if (m_sFontVariant == "") {
-                pFace = ppFaces[0];
-            } else {
-                for (int i=0; i<numFaces; ++i) {
-                    if (equalIgnoreCase(pango_font_face_get_face_name(ppFaces[i]), 
-                            m_sFontVariant)) 
-                    {
-                        pFace = ppFaces[i];
-                    }
-                }
-            }
-            if (!pFace) {
-                pFace = ppFaces[0];
-                if (bFamilyFound) {
-                    pair<string, string> variant(m_sFontName, m_sFontVariant);
-                    if (s_VariantsNotFound.find(variant) == s_VariantsNotFound.end()) {
-                        s_VariantsNotFound.insert(variant);
-                        AVG_TRACE(Logger::WARNING, "Could not find font variant " 
-                                << m_sFontName << ":" << m_sFontVariant << ". Using " <<
-                                pango_font_face_get_face_name(pFace) << " instead.");
-                    }
-                }
-            }
-            g_free(ppFaces);
-
+            PangoFontFace * pFace = TextEngine::get().getFontFace(m_sFontName, 
+                    m_sFontVariant);
             if (m_pFontDescription) {
                 pango_font_description_free(m_pFontDescription);
             }
@@ -551,12 +394,13 @@ void Words::drawString()
 
             m_bFontChanged = false;
         }
-        pango_context_set_font_description(s_pPangoContext, m_pFontDescription);
+        PangoContext* pContext = TextEngine::get().getPangoContext();
+        pango_context_set_font_description(pContext, m_pFontDescription);
 
         if (m_pLayout) {
             g_object_unref(m_pLayout);
         }
-        m_pLayout = pango_layout_new(s_pPangoContext);
+        m_pLayout = pango_layout_new(pContext);
 
         PangoAttrList * pAttrList = 0;
 #if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2) 
@@ -681,6 +525,16 @@ IntPoint Words::getMediaSize()
     return m_StringExtents;
 }
 
+const vector<string>& Words::getFontFamilies()
+{
+    return TextEngine::get().getFontFamilies();
+}
+
+const vector<string>& Words::getFontVariants(const string& sFontName)
+{
+    return TextEngine::get().getFontVariants(sFontName);
+}
+
 string Words::removeExcessSpaces(const string & sText)
 {
     string s = sText;
@@ -751,46 +605,6 @@ UTF8String Words::applyBR(const UTF8String& sText)
         pos=sLowerText.find("<br/>");
     }
     return sResult;
-}
-
-void Words::checkFontError(int Ok, const string& sMsg)
-{
-    if (Ok == 0) {
-        throw Exception(AVG_ERR_FONT_INIT_FAILED, sMsg);
-    }
-}
-
-void Words::initFonts()
-{
-    if (!s_bInitialized) {
-        g_type_init();
-        std::string sFontConfPath = "/etc/fonts/fonts.conf"; 
-        if (!fileExists(sFontConfPath)) {
-            sFontConfPath = getAvgLibPath()+"etc/fonts/fonts.conf";
-        }
-        FcConfig * pConfig = FcConfigCreate();
-        int Ok = (int)FcConfigParseAndLoad(pConfig, (const FcChar8 *)(sFontConfPath.c_str()), true);
-        checkFontError(Ok, string("Font error: could not load config file ")+sFontConfPath);
-        Ok = (int)FcConfigBuildFonts(pConfig);
-        checkFontError(Ok, string("Font error: FcConfigBuildFonts failed."));
-        Ok = (int)FcConfigSetCurrent(pConfig);
-        checkFontError(Ok, string("Font error: FcConfigSetCurrent failed."));
-        Ok = (int)FcConfigAppFontAddDir(pConfig, (const FcChar8 *)"fonts/");
-        checkFontError(Ok, string("Font error: FcConfigAppFontAddDir failed."));
-/*
-        FcStrList * pCacheDirs = FcConfigGetCacheDirs(pConfig);
-        FcChar8 * pDir;
-        do {
-            pDir = FcStrListNext(pCacheDirs);
-            if (pDir) {
-                cerr << pDir << endl;
-            }
-        } while (pDir);
-*/
-        g_log_set_default_handler(GLibLogFunc, 0);
-
-        s_bInitialized = true;
-    }
 }
 
 }

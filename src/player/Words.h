@@ -28,11 +28,8 @@
 #include "../base/UTF8String.h"
 
 #include <pango/pango.h>
-#include <fontconfig/fontconfig.h>
 
-#include <set>
 #include <string>
-#include <iostream>
 #include <vector>
 
 namespace avg {
@@ -92,14 +89,14 @@ class AVG_API Words : public RasterNode
         double getLetterSpacing() const;
         void setLetterSpacing(double letterSpacing);
 
-        static const std::vector<std::string>& getFontFamilies();
-        static const std::vector<std::string>& getFontVariants(
-                const std::string& sFontName);
-        
         IntPoint getGlyphPos(int i);
         IntPoint getGlyphSize(int i);
         virtual IntPoint getMediaSize();
     
+        static const std::vector<std::string>& getFontFamilies();
+        static const std::vector<std::string>& getFontVariants(
+                const std::string& sFontName);
+        
     private:
         void drawString();
         void parseString(PangoAttrList** ppAttrList, char** ppText);
@@ -107,11 +104,6 @@ class AVG_API Words : public RasterNode
         UTF8String applyBR(const UTF8String& sText);
         std::string removeExcessSpaces(const std::string & sText);
         PangoRectangle getGlyphRect(int i);
-
-        static PangoFontFamily * getFontFamily(const std::string& sFamily);
-        static void checkFontError(int Ok, const std::string& sMsg);
-        static void FT2SubstituteFunc(FcPattern *pattern, gpointer data);
-        static void initFonts();
 
         // Exposed Attributes
         std::string m_sFontName;
@@ -137,14 +129,6 @@ class AVG_API Words : public RasterNode
 
         bool m_bFontChanged;
         bool m_bDrawNeeded;
-
-        static PangoContext * s_pPangoContext;
-        static std::set<std::string> s_sFontsNotFound;
-        static std::set<std::pair<std::string, std::string> > s_VariantsNotFound;
-        static bool s_bInitialized;
-        static int s_NumFontFamilies;
-        static PangoFontFamily** s_ppFontFamilies;
-        
 };
 
 }
