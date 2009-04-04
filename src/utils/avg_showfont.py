@@ -14,7 +14,7 @@ Log.setCategories(Log.APP |
 #          Log.EVENTS |
           0)
 
-Player = avg.Player()
+Player = avg.Player.get()
 
 Player.loadString("""
 <?xml version="1.0"?>
