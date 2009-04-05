@@ -114,48 +114,56 @@ const vector<string>& TextEngine::getFontVariants(const string& sFontName)
 PangoFontDescription * TextEngine::getFontDescription(const string& sFamily, 
         const string& sVariant)
 {
-    PangoFontFamily * pFamily;
-    bool bFamilyFound = true;
-    try {
-        pFamily = getFontFamily(sFamily);
-    } catch (Exception&) {
-        if (m_sFontsNotFound.find(sFamily) == m_sFontsNotFound.end()) {
-            AVG_TRACE(Logger::WARNING, "Could not find font face " << sFamily << 
-                    ". Using sans instead.");
-            m_sFontsNotFound.insert(sFamily);
+    PangoFontDescription* pDescription;
+    FontDescriptionCache::iterator it;
+    it = m_FontDescriptionCache.find(pair<string, string>(sFamily, sVariant));
+    if (it == m_FontDescriptionCache.end()) {
+        PangoFontFamily * pFamily;
+        bool bFamilyFound = true;
+        try {
+            pFamily = getFontFamily(sFamily);
+        } catch (Exception&) {
+            if (m_sFontsNotFound.find(sFamily) == m_sFontsNotFound.end()) {
+                AVG_TRACE(Logger::WARNING, "Could not find font face " << sFamily << 
+                        ". Using sans instead.");
+                m_sFontsNotFound.insert(sFamily);
+            }
+            bFamilyFound = false;
+            pFamily = getFontFamily("sans");
         }
-        bFamilyFound = false;
-        pFamily = getFontFamily("sans");
-    }
-    PangoFontFace ** ppFaces;
-    int numFaces;
-    pango_font_family_list_faces(pFamily, &ppFaces, &numFaces);
-    PangoFontFace * pFace = 0;
-    if (sVariant == "") {
-        pFace = ppFaces[0];
+        PangoFontFace ** ppFaces;
+        int numFaces;
+        pango_font_family_list_faces(pFamily, &ppFaces, &numFaces);
+        PangoFontFace * pFace = 0;
+        if (sVariant == "") {
+            pFace = ppFaces[0];
+        } else {
+            for (int i=0; i<numFaces; ++i) {
+                if (equalIgnoreCase(pango_font_face_get_face_name(ppFaces[i]), sVariant)) {
+                    pFace = ppFaces[i];
+                }
+            }
+        }
+        if (!pFace) {
+            pFace = ppFaces[0];
+            if (bFamilyFound) {
+                pair<string, string> variant(sFamily, sVariant);
+                if (m_VariantsNotFound.find(variant) == m_VariantsNotFound.end()) {
+                    m_VariantsNotFound.insert(variant);
+                    AVG_TRACE(Logger::WARNING, "Could not find font variant " 
+                            << sFamily << ":" << sVariant << ". Using " <<
+                            pango_font_face_get_face_name(pFace) << " instead.");
+                }
+            }
+        }
+        g_free(ppFaces);
+        pDescription = pango_font_face_describe(pFace);
+        m_FontDescriptionCache[pair<string, string>(sFamily, sVariant)] =
+                pDescription;
     } else {
-        for (int i=0; i<numFaces; ++i) {
-            if (equalIgnoreCase(pango_font_face_get_face_name(ppFaces[i]), sVariant)) {
-                pFace = ppFaces[i];
-            }
-        }
+        pDescription = it->second;
     }
-    if (!pFace) {
-        pFace = ppFaces[0];
-        if (bFamilyFound) {
-            pair<string, string> variant(sFamily, sVariant);
-            if (m_VariantsNotFound.find(variant) == m_VariantsNotFound.end()) {
-                m_VariantsNotFound.insert(variant);
-                AVG_TRACE(Logger::WARNING, "Could not find font variant " 
-                        << sFamily << ":" << sVariant << ". Using " <<
-                        pango_font_face_get_face_name(pFace) << " instead.");
-            }
-        }
-    }
-    g_free(ppFaces);
-
-    PangoFontDescription* pDescription = pango_font_face_describe(pFace);
-    return pDescription;
+    return pango_font_description_copy(pDescription);
 }
 
 void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level, 

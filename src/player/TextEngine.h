@@ -28,6 +28,7 @@
 #include <vector>
 #include <string>
 #include <set>
+#include <map>
 
 namespace avg {
 
@@ -57,6 +58,9 @@ private:
     std::set<std::pair<std::string, std::string> > m_VariantsNotFound;
     int m_NumFontFamilies;
     std::vector<std::string> m_sFonts;
+    typedef std::map<std::pair<std::string, std::string>, PangoFontDescription* > 
+            FontDescriptionCache;
+    FontDescriptionCache m_FontDescriptionCache;
     PangoFontFamily** m_ppFontFamilies;
 
 };
