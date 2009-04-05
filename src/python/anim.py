@@ -383,6 +383,9 @@ class StateAnim:
         if initialState:
             self.setState(initialState)
 
+    def delete(self):
+        self.setState(None)
+
     def setState(self, stateName):
         if self.__debug:
             print "setState: ", self.__curState, "-->", stateName
