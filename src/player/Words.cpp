@@ -383,12 +383,11 @@ void Words::drawString()
         m_StringExtents = IntPoint(0,0);
     } else {
         if (m_bFontChanged) {
-            PangoFontFace * pFace = TextEngine::get().getFontFace(m_sFontName, 
-                    m_sFontVariant);
             if (m_pFontDescription) {
                 pango_font_description_free(m_pFontDescription);
             }
-            m_pFontDescription = pango_font_face_describe(pFace);
+            m_pFontDescription = TextEngine::get().getFontDescription(m_sFontName, 
+                    m_sFontVariant);
             pango_font_description_set_absolute_size(m_pFontDescription,
                     (int)(m_Size * PANGO_SCALE));
 

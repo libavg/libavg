@@ -111,7 +111,8 @@ const vector<string>& TextEngine::getFontVariants(const string& sFontName)
     return sVariants;
 }
 
-PangoFontFace * TextEngine::getFontFace(const string& sFamily, const string& sVariant)
+PangoFontDescription * TextEngine::getFontDescription(const string& sFamily, 
+        const string& sVariant)
 {
     PangoFontFamily * pFamily;
     bool bFamilyFound = true;
@@ -152,8 +153,9 @@ PangoFontFace * TextEngine::getFontFace(const string& sFamily, const string& sVa
         }
     }
     g_free(ppFaces);
-    return pFace;
 
+    PangoFontDescription* pDescription = pango_font_face_describe(pFace);
+    return pDescription;
 }
 
 void GLibLogFunc(const gchar *log_domain, GLogLevelFlags log_level, 

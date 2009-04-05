@@ -41,7 +41,8 @@ public:
     const std::vector<std::string>& getFontFamilies();
     const std::vector<std::string>& getFontVariants(const std::string& sFontName);
         
-    PangoFontFace * getFontFace(const std::string& sFamily, const std::string& sVariant);
+    PangoFontDescription * getFontDescription(const std::string& sFamily, 
+            const std::string& sVariant);
     void FT2SubstituteFunc(FcPattern *pattern, gpointer data);
 
 private:
