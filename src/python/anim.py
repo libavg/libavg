@@ -336,8 +336,9 @@ class WaitAnim:
 
 
 class ParallelAnim:
-    def __init__(self, anims, onStop=None, start=True):
+    def __init__(self, anims, onStop=None, onStart=None, start=True):
         self.__anims = anims
+        self.onStart = onStart
         self.onStop = onStop
         if start:
             self.start()
@@ -348,17 +349,19 @@ class ParallelAnim:
         self.onAbort = onAbort
 
     def start(self):
+        self.__isDone = False
+        if self.onStart:
+            self.onStart()
         self.__runningAnims = self.__anims[:]
         for anim in self.__runningAnims:
             stopHandler = lambda anim=anim: self.__animStopped(anim)
             anim.setHandler(onStop = stopHandler, onAbort = stopHandler)
             anim.start()
-        self.__isDone = False
 
     def abort(self):
         if not(self.__isDone):
             self.__isDone = True
-            for anim in self.__anims:
+            for anim in self.__runningAnims:
                 anim.abort()
             if self.onAbort:
                 self.onAbort()
@@ -368,9 +371,10 @@ class ParallelAnim:
 
     def __animStopped(self, anim):
         self.__runningAnims.remove(anim)
-        if len(self.__runningAnims) == 0:
+        if len(self.__runningAnims) == 0 and not(self.__isDone):
             self.onStop()
             self.__isDone = True
+
 
 class StateAnim:
     def __init__(self, states, transitions, initialState=None):
