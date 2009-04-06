@@ -108,13 +108,6 @@ void VertexArray::update()
 
 void VertexArray::draw()
 {
-/*
-    if (numVerts <3) {
-        return;
-    }
-    assert(getNumVerts() > 2);
-    assert(getNumIndexes() > 2);
-*/
     if (m_bDataChanged) {
         update();
     }
