@@ -95,10 +95,10 @@ void PolyLineNode::setLineJoin(const string& s)
 
 int PolyLineNode::getNumVertexes()
 {
-    if (m_Pts.size() < 2) {
+    int numPts = getNumDifferentPts(m_Pts);
+    if (numPts < 2) {
         return 0;
     }
-    int numPts = getNumDifferentPts(m_Pts);
     switch (m_LineJoin) {
         case LJ_MITER:
             return 2*numPts;
@@ -113,10 +113,10 @@ int PolyLineNode::getNumVertexes()
 
 int PolyLineNode::getNumIndexes()
 {
-    if (m_Pts.size() < 2) {
+    int numPts = getNumDifferentPts(m_Pts);
+    if (numPts < 2) {
         return 0;
     }
-    int numPts = getNumDifferentPts(m_Pts);
     switch (m_LineJoin) {
         case LJ_MITER:
             return 6*(numPts-1);

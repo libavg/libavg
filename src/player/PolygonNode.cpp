@@ -107,10 +107,10 @@ NodePtr PolygonNode::getElementByPos(const DPoint & pos)
 
 int PolygonNode::getNumVertexes()
 {
-    if (m_Pts.size() < 3) {
+    int numPts = getNumDifferentPts(m_Pts);
+    if (numPts < 3) {
         return 0;
     }
-    int numPts = getNumDifferentPts(m_Pts);
     int numVerts;
     switch(m_LineJoin) {
         case LJ_MITER:
@@ -127,10 +127,10 @@ int PolygonNode::getNumVertexes()
 
 int PolygonNode::getNumIndexes()
 {
-    if (m_Pts.size() < 3) {
+    int numPts = getNumDifferentPts(m_Pts);
+    if (numPts < 3) {
         return 0;
     }
-    int numPts = getNumDifferentPts(m_Pts);
     int numIndexes;
     switch(m_LineJoin) {
         case LJ_MITER:
