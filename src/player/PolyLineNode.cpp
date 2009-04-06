@@ -130,7 +130,7 @@ int PolyLineNode::getNumIndexes()
 
 void PolyLineNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
-    if (m_Pts.size() < 2) {
+    if (getNumDifferentPts(m_Pts) < 2) {
         return;
     }
     if (m_EffTexCoords.empty()) {

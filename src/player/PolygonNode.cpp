@@ -167,7 +167,7 @@ int PolygonNode::getNumFillIndexes()
 
 void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
-    if (m_Pts.size() < 3) {
+    if (getNumDifferentPts(m_Pts) < 3) {
         return;
     }
     if (m_EffTexCoords.empty()) {
@@ -178,6 +178,9 @@ void PolygonNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 
 void PolygonNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
+    if (getNumDifferentPts(m_Pts) < 3) {
+        return;
+    }
     if (color.getA() > 0 && m_Pts.size() > 2) {
         DPoint minCoord = m_Pts[0];
         DPoint maxCoord = m_Pts[0];
