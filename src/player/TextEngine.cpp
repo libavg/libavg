@@ -31,6 +31,8 @@
 #include <pango/pangoft2.h>
 #include <fontconfig/fontconfig.h>
 
+#include <assert.h>
+#include <algorithm>
 
 namespace avg {
 
