@@ -74,6 +74,8 @@ void VertexArray::setVertexData(int vertexIndex, int indexIndex,
 
 void VertexArray::changeSize(int numVerts, int numIndexes)
 {
+    assert(numVerts > 2 || numVerts == 0);
+    assert(numIndexes > 2 || numVerts == 0);
     int oldReserveVerts = getReservedVerts();
     int oldReserveIndexes = getReservedIndexes();
     VertexData::changeSize(numVerts, numIndexes);
@@ -106,6 +108,13 @@ void VertexArray::update()
 
 void VertexArray::draw()
 {
+/*
+    if (numVerts <3) {
+        return;
+    }
+    assert(getNumVerts() > 2);
+    assert(getNumIndexes() > 2);
+*/
     if (m_bDataChanged) {
         update();
     }

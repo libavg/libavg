@@ -303,6 +303,9 @@ class VectorTestCase(AVGTestCase):
         def testEmptyPolyLine():
             polyline2 = canvas.getChild(0)
             polyline2.pos=[]
+        def testAlmostEmptyPolyLine():
+            polyline2 = canvas.getChild(0)
+            polyline2.pos=[(10,10)]
         def testAcutePolyLine():
             polyline2 = canvas.getChild(0)
             polyline2.strokewidth = 10
@@ -320,6 +323,8 @@ class VectorTestCase(AVGTestCase):
                  addPolyLine2,
                  lambda: self.compareImage("testPolyLine4", False),
                  testEmptyPolyLine,
+                 lambda: self.compareImage("testPolyLine5", False),
+                 testAlmostEmptyPolyLine,
                  lambda: self.compareImage("testPolyLine5", False),
                  testAcutePolyLine,
                  lambda: self.compareImage("testPolyLine6", False)
