@@ -141,6 +141,12 @@ class ClusteredEventList:
         self.__centroids = []
         self.__centroidByEvent = {}
         self.__eventList.delete()
+        self.__callback = {
+                'onDown': lambda x: None,
+                'onUp': lambda x: None,
+                'onMotion': lambda x: None,
+                'resetMotion': lambda x: None,
+        }
 
     def __calcMemberships (self):
         """ returns True if a membership changed, else False."""
