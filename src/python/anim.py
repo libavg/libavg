@@ -81,12 +81,11 @@ class SimpleAnim:
         self.__done = False
         if self.onStart:
             self.onStart()
-        self._step()
         if self.duration == 0:
             self._regularStop()
-            return
         elif self.duration:
             self.__stopTimeout = g_Player.setTimeout(self.duration, self._regularStop)
+            self._step()
 
     def abort(self):
         """
