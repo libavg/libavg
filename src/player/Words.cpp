@@ -250,6 +250,10 @@ const UTF8String& Words::getText() const
 
 void Words::setText(const UTF8String& sText)
 {
+    if (sText.length() > 32767) {
+        throw(Exception(AVG_ERR_INVALID_ARGS, 
+                string("Words::setText: string too long (") + toString(sText.length()) + ")"));
+    }
 //    cerr << "setText(): " << sText << "|" << endl;
     if (m_sRawText != sText) {
         m_sRawText = sText;
@@ -375,6 +379,7 @@ static ProfilingZone DrawStringProfilingZone("  Words::drawString");
 
 void Words::drawString()
 {
+    assert (m_sText.length() < 32767);
     if (!m_bDrawNeeded) {
         return;
     }
@@ -442,6 +447,8 @@ void Words::drawString()
         PangoRectangle logical_rect;
         PangoRectangle ink_rect;
         pango_layout_get_pixel_extents(m_pLayout, &ink_rect, &logical_rect);
+        assert (logical_rect.width < 4096);
+        assert (logical_rect.height < 4096);
 //        cerr << "Ink: " << ink_rect.x << ", " << ink_rect.y << ", " 
 //                << ink_rect.width << ", " << ink_rect.height << endl;
 //        cerr << "Logical: " << logical_rect.x << ", " << logical_rect.y << ", " 
