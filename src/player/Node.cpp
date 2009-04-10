@@ -195,8 +195,7 @@ DivNodePtr Node::getParent() const
 void Node::unlink()
 {
     if (m_pParent.expired()) {
-        throw(Exception(AVG_ERR_UNSUPPORTED, "Node with ID "+m_ID
-                +" has no parent. unlink invalid."));
+        return;
     }
     DivNodePtr pParent = m_pParent.lock();
     pParent->removeChild(pParent->indexOf(getThis()));

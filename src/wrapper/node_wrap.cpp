@@ -63,7 +63,8 @@ void export_node()
         .def("unlink", &Node::unlink,
                 "unlink() -> None\n"
                 "Removes a node from it's parent container. Equivalent to\n"
-                "node.getParent().removeChild(node.getParent().indexOf(node)).")
+                "node.getParent().removeChild(node.getParent().indexOf(node)), except\n"
+                "that if the node has no parent, unlink does nothing.\n")
         .def("setEventCapture", &Node::setMouseEventCapture,
                 "setEventCapture(cursorid)\n"
                 "Sets up event capturing so that cursor events are sent to this node\n"
