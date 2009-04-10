@@ -54,6 +54,10 @@ class PythonTestCase(AVGTestCase):
             self.__onStopCalled = False
             node = Player.getElementByID("test")
             self.__anim.start()
+        def startKeepAttr():
+            node = Player.getElementByID("test")
+            node.x = 25
+            self.__anim.start(keepAttr=True)
         def abortAnim():
             self.__anim.abort()
         self.__anim = curAnim
@@ -79,7 +83,7 @@ class PythonTestCase(AVGTestCase):
                  None,
                  lambda: self.assert_(not(self.__onStopCalled)),
                  startAnim,
-                 startAnim,
+                 startKeepAttr,
                  lambda: self.assert_(anim.getNumRunningAnims() == 1),
                  abortAnim
                 ))

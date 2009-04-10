@@ -73,10 +73,13 @@ class SimpleAnim:
         self.onStop = onStop
         self.onAbort = onAbort
 
-    def start(self):
+    def start(self, keepAttr=False):
         abortAnim(self.node, self.attrName)
         g_ActiveAnimations[(self.node, self.attrName)] = self
-        self.startTime = g_Player.getFrameTime()
+        if keepAttr:
+            self._calcStartTime()
+        else:
+            self.startTime = g_Player.getFrameTime()
         self.__interval = g_Player.setOnFrameHandler(self._step)
         self.__done = False
         if self.onStart:
@@ -151,6 +154,11 @@ class LinearAnim(SimpleAnim):
         if self.onStop != None:
             self.onStop()
 
+    def _calcStartTime(self):
+        curVal = getattr(self.node, self.attrName)
+        part = float(curVal-self.__startValue)/(self.__endValue-self.__startValue)
+        self.startTime = g_Player.getFrameTime()-part*self.duration
+
 
 class EaseInOutAnim(SimpleAnim):
     def __init__(self, node, attrName, duration, startValue, endValue, 
@@ -164,29 +172,9 @@ class EaseInOutAnim(SimpleAnim):
                 start)
 
     def _step(self):
-        def ease(t, easeInDuration, easeOutDuration):
-            # All times here are normalized to be between 0 and 1
-            if t > 1:
-                t=1
-            accelDist = easeInDuration*2/math.pi
-            decelDist = easeOutDuration*2/math.pi
-            if t<easeInDuration:
-                # Acceleration stage 
-                nt=t/easeInDuration
-                s=math.sin(-math.pi/2+nt*math.pi/2)+1;
-                dist=s*accelDist;
-            elif t > 1-easeOutDuration:
-                # Deceleration stage
-                nt = (t-(1-easeOutDuration))/easeOutDuration
-                s = math.sin(nt*math.pi/2)
-                dist = accelDist+(1-easeInDuration-easeOutDuration)+s*decelDist
-            else:
-                # Linear stage
-                dist = accelDist+t-easeInDuration
-            return dist/(accelDist+(1-easeInDuration-easeOutDuration)+decelDist)
         if not(self.isDone()):
             t = (float(g_Player.getFrameTime())-self.startTime)/self.duration;
-            part = ease(t, self.__easeInDuration, self.__easeOutDuration)
+            part = self.__ease(t, self.__easeInDuration, self.__easeOutDuration)
             curValue = self.__startValue+(self.__endValue-self.__startValue)*part
             if self.useInt:
                 curValue = int(curValue+0.5)
@@ -197,6 +185,33 @@ class EaseInOutAnim(SimpleAnim):
         self._remove()
         if self.onStop != None:
             self.onStop()
+
+    def _calcStartTime(self):
+        #XXX: This calculates an inaccurate start time 
+        curVal = getattr(self.node, self.attrName)
+        part = float(curVal-self.__startValue)/(self.__endValue-self.__startValue)
+        self.startTime = g_Player.getFrameTime()-part*self.duration
+
+    def __ease(self, t, easeInDuration, easeOutDuration):
+        # All times here are normalized to be between 0 and 1
+        if t > 1:
+            t=1
+        accelDist = easeInDuration*2/math.pi
+        decelDist = easeOutDuration*2/math.pi
+        if t<easeInDuration:
+            # Acceleration stage 
+            nt=t/easeInDuration
+            s=math.sin(-math.pi/2+nt*math.pi/2)+1;
+            dist=s*accelDist;
+        elif t > 1-easeOutDuration:
+            # Deceleration stage
+            nt = (t-(1-easeOutDuration))/easeOutDuration
+            s = math.sin(nt*math.pi/2)
+            dist = accelDist+(1-easeInDuration-easeOutDuration)+s*decelDist
+        else:
+            # Linear stage
+            dist = accelDist+t-easeInDuration
+        return dist/(accelDist+(1-easeInDuration-easeOutDuration)+decelDist)
 
 
 class SplineAnim(SimpleAnim):
@@ -246,6 +261,12 @@ class SplineAnim(SimpleAnim):
         if self.onStop != None:
             self.onStop()
 
+    def _calcStartTime(self):
+        #XXX: This calculates an inaccurate start time 
+        curVal = getattr(self.node, self.attrName)
+        part = float(curVal-self.__startValue)/(self.__endValue-self.__startValue)
+        self.startTime = g_Player.getFrameTime()-part*self.duration
+
 
 def fadeOut(node, duration, onStop = None):
     """
@@ -270,7 +291,6 @@ class ContinuousAnim(SimpleAnim):
     Class that animates an attribute of a libavg node continuously and
     linearly. The animation will not stop until the abort() method is called.
     A possible use case is the continuous rotation of an object.
-
     """
     def __init__(self, node, attrName, startValue, speed, useInt=False, 
             onStart=None, start=True):
@@ -292,6 +312,10 @@ class ContinuousAnim(SimpleAnim):
         if self.useInt:
             curValue = int(curValue+0.5)
         setattr(self.node, self.attrName, curValue)
+
+    def _calcStartTime(self):
+        curVal = getattr(self.node, self.attrName)
+        self.__startValue = curVal
 
 
 class WaitAnim:
@@ -328,10 +352,12 @@ class WaitAnim:
     def isDone(self):
         return self.__isDone
 
+    def _calcStartTime(self):
+        pass
+
     def __regularStop(self):
         self.__isDone = True
         self.onStop()
-        
 
 
 class ParallelAnim:
