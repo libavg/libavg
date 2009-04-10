@@ -47,27 +47,27 @@ from testcase import *
 class PythonTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName, 24)
-    def testAnimType(self, createAnimFunc, imgBaseName):
+    def testAnimType(self, curAnim, imgBaseName):
         def onStop():
             self.__onStopCalled = True
         def startAnim():
             self.__onStopCalled = False
             node = Player.getElementByID("test")
-            self.__runningAnim = self.__createAnimFunc(node, onStop)
+            self.__anim.start()
         def abortAnim():
-            self.__runningAnim.abort()
-        self.__createAnimFunc = createAnimFunc
+            self.__anim.abort()
+        self.__anim = curAnim
+        self.__anim.setHandler(onStop, None)
         self.__onStopCalled = False
-        anim.init(avg)
         Player.setFakeFPS(10)
-        self.start("image.avg",
+        self.start(None,
                 (startAnim,
                  lambda: self.compareImage(imgBaseName+"1", False),
                  lambda: self.assert_(anim.getNumRunningAnims() == 1),
                  None,
                  None,
                  lambda: self.assert_(self.__onStopCalled),
-                 lambda: self.assert_(self.__runningAnim.isDone),
+                 lambda: self.assert_(self.__anim.isDone),
                  lambda: self.compareImage(imgBaseName+"2", False),
                  lambda: self.assert_(Player.getElementByID("test").x == 100),
                  startAnim,
@@ -75,42 +75,56 @@ class PythonTestCase(AVGTestCase):
                  abortAnim,
                  lambda: self.assert_(anim.getNumRunningAnims() == 0),
                  lambda: self.compareImage(imgBaseName+"3", False),
-                 lambda: self.assert_(self.__runningAnim.isDone),
+                 lambda: self.assert_(self.__anim.isDone),
                  None,
                  lambda: self.assert_(not(self.__onStopCalled)),
                  startAnim,
                  startAnim,
-                 lambda: self.assert_(anim.getNumRunningAnims() == 1)
+                 lambda: self.assert_(anim.getNumRunningAnims() == 1),
+                 abortAnim
                 ))
-        self.__runningAnim = None
+        self.__anim = None
 
     def testLinearAnim(self):
-        def createAnim(node, onStop):
-            return anim.LinearAnim(node, "x", 200, 0, 100, False, onStop)
-        def createAnimZeroDuration(node, onStop):
-            return anim.LinearAnim(node, "x", 0, 0, 100, False, onStop)
-        self.testAnimType(createAnim, "testLinearAnim")
-        self.testAnimType(createAnim, "testLinearAnimZeroDuration")
+        Player.loadFile("image.avg")
+        node = Player.getElementByID("test")
+        curAnim = anim.LinearAnim(node, "x", 200, 0, 100, False, start=False)
+        self.testAnimType(curAnim, "testLinearAnim")
+
+    def testLinearAnimZeroDuration(self):
+        def onStop():
+            self.__onStopCalled = True
+        def startAnim():
+            self.__onStopCalled = False
+            node = Player.getElementByID("test")
+            self.__anim.start()
+        Player.loadFile("image.avg")
+        node = Player.getElementByID("test")
+        self.__anim = anim.LinearAnim(node, "x", 0, 0, 100, False, start=False)
+        self.__anim.setHandler(onStop, None)
+        self.__onStopCalled = False
+        Player.setFakeFPS(10)
+        self.start(None,
+                (startAnim,
+                 lambda: self.compareImage("testLinearAnimZeroDuration1", False),
+                 lambda: self.assert_(anim.getNumRunningAnims() == 0),
+                 lambda: self.assert_(self.__onStopCalled),
+                 lambda: self.assert_(self.__anim.isDone)
+                ))
+        self.__anim = None
 
     def testEaseInOutAnim(self):
-        def createAnim(node, onStop):
-            return anim.EaseInOutAnim(node, "x", 400, 0, 100, 100, 100,
-                    False, onStop)
-        def createAnimZeroDuration(node, onStop):
-            return anim.EaseInOutAnim(node, "x", 0, 0, 100, 100, 100,
-                    False, onStop)
-        self.testAnimType(createAnim, "testEaseInOutAnim")
-        self.testAnimType(createAnim, "testEaseInOutAnimZeroDuration")
+        Player.loadFile("image.avg")
+        node = Player.getElementByID("test")
+        curAnim = anim.EaseInOutAnim(node, "x", 400, 0, 100, 100, 100, False, 
+                start=False)
+        self.testAnimType(curAnim, "testEaseInOutAnim")
 
     def testSplineAnim(self):
-        def createAnim(node, onStop):
-            return anim.SplineAnim(node, "x", 300, 0, 0, 100, 0,
-                    False, onStop)
-        def createAnimZeroDuration(node, onStop):
-            return anim.SplineAnim(node, "x", 0, 0, 0, 100, 0,
-                    False, onStop)
-        self.testAnimType(createAnim, "testSplineAnim")
-        self.testAnimType(createAnim, "testSplineAnimZeroDuration")
+        Player.loadFile("image.avg")
+        node = Player.getElementByID("test")
+        curAnim = anim.SplineAnim(node, "x", 300, 0, 0, 100, 0, False, start=False)
+        self.testAnimType(curAnim, "testSplineAnim")
 
     def testContinuousAnim(self):
         def onStart():
@@ -224,7 +238,6 @@ class PythonTestCase(AVGTestCase):
                  lambda: self.assert_(self.anim.isDone()),
                  lambda: self.assert_(self.__endCalled)
                 ))
-
 
     def testDraggable(self):
         def onDragStart(event):
@@ -439,6 +452,7 @@ sagittis mollis, dignissim vitae, erat. Vestibulum mattis, erat nec pulvinar lac
 def pythonTestSuite (tests):
     availableTests = (
         "testLinearAnim",
+        "testLinearAnimZeroDuration",
         "testEaseInOutAnim",
         "testSplineAnim",
         "testContinuousAnim",
@@ -453,6 +467,7 @@ def pythonTestSuite (tests):
     return AVGTestSuite (availableTests, PythonTestCase, tests)
 
 Player = avg.Player.get()
+anim.init(avg)
 
 if __name__ == '__main__':
     runStandaloneTest (pythonTestSuite)
