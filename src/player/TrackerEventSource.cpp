@@ -31,8 +31,6 @@
 
 #include "../graphics/HistoryPreProcessor.h"
 #include "../graphics/Filterfill.h"
-#include "../graphics/Filterflip.h"
-#include "../graphics/FilterflipX.h"
 #include "../graphics/Pixel8.h"
 
 #include "../imaging/DeDistort.h"
@@ -191,21 +189,9 @@ namespace avg {
     Bitmap * TrackerEventSource::getImage(TrackerImageID ImageID) const
     {
         boost::mutex::scoped_lock Lock(*m_pMutex);
-        BitmapPtr pBitmap;
-        bool bFlipX;
-        bool bFlipY;
-        m_pDeDistort->getFlip(bFlipX, bFlipY);
-        if (bFlipY) {
-            pBitmap = FilterFlip().apply(m_pBitmaps[ImageID]);
-        } else {
-            pBitmap = m_pBitmaps[ImageID];
-        }
-        if (bFlipX) {
-            pBitmap = FilterFlipX().apply(pBitmap);
-        }
-        return new Bitmap(*pBitmap);
+        return new Bitmap(*m_pBitmaps[ImageID]);
     }
-    
+
     static ProfilingZone ProfilingZoneCalcTrack("trackBlobIDs(track)");
     static ProfilingZone ProfilingZoneCalcTouch("trackBlobIDs(touch)");
 
