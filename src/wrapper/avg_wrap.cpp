@@ -271,6 +271,10 @@ BOOST_PYTHON_MODULE(avg)
                 "Adds a camera-based tracker to the avg player. The tracker can be\n"
                 "configured using the config file given and immediately starts\n"
                 "reporting events.")
+        .def("getTracker", &Player::getTracker,
+                return_value_policy<reference_existing_object>(),
+                "getTracker()\n"
+                "returns a tracker previously created with addTracker.")
         .def("setInterval", &Player::setInterval,
                 "setInterval(time, pyfunc) -> id\n"
                 "Sets a python callable object that should be executed regularly.\n"

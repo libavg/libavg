@@ -424,6 +424,11 @@ TrackerEventSource * Player::addTracker(const string& sConfigFilename)
     return m_pTracker;
 }
 
+TrackerEventSource * Player::getTracker()
+{
+    return m_pTracker;
+}
+
 int Player::setInterval(int time, PyObject * pyfunc)
 {
     Timeout *t = new Timeout(time, pyfunc, true, getFrameTime());
