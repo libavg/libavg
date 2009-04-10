@@ -364,6 +364,7 @@ void SDLDisplayEngine::teardown()
 #endif
         m_pScreen = 0;
     }
+    VertexArray::deleteBufferCache();
 }
 
 double SDLDisplayEngine::getRefreshRate() 

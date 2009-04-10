@@ -32,20 +32,40 @@ using namespace std;
 
 namespace avg {
 
+std::vector<unsigned int> VertexArray::s_GLVertexBufferIDs;
+std::vector<unsigned int> VertexArray::s_GLIndexBufferIDs;
+
 VertexArray::VertexArray(int numVerts, int numIndexes, int reserveVerts, 
         int reserveIndexes)
     : VertexData(numVerts, numIndexes, reserveVerts, reserveIndexes),
       m_bDataChanged(true)
 {
-    glproc::GenBuffers(1, &m_GLVertexBufferID);
-    glproc::GenBuffers(1, &m_GLIndexBufferID);
-    setBufferSize();
+    if (s_GLVertexBufferIDs.empty() || getReservedVerts() != 10 || 
+            getReservedIndexes() != 20)
+    {
+        glproc::GenBuffers(1, &m_GLVertexBufferID);
+        glproc::GenBuffers(1, &m_GLIndexBufferID);
+        setBufferSize();
+    } else {
+        m_GLVertexBufferID = s_GLVertexBufferIDs.back();
+        s_GLVertexBufferIDs.pop_back();
+        m_GLIndexBufferID = s_GLIndexBufferIDs.back();
+        s_GLIndexBufferIDs.pop_back();
+    }
 }
 
 VertexArray::~VertexArray()
 {
-    glproc::DeleteBuffers(1, &m_GLVertexBufferID);
-    glproc::DeleteBuffers(1, &m_GLIndexBufferID);
+    if (getReservedVerts() == 10) {
+        s_GLVertexBufferIDs.push_back(m_GLVertexBufferID);
+    } else {
+        glproc::DeleteBuffers(1, &m_GLVertexBufferID);
+    }
+    if (getReservedIndexes() == 20) {
+        s_GLIndexBufferIDs.push_back(m_GLIndexBufferID);
+    } else {
+        glproc::DeleteBuffers(1, &m_GLIndexBufferID);
+    }
 }
 
 void VertexArray::appendPos(const DPoint& pos, 
@@ -132,6 +152,18 @@ void VertexArray::setBufferSize()
     glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLVertexBufferID);
     glproc::BufferData(GL_ELEMENT_ARRAY_BUFFER, 
             getReservedIndexes()*sizeof(unsigned int), 0, GL_STREAM_DRAW);
+}
+
+void VertexArray::deleteBufferCache()
+{
+    for (unsigned i=0; i<s_GLVertexBufferIDs.size(); ++i) {
+        glproc::DeleteBuffers(1, &s_GLVertexBufferIDs[i]);
+    }
+    s_GLVertexBufferIDs.clear();
+    for (unsigned i=0; i<s_GLIndexBufferIDs.size(); ++i) {
+        glproc::DeleteBuffers(1, &s_GLIndexBufferIDs[i]);
+    }
+    s_GLIndexBufferIDs.clear();
 }
 
 }

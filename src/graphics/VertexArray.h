@@ -48,6 +48,8 @@ public:
     void update();
     void draw();
 
+    static void deleteBufferCache();
+
 private:
     void setBufferSize();
 
@@ -55,6 +57,9 @@ private:
 
     unsigned int m_GLVertexBufferID;
     unsigned int m_GLIndexBufferID;
+
+    static std::vector<unsigned int> s_GLVertexBufferIDs;
+    static std::vector<unsigned int> s_GLIndexBufferIDs;
 };
 
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;

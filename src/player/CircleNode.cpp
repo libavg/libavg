@@ -153,6 +153,8 @@ int CircleNode::getNumFillIndexes()
 
 void CircleNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
+    // TODO: This gets called whenever the circle position changes and is quite 
+    // expensive. Should be optimized away.
     DPoint firstPt1 = getCirclePt(0, m_Radius+getStrokeWidth()/2);
     DPoint firstPt2 = getCirclePt(0, m_Radius-getStrokeWidth()/2);
     int curVertex = 0;

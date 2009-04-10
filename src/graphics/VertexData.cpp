@@ -41,6 +41,12 @@ VertexData::VertexData(int numVerts, int numIndexes, int reserveVerts, int reser
       m_CurVert(0),
       m_CurIndex(0)
 {
+    if (m_ReserveVerts < 10) {
+        m_ReserveVerts = 10;
+    }
+    if (m_ReserveIndexes < 20) {
+        m_ReserveIndexes = 20;
+    }
     if (m_NumVerts > m_ReserveVerts) {
         m_ReserveVerts = m_NumVerts;
     }
