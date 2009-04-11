@@ -21,7 +21,8 @@
 #
 
 import os
-from libavg import avg, Point2D
+import gc
+from libavg import avg, Point2D, anim
 g_player = avg.Player.get()
 
 class AVGAppStarter(object):
@@ -73,8 +74,13 @@ class AVGAppStarter(object):
 
         self.__keyBindings = {}
         rootNode.setEventHandler(avg.KEYDOWN, avg.NONE, self.__onKey)
-        testHelper = g_player.getTestHelper()
-        self.bindKey('o', testHelper.dumpObjects)
+
+        def dumpObjects():
+            gc.collect()
+            testHelper = g_player.getTestHelper()
+            testHelper.dumpObjects()
+            print "Num anims: ", anim.getNumRunningAnims()
+        self.bindKey('o', dumpObjects)
 
         self._onBeforePlay()
         g_player.setTimeout(0, self._onStart)
