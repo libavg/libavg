@@ -332,7 +332,7 @@ class WaitAnim:
         self.onStop = onStop
         self.onAbort = onAbort
 
-    def start(self):
+    def start(self, keepAttr=False):
         self.__isDone = False
         if self.onStart:
             self.onStart()
@@ -373,7 +373,7 @@ class ParallelAnim:
         self.onStop = onStop
         self.onAbort = onAbort
 
-    def start(self):
+    def start(self, keepAttr=False):
         self.__isDone = False
         if self.onStart:
             self.onStart()
@@ -381,7 +381,7 @@ class ParallelAnim:
         for anim in self.__runningAnims:
             stopHandler = lambda anim=anim: self.__animStopped(anim)
             anim.setHandler(onStop = stopHandler, onAbort = stopHandler)
-            anim.start()
+            anim.start(keepAttr)
 
     def abort(self):
         if not(self.__isDone):
@@ -415,7 +415,7 @@ class StateAnim:
     def delete(self):
         self.setState(None)
 
-    def setState(self, stateName):
+    def setState(self, stateName, keepAttr=False):
         if self.__debug:
             print "setState: ", self.__curState, "-->", stateName
         if self.__curState == stateName:
@@ -424,7 +424,7 @@ class StateAnim:
             self.__states[self.__curState].abort()
         self.__curState = stateName
         if stateName:
-            self.__states[stateName].start()
+            self.__states[stateName].start(keepAttr)
 
     def getState(self):
         return self.__curState
