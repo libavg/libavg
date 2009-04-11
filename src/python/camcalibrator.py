@@ -23,13 +23,12 @@
 
 
 import sys, os, math, stat
-from libavg import avg
-from libavg import anim
+from libavg import avg, anim
 
-class CamCalibrator:
-    def __init__(self, Player, Tracker, CameraType, ParentNode):
-        self.__Player = Player
-        self.__Tracker = Tracker
+g_player = avg.Player.get()
+
+class Calibrator:
+    def __init__(self, ParentNode, CameraType = "FireFly"):
         self.__curParam = 0
         self.__saveIndex = 0
         self.__onFrameID = Player.setOnFrameHandler(self.onFrame)
@@ -95,12 +94,12 @@ class CamCalibrator:
             self.__parentNode.active = 1 
             self.__parentNode.opacity = 1
             self.__displayParams()
-            self.__onFrameID = self.__Player.setOnFrameHandler(self.onFrame)
+            self.__onFrameID = g_player.setOnFrameHandler(self.onFrame)
         else:
             self.__parentNode.active = 0 
             self.__parentNode.opacity = 0
-            self.__Player.clearInterval(self.__onFrameID)
-        self.__Tracker.setDebugImages(self.__isActive, self.__isActive)
+            g_player.clearInterval(self.__onFrameID)
+        g_player.getTracker().setDebugImages(self.__isActive, self.__isActive)
 
     def __makeParamList(self, CameraType):
         if CameraType == "Fire-i":
@@ -184,22 +183,22 @@ class CamCalibrator:
     def __changeParam(self, Change):
         param = self.__paramList[self.__curParam]
         if param['increment'] >= 1:
-            Val = int(self.__Tracker.getParam(param['path']))
+            Val = int(g_player.getTracker().getParam(param['path']))
         else:
-            Val = float(self.__Tracker.getParam(param['path']))
+            Val = float(g_player.getTracker().getParam(param['path']))
         Val += Change*param['increment']
         if Val < param['min']:
             Val = param['min']
         if Val > param['max']:
             Val = param['max']
-        self.__Tracker.setParam(param['path'], str(Val))
+        g_player.getTracker().setParam(param['path'], str(Val))
         
     def __displayParams(self):
         i = 0
         for Param in self.__paramList:
-            Node = self.__Player.getElementByID("cc_param"+str(i))
+            Node = g_player.getElementByID("cc_param"+str(i))
             Path = Param['path']
-            Val = float(self.__Tracker.getParam(Path))
+            Val = float(g_player.getTracker().getParam(Path))
             Node.text = Param['Name']+": "+('%(val).'+str(Param['precision'])+'f') % {'val': Val}
             if self.__curParam == i:
                 Node.color = "FFFFFF"
@@ -208,13 +207,13 @@ class CamCalibrator:
             i += 1 
 
     def __saveTrackerImage(self, ImageID, ImageName):
-        self.__Tracker.getImage(ImageID).save(
+        g_player.getTracker().getImage(ImageID).save(
                 "img"+str(self.__saveIndex)+"_"+ImageName+".png")
     
     def onFrame(self):
         def showTrackerImage(TrackerImageID, NodeID, w=None, h=None):
-            Bitmap = self.__Tracker.getImage(TrackerImageID)
-            Node = self.__Player.getElementByID(NodeID)
+            Bitmap = g_player.getTracker().getImage(TrackerImageID)
+            Node = g_player.getElementByID(NodeID)
             Node.setBitmap(Bitmap)
             if w != None:
                 Node.width=w
@@ -248,10 +247,10 @@ class CamCalibrator:
                 elif Event.keystring == "page down":
                     self.__changeParam(10)
                 elif Event.keystring == "h":
-                    self.__Tracker.resetHistory()
+                    g_player.getTracker().resetHistory()
                     print "History reset"
                 elif Event.keystring == "s":
-                    self.__Tracker.saveConfig("")
+                    g_player.getTracker().saveConfig("")
                     print ("Tracker configuration saved.")
                 elif Event.keystring == "w":
                     self.__saveIndex += 1
