@@ -142,6 +142,7 @@ class Grabbable:
             self.__speed *= self.__inertia
             self.__rotSpeed *= self.__torque
         else:
+            self.__stopped = False
             # save current speed for inertia
             pos = self.__node.pos
             angle = self.__node.angle
@@ -171,7 +172,6 @@ class Grabbable:
             numChildren = parent.getNumChildren()
             parent.reorderChild(self.__node, numChildren - 1)
 
-        self.__stopped = False
         self.__stopInertia()
         self.__reshape()
         if len(self.__eventList) == 1: # first finger down
