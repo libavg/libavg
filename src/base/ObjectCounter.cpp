@@ -26,6 +26,8 @@
 #include <assert.h>
 #include <iostream>
 #include <sstream>
+#include <vector>
+#include <algorithm>
 
 #ifdef WIN32
 #include <windows.h>
@@ -111,10 +113,17 @@ std::string ObjectCounter::dump()
     stringstream ss;
     ss << "Object dump: " << endl;
     TypeMap::iterator it;
+    vector<string> strings;
     for (it = m_TypeMap.begin(); it != m_TypeMap.end(); ++it) {
+        stringstream tempStream;
         if (it->second > 0) {
-            ss << "  " << demangle(it->first->name()) << ": " << it->second << endl;
+            tempStream << "  " << demangle(it->first->name()) << ": " << it->second;
+            strings.push_back(tempStream.str());
         }
+    }
+    sort(strings.begin(), strings.end());
+    for (vector<string>::iterator it=strings.begin(); it != strings.end(); ++it) {
+        ss << *it << endl;
     }
     return ss.str();
 }
