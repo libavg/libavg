@@ -432,7 +432,7 @@ class VectorTestCase(AVGTestCase):
         def setFillTex():
             polygon.fillopacity=1
             polygon.texhref=""
-            polygon.strokewidth=1
+            polygon.strokewidth=2
             polygon.filltexhref="rgb24alpha-64x64.png"
         def setFillTexCoords():
             polygon.filltexcoord1=(0.5, 1)
