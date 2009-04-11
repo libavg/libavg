@@ -356,6 +356,7 @@ class WaitAnim:
         pass
 
     def __regularStop(self):
+        g_Player.clearInterval(self.__stopTimeout)
         self.__isDone = True
         self.onStop()
 
