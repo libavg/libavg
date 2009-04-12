@@ -46,6 +46,7 @@ Image::Image(const string& sFilename, bool bTiled)
       m_State(NOT_AVAILABLE),
       m_bTiled(bTiled)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     load();
 }
 
@@ -56,6 +57,7 @@ Image::Image(const Bitmap* pBmp, bool bTiled)
       m_State(CPU),
       m_bTiled(bTiled)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     setBitmap(pBmp);
 }
 
@@ -65,6 +67,7 @@ Image::~Image()
         delete m_pSurface;
         m_pSurface = 0;
     }
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
         
 void Image::setBitmap(const Bitmap * pBmp)

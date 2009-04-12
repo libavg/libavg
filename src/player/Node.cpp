@@ -55,13 +55,14 @@ NodeDefinition Node::createDefinition()
         .addArg(Arg<double>("opacity", 1.0, false, offsetof(Node, m_Opacity)));
 }
 
-Node::Node ()
+Node::Node()
     : m_pParent(),
       m_This(),
       m_pDisplayEngine(0),
       m_pAudioEngine(0),
       m_State(NS_UNCONNECTED)
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 Node::~Node()
@@ -70,6 +71,7 @@ Node::~Node()
     for (it=m_EventHandlerMap.begin(); it != m_EventHandlerMap.end(); ++it) {
         Py_DECREF(it->second);
     }
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void Node::setArgs(const ArgList& Args)

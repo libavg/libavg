@@ -61,6 +61,7 @@ NodeDefinition VectorNode::createDefinition()
 VectorNode::VectorNode(const ArgList& Args)
     : m_pShape(new Shape("", GL_REPEAT, GL_CLAMP_TO_EDGE))
 {
+    ObjectCounter::get()->incRef(&typeid(*this));
     m_TexHRef = Args.getArgVal<string>("texhref"); 
     setTexHRef(m_TexHRef);
     m_sColorName = Args.getArgVal<string>("color");
@@ -69,6 +70,7 @@ VectorNode::VectorNode(const ArgList& Args)
 
 VectorNode::~VectorNode()
 {
+    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void VectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
