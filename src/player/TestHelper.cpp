@@ -22,6 +22,7 @@
 #include "TestHelper.h"
 #include "Player.h"
 #include "MouseEvent.h"
+#include "TouchEvent.h"
 #include "KeyEvent.h"
 
 #include "../base/ObjectCounter.h"
@@ -56,6 +57,16 @@ void TestHelper::fakeMouseEvent(Event::Type eventType,
             DPoint(0,0)));
     m_Events.push_back(pEvent);
 }
+
+void TestHelper::fakeTouchEvent(int id, Event::Type eventType,
+        Event::Source source, const DPoint& pos, const DPoint& lastDownPos,
+        const DPoint& speed)
+{
+    TouchEventPtr pEvent(new TouchEvent(id, eventType, BlobPtr(),
+            IntPoint(pos), source, speed, IntPoint(lastDownPos)));
+    m_Events.push_back(pEvent);
+}
+
 
 void TestHelper::fakeKeyEvent(Event::Type eventType,
         unsigned char scanCode, int keyCode, 
