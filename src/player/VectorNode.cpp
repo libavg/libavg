@@ -66,6 +66,8 @@ VectorNode::VectorNode(const ArgList& Args)
     setTexHRef(m_TexHRef);
     m_sColorName = Args.getArgVal<string>("color");
     m_Color = colorStringToColor(m_sColorName);
+    ObjectCounter::get()->incRef(&typeid(*this));
+    
 }
 
 VectorNode::~VectorNode()
