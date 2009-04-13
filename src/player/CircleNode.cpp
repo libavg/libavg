@@ -95,7 +95,7 @@ double CircleNode::getR() const
 
 void CircleNode::setR(double r) 
 {
-    if (r <= 0) {
+    if (int(r) <= 0) {
         throw Exception(AVG_ERR_OUT_OF_RANGE, "Circle radius must be a positive number.");
     }
     m_Radius = r;
@@ -158,16 +158,16 @@ void CircleNode::calcVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
 {
     // TODO: This gets called whenever the circle position changes and is quite 
     // expensive. Should be optimized away.
-    DPoint firstPt1 = getCirclePt(0, m_Radius+getStrokeWidth()/2);
-    DPoint firstPt2 = getCirclePt(0, m_Radius-getStrokeWidth()/2);
+    DPoint firstPt1 = getCirclePt(0, m_Radius+getStrokeWidth()/2)+m_Pos;
+    DPoint firstPt2 = getCirclePt(0, m_Radius-getStrokeWidth()/2)+m_Pos;
     int curVertex = 0;
     pVertexArray->appendPos(firstPt1, DPoint(m_TC1, 0), color);
     pVertexArray->appendPos(firstPt2, DPoint(m_TC1, 1), color);
     for (int i=1; i<=getNumCircumferencePoints(); ++i) {
         double ratio = (double(i)/getNumCircumferencePoints());
         double angle = ratio*2*3.14159;
-        DPoint curPt1 = getCirclePt(angle, m_Radius+getStrokeWidth()/2);
-        DPoint curPt2 = getCirclePt(angle, m_Radius-getStrokeWidth()/2);
+        DPoint curPt1 = getCirclePt(angle, m_Radius+getStrokeWidth()/2)+m_Pos;
+        DPoint curPt2 = getCirclePt(angle, m_Radius-getStrokeWidth()/2)+m_Pos;
         double curTC = (1-ratio)*m_TC1+ratio*m_TC2;
         pVertexArray->appendPos(curPt1, DPoint(curTC, 0), color);
         pVertexArray->appendPos(curPt2, DPoint(curTC, 1), color);
@@ -184,28 +184,80 @@ void CircleNode::calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color)
     DPoint centerTexCoord = calcFillTexCoord(m_Pos, minPt, maxPt);
     pVertexArray->appendPos(m_Pos, centerTexCoord, color);
     int curVertex = 1;
-    DPoint firstPt = getCirclePt(0, m_Radius);
+    DPoint firstPt = getCirclePt(0, m_Radius)+m_Pos;
     DPoint firstTexCoord = calcFillTexCoord(firstPt, minPt, maxPt);
     pVertexArray->appendPos(firstPt, firstTexCoord, color);
-    for (int i=1; i<=getNumCircumferencePoints(); ++i) {
-        double ratio = (double(i)/getNumCircumferencePoints());
+    vector<DPoint> circlePoints;
+    int numPts = getNumCircumferencePoints();
+    for (int i=0; i<=numPts/8; ++i) {
+        double ratio = (double(i)/numPts);
         double angle = ratio*2*3.14159;
-        DPoint curPt = getCirclePt(angle, m_Radius);
-        DPoint curTexCoord = calcFillTexCoord(curPt, minPt, maxPt);
-        pVertexArray->appendPos(curPt, curTexCoord, color);
-        pVertexArray->appendTriIndexes(0, curVertex, curVertex+1);
-        curVertex++;
+        circlePoints.push_back(getCirclePt(angle, m_Radius));
     }
+
+    for (vector<DPoint>::iterator it=circlePoints.begin()+1; it !=circlePoints.end(); ++it)
+    {
+        DPoint curPt = *it+m_Pos;
+        appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
+    }
+    for (vector<DPoint>::reverse_iterator it=circlePoints.rbegin()+1; 
+            it !=circlePoints.rend(); ++it)
+    {
+        DPoint curPt = DPoint(-it->y, -it->x)+m_Pos;
+        appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
+    }
+    for (vector<DPoint>::iterator it=circlePoints.begin()+1; it !=circlePoints.end(); ++it)
+    {
+        DPoint curPt = DPoint(-it->y, it->x)+m_Pos;
+        appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
+    }
+    for (vector<DPoint>::reverse_iterator it=circlePoints.rbegin()+1; 
+            it !=circlePoints.rend(); ++it)
+    {
+        DPoint curPt = DPoint(it->x, -it->y)+m_Pos;
+        appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
+    }
+    for (vector<DPoint>::iterator it=circlePoints.begin()+1; it !=circlePoints.end(); ++it)
+    {
+        DPoint curPt = DPoint(-it->x, -it->y)+m_Pos;
+        appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
+    }
+    for (vector<DPoint>::reverse_iterator it=circlePoints.rbegin()+1;
+            it !=circlePoints.rend(); ++it)
+    {
+        DPoint curPt = DPoint(it->y, it->x)+m_Pos;
+        appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
+    }
+    for (vector<DPoint>::iterator it=circlePoints.begin()+1; it !=circlePoints.end(); ++it)
+    {
+        DPoint curPt = DPoint(it->y, -it->x)+m_Pos;
+        appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
+    }
+    for (vector<DPoint>::reverse_iterator it=circlePoints.rbegin()+1;
+            it !=circlePoints.rend(); ++it)
+    {
+        DPoint curPt = DPoint(-it->x, it->y)+m_Pos;
+        appendFillCirclePoint(pVertexArray, curPt, minPt, maxPt, color, curVertex);
+    }
+}
+
+void CircleNode::appendFillCirclePoint(VertexArrayPtr& pVertexArray, const DPoint& curPt, 
+        const DPoint& minPt, const DPoint& maxPt, Pixel32 color, int& curVertex)
+{
+    DPoint curTexCoord = calcFillTexCoord(curPt, minPt, maxPt);
+    pVertexArray->appendPos(curPt, curTexCoord, color);
+    pVertexArray->appendTriIndexes(0, curVertex, curVertex+1);
+    curVertex++;
 }
 
 int CircleNode::getNumCircumferencePoints()
 {
-    return int(m_Radius*3);
+    return int((m_Radius*3)/8)*8;
 }
 
 DPoint CircleNode::getCirclePt(double angle, double radius)
 {
-    return DPoint(sin(angle)*radius, -cos(angle)*radius)+m_Pos;
+    return DPoint(sin(angle)*radius, -cos(angle)*radius);
 }
 
 }

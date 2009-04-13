@@ -64,6 +64,8 @@ class AVG_API CircleNode : public FilledVectorNode
         virtual void calcFillVertexes(VertexArrayPtr& pVertexArray, Pixel32 color);
 
     private:
+        void appendFillCirclePoint(VertexArrayPtr& pVertexArray, const DPoint& curPt, 
+                const DPoint& minPt, const DPoint& maxPt, Pixel32 color, int& curVertex);
         int getNumCircumferencePoints();
         DPoint getCirclePt(double angle, double radius);
         DPoint calcTexCoord(const DPoint& pt, const DPoint& minPt, const DPoint& maxPt);
