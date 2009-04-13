@@ -38,6 +38,9 @@ def getDistSquared (p, q):
 
 def getScaledDim (size, max = None, min = None):
     width, height = size
+    if width == 0 or height == 0:
+        return size
+    assert (min.x > 0 and min.y > 0 and max.x > 0 and max.y > 0)
 
     if max:
         max = Point2D(max)
