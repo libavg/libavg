@@ -239,6 +239,10 @@ class Grabbable:
 
             pos = n_tl
             size = Point2D(getDistance (n_tl, n_tr), getDistance (n_tl, n_bl))
+            if size.x<=0.1:
+                size.x=0.1
+            if size.y<=0.1:
+                size.y=0.1
             angle = getAngle(n_tl, n_tr) # pivot for this rotation is 0,0 (rel. to node)
 
             # get middle of touches relative to the node
