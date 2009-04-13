@@ -238,6 +238,15 @@ class Grabbable:
             n_tr = applyAffineTransformation (param, self.o_tr)
 
             pos = n_tl
+            if pos.x > 1e6 and pos.x > self.o_tl.x:
+                pos = self.o_tl
+            if pos.y > 1e6 and pos.y > self.o_tl.y:
+                pos = self.o_tl
+            if pos.x < -1e6 and pos.x < self.o_tl.x:
+                pos = self.o_tl
+            if pos.y < -1e6 and pos.y < self.o_tl.y:
+                pos = self.o_tl
+
             size = Point2D(getDistance (n_tl, n_tr), getDistance (n_tl, n_bl))
             if size.x<=0.1:
                 size.x=0.1
@@ -246,8 +255,7 @@ class Grabbable:
             angle = getAngle(n_tl, n_tr) # pivot for this rotation is 0,0 (rel. to node)
 
             # get middle of touches relative to the node
-            relTouchCenter = getRelPos(absTouchCenter, n_tl, angle, Point2D(0,0))
-
+            relTouchCenter = getRelPos(absTouchCenter, pos, angle, Point2D(0,0))
             pos += getOffsetForMovedPivot(
                     oldPivot = Point2D(0,0),
                     newPivot = relTouchCenter,
