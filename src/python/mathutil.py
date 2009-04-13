@@ -120,3 +120,6 @@ def getOffsetForMovedPivot(oldPivot, newPivot, angle):
     newPos = Point2D(0,0).getRotated(angle, newPivot)
     return oldPos - newPos
 
+def isNaN(x):
+    return (not(x<=0) and not(x>=0))
+
