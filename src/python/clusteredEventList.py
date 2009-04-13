@@ -37,7 +37,7 @@ class Centroid (Cursor):
 
     def reposition (self):
         if len(self.__members) == 0:
-		    return
+            return
         pointSum = Point2D(0,0)
         for point in self.__members:
             pointSum += point.getPos()
