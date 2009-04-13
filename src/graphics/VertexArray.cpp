@@ -94,8 +94,11 @@ void VertexArray::setVertexData(int vertexIndex, int indexIndex,
 
 void VertexArray::changeSize(int numVerts, int numIndexes)
 {
-    assert(numVerts > 2 || numVerts == 0);
-    assert(numIndexes > 2 || numVerts == 0);
+    if ((numVerts < 3 && numVerts != 0) || (numIndexes < 3 && numIndexes != 0)) {
+        cerr << "numVerts: " << numVerts << ", numIndexes: " << numIndexes << endl;
+        assert (false);
+    }
+        
     int oldReserveVerts = getReservedVerts();
     int oldReserveIndexes = getReservedIndexes();
     VertexData::changeSize(numVerts, numIndexes);
