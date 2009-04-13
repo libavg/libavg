@@ -95,6 +95,9 @@ double CircleNode::getR() const
 
 void CircleNode::setR(double r) 
 {
+    if (r <= 0) {
+        throw Exception(AVG_ERR_OUT_OF_RANGE, "Circle radius must be a positive number.");
+    }
     m_Radius = r;
     setDrawNeeded(true);
 }
