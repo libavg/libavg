@@ -100,7 +100,11 @@ void FilledVectorNode::setFillTexHRef(const string& href)
 void FilledVectorNode::setFillBitmap(const Bitmap * pBmp)
 {
     m_FillTexHRef = "";
-    m_pFillShape->setBitmap(pBmp);
+    if (pBmp) {
+        m_pFillShape->setBitmap(pBmp);
+    } else {
+        m_pFillShape->setFilename("");
+    }
     setDrawNeeded(true);
 }
 
