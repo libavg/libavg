@@ -49,6 +49,8 @@ public:
 
     void normalize();
     double getNorm();
+    bool isNaN() const;
+    bool isInf() const;
     Point getRotated(double angle) const;
     Point getRotatedPivot(double angle, const Point& pivot = Point(0,0)) const;
 
@@ -139,6 +141,18 @@ template<class NUM>
 double Point<NUM>::getNorm()
 {
     return sqrt(x*x+y*y);
+}
+
+template<class NUM>
+bool Point<NUM>::isNaN() const
+{
+    return isnan(x) || isnan(y);
+}
+
+template<class NUM>
+bool Point<NUM>::isInf() const
+{
+    return isinf(x) || isinf(y);
 }
 
 template<class NUM>

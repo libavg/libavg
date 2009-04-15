@@ -59,6 +59,13 @@ const vector<DPoint>& PolyLineNode::getPos() const
 
 void PolyLineNode::setPos(const vector<DPoint>& pts) 
 {
+    vector<DPoint>::const_iterator it;
+    for (it=pts.begin(); it != pts.end(); ++it) {
+        if (it->isNaN() || it->isInf()) {
+            throw Exception(AVG_ERR_INVALID_ARGS, 
+                    "polyline positions must not be nan or inf.");
+        }
+    }
     m_Pts = pts;
     m_TexCoords.clear();
     m_EffTexCoords.clear();
