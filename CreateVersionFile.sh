@@ -3,7 +3,7 @@
 if [ -z "$1" ]
 then
     echo "$0 <outpath>"
-elif which -s svn
+elif which svn >/dev/null
 then
     if [ -d .svn ]
     then
