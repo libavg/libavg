@@ -133,6 +133,8 @@ void export_bitmap()
         .def("getRotated", &DPoint::getRotatedPivot,
                 "getRotated(angle, pivot) -> pos\n"
                 "Return the position of point rotated around pivot.")
+        .def("isNaN", &DPoint::isNaN)
+        .def("isInf", &DPoint::isInf)
         .def(self == self)
         .def(self != self)
         .def(-self)
