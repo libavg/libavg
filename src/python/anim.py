@@ -40,7 +40,7 @@ def abortAnim(node, attrName):
     global g_ActiveAnimations
     if g_ActiveAnimations.has_key((node, attrName)):
         curAnim = g_ActiveAnimations.get((node, attrName))
-        curAnim.abort()
+        curAnim._remove()
  
 
 class SimpleAnim:
@@ -362,10 +362,11 @@ class WaitAnim:
 
 
 class ParallelAnim:
-    def __init__(self, anims, onStop=None, onStart=None, start=True):
+    def __init__(self, anims, onStop=None, onStart=None, start=True, maxAge=None):
         self.__anims = anims
         self.onStart = onStart
         self.onStop = onStop
+        self.__maxAge = maxAge
         if start:
             self.start()
         self.__isDone = False
@@ -379,6 +380,9 @@ class ParallelAnim:
         if self.onStart:
             self.onStart()
         self.__runningAnims = self.__anims[:]
+        if self.__maxAge:
+            self.__maxAgeTimeout = g_Player.setTimeout(self.__maxAge, 
+                    self.__maxAgeReached)
         for anim in self.__runningAnims:
             stopHandler = lambda anim=anim: self.__animStopped(anim)
             anim.setHandler(onStop = stopHandler, onAbort = stopHandler)
@@ -391,15 +395,26 @@ class ParallelAnim:
                 anim.abort()
             if self.onAbort:
                 self.onAbort()
+            if self.__maxAge:
+                g_Player.clearInterval(self.__maxAgeTimeout)
 
     def isDone(self):
         return self.__isDone
+
+    def __maxAgeReached(self):
+        if not(self.__isDone):
+            for anim in self.__runningAnims:
+                anim.abort()
+            self.onStop()
+            self.__isDone = True
 
     def __animStopped(self, anim):
         self.__runningAnims.remove(anim)
         if len(self.__runningAnims) == 0 and not(self.__isDone):
             self.onStop()
             self.__isDone = True
+            if self.__maxAge:
+                g_Player.clearInterval(self.__maxAgeTimeout)
 
 
 class StateAnim:
