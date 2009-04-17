@@ -80,6 +80,7 @@ class AVGAppStarter(object):
             testHelper = g_player.getTestHelper()
             testHelper.dumpObjects()
             print "Num anims: ", anim.getNumRunningAnims()
+            print "Num python objects: ", len(gc.get_objects()) 
         self.bindKey('o', dumpObjects)
 
         self._onBeforePlay()
