@@ -40,7 +40,7 @@ def abortAnim(node, attrName):
     global g_ActiveAnimations
     if g_ActiveAnimations.has_key((node, attrName)):
         curAnim = g_ActiveAnimations.get((node, attrName))
-        curAnim._remove()
+        curAnim.abort()
  
 
 class SimpleAnim:
@@ -414,11 +414,13 @@ class StateAnim:
             self.setState(initialState)
 
     def delete(self):
+        if self.__debug:
+            print self, " delete"
         self.setState(None)
 
     def setState(self, stateName, keepAttr=False):
         if self.__debug:
-            print "setState: ", self.__curState, "-->", stateName
+            print self, " setState: ", self.__curState, "-->", stateName
         if self.__curState == stateName:
             return
         if self.__curState:
@@ -440,12 +442,12 @@ class StateAnim:
                 transition.callback()
             stateName = transition.nextAnimName
             if self.__debug:
-                print "StateDone: ", self.__curState, "-->", stateName
+                print self, " StateDone: ", self.__curState, "-->", stateName
             self.__curState = stateName
             self.__states[stateName].start()
         else:
             if self.__debug:
-                print "StateDone: ", self.__curState, "--> None"
+                print self, " StateDone: ", self.__curState, "--> None"
             self.__curState = None
 
 
