@@ -30,6 +30,7 @@
 #include "../graphics/OGLHelper.h"
 
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/tss.hpp>
 
 namespace avg {
 
@@ -48,6 +49,7 @@ public:
     void update();
     void draw();
 
+    void initBufferCache();
     static void deleteBufferCache();
 
 private:
@@ -58,8 +60,8 @@ private:
     unsigned int m_GLVertexBufferID;
     unsigned int m_GLIndexBufferID;
 
-    static std::vector<unsigned int> s_GLVertexBufferIDs;
-    static std::vector<unsigned int> s_GLIndexBufferIDs;
+    static boost::thread_specific_ptr<std::vector<unsigned int> > s_pGLVertexBufferIDs;
+    static boost::thread_specific_ptr<std::vector<unsigned int> > s_pGLIndexBufferIDs;
 };
 
 typedef boost::shared_ptr<VertexArray> VertexArrayPtr;
