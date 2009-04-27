@@ -235,10 +235,10 @@ public:
         double one = 1;
         double zero = 0;
 
-        TEST(isinf(-one/zero) == 1);
-        TEST(isinf(one/zero) == 1);
+        TEST(isinf(-one/zero) != 0);
+        TEST(isinf(one/zero) != 0);
         TEST(isinf(one) == 0);
-        TEST(isnan(sqrt(-one)) == 1);
+        TEST(isnan(sqrt(-one)) != 0);
         TEST(isnan(sqrt(one+one)) == 0);
 
         // TODO: Move to a separate math test once we're done here.
