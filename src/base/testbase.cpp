@@ -226,20 +226,26 @@ public:
     {
     }
 
-// The following pragmas avoid a compiler warning (potential division by 0)
-#pragma optimize("", off)
-#pragma warning(push)
-#pragma warning(disable:4723)
     void runTests() 
     {
         double one = 1;
         double zero = 0;
 
+// The following pragmas avoid a compiler warning (potential division by 0)
+#ifdef _MSC_VER
+#pragma optimize("", off)
+#pragma warning(push)
+#pragma warning(disable:4723)
+#endif
         TEST(isinf(-one/zero) != 0);
         TEST(isinf(one/zero) != 0);
         TEST(isinf(one) == 0);
         TEST(isnan(sqrt(-one)) != 0);
         TEST(isnan(sqrt(one+one)) == 0);
+#ifdef _MSC_VER
+#pragma warning(pop)
+#pragma optimize("", on)
+#endif
 
         // TODO: Move to a separate math test once we're done here.
         TEST(almostEqual(invSqrt(1), 1));
@@ -310,8 +316,6 @@ public:
         TEST(almostEqual(DPoint(10,0).getRotatedPivot(PI*2, DPoint(15,5)), DPoint(10,0)));
         TEST(almostEqual(DPoint(23,0).getRotatedPivot(PI*0.5), DPoint(0,23)));
     }
-#pragma warning(pop)
-#pragma optimize("", on)
 };
 
 class TriangleTest: public Test {
