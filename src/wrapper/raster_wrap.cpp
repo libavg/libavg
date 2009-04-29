@@ -242,7 +242,10 @@ void export_raster()
             "A words node displays formatted text. Rendering is done by pango. All\n"
             "properties are set in pixels. International and multi-byte character\n"
             "sets are fully supported. Words nodes should use UTF-8 to encode\n"
-            "international characters.\n",
+            "international characters. The pos attribute of a words node is the logical\n"
+            "top left of the first character. For latin text, this usually corresponds\n"
+            "to the height of the ascender. There may be cases where text is rendered to\n"
+            "the left of or above the position, for instance when italics are used.\n",
             no_init)
         .add_property("font", 
                 make_function(&Words::getFont,
