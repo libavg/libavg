@@ -33,7 +33,6 @@ def getMediaDir(_file_, subdir='media'):
     return os.path.abspath(mediaDir)
 
 def createImagePreviewNode(maxSize, absHref):
-    from pathHelper import getMediaDir
     node =  g_player.createNode('image', {'href': absHref})
     node.size = mathutil.getScaledDim(node.size, max = maxSize)
     return node
