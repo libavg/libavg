@@ -100,6 +100,7 @@ Player::Player()
       m_FrameTime(0),
       m_PlayStartTime(0),
       m_Volume(1),
+      m_dtd(0),
       m_bPythonAvailable(true)
 {
     if (s_pPlayer) {
@@ -148,6 +149,12 @@ void Player::updateDTD()
     m_bDirtyDTD = false;
 }
 
+void deletePlayer()
+{
+    delete Player::s_pPlayer;
+    Player::s_pPlayer = 0;
+}
+
 Player::~Player()
 {
     if (m_pDisplayEngine) {
@@ -166,6 +173,7 @@ Player* Player::get()
 {
     if (!s_pPlayer) {
         s_pPlayer = new Player();
+        atexit(deletePlayer);
     }
     return s_pPlayer;
 }

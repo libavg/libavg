@@ -210,6 +210,7 @@ class AVG_API Player : IEventSink
         bool m_bPythonAvailable;
 
         static Player * s_pPlayer;
+        friend void deletePlayer();
 };
 
 }
