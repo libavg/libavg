@@ -168,10 +168,12 @@ bool queryGLXExtension(const char *extName) {
     while (p < end) {
         int n = strcspn(p, " ");
         if ((extNameLen == n) && (strncmp(extName, p, n) == 0)) {
+            XCloseDisplay(display);
             return true;
         }
         p += (n + 1);
     }
+    XCloseDisplay(display);
     return false;
 #endif
 }
