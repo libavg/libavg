@@ -42,8 +42,14 @@ namespace avg {
 
 using namespace std;
 
-ObjectCounter* ObjectCounter::m_pObjectCounter = 0;
+ObjectCounter* ObjectCounter::s_pObjectCounter = 0;
 boost::mutex * pCounterMutex;
+
+void deleteObjectCounter()
+{
+    delete ObjectCounter::s_pObjectCounter;
+    ObjectCounter::s_pObjectCounter = 0;
+}
 
 ObjectCounter::ObjectCounter()
 {
@@ -55,11 +61,12 @@ ObjectCounter::~ObjectCounter()
 
 ObjectCounter * ObjectCounter::get()
 {
-    if (!m_pObjectCounter) {
-        m_pObjectCounter = new ObjectCounter;
+    if (!s_pObjectCounter) {
+        s_pObjectCounter = new ObjectCounter;
         pCounterMutex = new boost::mutex;
+        atexit(deleteObjectCounter);
     }
-    return m_pObjectCounter;
+    return s_pObjectCounter;
 }
 
 void ObjectCounter::incRef(const std::type_info* pType)

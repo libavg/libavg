@@ -21,7 +21,6 @@
 
 #include "ThreadProfiler.h"
 #include "Logger.h"
-#include "ObjectCounter.h"
 
 #include <sstream>
 #include <iomanip>
@@ -50,7 +49,6 @@ ThreadProfiler::ThreadProfiler()
     : m_sName("")
 {
     m_bRunning = false;
-    ObjectCounter::get()->incRef(&typeid(*this));
 }
 
 ThreadProfiler::~ThreadProfiler() 
@@ -60,7 +58,6 @@ ThreadProfiler::~ThreadProfiler()
             delete *it;
         }
     }
-    ObjectCounter::get()->decRef(&typeid(*this));
 }
 
 void ThreadProfiler::addZone(ProfilingZone& Zone)

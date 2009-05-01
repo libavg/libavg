@@ -879,7 +879,6 @@ public:
 
 int main(int nargs, char** args)
 {
-    Magick::InitializeMagick(0);
     GraphicsTestSuite Suite;
     Suite.runTests();
     bool bOK = Suite.isOk();

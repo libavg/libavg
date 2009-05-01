@@ -43,11 +43,13 @@ public:
 private:
     ObjectCounter();
     std::string demangle(std::string s);
+    static void deleteSingleton();
 
     typedef std::map<const std::type_info *, int> TypeMap;
     TypeMap m_TypeMap;
 
-    static ObjectCounter* m_pObjectCounter; 
+    static ObjectCounter* s_pObjectCounter;
+    friend void deleteObjectCounter();
 };
 
 }

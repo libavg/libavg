@@ -139,6 +139,8 @@ private:
     unsigned char * m_pBits;
     bool m_bOwnsBits;
     std::string m_sName;
+
+    static bool s_bMagickInitialized;
 };
 
 typedef boost::shared_ptr<Bitmap> BitmapPtr;

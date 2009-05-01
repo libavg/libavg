@@ -46,6 +46,8 @@ namespace avg {
 template<class Pixel>
 void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src);
 
+bool Bitmap::s_bMagickInitialized = false;
+
 Bitmap::Bitmap(IntPoint Size, PixelFormat PF, const std::string& sName)
     : m_Size(Size),
       m_PF(PF),
@@ -131,6 +133,10 @@ Bitmap::Bitmap(const std::string& sURI)
 // It also returns RGB bitmaps, but I think nearly everywhere in libavg, the bytes
 // are swapped and BGR is used.
 //    cerr << "Bitmap::Bitmap(" << sURI << ")" << endl;
+    if (!s_bMagickInitialized) {
+        InitializeMagick(0);
+        s_bMagickInitialized = true;
+    }
     Image Img;
     try {
         Img.read(sURI);
@@ -344,6 +350,10 @@ void Bitmap::copyPixels(const Bitmap & Orig)
 
 void Bitmap::save(const std::string& sFilename)
 {
+    if (!s_bMagickInitialized) {
+        InitializeMagick(0);
+        s_bMagickInitialized = true;
+    }
 //    cerr << "Bitmap::save()" << endl;
     string sPF;
     BitmapPtr pBmp;
