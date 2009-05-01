@@ -39,6 +39,7 @@ namespace avg {
 
 OGLTiledSurface::OGLTiledSurface(SDLDisplayEngine * pEngine)
     : OGLSurface(pEngine),
+      m_bBound(false),
       m_NumTextures(-1, -1),
       m_MaxTileSize(-1,-1)
 {
