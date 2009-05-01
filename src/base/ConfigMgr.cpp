@@ -50,10 +50,17 @@ ConfigOption::ConfigOption(const string& sName, const string& sValue,
 
 ConfigMgr* ConfigMgr::m_pGlobalConfigMgr = 0;
 
+void deleteConfigMgr()
+{
+    delete ConfigMgr::m_pGlobalConfigMgr;
+    ConfigMgr::m_pGlobalConfigMgr = 0;
+}
+
 ConfigMgr* ConfigMgr::get()
 {
     if (!m_pGlobalConfigMgr) {
         m_pGlobalConfigMgr = new ConfigMgr;
+        atexit(deleteConfigMgr);
     }
     return m_pGlobalConfigMgr;
 }

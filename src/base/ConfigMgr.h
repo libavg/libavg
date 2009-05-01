@@ -87,6 +87,7 @@ private:
     std::string m_sFName;
 
     static ConfigMgr* m_pGlobalConfigMgr;
+    friend void deleteConfigMgr();
 };
 
 std::string getGlobalConfigDir();
