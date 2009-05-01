@@ -68,13 +68,15 @@ using namespace std;
 
 BitmapPtr initBmp(PixelFormat PF)
 {
-    BitmapPtr pBmp;
+    int height;
     if (PF == YCbCr422) {
-        pBmp = BitmapPtr(new Bitmap(IntPoint(4,10), PF));
+        height = 10;
     } else {
-        pBmp = BitmapPtr(new Bitmap(IntPoint(4,7), PF));
+        height = 7;
+
     }
-    for(int y=0; y<7; ++y) {
+    BitmapPtr pBmp(new Bitmap(IntPoint(4,height), PF));
+    for(int y=0; y<height; ++y) {
         for (int x=0; x<4; ++x) {
             unsigned char * pPixel = 
                 pBmp->getPixels()+y*pBmp->getStride()+x*pBmp->getBytesPerPixel();
@@ -115,6 +117,9 @@ public:
 
         cerr << "    Testing OwnsBits." << endl;
         unsigned char pData[4*7*3];
+        for (int i=0; i<4*7*3; ++i) {
+            pData[i] = i;
+        }
         Bitmap Bmp1 = Bitmap(IntPoint(4,7), R8G8B8, pData, 12, true, "");
         Bitmap Bmp2 = Bitmap(IntPoint(4,7), R8G8B8, pData, 12, false, "");
         testEqual(Bmp1, Bmp2, "BmpOwnsBits");
@@ -874,6 +879,7 @@ public:
 
 int main(int nargs, char** args)
 {
+    Magick::InitializeMagick(0);
     GraphicsTestSuite Suite;
     Suite.runTests();
     bool bOK = Suite.isOk();
