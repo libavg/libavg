@@ -48,6 +48,7 @@ boost::mutex * pCounterMutex;
 void deleteObjectCounter()
 {
     delete ObjectCounter::s_pObjectCounter;
+    delete pCounterMutex;
     ObjectCounter::s_pObjectCounter = 0;
 }
 
