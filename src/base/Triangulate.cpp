@@ -128,7 +128,7 @@ void triangulatePolygon(const DPointVector &contour, vector<int> &resultIndexes)
         }
     }
 
-    delete V;
+    delete[] V;
 }
 
 }
