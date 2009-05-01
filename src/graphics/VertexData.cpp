@@ -135,7 +135,7 @@ void VertexData::changeSize(int numVerts, int numIndexes)
         if (m_ReserveVerts < m_NumVerts) {
             m_ReserveVerts = m_NumVerts;
         }
-        delete m_pVertexData;
+        delete[] m_pVertexData;
         m_pVertexData = new T2V3C4Vertex[m_ReserveVerts];
     }
     if (m_NumIndexes > m_ReserveIndexes) {
@@ -143,7 +143,7 @@ void VertexData::changeSize(int numVerts, int numIndexes)
         if (m_ReserveIndexes < m_NumIndexes) {
             m_ReserveIndexes = m_NumIndexes;
         }
-        delete m_pIndexData;
+        delete[] m_pIndexData;
         m_pIndexData = new unsigned int[m_ReserveIndexes];
     }
     m_CurVert = 0;
