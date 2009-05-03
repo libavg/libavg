@@ -891,6 +891,7 @@ void Player::initAudio()
 
 void Player::internalLoad(const string& sAVG)
 {
+    xmlDocPtr doc = 0;
     try {
         if (m_pRootNode) {
             cleanup();
@@ -905,7 +906,6 @@ void Player::internalLoad(const string& sAVG)
         xmlPedanticParserDefault(1);
         xmlDoValidityCheckingDefaultValue =0;
 
-        xmlDocPtr doc;
         doc = xmlParseMemory(sAVG.c_str(), sAVG.length());
         if (!doc) {
             throw (Exception(AVG_ERR_XML_PARSE, ""));
@@ -931,9 +931,15 @@ void Player::internalLoad(const string& sAVG)
         xmlFreeDoc(doc);
     } catch (Exception& ex) {
         AVG_TRACE(Logger::ERROR, ex.GetStr());
+        if (doc) {
+            xmlFreeDoc(doc);
+        }
         throw;
     } catch (Magick::Exception & ex) {
         AVG_TRACE(Logger::ERROR, ex.what());
+        if (doc) {
+            xmlFreeDoc(doc);
+        }
         throw;
     }
 }

@@ -208,7 +208,7 @@ void Bitmap::copyPixels(const Bitmap & Orig)
 {
 //    cerr << "Bitmap::copyPixels(): " << getPixelFormatString(Orig.getPixelFormat()) << "->" 
 //            << getPixelFormatString(m_PF) << endl;
-    if (&Orig == this) {
+    if (&Orig == this || Orig.getPixels() == m_pBits) {
         return;
     }
     if (Orig.getPixelFormat() == m_PF) {
