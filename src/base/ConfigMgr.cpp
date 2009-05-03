@@ -322,8 +322,10 @@ void ConfigMgr::setOption(ConfigOptionVector& OptionVector,
         xmlDocPtr doc, xmlNodePtr pNode)
 {
     string sName = (const char *)pNode->name;
-    string sValue = 
-            (const char *)xmlNodeListGetString(doc, pNode->xmlChildrenNode, 1);
+    xmlChar * pVal = 
+            xmlNodeListGetString(doc, pNode->xmlChildrenNode, 1);
+    string sValue = (const char *)pVal;
+    xmlFree(pVal);
     setOption(OptionVector, sName, sValue);    
 }
 
