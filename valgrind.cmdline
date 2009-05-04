@@ -1,0 +1,1 @@
+valgrind --leak-check=full --suppressions=../../valgrind.suppressions --suppressions=/usr/lib/valgrind/python.supp --smc-check=all --gen-suppressions=yes python Test.py player

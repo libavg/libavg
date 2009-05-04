@@ -1,0 +1,669 @@
+{
+   GL_Errors_0
+   Memcheck:Cond
+   obj:/usr/lib/libGLcore.so.180.11
+}
+{
+   GL_Errors_1
+   Memcheck:Param
+   ioctl(generic)
+   obj:/lib/ld-2.8.90.so
+   obj:/usr/lib/libGLcore.so.180.11
+}
+{
+   GL_Leak_0
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libGL.so.180.11
+}
+{
+   GL_Leak_1
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   obj:/usr/lib/libGL.so.180.11
+}
+{
+   GL_Leak_2
+   Memcheck:Leak
+   fun:calloc
+   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   fun:dlopen
+   obj:/usr/lib/libGL.so.180.11
+}
+{
+   GL_Leak_3
+   Memcheck:Leak
+   fun:malloc
+   fun:_XReply
+   obj:/usr/lib/libGL.so.180.11
+}
+{
+   GL_Leak_4
+   Memcheck:Leak
+   fun:malloc
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   fun:dlopen
+   obj:/usr/lib/libGL.so.180.11
+}
+{
+   GL_Leak_5
+   Memcheck:Leak
+   fun:realloc
+   obj:/usr/lib/libGL.so.180.11
+}
+{
+   GL_Leak_6
+   Memcheck:Leak
+   fun:calloc
+   obj:/usr/lib/libGL.so.180.11
+   fun:_ZN3avg17OGLImagingContextC1ERKNS_5PointIiEE
+   fun:main
+}
+{
+   GL_Leak_7
+   Memcheck:Leak
+   fun:malloc
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   fun:dlopen
+   obj:/usr/lib/libGL.so.180.11
+}
+{
+   GL_Leak_8
+   Memcheck:Leak
+   fun:malloc
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   fun:dlopen
+   obj:/usr/lib/libGL.so.180.11
+}
+{
+   GL_Leak_9
+   Memcheck:Leak
+   fun:calloc
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   fun:dlopen
+   obj:/usr/lib/libGL.so.180.11
+}
+{
+   <insert a suppression name here>
+   Memcheck:Leak
+   fun:calloc
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   fun:dlopen
+   obj:/usr/lib/libGL.so.180.11
+}
+{
+   getProcAddress
+   Memcheck:Addr4
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/tls/i686/cmov/libc-2.8.90.so
+   fun:_dl_sym
+   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   fun:dlsym
+   fun:_ZN3avg14getProcAddressERKSs
+   fun:_ZN3avg19getFuzzyProcAddressEPKc
+   fun:_ZN3avg6glproc4initEv
+}
+{
+   VertexArray_appendPos
+   Memcheck:Cond
+   fun:_ZN3avg11VertexArray9appendPosERKNS_5PointIdEES4_RKNS_7Pixel32E
+}
+{
+   VertexArray_BufferCache_0
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZNSt6vectorIPvSaIS0_EE14_M_fill_insertEN9__gnu_cxx17__normal_iteratorIPS0_S2_EEjRKS0_
+   fun:_ZN5boost6detail3tss3setEPv
+   fun:_ZN5boost19thread_specific_ptrISt6vectorIjSaIjEEE5resetEPS3_
+   fun:_ZN3avg11VertexArray15initBufferCacheEv
+}
+{
+   VertexArray_BufferCache_1
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZNSt6vectorIPN5boost9function1IvPvSaINS0_13function_baseEEEESaIS6_EE13_M_insert_auxEN9__gnu_cxx17__normal_iteratorIPS6_S8_EERKS6_
+   fun:_ZN5boost6detail3tss4initEPNS_9function1IvPvSaINS_13function_baseEEEE
+   fun:_ZN5boost6detail3tssC1EPNS_9function1IvPvSaINS_13function_baseEEEE
+   fun:_ZN5boost19thread_specific_ptrISt6vectorIjSaIjEEEC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I_VertexArray.cpp
+}
+{
+   VertexArray_BufferCache_2
+   Memcheck:Leak
+   fun:_Znwj
+   obj:/usr/lib/libboost_thread-gcc42-mt-1_34_1.so.1.34.1
+   fun:_ZN5boost6detail3tss3setEPv
+   fun:_ZN5boost19thread_specific_ptrISt6vectorIjSaIjEEE5resetEPS3_
+   fun:_ZN3avg11VertexArray15initBufferCacheEv
+}
+{
+   VertexArray_BufferCache_3
+   Memcheck:Leak
+   fun:_Znwj
+   obj:/usr/lib/libboost_thread-gcc42-mt-1_34_1.so.1.34.1
+   obj:/usr/lib/libboost_thread-gcc42-mt-1_34_1.so.1.34.1
+   fun:pthread_once
+   fun:_ZN5boost6detail3tss4initEPNS_9function1IvPvSaINS_13function_baseEEEE
+   fun:_ZN5boost6detail3tssC1EPNS_9function1IvPvSaINS_13function_baseEEEE
+   fun:_ZN5boost19thread_specific_ptrISt6vectorIjSaIjEEEC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I_VertexArray.cpp
+}
+{
+   VertexArray_BufferCache_4
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN5boost19thread_specific_ptrISt6vectorIjSaIjEEEC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I_VertexArray.cpp
+}
+{
+   VertexArray_BufferCache_5
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN9__gnu_cxx13new_allocatorIN5boost6detail11tss_adapterISt6vectorIjSaIjEEEEE8allocateEjPKv
+   fun:_ZNK5boost6detail8function13basic_vtable1IvPvSaINS_13function_baseEEE14assign_functorINS0_11tss_adapterISt6vectorIjSaIjEEEEEEvRKT_RNS1_15function_bufferEN4mpl_5bool_ILb0EEE
+   fun:_ZNK5boost6detail8function13basic_vtable1IvPvSaINS_13function_baseEEE9assign_toINS0_11tss_adapterISt6vectorIjSaIjEEEEEEbRKT_RNS1_15function_bufferENS1_16function_obj_tagE
+   fun:_ZNK5boost6detail8function13basic_vtable1IvPvSaINS_13function_baseEEE9assign_toINS0_11tss_adapterISt6vectorIjSaIjEEEEEEbRKT_RNS1_15function_bufferE
+   fun:_ZN5boost9function1IvPvSaINS_13function_baseEEE9assign_toINS_6detail11tss_adapterISt6vectorIjSaIjEEEEEEvRKT_
+   fun:_ZN5boost9function1IvPvSaINS_13function_baseEEEC1INS_6detail11tss_adapterISt6vectorIjSaIjEEEEEET_NS_11enable_if_cIXsrNS_11type_traits7ice_notIXsrNS_11is_integralISC_EE5valueEEE5valueEiE4typeE
+   fun:_ZN5boost19thread_specific_ptrISt6vectorIjSaIjEEEC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I_VertexArray.cpp
+}
+{
+   ThreadProfiler_0
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZNSt6vectorIPvSaIS0_EE14_M_fill_insertEN9__gnu_cxx17__normal_iteratorIPS0_S2_EEjRKS0_
+   fun:_ZN5boost6detail3tss3setEPv
+   fun:_ZN5boost19thread_specific_ptrINS_10shared_ptrIN3avg14ThreadProfilerEEEE5resetEPS4_
+   fun:_ZN3avg14ThreadProfiler3getEv
+}
+{
+   ThreadProfiler_1
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZNSt6vectorIPN5boost9function1IvPvSaINS0_13function_baseEEEESaIS6_EE13_M_insert_auxEN9__gnu_cxx17__normal_iteratorIPS6_S8_EERKS6_
+   fun:_ZN5boost6detail3tss4initEPNS_9function1IvPvSaINS_13function_baseEEEE
+   fun:_ZN5boost6detail3tssC1EPNS_9function1IvPvSaINS_13function_baseEEEE
+   fun:_ZN5boost19thread_specific_ptrINS_10shared_ptrIN3avg14ThreadProfilerEEEEC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I_ThreadProfiler.cpp
+}
+{
+   ThreadProfiler_2
+   Memcheck:Leak
+   fun:_Znwj
+   obj:/usr/lib/libboost_thread-gcc42-mt-1_34_1.so.1.34.1
+   fun:_ZN5boost6detail3tss3setEPv
+   fun:_ZN5boost19thread_specific_ptrINS_10shared_ptrIN3avg14ThreadProfilerEEEE5resetEPS4_
+   fun:_ZN3avg14ThreadProfiler3getEv
+}
+{
+   ThreadProfiler_3
+   Memcheck:Leak
+   fun:_Znwj
+   obj:/usr/lib/libboost_thread-gcc42-mt-1_34_1.so.1.34.1
+   obj:/usr/lib/libboost_thread-gcc42-mt-1_34_1.so.1.34.1
+   fun:pthread_once
+   fun:_ZN5boost6detail3tss4initEPNS_9function1IvPvSaINS_13function_baseEEEE
+   fun:_ZN5boost6detail3tssC1EPNS_9function1IvPvSaINS_13function_baseEEEE
+   fun:_ZN5boost19thread_specific_ptrINS_10shared_ptrIN3avg14ThreadProfilerEEEEC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I_ThreadProfiler.cpp
+}
+{
+   ThreadProfiler_5
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN5boost19thread_specific_ptrINS_10shared_ptrIN3avg14ThreadProfilerEEEEC1Ev
+   fun:_Z41__static_initialization_and_destruction_0ii
+   fun:_GLOBAL__I_ThreadProfiler.cpp
+}
+{
+   Logger
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN3avg6Logger3getEv
+}
+{
+   libxml_0
+   Memcheck:Leak
+   fun:malloc
+   fun:xmlNewMutex
+   fun:xmlInitGlobals
+}
+{
+   libxml_1
+   Memcheck:Leak
+   fun:malloc
+   fun:xmlStrndup
+   fun:xmlStrdup
+   fun:xmlNewCharEncodingHandler
+   fun:xmlInitCharEncodingHandlers
+}
+{
+   libxml_2
+   Memcheck:Leak
+   fun:malloc
+   fun:xmlInitCharEncodingHandlers
+}
+{
+   libxml_3
+   Memcheck:Leak
+   fun:malloc
+   fun:xmlNewCharEncodingHandler
+   fun:xmlInitCharEncodingHandlers
+}
+{
+   libSDL
+   Memcheck:Cond
+   obj:/usr/lib/libSDL-1.2.so.0.11.1
+   obj:/usr/lib/libSDL-1.2.so.0.11.1
+   obj:/usr/lib/libSDL-1.2.so.0.11.1
+   fun:SDL_PumpEvents
+}
+{
+   X11
+   Memcheck:Leak
+   fun:realloc
+   obj:/usr/lib/libX11.so.6.2.0
+   obj:/usr/lib/libX11.so.6.2.0
+   obj:/usr/lib/libX11.so.6.2.0
+   fun:_XlcCreateLC
+   fun:_XlcDefaultLoader
+   fun:_XOpenLC
+   fun:_XlcCurrentLC
+   fun:XSetLocaleModifiers
+}
+{
+   TimeSource
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN3avg10TimeSource3getEv
+}
+{
+   SDL_Audio_0
+   Memcheck:Leak
+   fun:calloc
+   fun:snd_config_update_r
+   fun:snd_config_update
+   fun:snd_pcm_open
+   obj:/usr/lib/libSDL-1.2.so.0.11.1
+   fun:SDL_AudioInit
+}
+{
+   SDL_Audio_1
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libasound.so.2.0.0
+   obj:/usr/lib/libasound.so.2.0.0
+   obj:/usr/lib/libasound.so.2.0.0
+   obj:/usr/lib/libSDL-1.2.so.0.11.1
+   fun:SDL_AudioInit
+}
+{
+   SDL_Audio_2
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   fun:snd_user_file
+   fun:snd_config_update_r
+   fun:snd_config_update
+   fun:snd_pcm_open
+   obj:/usr/lib/libSDL-1.2.so.0.11.1
+   fun:SDL_AudioInit
+}
+{
+   SDL_Audio_3
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libasound.so.2.0.0
+   obj:/usr/lib/libasound.so.2.0.0
+   obj:/usr/lib/libasound.so.2.0.0
+   obj:/usr/lib/libasound.so.2.0.0
+   fun:snd_config_update_r
+   fun:snd_config_update
+   fun:snd_pcm_open
+   obj:/usr/lib/libSDL-1.2.so.0.11.1
+   fun:SDL_AudioInit
+}
+{
+   SDL_Audio_4
+   Memcheck:Leak
+   fun:calloc
+   obj:/usr/lib/libasound.so.2.0.0
+   fun:snd_config_update_r
+   fun:snd_config_update
+   fun:snd_pcm_open
+   obj:/usr/lib/libSDL-1.2.so.0.11.1
+   fun:SDL_AudioInit
+}
+{
+   SDL_Audio_5
+   Memcheck:Leak
+   fun:calloc
+   obj:/usr/lib/libasound.so.2.0.0
+   obj:/usr/lib/libasound.so.2.0.0
+   obj:/usr/lib/libasound.so.2.0.0
+   obj:/usr/lib/libasound.so.2.0.0
+   obj:/usr/lib/libasound.so.2.0.0
+   fun:snd_config_update_r
+   fun:snd_config_update
+   fun:snd_pcm_open
+   obj:/usr/lib/libSDL-1.2.so.0.11.1
+   fun:SDL_AudioInit
+}
+{
+   libasound_0
+   Memcheck:Leak
+   fun:malloc
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   fun:dlopen
+   fun:snd_dlopen
+   obj:/usr/lib/libasound.so.2.0.0
+}
+{
+   libasound_1
+   Memcheck:Leak
+   fun:calloc
+   obj:/usr/lib/libasound.so.2.0.0
+   obj:/usr/lib/libasound.so.2.0.0
+   obj:/usr/lib/libasound.so.2.0.0
+   obj:/usr/lib/libasound.so.2.0.0
+   obj:/usr/lib/libasound.so.2.0.0
+   obj:/usr/lib/libasound.so.2.0.0
+   obj:/usr/lib/libasound.so.2.0.0
+   fun:snd_config_update_r
+   fun:snd_config_update
+   fun:snd_pcm_open
+}
+{
+   SDL_Unload_0
+   Memcheck:Leak
+   fun:malloc
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   fun:dlclose
+   fun:SDL_UnloadObject
+}
+{
+   SDL_Unload_1
+   Memcheck:Leak
+   fun:malloc
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   obj:/lib/ld-2.8.90.so
+   obj:/lib/tls/i686/cmov/libdl-2.8.90.so
+   fun:dlclose
+   fun:SDL_UnloadObject
+}
+{
+   SDL_SetVideoMode
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/lib/libX11.so.6.2.0
+   fun:_XimEncodeLocalICAttr
+   fun:_XimSetICValueData
+   fun:_XimLocalCreateIC
+   fun:XCreateIC
+   obj:/usr/lib/libSDL-1.2.so.0.11.1
+   obj:/usr/lib/libSDL-1.2.so.0.11.1
+   fun:SDL_SetVideoMode
+}
+{
+   boost_converter_1
+   Memcheck:Leak
+   fun:_Znwj
+   fun:*
+   fun:_ZN5boost6python9converter29initialize_builtin_convertersEv
+}
+{
+   libpng_0
+   Memcheck:Cond
+   obj:/usr/lib/libz.so.1.2.3.3
+   fun:deflate
+   obj:/usr/lib/libpng12.so.0.27.0
+   obj:/usr/lib/libpng12.so.0.27.0
+   obj:/usr/lib/libpng12.so.0.27.0
+   fun:png_write_row
+}
+{
+   libpng_1
+   Memcheck:Value4
+   obj:/usr/lib/libz.so.1.2.3.3
+   fun:deflate
+   obj:/usr/lib/libpng12.so.0.27.0
+   obj:/usr/lib/libpng12.so.0.27.0
+   obj:/usr/lib/libpng12.so.0.27.0
+   fun:png_write_row
+}
+{
+   libpng_2
+   Memcheck:Value4
+   obj:/usr/lib/libz.so.1.2.3.3
+   obj:/usr/lib/libz.so.1.2.3.3
+   obj:/usr/lib/libz.so.1.2.3.3
+   fun:deflate
+   obj:/usr/lib/libpng12.so.0.27.0
+   obj:/usr/lib/libpng12.so.0.27.0
+   obj:/usr/lib/libpng12.so.0.27.0
+   fun:png_write_row
+}
+{
+   libpng_3
+   Memcheck:Value4
+   fun:crc32
+   obj:/usr/lib/libpng12.so.0.27.0
+   fun:png_write_chunk_data
+   fun:png_write_chunk
+   obj:/usr/lib/libpng12.so.0.27.0
+   obj:/usr/lib/libpng12.so.0.27.0
+   obj:/usr/lib/libpng12.so.0.27.0
+   obj:/usr/lib/libpng12.so.0.27.0
+   fun:png_write_row
+}
+{
+   GraphicsMagick
+   Memcheck:Param
+   write(buf)
+   obj:/lib/ld-2.8.90.so
+   fun:_IO_do_write
+   fun:_IO_file_close_it
+   fun:fclose
+   fun:CloseBlob
+   obj:/usr/lib/libGraphicsMagick.so.1.0.11
+   fun:WriteImage
+}
+{
+   python
+   Memcheck:Leak
+   fun:malloc
+   fun:_PyObject_GC_NewVar
+   fun:*
+}
+{
+   boost.python
+   Memcheck:Leak
+   fun:_Znwj
+   fun:_ZN5boost6python9converter8registry9push_backEPFPvP7_objectEPFvS5_PNS1_30rvalue_from_python_stage1_dataEENS0_9type_infoE
+   fun:_ZN26IntPoint_from_python_tupleC1Ev
+   fun:_Z15init_module_avgv
+}
+{
+   glxChooseVisual
+   Memcheck:Leak
+   fun:malloc
+   fun:XGetVisualInfo
+   fun:glXChooseVisual
+}
+{
+   libdc1394_0
+   Memcheck:Cond
+   obj:/usr/lib/libdc1394.so.22.1.0
+   fun:refresh_enumeration
+   fun:dc1394_camera_enumerate
+}
+{
+   libdc1394_1
+   Memcheck:Value4
+   obj:/usr/lib/libdc1394.so.22.1.0
+   fun:refresh_enumeration
+   fun:dc1394_camera_enumerate
+}
+{
+   libdc1394_2
+   Memcheck:Cond
+   obj:/usr/lib/libdc1394.so.22.1.0
+   obj:/usr/lib/libdc1394.so.22.1.0
+   fun:refresh_enumeration
+   fun:dc1394_camera_enumerate
+}
+{
+   libdc1394_6
+   Memcheck:Value4
+   obj:/usr/lib/libdc1394.so.22.1.0
+}
+{
+   libdc1394_4
+   Memcheck:Cond
+   fun:_ZN3avg8FWCameraC1ESsyiNS_5PointIiEESsdb
+}
+{
+   libdc1394_5
+   Memcheck:Cond
+   obj:/usr/lib/libdc1394.so.22.1.0
+}
+{
+   libdc1394_6
+   Memcheck:Param
+   write(buf)
+   obj:/lib/ld-2.8.90.so
+   fun:raw1394_read
+   fun:platform_camera_read
+}
+{
+   libdc1394_7
+   Memcheck:Cond
+   obj:/lib/tls/i686/cmov/libc-2.8.90.so
+   fun:vfprintf
+   obj:/lib/tls/i686/cmov/libc-2.8.90.so
+   fun:vfprintf
+   fun:fprintf
+   fun:dc1394_feature_print
+}
+{
+   libdc1394_8
+   Memcheck:Param
+   write(buf)
+   obj:/lib/ld-2.8.90.so
+   fun:raw1394_write
+   fun:platform_camera_write
+   fun:dc1394_set_control_registers
+   fun:dc1394_video_set_iso_speed
+}
+{
+   libdc1394_9
+   Memcheck:Cond
+   obj:/usr/lib/libraw1394.so.8.2.0
+}
+{
+   libdc1394_10
+   Memcheck:Value4
+   obj:/usr/lib/libraw1394.so.8.2.0
+}
+{
+   libdc1394_11
+   Memcheck:Value4
+   obj:/lib/tls/i686/cmov/libc-2.8.90.so
+   fun:vfprintf
+   obj:/lib/tls/i686/cmov/libc-2.8.90.so
+   fun:vfprintf
+   fun:fprintf
+   fun:dc1394_feature_print
+}
+{
+   libdc1394_12
+   Memcheck:Cond
+   fun:vfprintf
+   obj:/lib/tls/i686/cmov/libc-2.8.90.so
+   fun:vfprintf
+   fun:fprintf
+   fun:dc1394_feature_print
+}
+{
+   libdc1394_13
+   Memcheck:Param
+   ioctl(generic)
+   obj:/lib/ld-2.8.90.so
+   fun:dc1394_capture_setup
+}
+{
+   libdc1394_14
+   Memcheck:Cond
+   fun:strlen
+   fun:*
+   fun:_ZNK3avg8FWCamera9getDeviceEv
+}
+{
+   libdc1394_15
+   Memcheck:Cond
+   fun:*
+   fun:*
+   fun:*
+   fun:*
+   fun:_ZNK3avg8FWCamera9getDeviceEv
+}
+
