@@ -409,7 +409,7 @@ void Words::drawString()
         PangoAttrList * pAttrList = 0;
 #if PANGO_VERSION > PANGO_VERSION_ENCODE(1,18,2) 
         PangoAttribute * pLetterSpacing = pango_attr_letter_spacing_new
-                (m_LetterSpacing*1024);
+                (int(m_LetterSpacing*1024));
 #endif
         if (m_bParsedText) {
             char * pText = 0;
