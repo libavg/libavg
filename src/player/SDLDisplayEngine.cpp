@@ -192,7 +192,9 @@ SDLDisplayEngine::SDLDisplayEngine()
 
 SDLDisplayEngine::~SDLDisplayEngine()
 {
+#ifndef _WIN32
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
+#endif
     assert(m_pSurfaces.size() == 0);
 }
 
