@@ -166,16 +166,18 @@ FWCamera::FWCamera(std::string sDevice, uint64_t Guid, int Unit, IntPoint Size,
                 "  - if you have read/write access to /dev/raw1394.");
 #endif
         dc1394_camera_free_list(pCameraList);
+        dc1394_free(m_pDC1394);
         throw Exception(AVG_ERR_CAMERA,"Firewire failure");
     }
     
     if (pCameraList->num == 0) {
         dc1394_camera_free_list(pCameraList);
+        dc1394_free(m_pDC1394);
         throw Exception(AVG_ERR_CAMERA,"No firewire cameras found.");
     }
     for(unsigned i=0; i<pCameraList->num;++i)
     {
-        AVG_TRACE(Logger::CONFIG,"Found firewire camera guid="<<pCameraList->ids[i].guid<<" unit="<<pCameraList->ids[i].unit);
+//        AVG_TRACE(Logger::CONFIG,"Found firewire camera guid="<<pCameraList->ids[i].guid<<" unit="<<pCameraList->ids[i].unit);
     }
     int id_to_use = -1;
     if (m_Guid != 0) {
@@ -199,6 +201,7 @@ FWCamera::FWCamera(std::string sDevice, uint64_t Guid, int Unit, IntPoint Size,
     }
     if (!m_pCamera) {
         dc1394_camera_free_list(pCameraList);
+        dc1394_free(m_pDC1394);
         throw Exception(AVG_ERR_CAMERA,"Failed to initialize camera");
     }
 
@@ -227,6 +230,7 @@ FWCamera::FWCamera(std::string sDevice, uint64_t Guid, int Unit, IntPoint Size,
         dc1394_capture_stop(m_pCamera);
         dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
         dc1394_camera_free(m_pCamera);
+        dc1394_free(m_pDC1394);
         throw Exception(AVG_ERR_CAMERA,"Failed to initialize camera");
     }
 
@@ -241,12 +245,14 @@ FWCamera::FWCamera(std::string sDevice, uint64_t Guid, int Unit, IntPoint Size,
         dc1394_capture_stop(m_pCamera);
         dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
         dc1394_camera_free(m_pCamera);
+        dc1394_free(m_pDC1394);
         throw Exception(AVG_ERR_CAMERA,"Failed to initialize camera");
     }
     if (dc1394_video_set_transmission(m_pCamera, DC1394_ON) !=DC1394_SUCCESS) {
         dc1394_capture_stop(m_pCamera);
         dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
         dc1394_camera_free(m_pCamera);
+        dc1394_free(m_pDC1394);
         throw Exception(AVG_ERR_CAMERA,"Unable to start camera iso transmission");
     }
 
@@ -256,10 +262,11 @@ FWCamera::FWCamera(std::string sDevice, uint64_t Guid, int Unit, IntPoint Size,
     while( status == DC1394_OFF && i++ < 5 ) {
         usleep(50000);
         if (dc1394_video_get_transmission(m_pCamera, &status)!=DC1394_SUCCESS) {
-        dc1394_capture_stop(m_pCamera);
-        dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
-        dc1394_camera_free(m_pCamera);
-        throw Exception(AVG_ERR_CAMERA,"unable to get transmision status");
+            dc1394_capture_stop(m_pCamera);
+            dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
+            dc1394_camera_free(m_pCamera);
+            dc1394_free(m_pDC1394);
+            throw Exception(AVG_ERR_CAMERA,"unable to get transmision status");
         }
     }
 
@@ -267,6 +274,7 @@ FWCamera::FWCamera(std::string sDevice, uint64_t Guid, int Unit, IntPoint Size,
         dc1394_capture_stop(m_pCamera);
         dc1394_video_set_transmission(m_pCamera, DC1394_OFF);
         dc1394_camera_free(m_pCamera);
+        dc1394_free(m_pDC1394);
         throw Exception(AVG_ERR_CAMERA,"Camera doesn't seem to want to turn on");
     }
 #endif
