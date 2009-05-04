@@ -21,12 +21,14 @@
 #
 
 import os
+import math
 from libavg import avg
 from AVGAppStarter import AVGAppStarter
 try:
     from alib import CalibratorNG as Calibrator
 except ImportError:
     Calibrator = None
+    from .camcalibrator import Calibrator
 
 g_player = avg.Player.get()
 
@@ -82,9 +84,13 @@ class AVGMTAppStarter (AVGAppStarter):
         self.tracker = g_player.addTracker(os.path.join(os.getenv("HOME"), ".avgtrackerrc"))
 
         if Calibrator:
-            self.__calibratorNode = g_player.createNode('div',{})
+            self.__calibratorNode = g_player.createNode('div',{
+                'opacity': 0,
+                'active': False,
+                })
             rootNode = g_player.getRootNode()
             rootNode.appendChild(self.__calibratorNode)
+            self.__calibratorNode.size = rootNode.size
             self.__calibrator = Calibrator(self.__calibratorNode)
         else:
             self.__calibrator = None
@@ -95,7 +101,9 @@ class AVGMTAppStarter (AVGAppStarter):
         g_player.getRootNode().appendChild(self.__trackerImageNode)
 
         # finger bitmap might need to be rotated/flipped
-        self.__trackerImageNode.angle = float(self.tracker.getParam('/transform/angle/@value'))
+        trackerAngle = float(self.tracker.getParam('/transform/angle/@value'))
+        angle = round(trackerAngle/math.pi) * math.pi
+        self.__trackerImageNode.angle = angle
         self.trackerFlipX = float(self.tracker.getParam('/transform/displayscale/@x')) < 0
         self.trackerFlipY = float(self.tracker.getParam('/transform/displayscale/@y')) < 0
 
