@@ -28,7 +28,7 @@ try:
     from alib import CalibratorNG as Calibrator
 except ImportError:
     Calibrator = None
-    from .camcalibrator import Calibrator
+    #from .camcalibrator import Calibrator
 
 g_player = avg.Player.get()
 
