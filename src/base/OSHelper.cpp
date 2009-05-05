@@ -26,6 +26,7 @@
 
 #if defined(_WIN32)
 #include <windows.h>
+#include <psapi.h>
 #undef ERROR
 #undef WARNING
 #elif defined(__APPLE__)
@@ -127,7 +128,13 @@ unsigned getMemoryUsage()
     return taskInfo.resident_size;
 #else
 #ifdef _WIN32
-    return 0;
+    DWORD pid = GetCurrentProcessId();
+    HANDLE hProcess;
+    PROCESS_MEMORY_COUNTERS pmc;
+    hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
+    BOOL bOk = GetProcessMemoryInfo(hProcess, &pmc, sizeof(pmc));
+    CloseHandle( hProcess );
+    return pmc.WorkingSetSize;
 #else
     return 0;
 #endif
