@@ -903,7 +903,7 @@ class PlayerTestCase(AVGTestCase):
                  setAbsDir
                 ))
 
-    def testGPUMemoryQuery(self):
+    def testMemoryQuery(self):
         def createNode():
             self.node = Player.createNode("<image id='img' href='rgb24-64x64.png'/>")
             self.assert_(Player.getGPUMemoryUsage() == 0)
@@ -916,6 +916,7 @@ class PlayerTestCase(AVGTestCase):
             self.assert_(Player.getGPUMemoryUsage() == 0)
         def runTest():
             self.setUpVideo()
+            self.assert_(avg.getMemoryUsage() != 0)
             self._loadEmpty()
             self.start(None,
                     (lambda: self.assert_(Player.getGPUMemoryUsage() == 0),
@@ -987,7 +988,7 @@ def playerTestSuite(bpp, tests):
             "testCropMovie",
             "testWarp",
             "testMediaDir",
-            "testGPUMemoryQuery",
+            "testMemoryQuery",
             "testStopOnEscape",
             )
     return AVGTestSuite(availableTests, PlayerTestCase, tests, (), {'bpp' : bpp})

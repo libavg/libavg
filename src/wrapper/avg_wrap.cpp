@@ -29,6 +29,7 @@ void export_devices();
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
+#include "../base/OSHelper.h"
 #include "../player/Player.h"
 #include "../player/AVGNode.h"
 #include "../player/DivNode.h"
@@ -81,6 +82,12 @@ BOOST_PYTHON_MODULE(avg)
     from_python_sequence<vector<DPoint>, variable_capacity_policy>();
     from_python_sequence<vector<IntPoint>, variable_capacity_policy>();
     from_python_sequence<vector<string>, variable_capacity_policy>();
+
+    def("getMemoryUsage", getMemoryUsage,
+            "Returns the amount of memory used by the application in bytes. More\n"
+            "precisely, this function returns the amount of virtual memory allocated\n"
+            "to the process in bytes. This includes all shared libraries as well as\n"
+            "memory paged out to disk.\n");
 
     class_<Logger>("Logger", 
             "Interface to the logger used by the avg player. Enables the setting\n"

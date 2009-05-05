@@ -36,6 +36,8 @@ std::string getAvgLibPath();
 bool getEnv(const std::string & sName, std::string & sVal);
 void setEnv(const std::string & sName, const std::string & sVal);
 
+unsigned getMemoryUsage();
+
 }
 
 #endif 

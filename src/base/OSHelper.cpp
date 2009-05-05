@@ -30,6 +30,7 @@
 #undef WARNING
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>
+#include <mach/mach.h>
 #endif
 
 #include <stdlib.h>
@@ -109,6 +110,27 @@ void setEnv(const string & sName, const string & sVal)
     SetEnvironmentVariable(sName.c_str(), sVal.c_str());
 #else
     setenv(sName.c_str(), sVal.c_str(), true);
+#endif
+}
+
+unsigned getMemoryUsage()
+{
+#ifdef __APPLE__
+    kern_return_t rc;
+    mach_port_t task;
+    rc = task_for_pid(mach_task_self(), getpid(), &task);
+    assert(rc == KERN_SUCCESS);
+    struct task_basic_info taskInfo;
+    mach_msg_type_number_t count = TASK_BASIC_INFO_COUNT;
+    rc = task_info(task, TASK_BASIC_INFO, (task_info_t)&taskInfo, &count);
+    assert(rc == KERN_SUCCESS);
+    return taskInfo.virtual_size;
+#else
+#ifdef _WIN32
+    return 0;
+#else
+    return 0;
+#endif
 #endif
 }
 
