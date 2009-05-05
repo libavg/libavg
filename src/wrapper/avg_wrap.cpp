@@ -85,9 +85,9 @@ BOOST_PYTHON_MODULE(avg)
 
     def("getMemoryUsage", getMemoryUsage,
             "Returns the amount of memory used by the application in bytes. More\n"
-            "precisely, this function returns the amount of virtual memory allocated\n"
-            "to the process in bytes. This includes all shared libraries as well as\n"
-            "memory paged out to disk.\n");
+            "precisely, this function returns the resident set size of the process\n"
+            "in bytes. This does not include shared libraries or memory paged out to\n"
+            "disk.\n");
 
     class_<Logger>("Logger", 
             "Interface to the logger used by the avg player. Enables the setting\n"

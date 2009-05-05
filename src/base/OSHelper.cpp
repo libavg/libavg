@@ -124,7 +124,7 @@ unsigned getMemoryUsage()
     mach_msg_type_number_t count = TASK_BASIC_INFO_COUNT;
     rc = task_info(task, TASK_BASIC_INFO, (task_info_t)&taskInfo, &count);
     assert(rc == KERN_SUCCESS);
-    return taskInfo.virtual_size;
+    return taskInfo.resident_size;
 #else
 #ifdef _WIN32
     return 0;
