@@ -20,10 +20,14 @@
 # Original author of this file is Martin Heistermann <mh at sponc dot de>
 #
 
+import os
+from AVGAppStarter import AVGAppStarter
+from AVGMTAppStarter import AVGMTAppStarter
+
 class AVGApp(object):
+    multitouch = False
     def __init__(self, node):
         self.__isRunning = False
-        pass
 
     def _enter(self):
         pass
@@ -48,4 +52,12 @@ class AVGApp(object):
 
     def isRunning(self):
         return self.__isRunning
+
+    @classmethod
+    def start(cls, *args, **kwargs):
+        if cls.multitouch and os.getenv("AVG_DEPLOY"):
+            starter = AVGMTAppStarter
+        else:
+            starter = AVGAppStarter
+        return starter(appClass = cls, *args, **kwargs)
 
