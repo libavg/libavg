@@ -96,6 +96,7 @@ class AVG_API Words : public RasterNode
         static const std::vector<std::string>& getFontFamilies();
         static const std::vector<std::string>& getFontVariants(
                 const std::string& sFontName);
+        static void addFontDir(const std::string& sDir);
         
     private:
         void drawString();

@@ -38,6 +38,9 @@ namespace avg {
 
 using namespace std;
 
+static vector<string> s_fontDirs;
+static bool s_bTextEngineLoaded = false;
+
 static void
 text_subst_func(FcPattern *pattern, gpointer data)
 {
@@ -58,6 +61,7 @@ TextEngine& TextEngine::get()
 
 TextEngine::TextEngine()
 {
+    s_bTextEngineLoaded = true;
     pango_ft2_get_context(72, 72);
 
     PangoFT2FontMap *pFontMap;
@@ -87,6 +91,15 @@ TextEngine::TextEngine()
 
 TextEngine::~TextEngine()
 {
+}
+
+void TextEngine::addFontDir(const std::string& sDir)
+{
+    if (s_bTextEngineLoaded) {
+        throw(Exception(AVG_ERR_UNSUPPORTED,
+                "addFontDir() should be called before Player.play()"));
+    }
+    s_fontDirs.push_back(sDir);
 }
 
 PangoContext * TextEngine::getPangoContext()
@@ -206,8 +219,13 @@ void TextEngine::initFonts()
     checkFontError(Ok, string("Font error: FcConfigBuildFonts failed."));
     Ok = (int)FcConfigSetCurrent(pConfig);
     checkFontError(Ok, string("Font error: FcConfigSetCurrent failed."));
-    Ok = (int)FcConfigAppFontAddDir(pConfig, (const FcChar8 *)"fonts/");
-    checkFontError(Ok, string("Font error: FcConfigAppFontAddDir failed."));
+    s_fontDirs.push_back("fonts/");
+    for(std::vector<std::string>::const_iterator it = s_fontDirs.begin();
+            it != s_fontDirs.end(); ++it) {
+        Ok = (int)FcConfigAppFontAddDir(pConfig, (const FcChar8 *)it->c_str());
+        checkFontError(Ok, string("Font error: FcConfigAppFontAddDir("
+                    + *it + ") failed."));
+    }
     /*
        FcStrList * pCacheDirs = FcConfigGetCacheDirs(pConfig);
        FcChar8 * pDir;

@@ -236,6 +236,11 @@ const std::string& Words::getFontVariant() const
     return m_sFontVariant;
 }
 
+void Words::addFontDir(const std::string& sDir)
+{
+    TextEngine::addFontDir(sDir);
+}
+
 void Words::setFontVariant(const std::string& sVariant)
 {
     m_sFontVariant = sVariant;

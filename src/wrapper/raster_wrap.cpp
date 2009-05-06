@@ -320,5 +320,10 @@ void export_raster()
         .def("getFontVariants", make_function(&Words::getFontVariants, 
                 return_value_policy<copy_const_reference>()))
         .staticmethod("getFontVariants")
+        .def("addFontDir", &Words::addFontDir,
+                "addFontDir(s)\n"
+                "Adds a directory to be searched for fonts."
+                "This only works before Player.play().")
+        .staticmethod("addFontDir")
     ;
 }
