@@ -27,11 +27,14 @@ g_player = avg.Player.get()
 
 class AVGAppStarter(object):
     """Starts an AVGApp"""
-    def __init__(self, appClass, resolution):
+    def __init__(self, appClass, resolution, debugWindowSize = None):
         self._AppClass = appClass
         resolution = Point2D(resolution)
-
         testMode = os.getenv("AVG_DEPLOY") == None
+        if testMode and debugWindowSize is not None:
+            debugWindowSize = Point2D(debugWindowSize)
+        else:
+            debugWindowSize = Point2D(0, 0)
 
         log = avg.Logger.get()
         log.setCategories(
@@ -68,7 +71,7 @@ class AVGAppStarter(object):
         g_player.showCursor(testMode)
         g_player.setResolution(
                 not testMode, # fullscreen
-                0, 0, # resolution
+                int(debugWindowSize.x), int(debugWindowSize.y),
                 0 # color depth
                 )
 
@@ -80,7 +83,7 @@ class AVGAppStarter(object):
             testHelper = g_player.getTestHelper()
             testHelper.dumpObjects()
             print "Num anims: ", anim.getNumRunningAnims()
-            print "Num python objects: ", len(gc.get_objects()) 
+            print "Num python objects: ", len(gc.get_objects())
         self.bindKey('o', dumpObjects)
 
         self._onBeforePlay()
