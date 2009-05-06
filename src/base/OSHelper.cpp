@@ -32,6 +32,9 @@
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>
 #include <mach/mach.h>
+#elif defined(__linux)
+#include <fstream>
+#include <unistd.h>
 #endif
 
 #include <stdlib.h>
@@ -133,10 +136,14 @@ unsigned getMemoryUsage()
     PROCESS_MEMORY_COUNTERS pmc;
     hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
     BOOL bOk = GetProcessMemoryInfo(hProcess, &pmc, sizeof(pmc));
-    CloseHandle( hProcess );
+    CloseHandle(hProcess);
     return pmc.WorkingSetSize;
 #else
-    return 0;
+    unsigned vmsize;
+    unsigned rssize;
+    // See 'man proc' for a documentation of this file's contents.
+    std::ifstream f("/proc/self/statm");
+    return rssize*getpagesize();
 #endif
 #endif
 }
