@@ -59,7 +59,7 @@ NodeDefinition Video::createDefinition()
         ;
 }
 
-Video::Video (const ArgList& Args, bool bFromXML)
+Video::Video(const ArgList& Args, bool bFromXML)
     : m_Filename(""),
       m_bEOFPending(false),
       m_pEOFCallback(0),
@@ -81,7 +81,7 @@ Video::Video (const ArgList& Args, bool bFromXML)
     ObjectCounter::get()->incRef(&typeid(*this));
 }
 
-Video::~Video ()
+Video::~Video()
 {
     Player::get()->unregisterFrameListener(this);
     if (m_pDecoder) {
@@ -345,6 +345,25 @@ long long Video::getNextFrameTime()
         default:
             assert(false);
             return 0;
+    }
+}
+
+void Video::preRender()
+{
+    Node::preRender();
+    if (getEffectiveOpacity() <= 0.01 && getVideoState() == Playing) {
+        // Throw away frames that are not visible to make sure the video keeps in sync.
+        PixelFormat PF = m_pDecoder->getPixelFormat();
+        IntPoint size = m_pDecoder->getSize();
+        if (PF == YCbCr420p || PF == YCbCrJ420p) {
+            BitmapPtr pBmpY(new Bitmap(size, I8));
+            BitmapPtr pBmpU(new Bitmap(size, I8));
+            BitmapPtr pBmpV(new Bitmap(size, I8));
+            m_pDecoder->renderToYCbCr420p(pBmpY, pBmpU, pBmpV, getNextFrameTime());
+        } else {
+            BitmapPtr pBmp(new Bitmap(size, PF));
+            m_pDecoder->renderToBmp(pBmp, getNextFrameTime());
+        }
     }
 }
 

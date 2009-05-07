@@ -100,9 +100,6 @@ void VideoBase::render(const DRect& Rect)
     {
         case Playing:
             {
-                if (getEffectiveOpacity() < 0.001) {
-                    return;
-                }
                 bool bNewFrame = renderToSurface(getSurface());
                 m_bFrameAvailable = m_bFrameAvailable | bNewFrame;
                 if (m_bFrameAvailable) {

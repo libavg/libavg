@@ -140,9 +140,9 @@ Bitmap::Bitmap(const std::string& sURI)
     Image Img;
     try {
         Img.read(sURI);
-    } catch( Magick::Warning &e) {
+    } catch(Magick::Warning &e) {
         cerr << e.what() << endl;
-    } catch( Magick::ErrorConfigure &) {
+    } catch(Magick::ErrorConfigure &) {
 //        cerr << e.what() << endl;
     }
     PixelPacket * pSrcPixels = Img.getPixels(0, 0, Img.columns(), Img.rows());

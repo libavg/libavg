@@ -65,6 +65,7 @@ class AVG_API Video : public VideoBase, IFrameListener, IAudioSource
         bool isThreaded() const;
         void setEOFCallback(PyObject * pEOFCallback);
 
+        virtual void preRender();
         virtual void onFrameEnd();
         
         virtual int fillAudioBuffer(AudioBufferPtr pBuffer);

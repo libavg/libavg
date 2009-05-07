@@ -112,6 +112,30 @@ class AVTestCase(AVGTestCase):
                  lambda: self.compareImage("testVideo9", False)
                 ))
 
+    def testVideoOpacity(self):
+        def testWithFile(filename, testImgName):
+            def hide():
+                Player.getElementByID("video").opacity=0
+            def show():
+                Player.getElementByID("video").opacity=1
+            Player.setFakeFPS(25)
+            Player.loadString("""
+                <avg width="160" height="120">
+                    <video id="video" x="0" y="0" opacity="1" loop="true" threaded="false"/>
+                </avg>""")
+            Player.getElementByID("video").href=filename
+            self.start(None,
+                    (lambda: Player.getElementByID("video").play(),
+                     lambda: self.compareImage(testImgName+"1", False),
+                     hide,
+                     None,
+                     None,
+                     show,
+                     lambda: self.compareImage(testImgName+"2", False)
+                    ))
+        testWithFile("../video/testfiles/rgba-48x48.mov", "testVideoOpacityRGBA")
+        testWithFile("../video/testfiles/mpeg1-48x48.mpg", "testVideoOpacityYUV")
+
     def testVideoSeek(self):
         def seek(frame):
             videoNode.seekToFrame(frame)
@@ -203,6 +227,7 @@ def AVTestSuite(tests):
             'testSoundEOF',
             "testVideoFiles",
             "testVideo",
+            "testVideoOpacity",
             "testVideoSeek",
             "testVideoFPS",
             "testVideoEOF",
