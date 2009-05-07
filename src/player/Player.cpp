@@ -511,6 +511,7 @@ void Player::showCursor(bool bShow)
         m_DP.m_bShowCursor = bShow;
     }
 }
+
 void Player::setCursor(const Bitmap* pBmp, IntPoint hotSpot)
 {
     IntPoint size = pBmp->getSize();
