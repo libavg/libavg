@@ -53,8 +53,8 @@ NodeDefinition AreaNode::createDefinition()
         .extendDefinition(Node::createDefinition())
         .addArg(Arg<double>("x", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.x)))
         .addArg(Arg<double>("y", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.y)))
-        .addArg(Arg<double>("width", 0.0, false, offsetof(AreaNode, m_WantedSize.x)))
-        .addArg(Arg<double>("height", 0.0, false, offsetof(AreaNode, m_WantedSize.y)))
+        .addArg(Arg<double>("width", 0.0, false, offsetof(AreaNode, m_UserSize.x)))
+        .addArg(Arg<double>("height", 0.0, false, offsetof(AreaNode, m_UserSize.y)))
         .addArg(Arg<double>("angle", 0.0, false, offsetof(AreaNode, m_Angle)))
         .addArg(Arg<double>("pivotx", -32767, false, offsetof(AreaNode, m_Pivot.x)))
         .addArg(Arg<double>("pivoty", -32767, false, offsetof(AreaNode, m_Pivot.y)));
@@ -74,24 +74,24 @@ AreaNode::~AreaNode()
 void AreaNode::setArgs(const ArgList& Args)
 {
     Node::setArgs(Args);
-    m_RelViewport.setWidth(m_WantedSize.x);
-    m_RelViewport.setHeight(m_WantedSize.y);
+    m_RelViewport.setWidth(m_UserSize.x);
+    m_RelViewport.setHeight(m_UserSize.y);
 }
 
 void AreaNode::setRenderingEngines(DisplayEngine * pDisplayEngine, 
         AudioEngine * pAudioEngine)
 {
     m_bHasCustomPivot = ((m_Pivot.x != -32767) && (m_Pivot.y != -32767));
-    IntPoint PreferredSize = getMediaSize();
-    if (m_WantedSize.x == 0.0) {
-        m_RelViewport.setWidth(PreferredSize.x);
+    IntPoint MediaSize = getMediaSize();
+    if (m_UserSize.x == 0.0) {
+        m_RelViewport.setWidth(MediaSize.x);
     } else {
-        m_RelViewport.setWidth(m_WantedSize.x);
+        m_RelViewport.setWidth(m_UserSize.x);
     }
-    if (m_WantedSize.y == 0.0) {
-        m_RelViewport.setHeight(PreferredSize.y);
+    if (m_UserSize.y == 0.0) {
+        m_RelViewport.setHeight(MediaSize.y);
     } else {
-        m_RelViewport.setHeight(m_WantedSize.y);
+        m_RelViewport.setHeight(m_UserSize.y);
     }
     Node::setRenderingEngines(pDisplayEngine, pAudioEngine);
 }
@@ -133,8 +133,8 @@ double AreaNode::getWidth()
 
 void AreaNode::setWidth(double width) 
 {
-    m_WantedSize.x = width;
-    setViewport(-32767, -32767, width, -32767);
+    m_UserSize.x = width;
+    setViewport(-32767, -32767, -32767, -32767);
 }
 
 double AreaNode::getHeight()
@@ -144,8 +144,8 @@ double AreaNode::getHeight()
 
 void AreaNode::setHeight(double height) 
 {
-    m_WantedSize.y = height;
-    setViewport(-32767, -32767, -32767, height);
+    m_UserSize.y = height;
+    setViewport(-32767, -32767, -32767, -32767);
 }
 
 DPoint AreaNode::getSize() const
@@ -155,8 +155,8 @@ DPoint AreaNode::getSize() const
 
 void AreaNode::setSize(const DPoint& pt)
 {
-    m_WantedSize = pt;
-    setViewport(-32767, -32767, pt.x, pt.y);
+    m_UserSize = pt;
+    setViewport(-32767, -32767, -32767, -32767);
 }
 
 double AreaNode::getAngle() const
@@ -263,17 +263,17 @@ void AreaNode::setViewport(double x, double y, double width, double height)
     }
     IntPoint MediaSize = getMediaSize();
     if (width == -32767) {
-        if (m_WantedSize.x == 0.0) {
+        if (m_UserSize.x == 0.0) {
             width = MediaSize.x;
         } else {
-            width = m_WantedSize.x;
+            width = m_UserSize.x;
         } 
     }
     if (height == -32767) {
-        if (m_WantedSize.y == 0.0) {
+        if (m_UserSize.y == 0.0) {
             height = MediaSize.y;
         } else {
-            height = m_WantedSize.y;
+            height = m_UserSize.y;
         } 
     }
     m_RelViewport = DRect (x, y, x+width, y+height);

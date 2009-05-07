@@ -131,8 +131,7 @@ class AVG_API AreaNode: public Node
         
         OGLShaderPtr m_pMyFragmentShader;
         OGLShaderPtr m_pMyVertexShader;
-        // Size specified by user.
-        DPoint m_WantedSize;
+        DPoint m_UserSize;
 };
 
 }

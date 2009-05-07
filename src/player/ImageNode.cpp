@@ -95,7 +95,7 @@ void ImageNode::setBitmap(const Bitmap * pBmp)
     m_pImage->setBitmap(pBmp);
     m_href = "";
     IntPoint Size = getMediaSize();
-    setViewport(-32767, -32767, Size.x, Size.y);
+    setViewport(-32767, -32767, -32767, -32767);
 }
 
 static ProfilingZone RenderProfilingZone("ImageNode::render");
@@ -118,7 +118,7 @@ void ImageNode::checkReload()
 {
     Node::checkReload(m_href, m_pImage);
     IntPoint Size = getMediaSize();
-    setViewport(-32767, -32767, Size.x, Size.y);
+    setViewport(-32767, -32767, -32767, -32767);
 }
 
 Bitmap * ImageNode::getBitmap()

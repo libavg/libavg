@@ -883,6 +883,23 @@ class PlayerTestCase(AVGTestCase):
 #                ))
 
     def testMediaDir(self):
+        def createImageNode():
+            # Node is not in tree; mediadir should be root node dir.
+            node = Player.createNode("image", {"href":"rgb24-64x64.png"})
+            self.assert_(node.size == avg.Point2D(1,1)) # File not found
+            node.href = "rgb24-64x64a.png"
+            self.assert_(node.size == avg.Point2D(64,64)) # File found
+            node = Player.createNode("image", 
+                    {"href":"rgb24-64x64.png", "width":23, "height":42})
+            # File not found, but custom size
+            self.assert_(node.size == avg.Point2D(23,42))
+            node.href = "rgb24-64x64a.png"
+            # File found, custom size stays
+            self.assert_(node.size == avg.Point2D(23,42))
+            node.size = (0,0)
+            # File found, custom size cleared. Media size should be used.
+            self.assert_(node.size == avg.Point2D(64,64))
+
         def setDir():
             Player.getElementByID("main").mediadir="../video/testfiles"
         def setAbsDir():
@@ -893,7 +910,8 @@ class PlayerTestCase(AVGTestCase):
         def createNode():
             node = Player.createNode("video", {"href":"mjpeg1-48x48.avi", "fps":30})
         self.start("mediadir.avg",
-                (lambda: Player.getElementByID("video").play(),
+                (createImageNode,
+                 lambda: Player.getElementByID("video").play(),
                  lambda: self.compareImage("testMediaDir1", False),
                  setDir,
                  lambda: Player.getElementByID("video").play(), 
