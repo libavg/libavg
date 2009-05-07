@@ -143,6 +143,7 @@ unsigned getMemoryUsage()
     unsigned rssize;
     // See 'man proc' for a documentation of this file's contents.
     std::ifstream f("/proc/self/statm");
+    f >> vmsize >> rssize;
     return rssize*getpagesize();
 #endif
 #endif
