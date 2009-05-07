@@ -21,26 +21,45 @@
 #
 
 import os
-from AVGAppStarter import AVGAppStarter
-from AVGMTAppStarter import AVGMTAppStarter
 
 class AVGApp(object):
     multitouch = False
-    def __init__(self, node):
+    def __init__(self, parentNode):
+        """initialization before Player.play()
+        Use this only when needed, e.g. for
+        Words.addFontDir(). Do not forget to call
+        super(YourApp, self).__init__(parentNode)"""
         self.__isRunning = False
+        self._parentNode = parentNode
+
+    def init(self):
+        """main initialization
+        build node hierarchy under self.__parentNode."""
+        pass
 
     def _enter(self):
+        """enter the application, internal interface.
+        override this and start all animations, intervals
+        etc. here"""
         pass
 
     def _leave(self):
+        """leave the application, internal interface.
+        override this and stop all animations, intervals
+        etc. Take care your application does not use any
+        non-needed resources after this."""
         pass
 
     def enter(self, onLeave = lambda: None):
+        """enter the application, external interface.
+        Do not override this."""
         self.__isRunning = True
         self._onLeave = onLeave
         self._enter()
 
     def leave(self):
+        """leave the application, external interface.
+        Do not override this."""
         self.__isRunning = False
         self._onLeave()
         self._leave()
@@ -55,6 +74,8 @@ class AVGApp(object):
 
     @classmethod
     def start(cls, *args, **kwargs):
+        from AVGAppStarter import AVGAppStarter
+        from AVGMTAppStarter import AVGMTAppStarter
         if cls.multitouch and os.getenv("AVG_DEPLOY"):
             starter = AVGMTAppStarter
         else:
