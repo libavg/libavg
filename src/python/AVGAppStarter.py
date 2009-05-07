@@ -22,8 +22,55 @@
 
 import os
 import gc
+import math
+
 from libavg import avg, Point2D, anim
+
 g_player = avg.Player.get()
+
+class MemGraph():
+    def __init__(self):
+        self.__memGraphStartTime = g_player.getFrameTime()
+        self.__usage = [0]
+        self.__maxUsage = [0]
+        rootNode = g_player.getRootNode()
+        size = avg.Point2D(rootNode.width-20, rootNode.height/6)
+        self.__node = g_player.createNode("""
+            <div opacity="1" sensitive="False" x="10" y="10" width="%(width)i" 
+                    height="%(height)i">
+                <rect strokewidth="0" fillopacity="0.6" fillcolor="FFFFFF" 
+                        width="%(width)i" height="%(height)i"/>
+                <words x="10" y="%(wordsheight)i"/>
+                <polyline color="00FF00"/>
+                <polyline color="00FFFF"/>
+            </div>""" 
+            % {'width': size.x, 'height':size.y, 'wordsheight':size.y-22})
+        self.__graphSize = size-avg.Point2D(20, 20)
+        rootNode.appendChild(self.__node)
+        self.__textNode = self.__node.getChild(1)
+        self.__maxLineNode = self.__node.getChild(2)
+        self.__lineNode = self.__node.getChild(3)
+        self.__interval = g_player.setInterval(10, self.__nextSample)
+
+    def delete(self):
+        self.__node.unlink()
+        g_player.clearInterval(self.__interval)
+
+    def __nextSample(self):
+        curUsage = avg.getMemoryUsage()
+        self.__usage.append(curUsage)
+        lastMax = self.__maxUsage[-1]
+        self.__maxUsage.append(max(lastMax, curUsage))
+        self.__plotLine(self.__usage, self.__lineNode, self.__maxUsage[-1])
+        self.__plotLine(self.__maxUsage, self.__maxLineNode, self.__maxUsage[-1])
+        self.__textNode.text = ("Max. memory usage: %(size).2f MB"
+                %{"size":self.__maxUsage[-1]/(1024*1024.)})
+
+    def __plotLine(self, data, node, maxy):
+        yfactor = self.__graphSize.y/float(maxy)
+        xfactor = self.__graphSize.x/float(len(data)-1)
+        node.pos = [(pos[0]*xfactor+10, (maxy-pos[1])*yfactor+10) 
+                for pos in enumerate(data)]
 
 class AVGAppStarter(object):
     """Starts an AVGApp"""
@@ -78,13 +125,9 @@ class AVGAppStarter(object):
         self.__keyBindings = {}
         rootNode.setEventHandler(avg.KEYDOWN, avg.NONE, self.__onKey)
 
-        def dumpObjects():
-            gc.collect()
-            testHelper = g_player.getTestHelper()
-            testHelper.dumpObjects()
-            print "Num anims: ", anim.getNumRunningAnims()
-            print "Num python objects: ", len(gc.get_objects())
-        self.bindKey('o', dumpObjects)
+        self.bindKey('o', self.__dumpObjects)
+        self.bindKey('m', self.__showMemoryUsage)
+        self.__showingMemGraph = False
 
         self._onBeforePlay()
         g_player.setTimeout(0, self._onStart)
@@ -114,4 +157,17 @@ class AVGAppStarter(object):
             self.__keyBindings[event.keystring]()
             return
 
+    def __dumpObjects(self):
+        gc.collect()
+        testHelper = g_player.getTestHelper()
+        testHelper.dumpObjects()
+        print "Num anims: ", anim.getNumRunningAnims()
+        print "Num python objects: ", len(gc.get_objects()) 
 
+    def __showMemoryUsage(self):
+        if self.__showingMemGraph:
+            self.__memGraph.delete()
+            self.__memGraph = None
+        else:
+            self.__memGraph = MemGraph()
+        self.__showingMemGraph = not(self.__showingMemGraph)
