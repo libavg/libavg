@@ -23,6 +23,7 @@
 import os
 import gc
 import math
+import time
 
 from libavg import avg, Point2D, anim
 
@@ -33,38 +34,62 @@ class MemGraph():
         self.__memGraphStartTime = g_player.getFrameTime()
         self.__usage = [0]
         self.__maxUsage = [0]
+        self.__minutesUsage = [0]
+        self.__minutesMaxUsage = [0]
         rootNode = g_player.getRootNode()
         size = avg.Point2D(rootNode.width-20, rootNode.height/6)
         self.__node = g_player.createNode("""
-            <div opacity="1" sensitive="False" x="10" y="10" width="%(width)i" 
+            <div opacity="0" sensitive="False" x="10" y="10" width="%(width)i" 
                     height="%(height)i">
                 <rect strokewidth="0" fillopacity="0.6" fillcolor="FFFFFF" 
                         width="%(width)i" height="%(height)i"/>
-                <words x="10" y="%(wordsheight)i"/>
-                <polyline color="00FF00"/>
-                <polyline color="00FFFF"/>
+                <words x="10" y="%(wordsheight0)i" color="000080"/>
+                <words x="10" y="%(wordsheight1)i" color="000080"/>
+                <polyline color="008000"/>
+                <polyline color="000080"/>
             </div>""" 
-            % {'width': size.x, 'height':size.y, 'wordsheight':size.y-22})
+            % {'width': size.x, 'height':size.y, 'wordsheight0':size.y-22, 
+                    'wordsheight1':size.y-39})
         self.__graphSize = size-avg.Point2D(20, 20)
         rootNode.appendChild(self.__node)
-        self.__textNode = self.__node.getChild(1)
-        self.__maxLineNode = self.__node.getChild(2)
-        self.__lineNode = self.__node.getChild(3)
-        self.__interval = g_player.setInterval(10, self.__nextSample)
+        self.__textNode0 = self.__node.getChild(1)
+        self.__textNode1 = self.__node.getChild(2)
+        self.__maxLineNode = self.__node.getChild(3)
+        self.__lineNode = self.__node.getChild(4)
+        self.__interval = g_player.setInterval(1000, self.__nextSample)
+        self.__sampleNum = 0
+        anim.fadeIn(self.__node, 300)
 
     def delete(self):
-        self.__node.unlink()
+        def kill():
+            self.__node.unlink()
+        anim.LinearAnim(self.__node, "opacity", 300, 1, 0, onStop=kill)
         g_player.clearInterval(self.__interval)
 
     def __nextSample(self):
         curUsage = avg.getMemoryUsage()
         self.__usage.append(curUsage)
-        lastMax = self.__maxUsage[-1]
-        self.__maxUsage.append(max(lastMax, curUsage))
-        self.__plotLine(self.__usage, self.__lineNode, self.__maxUsage[-1])
-        self.__plotLine(self.__maxUsage, self.__maxLineNode, self.__maxUsage[-1])
-        self.__textNode.text = ("Max. memory usage: %(size).2f MB"
-                %{"size":self.__maxUsage[-1]/(1024*1024.)})
+        maxUsage = self.__maxUsage[-1]
+        if curUsage>maxUsage:
+            maxUsage = curUsage
+            lastMaxChangeTime = time.time()
+            self.__textNode1.text = ("Last increase in maximum: "
+                    +time.strftime("%H:%M:%S", time.localtime(lastMaxChangeTime)))
+        self.__maxUsage.append(maxUsage)
+        self.__sampleNum += 1
+        if self.__sampleNum % 60 == 0:
+            lastMinuteAverage = sum(self.__usage[-60:])/60
+            self.__minutesUsage.append(lastMinuteAverage)
+            self.__minutesMaxUsage.append(maxUsage)
+
+        if self.__sampleNum < 60*60:
+            self.__plotLine(self.__usage, self.__lineNode, maxUsage)
+            self.__plotLine(self.__maxUsage, self.__maxLineNode, maxUsage)
+        else:
+            self.__plotLine(self.__minutesUsage, self.__lineNode, maxUsage)
+            self.__plotLine(self.__minutesMaxUsage, self.__maxLineNode, maxUsage)
+        self.__textNode0.text = ("Max. memory usage: %(size).2f MB"
+                %{"size":maxUsage/(1024*1024.)})
 
     def __plotLine(self, data, node, maxy):
         yfactor = self.__graphSize.y/float(maxy)
