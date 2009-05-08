@@ -115,7 +115,7 @@ class AVGTestCase(unittest.TestCase):
                         Bmp.save(RESULT_DIR+"/"+fileName+".png")
                         BaselineBmp.save(RESULT_DIR+"/"+fileName+"_baseline.png")
                         DiffBmp.save(RESULT_DIR+"/"+fileName+"_diff.png")
-                if (average > 2 or stdDev > 5):
+                if (average > 2 or stdDev > 6):
                     print ("  "+fileName+
                             ": Difference image has avg=%(avg).2f, std dev=%(stddev).2f"%
                             {'avg':average, 'stddev':stdDev})
