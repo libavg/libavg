@@ -117,7 +117,11 @@ void VectorNode::setTexHRef(const string& href)
 void VectorNode::setBitmap(const Bitmap * pBmp)
 {
     m_TexHRef = "";
-    m_pShape->setBitmap(pBmp);
+    if (pBmp) {
+        m_pShape->setBitmap(pBmp);
+    } else {
+        m_pShape->setFilename("");
+    }
     setDrawNeeded(true);
 }
 
