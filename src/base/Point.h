@@ -54,7 +54,7 @@ public:
     Point(const std::vector<NUM>& v);
     ~Point();
 
-    void normalize();
+    Point<NUM> getNormalized() const;
     double getNorm();
     bool isNaN() const;
     bool isInf() const;

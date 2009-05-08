@@ -27,8 +27,7 @@ WideLine::WideLine(const DPoint& p0, const DPoint& p1, double width)
     : pt0(p0),
       pt1(p1)
 {
-    DPoint m = (pt1-pt0);
-    m.normalize();
+    DPoint m = (pt1-pt0).getNormalized();
     DPoint w = DPoint(m.y, -m.x)*width/2;
     pl0 = p0-w;
     pr0 = p0+w;

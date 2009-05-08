@@ -40,18 +40,22 @@ namespace DPointHelper
     {
         return 2;
     }
+
     double getX(const DPoint& pt)
     {
         return pt.x;
     }
+
     double getY(const DPoint& pt)
     {
         return pt.y;
     }
+
     void setX(DPoint& pt, double val)
     {
         pt.x = val;
     }
+
     void setY(DPoint& pt, double val)
     {
         pt.y = val;
@@ -62,6 +66,7 @@ namespace DPointHelper
             throw std::out_of_range("Index out of range for Point2D. Must be 0 or 1.");
         }
     }
+
     double getItem(const DPoint& pt, int i)
     {
         checkItemRange(i);
@@ -71,6 +76,7 @@ namespace DPointHelper
             return pt.y;
         }
     }
+
     void setItem(DPoint& pt, int i, double val)
     {
         checkItemRange(i);
@@ -121,9 +127,10 @@ void export_bitmap()
         .def("__str__", &DPointHelper::str)
         .def("__repr__", &DPointHelper::repr)
         .def("__hash__", &DPointHelper::getHash)
-        .def("normalize", &DPoint::normalize,
-                "normalize()\n"
-                "Normalizes the point so it's angle stays the same but the norm is one.")
+        .def("getNormalized", &DPoint::getNormalized,
+                "getNormalized() -> normalized\n"
+                "Returns a normalized version of the point with the same angle but a\n"
+                "norm of one.")
         .def("getNorm", &DPoint::getNorm,
                 "getNorm() -> norm\n"
                 "Returns the euclidian norm of the point, that is sqrt(x*x+y*y).")

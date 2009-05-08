@@ -271,8 +271,7 @@ void CurveNode::updateLines()
 
 void CurveNode::addLRCurvePoint(const DPoint& pos, const DPoint& deriv)
 {
-    DPoint m(deriv);
-    m.normalize();
+    DPoint m = deriv.getNormalized();
     DPoint w = DPoint(m.y, -m.x)*getStrokeWidth()/2;
     m_LeftCurve.push_back(pos-w);
     m_RightCurve.push_back(pos+w);

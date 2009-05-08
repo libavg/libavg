@@ -259,8 +259,8 @@ public:
         DPoint pt3(v);
         TEST(almostEqual(pt2, pt3));
         TEST(almostEqual(pt3.getNorm(), 5));
-        pt3.normalize();
-        TEST(almostEqual(pt3.getNorm(), 1, 0.0001));
+        DPoint pt4 = pt3.getNormalized();
+        TEST(almostEqual(pt4.getNorm(), 1, 0.0001));
         {
             DLineSegment l1(DPoint(0,0), DPoint(2,2));
             DLineSegment l2(DPoint(2,0), DPoint(0,2));

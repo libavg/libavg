@@ -30,7 +30,7 @@
 namespace avg {
 
 template<>
-void Point<double>::normalize()
+Point<double> Point<double>::getNormalized() const
 {
 #if defined(__SSE__) || defined(_WIN32)
 #pragma pack(16)
@@ -41,15 +41,15 @@ void Point<double>::normalize()
     __m128 invSqrt = _mm_rsqrt_ps(normSqrVec);
     __m128 resultVec = _mm_mul_ps(src, invSqrt);
     _mm_storeu_ps(result, resultVec);
-    x = result[0];
-    y = result[1];
+    return Point<double>(result[0], result[1]);
 #pragma pack()
 #else
     double invNorm = invSqrt(float(x*x+y*y));
     if (invNorm != 0) {
-        x = x*invNorm;
-        y = y*invNorm;
-    } 
+        return Point<double>(x*invNorm, y*invNorm);
+    } else {
+        return *this;
+    }
 #endif
 }
 
