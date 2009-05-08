@@ -203,10 +203,6 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams* pAP,
     assert(!m_pDemuxer);
 //    dump_format(m_pFormatContext, 0, m_sFilename.c_str(), 0);
 //    dump_stream_info(m_pFormatContext);
-    if (m_VStreamIndex < 0 && m_AStreamIndex < 0) {
-        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
-                sFilename + " does not contain any audio or video streams.");
-    }
     
     // Create demuxer to handle streams
     if (bThreadedDemuxer) {
@@ -282,9 +278,19 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams* pAP,
             m_pAStream = 0; 
             AVG_TRACE(Logger::WARNING, 
                     sFilename + ": unsupported codec ("+szBuf+"). Disabling audio.");
+        } else if (m_pAStream->codec->channels > m_AP.m_Channels) {
+            AVG_TRACE(Logger::WARNING, 
+                    sFilename << ": unsupported number of channels (" << 
+                            m_pAStream->codec->channels << "). Disabling audio.");
+            m_AStreamIndex = -1;
+            m_pAStream = 0; 
         } else {
             m_pDemuxer->enableStream(m_AStreamIndex);
         }
+    }
+    if (m_VStreamIndex < 0 && m_AStreamIndex < 0) {
+        throw Exception(AVG_ERR_VIDEO_INIT_FAILED, 
+                sFilename + " does not contain any valid audio or video streams.");
     }
 }
 

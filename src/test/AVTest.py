@@ -210,9 +210,20 @@ class AVTestCase(AVGTestCase):
         Player.setFakeFPS(-1)
         Player.volume = 0 
         for filename in ["22.050Hz_16bit_mono.wav", "44.1kHz_16bit_stereo.aif", 
-                "44.1kHz_16bit_stereo.wav", "44.1kHz_mono.ogg", "44.1kHz_stereo.mp3",
+                "44.1kHz_16bit_stereo.wav", "44.1kHz_mono.ogg", "44.1kHz_stereo.mp3", 
                 "48kHz_24bit_stereo.wav"]:
             testSoundFile(filename)
+
+    def testBrokenSound(self):
+        def openSound():
+            node = Player.createNode("sound",
+                    {"href": "../video/testfiles/44.1kHz_16bit_6Chan.ogg"})
+            Player.getRootNode().appendChild(node)
+            self.assertException(node.play)
+        self._loadEmpty()
+        self.start(None,
+                [openSound])
+
     def testSoundEOF(self):
         Player.setFakeFPS(-1)
         Player.volume = 0 
@@ -224,6 +235,7 @@ class AVTestCase(AVGTestCase):
 def AVTestSuite(tests):
     availableTests = (
             'testSound',
+            'testBrokenSound',
             'testSoundEOF',
             "testVideoFiles",
             "testVideo",
