@@ -31,8 +31,8 @@ using namespace std;
 
 namespace avg {
 
-OGLProgramPtr GPUBlurFilter::s_pHorizShader;
-OGLProgramPtr GPUBlurFilter::s_pVertShader;
+OGLShaderPtr GPUBlurFilter::s_pHorizShader;
+OGLShaderPtr GPUBlurFilter::s_pVertShader;
 
 GPUBlurFilter::GPUBlurFilter(const IntPoint& size, PixelFormat pfSrc, double stdDev)
     : GPUFilter(size, pfSrc, R32G32B32A32F, false),
@@ -117,7 +117,7 @@ void GPUBlurFilter::initShaders()
         "}\n"
         ;
 
-    s_pHorizShader = OGLProgram::buildProgram(OGLShaderPtr(new OGLShader(sHorizProgram)));
+    s_pHorizShader = OGLShaderPtr(new OGLShader(sHorizProgram));
 
     string sVertProgram = sProgramHead + 
         "void main(void)\n"
@@ -132,7 +132,7 @@ void GPUBlurFilter::initShaders()
         "}\n"
         ;
 
-    s_pVertShader = OGLProgram::buildProgram(OGLShaderPtr(new OGLShader(sVertProgram)));
+    s_pVertShader = OGLShaderPtr(new OGLShader(sVertProgram));
 }
 
 void GPUBlurFilter::dumpKernel()

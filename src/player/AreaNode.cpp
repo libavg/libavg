@@ -245,8 +245,6 @@ void AreaNode::maybeRender(const DRect& Rect)
             }
             SDLDisplayEngine * pEngine = getDisplayEngine();
             pEngine->pushTransform(getRelViewport().tl, getAngle(), getPivot());
-            getDisplayEngine()->setShaders( getFragmentShader(), getVertexShader());
-            //FIXME Howto deal with uniform parameters? they need to be set now
             render(Rect);
             pEngine->popTransform();
         }
@@ -296,37 +294,6 @@ string AreaNode::dump(int indent)
     dumpStr += sz;
 
     return dumpStr; 
-}
-
-OGLShaderPtr AreaNode::getVertexShader() 
-{
-    return m_pMyVertexShader;
-}
-
-OGLShaderPtr AreaNode::getFragmentShader() 
-{
-    return m_pMyFragmentShader;
-}
-
-void AreaNode::setVertexShader(OGLShaderPtr pShader)
-{
-    m_pMyVertexShader = pShader;
-}
-
-void AreaNode::setVertexShaderProgram(std::string sProgram)
-{
-    m_pMyVertexShader = OGLShaderPtr(new OGLShader(sProgram,GL_VERTEX_SHADER));
-    OGLUserErrorCheck("User Vertex Shader construction");
-}
-
-void AreaNode::setFragmentShader(OGLShaderPtr pShader)
-{
-    m_pMyFragmentShader = pShader;
-}
-void AreaNode::setFragmentShaderProgram(std::string sProgram)
-{
-    m_pMyFragmentShader = OGLShaderPtr(new OGLShader(sProgram,GL_FRAGMENT_SHADER));
-    OGLUserErrorCheck("User Fragment Shader construction");
 }
 
 }

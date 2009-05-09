@@ -403,14 +403,4 @@ DPoint OGLTiledSurface::calcFinalVertex(const DPoint& Size,
     return Point;
 }
 
-OGLShaderPtr OGLTiledSurface::getFragmentShader()
-{
-    //cerr <<"OGLSurface::getFrag"<<endl;
-    if (!m_pTextures.empty()) {
-        return m_pTextures[0][0]->getFragmentShader();
-    } else {
-        return OGLShaderPtr();
-    }
-}
-
 }

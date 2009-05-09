@@ -136,14 +136,6 @@ void export_node()
                 "the size of a camera frame and Words nodes the amount of space\n"
                 "the text takes. Video nodes the video size if decoding has started\n"
                 "or (0,0) if not.")
-        .def("setFragmentShader", &AreaNode::setFragmentShaderProgram,
-                "setFragmentShader(sProgram)\n"
-                "Replace the fragment shader in use for this node and all its decendants"
-                "The argument specifies the source of the program in the OpenGL Shader Language")
-        .def("setVertexShader", &AreaNode::setVertexShaderProgram,
-                "setVertexShader(sProgram)\n"
-                "Replace the vertex shader in use for this node and all its decendants"
-                "The argument specifies the source of the program in the OpenGL Shader Language")
         .add_property("x", &AreaNode::getX, &AreaNode::setX,
                 "The position of the node's left edge relative to it's parent node.\n")
         .add_property("y", &AreaNode::getY, &AreaNode::setY,

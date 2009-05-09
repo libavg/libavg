@@ -25,7 +25,6 @@
 #include "../api.h"
 #include "../graphics/Bitmap.h"
 #include "../graphics/OGLHelper.h"
-#include "../graphics/OGLProgram.h"
 #include "../base/Rect.h"
 
 #include <boost/shared_ptr.hpp>
@@ -52,7 +51,6 @@ class AVG_API OGLTexture {
         const IntRect& getTileIndexExtent() const;
         const int getTexMemDim();
         const PixelFormat getPixelFormat() const;
-        virtual OGLShaderPtr getFragmentShader();
 
     private:
         void calcTexCoords();

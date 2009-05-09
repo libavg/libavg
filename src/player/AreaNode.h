@@ -104,18 +104,6 @@ class AVG_API AreaNode: public Node
         virtual std::string dump(int indent = 0);
         
         virtual void checkReload() {};
-        virtual OGLShaderPtr getFragmentShader();
-        virtual OGLShaderPtr getVertexShader();
-        
-        virtual void setFragmentShader(OGLShaderPtr pShader);
-        virtual void setVertexShader(OGLShaderPtr pShader);
-
-        virtual void setFragmentShaderProgram(std::string sProgram);
-        virtual void setVertexShaderProgram(std::string sProgram);
-
-//        virtual void setUniformParam(std::string sName, float fValue);
-//        virtual void setUniformParam(std::string sName, int fValue);
-//        virtual void setUniformParam(std::string sName, vector<float> &vValues);
 
         virtual IntPoint getMediaSize() 
             { return IntPoint(0,0); };
@@ -129,8 +117,6 @@ class AVG_API AreaNode: public Node
         DPoint m_Pivot;
         bool m_bHasCustomPivot;
         
-        OGLShaderPtr m_pMyFragmentShader;
-        OGLShaderPtr m_pMyVertexShader;
         DPoint m_UserSize;
 };
 

@@ -25,7 +25,6 @@
 #include "../api.h"
 #include "GPUFilter.h"
 #include "PBOImage.h"
-#include "OGLProgram.h"
 #include "OGLShader.h"
 
 namespace avg {
@@ -53,8 +52,8 @@ private:
     PBOImagePtr m_pInterPBO;
     FBOPtr m_pInterFBO;
 
-    static OGLProgramPtr s_pHorizShader;
-    static OGLProgramPtr s_pVertShader;
+    static OGLShaderPtr s_pHorizShader;
+    static OGLShaderPtr s_pVertShader;
 };
 
 } // namespace

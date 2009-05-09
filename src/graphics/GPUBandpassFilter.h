@@ -28,7 +28,6 @@
 #include "Bitmap.h"
 #include "PBOImage.h"
 #include "OGLShader.h"
-#include "OGLProgram.h"
 
 namespace avg {
 
@@ -52,7 +51,7 @@ private:
     GPUBlurFilter m_MinFilter;
     GPUBlurFilter m_MaxFilter;
 
-    static OGLProgramPtr s_pShader;
+    static OGLShaderPtr s_pShader;
 };
 
 } // namespace

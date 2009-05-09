@@ -30,8 +30,6 @@
 
 #include "../graphics/Pixel32.h"
 #include "../graphics/Bitmap.h"
-#include "../graphics/OGLProgram.h"
-
 
 #include "../base/Rect.h"
 
@@ -86,11 +84,6 @@ class AVG_API DisplayEngine
         virtual long long getGPUMemoryUsage() = 0;
         virtual void deregisterSurface(OGLTiledSurface *) = 0;
 
-        virtual void pushShader() = 0;
-        virtual void popShader() = 0;
-        virtual OGLProgramPtr getActiveShader()=0;
-        virtual void setShaders(OGLShaderPtr pFragmentShader, OGLShaderPtr pVertexShader) = 0;
-
         enum BlendMode {BLEND_BLEND, BLEND_ADD, BLEND_MIN, BLEND_MAX};
         static BlendMode stringToBlendMode(const std::string& s);
 
@@ -118,7 +111,6 @@ class AVG_API DisplayEngine
 
         long long m_StartFramerateCalcTime;
         double m_EffFramerate;
-
 };
 
 }

@@ -301,9 +301,7 @@ void DivNode::render(const DRect& rect)
         getDisplayEngine()->pushClipRect(ClipRect);
     }
     for (int i=0; i<getNumChildren(); i++) {
-        getDisplayEngine()->pushShader();
         getChild(i)->maybeRender(rect);
-        getDisplayEngine()->popShader();
     }
     if (getCrop()) {
         getDisplayEngine()->popClipRect();

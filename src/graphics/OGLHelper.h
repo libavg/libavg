@@ -33,7 +33,6 @@
 #else
 #include "GL/gl.h"
 #include "GL/glu.h"
-#include "GL/glext.h"
 #endif
 #ifdef linux
 #define GLX_GLXEXT_PROTOTYPES
@@ -50,7 +49,6 @@ typedef int (*PFNWGLEXTGETSWAPINTERVALPROC) (void);
 namespace avg {
 
 void AVG_API OGLErrorCheck(int avgcode, const char * where);
-void AVG_API OGLUserErrorCheck(const char * where); //friendlier error check for user accessible parts
 #ifdef _WIN32
 void AVG_API winOGLErrorCheck(BOOL bOK, const std::string & where);
 #endif
@@ -70,8 +68,6 @@ void AVG_API popGLState();
 typedef void (*GLfunction)();
 GLfunction AVG_API getFuzzyProcAddress(const char * psz);
 
-void AVG_API dumpInfoLog(GLhandleARB hObj);
-
 namespace glproc {
     extern AVG_API PFNGLGENBUFFERSPROC GenBuffers;
     extern AVG_API PFNGLBUFFERDATAPROC BufferData;
@@ -85,14 +81,12 @@ namespace glproc {
     extern AVG_API PFNGLCREATESHADEROBJECTARBPROC CreateShaderObject;
     extern AVG_API PFNGLSHADERSOURCEARBPROC ShaderSource;
     extern AVG_API PFNGLCOMPILESHADERARBPROC CompileShader;
-    extern AVG_API PFNGLDELETESHADERPROC DeleteShader;
     extern AVG_API PFNGLCREATEPROGRAMOBJECTARBPROC CreateProgramObject;
     extern AVG_API PFNGLATTACHOBJECTARBPROC AttachObject;
     extern AVG_API PFNGLLINKPROGRAMARBPROC LinkProgram;
     extern AVG_API PFNGLGETOBJECTPARAMETERIVARBPROC GetObjectParameteriv;
     extern AVG_API PFNGLGETINFOLOGARBPROC GetInfoLog;
     extern AVG_API PFNGLUSEPROGRAMOBJECTARBPROC UseProgramObject;
-    extern AVG_API PFNGLDELETEPROGRAMPROC DeleteProgram;
     extern AVG_API PFNGLGETUNIFORMLOCATIONARBPROC GetUniformLocation;
     extern AVG_API PFNGLUNIFORM1IARBPROC Uniform1i;
     extern AVG_API PFNGLUNIFORM1FARBPROC Uniform1f;
