@@ -381,10 +381,6 @@ bool Video::renderToSurface(OGLTiledSurface * pSurface)
     } else {
         BitmapPtr pBmp = pSurface->lockBmp();
         FrameAvailable = m_pDecoder->renderToBmp(pBmp, getNextFrameTime());
-//        DisplayEngine::YCbCrMode ycbcrMode = getEngine()->getYCbCrMode();
-//        if (ycbcrMode == DisplayEngine::OGL_MESA && pBmp->getPixelFormat() == YCbCr422) {
-//            FilterFlipUV().applyInPlace(pBmp);
-//        }   
     }
     pSurface->unlockBmps();
     if (FrameAvailable == FA_NEW_FRAME) {

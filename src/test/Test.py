@@ -69,12 +69,11 @@ else:
             ycbcrmode = {
                     'shader': avg.shader,
                     'apple': avg.apple,
-                    'mesa': avg.mesa,
                     'none': avg.none,
                     }[value]
         except KeyError:
             print value
-            raise OptionValueError('ycbcrmode must be shader, apple, mesa or none')
+            raise OptionValueError('ycbcrmode must be shader, apple or none')
         setYCbCrMode(ycbcrmode)
     def setPixBuf(option, opt, value, parser):
         if value not in ('yes','no'):
@@ -92,7 +91,7 @@ else:
     parser.add_option("-y", "--ycbcrmode", dest = "ycbcrmode",
             type = "string",
             action = 'callback', callback = setMode,
-            help = "YCbCrMode, must be shader, apple, mesa or none")
+            help = "YCbCrMode, must be shader, apple or none")
     parser.add_option("-p", "--usepixelbuffers", dest = "usepixelbuffers",
             type = "string",
             action = 'callback', callback = setPixBuf,

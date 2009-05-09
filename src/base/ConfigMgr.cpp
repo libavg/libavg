@@ -80,7 +80,7 @@ ConfigMgr::ConfigMgr()
             "If set to true, use only power of 2 textures.");
     addOption("scr", "ycbcrmode", "shader",
             "How to render YCbCr surfaces. Valid values are"
-            " shader, mesa, apple and none.");
+            " shader, apple and none.");
     addOption("scr", "usepixelbuffers", "true",
             "Whether to use pixel buffer objects.");
     addOption("scr", "multisamplesamples", "1",

@@ -397,9 +397,6 @@ void SDLDisplayEngine::logConfig()
         case OGL_NONE:
             AVG_TRACE(Logger::CONFIG, "  YCbCr texture support not enabled.");
             break;
-        case OGL_MESA:
-            AVG_TRACE(Logger::CONFIG, "  Using Mesa YCbCr texture support.");
-            break;
         case OGL_APPLE:
             AVG_TRACE(Logger::CONFIG, "  Using Apple YCbCr texture support.");
             break;
@@ -722,10 +719,6 @@ void SDLDisplayEngine::checkYCbCrSupport()
             ;
         m_pYCbCrJShader = OGLShaderPtr(new OGLShader(sProgram));
 
-    } else if (queryOGLExtension("GL_MESA_ycbcr_texture") &&
-            (m_DesiredYCbCrMode == OGL_SHADER || m_DesiredYCbCrMode == OGL_MESA))
-    {
-        m_YCbCrMode = OGL_MESA;
     } else if (queryOGLExtension("GL_APPLE_ycbcr_422") &&
             (m_DesiredYCbCrMode == OGL_SHADER || m_DesiredYCbCrMode == OGL_APPLE))
     {
@@ -1519,8 +1512,6 @@ int SDLDisplayEngine::getOGLDestMode(PixelFormat pf)
             return GL_RGBA;    
         case YCbCr422:
             switch (getYCbCrMode()) {
-                case OGL_MESA:
-                    return GL_YCBCR_MESA;    
                 case OGL_APPLE:
                     return GL_RGBA;
                 default:
@@ -1552,8 +1543,6 @@ int SDLDisplayEngine::getOGLSrcMode(PixelFormat pf)
             return GL_RGBA;
         case YCbCr422:
             switch (getYCbCrMode()) {
-                case OGL_MESA:
-                    return GL_YCBCR_MESA;    
                 case OGL_APPLE:
                     return GL_YCBCR_422_APPLE;
                 default:

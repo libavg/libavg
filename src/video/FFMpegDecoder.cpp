@@ -779,8 +779,7 @@ PixelFormat FFMpegDecoder::calcPixelFormat(YCbCrMode ycbcrMode)
                 break;
         }
     }
-    if ((ycbcrMode == OGL_MESA || ycbcrMode == OGL_APPLE) &&
-         enc->pix_fmt == PIX_FMT_YUV420P) 
+    if (ycbcrMode == OGL_APPLE && enc->pix_fmt == PIX_FMT_YUV420P) 
     {
         return YCbCr422;
     }

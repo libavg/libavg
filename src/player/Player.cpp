@@ -790,15 +790,13 @@ void Player::initConfig()
     const string * psYCbCrMode =pMgr->getOption("scr", "ycbcrmode");
     if (psYCbCrMode == 0 || *psYCbCrMode == "shader") {
         m_YCbCrMode = OGL_SHADER;
-    } else if (*psYCbCrMode == "mesa") {
-        m_YCbCrMode = OGL_MESA;
     } else if (*psYCbCrMode == "apple") {
         m_YCbCrMode = OGL_APPLE;
     } else if (*psYCbCrMode == "none") {
         m_YCbCrMode = OGL_NONE;
     } else {
         AVG_TRACE(Logger::ERROR, 
-                "avgrc: ycbcrmode must be shader, mesa, apple or none. Current value is " 
+                "avgrc: ycbcrmode must be shader, apple or none. Current value is " 
                 << *psYCbCrMode << ". Aborting." );
         exit(-1);
     }
@@ -837,9 +835,6 @@ void Player::initGraphics()
         switch (m_YCbCrMode) {
             case OGL_NONE:
                 AVG_TRACE(Logger::CONFIG, "  No YCbCr texture support.");
-                break;
-            case OGL_MESA:
-                AVG_TRACE(Logger::CONFIG, "  Mesa YCbCr texture support.");
                 break;
             case OGL_APPLE:
                 AVG_TRACE(Logger::CONFIG, "  Apple YCbCr texture support.");

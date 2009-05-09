@@ -19,8 +19,6 @@ if [[ `uname` == Linux ]]
 then
     # Older Linux NVidia
     runTest $1  false none   true
-    # MESA Matrox (not sure about pow2...)
-    runTest $1  false mesa   false
 else
     # Mac OS X 10.2.6, NVidia GeForce2 MX
     runTest $1  false apple  false
