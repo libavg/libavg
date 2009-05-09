@@ -63,7 +63,7 @@ class MemGraph():
     def delete(self):
         def kill():
             self.__node.unlink()
-        anim.LinearAnim(self.__node, "opacity", 300, 1, 0, onStop=kill)
+        anim.LinearAnim(self.__node, "opacity", 300, 1, 0, onStop=kill).start()
         g_player.clearInterval(self.__interval)
 
     def __nextSample(self):

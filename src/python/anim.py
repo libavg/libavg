@@ -270,7 +270,9 @@ def fadeOut(node, duration, onStop = None):
     @param node: The node to fade.
     @param duration: Length of the fade in milliseconds.
     """
-    return LinearAnim(node, "opacity", duration, node.opacity, 0, onStop = onStop)
+    fader = LinearAnim(node, "opacity", duration, node.opacity, 0, onStop = onStop)
+    fader.start()
+    return fader 
 
 def fadeIn(node, duration, max=1.0, onStop = None):
     """
@@ -279,7 +281,9 @@ def fadeIn(node, duration, max=1.0, onStop = None):
     @param duration: Length of the fade in milliseconds.
     @param max: The opacity of the node at the end of the fade.
     """
-    return LinearAnim(node, "opacity", duration, node.opacity, max, onStop = onStop)
+    fader = LinearAnim(node, "opacity", duration, node.opacity, max, onStop = onStop) 
+    fader.start()
+    return fader
 
 
 class ContinuousAnim(SimpleAnim):
