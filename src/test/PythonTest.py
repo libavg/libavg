@@ -92,7 +92,7 @@ class PythonTestCase(AVGTestCase):
     def testLinearAnim(self):
         Player.loadFile("image.avg")
         node = Player.getElementByID("test")
-        curAnim = anim.LinearAnim(node, "x", 200, 0, 100, False, start=False)
+        curAnim = anim.LinearAnim(node, "x", 200, 0, 100, False)
         self.testAnimType(curAnim, "testLinearAnim")
 
     def testLinearAnimZeroDuration(self):
@@ -104,7 +104,7 @@ class PythonTestCase(AVGTestCase):
             self.__anim.start()
         Player.loadFile("image.avg")
         node = Player.getElementByID("test")
-        self.__anim = anim.LinearAnim(node, "x", 0, 0, 100, False, start=False)
+        self.__anim = anim.LinearAnim(node, "x", 0, 0, 100, False)
         self.__anim.setHandler(onStop, None)
         self.__onStopCalled = False
         Player.setFakeFPS(10)
@@ -120,14 +120,13 @@ class PythonTestCase(AVGTestCase):
     def testEaseInOutAnim(self):
         Player.loadFile("image.avg")
         node = Player.getElementByID("test")
-        curAnim = anim.EaseInOutAnim(node, "x", 400, 0, 100, 100, 100, False, 
-                start=False)
+        curAnim = anim.EaseInOutAnim(node, "x", 400, 0, 100, 100, 100, False)
         self.testAnimType(curAnim, "testEaseInOutAnim")
 
     def testSplineAnim(self):
         Player.loadFile("image.avg")
         node = Player.getElementByID("test")
-        curAnim = anim.SplineAnim(node, "x", 300, 0, 0, 100, 0, False, start=False)
+        curAnim = anim.SplineAnim(node, "x", 300, 0, 0, 100, 0, False)
         self.testAnimType(curAnim, "testSplineAnim")
 
     def testContinuousAnim(self):
@@ -144,12 +143,15 @@ class PythonTestCase(AVGTestCase):
         def startAnim():
             node=Player.getElementByID("mainimg")
             self.anim=anim.ContinuousAnim(node,"angle",0,1,0)
+            self.anim.start()
         def startAnim2():
             node=Player.getElementByID("nestedimg1")
             self.anim2=anim.ContinuousAnim(node,"width",0,50,0)
+            self.anim2.start()
         def startAnim3():
             node=Player.getElementByID("nestedimg2")
             self.anim3=anim.ContinuousAnim(node,"x",0,50,0)
+            self.anim3.start()
         def stopAnim():
             self.anim.abort()
             self.anim2.abort()
@@ -190,9 +192,9 @@ class PythonTestCase(AVGTestCase):
         def makeAnim():
             node = Player.getElementByID("test")
             self.anim = anim.StateAnim(
-                    {"STATE1": anim.LinearAnim(node, "x", 200, 64, 128, start=False),
-                     "STATE2": anim.LinearAnim(node, "x", 200, 128, 64, start=False),
-                     "STATE3": anim.WaitAnim(start=False)},
+                    {"STATE1": anim.LinearAnim(node, "x", 200, 64, 128),
+                     "STATE2": anim.LinearAnim(node, "x", 200, 128, 64),
+                     "STATE3": anim.WaitAnim()},
                     {"STATE1": anim.AnimTransition("STATE2", state2Callback),
                      "STATE2": anim.AnimTransition("STATE3")})
         anim.init(avg)
@@ -223,11 +225,11 @@ class PythonTestCase(AVGTestCase):
             node1 = Player.getElementByID("test")
             node2 = Player.getElementByID("test1")
             self.anim = anim.ParallelAnim(
-                    [ anim.LinearAnim(node0, "x", 200, 0, 2, start=False),
-                      anim.SplineAnim(node1, "x", 400, 0, 40, 0, 0, start=False),
-                      anim.EaseInOutAnim(node2, "x", 300, 129, 99, 100, 100, start=False)
+                    [ anim.LinearAnim(node0, "x", 200, 0, 2),
+                      anim.SplineAnim(node1, "x", 400, 0, 40, 0, 0),
+                      anim.EaseInOutAnim(node2, "x", 300, 129, 99, 100, 100)
                     ], animStopped)
-
+            self.anim.start()
         anim.init(avg)
         self.__endCalled = False
         Player.setFakeFPS(10)
