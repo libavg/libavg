@@ -44,7 +44,7 @@ RESULT_DIR = "resultimages"
 ourSaveDifferences = True
 g_CustomOGLOptions = False
 g_UsePOW2Textures = False
-g_YCbCrMode = avg.shader
+g_UseYCbCrShaders = True
 g_UsePixelBuffers = True
 
 def almostEqual(a,b):
@@ -69,7 +69,7 @@ class AVGTestCase(unittest.TestCase):
     def setUpVideo(self):
         self.__Player.setResolution(0, 0, 0, self.__bpp)
         if g_CustomOGLOptions:
-            self.__Player.setOGLOptions(g_UsePOW2Textures, g_YCbCrMode, 
+            self.__Player.setOGLOptions(g_UsePOW2Textures, g_UseYCbCrShaders, 
                     g_UsePixelBuffers, 1)
         self.__Player.setMultiSampleSamples(1)
 
@@ -148,18 +148,18 @@ class AVGTestCase(unittest.TestCase):
         """)
 
 
-def setYCbCrMode (val):
+def setYCbCrMode(val):
     global g_CustomOGLOptions
-    global g_YCbCrMode
-    g_YCbCrMode = val
+    global g_UseYCbCrShaders
+    g_UseYCbCrShaders = val
 
-def setUsePOW2Textures (val):
+def setUsePOW2Textures(val):
     global g_CustomOGLOptions
     global g_UsePOW2Textures
     g_CustomOGLOptions = True
     g_UsePOW2Textures = val
 
-def setUsePixelBuffers (val):
+def setUsePixelBuffers(val):
     global g_CustomOGLOptions
     global g_UsePixelBuffers
     g_CustomOGLOptions = True

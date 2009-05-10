@@ -198,11 +198,11 @@ void Player::setWindowPos(int x, int y)
     m_DP.m_y = y;
 }
 
-void Player::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode, 
+void Player::setOGLOptions(bool bUsePOW2Textures, bool bUseYCbCrShaders, 
                 bool bUsePixelBuffers, int MultiSampleSamples)
 {
     m_bUsePOW2Textures = bUsePOW2Textures;
-    m_YCbCrMode = DesiredYCbCrMode;
+    m_bUseYCbCrShaders = bUseYCbCrShaders;
     m_bUsePixelBuffers = bUsePixelBuffers;
     m_MultiSampleSamples = MultiSampleSamples;
 }
@@ -786,18 +786,7 @@ void Player::initConfig()
     m_AP.m_OutputBufferSamples = atoi(pMgr->getOption("aud", "outputbuffersamples")->c_str());
 
     m_bUsePOW2Textures = pMgr->getBoolOption("scr", "usepow2textures", false);
-
-    const string * psYCbCrMode =pMgr->getOption("scr", "ycbcrmode");
-    if (psYCbCrMode == 0 || *psYCbCrMode == "shader") {
-        m_YCbCrMode = OGL_SHADER;
-    } else if (*psYCbCrMode == "none") {
-        m_YCbCrMode = OGL_NONE;
-    } else {
-        AVG_TRACE(Logger::ERROR, 
-                "avgrc: ycbcrmode must be shader or none. Current value is " 
-                << *psYCbCrMode << ". Aborting." );
-        exit(-1);
-    }
+    m_bUseYCbCrShaders = pMgr->getBoolOption("scr", "useycbcrshaders", true);
 
     const string * psVSyncMode =pMgr->getOption("scr", "vsyncmode");
     if (psVSyncMode == 0 || *psVSyncMode == "auto") {
@@ -830,13 +819,10 @@ void Player::initGraphics()
         AVG_TRACE(Logger::CONFIG, "  POW2 textures: " 
                 << (m_bUsePOW2Textures?"true":"false"));
         string sMode;
-        switch (m_YCbCrMode) {
-            case OGL_NONE:
-                AVG_TRACE(Logger::CONFIG, "  No YCbCr texture support.");
-                break;
-            case OGL_SHADER:
-                AVG_TRACE(Logger::CONFIG, "  Fragment shader YCbCr texture support.");
-                break;
+        if (m_bUseYCbCrShaders) {
+            AVG_TRACE(Logger::CONFIG, "  Fragment shader YCbCr texture support.");
+        } else {
+            AVG_TRACE(Logger::CONFIG, "  No YCbCr texture support.");
         }
         AVG_TRACE(Logger::CONFIG, "  Use pixel buffers: " 
                 << (m_bUsePixelBuffers?"true":"false"));
@@ -864,7 +850,7 @@ void Player::initGraphics()
     SDLDisplayEngine * pSDLDisplayEngine = 
             dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine);
     if (pSDLDisplayEngine) {
-        pSDLDisplayEngine->setOGLOptions(m_bUsePOW2Textures, m_YCbCrMode, 
+        pSDLDisplayEngine->setOGLOptions(m_bUsePOW2Textures, m_bUseYCbCrShaders, 
                 m_bUsePixelBuffers, m_MultiSampleSamples, m_VSyncMode);
     }
     m_pDisplayEngine->init(m_DP);

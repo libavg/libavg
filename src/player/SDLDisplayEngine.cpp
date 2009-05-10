@@ -393,13 +393,10 @@ void SDLDisplayEngine::logConfig()
     AVG_TRACE(Logger::CONFIG, "  OpenGL version: " << glGetString(GL_VERSION));
     AVG_TRACE(Logger::CONFIG, "  OpenGL vendor: " << glGetString(GL_VENDOR));
     AVG_TRACE(Logger::CONFIG, "  OpenGL renderer: " << glGetString(GL_RENDERER));
-    switch (m_YCbCrMode) {
-        case OGL_NONE:
-            AVG_TRACE(Logger::CONFIG, "  YCbCr texture support not enabled.");
-            break;
-        case OGL_SHADER:
-            AVG_TRACE(Logger::CONFIG, "  Using fragment shader YCbCr texture support.");
-            break;
+    if (m_bUseYCbCrShaders) {
+        AVG_TRACE(Logger::CONFIG, "  Using fragment shader YCbCr texture support.");
+    } else {
+        AVG_TRACE(Logger::CONFIG, "  YCbCr texture support not enabled.");
     }
     switch(m_TextureMode) {
         case GL_TEXTURE_2D:
@@ -605,9 +602,9 @@ bool SDLDisplayEngine::hasRGBOrdering()
     return false;
 }
 
-YCbCrMode SDLDisplayEngine::getYCbCrMode()
+bool SDLDisplayEngine::isUsingYCbCrShaders()
 {
-    return m_YCbCrMode;
+    return m_bUseYCbCrShaders;
 }
 
 OGLShaderPtr SDLDisplayEngine::getYCbCr420pShader()
@@ -669,14 +666,13 @@ int SDLDisplayEngine::getBPP()
     
 void SDLDisplayEngine::checkYCbCrSupport()
 {
-    m_YCbCrMode = OGL_NONE;
     if (queryOGLExtension("GL_ARB_fragment_shader") &&
         queryOGLExtension("GL_ARB_texture_rectangle") &&
         getMemoryModeSupported() == PBO &&
-        m_DesiredYCbCrMode == OGL_SHADER
+        !m_bUsePOTTextures
        )
     {
-        m_YCbCrMode = OGL_SHADER;
+        m_bUseYCbCrShaders = true;
         string sProgramInit =
             "uniform sampler2D YTexture;\n"
             "uniform sampler2D CbTexture;\n"
@@ -715,6 +711,8 @@ void SDLDisplayEngine::checkYCbCrSupport()
             "}\n"
             ;
         m_pYCbCrJShader = OGLShaderPtr(new OGLShader(sProgram));
+    } else {
+        m_bUseYCbCrShaders = false;
     }
 }
 
@@ -1536,12 +1534,6 @@ int SDLDisplayEngine::getOGLSrcMode(PixelFormat pf)
 int SDLDisplayEngine::getOGLPixelType(PixelFormat pf)
 {
     switch (pf) {
-        case YCbCr422:
-#ifdef __i386__
-            return GL_UNSIGNED_SHORT_8_8_REV_APPLE;
-#else
-            return GL_UNSIGNED_SHORT_8_8_APPLE;
-#endif 
         case B8G8R8X8:
         case B8G8R8A8:
 //            return GL_UNSIGNED_INT_8_8_8_8_REV;
@@ -1574,7 +1566,7 @@ bool SDLDisplayEngine::isParallels()
     return bIsParallels;
 }
 
-void SDLDisplayEngine::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode, 
+void SDLDisplayEngine::setOGLOptions(bool bUsePOW2Textures, bool bUseYCbCrShaders,
         bool bUsePixelBuffers, int MultiSampleSamples, 
         VSyncMode DesiredVSyncMode)
 {
@@ -1584,7 +1576,7 @@ void SDLDisplayEngine::setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCb
         return;
     }
     m_bShouldUsePOW2Textures = bUsePOW2Textures;
-    m_DesiredYCbCrMode = DesiredYCbCrMode;
+    m_bShouldUseYCbCrShaders = bUseYCbCrShaders;
     m_bShouldUsePixelBuffers = bUsePixelBuffers;
     m_MultiSampleSamples = MultiSampleSamples;
     m_DesiredVSyncMode = DesiredVSyncMode;

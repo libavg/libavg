@@ -256,7 +256,7 @@ void Sound::seek(long long DestTime)
 
 void Sound::open()
 {
-    m_pDecoder->open(m_Filename, getAudioEngine()->getParams(), OGL_NONE, true);
+    m_pDecoder->open(m_Filename, getAudioEngine()->getParams(), false, true);
     m_pDecoder->setVolume(m_Volume);
     if (getAudioEngine()) {
         getAudioEngine()->addSource(this);

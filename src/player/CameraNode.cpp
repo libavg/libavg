@@ -213,14 +213,12 @@ double CameraNode::getFPS()
     return m_pCamera->getFrameRate();
 }
 
-void CameraNode::open(YCbCrMode ycbcrMode)
+void CameraNode::open(bool bUseYCbCrShaders)
 {
-    //m_pCamera->open();
 }
 
 void CameraNode::close()
 {
-    //m_pCamera->close();
 }
 
 int CameraNode::getFeature(CameraFeature Feature) const

@@ -65,14 +65,14 @@ AsyncVideoDecoder::~AsyncVideoDecoder()
 }
 
 void AsyncVideoDecoder::open(const std::string& sFilename, const AudioParams* pAP,
-        YCbCrMode ycbcrMode, bool bThreadedDemuxer)
+        bool bDeliverYCbCr, bool bThreadedDemuxer)
 {
     m_bAudioEOF = false;
     m_bVideoEOF = false;
     m_bSeekPending = false;
     m_sFilename = sFilename;
 
-    m_pSyncDecoder->open(m_sFilename, pAP, ycbcrMode, bThreadedDemuxer);
+    m_pSyncDecoder->open(m_sFilename, pAP, bDeliverYCbCr, bThreadedDemuxer);
     m_bHasVideo = m_pSyncDecoder->hasVideo();
     m_bHasAudio = m_pSyncDecoder->hasAudio();
     m_Duration = m_pSyncDecoder->getDuration();

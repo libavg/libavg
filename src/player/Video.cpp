@@ -272,7 +272,7 @@ void Video::seek(long long DestTime)
     m_bSeekPending = true;
 }
 
-void Video::open(YCbCrMode ycbcrMode)
+void Video::open(bool bUseYCbCrShaders)
 {
     m_FramesTooLate = 0;
     m_FramesInRowTooLate = 0;
@@ -281,7 +281,7 @@ void Video::open(YCbCrMode ycbcrMode)
     if (getAudioEngine()) {
         pAP = getAudioEngine()->getParams();
     }
-    m_pDecoder->open(m_Filename, pAP, ycbcrMode, m_bThreaded);
+    m_pDecoder->open(m_Filename, pAP, bUseYCbCrShaders, m_bThreaded);
     m_pDecoder->setVolume(m_Volume);
     if (m_FPS != 0.0) {
         if (m_pDecoder->hasAudio()) {

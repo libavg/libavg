@@ -77,7 +77,7 @@ class AVG_API DisplayEngine
         virtual bool supportsBpp(int bpp) = 0; 
         // True if pixel order is RGB; BGR otherwise.
         virtual bool hasRGBOrdering() = 0; 
-        virtual YCbCrMode getYCbCrMode() = 0; 
+        virtual bool isUsingYCbCrShaders() = 0; 
         virtual void showCursor (bool bShow) = 0;
 
         virtual BitmapPtr screenshot () = 0;

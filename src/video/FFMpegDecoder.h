@@ -69,7 +69,7 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
         FFMpegDecoder();
         virtual ~FFMpegDecoder();
         virtual void open(const std::string& sFilename, const AudioParams* AP,
-                YCbCrMode ycbcrMode, bool bThreadedDemuxer);
+                bool bDeliverYCbCr, bool bThreadedDemuxer);
         virtual void close();
         virtual StreamSelect getMasterStream();
         virtual bool hasAudio();
@@ -102,7 +102,7 @@ class AVG_API FFMpegDecoder: public IVideoDecoder
 
     private:
         void initVideoSupport();
-        PixelFormat calcPixelFormat(YCbCrMode ycbcrMode);
+        PixelFormat calcPixelFormat(bool bUseYCbCr);
 
         AVFormatContext * m_pFormatContext;
         PixelFormat m_PF;

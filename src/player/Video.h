@@ -80,7 +80,7 @@ class AVG_API Video : public VideoBase, IFrameListener, IAudioSource
         void seek(long long DestTime);
         void onEOF();
        
-        virtual void open(YCbCrMode ycbcrMode);
+        virtual void open(bool bUseYCbCrShaders);
         virtual void close();
         virtual PixelFormat getPixelFormat();
         virtual double getFPS();

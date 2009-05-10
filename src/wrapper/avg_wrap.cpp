@@ -153,12 +153,6 @@ BOOST_PYTHON_MODULE(avg)
     export_event();
     export_node();
 
-    enum_<YCbCrMode>("YCbCrMode")
-        .value("shader", OGL_SHADER)
-        .value("none", OGL_NONE)
-        .export_values()
-    ;
-
     class_<TestHelper>("TestHelper", "Miscelaneous routines used by tests.", no_init)
         .def("useFakeCamera", &TestHelper::useFakeCamera, "")
         .def("fakeMouseEvent", &TestHelper::fakeMouseEvent, "")
@@ -187,7 +181,7 @@ BOOST_PYTHON_MODULE(avg)
                 "Sets the location of the player window. Must be called before loadFile\n"
                 "or loadString.\n")
         .def("setOGLOptions", &Player::setOGLOptions,
-                "setOGLOptions(UsePOW2Textures, YCbCrMode, UsePixelBuffers, MultiSampleSamples)\n"
+                "setOGLOptions(UsePOW2Textures, UseYCbCrShaders, UsePixelBuffers, MultiSampleSamples)\n"
                 "Determines which OpenGL extensions to check for and use if possible.\n"
                 "Mainly used for debugging purposes while developing libavg, but can\n"
                 "also be used to work around buggy drivers. The values set here override\n"
@@ -196,8 +190,8 @@ BOOST_PYTHON_MODULE(avg)
                 "specified that the system doesn't support, a less demanding one will\n"
                 "be used.\n"
                 "@param UsePOW2Textures: If True, restricts textures to power-of-two dimensions.\n"
-                "@param YCbCrMode: Selects the preferred method of copying video textures\n"
-                "to the screen. Can be shader, mesa, apple or none.\n"
+                "@param UseYCbCrShaders: If True, shaders are used to copy YCbCr\n"
+                "to the screen. Results in a major video playback performance boost.\n"
                 "@param UsePixelBuffers: If False, disables the use of OpenGL pixel buffer\n"
                 "objects.\n"
                 "@param MultiSampleSamples: The number of samples per pixel to compute. This\n"

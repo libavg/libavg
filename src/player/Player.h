@@ -66,7 +66,7 @@ class AVG_API Player : IEventSink
         void setResolution(bool bFullscreen,
                 int width=0, int height=0, int bpp=0);
         void setWindowPos(int x=0, int y=0);
-        void setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYCbCrMode, 
+        void setOGLOptions(bool bUsePOW2Textures, bool bUseYCbCrShaders, 
                 bool bUsePixelBuffers, int MultiSampleSamples);
         void setMultiSampleSamples(int MultiSampleSamples);
         void setAudioOptions(int samplerate, int channels);
@@ -183,7 +183,7 @@ class AVG_API Player : IEventSink
         DisplayParams m_DP;
         AudioParams m_AP;
         bool m_bUsePOW2Textures;
-        YCbCrMode m_YCbCrMode;
+        bool m_bUseYCbCrShaders;
         bool m_bUsePixelBuffers;
         int m_MultiSampleSamples;
         bool m_bUseFakeCamera;

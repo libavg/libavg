@@ -63,7 +63,7 @@ class AVG_API VideoBase : public RasterNode
         void open();
 
         virtual bool renderToSurface(OGLTiledSurface * pSurface) = 0;
-        virtual void open(YCbCrMode ycbcrMode) = 0;
+        virtual void open(bool bUseYCbCrShaders) = 0;
         virtual void close() = 0;
         virtual PixelFormat getPixelFormat() = 0;
 

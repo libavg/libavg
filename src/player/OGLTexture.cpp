@@ -95,7 +95,7 @@ void OGLTexture::blt(const VertexGrid* pVertexes) const
     } else {
         glproc::ActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_TexID[0]);
-        if (m_pEngine->getYCbCrMode() == OGL_SHADER) {
+        if (m_pEngine->isUsingYCbCrShaders()) {
             glproc::UseProgramObject(0);
         }
     }

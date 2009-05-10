@@ -147,7 +147,7 @@ class VideoDecoderTest: public DecoderTest {
 
                 VideoDecoderPtr pDecoder = createDecoder();
                 pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, getAudioParams(),
-                        OGL_NONE, isDemuxerThreaded());
+                        false, isDemuxerThreaded());
                 IntPoint FrameSize = pDecoder->getSize();
                 TEST(FrameSize == IntPoint(48, 48));
                 TEST(pDecoder->getPixelFormat() == B8G8R8X8);
@@ -176,7 +176,7 @@ class VideoDecoderTest: public DecoderTest {
 
             VideoDecoderPtr pDecoder = createDecoder();
             pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, getAudioParams(),
-                    OGL_NONE, isDemuxerThreaded());
+                    false, isDemuxerThreaded());
 
             // Seek forward
             testSeek(100, sFilename, pDecoder);
@@ -205,7 +205,7 @@ class VideoDecoderTest: public DecoderTest {
             // Read whole file, test last image.
             VideoDecoderPtr pDecoder = createDecoder();
             pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, getAudioParams(),
-                    OGL_NONE, isDemuxerThreaded());
+                    false, isDemuxerThreaded());
             IntPoint FrameSize = pDecoder->getSize();
             BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));
             double TimePerFrame = (1000.0/pDecoder->getFPS())*SpeedFactor;
@@ -278,7 +278,7 @@ class AudioDecoderTest: public DecoderTest {
                     cerr << "      Reading complete file." << endl;
                     VideoDecoderPtr pDecoder = createDecoder();
                     pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, getAudioParams(),
-                            OGL_NONE, isDemuxerThreaded());
+                            false, isDemuxerThreaded());
                     pDecoder->setVolume(0.5);
                     TEST(pDecoder->getVolume() == 0.5);
                     int TotalFramesDecoded = 0;
@@ -296,7 +296,7 @@ class AudioDecoderTest: public DecoderTest {
                     cerr << "      Seek test." << endl;
                     VideoDecoderPtr pDecoder = createDecoder();
                     pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, getAudioParams(),
-                            OGL_NONE, isDemuxerThreaded());
+                            false, isDemuxerThreaded());
                     long long Duration = pDecoder->getDuration();
                     pDecoder->seek(Duration/2);
                     AudioBufferPtr pAudioBuffer = createAudioBuffer(4);
@@ -368,7 +368,7 @@ class AVDecoderTest: public DecoderTest {
         {
             VideoDecoderPtr pDecoder = createDecoder();
             pDecoder->open(getSrcDirName()+"testfiles/"+sFilename, getAudioParams(),
-                    OGL_NONE, isDemuxerThreaded());
+                    false, isDemuxerThreaded());
             TEST(pDecoder->getNominalFPS() != 0);
             IntPoint FrameSize = pDecoder->getSize();
             BitmapPtr pBmp(new Bitmap(FrameSize, B8G8R8X8));

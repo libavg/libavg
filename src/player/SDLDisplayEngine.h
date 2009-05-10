@@ -69,7 +69,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual bool supportsBpp(int bpp);
         virtual bool hasRGBOrdering();
         
-        virtual YCbCrMode getYCbCrMode();
+        virtual bool isUsingYCbCrShaders(); 
         OGLShaderPtr getYCbCr420pShader();
         OGLShaderPtr getYCbCrJ420pShader();
         
@@ -94,7 +94,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         int getOGLPixelType(PixelFormat pf);
         OGLMemoryMode getMemoryModeSupported();
 
-        void setOGLOptions(bool bUsePOW2Textures, YCbCrMode DesiredYcbcrMode, 
+        void setOGLOptions(bool bUsePOW2Textures, bool bUseYCbCrShaders, 
                 bool bUsePixelBuffers, int MultiSampleSamples, 
                 VSyncMode DesiredVSyncMode);
         
@@ -133,7 +133,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         SDL_Surface * m_pScreen;
 
         void checkYCbCrSupport();
-        YCbCrMode m_YCbCrMode;
+        bool m_bUseYCbCrShaders;
         OGLShaderPtr m_pYCbCrShader;
         OGLShaderPtr m_pYCbCrJShader;
 
@@ -165,7 +165,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         BlendMode m_BlendMode;
 
         bool m_bShouldUsePOW2Textures;
-        YCbCrMode m_DesiredYCbCrMode;
+        bool m_bShouldUseYCbCrShaders;
         bool m_bShouldUsePixelBuffers;
         int m_MultiSampleSamples;
         VSyncMode m_DesiredVSyncMode;

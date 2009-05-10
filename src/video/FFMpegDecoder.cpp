@@ -141,7 +141,7 @@ int openCodec(AVFormatContext *formatContext, int streamIndex)
 
 
 void FFMpegDecoder::open(const std::string& sFilename, const AudioParams* pAP,
-        YCbCrMode ycbcrMode, bool bThreadedDemuxer)
+        bool bDeliverYCbCr, bool bThreadedDemuxer)
 {
     mutex::scoped_lock Lock(s_OpenMutex);
     bool bAudioEnabled = (pAP && bThreadedDemuxer);
@@ -231,7 +231,7 @@ void FFMpegDecoder::open(const std::string& sFilename, const AudioParams* pAP,
         m_PacketLenLeft = 0;
         m_sFilename = sFilename;
         m_LastVideoFrameTime = -1000;
-        m_PF = calcPixelFormat(ycbcrMode);
+        m_PF = calcPixelFormat(bDeliverYCbCr);
     
         int rc = openCodec(m_pFormatContext, m_VStreamIndex);
         if (rc == -1) {
@@ -762,14 +762,14 @@ int FFMpegDecoder::fillAudioBuffer(AudioBufferPtr pBuffer)
     }
 }
 
-PixelFormat FFMpegDecoder::calcPixelFormat(YCbCrMode ycbcrMode)
+PixelFormat FFMpegDecoder::calcPixelFormat(bool bUseYCbCr)
 {
 #if LIBAVFORMAT_BUILD < ((49<<16)+(0<<8)+0)
         AVCodecContext *enc = &m_pVStream->codec;
 #else
         AVCodecContext *enc = m_pVStream->codec;
 #endif
-    if (ycbcrMode == OGL_SHADER) {
+    if (bUseYCbCr) {
         switch(enc->pix_fmt) {
             case PIX_FMT_YUV420P:
                 return YCbCr420p;
