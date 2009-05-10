@@ -140,12 +140,11 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         // Vertical blank stuff.
         virtual bool initVBlank(int rate);
         bool vbWait(int rate);
-        enum VBMethod {VB_SGI, VB_APPLE, VB_DRI, VB_WIN, VB_NONE};
+        enum VBMethod {VB_SGI, VB_APPLE, VB_WIN, VB_NONE};
         VBMethod m_VBMethod;
         int m_VBMod;
         int m_LastVBCount;
         bool m_bFirstVBFrame;
-        int m_dri_fd;
 
         static void calcRefreshRate();
         static double s_RefreshRate;

@@ -79,65 +79,6 @@ using namespace std;
 
 namespace avg {
 
-#ifdef linux
-
-typedef enum {
-    DRM_VBLANK_ABSOLUTE = 0x0,  /**< Wait for specific vblank sequence number */
-    DRM_VBLANK_RELATIVE = 0x1,  /**< Wait for given number of vblanks */
-    DRM_VBLANK_NEXTONMISS = 0x10000000, /**< If missed, wait for next vblank */
-    DRM_VBLANK_SECONDARY = 0x20000000,  /**< Secondary display controller */
-    DRM_VBLANK_SIGNAL   = 0x40000000    /* Send signal instead of blocking */
-} drmVBlankSeqType;
-
-struct drm_wait_vblank_request {
-    int type;
-    unsigned int sequence;
-    unsigned long signal;
-};
-
-struct drm_wait_vblank_reply {
-    int type;
-    unsigned int sequence;
-    long tval_sec;
-    long tval_usec;
-};
-
-typedef union drm_wait_vblank {
-    struct drm_wait_vblank_request request;
-    struct drm_wait_vblank_reply reply;
-} drm_wait_vblank_t;
-
-#define DRM_IOCTL_BASE                  'd'
-#define DRM_IOWR(nr,type)               _IOWR(DRM_IOCTL_BASE,nr,type)
-
-#define DRM_IOCTL_WAIT_VBLANK           DRM_IOWR(0x3a, drm_wait_vblank_t)
-
-static int drmWaitVBlank(int fd, drm_wait_vblank_t *vbl)
-{
-    static bool bUseSecondaryPipe = false;
-    int ret;
-    int rc;
-
-    do {
-       ret = ioctl(fd, DRM_IOCTL_WAIT_VBLANK, vbl);
-       if (bUseSecondaryPipe) {
-           vbl->request.type |= DRM_VBLANK_SECONDARY;
-       }
-       vbl->request.type &= ~DRM_VBLANK_RELATIVE;
-       rc = errno;
-    } while (ret && rc == EINTR);
-    if (!bUseSecondaryPipe && rc == EBUSY) {
-        // rc 16 == device or resource busy
-        AVG_TRACE(Logger::CONFIG, 
-                "Using secondary pipe for vblank.");
-        bUseSecondaryPipe = true;
-        rc = 0;
-    }
-
-    return rc;
-}
-#endif
-
 double SDLDisplayEngine::s_RefreshRate = 0.0;
 
 void dumpSDLGLParams() {
@@ -168,7 +109,6 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_pScreen(0),
       m_VBMethod(VB_NONE),
       m_VBMod(0),
-      m_dri_fd(0),
       m_bMouseOverApp(true),
       m_LastMousePos(-1, -1),
       m_MaxTexSize(0),
@@ -348,9 +288,6 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
 #endif
 void SDLDisplayEngine::teardown()
 {
-    if (m_VBMethod == VB_DRI) {
-        close(m_dri_fd);
-    }
     if (m_pScreen) {
 #ifdef linux
         // Workaround for broken mouse cursor on exit under Ubuntu 8.04.
@@ -753,25 +690,8 @@ bool SDLDisplayEngine::initVBlank(int rate) {
                     "__GL_SYNC_TO_VBLANK set. This interferes with libavg vblank handling.");
             m_VBMethod = VB_NONE;
         } else {
-            string sVendor = (const char *)(glGetString(GL_VENDOR));
-            if (sVendor.find("VIA Technology") != string::npos || 
-                    !queryGLXExtension("GLX_SGI_video_sync") ||
-                    m_DesiredVSyncMode == VSYNC_DRI)
-            {
-                m_dri_fd = open("/dev/dri/card0", O_RDWR);
-                if (m_dri_fd < 0)
-                {
-                    AVG_TRACE(Logger::WARNING, 
-                            "Could not open /dev/dri/card0 for vblank. Reason: "
-                            <<strerror(errno));
-                    m_VBMethod = VB_NONE;
-                } else {
-                    m_VBMethod = VB_DRI;
-                }
-            } else {
-                m_VBMethod = VB_SGI;
-                m_bFirstVBFrame = true;
-            }
+            m_VBMethod = VB_SGI;
+            m_bFirstVBFrame = true;
         }
 #endif
     } else {
@@ -781,9 +701,6 @@ bool SDLDisplayEngine::initVBlank(int rate) {
         case VB_SGI:
             AVG_TRACE(Logger::CONFIG, 
                     "  Using SGI OpenGL extension for vertical blank support.");
-            break;
-        case VB_DRI:
-            AVG_TRACE(Logger::CONFIG, "  Using DRI vertical blank support.");
             break;
         case VB_APPLE:
             AVG_TRACE(Logger::CONFIG, "  Using Apple GL vertical blank support.");
@@ -831,26 +748,6 @@ bool SDLDisplayEngine::vbWait(int rate) {
                 return !bMissed;
             }
             break;
-        case VB_DRI:
-            {
-                drm_wait_vblank_t blank;
-                blank.request.type = DRM_VBLANK_RELATIVE;
-                blank.request.sequence = 1;
-                int rc = drmWaitVBlank (m_dri_fd, &blank);
-                if (rc) {
-                    static bool bFirstVBlankError = true;
-                    if (bFirstVBlankError) {
-                        bFirstVBlankError = false;
-                        int err = errno;
-                        AVG_TRACE(Logger::WARNING, 
-                                "Could not wait for vblank. Reason: "
-                                << strerror(err) << " (" << err << ")");
-//                      AVG_TRACE(Logger::WARNING, "Vertical blank support disabled.");
-//                      m_Method = VB_KAPUTT;
-                    }
-                }
-                return true;
-            }
 #endif
         case VB_APPLE:
         case VB_WIN:
