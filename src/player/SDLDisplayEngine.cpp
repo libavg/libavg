@@ -171,7 +171,6 @@ SDLDisplayEngine::SDLDisplayEngine()
       m_dri_fd(0),
       m_bMouseOverApp(true),
       m_LastMousePos(-1, -1),
-      m_TextureMode(0),
       m_MaxTexSize(0),
       m_bCheckedMemoryMode(false)
 {
@@ -398,14 +397,10 @@ void SDLDisplayEngine::logConfig()
     } else {
         AVG_TRACE(Logger::CONFIG, "  YCbCr texture support not enabled.");
     }
-    switch(m_TextureMode) {
-        case GL_TEXTURE_2D:
-            AVG_TRACE(Logger::CONFIG, "  Using power of 2 textures.");
-            break;
-        case GL_TEXTURE_RECTANGLE_NV:
-            AVG_TRACE(Logger::CONFIG, 
-                    "  Using NVidia texture rectangle extension.");
-            break;
+    if (m_bUsePOTTextures) {
+        AVG_TRACE(Logger::CONFIG, "  Using power of 2 textures.");
+    } else {
+        AVG_TRACE(Logger::CONFIG, "  Using non-power of 2 textures.");
     }
     if (m_MultiSampleSamples == 1) {
         AVG_TRACE(Logger::CONFIG, "  Not using multisampling.");
