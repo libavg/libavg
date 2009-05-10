@@ -31,7 +31,7 @@
 namespace avg {
 
 enum YCbCrMode {
-    OGL_NONE, OGL_APPLE, OGL_SHADER
+    OGL_NONE, OGL_SHADER
 };
 
 enum FrameAvailableCode {

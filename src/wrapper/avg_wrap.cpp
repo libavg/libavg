@@ -155,7 +155,6 @@ BOOST_PYTHON_MODULE(avg)
 
     enum_<YCbCrMode>("YCbCrMode")
         .value("shader", OGL_SHADER)
-        .value("apple", OGL_APPLE)
         .value("none", OGL_NONE)
         .export_values()
     ;

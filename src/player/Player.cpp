@@ -790,13 +790,11 @@ void Player::initConfig()
     const string * psYCbCrMode =pMgr->getOption("scr", "ycbcrmode");
     if (psYCbCrMode == 0 || *psYCbCrMode == "shader") {
         m_YCbCrMode = OGL_SHADER;
-    } else if (*psYCbCrMode == "apple") {
-        m_YCbCrMode = OGL_APPLE;
     } else if (*psYCbCrMode == "none") {
         m_YCbCrMode = OGL_NONE;
     } else {
         AVG_TRACE(Logger::ERROR, 
-                "avgrc: ycbcrmode must be shader, apple or none. Current value is " 
+                "avgrc: ycbcrmode must be shader or none. Current value is " 
                 << *psYCbCrMode << ". Aborting." );
         exit(-1);
     }
@@ -835,9 +833,6 @@ void Player::initGraphics()
         switch (m_YCbCrMode) {
             case OGL_NONE:
                 AVG_TRACE(Logger::CONFIG, "  No YCbCr texture support.");
-                break;
-            case OGL_APPLE:
-                AVG_TRACE(Logger::CONFIG, "  Apple YCbCr texture support.");
                 break;
             case OGL_SHADER:
                 AVG_TRACE(Logger::CONFIG, "  Fragment shader YCbCr texture support.");

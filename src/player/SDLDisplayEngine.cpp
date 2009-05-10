@@ -397,9 +397,6 @@ void SDLDisplayEngine::logConfig()
         case OGL_NONE:
             AVG_TRACE(Logger::CONFIG, "  YCbCr texture support not enabled.");
             break;
-        case OGL_APPLE:
-            AVG_TRACE(Logger::CONFIG, "  Using Apple YCbCr texture support.");
-            break;
         case OGL_SHADER:
             AVG_TRACE(Logger::CONFIG, "  Using fragment shader YCbCr texture support.");
             break;
@@ -718,11 +715,6 @@ void SDLDisplayEngine::checkYCbCrSupport()
             "}\n"
             ;
         m_pYCbCrJShader = OGLShaderPtr(new OGLShader(sProgram));
-
-    } else if (queryOGLExtension("GL_APPLE_ycbcr_422") &&
-            (m_DesiredYCbCrMode == OGL_SHADER || m_DesiredYCbCrMode == OGL_APPLE))
-    {
-        m_YCbCrMode = OGL_APPLE;
     }
 }
 
@@ -1510,14 +1502,6 @@ int SDLDisplayEngine::getOGLDestMode(PixelFormat pf)
         case R8G8B8X8:
         case B8G8R8X8:
             return GL_RGBA;    
-        case YCbCr422:
-            switch (getYCbCrMode()) {
-                case OGL_APPLE:
-                    return GL_RGBA;
-                default:
-                    AVG_TRACE(Logger::ERROR, 
-                            "SDLDisplayEngine: YCbCr422 not supported.");
-            }
         default:
             AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << 
                     Bitmap::getPixelFormatString(pf) <<
@@ -1541,13 +1525,6 @@ int SDLDisplayEngine::getOGLSrcMode(PixelFormat pf)
         case R8G8B8X8:
         case R8G8B8A8:
             return GL_RGBA;
-        case YCbCr422:
-            switch (getYCbCrMode()) {
-                case OGL_APPLE:
-                    return GL_YCBCR_422_APPLE;
-                default:
-                    AVG_TRACE(Logger::ERROR, "SDLDisplayEngine: YCbCr422 not supported.");
-            }
         default:
             AVG_TRACE(Logger::ERROR, "Unsupported pixel format " << 
                     Bitmap::getPixelFormatString(pf) <<
