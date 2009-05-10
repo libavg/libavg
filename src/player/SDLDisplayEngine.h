@@ -156,7 +156,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
 
         // Texture config.
         bool m_bUsePOTTextures;
-        int m_TextureMode;
         int m_MaxTexSize;
 
         // OpenGL state
