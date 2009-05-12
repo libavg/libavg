@@ -25,7 +25,7 @@ import math
 from libavg import avg
 from AVGAppStarter import AVGAppStarter
 try:
-    from alib import CalibratorNG as Calibrator
+    from alib.calibrator.CamCalibrator import Calibrator
 except ImportError:
     Calibrator = None
     #from .camcalibrator import Calibrator
