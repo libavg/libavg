@@ -42,8 +42,8 @@ def getScaledDim (size, max = None, min = None):
         return size
 
     if max:
-        assert (max.x > 0 and max.y > 0)
         max = Point2D(max)
+        assert (max.x > 0 and max.y > 0)
         if width > max.x:
             height = height * (max.x / width)
             width = max.x
@@ -52,8 +52,8 @@ def getScaledDim (size, max = None, min = None):
             height = max.y
 
     if min:
-        assert (min.x > 0 and min.y > 0)
         min = Point2D(min)
+        assert (min.x > 0 and min.y > 0)
         if width < min.x:
             height = height * (min.x / width)
             width = min.x
