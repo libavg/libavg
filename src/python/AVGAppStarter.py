@@ -135,7 +135,9 @@ class AVGAppStarter(object):
             })
         rootNode = g_player.getRootNode()
 
-        self._appNode = g_player.createNode('div',{})
+        self._appNode = g_player.createNode('div',{
+            'opacity': 0,
+            'sensitive': False})
         # the app should know the size of its "root" node:
         self._appNode.size = rootNode.size
         rootNode.appendChild(self._appNode)
@@ -156,13 +158,16 @@ class AVGAppStarter(object):
 
         self._onBeforePlay()
         g_player.setTimeout(0, self._onStart)
+        self._appInstance = self._AppClass(self._appNode)
         g_player.play()
 
     def _onBeforePlay(self):
         pass
 
     def _onStart(self):
-        self._appInstance = self._AppClass(self._appNode)
+        self._appInstance.init()
+        self._appNode.opacity = 1
+        self._appNode.sensitive = True
         self._activeApp = self._appInstance
         self._appInstance.enter()
 
