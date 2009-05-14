@@ -169,7 +169,7 @@ class AVGAppStarter(object):
         self._appNode.opacity = 1
         self._appNode.sensitive = True
         self._activeApp = self._appInstance
-        self._appInstance.enter()
+        self._appInstance.enter(onLeave=g_player.stop)
 
     def bindKey(self, key, func):
         if key in self.__keyBindings:
