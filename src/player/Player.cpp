@@ -38,6 +38,7 @@
 #include "CircleNode.h"
 #include "NodeDefinition.h"
 #include "PluginManager.h"
+#include "TextEngine.h"
 
 #include "TrackerEventSource.h"
 #include "Event.h"
@@ -128,6 +129,10 @@ Player::Player()
     registerNodeType(CircleNode::createDefinition());
     
     m_pTestHelper = new TestHelper(this);
+
+    // Early initialization of TextEngine singleton
+    // to avoid locale clashes with Magick (bug 54)
+    TextEngine::get();
 
 #ifdef _WIN32
     Magick::InitializeMagick((getAvgLibPath()+"magick\\").c_str());
