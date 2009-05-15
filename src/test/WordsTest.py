@@ -103,6 +103,34 @@ class WordsTestCase(AVGTestCase):
         self.start(None,
                 [lambda: self.compareImage("testJustify", True)])
 
+    def testWrapMode(self):
+        def setCharMode():
+            node = Player.getElementByID("words")
+            node.wrapmode = 'char'
+        def setWordMode():
+            node = Player.getElementByID("words")
+            node.wrapmode = 'word'
+        def setWordCharMode():
+            node = Player.getElementByID("words")
+            node.wrapmode = 'wordchar'
+            
+        Player.loadString("""
+        <avg width="160" height="120">
+          <words x="1" y="1" size="12" font="Bitstream Vera Sans"
+              variant="roman" parawidth="100" id="words"
+              text="Wrapped paragraph more than one line long. Withaverylongpackedlinewithnobreaks"/>
+        </avg>
+        """)
+        self.start(None,
+            [lambda: self.compareImage("testWrapMode1", True),
+             setCharMode,
+             lambda: self.compareImage("testWrapMode2", True),
+             setWordMode,
+             lambda: self.compareImage("testWrapMode3", True),
+             setWordCharMode,
+             lambda: self.compareImage("testWrapMode4", True),
+             ])
+            
     def testSpanWords(self):
         def setTextAttrib():
             self.baselineBmp = Player.screenshot()
@@ -319,6 +347,7 @@ def wordsTestSuite(tests):
             "testGlyphPos",
             "testParaWords",
             "testJustify",
+            "testWrapMode",
             "testSpanWords",
             "testDynamicWords",
             "testI18NWords",

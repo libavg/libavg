@@ -94,6 +94,7 @@ NodeDefinition Words::createDefinition()
         .addArg(Arg<int>("indent", 0, false, offsetof(Words, m_Indent)))
         .addArg(Arg<double>("linespacing", -1, false, offsetof(Words, m_LineSpacing)))
         .addArg(Arg<string>("alignment", "left"))
+        .addArg(Arg<string>("wrapmode", "word"))
         .addArg(Arg<bool>("justify", false, false, offsetof(Words, m_bJustify)))
         .addArg(Arg<bool>("rawtextmode", false, false, offsetof(Words, m_bRawTextMode)))
         .addArg(Arg<double>("letterspacing", 0, false, offsetof(Words, m_LetterSpacing)))
@@ -111,6 +112,7 @@ Words::Words(const ArgList& Args, bool bFromXML)
 
     Args.setMembers(this);
     setAlignment(Args.getArgVal<string>("alignment"));
+    setWrapMode(Args.getArgVal<string>("wrapmode"));
     setText(Args.getArgVal<string>("text"));
     m_Color = colorStringToColor(m_sColorName);
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -360,6 +362,37 @@ IntPoint Words::getGlyphSize(int i)
     return IntPoint(rect.width/PANGO_SCALE, rect.height/PANGO_SCALE);
 }
 
+void Words::setWrapMode(const string& sWrapMode)
+{
+    if (sWrapMode == "word") {
+        m_WrapMode = PANGO_WRAP_WORD;
+    } else if (sWrapMode == "char") {
+        m_WrapMode = PANGO_WRAP_CHAR;
+    } else if (sWrapMode == "wordchar") {
+        m_WrapMode = PANGO_WRAP_WORD_CHAR;
+    } else {
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "Words wrapping mode "+sWrapMode+" not supported."));
+    }
+
+    m_bDrawNeeded = true;
+}
+
+string Words::getWrapMode() const
+{
+    switch(m_WrapMode) {
+        case PANGO_WRAP_WORD:
+            return "word";
+        case PANGO_WRAP_CHAR:
+            return "char";
+        case PANGO_WRAP_WORD_CHAR:
+            return "wordchar";
+        default:
+            assert(false);
+            return "";
+    }
+}
+
 void Words::parseString(PangoAttrList** ppAttrList, char** ppText)
 {
     UTF8String sTextWithoutBreaks = applyBR(m_sText);
@@ -435,6 +468,7 @@ void Words::drawString()
         pango_layout_set_attributes(m_pLayout, pAttrList);
         pango_attr_list_unref(pAttrList);
 
+        pango_layout_set_wrap(m_pLayout, m_WrapMode);
         pango_layout_set_alignment(m_pLayout, m_Alignment);
         pango_layout_set_justify(m_pLayout, m_bJustify);
         pango_layout_set_width(m_pLayout, m_ParaWidth * PANGO_SCALE);

@@ -275,7 +275,7 @@ void export_raster()
                 "using the pango text attribute markup language described at\n"
                 "U{http://developer.gnome.org/doc/API/2.0/pango/PangoMarkupFormat.html}.\n"
                 "Markup can also be used if the text is set using python.\n"
-                "Markup parsing is controlled with 'parsetext' property\n")
+                "Markup parsing is controlled with 'rawtextmode' property\n")
         .add_property("color", 
                 make_function(&Words::getColor,
                         return_value_policy<copy_const_reference>()),
@@ -295,6 +295,11 @@ void export_raster()
         .add_property("alignment", &Words::getAlignment, &Words::setAlignment,
                 "The paragraph alignment. Possible values are 'left',\n"
                 "'center' and 'right'.\n")
+        .add_property("wrapmode", &Words::getWrapMode, &Words::setWrapMode,
+                "Paragraph's wrap behaviour. Possible values are\n"
+                "'word' (break to the nearest space, default) 'char' (break\n"
+                "in any position) and 'wordchar' (break words but fall back"
+                "to char mode if there is no free space for a full word)")
         .add_property("justify", &Words::getJustify, &Words::setJustify,
                 "Whether each complete line should be stretched to fill\n"
                 "the entire width of the layout. Default is false.\n")

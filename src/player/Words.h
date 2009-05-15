@@ -83,6 +83,9 @@ class AVG_API Words : public RasterNode
         std::string getAlignment() const;
         void setAlignment(const std::string& sAlignment);
  
+        std::string getWrapMode() const;
+        void setWrapMode(const std::string& sWrapMode);
+
         bool getJustify() const;
         void setJustify(bool bJustify);
 
@@ -118,6 +121,7 @@ class AVG_API Words : public RasterNode
         int m_Indent;
         double m_LineSpacing;
         PangoAlignment m_Alignment;
+        PangoWrapMode m_WrapMode;
         bool m_bJustify;
         double m_LetterSpacing;
 
