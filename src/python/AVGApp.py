@@ -76,7 +76,7 @@ class AVGApp(object):
     def start(cls, *args, **kwargs):
         from AVGAppStarter import AVGAppStarter
         from AVGMTAppStarter import AVGMTAppStarter
-        if cls.multitouch and os.getenv("AVG_DEPLOY"):
+        if cls.multitouch:
             starter = AVGMTAppStarter
         else:
             starter = AVGAppStarter
