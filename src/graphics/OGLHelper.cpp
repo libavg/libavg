@@ -68,6 +68,7 @@ namespace glproc {
     PFNGLUNIFORM1FVARBPROC Uniform1fv;
     PFNGLBLENDEQUATIONPROC BlendEquation;
     PFNGLACTIVETEXTUREPROC ActiveTexture;
+    PFNGLGENERATEMIPMAPEXTPROC GenerateMipmap;
     PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC CheckFramebufferStatus;
     PFNGLGENFRAMEBUFFERSEXTPROC GenFramebuffers;
     PFNGLBINDFRAMEBUFFEREXTPROC BindFramebuffer;
@@ -370,6 +371,8 @@ namespace glproc {
         Uniform1fv = (PFNGLUNIFORM1FVARBPROC)getFuzzyProcAddress("glUniform1fv");
         BlendEquation = (PFNGLBLENDEQUATIONPROC)getFuzzyProcAddress("glBlendEquation");
         ActiveTexture = (PFNGLACTIVETEXTUREPROC)getFuzzyProcAddress("glActiveTexture");
+        GenerateMipmap = (PFNGLGENERATEMIPMAPEXTPROC)getFuzzyProcAddress("glGenerateMipmap");
+        
         CheckFramebufferStatus = 
                 (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC)getFuzzyProcAddress("glCheckFramebufferStatus");
         GenFramebuffers = (PFNGLGENFRAMEBUFFERSEXTPROC)getFuzzyProcAddress("glGenFramebuffers");
