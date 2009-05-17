@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "OGLSurface.h"
-#include "OGLTexture.h"
+#include "OGLTextureTile.h"
 #include "DisplayEngine.h"
 
 #include "../base/Point.h"
@@ -67,7 +67,7 @@ class AVG_API OGLTiledSurface: public OGLSurface {
         void initTileVertices(VertexGrid& Grid);
         void initTileVertex (int x, int y, DPoint& Vertex);
 
-        void bindOneTexture(OGLTexture& Texture);
+        void bindOneTexture(OGLTextureTile& Texture);
         void bltTexture(const DPoint& DestSize, DisplayEngine::BlendMode Mode);
         DPoint calcFinalVertex(const DPoint& Size, const DPoint & NormalizedVertex);
 
@@ -78,7 +78,7 @@ class AVG_API OGLTiledSurface: public OGLSurface {
         IntPoint m_MaxTileSize;
         IntPoint m_TileSize;
         IntPoint m_NumTiles;
-        std::vector<std::vector<OGLTexturePtr> > m_pTextures;
+        std::vector<std::vector<OGLTextureTilePtr> > m_pTextures;
         VertexGrid m_TileVertices;
         VertexGrid m_FinalVertices;
 };

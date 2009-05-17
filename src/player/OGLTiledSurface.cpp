@@ -152,9 +152,9 @@ void OGLTiledSurface::bind()
     if (m_bBound) {
         rebind();
     } else {
-        vector<vector<OGLTexturePtr> > pOldTextures = m_pTextures;
+        vector<vector<OGLTextureTilePtr> > pOldTextures = m_pTextures;
         m_pTextures.clear();
-        vector<OGLTexturePtr> v;
+        vector<OGLTextureTilePtr> v;
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "OGLTiledSurface::bind: glPixelStorei(GL_UNPACK_ALIGNMENT)");
@@ -186,7 +186,7 @@ void OGLTiledSurface::bind()
                 cerr << "m_TileSize: " << m_TileSize << endl;
                 cerr << "TileIndexExtents: " << TileIndexExtents << endl;
 */                
-                OGLTexturePtr pTexture;
+                OGLTextureTilePtr pTexture;
                 bool bReuseTexture;
                 PixelFormat pf = getPixelFormat();
                 if (int(pOldTextures.size()) != m_NumTextures.y || 
@@ -202,7 +202,7 @@ void OGLTiledSurface::bind()
                     pTexture = pOldTextures[y][x];
                     pTexture->resize(CurExtent, CurSize, m_TileSize);
                 } else {
-                    pTexture = OGLTexturePtr(new OGLTexture(CurExtent, CurSize, 
+                    pTexture = OGLTextureTilePtr(new OGLTextureTile(CurExtent, CurSize, 
                             m_TileSize, TileIndexExtents, pf, getEngine()));
                 }
                 m_pTextures[y].push_back(pTexture);
@@ -240,7 +240,7 @@ void OGLTiledSurface::rebind()
             "AVGOGLTiledSurface::rebind: glPixelStorei(GL_UNPACK_ALIGNMENT)");
     for (unsigned int y=0; y<m_pTextures.size(); y++) {
         for (unsigned int x=0; x<m_pTextures[y].size(); x++) {
-            OGLTexturePtr pTexture = m_pTextures[y][x];
+            OGLTextureTilePtr pTexture = m_pTextures[y][x];
             OGLMemoryMode memMode = getMemMode();
             int width = getSize().x;
             if (memMode == PBO) {

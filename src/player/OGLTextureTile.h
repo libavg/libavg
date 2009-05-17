@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _OGLTexture_H_
-#define _OGLTexture_H_
+#ifndef _OGLTextureTile_H_
+#define _OGLTextureTile_H_
 
 #include "../api.h"
 #include "../graphics/Bitmap.h"
@@ -36,11 +36,11 @@ class VertexArray;
 
 typedef std::vector<std::vector<DPoint> > VertexGrid;
 
-class AVG_API OGLTexture {
+class AVG_API OGLTextureTile {
     public:
-        OGLTexture(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize, 
+        OGLTextureTile(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize, 
                 IntRect TileIndexExtent, PixelFormat pf, SDLDisplayEngine * pEngine);
-        virtual ~OGLTexture();
+        virtual ~OGLTextureTile();
         void resize(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize);
 
         const IntPoint& getTexSize() const;
@@ -69,7 +69,7 @@ class AVG_API OGLTexture {
         std::vector<std::vector<DPoint> > m_TexCoords;
 };
 
-typedef boost::shared_ptr<OGLTexture> OGLTexturePtr;
+typedef boost::shared_ptr<OGLTextureTile> OGLTextureTilePtr;
 
 }
 
