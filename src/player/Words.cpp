@@ -240,7 +240,7 @@ const std::string& Words::getFontVariant() const
 
 void Words::addFontDir(const std::string& sDir)
 {
-    TextEngine::addFontDir(sDir);
+    TextEngine::get().addFontDir(sDir);
 }
 
 void Words::setFontVariant(const std::string& sVariant)

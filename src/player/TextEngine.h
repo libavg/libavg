@@ -41,7 +41,7 @@ public:
 
     const std::vector<std::string>& getFontFamilies();
     const std::vector<std::string>& getFontVariants(const std::string& sFontName);
-    static void addFontDir(const std::string& sDir);
+    void addFontDir(const std::string& sDir);
         
     PangoFontDescription * getFontDescription(const std::string& sFamily, 
             const std::string& sVariant);
@@ -49,6 +49,8 @@ public:
 
 private:
     TextEngine();
+    void init();
+    void deinit();
     void initFonts();
     PangoFontFamily * getFontFamily(const std::string& sFamily);
 
@@ -63,6 +65,8 @@ private:
             FontDescriptionCache;
     FontDescriptionCache m_FontDescriptionCache;
     PangoFontFamily** m_ppFontFamilies;
+    std::vector<std::string> m_sFontDirs;
+
 };
 
 }
