@@ -20,7 +20,9 @@
 //
 
 #include "VertexArray.h"
+
 #include "../base/Exception.h"
+#include "../base/WideLine.h"
 
 #include <assert.h>
 
@@ -38,12 +40,32 @@ thread_specific_ptr<vector<unsigned int> > VertexArray::s_pGLIndexBufferIDs;
 
 VertexArray::VertexArray(int numVerts, int numIndexes, int reserveVerts, 
         int reserveIndexes)
-    : VertexData(numVerts, numIndexes, reserveVerts, reserveIndexes),
+    : m_NumVerts(numVerts),
+      m_NumIndexes(numIndexes),
+      m_ReserveVerts(reserveVerts),
+      m_ReserveIndexes(reserveIndexes),
+      m_CurVert(0),
+      m_CurIndex(0),
       m_bDataChanged(true)
 {
+    if (m_ReserveVerts < 10) {
+        m_ReserveVerts = 10;
+    }
+    if (m_ReserveIndexes < 20) {
+        m_ReserveIndexes = 20;
+    }
+    if (m_NumVerts > m_ReserveVerts) {
+        m_ReserveVerts = m_NumVerts;
+    }
+    if (m_NumIndexes > m_ReserveIndexes) {
+        m_ReserveIndexes = m_NumIndexes;
+    }
+    m_pVertexData = new T2V3C4Vertex[m_ReserveVerts];
+    m_pIndexData = new unsigned int[m_ReserveIndexes];
+
     initBufferCache();
-    if (s_pGLVertexBufferIDs->empty() || getReservedVerts() != 10 || 
-            getReservedIndexes() != 20)
+    if (s_pGLVertexBufferIDs->empty() || m_ReserveVerts != 10 || 
+            m_ReserveIndexes != 20)
     {
         glproc::GenBuffers(1, &m_GLVertexBufferID);
         glproc::GenBuffers(1, &m_GLIndexBufferID);
@@ -58,12 +80,12 @@ VertexArray::VertexArray(int numVerts, int numIndexes, int reserveVerts,
 
 VertexArray::~VertexArray()
 {
-    if (getReservedVerts() == 10) {
+    if (m_ReserveVerts == 10) {
         s_pGLVertexBufferIDs->push_back(m_GLVertexBufferID);
     } else {
         glproc::DeleteBuffers(1, &m_GLVertexBufferID);
     }
-    if (getReservedIndexes() == 20) {
+    if (m_ReserveIndexes == 20) {
         s_pGLIndexBufferIDs->push_back(m_GLIndexBufferID);
     } else {
         glproc::DeleteBuffers(1, &m_GLIndexBufferID);
@@ -73,25 +95,55 @@ VertexArray::~VertexArray()
 void VertexArray::appendPos(const DPoint& pos, 
         const DPoint& texPos, const Pixel32& color)
 {
-    T2V3C4Vertex* pVertex = &(getVertexData()[getCurVert()]);
+    assert(m_CurVert < m_NumVerts);
+    T2V3C4Vertex* pVertex = &(m_pVertexData[m_CurVert]);
     if (pVertex->m_Pos[0] != (GLfloat)pos.x || 
             pVertex->m_Pos[1] != (GLfloat)pos.y ||
             pVertex->m_Tex[0] != (GLfloat)texPos.x || 
             pVertex->m_Tex[1] != (GLfloat)texPos.y ||
             pVertex->m_Color != color)
     {
-        VertexData::appendPos(pos, texPos, color);
+        T2V3C4Vertex* pVertex = &m_pVertexData[m_CurVert];
+        pVertex->m_Pos[0] = (GLfloat)pos.x;
+        pVertex->m_Pos[1] = (GLfloat)pos.y;
+        pVertex->m_Pos[2] = 0.0;
+        pVertex->m_Tex[0] = (GLfloat)texPos.x;
+        pVertex->m_Tex[1] = (GLfloat)texPos.y;
+        pVertex->m_Color = color;
         m_bDataChanged = true;
-    } else {
-        incCurVert();
     }
+    m_CurVert++;
 }
 
-void VertexArray::setVertexData(int vertexIndex, int indexIndex, 
-        const VertexDataPtr& pVertexes)
+void VertexArray::appendTriIndexes(int v0, int v1, int v2)
 {
-    VertexData::setVertexData(vertexIndex, indexIndex, pVertexes);
-    m_bDataChanged = true;
+    m_pIndexData[m_CurIndex] = v0;
+    m_pIndexData[m_CurIndex+1] = v1;
+    m_pIndexData[m_CurIndex+2] = v2;
+    m_CurIndex+=3;
+}
+
+void VertexArray::appendQuadIndexes(int v0, int v1, int v2, int v3)
+{
+    m_pIndexData[m_CurIndex] = v0;
+    m_pIndexData[m_CurIndex+1] = v1;
+    m_pIndexData[m_CurIndex+2] = v2;
+    m_pIndexData[m_CurIndex+3] = v1;
+    m_pIndexData[m_CurIndex+4] = v2;
+    m_pIndexData[m_CurIndex+5] = v3;
+    m_CurIndex+=6;
+}
+
+void VertexArray::addLineData(Pixel32 color, const DPoint& p1, const DPoint& p2, 
+        double width, double TC1, double TC2)
+{
+    WideLine wl(p1, p2, width);
+    int curVertex = getCurVert();
+    appendPos(wl.pl0, DPoint(TC1, 1), color);
+    appendPos(wl.pr0, DPoint(TC1, 0), color);
+    appendPos(wl.pl1, DPoint(TC2, 1), color);
+    appendPos(wl.pr1, DPoint(TC2, 0), color);
+    appendQuadIndexes(curVertex+1, curVertex, curVertex+3, curVertex+2); 
 }
 
 void VertexArray::changeSize(int numVerts, int numIndexes)
@@ -101,31 +153,55 @@ void VertexArray::changeSize(int numVerts, int numIndexes)
         assert (false);
     }
         
-    int oldReserveVerts = getReservedVerts();
-    int oldReserveIndexes = getReservedIndexes();
-    VertexData::changeSize(numVerts, numIndexes);
-    if (oldReserveVerts != getReservedVerts() || 
-                oldReserveIndexes != getReservedIndexes())
-    {
+    bool bNewBuffer = false;
+    m_NumVerts = numVerts;
+    m_NumIndexes = numIndexes;
+    if (m_NumVerts > m_ReserveVerts) {
+        m_ReserveVerts = int(m_ReserveVerts*1.5);
+        if (m_ReserveVerts < m_NumVerts) {
+            m_ReserveVerts = m_NumVerts;
+        }
+        delete[] m_pVertexData;
+        m_pVertexData = new T2V3C4Vertex[m_ReserveVerts];
+        bNewBuffer = true;
+    }
+    if (m_NumIndexes > m_ReserveIndexes) {
+        m_ReserveIndexes = int(m_ReserveIndexes*1.5);
+        if (m_ReserveIndexes < m_NumIndexes) {
+            m_ReserveIndexes = m_NumIndexes;
+        }
+        delete[] m_pIndexData;
+        m_pIndexData = new unsigned int[m_ReserveIndexes];
+        bNewBuffer = true;
+    }
+    m_CurVert = 0;
+    m_CurIndex = 0;
+    if (bNewBuffer) {
         setBufferSize();
     }
     m_bDataChanged = true;
+}
+
+void VertexArray::reset()
+{
+    m_CurVert = 0;
+    m_CurIndex = 0;
 }
 
 void VertexArray::update()
 {
     if (m_bDataChanged) {
         glproc::BindBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID);
-        glproc::BufferData(GL_ARRAY_BUFFER, getReservedVerts()*sizeof(T2V3C4Vertex), 0, 
+        glproc::BufferData(GL_ARRAY_BUFFER, m_ReserveVerts*sizeof(T2V3C4Vertex), 0, 
                 GL_STREAM_DRAW);
         void * pOGLBuffer = glproc::MapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-        memcpy(pOGLBuffer, getVertexData(), getNumVerts()*sizeof(T2V3C4Vertex));
+        memcpy(pOGLBuffer, m_pVertexData, m_NumVerts*sizeof(T2V3C4Vertex));
         glproc::UnmapBuffer(GL_ARRAY_BUFFER);
         glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID);
         glproc::BufferData(GL_ELEMENT_ARRAY_BUFFER, 
-                getReservedIndexes()*sizeof(unsigned int), 0, GL_STREAM_DRAW);
+                m_ReserveIndexes*sizeof(unsigned int), 0, GL_STREAM_DRAW);
         pOGLBuffer = glproc::MapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
-        memcpy(pOGLBuffer, getIndexData(), getNumIndexes()*sizeof(unsigned int));
+        memcpy(pOGLBuffer, m_pIndexData, m_NumIndexes*sizeof(unsigned int));
         glproc::UnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
     }
     m_bDataChanged = false;
@@ -145,18 +221,28 @@ void VertexArray::draw()
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VertexArray::draw:1");
 
     glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLIndexBufferID);
-    glDrawElements(GL_TRIANGLES, getNumIndexes(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, m_NumIndexes, GL_UNSIGNED_INT, 0);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "VertexArray::draw():2");
+}
+
+int VertexArray::getCurVert() const
+{
+    return m_CurVert;
+}
+
+int VertexArray::getCurIndex() const
+{
+    return m_CurIndex;
 }
 
 void VertexArray::setBufferSize() 
 {
     glproc::BindBuffer(GL_ARRAY_BUFFER, m_GLVertexBufferID);
-    glproc::BufferData(GL_ARRAY_BUFFER, getReservedVerts()*sizeof(T2V3C4Vertex), 0, 
+    glproc::BufferData(GL_ARRAY_BUFFER, m_ReserveVerts*sizeof(T2V3C4Vertex), 0, 
             GL_STREAM_DRAW);
     glproc::BindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_GLVertexBufferID);
     glproc::BufferData(GL_ELEMENT_ARRAY_BUFFER, 
-            getReservedIndexes()*sizeof(unsigned int), 0, GL_STREAM_DRAW);
+            m_ReserveIndexes*sizeof(unsigned int), 0, GL_STREAM_DRAW);
 }
 
 void VertexArray::initBufferCache()

@@ -23,7 +23,6 @@
 
 #include "NodeDefinition.h"
 
-#include "../graphics/VertexData.h"
 #include "../base/Exception.h"
 
 #include <iostream>

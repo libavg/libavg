@@ -22,8 +22,6 @@
 #ifndef _VertexArray_H_
 #define _VertexArray_H_
 
-#include "VertexData.h"
-
 #include "../api.h"
 #include "../base/Point.h"
 #include "../graphics/Pixel32.h"
@@ -34,7 +32,13 @@
 
 namespace avg {
 
-class AVG_API VertexArray: public VertexData {
+struct T2V3C4Vertex {
+    GLfloat m_Tex[2];
+    Pixel32 m_Color;
+    GLfloat m_Pos[3];
+};
+
+class AVG_API VertexArray {
 public:
     VertexArray(int numVerts, int numIndexes, int reserveVerts = 0, 
             int reserveIndexes = 0);
@@ -42,18 +46,34 @@ public:
 
     virtual void appendPos(const DPoint& pos, 
             const DPoint& texPos, const Pixel32& color = Pixel32(0,0,0,0));
-    virtual void setVertexData(int vertexIndex, int indexIndex, 
-            const VertexDataPtr& pVertexes);
+    void appendTriIndexes(int v0, int v1, int v2);
+    void appendQuadIndexes(int v0, int v1, int v2, int v3);
+    void addLineData(Pixel32 color, const DPoint& p1, const DPoint& p2, double width,
+            double TC1=0, double TC2=1);
     virtual void changeSize(int numVerts, int numIndexes);
+    void reset();
 
     void update();
     void draw();
+
+    int getCurVert() const;
+    int getCurIndex() const;
+    void dump() const;
 
     void initBufferCache();
     static void deleteBufferCache();
 
 private:
     void setBufferSize();
+
+    int m_NumVerts;
+    int m_NumIndexes;
+    int m_ReserveVerts;
+    int m_ReserveIndexes;
+    int m_CurVert;
+    int m_CurIndex;
+    T2V3C4Vertex * m_pVertexData;
+    unsigned int * m_pIndexData;
 
     bool m_bDataChanged;
 
