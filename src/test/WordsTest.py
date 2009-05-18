@@ -341,6 +341,17 @@ class WordsTestCase(AVGTestCase):
             self.assertException(assignInvalidColor3),
                     ))
 
+    def testFontDir(self):
+        avg.Words.addFontDir('extrafonts')
+        Player.loadString("""
+          <avg width="160" height="120">
+            <words font="testaddfontdir" size="50" text="ABAAA"/>
+          </avg>
+        """)
+        self.start(None,
+                (lambda: self.compareImage("testFontDir", True),
+                ))
+
 def wordsTestSuite(tests):
     availableTests = (
             "testSimpleWords",
@@ -356,6 +367,7 @@ def wordsTestSuite(tests):
             "testLetterSpacing",
             "testPositioning",
             "testInvalidColor",
+            "testFontDir",
             )
     return AVGTestSuite (availableTests, WordsTestCase, tests)
 
