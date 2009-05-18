@@ -359,96 +359,141 @@ class PythonTestCase(AVGTestCase):
                ))
 
     def testTextArea(self):
-        def createTextAreaSet():
-            textarea.init(avg)
-            self.ctx1 = textarea.FocusContext()
-            self.ctx2 = textarea.FocusContext()
-            
-            self.ta1 = textarea.TextArea(Player.getElementByID('placeholder'), self.ctx1, id='ta1')
-            self.ta1.setStyle(font='Bitstream Vera Sans', variant="Roman", size=4, multiline=True)
-            self.ta1.setText("Lorem ipsum")
+        def setup():
+            self.ta1 = textarea.TextArea(Player.getElementByID('ph1'), id='ta1')
+            self.ta1.setStyle(font='Bitstream Vera Sans', variant='Roman',
+                size=16, multiline=True, color='FFFFFF')
+            self.ta1.setText('Lorem ipsum')
+            self.ta1.setFocus(True) # TODO: REMOVE
 
-            self.ta2 = textarea.TextArea(Player.getElementByID('placeholder_2'), self.ctx1, id='ta2')
-            self.ta2.setStyle(font='Bitstream Vera Sans', variant="Roman", size=2, multiline=False)
-
-            self.ta3 = textarea.TextArea(Player.getElementByID('placeholder_3'), self.ctx2, '1x1_white.png', True, id='ta3')
-            self.ta3.setStyle(font='Bitstream Vera Sans', variant="Roman", size=3, multiline=True)
-            
-            textarea.setActiveFocusContext(self.ctx1)
+            self.ta2 = textarea.TextArea(Player.getElementByID('ph2'), id='ta2')
+            self.ta2.setStyle(font='Bitstream Vera Sans', variant='Roman',
+                size=14, multiline=False, color='FFFFFF')
+            self.ta2.setText('sit dolor')
+            self.ta2.setFocus(True) # TODO: REMOVE
             
         def setAndCheck(ta, text):
             ta.setText(text)
             self.assert_(ta.getText() == text)
+        def clear(ta):
+            ta.onKeyDown(textarea.KEYCODE_FORMFEED)
+            self.assert_(ta.getText() == '')
+        def testUnicode():
+            self.ta1.setText(u'some ùnìcöde')
+            self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
+            self.assert_(self.ta1.getText() == u'some ùnìcöd')
+            self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[1])
+            self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
+            self.assert_(self.ta1.getText() == u'some ùnìc')
+            self.ta1.onKeyDown(ord(u'Ä'))
+            self.assert_(self.ta1.getText() == u'some ùnìcÄ')
+        def testSpecialChars():
+            clear(self.ta1)
+            self.ta1.onKeyDown(ord(u'&'))
+            self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
+            self.assert_(self.ta1.getText() == '')
         def checkSingleLine():
             text = ''
             self.ta2.setText('')
             while True:
-                self.assert_(len(text) < 60)
-                self.ctx1.keyCharPressed('X')
-                text = text + 'X'
+                self.assert_(len(text) < 20)
+                self.ta2.onKeyDown(ord(u'A'))
+                text = text + 'A'
                 if text != self.ta2.getText():
+                    self.assert_(len(text) == 16)
                     break
-        def clearPage():
-            self.ctx1.keyUCodePressed(textarea.KEYCODE_FORMFEED)
-            self.assert_(self.ta2.getText() == '')
-        def longText():
-            textarea.setActiveFocusContext(self.ctx2)
-            text = u'''
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec massa nunc, pretium sed,
-sagittis mollis, dignissim vitae, erat. Vestibulum mattis, erat nec pulvinar lacìnia,
-'''
-            self.ta3.setText(text)
-            self.assert_(len(self.ta3.getText()) == len(text)-1)
-        def clickFocus():
-            textarea.setActiveFocusContext(self.ctx1)
-            self.ctx1.cycleFocus()
-            self.__sendEvent(avg.CURSORDOWN, 20, 20)
-            self.__sendEvent(avg.CURSORUP, 20, 20)
-        def testClickFocus():
-            self.assert_(self.ctx1.getFocused())
-            self.assert_(self.ctx1.getFocused().getID() == 'ta1')
-            self.ctx1.keyUCodePressed(textarea.KEYCODE_FORMFEED)
-            self.ctx1.keyCharPressed('X')
-            self.assert_(self.ta1.getText() == 'X')
-        def testUnicode():
-            self.ta1.setText(u'some ùnìcöde')
-            self.ctx1.keyUCodePressed(textarea.KEYCODES_BACKSPACE[0])
-            self.assert_(self.ta1.getText() == u'some ùnìcöd')
-            self.ctx1.keyUCodePressed(textarea.KEYCODES_BACKSPACE[1])
-            self.ctx1.keyUCodePressed(textarea.KEYCODES_BACKSPACE[0])
-            self.assert_(self.ta1.getText() == u'some ùnìc')
-            self.ctx1.keyCharPressed('ò')
-            self.assert_(self.ta1.getText() == u'some ùnìcò')
-        def testSpecialChars():
-            self.ctx1.clear()
-            self.ctx1.keyCharPressed('&')
-            self.ctx1.keyUCodePressed(textarea.KEYCODES_BACKSPACE[0])
-            self.assert_(self.ta1.getText() == '')
-        def sendKeyEvents():
-            Helper = Player.getTestHelper()
-            Helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 0)
-            Helper.fakeKeyEvent(avg.KEYUP, 65, 65, "A", 65, 0)
-            Helper.fakeKeyEvent(avg.KEYDOWN, 59, 59, ";", 242, 0)
-            Helper.fakeKeyEvent(avg.KEYUP, 59, 59, ";", 242, 0)
-        def testKeyEvents():
-            self.assert_(self.ta1.getText() == u'Aò')
+            
+        Player.loadString("""
+        <avg width="160" height="120">
+            <div id="ph1" x="2" y="2" width="156" height="96"/>
+            <div id="ph2" x="2" y="100" width="156" height="18"/>
+        </avg>
+        """)
         
+        import time
         textarea.init(avg, False)
-        self.start("TextAreaTest.avg",
-               (createTextAreaSet,
-               lambda: self.assert_(self.ta1.getText() != 'Lorem Ipsum'),
-               lambda: setAndCheck(self.ta1, ''),
-               lambda: setAndCheck(self.ta2, 'Lorem Ipsum'),
-               checkSingleLine,
-               clearPage,
-#               longText,
-               clickFocus,
-               testClickFocus,
-               testUnicode,
-               testSpecialChars,
-               sendKeyEvents,
-               testKeyEvents
+        self.start(None,
+               (setup,
+                lambda: self.assert_(self.ta1.getText() == 'Lorem ipsum'),
+                lambda: setAndCheck(self.ta1, ''),
+                lambda: setAndCheck(self.ta2, 'Lorem Ipsum'),
+                testUnicode,
+                lambda: self.compareImage("testTextArea1", True),
+                testSpecialChars,
+                checkSingleLine,
+                lambda: self.compareImage("testTextArea2", True),
                ))
+
+    def testFocusContext(self):
+       def setup():
+           textarea.init(avg)
+           self.ctx1 = textarea.FocusContext()
+           self.ctx2 = textarea.FocusContext()
+
+           self.ta1 = textarea.TextArea(Player.getElementByID('ph1'),
+               self.ctx1, id='ta1')
+           self.ta1.setStyle(font='Bitstream Vera Sans', variant='Roman',
+               size=16, multiline=True, color='FFFFFF')
+           self.ta1.setText('Lorem ipsum')
+
+           self.ta2 = textarea.TextArea(Player.getElementByID('ph2'),
+               self.ctx1, id='ta2')
+           self.ta2.setStyle(font='Bitstream Vera Sans', variant='Roman',
+               size=14, multiline=False, color='FFFFFF')
+           self.ta2.setText('dolor')
+
+           self.ta3 = textarea.TextArea(Player.getElementByID('ph3'),
+               self.ctx2, disableMouseFocus=True, id='ta3')
+           self.ta3.setStyle(font='Bitstream Vera Sans', variant='Roman',
+               size=14, multiline=True, color='FFFFFF')
+           self.ta3.setText('dolor sit amet')
+
+           textarea.setActiveFocusContext(self.ctx1)
+
+       def writeChar():
+           helper = Player.getTestHelper()
+           helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 0)
+           helper.fakeKeyEvent(avg.KEYUP, 65, 65, "A", 65, 0)
+           helper.fakeKeyEvent(avg.KEYDOWN, 66, 66, "B", 66, 0)
+           helper.fakeKeyEvent(avg.KEYUP, 66, 66, "B", 66, 0)
+           helper.fakeKeyEvent(avg.KEYDOWN, 67, 67, "C", 67, 0)
+           helper.fakeKeyEvent(avg.KEYUP, 67, 67, "C", 67, 0)
+
+       def switchFocus():
+           self.ctx1.cycleFocus()
+
+       def clearFocused():
+           self.ctx1.clear()
+
+       def clickForFocus():
+           self.__sendEvent(avg.CURSORDOWN, 20, 70)
+           self.__sendEvent(avg.CURSORUP, 20, 70)
+
+
+       Player.loadString("""
+       <avg width="160" height="120">
+           <div id="ph1" x="2" y="2" width="156" height="54"/>
+           <div id="ph2" x="2" y="58" width="76" height="54"/>
+           <div id="ph3" x="80" y="58" width="76" height="54">
+               <image href="1x1_white.png" width="76" height="54"/>
+           </div>
+       </avg>
+       """)
+       self.start(None,
+               (setup,
+                lambda: self.compareImage("testFocusContext1", True),
+                writeChar,
+                lambda: self.compareImage("testFocusContext2", True),
+                switchFocus,
+                writeChar,
+                lambda: self.compareImage("testFocusContext3", True),
+                switchFocus,
+                clearFocused,
+                lambda: self.compareImage("testFocusContext4", True),
+                clickForFocus,
+                clearFocused,
+                lambda: self.compareImage("testFocusContext5", True),
+              ))
 
     def __sendEvent(self, type, x, y):
         Helper = Player.getTestHelper()
@@ -469,6 +514,7 @@ def pythonTestSuite (tests):
         "testButton",
         "testCheckbox",
         "testTextArea",
+        "testFocusContext",
         )
     return AVGTestSuite (availableTests, PythonTestCase, tests)
 
