@@ -791,7 +791,11 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
     unsigned char * pDestBits = pBmp->getPixels();
     DestPict.data[0] = pDestBits;
     DestPict.linesize[0] = pBmp->getStride();
+#if LIBAVFORMAT_BUILD >= ((50<<16)+(0<<8)+0)
+    ::PixelFormat DestFmt;
+#else
     int DestFmt;
+#endif
     switch(pBmp->getPixelFormat()) {
         case R8G8B8X8:
         case R8G8B8A8:
