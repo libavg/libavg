@@ -90,6 +90,8 @@ VertexArray::~VertexArray()
     } else {
         glproc::DeleteBuffers(1, &m_GLIndexBufferID);
     }
+    delete[] m_pVertexData;
+    delete[] m_pIndexData;
 }
 
 void VertexArray::appendPos(const DPoint& pos, 
