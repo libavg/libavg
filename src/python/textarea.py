@@ -318,9 +318,9 @@ class TextArea:
     def setStyle(self, font='Arial', size=12, alignment='left', variant='Regular',
                 color='000000', multiline=True, cursorWidth=None, border=0,
                 blurOpacity=DEFAULT_BLUR_OPACITY, flashingCursor=False,
-                cursorColor='000000'):
+                cursorColor='000000', lineSpacing=0, letterSpacing=0):
         """
-        Set some style parameters of the <words> node of the TextArea
+        Set TextArea's graphical appearance
         @param font: font face
         @param size: font size in pixels
         @param alignment: one among 'left', 'right', 'center'
@@ -334,12 +334,16 @@ class TextArea:
         @param blurOpacity: opacity that textarea gets when goes to blur state
         @param flashingCursor: whether the cursor should flash or not
         @param cursorColor: RGB hex for cursor color
+        @param lineSpacing: linespacing property of words node
+        @param letterSpacing: letterspacing property of words node
         """
         self.__textNode.font = font
         self.__textNode.size = int(size)
         self.__textNode.alignment = alignment
         self.__textNode.color = color
         self.__textNode.variant = variant
+        self.__textNode.linespacing = lineSpacing
+        self.__textNode.letterspacing = letterSpacing
         self.__isMultiline = multiline
         self.__border = border
         self.__maxLength = -1
