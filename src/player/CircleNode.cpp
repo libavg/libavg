@@ -308,7 +308,7 @@ void CircleNode::appendFillCirclePoint(VertexArrayPtr& pVertexArray, const DPoin
 
 int CircleNode::getNumCircumferencePoints()
 {
-    return ceil((m_Radius*3)/8)*8;
+    return int(ceil((m_Radius*3)/8)*8);
 }
 
 void CircleNode::getEigthCirclePoints(vector<DPoint>& pts, double radius)

@@ -68,7 +68,7 @@ public:
     void operator +=(const Point<NUM> & pt);
     void operator -=(const Point<NUM> & pt);
     void operator *=(double f);
-    void operator /=(double f);
+    void operator /=(NUM f);
     Point<NUM> operator -() const;
     Point<NUM> operator +(const Point<NUM> & pt) const;
     Point<NUM> operator -(const Point<NUM> & pt) const;
@@ -227,7 +227,7 @@ void Point<NUM>::operator *=(double f)
 }
 
 template<class NUM>
-void Point<NUM>::operator /=(double f)
+void Point<NUM>::operator /=(NUM f)
 {
   x /= f;
   y /= f;
