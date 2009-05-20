@@ -630,15 +630,6 @@ class PlayerTestCase(AVGTestCase):
             print("(Intentional) NameError caught")
             self.assert_(1)
 
-    def testHugeImage(self):
-        def moveImage():
-            Player.getElementByID("mainimg").x -= 2500
-        self.start("hugeimage.avg",
-                (lambda: self.compareImage("testHugeImage0", False),
-                 moveImage,
-                 lambda: self.compareImage("testHugeImage1", False)
-                ))
-
     def testPanoImage(self):
         def changeProperties():
             node = Player.getElementByID("pano")
@@ -972,7 +963,6 @@ def playerTestSuite(bpp, tests):
             "testMouseOver",
             "testTimeouts",
             "testEventErr",
-            "testHugeImage",
             "testPanoImage",
             "testBroken",
             "testMove",

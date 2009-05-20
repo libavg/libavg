@@ -38,35 +38,24 @@ typedef std::vector<std::vector<DPoint> > VertexGrid;
 
 class AVG_API OGLTextureTile {
     public:
-        OGLTextureTile(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize, 
-                IntRect TileIndexExtent, PixelFormat pf, SDLDisplayEngine * pEngine);
+        OGLTextureTile(IntPoint size, PixelFormat pf, SDLDisplayEngine * pEngine);
         virtual ~OGLTextureTile();
-        void resize(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize);
 
-        const IntPoint& getTexSize() const;
-        int getTexID(int i) const;
-        void downloadTexture(int i, BitmapPtr pBmp, int width, 
-                OGLMemoryMode MemoryMode) const;
-        void blt(const VertexGrid* pVertexes) const;
-        const IntRect& getTileIndexExtent() const;
-        const int getTexMemDim();
-        const PixelFormat getPixelFormat() const;
+        void downloadTexture(int i, BitmapPtr pBmp, OGLMemoryMode MemoryMode) const;
+        void activate() const;
+        void deactivate() const;
+
+        const IntPoint& getTextureSize() const;
 
     private:
-        void calcTexCoords();
         void createTextures();
         void deleteTextures();
 
-        IntRect m_TexExtent;  // Extent of Texture in the PBO.
-        IntPoint m_TexSize;   // Size of Texture in pixels. POW2 if necessary.
-        IntPoint m_TileSize;  // Size of Tiles in pixels. Always POW2.
-        IntRect m_TileIndexExtent; // Tile indexes in the surface used in this texture.
+        IntPoint m_Size;
+        IntPoint m_ActiveSize;
         PixelFormat m_pf;
         SDLDisplayEngine * m_pEngine;
-        int m_TextureMode;
         unsigned int m_TexID[3];
-        VertexArray * m_pVertexes;
-        std::vector<std::vector<DPoint> > m_TexCoords;
 };
 
 typedef boost::shared_ptr<OGLTextureTile> OGLTextureTilePtr;

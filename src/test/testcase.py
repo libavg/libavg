@@ -148,7 +148,7 @@ class AVGTestCase(unittest.TestCase):
         """)
 
 
-def setYCbCrMode(val):
+def setUseYCbCrShaders(val):
     global g_CustomOGLOptions
     global g_UseYCbCrShaders
     g_UseYCbCrShaders = val

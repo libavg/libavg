@@ -73,7 +73,7 @@ void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
 
     OGLTiledSurface * pOGLSurface = getSurface();
     if (m_MaxTileSize != IntPoint(-1, -1) && pOGLSurface) {
-        pOGLSurface->setMaxTileSize(m_MaxTileSize);
+        pOGLSurface->setTileSize(m_MaxTileSize);
     }
     setBlendModeStr(m_sBlendMode);
 }

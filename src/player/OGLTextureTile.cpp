@@ -34,45 +34,27 @@ namespace avg {
 
 using namespace std;
     
-OGLTextureTile::OGLTextureTile(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize,
-        IntRect TileIndexExtent, PixelFormat pf, SDLDisplayEngine * pEngine) 
-    : m_TexExtent(TexExtent),
-      m_TexSize(TexSize),
-      m_TileSize(TileSize),
-      m_TileIndexExtent(TileIndexExtent),
+OGLTextureTile::OGLTextureTile(IntPoint size, PixelFormat pf, SDLDisplayEngine * pEngine) 
+    : m_Size(size),
       m_pf(pf),
       m_pEngine(pEngine)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
+    m_ActiveSize = m_Size;
+    if (pEngine->usePOTTextures()) {
+        m_Size.x = nextpow2(m_Size.x);
+        m_Size.y = nextpow2(m_Size.y);
+    }
     createTextures();
-    int numTiles = m_TileIndexExtent.width()*m_TileIndexExtent.height();
-    m_pVertexes = new VertexArray(numTiles*4, numTiles*6);
-    calcTexCoords();
 }
 
 OGLTextureTile::~OGLTextureTile()
 {
-    delete m_pVertexes;
     deleteTextures();
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void OGLTextureTile::resize(IntRect TexExtent, IntPoint TexSize, IntPoint TileSize)
-{
-    deleteTextures();
-    m_TexExtent = TexExtent;
-    m_TexSize = TexSize;
-    m_TileSize = TileSize;
-    createTextures();
-    calcTexCoords();
-}
-
-int OGLTextureTile::getTexID(int i) const
-{
-    return m_TexID[i];
-}
-
-void OGLTextureTile::blt(const VertexGrid* pVertexes) const
+void OGLTextureTile::activate() const
 {
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
         OGLShaderPtr pShader;
@@ -99,29 +81,10 @@ void OGLTextureTile::blt(const VertexGrid* pVertexes) const
             glproc::UseProgramObject(0);
         }
     }
-    if (pVertexes) {
-        m_pVertexes->reset();
-        for (int y=m_TileIndexExtent.tl.y; y<m_TileIndexExtent.br.y; y++) {
-            for (int x=m_TileIndexExtent.tl.x; x<m_TileIndexExtent.br.x; x++) {
-                int xoffset = x-m_TileIndexExtent.tl.x;
-                int yoffset = y-m_TileIndexExtent.tl.y;
-                int curVertex=m_pVertexes->getCurVert();
-                m_pVertexes->appendPos((*pVertexes)[y][x], 
-                        m_TexCoords[yoffset][xoffset]); 
-                m_pVertexes->appendPos((*pVertexes)[y][x+1], 
-                        m_TexCoords[yoffset][xoffset+1]); 
-                m_pVertexes->appendPos((*pVertexes)[y+1][x+1],
-                        m_TexCoords[yoffset+1][xoffset+1]); 
-                m_pVertexes->appendPos((*pVertexes)[y+1][x],
-                        m_TexCoords[yoffset+1][xoffset]); 
-                m_pVertexes->appendQuadIndexes(
-                        curVertex+1, curVertex, curVertex+2, curVertex+3);
-            }
-        }
-    }
+} 
 
-    m_pVertexes->draw();
-    
+void OGLTextureTile::deactivate() const
+{
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
         glproc::ActiveTexture(GL_TEXTURE1);
         glDisable(GL_TEXTURE_2D);
@@ -132,15 +95,20 @@ void OGLTextureTile::blt(const VertexGrid* pVertexes) const
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTextureTile::blt: glDisable(GL_TEXTURE_2D)");
     }
 }
+        
+const IntPoint& OGLTextureTile::getTextureSize() const
+{
+    return m_Size;
+}
 
 void OGLTextureTile::createTextures()
 {
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-        m_TexID[0] = m_pEngine->createTexture(m_TexSize, I8);
-        m_TexID[1] = m_pEngine->createTexture(m_TexSize/2, I8);
-        m_TexID[2] = m_pEngine->createTexture(m_TexSize/2, I8);
+        m_TexID[0] = m_pEngine->createTexture(m_Size, I8);
+        m_TexID[1] = m_pEngine->createTexture(m_Size/2, I8);
+        m_TexID[2] = m_pEngine->createTexture(m_Size/2, I8);
     } else {
-        m_TexID[0] = m_pEngine->createTexture(m_TexSize, m_pf);
+        m_TexID[0] = m_pEngine->createTexture(m_Size, m_pf);
     }
 }
 
@@ -156,8 +124,8 @@ void OGLTextureTile::deleteTextures()
 
 static ProfilingZone TexSubImageProfilingZone("OGLTextureTile::texture download");
 
-void OGLTextureTile::downloadTexture(int i, BitmapPtr pBmp, int stride, 
-                OGLMemoryMode MemoryMode) const
+void OGLTextureTile::downloadTexture(int i, BitmapPtr pBmp,
+        OGLMemoryMode MemoryMode) const
 {
     PixelFormat pf;
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
@@ -165,94 +133,28 @@ void OGLTextureTile::downloadTexture(int i, BitmapPtr pBmp, int stride,
     } else {
         pf = m_pf;
     }
-    IntRect Extent = m_TexExtent;
+    IntPoint size = m_ActiveSize;
     if (i != 0) {
-        stride /= 2;
-        Extent = IntRect(m_TexExtent.tl/2.0, m_TexExtent.br/2.0);
+        size /= 2;
     }
     glBindTexture(GL_TEXTURE_2D, m_TexID[i]);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "OGLTextureTile::downloadTexture: glBindTexture()");
-    int bpp = Bitmap::getBytesPerPixel(pf);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, stride);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "OGLTextureTile::downloadTexture: glPixelStorei(GL_UNPACK_ROW_LENGTH)");
-//    cerr << "OGLTextureTile::downloadTexture(" << pBmp << ", stride=" << stride 
-//        << ", Extent= " << m_TexExtent << ", pf= " << Bitmap::getPixelFormatString(m_pf)
-//        << ", bpp= " << bpp << endl;
-    unsigned char * pStartPos = (unsigned char *)
-            (ptrdiff_t)(Extent.tl.y*stride*bpp + Extent.tl.x*bpp);
+            "OGLTextureTile::downloadTexture: GL_UNPACK_ALIGNMENT");
+    unsigned char * pStartPos = 0;
     if (MemoryMode == OGL) {
         pStartPos += (ptrdiff_t)(pBmp->getPixels());
     }
     {
         ScopeTimer Timer(TexSubImageProfilingZone);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Extent.width(), Extent.height(),
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y,
                 m_pEngine->getOGLSrcMode(pf), m_pEngine->getOGLPixelType(pf), 
                 pStartPos);
     }
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "OGLTextureTile::downloadTexture: glTexSubImage2D()");
-}
-
-void OGLTextureTile::calcTexCoords()
-{
-    double TexWidth;
-    double TexHeight;
-    double TexWidthPerTile;
-    double TexHeightPerTile;
-/*   
-    cerr << "----calcTexCoords" << endl;
-    cerr << "m_TexExtent: " << m_TexExtent << endl;
-    cerr << "m_TileSize: " << m_TileSize << endl;
-    cerr << "m_TexSize: " << m_TexSize << endl;
-*/    
-    TexWidth = double(m_TexExtent.width())/m_TexSize.x;
-    TexHeight = double(m_TexExtent.height())/m_TexSize.y;
-    TexWidthPerTile=double(m_TileSize.x)/m_TexSize.x;
-    TexHeightPerTile=double(m_TileSize.y)/m_TexSize.y;
-/*
-    cerr << "TexSize: " << TexWidth << ", " << TexHeight << endl;
-    cerr << "TexTileSize: " << TexWidthPerTile << ", " << TexHeightPerTile << endl;
-*/
-    vector<DPoint> TexCoordLine(m_TileIndexExtent.width()+1);
-    m_TexCoords = std::vector<std::vector<DPoint> > 
-            (m_TileIndexExtent.height()+1, TexCoordLine);
-    for (unsigned int y=0; y<m_TexCoords.size(); y++) {
-        for (unsigned int x=0; x<m_TexCoords[y].size(); x++) {
-            if (y == m_TexCoords.size()-1) {
-                m_TexCoords[y][x].y = TexHeight;
-            } else {
-                m_TexCoords[y][x].y = TexHeightPerTile*y;
-            }
-            if (x == m_TexCoords[y].size()-1) {
-                m_TexCoords[y][x].x = TexWidth;
-            } else {
-                m_TexCoords[y][x].x = TexWidthPerTile*x;
-            }
-        }
-    }
-//    cerr << endl;
-}
-
-const IntRect& OGLTextureTile::getTileIndexExtent() const
-{
-    return m_TileIndexExtent;
-}
-
-const int OGLTextureTile::getTexMemDim()
-{
-    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-        return int(m_TexSize.x * m_TexSize.y * 1.5);
-    }
-    else {
-        return m_TexSize.x * m_TexSize.y * Bitmap::getBytesPerPixel(m_pf);
-    }
-}
-
-const PixelFormat OGLTextureTile::getPixelFormat() const
-{
-    return m_pf;
 }
 
 }

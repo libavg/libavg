@@ -578,8 +578,9 @@ int Bitmap::getBytesPerPixel(PixelFormat PF)
         case YCbCr422:
             return 2;
         default:
-            fatalError(string("Bitmap::getBytesPerPixel(): Unknown format ") + 
-                    getPixelFormatString(PF)+".");
+            AVG_TRACE(Logger::ERROR, "Bitmap::getBytesPerPixel(): Unknown format " << 
+                    getPixelFormatString(PF) << ".");
+            assert(false);
             return 0;
     }
 }

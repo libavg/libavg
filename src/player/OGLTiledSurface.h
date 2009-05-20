@@ -46,10 +46,10 @@ class AVG_API OGLTiledSurface: public OGLSurface {
 
         virtual void create(const IntPoint& Size, PixelFormat PF, bool bFastDownload);
 
-        void setMaxTileSize(const IntPoint& MaxTileSize);
+        void setTileSize(const IntPoint& tileSize);
         VertexGrid getOrigVertexCoords();
         VertexGrid getWarpedVertexCoords();
-        void setWarpedVertexCoords(const VertexGrid& Grid);
+        void setWarpedVertexCoords(const VertexGrid& grid);
  
         void bind();
         void unbind();
@@ -60,27 +60,20 @@ class AVG_API OGLTiledSurface: public OGLSurface {
                 const Pixel32& color, DisplayEngine::BlendMode Mode);
         void blt(const DPoint& DestSize, DisplayEngine::BlendMode Mode);
 
-        bool isOneTexture(IntPoint Size);
-        
     private:
-        void calcTileSizes();
-        void initTileVertices(VertexGrid& Grid);
-        void initTileVertex (int x, int y, DPoint& Vertex);
-
-        void bindOneTexture(OGLTextureTile& Texture);
-        void bltTexture(const DPoint& DestSize, DisplayEngine::BlendMode Mode);
-        DPoint calcFinalVertex(const DPoint& Size, const DPoint & NormalizedVertex);
+        IntPoint getNumTiles();
+        void calcVertexGrid(VertexGrid& Grid);
+        void calcTileVertex(int x, int y, DPoint& Vertex);
+        void calcTexCoords();
 
         bool m_bBound;
 
-        IntPoint m_TextureSize;
-        IntPoint m_NumTextures;
-        IntPoint m_MaxTileSize;
         IntPoint m_TileSize;
-        IntPoint m_NumTiles;
-        std::vector<std::vector<OGLTextureTilePtr> > m_pTextures;
+        OGLTextureTilePtr m_pTexture;
         VertexGrid m_TileVertices;
         VertexGrid m_FinalVertices;
+        VertexArray * m_pVertexes;
+        std::vector<std::vector<DPoint> > m_TexCoords;
 };
 
 }
