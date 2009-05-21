@@ -890,27 +890,9 @@ class PlayerTestCase(AVGTestCase):
                 ))
 
     def testMemoryQuery(self):
-        def createNode():
-            self.node = Player.createNode("<image id='img' href='rgb24-64x64.png'/>")
-            self.assert_(Player.getGPUMemoryUsage() == 0)
-        def appendToTree():
-            self.rootNode = Player.getRootNode()
-            self.rootNode.appendChild(self.node)
-            self.assert_(Player.getGPUMemoryUsage() == 64 * 64 * 4)
-        def removeFromTree():
-            self.rootNode.removeChild(self.rootNode.indexOf(self.node))
-            self.assert_(Player.getGPUMemoryUsage() == 0)
-        def runTest():
-            self.setUpVideo()
-            self.assert_(avg.getMemoryUsage() != 0)
-            self._loadEmpty()
-            self.start(None,
-                    (lambda: self.assert_(Player.getGPUMemoryUsage() == 0),
-                     createNode,
-                     appendToTree,
-                     removeFromTree
-                    ))
-        runTest()
+        self.setUpVideo()
+        self.assert_(avg.getMemoryUsage() != 0)
+
     def testStopOnEscape(self):
         def pressEscape():
             Helper = Player.getTestHelper()

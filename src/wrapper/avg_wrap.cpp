@@ -347,10 +347,6 @@ BOOST_PYTHON_MODULE(avg)
                 "setMousePos(pos)\n"
                 "Sets the position of the mouse cursor. Generates a mouse motion event.\n"
                 "@param pos: new coordinates as a Point2D.\n")
-        .def("getGPUMemoryUsage", &Player::getGPUMemoryUsage,
-                "getGPUMemoryUsage() -> bytes\n"
-                "Get the amount of memory currently allocated for textures storaging\n"
-                "on the graphics adapter.\n")
         .def("loadPlugin", &Player::loadPlugin,
                         "loadPlugin(name)\n"
                         "load a Plugin and extend the XML DTD.\n"

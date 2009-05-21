@@ -67,7 +67,6 @@ class AVG_API DisplayEngine
         virtual const DRect& getClipRect() = 0;
         virtual void pushTransform(const DPoint& translate, double angle, const DPoint& pivot) = 0;
         virtual void popTransform() = 0;
-        virtual OGLTiledSurface * createTiledSurface() = 0;
 
         virtual int getWidth() = 0;
         virtual int getHeight() = 0;
@@ -81,8 +80,6 @@ class AVG_API DisplayEngine
         virtual void showCursor (bool bShow) = 0;
 
         virtual BitmapPtr screenshot () = 0;
-        virtual long long getGPUMemoryUsage() = 0;
-        virtual void deregisterSurface(OGLTiledSurface *) = 0;
 
         enum BlendMode {BLEND_BLEND, BLEND_ADD, BLEND_MIN, BLEND_MAX};
         static BlendMode stringToBlendMode(const std::string& s);

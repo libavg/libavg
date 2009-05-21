@@ -147,9 +147,9 @@ DisplayEngine::BlendMode RasterNode::getBlendMode() const
 OGLTiledSurface * RasterNode::getSurface()
 {
     if (!m_pSurface) {
-        DisplayEngine *pDisplayEngine = getDisplayEngine();
+        SDLDisplayEngine *pDisplayEngine = getDisplayEngine();
         if (pDisplayEngine) {
-            m_pSurface = pDisplayEngine->createTiledSurface();
+            m_pSurface = new OGLTiledSurface(pDisplayEngine);
         } else {
             return 0;
         }

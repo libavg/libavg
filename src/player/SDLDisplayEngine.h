@@ -60,8 +60,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
                 const DPoint& pivot);
         virtual void popTransform();
 
-        virtual OGLTiledSurface * createTiledSurface();
-
         virtual int getWidth();
         virtual int getHeight();
         virtual int getBPP();
@@ -98,9 +96,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
                 bool bUsePixelBuffers, int MultiSampleSamples, 
                 VSyncMode DesiredVSyncMode);
         
-        long long getGPUMemoryUsage();
-        void deregisterSurface(OGLTiledSurface *);
-
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);
         void initInput();
@@ -169,8 +164,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
 
         bool m_bCheckedMemoryMode;
         OGLMemoryMode m_MemoryMode;
-        
-        std::vector<OGLTiledSurface *> m_pSurfaces;
 };
 
 }

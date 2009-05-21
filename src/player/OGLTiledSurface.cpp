@@ -52,7 +52,6 @@ OGLTiledSurface::~OGLTiledSurface()
         delete m_pVertexes;
     }
     m_bBound = false;
-    getEngine()->deregisterSurface(this);
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 

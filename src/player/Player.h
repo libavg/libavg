@@ -188,7 +188,6 @@ class AVG_API Player : IEventSink
         int m_MultiSampleSamples;
         bool m_bUseFakeCamera;
         VSyncMode m_VSyncMode;
-        long long m_MaxGPUMemUsed;
 
         bool m_bStopOnEscape;
 

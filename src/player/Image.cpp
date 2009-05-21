@@ -79,7 +79,7 @@ void Image::setBitmap(const Bitmap * pBmp)
     if (m_pEngine) {
         if (!m_pSurface) {
             if (m_bTiled) {
-                m_pSurface = m_pEngine->createTiledSurface();
+                m_pSurface = new OGLTiledSurface(m_pEngine);
             } else {
                 m_pSurface = new OGLSurface(m_pEngine);
             }
@@ -215,7 +215,7 @@ void Image::setupSurface()
 {
     PixelFormat pf = calcSurfacePF(*m_pBmp);
     if (m_bTiled) {
-        m_pSurface = m_pEngine->createTiledSurface();
+        m_pSurface = new OGLTiledSurface(m_pEngine);
     } else {
         m_pSurface = new OGLSurface(m_pEngine);
     }
