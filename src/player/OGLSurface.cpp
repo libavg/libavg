@@ -36,10 +36,12 @@ using namespace std;
 
 namespace avg {
 
-OGLSurface::OGLSurface(SDLDisplayEngine * pEngine)
+OGLSurface::OGLSurface(SDLDisplayEngine * pEngine, int texWrapSMode, int texWrapTMode)
     : m_pEngine(pEngine),
       m_bCreated(false),
-      m_Size(-1,-1)
+      m_Size(-1,-1),
+      m_TexWrapSMode(texWrapSMode),
+      m_TexWrapTMode(texWrapTMode)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -76,6 +78,9 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
     } else {
         createBitmap(Size, m_pf, 0);
     }
+    m_pTexture = OGLTexturePtr(new OGLTexture(Size, pf, m_TexWrapSMode, m_TexWrapTMode, 
+            getEngine()));
+    
     m_bCreated = true;
 }
 
@@ -149,6 +154,29 @@ void OGLSurface::unbindPBO()
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::bind: glBindBuffer()");
 }
 
+void OGLSurface::downloadTexture()
+{
+    if (m_MemoryMode == PBO) {
+        if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+            for (int i=0; i<3; i++) {
+                bindPBO(i);
+                m_pTexture->downloadTexture(i, m_pBmps[i], m_MemoryMode);
+            }
+        } else {
+            bindPBO();
+            m_pTexture->downloadTexture(0, m_pBmps[0], m_MemoryMode);
+        }
+        unbindPBO();
+    } else {
+        m_pTexture->downloadTexture(0, m_pBmps[0], m_MemoryMode);
+    }
+}
+
+OGLTexturePtr OGLSurface::getTexture()
+{
+    return m_pTexture;
+}
+
 PixelFormat OGLSurface::getPixelFormat()
 {
     return m_pf;
@@ -157,19 +185,6 @@ PixelFormat OGLSurface::getPixelFormat()
 IntPoint OGLSurface::getSize()
 {
     return m_Size;
-}
-
-int OGLSurface::getTotalTexMemory()
-{
-    if (m_bCreated) {
-        if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-            return int(m_Size.x*m_Size.y*1.5);
-        } else {
-            return m_Size.x*m_Size.y*Bitmap::getBytesPerPixel(m_pf);
-        }
-    } else {
-        return 0;
-    }
 }
 
 SDLDisplayEngine * OGLSurface::getEngine()

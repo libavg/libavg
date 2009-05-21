@@ -34,8 +34,6 @@
 #include "MouseEvent.h"
 #include "KeyEvent.h"
 
-#include "OGLTiledSurface.h"
-
 #include "../base/MathHelper.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"

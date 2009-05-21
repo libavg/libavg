@@ -170,7 +170,7 @@ unsigned OGLTexture::createTexture(IntPoint size, PixelFormat pf)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_TexWrapSMode);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_TexWrapSMode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_TexWrapTMode);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "OGLTexture::createTexture: glTexParameteri()");
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);

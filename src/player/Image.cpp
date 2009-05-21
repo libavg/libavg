@@ -78,11 +78,7 @@ void Image::setBitmap(const Bitmap * pBmp)
     PixelFormat pf = calcSurfacePF(*pBmp);
     if (m_pEngine) {
         if (!m_pSurface) {
-            if (m_bTiled) {
-                m_pSurface = new OGLTiledSurface(m_pEngine);
-            } else {
-                m_pSurface = new OGLSurface(m_pEngine);
-            }
+            m_pSurface = createSurface();
         }
         if (m_pSurface->getSize() != pBmp->getSize() || 
                 m_pSurface->getPixelFormat() != pf)
@@ -191,6 +187,11 @@ OGLTiledSurface* Image::getTiledSurface()
     return dynamic_cast<OGLTiledSurface*>(getSurface());
 }
 
+OGLTexturePtr Image::getTexture()
+{
+    return getSurface()->getTexture();
+}
+
 Image::State Image::getState()
 {
     return m_State;
@@ -214,16 +215,18 @@ void Image::load()
 void Image::setupSurface()
 {
     PixelFormat pf = calcSurfacePF(*m_pBmp);
-    if (m_bTiled) {
-        m_pSurface = new OGLTiledSurface(m_pEngine);
-    } else {
-        m_pSurface = new OGLSurface(m_pEngine);
-    }
+    m_pSurface = createSurface();
     m_pSurface->create(m_pBmp->getSize(), pf, true);
     BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
     pSurfaceBmp->copyPixels(*m_pBmp);
     m_pSurface->unlockBmps();
     m_pBmp=BitmapPtr();
+}
+
+OGLSurface* Image::createSurface()
+{
+    assert(m_bTiled);
+    return new OGLTiledSurface(m_pEngine);
 }
 
 PixelFormat Image::calcSurfacePF(const Bitmap& bmp)

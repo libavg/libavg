@@ -38,7 +38,7 @@ using namespace std;
 namespace avg {
 
 OGLTiledSurface::OGLTiledSurface(SDLDisplayEngine * pEngine)
-    : OGLSurface(pEngine),
+    : OGLSurface(pEngine, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE),
       m_bBound(false),
       m_TileSize(-1,-1),
       m_pVertexes(0)
@@ -51,7 +51,6 @@ OGLTiledSurface::~OGLTiledSurface()
     if (m_pVertexes) {
         delete m_pVertexes;
     }
-    m_bBound = false;
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
@@ -135,28 +134,9 @@ string getGlModeString(int Mode)
 void OGLTiledSurface::bind() 
 {
     if (!m_bBound) {
-        m_pTexture = OGLTexturePtr(new OGLTexture(getSize(), getPixelFormat(), 
-                GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, getEngine()));
         calcTexCoords();
     }
-    
-    OGLMemoryMode memMode = getMemMode();
-    PixelFormat pf = getPixelFormat();
-    if (memMode == PBO) {
-        if (pf == YCbCr420p || pf == YCbCrJ420p) {
-            for (int i=0; i<3; i++) {
-                bindPBO(i);
-                m_pTexture->downloadTexture(i, getBmp(i), memMode);
-            }
-        } else {
-            bindPBO();
-            m_pTexture->downloadTexture(0, getBmp(0), memMode);
-        }
-        unbindPBO();
-    } else {
-        m_pTexture->downloadTexture(0, getBmp(0), memMode);
-    }
-
+    downloadTexture();
     m_bBound = true;
 }
 
@@ -203,9 +183,9 @@ void OGLTiledSurface::blt(const DPoint& DestSize, DisplayEngine::BlendMode mode)
         }
     }
 
-    m_pTexture->activate();
+    getTexture()->activate();
     m_pVertexes->draw();
-    m_pTexture->deactivate();
+    getTexture()->deactivate();
 
     PixelFormat pf = getPixelFormat();
     AVG_TRACE(Logger::BLTS, "(" << DestSize.x << ", " 
@@ -261,7 +241,7 @@ void OGLTiledSurface::calcTileVertex(int x, int y, DPoint& Vertex)
 
 void OGLTiledSurface::calcTexCoords()
 {
-    DPoint textureSize = DPoint(m_pTexture->getTextureSize());
+    DPoint textureSize = DPoint(getTexture()->getTextureSize());
     DPoint texCoordExtents = DPoint(getSize().x/textureSize.x,
             getSize().y/textureSize.y);
 

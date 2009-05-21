@@ -24,7 +24,6 @@
 
 #include "../api.h"
 #include "OGLSurface.h"
-#include "OGLTexture.h"
 #include "DisplayEngine.h"
 
 #include "../base/Point.h"
@@ -52,8 +51,6 @@ class AVG_API OGLTiledSurface: public OGLSurface {
         void setWarpedVertexCoords(const VertexGrid& grid);
  
         void bind();
-        void unbind();
-        void rebind();
 
         void blt32(const DPoint& DestSize, double opacity, DisplayEngine::BlendMode Mode);
         void blta8(const DPoint& DestSize, double opacity, 
@@ -69,7 +66,6 @@ class AVG_API OGLTiledSurface: public OGLSurface {
         bool m_bBound;
 
         IntPoint m_TileSize;
-        OGLTexturePtr m_pTexture;
         VertexGrid m_TileVertices;
         VertexGrid m_FinalVertices;
         VertexArray * m_pVertexes;

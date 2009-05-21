@@ -23,6 +23,7 @@
 #define _Image_H_
 
 #include "../api.h"
+#include "OGLTexture.h"
 
 #include "../base/Point.h"
 #include "../graphics/Bitmap.h"
@@ -58,6 +59,7 @@ class AVG_API Image
         PixelFormat getPixelFormat();
         OGLSurface* getSurface();
         OGLTiledSurface* getTiledSurface();
+        OGLTexturePtr getTexture();
         State getState();
 
     protected:
@@ -66,6 +68,7 @@ class AVG_API Image
     private:
         void load();
         void setupSurface();
+        virtual OGLSurface* createSurface();
         PixelFormat calcSurfacePF(const Bitmap& Bmp);
 
         std::string m_sFilename;

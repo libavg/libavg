@@ -23,6 +23,8 @@
 #define _OGLSurface_H_
 
 #include "../api.h"
+#include "OGLTexture.h"
+
 #include "../base/Point.h"
 
 #include "../graphics/Bitmap.h"
@@ -37,7 +39,7 @@ class SDLDisplayEngine;
 
 class AVG_API OGLSurface {
     public:
-        OGLSurface(SDLDisplayEngine * pEngine);
+        OGLSurface(SDLDisplayEngine * pEngine, int texWrapSMode, int texWrapTMode);
         virtual ~OGLSurface();
 
         virtual void create(const IntPoint& Size, PixelFormat PF, bool bFastDownload);
@@ -46,10 +48,11 @@ class AVG_API OGLSurface {
 
         void bindPBO(int index=0);
         void unbindPBO();
+        void downloadTexture();
+        OGLTexturePtr getTexture();
 
         PixelFormat getPixelFormat();
         IntPoint getSize();
-        int getTotalTexMemory();
         OGLMemoryMode getMemMode() const;
         BitmapPtr getBmp(int i=0);
 
@@ -66,8 +69,11 @@ class AVG_API OGLSurface {
         bool m_bCreated;
 
         BitmapPtr m_pBmps[3];
+        OGLTexturePtr m_pTexture;
         IntPoint m_Size;
         PixelFormat m_pf;
+        int m_TexWrapSMode;
+        int m_TexWrapTMode;
 
         OGLMemoryMode m_MemoryMode;
 

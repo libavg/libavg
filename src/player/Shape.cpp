@@ -26,7 +26,7 @@
 
 #include "../graphics/Filterfliprgb.h"
 
-#include "OGLTiledSurface.h"
+#include "OGLSurface.h"
 #include "SDLDisplayEngine.h"
 
 #include <Magick++.h>
@@ -85,31 +85,31 @@ void Shape::draw()
 {
     bool bIsTextured = (getState() == GPU);
     if (bIsTextured) {
-        m_pTexture->activate();
+        getTexture()->activate();
     }
     getEngine()->enableTexture(bIsTextured);
     getEngine()->enableGLColorArray(!bIsTextured);
     m_pVertexArray->draw();
     if (bIsTextured) {
-        m_pTexture->deactivate();
+        getTexture()->deactivate();
     }
 }
 
 void Shape::downloadTexture()
 {
-    PixelFormat pf = getPixelFormat();
-    IntPoint size = getSize();
-    SDLDisplayEngine* pEngine = getEngine();
-    m_pTexture = OGLTexturePtr(new OGLTexture(size, pf, m_TexWrapSMode, m_TexWrapTMode,
-            pEngine));
     OGLSurface * pSurface = getSurface();
     if (pSurface->getMemMode() == PBO) {
         pSurface->bindPBO();
     }
-    m_pTexture->downloadTexture(0, pSurface->getBmp(), pSurface->getMemMode());
+    pSurface->downloadTexture();
     if (pSurface->getMemMode() == PBO) {
         pSurface->unbindPBO();
     }
+}
+
+OGLSurface* Shape::createSurface()
+{
+    return new OGLSurface(getEngine(), m_TexWrapSMode, m_TexWrapTMode);
 }
 
 }

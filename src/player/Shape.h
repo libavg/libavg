@@ -51,8 +51,8 @@ class AVG_API Shape: public Image
 
     private:
         void downloadTexture();
+        virtual OGLSurface* createSurface();
 
-        OGLTexturePtr m_pTexture;
         int m_TexWrapSMode;
         int m_TexWrapTMode;
         VertexArrayPtr m_pVertexArray;
