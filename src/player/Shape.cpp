@@ -40,7 +40,6 @@ namespace avg {
 
 Shape::Shape(const string& sFilename, int texWrapSMode, int texWrapTMode)
     : Image(sFilename, false),
-      m_TexID(-1),
       m_TexWrapSMode(texWrapSMode),
       m_TexWrapTMode(texWrapTMode)
 {
@@ -48,12 +47,10 @@ Shape::Shape(const string& sFilename, int texWrapSMode, int texWrapTMode)
 
 Shape::~Shape()
 {
-    deleteTexture();
 }
 
 void Shape::setBitmap(const Bitmap* pBmp)
 {
-    deleteTexture();
     State prevState = getState();
     Image::setBitmap(pBmp);
     if (getState() == GPU) {
@@ -88,12 +85,14 @@ void Shape::draw()
 {
     bool bIsTextured = (getState() == GPU);
     if (bIsTextured) {
-        glproc::ActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, m_TexID);
+        m_pTexture->activate();
     }
     getEngine()->enableTexture(bIsTextured);
     getEngine()->enableGLColorArray(!bIsTextured);
     m_pVertexArray->draw();
+    if (bIsTextured) {
+        m_pTexture->deactivate();
+    }
 }
 
 void Shape::downloadTexture()
@@ -101,39 +100,16 @@ void Shape::downloadTexture()
     PixelFormat pf = getPixelFormat();
     IntPoint size = getSize();
     SDLDisplayEngine* pEngine = getEngine();
-   
-    m_TexID = pEngine->createTexture(size, pf);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_TexWrapSMode);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_TexWrapTMode);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "Shape::downloadTexture: glTexParameteri()");
-    
-    OGLSurface* pSurface = getSurface();
-    unsigned char * pPixels;
-    if (pSurface->getMemMode() == OGL) {
-        pPixels = pSurface->getBmp()->getPixels();
-    } else {
-        pPixels = 0;
+    m_pTexture = OGLTexturePtr(new OGLTexture(size, pf, m_TexWrapSMode, m_TexWrapTMode,
+            pEngine));
+    OGLSurface * pSurface = getSurface();
+    if (pSurface->getMemMode() == PBO) {
         pSurface->bindPBO();
     }
-    glBindTexture(GL_TEXTURE_2D, m_TexID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "VectorNode::downloadTexture: glBindTexture()");
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y,
-            pEngine->getOGLSrcMode(pf), pEngine->getOGLPixelType(pf), pPixels);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "VectorNode::downloadTexture: glTexSubImage2D()");
+    m_pTexture->downloadTexture(0, pSurface->getBmp(), pSurface->getMemMode());
     if (pSurface->getMemMode() == PBO) {
         pSurface->unbindPBO();
     }
 }
-
-void Shape::deleteTexture()
-{
-    if (m_TexID != -1) {
-        glDeleteTextures(1, &m_TexID);
-    }
-}
-
 
 }

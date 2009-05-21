@@ -24,7 +24,7 @@
 
 #include "../api.h"
 #include "OGLSurface.h"
-#include "OGLTextureTile.h"
+#include "OGLTexture.h"
 #include "DisplayEngine.h"
 
 #include "../base/Point.h"
@@ -69,7 +69,7 @@ class AVG_API OGLTiledSurface: public OGLSurface {
         bool m_bBound;
 
         IntPoint m_TileSize;
-        OGLTextureTilePtr m_pTexture;
+        OGLTexturePtr m_pTexture;
         VertexGrid m_TileVertices;
         VertexGrid m_FinalVertices;
         VertexArray * m_pVertexes;

@@ -136,8 +136,8 @@ string getGlModeString(int Mode)
 void OGLTiledSurface::bind() 
 {
     if (!m_bBound) {
-        m_pTexture = OGLTextureTilePtr(new OGLTextureTile(getSize(), getPixelFormat(), 
-                getEngine()));
+        m_pTexture = OGLTexturePtr(new OGLTexture(getSize(), getPixelFormat(), 
+                GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, getEngine()));
         calcTexCoords();
     }
     

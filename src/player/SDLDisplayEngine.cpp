@@ -1499,7 +1499,8 @@ void SDLDisplayEngine::deregisterSurface(OGLTiledSurface *pOGLSurface)
     assert(false);
 }
 
-unsigned SDLDisplayEngine::createTexture(const IntPoint& size, PixelFormat pf)
+unsigned SDLDisplayEngine::createTexture(const IntPoint& size, PixelFormat pf,
+        int texWrapSMode, int texWrapTMode)
 {
     unsigned texID;
     glGenTextures(1, &texID);
@@ -1509,8 +1510,8 @@ unsigned SDLDisplayEngine::createTexture(const IntPoint& size, PixelFormat pf)
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::createTexture: glBindTexture()");
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texWrapSMode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texWrapTMode);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "SDLDisplayEngine::createTexture: glTexParameteri()");
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
