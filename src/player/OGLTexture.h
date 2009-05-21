@@ -51,6 +51,7 @@ class AVG_API OGLTexture {
     private:
         void createTextures();
         void deleteTextures();
+        unsigned createTexture(IntPoint size, PixelFormat pf);
 
         IntPoint m_Size;
         IntPoint m_ActiveSize;

@@ -107,14 +107,11 @@ const IntPoint& OGLTexture::getTextureSize() const
 void OGLTexture::createTextures()
 {
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-        m_TexID[0] = m_pEngine->createTexture(m_Size, I8, m_TexWrapSMode, m_TexWrapTMode);
-        m_TexID[1] = m_pEngine->createTexture(m_Size/2, I8, 
-                m_TexWrapSMode, m_TexWrapTMode);
-        m_TexID[2] = m_pEngine->createTexture(m_Size/2, I8, 
-                m_TexWrapSMode, m_TexWrapTMode);
+        m_TexID[0] = createTexture(m_Size, I8);
+        m_TexID[1] = createTexture(m_Size/2, I8);
+        m_TexID[2] = createTexture(m_Size/2, I8);
     } else {
-        m_TexID[0] = m_pEngine->createTexture(m_Size, m_pf, 
-                m_TexWrapSMode, m_TexWrapTMode);
+        m_TexID[0] = createTexture(m_Size, m_pf);
     }
 }
 
@@ -160,6 +157,41 @@ void OGLTexture::downloadTexture(int i, BitmapPtr pBmp, OGLMemoryMode MemoryMode
     }
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "OGLTexture::downloadTexture: glTexSubImage2D()");
+}
+
+unsigned OGLTexture::createTexture(IntPoint size, PixelFormat pf)
+{
+    unsigned texID;
+    glGenTextures(1, &texID);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::createTexture: glGenTextures()");
+    glproc::ActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texID);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::createTexture: glBindTexture()");
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_TexWrapSMode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_TexWrapSMode);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "OGLTexture::createTexture: glTexParameteri()");
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+
+    char * pPixels = 0;
+    if (m_pEngine->usePOTTextures()) {
+        // Make sure the texture is transparent and black before loading stuff 
+        // into it to avoid garbage at the borders.
+        int TexMemNeeded = size.x*size.y*Bitmap::getBytesPerPixel(pf);
+        pPixels = new char[TexMemNeeded];
+        memset(pPixels, 0, TexMemNeeded);
+    }
+    glTexImage2D(GL_TEXTURE_2D, 0, m_pEngine->getOGLDestMode(pf), size.x, size.y, 
+            0, m_pEngine->getOGLSrcMode(pf), m_pEngine->getOGLPixelType(pf), 
+            pPixels);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "SDLDisplayEngine::createTexture: glTexImage2D()");
+    if (m_pEngine->usePOTTextures()) {
+        free(pPixels);
+    }
+    return texID;
 }
 
 }

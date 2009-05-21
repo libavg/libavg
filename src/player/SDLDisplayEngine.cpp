@@ -1499,40 +1499,5 @@ void SDLDisplayEngine::deregisterSurface(OGLTiledSurface *pOGLSurface)
     assert(false);
 }
 
-unsigned SDLDisplayEngine::createTexture(const IntPoint& size, PixelFormat pf,
-        int texWrapSMode, int texWrapTMode)
-{
-    unsigned texID;
-    glGenTextures(1, &texID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::createTexture: glGenTextures()");
-    glproc::ActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texID);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "SDLDisplayEngine::createTexture: glBindTexture()");
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, texWrapSMode);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, texWrapTMode);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "SDLDisplayEngine::createTexture: glTexParameteri()");
-    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-
-    char * pPixels = 0;
-    if (usePOTTextures()) {
-        // Make sure the texture is transparent and black before loading stuff 
-        // into it to avoid garbage at the borders.
-        int TexMemNeeded = size.x*size.y*Bitmap::getBytesPerPixel(pf);
-        pPixels = new char[TexMemNeeded];
-        memset(pPixels, 0, TexMemNeeded);
-    }
-    glTexImage2D(GL_TEXTURE_2D, 0, getOGLDestMode(pf), size.x, size.y, 0,
-            getOGLSrcMode(pf), getOGLPixelType(pf), pPixels);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-            "SDLDisplayEngine::createTexture: glTexImage2D()");
-    if (usePOTTextures()) {
-        free(pPixels);
-    }
-    return texID;
-}
-
 }
 

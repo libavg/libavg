@@ -100,8 +100,6 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         
         long long getGPUMemoryUsage();
         void deregisterSurface(OGLTiledSurface *);
-        unsigned createTexture(const IntPoint& size, PixelFormat pf,
-                int texWrapSMode, int texWrapTMode);
 
     private:
         void initSDL(int width, int height, bool isFullscreen, int bpp);
