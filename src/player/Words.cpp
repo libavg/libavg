@@ -508,7 +508,7 @@ void Words::drawString()
         }
 //        cerr << "libavg Extents: " << m_StringExtents << endl;
         if (getState() == NS_CANRENDER) {
-            getSurface()->create(m_StringExtents, I8, false);
+            getSurface()->create(getDisplayEngine(), m_StringExtents, I8, false);
 
             BitmapPtr pBmp = getSurface()->lockBmp();
             FilterFill<unsigned char>(0).applyInPlace(pBmp);

@@ -80,8 +80,10 @@ void FilledVectorNode::disconnect()
 
 void FilledVectorNode::checkReload()
 {
-    ImagePtr pImage = boost::dynamic_pointer_cast<Image>(m_pFillShape);
-    Node::checkReload(m_FillTexHRef, pImage);
+    Node::checkReload(m_FillTexHRef, m_pFillShape->getImage());
+    if (getState() == Node::NS_CANRENDER) {
+        m_pFillShape->moveToGPU(getDisplayEngine());
+    }
     VectorNode::checkReload();
 }
 
@@ -100,11 +102,7 @@ void FilledVectorNode::setFillTexHRef(const string& href)
 void FilledVectorNode::setFillBitmap(const Bitmap * pBmp)
 {
     m_FillTexHRef = "";
-    if (pBmp) {
-        m_pFillShape->setBitmap(pBmp);
-    } else {
-        m_pFillShape->setFilename("");
-    }
+    m_pFillShape->setBitmap(pBmp);
     setDrawNeeded(true);
 }
 

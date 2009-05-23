@@ -40,11 +40,13 @@ class SDLDisplayEngine;
 
 class AVG_API OGLTiledSurface: public OGLSurface {
     public:
-        OGLTiledSurface(SDLDisplayEngine * pEngine);
+        OGLTiledSurface();
         virtual ~OGLTiledSurface();
 
-        virtual void create(const IntPoint& Size, PixelFormat PF, bool bFastDownload);
-
+        virtual void create(SDLDisplayEngine * pEngine, const IntPoint& Size, 
+                PixelFormat PF, bool bFastDownload);
+        virtual void destroy();
+        
         void setTileSize(const IntPoint& tileSize);
         VertexGrid getOrigVertexCoords();
         VertexGrid getWarpedVertexCoords();
@@ -64,6 +66,7 @@ class AVG_API OGLTiledSurface: public OGLSurface {
         void calcTexCoords();
 
         bool m_bBound;
+        SDLDisplayEngine * m_pEngine;
 
         IntPoint m_TileSize;
         VertexGrid m_TileVertices;

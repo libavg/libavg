@@ -81,8 +81,7 @@ void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
 void RasterNode::disconnect()
 {
     if (m_pSurface) {
-        delete m_pSurface;
-        m_pSurface = 0;
+        m_pSurface->destroy();
     }
     AreaNode::disconnect();
 }
@@ -147,12 +146,7 @@ DisplayEngine::BlendMode RasterNode::getBlendMode() const
 OGLTiledSurface * RasterNode::getSurface()
 {
     if (!m_pSurface) {
-        SDLDisplayEngine *pDisplayEngine = getDisplayEngine();
-        if (pDisplayEngine) {
-            m_pSurface = new OGLTiledSurface(pDisplayEngine);
-        } else {
-            return 0;
-        }
+        m_pSurface = new OGLTiledSurface();
     }
     return m_pSurface;
 }

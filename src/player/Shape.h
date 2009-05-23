@@ -35,7 +35,7 @@
 
 namespace avg {
 
-class AVG_API Shape: public Image
+class AVG_API Shape
 {
     public:
         Shape(const std::string& sFilename, int texWrapSMode, int texWrapTMode);
@@ -46,16 +46,16 @@ class AVG_API Shape: public Image
         virtual void moveToGPU(SDLDisplayEngine* pEngine);
         virtual void moveToCPU();
 
+        ImagePtr getImage();
         VertexArrayPtr getVertexArray();
         void draw();
 
     private:
         void downloadTexture();
-        virtual OGLSurface* createSurface();
 
-        int m_TexWrapSMode;
-        int m_TexWrapTMode;
         VertexArrayPtr m_pVertexArray;
+        OGLSurface * m_pSurface;
+        ImagePtr m_pImage;
 };
 
 typedef boost::shared_ptr<Shape> ShapePtr;

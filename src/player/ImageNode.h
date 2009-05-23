@@ -54,9 +54,6 @@ class AVG_API ImageNode : public RasterNode
         virtual Bitmap* getBitmap();
         virtual IntPoint getMediaSize();
 
-    protected:
-        virtual OGLTiledSurface * getSurface();
-    
     private:
         std::string m_href;
         ImagePtr m_pImage;

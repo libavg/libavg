@@ -98,8 +98,10 @@ void VectorNode::disconnect()
 
 void VectorNode::checkReload()
 {
-    ImagePtr pImage = boost::dynamic_pointer_cast<Image>(m_pShape);
-    Node::checkReload(m_TexHRef, pImage);
+    Node::checkReload(m_TexHRef, m_pShape->getImage());
+    if (getState() == Node::NS_CANRENDER) {
+        m_pShape->moveToGPU(getDisplayEngine());
+    }
 }
 
 const std::string& VectorNode::getTexHRef() const
@@ -117,11 +119,7 @@ void VectorNode::setTexHRef(const string& href)
 void VectorNode::setBitmap(const Bitmap * pBmp)
 {
     m_TexHRef = "";
-    if (pBmp) {
-        m_pShape->setBitmap(pBmp);
-    } else {
-        m_pShape->setFilename("");
-    }
+    m_pShape->setBitmap(pBmp);
     setDrawNeeded(true);
 }
 

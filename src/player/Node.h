@@ -141,7 +141,7 @@ class AVG_API Node
         NodePtr getThis() const;
         void setState(NodeState State);
         void initFilename(std::string& sFilename);
-        void checkReload(const std::string& sHRef, ImagePtr& pImage);
+        void checkReload(const std::string& sHRef, const ImagePtr& pImage);
 
     private:
         PyObject * findPythonFunc(const std::string& Code);

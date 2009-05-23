@@ -428,7 +428,7 @@ void Node::initFilename(string& sFilename)
     }
 }
 
-void Node::checkReload(const std::string& sHRef, ImagePtr& pImage)
+void Node::checkReload(const std::string& sHRef, const ImagePtr& pImage)
 {
     string sLastFilename = pImage->getFilename();
     string sFilename = sHRef;

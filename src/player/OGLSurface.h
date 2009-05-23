@@ -39,10 +39,12 @@ class SDLDisplayEngine;
 
 class AVG_API OGLSurface {
     public:
-        OGLSurface(SDLDisplayEngine * pEngine, int texWrapSMode, int texWrapTMode);
+        OGLSurface(int texWrapSMode, int texWrapTMode);
         virtual ~OGLSurface();
 
-        virtual void create(const IntPoint& Size, PixelFormat PF, bool bFastDownload);
+        virtual void create(SDLDisplayEngine * pEngine, const IntPoint& Size, 
+                PixelFormat PF, bool bFastDownload);
+        virtual void destroy();
         virtual BitmapPtr lockBmp(int index=0);
         virtual void unlockBmps();
 
@@ -56,16 +58,11 @@ class AVG_API OGLSurface {
         OGLMemoryMode getMemMode() const;
         BitmapPtr getBmp(int i=0);
 
-    protected:
-        SDLDisplayEngine * getEngine();
-
     private:
         void createBitmap(const IntPoint& Size, PixelFormat pf, int index);
         void deleteBuffers();
         void unlockBmp(int i);
 
-        SDLDisplayEngine * m_pEngine;
-       
         bool m_bCreated;
 
         BitmapPtr m_pBmps[3];

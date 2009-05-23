@@ -38,10 +38,10 @@ using namespace std;
 
 namespace avg {
 
-Image::Image(const string& sFilename, bool bTiled)
+Image::Image(OGLSurface * pSurface, const string& sFilename, bool bTiled)
     : m_sFilename(sFilename),
       m_pBmp(new Bitmap(IntPoint(1,1), R8G8B8X8)),
-      m_pSurface(0),
+      m_pSurface(pSurface),
       m_pEngine(0),
       m_State(NOT_AVAILABLE),
       m_bTiled(bTiled)
@@ -50,9 +50,9 @@ Image::Image(const string& sFilename, bool bTiled)
     load();
 }
 
-Image::Image(const Bitmap* pBmp, bool bTiled)
+Image::Image(OGLSurface * pSurface, const Bitmap* pBmp, bool bTiled)
     : m_sFilename(""),
-      m_pSurface(0),
+      m_pSurface(pSurface),
       m_pEngine(0),
       m_State(CPU),
       m_bTiled(bTiled)
@@ -63,10 +63,6 @@ Image::Image(const Bitmap* pBmp, bool bTiled)
 
 Image::~Image()
 {
-    if (m_State == GPU) {
-        delete m_pSurface;
-        m_pSurface = 0;
-    }
     ObjectCounter::get()->decRef(&typeid(*this));
 }
         
@@ -77,13 +73,10 @@ void Image::setBitmap(const Bitmap * pBmp)
     }
     PixelFormat pf = calcSurfacePF(*pBmp);
     if (m_pEngine) {
-        if (!m_pSurface) {
-            m_pSurface = createSurface();
-        }
         if (m_pSurface->getSize() != pBmp->getSize() || 
                 m_pSurface->getPixelFormat() != pf)
         {
-            m_pSurface->create(pBmp->getSize(), pf, true);
+            m_pSurface->create(m_pEngine, pBmp->getSize(), pf, true);
         }            
         BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
         pSurfaceBmp->copyPixels(*pBmp);
@@ -123,15 +116,13 @@ void Image::moveToCPU()
     m_pSurface->unlockBmps();
     m_State = CPU;
     m_pEngine = 0;
-    delete m_pSurface;
-    m_pSurface = 0;
+    m_pSurface->destroy();
 }
 
 void Image::setFilename(const std::string& sFilename)
 {
     if (m_State == GPU) {
-        delete m_pSurface;
-        m_pSurface = 0;
+        m_pSurface->destroy();
     }
     m_State = NOT_AVAILABLE;
     m_pBmp = BitmapPtr(new Bitmap(IntPoint(1,1), R8G8B8X8));
@@ -215,18 +206,11 @@ void Image::load()
 void Image::setupSurface()
 {
     PixelFormat pf = calcSurfacePF(*m_pBmp);
-    m_pSurface = createSurface();
-    m_pSurface->create(m_pBmp->getSize(), pf, true);
+    m_pSurface->create(m_pEngine, m_pBmp->getSize(), pf, true);
     BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
     pSurfaceBmp->copyPixels(*m_pBmp);
     m_pSurface->unlockBmps();
     m_pBmp=BitmapPtr();
-}
-
-OGLSurface* Image::createSurface()
-{
-    assert(m_bTiled);
-    return new OGLTiledSurface(m_pEngine);
 }
 
 PixelFormat Image::calcSurfacePF(const Bitmap& bmp)

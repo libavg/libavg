@@ -37,9 +37,10 @@ using namespace std;
 
 namespace avg {
 
-OGLTiledSurface::OGLTiledSurface(SDLDisplayEngine * pEngine)
-    : OGLSurface(pEngine, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE),
+OGLTiledSurface::OGLTiledSurface()
+    : OGLSurface(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE),
       m_bBound(false),
+      m_pEngine(0),
       m_TileSize(-1,-1),
       m_pVertexes(0)
 {
@@ -48,22 +49,31 @@ OGLTiledSurface::OGLTiledSurface(SDLDisplayEngine * pEngine)
 
 OGLTiledSurface::~OGLTiledSurface()
 {
-    if (m_pVertexes) {
-        delete m_pVertexes;
-    }
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void OGLTiledSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload)
+void OGLTiledSurface::create(SDLDisplayEngine * pEngine, const IntPoint& Size, 
+        PixelFormat pf, bool bFastDownload)
 {
     if (m_bBound && getSize() == Size && getPixelFormat() == pf) {
         // If nothing's changed, we can ignore everything.
         return;
     }
     m_bBound = false;
-    OGLSurface::create(Size, pf, bFastDownload);
+    m_pEngine = pEngine;
+    OGLSurface::create(pEngine, Size, pf, bFastDownload);
        
     calcVertexGrid(m_TileVertices);
+}
+
+void OGLTiledSurface::destroy()
+{
+    if (m_pVertexes) {
+        delete m_pVertexes;
+        m_pVertexes = 0;
+    }
+    m_bBound = false;
+    OGLSurface::destroy();
 }
 
 void OGLTiledSurface::setTileSize(const IntPoint& tileSize)
@@ -160,9 +170,9 @@ void OGLTiledSurface::blt(const DPoint& DestSize, DisplayEngine::BlendMode mode)
     if (!m_bBound) {
         bind();
     }
-    getEngine()->enableGLColorArray(false);
-    getEngine()->enableTexture(true);
-    getEngine()->setBlendMode(mode);
+    m_pEngine->enableGLColorArray(false);
+    m_pEngine->enableTexture(true);
+    m_pEngine->setBlendMode(mode);
 
     for (unsigned int y=0; y<m_FinalVertices.size(); y++) {
         for (unsigned int x=0; x<m_FinalVertices[y].size(); x++) {
@@ -191,8 +201,8 @@ void OGLTiledSurface::blt(const DPoint& DestSize, DisplayEngine::BlendMode mode)
     AVG_TRACE(Logger::BLTS, "(" << DestSize.x << ", " 
             << DestSize.y << ")" << ", m_pf: " 
             << Bitmap::getPixelFormatString(pf) << ", " 
-            << getGlModeString(getEngine()->getOGLSrcMode(pf)) << "-->" 
-            << getGlModeString(getEngine()->getOGLDestMode(pf)));
+            << getGlModeString(m_pEngine->getOGLSrcMode(pf)) << "-->" 
+            << getGlModeString(m_pEngine->getOGLDestMode(pf)));
 }
 
 IntPoint OGLTiledSurface::getNumTiles()

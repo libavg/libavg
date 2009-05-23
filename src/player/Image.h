@@ -42,8 +42,8 @@ class AVG_API Image
     public:
         enum State {NOT_AVAILABLE, CPU, GPU};
 
-        Image(const std::string& sFilename, bool bTiled);
-        Image(const Bitmap* pBmp, bool bTiled);
+        Image(OGLSurface * pSurface, const std::string& sFilename, bool bTiled);
+        Image(OGLSurface * pSurface, const Bitmap* pBmp, bool bTiled);
         virtual ~Image();
 
         void setBitmap(const Bitmap * pBmp);
@@ -61,14 +61,11 @@ class AVG_API Image
         OGLTiledSurface* getTiledSurface();
         OGLTexturePtr getTexture();
         State getState();
-
-    protected:
         SDLDisplayEngine* getEngine();
 
     private:
         void load();
         void setupSurface();
-        virtual OGLSurface* createSurface();
         PixelFormat calcSurfacePF(const Bitmap& Bmp);
 
         std::string m_sFilename;

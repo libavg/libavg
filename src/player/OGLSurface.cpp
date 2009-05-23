@@ -36,9 +36,8 @@ using namespace std;
 
 namespace avg {
 
-OGLSurface::OGLSurface(SDLDisplayEngine * pEngine, int texWrapSMode, int texWrapTMode)
-    : m_pEngine(pEngine),
-      m_bCreated(false),
+OGLSurface::OGLSurface(int texWrapSMode, int texWrapTMode)
+    : m_bCreated(false),
       m_Size(-1,-1),
       m_TexWrapSMode(texWrapSMode),
       m_TexWrapTMode(texWrapTMode)
@@ -48,15 +47,12 @@ OGLSurface::OGLSurface(SDLDisplayEngine * pEngine, int texWrapSMode, int texWrap
 
 OGLSurface::~OGLSurface()
 {
-    if (m_bCreated) {
-        deleteBuffers();
-    }
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload)
+void OGLSurface::create(SDLDisplayEngine * pEngine, const IntPoint& Size, PixelFormat pf,
+        bool bFastDownload)
 {
-//    cerr << "OGLSurface::create: " << Size << ", " << Bitmap::getPixelFormatString(pf) << endl;
     if (m_bCreated && m_Size == Size && m_pf == pf) {
         // If nothing's changed, we can ignore everything.
         return;
@@ -68,7 +64,7 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
     m_pf = pf;
     m_MemoryMode = OGL;
     if (bFastDownload) {
-        m_MemoryMode = m_pEngine->getMemoryModeSupported();
+        m_MemoryMode = pEngine->getMemoryModeSupported();
     }
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
         createBitmap(Size, I8, 0);
@@ -79,14 +75,20 @@ void OGLSurface::create(const IntPoint& Size, PixelFormat pf, bool bFastDownload
         createBitmap(Size, m_pf, 0);
     }
     m_pTexture = OGLTexturePtr(new OGLTexture(Size, pf, m_TexWrapSMode, m_TexWrapTMode, 
-            getEngine()));
+            pEngine));
     
     m_bCreated = true;
 }
 
+void OGLSurface::destroy()
+{
+    if (m_bCreated) {
+        deleteBuffers();
+    }
+}
+
 BitmapPtr OGLSurface::lockBmp(int i)
 {
-//    cerr << "lockBmp " << i << endl;
     assert(m_bCreated);
     switch (m_MemoryMode) {
         case PBO:
@@ -127,7 +129,6 @@ BitmapPtr OGLSurface::lockBmp(int i)
 void OGLSurface::unlockBmps()
 {
     assert(m_bCreated);
-//    cerr << "unlockBmps" << endl;
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
         for (int i=0; i<3; i++) {
             unlockBmp(i);
@@ -185,11 +186,6 @@ PixelFormat OGLSurface::getPixelFormat()
 IntPoint OGLSurface::getSize()
 {
     return m_Size;
-}
-
-SDLDisplayEngine * OGLSurface::getEngine()
-{
-    return m_pEngine;
 }
 
 BitmapPtr OGLSurface::getBmp(int i)
@@ -256,7 +252,6 @@ void OGLSurface::deleteBuffers()
 
 void OGLSurface::unlockBmp(int i) 
 {
-//    cerr << "unlockBmp" << endl;
     switch (m_MemoryMode) {
         case PBO:
             glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);

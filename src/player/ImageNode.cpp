@@ -23,7 +23,6 @@
 
 #include "SDLDisplayEngine.h"
 #include "Player.h"
-#include "OGLTiledSurface.h"
 #include "NodeDefinition.h"
 
 #include "../base/Logger.h"
@@ -48,8 +47,8 @@ NodeDefinition ImageNode::createDefinition()
 }
 
 ImageNode::ImageNode(const ArgList& Args, bool bFromXML)
-    : m_pImage(new Image("", true))
 {
+    m_pImage = ImagePtr(new Image(getSurface(), "", true));
     Args.setMembers(this);
     setHRef(m_href);
     ObjectCounter::get()->incRef(&typeid(*this));
@@ -124,11 +123,6 @@ void ImageNode::checkReload()
 Bitmap * ImageNode::getBitmap()
 {
     return m_pImage->getBitmap();
-}
-
-OGLTiledSurface * ImageNode::getSurface()
-{
-    return m_pImage->getTiledSurface();
 }
 
 }

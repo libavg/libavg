@@ -39,23 +39,27 @@ using namespace std;
 namespace avg {
 
 Shape::Shape(const string& sFilename, int texWrapSMode, int texWrapTMode)
-    : Image(sFilename, false),
-      m_TexWrapSMode(texWrapSMode),
-      m_TexWrapTMode(texWrapTMode)
 {
+    m_pSurface = new OGLSurface(texWrapSMode, texWrapTMode);
+    m_pImage = ImagePtr(new Image(m_pSurface, sFilename, false));
 }
 
 Shape::~Shape()
 {
+    delete m_pSurface;
 }
 
 void Shape::setBitmap(const Bitmap* pBmp)
 {
-    State prevState = getState();
-    Image::setBitmap(pBmp);
-    if (getState() == GPU) {
+    Image::State prevState = m_pImage->getState();
+    if (pBmp) {
+        m_pImage->setBitmap(pBmp);
+    } else {
+        m_pImage->setFilename("");
+    }
+    if (m_pImage->getState() == Image::GPU) {
         downloadTexture();
-        if (prevState != GPU) {
+        if (prevState != Image::GPU) {
             m_pVertexArray = VertexArrayPtr(new VertexArray(0, 0, 100, 100));
         }
     }
@@ -63,8 +67,8 @@ void Shape::setBitmap(const Bitmap* pBmp)
 
 void Shape::moveToGPU(SDLDisplayEngine* pEngine)
 {
-    Image::moveToGPU(pEngine);
-    if (getState() == GPU) {
+    m_pImage->moveToGPU(pEngine);
+    if (m_pImage->getState() == Image::GPU) {
         downloadTexture();
     }
     m_pVertexArray = VertexArrayPtr(new VertexArray(0, 0, 100, 100));
@@ -73,7 +77,12 @@ void Shape::moveToGPU(SDLDisplayEngine* pEngine)
 void Shape::moveToCPU()
 {
     m_pVertexArray = VertexArrayPtr();
-    Image::moveToCPU();
+    m_pImage->moveToCPU();
+}
+
+ImagePtr Shape::getImage()
+{
+    return m_pImage;
 }
 
 VertexArrayPtr Shape::getVertexArray()
@@ -83,21 +92,21 @@ VertexArrayPtr Shape::getVertexArray()
 
 void Shape::draw()
 {
-    bool bIsTextured = (getState() == GPU);
+    bool bIsTextured = (m_pImage->getState() == Image::GPU);
     if (bIsTextured) {
-        getTexture()->activate();
+        m_pImage->getTexture()->activate();
     }
-    getEngine()->enableTexture(bIsTextured);
-    getEngine()->enableGLColorArray(!bIsTextured);
+    m_pImage->getEngine()->enableTexture(bIsTextured);
+    m_pImage->getEngine()->enableGLColorArray(!bIsTextured);
     m_pVertexArray->draw();
     if (bIsTextured) {
-        getTexture()->deactivate();
+        m_pImage->getTexture()->deactivate();
     }
 }
 
 void Shape::downloadTexture()
 {
-    OGLSurface * pSurface = getSurface();
+    OGLSurface * pSurface = m_pImage->getSurface();
     if (pSurface->getMemMode() == PBO) {
         pSurface->bindPBO();
     }
@@ -105,11 +114,6 @@ void Shape::downloadTexture()
     if (pSurface->getMemMode() == PBO) {
         pSurface->unbindPBO();
     }
-}
-
-OGLSurface* Shape::createSurface()
-{
-    return new OGLSurface(getEngine(), m_TexWrapSMode, m_TexWrapTMode);
 }
 
 }
