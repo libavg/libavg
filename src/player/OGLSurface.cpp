@@ -36,11 +36,10 @@ using namespace std;
 
 namespace avg {
 
-OGLSurface::OGLSurface(int texWrapSMode, int texWrapTMode)
+OGLSurface::OGLSurface(const MaterialInfo& material)
     : m_bCreated(false),
       m_Size(-1,-1),
-      m_TexWrapSMode(texWrapSMode),
-      m_TexWrapTMode(texWrapTMode)
+      m_Material(material)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -74,8 +73,7 @@ void OGLSurface::create(SDLDisplayEngine * pEngine, const IntPoint& Size, PixelF
     } else {
         createBitmap(Size, m_pf, 0);
     }
-    m_pTexture = OGLTexturePtr(new OGLTexture(Size, pf, m_TexWrapSMode, m_TexWrapTMode, 
-            pEngine));
+    m_pTexture = OGLTexturePtr(new OGLTexture(Size, pf, m_Material, pEngine));
     
     m_bCreated = true;
 }
@@ -137,6 +135,17 @@ void OGLSurface::unlockBmps()
         m_pf = m_pBmps[0]->getPixelFormat();
         unlockBmp(0);
     }
+}
+
+const MaterialInfo& OGLSurface::getMaterial() const
+{
+    return m_Material;
+}
+
+void OGLSurface::setMaterial(const MaterialInfo& material)
+{
+    m_Material = material;
+    m_pTexture->setMaterial(material);
 }
 
 void OGLSurface::bindPBO(int i) 

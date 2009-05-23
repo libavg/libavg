@@ -23,6 +23,9 @@
 #define _OGLTexture_H_
 
 #include "../api.h"
+
+#include "MaterialInfo.h"
+
 #include "../graphics/Bitmap.h"
 #include "../graphics/OGLHelper.h"
 #include "../base/Rect.h"
@@ -38,13 +41,14 @@ typedef std::vector<std::vector<DPoint> > VertexGrid;
 
 class AVG_API OGLTexture {
     public:
-        OGLTexture(IntPoint size, PixelFormat pf, int texWrapSMode, int texWrapTMode,
+        OGLTexture(IntPoint size, PixelFormat pf, const MaterialInfo& material,
                 SDLDisplayEngine * pEngine);
         virtual ~OGLTexture();
 
         void downloadTexture(int i, BitmapPtr pBmp, OGLMemoryMode MemoryMode) const;
         void activate() const;
         void deactivate() const;
+        void setMaterial(const MaterialInfo& material);
 
         const IntPoint& getTextureSize() const;
 
@@ -57,8 +61,7 @@ class AVG_API OGLTexture {
         IntPoint m_ActiveSize;
         PixelFormat m_pf;
         unsigned int m_TexID[3];
-        int m_TexWrapSMode;
-        int m_TexWrapTMode;
+        MaterialInfo m_Material;
         SDLDisplayEngine * m_pEngine;
 };
 

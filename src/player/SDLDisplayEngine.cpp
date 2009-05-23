@@ -396,7 +396,7 @@ void SDLDisplayEngine::render(AVGNodePtr pRootNode)
         ScopeTimer Timer(RootRenderProfilingZone);
         pRootNode->maybeRender(rc);
 
-        Shape * pShape = new Shape("", GL_REPEAT, GL_CLAMP_TO_EDGE);
+        Shape * pShape = new Shape("", MaterialInfo(GL_REPEAT, GL_CLAMP_TO_EDGE, false));
         pShape->moveToGPU(this);
         VertexArrayPtr pVA = pShape->getVertexArray();
         pVA->changeSize(8000, 8000);  // Breaks at 1000 nodes.

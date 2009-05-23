@@ -32,7 +32,6 @@
 
 namespace avg {
 
-class OGLSurface;
 struct WideLine;
 
 class AVG_API VectorNode : public Node

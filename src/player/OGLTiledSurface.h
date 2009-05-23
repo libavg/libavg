@@ -40,7 +40,7 @@ class SDLDisplayEngine;
 
 class AVG_API OGLTiledSurface: public OGLSurface {
     public:
-        OGLTiledSurface();
+        OGLTiledSurface(const MaterialInfo& material);
         virtual ~OGLTiledSurface();
 
         virtual void create(SDLDisplayEngine * pEngine, const IntPoint& Size, 

@@ -22,6 +22,7 @@
 #include "OGLTiledSurface.h"
 #include "Player.h"
 #include "SDLDisplayEngine.h"
+#include "MaterialInfo.h"
 
 #include "../base/MathHelper.h"
 #include "../base/Logger.h"
@@ -37,8 +38,8 @@ using namespace std;
 
 namespace avg {
 
-OGLTiledSurface::OGLTiledSurface()
-    : OGLSurface(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE),
+OGLTiledSurface::OGLTiledSurface(const MaterialInfo& material)
+    : OGLSurface(material),
       m_bBound(false),
       m_pEngine(0),
       m_TileSize(-1,-1),

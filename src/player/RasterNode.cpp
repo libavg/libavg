@@ -39,11 +39,14 @@ NodeDefinition RasterNode::createDefinition()
         .extendDefinition(AreaNode::createDefinition())
         .addArg(Arg<int>("maxtilewidth", -1, false, offsetof(RasterNode, m_MaxTileSize.x)))
         .addArg(Arg<int>("maxtileheight", -1, false, offsetof(RasterNode, m_MaxTileSize.y)))
-        .addArg(Arg<string>("blendmode", "blend", false, offsetof(RasterNode, m_sBlendMode)));
+        .addArg(Arg<string>("blendmode", "blend", false, offsetof(RasterNode, m_sBlendMode)))
+        .addArg(Arg<bool>("mipmap", false, false, 
+                offsetof(RasterNode, m_Material.m_bUseMipmaps)));
 }
 
 RasterNode::RasterNode()
-    : m_pSurface(0)
+    : m_pSurface(0),
+      m_Material(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, false)
 {
 }
 
@@ -71,10 +74,11 @@ void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
 {
     AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 
-    OGLTiledSurface * pOGLSurface = getSurface();
-    if (m_MaxTileSize != IntPoint(-1, -1) && pOGLSurface) {
-        pOGLSurface->setTileSize(m_MaxTileSize);
+    OGLTiledSurface * pSurface = getSurface();
+    if (m_MaxTileSize != IntPoint(-1, -1) && pSurface) {
+        pSurface->setTileSize(m_MaxTileSize);
     }
+    pSurface->setMaterial(m_Material);
     setBlendModeStr(m_sBlendMode);
 }
 
@@ -146,7 +150,7 @@ DisplayEngine::BlendMode RasterNode::getBlendMode() const
 OGLTiledSurface * RasterNode::getSurface()
 {
     if (!m_pSurface) {
-        m_pSurface = new OGLTiledSurface();
+        m_pSurface = new OGLTiledSurface(m_Material);
     }
     return m_pSurface;
 }

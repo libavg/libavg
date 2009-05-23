@@ -39,7 +39,7 @@ class SDLDisplayEngine;
 
 class AVG_API OGLSurface {
     public:
-        OGLSurface(int texWrapSMode, int texWrapTMode);
+        OGLSurface(const MaterialInfo& material);
         virtual ~OGLSurface();
 
         virtual void create(SDLDisplayEngine * pEngine, const IntPoint& Size, 
@@ -47,6 +47,8 @@ class AVG_API OGLSurface {
         virtual void destroy();
         virtual BitmapPtr lockBmp(int index=0);
         virtual void unlockBmps();
+        const MaterialInfo& getMaterial() const;
+        void setMaterial(const MaterialInfo& material);
 
         void bindPBO(int index=0);
         void unbindPBO();
@@ -69,8 +71,7 @@ class AVG_API OGLSurface {
         OGLTexturePtr m_pTexture;
         IntPoint m_Size;
         PixelFormat m_pf;
-        int m_TexWrapSMode;
-        int m_TexWrapTMode;
+        MaterialInfo m_Material;
 
         OGLMemoryMode m_MemoryMode;
 

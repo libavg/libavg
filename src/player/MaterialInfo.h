@@ -19,48 +19,22 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Shape_H_
-#define _Shape_H_
+#ifndef _MaterialInfo_H_
+#define _MaterialInfo_H_
 
 #include "../api.h"
-#include "Image.h"
-#include "OGLTexture.h"
-
-#include "../base/Point.h"
-#include "../graphics/Bitmap.h"
-#include "../graphics/VertexArray.h"
-
-#include <boost/shared_ptr.hpp>
-#include <string>
 
 namespace avg {
 
-class AVG_API Shape
-{
-    public:
-        Shape(const std::string& sFilename, const MaterialInfo& material);
-        virtual ~Shape();
-
-        void setBitmap(const Bitmap * pBmp);
-
-        virtual void moveToGPU(SDLDisplayEngine* pEngine);
-        virtual void moveToCPU();
-
-        ImagePtr getImage();
-        VertexArrayPtr getVertexArray();
-        void draw();
-
-    private:
-        void downloadTexture();
-
-        VertexArrayPtr m_pVertexArray;
-        OGLSurface * m_pSurface;
-        ImagePtr m_pImage;
+struct AVG_API MaterialInfo {
+    MaterialInfo(int texWrapSMode, int texWrapTMode, bool bUseMipmaps);
+    int m_TexWrapSMode;
+    int m_TexWrapTMode;
+    bool m_bUseMipmaps;
 };
-
-typedef boost::shared_ptr<Shape> ShapePtr;
 
 }
 
 #endif
+
 

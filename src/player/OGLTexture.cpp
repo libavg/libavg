@@ -34,19 +34,19 @@ namespace avg {
 
 using namespace std;
     
-OGLTexture::OGLTexture(IntPoint size, PixelFormat pf, int texWrapSMode, int texWrapTMode,
+OGLTexture::OGLTexture(IntPoint size, PixelFormat pf, const MaterialInfo& material,
         SDLDisplayEngine * pEngine) 
-    : m_Size(size),
-      m_pf(pf),
-      m_TexWrapSMode(texWrapSMode),
-      m_TexWrapTMode(texWrapTMode),
+    : m_pf(pf),
+      m_Material(material),
       m_pEngine(pEngine)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
-    m_ActiveSize = m_Size;
+    m_ActiveSize = size;
     if (pEngine->usePOTTextures()) {
-        m_Size.x = nextpow2(m_Size.x);
-        m_Size.y = nextpow2(m_Size.y);
+        m_Size.x = nextpow2(m_ActiveSize.x);
+        m_Size.y = nextpow2(m_ActiveSize.y);
+    } else {
+        m_Size = m_ActiveSize;
     }
     createTextures();
 }
@@ -99,6 +99,11 @@ void OGLTexture::deactivate() const
     }
 }
         
+void OGLTexture::setMaterial(const MaterialInfo& material)
+{
+    m_Material = material;
+}
+
 const IntPoint& OGLTexture::getTextureSize() const
 {
     return m_Size;
@@ -126,6 +131,7 @@ void OGLTexture::deleteTextures()
 }
 
 static ProfilingZone TexSubImageProfilingZone("OGLTexture::texture download");
+static ProfilingZone MipmapProfilingZone("OGLTexture::mipmap generation");
 
 void OGLTexture::downloadTexture(int i, BitmapPtr pBmp, OGLMemoryMode MemoryMode) const
 {
@@ -157,6 +163,21 @@ void OGLTexture::downloadTexture(int i, BitmapPtr pBmp, OGLMemoryMode MemoryMode
     }
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "OGLTexture::downloadTexture: glTexSubImage2D()");
+    int texFilter;
+    if (m_Material.m_bUseMipmaps) {
+        ScopeTimer Timer(MipmapProfilingZone);
+        cerr << "GenerateMipmap" << endl;
+        glproc::GenerateMipmap(GL_TEXTURE_2D);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+                "OGLTexture::downloadTexture: GenerateMipmap()");
+        texFilter = GL_LINEAR_MIPMAP_LINEAR;
+    } else {
+        texFilter = GL_LINEAR;
+    }
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texFilter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
+            "OGLTexture::downloadTexture: glTexParameteri()");
 }
 
 unsigned OGLTexture::createTexture(IntPoint size, PixelFormat pf)
@@ -167,10 +188,9 @@ unsigned OGLTexture::createTexture(IntPoint size, PixelFormat pf)
     glproc::ActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texID);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLTexture::createTexture: glBindTexture()");
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_TexWrapSMode);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_TexWrapTMode);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, m_Material.m_TexWrapSMode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, m_Material.m_TexWrapTMode);
     OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
             "OGLTexture::createTexture: glTexParameteri()");
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);

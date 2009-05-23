@@ -78,6 +78,7 @@ class AVG_API RasterNode: public AreaNode
         IntPoint m_MaxTileSize;
         std::string m_sBlendMode;
         DisplayEngine::BlendMode m_BlendMode;
+        MaterialInfo m_Material;
 };
 
 }

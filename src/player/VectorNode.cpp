@@ -59,7 +59,7 @@ NodeDefinition VectorNode::createDefinition()
 }
 
 VectorNode::VectorNode(const ArgList& Args)
-    : m_pShape(new Shape("", GL_REPEAT, GL_CLAMP_TO_EDGE))
+    : m_pShape(new Shape("", MaterialInfo(GL_REPEAT, GL_CLAMP_TO_EDGE, false)))
 {
     ObjectCounter::get()->incRef(&typeid(*this));
     m_TexHRef = Args.getArgVal<string>("texhref"); 

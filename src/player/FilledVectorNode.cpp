@@ -51,7 +51,7 @@ FilledVectorNode::FilledVectorNode(const ArgList& Args)
     : VectorNode(Args),
       m_FillTexCoord1(0,0),
       m_FillTexCoord2(1,1),
-      m_pFillShape(new Shape("", GL_REPEAT, GL_REPEAT))
+      m_pFillShape(new Shape("", MaterialInfo(GL_REPEAT, GL_REPEAT, false)))
 {
     m_FillTexHRef = Args.getArgVal<string>("filltexhref"); 
     setFillTexHRef(m_FillTexHRef);
