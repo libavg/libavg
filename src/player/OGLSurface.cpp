@@ -145,7 +145,9 @@ const MaterialInfo& OGLSurface::getMaterial() const
 void OGLSurface::setMaterial(const MaterialInfo& material)
 {
     m_Material = material;
-    m_pTexture->setMaterial(material);
+    if (m_pTexture) {
+        m_pTexture->setMaterial(material);
+    }
 }
 
 void OGLSurface::bindPBO(int i) 

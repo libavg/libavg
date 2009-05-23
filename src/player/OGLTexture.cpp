@@ -166,7 +166,6 @@ void OGLTexture::downloadTexture(int i, BitmapPtr pBmp, OGLMemoryMode MemoryMode
     int texFilter;
     if (m_Material.m_bUseMipmaps) {
         ScopeTimer Timer(MipmapProfilingZone);
-        cerr << "GenerateMipmap" << endl;
         glproc::GenerateMipmap(GL_TEXTURE_2D);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
                 "OGLTexture::downloadTexture: GenerateMipmap()");
