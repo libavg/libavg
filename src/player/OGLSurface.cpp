@@ -204,12 +204,6 @@ BitmapPtr OGLSurface::getBmp(int i)
     return m_pBmps[i];
 }
 
-OGLMemoryMode OGLSurface::getMemMode() const
-{
-    return m_MemoryMode;
-}
-
-
 void OGLSurface::createBitmap(const IntPoint& Size, PixelFormat pf, int i)
 {
     switch (m_MemoryMode) {

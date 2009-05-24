@@ -55,7 +55,6 @@ class AVG_API OGLSurface {
 
         PixelFormat getPixelFormat();
         IntPoint getSize();
-        OGLMemoryMode getMemMode() const;
         BitmapPtr getBmp(int i=0);
 
     private:
