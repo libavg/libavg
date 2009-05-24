@@ -150,22 +150,6 @@ void OGLSurface::setMaterial(const MaterialInfo& material)
     }
 }
 
-void OGLSurface::bindPBO(int i) 
-{
-    assert(m_bCreated);
-    assert(m_MemoryMode == PBO);
-    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::bind: glBindBuffer()");
-}
-
-void OGLSurface::unbindPBO() 
-{
-    assert(m_bCreated);
-    assert(m_MemoryMode == PBO);
-    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::bind: glBindBuffer()");
-}
-
 void OGLSurface::downloadTexture()
 {
     if (m_MemoryMode == PBO) {
@@ -273,6 +257,22 @@ void OGLSurface::unlockBmp(int i)
         default:
             break;
     }
+}
+
+void OGLSurface::bindPBO(int i) 
+{
+    assert(m_bCreated);
+    assert(m_MemoryMode == PBO);
+    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::bind: glBindBuffer()");
+}
+
+void OGLSurface::unbindPBO() 
+{
+    assert(m_bCreated);
+    assert(m_MemoryMode == PBO);
+    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
+    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::bind: glBindBuffer()");
 }
 
 }

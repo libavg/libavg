@@ -153,7 +153,7 @@ class PlayerTestCase(AVGTestCase):
         
         """)
         self.start(None, 
-                [lambda: self.compareImage("testmipmap", False)])
+                [lambda: self.compareImage("testmipmap1", False)])
 
     def testDivResize(self):
         def checkSize (w, h):

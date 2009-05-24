@@ -142,6 +142,10 @@ void export_raster()
                 &RasterNode::setBlendModeStr,
                 "The method of compositing the node with the nodes under\n"
                 "it. Valid values are 'blend', 'add', 'min' and 'max'.\n")
+        .add_property("mipmap", &RasterNode::getMipmap,
+                "Determines whether mipmaps are generated for this node. Setting this\n"
+                "to True improves the quality of minified nodes, but causes a\n"
+                "performance hit for every image change. (ro)\n")
     ;
 
     class_<ImageNode, bases<RasterNode> >("Image",

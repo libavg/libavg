@@ -111,6 +111,21 @@ void RasterNode::setWarpedVertexCoords(const VertexGrid& Grid)
     pOGLSurface->setWarpedVertexCoords(Grid);
 }
 
+int RasterNode::getMaxTileWidth() const
+{
+    return m_MaxTileSize.x;
+}
+
+int RasterNode::getMaxTileHeight() const
+{
+    return m_MaxTileSize.y;
+}
+
+bool RasterNode::getMipmap() const
+{
+   return m_Material.m_bUseMipmaps;
+}
+
 const std::string& RasterNode::getBlendModeStr() const
 {
     return m_sBlendMode;

@@ -50,15 +50,9 @@ class AVG_API RasterNode: public AreaNode
         VertexGrid getWarpedVertexCoords();
         void setWarpedVertexCoords(const VertexGrid& Grid);
 
-        int getMaxTileWidth() const
-        {
-            return m_MaxTileSize.x;
-        }
-
-        int getMaxTileHeight() const
-        {
-            return m_MaxTileSize.y;
-        }
+        int getMaxTileWidth() const;
+        int getMaxTileHeight() const;
+        bool getMipmap() const;
         
         const std::string& getBlendModeStr() const;
         void setBlendModeStr(const std::string& sBlendMode);
