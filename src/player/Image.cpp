@@ -178,11 +178,6 @@ OGLTiledSurface* Image::getTiledSurface()
     return dynamic_cast<OGLTiledSurface*>(getSurface());
 }
 
-OGLTexturePtr Image::getTexture()
-{
-    return getSurface()->getTexture();
-}
-
 Image::State Image::getState()
 {
     return m_State;

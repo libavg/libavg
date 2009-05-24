@@ -94,13 +94,13 @@ void Shape::draw()
 {
     bool bIsTextured = (m_pImage->getState() == Image::GPU);
     if (bIsTextured) {
-        m_pImage->getTexture()->activate();
+        m_pImage->getSurface()->activate();
     }
     m_pImage->getEngine()->enableTexture(bIsTextured);
     m_pImage->getEngine()->enableGLColorArray(!bIsTextured);
     m_pVertexArray->draw();
     if (bIsTextured) {
-        m_pImage->getTexture()->deactivate();
+        m_pImage->getSurface()->deactivate();
     }
 }
 

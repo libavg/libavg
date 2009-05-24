@@ -38,44 +38,37 @@ namespace avg {
 class SDLDisplayEngine;
 
 class AVG_API OGLSurface {
-    public:
-        OGLSurface(const MaterialInfo& material);
-        virtual ~OGLSurface();
+public:
+    OGLSurface(const MaterialInfo& material);
+    virtual ~OGLSurface();
 
-        virtual void create(SDLDisplayEngine * pEngine, const IntPoint& Size, 
-                PixelFormat PF, bool bFastDownload);
-        virtual void destroy();
-        virtual BitmapPtr lockBmp(int index=0);
-        virtual void unlockBmps();
-        const MaterialInfo& getMaterial() const;
-        void setMaterial(const MaterialInfo& material);
+    virtual void create(SDLDisplayEngine * pEngine, const IntPoint& size, 
+            PixelFormat pf, bool bFastDownload);
+    virtual void destroy();
+    void activate() const;
+    void deactivate() const;
 
-        void downloadTexture();
-        OGLTexturePtr getTexture();
+    virtual BitmapPtr lockBmp(int i=0);
+    virtual void unlockBmps();
+    const MaterialInfo& getMaterial() const;
+    void setMaterial(const MaterialInfo& material);
 
-        PixelFormat getPixelFormat();
-        IntPoint getSize();
-        BitmapPtr getBmp(int i=0);
+    void downloadTexture();
 
-    private:
-        void createBitmap(const IntPoint& Size, PixelFormat pf, int index);
-        void deleteBuffers();
-        void unlockBmp(int i);
-        void bindPBO(int index=0);
-        void unbindPBO();
+    PixelFormat getPixelFormat();
+    IntPoint getSize();
+    IntPoint getTextureSize();
 
-        bool m_bCreated;
+private:
+    bool m_bCreated;
 
-        BitmapPtr m_pBmps[3];
-        OGLTexturePtr m_pTexture;
-        IntPoint m_Size;
-        PixelFormat m_pf;
-        MaterialInfo m_Material;
+    OGLTexturePtr m_pTextures[3];
+    IntPoint m_Size;
+    PixelFormat m_pf;
+    MaterialInfo m_Material;
 
-        OGLMemoryMode m_MemoryMode;
-
-        // PBO memory mode
-        GLuint m_hPixelBuffers[3];
+    SDLDisplayEngine * m_pEngine;
+    OGLMemoryMode m_MemoryMode;
 };
 
 }

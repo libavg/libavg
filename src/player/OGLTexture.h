@@ -40,29 +40,34 @@ class VertexArray;
 typedef std::vector<std::vector<DPoint> > VertexGrid;
 
 class AVG_API OGLTexture {
-    public:
-        OGLTexture(IntPoint size, PixelFormat pf, const MaterialInfo& material,
-                SDLDisplayEngine * pEngine);
-        virtual ~OGLTexture();
+public:
+    OGLTexture(IntPoint size, PixelFormat pf, const MaterialInfo& material,
+            SDLDisplayEngine * pEngine, OGLMemoryMode memoryMode);
+    virtual ~OGLTexture();
 
-        void downloadTexture(int i, BitmapPtr pBmp, OGLMemoryMode MemoryMode) const;
-        void activate() const;
-        void deactivate() const;
-        void setMaterial(const MaterialInfo& material);
+    BitmapPtr lockBmp();
+    void unlockBmp();
+    void download() const;
 
-        const IntPoint& getTextureSize() const;
+    void setMaterial(const MaterialInfo& material);
+    const IntPoint& getTextureSize() const;
+    unsigned getTexID() const;
 
-    private:
-        void createTextures();
-        void deleteTextures();
-        unsigned createTexture(IntPoint size, PixelFormat pf);
+private:
+    void createBitmap();
+    void createTexture();
 
-        IntPoint m_Size;
-        IntPoint m_ActiveSize;
-        PixelFormat m_pf;
-        unsigned int m_TexID[3];
-        MaterialInfo m_Material;
-        SDLDisplayEngine * m_pEngine;
+    IntPoint m_Size;
+    IntPoint m_ActiveSize;
+    PixelFormat m_pf;
+    MaterialInfo m_Material;
+    
+    unsigned m_TexID;
+    GLuint m_hPixelBuffer;
+    BitmapPtr m_pBmp;
+    
+    SDLDisplayEngine * m_pEngine;
+    OGLMemoryMode m_MemoryMode;
 };
 
 typedef boost::shared_ptr<OGLTexture> OGLTexturePtr;

@@ -194,9 +194,9 @@ void OGLTiledSurface::blt(const DPoint& DestSize, DisplayEngine::BlendMode mode)
         }
     }
 
-    getTexture()->activate();
+    activate();
     m_pVertexes->draw();
-    getTexture()->deactivate();
+    deactivate();
 
     PixelFormat pf = getPixelFormat();
     AVG_TRACE(Logger::BLTS, "(" << DestSize.x << ", " 
@@ -252,7 +252,7 @@ void OGLTiledSurface::calcTileVertex(int x, int y, DPoint& Vertex)
 
 void OGLTiledSurface::calcTexCoords()
 {
-    DPoint textureSize = DPoint(getTexture()->getTextureSize());
+    DPoint textureSize = DPoint(getTextureSize());
     DPoint texCoordExtents = DPoint(getSize().x/textureSize.x,
             getSize().y/textureSize.y);
 

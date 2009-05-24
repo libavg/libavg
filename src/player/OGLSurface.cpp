@@ -39,7 +39,8 @@ namespace avg {
 OGLSurface::OGLSurface(const MaterialInfo& material)
     : m_bCreated(false),
       m_Size(-1,-1),
-      m_Material(material)
+      m_Material(material),
+      m_pEngine(0)
 {
     ObjectCounter::get()->incRef(&typeid(*this));
 }
@@ -49,91 +50,99 @@ OGLSurface::~OGLSurface()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void OGLSurface::create(SDLDisplayEngine * pEngine, const IntPoint& Size, PixelFormat pf,
+void OGLSurface::create(SDLDisplayEngine * pEngine, const IntPoint& size, PixelFormat pf,
         bool bFastDownload)
 {
-    if (m_bCreated && m_Size == Size && m_pf == pf) {
+    if (m_bCreated && m_Size == size && m_pf == pf) {
         // If nothing's changed, we can ignore everything.
         return;
     }
-    if (m_bCreated) {
-        deleteBuffers();
-    }
-    m_Size = Size;
+    m_pEngine = pEngine;
+    m_Size = size;
     m_pf = pf;
     m_MemoryMode = OGL;
     if (bFastDownload) {
         m_MemoryMode = pEngine->getMemoryModeSupported();
     }
+
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-        createBitmap(Size, I8, 0);
-        IntPoint HalfSize(Size.x/2, Size.y/2);
-        createBitmap(HalfSize, I8, 1);
-        createBitmap(HalfSize, I8, 2);
+        m_pTextures[0] = OGLTexturePtr(new OGLTexture(size, I8, m_Material, pEngine,
+                m_MemoryMode));
+        IntPoint halfSize(size.x/2, size.y/2);
+        m_pTextures[1] = OGLTexturePtr(new OGLTexture(halfSize, I8, m_Material, pEngine,
+                m_MemoryMode));
+        m_pTextures[2] = OGLTexturePtr(new OGLTexture(halfSize, I8, m_Material, pEngine,
+                m_MemoryMode));
     } else {
-        createBitmap(Size, m_pf, 0);
+        m_pTextures[0] = OGLTexturePtr(new OGLTexture(size, m_pf, m_Material, pEngine,
+                m_MemoryMode));
     }
-    m_pTexture = OGLTexturePtr(new OGLTexture(Size, pf, m_Material, pEngine));
-    
     m_bCreated = true;
 }
 
 void OGLSurface::destroy()
 {
-    if (m_bCreated) {
-        deleteBuffers();
+    m_pTextures[0] = OGLTexturePtr();
+    m_pTextures[1] = OGLTexturePtr();
+    m_pTextures[2] = OGLTexturePtr();
+    m_bCreated = false;
+}
+
+void OGLSurface::activate() const
+{
+    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+        OGLShaderPtr pShader;
+        if (m_pf == YCbCr420p) {
+            pShader = m_pEngine->getYCbCr420pShader();
+        } else {
+            pShader = m_pEngine->getYCbCrJ420pShader();
+        }
+        pShader->activate();
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate()");
+        glproc::ActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_pTextures[0]->getTexID());
+        pShader->setUniformIntParam("YTexture", 0);
+        glproc::ActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, m_pTextures[1]->getTexID());
+        pShader->setUniformIntParam("CbTexture", 1);
+        glproc::ActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, m_pTextures[2]->getTexID());
+        pShader->setUniformIntParam("CrTexture", 2);
+    } else {
+        glproc::ActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, m_pTextures[0]->getTexID());
+        if (m_pEngine->isUsingYCbCrShaders()) {
+            glproc::UseProgramObject(0);
+        }
+    }
+}
+
+void OGLSurface::deactivate() const
+{
+    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+        glproc::ActiveTexture(GL_TEXTURE1);
+        glDisable(GL_TEXTURE_2D);
+        glproc::ActiveTexture(GL_TEXTURE2);
+        glDisable(GL_TEXTURE_2D);
+        glproc::ActiveTexture(GL_TEXTURE0);
+        glproc::UseProgramObject(0);
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::deactivate");
     }
 }
 
 BitmapPtr OGLSurface::lockBmp(int i)
 {
     assert(m_bCreated);
-    switch (m_MemoryMode) {
-        case PBO:
-            {
-                glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
-                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                        "OGLSurface::lockBmp: glBindBuffer()");
-                unsigned char * pBuffer = (unsigned char *)
-                    glproc::MapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, GL_WRITE_ONLY);
-                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                        "OGLSurface::lockBmp: glMapBuffer()");
-                glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
-                OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                        "OGLSurface::lockBmp: glBindBuffer(0)");
-                IntPoint Size;
-                if (i == 0) {
-                    Size = m_Size;
-                } else {
-                    Size = IntPoint(m_Size.x/2, m_Size.y/2);
-                }
-                PixelFormat pf;
-                if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-                    pf = I8;
-                } else {
-                    pf = m_pf;
-                }
-
-                m_pBmps[i] = BitmapPtr(new Bitmap(Size, pf, pBuffer, 
-                        Size.x*Bitmap::getBytesPerPixel(pf), false));
-            }
-            break;
-        default:
-            break;
-    }
-    return m_pBmps[i];
+    return m_pTextures[i]->lockBmp();
 }
 
 void OGLSurface::unlockBmps()
 {
     assert(m_bCreated);
+    m_pTextures[0]->unlockBmp();
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-        for (int i=0; i<3; i++) {
-            unlockBmp(i);
-        }
-    } else {
-        m_pf = m_pBmps[0]->getPixelFormat();
-        unlockBmp(0);
+        m_pTextures[1]->unlockBmp();
+        m_pTextures[2]->unlockBmp();
     }
 }
 
@@ -145,32 +154,22 @@ const MaterialInfo& OGLSurface::getMaterial() const
 void OGLSurface::setMaterial(const MaterialInfo& material)
 {
     m_Material = material;
-    if (m_pTexture) {
-        m_pTexture->setMaterial(material);
+    if (m_pTextures[0]) {
+        m_pTextures[0]->setMaterial(material);
+        if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+            m_pTextures[1]->setMaterial(material);
+            m_pTextures[2]->setMaterial(material);
+        }
     }
 }
 
 void OGLSurface::downloadTexture()
 {
-    if (m_MemoryMode == PBO) {
-        if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-            for (int i=0; i<3; i++) {
-                bindPBO(i);
-                m_pTexture->downloadTexture(i, m_pBmps[i], m_MemoryMode);
-            }
-        } else {
-            bindPBO();
-            m_pTexture->downloadTexture(0, m_pBmps[0], m_MemoryMode);
-        }
-        unbindPBO();
-    } else {
-        m_pTexture->downloadTexture(0, m_pBmps[0], m_MemoryMode);
+    m_pTextures[0]->download();
+    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+        m_pTextures[1]->download();
+        m_pTextures[2]->download();
     }
-}
-
-OGLTexturePtr OGLSurface::getTexture()
-{
-    return m_pTexture;
 }
 
 PixelFormat OGLSurface::getPixelFormat()
@@ -183,96 +182,9 @@ IntPoint OGLSurface::getSize()
     return m_Size;
 }
 
-BitmapPtr OGLSurface::getBmp(int i)
+IntPoint OGLSurface::getTextureSize()
 {
-    return m_pBmps[i];
-}
-
-void OGLSurface::createBitmap(const IntPoint& Size, PixelFormat pf, int i)
-{
-    switch (m_MemoryMode) {
-        case PBO:
-            glproc::GenBuffers(1, &m_hPixelBuffers[i]);
-            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                    "OGLSurface::createBitmap: glGenBuffers()");
-            glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
-            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                    "OGLSurface::createBitmap: glBindBuffer()");
-            glproc::BufferData(GL_PIXEL_UNPACK_BUFFER_EXT, 
-                    (Size.x+1)*(Size.y+1)*Bitmap::getBytesPerPixel(pf), NULL, 
-                    GL_DYNAMIC_DRAW);
-            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                    "OGLSurface::createBitmap: glBufferData()");
-            glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
-            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                    "OGLSurface::createBitmap: glBindBuffer(0)");
-            m_pBmps[i] = BitmapPtr();
-            break;
-        default:
-            break;
-    }
-    if (m_MemoryMode == OGL) {
-        // Can't do this in the switch because memory allocation might fail.
-        // In that case, this is needed as a fallback.
-        // TODO: Huh? Really?
-        m_pBmps[i] = BitmapPtr(new Bitmap(Size, pf));
-    }
-}
-
-void OGLSurface::deleteBuffers()
-{
-    switch(m_MemoryMode) {
-        case PBO:
-            if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-                for (int i=0; i<3; i++) {
-                    glproc::DeleteBuffers(1, &m_hPixelBuffers[i]);
-                }
-            } else {
-                glproc::DeleteBuffers(1, &m_hPixelBuffers[0]);
-            }
-            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                    "OGLSurface::~OGLSurface: glDeleteBuffers()");
-            break;
-        default:
-            break;
-    }
-    m_bCreated = false;
-}
-
-void OGLSurface::unlockBmp(int i) 
-{
-    switch (m_MemoryMode) {
-        case PBO:
-            glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
-            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                    "OGLSurface::unlockBmp: glBindBuffer()");
-            glproc::UnmapBuffer(GL_PIXEL_UNPACK_BUFFER_EXT);
-            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                    "OGLSurface::unlockBmp: glUnmapBuffer()");
-            glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
-            OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, 
-                    "OGLSurface::lockBmp: glBindBuffer(0)");
-            m_pBmps[i] = BitmapPtr();
-            break;
-        default:
-            break;
-    }
-}
-
-void OGLSurface::bindPBO(int i) 
-{
-    assert(m_bCreated);
-    assert(m_MemoryMode == PBO);
-    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, m_hPixelBuffers[i]);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::bind: glBindBuffer()");
-}
-
-void OGLSurface::unbindPBO() 
-{
-    assert(m_bCreated);
-    assert(m_MemoryMode == PBO);
-    glproc::BindBuffer(GL_PIXEL_UNPACK_BUFFER_EXT, 0);
-    OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::bind: glBindBuffer()");
+    return m_pTextures[0]->getTextureSize();
 }
 
 }

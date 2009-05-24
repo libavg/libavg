@@ -59,7 +59,6 @@ class AVG_API Image
         PixelFormat getPixelFormat();
         OGLSurface* getSurface();
         OGLTiledSurface* getTiledSurface();
-        OGLTexturePtr getTexture();
         State getState();
         SDLDisplayEngine* getEngine();
 
