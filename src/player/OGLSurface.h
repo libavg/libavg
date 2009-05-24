@@ -50,8 +50,6 @@ class AVG_API OGLSurface {
         const MaterialInfo& getMaterial() const;
         void setMaterial(const MaterialInfo& material);
 
-        void bindPBO(int index=0);
-        void unbindPBO();
         void downloadTexture();
         OGLTexturePtr getTexture();
 
@@ -64,6 +62,8 @@ class AVG_API OGLSurface {
         void createBitmap(const IntPoint& Size, PixelFormat pf, int index);
         void deleteBuffers();
         void unlockBmp(int i);
+        void bindPBO(int index=0);
+        void unbindPBO();
 
         bool m_bCreated;
 

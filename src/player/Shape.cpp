@@ -107,13 +107,7 @@ void Shape::draw()
 void Shape::downloadTexture()
 {
     OGLSurface * pSurface = m_pImage->getSurface();
-    if (pSurface->getMemMode() == PBO) {
-        pSurface->bindPBO();
-    }
     pSurface->downloadTexture();
-    if (pSurface->getMemMode() == PBO) {
-        pSurface->unbindPBO();
-    }
 }
 
 }
