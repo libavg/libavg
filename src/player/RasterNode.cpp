@@ -178,6 +178,7 @@ const MaterialInfo& RasterNode::getMaterial() const
 void RasterNode::setMaterial(const MaterialInfo& material)
 {
     m_Material = material;
+    getSurface()->setMaterial(m_Material);
 }
 
 void RasterNode::checkDisplayAvailable(std::string sMsg)

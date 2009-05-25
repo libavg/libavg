@@ -174,6 +174,8 @@ class AVTestCase(AVGTestCase):
 
     def testVideoMask(self):
         def testWithFile(filename, testImgName):
+            def setMask(href):
+                video.maskhref = href
             Player.setFakeFPS(25)
             Player.loadString("""
                 <avg width="160" height="120">
@@ -184,7 +186,11 @@ class AVTestCase(AVGTestCase):
             video.href = filename
             video.play()
             self.start(None,
-                    [lambda: self.compareImage(testImgName+"1", False)
+                    [lambda: self.compareImage(testImgName+"1", False),
+                     lambda: setMask(""),
+                     lambda: self.compareImage(testImgName+"2", False),
+                     lambda: setMask("mask.png"),
+                     lambda: self.compareImage(testImgName+"3", False),
                     ])
         testWithFile("../video/testfiles/mpeg1-48x48.mpg", "testVideoMaskYUV")
         testWithFile("../video/testfiles/mjpeg-48x48.avi", "testVideoMaskYUVJ")

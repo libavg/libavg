@@ -118,6 +118,7 @@ void VideoBase::checkReload()
             }
         }
         if (m_sMaskFilename == "") {
+            cerr << "empty mask" << endl;
             m_pMaskBmp = BitmapPtr();
             MaterialInfo material = getMaterial();
             material.m_bHasMask = false;
