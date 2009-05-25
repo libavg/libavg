@@ -36,6 +36,15 @@ def getDistance (p, q):
 def getDistSquared (p, q):
     return (p.x-q.x)**2 + (p.y-q.y)**2
 
+def getScaleToSize ((width, height), (max_width, max_height)):
+    if width < max_width:
+        height = height * (float(max_width) / width)
+        width = max_width
+    elif height > max_height:
+        width = width * (float(max_height) / height)
+        height = max_height
+    return getScaledDim((width, height), (max_width, max_height))
+
 def getScaledDim (size, max = None, min = None):
     width, height = size
     if width == 0 or height == 0:
@@ -123,3 +132,34 @@ def getOffsetForMovedPivot(oldPivot, newPivot, angle):
 def isNaN(x):
     return (not(x<=0) and not(x>=0))
 
+def sgn (x):
+    if x<0:
+        return -1
+    elif x==0:
+        return 0
+    else:
+        return 1
+
+class MovingAverage:
+    """
+    Moving average implementation.
+    Example:
+    ma = MovingAverage(20)
+    print ma(2)
+    print ma(3)
+    print ma(10)
+    """
+    def __init__(self, points):
+        self.__points = points
+        self.__values = []
+
+    def __appendValue(self, value):
+        self.__values = (self.__values + [value])[-self.__points:]
+
+    def __getAverage(self):
+        sum = reduce(lambda a,b:a+b, self.__values)
+        return float(sum) / len(self.__values)
+
+    def __call__(self, value):
+        self.__appendValue(value)
+        return self.__getAverage()
