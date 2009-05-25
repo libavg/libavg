@@ -93,6 +93,8 @@ void TrackerConfig::load(const string& sFilename)
     m_pRoot = xmlDocGetRootElement(m_Doc);
     xmlFreeDtd(dtd);
     m_sFilename = sFilename;
+
+    AVG_TRACE(Logger::CONFIG, "Reading Tracker config file from " << sFilename);
 }
 
 xmlXPathObjectPtr TrackerConfig::findConfigNodes(const string& sXPathExpr) const
