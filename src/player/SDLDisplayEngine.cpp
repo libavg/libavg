@@ -630,6 +630,8 @@ void SDLDisplayEngine::checkShaderSupport()
             "        rgba = convertYCbCr();\n"
             "    } else if (colorModel == 2) {\n"
             "        rgba = convertYCbCrJ();\n"
+            "    } else {\n"
+            "        rgba = vec4(1,1,1,1);\n"
             "    }\n"
             "    gl_FragColor = rgba;\n"
             "}\n";
