@@ -181,7 +181,7 @@ void export_raster()
                 "cursor stays at the same position.")
         .add_property("fps", &VideoBase::getFPS,
                 "Returns the nominal frames per second the object should display at.\n")
-        .add_property("href", 
+        .add_property("maskhref", 
                 make_function(&VideoBase::getMaskHRef,
                         return_value_policy<copy_const_reference>()),
                 make_function(&VideoBase::setMaskHRef,
