@@ -633,6 +633,9 @@ void SDLDisplayEngine::checkShaderSupport()
             "    } else {\n"
             "        rgba = vec4(1,1,1,1);\n"
             "    }\n"
+            "    if (bUseMask) {\n"
+            "        rgba.a *= texture2D(maskTexture, gl_TexCoord[0].st).a;\n"
+            "    }\n"
             "    gl_FragColor = rgba;\n"
             "}\n";
 

@@ -40,13 +40,17 @@ class AVG_API VideoBase : public RasterNode
         static NodeDefinition createDefinition();
         
         virtual ~VideoBase ();
-        void setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine);
+        void setRenderingEngines(DisplayEngine * pDisplayEngine, 
+                AudioEngine * pAudioEngine);
         void disconnect();
+        virtual void checkReload();
         
         void play();
         void stop();
         void pause();
         virtual double getFPS() = 0;
+        const std::string& getMaskHRef() const;
+        void setMaskHRef(const std::string& href);
         
         virtual void render (const DRect& Rect);
         virtual std::string dump (int indent = 0);
@@ -59,8 +63,8 @@ class AVG_API VideoBase : public RasterNode
         virtual void changeVideoState(VideoState NewVideoState);
    
     private:
-        void renderToBackbuffer();
         void open();
+        void downloadMask();
 
         virtual bool renderToSurface(OGLTiledSurface * pSurface) = 0;
         virtual void open(bool bUseYCbCrShaders) = 0;
@@ -71,6 +75,10 @@ class AVG_API VideoBase : public RasterNode
 
         bool m_bFrameAvailable;
         bool m_bFirstFrameDecoded;
+
+        std::string m_sMaskHref;
+        std::string m_sMaskFilename;
+        BitmapPtr m_pMaskBmp;
 };
 
 }

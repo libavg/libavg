@@ -170,6 +170,15 @@ OGLTiledSurface * RasterNode::getSurface()
     return m_pSurface;
 }
 
+const MaterialInfo& RasterNode::getMaterial() const
+{
+    return m_Material;
+}
+
+void RasterNode::setMaterial(const MaterialInfo& material)
+{
+    m_Material = material;
+}
 
 void RasterNode::checkDisplayAvailable(std::string sMsg)
 {

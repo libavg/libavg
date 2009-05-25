@@ -181,6 +181,14 @@ void export_raster()
                 "cursor stays at the same position.")
         .add_property("fps", &VideoBase::getFPS,
                 "Returns the nominal frames per second the object should display at.\n")
+        .add_property("href", 
+                make_function(&VideoBase::getMaskHRef,
+                        return_value_policy<copy_const_reference>()),
+                make_function(&VideoBase::setMaskHRef,
+                        return_value_policy<copy_const_reference>()),
+                "The source filename for a mask image to be used as alpha channel.\n"
+                "Where this file is white, the video is shown. Where it is black, the\n"
+                "video is transparent.\n")
     ;  
 
     class_<CameraNode, bases<VideoBase> >("Camera",

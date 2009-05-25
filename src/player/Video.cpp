@@ -222,6 +222,7 @@ void Video::checkReload()
         changeVideoState(Unloaded);
         m_Filename = "";
     }
+    VideoBase::checkReload();
 }
 
 void Video::onFrameEnd()

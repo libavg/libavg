@@ -31,6 +31,7 @@ struct AVG_API MaterialInfo {
     int m_TexWrapSMode;
     int m_TexWrapTMode;
     bool m_bUseMipmaps;
+    bool m_bHasMask;
 };
 
 }

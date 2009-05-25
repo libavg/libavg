@@ -26,7 +26,8 @@ namespace avg {
 MaterialInfo::MaterialInfo(int texWrapSMode, int texWrapTMode, bool bUseMipmaps)
     : m_TexWrapSMode(texWrapSMode),
       m_TexWrapTMode(texWrapTMode),
-      m_bUseMipmaps(bUseMipmaps)
+      m_bUseMipmaps(bUseMipmaps),
+      m_bHasMask(false)
 {}
 
 }

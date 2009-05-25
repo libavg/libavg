@@ -48,8 +48,10 @@ public:
     void activate() const;
     void deactivate() const;
 
-    virtual BitmapPtr lockBmp(int i=0);
-    virtual void unlockBmps();
+    BitmapPtr lockBmp(int i=0);
+    void unlockBmps();
+    BitmapPtr lockMaskBmp();
+    void unlockMaskBmp();
     const MaterialInfo& getMaterial() const;
     void setMaterial(const MaterialInfo& material);
 
@@ -60,9 +62,12 @@ public:
     IntPoint getTextureSize();
 
 private:
+    bool useShader() const;
+
     bool m_bCreated;
 
     OGLTexturePtr m_pTextures[3];
+    OGLTexturePtr m_pMaskTexture;
     IntPoint m_Size;
     PixelFormat m_pf;
     MaterialInfo m_Material;

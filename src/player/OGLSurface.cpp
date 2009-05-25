@@ -77,6 +77,11 @@ void OGLSurface::create(SDLDisplayEngine * pEngine, const IntPoint& size, PixelF
         m_pTextures[0] = OGLTexturePtr(new OGLTexture(size, m_pf, m_Material, pEngine,
                 m_MemoryMode));
     }
+    if (m_Material.m_bHasMask) {
+        m_pMaskTexture = OGLTexturePtr(new OGLTexture(size, I8, m_Material, pEngine,
+                m_MemoryMode));
+    }
+
     m_bCreated = true;
 }
 
@@ -90,24 +95,41 @@ void OGLSurface::destroy()
 
 void OGLSurface::activate() const
 {
-    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+    if (useShader()) {
         OGLShaderPtr pShader = m_pEngine->getShader();
         pShader->activate();
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate()");
+        switch (m_pf) {
+            case YCbCr420p:
+                pShader->setUniformIntParam("colorModel", 1);
+                break;
+            case YCbCrJ420p:
+                pShader->setUniformIntParam("colorModel", 2);
+                break;
+            default:
+                pShader->setUniformIntParam("colorModel", 0);
+        }
+
         glproc::ActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_pTextures[0]->getTexID());
         pShader->setUniformIntParam("texture", 0);
-        glproc::ActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, m_pTextures[1]->getTexID());
-        pShader->setUniformIntParam("cbTexture", 1);
-        glproc::ActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, m_pTextures[2]->getTexID());
-        pShader->setUniformIntParam("crTexture", 2);
-        if (m_pf == YCbCr420p) {
-            pShader->setUniformIntParam("colorModel", 1);
-        } else {
-            pShader->setUniformIntParam("colorModel", 2);
+        
+        if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+            glproc::ActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, m_pTextures[1]->getTexID());
+            pShader->setUniformIntParam("cbTexture", 1);
+            glproc::ActiveTexture(GL_TEXTURE2);
+            glBindTexture(GL_TEXTURE_2D, m_pTextures[2]->getTexID());
+            pShader->setUniformIntParam("crTexture", 2);
         }
+        
+        pShader->setUniformIntParam("bUseMask", m_Material.m_bHasMask);
+        if (m_Material.m_bHasMask) {
+            glproc::ActiveTexture(GL_TEXTURE3);
+            glBindTexture(GL_TEXTURE_2D, m_pMaskTexture->getTexID());
+            pShader->setUniformIntParam("maskTexture", 3);
+        }
+
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate: params");
     } else {
         glproc::ActiveTexture(GL_TEXTURE0);
@@ -147,6 +169,18 @@ void OGLSurface::unlockBmps()
     }
 }
 
+BitmapPtr OGLSurface::lockMaskBmp()
+{
+    assert(m_bCreated && m_Material.m_bHasMask);
+    return m_pMaskTexture->lockBmp();
+}
+
+void OGLSurface::unlockMaskBmp()
+{
+    assert(m_bCreated && m_Material.m_bHasMask);
+    m_pMaskTexture->unlockBmp();
+}
+
 const MaterialInfo& OGLSurface::getMaterial() const
 {
     return m_Material;
@@ -154,6 +188,7 @@ const MaterialInfo& OGLSurface::getMaterial() const
 
 void OGLSurface::setMaterial(const MaterialInfo& material)
 {
+    bool bOldHasMask = m_Material.m_bHasMask;
     m_Material = material;
     if (m_pTextures[0]) {
         m_pTextures[0]->setMaterial(material);
@@ -161,6 +196,13 @@ void OGLSurface::setMaterial(const MaterialInfo& material)
             m_pTextures[1]->setMaterial(material);
             m_pTextures[2]->setMaterial(material);
         }
+    }
+    if (bOldHasMask && !m_Material.m_bHasMask) {
+        m_pMaskTexture = OGLTexturePtr();
+    }
+    if (!bOldHasMask && m_Material.m_bHasMask && m_bCreated) {
+        m_pMaskTexture = OGLTexturePtr(new OGLTexture(m_Size, I8, m_Material, m_pEngine,
+                m_MemoryMode));
     }
 }
 
@@ -170,6 +212,9 @@ void OGLSurface::downloadTexture()
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
         m_pTextures[1]->download();
         m_pTextures[2]->download();
+    }
+    if (m_Material.m_bHasMask) {
+        m_pMaskTexture->download();
     }
 }
 
@@ -186,6 +231,11 @@ IntPoint OGLSurface::getSize()
 IntPoint OGLSurface::getTextureSize()
 {
     return m_pTextures[0]->getTextureSize();
+}
+
+bool OGLSurface::useShader() const
+{
+    return (m_Material.m_bHasMask || m_pf == YCbCr420p || m_pf == YCbCrJ420p);
 }
 
 }

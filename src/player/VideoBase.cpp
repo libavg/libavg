@@ -33,6 +33,8 @@
 #include "../graphics/Filterfill.h"
 #include "../graphics/Pixel24.h"
 
+#include <Magick++.h>
+
 #include <iostream>
 #include <sstream>
 
@@ -47,7 +49,8 @@ namespace avg {
 NodeDefinition VideoBase::createDefinition()
 {
     return NodeDefinition("videobase")
-        .extendDefinition(RasterNode::createDefinition());
+        .extendDefinition(RasterNode::createDefinition())
+        .addArg(Arg<string>("maskhref", "", false, offsetof(VideoBase, m_sMaskHref)));
 }
 
 VideoBase::VideoBase()
@@ -61,15 +64,20 @@ VideoBase::~VideoBase ()
 {
 }
 
-void VideoBase::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
+void VideoBase::setRenderingEngines(DisplayEngine * pDisplayEngine, 
+        AudioEngine * pAudioEngine)
 {
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
     VideoState TempVideoState = m_VideoState;
     m_VideoState = Unloaded;
     try {
         changeVideoState(TempVideoState);
+
     } catch (Exception& ex) {
         AVG_TRACE(Logger::WARNING, ex.GetStr());
+    }
+    if (getMaterial().m_bHasMask) {
+        downloadMask();
     }
 }
 
@@ -77,6 +85,48 @@ void VideoBase::disconnect()
 {
     changeVideoState(Unloaded);
     RasterNode::disconnect();
+}
+
+void VideoBase::checkReload()
+{
+    string sLastMaskFilename = m_sMaskFilename;
+    string sMaskFilename = m_sMaskHref;
+    initFilename(sMaskFilename);
+    if (sLastMaskFilename != sMaskFilename) {
+        m_sMaskFilename = sMaskFilename;
+        try {
+            if (m_sMaskFilename != "") {
+                AVG_TRACE(Logger::MEMORY, "Loading " << m_sMaskFilename);
+                m_pMaskBmp = BitmapPtr(new Bitmap(m_sMaskFilename));
+                if (m_pMaskBmp->getSize() != getMediaSize() 
+                        && getMediaSize() != IntPoint(0,0))
+                { 
+                    throw Exception(AVG_ERR_OUT_OF_RANGE, 
+                            string("Mask bitmap ") + m_sMaskFilename +
+                            " has different dimensions than video.");
+                }
+                MaterialInfo material = getMaterial();
+                material.m_bHasMask = true;
+                setMaterial(material);
+            }
+        } catch (Magick::Exception & ex) {
+            m_sMaskFilename = "";
+            if (getState() == Node::NS_CONNECTED) {
+                AVG_TRACE(Logger::ERROR, ex.what());
+            } else {
+                AVG_TRACE(Logger::MEMORY, ex.what());
+            }
+        }
+        if (m_sMaskFilename == "") {
+            m_pMaskBmp = BitmapPtr();
+            MaterialInfo material = getMaterial();
+            material.m_bHasMask = false;
+            setMaterial(material);
+        }
+        if (getState() == Node::NS_CANRENDER) {
+            downloadMask();
+        }
+    }
 }
 
 void VideoBase::play()
@@ -92,6 +142,17 @@ void VideoBase::stop()
 void VideoBase::pause()
 {
     changeVideoState(Paused);
+}
+
+const std::string& VideoBase::getMaskHRef() const
+{
+    return m_sMaskHref;
+}
+
+void VideoBase::setMaskHRef(const string& href)
+{
+    m_sMaskHref = href;
+    checkReload();
 }
 
 void VideoBase::render(const DRect& Rect)
@@ -156,6 +217,13 @@ void VideoBase::open()
 
     m_bFirstFrameDecoded = false;
     m_bFrameAvailable = false;
+}
+
+void VideoBase::downloadMask()
+{
+    BitmapPtr pBmp = getSurface()->lockMaskBmp();
+    pBmp->copyPixels(*m_pMaskBmp);
+    getSurface()->unlockMaskBmp();
 }
 
 string VideoBase::dump (int indent)

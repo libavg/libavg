@@ -64,6 +64,8 @@ class AVG_API RasterNode: public AreaNode
     protected:
         RasterNode();
         virtual OGLTiledSurface * getSurface();
+        const MaterialInfo& getMaterial() const;
+        void setMaterial(const MaterialInfo& material);
  
     private:
         void checkDisplayAvailable(std::string sMsg);
