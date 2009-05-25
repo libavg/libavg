@@ -202,11 +202,11 @@ void Player::setWindowPos(int x, int y)
     m_DP.m_y = y;
 }
 
-void Player::setOGLOptions(bool bUsePOW2Textures, bool bUseYCbCrShaders, 
+void Player::setOGLOptions(bool bUsePOW2Textures, bool bUseShaders, 
                 bool bUsePixelBuffers, int MultiSampleSamples)
 {
     m_bUsePOW2Textures = bUsePOW2Textures;
-    m_bUseYCbCrShaders = bUseYCbCrShaders;
+    m_bUseShaders = bUseShaders;
     m_bUsePixelBuffers = bUsePixelBuffers;
     m_MultiSampleSamples = MultiSampleSamples;
 }
@@ -786,7 +786,7 @@ void Player::initConfig()
     m_AP.m_OutputBufferSamples = atoi(pMgr->getOption("aud", "outputbuffersamples")->c_str());
 
     m_bUsePOW2Textures = pMgr->getBoolOption("scr", "usepow2textures", false);
-    m_bUseYCbCrShaders = pMgr->getBoolOption("scr", "useycbcrshaders", true);
+    m_bUseShaders = pMgr->getBoolOption("scr", "useshaders", true);
 
     const string * psVSyncMode =pMgr->getOption("scr", "vsyncmode");
     if (psVSyncMode == 0 || *psVSyncMode == "auto") {
@@ -819,10 +819,10 @@ void Player::initGraphics()
         AVG_TRACE(Logger::CONFIG, "  POW2 textures: " 
                 << (m_bUsePOW2Textures?"true":"false"));
         string sMode;
-        if (m_bUseYCbCrShaders) {
-            AVG_TRACE(Logger::CONFIG, "  Fragment shader YCbCr texture support.");
+        if (m_bUseShaders) {
+            AVG_TRACE(Logger::CONFIG, "  Use shader support.");
         } else {
-            AVG_TRACE(Logger::CONFIG, "  No YCbCr texture support.");
+            AVG_TRACE(Logger::CONFIG, "  No shader support.");
         }
         AVG_TRACE(Logger::CONFIG, "  Use pixel buffers: " 
                 << (m_bUsePixelBuffers?"true":"false"));
@@ -850,7 +850,7 @@ void Player::initGraphics()
     SDLDisplayEngine * pSDLDisplayEngine = 
             dynamic_cast<SDLDisplayEngine*>(m_pDisplayEngine);
     if (pSDLDisplayEngine) {
-        pSDLDisplayEngine->setOGLOptions(m_bUsePOW2Textures, m_bUseYCbCrShaders, 
+        pSDLDisplayEngine->setOGLOptions(m_bUsePOW2Textures, m_bUseShaders, 
                 m_bUsePixelBuffers, m_MultiSampleSamples, m_VSyncMode);
     }
     m_pDisplayEngine->init(m_DP);

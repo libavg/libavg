@@ -78,9 +78,8 @@ ConfigMgr::ConfigMgr()
             "The height of the window to use. Contents are scaled.");
     addOption("scr", "usepow2textures", "false",
             "If set to true, use only power of 2 textures.");
-    addOption("scr", "ycbcrmode", "shader",
-            "How to render YCbCr surfaces. Valid values are"
-            " shader, apple and none.");
+    addOption("scr", "useshaders", "true",
+            "Whether to use shaders.");
     addOption("scr", "usepixelbuffers", "true",
             "Whether to use pixel buffer objects.");
     addOption("scr", "multisamplesamples", "1",

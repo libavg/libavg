@@ -64,10 +64,10 @@ else:
         if value not in ('yes','no'):
             raise OptionValueError('argument must be "yes" or "no"')
         setUsePOW2Textures(value == 'yes')
-    def setYCbCrMode(option, opt, value, parser):
+    def setShaders(option, opt, value, parser):
         if value not in ('yes','no'):
             raise OptionValueError('argument must be "yes" or "no"')
-        setUseYCbCrShaders(value == 'yes')
+        setUseShaders(value == 'yes')
     def setPixBuf(option, opt, value, parser):
         if value not in ('yes','no'):
             raise OptionValueError('argument must be "yes" or "no"')
@@ -81,10 +81,10 @@ else:
             type = "string",
             action = 'callback', callback = setPow2,
             help = "Use power of 2 textures (yes, no)")
-    parser.add_option("-y", "--ycbcrmode", dest = "ycbcrmode",
+    parser.add_option("-s", "--useshaders", dest = "shaders",
             type = "string",
-            action = 'callback', callback = setYCbCrMode,
-            help = "Use shaders for YCbCr texture support (yes, no)")
+            action = 'callback', callback = setShaders,
+            help = "Use shaders (yes, no)")
     parser.add_option("-p", "--usepixelbuffers", dest = "usepixelbuffers",
             type = "string",
             action = 'callback', callback = setPixBuf,

@@ -91,27 +91,28 @@ void OGLSurface::destroy()
 void OGLSurface::activate() const
 {
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-        OGLShaderPtr pShader;
-        if (m_pf == YCbCr420p) {
-            pShader = m_pEngine->getYCbCr420pShader();
-        } else {
-            pShader = m_pEngine->getYCbCrJ420pShader();
-        }
+        OGLShaderPtr pShader = m_pEngine->getShader();
         pShader->activate();
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate()");
         glproc::ActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_pTextures[0]->getTexID());
-        pShader->setUniformIntParam("YTexture", 0);
+        pShader->setUniformIntParam("texture", 0);
         glproc::ActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, m_pTextures[1]->getTexID());
-        pShader->setUniformIntParam("CbTexture", 1);
+        pShader->setUniformIntParam("cbTexture", 1);
         glproc::ActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, m_pTextures[2]->getTexID());
-        pShader->setUniformIntParam("CrTexture", 2);
+        pShader->setUniformIntParam("crTexture", 2);
+        if (m_pf == YCbCr420p) {
+            pShader->setUniformIntParam("colorModel", 1);
+        } else {
+            pShader->setUniformIntParam("colorModel", 2);
+        }
+        OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::activate: params");
     } else {
         glproc::ActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, m_pTextures[0]->getTexID());
-        if (m_pEngine->isUsingYCbCrShaders()) {
+        if (m_pEngine->isUsingShaders()) {
             glproc::UseProgramObject(0);
         }
     }

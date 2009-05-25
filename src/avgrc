@@ -3,7 +3,7 @@
     <bpp>24</bpp>
     <fullscreen>false</fullscreen>
     <usepow2textures>false</usepow2textures>
-    <ycbcrmode>shader</ycbcrmode>
+    <useshaders>true</useshaders>
     <usepixelbuffers>true</usepixelbuffers>
     <multisamplesamples>1</multisamplesamples>
   </scr>

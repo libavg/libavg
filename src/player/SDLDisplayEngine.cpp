@@ -266,7 +266,7 @@ void SDLDisplayEngine::init(const DisplayParams& DP)
         setFramerate(DP.m_Framerate);
     }
 
-    checkYCbCrSupport();
+    checkShaderSupport();
 
     m_Width = DP.m_Width;
     m_Height = DP.m_Height;
@@ -325,10 +325,10 @@ void SDLDisplayEngine::logConfig()
     AVG_TRACE(Logger::CONFIG, "  OpenGL version: " << glGetString(GL_VERSION));
     AVG_TRACE(Logger::CONFIG, "  OpenGL vendor: " << glGetString(GL_VENDOR));
     AVG_TRACE(Logger::CONFIG, "  OpenGL renderer: " << glGetString(GL_RENDERER));
-    if (m_bUseYCbCrShaders) {
-        AVG_TRACE(Logger::CONFIG, "  Using fragment shader YCbCr texture support.");
+    if (m_bUseShaders) {
+        AVG_TRACE(Logger::CONFIG, "  Using shader support.");
     } else {
-        AVG_TRACE(Logger::CONFIG, "  YCbCr texture support not enabled.");
+        AVG_TRACE(Logger::CONFIG, "  Shader support not enabled.");
     }
     if (m_bUsePOTTextures) {
         AVG_TRACE(Logger::CONFIG, "  Using power of 2 textures.");
@@ -522,19 +522,14 @@ bool SDLDisplayEngine::hasRGBOrdering()
     return false;
 }
 
-bool SDLDisplayEngine::isUsingYCbCrShaders()
+bool SDLDisplayEngine::isUsingShaders()
 {
-    return m_bUseYCbCrShaders;
+    return m_bUseShaders;
 }
 
-OGLShaderPtr SDLDisplayEngine::getYCbCr420pShader()
+OGLShaderPtr SDLDisplayEngine::getShader()
 {
-    return m_pYCbCrShader;
-}
-
-OGLShaderPtr SDLDisplayEngine::getYCbCrJ420pShader()
-{
-    return m_pYCbCrJShader;
+    return m_pShader;
 }
 
 void SDLDisplayEngine::showCursor(bool bShow)
@@ -584,55 +579,62 @@ int SDLDisplayEngine::getBPP()
     return m_bpp;
 }
     
-void SDLDisplayEngine::checkYCbCrSupport()
+void SDLDisplayEngine::checkShaderSupport()
 {
-    if (queryOGLExtension("GL_ARB_fragment_shader") &&
-        queryOGLExtension("GL_ARB_texture_rectangle") &&
-        getMemoryModeSupported() == PBO &&
-        !m_bUsePOTTextures
-       )
-    {
-        m_bUseYCbCrShaders = true;
-        string sProgramInit =
-            "uniform sampler2D YTexture;\n"
-            "uniform sampler2D CbTexture;\n"
-            "uniform sampler2D CrTexture;\n"
-            "\n";
+    m_bUseShaders = (queryOGLExtension("GL_ARB_fragment_shader") && 
+            getMemoryModeSupported() == PBO &&
+            !m_bUsePOTTextures);
+    if (m_bUseShaders) {
         string sProgram =
-            sProgramInit + 
+            "uniform sampler2D texture;\n"
+            "uniform sampler2D yTexture;\n"
+            "uniform sampler2D cbTexture;\n"
+            "uniform sampler2D crTexture;\n"
+            "uniform sampler2D maskTexture;\n"
+            "uniform int colorModel;  // 0= rgb, 1=ycbcr, 2=ycbcrj\n"
+            "uniform bool bUseMask;\n"
+            "\n"
+            "vec4 convertYCbCr()\n"
+            "{\n"
+            "    vec3 ycbcr;\n"
+            "    ycbcr.r = texture2D(texture, gl_TexCoord[0].st).a-0.0625;\n"
+            "    ycbcr.g = texture2D(cbTexture, (gl_TexCoord[0].st)).a-0.5;\n"
+            "    ycbcr.b = texture2D(crTexture, (gl_TexCoord[0].st)).a-0.5;\n"
+            "    vec3 rgb;\n"
+            "    rgb = ycbcr*mat3(1.16,  0.0,   1.60,\n"
+            "                     1.16, -0.39, -0.81,\n"
+            "                     1.16,  2.01,  0.0 );\n"
+            "    return vec4(rgb, gl_Color.a);\n"
+            "}\n"
+            "\n"
+            "vec4 convertYCbCrJ()\n"
+            "{\n"
+            "    vec3 ycbcr;\n"
+            "    ycbcr.r = texture2D(texture, gl_TexCoord[0].st).a;\n"
+            "    ycbcr.g = texture2D(cbTexture, (gl_TexCoord[0].st)).a-0.5;\n"
+            "    ycbcr.b = texture2D(crTexture, (gl_TexCoord[0].st)).a-0.5;\n"
+            "    vec3 rgb;\n"
+            "    rgb = ycbcr*mat3(1,  0.0  , 1.40,\n"
+            "                     1, -0.34, -0.71,\n"
+            "                     1,  1.77,  0.0 );\n"
+            "    return vec4(rgb, gl_Color.a);\n"
+            "}\n"
+            "\n"
             "void main(void)\n"
             "{\n"
-            "  vec3 YCbCr;\n"
-            "  YCbCr.r = texture2D(YTexture, gl_TexCoord[0].st).a-0.0625;\n"
-            "  YCbCr.g = texture2D(CbTexture, (gl_TexCoord[0].st)).a-0.5;\n"
-            "  YCbCr.b = texture2D(CrTexture, (gl_TexCoord[0].st)).a-0.5;\n"
-            "  vec3 RGB;"
-            "  RGB = YCbCr*mat3(1.16,  0.0,   1.60,\n"
-            "                   1.16, -0.39, -0.81,\n"
-            "                   1.16,  2.01,  0.0 );\n"
-            "  gl_FragColor = vec4(RGB,gl_Color.a);\n"
-            "}\n"
-            ;
-        m_pYCbCrShader = OGLShaderPtr(new OGLShader(sProgram));
+            "    vec4 rgba;\n"
+            "    if (colorModel == 0) {\n"
+            "        rgba = texture2D(texture, gl_TexCoord[0].st);\n"
+            "        rgba.a *= gl_Color.a;\n"
+            "    } else if (colorModel == 1) {\n"
+            "        rgba = convertYCbCr();\n"
+            "    } else if (colorModel == 2) {\n"
+            "        rgba = convertYCbCrJ();\n"
+            "    }\n"
+            "    gl_FragColor = rgba;\n"
+            "}\n";
 
-        sProgram =
-            sProgramInit + 
-            "void main(void)\n"
-            "{\n"
-            "  vec3 YCbCr;\n"
-            "  YCbCr.r = texture2D(YTexture, gl_TexCoord[0].st).a;\n"
-            "  YCbCr.g = texture2D(CbTexture, (gl_TexCoord[0].st)).a-0.5;\n"
-            "  YCbCr.b = texture2D(CrTexture, (gl_TexCoord[0].st)).a-0.5;\n"
-            "  vec3 RGB;"
-            "  RGB = YCbCr*mat3(1,  0.0  , 1.40,\n"
-            "                   1, -0.34, -0.71,\n"
-            "                   1,  1.77,  0.0 );\n"
-            "  gl_FragColor = vec4(RGB,gl_Color.a);\n"
-            "}\n"
-            ;
-        m_pYCbCrJShader = OGLShaderPtr(new OGLShader(sProgram));
-    } else {
-        m_bUseYCbCrShaders = false;
+        m_pShader = OGLShaderPtr(new OGLShader(sProgram));
     }
 }
 
@@ -1446,7 +1448,7 @@ bool SDLDisplayEngine::isParallels()
     return bIsParallels;
 }
 
-void SDLDisplayEngine::setOGLOptions(bool bUsePOW2Textures, bool bUseYCbCrShaders,
+void SDLDisplayEngine::setOGLOptions(bool bUsePOW2Textures, bool bUseShaders,
         bool bUsePixelBuffers, int MultiSampleSamples, 
         VSyncMode DesiredVSyncMode)
 {
@@ -1456,7 +1458,7 @@ void SDLDisplayEngine::setOGLOptions(bool bUsePOW2Textures, bool bUseYCbCrShader
         return;
     }
     m_bShouldUsePOW2Textures = bUsePOW2Textures;
-    m_bShouldUseYCbCrShaders = bUseYCbCrShaders;
+    m_bShouldUseShaders = bUseShaders;
     m_bShouldUsePixelBuffers = bUsePixelBuffers;
     m_MultiSampleSamples = MultiSampleSamples;
     m_DesiredVSyncMode = DesiredVSyncMode;

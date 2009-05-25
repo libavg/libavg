@@ -144,7 +144,7 @@ void VideoBase::changeVideoState(VideoState NewVideoState)
 
 void VideoBase::open() 
 {
-    open(getDisplayEngine()->isUsingYCbCrShaders());
+    open(getDisplayEngine()->isUsingShaders());
     setViewport(-32767, -32767, -32767, -32767);
     PixelFormat pf = getPixelFormat();
     getSurface()->create(getDisplayEngine(), getMediaSize(), pf, true);
