@@ -176,6 +176,8 @@ class AVTestCase(AVGTestCase):
         def testWithFile(filename, testImgName):
             def setMask(href):
                 video.maskhref = href
+            def setOpacity():
+                video.opacity = 0.5
             Player.setFakeFPS(25)
             Player.loadString("""
                 <avg width="160" height="120">
@@ -187,10 +189,13 @@ class AVTestCase(AVGTestCase):
             video.play()
             self.start(None,
                     [lambda: self.compareImage(testImgName+"1", False),
+                     lambda: video.seekToFrame(10),
                      lambda: setMask(""),
                      lambda: self.compareImage(testImgName+"2", False),
-                     lambda: setMask("mask.png"),
+                     lambda: setMask("mask2.png"),
                      lambda: self.compareImage(testImgName+"3", False),
+                     setOpacity,
+                     lambda: self.compareImage(testImgName+"4", False),
                     ])
         testWithFile("../video/testfiles/mpeg1-48x48.mpg", "testVideoMaskYUV")
         testWithFile("../video/testfiles/mjpeg-48x48.avi", "testVideoMaskYUVJ")

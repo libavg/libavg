@@ -94,6 +94,7 @@ void VideoBase::checkReload()
     initFilename(sMaskFilename);
     if (sLastMaskFilename != sMaskFilename) {
         m_sMaskFilename = sMaskFilename;
+        MaterialInfo material = getMaterial();
         try {
             if (m_sMaskFilename != "") {
                 AVG_TRACE(Logger::MEMORY, "Loading " << m_sMaskFilename);
@@ -105,7 +106,6 @@ void VideoBase::checkReload()
                             string("Mask bitmap ") + m_sMaskFilename +
                             " has different dimensions than video.");
                 }
-                MaterialInfo material = getMaterial();
                 material.m_bHasMask = true;
                 setMaterial(material);
             }
@@ -118,13 +118,11 @@ void VideoBase::checkReload()
             }
         }
         if (m_sMaskFilename == "") {
-            cerr << "empty mask" << endl;
             m_pMaskBmp = BitmapPtr();
-            MaterialInfo material = getMaterial();
             material.m_bHasMask = false;
             setMaterial(material);
         }
-        if (getState() == Node::NS_CANRENDER) {
+        if (getState() == Node::NS_CANRENDER && material.m_bHasMask) {
             downloadMask();
         }
     }
