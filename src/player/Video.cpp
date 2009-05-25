@@ -357,8 +357,8 @@ void Video::preRender()
         IntPoint size = m_pDecoder->getSize();
         if (PF == YCbCr420p || PF == YCbCrJ420p) {
             BitmapPtr pBmpY(new Bitmap(size, I8));
-            BitmapPtr pBmpU(new Bitmap(size, I8));
-            BitmapPtr pBmpV(new Bitmap(size, I8));
+            BitmapPtr pBmpU(new Bitmap(size/2, I8));
+            BitmapPtr pBmpV(new Bitmap(size/2, I8));
             m_pDecoder->renderToYCbCr420p(pBmpY, pBmpU, pBmpV, getNextFrameTime());
         } else {
             BitmapPtr pBmp(new Bitmap(size, PF));
