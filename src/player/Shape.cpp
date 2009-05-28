@@ -67,6 +67,7 @@ void Shape::setBitmap(const Bitmap* pBmp)
 
 void Shape::moveToGPU(SDLDisplayEngine* pEngine)
 {
+    m_pSurface->attach(pEngine);
     m_pImage->moveToGPU(pEngine);
     if (m_pImage->getState() == Image::GPU) {
         downloadTexture();

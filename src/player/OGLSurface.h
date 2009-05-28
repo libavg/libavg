@@ -42,8 +42,9 @@ public:
     OGLSurface(const MaterialInfo& material);
     virtual ~OGLSurface();
 
-    virtual void create(SDLDisplayEngine * pEngine, const IntPoint& size, 
-            PixelFormat pf, bool bFastDownload);
+    void attach(SDLDisplayEngine * pEngine);
+    virtual void create(const IntPoint& size, PixelFormat pf);
+    void createMask(const IntPoint& size);
     virtual void destroy();
     void activate() const;
     void deactivate() const;
@@ -61,15 +62,18 @@ public:
     IntPoint getSize();
     IntPoint getTextureSize();
 
+protected:
+    SDLDisplayEngine * getEngine();
+
 private:
     bool useShader() const;
 
-    bool m_bCreated;
-
     OGLTexturePtr m_pTextures[3];
-    OGLTexturePtr m_pMaskTexture;
     IntPoint m_Size;
     PixelFormat m_pf;
+    OGLTexturePtr m_pMaskTexture;
+    IntPoint m_MaskSize;
+
     MaterialInfo m_Material;
 
     SDLDisplayEngine * m_pEngine;

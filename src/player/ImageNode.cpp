@@ -62,8 +62,8 @@ ImageNode::~ImageNode()
 void ImageNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
         AudioEngine * pAudioEngine)
 {
-    m_pImage->moveToGPU(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
+    m_pImage->moveToGPU(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
 }
 
 void ImageNode::connect()
@@ -118,6 +118,7 @@ void ImageNode::checkReload()
     Node::checkReload(m_href, m_pImage);
     IntPoint Size = getMediaSize();
     setViewport(-32767, -32767, -32767, -32767);
+    RasterNode::checkReload();
 }
 
 Bitmap * ImageNode::getBitmap()

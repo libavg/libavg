@@ -37,8 +37,7 @@ using namespace std;
 namespace avg {
 
 OGLSurface::OGLSurface(const MaterialInfo& material)
-    : m_bCreated(false),
-      m_Size(-1,-1),
+    : m_Size(-1,-1),
       m_Material(material),
       m_pEngine(0)
 {
@@ -50,39 +49,43 @@ OGLSurface::~OGLSurface()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void OGLSurface::create(SDLDisplayEngine * pEngine, const IntPoint& size, PixelFormat pf,
-        bool bFastDownload)
+void OGLSurface::attach(SDLDisplayEngine * pEngine)
 {
-    if (m_bCreated && m_Size == size && m_pf == pf) {
+    m_pEngine = pEngine;
+    m_MemoryMode = m_pEngine->getMemoryModeSupported();
+}
+
+void OGLSurface::create(const IntPoint& size, PixelFormat pf)
+{
+    assert(m_pEngine);
+    if (m_pTextures[0] && m_Size == size && m_pf == pf) {
         // If nothing's changed, we can ignore everything.
         return;
     }
-    m_pEngine = pEngine;
     m_Size = size;
     m_pf = pf;
-    m_MemoryMode = OGL;
-    if (bFastDownload) {
-        m_MemoryMode = pEngine->getMemoryModeSupported();
-    }
 
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-        m_pTextures[0] = OGLTexturePtr(new OGLTexture(size, I8, m_Material, pEngine,
+        m_pTextures[0] = OGLTexturePtr(new OGLTexture(size, I8, m_Material, m_pEngine,
                 m_MemoryMode));
         IntPoint halfSize(size.x/2, size.y/2);
-        m_pTextures[1] = OGLTexturePtr(new OGLTexture(halfSize, I8, m_Material, pEngine,
+        m_pTextures[1] = OGLTexturePtr(new OGLTexture(halfSize, I8, m_Material, m_pEngine,
                 m_MemoryMode));
-        m_pTextures[2] = OGLTexturePtr(new OGLTexture(halfSize, I8, m_Material, pEngine,
+        m_pTextures[2] = OGLTexturePtr(new OGLTexture(halfSize, I8, m_Material, m_pEngine,
                 m_MemoryMode));
     } else {
-        m_pTextures[0] = OGLTexturePtr(new OGLTexture(size, m_pf, m_Material, pEngine,
+        m_pTextures[0] = OGLTexturePtr(new OGLTexture(size, m_pf, m_Material, m_pEngine,
                 m_MemoryMode));
     }
-    if (m_Material.m_bHasMask) {
-        m_pMaskTexture = OGLTexturePtr(new OGLTexture(size, I8, m_Material, pEngine,
-                m_MemoryMode));
-    }
+}
 
-    m_bCreated = true;
+void OGLSurface::createMask(const IntPoint& size)
+{
+    assert(m_pEngine);
+    assert(m_Material.m_bHasMask);
+    m_MaskSize = size;
+    m_pMaskTexture = OGLTexturePtr(new OGLTexture(size, I8, m_Material, m_pEngine,
+            m_MemoryMode));
 }
 
 void OGLSurface::destroy()
@@ -90,7 +93,6 @@ void OGLSurface::destroy()
     m_pTextures[0] = OGLTexturePtr();
     m_pTextures[1] = OGLTexturePtr();
     m_pTextures[2] = OGLTexturePtr();
-    m_bCreated = false;
 }
 
 void OGLSurface::activate() const
@@ -155,13 +157,11 @@ void OGLSurface::deactivate() const
 
 BitmapPtr OGLSurface::lockBmp(int i)
 {
-    assert(m_bCreated);
     return m_pTextures[i]->lockBmp();
 }
 
 void OGLSurface::unlockBmps()
 {
-    assert(m_bCreated);
     m_pTextures[0]->unlockBmp();
     if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
         m_pTextures[1]->unlockBmp();
@@ -171,13 +171,12 @@ void OGLSurface::unlockBmps()
 
 BitmapPtr OGLSurface::lockMaskBmp()
 {
-    assert(m_bCreated && m_Material.m_bHasMask);
+    assert(m_Material.m_bHasMask);
     return m_pMaskTexture->lockBmp();
 }
 
 void OGLSurface::unlockMaskBmp()
 {
-    assert(m_bCreated && m_Material.m_bHasMask);
     m_pMaskTexture->unlockBmp();
 }
 
@@ -200,18 +199,20 @@ void OGLSurface::setMaterial(const MaterialInfo& material)
     if (bOldHasMask && !m_Material.m_bHasMask) {
         m_pMaskTexture = OGLTexturePtr();
     }
-    if (!bOldHasMask && m_Material.m_bHasMask && m_bCreated) {
-        m_pMaskTexture = OGLTexturePtr(new OGLTexture(m_Size, I8, m_Material, m_pEngine,
-                m_MemoryMode));
+    if (!bOldHasMask && m_Material.m_bHasMask && m_pMaskTexture) {
+        m_pMaskTexture = OGLTexturePtr(new OGLTexture(m_MaskSize, I8, m_Material, 
+                m_pEngine, m_MemoryMode));
     }
 }
 
 void OGLSurface::downloadTexture()
 {
-    m_pTextures[0]->download();
-    if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
-        m_pTextures[1]->download();
-        m_pTextures[2]->download();
+    if (m_pTextures[0]) {
+        m_pTextures[0]->download();
+        if (m_pf == YCbCr420p || m_pf == YCbCrJ420p) {
+            m_pTextures[1]->download();
+            m_pTextures[2]->download();
+        }
     }
     if (m_Material.m_bHasMask) {
         m_pMaskTexture->download();
@@ -231,6 +232,11 @@ IntPoint OGLSurface::getSize()
 IntPoint OGLSurface::getTextureSize()
 {
     return m_pTextures[0]->getTextureSize();
+}
+
+SDLDisplayEngine * OGLSurface::getEngine()
+{
+    return m_pEngine;
 }
 
 bool OGLSurface::useShader() const

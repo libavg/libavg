@@ -41,7 +41,6 @@ namespace avg {
 OGLTiledSurface::OGLTiledSurface(const MaterialInfo& material)
     : OGLSurface(material),
       m_bBound(false),
-      m_pEngine(0),
       m_TileSize(-1,-1),
       m_pVertexes(0)
 {
@@ -53,16 +52,14 @@ OGLTiledSurface::~OGLTiledSurface()
     ObjectCounter::get()->decRef(&typeid(*this));
 }
 
-void OGLTiledSurface::create(SDLDisplayEngine * pEngine, const IntPoint& Size, 
-        PixelFormat pf, bool bFastDownload)
+void OGLTiledSurface::create(const IntPoint& Size, PixelFormat pf)
 {
     if (m_bBound && getSize() == Size && getPixelFormat() == pf) {
         // If nothing's changed, we can ignore everything.
         return;
     }
     m_bBound = false;
-    m_pEngine = pEngine;
-    OGLSurface::create(pEngine, Size, pf, bFastDownload);
+    OGLSurface::create(Size, pf);
        
     calcVertexGrid(m_TileVertices);
 }
@@ -171,9 +168,9 @@ void OGLTiledSurface::blt(const DPoint& DestSize, DisplayEngine::BlendMode mode)
     if (!m_bBound) {
         bind();
     }
-    m_pEngine->enableGLColorArray(false);
-    m_pEngine->enableTexture(true);
-    m_pEngine->setBlendMode(mode);
+    getEngine()->enableGLColorArray(false);
+    getEngine()->enableTexture(true);
+    getEngine()->setBlendMode(mode);
 
     for (unsigned int y=0; y<m_FinalVertices.size(); y++) {
         for (unsigned int x=0; x<m_FinalVertices[y].size(); x++) {
@@ -202,8 +199,8 @@ void OGLTiledSurface::blt(const DPoint& DestSize, DisplayEngine::BlendMode mode)
     AVG_TRACE(Logger::BLTS, "(" << DestSize.x << ", " 
             << DestSize.y << ")" << ", m_pf: " 
             << Bitmap::getPixelFormatString(pf) << ", " 
-            << getGlModeString(m_pEngine->getOGLSrcMode(pf)) << "-->" 
-            << getGlModeString(m_pEngine->getOGLDestMode(pf)));
+            << getGlModeString(getEngine()->getOGLSrcMode(pf)) << "-->" 
+            << getGlModeString(getEngine()->getOGLDestMode(pf)));
 }
 
 IntPoint OGLTiledSurface::getNumTiles()

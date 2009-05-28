@@ -33,8 +33,6 @@
 #include "../graphics/Filterfill.h"
 #include "../graphics/Pixel24.h"
 
-#include <Magick++.h>
-
 #include <iostream>
 #include <sstream>
 
@@ -49,8 +47,7 @@ namespace avg {
 NodeDefinition VideoBase::createDefinition()
 {
     return NodeDefinition("videobase")
-        .extendDefinition(RasterNode::createDefinition())
-        .addArg(Arg<string>("maskhref", "", false, offsetof(VideoBase, m_sMaskHref)));
+        .extendDefinition(RasterNode::createDefinition());
 }
 
 VideoBase::VideoBase()
@@ -60,7 +57,7 @@ VideoBase::VideoBase()
 {
 }
 
-VideoBase::~VideoBase ()
+VideoBase::~VideoBase()
 {
 }
 
@@ -76,56 +73,12 @@ void VideoBase::setRenderingEngines(DisplayEngine * pDisplayEngine,
     } catch (Exception& ex) {
         AVG_TRACE(Logger::WARNING, ex.GetStr());
     }
-    if (getMaterial().m_bHasMask) {
-        downloadMask();
-    }
 }
 
 void VideoBase::disconnect()
 {
     changeVideoState(Unloaded);
     RasterNode::disconnect();
-}
-
-void VideoBase::checkReload()
-{
-    string sLastMaskFilename = m_sMaskFilename;
-    string sMaskFilename = m_sMaskHref;
-    initFilename(sMaskFilename);
-    if (sLastMaskFilename != sMaskFilename) {
-        m_sMaskFilename = sMaskFilename;
-        MaterialInfo material = getMaterial();
-        try {
-            if (m_sMaskFilename != "") {
-                AVG_TRACE(Logger::MEMORY, "Loading " << m_sMaskFilename);
-                m_pMaskBmp = BitmapPtr(new Bitmap(m_sMaskFilename));
-                if (m_pMaskBmp->getSize() != getMediaSize() 
-                        && getMediaSize() != IntPoint(0,0))
-                { 
-                    throw Exception(AVG_ERR_OUT_OF_RANGE, 
-                            string("Mask bitmap ") + m_sMaskFilename +
-                            " has different dimensions than video.");
-                }
-                material.m_bHasMask = true;
-                setMaterial(material);
-            }
-        } catch (Magick::Exception & ex) {
-            m_sMaskFilename = "";
-            if (getState() == Node::NS_CONNECTED) {
-                AVG_TRACE(Logger::ERROR, ex.what());
-            } else {
-                AVG_TRACE(Logger::MEMORY, ex.what());
-            }
-        }
-        if (m_sMaskFilename == "") {
-            m_pMaskBmp = BitmapPtr();
-            material.m_bHasMask = false;
-            setMaterial(material);
-        }
-        if (getState() == Node::NS_CANRENDER && material.m_bHasMask) {
-            downloadMask();
-        }
-    }
 }
 
 void VideoBase::play()
@@ -141,17 +94,6 @@ void VideoBase::stop()
 void VideoBase::pause()
 {
     changeVideoState(Paused);
-}
-
-const std::string& VideoBase::getMaskHRef() const
-{
-    return m_sMaskHref;
-}
-
-void VideoBase::setMaskHRef(const string& href)
-{
-    m_sMaskHref = href;
-    checkReload();
 }
 
 void VideoBase::render(const DRect& Rect)
@@ -207,7 +149,7 @@ void VideoBase::open()
     open(getDisplayEngine()->isUsingShaders());
     setViewport(-32767, -32767, -32767, -32767);
     PixelFormat pf = getPixelFormat();
-    getSurface()->create(getDisplayEngine(), getMediaSize(), pf, true);
+    getSurface()->create(getMediaSize(), pf);
     if (pf == B8G8R8X8 || pf == B8G8R8A8) {
         FilterFill<Pixel32> Filter(Pixel32(0,0,0,255));
         Filter.applyInPlace(getSurface()->lockBmp());
@@ -216,13 +158,6 @@ void VideoBase::open()
 
     m_bFirstFrameDecoded = false;
     m_bFrameAvailable = false;
-}
-
-void VideoBase::downloadMask()
-{
-    BitmapPtr pBmp = getSurface()->lockMaskBmp();
-    pBmp->copyPixels(*m_pMaskBmp);
-    getSurface()->unlockMaskBmp();
 }
 
 string VideoBase::dump (int indent)

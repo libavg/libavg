@@ -43,8 +43,7 @@ class AVG_API OGLTiledSurface: public OGLSurface {
         OGLTiledSurface(const MaterialInfo& material);
         virtual ~OGLTiledSurface();
 
-        virtual void create(SDLDisplayEngine * pEngine, const IntPoint& Size, 
-                PixelFormat PF, bool bFastDownload);
+        virtual void create(const IntPoint& Size, PixelFormat PF);
         virtual void destroy();
         
         void setTileSize(const IntPoint& tileSize);
@@ -66,7 +65,6 @@ class AVG_API OGLTiledSurface: public OGLSurface {
         void calcTexCoords();
 
         bool m_bBound;
-        SDLDisplayEngine * m_pEngine;
 
         IntPoint m_TileSize;
         VertexGrid m_TileVertices;

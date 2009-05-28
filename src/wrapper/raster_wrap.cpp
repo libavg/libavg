@@ -142,6 +142,15 @@ void export_raster()
                 &RasterNode::setBlendModeStr,
                 "The method of compositing the node with the nodes under\n"
                 "it. Valid values are 'blend', 'add', 'min' and 'max'.\n")
+        .add_property("maskhref", 
+                make_function(&RasterNode::getMaskHRef,
+                        return_value_policy<copy_const_reference>()),
+                make_function(&RasterNode::setMaskHRef,
+                        return_value_policy<copy_const_reference>()),
+                "The source filename for a mask image to be used as alpha channel.\n"
+                "Where this file is white, the node is shown. Where it is black, the\n"
+                "node is transparent. If the node is an image with an alpha channel,\n"
+                "the alpha channel is replaced by the mask.\n")
         .add_property("mipmap", &RasterNode::getMipmap,
                 "Determines whether mipmaps are generated for this node. Setting this\n"
                 "to True improves the quality of minified nodes, but causes a\n"
@@ -181,14 +190,6 @@ void export_raster()
                 "cursor stays at the same position.")
         .add_property("fps", &VideoBase::getFPS,
                 "Returns the nominal frames per second the object should display at.\n")
-        .add_property("maskhref", 
-                make_function(&VideoBase::getMaskHRef,
-                        return_value_policy<copy_const_reference>()),
-                make_function(&VideoBase::setMaskHRef,
-                        return_value_policy<copy_const_reference>()),
-                "The source filename for a mask image to be used as alpha channel.\n"
-                "Where this file is white, the video is shown. Where it is black, the\n"
-                "video is transparent.\n")
     ;  
 
     class_<CameraNode, bases<VideoBase> >("Camera",

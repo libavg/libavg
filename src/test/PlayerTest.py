@@ -116,14 +116,20 @@ class PlayerTestCase(AVGTestCase):
         self.assert_(abs(avg.Point2D(10,0).getNormalized().getNorm()-1) < 0.001)
 
     def testImage(self):
+
         def loadNewFile():
             self.assert_(Player.getElementByID("test").getMediaSize() == (65,65))
             Player.getElementByID("test").href = "rgb24alpha-64x64.png"
             Player.getElementByID("test1").href = "rgb24alpha-64x64.png"
             self.assert_(Player.getElementByID("test").getMediaSize() == (64,64))
+
         def getFramerate():
             framerate = Player.getEffectiveFramerate()
             self.assert_(framerate > 0)
+
+        def setMask():
+            Player.getElementByID("test").maskhref = "mask.png"
+            
         Player.showCursor(0)
         Player.showCursor(1)
         Player.loadFile("image.avg")
@@ -137,6 +143,8 @@ class PlayerTestCase(AVGTestCase):
                  getFramerate,
                  loadNewFile, 
                  lambda: self.compareImage("testimgload", False),
+                 setMask,
+                 lambda: self.compareImage("testimgmask", False),
                  lambda: Player.setGamma(0.7, 0.7, 0.7),
                  lambda: Player.setGamma(1.0, 1.0, 1.0),
                  lambda: Player.showCursor(0),

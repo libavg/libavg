@@ -44,6 +44,7 @@ class AVG_API RasterNode: public AreaNode
                 AudioEngine * pAudioEngine);
         virtual void setArgs(const ArgList& Args);
         virtual void disconnect();
+        virtual void checkReload();
         
         // Warping support.
         VertexGrid getOrigVertexCoords();
@@ -57,6 +58,9 @@ class AVG_API RasterNode: public AreaNode
         const std::string& getBlendModeStr() const;
         void setBlendModeStr(const std::string& sBlendMode);
         DisplayEngine::BlendMode getBlendMode() const;
+        const std::string& getMaskHRef() const;
+        void setMaskHRef(const std::string& href);
+
         NodePtr getElementByPos(const DPoint & pos);
 
         virtual Bitmap* getBitmap();
@@ -68,6 +72,7 @@ class AVG_API RasterNode: public AreaNode
         void setMaterial(const MaterialInfo& material);
  
     private:
+        void downloadMask();
         void checkDisplayAvailable(std::string sMsg);
         OGLTiledSurface * m_pSurface;
         
@@ -75,6 +80,10 @@ class AVG_API RasterNode: public AreaNode
         std::string m_sBlendMode;
         DisplayEngine::BlendMode m_BlendMode;
         MaterialInfo m_Material;
+
+        std::string m_sMaskHref;
+        std::string m_sMaskFilename;
+        BitmapPtr m_pMaskBmp;
 };
 
 }

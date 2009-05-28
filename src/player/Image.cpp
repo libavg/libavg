@@ -76,7 +76,7 @@ void Image::setBitmap(const Bitmap * pBmp)
         if (m_pSurface->getSize() != pBmp->getSize() || 
                 m_pSurface->getPixelFormat() != pf)
         {
-            m_pSurface->create(m_pEngine, pBmp->getSize(), pf, true);
+            m_pSurface->create(pBmp->getSize(), pf);
         }            
         BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
         pSurfaceBmp->copyPixels(*pBmp);
@@ -201,7 +201,7 @@ void Image::load()
 void Image::setupSurface()
 {
     PixelFormat pf = calcSurfacePF(*m_pBmp);
-    m_pSurface->create(m_pEngine, m_pBmp->getSize(), pf, true);
+    m_pSurface->create(m_pBmp->getSize(), pf);
     BitmapPtr pSurfaceBmp = m_pSurface->lockBmp();
     pSurfaceBmp->copyPixels(*m_pBmp);
     m_pSurface->unlockBmps();

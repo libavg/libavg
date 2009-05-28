@@ -508,7 +508,7 @@ void Words::drawString()
         }
 //        cerr << "libavg Extents: " << m_StringExtents << endl;
         if (getState() == NS_CANRENDER) {
-            getSurface()->create(getDisplayEngine(), m_StringExtents, I8, false);
+            getSurface()->create(m_StringExtents, I8);
 
             BitmapPtr pBmp = getSurface()->lockBmp();
             FilterFill<unsigned char>(0).applyInPlace(pBmp);
@@ -529,6 +529,7 @@ void Words::drawString()
                 m_PosOffset.x = ink_rect.x;
             }
             pango_ft2_render_layout(&bitmap, m_pLayout, -m_PosOffset.x, -m_PosOffset.y);
+            getSurface()->unlockBmps();
 
             getSurface()->bind();
             if (m_LineSpacing == -1) {

@@ -29,6 +29,8 @@
 #include "../base/XMLHelper.h"
 #include "../base/Exception.h"
 
+#include <Magick++.h>
+
 using namespace std;
 
 namespace avg {
@@ -41,7 +43,8 @@ NodeDefinition RasterNode::createDefinition()
         .addArg(Arg<int>("maxtileheight", -1, false, offsetof(RasterNode, m_MaxTileSize.y)))
         .addArg(Arg<string>("blendmode", "blend", false, offsetof(RasterNode, m_sBlendMode)))
         .addArg(Arg<bool>("mipmap", false, false, 
-                offsetof(RasterNode, m_Material.m_bUseMipmaps)));
+                offsetof(RasterNode, m_Material.m_bUseMipmaps)))
+        .addArg(Arg<string>("maskhref", "", false, offsetof(RasterNode, m_sMaskHref)));
 }
 
 RasterNode::RasterNode()
@@ -74,12 +77,17 @@ void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
 {
     AreaNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 
-    OGLTiledSurface * pSurface = getSurface();
-    if (m_MaxTileSize != IntPoint(-1, -1) && pSurface) {
-        pSurface->setTileSize(m_MaxTileSize);
+    getSurface();
+    m_pSurface->attach(dynamic_cast<SDLDisplayEngine*>(pDisplayEngine));
+    if (m_MaxTileSize != IntPoint(-1, -1)) {
+        m_pSurface->setTileSize(m_MaxTileSize);
     }
-    pSurface->setMaterial(m_Material);
+    m_pSurface->setMaterial(m_Material);
     setBlendModeStr(m_sBlendMode);
+    if (m_Material.m_bHasMask) {
+        m_pSurface->createMask(m_pMaskBmp->getSize());
+        downloadMask();
+    }
 }
 
 void RasterNode::disconnect()
@@ -88,6 +96,40 @@ void RasterNode::disconnect()
         m_pSurface->destroy();
     }
     AreaNode::disconnect();
+}
+
+void RasterNode::checkReload()
+{
+    string sLastMaskFilename = m_sMaskFilename;
+    string sMaskFilename = m_sMaskHref;
+    initFilename(sMaskFilename);
+    if (sLastMaskFilename != sMaskFilename) {
+        m_sMaskFilename = sMaskFilename;
+        try {
+            if (m_sMaskFilename != "") {
+                AVG_TRACE(Logger::MEMORY, "Loading " << m_sMaskFilename);
+                m_pMaskBmp = BitmapPtr(new Bitmap(m_sMaskFilename));
+                m_Material.m_bHasMask = true;
+                setMaterial(m_Material);
+            }
+        } catch (Magick::Exception & ex) {
+            m_sMaskFilename = "";
+            if (getState() == Node::NS_CONNECTED) {
+                AVG_TRACE(Logger::ERROR, ex.what());
+            } else {
+                AVG_TRACE(Logger::MEMORY, ex.what());
+            }
+        }
+        if (m_sMaskFilename == "") {
+            m_pMaskBmp = BitmapPtr();
+            m_Material.m_bHasMask = false;
+            setMaterial(m_Material);
+        }
+        if (getState() == Node::NS_CANRENDER && m_Material.m_bHasMask) {
+            m_pSurface->createMask(m_pMaskBmp->getSize());
+            downloadMask();
+        }
+    }
 }
 
 VertexGrid RasterNode::getOrigVertexCoords()
@@ -137,6 +179,17 @@ void RasterNode::setBlendModeStr(const std::string& sBlendMode)
     m_BlendMode = DisplayEngine::stringToBlendMode(sBlendMode);
 }
 
+const std::string& RasterNode::getMaskHRef() const
+{
+    return m_sMaskHref;
+}
+
+void RasterNode::setMaskHRef(const string& href)
+{
+    m_sMaskHref = href;
+    checkReload();
+}
+
 NodePtr RasterNode::getElementByPos(const DPoint & pos)
 {
     // Node isn't pickable if it's warped.
@@ -179,6 +232,14 @@ void RasterNode::setMaterial(const MaterialInfo& material)
 {
     m_Material = material;
     getSurface()->setMaterial(m_Material);
+}
+
+void RasterNode::downloadMask()
+{
+    BitmapPtr pBmp = m_pSurface->lockMaskBmp();
+    pBmp->copyPixels(*m_pMaskBmp);
+    m_pSurface->unlockMaskBmp();
+    m_pSurface->downloadTexture();
 }
 
 void RasterNode::checkDisplayAvailable(std::string sMsg)
