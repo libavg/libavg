@@ -56,6 +56,7 @@ class Grabbable:
             onStop = lambda: None,
             onAction = lambda: None,
             onMotion = lambda pos, size, angle, pivot: None,
+            onResetMotion = lambda: None,
             onDragStart = lambda: None,
             initialDown = None,
             inertia = 0.95,
@@ -75,6 +76,7 @@ class Grabbable:
                 'onStop': onStop,
                 'onAction': onAction,
                 'onMotion': onMotion,
+                'onResetMotion': onResetMotion,
                 'onDragStart': onDragStart,
                 }
 
@@ -317,4 +319,5 @@ class Grabbable:
         self.__oldpos = self.__node.pos
 
         self.__lastFixPoint = None
+        self.__callback['onResetMotion']()
 
