@@ -153,6 +153,12 @@ void OGLSurface::deactivate() const
         glproc::UseProgramObject(0);
         OGLErrorCheck(AVG_ERR_VIDEO_GENERAL, "OGLSurface::deactivate");
     }
+    if (m_Material.m_bHasMask) {
+        glproc::ActiveTexture(GL_TEXTURE3);
+        glDisable(GL_TEXTURE_2D);
+        glproc::ActiveTexture(GL_TEXTURE0);
+        glproc::UseProgramObject(0);
+    }
 }
 
 BitmapPtr OGLSurface::lockBmp(int i)
