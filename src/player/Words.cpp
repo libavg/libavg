@@ -146,14 +146,14 @@ void Words::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pA
     RasterNode::setRenderingEngines(pDisplayEngine, pAudioEngine);
 }
 
-void Words::disconnect()
+void Words::disconnect(bool bKill)
 {
     if (m_pFontDescription) {
         pango_font_description_free(m_pFontDescription);
         m_pFontDescription = 0;
         m_bFontChanged = true;
     }
-    RasterNode::disconnect();
+    RasterNode::disconnect(bKill);
 }
 
 string Words::getAlignment() const

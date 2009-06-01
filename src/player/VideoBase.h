@@ -42,7 +42,7 @@ class AVG_API VideoBase : public RasterNode
         virtual ~VideoBase ();
         void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
-        void disconnect();
+        void disconnect(bool bKill);
         
         void play();
         void stop();

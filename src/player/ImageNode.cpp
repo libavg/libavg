@@ -72,10 +72,14 @@ void ImageNode::connect()
     checkReload();
 }
 
-void ImageNode::disconnect()
+void ImageNode::disconnect(bool bKill)
 {
-    m_pImage->moveToCPU();
-    RasterNode::disconnect();
+    if (bKill) {
+        m_pImage = ImagePtr(new Image(getSurface(), "", true));
+    } else {
+        m_pImage->moveToCPU();
+    }
+    RasterNode::disconnect(bKill);
 }
 
 const std::string& ImageNode::getHRef() const

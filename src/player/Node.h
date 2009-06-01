@@ -76,11 +76,11 @@ class AVG_API Node
         virtual void setThis(NodeWeakPtr This, const NodeDefinition * pDefinition);
         virtual void setArgs(const ArgList& Args);
         virtual void setParent(DivNodeWeakPtr pParent, NodeState parentState);
-        void removeParent();
+        void removeParent(bool bKill);
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
         virtual void connect();
-        virtual void disconnect();
+        virtual void disconnect(bool bKill);
         virtual void checkReload() {};
 
         virtual const std::string& getID() const;
@@ -96,7 +96,7 @@ class AVG_API Node
         void setSensitive(bool bSensitive);
 
         DivNodePtr getParent() const;
-        void unlink();
+        void unlink(bool bKill=false);
 
         void setMouseEventCapture();
         void releaseMouseEventCapture();

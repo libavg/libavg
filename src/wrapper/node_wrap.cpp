@@ -48,8 +48,11 @@ void export_devices();
 using namespace boost::python;
 using namespace avg;
 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(unlink_overloads, Node::unlink, 0, 1);
+
 void export_node()
 {
+
     class_<Node, boost::shared_ptr<Node>, boost::noncopyable>("Node",
             "Base class for all elements in the avg tree.",
             no_init)
@@ -60,11 +63,13 @@ void export_node()
                 "getParent() -> node\n"
                 "Returns the container (AVGNode or DivNode) the node is in. For\n"
                 "the root node, returns None.\n")
-        .def("unlink", &Node::unlink,
-                "unlink() -> None\n"
+        .def("unlink", &Node::unlink, unlink_overloads(args("bKill"),
+                "unlink(kill) -> None\n"
                 "Removes a node from it's parent container. Equivalent to\n"
                 "node.getParent().removeChild(node.getParent().indexOf(node)), except\n"
-                "that if the node has no parent, unlink does nothing.\n")
+                "that if the node has no parent, unlink does nothing. Normally,\n"
+                "unlink moves the node's textures back to the CPU. If kill=True,\n"
+                "this step is skipped, saving some time.\n"))
         .def("setEventCapture", &Node::setMouseEventCapture,
                 "setEventCapture(cursorid)\n"
                 "Sets up event capturing so that cursor events are sent to this node\n"

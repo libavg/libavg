@@ -102,11 +102,11 @@ void Node::setParent(DivNodeWeakPtr pParent, NodeState parentState)
     }
 }
 
-void Node::removeParent()
+void Node::removeParent(bool bKill)
 {
     m_pParent = DivNodePtr();
     if (getState() != NS_UNCONNECTED) {
-        disconnect();
+        disconnect(bKill);
     }
 }
 
@@ -123,7 +123,7 @@ void Node::connect()
     setState(NS_CONNECTED);
 }
 
-void Node::disconnect()
+void Node::disconnect(bool bKill)
 {
     assert(getState() != NS_UNCONNECTED);
     if (getState() == NS_CANRENDER) {
@@ -194,13 +194,13 @@ DivNodePtr Node::getParent() const
     }
 }
 
-void Node::unlink()
+void Node::unlink(bool bKill)
 {
     if (m_pParent.expired()) {
         return;
     }
     DivNodePtr pParent = m_pParent.lock();
-    pParent->removeChild(pParent->indexOf(getThis()));
+    pParent->removeChild(getThis(), bKill);
 }
 
 void Node::setMouseEventCapture()

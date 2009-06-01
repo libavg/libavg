@@ -75,10 +75,10 @@ void VideoBase::setRenderingEngines(DisplayEngine * pDisplayEngine,
     }
 }
 
-void VideoBase::disconnect()
+void VideoBase::disconnect(bool bKill)
 {
     changeVideoState(Unloaded);
-    RasterNode::disconnect();
+    RasterNode::disconnect(bKill);
 }
 
 void VideoBase::play()

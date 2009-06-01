@@ -40,7 +40,7 @@ class AVG_API DivNode : public AreaNode
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
         virtual void connect();
-        virtual void disconnect();
+        virtual void disconnect(bool bKill);
 
         bool getCrop() const;
         void setCrop(bool bCrop);
@@ -58,6 +58,8 @@ class AVG_API DivNode : public AreaNode
         void insertChild(NodePtr pNewNode, unsigned i);
         void removeChild(NodePtr pNode);
         void removeChild(unsigned i);
+        void removeChild(NodePtr pNode, bool bKill);
+        void removeChild(unsigned i, bool bKill);
         void reorderChild(NodePtr pNode, unsigned j);
         void reorderChild(unsigned i, unsigned j);
         int indexOf(NodePtr pChild);
@@ -72,7 +74,7 @@ class AVG_API DivNode : public AreaNode
 
         virtual std::string dump(int indent = 0);
         IntPoint getMediaSize();
-    
+   
     private:
         bool isChildTypeAllowed(const std::string& sType);
 

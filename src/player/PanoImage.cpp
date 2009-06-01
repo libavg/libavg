@@ -76,10 +76,10 @@ void PanoImage::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine 
     setupTextures();
 }
 
-void PanoImage::disconnect()
+void PanoImage::disconnect(bool bKill)
 {
     clearTextures();
-    AreaNode::disconnect();
+    AreaNode::disconnect(bKill);
 }
 
 static ProfilingZone PanoRenderProfilingZone("PanoImage::render");

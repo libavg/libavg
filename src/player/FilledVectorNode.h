@@ -36,7 +36,7 @@ class AVG_API FilledVectorNode : public VectorNode
         virtual ~FilledVectorNode();
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
-        virtual void disconnect();
+        virtual void disconnect(bool bKill);
         virtual void checkReload();
 
         const std::string& getFillTexHRef() const;

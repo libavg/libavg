@@ -46,7 +46,7 @@ class AVG_API VectorNode : public Node
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
         virtual void connect();
-        virtual void disconnect();
+        virtual void disconnect(bool bKill);
         virtual void checkReload();
 
         const std::string& getTexHRef() const;

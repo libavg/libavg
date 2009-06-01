@@ -90,10 +90,10 @@ void VectorNode::connect()
     checkReload();
 }
 
-void VectorNode::disconnect()
+void VectorNode::disconnect(bool bKill)
 {
     m_pShape->moveToCPU();
-    Node::disconnect();
+    Node::disconnect(bKill);
 }
 
 void VectorNode::checkReload()

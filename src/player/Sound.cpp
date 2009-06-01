@@ -141,10 +141,10 @@ void Sound::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pA
     }
 }
 
-void Sound::disconnect()
+void Sound::disconnect(bool bKill)
 {
     changeSoundState(Unloaded);
-    AreaNode::disconnect();
+    AreaNode::disconnect(bKill);
 }
 
 void Sound::play()

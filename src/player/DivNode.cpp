@@ -84,12 +84,12 @@ void DivNode::connect()
     }
 }
 
-void DivNode::disconnect()
+void DivNode::disconnect(bool bKill)
 {
     for  (int i = 0; i< (int)m_Children.size(); ++i) {
-        m_Children[i]->disconnect();
+        m_Children[i]->disconnect(bKill);
     }
-    AreaNode::disconnect();
+    AreaNode::disconnect(bKill);
 }
 
 bool DivNode::getCrop() const
@@ -195,19 +195,29 @@ void DivNode::insertChild(NodePtr pNewNode, unsigned i)
 
 void DivNode::removeChild(NodePtr pNode)
 {
-    int i = indexOf(pNode);
-    pNode->removeParent();
-    m_Children.erase(m_Children.begin()+i);
+    removeChild(pNode, false);
 }
 
 void DivNode::removeChild(unsigned i)
+{
+    removeChild(i, false);
+}
+
+void DivNode::removeChild(NodePtr pNode, bool bKill)
+{
+    int i = indexOf(pNode);
+    pNode->removeParent(bKill);
+    m_Children.erase(m_Children.begin()+i);
+}
+
+void DivNode::removeChild(unsigned i, bool bKill)
 {
     if (i>m_Children.size()-1) {
         throw(Exception(AVG_ERR_OUT_OF_RANGE,
                 getID()+"::removeChild: index "+toString(i)+" out of bounds."));
     }
     NodePtr pNode = getChild(i);
-    pNode->removeParent();
+    pNode->removeParent(bKill);
     m_Children.erase(m_Children.begin()+i);
 }
 

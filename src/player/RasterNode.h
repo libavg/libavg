@@ -43,7 +43,7 @@ class AVG_API RasterNode: public AreaNode
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
         virtual void setArgs(const ArgList& Args);
-        virtual void disconnect();
+        virtual void disconnect(bool bKill);
         virtual void checkReload();
         
         // Warping support.

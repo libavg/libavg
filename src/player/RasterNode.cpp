@@ -90,12 +90,12 @@ void RasterNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     }
 }
 
-void RasterNode::disconnect()
+void RasterNode::disconnect(bool bKill)
 {
     if (m_pSurface) {
         m_pSurface->destroy();
     }
-    AreaNode::disconnect();
+    AreaNode::disconnect(bKill);
 }
 
 void RasterNode::checkReload()

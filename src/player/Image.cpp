@@ -63,6 +63,9 @@ Image::Image(OGLSurface * pSurface, const Bitmap* pBmp, bool bTiled)
 
 Image::~Image()
 {
+    if (m_State == GPU) {
+        m_pSurface->destroy();
+    }
     ObjectCounter::get()->decRef(&typeid(*this));
 }
         

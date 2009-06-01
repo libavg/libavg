@@ -43,7 +43,7 @@ class AVG_API Sound : public AreaNode, IFrameListener, IAudioSource
 
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine, 
                 AudioEngine * pAudioEngine);
-        virtual void disconnect();
+        virtual void disconnect(bool bKill);
 
         void play();
         void stop();

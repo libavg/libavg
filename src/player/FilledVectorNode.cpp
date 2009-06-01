@@ -72,10 +72,10 @@ void FilledVectorNode::setRenderingEngines(DisplayEngine * pDisplayEngine,
     m_OldOpacity = -1;
 }
 
-void FilledVectorNode::disconnect()
+void FilledVectorNode::disconnect(bool bKill)
 {
     m_pFillShape->moveToCPU();
-    VectorNode::disconnect();
+    VectorNode::disconnect(bKill);
 }
 
 void FilledVectorNode::checkReload()
