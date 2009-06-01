@@ -73,7 +73,7 @@ void Image::setBitmap(const Bitmap * pBmp)
     }
     PixelFormat pf = calcSurfacePF(*pBmp);
     if (m_pEngine) {
-        if (m_pSurface->getSize() != pBmp->getSize() || 
+        if (m_State == NOT_AVAILABLE || m_pSurface->getSize() != pBmp->getSize() || 
                 m_pSurface->getPixelFormat() != pf)
         {
             m_pSurface->create(pBmp->getSize(), pf);

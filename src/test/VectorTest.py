@@ -239,7 +239,9 @@ class VectorTestCase(AVGTestCase):
                  setFillBitmap,
                  lambda: self.compareImage("testTexturedRect5", False),
                  clearFillBitmap,
-                 lambda: self.compareImage("testTexturedRect6", False)
+                 lambda: self.compareImage("testTexturedRect6", False),
+                 setFillBitmap,
+                 lambda: self.compareImage("testTexturedRect5", False),
                 ))
 
     def testCurve(self):
