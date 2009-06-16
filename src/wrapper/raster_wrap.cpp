@@ -215,6 +215,7 @@ void export_raster()
         .def("getWhitebalanceU", &CameraNode::getWhitebalanceU)
         .def("getWhitebalanceV", &CameraNode::getWhitebalanceV)
         .def("setWhitebalance", &CameraNode::setWhitebalance)
+        .def("isAvailable", &CameraNode::isAvailable)
     ;
         
     class_<Video, bases<VideoBase> >("Video",

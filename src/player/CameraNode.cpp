@@ -32,6 +32,7 @@
 #include "../base/XMLHelper.h"
 
 #include "../imaging/Camera.h"
+#include "../imaging/FakeCamera.h"
 
 #include <iostream>
 #include <sstream>
@@ -105,6 +106,15 @@ CameraNode::~CameraNode()
 void CameraNode::setRenderingEngines(DisplayEngine * pDisplayEngine, AudioEngine * pAudioEngine)
 {
     VideoBase::setRenderingEngines(pDisplayEngine, pAudioEngine);
+}
+
+bool CameraNode::isAvailable()
+{
+    if (!m_pCamera || boost::dynamic_pointer_cast<FakeCamera>(m_pCamera)) {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 int CameraNode::getBrightness() const

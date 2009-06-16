@@ -46,6 +46,8 @@ class AVG_API CameraNode : public VideoBase
 
         virtual void setRenderingEngines(DisplayEngine * pDisplayEngine,
                 AudioEngine * pAudioEngine);
+                
+        bool isAvailable();
 
         const std::string& getDevice() const 
         {
