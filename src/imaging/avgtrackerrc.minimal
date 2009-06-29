@@ -5,7 +5,7 @@
   <device value="0"/>
   <format value="MONO8"/>
   <size x="640" y="480"/>
-  <fps value="30"/>
+  <framerate value="30"/>
   <brightness value="268"/>
   <gamma value="0"/>
   <gain value="130"/>

@@ -417,7 +417,7 @@ TrackerEventSource * Player::addTracker(const string& sConfigFilename)
     bool bFW800 = Config.getBoolParam("/camera/fw800/@value");
     IntPoint CaptureSize(Config.getPointParam("/camera/size/"));
     string sCaptureFormat = Config.getParam("/camera/format/@value");
-    double FrameRate = Config.getDoubleParam("/camera/fps/@value");
+    double FrameRate = Config.getDoubleParam("/camera/framerate/@value");
 
     if (!m_pEventDispatcher) {
         throw Exception(AVG_ERR_UNSUPPORTED, 
