@@ -60,7 +60,9 @@ class AVG_API V4LCamera: public Camera {
         virtual int getWhitebalanceU() const;
         virtual int getWhitebalanceV() const;
         virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
-        
+       
+        static void dumpCameras();
+
     private:
         void initDevice();
         void startCapture();

@@ -192,15 +192,11 @@ BitmapPtr V4LCamera::getImage(bool bWait)
     
     // dequeue filled buffer
     if (xioctl (m_Fd, VIDIOC_DQBUF, &Buf) == -1) {
-        switch (errno) {
-            case EAGAIN:
-                return BitmapPtr();
-            case EIO:
-                throw(Exception(AVG_ERR_CAMERA, "Got EIO when acquiring image."));
-            case EINVAL:
-                throw(Exception(AVG_ERR_CAMERA, "Got EINVAL when acquiring image."));
-            default:
-                throw(Exception(AVG_ERR_CAMERA, "Unknown error acquiring image."));
+        if (errno == EAGAIN) {
+            return BitmapPtr();
+        } else {
+            cerr << strerror(errno) << endl;
+            assert(false);
         }
     }
     
@@ -225,7 +221,8 @@ BitmapPtr V4LCamera::getImage(bool bWait)
 
     // enqueues free buffer for mmap
     if (-1 == xioctl (m_Fd, VIDIOC_QBUF, &Buf)) {
-        throw(Exception(AVG_ERR_CAMERA, "V4L Camera: failed to enqueue image buffer."));
+        throw(Exception(AVG_ERR_CAMERA_FATAL, 
+                "V4L Camera: failed to enqueue image buffer."));
     }
     
     return pDestBmp;
@@ -374,6 +371,10 @@ void V4LCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
     setFeature(V4L2_CID_BLUE_BALANCE, v); 
 }
 
+void V4LCamera::dumpCameras()
+{
+}
+
 void V4LCamera::setFeature(CameraFeature Feature, int Value, bool bIgnoreOldValue)
 {
     // ignore -1 coming from default unbiased cameranode parameters
@@ -473,8 +474,10 @@ void V4LCamera::initDevice()
 
     if (xioctl(m_Fd, VIDIOC_S_FMT, &Fmt) == -1) {
         close();
-        throw(Exception(AVG_ERR_CAMERA, string("Unable to set V4L camera image format: '")
-                +strerror(errno)+"'. Try using v4l_info to find out what the device supports."));
+        throw(Exception(AVG_ERR_CAMERA_NONFATAL, 
+                string("Unable to set V4L camera image format: '")
+                +strerror(errno)
+                +"'. Try using v4l_info to find out what the device supports."));
     }
 
     initMMap ();
