@@ -29,27 +29,15 @@
 
 #include "../base/Point.h"
 
-#ifdef AVG_ENABLE_1394
-#include <libraw1394/raw1394.h>
-#include <libdc1394/dc1394_control.h>
-#endif
-#ifdef AVG_ENABLE_1394_2
 #include <dc1394/control.h>
-#endif
 
 #include <string>
 
 namespace avg {
 
-#ifdef AVG_ENABLE_1394
-int getCamMode(IntPoint Size, std::string sPF);
-int getFrameRateConst(double FrameRate);
-int getFeatureID(CameraFeature Feature);
-#else
-dc1394video_mode_t getCamMode(IntPoint Size, std::string sPF);
+dc1394video_mode_t getCamMode(IntPoint Size, PixelFormat pf);
 dc1394framerate_t getFrameRateConst(double FrameRate);
 dc1394feature_t getFeatureID(CameraFeature Feature);
-#endif
 
 }
 

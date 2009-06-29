@@ -4,12 +4,6 @@ INCLUDES = -I. -I../player \
 
 ALL_H =
 
-if ENABLE_1394
-    DC1394_LIBS = -ldc1394_control -lraw1394
-else
-    DC1394_LIBS =
-endif
-
 if APPLE
     XGL_LIBS =
     EXTRA_LDFLAGS=-read_only_relocs suppress

@@ -48,13 +48,14 @@ NodeDefinition CameraNode::createDefinition()
 {
     return NodeDefinition("camera", Node::buildNode<CameraNode>)
         .extendDefinition(VideoBase::createDefinition())
+        .addArg(Arg<string>("driver", "firewire"))
         .addArg(Arg<string>("device", ""))
+        .addArg(Arg<int>("unit", -1))
+        .addArg(Arg<bool>("fw800", false))
         .addArg(Arg<double>("framerate", 15))
-        .addArg(Arg<string>("source", "firewire"))
         .addArg(Arg<int>("capturewidth", 640))
         .addArg(Arg<int>("captureheight", 480))
         .addArg(Arg<string>("pixelformat", "RGB"))
-        .addArg(Arg<string>("channel", ""))
         .addArg(Arg<int>("brightness", -1))
         .addArg(Arg<int>("exposure", -1))
         .addArg(Arg<int>("sharpness", -1))
@@ -69,16 +70,33 @@ CameraNode::CameraNode(const ArgList& Args, bool bFromXML)
     : m_FrameNum(0)
 {
     Args.setMembers(this);
+    string sDriver = Args.getArgVal<string>("driver");
     string sDevice = Args.getArgVal<string>("device");
-    string sChannel = Args.getArgVal<string>("channel");
+    int unit = Args.getArgVal<int>("unit");
+    bool bFW800 = Args.getArgVal<bool>("fw800");
     double FrameRate = Args.getArgVal<double>("framerate");
-    string sSource = Args.getArgVal<string>("source");
     int Width = Args.getArgVal<int>("capturewidth");
     int Height = Args.getArgVal<int>("captureheight");
     string sPF = Args.getArgVal<string>("pixelformat");
 
-    m_pCamera = getCamera(sSource, sDevice, sChannel, IntPoint(Width, Height), sPF, FrameRate, true);
-    AVG_TRACE(Logger::CONFIG, "Got Camera "<<m_pCamera->getDevice() <<" from driver: "<<m_pCamera->getDriverName());
+    PixelFormat camPF = Bitmap::stringToPixelFormat(sPF);
+    if (camPF == NO_PIXELFORMAT) {
+        throw Exception(AVG_ERR_INVALID_ARGS,
+                "Unknown camera pixel format "+sPF+".");
+    }
+    PixelFormat destPF;
+    if (Bitmap::pixelFormatIsColored(camPF)) {
+        destPF = B8G8R8X8;
+    } else {
+        destPF = I8;
+    }
+//    cerr << "CameraNode ctor: " << Bitmap::getPixelFormatString(camPF) << "-->" << 
+//            Bitmap::getPixelFormatString(destPF) << endl;
+
+    m_pCamera = createCamera(sDriver, sDevice, unit, bFW800, IntPoint(Width, Height), camPF, 
+            destPF, FrameRate);
+    AVG_TRACE(Logger::CONFIG, "Got Camera " << m_pCamera->getDevice() << " from driver: "
+            << m_pCamera->getDriverName());
     
     m_pCamera->setFeature(CAM_FEATURE_BRIGHTNESS,
             Args.getArgVal<int>("brightness"));
@@ -125,16 +143,6 @@ int CameraNode::getBrightness() const
 void CameraNode::setBrightness(int Value)
 {
     setFeature(CAM_FEATURE_BRIGHTNESS, Value);
-}
-
-int CameraNode::getExposure() const
-{
-    return getFeature(CAM_FEATURE_EXPOSURE);
-}
-
-void CameraNode::setExposure(int Value)
-{
-    setFeature(CAM_FEATURE_EXPOSURE, Value);
 }
 
 int CameraNode::getSharpness() const
@@ -218,6 +226,11 @@ IntPoint CameraNode::getMediaSize()
     return m_pCamera->getImgSize();
 }
 
+void CameraNode::dumpCameras()
+{
+    avg::dumpCameras();
+}
+
 double CameraNode::getFPS()
 {
     return m_pCamera->getFrameRate();
@@ -270,6 +283,10 @@ bool CameraNode::renderToSurface(OGLTiledSurface * pSurface)
     ScopeTimer Timer(CameraProfilingZone);
     if (m_pCurBmp) {
         BitmapPtr pBmp = pSurface->lockBmp();
+        if (pBmp->getPixelFormat() != m_pCurBmp->getPixelFormat()) {
+            cerr << "Surface: " << pBmp->getPixelFormatString() << ", CamDest: " 
+                    << m_pCurBmp->getPixelFormatString() << endl;
+        }
         assert(pBmp->getPixelFormat() == m_pCurBmp->getPixelFormat());
         pBmp->copyPixels(*m_pCurBmp);
         pSurface->unlockBmps();
@@ -283,7 +300,7 @@ bool CameraNode::renderToSurface(OGLTiledSurface * pSurface)
 
 PixelFormat CameraNode::getPixelFormat() 
 {
-    return B8G8R8X8;
+    return m_pCamera->getDestPF();
 }
 
 

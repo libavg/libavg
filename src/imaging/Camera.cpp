@@ -23,11 +23,10 @@
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
+#include "../base/ScopeTimer.h"
+#include "../graphics/Filterfliprgb.h"
 
-#include <cstdlib>
-
-//alright. I know this looks strange. Don't argue
-#if defined(AVG_ENABLE_1394_2) || defined(AVG_ENABLE_1394)
+#if defined(AVG_ENABLE_1394_2)
 #include "../imaging/FWCamera.h"
 #endif
 #ifdef AVG_ENABLE_V4L2
@@ -41,10 +40,80 @@
 #endif
 #include "../imaging/FakeCamera.h"
 
+#include <cstdlib>
+
+#ifdef WIN32
+#define strtoll(p, e, b) _strtoi64(p, e, b)
+#endif
 
 namespace avg {
 
-std::string cameraFeatureToString(CameraFeature Feature)
+using namespace std;
+
+Camera::Camera(PixelFormat camPF, PixelFormat destPF)
+    : m_CamPF(camPF),
+      m_DestPF(destPF)
+{
+//    cerr << "Camera: " << Bitmap::getPixelFormatString(camPF) << "-->" 
+//        << Bitmap::getPixelFormatString(destPF) << endl;
+}
+
+PixelFormat Camera::getCamPF() const
+{
+    return m_CamPF;
+}
+
+void Camera::setCamPF(PixelFormat pf)
+{
+    m_CamPF = pf;
+}
+
+PixelFormat Camera::getDestPF() const
+{
+    return m_DestPF;
+}
+
+static ProfilingZone CameraConvertProfilingZone("Camera format conversion");
+
+BitmapPtr Camera::convertCamFrameToDestPF(BitmapPtr pCamBmp)
+{
+    ScopeTimer Timer(CameraConvertProfilingZone);
+    BitmapPtr pDestBmp = BitmapPtr(new Bitmap(pCamBmp->getSize(), m_DestPF));
+    pDestBmp->copyPixels(*pCamBmp);
+    if (m_CamPF == R8G8B8 && m_DestPF == B8G8R8X8) {
+        pDestBmp->setPixelFormat(R8G8B8X8);
+        FilterFlipRGB().applyInPlace(pDestBmp);
+    }
+
+    return pDestBmp;
+}
+
+PixelFormat Camera::fwBayerStringToPF(unsigned long reg)
+{
+    string sBayerFormat((char*)&reg, 4);
+    if (sBayerFormat == "RGGB") {
+        return BAYER8_RGGB;
+    } else if (sBayerFormat == "GBRG") {
+        return BAYER8_GBRG;
+    } else if (sBayerFormat == "GRBG") {
+        return BAYER8_GRBG;
+    } else if (sBayerFormat == "BGGR") {
+        return BAYER8_BGGR;
+    } else if (sBayerFormat == "YYYY") {
+        return I8;
+    } else {
+        assert(false);
+        return I8;
+    }
+
+}
+/*
+void Camera::fatalError(const string & sMsg)
+{
+    throw Exception(AVG_ERR_CAMERA, sMsg);
+}
+*/
+string cameraFeatureToString(CameraFeature Feature)
 {
     switch(Feature) {
         case CAM_FEATURE_BRIGHTNESS:
@@ -94,57 +163,86 @@ std::string cameraFeatureToString(CameraFeature Feature)
     }
 }
 
-CameraPtr getCamera(const std::string& sSource, const std::string& sDevice, 
-        const std::string& sChannel, const IntPoint& CaptureSize, 
-        const std::string& sCaptureFormat, double FrameRate, bool bColor) 
+CameraPtr createCamera(const string& sDriver, const string& sDevice, int unit,
+        bool bFW800, const IntPoint& captureSize, PixelFormat camPF, PixelFormat destPF, 
+        double frameRate)
 {
     CameraPtr pCamera;
     try {
-        if (sSource == "firewire" || sSource == "fw") {
-#if defined(AVG_ENABLE_1394)\
-        || defined(AVG_ENABLE_1394_2)
-            //IFIXME parse sChannel and extract guid/unit
-        char *dummy;
-        pCamera = CameraPtr(new FWCamera(sDevice, strtoll(sChannel.c_str(),&dummy,10), -1, 
-                    CaptureSize, sCaptureFormat, FrameRate, bColor));
+        if (sDriver == "firewire") {
+            char * pszErr;
+            long long guid = strtoll(sDevice.c_str(), &pszErr, 10);
+            if (strlen(pszErr)) {
+                throw Exception(AVG_ERR_INVALID_ARGS, "'"+sDevice
+                        +"' is not a valid GUID.");
+            }
+#if defined(AVG_ENABLE_1394_2)
+            pCamera = CameraPtr(new FWCamera(guid, unit, bFW800, captureSize, camPF, 
+                    destPF, frameRate));
 #elif defined(AVG_ENABLE_CMU1394)
-        pCamera = CameraPtr(new CMUCamera(sDevice, CaptureSize, sCaptureFormat, 
-                FrameRate, bColor));
+            if (unit != -1) {
+                throw Exception(AVG_ERR_INVALID_ARGS, 
+                        "camera 'unit' attribute is not supported when using the cmu firewire driver.");
+            }
+            pCamera = CameraPtr(new CMUCamera(guid, bFW800, captureSize, camPF, destPF, 
+                    frameRate));
 #else
             AVG_TRACE(Logger::WARNING, "Firewire camera specified, but firewire "
                     "support not compiled in.");
 #endif
-        } else if (sSource == "v4l") {
+        } else if (sDriver == "video4linux") {
 #if defined(AVG_ENABLE_V4L2)
-            char *dummy;
-            int Channel = strtol(sChannel.c_str(), &dummy, 10);
-            pCamera = CameraPtr(new V4LCamera(sDevice, Channel,
-                CaptureSize, sCaptureFormat, bColor));
+            pCamera = CameraPtr(new V4LCamera(sDevice, unit, captureSize, camPF, 
+                    destPF));
 #else
             AVG_TRACE(Logger::WARNING, "Video4Linux camera specified, but "
                     "Video4Linux support not compiled in.");
 #endif
-        } else if (sSource == "directshow") {
+        } else if (sDriver == "directshow") {
 #if defined(AVG_ENABLE_DSHOW)
-            pCamera = CameraPtr(new DSCamera(sDevice, CaptureSize, sCaptureFormat, 
-                FrameRate, bColor));
+            if (unit != -1) {
+                throw Exception(AVG_ERR_INVALID_ARGS, 
+                        "camera 'unit' attribute is not supported when using the directshow driver.");
+            }
+            pCamera = CameraPtr(new DSCamera(sDevice, captureSize, camPF, destPF,
+                frameRate));
 #else
             AVG_TRACE(Logger::WARNING, "DirectShow camera specified, but "
                     "DirectShow is only available under windows.");
 #endif
         } else {
             throw Exception(AVG_ERR_INVALID_ARGS,
-                    "Unable to set up camera. Camera source '"+sSource+"' unknown.");
+                    "Unable to set up camera. Camera source '"+sDriver+"' unknown.");
         }
     } catch (const Exception &e) {
-        AVG_TRACE(Logger::WARNING, e.GetStr());
+        if (e.GetCode() == AVG_ERR_CAMERA_NONFATAL) {
+            AVG_TRACE(Logger::WARNING, e.GetStr());
+        } else {
+            throw;
+        }
 
     }
     if (!pCamera){
-        pCamera = CameraPtr(new FakeCamera());
+        pCamera = CameraPtr(new FakeCamera(camPF, destPF));
     }
     return pCamera;
 
+}
+
+void dumpCameras()
+{
+#ifdef AVG_ENABLE_1394_2 
+    FWCamera::dumpCameras();
+#endif
+#ifdef AVG_ENABLE_CMU1394 
+    CMUCamera::dumpCameras();
+#endif
+#ifdef AVG_ENABLE_V4L2 
+    V4LCamera::dumpCameras();
+#endif
+#ifdef AVG_ENABLE_DSHOW 
+    DSCamera::dumpCameras();
+#endif
 }
 
 }

@@ -37,15 +37,17 @@ using namespace std;
 
 namespace avg {
 
-FakeCamera::FakeCamera()
-    : m_pBmpQ(new std::queue<BitmapPtr>()),
+FakeCamera::FakeCamera(PixelFormat camPF, PixelFormat destPF)
+    : Camera(camPF, destPF),
+      m_pBmpQ(new std::queue<BitmapPtr>()),
       m_bIsOpen(false)
 {
     m_ImgSize = IntPoint(640, 480);
 }
 
 FakeCamera::FakeCamera(std::vector<std::string> &pictures)
-    : m_pBmpQ(new std::queue<BitmapPtr>()),
+    : Camera(I8, I8),
+      m_pBmpQ(new std::queue<BitmapPtr>()),
       m_bIsOpen(false)
 {
     m_ImgSize = IntPoint(640, 480);

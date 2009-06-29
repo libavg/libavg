@@ -269,11 +269,14 @@ void Bitmap::copyPixels(const Bitmap & Orig)
                         assert(false);
                 }
                 break;
+            case BAYER8_RGGB:
             case BAYER8_GBRG:
+            case BAYER8_GRBG:
+            case BAYER8_BGGR:
                 switch(m_PF) {
-                    // Bayer patterns are saved as I8 bitmaps. So simply copy that
                     case I8:
                         {
+                            // Bayer patterns are saved as I8 bitmaps. So simply copy that.
                             const unsigned char * pSrc = Orig.getPixels();
                             unsigned char * pDest = m_pBits;
                             int Height = min(Orig.getSize().y, m_Size.y);
@@ -497,8 +500,16 @@ std::string Bitmap::getPixelFormatString(PixelFormat PF)
             return "YCbCr420p";
         case YCbCrJ420p:
             return "YCbCrJ420p";
+        case BAYER8:
+            return "BAYER8";
+        case BAYER8_RGGB:
+            return "BAYER8_RGGB";
         case BAYER8_GBRG:
             return "BAYER8_GBRG";
+        case BAYER8_GRBG:
+            return "BAYER8_GRBG";
+        case BAYER8_BGGR:
+            return "BAYER8_BGGR";
         case R32G32B32A32F:
             return "R32G32B32A32F";
         case I32F:
@@ -506,6 +517,100 @@ std::string Bitmap::getPixelFormatString(PixelFormat PF)
         default:
             return "Unknown";
     }
+}
+
+PixelFormat Bitmap::stringToPixelFormat(const string& s)
+{
+    if (s == "B5G6R5") {
+        return B5G6R5;
+    }
+    if (s == "B8G8R8" || s == "BGR") {
+        return B8G8R8;
+    }
+    if (s == "B8G8R8A8") {
+        return B8G8R8A8;
+    }
+    if (s == "B8G8R8X8") {
+        return B8G8R8X8;
+    }
+    if (s == "A8B8G8R8") {
+        return A8B8G8R8;
+    }
+    if (s == "X8B8G8R8") {
+        return X8B8G8R8;
+    }
+    if (s == "R5G6B5") {
+        return R5G6B5;
+    }
+    if (s == "R8G8B8" || s == "RGB") {
+        return R8G8B8;
+    }
+    if (s == "R8G8B8A8") {
+        return R8G8B8A8;
+    }
+    if (s == "R8G8B8X8") {
+        return R8G8B8X8;
+    }
+    if (s == "A8R8G8B8") {
+        return A8R8G8B8;
+    }
+    if (s == "X8R8G8B8") {
+        return X8R8G8B8;
+    }
+    if (s == "I8") {
+        return I8;
+    }
+    if (s == "I16") {
+        return I16;
+    }
+    if (s == "YCbCr411" || s == "YUV411") {
+        return YCbCr411;
+    }
+    if (s == "YCbCr422" || s == "YUV422") {
+        return YCbCr422;
+    }
+    if (s == "YUYV422") {
+        return YUYV422;
+    }
+    if (s == "YCbCr420p") {
+        return YCbCr420p;
+    }
+    if (s == "YCbCrJ420p") {
+        return YCbCrJ420p;
+    }
+    if (s == "BAYER8") {
+        return BAYER8;
+    }
+    if (s == "BAYER8_RGGB") {
+        return BAYER8_RGGB;
+    }
+    if (s == "BAYER8_GBRG") {
+        return BAYER8_GBRG;
+    }
+    if (s == "BAYER8_GRBG") {
+        return BAYER8_GRBG;
+    }
+    if (s == "BAYER8_BGGR") {
+        return BAYER8_BGGR;
+    }
+    if (s == "R32G32B32A32F") {
+        return R32G32B32A32F;
+    }
+    if (s == "I32F") {
+        return I32F;
+    }
+    return NO_PIXELFORMAT;
+}
+
+bool Bitmap::pixelFormatIsColored(PixelFormat pf)
+{
+    return (pf != I8 && pf != I16 && pf != I32F);
+}
+
+bool Bitmap::pixelFormatIsBayer(PixelFormat pf)
+{
+    return (pf == BAYER8_RGGB || pf == BAYER8_GBRG
+            || pf == BAYER8_GRBG || pf == BAYER8_BGGR);
 }
 
 unsigned char * Bitmap::getPixels()
@@ -572,7 +677,11 @@ int Bitmap::getBytesPerPixel(PixelFormat PF)
         case I16:
             return 2;
         case I8:
+        case BAYER8:
+        case BAYER8_RGGB:
         case BAYER8_GBRG:
+        case BAYER8_GRBG:
+        case BAYER8_BGGR:
             return 1;
         case YUYV422:
         case YCbCr422:
@@ -1322,6 +1431,7 @@ void Bitmap::FloatRGBAtoByteRGBA(const Bitmap& Orig)
     }
 }
 
+/*
 // Nearest Neighbour Bayer Pattern de-mosaicking
 // Code has been taken and adapted from libdc1394 Bayer conversion
 // TODO: adapt it for RGB24, not just for RGB32
@@ -1415,16 +1525,16 @@ void Bitmap::BY8toRGBNearest(const Bitmap& Orig)
         pDestPixel += DestStride;
     }
 }
+*/
 
 // Bilinear Bayer Pattern de-mosaicking
 // Code has been taken and adapted from libdc1394 Bayer conversion
 // Original source is OpenCV Bayer pattern decoding
 // TODO: adapt it for RGB24, not just for RGB32
-// TODO: add more CFA patterns (now only the GBRG is defined and used)
 void Bitmap::BY8toRGBBilinear(const Bitmap& Orig)
 {
     assert(getBytesPerPixel() == 4);
-    assert(Orig.getPixelFormat() == BAYER8_GBRG);
+    assert(pixelFormatIsBayer(Orig.getPixelFormat()));
 
     int Height = min(Orig.getSize().y, m_Size.y);
     int Width = min(Orig.getSize().x, m_Size.x);
@@ -1435,10 +1545,21 @@ void Bitmap::BY8toRGBBilinear(const Bitmap& Orig)
     int width = Width;
     int height = Height;
 
-    // CFA Pattern selection: BGGR: blue=-1, greenFirst=0; GRBG: blue=1, greenFirst=1
-    // Assuming GBRG
-    int blue = 1;
-    int greenFirst = 1;
+    // CFA Pattern selection
+    PixelFormat pf = Orig.getPixelFormat();
+    int blue;
+    int greenFirst;
+    if (pf == BAYER8_BGGR || pf == BAYER8_GBRG) {
+        blue = -1;
+    } else {
+        blue = 1;
+    }
+
+    if (pf == BAYER8_GBRG || pf == BAYER8_GRBG) {
+        greenFirst = 1;
+    } else {
+        greenFirst = 0;
+    }
 
     const unsigned char *pSrcPixel = Orig.getPixels();
     unsigned char *pDestPixel = (unsigned char *) getPixels();
@@ -1603,7 +1724,10 @@ void createTrueColorCopy(Bitmap& Dest, const Bitmap & Src)
             createTrueColorCopy<Pixel, Pixel16>(Dest, Src);
             break;
         case I8:
+        case BAYER8_RGGB:
         case BAYER8_GBRG:
+        case BAYER8_GRBG:
+        case BAYER8_BGGR:
             createTrueColorCopy<Pixel, Pixel8>(Dest, Src);
             break;
         default:

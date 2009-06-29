@@ -45,8 +45,8 @@ namespace avg {
 
 class DSCamera: public Camera {
 public:
-    DSCamera(std::string sDevice, IntPoint Size, std::string sPF,
-            double FrameRate, bool bColor);
+    DSCamera(std::string sDevice, IntPoint Size, PixelFormat camPF, 
+            PixelFormat destPF, double FrameRate);
     virtual ~DSCamera();
 
     virtual IntPoint getImgSize();
@@ -63,6 +63,8 @@ public:
     virtual int getWhitebalanceV() const;
     virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
 
+    static void dumpCameras();
+
 private:
     virtual void open();
     virtual void close();
@@ -75,16 +77,13 @@ private:
             IBaseFilter *pDest);
     void getUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, 
             IPin **ppPin);
-    void checkForDShowError(HRESULT hr, const std::string & sAppMsg);
-    void fatalError(const std::string & sMsg);
+    static void checkForDShowError(HRESULT hr, const std::string & sAppMsg);
 
     std::string m_sDevice;
     IntPoint m_Size;
     double m_FrameRate;
     bool m_bColor;
     bool m_bCameraIsColor;
-    std::string m_sPF;
-    PixelFormat m_CameraPF;
 
     IGraphBuilder * m_pGraph;
     ICaptureGraphBuilder2 * m_pCapture;

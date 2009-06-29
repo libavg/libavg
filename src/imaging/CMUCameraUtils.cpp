@@ -24,6 +24,8 @@
 #include "CMUCameraUtils.h"
 
 #include "../base/Logger.h"
+#include "../base/Exception.h"
+#include "../base/StringHelper.h"
 
 namespace avg {
 
@@ -31,33 +33,34 @@ using namespace std;
 
 #define FORMAT_0 0
 // Format 0 Modes
+#define MODE_160_120_YUV444  0
 #define MODE_320x240_YUV422  1
-#define MODE_640x480_MONO    5
-#define MODE_640x480_MONO16  6
 #define MODE_640x480_YUV411  2
 #define MODE_640x480_YUV422  3
 #define MODE_640x480_RGB     4
+#define MODE_640x480_MONO    5
+#define MODE_640x480_MONO16  6
 
 #define FORMAT_1 1
 // Format 1 Modes
-#define MODE_800x600_MONO    2
-#define MODE_800x600_MONO16  6
 #define MODE_800x600_YUV422  0
 #define MODE_800x600_RGB     1
-#define MODE_1024x768_MONO   5
-#define MODE_1024x768_MONO16 6
+#define MODE_800x600_MONO    2
 #define MODE_1024x768_YUV422 3
 #define MODE_1024x768_RGB    4
+#define MODE_1024x768_MONO   5
+#define MODE_800x600_MONO16  6
+#define MODE_1024x768_MONO16 7
 
 #define FORMAT_2 2
-#define MODE_1280x960_MONO   2
-#define MODE_1280x960_MONO16 6
-#define MODE_1280x960_YUV422 0
-#define MODE_1280x960_RGB    1
-#define MODE_1600x1200_MONO   5
-#define MODE_1600x1200_MONO16 7
+#define MODE_1280x960_YUV422  0
+#define MODE_1280x960_RGB     1
+#define MODE_1280x960_MONO    2
 #define MODE_1600x1200_YUV422 3
 #define MODE_1600x1200_RGB    4
+#define MODE_1600x1200_MONO   5
+#define MODE_1280x960_MONO16  6
+#define MODE_1600x1200_MONO16 7
 
 // Framerates
 #define FRAMERATE_1_875 0
@@ -66,80 +69,81 @@ using namespace std;
 #define FRAMERATE_15    3
 #define FRAMERATE_30    4
 #define FRAMERATE_60    5
+#define FRAMERATE_120   6
+#define FRAMERATE_240   7
 
-void getVideoFormatAndMode(IntPoint& Size, std::string& sPF, 
-                           unsigned long* pVideoFormat, 
-                           unsigned long* pVideoMode) 
+void getVideoFormatAndMode(IntPoint& Size, PixelFormat pf, 
+        unsigned long* pVideoFormat, unsigned long* pVideoMode) 
 {
+    *pVideoMode = -1;
+    *pVideoFormat = -1;
     if (Size.x == 320 && Size.y == 240) {
         *pVideoFormat = FORMAT_0;
-        if (sPF == "MONO8") {
-            *pVideoMode = MODE_320x240_YUV422;
-        } else if (sPF == "YUV422") {
+        if (pf == YCbCr422) {
             *pVideoMode = MODE_320x240_YUV422;
         }
     } else if (Size.x == 640 && Size.y == 480) {
         *pVideoFormat = FORMAT_0;
-        if (sPF == "MONO8") {
+        if (pf == I8 || pf == BAYER8) {
             *pVideoMode = MODE_640x480_MONO;
-        } else if (sPF == "MONO16") {
+        } else if (pf == I16) {
             *pVideoMode = MODE_640x480_MONO16;
-        } else if (sPF == "YUV411") {
+        } else if (pf == YCbCr411) {
             *pVideoMode = MODE_640x480_YUV411;
-        } else if (sPF == "YUV422") {
+        } else if (pf == YCbCr422) {
             *pVideoMode = MODE_640x480_YUV422;
-        } else if (sPF == "RGB" || sPF == "BGR") {
+        } else if (pf == R8G8B8 || pf == B8G8R8) {
             *pVideoMode = MODE_640x480_RGB;
         }
     } else if (Size.x == 800 && Size.y == 600) {
         *pVideoFormat = FORMAT_1;
-        if (sPF == "MONO8") {
+        if (pf == I8 || pf == BAYER8) {
             *pVideoMode = MODE_800x600_MONO;
-        } else if (sPF == "MONO16") {
+        } else if (pf == I16) {
             *pVideoMode = MODE_800x600_MONO16;
-        } else if (sPF == "YUV422") {
+        } else if (pf == YCbCr422) {
             *pVideoMode = MODE_800x600_YUV422;
-        } else if (sPF == "RGB" || sPF == "BGR") {
+        } else if (pf == R8G8B8 || pf == B8G8R8) {
             *pVideoMode = MODE_800x600_RGB;
         }
     } else if (Size.x == 1024 && Size.y == 768) {
         *pVideoFormat = FORMAT_1;
-        if (sPF == "MONO8" || sPF == "BY8_GBRG") {
+        if (pf == I8 || pf == BAYER8) {
             *pVideoMode = MODE_1024x768_MONO;
-        } else if (sPF == "MONO16") {
+        } else if (pf == I16) {
             *pVideoMode = MODE_1024x768_MONO16;
-        } else if (sPF == "YUV422") {
+        } else if (pf == YCbCr422) {
             *pVideoMode = MODE_1024x768_YUV422;
-        } else if (sPF == "RGB" || sPF == "BGR") {
+        } else if (pf == R8G8B8 || pf == B8G8R8) {
             *pVideoMode = MODE_1024x768_RGB;
         }
     } else if (Size.x == 1280 && Size.y == 960) {
         *pVideoFormat = FORMAT_2;
-        if (sPF == "MONO8" || sPF == "BY8_GBRG") {
+        if (pf == I8 || pf == BAYER8) {
             *pVideoMode = MODE_1280x960_MONO;
-        } else if (sPF == "MONO16") {
+        } else if (pf == I16) {
             *pVideoMode = MODE_1280x960_MONO16;
-        } else if (sPF == "YUV422") {
+        } else if (pf == YCbCr422) {
             *pVideoMode = MODE_1280x960_YUV422;
-        } else if (sPF == "RGB" || sPF == "BGR") {
+        } else if (pf == R8G8B8 || pf == B8G8R8) {
             *pVideoMode = MODE_1280x960_RGB;
         }
     } else if (Size.x == 1600 && Size.y == 1200) {
         *pVideoFormat = FORMAT_2;
-        if (sPF == "MONO8" || sPF == "BY8_GBRG") {
+        if (pf == I8 || pf == BAYER8) {
             *pVideoMode = MODE_1600x1200_MONO;
-        } else if (sPF == "MONO16") {
+        } else if (pf == I16) {
             *pVideoMode = MODE_1600x1200_MONO16;
-        } else if (sPF == "YUV422") {
+        } else if (pf == YCbCr422) {
             *pVideoMode = MODE_1600x1200_YUV422;
-        } else if (sPF == "RGB" || sPF == "BGR") {
+        } else if (pf == R8G8B8 || pf == B8G8R8) {
             *pVideoMode = MODE_1600x1200_RGB;
         }
-    } else {
-        AVG_TRACE (Logger::WARNING,
-                std::string("Unsupported or illegal value for camera mode."));
-        *pVideoFormat = FORMAT_0;
-        *pVideoMode = MODE_640x480_RGB;
+    }
+    if (*pVideoMode == -1 || *pVideoFormat == -1) { 
+        throw Exception(AVG_ERR_INVALID_ARGS,
+                "Unsupported or illegal value ("+toString(Size.x)+", "+toString(Size.y)+
+                "), "+Bitmap::getPixelFormatString(pf)+"\" for camera mode.");
     }
 }
 
@@ -157,10 +161,14 @@ unsigned long getFrameRateConst(double FrameRate)
         return FRAMERATE_30;
     } else if (FrameRate == 60) {
         return FRAMERATE_60;
+    } else if (FrameRate == 120) {
+        return FRAMERATE_120;
+    } else if (FrameRate == 240) {
+        return FRAMERATE_240;
     } else {
-        AVG_TRACE (Logger::WARNING,
-                std::string("Unsupported or illegal value for camera framerate."));
-        return FRAMERATE_15; 
+        throw Exception(AVG_ERR_INVALID_ARGS,
+                "Unsupported or illegal value ("+toString(FrameRate)+
+                ") for camera framerate.");
     }
 }
 

@@ -29,19 +29,23 @@ const char * g_pTrackerConfigDTD =
 "    y CDATA #REQUIRED\" >\n"
  
 "<!ELEMENT trackerconfig (camera|tracker|transform)* >\n"
-"<!ELEMENT camera (source|device|format|size|channel|fps|brightness|exposure|gamma|gain|shutter|strobeduration)* >\n"
+"<!ELEMENT camera (driver|device|fw800|format|size|fps|brightness|gamma|gain|shutter|strobeduration)* >\n"
 "<!ELEMENT tracker (mask|prescale|historyupdateinterval|brighterregions|eventonmove|contourprecision|touch|track)* >\n"
 "<!ELEMENT touch (threshold|similarity|areabounds|eccentricitybounds|bandpass|bandpasspostmult)* >\n"
 "<!ELEMENT track (threshold|similarity|areabounds|eccentricitybounds)* >\n"
 "<!ELEMENT transform (cameradisplacement|camerascale|distortionparams|trapezoid|"
 "       angle|displaydisplacement|displayscale|activedisplaysize)* >\n"
 
-"<!ELEMENT source EMPTY>\n"
-"<!ATTLIST source\n"
+"<!ELEMENT driver EMPTY>\n"
+"<!ATTLIST driver\n"
 "   value CDATA #REQUIRED >\n"
 
 "<!ELEMENT device EMPTY>\n"
 "<!ATTLIST device\n"
+"   value CDATA #REQUIRED >\n"
+
+"<!ELEMENT fw800 EMPTY>\n"
+"<!ATTLIST fw800\n"
 "   value CDATA #REQUIRED >\n"
 
 "<!ELEMENT format EMPTY>\n"
@@ -52,20 +56,12 @@ const char * g_pTrackerConfigDTD =
 "<!ATTLIST size\n"
 "   %posAttrs; >\n"
 
-"<!ELEMENT channel EMPTY>\n"
-"<!ATTLIST channel\n"
-"   value CDATA #REQUIRED >\n"
-
 "<!ELEMENT fps EMPTY>\n"
 "<!ATTLIST fps\n"
 "   value CDATA #REQUIRED >\n"
 
 "<!ELEMENT brightness EMPTY>\n"
 "<!ATTLIST brightness\n"
-"   value CDATA #REQUIRED >\n"
-
-"<!ELEMENT exposure EMPTY>\n"
-"<!ATTLIST exposure\n"
 "   value CDATA #REQUIRED >\n"
 
 "<!ELEMENT gamma EMPTY>\n"

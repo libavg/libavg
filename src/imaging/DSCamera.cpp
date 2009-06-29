@@ -41,17 +41,16 @@ namespace avg {
 
 using namespace std;
 
-DSCamera::DSCamera(std::string sDevice, IntPoint Size, std::string sPF,
-            double FrameRate, bool bColor)
-    : m_sDevice(sDevice),
+DSCamera::DSCamera(std::string sDevice, IntPoint Size, PixelFormat camPF, 
+        PixelFormat destPF, double FrameRate)
+    : Camera(camPF, destPF),
+      m_sDevice(sDevice),
       m_Size(Size),
       m_FrameRate(FrameRate),
-      m_bColor(bColor),
       m_pGraph(0),
       m_pCapture(0),
       m_pCameraPropControl(0),
-      m_pSampleQueue(0),
-      m_sPF(sPF)
+      m_pSampleQueue(0)
 {
     open();
 }
@@ -101,18 +100,7 @@ void DSCamera::open()
         hr = m_pSampleGrabber->SetMediaType(&mt);
         checkForDShowError(hr, "DSCamera::open()::SetMediaType");
 
-        PixelFormat DestPF;
-        if (m_sPF == "BY8" || m_sPF == "YUV422") {
-            DestPF = B8G8R8X8;
-        } else if (m_sPF == "MONO8") {
-            DestPF = I8;
-        } else if (m_bColor) {
-            DestPF = B8G8R8X8;
-        } else {
-            DestPF = I8;
-        }
-
-        m_pSampleQueue = new DSSampleQueue(m_Size, m_CameraPF, DestPF);
+        m_pSampleQueue = new DSSampleQueue(m_Size, getCamPF(), getDestPF());
         m_pSampleGrabber->SetCallback(m_pSampleQueue, 0);
 
 /*
@@ -140,7 +128,7 @@ void DSCamera::open()
         hr = m_pMediaControl->Run(); // Start capturing
         checkForDShowError(hr, "DSCamera::open()::Run");
     } else {
-        throw(Exception(AVG_ERR_CAMERA,"DS Camera unavailable"));
+        throw (Exception(AVG_ERR_CAMERA_NONFATAL, "DS Camera unavailable"));
     }
 }
 
@@ -218,20 +206,12 @@ bool DSCamera::selectMediaType(bool bColor, bool bForce)
         stringstream ss;
         ss << "  " << i << ": (" << bih.biWidth << "x" << bih.biHeight << "), " << 
                 mediaSubtypeToString(pmtConfig->subtype) << 
-                ", " << 10000000L/pvih->AvgTimePerFrame << " fps.";
+                ", " << 10000000./pvih->AvgTimePerFrame << " fps.";
         sImageFormats.push_back(ss.str());
 
         if (bih.biWidth == m_Size.x && bih.biHeight == m_Size.y && 
-            (m_sPF == "")?
-            ((bColor && 
-                (pmtConfig->subtype == MEDIASUBTYPE_YUY2 ||
-                 pmtConfig->subtype == MEDIASUBTYPE_UYVY ||
-                 pmtConfig->subtype == MEDIASUBTYPE_Y411 ||
-                 pmtConfig->subtype == MEDIASUBTYPE_Y41P ||
-                 pmtConfig->subtype == MEDIASUBTYPE_YVYU)) ||
-                 (!bColor && pmtConfig->subtype == MEDIASUBTYPE_Y800))
-                 :((m_sPF == "MONO8" || m_sPF == "BY8_GBRG") && pmtConfig->subtype == MEDIASUBTYPE_Y800) ||
-                 (m_sPF == "YUV422" && pmtConfig->subtype == MEDIASUBTYPE_UYVY)
+                ((getCamPF() == I8 || getCamPF() == BAYER8_GBRG) && pmtConfig->subtype == MEDIASUBTYPE_Y800) ||
+                 (getCamPF() == YCbCr422 && pmtConfig->subtype == MEDIASUBTYPE_UYVY)
             )
         {
             if (fabs(m_FrameRate-FrameRate) < 0.001) {
@@ -256,10 +236,9 @@ bool DSCamera::selectMediaType(bool bColor, bool bForce)
         AVG_TRACE(Logger::CONFIG, "Camera image format: (" << bih.biWidth 
                 << "x" << bih.biHeight << "), "
                 << mediaSubtypeToString(pmtConfig->subtype) << ", " 
-                << 10000000L/pvih->AvgTimePerFrame << " fps.");
+                << 10000000./pvih->AvgTimePerFrame << " fps.");
         hr = pSC->SetFormat(pmtConfig);
         checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
-        m_CameraPF = mediaSubtypeToPixelFormat(pmtConfig->subtype, m_sPF);
         CoTaskMemFree((PVOID)pmtConfig->pbFormat);
         CoTaskMemFree(pmtConfig);
         m_bCameraIsColor = bColor;
@@ -272,10 +251,9 @@ bool DSCamera::selectMediaType(bool bColor, bool bForce)
             AVG_TRACE(Logger::CONFIG, "Camera image format: (" << bih.biWidth 
                     << "x" << bih.biHeight << "), "
                     << mediaSubtypeToString(pmtCloseConfig->subtype) << ", " 
-                    << 10000000L/pvih->AvgTimePerFrame << " fps (set manually).");
+                    << 10000000./pvih->AvgTimePerFrame << " fps (set manually).");
             hr = pSC->SetFormat(pmtCloseConfig);
             checkForDShowError(hr, "DSCamera::dumpMediaTypes::SetFormat");
-            m_CameraPF = mediaSubtypeToPixelFormat(pmtCloseConfig->subtype, m_sPF);
             CoTaskMemFree((PVOID)pmtCloseConfig->pbFormat);
             CoTaskMemFree(pmtCloseConfig);
             m_bCameraIsColor = bColor;
@@ -289,7 +267,8 @@ bool DSCamera::selectMediaType(bool bColor, bool bForce)
             for (unsigned i=0; i<sImageFormats.size(); i++) {
                 AVG_TRACE(Logger::WARNING, sImageFormats[i]);
             }
-            fatalError("Could not find suitable camera image format.");
+            throw Exception(AVG_ERR_CAMERA_NONFATAL, 
+                    "Could not find suitable camera image format.");
         }
     }
     pSC->Release();
@@ -392,6 +371,51 @@ void DSCamera::setWhitebalance(int u, int v, bool bIgnoreOldValue)
             "Whitebalance not implemented for DirectShow camera driver.");
 }
 
+void DSCamera::dumpCameras()
+{
+    HRESULT hr = S_OK;
+    // TODO: Check if the threading model is ok.
+    hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+    checkForDShowError(hr, "DSCamera::dumpCameras()::CoInitializeEx");
+
+    // Create the system device enumerator
+    ICreateDevEnum *pDevEnum =NULL;
+    hr = CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC,
+            IID_ICreateDevEnum, (void **) &pDevEnum);
+    checkForDShowError(hr, "DSCamera::dumpCameras()::CreateDevEnum");
+
+    // Create an enumerator for the video capture devices
+    IEnumMoniker *pClassEnum = NULL;
+    hr = pDevEnum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory, 
+            &pClassEnum, 0);
+    checkForDShowError(hr, "DSCamera::dumpCameras()::CreateClassEnumerator");
+
+    if (pClassEnum == NULL) {
+        return;
+    }
+
+    IMoniker* pMoniker =NULL;
+    bool bFirst = true;
+    while (pClassEnum->Next(1, &pMoniker, NULL) == S_OK) {
+        if (bFirst) {
+            cerr << endl;
+            cerr << "DirectShow cameras: " << endl;
+            bFirst = false;
+        }
+        IPropertyBag *pPropBag;
+        hr = pMoniker->BindToStorage(0, 0, IID_IPropertyBag, (void**)(&pPropBag));
+        checkForDShowError(hr, "DSCamera::dumpCameras()::BindToStorage");
+        cerr << "  ----------------------------" << endl;
+        cerr << "  Name: " << getStringProp(pPropBag, L"FriendlyName") << endl;
+        cerr << "  Description: " << getStringProp(pPropBag, L"Description") << endl;
+        cerr << "  Device Path: " << getStringProp(pPropBag, L"DevicePath") << endl;
+        pPropBag->Release();
+    }
+    pMoniker->Release();
+    pDevEnum->Release();
+    pClassEnum->Release();
+}
+
 void DSCamera::initGraphBuilder()
 {
     HRESULT hr;
@@ -436,12 +460,8 @@ void DSCamera::findCaptureDevice(IBaseFilter ** ppSrcFilter)
     // CreateClassEnumerator will succeed, but pClassEnum will be NULL.
     if (pClassEnum == NULL) {
         *ppSrcFilter = 0;
-        throw(Exception(AVG_ERR_CAMERA,"No DirectShow Capture Device found"));
+        throw(Exception(AVG_ERR_CAMERA_NONFATAL, "No DirectShow Capture Device found"));
     }
-
-    vector<string> sDescriptions;
-    vector<string> sFriendlyNames;
-    vector<string> sDevicePaths;
 
     bool bFound = false;
     while (!bFound && pClassEnum->Next(1, &pMoniker, NULL) == S_OK) {
@@ -458,20 +478,22 @@ void DSCamera::findCaptureDevice(IBaseFilter ** ppSrcFilter)
         } else {
             pMoniker->Release();
         }
-        sDescriptions.push_back(sDescription);
-        sFriendlyNames.push_back(sFriendlyName);
-        sDevicePaths.push_back(sDevicePath);
-
         pPropBag->Release();
     }
     if (!bFound) {
-        AVG_TRACE(Logger::WARNING, "Available cameras: ");
-        for (unsigned i=0; i<sDescriptions.size(); i++) {
-            char sz[256];
-            AVG_TRACE(Logger::WARNING, "  "+string(_itoa(i, sz, 10))+
-                ": Description='"+sDescriptions[i]+"', Name: '"+sFriendlyNames[i]+"', Path: '"+sDevicePaths[i]+"'");
+        pClassEnum->Reset();
+        if (pClassEnum->Next(1, &pMoniker, NULL) == S_OK) {
+            AVG_TRACE(Logger::WARNING, string("Camera ") + m_sDevice
+                    + " not found. Using first camera.");
+            bFound = true;
+            IPropertyBag *pPropBag;
+            hr = pMoniker->BindToStorage(0, 0, IID_IPropertyBag, (void**)(&pPropBag));
+            m_sDevice = getStringProp(pPropBag, L"FriendlyName");
+            checkForDShowError(hr, "DSCamera::findCaptureDevice()::BindToStorage");
+            pPropBag->Release();
+        } else {
+            throw(Exception(AVG_ERR_CAMERA_NONFATAL, "No DirectShow Capture Device found"));
         }
-        fatalError("DSCamera::findCaptureDevice(): Unable to access video capture device.");
     }
 
     // Bind Moniker to a filter object
@@ -531,13 +553,7 @@ void DSCamera::getUnconnectedPin(IBaseFilter *pFilter, PIN_DIRECTION PinDir, IPi
     }
     pEnum->Release();
     // Did not find a matching pin.
-    fatalError("DSCamera::getUnconnectedPin failed to find pin.");
-}
-
-void DSCamera::fatalError(const string & sMsg)
-{
-    AVG_TRACE(Logger::ERROR, sMsg);
-    throw(Exception(AVG_ERR_CAMERA, sMsg));
+    assert(false);
 }
 
 #pragma warning(disable : 4995)
@@ -554,7 +570,7 @@ void DSCamera::checkForDShowError(HRESULT hr, const string & sLocation)
     if (res == 0) {
         wsprintf(szErr, "Unknown Error: 0x%2x", hr);
     }
-    fatalError(sLocation+": "+szErr);
+    cerr << sLocation << ": " << szErr << endl;
 }
 
 

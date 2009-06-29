@@ -204,7 +204,6 @@ void export_raster()
         .add_property("framerate", &CameraNode::getFrameRate)
         .add_property("framenum", &CameraNode::getFrameNum)
         .add_property("brightness", &CameraNode::getBrightness, &CameraNode::setBrightness)
-        .add_property("exposure", &CameraNode::getExposure, &CameraNode::setExposure)
         .add_property("sharpness", &CameraNode::getSharpness, &CameraNode::setSharpness)
         .add_property("saturation", &CameraNode::getSaturation, &CameraNode::setSaturation)
         .add_property("gamma", &CameraNode::getGamma, &CameraNode::setGamma)
@@ -216,6 +215,8 @@ void export_raster()
         .def("getWhitebalanceV", &CameraNode::getWhitebalanceV)
         .def("setWhitebalance", &CameraNode::setWhitebalance)
         .def("isAvailable", &CameraNode::isAvailable)
+        .def("dumpCameras", make_function(&CameraNode::dumpCameras))
+        .staticmethod("dumpCameras")
     ;
         
     class_<Video, bases<VideoBase> >("Video",

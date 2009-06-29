@@ -412,19 +412,31 @@ TrackerEventSource * Player::addTracker(const string& sConfigFilename)
     Config.load(sConfigFilename);
     CameraPtr pCamera;
 
-    string sSource = Config.getParam("/camera/source/@value");
+    string sDriver = Config.getParam("/camera/driver/@value");
     string sDevice = Config.getParam("/camera/device/@value");
-    //IFIXME: support attribute channel for v4l cameras
+    bool bFW800 = Config.getBoolParam("/camera/fw800/@value");
     IntPoint CaptureSize(Config.getPointParam("/camera/size/"));
     string sCaptureFormat = Config.getParam("/camera/format/@value");
     double FrameRate = Config.getDoubleParam("/camera/fps/@value");
 
     if (!m_pEventDispatcher) {
-        throw Exception(AVG_ERR_UNSUPPORTED, "You must use loadFile() before addTracker().");
+        throw Exception(AVG_ERR_UNSUPPORTED, 
+                "You must use loadFile() before addTracker().");
     }
-    AVG_TRACE(Logger::CONFIG, "Trying to create a Tracker for "<<sSource<<" Camera: "<< sDevice <<" Size: "<<CaptureSize << "format: "<<sCaptureFormat); 
-    pCamera = getCamera(sSource, sDevice, "", CaptureSize, sCaptureFormat, FrameRate, false );
-    AVG_TRACE(Logger::CONFIG, "Got Camera "<<pCamera->getDevice() <<" from driver: "<<pCamera->getDriverName());
+
+    PixelFormat camPF = Bitmap::stringToPixelFormat(sCaptureFormat);
+    if (camPF == NO_PIXELFORMAT) {
+        throw Exception(AVG_ERR_INVALID_ARGS,
+                "Unknown camera pixel format "+sCaptureFormat+".");
+    }
+    
+    AVG_TRACE(Logger::CONFIG, "Trying to create a Tracker for " << sDriver
+            << " Camera: " << sDevice << " Size: " << CaptureSize << "format: "
+            << sCaptureFormat);
+    pCamera = createCamera(sDriver, sDevice, -1, bFW800, CaptureSize, camPF, I8, 
+            FrameRate);
+    AVG_TRACE(Logger::CONFIG, "Got Camera " << pCamera->getDevice() << " from driver: " 
+            << pCamera->getDriverName());
     m_pTracker = new TrackerEventSource(pCamera, Config, 
             IntPoint(m_DP.m_Width, m_DP.m_Height), true);
     m_pEventDispatcher->addSource(m_pTracker);

@@ -34,7 +34,7 @@
 
 namespace avg {
 
-void getVideoFormatAndMode(IntPoint& Size, std::string& sPF,
+void getVideoFormatAndMode(IntPoint& Size, PixelFormat pf,
         unsigned long* pVideoFormat, unsigned long* pVideoMode);
 unsigned long getFrameRateConst(double FrameRate);
 CAMERA_FEATURE getFeatureID(CameraFeature Feature);

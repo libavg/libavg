@@ -35,8 +35,8 @@ namespace avg {
 
 class AVG_API CMUCamera : public Camera {
 public:
-    CMUCamera(std::string sDevice, IntPoint Size, std::string sPF,
-            double FrameRate, bool bColor);
+    CMUCamera(long long guid, bool bFW800, IntPoint Size, PixelFormat camPF, 
+            PixelFormat destPF, double FrameRate);
     virtual ~CMUCamera();
 
     virtual IntPoint getImgSize();
@@ -53,19 +53,19 @@ public:
     virtual int getWhitebalanceV() const;
     virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
 
+    static void dumpCameras();
+
 private:
+    int getCamIndex(long long guid);
     void internalGetFeature(CameraFeature Feature, unsigned short* val1, 
             unsigned short* val2) const;
-    void fatalError(const std::string& sMsg);
+    void enablePtGreyBayer();
+    void checkCMUError(int code, int type, const std::string& sMsg) const;
+    void checkCMUWarning(bool bOk, const std::string& sMsg) const;
 
     std::string m_sDevice;
-    std::string m_sPF;
     IntPoint m_Size;
     double m_FrameRate;
-    bool m_bFlipRGB;
-
-    PixelFormat m_FramePixelFormat;
-    PixelFormat m_OutputPixelFormat;
 
     mutable C1394Camera * m_pCamera; // The CMU1394 lib is not const-correct.
     FeatureMap m_Features;

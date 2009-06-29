@@ -55,12 +55,16 @@ enum CameraFeature {
     CAM_FEATURE_STROBE_DURATION
 };
 
-std::string cameraFeatureToString(CameraFeature Feature);
-
 class AVG_API Camera
 {
 public:
+    Camera(PixelFormat camPF, PixelFormat destPF);
     virtual ~Camera() {};
+
+    PixelFormat getCamPF() const;
+    void setCamPF(PixelFormat pf);
+    PixelFormat getDestPF() const;
+    BitmapPtr convertCamFrameToDestPF(BitmapPtr pCamBmp);
 
     virtual IntPoint getImgSize() = 0;
     virtual BitmapPtr getImage(bool bWait) = 0;
@@ -76,14 +80,28 @@ public:
     virtual int getWhitebalanceU() const = 0;
     virtual int getWhitebalanceV() const = 0;
     virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false) = 0;
+
+protected:
+    PixelFormat fwBayerStringToPF(unsigned long reg);
+//    void fatalError(const std::string & sMsg);
+
+private:
+    Camera();
+    PixelFormat m_CamPF;
+    PixelFormat m_DestPF;
 };
+
+std::string cameraFeatureToString(CameraFeature Feature);
 
 typedef boost::shared_ptr<Camera> CameraPtr;
 typedef std::map<CameraFeature, int> FeatureMap;
 
-CameraPtr getCamera(const std::string& sSource, const std::string& sDevice,
-        const std::string& sChannel, const IntPoint& CaptureSize, 
-        const std::string& sCaptureFormat, double FrameRate, bool bColor);
+CameraPtr createCamera(const std::string& sDriver, const std::string& sDevice, int unit, 
+        bool bFW800, const IntPoint& captureSize, PixelFormat camPF, PixelFormat destPF, 
+        double frameRate);
+
+void dumpCameras();
+
 }
 
 #endif

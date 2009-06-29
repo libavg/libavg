@@ -22,187 +22,93 @@
 #include "FWCameraUtils.h"
 
 #include "../base/Logger.h"
+#include "../base/Exception.h"
+#include "../base/StringHelper.h"
 
 namespace avg {
 
 using namespace std;
 
-#ifdef AVG_ENABLE_1394
-int getCamMode(IntPoint Size, std::string sPF) 
+dc1394video_mode_t getCamMode(IntPoint Size, PixelFormat pf) 
 {
-    if (Size.x == 320 && Size.y == 240 && sPF == "YUV422") {
-        return MODE_320x240_YUV422;
-    } else if (Size.x == 640 && Size.y == 480) {
-        if (sPF == "MONO8") {
-            return MODE_640x480_MONO;
-        } else if (sPF == "MONO16") {
-            return MODE_640x480_MONO16;
-        } else if (sPF == "YUV411") {
-            return MODE_640x480_YUV411;
-        } else if (sPF == "YUV422") {
-            return MODE_640x480_YUV422;
-        } else if (sPF == "RGB") {
-            return MODE_640x480_RGB;
-        }
-    } else if (Size.x == 800 && Size.y == 600) {
-        if (sPF == "MONO8") {
-            return MODE_800x600_MONO;
-        } else if (sPF == "MONO16") {
-            return MODE_800x600_MONO16;
-        } else if (sPF == "YUV422") {
-            return MODE_800x600_YUV422;
-        } else if (sPF == "RGB") {
-            return MODE_800x600_RGB;
-        }
-    } else if (Size.x == 1024 && Size.y == 768) {
-        if (sPF == "MONO8" || sPF == "BY8_GBRG") {
-            return MODE_1024x768_MONO;
-        } else if (sPF == "MONO16") {
-            return MODE_1024x768_MONO16;
-        } else if (sPF == "YUV422") {
-            return MODE_1024x768_YUV422;
-        } else if (sPF == "RGB") {
-            return MODE_1024x768_RGB;
-        }
-    } else if (Size.x == 1280 && Size.y == 960) {
-        if (sPF == "MONO8" || sPF == "BY8_GBRG") {
-            return MODE_1280x960_MONO;
-        } else if (sPF == "MONO16") {
-            return MODE_1280x960_MONO16;
-        } else if (sPF == "YUV422") {
-            return MODE_1280x960_YUV422;
-        } else if (sPF == "RGB") {
-            return MODE_1280x960_RGB;
-        }
-    }
-    AVG_TRACE (Logger::WARNING,
-            std::string("getCamMode: Unsupported or illegal value for camera mode: (")
-            << Size.x << ", " << Size.y << "), " << sPF << ".");
-    return MODE_640x480_RGB;
-}
-
-int getFrameRateConst(double FrameRate)
-{
-    if (FrameRate == 1.875) {
-        return FRAMERATE_1_875;
-    } else if (FrameRate == 3.75) {
-        return FRAMERATE_3_75;
-    } else if (FrameRate == 7.5) {
-        return FRAMERATE_7_5;
-    } else if (FrameRate == 15) {
-        return FRAMERATE_15;
-    } else if (FrameRate == 30) {
-        return FRAMERATE_30;
-    } else if (FrameRate == 60) {
-        return FRAMERATE_60;
-    } else {
-        AVG_TRACE (Logger::ERROR,
-                std::string("Unsupported or illegal value for camera framerate."));
-        return -1; 
-    }
-}
-
-int getFeatureID(CameraFeature Feature)
-{
-    switch(Feature) {
-        case CAM_FEATURE_BRIGHTNESS:
-            return FEATURE_BRIGHTNESS;
-        case CAM_FEATURE_EXPOSURE:
-            return FEATURE_EXPOSURE;
-        case CAM_FEATURE_SHARPNESS:
-            return FEATURE_SHARPNESS;
-        case CAM_FEATURE_WHITE_BALANCE:
-            return FEATURE_WHITE_BALANCE;
-        case CAM_FEATURE_HUE:
-            return FEATURE_HUE;
-        case CAM_FEATURE_SATURATION:
-            return FEATURE_SATURATION;
-        case CAM_FEATURE_GAMMA:
-            return FEATURE_GAMMA;
-        case CAM_FEATURE_SHUTTER:
-            return FEATURE_SHUTTER;
-        case CAM_FEATURE_GAIN:
-            return FEATURE_GAIN;
-        case CAM_FEATURE_IRIS:
-            return FEATURE_IRIS;
-        case CAM_FEATURE_FOCUS:
-            return FEATURE_FOCUS;
-        case CAM_FEATURE_TEMPERATURE:
-            return FEATURE_TEMPERATURE;
-        case CAM_FEATURE_TRIGGER:
-            return FEATURE_TRIGGER;
-        case CAM_FEATURE_ZOOM:
-            return FEATURE_ZOOM;
-        case CAM_FEATURE_PAN:
-            return FEATURE_PAN;
-        case CAM_FEATURE_TILT:
-            return FEATURE_TILT;
-        case CAM_FEATURE_OPTICAL_FILTER:
-            return FEATURE_OPTICAL_FILTER;
-        case CAM_FEATURE_CAPTURE_SIZE:
-            return FEATURE_CAPTURE_SIZE;
-        case CAM_FEATURE_CAPTURE_QUALITY:
-            return FEATURE_CAPTURE_QUALITY;
-        default:
-            AVG_TRACE(Logger::WARNING, "getFeatureID: " 
-                    << cameraFeatureToString(Feature) << " unknown.");
-            return 0;
-    }
-}
-
-#else
-
-dc1394video_mode_t getCamMode(IntPoint Size, std::string sPF) 
-{
-    if (Size.x == 320 && Size.y == 240 && sPF == "YUV422") {
+    if (Size.x == 320 && Size.y == 240 && pf == YCbCr422) {
         return DC1394_VIDEO_MODE_320x240_YUV422;
     } else if (Size.x == 640 && Size.y == 480) {
-        if (sPF == "MONO8") {
-            return DC1394_VIDEO_MODE_640x480_MONO8;
-        } else if (sPF == "MONO16") {
-            return DC1394_VIDEO_MODE_640x480_MONO16;
-        } else if (sPF == "YUV411") {
-            return DC1394_VIDEO_MODE_640x480_YUV411;
-        } else if (sPF == "YUV422") {
-            return DC1394_VIDEO_MODE_640x480_YUV422;
-        } else if (sPF == "RGB") {
-            return DC1394_VIDEO_MODE_640x480_RGB8;
+        switch(pf) {
+            case I8:
+            case BAYER8:
+                return DC1394_VIDEO_MODE_640x480_MONO8;
+            case I16:
+                return DC1394_VIDEO_MODE_640x480_MONO16;
+            case YCbCr411:
+                return DC1394_VIDEO_MODE_640x480_YUV411;
+            case YCbCr422:
+                return DC1394_VIDEO_MODE_640x480_YUV422;
+            case R8G8B8:
+                return DC1394_VIDEO_MODE_640x480_RGB8;
+            default:
+                break;
         }
     } else if (Size.x == 800 && Size.y == 600) {
-        if (sPF == "MONO8") {
-            return DC1394_VIDEO_MODE_800x600_MONO8;
-        } else if (sPF == "MONO16") {
-            return DC1394_VIDEO_MODE_800x600_MONO16;
-        } else if (sPF == "YUV422") {
-            return DC1394_VIDEO_MODE_800x600_YUV422;
-        } else if (sPF == "RGB") {
-            return DC1394_VIDEO_MODE_800x600_RGB8;
+        switch(pf) {
+            case I8:
+            case BAYER8:
+                return DC1394_VIDEO_MODE_800x600_MONO8;
+            case I16:
+                return DC1394_VIDEO_MODE_800x600_MONO16;
+            case YCbCr422:
+                return DC1394_VIDEO_MODE_800x600_YUV422;
+            case R8G8B8:
+                return DC1394_VIDEO_MODE_800x600_RGB8;
+            default:
+                break;
         }
     } else if (Size.x == 1024 && Size.y == 768) {
-        if (sPF == "MONO8" || sPF == "BY8_GBRG") {
-            return DC1394_VIDEO_MODE_1024x768_MONO8;
-        } else if (sPF == "MONO16") {
-            return DC1394_VIDEO_MODE_1024x768_MONO16;
-        } else if (sPF == "YUV422") {
-            return DC1394_VIDEO_MODE_1024x768_YUV422;
-        } else if (sPF == "RGB") {
-            return DC1394_VIDEO_MODE_1024x768_RGB8;
+        switch(pf) {
+            case I8:
+            case BAYER8:
+                return DC1394_VIDEO_MODE_1024x768_MONO8;
+            case I16:
+                return DC1394_VIDEO_MODE_1024x768_MONO16;
+            case YCbCr422:
+                return DC1394_VIDEO_MODE_1024x768_YUV422;
+            case R8G8B8:
+                return DC1394_VIDEO_MODE_1024x768_RGB8;
+            default:
+                break;
         }
     } else if (Size.x == 1280 && Size.y == 960) {
-        if (sPF == "MONO8" || sPF == "BY8_GBRG") {
-            return DC1394_VIDEO_MODE_1280x960_MONO8;
-        } else if (sPF == "MONO16") {
-            return DC1394_VIDEO_MODE_1280x960_MONO16;
-        } else if (sPF == "YUV422") {
-            return DC1394_VIDEO_MODE_1280x960_YUV422;
-        } else if (sPF == "RGB") {
-            return DC1394_VIDEO_MODE_1280x960_RGB8;
+        switch(pf) {
+            case I8:
+            case BAYER8:
+                return DC1394_VIDEO_MODE_1280x960_MONO8;
+            case I16:
+                return DC1394_VIDEO_MODE_1280x960_MONO16;
+            case YCbCr422:
+                return DC1394_VIDEO_MODE_1280x960_YUV422;
+            case R8G8B8:
+                return DC1394_VIDEO_MODE_1280x960_RGB8;
+            default:
+                break;
+        }
+    } else if (Size.x == 1600 && Size.y == 1200) {
+        switch(pf) {
+            case I8:
+            case BAYER8:
+                return DC1394_VIDEO_MODE_1600x1200_MONO8;
+            case I16:
+                return DC1394_VIDEO_MODE_1600x1200_MONO16;
+            case YCbCr422:
+                return DC1394_VIDEO_MODE_1600x1200_YUV422;
+            case R8G8B8:
+                return DC1394_VIDEO_MODE_1600x1200_RGB8;
+            default:
+                break;
         }
     }
-    AVG_TRACE (Logger::WARNING,
-            std::string("getCamMode: Unsupported or illegal value for camera mode (") 
-            << Size.x << ", " << Size.y << "), " << sPF << ".");
-    return DC1394_VIDEO_MODE_640x480_RGB8;
+    throw Exception(AVG_ERR_CAMERA_FATAL,
+            "Unsupported or illegal value ("+toString(Size.x)+", "+toString(Size.y)+
+            "), "+Bitmap::getPixelFormatString(pf)+"\" for camera mode.");
 }
 
 dc1394framerate_t getFrameRateConst(double FrameRate)
@@ -224,9 +130,8 @@ dc1394framerate_t getFrameRateConst(double FrameRate)
     } else if (FrameRate == 240) {
         return DC1394_FRAMERATE_240;
     } else {
-        AVG_TRACE (Logger::WARNING,
-                std::string("Unsupported or illegal value for camera framerate."));
-        return (dc1394framerate_t)-1;
+        throw Exception(AVG_ERR_CAMERA_FATAL, string("Illegal value ")
+                +toString(FrameRate)+" for camera framerate.");
     }
 }
 
@@ -272,12 +177,8 @@ dc1394feature_t getFeatureID(CameraFeature Feature)
         case CAM_FEATURE_CAPTURE_QUALITY:
             return DC1394_FEATURE_CAPTURE_QUALITY;
         default:
-            AVG_TRACE(Logger::WARNING, "getFeatureID: " << 
-                    cameraFeatureToString(Feature) << " unknown.");
-            return DC1394_FEATURE_MIN;
+            assert(false);
     }
 }
-
-#endif
 
 }

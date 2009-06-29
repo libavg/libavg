@@ -42,7 +42,7 @@ class AVG_API V4LCamera: public Camera {
     
     public:
         V4LCamera(std::string sDevice, int Channel, IntPoint Size,
-            const std::string &PixelFormat, bool bColor);
+                PixelFormat camPF, PixelFormat destPF);
         virtual ~V4LCamera();
 
         virtual IntPoint getImgSize();
@@ -62,22 +62,21 @@ class AVG_API V4LCamera: public Camera {
         virtual void setWhitebalance(int u, int v, bool bIgnoreOldValue=false);
         
     private:
+        void initDevice();
+        void startCapture();
+        void initMMap();
+        virtual void close();
+        
+        int getV4LPF(PixelFormat pf);
+        
         int m_Fd;
         int m_Channel;
         std::string m_sDevice;
         std::string m_sDriverName;
         std::vector<Buffer> m_vBuffers;
         bool m_bCameraAvailable;
-        int m_CamPF;
-        bool m_bColor;
+        int m_v4lPF;
         IntPoint m_ImgSize;
-        
-        int getCamPF(const std::string& sPF);
-        
-        void initDevice();
-        void startCapture();
-        void initMMap();
-        virtual void close();
         
         void setFeature(V4LCID_t V4LFeature, int Value);
         V4LCID_t getFeatureID(CameraFeature Feature) const;

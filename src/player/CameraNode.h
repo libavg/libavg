@@ -66,8 +66,6 @@ class AVG_API CameraNode : public VideoBase
 
         int getBrightness() const;
         void setBrightness(int Value);
-        int getExposure() const;
-        void setExposure(int Value);
         int getSharpness() const;
         void setSharpness(int Value);
         int getSaturation() const;
@@ -88,6 +86,8 @@ class AVG_API CameraNode : public VideoBase
 
         int getFrameNum() const;
         IntPoint getMediaSize();
+
+        static void dumpCameras();
 
     private:
         int getFeature (CameraFeature Feature) const;

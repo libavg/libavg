@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <trackerconfig>
  <camera>
-  <source value="fw"/>
+  <driver value="firewire"/>
   <device value="0"/>
   <format value="MONO8"/>
   <size x="640" y="480"/>
   <fps value="30"/>
   <brightness value="268"/>
-  <exposure value="511"/>
   <gamma value="0"/>
   <gain value="130"/>
   <shutter value="7"/>

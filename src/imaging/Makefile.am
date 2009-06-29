@@ -8,10 +8,6 @@ else
    V4L2_INCLUDES =
 endif
 
-if ENABLE_1394
-    DC1394_SOURCES = FWCameraUtils.cpp
-    DC1394_INCLUDES = FWCameraUtils.h
-else
 if ENABLE_1394_2
     DC1394_SOURCES = FWCameraUtils.cpp
     DC1394_INCLUDES = FWCameraUtils.h
@@ -19,7 +15,6 @@ else
 
     DC1394_SOURCES =
     DC1394_INCLUDES =
-endif
 endif
 
 ALL_H = Camera.h TrackerThread.h TrackerConfig.h Blob.h FWCamera.h Run.h \

@@ -3,12 +3,6 @@ INCLUDES = -I.. @XML2_CFLAGS@ @FREETYPE_CFLAGS@ \
         @DC1394_2_CFLAGS@ \
         $(MAGICK_CFLAGS)
         
-if ENABLE_1394
-    DC1394_LIBS = -ldc1394_control -lraw1394
-else
-    DC1394_LIBS =
-endif
-
 if APPLE
     APPLE_SOURCES = SDLMain.m
     XGL_LIBS =
@@ -46,7 +40,7 @@ checktracker_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
         ../lmfit/liblmfit.la
 checktracker_LDFLAGS = @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ \
-        @GLU_LIBS@ $(ALL_GL_LIBS) $(MAGICK_LIBS) \
+        @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) $(MAGICK_LIBS) \
         $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS)
 
 testplayer_SOURCES=testplayer.cpp
@@ -54,7 +48,7 @@ testplayer_LDADD = libplayer.la ../video/libvideo.la ../audio/libaudio.la \
         ../imaging/libimaging.la ../graphics/libgraphics.la ../base/libbase.la \
         ../lmfit/liblmfit.la
 testplayer_LDFLAGS = $(APPLE_LINKFLAGS) -module -XCClinker  \
-        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ $(DC1394_LIBS) \
+        @XML2_LIBS@ -l@BOOST_THREAD_LIB@ @PTHREAD_LIBS@ \
         @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) @LIBFFMPEG@ \
         @PANGOFT2_LIBS@ $(BOOST_PYTHON_LIBS) $(PYTHON_LIBS) $(MAGICK_LIBS) 
 
