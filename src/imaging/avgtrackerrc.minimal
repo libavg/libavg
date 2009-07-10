@@ -3,7 +3,7 @@
  <camera>
   <driver value="firewire"/>
   <device value="0"/>
-  <format value="MONO8"/>
+  <format value="I8"/>
   <size x="640" y="480"/>
   <framerate value="30"/>
   <brightness value="268"/>
