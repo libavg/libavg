@@ -10,6 +10,7 @@
   <gamma value="0"/>
   <gain value="130"/>
   <shutter value="7"/>
+  <fw800 value="False"/>
  </camera>
  <tracker>
   <prescale value="2"/>
