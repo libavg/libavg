@@ -44,6 +44,11 @@ using namespace boost;
 #define SAMPLE_BUFFER_SIZE ((AVCODEC_MAX_AUDIO_FRAME_SIZE*3))
 #define VOLUME_FADE_SAMPLES 100
 
+#if LIBAVFORMAT_BUILD < ((50<<16)+(0<<8)+0)
+#define PIX_FMT_BGRA PIX_FMT_RGBA32
+#define PIX_FMT_YUYV422 PIX_FMT_YUV422
+#endif
+
 namespace avg {
 
 bool FFMpegDecoder::m_bInitialized = false;
@@ -779,7 +784,7 @@ PixelFormat FFMpegDecoder::calcPixelFormat(bool bUseYCbCr)
                 break;
         }
     }
-    if (enc->pix_fmt == PIX_FMT_RGBA32) {
+    if (enc->pix_fmt == PIX_FMT_BGRA) {
         return B8G8R8A8;
     }
     return B8G8R8X8;
@@ -800,11 +805,11 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
         case R8G8B8X8:
         case R8G8B8A8:
             // XXX: Unused and broken.
-            DestFmt = PIX_FMT_RGBA32;
+            DestFmt = PIX_FMT_BGRA;
             break;
         case B8G8R8X8:
         case B8G8R8A8:
-            DestFmt = PIX_FMT_RGBA32;
+            DestFmt = PIX_FMT_BGRA;
             break;
         case R8G8B8:
             DestFmt = PIX_FMT_RGB24;
@@ -813,7 +818,7 @@ void FFMpegDecoder::convertFrameToBmp(AVFrame& Frame, BitmapPtr pBmp)
             DestFmt = PIX_FMT_BGR24;
             break;
         case YCbCr422:
-            DestFmt = PIX_FMT_YUV422;
+            DestFmt = PIX_FMT_YUYV422;
             break;
         default:
             AVG_TRACE(Logger::ERROR, "FFMpegDecoder: Dest format " 

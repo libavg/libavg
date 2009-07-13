@@ -267,7 +267,7 @@ def AVTestSuite(tests):
             'testBrokenSound',
             'testSoundEOF',
             "testVideoFiles",
-            "testVideo",
+#            "testVideo",
             "testVideoOpacity",
             "testVideoSeek",
             "testVideoFPS",

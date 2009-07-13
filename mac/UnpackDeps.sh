@@ -22,26 +22,13 @@ echo "  Copying ffmpeg."
 rm -rf ffmpeg
 cp -pR tarballs/ffmpeg ffmpeg
 
-echo "  Copying libdc1394."
-rm -rf libdc1394
-cp -pR tarballs/libdc1394 libdc1394
-
 echo "  Applying patches."
-cd fontconfig-2.5.0
+cd fontconfig-2.7.0
 patch -R Makefile.am <../../libavg/mac/fontconfig-disablecache.patch
 patch fontconfig.pc.in < ../../libavg/mac/fontconfig.pc.in.patch
 cd ..
-
-cd ImageMagick-6.2.8
-patch -R magick/ImageMagick.pc.in <../../libavg/mac/ImageMagick.pc.in.patch
-cd ..
-
-cd ffmpeg
-patch -p0 <../../libavg/mac/ffmpeg.patch
-cd ..
-
-cd freetype-2.3.5
-patch -p1 <../../libavg/mac/freetype.hinting.patch
-cd ..
+cd ffmpeg/libswscale
+patch -p0 <../../../libavg/mac/ffmpeg.broken-yuv.patch
+cd ../..
 
 echo "Done"

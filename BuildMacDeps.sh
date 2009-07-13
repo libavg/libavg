@@ -53,46 +53,24 @@ buildlibpng()
 
 buildglib()
 {
-    cd glib-2.14.1 
-    LDFLAGS="-framework CoreFoundation $LDFLAGS" ./configure  --prefix=${AVG_PATH} --disable-shared
+    cd glib-2.21.3
+    LDFLAGS="$LDFLAGS -lresolv" ./configure  --prefix=${AVG_PATH} --disable-shared --enable-static 
     make clean
-    LDFLAGS="-framework CoreFoundation $LDFLAGS" make -j3
-    make install
-    cd ..
-}
-
-buildpango()
-{
-    cd pango-1.18.2
-    LDFLAGS="-framework CoreFoundation -framework ApplicationServices $LDFLAGS" ./configure  --prefix=${AVG_PATH} --disable-shared --without-x --with-included-modules=yes
-    make clean
-    LDFLAGS="-framework CoreFoundation $LDFLAGS" make -j3
+    make -j3
     make install
     cd ..
 }
 
 buildfontconfig()
 {
-    cd fontconfig-2.5.0
+    cd fontconfig-2.7.0
     automake
-    LDFLAGS="-framework ApplicationServices ${LDFLAGS}" ./configure --prefix=${AVG_PATH} --disable-shared --with-add-fonts=/Library/Fonts,/System/Library/Fonts,~/Library/Fonts --with-confdir=/etc/fonts --with-cache-dir=~/.fontconfig --with-cachedir=~/.fontconfig/
+    LDFLAGS="-framework ApplicationServices ${LDFLAGS}" ./configure --prefix=${AVG_PATH} --disable-shared --with-add-fonts=/Library/Fonts,/System/Library/Fonts,~/Library/Fonts --with-confdir=/etc/fonts --with-cache-dir=~/.fontconfig --with-cache-dir=~/.fontconfig
     make clean
     make -j3
     sudo make install
     sudo chown -R `whoami` ~/.fontconfig
     cd ..    
-}
-
-buildlibdc1394()
-{
-    cd libdc1394
-    autoreconf -i -s
-    ./configure --prefix=${AVG_PATH} --disable-shared --disable-doxygen-doc --without-x
-    make clean
-    make -j3
-    make install
-    cd ..
-
 }
 
 if [[ x"${AVG_PATH}" == "x" ]]
@@ -113,30 +91,30 @@ cd ../deps
 
 buildLib libxml2-2.6.32 --disable-shared
 buildLib libtool-1.5.22
-buildLib automake-1.9.6
+buildLib autoconf-2.63
+buildLib automake-1.11
 buildlibjpeg
 buildLib tiff-3.8.2 --disable-shared 
 buildLib zlib-1.2.3
 buildlibpng
 buildLib GraphicsMagick-1.1.10 "--without-x --without-perl --disable-shared --disable-delegate-build --without-modules --without-bzlib --without-dps --without-gslib --without-wmf --without-xml --without-ttf --with-quantum-depth=8"
 buildLib pkg-config-0.20
-buildLib ffmpeg "--disable-shared --disable-debug --disable-vhook"
+buildLib ffmpeg "--disable-debug --enable-pthreads --disable-ffserver --disable-muxer=matroska --disable-demuxer=matroska --disable-muxer=matroska_audio"
 buildLib SDL-1.2.13 "--disable-shared --disable-cdrom --disable-threads --disable-file --disable-video-x11 --without-x"
 buildLib gettext-0.14.6 "--disable-shared --with-included-gettext --disable-csharp  --disable-libasprintf"
 buildglib
 
-buildLib freetype-2.3.5 "--disable-shared --with-old-mac-fonts"
+buildLib freetype-2.3.9 "--disable-shared --with-old-mac-fonts"
 buildLib expat-2.0.0 --disable-shared
 
 buildfontconfig
 
-buildpango
+buildLib pango-1.24.4 "--disable-shared --without-x --with-included-modules=yes"
 buildLib boost_1_34_1 "--with-libraries=python,thread"
 rm -f ../include/boost
 ln -fs ../include/boost-1_34_1/boost/ ../include/boost
 ln -fs ../lib/libboost_thread-mt.a ../lib/libboost_thread.a
 
-buildlibdc1394
-
+buildLib libdc1394-2.0.2 "--disable-shared --disable-doxygen-doc --without-x"
 
 cd ../libavg
