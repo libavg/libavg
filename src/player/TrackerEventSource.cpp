@@ -148,9 +148,9 @@ namespace avg {
                 &TrackerThread::resetHistory, _1)));
     }
 
-    void TrackerEventSource::saveConfig(const string& sFilename)
+    void TrackerEventSource::saveConfig()
     {
-        m_TrackerConfig.save(sFilename);
+        m_TrackerConfig.save();
     }
 
     void TrackerEventSource::setConfig()

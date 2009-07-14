@@ -406,10 +406,10 @@ long long Player::getFrameTime()
     return m_FrameTime;
 }
 
-TrackerEventSource * Player::addTracker(const string& sConfigFilename)
+TrackerEventSource * Player::addTracker()
 {
     TrackerConfig Config;
-    Config.load(sConfigFilename);
+    Config.load();
     CameraPtr pCamera;
 
     string sDriver = Config.getParam("/camera/driver/@value");

@@ -41,8 +41,8 @@ public:
     TrackerConfig(const TrackerConfig& Other);
     virtual ~TrackerConfig();
     
-    void load(const std::string& sFilename);
-    void save(const std::string& sFilename);
+    void load();
+    void save();
     void setParam(const std::string& sXPathExpr, const std::string& sValue);
     std::string getParam(const std::string& sXPathExpr) const;
     bool getBoolParam(const std::string& sXPathExpr) const;
@@ -63,6 +63,7 @@ private:
     xmlNodePtr m_pRoot;
 
     std::string m_sFilename;
+    void loadConfigFile(const std::string& sFilename);
 };
 typedef boost::shared_ptr<TrackerConfig> TrackerConfigPtr;
 

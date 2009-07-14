@@ -29,6 +29,7 @@
 
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
+#include "../base/FileHelper.h"
 
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
@@ -137,7 +138,8 @@ public:
     void runTests() 
     {
         TrackerConfig Config;
-        Config.load(getSrcDirName()+"avgtrackerrc.minimal");
+        copyFile("avgtrackerrc.minimal", "avgtrackerrc");
+        Config.load();
         
         Config.setParam("/transform/distortionparams/@p2", "0");
         Config.setParam("/transform/distortionparams/@p3", "0");
@@ -149,13 +151,14 @@ public:
         Config.setParam("/transform/displayscale/@y", "2");
 
         if (getSrcDirName() == "./") {
-            Config.save(getSrcDirName()+"avgtrackerrc.minimal.mod");
+            Config.save();
 
             TrackerConfig LoadedConfig;
-            LoadedConfig.load(getSrcDirName()+"avgtrackerrc.minimal.mod");
+            LoadedConfig.load();
             DPoint Scale = LoadedConfig.getPointParam("/transform/displayscale/");
             TEST(almostEqual(Scale, DPoint(2,2)));
-            unlink((getSrcDirName()+"avgtrackerrc.minimal.mod").c_str());
+            unlink("avgtrackerrc");
+            unlink("avgtrackerrc.bak");
         }
     }
 };

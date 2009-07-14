@@ -37,6 +37,8 @@ void readWholeFile(const std::string& sFilename, std::string& sContents);
 
 void writeWholeFile(const std::string& sFilename, const std::string& sContent);
 
+void copyFile(const std::string& sSourceFile, const std::string& sDestFile);
+
 }
 
 #endif 

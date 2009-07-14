@@ -267,9 +267,9 @@ BOOST_PYTHON_MODULE(avg)
                 "@param args: a dictionary specifying attributes of the node.")
         .def("addTracker", &Player::addTracker,
                 return_value_policy<reference_existing_object>(),
-                "addTracker(configFilename)\n"
+                "addTracker()\n"
                 "Adds a camera-based tracker to the avg player. The tracker can be\n"
-                "configured using the config file given and immediately starts\n"
+                "configured using the default config file and immediately starts\n"
                 "reporting events.")
         .def("getTracker", &Player::getTracker,
                 return_value_policy<reference_existing_object>(),

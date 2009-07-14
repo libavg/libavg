@@ -30,6 +30,7 @@
 #include "../base/TestSuite.h"
 #include "../base/Exception.h"
 #include "../base/Logger.h"
+#include "../base/FileHelper.h"
 
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
@@ -68,7 +69,8 @@ public:
         MutexPtr pMutex(new boost::mutex);
 
         TrackerConfig Config;
-        Config.load("../imaging/avgtrackerrc.minimal");
+        copyFile("../imaging/avgtrackerrc.minimal", "avgtrackerrc");
+        Config.load();
         TrackerEventSourcePtr pTracker = TrackerEventSourcePtr(
                 new TrackerEventSource(pCam, Config, IntPoint(640, 480), false));
 
@@ -81,6 +83,8 @@ public:
                 (*it)->trace();
             }
         }
+
+        unlink("avgtrackerrc");
     }
     
 

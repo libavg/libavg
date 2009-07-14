@@ -126,4 +126,13 @@ void writeWholeFile(const string& sFilename, const string& sContent)
     outFile << sContent;
 }
 
+
+void copyFile(const string& sSourceFile, const string& sDestFile)
+{
+    string sData;
+            
+    readWholeFile(sSourceFile, sData);
+    writeWholeFile(sDestFile, sData);
+}
+
 }

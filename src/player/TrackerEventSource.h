@@ -62,7 +62,7 @@ class AVG_API TrackerEventSource: public IBlobTarget, public IEventSource
 
         void setDebugImages(bool bImg, bool bFinger);
 
-        void saveConfig(const std::string& sFilename);
+        void saveConfig();
 
         Bitmap * getImage(TrackerImageID ImageID) const;
         std::vector<EventPtr> pollEvents(); //main thread

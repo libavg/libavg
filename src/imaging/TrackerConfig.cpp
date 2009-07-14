@@ -27,6 +27,7 @@
 #include "../base/FileHelper.h"
 #include "../base/Exception.h"
 #include "../base/StringHelper.h"
+#include "../base/ConfigMgr.h"
 
 #include <libxml/parser.h>
 #include <libxml/xmlwriter.h>
@@ -60,7 +61,7 @@ TrackerConfig::~TrackerConfig()
     xmlFreeDoc(m_Doc);
 }
 
-void TrackerConfig::load(const string& sFilename)
+void TrackerConfig::loadConfigFile(const string& sFilename)
 {
     // TODO: There is duplicated code here and in Player::loadFile which belongs
     // in a lower-level xml handling class.
@@ -95,6 +96,17 @@ void TrackerConfig::load(const string& sFilename)
     m_sFilename = sFilename;
 
     AVG_TRACE(Logger::CONFIG, "Reading Tracker config file from " << sFilename);
+}
+
+void TrackerConfig::load()
+{
+    // Give precedence to local configuration
+    string sFName = "avgtrackerrc";
+    if (fileExists(sFName) || !fileExists(getGlobalConfigDir() + sFName)) {
+        loadConfigFile(sFName);
+    } else {
+        loadConfigFile(getGlobalConfigDir() + sFName);
+    }
 }
 
 xmlXPathObjectPtr TrackerConfig::findConfigNodes(const string& sXPathExpr) const
@@ -220,17 +232,23 @@ void TrackerConfig::dump() const
     cerr << xmlBufferContent(pBuffer) << endl;
 }
 
-void TrackerConfig::save(const string& sFilename)
+void TrackerConfig::save()
 {
-    if (sFilename != "") {
-        m_sFilename = sFilename;
-    }
     AVG_TRACE(Logger::CONFIG, "Saving tracker configuration to " 
             << m_sFilename << ".");
 
-    if (m_Doc)
+    if (m_Doc) {
+        if (fileExists(m_sFilename)) {
+            string sBakFile = m_sFilename + ".bak";
+            unlink(sBakFile.c_str());
+            if (rename(m_sFilename.c_str(), sBakFile.c_str())) {
+                AVG_TRACE(Logger::WARNING, "Cannot create tracker config backup. Backing "
+                        "it up on current workdir.");
+                copyFile(m_sFilename, "avgtrackerrc.bak");
+            }
+        }
         xmlSaveFileEnc(m_sFilename.c_str(), m_Doc, "utf-8");
-    else
+    } else
         throw (Exception(AVG_ERR_FILEIO, 
                     "save(): tracker configuration not initialized"));
 }

@@ -216,9 +216,8 @@ void export_event()
             "@param imageid: One of IMG_CAMERA, IMG_DISTORTED, IMG_NOHISTORY,\n"
             "IMG_HISTOGRAM, IMG_FINGERS or IMG_HIGHPASS.\n")
         .def("saveConfig", &TrackerEventSource::saveConfig,
-            "saveConfig(filename)\n"
-            "Saves the current tracker configuration to the filename given. If filename\n"
-            "is empty, the file used to construct the tracker is used.\n")
+            "saveConfig()\n"
+            "Saves the current tracker configuration to the default config file.")
         .def("resetHistory", &TrackerEventSource::resetHistory,
             "resetHistory()\n"
             "Throws away the current history image and generates a new one from\n"

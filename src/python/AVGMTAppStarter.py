@@ -81,7 +81,7 @@ class AVGMTAppStarter (AVGAppStarter):
 
     def _onBeforePlay(self):
         # we must add the tracker first, calibrator depends on it
-        self.tracker = g_player.addTracker(os.path.join(os.getenv("HOME"), ".avgtrackerrc"))
+        self.tracker = g_player.addTracker()
 
         if Calibrator:
             self.__calibratorNode = g_player.createNode('div',{
