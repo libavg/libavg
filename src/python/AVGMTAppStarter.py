@@ -92,6 +92,7 @@ class AVGMTAppStarter (AVGAppStarter):
             rootNode.appendChild(self.__calibratorNode)
             self.__calibratorNode.size = rootNode.size
             self.__calibrator = Calibrator(self.__calibratorNode)
+            self.__calibrator.setOnCalibrationSuccess(self.__onCalibrationSuccess)
         else:
             self.__calibrator = None
 
@@ -100,6 +101,14 @@ class AVGMTAppStarter (AVGAppStarter):
         self.__trackerImageNode = g_player.createNode('image', {'sensitive': False})
         g_player.getRootNode().appendChild(self.__trackerImageNode)
 
+        self.__updateTrackerImageFixup()
+
+        self.bindKey('h', self.tracker.resetHistory)
+        self.bindKey('d', self.toggleTrackerImage)
+        if self.__calibrator:
+            self.bindKey('c', self.__enterCalibrator)
+
+    def __updateTrackerImageFixup(self):
         # finger bitmap might need to be rotated/flipped
         trackerAngle = float(self.tracker.getParam('/transform/angle/@value'))
         angle = round(trackerAngle/math.pi) * math.pi
@@ -107,10 +116,8 @@ class AVGMTAppStarter (AVGAppStarter):
         self.trackerFlipX = float(self.tracker.getParam('/transform/displayscale/@x')) < 0
         self.trackerFlipY = float(self.tracker.getParam('/transform/displayscale/@y')) < 0
 
-        self.bindKey('h', self.tracker.resetHistory)
-        self.bindKey('d', self.toggleTrackerImage)
-        if self.__calibrator:
-            self.bindKey('c', self.__enterCalibrator)
+    def __onCalibrationSuccess(self):
+        self.__updateTrackerImageFixup()
 
     def __enterCalibrator(self):
         def leaveCalibrator():
