@@ -74,6 +74,31 @@ class AVTestCase(AVGTestCase):
             for isThreaded in [False, True]:
                 testVideoFile(filename, isThreaded)
 
+    def testVideoState(self):
+        def testThreadedState(isThreaded):
+            self._loadEmpty()
+            node = Player.createNode("video",
+                {"href": "../video/testfiles/mpeg1-48x48.mpg", "threaded": isThreaded})
+            Player.getRootNode().appendChild(node)
+            Player.setFakeFPS(25)
+            self.start(None,
+                    (lambda: node.play(),
+                     lambda: self.compareImage("testVideoState1", False),
+                     lambda: node.pause(),
+                     lambda: self.compareImage("testVideoState2", False),
+                     lambda: self.compareImage("testVideoState2", False),
+                     lambda: node.play(),
+                     lambda: self.compareImage("testVideoState3", False),
+                     lambda: node.stop(),
+                     lambda: self.compareImage("testVideoState4", False),
+                     lambda: node.pause(),
+                     lambda: self.compareImage("testVideoState5", False),
+                     lambda: self.compareImage("testVideoState5", False),
+                     lambda: node.stop(),
+                     lambda: self.compareImage("testVideoState4", False),
+                    ))
+        testThreadedState(False)
+
     def testVideo(self):
         def testGetMediaSize():
             self.assert_(Player.getElementByID("clogo2").getMediaSize() == (48, 48))
@@ -267,6 +292,7 @@ def AVTestSuite(tests):
             'testBrokenSound',
             'testSoundEOF',
             "testVideoFiles",
+            "testVideoState",
 #            "testVideo",
             "testVideoOpacity",
             "testVideoSeek",
