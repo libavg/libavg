@@ -116,7 +116,7 @@ void export_node()
                 "A unique identifier that can be used to reference the node.\n")
         .add_property("active", &Node::getActive, &Node::setActive,
                       "If this attribute is true, the node behaves as usual. If not, it\n"
-                      "is neither drawn nor does it react to events. Videos are paused.\n")
+                      "is neither drawn nor does it react to events.\n")
         .add_property("sensitive", &Node::getSensitive, &Node::setSensitive,
                       "A node only reacts to events if sensitive is true.")
         .add_property("opacity", &Node::getOpacity, &Node::setOpacity,

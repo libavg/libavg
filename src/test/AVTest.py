@@ -75,66 +75,62 @@ class AVTestCase(AVGTestCase):
                 testVideoFile(filename, isThreaded)
 
     def testVideoState(self):
-        def testThreadedState(isThreaded):
-            self._loadEmpty()
-            node = Player.createNode("video",
-                {"href": "../video/testfiles/mpeg1-48x48.mpg", "threaded": isThreaded})
-            Player.getRootNode().appendChild(node)
-            Player.setFakeFPS(25)
-            self.start(None,
-                    (lambda: node.play(),
-                     lambda: self.compareImage("testVideoState1", False),
-                     lambda: node.pause(),
-                     lambda: self.compareImage("testVideoState2", False),
-                     lambda: self.compareImage("testVideoState2", False),
-                     lambda: node.play(),
-                     lambda: self.compareImage("testVideoState3", False),
-                     lambda: node.stop(),
-                     lambda: self.compareImage("testVideoState4", False),
-                     lambda: node.pause(),
-                     lambda: self.compareImage("testVideoState5", False),
-                     lambda: self.compareImage("testVideoState5", False),
-                     lambda: node.stop(),
-                     lambda: self.compareImage("testVideoState4", False),
-                    ))
-        testThreadedState(False)
-
-    def testVideo(self):
-        def testGetMediaSize():
-            self.assert_(Player.getElementByID("clogo2").getMediaSize() == (48, 48))
-        def newHRef():
-            node = Player.getElementByID("clogo2")
-            node.href = "../video/testfiles/h264-48x48.h264"
-            node.play()
-        def move():
-            node = Player.getElementByID("clogo2")
-            node.x += 30
-        def activateclogo():
-            Player.getElementByID('clogo').active=1
-        def deactivateclogo():
-            Player.getElementByID('clogo').active=0
+        self._loadEmpty()
+        node = Player.createNode("video",
+            {"href": "../video/testfiles/mpeg1-48x48.mpg", "threaded": False})
+        Player.getRootNode().appendChild(node)
         Player.setFakeFPS(25)
-        self.start("video.avg",
-                (lambda: self.compareImage("testVideo1", False),
-                 lambda: Player.getElementByID("clogo2").play(),
-                 lambda: self.compareImage("testVideo2", False),
-                 lambda: Player.getElementByID("clogo2").pause(),
-                 lambda: self.compareImage("testVideo3", False),
-                 lambda: Player.getElementByID("clogo2").play(),
-                 lambda: self.compareImage("testVideo4", False),
-                 newHRef,
-                 lambda: Player.getElementByID("clogo1").play(),
-                 lambda: self.compareImage("testVideo5", False),
-                 move,
-                 lambda: Player.getElementByID("clogo").pause(),
-                 lambda: self.compareImage("testVideo6", False),
-                 deactivateclogo,
-                 lambda: self.compareImage("testVideo7", False),
-                 activateclogo,
-                 lambda: self.compareImage("testVideo8", False),
+        self.start(None,
+                (lambda: node.play(),
+                 lambda: self.compareImage("testVideoState1", False),
+                 lambda: node.pause(),
+                 lambda: self.compareImage("testVideoState2", False),
+                 lambda: self.compareImage("testVideoState2", False),
+                 lambda: node.play(),
+                 lambda: self.compareImage("testVideoState3", False),
+                 lambda: node.stop(),
+                 lambda: self.compareImage("testVideoState4", False),
+                 lambda: node.pause(),
+                 lambda: self.compareImage("testVideoState5", False),
+                 lambda: self.compareImage("testVideoState5", False),
+                 lambda: node.stop(),
+                 lambda: self.compareImage("testVideoState4", False),
+                ))
+
+    def testVideoActive(self):
+        def deactivate():
+            node.active=0
+        def activate():
+            node.active=1
+        self._loadEmpty()
+        node = Player.createNode("video",
+            {"href": "../video/testfiles/mpeg1-48x48.mpg", "threaded": False})
+        Player.getRootNode().appendChild(node)
+        Player.setFakeFPS(25)
+        self.start(None,
+                (lambda: node.play(),
+                 deactivate,
+                 lambda: self.compareImage("testVideoActive1", False),
+                 activate,
+                 lambda: self.compareImage("testVideoActive2", False)
+                ))
+       
+    def testVideoHRef(self):
+        def testGetMediaSize():
+            self.assert_(node.getMediaSize() == (48, 48))
+        def setHRef():
+            node.href = "../video/testfiles/h264-48x48.h264"
+        self._loadEmpty()
+        node = Player.createNode("video",
+            {"href": "../video/testfiles/mpeg1-48x48.mpg", "threaded": False})
+        Player.getRootNode().appendChild(node)
+        Player.setFakeFPS(25)
+        self.start(None,
+                (lambda: node.play(),
                  testGetMediaSize,
-                 lambda: Player.getElementByID("clogo").stop(),
-                 lambda: self.compareImage("testVideo9", False)
+                 setHRef,
+                 lambda: self.compareImage("testVideoHRef1", False),
+                 testGetMediaSize
                 ))
 
     def testVideoOpacity(self):
@@ -293,7 +289,8 @@ def AVTestSuite(tests):
             'testSoundEOF',
             "testVideoFiles",
             "testVideoState",
-#            "testVideo",
+            "testVideoActive",
+            "testVideoHRef",
             "testVideoOpacity",
             "testVideoSeek",
             "testVideoFPS",
