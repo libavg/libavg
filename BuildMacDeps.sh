@@ -30,8 +30,8 @@ buildLib()
 buildlibjpeg()
 {
     cd jpeg-6b
-    cp ${AVG_PATH}/share/libtool/config.sub .
-    cp ${AVG_PATH}/share/libtool/config.guess .
+    cp ${AVG_PATH}/share/libtool/config/config.sub .
+    cp ${AVG_PATH}/share/libtool/config/config.guess .
     ./configure --prefix=${AVG_PATH}
     make clean
     make -j3
@@ -89,7 +89,6 @@ clean
 
 cd ../deps
 
-buildLib libxml2-2.6.32 --disable-shared
 buildLib libtool-2.2.6
 buildLib autoconf-2.63
 buildLib automake-1.11
@@ -97,6 +96,7 @@ buildlibjpeg
 buildLib tiff-3.8.2 --disable-shared 
 buildLib zlib-1.2.3
 buildlibpng
+buildLib libxml2-2.6.32 --disable-shared
 buildLib GraphicsMagick-1.1.10 "--without-x --without-perl --disable-shared --disable-delegate-build --without-modules --without-bzlib --without-dps --without-gslib --without-wmf --without-xml --without-ttf --with-quantum-depth=8"
 buildLib pkg-config-0.20
 buildLib ffmpeg "--disable-debug --enable-pthreads --disable-ffserver --disable-muxer=matroska --disable-demuxer=matroska --disable-muxer=matroska_audio"
