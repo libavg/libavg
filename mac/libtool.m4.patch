@@ -1,0 +1,20 @@
+945c945
+<       _lt_dar_allow_undefined='${wl}-undefined ${wl}suppress' ;;
+---
+>       _lt_dar_allow_undefined='${wl}-undefined ${wl}suppress ${wl}-read_only_relocs ${wl}suppress' ;;
+947c947
+<       _lt_dar_allow_undefined='${wl}-flat_namespace ${wl}-undefined ${wl}suppress' ;;
+---
+>       _lt_dar_allow_undefined='${wl}-flat_namespace ${wl}-undefined ${wl}suppress ${wl}-read_only_relocs ${wl}suppress' ;;
+954c954
+< 	  _lt_dar_allow_undefined='${wl}-undefined ${wl}dynamic_lookup' ;;
+---
+> 	  _lt_dar_allow_undefined='${wl}-undefined ${wl}dynamic_lookup ${wl}-read_only_relocs ${wl}suppress' ;;
+956c956
+< 	  _lt_dar_allow_undefined='${wl}-flat_namespace ${wl}-undefined ${wl}suppress' ;;
+---
+> 	  _lt_dar_allow_undefined='${wl}-flat_namespace ${wl}-undefined ${wl}suppress ${wl}-read_only_relocs ${wl}suppress' ;;
+958c958
+< 	  _lt_dar_allow_undefined='${wl}-undefined ${wl}dynamic_lookup' ;;
+---
+> 	  _lt_dar_allow_undefined='${wl}-undefined ${wl}dynamic_lookup ${wl}-read_only_relocs ${wl}suppress' ;;
