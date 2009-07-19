@@ -7,8 +7,8 @@ then
     # as of OS X 10.4.7
     ../bin/libtoolize --copy --force
     ../bin/aclocal -I m4
-    # Patch that fixes 'local relocation entries in non-writable section' linker error.
-    patch < aclocal.m4.patch
+    # Patch that fixes 'absolute addressing not allowed in slidable image' linker error.
+    patch < mac/libtool.m4.patch m4/libtool.m4 
     ../bin/automake --foreign --add-missing --copy 
     autoconf
 else

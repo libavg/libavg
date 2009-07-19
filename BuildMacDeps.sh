@@ -90,7 +90,7 @@ clean
 cd ../deps
 
 buildLib libxml2-2.6.32 --disable-shared
-buildLib libtool-1.5.22
+buildLib libtool-2.2.6
 buildLib autoconf-2.63
 buildLib automake-1.11
 buildlibjpeg
