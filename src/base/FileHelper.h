@@ -39,6 +39,10 @@ void writeWholeFile(const std::string& sFilename, const std::string& sContent);
 
 void copyFile(const std::string& sSourceFile, const std::string& sDestFile);
 
+#ifdef WIN32
+#define unlink _unlink
+#endif
+
 }
 
 #endif 
