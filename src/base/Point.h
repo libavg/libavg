@@ -32,8 +32,8 @@
 #include <assert.h>
 #include <float.h>
 
-// Fix for non-C99 win compilers up to MSVC++2005
-#if defined _MSC_VER && _MSC_VER < 1500
+// Fix for non-C99 win compilers up to MSVC++2008
+#if defined _MSC_VER && _MSC_VER <= 1500
 #define isinf(x) (!_finite(x))
 #define isnan(x) (_isnan(x))
 #endif
