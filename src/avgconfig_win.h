@@ -12,6 +12,9 @@
 /* Enable firewire camera support v.2 */
 #undef AVG_ENABLE_1394_2
 
+/* ffmpeg >= 0.5.0 */
+#define HAVE_LIBAVFORMAT_AVFORMAT_H
+
 /* Enable Video4Linux2 camera support */
 #undef AVG_ENABLE_V4L2
 
