@@ -240,14 +240,15 @@ IntPoint OGLSurface::getTextureSize()
     return m_pTextures[0]->getTextureSize();
 }
 
-SDLDisplayEngine * OGLSurface::getEngine()
+SDLDisplayEngine * OGLSurface::getEngine() const
 {
     return m_pEngine;
 }
 
 bool OGLSurface::useShader() const
 {
-    return (m_Material.m_bHasMask || m_pf == YCbCr420p || m_pf == YCbCrJ420p);
+    return getEngine()->isUsingShaders() && 
+            (m_Material.m_bHasMask || m_pf == YCbCr420p || m_pf == YCbCrJ420p);
 }
 
 }

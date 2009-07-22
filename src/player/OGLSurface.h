@@ -63,7 +63,7 @@ public:
     IntPoint getTextureSize();
 
 protected:
-    SDLDisplayEngine * getEngine();
+    SDLDisplayEngine * getEngine() const;
 
 private:
     bool useShader() const;

@@ -522,7 +522,7 @@ bool SDLDisplayEngine::hasRGBOrdering()
     return false;
 }
 
-bool SDLDisplayEngine::isUsingShaders()
+bool SDLDisplayEngine::isUsingShaders() const
 {
     return m_bUseShaders;
 }
@@ -583,7 +583,7 @@ void SDLDisplayEngine::checkShaderSupport()
 {
     m_bUseShaders = (queryOGLExtension("GL_ARB_fragment_shader") && 
             getMemoryModeSupported() == PBO &&
-            !m_bUsePOTTextures);
+            !m_bUsePOTTextures && m_bShouldUseShaders);
     if (m_bUseShaders) {
         string sProgram =
             "uniform sampler2D texture;\n"

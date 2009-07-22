@@ -67,7 +67,7 @@ class AVG_API SDLDisplayEngine: public DisplayEngine, public IEventSource
         virtual bool supportsBpp(int bpp);
         virtual bool hasRGBOrdering();
         
-        virtual bool isUsingShaders(); 
+        virtual bool isUsingShaders() const; 
         OGLShaderPtr getShader();
         
         virtual void showCursor(bool bShow);
