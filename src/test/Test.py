@@ -57,6 +57,22 @@ def runConsoleTest():
     Player = avg.Player.get()
     Player.loadFile("video.avg")
 
+def dumpConfig():
+    Log = avg.Logger.get()
+    Log.setCategories(
+            Log.APP |
+            Log.WARNING |
+            Log.CONFIG  |
+            0)
+    Player.loadString("""
+            <?xml version="1.0"?>
+            <avg id="avg" width="160" height="120">
+            </avg>
+            """)
+    Player.setTimeout(0, Player.stop)
+    Player.play()
+   
+
 if os.getenv("AVG_CONSOLE_TEST"):
     runConsoleTest()
 else:
@@ -122,6 +138,7 @@ else:
         suite.addTest(s(**args))
 
     Player = avg.Player.get()
+    dumpConfig()
     Log = avg.Logger.get()
     Log.setCategories(
             Log.APP |
