@@ -138,6 +138,7 @@ else:
         suite.addTest(s(**args))
 
     Player = avg.Player.get()
+    Player.setMultiSampleSamples(1)
     dumpConfig()
     Log = avg.Logger.get()
     Log.setCategories(
