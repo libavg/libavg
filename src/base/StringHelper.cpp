@@ -32,19 +32,22 @@ namespace avg {
 int stringToInt(const std::string& s)
 {
     char * errStr;
-    int ret = strtol(s.c_str(), &errStr, 10);
-    if (s != "" && *errStr == 0) {
+    string sCropped = removeStartEndSpaces(s);
+    int ret = strtol(sCropped.c_str(), &errStr, 10);
+    if (sCropped != "" && *errStr == 0) {
         return ret;
     } else {
-        throw (Exception(AVG_ERR_TYPE, string("Could not convert '")+s+"' to int."));
+        throw (Exception(AVG_ERR_TYPE, string("Could not convert '")+sCropped
+                + "' to int."));
     }
 }
 
 double stringToDouble(const std::string& s)
 {
     char * errStr;
-    double ret = strtod(s.c_str(), &errStr);
-    if (s != "" && *errStr == 0) {
+    string sCropped = removeStartEndSpaces(s);
+    double ret = strtod(sCropped.c_str(), &errStr);
+    if (sCropped != "" && *errStr == 0) {
         return ret;
     } else {
         throw (Exception(AVG_ERR_TYPE, string("Could not convert '")+s
