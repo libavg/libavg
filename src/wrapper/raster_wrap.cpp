@@ -62,7 +62,8 @@ struct UTF8String_from_unicode
         PyObject * pPyUTF8 = PyUnicode_AsUTF8String(obj_ptr);
         char * psz = PyString_AsString(pPyUTF8);
         void* storage = (
-                (boost::python::converter::rvalue_from_python_storage<UTF8String>*)data)->storage.bytes;
+                (boost::python::converter::rvalue_from_python_storage<UTF8String>*)data)
+                        ->storage.bytes;
         new (storage) UTF8String(psz);
         data->convertible = storage;
     }
@@ -300,7 +301,7 @@ void export_raster()
                         return_value_policy<copy_const_reference>()),
                 "The color of the text in standard html color notation:\n" 
                 "FF0000 is red, 00FF00 green, etc.\n")
-        .add_property("size", &Words::getFontSize, &Words::setFontSize,
+        .add_property("fontsize", &Words::getFontSize, &Words::setFontSize,
                 "The font size in pixels. Fractional sizes are supported.\n")
         .add_property("indent", &Words::getIndent, &Words::setIndent,
                 "The indentation of the first line of the paragraph.\n")

@@ -91,6 +91,19 @@ const ArgBasePtr ArgList::getArg(const string& sName) const
     return valIt->second;
 }
 
+void ArgList::getOverlayedArgVal(DPoint* pResult, const string& sName, 
+        const string& sOverlay1, const string& sOverlay2, const string& sID) const
+{
+    if (hasArg(sName)) {
+        if (hasArg(sOverlay1) || hasArg(sOverlay2)) {
+            throw (Exception(AVG_ERR_INVALID_ARGS,
+                    string("Duplicate node arguments (")+sName+" and "+
+                    sOverlay1+","+sOverlay2+") for node '"+sID+"'"));
+        }
+        *pResult = getArgVal<DPoint>(sName);
+    }
+}
+
 const ArgMap& ArgList::getArgMap() const
 {
     return m_Args;

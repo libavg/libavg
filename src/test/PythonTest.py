@@ -362,13 +362,13 @@ class PythonTestCase(AVGTestCase):
         def setup():
             self.ta1 = textarea.TextArea(Player.getElementByID('ph1'), id='ta1')
             self.ta1.setStyle(font='Bitstream Vera Sans', variant='Roman',
-                size=16, multiline=True, color='FFFFFF')
+                fontsize=16, multiline=True, color='FFFFFF')
             self.ta1.setText('Lorem ipsum')
             self.ta1.setFocus(True) # TODO: REMOVE
 
             self.ta2 = textarea.TextArea(Player.getElementByID('ph2'), id='ta2')
             self.ta2.setStyle(font='Bitstream Vera Sans', variant='Roman',
-                size=14, multiline=False, color='FFFFFF')
+                fontsize=14, multiline=False, color='FFFFFF')
             self.ta2.setText('sit dolor')
             self.ta2.setFocus(True) # TODO: REMOVE
             
@@ -433,19 +433,19 @@ class PythonTestCase(AVGTestCase):
            self.ta1 = textarea.TextArea(Player.getElementByID('ph1'),
                self.ctx1, id='ta1')
            self.ta1.setStyle(font='Bitstream Vera Sans', variant='Roman',
-               size=16, multiline=True, color='FFFFFF')
+               fontsize=16, multiline=True, color='FFFFFF')
            self.ta1.setText('Lorem ipsum')
 
            self.ta2 = textarea.TextArea(Player.getElementByID('ph2'),
                self.ctx1, id='ta2')
            self.ta2.setStyle(font='Bitstream Vera Sans', variant='Roman',
-               size=14, multiline=False, color='FFFFFF')
+               fontsize=14, multiline=False, color='FFFFFF')
            self.ta2.setText('dolor')
 
            self.ta3 = textarea.TextArea(Player.getElementByID('ph3'),
                self.ctx2, disableMouseFocus=True, id='ta3')
            self.ta3.setStyle(font='Bitstream Vera Sans', variant='Roman',
-               size=14, multiline=True, color='FFFFFF')
+               fontsize=14, multiline=True, color='FFFFFF')
            self.ta3.setText('dolor sit amet')
 
            textarea.setActiveFocusContext(self.ctx1)

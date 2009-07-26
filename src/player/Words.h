@@ -113,7 +113,7 @@ class AVG_API Words : public RasterNode
         UTF8String m_sRawText;
         std::string m_sColorName;
         Pixel32 m_Color;
-        double m_Size;
+        double m_FontSize;
         int m_Indent;
         double m_LineSpacing;
         PangoAlignment m_Alignment;

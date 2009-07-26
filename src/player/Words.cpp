@@ -89,7 +89,7 @@ NodeDefinition Words::createDefinition()
         .addArg(Arg<string>("variant", "", false, offsetof(Words, m_sFontVariant)))
         .addArg(Arg<string>("text", ""))
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(Words, m_sColorName)))
-        .addArg(Arg<double>("size", 15, false, offsetof(Words, m_Size)))
+        .addArg(Arg<double>("fontsize", 15, false, offsetof(Words, m_FontSize)))
         .addArg(Arg<int>("indent", 0, false, offsetof(Words, m_Indent)))
         .addArg(Arg<double>("linespacing", -1, false, offsetof(Words, m_LineSpacing)))
         .addArg(Arg<string>("alignment", "left"))
@@ -287,12 +287,12 @@ void Words::setColor(const std::string& sColor)
 
 double Words::getFontSize() const
 {
-    return m_Size;
+    return m_FontSize;
 }
 
 void Words::setFontSize(double Size)
 {
-    m_Size = Size;
+    m_FontSize = Size;
     m_bFontChanged = true;
     m_bDrawNeeded = true;
 }
@@ -420,7 +420,7 @@ void Words::drawString()
             m_pFontDescription = TextEngine::get().getFontDescription(m_sFontName, 
                     m_sFontVariant);
             pango_font_description_set_absolute_size(m_pFontDescription,
-                    (int)(m_Size * PANGO_SCALE));
+                    (int)(m_FontSize * PANGO_SCALE));
 
             m_bFontChanged = false;
         }
@@ -486,7 +486,7 @@ void Words::drawString()
         m_StringExtents.x = logical_rect.width;
         // Work around what appears to be a pango bug when computing the 
         // extents of italic text by adding an arbritary amount to the width.
-        m_StringExtents.x += int(m_Size/6+1);
+        m_StringExtents.x += int(m_FontSize/6+1);
         if (m_StringExtents.x == 0) {
             m_StringExtents.x = 1;
         }

@@ -315,14 +315,14 @@ class TextArea:
         """
         return self.__getUnicodeFromData()
         
-    def setStyle(self, font='Arial', size=12, alignment='left', variant='Regular',
+    def setStyle(self, font='Arial', fontsize=12, alignment='left', variant='Regular',
                 color='000000', multiline=True, cursorWidth=None, border=0,
                 blurOpacity=DEFAULT_BLUR_OPACITY, flashingCursor=False,
                 cursorColor='000000', lineSpacing=0, letterSpacing=0):
         """
         Set TextArea's graphical appearance
         @param font: font face
-        @param size: font size in pixels
+        @param fontsize: font size in pixels
         @param alignment: one among 'left', 'right', 'center'
         @param variant: font variant (eg: 'bold')
         @param color: RGB hex for text color
@@ -338,7 +338,7 @@ class TextArea:
         @param letterSpacing: letterspacing property of words node
         """
         self.__textNode.font = font
-        self.__textNode.size = int(size)
+        self.__textNode.fontsize = int(fontsize)
         self.__textNode.alignment = alignment
         self.__textNode.color = color
         self.__textNode.variant = variant
@@ -362,7 +362,7 @@ class TextArea:
         if cursorWidth is not None:
             self.__cursorNode.strokewidth = cursorWidth
         else:
-            w = float(size) * CURSOR_WIDTH_PCT / 100.0
+            w = float(fontsize) * CURSOR_WIDTH_PCT / 100.0
             if w < 1:
                 w = 1
             self.__cursorNode.strokewidth = w
@@ -482,7 +482,7 @@ class TextArea:
         
         # Boundary control
         if len(self.__data) > 0:
-            maxCharDim = self.__textNode.size
+            maxCharDim = self.__textNode.fontsize
             lastCharPos = self.__textNode.getGlyphPos(len(self.__data) - 1)
 
             # don't wrap when TextArea is not multiline
@@ -529,7 +529,7 @@ class TextArea:
         if lastCharExtents[1] > 0:
             self.__cursorNode.y2 = lastCharExtents[1] * (1 - CURSOR_PADDING_PCT/100.0)
         else:
-            self.__cursorNode.y2 = self.__textNode.size
+            self.__cursorNode.y2 = self.__textNode.fontsize
         
         self.__cursorContainer.x = lastCharPos[0] + lastCharExtents[0] + self.__border
         self.__cursorContainer.y = (lastCharPos[1] +

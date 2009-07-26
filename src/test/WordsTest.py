@@ -58,9 +58,9 @@ class WordsTestCase(AVGTestCase):
         self.assert_(len(variantList) >= 4)
         Player.loadString("""
           <avg width="160" height="120">
-            <words x="1" y="1" size="12" font="Bitstream Vera Sans" 
+            <words x="1" y="1" fontsize="12" font="Bitstream Vera Sans" 
                 text="Bitstream Vera Sans" variant="roman"/>
-            <words id="sanstext" x="1" y="16" size="12" font="Bitstream Vera Sans" 
+            <words id="sanstext" x="1" y="16" fontsize="12" font="Bitstream Vera Sans" 
                 variant="bold" text="Bold"/>
           </avg>
         """)
@@ -92,15 +92,15 @@ class WordsTestCase(AVGTestCase):
         Player.loadString("""
           <?xml version="1.0"?>
           <avg width="160" height="120">
-              <words id="para" x="1" y="1" size="12" width="70" font="Bitstream Vera Sans"
+              <words id="para" x="1" y="1" fontsize="12" width="70" font="Bitstream Vera Sans"
                       text="Left-justified paragraph."/>
-              <words id="paracenter" x="120" y="1" size="12" width="70" 
+              <words id="paracenter" x="120" y="1" fontsize="12" width="70" 
                       font="Bitstream Vera Sans" alignment="center"
                       text="Centered paragraph"/>
-              <words id="pararight" x="75" y="60" size="12" width="70" 
+              <words id="pararight" x="75" y="60" fontsize="12" width="70" 
                       font="Bitstream Vera Sans" alignment="right"
                       text="Right-justified paragraph."/>
-              <words id="paralinespacing" x="80" y="60" size="12" width="70" 
+              <words id="paralinespacing" x="80" y="60" fontsize="12" width="70" 
                       font="Bitstream Vera Sans" linespacing="-4"
                       text="Paragraph with custom line spacing."/>
           </avg>
@@ -111,7 +111,7 @@ class WordsTestCase(AVGTestCase):
     def testJustify(self):
         Player.loadString("""
           <avg width="160" height="120">
-            <words x="1" y="1" size="12" font="Bitstream Vera Sans"
+            <words x="1" y="1" fontsize="12" font="Bitstream Vera Sans"
                 variant="roman" justify="true" width="100"
                 text="Justified paragraph more than one line long."/>
           </avg>
@@ -132,7 +132,7 @@ class WordsTestCase(AVGTestCase):
             
         Player.loadString("""
         <avg width="160" height="120">
-          <words x="1" y="1" size="12" font="Bitstream Vera Sans"
+          <words x="1" y="1" fontsize="12" font="Bitstream Vera Sans"
               variant="roman" width="100" id="words"
               text="Wrapped paragraph more than one line long. Withaverylongpackedlinewithnobreaks"/>
         </avg>
@@ -158,7 +158,7 @@ class WordsTestCase(AVGTestCase):
         def createUsingDict():
             Player.getElementByID("words").unlink()
             node = Player.createNode("words", {
-                    "id":"words", "x":1, "y":1, "size":12, "width":120,
+                    "id":"words", "x":1, "y":1, "fontsize":12, "width":120,
                     "font":"Bitstream Vera Sans", "variant": "roman",
                     "text":self.text
                 })
@@ -170,7 +170,7 @@ class WordsTestCase(AVGTestCase):
         """
         Player.loadString("""
           <avg width="160" height="120">
-            <words id="words" x="1" y="1" size="12" width="120" 
+            <words id="words" x="1" y="1" fontsize="12" width="120" 
                 font="Bitstream Vera Sans" variant="roman">
         """
         +self.text+
@@ -207,10 +207,10 @@ class WordsTestCase(AVGTestCase):
             node = Player.getElementByID("dynamictext")
             node.font = "Bitstream Vera Sans"
             node.height = 0
-            node.size = 30
+            node.fontsize = 30
         def changeFont2():
             node = Player.getElementByID("dynamictext")
-            node.size = 18
+            node.fontsize = 18
         def changeTextWithInvalidTag():
             node = Player.getElementByID("dynamictext")
             try:
@@ -250,10 +250,10 @@ class WordsTestCase(AVGTestCase):
                      'y':65, 
                      'font':'Bitstream Vera Sans', 
                      'variant': 'roman', 
-                     'size':12})
+                     'fontsize':12})
             Player.getRootNode().appendChild(self.dictdnode)
 
-            self.xmldnode = Player.createNode("<words text=\"&lt;test dynattr&amp;\" size=\"12\" font=\"Bitstream Vera Sans\" variant=\"roman\" rawtextmode=\"true\" x=\"1\" y=\"85\"/>")
+            self.xmldnode = Player.createNode("<words text=\"&lt;test dynattr&amp;\" fontsize=\"12\" font=\"Bitstream Vera Sans\" variant=\"roman\" rawtextmode=\"true\" x=\"1\" y=\"85\"/>")
             Player.getRootNode().appendChild(self.xmldnode)
         def switchRawMode():
             self.dictdnode.rawtextmode = False
@@ -285,7 +285,7 @@ class WordsTestCase(AVGTestCase):
     def testWordsBR(self):
         Player.loadString("""
           <avg width="160" height="120">
-            <words id="words" x="1" y="1" size="12" 
+            <words id="words" x="1" y="1" fontsize="12" 
                 font="Bitstream Vera Sans" variant="roman">
                paragraph 1<br/>paragraph 2
             </words>
@@ -301,13 +301,13 @@ class WordsTestCase(AVGTestCase):
             Player.getElementByID("words2").letterspacing=-2
         Player.loadString("""
           <avg width="160" height="120">
-            <words id="words1" x="1" y="1" size="12" font="Bitstream Vera Sans" 
+            <words id="words1" x="1" y="1" fontsize="12" font="Bitstream Vera Sans" 
                     variant="roman">
                normal
                <span letter_spacing="-2048"> packed</span>
                <span letter_spacing="2048"> spaced</span>
             </words>
-            <words id="words2" x="1" y="20" size="12" font="Bitstream Vera Sans"
+            <words id="words2" x="1" y="20" fontsize="12" font="Bitstream Vera Sans"
                     variant="roman" letterspacing="2" text="spaced"/>
           </avg>
         """)
@@ -324,17 +324,17 @@ class WordsTestCase(AVGTestCase):
             <line x1="4.5" y1="20.5" x2="4.5" y2="110" color="FF0000"/>
             <line x1="156.5" y1="20.5" x2="156.5" y2="110" color="FF0000"/>
             <line x1="80.5" y1="20.5" x2="80.5" y2="110" color="FF0000"/>
-            <words x="4" y="20" size="12" font="Bitstream Vera Sans"
+            <words x="4" y="20" fontsize="12" font="Bitstream Vera Sans"
                     variant="roman" text="Norm"/>
-            <words x="45" y="20" size="12" font="Bitstream Vera Sans"
+            <words x="45" y="20" fontsize="12" font="Bitstream Vera Sans"
                     variant="roman" text="orm"/>
-            <words x="75" y="20" size="12" font="Bitstream Vera Sans"
+            <words x="75" y="20" fontsize="12" font="Bitstream Vera Sans"
                     variant="roman" text="ÖÄÜ"/>
-            <words x="4" y="40" size="12" font="Bitstream Vera Sans"
+            <words x="4" y="40" fontsize="12" font="Bitstream Vera Sans"
                     variant="oblique" text="Jtalic"/>
-            <words x="156" y="60" size="12" alignment="right" 
+            <words x="156" y="60" fontsize="12" alignment="right" 
                     font="Bitstream Vera Sans" variant="roman" text="Right-aligned"/>
-            <words x="80" y="80" size="12" alignment="center" 
+            <words x="80" y="80" fontsize="12" alignment="center" 
                     font="Bitstream Vera Sans" variant="roman" text="Centered"/>
           </avg>
         """)
@@ -368,7 +368,7 @@ class WordsTestCase(AVGTestCase):
         avg.Words.addFontDir('extrafonts')
         Player.loadString("""
           <avg width="160" height="120">
-            <words font="testaddfontdir" size="50" text="ABAAA"/>
+            <words font="testaddfontdir" fontsize="50" text="ABAAA"/>
           </avg>
         """)
         self.start(None,
