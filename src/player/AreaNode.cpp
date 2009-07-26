@@ -53,6 +53,7 @@ NodeDefinition AreaNode::createDefinition()
         .extendDefinition(Node::createDefinition())
         .addArg(Arg<double>("x", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.x)))
         .addArg(Arg<double>("y", 0.0, false, offsetof(AreaNode, m_RelViewport.tl.y)))
+        .addArg(Arg<DPoint>("pos", DPoint(0.0, 0.0)))
         .addArg(Arg<double>("width", 0.0, false, offsetof(AreaNode, m_UserSize.x)))
         .addArg(Arg<double>("height", 0.0, false, offsetof(AreaNode, m_UserSize.y)))
         .addArg(Arg<double>("angle", 0.0, false, offsetof(AreaNode, m_Angle)))
@@ -74,6 +75,14 @@ AreaNode::~AreaNode()
 void AreaNode::setArgs(const ArgList& Args)
 {
     Node::setArgs(Args);
+    if (Args.hasArg("pos")) {
+        if (Args.hasArg("x") || Args.hasArg("y")) {
+            throw (Exception(AVG_ERR_INVALID_ARGS,
+                    string("Duplicate node arguments (pos and x,y) for node '")+
+                    getID()+"'"));
+        }
+        m_RelViewport.tl = Args.getArgVal<DPoint>("pos");
+    }
     m_RelViewport.setWidth(m_UserSize.x);
     m_RelViewport.setHeight(m_UserSize.y);
 }

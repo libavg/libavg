@@ -30,6 +30,19 @@
 namespace avg {
 
 template<>
+Point<double>::Point(const std::string& s)
+{
+    std::string sCropped = removeStartEndSpaces(s);
+    if (sCropped[0] != '(' || sCropped[sCropped.length()-1] != ')') {
+        throw (Exception(AVG_ERR_TYPE, std::string("Could not convert ")+s+" to Point."));
+    }
+    std::string::size_type pos = sCropped.find(',');
+    x = stringToDouble(sCropped.substr(1, pos-1));
+    y = stringToDouble(sCropped.substr(pos+1, sCropped.length()-pos-2));
+}
+
+
+template<>
 Point<double> Point<double>::getNormalized() const
 {
 #if defined(__SSE__) || defined(_WIN32)

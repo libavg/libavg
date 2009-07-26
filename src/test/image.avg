@@ -2,7 +2,7 @@
 <avg id="imageavg" width="160" height="120">
     <image id="mainimg" x="0" y="0"
         opacity = "1" href="1x1_schachbrett.png"/>
-    <image id="testtiles" x="0" y="30"
+    <image id="testtiles" pos="(0, 30)"
         opacity="1" href="rgb24-65x65.png" maxtilewidth="16" maxtileheight="32"/>
     <image id="test" x="64" y="30"
         opacity="1" href="rgb24-65x65.png" pivotx="0" pivoty="0" angle="0.274"/>

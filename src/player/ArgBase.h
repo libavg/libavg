@@ -37,10 +37,11 @@ class Node;
 class AVG_API ArgBase
 {
 public:
-    ArgBase(std::string Name, bool bRequired = false, ptrdiff_t MemberOffset = -1);
+    ArgBase(std::string Name, bool bRequired, ptrdiff_t MemberOffset);
     virtual ~ArgBase();
     
     std::string getName() const;
+    bool isDefault() const;
     bool isRequired() const;
     
     virtual void setMember(Node * pNode) const = 0;
@@ -49,6 +50,7 @@ public:
 
 protected:
     ptrdiff_t getMemberOffset() const;
+    bool m_bDefault;
 
 private:
     std::string m_Name;

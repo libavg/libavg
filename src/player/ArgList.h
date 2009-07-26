@@ -48,6 +48,7 @@ public:
     ArgList(const ArgList& ArgTemplates, const boost::python::dict& PyDict);
     virtual ~ArgList();
 
+    bool hasArg(const std::string& sName) const;
     const ArgBasePtr getArg(const std::string& sName) const;
    
     template<class T>

@@ -25,6 +25,7 @@
 #define _Arg_H_
 
 #include "../api.h"
+#include "../base/Point.h"
 
 #include "ArgBase.h"
 
@@ -74,6 +75,7 @@ template<class T>
 void Arg<T>::setValue(const T& Value)
 {
     m_Value = Value;
+    m_bDefault = false;
 }
 
 template<class T>
@@ -101,6 +103,7 @@ extern template class Arg<bool>;
 extern template class Arg<float>;
 extern template class Arg<double>;
 extern template class Arg<std::string>;
+extern template class Arg<DPoint>;
 #endif
 #endif
 

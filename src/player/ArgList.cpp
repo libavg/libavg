@@ -56,8 +56,6 @@ ArgList::ArgList(const ArgList& ArgTemplates, const boost::python::dict& PyDict)
     copyArgsFrom(ArgTemplates);
     boost::python::list keys = PyDict.keys();
     int nKeys = boost::python::len(keys);
-// Workaround for older boost::python
-//    int nKeys = boost::python::extract<int>(keys.attr("__len__"))();
     for(int i = 0; i < nKeys; i++)
     {
         boost::python::object keyObj = keys[i];
@@ -75,6 +73,12 @@ ArgList::ArgList(const ArgList& ArgTemplates, const boost::python::dict& PyDict)
 
 ArgList::~ArgList()
 {
+}
+
+bool ArgList::hasArg(const std::string& sName) const
+{
+    ArgMap::const_iterator it = m_Args.find(sName);
+    return (it != m_Args.end() && !(it->second->isDefault()));
 }
 
 const ArgBasePtr ArgList::getArg(const string& sName) const
@@ -157,6 +161,8 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
     Arg<double>* pDoubleArg = dynamic_cast<Arg<double>* >(&*pArg);
     Arg<float>* pFloatArg = dynamic_cast<Arg<float>* >(&*pArg);
     Arg<bool>* pBoolArg = dynamic_cast<Arg<bool>* >(&*pArg);
+    Arg<DPoint>* pDPointArg = dynamic_cast<Arg<DPoint>* >(&*pArg);
+
     if (pStringArg) {
         pStringArg->setValue(sValue);
     } else if (pIntArg) {
@@ -183,6 +189,8 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
         }
     } else if (pBoolArg) {
         pBoolArg->setValue(sValue == "True" || sValue == "true" || sValue == "1");
+    } else if (pDPointArg) {
+        pDPointArg->setValue(DPoint(sValue));
     } else {
         assert(false);
     }   

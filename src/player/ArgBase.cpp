@@ -36,6 +36,7 @@ ArgBase::ArgBase(string Name, bool bRequired, ptrdiff_t MemberOffset)
       m_bRequired(bRequired),
       m_MemberOffset(MemberOffset)
 {
+    m_bDefault = true;
 }
 
 ArgBase::~ArgBase()
@@ -45,6 +46,11 @@ ArgBase::~ArgBase()
 string ArgBase::getName() const
 {
     return m_Name;
+}
+
+bool ArgBase::isDefault() const
+{
+    return m_bDefault;
 }
 
 bool ArgBase::isRequired() const
