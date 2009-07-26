@@ -89,14 +89,30 @@ class WordsTestCase(AVGTestCase):
         self.assertException(lambda: node.getGlyphPos(3))
 
     def testParaWords(self):
-        self.start("paratext.avg",
+        Player.loadString("""
+          <?xml version="1.0"?>
+          <avg width="160" height="120">
+              <words id="para" x="1" y="1" size="12" width="70" font="Bitstream Vera Sans"
+                      text="Left-justified paragraph."/>
+              <words id="paracenter" x="120" y="1" size="12" width="70" 
+                      font="Bitstream Vera Sans" alignment="center"
+                      text="Centered paragraph"/>
+              <words id="pararight" x="75" y="60" size="12" width="70" 
+                      font="Bitstream Vera Sans" alignment="right"
+                      text="Right-justified paragraph."/>
+              <words id="paralinespacing" x="80" y="60" size="12" width="70" 
+                      font="Bitstream Vera Sans" linespacing="-4"
+                      text="Paragraph with custom line spacing."/>
+          </avg>
+        """)
+        self.start(None,
                 [lambda: self.compareImage("testParaWords", True)])
 
     def testJustify(self):
         Player.loadString("""
           <avg width="160" height="120">
             <words x="1" y="1" size="12" font="Bitstream Vera Sans"
-                variant="roman" justify="true" parawidth="100"
+                variant="roman" justify="true" width="100"
                 text="Justified paragraph more than one line long."/>
           </avg>
         """)
@@ -117,7 +133,7 @@ class WordsTestCase(AVGTestCase):
         Player.loadString("""
         <avg width="160" height="120">
           <words x="1" y="1" size="12" font="Bitstream Vera Sans"
-              variant="roman" parawidth="100" id="words"
+              variant="roman" width="100" id="words"
               text="Wrapped paragraph more than one line long. Withaverylongpackedlinewithnobreaks"/>
         </avg>
         """)
@@ -142,7 +158,7 @@ class WordsTestCase(AVGTestCase):
         def createUsingDict():
             Player.getElementByID("words").unlink()
             node = Player.createNode("words", {
-                    "id":"words", "x":1, "y":1, "size":12, "parawidth":120,
+                    "id":"words", "x":1, "y":1, "size":12, "width":120,
                     "font":"Bitstream Vera Sans", "variant": "roman",
                     "text":self.text
                 })
@@ -154,7 +170,7 @@ class WordsTestCase(AVGTestCase):
         """
         Player.loadString("""
           <avg width="160" height="120">
-            <words id="words" x="1" y="1" size="12" parawidth="120" 
+            <words id="words" x="1" y="1" size="12" width="120" 
                 font="Bitstream Vera Sans" variant="roman">
         """
         +self.text+
@@ -304,21 +320,28 @@ class WordsTestCase(AVGTestCase):
     def testPositioning(self):
         Player.loadString("""
           <avg width="160" height="120">
-            <line x1="4" y1="20.5" x2="150" y2="20.5" color="FF0000"/>
+            <line x1="4" y1="20.5" x2="157" y2="20.5" color="FF0000"/>
             <line x1="4.5" y1="20.5" x2="4.5" y2="110" color="FF0000"/>
-            <words id="words1" x="4" y="20" size="12" font="Bitstream Vera Sans"
+            <line x1="156.5" y1="20.5" x2="156.5" y2="110" color="FF0000"/>
+            <line x1="80.5" y1="20.5" x2="80.5" y2="110" color="FF0000"/>
+            <words x="4" y="20" size="12" font="Bitstream Vera Sans"
                     variant="roman" text="Norm"/>
-            <words id="words2" x="45" y="20" size="12" font="Bitstream Vera Sans"
+            <words x="45" y="20" size="12" font="Bitstream Vera Sans"
                     variant="roman" text="orm"/>
-            <words id="words3" x="75" y="20" size="12" font="Bitstream Vera Sans"
+            <words x="75" y="20" size="12" font="Bitstream Vera Sans"
                     variant="roman" text="ÖÄÜ"/>
-            <words id="words4" x="4" y="40" size="12" font="Bitstream Vera Sans"
+            <words x="4" y="40" size="12" font="Bitstream Vera Sans"
                     variant="oblique" text="Jtalic"/>
+            <words x="156" y="60" size="12" alignment="right" 
+                    font="Bitstream Vera Sans" variant="roman" text="Right-aligned"/>
+            <words x="80" y="80" size="12" alignment="center" 
+                    font="Bitstream Vera Sans" variant="roman" text="Centered"/>
           </avg>
         """)
         self.start(None,
                 (lambda: self.compareImage("testPositioning", True),
                 ))
+
     def testInvalidColor(self):
         def testColor(color):
             Player.createNode('words', {'color':color})

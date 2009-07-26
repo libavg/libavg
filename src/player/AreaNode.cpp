@@ -296,4 +296,9 @@ string AreaNode::dump(int indent)
     return dumpStr; 
 }
 
+DPoint AreaNode::getUserSize() const
+{
+    return m_UserSize;
+}
+
 }

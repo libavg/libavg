@@ -90,7 +90,6 @@ NodeDefinition Words::createDefinition()
         .addArg(Arg<string>("text", ""))
         .addArg(Arg<string>("color", "FFFFFF", false, offsetof(Words, m_sColorName)))
         .addArg(Arg<double>("size", 15, false, offsetof(Words, m_Size)))
-        .addArg(Arg<int>("parawidth", -1, false, offsetof(Words, m_ParaWidth)))
         .addArg(Arg<int>("indent", 0, false, offsetof(Words, m_Indent)))
         .addArg(Arg<double>("linespacing", -1, false, offsetof(Words, m_LineSpacing)))
         .addArg(Arg<string>("alignment", "left"))
@@ -298,17 +297,6 @@ void Words::setFontSize(double Size)
     m_bDrawNeeded = true;
 }
 
-int Words::getParaWidth() const
-{
-    return m_ParaWidth;
-}
-
-void Words::setParaWidth(int ParaWidth)
-{
-    m_ParaWidth = ParaWidth;
-    m_bDrawNeeded = true;
-}
-
 int Words::getIndent() const
 {
     return m_Indent;
@@ -471,7 +459,9 @@ void Words::drawString()
         pango_layout_set_wrap(m_pLayout, m_WrapMode);
         pango_layout_set_alignment(m_pLayout, m_Alignment);
         pango_layout_set_justify(m_pLayout, m_bJustify);
-        pango_layout_set_width(m_pLayout, m_ParaWidth * PANGO_SCALE);
+        if (getUserSize().x != 0) {
+            pango_layout_set_width(m_pLayout, getUserSize().x * PANGO_SCALE);
+        }
         pango_layout_set_indent(m_pLayout, m_Indent * PANGO_SCALE);
         if (m_Indent < 0) {
             // For hanging indentation, we add a tabstop to support lists
@@ -493,18 +483,18 @@ void Words::drawString()
 //        cerr << "Logical: " << logical_rect.x << ", " << logical_rect.y << ", " 
 //                << logical_rect.width << ", " << logical_rect.height << endl;
         m_StringExtents.y = logical_rect.height+2;
-        m_StringExtents.x = m_ParaWidth;
-        if (m_ParaWidth == -1) {
-            m_StringExtents.x = logical_rect.width;
-            // Work around what appears to be a pango bug when computing the 
-            // extents of italic text by adding an arbritary amount to the width.
-            m_StringExtents.x += int(m_Size/6+1);
-        }
+        m_StringExtents.x = logical_rect.width;
+        // Work around what appears to be a pango bug when computing the 
+        // extents of italic text by adding an arbritary amount to the width.
+        m_StringExtents.x += int(m_Size/6+1);
         if (m_StringExtents.x == 0) {
             m_StringExtents.x = 1;
         }
         if (m_StringExtents.y == 0) {
             m_StringExtents.y = 1;
+        }
+        if (m_StringExtents.x > getUserSize().x && getUserSize().x != 0) {
+            m_StringExtents.x = getUserSize().x;
         }
 //        cerr << "libavg Extents: " << m_StringExtents << endl;
         if (getState() == NS_CANRENDER) {
@@ -529,6 +519,12 @@ void Words::drawString()
                 m_PosOffset.x = ink_rect.x;
             }
             pango_ft2_render_layout(&bitmap, m_pLayout, -m_PosOffset.x, -m_PosOffset.y);
+            if (m_Alignment == PANGO_ALIGN_CENTER) {
+                m_PosOffset.x -= logical_rect.width/2;
+            } else if (m_Alignment == PANGO_ALIGN_RIGHT) {
+                m_PosOffset.x -= logical_rect.width;
+            }
+
             getSurface()->unlockBmps();
 
             getSurface()->bind();
@@ -558,7 +554,7 @@ void Words::render(const DRect& Rect)
         if (m_PosOffset != IntPoint(0,0)) {
             getDisplayEngine()->pushTransform(DPoint(m_PosOffset), 0, DPoint(0,0));
         }
-        getSurface()->blta8(getSize(), getEffectiveOpacity(), m_Color, getBlendMode());
+        getSurface()->blta8(DPoint(getMediaSize()), getEffectiveOpacity(), m_Color, getBlendMode());
         if (m_PosOffset != IntPoint(0,0)) {
             getDisplayEngine()->popTransform();
         }

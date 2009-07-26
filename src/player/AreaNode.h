@@ -110,6 +110,7 @@ class AVG_API AreaNode: public Node
 
     protected:
         AreaNode();
+        DPoint getUserSize() const;
 
     private:
         DRect m_RelViewport;      // In coordinates relative to the parent.

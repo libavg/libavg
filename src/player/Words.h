@@ -68,9 +68,6 @@ class AVG_API Words : public RasterNode
         double getFontSize() const;
         void setFontSize(double Size);
         
-        int getParaWidth() const;
-        void setParaWidth(int ParaWidth);
-        
         int getIndent() const;
         void setIndent(int Indent);
         
@@ -117,7 +114,6 @@ class AVG_API Words : public RasterNode
         std::string m_sColorName;
         Pixel32 m_Color;
         double m_Size;
-        int m_ParaWidth;
         int m_Indent;
         double m_LineSpacing;
         PangoAlignment m_Alignment;

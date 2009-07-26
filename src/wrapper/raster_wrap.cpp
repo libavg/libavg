@@ -258,9 +258,11 @@ void export_raster()
             "properties are set in pixels. International and multi-byte character\n"
             "sets are fully supported. Words nodes should use UTF-8 to encode\n"
             "international characters. The pos attribute of a words node is the logical\n"
-            "top left of the first character. For latin text, this usually corresponds\n"
-            "to the height of the ascender. There may be cases where text is rendered to\n"
-            "the left of or above the position, for instance when italics are used.\n",
+            "top left of the first character for left-aligned text. For centered and\n"
+            "right-aligned text, it is the top center and right of the first line,\n"
+            "respectively. For latin text, the logical top usually corresponds to the\n"
+            "height of the ascender. There may be cases where text is rendered to the\n"
+            "left of or above the position, for instance when italics are used.\n",
             no_init)
         .add_property("font", 
                 make_function(&Words::getFont,
@@ -277,7 +279,7 @@ void export_raster()
                 make_function(&Words::setFontVariant,
                         return_value_policy<copy_const_reference>()),
                 "The variant (bold, italic, etc.) of the truetype font to use. To\n"
-                "figure out which variants are available, use the showfonts utility\n"
+                "figure out which variants are available, use the avg_showfonts.py utility\n"
                 "under src/utils.\n")
         .add_property("text", 
                 make_function(&Words::getText,
@@ -288,9 +290,9 @@ void export_raster()
                 "text attribute of the words node or the content of the words\n"
                 "node itself. In the second case, the string can be formatted\n"
                 "using the pango text attribute markup language described at\n"
-                "U{http://developer.gnome.org/doc/API/2.0/pango/PangoMarkupFormat.html}.\n"
+                "U{http://library.gnome.org/devel/pango/unstable/PangoMarkupFormat.html}.\n"
                 "Markup can also be used if the text is set using python.\n"
-                "Markup parsing is controlled with 'rawtextmode' property\n")
+                "Markup parsing is controlled with 'rawtextmode' property.\n")
         .add_property("color", 
                 make_function(&Words::getColor,
                         return_value_policy<copy_const_reference>()),
@@ -300,8 +302,6 @@ void export_raster()
                 "FF0000 is red, 00FF00 green, etc.\n")
         .add_property("size", &Words::getFontSize, &Words::setFontSize,
                 "The font size in pixels. Fractional sizes are supported.\n")
-        .add_property("parawidth", &Words::getParaWidth, &Words::setParaWidth,
-                "The width at which to word-wrap.\n")
         .add_property("indent", &Words::getIndent, &Words::setIndent,
                 "The indentation of the first line of the paragraph.\n")
         .add_property("linespacing", &Words::getLineSpacing, &Words::setLineSpacing,
@@ -319,7 +319,7 @@ void export_raster()
                 "Whether each complete line should be stretched to fill\n"
                 "the entire width of the layout. Default is false.\n")
         .add_property("rawtextmode", &Words::getRawTextMode, &Words::setRawTextMode,
-                "Sets whether the text should be parsed (False) or set\n"
+                "Sets whether the text should be parsed (False) or interpreted\n"
                 "as raw string (True).\n")
         .add_property("letterspacing", &Words::getLetterSpacing, &Words::setLetterSpacing,
                 "The amount of space between the idividual glyphs of the text in\n"
