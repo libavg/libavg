@@ -848,28 +848,6 @@ class PlayerTestCase(AVGTestCase):
                  lambda: self.compareImage("testWarp3", False)
                 ))
 
-#    def testCamera(self):
-#        def createCameraNode(deviceFile):
-#            return Player.createNode("<camera id='camera1' width='640' height='480' "
-#                    "source='v4l' pixelformat='YUYV422' "
-#                    "capturewidth='640' captureheight='480' device="+deviceFile+
-#                    " framerate='30'/>")
-#        def findCamera():
-#            node = createCameraNode("/dev/video0")
-#            if node.getDriverName() != "vivi":
-#                node = createCameraNode("/dev/video1")
-#            if node.getDriverName() != "vivi":
-#                print("Kernel camera test driver not found - skipping camera test.")
-#               ()
-#            else:
-#                Player.getRootNode().appendChild(node)
-#                node.play()
-#
-#        self.start("empty.avg",
-#                (lambda: findCamera,
-#                 lambda: self.compareImage("testCamera", False)
-#                ))
-
     def testMediaDir(self):
         def createImageNode():
             # Node is not in tree; mediadir should be root node dir.
