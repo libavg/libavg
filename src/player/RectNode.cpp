@@ -38,10 +38,8 @@ NodeDefinition RectNode::createDefinition()
 {
     return NodeDefinition("rect", Node::buildNode<RectNode>)
         .extendDefinition(FilledVectorNode::createDefinition())
-        .addArg(Arg<double>("x", 0, false, offsetof(RectNode, m_Rect.tl.x)))
-        .addArg(Arg<double>("y", 0, false, offsetof(RectNode, m_Rect.tl.y)))
-        .addArg(Arg<double>("width", 0))
-        .addArg(Arg<double>("height", 0))
+        .addArg(Arg<DPoint>("pos", DPoint(0,0), false, offsetof(RectNode, m_Rect.tl)))
+        .addArg(Arg<DPoint>("size", DPoint(0,0)))
         .addArg(Arg<double>("angle", 0.0, false, offsetof(RectNode, m_Angle)))
         ;
 }
@@ -50,40 +48,13 @@ RectNode::RectNode(const ArgList& Args, bool bFromXML)
     : FilledVectorNode(Args)
 {
     Args.setMembers(this);
-    m_Rect.setWidth(Args.getArgVal<double>("width"));
-    m_Rect.setHeight(Args.getArgVal<double>("height"));
+    m_Rect.setSize(Args.getArgVal<DPoint>("size"));
     double texCoords[] = {0, 0.25, 0.5, 0.75, 1};
     m_TexCoords = vectorFromCArray(5, texCoords);
 }
 
 RectNode::~RectNode()
 {
-}
-
-double RectNode::getX() const 
-{
-    return m_Rect.tl.x;
-}
-
-void RectNode::setX(double x) 
-{
-    double w = m_Rect.width();
-    m_Rect.tl.x = x;
-    m_Rect.setWidth(w);
-    setDrawNeeded(false);
-}
-
-double RectNode::getY() const 
-{
-    return m_Rect.tl.y;
-}
-
-void RectNode::setY(double y) 
-{
-    double h = m_Rect.height();
-    m_Rect.tl.y = y;
-    m_Rect.setHeight(h);
-    setDrawNeeded(false);
 }
 
 const DPoint& RectNode::getPos() const 
@@ -97,28 +68,6 @@ void RectNode::setPos(const DPoint& pt)
     double h = m_Rect.height();
     m_Rect.tl = pt;
     m_Rect.setWidth(w);
-    m_Rect.setHeight(h);
-    setDrawNeeded(false);
-}
-
-double RectNode::getWidth() const
-{
-    return m_Rect.width();
-}
-
-void RectNode::setWidth(double w)
-{
-    m_Rect.setWidth(w);
-    setDrawNeeded(false);
-}
-
-double RectNode::getHeight() const
-{
-    return m_Rect.height();
-}
-
-void RectNode::setHeight(double h)
-{
     m_Rect.setHeight(h);
     setDrawNeeded(false);
 }

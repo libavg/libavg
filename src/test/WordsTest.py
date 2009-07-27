@@ -320,10 +320,10 @@ class WordsTestCase(AVGTestCase):
     def testPositioning(self):
         Player.loadString("""
           <avg width="160" height="120">
-            <line x1="4" y1="20.5" x2="157" y2="20.5" color="FF0000"/>
-            <line x1="4.5" y1="20.5" x2="4.5" y2="110" color="FF0000"/>
-            <line x1="156.5" y1="20.5" x2="156.5" y2="110" color="FF0000"/>
-            <line x1="80.5" y1="20.5" x2="80.5" y2="110" color="FF0000"/>
+            <line pos1="(4, 20.5)" pos2="(157, 20.5)" color="FF0000"/>
+            <line pos1="(4.5, 20.5)" pos2="(4.5, 110)" color="FF0000"/>
+            <line pos1="(156.5, 20.5)" pos2="(156.5, 110)" color="FF0000"/>
+            <line pos1="(80.5, 20.5)" pos2="(80.5, 110)" color="FF0000"/>
             <words x="4" y="20" fontsize="12" font="Bitstream Vera Sans"
                     variant="roman" text="Norm"/>
             <words x="45" y="20" fontsize="12" font="Bitstream Vera Sans"

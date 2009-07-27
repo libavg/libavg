@@ -158,8 +158,7 @@ class VectorTestCase(AVGTestCase):
     def testRect(self):
         def addRect():
             rect = Player.createNode("rect",
-                    {"x":2, "y":2, "width":50, "height":30, "fillopacity":1, 
-                     "strokewidth":0})
+                    {"pos":(2, 2), "size":(50, 30), "fillopacity":1, "strokewidth":0})
             canvas.appendChild(rect)
             rect.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onMouseDown)
             return rect
@@ -174,8 +173,7 @@ class VectorTestCase(AVGTestCase):
             rect.angle = 1.57
         def addRect2():
             rect = Player.createNode("rect",
-                    {"x":60, "y":2, "width":50, "height":30, "fillopacity":1, 
-                     "strokewidth":2})
+                    {"pos":(60, 2), "size":(50, 30), "fillopacity":1, "strokewidth":2})
             rect.color = "FFFF00"
             canvas.insertChild(rect, 0)
         def onMouseDown(event):
@@ -206,7 +204,7 @@ class VectorTestCase(AVGTestCase):
     def testTexturedRect(self):
         def addRect():
             rect = Player.createNode("rect",
-                    {"x":20, "y":20, "width":50, "height":40, "fillopacity":1,
+                    {"pos":(20, 20), "size":(50, 40), "fillopacity":1,
                      "filltexcoord1": (1,1), "filltexcoord2": (0,0),
                      "strokewidth":20, "texhref":"rgb24-64x64.png"})
             canvas.appendChild(rect)

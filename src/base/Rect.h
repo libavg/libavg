@@ -51,6 +51,7 @@ public:
     Point<NUM> center() const;
     void setWidth(NUM width);
     void setHeight(NUM height);
+    void setSize(const Point<NUM>& size);
     bool contains(const Point<NUM>& pt) const;
     bool contains(const Rect<NUM>& rect) const;
     bool intersects(const Rect<NUM>& rect) const;
@@ -134,6 +135,13 @@ template<class NUM>
 void Rect<NUM>::setHeight(NUM height)
 {
     br.y = tl.y+height;
+}
+    
+template<class NUM>
+void Rect<NUM>::setSize(const Point<NUM>& size)
+{
+    setWidth(size.x);
+    setHeight(size.y);
 }
 
 template<class NUM>

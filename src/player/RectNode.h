@@ -37,20 +37,8 @@ class AVG_API RectNode : public FilledVectorNode
         RectNode(const ArgList& Args, bool bFromXML);
         virtual ~RectNode();
 
-        double getX() const;
-        void setX(double x);
-        
-        double getY() const;
-        void setY(double y);
-
         const DPoint& getPos() const;
         void setPos(const DPoint& pt);
-
-        double getWidth() const;
-        void setWidth(double w);
-        
-        double getHeight() const;
-        void setHeight(double h);
 
         DPoint getSize() const;
         void setSize(const DPoint& pt);

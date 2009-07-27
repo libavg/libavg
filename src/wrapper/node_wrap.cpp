@@ -356,12 +356,8 @@ void export_node()
 
     class_<RectNode, bases<FilledVectorNode>, boost::noncopyable>("RectNode", 
             no_init)
-        .add_property("x", &RectNode::getX, &RectNode::setX)
-        .add_property("y", &RectNode::getY, &RectNode::setY)
         .add_property("pos", make_function(&RectNode::getPos,
                 return_value_policy<copy_const_reference>()), &RectNode::setPos)
-        .add_property("width", &RectNode::getWidth, &RectNode::setWidth)
-        .add_property("height", &RectNode::getHeight, &RectNode::setHeight)
         .add_property("size", &RectNode::getSize, &RectNode::setSize)
         .add_property("texcoords", make_function(&RectNode::getTexCoords, 
                 return_value_policy<copy_const_reference>()), &RectNode::setTexCoords)
