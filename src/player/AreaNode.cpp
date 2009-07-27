@@ -171,18 +171,6 @@ void AreaNode::setAngle(double Angle)
     m_Angle = fmod(Angle, 2*PI);
 }
 
-void AreaNode::setPivotX(double Pivotx)
-{
-    throw Exception(AVG_ERR_UNSUPPORTED, 
-            "Support for pivotx has been removed. Use pivot instead.");
-}
-
-void AreaNode::setPivotY(double Pivoty)
-{
-    throw Exception(AVG_ERR_UNSUPPORTED, 
-            "Support for pivoty has been removed. Use pivot instead.");
-}
-
 DPoint AreaNode::getPivot() const
 {
     if (m_bHasCustomPivot) {

@@ -37,20 +37,8 @@ class AVG_API LineNode : public VectorNode
         LineNode(const ArgList& Args, bool bFromXML);
         virtual ~LineNode();
 
-        double getX1() const;
-        void setX1(double x);
-        
-        double getY1() const;
-        void setY1(double y);
-
         const DPoint& getPos1() const;
         void setPos1(const DPoint& pt);
-
-        double getX2() const;
-        void setX2(double x);
-        
-        double getY2() const;
-        void setY2(double y);
 
         const DPoint& getPos2() const;
         void setPos2(const DPoint& pt);

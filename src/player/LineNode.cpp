@@ -36,10 +36,8 @@ NodeDefinition LineNode::createDefinition()
 {
     return NodeDefinition("line", Node::buildNode<LineNode>)
         .extendDefinition(VectorNode::createDefinition())
-        .addArg(Arg<double>("x1", 0, false, offsetof(LineNode, m_P1.x)))
-        .addArg(Arg<double>("y1", 0, false, offsetof(LineNode, m_P1.y)))
-        .addArg(Arg<double>("x2", 0, false, offsetof(LineNode, m_P2.x)))
-        .addArg(Arg<double>("y2", 0, false, offsetof(LineNode, m_P2.y)))
+        .addArg(Arg<DPoint>("pos1", DPoint(0,0), false, offsetof(LineNode, m_P1)))
+        .addArg(Arg<DPoint>("pos2", DPoint(0,0), false, offsetof(LineNode, m_P2)))
         .addArg(Arg<double>("texcoord1", 0, false, offsetof(LineNode, m_TC1)))
         .addArg(Arg<double>("texcoord2", 1, false, offsetof(LineNode, m_TC2)))
         ;
@@ -55,28 +53,6 @@ LineNode::~LineNode()
 {
 }
 
-double LineNode::getX1() const 
-{
-    return m_P1.x;
-}
-
-void LineNode::setX1(double x) 
-{
-    m_P1.x = x;
-    setDrawNeeded(false);
-}
-
-double LineNode::getY1() const 
-{
-    return m_P1.y;
-}
-
-void LineNode::setY1(double y) 
-{
-    m_P1.y = y;
-    setDrawNeeded(false);
-}
-
 const DPoint& LineNode::getPos1() const 
 {
     return m_P1;
@@ -85,28 +61,6 @@ const DPoint& LineNode::getPos1() const
 void LineNode::setPos1(const DPoint& pt) 
 {
     m_P1 = pt;
-    setDrawNeeded(false);
-}
-
-double LineNode::getX2() const 
-{
-    return m_P2.x;
-}
-
-void LineNode::setX2(double x) 
-{
-    m_P2.x = x;
-    setDrawNeeded(false);
-}
-
-double LineNode::getY2() const 
-{
-    return m_P2.y;
-}
-
-void LineNode::setY2(double y) 
-{
-    m_P2.y = y;
     setDrawNeeded(false);
 }
 

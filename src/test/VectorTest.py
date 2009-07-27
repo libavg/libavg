@@ -57,23 +57,23 @@ class VectorTestCase(AVGTestCase):
             def addLine(attribs):
                 line = Player.createNode("line", attribs)
                 canvas.appendChild(line)
-            addLine({"x1":2, "y1":2.5, "x2":100, "y2":2.5})
-            addLine({"x1":2, "y1":5, "x2":100, "y2":5, "strokewidth":2})
-            addLine({"x1":2.5, "y1":20, "x2":2.5, "y2":100})
-            addLine({"x1":5, "y1":20, "x2":5, "y2":100, "strokewidth":2})
-            addLine({"x1":2, "y1":7.5, "x2":100, "y2":7.5, "color":"FF0000"})
-            addLine({"x1":2, "y1":9.5, "x2":100, "y2":9.5, "color":"00FF00"})
-            addLine({"x1":2, "y1":11.5, "x2":100, "y2":11.5, "color":"0000FF"})
+            addLine({"pos1":(2, 2.5), "pos2":(100, 2.5)})
+            addLine({"pos1":(2, 5), "pos2":(100, 5), "strokewidth":2})
+            addLine({"pos1":(2.5, 20), "pos2":(2.5, 100)})
+            addLine({"pos1":(5, 20), "pos2":(5, 100), "strokewidth":2})
+            addLine({"pos1":(2, 7.5), "pos2":(100, 7.5), "color":"FF0000"})
+            addLine({"pos1":(2, 9.5), "pos2":(100, 9.5), "color":"00FF00"})
+            addLine({"pos1":(2, 11.5), "pos2":(100, 11.5), "color":"0000FF"})
         def changeLine():
             line.color="FF0000"
             line.strokewidth=3
         def moveLine():
             line.pos1 += (0, 30)
-            line.y2 += 30
+            line.pos2 += (0, 30)
         def blendMode():
             line = canvas.getChild(6)
-            line.y1 = 7.9 
-            line.y2 = 7.9 
+            line.pos1 = (line.pos1.x, 7.9)
+            line.pos2 = (line.pos2.x, 7.9)
             line.strokewidth = 10
             line.blendmode="add"
         canvas = self.makeEmptyCanvas()
@@ -93,7 +93,7 @@ class VectorTestCase(AVGTestCase):
         def addLines():
             for i in xrange(500):
                 y = i+2.5
-                line = Player.createNode("line", {"x1":2, "y1":y, "x2":10, "y2":y})
+                line = Player.createNode("line", {"pos1":(2, y), "pos2":(10, y)})
                 canvas.appendChild(line)
         canvas = self.makeEmptyCanvas()
         self.start(None,
@@ -103,7 +103,7 @@ class VectorTestCase(AVGTestCase):
 
     def testTexturedLine(self):
         def addLine():
-            line = Player.createNode("line", {"x1":2, "y1":20, "x2":100, "y2":20,
+            line = Player.createNode("line", {"pos1":(2, 20), "pos2":(100, 20),
                     "texhref":"rgb24-64x64.png", "strokewidth":30})
             canvas.appendChild(line)
         def removeLine():
@@ -142,7 +142,7 @@ class VectorTestCase(AVGTestCase):
     def testLineOpacity(self):
         def addLine():
             line = Player.createNode("line", 
-                    {"x1":2, "y1":2.5, "x2":158, "y2":2.5, "opacity":0.5})
+                    {"pos1":(2, 2.5), "pos2":(158, 2.5), "opacity":0.5})
             canvas.appendChild(line)
         def changeCanvasOpacity():
             canvas.opacity = 0.5
