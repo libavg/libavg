@@ -44,13 +44,15 @@ NodeDefinition FilledVectorNode::createDefinition()
                 offsetof(FilledVectorNode, m_FillOpacity)))
         .addArg(Arg<string>("fillcolor", "FFFFFF", false, 
                 offsetof(FilledVectorNode, m_sFillColorName)))
+        .addArg(Arg<DPoint>("filltexcoord1", DPoint(0,0), false,
+                offsetof(FilledVectorNode, m_FillTexCoord1)))
+        .addArg(Arg<DPoint>("filltexcoord2", DPoint(1,1), false,
+                offsetof(FilledVectorNode, m_FillTexCoord2)))
         ;
 }
 
 FilledVectorNode::FilledVectorNode(const ArgList& Args)
     : VectorNode(Args),
-      m_FillTexCoord1(0,0),
-      m_FillTexCoord2(1,1),
       m_pFillShape(new Shape("", MaterialInfo(GL_REPEAT, GL_REPEAT, false)))
 {
     m_FillTexHRef = Args.getArgVal<string>("filltexhref"); 

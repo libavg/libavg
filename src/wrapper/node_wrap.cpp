@@ -154,12 +154,6 @@ void export_node()
                 "The angle that the node is rotated to in radians. 0 is\n"
                 "unchanged, 3.14 is upside-down.\n")
         .add_property("size", &AreaNode::getSize, &AreaNode::setSize)
-        .add_property("pivotx", &AreaNode::getPivotX, &AreaNode::setPivotX,
-                "x coordinate of the point that the node is rotated around.\n"
-                "Default is the center of the node.\n")
-        .add_property("pivoty", &AreaNode::getPivotY, &AreaNode::setPivotY,
-                "y coordinate of the point that the node is rotated around.\n"
-                "Default is the center of the node.\n")
         .add_property("pivot",  &AreaNode::getPivot, &AreaNode::setPivot,
                 "The position of the point that the node is rotated around.\n"
                 "Default is the center of the node.\n")

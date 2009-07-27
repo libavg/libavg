@@ -58,8 +58,7 @@ NodeDefinition AreaNode::createDefinition()
         .addArg(Arg<double>("height", 0.0, false, offsetof(AreaNode, m_UserSize.y)))
         .addArg(Arg<DPoint>("size", DPoint(0.0, 0.0)))
         .addArg(Arg<double>("angle", 0.0, false, offsetof(AreaNode, m_Angle)))
-        .addArg(Arg<double>("pivotx", -32767, false, offsetof(AreaNode, m_Pivot.x)))
-        .addArg(Arg<double>("pivoty", -32767, false, offsetof(AreaNode, m_Pivot.y)));
+        .addArg(Arg<DPoint>("pivot", DPoint(-32767, -32767), false, offsetof(AreaNode, m_Pivot)));
 }
 
 AreaNode::AreaNode()
@@ -172,28 +171,16 @@ void AreaNode::setAngle(double Angle)
     m_Angle = fmod(Angle, 2*PI);
 }
 
-double AreaNode::getPivotX() const
-{
-    return getPivot().x;
-}
-
 void AreaNode::setPivotX(double Pivotx)
 {
-    m_Pivot = getPivot();
-    m_Pivot.x = Pivotx;
-    m_bHasCustomPivot = true;
-}
-
-double AreaNode::getPivotY() const
-{
-    return getPivot().y;
+    throw Exception(AVG_ERR_UNSUPPORTED, 
+            "Support for pivotx has been removed. Use pivot instead.");
 }
 
 void AreaNode::setPivotY(double Pivoty)
 {
-    m_Pivot = getPivot();
-    m_Pivot.y = Pivoty;
-    m_bHasCustomPivot = true;
+    throw Exception(AVG_ERR_UNSUPPORTED, 
+            "Support for pivoty has been removed. Use pivot instead.");
 }
 
 DPoint AreaNode::getPivot() const

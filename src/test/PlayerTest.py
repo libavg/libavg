@@ -263,20 +263,16 @@ class PlayerTestCase(AVGTestCase):
     def testRotatePivot(self):
         def setPivot (pos):
             node.pivot = pos
-        def addPivotX (x):
-            node.pivotx += x
-        def setPivotY (y):
-            node.pivoty = y
+        def addPivot (offset):
+            node.pivot += offset
         Player.loadFile("rotate3.avg")
         node = Player.getElementByID('div1')
         self.start(None, (
             lambda: setPivot((10, 10)),
             lambda: self.compareImage("testRotatePivot1", False),
-            lambda: addPivotX(-8),
+            lambda: addPivot((-8, 0)),
             lambda: self.compareImage("testRotatePivot2", False),
-            lambda: setPivotY(1),
-            lambda: self.compareImage("testRotatePivot3", False),
-            ))
+           ))
 
     def testOutlines(self):
         Player.loadFile("rotate.avg")

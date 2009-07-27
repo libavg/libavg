@@ -206,7 +206,8 @@ class VectorTestCase(AVGTestCase):
     def testTexturedRect(self):
         def addRect():
             rect = Player.createNode("rect",
-                    {"x":20, "y":20, "width":50, "height":40, "fillopacity":1, 
+                    {"x":20, "y":20, "width":50, "height":40, "fillopacity":1,
+                     "filltexcoord1": (1,1), "filltexcoord2": (0,0),
                      "strokewidth":20, "texhref":"rgb24-64x64.png"})
             canvas.appendChild(rect)
             return rect
