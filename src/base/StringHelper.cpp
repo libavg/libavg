@@ -29,34 +29,26 @@ using namespace std;
 
 namespace avg {
 
-int stringToInt(const std::string& s)
+bool isWhitespace(const string& s)
 {
-    char * errStr;
-    string sCropped = removeStartEndSpaces(s);
-    int ret = strtol(sCropped.c_str(), &errStr, 10);
-    if (sCropped != "" && *errStr == 0) {
-        return ret;
-    } else {
-        throw (Exception(AVG_ERR_TYPE, string("Could not convert '")+sCropped
-                + "' to int."));
-    }
+    return s.find_first_not_of(" \n\r\t") == s.npos;
 }
 
-double stringToDouble(const std::string& s)
+int stringToInt(const string& s)
 {
-    char * errStr;
-    string sCropped = removeStartEndSpaces(s);
-    double ret = strtod(sCropped.c_str(), &errStr);
-    if (sCropped != "" && *errStr == 0) {
-        return ret;
-    } else {
-        throw (Exception(AVG_ERR_TYPE, string("Could not convert '")+s
-                +"' to floating point."));
-    }
-    
+    int i;
+    fromString(s, i);
+    return i;
 }
 
-bool stringToBool(const std::string& s)
+double stringToDouble(const string& s)
+{
+    double d;
+    fromString(s, d);
+    return d;
+}
+
+bool stringToBool(const string& s)
 {
     // avg usually wants xml attributes in lowercase, but python only
     // sees 'True' as true, so we'll accept that too. Also, python 2.3
@@ -70,7 +62,7 @@ bool stringToBool(const std::string& s)
     throw (Exception(AVG_ERR_TYPE, string("Could not convert ")+s+" to bool."));
 }
 
-std::string removeStartEndSpaces(const std::string& s)
+std::string removeStartEndSpaces(const string& s)
 {
     string sResult = s;
     while (sResult[0] == ' ' || sResult[0] == '\n' || sResult[0] == '\r' 

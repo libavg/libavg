@@ -27,8 +27,16 @@
 
 #include <string>
 #include <sstream>
+#include <typeinfo>
+#include <iostream>
+
+#ifdef __GNUC__
+#include <cxxabi.h>
+#endif
 
 namespace avg {
+
+bool isWhitespace(const std::string& s);
 
 int stringToInt(const std::string& s);
 double stringToDouble(const std::string& s);
@@ -43,9 +51,33 @@ bool equalIgnoreCase(const std::string& s1, const std::string& s2);
 template<class T>
 std::string toString(const T& i)
 {
-    std::stringstream ss;
-    ss << i;
-    return ss.str();
+    std::stringstream stream;
+    stream << i;
+    return stream.str();
+}
+
+template<class T>
+void fromString(const std::string& s, T& result)
+{
+    std::stringstream stream(s);
+    bool bOk = (stream >> result) != 0;
+    if (bOk) {
+        std::string sLeftover;
+        stream >> sLeftover;
+        bOk = isWhitespace(sLeftover);
+    }
+    if (!bOk) {
+        std::string sTypeName = typeid(T).name();
+#ifdef __GNUC__
+        int status;
+        char* const pClearName = abi::__cxa_demangle (sTypeName.c_str(), 0, 0, &status);
+        if (status == 0) {
+            sTypeName = pClearName;
+        }
+#endif
+        throw (Exception(AVG_ERR_TYPE, std::string("Could not convert '")+s
+                + "' to "+sTypeName+"."));
+    }
 }
 
 }
