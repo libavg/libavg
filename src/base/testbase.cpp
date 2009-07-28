@@ -407,6 +407,13 @@ public:
             }
         }
         TEST(bExceptionThrown);
+        TEST(stringToDPoint(" ( 3.4 , 2.1 ) ")== DPoint(3.4, 2.1));
+        vector<double> v;
+        fromString("(1,2,3,4,5)", v);
+        TEST(v.size() == 5 && v[0] == 1 && v[4] == 5);
+        v.clear();
+        fromString("()", v);
+        TEST(v.size() == 0);
     }
 };
 

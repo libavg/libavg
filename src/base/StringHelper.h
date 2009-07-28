@@ -52,6 +52,39 @@ std::istream& operator>>(std::istream& is, Point<NUM>& p)
     return is;
 }
 
+template<class T>
+std::istream& operator >>(std::istream& is, std::vector<T>& v)
+{
+    skipToken(is, '(');
+    skipWhitespace(is);
+    int c = is.peek();
+    if (c == ')') {
+        is.ignore();
+        return is;
+    }
+    bool bDone = false;
+    do {
+        T elem;
+        is >> elem;
+        v.push_back(elem);
+        skipWhitespace(is);
+        int c = is.peek();
+        switch(c) {
+            case ',':
+                is.ignore();
+                break;
+            case ')':
+                bDone = true;
+                is.ignore();
+                break;
+            default:
+                is.setstate(std::ios::failbit);
+                bDone = true;
+        }
+    } while (!bDone);
+    return is;
+}
+
 int stringToInt(const std::string& s);
 double stringToDouble(const std::string& s);
 bool stringToBool(const std::string& s);
