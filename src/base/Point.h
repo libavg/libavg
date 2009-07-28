@@ -25,7 +25,6 @@
 #include "../api.h"
 #include "MathHelper.h"
 #include "ObjectCounter.h"
-#include "StringHelper.h"
 
 #include <ostream>
 #include <vector>
@@ -54,7 +53,6 @@ public:
     Point(NUM X, NUM Y);
     Point(const Point<NUM>& p);
     Point(const std::vector<NUM>& v);
-    Point(const std::string& s);
     ~Point();
 
     Point<NUM> getNormalized() const;

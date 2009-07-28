@@ -34,6 +34,34 @@ bool isWhitespace(const string& s)
     return s.find_first_not_of(" \n\r\t") == s.npos;
 }
 
+void skipWhitespace(std::istream& is)
+{
+    string sWhitespace(" \n\r\t");
+    bool bWhitespace;
+    do {
+        int i = is.peek();
+        if (i == EOF) {
+            bWhitespace = false;
+        } else {
+            bWhitespace = (sWhitespace.find(char(i)) != sWhitespace.npos);
+        }
+        if (bWhitespace) {
+            is.ignore();
+        }
+    } while (bWhitespace);
+}
+
+void skipToken(std::istream& is, char token)
+{
+    skipWhitespace(is);
+    int i = is.peek();
+    if (i == token) {
+        is.ignore();
+    } else {
+        is.setstate(ios::failbit);
+    }
+}
+
 int stringToInt(const string& s)
 {
     int i;
@@ -60,6 +88,13 @@ bool stringToBool(const string& s)
         return false;
     }
     throw (Exception(AVG_ERR_TYPE, string("Could not convert ")+s+" to bool."));
+}
+
+DPoint stringToDPoint(const std::string& s)
+{
+    DPoint pt;
+    fromString(s, pt);
+    return pt;
 }
 
 std::string removeStartEndSpaces(const string& s)

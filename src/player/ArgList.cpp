@@ -27,6 +27,7 @@
 
 #include "../base/Logger.h"
 #include "../base/Exception.h"
+#include "../base/StringHelper.h"
 
 #include <sstream>
 
@@ -138,7 +139,8 @@ void setArgValue(Arg<T>* pArg, const std::string & sName, const boost::python::o
 {
     boost::python::extract<T> valProxy(Value);
     if (!valProxy.check()) {
-        throw Exception(AVG_ERR_INVALID_ARGS, "Type error in argument "+sName+": "+typeid(T).name()+" expected.");
+        throw Exception(AVG_ERR_INVALID_ARGS, "Type error in argument "+sName+": "
+                +typeid(T).name()+" expected.");
     }
     pArg->setValue(valProxy());
 }
@@ -182,31 +184,15 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
     if (pStringArg) {
         pStringArg->setValue(sValue);
     } else if (pIntArg) {
-        char * errStr;
-        const char * valStr = sValue.c_str();
-        int ret = strtol(valStr, &errStr, 10);
-        if (ret == 0 && errStr == valStr) {
-            throw Exception(AVG_ERR_NO_ARG, 
-                    string("Error in conversion of '")+sValue+"' to int");
-        }
-        pIntArg->setValue(ret);
-    } else if (pDoubleArg || pFloatArg) {
-        char * errStr;
-        const char * valStr = sValue.c_str();
-        double ret = strtod(valStr, &errStr);
-        if (ret == 0 && errStr == valStr) {
-            throw Exception(AVG_ERR_NO_ARG, 
-                    string("Error in conversion of '")+sValue+"' to double");
-        }
-        if (pDoubleArg) {
-            pDoubleArg->setValue(ret);
-        } else {
-            pFloatArg->setValue((float)ret);
-        }
+        pIntArg->setValue(stringToInt(sValue));
+    } else if (pDoubleArg) {
+        pDoubleArg->setValue(stringToDouble(sValue));
+    } else if (pFloatArg) {
+        pFloatArg->setValue(float(stringToDouble(sValue)));
     } else if (pBoolArg) {
-        pBoolArg->setValue(sValue == "True" || sValue == "true" || sValue == "1");
+        pBoolArg->setValue(stringToBool(sValue));
     } else if (pDPointArg) {
-        pDPointArg->setValue(DPoint(sValue));
+        pDPointArg->setValue(stringToDPoint(sValue));
     } else {
         assert(false);
     }   

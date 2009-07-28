@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "Exception.h"
+#include "Point.h"
 
 #include <string>
 #include <sstream>
@@ -37,10 +38,24 @@
 namespace avg {
 
 bool isWhitespace(const std::string& s);
+void skipWhitespace(std::istream& is);
+void skipToken(std::istream& is, char token);
+
+template<class NUM>
+std::istream& operator>>(std::istream& is, Point<NUM>& p)
+{
+    skipToken(is, '(');
+    is >> p.x;
+    skipToken(is, ',');
+    is >> p.y;
+    skipToken(is, ')');
+    return is;
+}
 
 int stringToInt(const std::string& s);
 double stringToDouble(const std::string& s);
 bool stringToBool(const std::string& s);
+DPoint stringToDPoint(const std::string& s);
 
 std::string removeStartEndSpaces(const std::string& s);
 
