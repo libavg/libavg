@@ -460,7 +460,7 @@ void Words::drawString()
         pango_layout_set_alignment(m_pLayout, m_Alignment);
         pango_layout_set_justify(m_pLayout, m_bJustify);
         if (getUserSize().x != 0) {
-            pango_layout_set_width(m_pLayout, getUserSize().x * PANGO_SCALE);
+            pango_layout_set_width(m_pLayout, int(getUserSize().x * PANGO_SCALE));
         }
         pango_layout_set_indent(m_pLayout, m_Indent * PANGO_SCALE);
         if (m_Indent < 0) {
@@ -494,7 +494,7 @@ void Words::drawString()
             m_StringExtents.y = 1;
         }
         if (m_StringExtents.x > getUserSize().x && getUserSize().x != 0) {
-            m_StringExtents.x = getUserSize().x;
+            m_StringExtents.x = int(getUserSize().x);
         }
 //        cerr << "libavg Extents: " << m_StringExtents << endl;
         if (getState() == NS_CANRENDER) {
