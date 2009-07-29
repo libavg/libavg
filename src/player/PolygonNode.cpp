@@ -37,9 +37,14 @@ namespace avg {
 
 NodeDefinition PolygonNode::createDefinition()
 {
+    vector<DPoint> v;
+    vector<double> vd;
     return NodeDefinition("polygon", Node::buildNode<PolygonNode>)
         .extendDefinition(FilledVectorNode::createDefinition())
         .addArg(Arg<string>("linejoin", "bevel"))
+        .addArg(Arg<vector<DPoint> >("pos", v, false, offsetof(PolygonNode, m_Pts)))
+        .addArg(Arg<vector<double> >("texcoords", vd, false,
+                offsetof(PolygonNode, m_TexCoords)))
         ;
 }
 
@@ -47,7 +52,12 @@ PolygonNode::PolygonNode(const ArgList& Args, bool bFromXML)
     : FilledVectorNode(Args)
 {
     Args.setMembers(this);
+    if (m_TexCoords.size() > m_Pts.size()+1) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE, 
+                "Too many texture coordinates in polygon"));
+    }
     setLineJoin(Args.getArgVal<string>("linejoin"));
+    calcPolyLineCumulDist(m_CumulDist, m_Pts, true);
 }
 
 PolygonNode::~PolygonNode()

@@ -41,14 +41,10 @@ NodeDefinition CurveNode::createDefinition()
 {
     return NodeDefinition("curve", Node::buildNode<CurveNode>)
         .extendDefinition(VectorNode::createDefinition())
-        .addArg(Arg<double>("x1", 0, true, offsetof(CurveNode, m_P1.x)))
-        .addArg(Arg<double>("y1", 0, true, offsetof(CurveNode, m_P1.y)))
-        .addArg(Arg<double>("x2", 0, true, offsetof(CurveNode, m_P2.x)))
-        .addArg(Arg<double>("y2", 0, true, offsetof(CurveNode, m_P2.y)))
-        .addArg(Arg<double>("x3", 0, true, offsetof(CurveNode, m_P3.x)))
-        .addArg(Arg<double>("y3", 0, true, offsetof(CurveNode, m_P3.y)))
-        .addArg(Arg<double>("x4", 0, true, offsetof(CurveNode, m_P4.x)))
-        .addArg(Arg<double>("y4", 0, true, offsetof(CurveNode, m_P4.y)))
+        .addArg(Arg<DPoint>("pos1", DPoint(0,0), false, offsetof(CurveNode, m_P1)))
+        .addArg(Arg<DPoint>("pos2", DPoint(0,0), false, offsetof(CurveNode, m_P2)))
+        .addArg(Arg<DPoint>("pos3", DPoint(0,0), false, offsetof(CurveNode, m_P3)))
+        .addArg(Arg<DPoint>("pos4", DPoint(0,0), false, offsetof(CurveNode, m_P4)))
         .addArg(Arg<double>("texcoord1", 0, true, offsetof(CurveNode, m_TC1)))
         .addArg(Arg<double>("texcoord2", 1, true, offsetof(CurveNode, m_TC2)));
 }
@@ -63,28 +59,6 @@ CurveNode::~CurveNode()
 {
 }
 
-double CurveNode::getX1() const 
-{
-    return m_P1.x;
-}
-
-void CurveNode::setX1(double x) 
-{
-    m_P1.x = x;
-    setDrawNeeded(true);
-}
-
-double CurveNode::getY1() const 
-{
-    return m_P1.y;
-}
-
-void CurveNode::setY1(double y) 
-{
-    m_P1.y = y;
-    setDrawNeeded(true);
-}
-
 const DPoint& CurveNode::getPos1() const 
 {
     return m_P1;
@@ -93,28 +67,6 @@ const DPoint& CurveNode::getPos1() const
 void CurveNode::setPos1(const DPoint& pt) 
 {
     m_P1 = pt;
-    setDrawNeeded(true);
-}
-
-double CurveNode::getX2() const 
-{
-    return m_P2.x;
-}
-
-void CurveNode::setX2(double x) 
-{
-    m_P2.x = x;
-    setDrawNeeded(true);
-}
-
-double CurveNode::getY2() const 
-{
-    return m_P2.y;
-}
-
-void CurveNode::setY2(double y) 
-{
-    m_P2.y = y;
     setDrawNeeded(true);
 }
 
@@ -129,28 +81,6 @@ void CurveNode::setPos2(const DPoint& pt)
     setDrawNeeded(true);
 }
 
-double CurveNode::getX3() const 
-{
-    return m_P3.x;
-}
-
-void CurveNode::setX3(double x) 
-{
-    m_P3.x = x;
-    setDrawNeeded(true);
-}
-
-double CurveNode::getY3() const 
-{
-    return m_P3.y;
-}
-
-void CurveNode::setY3(double y) 
-{
-    m_P3.y = y;
-    setDrawNeeded(true);
-}
-
 const DPoint& CurveNode::getPos3() const 
 {
     return m_P3;
@@ -159,28 +89,6 @@ const DPoint& CurveNode::getPos3() const
 void CurveNode::setPos3(const DPoint& pt) 
 {
     m_P3 = pt;
-    setDrawNeeded(true);
-}
-
-double CurveNode::getX4() const 
-{
-    return m_P4.x;
-}
-
-void CurveNode::setX4(double x) 
-{
-    m_P4.x = x;
-    setDrawNeeded(true);
-}
-
-double CurveNode::getY4() const 
-{
-    return m_P4.y;
-}
-
-void CurveNode::setY4(double y) 
-{
-    m_P4.y = y;
     setDrawNeeded(true);
 }
 

@@ -30,6 +30,7 @@
 #include "ArgBase.h"
 
 #include <string>
+#include <vector>
 
 namespace avg {
 
@@ -104,6 +105,8 @@ extern template class Arg<float>;
 extern template class Arg<double>;
 extern template class Arg<std::string>;
 extern template class Arg<DPoint>;
+extern template class Arg<std::vector<double> >;
+extern template class Arg<std::vector<DPoint> >;
 #endif
 #endif
 

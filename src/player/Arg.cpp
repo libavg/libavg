@@ -24,6 +24,8 @@
 #include "Arg.h"
 #include <string>
 
+using namespace std;
+
 namespace avg {
 // Explicit template instantiation. See Arg.h for comments.
 #ifndef _WIN32
@@ -31,7 +33,9 @@ template class Arg<int>;
 template class Arg<bool>;
 template class Arg<double>;
 template class Arg<float>;
-template class Arg<std::string>;
+template class Arg<string>;
 template class Arg<DPoint>;
+template class Arg<vector<double> >;
+template class Arg<vector<DPoint> >;
 #endif
 }

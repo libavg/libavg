@@ -37,38 +37,14 @@ class AVG_API CurveNode : public VectorNode
         CurveNode(const ArgList& Args, bool bFromXML);
         virtual ~CurveNode();
 
-        double getX1() const;
-        void setX1(double x);
-        
-        double getY1() const;
-        void setY1(double y);
-
         const DPoint& getPos1() const;
         void setPos1(const DPoint& pt);
-
-        double getX2() const;
-        void setX2(double x);
-        
-        double getY2() const;
-        void setY2(double y);
 
         const DPoint& getPos2() const;
         void setPos2(const DPoint& pt);
 
-        double getX3() const;
-        void setX3(double x);
-        
-        double getY3() const;
-        void setY3(double y);
-
         const DPoint& getPos3() const;
         void setPos3(const DPoint& pt);
-
-        double getX4() const;
-        void setX4(double x);
-        
-        double getY4() const;
-        void setY4(double y);
 
         const DPoint& getPos4() const;
         void setPos4(const DPoint& pt);

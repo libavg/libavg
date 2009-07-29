@@ -369,20 +369,12 @@ void export_node()
     
     class_<CurveNode, bases<VectorNode>, boost::noncopyable>("CurveNode", 
             no_init)
-        .add_property("x1", &CurveNode::getX1, &CurveNode::setX1)
-        .add_property("y1", &CurveNode::getY1, &CurveNode::setY1)
         .add_property("pos1", make_function(&CurveNode::getPos1,
                return_value_policy<copy_const_reference>()), &CurveNode::setPos1)
-        .add_property("x2", &CurveNode::getX2, &CurveNode::setX2)
-        .add_property("y2", &CurveNode::getY2, &CurveNode::setY2)
         .add_property("pos2", make_function(&CurveNode::getPos2,
                return_value_policy<copy_const_reference>()), &CurveNode::setPos2)
-        .add_property("x3", &CurveNode::getX3, &CurveNode::setX3)
-        .add_property("y3", &CurveNode::getY3, &CurveNode::setY3)
         .add_property("pos3", make_function(&CurveNode::getPos3,
                return_value_policy<copy_const_reference>()), &CurveNode::setPos3)
-        .add_property("x4", &CurveNode::getX4, &CurveNode::setX4)
-        .add_property("y4", &CurveNode::getY4, &CurveNode::setY4)
         .add_property("pos4", make_function(&CurveNode::getPos4,
                return_value_policy<copy_const_reference>()), &CurveNode::setPos4)
         .add_property("texcoord1", &CurveNode::getTexCoord1, &CurveNode::setTexCoord1)

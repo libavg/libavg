@@ -35,9 +35,14 @@ namespace avg {
 
 NodeDefinition PolyLineNode::createDefinition()
 {
+    vector<DPoint> v;
+    vector<double> vd;
     return NodeDefinition("polyline", Node::buildNode<PolyLineNode>)
         .extendDefinition(VectorNode::createDefinition())
         .addArg(Arg<string>("linejoin", "bevel"))
+        .addArg(Arg<vector<DPoint> >("pos", v, false, offsetof(PolyLineNode, m_Pts)))
+        .addArg(Arg<vector<double> >("texcoords", vd, false,
+                offsetof(PolyLineNode, m_TexCoords)))
         ;
 }
 
@@ -45,7 +50,12 @@ PolyLineNode::PolyLineNode(const ArgList& Args, bool bFromXML)
     : VectorNode(Args)
 {
     Args.setMembers(this);
+    if (m_TexCoords.size() > m_Pts.size()) {
+        throw(Exception(AVG_ERR_OUT_OF_RANGE, 
+                "Too many texture coordinates in polyline"));
+    }
     setLineJoin(Args.getArgVal<string>("linejoin"));
+    calcPolyLineCumulDist(m_CumulDist, m_Pts, false);
 }
 
 PolyLineNode::~PolyLineNode()

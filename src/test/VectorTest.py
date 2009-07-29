@@ -256,8 +256,8 @@ class VectorTestCase(AVGTestCase):
     def testCurve(self):
         def addCurve():
             curve = Player.createNode("curve",
-                {"x1":10.5, "y1":10, "x2":10.5, "y2":80, 
-                 "x3":80.5, "y3":80, "x4":80.5, "y4":10})
+                {"pos1":(10.5, 10), "pos2":(10.5, 80), "pos3":(80.5, 80), 
+                 "pos4":(80.5, 10)})
             canvas.appendChild(curve)
             return curve
         def changeCurve():
@@ -268,8 +268,8 @@ class VectorTestCase(AVGTestCase):
             curve.pos3 = (80.5, 120)
         def addCurve2():
             curve = Player.createNode("curve",
-                {"x1":30.5, "y1":10, "x2":30.5, "y2":120, 
-                 "x3":100.5, "y3":120, "x4":100.5, "y4":10})
+                {"pos1":(30.5, 10), "pos2":(30.5, 120), "pos3":(100.5, 120),
+                 "pos4":(100.5, 10)})
             curve.color="FF0000"
             canvas.appendChild(curve)
         canvas = self.makeEmptyCanvas()
@@ -287,9 +287,8 @@ class VectorTestCase(AVGTestCase):
     def testTexturedCurve(self):
         def addCurve():
             curve = Player.createNode("curve",
-                {"x1":10.5, "y1":10, "x2":10.5, "y2":80, 
-                 "x3":80.5, "y3":80, "x4":80.5, "y4":10, 
-                 "strokewidth":20, "texhref":"rgb24-64x64.png"})
+                {"pos1":(10.5, 10), "pos2":(10.5, 80), "pos3":(80.5, 80), 
+                 "pos4":(80.5, 10), "strokewidth":20, "texhref":"rgb24-64x64.png"})
             canvas.appendChild(curve)
             return curve
         def setTexCoords():
@@ -305,8 +304,8 @@ class VectorTestCase(AVGTestCase):
 
     def testPolyLine(self):
         def addPolyLine():
-            polyline = Player.createNode("polyline", {"strokewidth":2, "color":"FF00FF"})
-            polyline.pos = [(10,10), (50,10), (90,50), (90, 90)]
+            polyline = Player.createNode("polyline", {"strokewidth":2, "color":"FF00FF",
+                    "pos": [(10,10), (50,10), (90,50), (90, 90)]})
             canvas.appendChild(polyline)
             return polyline
         def changePolyLine():
@@ -318,8 +317,9 @@ class VectorTestCase(AVGTestCase):
         def miterPolyLine():
             polyline.linejoin = "miter"
         def addPolyLine2():
-            polyline2 = Player.createNode("polyline", {"strokewidth":2, "color":"FF00FF"})
-            polyline2.pos = [(110,10), (100,50), (110,70)]
+            polyline2 = Player.createNode(
+                """<polyline strokewidth="2" color="FF00FF"
+                        pos="((110,10), (100,50), (110,70))" />""")
             canvas.insertChild(polyline2,0)
         def testEmptyPolyLine():
             polyline2 = canvas.getChild(0)
@@ -354,8 +354,9 @@ class VectorTestCase(AVGTestCase):
     def testTexturedPolyLine(self):
         def texturePolyLine():
             polyline = Player.createNode("polyline", 
-                    {"strokewidth":20, "color":"FF00FF", "texhref":"rgb24-64x64.png"})
-            polyline.pos = [(10,10), (50,10), (90,50), (90, 90)]
+                    {"strokewidth":20, "color":"FF00FF", "texhref":"rgb24-64x64.png",
+                     "pos":((10,10), (50,10), (90,50), (90, 90)),
+                     "texcoords":(0, 0.3, 0.7, 1) })
             canvas.appendChild(polyline)
             return polyline
         def miter():
@@ -379,8 +380,8 @@ class VectorTestCase(AVGTestCase):
 
     def testPolygon(self):
         def addPolygon():
-            polygon = Player.createNode("polygon", {"strokewidth":2, "color":"FF00FF"})
-            polygon.pos = [(10,10), (50,10), (90,50), (90, 90)]
+            polygon = Player.createNode("polygon", {"strokewidth":2, "color":"FF00FF",
+                    "pos": ((10,10), (50,10), (90,50), (90, 90))})
             polygon.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onMouseDown)
             canvas.appendChild(polygon)
             return polygon
@@ -404,8 +405,8 @@ class VectorTestCase(AVGTestCase):
             pos.append((40, 40))
             polygon.pos = pos
         def addPolygon2():
-            polygon = Player.createNode("polygon", {"strokewidth":3, "color":"FF00FF"})
-            polygon.pos = [(100.5,10.5), (100.5,30.5), (120.5,30.5), (120.5, 10.5)]
+            polygon = Player.createNode("polygon", {"strokewidth":3, "color":"FF00FF",
+                    "pos": ((100.5,10.5), (100.5,30.5), (120.5,30.5), (120.5, 10.5))})
             canvas.insertChild(polygon, 0)
         def miterPolygons():
             polygon.linejoin = "miter"
@@ -440,8 +441,8 @@ class VectorTestCase(AVGTestCase):
     def testTexturedPolygon(self):
         def texturePolygon():
             polygon = Player.createNode("polygon", 
-                    {"strokewidth":20, "color":"FF00FF", "texhref":"rgb24-64x64.png"})
-            polygon.pos = [(10,10), (50,10), (90,50), (90, 90)]
+                    {"strokewidth":20, "color":"FF00FF", "texhref":"rgb24-64x64.png",
+                     "pos":((10,10), (50,10), (90,50), (90, 90))})
             canvas.appendChild(polygon)
             return polygon
         def miter():

@@ -155,6 +155,8 @@ void ArgList::setArgValue(const std::string & sName, const boost::python::object
     Arg<bool>* pBoolArg = dynamic_cast<Arg<bool>* >(&*pArg);
     Arg<DPoint>* pDPointArg = dynamic_cast<Arg<DPoint>* >(&*pArg);
     Arg<vector<double> >* pDVectorArg = dynamic_cast<Arg<vector<double> >* >(&*pArg);
+    Arg<vector<DPoint> >* pDPointVectorArg = 
+            dynamic_cast<Arg<vector<DPoint> >* >(&*pArg);
     if(pStringArg) {
         avg::setArgValue(pStringArg, sName, Value);
     } else if (pIntArg) {
@@ -169,6 +171,8 @@ void ArgList::setArgValue(const std::string & sName, const boost::python::object
         avg::setArgValue(pDPointArg, sName, Value);
     } else if (pDVectorArg) {
         avg::setArgValue(pDVectorArg, sName, Value);
+    } else if (pDPointVectorArg) {
+        avg::setArgValue(pDPointVectorArg, sName, Value);
     } else {
         assert(false);
     }
@@ -184,6 +188,8 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
     Arg<bool>* pBoolArg = dynamic_cast<Arg<bool>* >(&*pArg);
     Arg<DPoint>* pDPointArg = dynamic_cast<Arg<DPoint>* >(&*pArg);
     Arg<vector<double> >* pDVectorArg = dynamic_cast<Arg<vector<double> >* >(&*pArg);
+    Arg<vector<DPoint> >* pDPointVectorArg = 
+            dynamic_cast<Arg<vector<DPoint> >* >(&*pArg);
 
     if (pStringArg) {
         pStringArg->setValue(sValue);
@@ -201,6 +207,10 @@ void ArgList::setArgValue(const std::string & sName, const std::string & sValue)
         vector<double> v;
         fromString(sValue, v);
         pDVectorArg->setValue(v);
+    } else if (pDPointVectorArg) {
+        vector<DPoint> v;
+        fromString(sValue, v);
+        pDPointVectorArg->setValue(v);
     } else {
         assert(false);
     }   
