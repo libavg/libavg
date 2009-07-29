@@ -350,10 +350,10 @@ class TextArea:
         self.__blurOpacity = blurOpacity
         
         if multiline:
-            self.__textNode.parawidth = int(self.__parent.width) - self.__border * 2
+            self.__textNode.width = int(self.__parent.width) - self.__border * 2
             self.__textNode.wrapmode = 'wordchar'
         else:
-            self.__textNode.parawidth = -1
+            self.__textNode.width = 0 
             
         self.__textNode.x = self.__border
         self.__textNode.y = self.__border
