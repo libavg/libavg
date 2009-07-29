@@ -203,44 +203,54 @@ class VectorTestCase(AVGTestCase):
 
     def testTexturedRect(self):
         def addRect():
-            rect = Player.createNode("rect",
+            self.rect = Player.createNode("rect",
                     {"pos":(20, 20), "size":(50, 40), "fillopacity":1,
                      "filltexcoord1": (1,1), "filltexcoord2": (0,0),
+                     "texcoords": (1, 0.75, 0.5, 0.25, 0),
                      "strokewidth":20, "texhref":"rgb24-64x64.png"})
-            canvas.appendChild(rect)
-            return rect
+            canvas.appendChild(self.rect)
+            return self.rect
+        def newRect():
+            self.rect.unlink()
+            self.rect = Player.createNode(
+                """<rect pos="(20, 20)" size="(50, 40)" fillopacity="1"                                           filltexcoord1="(1,1)" filltexcoord2="(0,0)"
+                        texcoords="(0, 0.25, 0.5, 0.75, 1)"
+                        strokewidth="20" texhref="rgb24-64x64.png"/>""")
+            canvas.appendChild(self.rect)
         def setTexCoords():
-            rect.texcoords = [-1, 0, 1, 2, 3]
+            self.rect.texcoords = [-1, 0, 1, 2, 3]
         def setFillTex():
-            rect.strokewidth = 2
-            rect.texhref = ""
-            rect.filltexhref="rgb24alpha-64x64.png"
+            self.rect.strokewidth = 2
+            self.rect.texhref = ""
+            self.rect.filltexhref="rgb24alpha-64x64.png"
         def setFillTexCoords():
-            rect.filltexcoord1 = (0.5, 0.5)
-            rect.filltexcoord2 = (1.5, 1.5)
+            self.rect.filltexcoord1 = (0.5, 0.5)
+            self.rect.filltexcoord2 = (1.5, 1.5)
         def setFillBitmap():
             bmp = avg.Bitmap("rgb24-64x64.png")
-            rect.setFillBitmap(bmp)
+            self.rect.setFillBitmap(bmp)
         def clearFillBitmap():
             bmp = avg.Bitmap("rgb24-64x64.png")
-            rect.fillcolor = "FF0000"
-            rect.setFillBitmap(None)
+            self.rect.fillcolor = "FF0000"
+            self.rect.setFillBitmap(None)
         canvas = self.makeEmptyCanvas()
-        rect = addRect()
+        addRect()
         self.start(None,
                 (lambda: self.compareImage("testTexturedRect1", False),
-                 setTexCoords,
+                 newRect,
                  lambda: self.compareImage("testTexturedRect2", False),
-                 setFillTex,
+                 setTexCoords,
                  lambda: self.compareImage("testTexturedRect3", False),
-                 setFillTexCoords,
+                 setFillTex,
                  lambda: self.compareImage("testTexturedRect4", False),
-                 setFillBitmap,
+                 setFillTexCoords,
                  lambda: self.compareImage("testTexturedRect5", False),
-                 clearFillBitmap,
+                 setFillBitmap,
                  lambda: self.compareImage("testTexturedRect6", False),
+                 clearFillBitmap,
+                 lambda: self.compareImage("testTexturedRect7", False),
                  setFillBitmap,
-                 lambda: self.compareImage("testTexturedRect5", False),
+                 lambda: self.compareImage("testTexturedRect6", False),
                 ))
 
     def testCurve(self):

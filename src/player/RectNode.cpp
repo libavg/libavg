@@ -36,11 +36,14 @@ namespace avg {
 
 NodeDefinition RectNode::createDefinition()
 {
+    double texCoords[] = {0, 0.25, 0.5, 0.75, 1};
     return NodeDefinition("rect", Node::buildNode<RectNode>)
         .extendDefinition(FilledVectorNode::createDefinition())
         .addArg(Arg<DPoint>("pos", DPoint(0,0), false, offsetof(RectNode, m_Rect.tl)))
         .addArg(Arg<DPoint>("size", DPoint(0,0)))
         .addArg(Arg<double>("angle", 0.0, false, offsetof(RectNode, m_Angle)))
+        .addArg(Arg<vector<double> >("texcoords", vectorFromCArray(5, texCoords), false,
+                offsetof(RectNode, m_TexCoords)))
         ;
 }
 
@@ -49,8 +52,6 @@ RectNode::RectNode(const ArgList& Args, bool bFromXML)
 {
     Args.setMembers(this);
     m_Rect.setSize(Args.getArgVal<DPoint>("size"));
-    double texCoords[] = {0, 0.25, 0.5, 0.75, 1};
-    m_TexCoords = vectorFromCArray(5, texCoords);
 }
 
 RectNode::~RectNode()
