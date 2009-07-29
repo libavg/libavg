@@ -477,7 +477,7 @@ class VectorTestCase(AVGTestCase):
 
     def testCircle(self):
         def addCircle():
-            circle = Player.createNode("circle", {"x":30, "y":30, "r":20})
+            circle = Player.createNode("circle", {"pos":(30, 30), "r":20})
             circle.setEventHandler(avg.CURSORDOWN, avg.MOUSE, onMouseDown)
             canvas.appendChild(circle)
             return circle

@@ -36,8 +36,7 @@ NodeDefinition CircleNode::createDefinition()
 {
     return NodeDefinition("circle", Node::buildNode<CircleNode>)
         .extendDefinition(FilledVectorNode::createDefinition())
-        .addArg(Arg<double>("x", 0, false, offsetof(CircleNode, m_Pos.x)))
-        .addArg(Arg<double>("y", 0, false, offsetof(CircleNode, m_Pos.y)))
+        .addArg(Arg<DPoint>("pos", DPoint(0,0), false, offsetof(CircleNode, m_Pos)))
         .addArg(Arg<double>("r", 1, false, offsetof(CircleNode, m_Radius)))
         .addArg(Arg<double>("texcoord1", 0, false, offsetof(CircleNode, m_TC1)))
         .addArg(Arg<double>("texcoord2", 1, false, offsetof(CircleNode, m_TC2)))
@@ -52,28 +51,6 @@ CircleNode::CircleNode(const ArgList& Args, bool bFromXML)
 
 CircleNode::~CircleNode()
 {
-}
-
-double CircleNode::getX() const 
-{
-    return m_Pos.x;
-}
-
-void CircleNode::setX(double x) 
-{
-    m_Pos.x = x;
-    setDrawNeeded(false);
-}
-
-double CircleNode::getY() const 
-{
-    return m_Pos.y;
-}
-
-void CircleNode::setY(double y) 
-{
-    m_Pos.y = y;
-    setDrawNeeded(false);
 }
 
 const DPoint& CircleNode::getPos() const 

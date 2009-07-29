@@ -400,8 +400,6 @@ void export_node()
 
     class_<CircleNode, bases<FilledVectorNode>, boost::noncopyable>("CircleNode", 
             no_init)
-        .add_property("x", &CircleNode::getX, &CircleNode::setX)
-        .add_property("y", &CircleNode::getY, &CircleNode::setY)
         .add_property("pos", make_function(&CircleNode::getPos,
                return_value_policy<copy_const_reference>()), &CircleNode::setPos)
         .add_property("r", &CircleNode::getR, &CircleNode::setR)
