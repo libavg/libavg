@@ -92,7 +92,11 @@ class WordsTestCase(AVGTestCase):
         Player.loadString("""
           <?xml version="1.0"?>
           <avg width="160" height="120">
-              <words id="para" x="1" y="1" fontsize="12" width="70" font="Bitstream Vera Sans"
+              <line pos1="(0.5, 0)" pos2="(0.5, 50)" color="FF0000"/>
+              <line pos1="(119.5, 0.5)" pos2="(119.5, 50)" color="FF0000"/>
+              <line pos1="(74.5, 60)" pos2="(74.5, 110)" color="FF0000"/>
+              <words id="para" x="1" y="1" fontsize="12" width="70" 
+                      font="Bitstream Vera Sans"
                       text="Left-justified paragraph."/>
               <words id="paracenter" x="120" y="1" fontsize="12" width="70" 
                       font="Bitstream Vera Sans" alignment="center"

@@ -519,10 +519,16 @@ void Words::drawString()
                 m_PosOffset.x = ink_rect.x;
             }
             pango_ft2_render_layout(&bitmap, m_pLayout, -m_PosOffset.x, -m_PosOffset.y);
+            int logicalWidth;
+            if (getUserSize().x == 0) {
+                logicalWidth = logical_rect.width;
+            } else {
+                logicalWidth = getUserSize().x;
+            }
             if (m_Alignment == PANGO_ALIGN_CENTER) {
-                m_PosOffset.x -= logical_rect.width/2;
+                m_PosOffset.x -= logicalWidth/2;
             } else if (m_Alignment == PANGO_ALIGN_RIGHT) {
-                m_PosOffset.x -= logical_rect.width;
+                m_PosOffset.x -= logicalWidth;
             }
 
             getSurface()->unlockBmps();
