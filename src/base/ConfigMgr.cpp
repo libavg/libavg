@@ -248,7 +248,8 @@ bool ConfigMgr::loadFile(const std::string& sPath) {
         xmlDocPtr doc;
         doc = xmlParseFile(sPath.c_str());
         if (!doc) {
-            return false;
+            throw Exception(AVG_ERR_XML_VALID, "Error parsing "+sPath
+                    +". File is not well-formed.");
         }
         xmlNodePtr pRoot = xmlDocGetRootElement(doc);
         if (xmlStrcmp(pRoot->name, (const xmlChar *)(m_sFName.c_str()))) {
