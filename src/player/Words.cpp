@@ -483,18 +483,21 @@ void Words::drawString()
 //        cerr << "Logical: " << logical_rect.x << ", " << logical_rect.y << ", " 
 //                << logical_rect.width << ", " << logical_rect.height << endl;
         m_StringExtents.y = logical_rect.height+2;
-        m_StringExtents.x = logical_rect.width;
-        // Work around what appears to be a pango bug when computing the 
-        // extents of italic text by adding an arbritary amount to the width.
-        m_StringExtents.x += int(m_FontSize/6+1);
+        if (getUserSize().x == 0) {
+            m_StringExtents.x = logical_rect.width;
+            if (m_Alignment == PANGO_ALIGN_LEFT) {
+                // This makes sure we have enough room for italic text.
+                // XXX: We should really do some calculations based on ink_rect here.
+                m_StringExtents.x += int(m_FontSize/6+1);
+            }
+        } else {
+            m_StringExtents.x = int(getUserSize().x);
+        }
         if (m_StringExtents.x == 0) {
             m_StringExtents.x = 1;
         }
         if (m_StringExtents.y == 0) {
             m_StringExtents.y = 1;
-        }
-        if (m_StringExtents.x > getUserSize().x && getUserSize().x != 0) {
-            m_StringExtents.x = int(getUserSize().x);
         }
 //        cerr << "libavg Extents: " << m_StringExtents << endl;
         if (getState() == NS_CANRENDER) {
@@ -519,16 +522,10 @@ void Words::drawString()
                 m_PosOffset.x = ink_rect.x;
             }
             pango_ft2_render_layout(&bitmap, m_pLayout, -m_PosOffset.x, -m_PosOffset.y);
-            int logicalWidth;
-            if (getUserSize().x == 0) {
-                logicalWidth = logical_rect.width;
-            } else {
-                logicalWidth = getUserSize().x;
-            }
             if (m_Alignment == PANGO_ALIGN_CENTER) {
-                m_PosOffset.x -= logicalWidth/2;
+                m_PosOffset.x -= m_StringExtents.x/2;
             } else if (m_Alignment == PANGO_ALIGN_RIGHT) {
-                m_PosOffset.x -= logicalWidth;
+                m_PosOffset.x -= m_StringExtents.x;
             }
 
             getSurface()->unlockBmps();

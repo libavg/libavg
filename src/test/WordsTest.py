@@ -102,8 +102,8 @@ class WordsTestCase(AVGTestCase):
                       font="Bitstream Vera Sans" alignment="center"
                       text="Centered paragraph"/>
               <words id="pararight" x="75" y="60" fontsize="12" width="70" 
-                      font="Bitstream Vera Sans" alignment="right"
-                      text="Right-justified paragraph."/>
+                      font="Bitstream Vera Sans" alignment="right">
+                      Right-justified paragraph.<i>l</i></words>
               <words id="paralinespacing" x="80" y="60" fontsize="12" width="70" 
                       font="Bitstream Vera Sans" linespacing="-4"
                       text="Paragraph with custom line spacing."/>
