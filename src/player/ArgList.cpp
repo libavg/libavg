@@ -139,8 +139,9 @@ void setArgValue(Arg<T>* pArg, const std::string & sName, const boost::python::o
 {
     boost::python::extract<T> valProxy(Value);
     if (!valProxy.check()) {
+        string sTypeName = getFriendlyTypeName(pArg->getValue());
         throw Exception(AVG_ERR_INVALID_ARGS, "Type error in argument "+sName+": "
-                +typeid(T).name()+" expected.");
+                +sTypeName+" expected.");
     }
     pArg->setValue(valProxy());
 }

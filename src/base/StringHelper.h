@@ -105,6 +105,20 @@ std::string toString(const T& i)
 }
 
 template<class T>
+std::string getFriendlyTypeName(const T& dummy)
+{
+    std::string sTypeName = typeid(T).name();
+#ifdef __GNUC__
+    int status;
+    char* const pClearName = abi::__cxa_demangle (sTypeName.c_str(), 0, 0, &status);
+    if (status == 0) {
+        sTypeName = pClearName;
+    }
+#endif
+    return sTypeName;
+}
+
+template<class T>
 void fromString(const std::string& s, T& result)
 {
     std::stringstream stream(s);
@@ -115,14 +129,7 @@ void fromString(const std::string& s, T& result)
         bOk = isWhitespace(sLeftover);
     }
     if (!bOk) {
-        std::string sTypeName = typeid(T).name();
-#ifdef __GNUC__
-        int status;
-        char* const pClearName = abi::__cxa_demangle (sTypeName.c_str(), 0, 0, &status);
-        if (status == 0) {
-            sTypeName = pClearName;
-        }
-#endif
+        std::string sTypeName = getFriendlyTypeName(result);
         throw (Exception(AVG_ERR_TYPE, std::string("Could not convert '")+s
                 + "' to "+sTypeName+"."));
     }
