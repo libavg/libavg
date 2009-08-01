@@ -16,7 +16,7 @@ ALL_GL_LIBS = @GL_LIBS@ @SDL_LIBS@ $(XGL_LIBS)
 
 pkgpyexec_LTLIBRARIES = avg.la
 avg_la_SOURCES = WrapHelper.cpp avg_wrap.cpp node_wrap.cpp raster_wrap.cpp event_wrap.cpp \
-        device_wrap.cpp bitmap_wrap.cpp $(ALL_H) 
+        device_wrap.cpp bitmap_wrap.cpp anim_wrap.cpp $(ALL_H) 
 avg_la_LDFLAGS = $(APPLE_LDFLAGS) -module -XCClinker $(BOOST_PYTHON_LIBS) \
         -l@BOOST_THREAD_LIB@ @XML2_LIBS@ \
         @DC1394_2_LIBS@ @GLU_LIBS@ $(ALL_GL_LIBS) \
@@ -29,5 +29,6 @@ avg_la_LIBADD = ../conradrelais/libconradrelais.la \
 				../base/libbase.la \
                 ../imaging/libimaging.la \
 				../parport/libparport.la \
+				../anim/libanim.la \
                 ../lmfit/liblmfit.la
 pkgpyexec_PYTHON = __init__.py
