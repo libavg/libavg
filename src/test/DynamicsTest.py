@@ -153,7 +153,7 @@ class DynamicsTestCase(AVGTestCase):
                 node = Player.createNode("words", {"text":"test"})
             node.font="Bitstream Vera Sans"
             node.fontsize=12
-            node.parawidth=200
+            node.width=200
             return node
 
         self.__runDynamicsTest(createWords, "testWordsDynamics", False, True)
