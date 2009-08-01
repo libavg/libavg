@@ -218,9 +218,12 @@ class AVTestCase(AVGTestCase):
                      setOpacity,
                      lambda: self.compareImage(testImgName+"4", False),
                     ])
-        testWithFile("../video/testfiles/mpeg1-48x48.mpg", "testVideoMaskYUV")
-        testWithFile("../video/testfiles/mjpeg-48x48.avi", "testVideoMaskYUVJ")
-        testWithFile("../video/testfiles/rgba-48x48.mov", "testVideoMaskRGBA")
+        try:
+            testWithFile("../video/testfiles/mpeg1-48x48.mpg", "testVideoMaskYUV")
+            testWithFile("../video/testfiles/mjpeg-48x48.avi", "testVideoMaskYUVJ")
+            testWithFile("../video/testfiles/rgba-48x48.mov", "testVideoMaskRGBA")
+        except RuntimeError:
+            print "Skipping testVideoMask - no shader support."
 
     def testVideoEOF(self):
         Player.setFakeFPS(25)

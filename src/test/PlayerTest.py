@@ -127,9 +127,6 @@ class PlayerTestCase(AVGTestCase):
             framerate = Player.getEffectiveFramerate()
             self.assert_(framerate > 0)
 
-        def setMask():
-            Player.getElementByID("test").maskhref = "mask.png"
-            
         Player.showCursor(0)
         Player.showCursor(1)
         Player.loadFile("image.avg")
@@ -143,13 +140,26 @@ class PlayerTestCase(AVGTestCase):
                  getFramerate,
                  loadNewFile, 
                  lambda: self.compareImage("testimgload", False),
-                 setMask,
-                 lambda: self.compareImage("testimgmask", False),
                  lambda: Player.setGamma(0.7, 0.7, 0.7),
                  lambda: Player.setGamma(1.0, 1.0, 1.0),
                  lambda: Player.showCursor(0),
                  lambda: Player.showCursor(1)
                 ))
+
+    def testImageMask(self):
+
+        def setMask():
+            try:
+                Player.getElementByID("test").maskhref = "mask.png"
+            except RuntimeError:
+                print "Skipping testImageMask - no shader support."
+                Player.stop()
+            
+        self.start("image.avg",
+                (setMask,
+                 lambda: self.compareImage("testimgmask", False)
+                ))
+
 
     def testMipmap(self):
         Player.loadString("""
@@ -923,6 +933,7 @@ def playerTestSuite(bpp, tests):
     availableTests = (
             "testPoint",
             "testImage",
+            "testImageMask",
             "testMipmap",
             "testDivResize",
             "testBitmap",

@@ -329,8 +329,13 @@ void Player::initPlayback()
     
     initGraphics();
     initAudio();
-    
-    m_pRootNode->setRenderingEngines(m_pDisplayEngine, m_pAudioEngine);
+    try {
+        m_pRootNode->setRenderingEngines(m_pDisplayEngine, m_pAudioEngine);
+    } catch (Exception&) {
+        m_pDisplayEngine = 0;
+        m_pAudioEngine = 0;
+        throw;
+    }
 
     m_pEventDispatcher->addSource(m_pEventSource);
     m_pEventDispatcher->addSource(m_pTestHelper);

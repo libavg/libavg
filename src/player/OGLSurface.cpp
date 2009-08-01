@@ -53,6 +53,10 @@ void OGLSurface::attach(SDLDisplayEngine * pEngine)
 {
     m_pEngine = pEngine;
     m_MemoryMode = m_pEngine->getMemoryModeSupported();
+    if (m_Material.m_bHasMask && !getEngine()->isUsingShaders()) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL,
+                "Can't set mask bitmap since shader support is disabled.");
+    }
 }
 
 void OGLSurface::create(const IntPoint& size, PixelFormat pf)
@@ -193,6 +197,10 @@ const MaterialInfo& OGLSurface::getMaterial() const
 
 void OGLSurface::setMaterial(const MaterialInfo& material)
 {
+    if (getEngine() && (material.m_bHasMask && !getEngine()->isUsingShaders())) {
+        throw Exception(AVG_ERR_VIDEO_GENERAL,
+                "Can't set mask bitmap since shader support is disabled.");
+    }
     bool bOldHasMask = m_Material.m_bHasMask;
     m_Material = material;
     if (m_pTextures[0]) {
