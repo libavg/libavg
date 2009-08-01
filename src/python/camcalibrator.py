@@ -47,34 +47,34 @@ class CamCalibrator:
             <div id="cc_gui" x="30" y="30" >
                 <image x="0" y="13" width="500" height="215" 
                         href="black.png" opacity="0.6"/>
-                <words x="2" y="13" text="camera" size="16" font="Eurostile" color="00FF00"/>
+                <words x="2" y="13" text="camera" fontsize="16" font="Eurostile" color="00FF00"/>
                 <image x="2" y="32" href="CamImgBorder.png"/>
                 <image id="cc_camera" x="4" y="34" width="160" height="120"/>
                 
-                <words x="168" y="13" text="nohistory" size="16" font="Eurostile" color="00FF00"/>
+                <words x="168" y="13" text="nohistory" fontsize="16" font="Eurostile" color="00FF00"/>
                 <image x="168" y="32" href="CamImgBorder.png"/>
                 <image id="cc_nohistory" x="170" y="34" width="160" height="120"/>
                 
-                <words x="334" y="13" text="histogram" size="16" font="Eurostile" color="00FF00"/>
+                <words x="334" y="13" text="histogram" fontsize="16" font="Eurostile" color="00FF00"/>
                 <image x="334" y="32" href="CamImgBorder.png"/>
                 <image id="cc_histogram" x="336" y="34" width="160" height="120"/>
         
-                <words id="cc_param0" x="2" y="162" size="13" font="Eurostile"/> 
-                <words id="cc_param1" x="2" y="178" size="13" font="Eurostile"/> 
-                <words id="cc_param2" x="2" y="194" size="13" font="Eurostile"/> 
-                <words id="cc_param3" x="2" y="210" size="13" font="Eurostile"/> 
-                <words id="cc_param4" x="168" y="162" size="13" font="Eurostile"/> 
-                <words id="cc_param5" x="168" y="178" size="13" font="Eurostile"/> 
-                <words id="cc_param6" x="168" y="194" size="13" font="Eurostile"/> 
-                <words id="cc_param7" x="168" y="210" size="13" font="Eurostile"/> 
-                <words id="cc_param8" x="304" y="162" size="13" font="Eurostile"/> 
-                <words id="cc_param9" x="428" y="162" size="13" font="Eurostile"/> 
-                <words id="cc_param10" x="304" y="178" size="13" font="Eurostile"/> 
-                <words id="cc_param11" x="428" y="178" size="13" font="Eurostile"/> 
-                <words id="cc_param12" x="304" y="194" size="13" font="Eurostile"/> 
-                <words id="cc_param13" x="428" y="194" size="13" font="Eurostile"/> 
-                <words id="cc_param14" x="304" y="210" size="13" font="Eurostile"/> 
-                <words id="cc_param15" x="428" y="210" size="13" font="Eurostile"/> 
+                <words id="cc_param0" x="2" y="162" fontsize="13" font="Eurostile"/> 
+                <words id="cc_param1" x="2" y="178" fontsize="13" font="Eurostile"/> 
+                <words id="cc_param2" x="2" y="194" fontsize="13" font="Eurostile"/> 
+                <words id="cc_param3" x="2" y="210" fontsize="13" font="Eurostile"/> 
+                <words id="cc_param4" x="168" y="162" fontsize="13" font="Eurostile"/> 
+                <words id="cc_param5" x="168" y="178" fontsize="13" font="Eurostile"/> 
+                <words id="cc_param6" x="168" y="194" fontsize="13" font="Eurostile"/> 
+                <words id="cc_param7" x="168" y="210" fontsize="13" font="Eurostile"/> 
+                <words id="cc_param8" x="304" y="162" fontsize="13" font="Eurostile"/> 
+                <words id="cc_param9" x="428" y="162" fontsize="13" font="Eurostile"/> 
+                <words id="cc_param10" x="304" y="178" fontsize="13" font="Eurostile"/> 
+                <words id="cc_param11" x="428" y="178" fontsize="13" font="Eurostile"/> 
+                <words id="cc_param12" x="304" y="194" fontsize="13" font="Eurostile"/> 
+                <words id="cc_param13" x="428" y="194" fontsize="13" font="Eurostile"/> 
+                <words id="cc_param14" x="304" y="210" fontsize="13" font="Eurostile"/> 
+                <words id="cc_param15" x="428" y="210" fontsize="13" font="Eurostile"/> 
             </div>
         ''')
         node.width = ParentNode.width

@@ -42,14 +42,13 @@ class MemGraph():
             <div opacity="0" sensitive="False" x="10" y="10" width="%(width)i" 
                     height="%(height)i">
                 <rect strokewidth="0" fillopacity="0.6" fillcolor="FFFFFF" 
-                        width="%(width)i" height="%(height)i"/>
+                        size="%(size)i"/>
                 <words x="10" y="%(wordsheight0)i" color="000080"/>
                 <words x="10" y="%(wordsheight1)i" color="000080"/>
                 <polyline color="008000"/>
                 <polyline color="000080"/>
             </div>""" 
-            % {'width': size.x, 'height':size.y, 'wordsheight0':size.y-22, 
-                    'wordsheight1':size.y-39})
+            % {'size': size, 'wordsheight0':size.y-22, 'wordsheight1':size.y-39})
         self.__graphSize = size-avg.Point2D(20, 20)
         rootNode.appendChild(self.__node)
         self.__textNode0 = self.__node.getChild(1)
