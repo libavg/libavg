@@ -24,6 +24,7 @@
 
 #include "../api.h"
 #include "../base/Point.h"
+#include "../base/Exception.h"
 
 #include "../player/BoostPython.h"
 
@@ -293,5 +294,17 @@ struct IntPoint_from_python_tuple
     static void construct(PyObject* obj_ptr,
             boost::python::converter::rvalue_from_python_stage1_data* data);
 };
+
+template<class T>
+double deprecatedGet(T& node)
+{
+    throw avg::Exception(AVG_ERR_DEPRECATED, "Attribute has been removed from libavg.");
+}
+
+template<class T>
+void deprecatedSet(T& node, double d)
+{
+    throw avg::Exception(AVG_ERR_DEPRECATED, "Attribute has been removed from libavg.");
+}
 
 #endif

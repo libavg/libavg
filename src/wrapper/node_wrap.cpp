@@ -157,8 +157,11 @@ void export_node()
         .add_property("pivot",  &AreaNode::getPivot, &AreaNode::setPivot,
                 "The position of the point that the node is rotated around.\n"
                 "Default is the center of the node.\n")
-    ;
-
+        .add_property("pivotx", &deprecatedGet<AreaNode>, &deprecatedSet<AreaNode>,
+                "Deprecated.\n")
+        .add_property("pivoty", &deprecatedGet<AreaNode>, &deprecatedSet<AreaNode>,
+                "Deprecated.\n")
+        ;
     export_bitmap();
     export_raster();
   
@@ -350,6 +353,10 @@ void export_node()
                return_value_policy<copy_const_reference>()), &LineNode::setPos1)
         .add_property("pos2", make_function(&LineNode::getPos2,
                return_value_policy<copy_const_reference>()), &LineNode::setPos2)
+        .add_property("x1", &deprecatedGet<LineNode>, &deprecatedSet<LineNode>)
+        .add_property("y1", &deprecatedGet<LineNode>, &deprecatedSet<LineNode>)
+        .add_property("x2", &deprecatedGet<LineNode>, &deprecatedSet<LineNode>)
+        .add_property("y2", &deprecatedGet<LineNode>, &deprecatedSet<LineNode>)        
         .add_property("texcoord1", &LineNode::getTexCoord1, &LineNode::setTexCoord1)
         .add_property("texcoord2", &LineNode::getTexCoord2, &LineNode::setTexCoord2)
     ;
@@ -359,6 +366,10 @@ void export_node()
         .add_property("pos", make_function(&RectNode::getPos,
                 return_value_policy<copy_const_reference>()), &RectNode::setPos)
         .add_property("size", &RectNode::getSize, &RectNode::setSize)
+        .add_property("x", &deprecatedGet<RectNode>, &deprecatedSet<RectNode>)
+        .add_property("y", &deprecatedGet<RectNode>, &deprecatedSet<RectNode>)
+        .add_property("width", &deprecatedGet<RectNode>, &deprecatedSet<RectNode>)
+        .add_property("height", &deprecatedGet<RectNode>, &deprecatedSet<RectNode>) 
         .add_property("texcoords", make_function(&RectNode::getTexCoords, 
                 return_value_policy<copy_const_reference>()), &RectNode::setTexCoords)
         .add_property("angle", &RectNode::getAngle, &RectNode::setAngle,
@@ -377,6 +388,14 @@ void export_node()
                return_value_policy<copy_const_reference>()), &CurveNode::setPos3)
         .add_property("pos4", make_function(&CurveNode::getPos4,
                return_value_policy<copy_const_reference>()), &CurveNode::setPos4)
+        .add_property("x1", &deprecatedGet<CurveNode>, &deprecatedSet<CurveNode>)
+        .add_property("y1", &deprecatedGet<CurveNode>, &deprecatedSet<CurveNode>)
+        .add_property("x2", &deprecatedGet<CurveNode>, &deprecatedSet<CurveNode>)
+        .add_property("y2", &deprecatedGet<CurveNode>, &deprecatedSet<CurveNode>)
+        .add_property("x3", &deprecatedGet<CurveNode>, &deprecatedSet<CurveNode>)
+        .add_property("y3", &deprecatedGet<CurveNode>, &deprecatedSet<CurveNode>)
+        .add_property("x4", &deprecatedGet<CurveNode>, &deprecatedSet<CurveNode>)
+        .add_property("y4", &deprecatedGet<CurveNode>, &deprecatedSet<CurveNode>)
         .add_property("texcoord1", &CurveNode::getTexCoord1, &CurveNode::setTexCoord1)
         .add_property("texcoord2", &CurveNode::getTexCoord2, &CurveNode::setTexCoord2)
     ;
@@ -402,6 +421,8 @@ void export_node()
             no_init)
         .add_property("pos", make_function(&CircleNode::getPos,
                return_value_policy<copy_const_reference>()), &CircleNode::setPos)
+        .add_property("x", &deprecatedGet<CircleNode>, &deprecatedSet<CircleNode>)
+        .add_property("y", &deprecatedGet<CircleNode>, &deprecatedSet<CircleNode>)
         .add_property("r", &CircleNode::getR, &CircleNode::setR)
         .add_property("texcoord1", &CircleNode::getTexCoord1, &CircleNode::setTexCoord1)
         .add_property("texcoord2", &CircleNode::getTexCoord2, &CircleNode::setTexCoord2)

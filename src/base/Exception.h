@@ -54,6 +54,7 @@
 #define AVG_ERR_CORRUPT_PLUGIN 28
 #define AVG_ERR_CAMERA_FATAL 29
 #define AVG_ERR_CAMERA_NONFATAL 30
+#define AVG_ERR_DEPRECATED 31
 
 namespace avg {
  

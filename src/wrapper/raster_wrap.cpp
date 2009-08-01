@@ -303,6 +303,7 @@ void export_raster()
                 "FF0000 is red, 00FF00 green, etc.\n")
         .add_property("fontsize", &Words::getFontSize, &Words::setFontSize,
                 "The font size in pixels. Fractional sizes are supported.\n")
+        .add_property("parawidth", &deprecatedGet<Words>, &deprecatedSet<Words>)
         .add_property("indent", &Words::getIndent, &Words::setIndent,
                 "The indentation of the first line of the paragraph.\n")
         .add_property("linespacing", &Words::getLineSpacing, &Words::setLineSpacing,
