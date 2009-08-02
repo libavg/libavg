@@ -55,7 +55,6 @@ SimpleAnim::SimpleAnim(const object& node, const string& sAttrName, double durat
       m_bUseInt(bUseInt),
       m_StartCallback(startCallback),
       m_StopCallback(stopCallback),
-      m_AbortCallback(0),
       m_bRunning(false)
 {
 }
@@ -64,10 +63,14 @@ SimpleAnim::~SimpleAnim()
 {
 }
 
-void SimpleAnim::setHandler(const object& stopCallback, const object& abortCallback)
+void SimpleAnim::setStartCallback(const object& startCallback)
+{
+    m_StartCallback = startCallback;
+}
+
+void SimpleAnim::setStopCallback(const object& stopCallback)
 {
     m_StopCallback = stopCallback;
-    m_AbortCallback = abortCallback;
 }
 
 void SimpleAnim::start(bool bKeepAttr)
@@ -95,9 +98,6 @@ void SimpleAnim::abort()
 {
     if (m_bRunning) {
         remove();
-        if (m_AbortCallback != object()) {
-            call<void>(m_AbortCallback.ptr());
-        }
     }
 }
 

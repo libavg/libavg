@@ -57,8 +57,8 @@ public:
             const boost::python::object& stopCallback);
     virtual ~SimpleAnim()=0;
 
-    void setHandler(const boost::python::object& stopCallback,
-            const boost::python::object& abortCallback);
+    void setStartCallback(const boost::python::object& startCallback);
+    void setStopCallback(const boost::python::object& stopCallback);
     void start(bool bKeepAttr=false);
     void abort();
     bool isRunning();
@@ -82,7 +82,6 @@ private:
     bool m_bUseInt;
     boost::python::object m_StartCallback;
     boost::python::object m_StopCallback;
-    boost::python::object m_AbortCallback;
     bool m_bRunning;
     long long m_StartTime;
 

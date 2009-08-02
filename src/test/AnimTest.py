@@ -56,7 +56,7 @@ class AnimTestCase(AVGTestCase):
         def abortAnim():
             self.__anim.abort()
         self.__anim = curAnim
-        self.__anim.setHandler(onStop, None)
+        self.__anim.setStopCallback(onStop)
         self.__onStopCalled = False
         Player.setFakeFPS(10)
         self.start(None,
@@ -99,8 +99,7 @@ class AnimTestCase(AVGTestCase):
             self.__anim.start()
         Player.loadFile("image.avg")
         node = Player.getElementByID("test")
-        self.__anim = avg.LinearAnim(node, "x", 0, 0, 100, False)
-        self.__anim.setHandler(onStop, None)
+        self.__anim = avg.LinearAnim(node, "x", 0, 0, 100, False, None, onStop)
         self.__onStopCalled = False
         Player.setFakeFPS(10)
         self.start(None,

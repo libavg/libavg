@@ -45,7 +45,8 @@ void export_anim()
             "of a node runs at any given time. If a second one is started, the first\n"
             "one is aborted.",
             no_init)
-        .def("setHandler", &SimpleAnim::setHandler)
+        .def("setStartCallback", &SimpleAnim::setStartCallback)
+        .def("setStopCallback", &SimpleAnim::setStopCallback)
         .def("start", &SimpleAnim::start, start_overloads(args("bKeepAttr")))
         .def("abort", &SimpleAnim::abort, 
                 "Stops the animation. Does not call onStop()")
