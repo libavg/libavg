@@ -31,32 +31,25 @@ namespace avg {
 LinearAnim::LinearAnim(const object& node, const string& sAttrName, double duration,
             const object& startValue, const object& endValue, bool bUseInt, 
             const object& startCallback, const object& stopCallback)
-    : SimpleAnim(node, sAttrName, duration, bUseInt, startCallback, stopCallback)
+    : SimpleAnim(node, sAttrName, duration, bUseInt, startCallback, stopCallback),
+      m_StartValue(startValue),
+      m_EndValue(endValue)
 {
-    m_StartValue = startValue;
-    m_EndValue = endValue;
 }
 
 LinearAnim::~LinearAnim()
 {
 }
 
-void LinearAnim::step()
+void LinearAnim::step(double t)
 {
-    SimpleAnim::step();
-    if (isRunning()) {
-        double part = ((double(Player::get()->getFrameTime())-getStartTime())
-                /getDuration());
-        if (part > 1.0) {
-            part = 1.0;
-        }
-        object curValue = m_StartValue+(m_EndValue-m_StartValue)*part;
+    SimpleAnim::step(t);
+    object curValue = m_StartValue+(m_EndValue-m_StartValue)*t;
 /*        if (getUseInt()) {
             curValue = 
         }
 */        
-        setValue(curValue);
-    }
+    setValue(curValue);
 }
     
 void LinearAnim::regularStop()
@@ -65,8 +58,10 @@ void LinearAnim::regularStop()
     remove();
 }
 
-void LinearAnim::calcStartTime()
+double LinearAnim::calcStartTime()
 {
+    double part = extract<double>((getValue()-m_StartValue)/(m_EndValue-m_StartValue));
+    return Player::get()->getFrameTime()-part*getDuration();
 }
 
 }

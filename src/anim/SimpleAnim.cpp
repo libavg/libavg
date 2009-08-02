@@ -78,7 +78,7 @@ void SimpleAnim::start(bool bKeepAttr)
     abortAnim(m_Node, m_sAttrName);
     s_ActiveAnimations[ObjAttrID(m_Node, m_sAttrName)] = this;
     if (bKeepAttr) {
-        calcStartTime();
+        m_StartTime = calcStartTime();
     } else {
         m_StartTime = Player::get()->getFrameTime();
     }
@@ -90,7 +90,7 @@ void SimpleAnim::start(bool bKeepAttr)
     if (m_Duration == 0) {
         regularStop();
     } else {
-        step();
+        onFrameEnd();
     }
 }
 
@@ -108,17 +108,27 @@ bool SimpleAnim::isRunning()
 
 void SimpleAnim::onFrameEnd()
 {
-    step();
+    double t = ((double(Player::get()->getFrameTime())-m_StartTime)
+            /m_Duration);
+    if (t > 1.0) {
+        t = 1.0;
+    }
+    step(t);
 }
     
-double SimpleAnim::getStartTime()
+double SimpleAnim::getStartTime() const
 {
     return m_StartTime;
 }
 
-double SimpleAnim::getDuration()
+double SimpleAnim::getDuration() const
 {
     return m_Duration;
+}
+
+object SimpleAnim::getValue() const
+{
+    return m_Node.attr(m_sAttrName.c_str());
 }
 
 void SimpleAnim::setValue(const object& val)
@@ -126,9 +136,9 @@ void SimpleAnim::setValue(const object& val)
     m_Node.attr(m_sAttrName.c_str()) = val;
 }
 
-void SimpleAnim::step() 
+void SimpleAnim::step(double t) 
 {
-    if (Player::get()->getFrameTime()-m_StartTime > m_Duration) {
+    if (t == 1.0) {
         regularStop();
     }
 }

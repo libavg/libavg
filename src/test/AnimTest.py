@@ -51,7 +51,7 @@ class AnimTestCase(AVGTestCase):
             self.__anim.start()
         def startKeepAttr():
             node = Player.getElementByID("test")
-            node.x = 25
+            node.x = 32 
             self.__anim.start(True)
         def abortAnim():
             self.__anim.abort()
@@ -79,6 +79,7 @@ class AnimTestCase(AVGTestCase):
                  lambda: self.assert_(self.__onStopCalled),
                  startAnim,
                  startKeepAttr,
+                 lambda: self.compareImage(imgBaseName+"4", False),
                  lambda: self.assert_(avg.getNumRunningAnims() == 1),
                  abortAnim
                 ))
@@ -114,8 +115,8 @@ class AnimTestCase(AVGTestCase):
     def testEaseInOutAnim(self):
         Player.loadFile("image.avg")
         node = Player.getElementByID("test")
-        curAnim = anim.EaseInOutAnim(node, "x", 400, 0, 100, 100, 100, False)
-        self.testAnimType(curAnim, "testEaseInOutAnim")
+        curAnim = avg.EaseInOutAnim(node, "x", 400, 0, 100, 100, 100, False)
+        self.testAnimType(curAnim, "testEaseInOutAnimC")
 
     def testSplineAnim(self):
         Player.loadFile("image.avg")
@@ -498,7 +499,7 @@ def animTestSuite(tests):
     availableTests = (
         "testLinearAnim",
         "testLinearAnimZeroDuration",
-#        "testEaseInOutAnim",
+        "testEaseInOutAnim",
 #        "testSplineAnim",
 #        "testContinuousAnim",
 #        "testWaitAnim",

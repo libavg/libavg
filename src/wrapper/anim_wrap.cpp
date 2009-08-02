@@ -23,6 +23,7 @@
 
 #include "../anim/SimpleAnim.h"
 #include "../anim/LinearAnim.h"
+#include "../anim/EaseInOutAnim.h"
 #include "../player/BoostPython.h"
 
 using namespace boost::python;
@@ -59,6 +60,8 @@ void export_anim()
         .def(init<const object&, const string&, double, const object&, const object&,
                 bool>())
         .def(init<const object&, const string&, double, const object&, const object&,
+                bool, const object&>())
+        .def(init<const object&, const string&, double, const object&, const object&,
                 bool, const object&, const object&>(
                 "@param node: The libavg node object to animate.\n"
                 "@param attrName: The name of the attribute to change. Must be a numeric\n"
@@ -72,4 +75,17 @@ void export_anim()
                 "animations together by using lambda to create a second animation.\n"))
         ;
     
+    class_<EaseInOutAnim, bases<SimpleAnim>, boost::noncopyable>("EaseInOutAnim",
+            "Class that animates an attribute of a libavg node. The animation proceeds\n"
+            "in three phases: ease-in, linear and ease-out. Start and end speed are\n"
+            "zero. Ease-in and ease-out phases have the shape of one quadrant of the\n"
+            "sine curve.",
+            no_init)
+        .def(init<const object&, const string&, double, const object&, const object&,
+                double, double, bool>())
+        .def(init<const object&, const string&, double, const object&, const object&,
+                double, double, bool, const object&>())
+        .def(init<const object&, const string&, double, const object&, const object&,
+                double, double, bool, const object&, const object&>())
+        ;
 }

@@ -19,8 +19,8 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _LinearAnim_H_
-#define _LinearAnim_H_
+#ifndef _EaseInOutAnim_H_
+#define _EaseInOutAnim_H_
 
 #include "../api.h"
 
@@ -28,16 +28,16 @@
 
 namespace avg {
 
-class AVG_API LinearAnim: public SimpleAnim {
+class AVG_API EaseInOutAnim: public SimpleAnim {
 public:
-    LinearAnim(const boost::python::object& node, const std::string& sAttrName, 
+    EaseInOutAnim(const boost::python::object& node, const std::string& sAttrName, 
             double duration,
             const boost::python::object& pStartValue, 
-            const boost::python::object& pEndValue, 
-            bool bUseInt, 
+            const boost::python::object& pEndValue,
+            double easeInDuration, double easeOutDuration, bool bUseInt, 
             const boost::python::object& startCallback=boost::python::object(), 
             const boost::python::object& stopCallback=boost::python::object());
-    virtual ~LinearAnim();
+    virtual ~EaseInOutAnim();
 
 protected:
     virtual void step(double t);
@@ -47,6 +47,8 @@ protected:
 private:
     boost::python::object m_StartValue;
     boost::python::object m_EndValue;
+    double m_EaseInDuration;
+    double m_EaseOutDuration;
 };
 
 }

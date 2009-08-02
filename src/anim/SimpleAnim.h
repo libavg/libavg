@@ -66,13 +66,14 @@ public:
     void onFrameEnd();
 
 protected:
-    double getStartTime();
-    double getDuration();
+    double getStartTime() const;
+    double getDuration() const;
     void setValue(const boost::python::object& val);
+    boost::python::object getValue() const;
 
-    virtual void step();
+    virtual void step(double t);
     virtual void regularStop()=0;
-    virtual void calcStartTime()=0;
+    virtual double calcStartTime()=0;
     void remove();
     
 private:
