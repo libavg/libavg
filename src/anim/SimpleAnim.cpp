@@ -80,6 +80,10 @@ void SimpleAnim::setStopCallback(const object& stopCallback)
 
 void SimpleAnim::start(bool bKeepAttr)
 {
+    if (!(Player::get()->isPlaying())) {
+        throw(Exception(AVG_ERR_UNSUPPORTED, 
+                "Animation playback can only be started when the player is running."));
+    }
     abortAnim(m_Node, m_sAttrName);
     s_ActiveAnimations[ObjAttrID(m_Node, m_sAttrName)] = this;
     if (bKeepAttr) {

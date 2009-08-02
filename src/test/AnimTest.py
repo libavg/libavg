@@ -58,6 +58,7 @@ class AnimTestCase(AVGTestCase):
         self.__anim = curAnim
         self.__anim.setStopCallback(onStop)
         self.__onStopCalled = False
+        self.assertException(lambda: self.__anim.start())
         Player.setFakeFPS(10)
         self.start(None,
                 (startAnim,
