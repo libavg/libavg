@@ -20,6 +20,7 @@
 
 #include "SimpleAnim.h"
 
+#include "../base/Exception.h"
 #include "../player/Player.h"
 
 using namespace boost::python;
@@ -48,10 +49,13 @@ int SimpleAnim::getNumRunningAnims()
 }
 
 SimpleAnim::SimpleAnim(const object& node, const string& sAttrName, double duration, 
-        bool bUseInt, const object& startCallback, const object& stopCallback)
+        const object& startValue, const object& endValue, bool bUseInt, 
+        const object& startCallback, const object& stopCallback)
     : m_Node(node),
       m_sAttrName(sAttrName),
       m_Duration(duration),
+      m_StartValue(startValue),
+      m_EndValue(endValue),
       m_bUseInt(bUseInt),
       m_StartCallback(startCallback),
       m_StopCallback(stopCallback),
@@ -88,9 +92,10 @@ void SimpleAnim::start(bool bKeepAttr)
         call<void>(m_StartCallback.ptr());
     }
     if (m_Duration == 0) {
-        regularStop();
+        setValue(m_EndValue);
+        remove();
     } else {
-        onFrameEnd();
+        step();
     }
 }
 
@@ -108,12 +113,7 @@ bool SimpleAnim::isRunning()
 
 void SimpleAnim::onFrameEnd()
 {
-    double t = ((double(Player::get()->getFrameTime())-m_StartTime)
-            /m_Duration);
-    if (t > 1.0) {
-        t = 1.0;
-    }
-    step(t);
+    step();
 }
     
 double SimpleAnim::getStartTime() const
@@ -136,11 +136,52 @@ void SimpleAnim::setValue(const object& val)
     m_Node.attr(m_sAttrName.c_str()) = val;
 }
 
-void SimpleAnim::step(double t) 
+template<class T>
+bool tryTypedLERP(object& curValue, const object& startValue, const object& endValue, 
+        double part)
 {
-    if (t == 1.0) {
-        regularStop();
+    extract<T> ext(startValue);
+    if (ext.check()) {
+        T start = ext();
+        T end = extract<T>(endValue);
+        T cur = start+(end-start)*part;
+        curValue = object(cur);
+        return true;
+    } else {
+        return false;
     }
+}
+
+void SimpleAnim::step()
+{
+    double t = ((double(Player::get()->getFrameTime())-m_StartTime)
+            /m_Duration);
+    if (t >= 1.0) {
+        setValue(m_EndValue);
+        remove();
+    } else {
+        object curValue;
+        double part = interpolate(t);
+        bool bDouble = tryTypedLERP<double>(curValue, m_StartValue, m_EndValue, part);
+        if (!bDouble) {
+            bool bDPoint = tryTypedLERP<DPoint>(curValue, m_StartValue, m_EndValue, part);
+            if (!bDPoint) {
+                throw (Exception(AVG_ERR_TYPE, 
+                        "Animated attributes must be either numbers or Point2D."));
+            }
+        }
+    /*        if (getUseInt()) {
+                curValue = 
+            }
+    */        
+        setValue(curValue);
+    }
+}
+
+double SimpleAnim::calcStartTime()
+{
+    double part = extract<double>((getValue()-m_StartValue)/(m_EndValue-m_StartValue));
+    return Player::get()->getFrameTime()-part*getDuration();
 }
 
 void SimpleAnim::remove() 
@@ -148,7 +189,9 @@ void SimpleAnim::remove()
     m_bRunning = false;
     s_ActiveAnimations.erase(ObjAttrID(m_Node, m_sAttrName));
     Player::get()->unregisterFrameListener(this);
-    call<void>(m_StopCallback.ptr());
+    if (m_StopCallback != object()) {
+        call<void>(m_StopCallback.ptr());
+    }
 }
 
 void SimpleAnim::abortAnim(const object& node, const string& sAttrName)

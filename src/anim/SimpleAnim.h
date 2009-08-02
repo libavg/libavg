@@ -52,7 +52,10 @@ public:
     static int getNumRunningAnims();
 
     SimpleAnim(const boost::python::object& node, const std::string& sAttrName,
-            double duration, bool bUseInt, 
+            double duration,
+            const boost::python::object& pStartValue, 
+            const boost::python::object& pEndValue, 
+            bool bUseInt, 
             const boost::python::object& startCallback, 
             const boost::python::object& stopCallback);
     virtual ~SimpleAnim()=0;
@@ -71,15 +74,18 @@ protected:
     void setValue(const boost::python::object& val);
     boost::python::object getValue() const;
 
-    virtual void step(double t);
-    virtual void regularStop()=0;
-    virtual double calcStartTime()=0;
+    virtual double interpolate(double t)=0;
     void remove();
     
 private:
+    virtual double calcStartTime();
+    void step();
+
     boost::python::object m_Node;
     std::string m_sAttrName;
     long long m_Duration;
+    boost::python::object m_StartValue;
+    boost::python::object m_EndValue;
     bool m_bUseInt;
     boost::python::object m_StartCallback;
     boost::python::object m_StopCallback;

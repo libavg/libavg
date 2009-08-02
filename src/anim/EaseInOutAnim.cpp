@@ -35,9 +35,8 @@ EaseInOutAnim::EaseInOutAnim(const object& node, const string& sAttrName, double
             const object& startValue, const object& endValue, 
             double easeInDuration, double easeOutDuration, bool bUseInt, 
             const object& startCallback, const object& stopCallback)
-    : SimpleAnim(node, sAttrName, duration, bUseInt, startCallback, stopCallback),
-      m_StartValue(startValue),
-      m_EndValue(endValue),
+    : SimpleAnim(node, sAttrName, duration, startValue, endValue, bUseInt, startCallback,
+            stopCallback),
       m_EaseInDuration(easeInDuration/duration),
       m_EaseOutDuration(easeOutDuration/duration)
 {
@@ -47,10 +46,8 @@ EaseInOutAnim::~EaseInOutAnim()
 {
 }
 
-void EaseInOutAnim::step(double t)
+double EaseInOutAnim::interpolate(double t)
 {
-    SimpleAnim::step(t);
-    
     double accelDist = m_EaseInDuration*2/PI;
     double decelDist = m_EaseOutDuration*2/PI;
     double dist;
@@ -68,25 +65,7 @@ void EaseInOutAnim::step(double t)
         // Linear stage
         dist = accelDist+t-m_EaseInDuration;
     }
-    double part = dist/(accelDist+(1-m_EaseInDuration-m_EaseOutDuration)+decelDist);
-
-    object curValue = m_StartValue+(m_EndValue-m_StartValue)*part;
-    /*        if (getUseInt()) {
-              curValue = 
-              }
-              */        
-    setValue(curValue);
+    return dist/(accelDist+(1-m_EaseInDuration-m_EaseOutDuration)+decelDist);
 }
     
-void EaseInOutAnim::regularStop()
-{
-    setValue(m_EndValue);
-    remove();
-}
-
-double EaseInOutAnim::calcStartTime()
-{
-    return Player::get()->getFrameTime();
-}
-
 }

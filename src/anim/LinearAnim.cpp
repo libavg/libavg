@@ -31,9 +31,8 @@ namespace avg {
 LinearAnim::LinearAnim(const object& node, const string& sAttrName, double duration,
             const object& startValue, const object& endValue, bool bUseInt, 
             const object& startCallback, const object& stopCallback)
-    : SimpleAnim(node, sAttrName, duration, bUseInt, startCallback, stopCallback),
-      m_StartValue(startValue),
-      m_EndValue(endValue)
+    : SimpleAnim(node, sAttrName, duration, startValue, endValue, bUseInt, startCallback,
+            stopCallback)
 {
 }
 
@@ -41,27 +40,9 @@ LinearAnim::~LinearAnim()
 {
 }
 
-void LinearAnim::step(double t)
+double LinearAnim::interpolate(double t)
 {
-    SimpleAnim::step(t);
-    object curValue = m_StartValue+(m_EndValue-m_StartValue)*t;
-/*        if (getUseInt()) {
-            curValue = 
-        }
-*/        
-    setValue(curValue);
+    return t;
 }
     
-void LinearAnim::regularStop()
-{
-    setValue(m_EndValue);
-    remove();
-}
-
-double LinearAnim::calcStartTime()
-{
-    double part = extract<double>((getValue()-m_StartValue)/(m_EndValue-m_StartValue));
-    return Player::get()->getFrameTime()-part*getDuration();
-}
-
 }

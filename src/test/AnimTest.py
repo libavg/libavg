@@ -112,6 +112,21 @@ class AnimTestCase(AVGTestCase):
                 ))
         self.__anim = None
 
+    def testPointAnim(self):
+        def startAnim():
+            self.__anim.start()
+        Player.loadFile("image.avg")
+        node = Player.getElementByID("test")
+        self.__anim = avg.LinearAnim(node, "pos", 200, avg.Point2D(0,0), 
+                avg.Point2D(100,40), False)
+        Player.setFakeFPS(10)
+        self.start(None,
+                (startAnim,
+                 lambda: self.compareImage("testPointAnim1", False),
+                 None,
+                 lambda: self.compareImage("testPointAnim2", False)
+                ))
+
     def testEaseInOutAnim(self):
         Player.loadFile("image.avg")
         node = Player.getElementByID("test")
@@ -499,6 +514,7 @@ def animTestSuite(tests):
     availableTests = (
         "testLinearAnim",
         "testLinearAnimZeroDuration",
+        "testPointAnim",
         "testEaseInOutAnim",
 #        "testSplineAnim",
 #        "testContinuousAnim",

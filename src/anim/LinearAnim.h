@@ -40,13 +40,9 @@ public:
     virtual ~LinearAnim();
 
 protected:
-    virtual void step(double t);
-    virtual void regularStop();
-    virtual double calcStartTime();
+    virtual double interpolate(double t);
     
 private:
-    boost::python::object m_StartValue;
-    boost::python::object m_EndValue;
 };
 
 }
