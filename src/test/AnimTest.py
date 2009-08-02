@@ -37,14 +37,9 @@ if platform.system() == 'Windows':
 else:
     import avg
 
-if platform.system() == 'Windows':
-    from libavg import anim, draggable, button, textarea
-else:
-    import anim, draggable, button, textarea
-
 from testcase import *
 
-class PythonTestCase(AVGTestCase):
+class AnimTestCase(AVGTestCase):
     def __init__(self, testFuncName):
         AVGTestCase.__init__(self, testFuncName, 24)
     def testAnimType(self, curAnim, imgBaseName):
@@ -57,7 +52,7 @@ class PythonTestCase(AVGTestCase):
         def startKeepAttr():
             node = Player.getElementByID("test")
             node.x = 25
-            self.__anim.start(keepAttr=True)
+            self.__anim.start(True)
         def abortAnim():
             self.__anim.abort()
         self.__anim = curAnim
@@ -67,24 +62,24 @@ class PythonTestCase(AVGTestCase):
         self.start(None,
                 (startAnim,
                  lambda: self.compareImage(imgBaseName+"1", False),
-                 lambda: self.assert_(anim.getNumRunningAnims() == 1),
+                 lambda: self.assert_(avg.getNumRunningAnims() == 1),
                  None,
                  None,
                  lambda: self.assert_(self.__onStopCalled),
-                 lambda: self.assert_(self.__anim.isDone),
+                 lambda: self.assert_(not(self.__anim.isRunning())),
                  lambda: self.compareImage(imgBaseName+"2", False),
                  lambda: self.assert_(Player.getElementByID("test").x == 100),
                  startAnim,
                  lambda: self.compareImage(imgBaseName+"1", False),
                  abortAnim,
-                 lambda: self.assert_(anim.getNumRunningAnims() == 0),
+                 lambda: self.assert_(avg.getNumRunningAnims() == 0),
                  lambda: self.compareImage(imgBaseName+"3", False),
-                 lambda: self.assert_(self.__anim.isDone),
+                 lambda: self.assert_(not(self.__anim.isRunning())),
                  None,
-                 lambda: self.assert_(not(self.__onStopCalled)),
+                 lambda: self.assert_(self.__onStopCalled),
                  startAnim,
                  startKeepAttr,
-                 lambda: self.assert_(anim.getNumRunningAnims() == 1),
+                 lambda: self.assert_(avg.getNumRunningAnims() == 1),
                  abortAnim
                 ))
         self.__anim = None
@@ -92,8 +87,8 @@ class PythonTestCase(AVGTestCase):
     def testLinearAnim(self):
         Player.loadFile("image.avg")
         node = Player.getElementByID("test")
-        curAnim = anim.LinearAnim(node, "x", 200, 0, 100, False)
-        self.testAnimType(curAnim, "testLinearAnim")
+        curAnim = avg.LinearAnim(node, "x", 200, 0, 100, False)
+        self.testAnimType(curAnim, "testLinearAnimC")
 
     def testLinearAnimZeroDuration(self):
         def onStop():
@@ -104,16 +99,16 @@ class PythonTestCase(AVGTestCase):
             self.__anim.start()
         Player.loadFile("image.avg")
         node = Player.getElementByID("test")
-        self.__anim = anim.LinearAnim(node, "x", 0, 0, 100, False)
+        self.__anim = avg.LinearAnim(node, "x", 0, 0, 100, False)
         self.__anim.setHandler(onStop, None)
         self.__onStopCalled = False
         Player.setFakeFPS(10)
         self.start(None,
                 (startAnim,
-                 lambda: self.compareImage("testLinearAnimZeroDuration1", False),
-                 lambda: self.assert_(anim.getNumRunningAnims() == 0),
+                 lambda: self.compareImage("testLinearAnimZeroDurationC1", False),
+                 lambda: self.assert_(avg.getNumRunningAnims() == 0),
                  lambda: self.assert_(self.__onStopCalled),
-                 lambda: self.assert_(self.__anim.isDone)
+                 lambda: self.assert_(not(self.__anim.isRunning()))
                 ))
         self.__anim = None
 
@@ -500,28 +495,27 @@ class PythonTestCase(AVGTestCase):
         Helper.fakeMouseEvent(type, True, False, False, x, y, 1)
 
 
-def pythonTestSuite (tests):
+def animTestSuite(tests):
     availableTests = (
         "testLinearAnim",
         "testLinearAnimZeroDuration",
-        "testEaseInOutAnim",
-        "testSplineAnim",
-        "testContinuousAnim",
-        "testWaitAnim",
-        "testParallelAnim",
-        "testStateAnim",
-        "testDraggable",
-        "testButton",
-        "testCheckbox",
-        "testTextArea",
-        "testFocusContext",
+#        "testEaseInOutAnim",
+#        "testSplineAnim",
+#        "testContinuousAnim",
+#        "testWaitAnim",
+#        "testParallelAnim",
+#        "testStateAnim",
+#        "testDraggable",
+#        "testButton",
+#        "testCheckbox",
+#        "testTextArea",
+#        "testFocusContext",
         )
-    return AVGTestSuite (availableTests, PythonTestCase, tests)
+    return AVGTestSuite(availableTests, AnimTestCase, tests)
 
 Player = avg.Player.get()
-anim.init(avg)
 
 if __name__ == '__main__':
-    runStandaloneTest (pythonTestSuite)
+    runStandaloneTest(animTestSuite)
 
 

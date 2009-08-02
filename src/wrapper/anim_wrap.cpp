@@ -29,6 +29,8 @@ using namespace boost::python;
 using namespace std;
 using namespace avg;
 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(start_overloads, SimpleAnim::start, 0, 1);
+
 void export_anim()
 {
     def("getNumRunningAnims", SimpleAnim::getNumRunningAnims);
@@ -44,7 +46,7 @@ void export_anim()
             "one is aborted.",
             no_init)
         .def("setHandler", &SimpleAnim::setHandler)
-        .def("start", &SimpleAnim::start)
+        .def("start", &SimpleAnim::start, start_overloads(args("bKeepAttr")))
         .def("abort", &SimpleAnim::abort, 
                 "Stops the animation. Does not call onStop()")
         .def("isRunning", &SimpleAnim::isRunning)

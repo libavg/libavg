@@ -51,6 +51,7 @@ from WordsTest import *
 from AVTest import *
 from DynamicsTest import *
 from PythonTest import *
+from AnimTest import *
 
 
 def runConsoleTest():
@@ -117,6 +118,7 @@ else:
             'av': (AVTestSuite, {}),
             'dynamics': (dynamicsTestSuite, {}),
             'python': (pythonTestSuite, {}),
+            'anim': (animTestSuite, {}),
             }
     tests = []
     if len(args): # suite
