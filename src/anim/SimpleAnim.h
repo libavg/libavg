@@ -26,6 +26,7 @@
 // Python docs say python.h should be included before any standard headers (!)
 #include "../player/WrapPython.h" 
 
+#include "Anim.h"
 #include "../base/IFrameListener.h"
 #include "../player/Node.h"
 
@@ -47,7 +48,7 @@ struct ObjAttrID {
     bool operator < (const ObjAttrID& other) const;
 };
 
-class AVG_API SimpleAnim: public IFrameListener {
+class AVG_API SimpleAnim: public Anim, IFrameListener {
 public:
     static int getNumRunningAnims();
 
@@ -60,11 +61,8 @@ public:
             const boost::python::object& stopCallback);
     virtual ~SimpleAnim()=0;
 
-    void setStartCallback(const boost::python::object& startCallback);
-    void setStopCallback(const boost::python::object& stopCallback);
-    void start(bool bKeepAttr=false);
+    virtual void start(bool bKeepAttr=false);
     void abort();
-    bool isRunning();
 
     void onFrameEnd();
 
@@ -87,9 +85,6 @@ private:
     boost::python::object m_StartValue;
     boost::python::object m_EndValue;
     bool m_bUseInt;
-    boost::python::object m_StartCallback;
-    boost::python::object m_StopCallback;
-    bool m_bRunning;
     long long m_StartTime;
 
     typedef std::map<ObjAttrID, SimpleAnim*> AttrAnimationMap;

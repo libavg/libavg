@@ -51,15 +51,13 @@ int SimpleAnim::getNumRunningAnims()
 SimpleAnim::SimpleAnim(const object& node, const string& sAttrName, double duration, 
         const object& startValue, const object& endValue, bool bUseInt, 
         const object& startCallback, const object& stopCallback)
-    : m_Node(node),
+    : Anim(startCallback, stopCallback),
+      m_Node(node),
       m_sAttrName(sAttrName),
       m_Duration(duration),
       m_StartValue(startValue),
       m_EndValue(endValue),
-      m_bUseInt(bUseInt),
-      m_StartCallback(startCallback),
-      m_StopCallback(stopCallback),
-      m_bRunning(false)
+      m_bUseInt(bUseInt)
 {
     object obj = getValue();
 }
@@ -68,22 +66,9 @@ SimpleAnim::~SimpleAnim()
 {
 }
 
-void SimpleAnim::setStartCallback(const object& startCallback)
-{
-    m_StartCallback = startCallback;
-}
-
-void SimpleAnim::setStopCallback(const object& stopCallback)
-{
-    m_StopCallback = stopCallback;
-}
-
 void SimpleAnim::start(bool bKeepAttr)
 {
-    if (!(Player::get()->isPlaying())) {
-        throw(Exception(AVG_ERR_UNSUPPORTED, 
-                "Animation playback can only be started when the player is running."));
-    }
+    Anim::start();
     abortAnim(m_Node, m_sAttrName);
     s_ActiveAnimations[ObjAttrID(m_Node, m_sAttrName)] = this;
     if (bKeepAttr) {
@@ -92,10 +77,6 @@ void SimpleAnim::start(bool bKeepAttr)
         m_StartTime = Player::get()->getFrameTime();
     }
     Player::get()->registerFrameListener(this);
-    m_bRunning = true;
-    if (m_StartCallback != object()) {
-        call<void>(m_StartCallback.ptr());
-    }
     if (m_Duration == 0) {
         setValue(m_EndValue);
         remove();
@@ -106,14 +87,9 @@ void SimpleAnim::start(bool bKeepAttr)
 
 void SimpleAnim::abort()
 {
-    if (m_bRunning) {
+    if (isRunning()) {
         remove();
     }
-}
-
-bool SimpleAnim::isRunning()
-{
-    return m_bRunning;
 }
 
 void SimpleAnim::onFrameEnd()
@@ -206,12 +182,9 @@ double SimpleAnim::calcStartTime()
 
 void SimpleAnim::remove() 
 {
-    m_bRunning = false;
     s_ActiveAnimations.erase(ObjAttrID(m_Node, m_sAttrName));
     Player::get()->unregisterFrameListener(this);
-    if (m_StopCallback != object()) {
-        call<void>(m_StopCallback.ptr());
-    }
+    setStopped();
 }
 
 void SimpleAnim::abortAnim(const object& node, const string& sAttrName)
