@@ -169,16 +169,20 @@ void SimpleAnim::step()
         double part = interpolate(t);
         if (isPythonType<double>(m_StartValue)) {
             curValue = typedLERP<double>(m_StartValue, m_EndValue, part);
+            if (m_bUseInt) {
+                double d = extract<double>(curValue);
+                curValue = object(round(d));
+            }
         } else if (isPythonType<DPoint>(m_StartValue)) {
             curValue = typedLERP<DPoint>(m_StartValue, m_EndValue, part);
+            if (m_bUseInt) {
+                DPoint pt = extract<DPoint>(curValue);
+                curValue = object(DPoint(round(pt.x), round(pt.y)));
+            }
         } else {
             throw (Exception(AVG_ERR_TYPE, 
                     "Animated attributes must be either numbers or Point2D."));
         }
-    /*        if (getUseInt()) {
-                curValue = 
-            }
-    */        
         setValue(curValue);
     }
 }
