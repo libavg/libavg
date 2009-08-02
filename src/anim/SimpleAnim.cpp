@@ -61,6 +61,7 @@ SimpleAnim::SimpleAnim(const object& node, const string& sAttrName, double durat
       m_StopCallback(stopCallback),
       m_bRunning(false)
 {
+    object obj = getValue();
 }
 
 SimpleAnim::~SimpleAnim()
@@ -137,19 +138,19 @@ void SimpleAnim::setValue(const object& val)
 }
 
 template<class T>
-bool tryTypedLERP(object& curValue, const object& startValue, const object& endValue, 
-        double part)
+bool isPythonType(const object& obj)
 {
-    extract<T> ext(startValue);
-    if (ext.check()) {
-        T start = ext();
-        T end = extract<T>(endValue);
-        T cur = start+(end-start)*part;
-        curValue = object(cur);
-        return true;
-    } else {
-        return false;
-    }
+    extract<T> ext(obj);
+    return ext.check();
+}
+
+template<class T>
+object typedLERP(const object& startValue, const object& endValue, double part)
+{
+    T start = extract<T>(startValue);
+    T end = extract<T>(endValue);
+    T cur = start+(end-start)*part;
+    return object(cur);
 }
 
 void SimpleAnim::step()
@@ -162,13 +163,13 @@ void SimpleAnim::step()
     } else {
         object curValue;
         double part = interpolate(t);
-        bool bDouble = tryTypedLERP<double>(curValue, m_StartValue, m_EndValue, part);
-        if (!bDouble) {
-            bool bDPoint = tryTypedLERP<DPoint>(curValue, m_StartValue, m_EndValue, part);
-            if (!bDPoint) {
-                throw (Exception(AVG_ERR_TYPE, 
-                        "Animated attributes must be either numbers or Point2D."));
-            }
+        if (isPythonType<double>(m_StartValue)) {
+            curValue = typedLERP<double>(m_StartValue, m_EndValue, part);
+        } else if (isPythonType<DPoint>(m_StartValue)) {
+            curValue = typedLERP<DPoint>(m_StartValue, m_EndValue, part);
+        } else {
+            throw (Exception(AVG_ERR_TYPE, 
+                    "Animated attributes must be either numbers or Point2D."));
         }
     /*        if (getUseInt()) {
                 curValue = 
@@ -180,7 +181,18 @@ void SimpleAnim::step()
 
 double SimpleAnim::calcStartTime()
 {
-    double part = extract<double>((getValue()-m_StartValue)/(m_EndValue-m_StartValue));
+    double part;
+    if (isPythonType<double>(m_StartValue)) {
+        part = extract<double>((getValue()-m_StartValue)/(m_EndValue-m_StartValue));
+    } else if (isPythonType<DPoint>(m_StartValue)) {
+        double start = DPoint(extract<DPoint>(m_StartValue)).x;
+        double end = DPoint(extract<DPoint>(m_EndValue)).x;
+        double cur = DPoint(extract<DPoint>(getValue())).x;
+        part = (cur-start)/(end-start);
+    } else {
+        throw (Exception(AVG_ERR_TYPE, 
+                    "Animated attributes must be either numbers or Point2D."));
+    }
     return Player::get()->getFrameTime()-part*getDuration();
 }
 

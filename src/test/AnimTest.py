@@ -91,6 +91,12 @@ class AnimTestCase(AVGTestCase):
         curAnim = avg.LinearAnim(node, "x", 200, 0, 100, False)
         self.testAnimType(curAnim, "testLinearAnimC")
 
+    def testNonExistentAttributeAnim(self):
+        Player.loadFile("image.avg")
+        node = Player.getElementByID("test")
+        self.assertException(lambda: avg.LinearAnim(node, "foo", 0, 0, 0, False))
+        self.assertException(lambda: avg.LinearAnim(None, "x", 0, 0, 0, False))
+
     def testLinearAnimZeroDuration(self):
         def onStop():
             self.__onStopCalled = True
@@ -115,6 +121,10 @@ class AnimTestCase(AVGTestCase):
     def testPointAnim(self):
         def startAnim():
             self.__anim.start()
+        def startKeepAttr():
+            node = Player.getElementByID("test")
+            node.pos = (50, 20)
+            self.__anim.start(True)
         Player.loadFile("image.avg")
         node = Player.getElementByID("test")
         self.__anim = avg.LinearAnim(node, "pos", 200, avg.Point2D(0,0), 
@@ -124,7 +134,10 @@ class AnimTestCase(AVGTestCase):
                 (startAnim,
                  lambda: self.compareImage("testPointAnim1", False),
                  None,
-                 lambda: self.compareImage("testPointAnim2", False)
+                 lambda: self.compareImage("testPointAnim2", False),
+                 lambda: self.assert_(not(self.__anim.isRunning())),
+                 startKeepAttr,
+                 lambda: self.compareImage("testPointAnim3", False),
                 ))
 
     def testEaseInOutAnim(self):
@@ -513,6 +526,7 @@ class AnimTestCase(AVGTestCase):
 def animTestSuite(tests):
     availableTests = (
         "testLinearAnim",
+        "testNonExistentAttributeAnim",
         "testLinearAnimZeroDuration",
         "testPointAnim",
         "testEaseInOutAnim",
