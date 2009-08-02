@@ -19,49 +19,45 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Anim_H_
-#define _Anim_H_
+#include "WaitAnim.h"
 
-#include "../api.h"
-// Python docs say python.h should be included before any standard headers (!)
-#include "../player/WrapPython.h" 
+#include "../player/Player.h"
 
-#include "../base/IFrameListener.h"
-#include "../player/Node.h"
-
-#include <boost/python.hpp>
-
-#include <string>
-#include <map>
+using namespace boost::python;
+using namespace std;
 
 namespace avg {
 
-class AVG_API Anim {
-public:
-    static int getNumRunningAnims();
-
-    Anim(const boost::python::object& startCallback, 
-            const boost::python::object& stopCallback);
-    virtual ~Anim()=0;
-
-    void setStartCallback(const boost::python::object& startCallback);
-    void setStopCallback(const boost::python::object& stopCallback);
-    virtual void start(bool bKeepAttr=false);
-    virtual void abort() = 0;
-    bool isRunning() const;
-
-protected:
-    void setStopped();
-    
-private:
-    boost::python::object m_StartCallback;
-    boost::python::object m_StopCallback;
-    bool m_bRunning;
-};
-
+WaitAnim::WaitAnim(double duration,
+            const object& startCallback, const object& stopCallback)
+    : Anim(startCallback, stopCallback),
+      m_Duration(duration)
+{
 }
 
-#endif 
+WaitAnim::~WaitAnim()
+{
+}
 
+void WaitAnim::start(bool bKeepAttr)
+{
+    Anim::start();
+    m_StartTime = Player::get()->getFrameTime();
+    Player::get()->registerFrameListener(this);
+}
 
+void WaitAnim::abort()
+{
+    Player::get()->unregisterFrameListener(this);
+    setStopped();
+}
+    
+void WaitAnim::onFrameEnd()
+{
+    if (Player::get()->getFrameTime()-m_StartTime > m_Duration) {
+        Player::get()->unregisterFrameListener(this);
+        setStopped();
+    }
+}
 
+}

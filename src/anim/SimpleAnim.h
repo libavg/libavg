@@ -62,9 +62,9 @@ public:
     virtual ~SimpleAnim()=0;
 
     virtual void start(bool bKeepAttr=false);
-    void abort();
+    virtual void abort();
 
-    void onFrameEnd();
+    virtual void onFrameEnd();
 
 protected:
     double getStartTime() const;

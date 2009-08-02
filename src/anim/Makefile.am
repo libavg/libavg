@@ -1,8 +1,8 @@
 INCLUDES = -I.. @XML2_CFLAGS@ @PYTHON_INCLUDES@
 
-ALL_H = Anim.h SimpleAnim.h LinearAnim.h EaseInOutAnim.h
+ALL_H = Anim.h SimpleAnim.h LinearAnim.h EaseInOutAnim.h WaitAnim.h
 
-ALL_CPP = Anim.cpp SimpleAnim.cpp LinearAnim.cpp EaseInOutAnim.cpp
+ALL_CPP = Anim.cpp SimpleAnim.cpp LinearAnim.cpp EaseInOutAnim.cpp WaitAnim.cpp   
 
 noinst_LTLIBRARIES = libanim.la
 libanim_la_SOURCES = $(ALL_CPP) $(ALL_H)

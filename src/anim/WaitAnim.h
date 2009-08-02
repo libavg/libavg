@@ -19,44 +19,30 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#ifndef _Anim_H_
-#define _Anim_H_
+#ifndef _WaitAnim_H_
+#define _WaitAnim_H_
 
 #include "../api.h"
-// Python docs say python.h should be included before any standard headers (!)
-#include "../player/WrapPython.h" 
 
-#include "../base/IFrameListener.h"
-#include "../player/Node.h"
-
-#include <boost/python.hpp>
-
-#include <string>
-#include <map>
+#include "SimpleAnim.h"
 
 namespace avg {
 
-class AVG_API Anim {
+class AVG_API WaitAnim: public Anim, IFrameListener {
 public:
-    static int getNumRunningAnims();
-
-    Anim(const boost::python::object& startCallback, 
-            const boost::python::object& stopCallback);
-    virtual ~Anim()=0;
-
-    void setStartCallback(const boost::python::object& startCallback);
-    void setStopCallback(const boost::python::object& stopCallback);
-    virtual void start(bool bKeepAttr=false);
-    virtual void abort() = 0;
-    bool isRunning() const;
-
-protected:
-    void setStopped();
+    WaitAnim(double duration,
+            const boost::python::object& startCallback=boost::python::object(), 
+            const boost::python::object& stopCallback=boost::python::object());
+    virtual ~WaitAnim();
     
+    virtual void start(bool bKeepAttr=false);
+    virtual void abort();
+    
+    virtual void onFrameEnd();
+
 private:
-    boost::python::object m_StartCallback;
-    boost::python::object m_StopCallback;
-    bool m_bRunning;
+    long long m_Duration;
+    long long m_StartTime;
 };
 
 }

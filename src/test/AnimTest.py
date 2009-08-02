@@ -209,18 +209,17 @@ class AnimTestCase(AVGTestCase):
             self.__endCalled = True
 
         def startAnim():
-            self.anim = anim.WaitAnim(200, animStopped, False)
+            self.anim = avg.WaitAnim(200, animStopped, None)
             self.anim.start()
 
         self.initScene()
-        anim.init(avg)
         self.__endCalled = False
         self.start(None,
                 (startAnim, 
-                 lambda: self.assert_(not(self.anim.isDone())),
+                 lambda: self.assert_(self.anim.isRunning()),
                  None,
                  None,
-                 lambda: self.assert_(self.anim.isDone()),
+                 lambda: self.assert_(not(self.anim.isRunning())),
                  lambda: self.assert_(self.__endCalled)
                 ))
 
@@ -548,7 +547,7 @@ def animTestSuite(tests):
         "testIntAnim",
 #        "testSplineAnim",
 #        "testContinuousAnim",
-#        "testWaitAnim",
+        "testWaitAnim",
 #        "testParallelAnim",
 #        "testStateAnim",
 #        "testDraggable",

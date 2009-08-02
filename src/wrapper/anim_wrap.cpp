@@ -24,19 +24,28 @@
 #include "../anim/SimpleAnim.h"
 #include "../anim/LinearAnim.h"
 #include "../anim/EaseInOutAnim.h"
+#include "../anim/WaitAnim.h"
 #include "../player/BoostPython.h"
 
 using namespace boost::python;
 using namespace std;
 using namespace avg;
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(start_overloads, SimpleAnim::start, 0, 1);
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(simple_start_overloads, SimpleAnim::start, 0, 1);
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(wait_start_overloads, WaitAnim::start, 0, 1);
 
 void export_anim()
 {
     def("getNumRunningAnims", SimpleAnim::getNumRunningAnims);
+    
+    class_<Anim, boost::noncopyable>("Anim", no_init)
+        .def("setStartCallback", &Anim::setStartCallback)
+        .def("setStopCallback", &Anim::setStopCallback)
+        .def("abort", &Anim::abort, "Stops the animation.")
+        .def("isRunning", &Anim::isRunning)
+        ;
 
-    class_<SimpleAnim, boost::noncopyable>("SimpleAnim",
+    class_<SimpleAnim, bases<Anim>, boost::noncopyable>("SimpleAnim",
             "Base class for animations that change libavg node attributes by\n"
             "interpolating over a set amount of time. Constructing an animation\n"
             "object starts the animation. If abort() isn't needed, there is no need\n"
@@ -46,12 +55,7 @@ void export_anim()
             "of a node runs at any given time. If a second one is started, the first\n"
             "one is aborted.",
             no_init)
-        .def("setStartCallback", &SimpleAnim::setStartCallback)
-        .def("setStopCallback", &SimpleAnim::setStopCallback)
-        .def("start", &SimpleAnim::start, start_overloads(args("bKeepAttr")))
-        .def("abort", &SimpleAnim::abort, 
-                "Stops the animation. Does not call onStop()")
-        .def("isRunning", &SimpleAnim::isRunning)
+        .def("start", &SimpleAnim::start, simple_start_overloads(args("bKeepAttr")))
         ;
 
     class_<LinearAnim, bases<SimpleAnim>, boost::noncopyable>("LinearAnim",
@@ -87,5 +91,12 @@ void export_anim()
                 double, double, bool, const object&>())
         .def(init<const object&, const string&, double, const object&, const object&,
                 double, double, bool, const object&, const object&>())
+        ;
+    
+    class_<WaitAnim, bases<Anim>, boost::noncopyable>("WaitAnim", no_init)
+        .def(init<double>())
+        .def(init<double, const object&>())
+        .def(init<double, const object&, const object&>())
+        .def("start", &WaitAnim::start, wait_start_overloads(args("bKeepAttr")))
         ;
 }
