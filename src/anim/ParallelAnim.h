@@ -46,6 +46,8 @@ public:
 private:
     std::vector<AnimPtr> m_Anims;
     long long m_MaxAge;
+
+    long long m_StartTime;
 };
 
 }

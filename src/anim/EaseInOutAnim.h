@@ -34,7 +34,7 @@ public:
             long long duration,
             const boost::python::object& pStartValue, 
             const boost::python::object& pEndValue,
-            long long easeInDuration, long long easeOutDuration, bool bUseInt, 
+            long long easeInDuration, long long easeOutDuration, bool bUseInt=false, 
             const boost::python::object& startCallback=boost::python::object(), 
             const boost::python::object& stopCallback=boost::python::object());
     virtual ~EaseInOutAnim();
