@@ -31,14 +31,14 @@ using namespace std;
 
 namespace avg {
 
-EaseInOutAnim::EaseInOutAnim(const object& node, const string& sAttrName, double duration,
-            const object& startValue, const object& endValue, 
-            double easeInDuration, double easeOutDuration, bool bUseInt, 
+EaseInOutAnim::EaseInOutAnim(const object& node, const string& sAttrName, 
+            long long duration, const object& startValue, const object& endValue, 
+            long long easeInDuration, long long easeOutDuration, bool bUseInt, 
             const object& startCallback, const object& stopCallback)
     : SimpleAnim(node, sAttrName, duration, startValue, endValue, bUseInt, startCallback,
             stopCallback),
-      m_EaseInDuration(easeInDuration/duration),
-      m_EaseOutDuration(easeOutDuration/duration)
+      m_EaseInDuration(double(easeInDuration)/duration),
+      m_EaseOutDuration(double(easeOutDuration)/duration)
 {
 }
 

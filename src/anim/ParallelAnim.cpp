@@ -19,7 +19,7 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "LinearAnim.h"
+#include "ParallelAnim.h"
 
 #include "../player/Player.h"
 
@@ -28,21 +28,36 @@ using namespace std;
 
 namespace avg {
 
-LinearAnim::LinearAnim(const object& node, const string& sAttrName, long long duration,
-            const object& startValue, const object& endValue, bool bUseInt, 
+ParallelAnim::ParallelAnim(double duration,
             const object& startCallback, const object& stopCallback)
-    : SimpleAnim(node, sAttrName, duration, startValue, endValue, bUseInt, startCallback,
-            stopCallback)
+    : Anim(startCallback, stopCallback),
+      m_Duration(duration)
 {
 }
 
-LinearAnim::~LinearAnim()
+ParallelAnim::~ParallelAnim()
 {
 }
 
-double LinearAnim::interpolate(double t)
+void ParallelAnim::start(bool bKeepAttr)
 {
-    return t;
+    Anim::start();
+    m_StartTime = Player::get()->getFrameTime();
+    Player::get()->registerFrameListener(this);
+}
+
+void ParallelAnim::abort()
+{
+    Player::get()->unregisterFrameListener(this);
+    setStopped();
 }
     
+void ParallelAnim::onFrameEnd()
+{
+    if (Player::get()->getFrameTime()-m_StartTime > m_Duration) {
+        Player::get()->unregisterFrameListener(this);
+        setStopped();
+    }
+}
+
 }

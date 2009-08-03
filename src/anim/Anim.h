@@ -30,6 +30,7 @@
 #include "../player/Node.h"
 
 #include <boost/python.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <string>
 #include <map>
@@ -58,6 +59,8 @@ private:
     boost::python::object m_StopCallback;
     bool m_bRunning;
 };
+
+typedef boost::shared_ptr<class Anim> AnimPtr;
 
 }
 

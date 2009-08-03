@@ -19,30 +19,38 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "LinearAnim.h"
+#ifndef _ParallelAnim_H_
+#define _ParallelAnim_H_
 
-#include "../player/Player.h"
+#include "../api.h"
 
-using namespace boost::python;
-using namespace std;
+#include "Anim.h"
+
+#include <vector>
 
 namespace avg {
 
-LinearAnim::LinearAnim(const object& node, const string& sAttrName, long long duration,
-            const object& startValue, const object& endValue, bool bUseInt, 
-            const object& startCallback, const object& stopCallback)
-    : SimpleAnim(node, sAttrName, duration, startValue, endValue, bUseInt, startCallback,
-            stopCallback)
-{
-}
-
-LinearAnim::~LinearAnim()
-{
-}
-
-double LinearAnim::interpolate(double t)
-{
-    return t;
-}
+class AVG_API ParallelAnim: public Anim, IFrameListener {
+public:
+    ParallelAnim(const std::vector<AnimPtr>& anims,
+            const boost::python::object& startCallback=boost::python::object(), 
+            const boost::python::object& stopCallback=boost::python::object(),
+            long long maxAge=-1);
+    virtual ~ParallelAnim();
     
+    virtual void start(bool bKeepAttr=false);
+    virtual void abort();
+    
+    virtual void onFrameEnd();
+
+private:
+    std::vector<AnimPtr> m_Anims;
+    long long m_MaxAge;
+};
+
 }
+
+#endif 
+
+
+

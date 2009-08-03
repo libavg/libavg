@@ -53,7 +53,7 @@ public:
     static int getNumRunningAnims();
 
     SimpleAnim(const boost::python::object& node, const std::string& sAttrName,
-            double duration,
+            long long duration,
             const boost::python::object& pStartValue, 
             const boost::python::object& pEndValue, 
             bool bUseInt, 

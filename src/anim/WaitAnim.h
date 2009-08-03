@@ -30,7 +30,7 @@ namespace avg {
 
 class AVG_API WaitAnim: public Anim, IFrameListener {
 public:
-    WaitAnim(double duration,
+    WaitAnim(long long duration,
             const boost::python::object& startCallback=boost::python::object(), 
             const boost::python::object& stopCallback=boost::python::object());
     virtual ~WaitAnim();

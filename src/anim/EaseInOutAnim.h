@@ -31,10 +31,10 @@ namespace avg {
 class AVG_API EaseInOutAnim: public SimpleAnim {
 public:
     EaseInOutAnim(const boost::python::object& node, const std::string& sAttrName, 
-            double duration,
+            long long duration,
             const boost::python::object& pStartValue, 
             const boost::python::object& pEndValue,
-            double easeInDuration, double easeOutDuration, bool bUseInt, 
+            long long easeInDuration, long long easeOutDuration, bool bUseInt, 
             const boost::python::object& startCallback=boost::python::object(), 
             const boost::python::object& stopCallback=boost::python::object());
     virtual ~EaseInOutAnim();

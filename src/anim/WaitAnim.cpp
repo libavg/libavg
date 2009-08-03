@@ -28,7 +28,7 @@ using namespace std;
 
 namespace avg {
 
-WaitAnim::WaitAnim(double duration,
+WaitAnim::WaitAnim(long long duration,
             const object& startCallback, const object& stopCallback)
     : Anim(startCallback, stopCallback),
       m_Duration(duration)

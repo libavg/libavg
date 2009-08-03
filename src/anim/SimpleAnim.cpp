@@ -48,7 +48,7 @@ int SimpleAnim::getNumRunningAnims()
     return s_ActiveAnimations.size();
 }
 
-SimpleAnim::SimpleAnim(const object& node, const string& sAttrName, double duration, 
+SimpleAnim::SimpleAnim(const object& node, const string& sAttrName, long long duration, 
         const object& startValue, const object& endValue, bool bUseInt, 
         const object& startCallback, const object& stopCallback)
     : Anim(startCallback, stopCallback),
