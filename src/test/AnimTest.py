@@ -228,13 +228,12 @@ class AnimTestCase(AVGTestCase):
             self.__state2CallbackCalled = True
         def makeAnim():
             node = Player.getElementByID("test")
-            self.anim = anim.StateAnim(
-                    {"STATE1": anim.LinearAnim(node, "x", 200, 64, 128),
-                     "STATE2": anim.LinearAnim(node, "x", 200, 128, 64),
-                     "STATE3": anim.WaitAnim()},
-                    {"STATE1": anim.AnimTransition("STATE2", state2Callback),
-                     "STATE2": anim.AnimTransition("STATE3")})
-        anim.init(avg)
+            self.anim = avg.StateAnim(
+                    {"STATE1": avg.LinearAnim(node, "x", 200, 64, 128),
+                     "STATE2": avg.LinearAnim(node, "x", 200, 128, 64),
+                     "STATE3": avg.WaitAnim()},
+                    {"STATE1": avg.AnimTransition("STATE2", state2Callback),
+                     "STATE2": avg.AnimTransition("STATE3")})
         Player.setFakeFPS(10)
         self.__state2CallbackCalled = False
         self.start("image.avg",
@@ -249,7 +248,7 @@ class AnimTestCase(AVGTestCase):
                  lambda: self.anim.getState() == "STATE3",
                  lambda: self.compareImage("testStateAnim4", False),
                  lambda: self.anim.setState("STATE1"),
-                 lambda: self.assert_(anim.getNumRunningAnims() == 1),
+                 lambda: self.assert_(avg.getNumRunningAnims() == 1),
                  lambda: self.compareImage("testStateAnim5", False)
                 ))
 
@@ -313,260 +312,6 @@ class AnimTestCase(AVGTestCase):
                 ))
         self.nodes = []
 
-    def testDraggable(self):
-        def onDragStart(event):
-            self.__dragStartCalled = True
-        def onDragEnd(event):
-            self.__dragEndCalled = True
-        def startDrag():
-            Helper.fakeMouseEvent(avg.CURSORDOWN, True, False, False, 140, 40, 1)
-        def move():
-            Helper.fakeMouseEvent(avg.CURSORMOTION, True, False, False, 150, 50, 1)
-        def stop():
-            Helper.fakeMouseEvent(avg.CURSORUP, True, False, False, 140, 40, 1)
-        self.__dragEndCalled = False
-        self.__dragStartCalled = False
-        Helper = Player.getTestHelper()    
-        Player.loadFile("image.avg")
-        draggable.init(avg)
-        dragger = draggable.Draggable(Player.getElementByID("test1"),
-                onDragStart, onDragEnd)
-        dragger.enable()
-        self.start(None,
-                (startDrag,
-                 lambda: self.assert_(self.__dragStartCalled),
-                 move,
-                 lambda: self.compareImage("testDraggable1", False),
-                 stop,
-                 lambda: self.assert_(self.__dragEndCalled),
-                 lambda: self.compareImage("testDraggable2", False),
-                 dragger.disable,
-                 startDrag,
-                 move,
-                 lambda: self.compareImage("testDraggable2", False)
-                ))
-
-    def testButton(self):
-        def onClick(event):
-            self.__clicked = True
-        def createButton():
-            buttonNode = Player.getElementByID("button") 
-            self.button = button.Button(buttonNode, onClick)
-            buttonNode.getChild(4).opacity = 0
-        def down():
-            self.__sendEvent(avg.CURSORDOWN, 0, 0)
-        def out():
-            self.__sendEvent(avg.CURSORMOTION, 0, 50)
-        def upOutside():
-            self.__sendEvent(avg.CURSORUP, 0, 50)
-        def over():
-            self.__sendEvent(avg.CURSORMOTION, 0, 0)
-        def upInside():
-            self.__sendEvent(avg.CURSORUP, 0, 0)
-        def disable():
-            self.button.setDisabled(True)
-            self.__clicked = False
-        self.__clicked = False
-        button.init(avg)
-        self.start("ButtonTest.avg",
-                (createButton,
-                lambda: self.compareImage("testButtonUp", False),
-                down,
-                lambda: self.compareImage("testButtonDown", False),
-                out,
-                lambda: self.compareImage("testButtonUp", False),
-                upOutside,
-                lambda: self.assert_(not(self.__clicked)),
-                down,
-                lambda: self.compareImage("testButtonDown", False),
-                out,
-                lambda: self.compareImage("testButtonUp", False),
-                over,
-                lambda: self.compareImage("testButtonDown", False),
-                upInside,
-                lambda: self.assert_(self.__clicked),
-                lambda: self.compareImage("testButtonOver", False),
-                out,
-                lambda: self.compareImage("testButtonUp", False),
-                disable,
-                lambda: self.compareImage("testButtonDisabled", False),
-                down,
-                lambda: self.compareImage("testButtonDisabled", False),
-                upInside,
-                lambda: self.assert_(not(self.__clicked)),
-                lambda: self.compareImage("testButtonDisabled", False),
-                out,
-                lambda: self.button.setDisabled(False),
-                lambda: self.compareImage("testButtonUp", False)
-               ))
-
-    def testCheckbox(self):
-        def createCheckbox():
-            self.checkbox = button.Checkbox(Player.getElementByID("button"))
-        def down():
-            self.__sendEvent(avg.CURSORDOWN, 0, 0)
-        def up():
-            self.__sendEvent(avg.CURSORUP, 0, 0)
-        def out():
-            self.__sendEvent(avg.CURSORMOTION, 0, 50)
-        button.init(avg)
-        self.start("ButtonTest.avg",
-                (createCheckbox,
-                lambda: self.compareImage("testCheckboxUp", False),
-                down,
-                lambda: self.compareImage("testCheckboxDown", False),
-                up,
-                lambda: self.assert_(self.checkbox.getState() == True),
-                lambda: self.compareImage("testCheckboxClickedOver", False),
-                out,
-                lambda: self.compareImage("testCheckboxClickedOut", False),
-                down,
-                lambda: self.compareImage("testCheckboxClickedDown", False),
-                up,
-                lambda: self.compareImage("testCheckboxOver", False)
-               ))
-
-    def testTextArea(self):
-        def setup():
-            self.ta1 = textarea.TextArea(Player.getElementByID('ph1'), id='ta1')
-            self.ta1.setStyle(font='Bitstream Vera Sans', variant='Roman',
-                fontsize=16, multiline=True, color='FFFFFF')
-            self.ta1.setText('Lorem ipsum')
-            self.ta1.setFocus(True) # TODO: REMOVE
-
-            self.ta2 = textarea.TextArea(Player.getElementByID('ph2'), id='ta2')
-            self.ta2.setStyle(font='Bitstream Vera Sans', variant='Roman',
-                fontsize=14, multiline=False, color='FFFFFF')
-            self.ta2.setText('sit dolor')
-            self.ta2.setFocus(True) # TODO: REMOVE
-            
-        def setAndCheck(ta, text):
-            ta.setText(text)
-            self.assert_(ta.getText() == text)
-        def clear(ta):
-            ta.onKeyDown(textarea.KEYCODE_FORMFEED)
-            self.assert_(ta.getText() == '')
-        def testUnicode():
-            self.ta1.setText(u'some ùnìcöde')
-            self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
-            self.assert_(self.ta1.getText() == u'some ùnìcöd')
-            self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[1])
-            self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
-            self.assert_(self.ta1.getText() == u'some ùnìc')
-            self.ta1.onKeyDown(ord(u'Ä'))
-            self.assert_(self.ta1.getText() == u'some ùnìcÄ')
-        def testSpecialChars():
-            clear(self.ta1)
-            self.ta1.onKeyDown(ord(u'&'))
-            self.ta1.onKeyDown(textarea.KEYCODES_BACKSPACE[0])
-            self.assert_(self.ta1.getText() == '')
-        def checkSingleLine():
-            text = ''
-            self.ta2.setText('')
-            while True:
-                self.assert_(len(text) < 20)
-                self.ta2.onKeyDown(ord(u'A'))
-                text = text + 'A'
-                if text != self.ta2.getText():
-                    self.assert_(len(text) == 16)
-                    break
-            
-        Player.loadString("""
-        <avg width="160" height="120">
-            <div id="ph1" x="2" y="2" width="156" height="96"/>
-            <div id="ph2" x="2" y="100" width="156" height="18"/>
-        </avg>
-        """)
-        
-        import time
-        textarea.init(avg, False)
-        self.start(None,
-               (setup,
-                lambda: self.assert_(self.ta1.getText() == 'Lorem ipsum'),
-                lambda: setAndCheck(self.ta1, ''),
-                lambda: setAndCheck(self.ta2, 'Lorem Ipsum'),
-                testUnicode,
-                lambda: self.compareImage("testTextArea1", True),
-                testSpecialChars,
-                checkSingleLine,
-                lambda: self.compareImage("testTextArea2", True),
-               ))
-
-    def testFocusContext(self):
-       def setup():
-           textarea.init(avg)
-           self.ctx1 = textarea.FocusContext()
-           self.ctx2 = textarea.FocusContext()
-
-           self.ta1 = textarea.TextArea(Player.getElementByID('ph1'),
-               self.ctx1, id='ta1')
-           self.ta1.setStyle(font='Bitstream Vera Sans', variant='Roman',
-               fontsize=16, multiline=True, color='FFFFFF')
-           self.ta1.setText('Lorem ipsum')
-
-           self.ta2 = textarea.TextArea(Player.getElementByID('ph2'),
-               self.ctx1, id='ta2')
-           self.ta2.setStyle(font='Bitstream Vera Sans', variant='Roman',
-               fontsize=14, multiline=False, color='FFFFFF')
-           self.ta2.setText('dolor')
-
-           self.ta3 = textarea.TextArea(Player.getElementByID('ph3'),
-               self.ctx2, disableMouseFocus=True, id='ta3')
-           self.ta3.setStyle(font='Bitstream Vera Sans', variant='Roman',
-               fontsize=14, multiline=True, color='FFFFFF')
-           self.ta3.setText('dolor sit amet')
-
-           textarea.setActiveFocusContext(self.ctx1)
-
-       def writeChar():
-           helper = Player.getTestHelper()
-           helper.fakeKeyEvent(avg.KEYDOWN, 65, 65, "A", 65, 0)
-           helper.fakeKeyEvent(avg.KEYUP, 65, 65, "A", 65, 0)
-           helper.fakeKeyEvent(avg.KEYDOWN, 66, 66, "B", 66, 0)
-           helper.fakeKeyEvent(avg.KEYUP, 66, 66, "B", 66, 0)
-           helper.fakeKeyEvent(avg.KEYDOWN, 67, 67, "C", 67, 0)
-           helper.fakeKeyEvent(avg.KEYUP, 67, 67, "C", 67, 0)
-
-       def switchFocus():
-           self.ctx1.cycleFocus()
-
-       def clearFocused():
-           self.ctx1.clear()
-
-       def clickForFocus():
-           self.__sendEvent(avg.CURSORDOWN, 20, 70)
-           self.__sendEvent(avg.CURSORUP, 20, 70)
-
-
-       Player.loadString("""
-       <avg width="160" height="120">
-           <div id="ph1" x="2" y="2" width="156" height="54"/>
-           <div id="ph2" x="2" y="58" width="76" height="54"/>
-           <div id="ph3" x="80" y="58" width="76" height="54">
-               <image href="1x1_white.png" width="76" height="54"/>
-           </div>
-       </avg>
-       """)
-       self.start(None,
-               (setup,
-                lambda: self.compareImage("testFocusContext1", True),
-                writeChar,
-                lambda: self.compareImage("testFocusContext2", True),
-                switchFocus,
-                writeChar,
-                lambda: self.compareImage("testFocusContext3", True),
-                switchFocus,
-                clearFocused,
-                lambda: self.compareImage("testFocusContext4", True),
-                clickForFocus,
-                clearFocused,
-                lambda: self.compareImage("testFocusContext5", True),
-              ))
-
-    def __sendEvent(self, type, x, y):
-        Helper = Player.getTestHelper()
-        Helper.fakeMouseEvent(type, True, False, False, x, y, 1)
-
 
 def animTestSuite(tests):
     availableTests = (
@@ -581,11 +326,6 @@ def animTestSuite(tests):
         "testWaitAnim",
         "testParallelAnim",
 #        "testStateAnim",
-#        "testDraggable",
-#        "testButton",
-#        "testCheckbox",
-#        "testTextArea",
-#        "testFocusContext",
         )
     return AVGTestSuite(availableTests, AnimTestCase, tests)
 
