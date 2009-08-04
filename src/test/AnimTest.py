@@ -255,7 +255,6 @@ class AnimTestCase(AVGTestCase):
 
     def testParallelAnim(self):
         def animStopped():
-            print "end" 
             self.__endCalled = True
 
         def startAnim():
@@ -263,8 +262,12 @@ class AnimTestCase(AVGTestCase):
                     [ avg.LinearAnim(self.nodes[0], "x", 200, 0, 60),
                       avg.LinearAnim(self.nodes[1], "x", 400, 0, 120),
                       avg.EaseInOutAnim(self.nodes[2], "x", 400, 0, 120, 100, 100)
-                    ], animStopped)
+                    ], None, animStopped)
+            self.__endCalled = False
             self.anim.start()
+
+        def abortAnim():
+            self.anim.abort()
 
         Player.loadString('<avg width="160" height="120"/>')
         self.nodes = []
@@ -273,8 +276,8 @@ class AnimTestCase(AVGTestCase):
                     {"id":str(i), "x":64, "y": i*20, "href":"rgb24-64x64.png"})
             Player.getRootNode().appendChild(node)
             self.nodes.append(node)
-        self.__endCalled = False
         Player.setFakeFPS(10)
+        self.__endCalled = False
         #TODO: test abort, max lifetime
         self.start(None,
                 (startAnim,
@@ -286,6 +289,11 @@ class AnimTestCase(AVGTestCase):
                  None,
                  lambda: self.assert_(not(self.anim.isRunning())),
                  lambda: self.compareImage("testParallelAnimC2", False),
+                 lambda: self.assert_(self.__endCalled),
+                 lambda: self.assert_(avg.getNumRunningAnims() == 0),
+                 startAnim,
+                 abortAnim,
+                 lambda: self.compareImage("testParallelAnimC3", False),
                  lambda: self.assert_(self.__endCalled),
                  lambda: self.assert_(avg.getNumRunningAnims() == 0)
                 ))
