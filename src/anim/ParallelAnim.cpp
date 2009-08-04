@@ -78,7 +78,7 @@ void ParallelAnim::onFrameEnd()
         Player::get()->unregisterFrameListener(this);
         setStopped();
     } else {
-        if (m_MaxAge != -1 && Player::get()->getFrameTime()-m_StartTime > m_MaxAge) {
+        if (m_MaxAge != -1 && Player::get()->getFrameTime()-m_StartTime >= m_MaxAge) {
             abort();
         }
     }

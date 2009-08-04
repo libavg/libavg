@@ -266,6 +266,14 @@ class AnimTestCase(AVGTestCase):
             self.__endCalled = False
             self.anim.start()
 
+        def startTimedAnim():
+            self.anim = avg.ParallelAnim(
+                    [ avg.LinearAnim(self.nodes[0], "x", 200, 0, 60),
+                      avg.LinearAnim(self.nodes[1], "x", 400, 0, 120),
+                    ], None, animStopped, 200)
+            self.__endCalled = False
+            self.anim.start()
+            
         def abortAnim():
             self.anim.abort()
 
@@ -295,7 +303,13 @@ class AnimTestCase(AVGTestCase):
                  abortAnim,
                  lambda: self.compareImage("testParallelAnimC3", False),
                  lambda: self.assert_(self.__endCalled),
-                 lambda: self.assert_(avg.getNumRunningAnims() == 0)
+                 lambda: self.assert_(avg.getNumRunningAnims() == 0),
+                 startTimedAnim,
+                 None,
+                 None,
+                 lambda: self.assert_(self.__endCalled),
+                 lambda: self.assert_(avg.getNumRunningAnims() == 0),
+
                 ))
         self.nodes = []
 
