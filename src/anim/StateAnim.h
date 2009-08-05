@@ -26,13 +26,14 @@
 
 #include "Anim.h"
 
+#include "../base/IPreRenderListener.h"
+
 #include <vector>
 
 namespace avg {
 
 struct AVG_API AnimState {
-    AnimState(const std::string& sName, AnimPtr pAnim, const std::string& sNextName,
-            const boost::python::object& enterCallback=boost::python::object());
+    AnimState(const std::string& sName, AnimPtr pAnim, const std::string& sNextName = "");
     AnimState();
 
     std::string m_sName;
@@ -40,19 +41,23 @@ struct AVG_API AnimState {
     std::string m_sNextName;
 };
 
-class AVG_API StateAnim: public Anim, IFrameListener {
+class AVG_API StateAnim: public Anim, IPreRenderListener {
 public:
     StateAnim(const std::vector<AnimState>& states);
     virtual ~StateAnim();
-    
-    void setState(const std::string& sName, bool bKeepAttr=false);
+   
+    virtual void abort();
+
+    virtual void setState(const std::string& sName, bool bKeepAttr=false);
     const std::string& getState() const;
 
     void setDebug(bool bDebug);
     
-    virtual void onFrameEnd();
+    virtual void onPreRender();
 
 private:
+    void switchToNewState(const std::string& sName, bool bKeepAttr);
+
     std::map<std::string, AnimState> m_States;
     bool m_bDebug;
     std::string m_sCurStateName;

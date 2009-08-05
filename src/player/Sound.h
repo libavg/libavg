@@ -26,14 +26,14 @@
 
 #include "AreaNode.h"
 
-#include "../base/IFrameListener.h"
+#include "../base/IFrameEndListener.h"
 #include "../audio/IAudioSource.h"
 
 namespace avg {
 
 class IVideoDecoder;
 
-class AVG_API Sound : public AreaNode, IFrameListener, IAudioSource
+class AVG_API Sound : public AreaNode, IFrameEndListener, IAudioSource
 {
     public:
         static NodeDefinition createDefinition();

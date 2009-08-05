@@ -21,6 +21,7 @@
 
 #include "StateAnim.h"
 
+#include "../base/Exception.h"
 #include "../player/Player.h"
 
 using namespace boost::python;
@@ -28,8 +29,7 @@ using namespace std;
 
 namespace avg {
 
-AnimState::AnimState(const string& sName, AnimPtr pAnim, const string& sNextName,
-            const object& enterCallback)
+AnimState::AnimState(const string& sName, AnimPtr pAnim, const string& sNextName)
     : m_sName(sName),
       m_pAnim(pAnim),
       m_sNextName(sNextName)
@@ -54,9 +54,21 @@ StateAnim::~StateAnim()
 {
     setState("");
 }
+    
+void StateAnim::abort()
+{
+    assert(false);
+}
 
 void StateAnim::setState(const std::string& sName, bool bKeepAttr)
 {
+    if (m_sCurStateName == sName) {
+        return;
+    }
+    if (!m_sCurStateName.empty()) {
+        m_States[m_sCurStateName].m_pAnim->abort();
+    }
+    switchToNewState(sName, bKeepAttr);
 }
 
 const std::string& StateAnim::getState() const
@@ -66,11 +78,38 @@ const std::string& StateAnim::getState() const
 
 void StateAnim::setDebug(bool bDebug)
 {
+    m_bDebug = bDebug;
 }
     
 
-void StateAnim::onFrameEnd()
+void StateAnim::onPreRender()
 {
+    const AnimState& curState = m_States[m_sCurStateName];
+    if (!curState.m_pAnim->isRunning()) {
+        switchToNewState(curState.m_sNextName, false);
+
+    }
+}
+
+void StateAnim::switchToNewState(const string& sName, bool bKeepAttr)
+{
+    if (m_bDebug) {
+        cerr << this << " State change: '" << m_sCurStateName << "' --> '" << sName 
+                << "'" << endl;
+    }
+    if (!m_sCurStateName.empty()) {
+        Player::get()->unregisterPreRenderListener(this);
+    }
+    if (!sName.empty()) {
+        Player::get()->registerPreRenderListener(this);
+        map<string, AnimState>::iterator it = m_States.find(sName);
+        if (it == m_States.end()) {
+            throw Exception(AVG_ERR_INVALID_ARGS, "StateAnim: State "+sName+" unknown.");
+        } else {
+            it->second.m_pAnim->start(bKeepAttr);
+        }
+    }
+    m_sCurStateName = sName;
 }
 
 }

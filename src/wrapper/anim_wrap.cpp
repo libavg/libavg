@@ -26,6 +26,7 @@
 #include "../anim/EaseInOutAnim.h"
 #include "../anim/WaitAnim.h"
 #include "../anim/ParallelAnim.h"
+#include "../anim/StateAnim.h"
 
 #include "../player/BoostPython.h"
 
@@ -37,10 +38,12 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(simple_start_overloads, SimpleAnim::start
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(wait_start_overloads, WaitAnim::start, 0, 1);
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(parallel_start_overloads, ParallelAnim::start, 
         0, 1);
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(setState_overloads, StateAnim::setState, 1, 2);
 
 void export_anim()
 {
     from_python_sequence<vector<AnimPtr>, variable_capacity_policy>();
+    from_python_sequence<vector<AnimState>, variable_capacity_policy>();
     
     def("getNumRunningAnims", SimpleAnim::getNumRunningAnims);
     
@@ -105,6 +108,7 @@ void export_anim()
         ;
     
     class_<WaitAnim, bases<Anim>, boost::noncopyable>("WaitAnim", no_init)
+        .def(init<>())
         .def(init<long long>())
         .def(init<long long, const object&>())
         .def(init<long long, const object&, const object&>())
@@ -118,5 +122,17 @@ void export_anim()
         .def(init<vector<AnimPtr>, const object&, const object&, long long>())
         .def("start", &ParallelAnim::start, parallel_start_overloads(args("bKeepAttr")))
         ;
-       
+      
+    class_<AnimState, boost::noncopyable>("AnimState", no_init)
+        .def(init<const string&, AnimPtr>())
+        .def(init<const string&, AnimPtr, const string& >())
+        ;
+
+    class_<StateAnim, bases<Anim>, boost::noncopyable>("StateAnim", no_init)
+        .def(init<vector<AnimState> >())
+        .def("setState", &StateAnim::setState, setState_overloads(args("bKeepAttr")))
+        .def("getState", make_function(&StateAnim::getState,
+                return_value_policy<copy_const_reference>()), "")
+        .def("setDebug", &StateAnim::setDebug, "")
+        ;
 }

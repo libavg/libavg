@@ -76,7 +76,7 @@ void SimpleAnim::start(bool bKeepAttr)
     } else {
         m_StartTime = Player::get()->getFrameTime();
     }
-    Player::get()->registerFrameListener(this);
+    Player::get()->registerPreRenderListener(this);
     if (m_Duration == 0) {
         setValue(m_EndValue);
         remove();
@@ -92,7 +92,7 @@ void SimpleAnim::abort()
     }
 }
 
-void SimpleAnim::onFrameEnd()
+void SimpleAnim::onPreRender()
 {
     step();
 }
@@ -183,7 +183,7 @@ double SimpleAnim::calcStartTime()
 void SimpleAnim::remove() 
 {
     s_ActiveAnimations.erase(ObjAttrID(m_Node, m_sAttrName));
-    Player::get()->unregisterFrameListener(this);
+    Player::get()->unregisterPreRenderListener(this);
     setStopped();
 }
 

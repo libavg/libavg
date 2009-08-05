@@ -27,7 +27,7 @@
 #include "../player/WrapPython.h" 
 
 #include "Anim.h"
-#include "../base/IFrameListener.h"
+#include "../base/IPreRenderListener.h"
 #include "../player/Node.h"
 
 #include <boost/python.hpp>
@@ -48,7 +48,7 @@ struct ObjAttrID {
     bool operator < (const ObjAttrID& other) const;
 };
 
-class AVG_API SimpleAnim: public Anim, IFrameListener {
+class AVG_API SimpleAnim: public Anim, IPreRenderListener {
 public:
     static int getNumRunningAnims();
 
@@ -64,7 +64,7 @@ public:
     virtual void start(bool bKeepAttr=false);
     virtual void abort();
 
-    virtual void onFrameEnd();
+    virtual void onPreRender();
 
 protected:
     double getStartTime() const;

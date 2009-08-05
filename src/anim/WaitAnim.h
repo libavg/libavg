@@ -28,9 +28,9 @@
 
 namespace avg {
 
-class AVG_API WaitAnim: public Anim, IFrameListener {
+class AVG_API WaitAnim: public Anim, IPreRenderListener {
 public:
-    WaitAnim(long long duration,
+    WaitAnim(long long duration = -1,
             const boost::python::object& startCallback=boost::python::object(), 
             const boost::python::object& stopCallback=boost::python::object());
     virtual ~WaitAnim();
@@ -38,7 +38,7 @@ public:
     virtual void start(bool bKeepAttr=false);
     virtual void abort();
     
-    virtual void onFrameEnd();
+    virtual void onPreRender();
 
 private:
     long long m_Duration;

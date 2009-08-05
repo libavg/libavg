@@ -19,45 +19,17 @@
 //  Current versions can be found at www.libavg.de
 //
 
-#include "WaitAnim.h"
-
-#include "../player/Player.h"
-
-using namespace boost::python;
-using namespace std;
+#ifndef _IPreRenderListener_H_ 
+#define _IPreRenderListener_H_
 
 namespace avg {
-
-WaitAnim::WaitAnim(long long duration,
-            const object& startCallback, const object& stopCallback)
-    : Anim(startCallback, stopCallback),
-      m_Duration(duration)
-{
-}
-
-WaitAnim::~WaitAnim()
-{
-}
-
-void WaitAnim::start(bool bKeepAttr)
-{
-    Anim::start();
-    m_StartTime = Player::get()->getFrameTime();
-    Player::get()->registerPreRenderListener(this);
-}
-
-void WaitAnim::abort()
-{
-    Player::get()->unregisterPreRenderListener(this);
-    setStopped();
-}
     
-void WaitAnim::onPreRender()
-{
-    if (m_Duration != -1 && Player::get()->getFrameTime()-m_StartTime > m_Duration) {
-        Player::get()->unregisterPreRenderListener(this);
-        setStopped();
-    }
-}
+class AVG_API IPreRenderListener {
+public:
+    virtual ~IPreRenderListener() {};
+    virtual void onPreRender() = 0;
+};
 
 }
+
+#endif

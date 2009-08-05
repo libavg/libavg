@@ -35,7 +35,8 @@
 #include "CursorState.h"
 #include "MouseState.h"
 
-#include "../base/IFrameListener.h"
+#include "../base/IFrameEndListener.h"
+#include "../base/IPreRenderListener.h"
 
 #include "../audio/AudioParams.h"
 
@@ -121,8 +122,10 @@ class AVG_API Player : IEventSink
         double getVolume() const;
         long long getGPUMemoryUsage();
 
-        void registerFrameListener(IFrameListener* pListener);
-        void unregisterFrameListener(IFrameListener* pListener);
+        void registerFrameEndListener(IFrameEndListener* pListener);
+        void unregisterFrameEndListener(IFrameEndListener* pListener);
+        void registerPreRenderListener(IPreRenderListener* pListener);
+        void unregisterPreRenderListener(IPreRenderListener* pListener);
         std::string getCurDirName();
         std::string getRootMediaDir();
         const NodeDefinition& getNodeDef(const std::string& sType);
@@ -202,7 +205,8 @@ class AVG_API Player : IEventSink
 
         double m_Volume;
 
-        std::vector<IFrameListener*> m_Listeners;
+        std::vector<IFrameEndListener*> m_FrameEndListeners;
+        std::vector<IPreRenderListener*> m_PreRenderListeners;
         bool m_bDirtyDTD;
         xmlDtdPtr m_dtd;
 

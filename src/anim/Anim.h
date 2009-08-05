@@ -26,7 +26,6 @@
 // Python docs say python.h should be included before any standard headers (!)
 #include "../player/WrapPython.h" 
 
-#include "../base/IFrameListener.h"
 #include "../player/Node.h"
 
 #include <boost/python.hpp>

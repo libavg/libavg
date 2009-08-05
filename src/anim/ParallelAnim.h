@@ -25,12 +25,13 @@
 #include "../api.h"
 
 #include "Anim.h"
+#include "../base/IPreRenderListener.h"
 
 #include <vector>
 
 namespace avg {
 
-class AVG_API ParallelAnim: public Anim, IFrameListener {
+class AVG_API ParallelAnim: public Anim, IPreRenderListener {
 public:
     ParallelAnim(const std::vector<AnimPtr>& anims,
             const boost::python::object& startCallback=boost::python::object(), 
@@ -41,7 +42,7 @@ public:
     virtual void start(bool bKeepAttr=false);
     virtual void abort();
     
-    virtual void onFrameEnd();
+    virtual void onPreRender();
 
 private:
     std::vector<AnimPtr> m_Anims;

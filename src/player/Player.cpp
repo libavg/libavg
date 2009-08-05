@@ -640,17 +640,33 @@ AVGNodePtr Player::getRootNode()
     return m_pRootNode;
 }
 
-void Player::registerFrameListener(IFrameListener* pListener)
+void Player::registerFrameEndListener(IFrameEndListener* pListener)
 {
-    m_Listeners.push_back(pListener);
+    m_FrameEndListeners.push_back(pListener);
 }
 
-void Player::unregisterFrameListener(IFrameListener* pListener)
+void Player::unregisterFrameEndListener(IFrameEndListener* pListener)
 {
-    std::vector<IFrameListener*>::iterator it;
-    for (it=m_Listeners.begin(); it != m_Listeners.end(); ++it) {
+    std::vector<IFrameEndListener*>::iterator it;
+    for (it=m_FrameEndListeners.begin(); it != m_FrameEndListeners.end(); ++it) {
         if (*it == pListener) {
-            m_Listeners.erase(it);
+            m_FrameEndListeners.erase(it);
+            break;
+        }
+    }
+}
+
+void Player::registerPreRenderListener(IPreRenderListener* pListener)
+{
+    m_PreRenderListeners.push_back(pListener);
+}
+
+void Player::unregisterPreRenderListener(IPreRenderListener* pListener)
+{
+    std::vector<IPreRenderListener*>::iterator it;
+    for (it=m_PreRenderListeners.begin(); it != m_PreRenderListeners.end(); ++it) {
+        if (*it == pListener) {
+            m_PreRenderListeners.erase(it);
             break;
         }
     }
@@ -685,8 +701,9 @@ void Player::disablePython()
 static ProfilingZone MainProfilingZone("Player - Total frame time");
 static ProfilingZone TimersProfilingZone("Player - handleTimers");
 static ProfilingZone EventsProfilingZone("Player - dispatch events");
+static ProfilingZone PreRenderProfilingZone("Player - PreRender");
 static ProfilingZone RenderProfilingZone("Player - render");
-static ProfilingZone ListenerProfilingZone("Player - listeners");
+static ProfilingZone FrameEndProfilingZone("Player - onFrameEnd");
 
 void Player::doFrame()
 {
@@ -709,6 +726,12 @@ void Player::doFrame()
             m_pEventDispatcher->dispatch();
             sendFakeEvents();
         }
+        {
+            ScopeTimer Timer(PreRenderProfilingZone);
+            for (unsigned int i=0; i<m_PreRenderListeners.size(); ++i) {
+                m_PreRenderListeners[i]->onPreRender();
+            }
+        }
         if (!m_bStopping) {
             ScopeTimer Timer(RenderProfilingZone);
             if (m_bPythonAvailable) {
@@ -720,9 +743,9 @@ void Player::doFrame()
             }
         }
         {
-            ScopeTimer Timer(ListenerProfilingZone);
-            for (unsigned int i=0; i<m_Listeners.size(); ++i) {
-                m_Listeners[i]->onFrameEnd();
+            ScopeTimer Timer(FrameEndProfilingZone);
+            for (unsigned int i=0; i<m_FrameEndListeners.size(); ++i) {
+                m_FrameEndListeners[i]->onFrameEnd();
             }
         }
     }

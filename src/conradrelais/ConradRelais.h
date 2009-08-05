@@ -23,7 +23,7 @@
 #define _ConradRelais_H_
 
 #include "../api.h"
-#include "../base/IFrameListener.h"
+#include "../base/IFrameEndListener.h"
 
 #include "../player/Player.h"
 
@@ -33,7 +33,7 @@ namespace avg {
  * Interface to one or more conrad relais card connected to a serial 
  * port. Per card, up to eight 220V devices can be turned on or off.
  */
-class AVG_API ConradRelais: public IFrameListener
+class AVG_API ConradRelais: public IFrameEndListener
 {
     public:
         ConradRelais (Player * pPlayer, int port);

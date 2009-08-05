@@ -44,7 +44,7 @@ void ParallelAnim::start(bool bKeepAttr)
 {
     Anim::start();
     m_StartTime = Player::get()->getFrameTime();
-    Player::get()->registerFrameListener(this);
+    Player::get()->registerPreRenderListener(this);
 
     vector<AnimPtr>::iterator it;
     for (it=m_Anims.begin(); it != m_Anims.end(); ++it) {
@@ -55,7 +55,7 @@ void ParallelAnim::start(bool bKeepAttr)
 void ParallelAnim::abort()
 {
     if (isRunning()) {
-        Player::get()->unregisterFrameListener(this);
+        Player::get()->unregisterPreRenderListener(this);
         vector<AnimPtr>::iterator it;
         for (it=m_Anims.begin(); it != m_Anims.end(); ++it) {
             (*it)->abort();
@@ -64,7 +64,7 @@ void ParallelAnim::abort()
     }
 }
     
-void ParallelAnim::onFrameEnd()
+void ParallelAnim::onPreRender()
 {
     assert(isRunning());
     bool bAllDone = true;
@@ -75,7 +75,7 @@ void ParallelAnim::onFrameEnd()
         }
     }
     if (bAllDone) {
-        Player::get()->unregisterFrameListener(this);
+        Player::get()->unregisterPreRenderListener(this);
         setStopped();
     } else {
         if (m_MaxAge != -1 && Player::get()->getFrameTime()-m_StartTime >= m_MaxAge) {
